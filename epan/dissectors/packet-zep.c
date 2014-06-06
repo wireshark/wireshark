@@ -240,7 +240,7 @@ static void dissect_zep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /*  Call the IEEE 802.15.4 dissector */
     if (!((zep_data.version>=2) && (zep_data.type==ZEP_V2_TYPE_ACK))) {
-        next_tvb = tvb_new_subset(tvb, zep_header_len, ieee_packet_len, ieee_packet_len);
+        next_tvb = tvb_new_subset_length(tvb, zep_header_len, ieee_packet_len);
         call_dissector(next_dissector, next_tvb, pinfo, tree);
     }
 } /* dissect_ieee802_15_4 */

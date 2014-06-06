@@ -479,7 +479,7 @@ dissect_ccid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             next_tvb = tvb_new_subset_remaining(tvb, 10);
 
             if (sub_selected == SUB_PN532) {
-                next_tvb= tvb_new_subset(tvb, 10, tvb_get_guint8(tvb, 1), tvb_get_guint8(tvb, 1));
+                next_tvb= tvb_new_subset_length(tvb, 10, tvb_get_guint8(tvb, 1));
                 call_dissector_with_data(sub_handles[SUB_PN532], next_tvb, pinfo, tree, usb_conv_info);
             } else if (sub_selected == SUB_ACR122_PN532) {
                 pinfo->p2p_dir = P2P_DIR_RECV;

@@ -2989,8 +2989,8 @@ mbim_dissect_sms_pdu_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             }
             if (pdu_data_size > (guint32)(sc_address_size + 1)) {
                 pdu_data_size -= sc_address_size + 1;
-                sms_tvb = tvb_new_subset(tvb, base_offset + pdu_data_offset + 1 + sc_address_size,
-                                         pdu_data_size, pdu_data_size);
+                sms_tvb = tvb_new_subset_length(tvb, base_offset + pdu_data_offset + 1 + sc_address_size,
+                                         pdu_data_size);
                 pinfo->p2p_dir = (message_status < 2) ? P2P_DIR_SENT : P2P_DIR_RECV;
                 call_dissector(gsm_sms_handle, sms_tvb, pinfo, subtree);
             }
@@ -2999,7 +2999,7 @@ mbim_dissect_sms_pdu_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                      pdu_data_size, ENC_NA);
             subtree = proto_item_add_subtree(ti, ett_mbim_buffer);
             if ((mbim_conv->cellular_class & MBIM_CELLULAR_CLASS_CDMA) && cdma_sms_handle) {
-                sms_tvb = tvb_new_subset(tvb, base_offset + pdu_data_offset, pdu_data_size, pdu_data_size);
+                sms_tvb = tvb_new_subset_length(tvb, base_offset + pdu_data_offset, pdu_data_size);
                 call_dissector(cdma_sms_handle, sms_tvb, pinfo, subtree);
             }
         }
@@ -3188,8 +3188,8 @@ mbim_dissect_sms_send_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
                                      sc_address_size, NULL, 0);
             }
             if (pdu_data_size > (guint32)(sc_address_size + 1)) {
-                sms_tvb = tvb_new_subset(tvb, base_offset + pdu_data_offset + 1 + sc_address_size,
-                                         pdu_data_size, pdu_data_size);
+                sms_tvb = tvb_new_subset_length(tvb, base_offset + pdu_data_offset + 1 + sc_address_size,
+                                         pdu_data_size);
                 pinfo->p2p_dir = P2P_DIR_RECV;
                 call_dissector(gsm_sms_handle, sms_tvb, pinfo, subtree);
             }
@@ -3198,7 +3198,7 @@ mbim_dissect_sms_send_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
                                      pdu_data_size, ENC_NA);
             subtree = proto_item_add_subtree(ti, ett_mbim_buffer);
             if ((mbim_conv->cellular_class & MBIM_CELLULAR_CLASS_CDMA) && cdma_sms_handle) {
-                sms_tvb = tvb_new_subset(tvb, base_offset + pdu_data_offset, pdu_data_size, pdu_data_size);
+                sms_tvb = tvb_new_subset_length(tvb, base_offset + pdu_data_offset, pdu_data_size);
                 call_dissector(cdma_sms_handle, sms_tvb, pinfo, subtree);
             }
         }
@@ -3294,7 +3294,7 @@ mbim_dissect_set_ussd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint 
         ti = proto_tree_add_item(tree, hf_mbim_set_ussd_ussd_payload, tvb, base_offset + ussd_payload_offset,
                                  ussd_payload_length, ENC_NA);
         subtree = proto_item_add_subtree(ti, ett_mbim_buffer);
-        ussd_tvb = tvb_new_subset(tvb, base_offset + ussd_payload_offset, ussd_payload_length, ussd_payload_length);
+        ussd_tvb = tvb_new_subset_length(tvb, base_offset + ussd_payload_offset, ussd_payload_length);
         switch (encoding) {
             case SMS_ENCODING_7BIT:
             case SMS_ENCODING_7BIT_LANG:
@@ -3346,7 +3346,7 @@ mbim_dissect_ussd_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint
         ti = proto_tree_add_item(tree, hf_mbim_ussd_info_ussd_payload, tvb, base_offset + ussd_payload_offset,
                                  ussd_payload_length, ENC_NA);
         subtree = proto_item_add_subtree(ti, ett_mbim_buffer);
-        ussd_tvb = tvb_new_subset(tvb, base_offset + ussd_payload_offset, ussd_payload_length, ussd_payload_length);
+        ussd_tvb = tvb_new_subset_length(tvb, base_offset + ussd_payload_offset, ussd_payload_length);
         switch (encoding) {
             case SMS_ENCODING_7BIT:
             case SMS_ENCODING_7BIT_LANG:
@@ -3608,7 +3608,7 @@ mbim_dissect_set_stk_terminal_response(tvbuff_t *tvb, packet_info *pinfo, proto_
     ti = proto_tree_add_item(tree, hf_mbim_set_stk_terminal_response_data_buffer, tvb, offset, response_length, ENC_NA);
     if (etsi_cat_handle) {
         subtree = proto_item_add_subtree(ti, ett_mbim_buffer);
-        pac_tvb = tvb_new_subset(tvb, offset, response_length, response_length);
+        pac_tvb = tvb_new_subset_length(tvb, offset, response_length);
         call_dissector(etsi_cat_handle, pac_tvb, pinfo, subtree);
     }
 }
@@ -4206,7 +4206,7 @@ dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                                                              frag_tvb, offset, info_buff_len, ENC_NA);
                                     if (bertlv_handle) {
                                         env_tree = proto_item_add_subtree(ti, ett_mbim_buffer);
-                                        env_tvb = tvb_new_subset(frag_tvb, offset, info_buff_len, info_buff_len);
+                                        env_tvb = tvb_new_subset_length(frag_tvb, offset, info_buff_len);
                                         call_dissector(bertlv_handle, env_tvb, pinfo, env_tree);
                                     }
                                 } else if (info_buff_len) {
@@ -4666,7 +4666,7 @@ dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                                     ti = proto_tree_add_item(subtree, hf_mbim_stk_pac_pac, frag_tvb, offset, pac_length, ENC_NA);
                                     if (bertlv_handle) {
                                         pac_tree = proto_item_add_subtree(ti, ett_mbim_buffer);
-                                        pac_tvb = tvb_new_subset(frag_tvb, offset, pac_length, pac_length);
+                                        pac_tvb = tvb_new_subset_length(frag_tvb, offset, pac_length);
                                         call_dissector(bertlv_handle, pac_tvb, pinfo, pac_tree);
                                     }
                                 }

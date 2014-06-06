@@ -339,7 +339,7 @@ call_pres_dissector(tvbuff_t *tvb, int offset, guint16 param_len,
 		/* Yes - call presentation dissector */
 		tvbuff_t *next_tvb;
 
-		next_tvb = tvb_new_subset(tvb, offset, param_len, param_len);
+		next_tvb = tvb_new_subset_length(tvb, offset, param_len);
 		/* Pass the session pdu to the presentation dissector  */
 		call_dissector_with_data(pres_handle, next_tvb, pinfo, tree, session);
 	}

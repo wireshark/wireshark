@@ -1815,10 +1815,10 @@ dissect_telnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       data_len = iac_offset - offset;
       if (data_len > 0) {
         if (is_tn3270) {
-          next_tvb = tvb_new_subset(tvb, offset, data_len, data_len);
+          next_tvb = tvb_new_subset_length(tvb, offset, data_len);
           call_dissector(tn3270_handle, next_tvb, pinfo, telnet_tree);
         } else if (is_tn5250) {
-          next_tvb = tvb_new_subset(tvb, offset, data_len, data_len);
+          next_tvb = tvb_new_subset_length(tvb, offset, data_len);
           call_dissector(tn5250_handle, next_tvb, pinfo, telnet_tree);
         } else
           telnet_add_text(telnet_tree, tvb, offset, data_len);

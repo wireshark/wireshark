@@ -1131,7 +1131,7 @@ dissect_bertlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			break;
 		}
 
-		subtvb = tvb_new_subset(tvb, pos, len, len);
+		subtvb = tvb_new_subset_length(tvb, pos, len);
 		switch (tag) {
 		case 0xD0:	/* proactive command */
 		case 0xD1:	/* sms-pp download */
@@ -1302,12 +1302,12 @@ dissect_gsm_apdu(guint8 ins, guint8 p1, guint8 p2, guint8 p3, tvbuff_t *tvb,
 	case 0x12: /* FETCH */
 		proto_tree_add_item(tree, hf_le, tvb, offset+P3_OFFS, 1, ENC_BIG_ENDIAN);
 		if (isSIMtrace) {
-			subtvb = tvb_new_subset(tvb, offset+DATA_OFFS, p3, p3);
+			subtvb = tvb_new_subset_length(tvb, offset+DATA_OFFS, p3);
 			dissect_bertlv(subtvb, pinfo, tree);
 		}
 		break;
 	case 0x14: /* TERMINAL RESPONSE */
-		subtvb = tvb_new_subset(tvb, offset+DATA_OFFS, p3, p3);
+		subtvb = tvb_new_subset_length(tvb, offset+DATA_OFFS, p3);
 		call_dissector_with_data(sub_handle_cap, subtvb, pinfo, tree, GUINT_TO_POINTER(0x14));
 		break;
 	case 0x70: /* MANAGE CHANNEL */
@@ -1336,7 +1336,7 @@ dissect_gsm_apdu(guint8 ins, guint8 p1, guint8 p2, guint8 p3, tvbuff_t *tvb,
 		break;
 	case 0xC2: /* ENVELOPE */
 		proto_tree_add_item(tree, hf_le, tvb, offset+P3_OFFS, 1, ENC_BIG_ENDIAN);
-		subtvb = tvb_new_subset(tvb, offset+DATA_OFFS, p3, p3);
+		subtvb = tvb_new_subset_length(tvb, offset+DATA_OFFS, p3);
 		dissect_bertlv(subtvb, pinfo, tree);
 		break;
 	/* FIXME: Missing SLEEP */

@@ -592,7 +592,7 @@ dissect_info_string_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto
   info_string_length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH;
   /* If we have a SUA Info String sub dissector call it */
   if(sua_info_str_handle) {
-    next_tvb = tvb_new_subset(parameter_tvb, INFO_STRING_OFFSET, info_string_length, info_string_length);
+    next_tvb = tvb_new_subset_length(parameter_tvb, INFO_STRING_OFFSET, info_string_length);
     call_dissector(sua_info_str_handle, next_tvb, pinfo, parameter_tree);
     return;
   }
@@ -1159,7 +1159,7 @@ dissect_data_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, prot
 
   if(data_tvb)
   {
-    *data_tvb = tvb_new_subset(parameter_tvb, PARAMETER_VALUE_OFFSET, data_length, data_length);
+    *data_tvb = tvb_new_subset_length(parameter_tvb, PARAMETER_VALUE_OFFSET, data_length);
   }
 }
 
@@ -2136,7 +2136,7 @@ dissect_parameters(tvbuff_t *parameters_tvb, packet_info *pinfo, proto_tree *tre
     if (remaining_length >= length)
       total_length = MIN(total_length, remaining_length);
     /* create a tvb for the parameter including the padding bytes */
-    parameter_tvb  = tvb_new_subset(parameters_tvb, offset, total_length, total_length);
+    parameter_tvb  = tvb_new_subset_length(parameters_tvb, offset, total_length);
     switch(version) {
       case SUA_V08:
         dissect_v8_parameter(parameter_tvb, pinfo, tree, data_tvb, source_ssn, dest_ssn);
@@ -2183,7 +2183,7 @@ dissect_sua_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *sua_t
   sua_source_gt = NULL;
   sua_destination_gt = NULL;
 
-  common_header_tvb = tvb_new_subset(message_tvb, COMMON_HEADER_OFFSET, COMMON_HEADER_LENGTH, COMMON_HEADER_LENGTH);
+  common_header_tvb = tvb_new_subset_length(message_tvb, COMMON_HEADER_OFFSET, COMMON_HEADER_LENGTH);
   dissect_common_header(common_header_tvb, pinfo, sua_tree);
 
   parameters_tvb = tvb_new_subset_remaining(message_tvb, COMMON_HEADER_LENGTH);

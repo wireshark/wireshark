@@ -3339,7 +3339,7 @@ de_gmm_rat_info_container(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, g
 
 /* The value part of the Inter RAT information container information element is the INTER RAT HANDOVER INFO as
 defined in 3GPP TS 25.331 [23c]. If this field includes padding bits, they are defined in 3GPP TS 25.331 [23c].*/
-	rrc_irat_ho_info_tvb = tvb_new_subset(tvb, curr_offset, len, len);
+	rrc_irat_ho_info_tvb = tvb_new_subset_length(tvb, curr_offset, len);
 	if (rrc_irat_ho_info_handle)
 		call_dissector(rrc_irat_ho_info_handle, rrc_irat_ho_info_tvb, pinfo, tree);
 	else
@@ -3394,7 +3394,7 @@ de_gmm_eutran_irat_info_container(tvbuff_t *tvb, proto_tree *tree, packet_info *
 
 /* The value part of the E-UTRAN inter RAT information container information element
    is formatted and coded according to the UE-EUTRA-Capability IE defined in 3GPP TS 36.331 [129]*/
-	lte_rrc_ue_eutra_cap_tvb = tvb_new_subset(tvb, curr_offset, len, len);
+	lte_rrc_ue_eutra_cap_tvb = tvb_new_subset_length(tvb, curr_offset, len);
 	if (lte_rrc_ue_eutra_cap_handle)
 		call_dissector(lte_rrc_ue_eutra_cap_handle, lte_rrc_ue_eutra_cap_tvb, pinfo, tree);
 	else
@@ -4086,12 +4086,12 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
 					} else {
 						dissector_handle_t handle;
 						handle = dissector_get_uint_handle (gprs_sm_pco_subdissector_table, prot);
+						l3_tvb = tvb_new_subset_length(tvb, curr_offset, e_len);
 						if (handle != NULL)
 						{
 							/*
 							 * dissect the embedded message
 							*/
-							l3_tvb = tvb_new_subset(tvb, curr_offset, e_len, e_len);
 							/* In this case we do not want the columns updated */
 							col_set_writable(pinfo->cinfo, FALSE);
 							call_dissector(handle, l3_tvb, pinfo, pco_tree);
@@ -4102,7 +4102,6 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
 							/*
 							* dissect the embedded DATA message
 							*/
-							l3_tvb = tvb_new_subset(tvb, curr_offset, e_len, e_len);
 							call_dissector(data_handle, l3_tvb, pinfo, pco_tree);
 						}
 					}

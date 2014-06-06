@@ -831,14 +831,13 @@ dissect_iwarp_mpa(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 		/* removes Markers if any and prepares new tvbuff for next dissector */
 		if (endpoint <= MPA_RESPONDER && state->minfo[endpoint].valid
 				&& number_of_markers(state, tcpinfo, endpoint) > 0) {
-			next_tvb = tvb_new_subset(remove_markers(tvb, pinfo,
+			next_tvb = tvb_new_subset_length(remove_markers(tvb, pinfo,
 					get_first_marker_offset(state, tcpinfo, endpoint),
 					number_of_markers(state, tcpinfo, endpoint),
 					fpdu_total_length(tcpinfo)), MPA_ULPDU_LENGTH_LEN,
-					ulpdu_length, ulpdu_length);
-		} else {
-			next_tvb = tvb_new_subset(tvb, MPA_ULPDU_LENGTH_LEN, ulpdu_length,
 					ulpdu_length);
+		} else {
+			next_tvb = tvb_new_subset_length(tvb, MPA_ULPDU_LENGTH_LEN, ulpdu_length);
 		}
 
 

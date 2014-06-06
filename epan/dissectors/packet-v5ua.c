@@ -643,7 +643,7 @@ dissect_layer3_message(tvbuff_t *layer3_data_tvb, proto_tree *v5ua_tree,proto_it
       tvbuff_t *protocol_data_tvb;
 
       protocol_data_length = tvb_get_ntohs(layer3_data_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH;
-      protocol_data_tvb    = tvb_new_subset(layer3_data_tvb, PARAMETER_VALUE_OFFSET, protocol_data_length, protocol_data_length);
+      protocol_data_tvb    = tvb_new_subset_length(layer3_data_tvb, PARAMETER_VALUE_OFFSET, protocol_data_length);
 
       call_dissector(v52_handle, protocol_data_tvb, pinfo, v5ua_tree);
 
@@ -655,7 +655,7 @@ dissect_layer3_message(tvbuff_t *layer3_data_tvb, proto_tree *v5ua_tree,proto_it
       tvbuff_t *protocol_data_tvb;
 
       protocol_data_length = tvb_get_ntohs(layer3_data_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH;
-      protocol_data_tvb    = tvb_new_subset(layer3_data_tvb, PARAMETER_VALUE_OFFSET, protocol_data_length, protocol_data_length);
+      protocol_data_tvb    = tvb_new_subset_length(layer3_data_tvb, PARAMETER_VALUE_OFFSET, protocol_data_length);
       call_dissector(q931_handle, protocol_data_tvb, pinfo, v5ua_tree);
 
       proto_item_append_text(parameter_item, " (%u byte%s)", protocol_data_length, plurality(protocol_data_length, "", "s"));
@@ -947,7 +947,7 @@ dissect_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *v5ua_
                   length_2 = msg_length - offset;
                   if(length_2 > 0){
                      if(tvb_get_guint8(parameter_tvb, offset) == 0x48){
-                        layer3_data_tvb = tvb_new_subset(parameter_tvb, offset, length_2, length_2);
+                        layer3_data_tvb = tvb_new_subset_length(parameter_tvb, offset, length_2);
                         dissect_layer3_message(layer3_data_tvb, v5ua_tree, parameter_item, pinfo);
                      }
                   }
@@ -1046,7 +1046,7 @@ dissect_parameters(tvbuff_t *parameters_tvb, packet_info *pinfo, proto_tree *tre
       if (remaining_length >= length)
          total_length = MIN(total_length, remaining_length);
       /* create a tvb for the parameter including the padding bytes */
-      parameter_tvb  = tvb_new_subset(parameters_tvb, offset, total_length, total_length);
+      parameter_tvb  = tvb_new_subset_length(parameters_tvb, offset, total_length);
       dissect_parameter(parameter_tvb, pinfo, v5ua_tree);
       /* get rid of the handled parameter */
       offset += total_length;
@@ -1351,7 +1351,7 @@ dissect_v5ua_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_
 {
    tvbuff_t *common_header_tvb, *parameters_tvb;
 
-   common_header_tvb = tvb_new_subset(tvb, COMMON_HEADER_OFFSET, COMMON_HEADER_LENGTH, COMMON_HEADER_LENGTH);
+   common_header_tvb = tvb_new_subset_length(tvb, COMMON_HEADER_OFFSET, COMMON_HEADER_LENGTH);
    dissect_common_header(common_header_tvb, pinfo, v5ua_tree);
 
    parameters_tvb    = tvb_new_subset_remaining(tvb, COMMON_HEADER_LENGTH);

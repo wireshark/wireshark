@@ -768,7 +768,7 @@ dissect_payload_kemac(mikey_t *mikey, tvbuff_t *tvb, packet_info *pinfo, proto_t
 			key_data_item = proto_tree_add_item(tree, hf_mikey_pl[PL_KEY_DATA], tvb, 4, encr_length, ENC_NA);
 			key_data_tree = proto_item_add_subtree(key_data_item, ett_mikey_enc_data);
 
-			sub_tvb = tvb_new_subset(tvb, offset+4, encr_length, encr_length);
+			sub_tvb = tvb_new_subset_length(tvb, offset+4, encr_length);
 			dissect_payload(PL_KEY_DATA, mikey, sub_tvb, pinfo, key_data_tree);
 		} else {
 			/* If Key Data is encrypted, show only the encr_data */
@@ -1000,7 +1000,7 @@ dissect_payload_cert(mikey_t *mikey _U_, tvbuff_t *tvb, packet_info *pinfo, prot
 		proto_item_append_text(parent, " Type: %s", val_to_str_const(type, cert_type_vals, "Unknown"));
 	}
 
-	subtvb = tvb_new_subset(tvb, offset+4, length, length);
+	subtvb = tvb_new_subset_length(tvb, offset+4, length);
 	dissect_x509af_Certificate(FALSE, subtvb, 0, &asn1_ctx, tree, hf_mikey[POS_CERTIFICATE]);
 
 	return 4 + length;
@@ -1118,7 +1118,7 @@ dissect_payload_sp(mikey_t *mikey _U_, tvbuff_t *tvb, packet_info *pinfo _U_, pr
 		int	  param_len;
 		tvbuff_t *subtvb;
 
-		subtvb = tvb_new_subset(tvb, offset+sub_pos, length-sub_pos, length-sub_pos);
+		subtvb = tvb_new_subset_length(tvb, offset+sub_pos, length-sub_pos);
 		param_len = dissect_payload_sp_param(type, subtvb, tree);
 
 		if (param_len < 0)

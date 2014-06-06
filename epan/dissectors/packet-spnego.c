@@ -1280,8 +1280,8 @@ dissect_spnego_krb5_wrap_base(tvbuff_t *tvb, int offset, packet_info *pinfo
 				*/
 				return offset;
 			}
-			pinfo->gssapi_encrypted_tvb = tvb_new_subset(
-					tvb, offset, len, len);
+			pinfo->gssapi_encrypted_tvb = tvb_new_subset_length(
+					tvb, offset, len);
 		}
 
 		/* if this is KRB5 wrapped rc4-hmac */
@@ -1292,9 +1292,8 @@ dissect_spnego_krb5_wrap_base(tvbuff_t *tvb, int offset, packet_info *pinfo
 			   as well ?
 			*/
 			if(!pinfo->gssapi_wrap_tvb){
-				pinfo->gssapi_wrap_tvb = tvb_new_subset(
+				pinfo->gssapi_wrap_tvb = tvb_new_subset_length(
 					tvb, start_offset-2,
-					GSS_ARCFOUR_WRAP_TOKEN_SIZE,
 					GSS_ARCFOUR_WRAP_TOKEN_SIZE);
 			}
 #if defined(HAVE_HEIMDAL_KERBEROS) || defined(HAVE_MIT_KERBEROS)
@@ -1497,8 +1496,8 @@ dissect_spnego_krb5_cfx_wrap_base(tvbuff_t *tvb, int offset, packet_info *pinfo
 		inner_token_len = tvb_reported_length_remaining(tvb, offset) -
 					ec;
 
-		pinfo->gssapi_wrap_tvb = tvb_new_subset(tvb, offset,
-						inner_token_len, inner_token_len);
+		pinfo->gssapi_wrap_tvb = tvb_new_subset_length(tvb, offset,
+						inner_token_len);
 
 		offset += inner_token_len;
 
@@ -1535,9 +1534,8 @@ dissect_spnego_krb5_cfx_wrap_base(tvbuff_t *tvb, int offset, packet_info *pinfo
 			   as well ?
 			*/
 			if(!pinfo->gssapi_wrap_tvb){
-				pinfo->gssapi_wrap_tvb = tvb_new_subset(
+				pinfo->gssapi_wrap_tvb = tvb_new_subset_length(
 					tvb, start_offset-2,
-					offset - (start_offset-2),
 					offset - (start_offset-2));
 			}
 		}
@@ -1545,7 +1543,7 @@ dissect_spnego_krb5_cfx_wrap_base(tvbuff_t *tvb, int offset, packet_info *pinfo
 
 #if defined(HAVE_HEIMDAL_KERBEROS) || defined(HAVE_MIT_KERBEROS)
 {
-	tvbuff_t *checksum_tvb = tvb_new_subset(tvb, 16, checksum_size, checksum_size);
+	tvbuff_t *checksum_tvb = tvb_new_subset_length(tvb, 16, checksum_size);
 
 	if (pinfo->gssapi_data_encrypted) {
 		if(pinfo->gssapi_encrypted_tvb){
@@ -1954,7 +1952,7 @@ void proto_register_spnego(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-spnego-hfarr.c ---*/
-#line 1409 "../../asn1/spnego/packet-spnego-template.c"
+#line 1407 "../../asn1/spnego/packet-spnego-template.c"
 	};
 
 	/* List of subtrees */
@@ -1977,7 +1975,7 @@ void proto_register_spnego(void) {
     &ett_spnego_InitialContextToken_U,
 
 /*--- End of included file: packet-spnego-ettarr.c ---*/
-#line 1419 "../../asn1/spnego/packet-spnego-template.c"
+#line 1417 "../../asn1/spnego/packet-spnego-template.c"
 	};
 
 	/* Register protocol */

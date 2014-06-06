@@ -3295,7 +3295,7 @@ dissect_lldp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		tempShort = tvb_get_ntohs(tvb, offset);
 		tempType = TLV_TYPE(tempShort);
 		/* pass only TLV to dissectors, Zero offset (point to front of tlv) */
-		new_tvb = tvb_new_subset(tvb, offset, TLV_INFO_LEN(tempShort)+2, TLV_INFO_LEN(tempShort)+2);
+		new_tvb = tvb_new_subset_length(tvb, offset, TLV_INFO_LEN(tempShort)+2);
 		switch (tempType)
 		{
 		case CHASSIS_ID_TLV_TYPE:

@@ -913,7 +913,7 @@ de_bssgp_llc_pdu(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 of
     curr_offset = offset;
 
     if(len > 0){
-        next_tvb = tvb_new_subset(tvb, curr_offset, len, len);
+        next_tvb = tvb_new_subset_length(tvb, curr_offset, len);
         proto_tree_add_text(tree, tvb, curr_offset, len, "LLC Data");
     }
 
@@ -2316,7 +2316,7 @@ de_bssgp_mbms_session_dur(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, g
     curr_offset = offset;
 
     /* AVP Code: 904 MBMS-Session-Duration Registered by packet-gtp.c */
-    new_tvb =tvb_new_subset(tvb, offset, len, len);
+    new_tvb =tvb_new_subset_length(tvb, offset, len);
     dissector_try_uint(diameter_3gpp_avp_dissector_table, 904, new_tvb, pinfo, tree);
 
     return(curr_offset-offset);
@@ -2337,7 +2337,7 @@ de_bssgp_mbms_sai_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guin
     curr_offset = offset;
 
     /* AVP Code: 903 MBMS-Service-Area Registered by packet-gtp.c */
-    new_tvb =tvb_new_subset(tvb, offset, len, len);
+    new_tvb =tvb_new_subset_length(tvb, offset, len);
     dissector_try_uint(diameter_3gpp_avp_dissector_table, 903, new_tvb, pinfo, tree);
 
     return(curr_offset-offset);
@@ -3196,7 +3196,7 @@ de_bssgp_son_transfer_app_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo
      * as defined in 3GPP TS 36.413
      */
     if(len > 0){
-        next_tvb = tvb_new_subset(tvb, offset, len, len);
+        next_tvb = tvb_new_subset_length(tvb, offset, len);
         dissect_s1ap_SONtransferApplicationIdentity_PDU(next_tvb, pinfo, tree, NULL);
     }
 

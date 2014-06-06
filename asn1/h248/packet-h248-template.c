@@ -1203,7 +1203,7 @@ static int dissect_h248_PropertyID(gboolean implicit_tag _U_, tvbuff_t *tvb, int
         return end_offset;
     }
 
-    next_tvb = tvb_new_subset(tvb,offset,len,len);
+    next_tvb = tvb_new_subset_length(tvb,offset,len);
 
     name_minor = packageandid & 0xffff;
 
@@ -1285,7 +1285,7 @@ static int dissect_h248_SigParamValue(gboolean implicit_tag _U_, tvbuff_t *tvb, 
         return end_offset;
     }
 
-    next_tvb = tvb_new_subset(tvb,offset,len,len);
+    next_tvb = tvb_new_subset_length(tvb,offset,len);
 
     if ( curr_info.par && curr_info.par->dissector) {
         curr_info.par->dissector(tree, next_tvb, actx->pinfo, *(curr_info.par->hfid), &curr_info, curr_info.par->data);
@@ -1363,7 +1363,7 @@ static int dissect_h248_EventParamValue(gboolean implicit_tag _U_, tvbuff_t *tvb
         return end_offset;
     }
 
-    next_tvb = tvb_new_subset(tvb,offset,len,len);
+    next_tvb = tvb_new_subset_length(tvb,offset,len);
 
     if ( curr_info.par && curr_info.par->dissector) {
         curr_info.par->dissector(tree, next_tvb, actx->pinfo, *(curr_info.par->hfid), &curr_info, curr_info.par->data);

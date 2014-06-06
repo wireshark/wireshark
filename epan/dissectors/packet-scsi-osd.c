@@ -460,7 +460,7 @@ dissect_osd_attribute_list_entry(packet_info *pinfo, tvbuff_t *tvb,
                 proto_tree_add_expert_format(tree, pinfo, &ei_osd_attr_length_invalid,
                                              tvb, 0, attribute_length, "%s", apn->name);
             } else {
-                tvbuff_t *next_tvb = tvb_new_subset(tvb, offset, attribute_length, attribute_length);
+                tvbuff_t *next_tvb = tvb_new_subset_length(tvb, offset, attribute_length);
                 apn->dissector(next_tvb, pinfo, tree, lun_info, apn);
             }
         }

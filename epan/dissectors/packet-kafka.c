@@ -236,7 +236,7 @@ kafka_get_bytes(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int off
         return NULL;
     }
     else {
-        return tvb_new_subset(tvb, offset, len, len);
+        return tvb_new_subset_length(tvb, offset, len);
     }
 }
 

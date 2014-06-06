@@ -658,27 +658,24 @@ dissect_mtp3_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static guint
 heur_mtp3_standard(tvbuff_t *tvb, packet_info *pinfo, guint8 si)
 {
-
-    guint32 len;
     tvbuff_t *payload;
 
-    len = tvb_length(tvb);
     switch (si) {
     case MTP_SI_SCCP:
 	{
-	    payload = tvb_new_subset(tvb, ITU_HEADER_LENGTH, len-ITU_HEADER_LENGTH, len-ITU_HEADER_LENGTH);
+	    payload = tvb_new_subset_remaining(tvb, ITU_HEADER_LENGTH);
 	    if (looks_like_valid_sccp(PINFO_FD_NUM(pinfo), payload, ITU_STANDARD)) {
 		return ITU_STANDARD;
 	    }
-	    payload = tvb_new_subset(tvb, ANSI_HEADER_LENGTH, len-ANSI_HEADER_LENGTH, len-ANSI_HEADER_LENGTH);
+	    payload = tvb_new_subset_remaining(tvb, ANSI_HEADER_LENGTH);
 	    if (looks_like_valid_sccp(PINFO_FD_NUM(pinfo), payload, ANSI_STANDARD)) {
 		return ANSI_STANDARD;
 	    }
-	    payload = tvb_new_subset(tvb, ANSI_HEADER_LENGTH, len-ANSI_HEADER_LENGTH, len-ANSI_HEADER_LENGTH);
+	    payload = tvb_new_subset_remaining(tvb, ANSI_HEADER_LENGTH);
 	    if (looks_like_valid_sccp(PINFO_FD_NUM(pinfo), payload, CHINESE_ITU_STANDARD)) {
 		return CHINESE_ITU_STANDARD;
 	    }
-	    payload = tvb_new_subset(tvb, JAPAN_HEADER_LENGTH, len-JAPAN_HEADER_LENGTH, len-JAPAN_HEADER_LENGTH);
+	    payload = tvb_new_subset_remaining(tvb, JAPAN_HEADER_LENGTH);
 	    if (looks_like_valid_sccp(PINFO_FD_NUM(pinfo), payload, JAPAN_STANDARD)) {
 		return JAPAN_STANDARD;
 	    }

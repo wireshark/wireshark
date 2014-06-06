@@ -1836,7 +1836,7 @@ dissect_openflow_packet_in_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
 
         /* dissect data */
         col_set_writable(pinfo->cinfo, FALSE);
-        next_tvb = tvb_new_subset(tvb, offset, length - offset, length - offset);
+        next_tvb = tvb_new_subset_length(tvb, offset, length - offset);
         call_dissector(eth_withoutfcs_handle, next_tvb, pinfo, data_tree);
 
         /* restore saved state */
@@ -2427,7 +2427,7 @@ dissect_openflow_packet_out_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 
         /* dissect data */
         col_set_writable(pinfo->cinfo, FALSE);
-        next_tvb = tvb_new_subset(tvb, offset, length - offset, length - offset);
+        next_tvb = tvb_new_subset_length(tvb, offset, length - offset);
         call_dissector(eth_withoutfcs_handle, next_tvb, pinfo, data_tree);
 
         /* restore saved state */

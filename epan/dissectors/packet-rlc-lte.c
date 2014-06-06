@@ -782,7 +782,7 @@ static void show_PDU_in_tree(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
 
             /* Get tvb for passing to LTE PDCP dissector */
             if (reassembly_info == NULL) {
-                pdcp_tvb = tvb_new_subset(tvb, offset, length, length);
+                pdcp_tvb = tvb_new_subset_length(tvb, offset, length);
             }
             else {
                 /* Get combined tvb. */
@@ -849,7 +849,7 @@ static void show_PDU_in_tree(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
 
             /* Get tvb for passing to LTE RRC dissector */
             if (reassembly_info == NULL) {
-                rrc_tvb = tvb_new_subset(tvb, offset, length, length);
+                rrc_tvb = tvb_new_subset_length(tvb, offset, length);
             }
             else {
                 /* Get combined tvb. */
@@ -875,7 +875,7 @@ static void show_PDU_in_tree(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
 
             /* Get tvb for passing to IP dissector */
             if (reassembly_info == NULL) {
-                ip_tvb = tvb_new_subset(tvb, offset, length, length);
+                ip_tvb = tvb_new_subset_length(tvb, offset, length);
             }
             else {
                 /* Get combined tvb. */

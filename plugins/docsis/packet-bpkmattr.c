@@ -190,7 +190,7 @@ dissect_attrs (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
                                  "5 CM Identification");
           cmid_tree =
             proto_item_add_subtree (cmid_it, ett_docsis_bpkmattr_cmid);
-          cmid_tvb = tvb_new_subset (tvb, pos, length, length);
+          cmid_tvb = tvb_new_subset_length (tvb, pos, length);
           dissect_attrs (cmid_tvb, pinfo, cmid_tree);
           break;
         case BPKM_DISPLAY_STR:
@@ -244,7 +244,7 @@ dissect_attrs (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
             proto_tree_add_text (tree, tvb, pos, length, "13 TEK Parameters");
           tekp_tree =
             proto_item_add_subtree (tekp_it, ett_docsis_bpkmattr_tekp);
-          tekp_tvb = tvb_new_subset (tvb, pos, length, length);
+          tekp_tvb = tvb_new_subset_length (tvb, pos, length);
           dissect_attrs (tekp_tvb, pinfo, tekp_tree);
           break;
         case BPKM_OBSOLETED:
@@ -277,7 +277,7 @@ dissect_attrs (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
                                  "19 Security Capabilities");
           scap_tree =
             proto_item_add_subtree (scap_it, ett_docsis_bpkmattr_scap);
-          scap_tvb = tvb_new_subset (tvb, pos, length, length);
+          scap_tvb = tvb_new_subset_length (tvb, pos, length);
           dissect_attrs (scap_tvb, pinfo, scap_tree);
           break;
         case BPKM_CRYPTO_SUITE:
@@ -303,7 +303,7 @@ dissect_attrs (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
             proto_tree_add_text (tree, tvb, pos, length, "23 SA Descriptor");
           sadsc_tree =
             proto_item_add_subtree (sadsc_it, ett_docsis_bpkmattr_sadsc);
-          sadsc_tvb = tvb_new_subset (tvb, pos, length, length);
+          sadsc_tvb = tvb_new_subset_length (tvb, pos, length);
           dissect_attrs (sadsc_tvb, pinfo, sadsc_tree);
           break;
         case BPKM_SA_TYPE:
@@ -318,7 +318,7 @@ dissect_attrs (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
             proto_tree_add_text (tree, tvb, pos, length, "25 SA Query");
           saqry_tree =
             proto_item_add_subtree (saqry_it, ett_docsis_bpkmattr_saqry);
-          saqry_tvb = tvb_new_subset (tvb, pos, length, length);
+          saqry_tvb = tvb_new_subset_length (tvb, pos, length);
           dissect_attrs (saqry_tvb, pinfo, saqry_tree);
           break;
         case BPKM_SA_QUERY_TYPE:
@@ -345,7 +345,7 @@ dissect_attrs (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
                                  "28 Download Parameters");
           dnld_tree =
             proto_item_add_subtree (dnld_it, ett_docsis_bpkmattr_dnld);
-          dnld_tvb = tvb_new_subset (tvb, pos, length, length);
+          dnld_tvb = tvb_new_subset_length (tvb, pos, length);
           dissect_attrs (dnld_tvb, pinfo, dnld_tree);
           break;
         default:

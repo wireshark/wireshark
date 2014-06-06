@@ -618,7 +618,7 @@ dissect_diameter_avp(diam_ctx_t *c, tvbuff_t *tvb, int offset, diam_sub_dis_t *d
 		diam_sub_dis_inf->vendor_id = tvb_get_ntohl(tvb,offset);
 	}
 
-	subtvb = tvb_new_subset(tvb,offset,len-(8+(vendor_flag?4:0)),len-(8+(vendor_flag?4:0)));
+	subtvb = tvb_new_subset_length(tvb,offset,len-(8+(vendor_flag?4:0)));
 	offset += len-(8+(vendor_flag?4:0));
 
 	save_tree = c->tree;

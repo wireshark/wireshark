@@ -1683,7 +1683,7 @@ add_5xO(proto_tree *tree, tvbuff_t *tvb)
         proto_tree *subtree;
 
         ti = proto_tree_add_item(tree, hf_ucp_parm_XSer, tvb, offset, len, ENC_NA);
-        tmptvb = tvb_new_subset(tvb, offset, len + 1, len + 1);
+        tmptvb = tvb_new_subset_length(tvb, offset, len + 1);
         subtree = proto_item_add_subtree(ti, ett_XSer);
         ucp_handle_XSer(subtree, tmptvb);
     }

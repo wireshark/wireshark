@@ -130,7 +130,7 @@ dissect_etv_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int prot
 	}
 	offset += 1;
 
-	sub_tvb = tvb_new_subset(tvb, offset, sect_len-7, sect_len-7);
+	sub_tvb = tvb_new_subset_length(tvb, offset, sect_len-7);
 	call_dissector(dsmcc_handle, sub_tvb, pinfo, tree);
 
 	sect_len += 3 - 4; /* add header, remove crc */

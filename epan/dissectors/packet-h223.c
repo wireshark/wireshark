@@ -689,7 +689,7 @@ dissect_mux_al_pdu( tvbuff_t *tvb, packet_info *pinfo, proto_tree *vc_tree,
                 data_start++;
             }
 
-            next_tvb = tvb_new_subset( tvb, data_start, len-1-data_start, len-1-data_start );
+            next_tvb = tvb_new_subset_length( tvb, data_start, len-1-data_start);
             al_subitem = proto_tree_add_item(al_tree, hf_h223_al_payload, next_tvb, 0, -1, ENC_NA);
 
             calc_checksum = h223_al2_crc8bit(tvb);
@@ -885,7 +885,7 @@ dissect_mux_payload_by_me_list( tvbuff_t *tvb, packet_info *pinfo,
                 frag_len = me->repeat_count;
             if(frag_len > 0) {
                 tvbuff_t *next_tvb;
-                next_tvb = tvb_new_subset(tvb, offset, frag_len, frag_len);
+                next_tvb = tvb_new_subset_length(tvb, offset, frag_len);
                 dissect_mux_sdu_fragment( next_tvb, pinfo, pkt_offset + offset, pdu_tree,
                                           call_info, me->vc, (offset+frag_len==len) && endOfMuxSdu);
                 offset += frag_len;
@@ -1072,7 +1072,7 @@ dissect_mux_pdu( tvbuff_t *tvb, packet_info *pinfo, guint32 pkt_offset,
        dissected as data. */
     len -= mpl;
     if( len > 0 ) {
-        tvbuff_t *next_tvb = tvb_new_subset(tvb, offset, len, len);
+        tvbuff_t *next_tvb = tvb_new_subset_length(tvb, offset, len);
         proto_tree *vc_tree = NULL;
 
         if( pdu_tree ) {
@@ -1253,8 +1253,7 @@ dissect_mux_pdu_fragment( tvbuff_t *tvb, guint32 start_offset,
     }
 
     /* create a tvb for the fragment */
-    next_tvb = tvb_new_subset(tvb, start_offset, offset-start_offset,
-                              offset-start_offset);
+    next_tvb = tvb_new_subset_length(tvb, start_offset, offset-start_offset);
 
     /*
      * Dissect the PDU.

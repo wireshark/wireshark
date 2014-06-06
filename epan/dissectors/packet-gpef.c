@@ -100,7 +100,7 @@ dissect_gpef_efskey(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *p
 	dissect_nt_sid(tvb, old_offset+4+sid_offset, tree, "sid", NULL, -1);
 
 	/* certificate */
-	next_tvb = tvb_new_subset(tvb, old_offset+4+cert_offset, cert_length, cert_length);
+	next_tvb = tvb_new_subset_length(tvb, old_offset+4+cert_offset, cert_length);
 	(void)dissect_x509af_Certificate(FALSE, next_tvb, 0, &asn1_ctx, tree, hf_gpef_efskey_certificate);
 
 

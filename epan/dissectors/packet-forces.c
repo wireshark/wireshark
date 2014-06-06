@@ -470,7 +470,7 @@ dissect_redirecttlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint of
         {
             tvbuff_t  *next_tvb;
 
-            next_tvb = tvb_new_subset(tvb, offset+4, length_redirect-TLV_TL_LENGTH, length_redirect-TLV_TL_LENGTH);
+            next_tvb = tvb_new_subset_length(tvb, offset+4, length_redirect-TLV_TL_LENGTH);
             call_dissector(ip_handle, next_tvb, pinfo, redirect_data_tree);
 
             /* Restore IP info */

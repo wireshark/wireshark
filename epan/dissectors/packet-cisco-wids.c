@@ -103,7 +103,7 @@ dissect_cwids(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_item(cwids_tree, hf_cwids_unknown3, tvb, offset, 8, ENC_NA);
 		offset += 8;
 
-		wlan_tvb = tvb_new_subset(tvb, offset, capturelen, capturelen);
+		wlan_tvb = tvb_new_subset_length(tvb, offset, capturelen);
 		/* Continue after ieee80211 dissection errors */
 		pd_save = pinfo->private_data;
 		TRY {
@@ -118,12 +118,12 @@ dissect_cwids(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			pinfo->private_data = pd_save;
 
 #if 0
-	wlan_tvb = tvb_new_subset(tvb, offset, capturelen, capturelen);
+	wlan_tvb = tvb_new_subset_length(tvb, offset, capturelen);
 			/* FIXME: Why does this throw an exception? */
 			proto_tree_add_text(cwids_tree, wlan_tvb, offset, capturelen,
 				"[Malformed or short IEEE80211 subpacket]");
 #else
-			tvb_new_subset(tvb, offset, capturelen, capturelen);
+			tvb_new_subset_length(tvb, offset, capturelen);
 #endif
 	;
 		} ENDTRY;

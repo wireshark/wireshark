@@ -383,7 +383,7 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 col_append_str(pinfo->cinfo, COL_INFO, ", ");
             }
             /* Skip the length field for the WTP sub-tvb */
-            wtp_tvb = tvb_new_subset(tvb, offCur + c_fieldlen, c_pdulen, c_pdulen);
+            wtp_tvb = tvb_new_subset_length(tvb, offCur + c_fieldlen, c_pdulen);
             dissect_wtp_common(wtp_tvb, pinfo, wtp_tree);
             offCur += c_fieldlen + c_pdulen;
             i++;
@@ -633,7 +633,7 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 tpiLen = 1 + (tByte & 0x03);
             if (tree)
             {
-                tmp_tvb = tvb_new_subset(tvb, offCur + cbHeader + vHeader, tpiLen, tpiLen);
+                tmp_tvb = tvb_new_subset_length(tvb, offCur + cbHeader + vHeader, tpiLen);
                 wtp_handle_tpi(wtp_tree, tmp_tvb);
             }
             vHeader += tpiLen;

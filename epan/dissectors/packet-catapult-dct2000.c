@@ -1090,7 +1090,7 @@ static void dissect_ccpri_lte(tvbuff_t *tvb, gint offset,
        set to call cpri C&M dissector instead of X.25) */
     protocol_handle = find_dissector("lapb");
     if ((protocol_handle != NULL) && (tvb_length_remaining(tvb, offset) > 0)) {
-        ccpri_tvb = tvb_new_subset(tvb, offset, length, length);
+        ccpri_tvb = tvb_new_subset_length(tvb, offset, length);
         call_dissector_only(protocol_handle, ccpri_tvb, pinfo, tree, NULL);
     }
 }

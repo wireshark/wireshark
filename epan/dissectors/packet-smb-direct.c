@@ -385,8 +385,8 @@ dissect_smb_direct(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 		}
 
 		if (data_length <= (guint32)len) {
-			next_tvb = tvb_new_subset(tvb, data_offset,
-						  data_length, data_length);
+			next_tvb = tvb_new_subset_length(tvb, data_offset,
+						  data_length);
 		}
 
 		if (next_tvb != NULL) {

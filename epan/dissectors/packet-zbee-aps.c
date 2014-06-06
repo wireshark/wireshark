@@ -1125,9 +1125,8 @@ static void dissect_zbee_aps_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     /* Check for any excess bytes. */
     if (offset < tvb_length(tvb)) {
         /* There are leftover bytes! */
-        guint       leftover_len    = tvb_length(tvb) - offset;
         proto_tree  *root;
-        tvbuff_t    *leftover_tvb   = tvb_new_subset(tvb, offset, leftover_len, leftover_len);
+        tvbuff_t    *leftover_tvb   = tvb_new_subset_remaining(tvb, offset);
 
         /* Get the APS Root. */
         root = proto_tree_get_root(tree);
@@ -1643,7 +1642,7 @@ static int dissect_zbee_apf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         /* Create a tvb for this transaction. */
         length = zbee_apf_transaction_len(tvb, offset, type);
-        app_tvb = tvb_new_subset(tvb, offset, length, length);
+        app_tvb = tvb_new_subset_length(tvb, offset, length);
 
         /* Call the application dissector. */
         call_dissector_with_data(app_dissector, app_tvb, pinfo, tree, data);

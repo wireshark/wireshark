@@ -430,7 +430,7 @@ dissect_flip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     col_add_fstr(pinfo->cinfo, COL_INFO,
                  "FlowID %s", val_to_str(basic_hdr_flow_id, NULL, "0x%08x"));
 
-    flip_tvb = tvb_new_subset(tvb, 0, frame_len, frame_len);
+    flip_tvb = tvb_new_subset_length(tvb, 0, frame_len);
 
     /* We are asked for details. */
     if (tree) {
@@ -539,8 +539,7 @@ dissect_flip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                 computed_chksum = g_htons(computed_chksum);
             }
 
-            chksum_tvb = tvb_new_subset(flip_tvb, offset,
-                                        FLIP_CHKSUM_HDR_LEN,
+            chksum_tvb = tvb_new_subset_length(flip_tvb, offset,
                                         FLIP_CHKSUM_HDR_LEN);
 
             /* Note that flip_tree is NULL if no details are requested. */
@@ -575,8 +574,8 @@ dissect_flip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 
         has_user_messed_up = FALSE;
 
-        payload_tvb = tvb_new_subset(flip_tvb, offset,
-                                     payload_len, payload_len);
+        payload_tvb = tvb_new_subset_length(flip_tvb, offset,
+                                     payload_len);
 
         /*
          * 1) no decoding -> data

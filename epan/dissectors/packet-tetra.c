@@ -9052,7 +9052,7 @@ static void dissect_tetra_UNITDATA_IND(tvbuff_t *tvb, packet_info *pinfo, proto_
 		if ((remaining_bits)!=0)
 			byte_len++;
 
-		payload_tvb = tvb_new_subset(tvb, pdu_offset, byte_len, byte_len);
+		payload_tvb = tvb_new_subset_length(tvb, pdu_offset, byte_len);
 		tetra_dissect_pdu(channel_type, TETRA_UPLINK, payload_tvb, tetra_header_tree, pinfo);
 
 		if ((remaining_bits)!=0)
@@ -9108,7 +9108,7 @@ static void dissect_tetra_UNITDATA_REQ(tvbuff_t *tvb, packet_info *pinfo, proto_
 		if ((remaining_bits)!=0)
 				byte_len++;
 
-		payload_tvb = tvb_new_subset(tvb, pdu_offset, byte_len, byte_len);
+		payload_tvb = tvb_new_subset_length(tvb, pdu_offset, byte_len);
 		tetra_dissect_pdu(channel_type, TETRA_DOWNLINK, payload_tvb, tetra_header_tree, pinfo);
 		pdu_offset += byte_len;
 	}

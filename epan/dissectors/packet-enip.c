@@ -1428,7 +1428,7 @@ dissect_tcpip_last_conflict(packet_info *pinfo, proto_tree *tree, proto_item *it
       save_info = col_get_writable(pinfo->cinfo);
       col_set_writable(pinfo->cinfo, FALSE);
 
-      next_tvb = tvb_new_subset(tvb, offset+7, 28, 28);
+      next_tvb = tvb_new_subset_length(tvb, offset+7, 28);
       call_dissector(arp_handle, next_tvb, pinfo, tree);
 
       col_set_writable(pinfo->cinfo, save_info);
@@ -1827,7 +1827,7 @@ dissect_cpf(enip_request_key_t *request_key, int command, tvbuff_t *tvb,
                }
 
                /* Call dissector for interface */
-               next_tvb = tvb_new_subset( tvb, offset+6, item_length, item_length );
+               next_tvb = tvb_new_subset_length( tvb, offset+6, item_length);
                p_add_proto_data(wmem_file_scope(), pinfo, proto_enip, ENIP_REQUEST_INFO, request_info);
                if ( tvb_length_remaining(next_tvb, 0) <= 0 || !dissector_try_uint(subdissector_srrd_table, ifacehndl, next_tvb, pinfo, dissector_tree) )
                {
@@ -1886,7 +1886,7 @@ dissect_cpf(enip_request_key_t *request_key, int command, tvbuff_t *tvb,
                   proto_tree_add_item( item_tree, hf_enip_cpf_cdi_seqcnt, tvb, offset+6, 2, ENC_LITTLE_ENDIAN );
 
                   /* Call dissector for interface */
-                  next_tvb = tvb_new_subset (tvb, offset+8, item_length-2, item_length-2);
+                  next_tvb = tvb_new_subset_length (tvb, offset+8, item_length-2);
                   p_add_proto_data(wmem_file_scope(), pinfo, proto_enip, ENIP_REQUEST_INFO, request_info);
                   if ( tvb_length_remaining(next_tvb, 0) <= 0 || !dissector_try_uint(subdissector_sud_table, ifacehndl, next_tvb, pinfo, dissector_tree) )
                   {
@@ -1901,7 +1901,7 @@ dissect_cpf(enip_request_key_t *request_key, int command, tvbuff_t *tvb,
                   /* Display data */
                   if (tvb_length_remaining(tvb, offset+6) > 0)
                   {
-                      next_tvb = tvb_new_subset(tvb, offset+6, item_length, item_length);
+                      next_tvb = tvb_new_subset_length(tvb, offset+6, item_length);
                       if (conn_info != NULL)
                       {
                          if (conn_info->safety.safety_seg == TRUE)

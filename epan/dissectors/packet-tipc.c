@@ -959,7 +959,7 @@ dissect_tipc_v2_internal_msg(tvbuff_t *tipc_tvb, proto_tree *tipc_tree, packet_i
 
 				proto_tree_add_text(top_tree, tipc_tvb, offset, msg_in_bundle_size, "Message %u of %u in Bundle (%s)",
 						msg_no, message_count, val_to_str_const(msg_in_bundle_user, tipcv2_user_short_str_vals, "unknown"));
-				data_tvb = tvb_new_subset(tipc_tvb, offset, msg_in_bundle_size, msg_in_bundle_size);
+				data_tvb = tvb_new_subset_length(tipc_tvb, offset, msg_in_bundle_size);
 
 				/* the info column shall not be deleted by the
 				 * encapsulated messages */
@@ -1990,7 +1990,7 @@ dissect_tipc_int_prot_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tipc_tr
 				msg_no++;
 				msg_in_bundle_size = tvb_get_ntohl(tvb, offset);
 				proto_tree_add_text(tipc_tree, tvb, offset, msg_in_bundle_size, "%u Message in Bundle", msg_no);
-				data_tvb = tvb_new_subset(tvb, offset, msg_in_bundle_size, msg_in_bundle_size);
+				data_tvb = tvb_new_subset_length(tvb, offset, msg_in_bundle_size);
 				col_set_fence(pinfo->cinfo, COL_INFO);
 				dissect_tipc(data_tvb, pinfo, tipc_tree, NULL);
 				offset = offset + msg_in_bundle_size;
@@ -2052,7 +2052,7 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 	if ((guint32)tvb_length_remaining(tvb, offset) < msg_size) {
 		tipc_tvb = tvb;
 	} else {
-		tipc_tvb = tvb_new_subset(tvb, offset, msg_size, msg_size);
+		tipc_tvb = tvb_new_subset_length(tvb, offset, msg_size);
 	}
 	/* user == 7 only works for v2, this will decode the legacy TIPC configuration protocol */
 	if (user == TIPCv2_LINK_PROTOCOL) version = TIPCv2;

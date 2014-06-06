@@ -480,7 +480,7 @@ dissect_bssap_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bssap_tre
 {
     tvbuff_t *parameter_tvb;
 
-    parameter_tvb = tvb_new_subset(tvb, offset, parameter_length, parameter_length);
+    parameter_tvb = tvb_new_subset_length(tvb, offset, parameter_length);
 
     switch (parameter_type)
     {
@@ -811,7 +811,7 @@ dissect_bssap_dlink_tunnel_payload_control_and_info(tvbuff_t *tvb, packet_info *
      */
     proto_tree_add_item(ie_tree, hf_bssap_tunnel_prio, tvb, offset, 1, ENC_BIG_ENDIAN);
     /* Tunnel payload */
-    next_tvb = tvb_new_subset(tvb, offset, ie_len-4, ie_len-4);
+    next_tvb = tvb_new_subset_length(tvb, offset, ie_len-4);
 
     if ((prot_disc == 2)&&(rrlp_handle))
         call_dissector(rrlp_handle, next_tvb, pinfo, ie_tree);
@@ -986,7 +986,7 @@ dissect_bssap_imei(tvbuff_t *tvb, proto_tree *tree, int offset)
     /* The IMEI is coded as a sequence of BCD digits, compressed two into each octet.
      * The IMEI consists of 15 digits (see 3GPP TS 23.003).
      */
-    ie_tvb = tvb_new_subset(tvb, offset, ie_len, ie_len);
+    ie_tvb = tvb_new_subset_length(tvb, offset, ie_len);
     digit_str = unpack_digits(ie_tvb, 0, &Dgt1_9_bcd, FALSE);
     proto_tree_add_string(ie_tree, hf_bssap_imei, ie_tvb, 0, -1, digit_str);
 
@@ -1014,7 +1014,7 @@ dissect_bssap_imesiv(tvbuff_t *tvb, proto_tree *tree, int offset)
     /*  The IMEISV is coded as a sequence of BCD digits, compressed two into each octet.
      *  The IMEISV consists of 16 digits (see 3GPP TS 23.003).
      */
-    ie_tvb = tvb_new_subset(tvb, offset, ie_len, ie_len);
+    ie_tvb = tvb_new_subset_length(tvb, offset, ie_len);
     digit_str = unpack_digits(ie_tvb, 0, &Dgt1_9_bcd, FALSE);
     proto_tree_add_string(ie_tree, hf_bssap_imeisv, ie_tvb, 0, -1, digit_str);
 
@@ -1045,7 +1045,7 @@ dissect_bssap_imsi(tvbuff_t *tvb, proto_tree *tree, int offset)
     offset++;
     proto_tree_add_item(ie_tree, hf_bssap_plus_ie_len, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
-    ie_tvb = tvb_new_subset(tvb, offset, ie_len, ie_len);
+    ie_tvb = tvb_new_subset_length(tvb, offset, ie_len);
     digit_str = unpack_digits(ie_tvb, 0, &Dgt1_9_bcd, TRUE);
     proto_tree_add_string(ie_tree, hf_bssap_imsi, ie_tvb, 0, -1, digit_str);
 
@@ -1423,7 +1423,7 @@ dissect_bssap_sgsn_number(tvbuff_t *tvb, proto_tree *tree, int offset)
     proto_tree_add_item(ie_tree, hf_bssap_type_of_number,    tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(ie_tree, hf_bssap_numbering_plan_id, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
-    number_tvb = tvb_new_subset(tvb, offset, ie_len-1, ie_len-1);
+    number_tvb = tvb_new_subset_length(tvb, offset, ie_len-1);
     digit_str = unpack_digits(number_tvb, 0, &Dgt1_9_bcd, FALSE);
     proto_tree_add_string(ie_tree, hf_bssap_sgsn_number, number_tvb, 0, -1, digit_str);
 
@@ -1535,7 +1535,7 @@ dissect_bssap_ulink_tunnel_payload_control_and_info(tvbuff_t *tvb, packet_info *
      */
     proto_tree_add_item(ie_tree, hf_bssap_tunnel_prio, tvb, offset, 1, ENC_BIG_ENDIAN);
     /* Tunnel payload */
-    next_tvb = tvb_new_subset(tvb, offset, ie_len - 4, ie_len - 4);
+    next_tvb = tvb_new_subset_length(tvb, offset, ie_len - 4);
 
     if ((prot_disc == 2)&&(rrlp_handle))
         call_dissector(rrlp_handle, next_tvb, pinfo, ie_tree);
@@ -1575,7 +1575,7 @@ dissect_bssap_vlr_number(tvbuff_t *tvb, proto_tree *tree, int offset)
     proto_tree_add_item(ie_tree, hf_bssap_type_of_number,    tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(ie_tree, hf_bssap_numbering_plan_id, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
-    number_tvb = tvb_new_subset(tvb, offset, ie_len - 1, ie_len - 1);
+    number_tvb = tvb_new_subset_length(tvb, offset, ie_len - 1);
     digit_str = unpack_digits(number_tvb, 0, &Dgt1_9_bcd, FALSE);
     proto_tree_add_string(ie_tree, hf_bssap_sgsn_number, number_tvb, 0, -1, digit_str);
 

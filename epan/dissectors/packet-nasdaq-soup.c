@@ -108,7 +108,7 @@ dissect_nasdaq_soup_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent
     case 'U': /* unsequenced data packed */
     case 'S': /* sequenced data packed */
         if (linelen > 1 && nasdaq_itch_handle) {
-            new_tvb = tvb_new_subset(tvb, offset,linelen -1,linelen -1);
+            new_tvb = tvb_new_subset_length(tvb, offset,linelen -1);
         } else {
             proto_tree_add_item(tree, hf_nasdaq_soup_message, tvb, offset, linelen -1, ENC_ASCII|ENC_NA);
         }

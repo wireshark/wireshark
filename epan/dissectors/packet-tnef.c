@@ -570,7 +570,7 @@ static void dissect_tnef(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    item = proto_tree_add_item(attr_tree, hf_tnef_mapi_props, tvb, offset, length, ENC_NA);
 	    props_tree = proto_item_add_subtree(item, ett_tnef_mapi_props);
 
-	    next_tvb = tvb_new_subset(tvb, offset, length, length);
+	    next_tvb = tvb_new_subset_length(tvb, offset, length);
 
 	    dissect_mapiprops(next_tvb, pinfo, props_tree);
 
@@ -592,7 +592,7 @@ static void dissect_tnef(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    item = proto_tree_add_item(attr_tree, hf_tnef_attribute_date, tvb, offset, length, ENC_NA);
 		    date_tree = proto_item_add_subtree(item, ett_tnef_attribute_date);
 
-		    next_tvb = tvb_new_subset(tvb, offset, length, length);
+		    next_tvb = tvb_new_subset_length(tvb, offset, length);
 
 		    dissect_DTR(next_tvb, pinfo, date_tree);
 

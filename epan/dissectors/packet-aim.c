@@ -1346,7 +1346,7 @@ dissect_aim_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, int offset,
 					  "Value");
 
 		if (tmp[i].dissector) {
-			tmp[i].dissector(ti1, valueid, tvb_new_subset(tvb, offset, length, length), pinfo);
+			tmp[i].dissector(ti1, valueid, tvb_new_subset_length(tvb, offset, length), pinfo);
 		}
 
 		offset += length;

@@ -408,7 +408,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             offset = dissect_bd_addr(hf_advertising_address, btle_tree, tvb, offset);
 
             if (tvb_length_remaining(tvb, offset) > 3) {
-                next_tvb = tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset) - 3, tvb_length_remaining(tvb, offset) - 3);
+                next_tvb = tvb_new_subset_length(tvb, offset, tvb_length_remaining(tvb, offset) - 3);
                 call_dissector(btcommon_ad_handle, next_tvb, pinfo, btle_tree);
             }
 
@@ -432,7 +432,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             sub_tree = proto_item_add_subtree(sub_item, ett_scan_response_data);
 
             if (tvb_length_remaining(tvb, offset) > 3) {
-                next_tvb = tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset) - 3, tvb_length_remaining(tvb, offset) - 3);
+                next_tvb = tvb_new_subset_length(tvb, offset, tvb_length_remaining(tvb, offset) - 3);
                 call_dissector(btcommon_ad_handle, next_tvb, pinfo, sub_tree);
             }
 
@@ -470,7 +470,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             sub_item = proto_tree_add_item(link_layer_data_tree, hf_link_layer_data_channel_map, tvb, offset, 5, ENC_NA);
             sub_tree = proto_item_add_subtree(sub_item, ett_channel_map);
 
-            call_dissector(btcommon_le_channel_map_handle, tvb_new_subset(tvb, offset, 5, 5), pinfo, sub_tree);
+            call_dissector(btcommon_le_channel_map_handle, tvb_new_subset_length(tvb, offset, 5), pinfo, sub_tree);
             offset += 5;
 
             proto_tree_add_item(link_layer_data_tree, hf_link_layer_data_hop, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -537,7 +537,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                     acl_data->remote_bd_addr_oui = 0;
                     acl_data->remote_bd_addr_id  = 0;
 
-                    next_tvb = tvb_new_subset(tvb, offset, length, length);
+                    next_tvb = tvb_new_subset_length(tvb, offset, length);
                     call_dissector_with_data(btl2cap_handle, next_tvb, pinfo, tree, acl_data);
                     offset += length;
                 }
@@ -588,7 +588,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 sub_item = proto_tree_add_item(btle_tree, hf_control_channel_map, tvb, offset, 5, ENC_NA);
                 sub_tree = proto_item_add_subtree(sub_item, ett_channel_map);
 
-                call_dissector(btcommon_le_channel_map_handle, tvb_new_subset(tvb, offset, 5, 5), pinfo, sub_tree);
+                call_dissector(btcommon_le_channel_map_handle, tvb_new_subset_length(tvb, offset, 5), pinfo, sub_tree);
                 offset += 5;
 
                 proto_tree_add_item(btle_tree, hf_control_instant, tvb, offset, 2, ENC_LITTLE_ENDIAN);

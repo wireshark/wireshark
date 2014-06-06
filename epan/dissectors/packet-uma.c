@@ -954,7 +954,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		 * The Location Estimate field is composed of 1 or more octets with an internal structure
 		 * according to section 7 in [23.032].
 		 */
-		new_tvb = tvb_new_subset(tvb, ie_offset,ie_len, ie_len );
+		new_tvb = tvb_new_subset_length(tvb, ie_offset, ie_len );
 		dissect_geographical_description(new_tvb, pinfo, urr_ie_tree);
 		break;
 	case 9:
@@ -1071,7 +1071,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		 */
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_L3_protocol_discriminator, tvb, ie_offset, 1, ENC_BIG_ENDIAN);
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_L3_Message, tvb, ie_offset, ie_len, ENC_NA);
-		l3_tvb = tvb_new_subset(tvb, ie_offset,ie_len, ie_len );
+		l3_tvb = tvb_new_subset_length(tvb, ie_offset, ie_len );
 		if  (!dissector_try_uint(bssap_pdu_type_table,BSSAP_PDU_TYPE_DTAP, l3_tvb, pinfo, urr_ie_tree))
 		   		call_dissector(data_handle, l3_tvb, pinfo, urr_ie_tree);
 		break;
@@ -1115,7 +1115,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_L3_protocol_discriminator, tvb, ie_offset, 1, ENC_BIG_ENDIAN);
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_L3_Message, tvb, ie_offset, ie_len, ENC_NA);
 		/* XXX the dissector to call should depend on the RAT type ??? */
-		l3_tvb = tvb_new_subset(tvb, ie_offset,ie_len, ie_len );
+		l3_tvb = tvb_new_subset_length(tvb, ie_offset, ie_len );
 		if  (!dissector_try_uint(bssap_pdu_type_table,BSSAP_PDU_TYPE_DTAP, l3_tvb, pinfo, urr_ie_tree))
 		   		call_dissector(data_handle, l3_tvb, pinfo, urr_ie_tree);
 		break;
@@ -1243,7 +1243,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		 * The rest of the IE is coded as in [TS 48.018], not including IEI and length, if present
 		 */
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_LLC_PDU, tvb, ie_offset, ie_len, ENC_NA);
-		llc_tvb = tvb_new_subset(tvb, ie_offset,ie_len, ie_len );
+		llc_tvb = tvb_new_subset_length(tvb, ie_offset, ie_len );
 		  if (llc_handle) {
 			col_append_str(pinfo->cinfo, COL_PROTOCOL, "/");
 			col_set_fence(pinfo->cinfo, COL_PROTOCOL);
@@ -1307,7 +1307,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		 * The rest of the IE is the INTER RAT HANDOVER INFO coded as in
 		 * [TS 25.331], not including IEI and length, if present
 		 */
-		new_tvb = tvb_new_subset(tvb, ie_offset,ie_len, ie_len );
+		new_tvb = tvb_new_subset_length(tvb, ie_offset, ie_len );
 		dissect_rrc_InterRATHandoverInfo_PDU(new_tvb, pinfo, urr_ie_tree, NULL);
 		break;
 	case 65:

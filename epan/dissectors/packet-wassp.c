@@ -778,7 +778,7 @@ dissect_snmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *wassp_tree,
 	/* Don't add SNMP stuff to the info column */
 	col_set_writable(pinfo->cinfo, FALSE);
 
-	snmp_tvb = tvb_new_subset(tvb, offset, length, length);
+	snmp_tvb = tvb_new_subset_length(tvb, offset, length);
 
 	/* Continue after SNMP dissection errors */
 	TRY {
@@ -803,7 +803,7 @@ dissect_ieee80211(tvbuff_t *tvb, packet_info *pinfo, proto_tree *wassp_tree,
 	/* Don't add IEEE 802.11 stuff to the info column */
 	col_set_writable(pinfo->cinfo, FALSE);
 
-	ieee80211_tvb = tvb_new_subset(tvb, offset, length, length);
+	ieee80211_tvb = tvb_new_subset_length(tvb, offset, length);
 
 	/* Continue after IEEE 802.11 dissection errors */
 	TRY {

@@ -480,7 +480,7 @@ dissect_mbtcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
     proto_tree_add_uint(mbtcp_tree, hf_mbtcp_unitid, tvb, offset + 6, 1, unit_id);
 
     /* dissect the Modbus PDU */
-    next_tvb = tvb_new_subset( tvb, offset+7, len-1, len-1);
+    next_tvb = tvb_new_subset_length( tvb, offset+7, len-1);
 
     /* keep existing context */
     p_save_proto_data = p_get_proto_data(wmem_file_scope(), pinfo, proto_modbus, 0 );
@@ -622,7 +622,7 @@ dissect_mbrtu_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
     len = len - 2;
 
     /* dissect the Modbus PDU                      */
-    next_tvb = tvb_new_subset( tvb, offset+1, len-1, len-1);
+    next_tvb = tvb_new_subset_length( tvb, offset+1, len-1);
 
     /* keep existing context */
     p_save_proto_data = p_get_proto_data(wmem_file_scope(), pinfo, proto_modbus, 0 );

@@ -1306,14 +1306,14 @@ dissect_rsl_ie_L3_inf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
     {
        /* L3 PDUs carried on CCCH have L2 PSEUDO LENGTH octet or are RR Short PD format */
        proto_tree_add_text(ie_tree, tvb,offset,length,"Link Layer Service Data Unit (L3 Message)(CCCH)");
-       next_tvb = tvb_new_subset(tvb, offset, length, length);
+       next_tvb = tvb_new_subset_length(tvb, offset, length);
        call_dissector(gsm_a_ccch_handle, next_tvb, pinfo, top_tree);
     }
     else if (type == L3_INF_SACCH)
     {
        /* L3 PDUs carried on SACCH are normal format or are RR Short PD format */
        proto_tree_add_text(ie_tree, tvb,offset,length,"Link Layer Service Data Unit (L3 Message)(SACCH)");
-       next_tvb = tvb_new_subset(tvb, offset, length, length);
+       next_tvb = tvb_new_subset_length(tvb, offset, length);
        call_dissector(gsm_a_sacch_handle, next_tvb, pinfo, top_tree);
     }
     else
@@ -1322,7 +1322,7 @@ dissect_rsl_ie_L3_inf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
         * as defined in 3GPP TS 24.008 or 3GPP TS 44.018)
         */
        proto_tree_add_text(ie_tree, tvb,offset,length,"Link Layer Service Data Unit (L3 Message)");
-       next_tvb = tvb_new_subset(tvb, offset, length, length);
+       next_tvb = tvb_new_subset_length(tvb, offset, length);
        call_dissector(gsm_a_dtap_handle, next_tvb, pinfo, top_tree);
     }
 
@@ -2118,7 +2118,7 @@ dissect_rsl_ie_full_imm_ass_inf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
      * as defined in 3GPP TS 44.018.
      */
     proto_tree_add_text(ie_tree, tvb,offset,length,"Full Immediate Assign Info field");
-    next_tvb = tvb_new_subset(tvb, offset, length, length);
+    next_tvb = tvb_new_subset_length(tvb, offset, length);
     call_dissector(gsm_a_ccch_handle, next_tvb, pinfo, top_tree);
 
     offset = offset + length;
@@ -2163,7 +2163,7 @@ dissect_rsl_ie_smscb_inf(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
     /*
      * SMSCB frame
      */
-    next_tvb = tvb_new_subset(tvb, offset, length, length);
+    next_tvb = tvb_new_subset_length(tvb, offset, length);
     call_dissector(gsm_cbch_handle, next_tvb, pinfo, top_tree);
 
     offset = offset + length;
@@ -2279,7 +2279,7 @@ dissect_rsl_ie_full_bcch_inf(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
      */
 
     proto_tree_add_text(ie_tree, tvb,offset,length,"Layer 3 message");
-    next_tvb = tvb_new_subset(tvb, offset, length, length);
+    next_tvb = tvb_new_subset_length(tvb, offset, length);
     call_dissector(gsm_a_ccch_handle, next_tvb, pinfo, top_tree);
 
     offset = offset + length;
@@ -2391,7 +2391,7 @@ dissect_rsl_ie_smscb_mess(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
      * SMSCB Message
      */
 
-    next_tvb = tvb_new_subset(tvb, offset, length, length);
+    next_tvb = tvb_new_subset_length(tvb, offset, length);
     call_dissector(gsm_cbs_handle, next_tvb, pinfo, top_tree);
 
     offset = ie_offset + length;

@@ -427,7 +427,7 @@ de_eps_cmn_add_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
     item     = proto_tree_add_item(tree, hf_nas_eps_cmn_add_info, tvb, offset, len, ENC_NA);
     sub_tree = proto_item_add_subtree(item, ett_nas_eps_cmn_add_info);
 
-    new_tvb = tvb_new_subset(tvb, offset, len, len);
+    new_tvb = tvb_new_subset_length(tvb, offset, len);
 
     switch (eps_nas_gen_msg_cont_type) {
         case 1:
@@ -1081,13 +1081,13 @@ de_emm_eps_mid(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
     switch (octet&0x7) {
         case 1:
             /* IMSI */
-            new_tvb = tvb_new_subset(tvb, curr_offset, len, len );
+            new_tvb = tvb_new_subset_length(tvb, curr_offset, len);
             digit_str = unpack_eps_mid_digits(new_tvb);
             proto_tree_add_string(tree, hf_nas_eps_emm_imsi, new_tvb, 0, -1, digit_str);
             break;
         case 3:
             /* IMEI */
-            new_tvb = tvb_new_subset(tvb, curr_offset, len, len );
+            new_tvb = tvb_new_subset_length(tvb, curr_offset, len);
             digit_str = unpack_eps_mid_digits(new_tvb);
             proto_tree_add_string(tree, hf_nas_eps_emm_imei, new_tvb, 0, -1, digit_str);
             break;
@@ -1219,7 +1219,7 @@ de_emm_esm_msg_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
     sub_tree = proto_item_add_subtree(item, ett_nas_eps_esm_msg_cont);
 
     /* This IE can contain any ESM PDU as defined in subclause 8.3. */
-    new_tvb = tvb_new_subset(tvb, curr_offset, len, len );
+    new_tvb = tvb_new_subset_length(tvb, curr_offset, len);
     /* Plain NAS message */
     disect_nas_eps_esm_msg(new_tvb, pinfo, sub_tree, 0/* offset */);
 
@@ -1409,7 +1409,7 @@ de_emm_nas_msg_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
     item = proto_tree_add_item(tree, hf_nas_eps_nas_msg_cont, tvb, curr_offset, len, ENC_NA);
     sub_tree = proto_item_add_subtree(item, ett_nas_eps_nas_msg_cont);
 
-    new_tvb = tvb_new_subset(tvb, curr_offset, len, len );
+    new_tvb = tvb_new_subset_length(tvb, curr_offset, len);
     if (gsm_a_dtap_handle)
         call_dissector(gsm_a_dtap_handle, new_tvb, pinfo, sub_tree);
 
@@ -2071,7 +2071,7 @@ de_emm_lcs_client_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
      * The coding of the value part of the LCS client identity is given
      * in subclause 17.7.13 of 3GPP TS 29.002 [15B](GSM MAP).
      */
-    new_tvb = tvb_new_subset(tvb, curr_offset, len, len );
+    new_tvb = tvb_new_subset_length(tvb, curr_offset, len);
     dissect_gsm_map_lcs_LCS_ClientID_PDU( new_tvb, pinfo, tree, NULL );
 
     return(len);
@@ -2119,7 +2119,7 @@ de_emm_gen_msg_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
     item = proto_tree_add_item(tree, hf_nas_eps_gen_msg_cont, tvb, offset, len, ENC_NA);
     sub_tree = proto_item_add_subtree(item, ett_nas_eps_gen_msg_cont);
 
-    new_tvb = tvb_new_subset(tvb, offset, len, len);
+    new_tvb = tvb_new_subset_length(tvb, offset, len);
 
     switch (eps_nas_gen_msg_cont_type) {
         case 1:

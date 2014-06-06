@@ -283,10 +283,10 @@ dissect_mtp2_msu(tvbuff_t *su_tvb, packet_info *pinfo, proto_item *mtp2_item, pr
 
   if (use_extended_sequence_numbers) {
     sif_sio_length = tvb_length(su_tvb) - EXTENDED_HEADER_LENGTH;
-    sif_sio_tvb = tvb_new_subset(su_tvb, EXTENDED_SIO_OFFSET, sif_sio_length, sif_sio_length);
+    sif_sio_tvb = tvb_new_subset_length(su_tvb, EXTENDED_SIO_OFFSET, sif_sio_length);
   } else {
     sif_sio_length = tvb_length(su_tvb) - HEADER_LENGTH;
-    sif_sio_tvb = tvb_new_subset(su_tvb, SIO_OFFSET, sif_sio_length, sif_sio_length);
+    sif_sio_tvb = tvb_new_subset_length(su_tvb, SIO_OFFSET, sif_sio_length);
   }
   call_dissector(mtp3_handle, sif_sio_tvb, pinfo, tree);
 

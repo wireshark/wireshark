@@ -766,7 +766,7 @@ dissect_drda(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
                         {
                             /* Extract SQL statement from packet */
                             tvbuff_t* next_tvb = NULL;
-                            next_tvb = tvb_new_subset(tvb, offset + 4, iLengthParam - 4, iLengthParam - 4);
+                            next_tvb = tvb_new_subset_length(tvb, offset + 4, iLengthParam - 4);
                             add_new_data_source(pinfo, next_tvb, "SQL statement");
                             proto_tree_add_item(drdaroot_tree, hf_drda_sqlstatement, next_tvb, 0, iLengthParam - 5, ENC_UTF_8|ENC_NA);
                             proto_tree_add_item(drdaroot_tree, hf_drda_sqlstatement_ebcdic, next_tvb, 0, iLengthParam - 4, ENC_EBCDIC|ENC_NA);

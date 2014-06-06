@@ -243,7 +243,7 @@ dissect_eiss_descriptors(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
 					offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
 
-		payload = tvb_new_subset(tvb, offset, tmp-4, tmp-4);
+		payload = tvb_new_subset_length(tvb, offset, tmp-4);
 		call_dissector(data_handle, payload, pinfo, sub_tree);
 
 		return (3+tmp);

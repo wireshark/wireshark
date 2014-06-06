@@ -218,11 +218,11 @@ static void _dissect_uasip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
                 {
                     if (direction == SYS_TO_TERM)
                     {
-                        call_dissector(ua_sys_to_term_handle, tvb_new_subset(tvb, offset, datalen, datalen), pinfo, tree);
+                        call_dissector(ua_sys_to_term_handle, tvb_new_subset_length(tvb, offset, datalen), pinfo, tree);
                     }
                     else if (direction == TERM_TO_SYS)
                     {
-                        call_dissector(ua_term_to_sys_handle, tvb_new_subset(tvb, offset, datalen, datalen), pinfo, tree);
+                        call_dissector(ua_term_to_sys_handle, tvb_new_subset_length(tvb, offset, datalen), pinfo, tree);
                     }
                     else
                     {

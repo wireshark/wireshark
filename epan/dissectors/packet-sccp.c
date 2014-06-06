@@ -1269,7 +1269,7 @@ looks_like_valid_sccp(guint32 frame_num _U_, tvbuff_t *tvb, guint8 my_mtp3_stand
 
     if (param_len == 0)
       RETURN_FALSE;
-    param_tvb = tvb_new_subset(tvb, called_ptr+1, param_len, param_len);
+    param_tvb = tvb_new_subset_length(tvb, called_ptr+1, param_len);
 
     if (!sccp_called_calling_looks_valid(frame_num, param_tvb, my_mtp3_standard, !is_connectionless(msgtype)))
       RETURN_FALSE;
@@ -1281,7 +1281,7 @@ looks_like_valid_sccp(guint32 frame_num _U_, tvbuff_t *tvb, guint8 my_mtp3_stand
 
     if (param_len == 0)
       RETURN_FALSE;
-    param_tvb = tvb_new_subset(tvb, calling_ptr+1, param_len, param_len);
+    param_tvb = tvb_new_subset_length(tvb, calling_ptr+1, param_len);
 
     if (!sccp_called_calling_looks_valid(frame_num, param_tvb, my_mtp3_standard, !is_connectionless(msgtype)))
       RETURN_FALSE;
@@ -1770,8 +1770,7 @@ dissect_sccp_global_title(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
   if (length < offset)
     return;
 
-  signals_tvb = tvb_new_subset(tvb, offset, (length - offset),
-                               (length - offset));
+  signals_tvb = tvb_new_subset_length(tvb, offset, (length - offset));
 
   digits_tree = dissect_sccp_gt_address_information(signals_tvb, pinfo, gt_tree,
                                                     (length - offset),
@@ -2005,8 +2004,7 @@ dissect_sccp_called_calling_param(tvbuff_t *tvb, proto_tree *tree, packet_info *
       if (length < offset)
         return;
 
-      gt_tvb = tvb_new_subset(tvb, offset, (length - offset),
-                              (length - offset));
+      gt_tvb = tvb_new_subset_length(tvb, offset, (length - offset));
       dissect_sccp_global_title(gt_tvb, pinfo, call_tree, (length - offset), gti,
                                 (routing_ind == ROUTE_ON_GT), called);
     }
@@ -2071,8 +2069,7 @@ dissect_sccp_called_calling_param(tvbuff_t *tvb, proto_tree *tree, packet_info *
     if (gti != AI_GTI_NO_GT) {
       if (length < offset)
         return;
-      gt_tvb = tvb_new_subset(tvb, offset, (length - offset),
-                              (length - offset));
+      gt_tvb = tvb_new_subset_length(tvb, offset, (length - offset));
       dissect_sccp_global_title(gt_tvb, pinfo, call_tree, (length - offset), gti,
                                 (routing_ind == ROUTE_ON_GT), called);
     }
@@ -2522,7 +2519,7 @@ dissect_sccp_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
 
   }
 
-  parameter_tvb = tvb_new_subset(tvb, offset, parameter_length, parameter_length);
+  parameter_tvb = tvb_new_subset_length(tvb, offset, parameter_length);
 
   switch (parameter_type) {
 

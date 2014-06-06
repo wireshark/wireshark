@@ -118,7 +118,7 @@ checksum_data(tvbuff_t *tvb, proto_tree *tree)
 					actual_fcs, calculated_fcs);
 		}
 	}
-	return tvb_new_subset(tvb, 0, len, len);
+	return tvb_new_subset_length(tvb, 0, len);
 }
 
 

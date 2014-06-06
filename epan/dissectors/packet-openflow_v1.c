@@ -606,7 +606,7 @@ dissect_openflow_pkt_in(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     offset+=1;
 
     /*proto_tree_add_text(tree, tvb, offset, length-offset, "Offset=%u, remaining %u", offset, length-offset);*/
-    next_tvb = tvb_new_subset(tvb, offset, length-offset, length-offset);
+    next_tvb = tvb_new_subset_length(tvb, offset, length-offset);
     call_dissector(eth_withoutfcs_handle, next_tvb, pinfo, tree);
 
 }
@@ -638,7 +638,7 @@ dissect_openflow_pkt_out(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
      */
     if(buffer_id == -1){
         /* proto_tree_add_text(tree, tvb, offset, -1, "Packet data"); */
-        next_tvb = tvb_new_subset(tvb, offset, length-offset, length-offset);
+        next_tvb = tvb_new_subset_length(tvb, offset, length-offset);
         call_dissector(eth_withoutfcs_handle, next_tvb, pinfo, tree);
     }
 }

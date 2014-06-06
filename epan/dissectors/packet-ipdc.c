@@ -911,7 +911,7 @@ dissect_ipdc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 				break;
 			case IPDC_Q931:
 				q931_tvb =
-					tvb_new_subset(tvb, offset+2, len, len);
+					tvb_new_subset_length(tvb, offset+2, len);
 				call_dissector(q931_handle,q931_tvb,pinfo,tree);
 				break;
 			case IPDC_ENCTYPE:

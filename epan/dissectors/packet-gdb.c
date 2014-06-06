@@ -182,8 +182,8 @@ dissect_gdb_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             if (tvb_bytes_exist(tvb, offset, 2)) {
                 offset += 2;
                 packet_len = offset-offset_start;
-                packet_tvb = tvb_new_subset(tvb, offset_start,
-                        packet_len, packet_len);
+                packet_tvb = tvb_new_subset_length(tvb, offset_start,
+                        packet_len);
             }
         }
 

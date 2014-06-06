@@ -528,7 +528,7 @@ dissect_esmc_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *treex)
             {
                 proto_item* item_b;
                 tvbuff_t* tvb_next;
-                tvb_next = tvb_new_subset(tvb, offset, padding_size, -1);
+                tvb_next = tvb_new_subset_remaining(tvb, offset);
                 item_b = proto_tree_add_item(tree_a, hf_esmc_padding, tvb_next, 0, -1, ENC_NA);
                 proto_item_append_text(item_b, ", %d %s%s", padding_size
                 , "octet", plurality(padding_size,"","s"));

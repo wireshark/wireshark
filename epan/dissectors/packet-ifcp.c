@@ -487,7 +487,7 @@ dissect_ifcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, voi
 		}
 	}
 
-	next_tvb=tvb_new_subset(tvb, offset, frame_len-offset-4, frame_len-offset-4);
+	next_tvb=tvb_new_subset_length(tvb, offset, frame_len-offset-4);
 	fc_data.ethertype = 0;
 
 	if(fc_handle){

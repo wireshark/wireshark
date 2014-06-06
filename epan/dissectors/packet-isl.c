@@ -195,7 +195,7 @@ dissect_isl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int fcs_len)
        the data specified by the length field. */
 
     TRY {
-      payload_tvb = tvb_new_subset(tvb, 14, length, length);
+      payload_tvb = tvb_new_subset_length(tvb, 14, length);
       trailer_tvb = tvb_new_subset_remaining(tvb, 14 + length);
     }
     CATCH_BOUNDS_ERRORS {

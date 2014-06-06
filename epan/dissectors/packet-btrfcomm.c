@@ -859,7 +859,7 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
         tvbuff_t           *next_tvb;
         btrfcomm_data_t    *rfcomm_data;
 
-        next_tvb = tvb_new_subset(tvb, offset, frame_len, frame_len);
+        next_tvb = tvb_new_subset_length(tvb, offset, frame_len);
 
         rfcomm_data = (btrfcomm_data_t *) wmem_new(wmem_packet_scope(), btrfcomm_data_t);
         rfcomm_data->interface_id       = l2cap_data->interface_id;

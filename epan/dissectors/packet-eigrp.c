@@ -1335,7 +1335,7 @@ dissect_eigrp_service (proto_item *ti, proto_tree *tree, tvbuff_t *tvb,
              * XML. If it "looks like" XML (begins with optional white-space
              * followed by a '<'), try XML. Otherwise, try plain-text.
              */
-            xml_tvb = tvb_new_subset(sub_tvb, sub_offset, length, length);
+            xml_tvb = tvb_new_subset_length(sub_tvb, sub_offset, length);
             test_string = tvb_get_string(wmem_packet_scope(), xml_tvb, 0, (length < 32 ?
                                                                 length : 32));
             tok = strtok(test_string, " \t\r\n");

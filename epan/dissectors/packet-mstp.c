@@ -245,8 +245,8 @@ dissect_mstp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		mstp_tvb_pdu_len -= 2;
 		if (mstp_frame_type < 128) {
 			vendorid = 0;
-			next_tvb = tvb_new_subset(tvb, offset,
-				mstp_tvb_pdu_len, mstp_frame_pdu_len);
+			next_tvb = tvb_new_subset_length(tvb, offset,
+				mstp_tvb_pdu_len);
 		} else {
 			/* With Vendor ID */
 			vendorid = tvb_get_ntohs(tvb, offset);

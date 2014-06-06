@@ -669,7 +669,7 @@ printf("dissect_ber_tagged_type(%s) entered\n", name);
         length_remaining = tvb_length_remaining(tvb, offset);
         if (tmp_len > (guint32)length_remaining)
             tmp_len = length_remaining;
-        next_tvb = tvb_new_subset(tvb, offset, tmp_len, tmp_len);
+        next_tvb = tvb_new_subset_length(tvb, offset, tmp_len);
         type(tag_impl, next_tvb, 0, actx, tree, hf_id);
         offset += tmp_len;
     } else {
@@ -1710,7 +1710,7 @@ printf("OCTET STRING dissect_ber_octet_string(%s) entered\n", name);
         if (out_tvb) {
             if (len > (guint32)length_remaining)
                 len = length_remaining;
-            *out_tvb = tvb_new_subset(tvb, offset, len, len);
+            *out_tvb = tvb_new_subset_length(tvb, offset, len);
         }
     }
     return end_offset;
@@ -2292,7 +2292,7 @@ ber_sequence_try_again:
             /* dissect header and len for field */
             if (ind_field && (len == 2)) {
                 /* This is a Zero length field */
-                next_tvb = tvb_new_subset(tvb, offset, len, len);
+                next_tvb = tvb_new_subset_length(tvb, offset, len);
                 hoffset = eoffset;
             } else {
                 hoffset = dissect_ber_identifier(actx->pinfo, tree, tvb, hoffset, NULL, NULL, NULL);
@@ -2300,13 +2300,13 @@ ber_sequence_try_again:
                 length_remaining = tvb_length_remaining(tvb, hoffset);
                 if (length_remaining > (eoffset - hoffset - (2 * ind_field)))
                     length_remaining = eoffset - hoffset - (2 * ind_field);
-                next_tvb = tvb_new_subset(tvb, hoffset, length_remaining, length_remaining);
+                next_tvb = tvb_new_subset_length(tvb, hoffset, length_remaining);
             }
         } else {
             length_remaining = tvb_length_remaining(tvb, hoffset);
             if (length_remaining > (eoffset - hoffset))
                 length_remaining = eoffset - hoffset;
-            next_tvb = tvb_new_subset(tvb, hoffset, length_remaining, length_remaining);
+            next_tvb = tvb_new_subset_length(tvb, hoffset, length_remaining);
         }
 
 #if 0
@@ -3161,7 +3161,7 @@ printf("OBJECT IDENTIFIER dissect_ber_any_oid(%s) entered\n", name);
     }
 
     if (value_tvb)
-        *value_tvb = tvb_new_subset(tvb, offset, len, len);
+        *value_tvb = tvb_new_subset_length(tvb, offset, len);
 
     return eoffset;
 }
@@ -3428,7 +3428,7 @@ printf("SQ OF dissect_ber_sq_of(%s) entered\n", name);
         length_remaining = tvb_length_remaining(tvb, hoffset);
         if (length_remaining>eoffset-hoffset)
             length_remaining = eoffset-hoffset;
-        next_tvb = tvb_new_subset(tvb, hoffset, length_remaining, length_remaining);
+        next_tvb = tvb_new_subset_length(tvb, hoffset, length_remaining);
 
         imp_tag = FALSE;
         if (seq->flags == BER_FLAGS_IMPLTAG)
@@ -3841,7 +3841,7 @@ dissect_ber_constrained_bitstring(gboolean implicit_tag, asn1_ctx_t *actx, proto
         }
         if (out_tvb) {
             if (len <= (guint32)tvb_length_remaining(tvb, offset)) {
-                *out_tvb = tvb_new_subset(tvb, offset, len, len);
+                *out_tvb = tvb_new_subset_length(tvb, offset, len);
             } else {
                 *out_tvb = tvb_new_subset_remaining(tvb, offset);
             }

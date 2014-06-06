@@ -341,7 +341,7 @@ dissect_data_segment(proto_tree *ltp_tree, tvbuff_t *tvb,packet_info *pinfo,int 
 			/* if the segment has not been fragmented, then no reassembly is needed */
 			if(!more_frags && offset == 0)
 			{
-				new_tvb = tvb_new_subset(tvb,frame_offset,tvb_length(tvb)-frame_offset,-1);
+				new_tvb = tvb_new_subset_remaining(tvb,frame_offset);
 			}
 			else
 			{

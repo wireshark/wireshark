@@ -398,8 +398,7 @@ dissect_quake2_client_commands(tvbuff_t *tvb, packet_info *pinfo,
         offset++;
         rest_length = tvb_reported_length(tvb) - offset;
         if (rest_length)
-            next_tvb = tvb_new_subset(tvb, offset,
-                    rest_length, rest_length);
+            next_tvb = tvb_new_subset_remaining(tvb, offset);
         else
             return;
 
@@ -499,7 +498,7 @@ dissect_quake2_server_commands(tvbuff_t *tvb, packet_info *pinfo,
     offset++;
     rest_length = tvb_reported_length(tvb) - offset;
     if (rest_length)
-        next_tvb = tvb_new_subset(tvb, offset, rest_length, rest_length);
+        next_tvb = tvb_new_subset_remaining(tvb, offset);
     else
         return;
 
@@ -636,7 +635,7 @@ dissect_quake2_GamePacket(tvbuff_t *tvb, packet_info *pinfo,
     rest_length = tvb_reported_length(tvb) - offset;
     if (rest_length) {
         tvbuff_t *next_tvb =
-            tvb_new_subset(tvb, offset, rest_length , rest_length);
+            tvb_new_subset_remaining(tvb, offset);
 
         if (direction == DIR_C2S) {
             proto_tree *c_tree = NULL;

@@ -342,7 +342,7 @@ dissect_acr122(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         switch (command) {
         case CMD_DIRECT_TRANSMIT:
             if (length > 0) {
-                next_tvb = tvb_new_subset(tvb, offset, length, length);
+                next_tvb = tvb_new_subset_length(tvb, offset, length);
                 call_dissector_with_data(pn532_handle, next_tvb, pinfo, tree, usb_conv_info);
                 offset += length;
             }
@@ -523,7 +523,7 @@ dissect_acr122(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             use_status_word = TRUE;
 
             if (tvb_length_remaining(tvb, offset) > 2) {
-                next_tvb = tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset) - 2, tvb_length_remaining(tvb, offset) - 2);
+                next_tvb = tvb_new_subset_length(tvb, offset, tvb_length_remaining(tvb, offset) - 2);
                 call_dissector_with_data(pn532_handle, next_tvb, pinfo, tree, usb_conv_info);
                 offset += tvb_length_remaining(tvb, offset) - 2;
             }

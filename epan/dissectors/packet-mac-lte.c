@@ -2849,7 +2849,7 @@ static void call_rlc_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
                                guint8 UMSequenceNumberLength,
                                guint8 priority)
 {
-    tvbuff_t            *rb_tvb = tvb_new_subset(tvb, offset, data_length, data_length);
+    tvbuff_t            *rb_tvb = tvb_new_subset_length(tvb, offset, data_length);
     struct rlc_lte_info *p_rlc_lte_info;
 
     /* Resuse or create RLC info */
@@ -4025,7 +4025,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                         proto_tree_add_item(cr_tree, hf_mac_lte_control_ue_contention_resolution_identity,
                                             tvb, offset, 6, ENC_NA);
                         if (global_mac_lte_decode_cr_body) {
-                            tvbuff_t *cr_body_tvb = tvb_new_subset(tvb, offset, 6, 6);
+                            tvbuff_t *cr_body_tvb = tvb_new_subset_length(tvb, offset, 6);
                             dissector_handle_t ul_ccch_handle = find_dissector("lte_rrc.ul_ccch");
                             if (ul_ccch_handle != 0) {
                                 call_with_catch_all(ul_ccch_handle, cr_body_tvb, pinfo, cr_tree);
@@ -4646,7 +4646,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
         /* CCCH frames can be dissected directly by LTE RRC... */
         if ((lcids[n] == 0) && global_mac_lte_attempt_rrc_decode) {
-            tvbuff_t *rrc_tvb = tvb_new_subset(tvb, offset, data_length, data_length);
+            tvbuff_t *rrc_tvb = tvb_new_subset_length(tvb, offset, data_length);
 
             /* Get appropriate dissector handle */
             volatile dissector_handle_t protocol_handle = 0;

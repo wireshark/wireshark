@@ -2012,7 +2012,7 @@ be_l3_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
     /*
      * dissect the embedded DTAP message
      */
-    l3_tvb = tvb_new_subset(tvb, curr_offset, len, len);
+    l3_tvb = tvb_new_subset_length(tvb, curr_offset, len);
 
     /* This information element carries a radio interface message.
        In the case of an Intersystem handover to UMTS,
@@ -2488,7 +2488,7 @@ be_l3_msg(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
     /*
      * dissect the embedded DTAP message
      */
-    l3_tvb = tvb_new_subset(tvb, offset, len, len);
+    l3_tvb = tvb_new_subset_length(tvb, offset, len);
 
     /* Octet j (j = 3, 4, ..., n) is the unchanged octet j of a radio interface layer 3 message
      * as defined in 3GPP TS 24.008, n is equal to the length of that radio interface layer 3 message. */
@@ -3044,7 +3044,7 @@ be_loc_est(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
 
     curr_offset = offset;
 
-    data_tvb = tvb_new_subset(tvb, curr_offset, len, len);
+    data_tvb = tvb_new_subset_length(tvb, curr_offset, len);
     dissect_geographical_description(data_tvb, pinfo, tree);
 
     return(len);
@@ -3148,7 +3148,7 @@ be_apdu(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, gui
         /* BSSLAP
          * the embedded message is as defined in 3GPP TS 08.71(3GPP TS 48.071 version 7.2.0 Release 7)
          */
-        APDU_tvb = tvb_new_subset(tvb, curr_offset, len, len);
+        APDU_tvb = tvb_new_subset_length(tvb, curr_offset, len);
         if (gsm_bsslap_handle)
             call_dissector(gsm_bsslap_handle, APDU_tvb, pinfo, g_tree);
         break;
@@ -3289,7 +3289,7 @@ be_src_rnc_to_tar_rnc_umts(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, 
      * the Source RNC to Target RNC Transparent Container IE as defined in relevant
      * RANAP specification 3GPP TS 25.413, excluding RANAP tag
      */
-    container_tvb = tvb_new_subset(tvb, curr_offset, len, len);
+    container_tvb = tvb_new_subset_length(tvb, curr_offset, len);
     dissect_ranap_SourceRNC_ToTargetRNC_TransparentContainer_PDU(container_tvb, pinfo, tree, NULL);
 
     return(len);
@@ -3402,7 +3402,7 @@ be_inter_sys_inf(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint3
 {
     tvbuff_t *new_tvb;
 
-    new_tvb = tvb_new_subset(tvb, offset, len, len);
+    new_tvb = tvb_new_subset_length(tvb, offset, len);
 
     if (new_tvb) {
         dissect_ranap_InterSystemInformation_TransparentContainer_PDU(new_tvb, pinfo, tree, NULL);
@@ -3806,7 +3806,7 @@ be_app_data_inf(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32
  {
     tvbuff_t    *new_tvb;
 
-    new_tvb = tvb_new_subset(tvb, offset, len, len);
+    new_tvb = tvb_new_subset_length(tvb, offset, len);
     if (new_tvb) {
         dissect_gsm_map_msisdn(new_tvb, pinfo , tree);
     }
@@ -4835,7 +4835,7 @@ be_fe_inter_rat_handover_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinf
     tvbuff_t    *container_tvb;
 
     /* Octets 3-n are encoded as Inter RAT Handover Info as defined in 3GPP TS 25.331 */
-    container_tvb = tvb_new_subset(tvb, offset, len, len);
+    container_tvb = tvb_new_subset_length(tvb, offset, len);
     dissect_rrc_InterRATHandoverInfo_PDU(container_tvb, pinfo, tree, NULL);
 
     return len;

@@ -619,7 +619,7 @@ dissect_zbee_secure(tvbuff_t *tvb, packet_info *pinfo, proto_tree* tree, guint o
         (packet.level == ZBEE_SEC_MIC128)) {
 
         /* Payload is only integrity protected. Just return the sub-tvbuff. */
-        return tvb_new_subset(tvb, offset, payload_len, payload_len);
+        return tvb_new_subset_length(tvb, offset, payload_len);
     }
 
 #ifdef HAVE_LIBGCRYPT

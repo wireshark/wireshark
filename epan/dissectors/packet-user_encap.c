@@ -137,7 +137,7 @@ static void dissect_user(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
     proto_item_set_text(item,"DLT: %d",pinfo->match_uint + 147 - WTAP_ENCAP_USER0);
 
     if (encap->header_size) {
-        tvbuff_t* hdr_tvb = tvb_new_subset(tvb, 0, encap->header_size, encap->header_size);
+        tvbuff_t* hdr_tvb = tvb_new_subset_length(tvb, 0, encap->header_size);
         call_dissector(encap->header_proto, hdr_tvb, pinfo, tree);
         if (encap->header_proto_name) {
             const char *proto_name = dissector_handle_get_long_name(find_dissector(encap->header_proto_name));
@@ -160,7 +160,7 @@ static void dissect_user(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
     }
 
     if (encap->trailer_size) {
-        tvbuff_t* trailer_tvb = tvb_new_subset(tvb, encap->header_size + len, encap->trailer_size, encap->trailer_size);
+        tvbuff_t* trailer_tvb = tvb_new_subset_length(tvb, encap->header_size + len, encap->trailer_size);
         call_dissector(encap->trailer_proto, trailer_tvb, pinfo, tree);
         if (encap->trailer_proto_name) {
             const char *proto_name = dissector_handle_get_long_name(find_dissector(encap->trailer_proto_name));

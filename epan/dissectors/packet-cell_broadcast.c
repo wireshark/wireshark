@@ -350,7 +350,7 @@ dissect_gsm_cell_broadcast(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       }
       if (text_len)
       {
-         cbs_page_tvb = tvb_new_subset(cbs_page_tvb, 0, text_len, text_len);
+         cbs_page_tvb = tvb_new_subset_length(cbs_page_tvb, 0, text_len);
          if (total_pages == 1)
          {
             /* no need for reassembly */

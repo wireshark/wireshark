@@ -283,7 +283,7 @@ dissect_dsmcc_adaptation_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
         proto_tree_add_item(sub_tree, hf_dsmcc_adaptation_ca_length, tvb,
             offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
-        sub_tvb = tvb_new_subset(tvb, offset, ca_len, ca_len);
+        sub_tvb = tvb_new_subset_length(tvb, offset, ca_len);
         call_dissector(data_handle, sub_tvb, pinfo, tree);
     } else if (2 == type) {
         pi = proto_tree_add_text(tree, tvb, offset, -1, "Adaptation Header");
@@ -368,7 +368,7 @@ dissect_dsmcc_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
     offset += 2;
 
     if (0 < adaptation_len) {
-        sub_tvb = tvb_new_subset(tvb, offset, adaptation_len, adaptation_len);
+        sub_tvb = tvb_new_subset_length(tvb, offset, adaptation_len);
         dissect_dsmcc_adaptation_header(sub_tvb, pinfo, sub_tree);
         offset += adaptation_len;
     }
@@ -769,7 +769,7 @@ dissect_dsmcc_ts(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree_in, void *d
         offset, 1, ENC_BIG_ENDIAN);
     offset +=1;
 
-    sub_tvb = tvb_new_subset(tvb, offset, sect_len-9, sect_len-9);
+    sub_tvb = tvb_new_subset_length(tvb, offset, sect_len-9);
     switch (tid) {
         case DSMCC_TID_LLCSNAP:
             /* TODO: Add support */

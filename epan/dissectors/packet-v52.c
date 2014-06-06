@@ -694,7 +694,7 @@ dissect_pstn_sequence_number(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     info_element = tvb_get_guint8(tvb, offset);
 
     data_length = tvb_get_guint8(tvb, offset+1)+2;
-    info_tvb    = tvb_new_subset(tvb, offset, data_length, data_length);
+    info_tvb    = tvb_new_subset_length(tvb, offset, data_length);
 
     if (tree) {
         ti_info = proto_tree_add_text(tree, info_tvb, info_offset, -1, "Info Element:");
@@ -728,7 +728,7 @@ dissect_cadenced_ring(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
     info_element = tvb_get_guint8(tvb, offset);
 
     data_length = tvb_get_guint8(tvb, offset+1)+2;
-    info_tvb    = tvb_new_subset(tvb, offset, data_length, data_length);
+    info_tvb    = tvb_new_subset_length(tvb, offset, data_length);
 
     if (tree) {
         ti_info = proto_tree_add_text(tree, info_tvb, info_offset, -1, "Info Element:");
@@ -765,7 +765,7 @@ dissect_pulsed_signal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
     info_element = tvb_get_guint8(tvb, offset);
 
     data_length = tvb_get_guint8(tvb, offset+1)+2;
-    info_tvb    = tvb_new_subset(tvb, offset, data_length, data_length);
+    info_tvb    = tvb_new_subset_length(tvb, offset, data_length);
 
     if (tree) {
         ti_info = proto_tree_add_text(tree, info_tvb, info_offset, -1, "Info Element:");
@@ -812,7 +812,7 @@ dissect_steady_signal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
     info_element = tvb_get_guint8(tvb, offset);
 
     data_length = tvb_get_guint8(tvb, offset+1)+2;
-    info_tvb    = tvb_new_subset(tvb, offset, data_length, data_length);
+    info_tvb    = tvb_new_subset_length(tvb, offset, data_length);
 
     if (tree) {
         ti_info = proto_tree_add_text(tree, info_tvb, info_offset, -1, "Info Element:");
@@ -849,7 +849,7 @@ dissect_digit_signal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
     info_element = tvb_get_guint8(tvb, offset);
 
     data_length = tvb_get_guint8(tvb, offset+1)+2;
-    info_tvb    = tvb_new_subset(tvb, offset, data_length, data_length);
+    info_tvb    = tvb_new_subset_length(tvb, offset, data_length);
 
     if (tree) {
         ti_info = proto_tree_add_text(tree, info_tvb, info_offset, -1, "Info Element:");
@@ -894,7 +894,7 @@ dissect_recognition_time(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
     info_element = tvb_get_guint8(tvb, offset);
 
     data_length = tvb_get_guint8(tvb, offset+1)+2;
-    info_tvb    = tvb_new_subset(tvb, offset, data_length, data_length);
+    info_tvb    = tvb_new_subset_length(tvb, offset, data_length);
 
     if (tree) {
         ti_info = proto_tree_add_text(tree, info_tvb, info_offset, -1, "Info Element:");
@@ -937,7 +937,7 @@ dissect_enable_auto_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
     info_element = tvb_get_guint8(tvb, offset);
 
     data_length = tvb_get_guint8(tvb, offset+1)+2;
-    info_tvb    = tvb_new_subset(tvb, offset, data_length, data_length);
+    info_tvb    = tvb_new_subset_length(tvb, offset, data_length);
 
     if (tree) {
         ti_info = proto_tree_add_text(tree, info_tvb, info_offset, -1, "Info Element:");
@@ -993,7 +993,7 @@ dissect_disable_auto_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
     info_element = tvb_get_guint8(tvb, offset);
 
     data_length = tvb_get_guint8(tvb, offset+1)+2;
-    info_tvb    = tvb_new_subset(tvb, offset, data_length, data_length);
+    info_tvb    = tvb_new_subset_length(tvb, offset, data_length);
 
     if (tree) {
         ti_info = proto_tree_add_text(tree, info_tvb, info_offset, -1, "Info Element:");
@@ -1032,7 +1032,7 @@ dissect_cause(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
     info_element = tvb_get_guint8(tvb, offset);
 
     data_length = tvb_get_guint8(tvb, offset+1)+2;
-    info_tvb    = tvb_new_subset(tvb, offset, data_length, data_length);
+    info_tvb    = tvb_new_subset_length(tvb, offset, data_length);
 
     if (tree) {
         ti_info = proto_tree_add_text(tree, info_tvb, info_offset, -1, "Info Element:");
@@ -1072,7 +1072,7 @@ dissect_resource_unavailable(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     info_element = tvb_get_guint8(tvb, offset);
 
     data_length = tvb_get_guint8(tvb, offset+1)+2;
-    info_tvb    = tvb_new_subset(tvb, offset, data_length, data_length);
+    info_tvb    = tvb_new_subset_length(tvb, offset, data_length);
 
     if (tree) {
         ti_info = proto_tree_add_text(tree, info_tvb, info_offset, -1, "Info Element:");
@@ -1105,7 +1105,7 @@ dissect_pulse_notification(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     info_element = tvb_get_guint8(tvb, offset);
 
     data_length = 1;
-    info_tvb    = tvb_new_subset(tvb, offset, data_length, data_length);
+    info_tvb    = tvb_new_subset_length(tvb, offset, data_length);
 
     if (tree) {
         ti_info = proto_tree_add_text(tree, info_tvb, info_offset, -1, "Info Element:");
@@ -1136,7 +1136,7 @@ dissect_line_information(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
     info_element = tvb_get_guint8(tvb, offset);
 
     data_length = 1;
-    info_tvb    = tvb_new_subset(tvb, offset, data_length, data_length);
+    info_tvb    = tvb_new_subset_length(tvb, offset, data_length);
 
     if (tree) {
         ti_info = proto_tree_add_text(tree, info_tvb, info_offset, -1, "Info Element:");
@@ -1167,7 +1167,7 @@ dissect_state(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
     info_element = tvb_get_guint8(tvb, offset);
 
     data_length = 1;
-    info_tvb    = tvb_new_subset(tvb, offset, data_length, data_length);
+    info_tvb    = tvb_new_subset_length(tvb, offset, data_length);
 
     if (tree) {
         ti_info = proto_tree_add_text(tree, info_tvb, info_offset, -1, "Info Element:");
@@ -1198,7 +1198,7 @@ dissect_auto_sig_sequence(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
     info_element = tvb_get_guint8(tvb, offset);
 
     data_length = 1;
-    info_tvb    = tvb_new_subset(tvb, offset, data_length, data_length);
+    info_tvb    = tvb_new_subset_length(tvb, offset, data_length);
 
     if (tree) {
         ti_info = proto_tree_add_text(tree, info_tvb, info_offset, -1, "Info Element:");
@@ -1229,7 +1229,7 @@ dissect_sequence_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
     info_element = tvb_get_guint8(tvb, offset);
 
     data_length = 1;
-    info_tvb    = tvb_new_subset(tvb, offset, data_length, data_length);
+    info_tvb    = tvb_new_subset_length(tvb, offset, data_length);
 
     if (tree) {
         ti_info = proto_tree_add_text(tree, info_tvb, info_offset, -1, "Info Element:");
@@ -1260,7 +1260,7 @@ dissect_control_function_element(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     info_element = tvb_get_guint8(tvb, offset);
 
     data_length = tvb_get_guint8(tvb, offset+1)+2;
-    info_tvb    = tvb_new_subset(tvb, offset, data_length, data_length);
+    info_tvb    = tvb_new_subset_length(tvb, offset, data_length);
 
     if (tree) {
         ti_info = proto_tree_add_text(tree, info_tvb, info_offset, -1, "Info Element:");
@@ -1296,7 +1296,7 @@ dissect_control_function_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     info_element = tvb_get_guint8(tvb, offset);
 
     data_length = tvb_get_guint8(tvb, offset+1)+2;
-    info_tvb    = tvb_new_subset(tvb, offset, data_length, data_length);
+    info_tvb    = tvb_new_subset_length(tvb, offset, data_length);
 
     if (tree) {
         ti_info = proto_tree_add_text(tree, info_tvb, info_offset, -1, "Info Element:");
@@ -1333,7 +1333,7 @@ dissect_variant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
     info_element = tvb_get_guint8(tvb, offset);
 
     data_length = tvb_get_guint8(tvb, offset+1)+2;
-    info_tvb    = tvb_new_subset(tvb, offset, data_length, data_length);
+    info_tvb    = tvb_new_subset_length(tvb, offset, data_length);
 
     if (tree) {
         ti_info = proto_tree_add_text(tree, info_tvb, info_offset, -1, "Info Element:");
@@ -1367,7 +1367,7 @@ dissect_interface_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
     info_element = tvb_get_guint8(tvb, offset);
 
     data_length = tvb_get_guint8(tvb, offset+1)+2;
-    info_tvb    = tvb_new_subset(tvb, offset, data_length, data_length);
+    info_tvb    = tvb_new_subset_length(tvb, offset, data_length);
 
     if (tree) {
         ti_info = proto_tree_add_text(tree, info_tvb, info_offset, -1, "Info Element:");
@@ -1404,7 +1404,7 @@ dissect_sequence_number(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
     info_element = tvb_get_guint8(tvb, offset);
 
     data_length  = tvb_get_guint8(tvb, offset+1)+2;
-    info_tvb     = tvb_new_subset(tvb, offset, data_length, data_length);
+    info_tvb     = tvb_new_subset_length(tvb, offset, data_length);
 
     if (tree) {
         ti_info = proto_tree_add_text(tree, info_tvb, info_offset, -1, "Info Element:");
@@ -1444,7 +1444,7 @@ dissect_physical_c_channel_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     info_element = tvb_get_guint8(tvb, offset);
 
     data_length = tvb_get_guint8(tvb, offset+1)+2;
-    info_tvb    = tvb_new_subset(tvb, offset, data_length, data_length);
+    info_tvb    = tvb_new_subset_length(tvb, offset, data_length);
 
     if (tree) {
         ti_info = proto_tree_add_text(tree, info_tvb, info_offset, -1, "Info Element:");
@@ -1480,7 +1480,7 @@ dissect_pp_rejection_cause(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     info_element = tvb_get_guint8(tvb, offset);
 
     data_length = tvb_get_guint8(tvb, offset+1)+2;
-    info_tvb    = tvb_new_subset(tvb, offset, data_length, data_length);
+    info_tvb    = tvb_new_subset_length(tvb, offset, data_length);
 
     if (tree) {
         ti_info = proto_tree_add_text(tree, info_tvb, info_offset, -1, "Info Element:");
@@ -1513,7 +1513,7 @@ dissect_protocol_error(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
     info_element = tvb_get_guint8(tvb, offset);
 
     data_length = tvb_get_guint8(tvb, offset+1)+2;
-    info_tvb    = tvb_new_subset(tvb, offset, data_length, data_length);
+    info_tvb    = tvb_new_subset_length(tvb, offset, data_length);
 
     if (tree) {
         ti_info = proto_tree_add_text(tree, info_tvb, info_offset, -1, "Info Element:");
@@ -1549,7 +1549,7 @@ dissect_performance_grading(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     info_element = tvb_get_guint8(tvb, offset);
 
     data_length = 1;
-    info_tvb    = tvb_new_subset(tvb, offset, data_length, data_length);
+    info_tvb    = tvb_new_subset_length(tvb, offset, data_length);
 
     if (tree) {
         ti_info = proto_tree_add_text(tree, info_tvb, info_offset, -1, "Info Element:");
@@ -1581,7 +1581,7 @@ dissect_cp_rejection_cause(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     info_element = tvb_get_guint8(tvb, offset);
 
     data_length = 1;
-    info_tvb    = tvb_new_subset(tvb, offset, data_length, data_length);
+    info_tvb    = tvb_new_subset_length(tvb, offset, data_length);
 
     if (tree) {
         ti_info = proto_tree_add_text(tree, info_tvb, info_offset, -1, "Info Element:");
@@ -1615,7 +1615,7 @@ dissect_user_port_identification(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     info_element = tvb_get_guint8(tvb, offset);
 
     data_length = tvb_get_guint8(tvb, offset+1)+2;
-    info_tvb    = tvb_new_subset(tvb, offset, data_length, data_length);
+    info_tvb    = tvb_new_subset_length(tvb, offset, data_length);
 
     if (tree) {
         ti_info = proto_tree_add_text(tree, info_tvb, info_offset, -1, "Info Element:");
@@ -1664,7 +1664,7 @@ dissect_isdn_port_time_slot_identification(tvbuff_t *tvb, packet_info *pinfo, pr
     info_element = tvb_get_guint8(tvb, offset);
 
     data_length = tvb_get_guint8(tvb, offset+1)+2;
-    info_tvb    = tvb_new_subset(tvb, offset, data_length, data_length);
+    info_tvb    = tvb_new_subset_length(tvb, offset, data_length);
 
     if (tree) {
         ti_info = proto_tree_add_text(tree, info_tvb, info_offset, -1, "Info Element:");
@@ -1700,7 +1700,7 @@ dissect_v5_time_slot_identification(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     info_element = tvb_get_guint8(tvb, offset);
 
     data_length = tvb_get_guint8(tvb, offset+1)+2;
-    info_tvb    = tvb_new_subset(tvb, offset, data_length, data_length);
+    info_tvb    = tvb_new_subset_length(tvb, offset, data_length);
 
     if (tree) {
         ti_info = proto_tree_add_text(tree, info_tvb, info_offset, -1, "Info Element:");
@@ -1745,7 +1745,7 @@ dissect_multi_slot_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
     info_element = tvb_get_guint8(tvb, offset);
 
     data_length = tvb_get_guint8(tvb, offset+1)+2;
-    info_tvb    = tvb_new_subset(tvb, offset, data_length, data_length);
+    info_tvb    = tvb_new_subset_length(tvb, offset, data_length);
 
     if (tree) {
         ti_info = proto_tree_add_text(tree, info_tvb, info_offset, -1, "Info Element:");
@@ -1794,7 +1794,7 @@ dissect_bcc_rejct_cause(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
     info_element = tvb_get_guint8(tvb, offset);
 
     data_length = tvb_get_guint8(tvb, offset+1)+2;
-    info_tvb    = tvb_new_subset(tvb, offset, data_length, data_length);
+    info_tvb    = tvb_new_subset_length(tvb, offset, data_length);
 
     if (tree) {
         ti_info = proto_tree_add_text(tree, info_tvb, info_offset, -1, "Info Element:");
@@ -1827,7 +1827,7 @@ dissect_bcc_protocol_error_cause(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     info_element = tvb_get_guint8(tvb, offset);
 
     data_length = tvb_get_guint8(tvb, offset+1)+2;
-    info_tvb    = tvb_new_subset(tvb, offset, data_length, data_length);
+    info_tvb    = tvb_new_subset_length(tvb, offset, data_length);
 
     if (tree) {
         ti_info = proto_tree_add_text(tree, info_tvb, info_offset, -1, "Info Element:");
@@ -1865,7 +1865,7 @@ dissect_connection_incomplete(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     info_element = tvb_get_guint8(tvb, offset);
 
     data_length = tvb_get_guint8(tvb, offset+1)+2;
-    info_tvb    = tvb_new_subset(tvb, offset, data_length, data_length);
+    info_tvb    = tvb_new_subset_length(tvb, offset, data_length);
 
     if (tree) {
         ti_info = proto_tree_add_text(tree, info_tvb, info_offset, -1, "Info Element:");
@@ -1905,7 +1905,7 @@ dissect_link_control_function(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     info_element = tvb_get_guint8(tvb, offset);
 
     data_length = tvb_get_guint8(tvb, offset+1)+2;
-    info_tvb    = tvb_new_subset(tvb, offset, data_length, data_length);
+    info_tvb    = tvb_new_subset_length(tvb, offset, data_length);
 
     if (tree) {
         ti_info = proto_tree_add_text(tree, info_tvb, info_offset, -1, "Info Element:");

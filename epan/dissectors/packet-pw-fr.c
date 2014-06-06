@@ -240,7 +240,7 @@ dissect_pw_fr( tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree )
 	if (payload_size > 0)
 	{
 		tvbuff_t *tvb_payload;
-		tvb_payload = tvb_new_subset(tvb, encaps_size, payload_size, payload_size);
+		tvb_payload = tvb_new_subset_length(tvb, encaps_size, payload_size);
 		call_dissector( fr_stripped_address_handle, tvb_payload, pinfo, tree );
 	}
 	return;

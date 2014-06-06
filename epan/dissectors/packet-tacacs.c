@@ -957,7 +957,7 @@ dissect_tacplus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					((flags&FLAGS_UNENCRYPTED)?"":"Encrypted "), request?"Request":"Reply" );
 
 		if( flags&FLAGS_UNENCRYPTED ) {
-			new_tvb = tvb_new_subset( tvb, TAC_PLUS_HDR_SIZE, len, len );
+			new_tvb = tvb_new_subset_length( tvb, TAC_PLUS_HDR_SIZE, len );
 		}  else {
 			new_tvb=NULL;
 			if( key && *key ){

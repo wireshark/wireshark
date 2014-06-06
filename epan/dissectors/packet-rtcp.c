@@ -946,7 +946,7 @@ dissect_rtcp_rtpfb( tvbuff_t *tvb, int offset, proto_tree *rtcp_tree, proto_item
      */
     if (packet_length > 12 &&
         dissector_get_uint_handle (rtcp_rtpfb_dissector_table, rtcp_rtpfb_fmt)) {
-      tvbuff_t *subtvb = tvb_new_subset(tvb, offset, packet_length - 12, packet_length - 12);
+      tvbuff_t *subtvb = tvb_new_subset_length(tvb, offset, packet_length - 12);
 
       if (dissector_try_uint (rtcp_rtpfb_dissector_table, rtcp_rtpfb_fmt,
               subtvb, pinfo, rtcp_tree))
@@ -1634,7 +1634,7 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
         /* tvb         == Pass the entire APP payload so the subdissector can have access to the
          * entire data set
          */
-        next_tvb        = tvb_new_subset(tvb, offset-8, app_length+4, app_length+4);
+        next_tvb        = tvb_new_subset_length(tvb, offset-8, app_length+4);
         /* look for registered sub-dissectors */
         if (dissector_try_string(rtcp_dissector_table, ascii_name, next_tvb, pinfo, tree, NULL)) {
             /* found subdissector - return tvb_length */

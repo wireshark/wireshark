@@ -1841,7 +1841,7 @@ parse_platform_event(tvbuff_t *tvb, proto_tree *tree)
 		return;
 	}
 
-	next_tvb = tvb_new_subset(tvb, 5, 1, 1);
+	next_tvb = tvb_new_subset_length(tvb, 5, 1);
 	d = tvb_get_guint8(next_tvb, 0);
 	if ((eti->intrp2 && eti->intrp2(tree, next_tvb, si, b2, offs, d))
 			|| (si->intrp2 && si->intrp2(tree, next_tvb, si, b2, offs, d))) {
@@ -1858,7 +1858,7 @@ parse_platform_event(tvbuff_t *tvb, proto_tree *tree)
 		return;
 	}
 
-	next_tvb = tvb_new_subset(tvb, 6, 1, 1);
+	next_tvb = tvb_new_subset_length(tvb, 6, 1);
 	d = tvb_get_guint8(next_tvb, 0);
 	if ((eti->intrp3 && eti->intrp3(tree, next_tvb, si, b3, offs, d))
 			|| (si->intrp3 && si->intrp3(tree, next_tvb, si, b3, offs, d))) {

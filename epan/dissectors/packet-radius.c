@@ -954,7 +954,7 @@ static void add_avp_to_tree(proto_tree* avp_tree, proto_item* avp_item, packet_i
 		tvbuff_t* tvb_value;
 		const gchar* str;
 
-		tvb_value = tvb_new_subset(tvb, offset, avp_length, (gint) avp_length);
+		tvb_value = tvb_new_subset_length(tvb, offset, avp_length);
 
 		str = dictionary_entry->dissector(avp_tree,tvb_value,pinfo);
 

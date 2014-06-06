@@ -5290,7 +5290,7 @@ static int dissect_lbmr(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, 
             {
                 gint tvb_len = packet_len - opt_total_len;
 
-                packet_tvb = tvb_new_subset(tvb, 0, tvb_len, tvb_len);
+                packet_tvb = tvb_new_subset_length(tvb, 0, tvb_len);
             }
         }
     }

@@ -763,7 +763,7 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
       tvbuff_t *next_tvb;
       guint8 *test_string, *tok;
 
-      next_tvb = tvb_new_subset(tvb, offset, attr_length, attr_length);
+      next_tvb = tvb_new_subset_length(tvb, offset, attr_length);
       /*
        * Service-Data is usually (but not always) plain text, specifically XML.
        * If it "looks like" XML (begins with optional whitespace followed by

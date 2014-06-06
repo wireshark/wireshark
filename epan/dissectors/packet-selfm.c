@@ -2538,7 +2538,7 @@ dissect_selfm_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         selfm_tvb = clean_telnet_iac(pinfo, tvb, 0, length);
     }
     else {
-        selfm_tvb = tvb_new_subset( tvb, 0, length, length);
+        selfm_tvb = tvb_new_subset_length( tvb, 0, length);
     }
 
 

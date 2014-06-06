@@ -232,7 +232,7 @@ dissect_mdshdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if (tvb_length(tvb) >= MDSHDR_HEADER_SIZE + pktlen
         && 0 != pktlen /*if something wrong*/) {
-        next_tvb = tvb_new_subset(tvb, MDSHDR_HEADER_SIZE, pktlen, pktlen);
+        next_tvb = tvb_new_subset_length(tvb, MDSHDR_HEADER_SIZE, pktlen);
         /* XXX what to do with the rest of this frame? --ArtemTamazov */
     }
     else {

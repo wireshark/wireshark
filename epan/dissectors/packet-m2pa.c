@@ -398,7 +398,7 @@ dissect_v2_message_data(tvbuff_t *message_tvb, packet_info *pinfo, proto_item *m
     THROW(ReportedBoundsError);
   }
 
-  message_data_tvb    = tvb_new_subset(message_tvb, V2_MESSAGE_DATA_OFFSET, message_data_length, message_data_length);
+  message_data_tvb    = tvb_new_subset_length(message_tvb, V2_MESSAGE_DATA_OFFSET, message_data_length);
   type                = tvb_get_ntohs(message_tvb, V2_TYPE_OFFSET);
 
   switch(type) {
@@ -429,7 +429,7 @@ dissect_v8_message_data(tvbuff_t *message_tvb, packet_info *pinfo, proto_item *m
         "Invalid message data length: %u", message_data_length);
     THROW(ReportedBoundsError);
   }
-  message_data_tvb    = tvb_new_subset(message_tvb, V8_MESSAGE_DATA_OFFSET, message_data_length, message_data_length);
+  message_data_tvb    = tvb_new_subset_length(message_tvb, V8_MESSAGE_DATA_OFFSET, message_data_length);
   type                = tvb_get_guint8(message_tvb, V8_TYPE_OFFSET);
 
 
@@ -456,7 +456,7 @@ dissect_message_data(tvbuff_t *message_tvb, packet_info *pinfo, proto_item *m2pa
 
   length              = tvb_get_ntohl(message_tvb, LENGTH_OFFSET);
   message_data_length = length - HEADER_LENGTH;
-  message_data_tvb    = tvb_new_subset(message_tvb, MESSAGE_DATA_OFFSET, message_data_length, message_data_length);
+  message_data_tvb    = tvb_new_subset_length(message_tvb, MESSAGE_DATA_OFFSET, message_data_length);
   type                = tvb_get_guint8(message_tvb, TYPE_OFFSET);
 
 

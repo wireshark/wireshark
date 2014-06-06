@@ -235,7 +235,7 @@ dissect_nflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
 
         if (tlv_type == WS_NFULA_PAYLOAD)
-            next_tvb = tvb_new_subset(tvb, offset + 4, value_len, value_len);
+            next_tvb = tvb_new_subset_length(tvb, offset + 4, value_len);
 
         offset += ((tlv_len + 3) & ~3); /* next TLV aligned to 4B */
     }

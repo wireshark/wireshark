@@ -665,7 +665,7 @@ dissect_q932_facility_ie(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
     offset = get_ber_identifier(tvb, offset, &appclass, &pc, &tag);
     offset = get_ber_length(tvb, offset, &len, NULL);
     eoffset = offset + len;
-    next_tvb =  tvb_new_subset(tvb, hoffset, eoffset - hoffset, eoffset - hoffset);
+    next_tvb =  tvb_new_subset_length(tvb, hoffset, eoffset - hoffset);
     switch (appclass) {
       case BER_CLASS_CON:
         switch (tag) {

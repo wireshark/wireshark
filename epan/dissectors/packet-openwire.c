@@ -863,7 +863,7 @@ dissect_openwire_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
                 if (parentType == OPENWIRE_ACTIVEMQ_TEXT_MESSAGE)
                 {
                     dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_none, OPENWIRE_TYPE_BIG_STRING, type, FALSE);
-                    next_tvb = tvb_new_subset(tvb, offset, iArrayLength, iArrayLength);
+                    next_tvb = tvb_new_subset_length(tvb, offset, iArrayLength);
                     add_new_data_source(pinfo, next_tvb, "Body");
                 }
                 else if (parentType == OPENWIRE_ACTIVEMQ_MAP_MESSAGE)
@@ -882,7 +882,7 @@ dissect_openwire_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
                     || parentType == OPENWIRE_ACTIVEMQ_OBJECT_MESSAGE
                     || parentType == OPENWIRE_ACTIVEMQ_BLOB_MESSAGE)
                 {
-                    next_tvb = tvb_new_subset(tvb, offset, iArrayLength, iArrayLength);
+                    next_tvb = tvb_new_subset_length(tvb, offset, iArrayLength);
                     add_new_data_source(pinfo, next_tvb, "Body");
                     expert_add_info(pinfo, array_item, &ei_openwire_body_type_not_supported);
                 }

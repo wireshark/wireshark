@@ -649,7 +649,7 @@ dissect_11_or_aal5_pdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
 	{
 		tvbuff_t* tvb_2;
-		tvb_2 = tvb_new_subset(tvb, 0, PWC_SIZEOF_CW, PWC_SIZEOF_CW);
+		tvb_2 = tvb_new_subset_length(tvb, 0, PWC_SIZEOF_CW);
 		call_dissector_with_data(dh_control_word, tvb_2, pinfo, tree, &pd);
 
 		tvb_2 = tvb_new_subset_remaining(tvb, (PWC_SIZEOF_CW-1));
@@ -857,7 +857,7 @@ dissect_aal5_sdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
 	{
 		tvbuff_t* tvb_2;
-		tvb_2 = tvb_new_subset(tvb, 0, PWC_SIZEOF_CW, PWC_SIZEOF_CW);
+		tvb_2 = tvb_new_subset_length(tvb, 0, PWC_SIZEOF_CW);
 		call_dissector_with_data(dh_control_word, tvb_2, pinfo, tree, &pd);
 
 		tvb_2 = tvb_new_subset_remaining(tvb, PWC_SIZEOF_CW);
@@ -873,7 +873,7 @@ dissect_aal5_sdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 				union wtap_pseudo_header* pseudo_header_save;
 				union wtap_pseudo_header ph;
 
-				tvb_3 = tvb_new_subset(tvb_2, 0, payload_size, payload_size);
+				tvb_3 = tvb_new_subset_length(tvb_2, 0, payload_size);
 				/* prepare pseudo header for atm aal5 decoding */
 				pseudo_header_save = pinfo->pseudo_header;
 				pinfo->pseudo_header = &ph;
@@ -1039,7 +1039,7 @@ dissect_n1_cw(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
 	{
 		tvbuff_t* tvb_2;
-		tvb_2 = tvb_new_subset(tvb, 0, PWC_SIZEOF_CW, PWC_SIZEOF_CW);
+		tvb_2 = tvb_new_subset_length(tvb, 0, PWC_SIZEOF_CW);
 		call_dissector_with_data(dh_control_word, tvb_2, pinfo, tree, &pd);
 
 		tvb_2 = tvb_new_subset_remaining(tvb, PWC_SIZEOF_CW);

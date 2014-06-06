@@ -940,8 +940,8 @@ dissect_mpeg_pes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 			header_length = tvb_get_guint8(tvb, 8);
 			if (header_length > 0) {
 				int flags = tvb_get_guint8(tvb, 7);
-				tvbuff_t *header_data = tvb_new_subset(tvb, offset / 8,
-						header_length, header_length);
+				tvbuff_t *header_data = tvb_new_subset_length(tvb, offset / 8,
+						header_length);
 				dissect_mpeg_pes_header_data(header_data, pinfo, tree, flags);
 				offset += header_length * 8;
 				 /* length may be zero for Video stream */

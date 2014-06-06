@@ -1958,8 +1958,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             if (dissector_handle) {
               saved_match_uint  = pinfo->match_uint;
               pinfo->match_uint = encapsulated_protocol;
-              next_tvb = tvb_new_subset(tvb_decrypted, 0,
-                                        decrypted_len - esp_auth_len - esp_pad_len - esp_iv_len - 2,
+              next_tvb = tvb_new_subset_length(tvb_decrypted, 0,
                                         decrypted_len - esp_auth_len - esp_pad_len - esp_iv_len - 2);
               export_ipsec_pdu(dissector_handle, pinfo, next_tvb);
               call_dissector(dissector_handle, next_tvb, pinfo, tree);
@@ -2001,8 +2000,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
         else
         {
-          next_tvb = tvb_new_subset(tvb_decrypted, 0,
-                                    decrypted_len - esp_iv_len - esp_auth_len,
+          next_tvb = tvb_new_subset_length(tvb_decrypted, 0,
                                     decrypted_len - esp_iv_len - esp_auth_len);
           export_ipsec_pdu(data_handle, pinfo, next_tvb);
           call_dissector(data_handle, next_tvb, pinfo, esp_tree);

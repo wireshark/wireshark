@@ -65,7 +65,7 @@ static void uadecode(e_ua_direction  direction,
     case 0x16:
         {
             call_dissector(noe_handle,
-                           tvb_new_subset(tvb, offset, length, length),
+                           tvb_new_subset_length(tvb, offset, length),
                            pinfo,
                            tree);
             break;
@@ -141,7 +141,7 @@ static void uadecode(e_ua_direction  direction,
     case 0x50:  /* Only UA NOE */
         {
             call_dissector_with_data(ua3g_handle,
-                       tvb_new_subset(tvb, offset, length, length),
+                       tvb_new_subset_length(tvb, offset, length),
                        pinfo,
                        tree, &direction);
             break;

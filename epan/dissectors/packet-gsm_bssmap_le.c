@@ -259,7 +259,7 @@ de_bmaple_apdu(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offs
 		/* BSSLAP
 		 * the embedded message is as defined in 3GPP TS 08.71(3GPP TS 48.071 version 7.2.0 Release 7)
 		 */
-		APDU_tvb = tvb_new_subset(tvb, curr_offset+1, len-1, len-1);
+		APDU_tvb = tvb_new_subset_length(tvb, curr_offset+1, len-1);
 		if(gsm_bsslap_handle)
 			call_dissector(gsm_bsslap_handle, APDU_tvb, pinfo, g_tree);
 		break;
@@ -565,7 +565,7 @@ de_bmaple_pos_dta(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 o
 
 	curr_offset = offset;
 
-	data_tvb = tvb_new_subset(tvb, curr_offset, len, len);
+	data_tvb = tvb_new_subset_length(tvb, curr_offset, len);
 	dissect_geographical_description(data_tvb, pinfo, tree);
 
 	return(len);

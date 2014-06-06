@@ -106,7 +106,7 @@ static void dissect_srp_command(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
         proto_tree_add_item(srp_tree,hf_srp_seqno,tvb,1,1,ENC_BIG_ENDIAN);
 
     payload_len = tvb_reported_length_remaining(tvb,4);
-    next_tvb = tvb_new_subset(tvb, 2, payload_len, payload_len );
+    next_tvb = tvb_new_subset_length(tvb, 2, payload_len);
 
     /* XXX currently, we always dissect as CCSRL. It's only that in
      * H324/Annex C though.

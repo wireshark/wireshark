@@ -159,7 +159,7 @@ de_rp_user_data(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 off
 	/*
 	 * dissect the embedded TPDU message
 	 */
-	tpdu_tvb = tvb_new_subset(tvb, curr_offset, len, len);
+	tpdu_tvb = tvb_new_subset_length(tvb, curr_offset, len);
 
 	call_dissector_only(gsm_sms_handle, tpdu_tvb, pinfo, g_tree, NULL);
 

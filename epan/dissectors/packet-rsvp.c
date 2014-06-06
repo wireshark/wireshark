@@ -7052,7 +7052,7 @@ dissect_rsvp_msg_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 gint      sub_len;
                 tvbuff_t *tvb_sub;
                 sub_len = tvb_get_ntohs(tvb, len2+6);
-                tvb_sub = tvb_new_subset(tvb, len2, sub_len, sub_len);
+                tvb_sub = tvb_new_subset_length(tvb, len2, sub_len);
                 dissect_rsvp_msg_tree(tvb_sub, pinfo, rsvp_tree, TREE(TT_BUNDLE_COMPMSG), rsvph, e2ei);
                 len2 += sub_len;
             }

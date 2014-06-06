@@ -2656,7 +2656,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                 ext_hdr_handle = dissector_get_string_handle(ext_hdr_subdissector_table, header_name);
                 if (ext_hdr_handle != NULL) {
                     tvbuff_t *next_tvb2;
-                    next_tvb2 = tvb_new_subset(tvb, value_offset, value_len, value_len);
+                    next_tvb2 = tvb_new_subset_length(tvb, value_offset, value_len);
                     dissector_try_string(ext_hdr_subdissector_table, header_name, next_tvb2, pinfo, proto_item_add_subtree(ti_c, ett_sip_ext_hdr), NULL);
                 } else {
                     expert_add_info_format(pinfo, ti_c, &ei_sip_unrecognized_header,
@@ -3817,7 +3817,7 @@ dfilter_sip_status_line(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gin
 
     /* If we have a SIP diagnostics sub dissector call it */
     if(sip_diag_handle){
-        next_tvb = tvb_new_subset(tvb, offset, diag_len, diag_len);
+        next_tvb = tvb_new_subset_length(tvb, offset, diag_len);
         call_dissector(sip_diag_handle, next_tvb, pinfo, tree);
     }
 }

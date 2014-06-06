@@ -989,7 +989,7 @@ dissect_rpcap (tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree, void* da
     if (len) {
       /* Yet unknown, dump as data */
       proto_item_set_len (ti, 8);
-      new_tvb = tvb_new_subset (tvb, offset, len, len);
+      new_tvb = tvb_new_subset_remaining (tvb, offset);
       call_dissector (data_handle, new_tvb, pinfo, top_tree);
     }
     break;

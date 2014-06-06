@@ -1263,7 +1263,6 @@ dissect_fcsof(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
     proto_item *it = NULL;
     proto_tree *fcsof_tree = NULL;
-    gint bytes_remaining;
     tvbuff_t *next_tvb, *checksum_tvb;
     guint32 sof = 0;
     guint32 crc = 0;
@@ -1291,7 +1290,7 @@ dissect_fcsof(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
     /* GET Computed CRC */
     frame_len_for_checksum = crc_offset - FCSOF_HEADER_LEN;
-    checksum_tvb = tvb_new_subset(tvb, 4, frame_len_for_checksum, frame_len_for_checksum);
+    checksum_tvb = tvb_new_subset_length(tvb, 4, frame_len_for_checksum);
     crc_computed = crc32_802_tvb(checksum_tvb, frame_len_for_checksum);
 
     /* Get EOF */
@@ -1323,8 +1322,7 @@ dissect_fcsof(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
     proto_tree_add_uint(fcsof_tree, hf_fceof, tvb, eof_offset, 4, eof);
 
-    bytes_remaining = tvb_length_remaining(tvb, 4);
-    next_tvb = tvb_new_subset(tvb, 4, bytes_remaining, -1);
+    next_tvb = tvb_new_subset_remaining(tvb, 4);
 
     fc_data.ethertype = 0;
     fc_data.sof_eof = 0;

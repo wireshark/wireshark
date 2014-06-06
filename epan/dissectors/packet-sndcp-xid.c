@@ -520,7 +520,7 @@ dissect_sndcp_xid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 			1, parameter_len);
 			offset += 2;
 
-			dcomp_tvb = tvb_new_subset(tvb, offset, parameter_len, parameter_len);
+			dcomp_tvb = tvb_new_subset_length(tvb, offset, parameter_len);
 			parse_compression_parameters(dcomp_tvb, dcomp_tree, TRUE);
 			offset += parameter_len;
 
@@ -539,7 +539,7 @@ dissect_sndcp_xid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 			1, parameter_len);
 			offset += 2;
 
-			pcomp_tvb = tvb_new_subset(tvb, offset, parameter_len, parameter_len);
+			pcomp_tvb = tvb_new_subset_length(tvb, offset, parameter_len);
 			parse_compression_parameters(pcomp_tvb, pcomp_tree, FALSE);
 			offset += parameter_len;
 

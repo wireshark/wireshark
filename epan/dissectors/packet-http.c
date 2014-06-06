@@ -1747,7 +1747,7 @@ chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
 			    chunk_offset - offset, "Chunk size: %u octets",
 			    chunk_size);
 
-			data_tvb = tvb_new_subset(tvb, chunk_offset, chunk_size, chunk_size);
+			data_tvb = tvb_new_subset_length(tvb, chunk_offset, chunk_size);
 
 
 			/*

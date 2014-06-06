@@ -815,8 +815,7 @@ static void dissect_zbee_nwk_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     /* There is excess data in the packet. */
     if (offset < tvb_length(tvb)) {
         /* There are leftover bytes! */
-        guint       leftover_len    = tvb_length(tvb) - offset;
-        tvbuff_t    *leftover_tvb   = tvb_new_subset(tvb, offset, leftover_len, leftover_len);
+        tvbuff_t    *leftover_tvb   = tvb_new_subset_remaining(tvb, offset);
         proto_tree  *root           = NULL;
 
         /* Correct the length of the command tree. */
@@ -1641,8 +1640,7 @@ static int dissect_zbip_beacon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     if (offset < tvb_length(tvb)) {
         /* TODO: There are TLV's to parse. */
         /* Bytes leftover! */
-        guint       leftover_len    = tvb_length(tvb) - offset;
-        tvbuff_t    *leftover_tvb   = tvb_new_subset(tvb, offset, leftover_len, leftover_len);
+        tvbuff_t    *leftover_tvb   = tvb_new_subset_remaining(tvb, offset);
         proto_tree  *root           = NULL;
 
         /* Correct the length of the beacon tree. */

@@ -471,7 +471,7 @@ dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree)
                                                                           tvb, offset, avp_data_length,
                                                                           "AVP Value (EAP packet)");
                                        avp_eap_tree = proto_item_add_subtree(avp_eap_item, ett_pana_avp);
-                                       eap_tvb = tvb_new_subset(tvb, offset, avp_data_length, avp_data_length);
+                                       eap_tvb = tvb_new_subset_length(tvb, offset, avp_data_length);
                                        if (eap_handle != NULL) {
                                                call_dissector(eap_handle, eap_tvb, pinfo, avp_eap_tree);
                                        }
@@ -482,7 +482,7 @@ dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree)
                                                                           tvb, offset, avp_data_length,
                                                                           "AVP Value (PANA packet)");
                                        avp_encap_tree = proto_item_add_subtree(avp_encap_item, ett_pana_avp);
-                                       encap_tvb = tvb_new_subset(tvb, offset, avp_data_length, avp_data_length);
+                                       encap_tvb = tvb_new_subset_length(tvb, offset, avp_data_length);
                                        dissect_pana_pdu(encap_tvb, pinfo, avp_encap_tree);
                                        break;
                                }
@@ -640,7 +640,7 @@ dissect_pana_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                tvbuff_t   *avp_tvb;
                proto_tree *avp_tree;
                proto_item *avp_item;
-               avp_tvb  = tvb_new_subset(tvb, offset, avp_length, avp_length);
+               avp_tvb  = tvb_new_subset_length(tvb, offset, avp_length);
                avp_item = proto_tree_add_text(pana_tree, tvb, offset, avp_length, "Attribute Value Pairs");
                avp_tree = proto_item_add_subtree(avp_item, ett_pana_avp);
 

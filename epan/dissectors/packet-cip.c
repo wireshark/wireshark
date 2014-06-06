@@ -4357,7 +4357,7 @@ dissect_cip_multiple_service_packet_req(tvbuff_t *tvb, packet_info *pinfo, proto
 
       col_append_str( pinfo->cinfo, COL_INFO, ", ");
 
-      next_tvb = tvb_new_subset(tvb, offset+serv_offset, serv_length, serv_length);
+      next_tvb = tvb_new_subset_length(tvb, offset+serv_offset, serv_length);
 
       if ( mr_mult_req_info )
       {
@@ -4676,7 +4676,7 @@ dissect_cip_multiple_service_packet_rsp(tvbuff_t *tvb, packet_info *pinfo, proto
 
       col_append_str( pinfo->cinfo, COL_INFO, ", ");
 
-      next_tvb = tvb_new_subset(tvb, offset+serv_offset, serv_length, serv_length);
+      next_tvb = tvb_new_subset_length(tvb, offset+serv_offset, serv_length);
       if ( mr_mult_req_info )
       {
          mr_single_req_info = mr_mult_req_info->requests + i;
@@ -5127,7 +5127,7 @@ dissect_cip_cm_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
             p_add_proto_data(wmem_file_scope(), pinfo, proto_cip, 0, pembedded_req_info );
 
             proto_tree_add_text( item_tree, NULL, 0, 0, "(Service: Unconnected Send (Response))" );
-            next_tvb = tvb_new_subset(tvb, offset, item_length, item_length);
+            next_tvb = tvb_new_subset_length(tvb, offset, item_length);
             if ( pembedded_req_info && pembedded_req_info->dissector )
                call_dissector(pembedded_req_info->dissector, next_tvb, pinfo, item_tree );
             else
@@ -5432,7 +5432,7 @@ dissect_cip_cm_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
 
             col_append_str( pinfo->cinfo, COL_INFO, ": ");
 
-            next_tvb = tvb_new_subset(tvb, offset+2+req_path_size+4, msg_req_siz, msg_req_siz);
+            next_tvb = tvb_new_subset_length(tvb, offset+2+req_path_size+4, msg_req_siz);
             preq_info = (cip_req_info_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_cip, 0 );
             pembedded_req_info = NULL;
             if ( preq_info )
@@ -5592,7 +5592,7 @@ dissect_cip_mb_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
                if( tvb_length_remaining(tvb, offset) > 0 )
                {
                   /* dissect the Modbus PDU */
-                  next_tvb = tvb_new_subset( tvb, offset+4+add_stat_size, item_length-4-add_stat_size, item_length-4-add_stat_size);
+                  next_tvb = tvb_new_subset_length( tvb, offset+4+add_stat_size, item_length-4-add_stat_size);
 
                   /* keep packet context */
                   request_info = wmem_new(wmem_packet_scope(), modbus_request_info_t);
@@ -5682,7 +5682,7 @@ dissect_cip_mb_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
             if( tvb_length_remaining(tvb, offset) > 0 )
             {
                /* dissect the Modbus PDU */
-               next_tvb = tvb_new_subset( tvb, offset+2+req_path_size, item_length-req_path_size-2, item_length-req_path_size-2);
+               next_tvb = tvb_new_subset_length( tvb, offset+2+req_path_size, item_length-req_path_size-2);
 
                /* keep packet context */
                request_info = wmem_new(wmem_packet_scope(), modbus_request_info_t);

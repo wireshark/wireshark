@@ -10772,7 +10772,7 @@ int lbmc_dissect_lbmc_packet(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
             return (len_dissected);
         }
         /* Create a new tvb for just this LBMC message. */
-        lbmc_tvb = tvb_new_subset(tvb, tvb_lbmc_offset, (gint)msglen, (gint)msglen);
+        lbmc_tvb = tvb_new_subset_length(tvb, tvb_lbmc_offset, (gint)msglen);
         if ((type == LBMC_TYPE_MESSAGE) || (type == LBMC_TYPE_RETRANS) || (type == LBMC_TYPE_PRORX))
         {
             topic_index = tvb_get_ntohl(lbmc_tvb, O_LBMC_HDR_T_TIDX);
@@ -10897,7 +10897,7 @@ int lbmc_dissect_lbmc_packet(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
                 expert_add_info_format(pinfo, NULL, &ei_lbmc_analysis_zero_length, "LBMC header length is zero");
                 return (len_dissected);
             }
-            hdr_tvb = tvb_new_subset(lbmc_tvb, pkt_offset, (gint)bhdr.hdr_len, (gint)bhdr.hdr_len);
+            hdr_tvb = tvb_new_subset_length(lbmc_tvb, pkt_offset, (gint)bhdr.hdr_len);
             found_header[next_hdr] = 1;
             switch (next_hdr)
             {
@@ -11365,13 +11365,12 @@ int lbmc_dissect_lbmc_packet(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
                     /* Has message properties */
                     actual_data_len = tvb_reported_length_remaining(lbmc_tvb, pkt_offset) - msgprop_len;
                     msgprop_offset = pkt_offset + actual_data_len;
-                    data_tvb = tvb_new_subset(lbmc_tvb, pkt_offset, actual_data_len, actual_data_len);
-                    msgprop_tvb = tvb_new_subset(lbmc_tvb, msgprop_offset, msgprop_len, msgprop_len);
+                    data_tvb = tvb_new_subset_length(lbmc_tvb, pkt_offset, actual_data_len);
+                    msgprop_tvb = tvb_new_subset_length(lbmc_tvb, msgprop_offset, msgprop_len);
                 }
                 else
                 {
-                    actual_data_len = tvb_reported_length_remaining(lbmc_tvb, pkt_offset);
-                    data_tvb = tvb_new_subset(lbmc_tvb, pkt_offset, actual_data_len, actual_data_len);
+                    data_tvb = tvb_new_subset_remaining(lbmc_tvb, pkt_offset);
                     msgprop_tvb = NULL;
                 }
                 msg_complete = TRUE;
@@ -11384,7 +11383,7 @@ int lbmc_dissect_lbmc_packet(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
                 {
                     /* But don't reassemble them */
                     actual_data_len = tvb_reported_length_remaining(lbmc_tvb, pkt_offset);
-                    data_tvb = tvb_new_subset(lbmc_tvb, pkt_offset, actual_data_len, actual_data_len);
+                    data_tvb = tvb_new_subset_length(lbmc_tvb, pkt_offset, actual_data_len);
                     msgprop_tvb = NULL;
                     msg_complete = TRUE;
                 }
@@ -11421,8 +11420,7 @@ int lbmc_dissect_lbmc_packet(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
                             {
                                 /* Store the frame number in which the message will be reassembled */
                                 msg->reassembled_frame = pinfo->fd->num;
-                                actual_data_len = tvb_reported_length_remaining(lbmc_tvb, pkt_offset);
-                                data_tvb = tvb_new_subset(lbmc_tvb, pkt_offset, actual_data_len, actual_data_len);
+                                data_tvb = tvb_new_subset_remaining(lbmc_tvb, pkt_offset);
                                 msgprop_tvb = NULL;
                                 msg_reassembled = TRUE;
                                 msg_complete = TRUE;
@@ -11430,8 +11428,7 @@ int lbmc_dissect_lbmc_packet(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
                             else
                             {
                                 /* This is not the last fragment of the message. */
-                                actual_data_len = tvb_reported_length_remaining(lbmc_tvb, pkt_offset);
-                                data_tvb = tvb_new_subset(lbmc_tvb, pkt_offset, actual_data_len, actual_data_len);
+                                data_tvb = tvb_new_subset_remaining(lbmc_tvb, pkt_offset);
                                 msgprop_tvb = NULL;
                                 msg_reassembled = TRUE;
                                 msg_complete = FALSE;
@@ -11468,21 +11465,21 @@ int lbmc_dissect_lbmc_packet(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
                     msg->reassembled_data = tvb_new_real_data(buf, msg->total_len, msg->total_len);
                     msg_complete = TRUE;
                     /* Create separate data and msgprop tvbs */
-                    msg->data = tvb_new_subset(msg->reassembled_data, 0, msg->total_len - msg->msgprop_len, msg->total_len - msg->msgprop_len);
+                    msg->data = tvb_new_subset_length(msg->reassembled_data, 0, msg->total_len - msg->msgprop_len);
                     if (msg->msgprop_len > 0)
                     {
-                        msg->msgprop = tvb_new_subset(msg->reassembled_data, msg->total_len - msg->msgprop_len, msg->msgprop_len, msg->msgprop_len);
+                        msg->msgprop = tvb_new_subset_length(msg->reassembled_data, msg->total_len - msg->msgprop_len, msg->msgprop_len);
                     }
                     add_new_data_source(pinfo, msg->reassembled_data, "Reassembled Data");
                     if (msg->data == NULL)
                     {
-                        msg->data = tvb_new_subset(msg->reassembled_data, 0, msg->total_len - msg->msgprop_len, msg->total_len - msg->msgprop_len);
+                        msg->data = tvb_new_subset_length(msg->reassembled_data, 0, msg->total_len - msg->msgprop_len);
                     }
                     if (msg->msgprop == NULL)
                     {
                         if (msg->msgprop_len > 0)
                         {
-                            msg->msgprop = tvb_new_subset(msg->reassembled_data, msg->total_len - msg->msgprop_len, msg->msgprop_len, msg->msgprop_len);
+                            msg->msgprop = tvb_new_subset_length(msg->reassembled_data, msg->total_len - msg->msgprop_len, msg->msgprop_len);
                         }
                     }
                     data_tvb = msg->data;

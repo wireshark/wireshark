@@ -1895,7 +1895,7 @@ dissect_6lowpan_iphc_nhc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
         }
 
         /* Display the extension header using the data dissector. */
-        call_dissector(data_handle, tvb_new_subset(tvb, offset, ext_len, ext_len), pinfo, nhc_tree);
+        call_dissector(data_handle, tvb_new_subset_length(tvb, offset, ext_len), pinfo, nhc_tree);
 
         /* Copy the extension header into the struct. */
         tvb_memcpy(tvb, LOWPAN_NHDR_DATA(nhdr) + sizeof(struct ip6_ext), offset, ext_len);

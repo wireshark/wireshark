@@ -333,7 +333,7 @@ static void after_token(void *tvbparse_data, const void *wanted_data _U_, tvbpar
         new_frame->type           = XML_FRAME_CDATA;
         new_frame->name           = NULL;
         new_frame->name_orig_case = NULL;
-        new_frame->value          = tvb_new_subset(tok->tvb, tok->offset, tok->len, tok->len);
+        new_frame->value          = tvb_new_subset_length(tok->tvb, tok->offset, tok->len);
         insert_xml_frame(current_frame, new_frame);
         new_frame->item           = pi;
         new_frame->last_item      = pi;
@@ -608,8 +608,8 @@ static void after_attrib(void *tvbparse_data, const void *wanted_data _U_, tvbpa
     new_frame->type           = XML_FRAME_ATTRIB;
     new_frame->name           = name;
     new_frame->name_orig_case = name_orig_case;
-    new_frame->value          = tvb_new_subset(value_part->tvb, value_part->offset,
-                           value_part->len, value_part->len);
+    new_frame->value          = tvb_new_subset_length(value_part->tvb, value_part->offset,
+                           value_part->len);
     insert_xml_frame(current_frame, new_frame);
     new_frame->item           = pi;
     new_frame->last_item      = pi;

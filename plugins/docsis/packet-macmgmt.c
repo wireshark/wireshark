@@ -196,7 +196,7 @@ dissect_macmgmt (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   /* sub-dissectors are based on the type field */
   type = tvb_get_guint8 (tvb, 18);
   msg_len = tvb_get_ntohs (tvb, 12);
-  payload_tvb = tvb_new_subset (tvb, 20, msg_len - 6, msg_len - 6);
+  payload_tvb = tvb_new_subset_length (tvb, 20, msg_len - 6);
 
   if (dissector_try_uint
       (docsis_mgmt_dissector_table, type, payload_tvb, pinfo, tree))

@@ -1534,7 +1534,7 @@ static void process_control_avps(tvbuff_t *tvb,
 
         if (avp_vendor_id != VENDOR_IETF) {
 
-            avp_tvb = tvb_new_subset(tvb, idx, avp_len, avp_len);
+            avp_tvb = tvb_new_subset_length(tvb, idx, avp_len);
 
             if (avp_vendor_id == VENDOR_CISCO) {      /* Vendor-Specific AVP */
 
@@ -1783,21 +1783,21 @@ static void process_control_avps(tvbuff_t *tvb,
         case INITIAL_RECEIVED_LCP_CONFREQ:
             te = proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_initial_received_lcp_confreq, tvb, idx, avp_len, ENC_NA);
             l2tp_lcp_avp_tree = proto_item_add_subtree(te, ett_l2tp_lcp);
-            next_tvb = tvb_new_subset(tvb, idx, avp_len, avp_len);
+            next_tvb = tvb_new_subset_length(tvb, idx, avp_len);
             call_dissector(ppp_lcp_options_handle, next_tvb, pinfo, l2tp_lcp_avp_tree );
             break;
 
         case LAST_SENT_LCP_CONFREQ:
             te = proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_last_sent_lcp_confreq, tvb, idx, avp_len, ENC_NA);
             l2tp_lcp_avp_tree = proto_item_add_subtree(te, ett_l2tp_lcp);
-            next_tvb = tvb_new_subset(tvb, idx, avp_len, avp_len);
+            next_tvb = tvb_new_subset_length(tvb, idx, avp_len);
             call_dissector(ppp_lcp_options_handle, next_tvb, pinfo, l2tp_lcp_avp_tree );
             break;
 
         case LAST_RECEIVED_LCP_CONFREQ:
             te = proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_last_received_lcp_confreq, tvb, idx, avp_len, ENC_NA);
             l2tp_lcp_avp_tree = proto_item_add_subtree(te, ett_l2tp_lcp);
-            next_tvb = tvb_new_subset(tvb, idx, avp_len, avp_len);
+            next_tvb = tvb_new_subset_length(tvb, idx, avp_len);
             call_dissector(ppp_lcp_options_handle, next_tvb, pinfo, l2tp_lcp_avp_tree );
             break;
 

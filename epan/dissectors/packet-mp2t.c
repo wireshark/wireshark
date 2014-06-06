@@ -745,7 +745,7 @@ mp2t_process_fragmented_payload(tvbuff_t *tvb, gint offset, guint remaining_len,
             /* Check for full packets within this TS frame */
             if (frag_tot_len &&
                     frag_tot_len <= remaining_len) {
-                next_tvb = tvb_new_subset(tvb, offset, frag_tot_len, frag_tot_len);
+                next_tvb = tvb_new_subset_length(tvb, offset, frag_tot_len);
                 mp2t_dissect_packet(next_tvb, pid_analysis->pload_type, pinfo, tree);
                 remaining_len -= frag_tot_len;
                 offset += frag_tot_len;

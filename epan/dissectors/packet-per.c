@@ -2322,7 +2322,7 @@ DEBUG_ENTRY("dissect_per_octet_string");
 	}
 
 	if (value_tvb)
-		*value_tvb = (out_tvb) ? out_tvb : tvb_new_subset(tvb, val_start, val_length, val_length);
+		*value_tvb = (out_tvb) ? out_tvb : tvb_new_subset_length(tvb, val_start, val_length);
 
 	return offset;
 }

@@ -3945,7 +3945,7 @@ dissect_cp(tvbuff_t *tvb, int proto_id, int proto_subtree_index,
             pinfo->flags.in_error_pkt = TRUE;
 
             /* Decode the rejected packet. */
-            next_tvb = tvb_new_subset(tvb, offset, length, length);
+            next_tvb = tvb_new_subset_length(tvb, offset, length);
             if (!dissector_try_uint(ppp_subdissector_table, protocol, next_tvb,
                 pinfo, fh_tree)) {
                 call_dissector(data_handle, next_tvb, pinfo, fh_tree);
@@ -4520,7 +4520,7 @@ dissect_pppmux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         sub_ti = proto_tree_add_text(sub_tree, tvb,offset, length,
             "Information Field");
         info_tree = proto_item_add_subtree(sub_ti, ett_pppmux_subframe_info);
-        next_tvb = tvb_new_subset(tvb, offset, length, length);
+        next_tvb = tvb_new_subset_length(tvb, offset, length);
 
         if (!dissector_try_uint(ppp_subdissector_table, pid, next_tvb, pinfo,
             info_tree)) {

@@ -698,8 +698,7 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb, const guint8 *boundary,
             &boundary_line_len, last_boundary);
     if (boundary_start > 0) {
         gint body_len = boundary_start - body_start;
-        tvbuff_t *tmp_tvb = tvb_new_subset(tvb, body_start,
-                body_len, body_len);
+        tvbuff_t *tmp_tvb = tvb_new_subset_length(tvb, body_start, body_len);
 
         if (content_type_str) {
 

@@ -62,7 +62,7 @@ dissect_lapbether(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     }
 
-    next_tvb = tvb_new_subset(tvb, 2, len, len);
+    next_tvb = tvb_new_subset_length(tvb, 2, len);
     call_dissector(lapb_handle, next_tvb, pinfo, tree);
 
 }

@@ -89,9 +89,9 @@ dissect_dvb_data_mpe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* Parse the DMC-CC private section header */
 
-    mac_bytes_tvb[5] = tvb_new_subset(tvb, offset, 1, 1);
+    mac_bytes_tvb[5] = tvb_new_subset_length(tvb, offset, 1);
     offset += 1;
-    mac_bytes_tvb[4] = tvb_new_subset(tvb, offset, 1, 1);
+    mac_bytes_tvb[4] = tvb_new_subset_length(tvb, offset, 1);
     offset += 1;
 
     proto_tree_add_item(dvb_data_mpe_tree, hf_dvb_data_mpe_reserved,                   tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -109,7 +109,7 @@ dissect_dvb_data_mpe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     offset += 1;
 
     for (i = 3; i >= 0; i--) {
-        mac_bytes_tvb[i] = tvb_new_subset(tvb, offset, 1, 1);
+        mac_bytes_tvb[i] = tvb_new_subset_length(tvb, offset, 1);
         offset += 1;
     }
 

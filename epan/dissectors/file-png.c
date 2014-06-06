@@ -490,7 +490,7 @@ dissect_png(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *da
         proto_tree_add_item(chunk_tree, &hfi_png_chunk_flag_stc, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset+=4;
 
-        chunk_tvb=tvb_new_subset(tvb, offset, len_field, len_field);
+        chunk_tvb=tvb_new_subset_length(tvb, offset, len_field);
         switch (type) {
             case CHUNK_TYPE_IHDR:
                 dissect_png_ihdr(chunk_tvb, pinfo, chunk_tree);

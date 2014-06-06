@@ -685,7 +685,7 @@ static void dissect_actrace_isdn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
 	/* Dissect lapd payload */
 	offset += 2 ;
-	next_tvb = tvb_new_subset(tvb, offset, len, len);
+	next_tvb = tvb_new_subset_length(tvb, offset, len);
 	call_dissector(lapd_handle, next_tvb, pinfo, tree);
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "AC_ISDN");

@@ -2967,7 +2967,7 @@ dissect_megaco_Localdescriptor(tvbuff_t *tvb, proto_tree *megaco_mediadescriptor
 
     tokenlen = tvb_next_offset - tvb_current_offset;
     if ( tokenlen > 3 ){
-        next_tvb = tvb_new_subset(tvb, tvb_current_offset, tokenlen, tokenlen);
+        next_tvb = tvb_new_subset_length(tvb, tvb_current_offset, tokenlen);
         call_dissector(sdp_handle, next_tvb, pinfo, megaco_localdescriptor_tree);
     }
 }

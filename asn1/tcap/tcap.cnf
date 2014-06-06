@@ -89,7 +89,7 @@ gint ind_field;
 comp_offset = dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &ber_class, &pc, &tag);
 comp_offset = dissect_ber_length(actx->pinfo, tree, tvb, comp_offset, &len, &ind_field);
 /* we can believe the length now */
-next_tvb = tvb_new_subset(tvb, offset, len+comp_offset-offset, len+comp_offset-offset);
+next_tvb = tvb_new_subset_length(tvb, offset, len+comp_offset-offset);
 
 if (!next_tvb)
   return comp_offset;

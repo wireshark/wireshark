@@ -161,8 +161,8 @@ dissect_ehdlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		header_length += XDLC_CONTROL_LEN(control, is_extended);
 
 		if (XDLC_IS_INFORMATION(control)) {
-			next_tvb = tvb_new_subset(tvb, offset+header_length,
-						  len-header_length, len-header_length);
+			next_tvb = tvb_new_subset_length(tvb, offset+header_length,
+						  len-header_length);
 
 			switch (msg_type) {
 			case 0x20:

@@ -1242,7 +1242,7 @@ dissect_pn532(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             break;
         case FELICA_212:
         case FELICA_424:
-            next_tvb = tvb_new_subset(tvb, offset, 5, 5);
+            next_tvb = tvb_new_subset_length(tvb, offset, 5);
             call_dissector(sub_handles[SUB_FELICA], next_tvb, pinfo, tree);
             offset += 5;
             break;

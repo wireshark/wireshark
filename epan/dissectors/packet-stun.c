@@ -1039,7 +1039,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                         proto_tree_add_uint(att_tree, hf_stun_att_padding, tvb, offset+att_length, pad, pad);
                     }
 
-                    next_tvb = tvb_new_subset(tvb, offset, att_length, att_length);
+                    next_tvb = tvb_new_subset_length(tvb, offset, att_length);
 
                     if (!dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, att_tree, &hdtbl_entry, NULL)) {
                         call_dissector_only(data_handle, next_tvb, pinfo, att_tree, NULL);

@@ -1467,8 +1467,7 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
             }
           else
             {
-              sub_tvb = tvb_new_subset(tvb, offset, fragment_length,
-                                       fragment_length);
+              sub_tvb = tvb_new_subset_length(tvb, offset, fragment_length);
             }
 
           /* now dissect the handshake message, if necessary */

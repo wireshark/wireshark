@@ -708,7 +708,7 @@ dissect_sigcomp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sigcomp_tr
         }
 
         if ( decompress ) {
-            msg_tvb = tvb_new_subset(tvb, offset, msg_len, msg_len);
+            msg_tvb = tvb_new_subset_length(tvb, offset, msg_len);
             /*
              * buff                 = Where "state" will be stored
              * p_id_start           = Partial state identifier start pos in the buffer(buff)
@@ -759,7 +759,7 @@ dissect_sigcomp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sigcomp_tr
             udvm_tvb = tvb_new_child_real_data(tvb, buff,state_length+state_address,state_length+state_address);
             add_new_data_source(pinfo, udvm_tvb, "State/ExecutionTrace");
 
-            udvm2_tvb = tvb_new_subset(udvm_tvb, state_address, state_length, state_length);
+            udvm2_tvb = tvb_new_subset_length(udvm_tvb, state_address, state_length);
             udvm_exe_item = proto_tree_add_item(sigcomp_tree, hf_udvm_execution_trace,
                                                 udvm2_tvb, 0, state_length,
                                                 ENC_NA);
@@ -881,7 +881,7 @@ dissect_sigcomp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sigcomp_tr
                                    " %u (0x%x) bytes", bytecode_len, bytecode_len);
             sigcomp_udvm_tree = proto_item_add_subtree( udvm_bytecode_item, ett_sigcomp_udvm);
 
-            udvm_tvb = tvb_new_subset(tvb, offset, len, len);
+            udvm_tvb = tvb_new_subset_length(tvb, offset, len);
             if ( dissect_udvm_code )
                 dissect_udvm_bytecode(udvm_tvb, sigcomp_udvm_tree, destination);
 
@@ -895,7 +895,7 @@ dissect_sigcomp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sigcomp_tr
             }
             if ( decompress ){
 
-                msg_tvb = tvb_new_subset(tvb, offset, msg_len, msg_len);
+                msg_tvb = tvb_new_subset_length(tvb, offset, msg_len);
 
                 udvm_exe_item = proto_tree_add_item(sigcomp_tree, hf_udvm_execution_trace,
                                                     tvb, bytecode_offset, bytecode_len,

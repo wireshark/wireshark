@@ -378,7 +378,7 @@ de_sgsap_nas_msg_container(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, 
     /* Octets 3 to 253 contain the SMS message (i.e. CP DATA, CP ACK or CP ERROR)
      * as defined in subclause 7.2 of 3GPP TS 24.011 [10]
      */
-    new_tvb = tvb_new_subset(tvb, curr_offset, len, len);
+    new_tvb = tvb_new_subset_length(tvb, curr_offset, len);
     if (gsm_a_dtap_handle) {
         call_dissector(gsm_a_dtap_handle, new_tvb, pinfo, tree);
     }

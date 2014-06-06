@@ -804,7 +804,7 @@ dissect_pn_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     pinfo->private_data = GUINT_TO_POINTER( (guint32) u16FrameID);
 
     /* get frame user data tvb (without header and footer) */
-    next_tvb = tvb_new_subset(tvb, 2, data_len, data_len);
+    next_tvb = tvb_new_subset_length(tvb, 2, data_len);
 
     /* ask heuristics, if some sub-dissector is interested in this packet payload */
     if (!dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree, &hdtbl_entry, NULL)) {

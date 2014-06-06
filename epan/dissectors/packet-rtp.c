@@ -1463,7 +1463,7 @@ process_rtp_payload(tvbuff_t *newtvb, packet_info *pinfo, proto_tree *tree,
         found_match = TRUE;
 
         if (p_conv_data->bta2dp_info->content_protection_type == BTAVDTP_CONTENT_PROTECTION_TYPE_SCMS_T) {
-            nexttvb = tvb_new_subset(newtvb, 0, 1, 1);
+            nexttvb = tvb_new_subset_length(newtvb, 0, 1);
              call_dissector(bta2dp_content_protection_header_scms_t, nexttvb, pinfo, tree);
             suboffset = 1;
         }
@@ -1480,7 +1480,7 @@ process_rtp_payload(tvbuff_t *newtvb, packet_info *pinfo, proto_tree *tree,
         found_match = TRUE;
 
         if (p_conv_data->btvdp_info->content_protection_type == BTAVDTP_CONTENT_PROTECTION_TYPE_SCMS_T) {
-            nexttvb = tvb_new_subset(newtvb, 0, 1, 1);
+            nexttvb = tvb_new_subset_length(newtvb, 0, 1);
             call_dissector(btvdp_content_protection_header_scms_t, nexttvb, pinfo, tree);
             suboffset = 1;
         }
@@ -1841,7 +1841,7 @@ dissect_rtp_hext_rfc5215_onebyte( tvbuff_t *tvb, packet_info *pinfo,
         }
         ext_offset ++;
 
-        subtvb = tvb_new_subset(tvb, ext_offset, ext_length, ext_length);
+        subtvb = tvb_new_subset_length(tvb, ext_offset, ext_length);
         if (!dissector_try_uint (rtp_hdr_ext_rfc5285_dissector_table, ext_id, subtvb, pinfo, rtp_hext_rfc5285_tree)) {
             if (rtp_hext_tree)
                 proto_tree_add_item(rtp_hext_rfc5285_tree, hf_rtp_ext_rfc5285_data, subtvb, 0, ext_length, ENC_NA );
@@ -1890,7 +1890,7 @@ dissect_rtp_hext_rfc5215_twobytes(tvbuff_t *parent_tvb, guint id_offset,
 
         ext_offset += 2;
 
-        subtvb = tvb_new_subset(tvb, ext_offset, ext_length, ext_length);
+        subtvb = tvb_new_subset_length(tvb, ext_offset, ext_length);
         if (ext_length && !dissector_try_uint (rtp_hdr_ext_rfc5285_dissector_table, ext_id, subtvb, pinfo, rtp_hext_rfc5285_tree)) {
             proto_tree_add_item(rtp_hext_rfc5285_tree, hf_rtp_ext_rfc5285_data, subtvb, 0, ext_length, ENC_NA );
         }
@@ -2211,7 +2211,7 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
             }
 
             /* pass interpretation of header extension to a registered subdissector */
-            newtvb = tvb_new_subset(tvb, offset, hdr_extension_len * 4, hdr_extension_len * 4);
+            newtvb = tvb_new_subset_length(tvb, offset, hdr_extension_len * 4);
 
             if (hdr_extension_id == RTP_RFC5215_ONE_BYTE_SIG) {
                 dissect_rtp_hext_rfc5215_onebyte (newtvb, pinfo, rtp_hext_tree);

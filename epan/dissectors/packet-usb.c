@@ -1907,7 +1907,7 @@ dissect_usb_configuration_descriptor(packet_info *pinfo _U_, proto_tree *parent_
             offset = dissect_usb_interface_assn_descriptor(pinfo, parent_tree, tvb, offset, usb_trans_info, usb_conv_info);
             break;
         default:
-            next_tvb = tvb_new_subset(tvb, offset, next_len, next_len);
+            next_tvb = tvb_new_subset_length(tvb, offset, next_len);
             if (dissector_try_uint_new(usb_descriptor_dissector_table, usb_conv_info->interfaceClass, next_tvb, pinfo, parent_tree, TRUE, usb_conv_info)) {
                 offset += next_len;
             } else {
@@ -3036,7 +3036,7 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
                     (header_info & (USB_HEADER_IS_LINUX | USB_HEADER_IS_64_BYTES))) {
 
                     setup_tvb = tvb_new_composite();
-                    next_tvb = tvb_new_subset(tvb, offset - 7, 7, 7);
+                    next_tvb = tvb_new_subset_length(tvb, offset - 7, 7);
                     tvb_composite_append(setup_tvb, next_tvb);
                 }
 

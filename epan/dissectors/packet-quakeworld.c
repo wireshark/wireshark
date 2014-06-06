@@ -638,8 +638,7 @@ dissect_quakeworld_GamePacket(tvbuff_t *tvb, packet_info *pinfo,
 	/* all the rest is pure game data */
 	rest_length = tvb_reported_length(tvb) - offset;
 	if (rest_length) {
-		tvbuff_t *next_tvb =
-		tvb_new_subset(tvb, offset, rest_length , rest_length);
+		tvbuff_t *next_tvb = tvb_new_subset_remaining(tvb, offset);
 
 		if (direction == DIR_C2S) {
 			proto_tree *c_tree = NULL;

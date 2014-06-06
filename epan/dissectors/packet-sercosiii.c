@@ -900,13 +900,13 @@ static void dissect_siii_mdt_cp1_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
   for (idx = 0; idx < SERCOS_SLAVE_GROUP_SIZE; ++idx) /* each MDT of CP1/2 has data for 128 different slaves */
   {
-    tvb_n = tvb_new_subset(tvb, 6 * idx, 6, 6); /* subset for service channel data */
+    tvb_n = tvb_new_subset_length(tvb, 6 * idx, 6); /* subset for service channel data */
 
     ti = proto_tree_add_text(subtree_svc, tvb_n, 0, 6, "Device %u", idx + devstart);
     subtree = proto_item_add_subtree(ti, ett_siii_mdt_svc_channel);
     dissect_siii_mdt_svc(tvb_n, pinfo, subtree, idx + devstart);
 
-    tvb_n = tvb_new_subset(tvb, SERCOS_SLAVE_GROUP_SIZE * 6 + 4 * idx, 2, 2); /* subset for device control information */
+    tvb_n = tvb_new_subset_length(tvb, SERCOS_SLAVE_GROUP_SIZE * 6 + 4 * idx, 2); /* subset for device control information */
 
     ti = proto_tree_add_text(subtree_devctrl, tvb_n, 0, 2, "Device %u", idx + devstart);
     subtree = proto_item_add_subtree(ti, ett_siii_mdt_dev_control);
@@ -963,13 +963,13 @@ static void dissect_siii_mdt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
   switch (t_phase) /* call the MDT dissector depending on the current communication phase */
   {
   case COMMUNICATION_PHASE_0: /* CP0 */
-    tvb_n = tvb_new_subset(tvb, 6, 40, 40);
+    tvb_n = tvb_new_subset_length(tvb, 6, 40);
     dissect_siii_mdt_cp0(tvb_n, pinfo, subtree);
   break;
 
   case COMMUNICATION_PHASE_1: /* CP1 */
   case COMMUNICATION_PHASE_2: /* CP2 */
-    tvb_n = tvb_new_subset(tvb, 6, 1280, 1280);
+    tvb_n = tvb_new_subset_length(tvb, 6, 1280);
     dissect_siii_mdt_cp1_2(tvb_n, pinfo, subtree, telno);
   break;
 
@@ -1095,13 +1095,13 @@ static void dissect_siii_at_cp1_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
   for (idx = 0; idx < SERCOS_SLAVE_GROUP_SIZE; ++idx) /* each AT of CP1/2 has data of 128 different slaves */
   {
-    tvb_n = tvb_new_subset(tvb, 6 * idx, 6, 6); /* subset for service channel data */
+    tvb_n = tvb_new_subset_length(tvb, 6 * idx, 6); /* subset for service channel data */
 
     ti = proto_tree_add_text(subtree_svc, tvb_n, 0, 6, "Device %u", idx + devstart);
     subtree = proto_item_add_subtree(ti, ett_siii_at_svc_channel);
     dissect_siii_at_svc(tvb_n, pinfo, subtree, idx + devstart);
 
-    tvb_n = tvb_new_subset(tvb, SERCOS_SLAVE_GROUP_SIZE * 6 + 4 * idx, 2, 2); /* subset for device status information */
+    tvb_n = tvb_new_subset_length(tvb, SERCOS_SLAVE_GROUP_SIZE * 6 + 4 * idx, 2); /* subset for device status information */
 
     ti = proto_tree_add_text(subtree_devstat, tvb_n, 0, 2, "Device %u", idx + devstart);
     subtree = proto_item_add_subtree(ti, ett_siii_at_dev_status);
@@ -1155,13 +1155,13 @@ static void dissect_siii_at(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     switch (phase) /* call the AT dissector depending on the current communication phase */
     {
     case COMMUNICATION_PHASE_0: /* CP0 */
-      tvb_n = tvb_new_subset(tvb, 6, 1024, 1024);
+      tvb_n = tvb_new_subset_length(tvb, 6, 1024);
       dissect_siii_at_cp0(tvb_n, pinfo, subtree);
     break;
 
     case COMMUNICATION_PHASE_1: /* CP1 */
     case COMMUNICATION_PHASE_2: /* CP2 */
-      tvb_n = tvb_new_subset(tvb, 6, 1280, 1280);
+      tvb_n = tvb_new_subset_length(tvb, 6, 1280);
       dissect_siii_at_cp1_2(tvb_n, pinfo, subtree, telno);
     break;
 

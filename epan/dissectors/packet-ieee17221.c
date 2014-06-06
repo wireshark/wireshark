@@ -3230,7 +3230,7 @@ dissect_17221_aem(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
                STREAM_OFFSET_STREAM_FLAGS, 2, ENC_BIG_ENDIAN);
          /* done adding flags, continue with fields */
          /* stream format dissection */
-         next_tvb = tvb_new_subset(tvb, STREAM_OFFSET_CURRENT_FORMAT, 8, 8);
+         next_tvb = tvb_new_subset_length(tvb, STREAM_OFFSET_CURRENT_FORMAT, 8);
          dissect_17221_stream_format(next_tvb, aem_tree);
 
          proto_tree_add_item(aem_tree, hf_aem_formats_offset, tvb,
@@ -3268,7 +3268,7 @@ dissect_17221_aem(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
          mr_subtree = proto_item_add_subtree(mr_item, ett_aem_stream_formats);
 
          for(i = 0; i < mr_counter; ++i) {
-            next_tvb = tvb_new_subset(tvb, mr_offset, 8, 8);
+            next_tvb = tvb_new_subset_length(tvb, mr_offset, 8);
             dissect_17221_stream_format(next_tvb, mr_subtree);
             mr_offset += 8;
          }
@@ -3921,7 +3921,7 @@ dissect_17221_aecp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *aecp_tree)
 
            if ((mess_type != AECP_AEM_COMMAND_MESSAGE)||(c_type == AECP_COMMAND_SET_STREAM_FORMAT))
            {
-              next_tvb = tvb_new_subset(tvb, AECP_OFFSET_STREAM_FORMAT_STREAM_FORMAT, 8, 8);
+              next_tvb = tvb_new_subset_length(tvb, AECP_OFFSET_STREAM_FORMAT_STREAM_FORMAT, 8);
               dissect_17221_stream_format(next_tvb, aecp_tree);
            }
            break;
@@ -3934,16 +3934,16 @@ dissect_17221_aecp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *aecp_tree)
 
             if ((mess_type != AECP_AEM_COMMAND_MESSAGE)||(c_type == AECP_COMMAND_SET_VIDEO_FORMAT))
             {
-                next_tvb = tvb_new_subset(tvb, AECP_OFFSET_VIDEO_FORMAT_FORMAT_SPECIFIC, 4, 4);
+                next_tvb = tvb_new_subset_length(tvb, AECP_OFFSET_VIDEO_FORMAT_FORMAT_SPECIFIC, 4);
                 dissect_17221_video_format(next_tvb, aecp_tree);
 
-                next_tvb = tvb_new_subset(tvb, AECP_OFFSET_VIDEO_FORMAT_ASPECT_RATIO, 2, 2);
+                next_tvb = tvb_new_subset_length(tvb, AECP_OFFSET_VIDEO_FORMAT_ASPECT_RATIO, 2);
                 dissect_17221_video_aspect_ratio(next_tvb, aecp_tree);
 
                 proto_tree_add_item(aecp_tree, hf_aem_color_space, tvb,
                      AECP_OFFSET_VIDEO_FORMAT_COLOR_SPACE, 2, ENC_BIG_ENDIAN);
 
-                next_tvb = tvb_new_subset(tvb, AECP_OFFSET_VIDEO_FORMAT_FRAME_SIZE, 4, 4);
+                next_tvb = tvb_new_subset_length(tvb, AECP_OFFSET_VIDEO_FORMAT_FRAME_SIZE, 4);
                 dissect_17221_video_frame_size(next_tvb, aecp_tree);
             }
             break;
@@ -3956,7 +3956,7 @@ dissect_17221_aecp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *aecp_tree)
 
             if ((mess_type != AECP_AEM_COMMAND_MESSAGE)||(c_type == AECP_COMMAND_SET_SENSOR_FORMAT))
             {
-                next_tvb = tvb_new_subset(tvb, AECP_OFFSET_SENSOR_FORMAT_SENSOR_FORMAT, 8, 8);
+                next_tvb = tvb_new_subset_length(tvb, AECP_OFFSET_SENSOR_FORMAT_SENSOR_FORMAT, 8);
                 dissect_17221_sensor_format(next_tvb, aecp_tree);
             }
             break;

@@ -2013,8 +2013,7 @@ setup_sdp_transport(tvbuff_t *tvb, packet_info *pinfo, enum sdp_exchange_type ex
         if (hf != hf_unknown)
         {
             DINDENT();
-            call_sdp_subdissector(tvb_new_subset(tvb, offset + tokenoffset,
-                                                   linelen - tokenoffset,
+            call_sdp_subdissector(tvb_new_subset_length(tvb, offset + tokenoffset,
                                                    linelen - tokenoffset),
                                     pinfo,
                                     hf, NULL, linelen-tokenoffset, transport_info, &media_info);
@@ -2412,8 +2411,7 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         sub_ti = proto_tree_add_string(sdp_tree, hf, tvb, offset, linelen,
                                        string);
 
-        call_sdp_subdissector(tvb_new_subset(tvb, offset + tokenoffset,
-                                             linelen - tokenoffset,
+        call_sdp_subdissector(tvb_new_subset_length(tvb, offset + tokenoffset,
                                              linelen - tokenoffset),
                               pinfo,
                               hf, sub_ti, linelen-tokenoffset,

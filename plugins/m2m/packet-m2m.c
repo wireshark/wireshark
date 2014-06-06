@@ -411,7 +411,7 @@ static void fch_burst_decoder(proto_tree *tree, tvbuff_t *tvb, gint offset, gint
 {
 	if(wimax_fch_burst_handle)
 	{	/* call FCH dissector */
-		call_dissector(wimax_fch_burst_handle, tvb_new_subset(tvb, offset, length, length), pinfo, tree);
+		call_dissector(wimax_fch_burst_handle, tvb_new_subset_length(tvb, offset, length), pinfo, tree);
 	}
 	else	/* display FCH info */
 	{	/* update the info column */
@@ -424,7 +424,7 @@ static void cdma_code_decoder(proto_tree *tree, tvbuff_t *tvb, gint offset, gint
 {
 	if(wimax_cdma_code_burst_handle)
 	{	/* call CDMA dissector */
-		call_dissector(wimax_cdma_code_burst_handle, tvb_new_subset(tvb, offset, length, length), pinfo, tree);
+		call_dissector(wimax_cdma_code_burst_handle, tvb_new_subset_length(tvb, offset, length), pinfo, tree);
 	}
 	else	/* display CDMA Code Attribute info */
 	{	/* update the info column */
@@ -453,7 +453,7 @@ static void pdu_burst_decoder(proto_tree *tree, tvbuff_t *tvb, gint offset, gint
 	}
 	if(frag_type == TLV_NO_FRAG)
 	{	/* not fragmented PDU */
-		pdu_tvb =  tvb_new_subset(tvb, offset, length, length);
+		pdu_tvb =  tvb_new_subset_length(tvb, offset, length);
 	}
 	else	/* fragmented PDU */
 	{	/* add the fragment */
@@ -493,7 +493,7 @@ static void fast_feedback_burst_decoder(proto_tree *tree, tvbuff_t *tvb, gint of
 {
 	if(wimax_ffb_burst_handle)
 	{	/* display the TLV Fast Feedback Burst dissector info */
-		call_dissector(wimax_ffb_burst_handle, tvb_new_subset(tvb, offset, length, length), pinfo, tree);
+		call_dissector(wimax_ffb_burst_handle, tvb_new_subset_length(tvb, offset, length), pinfo, tree);
 	}
 	else	/* display the Fast Feedback Burst info */
 	{	/* update the info column */
@@ -505,7 +505,7 @@ static void harq_ack_bursts_decoder(proto_tree *tree, tvbuff_t *tvb, gint offset
 {
 	if(wimax_hack_burst_handle)
 	{	/* call the TLV HARQ ACK Bursts dissector */
-		call_dissector(wimax_hack_burst_handle, tvb_new_subset(tvb, offset, length, length), pinfo, tree);
+		call_dissector(wimax_hack_burst_handle, tvb_new_subset_length(tvb, offset, length), pinfo, tree);
 	}
 	else	/* display the TLV HARQ ACK Bursts info */
 	{	/* update the info column */
@@ -517,7 +517,7 @@ static void physical_attributes_decoder(proto_tree *tree, tvbuff_t *tvb, gint of
 {
 	if(wimax_phy_attributes_burst_handle)
 	{	/* call the TLV PDU Burst Physical Attributes dissector */
-		call_dissector(wimax_phy_attributes_burst_handle, tvb_new_subset(tvb, offset, length, length), pinfo, tree);
+		call_dissector(wimax_phy_attributes_burst_handle, tvb_new_subset_length(tvb, offset, length), pinfo, tree);
 	}
 	else	/* display the TLV PDU Burst Physical Attributes info */
 	{	/* update the info column */

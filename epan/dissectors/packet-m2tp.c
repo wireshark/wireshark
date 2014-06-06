@@ -406,7 +406,7 @@ dissect_m2tp_protocol_data_parameter(tvbuff_t *parameter_tvb, proto_tree *parame
   padding_length       = nr_of_padding_bytes(length);
   protocol_data_length = length - PARAMETER_HEADER_LENGTH;
 
-  mtp2_tvb = tvb_new_subset(parameter_tvb, PARAMETER_VALUE_OFFSET, protocol_data_length, protocol_data_length);
+  mtp2_tvb = tvb_new_subset_length(parameter_tvb, PARAMETER_VALUE_OFFSET, protocol_data_length);
   call_dissector(mtp2_handle, mtp2_tvb, pinfo, tree);
 
   if (parameter_tree) {
@@ -507,7 +507,7 @@ dissect_m2tp_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_item *m2tp
   offset = 0;
 
   /* extract and process the common header */
-  common_header_tvb = tvb_new_subset(message_tvb, offset, COMMON_HEADER_LENGTH, COMMON_HEADER_LENGTH);
+  common_header_tvb = tvb_new_subset_length(message_tvb, offset, COMMON_HEADER_LENGTH);
   dissect_m2tp_common_header(common_header_tvb, pinfo, m2tp_tree);
   offset += COMMON_HEADER_LENGTH;
 
@@ -517,7 +517,7 @@ dissect_m2tp_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_item *m2tp
     padding_length = nr_of_padding_bytes(length);
     total_length   = length + padding_length;
     /* create a tvb for the parameter including the padding bytes */
-    parameter_tvb    = tvb_new_subset(message_tvb, offset, total_length, total_length);
+    parameter_tvb    = tvb_new_subset_length(message_tvb, offset, total_length);
     dissect_m2tp_parameter(parameter_tvb, pinfo, m2tp_tree, m2tp_item, tree);
     /* get rid of the handled parameter */
     offset += total_length;

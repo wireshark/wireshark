@@ -1921,7 +1921,7 @@ dissect_rtmpt_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rtmpt_
                                 pktbuf = tvb_new_child_real_data(tvb, tp->data.p, tp->have, tp->have);
                                 add_new_data_source(pinfo, pktbuf, "Unchunked RTMP");
                         } else {
-                                pktbuf = tvb_new_subset(tvb, tp->data.offset, tp->have, tp->have);
+                                pktbuf = tvb_new_subset_length(tvb, tp->data.offset, tp->have);
                         }
                         dissect_rtmpt(pktbuf, pinfo, tree, rconv, cdir, tp);
                 }
@@ -2171,7 +2171,7 @@ dissect_rtmpt_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rtmpt_
 
                                 wmem_tree_insert32(rconv->packets[cdir], tp->lastseq, tp);
 
-                                pktbuf = tvb_new_subset(tvb, tp->data.offset, tp->have, tp->have);
+                                pktbuf = tvb_new_subset_length(tvb, tp->data.offset, tp->have);
                                 dissect_rtmpt(pktbuf, pinfo, tree, rconv, cdir, tp);
 
                                 offset += tp->want;
@@ -2435,7 +2435,7 @@ dissect_rtmpt_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 return;
 
         if (offset > 0) {
-                tvbuff_t *tvbrtmp = tvb_new_subset(tvb, offset, remain, remain);
+                tvbuff_t *tvbrtmp = tvb_new_subset_length(tvb, offset, remain);
                 dissect_rtmpt_common(tvbrtmp, pinfo, tree, rconv, cdir, seq, lastackseq);
         } else {
                 dissect_rtmpt_common(tvb, pinfo, tree, rconv, cdir, seq, lastackseq);

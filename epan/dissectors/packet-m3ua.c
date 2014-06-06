@@ -394,7 +394,7 @@ dissect_v5_protocol_data_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, 
 
   length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
   protocol_data_length = length - PARAMETER_HEADER_LENGTH;
-  payload_tvb          = tvb_new_subset(parameter_tvb, V5_PROTOCOL_DATA_OFFSET, protocol_data_length, protocol_data_length);
+  payload_tvb          = tvb_new_subset_length(parameter_tvb, V5_PROTOCOL_DATA_OFFSET, protocol_data_length);
   proto_item_append_text(parameter_item, " (SS7 message of %u byte%s)", protocol_data_length, plurality(protocol_data_length, "", "s"));
   proto_item_set_len(parameter_item, PARAMETER_HEADER_LENGTH);
   call_dissector(mtp3_handle, payload_tvb, pinfo, tree);
@@ -825,7 +825,7 @@ dissect_protocol_data_1_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, p
   tvbuff_t *payload_tvb;
 
   protocol_data_length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH;
-  payload_tvb          = tvb_new_subset(parameter_tvb, PROTOCOL_DATA_1_OFFSET, protocol_data_length, protocol_data_length);
+  payload_tvb          = tvb_new_subset_length(parameter_tvb, PROTOCOL_DATA_1_OFFSET, protocol_data_length);
   proto_item_append_text(parameter_item, " (SS7 message of %u byte%s)", protocol_data_length, plurality(protocol_data_length, "", "s"));
   proto_item_set_len(parameter_item, PARAMETER_HEADER_LENGTH);
   call_dissector(mtp3_handle, payload_tvb, pinfo, tree);
@@ -842,7 +842,7 @@ dissect_protocol_data_2_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, p
   tvbuff_t *payload_tvb;
 
   protocol_data_length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH - LI_OCTETT_LENGTH;
-  payload_tvb          = tvb_new_subset(parameter_tvb, PROTOCOL_DATA_2_OFFSET, protocol_data_length, protocol_data_length);
+  payload_tvb          = tvb_new_subset_length(parameter_tvb, PROTOCOL_DATA_2_OFFSET, protocol_data_length);
   proto_tree_add_item(parameter_tree, hf_li, parameter_tvb, LI_OCTETT_OFFSET, LI_OCTETT_LENGTH, ENC_BIG_ENDIAN);
   proto_item_append_text(parameter_item, " (SS7 message of %u byte%s)", protocol_data_length, plurality(protocol_data_length, "", "s"));
   proto_item_set_len(parameter_item, PARAMETER_HEADER_LENGTH + LI_OCTETT_LENGTH);
@@ -877,7 +877,7 @@ dissect_routing_key_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto
 
   length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
   parameters_length = length - PARAMETER_HEADER_LENGTH;
-  parameters_tvb          = tvb_new_subset(parameter_tvb, PARAMETER_VALUE_OFFSET, parameters_length, parameters_length);
+  parameters_tvb          = tvb_new_subset_length(parameter_tvb, PARAMETER_VALUE_OFFSET, parameters_length);
   dissect_parameters(parameters_tvb, pinfo, tree, parameter_tree);
 }
 
@@ -917,7 +917,7 @@ dissect_registration_result_parameter(tvbuff_t *parameter_tvb, packet_info *pinf
 
   length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
   parameters_length = length - PARAMETER_HEADER_LENGTH;
-  parameters_tvb          = tvb_new_subset(parameter_tvb, PARAMETER_VALUE_OFFSET, parameters_length, parameters_length);
+  parameters_tvb          = tvb_new_subset_length(parameter_tvb, PARAMETER_VALUE_OFFSET, parameters_length);
   dissect_parameters(parameters_tvb, pinfo, tree, parameter_tree);
 }
 
@@ -950,7 +950,7 @@ dissect_deregistration_result_parameter(tvbuff_t *parameter_tvb, packet_info *pi
 
   length            = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
   parameters_length = length - PARAMETER_HEADER_LENGTH;
-  parameters_tvb    = tvb_new_subset(parameter_tvb, PARAMETER_VALUE_OFFSET, parameters_length, parameters_length);
+  parameters_tvb    = tvb_new_subset_length(parameter_tvb, PARAMETER_VALUE_OFFSET, parameters_length);
   dissect_parameters(parameters_tvb, pinfo, tree, parameter_tree);
 }
 
@@ -1169,7 +1169,7 @@ dissect_protocol_data_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, pro
 
   si = tvb_get_guint8(parameter_tvb, DATA_SI_OFFSET);
   ulp_length  = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH - DATA_HDR_LENGTH;
-  payload_tvb = tvb_new_subset(parameter_tvb, DATA_ULP_OFFSET, ulp_length, ulp_length);
+  payload_tvb = tvb_new_subset_length(parameter_tvb, DATA_ULP_OFFSET, ulp_length);
   dpc = tvb_get_ntohl(parameter_tvb, DATA_DPC_OFFSET);
   opc = tvb_get_ntohl(parameter_tvb, DATA_OPC_OFFSET);
 
@@ -1255,7 +1255,7 @@ dissect_protocol_data_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, pro
 
   }/* parameter_tree */
 
-  payload_tvb = tvb_new_subset(parameter_tvb, DATA_ULP_OFFSET, ulp_length, ulp_length);
+  payload_tvb = tvb_new_subset_length(parameter_tvb, DATA_ULP_OFFSET, ulp_length);
   if (!dissector_try_uint(si_dissector_table, tvb_get_guint8(parameter_tvb, DATA_SI_OFFSET), payload_tvb, pinfo, tree))
     call_dissector(data_handle, payload_tvb, pinfo, tree);
 
@@ -1324,7 +1324,7 @@ dissect_registration_results_parameter(tvbuff_t *parameter_tvb, packet_info *pin
   guint16 parameters_length;
 
   parameters_length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH;
-  parameters_tvb    = tvb_new_subset(parameter_tvb, PARAMETER_VALUE_OFFSET, parameters_length, parameters_length);
+  parameters_tvb    = tvb_new_subset_length(parameter_tvb, PARAMETER_VALUE_OFFSET, parameters_length);
   dissect_parameters(parameters_tvb, pinfo, tree, parameter_tree);
 }
 
@@ -1335,7 +1335,7 @@ dissect_deregistration_results_parameter(tvbuff_t *parameter_tvb, packet_info *p
   guint16 parameters_length;
 
   parameters_length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH;
-  parameters_tvb    = tvb_new_subset(parameter_tvb, PARAMETER_VALUE_OFFSET, parameters_length, parameters_length);
+  parameters_tvb    = tvb_new_subset_length(parameter_tvb, PARAMETER_VALUE_OFFSET, parameters_length);
   dissect_parameters(parameters_tvb, pinfo, tree, parameter_tree);
 }
 
@@ -1962,7 +1962,7 @@ dissect_parameters(tvbuff_t *parameters_tvb, packet_info *pinfo, proto_tree *tre
     if (remaining_length >= length)
       total_length = MIN(total_length, remaining_length);
     /* create a tvb for the parameter including the padding bytes */
-    parameter_tvb    = tvb_new_subset(parameters_tvb, offset, total_length, total_length);
+    parameter_tvb    = tvb_new_subset_length(parameters_tvb, offset, total_length);
     switch(version) {
       case M3UA_V5:
         dissect_v5_parameter(parameter_tvb, pinfo, tree, m3ua_tree);
@@ -1988,7 +1988,7 @@ dissect_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree, pro
 {
   tvbuff_t *common_header_tvb, *parameters_tvb;
 
-  common_header_tvb = tvb_new_subset(message_tvb, 0, COMMON_HEADER_LENGTH, COMMON_HEADER_LENGTH);
+  common_header_tvb = tvb_new_subset_length(message_tvb, 0, COMMON_HEADER_LENGTH);
   parameters_tvb    = tvb_new_subset_remaining(message_tvb, COMMON_HEADER_LENGTH);
   if (version == M3UA_V5)
     dissect_v5_common_header(common_header_tvb, pinfo, m3ua_tree);

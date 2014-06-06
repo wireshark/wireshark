@@ -213,11 +213,9 @@ dissect_hdmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     offset++;
 
     if (HDCP_ADDR8(addr)) {
-        gint      hdcp_len;
         tvbuff_t *hdcp_tvb;
 
-        hdcp_len = tvb_reported_length_remaining(tvb, offset);
-        hdcp_tvb = tvb_new_subset(tvb, offset, hdcp_len, hdcp_len);
+        hdcp_tvb = tvb_new_subset_remaining(tvb, offset);
 
         return call_dissector(hdcp_handle, hdcp_tvb, pinfo, hdmi_tree);
     }

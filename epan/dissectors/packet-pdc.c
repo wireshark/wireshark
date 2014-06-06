@@ -240,7 +240,7 @@ static int dissect_admpdu(tvbuff_t *tvb, proto_tree *parent_tree, proto_tree *tr
 		offset += 2;
 
 		returnLen = userDataLen + 6;
-		asterixTVB = tvb_new_subset(tvb, offset, userDataLen, userDataLen);
+		asterixTVB = tvb_new_subset_length(tvb, offset, userDataLen);
 
 		if (asterix_handle != NULL)
 			call_dissector(asterix_handle, asterixTVB, pinfo, parent_tree);
@@ -262,7 +262,7 @@ static int dissect_dtmpdu(tvbuff_t *tvb, proto_tree *parent_tree, proto_tree *tr
 		/* length of user data field */
 		userDataLen = tvb_get_ntohs(tvb, 2);
 		returnLen  = userDataLen + 2;
-		asterixTVB = tvb_new_subset(tvb, offset + 2, userDataLen, userDataLen);
+		asterixTVB = tvb_new_subset_length(tvb, offset + 2, userDataLen);
 
 		if (asterix_handle != NULL)
 			call_dissector(asterix_handle, asterixTVB, pinfo, parent_tree);
@@ -284,7 +284,7 @@ static int dissect_edmpdu(tvbuff_t *tvb, proto_tree *parent_tree, proto_tree *tr
 		/* length of user data field */
 		userDataLen = tvb_get_ntohs(tvb, 2);
 		returnLen   = userDataLen + 2;
-		asterixTVB  = tvb_new_subset(tvb, offset + 2, userDataLen, userDataLen);
+		asterixTVB  = tvb_new_subset_length(tvb, offset + 2, userDataLen);
 
 		if (asterix_handle != NULL)
 			call_dissector(asterix_handle, asterixTVB, pinfo, parent_tree);

@@ -397,7 +397,7 @@ static void llc_gprs_dissect_xid(tvbuff_t *tvb,
 
 			if (xid_param_len) {
 
-				sndcp_xid_tvb = tvb_new_subset (tvb, location+sndcp_xid_offset, xid_param_len, xid_param_len);
+				sndcp_xid_tvb = tvb_new_subset_length (tvb, location+sndcp_xid_offset, xid_param_len);
 
 				if(sndcp_xid_handle)
 				{
@@ -1071,7 +1071,7 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			if (tree)
 			{
 				tvbuff_t	*xid_tvb;
-				xid_tvb = tvb_new_subset (tvb, offset, info_len, info_len);
+				xid_tvb = tvb_new_subset_length (tvb, offset, info_len);
 
 				llc_gprs_dissect_xid(xid_tvb, pinfo, llcgprs_tree);
 			}
@@ -1083,7 +1083,7 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			if (tree)
 			{
 				tvbuff_t	*xid_tvb;
-				xid_tvb = tvb_new_subset (tvb, offset, info_len, info_len);
+				xid_tvb = tvb_new_subset_length (tvb, offset, info_len);
 
 				llc_gprs_dissect_xid(xid_tvb, pinfo, llcgprs_tree);
 			}

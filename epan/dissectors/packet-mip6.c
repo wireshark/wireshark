@@ -1798,7 +1798,7 @@ dissect_mip6_opt_vsm_3gpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
      * FQ-CSID as specified in subclause 12.1.1.2
      */
     case 5:
-        next_tvb = tvb_new_subset(tvb, offset, len, len);
+        next_tvb = tvb_new_subset_length(tvb, offset, len);
         dissect_gtpv2_fq_csid(next_tvb, pinfo, tree, hdr_item, len, 0, 0);
         break;
     /*  6, PMIPv6 PDN type indication */
@@ -1816,7 +1816,7 @@ dissect_mip6_opt_vsm_3gpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
         break;
     /*  8, Selection Mode */
     case 8:
-        next_tvb = tvb_new_subset(tvb, offset, len, len);
+        next_tvb = tvb_new_subset_length(tvb, offset, len);
         dissect_gtpv2_selec_mode(next_tvb, pinfo, tree, hdr_item, len, 0, 0);
         break;
     /*  9, I-WLAN Mobility Access Point Name (APN) */
@@ -1862,7 +1862,7 @@ dissect_mip6_opt_vsm_3gpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
          break;
     /* 18, PGW Back-Off Time */
     case 18:
-        next_tvb = tvb_new_subset(tvb, offset, len, len);
+        next_tvb = tvb_new_subset_length(tvb, offset, len);
         dissect_gtpv2_epc_timer(next_tvb, pinfo, tree, hdr_item, len, 0, 0);
         break;
     /* 19, Signalling Priority Indication */
@@ -2236,7 +2236,7 @@ dissect_mip6_opt_vsm(const mip6_opt *optp _U_, tvbuff_t *tvb, int offset,
     proto_item_append_text(hdr_item, ": %s", val_to_str_ext_const(vendorid, &sminmpec_values_ext, "<unknown>"));
     offset += 4;
 
-    next_tvb = tvb_new_subset(tvb, offset, optlen-MIP6_VSM_SUBTYPE_OFF, optlen-MIP6_VSM_SUBTYPE_OFF);
+    next_tvb = tvb_new_subset_length(tvb, offset, optlen-MIP6_VSM_SUBTYPE_OFF);
     if (!dissector_try_uint(mip6_vsm_dissector_table, vendorid, next_tvb, pinfo, opt_tree)){
         proto_tree_add_item(opt_tree, hf_mip6_vsm_subtype, tvb,
                 offset, MIP6_VSM_SUBTYPE_LEN, ENC_BIG_ENDIAN);

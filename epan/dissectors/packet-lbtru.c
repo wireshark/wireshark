@@ -903,7 +903,7 @@ static int dissect_lbtru_data_contents(tvbuff_t * tvb, int offset, packet_info *
 {
     tvbuff_t * next_tvb;
 
-    next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+    next_tvb = tvb_new_subset_remaining(tvb, offset);
     return (lbmc_dissect_lbmc_packet(next_tvb, 0, pinfo, tree, tag_name, channel));
 }
 

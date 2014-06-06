@@ -3261,8 +3261,8 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
              * the SMB dissector does in some cases, and check
              * whether the security blob begins with "NTLMSSP".
              */
-            gssapi_tvb = tvb_new_subset(
-              tvb, cur_offset, tkey_keylen, tkey_keylen);
+            gssapi_tvb = tvb_new_subset_length(
+              tvb, cur_offset, tkey_keylen);
             if (tvb_strneql(gssapi_tvb, 0, "NTLMSSP", 7) == 0) {
               call_dissector(ntlmssp_handle, gssapi_tvb, pinfo, key_tree);
             } else {
@@ -3326,7 +3326,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
         mac_item = proto_tree_add_item(rr_tree, hf_dns_tsig_mac, tvb, cur_offset, tsig_siglen, ENC_NA);
         mac_tree = proto_item_add_subtree(mac_item, ett_dns_mac);
 
-        sub_tvb=tvb_new_subset(tvb, cur_offset, tsig_siglen, tsig_siglen);
+        sub_tvb=tvb_new_subset_length(tvb, cur_offset, tsig_siglen);
 
         if (!dissector_try_string(dns_tsig_dissector_table, tsig_algname, sub_tvb, pinfo, mac_tree, NULL)) {
           expert_add_info_format(pinfo, mac_item, &ei_dns_tsig_alg,

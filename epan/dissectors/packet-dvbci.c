@@ -3630,8 +3630,8 @@ dissect_dvbci_ami_file_ack(tvbuff_t *tvb, gint offset,
                 suffix_lo = wmem_ascii_strdown(wmem_packet_scope(),
                         &file_name_str[file_name_len-4], -1);
                 if (g_strcmp0(suffix_lo, ".png")==0) {
-                    png_file_tvb = tvb_new_subset(
-                            tvb, offset, file_data_len, file_data_len);
+                    png_file_tvb = tvb_new_subset_length(
+                            tvb, offset, file_data_len);
                 }
             }
 
@@ -3898,7 +3898,7 @@ dissect_dvbci_payload_lsc(guint32 tag, gint len_field,
             msg_len = tvb_reported_length_remaining(tvb, offset);
             if (msg_len<=0)
                 break;
-            msg_tvb = tvb_new_subset(tvb, offset, msg_len, msg_len);
+            msg_tvb = tvb_new_subset_remaining(tvb, offset);
             if (!msg_tvb)
                 break;
             if (dvbci_dissect_lsc_msg && circuit && circuit->dissector_handle) {
@@ -3949,8 +3949,8 @@ dissect_dvbci_payload_opp(guint32 tag, gint len_field _U_,
           if (nit_loop_len==0)
               break;
           offset += 2;
-          nit_loop_tvb = tvb_new_subset(
-                  tvb, offset, nit_loop_len, nit_loop_len);
+          nit_loop_tvb = tvb_new_subset_length(
+                  tvb, offset, nit_loop_len);
           nit_loop_offset = 0;
           if (!dvb_nit_handle) {
               call_dissector(data_handle, nit_loop_tvb, pinfo, tree);
@@ -4145,7 +4145,7 @@ dissect_dvbci_payload_sas(guint32 tag, gint len_field _U_,
             proto_tree_add_item(tree, hf_dvbci_sas_msg_len,
                     tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
-            msg_tvb = tvb_new_subset(tvb, offset, msg_len, msg_len);
+            msg_tvb = tvb_new_subset_length(tvb, offset, msg_len);
             msg_handle = (circuit && circuit->dissector_handle) ?
                 circuit->dissector_handle : data_handle;
             call_dissector(msg_handle, msg_tvb, pinfo, tree);
@@ -4273,7 +4273,6 @@ dissect_dvbci_spdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     guint16 ssnb                   = 0;  /* session numbers start with 1, 0 is invalid */
     guint8             sess_stat;
     tvbuff_t          *payload_tvb = NULL;
-    gint               payload_len;
 
 
     spdu_len = tvb_reported_length(tvb);
@@ -4372,9 +4371,8 @@ dissect_dvbci_spdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             proto_tree_add_item(
                     sess_tree, hf_dvbci_sess_nb, tvb,
                     offset, 2, ENC_BIG_ENDIAN);
-            payload_len = tvb_reported_length_remaining(tvb, offset+2);
             payload_tvb =
-                tvb_new_subset(tvb, offset+2, payload_len, payload_len);
+                tvb_new_subset_remaining(tvb, offset+2);
             break;
         default:
             break;
@@ -4598,7 +4596,7 @@ dissect_dvbci_tpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             the reassembled bodies as expected
            to work around this issue, we use a dedicated body_tvb as
             input to reassembly routines */
-        body_tvb = tvb_new_subset(tvb, offset, body_len, body_len);
+        body_tvb = tvb_new_subset_length(tvb, offset, body_len);
         /* dissect_dvbci_tpdu_hdr() checked that lpdu_tcid==t_c_id */
         frag_msg = fragment_add_seq_next(&spdu_reassembly_table,
                 body_tvb, 0, pinfo, SPDU_SEQ_ID_BASE+lpdu_tcid, NULL,
@@ -4939,7 +4937,7 @@ dissect_dvbci_cis(tvbuff_t *tvb, gint offset,
                 tvb, offset, 1, ENC_LITTLE_ENDIAN);
         offset++;
 
-        tpl_data_tvb = tvb_new_subset(tvb, offset, len_field, len_field);
+        tpl_data_tvb = tvb_new_subset_length(tvb, offset, len_field);
         switch (tpl_code) {
             case CISTPL_VERS_1:
                 dissect_dvbci_cis_payload_tpll_v1(

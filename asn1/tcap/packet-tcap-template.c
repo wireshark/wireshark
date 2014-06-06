@@ -2291,8 +2291,7 @@ dissect_tcap_param(asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset
 
             if (len-(2*ind_field)) /*should always be positive unless we get an empty contructor pointless? */
             {
-                next_tvb = tvb_new_subset(tvb, offset, len-(2*ind_field),
-                    len-(2*ind_field));
+                next_tvb = tvb_new_subset_length(tvb, offset, len-(2*ind_field));
                 dissect_tcap_param(actx, subtree,next_tvb,0);
             }
 
@@ -2317,7 +2316,7 @@ dissect_tcap_param(asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset
 
             if (len) /* check for NULLS */
             {
-                next_tvb = tvb_new_subset(tvb, offset, len, len);
+                next_tvb = tvb_new_subset_length(tvb, offset, len);
                 dissect_ber_octet_string(TRUE, actx, tree, next_tvb, 0,
                     hf_tcap_data, NULL);
             }

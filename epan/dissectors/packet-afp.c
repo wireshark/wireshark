@@ -4430,7 +4430,7 @@ spotlight_dissect_query_loop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 				} else {
 					item_query = proto_tree_add_text(tree, tvb, offset, query_length, "filemeta");
 					sub_tree = proto_item_add_subtree(item_query, ett_afp_spotlight_query_line);
-					spotlight_tvb = tvb_new_subset(tvb, offset+8, query_length, query_length);
+					spotlight_tvb = tvb_new_subset_length(tvb, offset+8, query_length);
 					call_dissector(spotlight_handle, spotlight_tvb, pinfo, sub_tree);
 				}
 				break;

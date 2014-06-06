@@ -367,7 +367,7 @@ dissect_a21_gcsna_pdu(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, p
 	/* only dissect it to octetstring */
 	proto_tree_add_item(tree, hf_a21_gcsna_content, tvb, offset, length, ENC_NA);
 	if(gcsna_handle){
-		new_tvb	= tvb_new_subset(tvb, offset, length, length);
+		new_tvb	= tvb_new_subset_length(tvb, offset, length);
 		/* call the dissector with the parent (top)tree */
 		call_dissector(gcsna_handle, new_tvb, pinfo, a21_tree->parent);
 	}

@@ -323,7 +323,7 @@ dissect_sscop_and_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, d
        * Therefore, we know that the captured length of the payload is
        * equal to the length of the payload.
        */
-      next_tvb = tvb_new_subset(tvb, 0, reported_length, reported_length);
+      next_tvb = tvb_new_subset_length(tvb, 0, reported_length);
       if (sscop_info.type == SSCOP_SD)
       {
 		  call_dissector(payload_handle, next_tvb, pinfo, tree);

@@ -2473,7 +2473,7 @@ dissect_host_controller_baseband_cmd(tvbuff_t *tvb, int offset, packet_info *pin
                     offset++;
                     switch (filter_condition_type) {
                         case 0x01:
-                            call_dissector(btcommon_cod_handle, tvb_new_subset(tvb, offset, 3, 3), pinfo, tree);
+                            call_dissector(btcommon_cod_handle, tvb_new_subset_length(tvb, offset, 3), pinfo, tree);
                             offset += 3;
 
                             offset=dissect_bthci_cmd_cod_mask(tvb, offset, pinfo, tree);
@@ -2501,7 +2501,7 @@ dissect_host_controller_baseband_cmd(tvbuff_t *tvb, int offset, packet_info *pin
                             break;
 
                         case 0x01:
-                            call_dissector(btcommon_cod_handle, tvb_new_subset(tvb, offset, 3, 3), pinfo, tree);
+                            call_dissector(btcommon_cod_handle, tvb_new_subset_length(tvb, offset, 3), pinfo, tree);
                             offset += 3;
 
                             offset=dissect_bthci_cmd_cod_mask(tvb, offset, pinfo, tree);
@@ -2631,7 +2631,7 @@ dissect_host_controller_baseband_cmd(tvbuff_t *tvb, int offset, packet_info *pin
             break;
 
         case 0x0024: /* Write Class of Device */
-            call_dissector(btcommon_cod_handle, tvb_new_subset(tvb, offset, 3, 3), pinfo, tree);
+            call_dissector(btcommon_cod_handle, tvb_new_subset_length(tvb, offset, 3), pinfo, tree);
             offset += 3;
             break;
 
@@ -2812,7 +2812,7 @@ dissect_host_controller_baseband_cmd(tvbuff_t *tvb, int offset, packet_info *pin
             proto_tree_add_item(tree, hf_bthci_cmd_fec_required, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset++;
 
-            call_dissector(btcommon_eir_handle, tvb_new_subset(tvb, offset, 240, 240), pinfo, tree);
+            call_dissector(btcommon_eir_handle, tvb_new_subset_length(tvb, offset, 240), pinfo, tree);
             save_local_device_name(tvb, offset, pinfo, 240, hci_data);
             offset += 240;
             break;
@@ -3155,7 +3155,7 @@ dissect_le_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, 
             proto_tree_add_item(tree, hf_bthci_cmd_le_data_length, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset++;
 
-            call_dissector(btcommon_ad_handle, tvb_new_subset(tvb, offset, 31, 31), pinfo, tree);
+            call_dissector(btcommon_ad_handle, tvb_new_subset_length(tvb, offset, 31), pinfo, tree);
             save_local_device_name(tvb, offset, pinfo, 31, hci_data);
             offset += 31;
             break;
@@ -3255,7 +3255,7 @@ dissect_le_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, 
             sub_item = proto_tree_add_item(tree, hf_bthci_cmd_le_channel_map, tvb, offset, 5, ENC_NA);
             sub_tree = proto_item_add_subtree(sub_item, ett_le_channel_map);
 
-            call_dissector(btcommon_le_channel_map_handle, tvb_new_subset(tvb, offset, 5, 5), pinfo, sub_tree);
+            call_dissector(btcommon_le_channel_map_handle, tvb_new_subset_length(tvb, offset, 5), pinfo, sub_tree);
             offset += 5;
 
             break;
@@ -5126,7 +5126,7 @@ dissect_eir_ad_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             break;
 
         case 0x0D: /* Class Of Device */
-            call_dissector(btcommon_cod_handle, tvb_new_subset(tvb, offset, 3, 3), pinfo, entry_tree);
+            call_dissector(btcommon_cod_handle, tvb_new_subset_length(tvb, offset, 3), pinfo, entry_tree);
             offset += 3;
 
             break;

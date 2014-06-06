@@ -560,7 +560,7 @@ dissect_lapd_full(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean 
 			expert_add_info(pinfo, pi, &ei_lapd_checksum_bad);
 		}
 
-		next_tvb = tvb_new_subset(tvb, lapd_header_len, tvb_length_remaining(tvb,lapd_header_len) - 2, tvb_length_remaining(tvb,lapd_header_len) - 2);
+		next_tvb = tvb_new_subset_length(tvb, lapd_header_len, tvb_length_remaining(tvb,lapd_header_len) - 2);
 
 	} else
 		next_tvb = tvb_new_subset_remaining(tvb, lapd_header_len);

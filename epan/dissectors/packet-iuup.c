@@ -623,7 +623,7 @@ static void dissect_iuup(tvbuff_t* tvb_in, packet_info* pinfo, proto_tree* tree)
 
         pinfo->circuit_id = phdr;
 
-        tvb = tvb_new_subset(tvb_in,2,len,len);
+        tvb = tvb_new_subset_length(tvb_in,2,len);
     }
 
     first_octet =  tvb_get_guint8(tvb,0);

@@ -2084,7 +2084,7 @@ static gint dissect_dmp_ext_addr (tvbuff_t *tvb, packet_info *pinfo,
   }
 
   if (type == ASN1_BER) {
-    tvbuff_t *next_tvb = tvb_new_subset(tvb, offset, length, length);
+    tvbuff_t *next_tvb = tvb_new_subset_length(tvb, offset, length);
 
     dissect_p1_ORName (FALSE, next_tvb, 0, &asn1_ctx, ext_tree,
                          hf_addr_ext_asn1_ber);

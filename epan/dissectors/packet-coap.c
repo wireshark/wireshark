@@ -881,7 +881,7 @@ dissect_coap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		payload_tree = proto_item_add_subtree(payload_item, ett_coap_payload);
 
 		proto_tree_add_string(payload_tree, hf_coap_payload_desc, tvb, offset, -1, coap_ctype_str);
-		payload_tvb = tvb_new_subset(tvb, offset, payload_length, payload_length);
+		payload_tvb = tvb_new_subset_length(tvb, offset, payload_length);
 
 		if (coap_ctype_value == DEFAULT_COAP_CTYPE_VALUE || coap_ctype_value == 0) {
 			coap_ctype_str_dis = "text/plain";

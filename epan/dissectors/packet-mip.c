@@ -748,7 +748,7 @@ dissect_mip_extensions( tvbuff_t *tvb, int offset, proto_tree *tree, packet_info
           proto_tree_add_item(ext_tree, hf_mip_nvse_vendor_org_id, tvb, nvse_local_offset, 4, ENC_BIG_ENDIAN);
           nvse_local_offset+=4;
 
-          next_tvb = tvb_new_subset(tvb, nvse_local_offset, ext_len-6, ext_len-6);
+          next_tvb = tvb_new_subset_length(tvb, nvse_local_offset, ext_len-6);
           if (!dissector_try_uint(mip_nvse_ext_dissector_table, nvse_vendor_org_id, next_tvb, pinfo, ext_tree)){
 
               /*Vendor NVSE Type*/

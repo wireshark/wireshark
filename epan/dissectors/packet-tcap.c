@@ -679,7 +679,7 @@ gint ind_field;
 comp_offset = dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &ber_class, &pc, &tag);
 comp_offset = dissect_ber_length(actx->pinfo, tree, tvb, comp_offset, &len, &ind_field);
 /* we can believe the length now */
-next_tvb = tvb_new_subset(tvb, offset, len+comp_offset-offset, len+comp_offset-offset);
+next_tvb = tvb_new_subset_length(tvb, offset, len+comp_offset-offset);
 
 if (!next_tvb)
   return comp_offset;
@@ -3878,8 +3878,7 @@ dissect_tcap_param(asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset
 
             if (len-(2*ind_field)) /*should always be positive unless we get an empty contructor pointless? */
             {
-                next_tvb = tvb_new_subset(tvb, offset, len-(2*ind_field),
-                    len-(2*ind_field));
+                next_tvb = tvb_new_subset_length(tvb, offset, len-(2*ind_field));
                 dissect_tcap_param(actx, subtree,next_tvb,0);
             }
 
@@ -3904,7 +3903,7 @@ dissect_tcap_param(asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset
 
             if (len) /* check for NULLS */
             {
-                next_tvb = tvb_new_subset(tvb, offset, len, len);
+                next_tvb = tvb_new_subset_length(tvb, offset, len);
                 dissect_ber_octet_string(TRUE, actx, tree, next_tvb, 0,
                     hf_tcap_data, NULL);
             }

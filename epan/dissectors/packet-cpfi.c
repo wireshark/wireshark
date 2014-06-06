@@ -368,7 +368,7 @@ dissect_cpfi(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree, void *
   /* dissect the message */
 
   /* extract and process the header */
-  header_tvb = tvb_new_subset(message_tvb, 0, 8, 8);
+  header_tvb = tvb_new_subset_length(message_tvb, 0, 8);
   dissect_cpfi_header(header_tvb, pinfo, cpfi_tree);
 
   body_tvb = tvb_new_subset(message_tvb, 8, body_length, reported_body_length);

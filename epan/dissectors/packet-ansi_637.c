@@ -2164,7 +2164,7 @@ trans_param_bearer_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_,
     /*
      * dissect the embedded teleservice data
      */
-    tele_tvb = tvb_new_subset(tvb, offset, len, len);
+    tele_tvb = tvb_new_subset_length(tvb, offset, len);
 
     dissector_try_uint(tele_dissector_table, ansi_637_trans_tele_id, tele_tvb, pinfo, g_tree);
 }

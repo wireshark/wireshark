@@ -479,7 +479,7 @@ static int dissect_jxta_udp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tr
 
         tree_offset += dissect_jxta_message_framing(jxta_message_framing_tvb, pinfo, jxta_tree, &content_length, &content_type);
 
-        jxta_message_tvb = tvb_new_subset(tvb, tree_offset, (gint) content_length, (gint) content_length);
+        jxta_message_tvb = tvb_new_subset_length(tvb, tree_offset, (gint) content_length);
 
         tree_offset += dissect_media(content_type, jxta_message_tvb, pinfo, tree);
 
@@ -601,7 +601,7 @@ static int dissect_jxta_stream(tvbuff_t * tvb, packet_info * pinfo, proto_tree *
 
         available = tvb_reported_length_remaining(tvb, offset + headers_len);
         if (available >= content_length) {
-            tvbuff_t *jxta_message_tvb = tvb_new_subset(tvb, offset + headers_len, (gint) content_length, (gint) content_length);
+            tvbuff_t *jxta_message_tvb = tvb_new_subset_length(tvb, offset + headers_len, (gint) content_length);
             conversation_t *peer_conversation = NULL;
 
             jxta_tree_item = proto_tree_add_protocol_format(tree, proto_jxta, tvb, offset, -1, "JXTA" );
@@ -1653,7 +1653,7 @@ static int dissect_jxta_message_element_1(tvbuff_t * tvb, packet_info * pinfo, p
         proto_tree_add_item(jxta_elem_tree, hf_jxta_element_content_len, tvb, tree_offset, (int)sizeof(guint32), ENC_BIG_ENDIAN);
         tree_offset += (int)sizeof(guint32);
 
-        element_content_tvb = tvb_new_subset(tvb, tree_offset, content_len, content_len);
+        element_content_tvb = tvb_new_subset_length(tvb, tree_offset, content_len);
 
         tree_offset += dissect_media(mediatype, element_content_tvb, pinfo, jxta_elem_tree);
 
@@ -1951,7 +1951,7 @@ static int dissect_jxta_message_element_2(tvbuff_t * tvb, packet_info * pinfo, p
         }
 
         /* content */
-        element_content_tvb = tvb_new_subset(tvb, tree_offset, (gint)content_len, (gint)content_len);
+        element_content_tvb = tvb_new_subset_length(tvb, tree_offset, (gint)content_len);
 
         tree_offset += dissect_media(mediatype, element_content_tvb, pinfo, jxta_elem_tree);
 

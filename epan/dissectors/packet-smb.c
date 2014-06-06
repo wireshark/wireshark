@@ -1023,7 +1023,7 @@ feed_eo_smb(guint16 cmd, guint16 fid, tvbuff_t * tvb, packet_info *pinfo, guint1
 	GSList          *GSL_iterator;
 
 	/* Create a new tvb to point to the payload data */
-	data_tvb = tvb_new_subset(tvb, dataoffset, datalen, datalen);
+	data_tvb = tvb_new_subset_length(tvb, dataoffset, datalen);
 	/* Create the eo_info to pass to the listener */
 	eo_info = wmem_new(wmem_packet_scope(), smb_eo_t);
 
@@ -7488,8 +7488,7 @@ dissect_session_setup_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 							   ett_smb_secblob);
 			CHECK_BYTE_COUNT(sbloblen);
 
-			blob_tvb = tvb_new_subset(tvb, offset, sbloblen,
-						    sbloblen);
+			blob_tvb = tvb_new_subset_length(tvb, offset, sbloblen);
 
 			if (si && si->ct && si->ct->raw_ntlmssp &&
 			    (tvb_strneql(tvb, offset, "NTLMSSP", 7) == 0)) {
@@ -14057,7 +14056,7 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				if (pc>tvb_length_remaining(tvb, po)) {
 					p_tvb = tvb_new_subset(tvb, po, tvb_length_remaining(tvb, po), pc);
 				} else {
-					p_tvb = tvb_new_subset(tvb, po, pc, pc);
+					p_tvb = tvb_new_subset_length(tvb, po, pc);
 				}
 			} else {
 				p_tvb = NULL;
@@ -14066,7 +14065,7 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				if (dc>tvb_length_remaining(tvb, od)) {
 					d_tvb = tvb_new_subset(tvb, od, tvb_length_remaining(tvb, od), dc);
 				} else {
-					d_tvb = tvb_new_subset(tvb, od, dc, dc);
+					d_tvb = tvb_new_subset_length(tvb, od, dc);
 				}
 			} else {
 				d_tvb = NULL;
@@ -14075,7 +14074,7 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				if (sl>tvb_length_remaining(tvb, so)) {
 					s_tvb = tvb_new_subset(tvb, so, tvb_length_remaining(tvb, so), sl);
 				} else {
-					s_tvb = tvb_new_subset(tvb, so, sl, sl);
+					s_tvb = tvb_new_subset_length(tvb, so, sl);
 				}
 			} else {
 				s_tvb = NULL;
@@ -14126,7 +14125,7 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				 * A tvbuff containing the setup words and
 				 * the pipe path.
 				 */
-				sp_tvb = tvb_new_subset(tvb, spo, spc, spc);
+				sp_tvb = tvb_new_subset_length(tvb, spo, spc);
 
 				/*
 				 * A tvbuff containing the parameters and the
@@ -14155,7 +14154,7 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				 * A tvbuff containing the setup words and
 				 * the mailslot path.
 				 */
-				sp_tvb = tvb_new_subset(tvb, spo, spc, spc);
+				sp_tvb = tvb_new_subset_length(tvb, spo, spc);
 				dissected_trans = dissect_mailslot_smb(sp_tvb,
 				    s_tvb, d_tvb, an+10, pinfo, top_tree_global, si);
 			}
@@ -16633,7 +16632,7 @@ dissect_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 		if ((2*sc) > tvb_length_remaining(tvb, offset)) {
 			s_tvb = tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset), 2*sc);
 		} else {
-			s_tvb = tvb_new_subset(tvb, offset, 2*sc, 2*sc);
+			s_tvb = tvb_new_subset_length(tvb, offset, 2*sc);
 		}
 		sp_tvb = tvb_new_subset_remaining(tvb, offset);
 	} else {
@@ -16686,10 +16685,10 @@ dissect_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	if (pd_tvb) {
 		/* OK we have reassembled data, extract d_tvb and p_tvb from it */
 		if (tp) {
-			p_tvb = tvb_new_subset(pd_tvb, 0, tp, tp);
+			p_tvb = tvb_new_subset_length(pd_tvb, 0, tp);
 		}
 		if (td) {
-			d_tvb = tvb_new_subset(pd_tvb, tp, td, td);
+			d_tvb = tvb_new_subset_length(pd_tvb, tp, td);
 		}
 	} else {
 		/* It was not reassembled. Do as best as we can.

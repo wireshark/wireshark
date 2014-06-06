@@ -491,7 +491,7 @@ dissect_daap_one_tag(proto_tree *tree, tvbuff_t *tvb)
       case dacp_cmst:
          /* Container tags */
          new_tree = proto_item_add_subtree(ti, ett_daap_sub);
-         new_tvb  = tvb_new_subset(tvb, offset, len, len);    /* Use a new tvb so bounds checking        */
+         new_tvb  = tvb_new_subset_length(tvb, offset, len);  /* Use a new tvb so bounds checking        */
                                                               /*  works Ok when dissecting container.    */
                                                               /* Note: len is within tvb; checked above. */
                                                               /* len (see above) is used so that we'll   */

@@ -326,7 +326,7 @@ dissect_ipa(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					    tvb, offset+2, 1, ENC_BIG_ENDIAN);
 		}
 
-		next_tvb = tvb_new_subset(tvb, offset+header_length, len, len);
+		next_tvb = tvb_new_subset_length(tvb, offset+header_length, len);
 
 		switch (msg_type) {
 		case ABISIP_OML:

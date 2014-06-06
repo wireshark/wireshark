@@ -3596,7 +3596,7 @@ dissect_r3_upstreamfields (tvbuff_t *tvb, guint32 start_offset, guint32 length, 
        */
       case UPSTREAMFIELD_SERIALNUMBER :
         {
-          tvbuff_t *sn_tvb = tvb_new_subset (tvb, offset, dataLength, dataLength);
+          tvbuff_t *sn_tvb = tvb_new_subset_length (tvb, offset, dataLength);
 
           dissect_serialnumber (sn_tvb, 0, length, pinfo, upstreamfield_tree, hf_r3_upstreamfieldarray [fieldType]);
         }
@@ -5055,7 +5055,7 @@ dissect_r3_response_hasdata (tvbuff_t *tvb, guint32 start_offset, guint32 length
     }
     tvb_ensure_bytes_exist (tvb, 0, commandPacketLen - 4);
 
-    upstreamcommand_tvb = tvb_new_subset (tvb, 4, commandPacketLen - 4, commandPacketLen - 4);
+    upstreamcommand_tvb = tvb_new_subset_length (tvb, 4, commandPacketLen - 4);
     if (r3upstreamcommand_dissect [upstreamCmd])
       (*r3upstreamcommand_dissect [upstreamCmd]) (upstreamcommand_tvb, 0, commandPacketLen - 4, pinfo, upstreamcommand_tree);
   }
@@ -5071,7 +5071,7 @@ dissect_r3_cmd_response (tvbuff_t *tvb, guint32 start_offset, guint32 length, pa
 {
   guint8          responseLen  = tvb_get_guint8 (tvb, start_offset + 0);
   responseType_e  responseType = (responseType_e)tvb_get_guint8 (tvb, start_offset + 2);
-  tvbuff_t       *payload_tvb  = tvb_new_subset (tvb, start_offset, responseLen, responseLen);
+  tvbuff_t       *payload_tvb  = tvb_new_subset_length (tvb, start_offset, responseLen);
 
   if (tree)
   {
@@ -5147,7 +5147,7 @@ dissect_r3_cmd_setdatetime (tvbuff_t *tvb, guint32 start_offset, guint32 length 
     return;
 
   cmdLen      = tvb_get_guint8 (tvb, start_offset + 0);
-  payload_tvb = tvb_new_subset (tvb, start_offset + 2, cmdLen - 2, cmdLen - 2);
+  payload_tvb = tvb_new_subset_length (tvb, start_offset + 2, cmdLen - 2);
 
   proto_tree_add_item (tree, hf_r3_commandlength, tvb, start_offset + 0, 1, ENC_LITTLE_ENDIAN);
   proto_tree_add_item (tree, hf_r3_command,       tvb, start_offset + 1, 1, ENC_LITTLE_ENDIAN);
@@ -5193,7 +5193,7 @@ dissect_r3_cmd_setconfig (tvbuff_t *tvb, guint32 start_offset, guint32 length _U
     return;
 
   cmdLen      = tvb_get_guint8 (tvb, start_offset + 0);
-  payload_tvb = tvb_new_subset (tvb, start_offset + 2, cmdLen - 2, cmdLen - 2);
+  payload_tvb = tvb_new_subset_length (tvb, start_offset + 2, cmdLen - 2);
 
   proto_tree_add_item (tree, hf_r3_commandlength, tvb, start_offset + 0, 1, ENC_LITTLE_ENDIAN);
   proto_tree_add_item (tree, hf_r3_command,       tvb, start_offset + 1, 1, ENC_LITTLE_ENDIAN);
@@ -5295,7 +5295,7 @@ static void
 dissect_r3_cmd_manageuser (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo, proto_tree *tree)
 {
   guint8    cmdLen      = tvb_get_guint8 (tvb, start_offset + 0);
-  tvbuff_t *payload_tvb = tvb_new_subset (tvb, start_offset + 2, cmdLen - 2, cmdLen - 2);
+  tvbuff_t *payload_tvb = tvb_new_subset_length (tvb, start_offset + 2, cmdLen - 2);
   guint32   offset      = 0;
 
   proto_tree_add_item (tree, hf_r3_commandlength, tvb, start_offset + 0, 1, ENC_LITTLE_ENDIAN);
@@ -5436,7 +5436,7 @@ dissect_r3_cmd_deleteusers (tvbuff_t *tvb, guint32 start_offset, guint32 length 
     return;
 
   cmdLen      = tvb_get_guint8 (tvb, start_offset + 0);
-  payload_tvb = tvb_new_subset (tvb, start_offset + 2, cmdLen - 2, cmdLen - 2);
+  payload_tvb = tvb_new_subset_length (tvb, start_offset + 2, cmdLen - 2);
 
   proto_tree_add_item (tree, hf_r3_commandlength, tvb, start_offset + 0, 1, ENC_LITTLE_ENDIAN);
   proto_tree_add_item (tree, hf_r3_command,       tvb, start_offset + 1, 1, ENC_LITTLE_ENDIAN);
@@ -5458,7 +5458,7 @@ dissect_r3_cmd_defineexception (tvbuff_t *tvb, guint32 start_offset, guint32 len
     return;
 
   cmdLen      = tvb_get_guint8 (tvb, start_offset + 0);
-  payload_tvb = tvb_new_subset (tvb, start_offset + 2, cmdLen - 2, cmdLen - 2);
+  payload_tvb = tvb_new_subset_length (tvb, start_offset + 2, cmdLen - 2);
 
   proto_tree_add_item (tree, hf_r3_commandlength, tvb, start_offset + 0, 1, ENC_LITTLE_ENDIAN);
   proto_tree_add_item (tree, hf_r3_command,       tvb, start_offset + 1, 1, ENC_LITTLE_ENDIAN);
@@ -5504,7 +5504,7 @@ dissect_r3_cmd_defineexceptiongroup (tvbuff_t *tvb, guint32 start_offset, guint3
     return;
 
   cmdLen      = tvb_get_guint8 (tvb, start_offset + 0);
-  payload_tvb = tvb_new_subset (tvb, start_offset + 2, cmdLen - 2, cmdLen - 2);
+  payload_tvb = tvb_new_subset_length (tvb, start_offset + 2, cmdLen - 2);
 
   proto_tree_add_item (tree, hf_r3_commandlength, tvb, start_offset + 0, 1, ENC_LITTLE_ENDIAN);
   proto_tree_add_item (tree, hf_r3_command,       tvb, start_offset + 1, 1, ENC_LITTLE_ENDIAN);
@@ -5537,7 +5537,7 @@ dissect_r3_cmd_definecalendar (tvbuff_t *tvb, guint32 start_offset, guint32 leng
     return;
 
   cmdLen      = tvb_get_guint8 (tvb, start_offset + 0);
-  payload_tvb = tvb_new_subset (tvb, start_offset + 2, cmdLen - 2, cmdLen - 2);
+  payload_tvb = tvb_new_subset_length (tvb, start_offset + 2, cmdLen - 2);
 
   proto_tree_add_item (tree, hf_r3_commandlength, tvb, start_offset + 0, 1, ENC_LITTLE_ENDIAN);
   proto_tree_add_item (tree, hf_r3_command,       tvb, start_offset + 1, 1, ENC_LITTLE_ENDIAN);
@@ -5581,7 +5581,7 @@ dissect_r3_cmd_definetimezone (tvbuff_t *tvb, guint32 start_offset, guint32 leng
     return;
 
   cmdLen      = tvb_get_guint8 (tvb, start_offset + 0);
-  payload_tvb = tvb_new_subset (tvb, start_offset + 2, cmdLen - 2, cmdLen - 2);
+  payload_tvb = tvb_new_subset_length (tvb, start_offset + 2, cmdLen - 2);
 
   proto_tree_add_item (tree, hf_r3_commandlength, tvb, start_offset + 0, 1, ENC_LITTLE_ENDIAN);
   proto_tree_add_item (tree, hf_r3_command,       tvb, start_offset + 1, 1, ENC_LITTLE_ENDIAN);
@@ -5628,7 +5628,7 @@ dissect_r3_cmd_rmtauthretry (tvbuff_t *tvb, guint32 start_offset, guint32 length
     return;
 
   cmdLen      = tvb_get_guint8 (tvb, start_offset + 0);
-  payload_tvb = tvb_new_subset (tvb, start_offset + 2, cmdLen - 2, cmdLen - 2);
+  payload_tvb = tvb_new_subset_length (tvb, start_offset + 2, cmdLen - 2);
 
   proto_tree_add_item (tree, hf_r3_commandlength, tvb, start_offset + 0, 1, ENC_LITTLE_ENDIAN);
   proto_tree_add_item (tree, hf_r3_command,       tvb, start_offset + 1, 1, ENC_LITTLE_ENDIAN);
@@ -5650,7 +5650,7 @@ dissect_r3_cmd_filters (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_,
     return;
 
   cmdLen      = tvb_get_guint8 (tvb, start_offset + 0);
-  payload_tvb = tvb_new_subset (tvb, start_offset + 2, cmdLen - 2, cmdLen - 2);
+  payload_tvb = tvb_new_subset_length (tvb, start_offset + 2, cmdLen - 2);
 
   proto_tree_add_item (tree, hf_r3_commandlength, tvb, start_offset + 0, 1, ENC_LITTLE_ENDIAN);
   proto_tree_add_item (tree, hf_r3_command,       tvb, start_offset + 1, 1, ENC_LITTLE_ENDIAN);
@@ -5679,7 +5679,7 @@ dissect_r3_cmd_alarmconfigure (tvbuff_t *tvb, guint32 start_offset, guint32 leng
     return;
 
   cmdLen      = tvb_get_guint8 (tvb, start_offset + 0);
-  payload_tvb = tvb_new_subset (tvb, start_offset + 2, cmdLen - 2, cmdLen - 2);
+  payload_tvb = tvb_new_subset_length (tvb, start_offset + 2, cmdLen - 2);
 
   proto_tree_add_item (tree, hf_r3_commandlength, tvb, start_offset + 0, 1, ENC_LITTLE_ENDIAN);
   proto_tree_add_item (tree, hf_r3_command,       tvb, start_offset + 1, 1, ENC_LITTLE_ENDIAN);
@@ -5741,7 +5741,7 @@ dissect_r3_cmd_eventlogdump (tvbuff_t *tvb, guint32 start_offset, guint32 length
     return;
 
   cmdLen      = tvb_get_guint8 (tvb, start_offset + 0);
-  payload_tvb = tvb_new_subset (tvb, start_offset + 2, cmdLen - 2, cmdLen - 2);
+  payload_tvb = tvb_new_subset_length (tvb, start_offset + 2, cmdLen - 2);
 
   proto_tree_add_item (tree, hf_r3_commandlength, tvb, start_offset + 0, 1, ENC_LITTLE_ENDIAN);
   proto_tree_add_item (tree, hf_r3_command,       tvb, start_offset + 1, 1, ENC_LITTLE_ENDIAN);
@@ -5791,7 +5791,7 @@ dissect_r3_cmd_declinedlogdump (tvbuff_t *tvb, guint32 start_offset, guint32 len
     return;
 
   cmdLen      = tvb_get_guint8 (tvb, start_offset + 0);
-  payload_tvb = tvb_new_subset (tvb, start_offset + 2, cmdLen - 2, cmdLen - 2);
+  payload_tvb = tvb_new_subset_length (tvb, start_offset + 2, cmdLen - 2);
 
   proto_tree_add_item (tree, hf_r3_commandlength, tvb, start_offset + 0, 1, ENC_LITTLE_ENDIAN);
   proto_tree_add_item (tree, hf_r3_command,       tvb, start_offset + 1, 1, ENC_LITTLE_ENDIAN);
@@ -5839,7 +5839,7 @@ dissect_r3_cmd_alarmlogdump (tvbuff_t *tvb, guint32 start_offset, guint32 length
     return;
 
   cmdLen      = tvb_get_guint8 (tvb, start_offset + 0);
-  payload_tvb = tvb_new_subset (tvb, start_offset + 2, cmdLen - 2, cmdLen - 2);
+  payload_tvb = tvb_new_subset_length (tvb, start_offset + 2, cmdLen - 2);
 
   proto_tree_add_item (tree, hf_r3_commandlength, tvb, start_offset + 0, 1, ENC_LITTLE_ENDIAN);
   proto_tree_add_item (tree, hf_r3_command,       tvb, start_offset + 1, 1, ENC_LITTLE_ENDIAN);
@@ -5885,7 +5885,7 @@ dissect_r3_cmd_downloadfirmware (tvbuff_t *tvb, guint32 start_offset, guint32 le
   guint32     calculatedCRC;
 
   cmdLen      = tvb_get_guint8 (tvb, start_offset + 0);
-  payload_tvb = tvb_new_subset (tvb, start_offset + 2, cmdLen - 2, cmdLen - 2);
+  payload_tvb = tvb_new_subset_length (tvb, start_offset + 2, cmdLen - 2);
 
   if (tree)
   {
@@ -5979,7 +5979,7 @@ dissect_r3_cmd_downloadfirmwaretimeout (tvbuff_t *tvb, guint32 start_offset, gui
   if (tree)
   {
     cmdLen      = tvb_get_guint8 (tvb, start_offset + 0);
-    payload_tvb = tvb_new_subset (tvb, start_offset + 2, cmdLen - 2, cmdLen - 2);
+    payload_tvb = tvb_new_subset_length (tvb, start_offset + 2, cmdLen - 2);
 
     proto_tree_add_item (tree, hf_r3_commandlength, tvb, start_offset + 0, 1, ENC_LITTLE_ENDIAN);
     proto_tree_add_item (tree, hf_r3_command,       tvb, start_offset + 1, 1, ENC_LITTLE_ENDIAN);
@@ -5999,7 +5999,7 @@ dissect_r3_cmd_powertableselection (tvbuff_t *tvb, guint32 start_offset, guint32
     return;
 
   cmdLen      = tvb_get_guint8 (tvb, start_offset + 0);
-  payload_tvb = tvb_new_subset (tvb, start_offset + 2, cmdLen - 2, cmdLen - 2);
+  payload_tvb = tvb_new_subset_length (tvb, start_offset + 2, cmdLen - 2);
 
   proto_tree_add_item (tree, hf_r3_commandlength, tvb, start_offset + 0, 1, ENC_LITTLE_ENDIAN);
   proto_tree_add_item (tree, hf_r3_command,       tvb, start_offset + 1, 1, ENC_LITTLE_ENDIAN);
@@ -6021,7 +6021,7 @@ dissect_r3_cmd_clearnvram (tvbuff_t *tvb, guint32 start_offset, guint32 length _
     return;
 
   cmdLen            = tvb_get_guint8 (tvb, start_offset + 0);
-  payload_tvb       = tvb_new_subset (tvb, start_offset + 2, cmdLen - 2, cmdLen - 2);
+  payload_tvb       = tvb_new_subset_length (tvb, start_offset + 2, cmdLen - 2);
 
   proto_tree_add_item (tree, hf_r3_commandlength, tvb, start_offset + 0, 1, ENC_LITTLE_ENDIAN);
   proto_tree_add_item (tree, hf_r3_command,       tvb, start_offset + 1, 1, ENC_LITTLE_ENDIAN);
@@ -6045,7 +6045,7 @@ dissect_r3_cmd_dpac (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, pa
     return;
 
   cmdLen      = tvb_get_guint8 (tvb, start_offset + 0);
-  payload_tvb = tvb_new_subset (tvb, start_offset + 2, cmdLen - 2, cmdLen - 2);
+  payload_tvb = tvb_new_subset_length (tvb, start_offset + 2, cmdLen - 2);
 
   proto_tree_add_item (tree, hf_r3_commandlength, tvb, start_offset + 0, 1, ENC_LITTLE_ENDIAN);
   proto_tree_add_item (tree, hf_r3_command,       tvb, start_offset + 1, 1, ENC_LITTLE_ENDIAN);
@@ -6086,7 +6086,7 @@ dissect_r3_cmd_logwrite (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_
     return;
 
   cmdLen      = tvb_get_guint8 (tvb, start_offset + 0);
-  payload_tvb = tvb_new_subset (tvb, start_offset + 2, cmdLen - 2, cmdLen - 2);
+  payload_tvb = tvb_new_subset_length (tvb, start_offset + 2, cmdLen - 2);
 
   proto_tree_add_item (tree, hf_r3_commandlength, tvb, start_offset + 0, 1, ENC_LITTLE_ENDIAN);
   proto_tree_add_item (tree, hf_r3_command,       tvb, start_offset + 1, 1, ENC_LITTLE_ENDIAN);
@@ -6132,7 +6132,7 @@ dissect_r3_cmd_extendedresponse (tvbuff_t *tvb, guint32 start_offset, guint32 le
 static void
 dissect_r3_cmdmfg_setserialnumber (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
 {
-  tvbuff_t *sn_tvb = tvb_new_subset (tvb, start_offset + 2, 16, 16);
+  tvbuff_t *sn_tvb = tvb_new_subset_length (tvb, start_offset + 2, 16);
 
   if (tree)
   {

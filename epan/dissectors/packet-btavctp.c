@@ -215,7 +215,7 @@ dissect_btavctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     length = tvb_ensure_length_remaining(tvb, offset);
 
     /* reassembling */
-    next_tvb = tvb_new_subset(tvb, offset, length, length);
+    next_tvb = tvb_new_subset_length(tvb, offset, length);
     if (packet_type == PACKET_TYPE_SINGLE) {
         if (!dissector_try_uint_new(avctp_service_dissector_table, pid, next_tvb, pinfo, tree, TRUE, avctp_data)) {
             call_dissector(data_handle, next_tvb, pinfo, tree);

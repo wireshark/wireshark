@@ -339,7 +339,7 @@ dissect_linx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		version = (dword >> 25) & 0x7;
 		nexthdr = (dword >> 28) & 0xf;
 		pkgsize = dword & 0x3fff;
-		linx_tvb = tvb_new_subset(tvb, 0, pkgsize, pkgsize);
+		linx_tvb = tvb_new_subset_length(tvb, 0, pkgsize);
 		tvb_set_reported_length(tvb, pkgsize);
 
 		/* Supports version 2 and 3 so far */
@@ -873,7 +873,7 @@ dissect_linx_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_append_fstr(pinfo->cinfo, COL_INFO, "tcpcm:%s ", val_to_str_const(type, linx_short_tcp_names, "unknown"));
 
 	tvb_set_reported_length(tvb, size);
-	linx_tcp_tvb = tvb_new_subset(tvb, 0, size, size);
+	linx_tcp_tvb = tvb_new_subset_length(tvb, 0, size);
 
 	ti = proto_tree_add_item(tree, proto_linx_tcp, linx_tcp_tvb, 0, -1, ENC_NA);
 	linx_tcp_tree = proto_item_add_subtree(ti, ett_linx_tcp);

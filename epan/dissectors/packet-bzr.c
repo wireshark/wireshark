@@ -247,7 +247,7 @@ dissect_bzr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 pdu_len = tvb_reported_length_remaining(tvb, offset);
             }
         }
-        next_tvb = tvb_new_subset(tvb, offset, pdu_len, pdu_len);
+        next_tvb = tvb_new_subset_length(tvb, offset, pdu_len);
         dissect_bzr_pdu(next_tvb, pinfo, tree);
         offset += pdu_len;
     }

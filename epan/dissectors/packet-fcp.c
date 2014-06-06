@@ -490,7 +490,7 @@ dissect_fcp_cmnd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, pro
     itl.cmdset = 0xff;
     itl.conversation = conversation;
 
-    cdb_tvb = tvb_new_subset(tvb, offset+12, tvb_len, tvb_rlen);
+    cdb_tvb = tvb_new_subset_length(tvb, offset+12, tvb_len);
     dissect_scsi_cdb(cdb_tvb, pinfo, parent_tree, SCSI_DEV_UNKNOWN, request_data->itlq, &itl);
 
     proto_tree_add_item(tree, hf_fcp_dl, tvb, offset+12+16+add_len,

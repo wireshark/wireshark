@@ -1578,7 +1578,7 @@ dissect_oml_attrs(tvbuff_t *tvb, int base_offs, packet_info *pinfo,
 				    offset+1, len_len, len);
 		offset += hlen;
 
-		sub_tvb = tvb_new_subset(tvb, offset, len, len);
+		sub_tvb = tvb_new_subset_length(tvb, offset, len);
 
 		switch (tag) {
 		/* parse only the most common IE for now */
@@ -1845,7 +1845,7 @@ dissect_abis_oml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 			 * putting all of that into an external dissector and
 			 * call out to that dissector */
 			tvbuff_t *subtvb;
-			subtvb = tvb_new_subset(tvb, offset, len, len);
+			subtvb = tvb_new_subset_length(tvb, offset, len);
 
 			if (sub_om2000)
 				call_dissector(sub_om2000, subtvb, pinfo, tree);

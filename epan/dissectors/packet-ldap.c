@@ -839,7 +839,7 @@ dissect_ldap_AssertionValue(gboolean implicit_tag, tvbuff_t *tvb, int offset, as
 		char *tmpstr;
 
 		/* this octet string contains an NT SID */
-		sid_tvb=tvb_new_subset(tvb, offset, len, len);
+		sid_tvb=tvb_new_subset_length(tvb, offset, len);
 		dissect_nt_sid(sid_tvb, 0, tree, "SID", &tmpstr, hf_index);
 		ldapvalue_string=tmpstr;
 
@@ -4129,10 +4129,7 @@ static void
 				/* if we could unwrap, do a tvb shuffle */
 				if(pinfo->gssapi_decrypted_tvb){
 					decr_tvb=pinfo->gssapi_decrypted_tvb;
-				} else if (pinfo->gssapi_wrap_tvb) {
-					plain_tvb=pinfo->gssapi_wrap_tvb;
 				}
-
 				/* tidy up */
 				pinfo->decrypt_gssapi_tvb=0;
 				pinfo->gssapi_wrap_tvb=NULL;
@@ -4152,7 +4149,7 @@ static void
 				* see if the wrapping involved encryption of the
 				* data; if not, just use the plaintext data.
 				*/
-				if (!decr_tvb && !plain_tvb) {
+				if (!decr_tvb) {
 					if(!pinfo->gssapi_data_encrypted){
 						plain_tvb = tvb_new_subset_remaining(gssapi_tvb,  ver_len);
 					}

@@ -14392,7 +14392,7 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
 
         offset += 2;
         oui = tvb_get_ntoh24(tvb, offset);
-        tag_tvb = tvb_new_subset(tvb, offset, tag_len, tag_len);
+        tag_tvb = tvb_new_subset_length(tvb, offset, tag_len);
         proto_tree_add_item(tree, hf_ieee80211_tag_oui, tvb, offset, 3, ENC_NA);
         proto_item_append_text(ti, ": %s", uint_get_manuf_name(oui));
         offset += 3;

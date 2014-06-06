@@ -327,7 +327,7 @@ dissect_protocol_data_parameter(tvbuff_t *parameter_tvb, proto_item *parameter_i
   tvbuff_t *protocol_data_tvb;
 
   protocol_data_length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH;
-  protocol_data_tvb    = tvb_new_subset(parameter_tvb, PROTOCOL_DATA_OFFSET, protocol_data_length, protocol_data_length);
+  protocol_data_tvb    = tvb_new_subset_length(parameter_tvb, PROTOCOL_DATA_OFFSET, protocol_data_length);
   if(dpnss_handle){
     call_dissector(dpnss_handle, protocol_data_tvb, pinfo, tree);
     return;
@@ -549,7 +549,7 @@ dissect_parameters(tvbuff_t *parameters_tvb, packet_info *pinfo, proto_tree *tre
     if (remaining_length >= length)
       total_length = MIN(total_length, remaining_length);
     /* create a tvb for the parameter including the padding bytes */
-    parameter_tvb  = tvb_new_subset(parameters_tvb, offset, total_length, total_length);
+    parameter_tvb  = tvb_new_subset_length(parameters_tvb, offset, total_length);
     dissect_parameter(parameter_tvb, pinfo, tree, dua_tree);
     /* get rid of the handled parameter */
     offset += total_length;
@@ -708,7 +708,7 @@ dissect_dua_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree,
 {
   tvbuff_t *common_header_tvb, *parameters_tvb;
 
-  common_header_tvb = tvb_new_subset(message_tvb, COMMON_HEADER_OFFSET, COMMON_HEADER_LENGTH, COMMON_HEADER_LENGTH);
+  common_header_tvb = tvb_new_subset_length(message_tvb, COMMON_HEADER_OFFSET, COMMON_HEADER_LENGTH);
   parameters_tvb    = tvb_new_subset_remaining(message_tvb, PARAMETERS_OFFSET);
   dissect_common_header(common_header_tvb, pinfo, dua_tree);
   dissect_parameters(parameters_tvb, pinfo, tree, dua_tree);

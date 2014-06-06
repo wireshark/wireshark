@@ -135,7 +135,7 @@ dissect_pn532_hci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         }
         offset += 1;
 
-        next_tvb = tvb_new_subset(tvb, offset, length, length);
+        next_tvb = tvb_new_subset_length(tvb, offset, length);
         call_dissector_with_data(pn532_handle, next_tvb, pinfo, tree, usb_conv_info);
         offset += length;
 
@@ -162,7 +162,7 @@ dissect_pn532_hci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
             proto_tree_add_expert(main_tree, pinfo, &ei_invalid_length_checksum, tvb, offset, 1);
         offset += 1;
 
-        next_tvb = tvb_new_subset(tvb, offset, length, length);
+        next_tvb = tvb_new_subset_length(tvb, offset, length);
         call_dissector_with_data(pn532_handle, next_tvb, pinfo, tree, usb_conv_info);
         offset += length;
 

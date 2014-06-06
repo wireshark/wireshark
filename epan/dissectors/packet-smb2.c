@@ -738,7 +738,7 @@ feed_eo_smb2(tvbuff_t * tvb,packet_info *pinfo,smb2_info_t * si, guint16 dataoff
 	gchar		**aux_string_v;
 
 	/* Create a new tvb to point to the payload data */
-	data_tvb = tvb_new_subset(tvb, dataoffset, length, length);
+	data_tvb = tvb_new_subset_length(tvb, dataoffset, length);
 	/* Create the eo_info to pass to the listener */
 	eo_info = wmem_new(wmem_packet_scope(), smb_eo_t);
 	/* Fill in eo_info */
@@ -6745,7 +6745,7 @@ dissect_smb2_transform_header(packet_info *pinfo _U_, proto_tree *tree,
 	}
 done_decryption:
 #endif
-	*enc_tvb = tvb_new_subset(tvb, offset, sti->size, sti->size);
+	*enc_tvb = tvb_new_subset_length(tvb, offset, sti->size);
 
 	if (plain_data != NULL) {
 		*plain_tvb = tvb_new_child_real_data(*enc_tvb, plain_data, sti->size, sti->size);

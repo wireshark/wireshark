@@ -93,7 +93,7 @@ static int dissect_macsec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     data_length = tvb_length(tvb) - sectag_length - icv_length;
     icv_offset  = data_length + data_offset;
 
-    next_tvb = tvb_new_subset(tvb, data_offset, data_length, data_length);
+    next_tvb = tvb_new_subset_length(tvb, data_offset, data_length);
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "MACSEC");
     col_set_str(pinfo->cinfo, COL_INFO, "MACsec frame");

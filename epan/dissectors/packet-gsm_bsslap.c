@@ -250,7 +250,7 @@ de_rrlp_ie(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
    curr_offset = offset + 2;
    if (length > 0)
    {
-      rrlp_tvb = tvb_new_subset(tvb, curr_offset, length, length);
+      rrlp_tvb = tvb_new_subset_length(tvb, curr_offset, length);
       if (bsslap_rrlp_handle)
          call_dissector(bsslap_rrlp_handle, rrlp_tvb, pinfo, tree);
    }

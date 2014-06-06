@@ -2409,7 +2409,7 @@ dissect_q931_user_user_ie(tvbuff_t *tvb, packet_info *pinfo, int offset, int len
 	switch (octet) {
 
 	case Q931_PROTOCOL_DISCRIMINATOR_USER:
-		next_tvb = tvb_new_subset(tvb, offset, len, len);
+		next_tvb = tvb_new_subset_length(tvb, offset, len);
 		proto_tree_add_uint_format_value(tree, hf_q931_user_information_len, tvb, offset, len, len, "%d octets", len);
 		if (!dissector_try_heuristic(q931_user_heur_subdissector_list, next_tvb, pinfo, tree, &hdtbl_entry, NULL)) {
 		call_dissector_only(data_handle, next_tvb, pinfo, tree, NULL);
@@ -2664,7 +2664,7 @@ dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree,
 			 */
 			if (dissector_get_uint_handle(codeset_dissector_table, codeset) ||
 			    dissector_get_uint_handle(ie_dissector_table, (codeset << 8) | (info_element & Q931_IE_SO_IDENTIFIER_MASK))) {
-				next_tvb = tvb_new_subset (tvb, offset, 1, 1);
+				next_tvb = tvb_new_subset_length (tvb, offset, 1);
 				if (dissector_try_uint(ie_dissector_table, (codeset << 8) | (info_element & Q931_IE_SO_IDENTIFIER_MASK), next_tvb, pinfo, q931_tree) ||
 				    dissector_try_uint(codeset_dissector_table, codeset, next_tvb, pinfo, q931_tree)) {
 					offset += 1;
@@ -2767,9 +2767,8 @@ dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree,
 					 * whether we're building a
 					 * protocol tree or not.
 					 */
-					h225_tvb = tvb_new_subset(tvb,
-					    offset + 4, info_element_len - 1,
-					    info_element_len - 1);
+					h225_tvb = tvb_new_subset_length(tvb,
+					    offset + 4, info_element_len - 1);
 					call_dissector(h225_handle, h225_tvb,
 					    pinfo, root_tree);
 				} else {
@@ -2796,7 +2795,7 @@ dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree,
 			 */
 			if (dissector_get_uint_handle(codeset_dissector_table, codeset) ||
 			    dissector_get_uint_handle(ie_dissector_table, (codeset << 8) | info_element)) {
-				next_tvb = tvb_new_subset (tvb, offset, info_element_len + 2, info_element_len + 2);
+				next_tvb = tvb_new_subset_length (tvb, offset, info_element_len + 2);
 				if (dissector_try_uint(ie_dissector_table, (codeset << 8) | info_element, next_tvb, pinfo, q931_tree) ||
 				    dissector_try_uint(codeset_dissector_table, codeset, next_tvb, pinfo, q931_tree)) {
 					offset += 2 + info_element_len;

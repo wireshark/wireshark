@@ -4286,7 +4286,7 @@ dissect_PDPortData_Adjust_block(tvbuff_t *tvb, int offset,
 
     u16BodyLength -= 6;
 
-    new_tvb = tvb_new_subset(tvb, offset, u16BodyLength, u16BodyLength);
+    new_tvb = tvb_new_subset_length(tvb, offset, u16BodyLength);
     dissect_blocks(new_tvb, 0, pinfo, tree, drep);
     offset += u16BodyLength;
 
@@ -4326,7 +4326,7 @@ dissect_PDPortData_Check_block(tvbuff_t *tvb, int offset,
 
     u16BodyLength -= 6;
 
-    new_tvb = tvb_new_subset(tvb, offset, u16BodyLength, u16BodyLength);
+    new_tvb = tvb_new_subset_length(tvb, offset, u16BodyLength);
     dissect_blocks(new_tvb, 0, pinfo, tree, drep);
     offset += u16BodyLength;
 
@@ -6787,7 +6787,7 @@ dissect_PDInterfaceFSUDataAdjust_block(tvbuff_t *tvb, int offset,
     u16BodyLength -= 2;
 
     /* sub blocks */
-    new_tvb = tvb_new_subset(tvb, offset, u16BodyLength, u16BodyLength);
+    new_tvb = tvb_new_subset_length(tvb, offset, u16BodyLength);
     dissect_blocks(new_tvb, 0, pinfo, tree, drep);
     offset += u16BodyLength;
 
@@ -6816,7 +6816,7 @@ dissect_ARFSUDataAdjust_block(tvbuff_t *tvb, int offset,
     u16BodyLength -= 2;
 
     /* sub blocks */
-    new_tvb = tvb_new_subset(tvb, offset, u16BodyLength, u16BodyLength);
+    new_tvb = tvb_new_subset_length(tvb, offset, u16BodyLength);
     dissect_blocks(new_tvb, 0, pinfo, tree, drep);
     offset += u16BodyLength;
 
@@ -8047,7 +8047,7 @@ dissect_MultipleBlockHeader_block(tvbuff_t *tvb, int offset,
     proto_item_append_text(item, ": Api:0x%x Slot:%u Subslot:0x%x",
         u32Api, u16SlotNr, u16SubslotNr);
 
-    new_tvb = tvb_new_subset(tvb, offset, u16BodyLength-10, u16BodyLength-10);
+    new_tvb = tvb_new_subset_length(tvb, offset, u16BodyLength-10);
     offset = dissect_blocks(new_tvb, 0, pinfo, tree, drep);
 
     /*offset += u16BodyLength;*/
@@ -9156,7 +9156,7 @@ dissect_IODWriteReq(tvbuff_t *tvb, int offset,
             offset = dissect_IODWriteReq(tvb, offset, pinfo, tree, drep, ar);
         }
     } else {
-        tvbuff_t *new_tvb = tvb_new_subset(tvb, offset, u32RecDataLen, u32RecDataLen);
+        tvbuff_t *new_tvb = tvb_new_subset_length(tvb, offset, u32RecDataLen);
         /* RecordDataWrite */
         offset += dissect_RecordDataWrite(new_tvb, 0, pinfo, tree, drep, u16Index, u32RecDataLen);
 

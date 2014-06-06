@@ -1106,7 +1106,7 @@ dissect_gtpv2_stn_sr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_
     int         offset = 0;
 
     stn_sr_item = proto_tree_add_item(tree, hf_gtpv2_stn_sr, tvb, offset, length, ENC_NA);
-    new_tvb = tvb_new_subset(tvb, offset, length, length );
+    new_tvb = tvb_new_subset_length(tvb, offset, length);
     sub_tree = proto_item_add_subtree(stn_sr_item, ett_gtpv2_stn_sr);
 
     /* Octet 5
@@ -2367,7 +2367,7 @@ dissect_gtpv2_bearer_ctx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_
     proto_item_append_text(item, "[Grouped IE]");
     grouped_tree = proto_item_add_subtree(item, ett_gtpv2_bearer_ctx);
 
-    new_tvb = tvb_new_subset(tvb, offset, length, length );
+    new_tvb = tvb_new_subset_length(tvb, offset, length);
     dissect_gtpv2_ie_common(new_tvb, pinfo, grouped_tree, 0, message_type);
 }
 
@@ -3652,7 +3652,7 @@ dissect_gtpv2_PDN_conn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, 
 
     proto_item_append_text(item, "[Grouped IE]");
     grouped_tree = proto_item_add_subtree(item, ett_gtpv2_PDN_conn);
-    new_tvb = tvb_new_subset(tvb, offset, length, length );
+    new_tvb = tvb_new_subset_length(tvb, offset, length);
 
     dissect_gtpv2_ie_common(new_tvb, pinfo, grouped_tree, offset, message_type);
 }
@@ -4507,7 +4507,7 @@ dissect_gtpv2_private_ext(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 
     proto_item_append_text(item, "%s (%u)", val_to_str_ext_const(ext_id, &sminmpec_values_ext, "Unknown"), ext_id);
 
-    next_tvb = tvb_new_subset(tvb, offset, length-2, length-2);
+    next_tvb = tvb_new_subset_length(tvb, offset, length-2);
     if (dissector_try_uint_new(gtpv2_priv_ext_dissector_table, ext_id, next_tvb, pinfo, tree, FALSE, GUINT_TO_POINTER((guint32)instance))){
         return;
     }
@@ -5340,7 +5340,7 @@ dissect_gtpv2(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
         offset += 1;
 
         if (p_flag) {
-            msg_tvb = tvb_new_subset(tvb, 0, msg_length + 4, msg_length + 4);
+            msg_tvb = tvb_new_subset_length(tvb, 0, msg_length + 4);
             dissect_gtpv2_ie_common(msg_tvb, pinfo, gtpv2_tree, offset, message_type);
         } else {
             dissect_gtpv2_ie_common(tvb, pinfo, gtpv2_tree, offset, message_type);

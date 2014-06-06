@@ -2483,7 +2483,7 @@ static void zcl_dump_data(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto
     tvbuff_t   *remainder;
 
     if (length > 0) {
-        remainder = tvb_new_subset(tvb, offset, length, length);
+        remainder = tvb_new_subset_remaining(tvb, offset);
         call_dissector(data_handle, remainder, pinfo, root);
     }
 

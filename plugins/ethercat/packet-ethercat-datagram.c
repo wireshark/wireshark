@@ -806,7 +806,7 @@ static void dissect_ecat_datagram(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
       {
          const guint MBoxLength = mbox.Length + 6 /* MBOX header length */;
 
-         next_tvb = tvb_new_subset(tvb, suboffset, MBoxLength, MBoxLength);
+         next_tvb = tvb_new_subset_length(tvb, suboffset, MBoxLength);
          call_dissector(ecat_mailbox_handle, next_tvb, pinfo, ecat_datagram_tree);
 
          if( tree )

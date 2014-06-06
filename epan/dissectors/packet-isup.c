@@ -4795,7 +4795,7 @@ dissect_bat_ase_Encapsulated_Application_Information(tvbuff_t *parameter_tvb, pa
           /* If this is a segmented message we may not have all the data */
           next_tvb = tvb_new_subset_remaining(parameter_tvb, offset);
         } else {
-          next_tvb = tvb_new_subset(parameter_tvb, offset, sdp_length, sdp_length);
+          next_tvb = tvb_new_subset_length(parameter_tvb, offset, sdp_length);
         }
         if (BCTP_Indicator_field_2==0x20) {
           /* IPBCP (text encoded) */

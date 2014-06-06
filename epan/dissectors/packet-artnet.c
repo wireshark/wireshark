@@ -1638,7 +1638,7 @@ dissect_artnet_output(tvbuff_t *tvb, guint offset, proto_tree *tree, packet_info
   save_info = col_get_writable(pinfo->cinfo);
   col_set_writable(pinfo->cinfo, FALSE);
 
-  next_tvb = tvb_new_subset(tvb, offset, length, length);
+  next_tvb = tvb_new_subset_length(tvb, offset, length);
 
   /* XXX: Assumption: OK to call dmx-chan dissector under 'if (tree)' */
   call_dissector(dmx_chan_handle, next_tvb, pinfo, base_tree);

@@ -385,7 +385,7 @@ zdp_dump_excess(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tree *tre
     tvbuff_t    *excess;
 
     if (length > 0) {
-        excess = tvb_new_subset(tvb, offset, length, length);
+        excess = tvb_new_subset_remaining(tvb, offset);
         call_dissector(data_handle, excess, pinfo, root);
     }
 } /* zdp_dump_excess */

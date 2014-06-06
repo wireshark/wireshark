@@ -1096,7 +1096,7 @@ dissect_reassembled_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             ti = proto_tree_add_uint(atm_tree, hf_atm_aal5_crc, tvb, length - 4, 4, crc);
             proto_item_append_text(ti, (calc_crc == 0xC704DD7B) ? " (correct)" : " (incorrect)");
           }
-          next_tvb = tvb_new_subset(tvb, 0, aal5_length, aal5_length);
+          next_tvb = tvb_new_subset_length(tvb, 0, aal5_length);
         }
       }
     }

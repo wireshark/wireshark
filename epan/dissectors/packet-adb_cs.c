@@ -688,7 +688,7 @@ dissect_adb_cs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
                     }
 
                     if (tvb_length_remaining(next_tvb, i_offset) >= 4 && tvb_length_remaining(next_tvb, i_offset) >= logcat_length) {
-                        new_tvb = tvb_new_subset(next_tvb, i_offset, logcat_length, logcat_length);
+                        new_tvb = tvb_new_subset_length(next_tvb, i_offset, logcat_length);
 
                         call_dissector(logcat_handle, new_tvb, pinfo, main_tree);
                         i_offset += logcat_length;

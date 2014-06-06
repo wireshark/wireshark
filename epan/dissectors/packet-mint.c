@@ -291,7 +291,7 @@ dissect_eth_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mint_tree,
         col_set_writable(pinfo->cinfo, FALSE);
 #endif
 
-	eth_tvb = tvb_new_subset(tvb, offset, length, length);
+	eth_tvb = tvb_new_subset_length(tvb, offset, length);
 	/* Continue after Ethernet dissection errors */
 	TRY {
 		call_dissector(eth_handle, eth_tvb, pinfo, mint_tree);

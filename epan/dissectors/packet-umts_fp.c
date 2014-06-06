@@ -660,7 +660,7 @@ static gboolean verify_header_crc_edch(tvbuff_t * tvb, packet_info * pinfo, prot
     guint16 crc = 0;
     guint8 * data = NULL;
     /* First create new subset of header with first byte removed. */
-    tvbuff_t * headtvb = tvb_new_subset(tvb, 1, header_length-1, header_length-1);
+    tvbuff_t * headtvb = tvb_new_subset_length(tvb, 1, header_length-1);
     /* Get data of header with first byte removed. */
     data = (guint8 *)tvb_memdup(wmem_packet_scope(), headtvb, 0, header_length-1);
     /* Remove first 4 bits of the remaining data which are Header CRC cont. */
@@ -3701,7 +3701,7 @@ void dissect_hsdsch_common_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto
                     /* In the very few test cases I've seen, this seems to be
                      * BCCH with transparent MAC layer. Therefore skip right to
                      * rlc_bcch and hope for the best. */
-                    next_tvb = tvb_new_subset(tvb, offset, (gint)pdu_length[n], (gint)pdu_length[n]);
+                    next_tvb = tvb_new_subset_length(tvb, offset, (gint)pdu_length[n]);
                     call_dissector(rlc_bcch_handle, next_tvb, pinfo, top_level_tree);
                     offset += (gint)pdu_length[n];
                 } else { /* Else go for CCCH UM, this seems to work. */
@@ -3724,7 +3724,7 @@ void dissect_hsdsch_common_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto
                     rlcinf->rbid[j] = (guint8)lchid[n]+1;
                     rlcinf->urnti[j] = p_fp_info->channel; /*We need to fake urnti*/
 
-                    next_tvb = tvb_new_subset(tvb, offset, (gint)pdu_length[n], (gint)pdu_length[n]);
+                    next_tvb = tvb_new_subset_length(tvb, offset, (gint)pdu_length[n]);
                     call_dissector(mac_fdd_hsdsch_handle, next_tvb, pinfo, top_level_tree);
 
 

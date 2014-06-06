@@ -1118,7 +1118,7 @@ dissect_ImageJPEG_Alpha(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
     ti = proto_tree_add_text(tree, tvb, offset - 9, Data_Size + 9, "RGB JPEG Image, Alpha channel (%u bytes)", Data_Size);
     JPEG_tree = proto_item_add_subtree(ti, ett_JPEG);
 
-    jpeg_tvb = tvb_new_subset(tvb, offset, JPEG_Size, JPEG_Size);
+    jpeg_tvb = tvb_new_subset_length(tvb, offset, JPEG_Size);
     call_dissector(jpeg_handle, jpeg_tvb, pinfo, JPEG_tree);
     offset += JPEG_Size;
 
@@ -1138,7 +1138,7 @@ dissect_ImageJPEG(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, const gui
     ti = proto_tree_add_text(tree, tvb, offset, JPEG_Size + 4, "JPEG Image (%u bytes)", JPEG_Size);
     JPEG_tree = proto_item_add_subtree(ti, ett_JPEG);
 
-    jpeg_tvb = tvb_new_subset(tvb, offset + 4, JPEG_Size, JPEG_Size);
+    jpeg_tvb = tvb_new_subset_length(tvb, offset + 4, JPEG_Size);
     call_dissector(jpeg_handle, jpeg_tvb, pinfo, JPEG_tree);
 
     return JPEG_Size + 4;
@@ -1951,7 +1951,7 @@ dissect_spice_display_server(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo
             proto_tree_add_item(tree, hf_display_stream_data_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset += 4;
             proto_tree_add_text(tree, tvb, offset, data_size, "Stream data");
-            jpeg_tvb = tvb_new_subset(tvb, offset, data_size, data_size);
+            jpeg_tvb = tvb_new_subset_length(tvb, offset, data_size);
             call_dissector(jpeg_handle, jpeg_tvb, pinfo, tree);
             offset += data_size;
             break;

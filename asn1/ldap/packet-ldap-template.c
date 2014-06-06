@@ -625,7 +625,7 @@ dissect_ldap_AssertionValue(gboolean implicit_tag, tvbuff_t *tvb, int offset, as
 		char *tmpstr;
 
 		/* this octet string contains an NT SID */
-		sid_tvb=tvb_new_subset(tvb, offset, len, len);
+		sid_tvb=tvb_new_subset_length(tvb, offset, len);
 		dissect_nt_sid(sid_tvb, 0, tree, "SID", &tmpstr, hf_index);
 		ldapvalue_string=tmpstr;
 

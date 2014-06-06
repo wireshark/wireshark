@@ -490,12 +490,10 @@ dissect_gsmtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 * of the packet (see TS 04.04) */
 	if (type == GSMTAP_TYPE_UM &&
 	    sub_type & GSMTAP_CHANNEL_ACCH) {
-		l1h_tvb = tvb_new_subset(tvb, hdr_len, 2, 2);
-		payload_tvb = tvb_new_subset(tvb, hdr_len+2, len-(hdr_len+2),
-					     len-(hdr_len+2));
+		l1h_tvb = tvb_new_subset_length(tvb, hdr_len, 2);
+		payload_tvb = tvb_new_subset_length(tvb, hdr_len+2, len-(hdr_len+2));
 	} else {
-		payload_tvb = tvb_new_subset(tvb, hdr_len, len-hdr_len,
-					     len-hdr_len);
+		payload_tvb = tvb_new_subset_length(tvb, hdr_len, len-hdr_len);
 	}
 
 	/* We don't want any UDP related info left in the INFO field, as the

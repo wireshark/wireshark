@@ -1638,7 +1638,7 @@ cmd_addresp(tvbuff_t *tvb, int offset, proto_tree *pt)
         length = msglen + 3 - (msglen + 3) % 4;
         item = proto_tree_add_text(pt, tvb, offset, length, "Response block %d", i);
         tree = proto_item_add_subtree (item, ett_gryphon_cmd_response_block);
-        next_tvb = tvb_new_subset(tvb, offset, msglen, msglen);
+        next_tvb = tvb_new_subset_length(tvb, offset, msglen);
         dissect_gryphon_message(next_tvb, NULL, tree, TRUE);
         offset += length;
     }

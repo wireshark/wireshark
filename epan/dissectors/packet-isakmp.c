@@ -4834,7 +4834,7 @@ dissect_eap(tvbuff_t *tvb, int offset, int length, proto_tree *tree, packet_info
 {
   tvbuff_t *eap_tvb = NULL;
 
-  eap_tvb = tvb_new_subset(tvb, offset,length, length );
+  eap_tvb = tvb_new_subset_length(tvb, offset, length);
   if ((eap_tvb != NULL)&& eap_handle != NULL){
 	  call_dissector(eap_handle, eap_tvb, pinfo, tree);
   }else{

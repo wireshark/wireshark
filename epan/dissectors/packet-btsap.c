@@ -256,7 +256,7 @@ dissect_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree,
         case 0x04: /* CommandAPDU */
             /* GSM 11.11 */
             if (gsm_sim_cmd_handle && top_dissect != TOP_DISSECT_OFF) {
-                next_tvb = tvb_new_subset(tvb, offset, parameter_length, parameter_length);
+                next_tvb = tvb_new_subset_length(tvb, offset, parameter_length);
                 col_append_str(pinfo->cinfo, COL_INFO, ": ");
 
                 if (top_dissect == TOP_DISSECT_INTERNAL) {
@@ -275,7 +275,7 @@ dissect_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree,
         case 0x05: /* ResponseAPDU */
             /* GSM 11.11 or ISO/IEC 7816-4; depend of TRANSFER_APDU_REQ */
             if (gsm_sim_resp_handle && top_dissect != TOP_DISSECT_OFF) {
-                next_tvb = tvb_new_subset(tvb, offset, parameter_length, parameter_length);
+                next_tvb = tvb_new_subset_length(tvb, offset, parameter_length);
                 col_append_str(pinfo->cinfo, COL_INFO, ": ");
 
                 if (top_dissect == TOP_DISSECT_INTERNAL) {
@@ -294,7 +294,7 @@ dissect_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree,
         case 0x06: /* ATR */
             /* ISO/IEC 7816-3 */
             if (iso7816_atr_handle && top_dissect != TOP_DISSECT_OFF) {
-                next_tvb = tvb_new_subset(tvb, offset, parameter_length, parameter_length);
+                next_tvb = tvb_new_subset_length(tvb, offset, parameter_length);
                 col_append_str(pinfo->cinfo, COL_INFO, ": ");
 
                 if (top_dissect == TOP_DISSECT_INTERNAL) {
@@ -340,7 +340,7 @@ dissect_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree,
         case 0x10: /* CommandAPDU7816 */
             /* ISO/IEC 7816-4 */
             if (gsm_sim_cmd_handle && top_dissect != TOP_DISSECT_OFF) {
-                next_tvb = tvb_new_subset(tvb, offset, parameter_length, parameter_length);
+                next_tvb = tvb_new_subset_length(tvb, offset, parameter_length);
                 col_append_str(pinfo->cinfo, COL_INFO, ": ");
 
                 if (top_dissect == TOP_DISSECT_INTERNAL) {

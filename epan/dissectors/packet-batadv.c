@@ -630,7 +630,7 @@ static void dissect_batman_plugin(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
 		length_remaining = tvb_length_remaining(tvb, 0);
 		if (length_remaining > 0) {
-			next_tvb = tvb_new_subset(tvb, 0, length_remaining, -1);
+			next_tvb = tvb_new_subset_remaining(tvb, 0);
 			call_dissector(data_handle, next_tvb, pinfo, tree);
 		}
 		break;
@@ -808,7 +808,7 @@ static int dissect_batadv_batman_v5(tvbuff_t *tvb, int offset, packet_info *pinf
 	tap_queue_packet(batadv_tap, pinfo, batman_packeth);
 
 	for (i = 0; i < batman_packeth->num_tt; i++) {
-		next_tvb = tvb_new_subset(tvb, offset, 6, 6);
+		next_tvb = tvb_new_subset_length(tvb, offset, 6);
 
 		if (have_tap_listener(batadv_follow_tap)) {
 			tap_queue_packet(batadv_follow_tap, pinfo, next_tvb);
@@ -909,7 +909,7 @@ static int dissect_batadv_batman_v7(tvbuff_t *tvb, int offset, packet_info *pinf
 	tap_queue_packet(batadv_tap, pinfo, batman_packeth);
 
 	for (i = 0; i < batman_packeth->num_tt; i++) {
-		next_tvb = tvb_new_subset(tvb, offset, 6, 6);
+		next_tvb = tvb_new_subset_length(tvb, offset, 6);
 
 		if (have_tap_listener(batadv_follow_tap)) {
 			tap_queue_packet(batadv_follow_tap, pinfo, next_tvb);
@@ -1019,7 +1019,7 @@ static int dissect_batadv_batman_v9(tvbuff_t *tvb, int offset, packet_info *pinf
 	tap_queue_packet(batadv_tap, pinfo, batman_packeth);
 
 	for (i = 0; i < batman_packeth->num_tt; i++) {
-		next_tvb = tvb_new_subset(tvb, offset, 6, 6);
+		next_tvb = tvb_new_subset_length(tvb, offset, 6);
 
 		if (have_tap_listener(batadv_follow_tap)) {
 			tap_queue_packet(batadv_follow_tap, pinfo, next_tvb);
@@ -1129,7 +1129,7 @@ static int dissect_batadv_batman_v10(tvbuff_t *tvb, int offset, packet_info *pin
 	tap_queue_packet(batadv_tap, pinfo, batman_packeth);
 
 	for (i = 0; i < batman_packeth->num_tt; i++) {
-		next_tvb = tvb_new_subset(tvb, offset, 6, 6);
+		next_tvb = tvb_new_subset_length(tvb, offset, 6);
 
 		if (have_tap_listener(batadv_follow_tap)) {
 			tap_queue_packet(batadv_follow_tap, pinfo, next_tvb);
@@ -1231,7 +1231,7 @@ static int dissect_batadv_batman_v11(tvbuff_t *tvb, int offset, packet_info *pin
 	tap_queue_packet(batadv_tap, pinfo, batman_packeth);
 
 	for (i = 0; i < batman_packeth->num_tt; i++) {
-		next_tvb = tvb_new_subset(tvb, offset, 6, 6);
+		next_tvb = tvb_new_subset_length(tvb, offset, 6);
 
 		if (have_tap_listener(batadv_follow_tap)) {
 			tap_queue_packet(batadv_follow_tap, pinfo, next_tvb);
@@ -1348,7 +1348,7 @@ static int dissect_batadv_batman_v14(tvbuff_t *tvb, int offset, packet_info *pin
 	tap_queue_packet(batadv_tap, pinfo, batman_packeth);
 
 	for (i = 0; i < batman_packeth->tt_num_changes; i++) {
-		next_tvb = tvb_new_subset(tvb, offset, TT_ENTRY_V14_SIZE, TT_ENTRY_V14_SIZE);
+		next_tvb = tvb_new_subset_length(tvb, offset, TT_ENTRY_V14_SIZE);
 
 		if (have_tap_listener(batadv_follow_tap)) {
 			tap_queue_packet(batadv_follow_tap, pinfo, next_tvb);
@@ -1360,7 +1360,7 @@ static int dissect_batadv_batman_v14(tvbuff_t *tvb, int offset, packet_info *pin
 
 	length_remaining = tvb_length_remaining(tvb, offset);
 	if (length_remaining > 0) {
-		next_tvb = tvb_new_subset(tvb, offset, length_remaining, -1);
+		next_tvb = tvb_new_subset_remaining(tvb, offset);
 		call_dissector(data_handle, next_tvb, pinfo, tree);
 	}
 
@@ -1477,7 +1477,7 @@ static void dissect_batadv_bcast_v6(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
 	length_remaining = tvb_length_remaining(tvb, offset);
 	if (length_remaining > 0) {
-		next_tvb = tvb_new_subset(tvb, offset, length_remaining, -1);
+		next_tvb = tvb_new_subset_remaining(tvb, offset);
 		if (have_tap_listener(batadv_follow_tap)) {
 			tap_queue_packet(batadv_follow_tap, pinfo, next_tvb);
 		}
@@ -1545,7 +1545,7 @@ static void dissect_batadv_bcast_v10(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 
 	length_remaining = tvb_length_remaining(tvb, offset);
 	if (length_remaining > 0) {
-		next_tvb = tvb_new_subset(tvb, offset, length_remaining, -1);
+		next_tvb = tvb_new_subset_remaining(tvb, offset);
 
 		if (have_tap_listener(batadv_follow_tap)) {
 			tap_queue_packet(batadv_follow_tap, pinfo, next_tvb);
@@ -1618,7 +1618,7 @@ static void dissect_batadv_bcast_v14(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 
 	length_remaining = tvb_length_remaining(tvb, offset);
 	if (length_remaining > 0) {
-		next_tvb = tvb_new_subset(tvb, offset, length_remaining, -1);
+		next_tvb = tvb_new_subset_remaining(tvb, offset);
 
 		if (have_tap_listener(batadv_follow_tap)) {
 			tap_queue_packet(batadv_follow_tap, pinfo, next_tvb);
@@ -1735,7 +1735,7 @@ static void dissect_batadv_icmp_v6(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
 	length_remaining = tvb_length_remaining(tvb, offset);
 	if (length_remaining > 0) {
-		next_tvb = tvb_new_subset(tvb, offset, length_remaining, -1);
+		next_tvb = tvb_new_subset_remaining(tvb, offset);
 
 		call_dissector(data_handle, next_tvb, pinfo, tree);
 	}
@@ -1850,7 +1850,7 @@ static void dissect_batadv_icmp_v7(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
 	length_remaining = tvb_length_remaining(tvb, offset);
 	if (length_remaining > 0) {
-		next_tvb = tvb_new_subset(tvb, offset, length_remaining, -1);
+		next_tvb = tvb_new_subset_remaining(tvb, offset);
 		call_dissector(data_handle, next_tvb, pinfo, tree);
 	}
 }
@@ -2031,7 +2031,7 @@ static void dissect_batadv_unicast_v6(tvbuff_t *tvb, packet_info *pinfo, proto_t
 
 	length_remaining = tvb_length_remaining(tvb, offset);
 	if (length_remaining > 0) {
-		next_tvb = tvb_new_subset(tvb, offset, length_remaining, -1);
+		next_tvb = tvb_new_subset_remaining(tvb, offset);
 
 		if (have_tap_listener(batadv_follow_tap)) {
 			tap_queue_packet(batadv_follow_tap, pinfo, next_tvb);
@@ -2100,7 +2100,7 @@ static void dissect_batadv_unicast_v14(tvbuff_t *tvb, packet_info *pinfo, proto_
 
 	length_remaining = tvb_length_remaining(tvb, offset);
 	if (length_remaining > 0) {
-		next_tvb = tvb_new_subset(tvb, offset, length_remaining, -1);
+		next_tvb = tvb_new_subset_remaining(tvb, offset);
 
 		if (have_tap_listener(batadv_follow_tap)) {
 			tap_queue_packet(batadv_follow_tap, pinfo, next_tvb);
@@ -2200,7 +2200,7 @@ static void dissect_batadv_unicast_4addr_v14(tvbuff_t *tvb, packet_info *pinfo, 
 
 	length_remaining = tvb_length_remaining(tvb, offset);
 	if (length_remaining > 0) {
-		next_tvb = tvb_new_subset(tvb, offset, length_remaining, -1);
+		next_tvb = tvb_new_subset_remaining(tvb, offset);
 
 		if (have_tap_listener(batadv_follow_tap)) {
 			tap_queue_packet(batadv_follow_tap, pinfo, next_tvb);
@@ -2578,7 +2578,7 @@ static void dissect_batadv_vis_v6(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	}
 
 	for (i = 0; i < vis_packeth->entries; i++) {
-		next_tvb = tvb_new_subset(tvb, offset, entry_size, entry_size);
+		next_tvb = tvb_new_subset_length(tvb, offset, entry_size);
 
 		if (have_tap_listener(batadv_follow_tap)) {
 			tap_queue_packet(batadv_follow_tap, pinfo, next_tvb);
@@ -2603,7 +2603,7 @@ static void dissect_batadv_vis_v6(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
 	length_remaining = tvb_length_remaining(tvb, offset);
 	if (length_remaining > 0) {
-		next_tvb = tvb_new_subset(tvb, offset, length_remaining, -1);
+		next_tvb = tvb_new_subset_remaining(tvb, offset);
 
 		if (have_tap_listener(batadv_follow_tap)) {
 			tap_queue_packet(batadv_follow_tap, pinfo, next_tvb);
@@ -2695,7 +2695,7 @@ static void dissect_batadv_vis_v10(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	tap_queue_packet(batadv_tap, pinfo, vis_packeth);
 
 	for (i = 0; i < vis_packeth->entries; i++) {
-		next_tvb = tvb_new_subset(tvb, offset, VIS_ENTRY_V8_SIZE, VIS_ENTRY_V8_SIZE);
+		next_tvb = tvb_new_subset_length(tvb, offset, VIS_ENTRY_V8_SIZE);
 
 		if (have_tap_listener(batadv_follow_tap)) {
 			tap_queue_packet(batadv_follow_tap, pinfo, next_tvb);
@@ -2707,7 +2707,7 @@ static void dissect_batadv_vis_v10(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
 	length_remaining = tvb_length_remaining(tvb, offset);
 	if (length_remaining > 0) {
-		next_tvb = tvb_new_subset(tvb, offset, length_remaining, -1);
+		next_tvb = tvb_new_subset_remaining(tvb, offset);
 
 		if (have_tap_listener(batadv_follow_tap)) {
 			tap_queue_packet(batadv_follow_tap, pinfo, next_tvb);
@@ -2803,7 +2803,7 @@ static void dissect_batadv_vis_v14(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	tap_queue_packet(batadv_tap, pinfo, vis_packeth);
 
 	for (i = 0; i < vis_packeth->entries; i++) {
-		next_tvb = tvb_new_subset(tvb, offset, VIS_ENTRY_V8_SIZE, VIS_ENTRY_V8_SIZE);
+		next_tvb = tvb_new_subset_length(tvb, offset, VIS_ENTRY_V8_SIZE);
 
 		if (have_tap_listener(batadv_follow_tap)) {
 			tap_queue_packet(batadv_follow_tap, pinfo, next_tvb);
@@ -2815,7 +2815,7 @@ static void dissect_batadv_vis_v14(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
 	length_remaining = tvb_length_remaining(tvb, offset);
 	if (length_remaining > 0) {
-		next_tvb = tvb_new_subset(tvb, offset, length_remaining, -1);
+		next_tvb = tvb_new_subset_remaining(tvb, offset);
 
 		if (have_tap_listener(batadv_follow_tap)) {
 			tap_queue_packet(batadv_follow_tap, pinfo, next_tvb);
@@ -2998,7 +2998,7 @@ static void dissect_batadv_tt_query_v14(tvbuff_t *tvb, packet_info *pinfo _U_, p
 
 	if (tt_type == TT_RESPONSE) {
 		for (i = 0; i < tt_query_packeth->tt_data; i++) {
-			next_tvb = tvb_new_subset(tvb, offset, TT_ENTRY_V14_SIZE, TT_ENTRY_V14_SIZE);
+			next_tvb = tvb_new_subset_length(tvb, offset, TT_ENTRY_V14_SIZE);
 
 			if (have_tap_listener(batadv_follow_tap)) {
 				tap_queue_packet(batadv_follow_tap, pinfo, next_tvb);
@@ -3011,7 +3011,7 @@ static void dissect_batadv_tt_query_v14(tvbuff_t *tvb, packet_info *pinfo _U_, p
 
 	length_remaining = tvb_length_remaining(tvb, offset);
 	if (length_remaining > 0) {
-		next_tvb = tvb_new_subset(tvb, offset, length_remaining, -1);
+		next_tvb = tvb_new_subset_remaining(tvb, offset);
 
 		if (have_tap_listener(batadv_follow_tap)) {
 			tap_queue_packet(batadv_follow_tap, pinfo, next_tvb);
@@ -3143,7 +3143,7 @@ static void dissect_batadv_roam_adv_v14(tvbuff_t *tvb, packet_info *pinfo, proto
 
 	length_remaining = tvb_length_remaining(tvb, offset);
 	if (length_remaining > 0) {
-		next_tvb = tvb_new_subset(tvb, offset, length_remaining, -1);
+		next_tvb = tvb_new_subset_remaining(tvb, offset);
 
 		if (have_tap_listener(batadv_follow_tap)) {
 			tap_queue_packet(batadv_follow_tap, pinfo, next_tvb);

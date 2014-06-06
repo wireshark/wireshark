@@ -2979,7 +2979,7 @@ dissect_tcc(tvbuff_t * tvb, packet_info * pinfo _U_,
             }
           break;
         case TLV_TCC_UCD:
-          ucd_tvb = tvb_new_subset (tvb, pos, length, length);
+          ucd_tvb = tvb_new_subset_length (tvb, pos, length);
           call_dissector (docsis_ucd_handle, ucd_tvb, pinfo, tcc_tree);
           break;
         case TLV_TCC_RNG_SID:
@@ -3270,7 +3270,7 @@ dissect_rcp(tvbuff_t * tvb, packet_info * pinfo _U_,
           dissect_rcp_rcv_ch(tvb, rcp_tree, pos, length);
           break;
         case TLV_RCP_VEN_SPEC:
-          vsif_tvb = tvb_new_subset (tvb, pos, length, length);
+          vsif_tvb = tvb_new_subset_length (tvb, pos, length);
           call_dissector (docsis_vsif_handle, vsif_tvb, pinfo, rcp_tree);
           break;
         }                       /* switch */
@@ -3510,7 +3510,7 @@ dissect_rcc(tvbuff_t * tvb, packet_info * pinfo _U_,
           dissect_rcc_rcv_ch(tvb, rcc_tree, pos, length);
           break;
         case TLV_RCP_VEN_SPEC:
-          vsif_tvb = tvb_new_subset (tvb, pos, length, length);
+          vsif_tvb = tvb_new_subset_length (tvb, pos, length);
           call_dissector (docsis_vsif_handle, vsif_tvb, pinfo, rcc_tree);
           break;
         case TLV_RCC_ERR:
@@ -4213,7 +4213,7 @@ dissect_tlv (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree)
               }
             break;
           case TLV_VENDOR_SPEC:
-            vsif_tvb = tvb_new_subset (tvb, pos, length, length);
+            vsif_tvb = tvb_new_subset_length (tvb, pos, length);
             call_dissector (docsis_vsif_handle, vsif_tvb, pinfo, tlv_tree);
             break;
           case TLV_DUT_FILTER:

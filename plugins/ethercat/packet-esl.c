@@ -293,10 +293,10 @@ dissect_esl_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
         {
             if ( eth_withoutfcs_handle != NULL )
             {
-                next_tvb = tvb_new_subset(tvb, 0, esl_length-SIZEOF_ESLHEADER, esl_length-SIZEOF_ESLHEADER);
+                next_tvb = tvb_new_subset_length(tvb, 0, esl_length-SIZEOF_ESLHEADER);
                 call_dissector(eth_withoutfcs_handle, next_tvb, pinfo, tree);
             }
-            next_tvb = tvb_new_subset(tvb, esl_length-SIZEOF_ESLHEADER, SIZEOF_ESLHEADER, SIZEOF_ESLHEADER);
+            next_tvb = tvb_new_subset_length(tvb, esl_length-SIZEOF_ESLHEADER, SIZEOF_ESLHEADER);
             dissect_esl_header(next_tvb, pinfo, tree);
             modify_times(tvb, esl_length-SIZEOF_ESLHEADER, pinfo);
 

@@ -1032,7 +1032,7 @@ dissect_bthci_evt_conn_request(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 {
     offset = dissect_bthci_evt_bd_addr(tvb, offset, pinfo, tree, NULL);
 
-    call_dissector(btcommon_cod_handle, tvb_new_subset(tvb, offset, 3, 3), pinfo, tree);
+    call_dissector(btcommon_cod_handle, tvb_new_subset_length(tvb, offset, 3), pinfo, tree);
     offset += 3;
 
     proto_tree_add_item(tree, hf_bthci_evt_link_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -1619,7 +1619,7 @@ dissect_bthci_evt_inq_result_with_rssi(tvbuff_t *tvb, int offset,
         /* reserved byte */
         offset += 1;
 
-        call_dissector(btcommon_cod_handle, tvb_new_subset(tvb, offset, 3, 3), pinfo, tree);
+        call_dissector(btcommon_cod_handle, tvb_new_subset_length(tvb, offset, 3), pinfo, tree);
         offset += 3;
 
         proto_tree_add_item(tree, hf_bthci_evt_clock_offset, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -1783,7 +1783,7 @@ dissect_bthci_evt_le_meta(tvbuff_t *tvb, int offset, packet_info *pinfo,
                 offset += 1;
 
                 if (length > 0) {
-                    call_dissector(btcommon_ad_handle, tvb_new_subset(tvb, offset, length, length), pinfo, tree);
+                    call_dissector(btcommon_ad_handle, tvb_new_subset_length(tvb, offset, length), pinfo, tree);
                     save_remote_device_name(tvb, offset, pinfo, length, bd_addr, hci_data);
                     offset += length;
                 }
@@ -2390,7 +2390,7 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset,
             proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset += 1;
 
-            call_dissector(btcommon_cod_handle, tvb_new_subset(tvb, offset, 3, 3), pinfo, tree);
+            call_dissector(btcommon_cod_handle, tvb_new_subset_length(tvb, offset, 3), pinfo, tree);
             offset += 3;
 
             break;
@@ -2521,7 +2521,7 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset,
             proto_tree_add_item(tree, hf_bthci_evt_fec_required, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset += 1;
 
-            call_dissector(btcommon_eir_handle, tvb_new_subset(tvb, offset, 240, 240), pinfo, tree);
+            call_dissector(btcommon_eir_handle, tvb_new_subset_length(tvb, offset, 240), pinfo, tree);
             offset += 240;
 
             break;
@@ -2895,7 +2895,7 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset,
             sub_item = proto_tree_add_item(tree, hf_bthci_evt_le_channel_map, tvb, offset, 5, ENC_NA);
             sub_tree = proto_item_add_subtree(sub_item, ett_le_channel_map);
 
-            call_dissector(btcommon_le_channel_map_handle, tvb_new_subset(tvb, offset, 5, 5), pinfo, sub_tree);
+            call_dissector(btcommon_le_channel_map_handle, tvb_new_subset_length(tvb, offset, 5), pinfo, sub_tree);
             offset += 5;
             break;
         }
@@ -3302,7 +3302,7 @@ dissect_bthci_evt_inq_result(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
         proto_tree_add_item(tree, hf_bthci_evt_page_scan_mode, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         offset += 1;
 
-        call_dissector(btcommon_cod_handle, tvb_new_subset(tvb, offset, 3, 3), pinfo, tree);
+        call_dissector(btcommon_cod_handle, tvb_new_subset_length(tvb, offset, 3), pinfo, tree);
         offset += 3;
 
         proto_tree_add_item(tree, hf_bthci_evt_clock_offset, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -3519,7 +3519,7 @@ dissect_bthci_evt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         case 0x2f: /* Extended Inquiry Result */
             offset = dissect_bthci_evt_inq_result_with_rssi(tvb, offset, pinfo, bthci_evt_tree, bd_addr);
 
-            call_dissector(btcommon_eir_handle, tvb_new_subset(tvb, offset, 240, 240), pinfo, bthci_evt_tree);
+            call_dissector(btcommon_eir_handle, tvb_new_subset_length(tvb, offset, 240), pinfo, bthci_evt_tree);
             save_remote_device_name(tvb, offset, pinfo, 240, bd_addr, hci_data);
             offset += 240;
 

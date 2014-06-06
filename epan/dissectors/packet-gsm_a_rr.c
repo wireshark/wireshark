@@ -2021,7 +2021,7 @@ de_rr_utran_cm(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offs
     curr_offset = offset;
     if (len)
     {
-        rrc_irat_ho_info_tvb = tvb_new_subset(tvb, curr_offset, len, len);
+        rrc_irat_ho_info_tvb = tvb_new_subset_length(tvb, curr_offset, len);
         if (rrc_irat_ho_info_handle)
             call_dissector(rrc_irat_ho_info_handle, rrc_irat_ho_info_tvb, pinfo, tree);
     }
@@ -8031,7 +8031,7 @@ de_rr_apdu_data(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32
 {
     tvbuff_t *sub_tvb;
 
-    sub_tvb = tvb_new_subset(tvb, offset, len, len);
+    sub_tvb = tvb_new_subset_length(tvb, offset, len);
 
     if (rrlp_dissector)
         call_dissector(rrlp_dissector, sub_tvb,pinfo, tree);
@@ -8051,7 +8051,7 @@ de_rr_ho_to_utran_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint
     curr_offset = offset;
     if (len)
     {
-        rrc_irat_ho_to_utran_cmd_tvb = tvb_new_subset(tvb, curr_offset, len, len);
+        rrc_irat_ho_to_utran_cmd_tvb = tvb_new_subset_length(tvb, curr_offset, len);
         if (rrc_irat_ho_to_utran_cmd_handle)
             call_dissector(rrc_irat_ho_to_utran_cmd_handle, rrc_irat_ho_to_utran_cmd_tvb, pinfo, tree);
     }

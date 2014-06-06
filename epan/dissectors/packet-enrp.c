@@ -234,7 +234,7 @@ dissect_error_causes(tvbuff_t *error_causes_tvb, proto_tree *parameter_tree)
   while(tvb_reported_length_remaining(error_causes_tvb, offset) > 0) {
     length          = tvb_get_ntohs(error_causes_tvb, offset + CAUSE_LENGTH_OFFSET);
     total_length    = ADD_PADDING(length);
-    error_cause_tvb = tvb_new_subset(error_causes_tvb, offset , total_length, total_length);
+    error_cause_tvb = tvb_new_subset_length(error_causes_tvb, offset, total_length);
     dissect_error_cause(error_cause_tvb, parameter_tree);
     offset += total_length;
   }
@@ -720,7 +720,7 @@ dissect_parameters(tvbuff_t *parameters_tvb, proto_tree *tree)
     if (remaining_length >= length)
       total_length = MIN(total_length, remaining_length);
     /* create a tvb for the parameter including the padding bytes */
-    parameter_tvb  = tvb_new_subset(parameters_tvb, offset, total_length, total_length);
+    parameter_tvb  = tvb_new_subset_length(parameters_tvb, offset, total_length);
     dissect_parameter(parameter_tvb, tree);
     /* get rid of the handled parameter */
     offset += total_length;

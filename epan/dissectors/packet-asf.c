@@ -189,7 +189,7 @@ dissect_asf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 		/* TODO: Add the rest as captures become available to test. */
 
 		default:
-			next_tvb = tvb_new_subset(tvb, 8, len, len);
+			next_tvb = tvb_new_subset_length(tvb, 8, len);
 			call_dissector(data_handle, next_tvb, pinfo, tree);
 			break;
 		}

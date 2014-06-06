@@ -1083,7 +1083,7 @@ static void dissect_ecat_eoe(tvbuff_t *tvb, gint offset, packet_info *pinfo, pro
 
             if ( eoe.anEoeHeaderDataUnion.v.Fragment == 0 )
             {
-               next_tvb = tvb_new_subset(tvb, offset, eoe_length-offset, eoe_length-offset);
+               next_tvb = tvb_new_subset_length(tvb, offset, eoe_length-offset);
                call_dissector( eth_handle, next_tvb, pinfo, ecat_eoe_tree);
             }
 
@@ -1341,7 +1341,7 @@ static void dissect_ecat_mailbox(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
          else
             offset+=ETHERCAT_MBOX_HEADER_LEN;
 
-         next_tvb = tvb_new_subset (tvb, offset, hdr.Length, hdr.Length);
+         next_tvb = tvb_new_subset_length (tvb, offset, hdr.Length);
          switch ( hdr.aControlUnion.v.Type )
          {
          case ETHERCAT_MBOX_TYPE_ADS:

@@ -205,7 +205,7 @@ dissect_hpfeeds_publish_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         case CH_KIPPO_SESSIONS:
         case CH_GLASTOPF_EVENTS:
         case CH_GEOLOC_EVENTS:
-            json_tvb = tvb_new_subset(tvb, offset, -1, -1);
+            json_tvb = tvb_new_subset_remaining(tvb, offset);
             call_dissector(json_hdl, json_tvb, pinfo, tree);
         break;
         default:

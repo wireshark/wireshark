@@ -4868,7 +4868,7 @@ decode_gtp_proto_conf(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tre
      * between the GGSN and the MS. The content and the coding of the Protocol Configuration are defined in octet 3-z of the
      * Protocol Configuration Options in3GPP TS 24.008 [5].
      */
-    next_tvb = tvb_new_subset(tvb, offset + 3, length, length);
+    next_tvb = tvb_new_subset_length(tvb, offset + 3, length);
     de_sm_pco(next_tvb, ext_tree_proto, pinfo, 0, length, NULL, 0);
 
     return 3 + length;
@@ -4957,7 +4957,7 @@ decode_gtp_msisdn(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * 
     if (length < 1)
         return 3;
 
-    next_tvb = tvb_new_subset(tvb, offset+3, length, length);
+    next_tvb = tvb_new_subset_length(tvb, offset+3, length);
     dissect_gsm_map_msisdn(next_tvb, pinfo, ext_tree_proto);
 
     return 3 + length;
@@ -5405,7 +5405,7 @@ decode_gtp_ran_tr_cont(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tr
     proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset = offset + 2;
 
-    next_tvb = tvb_new_subset(tvb, offset, length, length);
+    next_tvb = tvb_new_subset_length(tvb, offset, length);
     if (bssgp_handle) {
 #if 0
         col_set_fence(pinfo->cinfo, COL_INFO);
@@ -5843,7 +5843,7 @@ decode_gtp_imeisv(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tre
      * then the IMEI shall be placed in the IMEI(SV) field and the last semi-octet of octet 11 shall be
      * set to '1111'. Both IMEI and IMEISV are BCD encoded.
      */
-    next_tvb = tvb_new_subset(tvb, offset, length, length);
+    next_tvb = tvb_new_subset_length(tvb, offset, length);
     digit_str = unpack_digits(next_tvb, 0);
     proto_tree_add_string(ext_imeisv, hf_gtp_ext_imeisv, next_tvb, 0, -1, digit_str);
     proto_item_append_text(te, ": %s", digit_str);
@@ -5932,7 +5932,7 @@ decode_gtp_tmgi(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tr
     ti = proto_tree_add_item(ext_tree, hf_gtp_tmgi, tvb, offset, length, ENC_NA);
 
     tmgi_tree = proto_item_add_subtree(ti, ett_gtp_tmgi);
-    next_tvb = tvb_new_subset(tvb, offset, length, length);
+    next_tvb = tvb_new_subset_length(tvb, offset, length);
     de_mid(next_tvb, tmgi_tree, pinfo, 0, length, NULL, 0);
     return 3 + length;
 
@@ -6101,7 +6101,7 @@ decode_gtp_mbms_sa(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree *
     offset++;
     proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset = offset + 2;
-    next_tvb = tvb_new_subset(tvb, offset, length-3, length-3);
+    next_tvb = tvb_new_subset_length(tvb, offset, length-3);
     dissect_gtp_3gpp_mbms_service_area(next_tvb, pinfo, ext_tree, NULL);
 
     return 3 + length;
@@ -7798,7 +7798,7 @@ decode_gtp_priv_ext(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree 
         offset = offset + 2;
 
        if (length > 2) {
-            next_tvb = tvb_new_subset(tvb, offset, length-2, length-2);
+            next_tvb = tvb_new_subset_length(tvb, offset, length-2);
             if(!dissector_try_uint(gtp_priv_ext_dissector_table, ext_id, next_tvb, pinfo, ext_tree_priv_ext)){
                     proto_tree_add_item(ext_tree_priv_ext, hf_gtp_ext_val, tvb, offset, length - 2, ENC_NA);
             }

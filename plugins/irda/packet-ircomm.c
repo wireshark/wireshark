@@ -199,7 +199,7 @@ static void dissect_cooked_ircomm(tvbuff_t* tvb, packet_info* pinfo, proto_tree*
         proto_tree_add_item(ctrl_tree, hf_control_len, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
         {
-            tvbuff_t *cvalue = tvb_new_subset(tvb, offset, clen, clen);
+            tvbuff_t *cvalue = tvb_new_subset_length(tvb, offset, clen);
             call_dissector(data_handle, cvalue, pinfo, ctrl_tree);
             offset += clen;
         }

@@ -6999,7 +6999,7 @@ static guint8 dissect_gprs_data_segments(tvbuff_t *tvb, packet_info *pinfo, prot
                                    i, li);
         }
         subtree = proto_item_add_subtree(ti, ett_data_segments);
-        data_tvb = tvb_new_subset(tvb, octet_offset, octet_length - octet_offset, octet_length - octet_offset);
+        data_tvb = tvb_new_subset_length(tvb, octet_offset, octet_length - octet_offset);
         call_dissector(data_handle, data_tvb, pinfo, subtree);
         octet_offset = octet_length;
         break;
@@ -7009,7 +7009,7 @@ static guint8 dissect_gprs_data_segments(tvbuff_t *tvb, packet_info *pinfo, prot
                                  "data segment: LI[%d]=%d indicates: (Last segment of) LLC frame (%d octets)",
                                  i, li, li);
         subtree = proto_item_add_subtree(ti, ett_data_segments);
-        data_tvb = tvb_new_subset(tvb, octet_offset, li, li);
+        data_tvb = tvb_new_subset_length(tvb, octet_offset, li);
         call_dissector(data_handle, data_tvb, pinfo, subtree);
         octet_offset += li;
         break;
@@ -7029,7 +7029,7 @@ static guint8 dissect_gprs_data_segments(tvbuff_t *tvb, packet_info *pinfo, prot
       ti = proto_tree_add_text(tree, tvb, octet_offset, octet_length - octet_offset, "Padding Octets");
     }
     subtree = proto_item_add_subtree(ti, ett_data_segments);
-    data_tvb = tvb_new_subset(tvb, octet_offset, octet_length - octet_offset, octet_length - octet_offset);
+    data_tvb = tvb_new_subset_length(tvb, octet_offset, octet_length - octet_offset);
     call_dissector(data_handle, data_tvb, pinfo, subtree);
     octet_offset = octet_length;
   }
@@ -7115,7 +7115,7 @@ static guint16 dissect_egprs_data_segments(tvbuff_t *tvb, packet_info *pinfo, pr
                                    i, li);
         }
         subtree = proto_item_add_subtree(ti, ett_data_segments);
-        data_tvb = tvb_new_subset(tvb, octet_offset, octet_length - octet_offset, octet_length - octet_offset);
+        data_tvb = tvb_new_subset_length(tvb, octet_offset, octet_length - octet_offset);
         call_dissector(data_handle, data_tvb, pinfo, subtree);
         octet_offset = octet_length;
         break;
@@ -7125,7 +7125,7 @@ static guint16 dissect_egprs_data_segments(tvbuff_t *tvb, packet_info *pinfo, pr
                                  "data segment: LI[%d]=%d indicates: (Last segment of) LLC frame (%d octets)",
                                  i, li, li);
         subtree = proto_item_add_subtree(ti, ett_data_segments);
-        data_tvb = tvb_new_subset(tvb, octet_offset, li, li);
+        data_tvb = tvb_new_subset_length(tvb, octet_offset, li);
         call_dissector(data_handle, data_tvb, pinfo, subtree);
         octet_offset += li;
         break;
@@ -7138,7 +7138,7 @@ static guint16 dissect_egprs_data_segments(tvbuff_t *tvb, packet_info *pinfo, pr
     ti = proto_tree_add_text(tree, tvb, octet_offset, octet_length - octet_offset,
                              "data segment: LI not present: \n The Upper Layer PDU in the current RLC data block either fills the current RLC data block precisely \nor continues in the following in-sequence RLC data block");
     subtree = proto_item_add_subtree(ti, ett_data_segments);
-    data_tvb = tvb_new_subset(tvb, octet_offset, octet_length - octet_offset, octet_length - octet_offset);
+    data_tvb = tvb_new_subset_length(tvb, octet_offset, octet_length - octet_offset);
     call_dissector(data_handle, data_tvb, pinfo, subtree);
     octet_offset = octet_length;
   }

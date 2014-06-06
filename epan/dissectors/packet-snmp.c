@@ -1128,7 +1128,7 @@ already_added:
 	pt_value = proto_item_add_subtree(pi_value,ett_value);
 
 	if (value_len > 0 && oid_string) {
-		tvbuff_t* sub_tvb = tvb_new_subset(tvb, value_offset, value_len, value_len);
+		tvbuff_t* sub_tvb = tvb_new_subset_length(tvb, value_offset, value_len);
 
 		next_tvb_add_string(&var_list, sub_tvb, (snmp_var_in_tree) ? pt_value : NULL, value_sub_dissectors_table, oid_string);
 	}

@@ -1358,7 +1358,7 @@ dissect_zbee_nwk_gp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
     } else if (packet.mic_size == 4) {
         packet.mic = tvb_get_letohl(tvb, offset + packet.payload_len);
     }
-    payload_tvb = tvb_new_subset(tvb, offset, packet.payload_len, packet.payload_len);
+    payload_tvb = tvb_new_subset_length(tvb, offset, packet.payload_len);
     if (packet.security_level != ZBEE_NWK_GP_SECURITY_LEVEL_FULLENCR) {
         dissect_zbee_nwk_gp_cmd(payload_tvb, pinfo, nwk_tree, data);
     }

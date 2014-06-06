@@ -130,7 +130,7 @@ dissect_rudp(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree)
 		/* If we have even more bytes their meaning is unknown - we have seen this
 		 * in live captures */
 		if (hlen > 6) {
-			next_tvb = tvb_new_subset(tvb, 6, hlen-6, hlen-6);
+			next_tvb = tvb_new_subset_length(tvb, 6, hlen-6);
 			call_dissector(data_handle, next_tvb, pinfo, rudp_tree);
 		}
 	}

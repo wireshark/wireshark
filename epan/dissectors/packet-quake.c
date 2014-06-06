@@ -359,7 +359,6 @@ dissect_quake_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint8		command;
 	int		direction;
 	proto_tree	*control_tree = NULL;
-	guint		rest_length;
 	tvbuff_t	*next_tvb;
 
 	command = tvb_get_guint8(tvb, 0);
@@ -380,8 +379,7 @@ dissect_quake_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					tvb, 0, 1, command);
 	}
 
-	rest_length = tvb_reported_length(tvb) - 1;
-	next_tvb = tvb_new_subset(tvb, 1, rest_length , rest_length);
+	next_tvb = tvb_new_subset_remaining(tvb, 1);
 	switch (command) {
 		case CCREQ_CONNECT:
 			dissect_quake_CCREQ_CONNECT
@@ -432,7 +430,6 @@ dissect_quake(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree	*quake_tree = NULL;
 	guint16		flags;
 	guint32		sequence = 0;
-	guint		rest_length;
 	tvbuff_t	*next_tvb;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "QUAKE");
@@ -466,8 +463,7 @@ dissect_quake(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	if (flags == NETFLAG_CTL) {
-		rest_length = tvb_reported_length(tvb) - 4;
-		next_tvb = tvb_new_subset(tvb, 4, rest_length , rest_length);
+		next_tvb = tvb_new_subset_remaining(tvb, 4);
 		dissect_quake_control(next_tvb, pinfo, quake_tree);
 		return;
 	}
@@ -477,8 +473,7 @@ dissect_quake(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree_add_uint(quake_tree, hf_quake_header_sequence,
 			tvb, 4, 4, sequence);
 
-	rest_length = tvb_reported_length(tvb) - 8;
-	next_tvb = tvb_new_subset(tvb, 8, rest_length , rest_length);
+	next_tvb = tvb_new_subset_remaining(tvb, 8);
 	call_dissector(data_handle,next_tvb, pinfo, quake_tree);
 }
 

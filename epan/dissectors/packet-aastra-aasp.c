@@ -433,7 +433,7 @@ dissect_aasp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 #endif
                 default:	i = searchNext(tvb, i+1, n); break;
                 }
-                dissect_a_binary_command(tvb_new_subset(tvb, prev, i-prev, i-prev), pinfo, aasp_tree);
+                dissect_a_binary_command(tvb_new_subset_length(tvb, prev, i-prev), pinfo, aasp_tree);
                 prev = i;
             }
         }

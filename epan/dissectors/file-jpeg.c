@@ -819,7 +819,7 @@ dissect_jfif(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
             if (marker_has_length(marker)) { /* Marker segment */
                 /* Length of marker segment = 2 + len */
                 const guint16 len = tvb_get_ntohs(tvb, start_marker + 2);
-                tvbuff_t *tmp_tvb = tvb_new_subset(tvb, start_marker, 2 + len, 2 + len);
+                tvbuff_t *tmp_tvb = tvb_new_subset_length(tvb, start_marker, 2 + len);
                 switch (marker) {
                     case MARKER_APP0:
                         process_app0_segment(subtree, tmp_tvb, len, marker, str);

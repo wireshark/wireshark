@@ -3721,7 +3721,7 @@ elem_l3_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
     /*
      * dissect the embedded DTAP message
      */
-    l3_tvb = tvb_new_subset(tvb, curr_offset, len, len);
+    l3_tvb = tvb_new_subset_length(tvb, curr_offset, len);
 
     call_dissector(dtap_handle, l3_tvb, pinfo, data_p->g_tree);
 
@@ -4780,14 +4780,14 @@ elem_adds_user_part(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32
     switch (oct & 0x3f)
     {
     case ADDS_APP_SMS:
-        adds_tvb = tvb_new_subset(tvb, curr_offset, len - 1, len - 1);
+        adds_tvb = tvb_new_subset_length(tvb, curr_offset, len - 1);
 
         dissector_try_uint(is637_dissector_table, 0, adds_tvb, pinfo, data_p->g_tree);
         curr_offset += (len - 1);
         break;
 
     case ADDS_APP_OTA:
-        adds_tvb = tvb_new_subset(tvb, curr_offset, len - 1, len - 1);
+        adds_tvb = tvb_new_subset_length(tvb, curr_offset, len - 1);
 
         dissector_try_uint(is683_dissector_table, data_p->is_reverse, adds_tvb, pinfo, data_p->g_tree);
 
@@ -4795,7 +4795,7 @@ elem_adds_user_part(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32
         break;
 
     case ADDS_APP_PDS:
-        adds_tvb = tvb_new_subset(tvb, curr_offset, len - 1, len - 1);
+        adds_tvb = tvb_new_subset_length(tvb, curr_offset, len - 1);
 
         dissector_try_uint(is801_dissector_table, data_p->is_reverse, adds_tvb, pinfo, data_p->g_tree);
 

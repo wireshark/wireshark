@@ -5327,7 +5327,7 @@ dissect_lte_rrc_warningMessageSegment(tvbuff_t *warning_msg_seg_tvb, proto_tree 
   }
   for (i = 0, offset = 1; i < nb_of_pages; i++) {
     length = tvb_get_guint8(warning_msg_seg_tvb, offset+82);
-    cb_data_page_tvb = tvb_new_subset(warning_msg_seg_tvb, offset, length, length);
+    cb_data_page_tvb = tvb_new_subset_length(warning_msg_seg_tvb, offset, length);
     cb_data_tvb = dissect_cbs_data(dataCodingScheme, cb_data_page_tvb, tree, pinfo, 0);
     if (cb_data_tvb) {
       str = tvb_get_string_enc(wmem_packet_scope(), cb_data_tvb, 0, tvb_reported_length(cb_data_tvb), ENC_UTF_8|ENC_NA);

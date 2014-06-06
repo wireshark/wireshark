@@ -2346,7 +2346,7 @@ static guint32 wkh_profile_diff_wbxml (proto_tree *tree, tvbuff_t *tvb,
         ti = proto_tree_add_string(tree, hf_hdr_profile_diff, tvb, hdr_start, offset - hdr_start,
                 "(Profile-Diff value as WBXML)");
         subtree = proto_item_add_subtree(ti, ett_header);
-        tmp_tvb = tvb_new_subset(tvb, val_start + val_len_len, val_len, val_len); /* TODO: fix 2nd length */
+        tmp_tvb = tvb_new_subset_length(tvb, val_start + val_len_len, val_len); /* TODO: fix 2nd length */
         call_dissector(wbxml_uaprof_handle, tmp_tvb, pinfo, subtree);
         ok = TRUE;
     wkh_4_End(hf_hdr_profile_diff);
@@ -4821,7 +4821,7 @@ dissect_sir(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             tvb, 1, len, val_len);
     offset = 1 + len;
     /* Application-Id headers */
-    tmp_tvb = tvb_new_subset(tvb, offset, val_len, val_len);
+    tmp_tvb = tvb_new_subset_length(tvb, offset, val_len);
     add_headers (subtree, tmp_tvb, hf_sir_app_id_list, pinfo);
     offset += val_len;
 
@@ -4831,7 +4831,7 @@ dissect_sir(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             tvb, offset, len, val_len);
     offset += len;
     /* WSP contact point list */
-    tmp_tvb = tvb_new_subset (tvb, offset, val_len, val_len);
+    tmp_tvb = tvb_new_subset_length (tvb, offset, val_len);
     add_addresses(subtree, tmp_tvb, hf_sir_wsp_contact_points);
 
     /* End of version 0 SIR content */
@@ -4846,7 +4846,7 @@ dissect_sir(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             tvb, offset, len, val_len);
     offset += len;
     /* Non-WSP contact point list */
-    tmp_tvb = tvb_new_subset (tvb, offset, val_len, val_len);
+    tmp_tvb = tvb_new_subset_length(tvb, offset, val_len);
     add_addresses(subtree, tmp_tvb, hf_sir_contact_points);
 
     offset += val_len;
@@ -5037,16 +5037,16 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 }
                 if (capabilityLength > 0)
                 {
-                    tmp_tvb = tvb_new_subset (tvb, offset,
-                            capabilityLength, capabilityLength);
+                    tmp_tvb = tvb_new_subset_length (tvb, offset,
+                            capabilityLength);
                     add_capabilities (wsp_tree, tmp_tvb, pdut);
                     offset += capabilityLength;
                 }
 
                 if (headerLength > 0)
                 {
-                    tmp_tvb = tvb_new_subset (tvb, offset,
-                            headerLength, headerLength);
+                    tmp_tvb = tvb_new_subset_length (tvb, offset,
+                            headerLength);
                     add_headers (wsp_tree, tmp_tvb, hf_wsp_headers_section, pinfo);
                 }
             } /* if (tree) */
@@ -5128,8 +5128,8 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 headerLength = headersLength - (nextOffset - contentTypeStart);
                 if (headerLength > 0)
                 {
-                    tmp_tvb = tvb_new_subset (tvb, nextOffset,
-                            headerLength, headerLength);
+                    tmp_tvb = tvb_new_subset_length (tvb, nextOffset,
+                            headerLength);
                     add_headers (wsp_tree, tmp_tvb, hf_wsp_headers_section, pinfo);
                 }
                 /* XXX - offset is no longer used after this point */
@@ -5222,8 +5222,8 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 headerLength = headersLength - (nextOffset - contentTypeStart);
                 if (headerLength > 0)
                 {
-                    tmp_tvb = tvb_new_subset (tvb, nextOffset,
-                            headerLength, headerLength);
+                    tmp_tvb = tvb_new_subset_length (tvb, nextOffset,
+                            headerLength);
                     add_headers (wsp_tree, tmp_tvb, hf_wsp_headers_section, pinfo);
                 }
                 /* XXX - offset is no longer used after this point */
@@ -5301,8 +5301,8 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 headerLength = headersLength-(nextOffset-contentTypeStart);
                 if (headerLength > 0)
                 {
-                    tmp_tvb = tvb_new_subset (tvb, nextOffset,
-                            headerLength, headerLength);
+                    tmp_tvb = tvb_new_subset_length (tvb, nextOffset,
+                            headerLength);
                     add_headers (wsp_tree, tmp_tvb, hf_wsp_headers_section, pinfo);
                 }
                 /* XXX - offset is no longer used after this point */
@@ -5909,7 +5909,7 @@ add_multipart_data (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo)
         HeadersLen -= (nextOffset - offset);
         if (HeadersLen > 0)
         {
-            tmp_tvb = tvb_new_subset (tvb, nextOffset, HeadersLen, HeadersLen);
+            tmp_tvb = tvb_new_subset_length (tvb, nextOffset, HeadersLen);
             add_headers (mpart_tree, tmp_tvb, hf_wsp_headers_section, pinfo);
         }
         offset = nextOffset + HeadersLen;
@@ -5918,7 +5918,7 @@ add_multipart_data (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo)
          *
          * TODO - handle nested multipart documents.
          */
-        tmp_tvb = tvb_new_subset(tvb, offset, DataLen, DataLen);
+        tmp_tvb = tvb_new_subset_length(tvb, offset, DataLen);
         /*
          * Try finding a dissector for the content
          * first, then fallback.

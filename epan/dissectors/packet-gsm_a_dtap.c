@@ -2638,7 +2638,7 @@ de_facility(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset,
 		dissect_ROS_Component(FALSE, tvb, offset, &asn1_ctx, tree, hf_ROS_component);
 		TODO Call gsm map here
 		*/
-		SS_tvb = tvb_new_subset(tvb, offset, component_len, component_len);
+		SS_tvb = tvb_new_subset_length(tvb, offset, component_len);
 		col_append_str(pinfo->cinfo, COL_INFO,"(GSM MAP) ");
 		col_set_fence(pinfo->cinfo, COL_INFO);
 		call_dissector(gsm_map_handle, SS_tvb, pinfo, tree);
@@ -3324,7 +3324,7 @@ de_cp_user_data(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 off
 	/*
 	 * dissect the embedded RP message
 	 */
-	rp_tvb = tvb_new_subset(tvb, curr_offset, len, len);
+	rp_tvb = tvb_new_subset_length(tvb, curr_offset, len);
 
 	call_dissector(rp_handle, rp_tvb, pinfo, g_tree);
 
