@@ -809,6 +809,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-ipfc.c
 	dissectors/packet-ipmi-session.c
 	dissectors/packet-ipmi.c
+	dissectors/packet-ipmi-trace.c
 	dissectors/packet-ipnet.c
 	dissectors/packet-ipoib.c
 	dissectors/packet-ipp.c
@@ -1409,6 +1410,7 @@ set(IPMI_SUBPARSERS
 	dissectors/packet-ipmi-transport.c
 	dissectors/packet-ipmi-pps.c
 	dissectors/packet-ipmi-update.c
+	dissectors/packet-ipmi-vita.c
 )
 
 set(DISSECTOR_SUPPORT_SRC

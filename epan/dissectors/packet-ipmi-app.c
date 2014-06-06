@@ -57,6 +57,8 @@ static gint ett_ipmi_app_32_rq_byte1 = -1;
 static gint ett_ipmi_app_32_rq_byte2 = -1;
 static gint ett_ipmi_app_32_rs_byte1 = -1;
 static gint ett_ipmi_app_32_rs_byte2 = -1;
+static gint ett_ipmi_app_33_rs_byte1 = -1;
+static gint ett_ipmi_app_33_msg = -1;
 static gint ett_ipmi_app_34_byte1 = -1;
 static gint ett_ipmi_app_34_msg = -1;
 
@@ -181,10 +183,15 @@ static gint hf_ipmi_app_32_rq_state = -1;
 static gint hf_ipmi_app_32_rs_chno = -1;
 static gint hf_ipmi_app_32_rs_state = -1;
 
+static gint hf_ipmi_app_33_rs_chan = -1;
+static gint hf_ipmi_app_33_rs_priv = -1;
+static gint hf_ipmi_app_33_msg = -1;
+
 static gint hf_ipmi_app_34_track = -1;
 static gint hf_ipmi_app_34_encrypt = -1;
 static gint hf_ipmi_app_34_auth = -1;
 static gint hf_ipmi_app_34_chan = -1;
+static gint hf_ipmi_app_34_msg = -1;
 
 static gint hf_ipmi_app_38_rq_ipmi20 = -1;
 static gint hf_ipmi_app_38_rq_chan = -1;
@@ -422,7 +429,7 @@ rs01(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 		&hf_ipmi_app_01_ipmi_ads_sensor, NULL };
 	size_t len;
 
-	len = tvb_length(tvb);
+	len = tvb_captured_length(tvb);
 
 	proto_tree_add_item(tree, hf_ipmi_app_01_dev_id, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_bitmask_text(tree, tvb, 1, 1, NULL, NULL, ett_ipmi_app_01_byte2, byte2, ENC_LITTLE_ENDIAN, 0);
@@ -481,7 +488,7 @@ rs04(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 static void
 rq05(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_ipmi_app_05_devspec, tvb, 0, tvb_length(tvb), ENC_NA);
+	proto_tree_add_item(tree, hf_ipmi_app_05_devspec, tvb, 0, -1, ENC_NA);
 }
 
 /* Set ACPI Power State.
@@ -659,6 +666,29 @@ static const value_string cc33[] = {
 	{ 0, NULL }
 };
 
+static void
+rs33(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+	static const gint *byte1[] = { &hf_ipmi_app_33_rs_chan,
+			&hf_ipmi_app_33_rs_priv, NULL };
+	tvbuff_t *next;
+	ipmi_dissect_arg_t arg;
+
+	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL, ett_ipmi_app_33_rs_byte1,
+			byte1, ENC_LITTLE_ENDIAN, 0);
+
+	next = tvb_new_subset_remaining(tvb, 1);
+
+	arg.context = IPMI_E_GETMSG;
+	arg.channel = tvb_get_guint8(tvb, 0) & 0xF;
+	arg.flags = 0;
+
+	do_dissect_ipmb(next, pinfo, tree,
+			hf_ipmi_app_33_msg, ett_ipmi_app_33_msg, &arg);
+
+}
+
+
 /* Send Message
  */
 static void
@@ -666,43 +696,34 @@ rq34(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	static const gint *byte1[] = { &hf_ipmi_app_34_track, &hf_ipmi_app_34_encrypt,
 		&hf_ipmi_app_34_auth, &hf_ipmi_app_34_chan, NULL };
-	ipmi_dissect_format_t dfmt;
-	proto_tree *s_tree;
-	proto_item *ti;
 	tvbuff_t *next;
+	ipmi_dissect_arg_t arg;
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL,
 			ett_ipmi_app_34_byte1, byte1, ENC_LITTLE_ENDIAN, 0);
 
-	next = tvb_new_subset(tvb, 1, tvb_length(tvb) - 1, tvb_length(tvb) - 1);
-	ti = proto_tree_add_text(tree, next, 0, tvb_length(next), "Message");
-	s_tree = proto_item_add_subtree(ti, ett_ipmi_app_34_msg);
+	next = tvb_new_subset_remaining(tvb, 1);
 
-	memset(&dfmt, 0, sizeof(dfmt));
-	dfmt.flags = ipmi_guess_dissect_flags(next);
-	dfmt.arg = ipmi_current_hdr;
-	dfmt.getmoreheaders = ipmi_sendmsg_getheaders;
-	dfmt.whichresponse = ipmi_sendmsg_whichresponse;
-	dfmt.otheridx = ipmi_sendmsg_otheridx;
-	ipmi_do_dissect(next, pinfo, s_tree, &dfmt);
-	proto_item_set_text(ti, "%s", dfmt.info);
+	arg.context = IPMI_E_SENDMSG_RQ;
+	arg.channel = tvb_get_guint8(tvb, 0) & 0xF;
+	arg.flags = 0;
+
+	do_dissect_ipmb(next, pinfo, tree,
+			hf_ipmi_app_34_msg, ett_ipmi_app_34_msg, &arg);
 }
 
 static void
 rs34(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	ipmi_dissect_format_t dfmt;
-	proto_tree *s_tree;
-	proto_item *ti;
+	if (tvb_captured_length(tvb)) {
+		ipmi_dissect_arg_t arg;
 
-	ti = proto_tree_add_text(tree, tvb, 0, tvb_length(tvb), "Message");
-	s_tree = proto_item_add_subtree(ti, ett_ipmi_app_34_msg);
+		arg.context = IPMI_E_SENDMSG_RS;
+		arg.channel = 0;
+		arg.flags = 0;
 
-	if (tvb_length(tvb)) {
-		memset(&dfmt, 0, sizeof(dfmt));
-		dfmt.flags = ipmi_guess_dissect_flags(tvb);
-		ipmi_do_dissect(tvb, pinfo, s_tree, &dfmt);
-		proto_item_set_text(ti, "%s", dfmt.info);
+		do_dissect_ipmb(tvb, pinfo, tree,
+				hf_ipmi_app_34_msg, ett_ipmi_app_34_msg, &arg);
 	}
 }
 
@@ -851,7 +872,7 @@ static void
 rq3c(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_ipmi_app_3c_session_id, tvb, 0, 4, ENC_LITTLE_ENDIAN);
-	if (tvb_length(tvb) > 4) {
+	if (tvb_captured_length(tvb) > 4) {
 		proto_tree_add_item(tree, hf_ipmi_app_3c_session_handle, tvb, 4, 1, ENC_LITTLE_ENDIAN);
 	}
 }
@@ -953,7 +974,7 @@ static const value_string cc62[] = {
 
 static ipmi_cmd_t cmd_app[] = {
   /* IPM Device Global Commands */
-  { 0x01, NULL, rs01, NULL, NULL, "Get Device ID", CMD_MAYBROADCAST },
+  { 0x01, NULL, rs01, NULL, NULL, "Get Device ID", 0 },
   { 0x02, NULL, NULL, NULL, NULL, "Cold Reset", 0 },
   { 0x03, NULL, NULL, NULL, NULL, "Warm Reset", 0 },
   { 0x04, NULL, rs04, NULL, NULL, "Get Self Test Results", 0 },
@@ -978,7 +999,7 @@ static ipmi_cmd_t cmd_app[] = {
   { 0x30, rq30, NULL, NULL, NULL, "Clear Message Flags", 0 },
   { 0x31, NULL, rs31, NULL, NULL, "Get Message Flags", 0 },
   { 0x32, rq32, rs32, NULL, NULL, "Enable Message Channel Receive", 0 },
-  { 0x33, IPMI_TBD,   cc33, NULL, "Get Message", 0 },
+  { 0x33, NULL, rs33, cc33, NULL, "Get Message", CMD_CALLRQ },
   { 0x34, rq34, rs34, cc34, NULL, "Send Message", CMD_CALLRQ },
   { 0x35, IPMI_TBD,   cc35, NULL, "Read Event Message Buffer", 0 },
   { 0x36, IPMI_TBD,   NULL, NULL, "Get BT Interface Capabilities", 0 },
@@ -1313,6 +1334,16 @@ ipmi_register_app(gint proto_ipmi)
 			{ "Channel State",
 				"ipmi.app32.rs_state", FT_BOOLEAN, 8, TFS(&tfs_32_state), 0x01, NULL, HFILL }},
 
+		{ &hf_ipmi_app_33_rs_chan,
+			{ "Channel",
+				"ipmi.app33.chan", FT_UINT8, BASE_CUSTOM, ipmi_fmt_channel, 0x0f, NULL, HFILL }},
+		{ &hf_ipmi_app_33_rs_priv,
+			{ "Inferred privilege level",
+				"ipmi.app33.priv", FT_UINT8, BASE_HEX, VALS(vals_XX_priv), 0xf0, NULL, HFILL }},
+		{ &hf_ipmi_app_33_msg,
+			{ "Message data",
+				"ipmi.app33.msg", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+
 		{ &hf_ipmi_app_34_track,
 			{ "Tracking",
 				"ipmi.app34.track", FT_UINT8, BASE_HEX, VALS(vals_34_track), 0xc0, NULL, HFILL }},
@@ -1325,6 +1356,9 @@ ipmi_register_app(gint proto_ipmi)
 		{ &hf_ipmi_app_34_chan,
 			{ "Channel",
 				"ipmi.app34.chan", FT_UINT8, BASE_CUSTOM, ipmi_fmt_channel, 0x0f, NULL, HFILL }},
+		{ &hf_ipmi_app_34_msg,
+			{ "Embedded message",
+				"ipmi.app34.msg", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
 
 		{ &hf_ipmi_app_38_rq_ipmi20,
 			{ "Version compatibility",
@@ -1462,6 +1496,8 @@ ipmi_register_app(gint proto_ipmi)
 		&ett_ipmi_app_32_rq_byte2,
 		&ett_ipmi_app_32_rs_byte1,
 		&ett_ipmi_app_32_rs_byte2,
+		&ett_ipmi_app_33_rs_byte1,
+		&ett_ipmi_app_33_msg,
 		&ett_ipmi_app_34_byte1,
 		&ett_ipmi_app_34_msg,
 		&ett_ipmi_app_38_rq_byte1,

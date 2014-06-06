@@ -28,11 +28,11 @@
 #include "packet-ipmi.h"
 
 static gint ett_ipmi_picmg_led_color = -1;
-static gint ett_ipmi_picmg_link_info = -1;
 static gint ett_ipmi_picmg_05_byte1 = -1;
 static gint ett_ipmi_picmg_06_byte1 = -1;
 static gint ett_ipmi_picmg_06_byte2 = -1;
 static gint ett_ipmi_picmg_06_byte3 = -1;
+static gint ett_ipmi_picmg_link_info = -1;
 static gint ett_ipmi_picmg_08_byte1 = -1;
 static gint ett_ipmi_picmg_09_ipmba = -1;
 static gint ett_ipmi_picmg_09_ipmbb = -1;
@@ -51,6 +51,23 @@ static gint ett_ipmi_picmg_prop01_byte1 = -1;
 static gint ett_ipmi_picmg_34_byte3 = -1;
 static gint ett_ipmi_picmg_36_byte2 = -1;
 static gint ett_ipmi_picmg_37_byte2 = -1;
+static gint ett_ipmi_picmg_link_state = -1;
+static gint ett_ipmi_picmg_link_dev = -1;
+
+static gint ett_ipmi_picmg_clock_setting = -1;
+static gint ett_ipmi_picmg_clock_res = -1;
+
+static gint ett_ipmi_picmg_hpm_caps = -1;
+
+static gint ett_ipmi_picmg_47_byte1 = -1;
+
+static gint ett_ipmi_picmg_23_rq_byte2 = -1;
+static gint ett_ipmi_picmg_23_rs_byte5 = -1;
+static gint ett_ipmi_picmg_25_rs_byte4 = -1;
+static gint ett_ipmi_picmg_25_rs_byte5 = -1;
+static gint ett_ipmi_picmg_27_rs_byte3 = -1;
+static gint ett_ipmi_picmg_28_rq_byte3 = -1;
+static gint ett_ipmi_picmg_29_rs_byte3 = -1;
 
 static gint hf_ipmi_picmg_led_function = -1;
 static gint hf_ipmi_picmg_led_on_duration = -1;
@@ -63,6 +80,30 @@ static gint hf_ipmi_picmg_linkinfo_ports = -1;
 static gint hf_ipmi_picmg_linkinfo_iface = -1;
 static gint hf_ipmi_picmg_linkinfo_chan = -1;
 static gint hf_ipmi_picmg_linkinfo_state = -1;
+static gint hf_ipmi_picmg_linkinfo = -1;
+static gint hf_ipmi_picmg_linkinfo_amc_chan = -1;
+static gint hf_ipmi_picmg_linkinfo_amc_ports = -1;
+static gint hf_ipmi_picmg_linkinfo_amc_type = -1;
+static gint hf_ipmi_picmg_linkinfo_amc_type_ext = -1;
+static gint hf_ipmi_picmg_linkinfo_amc_grpid = -1;
+static gint hf_ipmi_picmg_linkinfo_state_0 = -1;
+static gint hf_ipmi_picmg_linkinfo_state_1 = -1;
+static gint hf_ipmi_picmg_linkinfo_dev = -1;
+static gint hf_ipmi_picmg_linkinfo_dev_type = -1;
+static gint hf_ipmi_picmg_linkinfo_dev_id = -1;
+
+static gint hf_ipmi_picmg_clock_id = -1;
+static gint hf_ipmi_picmg_clock_cfg = -1;
+static gint hf_ipmi_picmg_clock_setting = -1;
+static gint hf_ipmi_picmg_clock_state = -1;
+static gint hf_ipmi_picmg_clock_dir = -1;
+static gint hf_ipmi_picmg_clock_pll = -1;
+static gint hf_ipmi_picmg_clock_family = -1;
+static gint hf_ipmi_picmg_clock_accuracy = -1;
+static gint hf_ipmi_picmg_clock_frequency = -1;
+static gint hf_ipmi_picmg_clock_resource = -1;
+static gint hf_ipmi_picmg_clock_resource_type = -1;
+static gint hf_ipmi_picmg_clock_resource_dev = -1;
 
 static gint hf_ipmi_picmg_00_version = -1;
 static gint hf_ipmi_picmg_00_max_fruid = -1;
@@ -174,6 +215,8 @@ static gint hf_ipmi_picmg_18_li_key_type = -1;
 static gint hf_ipmi_picmg_18_li_key = -1;
 static gint hf_ipmi_picmg_18_link_num = -1;
 static gint hf_ipmi_picmg_18_sensor_num = -1;
+
+static gint hf_ipmi_picmg_1a_flags = -1;
 
 static gint hf_ipmi_picmg_1b_addr_active = -1;
 static gint hf_ipmi_picmg_1b_addr_backup = -1;
@@ -288,6 +331,114 @@ static gint hf_ipmi_picmg_36_fail_oper_fw = -1;
 
 static gint hf_ipmi_picmg_37_percent = -1;
 
+static gint hf_ipmi_picmg_hpm_id = -1;
+static gint hf_ipmi_picmg_hpm_rev = -1;
+static gint hf_ipmi_picmg_hpm2_mask = -1;
+static gint hf_ipmi_picmg_hpm2_caps = -1;
+static gint hf_ipmi_picmg_hpm2_dyn_ssn = -1;
+static gint hf_ipmi_picmg_hpm2_ver_chg = -1;
+static gint hf_ipmi_picmg_hpm2_ext_mgt = -1;
+static gint hf_ipmi_picmg_hpm2_pkt_trc = -1;
+static gint hf_ipmi_picmg_hpm2_sol_ext = -1;
+static gint hf_ipmi_picmg_hpm_oem_start = -1;
+static gint hf_ipmi_picmg_hpm_oem_rev = -1;
+static gint hf_ipmi_picmg_hpm2_sol_oem_start = -1;
+static gint hf_ipmi_picmg_hpm2_sol_oem_rev = -1;
+static gint hf_ipmi_picmg_hpm_cred_hnd = -1;
+static gint hf_ipmi_picmg_hpm_func_sel = -1;
+static gint hf_ipmi_picmg_hpm_ipmi_rev = -1;
+static gint hf_ipmi_picmg_hpm_cipher_id = -1;
+static gint hf_ipmi_picmg_hpm_auth_type = -1;
+static gint hf_ipmi_picmg_hpm_priv_level = -1;
+static gint hf_ipmi_picmg_hpm_chn_num = -1;
+static gint hf_ipmi_picmg_hpm_avail_time = -1;
+static gint hf_ipmi_picmg_hpm_user_name = -1;
+static gint hf_ipmi_picmg_hpm_user_pwd = -1;
+static gint hf_ipmi_picmg_hpm_bmc_key = -1;
+static gint hf_ipmi_picmg_hpm_operation = -1;
+static gint hf_ipmi_picmg_hpm_ssn_hnd = -1;
+
+static gint hf_ipmi_picmg_hpm_power_draw = -1;
+static gint hf_ipmi_picmg_hpm_base_channels = -1;
+static gint hf_ipmi_picmg_hpm_fabric_channels = -1;
+static gint hf_ipmi_picmg_hpm_update_channels = -1;
+static gint hf_ipmi_picmg_hpm_cross_channels = -1;
+static gint hf_ipmi_picmg_hpm_num_chn_desc = -1;
+static gint hf_ipmi_picmg_hpm_chn_mask = -1;
+
+static gint hf_ipmi_picmg_hpm_ext_mgmt_state = -1;
+static gint hf_ipmi_picmg_hpm_polling_period = -1;
+static gint hf_ipmi_picmg_hpm_auth_pwr_state = -1;
+static gint hf_ipmi_picmg_hpm_amc_pwr_state = -1;
+
+static gint hf_ipmi_picmg47_port = -1;
+static gint hf_ipmi_picmg47_flags = -1;
+static gint hf_ipmi_picmg47_assignment = -1;
+static gint hf_ipmi_picmg47_state = -1;
+static gint hf_ipmi_picmg47_instance = -1;
+
+static gint hf_ipmi_picmg48_sub_fru_type = -1;
+static gint hf_ipmi_picmg48_sub_fru_id = -1;
+static gint hf_ipmi_picmg48_ip_source = -1;
+
+static gint hf_ipmi_picmg_23_rq_byte2 = -1;
+static gint hf_ipmi_picmg_23_slot_sel = -1;
+static gint hf_ipmi_picmg_23_carrier_num = -1;
+static gint hf_ipmi_picmg_23_slot_num = -1;
+static gint hf_ipmi_picmg_23_tier_num = -1;
+static gint hf_ipmi_picmg_23_rs_byte5 = -1;
+static gint hf_ipmi_picmg_23_slot_base = -1;
+static gint hf_ipmi_picmg_23_tier_base = -1;
+static gint hf_ipmi_picmg_23_orientation = -1;
+static gint hf_ipmi_picmg_23_origin_x = -1;
+static gint hf_ipmi_picmg_23_origin_y = -1;
+
+static gint hf_ipmi_picmg_24_channel = -1;
+static gint hf_ipmi_picmg_24_control = -1;
+static gint hf_ipmi_picmg_24_current = -1;
+static gint hf_ipmi_picmg_24_primary_pm = -1;
+static gint hf_ipmi_picmg_24_backup_pm = -1;
+
+static gint hf_ipmi_picmg_25_start = -1;
+static gint hf_ipmi_picmg_25_count = -1;
+static gint hf_ipmi_picmg_25_max = -1;
+static gint hf_ipmi_picmg_25_gstatus = -1;
+static gint hf_ipmi_picmg_25_fault = -1;
+static gint hf_ipmi_picmg_25_pwr_good = -1;
+static gint hf_ipmi_picmg_25_mp_good = -1;
+static gint hf_ipmi_picmg_25_role = -1;
+static gint hf_ipmi_picmg_25_cstatus = -1;
+static gint hf_ipmi_picmg_25_pwr_on = -1;
+static gint hf_ipmi_picmg_25_pwr_ovr = -1;
+static gint hf_ipmi_picmg_25_pwr = -1;
+static gint hf_ipmi_picmg_25_enable = -1;
+static gint hf_ipmi_picmg_25_mp_ovr = -1;
+static gint hf_ipmi_picmg_25_mp = -1;
+static gint hf_ipmi_picmg_25_ps1 = -1;
+
+static gint hf_ipmi_picmg_26_pm_site = -1;
+static gint hf_ipmi_picmg_27_rs_byte3 = -1;
+static gint hf_ipmi_picmg_27_pm_healthy = -1;
+static gint hf_ipmi_picmg_28_timeout = -1;
+static gint hf_ipmi_picmg_28_rq_byte3 = -1;
+static gint hf_ipmi_picmg_28_mch2 = -1;
+static gint hf_ipmi_picmg_28_mch1 = -1;
+
+static gint hf_ipmi_picmg_29_rs_byte3 = -1;
+static gint hf_ipmi_picmg_29_maj_rst = -1;
+static gint hf_ipmi_picmg_29_min_rst = -1;
+static gint hf_ipmi_picmg_29_alarm_cut = -1;
+static gint hf_ipmi_picmg_29_test_mode = -1;
+static gint hf_ipmi_picmg_29_pwr_alarm = -1;
+static gint hf_ipmi_picmg_29_minor_alarm = -1;
+static gint hf_ipmi_picmg_29_major_alarm = -1;
+static gint hf_ipmi_picmg_29_crit_alarm = -1;
+
+static gint hf_ipmi_picmg_2a_alarm_id = -1;
+static gint hf_ipmi_picmg_2a_alarm_ctrl = -1;
+
+static gint hf_ipmi_picmg_2b_alarm_state = -1;
+
 static const value_string site_type_vals[] = {
 	{ 0x00, "PICMG board" },
 	{ 0x01, "Power Entry" },
@@ -350,6 +501,21 @@ static const value_string linkinfo_type_vals[] = {
 	{ 0x03, "PICMG3.2 Infiniband Fabric Interface" },
 	{ 0x04, "PICMG3.3 StarFabric Fabric Interface" },
 	{ 0x05, "PICMG3.4 PCI Express Fabric Interface" },
+	{ 0xf0, "OEM" }, { 0xf1, "OEM" }, { 0xf2, "OEM" }, { 0xf3, "OEM" },
+	{ 0xf4, "OEM" }, { 0xf5, "OEM" }, { 0xf6, "OEM" }, { 0xf7, "OEM" },
+	{ 0xf8, "OEM" }, { 0xf9, "OEM" }, { 0xfa, "OEM" }, { 0xfb, "OEM" },
+	{ 0xfc, "OEM" }, { 0xfd, "OEM" }, { 0xfe, "OEM" },
+
+	{ 0, NULL }
+};
+
+static const value_string linkinfo_amc_type_vals[] = {
+	{ 0x02, "AMC.1 PCI Express" },
+	{ 0x03, "AMC.1 PCI Express Advanced Switching" },
+	{ 0x04, "AMC.1 PCI Express Advanced Switching" },
+	{ 0x05, "AMC.2 Ethernet" },
+	{ 0x06, "AMC.3 Serial RapidIO" },
+	{ 0x07, "AMC.3 Storage" },
 	{ 0xf0, "OEM" }, { 0xf1, "OEM" }, { 0xf2, "OEM" }, { 0xf3, "OEM" },
 	{ 0xf4, "OEM" }, { 0xf5, "OEM" }, { 0xf6, "OEM" }, { 0xf7, "OEM" },
 	{ 0xf8, "OEM" }, { 0xf9, "OEM" }, { 0xfa, "OEM" }, { 0xfb, "OEM" },
@@ -536,16 +702,16 @@ rs00(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 static void
 rq01(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	if (tvb_length(tvb) > 0) {
+	if (tvb_captured_length(tvb) > 0) {
 		proto_tree_add_item(tree, hf_ipmi_picmg_01_rq_fruid, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 	}
-	if (tvb_length(tvb) > 1) {
+	if (tvb_captured_length(tvb) > 1) {
 		proto_tree_add_item(tree, hf_ipmi_picmg_01_rq_addr_key_type, tvb, 1, 1, ENC_LITTLE_ENDIAN);
 	}
-	if (tvb_length(tvb) > 2) {
+	if (tvb_captured_length(tvb) > 2) {
 		proto_tree_add_item(tree, hf_ipmi_picmg_01_rq_addr_key, tvb, 2, 1, ENC_LITTLE_ENDIAN);
 	}
-	if (tvb_length(tvb) > 3) {
+	if (tvb_captured_length(tvb) > 3) {
 		proto_tree_add_item(tree, hf_ipmi_picmg_01_rq_site_type, tvb, 3, 1, ENC_LITTLE_ENDIAN);
 	}
 }
@@ -690,10 +856,10 @@ rs08(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, "LED States: ", "None",
 			ett_ipmi_picmg_08_byte1, byte1, ENC_LITTLE_ENDIAN, 0);
 	parse_led_state(tree, tvb, 1, "Local Control ");
-	if (tvb_length(tvb) > 4) {
+	if (tvb_captured_length(tvb) > 4) {
 		parse_led_state(tree, tvb, 4, "Override ");
 	}
-	if (tvb_length(tvb) > 7) {
+	if (tvb_captured_length(tvb) > 7) {
 		proto_tree_add_item(tree, hf_ipmi_picmg_08_lamptest_duration, tvb, 7, 1, ENC_LITTLE_ENDIAN);
 	}
 }
@@ -788,7 +954,7 @@ static void
 rq0d(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_ipmi_picmg_0d_fruid, tvb, 0, 1, ENC_LITTLE_ENDIAN);
-	if (tvb_length(tvb) > 1) {
+	if (tvb_captured_length(tvb) > 1) {
 		proto_tree_add_item(tree, hf_ipmi_picmg_0d_start, tvb, 1, 2, ENC_LITTLE_ENDIAN);
 	}
 }
@@ -837,6 +1003,9 @@ rq0f(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	static const int *chan[] = { &hf_ipmi_picmg_0f_iface, &hf_ipmi_picmg_0f_chan, NULL };
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL, ett_ipmi_picmg_0f_chan, chan, ENC_LITTLE_ENDIAN, 0);
+	if (tvb_captured_length(tvb) > 1) {
+		proto_tree_add_item(tree, hf_ipmi_picmg_1a_flags, tvb, 1, 1, ENC_LITTLE_ENDIAN);
+	}
 }
 
 static void
@@ -845,19 +1014,21 @@ rs0f(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	static const value_string state_vals[] = {
 		{ 0x00, "Disabled" },
 		{ 0x01, "Enabled" },
+		{ 0x02, "Disabled, Extended Inactive State Link" },
+		{ 0x03, "Enabled, Extended Inactive State Link" },
 		{ 0, NULL }
 	};
 
-	if (tvb_length(tvb) > 0) {
+	if (tvb_captured_length(tvb) > 0) {
 		parse_link_info_state(tree, tvb, 0, " 1", state_vals);
 	}
-	if (tvb_length(tvb) > 5) {
+	if (tvb_captured_length(tvb) > 5) {
 		parse_link_info_state(tree, tvb, 5, " 2", state_vals);
 	}
-	if (tvb_length(tvb) > 10) {
+	if (tvb_captured_length(tvb) > 10) {
 		parse_link_info_state(tree, tvb, 10, " 3", state_vals);
 	}
-	if (tvb_length(tvb) > 15) {
+	if (tvb_captured_length(tvb) > 15) {
 		parse_link_info_state(tree, tvb, 15, " 4", state_vals);
 	}
 }
@@ -916,7 +1087,7 @@ rs12(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	v = tvb_get_guint8(tvb, 2);
 	proto_tree_add_uint_format_value(tree, hf_ipmi_picmg_12_pwr_mult, tvb, 2, 1,
 			v, "%d.%dW", v / 10, v % 10);
-	max = tvb_length(tvb) - 3;
+	max = tvb_captured_length(tvb) - 3;
 	if (max == 0) {
 		max = 1; /* One byte is mandatory */
 	} else if (max > 20) {
@@ -937,7 +1108,7 @@ rs12(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 static void
 rq13(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	if (tvb_length(tvb) > 0) {
+	if (tvb_captured_length(tvb) > 0) {
 		proto_tree_add_item(tree, hf_ipmi_picmg_13_fruid, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 	}
 }
@@ -972,7 +1143,7 @@ rq15(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	proto_tree_add_item(tree, hf_ipmi_picmg_15_fruid, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_uint_format_value(tree, hf_ipmi_picmg_15_fan_level, tvb, 1, 1,
 			v, "%s", val_to_str(v, fan_level_vals, "%d"));
-	if (tvb_length(tvb) > 2) {
+	if (tvb_captured_length(tvb) > 2) {
 		proto_tree_add_item(tree, hf_ipmi_picmg_15_local_enable, tvb, 2, 1, ENC_LITTLE_ENDIAN);
 	}
 }
@@ -993,10 +1164,10 @@ rs16(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	v = tvb_get_guint8(tvb, 0);
 	proto_tree_add_uint_format_value(tree, hf_ipmi_picmg_16_override_level, tvb, 0, 1,
 			v, "%s", val_to_str(v, fan_level_vals, "%d"));
-	if (tvb_length(tvb) > 1) {
+	if (tvb_captured_length(tvb) > 1) {
 		proto_tree_add_item(tree, hf_ipmi_picmg_16_local_level, tvb, 1, 1, ENC_LITTLE_ENDIAN);
 	}
-	if (tvb_length(tvb) > 2) {
+	if (tvb_captured_length(tvb) > 2) {
 		proto_tree_add_item(tree, hf_ipmi_picmg_16_local_enable, tvb, 2, 1, ENC_LITTLE_ENDIAN);
 	}
 }
@@ -1019,11 +1190,12 @@ rq17(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 		{ 0x02, "Notify" },
 		{ 0, NULL }
 	};
-	guint to_shmm = ipmi_current_hdr->trg_sa == 0x20;
+	guint to_shmm = ipmi_get_hdr(pinfo)->rs_sa == 0x20;
 	guint cmd = tvb_get_guint8(tvb, 0);
 
+	ipmi_set_data(pinfo, 0, (to_shmm << 8) | cmd);
+
 	if (!tree) {
-		ipmi_setsaveddata(0, (to_shmm << 8) | cmd);
 		return;
 	}
 
@@ -1064,7 +1236,7 @@ rs17(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	guint32 val;
 	guint8 status;
 
-	if (!ipmi_getsaveddata(0, &val)) {
+	if (!ipmi_get_data(pinfo, 0, &val)) {
 		/* Without knowing the command, we cannot decipher the response */
 		proto_tree_add_item(tree, hf_ipmi_picmg_17_status, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 		return;
@@ -1092,6 +1264,78 @@ rs18(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	proto_tree_add_item(tree, hf_ipmi_picmg_18_sensor_num, tvb, 1, 1, ENC_LITTLE_ENDIAN);
 }
 
+static void
+parse_amc_link_info_state(proto_tree *tree, tvbuff_t *tvb, guint offs)
+{
+	static const int *amc_link_info[] = {
+			&hf_ipmi_picmg_linkinfo_amc_ports,
+			&hf_ipmi_picmg_linkinfo_amc_type,
+			&hf_ipmi_picmg_linkinfo_amc_type_ext,
+			&hf_ipmi_picmg_linkinfo_amc_grpid,
+			NULL };
+	static const int *amc_link_state[] = {
+			&hf_ipmi_picmg_linkinfo_state_0,
+			&hf_ipmi_picmg_linkinfo_state_1,
+			NULL };
+
+	proto_tree_add_bitmask(tree, tvb, offs, hf_ipmi_picmg_linkinfo,
+			ett_ipmi_picmg_link_info, amc_link_info, ENC_LITTLE_ENDIAN);
+	proto_tree_add_bitmask(tree, tvb, offs + 3, hf_ipmi_picmg_linkinfo_state,
+			ett_ipmi_picmg_link_state, amc_link_state, ENC_LITTLE_ENDIAN);
+}
+
+static const int *amc_link_dev[] = {
+		&hf_ipmi_picmg_linkinfo_dev_id,
+		NULL };
+
+/* Set AMC Port State
+ */
+static void
+rq19(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+	proto_tree_add_item(tree, hf_ipmi_picmg_linkinfo_amc_chan, tvb, 0, 1,
+			ENC_LITTLE_ENDIAN);
+	parse_amc_link_info_state(tree, tvb, 1);
+	if (tvb_captured_length(tvb) > 5) {
+		proto_tree_add_bitmask(tree, tvb, 5, hf_ipmi_picmg_linkinfo_dev,
+				ett_ipmi_picmg_link_dev, amc_link_dev, ENC_LITTLE_ENDIAN);
+	}
+}
+
+/* Get AMC Port State
+ */
+static void
+rq1a(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+	proto_tree_add_item(tree, hf_ipmi_picmg_linkinfo_amc_chan, tvb, 0, 1,
+			ENC_LITTLE_ENDIAN);
+	if (tvb_captured_length(tvb) > 1) {
+		proto_tree_add_bitmask(tree, tvb, 1, hf_ipmi_picmg_linkinfo_dev,
+				ett_ipmi_picmg_link_state, amc_link_dev, ENC_LITTLE_ENDIAN);
+	}
+	if (tvb_captured_length(tvb) > 2) {
+		proto_tree_add_item(tree, hf_ipmi_picmg_1a_flags, tvb, 2, 1, ENC_LITTLE_ENDIAN);
+	}
+}
+
+static void
+rs1a(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+	guint len = tvb_captured_length(tvb);
+	if (len > 0) {
+		parse_amc_link_info_state(tree, tvb, 0);
+	}
+	if (len > 4) {
+		parse_amc_link_info_state(tree, tvb, 4);
+	}
+	if (len > 8) {
+		parse_amc_link_info_state(tree, tvb, 8);
+	}
+	if (len > 12) {
+		parse_amc_link_info_state(tree, tvb, 12);
+	}
+}
+
 /* Get Shelf Manager IPMB Address
  */
 static void
@@ -1109,7 +1353,7 @@ rq1c(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	proto_tree_add_item(tree, hf_ipmi_picmg_1c_fan_site_number, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, hf_ipmi_picmg_1c_fan_enable_state, tvb, 1, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, hf_ipmi_picmg_1c_fan_policy_timeout, tvb, 2, 1, ENC_LITTLE_ENDIAN);
-	if (tvb_length(tvb) > 3) {
+	if (tvb_captured_length(tvb) > 3) {
 		proto_tree_add_item(tree, hf_ipmi_picmg_1c_site_number, tvb, 3, 1, ENC_LITTLE_ENDIAN);
 		proto_tree_add_item(tree, hf_ipmi_picmg_1c_site_type, tvb, 4, 1, ENC_LITTLE_ENDIAN);
 	}
@@ -1121,7 +1365,7 @@ static void
 rq1d(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_ipmi_picmg_1d_fan_site_number, tvb, 0, 1, ENC_LITTLE_ENDIAN);
-	if (tvb_length(tvb) > 1) {
+	if (tvb_captured_length(tvb) > 1) {
 		proto_tree_add_item(tree, hf_ipmi_picmg_1d_site_number, tvb, 1, 1, ENC_LITTLE_ENDIAN);
 		proto_tree_add_item(tree, hf_ipmi_picmg_1d_site_type, tvb, 2, 1, ENC_LITTLE_ENDIAN);
 	}
@@ -1131,7 +1375,7 @@ static void
 rs1d(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_ipmi_picmg_1d_policy, tvb, 0, 1, ENC_LITTLE_ENDIAN);
-	if (tvb_length(tvb) > 1) {
+	if (tvb_captured_length(tvb) > 1) {
 		proto_tree_add_item(tree, hf_ipmi_picmg_1d_coverage, tvb, 1, 1, ENC_LITTLE_ENDIAN);
 	}
 }
@@ -1185,7 +1429,7 @@ rq20(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	proto_tree_add_item(tree, hf_ipmi_picmg_20_fruid, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, hf_ipmi_picmg_20_lockid, tvb, 1, 2, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, hf_ipmi_picmg_20_offset, tvb, 3, 2, ENC_LITTLE_ENDIAN);
-	proto_tree_add_item(tree, hf_ipmi_picmg_20_data, tvb, 5, tvb_length(tvb) - 5, ENC_NA);
+	proto_tree_add_item(tree, hf_ipmi_picmg_20_data, tvb, 5, -1, ENC_NA);
 }
 
 static void
@@ -1233,8 +1477,8 @@ rs21(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 static void
 rq22(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
+	ipmi_set_data(pinfo, 0, tvb_get_guint8(tvb, 0));
 	if (!tree) {
-		ipmi_setsaveddata(0, tvb_get_guint8(tvb, 0));
 		return;
 	}
 	proto_tree_add_item(tree, hf_ipmi_picmg_22_feed_idx, tvb, 0, 1, ENC_LITTLE_ENDIAN);
@@ -1249,16 +1493,402 @@ rs22(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 
 	proto_tree_add_item(tree, hf_ipmi_picmg_22_update_cnt, tvb, 0, 2, ENC_LITTLE_ENDIAN);
 
-	max = tvb_length(tvb) / 2 - 1;
+	max = tvb_captured_length(tvb) / 2 - 1;
 	if (!max) {
 		/* At least one shall be present */
 		max = 1;
 	}
-	ipmi_getsaveddata(0, &offs);
+	ipmi_get_data(pinfo, 0, &offs);
 	for (i = 0; i < max; i++) {
 		v = tvb_get_letohs(tvb, 2 + 2 * i);
 		proto_tree_add_uint_format(tree, hf_ipmi_picmg_22_pwr_alloc, tvb, 2 + 2 * i, 2,
 				v, "Power Feed [%d] Allocation: %d Watts", offs + i, v);
+	}
+}
+
+static const value_string picmg_23_slot_selectors[] = {
+	{ 0, "MicroTCA Shelf within a Frame" },
+	{ 1, "MicroTCA Carrier within a Shelf" },
+	{ 2, "Slot within a MicroTCA Carrier" },
+	{ 0, NULL }
+};
+
+static const value_string picmg_23_num_bases[] = {
+	{ 0, "Zero-based" },
+	{ 1, "One-based" },
+	{ 0, NULL }
+};
+
+static const value_string picmg_23_orientations[] = {
+	{ 0, "Vertical" },
+	{ 1, "Horizontal" },
+	{ 0, NULL }
+};
+
+/* Get Location Info
+ */
+static void
+rq23(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+	static const int * picmg_23_rq_byte2[] = {
+		&hf_ipmi_picmg_23_slot_sel,
+		&hf_ipmi_picmg_23_carrier_num,
+		NULL
+	};
+
+	proto_tree_add_bitmask(tree, tvb, 0, hf_ipmi_picmg_23_rq_byte2,
+			ett_ipmi_picmg_23_rq_byte2, picmg_23_rq_byte2,
+			ENC_LITTLE_ENDIAN);
+	if ((tvb_get_guint8(tvb, 0) & 0xC0) == 0x80) {
+		proto_tree_add_item(tree, hf_ipmi_picmg_01_rs_site_num,
+				tvb, 1, 1, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(tree, hf_ipmi_picmg_01_rs_site_type,
+				tvb, 2, 1, ENC_LITTLE_ENDIAN);
+	}
+}
+
+static void
+rs23(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+	static const int * picmg_23_rs_byte5[] = {
+		&hf_ipmi_picmg_23_slot_base,
+		&hf_ipmi_picmg_23_tier_base,
+		&hf_ipmi_picmg_23_orientation,
+		NULL
+	};
+
+	proto_tree_add_item(tree, hf_ipmi_picmg_23_slot_num,
+			tvb, 0, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_picmg_23_tier_num,
+			tvb, 1, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_bitmask(tree, tvb, 2, hf_ipmi_picmg_23_rs_byte5,
+			ett_ipmi_picmg_23_rs_byte5, picmg_23_rs_byte5,
+			ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_picmg_23_origin_x,
+			tvb, 3, 2, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_picmg_23_origin_y,
+			tvb, 5, 2, ENC_LITTLE_ENDIAN);
+}
+
+static const value_string picmg_24_controls[] = {
+	{ 0, "Disable MP" },
+	{ 1, "Enable MP" },
+	{ 2, "De-assert ENABLE#" },
+	{ 3, "Assert ENABLE#" },
+	{ 4, "Disable PWR" },
+	{ 5, "Enable PWR" },
+	{ 0, NULL }
+};
+
+void
+fmt_power_amps(gchar *s, guint32 v)
+{
+	g_snprintf(s, ITEM_LABEL_LENGTH, "%d.%dA", v / 10, v % 10);
+}
+
+/* Power Channel Control
+ */
+static void
+rq24(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+	proto_tree_add_item(tree, hf_ipmi_picmg_24_channel,
+			tvb, 0, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_picmg_24_control,
+			tvb, 1, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_picmg_24_current,
+			tvb, 2, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_picmg_24_primary_pm,
+			tvb, 3, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_picmg_24_backup_pm,
+			tvb, 4, 1, ENC_LITTLE_ENDIAN);
+}
+
+static const value_string picmg_25_fault_vals[] = {
+	{ 0, "Redundant PM is not providing Payload Power current" },
+	{ 1, "Redundant PM is providing Payload Power current" },
+	{ 0, NULL }
+};
+
+static const true_false_string picmg_25_roles = {
+	"Primary",  "Redundant"
+};
+
+/* Get Power Channel Status
+ */
+static void
+rq25(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+	proto_tree_add_item(tree, hf_ipmi_picmg_25_start,
+			tvb, 0, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_picmg_25_count,
+			tvb, 1, 1, ENC_LITTLE_ENDIAN);
+}
+
+static void
+rs25(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+	static const gint * picmg_25_gstatus[] = {
+		&hf_ipmi_picmg_25_fault,
+		&hf_ipmi_picmg_25_pwr_good,
+		&hf_ipmi_picmg_25_mp_good,
+		&hf_ipmi_picmg_25_role,
+		NULL
+	};
+	static const gint * picmg_25_cstatus[] = {
+		&hf_ipmi_picmg_25_pwr_on,
+		&hf_ipmi_picmg_25_pwr_ovr,
+		&hf_ipmi_picmg_25_pwr,
+		&hf_ipmi_picmg_25_enable,
+		&hf_ipmi_picmg_25_mp_ovr,
+		&hf_ipmi_picmg_25_mp,
+		&hf_ipmi_picmg_25_ps1,
+		NULL
+	};
+
+	guint i, len = tvb_captured_length(tvb);
+
+	proto_tree_add_item(tree, hf_ipmi_picmg_25_max,
+			tvb, 0, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_bitmask(tree, tvb, 1, hf_ipmi_picmg_25_gstatus,
+			ett_ipmi_picmg_25_rs_byte4, picmg_25_gstatus,
+			ENC_LITTLE_ENDIAN);
+
+	for (i = 2; i < len; i++) {
+		proto_tree_add_bitmask(tree, tvb, i, hf_ipmi_picmg_25_cstatus,
+				ett_ipmi_picmg_25_rs_byte5, picmg_25_cstatus,
+				ENC_LITTLE_ENDIAN);
+	}
+}
+
+/* PM Reset
+ */
+static void
+rq26(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+	proto_tree_add_item(tree, hf_ipmi_picmg_26_pm_site,
+			tvb, 0, 1, ENC_LITTLE_ENDIAN);
+}
+
+/* Get PM Status
+ */
+static void
+rs27(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+	static const gint * picmg_27_status[] = {
+		&hf_ipmi_picmg_27_pm_healthy,
+		NULL
+	};
+	proto_tree_add_bitmask(tree, tvb, 0, hf_ipmi_picmg_27_rs_byte3,
+			ett_ipmi_picmg_27_rs_byte3, picmg_27_status,
+			ENC_LITTLE_ENDIAN);
+}
+
+static const value_string cc28[] = {
+	{ 0x80, "Returned from autonomous mode" },
+	{ 0, NULL }
+};
+
+void
+fmt_100ms(gchar *s, guint32 v)
+{
+	g_snprintf(s, ITEM_LABEL_LENGTH, "%d.%dS", v / 10, v % 10);
+}
+
+/* PM Heart-Beat
+ */
+static void
+rq28(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+	static const gint * picmg_28_flags[] = {
+		&hf_ipmi_picmg_28_mch2,
+		&hf_ipmi_picmg_28_mch1,
+		NULL
+	};
+	proto_tree_add_item(tree, hf_ipmi_picmg_28_timeout,
+			tvb, 0, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_bitmask(tree, tvb, 1, hf_ipmi_picmg_28_rq_byte3,
+			ett_ipmi_picmg_28_rq_byte3, picmg_28_flags,
+			ENC_LITTLE_ENDIAN);
+}
+
+static const true_false_string picmg_29_alarm_actions = {
+	"Produces(results in) an implementation-defined action",
+	"Not implemented"
+};
+
+static const true_false_string picmg_29_alarm_modes = {
+	"Can be controlled/enabled by the Set Telco Alarm State command",
+	"Can not be controlled/enabled"
+};
+
+/* Get Telco Alarm Capabilities
+ */
+static void
+rs29(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+	static const gint * picmg_29_caps[] = {
+		&hf_ipmi_picmg_29_maj_rst,
+		&hf_ipmi_picmg_29_min_rst,
+		&hf_ipmi_picmg_29_alarm_cut,
+		&hf_ipmi_picmg_29_test_mode,
+		&hf_ipmi_picmg_29_pwr_alarm,
+		&hf_ipmi_picmg_29_minor_alarm,
+		&hf_ipmi_picmg_29_major_alarm,
+		&hf_ipmi_picmg_29_crit_alarm,
+		NULL
+	};
+	proto_tree_add_bitmask(tree, tvb, 0, hf_ipmi_picmg_29_rs_byte3,
+			ett_ipmi_picmg_29_rs_byte3, picmg_29_caps,
+			ENC_LITTLE_ENDIAN);
+}
+
+static const value_string picmg_2a_alarm_ids[] = {
+	{ 0, "Critical Alarm" },
+	{ 1, "Major Alarm" },
+	{ 2, "Minor Alarm" },
+	{ 3, "Power Alarm" },
+	{ 4, "Alarm Cutoff" },
+	{ 0, NULL }
+};
+
+static const value_string picmg_2a_alarm_ctrls[] = {
+	{ 0, "off / cutoff disabled" },
+	{ 1, "on / cutoff enabled" },
+	{ 0xFF, "test mode" },
+	{ 0, NULL }
+};
+
+/* Set Telco Alarm State
+ */
+static void
+rq2a(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+	proto_tree_add_item(tree, hf_ipmi_picmg_05_fruid,
+			tvb, 0, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_picmg_2a_alarm_id,
+			tvb, 1, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_picmg_2a_alarm_ctrl,
+			tvb, 2, 1, ENC_LITTLE_ENDIAN);
+}
+
+/* Get Telco Alarm State
+ */
+static void
+rq2b(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+	proto_tree_add_item(tree, hf_ipmi_picmg_05_fruid,
+			tvb, 0, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_picmg_2a_alarm_id,
+			tvb, 1, 1, ENC_LITTLE_ENDIAN);
+}
+
+static void
+rs2b(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+	proto_tree_add_item(tree, hf_ipmi_picmg_2b_alarm_state,
+			tvb, 0, 1, ENC_LITTLE_ENDIAN);
+}
+
+static const value_string amc_clock_ids[] = {
+	{ 1, "TCLKA(CLK1A)" },
+	{ 2, "TCLKB(CLK1B)" },
+	{ 3, "TCLKC(CLK1)" },
+	{ 4, "TCLKD(CLK2A)" },
+	{ 5, "FCLKA(CLK2B)" },
+	{ 6, "CLK2" },
+	{ 7, "CLK3A" },
+	{ 8, "CLK3B" },
+	{ 9, "CLK3" },
+	{ 0, NULL }
+};
+
+static const value_string amc_clock_dirs[] = {
+	{ 0, "Clock receiver" },
+	{ 1, "Clock source" },
+	{ 0, NULL }
+};
+
+static const value_string amc_clock_plls[] = {
+	{ 0, "Default state" },
+	{ 1, "Connect through PLL" },
+	{ 2, "Bypass PLL" },
+	{ 0, NULL }
+};
+
+static const range_string amc_clock_families[] = {
+	{ 0, 0,	"Unspecified" },
+	{ 1, 1,	"SONET/SDH/PDH" },
+	{ 2, 2,	"Reserved for PCI Express" },
+	{ 3, 0xC8, "Reserved" },
+	{ 0xC9, 0xFF, "Vendor defined" },
+	{ 0, 0, NULL }
+};
+
+static const value_string amc_clock_resource_types[] = {
+	{ 0, "On-Carrier device" },
+	{ 1, "AMC module" },
+	{ 2, "Backplane" },
+	{ 3, "Reserved" },
+	{ 0, NULL }
+};
+
+static const int * amc_clock_setting[] = {
+	&hf_ipmi_picmg_clock_pll,
+	&hf_ipmi_picmg_clock_dir,
+	&hf_ipmi_picmg_clock_state,
+	NULL
+};
+
+static const int * amc_clock_resource[] = {
+	&hf_ipmi_picmg_clock_resource_type,
+	&hf_ipmi_picmg_clock_resource_dev,
+	NULL
+};
+
+/* Set Clock State
+ */
+static void
+rq2c(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+	proto_tree_add_item(tree, hf_ipmi_picmg_clock_id, tvb, 0, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_picmg_clock_cfg, tvb, 1, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_bitmask(tree, tvb, 2, hf_ipmi_picmg_clock_setting,
+			ett_ipmi_picmg_clock_setting, amc_clock_setting, ENC_LITTLE_ENDIAN);
+	if (tvb_captured_length(tvb) > 3) {
+		proto_tree_add_item(tree, hf_ipmi_picmg_clock_family, tvb, 3, 1, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(tree, hf_ipmi_picmg_clock_accuracy, tvb, 4, 1, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(tree, hf_ipmi_picmg_clock_frequency, tvb, 5, 4, ENC_LITTLE_ENDIAN);
+	}
+	if (tvb_captured_length(tvb) > 9) {
+		proto_tree_add_bitmask(tree, tvb, 9, hf_ipmi_picmg_clock_resource,
+				ett_ipmi_picmg_clock_res, amc_clock_resource, ENC_LITTLE_ENDIAN);
+	}
+}
+
+/* Get Clock State (request)
+ */
+static void
+rq2d(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+	proto_tree_add_item(tree, hf_ipmi_picmg_clock_id, tvb, 0, 1, ENC_LITTLE_ENDIAN);
+	if (tvb_captured_length(tvb) > 1) {
+		proto_tree_add_bitmask(tree, tvb, 1, hf_ipmi_picmg_clock_resource,
+				ett_ipmi_picmg_clock_res, amc_clock_resource, ENC_LITTLE_ENDIAN);
+	}
+}
+
+/* Get Clock State (response)
+ */
+static void
+rs2d(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+	proto_tree_add_bitmask(tree, tvb, 0, hf_ipmi_picmg_clock_setting,
+			ett_ipmi_picmg_clock_setting, amc_clock_setting, ENC_LITTLE_ENDIAN);
+	if (tvb_captured_length(tvb) > 1) {
+		proto_tree_add_item(tree, hf_ipmi_picmg_clock_cfg, tvb, 1, 1, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(tree, hf_ipmi_picmg_clock_family, tvb, 2, 1, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(tree, hf_ipmi_picmg_clock_accuracy, tvb, 3, 1, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(tree, hf_ipmi_picmg_clock_frequency, tvb, 4, 4, ENC_LITTLE_ENDIAN);
 	}
 }
 
@@ -1322,7 +1952,7 @@ parse_version(tvbuff_t *tvb, proto_tree *tree)
 static void
 prop_02(tvbuff_t *tvb, proto_tree *tree)
 {
-	guint len = tvb_length(tvb);
+	guint len = tvb_captured_length(tvb);
 
 	if (len > 12) {
 		len = 12;
@@ -1347,8 +1977,8 @@ rq2f(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	guint8 pno = tvb_get_guint8(tvb, 1);
 	const char *desc;
 
+	ipmi_set_data(pinfo, 0, pno);
 	if (!tree) {
-		ipmi_setsaveddata(0, pno);
 		return;
 	}
 
@@ -1372,9 +2002,9 @@ rs2f(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	const char *desc;
 	proto_item *ti;
 
-	if (!ipmi_getsaveddata(0, &pno)) {
+	if (!ipmi_get_data(pinfo, 0, &pno)) {
 		/* Can't parse further if property selector is not known */
-		proto_tree_add_item(tree, hf_ipmi_picmg_2f_prop_data, tvb, 0, tvb_length(tvb), ENC_NA);
+		proto_tree_add_item(tree, hf_ipmi_picmg_2f_prop_data, tvb, 0, -1, ENC_NA);
 		return;
 	}
 
@@ -1391,7 +2021,7 @@ rs2f(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	if (pno < array_length(compprops)) {
 		compprops[pno].intrp(tvb, tree);
 	} else {
-		proto_tree_add_item(tree, hf_ipmi_picmg_2f_prop_data, tvb, 0, tvb_length(tvb), ENC_NA);
+		proto_tree_add_item(tree, hf_ipmi_picmg_2f_prop_data, tvb, 0, -1, ENC_NA);
 	}
 }
 
@@ -1431,13 +2061,13 @@ static void
 rq32(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_ipmi_picmg_32_block, tvb, 0, 1, ENC_LITTLE_ENDIAN);
-	proto_tree_add_item(tree, hf_ipmi_picmg_32_data, tvb, 1, tvb_length(tvb) - 1, ENC_NA);
+	proto_tree_add_item(tree, hf_ipmi_picmg_32_data, tvb, 1, -1, ENC_NA);
 }
 
 static void
 rs32(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	if (tvb_length(tvb) > 0) {
+	if (tvb_captured_length(tvb) > 0) {
 		proto_tree_add_item(tree, hf_ipmi_picmg_32_sec_offs, tvb, 0, 4, ENC_LITTLE_ENDIAN);
 		proto_tree_add_item(tree, hf_ipmi_picmg_32_sec_len, tvb, 4, 4, ENC_LITTLE_ENDIAN);
 	}
@@ -1484,7 +2114,7 @@ rs34(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	v = tvb_get_guint8(tvb, 1);
 	proto_tree_add_uint_format_value(tree, hf_ipmi_picmg_34_ccode, tvb, 1, 1, v,
 			"%s (0x%02x)", ipmi_get_completion_code(v, c), v);
-	if (tvb_length(tvb) > 2) {
+	if (tvb_captured_length(tvb) > 2) {
 		proto_tree_add_bitmask_text(tree, tvb, 2, 1, NULL, NULL,
 				ett_ipmi_picmg_34_byte3, byte3, ENC_LITTLE_ENDIAN, 0);
 	}
@@ -1500,7 +2130,7 @@ static const value_string cc34[] = {
 static void
 rq35(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	if (tvb_length(tvb) > 0) {
+	if (tvb_captured_length(tvb) > 0) {
 		proto_tree_add_item(tree, hf_ipmi_picmg_35_rollback_override, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 	}
 }
@@ -1556,7 +2186,7 @@ rs37(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	static const gint *byte2[] = { &hf_ipmi_picmg_37_percent, NULL };
 	const char *desc;
 
-	switch (ipmi_current_hdr->ccode) {
+	switch (ipmi_get_ccode(pinfo)) {
 	case 0x00: desc = "Components completed rollback: "; break;
 	case 0x80: desc = "Components (should be None): "; break;
 	case 0x81: desc = "Components failed to rollback: "; break;
@@ -1564,10 +2194,196 @@ rs37(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	}
 
 	add_component_bits(tree, tvb, 0, desc);
-	if (tvb_length(tvb) > 1) {
+	if (tvb_captured_length(tvb) > 1) {
 		proto_tree_add_bitmask_text(tree, tvb, 1, 1, NULL, NULL,
 				ett_ipmi_picmg_37_byte2, byte2, ENC_LITTLE_ENDIAN, 0);
 	}
+}
+
+/* Get HPM.x Capabilities
+ */
+static void
+rq3e(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+	proto_tree_add_item(tree, hf_ipmi_picmg_hpm_id, tvb, 0, 1, ENC_LITTLE_ENDIAN);
+}
+
+static void
+rs3e(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+	static const gint *hpm2_caps[] = {
+			&hf_ipmi_picmg_hpm2_dyn_ssn,
+			&hf_ipmi_picmg_hpm2_ver_chg,
+			&hf_ipmi_picmg_hpm2_ext_mgt,
+			&hf_ipmi_picmg_hpm2_pkt_trc,
+			&hf_ipmi_picmg_hpm2_sol_ext,
+			NULL };
+	guint8 hpm_x;
+
+	proto_tree_add_item(tree, hf_ipmi_picmg_hpm_id, tvb, 0, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_picmg_hpm_rev, tvb, 1, 1, ENC_LITTLE_ENDIAN);
+
+	hpm_x = tvb_get_guint8(tvb, 0);
+
+	if (hpm_x == 2) {
+		proto_tree_add_item(tree, hf_ipmi_picmg_hpm2_mask, tvb, 2, 2, ENC_LITTLE_ENDIAN);
+		if (tvb_captured_length(tvb) > 4) {
+			proto_tree_add_bitmask(tree, tvb, 4, hf_ipmi_picmg_hpm2_caps,
+					ett_ipmi_picmg_hpm_caps, hpm2_caps, ENC_LITTLE_ENDIAN);
+		}
+		if (tvb_captured_length(tvb) > 5) {
+			proto_tree_add_item(tree, hf_ipmi_picmg_hpm_oem_start,
+					tvb, 5, 1, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_ipmi_picmg_hpm_oem_rev,
+					tvb, 6, 1, ENC_LITTLE_ENDIAN);
+		}
+		if (tvb_captured_length(tvb) > 7) {
+			proto_tree_add_item(tree, hf_ipmi_picmg_hpm2_sol_oem_start,
+					tvb, 7, 1, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_ipmi_picmg_hpm2_sol_oem_rev,
+					tvb, 8, 1, ENC_LITTLE_ENDIAN);
+		}
+	} else if (hpm_x == 3) {
+		proto_tree_add_item(tree, hf_ipmi_picmg_hpm_oem_start,
+				tvb, 2, 1, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(tree, hf_ipmi_picmg_hpm_oem_rev,
+				tvb, 3, 1, ENC_LITTLE_ENDIAN);
+	}
+}
+
+static const value_string hpm2_func_selectors[] = {
+	{ 0x0, "Create Credentials" },
+	{ 0x1, "Get Session Info" },
+	{ 0x2, "Get User Name, least significant bytes" },
+	{ 0x3, "Get User Name, most significant bytes" },
+	{ 0x4, "Get Password, least significant bytes" },
+	{ 0x5, "Get Password, most significant bytes" },
+	{ 0x6, "Get BMC Key, least significant bytes" },
+	{ 0x7, "Get BMC Key, most significant bytes" },
+	{ 0, NULL }
+};
+
+static const value_string hpm2_ipmi_revs[] = {
+	{ 0x0, "IPMI 1.5 session" },
+	{ 0x1, "IPMI 2.0 session" },
+	{ 0, NULL }
+};
+
+static const value_string hpm2_auth_types[] = {
+	{ 0x0, "None" },
+	{ 0x1, "MD2" },
+	{ 0x2, "MD5" },
+	{ 0x4, "Straight password" },
+	{ 0x5, "OEM" },
+	{ 0, NULL }
+};
+
+/* Get Dynamic Credentials
+ */
+static void
+rq3f(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+	proto_tree_add_item(tree, hf_ipmi_picmg_hpm_cred_hnd,
+			tvb, 0, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_picmg_hpm_func_sel,
+			tvb, 1, 1, ENC_LITTLE_ENDIAN);
+	if (!tvb_get_guint8(tvb, 1)) {
+		proto_tree_add_item(tree, hf_ipmi_picmg_hpm_ipmi_rev,
+				tvb, 2, 1, ENC_LITTLE_ENDIAN);
+		if (tvb_get_guint8(tvb, 2)) {
+			proto_tree_add_item(tree, hf_ipmi_picmg_hpm_cipher_id,
+					tvb, 3, 1, ENC_LITTLE_ENDIAN);
+		} else {
+			proto_tree_add_item(tree, hf_ipmi_picmg_hpm_auth_type,
+					tvb, 3, 1, ENC_LITTLE_ENDIAN);
+		}
+		proto_tree_add_item(tree, hf_ipmi_picmg_hpm_priv_level,
+				tvb, 4, 1, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(tree, hf_ipmi_picmg_hpm_chn_num,
+				tvb, 5, 1, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(tree, hf_ipmi_picmg_hpm_avail_time,
+				tvb, 6, 4, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(tree, hf_ipmi_picmg_21_ipaddr,
+				tvb, 10, 4, ENC_BIG_ENDIAN);
+	}
+}
+
+static void
+rs3f(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+	guint8 func;
+
+	proto_tree_add_item(tree, hf_ipmi_picmg_hpm_cred_hnd,
+			tvb, 0, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_picmg_hpm_func_sel,
+			tvb, 1, 1, ENC_LITTLE_ENDIAN);
+
+	func = tvb_get_guint8(tvb, 1);
+
+	switch (func) {
+	case 0:
+	case 1:
+		proto_tree_add_item(tree, hf_ipmi_picmg_hpm_avail_time,
+				tvb, 2, 4, ENC_LITTLE_ENDIAN);
+		break;
+	case 2:
+	case 3:
+		proto_tree_add_item(tree, hf_ipmi_picmg_hpm_user_name,
+				tvb, 2, 8, ENC_NA);
+		break;
+	case 4:
+	case 5:
+		proto_tree_add_item(tree, hf_ipmi_picmg_hpm_user_pwd,
+				tvb, 2, 10, ENC_NA);
+		break;
+	case 6:
+	case 7:
+		proto_tree_add_item(tree, hf_ipmi_picmg_hpm_bmc_key,
+				tvb, 2, 10, ENC_NA);
+		break;
+	}
+}
+
+static const value_string picmg40_operations[] = {
+	{ 0x0, "Initiate new operation" },
+	{ 0x1, "Poll for completion status" },
+	{ 0, NULL }
+};
+
+static const value_string cc40[] = {
+	{ 0x80, "In progress" },
+	{ 0x81, "No previous establishment request" },
+	{ 0x82, "LAN sessions are not supported" },
+	{ 0x83, "Error trying to establish a session" },
+	{ 0, NULL }
+};
+
+/* Get Session Handle for Explicit LAN Bridging
+ */
+static void
+rq40(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+	proto_tree_add_item(tree, hf_ipmi_picmg_01_rs_ipmbaddr,
+			tvb, 0, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_picmg_01_rs_fruid,
+			tvb, 1, 1, ENC_LITTLE_ENDIAN);
+	if (tvb_captured_length(tvb) > 2) {
+		proto_tree_add_item(tree, hf_ipmi_picmg_hpm_operation,
+				tvb, 2, 1, ENC_LITTLE_ENDIAN);
+	}
+}
+
+static void
+rs40(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+	proto_tree_add_item(tree, hf_ipmi_picmg_hpm_chn_num,
+			tvb, 0, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_picmg_hpm_ssn_hnd,
+			tvb, 1, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_picmg_hpm_ssn_hnd,
+			tvb, 2, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_picmg_hpm_ssn_hnd,
+			tvb, 3, 1, ENC_LITTLE_ENDIAN);
 }
 
 static const value_string cc37[] = {
@@ -1585,65 +2401,270 @@ static const value_string cc38[] = {
 	{ 0, NULL }
 };
 
+static const value_string hpm_x_ids[] = {
+	{ 0x02, "HPM.2" },
+	{ 0x03, "HPM.3" },
+	{ 0, NULL }
+};
+
+/* Get ATCA Extended Management Resources
+ */
+static void
+rs41(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+	proto_tree_add_item(tree, hf_ipmi_picmg_hpm_power_draw,
+			tvb, 0, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_picmg_hpm_base_channels,
+			tvb, 1, 2, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_picmg_hpm_fabric_channels,
+			tvb, 3, 2, ENC_LITTLE_ENDIAN);
+	if (tvb_captured_length(tvb) > 5) {
+		proto_tree_add_item(tree, hf_ipmi_picmg_hpm_update_channels,
+				tvb, 5, 1, ENC_LITTLE_ENDIAN);
+	}
+	if (tvb_captured_length(tvb) > 6) {
+		proto_tree_add_item(tree, hf_ipmi_picmg_hpm_cross_channels,
+				tvb, 6, 1, ENC_LITTLE_ENDIAN);
+	}
+}
+
+
+static const value_string amc_resource_types[] = {
+	{ 0, "On-Carrier device (IRTM, MCH)" },
+	{ 1, "AMC module" },
+	{ 0, NULL }
+};
+
+/* Get AMC Extended Management Resources
+ */
+static void
+rs42(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+	static const gint *amc_resource_type[] = {
+			&hf_ipmi_picmg_linkinfo_dev_type,
+			&hf_ipmi_picmg_linkinfo_dev_id,
+			NULL };
+	guint8 num, i;
+
+	proto_tree_add_item(tree, hf_ipmi_picmg_hpm_power_draw,
+			tvb, 0, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_picmg_hpm_num_chn_desc,
+			tvb, 1, 1, ENC_LITTLE_ENDIAN);
+
+	num = tvb_get_guint8(tvb, 1);
+
+	for (i = 0; i < num; i++) {
+		proto_tree_add_bitmask(tree, tvb, 2 + i * 5,
+				hf_ipmi_picmg_linkinfo_dev, ett_ipmi_picmg_link_dev,
+				amc_resource_type, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(tree, hf_ipmi_picmg_hpm_chn_mask,
+				tvb, 3 + i * 5, 4, ENC_LITTLE_ENDIAN);
+	}
+}
+
+/* Set ATCA Extended Management State
+ */
+static void
+rq43(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+	proto_tree_add_item(tree, hf_ipmi_picmg_hpm_ext_mgmt_state,
+			tvb, 0, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_picmg_hpm_polling_period,
+			tvb, 1, 1, ENC_LITTLE_ENDIAN);
+}
+
+/* Get ATCA Extended Management State
+ */
+static void
+rs44(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+	proto_tree_add_item(tree, hf_ipmi_picmg_hpm_ext_mgmt_state,
+			tvb, 0, 1, ENC_LITTLE_ENDIAN);
+}
+
+static const value_string auth_pwr_states[] = {
+	{ 0, "Normal. Full Payload Power." },
+	{ 1, "Extended Management Power" },
+	{ 0, NULL }
+};
+
+static const value_string amc_pwr_states[] = {
+	{ 0, "Standard Management Power" },
+	{ 1, "Extended Management Power" },
+	{ 2, "Full Payload Power." },
+	{ 0, NULL }
+};
+
+/* Set AMC Power State
+ */
+static void
+rq45(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+	proto_tree_add_item(tree, hf_ipmi_picmg_hpm_auth_pwr_state,
+			tvb, 0, 1, ENC_LITTLE_ENDIAN);
+}
+
+/* Get AMC Power State
+ */
+static void
+rs46(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+	proto_tree_add_item(tree, hf_ipmi_picmg_hpm_auth_pwr_state,
+			tvb, 0, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_picmg_hpm_amc_pwr_state,
+			tvb, 1, 1, ENC_LITTLE_ENDIAN);
+}
+
+static const value_string picmg47_flags[] = {
+	{ 0, "Assign Payload Instance." },
+	{ 1, "Return Assigned Instance" },
+	{ 0, NULL }
+};
+
+static const value_string picmg47_states[] = {
+	{ 0, "No session currently opened on this System Serial Port." },
+	{ 1, "A session already opened on this System Serial Port." },
+	{ 0, NULL }
+};
+
+static const value_string cc47[] = {
+	{ 0x80, "Payload Instance can not be assigned at this time." },
+	{ 0, NULL }
+};
+
+/* Assign SOL Payload Instance
+ */
+static void
+rq47(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+	proto_tree_add_item(tree, hf_ipmi_picmg47_port,
+			tvb, 0, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_picmg47_flags,
+			tvb, 1, 1, ENC_LITTLE_ENDIAN);
+
+}
+
+static void
+rs47(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+	static const gint *byte1[] = {
+			&hf_ipmi_picmg47_state,
+			&hf_ipmi_picmg47_instance,
+			NULL };
+
+	proto_tree_add_bitmask(tree, tvb, 0, hf_ipmi_picmg47_assignment,
+			ett_ipmi_picmg_47_byte1, byte1, ENC_LITTLE_ENDIAN);
+}
+
+static const value_string picmg48_fru_types[] = {
+	{ 0, "None" },
+	{ 1, "IPMB-L address of subsidiary MMC" },
+	{ 2, "IPMB-0 address of subsidiary EMMC" },
+	{ 3, "FRU Device ID of subsidiary FRU" },
+	{ 0, NULL }
+};
+
+static const value_string picmg48_ip_sources[] = {
+	{ 0, "Not configured for HPM.3" },
+	{ 2, "DHCP assigned" },
+	{ 4, "DHCP Proxy assigned" },
+	{ 0, NULL }
+};
+
+/* Get IP Address Source
+ */
+static void
+rq48(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+	proto_tree_add_item(tree, hf_ipmi_picmg_01_rs_ipmbaddr,
+			tvb, 0, 1, ENC_LITTLE_ENDIAN);
+	if (tvb_captured_length(tvb) > 1) {
+		proto_tree_add_item(tree, hf_ipmi_picmg48_sub_fru_type,
+				tvb, 1, 1, ENC_LITTLE_ENDIAN);
+	}
+	if (tvb_captured_length(tvb) > 2) {
+		proto_tree_add_item(tree, hf_ipmi_picmg48_sub_fru_id,
+				tvb, 2, 1, ENC_LITTLE_ENDIAN);
+	}
+}
+
+static void
+rs48(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+	proto_tree_add_item(tree, hf_ipmi_picmg48_ip_source,
+			tvb, 0, 1, ENC_LITTLE_ENDIAN);
+}
+
 static ipmi_cmd_t cmd_picmg[] = {
-  /* AdvancedTCA Commands */
-  { 0x00, NULL, rs00, NULL, NULL, "[ATCA] Get PICMG Properties", 0 },
-  { 0x01, rq01, rs01, NULL, NULL, "[ATCA] Get Address Info", 0 },
-  { 0x02, NULL, rs02, NULL, NULL, "[ATCA] Get Shelf Address Info", 0 },
-  { 0x03, rq03, NULL, NULL, NULL, "[ATCA] Set Shelf Address Info", 0 },
-  { 0x04, rq04, NULL, NULL, NULL, "[ATCA] FRU Control", 0 },
-  { 0x05, rq05, rs05, NULL, NULL, "[ATCA] Get FRU LED Properties", 0 },
-  { 0x06, rq06, rs06, NULL, NULL, "[ATCA] Get LED Color Capabilities", 0 },
-  { 0x07, rq07, NULL, NULL, NULL, "[ATCA] Set FRU LED State", 0 },
-  { 0x08, rq08, rs08, NULL, NULL, "[ATCA] Get FRU LED State", 0 },
-  { 0x09, rq09, NULL, NULL, NULL, "[ATCA] Set IPMB State", 0 },
-  { 0x0a, rq0a, NULL, NULL, NULL, "[ATCA] Set FRU Activation Policy", 0 },
-  { 0x0b, rq0b, rs0b, NULL, NULL, "[ATCA] Get FRU Activation Policy", 0 },
-  { 0x0c, rq0c, NULL, NULL, NULL, "[ATCA] Set FRU Activation", 0 },
-  { 0x0d, rq0d, rs0d, NULL, NULL, "[ATCA] Get Device Locator Record ID", 0 },
-  { 0x0e, rq0e, NULL, NULL, NULL, "[ATCA] Set Port State", 0 },
-  { 0x0f, rq0f, rs0f, NULL, NULL, "[ATCA] Get Port State", 0 },
-  { 0x10, rq10, rs10, NULL, NULL, "[ATCA] Compute Power Properties", 0 },
-  { 0x11, rq11, NULL, NULL, NULL, "[ATCA] Set Power Level", 0 },
-  { 0x12, rq12, rs12, NULL, NULL, "[ATCA] Get Power Level", 0 },
-  { 0x13, rq13, NULL, NULL, NULL, "[ATCA] Renegotiate Power", 0 },
-  { 0x14, rq14, rs14, NULL, NULL, "[ATCA] Get Fan Speed Properties", 0 },
-  { 0x15, rq15, NULL, NULL, NULL, "[ATCA] Set Fan Level", 0 },
-  { 0x16, rq16, rs16, NULL, NULL, "[ATCA] Get Fan Level", 0 },
-  { 0x17, rq17, rs17, NULL, NULL, "[ATCA] Bused Resource Control", CMD_CALLRQ },
-  { 0x18, rq18, rs18, NULL, NULL, "[ATCA] Get IPMB Link Info", 0 },
-  { 0x19, IPMI_TBD,   NULL, NULL, "[AMC.0] Set AMC Port State", 0 },
-  { 0x1a, IPMI_TBD,   NULL, NULL, "[AMC.0] Get AMC Port State", 0 },
-  { 0x1b, NULL, rs1b, NULL, NULL, "[ATCA] Get Shelf Manager IPMB Address", 0 },
-  { 0x1c, rq1c, NULL, NULL, NULL, "[ATCA] Set Fan Policy", 0 },
-  { 0x1d, rq1d, rs1d, NULL, NULL, "[ATCA] Get Fan Policy", 0 },
-  { 0x1e, rq1e, rs1e, NULL, NULL, "[ATCA] FRU Control Capabilities", 0 },
-  { 0x1f, rq1f, rs1f, cc1f, NULL, "[ATCA] FRU Inventory Device Lock Control", 0 },
-  { 0x20, rq20, rs20, cc20, NULL, "[ATCA] FRU Inventory Device Write", 0 },
-  { 0x21, rq21, rs21, NULL, NULL, "[ATCA] Get Shelf Manager IP Addresses", 0 },
-  { 0x22, rq22, rs22, NULL, NULL, "[ATCA] Get Shelf Power Allocation", CMD_CALLRQ },
-  { 0x23, IPMI_TBD,   NULL, NULL, "[uTCA] Get Location Information", 0 },
-  { 0x24, IPMI_TBD,   NULL, NULL, "[uTCA] Power Channel Control", 0 },
-  { 0x25, IPMI_TBD,   NULL, NULL, "[uTCA] Get Power Channel Status", 0 },
-  { 0x26, IPMI_TBD,   NULL, NULL, "[uTCA] PM Reset", 0 },
-  { 0x27, IPMI_TBD,   NULL, NULL, "[uTCA] Get PM Status", 0 },
-  { 0x28, IPMI_TBD,   NULL, NULL, "[uTCA] PM Heartbeat", 0 },
-  { 0x29, IPMI_TBD,   NULL, NULL, "[uTCA] Get Telco Alarm Capability", 0 },
-  { 0x2a, IPMI_TBD,   NULL, NULL, "[uTCA] Set Telco Alarm State", 0 },
-  { 0x2b, IPMI_TBD,   NULL, NULL, "[uTCA] Get Telco Alarm State", 0 },
-  { 0x2c, IPMI_TBD,   NULL, NULL, "[AMC.0] Set Clock State", 0 },
-  { 0x2d, IPMI_TBD,   NULL, NULL, "[AMC.0] Get Clock State", 0 },
-  { 0x2e, NULL, rs2e, cc2e, NULL, "[HPM.1] Get Target Upgrade Capabilities", 0 },
-  { 0x2f, rq2f, rs2f, cc2f, NULL, "[HPM.1] Get Component Properties", CMD_CALLRQ },
-  { 0x30, NULL, NULL, cc30, NULL, "[HPM.1] Abort Firmware Upgrade", 0 },
-  { 0x31, rq31, NULL, cc31, NULL, "[HPM.1] Initiate Upgrade Action", 0 },
-  { 0x32, rq32, rs32, cc32, NULL, "[HPM.1] Upload Firmware Block", 0 },
-  { 0x33, rq33, NULL, cc33, NULL, "[HPM.1] Finish Firmware Upload", 0 },
-  { 0x34, NULL, rs34, cc34, NULL, "[HPM.1] Get Upgrade Status", 0 },
-  { 0x35, rq35, NULL, cc35, NULL, "[HPM.1] Activate Firmware", 0 },
-  { 0x36, NULL, rs36, cc36, NULL, "[HPM.1] Query Self-test Results", 0 },
-  { 0x37, NULL, rs37, cc37, NULL, "[HPM.1] Query Rollback Status", 0 },
-  { 0x38, NULL, NULL, cc38, NULL, "[HPM.1] Initiate Manual Rollback", 0 },
+	/* AdvancedTCA Commands */
+	{ 0x00, NULL, rs00, NULL, NULL, "[ATCA] Get PICMG Properties", 0 },
+	{ 0x01, rq01, rs01, NULL, NULL, "[ATCA] Get Address Info", 0 },
+	{ 0x02, NULL, rs02, NULL, NULL, "[ATCA] Get Shelf Address Info", 0 },
+	{ 0x03, rq03, NULL, NULL, NULL, "[ATCA] Set Shelf Address Info", 0 },
+	{ 0x04, rq04, NULL, NULL, NULL, "[ATCA] FRU Control", 0 },
+	{ 0x05, rq05, rs05, NULL, NULL, "[ATCA] Get FRU LED Properties", 0 },
+	{ 0x06, rq06, rs06, NULL, NULL, "[ATCA] Get LED Color Capabilities", 0 },
+	{ 0x07, rq07, NULL, NULL, NULL, "[ATCA] Set FRU LED State", 0 },
+	{ 0x08, rq08, rs08, NULL, NULL, "[ATCA] Get FRU LED State", 0 },
+	{ 0x09, rq09, NULL, NULL, NULL, "[ATCA] Set IPMB State", 0 },
+	{ 0x0a, rq0a, NULL, NULL, NULL, "[ATCA] Set FRU Activation Policy", 0 },
+	{ 0x0b, rq0b, rs0b, NULL, NULL, "[ATCA] Get FRU Activation Policy", 0 },
+	{ 0x0c, rq0c, NULL, NULL, NULL, "[ATCA] Set FRU Activation", 0 },
+	{ 0x0d, rq0d, rs0d, NULL, NULL, "[ATCA] Get Device Locator Record ID", 0 },
+	{ 0x0e, rq0e, NULL, NULL, NULL, "[ATCA] Set Port State", 0 },
+	{ 0x0f, rq0f, rs0f, NULL, NULL, "[ATCA] Get Port State", 0 },
+	{ 0x10, rq10, rs10, NULL, NULL, "[ATCA] Compute Power Properties", 0 },
+	{ 0x11, rq11, NULL, NULL, NULL, "[ATCA] Set Power Level", 0 },
+	{ 0x12, rq12, rs12, NULL, NULL, "[ATCA] Get Power Level", 0 },
+	{ 0x13, rq13, NULL, NULL, NULL, "[ATCA] Renegotiate Power", 0 },
+	{ 0x14, rq14, rs14, NULL, NULL, "[ATCA] Get Fan Speed Properties", 0 },
+	{ 0x15, rq15, NULL, NULL, NULL, "[ATCA] Set Fan Level", 0 },
+	{ 0x16, rq16, rs16, NULL, NULL, "[ATCA] Get Fan Level", 0 },
+	{ 0x17, rq17, rs17, NULL, NULL, "[ATCA] Bused Resource Control", CMD_CALLRQ },
+	{ 0x18, rq18, rs18, NULL, NULL, "[ATCA] Get IPMB Link Info", 0 },
+	{ 0x19, rq19, NULL, NULL, NULL, "[AMC.0] Set AMC Port State", 0 },
+	{ 0x1a, rq1a, rs1a, NULL, NULL, "[AMC.0] Get AMC Port State", 0 },
+	{ 0x1b, NULL, rs1b, NULL, NULL, "[ATCA] Get Shelf Manager IPMB Address", 0 },
+	{ 0x1c, rq1c, NULL, NULL, NULL, "[ATCA] Set Fan Policy", 0 },
+	{ 0x1d, rq1d, rs1d, NULL, NULL, "[ATCA] Get Fan Policy", 0 },
+	{ 0x1e, rq1e, rs1e, NULL, NULL, "[ATCA] FRU Control Capabilities", 0 },
+	{ 0x1f, rq1f, rs1f, cc1f, NULL, "[ATCA] FRU Inventory Device Lock Control", 0 },
+	{ 0x20, rq20, rs20, cc20, NULL, "[ATCA] FRU Inventory Device Write", 0 },
+	{ 0x21, rq21, rs21, NULL, NULL, "[ATCA] Get Shelf Manager IP Addresses", 0 },
+	{ 0x22, rq22, rs22, NULL, NULL, "[ATCA] Get Shelf Power Allocation", CMD_CALLRQ },
+	{ 0x23, rq23, rs23, NULL, NULL, "[uTCA] Get Location Information", 0 },
+	{ 0x24, rq24, NULL, NULL, NULL, "[uTCA] Power Channel Control", 0 },
+	{ 0x25, rq25, rs25, NULL, NULL, "[uTCA] Get Power Channel Status", 0 },
+	{ 0x26, rq26, NULL, NULL, NULL, "[uTCA] PM Reset", 0 },
+	{ 0x27, rq26, rs27, NULL, NULL, "[uTCA] Get PM Status", 0 },
+	{ 0x28, rq28, NULL, cc28, NULL, "[uTCA] PM Heartbeat", 0 },
+	{ 0x29, rq05, rs29, NULL, NULL, "[uTCA] Get Telco Alarm Capability", 0 },
+	{ 0x2a, rq2a, NULL, NULL, NULL, "[uTCA] Set Telco Alarm State", 0 },
+	{ 0x2b, rq2b, rs2b, NULL, NULL, "[uTCA] Get Telco Alarm State", 0 },
+	{ 0x2c, rq2c, NULL, NULL, NULL, "[AMC.0] Set Clock State", 0 },
+	{ 0x2d, rq2d, rs2d, NULL, NULL, "[AMC.0] Get Clock State", 0 },
+	{ 0x2e, NULL, rs2e, cc2e, NULL, "[HPM.1] Get Target Upgrade Capabilities", 0 },
+	{ 0x2f, rq2f, rs2f, cc2f, NULL, "[HPM.1] Get Component Properties", CMD_CALLRQ },
+	{ 0x30, NULL, NULL, cc30, NULL, "[HPM.1] Abort Firmware Upgrade", 0 },
+	{ 0x31, rq31, NULL, cc31, NULL, "[HPM.1] Initiate Upgrade Action", 0 },
+	{ 0x32, rq32, rs32, cc32, NULL, "[HPM.1] Upload Firmware Block", 0 },
+	{ 0x33, rq33, NULL, cc33, NULL, "[HPM.1] Finish Firmware Upload", 0 },
+	{ 0x34, NULL, rs34, cc34, NULL, "[HPM.1] Get Upgrade Status", 0 },
+	{ 0x35, rq35, NULL, cc35, NULL, "[HPM.1] Activate Firmware", 0 },
+	{ 0x36, NULL, rs36, cc36, NULL, "[HPM.1] Query Self-test Results", 0 },
+	{ 0x37, NULL, rs37, cc37, NULL, "[HPM.1] Query Rollback Status", 0 },
+	{ 0x38, NULL, NULL, cc38, NULL, "[HPM.1] Initiate Manual Rollback", 0 },
+	{ 0x3e, rq3e, rs3e, NULL, NULL, "[HPM.2] Get HPM.x Capabilities", 0 },
+	{ 0x3f, rq3f, rs3f, NULL, NULL, "[HPM.2] Get Dynamic Credentials", 0 },
+	{ 0x40, rq40, rs40, cc40, NULL, "[HPM.2] Get Session Handle for Explicit LAN Bridging", 0 },
+	{ 0x41, NULL, rs41, NULL, NULL, "[HPM.2] Get ATCA Extended Management Resources", 0 },
+	{ 0x42, NULL, rs42, NULL, NULL, "[HPM.2] Get AMC Extended Management Resources", 0 },
+	{ 0x43, rq43, NULL, NULL, NULL, "[HPM.2] Set ATCA Extended Management State", 0 },
+	{ 0x44, NULL, rs44, NULL, NULL, "[HPM.2] Get ATCA Extended Management State", 0 },
+	{ 0x45, rq45, NULL, NULL, NULL, "[HPM.2] Set AMC Power State", 0 },
+	{ 0x46, NULL, rs46, NULL, NULL, "[HPM.2] Get AMC Power State", 0 },
+	{ 0x47, rq47, rs47, cc47, NULL, "[HPM.2] Assign SOL Payload Instance", 0 },
+	{ 0x48, rq48, rs48, NULL, NULL, "[HPM.3] Get IP Address Source", 0 }
 };
 
 void
@@ -1680,7 +2701,77 @@ ipmi_register_picmg(gint proto_ipmi)
 				"ipmi.linkinfo.chan", FT_UINT32, BASE_DEC, NULL, 0x0000003f, NULL, HFILL }},
 		{ &hf_ipmi_picmg_linkinfo_state,
 			{ "State",
-				"ipmi.picmg0e.state", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+				"ipmi.linkinfo.state", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_picmg_linkinfo,
+			{ "Link Info",
+				"ipmi.linkinfo", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_picmg_linkinfo_amc_chan,
+			{ "Channel",
+				"ipmi.linkinfo.chan", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_picmg_linkinfo_amc_ports,
+			{ "Ports",
+				"ipmi.linkinfo.ports", FT_UINT24, BASE_HEX, VALS(linkinfo_ports_vals), 0x00000f, NULL, HFILL }},
+		{ &hf_ipmi_picmg_linkinfo_amc_type,
+			{ "Type",
+				"ipmi.linkinfo.type", FT_UINT24, BASE_HEX, VALS(linkinfo_amc_type_vals), 0x000ff0, NULL, HFILL }},
+		{ &hf_ipmi_picmg_linkinfo_amc_type_ext,
+			{ "Type extension",
+				"ipmi.linkinfo.type_ext", FT_UINT24, BASE_HEX, NULL, 0x00f000, NULL, HFILL }},
+		{ &hf_ipmi_picmg_linkinfo_amc_grpid,
+			{ "Grouping ID",
+				"ipmi.linkinfo.grpid", FT_UINT24, BASE_DEC, NULL, 0xff0000, NULL, HFILL }},
+		{ &hf_ipmi_picmg_linkinfo_state_0,
+			{ "Enabled",
+				"ipmi.linkinfo.state0", FT_BOOLEAN, 8, NULL, 0x1, NULL, HFILL }},
+		{ &hf_ipmi_picmg_linkinfo_state_1,
+			{ "Extended Management Link",
+				"ipmi.linkinfo.state1", FT_BOOLEAN, 8, NULL, 0x2, NULL, HFILL }},
+		{ &hf_ipmi_picmg_linkinfo_dev,
+			{ "On-Carrier Device",
+				"ipmi.linkinfo.dev", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_picmg_linkinfo_dev_type,
+			{ "Device Type",
+				"ipmi.linkinfo.dev.type", FT_UINT8, BASE_DEC, VALS(amc_resource_types), 0x80, NULL, HFILL }},
+		{ &hf_ipmi_picmg_linkinfo_dev_id,
+			{ "Device ID",
+				"ipmi.linkinfo.dev.id", FT_UINT8, BASE_DEC_HEX, NULL, 0xF, NULL, HFILL }},
+
+		{ &hf_ipmi_picmg_clock_id,
+			{ "Clock ID",
+				"ipmi.clock.id", FT_UINT8, BASE_HEX, VALS(amc_clock_ids), 0, NULL, HFILL }},
+		{ &hf_ipmi_picmg_clock_cfg,
+			{ "Clock Configuration Descriptor Index",
+				"ipmi.clock.cfg", FT_UINT8, BASE_DEC_HEX, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_picmg_clock_setting,
+			{ "Clock Setting",
+				"ipmi.clock.setting", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_picmg_clock_state,
+			{ "Clock State",
+				"ipmi.clock.state", FT_UINT8, BASE_DEC, VALS(enable_vals), 0x8, NULL, HFILL }},
+		{ &hf_ipmi_picmg_clock_dir,
+			{ "Clock Direction",
+				"ipmi.clock.dir", FT_UINT8, BASE_DEC, VALS(amc_clock_dirs), 0x4, NULL, HFILL }},
+		{ &hf_ipmi_picmg_clock_pll,
+			{ "PLL Control",
+				"ipmi.clock.pll", FT_UINT8, BASE_DEC, VALS(amc_clock_plls), 0x3, NULL, HFILL }},
+		{ &hf_ipmi_picmg_clock_family,
+			{ "Clock Family",
+				"ipmi.clock.family", FT_UINT8, BASE_HEX|BASE_RANGE_STRING, RVALS(amc_clock_families), 0, NULL, HFILL }},
+		{ &hf_ipmi_picmg_clock_accuracy,
+			{ "Clock Accuracy",
+				"ipmi.clock.accu", FT_UINT8, BASE_HEX_DEC, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_picmg_clock_frequency,
+			{ "Clock Frequency",
+				"ipmi.clock.freq", FT_UINT32, BASE_DEC_HEX, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_picmg_clock_resource,
+			{ "Clock Resource ID",
+				"ipmi.clock.res", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_picmg_clock_resource_type,
+			{ "Resource Type",
+				"ipmi.clock.res.type", FT_UINT8, BASE_HEX, VALS(amc_clock_resource_types), 0xC0, NULL, HFILL }},
+		{ &hf_ipmi_picmg_clock_resource_dev,
+			{ "Device ID",
+				"ipmi.clock.res.id", FT_UINT8, BASE_DEC, NULL, 0x0F, NULL, HFILL }},
 
 		{ &hf_ipmi_picmg_00_version,
 			{ "PICMG Extension Version",
@@ -1708,7 +2799,7 @@ ipmi_register_picmg(gint proto_ipmi)
 			{ "Hardware Address",
 				"ipmi.picmg01.rs_hwaddr", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
 		{ &hf_ipmi_picmg_01_rs_ipmbaddr,
-			{ "IPMB-0 Address",
+			{ "IPMB Address",
 				"ipmi.picmg01.rs_ipmbaddr", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
 		{ &hf_ipmi_picmg_01_rs_rsrv,
 			{ "Reserved (shall be 0xFF)",
@@ -1970,6 +3061,10 @@ ipmi_register_picmg(gint proto_ipmi)
 		{ &hf_ipmi_picmg_18_sensor_num,
 			{ "Sensor Number",
 				"ipmi.picmg18.sensor_num", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+		{ &hf_ipmi_picmg_1a_flags,
+			{ "Extended Request Flags",
+				"ipmi.picmg1a.flags", FT_UINT8, BASE_DEC_HEX, NULL, 0, NULL, HFILL }},
 
 		{ &hf_ipmi_picmg_1b_addr_active,
 			{ "Active Shelf Manager IPMB Address",
@@ -2272,10 +3367,312 @@ ipmi_register_picmg(gint proto_ipmi)
 			{ "Estimated percentage complete",
 				"ipmi.picmg37.percent", FT_UINT8, BASE_CUSTOM, ipmi_fmt_percent, 0x7f, NULL, HFILL }},
 
+		{ &hf_ipmi_picmg_hpm_id,
+			{ "HPM.x Identifier",
+				"ipmi.picmg.hpm.id", FT_UINT8, BASE_HEX, VALS(hpm_x_ids), 0, NULL, HFILL }},
+		{ &hf_ipmi_picmg_hpm_rev,
+			{ "HPM.x Revision Identifier",
+				"ipmi.picmg.hpm.rev", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_picmg_hpm2_mask,
+			{ "IPMI LAN Channel Mask",
+				"ipmi.picmg.hpm2.mask", FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_picmg_hpm2_caps,
+			{ "HPM.2 Capabilities",
+				"ipmi.picmg.hpm2.caps", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_picmg_hpm2_dyn_ssn,
+			{ "Dynamic Sessions",
+				"ipmi.picmg.hpm2.dynssn", FT_BOOLEAN, 8, NULL, 0x10, NULL, HFILL }},
+		{ &hf_ipmi_picmg_hpm2_ver_chg,
+			{ "Version Change Sensor for LAN Configuration",
+				"ipmi.picmg.hpm2.verchg", FT_BOOLEAN, 8, NULL, 0x08, NULL, HFILL }},
+		{ &hf_ipmi_picmg_hpm2_ext_mgt,
+			{ "Extended Inactive State Management",
+				"ipmi.picmg.hpm2.extmgt", FT_BOOLEAN, 8, NULL, 0x04, NULL, HFILL }},
+		{ &hf_ipmi_picmg_hpm2_pkt_trc,
+			{ "IPMI Channel Packet Trace",
+				"ipmi.picmg.hpm2.pkttrc", FT_BOOLEAN, 8, NULL, 0x02, NULL, HFILL }},
+		{ &hf_ipmi_picmg_hpm2_sol_ext,
+			{ "SOL Extensions",
+				"ipmi.picmg.hpm2.solext", FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL }},
+		{ &hf_ipmi_picmg_hpm_oem_start,
+			{ "OEM LAN Parameters Start Location",
+				"ipmi.picmg.hpm.oem.start", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_picmg_hpm_oem_rev,
+			{ "OEM LAN Parameters Blocks Revision Number",
+				"ipmi.picmg.hpm.oem.rev", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_picmg_hpm2_sol_oem_start,
+			{ "OEM SOL Parameters Start Location",
+				"ipmi.picmg.hpm2.sol.oem.start", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_picmg_hpm2_sol_oem_rev,
+			{ "OEM SOL Parameters Blocks Revision Number",
+				"ipmi.picmg.hpm2.sol.oem.rev", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_picmg_hpm_cred_hnd,
+			{ "Credentials Handle",
+				"ipmi.picmg.hpm.cred.hnd", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_picmg_hpm_func_sel,
+			{ "Function Selector",
+				"ipmi.picmg.hpm.func.sel", FT_UINT8, BASE_DEC, VALS(hpm2_func_selectors), 0, NULL, HFILL }},
+		{ &hf_ipmi_picmg_hpm_ipmi_rev,
+			{ "IPMI Revision",
+				"ipmi.picmg.hpm.ipmi.rev", FT_UINT8, BASE_HEX, VALS(hpm2_ipmi_revs), 0, NULL, HFILL }},
+		{ &hf_ipmi_picmg_hpm_auth_type,
+			{ "Authentication Type",
+				"ipmi.picmg.hpm.auth.type", FT_UINT8, BASE_HEX, VALS(hpm2_auth_types), 0, NULL, HFILL }},
+		{ &hf_ipmi_picmg_hpm_cipher_id,
+			{ "Cipher Suite ID",
+				"ipmi.picmg.hpm.cipher", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_picmg_hpm_priv_level,
+			{ "Maximum Privilege Level",
+				"ipmi.picmg.hpm.priv", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_picmg_hpm_chn_num,
+			{ "IPMI Lan Channel Number",
+				"ipmi.picmg.hpm.chn.num", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_picmg_hpm_avail_time,
+			{ "Availability Time",
+				"ipmi.picmg.hpm.avail", FT_UINT32, BASE_DEC_HEX, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_picmg_hpm_user_name,
+			{ "User Name",
+				"ipmi.picmg.hpm.user.name", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_picmg_hpm_user_pwd,
+			{ "User Password",
+				"ipmi.picmg.hpm.user.pwd", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_picmg_hpm_bmc_key,
+			{ "BMC Key",
+				"ipmi.picmg.hpm.bmc.key", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_picmg_hpm_operation,
+			{ "Command Operation Mode",
+				"ipmi.picmg.hpm.operation", FT_UINT8, BASE_DEC, VALS(picmg40_operations), 0, NULL, HFILL }},
+		{ &hf_ipmi_picmg_hpm_ssn_hnd,
+			{ "Session Handle",
+				"ipmi.picmg.hpm.ssn.hnd", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_picmg_hpm_power_draw,
+			{ "Extended Management Power Draw",
+				"ipmi.picmg.hpm.pwr.draw", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_picmg_hpm_base_channels,
+			{ "Base Interface Channels",
+				"ipmi.picmg.hpm.base.chn", FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_picmg_hpm_fabric_channels,
+			{ "Fabric Interface Channels",
+				"ipmi.picmg.hpm.base.chn", FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_picmg_hpm_update_channels,
+			{ "Update Channels",
+				"ipmi.picmg.hpm.upd.chn", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_picmg_hpm_cross_channels,
+			{ "ShMC Cross-Connect Channels",
+				"ipmi.picmg.hpm.cross.chn", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_picmg_hpm_num_chn_desc,
+			{ "Number of Channel Descriptors",
+				"ipmi.picmg.hpm.num.chn.desc", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_picmg_hpm_chn_mask,
+			{ "Channel Bitmask",
+				"ipmi.picmg.hpm.chn.mask", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_picmg_hpm_ext_mgmt_state,
+			{ "Extended Management State",
+				"ipmi.picmg.hpm.ext.mgmt.state", FT_UINT8, BASE_DEC, VALS(enable_vals), 0, NULL, HFILL }},
+		{ &hf_ipmi_picmg_hpm_polling_period,
+			{ "Polling Period",
+				"ipmi.picmg.hpm.poll.period", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_picmg_hpm_auth_pwr_state,
+			{ "Authorized Power State",
+				"ipmi.picmg.hpm.auth.pwr", FT_UINT8, BASE_DEC, VALS(auth_pwr_states), 0, NULL, HFILL }},
+		{ &hf_ipmi_picmg_hpm_amc_pwr_state,
+			{ "Actual Power State",
+				"ipmi.picmg.hpm.amc.pwr", FT_UINT8, BASE_DEC, VALS(amc_pwr_states), 0, NULL, HFILL }},
+
+		{ &hf_ipmi_picmg47_port,
+			{ "System Serial Port Number",
+				"ipmi.picmg47.port", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_picmg47_flags,
+			{ "Flags",
+				"ipmi.picmg47.flags", FT_UINT8, BASE_DEC, VALS(picmg47_flags), 0x01, NULL, HFILL }},
+		{ &hf_ipmi_picmg47_assignment,
+			{ "Assigned Instance",
+				"ipmi.picmg47.assign", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_picmg47_state,
+			{ "Serial port assigned to instance state",
+				"ipmi.picmg47.state", FT_UINT8, BASE_DEC, VALS(picmg47_states), 0x80, NULL, HFILL }},
+		{ &hf_ipmi_picmg47_instance,
+			{ "Payload instance number",
+				"ipmi.picmg47.instance", FT_UINT8, BASE_DEC, NULL, 0x0F, NULL, HFILL }},
+
+		{ &hf_ipmi_picmg48_sub_fru_type,
+			{ "Subsidiary FRU Identifier Type",
+				"ipmi.picmg48.fru.type", FT_UINT8, BASE_DEC, VALS(picmg48_fru_types), 0, NULL, HFILL }},
+		{ &hf_ipmi_picmg48_sub_fru_id,
+			{ "Subsidiary FRU Identifier",
+				"ipmi.picmg48.fru.id", FT_UINT8, BASE_DEC_HEX, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_picmg48_ip_source,
+			{ "IP Address Source",
+				"ipmi.picmg48.ip.source", FT_UINT8, BASE_DEC, VALS(picmg48_ip_sources), 0, NULL, HFILL }},
+
+		{ &hf_ipmi_picmg_23_rq_byte2,
+			{ "Request Flags",
+				"ipmi.picmg23.rq.flags", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_picmg_23_slot_sel,
+			{ "MCS",
+				"ipmi.picmg23.rq.mcs", FT_UINT8, BASE_HEX, VALS(picmg_23_slot_selectors), 0xC0, NULL, HFILL }},
+		{ &hf_ipmi_picmg_23_carrier_num,
+			{ "Carrier Number",
+				"ipmi.picmg23.carrier.num", FT_UINT8, BASE_DEC, NULL, 0x1F, NULL, HFILL }},
+		{ &hf_ipmi_picmg_23_slot_num,
+			{ "Slot Number",
+				"ipmi.picmg23.slot.num", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_picmg_23_tier_num,
+			{ "Tier Number",
+				"ipmi.picmg23.tier.num", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_picmg_23_rs_byte5,
+			{ "Orientation Flags",
+				"ipmi.picmg23.rs.flags", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_picmg_23_slot_base,
+			{ "Slot Numbers",
+				"ipmi.picmg23.slot.base", FT_UINT8, BASE_DEC, VALS(picmg_23_num_bases), 0x80, NULL, HFILL }},
+		{ &hf_ipmi_picmg_23_tier_base,
+			{ "Tier Numbers",
+				"ipmi.picmg23.tier.base", FT_UINT8, BASE_DEC, VALS(picmg_23_num_bases), 0x40, NULL, HFILL }},
+		{ &hf_ipmi_picmg_23_orientation,
+			{ "Carrier Orientation",
+				"ipmi.picmg23.orient", FT_UINT8, BASE_DEC, VALS(picmg_23_orientations), 0x20, NULL, HFILL }},
+		{ &hf_ipmi_picmg_23_origin_x,
+			{ "Origin X",
+				"ipmi.picmg23.origin.x", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_picmg_23_origin_y,
+			{ "Origin Y",
+				"ipmi.picmg23.origin.y", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+		{ &hf_ipmi_picmg_24_channel,
+			{ "Power Channel Number",
+				"ipmi.picmg.pwr.channel", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_picmg_24_control,
+			{ "Power Channel Control",
+				"ipmi.picmg.pwr.control", FT_UINT8, BASE_DEC, VALS(picmg_24_controls), 0, NULL, HFILL }},
+		{ &hf_ipmi_picmg_24_current,
+			{ "Power Channel Current Limit",
+				"ipmi.picmg.pwr.limit", FT_UINT8, BASE_CUSTOM, fmt_power_amps, 0, NULL, HFILL }},
+		{ &hf_ipmi_picmg_24_primary_pm,
+			{ "Primary PM",
+				"ipmi.picmg.primary.pm", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_picmg_24_backup_pm,
+			{ "Redundant PM",
+				"ipmi.picmg.backup.pm", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+		{ &hf_ipmi_picmg_25_start,
+			{ "Starting Power Channel Number",
+				"ipmi.picmg25.start", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_picmg_25_count,
+			{ "Power Channel Count",
+				"ipmi.picmg25.count", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_picmg_25_max,
+			{ "Max Power Channel Number",
+				"ipmi.picmg25.max", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_picmg_25_gstatus,
+			{ "Global Status",
+				"ipmi.picmg25.gstatus", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_picmg_25_fault,
+			{ "Unidentified Fault",
+				"ipmi.picmg25.fault", FT_UINT8, BASE_DEC, VALS(picmg_25_fault_vals), 0x08, NULL, HFILL }},
+		{ &hf_ipmi_picmg_25_pwr_good,
+			{ "Payload Power is Good",
+				"ipmi.picmg25.pwr.good", FT_BOOLEAN, 8, NULL, 0x04, NULL, HFILL }},
+		{ &hf_ipmi_picmg_25_mp_good,
+			{ "Management Power is Good",
+				"ipmi.picmg25.mp.good", FT_BOOLEAN, 8, NULL, 0x02, NULL, HFILL }},
+		{ &hf_ipmi_picmg_25_role,
+			{ "Role",
+			  "ipmi.picmg25.fault", FT_BOOLEAN, 8, TFS(&picmg_25_roles), 0x01, NULL, HFILL }},
+		{ &hf_ipmi_picmg_25_cstatus,
+			{ "Power Channel Status",
+				"ipmi.picmg25.cstatus", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_picmg_25_pwr_on,
+			{ "PWR_ON is asserted",
+				"ipmi.picmg25.pwr.on", FT_BOOLEAN, 8, NULL, 0x40, NULL, HFILL }},
+		{ &hf_ipmi_picmg_25_pwr_ovr,
+			{ "Payload Power Overcurrent is detected",
+				"ipmi.picmg25.pwr.ovr", FT_BOOLEAN, 8, NULL, 0x20, NULL, HFILL }},
+		{ &hf_ipmi_picmg_25_pwr,
+			{ "Payload Power is enabled",
+				"ipmi.picmg25.pwr", FT_BOOLEAN, 8, NULL, 0x10, NULL, HFILL }},
+		{ &hf_ipmi_picmg_25_enable,
+			{ "ENABLE# is asserted",
+				"ipmi.picmg25.enable", FT_BOOLEAN, 8, NULL, 0x08, NULL, HFILL }},
+		{ &hf_ipmi_picmg_25_mp_ovr,
+			{ "Management Power Overcurrent is detected",
+				"ipmi.picmg25.mp.ovr", FT_BOOLEAN, 8, NULL, 0x04, NULL, HFILL }},
+		{ &hf_ipmi_picmg_25_mp,
+			{ "Management Power is enabled",
+				"ipmi.picmg25.mp", FT_BOOLEAN, 8, NULL, 0x02, NULL, HFILL }},
+		{ &hf_ipmi_picmg_25_ps1,
+			{ "PS1# is asserted",
+				"ipmi.picmg25.ps1", FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL }},
+
+		{ &hf_ipmi_picmg_26_pm_site,
+			{ "PM Site Number",
+				"ipmi.picmg26.pm.site", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_picmg_27_rs_byte3,
+			{ "PM Status",
+				"ipmi.picmg26.pm.status", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_picmg_27_pm_healthy,
+			{ "PM is present and healthy",
+				"ipmi.picmg26.pm.hly", FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL }},
+		{ &hf_ipmi_picmg_28_timeout,
+			{ "Time-out",
+				"ipmi.picmg28.timeout", FT_UINT8, BASE_CUSTOM, fmt_100ms, 0, NULL, HFILL }},
+		{ &hf_ipmi_picmg_28_rq_byte3,
+			{ "Flags",
+				"ipmi.picmg28.flags", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_picmg_28_mch2,
+			{ "Use MCH2 PS1# de-assertion to indicate Carrier Manager is extracted",
+				"ipmi.picmg28.mch2", FT_BOOLEAN, 8, NULL, 0x02, NULL, HFILL }},
+		{ &hf_ipmi_picmg_28_mch1,
+			{ "Use MCH1 PS1# de-assertion to indicate Carrier Manager is extracted",
+				"ipmi.picmg28.mch1", FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL }},
+
+		{ &hf_ipmi_picmg_29_rs_byte3,
+			{ "Alarm Capabilities",
+				"ipmi.picmg29.caps", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_picmg_29_maj_rst,
+			{ "Autonomous Major Reset",
+				"ipmi.picmg29.maj.rst", FT_BOOLEAN, 8, TFS(&picmg_29_alarm_actions), 0x80, NULL, HFILL }},
+		{ &hf_ipmi_picmg_29_min_rst,
+			{ "Autonomous Minor Reset",
+			  "ipmi.picmg29.min.rst", FT_BOOLEAN, 8, TFS(&picmg_29_alarm_actions), 0x40, NULL, HFILL }},
+		{ &hf_ipmi_picmg_29_alarm_cut,
+			{ "Autonomous alarm cutoff",
+				"ipmi.picmg29.alrm.cut", FT_BOOLEAN, 8, TFS(&picmg_29_alarm_actions), 0x20, NULL, HFILL }},
+		{ &hf_ipmi_picmg_29_test_mode,
+			{ "Test Mode",
+			  "ipmi.picmg29.test.mode", FT_BOOLEAN, 8, TFS(&picmg_29_alarm_modes), 0x10, NULL, HFILL }},
+		{ &hf_ipmi_picmg_29_pwr_alarm,
+			{ "Power Alarm",
+				"ipmi.picmg29.pwr.alrm", FT_BOOLEAN, 8, TFS(&picmg_29_alarm_modes), 0x08, NULL, HFILL }},
+		{ &hf_ipmi_picmg_29_minor_alarm,
+			{ "Minor Alarm",
+				"ipmi.picmg29.min.alrm", FT_BOOLEAN, 8, TFS(&picmg_29_alarm_modes), 0x04, NULL, HFILL }},
+		{ &hf_ipmi_picmg_29_major_alarm,
+			{ "Minor Alarm",
+				"ipmi.picmg29.maj.alrm", FT_BOOLEAN, 8, TFS(&picmg_29_alarm_modes), 0x02, NULL, HFILL }},
+		{ &hf_ipmi_picmg_29_crit_alarm,
+			{ "Critical Alarm",
+				"ipmi.picmg29.crit.alrm", FT_BOOLEAN, 8, TFS(&picmg_29_alarm_modes), 0x01, NULL, HFILL }},
+
+		{ &hf_ipmi_picmg_2a_alarm_id,
+			{ "Alarm ID",
+				"ipmi.picmg29.alrm.id", FT_UINT8, BASE_HEX, VALS(picmg_2a_alarm_ids), 0, NULL, HFILL }},
+		{ &hf_ipmi_picmg_2a_alarm_ctrl,
+			{ "Alarm Control",
+				"ipmi.picmg29.alrm.ctrl", FT_UINT8, BASE_HEX, VALS(picmg_2a_alarm_ctrls), 0, NULL, HFILL }},
+
+		{ &hf_ipmi_picmg_2b_alarm_state,
+			{ "Alarm State",
+				"ipmi.picmg29.alrm.ctrl", FT_UINT8, BASE_HEX, VALS(picmg_2a_alarm_ctrls), 0, NULL, HFILL }},
+
 	};
 	static gint *ett[] = {
 		&ett_ipmi_picmg_led_color,
 		&ett_ipmi_picmg_link_info,
+		&ett_ipmi_picmg_link_state,
+		&ett_ipmi_picmg_link_dev,
+		&ett_ipmi_picmg_clock_setting,
+		&ett_ipmi_picmg_clock_res,
 		&ett_ipmi_picmg_05_byte1,
 		&ett_ipmi_picmg_06_byte1,
 		&ett_ipmi_picmg_06_byte2,
@@ -2298,6 +3695,15 @@ ipmi_register_picmg(gint proto_ipmi)
 		&ett_ipmi_picmg_34_byte3,
 		&ett_ipmi_picmg_36_byte2,
 		&ett_ipmi_picmg_37_byte2,
+		&ett_ipmi_picmg_hpm_caps,
+		&ett_ipmi_picmg_47_byte1,
+		&ett_ipmi_picmg_23_rq_byte2,
+		&ett_ipmi_picmg_23_rs_byte5,
+		&ett_ipmi_picmg_25_rs_byte4,
+		&ett_ipmi_picmg_25_rs_byte5,
+		&ett_ipmi_picmg_27_rs_byte3,
+		&ett_ipmi_picmg_28_rq_byte3,
+		&ett_ipmi_picmg_29_rs_byte3
 	};
 	static guint8 sig_picmg[1] = { 0 };
 
