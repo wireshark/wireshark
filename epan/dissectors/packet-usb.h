@@ -195,6 +195,9 @@ typedef struct _usb_tap_data_t {
 #define ENDPOINT_TYPE_BULK              2
 #define ENDPOINT_TYPE_INTERRUPT         3
 
+usb_conv_info_t *
+get_usb_conv_info(conversation_t *conversation);
+
 conversation_t *
 get_usb_conversation(packet_info *pinfo,
                      address *src_addr, address *dst_addr,
@@ -219,9 +222,18 @@ dissect_usb_unknown_descriptor(packet_info *pinfo _U_, proto_tree *parent_tree,
                                usb_trans_info_t *usb_trans_info _U_,
                                usb_conv_info_t  *usb_conv_info _U_);
 
+int
+dissect_usb_setup_request(packet_info *pinfo, proto_tree *parent, tvbuff_t *tvb,
+                          int offset, usb_conv_info_t *usb_conv_info, proto_tree **setup_tree);
+
 void
 usb_set_addr(packet_info *pinfo, usb_address_t *src_addr,
              usb_address_t *dst_addr, guint16 device_address, int endpoint,
              gboolean req);
+
+usb_trans_info_t
+*usb_get_trans_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                    guint8 header_info, usb_conv_info_t *usb_conv_info);
+
 
 #endif

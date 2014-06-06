@@ -1032,7 +1032,7 @@ static decode_as_t        usb_protocol_da = {
         decode_as_default_change, NULL};
 
 
-static usb_conv_info_t *
+usb_conv_info_t *
 get_usb_conv_info(conversation_t *conversation)
 {
     usb_conv_info_t *usb_conv_info;
@@ -2618,7 +2618,7 @@ dissect_usb_bmrequesttype(proto_tree *parent_tree, tvbuff_t *tvb, int offset, in
 }
 
 /* Dissector used for usb setup requests */
-static int
+int
 dissect_usb_setup_request(packet_info *pinfo, proto_tree *parent, tvbuff_t *tvb,
                           int offset, usb_conv_info_t *usb_conv_info, proto_tree **setup_tree)
 {
@@ -2842,7 +2842,7 @@ usb_set_addr(packet_info *pinfo, usb_address_t *src_addr,
 /* Gets the transfer info for a given packet
  * Generates transfer info if none exists yet
  * Also adds request/response info to the tree for the given packet */
-static usb_trans_info_t
+usb_trans_info_t
 *usb_get_trans_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     guint8 header_info, usb_conv_info_t *usb_conv_info)
 {

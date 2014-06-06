@@ -519,6 +519,28 @@ static gboolean mausb_is_data_pkt(struct mausb_header *header)
     return MAUSB_PKT_TYPE_DATA == (header->type & MAUSB_PKT_TYPE_MASK);
 }
 
+static gboolean mausb_is_transfer_req(struct mausb_header *header)
+{
+    return TransferReq == header->type;
+}
+
+static gint8 mausb_tx_type(struct mausb_header *header)
+{
+    return (header->u.s.eps_tflags >> MAUSB_TFLAG_OFFSET) & MAUSB_TFLAG_TRANSFER_TYPE;
+}
+
+static gboolean mausb_has_setup_data(struct mausb_header *header)
+{
+    if ((TransferReq == header->type ) &&
+        (mausb_is_from_host(header)) &&
+        (0 == header->u.s.seq_num) &&
+        (MAUSB_TX_TYPE_CTRL == mausb_tx_type(header))) {
+
+        return TRUE;
+    }
+    return FALSE;
+}
+
 /*** EP Handle parsing helper functions */
 
 static guint8 mausb_ep_handle_ep_num(guint16 handle) {
@@ -929,10 +951,17 @@ dissect_mausb_pkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_tree *mausb_tree;
     proto_tree *flags_tree;
     proto_tree *tflags_tree;
+    proto_tree *setup_tree;
     /* Other misc. local variables. */
     struct mausb_header header;
     gint offset = 0;
     gint payload_len;
+
+    /* Variables needed to follow the conversation */
+    usb_conv_info_t      *usb_conv_info = NULL;
+    usb_trans_info_t     *usb_trans_info = NULL;
+    conversation_t       *conversation;
+
 
     memset(&header, 0, sizeof(struct mausb_header));
 
@@ -942,6 +971,7 @@ dissect_mausb_pkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     mausb_num_pdus++;
 
     col_add_str(pinfo->cinfo, COL_INFO, "[");
+    col_set_fence(pinfo->cinfo, COL_INFO);
 
     /*** PROTOCOL TREE ***/
 
@@ -996,8 +1026,25 @@ dissect_mausb_pkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     /* Is the next field a device handle or an endpoint handle */
     header.handle = tvb_get_letohs(tvb, offset);
-    get_mausb_conversation(pinfo, header.handle, mausb_is_data_pkt(&header),
-                                                  mausb_is_from_host(&header));
+
+    /* Once we have the endpoint/device handle,
+     * we can find the right conversation */
+    conversation = get_mausb_conversation(pinfo, header.handle,
+                                          mausb_is_data_pkt(&header),
+                                          mausb_is_from_host(&header));
+
+    /* If there is a usb conversation, find it */
+    if (mausb_is_data_pkt(&header)) {
+
+        usb_conv_info = get_usb_conv_info(conversation);
+
+        /* TODO: set all the usb_conv_info values */
+        usb_conv_info->is_request = mausb_is_transfer_req(&header);
+
+        usb_trans_info = usb_get_trans_info(tvb, pinfo, tree, 0, usb_conv_info);
+        usb_conv_info->usb_trans_info = usb_trans_info;
+    }
+
 
     if (mausb_is_mgmt_pkt(&header)) {
 
@@ -1115,6 +1162,12 @@ dissect_mausb_pkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         /* Presentation Time (iso) */
         /* Number of Segments (iso) */
+
+        /* If this packet contains USB Setup Data */
+        if (mausb_has_setup_data(&header)) {
+            offset = dissect_usb_setup_request(pinfo, mausb_tree, tvb, offset,
+                                               usb_conv_info, &setup_tree);
+        }
 
         /*
          * TODO: dissect MA USB Payload with USB class dissectors
