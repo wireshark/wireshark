@@ -44,7 +44,7 @@ void proto_reg_handoff_mac_mgmt_msg_sbc(void);
 
 /* This is a global variable declared in mac_hd_generic_decoder.c, which determines whether
  *    or not cor2 changes are included */
-extern guint include_cor2_changes;
+extern gboolean include_cor2_changes;
 
 static gint proto_mac_mgmt_msg_sbc_decoder = -1;
 static gint ett_mac_mgmt_msg_sbc_decoder = -1;
