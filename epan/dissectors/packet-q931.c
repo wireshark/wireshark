@@ -2528,7 +2528,7 @@ dissect_q931_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		offset += call_ref_len;
 	}
 	message_type = tvb_get_guint8(tvb, offset);
-	if(have_valid_q931_pi) {
+	if(have_valid_q931_pi && q931_pi) {
 		q931_pi->message_type = message_type;
 	}
 	col_add_str(pinfo->cinfo, COL_INFO, get_message_name(prot_discr, message_type));
