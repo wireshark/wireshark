@@ -867,6 +867,11 @@ static const value_string ieee_802_1qbg_subtypes[] = {
 };
 
 static void
+mdi_power_base(gchar *buf, guint32 value) {
+	g_snprintf(buf, ITEM_LABEL_LENGTH, "%u.%u. Watt", value/10, value%10);
+}
+
+static void
 media_power_base(gchar *buf, guint32 value) {
         g_snprintf(buf, ITEM_LABEL_LENGTH, "%u mW", value * 100);
 }
@@ -877,9 +882,10 @@ media_power_base(gchar *buf, guint32 value) {
 		option = 0 -> Latitude
 		option = 1 -> Longitude
 */
-static gchar *
-get_latitude_or_longitude(int option, guint64 value)
+static void
+get_latitude_or_longitude(gchar *buf, int option, guint64 unmasked_value)
 {
+	guint64 value = (unmasked_value & G_GINT64_CONSTANT(0x03FFFFFFFF000000)) >> 24;
 	guint64 tempValue = value;
 	gboolean negativeNum = FALSE;
 	guint32 integerPortion = 0;
@@ -925,8 +931,18 @@ get_latitude_or_longitude(int option, guint64 value)
 			direction = "East";
 	}
 
-	return wmem_strdup_printf(wmem_packet_scope(), "%u.%04" G_GINT64_MODIFIER "u degrees %s",
-	    integerPortion, tempValue, direction);
+	g_snprintf(buf, ITEM_LABEL_LENGTH, "%u.%04" G_GINT64_MODIFIER "u degrees %s (0x%16" G_GINT64_MODIFIER "X))",
+	    integerPortion, tempValue, direction, value);
+}
+
+static void
+latitude_base(gchar *buf, guint64 value) {
+	get_latitude_or_longitude(buf, 0, value);
+}
+
+static void
+longitude_base(gchar *buf, guint64 value) {
+	get_latitude_or_longitude(buf, 1, value);
 }
 
 /* Dissect Chassis Id TLV (Mandatory) */
@@ -2158,7 +2174,6 @@ dissect_ieee_802_3_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 {
 	guint8 subType;
 	guint8 tempByte;
-	guint16 tempShort;
 	guint32 tempOffset = offset;
 	guint16 tlvLen = tvb_reported_length(tvb)-offset;
 
@@ -2295,7 +2310,7 @@ dissect_ieee_802_3_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 		{
 			subType = ((tempByte & 0x30) >> 4);
 			if (tree)
-				proto_item_append_text(tf, "%s", val_to_str_const(subType, media_power_pse_device, "Reserved"));
+				proto_item_append_text(tf, " %s", val_to_str_const(subType, media_power_pse_device, "Reserved"));
 
 			break;
 		}
@@ -2304,13 +2319,13 @@ dissect_ieee_802_3_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 		{
 			subType = ((tempByte & 0x30) >> 4);
 			if (tree)
-				proto_item_append_text(tf, "%s", val_to_str_const(subType, media_power_pd_device, "Reserved"));
+				proto_item_append_text(tf, " %s", val_to_str_const(subType, media_power_pd_device, "Reserved"));
 
 			break;
 		}
 		default:
 		{
-			proto_item_append_text(tf, "%s", "Unknown");
+			proto_item_append_text(tf, " %s", "Unknown");
 
 			break;
 		}
@@ -2323,16 +2338,14 @@ dissect_ieee_802_3_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 		tempOffset++;
 
 		/* Power Value: 1 to 510 expected  */
-		tempShort = tvb_get_ntohs(tvb, tempOffset);
 		if (tree)
-			proto_tree_add_string_format_value(tree, hf_ieee_802_3_mdi_requested_power, tvb, tempOffset, 2, "", "%u.%u. Watt", tempShort/10, tempShort%10);
+			proto_tree_add_item(tree, hf_ieee_802_3_mdi_requested_power, tvb, tempOffset, 2, ENC_BIG_ENDIAN);
 
 		tempOffset+=2;
 
 		/* Power Value: 1 to 510 expected */
-		tempShort = tvb_get_ntohs(tvb, tempOffset);
 		if (tree)
-			proto_tree_add_string_format_value(tree, hf_ieee_802_3_mdi_allocated_power, tvb, tempOffset, 2, "", "%u.%u. Watt", tempShort/10, tempShort%10);
+			proto_tree_add_item(tree, hf_ieee_802_3_mdi_allocated_power, tvb, tempOffset, 2, ENC_BIG_ENDIAN);
 
 		tempOffset+=2;
 		break;
@@ -2380,7 +2393,6 @@ dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 o
 	guint8 subType;
 	guint8 tempByte;
 	guint32 LCI_Length;
-	guint64 temp64bit = 0;
 
 	proto_tree	*media_flags = NULL;
 	proto_item	*tf = NULL;
@@ -2522,12 +2534,8 @@ dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 o
 				proto_tree_add_item(tree, hf_media_loc_lat_resolution, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
 
 			/* Get latitude */
-			temp64bit = tvb_get_ntoh64(tvb, tempOffset);
-			temp64bit = (temp64bit & G_GINT64_CONSTANT(0x03FFFFFFFF000000)) >> 24;
 			if (tree)
-				proto_tree_add_string_format_value(tree, hf_media_loc_lat, tvb, tempOffset, 5, "", "%s (0x%16" G_GINT64_MODIFIER "X)",
-				    get_latitude_or_longitude(0, temp64bit),
-				    temp64bit);
+				proto_tree_add_item(tree, hf_media_loc_lat, tvb, tempOffset, 5, ENC_BIG_ENDIAN);
 
 			tempOffset += 5;
 
@@ -2536,13 +2544,8 @@ dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 o
 				proto_tree_add_item(tree, hf_media_loc_long_resolution, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
 
 			/* Get longitude */
-			temp64bit = tvb_get_ntoh64(tvb, tempOffset);
-			temp64bit = (temp64bit & G_GINT64_CONSTANT(0x03FFFFFFFF000000)) >> 24;
-
 			if (tree)
-				proto_tree_add_string_format_value(tree, hf_media_loc_long, tvb, tempOffset, 5, "", "%s (0x%16" G_GINT64_MODIFIER "X)",
-				    get_latitude_or_longitude(1,temp64bit),
-				    temp64bit);
+				proto_tree_add_item(tree, hf_media_loc_long, tvb, tempOffset, 5, ENC_BIG_ENDIAN);
 
 			tempOffset += 5;
 
@@ -4059,12 +4062,12 @@ proto_register_lldp(void)
 			VALS(media_power_priority), 0x0F, "Reserved", HFILL }
 		},
 		{ &hf_ieee_802_3_mdi_requested_power,
-			{ "PD Requested Power Value", "lldp.ieee.802_3.mdi_pde_requested", FT_UINT16, BASE_DEC,
-			NULL, 0, NULL, HFILL }
+			{ "PD Requested Power Value", "lldp.ieee.802_3.mdi_pde_requested", FT_UINT16, BASE_CUSTOM,
+			mdi_power_base, 0, NULL, HFILL }
 		},
 		{ &hf_ieee_802_3_mdi_allocated_power,
-			{ "PSE Allocated Power Value", "lldp.ieee.802_3.mdi_pse_allocated", FT_UINT16, BASE_DEC,
-			NULL, 0, NULL, HFILL }
+			{ "PSE Allocated Power Value", "lldp.ieee.802_3.mdi_pse_allocated", FT_UINT16, BASE_CUSTOM,
+			mdi_power_base, 0, NULL, HFILL }
 		},
 		{ &hf_ieee_802_3_aggregation_status,
 			{ "Aggregation Status", "lldp.ieee.802_3.aggregation_status", FT_UINT8, BASE_HEX,
@@ -4219,16 +4222,16 @@ proto_register_lldp(void)
 			NULL, 0xFC, NULL, HFILL }
 		},
 		{ &hf_media_loc_lat,
-			{ "Latitude", "lldp.media.loc.latitude", FT_STRING, BASE_NONE,
-			NULL, 0x0, NULL, HFILL }
+			{ "Latitude", "lldp.media.loc.latitude", FT_UINT64, BASE_CUSTOM,
+			latitude_base, 0x0, NULL, HFILL }
 		},
 		{ &hf_media_loc_long_resolution,
 			{ "Longitude Resolution", "lldp.media.loc.long_resolution", FT_UINT8, BASE_DEC,
 			NULL, 0xFC, NULL, HFILL }
 		},
 		{ &hf_media_loc_long,
-			{ "Longitude", "lldp.media.loc.longitude", FT_STRING, BASE_NONE,
-			NULL, 0x0, NULL, HFILL }
+			{ "Longitude", "lldp.media.loc.longitude", FT_UINT64, BASE_CUSTOM,
+			longitude_base, 0x0, NULL, HFILL }
 		},
 		{ &hf_media_loc_alt_type,
 			{ "Altitude Type", "lldp.media.loc.alt_type", FT_UINT8, BASE_DEC,
@@ -4241,6 +4244,10 @@ proto_register_lldp(void)
 		{ &hf_media_loc_alt,
 			{ "Altitude", "lldp.media.loc.altitude", FT_UINT32, BASE_DEC,
 			NULL, 0x03FFFFFFF, NULL, HFILL }
+		},
+		{ &hf_media_loc_datum,
+			{ "Datum", "lldp.media.loc.datum", FT_UINT8, BASE_DEC,
+			NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_media_civic_lci_length,
 			{ "LCI Length", "lldp.media.civic.lenth", FT_UINT8, BASE_DEC,
