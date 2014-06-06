@@ -30,6 +30,8 @@ The following features are new (or have been significantly updated)
 since version 1.11.3:
 
 * Transport name resolution is now disabled by default.
+* Support has been added for all versions of the DCBx protocol.
+* Cleanup of LLDP code, all dissected fields are now navigable.
 
 The following features are new (or have been significantly updated)
 since version 1.11.2:
