@@ -90,7 +90,7 @@ since version 1.10:
 * The Kerberos dissector has been replaced with an auto generated one from ASN1
   protocol description, changing a lot of filter names.  
 
-=== Removed Dissectors
+//=== Removed Dissectors
 
 
 === New Protocol Support
