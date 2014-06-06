@@ -14,7 +14,7 @@ DEB_HOST_MULTIARCH ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
 VERSION := $(shell dpkg-parsechangelog | sed -n 's/^Version: \(.*\)-.*/\1/p')
 export docdir = /usr/share/doc/wireshark-doc
 %:
-	dh $@ --with python2 --buildsystem cmake # --parallel
+	dh $@ --with python2 --buildsystem cmake --with quilt # --parallel
 
 override_dh_auto_configure:
 	dh_auto_configure -- -DENABLE_GUIDES=ON -DCMAKE_INSTALL_LIBDIR=/usr/lib/$(DEB_HOST_MULTIARCH) \
