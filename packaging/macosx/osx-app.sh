@@ -38,9 +38,6 @@
 strip=false
 binary_path="/tmp/inst/bin"
 plist="./Info.plist"
-util_dir="./Utilities"
-cli_dir="$util_dir/Command Line"
-chmodbpf_dir="$util_dir/ChmodBPF"
 exclude_prefixes="/System/|/Library/|/usr/lib/|/usr/X11/|/opt/X11/|@rpath|@executable_path"
 
 
@@ -225,8 +222,6 @@ mkdir -p "$pkgqtplugin"
 mkdir -p "$pkgplugin"
 mkdir -p "$pkgpython"
 
-mkdir -p "$cli_dir"
-
 if [ "$ui_toolkit" = "qt" ] ; then
 	cp "$binary_path/$wireshark_bin_name" "$pkgexec/Wireshark"
 else
@@ -248,9 +243,6 @@ fi
 #----------------------------------------------------------
 echo -e "\nFilling app bundle and utility directory...\n"
 
-# CLI wrapper
-cp -v utility-launcher "$cli_dir/wireshark"
-
 # Wireshark executables
 if [ "$ui_toolkit" = "gtk" ] ; then
 	for binary in $binary_list wireshark ; do
@@ -262,7 +254,6 @@ if [ "$ui_toolkit" = "gtk" ] ; then
 
 		if [ "$binary" != "wireshark" ] ; then
 			ln -sv ./wireshark "$pkgbin/$binary"
-			ln -sv ./wireshark "$cli_dir/$binary"
 		fi
 	done
 elif [ "$ui_toolkit" = "qt" ] ; then
@@ -272,11 +263,6 @@ elif [ "$ui_toolkit" = "qt" ] ; then
 		cs_binary_list="$cs_binary_list $pkgexec/$binary"
 	done
 fi
-
-# ChmodBPF
-mkdir -p "$chmodbpf_dir"
-cp -v ChmodBPF/* "$chmodbpf_dir"
-chmod -R g-w "$chmodbpf_dir"
 
 # The rest of the Wireshark installation (we handled bin above)
 rsync -av \
