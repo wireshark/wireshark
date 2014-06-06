@@ -605,9 +605,11 @@ if [ -n "$CODE_SIGN_IDENTITY" ] ; then
 		codesign_file "$binary"
 	done
 	echo "Signing frameworks"
-	for framework in $pkglib/*.framework/Versions/*/* ; do
-		codesign_file "$framework"
-	done
+	if [ "$ui_toolkit" = "qt" ] ; then
+		for framework in $pkglib/*.framework/Versions/*/* ; do
+			codesign_file "$framework"
+		done
+	fi
 	echo "Signing libraries"
 	for library in $pkglib/*.dylib ; do
 		codesign_file "$library"
