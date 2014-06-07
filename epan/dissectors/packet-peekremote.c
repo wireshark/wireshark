@@ -573,7 +573,7 @@ proto_reg_handoff_peekremote(void)
 {
   dissector_handle_t peekremote_handle;
 
-  ieee80211_handle = find_dissector("wlan_datapad_withfcs");
+  ieee80211_handle = find_dissector("wlan_withfcs");
 
   peekremote_handle = new_create_dissector_handle(dissect_peekremote_legacy, proto_peekremote);
   dissector_add_uint("udp.port", 5000, peekremote_handle);
