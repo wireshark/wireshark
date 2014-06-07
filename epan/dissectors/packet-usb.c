@@ -3037,7 +3037,7 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
                 type_2 = USB_TYPE(tvb_get_guint8(tvb, offset));
 
                 /* Dissect the setup header - it's applicable */
-                offset = dissect_usb_setup_request(pinfo, tree, tvb, offset, usb_conv_info, &setup_tree);
+                offset = dissect_usb_setup_request(pinfo, parent, tvb, offset, usb_conv_info, &setup_tree);
 
                 if (type_2 != RQT_SETUP_TYPE_CLASS) {
                     usb_tap_queue_packet(pinfo, urb_type, usb_conv_info);
