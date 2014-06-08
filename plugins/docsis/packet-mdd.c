@@ -1,7 +1,8 @@
 /* packet-mdd.c
- * Routines for MDD Message dissection
- * Copyright 2007, Bruno Verstuyft  <bruno.verstuyft@excentis.com>
  *
+ * Routines for MDD Message dissection
+ * Copyright 2014, Adrian Simionov <adrian.simionov@arrisi.com>
+ * Copyright 2007, Bruno Verstuyft <bruno.verstuyft@excentis.com>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -25,7 +26,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
-
+#include <epan/tfs.h>
 
 #define DOWNSTREAM_ACTIVE_CHANNEL_LIST 1
 #define MAC_DOMAIN_DOWNSTREAM_SERVICE_GROUP 2
@@ -41,6 +42,7 @@
 #define UPSTREAM_TRANSMIT_POWER_REPORTING 12
 #define DSG_DA_TO_DSID_ASSOCIATION_ENTRY 13
 #define CM_STATUS_EVENT_ENABLE_NON_CHANNEL_SPECIFIC_EVENTS 15
+#define EXTENDED_UPSTREAM_TRANSMIT_POWER_SUPPORT 16
 
 /*Downstream Active Channel List*/
 #define DOWNSTREAM_ACTIVE_CHANNEL_LIST_CHANNEL_ID 1
@@ -125,7 +127,6 @@
 #define CM_DOESNT_REPORT_TRANSMIT_POWER 0
 #define CM_REPORTS_TRANSMIT_POWER 1
 
-
 /*Dsg DA to DSID association entry*/
 #define DSG_DA_TO_DSID_ASSOCIATION_DA 1
 #define DSG_DA_TO_DSID_ASSOCIATION_DSID 2
@@ -168,9 +169,9 @@ static const value_string mdd_tlv_vals[] = {
 	 {CM_STATUS_EVENT_CONTROL  , "CM-STATUS Event Control"},
 	 {UPSTREAM_TRANSMIT_POWER_REPORTING  , "Upstream Transmit Power Reporting"},
 	 {DSG_DA_TO_DSID_ASSOCIATION_ENTRY  , "DSG DA-to-DSID Association Entry"},
-	 {CM_STATUS_EVENT_ENABLE_NON_CHANNEL_SPECIFIC_EVENTS  ,
-		"CM-STATUS Event Enable for Non-Channel-Specific-Events"},
-	{0, NULL}
+	 {CM_STATUS_EVENT_ENABLE_NON_CHANNEL_SPECIFIC_EVENTS  , "CM-STATUS Event Enable for Non-Channel-Specific-Events"},
+	 {EXTENDED_UPSTREAM_TRANSMIT_POWER_SUPPORT  , "Extended Upstream Transmit Power Support"},
+	 {0, NULL}
 };
 
 
@@ -232,8 +233,6 @@ static const value_string upstream_transmit_power_reporting_vals[] = {
 	{0, NULL}
 };
 
-
-
 /* Initialize the protocol and registered fields */
 static int proto_docsis_mdd = -1;
 static int hf_docsis_mdd_ccc = -1;
@@ -290,6 +289,8 @@ static int hf_docsis_mdd_dsg_da_to_dsid_association_dsid = -1;
 static int hf_docsis_mdd_cm_status_event_enable_non_channel_specific_events_sequence_out_of_range = -1;
 static int hf_docsis_mdd_cm_status_event_enable_non_channel_specific_events_cm_operating_on_battery_backup = -1;
 static int hf_docsis_mdd_cm_status_event_enable_non_channel_specific_events_cm_returned_to_ac_power = -1;
+
+static int hf_docsis_mdd_extended_upstream_transmit_power_support = -1;
 
 
 /* Initialize the subtree pointers */
@@ -521,6 +522,10 @@ dissect_mdd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 					proto_tree_add_item (tlv_sub_tree, hf_docsis_mdd_cm_status_event_enable_non_channel_specific_events_cm_operating_on_battery_backup, tvb, subpos , 2,ENC_BIG_ENDIAN);
 					proto_tree_add_item (tlv_sub_tree, hf_docsis_mdd_cm_status_event_enable_non_channel_specific_events_cm_returned_to_ac_power, tvb, subpos , 2,ENC_BIG_ENDIAN);
 					break;
+				case EXTENDED_UPSTREAM_TRANSMIT_POWER_SUPPORT:
+					subpos = pos + 2;
+					proto_tree_add_item (tlv_tree, hf_docsis_mdd_extended_upstream_transmit_power_support, tvb, subpos, 1, ENC_BIG_ENDIAN);
+					break;
 			}
 			pos += length + 2;
 	  	}
@@ -725,6 +730,11 @@ void proto_register_docsis_mdd (void)
 		{"Returned to AC power", "docsis_mdd.cm_status_event_enable_non_channel_specific_events_cm_returned_to_ac_power",
 		FT_UINT16, BASE_DEC, NULL, 0x0400,
 		"CM-STATUS event non-channel-event Cm returned to AC power", HFILL}
+		},
+		{&hf_docsis_mdd_extended_upstream_transmit_power_support,
+			{ "Extended Upstream Transmit Power Support", "docsis_mdd.extended_upstream_transmit_power_support",
+			FT_BOOLEAN, BASE_NONE, TFS(&tfs_on_off), 0x0,
+			"Mdd Extended Upstream Transmit Power Support", HFILL}
 		},
 
 	};
