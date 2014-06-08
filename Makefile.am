@@ -731,26 +731,13 @@ EXTRA_DIST = \
 	debian/copyright	\
 	debian/dirs		\
 	debian/headers-check.c	\
-	debian/patches/00list	\
 	debian/postinst		\
-	debian/pycompat		\
-	debian/pyversions	\
 	debian/rules		\
-	debian/README.source	\
-	debian/tshark.files	\
 	debian/tshark.manpages	\
-	debian/watch		\
-	debian/wireshark-common.files \
 	debian/wireshark-common.manpages \
-	debian/wireshark-common.shlibs \
 	debian/wireshark-dev.docs \
-	debian/wireshark-dev.files \
-	debian/wireshark-dev.header-files \
 	debian/wireshark-dev.manpages \
 	debian/wireshark-dev.prerm \
-	debian/wireshark-root.desktop \
-	debian/wireshark.desktop \
-	debian/wireshark.files \
 	debian/wireshark.manpages \
 	debian/wireshark.menu	\
 	dfilters		\
