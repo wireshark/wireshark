@@ -67,7 +67,7 @@
     <!-- loop trough all proto tags, but skip the "geninfo" one -->
     <xsl:for-each select="proto[@name!='geninfo']">
 
-      <xsl:variable name="proto" select="concat($frame_id,@name)"/>
+      <xsl:variable name="proto" select="concat($frame_id,@name,count(preceding-sibling::proto)+1)"/>
 
       <!-- the "title" bar of the proto -->
       <div width="100%" style="background-color:#e5e5e5; margin-bottom: 2px">
