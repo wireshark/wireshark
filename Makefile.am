@@ -1159,6 +1159,7 @@ rpm-package: dist
 
 debian-package: debian/rules
 	@if test x$(HAVE_DPKG_BUILDPACKAGE) = xyes ; then \
+		rm -f config.h ; \
 		dpkg-buildpackage -rfakeroot -us -uc ; \
 	else \
 		echo "Error: Debian packaging tools not found." ; \
