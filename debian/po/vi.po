@@ -1,4 +1,4 @@
-# Vietnamese translation for Wire Shark.
+# Vietnamese translation for Wireshark.
 # Copyright © 2010 Free Software Foundation, Inc.
 # Clytie Siddall <clytie@riverland.net.au>, 2009-2010.
 #
