@@ -34,6 +34,7 @@ The following bugs have been fixed:
 //* Wireshark will practice the jazz flute for hours on end when you're trying to sleep. (ws-buglink:0000[])
 * TCAP: set a fence on info column after calling sub dissector (ws-buglink:10091[])
 * GSM RLC MAC: do not skip too many lines of the CSN_DESCR when the field is missing (ws-buglink:10120[])
+* IEEE 802.11: fix dissection of HT Capabilities (ws-buglink:10166[])
 
 === New and Updated Features
 
