@@ -8265,6 +8265,7 @@ lutcp            4913/tcp # LUTher Control Protocol [Markus_Loeffler] [Markus_Lo
 bones            4914/tcp # Bones Remote Control [Andreas_Foedrowitz] [Andreas_Foedrowitz] 2008-06-18
 bones            4914/udp # Bones Remote Control [Andreas_Foedrowitz] [Andreas_Foedrowitz] 2008-06-18
 frcs             4915/tcp # Fibics Remote Control Service [Ken_Lagarec] [Ken_Lagarec] 2009-04-17
+an-signaling     4936/udp # Signal protocol port for autonomic networking [Cisco_systems_3] [Toerless_Eckert_2] 2014-06-06
 atsc-mh-ssc      4937/udp # ATSC-M/H Service Signaling Channel [Jerry_Whitaker] [Jerry_Whitaker] 2008-10-27
 eq-office-4940   4940/tcp # Equitrac Office
 eq-office-4940   4940/udp # Equitrac Office
@@ -8449,6 +8450,7 @@ oms-nonsecure    5102/udp # Oracle OMS non-secure [Todd_Guay] [Todd_Guay] 2005-0
 actifio-c2c      5103/tcp # Actifio C2C [Ravi_Kollipara] [Ravi_Kollipara] 2010-06-18
 tinymessage      5104/udp # TinyMessage [Josip_Medved] [Josip_Medved] 2010-10-20
 hughes-ap        5105/udp # Hughes Association Protocol [Varun_Santosh] [Varun_Santosh] 2010-10-20
+actifioudsagent  5106/tcp # Actifio UDS Agent [Actifio] [Madhav_Mutalik] 2014-06-05
 taep-as-svc      5111/tcp # TAEP AS service [Liu_Changchun] [Liu_Changchun] 2008-11-05
 taep-as-svc      5111/udp # TAEP AS service [Liu_Changchun] [Liu_Changchun] 2008-11-05
 pm-cmdsvr        5112/tcp # PeerMe Msg Cmd Service [Marcos_Della] [Marcos_Della] 2005-08
