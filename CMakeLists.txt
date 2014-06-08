@@ -427,10 +427,6 @@ endif()
 # - set HAVE_XXX
 
 #The minimum package list
-if (NOT WIN32)
-	set(PACKAGELIST Gettext M)
-	set(M_REQUIRED TRUE)
-endif()
 set(PACKAGELIST GLIB2 GMODULE2 GTHREAD2 LEX YACC Perl SED SH PythonInterp)
 set(GLIB2_REQUIRED TRUE)
 set(GLIB2_FIND_REQUIRED TRUE)
@@ -438,6 +434,10 @@ set(GLIB2_MIN_VERSION 2.14.0)
 set(GTHREAD2_REQUIRED TRUE)
 set(PythonInterp_FIND_VERSION 2)
 set(Python_ADDITIONAL_VERSIONS 3)
+if (NOT WIN32)
+	set(PACKAGELIST ${PACKAGELIST} Gettext M)
+	set(M_REQUIRED TRUE)
+endif()
 
 set(PACKAGELIST ${PACKAGELIST} HtmlViewer)
 
