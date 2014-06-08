@@ -12196,13 +12196,13 @@ dissect_ht_capability_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
     cap_item = proto_tree_add_item(tree, hf_ieee80211_htex_cap, tvb, offset, 2, ENC_LITTLE_ENDIAN);
   }
   cap_tree = proto_item_add_subtree(cap_item, ett_htex_cap_tree);
-  proto_tree_add_item(cap_tree, hf_ieee80211_htex_pco, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(cap_tree, hf_ieee80211_htex_transtime, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-  offset += 1;
-  proto_tree_add_item(cap_tree, hf_ieee80211_htex_mcs, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(cap_tree, hf_ieee80211_htex_htc_support, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(cap_tree, hf_ieee80211_htex_rd_responder, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-  offset += 1;
+  proto_tree_add_item(cap_tree, hf_ieee80211_htex_pco, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(cap_tree, hf_ieee80211_htex_transtime, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+
+  proto_tree_add_item(cap_tree, hf_ieee80211_htex_mcs, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(cap_tree, hf_ieee80211_htex_htc_support, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(cap_tree, hf_ieee80211_htex_rd_responder, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  offset += 2;
 
 
   /* 4 byte TxBF capabilities */
@@ -12213,33 +12213,30 @@ dissect_ht_capability_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
     cap_item = proto_tree_add_item(tree, hf_ieee80211_txbf, tvb, offset, 4, ENC_LITTLE_ENDIAN);
   }
   cap_tree = proto_item_add_subtree(cap_item, ett_txbf_tree);
-  proto_tree_add_item(cap_tree, hf_ieee80211_txbf_cap, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(cap_tree, hf_ieee80211_txbf_rcv_ssc, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(cap_tree, hf_ieee80211_txbf_tx_ssc, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(cap_tree, hf_ieee80211_txbf_rcv_ndp, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(cap_tree, hf_ieee80211_txbf_tx_ndp, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(cap_tree, hf_ieee80211_txbf_impl_txbf, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(cap_tree, hf_ieee80211_txbf_calib, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-  offset += 1;
+  proto_tree_add_item(cap_tree, hf_ieee80211_txbf_cap, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(cap_tree, hf_ieee80211_txbf_rcv_ssc, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(cap_tree, hf_ieee80211_txbf_tx_ssc, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(cap_tree, hf_ieee80211_txbf_rcv_ndp, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(cap_tree, hf_ieee80211_txbf_tx_ndp, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(cap_tree, hf_ieee80211_txbf_impl_txbf, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(cap_tree, hf_ieee80211_txbf_calib, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 
-  proto_tree_add_item(cap_tree, hf_ieee80211_txbf_expl_csi, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(cap_tree, hf_ieee80211_txbf_expl_uncomp_fm, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(cap_tree, hf_ieee80211_txbf_expl_comp_fm, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(cap_tree, hf_ieee80211_txbf_expl_bf_csi, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(cap_tree, hf_ieee80211_txbf_expl_uncomp_fm_feed, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(cap_tree, hf_ieee80211_txbf_expl_comp_fm_feed, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-  offset += 1;
+  proto_tree_add_item(cap_tree, hf_ieee80211_txbf_expl_csi, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(cap_tree, hf_ieee80211_txbf_expl_uncomp_fm, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(cap_tree, hf_ieee80211_txbf_expl_comp_fm, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(cap_tree, hf_ieee80211_txbf_expl_bf_csi, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(cap_tree, hf_ieee80211_txbf_expl_uncomp_fm_feed, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(cap_tree, hf_ieee80211_txbf_expl_comp_fm_feed, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 
-  proto_tree_add_item(cap_tree, hf_ieee80211_txbf_min_group, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(cap_tree, hf_ieee80211_txbf_csi_num_bf_ant, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(cap_tree, hf_ieee80211_txbf_uncomp_sm_bf_ant, tvb, offset, 1,  ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(cap_tree, hf_ieee80211_txbf_comp_sm_bf_ant, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-  offset += 1;
+  proto_tree_add_item(cap_tree, hf_ieee80211_txbf_min_group, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(cap_tree, hf_ieee80211_txbf_csi_num_bf_ant, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(cap_tree, hf_ieee80211_txbf_uncomp_sm_bf_ant, tvb, offset, 4,  ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(cap_tree, hf_ieee80211_txbf_comp_sm_bf_ant, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 
-  proto_tree_add_item(cap_tree, hf_ieee80211_txbf_csi_max_rows_bf, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(cap_tree, hf_ieee80211_txbf_chan_est, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(cap_tree, hf_ieee80211_txbf_resrv, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-  offset += 1;
+  proto_tree_add_item(cap_tree, hf_ieee80211_txbf_csi_max_rows_bf, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(cap_tree, hf_ieee80211_txbf_chan_est, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(cap_tree, hf_ieee80211_txbf_resrv, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+  offset += 4;
 
   /* 1 byte Antenna Selection (ASEL) capabilities */
   if (vendorspecific)
@@ -22280,12 +22277,12 @@ proto_register_ieee80211 (void)
 
     {&hf_ieee80211_txbf,
      {"Transmit Beam Forming (TxBF) Capabilities", "wlan_mgt.txbf",
-      FT_UINT16, BASE_HEX, NULL, 0,
+      FT_UINT32, BASE_HEX, NULL, 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_txbf_vs,
      {"Transmit Beam Forming (TxBF) Capabilities (VS)", "wlan_mgt.vs.txbf",
-      FT_UINT16, BASE_HEX, NULL, 0,
+      FT_UINT32, BASE_HEX, NULL, 0,
       "Vendor Specific Transmit Beam Forming (TxBF) Capabilities", HFILL }},
 
     {&hf_ieee80211_txbf_cap,
