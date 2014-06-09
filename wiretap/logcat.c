@@ -63,31 +63,33 @@ static gchar *logcat_log(const struct dumper_t *dumper, guint32 seconds,
 
     switch (dumper->type) {
         case DUMP_BRIEF:
-            return g_strdup_printf("%c/%s(%5i): %s\n",
+            return g_strdup_printf("%c/%-8s(%5i): %s\n",
                     priority, tag, pid, log);
         case DUMP_PROCESS:
+            /* NOTE: Last parameter should be "process name", not tag;
+                     Unfortunately, we do not have process name */
             return g_strdup_printf("%c(%5i) %s  (%s)\n",
-                    priority, pid, log, tag);
+                    priority, pid, log, "");
         case DUMP_TAG:
-            return g_strdup_printf("%c/%s: %s\n",
+            return g_strdup_printf("%c/%-8s: %s\n",
                    priority, tag, log);
         case DUMP_THREAD:
-            return g_strdup_printf("%c(%5i:%5i) %s\n",
+            return g_strdup_printf("%c(%5i:0x%02x) %s\n",
                     priority, pid, tid, log);
         case DUMP_TIME:
             strftime(time_buffer, sizeof(time_buffer), "%m-%d %H:%M:%S",
                     gmtime(&datetime));
-            return g_strdup_printf("%s.%03i %c/%s(%5i): %s\n",
+            return g_strdup_printf("%s.%03i %c/%-8s(%5i): %s\n",
                     time_buffer, microseconds, priority, tag, pid, log);
         case DUMP_THREADTIME:
             strftime(time_buffer, sizeof(time_buffer), "%m-%d %H:%M:%S",
                     gmtime(&datetime));
-            return g_strdup_printf("%s.%03i %5i:%5i %c %s: %s\n",
+            return g_strdup_printf("%s.%03i %5i %5i %c %-8s: %s\n",
                     time_buffer, microseconds, pid, tid, priority, tag, log);
         case DUMP_LONG:
             strftime(time_buffer, sizeof(time_buffer), "%m-%d %H:%M:%S",
                     gmtime(&datetime));
-            return g_strdup_printf("[ %s.%03i %5i:%5i %c/%s ]\n%s\n\n",
+            return g_strdup_printf("[ %s.%03i %5i:0x%02x %c/%s ]\n%s\n\n",
                     time_buffer, microseconds, pid, tid, priority, tag, log);
         default:
             return NULL;
@@ -380,8 +382,8 @@ static gboolean logcat_dump_text(wtap_dumper *wdh,
     str_begin = str_end = log;
     while (dumper->type != DUMP_LONG && (str_end = strchr(str_begin, '\n'))) {
         log_part = (gchar *) g_malloc(str_end - str_begin + 1);
-        g_strlcpy(log_part, str_begin, str_end - str_begin);
-        log_part[str_end - str_begin] = '\0';
+        g_strlcpy(log_part, str_begin, str_end - str_begin + 1);
+//        log_part[str_end - str_begin] = '\0';
         str_begin = str_end + 1;
 
         buf = logcat_log(dumper, *datetime, *nanoseconds / 1000000, *pid, *tid,
@@ -405,8 +407,8 @@ static gboolean logcat_dump_text(wtap_dumper *wdh,
 
     if (*str_begin != '\0') {
         log_part = (gchar *) g_malloc(strlen(str_begin) + 1);
-        g_strlcpy(log_part, str_begin, strlen(str_begin));
-        log_part[strlen(str_begin)] = '\0';
+        g_strlcpy(log_part, str_begin, strlen(str_begin) + 1);
+//        log_part[strlen(str_begin)] = '\0';
 
         buf = logcat_log(dumper, *datetime, *nanoseconds / 1000000, *pid, *tid,
                 priority, tag, log_part);
