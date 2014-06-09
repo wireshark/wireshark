@@ -389,7 +389,7 @@ dissect_fcp_cmnd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, pro
     guint8       flags, rwflags, lun0;
     guint16      lun     = 0xffff;
     tvbuff_t    *cdb_tvb;
-    int          tvb_len, tvb_rlen;
+    int          tvb_len;
     fcp_request_data_t *request_data = NULL;
     itl_nexus_t itl;
     fcp_proto_data_t *proto_data;
@@ -483,9 +483,6 @@ dissect_fcp_cmnd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, pro
     tvb_len = tvb_length_remaining(tvb, offset+12);
     if (tvb_len > (16 + add_len))
       tvb_len = 16 + add_len;
-    tvb_rlen = tvb_reported_length_remaining(tvb, offset+12);
-    if (tvb_rlen > (16 + add_len))
-      tvb_rlen = 16 + add_len;
 
     itl.cmdset = 0xff;
     itl.conversation = conversation;
