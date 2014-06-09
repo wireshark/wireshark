@@ -16,15 +16,15 @@ The following vulnerabilities have been fixed.
 //* ws-salink:2013-11[]
 //* cve-idlink:2013-2486[]
 
-* ws-salink:2014-07[]
-+
-A dissector went awry.
+//* ws-salink:2014-07[]
+//+
+//A dissector went awry.
 // Fixed in master: ga1b2c3d4
 // Fixed in master-1.10: ga1b2c3d4
 // Fixed in master-1.8: ga1b2c3d4
-(ws-buglink:0000[])
-+
-Versions affected: 1.10.0 to 1.10.7, 1.8.0 to 1.8.14
+//(ws-buglink:0000[])
+//+
+//Versions affected: 1.10.0 to 1.10.7, 1.8.0 to 1.8.14
 //+
 //cve-idlink:2014-0000[]
 
@@ -34,7 +34,12 @@ The following bugs have been fixed:
 //* Wireshark will strip the paint off your car, then apply a hideous
 //flame job to the hood and fenders using gray, red, and black primer.
 //(ws-buglink:0000[])
+
+* Tshark with "-F pcap" still generates a pcapng file. (ws-buglink:9991[])
+* IPv6 Next Header 0x3d recognized as SHIM6. (ws-buglink:9995[])
+* Pcap-ng PB/EPB with caplen > len shouldn't be treated as an error. (ws-buglink:10037[])
 * TCAP: set a fence on info column after calling sub dissector (ws-buglink:10091[])
+* Wireshark PEEKREMOTE incorrectly decoding QoS data packets from Cisco Sniffer APs. (ws-buglink:10139[])
 * IEEE 802.11: fix dissection of HT Capabilities (ws-buglink:10166[])
 
 === New and Updated Features
@@ -49,7 +54,9 @@ There are no new protocols in this release.
 
 --sort-and-group--
 
-.
+IEEE 802.11
+TCAP
+IPv6
 
 --sort-and-group--
 
@@ -57,7 +64,8 @@ There are no new protocols in this release.
 
 --sort-and-group--
 
-There are no changes in this release.
+PEEKREMOTE
+pcap-ng
 
 --sort-and-group--
 
