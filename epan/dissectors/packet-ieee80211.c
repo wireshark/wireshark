@@ -659,6 +659,7 @@ enum fixed_field {
   FIELD_LLT,
   FIELD_FSTS_ID,
   FIELD_OCT_MMPDU,
+  FIELD_VHT_ACTION,
                                               /* add any new fixed field value above this line */
   MAX_FIELD_NUM
 };
@@ -1380,6 +1381,7 @@ static value_string_ext aruba_mgt_typevals_ext = VALUE_STRING_EXT_INIT(aruba_mgt
 #define CAT_FAST_SESSION_TRANSFER 18
 #define CAT_ROBUST_AV_STREAMING   19
 #define CAT_UNPROTECTED_DMG       20
+#define CAT_VHT                   21
 #define CAT_VENDOR_SPECIFIC_PROTECTED 126
 #define CAT_VENDOR_SPECIFIC     127
 
@@ -2196,6 +2198,7 @@ static const value_string category_codes[] = {
   {CAT_FAST_SESSION_TRANSFER,            "Fast Session Transfer"},
   {CAT_ROBUST_AV_STREAMING,              "Robust AV Streaming"},
   {CAT_UNPROTECTED_DMG,                  "Unprotected DMG"},
+  {CAT_VHT,                              "VHT"},
   {CAT_VENDOR_SPECIFIC_PROTECTED,        "Vendor-specific Protected"},
   {CAT_VENDOR_SPECIFIC,                  "Vendor Specific"},
 
@@ -2220,6 +2223,7 @@ static const value_string category_codes[] = {
   {0x80 | CAT_FAST_SESSION_TRANSFER,     "Fast Session Transfer (error)"},
   {0x80 | CAT_ROBUST_AV_STREAMING,       "Robust AV Streaming (error)"},
   {0x80 | CAT_UNPROTECTED_DMG,           "Unprotected DMG (error)"},
+  {0x80 | CAT_VHT,                       "VHT"},
   {0x80 | CAT_VENDOR_SPECIFIC_PROTECTED, "Vendor-specific Protected (error)"},
   {0x80 | CAT_VENDOR_SPECIFIC,           "Vendor Specific (error)"},
   {0, NULL}
@@ -3072,6 +3076,64 @@ static const value_string operat_mode_field_rxnss[] = {
   {0x7, "8Nss"},
   {0, NULL}
 };
+
+#define VHT_ACT_VHT_COMPRESSED_BEAMFORMING  0
+#define VHT_ACT_GROUP_ID_MANAGEMENT         1
+#define VHT_ACT_OPERATION_MODE_NOTIFICATION 2
+
+static const value_string vht_action_vals[] = {
+  {VHT_ACT_VHT_COMPRESSED_BEAMFORMING, "VHT Compressed Beamforming"},
+  {VHT_ACT_GROUP_ID_MANAGEMENT, "Group ID Management"},
+  {VHT_ACT_OPERATION_MODE_NOTIFICATION, "Operating Mode Notification"},
+  {0,   NULL}
+};
+
+static const value_string ff_vht_mimo_cntrl_nc_index_vals[] = {
+  {0x00, "1 Column"},
+  {0x01, "2 Columns"},
+  {0x02, "3 Columns"},
+  {0x03, "4 Columns"},
+  {0x04, "5 Columns"},
+  {0x05, "6 Columns"},
+  {0x06, "7 Columns"},
+  {0x07, "8 Columns"},
+  {0, NULL}
+};
+
+static const value_string ff_vht_mimo_cntrl_nr_index_vals[] = {
+  {0x00, "1 Row"},
+  {0x01, "2 Rows"},
+  {0x02, "3 Rows"},
+  {0x03, "4 Rows"},
+  {0x04, "5 Rows"},
+  {0x05, "6 Rows"},
+  {0x06, "7 Rows"},
+  {0x07, "8 Rows"},
+  {0, NULL}
+};
+
+static const value_string ff_vht_mimo_cntrl_channel_width_vals[] = {
+  {0x00, "20 MHz"},
+  {0x01, "40 MHz"},
+  {0x02, "80 MHz"},
+  {0x03, "160 MHz / 80+80 Mhz"},
+  {0, NULL}
+};
+
+static const value_string ff_vht_mimo_cntrl_grouping_vals[] = {
+  {0x00, "1 (No Grouping)"},
+  {0x01, "2"},
+  {0x02, "4"},
+  {0x03, "Reserved"},
+  {0, NULL}
+};
+
+static const value_string ff_vht_mimo_cntrl_feedback_vals[] = {
+  {0x00, "SU"},
+  {0x01, "MU"},
+  {0, NULL}
+};
+
 
 static int proto_wlan = -1;
 static int proto_aggregate = -1;
@@ -4145,6 +4207,23 @@ static int hf_ieee80211_vht_ndp_annc_sta_info_feedback_type = -1;
 static int hf_ieee80211_vht_ndp_annc_sta_info_nc_index = -1;
 static int hf_ieee80211_vht_ndp_annc_sta_info_reserved = -1;
 
+
+static int hf_ieee80211_ff_vht_action = -1;
+static int hf_ieee80211_ff_vht_mimo_cntrl = -1;
+static int hf_ieee80211_ff_vht_mimo_cntrl_nc_index = -1;
+static int hf_ieee80211_ff_vht_mimo_cntrl_nr_index = -1;
+static int hf_ieee80211_ff_vht_mimo_cntrl_channel_width = -1;
+static int hf_ieee80211_ff_vht_mimo_cntrl_grouping = -1;
+static int hf_ieee80211_ff_vht_mimo_cntrl_codebook_info = -1;
+static int hf_ieee80211_ff_vht_mimo_cntrl_feedback_type = -1;
+static int hf_ieee80211_ff_vht_mimo_cntrl_remaining_feedback_seg = -1;
+static int hf_ieee80211_ff_vht_mimo_cntrl_first_feedback_seg = -1;
+static int hf_ieee80211_ff_vht_mimo_cntrl_reserved = -1;
+static int hf_ieee80211_ff_vht_mimo_cntrl_sounding_dialog_token_number = -1;
+static int hf_ieee80211_vht_compressed_beamforming_report = -1;
+static int hf_ieee80211_vht_group_id_management = -1;
+static int hf_ieee80211_vht_operation_mode_notification = -1;
+
 static int hf_ieee80211_tag_neighbor_report_bssid = -1;
 static int hf_ieee80211_tag_neighbor_report_bssid_info = -1;
 static int hf_ieee80211_tag_neighbor_report_bssid_info_reachability = -1;
@@ -4990,6 +5069,8 @@ static gint ett_vht_tpe_info_tree = -1;
 static gint ett_vht_ndp_annc_token_tree = -1;
 static gint ett_vht_ndp_annc_sta_info_tree = -1;
 
+static gint ett_ff_vhtmimo_cntrl = -1;
+
 static gint ett_ht_info_delimiter1_tree = -1;
 static gint ett_ht_info_delimiter2_tree = -1;
 static gint ett_ht_info_delimiter3_tree = -1;
@@ -5105,6 +5186,7 @@ static expert_field ei_ieee80211_rsn_pmkid_count = EI_INIT;
 static expert_field ei_ieee80211_fc_retry = EI_INIT;
 static expert_field ei_ieee80211_tag_wnm_sleep_mode_no_key_data = EI_INIT;
 static expert_field ei_ieee80211_dmg_subtype = EI_INIT;
+static expert_field ei_ieee80211_vht_action = EI_INIT;
 
 /* 802.11ad trees */
 static gint ett_dynamic_alloc_tree = -1;
@@ -8018,6 +8100,15 @@ add_ff_action_self_protected(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo
 }
 
 static guint
+add_ff_vht_action(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
+{
+  proto_tree_add_item(tree, hf_ieee80211_ff_vht_action, tvb, offset, 1,
+                      ENC_LITTLE_ENDIAN);
+  return 1;
+}
+
+
+static guint
 wnm_bss_trans_mgmt_req(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
 {
   int    start = offset;
@@ -8958,6 +9049,83 @@ add_ff_action_unprotected_dmg(proto_tree *tree, tvbuff_t *tvb, packet_info *pinf
 }
 
 static guint
+add_ff_vht_mimo_cntrl(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
+{
+  proto_item *vht_mimo_item;
+  proto_tree *vht_mimo_tree;
+
+  vht_mimo_item = proto_tree_add_item(tree, hf_ieee80211_ff_vht_mimo_cntrl, tvb,
+                                  offset, 3, ENC_NA);
+  vht_mimo_tree = proto_item_add_subtree(vht_mimo_item, ett_ff_vhtmimo_cntrl);
+
+  proto_tree_add_item(vht_mimo_tree, hf_ieee80211_ff_vht_mimo_cntrl_nc_index, tvb,
+                      offset, 3, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(vht_mimo_tree, hf_ieee80211_ff_vht_mimo_cntrl_nr_index, tvb,
+                      offset, 3, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(vht_mimo_tree, hf_ieee80211_ff_vht_mimo_cntrl_channel_width, tvb,
+                      offset, 3, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(vht_mimo_tree, hf_ieee80211_ff_vht_mimo_cntrl_grouping, tvb,
+                      offset, 3, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(vht_mimo_tree, hf_ieee80211_ff_vht_mimo_cntrl_codebook_info, tvb,
+                      offset, 3, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(vht_mimo_tree, hf_ieee80211_ff_vht_mimo_cntrl_feedback_type, tvb,
+                      offset, 3, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(vht_mimo_tree, hf_ieee80211_ff_vht_mimo_cntrl_remaining_feedback_seg, tvb,
+                      offset, 3, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(vht_mimo_tree, hf_ieee80211_ff_vht_mimo_cntrl_first_feedback_seg, tvb,
+                      offset, 3, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(vht_mimo_tree, hf_ieee80211_ff_vht_mimo_cntrl_reserved, tvb,
+                      offset, 3, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(vht_mimo_tree, hf_ieee80211_ff_vht_mimo_cntrl_sounding_dialog_token_number, tvb,
+                      offset, 3, ENC_LITTLE_ENDIAN);
+
+  return 3;
+}
+
+static guint
+add_ff_action_vht(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
+{
+  guint start = offset;
+  guint8 vht_action;
+  proto_item *ti;
+
+  offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_CATEGORY_CODE);
+
+  vht_action = tvb_get_guint8(tvb, offset);
+  offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_VHT_ACTION);
+
+  switch(vht_action){
+    case VHT_ACT_VHT_COMPRESSED_BEAMFORMING:{
+      offset += add_ff_vht_mimo_cntrl(tree, tvb, pinfo, offset);
+      ti = proto_tree_add_item(tree, hf_ieee80211_vht_compressed_beamforming_report, tvb,
+                          offset, -1, ENC_NA);
+      expert_add_info(pinfo, ti, &ei_ieee80211_vht_action);
+      offset += tvb_reported_length_remaining(tvb, offset);
+    }
+    break;
+    case VHT_ACT_GROUP_ID_MANAGEMENT:{
+      ti = proto_tree_add_item(tree, hf_ieee80211_vht_group_id_management, tvb,
+                          offset, -1, ENC_NA);
+      expert_add_info(pinfo, ti, &ei_ieee80211_vht_action);
+      offset += tvb_reported_length_remaining(tvb, offset);
+    }
+    break;
+    case VHT_ACT_OPERATION_MODE_NOTIFICATION:{
+      ti = proto_tree_add_item(tree, hf_ieee80211_vht_operation_mode_notification, tvb,
+                          offset, -1, ENC_NA);
+      expert_add_info(pinfo, ti, &ei_ieee80211_vht_action);
+      offset += tvb_reported_length_remaining(tvb, offset);
+    }
+    break;
+    default:
+    break;
+  }
+
+
+  return offset - start;
+}
+
+static guint
 add_ff_action_fst(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
 {
   guint8 code;
@@ -9150,6 +9318,8 @@ add_ff_action(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
 /*   return add_ff_action_robust_av_streaming(tree, tvb, pinfo, offset); */
   case CAT_UNPROTECTED_DMG: /* 20 */
     return add_ff_action_unprotected_dmg(tree, tvb, pinfo, offset);
+  case CAT_VHT: /* 21 */
+    return add_ff_action_vht(tree, tvb, pinfo, offset);
 /*  case CAT_VENDOR_SPECIFIC_PROTECTED:   Vendor Specific Protected Category - 126 */
 /*    return add_ff_action_vendor_specific_protected(tree, tvb, pinfo, offset);*/
   case CAT_VENDOR_SPECIFIC:  /* Vendor Specific Protected Category - 127 */
@@ -9276,6 +9446,7 @@ static const struct ieee80211_fixed_field_dissector ff_dissectors[] = {
   FF_FIELD(LLT                                   , llt),
   FF_FIELD(FSTS_ID                               , fsts_id),
   FF_FIELD(OCT_MMPDU                             , oct_mmpdu),
+  FF_FIELD(VHT_ACTION                            , vht_action),
   { (enum fixed_field)-1                         , NULL }
 };
 
@@ -20055,6 +20226,81 @@ proto_register_ieee80211 (void)
        FT_STRINGZ, BASE_NONE, NULL, 0,
        NULL, HFILL }},
 
+    {&hf_ieee80211_ff_vht_mimo_cntrl,
+     {"VHT MIMO Control", "wlan.vht.mimo_control.control.",
+      FT_NONE, BASE_NONE, NULL, 0x0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_ff_vht_mimo_cntrl_nc_index,
+     {"Nc Index", "wlan.vht.mimo_control.ncindex",
+      FT_UINT24, BASE_HEX, VALS(ff_vht_mimo_cntrl_nc_index_vals), 0x000007,
+      "Number of Columns Less One", HFILL }},
+
+    {&hf_ieee80211_ff_vht_mimo_cntrl_nr_index,
+     {"Nr Index", "wlan.vht.mimo_control.nrindex",
+      FT_UINT24, BASE_HEX, VALS(ff_vht_mimo_cntrl_nr_index_vals), 0x000038,
+      "Number of Rows Less One", HFILL }},
+
+    {&hf_ieee80211_ff_vht_mimo_cntrl_channel_width,
+     {"Channel Width", "wlan.vht.mimo_control.chanwidth",
+      FT_UINT24, BASE_HEX, VALS(ff_vht_mimo_cntrl_channel_width_vals), 0x0000C0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_ff_vht_mimo_cntrl_grouping,
+     {"Grouping (Ng)", "wlan.vht.mimo_control.grouping",
+      FT_UINT24, BASE_HEX, VALS(ff_vht_mimo_cntrl_grouping_vals), 0x000300,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_ff_vht_mimo_cntrl_codebook_info,
+     {"Codebook Information", "wlan.vht.mimo_control.codebookinfo",
+      FT_UINT24, BASE_HEX, NULL, 0x000400,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_ff_vht_mimo_cntrl_feedback_type,
+     {"Feedback Type", "wlan.vht.mimo_control.feedbacktype",
+      FT_UINT24, BASE_HEX, VALS(ff_vht_mimo_cntrl_feedback_vals), 0x000800,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_ff_vht_mimo_cntrl_remaining_feedback_seg,
+     {"Remaining Feedback Segments", "wlan.vht.mimo_control.remainingfeedbackseg",
+      FT_UINT24, BASE_HEX, NULL, 0x007000,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_ff_vht_mimo_cntrl_first_feedback_seg,
+     {"First Feedback Segments", "wlan.vht.mimo_control.firstfeedbackseg",
+      FT_UINT24, BASE_HEX, NULL, 0x008000,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_ff_vht_mimo_cntrl_reserved,
+     {"Reserved", "wlan.vht.mimo_control.reserved",
+      FT_UINT24, BASE_HEX, NULL, 0x030000,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_ff_vht_mimo_cntrl_sounding_dialog_token_number,
+     {"Sounding Dialog Toker Number", "wlan.vht.mimo_control.soundingdialogtocketnbr",
+      FT_UINT24, BASE_HEX, NULL, 0xFC0000,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_ff_vht_action,
+      {"VHT Action","wlan.vht.action",
+       FT_UINT8, BASE_DEC, VALS(vht_action_vals), 0,
+       NULL, HFILL }},
+
+    {&hf_ieee80211_vht_compressed_beamforming_report,
+      {"VHT Compressed Beamforming Report","wlan.vht.compressed_beamforming_report",
+       FT_BYTES, BASE_NONE, NULL, 0,
+       NULL, HFILL }},
+
+    {&hf_ieee80211_vht_group_id_management,
+      {"Group ID Management","wlan.vht.group_id_management",
+       FT_BYTES, BASE_NONE, NULL, 0,
+       NULL, HFILL }},
+
+    {&hf_ieee80211_vht_operation_mode_notification,
+      {"Operation Mode Notification","wlan.vht.operation_mode_notification",
+       FT_BYTES, BASE_NONE, NULL, 0,
+       NULL, HFILL }},
+
     {&hf_ieee80211_tag_tspec_allocation_id,
       {"Allocation ID","wlan.dmg_tspec.allocatin_id",
        FT_UINT24, BASE_DEC, NULL, 0xf00000,
@@ -26045,6 +26291,8 @@ proto_register_ieee80211 (void)
     &ett_vht_ndp_annc_token_tree,
     &ett_vht_ndp_annc_sta_info_tree,
 
+    &ett_ff_vhtmimo_cntrl,
+
     &ett_ht_info_delimiter1_tree,
     &ett_ht_info_delimiter2_tree,
     &ett_ht_info_delimiter3_tree,
@@ -26184,6 +26432,8 @@ proto_register_ieee80211 (void)
     { &ei_ieee80211_tag_measure_request_beacon_unknown, { "wlan_mgt.measure.req.beacon.unknown.expert", PI_UNDECODED, PI_WARN, "Unknown Data (not interpreted)", EXPFILL }},
     { &ei_ieee80211_tag_data, { "wlan_mgt.tag.data.undecoded", PI_UNDECODED, PI_NOTE, "Dissector for 802.11 IE Tag code not implemented, Contact Wireshark developers if you want this supported", EXPFILL }},
     { &ei_ieee80211_dmg_subtype, { "wlan.dmg_subtype.bad", PI_MALFORMED, PI_ERROR, "Bad DMG type/subtype", EXPFILL }},
+    { &ei_ieee80211_vht_action, { "wlan_mgt.vht.action.undecoded", PI_UNDECODED, PI_NOTE, "All subtype of VHT Action is not yet supported by Wireshark", EXPFILL }},
+
   };
 
   expert_module_t *expert_ieee80211;
