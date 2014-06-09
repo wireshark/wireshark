@@ -105,7 +105,7 @@ LIBWSUTIL_INCLUDES = 	\
 	u3.h		\
 	unicode-utils.h \
 	ws_cpuid.h	\
-	ws_mempbrk.h	\
+	ws_mempbrk.h
 
 
 #
