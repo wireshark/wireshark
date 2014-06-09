@@ -44,6 +44,7 @@
 #include "wsutil/unicode-utils.h"
 #include "wsutil/nstime.h"
 #include "wsutil/time_util.h"
+#include "wsutil/ws_mempbrk.h"
 #include "tvbuff.h"
 #include "tvbuff-int.h"
 #include "strutil.h"
@@ -738,8 +739,6 @@ fast_ensure_contiguous(tvbuff_t *tvb, const gint offset, const guint length)
 	/* not reached */
 	return NULL;
 }
-
-extern const guint8 *ws_mempbrk(const guint8* haystack, size_t haystacklen, const guint8 *needles);
 
 static inline const guint8*
 guint8_pbrk(const guint8* haystack, size_t haystacklen, const guint8 *needles, guchar *found_needle)

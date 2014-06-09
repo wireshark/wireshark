@@ -1,4 +1,4 @@
-/* ws_mempbrk.c
+/* ws_mempbrk.h
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -19,51 +19,18 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "config.h"
+#ifndef __WS_MEMPBRK_H__
+#define __WS_MEMPBRK_H__
 
-#include <glib.h>
 #include "ws_symbol_export.h"
-#include "ws_cpuid.h"
-#include "ws_mempbrk.h"
 
-const guint8 *
-_ws_mempbrk(const guint8* haystack, size_t haystacklen, const guint8 *needles)
-{
-	gchar         tmp[256] = { 0 };
-	const guint8 *haystack_end;
-
-	while (*needles)
-		tmp[*needles++] = 1;
-
-	haystack_end = haystack + haystacklen;
-	while (haystack < haystack_end) {
-		if (tmp[*haystack])
-			return haystack;
-		haystack++;
-	}
-
-	return NULL;
-}
-
-WS_DLL_PUBLIC const guint8 *
-ws_mempbrk(const guint8* haystack, size_t haystacklen, const guint8 *needles)
-{
-#ifdef HAVE_SSE42
-	guint32 CPUInfo[4];
-	guint32 bSSE42Extensions;
-
-#endif
-	if (*needles == 0)
-		return NULL;
+WS_DLL_PUBLIC const guint8 *ws_mempbrk(const guint8* haystack, size_t haystacklen, const guint8 *needles);
 
 #ifdef HAVE_SSE42
-	ws_cpuid(CPUInfo, 1);
-
-	bSSE42Extensions = (CPUInfo[2] & 0x100000);
-
-	if (haystacklen >= 16 && bSSE42Extensions)
-		return _ws_mempbrk_sse42(haystack, haystacklen, needles);
+const char *_ws_mempbrk_sse42(const char* haystack, size_t haystacklen, const char *needles);
 #endif
 
-	return _ws_mempbrk(haystack, haystacklen, needles);
-}
+const guint8 *_ws_mempbrk(const guint8* haystack, size_t haystacklen, const guint8 *needles);
+
+
+#endif /* __WS_MEMPBRK_H__ */

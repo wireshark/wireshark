@@ -28,9 +28,10 @@
 
 #include <nmmintrin.h>
 #include <string.h>
+#include "ws_mempbrk.h"
 
-extern const guint8 *_ws_mempbrk(const guint8* haystack, size_t haystacklen, const guint8 *needles);
-const char *_ws_mempbrk_sse42(const char* haystack, size_t haystacklen, const char *needles);
+#ifdef HAVE_SSE42
+
 
 /* Helper for variable shifts of SSE registers.
    Copyright (C) 2010 Free Software Foundation, Inc.
@@ -186,3 +187,5 @@ _ws_mempbrk_sse42(const char *s, size_t slen, const char *a)
     /* XXX, use mempbrk_slow here? */
     return _ws_mempbrk(aligned, slen, a);
 }
+
+#endif /* HAVE_SSE42 */

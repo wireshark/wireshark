@@ -104,7 +104,9 @@ LIBWSUTIL_INCLUDES = 	\
 	type_util.h	\
 	u3.h		\
 	unicode-utils.h \
-	ws_cpuid.h
+	ws_cpuid.h	\
+	ws_mempbrk.h	\
+
 
 #
 # Editor modelines  -  http://www.wireshark.org/tools/modelines.html
