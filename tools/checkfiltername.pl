@@ -68,7 +68,7 @@ my @periodinfilternamefilelist;
 my $showlinenoFlag = '';
 my $showautomatedFlag = '';
 
-my $state;
+my $state = "";
 # "s_unknown",
 # "s_start",
 # "s_in_hf_register_info",
