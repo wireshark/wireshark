@@ -216,11 +216,10 @@ README.windows for those instructions.
 8. Run './wireshark' or './tshark' or ./dumpcap, and make sure things are
    working. You must have root privileges in order to capture live data.
 
-9. Run 'make install'.  If you're running a system that supports
-   the Apt, RPM, OSX, or System V Release 4 packaging systems, you can
+9./a. Run 'make install'.  If you're running a system that supports
+   the RPM, OSX, or System V Release 4 packaging systems, you can
    run one of
 
-        make debian-package	# Builds a binary package using dpkg
         make rpm-package	# Builds a binary package using rpm
         make srpm-package	# Builds a source package using rpm
         make svr4-package	# Builds a binary package using pkgmk
@@ -228,6 +227,16 @@ README.windows for those instructions.
         make osx-package	# Builds a binary package for OSX
 
    to make an installable package for your system.
+
+9/b. If you 're running a system that supports APT (Debian/Ubuntu/etc.)
+   run
+
+        dpkg-buildpackage -us -uc -rfakeroot
+
+   in the source directory right after extracting of checking out
+   Wireshark's source code. (You don't have to run configure/make/etc.
+   prior to running dpkg-buildpackage)
+
 
 If you have trouble with the build or installation process, you can
 find assistance on the wireshark-users and wireshark-dev mailing lists.

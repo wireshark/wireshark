@@ -1157,15 +1157,6 @@ rpm-package: dist
 		false; \
 	fi
 
-debian-package: debian/rules
-	@if test x$(HAVE_DPKG_BUILDPACKAGE) = xyes ; then \
-		rm -f config.h ; \
-		dpkg-buildpackage -rfakeroot -us -uc ; \
-	else \
-		echo "Error: Debian packaging tools not found." ; \
-		echo "Package build abandoned." ; \
-	fi
-
 # XXX - This assumes we're building from the source directory.
 osx-app: $(PROGRAMS) $(SCRIPTS) $(MANS) $(DATA) packaging/macosx/Info.plist
 	@if test x$(HAVE_OSX_PACKAGING) = xyes ; then \
