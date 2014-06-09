@@ -105,14 +105,14 @@ _ws_mempbrk_sse42(const char *s, size_t slen, const char *a)
 	{
 	  /* There is no NULL terminator.  */
 	  __m128i mask1 = _mm_load_si128 ((__m128i *) (void *) (aligned + 16));
-	  int index = _mm_cmpistri (mask1, mask1, 0x3a);
-	  length += index;
+	  int idx = _mm_cmpistri (mask1, mask1, 0x3a);
+	  length += idx;
 
 	  /* Don't use SSE4.2 if the length of A > 16.  */
 	  if (length > 16)
 	    return _ws_mempbrk(s, slen, a);
 
-	  if (index != 0)
+	  if (idx != 0)
 	    {
 	      /* Combine mask0 and mask1.  We could play games with
 		 palignr, but frankly this data should be in L1 now
@@ -149,15 +149,15 @@ _ws_mempbrk_sse42(const char *s, size_t slen, const char *a)
       int length = _mm_cmpistri (mask, value, 0x2);
       /* No need to check ZFlag since ZFlag is always 1.  */
       int cflag = _mm_cmpistrc (mask, value, 0x2);
-      int index = _mm_cmpistri (value, value, 0x3a);
+      int idx = _mm_cmpistri (value, value, 0x3a);
 
       if (cflag)
 	return s + length;
       /* Find where the NULL terminator is.  */
-      if (index < 16 - offset)
+      if (idx < 16 - offset)
       {
-	 /* fond NUL @ 'index', need to switch to slower mempbrk */
-	 return _ws_mempbrk(s + index + 1, slen - index - 1, a); /* slen is bigger than 16 & index < 16 so no undeflow here */
+	 /* fond NUL @ 'idx', need to switch to slower mempbrk */
+	 return _ws_mempbrk(s + idx + 1, slen - idx - 1, a); /* slen is bigger than 16 & idx < 16 so no undeflow here */
       }
       aligned += 16;
       slen -= (16 - offset);
@@ -168,12 +168,12 @@ _ws_mempbrk_sse42(const char *s, size_t slen, const char *a)
   while (slen >= 16)
     {
       __m128i value = _mm_load_si128 ((__m128i *) (void *) aligned);
-      int index = _mm_cmpistri (mask, value, 0x2);
+      int idx = _mm_cmpistri (mask, value, 0x2);
       int cflag = _mm_cmpistrc (mask, value, 0x2);
       int zflag = _mm_cmpistrz (mask, value, 0x2);
 
       if (cflag)
-	return aligned + index;
+	return aligned + idx;
       if (zflag)
       {
          /* found NUL, need to switch to slower mempbrk */
