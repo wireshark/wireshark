@@ -51,19 +51,16 @@ WS_DLL_PUBLIC const guint8 *
 ws_mempbrk(const guint8* haystack, size_t haystacklen, const guint8 *needles)
 {
 #ifdef HAVE_SSE42
-	guint32 CPUInfo[4];
-	guint32 bSSE42Extensions;
-
+	static int have_sse42 = -1;
 #endif
 	if (*needles == 0)
 		return NULL;
 
 #ifdef HAVE_SSE42
-	ws_cpuid(CPUInfo, 1);
+	if G_UNLIKELY(have_sse42 < 0)
+		have_sse42 = ws_cpuid_sse42();
 
-	bSSE42Extensions = (CPUInfo[2] & 0x100000);
-
-	if (haystacklen >= 16 && bSSE42Extensions)
+	if (haystacklen >= 16 && have_sse42)
 		return _ws_mempbrk_sse42(haystack, haystacklen, needles);
 #endif
 

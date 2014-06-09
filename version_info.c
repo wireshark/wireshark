@@ -629,7 +629,8 @@ static void get_cpu_info(GString *str _U_)
 
 	/* Calling __cpuid with 0x80000000 as the InfoType argument*/
 	/* gets the number of valid extended IDs.*/
-	ws_cpuid(CPUInfo, 0x80000000);
+	if (!ws_cpuid(CPUInfo, 0x80000000))
+		return;
 	nExIds = CPUInfo[0];
 
 	if( nExIds<0x80000005)
@@ -646,6 +647,8 @@ static void get_cpu_info(GString *str _U_)
 
 	g_string_append_printf(str, "\n%s", CPUBrandString);
 
+	if (ws_cpuid_sse42())
+		g_string_append(str, " (with SSE4.2)");
 }
 
 static void get_mem_info(GString *str _U_)

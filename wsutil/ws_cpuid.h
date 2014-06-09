@@ -23,20 +23,23 @@
 /*
  * Get CPU info on platforms where the cpuid instruction can be used skip 32 bit versions for GCC
  * 	http://www.intel.com/content/dam/www/public/us/en/documents/application-notes/processor-identification-cpuid-instruction-note.pdf
- * the ws_cpuid() routine will return 0 in CPUInfo[0] if cpuinfo isn't available.
+ * the ws_cpuid() routine will return 0 if cpuinfo isn't available.
  */
 
 #if defined(_MSC_VER)     /* MSVC */
-static void
+static int
 ws_cpuid(guint32 *CPUInfo, guint32 selector)
 {
+	CPUInfo[0] = CPUInfo[1] = CPUInfo[2] = CPUInfo[3] = 0;
 	__cpuid((int *) CPUInfo, selector);
+	/* XXX, how to check if it's supported on MSVC? just in case clear all flags above */
+	return 1;
 }
 
 #elif defined(__GNUC__)  /* GCC/clang */
 
 #if defined(__x86_64__)
-static inline void
+static inline int
 ws_cpuid(guint32 *CPUInfo, int selector)
 {
 	__asm__ __volatile__("cpuid"
@@ -45,22 +48,35 @@ ws_cpuid(guint32 *CPUInfo, int selector)
 							"=c" (CPUInfo[2]),
 							"=d" (CPUInfo[3])
 						: "a"(selector));
+	return 1;
 }
 #else /* (__i386__) */
 
-static void
+static int
 ws_cpuid(guint32 *CPUInfo, int selector _U_)
 {
 	/* TODO: need a test if older proccesors have the cpuid instruction */
-	CPUInfo[0] = 0;
+	return 0;
 }
 #endif
 
 #else /* Other compilers */
 
-static void
+static int
 ws_cpuid(guint32 *CPUInfo, int selector _U_)
 {
-	CPUInfo[0] = 0;
+	return 0;
 }
 #endif
+
+static int
+ws_cpuid_sse42(void)
+{
+	guint32 CPUInfo[4];
+
+	if (!ws_cpuid(CPUInfo, 1))
+		return 0;
+
+	/* in ECX bit 20 toggled on */
+	return (CPUInfo[2] & (1 << 20));
+}
