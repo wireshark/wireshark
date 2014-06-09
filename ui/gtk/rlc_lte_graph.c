@@ -799,6 +799,12 @@ static void graph_segment_list_get(struct graph *g, gboolean channel_known)
     struct segment current;
     GString    *error_string;
     rlc_scan_t  ts;
+    current.ueid = 0;
+    current.rlcMode = 0;
+    current.channelType = 0;
+    current.channelId = 0;
+    current.isControlPDU = 0;
+    current.direction = 0;
 
     debug(DBS_FENTRY) puts("graph_segment_list_get()");
 
