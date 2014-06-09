@@ -23,7 +23,9 @@
 
 #include <glib.h>
 #include "ws_symbol_export.h"
+#ifdef HAVE_SSE42
 #include "ws_cpuid.h"
+#endif
 #include "ws_mempbrk.h"
 
 const guint8 *
