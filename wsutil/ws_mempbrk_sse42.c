@@ -17,9 +17,12 @@
    License along with the GNU C Library; if not, see
    <http://www.gnu.org/licenses/>.  */
 
+#ifdef HAVE_SSE42
+
 #include "config.h"
 
 #include <glib.h>
+
 
 #ifdef WIN32
   #include <tmmintrin.h>
@@ -30,7 +33,6 @@
 #include <string.h>
 #include "ws_mempbrk.h"
 
-#ifdef HAVE_SSE42
 
 
 /* Helper for variable shifts of SSE registers.
