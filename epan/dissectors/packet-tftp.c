@@ -204,7 +204,7 @@ static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
   guint16     blocknum;
   guint       i1;
   guint16     error;
-  tvbuff_t    *data_tvb;
+  tvbuff_t    *data_tvb = NULL;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "TFTP");
 
