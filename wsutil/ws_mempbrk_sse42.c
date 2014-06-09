@@ -51,14 +51,14 @@ __m128i_shift_right (__m128i value, unsigned long int offset)
 {
   /* _mm_loadu_si128() works with unaligned data, cast safe */
   return _mm_shuffle_epi8 (value,
-			   _mm_loadu_si128 ((__m128i *) (void *) (___m128i_shift_right + offset)));
+                           _mm_loadu_si128 ((__m128i *) (void *) (___m128i_shift_right + offset)));
 }
 
 /* We use 0x2:
-	_SIDD_SBYTE_OPS
-	| _SIDD_CMP_EQUAL_ANY
-	| _SIDD_POSITIVE_POLARITY
-	| _SIDD_LEAST_SIGNIFICANT
+        _SIDD_SBYTE_OPS
+        | _SIDD_CMP_EQUAL_ANY
+        | _SIDD_POSITIVE_POLARITY
+        | _SIDD_LEAST_SIGNIFICANT
    on pcmpistri to compare xmm/mem128
 
    0 1 2 3 4 5 6 7 8 9 A B C D E F
@@ -78,9 +78,9 @@ __m128i_shift_right (__m128i value, unsigned long int offset)
 
    Here is the table of ECX, CFlag, ZFlag and SFlag for 2 cases:
 
-    1		 X	  1	 0/1	  0
-    2		16	  0	  1	  0
-    3		16	  0	  0	  0
+    1            X        1      0/1      0
+    2           16        0       1       0
+    3           16        0       0       0
 
    We exit from the loop for cases 1 and 2 with jbe which branches
    when either CFlag or ZFlag is 1.  If CFlag == 1, ECX has the offset
@@ -106,24 +106,24 @@ _ws_mempbrk_sse42(const char *s, size_t slen, const char *a)
       /* Find where the NULL terminator is.  */
       length = _mm_cmpistri (mask, mask, 0x3a);
       if (length == 16 - offset)
-	{
-	  /* There is no NULL terminator.  */
-	  __m128i mask1 = _mm_load_si128 ((__m128i *) (void *) (aligned + 16));
-	  int idx = _mm_cmpistri (mask1, mask1, 0x3a);
-	  length += idx;
+        {
+          /* There is no NULL terminator.  */
+          __m128i mask1 = _mm_load_si128 ((__m128i *) (void *) (aligned + 16));
+          int idx = _mm_cmpistri (mask1, mask1, 0x3a);
+          length += idx;
 
-	  /* Don't use SSE4.2 if the length of A > 16.  */
-	  if (length > 16)
-	    return _ws_mempbrk(s, slen, a);
+          /* Don't use SSE4.2 if the length of A > 16.  */
+          if (length > 16)
+            return _ws_mempbrk(s, slen, a);
 
-	  if (idx != 0)
-	    {
-	      /* Combine mask0 and mask1.  We could play games with
-		 palignr, but frankly this data should be in L1 now
-		 so do the merge via an unaligned load.  */
-	      mask = _mm_loadu_si128 ((__m128i *) (void *) a);
-	    }
-	}
+          if (idx != 0)
+            {
+              /* Combine mask0 and mask1.  We could play games with
+                 palignr, but frankly this data should be in L1 now
+                 so do the merge via an unaligned load.  */
+              mask = _mm_loadu_si128 ((__m128i *) (void *) a);
+            }
+        }
     }
   else
     {
@@ -135,12 +135,12 @@ _ws_mempbrk_sse42(const char *s, size_t slen, const char *a)
       /* Find where the NULL terminator is.  */
       length = _mm_cmpistri (mask, mask, 0x3a);
       if (length == 16)
-	{
-	  /* There is no NULL terminator.  Don't use SSE4.2 if the length
-	     of A > 16.  */
-	  if (a[16] != 0)
-	    return _ws_mempbrk(s, slen, a);
-	}
+        {
+          /* There is no NULL terminator.  Don't use SSE4.2 if the length
+             of A > 16.  */
+          if (a[16] != 0)
+            return _ws_mempbrk(s, slen, a);
+        }
     }
 
   offset = (int) ((size_t) s & 15);
@@ -156,12 +156,12 @@ _ws_mempbrk_sse42(const char *s, size_t slen, const char *a)
       int idx = _mm_cmpistri (value, value, 0x3a);
 
       if (cflag)
-	return s + length;
+        return s + length;
       /* Find where the NULL terminator is.  */
       if (idx < 16 - offset)
       {
-	 /* fond NUL @ 'idx', need to switch to slower mempbrk */
-	 return _ws_mempbrk(s + idx + 1, slen - idx - 1, a); /* slen is bigger than 16 & idx < 16 so no undeflow here */
+         /* fond NUL @ 'idx', need to switch to slower mempbrk */
+         return _ws_mempbrk(s + idx + 1, slen - idx - 1, a); /* slen is bigger than 16 & idx < 16 so no undeflow here */
       }
       aligned += 16;
       slen -= (16 - offset);
@@ -177,7 +177,7 @@ _ws_mempbrk_sse42(const char *s, size_t slen, const char *a)
       int zflag = _mm_cmpistrz (mask, value, 0x2);
 
       if (cflag)
-	return aligned + idx;
+        return aligned + idx;
       if (zflag)
       {
          /* found NUL, need to switch to slower mempbrk */
@@ -192,3 +192,15 @@ _ws_mempbrk_sse42(const char *s, size_t slen, const char *a)
 }
 
 #endif /* HAVE_SSE42 */
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */
