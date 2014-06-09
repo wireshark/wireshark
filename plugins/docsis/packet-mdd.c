@@ -233,6 +233,9 @@ static const value_string upstream_transmit_power_reporting_vals[] = {
 	{0, NULL}
 };
 
+/* Windows does not allow data copy between dlls */
+const true_false_string mdd_tfs_on_off = { "On", "Off" };
+
 /* Initialize the protocol and registered fields */
 static int proto_docsis_mdd = -1;
 static int hf_docsis_mdd_ccc = -1;
@@ -733,7 +736,7 @@ void proto_register_docsis_mdd (void)
 		},
 		{&hf_docsis_mdd_extended_upstream_transmit_power_support,
 			{ "Extended Upstream Transmit Power Support", "docsis_mdd.extended_upstream_transmit_power_support",
-			FT_BOOLEAN, BASE_NONE, TFS(&tfs_on_off), 0x0,
+			FT_BOOLEAN, BASE_NONE, TFS(&mdd_tfs_on_off), 0x0,
 			"Mdd Extended Upstream Transmit Power Support", HFILL}
 		},
 
