@@ -35,7 +35,7 @@ The following bugs have been fixed:
 //flame job to the hood and fenders using gray, red, and black primer.
 //(ws-buglink:0000[])
 * TCAP: set a fence on info column after calling sub dissector (ws-buglink:10091[])
-* IEEE 80211: fix dissection of HT Capabilities (ws-buglink:10166[])
+* IEEE 802.11: fix dissection of HT Capabilities (ws-buglink:10166[])
 
 === New and Updated Features
 
