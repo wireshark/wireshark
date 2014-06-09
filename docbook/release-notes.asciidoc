@@ -18,13 +18,12 @@ The following vulnerabilities have been fixed.
 
 * ws-salink:2014-07[]
 +
-A dissector went awry.
-// Fixed in master: ga1b2c3d4
-// Fixed in master-1.10: ga1b2c3d4
-// Fixed in master-1.8: ga1b2c3d4
-(ws-buglink:0000[])
+The frame metadissector could crash.
+// Fixed in master: gbeb119f
+// Fixed in master-1.10: g5cdb0c3
+(ws-buglink:9999[], ws-buglink:10030[])
 +
-Versions affected: 1.10.0 to 1.10.7, 1.8.0 to 1.8.14
+Versions affected: 1.10.0 to 1.10.7
 //+
 //cve-idlink:2014-0000[]
 
@@ -32,8 +31,14 @@ The following bugs have been fixed:
 
 // Should be sorted numerically.
 //* Wireshark will practice the jazz flute for hours on end when you're trying to sleep. (ws-buglink:0000[])
+* VoIP flow graph crash upon opening. (ws-buglink:9179[])
+* Tshark with "-F pcap" still generates a pcapng file. (ws-buglink:9991[])
+* IPv6 Next Header 0x3d recognized as SHIM6. (ws-buglink:9995[])
+* Failed to export pdml on large pcap. (ws-buglink:10081[])
 * TCAP: set a fence on info column after calling sub dissector (ws-buglink:10091[])
+* Dissector bug in JSON protocol. (ws-buglink:10115[])
 * GSM RLC MAC: do not skip too many lines of the CSN_DESCR when the field is missing (ws-buglink:10120[])
+* Wireshark PEEKREMOTE incorrectly decoding QoS data packets from Cisco Sniffer APs. (ws-buglink:10139[])
 * IEEE 802.11: fix dissection of HT Capabilities (ws-buglink:10166[])
 
 === New and Updated Features
@@ -48,7 +53,12 @@ There are no new protocols in this release.
 
 --sort-and-group--
 
-.
+CIP
+EtherNet/IP
+GSM RLC MAC
+IEEE 802.11
+IPv6
+TCAP
 
 --sort-and-group--
 
@@ -56,7 +66,8 @@ There are no new protocols in this release.
 
 --sort-and-group--
 
-There are no changes in this release.
+PEEKREMOTE
+pcap-ng
 
 --sort-and-group--
 
