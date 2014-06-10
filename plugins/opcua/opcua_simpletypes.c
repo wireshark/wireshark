@@ -28,6 +28,7 @@
 #include "opcua_simpletypes.h"
 #include "opcua_hfindeces.h"
 #include "opcua_extensionobjectids.h"
+#include "opcua_statuscode.h"
 #include <epan/wmem/wmem.h>
 
 #define DIAGNOSTICINFO_ENCODINGMASK_SYMBOLICID_FLAG           0x01
@@ -399,7 +400,16 @@ void parseString(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, int hfIndex)
 
 void parseStatusCode(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, int hfIndex)
 {
-    proto_tree_add_item(tree, hfIndex, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN);
+    proto_item *item = NULL;
+    guint32 uStatusCode = 0;
+    const gchar *szStatusCode = NULL;
+
+    item = proto_tree_add_item(tree, hfIndex, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN);
+
+    uStatusCode = tvb_get_letohl(tvb, *pOffset);
+    szStatusCode = val_to_str_const(uStatusCode & 0xFFFF0000, g_statusCodes, "Unknown Status Code");
+    proto_item_append_text(item, " [%s]", szStatusCode);
+
     *pOffset += 4;
 }
 
