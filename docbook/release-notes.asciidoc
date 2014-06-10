@@ -35,7 +35,7 @@ The following bugs have been fixed:
 //flame job to the hood and fenders using gray, red, and black primer.
 //(ws-buglink:0000[])
 
-* Tshark with "-F pcap" still generates a pcapng file. (ws-buglink:9991[])
+* Tshark with "-F libpcap" still generates a pcapng file. (ws-buglink:9991[])
 * IPv6 Next Header 0x3d recognized as SHIM6. (ws-buglink:9995[])
 * Pcap-ng PB/EPB with caplen > len shouldn't be treated as an error. (ws-buglink:10037[])
 * TCAP: set a fence on info column after calling sub dissector (ws-buglink:10091[])
