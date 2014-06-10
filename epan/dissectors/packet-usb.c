@@ -2913,7 +2913,6 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
     int                   endpoint;
     gint                  type_2 = 0;
     guint8                urb_type;
-    guint16               hdr_len = 0;
     guint32               win32_data_len = 0;
     proto_item           *tree_ti;
     proto_tree           *tree;
@@ -2969,7 +2968,6 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
            if there's a transfer-specific pseudo-header following */
         proto_item_set_len(tree_ti, offset);
 
-        hdr_len = tvb_get_letohs(tvb, 0);
         win32_data_len = tvb_get_letohl(tvb, 23);
     }
 
@@ -3245,8 +3243,6 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
             guint32 data_start_offset;
             proto_tree *urb_tree;
 
-            /* 27 bytes of header were dissected in dissect_win32_usb_pseudo_header() */
-            data_start_offset = offset - 27 + hdr_len;
             urb_tree = parent;
 
             proto_tree_add_item(tree, hf_usb_win32_iso_start_frame, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -3258,6 +3254,9 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
 
             proto_tree_add_item(tree, hf_usb_win32_iso_error_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset += 4;
+
+            data_start_offset = offset + 12 * num_packets;
+            proto_item_set_len(tree_ti, data_start_offset);
 
             for (i = 0; i < num_packets; i++)
             {
