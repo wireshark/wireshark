@@ -8,7 +8,7 @@
 # http://mark-story.com/posts/view/using-git-commit-hooks-to-prevent-stupid-mistakes
 #
 
-"$GIT_DIR" || GIT_DIR=.git
+if [ -z $GIT_DIR ]; then GIT_DIR=".git"; fi
 # Check for newer versions of the pre-commit script
 if [ ${GIT_DIR}/hooks/pre-commit -ot ./tools/pre-commit ] ; then
     echo "Pre-commit hook script is outdated, please update!"
