@@ -232,15 +232,37 @@ int parseOpenSecureChannel(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
     dispatchService(encobj_tree, tvb, pOffset, ServiceId);
 
     proto_item_set_end(ti, tvb, *pOffset);
-    return -1;
+    return ServiceId;
 }
 
 int parseCloseSecureChannel(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
+    proto_item *ti;
+    proto_item *ti_inner;
+    proto_tree *encobj_tree;
+    proto_tree *nodeid_tree;
+    int ServiceId = 0;
+
     proto_tree_add_item(tree, hf_opcua_transport_type, tvb, *pOffset, 3, ENC_ASCII|ENC_NA); *pOffset+=3;
     proto_tree_add_item(tree, hf_opcua_transport_chunk, tvb, *pOffset, 1, ENC_ASCII|ENC_NA); *pOffset+=1;
     proto_tree_add_item(tree, hf_opcua_transport_size, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
     proto_tree_add_item(tree, hf_opcua_transport_scid, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
-    return -1;
+
+    parseSecurityLayer(tree, tvb, pOffset);
+
+    /* add encodeable object subtree */
+    ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "Message : Encodeable Object");
+    encobj_tree = proto_item_add_subtree(ti, ett_opcua_extensionobject);
+
+    /* add nodeid subtree */
+    ti_inner = proto_tree_add_text(encobj_tree, tvb, *pOffset, -1, "TypeId : ExpandedNodeId");
+    nodeid_tree = proto_item_add_subtree(ti_inner, ett_opcua_nodeid);
+    ServiceId = parseServiceNodeId(nodeid_tree, tvb, pOffset);
+    proto_item_set_end(ti_inner, tvb, *pOffset);
+
+    dispatchService(encobj_tree, tvb, pOffset, ServiceId);
+
+    proto_item_set_end(ti, tvb, *pOffset);
+    return ServiceId;
 }
 
