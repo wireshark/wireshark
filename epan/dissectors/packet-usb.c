@@ -2922,7 +2922,6 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
     conversation_t       *conversation;
     guint16              device_address;
     tvbuff_t             *next_tvb = NULL;
-    tvbuff_t             *setup_tvb = NULL;
     device_product_data_t   *device_product_data = NULL;
     device_protocol_data_t  *device_protocol_data = NULL;
     wmem_tree_key_t          key[4];
@@ -3011,6 +3010,8 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
         }
 
         if (usb_conv_info->is_request) {
+            tvbuff_t *setup_tvb = NULL;
+
             if (usb_conv_info->is_setup) {
                 /* this is a request */
 
