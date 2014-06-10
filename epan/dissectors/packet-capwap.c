@@ -1578,7 +1578,7 @@ dissect_capwap_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
     if (global_capwap_reassemble && fragment_is)
     {
-        const int len_rem = tvb_length_remaining(tvb, offset);
+        const int len_rem = tvb_reported_length_remaining(tvb, offset);
         if (len_rem <= 0)
             return offset;
 
@@ -1665,7 +1665,7 @@ dissect_capwap_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if (global_capwap_reassemble && fragment_is)
     {
-        gint len_rem = tvb_length_remaining(tvb, offset);
+        gint len_rem = tvb_reported_length_remaining(tvb, offset);
         if (len_rem <= 0)
             return;
 
