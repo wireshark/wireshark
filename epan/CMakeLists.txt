@@ -1204,6 +1204,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-sigcomp.c
 	dissectors/packet-simulcrypt.c
 	dissectors/packet-sip.c
+	dissectors/packet-sip-hdrs.c
 	dissectors/packet-sipfrag.c
 	dissectors/packet-sita.c
 	dissectors/packet-skinny.c

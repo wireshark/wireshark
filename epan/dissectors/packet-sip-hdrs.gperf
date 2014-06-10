@@ -1,0 +1,161 @@
+%{
+#include <string.h>
+
+#include "packet-sip-hdrs.h"
+%}
+
+%compare-lengths
+%readonly-tables
+%struct-type
+%null-strings
+%language=ANSI-C
+
+%define lookup-function-name _sip_header_find
+%define hash-function-name   _sip_header_hash
+
+struct name_pos { const char *name; int pos; };
+
+%%
+accept,	POS_ACCEPT
+accept-contact, POS_ACCEPT_CONTACT
+accept-encoding, POS_ACCEPT_ENCODING
+accept-language, POS_ACCEPT_LANGUAGE
+accept-resource-priority, POS_ACCEPT_RESOURCE_PRIORITY
+alert-info, POS_ALERT_INFO
+allow, POS_ALLOW
+allow-events, POS_ALLOW_EVENTS
+answer-mode, POS_ANSWER_MODE
+authentication-info, POS_AUTHENTICATION_INFO
+authorization, POS_AUTHORIZATION
+call-id, POS_CALL_ID
+call-info, POS_CALL_INFO
+contact, POS_CONTACT
+content-disposition, POS_CONTENT_DISPOSITION
+content-encoding, POS_CONTENT_ENCODING
+content-language, POS_CONTENT_LANGUAGE
+content-length, POS_CONTENT_LENGTH
+content-type, POS_CONTENT_TYPE
+cseq, POS_CSEQ
+date, POS_DATE
+error-info, POS_ERROR_INFO
+event, POS_EVENT
+expires, POS_EXPIRES
+feature-caps, POS_FEATURE_CAPS
+flow-timer, POS_FLOW_TIMER
+from, POS_FROM
+geolocation, POS_GEOLOCATION
+geolocation-error, POS_GEOLOCATION_ERROR
+geolocation-routing, POS_GEOLOCATION_ROUTING
+history-info, POS_HISTORY_INFO
+identity, POS_IDENTITY
+identity-info, POS_IDENTITY_INFO
+info-package, POS_INFO_PKG
+in-reply-to, POS_IN_REPLY_TO
+join, POS_JOIN
+max-breadth, POS_MAX_BREADTH
+max-forwards, POS_MAX_FORWARDS
+mime-version, POS_MIME_VERSION
+min-expires, POS_MIN_EXPIRES
+min-se, POS_MIN_SE
+organization, POS_ORGANIZATION
+p-access-network-info, POS_P_ACCESS_NETWORK_INFO
+p-answer-state, POS_P_ANSWER_STATE
+p-asserted-identity, POS_P_ASSERTED_IDENTITY
+p-asserted-service, POS_P_ASSERTED_SERV
+p-associated-uri, POS_P_ASSOCIATED_URI
+p-called-party-id, POS_P_CALLED_PARTY_ID
+p-charging-function-addresses, POS_P_CHARGING_FUNC_ADDRESSES
+p-charging-vector, POS_P_CHARGING_VECTOR
+p-dcs-trace-party-id, POS_P_DCS_TRACE_PARTY_ID
+p-dcs-osps, POS_P_DCS_OSPS
+p-dcs-billing-info, POS_P_DCS_BILLING_INFO
+p-dcs-laes, POS_P_DCS_LAES
+p-dcs-redirect, POS_P_DCS_REDIRECT
+p-early-media, POS_P_EARLY_MEDIA
+p-media-authorization, POS_P_MEDIA_AUTHORIZATION
+p-preferred-identity, POS_P_PREFERRED_IDENTITY
+p-preferred-service, POS_P_PREFERRED_SERV
+p-profile-key, POS_P_PROFILE_KEY
+p-refused-uri-list, POS_P_REFUSED_URI_LST
+p-served-user, POS_P_SERVED_USER
+p-user-database, POS_P_USER_DATABASE
+p-visited-network-id, POS_P_VISITED_NETWORK_ID
+path, POS_PATH
+permission-missing, POS_PERMISSION_MISSING
+policy-contact, POS_POLICY_CONTACT
+policy-id, POS_POLICY_ID
+priority, POS_PRIORITY
+priv-answer-mode, POS_PRIV_ANSWER_MODE
+privacy, POS_PRIVACY
+proxy-authenticate, POS_PROXY_AUTHENTICATE
+proxy-authorization, POS_PROXY_AUTHORIZATION
+proxy-require, POS_PROXY_REQUIRE
+rack, POS_RACK
+reason, POS_REASON
+reason-phrase, POS_REASON_PHRASE
+record-route, POS_RECORD_ROUTE
+recv-info, POS_RECV_INFO
+refer-sub, POS_REFER_SUB
+refer-to, POS_REFER_TO
+referred-by, POS_REFERED_BY
+reject-contact, POS_REJECT_CONTACT
+replaces, POS_REPLACES
+reply-to, POS_REPLY_TO
+request-disposition, POS_REQUEST_DISPOSITION
+require, POS_REQUIRE
+resource-priority, POS_RESOURCE_PRIORITY
+retry-after, POS_RETRY_AFTER
+route, POS_ROUTE
+rseq, POS_RSEQ
+security-client, POS_SECURITY_CLIENT
+security-server, POS_SECURITY_SERVER
+security-verify, POS_SECURITY_VERIFY
+server, POS_SERVER
+service-route, POS_SERVICE_ROUTE
+session-expires, POS_SESSION_EXPIRES
+sip-etag, POS_SIP_ETAG
+sip-if-match, POS_SIP_IF_MATCH
+subject, POS_SUBJECT
+subscription-state, POS_SUBSCRIPTION_STATE
+supported, POS_SUPPORTED
+suppress-if-match, POS_SUPPRESS_IF_MATCH
+target-dialog, POS_TARGET_DIALOG
+timestamp, POS_TIMESTAMP
+to, POS_TO
+trigger-consent, POS_TRIGGER_CONSENT
+unsupported, POS_UNSUPPORTED
+user-agent, POS_USER_AGENT
+via, POS_VIA
+warning, POS_WARNING
+www-authenticate, POS_WWW_AUTHENTICATE
+diversion, POS_DIVERSION
+user-to-user, POS_USER_TO_USER
+a, POS_ACCEPT_CONTACT
+u, POS_ALLOW_EVENTS
+i, POS_CALL_ID
+m, POS_CONTACT
+e, POS_CONTENT_ENCODING
+l, POS_CONTENT_LENGTH
+c, POS_CONTENT_TYPE
+o, POS_EVENT
+f, POS_FROM
+y, POS_IDENTITY
+n, POS_IDENTITY_INFO
+r, POS_REFER_TO
+b, POS_REFERED_BY
+j, POS_REJECT_CONTACT
+d, POS_REQUEST_DISPOSITION
+x, POS_SESSION_EXPIRES
+s, POS_SUBJECT
+k, POS_SUPPORTED
+t, POS_TO
+v, POS_VIA
+%%
+int sip_is_known_sip_header(const char *header_name, unsigned int header_len)
+{
+	const struct name_pos *npos = _sip_header_find(header_name, header_len);
+
+	if (!npos)
+		return -1;
+	return npos->pos;
+}
