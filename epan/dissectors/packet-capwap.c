@@ -808,20 +808,23 @@ static void capwap_reassemble_init(void)
 static void
 dissect_capwap_data_message_bindings_ieee80211(tvbuff_t *tvb, proto_tree *data_message_binding_tree, guint offset, packet_info *pinfo)
 {
-    proto_item *data_message_binding_item;
+    proto_item *data_message_binding_item, *ti;
     proto_tree *sub_data_message_binding_tree;
 
     if (global_capwap_data_udp_port == pinfo->destport)
     {
+        guint16 data_rate;
         /* (WTP -> AC) IEEE 802.11 Frame Info */
-        data_message_binding_item = proto_tree_add_item(data_message_binding_tree, hf_capwap_header_wireless_data_ieee80211_fi,tvb, offset, 4, ENC_NA);
+        data_message_binding_item = proto_tree_add_item(data_message_binding_tree, hf_capwap_header_wireless_data_ieee80211_fi, tvb, offset, 4, ENC_NA);
         sub_data_message_binding_tree = proto_item_add_subtree(data_message_binding_item, ett_capwap);
 
-        proto_tree_add_item(sub_data_message_binding_tree, hf_capwap_header_wireless_data_ieee80211_fi_rssi,tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_data_message_binding_tree, hf_capwap_header_wireless_data_ieee80211_fi_rssi, tvb, offset, 1, ENC_BIG_ENDIAN);
 
-        proto_tree_add_item(sub_data_message_binding_tree, hf_capwap_header_wireless_data_ieee80211_fi_snr,tvb, offset+1, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_data_message_binding_tree, hf_capwap_header_wireless_data_ieee80211_fi_snr, tvb, offset+1, 1, ENC_BIG_ENDIAN);
 
-        proto_tree_add_item(sub_data_message_binding_tree, hf_capwap_header_wireless_data_ieee80211_fi_data_rate,tvb, offset+2, 2, ENC_BIG_ENDIAN);
+        ti = proto_tree_add_item(sub_data_message_binding_tree, hf_capwap_header_wireless_data_ieee80211_fi_data_rate, tvb, offset+2, 2, ENC_BIG_ENDIAN);
+        data_rate = tvb_get_ntohs(tvb, offset+2);
+        proto_item_append_text(ti, " (%.1f Mb/s)", ((float)data_rate / 10));
     }
     else
     {
@@ -829,9 +832,9 @@ dissect_capwap_data_message_bindings_ieee80211(tvbuff_t *tvb, proto_tree *data_m
         data_message_binding_item = proto_tree_add_item(data_message_binding_tree, hf_capwap_header_wireless_data_ieee80211_dest_wlan,tvb, offset, 4, ENC_NA);
         sub_data_message_binding_tree = proto_item_add_subtree(data_message_binding_item, ett_capwap);
 
-        proto_tree_add_item(sub_data_message_binding_tree, hf_capwap_header_wireless_data_ieee80211_dw_wlan_id_bitmap,tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_data_message_binding_tree, hf_capwap_header_wireless_data_ieee80211_dw_wlan_id_bitmap, tvb, offset, 2, ENC_BIG_ENDIAN);
 
-        proto_tree_add_item(sub_data_message_binding_tree, hf_capwap_header_wireless_data_ieee80211_dw_reserved,tvb, offset+2, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_data_message_binding_tree, hf_capwap_header_wireless_data_ieee80211_dw_reserved, tvb, offset+2, 2, ENC_BIG_ENDIAN);
     }
 }
 
@@ -1838,7 +1841,7 @@ proto_register_capwap_control(void)
             NULL, HFILL }},
         { &hf_capwap_header_wireless_data_ieee80211_fi_rssi,
         { "Wireless data ieee80211 RSSI (dBm)", "capwap.header.wireless.data.ieee80211.fi.rssi",
-            FT_UINT8, BASE_DEC, NULL, 0x00,
+            FT_INT8, BASE_DEC, NULL, 0x00,
             NULL, HFILL }},
         { &hf_capwap_header_wireless_data_ieee80211_fi_snr,
         { "Wireless data ieee80211 SNR (dB)", "capwap.header.wireless.data.ieee80211.fi.snr",
