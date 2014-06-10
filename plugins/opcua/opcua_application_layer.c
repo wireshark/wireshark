@@ -33,10 +33,8 @@ static const value_string g_nodeidmasks[] = {
     { 1, "Four byte encoded Numeric" },
     { 2, "Numeric of arbitrary length" },
     { 3, "String" },
-    { 4, "URI" },
-    { 5, "GUID" },
-    { 6, "ByteString" },
-    { 0x80, "UriMask" },
+    { 4, "GUID" },
+    { 5, "ByteString" },
     { 0, NULL }
 };
 
@@ -102,9 +100,8 @@ int parseServiceNodeId(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
         iOffset+=4;
         break;
     case 0x03: /* string */
-    case 0x04: /* uri */
-    case 0x05: /* guid */
-    case 0x06: /* byte string */
+    case 0x04: /* guid */
+    case 0x05: /* byte string*/
         /* NOT USED */
         break;
     };

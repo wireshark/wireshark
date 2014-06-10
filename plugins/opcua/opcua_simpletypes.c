@@ -99,10 +99,8 @@ static const value_string g_nodeidmasks[] = {
     { 1, "Four byte encoded Numeric" },
     { 2, "Numeric of arbitrary length" },
     { 3, "String" },
-    { 4, "URI" },
-    { 5, "GUID" },
-    { 6, "ByteString" },
-    { 0x80, "UriMask" },
+    { 4, "GUID" },
+    { 5, "ByteString" },
     { 0, NULL }
 };
 
