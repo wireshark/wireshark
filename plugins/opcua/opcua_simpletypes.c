@@ -67,6 +67,8 @@ static int hf_opcua_datavalue_mask_servertimestampflag = -1;
 static int hf_opcua_datavalue_mask_sourcepicoseconds = -1;
 static int hf_opcua_datavalue_mask_serverpicoseconds = -1;
 static int hf_opcua_nodeid_encodingmask = -1;
+static int hf_opcua_expandednodeid_mask_namespaceuri = -1;
+static int hf_opcua_expandednodeid_mask_serverindex = -1;
 static int hf_opcua_variant_encodingmask = -1;
 static int hf_opcua_nodeid_nsindex = -1;
 static int hf_opcua_nodeid_numeric = -1;
@@ -91,14 +93,12 @@ static int hf_opcua_ServerIndex = -1;
 
 /** NodeId encoding mask table */
 static const value_string g_nodeidmasks[] = {
-    { 0, "Two byte encoded Numeric" },
-    { 1, "Four byte encoded Numeric" },
-    { 2, "Numeric of arbitrary length" },
-    { 3, "String" },
-    { 4, "URI" },
-    { 5, "GUID" },
-    { 6, "Opaque" },
-    { 0x80, "UriMask" },
+    { 0x00, "Two byte encoded Numeric" },
+    { 0x01, "Four byte encoded Numeric" },
+    { 0x02, "Numeric of arbitrary length" },
+    { 0x03, "String" },
+    { 0x04, "GUID" },
+    { 0x05, "Opaque" },
     { 0, NULL }
 };
 
@@ -282,6 +282,8 @@ void registerSimpleTypes(int proto)
         { &hf_opcua_nodeid_numeric,
         {  "NodeId Identifier Numeric",  "application.nodeid.numeric",      FT_UINT32,  BASE_DEC,  NULL, 0x0,    NULL,    HFILL }
         },
+        { &hf_opcua_expandednodeid_mask_namespaceuri, {  "has namespace uri", "opcua.has_namespace_uri", FT_BOOLEAN, 8, NULL, NODEID_NAMESPACEURIFLAG, NULL, HFILL } },
+        { &hf_opcua_expandednodeid_mask_serverindex, {  "has server index", "opcua.has_server_index", FT_BOOLEAN, 8, NULL, NODEID_SERVERINDEXFLAG, NULL, HFILL } },
         { &hf_opcua_localizedtext_locale, { "Locale", "opcua.Locale", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_opcua_localizedtext_text,   { "Text", "opcua.Text", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_opcua_qualifiedname_id,     { "Id", "opcua.Id", FT_UINT16, BASE_DEC,  NULL, 0x0, NULL, HFILL } },
@@ -908,6 +910,8 @@ void parseExpandedNodeId(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const c
 
     EncodingMask = tvb_get_guint8(tvb, iOffset);
     proto_tree_add_item(subtree, hf_opcua_nodeid_encodingmask, tvb, iOffset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(subtree, hf_opcua_expandednodeid_mask_namespaceuri, tvb, iOffset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(subtree, hf_opcua_expandednodeid_mask_serverindex, tvb, iOffset, 1, ENC_LITTLE_ENDIAN);
     iOffset++;
 
     switch(EncodingMask & 0x0F)

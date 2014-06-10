@@ -28,14 +28,12 @@
 
 /** NodeId encoding mask table */
 static const value_string g_nodeidmasks[] = {
-    { 0, "Two byte encoded Numeric" },
-    { 1, "Four byte encoded Numeric" },
-    { 2, "Numeric of arbitrary length" },
-    { 3, "String" },
-    { 4, "URI" },
-    { 5, "GUID" },
-    { 6, "Opaque" },
-    { 0x80, "UriMask" },
+    { 0x00, "Two byte encoded Numeric" },
+    { 0x01, "Four byte encoded Numeric" },
+    { 0x02, "Numeric of arbitrary length" },
+    { 0x03, "String" },
+    { 0x04, "GUID" },
+    { 0x05, "Opaque" },
     { 0, NULL }
 };
 
@@ -101,9 +99,8 @@ int parseServiceNodeId(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
         iOffset+=4;
         break;
     case 0x03: /* string */
-    case 0x04: /* uri */
-    case 0x05: /* guid */
-    case 0x06: /* byte string */
+    case 0x04: /* guid */
+    case 0x05: /* opaque*/
         /* NOT USED */
         break;
     };
