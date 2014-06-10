@@ -2914,7 +2914,7 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
     gint                  type_2 = 0;
     guint8                urb_type;
     guint32               win32_data_len = 0;
-    proto_item           *tree_ti;
+    proto_item           *urb_tree_ti;
     proto_tree           *tree;
     proto_item           *item;
     static usb_address_t  src_addr, dst_addr; /* has to be static due to SET_ADDRESS */
@@ -2955,18 +2955,18 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
     usb_conv_info = get_usb_conv_info(conversation);
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "USB");
-    tree_ti = proto_tree_add_protocol_format(parent, proto_usb, tvb, 0, -1, "USB URB");
-    tree = proto_item_add_subtree(tree_ti, usb_hdr);
+    urb_tree_ti = proto_tree_add_protocol_format(parent, proto_usb, tvb, 0, -1, "USB URB");
+    tree = proto_item_add_subtree(urb_tree_ti, usb_hdr);
 
     if (header_info & USB_HEADER_IS_LINUX) {
-        proto_item_set_len(tree_ti, (header_info&USB_HEADER_IS_64_BYTES) ? 64 : 48);
+        proto_item_set_len(urb_tree_ti, (header_info&USB_HEADER_IS_64_BYTES) ? 64 : 48);
         offset = dissect_linux_usb_pseudo_header(tvb, pinfo, tree, usb_conv_info);
 
     } else if (header_info & USB_HEADER_IS_USBPCAP) {
         offset = dissect_usbpcap_buffer_packet_header(tvb, pinfo, tree, usb_conv_info);
         /* the length that we're setting here might have to be corrected
            if there's a transfer-specific pseudo-header following */
-        proto_item_set_len(tree_ti, offset);
+        proto_item_set_len(urb_tree_ti, offset);
 
         win32_data_len = tvb_get_letohl(tvb, 23);
     }
@@ -3009,7 +3009,7 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
             if (usbpcap_control_stage == USB_CONTROL_STAGE_SETUP)
                 usb_conv_info->is_setup = TRUE;
             offset++;
-            proto_item_set_len(tree_ti, offset);
+            proto_item_set_len(urb_tree_ti, offset);
         }
 
         if (usb_conv_info->is_request) {
@@ -3253,7 +3253,7 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
             offset += 4;
 
             data_start_offset = offset + 12 * num_packets;
-            proto_item_set_len(tree_ti, data_start_offset);
+            proto_item_set_len(urb_tree_ti, data_start_offset);
 
             for (i = 0; i < num_packets; i++)
             {
