@@ -72,6 +72,9 @@ static int hf_opcua_expandednodeid_mask_serverindex = -1;
 static int hf_opcua_variant_encodingmask = -1;
 static int hf_opcua_nodeid_nsindex = -1;
 static int hf_opcua_nodeid_numeric = -1;
+static int hf_opcua_nodeid_string = -1;
+static int hf_opcua_nodeid_guid = -1;
+static int hf_opcua_nodeid_bytestring = -1;
 static int hf_opcua_localizedtext_locale = -1;
 static int hf_opcua_localizedtext_text = -1;
 static int hf_opcua_qualifiedname_id = -1;
@@ -279,9 +282,10 @@ void registerSimpleTypes(int proto)
         { &hf_opcua_nodeid_nsindex,
         {  "NodeId Namespace Index",        "application.nodeid.nsindex",         FT_UINT16,  BASE_DEC,  NULL, 0x0,    NULL,    HFILL }
         },
-        { &hf_opcua_nodeid_numeric,
-        {  "NodeId Identifier Numeric",  "application.nodeid.numeric",      FT_UINT32,  BASE_DEC,  NULL, 0x0,    NULL,    HFILL }
-        },
+        { &hf_opcua_nodeid_numeric, {  "NodeId Identifier Numeric", "application.nodeid.numeric", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_opcua_nodeid_string, { "NodeId Identifier String", "application.nodeid.string", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_opcua_nodeid_guid, { "NodeId Identifier Guid", "application.nodeid.guid", FT_GUID, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_opcua_nodeid_bytestring, { "NodeId Identifier ByteString", "application.nodeid.bytestring", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_opcua_expandednodeid_mask_namespaceuri, {  "has namespace uri", "opcua.has_namespace_uri", FT_BOOLEAN, 8, NULL, NODEID_NAMESPACEURIFLAG, NULL, HFILL } },
         { &hf_opcua_expandednodeid_mask_serverindex, {  "has server index", "opcua.has_server_index", FT_BOOLEAN, 8, NULL, NODEID_SERVERINDEXFLAG, NULL, HFILL } },
         { &hf_opcua_localizedtext_locale, { "Locale", "opcua.Locale", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
@@ -848,17 +852,17 @@ void parseNodeId(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szF
     case 0x03: /* string */
         proto_tree_add_item(subtree, hf_opcua_nodeid_nsindex, tvb, iOffset, 2, ENC_LITTLE_ENDIAN);
         iOffset+=2;
-        parseString(subtree, tvb, &iOffset, hf_opcua_String);
+        parseString(subtree, tvb, &iOffset, hf_opcua_nodeid_string);
         break;
     case 0x04: /* guid */
         proto_tree_add_item(subtree, hf_opcua_nodeid_nsindex, tvb, iOffset, 2, ENC_LITTLE_ENDIAN);
         iOffset+=2;
-        parseGuid(subtree, tvb, &iOffset, hf_opcua_Guid);
+        parseGuid(subtree, tvb, &iOffset, hf_opcua_nodeid_guid);
         break;
     case 0x05: /* byte string */
         proto_tree_add_item(subtree, hf_opcua_nodeid_nsindex, tvb, iOffset, 2, ENC_LITTLE_ENDIAN);
         iOffset+=2;
-        parseByteString(subtree, tvb, &iOffset, hf_opcua_ByteString);
+        parseByteString(subtree, tvb, &iOffset, hf_opcua_nodeid_bytestring);
         break;
     };
 
@@ -935,17 +939,17 @@ void parseExpandedNodeId(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const c
     case 0x03: /* string */
         proto_tree_add_item(subtree, hf_opcua_nodeid_nsindex, tvb, iOffset, 2, ENC_LITTLE_ENDIAN);
         iOffset+=2;
-        parseString(subtree, tvb, &iOffset, hf_opcua_String);
+        parseString(subtree, tvb, &iOffset, hf_opcua_nodeid_string);
         break;
     case 0x04: /* guid */
         proto_tree_add_item(subtree, hf_opcua_nodeid_nsindex, tvb, iOffset, 2, ENC_LITTLE_ENDIAN);
         iOffset+=2;
-        parseGuid(subtree, tvb, &iOffset, hf_opcua_Guid);
+        parseGuid(subtree, tvb, &iOffset, hf_opcua_nodeid_guid);
         break;
     case 0x05: /* byte string */
         proto_tree_add_item(subtree, hf_opcua_nodeid_nsindex, tvb, iOffset, 2, ENC_LITTLE_ENDIAN);
         iOffset+=2;
-        parseByteString(subtree, tvb, &iOffset, hf_opcua_ByteString);
+        parseByteString(subtree, tvb, &iOffset, hf_opcua_nodeid_bytestring);
         break;
     };
 
