@@ -256,7 +256,7 @@ sub read_repo_info {
 			no warnings "all";
 			# If someone had properly tagged 1.9.0 we could also use
 			# "git describe --abbrev=1 --tags HEAD"
-			
+
 			$info_cmd = "(cd $srcdir; git log --format='%b' -n 1)";
 			$line = qx{$info_cmd};
 			if (defined($line)) {
@@ -708,6 +708,8 @@ make-version.pl [options] [source directory]
 
 Options can be used in any combination. If none are specified B<--set-svn>
 is assumed.
+
+=cut
 
 #
 # Editor modelines  -  http://www.wireshark.org/tools/modelines.html
