@@ -31,21 +31,43 @@
 #   and this notice are preserved. This file is offered as-is, without any
 #   warranty.
 
-#serial 12
+#serial 13
 
 AC_DEFUN([AX_EXT],
 [
   AC_REQUIRE([AC_CANONICAL_HOST])
 
   case $host_cpu in
+    powerpc*)
+      AC_CACHE_CHECK([whether altivec is supported], [ax_cv_have_altivec_ext],
+          [
+            if test `/usr/sbin/sysctl -a 2>/dev/null| grep -c hw.optional.altivec` != 0; then
+                if test `/usr/sbin/sysctl -n hw.optional.altivec` = 1; then
+                  ax_cv_have_altivec_ext=yes
+                fi
+            fi
+          ])
+
+          if test "$ax_cv_have_altivec_ext" = yes; then
+            AC_DEFINE(HAVE_ALTIVEC,,[Support Altivec instructions])
+            AX_CHECK_COMPILE_FLAG(-faltivec, SIMD_FLAGS="$SIMD_FLAGS -faltivec", [])
+          fi
+    ;;
+
+
     i[[3456]]86*|x86_64*|amd64*)
 
       AC_REQUIRE([AX_GCC_X86_CPUID])
       AC_REQUIRE([AX_GCC_X86_AVX_XGETBV])
 
       AX_GCC_X86_CPUID(0x00000001)
-      ecx=`echo $ax_cv_gcc_x86_cpuid_0x00000001 | cut -d ":" -f 3`
-      edx=`echo $ax_cv_gcc_x86_cpuid_0x00000001 | cut -d ":" -f 4`
+      ecx=0
+      edx=0
+      if test "$ax_cv_gcc_x86_cpuid_0x00000001" != "unknown";
+      then
+        ecx=`echo $ax_cv_gcc_x86_cpuid_0x00000001 | cut -d ":" -f 3`
+        edx=`echo $ax_cv_gcc_x86_cpuid_0x00000001 | cut -d ":" -f 4`
+      fi
 
       AC_CACHE_CHECK([whether mmx is supported], [ax_cv_have_mmx_ext],
       [
@@ -219,4 +241,3 @@ AC_DEFUN([AX_EXT],
 
   AC_SUBST(SIMD_FLAGS)
 ])
-
