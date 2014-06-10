@@ -23,7 +23,7 @@
 
 #include <glib.h>
 #include "ws_symbol_export.h"
-#ifdef HAVE_SSE42
+#ifdef HAVE_SSE4_2
 #include "ws_cpuid.h"
 #endif
 #include "ws_mempbrk.h"
@@ -50,13 +50,13 @@ _ws_mempbrk(const guint8* haystack, size_t haystacklen, const guint8 *needles)
 WS_DLL_PUBLIC const guint8 *
 ws_mempbrk(const guint8* haystack, size_t haystacklen, const guint8 *needles)
 {
-#ifdef HAVE_SSE42
+#ifdef HAVE_SSE4_2
 	static int have_sse42 = -1;
 #endif
 	if (*needles == 0)
 		return NULL;
 
-#ifdef HAVE_SSE42
+#ifdef HAVE_SSE4_2
 	if G_UNLIKELY(have_sse42 < 0)
 		have_sse42 = ws_cpuid_sse42();
 

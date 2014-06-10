@@ -60,6 +60,12 @@ AC_PROG_CPP
 AC_PROG_MKDIR_P
 AC_WIRESHARK_CLANG_CHECK
 
+#   Find supported SIMD extensions by requesting cpuid. When an SIMD
+#   extension is found, the -m"simdextensionname" is added to SIMD_FLAGS
+#   (only if compilator support it) (ie : if "sse2" is available "-msse2" is
+#   added to SIMD_FLAGS)
+AX_EXT
+
 dnl Work around libtool bug (fixed in the version 1.5a?)
 AC_DEFUN([AC_PROVIDE_AC_LIBTOOL_DLOPEN], )
 AC_LIBTOOL_DLOPEN

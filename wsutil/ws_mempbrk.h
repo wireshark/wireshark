@@ -26,7 +26,7 @@
 
 WS_DLL_PUBLIC const guint8 *ws_mempbrk(const guint8* haystack, size_t haystacklen, const guint8 *needles);
 
-#ifdef HAVE_SSE42
+#ifdef HAVE_SSE4_2
 const char *_ws_mempbrk_sse42(const char* haystack, size_t haystacklen, const char *needles);
 #endif
 

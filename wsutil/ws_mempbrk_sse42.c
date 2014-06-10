@@ -20,7 +20,7 @@
 
 #include "config.h"
 
-#ifdef HAVE_SSE42
+#ifdef HAVE_SSE4_2
 
 #include <glib.h>
 
@@ -191,7 +191,7 @@ _ws_mempbrk_sse42(const char *s, size_t slen, const char *a)
     return _ws_mempbrk(aligned, slen, a);
 }
 
-#endif /* HAVE_SSE42 */
+#endif /* HAVE_SSE4_2 */
 /*
  * Editor modelines
  *

@@ -83,7 +83,7 @@ libwsutil_la_SOURCES =		\
 libwsutil_sse42_la_SOURCES = \
 	ws_mempbrk_sse42.c
 	
-libwsutil_sse42_la_CFLAGS = $(AM_CFLAGS) -msse4.2
+libwsutil_sse42_la_CFLAGS = $(AM_CFLAGS) $(SIMD_FLAGS)
 
 EXTRA_libwsutil_la_SOURCES=	\
 	inet_aton.c		\
