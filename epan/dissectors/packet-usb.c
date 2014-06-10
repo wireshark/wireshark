@@ -2910,7 +2910,6 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
                    guint8 header_info)
 {
     gint                  offset = 0;
-    gint                  new_offset;
     int                   endpoint;
     gint                  type_2 = 0;
     guint8                urb_type;
@@ -3110,10 +3109,11 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
                 default:
                     /* Try to find a non-standard specific dissector */
                     if (tvb_reported_length_remaining(tvb, offset) != 0) {
-                            next_tvb = tvb_new_subset_remaining(tvb, offset);
-                            new_offset = try_dissect_next_protocol(tree, parent, next_tvb, offset, pinfo, usb_conv_info, type_2, urb_type, NULL, NULL);
-                            if (new_offset > offset)
-                                offset = new_offset;
+                        gint new_offset;
+                        next_tvb = tvb_new_subset_remaining(tvb, offset);
+                        new_offset = try_dissect_next_protocol(tree, parent, next_tvb, offset, pinfo, usb_conv_info, type_2, urb_type, NULL, NULL);
+                        if (new_offset > offset)
+                            offset = new_offset;
                     }
 
                     if (tvb_reported_length_remaining(tvb, offset) != 0) {
