@@ -3319,8 +3319,10 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
                 }
                 offset += 4;
 
-                if (iso_len && data_start_offset + this_offset + iso_len <= tvb_captured_length(tvb))
-                    proto_tree_add_item(tree, hf_usb_iso_data, tvb, (gint)(data_start_offset + this_offset), (gint)iso_len, ENC_NA);
+                if (iso_len && data_start_offset + this_offset + iso_len <= tvb_captured_length(tvb)) {
+                    proto_tree_add_item(iso_packet_tree, hf_usb_iso_data, tvb, (gint)(data_start_offset + this_offset), (gint)iso_len, ENC_NA);
+                    proto_tree_set_appendix(iso_packet_tree, tvb, (gint)(data_start_offset + this_offset), (gint)iso_len);
+                }
             }
             if ((usb_conv_info->is_request && usb_conv_info->direction==P2P_DIR_SENT) ||
                 (!usb_conv_info->is_request && usb_conv_info->direction==P2P_DIR_RECV)) {
