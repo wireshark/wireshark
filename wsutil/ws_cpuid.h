@@ -63,7 +63,7 @@ ws_cpuid(guint32 *CPUInfo _U_, int selector _U_)
 #else /* Other compilers */
 
 static int
-ws_cpuid(guint32 *CPUInfo, int selector _U_)
+ws_cpuid(guint32 *CPUInfo _U_, int selector _U_)
 {
 	return 0;
 }
