@@ -67,8 +67,6 @@
 
 #include "ui/gtk/old-gtk-compat.h"
 
-#include "../../image/voip_bg.xpm"
-
 /****************************************************************************/
 
 #define MAX_LABEL 50
