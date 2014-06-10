@@ -2767,7 +2767,6 @@ dissect_win32_usb_pseudo_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     guint8   transfer_type;
     guint8   endpoint_byte;
     guint8   transfer_type_and_direction;
-    guint8   usbpcap_control_stage = 0;
     guint16  hdr_len;
     guint8   tmp_val8;
 
@@ -2808,7 +2807,8 @@ dissect_win32_usb_pseudo_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
     proto_tree_add_item(tree, hf_usb_win32_data_len, tvb, 23, 4, ENC_LITTLE_ENDIAN);
 
-    /* by default, we assume it's no setup packet */
+    /* by default, we assume it's no setup packet
+       the correct values will be set when we parse the control header */
     usb_conv_info->is_setup = FALSE;
     usb_conv_info->setup_requesttype = 0;
 
@@ -2816,17 +2816,12 @@ dissect_win32_usb_pseudo_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     switch (transfer_type)
     {
         case URB_ISOCHRONOUS:
+        case URB_CONTROL:
             /* the rest of the pseudo-header is handled in dissect_usb_common() */
             return 27;
         case URB_INTERRUPT:
-            break;
-        case URB_CONTROL:
-            proto_tree_add_item(tree, hf_usb_control_stage, tvb, 27, 1, ENC_LITTLE_ENDIAN);
-            usbpcap_control_stage = tvb_get_guint8(tvb, 27);
-            if (usbpcap_control_stage == USB_CONTROL_STAGE_SETUP)
-                usb_conv_info->is_setup = TRUE;
-            break;
         case URB_BULK:
+            /* there's no transfer-specific data */
             break;
     }
 
@@ -2931,7 +2926,7 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
     gint                  new_offset;
     int                   endpoint;
     gint                  type_2 = 0;
-    guint8                urb_type, usbpcap_control_stage = 0;
+    guint8                urb_type;
     guint16               hdr_len = 0;
     guint32               win32_data_len = 0;
     proto_item           *tree_ti;
@@ -2984,14 +2979,13 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
 
     } else if (header_info & USB_HEADER_IS_USBPCAP) {
         offset = dissect_win32_usb_pseudo_header(tvb, pinfo, tree, usb_conv_info);
+        /* the length that we're setting here might have to be corrected
+           if there's a transfer-specific pseudo-header following */
+        proto_item_set_len(tree_ti, offset);
 
         hdr_len = tvb_get_letohs(tvb, 0);
         win32_data_len = tvb_get_letohl(tvb, 23);
 
-        proto_item_set_len(tree_ti, hdr_len);
-
-        if (usb_conv_info->transfer_type== URB_CONTROL)
-            usbpcap_control_stage = tvb_get_guint8(tvb, 27);
     }
 
     usb_conv_info->usb_trans_info = usb_get_trans_info(tvb, pinfo, tree, header_info, usb_conv_info);
@@ -3024,6 +3018,16 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
     case URB_CONTROL:
         {
         proto_tree *setup_tree = NULL;
+        guint8      usbpcap_control_stage = 0;
+
+        if (header_info & USB_HEADER_IS_USBPCAP) {
+            proto_tree_add_item(tree, hf_usb_control_stage, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            usbpcap_control_stage = tvb_get_guint8(tvb, offset);
+            if (usbpcap_control_stage == USB_CONTROL_STAGE_SETUP)
+                usb_conv_info->is_setup = TRUE;
+            offset++;
+            proto_item_set_len(tree_ti, offset);
+        }
 
         if (usb_conv_info->is_request) {
             if (usb_conv_info->is_setup) {
