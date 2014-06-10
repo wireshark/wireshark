@@ -53,7 +53,7 @@ ws_cpuid(guint32 *CPUInfo, int selector)
 #else /* (__i386__) */
 
 static int
-ws_cpuid(guint32 *CPUInfo, int selector _U_)
+ws_cpuid(guint32 *CPUInfo _U_, int selector _U_)
 {
 	/* TODO: need a test if older proccesors have the cpuid instruction */
 	return 0;
