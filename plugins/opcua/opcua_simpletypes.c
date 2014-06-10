@@ -278,7 +278,7 @@ void registerSimpleTypes(int proto)
         {  "has text", "opcua.has_text", FT_BOOLEAN, 8, NULL, LOCALIZEDTEXT_ENCODINGBYTE_TEXT, NULL, HFILL }
         },
         { &hf_opcua_nodeid_encodingmask,
-        {  "NodeId EncodingMask",        "application.nodeid.encodingmask", FT_UINT8,   BASE_HEX,  VALS(g_nodeidmasks), 0x0,    NULL,    HFILL }
+        {  "NodeId EncodingMask",        "application.nodeid.encodingmask", FT_UINT8,   BASE_HEX,  VALS(g_nodeidmasks), 0x0F,    NULL,    HFILL }
         },
         { &hf_opcua_nodeid_nsid,
         {  "NodeId Namespace Id",        "application.nodeid.nsid",         FT_UINT16,  BASE_DEC,  NULL, 0x0,    NULL,    HFILL }
@@ -914,7 +914,7 @@ void parseExpandedNodeId(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const c
     proto_tree_add_item(subtree, hf_opcua_nodeid_encodingmask, tvb, iOffset, 1, ENC_LITTLE_ENDIAN);
     iOffset++;
 
-    switch(EncodingMask)
+    switch(EncodingMask & 0x0F)
     {
     case 0x00: /* two byte node id */
         proto_tree_add_item(subtree, hf_opcua_nodeid_numeric, tvb, iOffset, 1, ENC_LITTLE_ENDIAN);
