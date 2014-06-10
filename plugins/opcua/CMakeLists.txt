@@ -34,6 +34,7 @@ set(DISSECTOR_SUPPORT_SRC
 	opcua_servicetable.c
 	opcua_extensionobjecttable.c
 	opcua_hfindeces.c
+	opcua_statuscode.c
 )
 
 set(PLUGIN_FILES
