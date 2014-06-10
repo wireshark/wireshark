@@ -1131,17 +1131,18 @@ dissect_lldp_chassis_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
 /* Dissect Port Id TLV (Mandatory) */
 static gint32
-dissect_lldp_port_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset)
+dissect_lldp_port_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset)
 {
 	guint8 tempType;
 	guint16 tempShort;
 	guint32 tempLen = 0;
+	const char *strPtr=NULL;
 	guint32 ip_addr = 0;
 	struct e_in6_addr ip6_addr;
 	guint8 addr_family = 0;
 
 	proto_tree	*port_tree = NULL;
-	proto_item	*tf = NULL;
+	proto_item	*tf = NULL, *lf = NULL;
 
 	/* Get tlv type */
 	tempShort = tvb_get_ntohs(tvb, offset);
@@ -1155,45 +1156,110 @@ dissect_lldp_port_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gu
 
 	/* Set port tree */
 	tf = proto_tree_add_text(tree, tvb, offset, (tempLen + 2), "Port Subtype = %s",
-							val_to_str_const(tempType, port_id_subtypes, "Unknown" ));
-	port_tree = proto_item_add_subtree(tf, ett_port_id);
+		val_to_str_const(tempType, port_id_subtypes, "Unknown" ));
 
+	port_tree = proto_item_add_subtree(tf, ett_port_id);
 	proto_tree_add_item(port_tree, hf_lldp_tlv_type, tvb, offset, 2, ENC_BIG_ENDIAN);
-	proto_tree_add_item(port_tree, hf_lldp_tlv_len, tvb, offset, 2, ENC_BIG_ENDIAN);
+	lf = proto_tree_add_item(port_tree, hf_lldp_tlv_len, tvb, offset, 2, ENC_BIG_ENDIAN);
+
+	if (tempLen < 2) {
+		expert_add_info_format(pinfo, lf, &ei_lldp_bad_length,
+			"Invalid Port ID Length (%u), expected > (2)", tempLen);
+
+		return -1;
+	}
 
 	/* Get port id subtype */
 	proto_tree_add_item(port_tree, hf_port_id_subtype, tvb, (offset+2), 1, ENC_BIG_ENDIAN);
 
-	/* Get port id */
-	/*proto_tree_add_text(port_tree, tvb, (offset+3), (tempLen-1), "Port Id: %s", strPtr);*/
 	switch (tempType)
 	{
 	case 3: /* MAC address */
+		if (tempLen != 7)
+		{
+			expert_add_info_format(pinfo, lf, &ei_lldp_bad_length,
+				"Invalid Port ID Length (%u) for Type (%s), expected (7)", tempLen, val_to_str_const(tempType, port_id_subtypes, ""));
+			return -1;
+		}
+
+		strPtr = tvb_ether_to_str(tvb, offset+3);
 		proto_tree_add_item(port_tree, hf_port_id_mac, tvb, (offset+3), 6, ENC_NA);
+
 		break;
 	case 4: /* Network address */
-		/* Network address
-		 * networkAddress is an octet string that identifies a particular network address family
-		 * and an associated network address that are encoded in network octet order.
-		 */
-		/* Network address family */
+		/* Get network address family */
+		addr_family = tvb_get_guint8(tvb,offset+3);
 		proto_tree_add_item(port_tree, hf_lldp_network_address_family, tvb, offset+3, 1, ENC_BIG_ENDIAN);
+		/* Check for IPv4 or IPv6 */
 		switch(addr_family){
 		case AFNUM_INET:
+			if (tempLen == 6){
+				ip_addr = tvb_get_ipv4(tvb, (offset+4));
+				strPtr = ip_to_str((guint8 *)&ip_addr);
+			}else{
+				expert_add_info_format(pinfo, lf, &ei_lldp_bad_length,
+					"Invalid Port ID Length (%u) for Type (%s, %s), expected (6)", tempLen, val_to_str_const(tempType, port_id_subtypes, ""), val_to_str_const(addr_family, afn_vals, ""));
+				return -1;
+			}
+
 			proto_tree_add_ipv4(port_tree, hf_port_id_ip4, tvb, (offset+4), 4, ip_addr);
+
 			break;
 		case AFNUM_INET6:
+			if  (tempLen == 18){
+				tvb_get_ipv6(tvb, (offset+4), &ip6_addr);
+				strPtr = ip6_to_str(&ip6_addr);
+			}else{
+				expert_add_info_format(pinfo, lf, &ei_lldp_bad_length,
+					"Invalid Port ID Length (%u) for Type (%s, %s), expected (18)", tempLen, val_to_str_const(tempType, port_id_subtypes, ""), val_to_str_const(addr_family, afn_vals, ""));
+				return -1;
+			}
+
 			proto_tree_add_ipv6(port_tree, hf_port_id_ip6, tvb, (offset+4), 16, ip6_addr.bytes);
+
 			break;
 		default:
+			strPtr = tvb_bytes_to_ep_str(tvb, (offset+4), (tempLen-2));
 			proto_tree_add_item(port_tree, hf_port_id, tvb, (offset+4), (tempLen-2), ENC_ASCII|ENC_NA);
+
 			break;
 		}
+
 		break;
+	case 1: /* Interface alias */
+	case 2: /* Port Component */
+	case 5: /* Interface name */
+	case 6: /* Agent circuit ID */
+	case 7: /* Locally assigned */
 	default:
+		if (tempLen > 256)
+		{
+			expert_add_info_format(pinfo, lf, &ei_lldp_bad_length_excess,
+				"Invalid Port ID Length (%u) for Type (%s), expected < (256)", tempLen, val_to_str_const(tempType, port_id_subtypes, ""));
+			return -1;
+		}
+
+		switch (tempType)
+		{
+		case 2: /* Port component */
+			strPtr = tvb_bytes_to_ep_str(tvb, (offset+3), (tempLen-1));
+			break;
+		case 1: /* Interface alias */
+		case 5: /* Interface name */
+		case 6: /* Agent circuit ID */
+		case 7: /* Locally assigned */
+			strPtr = tvb_format_stringzpad(tvb, (offset+3), (tempLen-1));
+			break;
+		default:
+			strPtr = "Reserved";
+			break;
+		}
+
 		proto_tree_add_item(port_tree, hf_port_id, tvb, (offset+3), (tempLen-1), ENC_ASCII|ENC_NA);
 		break;
 	}
+
+	proto_item_append_text(tf, ", Id: %s", strPtr);
 
 	return (tempLen + 2);
 }
