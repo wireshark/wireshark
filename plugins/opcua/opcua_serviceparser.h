@@ -25,6 +25,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 
+void parseServiceFault(proto_tree *tree, tvbuff_t *tvb, gint *pOffset);
 void parseFindServersRequest(proto_tree *tree, tvbuff_t *tvb, gint *pOffset);
 void parseFindServersResponse(proto_tree *tree, tvbuff_t *tvb, gint *pOffset);
 void parseGetEndpointsRequest(proto_tree *tree, tvbuff_t *tvb, gint *pOffset);

@@ -316,14 +316,6 @@ void parseResponseHeader(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const c
   parseExtensionObject(subtree, tvb, pOffset, "AdditionalHeader");
   proto_item_set_end(ti, tvb, *pOffset);
 }
-gint ett_opcua_ServiceFault = -1;
-void parseServiceFault(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
-{
-  proto_item *ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "%s : ServiceFault", szFieldName);
-  proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_ServiceFault);
-  parseResponseHeader(subtree, tvb, pOffset, "ResponseHeader");
-  proto_item_set_end(ti, tvb, *pOffset);
-}
 gint ett_opcua_UserTokenPolicy = -1;
 void parseUserTokenPolicy(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
@@ -1805,7 +1797,6 @@ static gint *ett[] =
   &ett_opcua_ApplicationDescription,
   &ett_opcua_RequestHeader,
   &ett_opcua_ResponseHeader,
-  &ett_opcua_ServiceFault,
   &ett_opcua_UserTokenPolicy,
   &ett_opcua_EndpointDescription,
   &ett_opcua_RegisteredServer,

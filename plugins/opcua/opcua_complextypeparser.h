@@ -44,7 +44,6 @@ void parseTimeZoneDataType(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const
 void parseApplicationDescription(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName);
 void parseRequestHeader(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName);
 void parseResponseHeader(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName);
-void parseServiceFault(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName);
 void parseUserTokenPolicy(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName);
 void parseEndpointDescription(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName);
 void parseRegisteredServer(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName);

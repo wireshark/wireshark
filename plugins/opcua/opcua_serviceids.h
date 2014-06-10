@@ -22,6 +22,7 @@
 **
 ******************************************************************************/
 
+#define OpcUaId_ServiceFault_Encoding_DefaultBinary 397
 #define OpcUaId_TestStackRequest_Encoding_DefaultBinary 410
 #define OpcUaId_TestStackResponse_Encoding_DefaultBinary 413
 #define OpcUaId_TestStackExRequest_Encoding_DefaultBinary 416
