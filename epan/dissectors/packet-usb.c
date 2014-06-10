@@ -2763,7 +2763,7 @@ dissect_linux_usb_pseudo_header_ext(tvbuff_t *tvb, int offset,
    return the number of bytes processed */
 static gint
 dissect_usbpcap_buffer_packet_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-        usb_conv_info_t *usb_conv_info)
+        usb_conv_info_t *usb_conv_info, guint32 *win32_data_len)
 {
     guint8   transfer_type;
     guint8   endpoint_byte;
@@ -2803,6 +2803,7 @@ dissect_usbpcap_buffer_packet_header(tvbuff_t *tvb, packet_info *pinfo, proto_tr
     col_append_str(pinfo->cinfo, COL_INFO,
                    val_to_str(transfer_type_and_direction, usb_transfer_type_and_direction_vals, "Unknown type %x"));
 
+    *win32_data_len = tvb_get_letohl(tvb, 23);
     proto_tree_add_item(tree, hf_usb_win32_data_len, tvb, 23, 4, ENC_LITTLE_ENDIAN);
 
     /* by default, we assume it's no setup packet
@@ -2963,12 +2964,10 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
         offset = dissect_linux_usb_pseudo_header(tvb, pinfo, tree, usb_conv_info);
 
     } else if (header_info & USB_HEADER_IS_USBPCAP) {
-        offset = dissect_usbpcap_buffer_packet_header(tvb, pinfo, tree, usb_conv_info);
+        offset = dissect_usbpcap_buffer_packet_header(tvb, pinfo, tree, usb_conv_info, &win32_data_len);
         /* the length that we're setting here might have to be corrected
            if there's a transfer-specific pseudo-header following */
         proto_item_set_len(urb_tree_ti, offset);
-
-        win32_data_len = tvb_get_letohl(tvb, 23);
     }
 
     usb_conv_info->usb_trans_info = usb_get_trans_info(tvb, pinfo, tree, header_info, usb_conv_info);
