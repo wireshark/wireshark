@@ -3241,9 +3241,6 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
             guint32 num_packets;
             guint32 i;
             guint32 data_start_offset;
-            proto_tree *urb_tree;
-
-            urb_tree = parent;
 
             proto_tree_add_item(tree, hf_usb_win32_iso_start_frame, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset += 4;
@@ -3266,7 +3263,7 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
                 proto_item *ti;
 
                 if (parent) {
-                    ti = proto_tree_add_protocol_format(urb_tree, proto_usb, tvb, offset,
+                    ti = proto_tree_add_protocol_format(parent, proto_usb, tvb, offset,
                                                         12, "USB isochronous packet");
                     tree = proto_item_add_subtree(ti, usb_win32_iso_packet);
                 }
