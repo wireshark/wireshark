@@ -2900,7 +2900,7 @@ dissect_lpp_GNSS_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pro
 
 static int
 dissect_lpp_T_sbas_IDs(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1322 "../../asn1/lpp/lpp.cnf"
+#line 1325 "../../asn1/lpp/lpp.cnf"
   tvbuff_t *sbas_IDs_tvb = NULL;
   int len;
 
@@ -3111,7 +3111,7 @@ dissect_lpp_GNSS_SupportList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 
 static int
 dissect_lpp_T_gnss_ids(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1296 "../../asn1/lpp/lpp.cnf"
+#line 1299 "../../asn1/lpp/lpp.cnf"
   tvbuff_t *gnss_ids_tvb = NULL;
   int len;
 
@@ -3190,7 +3190,7 @@ dissect_lpp_GNSS_ReferenceLocationSupport(tvbuff_t *tvb _U_, int offset _U_, asn
 
 static int
 dissect_lpp_T_ionoModel(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1175 "../../asn1/lpp/lpp.cnf"
+#line 1178 "../../asn1/lpp/lpp.cnf"
   tvbuff_t *ionoModel_tvb = NULL;
   int len;
 
@@ -3322,7 +3322,7 @@ dissect_lpp_GNSS_DifferentialCorrectionsSupport(tvbuff_t *tvb _U_, int offset _U
 
 static int
 dissect_lpp_T_clockModel(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1192 "../../asn1/lpp/lpp.cnf"
+#line 1195 "../../asn1/lpp/lpp.cnf"
   tvbuff_t *clockModel_tvb = NULL;
   int len;
 
@@ -3359,7 +3359,7 @@ dissect_lpp_T_clockModel(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 
 static int
 dissect_lpp_T_orbitModel(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1218 "../../asn1/lpp/lpp.cnf"
+#line 1221 "../../asn1/lpp/lpp.cnf"
   tvbuff_t *orbitModel_tvb = NULL;
   int len;
 
@@ -3482,7 +3482,7 @@ dissect_lpp_GNSS_AcquisitionAssistanceSupport(tvbuff_t *tvb _U_, int offset _U_,
 
 static int
 dissect_lpp_T_almanacModel(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1244 "../../asn1/lpp/lpp.cnf"
+#line 1247 "../../asn1/lpp/lpp.cnf"
   tvbuff_t *almanacModel_tvb = NULL;
   int len;
 
@@ -3536,7 +3536,7 @@ dissect_lpp_GNSS_AlmanacSupport(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 
 static int
 dissect_lpp_T_utc_Model(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1273 "../../asn1/lpp/lpp.cnf"
+#line 1276 "../../asn1/lpp/lpp.cnf"
   tvbuff_t *utc_Model_tvb = NULL;
   int len;
 
@@ -3837,7 +3837,7 @@ dissect_lpp_OTDOA_ProvideCapabilities(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
 
 static int
 dissect_lpp_T_ecid_MeasSupported(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1374 "../../asn1/lpp/lpp.cnf"
+#line 1377 "../../asn1/lpp/lpp.cnf"
   tvbuff_t *ecid_MeasSupported_tvb = NULL;
   int len;
 
@@ -4211,7 +4211,7 @@ dissect_lpp_T_gnss_WeekOrDay(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 4095U, NULL, FALSE);
 
-#line 1121 "../../asn1/lpp/lpp.cnf"
+#line 1124 "../../asn1/lpp/lpp.cnf"
   proto_item_append_text(actx->created_item, " (days for glonass, weeks otherwise)");
 
 
@@ -4225,7 +4225,7 @@ dissect_lpp_T_gnss_Toe(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, 
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 255U, NULL, FALSE);
 
-#line 1124 "../../asn1/lpp/lpp.cnf"
+#line 1127 "../../asn1/lpp/lpp.cnf"
   proto_item_append_text(actx->created_item, " (units of 15 mns for glonass, hours otherwise)");
 
 
@@ -4239,7 +4239,7 @@ dissect_lpp_T_t_toeLimit(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 15U, NULL, FALSE);
 
-#line 1127 "../../asn1/lpp/lpp.cnf"
+#line 1130 "../../asn1/lpp/lpp.cnf"
   proto_item_append_text(actx->created_item, " (units of 30 mns for glonass, hours otherwise)");
 
 
@@ -4435,7 +4435,7 @@ dissect_lpp_T_gnss_TOD_Req(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 3599U, NULL, FALSE);
 
-#line 1130 "../../asn1/lpp/lpp.cnf"
+#line 1133 "../../asn1/lpp/lpp.cnf"
   proto_item_append_text(actx->created_item, " s");
 
 
@@ -4449,7 +4449,7 @@ dissect_lpp_T_gnss_TOD_FracReq(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 999U, NULL, FALSE);
 
-#line 1133 "../../asn1/lpp/lpp.cnf"
+#line 1136 "../../asn1/lpp/lpp.cnf"
   proto_item_append_text(actx->created_item, " ms");
 
 
@@ -6690,7 +6690,7 @@ dissect_lpp_T_gnss_TOD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, 
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 3599U, NULL, FALSE);
 
-#line 848 "../../asn1/lpp/lpp.cnf"
+#line 851 "../../asn1/lpp/lpp.cnf"
   proto_item_append_text(actx->created_item, " s");
 
 
@@ -6704,7 +6704,7 @@ dissect_lpp_T_gnss_TODfrac(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 999U, NULL, FALSE);
 
-#line 851 "../../asn1/lpp/lpp.cnf"
+#line 854 "../../asn1/lpp/lpp.cnf"
   proto_item_append_text(actx->created_item, " ms");
 
 
@@ -6822,7 +6822,7 @@ dissect_lpp_T_intCodePhase(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 127U, NULL, FALSE);
 
-#line 869 "../../asn1/lpp/lpp.cnf"
+#line 872 "../../asn1/lpp/lpp.cnf"
   proto_item_append_text(actx->created_item, " ms");
 
 
@@ -6893,7 +6893,7 @@ dissect_lpp_T_confidence_r10(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 100U, NULL, FALSE);
 
-#line 854 "../../asn1/lpp/lpp.cnf"
+#line 857 "../../asn1/lpp/lpp.cnf"
   proto_item_append_text(actx->created_item, " %%");
 
 
@@ -7047,7 +7047,7 @@ dissect_lpp_T_gloAlm_NA(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             1U, 1461U, NULL, FALSE);
 
-#line 971 "../../asn1/lpp/lpp.cnf"
+#line 974 "../../asn1/lpp/lpp.cnf"
   proto_item_append_text(actx->created_item, " days");
 
 
@@ -7222,7 +7222,7 @@ dissect_lpp_T_gnss_Utc_WNt(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 255U, NULL, FALSE);
 
-#line 1028 "../../asn1/lpp/lpp.cnf"
+#line 1031 "../../asn1/lpp/lpp.cnf"
   proto_item_append_text(actx->created_item, " weeks");
 
 
@@ -7236,7 +7236,7 @@ dissect_lpp_T_gnss_Utc_DeltaTls(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             -128, 127U, NULL, FALSE);
 
-#line 1031 "../../asn1/lpp/lpp.cnf"
+#line 1034 "../../asn1/lpp/lpp.cnf"
   proto_item_append_text(actx->created_item, " s");
 
 
@@ -7250,7 +7250,7 @@ dissect_lpp_T_gnss_Utc_WNlsf(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 255U, NULL, FALSE);
 
-#line 1034 "../../asn1/lpp/lpp.cnf"
+#line 1037 "../../asn1/lpp/lpp.cnf"
   proto_item_append_text(actx->created_item, " weeks");
 
 
@@ -7264,7 +7264,7 @@ dissect_lpp_T_gnss_Utc_DN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             -128, 127U, NULL, FALSE);
 
-#line 1037 "../../asn1/lpp/lpp.cnf"
+#line 1040 "../../asn1/lpp/lpp.cnf"
   proto_item_append_text(actx->created_item, " days");
 
 
@@ -7278,7 +7278,7 @@ dissect_lpp_T_gnss_Utc_DeltaTlsf(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             -128, 127U, NULL, FALSE);
 
-#line 1040 "../../asn1/lpp/lpp.cnf"
+#line 1043 "../../asn1/lpp/lpp.cnf"
   proto_item_append_text(actx->created_item, " s");
 
 
@@ -7313,7 +7313,7 @@ dissect_lpp_T_utcDeltaTls(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             -128, 127U, NULL, FALSE);
 
-#line 1052 "../../asn1/lpp/lpp.cnf"
+#line 1055 "../../asn1/lpp/lpp.cnf"
   proto_item_append_text(actx->created_item, " s");
 
 
@@ -7327,7 +7327,7 @@ dissect_lpp_T_utcWNot(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, p
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 8191U, NULL, FALSE);
 
-#line 1058 "../../asn1/lpp/lpp.cnf"
+#line 1061 "../../asn1/lpp/lpp.cnf"
   proto_item_append_text(actx->created_item, " weeks");
 
 
@@ -7341,7 +7341,7 @@ dissect_lpp_T_utcWNlsf(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, 
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 255U, NULL, FALSE);
 
-#line 1061 "../../asn1/lpp/lpp.cnf"
+#line 1064 "../../asn1/lpp/lpp.cnf"
   proto_item_append_text(actx->created_item, " weeks");
 
 
@@ -7355,7 +7355,7 @@ dissect_lpp_T_utcDN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pro
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
                                      4, 4, FALSE, NULL, NULL);
 
-#line 1064 "../../asn1/lpp/lpp.cnf"
+#line 1067 "../../asn1/lpp/lpp.cnf"
   proto_item_append_text(actx->created_item, " days");
 
 
@@ -7369,7 +7369,7 @@ dissect_lpp_T_utcDeltaTlsf(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             -128, 127U, NULL, FALSE);
 
-#line 1067 "../../asn1/lpp/lpp.cnf"
+#line 1070 "../../asn1/lpp/lpp.cnf"
   proto_item_append_text(actx->created_item, " s");
 
 
@@ -7405,7 +7405,7 @@ dissect_lpp_T_nA(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             1U, 1461U, NULL, FALSE);
 
-#line 1070 "../../asn1/lpp/lpp.cnf"
+#line 1073 "../../asn1/lpp/lpp.cnf"
   proto_item_append_text(actx->created_item, " days");
 
 
@@ -7416,7 +7416,7 @@ dissect_lpp_T_nA(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_
 
 static int
 dissect_lpp_T_kp(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1082 "../../asn1/lpp/lpp.cnf"
+#line 1085 "../../asn1/lpp/lpp.cnf"
   tvbuff_t *kp_tvb = NULL;
   offset = dissect_per_bit_string(tvb, offset, actx, tree, -1,
                                      2, 2, FALSE, &kp_tvb, NULL);
@@ -7424,7 +7424,7 @@ dissect_lpp_T_kp(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_
 
 
 
-#line 1086 "../../asn1/lpp/lpp.cnf"
+#line 1089 "../../asn1/lpp/lpp.cnf"
   if (kp_tvb) {
     actx->created_item = proto_tree_add_uint(tree, hf_index, kp_tvb, 0, 1, tvb_get_bits8(kp_tvb, 0, 2));
   }
@@ -7458,7 +7458,7 @@ dissect_lpp_T_utcWNt(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 255U, NULL, FALSE);
 
-#line 1103 "../../asn1/lpp/lpp.cnf"
+#line 1106 "../../asn1/lpp/lpp.cnf"
   proto_item_append_text(actx->created_item, " weeks");
 
 
@@ -7472,7 +7472,7 @@ dissect_lpp_T_utcDeltaTls_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             -128, 127U, NULL, FALSE);
 
-#line 1106 "../../asn1/lpp/lpp.cnf"
+#line 1109 "../../asn1/lpp/lpp.cnf"
   proto_item_append_text(actx->created_item, " s");
 
 
@@ -7486,7 +7486,7 @@ dissect_lpp_T_utcWNlsf_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 255U, NULL, FALSE);
 
-#line 1109 "../../asn1/lpp/lpp.cnf"
+#line 1112 "../../asn1/lpp/lpp.cnf"
   proto_item_append_text(actx->created_item, " weeks");
 
 
@@ -7500,7 +7500,7 @@ dissect_lpp_T_utcDN_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, 
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             -128, 127U, NULL, FALSE);
 
-#line 1112 "../../asn1/lpp/lpp.cnf"
+#line 1115 "../../asn1/lpp/lpp.cnf"
   proto_item_append_text(actx->created_item, " days");
 
 
@@ -7514,7 +7514,7 @@ dissect_lpp_T_utcDeltaTlsf_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             -128, 127U, NULL, FALSE);
 
-#line 1115 "../../asn1/lpp/lpp.cnf"
+#line 1118 "../../asn1/lpp/lpp.cnf"
   proto_item_append_text(actx->created_item, " s");
 
 
@@ -8570,7 +8570,7 @@ dissect_lpp_OTDOA_RequestLocationInformation(tvbuff_t *tvb _U_, int offset _U_, 
 
 static int
 dissect_lpp_T_requestedMeasurements(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1354 "../../asn1/lpp/lpp.cnf"
+#line 1357 "../../asn1/lpp/lpp.cnf"
   tvbuff_t *requestedMeasurements_tvb = NULL;
   int len;
 
@@ -9304,7 +9304,7 @@ dissect_lpp_T_gnss_TOD_msec(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 3599999U, NULL, FALSE);
 
-#line 1139 "../../asn1/lpp/lpp.cnf"
+#line 1142 "../../asn1/lpp/lpp.cnf"
   proto_item_append_text(actx->created_item, " ms");
 
 
@@ -9435,7 +9435,7 @@ dissect_lpp_T_deltaGNSS_TOD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 127U, NULL, FALSE);
 
-#line 1148 "../../asn1/lpp/lpp.cnf"
+#line 1151 "../../asn1/lpp/lpp.cnf"
   proto_item_append_text(actx->created_item, " ms");
 
 
@@ -9509,7 +9509,7 @@ dissect_lpp_T_gnss_CodePhaseAmbiguity(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 127U, NULL, FALSE);
 
-#line 1151 "../../asn1/lpp/lpp.cnf"
+#line 1154 "../../asn1/lpp/lpp.cnf"
   proto_item_append_text(actx->created_item, " ms");
 
 
@@ -9523,7 +9523,7 @@ dissect_lpp_T_cNo(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 63U, NULL, FALSE);
 
-#line 1154 "../../asn1/lpp/lpp.cnf"
+#line 1157 "../../asn1/lpp/lpp.cnf"
   proto_item_append_text(actx->created_item, " dB-Hz");
 
 
@@ -9555,7 +9555,7 @@ dissect_lpp_T_integerCodePhase(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 127U, NULL, FALSE);
 
-#line 1163 "../../asn1/lpp/lpp.cnf"
+#line 1166 "../../asn1/lpp/lpp.cnf"
   proto_item_append_text(actx->created_item, " ms");
 
 
@@ -12509,7 +12509,7 @@ void proto_register_lpp(void) {
         NULL, HFILL }},
     { &hf_lpp_gloP1,
       { "gloP1", "lpp.gloP1",
-        FT_BYTES, BASE_NONE, NULL, 0,
+        FT_UINT8, BASE_DEC, NULL, 0,
         NULL, HFILL }},
     { &hf_lpp_gloP2,
       { "gloP2", "lpp.gloP2",
