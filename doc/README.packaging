@@ -23,7 +23,7 @@ this location. Don't use http://www.wireshark.org/download/src.
 Logo and icon artwork can be found in the "image" directory in the
 distribution. This is available online at
 
-    http://anonsvn.wireshark.org/wireshark/trunk/image/
+    https://code.wireshark.org/review/gitweb?p=wireshark.git;a=tree;f=image;hb=HEAD
 
 2. Licensing.
 
