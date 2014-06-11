@@ -10,7 +10,7 @@ Build-Depends: libgtk-3-dev,
  qt4-qmake, libqt4-dev,
  libpcap0.8-dev, flex, libz-dev, debhelper (>= 9), po-debconf, libtool,
  python (>= 2.6.6-3~), python-ply, libc-ares-dev, xsltproc,
- docbook-xsl (>= 1.64.1.0-0), libxml2-utils, libpcre3-dev,
+ docbook-xsl (>= 1.64.1.0-0), docbook-xml, libxml2-utils, libpcre3-dev,
  libcap2-dev [linux-any] | libcap-dev (>= 2.17) [linux-any],
  bison, quilt,
 # enable versioned libgnutls28-dev below to have GPLv2+ compatible GMP
