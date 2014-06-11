@@ -833,6 +833,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-isakmp.c
 	dissectors/packet-iscsi.c
 	dissectors/packet-isdn.c
+	dissectors/packet-iser.c
 	dissectors/packet-isis-clv.c
 	dissectors/packet-isis-hello.c
 	dissectors/packet-isis-lsp.c
