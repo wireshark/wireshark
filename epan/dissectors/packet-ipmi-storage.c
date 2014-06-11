@@ -268,7 +268,7 @@ static void
 rs11(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_ipmi_stor_11_ret_count, tvb, 0, 1, ENC_LITTLE_ENDIAN);
-	proto_tree_add_item(tree, hf_ipmi_stor_11_data, tvb, 1, tvb_length(tvb) - 1, ENC_NA);
+	proto_tree_add_item(tree, hf_ipmi_stor_11_data, tvb, 1, -1, ENC_NA);
 }
 
 static const value_string cc11[] = {
@@ -283,7 +283,7 @@ rq12(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_ipmi_stor_12_fruid, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, hf_ipmi_stor_12_offset, tvb, 1, 2, ENC_LITTLE_ENDIAN);
-	proto_tree_add_item(tree, hf_ipmi_stor_12_data, tvb, 1, tvb_length(tvb) - 1, ENC_NA);
+	proto_tree_add_item(tree, hf_ipmi_stor_12_data, tvb, 3, -1, ENC_NA);
 }
 
 static void
@@ -354,7 +354,7 @@ static void
 rs23(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_ipmi_stor_23_next, tvb, 0, 2, ENC_LITTLE_ENDIAN);
-	proto_tree_add_item(tree, hf_ipmi_stor_23_data, tvb, 2, tvb_length(tvb) - 2, ENC_NA);
+	proto_tree_add_item(tree, hf_ipmi_stor_23_data, tvb, 2, -1, ENC_NA);
 }
 
 /* Add SDR
@@ -362,7 +362,7 @@ rs23(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 static void
 rq24(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_ipmi_stor_24_data, tvb, 0, tvb_length(tvb), ENC_NA);
+	proto_tree_add_item(tree, hf_ipmi_stor_24_data, tvb, 0, -1, ENC_NA);
 }
 
 static void
@@ -383,7 +383,7 @@ rq25(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	proto_tree_add_item(tree, hf_ipmi_stor_25_offset, tvb, 4, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_bitmask_text(tree, tvb, 5, 1, NULL, NULL,
 			ett_ipmi_stor_25_byte6, byte6, ENC_LITTLE_ENDIAN, 0);
-	proto_tree_add_item(tree, hf_ipmi_stor_25_data, tvb, 6, tvb_length(tvb) - 6, ENC_NA);
+	proto_tree_add_item(tree, hf_ipmi_stor_25_data, tvb, 6, -1, ENC_NA);
 }
 
 static void
@@ -532,7 +532,7 @@ static void
 rs43(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_ipmi_stor_43_next, tvb, 0, 2, ENC_LITTLE_ENDIAN);
-	proto_tree_add_item(tree, hf_ipmi_stor_43_data, tvb, 2, tvb_length(tvb) - 2, ENC_NA);
+	proto_tree_add_item(tree, hf_ipmi_stor_43_data, tvb, 2, -1, ENC_NA);
 }
 
 static const value_string cc43[] = {
@@ -546,7 +546,7 @@ static const value_string cc43[] = {
 static void
 rq44(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_ipmi_stor_44_data, tvb, 0, tvb_length(tvb), ENC_NA);
+	proto_tree_add_item(tree, hf_ipmi_stor_44_data, tvb, 0, -1, ENC_NA);
 }
 
 static void
@@ -573,7 +573,7 @@ rq45(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	proto_tree_add_item(tree, hf_ipmi_stor_45_offset, tvb, 4, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_bitmask_text(tree, tvb, 5, 1, NULL, NULL,
 			ett_ipmi_stor_45_byte6, byte6, ENC_LITTLE_ENDIAN, 0);
-	proto_tree_add_item(tree, hf_ipmi_stor_45_data, tvb, 6, tvb_length(tvb) - 6, ENC_NA);
+	proto_tree_add_item(tree, hf_ipmi_stor_45_data, tvb, 6, -1, ENC_NA);
 }
 
 static void
@@ -651,8 +651,8 @@ rq5a(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	static const int *byte1[] = { &hf_ipmi_stor_5a_log_type, NULL };
 
+	ipmi_set_data(pinfo, 0, tvb_get_guint8(tvb, 0) & 0x0f);
 	if (!tree) {
-		ipmi_setsaveddata(0, tvb_get_guint8(tvb, 0) & 0x0f);
 		return;
 	}
 
@@ -665,8 +665,8 @@ rs5a(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	guint32 v;
 
-	if (!ipmi_getsaveddata(0, &v) || v > 2) {
-		proto_tree_add_item(tree, hf_ipmi_stor_5a_unknown, tvb, 0, tvb_length(tvb), ENC_NA);
+	if (!ipmi_get_data(pinfo, 0, &v) || v > 2) {
+		proto_tree_add_item(tree, hf_ipmi_stor_5a_unknown, tvb, 0, -1, ENC_NA);
 		return;
 	}
 
@@ -691,7 +691,7 @@ rq5b(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 			ett_ipmi_stor_5b_byte1, byte1, ENC_LITTLE_ENDIAN, 0);
 
 	if (v > 2) {
-		proto_tree_add_item(tree, hf_ipmi_stor_5b_unknown, tvb, 1, tvb_length(tvb) - 1, ENC_NA);
+		proto_tree_add_item(tree, hf_ipmi_stor_5b_unknown, tvb, 1, -1, ENC_NA);
 		return;
 	}
 

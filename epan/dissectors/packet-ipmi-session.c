@@ -173,7 +173,7 @@ dissect_ipmi_session(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 	if (tree) {
 		offset = 0;
 		ti = proto_tree_add_protocol_format(tree, proto_ipmi_session,
-				tvb, 0, tvb_length(tvb),
+				tvb, 0, -1,
 				"IPMI v%s Session Wrapper, session ID 0x%x",
 				authtype == IPMI_AUTH_RMCPP ? "2.0+" : "1.5",
 				session_id);
@@ -251,12 +251,12 @@ dissect_ipmi_session(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 		offset += msg_len;
 
 		/* Show the rest of the session wrapper as binary data */
-		if (offset < tvb_length(tvb)) {
+		if (offset < tvb_captured_length(tvb)) {
 			proto_tree_add_item(sess_tree, hf_ipmi_session_trailer,
-					tvb, offset, tvb_length(tvb) - offset, ENC_NA);
+					tvb, offset, -1, ENC_NA);
 		}
 	}
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 void

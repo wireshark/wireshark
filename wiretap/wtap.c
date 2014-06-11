@@ -734,6 +734,9 @@ static struct encap_type_info encap_table_base[] = {
 
 	/* WTAP_ENCAP_EPON */
 	{ "Ethernet Passive Optical Network", "epon" },
+
+	/* WTAP_ENCAP_IPMI_TRACE */
+	{ "IPMI Trace Data Collection", "ipmi-trace" },
 };
 
 WS_DLL_LOCAL

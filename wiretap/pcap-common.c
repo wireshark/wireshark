@@ -430,7 +430,10 @@ static const struct {
 	/* Ethernet Passive Optical Network */
 	{ 259,		WTAP_ENCAP_EPON },
 
-  /*
+	/* IPMI Trace Data Collection */
+	{ 260,		WTAP_ENCAP_IPMI_TRACE },
+
+	/*
 	 * To repeat:
 	 *
 	 * If you need a new encapsulation type for libpcap files, do

@@ -54,23 +54,36 @@ enum {
 	IPMI_OEM_PPS		/* Pigeon Point Systems extensions */
 };
 
-/* IPMI header fields */
-struct ipmi_header {
-	guint8 trg_sa;
-	guint8 trg_lun;
-	guint8 src_sa;
-	guint8 src_lun;
-	guint8 netfn;
-	guint8 cmd;
-	guint8 seq;
-	guint8 ccode;
-	guint8 data_len;
+/*
+ * Command context (environment).
+ */
+enum {
+	IPMI_E_NONE,		/* no surround environment */
+	IPMI_E_SENDMSG_RQ,	/* encapsulated into Send Message request */
+	IPMI_E_SENDMSG_RS,	/* encapsulated into Send Message response */
+	IPMI_E_GETMSG		/* encapsulated into Get Message response */
 };
 
-extern struct ipmi_header *ipmi_current_hdr;
+/*
+ * Cached IPMI message header.
+ */
+typedef struct {
+	guint8 context;
+	guint8 channel;
+	guint8 dir;
+	guint8 session;
+	guint8 rs_sa;
+	guint8 rs_lun;
+	guint8 netfn;
+	guint8 rq_sa;
+	guint8 rq_lun;
+	guint8 rq_seq;
+	guint8 cmd;
+} ipmi_header_t;
 
 /* Sub-parser */
-typedef void (*ipmi_cmd_handler_t)(tvbuff_t *, packet_info *, proto_tree *);
+typedef void (*ipmi_cmd_handler_t)(tvbuff_t *,
+		packet_info *, proto_tree *);
 
 /* IPMI command structure.  */
 typedef struct {
@@ -84,12 +97,19 @@ typedef struct {
 } ipmi_cmd_t;
 
 /* Command flags */
-#define CMD_MAYBROADCAST	0x01		/* Command can be broadcast over IPMB */
 #define CMD_CALLRQ		0x02		/* Call request handler early to cache data */
-#define CMD_NEWCONV		0x04		/* This command starts new conversation */
 
-void ipmi_setsaveddata(guint idx, guint32 val);
-gboolean ipmi_getsaveddata(guint idx, guint32 *val);
+/* Get currently parsed message header */
+const ipmi_header_t * ipmi_get_hdr(packet_info * pinfo);
+
+/* Get completion code for currently parsed message */
+guint8 ipmi_get_ccode(packet_info * pinfo);
+
+/* Save request data for later use in response */
+void ipmi_set_data(packet_info *pinfo, guint idx, guint32 data);
+
+/* Get saved request data */
+gboolean ipmi_get_data(packet_info *pinfo, guint idx, guint32 * data);
 
 /* Top-level search structure: signatures (if any) + command table */
 typedef struct ipmi_netfn_handler {
@@ -154,31 +174,40 @@ void ipmi_register_se(int proto);
 void ipmi_register_storage(int proto);
 void ipmi_register_transport(int proto);
 void ipmi_register_update(int proto);
+void ipmi_register_vita(int proto);
 
 /* Main dissection routine */
-#define IPMI_D_NONE			0x0001 /* Do not parse at all */
-#define IPMI_D_SESSION_HANDLE		0x0002 /* Session handle */
-#define IPMI_D_BROADCAST		0x0004 /* Check for broadcast message */
-#define IPMI_D_TRG_SA			0x0008 /* Target slave addr is present */
+#define IPMI_D_NONE		0x0001 /* Do not parse at all */
+#define IPMI_D_SESSION_HANDLE	0x0002 /* Session handle */
+#define IPMI_D_BROADCAST	0x0004 /* Check for broadcast message */
+#define IPMI_D_TRG_SA		0x0008 /* Target slave addr is present */
+#define IPMI_D_TMODE		0x0010 /* Bridged field instead of Rq LUN */
+#define IPMI_D_NO_CKS		0x0020 /* Checksum bytes are not present */
+#define IPMI_D_NO_RQ_SA		0x0040 /* RQ SA is not present */
+#define IPMI_D_NO_SEQ		0x0080 /* RQ Seq is not present */
 
-struct ipmi_reqresp;
-
+/* IPMI dissector argument */
 typedef struct {
-	guint32 flags;
-	gchar info[ITEM_LABEL_LENGTH];
-	void *arg;			/* Argument passed to callbacks */
+	guint8 context;
+	guint8 channel;
+	guint8 flags;
+} ipmi_dissect_arg_t;
 
-	/* Extra methods for requests that contain embedded commands */
-	struct ipmi_header *(*getmoreheaders)(struct ipmi_header *base, void *arg, guint i);
-	int (*whichresponse)(struct ipmi_header *hdr, struct ipmi_reqresp *rr);
-	int (*otheridx)(struct ipmi_header *hdr);
-} ipmi_dissect_format_t;
+int
+do_dissect_ipmb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+		gint hf_parent_item, gint ett_tree, ipmi_dissect_arg_t * arg);
 
-int ipmi_guess_dissect_flags(tvbuff_t *tvb);
-void ipmi_do_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ipmi_dissect_format_t *dfmt);
+#endif /* __PACKET_IPMI_H__ */
 
-struct ipmi_header *ipmi_sendmsg_getheaders(struct ipmi_header *base, void *arg, guint i);
-int ipmi_sendmsg_whichresponse(struct ipmi_header *hdr, struct ipmi_reqresp *rr);
-int ipmi_sendmsg_otheridx(struct ipmi_header *hdr);
-
-#endif
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

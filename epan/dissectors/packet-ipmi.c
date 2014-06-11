@@ -24,8 +24,8 @@
 #include "config.h"
 
 #include <string.h>
-#include <time.h>
-#include <math.h>
+
+#include <stdio.h>
 
 #include <epan/packet.h>
 #include <epan/conversation.h>
@@ -54,49 +54,11 @@ struct ipmi_netfn_root {
 	guint32 siglen;
 };
 
-#define NSAVED_DATA 2
-
-/* We need more than a conversation. Over the same RMCP session
-   (or IPMB), there may be several addresses/SWIDs. Thus, in a single
-   Wireshark-maintained conversation we might need to find our own... */
-struct ipmi_saved_data {
-	guint32 set_data;
-	guint32 saved_data[NSAVED_DATA];
-};
-
-enum {
-	RQ = 0,
-	RS,
-	RS2,
-
-	MAX_RQRS_FRAMES
-};
-
 enum {
 	MSGFMT_NONE = 0,
 	MSGFMT_IPMB,
 	MSGFMT_LAN,
 	MSGFMT_GUESS
-};
-
-struct ipmi_reqresp {
-	struct ipmi_reqresp *next;
-	struct ipmi_saved_data *data;
-	int (*whichresponse)(struct ipmi_header *hdr, struct ipmi_reqresp *rr);
-	struct {
-		guint32 num;
-		nstime_t time;
-	} frames[MAX_RQRS_FRAMES];
-	guint8 netfn;
-	guint8 cmd;
-};
-
-struct ipmi_keyhead {
-	struct ipmi_reqresp *rr;
-};
-
-struct ipmi_keytree {
-	wmem_tree_t *heads;
 };
 
 struct ipmi_parse_typelen {
@@ -105,9 +67,78 @@ struct ipmi_parse_typelen {
 	const char *desc;
 };
 
-struct ipmi_header *ipmi_current_hdr;
+/* IPMI parsing context */
+typedef struct {
+	ipmi_header_t	hdr;
+	guint			hdr_len;
+	guint			flags;
+	guint8			cks1;
+	guint8			cks2;
+} ipmi_context_t;
+
+/* Temporary request-response matching data. */
+typedef struct {
+	/* Request header */
+	ipmi_header_t	hdr;
+	/* Frame number where the request resides */
+	guint32			frame_num;
+	/* Nest level of the request in the frame */
+	guint8			nest_level;
+} ipmi_request_t;
+
+/* List of request-response matching data */
+typedef wmem_list_t ipmi_request_list_t;
+
+#define NSAVED_DATA 2
+
+/* Per-command data */
+typedef struct {
+	guint32		matched_frame_num;
+	guint32		saved_data[NSAVED_DATA];
+} ipmi_cmd_data_t;
+
+/* Per-frame data */
+typedef struct {
+	ipmi_cmd_data_t *	cmd_data[3];
+	nstime_t			ts;
+} ipmi_frame_data_t;
+
+/* RB tree of frame data */
+typedef wmem_tree_t ipmi_frame_tree_t;
+
+/* cached dissector data */
+typedef struct {
+	/* tree of cached frame data */
+	ipmi_frame_tree_t *		frame_tree;
+	/* list of cached requests */
+	ipmi_request_list_t *	request_list;
+	/* currently dissected frame number */
+	guint32					curr_frame_num;
+	/* currently dissected frame */
+	ipmi_frame_data_t *		curr_frame;
+	/* current nesting level */
+	guint8					curr_level;
+	/* subsequent nesting level */
+	guint8					next_level;
+	/* top level message channel */
+	guint8					curr_channel;
+	/* top level message direction */
+	guint8					curr_dir;
+	/* pointer to current command */
+	const ipmi_header_t * 	curr_hdr;
+	/* current completion code */
+	guint8					curr_ccode;
+} ipmi_packet_data_t;
+
+/* Maximum nest level where it worth caching data */
+#define MAX_NEST_LEVEL	3
+
+static dissector_handle_t data_dissector;
 
 static gint proto_ipmi = -1;
+static gint proto_ipmb = -1;
+static gint proto_kcs = -1;
+static gint proto_tmode = -1;
 
 static gboolean fru_langcode_is_english = TRUE;
 static guint response_after_req = 5000;
@@ -115,15 +146,14 @@ static guint response_before_req = 0;
 static guint message_format = MSGFMT_GUESS;
 static guint selected_oem = IPMI_OEM_NONE;
 
-static gint hf_ipmi_message = -1;
 static gint hf_ipmi_session_handle = -1;
-static gint hf_ipmi_header_broadcast = -1;
 static gint hf_ipmi_header_trg = -1;
 static gint hf_ipmi_header_trg_lun = -1;
 static gint hf_ipmi_header_netfn = -1;
 static gint hf_ipmi_header_crc = -1;
 static gint hf_ipmi_header_src = -1;
 static gint hf_ipmi_header_src_lun = -1;
+static gint hf_ipmi_header_bridged = -1;
 static gint hf_ipmi_header_sequence = -1;
 static gint hf_ipmi_header_command = -1;
 static gint hf_ipmi_header_completion = -1;
@@ -132,7 +162,6 @@ static gint hf_ipmi_data_crc = -1;
 static gint hf_ipmi_response_to = -1;
 static gint hf_ipmi_response_in = -1;
 static gint hf_ipmi_response_time = -1;
-static gint hf_ipmi_bad_checksum = -1;
 
 static gint ett_ipmi = -1;
 static gint ett_header = -1;
@@ -141,375 +170,660 @@ static gint ett_header_byte_4 = -1;
 static gint ett_data = -1;
 static gint ett_typelen = -1;
 
-static guint nest_level;
-static struct ipmi_saved_data *current_saved_data;
 static struct ipmi_netfn_root ipmi_cmd_tab[IPMI_NETFN_MAX];
 
-/* Debug support */
-static void
-debug_printf(const gchar *fmt _U_, ...)
+static ipmi_packet_data_t *
+get_packet_data(packet_info * pinfo)
 {
-#if defined(IPMI_DEBUG)
-	va_list ap;
+	ipmi_packet_data_t * data;
 
-	va_start(ap, fmt);
-	vfprintf(stderr, fmt, ap);
-	va_end(ap);
+	/* get conversation data */
+	conversation_t * conv = find_or_create_conversation(pinfo);
+
+	/* get protocol-specific data */
+	data = (ipmi_packet_data_t *)
+			conversation_get_proto_data(conv, proto_ipmi);
+
+	if (!data) {
+		/* allocate per-packet data */
+		data = wmem_new0(wmem_file_scope(), ipmi_packet_data_t);
+
+		/* allocate request list and frame tree */
+		data->frame_tree = wmem_tree_new(wmem_file_scope());
+		data->request_list = wmem_list_new(wmem_file_scope());
+
+		/* add protocol data */
+		conversation_add_proto_data(conv, proto_ipmi, data);
+	}
+
+	/* check if packet has changed */
+	if (pinfo->fd->num != data->curr_frame_num) {
+		data->curr_level = 0;
+		data->next_level = 0;
+	}
+
+	return data;
+}
+
+static ipmi_frame_data_t *
+get_frame_data(ipmi_packet_data_t * data, guint32 frame_num)
+{
+	ipmi_frame_data_t * frame = (ipmi_frame_data_t *)
+			wmem_tree_lookup32(data->frame_tree, frame_num);
+
+	if (frame == NULL) {
+		frame = wmem_new0(wmem_file_scope(), ipmi_frame_data_t);
+
+		wmem_tree_insert32(data->frame_tree, frame_num, frame);
+	}
+	return frame;
+}
+
+static ipmi_request_t *
+get_matched_request(ipmi_packet_data_t * data, const ipmi_header_t * rs_hdr,
+		guint flags)
+{
+	wmem_list_frame_t * iter = wmem_list_head(data->request_list);
+	ipmi_header_t rq_hdr;
+
+	/* reset message context */
+	rq_hdr.context = 0;
+
+	/* copy channel */
+	rq_hdr.channel = data->curr_channel;
+
+	/* toggle packet direction */
+	rq_hdr.dir = rs_hdr->dir ^ 1;
+
+	/* swap responder address/lun */
+	rq_hdr.rs_sa = rs_hdr->rq_sa;
+	rq_hdr.rs_lun = rs_hdr->rq_lun;
+
+	/* remove reply flag */
+	rq_hdr.netfn = rs_hdr->netfn & ~1;
+
+	/* swap requester address/lun */
+	rq_hdr.rq_sa = rs_hdr->rs_sa;
+	rq_hdr.rq_lun = rs_hdr->rs_lun;
+
+	/* copy sequence */
+	rq_hdr.rq_seq = rs_hdr->rq_seq;
+
+	/* copy command */
+	rq_hdr.cmd = rs_hdr->cmd;
+
+	/* TODO: copy prefix bytes */
+
+#ifdef DEBUG
+	fprintf(stderr, "%d, %d: rq_hdr : {\n"
+			"\tchannel=%d\n"
+			"\tdir=%d\n"
+			"\trs_sa=%x\n"
+			"\trs_lun=%d\n"
+			"\tnetfn=%x\n"
+			"\trq_sa=%x\n"
+			"\trq_lun=%d\n"
+			"\trq_seq=%x\n"
+			"\tcmd=%x\n}\n",
+			data->curr_frame_num, data->curr_level,
+			rq_hdr.channel, rq_hdr.dir, rq_hdr.rs_sa, rq_hdr.rs_lun,
+			rq_hdr.netfn, rq_hdr.rq_sa, rq_hdr.rq_lun, rq_hdr.rq_seq,
+			rq_hdr.cmd);
 #endif
-}
 
-/* ----------------------------------------------------------------
-   Support for request-response caching.
----------------------------------------------------------------- */
+	while (iter) {
+		ipmi_request_t * rq = (ipmi_request_t *) wmem_list_frame_data(iter);
 
-/* Key generation; returns the same key for requests and responses */
-static guint32
-makekey(struct ipmi_header *hdr)
-{
-	guint32 trg, src, res;
-
-	trg = (hdr->trg_sa << 2) | hdr->trg_lun;
-	src = (hdr->src_sa << 2) | hdr->src_lun;
-	res = trg < src ? (trg << 10) | src : (src << 10) | trg;
-	return (hdr->seq << 20) | res;
-}
-
-static struct ipmi_reqresp *
-key_lookup_reqresp(struct ipmi_keyhead *kh, struct ipmi_header *hdr, frame_data *fd)
-{
-	struct ipmi_reqresp *rr, *best_rr = NULL;
-	nstime_t delta;
-	double d, best_d = (double)(2 * response_after_req);
-	guint8 netfn = hdr->netfn & 0x3e;	/* disregard 'response' bit */
-	guint8 is_resp = hdr->netfn & 0x01;
-	int i;
-
-	/* Source/target SA/LUN and sequence number are assumed to match; wmem_tree*
-	   ensure that. While checking for "being here", we can't rely on flags.visited,
-	   as we may have more than one IPMI message in a single frame. */
-	for (rr = kh->rr; rr; rr = rr->next) {
-		if (rr->netfn != netfn || rr->cmd != hdr->cmd) {
-			continue;
+		/* check if in Get Message context */
+		if (rs_hdr->context == IPMI_E_GETMSG && !(flags & IPMI_D_TRG_SA)) {
+			/* diregard rsSA */
+			rq_hdr.rq_sa = rq->hdr.rq_sa;
 		}
 
-		for (i = 0; i < MAX_RQRS_FRAMES; i++) {
-			/* RQ=0 - 0th element is request frame number; RS/RS2 -
-			   responses are non zero */
-			if (((!i) ^ is_resp) && rr->frames[i].num == fd->num) {
-				/* Already been here */
-				return rr;
-			}
+		/* compare command headers */
+		if (!memcmp(&rq_hdr, &rq->hdr, sizeof(rq_hdr))) {
+			return rq;
 		}
 
-		/* Reject responses before requests or more than 5 seconds ahead */
-		if (is_resp) {
-			nstime_delta(&delta, &fd->abs_ts, &rr->frames[RQ].time);
+		/* proceed to next request */
+		iter = wmem_list_frame_next(iter);
+	}
+
+	return NULL;
+}
+
+static void
+remove_old_requests(ipmi_packet_data_t * data, const nstime_t * curr_time)
+{
+	wmem_list_frame_t * iter = wmem_list_head(data->request_list);
+
+	while (iter) {
+		ipmi_request_t * rq = (ipmi_request_t *) wmem_list_frame_data(iter);
+		ipmi_frame_data_t * frame = get_frame_data(data, rq->frame_num);
+		nstime_t delta;
+
+		/* calculate time delta */
+		nstime_delta(&delta, curr_time, &frame->ts);
+
+		if (nstime_to_msec(&delta) > response_after_req) {
+			wmem_list_frame_t * del = iter;
+
+			/* proceed to next request */
+			iter = wmem_list_frame_next(iter);
+
+			/* free request data */
+			wmem_free(wmem_file_scope(), rq);
+
+			/* remove list item */
+			wmem_list_remove_frame(data->request_list, del);
 		} else {
-			/* Use RS here, not RS2 - frames[RS] is always filled if we had
-			   at least one response */ /* TBD */
-			nstime_delta(&delta, &rr->frames[RS].time, &fd->abs_ts);
+			break;
 		}
-		d = nstime_to_msec(&delta);
-		if (d < -(double)response_before_req || d > (double)response_after_req) {
-			continue;
+	}
+}
+
+static void
+match_request_response(ipmi_packet_data_t * data, const ipmi_header_t * hdr,
+		guint flags)
+{
+	/* get current frame */
+	ipmi_frame_data_t * rs_frame = data->curr_frame;
+
+	/* get current command data */
+	ipmi_cmd_data_t * rs_data = rs_frame->cmd_data[data->curr_level];
+
+	/* check if parse response for the first time */
+	if (!rs_data) {
+		ipmi_request_t * rq;
+
+		/* allocate command data */
+		rs_data = wmem_new0(wmem_file_scope(), ipmi_cmd_data_t);
+
+		/* search for matching request */
+		rq = get_matched_request(data, hdr, flags);
+
+		/* check if matching request is found */
+		if (rq) {
+			/* get request frame data */
+			ipmi_frame_data_t * rq_frame =
+					get_frame_data(data, rq->frame_num);
+
+			/* get command data */
+			ipmi_cmd_data_t * rq_data = rq_frame->cmd_data[rq->nest_level];
+
+			/* save matched frame numbers */
+			rq_data->matched_frame_num = data->curr_frame_num;
+			rs_data->matched_frame_num = rq->frame_num;
+
+			/* copy saved command data information */
+			rs_data->saved_data[0] = rq_data->saved_data[0];
+			rs_data->saved_data[1] = rq_data->saved_data[1];
+
+			/* remove request from the list */
+			wmem_list_remove(data->request_list, rq);
+
+			/* delete request data */
+			wmem_free(wmem_file_scope(), rq);
 		}
 
-		if (fabs(d) < best_d) {
-			best_rr = rr;
-			best_d = fabs(d);
+		/* save command data pointer in frame */
+		rs_frame->cmd_data[data->curr_level] = rs_data;
+	}
+}
+
+static void
+add_request(ipmi_packet_data_t * data, const ipmi_header_t * hdr)
+{
+	/* get current frame */
+	ipmi_frame_data_t * rq_frame = data->curr_frame;
+
+	/* get current command data */
+	ipmi_cmd_data_t * rq_data = rq_frame->cmd_data[data->curr_level];
+
+	/* check if parse response for the first time */
+	if (!rq_data) {
+		ipmi_request_t * rq;
+
+		/* allocate command data */
+		rq_data = wmem_new0(wmem_file_scope(), ipmi_cmd_data_t);
+
+		/* set command data pointer */
+		rq_frame->cmd_data[data->curr_level] = rq_data;
+
+		/* allocate request data */
+		rq = wmem_new0(wmem_file_scope(), ipmi_request_t);
+
+		/* copy request header */
+		memcpy(&rq->hdr, hdr, sizeof(rq->hdr));
+
+		/* override context, channel and direction */
+		rq->hdr.context = 0;
+		rq->hdr.channel = data->curr_channel;
+		rq->hdr.dir = data->curr_dir;
+
+		/* set request frame number */
+		rq->frame_num = data->curr_frame_num;
+
+		/* set command nest level */
+		rq->nest_level = data->curr_level;
+
+		/* append request to list */
+		wmem_list_append(data->request_list, rq);
+
+#ifdef DEBUG
+	fprintf(stderr, "%d, %d: hdr : {\n"
+			"\tchannel=%d\n"
+			"\tdir=%d\n"
+			"\trs_sa=%x\n"
+			"\trs_lun=%d\n"
+			"\tnetfn=%x\n"
+			"\trq_sa=%x\n"
+			"\trq_lun=%d\n"
+			"\trq_seq=%x\n"
+			"\tcmd=%x\n}\n",
+			data->curr_frame_num, data->curr_level,
+			rq->hdr.channel, rq->hdr.dir, rq->hdr.rs_sa, rq->hdr.rs_lun,
+			rq->hdr.netfn, rq->hdr.rq_sa, rq->hdr.rq_lun, rq->hdr.rq_seq,
+			rq->hdr.cmd);
+#endif
+	}
+}
+
+static void
+add_command_info(packet_info *pinfo, ipmi_cmd_t * cmd,
+		gboolean resp, guint8 cc_val, const char * cc_str, gboolean broadcast)
+{
+	if (resp) {
+		col_add_fstr(pinfo->cinfo, COL_INFO, "Rsp, %s, %s (%02xh)",
+				cmd->desc, cc_str, cc_val);
+	} else {
+		col_add_fstr(pinfo->cinfo, COL_INFO, "Req, %s%s",
+				broadcast ? "Broadcast " : "", cmd->desc);
+	}
+}
+
+int dissect_ipmi_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+		gint hf_parent_item, gint ett_tree, const ipmi_context_t * ctx)
+{
+	ipmi_packet_data_t * data;
+	ipmi_netfn_t * cmd_list;
+	ipmi_cmd_t * cmd;
+	proto_item * ti;
+	proto_tree * cmd_tree = NULL, * tmp_tree;
+	guint8 prev_level, cc_val;
+	guint offset, siglen, is_resp;
+	const char * cc_str, * netfn_str;
+
+	/* get packet data */
+	data = get_packet_data(pinfo);
+	if (!data) {
+		return 0;
+	}
+
+	/* get prefix length */
+	siglen = ipmi_getsiglen(ctx->hdr.netfn);
+
+	/* get response flag */
+	is_resp = ctx->hdr.netfn & 1;
+
+	/* check message length */
+	if (tvb_captured_length(tvb) < ctx->hdr_len + siglen + is_resp
+			+ !(ctx->flags & IPMI_D_NO_CKS)) {
+		/* don bother with anything */
+		return call_dissector(data_dissector, tvb, pinfo, tree);
+	}
+
+	/* save nest level */
+	prev_level = data->curr_level;
+
+	/* assign next nest level */
+	data->curr_level = data->next_level;
+
+	/* increment next nest level */
+	data->next_level++;
+
+	/* check for the first invocation */
+	if (!data->curr_level) {
+		/* get current frame data */
+		data->curr_frame = get_frame_data(data, pinfo->fd->num);
+		data->curr_frame_num = pinfo->fd->num;
+
+		/* copy frame timestamp */
+		memcpy(&data->curr_frame->ts, &pinfo->fd->abs_ts, sizeof(nstime_t));
+
+		/* cache channel and direction */
+		data->curr_channel = ctx->hdr.channel;
+		data->curr_dir = ctx->hdr.dir;
+
+		/* remove requests which are too old */
+		remove_old_requests(data, &pinfo->fd->abs_ts);
+	}
+
+	if (data->curr_level < MAX_NEST_LEVEL) {
+		if (ctx->hdr.netfn & 1) {
+			/* perform request/response matching */
+			match_request_response(data, &ctx->hdr, ctx->flags);
+		} else {
+			/* add request to the list for later matching */
+			add_request(data, &ctx->hdr);
 		}
 	}
 
-	return best_rr;
+	/* get command list by network function code */
+	cmd_list = ipmi_getnetfn(ctx->hdr.netfn,
+			tvb_get_ptr(tvb, ctx->hdr_len + is_resp, siglen));
+
+	/* get command descriptor */
+	cmd = ipmi_getcmd(cmd_list, ctx->hdr.cmd);
+
+	/* check if response */
+	if (is_resp) {
+		/* get completion code */
+		cc_val = tvb_get_guint8(tvb, ctx->hdr_len);
+
+		/* get completion code desc */
+		cc_str = ipmi_get_completion_code(cc_val, cmd);
+	} else {
+		cc_val = 0;
+		cc_str = NULL;
+	}
+
+	/* check if not inside a message */
+	if (!data->curr_level) {
+		/* add packet info */
+		add_command_info(pinfo, cmd, is_resp, cc_val, cc_str,
+				ctx->flags & IPMI_D_BROADCAST ? TRUE : FALSE);
+	}
+
+	if (tree) {
+		/* add parent node */
+		if (!data->curr_level) {
+			ti = proto_tree_add_item(tree, hf_parent_item, tvb, 0, -1, ENC_NA);
+		} else {
+			char str[ITEM_LABEL_LENGTH];
+
+			if (is_resp) {
+				g_snprintf(str, ITEM_LABEL_LENGTH, "Rsp, %s, %s",
+						cmd->desc, cc_str);
+			} else {
+				g_snprintf(str, ITEM_LABEL_LENGTH, "Req, %s", cmd->desc);
+			}
+
+			ti = proto_tree_add_string(tree, hf_parent_item, tvb, 0, -1, str);
+		}
+
+		/* add message sub-tree */
+		cmd_tree = proto_item_add_subtree(ti, ett_tree);
+
+		if (data->curr_level < MAX_NEST_LEVEL) {
+			/* check if response */
+			if (ctx->hdr.netfn & 1) {
+				/* get current command data */
+				ipmi_cmd_data_t * rs_data =
+						data->curr_frame->cmd_data[data->curr_level];
+
+				if (rs_data->matched_frame_num) {
+					nstime_t ns;
+
+					/* add "Request to:" field */
+					ti = proto_tree_add_uint(cmd_tree, hf_ipmi_response_to,
+							tvb, 0, 0, rs_data->matched_frame_num);
+
+					/* mark field as a generated one */
+					PROTO_ITEM_SET_GENERATED(ti);
+
+					/* calculate delta time */
+					nstime_delta(&ns, &pinfo->fd->abs_ts,
+							&get_frame_data(data,
+									rs_data->matched_frame_num)->ts);
+
+					/* add "Response time" field */
+					ti = proto_tree_add_time(cmd_tree, hf_ipmi_response_time,
+							tvb, 0, 0, &ns);
+
+					/* mark field as a generated one */
+					PROTO_ITEM_SET_GENERATED(ti);
+					}
+			} else {
+				/* get current command data */
+				ipmi_cmd_data_t * rq_data =
+						data->curr_frame->cmd_data[data->curr_level];
+
+				if (rq_data->matched_frame_num) {
+					/* add "Response in:" field  */
+					ti = proto_tree_add_uint(cmd_tree, hf_ipmi_response_in,
+							tvb, 0, 0, rq_data->matched_frame_num);
+
+					/* mark field as a generated one */
+					PROTO_ITEM_SET_GENERATED(ti);
+				}
+			}
+		}
+
+		/* set starting offset */
+		offset = 0;
+
+		/* check if message is broadcast */
+		if (ctx->flags & IPMI_D_BROADCAST) {
+			/* skip first byte */
+			offset++;
+		}
+
+		/* check if session handle is specified */
+		if (ctx->flags & IPMI_D_SESSION_HANDLE) {
+			/* add session handle field */
+			proto_tree_add_item(cmd_tree, hf_ipmi_session_handle,
+					tvb, offset++, 1, ENC_LITTLE_ENDIAN);
+		}
+
+		/* check if responder address is specified */
+		if (ctx->flags & IPMI_D_TRG_SA) {
+			/* add response address field */
+			proto_tree_add_item(cmd_tree, hf_ipmi_header_trg, tvb,
+					offset++, 1, ENC_LITTLE_ENDIAN);
+		}
+
+		/* get NetFn string */
+		netfn_str = ipmi_getnetfnname(ctx->hdr.netfn, cmd_list);
+
+		/* Network function + target LUN */
+		ti = proto_tree_add_text(cmd_tree, tvb, offset, 1,
+				"Target LUN: 0x%02x, NetFN: %s %s (0x%02x)",
+				ctx->hdr.rs_lun, netfn_str,
+				is_resp ? "Response" : "Request", ctx->hdr.netfn);
+
+		/* make a sub-tree */
+		tmp_tree = proto_item_add_subtree(ti, ett_header_byte_1);
+
+		/* add Net Fn */
+		proto_tree_add_uint_format(tmp_tree, hf_ipmi_header_netfn, tvb,
+				offset, 1, ctx->hdr.netfn << 2,
+				"NetFn: %s %s (0x%02x)", netfn_str,
+				is_resp ? "Response" : "Request", ctx->hdr.netfn);
+
+		proto_tree_add_item(tmp_tree, hf_ipmi_header_trg_lun, tvb,
+				offset++, 1, ENC_LITTLE_ENDIAN);
+
+		/* check if cks1 is specified */
+		if (!(ctx->flags & IPMI_D_NO_CKS)) {
+			guint8 cks = tvb_get_guint8(tvb, offset);
+
+			/* Header checksum */
+			if (ctx->cks1) {
+				guint8 correct = cks - ctx->cks1;
+
+				proto_tree_add_uint_format_value(cmd_tree, hf_ipmi_header_crc,
+						tvb, offset++, 1, cks,
+						"0x%02x (incorrect, expected 0x%02x)", cks, correct);
+			} else {
+				proto_tree_add_uint_format_value(cmd_tree, hf_ipmi_header_crc,
+						tvb, offset++, 1, cks,
+						"0x%02x (correct)", cks);
+			}
+		}
+
+		/* check if request address is specified */
+		if (!(ctx->flags & IPMI_D_NO_RQ_SA)) {
+			/* add request address field */
+			proto_tree_add_item(cmd_tree, hf_ipmi_header_src, tvb,
+					offset++, 1, ENC_LITTLE_ENDIAN);
+		}
+
+		/* check if request sequence is specified */
+		if (!(ctx->flags & IPMI_D_NO_SEQ)) {
+			/* Sequence number + source LUN */
+			ti = proto_tree_add_text(cmd_tree, tvb, offset, 1,
+					"%s: 0x%02x, SeqNo: 0x%02x",
+					(ctx->flags & IPMI_D_TMODE) ? "Bridged" : "Source LUN",
+							ctx->hdr.rq_lun, ctx->hdr.rq_seq);
+
+			/* create byte 4 sub-tree */
+			tmp_tree = proto_item_add_subtree(ti, ett_header_byte_4);
+
+			if (ctx->flags & IPMI_D_TMODE) {
+				proto_tree_add_item(tmp_tree, hf_ipmi_header_bridged,
+						tvb, offset, 1, ENC_LITTLE_ENDIAN);
+			} else {
+				proto_tree_add_item(tmp_tree, hf_ipmi_header_src_lun,
+						tvb, offset, 1, ENC_LITTLE_ENDIAN);
+			}
+
+			/* print seq no */
+			proto_tree_add_item(tmp_tree, hf_ipmi_header_sequence, tvb,
+					offset++, 1, ENC_LITTLE_ENDIAN);
+		}
+
+		/* command code */
+		proto_tree_add_uint_format_value(cmd_tree, hf_ipmi_header_command,
+				tvb, offset++, 1, ctx->hdr.cmd, "%s (0x%02x)",
+				cmd->desc, ctx->hdr.cmd);
+
+		if (is_resp) {
+			/* completion code */
+			proto_tree_add_uint_format_value(cmd_tree,
+					hf_ipmi_header_completion, tvb, offset++, 1,
+					cc_val, "%s (0x%02x)", cc_str, cc_val);
+		}
+
+		if (siglen) {
+			/* command prefix (if present) */
+			ti = proto_tree_add_item(cmd_tree, hf_ipmi_header_sig, tvb,
+					offset, siglen, ENC_NA);
+			proto_item_append_text(ti, " (%s)", netfn_str);
+		}
+	}
+
+	if (tree || (cmd->flags & CMD_CALLRQ)) {
+		/* calculate message data length */
+		guint data_len = tvb_captured_length(tvb)
+				- ctx->hdr_len
+				- siglen
+				- (is_resp ? 1 : 0)
+				- !(ctx->flags & IPMI_D_NO_CKS);
+
+		/* create data subset */
+		tvbuff_t * data_tvb = tvb_new_subset_length(tvb,
+				ctx->hdr_len + siglen + (is_resp ? 1 : 0), data_len);
+
+		/* Select sub-handler */
+		ipmi_cmd_handler_t hnd = is_resp ? cmd->parse_resp : cmd->parse_req;
+
+		if (hnd && tvb_captured_length(data_tvb)) {
+			if (tree) {
+				/* create data field */
+				ti = proto_tree_add_text(cmd_tree, data_tvb, 0, -1, "Data");
+
+				/* create data sub-tree */
+				tmp_tree = proto_item_add_subtree(ti, ett_data);
+			} else {
+				tmp_tree = NULL;
+			}
+
+			/* save current command */
+			data->curr_hdr = &ctx->hdr;
+
+			/* save current completion code */
+			data->curr_ccode = cc_val;
+
+			/* call command parser */
+			hnd(data_tvb, pinfo, tmp_tree);
+		}
+	}
+
+	/* check if cks2 is specified */
+	if (tree && !(ctx->flags & IPMI_D_NO_CKS)) {
+		guint8 cks;
+
+		/* get cks2 offset */
+		offset = tvb_captured_length(tvb) - 1;
+
+		/* get cks2 */
+		cks = tvb_get_guint8(tvb, offset);
+
+		/* Header checksum */
+		if (ctx->cks2) {
+			guint8 correct = cks - ctx->cks2;
+
+			proto_tree_add_uint_format_value(cmd_tree, hf_ipmi_data_crc,
+					tvb, offset, 1, cks,
+					"0x%02x (incorrect, expected 0x%02x)", cks, correct);
+		} else {
+			proto_tree_add_uint_format_value(cmd_tree, hf_ipmi_data_crc,
+					tvb, offset, 1, cks,
+					"0x%02x (correct)", cks);
+		}
+	}
+
+	/* decrement next nest level */
+	data->next_level = data->curr_level;
+
+	/* restore previous nest level */
+	data->curr_level = prev_level;
+
+	return tvb_captured_length(tvb);
 }
 
-static void
-key_insert_reqresp(struct ipmi_keyhead *kh, struct ipmi_reqresp *rr)
+/* Get currently parsed message header */
+const ipmi_header_t * ipmi_get_hdr(packet_info * pinfo)
 {
-	/* Insert to head, so that the search would find most recent response */
-	rr->next = kh->rr;
-	kh->rr = rr;
+	ipmi_packet_data_t * data = get_packet_data(pinfo);
+	return data->curr_hdr;
 }
 
-static inline gboolean
-set_framenums(struct ipmi_header *hdr, struct ipmi_reqresp *rr, frame_data *fd)
+/* Get completion code for currently parsed message */
+guint8 ipmi_get_ccode(packet_info * pinfo)
 {
-	int which = hdr->netfn & 0x01 ? rr->whichresponse ? rr->whichresponse(hdr, rr) : RS : RQ;
+	ipmi_packet_data_t * data = get_packet_data(pinfo);
+	return data->curr_ccode;
+}
 
-	if (rr->frames[which].num && rr->frames[which].num != fd->num) {
+/* Save request data for later use in response */
+void ipmi_set_data(packet_info *pinfo, guint idx, guint32 value)
+{
+	ipmi_packet_data_t * data = get_packet_data(pinfo);
+
+	/* check bounds */
+	if (data->curr_level >= MAX_NEST_LEVEL || idx >= NSAVED_DATA ) {
+		return;
+	}
+
+	/* save data */
+	data->curr_frame->cmd_data[data->curr_level]->saved_data[idx] = value;
+}
+
+/* Get saved request data */
+gboolean ipmi_get_data(packet_info *pinfo, guint idx, guint32 * value)
+{
+	ipmi_packet_data_t * data = get_packet_data(pinfo);
+
+	/* check bounds */
+	if (data->curr_level >= MAX_NEST_LEVEL || idx >= NSAVED_DATA ) {
 		return FALSE;
 	}
-	rr->frames[which].num = fd->num;
-	rr->frames[which].time = fd->abs_ts;
+
+	/* get data */
+	*value = data->curr_frame->cmd_data[data->curr_level]->saved_data[idx];
 	return TRUE;
-}
-
-#define	IS_SENDMSG(hdr) (((hdr)->netfn & 0x3e) == IPMI_APP_REQ && (hdr)->cmd == 0x34)
-
-int
-ipmi_sendmsg_whichresponse(struct ipmi_header *hdr, struct ipmi_reqresp *rr)
-{
-	if (!IS_SENDMSG(hdr)) {
-		/* Not a Send Message: just a simple response */
-		return RS;
-	}
-
-	if (hdr->data_len > 0) {
-		/* Trivial case: response with non-null data can only be a
-		   response in AMC.0 style */
-		return RS2;
-	}
-	/* Otherwise, we need to somehow determine 1st and 2nd responses. Note
-	   that both them may lack the data - in case that the embedded response
-	   returned with error. Thus, employ the following algo:
-	   - First, assign to [RS] frame (this also won't conflict with full response
-	     received - it could only happen if send message succeeded)
-	   - In case we see another data-less response, see that we assign the one
-	     with success completion code to [RS] and with non-success code to [RS2].
-
-	   We assume that we can't receive 2 responses with non-successful completion
-	   (if the outmost Send Message failed, how was the embedded one sent?)
-	*/
-	if (!rr->frames[RS].num) {
-		return RS;
-	}
-
-	/* In case we received "success", move the other response to [RS2] */
-	if (!hdr->ccode) {
-		if (!rr->frames[RS2].num) {
-			rr->frames[RS2] = rr->frames[RS];
-		}
-		return RS;
-	}
-
-	/* [RS] occupied, non-successful */
-	return RS2;
-}
-
-int
-ipmi_sendmsg_otheridx(struct ipmi_header *hdr)
-{
-	return IS_SENDMSG(hdr) ? nest_level : RS;
-}
-
-struct ipmi_header *
-ipmi_sendmsg_getheaders(struct ipmi_header *base, void *arg, guint i)
-{
-	static struct ipmi_header hdr;
-	struct ipmi_header *wrapper = (struct ipmi_header *)arg;
-
-	/* The problem stems from the fact that the original IPMI
-	   specification (before errata came) did not specify the response
-	   to Send Message (and even the fact that there are 2 responses -
-	   to Send Message and to embedded command). Even then, there is
-	   one vagueness remaining - whether the response should use
-	   the sequence number from the wrapper or from the embedded message.
-
-	   Thus, there are 3 types of responses to Send Message
-
-	   * AMC.0-style: the response is embedded in a normal Send Message
-	     response. Easiest case: such responses will be correctly detected
-	     with the default code in ipmi_do_dissect.
-
-	   * IPMI-style, with both variants of sequence numbers. Note that
-	     most tools dealing with Send Message (e.g. ipmitool) circumvent
-	     this vagueness by using the same sequence number in both wrapper
-	     and embedded messages. If we detect such "smart" messages, we
-	     provide only one extra header. For correctness, we have to provide
-	     for both variants, however.
-	*/
-
-	if (i >= 2 || (i == 1 && wrapper->seq == base->seq)) {
-		return NULL;
-	}
-
-	/* Construct hybrid header */
-	hdr.trg_sa = wrapper->trg_sa;
-	hdr.trg_lun = wrapper->trg_lun;
-	hdr.src_sa = wrapper->src_sa;
-	hdr.src_lun = wrapper->src_lun;
-	hdr.netfn = base->netfn;
-	hdr.cmd = base->cmd;
-	hdr.seq = i ? base->seq : wrapper->seq;
-	hdr.ccode = base->ccode;
-	hdr.data_len = base->data_len;
-	return &hdr;
-}
-
-static void
-maybe_insert_reqresp(packet_info *pinfo, ipmi_dissect_format_t *dfmt, struct ipmi_header *hdr)
-{
-	conversation_t *cnv;
-	struct ipmi_keytree *kt;
-	struct ipmi_keyhead *kh;
-	struct ipmi_reqresp *rr;
-	guint32 key, i;
-
-	cnv = find_or_create_conversation(pinfo);
-
-	kt = (struct ipmi_keytree *)conversation_get_proto_data(cnv, proto_ipmi);
-	if (!kt) {
-		kt = wmem_new(wmem_file_scope(), struct ipmi_keytree);
-		kt->heads = wmem_tree_new(wmem_file_scope());
-		conversation_add_proto_data(cnv, proto_ipmi, kt);
-	}
-
-	debug_printf("--> maybe_insert_reqresp( %d )\n", pinfo->fd->num);
-	i = 0;
-	do {
-		debug_printf("Checking [ (%02x,%1x <-> %02x,%1x : %02x) %02x %02x ]\n",
-				hdr->trg_sa, hdr->trg_lun, hdr->src_sa, hdr->src_lun, hdr->seq,
-				hdr->netfn, hdr->cmd);
-		key = makekey(hdr);
-		kh = (struct ipmi_keyhead *)wmem_tree_lookup32(kt->heads, key);
-		if (!kh) {
-			kh = wmem_new0(wmem_file_scope(), struct ipmi_keyhead);
-			wmem_tree_insert32(kt->heads, key, kh);
-		}
-		if ((rr = key_lookup_reqresp(kh, hdr, pinfo->fd)) != NULL) {
-			/* Already recorded - set frame number and be done. Look no
-			   further - even if there are several responses, we have
-			   found the right one. */
-			debug_printf("Found existing [ <%d,%d,%d> (%02x,%1x <-> %02x,%1x : %02x) %02x %02x ]\n",
-					rr->frames[0].num, rr->frames[1].num, rr->frames[2].num,
-					hdr->trg_sa, hdr->trg_lun, hdr->src_sa, hdr->src_lun, hdr->seq,
-					rr->netfn, rr->cmd);
-			if (!rr->whichresponse) {
-				rr->whichresponse = dfmt->whichresponse;
-			}
-			if (set_framenums(hdr, rr, pinfo->fd)) {
-				debug_printf("Set frames     [ <%d,%d,%d> (%02x,%1x <-> %02x,%1x : %02x) %02x %02x ]\n",
-						rr->frames[0].num, rr->frames[1].num, rr->frames[2].num,
-						hdr->trg_sa, hdr->trg_lun, hdr->src_sa, hdr->src_lun, hdr->seq,
-						rr->netfn, rr->cmd);
-				current_saved_data = rr->data;
-				return;
-			}
-
-			/* Found, but already occupied. Fall through to allocating the structures */
-			current_saved_data = NULL;
-		}
-		/* Not found; allocate new structures */
-		if (!current_saved_data) {
-			/* One 'ipmi_saved_data' for all 'ipmi_req_resp' allocated */
-			current_saved_data = wmem_new0(wmem_file_scope(), struct ipmi_saved_data);
-		}
-		rr = wmem_new0(wmem_file_scope(), struct ipmi_reqresp);
-		rr->whichresponse = dfmt->whichresponse;
-		rr->netfn = hdr->netfn & 0x3e;
-		rr->cmd = hdr->cmd;
-		rr->data = current_saved_data;
-		set_framenums(hdr, rr, pinfo->fd);
-		key_insert_reqresp(kh, rr);
-		debug_printf("Inserted [ <%d,%d,%d> (%02x,%1x <-> %02x,%1x : %02x) %02x %02x ]\n",
-				rr->frames[0].num, rr->frames[1].num, rr->frames[2].num,
-				hdr->trg_sa, hdr->trg_lun, hdr->src_sa, hdr->src_lun, hdr->seq,
-				rr->netfn, rr->cmd);
-
-		/* Do we have other headers to insert? */
-		hdr = dfmt->getmoreheaders ? dfmt->getmoreheaders(hdr, dfmt->arg, i++) : NULL;
-	} while (hdr);
-}
-
-static void
-add_reqresp_info(ipmi_dissect_format_t *dfmt, struct ipmi_header *hdr, proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo)
-{
-	conversation_t *cnv;
-	struct ipmi_keytree *kt;
-	struct ipmi_keyhead *kh;
-	struct ipmi_reqresp *rr = NULL;
-	guint32 key, i, other_idx;
-	proto_item *ti;
-	nstime_t ns;
-
-	debug_printf("--> add_reqresp_info( %d )\n", pinfo->fd->num);
-
-	/* [0] is request; [1..MAX_RS_LEVEL] are responses */
-	other_idx = (hdr->netfn & 0x01) ? RQ : dfmt->otheridx ? dfmt->otheridx(hdr) : RS;
-
-	if (other_idx >= MAX_RQRS_FRAMES) {
-		/* No chance; we don't look that deep into nested Send Message.
-		   Note that we'll use the other_idx value to distinguish
-		   request from response. */
-		goto fallback;
-	}
-
-	/* Here, we don't try to create any object - everything is assumed
-	   to be created in maybe_insert_reqresp() */
-	if ((cnv = find_conversation(pinfo->fd->num, &pinfo->src,
-			&pinfo->dst, pinfo->ptype,
-			pinfo->srcport, pinfo->destport, 0)) == NULL) {
-		goto fallback;
-	}
-	if ((kt = (struct ipmi_keytree *)conversation_get_proto_data(cnv, proto_ipmi)) == NULL) {
-		goto fallback;
-	}
-
-	i = 0;
-	while (1) {
-		debug_printf("Looking for [ (%02x,%1x <-> %02x,%1x : %02x) %02x %02x ]\n",
-				hdr->trg_sa, hdr->trg_lun, hdr->src_sa, hdr->src_lun, hdr->seq,
-				hdr->netfn, hdr->cmd);
-		key = makekey(hdr);
-		if ((kh = (struct ipmi_keyhead *)wmem_tree_lookup32(kt->heads, key)) != NULL &&
-				(rr = key_lookup_reqresp(kh, hdr, pinfo->fd)) != NULL) {
-			debug_printf("Found [ <%d,%d,%d> (%02x,%1x <-> %02x,%1x : %02x) %02x %02x ]\n",
-					rr->frames[0].num, rr->frames[1].num, rr->frames[2].num,
-					hdr->trg_sa, hdr->trg_lun, hdr->src_sa, hdr->src_lun, hdr->seq,
-					rr->netfn, rr->cmd);
-			if (rr->frames[other_idx].num) {
-				break;
-			}
-		}
-
-		/* Do we have other headers to check? */
-		hdr = dfmt->getmoreheaders ? dfmt->getmoreheaders(hdr, dfmt->arg, i++) : NULL;
-		if (!hdr) {
-			goto fallback;
-		}
-	}
-
-	if (hdr->netfn & 0x01) {
-		/* Response */
-		ti = proto_tree_add_uint(tree, hf_ipmi_response_to,
-				tvb, 0, 0, rr->frames[RQ].num);
-		PROTO_ITEM_SET_GENERATED(ti);
-		nstime_delta(&ns, &pinfo->fd->abs_ts, &rr->frames[RQ].time);
-		ti = proto_tree_add_time(tree, hf_ipmi_response_time,
-				tvb, 0, 0, &ns);
-		PROTO_ITEM_SET_GENERATED(ti);
-	} else {
-		/* Request */
-		ti = proto_tree_add_uint(tree, hf_ipmi_response_in,
-				tvb, 0, 0, rr->frames[other_idx].num);
-		PROTO_ITEM_SET_GENERATED(ti);
-	}
-	return;
-
-fallback:
-	ti = proto_tree_add_text(tree, tvb, 0, 0, "No corresponding %s",
-			other_idx ? "response" : "request");
-	PROTO_ITEM_SET_GENERATED(ti);
-}
-
-/* Save data in request, retrieve in response */
-void
-ipmi_setsaveddata(guint idx, guint32 val)
-{
-	DISSECTOR_ASSERT(idx < NSAVED_DATA);
-	current_saved_data->saved_data[idx] = val;
-	current_saved_data->set_data |= (1 << idx);
-}
-
-gboolean
-ipmi_getsaveddata(guint idx, guint32 *pval)
-{
-	DISSECTOR_ASSERT(idx < NSAVED_DATA);
-	if (current_saved_data->set_data & (1 << idx)) {
-		*pval = current_saved_data->saved_data[idx];
-		return TRUE;
-	}
-	return FALSE;
 }
 
 /* ----------------------------------------------------------------
@@ -814,15 +1128,11 @@ ipmi_register_netfn_cmdtab(guint32 netfn, guint oem_selector,
 
 	netfn >>= 1;	/* Requests and responses grouped together */
 	if (netfn >= IPMI_NETFN_MAX) {
-		g_warning("NetFn too large: %x", netfn * 2);
 		return;
 	}
 
 	inr = &ipmi_cmd_tab[netfn];
 	if (inr->siglen != siglen) {
-		/* All handlers per netFn should have the same signature length */
-		g_warning("NetFn %d: different signature lengths: %d vs %d",
-				netfn * 2, inr->siglen, siglen);
 		return;
 	}
 
@@ -1047,331 +1357,388 @@ ipmi_get_completion_code(guint8 completion, ipmi_cmd_t *cmd)
 	return val_to_str_const(completion, std_completion_codes, "Unknown");
 }
 
-/* Guess the parsing flags for a message
- */
-int
-ipmi_guess_dissect_flags(tvbuff_t *tvb)
+static int
+dissect_tmode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-	int i;
-	guint8 buf[6];
+	ipmi_dissect_arg_t * arg = (ipmi_dissect_arg_t *) data;
+	ipmi_context_t ctx;
+	guint tvb_len = tvb_captured_length(tvb);
+	guint8 tmp;
 
-	switch (message_format) {
-	case MSGFMT_NONE:
-		return IPMI_D_NONE;
-	case MSGFMT_IPMB:
-		return IPMI_D_TRG_SA;
-	case MSGFMT_LAN:
-		return IPMI_D_TRG_SA|IPMI_D_SESSION_HANDLE;
+	/* TMode message is at least 3 bytes length */
+	if (tvb_len < 3) {
+		return 0;
 	}
 
-	/* Try to guess the format */
-	DISSECTOR_ASSERT(message_format == MSGFMT_GUESS);
+	memset(&ctx, 0, sizeof(ctx));
 
-	/* 6 is shortest message - Get Message with empty data */
-	if (tvb_length(tvb) < 6) {
-		return IPMI_D_NONE;
+	/* get Net Fn/RS LUN field */
+	tmp = tvb_get_guint8(tvb, 0);
+
+	/* set Net Fn */
+	ctx.hdr.netfn = tmp >> 2;
+
+	/*
+	 * NOTE: request/response matching code swaps RQ LUN with RS LUN
+	 * fields in IPMB-like manner in order to find corresponding request
+	 * so, we set both RS LUN and RQ LUN here for correct
+	 * request/response matching
+	 */
+	ctx.hdr.rq_lun = tmp & 3;
+	ctx.hdr.rs_lun = tmp & 3;
+
+	/* get RQ Seq field */
+	ctx.hdr.rq_seq = tvb_get_guint8(tvb, 1) >> 2;
+
+	/*
+	 * NOTE: bridge field is ignored in request/response matching
+	 */
+
+	/* get command code */
+	ctx.hdr.cmd = tvb_get_guint8(tvb, 2);
+
+	/* set dissect flags */
+	ctx.flags = IPMI_D_TMODE|IPMI_D_NO_CKS|IPMI_D_NO_RQ_SA;
+
+	/* set header length */
+	ctx.hdr_len = 3;
+
+	/* copy channel number and direction */
+	ctx.hdr.context = arg ? arg->context : IPMI_E_NONE;
+	ctx.hdr.channel = arg ? arg->channel : 0;
+	ctx.hdr.dir = arg ? arg->flags >> 7 : ctx.hdr.netfn & 1;
+
+	if (ctx.hdr.context == IPMI_E_NONE) {
+		/* set source column */
+		col_set_str(pinfo->cinfo, COL_DEF_SRC,
+				ctx.hdr.dir ? "Console" : "BMC");
+
+		/* set destination column */
+		col_set_str(pinfo->cinfo, COL_DEF_DST,
+				ctx.hdr.dir ? "BMC" : "Console");
 	}
 
-	/* Fetch the beginning */
-	for (i = 0; i < 6; i++) {
-		buf[i] = tvb_get_guint8(tvb, i);
-	}
-
-	if ((buf[0] + buf[1] + buf[2]) % 0x100 == 0) {
-		/* Looks like IPMB: first 3 bytes are zero module 256 */
-		return IPMI_D_TRG_SA;
-	}
-
-	if ((buf[1] + buf[2] + buf[3]) % 0x100 == 0) {
-		/* Looks like LAN: like IPMB, prepended with extra byte (session handle) */
-		return IPMI_D_TRG_SA|IPMI_D_SESSION_HANDLE;
-	}
-
-	/* Can't guess */
-	return IPMI_D_NONE;
+	/* dissect IPMI command */
+	return dissect_ipmi_cmd(tvb, pinfo, tree, proto_tmode, ett_ipmi, &ctx);
 }
 
-/* Print out IPMB packet.
- */
-void
-ipmi_do_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ipmi_tree, ipmi_dissect_format_t *dfmt)
+static int
+dissect_kcs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-	proto_tree *hdr_tree, *data_tree, *s_tree;
-	proto_item *ti;
-	tvbuff_t *data_tvb;
-	ipmi_netfn_t *in = NULL;
-	ipmi_cmd_t *ic = NULL;
-	ipmi_cmd_handler_t hnd = NULL;
-	struct ipmi_saved_data *saved_saved_data;
-	struct ipmi_header hdr, *saved_hdr;
-	guint8 hdr_crc, hdr_exp_crc, data_crc, data_exp_crc;
-	guint8 is_resp, is_broadcast = 0, tmp;
-	guint i, len, siglen, hdrlen, offs, data_chk_offs;
-	const char *bcast, *ndesc, *cdesc, *ccdesc;
+	ipmi_dissect_arg_t * arg = (ipmi_dissect_arg_t *) data;
+	ipmi_context_t ctx;
+	guint tvb_len = tvb_captured_length(tvb);
+	guint8 tmp;
 
-	if (dfmt->flags & IPMI_D_NONE) {
-		/* No parsing requested */
-		g_snprintf(dfmt->info, ITEM_LABEL_LENGTH, "Unknown message (not parsed)");
-		proto_tree_add_item(ipmi_tree, hf_ipmi_message, tvb, 0, tvb_length(tvb), ENC_NA);
-		return;
+	/* KCS message is at least 2 bytes length */
+	if (tvb_len < 2) {
+		return 0;
 	}
 
-	nest_level++;
-	offs = 0;
-	memset(&hdr, 0, sizeof(hdr));
-	debug_printf("--> do_dissect(%d, nl %u, tree %s null)\n",
-			pinfo->fd->num, nest_level, ipmi_tree ? "IS NOT" : "IS");
+	memset(&ctx, 0, sizeof(ctx));
 
-	/* Optional byte: in Send Message targeted to session-based channels */
-	if (dfmt->flags & IPMI_D_SESSION_HANDLE) {
-		offs++;
+	/* get Net Fn/RS LUN field */
+	tmp = tvb_get_guint8(tvb, 0);
+
+	/* set Net Fn */
+	ctx.hdr.netfn = tmp >> 2;
+
+	/*
+	 * NOTE: request/response matching code swaps RQ LUN with RS LUN
+	 * fields in IPMB-like manner in order to find corresponding request
+	 * so, we set both RS LUN and RQ LUN here for correct
+	 * request/response matching
+	 */
+	ctx.hdr.rq_lun = tmp & 3;
+	ctx.hdr.rs_lun = tmp & 3;
+
+	/* get command code */
+	ctx.hdr.cmd = tvb_get_guint8(tvb, 1);
+
+	/* set dissect flags */
+	ctx.flags = IPMI_D_NO_CKS|IPMI_D_NO_RQ_SA|IPMI_D_NO_SEQ;
+
+	/* set header length */
+	ctx.hdr_len = 2;
+
+	/* copy channel number and direction */
+	ctx.hdr.context = arg ? arg->context : 0;
+	ctx.hdr.channel = arg ? arg->channel : 0;
+	ctx.hdr.dir = arg ? arg->flags >> 7 : ctx.hdr.netfn & 1;
+
+	if (ctx.hdr.context == IPMI_E_NONE) {
+		/* set source column */
+		col_set_str(pinfo->cinfo, COL_DEF_SRC, ctx.hdr.dir ? "HOST" : "BMC");
+
+		/* set destination column */
+		col_set_str(pinfo->cinfo, COL_DEF_DST, ctx.hdr.dir ? "BMC" : "HOST");
 	}
 
-	/* Optional byte: 00 indicates General Call address - broadcast message */
-	if ((dfmt->flags & IPMI_D_BROADCAST) && tvb_get_guint8(tvb, offs) == 0x00) {
-		is_broadcast = 1;
-		offs++;
+	/* dissect IPMI command */
+	return dissect_ipmi_cmd(tvb, pinfo, tree, proto_kcs, ett_ipmi, &ctx);
+}
+
+static guint8 calc_cks(guint8 start, tvbuff_t * tvb, guint off, guint len)
+{
+	while (len--) {
+		start += tvb_get_guint8(tvb, off++);
 	}
 
-	/* Byte 1: target slave address, may be absent (in Get Message) */
-	hdr.trg_sa = (dfmt->flags & IPMI_D_TRG_SA) ? tvb_get_guint8(tvb, offs++) : 0;
+	return start;
+}
 
-	/* Byte 2: network function + target LUN */
-	tmp = tvb_get_guint8(tvb, offs++);
-	hdr.trg_lun = tmp & 0x03;
-	hdr.netfn = (tmp >> 2) & 0x3f;
-	hdr_exp_crc = (0 - hdr.trg_sa - tmp) & 0xff;
+static gboolean guess_imb_format(tvbuff_t *tvb, guint8 env,
+		guint8 channel, guint * imb_flags, guint8 * cks1, guint8 * cks2)
+{
+	gboolean check_bc = FALSE;
+	gboolean check_sh = FALSE;
+	gboolean check_sa = FALSE;
+	guint tvb_len;
+	guint sh_len;
+	guint sa_len;
+	guint rs_sa;
 
-	/* Byte 3: header checksum */
-	hdr_crc = tvb_get_guint8(tvb, offs++);
+	if (message_format == MSGFMT_NONE) {
+		return FALSE;
+	} else if (message_format == MSGFMT_IPMB) {
+		*imb_flags = IPMI_D_TRG_SA;
+	} else if (message_format == MSGFMT_LAN) {
+		*imb_flags = IPMI_D_TRG_SA|IPMI_D_SESSION_HANDLE;
+	/* channel 0 is primary IPMB */
+	} else if (!channel) {
+		/* check for broadcast if not in send message command */
+		if (env == IPMI_E_NONE) {
+			/* check broadcast */
+			check_bc = 1;
 
-	/* Byte 4: source slave address */
-	hdr.src_sa = tvb_get_guint8(tvb, offs++);
+			/* slave address must be present */
+			*imb_flags = IPMI_D_TRG_SA;
+		/* check if in send message command */
+		} else if (env != IPMI_E_GETMSG) {
+			/* slave address must be present */
+			*imb_flags = IPMI_D_TRG_SA;
+		} else /* IPMI_E_GETMSG */ {
+			*imb_flags = 0;
+		}
+	/* channel 15 is System Interface */
+	} else if (channel == 15) {
+		/* slave address must be present */
+		*imb_flags = IPMI_D_TRG_SA;
 
-	/* Byte 5: sequence number + source LUN */
-	tmp = tvb_get_guint8(tvb, offs++);
-	hdr.src_lun = tmp & 0x03;
-	hdr.seq = (tmp >> 2) & 0x3f;
-
-	/* Byte 6: command code */
-	hdr.cmd = tvb_get_guint8(tvb, offs++);
-
-	/* Byte 7: completion code (in response) */
-	is_resp = (hdr.netfn & 0x1) ? 1 : 0;
-	hdr.ccode = is_resp ? tvb_get_guint8(tvb, offs++) : 0;
-
-	/* 0-3 bytes: signature of the defining body */
-	siglen = ipmi_getsiglen(hdr.netfn);
-	in = ipmi_getnetfn(hdr.netfn, tvb_get_ptr(tvb, offs, siglen));
-	offs += siglen;
-
-	/* Save header length */
-	hdrlen = offs;
-	hdr.data_len = tvb_length(tvb) - hdrlen - 1;
-
-	/* Get some text descriptions */
-	ic = ipmi_getcmd(in, hdr.cmd);
-	ndesc = ipmi_getnetfnname(hdr.netfn, in);
-	cdesc = ic->desc;
-	ccdesc = ipmi_get_completion_code(hdr.ccode, ic);
-	if (!is_broadcast) {
-		bcast = "";
-	} else if (ic->flags & CMD_MAYBROADCAST) {
-		bcast = " (BROADCAST: command may not be broadcast)";
+		/* check if in get message command */
+		if (env == IPMI_E_GETMSG) {
+			/* session handle must be present */
+			*imb_flags |= IPMI_D_SESSION_HANDLE;
+		}
+	/* for other channels */
 	} else {
-		bcast = " (BROADCAST)";
-	}
+		if (env == IPMI_E_NONE) {
+			/* check broadcast */
+			check_bc = 1;
 
+			/* slave address must be present */
+			*imb_flags = IPMI_D_TRG_SA;
+		} else if (env == IPMI_E_SENDMSG_RQ) {
+			/* check session handle */
+			check_sh = 1;
 
-	/* Save globals - we may be called recursively */
-	saved_hdr = ipmi_current_hdr;
-	ipmi_current_hdr = &hdr;
-	saved_saved_data = current_saved_data;
-	current_saved_data = NULL;
+			/* slave address must be present */
+			*imb_flags = IPMI_D_TRG_SA;
+		} else if (env == IPMI_E_SENDMSG_RS) {
+			/* slave address must be present */
+			*imb_flags = IPMI_D_TRG_SA;
+		} else /* IPMI_E_GETMSG */ {
+			/* check session handle */
+			check_sh = 1;
 
-	/* Select sub-handler */
-	hnd = is_resp ? ic->parse_resp : ic->parse_req;
+			/* check slave address presence */
+			check_sa = 1;
 
-	/* Start new conversation if needed */
-	if (!is_resp && (ic->flags & CMD_NEWCONV)) {
-		conversation_new(pinfo->fd->num, &pinfo->src,
-				&pinfo->dst, pinfo->ptype,
-				pinfo->srcport, pinfo->destport, 0);
-	}
-
-	/* Check if we need to insert request-response pair */
-	maybe_insert_reqresp(pinfo, dfmt, &hdr);
-
-	/* Create data subset: all but header and last byte (checksum) */
-	data_tvb = tvb_new_subset(tvb, hdrlen, hdr.data_len, hdr.data_len);
-
-	/* Brief description of a packet */
-	g_snprintf(dfmt->info, ITEM_LABEL_LENGTH, "%s, %s, seq 0x%02x%s%s%s",
-			is_resp ? "Rsp" : "Req", cdesc, hdr.seq, bcast,
-			hdr.ccode ? ", " : "", hdr.ccode ? ccdesc : "");
-
-	if (!is_resp && (ic->flags & CMD_CALLRQ)) {
-		hnd(data_tvb, pinfo, NULL);
-	}
-
-	if (ipmi_tree) {
-		add_reqresp_info(dfmt, &hdr, ipmi_tree, tvb, pinfo);
-
-		ti = proto_tree_add_text(ipmi_tree, tvb, 0, hdrlen,
-				"Header: %s (%s) from 0x%02x to 0x%02x%s", cdesc,
-				is_resp ? "Response" : "Request", hdr.src_sa, hdr.trg_sa, bcast);
-		hdr_tree = proto_item_add_subtree(ti, ett_header);
-
-		offs = 0;
-
-		if (dfmt->flags & IPMI_D_SESSION_HANDLE) {
-			proto_tree_add_item(hdr_tree, hf_ipmi_session_handle,
-					tvb, offs++, 1, ENC_LITTLE_ENDIAN);
-		}
-
-		/* Broadcast byte (optional) */
-		if (is_broadcast) {
-			proto_tree_add_uint_format(hdr_tree, hf_ipmi_header_broadcast,
-					tvb, offs++, 1, 0x00, "Broadcast message");
-		}
-
-		/* Target SA, if present */
-		if (dfmt->flags & IPMI_D_TRG_SA) {
-			proto_tree_add_item(hdr_tree, hf_ipmi_header_trg, tvb, offs++, 1, ENC_LITTLE_ENDIAN);
-		}
-
-		/* Network function + target LUN */
-		ti = proto_tree_add_text(hdr_tree, tvb, offs, 1,
-				"Target LUN: 0x%02x, NetFN: %s %s (0x%02x)", hdr.trg_lun,
-				ndesc, is_resp ? "Response" : "Request", hdr.netfn);
-		s_tree = proto_item_add_subtree(ti, ett_header_byte_1);
-
-		proto_tree_add_item(s_tree, hf_ipmi_header_trg_lun, tvb, offs, 1, ENC_LITTLE_ENDIAN);
-		proto_tree_add_uint_format(s_tree, hf_ipmi_header_netfn, tvb, offs, 1,
-				hdr.netfn << 2, "%sNetFn: %s %s (0x%02x)",
-				ipmi_dcd8(hdr.netfn << 2, 0xfc),
-				ndesc, is_resp ? "Response" : "Request", hdr.netfn);
-		offs++;
-
-		/* Header checksum */
-		if (hdr_crc == hdr_exp_crc) {
-			proto_tree_add_uint_format_value(hdr_tree, hf_ipmi_header_crc, tvb, offs++, 1,
-					hdr_crc, "0x%02x (correct)", hdr_crc);
-		}
-		else {
-			ti = proto_tree_add_boolean(hdr_tree, hf_ipmi_bad_checksum, tvb, 0, 0, TRUE);
-			PROTO_ITEM_SET_HIDDEN(ti);
-			proto_tree_add_uint_format_value(hdr_tree, hf_ipmi_header_crc, tvb, offs++, 1,
-					hdr_crc, "0x%02x (incorrect, expected 0x%02x)",
-				       	hdr_crc, hdr_exp_crc);
-		}
-
-		/* Remember where chk2 bytes start */
-		data_chk_offs = offs;
-
-		/* Source SA */
-		proto_tree_add_item(hdr_tree, hf_ipmi_header_src, tvb, offs++, 1, ENC_LITTLE_ENDIAN);
-
-		/* Sequence number + source LUN */
-		ti = proto_tree_add_text(hdr_tree, tvb, offs, 1,
-				"Source LUN: 0x%02x, SeqNo: 0x%02x",
-				hdr.src_lun, hdr.seq);
-		s_tree = proto_item_add_subtree(ti, ett_header_byte_4);
-
-		proto_tree_add_item(s_tree, hf_ipmi_header_src_lun, tvb, offs, 1, ENC_LITTLE_ENDIAN);
-		proto_tree_add_item(s_tree, hf_ipmi_header_sequence, tvb, offs, 1, ENC_LITTLE_ENDIAN);
-		offs++;
-
-		/* Command */
-		proto_tree_add_uint_format_value(hdr_tree, hf_ipmi_header_command, tvb, offs++, 1,
-				hdr.cmd, "%s (0x%02x)", cdesc, hdr.cmd);
-
-		/* Response code (if present) */
-		if (is_resp) {
-			proto_tree_add_uint_format_value(hdr_tree, hf_ipmi_header_completion, tvb, offs++, 1,
-				hdr.ccode, "%s (0x%02x)", ccdesc, hdr.ccode);
-		}
-
-		/* Defining body signature (if present) */
-		if (siglen) {
-			ti = proto_tree_add_item(hdr_tree, hf_ipmi_header_sig, tvb, offs, siglen, ENC_NA);
-			proto_item_append_text(ti, " (%s)", ndesc);
-			/*offs += siglen;*/
-		}
-
-		/* Call data parser */
-		if (tvb_length(data_tvb) && hnd) {
-			ti = proto_tree_add_text(ipmi_tree, data_tvb, 0, -1, "Data");
-			data_tree = proto_item_add_subtree(ti, ett_data);
-			hnd(data_tvb, pinfo, data_tree);
-		}
-
-		/* Checksum all but the last byte */
-		len = tvb_length(tvb) - 1;
-		data_crc = tvb_get_guint8(tvb, len);
-		data_exp_crc = 0;
-		for (i = data_chk_offs; i < len; i++) {
-			data_exp_crc += tvb_get_guint8(tvb, i);
-		}
-		data_exp_crc = (0 - data_exp_crc) & 0xff;
-
-		if (data_crc == data_exp_crc) {
-			proto_tree_add_uint_format_value(ipmi_tree, hf_ipmi_data_crc, tvb, len, 1,
-					data_crc, "0x%02x (correct)", data_crc);
-		}
-		else {
-			ti = proto_tree_add_boolean(hdr_tree, hf_ipmi_bad_checksum, tvb, 0, 0, TRUE);
-			PROTO_ITEM_SET_HIDDEN(ti);
-			proto_tree_add_uint_format_value(ipmi_tree, hf_ipmi_data_crc, tvb, len, 1,
-					data_crc, "0x%02x (incorrect, expected 0x%02x)",
-					data_crc, data_exp_crc);
+			/* no pre-requisites */
+			*imb_flags = 0;
 		}
 	}
 
-	/* Restore globals, in case we've been called recursively */
-	ipmi_current_hdr = saved_hdr;
-	current_saved_data = saved_saved_data;
-	nest_level--;
+	/* get message length */
+	tvb_len = tvb_captured_length(tvb);
+
+	/*
+	 * broadcast message starts with null,
+	 * does not contain session handle
+	 * but contains responder address
+	 */
+	if (check_bc
+			&& tvb_len >= 8
+			&& !tvb_get_guint8(tvb, 0)
+			&& !calc_cks(0, tvb, 1, 3)
+			&& !calc_cks(0, tvb, 4, tvb_len - 4)) {
+		*imb_flags = IPMI_D_BROADCAST|IPMI_D_TRG_SA;
+		*cks1 = 0;
+		*cks2 = 0;
+		return TRUE;
+	}
+
+	/*
+	 * message with the starts with session handle
+	 * and contain responder address
+	 */
+	if (check_sh
+			&& tvb_len >= 8
+			&& !calc_cks(0, tvb, 1, 3)
+			&& !calc_cks(0, tvb, 4, tvb_len - 4)) {
+		*imb_flags = IPMI_D_SESSION_HANDLE|IPMI_D_TRG_SA;
+		*cks1 = 0;
+		*cks2 = 0;
+		return TRUE;
+	}
+
+	/*
+	 * message with responder address
+	 */
+	if (check_sa
+			&& tvb_len >= 7
+			&& !calc_cks(0, tvb, 0, 3)
+			&& !calc_cks(0, tvb, 3, tvb_len - 3)) {
+		*imb_flags = IPMI_D_TRG_SA;
+		*cks1 = 0;
+		*cks2 = 0;
+		return TRUE;
+	}
+
+
+	if (*imb_flags & IPMI_D_SESSION_HANDLE) {
+		sh_len = 1;
+		sa_len = 1;
+		rs_sa = 0;
+	} else if (*imb_flags & IPMI_D_TRG_SA) {
+		sh_len = 0;
+		sa_len = 1;
+		rs_sa = 0;
+	} else {
+		sh_len = 0;
+		sa_len = 0;
+		rs_sa = 0x20;
+	}
+
+	/* check message length */
+	if (tvb_len < 6 + sh_len + sa_len) {
+		return FALSE;
+	}
+
+	/* calculate checksum deltas */
+	*cks1 = calc_cks(rs_sa, tvb, sh_len, sa_len + 2);
+	*cks2 = calc_cks(0, tvb, sh_len + sa_len + 2,
+			tvb_len - sh_len - sa_len - 2);
+
+	return TRUE;
 }
 
-static void
-dissect_ipmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+int
+do_dissect_ipmb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+		gint hf_parent_item, gint ett_tree, ipmi_dissect_arg_t * arg)
 {
-	proto_tree *ipmi_tree = NULL;
-	proto_item *ti;
-	ipmi_dissect_format_t dfmt;
+	ipmi_context_t ctx;
+	guint offset = 0;
+	guint8 tmp;
 
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, "IPMI/ATCA");
+	memset(&ctx, 0, sizeof(ctx));
 
-	if (tree) {
-		ti = proto_tree_add_item(tree, proto_ipmi, tvb, 0, -1, ENC_NA);
-		ipmi_tree = proto_item_add_subtree(ti, ett_ipmi);
+	/* copy message context and channel */
+	ctx.hdr.context = arg ? arg->context : 0;
+	ctx.hdr.channel = arg ? arg->channel : 0;
+
+	/* guess IPMB message format */
+	if (!guess_imb_format(tvb, ctx.hdr.context, ctx.hdr.channel,
+			&ctx.flags, &ctx.cks1, &ctx.cks2)) {
+		return 0;
 	}
 
-	memset(&dfmt, 0, sizeof(dfmt));
-	dfmt.flags = IPMI_D_BROADCAST | IPMI_D_TRG_SA;
-	ipmi_do_dissect(tvb, pinfo, ipmi_tree, &dfmt);
+	/* check if message is broadcast */
+	if (ctx.flags & IPMI_D_BROADCAST) {
+		/* skip first byte */
+		offset++;
+	}
 
-	col_add_str(pinfo->cinfo, COL_INFO, dfmt.info);
+	/* check is session handle is specified */
+	if (ctx.flags & IPMI_D_SESSION_HANDLE) {
+		ctx.hdr.session = tvb_get_guint8(tvb, offset++);
+	}
 
+	/* check is response address is specified */
+	if (ctx.flags & IPMI_D_TRG_SA) {
+		ctx.hdr.rs_sa = tvb_get_guint8(tvb, offset++);
+	} else {
+		ctx.hdr.rs_sa = 0x20;
+	}
+
+	/* get Net Fn/RS LUN field */
+	tmp = tvb_get_guint8(tvb, offset++);
+
+	/* set Net Fn  and RS LUN */
+	ctx.hdr.netfn = tmp >> 2;
+	ctx.hdr.rs_lun = tmp & 3;
+
+	/* skip cks1 */
+	offset++;
+
+	/* get RQ SA */
+	ctx.hdr.rq_sa = tvb_get_guint8(tvb, offset++);
+
+	/* get RQ Seq/RQ LUN field */
+	tmp = tvb_get_guint8(tvb, offset++);
+
+	/* set RQ Seq  and RQ LUN */
+	ctx.hdr.rq_seq = tmp >> 2;
+	ctx.hdr.rq_lun = tmp & 3;
+
+	/* get command code */
+	ctx.hdr.cmd = tvb_get_guint8(tvb, offset++);
+
+	/* set header length */
+	ctx.hdr_len = offset;
+
+	/* copy direction */
+	ctx.hdr.dir = arg ? arg->flags >> 7 : ctx.hdr.netfn & 1;
+
+	if (ctx.hdr.context == IPMI_E_NONE) {
+		guint red = arg ? (arg->flags & 0x40) : 0;
+
+		if (!ctx.hdr.channel) {
+			col_add_fstr(pinfo->cinfo, COL_DEF_SRC,
+					"0x%02x(%s)", ctx.hdr.rq_sa, red ? "IPMB-B" : "IPMB-A");
+		} else {
+			col_add_fstr(pinfo->cinfo, COL_DEF_SRC,
+					"0x%02x", ctx.hdr.rq_sa);
+		}
+
+		col_add_fstr(pinfo->cinfo, COL_DEF_DST, "0x%02x", ctx.hdr.rs_sa);
+	}
+
+	/* dissect IPMI command */
+	return dissect_ipmi_cmd(tvb, pinfo, tree, hf_parent_item, ett_tree, &ctx);
+}
+
+static int
+dissect_ipmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+	return do_dissect_ipmb(tvb, pinfo, tree, proto_ipmb, ett_ipmi,
+			(ipmi_dissect_arg_t *) data);
 }
 
 /* Register IPMB protocol.
  */
-
 void
 proto_register_ipmi(void)
 {
 	static hf_register_info	hf[] = {
-		{ &hf_ipmi_message, { "Message", "ipmi.message", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 		{ &hf_ipmi_session_handle, { "Session handle", "ipmi.session_handle", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
-		{ &hf_ipmi_header_broadcast, { "Broadcast message", "ipmi.header.broadcast", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
 		{ &hf_ipmi_header_trg, { "Target Address", "ipmi.header.target", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 		{ &hf_ipmi_header_trg_lun, { "Target LUN", "ipmi.header.trg_lun", FT_UINT8, BASE_HEX, NULL, 0x03, NULL, HFILL }},
 		{ &hf_ipmi_header_netfn, { "NetFN", "ipmi.header.netfn", FT_UINT8, BASE_HEX, NULL, 0xfc, NULL, HFILL }},
 		{ &hf_ipmi_header_crc, { "Header Checksum", "ipmi.header.crc", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
 		{ &hf_ipmi_header_src, { "Source Address", "ipmi.header.source", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
 		{ &hf_ipmi_header_src_lun, { "Source LUN", "ipmi.header.src_lun", FT_UINT8, BASE_HEX, NULL, 0x03, NULL, HFILL }},
+		{ &hf_ipmi_header_bridged, { "Bridged", "ipmi.header.bridged", FT_UINT8, BASE_HEX, NULL, 0x03, NULL, HFILL }},
 		{ &hf_ipmi_header_sequence, { "Sequence Number", "ipmi.header.sequence", FT_UINT8, BASE_HEX, NULL, 0xfc, NULL, HFILL }},
 		{ &hf_ipmi_header_command, { "Command", "ipmi.header.command", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
 		{ &hf_ipmi_header_completion, { "Completion Code", "ipmi.header.completion", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
@@ -1379,8 +1746,7 @@ proto_register_ipmi(void)
 		{ &hf_ipmi_data_crc, { "Data checksum", "ipmi.data.crc", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
 		{ &hf_ipmi_response_to, { "Response to", "ipmi.response_to", FT_FRAMENUM, BASE_NONE, NULL, 0, NULL, HFILL }},
 		{ &hf_ipmi_response_in, { "Response in", "ipmi.response_in", FT_FRAMENUM, BASE_NONE, NULL, 0, NULL, HFILL }},
-		{ &hf_ipmi_response_time, { "Responded in", "ipmi.response_time", FT_RELATIVE_TIME, BASE_NONE, NULL, 0, NULL, HFILL }},
-		{ &hf_ipmi_bad_checksum, { "Bad checksum", "ipmi.bad_checksum", FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL }}
+		{ &hf_ipmi_response_time, { "Responded in", "ipmi.response_time", FT_RELATIVE_TIME, BASE_NONE, NULL, 0, NULL, HFILL }}
 	};
 	static gint *ett[] = {
 		&ett_ipmi,
@@ -1406,8 +1772,18 @@ proto_register_ipmi(void)
 	guint32 i;
 
 	proto_ipmi = proto_register_protocol("Intelligent Platform Management Interface",
-	                        "IPMI/ATCA",
+	                        "IPMI",
 	                        "ipmi");
+
+	proto_ipmb = proto_register_protocol("Intelligent Platform Management Bus",
+	                        "IPMB",
+	                        "ipmb");
+	proto_kcs = proto_register_protocol("Keyboard Controller Style Interface",
+	                        "KCS",
+	                        "kcs");
+	proto_tmode = proto_register_protocol("Serial Terminal Mode Interface",
+	                        "TMode",
+	                        "tmode");
 
 	proto_register_field_array(proto_ipmi, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
@@ -1434,8 +1810,14 @@ proto_register_ipmi(void)
 	ipmi_register_transport(proto_ipmi);
 	ipmi_register_picmg(proto_ipmi);
 	ipmi_register_pps(proto_ipmi);
+	ipmi_register_vita(proto_ipmi);
 
-	register_dissector("ipmi", dissect_ipmi, proto_ipmi);
+	new_register_dissector("ipmi", dissect_ipmi, proto_ipmi);
+	new_register_dissector("ipmb", dissect_ipmi, proto_ipmb);
+	new_register_dissector("kcs", dissect_kcs, proto_kcs);
+	new_register_dissector("tmode", dissect_tmode, proto_tmode);
+
+	data_dissector = find_dissector("data");
 
 	m = prefs_register_protocol(proto_ipmi, NULL);
 	prefs_register_bool_preference(m, "fru_langcode_is_english", "FRU Language Code is English",
