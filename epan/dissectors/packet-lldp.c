@@ -372,13 +372,6 @@ static gint ett_org_spc_media_9 = -1;
 static gint ett_org_spc_media_10 = -1;
 static gint ett_org_spc_media_11 = -1;
 
-#if 0
-static gint ett_org_spc_mediaClass_0 = -1;
-static gint ett_org_spc_mediaClass_1 = -1;
-static gint ett_org_spc_mediaClass_2 = -1;
-static gint ett_org_spc_mediaClass_3 = -1;
-static gint ett_org_spc_mediaClass_4 = -1;
-#endif
 static gint ett_org_spc_ProfinetSubTypes_1 = -1;
 static gint ett_org_spc_ProfinetSubTypes_2 = -1;
 static gint ett_org_spc_ProfinetSubTypes_3 = -1;
@@ -398,6 +391,7 @@ static gint ett_cisco_fourwire_tlv = -1;
 
 static expert_field ei_lldp_bad_length = EI_INIT;
 static expert_field ei_lldp_bad_length_excess = EI_INIT;
+static expert_field ei_lldp_bad_type = EI_INIT;
 
 /* TLV Types */
 #define END_OF_LLDPDU_TLV_TYPE		0x00	/* Mandatory */
@@ -947,46 +941,53 @@ longitude_base(gchar *buf, guint64 value) {
 
 /* Dissect Chassis Id TLV (Mandatory) */
 static gint32
-dissect_lldp_chassis_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset)
+dissect_lldp_chassis_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset)
 {
 	guint8 tempType;
 	guint16 tempShort;
 	guint32 tempLen = 0;
 	const char *strPtr=NULL;
-	guint8 incorrectLen = 0;	/* incorrect length if 1 */
 	guint32 ip_addr = 0;
 	struct e_in6_addr ip6_addr;
 	guint8 addr_family = 0;
 
 	proto_tree	*chassis_tree = NULL;
-	proto_item	*tf = NULL;
+	proto_item	*tf = NULL, *lf = NULL;
 
 	/* Get tlv type */
 	tempShort = tvb_get_ntohs(tvb, offset);
 	tempType = TLV_TYPE(tempShort);
 	if (tempType != CHASSIS_ID_TLV_TYPE)
 	{
-		tf = proto_tree_add_text(tree, tvb, offset, 2, "Invalid Chassis ID (0x%02X)", tempType);
-		chassis_tree = proto_item_add_subtree(tf, ett_chassis_id);
-		proto_tree_add_text(chassis_tree, tvb, offset, 2, " Invalid Chassis ID (%u)", tempType);
+		proto_tree_add_expert_format(tree, pinfo, &ei_lldp_bad_type , tvb, offset, TLV_INFO_LEN(tempShort),
+			"Invalid Chassis ID (0x%02X), expected (0x%02X)", tempType, CHASSIS_ID_TLV_TYPE);
 
 		return -1;
 	}
 
 	/* Get tlv length */
 	tempLen = TLV_INFO_LEN(tempShort);
+	/* Get tlv subtype */
+	tempType = tvb_get_guint8(tvb, (offset+2));
+
+	/* Set chassis tree */
+	tf = proto_tree_add_text(tree, tvb, offset, (tempLen + 2), "Chassis Subtype = %s",
+                                                        val_to_str_const(tempType, chassis_id_subtypes, "Reserved" ));
+
+	chassis_tree = proto_item_add_subtree(tf, ett_chassis_id);
+	proto_tree_add_item(chassis_tree, hf_lldp_tlv_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+	lf = proto_tree_add_item(chassis_tree, hf_lldp_tlv_len, tvb, offset, 2, ENC_BIG_ENDIAN);
+
 	if (tempLen < 2)
 	{
-		tf = proto_tree_add_text(tree, tvb, offset, 2, "Invalid Chassis ID Length (%u)", tempLen);
-		chassis_tree = proto_item_add_subtree(tf, ett_chassis_id);
-		proto_tree_add_item(chassis_tree, hf_lldp_tlv_type, tvb, offset, 2, ENC_BIG_ENDIAN);
-		proto_tree_add_text(chassis_tree, tvb, offset, 2, " Invalid Length: %u", tempLen);
+		expert_add_info_format(pinfo, lf, &ei_lldp_bad_length,
+			"Invalid Chassis ID Length (%u), expected > (2)", tempLen);
 
 		return -1;
 	}
 
-	/* Get tlv subtype */
-	tempType = tvb_get_guint8(tvb, (offset+2));
+	/* Get chassis id subtype */
+	proto_tree_add_item(chassis_tree, hf_chassis_id_subtype, tvb, (offset+2), 1, ENC_BIG_ENDIAN);
 
 	switch (tempType)
 	{
@@ -994,11 +995,13 @@ dissect_lldp_chassis_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 	{
 		if (tempLen != 7)
 		{
-			incorrectLen = 1;	/* Invalid length */
-			break;
+			expert_add_info_format(pinfo, lf, &ei_lldp_bad_length,
+				"Invalid Chassis ID Length (%u) for Type (%s), expected (7)", tempLen, val_to_str_const(tempType, chassis_id_subtypes, ""));
+			return -1;
 		}
 
 		strPtr = tvb_ether_to_str(tvb, offset+3);
+		proto_tree_add_item(chassis_tree, hf_chassis_id_mac, tvb, (offset+3), 6, ENC_NA);
 
 		break;
 	}
@@ -1013,118 +1016,75 @@ dissect_lldp_chassis_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 				ip_addr = tvb_get_ipv4(tvb, (offset+4));
 				strPtr = ip_to_str((guint8 *)&ip_addr);
 			}else{
-				incorrectLen = 1;	/* Invalid length */
+				expert_add_info_format(pinfo, lf, &ei_lldp_bad_length,
+					"Invalid Chassis ID Length (%u) for Type (%s, %s), expected (6)", tempLen, val_to_str_const(tempType, chassis_id_subtypes, ""), val_to_str_const(addr_family, afn_vals, ""));
+				return -1;
 			}
+
+			proto_tree_add_ipv4(chassis_tree, hf_chassis_id_ip4, tvb, (offset+4), 4, ip_addr);
+
 			break;
 		case AFNUM_INET6:
 			if  (tempLen == 18){
 				tvb_get_ipv6(tvb, (offset+4), &ip6_addr);
 				strPtr = ip6_to_str(&ip6_addr);
 			}else{
-				incorrectLen = 1;	/* Invalid length */
+				expert_add_info_format(pinfo, lf, &ei_lldp_bad_length,
+					"Invalid Chassis ID Length (%u) for Type (%s, %s), expected (18)", tempLen, val_to_str_const(tempType, chassis_id_subtypes, ""), val_to_str_const(addr_family, afn_vals, ""));
+				return -1;
 			}
+
+			proto_tree_add_ipv6(chassis_tree, hf_chassis_id_ip6, tvb, (offset+4), 16, ip6_addr.bytes);
+
 			break;
 		default:
 			strPtr = tvb_bytes_to_ep_str(tvb, (offset+4), (tempLen-2));
+			proto_tree_add_item(chassis_tree, hf_chassis_id, tvb, (offset+4), (tempLen-2), ENC_ASCII|ENC_NA);
+
 			break;
 		}
 		break;
 	}
+	case 1: /* Chassis component */
 	case 2:	/* Interface alias */
+	case 3: /* Port component */
 	case 6: /* Interface name */
 	case 7:	/* Locally assigned */
+	default:
 	{
 		if (tempLen > 256)
 		{
-			incorrectLen = 1;	/* Invalid length */
-			break;
+			expert_add_info_format(pinfo, lf, &ei_lldp_bad_length_excess,
+				"Invalid Chassis ID Length (%u) for Type (%s), expected < (256)", tempLen, val_to_str_const(tempType, chassis_id_subtypes, ""));
+			return -1;
 		}
 
-		strPtr = tvb_format_stringzpad(tvb, (offset+3), (tempLen-1));
-
-		break;
-	}
-	case 1:	/* Chassis component */
-	case 3:	/* Port component */
-	{
-		if (tempLen > 256)
+		switch(tempType)
 		{
-			incorrectLen = 1;	/* Invalid length */
+		case 2: /* Interface alias */
+		case 6: /* Interfae name */
+		case 7: /* Locally assigned */
+			strPtr = tvb_format_stringzpad(tvb, (offset+3), (tempLen-1));
+
 			break;
-		}
+		case 1: /* Chassis component */
+		case 3: /* Port component */
+			strPtr = tvb_bytes_to_ep_str(tvb, (offset+3), (tempLen-1));
 
-		strPtr = tvb_bytes_to_ep_str(tvb, (offset+3), (tempLen-1));
-		break;
-	}
-	default:	/* Reserved types */
-	{
-		if (tempLen > 256)
-		{
-			incorrectLen = 1;	/* Invalid length */
-			break;
-		}
-
-		strPtr = "Reserved";
-
-		break;
-	}
-	}
-
-	if (incorrectLen == 1)
-	{
-		tf = proto_tree_add_text(tree, tvb, offset, 2, "Invalid Chassis ID Length (%u)", tempLen);
-		chassis_tree = proto_item_add_subtree(tf, ett_chassis_id);
-		proto_tree_add_item(chassis_tree, hf_lldp_tlv_type, tvb, offset, 2, ENC_BIG_ENDIAN);
-		proto_tree_add_text(chassis_tree, tvb, offset, 2, " Invalid Length: %u", tempLen);
-		/* Get chassis id subtype */
-		proto_tree_add_item(chassis_tree, hf_chassis_id_subtype, tvb, (offset+2), 1, ENC_BIG_ENDIAN);
-
-		return -1;
-	}
-
-	/* Set chassis tree */
-	tf = proto_tree_add_text(tree, tvb, offset, (tempLen + 2), "Chassis Subtype = %s",
-							val_to_str_const(tempType, chassis_id_subtypes, "Reserved" ));
-	chassis_tree = proto_item_add_subtree(tf, ett_chassis_id);
-
-	proto_tree_add_item(chassis_tree, hf_lldp_tlv_type, tvb, offset, 2, ENC_BIG_ENDIAN);
-	proto_tree_add_item(chassis_tree, hf_lldp_tlv_len, tvb, offset, 2, ENC_BIG_ENDIAN);
-
-	/* Get chassis id subtype */
-	proto_tree_add_item(chassis_tree, hf_chassis_id_subtype, tvb, (offset+2), 1, ENC_BIG_ENDIAN);
-
-	/* Get chassis id */
-	switch (tempType)
-	{
-	case 4:	/* MAC address */
-		proto_tree_add_item(chassis_tree, hf_chassis_id_mac, tvb, (offset+3), 6, ENC_NA);
-		proto_item_append_text(tf, ", Id: %s", strPtr);
-		break;
-	case 5: /* Network address */
-		proto_tree_add_item(chassis_tree, hf_lldp_network_address_family, tvb, offset+3, 1, ENC_BIG_ENDIAN);
-		switch(addr_family){
-		case AFNUM_INET:
-			proto_tree_add_ipv4(chassis_tree, hf_chassis_id_ip4, tvb, (offset+4), 4, ip_addr);
-			break;
-		case AFNUM_INET6:
-			proto_tree_add_ipv6(chassis_tree, hf_chassis_id_ip6, tvb, (offset+4), 16, ip6_addr.bytes);
 			break;
 		default:
-			proto_tree_add_text(chassis_tree, tvb, (offset+4), (tempLen-2), "Chassis Id: %s", strPtr);
+			strPtr = "Reserved";
+
 			break;
 		}
-		break;
-	case 2:	/* Interface alias */
-	case 6: /* Interface name */
-	case 7:	/* Locally assigned */
-		proto_tree_add_item(chassis_tree, hf_chassis_id, tvb, (offset+3), (tempLen-1), ENC_NA);
-		proto_item_append_text(tf, ", Id: %s", strPtr);
-		break;
-	case 1:	/* Chassis component */
-	case 3:	/* Port component */
-		proto_tree_add_item(chassis_tree, hf_chassis_id, tvb, (offset+3), (tempLen-1), ENC_NA);
+
+		proto_tree_add_item(chassis_tree, hf_chassis_id, tvb, (offset+3), (tempLen-1), ENC_ASCII|ENC_NA);
+
 		break;
 	}
+	}
+
+	proto_item_append_text(tf, ", Id: %s", strPtr);
 
 	return (tempLen + 2);
 }
@@ -1148,7 +1108,12 @@ dissect_lldp_port_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
 	tempShort = tvb_get_ntohs(tvb, offset);
 	tempType = TLV_TYPE(tempShort);
 	if (tempType != PORT_ID_TLV_TYPE)
+	{
+		proto_tree_add_expert_format(tree, pinfo, &ei_lldp_bad_type , tvb, offset, TLV_INFO_LEN(tempShort),
+			"Invalid Port ID (0x%02X), expected (0x%02X)", tempType, PORT_ID_TLV_TYPE);
+
 		return -1;
+	}
 
 	/* Get tlv length and subtype */
 	tempLen = TLV_INFO_LEN(tempShort);
@@ -2958,7 +2923,7 @@ dissect_organizational_specific_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	const char *subTypeStr;
 
 	proto_tree	*org_tlv_tree = NULL;
-	proto_item	*tf = NULL;
+	proto_item	*tf = NULL, *lf = NULL;
 	/* Get tlv type and length */
 	tempShort = tvb_get_ntohs(tvb, offset);
 
@@ -3092,14 +3057,13 @@ dissect_organizational_specific_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	org_tlv_tree = proto_item_add_subtree(tf, tempTree); /* change to temp: ett_org_spc_tlv */
 	proto_tree_add_item(org_tlv_tree, hf_lldp_tlv_type, tvb, offset, 2, ENC_BIG_ENDIAN);
 
+	lf = proto_tree_add_item(org_tlv_tree, hf_lldp_tlv_len, tvb, offset, 2, ENC_BIG_ENDIAN);
 	if (tempLen < 4)
 	{
-		proto_tree_add_uint_format_value(org_tlv_tree, hf_lldp_tlv_len, tvb, offset, 2,
-			    tempShort, "%u (too short, must be >= 4)", tempLen);
+		expert_add_info_format(pinfo, lf, &ei_lldp_bad_length,
+			"TLV length (%u) too short, must be >=4)", tempLen);
 		return tLength;
 	}
-
-	proto_tree_add_item(org_tlv_tree, hf_lldp_tlv_len, tvb, offset, 2, ENC_BIG_ENDIAN);
 
 	/* Display organizational unique id */
 	proto_tree_add_uint(org_tlv_tree, hf_org_spc_oui, tvb, (offset + 2), 3, oui);
@@ -4450,7 +4414,8 @@ proto_register_lldp(void)
 
 	static ei_register_info ei[] = {
 		{ &ei_lldp_bad_length, { "lldp.incorrect_length", PI_MALFORMED, PI_WARN, "Invalid length, too short", EXPFILL }},
-		{ &ei_lldp_bad_length_excess, { "lldp.excess_length", PI_MALFORMED, PI_WARN, "Invalid length, greater than TLV length", EXPFILL }},
+		{ &ei_lldp_bad_length_excess, { "lldp.excess_length", PI_MALFORMED, PI_WARN, "Invalid length, greater than expected", EXPFILL }},
+		{ &ei_lldp_bad_type, { "lldp.bad_type", PI_MALFORMED, PI_WARN, "Incorrect type", EXPFILL }},
 	};
 
 	/* Register the protocol name and description */
