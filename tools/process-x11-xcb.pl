@@ -4,7 +4,7 @@
 # X11 dissector. Creates header files containing code to
 # dissect X11 extensions.
 #
-# Copyright 2008, 2009, 2013 Open Text Corporation <pharris[AT]opentext.com>
+# Copyright 2008, 2009, 2013, 2014 Open Text Corporation <pharris[AT]opentext.com>
 #
 # Wireshark - Network traffic analyzer
 # By Gerald Combs <gerald@wireshark.org>
@@ -751,8 +751,21 @@ sub dissect_element($$$$$;$$)
     given ($e->name()) {
 	when ('pad') {
 	    my $bytes = $e->att('bytes');
-	    print $impl $indent."UNUSED($bytes);\n";
-	    $length += $bytes;
+            my $align = $e->att('align');
+            if (defined $bytes) {
+                print $impl $indent."UNUSED($bytes);\n";
+                $length += $bytes;
+            } else {
+                say $impl $indent.'if (*offsetp % '.$align.') {';
+                say $impl $indent."    UNUSED($align - *offsetp % $align);";
+                say $impl $indent."}";
+                if ($length % $align != 0) {
+                    $length += $align - $length % $align;
+                }
+                if ($adjustlength) {
+                    say $impl $indent.'length = (length + '.($align-1).' & ~'.($align-1).';';
+                }
+            }
 	}
 	when ('field') {
 	    my $fieldname = $e->att('name');
@@ -937,8 +950,17 @@ sub struct {
 	given ($e->name()) {
 	    when ('pad') {
 		my $bytes = $e->att('bytes');
-		$size += $bytes;
-		next;
+                my $align = $e->att('align');
+                if (defined $bytes) {
+                    $size += $bytes;
+                    next;
+                }
+                if (!$dynamic) {
+                    if ($size % $align) {
+                        $size += $align - $size % $align;
+                    }
+                }
+                next;
 	    }
 	    when ('list') {
 		my $type = $e->att('type');
@@ -1005,7 +1027,12 @@ eot
 	    given ($e->name()) {
 		when ('pad') {
 		    my $bytes = $e->att('bytes');
-		    $size += $bytes;
+		    my $align = $e->att('align');
+                    if (defined $bytes) {
+                        $size += $bytes;
+                    } else {
+                        say $impl '    size = (size + '.($align-1).') & ~'.($align-1).';';
+                    }
 		}
 		when ('list') {
 		    my $len = $e->first_child();
@@ -1655,7 +1682,7 @@ eot
     # Add license text
     print $out <<eot
 /*
- * Copyright 2008, 2009, 2013 Open Text Corporation <pharris[AT]opentext.com>
+ * Copyright 2008, 2009, 2013, 2014 Open Text Corporation <pharris[AT]opentext.com>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald[AT]wireshark.org>
