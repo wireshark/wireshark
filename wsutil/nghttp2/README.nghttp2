@@ -17,6 +17,9 @@ cp ../../../nghttp2/lib/includes/nghttp2/nghttp2ver.h nghttp2/
 Change path to nghttp2.h
 find . -name "nghttp2*" -type f -exec sed -i 's/<nghttp2\/nghttp2.h>/<wsutil\/nghttp2\/nghttp2\/nghttp2.h>/g'  {} \;
 
+Change path to nghttp2ver.h
+find . -name "nghttp2*" -type f -exec sed -i 's/<nghttp2\/nghttp2ver.h>/<wsutil\/nghttp2\/nghttp2\/nghttp2ver.h>/g'  {} \;
+
 Fix c++-compat error
 
 in nghttp2/nghttp2_helper.h remove check for CONFIG.H
@@ -25,7 +28,6 @@ in nghttp2/nghttp2/nghttp2.h
 
 Add on the top
 #include "ws_symbol_export.h"
-
 #include "config.h"
 
 Replace
@@ -34,7 +36,7 @@ Replace
 
 By
 
-#ifdef _MSC_VER
+#ifdef __WIN32__
 
 typedef __int8 int8_t;
 typedef unsigned __int8 uint8_t;
@@ -78,16 +80,9 @@ typedef unsigned __int64 uint64_t;
 #include <stdint.h>
 #endif
 
-Replace
-
-#include <nghttp2/nghttp2ver.h>
-
-by
-
-#include <wsutil/nghttp2/nghttp2/nghttp2ver.h>
-
-
 and export (WS_DLL_PUBLIC) following function :
-nghttp2_hd_inflate_end_headers
 nghttp2_hd_inflate_new
+nghttp2_hd_inflate_del
+nghttp2_hd_inflate_change_table_size
 nghttp2_hd_inflate_hd
+nghttp2_hd_inflate_end_headers

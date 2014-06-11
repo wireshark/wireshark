@@ -25,8 +25,7 @@
 #ifndef NGHTTP2_HELPER_H
 #define NGHTTP2_HELPER_H
 
-
-#  include <config.h>
+#include <config.h>
 
 #include <wsutil/nghttp2/nghttp2/nghttp2.h>
 

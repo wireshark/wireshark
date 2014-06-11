@@ -114,7 +114,7 @@ int nghttp2_hd_huff_encode(nghttp2_bufs *bufs,
                            const uint8_t *src, size_t srclen)
 {
   int rv;
-  int rembits = 8;
+  ssize_t rembits = 8;
   size_t i;
   size_t avail;
 
@@ -133,9 +133,9 @@ int nghttp2_hd_huff_encode(nghttp2_bufs *bufs,
         avail = nghttp2_bufs_cur_avail(bufs);
       }
     }
-    rembits = (int)huff_encode_sym(bufs, &avail, rembits, sym);
+    rembits = huff_encode_sym(bufs, &avail, rembits, sym);
     if(rembits < 0) {
-      return rembits;
+      return (int)rembits;
     }
   }
   /* 256 is special terminal symbol, pad with its prefix */

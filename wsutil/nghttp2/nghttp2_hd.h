@@ -40,7 +40,7 @@
 /* The maximum length of one name/value pair.  This is the sum of the
    length of name and value.  This is not specified by the spec. We
    just chose the arbitrary size */
-#define NGHTTP2_HD_MAX_NV 8192
+#define NGHTTP2_HD_MAX_NV 65536
 
 /* Default size of maximum table buffer size for encoder. Even if
    remote decoder notifies larger buffer size for its decoding,
@@ -262,7 +262,7 @@ void nghttp2_hd_deflate_free(nghttp2_hd_deflater *deflater);
  */
 int nghttp2_hd_deflate_hd_bufs(nghttp2_hd_deflater *deflater,
                                nghttp2_bufs *bufs,
-                               nghttp2_nv *nva, size_t nvlen);
+                               const nghttp2_nv *nva, size_t nvlen);
 
 /*
  * Initializes |inflater| for inflating name/values pairs.

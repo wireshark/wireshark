@@ -38,7 +38,7 @@ typedef enum {
   /* This state emits symbol */
   NGHTTP2_HUFF_SYM = (1 << 1),
   /* If state machine reaches this state, decoding fails. */
-  NGHTTP2_HUFF_FAIL = (1 << 2),
+  NGHTTP2_HUFF_FAIL = (1 << 2)
 } nghttp2_huff_decode_flag;
 
 typedef struct {
