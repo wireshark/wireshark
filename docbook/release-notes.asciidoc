@@ -24,8 +24,8 @@ The frame metadissector could crash.
 (ws-buglink:9999[], ws-buglink:10030[])
 +
 Versions affected: 1.10.0 to 1.10.7
-//+
-//cve-idlink:2014-0000[]
++
+cve-idlink:2014-4020[]
 
 The following bugs have been fixed:
 
