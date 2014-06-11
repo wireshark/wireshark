@@ -91,7 +91,6 @@ static int hf_opcua_diag_innerstatuscode = -1;
 static int hf_opcua_extobj_mask_binbodyflag = -1;
 static int hf_opcua_extobj_mask_xmlbodyflag = -1;
 static int hf_opcua_ArraySize = -1;
-static int hf_opcua_NamespaceUri = -1;
 static int hf_opcua_ServerIndex = -1;
 
 /** NodeId encoding mask table */
@@ -311,7 +310,6 @@ void registerSimpleTypes(int proto)
         { &hf_opcua_extobj_mask_binbodyflag, {  "has binary body", "opcua.has_binary_body", FT_BOOLEAN, 8, NULL, EXTOBJ_ENCODINGMASK_BINBODY_FLAG, NULL, HFILL } },
         { &hf_opcua_extobj_mask_xmlbodyflag, {  "has xml body",    "opcua.has_xml_body", FT_BOOLEAN, 8, NULL, EXTOBJ_ENCODINGMASK_XMLBODY_FLAG, NULL, HFILL } },
         { &hf_opcua_ArraySize, { "ArraySize", "opcua.ArraySize", FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-        { &hf_opcua_NamespaceUri, { "NamespaceUri", "opcua.NamespaceUri", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_opcua_ServerIndex, { "ServerIndex", "opcua.ServerIndex", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } }
     };
 
