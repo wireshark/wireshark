@@ -36,7 +36,7 @@ and /usr/local/lib/pkgconfig.
 
 After you have installed those libraries:
 
-If you are building from a Subversion tree, rather than from a source
+If you are building from a Git tree, rather than from a source
 distribution tarball, run the autogen.sh script.  This should not be
 necessary if you're building from a source distribution tarball, unless
 you've added new source files to the Wireshark source.
@@ -50,7 +50,7 @@ you do, in the build directory:
     If you are building from a release tarball:
 	make distclean
 
-    If you are building from SVN:
+    If you are building from Git:
 	make maintainer-clean
 	./autogen.sh
 
