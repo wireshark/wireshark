@@ -89,38 +89,37 @@ static int ett_bsslap_cell_list = -1;
 #define BSSLAP_PARAM_STARTING_TIME                   0x2D
 
 const value_string gsm_bsslap_elem_strings[] = {
-	{  0x00,								"Reserved" },
-	{  BSSLAP_PARAM_TIMING_ADVANCE,			"Timing Advance" },
-	{  BSSLAP_PARAM_RESERVED_01,			"Reserved" },			/* (note) */
-	{  BSSLAP_PARAM_CELL_IDENTITY,			"Cell Identity" },
-	{  BSSLAP_PARAM_RESERVED_02,			"Reserved" },			/* (note) */
-	{  BSSLAP_PARAM_RESERVED_03,			"Reserved" },			/* (note) */
-	{  BSSLAP_PARAM_RESERVED_04,			"Reserved" },			/* (note) */
-	{  BSSLAP_PARAM_CHANNEL_DESCRIPTION,	"Channel Description" },
-	{  BSSLAP_PARAM_RESERVED_05,			"Reserved" },			/* (note) */
-	{  BSSLAP_PARAM_RESERVED_06,			"Reserved" },			/* (note) */
-	{  BSSLAP_PARAM_RESERVED_07,			"Reserved" },			/* (note) */
-	{  BSSLAP_PARAM_MEASUREMENT_REPORT,		"Measurement Report" },
-	{  BSSLAP_PARAM_RESERVED_08,			"Reserved" },			/* (note) */
-	{  BSSLAP_PARAM_CAUSE,					"Cause" },
-	{  BSSLAP_PARAM_RRLP_FLAG,				"RRLP Flag" },
-	{  BSSLAP_PARAM_RRLP_IE,				"RRLP IE" },
-	{  BSSLAP_PARAM_CELL_IDENTITY_LIST,		"Cell Identity List" },
-	{  BSSLAP_PARAM_ENHANCED_MEASUREMENT_REPORT,	"Enhanced Measurement Report" },
-	{  BSSLAP_PARAM_LOCATION_AREA_CODE,				"Location Area Code" },
-	{  BSSLAP_PARAM_FREQUENCY_LIST,					"Frequency List" },
-	{  BSSLAP_PARAM_MS_POWER,						"MS Power" },
-	{  BSSLAP_PARAM_DELTA_TIMER,					"Delta Timer" },
-	{  BSSLAP_PARAM_SERVING_CELL_IDENTIFIER,		"Serving Cell Identifier" },
-	{  BSSLAP_PARAM_ENCRYPTION_KEY,					"Encryption Key (Kc)" },
-	{  BSSLAP_PARAM_CIPHER_MODE_SETTING,			"Cipher Mode Setting" },
-	{  BSSLAP_PARAM_CHANNEL_MODE,					"Channel Mode" },
-	{  BSSLAP_PARAM_MULTIRATE_CONFIGURATION,		"MultiRate Configuration" },
-	{  BSSLAP_PARAM_POLLING_REPETITION,				"Polling Repetition" },
-	{  BSSLAP_PARAM_PACKET_CHANNEL_DESCRIPTION,		"Packet Channel Description" },
-	{  BSSLAP_PARAM_TLLI,							"TLLI" },
-	{  BSSLAP_PARAM_TFI,							"TFI" },
-	{  BSSLAP_PARAM_STARTING_TIME,					"Starting Time" },
+	{  DE_BLAP_RES1,	"Reserved" },
+	{  DE_BLAP_TA,	"Timing Advance" },
+	{  DE_BLAP_RES3,	"Reserved" },			/* (note) */
+	{  DE_BLAP_RES4,	"Cell Identity" },
+	{  DE_BLAP_RES5,	"Reserved" },			/* (note) */
+	{  DE_BLAP_RES6,	"Reserved" },			/* (note) */
+	{  DE_BLAP_RES7,	"Reserved" },			/* (note) */
+	{  DE_BLAP_CH_DESC,	"Channel Description" },
+	{  DE_BLAP_RES9,	"Reserved" },			/* (note) */
+	{  DE_BLAP_RES10,	"Reserved" },			/* (note) */
+	{  DE_BLAP_RES11,	"Reserved" },			/* (note) */
+	{  DE_BLAP_MEAS_REP,	"Measurement Report" },
+	{  DE_BLAP_RES13,	"Reserved" },			/* (note) */
+	{  DE_BLAP_CAUSE,	"Cause" },
+	{  DE_BLAP_RRLP_FLG,	"RRLP Flag" },
+	{  DE_BLAP_RRLP_IE,	"RRLP IE" },
+	{  DE_BLAP_CELL_ID_LIST,	"Cell Identity List" },
+	{  DE_BLAP_ENH_MEAS_REP,	"Enhanced Measurement Report" },
+	{  DE_BLAP_LAC,	"Location Area Code" },
+	{  DE_BLAP_FREQ_LIST,	"Frequency List" },
+	{  DE_BLAP_MS_POW,	"MS Power" },
+	{  DE_BLAP_DELTA_TIME,	"Delta Timer" },
+	{  DE_BLAP_SERV_CELL_ID,	"Serving Cell Identifier" },
+	{  DE_BLAP_ENC_KEY,	"Encryption Key (Kc)" },
+	{  DE_BLAP_CIP_M_SET,	"Cipher Mode Setting" },
+	{  DE_BLAP_CH_MODE,	"Channel Mode" },
+	{  DE_BLAP_POLL_REP,	"Polling Repetition" },
+	{  DE_BLAP_PKT_CH_DESC,	"Packet Channel Description" },
+	{  DE_BLAP_TLLI,	"TLLI" },
+	{  DE_BLAP_TFI,	"TFI" },
+	{  DE_BLAP_START_TIME,	"Starting Time" },
 	{ 0,		NULL },
 };
 

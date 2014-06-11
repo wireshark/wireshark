@@ -570,45 +570,45 @@ de_sgsap_vlr_name(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
  */
 
 const value_string sgsap_elem_strings[] = {
-	{ 0x01,	"IMSI" },									/* 9.4.6 */
-	{ 0x02,	"VLR name" },								/* 9.4.22 */
-	{ 0x03,	"TMSI" },									/* 9.4.20 */
-	{ 0x04,	"Location area identifier" },				/* 9.4.11 */
-	{ 0x05,	"Channel Needed" },							/* 9.4.23 */
-	{ 0x06,	"eMLPP Priority" },							/* 9.4.24 */
-	{ 0x07,	"TMSI status" },							/* 9.4.21 */
-	{ 0x08,	"SGs cause" },								/* 9.4.18 */
-	{ 0x09,	"MME name" },								/* 9.4.13 */
-	{ 0x0a,	"EPS location update type" },				/* 9.4.2 */
-	{ 0x0b,	"Global CN-Id" },							/* 9.4.4 */
+    { DE_SGSAP_IMSI, "IMSI" },                                              /* 9.4.6 */
+    { DE_SGSAP_VLR_NAME, "VLR name" },                                      /* 9.4.22 */
+    { DE_SGSAP_TMSI, "TMSI" },                                              /* 9.4.20 */
+    { DE_SGSAP_LOC_AREA_ID, "Location area identifier" },                   /* 9.4.11 */
+    { DE_SGSAP_CH_NEEDED, "Channel Needed" },                               /* 9.4.23 */
+    { DE_SGSAP_EMLPP_PRIO, "eMLPP Priority" },                              /* 9.4.24 */
+    { DE_SGSAP_TMSI_STATUS, "TMSI status" },                                /* 9.4.21 */
+    { DE_SGSAP_SGS_CAUSE, "SGs cause" },                                    /* 9.4.18 */
+    { DE_SGSAP_MME_NAME, "MME name" },                                      /* 9.4.13 */
+    { DE_SGSAP_EPS_LOC_UPD_TYPE, "EPS location update type" },              /* 9.4.2 */
+    { DE_SGSAP_GLOBAL_CN_ID, "Global CN-Id" },                              /* 9.4.4 */
 
-	{ 0x0c,	"Undefined" },								/*  */
-	{ 0x0d,	"Undefined" },								/*  */
+    { DE_SGSAP_UDEF_11, "Undefined" },                                      /*  */
+    { DE_SGSAP_UDEF_12, "Undefined" },                                      /*  */
 
-	{ 0x0e,	"Mobile identity" },						/* 9.4.14 */
-	{ 0x0f,	"Reject cause" },							/* 9.4.16 */
-	{ 0x10,	"IMSI detach from EPS service type" },		/* 9.4.7 */
-	{ 0x11,	"IMSI detach from non-EPS service type" },	/* 9.4.8 */
+    { DE_SGSAP_MID, "Mobile identity" },                                    /* 9.4.14 */
+    { DE_SGSAP_REJ_CAUSE, "Reject cause" },                                 /* 9.4.16 */
+    { DE_SGSAP_IMSI_DET_EPS, "IMSI detach from EPS service type" },         /* 9.4.7 */
+    { DE_SGSAP_IMSI_DET_NON_EPS, "IMSI detach from non-EPS service type" }, /* 9.4.8 */
 
-	{ 0x15,	"IMEISV" },									/* 9.4.5 */
-	{ 0x16,	"NAS message container" },					/* 9.4.15 */
-	{ 0x17,	"MM information" },							/* 9.4.12 */
+    { DE_SGSAP_IMEISV, "IMEISV" },                                          /* 9.4.5 */
+    { DE_SGSAP_NAS_MSG_CONTAINER, "NAS message container" },                /* 9.4.15 */
+    { DE_SGSAP_MM_INFO, "MM information" },                                 /* 9.4.12 */
 
-	{ 0x18,	"Undefined" },								/*  */
-	{ 0x19,	"Undefined" },								/*  */
-	{ 0x1a,	"Undefined" },								/*  */
+    { DE_SGSAP_UDEF_20, "Undefined" },                                      /*  */
+    { DE_SGSAP_UDEF_21, "Undefined" },                                      /*  */
+    { DE_SGSAP_UDEF_22, "Undefined" },                                      /*  */
 
-	{ 0x1b,	"Erroneous message" },						/* 9.4.3 */
-	{ 0x1c,	"CLI" },									/* 9.4.1 */
-	{ 0x1d,	"LCS client identity" },					/* 9.4.9 */
-	{ 0x1e, "LCS indicator" },							/* 9.4.10 */
-	{ 0x1f, "SS code" },								/* 9.4.19 */
-	{ 0x20, "Service indicator" },						/* 9.4.17 */
-	{ 0x21, "UE Time Zone" },							/* 9.4.21b */
-	{ 0x22, "Mobile Station Classmark 2" },				/* 9.4.14a */
-	{ 0x23, "Tracking Area Identity" },					/* 9.4.21a */
-	{ 0x24, "E-UTRAN Cell Global Identity" },			/* 9.4.3a */
-	{ 0x25, "UE EMM mode" },							/* 9.4.21c */
+    { DE_SGSAP_ERR_MSG, "Erroneous message" },                              /* 9.4.3 */
+    { DE_SGSAP_CLI, "CLI" },                                                /* 9.4.1 */
+    { DE_SGSAP_LCS_CLIENT_ID, "LCS client identity" },                      /* 9.4.9 */
+    { DE_SGSAP_LCS_INDIC, "LCS indicator" },                                /* 9.4.10 */
+    { DE_SGSAP_SS_CODE, "SS code" },                                        /* 9.4.19 */
+    { DE_SGSAP_SERV_INDIC, "Service indicator" },                           /* 9.4.17 */
+    { DE_SGSAP_UE_TZ, "UE Time Zone" },                                     /* 9.4.21b */
+    { DE_SGSAP_MSC_2, "Mobile Station Classmark 2" },                       /* 9.4.14a */
+    { DE_SGSAP_TAID, "Tracking Area Identity" },                            /* 9.4.21a */
+    { DE_SGSAP_ECGI, "E-UTRAN Cell Global Identity" },                      /* 9.4.3a */
+    { DE_SGSAP_UE_EMM_MODE, "UE EMM mode" },                                /* 9.4.21c */
 
 	{ 0, NULL }
 };
@@ -638,8 +638,8 @@ typedef enum
 	DE_SGSAP_EPS_LOC_UPD_TYPE,						/. 9.4.2 EPS location update type./
 	DE_SGSAP_GLOBAL_CN_ID,							/. 9.4.4 Global CN-Id./
 
-	DE_SGSAP_UDEF_12,								/. Undefined ./
-	DE_SGSAP_UDEF_13,								/. Undefined ./
+    DE_SGSAP_UDEF_11,                               /. Undefined ./
+    DE_SGSAP_UDEF_12,                               /. Undefined ./
 
 	DE_SGSAP_MID,									/. 9.4.14 Mobile identity./
 	DE_SGSAP_REJ_CAUSE,								/. 9.4.16 Reject cause ./
@@ -650,9 +650,9 @@ typedef enum
 	DE_SGSAP_NAS_MSG_CONTAINER,						/. 9.4.15 NAS message container./
 	DE_SGSAP_MM_INFO,								/. 9.4.12 MM information./
 
-	DE_SGSAP_UDEF_24,								/. Undefined ./
-	DE_SGSAP_UDEF_25,								/. Undefined ./
-	DE_SGSAP_UDEF_26,								/. Undefined ./
+    DE_SGSAP_UDEF_20,                               /. Undefined ./
+    DE_SGSAP_UDEF_21,                               /. Undefined ./
+    DE_SGSAP_UDEF_22,                               /. Undefined ./
 
 	DE_SGSAP_ERR_MSG,								/. 9.4.3 Erroneous message./
 	DE_SGSAP_CLI,									/. 9.4.1 CLI ./

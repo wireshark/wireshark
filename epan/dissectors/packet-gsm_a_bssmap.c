@@ -193,119 +193,135 @@ const value_string gsm_a_bssmap_msg_strings[] = {
 static value_string_ext gsm_a_bssmap_msg_strings_ext = VALUE_STRING_EXT_INIT(gsm_a_bssmap_msg_strings);
 
 const value_string gsm_bssmap_elem_strings[] = {
-    { 0x01, "Circuit Identity Code" },
-    { 0x02, "Reserved" },
-    { 0x03, "Resource Available" },
-    { 0x04, "Cause" },
-    { 0x05, "Cell Identifier" },
-    { 0x06, "Priority" },
-    { 0x07, "Layer 3 Header Information" },
-    { 0x08, "IMSI" },
-    { 0x09, "TMSI" },
-    { 0x0a, "Encryption Information" },
-    { 0x0b, "Channel Type" },
-    { 0x0c, "Periodicity" },
-    { 0x0d, "Extended Resource Indicator" },
-    { 0x0e, "Number Of MSs" },
-    { 0x0f, "Reserved" },
-    { 0x10, "Reserved" },
-    { 0x11, "Reserved" },
-    { 0x12, "Classmark Information Type 2" },
-    { 0x13, "Classmark Information Type 3" },
-    { 0x14, "Interference Band To Be Used" },
-    { 0x15, "RR Cause" },
-    { 0x16, "Reserved" },
-    { 0x17, "Layer 3 Information" },
-    { 0x18, "DLCI" },
-    { 0x19, "Downlink DTX Flag" },
-    { 0x1a, "Cell Identifier List" },
-    { 0x1b, "Response Request" },
-    { 0x1c, "Resource Indication Method" },
-    { 0x1d, "Classmark Information Type 1" },
-    { 0x1e, "Circuit Identity Code List" },
-    { 0x1f, "Diagnostic" },
-    { 0x20, "Layer 3 Message Contents" },
-    { 0x21, "Chosen Channel" },
-    { 0x22, "Total Resource Accessible" },
-    { 0x23, "Cipher Response Mode" },
-    { 0x24, "Channel Needed" },
-    { 0x25, "Trace Type" },
-    { 0x26, "TriggerID" },
-    { 0x27, "Trace Reference" },
-    { 0x28, "TransactionID" },
-    { 0x29, "Mobile Identity" },
-    { 0x2a, "OMCID" },
-    { 0x2b, "Forward Indicator" },
-    { 0x2c, "Chosen Encryption Algorithm" },
-    { 0x2d, "Circuit Pool" },
-    { 0x2e, "Circuit Pool List" },
-    { 0x2f, "Time Indication" },
-    { 0x30, "Resource Situation" },
-    { 0x31, "Current Channel Type 1" },
-    { 0x32, "Queuing Indicator" },
-    { 0x40, "Speech Version" },
-    { 0x33, "Assignment Requirement" },
-    { 0x35, "Talker Flag" },
-    { 0x36, "Connection Release Requested" },
-    { 0x37, "Group Call Reference" },
-    { 0x38, "eMLPP Priority" },
-    { 0x39, "Configuration Evolution Indication" },
-    { 0x3a, "Old BSS to New BSS Information" },
-    { 0x3b, "LSA Identifier" },
-    { 0x3c, "LSA Identifier List" },
-    { 0x3d, "LSA Information" },
-    { 0x3e, "LCS QoS" },
-    { 0x3f, "LSA access control suppression" },
-    { 0x43, "LCS Priority" },
-    { 0x44, "Location Type" },
-    { 0x45, "Location Estimate" },
-    { 0x46, "Positioning Data" },
-    { 0x47, "LCS Cause" },
-    { 0x48, "LCS Client Type" },
-    { GSM_BSSMAP_APDU_IE,   "APDU" },
-    { 0x4a, "Network Element Identity" },
-    { 0x4b, "GPS Assistance Data" },
-    { 0x4c, "Deciphering Keys" },
-    { 0x4d, "Return Error Request" },
-    { 0x4e, "Return Error Cause" },
-    { 0x4f, "Segmentation" },
-    { 0x50, "Service Handover" },
-    { 0x51, "Source RNC to target RNC transparent information (UMTS)" },
-    { 0x52, "Source RNC to target RNC transparent information (cdma2000)" },
-    { 0x53, "GERAN Classmark" },
-    { 0x54, "GERAN BSC Container" },
-    { 0x61, "New BSS to Old BSS Information" },
-    { 0x63, "Inter-System Information" },
-    { 0x64, "SNA Access Information" },
-    { 0x65, "VSTK_RAND Information" },
-    { 0x66, "VSTK Information" },
-    { 0x67, "Paging Information" },
-    { 0x68, "IMEI" },
-    { 0x55, "Velocity Estimate" },
-    { 0x69, "VGCS Feature Flags" },
-    { 0x6a, "Talker Priority" },
-    { 0x6b, "Emergency Set Indication" },
-    { 0x6c, "Talker Identity" },
-    { 0x6d, "Cell Identifier List Segment" },
-    { 0x6e, "SMS to VGCS" },
-    { 0x6f, "VGCS Talker Mode" },
-    { 0x70, "VGCS/VBS Cell Status" },
-    { 0x71, "Cell Identifier List Segment for established cells" },
-    { 0x72, "Cell Identifier List Segment for cells to be established" },
-    { 0x73, "Cell Identifier List Segment for released cells - no user present" },
-    { 0x74, "Cell Identifier List Segment for not established cells - no establishment possible" },
-    { 0x75, "GANSS Assistance Data" },
-    { 0x76, "GANSS Positioning Data" },
-    { 0x77, "GANSS Location Type" },
-    { 0x78, "Application Data" },
-    { 0x79, "Data Identity" },
-    { 0x7a, "Application Data Information" },
-    { 0x7b, "MSISDN" },
-    { 0x7c, "AoIP Transport Layer Address" },
-    { 0x7d, "Speech Codec List" },
-    { 0x7e, "Speech Codec" },
-    { 0x7f, "Call Identifier" },
-    { 0x80, "Call Identifier List" },
+    { BE_UDEF_0, "Undefined" },
+    { BE_CIC, "Circuit Identity Code" },
+    { BE_RSVD_1, "Reserved" },
+    { BE_RES_AVAIL, "Resource Available" },
+    { BE_CAUSE, "Cause" },
+    { BE_CELL_ID, "Cell Identifier" },
+    { BE_PRIO, "Priority" },
+    { BE_L3_HEADER_INFO, "Layer 3 Header Information" },
+    { BE_IMSI, "IMSI" },
+    { BE_TMSI, "TMSI" },
+    { BE_ENC_INFO, "Encryption Information" },
+    { BE_CHAN_TYPE, "Channel Type" },
+    { BE_PERIODICITY, "Periodicity" },
+    { BE_EXT_RES_IND, "Extended Resource Indicator" },
+    { BE_NUM_MS, "Number Of MSs" },
+    { BE_RSVD_2, "Reserved" },
+    { BE_RSVD_3, "Reserved" },
+    { BE_RSVD_4, "Reserved" },
+    { BE_CM_INFO_2, "Classmark Information Type 2" },
+    { BE_CM_INFO_3, "Classmark Information Type 3" },
+    { BE_INT_BAND, "Interference Band To Be Used" },
+    { BE_RR_CAUSE, "RR Cause" },
+    { BE_RSVD_5, "Reserved" },
+    { BE_L3_INFO, "Layer 3 Information" },
+    { BE_DLCI, "DLCI" },
+    { BE_DOWN_DTX_FLAG, "Downlink DTX Flag" },
+    { BE_CELL_ID_LIST, "Cell Identifier List" },
+    { BE_RESP_REQ, "Response Request" },
+    { BE_RES_IND_METHOD, "Resource Indication Method" },
+    { BE_CM_INFO_1, "Classmark Information Type 1" },
+    { BE_CIC_LIST, "Circuit Identity Code List" },
+    { BE_DIAG, "Diagnostic" },
+    { BE_L3_MSG, "Layer 3 Message Contents" },
+    { BE_CHOSEN_CHAN, "Chosen Channel" },
+    { BE_TOT_RES_ACC, "Total Resource Accessible" },
+    { BE_CIPH_RESP_MODE, "Cipher Response Mode" },
+    { BE_CHAN_NEEDED, "Channel Needed" },
+    { BE_TRACE_TYPE, "Trace Type" },
+    { BE_TRIGGERID, "TriggerID" },
+    { BE_TRACE_REF, "Trace Reference" },
+    { BE_TRANSID, "TransactionID" },
+    { BE_MID, "Mobile Identity" },
+    { BE_OMCID, "OMCID" },
+    { BE_FOR_IND, "Forward Indicator" },
+    { BE_CHOSEN_ENC_ALG, "Chosen Encryption Algorithm" },
+    { BE_CCT_POOL, "Circuit Pool" },
+    { BE_CCT_POOL_LIST, "Circuit Pool List" },
+    { BE_TIME_IND, "Time Indication" },
+    { BE_RES_SIT, "Resource Situation" },
+    { BE_CURR_CHAN_1, "Current Channel Type 1" },
+    { BE_QUE_IND, "Queuing Indicator" },
+    { BE_ASS_REQ, "Assignment Requirement" },
+    { BE_UDEF_52, "Undefined" },
+    { BE_TALKER_FLAG, "Talker Flag" },
+    { BE_CONN_REL_REQ, "Connection Release Requested" },
+    { BE_GROUP_CALL_REF, "Group Call Reference" },
+    { BE_EMLPP_PRIO, "eMLPP Priority" },
+    { BE_CONF_EVO_IND, "Configuration Evolution Indication" },
+    { BE_OLD2NEW_INFO, "Old BSS to New BSS Information" },
+    { BE_LSA_ID, "LSA Identifier" },
+    { BE_LSA_ID_LIST, "LSA Identifier List" },
+    { BE_LSA_INFO, "LSA Information" },
+    { BE_LCS_QOS, "LCS QoS" },
+    { BE_LSA_ACC_CTRL, "LSA access control suppression" },
+    { BE_SPEECH_VER, "Speech Version" },
+    { BE_UDEF_65, "Undefined" },
+    { BE_UDEF_66, "Undefined" },
+    { BE_LCS_PRIO, "LCS Priority" },
+    { BE_LOC_TYPE, "Location Type" },
+    { BE_LOC_EST, "Location Estimate" },
+    { BE_POS_DATA, "Positioning Data" },
+    { BE_LCS_CAUSE, "LCS Cause" },
+    { BE_LCS_CLIENT, "LCS Client Type" },
+    { BE_APDU, "APDU" },
+    { BE_NE_ID, "Network Element Identity" },
+    { BE_GPS_ASSIST_DATA, "GPS Assistance Data" },
+    { BE_DECIPH_KEYS, "Deciphering Keys" },
+    { BE_RET_ERR_REQ, "Return Error Request" },
+    { BE_RET_ERR_CAUSE, "Return Error Cause" },
+    { BE_SEG, "Segmentation" },
+    { BE_SERV_HO, "Service Handover" },
+    { BE_SRC_RNC_TO_TAR_RNC_UMTS, "Source RNC to target RNC transparent information (UMTS)" },
+    { BE_SRC_RNC_TO_TAR_RNC_CDMA, "Source RNC to target RNC transparent information (cdma2000)" },
+    { BE_GERAN_CLS_M, "GERAN Classmark" },
+    { BE_GERAN_BSC_CONT, "GERAN BSC Container" },
+    { BE_VEL_EST, "Velocity Estimate" },
+    { BE_UDEF_86, "Undefined" },
+    { BE_UDEF_87, "Undefined" },
+    { BE_UDEF_88, "Undefined" },
+    { BE_UDEF_89, "Undefined" },
+    { BE_UDEF_90, "Undefined" },
+    { BE_UDEF_91, "Undefined" },
+    { BE_UDEF_92, "Undefined" },
+    { BE_UDEF_93, "Undefined" },
+    { BE_UDEF_94, "Undefined" },
+    { BE_UDEF_95, "Undefined" },
+    { BE_UDEF_96, "Undefined" },
+    { BE_NEW_BSS_TO_OLD_BSS_INF, "New BSS to Old BSS Information" },
+    { BE_UDEF_98, "Undefined" },
+    { BE_INTER_SYS_INF, "Inter-System Information" },
+    { BE_SNA_ACC_INF, "SNA Access Information" },
+    { BE_VSTK_RAND_INF, "VSTK_RAND Information" },
+    { BE_VSTK_INF, "VSTK Information" },
+    { BE_PAGING_INF, "Paging Information" },
+    { BE_IMEI, "IMEI" },
+    { BE_VGCS_FEAT_FLG, "VGCS Feature Flags" },
+    { BE_TALKER_PRI, "Talker Priority" },
+    { BE_EMRG_SET_IND, "Emergency Set Indication" },
+    { BE_TALKER_ID, "Talker Identity" },
+    { BE_CELL_ID_LIST_SEG, "Cell Identifier List Segment" },
+    { BE_SMS_TO_VGCS, "SMS to VGCS" },
+    { BE_VGCS_TALKER_MOD, "VGCS Talker Mode" },
+    { BE_VGS_VBS_CELL_STAT, "VGCS/VBS Cell Status" },
+    { BE_CELL_ID_LST_SEG_F_EST_CELLS, "Cell Identifier List Segment for established cells" },
+    { BE_CELL_ID_LST_SEG_F_CELL_TB_EST, "Cell Identifier List Segment for cells to be established" },
+    { BE_CELL_ID_LST_SEG_F_REL_CELL, "Cell Identifier List Segment for released cells - no user present" },
+    { BE_CELL_ID_LST_SEG_F_NOT_EST_CELL, "Cell Identifier List Segment for not established cells - no establishment possible" },
+    { BE_GANSS_ASS_DTA, "GANSS Assistance Data" },
+    { BE_GANSS_POS_DTA, "GANSS Positioning Data" },
+    { BE_GANSS_LOC_TYP, "GANSS Location Type" },
+    { BE_APP_DATA, "Application Data" },
+    { BE_DATA_ID, "Data Identity" },
+    { BE_APP_DATA_INF, "Application Data Information" },
+    { BE_MSISDN, "MSISDN" },
+    { BE_AOIP_TRANS_LAY_ADD, "AoIP Transport Layer Address" },
+    { BE_SPEECH_CODEC_LST, "Speech Codec List" },
+    { BE_SPEECH_CODEC, "Speech Codec" },
+    { BE_CALL_ID, "Call Identifier" },
+    { BE_CALL_ID_LST, "Call Identifier List" },
     { 0, NULL }
 };
 
@@ -593,120 +609,136 @@ Note this enum must be of the same size as the element decoding list
 
 typedef enum
 {
-    BE_CIC,                            /* Circuit Identity Code */
-    BE_RSVD_1,                         /* Reserved */
-    BE_RES_AVAIL,                      /* Resource Available */
-    BE_CAUSE,                          /* Cause */
-    BE_CELL_ID,                        /* Cell Identifier */
-    BE_PRIO,                           /* Priority */
-    BE_L3_HEADER_INFO,                 /* Layer 3 Header Information */
-    BE_IMSI,                           /* IMSI */
-    BE_TMSI,                           /* TMSI */
-    BE_ENC_INFO,                       /* Encryption Information */
-    BE_CHAN_TYPE,                      /* Channel Type */
-    BE_PERIODICITY,                    /* Periodicity */
-    BE_EXT_RES_IND,                    /* Extended Resource Indicator */
-    BE_NUM_MS,                         /* Number Of MSs */
-    BE_RSVD_2,                         /* Reserved */
-    BE_RSVD_3,                         /* Reserved */
-    BE_RSVD_4,                         /* Reserved */
-    BE_CM_INFO_2,                      /* Classmark Information Type 2 */
-    BE_CM_INFO_3,                      /* Classmark Information Type 3 */
-    BE_INT_BAND,                       /* Interference Band To Be Used */
-    BE_RR_CAUSE,                       /* RR Cause */
-    BE_RSVD_5,                         /* Reserved */
-    BE_L3_INFO,                        /* Layer 3 Information */
-    BE_DLCI,                           /* DLCI */
-    BE_DOWN_DTX_FLAG,                  /* Downlink DTX Flag */
-    BE_CELL_ID_LIST,                   /* Cell Identifier List */
-    BE_RESP_REQ,                       /* Response Request */
-    BE_RES_IND_METHOD,                 /* Resource Indication Method */
-    BE_CM_INFO_1,                      /* Classmark Information Type 1 */
-    BE_CIC_LIST,                       /* Circuit Identity Code List */
-    BE_DIAG,                           /* Diagnostic */
-    BE_L3_MSG,                         /* Layer 3 Message Contents */
-    BE_CHOSEN_CHAN,                    /* Chosen Channel */
-    BE_TOT_RES_ACC,                    /* Total Resource Accessible */
-    BE_CIPH_RESP_MODE,                 /* Cipher Response Mode */
-    BE_CHAN_NEEDED,                    /* Channel Needed */
-    BE_TRACE_TYPE,                     /* Trace Type */
-    BE_TRIGGERID,                      /* TriggerID */
-    BE_TRACE_REF,                      /* Trace Reference */
-    BE_TRANSID,                        /* TransactionID */
-    BE_MID,                            /* Mobile Identity */
-    BE_OMCID,                          /* OMCID */
-    BE_FOR_IND,                        /* Forward Indicator */
-    BE_CHOSEN_ENC_ALG,                 /* Chosen Encryption Algorithm */
-    BE_CCT_POOL,                       /* Circuit Pool */
-    BE_CCT_POOL_LIST,                  /* Circuit Pool List */
-    BE_TIME_IND,                       /* Time Indication */
-    BE_RES_SIT,                        /* Resource Situation */
-    BE_CURR_CHAN_1,                    /* Current Channel Type 1 */
-    BE_QUE_IND,                        /* Queueing Indicator */
-    BE_SPEECH_VER,                     /* Speech Version */
-    BE_ASS_REQ,                        /* Assignment Requirement */
-    BE_TALKER_FLAG,                    /* Talker Flag */
-    BE_CONN_REL_REQ,                   /* Connection Release Requested */
-    BE_GROUP_CALL_REF,                 /* Group Call Reference */
-    BE_EMLPP_PRIO,                     /* eMLPP Priority */
-    BE_CONF_EVO_IND,                   /* Configuration Evolution Indication */
-    BE_OLD2NEW_INFO,                   /* Old BSS to New BSS Information */
-    BE_LSA_ID,                         /* LSA Identifier */
-    BE_LSA_ID_LIST,                    /* LSA Identifier List */
-    BE_LSA_INFO,                       /* LSA Information */
-    BE_LCS_QOS,                        /* LCS QoS */
-    BE_LSA_ACC_CTRL,                   /* LSA access control suppression */
-    BE_LCS_PRIO,                       /* LCS Priority */
-    BE_LOC_TYPE,                       /* Location Type */
-    BE_LOC_EST,                        /* Location Estimate */
-    BE_POS_DATA,                       /* Positioning Data */
-    BE_LCS_CAUSE,                      /* 3*2*2*66 LCS Cause */
-    BE_LCS_CLIENT,                     /* LCS Client Type */
-    BE_APDU,                           /* APDU */
-    BE_NE_ID,                          /* Network Element Identity */
-    BE_GPS_ASSIST_DATA,                /* GPS Assistance Data */
-    BE_DECIPH_KEYS,                    /* Deciphering Keys */
-    BE_RET_ERR_REQ,                    /* Return Error Request */
-    BE_RET_ERR_CAUSE,                  /* Return Error Cause */
-    BE_SEG,                            /* Segmentation */
-    BE_SERV_HO,                        /* Service Handover */
-    BE_SRC_RNC_TO_TAR_RNC_UMTS,        /* Source RNC to target RNC transparent information (UMTS) */
-    BE_SRC_RNC_TO_TAR_RNC_CDMA,        /* Source RNC to target RNC transparent information (cdma2000) */
-    BE_GERAN_CLS_M,                    /* GERAN Classmark */
-    BE_GRAN_BSC_CONT,                  /* GERAN BSC Container */
-    BE_NEW_BSS_TO_OLD_BSS_INF,         /* New BSS to Old BSS Information */
-    BE_INTER_SYS_INF,                  /* Inter-System Information */
-    BE_SNA_ACC_INF,                    /* SNA Access Information */
-    BE_VSTK_RAND_INF,                  /* VSTK_RAND Information */
-    BE_VSTK_INF,                       /* VSTK Information */
-    BE_PAGING_INF,                     /* Paging Information */
-    BE_IMEI,                           /* IMEI */
-    BE_VEL_EST,                        /* Velocity Estimate */
-    BE_VGCS_FEAT_FLG,                  /* VGCS Feature Flags */
-    BE_TALKER_PRI,                     /* Talker Priority */
-    BE_EMRG_SET_IND,                   /* Emergency Set Indication */
-    BE_TALKER_ID,                      /* Talker Identity */
-    BE_CELL_ID_LIST_SEG,               /* Cell Identifier List Segment */
-    BE_SMS_TO_VGCS,                    /* SMS to VGCS */
-    BE_VGCS_TALKER_MOD,                /* VGCS Talker Mode */
-    BE_VGS_VBS_CELL_STAT,              /* VGCS/VBS Cell Status */
-    BE_CELL_ID_LST_SEG_F_EST_CELLS,    /* Cell Identifier List Segment for established cells */
-    BE_CELL_ID_LST_SEG_F_CELL_TB_EST,  /* Cell Identifier List Segment for cells to be established */
-    BE_CELL_ID_LST_SEG_F_REL_CELL,     /* Cell Identifier List Segment for released cells - no user present */
-    BE_CELL_ID_LST_SEG_F_NOT_EST_CELL, /* Cell Identifier List Segment for not established cells - no establishment possible */
-    BE_GANSS_ASS_DTA,                  /* GANSS Assistance Data */
-    BE_GANSS_POS_DTA,                  /* GANSS Positioning Data */
-    BE_GANSS_LOC_TYP,                  /* GANSS Location Type */
-    BE_APP_DATA,                       /* Application Data */
-    BE_DATA_ID                         /* Data Identity */
-    BE_APP_DATA_INF,                   /* Application Data Information */
-    BE_MSISDN,                         /* MSISDN */
-    BE_AOIP_TRANS_LAY_ADD,             /* AoIP Transport Layer Address */
-    BE_SPEECH_CODEC_LST,               /* Speech Codec List */
-    BE_SPEECH_CODEC,                   /* Speech Codec */
-    BE_CALL_ID,                        /* Call Identifier */
-    BE_CALL_ID_LST,                    /* Call Identifier List */
-    BE_NONE                            /* NONE */
+    BE_UDEF_0,                          /* Undefined */
+    BE_CIC,                             /* Circuit Identity Code */
+    BE_RSVD_1,                          /* Reserved */
+    BE_RES_AVAIL,                       /* Resource Available */
+    BE_CAUSE,                           /* Cause */
+    BE_CELL_ID,                         /* Cell Identifier */
+    BE_PRIO,                            /* Priority */
+    BE_L3_HEADER_INFO,                  /* Layer 3 Header Information */
+    BE_IMSI,                            /* IMSI */
+    BE_TMSI,                            /* TMSI */
+    BE_ENC_INFO,                        /* Encryption Information */
+    BE_CHAN_TYPE,                       /* Channel Type */
+    BE_PERIODICITY,                     /* Periodicity */
+    BE_EXT_RES_IND,                     /* Extended Resource Indicator */
+    BE_NUM_MS,                          /* Number Of MSs */
+    BE_RSVD_2,                          /* Reserved */
+    BE_RSVD_3,                          /* Reserved */
+    BE_RSVD_4,                          /* Reserved */
+    BE_CM_INFO_2,                       /* Classmark Information Type 2 */
+    BE_CM_INFO_3,                       /* Classmark Information Type 3 */
+    BE_INT_BAND,                        /* Interference Band To Be Used */
+    BE_RR_CAUSE,                        /* RR Cause */
+    BE_RSVD_5,                          /* Reserved */
+    BE_L3_INFO,                         /* Layer 3 Information */
+    BE_DLCI,                            /* DLCI */
+    BE_DOWN_DTX_FLAG,                   /* Downlink DTX Flag */
+    BE_CELL_ID_LIST,                    /* Cell Identifier List */
+    BE_RESP_REQ,                        /* Response Request */
+    BE_RES_IND_METHOD,                  /* Resource Indication Method */
+    BE_CM_INFO_1,                       /* Classmark Information Type 1 */
+    BE_CIC_LIST,                        /* Circuit Identity Code List */
+    BE_DIAG,                            /* Diagnostic */
+    BE_L3_MSG,                          /* Layer 3 Message Contents */
+    BE_CHOSEN_CHAN,                     /* Chosen Channel */
+    BE_TOT_RES_ACC,                     /* Total Resource Accessible */
+    BE_CIPH_RESP_MODE,                  /* Cipher Response Mode */
+    BE_CHAN_NEEDED,                     /* Channel Needed */
+    BE_TRACE_TYPE,                      /* Trace Type */
+    BE_TRIGGERID,                       /* TriggerID */
+    BE_TRACE_REF,                       /* Trace Reference */
+    BE_TRANSID,                         /* TransactionID */
+    BE_MID,                             /* Mobile Identity */
+    BE_OMCID,                           /* OMCID */
+    BE_FOR_IND,                         /* Forward Indicator */
+    BE_CHOSEN_ENC_ALG,                  /* Chosen Encryption Algorithm */
+    BE_CCT_POOL,                        /* Circuit Pool */
+    BE_CCT_POOL_LIST,                   /* Circuit Pool List */
+    BE_TIME_IND,                        /* Time Indication */
+    BE_RES_SIT,                         /* Resource Situation */
+    BE_CURR_CHAN_1,                     /* Current Channel Type 1 */
+    BE_QUE_IND,                         /* Queueing Indicator */
+    BE_ASS_REQ,                         /* Assignment Requirement */
+    BE_UDEF_52,                         /* Undefined */
+    BE_TALKER_FLAG,                     /* Talker Flag */
+    BE_CONN_REL_REQ,                    /* Connection Release Requested */
+    BE_GROUP_CALL_REF,                  /* Group Call Reference */
+    BE_EMLPP_PRIO,                      /* eMLPP Priority */
+    BE_CONF_EVO_IND,                    /* Configuration Evolution Indication */
+    BE_OLD2NEW_INFO,                    /* Old BSS to New BSS Information */
+    BE_LSA_ID,                          /* LSA Identifier */
+    BE_LSA_ID_LIST,                     /* LSA Identifier List */
+    BE_LSA_INFO,                        /* LSA Information */
+    BE_LCS_QOS,                         /* LCS QoS */
+    BE_LSA_ACC_CTRL,                    /* LSA access control suppression */
+    BE_SPEECH_VER,                      /* Speech Version */
+    BE_UDEF_65,                         /* Undefined */
+    BE_UDEF_66,                         /* Undefined */
+    BE_LCS_PRIO,                        /* LCS Priority */
+    BE_LOC_TYPE,                        /* Location Type */
+    BE_LOC_EST,                         /* Location Estimate */
+    BE_POS_DATA,                        /* Positioning Data */
+    BE_LCS_CAUSE,                       /* 3.2.2.66 LCS Cause */
+    BE_LCS_CLIENT,                      /* 10.14 LCS Client Type */
+    BE_APDU,                            /* APDU */
+    BE_NE_ID,                           /* Network Element Identity */
+    BE_GPS_ASSIST_DATA,                 /* GPS Assistance Data */
+    BE_DECIPH_KEYS,                     /* Deciphering Keys */
+    BE_RET_ERR_REQ,                     /* Return Error Request */
+    BE_RET_ERR_CAUSE,                   /* Return Error Cause */
+    BE_SEG,                             /* Segmentation */
+    BE_SERV_HO,                         /* Service Handover */
+    BE_SRC_RNC_TO_TAR_RNC_UMTS,         /* Source RNC to target RNC transparent information (UMTS) */
+    BE_SRC_RNC_TO_TAR_RNC_CDMA,         /* Source RNC to target RNC transparent information (cdma2000) */
+    BE_GERAN_CLS_M,                     /* GERAN Classmark */
+    BE_GERAN_BSC_CONT,                  /* GERAN BSC Container */
+    BE_VEL_EST,                         /* Velocity Estimate */
+    BE_UDEF_86,                         /* Undefined */
+    BE_UDEF_87,                         /* Undefined */
+    BE_UDEF_88,                         /* Undefined */
+    BE_UDEF_89,                         /* Undefined */
+    BE_UDEF_90,                         /* Undefined */
+    BE_UDEF_91,                         /* Undefined */
+    BE_UDEF_92,                         /* Undefined */
+    BE_UDEF_93,                         /* Undefined */
+    BE_UDEF_94,                         /* Undefined */
+    BE_UDEF_95,                         /* Undefined */
+    BE_UDEF_96,                         /* Undefined */
+    BE_NEW_BSS_TO_OLD_BSS_INF,          /* New BSS to Old BSS Information */
+    BE_UDEF_98,                         /* Undefined */
+    BE_INTER_SYS_INF,                   /* Inter-System Information */
+    BE_SNA_ACC_INF,                     /* SNA Access Information */
+    BE_VSTK_RAND_INF,                   /* VSTK_RAND Information */
+    BE_VSTK_INF,                        /* VSTK Information */
+    BE_PAGING_INF,                      /* Paging Information */
+    BE_IMEI,                            /* IMEI */
+    BE_VGCS_FEAT_FLG,                   /* VGCS Feature Flags */
+    BE_TALKER_PRI,                      /* Talker Priority */
+    BE_EMRG_SET_IND,                    /* Emergency Set Indication */
+    BE_TALKER_ID,                       /* Talker Identity */
+    BE_CELL_ID_LIST_SEG,                /* Cell Identifier List Segment */
+    BE_SMS_TO_VGCS,                     /* SMS to VGCS */
+    BE_VGCS_TALKER_MOD,                 /* VGCS Talker Mode */
+    BE_VGS_VBS_CELL_STAT,               /* VGCS/VBS Cell Status */
+    BE_CELL_ID_LST_SEG_F_EST_CELLS,     /* Cell Identifier List Segment for established cells */
+    BE_CELL_ID_LST_SEG_F_CELL_TB_EST,   /* Cell Identifier List Segment for cells to be established */
+    BE_CELL_ID_LST_SEG_F_REL_CELL,      /* Cell Identifier List Segment for released cells - no user present */
+    BE_CELL_ID_LST_SEG_F_NOT_EST_CELL,  /* Cell Identifier List Segment for not established cells - no establishment possible */
+    BE_GANSS_ASS_DTA,                   /* GANSS Assistance Data */
+    BE_GANSS_POS_DTA,                   /* GANSS Positioning Data */
+    BE_GANSS_LOC_TYP,                   /* GANSS Location Type */
+    BE_APP_DATA,                        /* Application Data */
+    BE_DATA_ID,                         /* Data Identity */
+    BE_APP_DATA_INF,                    /* Application Data Information */
+    BE_MSISDN,                          /* MSISDN */
+    BE_AOIP_TRANS_LAY_ADD,              /* AoIP Transport Layer Address */
+    BE_SPEECH_CODEC_LST,                /* Speech Codec List */
+    BE_SPEECH_CODEC,                    /* Speech Codec */
+    BE_CALL_ID,                         /* Call Identifier */
+    BE_CALL_ID_LST,                     /* Call Identifier List */
+    BE_NONE                             /* NONE */
 }
 bssmap_elem_idx_t;
 #endif
@@ -4013,6 +4045,7 @@ be_call_id_lst(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 
 }
 
 guint16 (*bssmap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string, int string_len) = {
+    NULL,               /* Undefined */
     be_cic,             /* Circuit Identity Code */
     NULL,               /* Reserved */
     be_res_avail,       /* Resource Available */
@@ -4063,8 +4096,8 @@ guint16 (*bssmap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo
     NULL,               /* Resource Situation */
     be_curr_chan_1,     /* Current Channel Type 1 */
     be_que_ind,         /* Queueing Indicator */
-    be_speech_ver,      /* Speech Version */
     be_ass_req,         /* Assignment Requirement */
+    NULL,               /* Undefined */
     NULL                /* no associated data */,   /* Talker Flag */
     NULL                /* no associated data */,   /* Connection Release Requested */
     de_d_gb_call_ref,   /* Group Call Reference */
@@ -4076,6 +4109,9 @@ guint16 (*bssmap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo
     be_lsa_info,        /* LSA Information */
     NULL,               /* LCS QoS Dissected in packet-gsm_bssmap_le.c*/
     NULL,               /* LSA access control suppression */
+    be_speech_ver,      /* Speech Version */
+    NULL,               /* Undefined */
+    NULL,               /* Undefined */
     be_lcs_prio,        /* LCS Priority */
     be_loc_type,        /* Location Type */
     be_loc_est,         /* Location Estimate */
@@ -4094,14 +4130,26 @@ guint16 (*bssmap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo
     be_src_rnc_to_tar_rnc_cdma, /* Source RNC to target RNC transparent information (cdma2000) */
     be_geran_cls_m,     /* GERAN Classmark */
     NULL,               /* GERAN BSC Container */
+    be_vel_est,         /* Velocity Estimate */
+    NULL,               /* Undefined */
+    NULL,               /* Undefined */
+    NULL,               /* Undefined */
+    NULL,               /* Undefined */
+    NULL,               /* Undefined */
+    NULL,               /* Undefined */
+    NULL,               /* Undefined */
+    NULL,               /* Undefined */
+    NULL,               /* Undefined */
+    NULL,               /* Undefined */
+    NULL,               /* Undefined */
     be_field_element_dissect,   /* New BSS to Old BSS Information */
+    NULL,               /* Undefined */
     be_inter_sys_inf,   /*  Inter-System Information */
     be_sna_acc_inf,     /* SNA Access Information */
     NULL,               /* VSTK_RAND Information */
     NULL,               /* VSTK Information */
     be_paging_inf,      /* Paging Information */
     de_mid,             /* 3.2.2.86 IMEI (use same dissector as IMSI)*/
-    be_vel_est,         /* Velocity Estimate */
     be_vgcs_feat_flg,   /* VGCS Feature Flags */
     be_talker_pri,      /* Talker Priority */
     NULL,               /* no data Emergency Set Indication */
