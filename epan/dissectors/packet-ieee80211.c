@@ -126,6 +126,11 @@ static int add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
 #define roundup2(x, y)  (((x)+((y)-1))&(~((y)-1)))  /* if y is powers of two */
 #endif
 
+/* bitmask for bits [l..h]
+ * taken from kernel's include/linux/bitops.h
+ */
+#define GENMASK(h, l)		(((1U << ((h) - (l) + 1)) - 1) << (l))
+
 /* Defragment fragmented 802.11 datagrams */
 static gboolean wlan_defragment = TRUE;
 
@@ -14900,45 +14905,45 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
       offset += 2;
       proto_tree_add_item(tree, hf_ieee80211_tag_dmg_capa_sta_addr, tvb, offset, 6, ENC_NA);
       offset += 6;
-      proto_tree_add_item(tree, hf_ieee80211_tag_dmg_capa_aid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(tree, hf_ieee80211_tag_dmg_capa_aid, tvb, offset, 1, ENC_NA);
       offset += 1;
-      proto_tree_add_item(tree, hf_ieee80211_tag_reverse_direction, tvb, offset, 3, ENC_NA);
-      proto_tree_add_item(tree, hf_ieee80211_tag_hlts, tvb, offset, 3, ENC_NA);
-      proto_tree_add_item(tree, hf_ieee80211_tag_tpc, tvb, offset, 3, ENC_NA);
-      proto_tree_add_item(tree, hf_ieee80211_tag_spsh, tvb, offset, 3, ENC_NA);
-      proto_tree_add_item(tree, hf_ieee80211_tag_rx_antenna, tvb, offset, 3, ENC_NA);
-      proto_tree_add_item(tree, hf_ieee80211_tag_fast_link, tvb, offset, 3, ENC_NA);
-      proto_tree_add_item(tree, hf_ieee80211_tag_num_sectors, tvb, offset, 3, ENC_NA);
-      proto_tree_add_item(tree, hf_ieee80211_tag_rxss_length, tvb, offset, 3, ENC_NA);
-      proto_tree_add_item(tree, hf_ieee80211_tag_reciprocity, tvb, offset, 3, ENC_NA);
-      proto_tree_add_item(tree, hf_ieee80211_tag_max_ampdu_exp, tvb, offset, 3, ENC_NA);
+      proto_tree_add_item(tree, hf_ieee80211_tag_reverse_direction, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(tree, hf_ieee80211_tag_hlts, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(tree, hf_ieee80211_tag_tpc, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(tree, hf_ieee80211_tag_spsh, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(tree, hf_ieee80211_tag_rx_antenna, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(tree, hf_ieee80211_tag_fast_link, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(tree, hf_ieee80211_tag_num_sectors, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(tree, hf_ieee80211_tag_rxss_length, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(tree, hf_ieee80211_tag_reciprocity, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(tree, hf_ieee80211_tag_max_ampdu_exp, tvb, offset, 3, ENC_LITTLE_ENDIAN);
       offset += 3;
-      proto_tree_add_item(tree, hf_ieee80211_tag_min_mpdu_sapcing, tvb, offset, 3, ENC_NA);
-      proto_tree_add_item(tree, hf_ieee80211_tag_ba_flow_control, tvb, offset, 3, ENC_NA);
-      proto_tree_add_item(tree, hf_ieee80211_tag_max_sc_rx_mcs, tvb, offset, 3, ENC_NA);
-      proto_tree_add_item(tree, hf_ieee80211_tag_max_ofdm_rx_mcs, tvb, offset, 3, ENC_NA);
-      proto_tree_add_item(tree, hf_ieee80211_tag_max_sc_tx_mcs, tvb, offset, 3, ENC_NA);
-      proto_tree_add_item(tree, hf_ieee80211_tag_max_ofdm_tx_mcs, tvb, offset, 3, ENC_NA);
+      proto_tree_add_item(tree, hf_ieee80211_tag_min_mpdu_sapcing, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(tree, hf_ieee80211_tag_ba_flow_control, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(tree, hf_ieee80211_tag_max_sc_rx_mcs, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(tree, hf_ieee80211_tag_max_ofdm_rx_mcs, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(tree, hf_ieee80211_tag_max_sc_tx_mcs, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(tree, hf_ieee80211_tag_max_ofdm_tx_mcs, tvb, offset, 3, ENC_LITTLE_ENDIAN);
       offset += 3;
-      proto_tree_add_item(tree, hf_ieee80211_tag_low_power_supported, tvb, offset, 2, ENC_NA);
-      proto_tree_add_item(tree, hf_ieee80211_tag_code_rate, tvb, offset, 2, ENC_NA);
-      proto_tree_add_item(tree, hf_ieee80211_tag_dtp, tvb, offset, 2, ENC_NA);
-      proto_tree_add_item(tree, hf_ieee80211_tag_appdu_supp, tvb, offset, 2, ENC_NA);
-      proto_tree_add_item(tree, hf_ieee80211_tag_heartbeat, tvb, offset, 2, ENC_NA);
-      proto_tree_add_item(tree, hf_ieee80211_tag_other_aid, tvb, offset, 2, ENC_NA);
-      proto_tree_add_item(tree, hf_ieee80211_tag_pattern_recip, tvb, offset, 2, ENC_NA);
-      proto_tree_add_item(tree, hf_ieee80211_tag_heartbeat_elapsed, tvb, offset, 2, ENC_NA);
-      proto_tree_add_item(tree, hf_ieee80211_tag_grant_ack_supp, tvb, offset, 2, ENC_NA);
-      proto_tree_add_item(tree, hf_ieee80211_tag_RXSSTxRate_supp, tvb, offset, 2, ENC_NA);
+      proto_tree_add_item(tree, hf_ieee80211_tag_low_power_supported, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(tree, hf_ieee80211_tag_code_rate, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(tree, hf_ieee80211_tag_dtp, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(tree, hf_ieee80211_tag_appdu_supp, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(tree, hf_ieee80211_tag_heartbeat, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(tree, hf_ieee80211_tag_other_aid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(tree, hf_ieee80211_tag_pattern_recip, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(tree, hf_ieee80211_tag_heartbeat_elapsed, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(tree, hf_ieee80211_tag_grant_ack_supp, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(tree, hf_ieee80211_tag_RXSSTxRate_supp, tvb, offset, 2, ENC_LITTLE_ENDIAN);
       offset += 2;
-      proto_tree_add_item(tree, hf_ieee80211_tag_pcp_tddti, tvb, offset, 2, ENC_NA);
-      proto_tree_add_item(tree, hf_ieee80211_tag_pcp_PSA, tvb, offset, 2, ENC_NA);
-      proto_tree_add_item(tree, hf_ieee80211_tag_pcp_handover, tvb, offset, 2, ENC_NA);
-      proto_tree_add_item(tree, hf_ieee80211_tag_pcp_max_assoc, tvb, offset, 2, ENC_NA);
-      proto_tree_add_item(tree, hf_ieee80211_tag_pcp_power_src, tvb, offset, 2, ENC_NA);
-      proto_tree_add_item(tree, hf_ieee80211_tag_pcp_decenter, tvb, offset, 2, ENC_NA);
-      proto_tree_add_item(tree, hf_ieee80211_tag_pcp_forwarding, tvb, offset, 2, ENC_NA);
-      proto_tree_add_item(tree, hf_ieee80211_tag_pcp_center, tvb, offset, 2, ENC_NA);
+      proto_tree_add_item(tree, hf_ieee80211_tag_pcp_tddti, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(tree, hf_ieee80211_tag_pcp_PSA, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(tree, hf_ieee80211_tag_pcp_handover, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(tree, hf_ieee80211_tag_pcp_max_assoc, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(tree, hf_ieee80211_tag_pcp_power_src, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(tree, hf_ieee80211_tag_pcp_decenter, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(tree, hf_ieee80211_tag_pcp_forwarding, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(tree, hf_ieee80211_tag_pcp_center, tvb, offset, 2, ENC_LITTLE_ENDIAN);
       offset += 2;
       break;
     }
@@ -19236,175 +19241,175 @@ proto_register_ieee80211 (void)
      {"AID", "wlan.dmg_capa.aid",
       FT_UINT16, BASE_DEC, NULL, 0,
       NULL, HFILL }},
-
-    {&hf_ieee80211_tag_reverse_direction,
+/* 8.4.2.127.2 DMG STA Capability Information field */
+    {&hf_ieee80211_tag_reverse_direction, /* DMG STA capa, bits [0] */
      {"Reverse Direction", "wlan.dmg_capa.reverse_direction",
-      FT_BOOLEAN, 24, NULL, 0x800000,
+      FT_BOOLEAN, 24, NULL, GENMASK(0, 0),
       NULL, HFILL }},
 
-    {&hf_ieee80211_tag_hlts,
+    {&hf_ieee80211_tag_hlts, /* DMG STA capa, bits [1] */
      {"Higher Layer Timer Synchronization", "wlan.dmg_capa.htls",
-      FT_BOOLEAN, 24, NULL, 0x400000,
+      FT_BOOLEAN, 24, NULL, GENMASK(1, 1),
       NULL, HFILL }},
 
-    {&hf_ieee80211_tag_tpc,
+    {&hf_ieee80211_tag_tpc, /* DMG STA capa, bits [2] */
      {"TPC", "wlan.dmg_capa.tpc",
-      FT_BOOLEAN, 24, NULL, 0x200000,
+      FT_BOOLEAN, 24, NULL, GENMASK(2, 2),
       NULL, HFILL }},
 
-    {&hf_ieee80211_tag_spsh,
+    {&hf_ieee80211_tag_spsh, /* DMG STA capa, bits [3] */
      {"SPSH and Interference Mitigation", "wlan.dmg_capa.spsh",
-      FT_BOOLEAN, 24, NULL, 0x100000,
+      FT_BOOLEAN, 24, NULL, GENMASK(3, 3),
       NULL, HFILL }},
 
-    {&hf_ieee80211_tag_rx_antenna,
+    {&hf_ieee80211_tag_rx_antenna, /* DMG STA capa, bits [4..5] */
      {"Number of RX DMG Antennas", "wlan.dmg_capa.num_rx",
-      FT_UINT24, BASE_CUSTOM, extra_one_base_custom, 0x0c0000,
+      FT_UINT24, BASE_CUSTOM, extra_one_base_custom, GENMASK(5, 4),
       NULL, HFILL }},
 
-    {&hf_ieee80211_tag_fast_link,
+    {&hf_ieee80211_tag_fast_link, /* DMG STA capa, bits [6] */
      {"Fast Link Adaptation", "wlan.dmg_capa.fast_link",
-      FT_BOOLEAN, 24, NULL, 0x020000,
+      FT_BOOLEAN, 24, NULL, GENMASK(6, 6),
       NULL, HFILL }},
 
-    {&hf_ieee80211_tag_num_sectors,
+    {&hf_ieee80211_tag_num_sectors, /* DMG STA capa, bits [7..13] */
      {"Total Number of Sectors", "wlan.dmg_capa.num_sectors",
-      FT_UINT24, BASE_CUSTOM, extra_one_base_custom, 0x01fc00,
+      FT_UINT24, BASE_CUSTOM, extra_one_base_custom, GENMASK(13, 7),
       NULL, HFILL }},
 
-    {&hf_ieee80211_tag_rxss_length,
+    {&hf_ieee80211_tag_rxss_length, /* DMG STA capa, bits [14..19] */
      {"RXSS Length", "wlan.dmg_capa.rxss_len",
-      FT_UINT24, BASE_CUSTOM, extra_one_mul_two_base_custom, 0x0003f0,
+      FT_UINT24, BASE_CUSTOM, extra_one_mul_two_base_custom, GENMASK(19, 14),
       NULL, HFILL }},
 
-    {&hf_ieee80211_tag_reciprocity,
+    {&hf_ieee80211_tag_reciprocity, /* DMG STA capa, bits [20] */
      {"DMG Antenna Reciprocity", "wlan.dmg_capa.reciprocity",
-      FT_BOOLEAN, 24, NULL, 0x000008,
+      FT_BOOLEAN, 24, NULL, GENMASK(20, 20),
       NULL, HFILL }},
-
-    {&hf_ieee80211_tag_max_ampdu_exp,
+/* DMG STA capa, A-MPDU params, bits [21..26] */
+    {&hf_ieee80211_tag_max_ampdu_exp, /* DMG STA capa, bits [21..23] */
      {"Maximum A-MPDU Length Exponent", "wlan.dmg_capa.max_ampdu_exp",
-      FT_UINT24, BASE_DEC, NULL, 0x000007,
+      FT_UINT24, BASE_DEC, NULL, GENMASK(23, 21),
       NULL, HFILL }},
 
-    {&hf_ieee80211_tag_min_mpdu_sapcing,
+    {&hf_ieee80211_tag_min_mpdu_sapcing, /* DMG STA capa, bits [24..26] */
      {"Minimum MPDU Start Spacing", "wlan.dmg_capa.min_mpdu_spacing",
-      FT_UINT24, BASE_DEC, NULL, 0xe00000,
+      FT_UINT24, BASE_DEC, NULL, GENMASK(26-24, 24-24),
       NULL, HFILL }},
 
-    {&hf_ieee80211_tag_ba_flow_control ,
+    {&hf_ieee80211_tag_ba_flow_control , /* DMG STA capa, bits [27] */
      {"BA with Flow Control", "wlan.dmg_capa.bs_flow_ctrl",
-      FT_BOOLEAN, 24, NULL, 0x100000,
+      FT_BOOLEAN, 24, NULL, GENMASK(27-24, 27-24),
       NULL, HFILL }},
-
-    {&hf_ieee80211_tag_max_sc_rx_mcs,
+/* DMG STA capa, supported MCS set, bits [28..51] */
+    {&hf_ieee80211_tag_max_sc_rx_mcs, /* DMG STA capa, bits [28..32] */
      {"Maximum SC Rx MCS", "wlan.dmg_capa.max_sc_rx_mcs",
-      FT_UINT24, BASE_DEC, NULL, 0x0f8000,
+      FT_UINT24, BASE_DEC, NULL, GENMASK(32-24, 28-24),
       NULL, HFILL }},
 
-    {&hf_ieee80211_tag_max_ofdm_rx_mcs,
+    {&hf_ieee80211_tag_max_ofdm_rx_mcs, /* DMG STA capa, bits [33..37] */
      {"Maximum OFDM Rx MCS", "wlan.dmg_capa.max_ofdm_rx_mcs",
-      FT_UINT24, BASE_DEC, NULL, 0x007c00,
+      FT_UINT24, BASE_DEC, NULL, GENMASK(37-24, 33-24),
       NULL, HFILL }},
 
-    {&hf_ieee80211_tag_max_sc_tx_mcs,
+    {&hf_ieee80211_tag_max_sc_tx_mcs, /* DMG STA capa, bits [38..42] */
      {"Maximum SC Tx MCS", "wlan.dmg_capa.max_sc_tx_mcs",
-      FT_UINT24, BASE_DEC, NULL, 0x0003e0,
+      FT_UINT24, BASE_DEC, NULL, GENMASK(42-24, 38-24),
       NULL, HFILL }},
 
-    {&hf_ieee80211_tag_max_ofdm_tx_mcs,
+    {&hf_ieee80211_tag_max_ofdm_tx_mcs, /* DMG STA capa, bits [43..47] */
      {"Maximum OFDM Tx MCS", "wlan.dmg_capa.max_ofdm_tx_mcs",
-      FT_UINT24, BASE_DEC, NULL, 0x00001f,
+      FT_UINT24, BASE_DEC, NULL, GENMASK(47-24, 43-24),
       NULL, HFILL }},
 
-    {&hf_ieee80211_tag_low_power_supported,
+    {&hf_ieee80211_tag_low_power_supported, /* DMG STA capa, bits [48] */
      {"Low Power SC PHY Supported", "wlan.dmg_capa.low_power_suuported",
-      FT_BOOLEAN, 16, NULL, 0x8000,
+      FT_BOOLEAN, 16, NULL, GENMASK(48-48, 48-48),
       NULL, HFILL }},
 
-    {&hf_ieee80211_tag_code_rate,
+    {&hf_ieee80211_tag_code_rate, /* DMG STA capa, bits [49] */
      {"Code Rate 13/16", "wlan.dmg_capa.code_rate",
-      FT_BOOLEAN, 16, NULL, 0x4000,
+      FT_BOOLEAN, 16, NULL, GENMASK(49-48, 49-48),
       NULL, HFILL }},
 
-    {&hf_ieee80211_tag_dtp,
+    {&hf_ieee80211_tag_dtp, /* DMG STA capa, bits [52] */
      {"DTP Supported", "wlan.dmg_capa.dtp",
-      FT_BOOLEAN, 16, NULL, 0x0800,
+      FT_BOOLEAN, 16, NULL, GENMASK(52-48, 52-48),
       NULL, HFILL }},
 
-    {&hf_ieee80211_tag_appdu_supp,
+    {&hf_ieee80211_tag_appdu_supp, /* DMG STA capa, bits [53] */
      {"A-PPDU Supported", "wlan.dmg_capa.appdu_supp",
-      FT_BOOLEAN, 16, NULL, 0x0400,
+      FT_BOOLEAN, 16, NULL, GENMASK(53-48, 53-48),
       NULL, HFILL }},
 
-    {&hf_ieee80211_tag_heartbeat,
+    {&hf_ieee80211_tag_heartbeat, /* DMG STA capa, bits [54] */
      {"HeartBeat", "wlan.dmg_capa.heartbeat",
-      FT_BOOLEAN, 16, NULL, 0x0200,
+      FT_BOOLEAN, 16, NULL, GENMASK(54-48, 54-48),
       NULL, HFILL }},
 
-    {&hf_ieee80211_tag_other_aid,
+    {&hf_ieee80211_tag_other_aid, /* DMG STA capa, bits [55] */
      {"Supports Other_AID", "wlan.dmg_capa.other_aid",
-      FT_BOOLEAN, 16, NULL, 0x0100,
+      FT_BOOLEAN, 16, NULL, GENMASK(55-48, 55-48),
       NULL, HFILL }},
 
-    {&hf_ieee80211_tag_pattern_recip,
+    {&hf_ieee80211_tag_pattern_recip, /* DMG STA capa, bits [56] */
      {"Antenna Pattern Reciprocity", "wlan.dmg_capa.pattern_recip",
-      FT_BOOLEAN, 16, NULL, 0x0080,
+      FT_BOOLEAN, 16, NULL, GENMASK(56-48, 56-48),
       NULL, HFILL }},
 
-    {&hf_ieee80211_tag_heartbeat_elapsed,
+    {&hf_ieee80211_tag_heartbeat_elapsed, /* DMG STA capa, bits [57..59] */
      {"Heartbeat Elapsed Indication", "wlan.dmg_capa.heartbeat_elapsed",
-      FT_UINT16, BASE_DEC, NULL, 0x0070,
+      FT_UINT16, BASE_DEC, NULL, GENMASK(59-48, 57-48),
       NULL, HFILL }},
 
-    {&hf_ieee80211_tag_grant_ack_supp,
+    {&hf_ieee80211_tag_grant_ack_supp, /* DMG STA capa, bits [60] */
      {"Grant ACK Supported", "wlan.dmg_capa.grant_ack_supp",
-      FT_BOOLEAN, 16, NULL, 0x0008,
+      FT_BOOLEAN, 16, NULL, GENMASK(60-48, 60-48),
       NULL, HFILL }},
 
-    {&hf_ieee80211_tag_RXSSTxRate_supp,
+    {&hf_ieee80211_tag_RXSSTxRate_supp, /* DMG STA capa, bits [61] */
      {"RXSSTxRate Supported", "wlan.dmg_capa.RXSSTxRate",
-      FT_BOOLEAN, 16, NULL, 0x0004,
+      FT_BOOLEAN, 16, NULL, GENMASK(61-48, 61-48),
       NULL, HFILL }},
-
-    {&hf_ieee80211_tag_pcp_tddti,
+/* 8.4.2.127.3 DMG PCP/AP Capability Information field */
+    {&hf_ieee80211_tag_pcp_tddti, /* DMG PCP/AP capa, bits [0] */
      {"TDDTI", "wlan.dmg_capa.pcp_tdtti",
-      FT_BOOLEAN, 16, NULL, 0x8000,
+      FT_BOOLEAN, 16, NULL, GENMASK(0, 0),
       NULL, HFILL }},
 
-    {&hf_ieee80211_tag_pcp_PSA,
+    {&hf_ieee80211_tag_pcp_PSA, /* DMG PCP/AP capa, bits [1] */
      {"Pseudo-static Allocations", "wlan.dmg_capa.pcp_psa",
-      FT_BOOLEAN, 16, NULL, 0x4000,
+      FT_BOOLEAN, 16, NULL, GENMASK(1, 1),
       NULL, HFILL }},
 
-    {&hf_ieee80211_tag_pcp_handover,
+    {&hf_ieee80211_tag_pcp_handover, /* DMG PCP/AP capa, bits [2] */
      {"PDP Handover", "wlan.dmg_capa.pcp_handover",
-      FT_BOOLEAN, 16, NULL, 0x2000,
+      FT_BOOLEAN, 16, NULL, GENMASK(2, 2),
       NULL, HFILL }},
 
-    {&hf_ieee80211_tag_pcp_max_assoc,
+    {&hf_ieee80211_tag_pcp_max_assoc, /* DMG PCP/AP capa, bits [3..10] */
      {"Max Associated STA Number", "wlan.dmg_capa.pcp_max_assoc",
-      FT_UINT16, BASE_DEC, NULL, 0x1fe0,
+      FT_UINT16, BASE_DEC, NULL, GENMASK(10, 3),
       NULL, HFILL }},
 
-    {&hf_ieee80211_tag_pcp_power_src,
+    {&hf_ieee80211_tag_pcp_power_src, /* DMG PCP/AP capa, bits [11] */
      {"Power Source", "wlan.dmg_capa.pcp_power_src",
-      FT_BOOLEAN, 16, NULL, 0x0010,
+      FT_BOOLEAN, 16, NULL, GENMASK(11, 11),
       NULL, HFILL }},
 
-    {&hf_ieee80211_tag_pcp_decenter,
+    {&hf_ieee80211_tag_pcp_decenter, /* DMG PCP/AP capa, bits [12] */
      {"Decentralized PCP/AP Clustering", "wlan.dmg_capa.pcp_decenter",
-      FT_BOOLEAN, 16, NULL, 0x0008,
+      FT_BOOLEAN, 16, NULL, GENMASK(12, 12),
       NULL, HFILL }},
 
-    {&hf_ieee80211_tag_pcp_forwarding,
+    {&hf_ieee80211_tag_pcp_forwarding, /* DMG PCP/AP capa, bits [13] */
      {"PCP Forwarding", "wlan.dmg_capa.pcp_forwarding",
-      FT_BOOLEAN, 16, NULL, 0x0004,
+      FT_BOOLEAN, 16, NULL, GENMASK(13, 13),
       NULL, HFILL }},
 
-    {&hf_ieee80211_tag_pcp_center,
+    {&hf_ieee80211_tag_pcp_center, /* DMG PCP/AP capa, bits [14] */
      {"Centralized PCP/AP Clustering", "wlan.dmg_capa.pcp_center",
-      FT_BOOLEAN, 16, NULL, 0x0002,
+      FT_BOOLEAN, 16, NULL, GENMASK(14, 14),
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_PSRSI,
