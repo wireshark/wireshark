@@ -401,6 +401,17 @@ static const value_string ctrl_err_status_types[] = {
 	{ 0,		NULL}
 };
 
+static const value_string err_values_types[] = {
+	{ 0,		"No error" },
+	{ 1,		"incompatible implementation number"},
+	{ 2,		"unimplemented request code" },
+	{ 3,		"format error" },
+	{ 4,		"no data available" },
+	{ 5,		"unknown" },
+	{ 6,		"unknown" },
+	{ 7,		"authentication failure"},
+	{ 0,		NULL}
+};
 
 #define NTPPRIV_R_MASK 0x80
 
@@ -411,12 +422,16 @@ static const value_string ctrl_err_status_types[] = {
 #define NTPPRIV_AUTH_MASK 0x80
 #define NTPPRIV_SEQ_MASK 0x7f
 
+#define XNTPD 0x03
+
 static const value_string priv_impl_types[] = {
 	{ 0,		"UNIV" },
 	{ 2,		"XNTPD_OLD (pre-IPv6)" },
 	{ 3,		"XNTPD" },
 	{ 0,		NULL}
 };
+
+#define MON_GETLIST_1 42
 
 static const value_string priv_rc_types[] = {
 	{ 0,		"PEER_LIST" },
@@ -535,6 +550,24 @@ static int hf_ntppriv_auth = -1;
 static int hf_ntppriv_seq = -1;
 static int hf_ntppriv_impl = -1;
 static int hf_ntppriv_reqcode = -1;
+static int hf_ntppriv_errcode = -1;
+static int hf_ntppriv_numitems = -1;
+static int hf_ntppriv_mbz = -1;
+static int hf_monlist_item = -1;
+static int hf_ntppriv_itemsize = -1;
+static int hf_ntppriv_avgint = -1;
+static int hf_ntppriv_lsint = -1;
+static int hf_ntppriv_count = -1;
+static int hf_ntppriv_restr = -1;
+static int hf_ntppriv_addr = -1;
+static int hf_ntppriv_daddr = -1;
+static int hf_ntppriv_flags = -1;
+static int hf_ntppriv_port = -1;
+static int hf_ntppriv_mode = -1;
+static int hf_ntppriv_version = -1;
+static int hf_ntppriv_v6_flag = -1;
+static int hf_ntppriv_addr6 = -1;
+static int hf_ntppriv_daddr6 = -1;
 
 static gint ett_ntp = -1;
 static gint ett_ntp_flags = -1;
@@ -545,6 +578,7 @@ static gint ett_ntpctrl_status = -1;
 static gint ett_ntpctrl_data = -1;
 static gint ett_ntpctrl_item = -1;
 static gint ett_ntppriv_auth_seq = -1;
+static gint ett_monlist_item = -1;
 
 static void dissect_ntp_std (tvbuff_t *, proto_tree *, guint8);
 static void dissect_ntp_ctrl(tvbuff_t *, proto_tree *, guint8);
@@ -1159,7 +1193,7 @@ dissect_ntp_ctrl(tvbuff_t *tvb, proto_tree *ntp_tree, guint8 flags)
 		}
 	}
 	proto_tree_add_uint(ntp_tree, hf_ntpctrl_associd, tvb, 6, 2, associd);
-	proto_tree_add_uint(ntp_tree, hf_ntpctrl_offset,  tvb, 8, 2, tvb_get_ntohs(tvb, 8));
+	proto_tree_add_uint(ntp_tree, hf_ntpctrl_offset, tvb, 8, 2, tvb_get_ntohs(tvb, 8));
 	datalen = tvb_get_ntohs(tvb, 10);
 	proto_tree_add_uint(ntp_tree, hf_ntpctrl_count, tvb, 10, 2, datalen);
 
@@ -1280,6 +1314,56 @@ dissect_ntp_priv(tvbuff_t *tvb, proto_tree *ntp_tree, guint8 flags)
 
 	reqcode = tvb_get_guint8(tvb, 3);
 	proto_tree_add_uint(ntp_tree, hf_ntppriv_reqcode, tvb, 3, 1, reqcode);
+
+	if (impl == XNTPD && reqcode == MON_GETLIST_1) {
+
+		guint16		numitems;
+		guint16		itemsize;
+		guint16		offset;
+		guint		i;
+
+		guint32		v6_flag;
+
+		proto_item*     monlist_item;
+		proto_tree*     monlist_item_tree;
+
+		proto_tree_add_bits_item(ntp_tree, hf_ntppriv_errcode, tvb, 32, 4, ENC_BIG_ENDIAN);
+		proto_tree_add_bits_item(ntp_tree, hf_ntppriv_numitems, tvb, 36, 12, ENC_BIG_ENDIAN);
+		proto_tree_add_bits_item(ntp_tree, hf_ntppriv_mbz, tvb, 48, 4, ENC_BIG_ENDIAN);
+		proto_tree_add_bits_item(ntp_tree, hf_ntppriv_itemsize, tvb, 52, 12, ENC_BIG_ENDIAN);
+
+		numitems = tvb_get_letohs(tvb, 5) & 0x0FFF;
+		itemsize = tvb_get_letohs(tvb, 7) & 0x0FFF;
+
+		for (i = 0; i < numitems; i++) {
+
+			offset = 8 + itemsize * i;
+
+			v6_flag = tvb_get_ntohl(tvb, offset + 32);
+
+			monlist_item = proto_tree_add_string_format(ntp_tree, hf_monlist_item, tvb, offset,
+				itemsize, "Monlist Item", "Monlist item: address: %s:%u",
+				tvb_ip_to_str(tvb, offset + 16), tvb_get_ntohs(tvb, offset + 28));
+			monlist_item_tree = proto_item_add_subtree(monlist_item, ett_monlist_item);
+
+			proto_tree_add_item(monlist_item_tree, hf_ntppriv_avgint, tvb, offset, 4, ENC_BIG_ENDIAN);
+			proto_tree_add_item(monlist_item_tree, hf_ntppriv_lsint, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
+			proto_tree_add_item(monlist_item_tree, hf_ntppriv_restr, tvb, offset + 8, 4, ENC_BIG_ENDIAN);
+			proto_tree_add_item(monlist_item_tree, hf_ntppriv_count, tvb, offset + 12, 4, ENC_BIG_ENDIAN);
+			proto_tree_add_item(monlist_item_tree, hf_ntppriv_addr, tvb, offset + 16, 4, ENC_BIG_ENDIAN);
+			proto_tree_add_item(monlist_item_tree, hf_ntppriv_daddr, tvb, offset + 20, 4, ENC_BIG_ENDIAN);
+			proto_tree_add_item(monlist_item_tree, hf_ntppriv_flags, tvb, offset + 24, 4, ENC_BIG_ENDIAN);
+			proto_tree_add_item(monlist_item_tree, hf_ntppriv_port, tvb, offset + 28, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(monlist_item_tree, hf_ntppriv_mode, tvb, offset + 30, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(monlist_item_tree, hf_ntppriv_version, tvb, offset + 31, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_boolean(monlist_item_tree, hf_ntppriv_v6_flag, tvb, offset + 32, 4, v6_flag);
+
+			if (v6_flag != 0) {
+				proto_tree_add_item(monlist_item_tree, hf_ntppriv_addr6, tvb, offset + 36, 16, ENC_BIG_ENDIAN);
+				proto_tree_add_item(monlist_item_tree, hf_ntppriv_daddr6, tvb, offset + 52, 16, ENC_BIG_ENDIAN);
+			}
+		}
+	}
 }
 
 void
@@ -1483,7 +1567,61 @@ proto_register_ntp(void)
 			VALS(priv_impl_types), 0, NULL, HFILL }},
 		{ &hf_ntppriv_reqcode, {
 			"Request code", "ntp.priv.reqcode", FT_UINT8, BASE_DEC | BASE_EXT_STRING,
-			&priv_rc_types_ext, 0, NULL, HFILL }}
+			&priv_rc_types_ext, 0, NULL, HFILL }},
+		{ &hf_ntppriv_errcode, {
+			"Err", "ntp.priv.err", FT_UINT8, BASE_HEX,
+			VALS(err_values_types), 0, NULL, HFILL }},
+		{ &hf_ntppriv_numitems, {
+			"Number of data items", "ntp.priv.numitems", FT_UINT16, BASE_DEC,
+			NULL, 0, NULL, HFILL }},
+		{ &hf_ntppriv_mbz, {
+			"Reserved", "ntp.priv.reserved", FT_UINT8, BASE_HEX,
+			NULL, 0, NULL, HFILL }},
+		{ &hf_monlist_item, {
+			"Monlist item", "ntp.priv.monlist.item",
+		         FT_STRINGZ, BASE_NONE, NULL, 0x00, NULL, HFILL }},
+		{ &hf_ntppriv_itemsize, {
+			"Size of data item", "ntp.priv.monlist.itemsize", FT_UINT16, BASE_HEX,
+			NULL, 0, NULL, HFILL }},
+		{ &hf_ntppriv_avgint, {
+			"avgint", "ntp.priv.monlist.avgint", FT_UINT32, BASE_DEC,
+			NULL, 0, NULL, HFILL }},
+		{ &hf_ntppriv_lsint, {
+			"lsint", "ntp.priv.monlist.lsint", FT_UINT32, BASE_DEC,
+			NULL, 0, NULL, HFILL }},
+		{ &hf_ntppriv_restr, {
+			"restr", "ntp.priv.monlist.restr", FT_UINT32, BASE_HEX,
+			NULL, 0, NULL, HFILL }},
+		{ &hf_ntppriv_count, {
+			"count", "ntp.priv.monlist.count", FT_UINT32, BASE_DEC,
+			NULL, 0, NULL, HFILL }},
+		{ &hf_ntppriv_addr, {
+			"remote address", "ntp.priv.monlist.remote_address", FT_IPv4, BASE_NONE,
+			NULL, 0, NULL, HFILL }},
+		{ &hf_ntppriv_daddr, {
+			"local address", "ntp.priv.monlist.local_address", FT_IPv4, BASE_NONE,
+			NULL, 0, NULL, HFILL }},
+		{ &hf_ntppriv_flags, {
+			"flags", "ntp.priv.monlist.flags", FT_UINT32, BASE_HEX,
+			NULL, 0, NULL, HFILL }},
+		{ &hf_ntppriv_port, {
+			"port", "ntp.priv.monlist.port", FT_UINT16, BASE_DEC,
+			NULL, 0, NULL, HFILL }},
+		{ &hf_ntppriv_mode, {
+			"mode", "ntp.priv.monlist.mode", FT_UINT8, BASE_DEC,
+			NULL, 0, NULL, HFILL }},
+		{ &hf_ntppriv_version, {
+			"version", "ntp.priv.monlist.version", FT_UINT8, BASE_DEC,
+			NULL, 0, NULL, HFILL }},
+		{ &hf_ntppriv_v6_flag, {
+			"ipv6", "ntp.priv.monlist.ipv6", FT_BOOLEAN, BASE_NONE,
+			NULL, 0, NULL, HFILL }},
+		{ &hf_ntppriv_addr6, {
+			"ipv6 remote addr", "ntp.priv.monlist.addr6", FT_IPv6, BASE_NONE,
+			NULL, 0, NULL, HFILL }},
+		{ &hf_ntppriv_daddr6, {
+			"ipv6 local addr", "ntp.priv.monlist.daddr6", FT_IPv6, BASE_NONE,
+			NULL, 0, NULL, HFILL }}
 	};
 	static gint *ett[] = {
 		&ett_ntp,
@@ -1494,7 +1632,8 @@ proto_register_ntp(void)
 		&ett_ntpctrl_status,
 		&ett_ntpctrl_data,
 		&ett_ntpctrl_item,
-		&ett_ntppriv_auth_seq
+		&ett_ntppriv_auth_seq,
+		&ett_monlist_item
 	};
 
 	proto_ntp = proto_register_protocol("Network Time Protocol", "NTP",
