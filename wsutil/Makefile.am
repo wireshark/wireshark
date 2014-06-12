@@ -52,9 +52,9 @@ if NEED_STRPTIME_LO
 wsutil_optional_objects += @STRPTIME_LO@
 endif
 
-## if SSE42_SUPPORTED
+if SSE42_SUPPORTED
 wsutil_optional_objects += libwsutil_sse42.la
-## endif
+endif
 
 include ../Makefile.am.inc
 
@@ -83,7 +83,7 @@ libwsutil_la_SOURCES =		\
 libwsutil_sse42_la_SOURCES = \
 	ws_mempbrk_sse42.c
 
-libwsutil_sse42_la_CFLAGS = $(AM_CFLAGS) $(SIMD_FLAGS)
+libwsutil_sse42_la_CFLAGS = $(AM_CFLAGS) -msse4.2
 
 EXTRA_libwsutil_la_SOURCES=	\
 	inet_aton.c		\

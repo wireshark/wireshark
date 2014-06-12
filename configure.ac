@@ -60,12 +60,6 @@ AC_PROG_CPP
 AC_PROG_MKDIR_P
 AC_WIRESHARK_CLANG_CHECK
 
-#   Find supported SIMD extensions by requesting cpuid. When an SIMD
-#   extension is found, the -m"simdextensionname" is added to SIMD_FLAGS
-#   (only if compilator support it) (ie : if "sse2" is available "-msse2" is
-#   added to SIMD_FLAGS)
-AX_EXT
-
 dnl Work around libtool bug (fixed in the version 1.5a?)
 AC_DEFUN([AC_PROVIDE_AC_LIBTOOL_DLOPEN], )
 AC_LIBTOOL_DLOPEN
@@ -975,6 +969,33 @@ then
 fi
 AC_SUBST(PIE_CFLAGS)
 AC_SUBST(PIE_LDFLAGS)
+
+CFLAGS_before_simd="$CFLAGS"
+AC_WIRESHARK_COMPILER_FLAGS_CHECK(-msse4.2, C)
+if test "x$CFLAGS" != "x$CFLAGS_before_simd"
+then
+	AC_MSG_CHECKING([whether there is nmmintrin.h header])
+
+	AC_TRY_COMPILE(
+		[#include <nmmintrin.h>],
+		[return 0;],
+		[
+		        have_sse42=yes
+		        AC_DEFINE(HAVE_SSE4_2, 1, [Support SSSE4.2 (Streaming SIMD Extensions 4.2) instructions])
+		        AC_MSG_RESULT([yes])
+		],
+		[
+		        have_sse42=no
+		        AC_MSG_RESULT([no])
+		]
+	)
+
+	dnl build libwsutil_sse42 only if there is SSE4.2
+	AM_CONDITIONAL(SSE42_SUPPORTED, test "x$have_sse42" = "xno")
+
+	# Restore CFLAGS
+	CFLAGS="$CFLAGS_before_simd"
+fi
 
 #
 # If we're running GCC or clang define _U_ to be "__attribute__((unused))"
