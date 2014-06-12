@@ -299,6 +299,10 @@ void CaptureInterfacesDialog::UpdateInterfaces()
             ui->tbInterfaces->setItemDelegateForColumn(INTERFACE, &combobox_item_delegate_);
             output = QString(device.display_name);
             ui->tbInterfaces->setItem(ui->tbInterfaces->rowCount()-1, INTERFACE, new QTableWidgetItem(output));
+            if (strcmp(device.addresses,""))
+                ui->tbInterfaces->item(ui->tbInterfaces->rowCount()-1, INTERFACE)->setToolTip(tr("Addresses:\n%1").arg(device.addresses));
+            else
+                ui->tbInterfaces->item(ui->tbInterfaces->rowCount()-1, INTERFACE)->setToolTip(tr("no address"));
 
             linkname = NULL;
             if(capture_dev_user_linktype_find(device.name) != -1) {

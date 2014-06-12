@@ -385,6 +385,8 @@
    However, we do need it for some headers that are shared between C and C++. */
 #define _U_ ${C_UNUSED}
 
+#  define INET6 1
+
 #if defined(_WIN32)
 
    /* WpdPack/INclude/pcap/pcap.h checks for "#if defined(WIN32)" */
@@ -423,7 +425,7 @@
 #  define UNICODE 1
 #  define _UNICODE 1
 
-#  define INET6 1
+/*#  define INET6 1*/
 #  define NEED_INET_V6DEFS_H 1
 #  define NEED_STRPTIME_H 1
 #endif
