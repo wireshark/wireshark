@@ -31,6 +31,7 @@ The following bugs have been fixed:
 
 // Should be sorted numerically.
 //* Wireshark will practice the jazz flute for hours on end when you're trying to sleep. (ws-buglink:0000[])
+
 * VoIP flow graph crash upon opening. (ws-buglink:9179[])
 * Tshark with "-F pcap" still generates a pcapng file. (ws-buglink:9991[])
 * IPv6 Next Header 0x3d recognized as SHIM6. (ws-buglink:9995[])

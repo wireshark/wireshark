@@ -1,0 +1,649 @@
+commit 7c3e02668f4da537296cf3e2cc089b9d2b851a5d
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Wed Jun 11 16:56:55 2014 -0700
+
+    Some more SVN->Git.
+    
+    Change-Id: Iba5274ab5e653a0a3c0a56e62ee168ac957daf27
+    Reviewed-on: https://code.wireshark.org/review/2152
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 95065da33d2d22cad046219e291e54cb2fce33be)
+    Reviewed-on: https://code.wireshark.org/review/2153
+    (cherry picked from commit 85fb7dc807a7a423b59ccba351add7e29f56a694)
+    Reviewed-on: https://code.wireshark.org/review/2154
+
+commit 70c8cafcd1e95ce7627aaea5a75648225947260e
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Wed Jun 11 16:49:05 2014 -0700
+
+    A Subversion->Git change that we missed.
+    
+    Change-Id: I651d25cb0a59f9ec350d4c482062077833c8f278
+    Reviewed-on: https://code.wireshark.org/review/2149
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 7db2135069b03b9dcbfa12a244969246b938443d)
+    Reviewed-on: https://code.wireshark.org/review/2150
+    (cherry picked from commit b0c0b33a86473fa6411add002729b6f76062704d)
+    Reviewed-on: https://code.wireshark.org/review/2151
+
+commit 42b9bf0dcae7aa579c6bae616128e0928ebf0fbc
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Jun 11 10:35:58 2014 -0400
+
+    Add a CVE ID.
+    
+    Change-Id: I789e4738aff3016fba1b56950e051c324bc0ae59
+    Reviewed-on: https://code.wireshark.org/review/2136
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 3aea41d507502daef7a73db237c13895b9954c7e
+Author: Jeff Morriss <morriss@ulticom.com>
+Date:   Tue Jun 10 15:21:13 2014 -0400
+
+    Fix unused-variable warning.
+    
+    (Followup to I7b291892b041055fe4165abcbb2962a295aedce4)
+    
+    Change-Id: I6a58f2b90c41fa3ce8ac521ebc04db4ae1f9758d
+    Reviewed-on: https://code.wireshark.org/review/2114
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+
+commit b850e6c3e47123daf2b3b929657302588a3fc9e2
+Author: Jeff Morriss <morriss@ulticom.com>
+Date:   Tue Jun 10 15:30:03 2014 -0400
+
+    Squelch compiler warnings.
+    
+    Some are legitimate warnings - get_node_field_value() now returns a
+    value that the callers are expected to g_free(), so we'd better not
+    return a string constant.
+    
+    Manually applied from I937254316119044691c1d9a3da8c9615763e2e5a (2 of the
+    4 chunks of that patch needed to be applied to this branch).
+    
+    Change-Id: I2fa4e3bba37f0cf908d8afcfb437de877181ce52
+    Reviewed-on: https://code.wireshark.org/review/2115
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+
+commit 627d5830dd259de9d8dc06662fee8bd8d8803f51
+Author: Alexis La Goutte <alexis.lagoutte@gmail.com>
+Date:   Tue Jun 10 08:48:27 2014 +0200
+
+    CAPWAP: Display incorrect value for Wireless IEEE802.11 RSSI and Data Rate
+    
+    * Wireless data ieee80211 RSSI (dBm) is a signed integer. In the wireless radio the dBm value is negative.
+    * Wireless data ieee80211 Data Rate (Mbps) is a 100Kbps. You need divide this value by 10.
+    
+    Issue found by Massimo Vellucci (SmartCAPWAP)
+    
+    Change-Id: I04dd8a9e38a5f60ee5bf64cd304db1b11413c809
+    Reviewed-on: https://code.wireshark.org/review/2094
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit 2f13ccc64c6e38336674d1fd6d13e9ece9efec84)
+    Reviewed-on: https://code.wireshark.org/review/2104
+    Reviewed-by: Alexis La Goutte <alexis.lagoutte@gmail.com>
+    (cherry picked from commit 4ac46b6c1103a28397630634ca2042839653df17)
+    Reviewed-on: https://code.wireshark.org/review/2105
+
+commit 05d09fcb86d389a91ccc0c71eef1c171b4e2a07b
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon Jun 9 15:54:28 2014 -0700
+
+    Release note updates for 1.10.8.
+    
+    Change-Id: I492bcdccb0f59d8d1385d92c746900a890f70c88
+    Reviewed-on: https://code.wireshark.org/review/2091
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit cab89dca31e5d5785326e9048dbefc4418fb3324
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon Jun 9 10:07:10 2014 -0700
+
+    Add back Balint's copyright.
+    
+    Change-Id: Ib7a3789c95c4651beec76ab318410b1b7a3aaa2b
+    Reviewed-on: https://code.wireshark.org/review/2082
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+    (cherry picked from commit 174cd47ab3416e670cccc81e86ecb5188b5bb521)
+    Reviewed-on: https://code.wireshark.org/review/2083
+
+commit 8c900b4cd93da6578ca7c20877b4d0fcdf0b474a
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Sun Jun 8 22:46:45 2014 +0200
+
+    IEEE 80211: fix dissection of HT Capabilities
+    
+    Bug: 10166
+    Change-Id: Iafe789968bd5b9a6e593b682f8d42ba42db5fce9
+    Reviewed-on: https://code.wireshark.org/review/2046
+    Reviewed-by: Alexis La Goutte <alexis.lagoutte@gmail.com>
+    Reviewed-by: Evan Huus <eapache@gmail.com>
+    (cherry picked from commit 89960510e30b9b96a0d0b84619df099fd8a707f1)
+    Reviewed-on: https://code.wireshark.org/review/2053
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+
+commit d88fb71c1fbff17ef15b6eca086b0a2f5e64a172
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jun 8 08:09:31 2014 -0700
+
+    [Automatic manuf, services and enterprise-numbers update for 2014-06-08]
+    
+    Change-Id: I389a2be2a4e4465cf5d62db437759b5b54e7ebef
+    Reviewed-on: https://code.wireshark.org/review/2038
+    Reviewed-by: Evan Huus <eapache@gmail.com>
+
+commit 348942c0f0f240ddca469c016d6f0698e47e99c8
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Sat Jun 7 12:00:31 2014 -0700
+
+    PEEKREMOTE packets don't appear to have Atheros padding.
+    
+    Call the without-Atheros-padding dissector for the payload.
+    
+    Fixes bug 10139.
+    
+    Change-Id: I3b5dd25953113fe30b9278e4533561933304ae5b
+    Reviewed-on: https://code.wireshark.org/review/2030
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+
+commit 9afa5d6166790661ddc5b44e1e8cb0c2f18fa83e
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Sat Jun 7 10:44:17 2014 -0700
+
+    Only nuke the startup item once we've installed the launch daemon.
+    
+    That way, if we crash in the middle, there's still something installed
+    that will try to set the permissions on the BPF devices.
+    
+    Change-Id: Ie0c32f9eaca08bdbb359d07e47f20c664bc66411
+    Reviewed-on: https://code.wireshark.org/review/2023
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 39ca18d71b85d0b99c0fd3c5edab48fa217d7d34)
+    Reviewed-on: https://code.wireshark.org/review/2024
+    (cherry picked from commit 9cf44c19d00e1072e28e353a4c8fcdd22e01e554)
+    Reviewed-on: https://code.wireshark.org/review/2025
+
+commit 648766952bf188c3a77c2482d25041694a0dd423
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Fri Jun 6 23:41:51 2014 -0700
+
+    When installing the launch daemon, get rid of the old startup item.
+    
+    Only one is necessary; get rid of the startup item.
+    
+    Change-Id: I0bd2dabb3fc286ccd0e6634bc112e20602624c86
+    Reviewed-on: https://code.wireshark.org/review/2016
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit b319a67bfb23a93a7f15076a94be3fe6adb9983d)
+    Reviewed-on: https://code.wireshark.org/review/2017
+    (cherry picked from commit 003746cf120366bb8be4764506eda1c1fdb78504)
+    Reviewed-on: https://code.wireshark.org/review/2018
+
+commit 540f061d5499f9135bb74178fe3cd0bbf26176ea
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Fri Jun 6 12:14:27 2014 -0700
+
+    Switch to a launch daemon for ChmodBPF.
+    
+    "Ah finally blew that varmint to Kingdom Come!"
+    
+    Change-Id: If935d87dd487f7463261379d76e953396a3ea5e5
+    Reviewed-on: https://code.wireshark.org/review/2007
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+
+commit 460db8ac53df696058184b729d4446904fab1e6f
+Author: Bill Meier <wmeier@newsguy.com>
+Date:   Wed Jun 4 16:49:12 2014 -0400
+
+    tshark.c: Backport 68a1b55 (with change) from Dev; Also: backport dc02627
+    
+     'tshark -F pcap -w ...' should create a pcap (not pcapng) file; fixes Bug #9991.
+     Change "Live captures can only be saved in libpcap format" to "[...] in pcap or pcapng format"
+    
+    Change-Id: I469682f24c0cc592cf4111ac8e516b5595807907
+    Reviewed-on: https://code.wireshark.org/review/1961
+    Reviewed-by: Bill Meier <wmeier@newsguy.com>
+
+commit 451796d9998b4f70c7f81650b125ca5c1b9cae33
+Author: Bill Meier <wmeier@newsguy.com>
+Date:   Wed Jun 4 20:23:31 2014 +0000
+
+    Revert "tshark.c: 'tshark -F pcap -w ...' should create a pcap (not pcapng) file; fixes Bug #9991."
+    
+    This reverts commit eab9d6b11ae8fa0fd7bf2f44435453a04fb6a472.
+    
+    Change-Id: Ia4a38ba726a0778dfd704dea18887ac36c5b2861
+    Reviewed-on: https://code.wireshark.org/review/1960
+    Reviewed-by: Bill Meier <wmeier@newsguy.com>
+
+commit eab9d6b11ae8fa0fd7bf2f44435453a04fb6a472
+Author: Bill Meier <wmeier@newsguy.com>
+Date:   Wed Jun 4 15:18:16 2014 -0400
+
+    tshark.c: 'tshark -F pcap -w ...' should create a pcap (not pcapng) file; fixes Bug #9991.
+    
+    Change-Id: I182357fc57d6e57033319afc762549d805c2c10c
+    Reviewed-on: https://code.wireshark.org/review/1954
+    Reviewed-by: Bill Meier <wmeier@newsguy.com>
+    (cherry picked from commit 68a1b552f74152a4da39097e8ae5e463518bbb28)
+    Reviewed-on: https://code.wireshark.org/review/1959
+
+commit 0be6fee6bc69093cbd22328667e4bc30171e127f
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jun 1 08:09:38 2014 -0700
+
+    [Automatic manuf, services and enterprise-numbers update for 2014-06-01]
+    
+    Change-Id: I71e1941d213f57e5b1b0ae3b52e88c6991814608
+    Reviewed-on: https://code.wireshark.org/review/1909
+    Reviewed-by: Alexis La Goutte <alexis.lagoutte@gmail.com>
+
+commit be1f44bd08026a8f854c151691d06611cfe9ac9c
+Author: Michael Mann <mmann78@netscape.net>
+Date:   Tue May 27 19:33:59 2014 -0400
+
+    bugfix address handling
+    
+    Also update some encoding arguments caught by pre-commit script that we're backported.
+    
+    Change-Id: I9791c1e0a2c6348286d16830cf3703d105b038f3
+    Reviewed-on: https://code.wireshark.org/review/1828
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+
+commit 9008494ed690c0be833c2373c433bd973311f656
+Author: Evan Huus <eapache@gmail.com>
+Date:   Tue May 20 23:22:26 2014 -0400
+
+    Permit "jumbo" allocations in emem
+    
+    (potentially) masterful hack to fix bug 10115 without backporting 3/4 of wmem or
+    doing any real work
+    
+    Bug:10115
+    Change-Id: Id7de4fd8bc9340d4ca8e98ba33c68b2c4793a65c
+    Reviewed-on: https://code.wireshark.org/review/1710
+    Reviewed-by: Evan Huus <eapache@gmail.com>
+
+commit 783d06d108c5b37acf06c7ce5975de0ad433c40e
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Sun May 25 18:01:31 2014 +0200
+
+    GSM RLC MAC: Do not skip too many lines of the CSN_DESCR when the field is missing
+    
+    While we are at it, replace an undefined hf_timeslot_allocation_usf_tn by its hf_usf equivalent
+    
+    Bug: 10120
+    Change-Id: I3fe113279c779a9d8143d07489747a67d7351664
+    Reviewed-on: https://code.wireshark.org/review/1794
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    
+    Conflicts:
+    	epan/dissectors/packet-gsm_rlcmac.c
+    
+    (cherry picked from commit c4ead251da7199cfd746d378c51eb8c30d09a6ba)
+    
+    Change-Id: I3e022eea6acdc5606c39da53e5c4da956d4ef89c
+    Reviewed-on: https://code.wireshark.org/review/1797
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+
+commit 6fda9c812f7169e0d471c79e6c5fb9af1f8c92c1
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun May 25 08:09:06 2014 -0700
+
+    [Automatic manuf, services and enterprise-numbers update for 2014-05-25]
+    
+    Change-Id: I4925f981b73305da591363a01cdcd5700ef968d1
+    Reviewed-on: https://code.wireshark.org/review/1791
+    Reviewed-by: Evan Huus <eapache@gmail.com>
+
+commit 177affe2ce7c9727147847c71c44874da44f0f24
+Author: Michael Mann <mmann78@netscape.net>
+Date:   Thu May 22 22:54:28 2014 -0400
+
+    tvb parameter should not be NULL as the lengths are nonzero.
+    
+    Change-Id: If085a9fc69bbbf28a7c801930a664c412a4a5b7a
+    Reviewed-on: https://code.wireshark.org/review/1734
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    Reviewed-on: https://code.wireshark.org/review/1735
+
+commit 45e901d44fb790d72b23cffb80bf4e47844462fc
+Author: Michael Mann <mmann78@netscape.net>
+Date:   Sun May 18 14:21:31 2014 -0400
+
+    Use g_ alloced memory (instead of emem) when printing fields.  emem shouldn't be used for GUI functions anyway.
+    
+    emem was exposed because of its memory limits trying to output PDML for a very large byte field in a capture file.
+    
+    When converting from proto_construct_match_selected_string to fvalue_to_string_repr remember proto_construct_match_selected_string includes fieldname + value, not just value
+    
+    Manually applied from I4fc6ea7fd1f63cff410207c8b30562771af40ada
+    
+    bug:10081
+    Change-Id: Ie45f19a81fad25ae144e3bc5b5ad7d21b1f9c68c
+    Reviewed-on: https://code.wireshark.org/review/1733
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+
+commit 3057ffc4a2998a504154f703977e5df0a4ed9aff
+Author: Michael Mann <mmann78@netscape.net>
+Date:   Sat Apr 5 07:46:26 2014 -0400
+
+    Rework debug_print_hash logic so that it's supported by older versions of perl.
+    
+    Change-Id: I1720681dc367e01268ffbb1f31035464fa642496
+    Reviewed-on: https://code.wireshark.org/review/971
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    Tested-by: Michael Mann <mmann78@netscape.net>
+    Reviewed-on: https://code.wireshark.org/review/1732
+
+commit 828466ca500b33f05d52888814c4b1b1414ea97b
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun May 18 08:06:59 2014 -0700
+
+    [Automatic manuf, services and enterprise-numbers update for 2014-05-18]
+    
+    Change-Id: If0bde72fd6023b26baa040cfab68c35a7cb2f344
+    Reviewed-on: https://code.wireshark.org/review/1680
+    Reviewed-by: Alexis La Goutte <alexis.lagoutte@gmail.com>
+
+commit 6a77ad9ea439cb0d3d212a345f9c3cac30e084d4
+Author: Jeff Morriss <jeff.morriss.ws@gmail.com>
+Date:   Tue Apr 22 22:18:35 2014 -0400
+
+    Manually apply https://code.wireshark.org/review/1289 to master-1.10:
+    
+    Fix up get_hfi_and_length():
+    
+    Treat FT_BYTES and a few others the same as FT_PROTOCOL: allow a zero length
+    but throw an exception if the offset is already beyond the end of the TVB
+    (prior to this change it would assert out).  This (when manually applied to
+    master-1.10) fixes https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=9999 .
+    
+    Use tvb_ensure_captured_length_remaining() to throw an exception if the offset
+    is bad.
+    
+    Change-Id: Ibc61cc9ac331b669c688611ee9f23d36479378ef
+    Reviewed-on: https://code.wireshark.org/review/1290
+    Reviewed-by: Alexis La Goutte <alexis.lagoutte@gmail.com>
+    Reviewed-by: Evan Huus <eapache@gmail.com>
+
+commit 5cdb0c35aa3ca7ec5a3af9c166c42c9a01f9eefc
+Author: Evan Huus <eapache@gmail.com>
+Date:   Sun May 11 20:33:58 2014 -0400
+
+    Don't use -1 as length in frame dissector.
+    
+    Additional belated followup to gfe195c0c9 per conversation on -dev about the use
+    of -1 and when we should throw exceptions. See also g867a1827e7.
+    
+    Should (in theory) permit reverting gfe195c0c9 (which was not in 1.10)
+    
+    Bug:9999
+    Bug:10030
+    Change-Id: I56e5f4e5dc12fe82268243d0b113cfc9ff5fdd17
+    Reviewed-on: https://code.wireshark.org/review/1603
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    
+    Conflicts:
+    	epan/dissectors/packet-frame.c
+    
+    Change-Id: Ibeb119f911a698d44f4baa06d888bb1e775983bc
+    Reviewed-on: https://code.wireshark.org/review/1640
+    Reviewed-by: Evan Huus <eapache@gmail.com>
+
+commit 40fe99a372df5297d3b19588875b9f2802fe00e6
+Author: AndersBroman <a.broman@bredband.net>
+Date:   Fri Mar 28 06:45:01 2014 +0100
+
+    Deleted one line to much in previous chgange.
+    
+    Change-Id: I19d1153558130356286bac55f6cb321d30a767b1
+    Reviewed-on: https://code.wireshark.org/review/852
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit b2509f67b8d64ecb5de902b9954c7659605c4395)
+    Reviewed-on: https://code.wireshark.org/review/1638
+
+commit 1283e76ff338aa4fab34819f3e41caed58d6b984
+Author: AndersBroman <anders.broman@ericsson.com>
+Date:   Mon Mar 24 13:41:49 2014 +0100
+
+    Get rid of the background pixmap, set the background color directly.
+    
+    Change-Id: I7b291892b041055fe4165abcbb2962a295aedce4
+    Reviewed-on: https://code.wireshark.org/review/811
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    
+    Conflicts:
+    	ui/gtk/graph_analysis.c
+    
+    This fixes the crash happening when opening flow graph.
+    
+    Bug: 9179
+    Change-Id: I70108eae7c11aa4bdb5b61dfeaa1cea1e602652a
+    Reviewed-on: https://code.wireshark.org/review/1635
+    Reviewed-by: Evan Huus <eapache@gmail.com>
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+
+commit f6b86a46974b803de01ab4ffff19fdf46a91cfc7
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Sun May 11 15:07:25 2014 +0200
+
+    Identify client/server by their IP address and port number in follow streams dialog box
+    
+    This allows to properly identify hosts that use the same port number
+    
+    Change-Id: I93bf5b53e4df1d339fb06b372b90f88fce6785a0
+    Reviewed-on: https://code.wireshark.org/review/1588
+    Reviewed-by: Alexis La Goutte <alexis.lagoutte@gmail.com>
+    
+    Conflicts:
+    	ui/gtk/follow_ssl.c
+    	ui/gtk/follow_tcp.c
+    	ui/gtk/follow_udp.c
+    	ui/qt/follow_stream_dialog.cpp
+    
+    (cherry picked from commit 98f608cc0ddd5493a18e87ffe09ed551969b8ae3)
+    
+    Change-Id: I6c984dc4e6e68ce74c619980777602fcd1b25cba
+    Reviewed-on: https://code.wireshark.org/review/1612
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+
+commit b765985eeb706e83b24c4d8d32462aa3f34665b4
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Sat May 10 17:02:24 2014 +0200
+
+    Small fixes to Follow Streams dialog box:
+    - get the right IPv6 client address
+    - display the right client to server string for UDP/SSL in Qt port
+    
+    Change-Id: I399cc38b8a32321198deccdd8e2ecd05b54e14db
+    Reviewed-on: https://code.wireshark.org/review/1586
+    Reviewed-by: Alexis La Goutte <alexis.lagoutte@gmail.com>
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    
+    Conflicts:
+    	ui/gtk/follow_ssl.c
+    	ui/gtk/follow_udp.c
+    	ui/qt/follow_stream_dialog.cpp
+    
+    (cherry picked from commit e2eea89698b7109d5271186200ab95d97ebc7981)
+    
+    Change-Id: Ifac6625ceb3103e1c82a9ca485a26a842a395aec
+    Reviewed-on: https://code.wireshark.org/review/1611
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+
+commit ccce29a936d15dfdfea4f81df90f99150b189ad9
+Author: Gerald Combs <gerald@zing.org>
+Date:   Sun May 11 09:47:09 2014 -0700
+
+    Don't build update-sminmpec by default when using CMake.
+    
+    Change-Id: Iccce783eeef23a90ca23900cf18e2d3d2620c767
+    Reviewed-on: https://code.wireshark.org/review/1592
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+    (cherry picked from commit 44d83c2f4f9256f7436e43dee940c922d864d57d)
+    Reviewed-on: https://code.wireshark.org/review/1593
+
+commit 0bd3ab12e3b28253a21df12dbf5e5691d169380f
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun May 11 08:07:07 2014 -0700
+
+    [Automatic manuf, services and enterprise-numbers update for 2014-05-11]
+    
+    Change-Id: Iabdbf1459b32d684cd811be94d22e8cb1e459b20
+    Reviewed-on: https://code.wireshark.org/review/1590
+    Reviewed-by: Evan Huus <eapache@gmail.com>
+
+commit 9f6a83447a9076f29910ccc33196db7c3b14b03a
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon May 5 11:50:24 2014 -0700
+
+    Be less aggressive about rebuilding sminmpec.c.
+    
+    Instead of forcing developers to generate sminmpec.c (which will have
+    different results depending on the presence or absence of a working
+    Internet connection) add sminmpec.c back to the repository. I'll add
+    it to the weekly update-numbers script so that it will be updated at
+    the same time as manuf, services, enterprise-numbers, and usb.c.
+    
+    Change the Autotools, CMake, and Nmake sminmpec.c target name to
+    "update-sminmpec".
+    
+    Remove the mtime check from make-sminmpec.pl. Update enterprise-numbers
+    and sminmpec.c while we're here.
+    
+    Tested with an in-tree Autotools build and an out-of-tree CMake build.
+    
+    Change-Id: Iecc332ce2731e3e98ab0205a56c78807e599a026
+    Reviewed-on: https://code.wireshark.org/review/1516
+    Reviewed-by: Evan Huus <eapache@gmail.com>
+    Reviewed-by: Alexis La Goutte <alexis.lagoutte@gmail.com>
+    Tested-by: Alexis La Goutte <alexis.lagoutte@gmail.com>
+    (cherry picked from commit 3f247a5cee61d8f2139ade94cd9840b100337b05 with manual fixes)
+    Reviewed-on: https://code.wireshark.org/review/1576
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit efd7ec4f255981f1a4a2ad1f49580233d522af7a
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Thu May 8 12:38:34 2014 +0200
+
+    TCAP: set a fence on info column after calling sub dissector
+    
+    Bug: 10091
+    Change-Id: I7af57345e31209fb4dd02cdab7960c44c69dc0a5
+    Reviewed-on: https://code.wireshark.org/review/1555
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    
+    Conflicts:
+    	asn1/tcap/packet-tcap-template.c
+    	epan/dissectors/packet-tcap.c
+    
+    (cherry picked from commit 54be3eaaec057c44a4b42e4cf538cd07ee247bce)
+    
+    Change-Id: I37f554d284bdbe45979ec4ccea3d12198023ba53
+    Reviewed-on: https://code.wireshark.org/review/1558
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+
+commit b76f8c7d4698d4dd174beb8714e31489d8173ea1
+Author: Jakub Zawadzki <darkjames@darkjames.pl>
+Date:   Sun May 4 23:06:54 2014 +0200
+
+    Fix possible buffer overflow in col_append_sep_fstr()
+    
+    After appending separator it might happen that len > max_len, in such case
+    g_vsnprintf() will overflow the col_buf buffer.
+    
+    Change-Id: Ic5ff49d30e30509e835165c4cc7e72e31f92fd5f
+    Reviewed-on: https://code.wireshark.org/review/1493
+    Reviewed-by: Evan Huus <eapache@gmail.com>
+    (cherry picked from commit 984e52244f08d344a6979bf1405b3d730a388702)
+    Reviewed-on: https://code.wireshark.org/review/1514
+
+commit a1df6a4adc72e7f24c2be6f73e5a1de5e78bd01c
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun May 4 08:06:56 2014 -0700
+
+    [Automatic manuf, services and enterprise-numbers update for 2014-05-04]
+    
+    Change-Id: Ie2afbbb081e3815470be82d3dcec0166baaf9a7b
+    Reviewed-on: https://code.wireshark.org/review/1489
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 2ad067c54b349274ae83a9b0827bd475967fdcc8
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Apr 30 13:16:31 2014 -0400
+
+    Copy make-sminmpec.pl from master.
+    
+    The previous cherry-pick didn't have the desired effect.
+    
+    Change-Id: I52b6bd7f33ffe090680e578ae6be8518fbd27022
+    Reviewed-on: https://code.wireshark.org/review/1443
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit e4e5bc3194ebfbb42759ca7e3ce4cc9d5f1fb1a8
+Author: Gerald Combs <gerald@zing.org>
+Date:   Sun Apr 27 13:26:17 2014 -0700
+
+    make-sminmpec.pl fixups.
+    
+    Enforce a minimum number of entries and do our work in the epan
+    directory.
+    
+    Change-Id: I69cc6ae3255b23706a2e67db890a9718e10568b2
+    Reviewed-on: https://code.wireshark.org/review/1398
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+    (cherry picked from commit 002cefc721e5fe01ba6ecb9ec7261f549f4f1459)
+    Reviewed-on: https://code.wireshark.org/review/1441
+
+commit 26dd11dec3b600b09f76bc7000ceae04241ee607
+Author: Michael Mann <mmann78@netscape.net>
+Date:   Sun Apr 27 15:33:13 2014 -0400
+
+    Remove support for SHIM6 on protocol 61
+    
+    bug:9995
+    Change-Id: I3c6ff189c4f9cca83b18ea2f057a1bca0c6809c4
+    Reviewed-on: https://code.wireshark.org/review/1390
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    Reviewed-by: Alexis La Goutte <alexis.lagoutte@gmail.com>
+
+commit d76e07f5ba94f579c9e81fdab40ab7e83d65d632
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Wed Apr 23 23:59:19 2014 +0200
+
+    Adding two well known OAM related multicast address ranges.
+    
+    Change-Id: I8fb840e7422b5fe7cd3072d8332de659598ebd3d
+    Reviewed-on: https://code.wireshark.org/review/1313
+    Reviewed-by: Alexis La Goutte <alexis.lagoutte@gmail.com>
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit 560b5d9e0c9e4a2ad3e4e930f8ed9dc5b2966756)
+    Reviewed-on: https://code.wireshark.org/review/1331
+    Reviewed-by: Jaap Keuter <jaap.keuter@xs4all.nl>
+
+commit 7aaaf15a12812e7ab6dd03bb122c4ed2bb79fff3
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Fri Apr 25 10:44:11 2014 -0700
+
+    Don't fail if a pcap-NG PB or EPB has caplen > actual len.
+    
+    We don't fail for other file types; there's no point in failing for
+    pcap-NG.  wtap_read() and wtap_seek_read() will ensure that
+    caplen <= len.
+    
+    Fixes bug 10037.
+    
+    Change-Id: If8fe0c21ff4a3a57fbd0575d43306fa892d31a6a
+    Reviewed-on: https://code.wireshark.org/review/1356
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+
+commit 2515bbe055e84b2b610385bbca9a1d246de20c4c
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue Apr 22 11:58:40 2014 -0700
+
+    1.10.7 → 1.10.8.
+    
+    Change-Id: Icc8695bbc102ee5f827a17fcced9db475fdb9621
+    Reviewed-on: https://code.wireshark.org/review/1281
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
