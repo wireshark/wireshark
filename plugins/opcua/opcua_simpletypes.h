@@ -22,23 +22,23 @@
 #include "opcua_identifiers.h"
 
 /* simple types */
-void parseBoolean(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, int hfIndex);
-void parseByte(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, int hfIndex);
-void parseSByte(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, int hfIndex);
-void parseUInt16(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, int hfIndex);
-void parseInt16(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, int hfIndex);
-void parseUInt32(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, int hfIndex);
-void parseInt32(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, int hfIndex);
-void parseUInt64(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, int hfIndex);
-void parseInt64(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, int hfIndex);
-void parseString(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, int hfIndex);
-void parseGuid(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, int hfIndex);
-void parseByteString(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, int hfIndex);
-void parseXmlElement(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, int hfIndex);
-void parseFloat(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, int hfIndex);
-void parseDouble(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, int hfIndex);
-void parseDateTime(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, int hfIndex);
-void parseStatusCode(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, int hfIndex);
+proto_item* parseBoolean(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, int hfIndex);
+proto_item* parseByte(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, int hfIndex);
+proto_item* parseSByte(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, int hfIndex);
+proto_item* parseUInt16(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, int hfIndex);
+proto_item* parseInt16(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, int hfIndex);
+proto_item* parseUInt32(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, int hfIndex);
+proto_item* parseInt32(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, int hfIndex);
+proto_item* parseUInt64(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, int hfIndex);
+proto_item* parseInt64(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, int hfIndex);
+proto_item* parseString(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, int hfIndex);
+proto_item* parseGuid(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, int hfIndex);
+proto_item* parseByteString(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, int hfIndex);
+proto_item* parseXmlElement(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, int hfIndex);
+proto_item* parseFloat(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, int hfIndex);
+proto_item* parseDouble(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, int hfIndex);
+proto_item* parseDateTime(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, int hfIndex);
+proto_item* parseStatusCode(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, int hfIndex);
 /* complex types */
 void parseLocalizedText(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName);
 void parseNodeId(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName);
@@ -48,9 +48,9 @@ void parseQualifiedName(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const ch
 void parseDataValue(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName);
 void parseVariant(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName);
 void parseExpandedNodeId(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName);
-void parseArraySimple(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, int hfIndex, fctSimpleTypeParser pParserFunction);
-void parseArrayEnum(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, fctEnumParser pParserFunction);
-void parseArrayComplex(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName, fctComplexTypeParser pParserFunction);
+void parseArraySimple(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName, const char *szTypeName, int hfIndex, fctSimpleTypeParser pParserFunction);
+void parseArrayEnum(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName, const char *szTypeName, fctEnumParser pParserFunction);
+void parseArrayComplex(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName, const char *szTypeName, fctComplexTypeParser pParserFunction);
 void registerSimpleTypes(int proto);
 guint32 getExtensionObjectType(tvbuff_t *tvb, gint *pOffset);
 
