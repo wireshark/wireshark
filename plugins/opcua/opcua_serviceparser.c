@@ -30,6 +30,164 @@
 #include "opcua_serviceparser.h"
 
 gint ett_opcua_ServiceFault = -1;
+gint ett_opcua_array_ServiceFault = -1;
+gint ett_opcua_FindServersRequest = -1;
+gint ett_opcua_array_FindServersRequest = -1;
+gint ett_opcua_FindServersResponse = -1;
+gint ett_opcua_array_FindServersResponse = -1;
+gint ett_opcua_GetEndpointsRequest = -1;
+gint ett_opcua_array_GetEndpointsRequest = -1;
+gint ett_opcua_GetEndpointsResponse = -1;
+gint ett_opcua_array_GetEndpointsResponse = -1;
+gint ett_opcua_RegisterServerRequest = -1;
+gint ett_opcua_array_RegisterServerRequest = -1;
+gint ett_opcua_RegisterServerResponse = -1;
+gint ett_opcua_array_RegisterServerResponse = -1;
+gint ett_opcua_OpenSecureChannelRequest = -1;
+gint ett_opcua_array_OpenSecureChannelRequest = -1;
+gint ett_opcua_OpenSecureChannelResponse = -1;
+gint ett_opcua_array_OpenSecureChannelResponse = -1;
+gint ett_opcua_CloseSecureChannelRequest = -1;
+gint ett_opcua_array_CloseSecureChannelRequest = -1;
+gint ett_opcua_CloseSecureChannelResponse = -1;
+gint ett_opcua_array_CloseSecureChannelResponse = -1;
+gint ett_opcua_CreateSessionRequest = -1;
+gint ett_opcua_array_CreateSessionRequest = -1;
+gint ett_opcua_CreateSessionResponse = -1;
+gint ett_opcua_array_CreateSessionResponse = -1;
+gint ett_opcua_ActivateSessionRequest = -1;
+gint ett_opcua_array_ActivateSessionRequest = -1;
+gint ett_opcua_ActivateSessionResponse = -1;
+gint ett_opcua_array_ActivateSessionResponse = -1;
+gint ett_opcua_CloseSessionRequest = -1;
+gint ett_opcua_array_CloseSessionRequest = -1;
+gint ett_opcua_CloseSessionResponse = -1;
+gint ett_opcua_array_CloseSessionResponse = -1;
+gint ett_opcua_CancelRequest = -1;
+gint ett_opcua_array_CancelRequest = -1;
+gint ett_opcua_CancelResponse = -1;
+gint ett_opcua_array_CancelResponse = -1;
+gint ett_opcua_AddNodesRequest = -1;
+gint ett_opcua_array_AddNodesRequest = -1;
+gint ett_opcua_AddNodesResponse = -1;
+gint ett_opcua_array_AddNodesResponse = -1;
+gint ett_opcua_AddReferencesRequest = -1;
+gint ett_opcua_array_AddReferencesRequest = -1;
+gint ett_opcua_AddReferencesResponse = -1;
+gint ett_opcua_array_AddReferencesResponse = -1;
+gint ett_opcua_DeleteNodesRequest = -1;
+gint ett_opcua_array_DeleteNodesRequest = -1;
+gint ett_opcua_DeleteNodesResponse = -1;
+gint ett_opcua_array_DeleteNodesResponse = -1;
+gint ett_opcua_DeleteReferencesRequest = -1;
+gint ett_opcua_array_DeleteReferencesRequest = -1;
+gint ett_opcua_DeleteReferencesResponse = -1;
+gint ett_opcua_array_DeleteReferencesResponse = -1;
+gint ett_opcua_BrowseRequest = -1;
+gint ett_opcua_array_BrowseRequest = -1;
+gint ett_opcua_BrowseResponse = -1;
+gint ett_opcua_array_BrowseResponse = -1;
+gint ett_opcua_BrowseNextRequest = -1;
+gint ett_opcua_array_BrowseNextRequest = -1;
+gint ett_opcua_BrowseNextResponse = -1;
+gint ett_opcua_array_BrowseNextResponse = -1;
+gint ett_opcua_TranslateBrowsePathsToNodeIdsRequest = -1;
+gint ett_opcua_array_TranslateBrowsePathsToNodeIdsRequest = -1;
+gint ett_opcua_TranslateBrowsePathsToNodeIdsResponse = -1;
+gint ett_opcua_array_TranslateBrowsePathsToNodeIdsResponse = -1;
+gint ett_opcua_RegisterNodesRequest = -1;
+gint ett_opcua_array_RegisterNodesRequest = -1;
+gint ett_opcua_RegisterNodesResponse = -1;
+gint ett_opcua_array_RegisterNodesResponse = -1;
+gint ett_opcua_UnregisterNodesRequest = -1;
+gint ett_opcua_array_UnregisterNodesRequest = -1;
+gint ett_opcua_UnregisterNodesResponse = -1;
+gint ett_opcua_array_UnregisterNodesResponse = -1;
+gint ett_opcua_QueryFirstRequest = -1;
+gint ett_opcua_array_QueryFirstRequest = -1;
+gint ett_opcua_QueryFirstResponse = -1;
+gint ett_opcua_array_QueryFirstResponse = -1;
+gint ett_opcua_QueryNextRequest = -1;
+gint ett_opcua_array_QueryNextRequest = -1;
+gint ett_opcua_QueryNextResponse = -1;
+gint ett_opcua_array_QueryNextResponse = -1;
+gint ett_opcua_ReadRequest = -1;
+gint ett_opcua_array_ReadRequest = -1;
+gint ett_opcua_ReadResponse = -1;
+gint ett_opcua_array_ReadResponse = -1;
+gint ett_opcua_HistoryReadRequest = -1;
+gint ett_opcua_array_HistoryReadRequest = -1;
+gint ett_opcua_HistoryReadResponse = -1;
+gint ett_opcua_array_HistoryReadResponse = -1;
+gint ett_opcua_WriteRequest = -1;
+gint ett_opcua_array_WriteRequest = -1;
+gint ett_opcua_WriteResponse = -1;
+gint ett_opcua_array_WriteResponse = -1;
+gint ett_opcua_HistoryUpdateRequest = -1;
+gint ett_opcua_array_HistoryUpdateRequest = -1;
+gint ett_opcua_HistoryUpdateResponse = -1;
+gint ett_opcua_array_HistoryUpdateResponse = -1;
+gint ett_opcua_CallRequest = -1;
+gint ett_opcua_array_CallRequest = -1;
+gint ett_opcua_CallResponse = -1;
+gint ett_opcua_array_CallResponse = -1;
+gint ett_opcua_CreateMonitoredItemsRequest = -1;
+gint ett_opcua_array_CreateMonitoredItemsRequest = -1;
+gint ett_opcua_CreateMonitoredItemsResponse = -1;
+gint ett_opcua_array_CreateMonitoredItemsResponse = -1;
+gint ett_opcua_ModifyMonitoredItemsRequest = -1;
+gint ett_opcua_array_ModifyMonitoredItemsRequest = -1;
+gint ett_opcua_ModifyMonitoredItemsResponse = -1;
+gint ett_opcua_array_ModifyMonitoredItemsResponse = -1;
+gint ett_opcua_SetMonitoringModeRequest = -1;
+gint ett_opcua_array_SetMonitoringModeRequest = -1;
+gint ett_opcua_SetMonitoringModeResponse = -1;
+gint ett_opcua_array_SetMonitoringModeResponse = -1;
+gint ett_opcua_SetTriggeringRequest = -1;
+gint ett_opcua_array_SetTriggeringRequest = -1;
+gint ett_opcua_SetTriggeringResponse = -1;
+gint ett_opcua_array_SetTriggeringResponse = -1;
+gint ett_opcua_DeleteMonitoredItemsRequest = -1;
+gint ett_opcua_array_DeleteMonitoredItemsRequest = -1;
+gint ett_opcua_DeleteMonitoredItemsResponse = -1;
+gint ett_opcua_array_DeleteMonitoredItemsResponse = -1;
+gint ett_opcua_CreateSubscriptionRequest = -1;
+gint ett_opcua_array_CreateSubscriptionRequest = -1;
+gint ett_opcua_CreateSubscriptionResponse = -1;
+gint ett_opcua_array_CreateSubscriptionResponse = -1;
+gint ett_opcua_ModifySubscriptionRequest = -1;
+gint ett_opcua_array_ModifySubscriptionRequest = -1;
+gint ett_opcua_ModifySubscriptionResponse = -1;
+gint ett_opcua_array_ModifySubscriptionResponse = -1;
+gint ett_opcua_SetPublishingModeRequest = -1;
+gint ett_opcua_array_SetPublishingModeRequest = -1;
+gint ett_opcua_SetPublishingModeResponse = -1;
+gint ett_opcua_array_SetPublishingModeResponse = -1;
+gint ett_opcua_PublishRequest = -1;
+gint ett_opcua_array_PublishRequest = -1;
+gint ett_opcua_PublishResponse = -1;
+gint ett_opcua_array_PublishResponse = -1;
+gint ett_opcua_RepublishRequest = -1;
+gint ett_opcua_array_RepublishRequest = -1;
+gint ett_opcua_RepublishResponse = -1;
+gint ett_opcua_array_RepublishResponse = -1;
+gint ett_opcua_TransferSubscriptionsRequest = -1;
+gint ett_opcua_array_TransferSubscriptionsRequest = -1;
+gint ett_opcua_TransferSubscriptionsResponse = -1;
+gint ett_opcua_array_TransferSubscriptionsResponse = -1;
+gint ett_opcua_DeleteSubscriptionsRequest = -1;
+gint ett_opcua_array_DeleteSubscriptionsRequest = -1;
+gint ett_opcua_DeleteSubscriptionsResponse = -1;
+gint ett_opcua_array_DeleteSubscriptionsResponse = -1;
+gint ett_opcua_TestStackRequest = -1;
+gint ett_opcua_array_TestStackRequest = -1;
+gint ett_opcua_TestStackResponse = -1;
+gint ett_opcua_array_TestStackResponse = -1;
+gint ett_opcua_TestStackExRequest = -1;
+gint ett_opcua_array_TestStackExRequest = -1;
+gint ett_opcua_TestStackExResponse = -1;
+gint ett_opcua_array_TestStackExResponse = -1;
+
 void parseServiceFault(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "ServiceFault");
@@ -38,7 +196,6 @@ void parseServiceFault(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
   parseResponseHeader(subtree, tvb, pOffset, "ResponseHeader");
   proto_item_set_end(ti, tvb, *pOffset);
 }
-gint ett_opcua_FindServersRequest = -1;
 void parseFindServersRequest(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "FindServersRequest");
@@ -47,12 +204,11 @@ void parseFindServersRequest(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
   parseRequestHeader(subtree, tvb, pOffset, "RequestHeader");
   parseString(subtree, tvb, pOffset, hf_opcua_EndpointUrl);
   /* Array length field ignored: NoOfLocaleIds */
-  parseArraySimple(subtree, tvb, pOffset, "LocaleIds", "String", hf_opcua_LocaleIds, parseString);
+  parseArraySimple(subtree, tvb, pOffset, "LocaleIds", "String", hf_opcua_LocaleIds, parseString, ett_opcua_array_String);
   /* Array length field ignored: NoOfServerUris */
-  parseArraySimple(subtree, tvb, pOffset, "ServerUris", "String", hf_opcua_ServerUris, parseString);
+  parseArraySimple(subtree, tvb, pOffset, "ServerUris", "String", hf_opcua_ServerUris, parseString, ett_opcua_array_String);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-gint ett_opcua_FindServersResponse = -1;
 void parseFindServersResponse(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "FindServersResponse");
@@ -60,10 +216,9 @@ void parseFindServersResponse(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 
   parseResponseHeader(subtree, tvb, pOffset, "ResponseHeader");
   /* Array length field ignored: NoOfServers */
-  parseArrayComplex(subtree, tvb, pOffset, "Servers", "ApplicationDescription", parseApplicationDescription);
+  parseArrayComplex(subtree, tvb, pOffset, "Servers", "ApplicationDescription", parseApplicationDescription, ett_opcua_array_ApplicationDescription);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-gint ett_opcua_GetEndpointsRequest = -1;
 void parseGetEndpointsRequest(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "GetEndpointsRequest");
@@ -72,12 +227,11 @@ void parseGetEndpointsRequest(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
   parseRequestHeader(subtree, tvb, pOffset, "RequestHeader");
   parseString(subtree, tvb, pOffset, hf_opcua_EndpointUrl);
   /* Array length field ignored: NoOfLocaleIds */
-  parseArraySimple(subtree, tvb, pOffset, "LocaleIds", "String", hf_opcua_LocaleIds, parseString);
+  parseArraySimple(subtree, tvb, pOffset, "LocaleIds", "String", hf_opcua_LocaleIds, parseString, ett_opcua_array_String);
   /* Array length field ignored: NoOfProfileUris */
-  parseArraySimple(subtree, tvb, pOffset, "ProfileUris", "String", hf_opcua_ProfileUris, parseString);
+  parseArraySimple(subtree, tvb, pOffset, "ProfileUris", "String", hf_opcua_ProfileUris, parseString, ett_opcua_array_String);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-gint ett_opcua_GetEndpointsResponse = -1;
 void parseGetEndpointsResponse(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "GetEndpointsResponse");
@@ -85,10 +239,9 @@ void parseGetEndpointsResponse(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 
   parseResponseHeader(subtree, tvb, pOffset, "ResponseHeader");
   /* Array length field ignored: NoOfEndpoints */
-  parseArrayComplex(subtree, tvb, pOffset, "Endpoints", "EndpointDescription", parseEndpointDescription);
+  parseArrayComplex(subtree, tvb, pOffset, "Endpoints", "EndpointDescription", parseEndpointDescription, ett_opcua_array_EndpointDescription);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-gint ett_opcua_RegisterServerRequest = -1;
 void parseRegisterServerRequest(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "RegisterServerRequest");
@@ -98,7 +251,6 @@ void parseRegisterServerRequest(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
   parseRegisteredServer(subtree, tvb, pOffset, "Server");
   proto_item_set_end(ti, tvb, *pOffset);
 }
-gint ett_opcua_RegisterServerResponse = -1;
 void parseRegisterServerResponse(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "RegisterServerResponse");
@@ -107,7 +259,6 @@ void parseRegisterServerResponse(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
   parseResponseHeader(subtree, tvb, pOffset, "ResponseHeader");
   proto_item_set_end(ti, tvb, *pOffset);
 }
-gint ett_opcua_OpenSecureChannelRequest = -1;
 void parseOpenSecureChannelRequest(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "OpenSecureChannelRequest");
@@ -121,7 +272,6 @@ void parseOpenSecureChannelRequest(proto_tree *tree, tvbuff_t *tvb, gint *pOffse
   parseUInt32(subtree, tvb, pOffset, hf_opcua_RequestedLifetime);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-gint ett_opcua_OpenSecureChannelResponse = -1;
 void parseOpenSecureChannelResponse(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "OpenSecureChannelResponse");
@@ -133,7 +283,6 @@ void parseOpenSecureChannelResponse(proto_tree *tree, tvbuff_t *tvb, gint *pOffs
   parseByteString(subtree, tvb, pOffset, hf_opcua_ServerNonce);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-gint ett_opcua_CloseSecureChannelRequest = -1;
 void parseCloseSecureChannelRequest(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "CloseSecureChannelRequest");
@@ -142,7 +291,6 @@ void parseCloseSecureChannelRequest(proto_tree *tree, tvbuff_t *tvb, gint *pOffs
   parseRequestHeader(subtree, tvb, pOffset, "RequestHeader");
   proto_item_set_end(ti, tvb, *pOffset);
 }
-gint ett_opcua_CloseSecureChannelResponse = -1;
 void parseCloseSecureChannelResponse(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "CloseSecureChannelResponse");
@@ -151,7 +299,6 @@ void parseCloseSecureChannelResponse(proto_tree *tree, tvbuff_t *tvb, gint *pOff
   parseResponseHeader(subtree, tvb, pOffset, "ResponseHeader");
   proto_item_set_end(ti, tvb, *pOffset);
 }
-gint ett_opcua_CreateSessionRequest = -1;
 void parseCreateSessionRequest(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "CreateSessionRequest");
@@ -168,7 +315,6 @@ void parseCreateSessionRequest(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
   parseUInt32(subtree, tvb, pOffset, hf_opcua_MaxResponseMessageSize);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-gint ett_opcua_CreateSessionResponse = -1;
 void parseCreateSessionResponse(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "CreateSessionResponse");
@@ -181,14 +327,13 @@ void parseCreateSessionResponse(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
   parseByteString(subtree, tvb, pOffset, hf_opcua_ServerNonce);
   parseByteString(subtree, tvb, pOffset, hf_opcua_ServerCertificate);
   /* Array length field ignored: NoOfServerEndpoints */
-  parseArrayComplex(subtree, tvb, pOffset, "ServerEndpoints", "EndpointDescription", parseEndpointDescription);
+  parseArrayComplex(subtree, tvb, pOffset, "ServerEndpoints", "EndpointDescription", parseEndpointDescription, ett_opcua_array_EndpointDescription);
   /* Array length field ignored: NoOfServerSoftwareCertificates */
-  parseArrayComplex(subtree, tvb, pOffset, "ServerSoftwareCertificates", "SignedSoftwareCertificate", parseSignedSoftwareCertificate);
+  parseArrayComplex(subtree, tvb, pOffset, "ServerSoftwareCertificates", "SignedSoftwareCertificate", parseSignedSoftwareCertificate, ett_opcua_array_SignedSoftwareCertificate);
   parseSignatureData(subtree, tvb, pOffset, "ServerSignature");
   parseUInt32(subtree, tvb, pOffset, hf_opcua_MaxRequestMessageSize);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-gint ett_opcua_ActivateSessionRequest = -1;
 void parseActivateSessionRequest(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "ActivateSessionRequest");
@@ -197,14 +342,13 @@ void parseActivateSessionRequest(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
   parseRequestHeader(subtree, tvb, pOffset, "RequestHeader");
   parseSignatureData(subtree, tvb, pOffset, "ClientSignature");
   /* Array length field ignored: NoOfClientSoftwareCertificates */
-  parseArrayComplex(subtree, tvb, pOffset, "ClientSoftwareCertificates", "SignedSoftwareCertificate", parseSignedSoftwareCertificate);
+  parseArrayComplex(subtree, tvb, pOffset, "ClientSoftwareCertificates", "SignedSoftwareCertificate", parseSignedSoftwareCertificate, ett_opcua_array_SignedSoftwareCertificate);
   /* Array length field ignored: NoOfLocaleIds */
-  parseArraySimple(subtree, tvb, pOffset, "LocaleIds", "String", hf_opcua_LocaleIds, parseString);
+  parseArraySimple(subtree, tvb, pOffset, "LocaleIds", "String", hf_opcua_LocaleIds, parseString, ett_opcua_array_String);
   parseExtensionObject(subtree, tvb, pOffset, "UserIdentityToken");
   parseSignatureData(subtree, tvb, pOffset, "UserTokenSignature");
   proto_item_set_end(ti, tvb, *pOffset);
 }
-gint ett_opcua_ActivateSessionResponse = -1;
 void parseActivateSessionResponse(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "ActivateSessionResponse");
@@ -213,12 +357,11 @@ void parseActivateSessionResponse(proto_tree *tree, tvbuff_t *tvb, gint *pOffset
   parseResponseHeader(subtree, tvb, pOffset, "ResponseHeader");
   parseByteString(subtree, tvb, pOffset, hf_opcua_ServerNonce);
   /* Array length field ignored: NoOfResults */
-  parseArraySimple(subtree, tvb, pOffset, "Results", "StatusCode", hf_opcua_Results, parseStatusCode);
+  parseArraySimple(subtree, tvb, pOffset, "Results", "StatusCode", hf_opcua_Results, parseStatusCode, ett_opcua_array_StatusCode);
   /* Array length field ignored: NoOfDiagnosticInfos */
-  parseArrayComplex(subtree, tvb, pOffset, "DiagnosticInfos", "DiagnosticInfo", parseDiagnosticInfo);
+  parseArrayComplex(subtree, tvb, pOffset, "DiagnosticInfos", "DiagnosticInfo", parseDiagnosticInfo, ett_opcua_array_DiagnosticInfo);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-gint ett_opcua_CloseSessionRequest = -1;
 void parseCloseSessionRequest(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "CloseSessionRequest");
@@ -228,7 +371,6 @@ void parseCloseSessionRequest(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
   parseBoolean(subtree, tvb, pOffset, hf_opcua_DeleteSubscriptions);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-gint ett_opcua_CloseSessionResponse = -1;
 void parseCloseSessionResponse(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "CloseSessionResponse");
@@ -237,7 +379,6 @@ void parseCloseSessionResponse(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
   parseResponseHeader(subtree, tvb, pOffset, "ResponseHeader");
   proto_item_set_end(ti, tvb, *pOffset);
 }
-gint ett_opcua_CancelRequest = -1;
 void parseCancelRequest(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "CancelRequest");
@@ -247,7 +388,6 @@ void parseCancelRequest(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
   parseUInt32(subtree, tvb, pOffset, hf_opcua_RequestHandle);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-gint ett_opcua_CancelResponse = -1;
 void parseCancelResponse(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "CancelResponse");
@@ -257,7 +397,6 @@ void parseCancelResponse(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
   parseUInt32(subtree, tvb, pOffset, hf_opcua_CancelCount);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-gint ett_opcua_AddNodesRequest = -1;
 void parseAddNodesRequest(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "AddNodesRequest");
@@ -265,10 +404,9 @@ void parseAddNodesRequest(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 
   parseRequestHeader(subtree, tvb, pOffset, "RequestHeader");
   /* Array length field ignored: NoOfNodesToAdd */
-  parseArrayComplex(subtree, tvb, pOffset, "NodesToAdd", "AddNodesItem", parseAddNodesItem);
+  parseArrayComplex(subtree, tvb, pOffset, "NodesToAdd", "AddNodesItem", parseAddNodesItem, ett_opcua_array_AddNodesItem);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-gint ett_opcua_AddNodesResponse = -1;
 void parseAddNodesResponse(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "AddNodesResponse");
@@ -276,12 +414,11 @@ void parseAddNodesResponse(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 
   parseResponseHeader(subtree, tvb, pOffset, "ResponseHeader");
   /* Array length field ignored: NoOfResults */
-  parseArrayComplex(subtree, tvb, pOffset, "Results", "AddNodesResult", parseAddNodesResult);
+  parseArrayComplex(subtree, tvb, pOffset, "Results", "AddNodesResult", parseAddNodesResult, ett_opcua_array_AddNodesResult);
   /* Array length field ignored: NoOfDiagnosticInfos */
-  parseArrayComplex(subtree, tvb, pOffset, "DiagnosticInfos", "DiagnosticInfo", parseDiagnosticInfo);
+  parseArrayComplex(subtree, tvb, pOffset, "DiagnosticInfos", "DiagnosticInfo", parseDiagnosticInfo, ett_opcua_array_DiagnosticInfo);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-gint ett_opcua_AddReferencesRequest = -1;
 void parseAddReferencesRequest(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "AddReferencesRequest");
@@ -289,10 +426,9 @@ void parseAddReferencesRequest(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 
   parseRequestHeader(subtree, tvb, pOffset, "RequestHeader");
   /* Array length field ignored: NoOfReferencesToAdd */
-  parseArrayComplex(subtree, tvb, pOffset, "ReferencesToAdd", "AddReferencesItem", parseAddReferencesItem);
+  parseArrayComplex(subtree, tvb, pOffset, "ReferencesToAdd", "AddReferencesItem", parseAddReferencesItem, ett_opcua_array_AddReferencesItem);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-gint ett_opcua_AddReferencesResponse = -1;
 void parseAddReferencesResponse(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "AddReferencesResponse");
@@ -300,12 +436,11 @@ void parseAddReferencesResponse(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 
   parseResponseHeader(subtree, tvb, pOffset, "ResponseHeader");
   /* Array length field ignored: NoOfResults */
-  parseArraySimple(subtree, tvb, pOffset, "Results", "StatusCode", hf_opcua_Results, parseStatusCode);
+  parseArraySimple(subtree, tvb, pOffset, "Results", "StatusCode", hf_opcua_Results, parseStatusCode, ett_opcua_array_StatusCode);
   /* Array length field ignored: NoOfDiagnosticInfos */
-  parseArrayComplex(subtree, tvb, pOffset, "DiagnosticInfos", "DiagnosticInfo", parseDiagnosticInfo);
+  parseArrayComplex(subtree, tvb, pOffset, "DiagnosticInfos", "DiagnosticInfo", parseDiagnosticInfo, ett_opcua_array_DiagnosticInfo);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-gint ett_opcua_DeleteNodesRequest = -1;
 void parseDeleteNodesRequest(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "DeleteNodesRequest");
@@ -313,10 +448,9 @@ void parseDeleteNodesRequest(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 
   parseRequestHeader(subtree, tvb, pOffset, "RequestHeader");
   /* Array length field ignored: NoOfNodesToDelete */
-  parseArrayComplex(subtree, tvb, pOffset, "NodesToDelete", "DeleteNodesItem", parseDeleteNodesItem);
+  parseArrayComplex(subtree, tvb, pOffset, "NodesToDelete", "DeleteNodesItem", parseDeleteNodesItem, ett_opcua_array_DeleteNodesItem);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-gint ett_opcua_DeleteNodesResponse = -1;
 void parseDeleteNodesResponse(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "DeleteNodesResponse");
@@ -324,12 +458,11 @@ void parseDeleteNodesResponse(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 
   parseResponseHeader(subtree, tvb, pOffset, "ResponseHeader");
   /* Array length field ignored: NoOfResults */
-  parseArraySimple(subtree, tvb, pOffset, "Results", "StatusCode", hf_opcua_Results, parseStatusCode);
+  parseArraySimple(subtree, tvb, pOffset, "Results", "StatusCode", hf_opcua_Results, parseStatusCode, ett_opcua_array_StatusCode);
   /* Array length field ignored: NoOfDiagnosticInfos */
-  parseArrayComplex(subtree, tvb, pOffset, "DiagnosticInfos", "DiagnosticInfo", parseDiagnosticInfo);
+  parseArrayComplex(subtree, tvb, pOffset, "DiagnosticInfos", "DiagnosticInfo", parseDiagnosticInfo, ett_opcua_array_DiagnosticInfo);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-gint ett_opcua_DeleteReferencesRequest = -1;
 void parseDeleteReferencesRequest(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "DeleteReferencesRequest");
@@ -337,10 +470,9 @@ void parseDeleteReferencesRequest(proto_tree *tree, tvbuff_t *tvb, gint *pOffset
 
   parseRequestHeader(subtree, tvb, pOffset, "RequestHeader");
   /* Array length field ignored: NoOfReferencesToDelete */
-  parseArrayComplex(subtree, tvb, pOffset, "ReferencesToDelete", "DeleteReferencesItem", parseDeleteReferencesItem);
+  parseArrayComplex(subtree, tvb, pOffset, "ReferencesToDelete", "DeleteReferencesItem", parseDeleteReferencesItem, ett_opcua_array_DeleteReferencesItem);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-gint ett_opcua_DeleteReferencesResponse = -1;
 void parseDeleteReferencesResponse(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "DeleteReferencesResponse");
@@ -348,12 +480,11 @@ void parseDeleteReferencesResponse(proto_tree *tree, tvbuff_t *tvb, gint *pOffse
 
   parseResponseHeader(subtree, tvb, pOffset, "ResponseHeader");
   /* Array length field ignored: NoOfResults */
-  parseArraySimple(subtree, tvb, pOffset, "Results", "StatusCode", hf_opcua_Results, parseStatusCode);
+  parseArraySimple(subtree, tvb, pOffset, "Results", "StatusCode", hf_opcua_Results, parseStatusCode, ett_opcua_array_StatusCode);
   /* Array length field ignored: NoOfDiagnosticInfos */
-  parseArrayComplex(subtree, tvb, pOffset, "DiagnosticInfos", "DiagnosticInfo", parseDiagnosticInfo);
+  parseArrayComplex(subtree, tvb, pOffset, "DiagnosticInfos", "DiagnosticInfo", parseDiagnosticInfo, ett_opcua_array_DiagnosticInfo);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-gint ett_opcua_BrowseRequest = -1;
 void parseBrowseRequest(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "BrowseRequest");
@@ -363,10 +494,9 @@ void parseBrowseRequest(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
   parseViewDescription(subtree, tvb, pOffset, "View");
   parseUInt32(subtree, tvb, pOffset, hf_opcua_RequestedMaxReferencesPerNode);
   /* Array length field ignored: NoOfNodesToBrowse */
-  parseArrayComplex(subtree, tvb, pOffset, "NodesToBrowse", "BrowseDescription", parseBrowseDescription);
+  parseArrayComplex(subtree, tvb, pOffset, "NodesToBrowse", "BrowseDescription", parseBrowseDescription, ett_opcua_array_BrowseDescription);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-gint ett_opcua_BrowseResponse = -1;
 void parseBrowseResponse(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "BrowseResponse");
@@ -374,12 +504,11 @@ void parseBrowseResponse(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 
   parseResponseHeader(subtree, tvb, pOffset, "ResponseHeader");
   /* Array length field ignored: NoOfResults */
-  parseArrayComplex(subtree, tvb, pOffset, "Results", "BrowseResult", parseBrowseResult);
+  parseArrayComplex(subtree, tvb, pOffset, "Results", "BrowseResult", parseBrowseResult, ett_opcua_array_BrowseResult);
   /* Array length field ignored: NoOfDiagnosticInfos */
-  parseArrayComplex(subtree, tvb, pOffset, "DiagnosticInfos", "DiagnosticInfo", parseDiagnosticInfo);
+  parseArrayComplex(subtree, tvb, pOffset, "DiagnosticInfos", "DiagnosticInfo", parseDiagnosticInfo, ett_opcua_array_DiagnosticInfo);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-gint ett_opcua_BrowseNextRequest = -1;
 void parseBrowseNextRequest(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "BrowseNextRequest");
@@ -388,10 +517,9 @@ void parseBrowseNextRequest(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
   parseRequestHeader(subtree, tvb, pOffset, "RequestHeader");
   parseBoolean(subtree, tvb, pOffset, hf_opcua_ReleaseContinuationPoints);
   /* Array length field ignored: NoOfContinuationPoints */
-  parseArraySimple(subtree, tvb, pOffset, "ContinuationPoints", "ByteString", hf_opcua_ContinuationPoints, parseByteString);
+  parseArraySimple(subtree, tvb, pOffset, "ContinuationPoints", "ByteString", hf_opcua_ContinuationPoints, parseByteString, ett_opcua_array_ByteString);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-gint ett_opcua_BrowseNextResponse = -1;
 void parseBrowseNextResponse(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "BrowseNextResponse");
@@ -399,12 +527,11 @@ void parseBrowseNextResponse(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 
   parseResponseHeader(subtree, tvb, pOffset, "ResponseHeader");
   /* Array length field ignored: NoOfResults */
-  parseArrayComplex(subtree, tvb, pOffset, "Results", "BrowseResult", parseBrowseResult);
+  parseArrayComplex(subtree, tvb, pOffset, "Results", "BrowseResult", parseBrowseResult, ett_opcua_array_BrowseResult);
   /* Array length field ignored: NoOfDiagnosticInfos */
-  parseArrayComplex(subtree, tvb, pOffset, "DiagnosticInfos", "DiagnosticInfo", parseDiagnosticInfo);
+  parseArrayComplex(subtree, tvb, pOffset, "DiagnosticInfos", "DiagnosticInfo", parseDiagnosticInfo, ett_opcua_array_DiagnosticInfo);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-gint ett_opcua_TranslateBrowsePathsToNodeIdsRequest = -1;
 void parseTranslateBrowsePathsToNodeIdsRequest(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "TranslateBrowsePathsToNodeIdsRequest");
@@ -412,10 +539,9 @@ void parseTranslateBrowsePathsToNodeIdsRequest(proto_tree *tree, tvbuff_t *tvb, 
 
   parseRequestHeader(subtree, tvb, pOffset, "RequestHeader");
   /* Array length field ignored: NoOfBrowsePaths */
-  parseArrayComplex(subtree, tvb, pOffset, "BrowsePaths", "BrowsePath", parseBrowsePath);
+  parseArrayComplex(subtree, tvb, pOffset, "BrowsePaths", "BrowsePath", parseBrowsePath, ett_opcua_array_BrowsePath);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-gint ett_opcua_TranslateBrowsePathsToNodeIdsResponse = -1;
 void parseTranslateBrowsePathsToNodeIdsResponse(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "TranslateBrowsePathsToNodeIdsResponse");
@@ -423,12 +549,11 @@ void parseTranslateBrowsePathsToNodeIdsResponse(proto_tree *tree, tvbuff_t *tvb,
 
   parseResponseHeader(subtree, tvb, pOffset, "ResponseHeader");
   /* Array length field ignored: NoOfResults */
-  parseArrayComplex(subtree, tvb, pOffset, "Results", "BrowsePathResult", parseBrowsePathResult);
+  parseArrayComplex(subtree, tvb, pOffset, "Results", "BrowsePathResult", parseBrowsePathResult, ett_opcua_array_BrowsePathResult);
   /* Array length field ignored: NoOfDiagnosticInfos */
-  parseArrayComplex(subtree, tvb, pOffset, "DiagnosticInfos", "DiagnosticInfo", parseDiagnosticInfo);
+  parseArrayComplex(subtree, tvb, pOffset, "DiagnosticInfos", "DiagnosticInfo", parseDiagnosticInfo, ett_opcua_array_DiagnosticInfo);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-gint ett_opcua_RegisterNodesRequest = -1;
 void parseRegisterNodesRequest(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "RegisterNodesRequest");
@@ -436,10 +561,9 @@ void parseRegisterNodesRequest(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 
   parseRequestHeader(subtree, tvb, pOffset, "RequestHeader");
   /* Array length field ignored: NoOfNodesToRegister */
-  parseArrayComplex(subtree, tvb, pOffset, "NodesToRegister", "NodeId", parseNodeId);
+  parseArrayComplex(subtree, tvb, pOffset, "NodesToRegister", "NodeId", parseNodeId, ett_opcua_array_NodeId);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-gint ett_opcua_RegisterNodesResponse = -1;
 void parseRegisterNodesResponse(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "RegisterNodesResponse");
@@ -447,10 +571,9 @@ void parseRegisterNodesResponse(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 
   parseResponseHeader(subtree, tvb, pOffset, "ResponseHeader");
   /* Array length field ignored: NoOfRegisteredNodeIds */
-  parseArrayComplex(subtree, tvb, pOffset, "RegisteredNodeIds", "NodeId", parseNodeId);
+  parseArrayComplex(subtree, tvb, pOffset, "RegisteredNodeIds", "NodeId", parseNodeId, ett_opcua_array_NodeId);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-gint ett_opcua_UnregisterNodesRequest = -1;
 void parseUnregisterNodesRequest(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "UnregisterNodesRequest");
@@ -458,10 +581,9 @@ void parseUnregisterNodesRequest(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 
   parseRequestHeader(subtree, tvb, pOffset, "RequestHeader");
   /* Array length field ignored: NoOfNodesToUnregister */
-  parseArrayComplex(subtree, tvb, pOffset, "NodesToUnregister", "NodeId", parseNodeId);
+  parseArrayComplex(subtree, tvb, pOffset, "NodesToUnregister", "NodeId", parseNodeId, ett_opcua_array_NodeId);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-gint ett_opcua_UnregisterNodesResponse = -1;
 void parseUnregisterNodesResponse(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "UnregisterNodesResponse");
@@ -470,7 +592,6 @@ void parseUnregisterNodesResponse(proto_tree *tree, tvbuff_t *tvb, gint *pOffset
   parseResponseHeader(subtree, tvb, pOffset, "ResponseHeader");
   proto_item_set_end(ti, tvb, *pOffset);
 }
-gint ett_opcua_QueryFirstRequest = -1;
 void parseQueryFirstRequest(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "QueryFirstRequest");
@@ -479,13 +600,12 @@ void parseQueryFirstRequest(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
   parseRequestHeader(subtree, tvb, pOffset, "RequestHeader");
   parseViewDescription(subtree, tvb, pOffset, "View");
   /* Array length field ignored: NoOfNodeTypes */
-  parseArrayComplex(subtree, tvb, pOffset, "NodeTypes", "NodeTypeDescription", parseNodeTypeDescription);
+  parseArrayComplex(subtree, tvb, pOffset, "NodeTypes", "NodeTypeDescription", parseNodeTypeDescription, ett_opcua_array_NodeTypeDescription);
   parseContentFilter(subtree, tvb, pOffset, "Filter");
   parseUInt32(subtree, tvb, pOffset, hf_opcua_MaxDataSetsToReturn);
   parseUInt32(subtree, tvb, pOffset, hf_opcua_MaxReferencesToReturn);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-gint ett_opcua_QueryFirstResponse = -1;
 void parseQueryFirstResponse(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "QueryFirstResponse");
@@ -493,16 +613,15 @@ void parseQueryFirstResponse(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 
   parseResponseHeader(subtree, tvb, pOffset, "ResponseHeader");
   /* Array length field ignored: NoOfQueryDataSets */
-  parseArrayComplex(subtree, tvb, pOffset, "QueryDataSets", "QueryDataSet", parseQueryDataSet);
+  parseArrayComplex(subtree, tvb, pOffset, "QueryDataSets", "QueryDataSet", parseQueryDataSet, ett_opcua_array_QueryDataSet);
   parseByteString(subtree, tvb, pOffset, hf_opcua_ContinuationPoint);
   /* Array length field ignored: NoOfParsingResults */
-  parseArrayComplex(subtree, tvb, pOffset, "ParsingResults", "ParsingResult", parseParsingResult);
+  parseArrayComplex(subtree, tvb, pOffset, "ParsingResults", "ParsingResult", parseParsingResult, ett_opcua_array_ParsingResult);
   /* Array length field ignored: NoOfDiagnosticInfos */
-  parseArrayComplex(subtree, tvb, pOffset, "DiagnosticInfos", "DiagnosticInfo", parseDiagnosticInfo);
+  parseArrayComplex(subtree, tvb, pOffset, "DiagnosticInfos", "DiagnosticInfo", parseDiagnosticInfo, ett_opcua_array_DiagnosticInfo);
   parseContentFilterResult(subtree, tvb, pOffset, "FilterResult");
   proto_item_set_end(ti, tvb, *pOffset);
 }
-gint ett_opcua_QueryNextRequest = -1;
 void parseQueryNextRequest(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "QueryNextRequest");
@@ -513,7 +632,6 @@ void parseQueryNextRequest(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
   parseByteString(subtree, tvb, pOffset, hf_opcua_ContinuationPoint);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-gint ett_opcua_QueryNextResponse = -1;
 void parseQueryNextResponse(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "QueryNextResponse");
@@ -521,11 +639,10 @@ void parseQueryNextResponse(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 
   parseResponseHeader(subtree, tvb, pOffset, "ResponseHeader");
   /* Array length field ignored: NoOfQueryDataSets */
-  parseArrayComplex(subtree, tvb, pOffset, "QueryDataSets", "QueryDataSet", parseQueryDataSet);
+  parseArrayComplex(subtree, tvb, pOffset, "QueryDataSets", "QueryDataSet", parseQueryDataSet, ett_opcua_array_QueryDataSet);
   parseByteString(subtree, tvb, pOffset, hf_opcua_RevisedContinuationPoint);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-gint ett_opcua_ReadRequest = -1;
 void parseReadRequest(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "ReadRequest");
@@ -535,10 +652,9 @@ void parseReadRequest(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
   parseDouble(subtree, tvb, pOffset, hf_opcua_MaxAge);
   parseTimestampsToReturn(subtree, tvb, pOffset);
   /* Array length field ignored: NoOfNodesToRead */
-  parseArrayComplex(subtree, tvb, pOffset, "NodesToRead", "ReadValueId", parseReadValueId);
+  parseArrayComplex(subtree, tvb, pOffset, "NodesToRead", "ReadValueId", parseReadValueId, ett_opcua_array_ReadValueId);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-gint ett_opcua_ReadResponse = -1;
 void parseReadResponse(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "ReadResponse");
@@ -546,12 +662,11 @@ void parseReadResponse(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 
   parseResponseHeader(subtree, tvb, pOffset, "ResponseHeader");
   /* Array length field ignored: NoOfResults */
-  parseArrayComplex(subtree, tvb, pOffset, "Results", "DataValue", parseDataValue);
+  parseArrayComplex(subtree, tvb, pOffset, "Results", "DataValue", parseDataValue, ett_opcua_array_DataValue);
   /* Array length field ignored: NoOfDiagnosticInfos */
-  parseArrayComplex(subtree, tvb, pOffset, "DiagnosticInfos", "DiagnosticInfo", parseDiagnosticInfo);
+  parseArrayComplex(subtree, tvb, pOffset, "DiagnosticInfos", "DiagnosticInfo", parseDiagnosticInfo, ett_opcua_array_DiagnosticInfo);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-gint ett_opcua_HistoryReadRequest = -1;
 void parseHistoryReadRequest(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "HistoryReadRequest");
@@ -562,10 +677,9 @@ void parseHistoryReadRequest(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
   parseTimestampsToReturn(subtree, tvb, pOffset);
   parseBoolean(subtree, tvb, pOffset, hf_opcua_ReleaseContinuationPoints);
   /* Array length field ignored: NoOfNodesToRead */
-  parseArrayComplex(subtree, tvb, pOffset, "NodesToRead", "HistoryReadValueId", parseHistoryReadValueId);
+  parseArrayComplex(subtree, tvb, pOffset, "NodesToRead", "HistoryReadValueId", parseHistoryReadValueId, ett_opcua_array_HistoryReadValueId);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-gint ett_opcua_HistoryReadResponse = -1;
 void parseHistoryReadResponse(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "HistoryReadResponse");
@@ -573,12 +687,11 @@ void parseHistoryReadResponse(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 
   parseResponseHeader(subtree, tvb, pOffset, "ResponseHeader");
   /* Array length field ignored: NoOfResults */
-  parseArrayComplex(subtree, tvb, pOffset, "Results", "HistoryReadResult", parseHistoryReadResult);
+  parseArrayComplex(subtree, tvb, pOffset, "Results", "HistoryReadResult", parseHistoryReadResult, ett_opcua_array_HistoryReadResult);
   /* Array length field ignored: NoOfDiagnosticInfos */
-  parseArrayComplex(subtree, tvb, pOffset, "DiagnosticInfos", "DiagnosticInfo", parseDiagnosticInfo);
+  parseArrayComplex(subtree, tvb, pOffset, "DiagnosticInfos", "DiagnosticInfo", parseDiagnosticInfo, ett_opcua_array_DiagnosticInfo);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-gint ett_opcua_WriteRequest = -1;
 void parseWriteRequest(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "WriteRequest");
@@ -586,10 +699,9 @@ void parseWriteRequest(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 
   parseRequestHeader(subtree, tvb, pOffset, "RequestHeader");
   /* Array length field ignored: NoOfNodesToWrite */
-  parseArrayComplex(subtree, tvb, pOffset, "NodesToWrite", "WriteValue", parseWriteValue);
+  parseArrayComplex(subtree, tvb, pOffset, "NodesToWrite", "WriteValue", parseWriteValue, ett_opcua_array_WriteValue);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-gint ett_opcua_WriteResponse = -1;
 void parseWriteResponse(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "WriteResponse");
@@ -597,12 +709,11 @@ void parseWriteResponse(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 
   parseResponseHeader(subtree, tvb, pOffset, "ResponseHeader");
   /* Array length field ignored: NoOfResults */
-  parseArraySimple(subtree, tvb, pOffset, "Results", "StatusCode", hf_opcua_Results, parseStatusCode);
+  parseArraySimple(subtree, tvb, pOffset, "Results", "StatusCode", hf_opcua_Results, parseStatusCode, ett_opcua_array_StatusCode);
   /* Array length field ignored: NoOfDiagnosticInfos */
-  parseArrayComplex(subtree, tvb, pOffset, "DiagnosticInfos", "DiagnosticInfo", parseDiagnosticInfo);
+  parseArrayComplex(subtree, tvb, pOffset, "DiagnosticInfos", "DiagnosticInfo", parseDiagnosticInfo, ett_opcua_array_DiagnosticInfo);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-gint ett_opcua_HistoryUpdateRequest = -1;
 void parseHistoryUpdateRequest(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "HistoryUpdateRequest");
@@ -610,10 +721,9 @@ void parseHistoryUpdateRequest(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 
   parseRequestHeader(subtree, tvb, pOffset, "RequestHeader");
   /* Array length field ignored: NoOfHistoryUpdateDetails */
-  parseArrayComplex(subtree, tvb, pOffset, "HistoryUpdateDetails", "ExtensionObject", parseExtensionObject);
+  parseArrayComplex(subtree, tvb, pOffset, "HistoryUpdateDetails", "ExtensionObject", parseExtensionObject, ett_opcua_array_ExtensionObject);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-gint ett_opcua_HistoryUpdateResponse = -1;
 void parseHistoryUpdateResponse(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "HistoryUpdateResponse");
@@ -621,12 +731,11 @@ void parseHistoryUpdateResponse(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 
   parseResponseHeader(subtree, tvb, pOffset, "ResponseHeader");
   /* Array length field ignored: NoOfResults */
-  parseArrayComplex(subtree, tvb, pOffset, "Results", "HistoryUpdateResult", parseHistoryUpdateResult);
+  parseArrayComplex(subtree, tvb, pOffset, "Results", "HistoryUpdateResult", parseHistoryUpdateResult, ett_opcua_array_HistoryUpdateResult);
   /* Array length field ignored: NoOfDiagnosticInfos */
-  parseArrayComplex(subtree, tvb, pOffset, "DiagnosticInfos", "DiagnosticInfo", parseDiagnosticInfo);
+  parseArrayComplex(subtree, tvb, pOffset, "DiagnosticInfos", "DiagnosticInfo", parseDiagnosticInfo, ett_opcua_array_DiagnosticInfo);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-gint ett_opcua_CallRequest = -1;
 void parseCallRequest(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "CallRequest");
@@ -634,10 +743,9 @@ void parseCallRequest(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 
   parseRequestHeader(subtree, tvb, pOffset, "RequestHeader");
   /* Array length field ignored: NoOfMethodsToCall */
-  parseArrayComplex(subtree, tvb, pOffset, "MethodsToCall", "CallMethodRequest", parseCallMethodRequest);
+  parseArrayComplex(subtree, tvb, pOffset, "MethodsToCall", "CallMethodRequest", parseCallMethodRequest, ett_opcua_array_CallMethodRequest);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-gint ett_opcua_CallResponse = -1;
 void parseCallResponse(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "CallResponse");
@@ -645,12 +753,11 @@ void parseCallResponse(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 
   parseResponseHeader(subtree, tvb, pOffset, "ResponseHeader");
   /* Array length field ignored: NoOfResults */
-  parseArrayComplex(subtree, tvb, pOffset, "Results", "CallMethodResult", parseCallMethodResult);
+  parseArrayComplex(subtree, tvb, pOffset, "Results", "CallMethodResult", parseCallMethodResult, ett_opcua_array_CallMethodResult);
   /* Array length field ignored: NoOfDiagnosticInfos */
-  parseArrayComplex(subtree, tvb, pOffset, "DiagnosticInfos", "DiagnosticInfo", parseDiagnosticInfo);
+  parseArrayComplex(subtree, tvb, pOffset, "DiagnosticInfos", "DiagnosticInfo", parseDiagnosticInfo, ett_opcua_array_DiagnosticInfo);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-gint ett_opcua_CreateMonitoredItemsRequest = -1;
 void parseCreateMonitoredItemsRequest(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "CreateMonitoredItemsRequest");
@@ -660,10 +767,9 @@ void parseCreateMonitoredItemsRequest(proto_tree *tree, tvbuff_t *tvb, gint *pOf
   parseUInt32(subtree, tvb, pOffset, hf_opcua_SubscriptionId);
   parseTimestampsToReturn(subtree, tvb, pOffset);
   /* Array length field ignored: NoOfItemsToCreate */
-  parseArrayComplex(subtree, tvb, pOffset, "ItemsToCreate", "MonitoredItemCreateRequest", parseMonitoredItemCreateRequest);
+  parseArrayComplex(subtree, tvb, pOffset, "ItemsToCreate", "MonitoredItemCreateRequest", parseMonitoredItemCreateRequest, ett_opcua_array_MonitoredItemCreateRequest);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-gint ett_opcua_CreateMonitoredItemsResponse = -1;
 void parseCreateMonitoredItemsResponse(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "CreateMonitoredItemsResponse");
@@ -671,12 +777,11 @@ void parseCreateMonitoredItemsResponse(proto_tree *tree, tvbuff_t *tvb, gint *pO
 
   parseResponseHeader(subtree, tvb, pOffset, "ResponseHeader");
   /* Array length field ignored: NoOfResults */
-  parseArrayComplex(subtree, tvb, pOffset, "Results", "MonitoredItemCreateResult", parseMonitoredItemCreateResult);
+  parseArrayComplex(subtree, tvb, pOffset, "Results", "MonitoredItemCreateResult", parseMonitoredItemCreateResult, ett_opcua_array_MonitoredItemCreateResult);
   /* Array length field ignored: NoOfDiagnosticInfos */
-  parseArrayComplex(subtree, tvb, pOffset, "DiagnosticInfos", "DiagnosticInfo", parseDiagnosticInfo);
+  parseArrayComplex(subtree, tvb, pOffset, "DiagnosticInfos", "DiagnosticInfo", parseDiagnosticInfo, ett_opcua_array_DiagnosticInfo);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-gint ett_opcua_ModifyMonitoredItemsRequest = -1;
 void parseModifyMonitoredItemsRequest(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "ModifyMonitoredItemsRequest");
@@ -686,10 +791,9 @@ void parseModifyMonitoredItemsRequest(proto_tree *tree, tvbuff_t *tvb, gint *pOf
   parseUInt32(subtree, tvb, pOffset, hf_opcua_SubscriptionId);
   parseTimestampsToReturn(subtree, tvb, pOffset);
   /* Array length field ignored: NoOfItemsToModify */
-  parseArrayComplex(subtree, tvb, pOffset, "ItemsToModify", "MonitoredItemModifyRequest", parseMonitoredItemModifyRequest);
+  parseArrayComplex(subtree, tvb, pOffset, "ItemsToModify", "MonitoredItemModifyRequest", parseMonitoredItemModifyRequest, ett_opcua_array_MonitoredItemModifyRequest);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-gint ett_opcua_ModifyMonitoredItemsResponse = -1;
 void parseModifyMonitoredItemsResponse(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "ModifyMonitoredItemsResponse");
@@ -697,12 +801,11 @@ void parseModifyMonitoredItemsResponse(proto_tree *tree, tvbuff_t *tvb, gint *pO
 
   parseResponseHeader(subtree, tvb, pOffset, "ResponseHeader");
   /* Array length field ignored: NoOfResults */
-  parseArrayComplex(subtree, tvb, pOffset, "Results", "MonitoredItemModifyResult", parseMonitoredItemModifyResult);
+  parseArrayComplex(subtree, tvb, pOffset, "Results", "MonitoredItemModifyResult", parseMonitoredItemModifyResult, ett_opcua_array_MonitoredItemModifyResult);
   /* Array length field ignored: NoOfDiagnosticInfos */
-  parseArrayComplex(subtree, tvb, pOffset, "DiagnosticInfos", "DiagnosticInfo", parseDiagnosticInfo);
+  parseArrayComplex(subtree, tvb, pOffset, "DiagnosticInfos", "DiagnosticInfo", parseDiagnosticInfo, ett_opcua_array_DiagnosticInfo);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-gint ett_opcua_SetMonitoringModeRequest = -1;
 void parseSetMonitoringModeRequest(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "SetMonitoringModeRequest");
@@ -712,10 +815,9 @@ void parseSetMonitoringModeRequest(proto_tree *tree, tvbuff_t *tvb, gint *pOffse
   parseUInt32(subtree, tvb, pOffset, hf_opcua_SubscriptionId);
   parseMonitoringMode(subtree, tvb, pOffset);
   /* Array length field ignored: NoOfMonitoredItemIds */
-  parseArraySimple(subtree, tvb, pOffset, "MonitoredItemIds", "UInt32", hf_opcua_MonitoredItemIds, parseUInt32);
+  parseArraySimple(subtree, tvb, pOffset, "MonitoredItemIds", "UInt32", hf_opcua_MonitoredItemIds, parseUInt32, ett_opcua_array_UInt32);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-gint ett_opcua_SetMonitoringModeResponse = -1;
 void parseSetMonitoringModeResponse(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "SetMonitoringModeResponse");
@@ -723,12 +825,11 @@ void parseSetMonitoringModeResponse(proto_tree *tree, tvbuff_t *tvb, gint *pOffs
 
   parseResponseHeader(subtree, tvb, pOffset, "ResponseHeader");
   /* Array length field ignored: NoOfResults */
-  parseArraySimple(subtree, tvb, pOffset, "Results", "StatusCode", hf_opcua_Results, parseStatusCode);
+  parseArraySimple(subtree, tvb, pOffset, "Results", "StatusCode", hf_opcua_Results, parseStatusCode, ett_opcua_array_StatusCode);
   /* Array length field ignored: NoOfDiagnosticInfos */
-  parseArrayComplex(subtree, tvb, pOffset, "DiagnosticInfos", "DiagnosticInfo", parseDiagnosticInfo);
+  parseArrayComplex(subtree, tvb, pOffset, "DiagnosticInfos", "DiagnosticInfo", parseDiagnosticInfo, ett_opcua_array_DiagnosticInfo);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-gint ett_opcua_SetTriggeringRequest = -1;
 void parseSetTriggeringRequest(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "SetTriggeringRequest");
@@ -738,12 +839,11 @@ void parseSetTriggeringRequest(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
   parseUInt32(subtree, tvb, pOffset, hf_opcua_SubscriptionId);
   parseUInt32(subtree, tvb, pOffset, hf_opcua_TriggeringItemId);
   /* Array length field ignored: NoOfLinksToAdd */
-  parseArraySimple(subtree, tvb, pOffset, "LinksToAdd", "UInt32", hf_opcua_LinksToAdd, parseUInt32);
+  parseArraySimple(subtree, tvb, pOffset, "LinksToAdd", "UInt32", hf_opcua_LinksToAdd, parseUInt32, ett_opcua_array_UInt32);
   /* Array length field ignored: NoOfLinksToRemove */
-  parseArraySimple(subtree, tvb, pOffset, "LinksToRemove", "UInt32", hf_opcua_LinksToRemove, parseUInt32);
+  parseArraySimple(subtree, tvb, pOffset, "LinksToRemove", "UInt32", hf_opcua_LinksToRemove, parseUInt32, ett_opcua_array_UInt32);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-gint ett_opcua_SetTriggeringResponse = -1;
 void parseSetTriggeringResponse(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "SetTriggeringResponse");
@@ -751,16 +851,15 @@ void parseSetTriggeringResponse(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 
   parseResponseHeader(subtree, tvb, pOffset, "ResponseHeader");
   /* Array length field ignored: NoOfAddResults */
-  parseArraySimple(subtree, tvb, pOffset, "AddResults", "StatusCode", hf_opcua_AddResults, parseStatusCode);
+  parseArraySimple(subtree, tvb, pOffset, "AddResults", "StatusCode", hf_opcua_AddResults, parseStatusCode, ett_opcua_array_StatusCode);
   /* Array length field ignored: NoOfAddDiagnosticInfos */
-  parseArrayComplex(subtree, tvb, pOffset, "AddDiagnosticInfos", "DiagnosticInfo", parseDiagnosticInfo);
+  parseArrayComplex(subtree, tvb, pOffset, "AddDiagnosticInfos", "DiagnosticInfo", parseDiagnosticInfo, ett_opcua_array_DiagnosticInfo);
   /* Array length field ignored: NoOfRemoveResults */
-  parseArraySimple(subtree, tvb, pOffset, "RemoveResults", "StatusCode", hf_opcua_RemoveResults, parseStatusCode);
+  parseArraySimple(subtree, tvb, pOffset, "RemoveResults", "StatusCode", hf_opcua_RemoveResults, parseStatusCode, ett_opcua_array_StatusCode);
   /* Array length field ignored: NoOfRemoveDiagnosticInfos */
-  parseArrayComplex(subtree, tvb, pOffset, "RemoveDiagnosticInfos", "DiagnosticInfo", parseDiagnosticInfo);
+  parseArrayComplex(subtree, tvb, pOffset, "RemoveDiagnosticInfos", "DiagnosticInfo", parseDiagnosticInfo, ett_opcua_array_DiagnosticInfo);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-gint ett_opcua_DeleteMonitoredItemsRequest = -1;
 void parseDeleteMonitoredItemsRequest(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "DeleteMonitoredItemsRequest");
@@ -769,10 +868,9 @@ void parseDeleteMonitoredItemsRequest(proto_tree *tree, tvbuff_t *tvb, gint *pOf
   parseRequestHeader(subtree, tvb, pOffset, "RequestHeader");
   parseUInt32(subtree, tvb, pOffset, hf_opcua_SubscriptionId);
   /* Array length field ignored: NoOfMonitoredItemIds */
-  parseArraySimple(subtree, tvb, pOffset, "MonitoredItemIds", "UInt32", hf_opcua_MonitoredItemIds, parseUInt32);
+  parseArraySimple(subtree, tvb, pOffset, "MonitoredItemIds", "UInt32", hf_opcua_MonitoredItemIds, parseUInt32, ett_opcua_array_UInt32);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-gint ett_opcua_DeleteMonitoredItemsResponse = -1;
 void parseDeleteMonitoredItemsResponse(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "DeleteMonitoredItemsResponse");
@@ -780,12 +878,11 @@ void parseDeleteMonitoredItemsResponse(proto_tree *tree, tvbuff_t *tvb, gint *pO
 
   parseResponseHeader(subtree, tvb, pOffset, "ResponseHeader");
   /* Array length field ignored: NoOfResults */
-  parseArraySimple(subtree, tvb, pOffset, "Results", "StatusCode", hf_opcua_Results, parseStatusCode);
+  parseArraySimple(subtree, tvb, pOffset, "Results", "StatusCode", hf_opcua_Results, parseStatusCode, ett_opcua_array_StatusCode);
   /* Array length field ignored: NoOfDiagnosticInfos */
-  parseArrayComplex(subtree, tvb, pOffset, "DiagnosticInfos", "DiagnosticInfo", parseDiagnosticInfo);
+  parseArrayComplex(subtree, tvb, pOffset, "DiagnosticInfos", "DiagnosticInfo", parseDiagnosticInfo, ett_opcua_array_DiagnosticInfo);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-gint ett_opcua_CreateSubscriptionRequest = -1;
 void parseCreateSubscriptionRequest(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "CreateSubscriptionRequest");
@@ -800,7 +897,6 @@ void parseCreateSubscriptionRequest(proto_tree *tree, tvbuff_t *tvb, gint *pOffs
   parseByte(subtree, tvb, pOffset, hf_opcua_Priority);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-gint ett_opcua_CreateSubscriptionResponse = -1;
 void parseCreateSubscriptionResponse(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "CreateSubscriptionResponse");
@@ -813,7 +909,6 @@ void parseCreateSubscriptionResponse(proto_tree *tree, tvbuff_t *tvb, gint *pOff
   parseUInt32(subtree, tvb, pOffset, hf_opcua_RevisedMaxKeepAliveCount);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-gint ett_opcua_ModifySubscriptionRequest = -1;
 void parseModifySubscriptionRequest(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "ModifySubscriptionRequest");
@@ -828,7 +923,6 @@ void parseModifySubscriptionRequest(proto_tree *tree, tvbuff_t *tvb, gint *pOffs
   parseByte(subtree, tvb, pOffset, hf_opcua_Priority);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-gint ett_opcua_ModifySubscriptionResponse = -1;
 void parseModifySubscriptionResponse(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "ModifySubscriptionResponse");
@@ -840,7 +934,6 @@ void parseModifySubscriptionResponse(proto_tree *tree, tvbuff_t *tvb, gint *pOff
   parseUInt32(subtree, tvb, pOffset, hf_opcua_RevisedMaxKeepAliveCount);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-gint ett_opcua_SetPublishingModeRequest = -1;
 void parseSetPublishingModeRequest(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "SetPublishingModeRequest");
@@ -849,10 +942,9 @@ void parseSetPublishingModeRequest(proto_tree *tree, tvbuff_t *tvb, gint *pOffse
   parseRequestHeader(subtree, tvb, pOffset, "RequestHeader");
   parseBoolean(subtree, tvb, pOffset, hf_opcua_PublishingEnabled);
   /* Array length field ignored: NoOfSubscriptionIds */
-  parseArraySimple(subtree, tvb, pOffset, "SubscriptionIds", "UInt32", hf_opcua_SubscriptionIds, parseUInt32);
+  parseArraySimple(subtree, tvb, pOffset, "SubscriptionIds", "UInt32", hf_opcua_SubscriptionIds, parseUInt32, ett_opcua_array_UInt32);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-gint ett_opcua_SetPublishingModeResponse = -1;
 void parseSetPublishingModeResponse(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "SetPublishingModeResponse");
@@ -860,12 +952,11 @@ void parseSetPublishingModeResponse(proto_tree *tree, tvbuff_t *tvb, gint *pOffs
 
   parseResponseHeader(subtree, tvb, pOffset, "ResponseHeader");
   /* Array length field ignored: NoOfResults */
-  parseArraySimple(subtree, tvb, pOffset, "Results", "StatusCode", hf_opcua_Results, parseStatusCode);
+  parseArraySimple(subtree, tvb, pOffset, "Results", "StatusCode", hf_opcua_Results, parseStatusCode, ett_opcua_array_StatusCode);
   /* Array length field ignored: NoOfDiagnosticInfos */
-  parseArrayComplex(subtree, tvb, pOffset, "DiagnosticInfos", "DiagnosticInfo", parseDiagnosticInfo);
+  parseArrayComplex(subtree, tvb, pOffset, "DiagnosticInfos", "DiagnosticInfo", parseDiagnosticInfo, ett_opcua_array_DiagnosticInfo);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-gint ett_opcua_PublishRequest = -1;
 void parsePublishRequest(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "PublishRequest");
@@ -873,10 +964,9 @@ void parsePublishRequest(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 
   parseRequestHeader(subtree, tvb, pOffset, "RequestHeader");
   /* Array length field ignored: NoOfSubscriptionAcknowledgements */
-  parseArrayComplex(subtree, tvb, pOffset, "SubscriptionAcknowledgements", "SubscriptionAcknowledgement", parseSubscriptionAcknowledgement);
+  parseArrayComplex(subtree, tvb, pOffset, "SubscriptionAcknowledgements", "SubscriptionAcknowledgement", parseSubscriptionAcknowledgement, ett_opcua_array_SubscriptionAcknowledgement);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-gint ett_opcua_PublishResponse = -1;
 void parsePublishResponse(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "PublishResponse");
@@ -885,16 +975,15 @@ void parsePublishResponse(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
   parseResponseHeader(subtree, tvb, pOffset, "ResponseHeader");
   parseUInt32(subtree, tvb, pOffset, hf_opcua_SubscriptionId);
   /* Array length field ignored: NoOfAvailableSequenceNumbers */
-  parseArraySimple(subtree, tvb, pOffset, "AvailableSequenceNumbers", "UInt32", hf_opcua_AvailableSequenceNumbers, parseUInt32);
+  parseArraySimple(subtree, tvb, pOffset, "AvailableSequenceNumbers", "UInt32", hf_opcua_AvailableSequenceNumbers, parseUInt32, ett_opcua_array_UInt32);
   parseBoolean(subtree, tvb, pOffset, hf_opcua_MoreNotifications);
   parseNotificationMessage(subtree, tvb, pOffset, "NotificationMessage");
   /* Array length field ignored: NoOfResults */
-  parseArraySimple(subtree, tvb, pOffset, "Results", "StatusCode", hf_opcua_Results, parseStatusCode);
+  parseArraySimple(subtree, tvb, pOffset, "Results", "StatusCode", hf_opcua_Results, parseStatusCode, ett_opcua_array_StatusCode);
   /* Array length field ignored: NoOfDiagnosticInfos */
-  parseArrayComplex(subtree, tvb, pOffset, "DiagnosticInfos", "DiagnosticInfo", parseDiagnosticInfo);
+  parseArrayComplex(subtree, tvb, pOffset, "DiagnosticInfos", "DiagnosticInfo", parseDiagnosticInfo, ett_opcua_array_DiagnosticInfo);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-gint ett_opcua_RepublishRequest = -1;
 void parseRepublishRequest(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "RepublishRequest");
@@ -905,7 +994,6 @@ void parseRepublishRequest(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
   parseUInt32(subtree, tvb, pOffset, hf_opcua_RetransmitSequenceNumber);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-gint ett_opcua_RepublishResponse = -1;
 void parseRepublishResponse(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "RepublishResponse");
@@ -915,7 +1003,6 @@ void parseRepublishResponse(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
   parseNotificationMessage(subtree, tvb, pOffset, "NotificationMessage");
   proto_item_set_end(ti, tvb, *pOffset);
 }
-gint ett_opcua_TransferSubscriptionsRequest = -1;
 void parseTransferSubscriptionsRequest(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "TransferSubscriptionsRequest");
@@ -923,11 +1010,10 @@ void parseTransferSubscriptionsRequest(proto_tree *tree, tvbuff_t *tvb, gint *pO
 
   parseRequestHeader(subtree, tvb, pOffset, "RequestHeader");
   /* Array length field ignored: NoOfSubscriptionIds */
-  parseArraySimple(subtree, tvb, pOffset, "SubscriptionIds", "UInt32", hf_opcua_SubscriptionIds, parseUInt32);
+  parseArraySimple(subtree, tvb, pOffset, "SubscriptionIds", "UInt32", hf_opcua_SubscriptionIds, parseUInt32, ett_opcua_array_UInt32);
   parseBoolean(subtree, tvb, pOffset, hf_opcua_SendInitialValues);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-gint ett_opcua_TransferSubscriptionsResponse = -1;
 void parseTransferSubscriptionsResponse(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "TransferSubscriptionsResponse");
@@ -935,12 +1021,11 @@ void parseTransferSubscriptionsResponse(proto_tree *tree, tvbuff_t *tvb, gint *p
 
   parseResponseHeader(subtree, tvb, pOffset, "ResponseHeader");
   /* Array length field ignored: NoOfResults */
-  parseArrayComplex(subtree, tvb, pOffset, "Results", "TransferResult", parseTransferResult);
+  parseArrayComplex(subtree, tvb, pOffset, "Results", "TransferResult", parseTransferResult, ett_opcua_array_TransferResult);
   /* Array length field ignored: NoOfDiagnosticInfos */
-  parseArrayComplex(subtree, tvb, pOffset, "DiagnosticInfos", "DiagnosticInfo", parseDiagnosticInfo);
+  parseArrayComplex(subtree, tvb, pOffset, "DiagnosticInfos", "DiagnosticInfo", parseDiagnosticInfo, ett_opcua_array_DiagnosticInfo);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-gint ett_opcua_DeleteSubscriptionsRequest = -1;
 void parseDeleteSubscriptionsRequest(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "DeleteSubscriptionsRequest");
@@ -948,10 +1033,9 @@ void parseDeleteSubscriptionsRequest(proto_tree *tree, tvbuff_t *tvb, gint *pOff
 
   parseRequestHeader(subtree, tvb, pOffset, "RequestHeader");
   /* Array length field ignored: NoOfSubscriptionIds */
-  parseArraySimple(subtree, tvb, pOffset, "SubscriptionIds", "UInt32", hf_opcua_SubscriptionIds, parseUInt32);
+  parseArraySimple(subtree, tvb, pOffset, "SubscriptionIds", "UInt32", hf_opcua_SubscriptionIds, parseUInt32, ett_opcua_array_UInt32);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-gint ett_opcua_DeleteSubscriptionsResponse = -1;
 void parseDeleteSubscriptionsResponse(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "DeleteSubscriptionsResponse");
@@ -959,12 +1043,11 @@ void parseDeleteSubscriptionsResponse(proto_tree *tree, tvbuff_t *tvb, gint *pOf
 
   parseResponseHeader(subtree, tvb, pOffset, "ResponseHeader");
   /* Array length field ignored: NoOfResults */
-  parseArraySimple(subtree, tvb, pOffset, "Results", "StatusCode", hf_opcua_Results, parseStatusCode);
+  parseArraySimple(subtree, tvb, pOffset, "Results", "StatusCode", hf_opcua_Results, parseStatusCode, ett_opcua_array_StatusCode);
   /* Array length field ignored: NoOfDiagnosticInfos */
-  parseArrayComplex(subtree, tvb, pOffset, "DiagnosticInfos", "DiagnosticInfo", parseDiagnosticInfo);
+  parseArrayComplex(subtree, tvb, pOffset, "DiagnosticInfos", "DiagnosticInfo", parseDiagnosticInfo, ett_opcua_array_DiagnosticInfo);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-gint ett_opcua_TestStackRequest = -1;
 void parseTestStackRequest(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "TestStackRequest");
@@ -976,7 +1059,6 @@ void parseTestStackRequest(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
   parseVariant(subtree, tvb, pOffset, "Input");
   proto_item_set_end(ti, tvb, *pOffset);
 }
-gint ett_opcua_TestStackResponse = -1;
 void parseTestStackResponse(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "TestStackResponse");
@@ -986,7 +1068,6 @@ void parseTestStackResponse(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
   parseVariant(subtree, tvb, pOffset, "Output");
   proto_item_set_end(ti, tvb, *pOffset);
 }
-gint ett_opcua_TestStackExRequest = -1;
 void parseTestStackExRequest(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "TestStackExRequest");
@@ -998,7 +1079,6 @@ void parseTestStackExRequest(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
   parseCompositeTestType(subtree, tvb, pOffset, "Input");
   proto_item_set_end(ti, tvb, *pOffset);
 }
-gint ett_opcua_TestStackExResponse = -1;
 void parseTestStackExResponse(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "TestStackExResponse");
@@ -1013,84 +1093,163 @@ void parseTestStackExResponse(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 static gint *ett[] =
 {
   &ett_opcua_ServiceFault,
+  &ett_opcua_array_ServiceFault,
   &ett_opcua_FindServersRequest,
+  &ett_opcua_array_FindServersRequest,
   &ett_opcua_FindServersResponse,
+  &ett_opcua_array_FindServersResponse,
   &ett_opcua_GetEndpointsRequest,
+  &ett_opcua_array_GetEndpointsRequest,
   &ett_opcua_GetEndpointsResponse,
+  &ett_opcua_array_GetEndpointsResponse,
   &ett_opcua_RegisterServerRequest,
+  &ett_opcua_array_RegisterServerRequest,
   &ett_opcua_RegisterServerResponse,
+  &ett_opcua_array_RegisterServerResponse,
   &ett_opcua_OpenSecureChannelRequest,
+  &ett_opcua_array_OpenSecureChannelRequest,
   &ett_opcua_OpenSecureChannelResponse,
+  &ett_opcua_array_OpenSecureChannelResponse,
   &ett_opcua_CloseSecureChannelRequest,
+  &ett_opcua_array_CloseSecureChannelRequest,
   &ett_opcua_CloseSecureChannelResponse,
+  &ett_opcua_array_CloseSecureChannelResponse,
   &ett_opcua_CreateSessionRequest,
+  &ett_opcua_array_CreateSessionRequest,
   &ett_opcua_CreateSessionResponse,
+  &ett_opcua_array_CreateSessionResponse,
   &ett_opcua_ActivateSessionRequest,
+  &ett_opcua_array_ActivateSessionRequest,
   &ett_opcua_ActivateSessionResponse,
+  &ett_opcua_array_ActivateSessionResponse,
   &ett_opcua_CloseSessionRequest,
+  &ett_opcua_array_CloseSessionRequest,
   &ett_opcua_CloseSessionResponse,
+  &ett_opcua_array_CloseSessionResponse,
   &ett_opcua_CancelRequest,
+  &ett_opcua_array_CancelRequest,
   &ett_opcua_CancelResponse,
+  &ett_opcua_array_CancelResponse,
   &ett_opcua_AddNodesRequest,
+  &ett_opcua_array_AddNodesRequest,
   &ett_opcua_AddNodesResponse,
+  &ett_opcua_array_AddNodesResponse,
   &ett_opcua_AddReferencesRequest,
+  &ett_opcua_array_AddReferencesRequest,
   &ett_opcua_AddReferencesResponse,
+  &ett_opcua_array_AddReferencesResponse,
   &ett_opcua_DeleteNodesRequest,
+  &ett_opcua_array_DeleteNodesRequest,
   &ett_opcua_DeleteNodesResponse,
+  &ett_opcua_array_DeleteNodesResponse,
   &ett_opcua_DeleteReferencesRequest,
+  &ett_opcua_array_DeleteReferencesRequest,
   &ett_opcua_DeleteReferencesResponse,
+  &ett_opcua_array_DeleteReferencesResponse,
   &ett_opcua_BrowseRequest,
+  &ett_opcua_array_BrowseRequest,
   &ett_opcua_BrowseResponse,
+  &ett_opcua_array_BrowseResponse,
   &ett_opcua_BrowseNextRequest,
+  &ett_opcua_array_BrowseNextRequest,
   &ett_opcua_BrowseNextResponse,
+  &ett_opcua_array_BrowseNextResponse,
   &ett_opcua_TranslateBrowsePathsToNodeIdsRequest,
+  &ett_opcua_array_TranslateBrowsePathsToNodeIdsRequest,
   &ett_opcua_TranslateBrowsePathsToNodeIdsResponse,
+  &ett_opcua_array_TranslateBrowsePathsToNodeIdsResponse,
   &ett_opcua_RegisterNodesRequest,
+  &ett_opcua_array_RegisterNodesRequest,
   &ett_opcua_RegisterNodesResponse,
+  &ett_opcua_array_RegisterNodesResponse,
   &ett_opcua_UnregisterNodesRequest,
+  &ett_opcua_array_UnregisterNodesRequest,
   &ett_opcua_UnregisterNodesResponse,
+  &ett_opcua_array_UnregisterNodesResponse,
   &ett_opcua_QueryFirstRequest,
+  &ett_opcua_array_QueryFirstRequest,
   &ett_opcua_QueryFirstResponse,
+  &ett_opcua_array_QueryFirstResponse,
   &ett_opcua_QueryNextRequest,
+  &ett_opcua_array_QueryNextRequest,
   &ett_opcua_QueryNextResponse,
+  &ett_opcua_array_QueryNextResponse,
   &ett_opcua_ReadRequest,
+  &ett_opcua_array_ReadRequest,
   &ett_opcua_ReadResponse,
+  &ett_opcua_array_ReadResponse,
   &ett_opcua_HistoryReadRequest,
+  &ett_opcua_array_HistoryReadRequest,
   &ett_opcua_HistoryReadResponse,
+  &ett_opcua_array_HistoryReadResponse,
   &ett_opcua_WriteRequest,
+  &ett_opcua_array_WriteRequest,
   &ett_opcua_WriteResponse,
+  &ett_opcua_array_WriteResponse,
   &ett_opcua_HistoryUpdateRequest,
+  &ett_opcua_array_HistoryUpdateRequest,
   &ett_opcua_HistoryUpdateResponse,
+  &ett_opcua_array_HistoryUpdateResponse,
   &ett_opcua_CallRequest,
+  &ett_opcua_array_CallRequest,
   &ett_opcua_CallResponse,
+  &ett_opcua_array_CallResponse,
   &ett_opcua_CreateMonitoredItemsRequest,
+  &ett_opcua_array_CreateMonitoredItemsRequest,
   &ett_opcua_CreateMonitoredItemsResponse,
+  &ett_opcua_array_CreateMonitoredItemsResponse,
   &ett_opcua_ModifyMonitoredItemsRequest,
+  &ett_opcua_array_ModifyMonitoredItemsRequest,
   &ett_opcua_ModifyMonitoredItemsResponse,
+  &ett_opcua_array_ModifyMonitoredItemsResponse,
   &ett_opcua_SetMonitoringModeRequest,
+  &ett_opcua_array_SetMonitoringModeRequest,
   &ett_opcua_SetMonitoringModeResponse,
+  &ett_opcua_array_SetMonitoringModeResponse,
   &ett_opcua_SetTriggeringRequest,
+  &ett_opcua_array_SetTriggeringRequest,
   &ett_opcua_SetTriggeringResponse,
+  &ett_opcua_array_SetTriggeringResponse,
   &ett_opcua_DeleteMonitoredItemsRequest,
+  &ett_opcua_array_DeleteMonitoredItemsRequest,
   &ett_opcua_DeleteMonitoredItemsResponse,
+  &ett_opcua_array_DeleteMonitoredItemsResponse,
   &ett_opcua_CreateSubscriptionRequest,
+  &ett_opcua_array_CreateSubscriptionRequest,
   &ett_opcua_CreateSubscriptionResponse,
+  &ett_opcua_array_CreateSubscriptionResponse,
   &ett_opcua_ModifySubscriptionRequest,
+  &ett_opcua_array_ModifySubscriptionRequest,
   &ett_opcua_ModifySubscriptionResponse,
+  &ett_opcua_array_ModifySubscriptionResponse,
   &ett_opcua_SetPublishingModeRequest,
+  &ett_opcua_array_SetPublishingModeRequest,
   &ett_opcua_SetPublishingModeResponse,
+  &ett_opcua_array_SetPublishingModeResponse,
   &ett_opcua_PublishRequest,
+  &ett_opcua_array_PublishRequest,
   &ett_opcua_PublishResponse,
+  &ett_opcua_array_PublishResponse,
   &ett_opcua_RepublishRequest,
+  &ett_opcua_array_RepublishRequest,
   &ett_opcua_RepublishResponse,
+  &ett_opcua_array_RepublishResponse,
   &ett_opcua_TransferSubscriptionsRequest,
+  &ett_opcua_array_TransferSubscriptionsRequest,
   &ett_opcua_TransferSubscriptionsResponse,
+  &ett_opcua_array_TransferSubscriptionsResponse,
   &ett_opcua_DeleteSubscriptionsRequest,
+  &ett_opcua_array_DeleteSubscriptionsRequest,
   &ett_opcua_DeleteSubscriptionsResponse,
+  &ett_opcua_array_DeleteSubscriptionsResponse,
   &ett_opcua_TestStackRequest,
+  &ett_opcua_array_TestStackRequest,
   &ett_opcua_TestStackResponse,
+  &ett_opcua_array_TestStackResponse,
   &ett_opcua_TestStackExRequest,
+  &ett_opcua_array_TestStackExRequest,
   &ett_opcua_TestStackExResponse,
+  &ett_opcua_array_TestStackExResponse,
 };
 
 void registerServiceTypes(void)
