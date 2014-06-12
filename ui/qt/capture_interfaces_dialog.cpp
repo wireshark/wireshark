@@ -600,6 +600,7 @@ QWidget* TbInterfacesDelegate::createEditor( QWidget *parent, const QStyleOption
     gint buffer = DEFAULT_CAPTURE_BUFFER_SIZE;
 #endif
     guint snap = WTAP_MAX_PACKET_SIZE;
+    GList *links = NULL;
 
     if (index.column() > 1) {
         interface_t device;
@@ -611,6 +612,7 @@ QWidget* TbInterfacesDelegate::createEditor( QWidget *parent, const QStyleOption
             buffer = device.buffer;
 #endif
             snap = device.snaplen;
+            links = device.links;
             if (interface_name.compare(device.display_name) || device.hidden || device.type == IF_PIPE) {
                 continue;
             } else {
@@ -625,7 +627,7 @@ QWidget* TbInterfacesDelegate::createEditor( QWidget *parent, const QStyleOption
             GList *list;
             link_row *temp;
             QComboBox *cb = new QComboBox(parent);
-            for (list=device.links; list!=NULL; list=g_list_next(list)) {
+            for (list=links; list!=NULL; list=g_list_next(list)) {
                 temp = (link_row*)(list->data);
                 cb->addItem(QString("%1").arg(temp->name));
             }
