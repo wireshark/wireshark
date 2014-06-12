@@ -51,11 +51,12 @@ static range_t *global_tcp_ports_opcua;
 /** Official IANA registered port for OPC UA Binary Protocol. */
 #define OPCUA_PORT 4840
 
-/** subtree types */
-gint ett_opcua_transport = -1;
+/** subtree types used in opcua_transport_layer.c */
 gint ett_opcua_extensionobject = -1;
 gint ett_opcua_nodeid = -1;
 
+/** subtree types used locally */
+static gint ett_opcua_transport = -1;
 static gint ett_opcua_fragment = -1;
 static gint ett_opcua_fragments = -1;
 
@@ -168,9 +169,9 @@ void proto_register_opcua(void)
     /** Setup protocol subtree array */
     static gint *ett[] =
     {
-        &ett_opcua_transport,
         &ett_opcua_extensionobject,
         &ett_opcua_nodeid,
+        &ett_opcua_transport,
         &ett_opcua_fragment,
         &ett_opcua_fragments
     };
