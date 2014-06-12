@@ -2282,7 +2282,7 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
         }
 
         if (p_conv_data && p_conv_data->btvdp_info &&
-                p_conv_data->bta2dp_info->content_protection_type == BTAVDTP_CONTENT_PROTECTION_TYPE_SCMS_T) {
+                p_conv_data->btvdp_info->content_protection_type == BTAVDTP_CONTENT_PROTECTION_TYPE_SCMS_T) {
             rtp_info->info_payload_offset += 1;
             rtp_info->info_payload_len -= 1;
         }
@@ -2355,7 +2355,7 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
         }
 
         if (p_conv_data && p_conv_data->btvdp_info &&
-                p_conv_data->bta2dp_info->content_protection_type == BTAVDTP_CONTENT_PROTECTION_TYPE_SCMS_T) {
+                p_conv_data->btvdp_info->content_protection_type == BTAVDTP_CONTENT_PROTECTION_TYPE_SCMS_T) {
             rtp_info->info_payload_offset += 1;
             rtp_info->info_payload_len -= 1;
         }
