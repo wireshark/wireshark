@@ -266,7 +266,6 @@ static const value_string g_VariantTypes[] = {
 #define VARIANT_ARRAYMASK 0x80
 
 /* trees */
-static gint ett_opcua_array = -1;
 static gint ett_opcua_diagnosticinfo = -1;
 static gint ett_opcua_diagnosticinfo_encodingmask = -1;
 static gint ett_opcua_nodeid = -1;
@@ -282,9 +281,33 @@ static gint ett_opcua_extensionobject = -1;
 static gint ett_opcua_extensionobject_encodingmask = -1;
 static gint ett_opcua_statuscode = -1;
 static gint ett_opcua_statuscode_info = -1;
+gint ett_opcua_array_Boolean = -1;
+gint ett_opcua_array_SByte = -1;
+gint ett_opcua_array_Byte = -1;
+gint ett_opcua_array_Int16 = -1;
+gint ett_opcua_array_UInt16 = -1;
+gint ett_opcua_array_Int32 = -1;
+gint ett_opcua_array_UInt32 = -1;
+gint ett_opcua_array_Int64 = -1;
+gint ett_opcua_array_UInt64 = -1;
+gint ett_opcua_array_Float = -1;
+gint ett_opcua_array_Double = -1;
+gint ett_opcua_array_String = -1;
+gint ett_opcua_array_DateTime = -1;
+gint ett_opcua_array_Guid = -1;
+gint ett_opcua_array_ByteString = -1;
+gint ett_opcua_array_XmlElement = -1;
+gint ett_opcua_array_NodeId = -1;
+gint ett_opcua_array_ExpandedNodeId = -1;
+gint ett_opcua_array_StatusCode = -1;
+gint ett_opcua_array_DiagnosticInfo = -1;
+gint ett_opcua_array_QualifiedName = -1;
+gint ett_opcua_array_LocalizedText = -1;
+gint ett_opcua_array_ExtensionObject = -1;
+gint ett_opcua_array_DataValue = -1;
+gint ett_opcua_array_Variant = -1;
 static gint *ett[] =
 {
-  &ett_opcua_array,
   &ett_opcua_diagnosticinfo,
   &ett_opcua_diagnosticinfo_encodingmask,
   &ett_opcua_nodeid,
@@ -299,7 +322,32 @@ static gint *ett[] =
   &ett_opcua_extensionobject,
   &ett_opcua_extensionobject_encodingmask,
   &ett_opcua_statuscode,
-  &ett_opcua_statuscode_info
+  &ett_opcua_statuscode_info,
+  &ett_opcua_array_Boolean,
+  &ett_opcua_array_SByte,
+  &ett_opcua_array_Byte,
+  &ett_opcua_array_Int16,
+  &ett_opcua_array_UInt16,
+  &ett_opcua_array_Int32,
+  &ett_opcua_array_UInt32,
+  &ett_opcua_array_Int64,
+  &ett_opcua_array_UInt64,
+  &ett_opcua_array_Float,
+  &ett_opcua_array_Double,
+  &ett_opcua_array_String,
+  &ett_opcua_array_DateTime,
+  &ett_opcua_array_Guid,
+  &ett_opcua_array_ByteString,
+  &ett_opcua_array_XmlElement,
+  &ett_opcua_array_NodeId,
+  &ett_opcua_array_ExpandedNodeId,
+  &ett_opcua_array_StatusCode,
+  &ett_opcua_array_DiagnosticInfo,
+  &ett_opcua_array_QualifiedName,
+  &ett_opcua_array_LocalizedText,
+  &ett_opcua_array_ExtensionObject,
+  &ett_opcua_array_DataValue,
+  &ett_opcua_array_Variant
 };
 
 void registerSimpleTypes(int proto)
@@ -767,31 +815,31 @@ void parseVariant(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *sz
         switch(EncodingMask & 0x3f)
         {
         case OpcUaType_Null: break;
-        case OpcUaType_Boolean: parseArraySimple(subtree, tvb, &iOffset, "Boolean", "Boolean", hf_opcua_Boolean, parseBoolean); break;
-        case OpcUaType_SByte: parseArraySimple(subtree, tvb, &iOffset, "SByte", "SByte", hf_opcua_SByte, parseSByte); break;
-        case OpcUaType_Byte: parseArraySimple(subtree, tvb, &iOffset, "Byte", "Byte", hf_opcua_Byte, parseByte); break;
-        case OpcUaType_Int16: parseArraySimple(subtree, tvb, &iOffset, "Int16", "Int16", hf_opcua_Int16, parseInt16); break;
-        case OpcUaType_UInt16: parseArraySimple(subtree, tvb, &iOffset, "UInt16", "UInt16", hf_opcua_UInt16, parseUInt16); break;
-        case OpcUaType_Int32: parseArraySimple(subtree, tvb, &iOffset, "Int32", "Int32", hf_opcua_Int32, parseInt32); break;
-        case OpcUaType_UInt32: parseArraySimple(subtree, tvb, &iOffset, "UInt32", "UInt32", hf_opcua_UInt32, parseUInt32); break;
-        case OpcUaType_Int64: parseArraySimple(subtree, tvb, &iOffset, "Int64", "Int64", hf_opcua_Int64, parseInt64); break;
-        case OpcUaType_UInt64: parseArraySimple(subtree, tvb, &iOffset, "UInt64", "UInt64", hf_opcua_UInt64, parseUInt64); break;
-        case OpcUaType_Float: parseArraySimple(subtree, tvb, &iOffset, "Float", "Float", hf_opcua_Float, parseFloat); break;
-        case OpcUaType_Double: parseArraySimple(subtree, tvb, &iOffset, "Double", "Double", hf_opcua_Double, parseDouble); break;
-        case OpcUaType_String: parseArraySimple(subtree, tvb, &iOffset, "String", "String", hf_opcua_String, parseString); break;
-        case OpcUaType_DateTime: parseArraySimple(subtree, tvb, &iOffset, "DateTime", "DateTime", hf_opcua_DateTime, parseDateTime); break;
-        case OpcUaType_Guid: parseArraySimple(subtree, tvb, &iOffset, "Guid", "Guid", hf_opcua_Guid, parseGuid); break;
-        case OpcUaType_ByteString: parseArraySimple(subtree, tvb, &iOffset, "ByteString", "ByteString", hf_opcua_ByteString, parseByteString); break;
-        case OpcUaType_XmlElement: parseArraySimple(subtree, tvb, &iOffset, "XmlElement", "XmlElement", hf_opcua_XmlElement, parseXmlElement); break;
-        case OpcUaType_NodeId: parseArrayComplex(subtree, tvb, &iOffset, "NodeId", "NodeId", parseNodeId); break;
-        case OpcUaType_ExpandedNodeId: parseArrayComplex(subtree, tvb, &iOffset, "ExpandedNodeId", "ExpandedNodeId", parseExpandedNodeId); break;
-        case OpcUaType_StatusCode: parseArraySimple(subtree, tvb, &iOffset, "StatusCode", "StatusCode", hf_opcua_StatusCode, parseStatusCode); break;
-        case OpcUaType_DiagnosticInfo: parseArrayComplex(subtree, tvb, &iOffset, "DiagnosticInfo", "DiagnosticInfo", parseDiagnosticInfo); break;
-        case OpcUaType_QualifiedName: parseArrayComplex(subtree, tvb, &iOffset, "QualifiedName", "QualifiedName", parseQualifiedName); break;
-        case OpcUaType_LocalizedText: parseArrayComplex(subtree, tvb, &iOffset, "LocalizedText", "LocalizedText", parseLocalizedText); break;
-        case OpcUaType_ExtensionObject: parseArrayComplex(subtree, tvb, &iOffset, "ExtensionObject", "ExtensionObject", parseExtensionObject); break;
-        case OpcUaType_DataValue: parseArrayComplex(subtree, tvb, &iOffset, "DataValue", "DataValue", parseDataValue); break;
-        case OpcUaType_Variant: parseArrayComplex(subtree, tvb, &iOffset, "Variant", "Variant", parseVariant); break;
+        case OpcUaType_Boolean: parseArraySimple(subtree, tvb, &iOffset, "Boolean", "Boolean", hf_opcua_Boolean, parseBoolean, ett_opcua_array_Boolean); break;
+        case OpcUaType_SByte: parseArraySimple(subtree, tvb, &iOffset, "SByte", "SByte", hf_opcua_SByte, parseSByte, ett_opcua_array_SByte); break;
+        case OpcUaType_Byte: parseArraySimple(subtree, tvb, &iOffset, "Byte", "Byte", hf_opcua_Byte, parseByte, ett_opcua_array_Byte); break;
+        case OpcUaType_Int16: parseArraySimple(subtree, tvb, &iOffset, "Int16", "Int16", hf_opcua_Int16, parseInt16, ett_opcua_array_Int16); break;
+        case OpcUaType_UInt16: parseArraySimple(subtree, tvb, &iOffset, "UInt16", "UInt16", hf_opcua_UInt16, parseUInt16, ett_opcua_array_UInt16); break;
+        case OpcUaType_Int32: parseArraySimple(subtree, tvb, &iOffset, "Int32", "Int32", hf_opcua_Int32, parseInt32, ett_opcua_array_Int32); break;
+        case OpcUaType_UInt32: parseArraySimple(subtree, tvb, &iOffset, "UInt32", "UInt32", hf_opcua_UInt32, parseUInt32, ett_opcua_array_UInt32); break;
+        case OpcUaType_Int64: parseArraySimple(subtree, tvb, &iOffset, "Int64", "Int64", hf_opcua_Int64, parseInt64, ett_opcua_array_Int64); break;
+        case OpcUaType_UInt64: parseArraySimple(subtree, tvb, &iOffset, "UInt64", "UInt64", hf_opcua_UInt64, parseUInt64, ett_opcua_array_UInt64); break;
+        case OpcUaType_Float: parseArraySimple(subtree, tvb, &iOffset, "Float", "Float", hf_opcua_Float, parseFloat, ett_opcua_array_Float); break;
+        case OpcUaType_Double: parseArraySimple(subtree, tvb, &iOffset, "Double", "Double", hf_opcua_Double, parseDouble, ett_opcua_array_Double); break;
+        case OpcUaType_String: parseArraySimple(subtree, tvb, &iOffset, "String", "String", hf_opcua_String, parseString, ett_opcua_array_String); break;
+        case OpcUaType_DateTime: parseArraySimple(subtree, tvb, &iOffset, "DateTime", "DateTime", hf_opcua_DateTime, parseDateTime, ett_opcua_array_DateTime); break;
+        case OpcUaType_Guid: parseArraySimple(subtree, tvb, &iOffset, "Guid", "Guid", hf_opcua_Guid, parseGuid, ett_opcua_array_Guid); break;
+        case OpcUaType_ByteString: parseArraySimple(subtree, tvb, &iOffset, "ByteString", "ByteString", hf_opcua_ByteString, parseByteString, ett_opcua_array_ByteString); break;
+        case OpcUaType_XmlElement: parseArraySimple(subtree, tvb, &iOffset, "XmlElement", "XmlElement", hf_opcua_XmlElement, parseXmlElement, ett_opcua_array_XmlElement); break;
+        case OpcUaType_NodeId: parseArrayComplex(subtree, tvb, &iOffset, "NodeId", "NodeId", parseNodeId, ett_opcua_array_NodeId); break;
+        case OpcUaType_ExpandedNodeId: parseArrayComplex(subtree, tvb, &iOffset, "ExpandedNodeId", "ExpandedNodeId", parseExpandedNodeId, ett_opcua_array_ExpandedNodeId); break;
+        case OpcUaType_StatusCode: parseArraySimple(subtree, tvb, &iOffset, "StatusCode", "StatusCode", hf_opcua_StatusCode, parseStatusCode, ett_opcua_array_StatusCode); break;
+        case OpcUaType_DiagnosticInfo: parseArrayComplex(subtree, tvb, &iOffset, "DiagnosticInfo", "DiagnosticInfo", parseDiagnosticInfo, ett_opcua_array_DiagnosticInfo); break;
+        case OpcUaType_QualifiedName: parseArrayComplex(subtree, tvb, &iOffset, "QualifiedName", "QualifiedName", parseQualifiedName, ett_opcua_array_QualifiedName); break;
+        case OpcUaType_LocalizedText: parseArrayComplex(subtree, tvb, &iOffset, "LocalizedText", "LocalizedText", parseLocalizedText, ett_opcua_array_LocalizedText); break;
+        case OpcUaType_ExtensionObject: parseArrayComplex(subtree, tvb, &iOffset, "ExtensionObject", "ExtensionObject", parseExtensionObject, ett_opcua_array_ExtensionObject); break;
+        case OpcUaType_DataValue: parseArrayComplex(subtree, tvb, &iOffset, "DataValue", "DataValue", parseDataValue, ett_opcua_array_DataValue); break;
+        case OpcUaType_Variant: parseArrayComplex(subtree, tvb, &iOffset, "Variant", "Variant", parseVariant, ett_opcua_array_Variant); break;
         }
 
         if (EncodingMask & VARIANT_ARRAYDIMENSIONS)
@@ -862,10 +910,10 @@ void parseVariant(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *sz
  * All arrays have one 4 byte signed integer length information,
  * followed by n data elements.
  */
-void parseArraySimple(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName, const char *szTypeName, int hfIndex, fctSimpleTypeParser pParserFunction)
+void parseArraySimple(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName, const char *szTypeName, int hfIndex, fctSimpleTypeParser pParserFunction, const gint idx)
 {
     proto_item *ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "%s: Array of %s", szFieldName, szTypeName);
-    proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_array);
+    proto_tree *subtree = proto_item_add_subtree(ti, idx);
     int i;
     gint32 iLen;
 
@@ -897,10 +945,10 @@ void parseArraySimple(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char
  * All arrays have one 4 byte signed integer length information,
  * followed by n data elements.
  */
-void parseArrayEnum(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName, const char *szTypeName, fctEnumParser pParserFunction)
+void parseArrayEnum(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName, const char *szTypeName, fctEnumParser pParserFunction, const gint idx)
 {
     proto_item *ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "%s: Array of %s", szFieldName, szTypeName);
-    proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_array);
+    proto_tree *subtree = proto_item_add_subtree(ti, idx);
     int i;
     gint32 iLen;
 
@@ -928,10 +976,10 @@ void parseArrayEnum(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *
  * All arrays have one 4 byte signed integer length information,
  * followed by n data elements.
  */
-void parseArrayComplex(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName, const char *szTypeName, fctComplexTypeParser pParserFunction)
+void parseArrayComplex(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName, const char *szTypeName, fctComplexTypeParser pParserFunction, const gint idx)
 {
     proto_item *ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "%s: Array of %s", szFieldName, szTypeName);
-    proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_array);
+    proto_tree *subtree = proto_item_add_subtree(ti, idx);
     int i;
     gint32 iLen;
 
