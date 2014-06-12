@@ -1166,6 +1166,12 @@ nt_time_to_nstime(guint32 filetime_high, guint32 filetime_low, nstime_t *tv)
 int
 dissect_nt_64bit_time(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_date)
 {
+	return dissect_nt_64bit_time_ex(tvb, tree, offset, hf_date, NULL);
+}
+
+int
+dissect_nt_64bit_time_ex(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_date, proto_item **createdItem)
+{
 	guint32 filetime_high, filetime_low;
 	nstime_t ts;
 
@@ -1174,29 +1180,34 @@ dissect_nt_64bit_time(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_date)
 	   the meaning of this one is yet unknown
 	*/
 	if (tree) {
+		proto_item *item = NULL;
 		filetime_low = tvb_get_letohl(tvb, offset);
 		filetime_high = tvb_get_letohl(tvb, offset + 4);
 		if (filetime_low == 0 && filetime_high == 0) {
-			proto_tree_add_text(tree, tvb, offset, 8,
+			item = proto_tree_add_text(tree, tvb, offset, 8,
 			    "%s: No time specified (0)",
 			    proto_registrar_get_name(hf_date));
 		} else if(filetime_low==0 && filetime_high==0x80000000){
-			proto_tree_add_text(tree, tvb, offset, 8,
+			item = proto_tree_add_text(tree, tvb, offset, 8,
 			    "%s: Infinity (relative time)",
 			    proto_registrar_get_name(hf_date));
 		} else if(filetime_low==0xffffffff && filetime_high==0x7fffffff){
-			proto_tree_add_text(tree, tvb, offset, 8,
+			item = proto_tree_add_text(tree, tvb, offset, 8,
 			    "%s: Infinity (absolute time)",
 			    proto_registrar_get_name(hf_date));
 		} else {
 			if (nt_time_to_nstime(filetime_high, filetime_low, &ts)) {
-				proto_tree_add_time(tree, hf_date, tvb,
+				item = proto_tree_add_time(tree, hf_date, tvb,
 				    offset, 8, &ts);
 			} else {
-				proto_tree_add_text(tree, tvb, offset, 8,
+				item = proto_tree_add_text(tree, tvb, offset, 8,
 				    "%s: Time can't be converted",
 				    proto_registrar_get_name(hf_date));
 			}
+		}
+		if (createdItem != NULL)
+		{
+			*createdItem = item;
 		}
 	}
 
