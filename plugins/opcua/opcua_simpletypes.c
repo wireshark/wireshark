@@ -49,6 +49,13 @@
 #define DATAVALUE_ENCODINGBYTE_SERVERPICOSECONDS              0x20
 #define EXTOBJ_ENCODINGMASK_BINBODY_FLAG                      0x01
 #define EXTOBJ_ENCODINGMASK_XMLBODY_FLAG                      0x02
+#define STATUSCODE_STRUCTURECHANGED                           0x8000
+#define STATUSCODE_SEMANTICSCHANGED                           0x4000
+#define STATUSCODE_INFOTYPE_DATAVALUE                         0x00000400
+#define STATUSCODE_INFOBIT_OVERFLOW                           0x0080
+#define STATUSCODE_INFOBIT_HISTORIAN_PARTIAL                  0x0004
+#define STATUSCODE_INFOBIT_HISTORIAN_EXTRADATA                0x0008
+#define STATUSCODE_INFOBIT_HISTORIAN_MULTIVALUE               0x0010
 
 /* Chosen arbitrarily */
 #define MAX_ARRAY_LEN 10000
@@ -93,6 +100,15 @@ static int hf_opcua_extobj_mask_binbodyflag = -1;
 static int hf_opcua_extobj_mask_xmlbodyflag = -1;
 static int hf_opcua_ArraySize = -1;
 static int hf_opcua_ServerIndex = -1;
+static int hf_opcua_status_StructureChanged = -1;
+static int hf_opcua_status_SemanticsChanged = -1;
+static int hf_opcua_status_InfoBit_Limit_Overflow = -1;
+static int hf_opcua_status_InfoBit_Historian_Partial = -1;
+static int hf_opcua_status_InfoBit_Historian_ExtraData = -1;
+static int hf_opcua_status_InfoBit_Historian_MultiValue = -1;
+static int hf_opcua_status_InfoType = -1;
+static int hf_opcua_status_Limit = -1;
+static int hf_opcua_status_Historian = -1;
 
 /** NodeId encoding mask table */
 static const value_string g_nodeidmasks[] = {
@@ -102,6 +118,33 @@ static const value_string g_nodeidmasks[] = {
     { 0x03, "String" },
     { 0x04, "GUID" },
     { 0x05, "Opaque" },
+    { 0, NULL }
+};
+
+/** StatusCode info types */
+static const value_string g_infotype[] = {
+    { 0x00, "Not used" },
+    { 0x01, "DataValue" },
+    { 0x02, "Reserved" },
+    { 0x03, "Reserved" },
+    { 0, NULL }
+};
+
+/** StatusCode Limit types */
+static const value_string g_limit[] = {
+    { 0x00, "None" },
+    { 0x01, "Low" },
+    { 0x02, "High" },
+    { 0x03, "Constant" },
+    { 0, NULL }
+};
+
+/** StatusCode Historian types */
+static const value_string g_historian[] = {
+    { 0x00, "Raw" },
+    { 0x01, "Calculated" },
+    { 0x02, "Interpolated" },
+    { 0x03, "Reserved" },
     { 0, NULL }
 };
 
@@ -233,6 +276,8 @@ static gint ett_opcua_datavalue = -1;
 static gint ett_opcua_variant = -1;
 static gint ett_opcua_extensionobject = -1;
 static gint ett_opcua_extobj_encodingmask = -1;
+static gint ett_opcua_statuscode = -1;
+static gint ett_opcua_statuscode_info = -1;
 static gint *ett[] =
 {
   &ett_opcua_array,
@@ -244,7 +289,9 @@ static gint *ett[] =
   &ett_opcua_datavalue,
   &ett_opcua_variant,
   &ett_opcua_extensionobject,
-  &ett_opcua_extobj_encodingmask
+  &ett_opcua_extobj_encodingmask,
+  &ett_opcua_statuscode,
+  &ett_opcua_statuscode_info
 };
 
 void registerSimpleTypes(int proto)
@@ -311,7 +358,16 @@ void registerSimpleTypes(int proto)
         { &hf_opcua_extobj_mask_binbodyflag, {  "has binary body", "opcua.has_binary_body", FT_BOOLEAN, 8, NULL, EXTOBJ_ENCODINGMASK_BINBODY_FLAG, NULL, HFILL } },
         { &hf_opcua_extobj_mask_xmlbodyflag, {  "has xml body",    "opcua.has_xml_body", FT_BOOLEAN, 8, NULL, EXTOBJ_ENCODINGMASK_XMLBODY_FLAG, NULL, HFILL } },
         { &hf_opcua_ArraySize, { "ArraySize", "opcua.ArraySize", FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-        { &hf_opcua_ServerIndex, { "ServerIndex", "opcua.ServerIndex", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } }
+        { &hf_opcua_ServerIndex, { "ServerIndex", "opcua.ServerIndex", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_opcua_status_StructureChanged, {  "StructureChanged", "opcua.statuscode.structureChanged", FT_BOOLEAN, 16, NULL, STATUSCODE_STRUCTURECHANGED, NULL, HFILL } },
+        { &hf_opcua_status_SemanticsChanged, {  "SemanticsChanged", "opcua.statuscode.semanticsChanged", FT_BOOLEAN, 16, NULL, STATUSCODE_SEMANTICSCHANGED, NULL, HFILL } },
+        { &hf_opcua_status_InfoBit_Limit_Overflow, {  "Overflow", "opcua.statuscode.overflow", FT_BOOLEAN, 16, NULL, STATUSCODE_INFOBIT_OVERFLOW, NULL, HFILL } },
+        { &hf_opcua_status_InfoBit_Historian_Partial, {  "HistorianBit: Partial", "opcua.statuscode.historian.partial", FT_BOOLEAN, 16, NULL, STATUSCODE_INFOBIT_HISTORIAN_PARTIAL, NULL, HFILL } },
+        { &hf_opcua_status_InfoBit_Historian_ExtraData, {  "HistorianBit: ExtraData", "opcua.statuscode.historian.extraData", FT_BOOLEAN, 16, NULL, STATUSCODE_INFOBIT_HISTORIAN_EXTRADATA, NULL, HFILL } },
+        { &hf_opcua_status_InfoBit_Historian_MultiValue, {  "HistorianBit: MultiValue", "opcua.statuscode.historian.multiValue", FT_BOOLEAN, 16, NULL, STATUSCODE_INFOBIT_HISTORIAN_MULTIVALUE, NULL, HFILL } },
+        { &hf_opcua_status_InfoType, { "InfoType", "opcua.statuscode.infoType", FT_UINT16, BASE_HEX, VALS(g_infotype), 0x0C00, NULL, HFILL } },
+        { &hf_opcua_status_Limit, { "Limit", "opcua.statuscode.limit", FT_UINT16, BASE_HEX, VALS(g_limit), 0x0300, NULL, HFILL } },
+        { &hf_opcua_status_Historian, { "Historian", "opcua.statuscode.historian", FT_UINT16, BASE_HEX, VALS(g_historian), 0x0003, NULL, HFILL } },
     };
 
     proto_register_field_array(proto, hf, array_length(hf));
@@ -409,6 +465,40 @@ void parseStatusCode(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, int hfIndex
     uStatusCode = tvb_get_letohl(tvb, *pOffset);
     szStatusCode = val_to_str_const(uStatusCode & 0xFFFF0000, g_statusCodes, "Unknown Status Code");
     proto_item_append_text(item, " [%s]", szStatusCode);
+
+    /* check for status code info flags */
+    if (uStatusCode & 0x0000FFFF)
+    {
+        gint iOffset = *pOffset;
+        proto_tree *flags_tree;
+        proto_item *ti_inner;
+
+        flags_tree = proto_item_add_subtree(item, ett_opcua_statuscode);
+
+        proto_tree_add_item(flags_tree, hf_opcua_status_StructureChanged, tvb, iOffset, 2, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(flags_tree, hf_opcua_status_SemanticsChanged, tvb, iOffset, 2, ENC_LITTLE_ENDIAN);
+        ti_inner = proto_tree_add_item(flags_tree, hf_opcua_status_InfoType, tvb, iOffset, 2, ENC_LITTLE_ENDIAN);
+
+        switch (uStatusCode & 0x00000C00)
+        {
+        case STATUSCODE_INFOTYPE_DATAVALUE:
+        {
+            /* InfoType == DataValue */
+            proto_tree *tree_inner;
+
+            tree_inner = proto_item_add_subtree(ti_inner, ett_opcua_statuscode_info);
+
+            proto_tree_add_item(tree_inner, hf_opcua_status_Limit, tvb, iOffset, 2, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(tree_inner, hf_opcua_status_InfoBit_Limit_Overflow, tvb, iOffset, 2, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(tree_inner, hf_opcua_status_InfoBit_Historian_MultiValue, tvb, iOffset, 2, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(tree_inner, hf_opcua_status_InfoBit_Historian_ExtraData, tvb, iOffset, 2, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(tree_inner, hf_opcua_status_InfoBit_Historian_Partial, tvb, iOffset, 2, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(tree_inner, hf_opcua_status_Historian, tvb, iOffset, 2, ENC_LITTLE_ENDIAN);
+        }
+        default:
+            break;
+        }
+    }
 
     *pOffset += 4;
 }
