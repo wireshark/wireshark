@@ -47,9 +47,9 @@ static int hf_opcua_transport_scert = -1;
 static int hf_opcua_transport_rcthumb = -1;
 static int hf_opcua_transport_seq = -1;
 static int hf_opcua_transport_rqid = -1;
-extern gint ett_opcua_nodeid;
 
 /** subtree types */
+extern gint ett_opcua_nodeid;
 extern gint ett_opcua_extensionobject;
 
 /** Register transport layer types. */

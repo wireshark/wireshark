@@ -268,28 +268,36 @@ static const value_string g_VariantTypes[] = {
 /* trees */
 static gint ett_opcua_array = -1;
 static gint ett_opcua_diagnosticinfo = -1;
+static gint ett_opcua_diagnosticinfo_encodingmask = -1;
 static gint ett_opcua_nodeid = -1;
-static gint ett_opcua_localeid = -1;
+static gint ett_opcua_expandednodeid = -1;
 static gint ett_opcua_localizedtext = -1;
+static gint ett_opcua_localizedtext_encodingmask = -1;
 static gint ett_opcua_qualifiedname = -1;
 static gint ett_opcua_datavalue = -1;
+static gint ett_opcua_datavalue_encodingmask = -1;
 static gint ett_opcua_variant = -1;
+static gint ett_opcua_variant_arraydims = -1;
 static gint ett_opcua_extensionobject = -1;
-static gint ett_opcua_extobj_encodingmask = -1;
+static gint ett_opcua_extensionobject_encodingmask = -1;
 static gint ett_opcua_statuscode = -1;
 static gint ett_opcua_statuscode_info = -1;
 static gint *ett[] =
 {
   &ett_opcua_array,
   &ett_opcua_diagnosticinfo,
+  &ett_opcua_diagnosticinfo_encodingmask,
   &ett_opcua_nodeid,
-  &ett_opcua_localeid,
+  &ett_opcua_expandednodeid,
   &ett_opcua_localizedtext,
+  &ett_opcua_localizedtext_encodingmask,
   &ett_opcua_qualifiedname,
   &ett_opcua_datavalue,
+  &ett_opcua_datavalue_encodingmask,
   &ett_opcua_variant,
+  &ett_opcua_variant_arraydims,
   &ett_opcua_extensionobject,
-  &ett_opcua_extobj_encodingmask,
+  &ett_opcua_extensionobject_encodingmask,
   &ett_opcua_statuscode,
   &ett_opcua_statuscode_info
 };
@@ -518,7 +526,7 @@ void parseLocalizedText(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const ch
     /* parse encoding mask */
     EncodingMask = tvb_get_guint8(tvb, iOffset);
     ti_inner = proto_tree_add_text(subtree, tvb, iOffset, 1, "EncodingMask");
-    mask_tree = proto_item_add_subtree(ti_inner, ett_opcua_localizedtext);
+    mask_tree = proto_item_add_subtree(ti_inner, ett_opcua_localizedtext_encodingmask);
     proto_tree_add_item(mask_tree, hf_opcua_loctext_mask_localeflag, tvb, iOffset, 1, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(mask_tree, hf_opcua_loctext_mask_textflag,   tvb, iOffset, 1, ENC_LITTLE_ENDIAN);
     iOffset++;
@@ -614,7 +622,7 @@ void parseDiagnosticInfo(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const c
     /* parse encoding mask */
     EncodingMask = tvb_get_guint8(tvb, iOffset);
     ti_inner = proto_tree_add_text(subtree, tvb, iOffset, 1, "EncodingMask");
-    mask_tree = proto_item_add_subtree(ti_inner, ett_opcua_diagnosticinfo);
+    mask_tree = proto_item_add_subtree(ti_inner, ett_opcua_diagnosticinfo_encodingmask);
     proto_tree_add_item(mask_tree, hf_opcua_diag_mask_symbolicflag,        tvb, iOffset, 1, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(mask_tree, hf_opcua_diag_mask_namespaceflag,       tvb, iOffset, 1, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(mask_tree, hf_opcua_diag_mask_localizedtextflag,   tvb, iOffset, 1, ENC_LITTLE_ENDIAN);
@@ -674,7 +682,7 @@ void parseDataValue(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *
 
     EncodingMask = tvb_get_guint8(tvb, iOffset);
     ti_inner = proto_tree_add_text(subtree, tvb, iOffset, 1, "EncodingMask");
-    mask_tree = proto_item_add_subtree(ti_inner, ett_opcua_datavalue);
+    mask_tree = proto_item_add_subtree(ti_inner, ett_opcua_datavalue_encodingmask);
     proto_tree_add_item(mask_tree, hf_opcua_datavalue_mask_valueflag,           tvb, iOffset, 1, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(mask_tree, hf_opcua_datavalue_mask_statuscodeflag,      tvb, iOffset, 1, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(mask_tree, hf_opcua_datavalue_mask_sourcetimestampflag, tvb, iOffset, 1, ENC_LITTLE_ENDIAN);
@@ -760,7 +768,7 @@ void parseVariant(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *sz
         if (EncodingMask & VARIANT_ARRAYDIMENSIONS)
         {
             proto_item *ti_2 = proto_tree_add_text(subtree, tvb, iOffset, -1, "ArrayDimensions");
-            proto_tree *subtree_2 = proto_item_add_subtree(ti_2, ett_opcua_array);
+            proto_tree *subtree_2 = proto_item_add_subtree(ti_2, ett_opcua_variant_arraydims);
             int i;
 
             /* read array length */
@@ -989,7 +997,7 @@ void parseExtensionObject(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const 
     /* parse encoding mask */
     EncodingMask = tvb_get_guint8(tvb, iOffset);
     ti_inner = proto_tree_add_text(extobj_tree, tvb, iOffset, 1, "EncodingMask");
-    mask_tree = proto_item_add_subtree(ti_inner, ett_opcua_extobj_encodingmask);
+    mask_tree = proto_item_add_subtree(ti_inner, ett_opcua_extensionobject_encodingmask);
     proto_tree_add_item(mask_tree, hf_opcua_extobj_mask_binbodyflag, tvb, iOffset, 1, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(mask_tree, hf_opcua_extobj_mask_xmlbodyflag, tvb, iOffset, 1, ENC_LITTLE_ENDIAN);
     iOffset++;
@@ -1006,7 +1014,7 @@ void parseExtensionObject(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const 
 void parseExpandedNodeId(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
     proto_item *ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "%s: ExpandedNodeId", szFieldName);
-    proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_nodeid);
+    proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_expandednodeid);
     gint    iOffset = *pOffset;
     guint8  EncodingMask;
 
