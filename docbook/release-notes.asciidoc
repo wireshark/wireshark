@@ -7,9 +7,9 @@ used for troubleshooting, analysis, development and education.
 
 == What's New
 
-Wireshark 1.8 will reach end of life on June 21, 2014. This is the last official
+Wireshark 1.8 reached end of life on June 21, 2014. 1.8.15 was the last official
 release of that branch. If you are still running Wireshark 1.8 or earlier we
-strongly recommend upgrading to Wireshark 1.12 or 1.10.
+strongly recommend upgrading to the latest stable release.
 
 === Bug Fixes
 
@@ -20,7 +20,7 @@ strongly recommend upgrading to Wireshark 1.12 or 1.10.
 //* ws-salink:2013-11[]
 //* cve-idlink:2013-2486[]
 
-//* ws-salink:2014-07[]
+//* ws-salink:2014-08[]
 //+
 //A dissector went awry.
 // Fixed in master: ga1b2c3d4
@@ -39,13 +39,6 @@ The following bugs have been fixed:
 //flame job to the hood and fenders using gray, red, and black primer.
 //(ws-buglink:0000[])
 
-* Tshark with "-F libpcap" still generates a pcapng file. (ws-buglink:9991[])
-* IPv6 Next Header 0x3d recognized as SHIM6. (ws-buglink:9995[])
-* Pcap-ng PB/EPB with caplen > len shouldn't be treated as an error. (ws-buglink:10037[])
-* TCAP: set a fence on info column after calling sub dissector (ws-buglink:10091[])
-* Wireshark PEEKREMOTE incorrectly decoding QoS data packets from Cisco Sniffer APs. (ws-buglink:10139[])
-* IEEE 802.11: fix dissection of HT Capabilities (ws-buglink:10166[])
-
 === New and Updated Features
 
 There are no new features in this release.
@@ -58,18 +51,11 @@ There are no new protocols in this release.
 
 --sort-and-group--
 
-IEEE 802.11
-TCAP
-IPv6
-
 --sort-and-group--
 
 === New and Updated Capture File Support
 
 --sort-and-group--
-
-PEEKREMOTE
-pcap-ng
 
 --sort-and-group--
 
