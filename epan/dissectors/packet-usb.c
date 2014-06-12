@@ -2758,55 +2758,79 @@ dissect_linux_usb_pseudo_header_ext(tvbuff_t *tvb, int offset,
     return offset;
 }
 
-/* Adds the win32 USBPcap pseudo header fields to the tree. */
-static void
+/* dissect the win32 USBPcap pseudo header and fill the conversation struct
+   return the number of bytes processed */
+static gint
 dissect_win32_usb_pseudo_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-        guint *bus_id, guint16 *device_address)
+        usb_conv_info_t *usb_conv_info)
 {
-    guint8  transfer_type;
-    guint8  endpoint_number;
-    guint8  transfer_type_and_direction;
+    guint8   transfer_type;
+    guint8   endpoint_byte;
+    guint8   transfer_type_and_direction;
+    guint8   usbpcap_control_stage = 0;
+    guint16  hdr_len;
+    guint8   tmp_val8;
+
 
     proto_tree_add_item(tree, hf_usb_win32_header_len, tvb, 0, 2, ENC_LITTLE_ENDIAN);
+    hdr_len = tvb_get_letohs(tvb, 0);
     proto_tree_add_item(tree, hf_usb_irp_id, tvb, 2, 8, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(tree, hf_usb_usbd_status, tvb, 10, 4, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(tree, hf_usb_function, tvb, 14, 2, ENC_LITTLE_ENDIAN);
 
     proto_tree_add_bitmask(tree, tvb, 16, hf_usb_info, ett_usb_usbpcap_info, usb_usbpcap_info_fields, ENC_LITTLE_ENDIAN);
+    tmp_val8 = tvb_get_guint8(tvb, 16);
+    /* TODO: Handle errors */
+    if (tmp_val8 & 0x01) {
+        usb_conv_info->is_request = FALSE;
+    } else {
+        usb_conv_info->is_request = TRUE;
+    }
 
     proto_tree_add_item(tree, hf_usb_bus_id, tvb, 17, 2, ENC_LITTLE_ENDIAN);
-    *bus_id = tvb_get_letohs(tvb, 17);
+    usb_conv_info->bus_id = tvb_get_letohs(tvb, 17);
 
     proto_tree_add_item(tree, hf_usb_win32_device_address, tvb, 19, 2, ENC_LITTLE_ENDIAN);
-    *device_address = tvb_get_letohs(tvb, 19);
+    usb_conv_info->device_address = tvb_get_letohs(tvb, 19);
+
+    endpoint_byte = tvb_get_guint8(tvb, 21);
+    usb_conv_info->direction = endpoint_byte&URB_TRANSFER_IN ?  P2P_DIR_RECV : P2P_DIR_SENT;
+    usb_conv_info->endpoint = endpoint_byte&0x7F;
+    proto_tree_add_bitmask(tree, tvb, 21, hf_usb_endpoint_number, ett_usb_endpoint, usb_endpoint_fields, ENC_LITTLE_ENDIAN);
 
     transfer_type = tvb_get_guint8(tvb, 22);
+    usb_conv_info->transfer_type = transfer_type;
+    proto_tree_add_item(tree, hf_usb_transfer_type, tvb, 22, 1, ENC_LITTLE_ENDIAN);
 
-    endpoint_number = tvb_get_guint8(tvb, 21);
-    transfer_type_and_direction = (transfer_type & 0x7F) | (endpoint_number & 0x80);
+    transfer_type_and_direction = (transfer_type & 0x7F) | (endpoint_byte & 0x80);
     col_append_str(pinfo->cinfo, COL_INFO,
                    val_to_str(transfer_type_and_direction, usb_transfer_type_and_direction_vals, "Unknown type %x"));
 
-    proto_tree_add_bitmask(tree, tvb, 21, hf_usb_endpoint_number, ett_usb_endpoint, usb_endpoint_fields, ENC_LITTLE_ENDIAN);
-
-    proto_tree_add_item(tree, hf_usb_transfer_type, tvb, 22, 1, ENC_LITTLE_ENDIAN);
-
     proto_tree_add_item(tree, hf_usb_win32_data_len, tvb, 23, 4, ENC_LITTLE_ENDIAN);
+
+    /* by default, we assume it's no setup packet */
+    usb_conv_info->is_setup = FALSE;
+    usb_conv_info->setup_requesttype = 0;
 
     /* Handle transfer specific data */
     switch (transfer_type)
     {
         case URB_ISOCHRONOUS:
-            /* dissection in handled in dissect_usb_common() */
-            break;
+            /* the rest of the pseudo-header is handled in dissect_usb_common() */
+            return 27;
         case URB_INTERRUPT:
             break;
         case URB_CONTROL:
             proto_tree_add_item(tree, hf_usb_control_stage, tvb, 27, 1, ENC_LITTLE_ENDIAN);
+            usbpcap_control_stage = tvb_get_guint8(tvb, 27);
+            if (usbpcap_control_stage == USB_CONTROL_STAGE_SETUP)
+                usb_conv_info->is_setup = TRUE;
             break;
         case URB_BULK:
             break;
     }
+
+    return hdr_len;
 }
 
 /* Set the usb_address_t fields based on the direction of the urb */
@@ -2959,52 +2983,15 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
         offset = dissect_linux_usb_pseudo_header(tvb, pinfo, tree, usb_conv_info);
 
     } else if (header_info & USB_HEADER_IS_USBPCAP) {
-        guint8  setup_flag;
-        guint   bus_id = 0;
-        int     type, endpoint_with_dir;
-        guint8  tmp_val8;
-
-        dissect_win32_usb_pseudo_header(tvb, pinfo, tree, &bus_id, &device_address);
+        offset = dissect_win32_usb_pseudo_header(tvb, pinfo, tree, usb_conv_info);
 
         hdr_len = tvb_get_letohs(tvb, 0);
+        win32_data_len = tvb_get_letohl(tvb, 23);
+
         proto_item_set_len(tree_ti, hdr_len);
 
-        tmp_val8 = tvb_get_guint8(tvb, 16);
-        /* TODO: Handle errors */
-        if (tmp_val8 & 0x01) {
-            urb_type = URB_COMPLETE;
-        } else {
-            urb_type = URB_SUBMIT;
-        }
-        type              = tvb_get_guint8(tvb, 22);
-        endpoint_with_dir = tvb_get_guint8(tvb, 21);
-
-        win32_data_len = tvb_get_letohl(tvb, 23);
-        usbpcap_control_stage = tvb_get_guint8(tvb, 27);
-        if (usbpcap_control_stage == USB_CONTROL_STAGE_SETUP) {
-            setup_flag = 0;
-        } else {
-            setup_flag = 0xFF;
-        }
-
-        if (type == URB_ISOCHRONOUS) {
-            offset += 27; /* Skip the part of pseudo-header already dissected */
-        } else {
-            offset += hdr_len; /* Skip the pseudo-header */
-        }
-
-        usb_conv_info->bus_id = bus_id;
-        usb_conv_info->device_address = device_address;
-        usb_conv_info->endpoint = endpoint;
-        usb_conv_info->transfer_type = type;
-        usb_conv_info->is_request = (urb_type == URB_SUBMIT) ? TRUE : FALSE;
-        usb_conv_info->is_setup = (setup_flag == 0x00);
-
-        if (endpoint_with_dir & URB_TRANSFER_IN) {
-            usb_conv_info->direction = P2P_DIR_RECV;
-        } else {
-            usb_conv_info->direction = P2P_DIR_SENT;
-        }
+        if (usb_conv_info->transfer_type== URB_CONTROL)
+            usbpcap_control_stage = tvb_get_guint8(tvb, 27);
     }
 
     usb_conv_info->usb_trans_info = usb_get_trans_info(tvb, pinfo, tree, header_info, usb_conv_info);
