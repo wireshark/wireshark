@@ -1,7 +1,8 @@
 = Wireshark wireshark-version:[] Release Notes
 
-This is an experimental release intended to test new features for the next
-stable release.
+I'm proud to announce the release of Wireshark 1.12.0-rc2. This is the first
+public release candidate for Wireshark 1.12.0 (rc1 was only available as
+development builds).
 
 == What is Wireshark?
 
@@ -100,8 +101,9 @@ since version 1.10:
 
 === Platform Support
 
-Support for Windows XP has been deprecated. We will make an effort to support it for
-as long as possible but our ability to do so depends largely on third-party libraries.
+Support for Windows XP has been deprecated. We will make an effort to support it
+for as long as possible but our ability to do so depends on upstream packages
+and other factors beyond our control.
 
 U3 packages are no longer supported or provided.
 
