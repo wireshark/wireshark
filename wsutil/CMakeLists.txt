@@ -21,7 +21,7 @@
 
 include(UseABICheck)
 
-IF(WIN32)
+if(WIN32)
 	set(WSUTIL_PLATFORM_FILES
 		file_util.c
 		inet_aton.c
@@ -31,6 +31,12 @@ IF(WIN32)
 		wsgetopt.c
 	)
 ENDIF(WIN32)
+
+if(HAVE_SSE4_2)
+	set( WSUTIL_SSE42_FILES
+		ws_mempbrk_sse42.c
+	)
+endif()
 
 set(WSUTIL_FILES
 	adler32.c
@@ -76,6 +82,7 @@ set(WSUTIL_FILES
 	nghttp2/nghttp2_hd_huffman_data.c
 	nghttp2/nghttp2_helper.c
 	${WSUTIL_PLATFORM_FILES}
+	${WSUTIL_SSE42_FILES}
 )
 
 set(wsutil_LIBS
@@ -97,6 +104,13 @@ if (WERROR)
 		${CLEAN_FILES}
 		PROPERTIES
 		COMPILE_FLAGS -Werror
+	)
+endif()
+if (HAVE_SSE4_2)
+	set_source_files_properties(
+		${WSUTIL_SSE42_FILES}
+		PROPERTIES
+		COMPILE_FLAGS -msse4.2
 	)
 endif()
 

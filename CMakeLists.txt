@@ -169,6 +169,8 @@ if( CMAKE_C_COMPILER_ID MATCHES "MSVC")
 		# This avoids conflicts with the C++ standard library.
 		/DNOMINMAX
 	)
+	set(WIRESHARK_SIMD_TESTS
+	)
 
 	if(NOT WIN64)
 		set(LOCAL_CFLAGS ${LOCAL_CFLAGS} "/D_BIND_TO_CURRENT_CRT_VERSION=1")
@@ -313,6 +315,18 @@ else()
 		set(WIRESHARK_CPP_ONLY_FLAGS ${WIRESHARK_CPP_ONLY_FLAGS} ${WIRESHARK_EXTRA_COMPILER_CPP_ONLY_FLAGS})
 	endif()
 
+	set(WIRESHARK_SIMD_TESTS
+		-faltivec
+		-mmmx
+		-msse
+		-msse2
+		-msse3
+		-mssse3
+		-msse4.1
+		-msse4.2
+		-mavx
+	)
+
 	add_definitions(
 		-DG_DISABLE_DEPRECATED
 		-DG_DISABLE_SINGLE_INCLUDES
@@ -360,6 +374,23 @@ foreach(THIS_FLAG ${CPP_FLAG_TESTS})
 	endif()
 endforeach()
 message(STATUS "C-Flags: ${CMAKE_C_FLAGS}\nCXX-Flags: ${CMAKE_CXX_FLAGS}")
+
+foreach(THIS_FLAG ${WIRESHARK_SIMD_TESTS})
+	string( REGEX REPLACE "[^a-zA-Z0-9_]+" "_" F ${THIS_FLAG} )
+	set(${F} ${THIS_FLAG})
+	set(V C_${F}_VALID)
+	message(STATUS "Checking for c-compiler SIMD flag: ${THIS_FLAG}")
+	check_c_compiler_flag(${${F}} ${V})
+	if (${${V}})
+		set(WIRESHARK_SIMD_FLAGS "${WIRESHARK_SIMD_FLAGS} ${${F}}")
+	endif()
+endforeach()
+
+string(REGEX MATCH -msse4.2
+             HAVE_SSE4_2
+	     ${WIRESHARK_SIMD_FLAGS}
+)
+message( STATUS "HAVE_SSE4_2: ${HAVE_SSE4_2}" )
 
 check_c_compiler_flag(-fvisibility=hidden FVHIDDEN)
 if(FVHIDDEN)
