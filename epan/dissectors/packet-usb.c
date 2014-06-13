@@ -2905,6 +2905,110 @@ usb_trans_info_t
 }
 
 
+/* dissect a group of isochronous packets inside an usb packet in
+   usbpcap format */
+static gint
+dissect_usbpcap_iso_packets(packet_info *pinfo _U_, proto_tree *urb_tree, guint8 urb_type,
+        tvbuff_t *tvb, gint offset, guint32 win32_data_len, usb_conv_info_t *usb_conv_info)
+{
+    guint32     i;
+    guint32     num_packets;
+    guint32     data_start_offset;
+    proto_item *urb_tree_ti;
+
+    proto_tree_add_item(urb_tree, hf_usb_win32_iso_start_frame, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+
+    num_packets = tvb_get_letohl(tvb, offset);
+    proto_tree_add_item(urb_tree, hf_usb_win32_iso_num_packets, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+
+    proto_tree_add_item(urb_tree, hf_usb_win32_iso_error_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+
+    data_start_offset = offset + 12 * num_packets;
+    urb_tree_ti = proto_tree_get_parent(urb_tree);
+    proto_item_set_len(urb_tree_ti, data_start_offset);
+
+    for (i = 0; i < num_packets; i++) {
+        guint32 this_offset;
+        guint32 next_offset;
+        guint32 iso_len;
+        proto_item *iso_packet_ti, *ti;
+        proto_tree *iso_packet_tree;
+
+        iso_packet_ti = proto_tree_add_protocol_format(
+                proto_tree_get_root(urb_tree), proto_usb,
+                tvb, offset, 12, "USB isochronous packet");
+        iso_packet_tree = proto_item_add_subtree(iso_packet_ti, usb_win32_iso_packet);
+
+        this_offset = tvb_get_letohl(tvb, offset);
+        if (num_packets - i == 1) {
+            /* this is the last packet */
+            next_offset = win32_data_len;
+        } else {
+            /* there is next packet */
+            next_offset = tvb_get_letohl(tvb, offset + 12);
+        }
+
+        if (next_offset > this_offset) {
+            iso_len = next_offset - this_offset;
+        } else {
+            iso_len = 0;
+        }
+
+        /* If this packet does not contain isochrounous data, do not try to display it */
+        if (!((usb_conv_info->is_request && usb_conv_info->direction==P2P_DIR_SENT) ||
+                    (!usb_conv_info->is_request && usb_conv_info->direction==P2P_DIR_RECV))) {
+            iso_len = 0;
+        }
+
+        proto_tree_add_item(iso_packet_tree, hf_usb_win32_iso_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+
+        ti = proto_tree_add_item(iso_packet_tree, hf_usb_win32_iso_length, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        if (usb_conv_info->direction==P2P_DIR_SENT) {
+            /* Isochronous OUT transfer */
+            proto_item_append_text(ti, " (not used)");
+        } else {
+            /* Isochronous IN transfer.
+             * Length field is being set by host controller.
+             */
+            if (usb_conv_info->is_request) {
+                /* Length was not yet set */
+                proto_item_append_text(ti, " (irrelevant)");
+            } else {
+                /* Length was set and (should be) valid */
+                proto_item_append_text(ti, " (relevant)");
+                iso_len = tvb_get_letohl(tvb, offset);
+            }
+        }
+        offset += 4;
+
+        ti = proto_tree_add_item(iso_packet_tree, hf_usb_win32_iso_status, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        if (urb_type == URB_SUBMIT) {
+            proto_item_append_text(ti, " (irrelevant)");
+        } else {
+            proto_item_append_text(ti, " (relevant)");
+        }
+        offset += 4;
+
+        if (iso_len && data_start_offset + this_offset + iso_len <= tvb_captured_length(tvb)) {
+            proto_tree_add_item(iso_packet_tree, hf_usb_iso_data, tvb, (gint)(data_start_offset + this_offset), (gint)iso_len, ENC_NA);
+            proto_tree_set_appendix(iso_packet_tree, tvb, (gint)(data_start_offset + this_offset), (gint)iso_len);
+        }
+    }
+
+    if ((usb_conv_info->is_request && usb_conv_info->direction==P2P_DIR_SENT) ||
+            (!usb_conv_info->is_request && usb_conv_info->direction==P2P_DIR_RECV)) {
+        /* We have dissected all the isochronous data */
+        offset += win32_data_len;
+    }
+
+    return offset;
+}
+
+
 static void
 dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
                    guint8 header_info)
@@ -3238,97 +3342,8 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
                 }
             }
         } else if (header_info & USB_HEADER_IS_USBPCAP) {
-            guint32 num_packets;
-            guint32 i;
-            guint32 data_start_offset;
-
-            /* tree is the urb tree, parent is its parent */
-            proto_tree_add_item(tree, hf_usb_win32_iso_start_frame, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-            offset += 4;
-
-            num_packets = tvb_get_letohl(tvb, offset);
-            proto_tree_add_item(tree, hf_usb_win32_iso_num_packets, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-            offset += 4;
-
-            proto_tree_add_item(tree, hf_usb_win32_iso_error_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-            offset += 4;
-
-            data_start_offset = offset + 12 * num_packets;
-            proto_item_set_len(urb_tree_ti, data_start_offset);
-
-            for (i = 0; i < num_packets; i++)
-            {
-                guint32 this_offset;
-                guint32 next_offset;
-                guint32 iso_len;
-                proto_item *iso_packet_ti, *ti;
-                proto_tree *iso_packet_tree;
-
-                iso_packet_ti = proto_tree_add_protocol_format(parent, proto_usb,
-                        tvb, offset, 12, "USB isochronous packet");
-                iso_packet_tree = proto_item_add_subtree(iso_packet_ti, usb_win32_iso_packet);
-
-                this_offset = tvb_get_letohl(tvb, offset);
-                if (num_packets - i == 1) {
-                    /* this is the last packet */
-                    next_offset = win32_data_len;
-                } else {
-                    /* there is next packet */
-                    next_offset = tvb_get_letohl(tvb, offset + 12);
-                }
-
-                if (next_offset > this_offset) {
-                    iso_len = next_offset - this_offset;
-                } else {
-                    iso_len = 0;
-                }
-
-                /* If this packet does not contain isochrounous data, do not try to display it */
-                if (!((usb_conv_info->is_request && usb_conv_info->direction==P2P_DIR_SENT) ||
-                        (!usb_conv_info->is_request && usb_conv_info->direction==P2P_DIR_RECV))) {
-                    iso_len = 0;
-                }
-
-                proto_tree_add_item(iso_packet_tree, hf_usb_win32_iso_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-                offset += 4;
-
-                ti = proto_tree_add_item(iso_packet_tree, hf_usb_win32_iso_length, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-                if (usb_conv_info->direction==P2P_DIR_SENT) {
-                    /* Isochronous OUT transfer */
-                    proto_item_append_text(ti, " (not used)");
-                } else {
-                    /* Isochronous IN transfer.
-                     * Length field is being set by host controller.
-                     */
-                    if (usb_conv_info->is_request) {
-                        /* Length was not yet set */
-                        proto_item_append_text(ti, " (irrelevant)");
-                    } else {
-                        /* Length was set and (should be) valid */
-                        proto_item_append_text(ti, " (relevant)");
-                        iso_len = tvb_get_letohl(tvb, offset);
-                    }
-                }
-                offset += 4;
-
-                ti = proto_tree_add_item(iso_packet_tree, hf_usb_win32_iso_status, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-                if (urb_type == URB_SUBMIT) {
-                    proto_item_append_text(ti, " (irrelevant)");
-                } else {
-                    proto_item_append_text(ti, " (relevant)");
-                }
-                offset += 4;
-
-                if (iso_len && data_start_offset + this_offset + iso_len <= tvb_captured_length(tvb)) {
-                    proto_tree_add_item(iso_packet_tree, hf_usb_iso_data, tvb, (gint)(data_start_offset + this_offset), (gint)iso_len, ENC_NA);
-                    proto_tree_set_appendix(iso_packet_tree, tvb, (gint)(data_start_offset + this_offset), (gint)iso_len);
-                }
-            }
-            if ((usb_conv_info->is_request && usb_conv_info->direction==P2P_DIR_SENT) ||
-                (!usb_conv_info->is_request && usb_conv_info->direction==P2P_DIR_RECV)) {
-                /* We have dissected all the isochronous data */
-                offset += win32_data_len;
-            }
+            offset = dissect_usbpcap_iso_packets(pinfo, tree,
+                    urb_type, tvb, offset, win32_data_len, usb_conv_info);
         }
         break;
 
