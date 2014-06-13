@@ -353,7 +353,7 @@ sub read_repo_info {
 
 	# If we picked up the revision and modification time,
 	# generate our strings.
-	if ($num_commits && $last_change) {
+	if ($version_pref{"pkg_enable"}) {
 		$version_format =~ s/%#/$num_commits/;
 		$package_format =~ s/%#/$num_commits-$commit_id/;
 		$package_string = strftime($package_format, gmtime($last_change));
