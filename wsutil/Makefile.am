@@ -82,7 +82,7 @@ libwsutil_la_SOURCES =		\
 
 libwsutil_sse42_la_SOURCES = \
 	ws_mempbrk_sse42.c
-	
+
 libwsutil_sse42_la_CFLAGS = $(AM_CFLAGS) $(SIMD_FLAGS)
 
 EXTRA_libwsutil_la_SOURCES=	\
@@ -113,7 +113,7 @@ EXTRA_DIST =		\
 	Makefile.common	\
 	Makefile.nmake	\
 	file_util.c	\
-	file_util.h 	\
+	file_util.h	\
 	wsgcrypt.h
 
 CLEANFILES = \
