@@ -3371,11 +3371,11 @@ pcapng_write_name_resolution_block(wtap_dumper *wdh, pcapng_dump_t *pcapng, int 
                         nrb.record_type = NRES_IP4RECORD;
                         nrb.record_len = 4 + namelen;
                         tot_rec_len = 4 + nrb.record_len + PADDING4(nrb.record_len);
-                        bh.block_total_length += tot_rec_len;
 
                         if (rec_off + tot_rec_len > NRES_REC_MAX_SIZE)
                                 break;
 
+                        bh.block_total_length += tot_rec_len;
                         /*
                          * The joys of BSD sockaddrs.  In practice, this
                          * cast is alignment-safe.
@@ -3397,11 +3397,11 @@ pcapng_write_name_resolution_block(wtap_dumper *wdh, pcapng_dump_t *pcapng, int 
                         nrb.record_type = NRES_IP6RECORD;
                         nrb.record_len = 16 + namelen;
                         tot_rec_len = 4 + nrb.record_len + PADDING4(nrb.record_len);
-                        bh.block_total_length += tot_rec_len;
 
                         if (rec_off + tot_rec_len > NRES_REC_MAX_SIZE)
                                 break;
 
+                        bh.block_total_length += tot_rec_len;
                         /*
                          * The joys of BSD sockaddrs.  In practice, this
                          * cast is alignment-safe.
