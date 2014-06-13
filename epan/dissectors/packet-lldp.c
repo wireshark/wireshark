@@ -3178,7 +3178,10 @@ dissect_lldp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	lldp_tree = proto_item_add_subtree(ti, ett_lldp);
 
 	/* Get chassis id tlv */
-	rtnValue = dissect_lldp_chassis_id(tvb, pinfo, lldp_tree, offset);
+	tempShort = tvb_get_ntohs(tvb, offset);
+	new_tvb = tvb_new_subset_length(tvb, offset, TLV_INFO_LEN(tempShort)+2);
+
+	rtnValue = dissect_lldp_chassis_id(new_tvb, pinfo, lldp_tree, 0);
 	if (rtnValue < 0)
 	{
 		col_set_str(pinfo->cinfo, COL_INFO, "Invalid Chassis ID TLV");
@@ -3186,10 +3189,13 @@ dissect_lldp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		return;
 	}
 
-	offset = rtnValue;
+	offset += rtnValue;
 
 	/* Get port id tlv */
-	rtnValue = dissect_lldp_port_id(tvb, pinfo, lldp_tree, offset);
+	tempShort = tvb_get_ntohs(tvb, offset);
+	new_tvb = tvb_new_subset_length(tvb, offset, TLV_INFO_LEN(tempShort)+2);
+
+	rtnValue = dissect_lldp_port_id(new_tvb, pinfo, lldp_tree, 0);
 	if (rtnValue < 0)
 	{
 		col_set_str(pinfo->cinfo, COL_INFO, "Invalid Port ID TLV");
@@ -3197,10 +3203,13 @@ dissect_lldp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		return;
 	}
 
-	offset = rtnValue;
+	offset += rtnValue;
 
 	/* Get time to live tlv */
-	rtnValue = dissect_lldp_time_to_live(tvb, pinfo, lldp_tree, offset);
+	tempShort = tvb_get_ntohs(tvb, offset);
+	new_tvb = tvb_new_subset_length(tvb, offset, TLV_INFO_LEN(tempShort)+2);
+
+	rtnValue = dissect_lldp_time_to_live(new_tvb, pinfo, lldp_tree, 0);
 	if (rtnValue < 0)
 	{
 		col_set_str(pinfo->cinfo, COL_INFO, "Invalid Time-to-Live TLV");
@@ -3208,7 +3217,8 @@ dissect_lldp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		return;
 	}
 
-	offset = rtnValue;
+	offset += rtnValue;
+
 
 	/* Dissect optional tlv's until end-of-lldpdu is reached */
 	while (!reachedEnd)
