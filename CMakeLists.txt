@@ -30,13 +30,8 @@ cmake_policy(SET CMP0008 NEW)
 # Backward compatibility for versions < 2.6.3
 cmake_policy(SET CMP0011 OLD)
 # Policy since 2.8.1
-#cmake_policy(SET CMP0015 NEW)
+cmake_policy(SET CMP0015 NEW)
 # Policy since 2.8.11
-if( ${CMAKE_MAJOR_VERSION} GREATER 2 OR ${CMAKE_MINOR_VERSION} GREATER 8 OR
-	(${CMAKE_MINOR_VERSION} EQUAL 8 AND ${CMAKE_PATCH_VERSION} GREATER 10) )
-	# Don't: Automatically link Qt executable to qtmain target on Windows
-	cmake_policy(SET CMP0020 OLD)
-endif()
 if (POLICY CMP0020)
 	cmake_policy(SET CMP0020 OLD)
 endif()
