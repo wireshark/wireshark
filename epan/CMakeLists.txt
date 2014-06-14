@@ -456,6 +456,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-cfdp.c
 	dissectors/packet-cfm.c
 	dissectors/packet-cgmp.c
+	dissectors/packet-chargen.c
 	dissectors/packet-chdlc.c
 	dissectors/packet-cigi.c
 	dissectors/packet-cimd.c
