@@ -10,14 +10,14 @@
 Table of contents
 =================
 
-How to get started with cmake?
+How to get started with cmake (Unix/Linux and Win32/64)?
 Why cmake?
 Why not cmake?
 What needs to be done?
 Links regarding cmake
 
-How to get started with cmake?
-==============================
+How to get started with cmake (Unix/Linux and Win32/64)?
+========================================================
 
 You can find documentation on cmake at: http://www.cmake.org/
 
