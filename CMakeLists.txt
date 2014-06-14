@@ -386,11 +386,12 @@ foreach(THIS_FLAG ${WIRESHARK_SIMD_TESTS})
 	endif()
 endforeach()
 
-string(REGEX MATCH -msse4.2
-             HAVE_SSE4_2
-	     ${WIRESHARK_SIMD_FLAGS}
-)
-message( STATUS "HAVE_SSE4_2: ${HAVE_SSE4_2}" )
+if ( ${WIRESHARK_SIMD_FLAGS} )
+	string(REGEX MATCH -msse4.2
+		HAVE_SSE4_2
+		${WIRESHARK_SIMD_FLAGS}
+	)
+endif()
 
 check_c_compiler_flag(-fvisibility=hidden FVHIDDEN)
 if(FVHIDDEN)
