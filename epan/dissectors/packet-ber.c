@@ -4122,10 +4122,11 @@ dissect_ber_syntax(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     (void) dissect_unknown_ber(pinfo, tvb, 0, tree);
 }
 
-static void
-dissect_ber(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_ber(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     const char *name;
+    int offset;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "BER");
 
@@ -4136,16 +4137,18 @@ dissect_ber(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         /* if we got here we couldn't find anything better */
         col_set_str(pinfo->cinfo, COL_INFO, "Unknown BER");
 
-        (void) dissect_unknown_ber(pinfo, tvb, 0, tree);
+        offset = dissect_unknown_ber(pinfo, tvb, 0, tree);
 
     } else {
 
-        (void) call_ber_syntax_callback(decode_as_syntax, tvb, 0, pinfo, tree);
+        offset = call_ber_syntax_callback(decode_as_syntax, tvb, 0, pinfo, tree);
 
         /* see if we have a better name */
         name = get_ber_oid_syntax(decode_as_syntax);
         col_add_fstr(pinfo->cinfo, COL_INFO, "Decoded as %s", name ? name : decode_as_syntax);
     }
+
+    return offset;
 }
 
 gboolean
@@ -4385,7 +4388,7 @@ proto_register_ber(void)
 
     proto_ber = proto_register_protocol("Basic Encoding Rules (ASN.1 X.690)", "BER", "ber");
 
-    ber_handle = register_dissector("ber", dissect_ber, proto_ber);
+    ber_handle = new_register_dissector("ber", dissect_ber, proto_ber);
 
     proto_register_field_array(proto_ber, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
