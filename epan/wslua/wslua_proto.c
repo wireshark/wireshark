@@ -2545,7 +2545,7 @@ WSLUA_METHOD DissectorTable_get_dissector (lua_State *L) {
     /*
      Try to obtain a dissector from a table.
      */
-#define WSLUA_ARG_DissectorTable_try_PATTERN 2 /* The pattern to be matched (either an integer or a string depending on the table's type). */
+#define WSLUA_ARG_DissectorTable_get_dissector_PATTERN 2 /* The pattern to be matched (either an integer or a string depending on the table's type). */
 
     DissectorTable dt = checkDissectorTable(L,1);
     ftenum_t type;
@@ -2556,16 +2556,16 @@ WSLUA_METHOD DissectorTable_get_dissector (lua_State *L) {
     type = get_dissector_table_selector_type(dt->name);
 
     if (type == FT_STRING) {
-        const gchar* pattern = luaL_checkstring(L,WSLUA_ARG_DissectorTable_try_PATTERN);
+        const gchar* pattern = luaL_checkstring(L,WSLUA_ARG_DissectorTable_get_dissector_PATTERN);
 
         if (!pattern) {
-            WSLUA_ARG_ERROR(DissectorTable_try,PATTERN,"must be a string");
+            WSLUA_ARG_ERROR(DissectorTable_get_dissector,PATTERN,"must be a string");
             return 0;
         }
 
         handle = dissector_get_string_handle(dt->table,pattern);
     } else if ( type == FT_UINT32 || type == FT_UINT16 || type ==  FT_UINT8 || type ==  FT_UINT24 ) {
-        int port = luaL_checkint(L, WSLUA_ARG_DissectorTable_try_PATTERN);
+        int port = luaL_checkint(L, WSLUA_ARG_DissectorTable_get_dissector_PATTERN);
         handle = dissector_get_uint_handle(dt->table,port);
     }
 
