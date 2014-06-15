@@ -2799,8 +2799,6 @@ dissect_ospf_v2_lsa(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *t
                             tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
 
-        options = tvb_get_guint8(tvb, offset);
-
         proto_tree_add_item(ospf_lsa_tree, hf_ospf_lsa_external_type, tvb, offset, 1, ENC_NA);
 
         /* the metric field of a AS-external LAS is specified in 3 bytes */
@@ -3163,7 +3161,6 @@ dissect_ospf_v3_lsa(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *t
         proto_tree_add_text(ospf_lsa_tree, tvb, offset, 2,"# prefixes: %u",number_prefixes);
 
         /* referenced LS type */
-        referenced_ls_type=tvb_get_ntohs(tvb, offset+2);
         proto_tree_add_item(ospf_lsa_tree, hf_ospf_v3_lsa_referenced_ls_type, tvb, offset+2, 2, ENC_BIG_ENDIAN);
 
         /* Referenced Link State ID */
