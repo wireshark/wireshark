@@ -1768,11 +1768,15 @@ proto_register_ipmi(void)
 		{ "pps", "Pigeon Point Systems", IPMI_OEM_PPS },
 		{ NULL, NULL, 0 }
 	};
+#if 0
 	static ei_register_info ei[] = {
 		{ &ei_impi_parser_not_implemented, { "ipmi.parser_not_implemented", PI_UNDECODED, PI_WARN, "[PARSER NOT IMPLEMENTED]", EXPFILL }},
 	};
+#endif
 	module_t *m;
+#if 0
 	expert_module_t* expert_ipmi;
+#endif
 	guint32 i;
 
 	proto_ipmi = proto_register_protocol("Intelligent Platform Management Interface",
@@ -1791,7 +1795,9 @@ proto_register_ipmi(void)
 
 	proto_register_field_array(proto_ipmi, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+#if 0
 	expert_ipmi = expert_register_protocol(proto_ipmi);
+#endif
 
 	ipmi_netfn_setdesc(IPMI_CHASSIS_REQ, "Chassis", 0);
 	ipmi_netfn_setdesc(IPMI_BRIDGE_REQ, "Bridge", 0);

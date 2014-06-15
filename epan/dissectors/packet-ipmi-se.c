@@ -2004,7 +2004,7 @@ cfgparam_11(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *tree)
 }
 
 static void
-cfgparam_12(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree)
+cfgparam_12(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *tree)
 {
 	proto_item *ti;
 	proto_tree *s_tree;
