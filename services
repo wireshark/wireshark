@@ -847,8 +847,8 @@ isakmp            500/tcp # isakmp [Mark_Schertler] [Mark_Schertler]
 isakmp            500/udp # isakmp [Mark_Schertler] [Mark_Schertler]
 stmf              501/tcp # STMF [Alan_Ungar] [Alan_Ungar]
 stmf              501/udp # STMF [Alan_Ungar] [Alan_Ungar]
-asa-appl-proto    502/tcp # asa-appl-proto [Dennis_Dube] [Dennis_Dube]
-asa-appl-proto    502/udp # asa-appl-proto [Dennis_Dube] [Dennis_Dube]
+mbap              502/tcp # Modbus Application Protocol [modbus.org] [Dennis_Dube] 2014-06-10
+mbap              502/udp # Modbus Application Protocol [modbus.org] [Dennis_Dube] 2014-06-10
 intrinsa          503/tcp # Intrinsa [Robert_Ford] [Robert_Ford]
 intrinsa          503/udp # Intrinsa [Robert_Ford] [Robert_Ford]
 citadel           504/tcp # citadel [Art_Cancro] [Art_Cancro]
@@ -1348,6 +1348,8 @@ mdbs-daemon       800/udp # IANA assigned this well-formed service name as a rep
 mdbs_daemon       800/udp # This entry is an alias to "mdbs-daemon".This entry is now historic, not usable for use with manycommon service discovery mechanisms.
 device            801/tcp # 
 device            801/udp # 
+mbap-s            802/tcp # Modbus Application Protocol Secure [modbus.org] [Dennis_Dube] 2014-06-10
+mbap-s            802/udp # Modbus Application Protocol Secure [modbus.org] [Dennis_Dube] 2014-06-10
 fcp-udp           810/tcp # FCP [Paul_Whittemore] [Paul_Whittemore]
 fcp-udp           810/udp # FCP Datagram [Paul_Whittemore] [Paul_Whittemore]
 itm-mcell-s       828/tcp # itm-mcell-s [Portnoy_Boxman] [Portnoy_Boxman]
@@ -8011,7 +8013,7 @@ msfrs            4554/tcp # MS FRS Replication [Kev_George] [Kev_George] 2006-09
 msfrs            4554/udp # MS FRS Replication [Kev_George] [Kev_George] 2006-09
 rsip             4555/tcp # RSIP Port [RFC3103]
 rsip             4555/udp # RSIP Port [RFC3103]
-dtn-bundle       4556/tcp # DTN Bundle TCP CL Protocol [Simon_Perreault] [Simon_Perreault] 2014-03-12 [draft-irtf-dtnrg-tcp-clayer]
+dtn-bundle       4556/tcp # DTN Bundle TCP CL Protocol [Simon_Perreault] [Simon_Perreault] 2014-03-12 [RFC7242]
 dtn-bundle       4556/udp # DTN Bundle UDP CL Protocol 2006-11 2014-02-21 [RFC7122]
 dtn-bundle       4556/dccp # DTN Bundle DCCP CL Protocol 2013-11-12 2014-02-21 [RFC7122] 1685351985
 mtcevrunqss      4557/udp # Marathon everRun Quorum Service Server [David_Schwartz_2] [David_Schwartz_2] 2009-06-18
@@ -8522,6 +8524,8 @@ targus-getdata2  5202/udp # TARGUS GetData 2 [John_Keaveney] [John_Keaveney]
 targus-getdata3  5203/tcp # TARGUS GetData 3 [John_Keaveney] [John_Keaveney]
 targus-getdata3  5203/udp # TARGUS GetData 3 [John_Keaveney] [John_Keaveney]
 nomad            5209/tcp # Nomad Device Video Transfer [Morega_System] [Ashraf_Tahir] 2012-08-20
+noteza           5215/tcp # NOTEZA Data Safety Service [CNS_a.s.] [Pavel_Mendl_2] 2014-06-12
+noteza           5215/sctp # NOTEZA Data Safety Service [CNS_a.s.] [Pavel_Mendl_2] 2014-06-12
 3exmp            5221/tcp # 3eTI Extensible Management Protocol for OAMP [Bill_Rettig] [Bill_Rettig] 2010-05-19
 xmpp-client      5222/tcp # XMPP Client Connection [RFC6120]
 hpvirtgrp        5223/tcp # HP Virtual Machine Group Management [John_Williams] [John_Williams] 2007-06
