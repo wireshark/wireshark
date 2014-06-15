@@ -583,9 +583,9 @@ rq08(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 			desc, pno);
 	s_tree = proto_item_add_subtree(ti, ett_ipmi_chs_08_byte1);
 	proto_tree_add_item(s_tree, hf_ipmi_chs_08_valid, tvb, 0, 1, ENC_LITTLE_ENDIAN);
-	proto_tree_add_uint_format(s_tree, hf_ipmi_chs_08_selector, tvb, 0, 1,
-			pno, "%sBoot option parameter selector: %s (0x%02x)",
-			ipmi_dcd8(pno, 0x7f), desc, pno);
+	proto_tree_add_uint_format_value(s_tree, hf_ipmi_chs_08_selector, tvb, 0, 1,
+			pno, "Boot option parameter selector: %s (0x%02x)",
+			desc, pno);
 
 	/* Data is optional; no data means 'just set validity' */
 	if (tvb_captured_length(tvb) > 1) {
@@ -630,9 +630,9 @@ rq09(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 			"Boot option parameter selector: %s (0x%02x)",
 			desc, pno);
 	s_tree = proto_item_add_subtree(ti, ett_ipmi_chs_09_rq_byte1);
-	proto_tree_add_uint_format(s_tree, hf_ipmi_chs_09_rq_param_select, tvb, 0, 1,
-			pno, "%sBoot option parameter selector: %s (0x%02x)",
-			ipmi_dcd8(pno, 0x7f), desc, pno);
+	proto_tree_add_uint_format_value(s_tree, hf_ipmi_chs_09_rq_param_select, tvb, 0, 1,
+			pno, "Boot option parameter selector: %s (0x%02x)",
+			desc, pno);
 
 	proto_tree_add_item(tree, hf_ipmi_chs_09_rq_set_select, tvb, 1, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, hf_ipmi_chs_09_rq_block_select, tvb, 2, 1, ENC_LITTLE_ENDIAN);
@@ -665,9 +665,9 @@ rs09(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 			desc, pno);
 	s_tree = proto_item_add_subtree(ti, ett_ipmi_chs_09_rs_byte2);
 	proto_tree_add_item(s_tree, hf_ipmi_chs_09_rs_valid, tvb, 1, 1, ENC_LITTLE_ENDIAN);
-	proto_tree_add_uint_format(s_tree, hf_ipmi_chs_09_rs_param_select, tvb, 1, 1,
-			pno, "%sBoot option parameter selector: %s (0x%02x)",
-			ipmi_dcd8(pno, 0x7f), desc, pno);
+	proto_tree_add_uint_format_value(s_tree, hf_ipmi_chs_09_rs_param_select, tvb, 1, 1,
+			pno, "Boot option parameter selector: %s (0x%02x)",
+			desc, pno);
 
 	if (pno < array_length(boot_options)) {
 		sub = tvb_new_subset_remaining(tvb, 2);

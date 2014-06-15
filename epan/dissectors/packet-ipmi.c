@@ -170,6 +170,8 @@ static gint ett_header_byte_4 = -1;
 static gint ett_data = -1;
 static gint ett_typelen = -1;
 
+static expert_field ei_impi_parser_not_implemented = EI_INIT;
+
 static struct ipmi_netfn_root ipmi_cmd_tab[IPMI_NETFN_MAX];
 
 static ipmi_packet_data_t *
@@ -1220,9 +1222,7 @@ ipmi_getcmd(ipmi_netfn_t *nf, guint32 cmd)
 void
 ipmi_notimpl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	if (tree) {
-		proto_tree_add_text(tree, tvb, 0, -1, "[PARSER NOT IMPLEMENTED]");
-	}
+	proto_tree_add_expert(tree, pinfo, &ei_impi_parser_not_implemented, tvb, 0, -1);
 }
 
 char *
@@ -1768,7 +1768,11 @@ proto_register_ipmi(void)
 		{ "pps", "Pigeon Point Systems", IPMI_OEM_PPS },
 		{ NULL, NULL, 0 }
 	};
+	static ei_register_info ei[] = {
+		{ &ei_impi_parser_not_implemented, { "ipmi.parser_not_implemented", PI_UNDECODED, PI_WARN, "[PARSER NOT IMPLEMENTED]", EXPFILL }},
+	};
 	module_t *m;
+	expert_module_t* expert_ipmi;
 	guint32 i;
 
 	proto_ipmi = proto_register_protocol("Intelligent Platform Management Interface",
@@ -1787,6 +1791,7 @@ proto_register_ipmi(void)
 
 	proto_register_field_array(proto_ipmi, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	expert_ipmi = expert_register_protocol(proto_ipmi);
 
 	ipmi_netfn_setdesc(IPMI_CHASSIS_REQ, "Chassis", 0);
 	ipmi_netfn_setdesc(IPMI_BRIDGE_REQ, "Bridge", 0);

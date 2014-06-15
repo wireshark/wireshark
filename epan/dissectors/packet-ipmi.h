@@ -24,6 +24,8 @@
 #ifndef __PACKET_IPMI_H__
 #define __PACKET_IPMI_H__
 
+#include <epan/expert.h>
+
 /* IPMI definitions */
 
 /* Max 32 netfn codes: 6 bits, of which 1 designates request/response */
