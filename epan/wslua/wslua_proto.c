@@ -2086,11 +2086,12 @@ WSLUA_METHOD Dissector_call(lua_State* L) {
     Pinfo pinfo = checkPinfo(L,WSLUA_ARG_Dissector_call_PINFO);
     TreeItem ti = checkTreeItem(L,WSLUA_ARG_Dissector_call_TREE);
     const char *volatile error = NULL;
+    int ret = 0;
 
     if (! ( d && tvb && pinfo) ) return 0;
 
     TRY {
-        call_dissector(d, tvb->ws_tvb, pinfo->ws_pinfo, ti->tree);
+        ret = call_dissector(d, tvb->ws_tvb, pinfo->ws_pinfo, ti->tree);
         /* XXX Are we sure about this??? is this the right/only thing to catch */
     } CATCH_NONFATAL_ERRORS {
         show_exception(tvb->ws_tvb, pinfo->ws_pinfo, ti->tree, EXCEPT_CODE, GET_MESSAGE);
@@ -2099,7 +2100,8 @@ WSLUA_METHOD Dissector_call(lua_State* L) {
 
     if (error) { WSLUA_ERROR(Dissector_call,error); }
 
-    return 0;
+    lua_pushnumber(L,(lua_Number)ret);
+    WSLUA_RETURN(1); /* Number of bytes dissected.  Note that some dissectors always return number of bytes in incoming buffer, so be aware. */
 }
 
 WSLUA_METAMETHOD Dissector__call(lua_State* L) {
