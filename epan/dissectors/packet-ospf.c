@@ -2869,9 +2869,6 @@ dissect_ospf_v3_lsa(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *t
     guint8               reserved;
 
     /* router LSA */
-#if 0
-    guint8               router_priority;
-#endif
     guint32              number_prefixes;
     guint8               prefix_length;
     guint16              reserved16;
@@ -2879,9 +2876,6 @@ dissect_ospf_v3_lsa(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *t
     guint16              referenced_ls_type;
 
     guint8               flags;
-#if 0
-    guint32              external_route_tag;
-#endif
 
 
     ls_type = tvb_get_ntohs(tvb, offset + 2);
@@ -3102,11 +3096,7 @@ dissect_ospf_v3_lsa(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *t
 
         /* External Route Tag (optional - only if T-flag is on) */
         if ( (offset < end_offset) && (flags & OSPF_V3_AS_EXTERNAL_FLAG_T) ) {
-#if 0
-            external_route_tag=tvb_get_ntohl(tvb, offset);
-#endif
             proto_tree_add_item(ospf_lsa_tree, hf_ospf_v3_lsa_external_route_tag, tvb, offset, 4, ENC_BIG_ENDIAN);
-
             offset+=4;
         }
 
@@ -3121,9 +3111,6 @@ dissect_ospf_v3_lsa(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *t
     case OSPF_V3_LSTYPE_LINK:
 
         /* router priority */
-#if 0
-        router_priority=tvb_get_guint8(tvb, offset);
-#endif
         proto_tree_add_item(ospf_lsa_tree, hf_ospf_v3_lsa_router_priority, tvb, offset, 1, ENC_NA);
 
         /* options field in an link-lsa */
