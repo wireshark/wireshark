@@ -1255,7 +1255,7 @@ dissect_snmp_engineid(proto_tree *tree, tvbuff_t *tvb, int offset, int len)
 static void set_ue_keys(snmp_ue_assoc_t* n ) {
 	guint key_size = n->user.authModel->key_size;
 
-	n->user.authKey.data = (guint8 *)se_alloc(key_size);
+	n->user.authKey.data = (guint8 *)g_malloc(key_size);
 	n->user.authKey.len = key_size;
 	n->user.authModel->pass2key(n->user.authPassword.data,
 				    n->user.authPassword.len,
@@ -1275,7 +1275,7 @@ static void set_ue_keys(snmp_ue_assoc_t* n ) {
 		while (key_len < need_key_len)
 			key_len += key_size;
 
-		n->user.privKey.data = (guint8 *)se_alloc(key_len);
+		n->user.privKey.data = (guint8 *)g_malloc(key_len);
 		n->user.privKey.len  = need_key_len;
 
 		n->user.authModel->pass2key(n->user.privPassword.data,
@@ -1299,7 +1299,7 @@ static void set_ue_keys(snmp_ue_assoc_t* n ) {
 		}
 
 	} else {
-		n->user.privKey.data = (guint8 *)se_alloc(key_size);
+		n->user.privKey.data = (guint8 *)g_malloc(key_size);
 		n->user.privKey.len = key_size;
 		n->user.authModel->pass2key(n->user.privPassword.data,
 					    n->user.privPassword.len,
@@ -1310,27 +1310,27 @@ static void set_ue_keys(snmp_ue_assoc_t* n ) {
 }
 
 static snmp_ue_assoc_t*
-ue_se_dup(snmp_ue_assoc_t* o)
+ue_dup(snmp_ue_assoc_t* o)
 {
-	snmp_ue_assoc_t* d = (snmp_ue_assoc_t*)se_memdup(o,sizeof(snmp_ue_assoc_t));
+	snmp_ue_assoc_t* d = (snmp_ue_assoc_t*)g_memdup(o,sizeof(snmp_ue_assoc_t));
 
 	d->user.authModel = o->user.authModel;
 
 	d->user.privProtocol = o->user.privProtocol;
 
-	d->user.userName.data = (guint8 *)se_memdup(o->user.userName.data,o->user.userName.len);
+	d->user.userName.data = (guint8 *)g_memdup(o->user.userName.data,o->user.userName.len);
 	d->user.userName.len = o->user.userName.len;
 
-	d->user.authPassword.data = o->user.authPassword.data ? (guint8 *)se_memdup(o->user.authPassword.data,o->user.authPassword.len) : NULL;
+	d->user.authPassword.data = o->user.authPassword.data ? (guint8 *)g_memdup(o->user.authPassword.data,o->user.authPassword.len) : NULL;
 	d->user.authPassword.len = o->user.authPassword.len;
 
-	d->user.privPassword.data = o->user.privPassword.data ? (guint8 *)se_memdup(o->user.privPassword.data,o->user.privPassword.len) : NULL;
+	d->user.privPassword.data = o->user.privPassword.data ? (guint8 *)g_memdup(o->user.privPassword.data,o->user.privPassword.len) : NULL;
 	d->user.privPassword.len = o->user.privPassword.len;
 
 	d->engine.len = o->engine.len;
 
 	if (d->engine.len) {
-		d->engine.data = (guint8 *)se_memdup(o->engine.data,o->engine.len);
+		d->engine.data = (guint8 *)g_memdup(o->engine.data,o->engine.len);
 		set_ue_keys(d);
 	}
 
@@ -1338,20 +1338,131 @@ ue_se_dup(snmp_ue_assoc_t* o)
 
 }
 
+static void*
+snmp_users_copy_cb(void* dest, const void* orig, size_t len _U_)
+{
+	const snmp_ue_assoc_t* o = (const snmp_ue_assoc_t*)orig;
+	snmp_ue_assoc_t* d = (snmp_ue_assoc_t*)dest;
+
+	d->auth_model = o->auth_model;
+	d->user.authModel = auth_models[o->auth_model];
+
+	d->priv_proto = o->priv_proto;
+	d->user.privProtocol = priv_protos[o->priv_proto];
+
+	d->user.userName.data = (guint8*)g_memdup(o->user.userName.data,o->user.userName.len);
+	d->user.userName.len = o->user.userName.len;
+
+	d->user.authPassword.data = o->user.authPassword.data ? (guint8*)g_memdup(o->user.authPassword.data,o->user.authPassword.len) : NULL;
+	d->user.authPassword.len = o->user.authPassword.len;
+
+	d->user.privPassword.data = o->user.privPassword.data ? (guint8*)g_memdup(o->user.privPassword.data,o->user.privPassword.len) : NULL;
+	d->user.privPassword.len = o->user.privPassword.len;
+
+	d->engine.len = o->engine.len;
+	if (o->engine.data) {
+		d->engine.data = (guint8*)g_memdup(o->engine.data,o->engine.len);
+	}
+
+	d->user.authKey.data = o->user.authKey.data ? (guint8*)g_memdup(o->user.authKey.data,o->user.authKey.len) : NULL;
+	d->user.authKey.len = o->user.authKey.len;
+
+	d->user.privKey.data = o->user.privKey.data ? (guint8*)g_memdup(o->user.privKey.data,o->user.privKey.len) : NULL;
+	d->user.privKey.len = o->user.privKey.len;
+
+	return d;
+}
+
+static void
+snmp_users_free_cb(void* p)
+{
+	snmp_ue_assoc_t* ue = (snmp_ue_assoc_t*)p;
+	g_free(ue->user.userName.data);
+	g_free(ue->user.authPassword.data);
+	g_free(ue->user.privPassword.data);
+	g_free(ue->user.authKey.data);
+	g_free(ue->user.privKey.data);
+	g_free(ue->engine.data);
+}
+
+static void
+snmp_users_update_cb(void* p _U_, const char** err)
+{
+	snmp_ue_assoc_t* ue = (snmp_ue_assoc_t*)p;
+	GString* es = g_string_new("");
+	unsigned int i;
+
+	*err = NULL;
+
+	if (num_ueas == 0)
+		/* Nothing to update */
+		return;
+
+	if (! ue->user.userName.len)
+		g_string_append_printf(es,"no userName\n");
+
+	for (i=0; i<num_ueas-1; i++) {
+		snmp_ue_assoc_t* u = &(ueas[i]);
+
+		/* RFC 3411 section 5 */
+		if ((u->engine.len > 0) && (u->engine.len < 5 || u->engine.len > 32)) {
+			g_string_append_printf(es, "Invalid engineId length (%u). Must be between 5 and 32 (10 and 64 hex digits)\n", u->engine.len);
+		}
+
+
+		if ( u->user.userName.len == ue->user.userName.len
+			&& u->engine.len == ue->engine.len && (u != ue)) {
+
+			if (u->engine.len > 0 && memcmp( u->engine.data,   ue->engine.data,  u->engine.len ) == 0) {
+				if ( memcmp( u->user.userName.data, ue->user.userName.data, ue->user.userName.len ) == 0 ) {
+					/* XXX: make a string for the engineId */
+					g_string_append_printf(es,"Duplicate key (userName='%s')\n",ue->user.userName.data);
+				}
+			}
+
+			if (u->engine.len == 0) {
+				if ( memcmp( u->user.userName.data, ue->user.userName.data, ue->user.userName.len ) == 0 ) {
+					g_string_append_printf(es,"Duplicate key (userName='%s' engineId=NONE)\n",ue->user.userName.data);
+				}
+			}
+		}
+	}
+
+	if (es->len) {
+		es = g_string_truncate(es,es->len-1);
+		*err = g_string_free(es, FALSE);
+	}
+
+	return;
+}
+
+static void
+free_ue_cache(snmp_ue_assoc_t **cache)
+{
+	static snmp_ue_assoc_t *a, *nxt;
+
+	for (a = *cache; a; a = nxt) {
+		nxt = a->next;
+		snmp_users_free_cb(a);
+		g_free(a);
+	}
+
+	*cache = NULL;
+}
 
 #define CACHE_INSERT(c,a) if (c) { snmp_ue_assoc_t* t = c; c = a; c->next = t; } else { c = a; a->next = NULL; }
 
 static void
 renew_ue_cache(void)
 {
-	localized_ues = NULL;
-	unlocalized_ues = NULL;
+	free_ue_cache(&localized_ues);
+	free_ue_cache(&unlocalized_ues);
 
 	if (num_ueas) {
 		guint i;
 
 		for(i = 0; i < num_ueas; i++) {
-			snmp_ue_assoc_t* a = ue_se_dup(&(ueas[i]));
+			snmp_ue_assoc_t* a = ue_dup(&(ueas[i]));
 
 			if (a->engine.len) {
 				CACHE_INSERT(localized_ues,a);
@@ -1368,9 +1479,9 @@ renew_ue_cache(void)
 static snmp_ue_assoc_t*
 localize_ue( snmp_ue_assoc_t* o, const guint8* engine, guint engine_len )
 {
-	snmp_ue_assoc_t* n = (snmp_ue_assoc_t*)se_memdup(o,sizeof(snmp_ue_assoc_t));
+	snmp_ue_assoc_t* n = (snmp_ue_assoc_t*)g_memdup(o,sizeof(snmp_ue_assoc_t));
 
-	n->engine.data = (guint8*)se_memdup(engine,engine_len);
+	n->engine.data = (guint8*)g_memdup(engine,engine_len);
 	n->engine.len = engine_len;
 
 	set_ue_keys(n);
@@ -2177,105 +2288,6 @@ process_prefs(void)
 {
 }
 
-static void*
-snmp_users_copy_cb(void* dest, const void* orig, size_t len _U_)
-{
-	const snmp_ue_assoc_t* o = (const snmp_ue_assoc_t*)orig;
-	snmp_ue_assoc_t* d = (snmp_ue_assoc_t*)dest;
-
-	d->auth_model = o->auth_model;
-	d->user.authModel = auth_models[o->auth_model];
-
-	d->priv_proto = o->priv_proto;
-	d->user.privProtocol = priv_protos[o->priv_proto];
-
-	d->user.userName.data = (guint8*)g_memdup(o->user.userName.data,o->user.userName.len);
-	d->user.userName.len = o->user.userName.len;
-
-	d->user.authPassword.data = o->user.authPassword.data ? (guint8*)g_memdup(o->user.authPassword.data,o->user.authPassword.len) : NULL;
-	d->user.authPassword.len = o->user.authPassword.len;
-
-	d->user.privPassword.data = o->user.privPassword.data ? (guint8*)g_memdup(o->user.privPassword.data,o->user.privPassword.len) : NULL;
-	d->user.privPassword.len = o->user.privPassword.len;
-
-	d->engine.len = o->engine.len;
-	if (o->engine.data) {
-		d->engine.data = (guint8*)g_memdup(o->engine.data,o->engine.len);
-	}
-
-	d->user.authKey.data = o->user.authKey.data ? (guint8*)g_memdup(o->user.authKey.data,o->user.authKey.len) : NULL;
-	d->user.authKey.len = o->user.authKey.len;
-
-	d->user.privKey.data = o->user.privKey.data ? (guint8*)g_memdup(o->user.privKey.data,o->user.privKey.len) : NULL;
-	d->user.privKey.len = o->user.privKey.len;
-
-	return d;
-}
-
-static void
-snmp_users_free_cb(void* p)
-{
-	snmp_ue_assoc_t* ue = (snmp_ue_assoc_t*)p;
-	g_free(ue->user.userName.data);
-	g_free(ue->user.authPassword.data);
-	g_free(ue->user.privPassword.data);
-	g_free(ue->user.authKey.data);
-	g_free(ue->user.privKey.data);
-	g_free(ue->engine.data);
-}
-
-static void
-snmp_users_update_cb(void* p _U_, const char** err)
-{
-	snmp_ue_assoc_t* ue = (snmp_ue_assoc_t*)p;
-	GString* es = g_string_new("");
-	unsigned int i;
-
-	*err = NULL;
-
-	if (num_ueas == 0)
-		/* Nothing to update */
-		return;
-
-	if (! ue->user.userName.len)
-		g_string_append_printf(es,"no userName\n");
-
-	for (i=0; i<num_ueas-1; i++) {
-		snmp_ue_assoc_t* u = &(ueas[i]);
-
-		/* RFC 3411 section 5 */
-		if ((u->engine.len > 0) && (u->engine.len < 5 || u->engine.len > 32)) {
-			g_string_append_printf(es, "Invalid engineId length (%u). Must be between 5 and 32 (10 and 64 hex digits)\n", u->engine.len);
-		}
-
-
-		if ( u->user.userName.len == ue->user.userName.len
-			&& u->engine.len == ue->engine.len && (u != ue)) {
-
-			if (u->engine.len > 0 && memcmp( u->engine.data,   ue->engine.data,  u->engine.len ) == 0) {
-				if ( memcmp( u->user.userName.data, ue->user.userName.data, ue->user.userName.len ) == 0 ) {
-					/* XXX: make a string for the engineId */
-					g_string_append_printf(es,"Duplicate key (userName='%s')\n",ue->user.userName.data);
-				}
-			}
-
-			if (u->engine.len == 0) {
-				if ( memcmp( u->user.userName.data, ue->user.userName.data, ue->user.userName.len ) == 0 ) {
-					g_string_append_printf(es,"Duplicate key (userName='%s' engineId=NONE)\n",ue->user.userName.data);
-				}
-			}
-		}
-	}
-
-	if (es->len) {
-		es = g_string_truncate(es,es->len-1);
-		*err = g_string_free(es, FALSE);
-	}
-
-	return;
-}
-
-
 UAT_LSTRING_CB_DEF(snmp_users,userName,snmp_ue_assoc_t,user.userName.data,user.userName.len)
 UAT_LSTRING_CB_DEF(snmp_users,authPassword,snmp_ue_assoc_t,user.authPassword.data,user.authPassword.len)
 UAT_LSTRING_CB_DEF(snmp_users,privPassword,snmp_ue_assoc_t,user.privPassword.data,user.privPassword.len)
@@ -2648,3 +2660,16 @@ proto_reg_handoff_smux(void)
 	smux_handle = create_dissector_handle(dissect_smux, proto_smux);
 	dissector_add_uint("tcp.port", TCP_PORT_SMUX, smux_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */
