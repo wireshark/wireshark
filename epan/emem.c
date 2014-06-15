@@ -1018,12 +1018,6 @@ ep_strdup_vprintf(const gchar *fmt, va_list ap)
 	return emem_strdup_vprintf(fmt, ap, ep_alloc);
 }
 
-static gchar *
-se_strdup_vprintf(const gchar* fmt, va_list ap)
-{
-	return emem_strdup_vprintf(fmt, ap, se_alloc);
-}
-
 gchar *
 ep_strdup_printf(const gchar *fmt, ...)
 {
@@ -1032,18 +1026,6 @@ ep_strdup_printf(const gchar *fmt, ...)
 
 	va_start(ap, fmt);
 	dst = ep_strdup_vprintf(fmt, ap);
-	va_end(ap);
-	return dst;
-}
-
-gchar *
-se_strdup_printf(const gchar *fmt, ...)
-{
-	va_list ap;
-	gchar *dst;
-
-	va_start(ap, fmt);
-	dst = se_strdup_vprintf(fmt, ap);
 	va_end(ap);
 	return dst;
 }

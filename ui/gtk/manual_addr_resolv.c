@@ -139,7 +139,9 @@ manual_addr_resolv_dlg(GtkWidget *w _U_, gpointer data)
     addr_list = get_ip_address_list_from_packet_list_row(data);
     for (addr_entry = addr_list; addr_entry != NULL; addr_entry = g_list_next(addr_entry)) {
       gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(addr_cb), (const gchar *)addr_entry->data);
+      g_free(addr_entry->data);
     }
+    g_list_free(addr_entry);
     gtk_combo_box_set_active(GTK_COMBO_BOX(addr_cb), 0);
   }
   ws_gtk_grid_attach_defaults(GTK_GRID(grid), addr_cb, 1, 0, 1, 1);

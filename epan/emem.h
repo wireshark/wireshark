@@ -120,11 +120,6 @@ WS_DLL_PUBLIC
 void* se_alloc0(size_t size) G_GNUC_MALLOC;
 #define se_new0(type) ((type*)se_alloc0(sizeof(type)))
 
-/* Create a formatted string with a capture lifetime scope */
-WS_DLL_PUBLIC
-gchar* se_strdup_printf(const gchar* fmt, ...)
-     G_GNUC_MALLOC G_GNUC_PRINTF(1, 2);
-
 /** release all memory allocated */
 void se_free_all(void);
 
