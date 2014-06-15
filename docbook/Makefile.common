@@ -242,16 +242,16 @@ CLEANDIRS =	\
 	wsluarm_src
 
 WSLUA_MODULES = \
-	../epan/wslua/wslua_dumper.c \
-	../epan/wslua/wslua_field.c \
-	../epan/wslua/wslua_gui.c \
-	../epan/wslua/wslua_listener.c \
-	../epan/wslua/wslua_pinfo.c \
-	../epan/wslua/wslua_proto.c \
-	../epan/wslua/wslua_int64.c \
-	../epan/wslua/wslua_struct.c \
-	../epan/wslua/wslua_tree.c \
-	../epan/wslua/wslua_tvb.c \
-	../epan/wslua/wslua_file.c \
-	../epan/wslua/wslua_dir.c \
-	../epan/wslua/wslua_util.c
+	$(top_srcdir)/epan/wslua/wslua_dumper.c \
+	$(top_srcdir)/epan/wslua/wslua_field.c \
+	$(top_srcdir)/epan/wslua/wslua_gui.c \
+	$(top_srcdir)/epan/wslua/wslua_listener.c \
+	$(top_srcdir)/epan/wslua/wslua_pinfo.c \
+	$(top_srcdir)/epan/wslua/wslua_proto.c \
+	$(top_srcdir)/epan/wslua/wslua_int64.c \
+	$(top_srcdir)/epan/wslua/wslua_struct.c \
+	$(top_srcdir)/epan/wslua/wslua_tree.c \
+	$(top_srcdir)/epan/wslua/wslua_tvb.c \
+	$(top_srcdir)/epan/wslua/wslua_file.c \
+	$(top_srcdir)/epan/wslua/wslua_dir.c \
+	$(top_srcdir)/epan/wslua/wslua_util.c
