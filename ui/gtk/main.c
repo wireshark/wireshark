@@ -612,15 +612,15 @@ get_filter_from_packet_list_row_and_column(gpointer data)
                     header_field_info *hfi = proto_registrar_get_byname(cfile.cinfo.col_custom_field[column]);
                     if (hfi && hfi->parent == -1) {
                         /* Protocol only */
-                        buf = se_strdup(cfile.cinfo.col_expr.col_expr[column]);
+                        buf = g_strdup(cfile.cinfo.col_expr.col_expr[column]);
                     } else if (hfi && IS_FT_STRING(hfi->type)) {
                         /* Custom string, add quotes */
-                        buf = se_strdup_printf("%s == \"%s\"", cfile.cinfo.col_expr.col_expr[column],
+                        buf = g_strdup_printf("%s == \"%s\"", cfile.cinfo.col_expr.col_expr[column],
                                                cfile.cinfo.col_expr.col_expr_val[column]);
                     }
                 }
                 if (buf == NULL) {
-                    buf = se_strdup_printf("%s == %s", cfile.cinfo.col_expr.col_expr[column],
+                    buf = g_strdup_printf("%s == %s", cfile.cinfo.col_expr.col_expr[column],
                                            cfile.cinfo.col_expr.col_expr_val[column]);
                 }
             }
@@ -635,9 +635,14 @@ get_filter_from_packet_list_row_and_column(gpointer data)
 void
 match_selected_plist_cb(gpointer data, MATCH_SELECTED_E action)
 {
+    char *filter;
+
+    filter = get_filter_from_packet_list_row_and_column((GtkWidget *)data);
+
     match_selected_cb_do((GtkWidget *)g_object_get_data(G_OBJECT(data), E_DFILTER_TE_KEY),
-        action,
-        get_filter_from_packet_list_row_and_column((GtkWidget *)data));
+        action, filter);
+
+    g_free(filter);
 }
 
 /* This function allows users to right click in the details window and copy the text
