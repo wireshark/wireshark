@@ -42,6 +42,7 @@
 #include <math.h>
 
 #include <epan/packet.h>
+#include <epan/to_str.h>
 #include "packet-tcp.h"
 #include <epan/prefs.h>
 
@@ -690,6 +691,12 @@ static int hf_ipdc_protocol_id = -1;
 static int hf_ipdc_trans_id_size = -1;
 static int hf_ipdc_trans_id = -1;
 static int hf_ipdc_message_code = -1;
+static int hf_ipdc_ascii = -1;
+static int hf_ipdc_uint = -1;
+static int hf_ipdc_ipv4 = -1;
+static int hf_ipdc_line_status = -1;
+static int hf_ipdc_channel_status = -1;
+static int hf_ipdc_enctype = -1;
 
 static gint ett_ipdc = -1;
 static gint ett_ipdc_tag = -1;
@@ -722,6 +729,7 @@ dissect_ipdc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 	const char *enum_val = "";
 	char tmp_tag_text[IPDC_STR_LEN + 1];
 	const value_string *val_ptr;
+	gint hf_ptr;
 	guint32	type;
 	guint len;
 	guint i;
@@ -828,8 +836,8 @@ dissect_ipdc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 				DISSECTOR_ASSERT(len<=IPDC_STR_LEN);
 				tvb_memcpy(tvb, tmp_tag_text, offset+2, len);
 				tmp_tag_text[len] = 0;
-				proto_tree_add_text(tag_tree, tvb, offset,
-						    len + 2, "0x%2.2x: %s: %s", tag, des,
+				proto_tree_add_string_format(tag_tree, hf_ipdc_ascii, tvb, offset,
+						    len + 2, tmp_tag_text, "%s (0x%2.2x): %s", des, tag,
 						    tmp_tag_text);
 			break;
 
@@ -846,15 +854,15 @@ dissect_ipdc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 								     &tag_enum_type_ext, TEXT_UNDEFINED);
 
 				if (len == 1 && strcmp(enum_val, TEXT_UNDEFINED) != 0) {
-					proto_tree_add_text(tag_tree, tvb,
-							    offset, len + 2,
-							    "0x%2.2x: %s: %s",
-							    tag, des, enum_val);
+					proto_tree_add_uint_format(tag_tree, hf_ipdc_uint, tvb,
+							    offset, len + 2, tmp_tag,
+							    "%s (0x%2.2x): %s",
+							    des, tag, enum_val);
 				} else {
-					proto_tree_add_text(tag_tree, tvb,
-							    offset, len + 2,
-							    "0x%2.2x: %s: %u",
-							    tag, des, tmp_tag);
+					proto_tree_add_uint_format(tag_tree, hf_ipdc_uint, tvb,
+							    offset, len + 2, tmp_tag,
+							    "%s (0x%2.2x): %u",
+							    des, tag, tmp_tag);
 				}
 			break;
 
@@ -862,48 +870,37 @@ dissect_ipdc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 			case IPDC_IPA:
 				switch (len) {
 					case 4:
-						g_snprintf(tmp_tag_text,
-							   IPDC_STR_LEN,
-							   "%u.%u.%u.%u",
-							   tvb_get_guint8(tvb, offset + 2),
-							   tvb_get_guint8(tvb, offset + 3),
-							   tvb_get_guint8(tvb, offset + 4),
-							   tvb_get_guint8(tvb, offset + 5)
-							);
+						proto_tree_add_ipv4_format(tag_tree, hf_ipdc_ipv4, tvb,
+							    offset, len + 2, tvb_get_ntohl(tvb, offset + 2),
+							    "%s (0x%2.2x): %s",
+							    des, tag, tvb_ip_to_str(tvb, offset + 2));
 						break;
 					case 6:
-						g_snprintf(tmp_tag_text,
-							   IPDC_STR_LEN,
-							   "%u.%u.%u.%u:%u",
-							   tvb_get_guint8(tvb, offset + 2),
-							   tvb_get_guint8(tvb, offset + 3),
-							   tvb_get_guint8(tvb, offset + 4),
-							   tvb_get_guint8(tvb, offset + 5),
-							   tvb_get_ntohs(tvb, offset + 6));
+						proto_tree_add_ipv4_format(tag_tree, hf_ipdc_ipv4, tvb,
+							    offset, len + 2, tvb_get_ntohl(tvb, offset + 2),
+							    "%s (0x%2.2x): %s:%u",
+							    des, tag, tvb_ip_to_str(tvb, offset + 2), tvb_get_ntohs(tvb, offset + 6));
 						break;
 					default:
-						g_snprintf(tmp_tag_text,
-							   IPDC_STR_LEN,
-							   "Invalid IP address length %u",
-							   len);
+						proto_tree_add_text(tag_tree, tvb,
+								    offset, len + 2,
+								    "%s (0x%2.2x): Invalid IP address length %u",
+								    des, tag, len);
 				}
-				proto_tree_add_text(tag_tree, tvb,
-						    offset, len + 2,
-						    "0x%2.2x: %s: %s",
-						    tag, des, tmp_tag_text);
 				break;
 			/* Line status arrays */
 			case IPDC_LINESTATUS:
 			case IPDC_CHANNELSTATUS:
 				proto_tree_add_text(tag_tree, tvb, offset,
-						    len + 2, "0x%2.2x: %s", tag, des);
+						    len + 2, "%s (0x%2.2x)", des, tag);
 				val_ptr = (type == IPDC_LINESTATUS) ? line_status_vals : channel_status_vals;
+				hf_ptr = (type == IPDC_LINESTATUS) ? hf_ipdc_line_status : hf_ipdc_channel_status;
 				for (i = 0; i < len; i++) {
 					status = tvb_get_guint8(tvb,offset+2+i);
-					proto_tree_add_text(tag_tree, tvb,
-							    offset + 2 + i, 1,
-							    " %.2u: %.2x (%s)",
-							    i + 1, status,
+					proto_tree_add_uint_format(tag_tree, hf_ptr, tvb,
+							    offset + 2 + i, 1, status,
+							    "s (0x%2.2x) %.2u: %u (%s)",
+							    des, tag, i + 1, status,
 							    val_to_str_const(status,
 									     val_ptr,
 									     TEXT_UNDEFINED));
@@ -915,19 +912,19 @@ dissect_ipdc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 				call_dissector(q931_handle,q931_tvb,pinfo,tree);
 				break;
 			case IPDC_ENCTYPE:
-				proto_tree_add_text(tag_tree, tvb,
-						    offset, len + 2,
-						    "0x%2.2x: %s: %s",
-						    tag, des, val_to_str_const(
+				proto_tree_add_uint_format(tag_tree, hf_ipdc_enctype, tvb,
+							offset, len + 2, tvb_get_guint8(tvb,offset+2),
+							"s (0x%2.2x): %s",
+							des, tag, val_to_str_const(
 							    tvb_get_guint8(tvb,offset+2),
 							    encoding_type_vals,
 							    TEXT_UNDEFINED));
+
 				if (len == 2) {
-					proto_tree_add_text(tag_tree, tvb,
-							    offset, len + 2,
-							    "0x%2.2x: %s: %u",
-							    tag, des,
-							    tvb_get_guint8(tvb,offset+3));
+					proto_tree_add_uint_format(tag_tree, hf_ipdc_enctype, tvb,
+							    offset, len + 2, tvb_get_guint8(tvb,offset+3),
+							    "s (0x%2.2x): %u",
+							    des, tag, tvb_get_guint8(tvb,offset+3));
 				}
 				break;
 				/* default */
@@ -1000,6 +997,42 @@ proto_register_ipdc(void)
 		{ &hf_ipdc_message_code,
 		  { "Message code",	"ipdc.message_code",
 		    FT_UINT16, BASE_HEX, VALS(message_code_vals), 0x0,
+		    NULL, HFILL }
+		},
+
+		{ &hf_ipdc_ascii,
+		  { "ASCII value",	"ipdc.ascii",
+		    FT_STRING, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }
+		},
+
+		{ &hf_ipdc_uint,
+		  { "Byte/UINT value",	"ipdc.uint",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+
+		{ &hf_ipdc_ipv4,
+		  { "IPv4 value",	"ipdc.ipv4",
+		    FT_IPv4, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }
+		},
+
+		{ &hf_ipdc_line_status,
+		  { "Line Status value",	"ipdc.line_status",
+		    FT_UINT8, BASE_DEC, VALS(line_status_vals), 0x0,
+		    NULL, HFILL }
+		},
+
+		{ &hf_ipdc_channel_status,
+		  { "Channel Status value",	"ipdc.channel_status",
+		    FT_UINT8, BASE_DEC, VALS(channel_status_vals), 0x0,
+		    NULL, HFILL }
+		},
+
+		{ &hf_ipdc_enctype,
+		  { "Enctype value",	"ipdc.enctype",
+		    FT_UINT16, BASE_DEC, NULL, 0x0,
 		    NULL, HFILL }
 		},
 	};
