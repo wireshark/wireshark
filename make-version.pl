@@ -173,7 +173,7 @@ sub read_repo_info {
 				$commit_id = $parts[-1];
 			}
 
-			chomp($line = qx{git ls-remote --get-url origin});
+			chomp($line = qx{git --git-dir=$srcdir/.git ls-remote --get-url origin});
 			if (defined($line)) {
 				$repo_url = $line;
 			}
