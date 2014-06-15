@@ -120,14 +120,6 @@ WS_DLL_PUBLIC
 void* se_alloc0(size_t size) G_GNUC_MALLOC;
 #define se_new0(type) ((type*)se_alloc0(sizeof(type)))
 
-/** Duplicate a string with a capture lifetime scope */
-WS_DLL_PUBLIC
-gchar* se_strdup(const gchar* src) G_GNUC_MALLOC;
-
-/** Duplicate a buffer with a capture lifetime scope */
-WS_DLL_PUBLIC
-void* se_memdup(const void* src, size_t len) G_GNUC_MALLOC;
-
 /* Create a formatted string with a capture lifetime scope */
 WS_DLL_PUBLIC
 gchar* se_strdup_printf(const gchar* fmt, ...)

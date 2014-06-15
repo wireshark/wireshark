@@ -966,12 +966,6 @@ ep_strdup(const gchar *src)
 	return emem_strdup(src, ep_alloc);
 }
 
-gchar *
-se_strdup(const gchar *src)
-{
-	return emem_strdup(src, se_alloc);
-}
-
 static gchar *
 emem_strndup(const gchar *src, size_t len, void *allocator(size_t))
 {
@@ -998,12 +992,6 @@ void *
 ep_memdup(const void* src, size_t len)
 {
 	return memcpy(ep_alloc(len), src, len);
-}
-
-void *
-se_memdup(const void* src, size_t len)
-{
-	return memcpy(se_alloc(len), src, len);
 }
 
 static gchar *

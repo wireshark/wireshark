@@ -54,7 +54,7 @@ extern "C" {
  *
  * UATs are meant for short tables of user data (passwords and such) there's
  * no quick access, you must iterate through them each time to fetch the record
- * you are looking for. Use uat_dup() or uat_se_dup() if necessary.
+ * you are looking for.
  *
  * Only users via gui or editing the file can add/remove records your code cannot.
  */
@@ -299,15 +299,6 @@ gboolean uat_load_str(uat_t* uat_in, char* entry, char** err);
  */
 uat_t *uat_find(gchar *name);
 
-/*
- * uat_dup()
- * uat_se_dup()
- * make a reliable copy of an uat for internal use,
- * so that pointers to records can be kept through calls.
- * return NULL on zero len.
- */
-void* uat_dup(uat_t*, guint* len_p); /* to be freed */
-void* uat_se_dup(uat_t*, guint* len_p);
 WS_DLL_PUBLIC
 uat_t* uat_get_table_by_name(const char* name);
 

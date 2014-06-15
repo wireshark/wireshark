@@ -393,18 +393,6 @@ void uat_clear(uat_t* uat) {
     *((uat)->nrows_p) = 0;
 }
 
-void* uat_dup(uat_t* uat, guint* len_p) {
-    guint size = (guint) (uat->record_size * uat->user_data->len);
-    *len_p = size;
-    return size ? g_memdup(uat->user_data->data,size) : NULL ;
-}
-
-void* uat_se_dup(uat_t* uat, guint* len_p) {
-    guint size = (guint) (uat->record_size * uat->user_data->len);
-    *len_p = (guint) size;
-    return size ? se_memdup(uat->user_data->data,size) : NULL ;
-}
-
 void uat_unload_all(void) {
     guint i;
 
