@@ -419,9 +419,9 @@ void CaptureInterfacesDialog::updateStatistics(void)
     interface_t device;
 
     for (int row = 0; row < ui->tbInterfaces->rowCount(); row++) {
-        points = new QList<int>();
 
         for (guint if_idx = 0; if_idx < global_capture_opts.all_ifaces->len; if_idx++) {
+            QTableWidgetItem *ti;
             device = g_array_index(global_capture_opts.all_ifaces, interface_t, if_idx);
             QString device_name = ui->tbInterfaces->item(row, INTERFACE)->text();
             if (device_name.compare(device.display_name) || device.hidden || device.type == IF_PIPE) {
@@ -429,7 +429,6 @@ void CaptureInterfacesDialog::updateStatistics(void)
             }
             points = ui->tbInterfaces->item(row, TRAFFIC)->data(Qt::UserRole).value<QList<int> *>();
             points->append(device.packet_diff);
-            QTableWidgetItem *ti = new QTableWidgetItem();
             ti = ui->tbInterfaces->item(row, TRAFFIC);
             ti->setData(Qt::UserRole, qVariantFromValue(points));
             ui->tbInterfaces->viewport()->update();
