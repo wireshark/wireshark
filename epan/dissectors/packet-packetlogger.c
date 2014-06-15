@@ -50,6 +50,8 @@ static dissector_handle_t data_handle;
 #define PKT_HCI_EVENT       0x01
 #define PKT_SENT_ACL_DATA   0x02
 #define PKT_RECV_ACL_DATA   0x03
+#define PKT_LMP_SEND        0x0A
+#define PKT_LMP_RECV        0x0B
 #define PKT_POWER           0xFB
 #define PKT_NOTE            0xFC
 #define PKT_NEW_CONTROLLER  0xFE
@@ -59,6 +61,8 @@ static const value_string type_vals[] = {
   { PKT_HCI_EVENT,       "HCI Event"       },
   { PKT_SENT_ACL_DATA,   "Sent ACL Data"   },
   { PKT_RECV_ACL_DATA,   "Recv ACL Data"   },
+  { PKT_LMP_SEND,        "Sent LMP Data"   },
+  { PKT_LMP_RECV,        "Recv LMP Data"   },
   { PKT_POWER,           "Power"           },
   { PKT_NOTE,            "Note"            },
   { PKT_NEW_CONTROLLER,  "New Controller"  },
