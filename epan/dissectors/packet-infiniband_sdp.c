@@ -214,6 +214,9 @@ dissect_ib_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     }
     convo_data = (conversation_infiniband_data *)conversation_get_proto_data(conv, proto_infiniband);
 
+    if (!convo_data)
+	    return 0;
+
     if (!(convo_data->service_id & SERVICE_ID_MASK))
         return 0;   /* the service id doesn't match that of SDP - nothing for us to do here */
 
