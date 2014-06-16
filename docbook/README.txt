@@ -92,12 +92,11 @@ http://www.oracle.com/technetwork/java/javasebusiness/downloads/java-archive-dow
 then extract the archive, then copy JimiProClasses.zip to FOP's lib dir and
 rename it to jimi-1.0.jar.
 
-AsciiDoc 
---------
-Text documentation format and conversion suite: http://asciidoc.org/.
-AsciiDoc can use either w3m (default) or Lynx for plain text output.
-We use AsciiDoc for the release notes and Lynx to for the official
-plaintext release announcments.
+AsciiDoc -------- Text documentation format and conversion suite:
+http://asciidoc.org/.  AsciiDoc can use either w3m (default) or Lynx
+for plain text output.  We use AsciiDoc for the Developer's Guide and
+for the release notes; Lynx as well is used for the official plaintext
+release announcments.
 
 Lynx
 ----
@@ -125,6 +124,8 @@ xmllint:            Doc/libxml2             M
 xsl stylesheets:    Doc/docbook-xsl         M           docbook.xsl, chunk.xsl and htmlhelp.xsl
 docbookx.dtd:       Doc/docbook-xml42       M
 lynx:               Web/lynx                M
+asciidoc            Python/asciidoc         M           cygwin python is a dependency and will also be installed (if not installed)
+dblatex             Text/dblatex            O           A number of dependencies will also be installed
 fop:                -                       O           URL: http://xml.apache.org/fop/ - install it into docbook\fop-1.0 to keep defaults from config.nmake
 jimi:               -                       O           URL: http://java.sun.com/products/jimi/ - see above
 hhc:                -                       O           URL: http://msdn.microsoft.com/library/default.asp?url=/library/en-us/htmlhelp/html/hwMicrosoftHTMLHelpDownloads.asp
@@ -177,6 +178,7 @@ xsltproc:           libxslt                 M
 xmllint:            libxml2                 M
 xsl stylesheets:    docbook-style-xsl       M           docbook.xsl and chunk.xsl
 docbookx.dtd:       docbook-dtds            M           provides v4.1, v4.2, v4.3, v4.4 DTDs
+asciidoc:           ascidoc                 M
 
 fop:                fop                     O           See above
 jimi:               -                       O           get it from http://java.sun.com/products/jimi/ - see above
