@@ -392,8 +392,10 @@ check_c_compiler_flag(-fvisibility=hidden FVHIDDEN)
 if(FVHIDDEN)
 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fvisibility=hidden")
 else() # TODO add alternate compiler flags for hiding symbols
-	message(WARNING "Hiding shared library symbols is not supported by the compiler."
-		" All shared library symbols will be exported.")
+	if( NOT CMAKE_C_COMPILER_ID MATCHES "MSVC")
+		message(WARNING "Hiding shared library symbols is not supported by the compiler."
+			" All shared library symbols will be exported.")
+	endif()
 endif()
 
 if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID MATCHES "Clang")
