@@ -1545,6 +1545,25 @@ void MainWindow::updateForUnsavedChanges() {
 
 }
 
+void MainWindow::changeEvent(QEvent* event)
+{
+    if(0 != event)
+    {
+        switch(event->type())
+        {
+         // this event is send if a translator is loaded
+        case QEvent::LanguageChange:
+            main_ui_->retranslateUi(this);
+            break;
+        default:
+            break;
+        }
+
+    }
+
+     QMainWindow::changeEvent(event);
+}
+
 /* Update main window items based on whether there's a capture in progress. */
 void MainWindow::setForCaptureInProgress(gboolean capture_in_progress)
 {

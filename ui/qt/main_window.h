@@ -377,6 +377,8 @@ private slots:
     void on_actionTelephonyRTSPPacketCounter_triggered();
     void on_actionTelephonySMPPOperations_triggered();
     void on_actionTelephonyUCPMessages_triggered();
+
+    void changeEvent(QEvent* event);
 };
 
 #endif // MAINWINDOW_H
