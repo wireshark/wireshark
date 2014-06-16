@@ -42,7 +42,7 @@ GENERATED_CFLAGS=\
 	/I.  /Iwiretap $(GLIB_CFLAGS) \
 	$(ZLIB_CFLAGS) /I$(PCAP_DIR)\include $(AIRPCAP_CFLAGS) \
 	$(C_ARES_CFLAGS) $(ADNS_CFLAGS) $(GNUTLS_CFLAGS) \
-	$(PYTHON_CFLAGS) $(SMI_CFLAGS) $(GEOIP_CFLAGS) $(WINSPARKLE_CFLAGS)
+	$(SMI_CFLAGS) $(GEOIP_CFLAGS) $(WINSPARKLE_CFLAGS)
 
 CFLAGS=$(WARNINGS_ARE_ERRORS) $(GENERATED_CFLAGS)
 
@@ -79,7 +79,6 @@ wireshark_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 	$(HHC_LIBS) \
 	wsutil\libwsutil.lib \
 	$(GNUTLS_LIBS) \
-	$(PYTHON_LIBS) \
 	$(WINSPARKLE_LIBS) \
 !IFDEF ENABLE_LIBWIRESHARK
 	epan\libwireshark.lib \
@@ -100,7 +99,6 @@ tshark_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 	$(GTHREAD_LIBS) \
 	wsutil\libwsutil.lib \
 	$(GNUTLS_LIBS) \
-	$(PYTHON_LIBS) \
 !IFDEF ENABLE_LIBWIRESHARK
 	epan\libwireshark.lib \
 !ELSE
@@ -121,7 +119,6 @@ tfshark_LIBS= filetap\filetap-$(FTAP_VERSION).lib \
 	$(GTHREAD_LIBS) \
 	wsutil\libwsutil.lib \
 	$(GNUTLS_LIBS) \
-	$(PYTHON_LIBS) \
 !IFDEF ENABLE_LIBWIRESHARK
 	epan\libwireshark.lib \
 !ELSE
@@ -137,7 +134,6 @@ rawshark_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 	$(GLIB_LIBS) \
 	wsutil\libwsutil.lib \
 	$(GNUTLS_LIBS) \
-	$(PYTHON_LIBS) \
 !IFDEF ENABLE_LIBWIRESHARK
 	epan\libwireshark.lib \
 !ELSE
@@ -263,7 +259,6 @@ packaging_zip: all
 	zip -r -9 wireshark.zip $(INSTALL_DIR)/
 
 !IFDEF WIRESHARK_GENERATE_BSC_FILE
-# FIXME: Add epan\wspython\*.sbr when we support Python embedding
 # Note: Certain .sbr files cause bscmake warning "too many references... ignoring ..."
 # XXX: It seems that using .bsc files with VS2010 doesn't work (isn't supported ?)
 #      Using .bsc files with VS2008 may work
@@ -471,7 +466,6 @@ config.h	: config.h.win32 config.nmake
 	    -e "s/@HAVE_LIBGCRYPT@/$(LIBGCRYPT_CONFIG)/" \
 	    -e "s/@HAVE_LUA@/$(LUA_CONFIG)/" \
 	    -e "s/@HAVE_LUA@/$(LUA_VERSION)/" \
-	    -e "s/@HAVE_PYTHON@/$(PYTHON_CONFIG)/" \
 	    -e "s/@HAVE_AIRPCAP@/$(AIRPCAP_CONFIG)/" \
 	    -e "s/@HAVE_AIRPDCAP@/$(AIRPDCAP_CONFIG)/" \
 	    -e "s/@HAVE_LIBPORTAUDIO@/$(PORTAUDIO_CONFIG)/" \
@@ -1199,12 +1193,6 @@ install-generated-files: doc
 !IFDEF LUA_DIR
 	xcopy ".\epan\wslua\init.lua" $(INSTALL_DIR) /d
 	xcopy ".\epan\wslua\console.lua" $(INSTALL_DIR) /d
-!ENDIF
-!IFDEF PYTHON_DIR
-	if not exist $(INSTALL_DIR)\python mkdir $(INSTALL_DIR)\python
-	xcopy ".\epan\wspython\register-dissector.py" $(INSTALL_DIR)\python /d
-	xcopy ".\epan\wspython\wspy_dissector.py" $(INSTALL_DIR)\python /d
-	xcopy ".\epan\wspython\wspy_libws.py" $(INSTALL_DIR)\python /d
 !ENDIF
 	xcopy ipmap.html $(INSTALL_DIR) /d
 	xcopy doc\*.html $(INSTALL_DIR) /d
