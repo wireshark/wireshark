@@ -135,6 +135,7 @@ docbook/*-guide-*.fo
 docbook/*-guide-*.pdf
 docbook/ws?g_html/
 docbook/ws?g_html_chunked/
+docbook/ws?g_chm/
 docbook/git_version.xml
 docbook/release-notes-*.pdf
 docbook/release-notes.txt
