@@ -73,6 +73,7 @@ private:
     void setFrameMark(gboolean set, frame_data *fdata);
     void setFrameIgnore(gboolean set, frame_data *fdata);
     void setFrameReftime(gboolean set, frame_data *fdata);
+    void setColumnVisibility();
 
 signals:
     void packetDissectionChanged();

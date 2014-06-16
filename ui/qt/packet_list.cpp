@@ -422,6 +422,7 @@ void PacketList::showEvent (QShowEvent *event) {
         }
         setColumnWidth(i, col_width);
     }
+    setColumnVisibility();
 }
 
 void PacketList::selectionChanged (const QItemSelection & selected, const QItemSelection & deselected) {
@@ -564,6 +565,18 @@ void PacketList::setFrameReftime(gboolean set, frame_data *fdata)
     updateAll();
 }
 
+void PacketList::setColumnVisibility()
+{
+    if (!cap_file_) {
+        return;
+    }
+
+    for (int i = 0; i < cap_file_->cinfo.num_cols; i++) {
+        setColumnHidden(i, get_column_visible(i) ? false : true);
+    }
+}
+
+
 // Redraw the packet list and detail
 void PacketList::updateAll() {
     update();
@@ -579,11 +592,6 @@ void PacketList::updateAll() {
     }
 
     packet_list_model_->resetColumns();
-
-    for (int i = 0; i < cap_file_->cinfo.num_cols; i++) {
-        setColumnHidden(i, !get_column_visible(i));
-    }
-
 }
 
 void PacketList::freeze()
@@ -596,6 +604,7 @@ void PacketList::thaw()
 {
     setModel(packet_list_model_);
     setUpdatesEnabled(true);
+    setColumnVisibility();
 }
 
 void PacketList::clear() {
