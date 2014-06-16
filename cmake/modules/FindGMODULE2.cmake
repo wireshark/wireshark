@@ -27,7 +27,11 @@ else()
 	pkg_search_module( GMODULE2 ${_pkgconfig_REQUIRED} gmodule-2.0 )
 endif()
 
-if( NOT GMODULE2_FOUND  )
+if( GMODULE2_FOUND  )
+	if( GMODULE2_LIBRARY_DIRS )
+		LINK_DIRECTORIES( ${GMODULE2_LIBRARY_DIRS} )
+	endif()
+else()
 	include( FindWSWinLibs )
 	if( BUILD_wireshark )
 		if( ENABLE_GTK3 )
@@ -46,10 +50,11 @@ if( NOT GMODULE2_FOUND  )
 		HINTS
 			"${GMODULE2_HINTS}/include"
 	)
-	if( APPLE )
+	find_library( GMODULE2_LIBRARIES NAMES gmodule-2.0 gmodule HINTS "${GMODULE2_HINTS}/lib" )
+	if( NOT GMODULE2_LIBRARIES AND APPLE )
+		# Fallback as APPLE glib libs already contain this - except
+		# Homebrew which needs the non-Apple setup
 		find_library( GMODULE2_LIBRARIES glib )
-	else()
-		find_library( GMODULE2_LIBRARIES NAMES gmodule-2.0 gmodule HINTS "${GMODULE2_HINTS}/lib" )
 	endif()
 	include( FindPackageHandleStandardArgs )
 	find_package_handle_standard_args( GMODULE2 DEFAULT_MSG GMODULE2_LIBRARIES GMODULE2_INCLUDE_DIRS )
