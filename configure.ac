@@ -2468,46 +2468,6 @@ else
 fi
 AC_SUBST(GEOIP_LIBS)
 
-# Warning: this Python scripting appears to be broken (does not work at all).
-# Running it also causes Valgrind to complain about all sorts of memory errors.
-# Suggestion: do not enable it unless you are working on fixing it.
-#
-# An alternative might be https://code.google.com/p/pyreshark/
-#
-dnl Python devel Check
-AC_MSG_CHECKING(whether to use the Python interpreter for scripting)
-
-AC_ARG_WITH(broken-python,
-    AC_HELP_STRING( [--with-broken-python@<:@=DIR@:>@],
-                    [use the (BROKEN) Python interpreter (installed in DIR, if supplied) @<:@default=no@:>@]),
-[
-	pythondir='${libdir}/wireshark/python/${VERSION}'
-	if test "x$withval" = "xno"
-	then
-		want_python=no
-	elif test "x$withval" = "xyes"
-	then
-		want_python=yes
-	else
-		want_python=yes
-		pythondir="$withval"
-	fi
-],[
-	# By default (user didn't explicitly enable Python), don't enable
-	# Python support.
-	#
-	want_python=no
-	#pythondir='${libdir}/wireshark/python/${VERSION}'
-])
-if test "x$want_python" = "xno" ; then
-        AC_MSG_RESULT(no)
-else
-        AC_MSG_RESULT(yes)
-	AC_WIRESHARK_PYTHON_CHECK
-fi
-AM_CONDITIONAL(HAVE_LIBPY, test x$want_python != xno)
-AC_SUBST(pythondir)
-
 #
 # Define WS_MSVC_NORETURN appropriately for declarations of routines that
 # never return (just like Charlie on the MTA).
@@ -3000,12 +2960,6 @@ else
 	lua_message="no"
 fi
 
-if test "x$want_python" = "xno"; then
-        python_message="no"
-else
-        python_message="yes"
-fi
-
 if test "x$want_portaudio" = "xyes" ; then
 	portaudio_message="yes"
 else
@@ -3076,7 +3030,6 @@ echo "             Install dumpcap setuid : $setuid_message"
 echo "                  Use dumpcap group : $dumpcap_group_message"
 echo "                        Use plugins : $have_plugins"
 echo "                    Use Lua library : $lua_message"
-echo "                 Use Python binding : $python_message"
 echo "                   Build rtp_player : $portaudio_message"
 echo "             Build profile binaries : $enable_profile_build"
 echo "                   Use pcap library : $want_pcap"

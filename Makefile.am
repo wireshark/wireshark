@@ -22,13 +22,6 @@
 AM_DISTCHECK_CONFIGURE_FLAGS=@GUI_CONFIGURE_FLAGS@
 ACLOCAL_AMFLAGS = `./aclocal-flags`
 
-if HAVE_LIBPY
-py_dissectors_dir = -DPYTHON_DIR=\"@pythondir@\"
-else
-py_dissectors_dir = -DPYTHON_DIR=
-endif
-
-
 if HAVE_WARNINGS_AS_ERRORS
 AM_CLEAN_CFLAGS = -Werror
 endif
@@ -385,7 +378,7 @@ wireshark_ldadd = \
 if HAVE_Qt
 wireshark_qt_SOURCES = $(WIRESHARK_COMMON_SRC)
 wireshark_qt_INCLUDES = $(WIRESHARK_COMMON_INCLUDES)
-wireshark_qt_CFLAGS = $(AM_CLEAN_CFLAGS) $(py_dissectors_dir)
+wireshark_qt_CFLAGS = $(AM_CLEAN_CFLAGS)
 wireshark_qt_LDADD = \
 	ui/qt/libqtui.a \
 	$(wireshark_ldadd) \
@@ -403,7 +396,7 @@ endif
 if HAVE_GTK
 wireshark_SOURCES = $(WIRESHARK_COMMON_SRC)
 wireshark_INCLUDES = $(WIRESHARK_COMMON_INCLUDES)
-wireshark_CFLAGS = $(AM_CLEAN_CFLAGS) $(py_dissectors_dir)
+wireshark_CFLAGS = $(AM_CLEAN_CFLAGS)
 wireshark_LDADD = \
 	ui/gtk/libgtkui.a \
 	$(wireshark_ldadd) \
@@ -447,7 +440,7 @@ tshark_LDADD = \
 	@LIBGNUTLS_LIBS@		\
 	@LIBSMI_LDFLAGS@		\
 	-lm
-tshark_CFLAGS = $(AM_CLEAN_CFLAGS) $(py_dissectors_dir)
+tshark_CFLAGS = $(AM_CLEAN_CFLAGS)
 
 if ENABLE_STATIC
 tfshark_LDFLAGS = -Wl,-static -all-static
@@ -476,7 +469,7 @@ tfshark_LDADD = \
 	@LIBGNUTLS_LIBS@		\
 	@LIBSMI_LDFLAGS@		\
 	-lm
-tfshark_CFLAGS = $(AM_CLEAN_CFLAGS) $(py_dissectors_dir)
+tfshark_CFLAGS = $(AM_CLEAN_CFLAGS)
 
 if ENABLE_STATIC
 rawshark_LDFLAGS = -Wl,-static -all-static
@@ -506,7 +499,7 @@ rawshark_LDADD = \
 	@LIBGNUTLS_LIBS@		\
 	@LIBSMI_LDFLAGS@		\
 	-lm
-rawshark_CFLAGS = $(AM_CLEAN_CFLAGS) $(py_dissectors_dir)
+rawshark_CFLAGS = $(AM_CLEAN_CFLAGS)
 
 # Libraries with which to link text2pcap.
 text2pcap_LDADD = \
@@ -532,21 +525,21 @@ capinfos_LDADD = \
 	wsutil/libwsutil.la		\
 	@GLIB_LIBS@			\
 	@LIBGCRYPT_LIBS@
-capinfos_CFLAGS = $(AM_CLEAN_CFLAGS) $(py_dissectors_dir)
+capinfos_CFLAGS = $(AM_CLEAN_CFLAGS)
 
 # Libraries with which to link captype.
 captype_LDADD = \
 	wiretap/libwiretap.la		\
 	wsutil/libwsutil.la		\
 	@GLIB_LIBS@
-captype_CFLAGS = $(AM_CLEAN_CFLAGS) $(py_dissectors_dir)
+captype_CFLAGS = $(AM_CLEAN_CFLAGS)
 
 # Libraries with which to link editcap.
 editcap_LDADD = \
 	wiretap/libwiretap.la		\
 	wsutil/libwsutil.la		\
 	@GLIB_LIBS@
-editcap_CFLAGS = $(AM_CLEAN_CFLAGS) $(py_dissectors_dir)
+editcap_CFLAGS = $(AM_CLEAN_CFLAGS)
 
 # Libraries with which to link reordercap.
 reordercap_LDADD = \
@@ -588,7 +581,7 @@ dftest_LDADD = \
 	@LIBGNUTLS_LIBS@		\
 	@LIBSMI_LDFLAGS@		\
 	-lm
-dftest_CFLAGS = $(AM_CLEAN_CFLAGS) $(py_dissectors_dir)
+dftest_CFLAGS = $(AM_CLEAN_CFLAGS)
 
 echld_test_LDADD = \
 	epan/libwireshark.la		\
