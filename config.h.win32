@@ -195,10 +195,6 @@
 
 /* Define to use Lua */
 @HAVE_LUA@
-@HAVE_LUA@
-
-/* Define to use Python */
-@HAVE_PYTHON@
 
 /* Define to use Portaudio library */
 @HAVE_LIBPORTAUDIO@
