@@ -2170,7 +2170,7 @@ static ipmi_cmd_t cmd_transport[] = {
 };
 
 void
-ipmi_register_transport(gint proto_ipmi)
+proto_register_ipmi_transport(void)
 {
 	static hf_register_info hf[] = {
 		{ &hf_ipmi_trn_lan00_sip,

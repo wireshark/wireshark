@@ -97,7 +97,7 @@ static ipmi_cmd_t cmd_pps[] = {
 };
 
 void
-ipmi_register_pps(gint proto_ipmi _U_)
+proto_register_ipmi_pps(void)
 {
 	static guint8 sig_pps[3] = { 0x0a, 0x40, 0x00 };
 	static guint8 sig_pps_rev[3] = { 0x00, 0x40, 0x0a };

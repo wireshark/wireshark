@@ -27,6 +27,8 @@
 
 #include "packet-ipmi.h"
 
+void proto_register_ipmi_chassis(void);
+
 /* Local variables.
  */
 static gint ett_ipmi_chs_bo00_byte1 = -1;
@@ -709,7 +711,7 @@ static ipmi_cmd_t cmd_chassis[] = {
 };
 
 void
-ipmi_register_chassis(gint proto_ipmi)
+proto_register_ipmi_chassis(void)
 {
 	static hf_register_info hf[] = {
 		{ &hf_ipmi_chs_bo00_sip,

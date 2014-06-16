@@ -27,6 +27,8 @@
 
 #include "packet-ipmi.h"
 
+void proto_register_ipmi_bridge(void);
+
 /* Bridge commands are not implemented (yet) */
 
 
@@ -134,7 +136,7 @@ static ipmi_cmd_t cmd_bridge[] = {
 };
 
 void
-ipmi_register_bridge(gint proto_ipmi _U_)
+proto_register_ipmi_bridge(void)
 {
 	ipmi_register_netfn_cmdtab(IPMI_BRIDGE_REQ, IPMI_OEM_NONE, NULL, 0, NULL,
 			cmd_bridge, array_length(cmd_bridge));

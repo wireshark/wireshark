@@ -166,17 +166,8 @@ ipmi_netfn_t *ipmi_getnetfn(guint32 netfn, const guint8 *sig);
 ipmi_cmd_t *ipmi_getcmd(ipmi_netfn_t *nf, guint32 cmd);
 const char *ipmi_get_completion_code(guint8 completion, ipmi_cmd_t *cmd);
 
-/* Sub-registrars (ipmi_*.c) */
-void ipmi_register_app(int proto);
-void ipmi_register_bridge(int proto);
-void ipmi_register_chassis(int proto);
-void ipmi_register_picmg(int proto);
-void ipmi_register_pps(int proto);
-void ipmi_register_se(int proto);
-void ipmi_register_storage(int proto);
-void ipmi_register_transport(int proto);
-void ipmi_register_update(int proto);
-void ipmi_register_vita(int proto);
+/* Used for sub-registrars (ipmi_*.c) */
+extern gint proto_ipmi;
 
 /* Main dissection routine */
 #define IPMI_D_NONE		0x0001 /* Do not parse at all */

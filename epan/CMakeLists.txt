@@ -808,9 +808,19 @@ set(DISSECTOR_SRC
 	dissectors/packet-ipars.c
 	dissectors/packet-ipdc.c
 	dissectors/packet-ipfc.c
-	dissectors/packet-ipmi-session.c
 	dissectors/packet-ipmi.c
+	dissectors/packet-ipmi-app.c
+	dissectors/packet-ipmi-bridge.c
+	dissectors/packet-ipmi-chassis.c
+	dissectors/packet-ipmi-picmg.c
+	dissectors/packet-ipmi-se.c
+	dissectors/packet-ipmi-session.c
+	dissectors/packet-ipmi-storage.c
 	dissectors/packet-ipmi-trace.c
+	dissectors/packet-ipmi-transport.c
+	dissectors/packet-ipmi-pps.c
+	dissectors/packet-ipmi-update.c
+	dissectors/packet-ipmi-vita.c
 	dissectors/packet-ipnet.c
 	dissectors/packet-ipoib.c
 	dissectors/packet-ipp.c
@@ -1400,22 +1410,7 @@ set(DIRTY_DISSECTOR_SRC
 	dissectors/packet-x11.c
 )
 
-# IPMI sub-parsers for each network function code
-set(IPMI_SUBPARSERS
-	dissectors/packet-ipmi-app.c
-	dissectors/packet-ipmi-bridge.c
-	dissectors/packet-ipmi-chassis.c
-	dissectors/packet-ipmi-picmg.c
-	dissectors/packet-ipmi-se.c
-	dissectors/packet-ipmi-storage.c
-	dissectors/packet-ipmi-transport.c
-	dissectors/packet-ipmi-pps.c
-	dissectors/packet-ipmi-update.c
-	dissectors/packet-ipmi-vita.c
-)
-
 set(DISSECTOR_SUPPORT_SRC
-	${IPMI_SUBPARSERS}
 	dissectors/packet-dcerpc-nt.c
 	dissectors/usb.c
 	register.c

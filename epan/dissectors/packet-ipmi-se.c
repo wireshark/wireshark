@@ -2891,7 +2891,7 @@ static ipmi_cmd_t cmd_se[] = {
 };
 
 void
-ipmi_register_se(gint proto_ipmi)
+proto_register_ipmi_se(void)
 {
 	static hf_register_info hf[] = {
 		{ &hf_ipmi_se_evt_rev,

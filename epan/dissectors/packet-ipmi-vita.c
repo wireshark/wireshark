@@ -1298,7 +1298,7 @@ static ipmi_cmd_t cmd_vita[] = {
 /* VITA 46.11 command set registrator
 */
 void
-ipmi_register_vita(gint proto_ipmi)
+proto_register_ipmi_vita(void)
 {
 	static const guint8 sig_vita[1] = { 3 };
 

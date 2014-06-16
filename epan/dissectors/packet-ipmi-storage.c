@@ -743,7 +743,7 @@ static ipmi_cmd_t cmd_storage[] = {
 };
 
 void
-ipmi_register_storage(gint proto_ipmi)
+proto_register_ipmi_storage(void)
 {
 	static hf_register_info hf[] = {
 		{ &hf_ipmi_stor_10_fruid,

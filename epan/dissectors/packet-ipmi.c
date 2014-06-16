@@ -135,7 +135,7 @@ typedef struct {
 
 static dissector_handle_t data_dissector;
 
-static gint proto_ipmi = -1;
+gint proto_ipmi = -1;
 static gint proto_ipmb = -1;
 static gint proto_kcs = -1;
 static gint proto_tmode = -1;
@@ -1768,15 +1768,13 @@ proto_register_ipmi(void)
 		{ "pps", "Pigeon Point Systems", IPMI_OEM_PPS },
 		{ NULL, NULL, 0 }
 	};
-#if 0
+
 	static ei_register_info ei[] = {
 		{ &ei_impi_parser_not_implemented, { "ipmi.parser_not_implemented", PI_UNDECODED, PI_WARN, "[PARSER NOT IMPLEMENTED]", EXPFILL }},
 	};
-#endif
+
 	module_t *m;
-#if 0
 	expert_module_t* expert_ipmi;
-#endif
 	guint32 i;
 
 	proto_ipmi = proto_register_protocol("Intelligent Platform Management Interface",
@@ -1795,9 +1793,9 @@ proto_register_ipmi(void)
 
 	proto_register_field_array(proto_ipmi, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
-#if 0
+
 	expert_ipmi = expert_register_protocol(proto_ipmi);
-#endif
+	expert_register_field_array(expert_ipmi, ei, array_length(ei));
 
 	ipmi_netfn_setdesc(IPMI_CHASSIS_REQ, "Chassis", 0);
 	ipmi_netfn_setdesc(IPMI_BRIDGE_REQ, "Bridge", 0);
@@ -1811,17 +1809,6 @@ proto_register_ipmi(void)
 	for (i = 0x30; i < 0x40; i += 2) {
 		ipmi_netfn_setdesc(i, "OEM", 0);
 	}
-
-	ipmi_register_chassis(proto_ipmi);
-	ipmi_register_bridge(proto_ipmi);
-	ipmi_register_se(proto_ipmi);
-	ipmi_register_app(proto_ipmi);
-	ipmi_register_update(proto_ipmi);
-	ipmi_register_storage(proto_ipmi);
-	ipmi_register_transport(proto_ipmi);
-	ipmi_register_picmg(proto_ipmi);
-	ipmi_register_pps(proto_ipmi);
-	ipmi_register_vita(proto_ipmi);
 
 	new_register_dissector("ipmi", dissect_ipmi, proto_ipmi);
 	new_register_dissector("ipmb", dissect_ipmi, proto_ipmb);

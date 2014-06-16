@@ -2668,7 +2668,7 @@ static ipmi_cmd_t cmd_picmg[] = {
 };
 
 void
-ipmi_register_picmg(gint proto_ipmi)
+proto_register_ipmi_picmg(void)
 {
 	static hf_register_info hf[] = {
 		{ &hf_ipmi_picmg_led_function,

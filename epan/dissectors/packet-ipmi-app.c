@@ -29,6 +29,8 @@
 
 #include "packet-ipmi.h"
 
+void proto_register_ipmi_app(void);
+
 static gint ett_ipmi_app_01_byte2 = -1;
 static gint ett_ipmi_app_01_byte3 = -1;
 static gint ett_ipmi_app_01_byte6 = -1;
@@ -1045,7 +1047,7 @@ static ipmi_cmd_t cmd_app[] = {
 };
 
 void
-ipmi_register_app(gint proto_ipmi)
+proto_register_ipmi_app(void)
 {
 	static hf_register_info hf[] = {
 		{ &hf_ipmi_app_01_dev_id,
