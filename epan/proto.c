@@ -55,8 +55,6 @@
 #include "expert.h"
 #include "show_exception.h"
 
-#include "wspython/wspy_register.h"
-
 #include <wsutil/plugins.h>
 
 #define SUBTREE_ONCE_ALLOCATION_NUMBER 8
