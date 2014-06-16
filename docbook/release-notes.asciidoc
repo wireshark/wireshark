@@ -98,6 +98,9 @@ since version 1.10:
 === New Protocol Support
 
 --sort-and-group--
+
+Generic Network Virtualization Encapsulation (Geneve)
+
 --sort-and-group--
 
 === Updated Protocol Support

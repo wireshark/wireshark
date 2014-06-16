@@ -678,6 +678,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-gdsdb.c
 	dissectors/packet-gearman.c
 	dissectors/packet-ged125.c
+	dissectors/packet-geneve.c
 	dissectors/packet-gift.c
 	dissectors/packet-giop.c
 	dissectors/packet-git.c
