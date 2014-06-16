@@ -2331,7 +2331,7 @@ gboolean wtap_dump_file_write(wtap_dumper *wdh, const void *buf, size_t bufsize,
 
 #ifdef HAVE_LIBZ
 	if (wdh->compressed) {
-		nwritten = gzwfile_write((GZWFILE_T)wdh->fh, buf, (unsigned) bufsize);
+		nwritten = gzwfile_write((GZWFILE_T)wdh->fh, buf, (unsigned int) bufsize);
 		/*
 		 * gzwfile_write() returns 0 on error.
 		 */

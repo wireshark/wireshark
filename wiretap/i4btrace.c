@@ -44,9 +44,9 @@ static int i4b_read_rec(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
  * Test some fields in the header to see if they make sense.
  */
 #define	I4B_HDR_IS_OK(hdr) \
-	(!((unsigned)hdr.length < 3 || (unsigned)hdr.length > 16384 || \
-	    (unsigned)hdr.unit > 4 || (unsigned)hdr.type > 4 || \
-	    (unsigned)hdr.dir > 2 || (unsigned)hdr.trunc > 2048))
+	(!((unsigned int)hdr.length < 3 || (unsigned int)hdr.length > 16384 || \
+	    (unsigned int)hdr.unit > 4 || (unsigned int)hdr.type > 4 || \
+	    (unsigned int)hdr.dir > 2 || (unsigned int)hdr.trunc > 2048))
 
 int i4btrace_open(wtap *wth, int *err, gchar **err_info)
 {

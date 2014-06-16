@@ -59,7 +59,7 @@
 /*
  * Note: this code is harmless on little-endian machines.
  */
-static void byteReverse(guint32 *buf, unsigned longs)
+static void byteReverse(guint32 *buf, unsigned int longs)
 {
     guint32 t;
     do {
