@@ -81,7 +81,7 @@ static const value_string repetition_coding_indications[] =
 	{ 1, "Repetition Coding of 2 Used" },
 	{ 2, "Repetition Coding of 4 Used" },
 	{ 3, "Repetition Coding of 6 Used" },
-	{ 4, NULL }
+	{ 0, NULL }
 };
 
 /* DL Frame Prefix Coding Indications */

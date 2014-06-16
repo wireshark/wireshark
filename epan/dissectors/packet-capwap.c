@@ -795,7 +795,7 @@ static const value_string ieee80211_add_wlan_mac_mode_vals[] = {
 static const value_string ieee80211_add_wlan_tunnel_mode_vals[] = {
     { 0, "Local Bridging" },
     { 1, "802.3 Tunnel" },
-    { 1, "802.11 Tunnel" },
+    { 2, "802.11 Tunnel" },
     { 0,     NULL     }
 };
 

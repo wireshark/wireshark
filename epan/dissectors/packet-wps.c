@@ -541,7 +541,7 @@ static const value_string eapwps_tlv_association_state_vals[] = {
 
 static const value_string eapwps_tlv_authentication_type_vals[] = {
   { EAPWPS_AUTHTYPE_OPEN,    "Open" },
-  { EAPWPS_AUTHTYPE_WPA2PSK, "WPA PSK" },
+  { EAPWPS_AUTHTYPE_WPAPSK,  "WPA PSK" },
   { EAPWPS_AUTHTYPE_SHARED,  "Shared" },
   { EAPWPS_AUTHTYPE_WPA,     "WPA" },
   { EAPWPS_AUTHTYPE_WPA2,    "WPA2" },

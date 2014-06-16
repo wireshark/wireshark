@@ -223,7 +223,7 @@ typedef enum {
     PTP_OC_CANON_EOS_TransferCompleteDT              = 0x9120,
     PTP_OC_CANON_EOS_CancelTransferDT                = 0x9121,
     PTP_OC_CANON_EOS_SetWftProfile                   = 0x9122,
-    PTP_OC_CANON_EOS_GetWftProfile                   = 0x9122,
+    PTP_OC_CANON_EOS_GetWftProfile                   = 0x9123,
     PTP_OC_CANON_EOS_SetProfileToWft                 = 0x9124,
     PTP_OC_CANON_EOS_BulbStart                       = 0x9125,
     PTP_OC_CANON_EOS_BulbEnd                         = 0x9126,

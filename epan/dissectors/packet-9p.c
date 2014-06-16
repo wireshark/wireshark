@@ -470,7 +470,7 @@ static const value_string ninep_lock_flag[] =
 {
 	{_9P_LOCK_FLAGS_NONE,   "No flag"},
 	{_9P_LOCK_FLAGS_BLOCK,	"Block"},
-	{_9P_LOCK_BLOCKED,	"Reclaim"},
+	{_9P_LOCK_FLAGS_RECLAIM,"Reclaim"},
 	{ 0,			NULL},
 };
 static value_string_ext ninep_lock_flag_ext = VALUE_STRING_EXT_INIT(ninep_lock_flag);
