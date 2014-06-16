@@ -60,7 +60,7 @@ wsug: wsug.validated wsug_x
 wsdg: wsdg.validated wsdg_x
 
 # Make only the release notes
-release_notes: $(RELEASE_NOTES_SOURCE)
+release_notes: release_notes_x
 
 # Clean all
 clean:
@@ -77,7 +77,7 @@ all_x: wsug.validated wsdg.validated wsug_x wsdg_x release_notes_x
 # -- Documentation version ------------------------------------------------------------------------
 
 # On every build, record the working copy revision string
-#   in git_version.xml (if the svn version has changed).
+#   in git_version.xml (if the git version has changed).
 # This is done during nmake "preprocessing" so that it's done *before*
 #  nmake gets the date/time of the dependency file(s)].
 git_version_check: _FORCE_
