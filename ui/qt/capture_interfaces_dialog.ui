@@ -633,7 +633,7 @@
   <customwidget>
    <class>CaptureFilterCombo</class>
    <extends>QComboBox</extends>
-   <header location="global">capture_filter_combo.h</header>
+   <header>capture_filter_combo.h</header>
   </customwidget>
  </customwidgets>
  <resources/>
