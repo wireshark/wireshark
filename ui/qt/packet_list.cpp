@@ -502,7 +502,6 @@ void PacketList::contextMenuEvent(QContextMenuEvent *event)
             act->setEnabled(is_udp);
         }
 
-
         if ((cap_file_ != NULL) && act->text().contains("SSL"))
         {
             if (epan_dissect_packet_contains_field(cap_file_->edt, "ssl"))
@@ -580,6 +579,11 @@ void PacketList::updateAll() {
     }
 
     packet_list_model_->resetColumns();
+
+    for (int i = 0; i < cap_file_->cinfo.num_cols; i++) {
+        setColumnHidden(i, !get_column_visible(i));
+    }
+
 }
 
 void PacketList::freeze()
