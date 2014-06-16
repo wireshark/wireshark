@@ -72,6 +72,7 @@ void proto_reg_handoff_bicc(void);
 #define ISUP_ISRAELI_VARIANT      2
 #define ISUP_RUSSIAN_VARIANT      3
 #define ISUP_JAPAN_VARIANT        4
+#define ISUP_JAPAN_TTC_VARIANT    5
 
 static gint isup_standard = ITU_STANDARD;
 /* Preference standard or national ISUP variants */
@@ -6520,6 +6521,8 @@ dissect_isup_redirect_capability_parameter(tvbuff_t *parameter_tvb, proto_tree *
 
   switch (itu_isup_variant) {
     case ISUP_JAPAN_VARIANT:
+    /* Fall trough */
+    case ISUP_JAPAN_TTC_VARIANT:
       proto_tree_add_item(parameter_tree, hf_isup_extension_ind,             parameter_tvb, 0, 1, ENC_BIG_ENDIAN);
       proto_tree_add_item(parameter_tree, hf_japan_isup_redirect_capability, parameter_tvb, 0, 1, ENC_BIG_ENDIAN);
       break;
@@ -6737,6 +6740,8 @@ dissect_isup_redirect_counter_parameter(tvbuff_t *parameter_tvb, proto_tree *par
 
   switch (itu_isup_variant) {
     case ISUP_JAPAN_VARIANT:
+    /* Fall trough */
+    case ISUP_JAPAN_TTC_VARIANT:
       proto_tree_add_item(parameter_tree, hf_japan_isup_redirect_counter, parameter_tvb, 0, 1, ENC_BIG_ENDIAN);
       break;
     default:
@@ -8221,6 +8226,8 @@ dissect_isup_optional_parameter(tvbuff_t *optional_parameters_tvb, packet_info *
       /* Handle national extensions here */
       switch (itu_isup_variant) {
         case ISUP_JAPAN_VARIANT:
+        /* Fall trough */
+        case ISUP_JAPAN_TTC_VARIANT:
           proto_tree_add_uint_format(parameter_tree, hf_isup_parameter_type, optional_parameters_tvb, offset, PARAMETER_TYPE_LENGTH,
                                      parameter_type,
                                      "Optional Parameter: %u (%s)",
@@ -8497,6 +8504,8 @@ dissect_isup_optional_parameter(tvbuff_t *optional_parameters_tvb, packet_info *
           default:
             switch (itu_isup_variant) {
               case ISUP_JAPAN_VARIANT:
+              /* Fall trough */
+              case ISUP_JAPAN_TTC_VARIANT:
                 switch (parameter_type) {
                   case JAPAN_ISUP_PARAM_CALLED_DIRECTORY_NUMBER:
                     dissect_japan_isup_called_dir_num(parameter_tvb, parameter_tree, parameter_item);
@@ -10270,6 +10279,8 @@ dissect_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *isup
                                  message_type);
       break;
   case ISUP_JAPAN_VARIANT:
+  /* Fall trough */
+  case ISUP_JAPAN_TTC_VARIANT:
       proto_tree_add_uint_format(isup_tree, hf_isup_message_type, message_tvb, 0, MESSAGE_TYPE_LENGTH, message_type,
                                  "Message type: %s (%u)",
                                  val_to_str_ext_const(message_type, &japan_isup_message_type_value_ext, "reserved"),
@@ -10550,6 +10561,8 @@ dissect_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *isup
           }
           break;
         case ISUP_JAPAN_VARIANT:
+        /* Fall trough */
+        case ISUP_JAPAN_TTC_VARIANT:
           switch (message_type) {
             case MESSAGE_TYPE_JAPAN_CHARG_INF:
               offset += dissect_japan_chg_inf(parameter_tvb, isup_tree);
@@ -10641,6 +10654,8 @@ dissect_isup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       break;
     default:
       isup_standard = ITU_STANDARD;
+      /* ITU, China, and Japan; yes, J7's CICs are a different size */
+      cic = tvb_get_letohs(tvb, CIC_OFFSET) & 0x0FFF; /*since upper 4 bits spare */
       switch (itu_isup_variant) {
         case ISUP_FRENCH_VARIANT:
           col_set_str(pinfo->cinfo, COL_PROTOCOL, "ISUP(French)");
@@ -10658,13 +10673,16 @@ dissect_isup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           col_set_str(pinfo->cinfo, COL_PROTOCOL, "ISUP(Japan)");
           used_value_string_ext = &japan_isup_message_type_value_acro_ext;
           break;
+        case ISUP_JAPAN_TTC_VARIANT:
+          col_set_str(pinfo->cinfo, COL_PROTOCOL, "ISUP(Japan TTC)");
+          used_value_string_ext = &japan_isup_message_type_value_acro_ext;
+          cic = tvb_get_letohs(tvb, CIC_OFFSET) & 0x1FFF; /*since upper 3 bits spare */
+          break;
         default:
           col_set_str(pinfo->cinfo, COL_PROTOCOL, "ISUP(ITU)");
           used_value_string_ext = &isup_message_type_value_acro_ext;
           break;
       }
-      /* ITU, China, and Japan; yes, J7's CICs are a different size */
-      cic = tvb_get_letohs(tvb, CIC_OFFSET) & 0x0FFF; /*since upper 4 bits spare */
       pinfo->circuit_id = cic;
       if (isup_show_cic_in_info) {
         col_add_fstr(pinfo->cinfo, COL_INFO,
@@ -10716,6 +10734,8 @@ dissect_bicc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       used_value_string_ext = &russian_isup_message_type_value_acro_ext;
       break;
     case ISUP_JAPAN_VARIANT:
+    /* Fall trough */
+    case ISUP_JAPAN_TTC_VARIANT:
       col_set_str(pinfo->cinfo, COL_PROTOCOL, "BICC(Japan)");
       used_value_string_ext = &japan_isup_message_type_value_acro_ext;
       break;
@@ -12197,6 +12217,7 @@ proto_register_isup(void)
     {"Israeli National Standard", "Israeli National Standard", ISUP_ISRAELI_VARIANT},
     {"Russian National Standard", "Russian National Standard", ISUP_RUSSIAN_VARIANT},
     {"Japan National Standard",   "Japan National Standard",   ISUP_JAPAN_VARIANT},
+    {"Japan National Standard (TTC)",   "Japan National Standard (TTC)",   ISUP_JAPAN_TTC_VARIANT},
     {NULL, NULL, -1}
   };
 
