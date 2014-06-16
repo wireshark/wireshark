@@ -92,7 +92,9 @@ http://www.oracle.com/technetwork/java/javasebusiness/downloads/java-archive-dow
 then extract the archive, then copy JimiProClasses.zip to FOP's lib dir and
 rename it to jimi-1.0.jar.
 
-AsciiDoc -------- Text documentation format and conversion suite:
+AsciiDoc
+--------
+Text documentation format and conversion suite:
 http://asciidoc.org/.  AsciiDoc can use either w3m (default) or Lynx
 for plain text output.  We use AsciiDoc for the Developer's Guide and
 for the release notes; Lynx as well is used for the official plaintext
