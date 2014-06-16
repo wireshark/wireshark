@@ -2902,7 +2902,6 @@ AC_OUTPUT(
   epan/ftypes/Makefile
   epan/wmem/Makefile
   epan/wslua/Makefile
-  epan/wspython/Makefile
   filetap/Makefile
   codecs/Makefile
   ui/Makefile
