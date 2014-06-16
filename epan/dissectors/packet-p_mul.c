@@ -792,7 +792,7 @@ static void dissect_reassembled_data (tvbuff_t *tvb, packet_info *pinfo, proto_t
   }
 }
 
-static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   proto_tree    *p_mul_tree, *field_tree, *checksum_tree;
   proto_item    *ti, *en, *len_en;
@@ -1307,6 +1307,8 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_item_append_text (len_en, " (more data in packet: %d)", len);
     expert_add_info(pinfo, len_en, &ei_more_data);
   }
+
+  return offset;
 }
 
 static void p_mul_init_routine (void)
@@ -1568,7 +1570,7 @@ void proto_register_p_mul (void)
 
   proto_p_mul = proto_register_protocol (PNAME, PSNAME, PFNAME);
 
-  p_mul_handle = register_dissector(PFNAME, dissect_p_mul, proto_p_mul);
+  p_mul_handle = new_register_dissector(PFNAME, dissect_p_mul, proto_p_mul);
 
   proto_register_field_array (proto_p_mul, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
