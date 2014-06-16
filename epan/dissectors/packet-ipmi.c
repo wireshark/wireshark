@@ -446,7 +446,8 @@ add_command_info(packet_info *pinfo, ipmi_cmd_t * cmd,
 	}
 }
 
-int dissect_ipmi_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+static int
+dissect_ipmi_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		gint hf_parent_item, gint ett_tree, const ipmi_context_t * ctx)
 {
 	ipmi_packet_data_t * data;
