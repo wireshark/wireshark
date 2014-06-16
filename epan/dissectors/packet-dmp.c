@@ -3895,8 +3895,8 @@ static gint dissect_dmp_extensions (tvbuff_t *tvb, packet_info *pinfo _U_,
   return offset;
 }
 
-static void dissect_dmp (tvbuff_t *tvb, packet_info *pinfo,
-                         proto_tree *tree)
+static int dissect_dmp (tvbuff_t *tvb, packet_info *pinfo,
+                         proto_tree *tree, void *data _U_)
 {
   proto_tree *dmp_tree = NULL, *checksum_tree = NULL;
   proto_item *ti = NULL, *en = NULL;
@@ -3918,7 +3918,7 @@ static void dissect_dmp (tvbuff_t *tvb, packet_info *pinfo,
   if (dmp.version > DMP_VERSION_2) {
     /* Unsupported DMP Version, no point to continue */
     col_add_fstr (pinfo->cinfo, COL_INFO, "Unsupported Version: %d", dmp.version);
-    return;
+    return 0;
   }
 
   if (dmp.extensions) {
@@ -3959,6 +3959,7 @@ static void dissect_dmp (tvbuff_t *tvb, packet_info *pinfo,
                                    offset, 2, TRUE);
       PROTO_ITEM_SET_GENERATED (en);
     }
+    offset += 2;
   }
 
   if (use_seq_ack_analysis) {
@@ -4030,6 +4031,8 @@ static void dissect_dmp (tvbuff_t *tvb, packet_info *pinfo,
   proto_item_append_text (ti, ", Version: %d%s, %s", dmp.version,
                           (dmp.prot_id == PROT_NAT ? " (national)" : ""),
                           msg_type_to_str());
+
+  return offset;
 }
 
 static void dmp_init_routine (void)
@@ -4929,7 +4932,7 @@ void proto_register_dmp (void)
 
   proto_dmp = proto_register_protocol (PNAME, PSNAME, PFNAME);
 
-  dmp_handle = register_dissector(PFNAME, dissect_dmp, proto_dmp);
+  dmp_handle = new_register_dissector(PFNAME, dissect_dmp, proto_dmp);
 
   proto_register_field_array (proto_dmp, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
