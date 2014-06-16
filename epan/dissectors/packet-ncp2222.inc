@@ -3401,7 +3401,8 @@ print_nds_values(proto_tree *vtree, tvbuff_t *tvb, guint32 syntax_type, nds_val 
             voffset = voffset+4;
             ns.secs = tvb_get_letohl(tvb, voffset);
             ns.nsecs = 0;
-            proto_tree_add_time_format(nvtree, hf_nds_ds_time, tvb, voffset, 4, &ns, "Timestamp: %s", abs_time_secs_to_ep_str(ns.secs, ABSOLUTE_TIME_LOCAL, TRUE));
+            proto_tree_add_time_format(nvtree, hf_nds_ds_time, tvb, voffset, 4,
+                &ns, "Timestamp: %s", abs_time_secs_to_str(wmem_packet_scope(), ns.secs, ABSOLUTE_TIME_LOCAL, TRUE));
             voffset = voffset + 4;
             rnum = tvb_get_letohs(tvb, voffset); /* replica number */
             proto_tree_add_uint_format(nvtree, hf_nds_rnum, tvb, voffset,
@@ -3435,7 +3436,8 @@ print_nds_values(proto_tree *vtree, tvbuff_t *tvb, guint32 syntax_type, nds_val 
             voffset += 4; /* This is the length of the time data no need to decode, always 4 bytes */
             ns.secs = tvb_get_letohl(tvb, voffset);
             ns.nsecs = 0;
-            proto_tree_add_time_format(nvtree, hf_nds_ds_time, tvb, voffset, 4, &ns, "Time: %s", abs_time_secs_to_ep_str(ns.secs, ABSOLUTE_TIME_LOCAL, TRUE));
+            proto_tree_add_time_format(nvtree, hf_nds_ds_time, tvb, voffset, 4,
+                &ns, "Time: %s", abs_time_secs_to_str(wmem_packet_scope(), ns.secs, ABSOLUTE_TIME_LOCAL, TRUE));
             voffset = voffset + 4;
             break;
         case 0x00000019:        /* Typed Name */
@@ -3646,7 +3648,8 @@ print_es_type(proto_tree *estree, tvbuff_t *tvb, nds_val *values, guint32 vtype,
                 ns.secs = tvb_get_letohl(tvb, ioffset);   /* Seconds */
                 ns.nsecs = 0;
                 proto_tree_add_time_format(nestree, hf_es_seconds, tvb, ioffset,
-                                           4, &ns, "Timestamp: %s", abs_time_secs_to_ep_str(ns.secs, ABSOLUTE_TIME_LOCAL, TRUE));
+                                           4, &ns, "Timestamp: %s",
+                                           abs_time_secs_to_str(wmem_packet_scope(), ns.secs, ABSOLUTE_TIME_LOCAL, TRUE));
                 ioffset = ioffset + 4;
                 replica_num = tvb_get_letohs(tvb, ioffset);   /* Replica */
                 proto_tree_add_item(nestree, hf_nds_replica_num, tvb, ioffset,
@@ -3728,7 +3731,8 @@ print_es_type(proto_tree *estree, tvbuff_t *tvb, nds_val *values, guint32 vtype,
                 ns.secs = tvb_get_letohl(tvb, ioffset);   /* Seconds */
                 ns.nsecs = 0;
                 proto_tree_add_time_format(nestree, hf_es_seconds, tvb, ioffset,
-                                           4, &ns, "Timestamp: %s", abs_time_secs_to_ep_str(ns.secs, ABSOLUTE_TIME_LOCAL, TRUE));
+                                           4, &ns, "Timestamp: %s",
+                                           abs_time_secs_to_str(wmem_packet_scope(), ns.secs, ABSOLUTE_TIME_LOCAL, TRUE));
                 ioffset = ioffset + 4;
                 replica_num = tvb_get_letohs(tvb, ioffset);   /* Replica */
                 proto_tree_add_item(nestree, hf_nds_replica_num, tvb, ioffset,
@@ -3868,7 +3872,8 @@ print_es_type(proto_tree *estree, tvbuff_t *tvb, nds_val *values, guint32 vtype,
                 ns.secs = tvb_get_letohl(tvb, ioffset);   /* Seconds */
                 ns.nsecs = 0;
                 proto_tree_add_time_format(nestree, hf_es_seconds, tvb, ioffset,
-                                           4, &ns, "Timestamp: %s", abs_time_secs_to_ep_str(ns.secs, ABSOLUTE_TIME_LOCAL, TRUE));
+                                           4, &ns, "Timestamp: %s",
+                                           abs_time_secs_to_str(wmem_packet_scope(), ns.secs, ABSOLUTE_TIME_LOCAL, TRUE));
                 ioffset = ioffset + 4;
                 replica_num = tvb_get_letohs(tvb, ioffset);   /* Replica */
                 proto_tree_add_item(nestree, hf_nds_replica_num, tvb, ioffset,
@@ -3920,7 +3925,8 @@ print_es_type(proto_tree *estree, tvbuff_t *tvb, nds_val *values, guint32 vtype,
             ns.secs = tvb_get_letohl(tvb, ioffset);   /* Seconds */
             ns.nsecs = 0;
             proto_tree_add_time_format(sub2tree, hf_es_seconds, tvb, ioffset,
-                                       4, &ns, "Timestamp: %s", abs_time_secs_to_ep_str(ns.secs, ABSOLUTE_TIME_LOCAL, TRUE));
+                                       4, &ns, "Timestamp: %s",
+                                       abs_time_secs_to_str(wmem_packet_scope(), ns.secs, ABSOLUTE_TIME_LOCAL, TRUE));
             ioffset = ioffset + 4;
             replica_num = tvb_get_letohs(tvb, ioffset);   /* Replica */
             proto_tree_add_item(sub2tree, hf_nds_replica_num, tvb, ioffset,
@@ -4442,14 +4448,16 @@ process_entry_info(proto_tree *it_tree, tvbuff_t *tvb, nds_val *values)
         ns.secs = tvb_get_letohl(tvb, ioffset);   /* Seconds */
         ns.nsecs = 0;
         proto_tree_add_time_format(it_tree, hf_es_seconds, tvb, ioffset,
-                4, &ns, "Modification Time: %s", abs_time_secs_to_ep_str(ns.secs, ABSOLUTE_TIME_LOCAL, TRUE));
+                4, &ns, "Modification Time: %s",
+                abs_time_secs_to_str(wmem_packet_scope(), ns.secs, ABSOLUTE_TIME_LOCAL, TRUE));
         ioffset = ioffset + 4;
     }
     if (iter_flags & DSI_MODIFICATION_TIMESTAMP) { /* Modification Timestamp */
         ns.secs = tvb_get_letohl(tvb, ioffset);   /* Seconds */
         ns.nsecs = 0;
         proto_tree_add_time_format(it_tree, hf_es_seconds, tvb, ioffset,
-                4, &ns, "Modification Timestamp: %s", abs_time_secs_to_ep_str(ns.secs, ABSOLUTE_TIME_LOCAL, TRUE));
+                4, &ns, "Modification Timestamp: %s",
+                abs_time_secs_to_str(wmem_packet_scope(), ns.secs, ABSOLUTE_TIME_LOCAL, TRUE));
         ioffset = ioffset + 4;
         replica_num = tvb_get_letohs(tvb, ioffset);   /* Replica */
         proto_tree_add_item(it_tree, hf_nds_replica_num, tvb, ioffset,
@@ -4464,7 +4472,8 @@ process_entry_info(proto_tree *it_tree, tvbuff_t *tvb, nds_val *values)
         ns.secs = tvb_get_letohl(tvb, ioffset);   /* Seconds */
         ns.nsecs = 0;
         proto_tree_add_time_format(it_tree, hf_es_seconds, tvb, ioffset,
-                4, &ns, "Creation Timestamp: %s", abs_time_secs_to_ep_str(ns.secs, ABSOLUTE_TIME_LOCAL, TRUE));
+                4, &ns, "Creation Timestamp: %s",
+                abs_time_secs_to_str(wmem_packet_scope(), ns.secs, ABSOLUTE_TIME_LOCAL, TRUE));
         ioffset = ioffset + 4;
         replica_num = tvb_get_letohs(tvb, ioffset);   /* Replica */
         proto_tree_add_item(it_tree, hf_nds_replica_num, tvb, ioffset,
@@ -5134,7 +5143,8 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
                     ns.secs = tvb_get_letohl(tvb, ioffset);   /* Seconds */
                     ns.nsecs = 0;
                     proto_tree_add_time_format(atree, hf_es_seconds, tvb, ioffset,
-                                               4, &ns, "Timestamp: %s", abs_time_secs_to_ep_str(ns.secs, ABSOLUTE_TIME_LOCAL, TRUE));
+                                               4, &ns, "Timestamp: %s",
+                                               abs_time_secs_to_str(wmem_packet_scope(), ns.secs, ABSOLUTE_TIME_LOCAL, TRUE));
                     ioffset = ioffset + 4;
                     replica_num = tvb_get_letohs(tvb, ioffset);   /* Replica */
                     proto_tree_add_item(atree, hf_nds_replica_num, tvb, ioffset,
@@ -5222,7 +5232,8 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
                     ns.secs = tvb_get_letohl(tvb, ioffset);   /* Seconds */
                     ns.nsecs = 0;
                     proto_tree_add_time_format(ntree, hf_es_seconds, tvb, ioffset,
-                                               4, &ns, "Creation Time: %s", abs_time_secs_to_ep_str(ns.secs, ABSOLUTE_TIME_LOCAL, TRUE));
+                                               4, &ns, "Creation Time: %s",
+                                               abs_time_secs_to_str(wmem_packet_scope(), ns.secs, ABSOLUTE_TIME_LOCAL, TRUE));
                     ioffset = ioffset + 4;
                     replica_num = tvb_get_letohs(tvb, ioffset);   /* Replica */
                     proto_tree_add_item(ntree, hf_nds_replica_num, tvb, ioffset,
@@ -5360,7 +5371,8 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
                         ns.secs = tvb_get_letohl(tvb, ioffset);   /* Seconds */
                         ns.nsecs = 0;
                         proto_tree_add_time_format(ntree, hf_es_seconds, tvb, ioffset,
-                                                   4, &ns, "Modification Timestamp: %s", abs_time_secs_to_ep_str(ns.secs, ABSOLUTE_TIME_LOCAL, TRUE));
+                                                   4, &ns, "Modification Timestamp: %s",
+                                                   abs_time_secs_to_str(wmem_packet_scope(), ns.secs, ABSOLUTE_TIME_LOCAL, TRUE));
                         ioffset = ioffset + 4;
                         replica_num = tvb_get_letohs(tvb, ioffset);   /* Replica */
                         proto_tree_add_item(ntree, hf_nds_replica_num, tvb, ioffset,
@@ -5794,14 +5806,16 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
                         ns.secs = tvb_get_letohl(tvb, ioffset);   /* Seconds */
                         ns.nsecs = 0;
                         proto_tree_add_time_format(ntree, hf_es_seconds, tvb, ioffset,
-                                                   4, &ns, "Modification Time: %s", abs_time_secs_to_ep_str(ns.secs, ABSOLUTE_TIME_LOCAL, TRUE));
+                                                   4, &ns, "Modification Time: %s",
+                                                   abs_time_secs_to_str(wmem_packet_scope(), ns.secs, ABSOLUTE_TIME_LOCAL, TRUE));
                         ioffset = ioffset + 4;
                         break;
                     case 0x0000020:                 /* Modification Timestamp */
                         ns.secs = tvb_get_letohl(tvb, ioffset);   /* Seconds */
                         ns.nsecs = 0;
                         proto_tree_add_time_format(ntree, hf_es_seconds, tvb, ioffset,
-                                                   4, &ns, "Modification Timestamp: %s", abs_time_secs_to_ep_str(ns.secs, ABSOLUTE_TIME_LOCAL, TRUE));
+                                                   4, &ns, "Modification Timestamp: %s",
+                                                   abs_time_secs_to_str(wmem_packet_scope(), ns.secs, ABSOLUTE_TIME_LOCAL, TRUE));
                         ioffset = ioffset + 4;
                         replica_num = tvb_get_letohs(tvb, ioffset);   /* Replica */
                         proto_tree_add_item(ntree, hf_nds_replica_num, tvb, ioffset,
@@ -5816,7 +5830,8 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
                         ns.secs = tvb_get_letohl(tvb, ioffset);   /* Seconds */
                         ns.nsecs = 0;
                         proto_tree_add_time_format(ntree, hf_es_seconds, tvb, ioffset,
-                                                   4, &ns, "Creation Timestamp: %s", abs_time_secs_to_ep_str(ns.secs, ABSOLUTE_TIME_LOCAL, TRUE));
+                                                   4, &ns, "Creation Timestamp: %s",
+                                                   abs_time_secs_to_str(wmem_packet_scope(), ns.secs, ABSOLUTE_TIME_LOCAL, TRUE));
                         ioffset = ioffset + 4;
                         replica_num = tvb_get_letohs(tvb, ioffset);   /* Replica */
                         proto_tree_add_item(ntree, hf_nds_replica_num, tvb, ioffset,
@@ -5901,7 +5916,8 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
                         ns.secs = tvb_get_letohl(tvb, ioffset);   /* Seconds */
                         ns.nsecs = 0;
                         proto_tree_add_time_format(ntree, hf_es_seconds, tvb, ioffset,
-                                                   4, &ns, "Purge Time: %s", abs_time_secs_to_ep_str(ns.secs, ABSOLUTE_TIME_LOCAL, TRUE));
+                                                   4, &ns, "Purge Time: %s",
+                                                   abs_time_secs_to_str(wmem_packet_scope(), ns.secs, ABSOLUTE_TIME_LOCAL, TRUE));
                         ioffset = ioffset + 4;
                         break;
                     case 0x00020000:                /* Dereference Base Class */
@@ -6167,7 +6183,8 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
                     ns.secs = tvb_get_letohl(tvb, ioffset);   /* Seconds */
                     ns.nsecs = 0;
                     proto_tree_add_time_format(sub1tree, hf_es_seconds, tvb, ioffset,
-                                               4, &ns, "Creation Timestamp: %s", abs_time_secs_to_ep_str(ns.secs, ABSOLUTE_TIME_LOCAL, TRUE));
+                                               4, &ns, "Creation Timestamp: %s",
+                                               abs_time_secs_to_str(wmem_packet_scope(), ns.secs, ABSOLUTE_TIME_LOCAL, TRUE));
                     ioffset = ioffset + 4;
                     replica_num = tvb_get_letohs(tvb, ioffset);   /* Replica */
                     proto_tree_add_item(sub1tree, hf_nds_replica_num, tvb, ioffset,
@@ -6180,7 +6197,8 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
                     ns.secs = tvb_get_letohl(tvb, ioffset);   /* Seconds */
                     ns.nsecs = 0;
                     proto_tree_add_time_format(sub1tree, hf_es_seconds, tvb, ioffset,
-                                               4, &ns, "Modification Timestamp: %s", abs_time_secs_to_ep_str(ns.secs, ABSOLUTE_TIME_LOCAL, TRUE));
+                                               4, &ns, "Modification Timestamp: %s",
+                                               abs_time_secs_to_str(wmem_packet_scope(), ns.secs, ABSOLUTE_TIME_LOCAL, TRUE));
                     ioffset = ioffset + 4;
                     replica_num = tvb_get_letohs(tvb, ioffset);   /* Replica */
                     proto_tree_add_item(sub1tree, hf_nds_replica_num, tvb, ioffset,
@@ -6396,7 +6414,8 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
                 ns.secs = tvb_get_letohl(tvb, ioffset);   /* Seconds */
                 ns.nsecs = 0;
                 proto_tree_add_time_format(ntree, hf_es_seconds, tvb, ioffset,
-                                           4, &ns, "Creation Timestamp: %s", abs_time_secs_to_ep_str(ns.secs, ABSOLUTE_TIME_LOCAL, TRUE));
+                                           4, &ns, "Creation Timestamp: %s",
+                                           abs_time_secs_to_str(wmem_packet_scope(), ns.secs, ABSOLUTE_TIME_LOCAL, TRUE));
                 ioffset += 4;
                 replica_num = tvb_get_letohs(tvb, ioffset);   /* Replica */
                 proto_tree_add_item(ntree, hf_nds_replica_num, tvb, ioffset,
@@ -6428,7 +6447,8 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
                         ns.secs = tvb_get_letohl(tvb, ioffset);   /* Seconds */
                         ns.nsecs = 0;
                         proto_tree_add_time_format(sub2tree, hf_es_seconds, tvb, ioffset,
-                                                   4, &ns, "Timestamp: %s", abs_time_secs_to_ep_str(ns.secs, ABSOLUTE_TIME_LOCAL, TRUE));
+                                                   4, &ns, "Timestamp: %s",
+                                                   abs_time_secs_to_str(wmem_packet_scope(), ns.secs, ABSOLUTE_TIME_LOCAL, TRUE));
                         ioffset += 4;
                         replica_num = tvb_get_letohs(tvb, ioffset);   /* Replica */
                         proto_tree_add_item(sub2tree, hf_nds_replica_num, tvb, ioffset,

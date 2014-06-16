@@ -1199,7 +1199,7 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
 				&count2);
 			tmptime.secs = tval;
 			tmptime.nsecs = 0;
-			strval = abs_time_to_ep_str(&tmptime, ABSOLUTE_TIME_LOCAL,
+			strval = abs_time_to_str(wmem_packet_scope(), &tmptime, ABSOLUTE_TIME_LOCAL,
 			    TRUE);
 			/* Now render the fields */
 			tvb_ensure_bytes_exist(tvb, offset - 1, length + count + 1);

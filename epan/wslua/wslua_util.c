@@ -45,7 +45,7 @@ WSLUA_FUNCTION wslua_format_date(lua_State* LS) { /* Formats an absolute timesta
 
     then.secs = (guint32)(floor(timestamp));
     then.nsecs = (guint32) ( (timestamp-(double)(then.secs))*1000000000);
-    str = abs_time_to_ep_str(&then, ABSOLUTE_TIME_LOCAL, TRUE);
+    str = abs_time_to_str(NULL, &then, ABSOLUTE_TIME_LOCAL, TRUE); /* XXX right scope? */
     lua_pushstring(LS,str);
 
     WSLUA_RETURN(1); /* A string with the formated date */
@@ -59,7 +59,7 @@ WSLUA_FUNCTION wslua_format_time(lua_State* LS) { /* Formats a relative timestam
 
     then.secs = (guint32)(floor(timestamp));
     then.nsecs = (guint32) ( (timestamp-(double)(then.secs))*1000000000);
-    str = rel_time_to_ep_str(&then);
+    str = rel_time_to_str(NULL, &then); /* XXX what is the right scope? */
     lua_pushstring(LS,str);
 
     WSLUA_RETURN(1); /* A string with the formated time */

@@ -4172,7 +4172,7 @@ proto_custom_set(proto_tree* tree, const int field_id, gint occurrence,
 
 			case FT_ABSOLUTE_TIME:
 				offset_r += protoo_strlcpy(result+offset_r,
-							   abs_time_to_ep_str((const nstime_t *)fvalue_get(&finfo->value),
+							   abs_time_to_str(wmem_packet_scope(), (const nstime_t *)fvalue_get(&finfo->value),
 									   (absolute_time_display_e)hfinfo->display, TRUE),
 							   size-offset_r);
 				break;
@@ -5829,7 +5829,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 
 		case FT_ABSOLUTE_TIME:
 			label_fill(label_str, 0, hfinfo,
-				   abs_time_to_ep_str((const nstime_t *)fvalue_get(&fi->value),
+				   abs_time_to_str(wmem_packet_scope(), (const nstime_t *)fvalue_get(&fi->value),
 						(absolute_time_display_e)hfinfo->display, TRUE));
 			break;
 

@@ -534,6 +534,7 @@ print_pdml_geninfo(proto_tree *tree, FILE *fh)
     nstime_t   *timestamp;
     GPtrArray  *finfo_array;
     field_info *frame_finfo;
+    gchar      *tmp;
 
     /* Get frame protocol's finfo. */
     finfo_array = proto_find_finfo(tree, proto_frame);
@@ -595,10 +596,14 @@ print_pdml_geninfo(proto_tree *tree, FILE *fh)
             "    <field name=\"caplen\" pos=\"0\" show=\"%u\" showname=\"Captured Length\" value=\"%x\" size=\"%u\"/>\n",
             caplen, caplen, frame_finfo->length);
 
+    tmp = abs_time_to_str(NULL, timestamp, ABSOLUTE_TIME_LOCAL, TRUE);
+
     /* Print geninfo.timestamp */
     fprintf(fh,
             "    <field name=\"timestamp\" pos=\"0\" show=\"%s\" showname=\"Captured Time\" value=\"%d.%09d\" size=\"%u\"/>\n",
-            abs_time_to_ep_str(timestamp, ABSOLUTE_TIME_LOCAL, TRUE), (int) timestamp->secs, timestamp->nsecs, frame_finfo->length);
+            tmp, (int) timestamp->secs, timestamp->nsecs, frame_finfo->length);
+
+    wmem_free(NULL, tmp);
 
     /* Print geninfo end */
     fprintf(fh,

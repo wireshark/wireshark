@@ -4979,7 +4979,7 @@ smbext20_timeout_msecs_to_str(gint32 timeout)
 		return buf;
 	}
 
-	return time_msecs_to_ep_str(timeout);
+	return time_msecs_to_str(wmem_packet_scope(), timeout);
 }
 
 static int

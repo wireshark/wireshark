@@ -1083,7 +1083,7 @@ ipmi_add_timestamp(proto_tree *tree, gint hf, tvbuff_t *tvb, guint offset)
 				time_secs_to_ep_str_unsigned(ts));
 	} else {
 		proto_tree_add_uint_format_value(tree, hf, tvb, offset, 4,
-				ts, "%s", abs_time_secs_to_ep_str(ts, ABSOLUTE_TIME_UTC, TRUE));
+				ts, "%s", abs_time_secs_to_str(wmem_packet_scope(), ts, ABSOLUTE_TIME_UTC, TRUE));
 	}
 }
 

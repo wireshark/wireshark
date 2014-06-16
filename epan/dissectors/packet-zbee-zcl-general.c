@@ -1945,7 +1945,7 @@ decode_zcl_ota_curr_time(gchar *s, guint32 value)
      if (value == ZBEE_ZCL_OTA_TIME_NOW)
          g_snprintf(s, ITEM_LABEL_LENGTH, "Now");
      else
-        g_snprintf(s, ITEM_LABEL_LENGTH, "%s", abs_time_secs_to_ep_str(value, ABSOLUTE_TIME_LOCAL, 1));
+        g_snprintf(s, ITEM_LABEL_LENGTH, "%s", abs_time_secs_to_str(wmem_packet_scope(), value, ABSOLUTE_TIME_LOCAL, 1));
 
     return;
 } /*decode_zcl_ota_curr_time*/
@@ -1967,7 +1967,7 @@ decode_zcl_ota_req_time(gchar *s, guint32 value)
          g_snprintf(s, ITEM_LABEL_LENGTH, "Wrong Value");
      else
          /* offset from now */
-        g_snprintf(s, ITEM_LABEL_LENGTH, "%s from now", time_secs_to_ep_str(value));
+        g_snprintf(s, ITEM_LABEL_LENGTH, "%s from now", time_secs_to_str(wmem_packet_scope(), value));
 
     return;
 } /*decode_zcl_ota_req_time*/
@@ -1989,7 +1989,7 @@ decode_zcl_ota_upgr_time(gchar *s, guint32 value)
          g_snprintf(s, ITEM_LABEL_LENGTH, "Wait for upgrade command");
      else
          /* offset from now */
-        g_snprintf(s, ITEM_LABEL_LENGTH, "%s from now", time_secs_to_ep_str(value));
+        g_snprintf(s, ITEM_LABEL_LENGTH, "%s from now", time_secs_to_str(wmem_packet_scope(), value));
 
     return;
 } /*decode_zcl_ota_upgr_time*/

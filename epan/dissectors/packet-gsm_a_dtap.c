@@ -974,7 +974,7 @@ de_time_zone_time(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
 	tv.nsecs = 0;
 
 	proto_tree_add_time_format_value(tree, hf_gsm_a_dtap_time_zone_time, tvb, curr_offset, 6,
-	                                 &tv, "%s", abs_time_to_ep_str(&tv, ABSOLUTE_TIME_LOCAL, FALSE));
+	                                 &tv, "%s", abs_time_to_str(wmem_packet_scope(), &tv, ABSOLUTE_TIME_LOCAL, FALSE));
 	curr_offset += 6;
 
 	/* 3GPP TS 23.040 version 6.6.0 Release 6

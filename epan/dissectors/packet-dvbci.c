@@ -3019,7 +3019,7 @@ dissect_dvbci_payload_dt(guint32 tag, gint len_field,
         }
         else {
             col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL,
-                    "update every %s", rel_time_to_ep_str(&resp_intv));
+                    "update every %s", rel_time_to_str(wmem_packet_scope(), &resp_intv));
         }
     }
     else if (tag==T_DATE_TIME) {
@@ -3039,7 +3039,7 @@ dissect_dvbci_payload_dt(guint32 tag, gint len_field,
         proto_tree_add_time(tree, hf_dvbci_utc_time,
                 tvb, offset, time_field_len, &utc_time);
         col_append_sep_fstr(pinfo->cinfo, COL_INFO, ": ", "%s UTC",
-                abs_time_to_ep_str(&utc_time, ABSOLUTE_TIME_UTC, FALSE));
+                abs_time_to_str(wmem_packet_scope(), &utc_time, ABSOLUTE_TIME_UTC, FALSE));
         offset += time_field_len;
 
         if (len_field==7) {

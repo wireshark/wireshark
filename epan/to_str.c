@@ -359,15 +359,15 @@ guint32_to_str_buf(guint32 u, gchar *buf, int buf_len) {
  * If time is negative, add a '-' to all non-null components.
  */
 static void
-time_secs_to_ep_str_buf(gint32 time_val, const guint32 frac, const gboolean is_nsecs,
-		emem_strbuf_t *buf)
+time_secs_to_str_buf(gint32 time_val, const guint32 frac, const gboolean is_nsecs,
+		wmem_strbuf_t *buf)
 {
 	int hours, mins, secs;
 	const gchar *msign = "";
 	gboolean do_comma = FALSE;
 
 	if(time_val == G_MININT32) {	/* That Which Shall Not Be Negated */
-		ep_strbuf_append_printf(buf, "Unable to cope with time value %d", time_val);
+		wmem_strbuf_append_printf(buf, "Unable to cope with time value %d", time_val);
 		return;
 	}
 
@@ -384,45 +384,45 @@ time_secs_to_ep_str_buf(gint32 time_val, const guint32 frac, const gboolean is_n
 	time_val /= 24;
 
 	if (time_val != 0) {
-		ep_strbuf_append_printf(buf, "%s%u day%s", msign, time_val, PLURALIZE(time_val));
+		wmem_strbuf_append_printf(buf, "%s%u day%s", msign, time_val, PLURALIZE(time_val));
 		do_comma = TRUE;
 		msign="";
 	}
 	if (hours != 0) {
-		ep_strbuf_append_printf(buf, "%s%s%u hour%s", COMMA(do_comma), msign, hours, PLURALIZE(hours));
+		wmem_strbuf_append_printf(buf, "%s%s%u hour%s", COMMA(do_comma), msign, hours, PLURALIZE(hours));
 		do_comma = TRUE;
 		msign="";
 	}
 	if (mins != 0) {
-		ep_strbuf_append_printf(buf, "%s%s%u minute%s", COMMA(do_comma), msign, mins, PLURALIZE(mins));
+		wmem_strbuf_append_printf(buf, "%s%s%u minute%s", COMMA(do_comma), msign, mins, PLURALIZE(mins));
 		do_comma = TRUE;
 		msign="";
 	}
 	if (secs != 0 || frac != 0) {
 		if (frac != 0) {
 			if (is_nsecs)
-				ep_strbuf_append_printf(buf, "%s%s%u.%09u seconds", COMMA(do_comma), msign, secs, frac);
+				wmem_strbuf_append_printf(buf, "%s%s%u.%09u seconds", COMMA(do_comma), msign, secs, frac);
 			else
-				ep_strbuf_append_printf(buf, "%s%s%u.%03u seconds", COMMA(do_comma), msign, secs, frac);
+				wmem_strbuf_append_printf(buf, "%s%s%u.%03u seconds", COMMA(do_comma), msign, secs, frac);
 		} else
-			ep_strbuf_append_printf(buf, "%s%s%u second%s", COMMA(do_comma), msign, secs, PLURALIZE(secs));
+			wmem_strbuf_append_printf(buf, "%s%s%u second%s", COMMA(do_comma), msign, secs, PLURALIZE(secs));
 	}
 }
 
 gchar *
-time_secs_to_ep_str(const gint32 time_val)
+time_secs_to_str(wmem_allocator_t *scope, const gint32 time_val)
 {
-	emem_strbuf_t *buf;
-
-	buf=ep_strbuf_sized_new(TIME_SECS_LEN+1, TIME_SECS_LEN+1);
+	wmem_strbuf_t *buf;
 
 	if (time_val == 0) {
-		ep_strbuf_append(buf, "0 seconds");
-		return buf->str;
+		return wmem_strdup(scope, "0 seconds");
 	}
 
-	time_secs_to_ep_str_buf(time_val, 0, FALSE, buf);
-	return buf->str;
+	buf = wmem_strbuf_sized_new(scope, TIME_SECS_LEN+1, TIME_SECS_LEN+1);
+
+	time_secs_to_str_buf(time_val, 0, FALSE, buf);
+
+	return wmem_strbuf_finalize(buf);
 }
 
 static void
@@ -480,19 +480,18 @@ time_secs_to_ep_str_unsigned(const guint32 time_val)
 
 
 gchar *
-time_msecs_to_ep_str(gint32 time_val)
+time_msecs_to_str(wmem_allocator_t *scope, gint32 time_val)
 {
-	emem_strbuf_t *buf;
+	wmem_strbuf_t *buf;
 	int msecs;
 
-	buf=ep_strbuf_sized_new(TIME_SECS_LEN+1+3+1, TIME_SECS_LEN+1+3+1);
-
 	if (time_val == 0) {
-		ep_strbuf_append(buf, "0 seconds");
-		return buf->str;
+		return wmem_strdup(scope, "0 seconds");
 	}
 
-	if(time_val<0){
+	buf = wmem_strbuf_sized_new(scope, TIME_SECS_LEN+1+3+1, TIME_SECS_LEN+1+3+1);
+
+	if (time_val<0) {
 		/* oops we got passed a negative time */
 		time_val= -time_val;
 		msecs = time_val % 1000;
@@ -503,8 +502,9 @@ time_msecs_to_ep_str(gint32 time_val)
 		time_val /= 1000;
 	}
 
-	time_secs_to_ep_str_buf(time_val, msecs, FALSE, buf);
-	return buf->str;
+	time_secs_to_str_buf(time_val, msecs, FALSE, buf);
+
+	return wmem_strbuf_finalize(buf);
 }
 
 static const char mon_names[12][4] = {
@@ -573,7 +573,7 @@ static const gchar *get_zonename(struct tm *tmp) {
 }
 
 gchar *
-abs_time_to_ep_str(const nstime_t *abs_time, const absolute_time_display_e fmt,
+abs_time_to_str(wmem_allocator_t *scope, const nstime_t *abs_time, const absolute_time_display_e fmt,
 		gboolean show_zone)
 {
 	struct tm *tmp = NULL;
@@ -601,7 +601,8 @@ abs_time_to_ep_str(const nstime_t *abs_time, const absolute_time_display_e fmt,
 
 			case ABSOLUTE_TIME_DOY_UTC:
 				if (show_zone) {
-					buf = ep_strdup_printf("%04d/%03d:%02d:%02d:%02d.%09ld %s",
+					buf = wmem_strdup_printf(scope,
+							"%04d/%03d:%02d:%02d:%02d.%09ld %s",
 							tmp->tm_year + 1900,
 							tmp->tm_yday + 1,
 							tmp->tm_hour,
@@ -610,7 +611,8 @@ abs_time_to_ep_str(const nstime_t *abs_time, const absolute_time_display_e fmt,
 							(long)abs_time->nsecs,
 							zonename);
 				} else {
-					buf = ep_strdup_printf("%04d/%03d:%02d:%02d:%02d.%09ld",
+					buf = wmem_strdup_printf(scope,
+							"%04d/%03d:%02d:%02d:%02d.%09ld",
 							tmp->tm_year + 1900,
 							tmp->tm_yday + 1,
 							tmp->tm_hour,
@@ -623,7 +625,8 @@ abs_time_to_ep_str(const nstime_t *abs_time, const absolute_time_display_e fmt,
 			case ABSOLUTE_TIME_UTC:
 			case ABSOLUTE_TIME_LOCAL:
 				if (show_zone) {
-					buf = ep_strdup_printf("%s %2d, %d %02d:%02d:%02d.%09ld %s",
+					buf = wmem_strdup_printf(scope,
+							"%s %2d, %d %02d:%02d:%02d.%09ld %s",
 							mon_names[tmp->tm_mon],
 							tmp->tm_mday,
 							tmp->tm_year + 1900,
@@ -633,7 +636,8 @@ abs_time_to_ep_str(const nstime_t *abs_time, const absolute_time_display_e fmt,
 							(long)abs_time->nsecs,
 							zonename);
 				} else {
-					buf = ep_strdup_printf("%s %2d, %d %02d:%02d:%02d.%09ld",
+					buf = wmem_strdup_printf(scope,
+							"%s %2d, %d %02d:%02d:%02d.%09ld",
 							mon_names[tmp->tm_mon],
 							tmp->tm_mday,
 							tmp->tm_year + 1900,
@@ -645,12 +649,12 @@ abs_time_to_ep_str(const nstime_t *abs_time, const absolute_time_display_e fmt,
 				break;
 		}
 	} else
-		buf = ep_strdup("Not representable");
+		buf = wmem_strdup(scope, "Not representable");
 	return buf;
 }
 
 gchar *
-abs_time_secs_to_ep_str(const time_t abs_time, const absolute_time_display_e fmt,
+abs_time_secs_to_str(wmem_allocator_t *scope, const time_t abs_time, const absolute_time_display_e fmt,
 		gboolean show_zone)
 {
 	struct tm *tmp = NULL;
@@ -677,7 +681,8 @@ abs_time_secs_to_ep_str(const time_t abs_time, const absolute_time_display_e fmt
 
 			case ABSOLUTE_TIME_DOY_UTC:
 				if (show_zone) {
-					buf = ep_strdup_printf("%04d/%03d:%02d:%02d:%02d %s",
+					buf = wmem_strdup_printf(scope,
+							"%04d/%03d:%02d:%02d:%02d %s",
 							tmp->tm_year + 1900,
 							tmp->tm_yday + 1,
 							tmp->tm_hour,
@@ -685,7 +690,8 @@ abs_time_secs_to_ep_str(const time_t abs_time, const absolute_time_display_e fmt
 							tmp->tm_sec,
 							zonename);
 				} else {
-					buf = ep_strdup_printf("%04d/%03d:%02d:%02d:%02d",
+					buf = wmem_strdup_printf(scope,
+							"%04d/%03d:%02d:%02d:%02d",
 							tmp->tm_year + 1900,
 							tmp->tm_yday + 1,
 							tmp->tm_hour,
@@ -697,7 +703,8 @@ abs_time_secs_to_ep_str(const time_t abs_time, const absolute_time_display_e fmt
 			case ABSOLUTE_TIME_UTC:
 			case ABSOLUTE_TIME_LOCAL:
 				if (show_zone) {
-					buf = ep_strdup_printf("%s %2d, %d %02d:%02d:%02d %s",
+					buf = wmem_strdup_printf(scope,
+							"%s %2d, %d %02d:%02d:%02d %s",
 							mon_names[tmp->tm_mon],
 							tmp->tm_mday,
 							tmp->tm_year + 1900,
@@ -706,7 +713,8 @@ abs_time_secs_to_ep_str(const time_t abs_time, const absolute_time_display_e fmt
 							tmp->tm_sec,
 							zonename);
 				} else {
-					buf = ep_strdup_printf("%s %2d, %d %02d:%02d:%02d",
+					buf = wmem_strdup_printf(scope,
+							"%s %2d, %d %02d:%02d:%02d",
 							mon_names[tmp->tm_mon],
 							tmp->tm_mday,
 							tmp->tm_year + 1900,
@@ -717,7 +725,7 @@ abs_time_secs_to_ep_str(const time_t abs_time, const absolute_time_display_e fmt
 				break;
 		}
 	} else
-		buf = ep_strdup("Not representable");
+		buf = wmem_strdup(scope, "Not representable");
 	return buf;
 }
 
@@ -856,13 +864,11 @@ display_epoch_time(gchar *buf, int buflen, const time_t sec, gint32 frac,
  * Display a relative time as days/hours/minutes/seconds.
  */
 gchar *
-rel_time_to_ep_str(const nstime_t *rel_time)
+rel_time_to_str(wmem_allocator_t *scope, const nstime_t *rel_time)
 {
-	emem_strbuf_t *buf;
+	wmem_strbuf_t *buf;
 	gint32 time_val;
 	gint32 nsec;
-
-	buf=ep_strbuf_sized_new(1+TIME_SECS_LEN+1+6+1, 1+TIME_SECS_LEN+1+6+1);
 
 	/* If the nanoseconds part of the time stamp is negative,
 	   print its absolute value and, if the seconds part isn't
@@ -871,12 +877,14 @@ rel_time_to_ep_str(const nstime_t *rel_time)
 	time_val = (gint) rel_time->secs;
 	nsec = rel_time->nsecs;
 	if (time_val == 0 && nsec == 0) {
-		ep_strbuf_append(buf, "0.000000000 seconds");
-		return buf->str;
+		return wmem_strdup(scope, "0.000000000 seconds");
 	}
+
+	buf = wmem_strbuf_sized_new(scope, 1+TIME_SECS_LEN+1+6+1, 1+TIME_SECS_LEN+1+6+1);
+
 	if (nsec < 0) {
 		nsec = -nsec;
-		ep_strbuf_append_c(buf, '-');
+		wmem_strbuf_append_c(buf, '-');
 
 		/*
 		 * We assume here that "rel_time->secs" is negative
@@ -886,8 +894,9 @@ rel_time_to_ep_str(const nstime_t *rel_time)
 		time_val = (gint) -rel_time->secs;
 	}
 
-	time_secs_to_ep_str_buf(time_val, nsec, TRUE, buf);
-	return buf->str;
+	time_secs_to_str_buf(time_val, nsec, TRUE, buf);
+
+	return wmem_strbuf_finalize(buf);
 }
 
 #define REL_TIME_SECS_LEN	(1+10+1+9+1)
