@@ -58,81 +58,81 @@ static GtkWidget *conversation_hastables_dlg_w = NULL;
 static guint
 conversation_hash_exact(gconstpointer v)
 {
-	const conversation_key *key = (const conversation_key *)v;
-	guint hash_val;
-	int i;
-	const guint8 *ADD_ADDRESS_TO_HASH_data;
+    const conversation_key *key = (const conversation_key *)v;
+    guint hash_val;
+    int i;
+    const guint8 *ADD_ADDRESS_TO_HASH_data;
 
-	hash_val = 0;
+    hash_val = 0;
 #if 0
-	ADD_ADDRESS_TO_HASH(hash_val, &key->addr1);
-	hash_val += key->port1;
-	ADD_ADDRESS_TO_HASH(hash_val, &key->addr2);
-	hash_val += key->port2;
+    ADD_ADDRESS_TO_HASH(hash_val, &key->addr1);
+    hash_val += key->port1;
+    ADD_ADDRESS_TO_HASH(hash_val, &key->addr2);
+    hash_val += key->port2;
 
-	return hash_val;
+    return hash_val;
 #endif
-	for ( i = 0; i < key->addr1.len; i++ ) {
-		ADD_ADDRESS_TO_HASH_data = (const guint8 *)((&key->addr1)->data);
-		hash_val += ADD_ADDRESS_TO_HASH_data[i];
-		hash_val += ( hash_val << 10 );
-		hash_val ^= ( hash_val >> 6 );
-	}
+    for ( i = 0; i < key->addr1.len; i++ ) {
+        ADD_ADDRESS_TO_HASH_data = (const guint8 *)((&key->addr1)->data);
+        hash_val += ADD_ADDRESS_TO_HASH_data[i];
+        hash_val += ( hash_val << 10 );
+        hash_val ^= ( hash_val >> 6 );
+    }
 
-	for ( i = 0; i < 4; i++ ) {
-		ADD_ADDRESS_TO_HASH_data = (const guint8 *)(&key->port1);
-		hash_val += ADD_ADDRESS_TO_HASH_data[i];
-		hash_val += ( hash_val << 10 );
-		hash_val ^= ( hash_val >> 6 );
-	}
+    for ( i = 0; i < 4; i++ ) {
+        ADD_ADDRESS_TO_HASH_data = (const guint8 *)(&key->port1);
+        hash_val += ADD_ADDRESS_TO_HASH_data[i];
+        hash_val += ( hash_val << 10 );
+        hash_val ^= ( hash_val >> 6 );
+    }
 
-	for ( i = 0; i < key->addr2.len; i++ ) {
-		ADD_ADDRESS_TO_HASH_data = (const guint8 *)((&key->addr2)->data);
-		hash_val += ADD_ADDRESS_TO_HASH_data[i];
-		hash_val += ( hash_val << 10 );
-		hash_val ^= ( hash_val >> 6 );
-	}
+    for ( i = 0; i < key->addr2.len; i++ ) {
+        ADD_ADDRESS_TO_HASH_data = (const guint8 *)((&key->addr2)->data);
+        hash_val += ADD_ADDRESS_TO_HASH_data[i];
+        hash_val += ( hash_val << 10 );
+        hash_val ^= ( hash_val >> 6 );
+    }
 
-	for ( i = 0; i < 4; i++ ) {
-		ADD_ADDRESS_TO_HASH_data = (const guint8 *)(&key->port2);
-		hash_val += ADD_ADDRESS_TO_HASH_data[i];
-		hash_val += ( hash_val << 10 );
-		hash_val ^= ( hash_val >> 6 );
-	}
+    for ( i = 0; i < 4; i++ ) {
+        ADD_ADDRESS_TO_HASH_data = (const guint8 *)(&key->port2);
+        hash_val += ADD_ADDRESS_TO_HASH_data[i];
+        hash_val += ( hash_val << 10 );
+        hash_val ^= ( hash_val >> 6 );
+    }
 
-	hash_val += ( hash_val << 3 );
-	hash_val ^= ( hash_val >> 11 );
-	hash_val += ( hash_val << 15 );
+    hash_val += ( hash_val << 3 );
+    hash_val ^= ( hash_val >> 11 );
+    hash_val += ( hash_val << 15 );
 
-	return hash_val;
+    return hash_val;
 }
 
 static guint
 conversation_hash_exact_old(gconstpointer v)
 {
-	const conversation_key *key = (const conversation_key *)v;
-	guint hash_val;
+    const conversation_key *key = (const conversation_key *)v;
+    guint hash_val;
 
-	hash_val = 0;
-	ADD_ADDRESS_TO_HASH(hash_val, &key->addr1);
-	hash_val += key->port1;
-	ADD_ADDRESS_TO_HASH(hash_val, &key->addr2);
-	hash_val += key->port2;
+    hash_val = 0;
+    ADD_ADDRESS_TO_HASH(hash_val, &key->addr1);
+    hash_val += key->port1;
+    ADD_ADDRESS_TO_HASH(hash_val, &key->addr2);
+    hash_val += key->port2;
 
-	return hash_val;
+    return hash_val;
 }
 
 static void
 conversation_hashtable_exact_to_texbuff(gpointer key, gpointer value _U_, gpointer user_data)
 {
-	gchar string_buff[CONV_STR_BUF_MAX];
-	GtkTextBuffer *buffer = (GtkTextBuffer*)user_data;
-	/*conversation_t *conversation = (conversation_t *)value;*/
-	conversation_key *conv_key = (conversation_key*)key;
+    gchar string_buff[CONV_STR_BUF_MAX];
+    GtkTextBuffer *buffer = (GtkTextBuffer*)user_data;
+    /*conversation_t *conversation = (conversation_t *)value;*/
+    conversation_key *conv_key = (conversation_key*)key;
 
-	g_snprintf(string_buff, CONV_STR_BUF_MAX, "Key:0x%x  old key:0x%x\n",conversation_hash_exact(conv_key),conversation_hash_exact_old(conv_key));
+    g_snprintf(string_buff, CONV_STR_BUF_MAX, "Key:0x%x  old key:0x%x\n",conversation_hash_exact(conv_key),conversation_hash_exact_old(conv_key));
 
-	gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
+    gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
 
 }
 
@@ -140,45 +140,45 @@ static void
 conversation_info_to_texbuff(GtkTextBuffer *buffer)
 {
     gchar string_buff[CONV_STR_BUF_MAX];
-	GHashTable *conversation_hashtable_exact;
-	GHashTable *conversation_hashtable_no_addr2;
-	GHashTable *conversation_hashtable_no_port2;
-	GHashTable *conversation_hashtable_no_addr2_or_port2;
+    GHashTable *conversation_hashtable_exact;
+    GHashTable *conversation_hashtable_no_addr2;
+    GHashTable *conversation_hashtable_no_port2;
+    GHashTable *conversation_hashtable_no_addr2_or_port2;
 
     g_snprintf(string_buff, CONV_STR_BUF_MAX, "Conversation hastables info:\n");
     gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
 
-	conversation_hashtable_exact = get_conversation_hashtable_exact();
-	if(conversation_hashtable_exact){
-		g_snprintf(string_buff, CONV_STR_BUF_MAX, "conversation_hashtable_exact %i entries\n#\n",
-			g_hash_table_size(conversation_hashtable_exact));
-		gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
-		g_hash_table_foreach( conversation_hashtable_exact, conversation_hashtable_exact_to_texbuff, buffer);
-	}
+    conversation_hashtable_exact = get_conversation_hashtable_exact();
+    if(conversation_hashtable_exact){
+        g_snprintf(string_buff, CONV_STR_BUF_MAX, "conversation_hashtable_exact %i entries\n#\n",
+            g_hash_table_size(conversation_hashtable_exact));
+        gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
+        g_hash_table_foreach( conversation_hashtable_exact, conversation_hashtable_exact_to_texbuff, buffer);
+    }
 
-	conversation_hashtable_no_addr2 = get_conversation_hashtable_no_addr2();
-	if(conversation_hashtable_no_addr2){
-		g_snprintf(string_buff, CONV_STR_BUF_MAX, "conversation_hashtable_no_addr2 %i entries\n#\n",
-			g_hash_table_size(conversation_hashtable_no_addr2));
-		gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
+    conversation_hashtable_no_addr2 = get_conversation_hashtable_no_addr2();
+    if(conversation_hashtable_no_addr2){
+        g_snprintf(string_buff, CONV_STR_BUF_MAX, "conversation_hashtable_no_addr2 %i entries\n#\n",
+            g_hash_table_size(conversation_hashtable_no_addr2));
+        gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
 
-	}
+    }
 
-	conversation_hashtable_no_port2 = get_conversation_hashtable_no_port2();
-	if(conversation_hashtable_no_port2){
-		g_snprintf(string_buff, CONV_STR_BUF_MAX, "conversation_hashtable_no_port2 %i entries\n#\n",
-			g_hash_table_size(conversation_hashtable_no_port2));
-		gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
+    conversation_hashtable_no_port2 = get_conversation_hashtable_no_port2();
+    if(conversation_hashtable_no_port2){
+        g_snprintf(string_buff, CONV_STR_BUF_MAX, "conversation_hashtable_no_port2 %i entries\n#\n",
+            g_hash_table_size(conversation_hashtable_no_port2));
+        gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
 
-	}
+    }
 
-	conversation_hashtable_no_addr2_or_port2 = get_conversation_hashtable_no_addr2_or_port2();
-	if(conversation_hashtable_no_addr2_or_port2){
-		g_snprintf(string_buff, CONV_STR_BUF_MAX, "conversation_hashtable_no_addr2_or_port2 %i entries\n#\n",
-			g_hash_table_size(conversation_hashtable_no_addr2_or_port2));
-		gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
+    conversation_hashtable_no_addr2_or_port2 = get_conversation_hashtable_no_addr2_or_port2();
+    if(conversation_hashtable_no_addr2_or_port2){
+        g_snprintf(string_buff, CONV_STR_BUF_MAX, "conversation_hashtable_no_addr2_or_port2 %i entries\n#\n",
+            g_hash_table_size(conversation_hashtable_no_addr2_or_port2));
+        gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
 
-	}
+    }
 
 }
 
