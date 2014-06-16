@@ -1264,7 +1264,7 @@ ep_strbuf_grow(emem_strbuf_t *strbuf, gsize wanted_alloc_len)
 	strbuf->str = new_str;
 }
 
-emem_strbuf_t *
+static emem_strbuf_t *
 ep_strbuf_sized_new(gsize alloc_len, gsize max_alloc_len)
 {
 	emem_strbuf_t *strbuf;
@@ -1298,32 +1298,6 @@ ep_strbuf_new(const gchar *init)
 		gsize full_len;
 		full_len = g_strlcpy(strbuf->str, init, strbuf->alloc_len);
 		strbuf->len = MIN(full_len, strbuf->alloc_len-1);
-	}
-
-	return strbuf;
-}
-
-emem_strbuf_t *
-ep_strbuf_append(emem_strbuf_t *strbuf, const gchar *str)
-{
-	gsize add_len, full_len;
-
-	if (!strbuf || !str || str[0] == '\0') {
-		return strbuf;
-	}
-
-	/* Be optimistic; try the g_strlcpy first & see if enough room.                 */
-	/* Note: full_len doesn't count the trailing '\0'; add_len does allow for same  */
-	add_len = strbuf->alloc_len - strbuf->len;
-	full_len = g_strlcpy(&strbuf->str[strbuf->len], str, add_len);
-	if (full_len < add_len) {
-		strbuf->len += full_len;
-	} else {
-		strbuf->str[strbuf->len] = '\0'; /* end string at original length again */
-		ep_strbuf_grow(strbuf, strbuf->len + full_len + 1);
-		add_len = strbuf->alloc_len - strbuf->len;
-		full_len = g_strlcpy(&strbuf->str[strbuf->len], str, add_len);
-		strbuf->len += MIN(add_len-1, full_len);
 	}
 
 	return strbuf;
@@ -1377,26 +1351,6 @@ ep_strbuf_printf(emem_strbuf_t *strbuf, const gchar *format, ...)
 	va_start(ap, format);
 	ep_strbuf_append_vprintf(strbuf, format, ap);
 	va_end(ap);
-}
-
-emem_strbuf_t *
-ep_strbuf_append_c(emem_strbuf_t *strbuf, const gchar c)
-{
-	if (!strbuf) {
-		return strbuf;
-	}
-
-	/* +1 for the new character & +1 for the trailing '\0'. */
-	if (strbuf->alloc_len < strbuf->len + 1 + 1) {
-		ep_strbuf_grow(strbuf, strbuf->len + 1 + 1);
-	}
-	if (strbuf->alloc_len >= strbuf->len + 1 + 1) {
-		strbuf->str[strbuf->len] = c;
-		strbuf->len++;
-		strbuf->str[strbuf->len] = '\0';
-	}
-
-	return strbuf;
 }
 
 /*

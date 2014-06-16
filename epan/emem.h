@@ -169,20 +169,6 @@ WS_DLL_PUBLIC
 emem_strbuf_t *ep_strbuf_new(const gchar *init) G_GNUC_MALLOC;
 
 /**
- * Allocate an ephemeral string buffer with enough initial space for alloc_len bytes
- * and a maximum of max_alloc_len bytes.
- *
- * @param alloc_len The initial size of the buffer. This value can be 0, but a nonzero
- * value is recommended.
- * @param max_alloc_len The maximum size of the buffer. 0 means "unlimited" (within
- * reason).
- *
- * @return A newly-allocated string buffer. str will be empty.
- */
-WS_DLL_PUBLIC
-emem_strbuf_t *ep_strbuf_sized_new(gsize alloc_len, gsize max_alloc_len) G_GNUC_MALLOC;
-
-/**
  * Apply printf-style formatted text to a string buffer.
  *
  * @param strbuf The ep_strbuf-allocated string buffer to set to.
@@ -201,28 +187,6 @@ void ep_strbuf_printf(emem_strbuf_t *strbuf, const gchar *format, ...)
 WS_DLL_PUBLIC
 void ep_strbuf_append_printf(emem_strbuf_t *strbuf, const gchar *format, ...)
     G_GNUC_PRINTF(2, 3);
-
-/**
- * Append a string to a string buffer.
- *
- * @param strbuf The ep_strbuf-allocated string buffer to append to.
- * @param str A null-terminated string.
- *
- * @return strbuf
- */
-WS_DLL_PUBLIC
-emem_strbuf_t *ep_strbuf_append(emem_strbuf_t *strbuf, const gchar *str);
-
-/**
- * Append a character to a string buffer.
- *
- * @param strbuf The ep_strbuf-allocated string buffer to append to.
- * @param c The character to append.
- *
- * @return strbuf
- */
-WS_DLL_PUBLIC
-emem_strbuf_t *ep_strbuf_append_c(emem_strbuf_t *strbuf, const gchar c);
 
 /* #define DEBUG_INTENSE_CANARY_CHECKS */
 
