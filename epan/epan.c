@@ -21,10 +21,6 @@
 
 #include "config.h"
 
-#ifdef HAVE_PYTHON
-#include <Python.h> /* to get the Python version number (PY_VERSION) */
-#endif
-
 #ifdef HAVE_LIBGCRYPT
 #include <wsutil/wsgcrypt.h>
 #endif /* HAVE_LIBGCRYPT */
@@ -500,16 +496,6 @@ epan_get_compiled_version_info(GString *str)
 #else
 	g_string_append(str, "without Lua");
 #endif /* HAVE_LUA */
-
-	g_string_append(str, ", ");
-#ifdef HAVE_PYTHON
-	g_string_append(str, "with Python");
-#ifdef PY_VERSION
-	g_string_append(str, " " PY_VERSION);
-#endif /* PY_VERSION */
-#else
-	g_string_append(str, "without Python");
-#endif /* HAVE_PYTHON */
 
         /* GnuTLS */
 	g_string_append(str, ", ");

@@ -253,9 +253,6 @@ splash_update(register_action_e action, const char *message, gpointer client_dat
 #ifdef HAVE_LUA
       ul_count += wslua_count_plugins (); /* get count of lua plugins */
 #endif
-#ifdef HAVE_PYTHON
-      ul_count += 2;   /* additional 2 for python register and handoff */
-#endif
     }
 
     main_lb = (GtkWidget *)g_object_get_data(G_OBJECT(win), "protocol_label");
@@ -458,12 +455,6 @@ about_folders_page_new(void)
   /* global plugins */
   about_folders_row(table, "Global Plugins", get_plugin_dir(),
       "dissector plugins");
-#endif
-
-#ifdef HAVE_PYTHON
-  /* global python bindings */
-  about_folders_row(table, "Python Bindings", get_wspython_dir(),
-      "python bindings");
 #endif
 
 #ifdef HAVE_GEOIP

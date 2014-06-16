@@ -60,9 +60,6 @@ SplashOverlay::SplashOverlay(QWidget *parent) :
 #ifdef HAVE_LUA
       register_add++;   /* additional one for lua plugins */
 #endif
-#ifdef HAVE_PYTHON
-      register_add += 2;   /* additional 2 for python register and handoff */
-#endif
     so_ui_->progressBar->setMaximum((int)register_count() + register_add);
     time_.start();
 

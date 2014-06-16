@@ -210,11 +210,6 @@ AboutDialog::AboutDialog(QWidget *parent) :
     message += about_folders_row("Global Plugins", get_plugin_dir(), "dissector plugins");
 #endif
 
-#ifdef HAVE_PYTHON
-    /* global python bindings */
-    message += about_folders_row("Python Bindings", get_wspython_dir(), "python bindings");
-#endif
-
 #ifdef HAVE_GEOIP
     /* GeoIP */
     path = geoip_db_get_paths();

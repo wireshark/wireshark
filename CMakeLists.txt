@@ -654,10 +654,6 @@ WSExtendPath( "${WS_ALL_LIBS}" "${CMAKE_BINARY_DIR}/setpath.bat" )
 #packaging
 include(CPackConfig.txt)
 
-if(HAVE_LIBPYTHON)
-	set(HAVE_PYTHON 1)
-	set(PYTHON_DIR "${CMAKE_INSTALL_PREFIX}/lib/wireshark/python/${CPACK_PACKAGE_VERSION}")
-endif()
 if(HAVE_LIBLUA)
 	set(HAVE_LUA_H 1)
 	set(HAVE_LUA 1)

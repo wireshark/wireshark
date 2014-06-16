@@ -253,7 +253,6 @@ EXTRA_DIST =				\
 	README.malloc			\
 	README.packaging		\
 	README.plugins			\
-	README.python 			\
 	README.regression   		\
 	README.request_response_tracking\
 	README.stats_tree		\

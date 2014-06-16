@@ -195,30 +195,6 @@ MSVC_VARIANT=MSVC2010EE
 NASM=$(WIRESHARK_LIB_DIR)\nasm-2.09.08\nasm.exe
 
 #
-# Optional: the Python library enables scripting support.
-#
-# If you don't have the Python library, comment this line out, so that
-# PYTHON_EMBED isn't defined.
-#
-# NOTE: The Python library must have been compiled with the same
-# compiler (MSVC_VARIANT) as Wireshark. Known python.org Python
-# CRT versions:
-#
-# Python version    CRT (32-bit)    CRT (64-bit)
-# 2.4.4             7.1             ?
-# 2.6.1             9.0             ?
-# 2.6.2             ?               9.0
-# 2.7.1             9.0             9.0
-# 3.2.2             9.0             9.0
-#
-# If you versions of Python and Visual C++ use different CRTs
-# comment this out.
-#
-# XXX The DLL path in epan/wspython/wspy_libws.py likely needs to
-# be fixed before this is enabled by default.
-#PYTHON_EMBED=1
-
-#
 # Optional: the Python interpreter is used as part of the buildsystem
 #
 # This will override the automatic detection below.
@@ -925,11 +901,6 @@ HHC_DIR=$(PROGRAM_FILES)\HTML Help Workshop
 UPX=$(WIRESHARK_LIB_DIR)\upx303w\upx.exe
 
 ##### Flags, PATHs and Miscellaneous #####
-
-# Santity check: Python embedding requires a valid PYTHON_DIR
-!IF DEFINED(PYTHON_EMBED) && !DEFINED(PYTHON_DIR)
-!ERROR PYTHON_EMBED requires that PYTHON_DIR is defined
-!ENDIF
 
 # "convert" the MSVC variant into the required MSC compiler version
 !IF "$(MSVC_VARIANT)" == "MSVC2005" || "$(MSVC_VARIANT)" == "MSVC2005EE" || "$(MSVC_VARIANT)" == "DOTNET20"
@@ -1669,17 +1640,6 @@ LUA_VERSION=^#define HAVE_LUA 1
 LUA_CFLAGS=
 LUA_LIBS=
 LUA_CONFIG=
-!ENDIF
-
-!IF DEFINED(PYTHON_EMBED)
-PYTHON_CFLAGS=/I$(PYTHON_DIR)\include
-PYTHON_LIBS=$(PYTHON_DIR)\libs\python$(PYTHON_VER).lib
-# Nmake uses carets to escape special characters
-PYTHON_CONFIG=^#define HAVE_PYTHON 1
-!else
-PYTHON_CFLAGS=
-PYTHON_LIBS=
-PYTHON_CONFIG=
 !ENDIF
 
 !IFDEF PORTAUDIO_DIR

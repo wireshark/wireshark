@@ -468,12 +468,6 @@ proto_init(void (register_all_protocols_func)(register_cb cb, gpointer client_da
 	   handle, and do whatever one-time initialization it needs to
 	   do. */
 	register_all_protocols_func(cb, client_data);
-#ifdef HAVE_PYTHON
-	/* Now scan for python protocols */
-	if (cb)
-		(*cb)(RA_PYTHON_REGISTER, NULL, client_data);
-	register_all_py_protocols_func();
-#endif
 
 #ifdef HAVE_PLUGINS
 	/* Now call the registration routines for all disssector
@@ -488,13 +482,6 @@ proto_init(void (register_all_protocols_func)(register_cb cb, gpointer client_da
 	   dissectors' handoff tables, and fetch any dissector handles
 	   they need. */
 	register_all_handoffs_func(cb, client_data);
-
-#ifdef HAVE_PYTHON
-	/* Now do the same with python dissectors */
-	if (cb)
-		(*cb)(RA_PYTHON_HANDOFF, NULL, client_data);
-	register_all_py_handoffs_func();
-#endif
 
 #ifdef HAVE_PLUGINS
 	/* Now do the same with plugins. */
