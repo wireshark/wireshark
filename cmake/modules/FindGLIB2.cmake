@@ -35,6 +35,12 @@ else()
 	set( _pkgconfig_REQUIRED "" )
 endif()
 
+if( GLIB2_MIN_VERSION )
+	pkg_search_module( GLIB2 ${_pkgconfig_REQUIRED} glib-2.0>=${GLIB2_MIN_VERSION} )
+else()
+	pkg_search_module( GLIB2 ${_pkgconfig_REQUIRED} glib-2.0 )
+endif()
+
 find_path( GLIB2_MAIN_INCLUDE_DIR
 	NAMES
 		glib.h
@@ -99,12 +105,6 @@ if( GLIB2_FOUND )
 else()
 	set( GLIB2_LIBRARIES )
 	set( GLIB2_MAIN_INCLUDE_DIRS )
-endif()
-
-if( GLIB2_MIN_VERSION )
-	pkg_search_module( GLIB2 ${_pkgconfig_REQUIRED} glib-2.0>=${GLIB2_MIN_VERSION} )
-else()
-	pkg_search_module( GLIB2 ${_pkgconfig_REQUIRED} glib-2.0 )
 endif()
 
 mark_as_advanced( GLIB2_INCLUDE_DIRS GLIB2_LIBRARIES )
