@@ -1025,7 +1025,7 @@ tsn_tree(sctp_tsn_t *t, proto_item *tsn_item, packet_info *pinfo,
                                       (*r)->framenum,
                                       "This TSN was retransmitted in frame %u (%s seconds after this frame)",
                                       (*r)->framenum,
-                                      rel_time_to_secs_ep_str(&rto));
+                                      rel_time_to_secs_str(wmem_packet_scope(), &rto));
       PROTO_ITEM_SET_GENERATED(pi);
       r = &(*r)->next;
     }

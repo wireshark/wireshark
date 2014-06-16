@@ -76,7 +76,7 @@ extern gchar*	tvb_vines_addr_to_str(tvbuff_t *tvb, const gint offset);
 WS_DLL_PUBLIC gchar*	eui64_to_str(const guint64 ad);
 WS_DLL_PUBLIC gchar*	tvb_eui64_to_str(tvbuff_t *tvb, const gint offset, const guint encoding);
 WS_DLL_PUBLIC gchar*	time_secs_to_str(wmem_allocator_t *scope, const gint32 time_val);
-gchar*	time_secs_to_ep_str_unsigned(const guint32);
+gchar*	time_secs_to_str_unsigned(wmem_allocator_t *scope, const guint32);
 WS_DLL_PUBLIC gchar*	time_msecs_to_str(wmem_allocator_t *scope, gint32 time_val);
 WS_DLL_PUBLIC gchar*	abs_time_to_str(wmem_allocator_t *scope, const nstime_t*, const absolute_time_display_e fmt,
     gboolean show_zone);
@@ -88,7 +88,7 @@ WS_DLL_PUBLIC void	display_epoch_time(gchar *, int, const time_t,  gint32, const
 extern void	guint32_to_str_buf(guint32 u, gchar *buf, int buf_len);
 
 WS_DLL_PUBLIC gchar*	rel_time_to_str(wmem_allocator_t *scope, const nstime_t*);
-WS_DLL_PUBLIC gchar*	rel_time_to_secs_ep_str(const nstime_t*);
+WS_DLL_PUBLIC gchar*	rel_time_to_secs_str(wmem_allocator_t *scope, const nstime_t*);
 WS_DLL_PUBLIC gchar*	guid_to_ep_str(const e_guid_t*);
 gchar*	guid_to_str_buf(const e_guid_t*, gchar*, int);
 

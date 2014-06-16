@@ -426,8 +426,8 @@ time_secs_to_str(wmem_allocator_t *scope, const gint32 time_val)
 }
 
 static void
-time_secs_to_ep_str_buf_unsigned(guint32 time_val, const guint32 frac, const gboolean is_nsecs,
-		emem_strbuf_t *buf)
+time_secs_to_str_buf_unsigned(guint32 time_val, const guint32 frac, const gboolean is_nsecs,
+		wmem_strbuf_t *buf)
 {
 	int hours, mins, secs;
 	gboolean do_comma = FALSE;
@@ -440,42 +440,42 @@ time_secs_to_ep_str_buf_unsigned(guint32 time_val, const guint32 frac, const gbo
 	time_val /= 24;
 
 	if (time_val != 0) {
-		ep_strbuf_append_printf(buf, "%u day%s", time_val, PLURALIZE(time_val));
+		wmem_strbuf_append_printf(buf, "%u day%s", time_val, PLURALIZE(time_val));
 		do_comma = TRUE;
 	}
 	if (hours != 0) {
-		ep_strbuf_append_printf(buf, "%s%u hour%s", COMMA(do_comma), hours, PLURALIZE(hours));
+		wmem_strbuf_append_printf(buf, "%s%u hour%s", COMMA(do_comma), hours, PLURALIZE(hours));
 		do_comma = TRUE;
 	}
 	if (mins != 0) {
-		ep_strbuf_append_printf(buf, "%s%u minute%s", COMMA(do_comma), mins, PLURALIZE(mins));
+		wmem_strbuf_append_printf(buf, "%s%u minute%s", COMMA(do_comma), mins, PLURALIZE(mins));
 		do_comma = TRUE;
 	}
 	if (secs != 0 || frac != 0) {
 		if (frac != 0) {
 			if (is_nsecs)
-				ep_strbuf_append_printf(buf, "%s%u.%09u seconds", COMMA(do_comma), secs, frac);
+				wmem_strbuf_append_printf(buf, "%s%u.%09u seconds", COMMA(do_comma), secs, frac);
 			else
-				ep_strbuf_append_printf(buf, "%s%u.%03u seconds", COMMA(do_comma), secs, frac);
+				wmem_strbuf_append_printf(buf, "%s%u.%03u seconds", COMMA(do_comma), secs, frac);
 		} else
-			ep_strbuf_append_printf(buf, "%s%u second%s", COMMA(do_comma), secs, PLURALIZE(secs));
+			wmem_strbuf_append_printf(buf, "%s%u second%s", COMMA(do_comma), secs, PLURALIZE(secs));
 	}
 }
 
 gchar *
-time_secs_to_ep_str_unsigned(const guint32 time_val)
+time_secs_to_str_unsigned(wmem_allocator_t *scope, const guint32 time_val)
 {
-	emem_strbuf_t *buf;
-
-	buf=ep_strbuf_sized_new(TIME_SECS_LEN+1, TIME_SECS_LEN+1);
+	wmem_strbuf_t *buf;
 
 	if (time_val == 0) {
-		ep_strbuf_append(buf, "0 seconds");
-		return buf->str;
+		return wmem_strdup(scope, "0 seconds");
 	}
 
-	time_secs_to_ep_str_buf_unsigned(time_val, 0, FALSE, buf);
-	return buf->str;
+	buf = wmem_strbuf_sized_new(scope, TIME_SECS_LEN+1, TIME_SECS_LEN+1);
+
+	time_secs_to_str_buf_unsigned(time_val, 0, FALSE, buf);
+
+	return wmem_strbuf_finalize(buf);
 }
 
 
@@ -905,11 +905,11 @@ rel_time_to_str(wmem_allocator_t *scope, const nstime_t *rel_time)
  * Display a relative time as seconds.
  */
 gchar *
-rel_time_to_secs_ep_str(const nstime_t *rel_time)
+rel_time_to_secs_str(wmem_allocator_t *scope, const nstime_t *rel_time)
 {
 	gchar *buf;
 
-	buf=(gchar *)ep_alloc(REL_TIME_SECS_LEN);
+	buf=(gchar *)wmem_alloc(scope, REL_TIME_SECS_LEN);
 
 	display_signed_time(buf, REL_TIME_SECS_LEN, (gint32) rel_time->secs,
 			rel_time->nsecs, TO_STR_TIME_RES_T_NSECS);

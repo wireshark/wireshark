@@ -4085,6 +4085,7 @@ proto_custom_set(proto_tree* tree, const int field_id, gint occurrence,
 	const char *hf_str_val;
 	char number_buf[32];
 	const char *number_out;
+	char *tmpbuf;
 
 	g_assert(field_id >= 0);
 
@@ -4171,16 +4172,19 @@ proto_custom_set(proto_tree* tree, const int field_id, gint occurrence,
 				break;
 
 			case FT_ABSOLUTE_TIME:
+				tmpbuf = abs_time_to_str(NULL, (const nstime_t *)fvalue_get(&finfo->value), (absolute_time_display_e)hfinfo->display, TRUE);
 				offset_r += protoo_strlcpy(result+offset_r,
-							   abs_time_to_str(wmem_packet_scope(), (const nstime_t *)fvalue_get(&finfo->value),
-									   (absolute_time_display_e)hfinfo->display, TRUE),
+							   tmpbuf,
 							   size-offset_r);
+				wmem_free(NULL, tmpbuf);
 				break;
 
 			case FT_RELATIVE_TIME:
+				tmpbuf = rel_time_to_secs_str(NULL, (const nstime_t *)fvalue_get(&finfo->value));
 				offset_r += protoo_strlcpy(result+offset_r,
-							   rel_time_to_secs_ep_str((const nstime_t *)fvalue_get(&finfo->value)),
+							   tmpbuf,
 							   size-offset_r);
+				wmem_free(NULL, tmpbuf);
 				break;
 
 			case FT_BOOLEAN:
@@ -5748,6 +5752,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 	guint32		   n_addr; /* network-order IPv4 address */
 	const gchar	  *name;
 	address		   addr;
+	char              *tmp;
 
 	if (!fi) {
 		if (label_str)
@@ -5828,15 +5833,16 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 			break;
 
 		case FT_ABSOLUTE_TIME:
-			label_fill(label_str, 0, hfinfo,
-				   abs_time_to_str(wmem_packet_scope(), (const nstime_t *)fvalue_get(&fi->value),
-						(absolute_time_display_e)hfinfo->display, TRUE));
+			tmp = abs_time_to_str(NULL, (const nstime_t *)fvalue_get(&fi->value), (absolute_time_display_e)hfinfo->display, TRUE);
+			label_fill(label_str, 0, hfinfo, tmp);
+			wmem_free(NULL, tmp);
 			break;
 
 		case FT_RELATIVE_TIME:
+			tmp = rel_time_to_secs_str(NULL, (const nstime_t *)fvalue_get(&fi->value));
 			g_snprintf(label_str, ITEM_LABEL_LENGTH,
-				   "%s: %s seconds", hfinfo->name,
-				   rel_time_to_secs_ep_str((const nstime_t *)fvalue_get(&fi->value)));
+				   "%s: %s seconds", hfinfo->name, tmp);
+			wmem_free(NULL, tmp);
 			break;
 
 		case FT_IPXNET:

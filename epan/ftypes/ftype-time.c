@@ -352,15 +352,22 @@ static int
 relative_val_repr_len(fvalue_t *fv, ftrepr_t rtype _U_)
 {
 	gchar *rep;
+	int ret;
 
-	rep = rel_time_to_secs_ep_str(&fv->value.time);
-	return (int)strlen(rep);
+	rep = rel_time_to_secs_str(NULL, &fv->value.time);
+	ret = (int)strlen(rep);
+	wmem_free(NULL, rep);
+
+	return ret;
 }
 
 static void
 relative_val_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, char *buf)
 {
-	strcpy(buf, rel_time_to_secs_ep_str(&fv->value.time));
+	gchar *rep;
+	rep = rel_time_to_secs_str(NULL, &fv->value.time);
+	strcpy(buf, rep);
+	wmem_free(NULL, rep);
 }
 
 void
@@ -455,3 +462,16 @@ ftype_register_time(void)
 	ftype_register(FT_ABSOLUTE_TIME, &abstime_type);
 	ftype_register(FT_RELATIVE_TIME, &reltime_type);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */
