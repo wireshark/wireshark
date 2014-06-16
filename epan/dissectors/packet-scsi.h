@@ -227,7 +227,9 @@ extern int hf_scsi_alloclen16;
 #define EXTENDED_FORM              0x08
 #define SERVICE_READ_CAPACITY16	   0x10
 #define SERVICE_READ_LONG16	   0x11
+#define SERVICE_WRITE_LONG16	   0x11
 #define SERVICE_GET_LBA_STATUS     0x12
+#define SERVICE_REPORT_REFERRALS   0x13
 
 extern const value_string service_action_vals[];
 extern const value_string scsi_devid_codeset_val[];
@@ -262,7 +264,7 @@ extern value_string_ext scsi_asc_val_ext;
 	guint32   try_end_data_offset=0;				\
 									\
 	try_short_packet=pinfo->fd->cap_len<pinfo->fd->pkt_len;		\
-	try_tvb=tvb_new_subset(tvb_a, offset_a, tvb_length_remaining(tvb_a, offset_a), length_arg); \
+	try_tvb=tvb_new_subset(tvb_a, offset_a, tvb_captured_length_remaining(tvb_a, offset_a), length_arg); \
 	try_offset=0;							\
 	TRY {
 

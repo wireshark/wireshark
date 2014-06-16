@@ -50,6 +50,7 @@ void proto_reg_handoff_scsi_sbc(void);
 static int proto_scsi_sbc = -1;
 
 int hf_scsi_sbc_opcode= -1;
+static int hf_scsi_sbc_service_action= -1;
 static int hf_scsi_sbc_formatunit_flags= -1;
 static int hf_scsi_sbc_defect_list_format= -1;
 static int hf_scsi_sbc_formatunit_vendor= -1;
@@ -82,6 +83,7 @@ static int hf_scsi_sbc_reassignblks_flags= -1;
 static int hf_scsi_sbc_read_flags= -1;
 static int hf_scsi_sbc_alloclen32= -1;
 static int hf_scsi_sbc_alloclen16= -1;
+static int hf_scsi_sbc_lba64_address= -1;
 static int hf_scsi_sbc_fuflags_fmtpinfo= -1;
 static int hf_scsi_sbc_fuflags_rto_req= -1;
 static int hf_scsi_sbc_fuflags_longlist= -1;
@@ -169,7 +171,6 @@ static gint ett_scsi_unmap_block_descriptor= -1;
 static gint ett_scsi_lba_status_descriptor= -1;
 static gint ett_scsi_sanitize= -1;
 static gint ett_scsi_sanitize_overwrite= -1;
-
 
 static const true_false_string dpo_tfs = {
     "Disable Page Out (don't cache this data)",
@@ -1305,8 +1306,9 @@ const value_string service_action_vals[] = {
     {LONG_FORM,                  "Long Form"},
     {EXTENDED_FORM,              "Extended Form"},
     {SERVICE_READ_CAPACITY16,    "Read Capacity(16)"},
-    {SERVICE_READ_LONG16,         "Read Long(16)"},
+    {SERVICE_READ_LONG16,        "Read Long(16)"},
     {SERVICE_GET_LBA_STATUS,     "Get LBA Status"},
+    {SERVICE_REPORT_REFERRALS,   "Report Referrals"},
     {0, NULL}
 };
 
@@ -1324,8 +1326,7 @@ dissect_sbc_serviceactionin16 (tvbuff_t *tvb, packet_info *pinfo _U_,
     guint64     len, tot_len;
     const char *un;
 
-    if (!tree)
-        return;
+    proto_item      *it = NULL;
 
     if (isreq && iscdb) {
         service_action = tvb_get_guint8 (tvb, offset) & 0x1F;
@@ -1337,11 +1338,11 @@ dissect_sbc_serviceactionin16 (tvbuff_t *tvb, packet_info *pinfo _U_,
             case SERVICE_READ_CAPACITY16:
                 col_append_str(pinfo->cinfo, COL_INFO, " READCAPACITY16");
 
-                proto_tree_add_text (tree, tvb, offset, 1,
-                        "Service Action: %s",
-                        val_to_str (service_action,
-                            service_action_vals,
-                            "Unknown (0x%02x)"));
+                if (!tree)
+                        return;
+
+                proto_tree_add_item (tree, hf_scsi_sbc_service_action, tvb, offset, 1, ENC_BIG_ENDIAN);
+
                 offset += 9;
 
                 proto_tree_add_item (tree, hf_scsi_sbc_alloclen32, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -1354,16 +1355,16 @@ dissect_sbc_serviceactionin16 (tvbuff_t *tvb, packet_info *pinfo _U_,
                 break;
             case SERVICE_READ_LONG16:
                 col_append_str(pinfo->cinfo, COL_INFO, " READ_LONG16");
-                proto_tree_add_text (tree, tvb, offset, 1,
-                        "Service Action: %s",
-                        val_to_str (service_action,
-                            service_action_vals,
-                            "Unknown (0x%02x)"));
+
+                if (!tree)
+                        return;
+
+                proto_tree_add_item (tree, hf_scsi_sbc_service_action, tvb, offset, 1, ENC_BIG_ENDIAN);
+
                 offset++;
 
-                proto_tree_add_text (tree, tvb, offset, 8,
-                        "Logical Block Address: %" G_GINT64_MODIFIER "u",
-                        tvb_get_ntoh64 (tvb, offset));
+                proto_tree_add_item (tree, hf_scsi_sbc_lba64_address, tvb, offset, 8, ENC_BIG_ENDIAN);
+
                 offset+=8;
 
                 /* two reserved bytes */
@@ -1383,11 +1384,11 @@ dissect_sbc_serviceactionin16 (tvbuff_t *tvb, packet_info *pinfo _U_,
             case SERVICE_GET_LBA_STATUS:
                 col_append_str(pinfo->cinfo, COL_INFO, " GET_LBA_STATUS");
 
-                proto_tree_add_text (tree, tvb, offset, 1,
-                        "Service Action: %s",
-                        val_to_str (service_action,
-                            service_action_vals,
-                            "Unknown (0x%02x)"));
+                if (!tree)
+                        return;
+
+                proto_tree_add_item (tree, hf_scsi_sbc_service_action, tvb, offset, 1, ENC_BIG_ENDIAN);
+
                 offset++;
 
                 proto_tree_add_item (tree, hf_scsi_sbc_get_lba_status_lba, tvb, offset, 8, ENC_BIG_ENDIAN);
@@ -1404,8 +1405,45 @@ dissect_sbc_serviceactionin16 (tvbuff_t *tvb, packet_info *pinfo _U_,
                 offset++;
 
                 break;
+            case SERVICE_REPORT_REFERRALS:
+                col_append_str(pinfo->cinfo, COL_INFO, " REPORT_REFERRALS");
+
+                if (!tree)
+                        return;
+
+                proto_tree_add_item (tree, hf_scsi_sbc_service_action, tvb, offset, 1, ENC_BIG_ENDIAN);
+
+                offset++;
+
+                proto_tree_add_item (tree, hf_scsi_sbc_lba64_address, tvb, offset, 8, ENC_BIG_ENDIAN);
+
+                offset += 8;
+
+                proto_tree_add_item (tree, hf_scsi_sbc_alloclen32, tvb, offset, 4, ENC_BIG_ENDIAN);
+
+                offset +=4;
+
+                /* reserved */
+                offset++;
+
+                proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_control,
+                        ett_scsi_control, cdb_control_fields, ENC_BIG_ENDIAN);
+                offset++;
+
+                break;
+            default:
+                col_append_str(pinfo->cinfo, COL_INFO, " RESERVED");
+
+                if (!tree)
+                        return;
+
+                proto_tree_add_uint_format_value(tree, hf_scsi_sbc_service_action, tvb, offset, 1, service_action, "Reserved (0x%x)", service_action);
+                break;
         };
     } else if (!iscdb) {
+        if (!tree)
+                return;
+
         if(cdata && cdata->itlq){
             switch(cdata->itlq->flags){
                 case SERVICE_READ_CAPACITY16:
@@ -1417,8 +1455,10 @@ dissect_sbc_serviceactionin16 (tvbuff_t *tvb, packet_info *pinfo _U_,
                         tot_len/=1024;
                         un="GB";
                     }
-                    proto_tree_add_text (tree, tvb, offset, 8, "LBA: %" G_GINT64_MODIFIER "u (%" G_GINT64_MODIFIER "u %s)",
-                            len, tot_len, un);
+
+                    it = proto_tree_add_item (tree, hf_scsi_sbc_lba64_address, tvb, offset, 8, ENC_BIG_ENDIAN);
+                    proto_item_append_text (it, " (%" G_GINT64_MODIFIER "u %s)", tot_len, un);
+
                     proto_tree_add_item (tree, hf_scsi_sbc_blocksize, tvb, offset+8, 4, ENC_BIG_ENDIAN);
 
 
@@ -1443,9 +1483,8 @@ dissect_sbc_serviceactionin16 (tvbuff_t *tvb, packet_info *pinfo _U_,
                     /* reserved */
                     offset += 4;
 
-                    while (tvb_length_remaining(tvb, offset) >= 16) {
+                    while (tvb_captured_length_remaining(tvb, offset) >= 16) {
                         proto_tree *tr;
-                        proto_item *it;
                         guint64 lba;
                         guint32 num_blocks;
                         guint8  type;
@@ -1480,6 +1519,62 @@ dissect_sbc_serviceactionin16 (tvbuff_t *tvb, packet_info *pinfo _U_,
     }
 }
 
+static void
+dissect_sbc_serviceactionout16(tvbuff_t *tvb, packet_info *pinfo _U_,
+                           proto_tree *tree, guint offset, gboolean isreq,
+                           gboolean iscdb,
+                           guint payload_len _U_, scsi_task_data_t *cdata _U_)
+{
+    guint8 service_action;
+
+    if (isreq && iscdb) {
+        service_action = tvb_get_guint8 (tvb, offset) & 0x1F;
+        if(cdata && cdata->itlq){
+            cdata->itlq->flags=service_action;
+        }
+
+        switch(service_action){
+            case SERVICE_WRITE_LONG16:
+                col_append_str(pinfo->cinfo, COL_INFO, " WRITE_LONG16");
+
+                if (!tree)
+                        return;
+
+                /* Read Long (16) & Write Long (16) share the same service action code, we're looking for Write Long (16) here
+                 We can't lookup from service_action_vals[] as we'll always get Read Long (16) instead */
+                proto_tree_add_uint_format_value(tree, hf_scsi_sbc_service_action, tvb, offset, 1, service_action, "Write Long (16) (0x%x)", service_action);
+
+                offset++;
+
+                proto_tree_add_item(tree, hf_scsi_sbc_lba64_address, tvb, offset, 8, ENC_BIG_ENDIAN);
+
+                offset+=8;
+
+                /* two reserved bytes */
+                offset+=2;
+
+                proto_tree_add_item(tree, hf_scsi_sbc_alloclen16, tvb, offset, 2, ENC_BIG_ENDIAN);
+                offset+=2;
+
+                /* Reserved byte */
+                offset++;
+
+                proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_control,
+                        ett_scsi_control, cdb_control_fields, ENC_BIG_ENDIAN);
+                offset++;
+
+                break;
+            default:
+                col_append_str(pinfo->cinfo, COL_INFO, " RESERVED");
+
+                if (!tree)
+                        return;
+
+                proto_tree_add_uint_format_value(tree, hf_scsi_sbc_service_action, tvb, offset, 1, service_action, "Reserved (0x%x)", service_action);
+                break;
+        };
+    }
+}
 
 /* SBC Commands */
 static const value_string scsi_sbc_vals[] = {
@@ -1551,6 +1646,7 @@ static const value_string scsi_sbc_vals[] = {
     /* 0x92 */    {SCSI_SBC_LOCKUNLKCACHE16   , "Lock Unlock Cache(16)"},
     /* 0x93 */    {SCSI_SBC_WRITESAME16       , "Write Same(16)"},
     /* 0x9E */    {SCSI_SBC_SERVICEACTIONIN16 , "Service Action In(16)"},
+    /* 0x9F */    {SCSI_SBC_SERVICEACTIONOUT16, "Service Action Out(16)"},
     /* 0xA0 */    {SCSI_SPC_REPORTLUNS        , "Report LUNs"},
     /* 0xA3 */    {SCSI_SPC_MGMT_PROTOCOL_IN  , "Mgmt Protocol In"},
     /* 0xA8 */    {SCSI_SBC_READ12            , "Read(12)"},
@@ -1723,7 +1819,7 @@ scsi_cdb_table_t scsi_sbc_table[256] = {
 /*SBC 0x9c*/{NULL},
 /*SBC 0x9d*/{NULL},
 /*SBC 0x9e*/{dissect_sbc_serviceactionin16},
-/*SBC 0x9f*/{NULL},
+/*SBC 0x9f*/{dissect_sbc_serviceactionout16},
 /*SPC 0xa0*/{dissect_spc_reportluns},
 /*SBC 0xa1*/{NULL},
 /*SBC 0xa2*/{NULL},
@@ -1830,6 +1926,9 @@ proto_register_scsi_sbc(void)
         { &hf_scsi_sbc_opcode,
           {"SBC Opcode", "scsi_sbc.opcode", FT_UINT8, BASE_HEX | BASE_EXT_STRING,
            &scsi_sbc_vals_ext, 0x0, NULL, HFILL}},
+        { &hf_scsi_sbc_service_action,
+          {"Service Action", "scsi_sbc.sa", FT_UINT8, BASE_HEX,
+          VALS(service_action_vals), 0x1F, "Unknown", HFILL}},
         { &hf_scsi_sbc_formatunit_flags,
           {"Flags", "scsi_sbc.formatunit.flags", FT_UINT8, BASE_HEX, NULL, 0xF8,
            NULL, HFILL}},
@@ -1923,6 +2022,9 @@ proto_register_scsi_sbc(void)
            NULL, 0x0, NULL, HFILL}},
         { &hf_scsi_sbc_alloclen16,
           {"Allocation Length", "scsi_sbc.alloclen16", FT_UINT16, BASE_DEC,
+           NULL, 0x0, NULL, HFILL}},
+        { &hf_scsi_sbc_lba64_address,
+          {"Logical Block Address", "scsi_sbc.lba64_add", FT_UINT64, BASE_DEC,
            NULL, 0x0, NULL, HFILL}},
         { &hf_scsi_sbc_fuflags_fmtpinfo,
           {"FMTPINFO", "scsi_sbc.format_unit.fmtpinfo", FT_BOOLEAN, 8,
@@ -2092,12 +2194,12 @@ proto_register_scsi_sbc(void)
         { &hf_scsi_sbc_get_lba_status_num_blocks,
           {"Num Blocks", "scsi_sbc.get_lba_status.num_blocks", FT_UINT32, BASE_DEC,
            NULL, 0, NULL, HFILL}},
-    { &hf_scsi_sbc_get_lba_status_provisioning_status,
+        { &hf_scsi_sbc_get_lba_status_provisioning_status,
           {"Provisioning Type", "scsi_sbc.get_lba_status.provisioning_type", FT_UINT8, BASE_DEC,
            VALS(scsi_provisioning_type_val), 0x07, NULL, HFILL}},
         { &hf_scsi_sbc_sanitize_sa,
-          {"Service Action", "scsi_sbc.sanitize.sa", FT_UINT8, BASE_HEX, VALS(sanitize_val),
-           0x1f, NULL, HFILL}},
+          {"Service Action", "scsi_sbc.sanitize.sa", FT_UINT8, BASE_HEX,
+           VALS(sanitize_val), 0x1f, NULL, HFILL}},
         { &hf_scsi_sbc_sanitize_ause,
           {"AUSE", "scsi_sbc.sanitize.ause", FT_BOOLEAN, 8, NULL,
            0x20, NULL, HFILL}},
