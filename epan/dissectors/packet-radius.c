@@ -1535,7 +1535,9 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 				   destination, before - but was it *this* request? */
 				if (pinfo->fd->num != radius_call->req_num)
 				{
-					/* No, so it's a duplicate request. Mark it as such. */
+					/* No, so it's a duplicate request. Mark it as such.
+					  FIXME: This is way too simple, as the request number
+					         is only an 8-bit value. See bug#4096 */
 					rad_info->is_duplicate = TRUE;
 					rad_info->req_num = radius_call->req_num;
 					col_append_fstr(pinfo->cinfo, COL_INFO,
