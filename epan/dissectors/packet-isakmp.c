@@ -1782,6 +1782,15 @@ decrypt_payload(tvbuff_t *tvb, packet_info *pinfo, const guint8 *buf, guint buf_
     case HMAC_SHA:
       gcry_md_algo = GCRY_MD_SHA1;
       break;
+    case HMAC_SHA2_256:
+      gcry_md_algo = GCRY_MD_SHA256;
+      break;
+    case HMAC_SHA2_384:
+      gcry_md_algo = GCRY_MD_SHA384;
+      break;
+    case HMAC_SHA2_512:
+      gcry_md_algo = GCRY_MD_SHA512;
+      break;
     default:
       return NULL;
       break;
