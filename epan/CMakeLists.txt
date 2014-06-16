@@ -33,11 +33,6 @@ if (HAVE_LIBLUA)
 endif()
 source_group(wslua FILES ${WSLUA_FILES})
 
-if (HAVE_LIBPYTHON)
-	include( wspython/CMakeLists.txt )
-endif()
-source_group(wspython FILES ${WSPYTHON_FILES})
-
 add_subdirectory( dissectors/dcerpc )
 
 include_directories(
@@ -46,7 +41,6 @@ include_directories(
 	${CMAKE_CURRENT_SOURCE_DIR}/dissectors
 	${CMAKE_CURRENT_SOURCE_DIR}/ftypes
 	${CMAKE_CURRENT_SOURCE_DIR}/wslua
-	${CMAKE_CURRENT_SOURCE_DIR}/wspython
 )
 
 set(CRYPT_FILES
@@ -1620,7 +1614,6 @@ set(epan_LIBS
 	${SMI_LIBRARIES}
 	${M_LIBRARIES}
 	${LUA_LIBRARIES}
-	${PYTHON_LIBRARIES}
 	${WIN_PSAPI_LIBRARY}
 )
 
@@ -1641,7 +1634,6 @@ set(CLEAN_FILES
 	${LIBWIRESHARK_ASM_FILES}
 	${WMEM_FILES}
 	${WSLUA_FILES}
-	${WSPYTHON_FILES}
 )
 
 if (WERROR)
@@ -1662,7 +1654,6 @@ add_library(epan ${LINK_MODE_LIB}
 	${FTYPE_FILES}
 	${WMEM_FILES}
 	${WSLUA_FILES}
-	${WSPYTHON_FILES}
 	${DISSECTOR_FILES}
 	${DISSECTOR_SUPPORT_SRC}
 	${LIBWIRESHARK_ASM_FILES}
