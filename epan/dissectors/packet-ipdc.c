@@ -899,7 +899,7 @@ dissect_ipdc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 					status = tvb_get_guint8(tvb,offset+2+i);
 					proto_tree_add_uint_format(tag_tree, hf_ptr, tvb,
 							    offset + 2 + i, 1, status,
-							    "s (0x%2.2x) %.2u: %u (%s)",
+							    "%s (0x%2.2x) %.2u: %u (%s)",
 							    des, tag, i + 1, status,
 							    val_to_str_const(status,
 									     val_ptr,
@@ -914,7 +914,7 @@ dissect_ipdc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 			case IPDC_ENCTYPE:
 				proto_tree_add_uint_format(tag_tree, hf_ipdc_enctype, tvb,
 							offset, len + 2, tvb_get_guint8(tvb,offset+2),
-							"s (0x%2.2x): %s",
+							"%s (0x%2.2x): %s",
 							des, tag, val_to_str_const(
 							    tvb_get_guint8(tvb,offset+2),
 							    encoding_type_vals,
@@ -923,7 +923,7 @@ dissect_ipdc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 				if (len == 2) {
 					proto_tree_add_uint_format(tag_tree, hf_ipdc_enctype, tvb,
 							    offset, len + 2, tvb_get_guint8(tvb,offset+3),
-							    "s (0x%2.2x): %u",
+							    "%s (0x%2.2x): %u",
 							    des, tag, tvb_get_guint8(tvb,offset+3));
 				}
 				break;
