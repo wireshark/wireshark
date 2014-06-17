@@ -3855,7 +3855,7 @@ dissect_ber_constrained_bitstring(gboolean implicit_tag, asn1_ctx_t *actx, proto
         bitstring = (guint8 *)tvb_memdup(wmem_packet_scope(), tvb, offset, len);
 
         while (nb->p_id) {
-            if ((len > 0) && (nb->bit < (8*len-pad))) {
+            if ((len > 0) && (pad < 8*len) && (nb->bit < (8*len-pad))) {
                 val = tvb_get_guint8(tvb, offset + nb->bit/8);
                 bitstring[(nb->bit/8)] &= ~(0x80 >> (nb->bit%8));
                 val &= 0x80 >> (nb->bit%8);
