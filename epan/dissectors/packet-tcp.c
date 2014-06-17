@@ -3872,6 +3872,9 @@ decode_tcp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
     }
     next_tvb = tvb_new_subset_remaining(tvb, offset);
 
+    save_desegment_offset = pinfo->desegment_offset;
+    save_desegment_len = pinfo->desegment_len;
+
 /* determine if this packet is part of a conversation and call dissector */
 /* for the conversation if available */
 
@@ -3883,21 +3886,10 @@ decode_tcp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
     if (try_heuristic_first) {
         /* do lookup with the heuristic subdissector table */
-        save_desegment_offset = pinfo->desegment_offset;
-        save_desegment_len = pinfo->desegment_len;
         if (dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree, &hdtbl_entry, tcpinfo)) {
             pinfo->want_pdu_tracking -= !!(pinfo->want_pdu_tracking);
             return TRUE;
         }
-        /*
-         * They rejected the packet; make sure they didn't also request
-         * desegmentation (we could just override the request, but
-         * rejecting a packet *and* requesting desegmentation is a sign
-         * of the dissector's code needing clearer thought, so we fail
-         * so that the problem is made more obvious).
-         */
-        DISSECTOR_ASSERT(save_desegment_offset == pinfo->desegment_offset &&
-                         save_desegment_len == pinfo->desegment_len);
     }
 
     /* Do lookups with the subdissector table.
@@ -3944,22 +3936,21 @@ decode_tcp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
     if (!try_heuristic_first) {
         /* do lookup with the heuristic subdissector table */
-        save_desegment_offset = pinfo->desegment_offset;
-        save_desegment_len = pinfo->desegment_len;
         if (dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree, &hdtbl_entry, tcpinfo)) {
             pinfo->want_pdu_tracking -= !!(pinfo->want_pdu_tracking);
             return TRUE;
         }
-        /*
-         * They rejected the packet; make sure they didn't also request
-         * desegmentation (we could just override the request, but
-         * rejecting a packet *and* requesting desegmentation is a sign
-         * of the dissector's code needing clearer thought, so we fail
-         * so that the problem is made more obvious).
-         */
-        DISSECTOR_ASSERT(save_desegment_offset == pinfo->desegment_offset &&
-                         save_desegment_len == pinfo->desegment_len);
     }
+
+    /*
+     * heuristic / conversation / port registered dissectors rejected the packet;
+     * make sure they didn't also request desegmentation (we could just override
+     * the request, but rejecting a packet *and* requesting desegmentation is a sign
+     * of the dissector's code needing clearer thought, so we fail so that the
+     * problem is made more obvious).
+     */
+    DISSECTOR_ASSERT(save_desegment_offset == pinfo->desegment_offset &&
+                     save_desegment_len == pinfo->desegment_len);
 
     /* Oh, well, we don't know this; dissect it as data. */
     call_dissector(data_handle,next_tvb, pinfo, tree);
@@ -4252,7 +4243,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (tcp_calculate_ts) {
         tcppd = (struct tcp_per_packet_data_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_tcp, 0);
 
-        /*https://raw.githubusercontent.com/FreeRADIUS/freeradius-server/master/.travis.yml
+        /*
          * Calculate the timestamps relative to this conversation (but only on the
          * first run when frames are accessed sequentially)
          */
