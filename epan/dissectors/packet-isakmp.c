@@ -1738,7 +1738,6 @@ decrypt_payload(tvbuff_t *tvb, packet_info *pinfo, const guint8 *buf, guint buf_
   guint32 message_id, cbc_block_size, digest_size;
 
   if (!decr ||
-      decr->is_psk == FALSE ||
       decr->gi_len == 0 ||
       decr->gr_len == 0)
     return NULL;
