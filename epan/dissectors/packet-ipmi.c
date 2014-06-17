@@ -237,6 +237,8 @@ get_matched_request(ipmi_packet_data_t * data, const ipmi_header_t * rs_hdr,
 	/* toggle packet direction */
 	rq_hdr.dir = rs_hdr->dir ^ 1;
 
+	rq_hdr.session = rs_hdr->session;
+
 	/* swap responder address/lun */
 	rq_hdr.rs_sa = rs_hdr->rq_sa;
 	rq_hdr.rs_lun = rs_hdr->rq_lun;
