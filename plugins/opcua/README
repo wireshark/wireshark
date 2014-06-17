@@ -2,9 +2,9 @@ OpcUa Plugin:
 =============
 
 This plugin implements the dissection of the OpcUa Binary Protocol.
-Author: Gerhard Gappmeier
-        ascolab GmbH
-        http://www.ascolab.com
+Authors: Gerhard Gappmeier & Hannes Mezger
+         ascolab GmbH
+         http://www.ascolab.com
 	
 Overview:
 =========
