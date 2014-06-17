@@ -28,7 +28,7 @@
 
 #include "config.h"
 
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 
 /* WSLUA_MODULE Tvb Functions for handling packet data */
 
@@ -510,8 +510,9 @@ WSLUA_METAMETHOD Tvb__tostring(lua_State* L) {
     gchar* str;
 
     len = tvb_length(tvb->ws_tvb);
-    str = ep_strdup_printf("TVB(%i) : %s",len,tvb_bytes_to_ep_str(tvb->ws_tvb,0,len));
+    str = wmem_strdup_printf(NULL, "TVB(%i) : %s",len,tvb_bytes_to_ep_str(tvb->ws_tvb,0,len));
     lua_pushstring(L,str);
+    wmem_free(NULL, str);
     WSLUA_RETURN(1); /* The string. */
 }
 

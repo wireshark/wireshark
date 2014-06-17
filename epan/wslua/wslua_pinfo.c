@@ -28,7 +28,7 @@
 
 #include "config.h"
 
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 
 /* WSLUA_MODULE Pinfo Obtaining packet information */
 
@@ -98,8 +98,11 @@ WSLUA_METAMETHOD NSTime__call(lua_State* L) { /* Creates a NSTime object. */
 
 WSLUA_METAMETHOD NSTime__tostring(lua_State* L) {
     NSTime nstime = checkNSTime(L,1);
+    gchar *str;
 
-    lua_pushstring(L,ep_strdup_printf("%ld.%09d", (long)nstime->secs, nstime->nsecs));
+    str = wmem_strdup_printf(NULL, "%ld.%09d", (long)nstime->secs, nstime->nsecs);
+    lua_pushstring(L, str);
+    wmem_free(NULL, str);
 
     WSLUA_RETURN(1); /* The string representing the nstime. */
 }

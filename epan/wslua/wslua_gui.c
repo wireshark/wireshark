@@ -24,7 +24,7 @@
 
 #include "config.h"
 
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 
 #include "wslua.h"
 
@@ -371,8 +371,11 @@ WSLUA_METHOD ProgDlg_close(lua_State* L) { /* Closes the progress dialog. */
 
 static int ProgDlg__tostring(lua_State* L) {
     ProgDlg pd = checkProgDlg(L,1);
+    char *str;
 
-    lua_pushstring(L,ep_strdup_printf("%sstopped",pd->stopped?"":"not "));
+    str = wmem_strdup_printf(NULL, "%sstopped",pd->stopped?"":"not ");
+    lua_pushstring(L, str);
+    wmem_free(NULL, str);
 
     return 0;
 }

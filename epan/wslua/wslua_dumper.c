@@ -26,7 +26,7 @@
 
 #include "config.h"
 
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 
 /* WSLUA_MODULE Dumper Saving capture files
 
@@ -436,7 +436,7 @@ WSLUA_METHOD Dumper_dump_current(lua_State* L) {
     pkthdr.pseudo_header = *lua_pinfo->pseudo_header;
 
     if (lua_pinfo->pkt_comment)
-        pkthdr.opt_comment = ep_strdup(lua_pinfo->pkt_comment);
+        pkthdr.opt_comment = wmem_strdup(wmem_packet_scope(), lua_pinfo->pkt_comment);
 
     data = (const guchar *)tvb_memdup(wmem_packet_scope(),tvb,0,pkthdr.caplen);
 
