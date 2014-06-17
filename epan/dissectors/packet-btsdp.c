@@ -2279,22 +2279,22 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
             switch (attribute) {
                 case 0x300:
                     proto_tree_add_item(next_tree, hf_hcrp_1284_id, tvb, offset, size, ENC_ASCII | ENC_NA);
-                    new_str = tvb_get_string(wmem_packet_scope(), tvb, offset, size);
+                    new_str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, size, ENC_ASCII);
                     wmem_strbuf_append(info_buf, new_str);
                     break;
                 case 0x302:
                     proto_tree_add_item(next_tree, hf_hcrp_device_name, tvb, offset, size, ENC_ASCII | ENC_NA);
-                    new_str = tvb_get_string(wmem_packet_scope(), tvb, offset, size);
+                    new_str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, size, ENC_ASCII);
                     wmem_strbuf_append(info_buf, new_str);
                     break;
                 case 0x304:
                     proto_tree_add_item(next_tree, hf_hcrp_friendly_name, tvb, offset, size, ENC_ASCII | ENC_NA);
-                    new_str = tvb_get_string(wmem_packet_scope(), tvb, offset, size);
+                    new_str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, size, ENC_ASCII);
                     wmem_strbuf_append(info_buf, new_str);
                     break;
                 case 0x306:
                     proto_tree_add_item(next_tree, hf_hcrp_device_location, tvb, offset, size, ENC_ASCII | ENC_NA);
-                    new_str = tvb_get_string(wmem_packet_scope(), tvb, offset, size);
+                    new_str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, size, ENC_ASCII);
                     wmem_strbuf_append(info_buf, new_str);
                     break;
                 default:
@@ -2316,7 +2316,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                     break;
                 case 0x308:
                     proto_tree_add_item(next_tree, hf_wap_homepage_url, tvb, offset, size, ENC_ASCII | ENC_NA);
-                    new_str = tvb_get_string(wmem_packet_scope(), tvb, offset, size);
+                    new_str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, size, ENC_ASCII);
                     wmem_strbuf_append(info_buf, new_str);
                     break;
                 case 0x309:
@@ -2388,7 +2388,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                             proto_item_set_len(entry_item, (new_offset - entry_offset) + length);
                             entry_offset = new_offset;
                             proto_tree_add_item(next_tree, hf_hdp_supported_features_mdep_description, tvb, entry_offset, length, ENC_ASCII | ENC_NA);
-                            proto_item_append_text(entry_item, ": %s", tvb_get_string(wmem_packet_scope(), tvb, entry_offset, length));
+                            proto_item_append_text(entry_item, ": %s", tvb_get_string_enc(wmem_packet_scope(), tvb, entry_offset, length, ENC_ASCII));
                             entry_offset += length;
                         }
 
@@ -2430,12 +2430,12 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                 case 0x30D:
                 case 0x200:
                     proto_tree_add_item(next_tree, hf_pan_ipv4_subnet, tvb, offset, size, ENC_ASCII | ENC_NA);
-                    new_str = tvb_get_string(wmem_packet_scope(), tvb, offset, size);
+                    new_str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, size, ENC_ASCII);
                     wmem_strbuf_append(info_buf, new_str);
                     break;
                 case 0x30E:
                     proto_tree_add_item(next_tree, hf_pan_ipv6_subnet, tvb, offset, size, ENC_ASCII | ENC_NA);
-                    new_str = tvb_get_string(wmem_packet_scope(), tvb, offset, size);
+                    new_str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, size, ENC_ASCII);
                     wmem_strbuf_append(info_buf, new_str);
                     break;
                 default:
@@ -2462,12 +2462,12 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                 case 0x30D:
                 case 0x200:
                     proto_tree_add_item(next_tree, hf_pan_ipv4_subnet, tvb, offset, size, ENC_ASCII | ENC_NA);
-                    new_str = tvb_get_string(wmem_packet_scope(), tvb, offset, size);
+                    new_str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, size, ENC_ASCII);
                     wmem_strbuf_append(info_buf, new_str);
                     break;
                 case 0x30E:
                     proto_tree_add_item(next_tree, hf_pan_ipv6_subnet, tvb, offset, size, ENC_ASCII | ENC_NA);
-                    new_str = tvb_get_string(wmem_packet_scope(), tvb, offset, size);
+                    new_str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, size, ENC_ASCII);
                     wmem_strbuf_append(info_buf, new_str);
                     break;
                 default:
@@ -2519,7 +2519,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                     break;
                 case 0x306:
                     proto_tree_add_item(next_tree, hf_dun_escape_sequence, tvb, offset, size, ENC_ASCII | ENC_NA);
-                    new_str = tvb_get_string(wmem_packet_scope(), tvb, offset, size);
+                    new_str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, size, ENC_ASCII);
                     wmem_strbuf_append(info_buf, new_str);
                     break;
                 default:
@@ -2888,7 +2888,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
             switch (attribute) {
                 case 0x350:
                     proto_tree_add_item(next_tree, hf_bpp_document_formats_supported, tvb, offset, size, ENC_ASCII | ENC_NA);
-                    new_str = tvb_get_string(wmem_packet_scope(), tvb, offset, size);
+                    new_str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, size, ENC_ASCII);
                     wmem_strbuf_append(info_buf, new_str);
                     break;
                 case 0x352:
@@ -2898,7 +2898,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                     break;
                 case 0x354:
                     proto_tree_add_item(next_tree, hf_bpp_xhtml_print_image_formats_supported, tvb, offset, size, ENC_ASCII | ENC_NA);
-                    new_str = tvb_get_string(wmem_packet_scope(), tvb, offset, size);
+                    new_str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, size, ENC_ASCII);
                     wmem_strbuf_append(info_buf, new_str);
                     break;
                 case 0x356:
@@ -2908,17 +2908,17 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                     break;
                 case 0x358:
                     proto_tree_add_item(next_tree, hf_bpp_1284_id, tvb, offset, size, ENC_ASCII | ENC_NA);
-                    new_str = tvb_get_string(wmem_packet_scope(), tvb, offset, size);
+                    new_str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, size, ENC_ASCII);
                     wmem_strbuf_append(info_buf, new_str);
                     break;
                 case 0x35A:
                     proto_tree_add_item(next_tree, hf_bpp_printer_name, tvb, offset, size, ENC_ASCII | ENC_NA);
-                    new_str = tvb_get_string(wmem_packet_scope(), tvb, offset, size);
+                    new_str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, size, ENC_ASCII);
                     wmem_strbuf_append(info_buf, new_str);
                     break;
                 case 0x35C:
                     proto_tree_add_item(next_tree, hf_bpp_printer_location, tvb, offset, size, ENC_ASCII | ENC_NA);
-                    new_str = tvb_get_string(wmem_packet_scope(), tvb, offset, size);
+                    new_str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, size, ENC_ASCII);
                     wmem_strbuf_append(info_buf, new_str);
                     break;
                 case 0x35E:
@@ -2928,7 +2928,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                     break;
                 case 0x360:
                     proto_tree_add_item(next_tree, hf_bpp_media_types_supported, tvb, offset, size, ENC_ASCII | ENC_NA);
-                    new_str = tvb_get_string(wmem_packet_scope(), tvb, offset, size);
+                    new_str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, size, ENC_ASCII);
                     wmem_strbuf_append(info_buf, new_str);
                     break;
                 case 0x362:
@@ -2948,7 +2948,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                     break;
                 case 0x368:
                     proto_tree_add_item(next_tree, hf_bpp_rui_formats_supported, tvb, offset, size, ENC_ASCII | ENC_NA);
-                    new_str = tvb_get_string(wmem_packet_scope(), tvb, offset, size);
+                    new_str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, size, ENC_ASCII);
                     wmem_strbuf_append(info_buf, new_str);
                     break;
                 case 0x370:
@@ -2963,17 +2963,17 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                     break;
                 case 0x374:
                     proto_tree_add_item(next_tree, hf_bpp_reference_printing_top_url, tvb, offset, size, ENC_ASCII | ENC_NA);
-                    new_str = tvb_get_string(wmem_packet_scope(), tvb, offset, size);
+                    new_str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, size, ENC_ASCII);
                     wmem_strbuf_append(info_buf, new_str);
                     break;
                 case 0x376:
                     proto_tree_add_item(next_tree, hf_bpp_direct_printing_top_url, tvb, offset, size, ENC_ASCII | ENC_NA);
-                    new_str = tvb_get_string(wmem_packet_scope(), tvb, offset, size);
+                    new_str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, size, ENC_ASCII);
                     wmem_strbuf_append(info_buf, new_str);
                     break;
                 case 0x37A:
                     proto_tree_add_item(next_tree, hf_bpp_device_name, tvb, offset, size, ENC_ASCII | ENC_NA);
-                    new_str = tvb_get_string(wmem_packet_scope(), tvb, offset, size);
+                    new_str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, size, ENC_ASCII);
                     wmem_strbuf_append(info_buf, new_str);
                     break;
                 default:
@@ -2984,12 +2984,12 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
             switch (attribute) {
                 case 0x368:
                     proto_tree_add_item(next_tree, hf_bpp_rui_formats_supported, tvb, offset, size, ENC_ASCII | ENC_NA);
-                    new_str = tvb_get_string(wmem_packet_scope(), tvb, offset, size);
+                    new_str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, size, ENC_ASCII);
                     wmem_strbuf_append(info_buf, new_str);
                     break;
                 case 0x378:
                     proto_tree_add_item(next_tree, hf_bpp_printer_admin_rui_top_url, tvb, offset, size, ENC_ASCII | ENC_NA);
-                    new_str = tvb_get_string(wmem_packet_scope(), tvb, offset, size);
+                    new_str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, size, ENC_ASCII);
                     wmem_strbuf_append(info_buf, new_str);
                     break;
                 default:
@@ -3062,7 +3062,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
 
                 dissect_data_element(entry_tree, &sub_tree, pinfo, tvb, list_offset);
                 list_offset = get_type_length(tvb, list_offset, &entry_length);
-                new_str = tvb_get_string(wmem_packet_scope(), tvb, list_offset, entry_length);
+                new_str = tvb_get_string_enc(wmem_packet_scope(), tvb, list_offset, entry_length, ENC_ASCII);
                 wmem_strbuf_append_printf(info_buf, "Lang: %s", new_str);
                 proto_item_append_text(entry_item, ": Lang: %s", new_str);
                 proto_tree_add_item(sub_tree, hf_sdp_lang_code, tvb, list_offset, entry_length, ENC_ASCII | ENC_NA);
@@ -3140,17 +3140,17 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
             break;
         case 0x00A:
             proto_tree_add_item(next_tree, hf_sdp_service_documentation_url, tvb, offset, size, ENC_ASCII | ENC_NA);
-            new_str = tvb_get_string(wmem_packet_scope(), tvb, offset, size);
+            new_str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, size, ENC_ASCII);
             wmem_strbuf_append(info_buf, new_str);
             break;
         case 0x00B:
             proto_tree_add_item(next_tree, hf_sdp_service_client_executable_url, tvb, offset, size, ENC_ASCII | ENC_NA);
-            new_str = tvb_get_string(wmem_packet_scope(), tvb, offset, size);
+            new_str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, size, ENC_ASCII);
             wmem_strbuf_append(info_buf, new_str);
             break;
         case 0x00C:
             proto_tree_add_item(next_tree, hf_sdp_service_icon_url, tvb, offset, size, ENC_ASCII | ENC_NA);
-            new_str = tvb_get_string(wmem_packet_scope(), tvb, offset, size);
+            new_str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, size, ENC_ASCII);
             wmem_strbuf_append(info_buf, new_str);
             break;
         case 0x00D:
@@ -3178,17 +3178,17 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
             break;
         case 0x100:
             proto_tree_add_item(next_tree, hf_sdp_service_name, tvb, offset, size, ENC_ASCII | ENC_NA);
-            new_str = tvb_get_string(wmem_packet_scope(), tvb, offset, size);
+            new_str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, size, ENC_ASCII);
             wmem_strbuf_append(info_buf, new_str);
             break;
         case 0x101:
             proto_tree_add_item(next_tree, hf_sdp_service_description, tvb, offset, size, ENC_ASCII | ENC_NA);
-            new_str = tvb_get_string(wmem_packet_scope(), tvb, offset, size);
+            new_str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, size, ENC_ASCII);
             wmem_strbuf_append(info_buf, new_str);
             break;
         case 0x102:
             proto_tree_add_item(next_tree, hf_sdp_service_provider_name, tvb, offset, size, ENC_ASCII | ENC_NA);
-            new_str = tvb_get_string(wmem_packet_scope(), tvb, offset, size);
+            new_str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, size, ENC_ASCII);
             wmem_strbuf_append(info_buf, new_str);
             break;
         default:
@@ -3219,7 +3219,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
         break;
     case 8: /* fall through */
     case 4: {
-        gchar *ptr = (gchar*)tvb_get_string(wmem_packet_scope(), tvb, offset, size);
+        gchar *ptr = (gchar*)tvb_get_string_enc(wmem_packet_scope(), tvb, offset, size, ENC_ASCII);
 
         proto_tree_add_item(next_tree, (type == 8) ? hf_data_element_value_url : hf_data_element_value_string, tvb, offset, size, ENC_NA | ENC_ASCII);
         wmem_strbuf_append_printf(info_buf, "%s ", ptr);

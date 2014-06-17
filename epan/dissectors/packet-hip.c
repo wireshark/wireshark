@@ -1031,11 +1031,11 @@ dissect_hip_tlv(tvbuff_t *tvb, int offset, proto_item *ti, int type, int tlv_len
                 if (di_type == 1) {
                         /* RFC 1035 */
                         proto_tree_add_text(t, tvb, offset+16+hi_len, di_len,
-                                            "FQDN: %s", tvb_get_string (wmem_packet_scope(), tvb, offset+16+hi_len, di_len));
+                                            "FQDN: %s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset+16+hi_len, di_len, ENC_ASCII));
                 } else if (di_type == 2) {
                         /* RFC 4282 */
                         proto_tree_add_text(t, tvb, offset+16+hi_len, di_len,
-                                            "NAI: %s", tvb_get_string (wmem_packet_scope(), tvb, offset+16+hi_len, di_len));
+                                            "NAI: %s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset+16+hi_len, di_len, ENC_ASCII));
                 }
                 break;
         case PARAM_CERT: /* CERT */

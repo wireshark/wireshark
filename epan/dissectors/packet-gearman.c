@@ -191,7 +191,7 @@ dissect_binary_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "Gearman");
   col_clear(pinfo->cinfo,COL_INFO);
 
-  magic_code = tvb_get_string(wmem_packet_scope(), tvb, 1, 3);
+  magic_code = tvb_get_string_enc(wmem_packet_scope(), tvb, 1, 3, ENC_ASCII);
   type = tvb_get_ntohl(tvb, 4);
   size = tvb_get_ntohl(tvb, 8);
 
@@ -442,7 +442,7 @@ dissect_management_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       if (cmdlen == linelen && 0 == tvb_strneql(tvb, offset, GEARMAN_MGR_CMDS[i], cmdlen))
       {
         proto_tree_add_item(gearman_tree, hf_gearman_mgr_cmd, tvb, offset, cmdlen, ENC_ASCII|ENC_NA);
-        col_add_fstr(pinfo->cinfo, COL_INFO, "[MGR] %s", tvb_get_string(wmem_packet_scope(), tvb, offset, linelen));
+        col_add_fstr(pinfo->cinfo, COL_INFO, "[MGR] %s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset, linelen, ENC_ASCII));
         type = 1;
         break;
       }
@@ -454,12 +454,12 @@ dissect_management_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
       if (type == 0)
       {
-        col_add_fstr(pinfo->cinfo, COL_INFO, "[MGR] %s", tvb_get_string(wmem_packet_scope(), tvb, offset, linelen));
+        col_add_fstr(pinfo->cinfo, COL_INFO, "[MGR] %s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset, linelen, ENC_ASCII));
         type = -1;
       }
       else
       {
-        col_append_sep_fstr(pinfo->cinfo, COL_INFO, ",", "%s", tvb_get_string(wmem_packet_scope(), tvb, offset, linelen));
+        col_append_sep_fstr(pinfo->cinfo, COL_INFO, ",", "%s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset, linelen, ENC_ASCII));
       }
     }
 

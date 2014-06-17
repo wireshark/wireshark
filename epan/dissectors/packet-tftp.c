@@ -241,7 +241,7 @@ static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
     proto_tree_add_item(tftp_tree, hf_tftp_source_file,
                         tvb, offset, i1, ENC_ASCII|ENC_NA);
 
-    tftp_info->source_file = tvb_get_string(wmem_file_scope(), tvb, offset, i1);
+    tftp_info->source_file = tvb_get_string_enc(wmem_file_scope(), tvb, offset, i1, ENC_ASCII);
 
     col_append_fstr(pinfo->cinfo, COL_INFO, ", File: %s",
                     tvb_format_stringzpad(tvb, offset, i1));
@@ -267,7 +267,7 @@ static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
                         tvb, offset, i1, ENC_ASCII|ENC_NA);
 
     tftp_info->destination_file =
-      tvb_get_string(wmem_file_scope(), tvb, offset, i1);
+      tvb_get_string_enc(wmem_file_scope(), tvb, offset, i1, ENC_ASCII);
 
     col_append_fstr(pinfo->cinfo, COL_INFO, ", File: %s",
                     tvb_format_stringzpad(tvb, offset, i1));

@@ -446,7 +446,7 @@ add_v1_string(proto_tree *tree, int hf, tvbuff_t *tvb, int offset, int length,
 static const guint8*
 unicode_to_bytes(tvbuff_t *tvb, int offset, int length, gboolean endianness)
 {
-  const guint8	*ascii_text = tvb_get_string(wmem_packet_scope(), tvb, offset, length);
+  const guint8	*ascii_text = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, length, ENC_ASCII);
   int	i, j=0;
   guint8	c_char, c_char1;
   guint8	*byte_array;
@@ -629,7 +629,7 @@ attr_list(proto_tree *tree, int hf, tvbuff_t *tvb, int offset, int length,
         break;
 
     case CHARSET_UTF_8:
-        type_len = (int)strcspn(tvb_get_string(wmem_packet_scope(), tvb, offset, length), "=");
+        type_len = (int)strcspn(tvb_get_string_enc(wmem_packet_scope(), tvb, offset, length, ENC_ASCII), "=");
         attr_type = unicode_to_bytes(tvb, offset+1, type_len-1, FALSE);
         proto_tree_add_string(tree, hf, tvb, offset+1, type_len-1, attr_type);
         i=1;
@@ -723,7 +723,7 @@ attr_list2(proto_tree *tree, int hf, tvbuff_t *tvb, int offset, int length, guin
     attr_tree = proto_item_add_subtree(ti, ett_srvloc_attr);
 
     /* this will ensure there is a terminating null */
-    start = tvb_get_string(wmem_packet_scope(), tvb, offset, length);
+    start = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, length, ENC_ASCII);
 
     cnt = 0;
     x = 0;

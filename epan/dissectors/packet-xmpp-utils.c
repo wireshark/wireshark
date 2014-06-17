@@ -551,7 +551,7 @@ xmpp_xml_frame_to_element_t(xml_frame_t *xml_frame, xmpp_element_t *parent, tvbu
 
     if((elem = tvbparse_get(tt,want_stream_end_with_ns))!=NULL)
     {
-        node->default_ns_abbrev = tvb_get_string(wmem_packet_scope(), elem->sub->tvb, elem->sub->offset, elem->sub->len);
+        node->default_ns_abbrev = tvb_get_string_enc(wmem_packet_scope(), elem->sub->tvb, elem->sub->offset, elem->sub->len, ENC_ASCII);
     }
 
     child = xml_frame->first_child;
@@ -727,7 +727,7 @@ xmpp_element_to_string(tvbuff_t *tvb, xmpp_element_t *element)
 
     if(tvb_offset_exists(tvb, element->offset+element->length-1))
     {
-        buff = tvb_get_string(wmem_packet_scope(), tvb, element->offset, element->length);
+        buff = tvb_get_string_enc(wmem_packet_scope(), tvb, element->offset, element->length, ENC_ASCII);
     }
     return buff;
 }
@@ -739,7 +739,7 @@ xmpp_attr_to_string(tvbuff_t *tvb, xmpp_attr_t *attr)
 
     if(tvb_offset_exists(tvb, attr->offset + attr->length-1))
     {
-        buff = tvb_get_string(wmem_packet_scope(), tvb, attr->offset, attr->length);
+        buff = tvb_get_string_enc(wmem_packet_scope(), tvb, attr->offset, attr->length, ENC_ASCII);
     }
     return buff;
 }

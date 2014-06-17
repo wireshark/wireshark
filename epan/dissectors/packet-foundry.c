@@ -150,7 +150,7 @@ dissect_string_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, pr
 	offset += 4;
 	length -= 4;
 
-	string_value = tvb_get_string(wmem_packet_scope(), tvb, offset, length);
+	string_value = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, length, ENC_ASCII);
 	proto_item_append_text(string_item, ": \"%s\"",
 		format_text(string_value, strlen(string_value)));
 

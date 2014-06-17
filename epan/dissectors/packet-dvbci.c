@@ -3610,8 +3610,8 @@ dissect_dvbci_ami_file_ack(tvbuff_t *tvb, gint offset,
         proto_tree_add_text(tree, tvb, offset, 1,
                 "File name length %d", file_name_len);
         offset++;
-        file_name_str = tvb_get_string(wmem_packet_scope(),
-                tvb, offset, file_name_len);
+        file_name_str = tvb_get_string_enc(wmem_packet_scope(),
+                tvb, offset, file_name_len, ENC_ASCII);
         if (!file_name_str)
             return;
         col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ",
@@ -3696,7 +3696,7 @@ dissect_dvbci_payload_ami(guint32 tag, gint len_field _U_,
             offset++;
             proto_tree_add_item(tree, hf_dvbci_app_dom_id,
                     tvb, offset, app_dom_id_len, ENC_ASCII|ENC_NA);
-            app_dom_id = tvb_get_string(wmem_packet_scope(), tvb, offset, app_dom_id_len);
+            app_dom_id = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, app_dom_id_len, ENC_ASCII);
             if (app_dom_id) {
                 col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ",
                         "for %s", app_dom_id);
@@ -3726,8 +3726,8 @@ dissect_dvbci_payload_ami(guint32 tag, gint len_field _U_,
             if (tvb_reported_length_remaining(tvb, offset) <= 0)
               break;
             if (req_type==REQ_TYPE_FILE || req_type==REQ_TYPE_FILE_HASH) {
-                req_str = tvb_get_string(wmem_packet_scope(), tvb, offset,
-                        tvb_reported_length_remaining(tvb, offset));
+                req_str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset,
+                        tvb_reported_length_remaining(tvb, offset), ENC_ASCII);
                 if (!req_str)
                     break;
                 col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "%s", req_str);

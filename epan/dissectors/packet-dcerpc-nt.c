@@ -1287,8 +1287,8 @@ void cb_str_postprocess(packet_info *pinfo, proto_tree *tree _U_,
 	 * some way we can get that string, rather than duplicating the
 	 * efforts of that routine?
 	 */
-	s = tvb_get_string(wmem_packet_scope(),
-		tvb, start_offset + 12, (end_offset - start_offset - 12) );
+	s = tvb_get_string_enc(wmem_packet_scope(),
+		tvb, start_offset + 12, (end_offset - start_offset - 12), ENC_ASCII);
 
 	/* Append string to COL_INFO */
 

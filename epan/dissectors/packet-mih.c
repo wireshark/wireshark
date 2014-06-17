@@ -1949,7 +1949,7 @@ static void dissect_mih_tlv(tvbuff_t *tvb,int offset, proto_tree *tlv_tree, guin
 
                 case VEND_SPECIFIC_TLV :
                         /*Vendor specific tlv*/
-                        proto_tree_add_text(tlv_tree, tvb, offset, length, "Vendor Specific TLV :%s", tvb_get_string(wmem_packet_scope(), tvb, offset, length));
+                        proto_tree_add_text(tlv_tree, tvb, offset, length, "Vendor Specific TLV :%s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset, length, ENC_ASCII));
                         break;
 
                 default :/*did not match type*/
@@ -1957,15 +1957,15 @@ static void dissect_mih_tlv(tvbuff_t *tvb,int offset, proto_tree *tlv_tree, guin
 
                         /*RESERVED TLVs*/
                         if(type > 63 && type < 100)
-                                proto_tree_add_text(tlv_tree, tvb, offset, length, "Reserved TLV :%s", tvb_get_string(wmem_packet_scope(), tvb, offset, length));
+                                proto_tree_add_text(tlv_tree, tvb, offset, length, "Reserved TLV :%s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset, length, ENC_ASCII));
 
                                                 /*EXPERIMENTAL TLVs*/
                         else if(type > 100 && type < 255)
-                                proto_tree_add_text(tlv_tree, tvb, offset, length, "Experimental TLV :%s", tvb_get_string(wmem_packet_scope(), tvb, offset, length));
+                                proto_tree_add_text(tlv_tree, tvb, offset, length, "Experimental TLV :%s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset, length, ENC_ASCII));
 
                         /*UNKNOWN TLVs*/
                         else
-                                proto_tree_add_text(tlv_tree, tvb, offset, length, "UNKNOWN TLV :%s", tvb_get_string(wmem_packet_scope(), tvb, offset, length));
+                                proto_tree_add_text(tlv_tree, tvb, offset, length, "UNKNOWN TLV :%s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset, length, ENC_ASCII));
         }
         return;
 }

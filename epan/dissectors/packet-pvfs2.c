@@ -870,8 +870,8 @@ dissect_pvfs_opaque_data(tvbuff_t *tvb, int offset,
 	if (string_data) {
 		char *tmpstr;
 
-		tmpstr = (char *) tvb_get_string(wmem_packet_scope(), tvb, data_offset,
-				string_length_copy);
+		tmpstr = (char *) tvb_get_string_enc(wmem_packet_scope(), tvb, data_offset,
+				string_length_copy, ENC_ASCII);
 
 		string_buffer = (char *)memcpy(wmem_alloc(wmem_packet_scope(), string_length_copy+1), tmpstr, string_length_copy);
 	} else {
@@ -1184,7 +1184,7 @@ dissect_pvfs_distribution(tvbuff_t *tvb, proto_tree *tree, int offset)
 	distlen = tvb_get_letohl(tvb, offset);
 
 	/* Get distribution name */
-	tmpstr = (char *) tvb_get_string(wmem_packet_scope(), tvb, offset + 4, distlen);
+	tmpstr = (char *) tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 4, distlen, ENC_ASCII);
 
 	if (tree)
 	{

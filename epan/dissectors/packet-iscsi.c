@@ -611,7 +611,7 @@ addTextKeys(packet_info *pinfo, proto_tree *tt, tvbuff_t *tvb, gint offset, guin
             len = len + 1;
         }
 
-        key = tvb_get_string(wmem_packet_scope(), tvb, offset, len);
+        key = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, len, ENC_ASCII);
         if (key == NULL) {
             break;
         }

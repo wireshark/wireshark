@@ -333,7 +333,7 @@ de_sgsap_mme_name(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
         name_len = tvb_get_guint8(tvb, offset);
 
         if (name_len < 0x20) {
-            fqdn = tvb_get_string(wmem_packet_scope(), tvb, offset + 1, len - 1);
+            fqdn = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 1, len - 1, ENC_ASCII);
             for (;;) {
                 if (name_len >= len - 1)
                     break;
@@ -342,7 +342,7 @@ de_sgsap_mme_name(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
                 fqdn[tmp] = '.';
             }
         } else{
-            fqdn = tvb_get_string(wmem_packet_scope(), tvb, offset, len);
+            fqdn = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, len, ENC_ASCII);
         }
         proto_tree_add_string(tree, hf_sgsap_mme_name, tvb, offset, len, fqdn);
         if (add_string)
@@ -533,7 +533,7 @@ de_sgsap_vlr_name(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
         name_len = tvb_get_guint8(tvb, offset);
 
         if (name_len < 0x20) {
-            fqdn = tvb_get_string(wmem_packet_scope(), tvb, offset + 1, len - 1);
+            fqdn = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 1, len - 1, ENC_ASCII);
             for (;;) {
                 if (name_len >= len - 1)
                     break;
@@ -542,7 +542,7 @@ de_sgsap_vlr_name(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
                 fqdn[tmp] = '.';
             }
         } else{
-            fqdn = tvb_get_string(wmem_packet_scope(), tvb, offset, len);
+            fqdn = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, len, ENC_ASCII);
         }
         proto_tree_add_string(tree, hf_sgsap_vlr_name, tvb, offset, len, fqdn);
         if (add_string)

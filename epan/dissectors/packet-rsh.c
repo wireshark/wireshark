@@ -237,7 +237,7 @@ dissect_rsh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if(hash_info->state == WAIT_FOR_STDERR_PORT
             && tvb_length_remaining(tvb, offset)){
-        field_stringz = tvb_get_stringz(wmem_packet_scope(), tvb, offset, &length);
+        field_stringz = tvb_get_stringz_enc(wmem_packet_scope(), tvb, offset, &length, ENC_ASCII);
 
         /* Check if this looks like the stderr_port field.
          * It is optional, so it may only be 1 character long
@@ -260,7 +260,7 @@ dissect_rsh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if(hash_info->state == WAIT_FOR_CLIENT_USERNAME
             && tvb_length_remaining(tvb, offset)){
-        field_stringz = tvb_get_stringz(wmem_packet_scope(), tvb, offset, &length);
+        field_stringz = tvb_get_stringz_enc(wmem_packet_scope(), tvb, offset, &length, ENC_ASCII);
 
         /* Check if this looks like the username field */
         if(length != 1 && length <= RSH_CLIENT_USERNAME_LEN
@@ -288,7 +288,7 @@ dissect_rsh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if(hash_info->state == WAIT_FOR_SERVER_USERNAME
             && tvb_length_remaining(tvb, offset)){
-        field_stringz = tvb_get_stringz(wmem_packet_scope(), tvb, offset, &length);
+        field_stringz = tvb_get_stringz_enc(wmem_packet_scope(), tvb, offset, &length, ENC_ASCII);
 
         /* Check if this looks like the password field */
         if(length != 1 && length <= RSH_SERVER_USERNAME_LEN
@@ -318,7 +318,7 @@ dissect_rsh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if(hash_info->state == WAIT_FOR_COMMAND
             && tvb_length_remaining(tvb, offset)){
-        field_stringz = tvb_get_stringz(wmem_packet_scope(), tvb, offset, &length);
+        field_stringz = tvb_get_stringz_enc(wmem_packet_scope(), tvb, offset, &length, ENC_ASCII);
 
         /* Check if this looks like the command field */
         if(length != 1 && length <= RSH_COMMAND_LEN

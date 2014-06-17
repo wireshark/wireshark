@@ -526,7 +526,7 @@ get_encoded_strval(tvbuff_t *tvb, guint offset, const char **strval)
 	    *strval = "";
 	} else {
 	    /* \todo	Something with "Char-set", skip for now	*/
-	    *strval = (char *)tvb_get_string(wmem_packet_scope(), tvb, offset + count + 1, length - 1);
+	    *strval = (char *)tvb_get_string_enc(wmem_packet_scope(), tvb, offset + count + 1, length - 1, ENC_ASCII);
 	}
 	return count + length;
     } else
@@ -1279,8 +1279,8 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
 			    proto_tree_add_string_format(mmse_tree,
 				    hf_mmse_ffheader, tvb, offset,
 				    length + length2,
-				    tvb_get_string(wmem_packet_scope(), tvb, offset,
-					    length + length2),
+				    tvb_get_string_enc(wmem_packet_scope(), tvb, offset,
+					    length + length2, ENC_ASCII),
 				    "%s: %s",
 				    format_text(strval, strlen(strval)),
 				    format_text(strval2, strlen(strval2)));

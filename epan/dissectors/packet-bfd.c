@@ -344,7 +344,7 @@ dissect_bfd_authentication(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     switch (auth_type) {
         case BFD_AUTH_SIMPLE:
             if (tree) {
-                password = tvb_get_string(wmem_packet_scope(), tvb, offset+3, auth_len-3);
+                password = tvb_get_string_enc(wmem_packet_scope(), tvb, offset+3, auth_len-3, ENC_ASCII);
                 proto_tree_add_string(auth_tree, hf_bfd_auth_password, tvb, offset+3,
                                       auth_len-3, password);
                 proto_item_append_text(auth_item, ": %s", password);

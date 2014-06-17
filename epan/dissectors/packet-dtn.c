@@ -637,20 +637,20 @@ dissect_dictionary(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offs
          */
 
         col_add_fstr(pinfo->cinfo, COL_INFO, "%s:%s > %s:%s",
-                     tvb_get_stringz(wmem_packet_scope(), tvb, offset + dict_data->source_scheme_offset, NULL),
-                     tvb_get_stringz(wmem_packet_scope(), tvb, offset + dict_data->source_ssp_offset, NULL),
-                     tvb_get_stringz(wmem_packet_scope(), tvb, offset + dict_data->dest_scheme_offset, NULL),
-                     tvb_get_stringz(wmem_packet_scope(), tvb, offset + dict_data->dest_ssp_offset, NULL));
+                     tvb_get_stringz_enc(wmem_packet_scope(), tvb, offset + dict_data->source_scheme_offset, NULL, ENC_ASCII),
+                     tvb_get_stringz_enc(wmem_packet_scope(), tvb, offset + dict_data->source_ssp_offset, NULL, ENC_ASCII),
+                     tvb_get_stringz_enc(wmem_packet_scope(), tvb, offset + dict_data->dest_scheme_offset, NULL, ENC_ASCII),
+                     tvb_get_stringz_enc(wmem_packet_scope(), tvb, offset + dict_data->dest_ssp_offset, NULL, ENC_ASCII));
 
         /* remember custodian, for use in checking cteb validity */
         *bundle_custodian = wmem_strdup_printf(wmem_packet_scope(),
                                                "%s:%s",
-                                               tvb_get_stringz(wmem_packet_scope(),
+                                               tvb_get_stringz_enc(wmem_packet_scope(),
                                                                tvb, offset + dict_data->cust_scheme_offset,
-                                                               NULL),
-                                               tvb_get_stringz(wmem_packet_scope(),
+                                                               NULL, ENC_ASCII),
+                                               tvb_get_stringz_enc(wmem_packet_scope(),
                                                                tvb, offset + dict_data->cust_ssp_offset,
-                                                               NULL));
+                                                               NULL, ENC_ASCII));
     }
     offset += dict_data->bundle_header_dict_length;        /*Skip over dictionary*/
 
@@ -1567,7 +1567,7 @@ display_metadata_block(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int 
 
         /* and second is the creator custodian EID */
         cteb_creator_custodian_eid_length = block_length - sdnv_length;
-        cteb_creator_custodian_eid = (char *) tvb_get_string(wmem_packet_scope(), tvb, offset, cteb_creator_custodian_eid_length);
+        cteb_creator_custodian_eid = (char *) tvb_get_string_enc(wmem_packet_scope(), tvb, offset, cteb_creator_custodian_eid_length, ENC_ASCII);
         ti = proto_tree_add_string(block_tree, hf_block_control_block_cteb_creator_custodian_eid, tvb, offset,
                                 cteb_creator_custodian_eid_length, cteb_creator_custodian_eid);
 

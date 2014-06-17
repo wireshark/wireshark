@@ -436,7 +436,7 @@ decode_string_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
 		return;
 	}
 
-	pbuffer=tvb_get_string(wmem_packet_scope(), tvb, offset+4, length-4);
+	pbuffer=tvb_get_string_enc(wmem_packet_scope(), tvb, offset+4, length-4, ENC_ASCII);
 	proto_tree_add_string(tree, *hfValue, tvb, offset+4, length-4, pbuffer);
 }
 

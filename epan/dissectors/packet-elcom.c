@@ -216,7 +216,7 @@ dissect_lower_address(proto_item *ti_arg, gint ett_arg,
         offset += 8;                /* skip the zero bytes */
 
         /* SUFFIX */
-        suffix = tvb_get_string(wmem_packet_scope(), tvb, offset+1, len2);
+        suffix = tvb_get_string_enc(wmem_packet_scope(), tvb, offset+1, len2, ENC_ASCII);
         ti = proto_tree_add_item(tree, hf_suff, tvb, offset, 1, ENC_ASCII|ENC_LITTLE_ENDIAN);
         offset += len2+1;
 
@@ -448,7 +448,7 @@ dissect_elcom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                         if (tvb_get_guint8(tvb, 3+1+TOTAL_LEN+LOWADR_LEN) != SUFFIX_LEN) return;
 
                         /* finally believe that there is valid suffix */
-                        suffix = tvb_get_string(wmem_packet_scope(), tvb, 3+2+LOWADR_LEN, 2);
+                        suffix = tvb_get_string_enc(wmem_packet_scope(), tvb, 3+2+LOWADR_LEN, 2, ENC_ASCII);
                         col_append_fstr(pinfo->cinfo, COL_INFO, " %s Connect", suffix);
                         break;
 

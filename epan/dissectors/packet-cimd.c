@@ -705,7 +705,7 @@ static void dissect_cimd_dcs(tvbuff_t *tvb, proto_tree *tree, gint pindex, gint 
     startOffset + 1, CIMD_PC_LENGTH, ENC_ASCII|ENC_NA);
 
   offset = startOffset + 1 + CIMD_PC_LENGTH + 1;
-  dcs    = (guint32) strtoul(tvb_get_string(wmem_packet_scope(), tvb, offset, endOffset - offset), NULL, 10);
+  dcs    = (guint32) strtoul(tvb_get_string_enc(wmem_packet_scope(), tvb, offset, endOffset - offset, ENC_ASCII), NULL, 10);
   proto_tree_add_uint(param_tree, (*vals_hdr_PC[pindex].hf_p), tvb, offset, endOffset - offset, dcs);
 
   dcs_cg = (dcs & 0xF0) >> 4;
@@ -754,8 +754,8 @@ static void dissect_cimd_error_code( tvbuff_t *tvb, proto_tree *tree, gint pinde
 
     proto_tree_add_item(param_tree, hf_cimd_pcode_indicator, tvb, startOffset + 1, CIMD_PC_LENGTH, ENC_ASCII|ENC_NA);
 
-    err_code = (guint32) strtoul(tvb_get_string(wmem_packet_scope(), tvb,
-                                       startOffset + 1 + CIMD_PC_LENGTH + 1, endOffset - (startOffset + 1 + CIMD_PC_LENGTH + 1)),
+    err_code = (guint32) strtoul(tvb_get_string_enc(wmem_packet_scope(), tvb,
+                                       startOffset + 1 + CIMD_PC_LENGTH + 1, endOffset - (startOffset + 1 + CIMD_PC_LENGTH + 1), ENC_ASCII),
                                        NULL, 10);
     proto_tree_add_uint(param_tree, (*vals_hdr_PC[pindex].hf_p), tvb, startOffset + 1 + CIMD_PC_LENGTH + 1, endOffset - (startOffset + 1 + CIMD_PC_LENGTH + 1), err_code);
 }
@@ -783,7 +783,7 @@ dissect_cimd_operation(tvbuff_t *tvb, proto_tree *tree, gint etxp, guint16 check
     if (endOffset == -1)
       break;
 
-    PC = (guint32) strtoul(tvb_get_string(wmem_packet_scope(), tvb, offset + 1, CIMD_PC_LENGTH), NULL, 10);
+    PC = (guint32) strtoul(tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 1, CIMD_PC_LENGTH, ENC_ASCII), NULL, 10);
     try_val_to_str_idx(PC, cimd_vals_PC, &idx);
     if (idx != -1 && tree)
     {
@@ -814,8 +814,8 @@ dissect_cimd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   etxp = tvb_find_guint8(tvb, CIMD_PN_OFFSET + CIMD_PN_LENGTH, -1, CIMD_ETX);
   if (etxp == -1) return;
 
-  OC = (guint8)strtoul(tvb_get_string(wmem_packet_scope(), tvb, CIMD_OC_OFFSET, CIMD_OC_LENGTH), NULL, 10);
-  PN = (guint8)strtoul(tvb_get_string(wmem_packet_scope(), tvb, CIMD_PN_OFFSET, CIMD_PN_LENGTH), NULL, 10);
+  OC = (guint8)strtoul(tvb_get_string_enc(wmem_packet_scope(), tvb, CIMD_OC_OFFSET, CIMD_OC_LENGTH, ENC_ASCII), NULL, 10);
+  PN = (guint8)strtoul(tvb_get_string_enc(wmem_packet_scope(), tvb, CIMD_PN_OFFSET, CIMD_PN_LENGTH, ENC_ASCII), NULL, 10);
 
   last1 = tvb_get_guint8(tvb, etxp - 1);
   last2 = tvb_get_guint8(tvb, etxp - 2);
@@ -826,7 +826,7 @@ dissect_cimd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   } else if (last1 != CIMD_DELIM && last2 != CIMD_DELIM && last3 == CIMD_DELIM) {
     /* looks valid, it would be nice to check that last1 and last2 are HEXA */
     /* CC is present */
-    checksum = (guint16)strtoul(tvb_get_string(wmem_packet_scope(), tvb, etxp - 2, 2), NULL, 16);
+    checksum = (guint16)strtoul(tvb_get_string_enc(wmem_packet_scope(), tvb, etxp - 2, 2, ENC_ASCII), NULL, 16);
     for (; offset < (etxp - 2); offset++)
     {
       pkt_check += tvb_get_guint8(tvb, offset);
@@ -871,7 +871,7 @@ dissect_cimd_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
   }
 
   /* Try getting the operation-code */
-  opcode = (guint8)strtoul(tvb_get_string(wmem_packet_scope(), tvb, CIMD_OC_OFFSET, CIMD_OC_LENGTH), NULL, 10);
+  opcode = (guint8)strtoul(tvb_get_string_enc(wmem_packet_scope(), tvb, CIMD_OC_OFFSET, CIMD_OC_LENGTH, ENC_ASCII), NULL, 10);
   if (try_val_to_str(opcode, vals_hdr_OC) == NULL)
     return FALSE;
 

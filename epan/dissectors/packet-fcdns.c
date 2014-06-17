@@ -1276,7 +1276,7 @@ static guint8 *
 zonenm_to_str (tvbuff_t *tvb, gint offset)
 {
     int len = tvb_get_guint8 (tvb, offset);
-    return tvb_get_string (wmem_packet_scope(), tvb, offset+4, len);
+    return tvb_get_string_enc(wmem_packet_scope(), tvb, offset+4, len, ENC_ASCII);
 }
 
 static void
@@ -1342,8 +1342,8 @@ dissect_fcdns_swils_entries (tvbuff_t *tvb, proto_tree *tree, int offset)
 
             proto_tree_add_item (tree, &hfi_fcdns_sw2_objfmt, tvb, offset, 1, ENC_BIG_ENDIAN);
             proto_tree_add_string (tree, &hfi_fcdns_rply_ownerid, tvb, offset+1,
-                                   3, fc_to_str (tvb_get_string (wmem_packet_scope(), tvb, offset+1,
-                                                              3)));
+                                   3, fc_to_str (tvb_get_string_enc(wmem_packet_scope(), tvb, offset+1,
+                                                              3, ENC_ASCII)));
             proto_tree_add_item (tree, &hfi_fcdns_rply_ptype, tvb, offset+4,
                                  1, ENC_BIG_ENDIAN);
             proto_tree_add_string (tree, &hfi_fcdns_rply_portid, tvb, offset+5, 3,

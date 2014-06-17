@@ -7767,7 +7767,7 @@ dissect_tree_connect_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	/* XXX - what if this runs past bc? */
 	an_len = tvb_strsize(tvb, offset);
 	CHECK_BYTE_COUNT(an_len);
-	an = tvb_get_string(wmem_packet_scope(), tvb, offset, an_len);
+	an = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, an_len, ENC_ASCII);
 	proto_tree_add_string(tree, hf_smb_service, tvb,
 		offset, an_len, an);
 	COUNT_BYTES(an_len);
@@ -7886,7 +7886,7 @@ dissect_tree_connect_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	/* XXX - what if this runs past bc? */
 	an_len = tvb_strsize(tvb, offset);
 	CHECK_BYTE_COUNT(an_len);
-	an = tvb_get_string(wmem_packet_scope(), tvb, offset, an_len);
+	an = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, an_len, ENC_ASCII);
 	proto_tree_add_string(tree, hf_smb_service, tvb,
 		offset, an_len, an);
 	COUNT_BYTES(an_len);
@@ -12033,7 +12033,7 @@ dissect_4_2_16_2(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
 		/* EA name */
 
-		name = tvb_get_string(wmem_packet_scope(), tvb, offset, name_len);
+		name = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, name_len, ENC_ASCII);
 		proto_item_append_text(item, ": %s", format_text(name, strlen(name)));
 
 		CHECK_BYTE_COUNT_SUBR(name_len + 1);

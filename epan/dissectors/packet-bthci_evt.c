@@ -929,7 +929,7 @@ save_remote_device_name(tvbuff_t *tvb, gint offset, packet_info *pinfo,
         switch(tvb_get_guint8(tvb, offset + i + 1)) {
         case 0x08: /* Device Name, shortened */
         case 0x09: /* Device Name, full */
-            name = tvb_get_string(wmem_packet_scope(), tvb, offset + i + 2, length - 1);
+            name = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + i + 2, length - 1, ENC_ASCII);
 
             k_frame_number = pinfo->fd->num;
             k_bd_addr_oui = bd_addr[0] << 16 | bd_addr[1] << 8 | bd_addr[2];
@@ -1267,7 +1267,7 @@ dissect_bthci_evt_remote_name_req_complete(tvbuff_t *tvb, int offset,
         gchar           *name;
         device_name_t   *device_name;
 
-        name = tvb_get_string(wmem_packet_scope(), tvb, offset, 248);
+        name = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 248, ENC_ASCII);
 
         k_frame_number = pinfo->fd->num;
         k_bd_addr_oui  = bd_addr[0] << 16 | bd_addr[1] << 8 | bd_addr[2];
@@ -2337,7 +2337,7 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset,
                 k_adapter_id = hci_data->adapter_id;
                 k_frame_number = pinfo->fd->num;
 
-                name = tvb_get_string(wmem_packet_scope(), tvb, offset, 248);
+                name = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 248, ENC_ASCII);
 
                 key[0].length = 1;
                 key[0].key    = &k_interface_id;

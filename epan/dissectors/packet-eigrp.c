@@ -1336,8 +1336,8 @@ dissect_eigrp_service (proto_item *ti, proto_tree *tree, tvbuff_t *tvb,
              * followed by a '<'), try XML. Otherwise, try plain-text.
              */
             xml_tvb = tvb_new_subset_length(sub_tvb, sub_offset, length);
-            test_string = tvb_get_string(wmem_packet_scope(), xml_tvb, 0, (length < 32 ?
-                                                                length : 32));
+            test_string = tvb_get_string_enc(wmem_packet_scope(), xml_tvb, 0, (length < 32 ?
+                                                                length : 32), ENC_ASCII);
             tok = strtok(test_string, " \t\r\n");
 
             if (tok && tok[0] == '<') {

@@ -164,7 +164,7 @@ dissect_kismet(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * da
 			tokenlen = get_token_len(line, line + linelen, &next_token);
 			if (tokenlen != 0) {
 				guint8 *reqresp;
-				reqresp = tvb_get_string(wmem_packet_scope(), tvb, offset, tokenlen);
+				reqresp = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, tokenlen, ENC_ASCII);
 				if (is_request) {
 					/*
 					 * No request dissection

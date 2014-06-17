@@ -440,7 +440,7 @@ static gint dissect_msmms_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     offset += 4;
 
     /* Protocol name.  Must be "MMS"... */
-    if (strncmp((char*)tvb_get_string(wmem_packet_scope(), tvb, offset, 3), "MMS", 3) != 0)
+    if (strncmp((char*)tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 3, ENC_ASCII), "MMS", 3) != 0)
     {
         return 0;
     }

@@ -1778,7 +1778,7 @@ dissect_ubertooth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         offset += 1;
 
         proto_tree_add_item(main_tree, hf_firmware_revision, tvb, offset, length, ENC_NA | ENC_ASCII);
-        col_append_fstr(pinfo->cinfo, COL_INFO, " = %s", tvb_get_string(wmem_packet_scope(), tvb, offset, length));
+        col_append_fstr(pinfo->cinfo, COL_INFO, " = %s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset, length, ENC_ASCII));
         offset += length;
 
         break;
@@ -1850,7 +1850,7 @@ dissect_ubertooth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         offset += 1;
 
         proto_tree_add_item(main_tree, hf_firmware_compile_info, tvb, offset, length, ENC_NA | ENC_ASCII);
-        col_append_fstr(pinfo->cinfo, COL_INFO, " = %s", tvb_get_string(wmem_packet_scope(), tvb, offset, length));
+        col_append_fstr(pinfo->cinfo, COL_INFO, " = %s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset, length, ENC_ASCII));
         offset += length;
 
         break;

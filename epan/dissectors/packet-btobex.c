@@ -1360,8 +1360,8 @@ dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo,
                 }
                 else if (is_ascii_str(tvb_get_ptr(tvb, offset,item_length - 3), item_length - 3))
                 {
-                    proto_item_append_text(hdr_tree, " (\"%s\")", tvb_get_string(wmem_packet_scope(), tvb, offset,item_length - 3));
-                    col_append_fstr(pinfo->cinfo, COL_INFO, " \"%s\"", tvb_get_string(wmem_packet_scope(), tvb, offset,item_length - 3));
+                    proto_item_append_text(hdr_tree, " (\"%s\")", tvb_get_string_enc(wmem_packet_scope(), tvb, offset,item_length - 3, ENC_ASCII));
+                    col_append_fstr(pinfo->cinfo, COL_INFO, " \"%s\"", tvb_get_string_enc(wmem_packet_scope(), tvb, offset,item_length - 3, ENC_ASCII));
                 }
 
                 if (item_length >= 3) /* prevent infinite loops */

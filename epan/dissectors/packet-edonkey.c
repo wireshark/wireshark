@@ -947,7 +947,7 @@ static int dissect_kademlia_string(tvbuff_t *tvb, packet_info *pinfo _U_,
     proto_tree_add_uint(tree, hf_edonkey_string_length, tvb, offset, 2, string_length);
 
     /* TODO: ASCII or UTF-8? */
-    string_value = tvb_get_string(wmem_packet_scope(),  tvb, offset + 2, string_length );
+    string_value = tvb_get_string_enc(wmem_packet_scope(),  tvb, offset + 2, string_length , ENC_ASCII);
 
     proto_tree_add_text(tree, tvb, offset+2, string_length, "String: %s", string_value);
 

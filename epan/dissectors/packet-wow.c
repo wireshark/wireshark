@@ -202,7 +202,7 @@ dissect_wow_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 						    tvb, offset, 2, ENC_LITTLE_ENDIAN);
 				offset += 2;
 
-				string = g_strreverse(tvb_get_string(wmem_packet_scope(), tvb, offset, 4));
+				string = g_strreverse(tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 4, ENC_ASCII));
 				proto_tree_add_string(wow_tree, hf_wow_gamename,
 						      tvb, offset, 4, string);
 				offset += 4;
@@ -223,17 +223,17 @@ dissect_wow_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 						    offset, 2, ENC_LITTLE_ENDIAN);
 				offset += 2;
 
-				string = g_strreverse(tvb_get_string(wmem_packet_scope(), tvb, offset, 4));
+				string = g_strreverse(tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 4, ENC_ASCII));
 				proto_tree_add_string(wow_tree, hf_wow_platform,
 						      tvb, offset, 4, string);
 				offset += 4;
 
-				string = g_strreverse(tvb_get_string(wmem_packet_scope(), tvb, offset, 4));
+				string = g_strreverse(tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 4, ENC_ASCII));
 				proto_tree_add_string(wow_tree, hf_wow_os, tvb,
 						      offset, 4, string);
 				offset += 4;
 
-				string = g_strreverse(tvb_get_string(wmem_packet_scope(), tvb, offset, 4));
+				string = g_strreverse(tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 4, ENC_ASCII));
 				proto_tree_add_string(wow_tree, hf_wow_country,
 						      tvb, offset, 4, string);
 				offset += 4;
@@ -354,9 +354,9 @@ dissect_wow_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 				offset += 2;
 
 				for(ii = 0; ii < num_realms; ii++) {
-					realm_name = tvb_get_stringz(wmem_packet_scope(), tvb,
+					realm_name = tvb_get_stringz_enc(wmem_packet_scope(), tvb,
 								     offset + 3,
-								     &len);
+								     &len, ENC_ASCII);
 
 					ti = proto_tree_add_text(wow_tree, tvb,
 								 offset, 0,
@@ -376,8 +376,8 @@ dissect_wow_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 					proto_tree_add_string(wow_realms_tree, hf_wow_realm_name, tvb, offset, len, realm_name);
 					offset += len;
 
-					string = tvb_get_stringz(wmem_packet_scope(), tvb, offset,
-								 &len);
+					string = tvb_get_stringz_enc(wmem_packet_scope(), tvb, offset,
+								 &len, ENC_ASCII);
 					proto_tree_add_string(wow_realms_tree, hf_wow_realm_socket, tvb, offset, len, string);
 					offset += len;
 

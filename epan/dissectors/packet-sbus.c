@@ -795,8 +795,8 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                                                         }
                                                         sbus_quint8_helper0 += 1;
                                                 }
-                                                tmp_string = tvb_get_string(wmem_packet_scope(), tvb , 19,
-                                                                                        sbus_quint8_helper0);
+                                                tmp_string = tvb_get_string_enc(wmem_packet_scope(), tvb , 19,
+                                                                                        sbus_quint8_helper0, ENC_ASCII);
                                                 col_append_fstr(pinfo->cinfo, COL_INFO,
                                                                 ": (File: %s)", tmp_string);
                                             }
@@ -812,8 +812,8 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                                                         }
                                                         sbus_quint8_helper0 += 1;
                                                 }
-                                                tmp_string = tvb_get_string(wmem_packet_scope(), tvb , 15,
-                                                                                        sbus_quint8_helper0);
+                                                tmp_string = tvb_get_string_enc(wmem_packet_scope(), tvb , 15,
+                                                                                        sbus_quint8_helper0, ENC_ASCII);
                                                 col_append_fstr(pinfo->cinfo, COL_INFO,
                                                                 ": (File: %s)", tmp_string);
                                             }
@@ -1261,7 +1261,7 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                                                                }
                                                                sbus_quint8_helper0 += 1;
                                                         }
-                                                        tmp_string = tvb_get_string(wmem_packet_scope(), tvb , 19, sbus_quint8_helper0);
+                                                        tmp_string = tvb_get_string_enc(wmem_packet_scope(), tvb , 19, sbus_quint8_helper0, ENC_ASCII);
                                                         proto_tree_add_string(sbus_tree,
                                                                               hf_sbus_rdwr_file_name, tvb, offset,
                                                                               sbus_quint8_helper0, tmp_string);
@@ -1326,7 +1326,7 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                                                                }
                                                                sbus_quint8_helper0 += 1;
                                                         }
-                                                        tmp_string = tvb_get_string(wmem_packet_scope(), tvb, 19, sbus_quint8_helper0);
+                                                        tmp_string = tvb_get_string_enc(wmem_packet_scope(), tvb, 19, sbus_quint8_helper0, ENC_ASCII);
                                                         proto_tree_add_string(sbus_tree,
                                                                               hf_sbus_rdwr_file_name, tvb, offset,
                                                                               sbus_quint8_helper0, tmp_string);
@@ -1368,7 +1368,7 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                                                                }
                                                                sbus_quint8_helper0 += 1;
                                                         }
-                                                        tmp_string = tvb_get_string(wmem_packet_scope(), tvb, 14, sbus_quint8_helper0);
+                                                        tmp_string = tvb_get_string_enc(wmem_packet_scope(), tvb, 14, sbus_quint8_helper0, ENC_ASCII);
                                                         proto_tree_add_string(sbus_tree,
                                                                               hf_sbus_rdwr_file_name, tvb, offset,
                                                                               sbus_quint8_helper0, tmp_string);
@@ -1412,7 +1412,7 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                                                                }
                                                                sbus_quint8_helper0 += 1;
                                                         }
-                                                        tmp_string = tvb_get_string(wmem_packet_scope(), tvb, 22, sbus_quint8_helper0);
+                                                        tmp_string = tvb_get_string_enc(wmem_packet_scope(), tvb, 22, sbus_quint8_helper0, ENC_ASCII);
                                                         proto_tree_add_string(sbus_tree,
                                                                               hf_sbus_rdwr_file_name, tvb, offset,
                                                                               sbus_quint8_helper0, tmp_string);
@@ -1451,7 +1451,7 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                                                                }
                                                                sbus_quint8_helper0 += 1;
                                                         }
-                                                        tmp_string = tvb_get_string(wmem_packet_scope(), tvb, 14, sbus_quint8_helper0);
+                                                        tmp_string = tvb_get_string_enc(wmem_packet_scope(), tvb, 14, sbus_quint8_helper0, ENC_ASCII);
                                                         proto_tree_add_string(sbus_tree,
                                                                               hf_sbus_rdwr_file_name, tvb, offset,
                                                                               sbus_quint8_helper0, tmp_string);
@@ -1610,12 +1610,12 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                                    /* Response: Firmware version */
                             case SBUS_RD_PROGRAM_VERSION:
                                    /*PCD type*/
-                                   tmp_string = tvb_get_string(wmem_packet_scope(), tvb , offset, 5);
+                                   tmp_string = tvb_get_string_enc(wmem_packet_scope(), tvb , offset, 5, ENC_ASCII);
                                    proto_tree_add_string(sbus_tree,
                                                          hf_sbus_cpu_type, tvb, offset, 5, tmp_string);
                                    offset += 5;
                                    /*FW version*/
-                                   tmp_string = tvb_get_string(wmem_packet_scope(), tvb , offset, 3);
+                                   tmp_string = tvb_get_string_enc(wmem_packet_scope(), tvb , offset, 3, ENC_ASCII);
                                    proto_tree_add_string(sbus_tree,
                                                          hf_sbus_fw_version, tvb, offset, 3, tmp_string);
                                    offset += 4;

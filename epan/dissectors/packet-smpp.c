@@ -1249,7 +1249,7 @@ smpp_handle_string_return(proto_tree *tree, tvbuff_t *tvb, int field, int *offse
 
     len = tvb_strsize(tvb, *offset);
     if (len > 1) {
-        str = (char *)tvb_get_stringz(wmem_packet_scope(), tvb, *offset, &len);
+        str = (char *)tvb_get_stringz_enc(wmem_packet_scope(), tvb, *offset, &len, ENC_ASCII);
         proto_tree_add_string(tree, field, tvb, *offset, len, str);
     } else {
         str = "";
@@ -1311,7 +1311,7 @@ smpp_handle_time(proto_tree *tree, tvbuff_t *tvb,
     gint      len;
     nstime_t  tmptime;
 
-    strval = (char *) tvb_get_stringz(wmem_packet_scope(), tvb, *offset, &len);
+    strval = (char *) tvb_get_stringz_enc(wmem_packet_scope(), tvb, *offset, &len, ENC_ASCII);
     if (*strval)
     {
         if (len >= 16)

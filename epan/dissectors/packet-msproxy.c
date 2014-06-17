@@ -312,7 +312,7 @@ static int display_application_name(tvbuff_t *tvb, int offset,
 
 	length = tvb_strnlen( tvb, offset, 255);
 	proto_tree_add_text( tree, tvb, offset, length, "Application: %.*s",
-		length, tvb_get_string( wmem_packet_scope(),  tvb, offset, length));
+		length, tvb_get_string_enc( wmem_packet_scope(),  tvb, offset, length, ENC_ASCII));
 
 	return length;
 }
@@ -375,7 +375,7 @@ static void dissect_user_info_2(tvbuff_t *tvb, int offset,
 			return;
 		proto_tree_add_text( tree, tvb, offset, length + 1,
 			"User name: %.*s", length,
-			tvb_get_string( wmem_packet_scope(),  tvb, offset, length));
+			tvb_get_string_enc( wmem_packet_scope(),  tvb, offset, length, ENC_ASCII));
 		offset += length + 2;
 
 		length = tvb_strnlen( tvb, offset, 255);
@@ -383,7 +383,7 @@ static void dissect_user_info_2(tvbuff_t *tvb, int offset,
 			return;
 		proto_tree_add_text( tree, tvb, offset, length + 1,
 			"Application name: %.*s", length,
-			tvb_get_string( wmem_packet_scope(),  tvb, offset, length));
+			tvb_get_string_enc( wmem_packet_scope(),  tvb, offset, length, ENC_ASCII));
 		offset += length + 1;
 
 		length = tvb_strnlen( tvb, offset, 255);
@@ -391,7 +391,7 @@ static void dissect_user_info_2(tvbuff_t *tvb, int offset,
 			return;
 		proto_tree_add_text( tree, tvb, offset, length + 1,
 			"Client computer name: %.*s", length,
-			tvb_get_string( wmem_packet_scope(),  tvb, offset, length));
+			tvb_get_string_enc( wmem_packet_scope(),  tvb, offset, length, ENC_ASCII));
 	}
 }
 
@@ -580,7 +580,7 @@ static void dissect_request_resolve(tvbuff_t *tvb, int offset,
 	if ( tree){
   	 	ti = proto_tree_add_text(tree, tvb, offset, length + 1,
    		 	"Host Name: %.*s", length,
-   		 	tvb_get_string( wmem_packet_scope(),  tvb, offset + 18, length));
+            tvb_get_string_enc( wmem_packet_scope(),  tvb, offset + 18, length, ENC_ASCII));
 
 		name_tree = proto_item_add_subtree(ti, ett_msproxy_name);
 
@@ -591,7 +591,7 @@ static void dissect_request_resolve(tvbuff_t *tvb, int offset,
 		offset += 17;
 
 		proto_tree_add_text( name_tree, tvb, offset, length, "String: %s",
-   		 	tvb_get_string( wmem_packet_scope(),  tvb, offset, length));
+            tvb_get_string_enc( wmem_packet_scope(),  tvb, offset, length, ENC_ASCII));
 	}
 }
 
@@ -811,7 +811,7 @@ static void dissect_auth_1_ack(tvbuff_t *tvb, int offset,
 
 		/* XXX - always 255? */
 		proto_tree_add_text( tree, tvb, offset, 255, "NT domain: %.255s",
-			tvb_get_string( wmem_packet_scope(),  tvb, offset, 255));
+			tvb_get_string_enc( wmem_packet_scope(),  tvb, offset, 255, ENC_ASCII));
 	}
 }
 

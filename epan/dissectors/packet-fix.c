@@ -119,7 +119,7 @@ static int fix_next_header(tvbuff_t *tvb, int offset)
 {
     /* try to resync to the next start */
     guint         min_len = tvb_length_remaining(tvb, offset);
-    const guint8 *data    = tvb_get_string(wmem_packet_scope(), tvb, offset, min_len);
+    const guint8 *data    = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, min_len, ENC_ASCII);
     const guint8 *start   = data;
 
     while ((start = strstr(start, "\0018"))) {
@@ -193,7 +193,7 @@ static int fix_header_len(tvbuff_t *tvb, int offset)
         return fix_next_header(tvb, offset);
     }
 
-    value = tvb_get_string(wmem_packet_scope(), tvb, tag->value_offset, tag->value_len);
+    value = tvb_get_string_enc(wmem_packet_scope(), tvb, tag->value_offset, tag->value_len, ENC_ASCII);
     /* Fix version, msg type, length and checksum aren't in body length.
      * If the packet is big enough find the checksum
     */
@@ -271,7 +271,7 @@ dissect_fix_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
         return tvb_length(tvb);
     }
 
-    value = tvb_get_string(wmem_packet_scope(), tvb, tag->value_offset, tag->value_len);
+    value = tvb_get_string_enc(wmem_packet_scope(), tvb, tag->value_offset, tag->value_len, ENC_ASCII);
     msg_type = str_to_str(value, messages_val, "FIX Message (%s)");
     col_add_str(pinfo->cinfo, COL_INFO, msg_type);
 
@@ -288,7 +288,7 @@ dissect_fix_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
             continue;
         }
 
-        tag_str = tvb_get_string(wmem_packet_scope(), tvb, field_offset, tag->tag_len);
+        tag_str = tvb_get_string_enc(wmem_packet_scope(), tvb, field_offset, tag->tag_len, ENC_ASCII);
         tag_value = atoi(tag_str);
         if (tag->value_len < 1) {
             proto_tree *field_tree;
@@ -312,7 +312,7 @@ dissect_fix_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
             found = 1;
         }
 
-        value = tvb_get_string(wmem_packet_scope(), tvb, tag->value_offset, tag->value_len);
+        value = tvb_get_string_enc(wmem_packet_scope(), tvb, tag->value_offset, tag->value_len, ENC_ASCII);
         if (found) {
             if (fix_fields[i].table) {
                 if (tree) {

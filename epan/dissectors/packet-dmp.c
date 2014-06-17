@@ -1649,7 +1649,7 @@ static void dmp_add_seq_ack_analysis (tvbuff_t *tvb, packet_info *pinfo,
 
 static gchar *dissect_7bit_string (tvbuff_t *tvb, gint offset, gint length)
 {
-  guchar *encoded = tvb_get_string (wmem_packet_scope(), tvb, offset, length);
+  guchar *encoded = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, length, ENC_ASCII);
   guchar *decoded = (guchar *)wmem_alloc0 (wmem_packet_scope(), (size_t)(length * 1.2) + 1);
   guchar  rest = 0, bits = 1;
   gint    len = 0, i;
@@ -3046,12 +3046,12 @@ static void dissect_dmp_structured_id (tvbuff_t *tvb, proto_tree *body_tree,
     break;
 
   case STRUCT_ID_STRING:
-    dmp.struct_id = tvb_get_string (wmem_packet_scope(), tvb, offset, (gint) dmp_struct_length);
+    dmp.struct_id = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, (gint) dmp_struct_length, ENC_ASCII);
     proto_tree_add_item (body_tree, hf_message_bodyid_string, tvb, offset, dmp_struct_length, ENC_ASCII|ENC_NA);
     break;
 
   case STRUCT_ID_ZSTRING:
-    dmp.struct_id = tvb_get_stringz (wmem_packet_scope(), tvb, offset, &length);
+    dmp.struct_id = tvb_get_stringz_enc(wmem_packet_scope(), tvb, offset, &length, ENC_ASCII);
     proto_tree_add_item (body_tree, hf_message_bodyid_zstring, tvb, offset, length, ENC_ASCII|ENC_NA);
     break;
 
@@ -3078,7 +3078,7 @@ static gint dissect_dmp_message (tvbuff_t *tvb, packet_info *pinfo,
   if (dmp.body_format == FREE_TEXT_SUBJECT) {
     len = tvb_strsize (tvb, offset);
     if (dmp_subject_as_id) {
-      dmp.struct_id = tvb_get_string (wmem_packet_scope(), tvb, offset, len);
+      dmp.struct_id = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, len, ENC_ASCII);
     }
     proto_tree_add_item (message_tree, hf_message_subject, tvb, offset, len, ENC_ASCII|ENC_NA);
     offset += len;

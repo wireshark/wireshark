@@ -6271,11 +6271,11 @@ fCharacterString(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offs
                 coding = "UTF-8";
                 break;
             case IBM_MS_DBCS:
-                out = tvb_get_string(wmem_packet_scope(), tvb, offset, l);
+                out = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, l, ENC_ASCII);
                 coding = "IBM MS DBCS";
                 break;
             case JIS_C_6226:
-                out = tvb_get_string(wmem_packet_scope(), tvb, offset, l);
+                out = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, l, ENC_ASCII);
                 coding = "JIS C 6226";
                 break;
             case ISO_10646_UCS4:

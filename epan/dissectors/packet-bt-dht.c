@@ -108,7 +108,7 @@ bencoded_string_length(tvbuff_t *tvb, guint *offset_ptr)
   while(tvb_get_guint8(tvb, offset) != ':')
     ++offset;
 
-  len = atoi(tvb_get_string(wmem_packet_scope(), tvb, start, offset-start));
+  len = atoi(tvb_get_string_enc(wmem_packet_scope(), tvb, start, offset-start, ENC_ASCII));
   ++offset; /* skip the ':' */
 
   *offset_ptr = offset;
@@ -131,7 +131,7 @@ dissect_bencoded_string(tvbuff_t *tvb, packet_info _U_*pinfo, proto_tree *tree, 
   if( tohex )
     *result = tvb_bytes_to_ep_str(tvb, offset, string_len );
   else
-    *result = tvb_get_string( wmem_packet_scope(), tvb, offset, string_len );
+    *result = tvb_get_string_enc( wmem_packet_scope(), tvb, offset, string_len , ENC_ASCII);
 
   proto_tree_add_string_format( tree, hf_bencoded_string, tvb, offset, string_len, *result, "%s: %s", label, *result );
   offset += string_len;
@@ -154,7 +154,7 @@ dissect_bencoded_int(tvbuff_t *tvb, packet_info _U_*pinfo, proto_tree *tree, gui
   while( tvb_get_guint8(tvb,offset)!='e' )
     offset += 1;
 
-  *result = tvb_get_string( wmem_packet_scope(), tvb, start_offset, offset-start_offset);
+  *result = tvb_get_string_enc( wmem_packet_scope(), tvb, start_offset, offset-start_offset, ENC_ASCII);
   proto_tree_add_string_format( tree, hf_bencoded_int, tvb, start_offset, offset-start_offset, *result,
     "%s: %s", label, *result );
 

@@ -2187,7 +2187,7 @@ dissect_fhandle_data_GLUSTER(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree *
 	if (fhlen != 36)
 		return;
 
-	ident = tvb_get_string(NULL, tvb, offset, 4);
+	ident = tvb_get_string_enc(NULL, tvb, offset, 4, ENC_ASCII);
 	if (strncmp(":OGL", ident, 4))
 		return;
 	offset += 4;
@@ -2371,7 +2371,7 @@ dissect_fhandle_data(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 		guint8 *fh_array;
 		proto_item *fh_item = NULL;
 
-		fh_array = tvb_get_string(NULL, tvb, offset, fhlen);
+		fh_array = tvb_get_string_enc(NULL, tvb, offset, fhlen, ENC_ASCII);
 		fhhash = crc32_ccitt(fh_array, fhlen);
 		g_free(fh_array);
 
@@ -8028,7 +8028,7 @@ dissect_nfs4_stateid(tvbuff_t *tvb, int offset, proto_tree *tree, guint16 *hash)
 		newftree = proto_item_add_subtree(fitem, ett_nfs4_stateid);
 	}
 
-	sidh_array = tvb_get_string(NULL, tvb, offset, 16);
+	sidh_array = tvb_get_string_enc(NULL, tvb, offset, 16, ENC_ASCII);
 	sid_hash = crc16_ccitt(sidh_array, 16);
 	g_free(sidh_array);
 
@@ -9233,7 +9233,7 @@ dissect_nfs4_request_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 			break;
 
 		case NFS4_OP_RENEW:
-			clientid_array = tvb_get_string(wmem_packet_scope(), tvb, offset, 8);
+			clientid_array = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 8, ENC_ASCII);
 			clientid_hash = crc16_ccitt(clientid_array, 8);
 			offset = dissect_rpc_uint64(tvb, newftree, hf_nfs4_clientid, offset);
 			g_string_append_printf (op_summary[ops_counter].optext, " CID: 0x%04x", clientid_hash);

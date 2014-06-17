@@ -535,7 +535,7 @@ static int dissect_pascal_string(tvbuff_t *tvb, int offset, proto_tree *tree,
      * code, we could perhaps avoid allocating and freeing
      * this string buffer.
      */
-    tmp  = (gchar*)tvb_get_string(wmem_packet_scope(), tvb, offset, len);
+    tmp  = (gchar*)tvb_get_string_enc(wmem_packet_scope(), tvb, offset, len, ENC_ASCII);
     item = proto_tree_add_string(tree, hf_index, tvb, offset-1, len+1, tmp);
 
     subtree = proto_item_add_subtree(item, ett_pstring);

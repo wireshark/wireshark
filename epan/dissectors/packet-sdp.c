@@ -1110,7 +1110,7 @@ decode_sdp_fmtp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint offset
 
 #if 0
     proto_tree_add_text(tree, tvb, offset, tokenlen, "Debug; Analysed string: '%s'",
-    tvb_get_string(wmem_packet_scope(), tvb, offset, tokenlen));
+    tvb_get_string_enc(wmem_packet_scope(), tvb, offset, tokenlen, ENC_ASCII));
 #endif
 
     /* Look for an '=' within this value - this may indicate that there is a
@@ -1333,7 +1333,7 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
     proto_tree_add_item(sdp_media_attribute_tree,
                         hf_media_attribute_field,
                         tvb, offset, tokenlen, ENC_UTF_8|ENC_NA);
-    /*??field_name = tvb_get_string(wmem_packet_scope(), tvb, offset, tokenlen);*/
+    /*??field_name = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, tokenlen, ENC_ASCII);*/
     sdp_media_attrbute_code = find_sdp_media_attribute_names(tvb, offset, tokenlen);
 
     /* Skip colon */
@@ -1454,7 +1454,7 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
                                        transport_info->encoding_name[media_format]);
 
 #if 0 /* XXX:  ?? */
-                payload_type = tvb_get_string(wmem_packet_scope(), tvb, offset, tokenlen);
+                payload_type = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, tokenlen, ENC_ASCII);
 #endif
                 /* Move offset past the payload type */
                 offset = next_offset + 1;
@@ -2406,8 +2406,8 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         tokenoffset = 2;
         if (hf == hf_unknown)
             tokenoffset = 0;
-        string = (char*)tvb_get_string(wmem_packet_scope(), tvb, offset + tokenoffset,
-                                                 linelen - tokenoffset);
+        string = (char*)tvb_get_string_enc(wmem_packet_scope(), tvb, offset + tokenoffset,
+                                                 linelen - tokenoffset, ENC_ASCII);
         sub_ti = proto_tree_add_string(sdp_tree, hf, tvb, offset, linelen,
                                        string);
 

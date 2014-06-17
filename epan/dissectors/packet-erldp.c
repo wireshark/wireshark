@@ -234,7 +234,7 @@ static gint dissect_etf_dist_header(packet_info *pinfo _U_, tvbuff_t *tvb, gint 
       proto_tree_add_uint(acr_tree, hf_erldp_atom_length, tvb, offset, 1, atom_txt_len);
       offset++;
     }
-    str = tvb_get_string(wmem_packet_scope(), tvb, offset, atom_txt_len);
+    str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, atom_txt_len, ENC_ASCII);
     proto_tree_add_item(acr_tree, hf_erldp_atom_text, tvb, offset, atom_txt_len, ENC_NA|ENC_ASCII);
     proto_item_append_text(ti_acr, " - '%s'", str);
     offset += atom_txt_len;
@@ -443,7 +443,7 @@ static void dissect_erldp_handshake(tvbuff_t *tvb, packet_info *pinfo, proto_tre
         offset += 4;
       }
       str_len = tvb_length_remaining(tvb, offset);
-      str = tvb_get_string(wmem_packet_scope(), tvb, offset, str_len);
+      str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, str_len, ENC_ASCII);
       proto_tree_add_item(tree, hf_erldp_name, tvb, offset, str_len, ENC_ASCII|ENC_NA);
       col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s", (is_challenge) ? "SEND_CHALLENGE" : "SEND_NAME", str);
       break;
@@ -464,7 +464,7 @@ static void dissect_erldp_handshake(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
     case 's' :
       str_len = tvb_length_remaining(tvb, offset);
-      str = tvb_get_string(wmem_packet_scope(), tvb, offset, str_len);
+      str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, str_len, ENC_ASCII);
       proto_tree_add_item(tree, hf_erldp_status, tvb, offset, str_len, ENC_ASCII|ENC_NA);
       col_add_fstr(pinfo->cinfo, COL_INFO, "SEND_STATUS %s", str);
       break;

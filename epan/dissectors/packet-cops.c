@@ -2855,7 +2855,7 @@ info_to_display(tvbuff_t *tvb, proto_item *stt, int offset, int octets, const ch
 
     /* Special section for printing strings */
     if (mode==FMT_STR) {
-        codestr = tvb_get_string(wmem_packet_scope(), tvb, offset, octets);
+        codestr = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, octets, ENC_ASCII);
         pi = proto_tree_add_string_format(stt, *hf_proto_parameter, tvb,
                                           offset, octets, codestr, "%-28s : %s", str, codestr);
         return pi;

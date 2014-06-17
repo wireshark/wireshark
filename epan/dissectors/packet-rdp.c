@@ -1002,7 +1002,7 @@ dissect_rdp_clientNetworkData(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
     for (i = 0; i < MIN(channelCount, MAX_CHANNELS); i++) {
       if (rdp_info) {
         rdp_info->channels[i].value = -1; /* unset */
-        rdp_info->channels[i].strptr = tvb_get_string(wmem_packet_scope(), tvb, offset, 8);
+        rdp_info->channels[i].strptr = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 8, ENC_ASCII);
       }
       offset = dissect_rdp_fields(tvb, offset, pinfo, next_tree, def_fields, 0);
     }

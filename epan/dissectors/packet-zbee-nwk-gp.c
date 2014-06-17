@@ -694,7 +694,7 @@ dissect_zbee_nwk_gp_cmd_commissioning(tvbuff_t *tvb, packet_info *pinfo _U_, pro
         if (comm_ext_options & ZBEE_NWK_GP_CMD_COMMISSIONING_EXT_OPT_GPD_KEY_PRESENT) {
             /* Get security key and display it. */
             proto_tree_add_text(tree, tvb, offset, NWK_CMD_SECURITY_KEY_LEN, "Security Key: %s",
-                tvb_get_string(wmem_packet_scope(), tvb, offset, NWK_CMD_SECURITY_KEY_LEN));
+                tvb_get_string_enc(wmem_packet_scope(), tvb, offset, NWK_CMD_SECURITY_KEY_LEN, ENC_ASCII));
             offset += NWK_CMD_SECURITY_KEY_LEN;
         }
         if (comm_ext_options & ZBEE_NWK_GP_CMD_COMMISSIONING_EXT_OPT_GPD_KEY_ENCR) {
@@ -888,7 +888,7 @@ dissect_zbee_nwk_gp_cmd_commissioning_reply(tvbuff_t *tvb, packet_info *pinfo _U
     /* Parse and display security key. */
     if (cr_options & ZBEE_NWK_GP_CMD_COMMISSIONING_REP_OPT_SEC_KEY_PRESENT) {
         proto_tree_add_text(tree, tvb, offset, NWK_CMD_SECURITY_KEY_LEN, "Security Key: %s",
-            tvb_get_string(wmem_packet_scope(), tvb, offset, NWK_CMD_SECURITY_KEY_LEN));
+            tvb_get_string_enc(wmem_packet_scope(), tvb, offset, NWK_CMD_SECURITY_KEY_LEN, ENC_ASCII));
         offset += NWK_CMD_SECURITY_KEY_LEN;
     }
     /* Parse and display security MIC. */

@@ -4641,7 +4641,7 @@ decode_fqdn(tvbuff_t * tvb, int offset, guint16 length, proto_tree * tree)
         name_len = tvb_get_guint8(tvb, offset);
 
         if (name_len < 0x20) {
-            fqdn = tvb_get_string(wmem_packet_scope(), tvb, offset + 1, length - 1);
+            fqdn = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 1, length - 1, ENC_ASCII);
             for (;;) {
                 if (name_len >= length - 1)
                     break;
@@ -4650,7 +4650,7 @@ decode_fqdn(tvbuff_t * tvb, int offset, guint16 length, proto_tree * tree)
                 fqdn[tmp] = '.';
             }
         } else
-            fqdn = tvb_get_string(wmem_packet_scope(), tvb, offset, length);
+            fqdn = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, length, ENC_ASCII);
 
         proto_tree_add_string(tree, hf_gtp_fqdn, tvb, offset, length, fqdn);
     }

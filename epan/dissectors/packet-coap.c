@@ -331,7 +331,7 @@ dissect_coap_opt_uri_host(tvbuff_t *tvb, proto_item *head_item, proto_tree *subt
 {
 	guint8 *str;
 
-	str = tvb_get_string(wmem_packet_scope(), tvb, offset, opt_length);
+	str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, opt_length, ENC_ASCII);
 
 	proto_tree_add_string(subtree, hf_coap_opt_uri_host, tvb, offset, opt_length, str);
 
@@ -362,7 +362,7 @@ dissect_coap_opt_uri_path(tvbuff_t *tvb, proto_item *head_item, proto_tree *subt
 	if (opt_length == 0) {
 		str = nullstr;
 	} else {
-		str = tvb_get_string(wmem_packet_scope(), tvb, offset, opt_length);
+		str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, opt_length, ENC_ASCII);
 		g_strlcat(coap_uri_str, str, sizeof(coap_uri_str));
 	}
 
@@ -385,7 +385,7 @@ dissect_coap_opt_uri_query(tvbuff_t *tvb, proto_item *head_item,proto_tree *subt
 	if (opt_length == 0) {
 		str = nullstr;
 	} else {
-		str = tvb_get_string(wmem_packet_scope(), tvb, offset, opt_length);
+		str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, opt_length, ENC_ASCII);
 		g_strlcat(coap_uri_str, str, sizeof(coap_uri_str));
 	}
 
@@ -403,7 +403,7 @@ dissect_coap_opt_location_path(tvbuff_t *tvb, proto_item *head_item, proto_tree 
 	if (opt_length == 0) {
 		str = nullstr;
 	} else {
-		str = tvb_get_string(wmem_packet_scope(), tvb, offset, opt_length);
+		str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, opt_length, ENC_ASCII);
 	}
 
 	proto_tree_add_string(subtree, hf_coap_opt_location_path, tvb, offset, opt_length, str);
@@ -420,7 +420,7 @@ dissect_coap_opt_location_query(tvbuff_t *tvb, proto_item *head_item, proto_tree
 	if (opt_length == 0) {
 		str = nullstr;
 	} else {
-		str = tvb_get_string(wmem_packet_scope(), tvb, offset, opt_length);
+		str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, opt_length, ENC_ASCII);
 	}
 
 	proto_tree_add_string(subtree, hf_coap_opt_location_query, tvb, offset, opt_length, str);
@@ -437,7 +437,7 @@ dissect_coap_opt_proxy_uri(tvbuff_t *tvb, proto_item *head_item, proto_tree *sub
 	if (opt_length == 0) {
 		str = nullstr;
 	} else {
-		str = tvb_get_string(wmem_packet_scope(), tvb, offset, opt_length);
+		str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, opt_length, ENC_ASCII);
 	}
 
 	proto_tree_add_string(subtree, hf_coap_opt_proxy_uri, tvb, offset, opt_length, str);

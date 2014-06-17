@@ -3541,7 +3541,7 @@ dissect_ber_GeneralizedTime(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree 
         return end_offset;
     }
 
-    tmpstr = tvb_get_string(wmem_packet_scope(), tvb, offset, len);
+    tmpstr = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, len, ENC_ASCII);
     strptr = str;
     /* those fields are allways present */
     strptr += g_snprintf(str, 20, "%.4s-%.2s-%.2s %.2s:%.2s:%.2s",
@@ -3650,11 +3650,11 @@ dissect_ber_UTCTime(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree, t
 
     if ((len < 10) || (len > 19)) {
         error_str = wmem_strdup_printf(wmem_packet_scope(), "BER Error: UTCTime invalid length: %u", len);
-        instr = tvb_get_string(wmem_packet_scope(), tvb, offset, len > 19 ? 19 : len);
+        instr = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, len > 19 ? 19 : len, ENC_ASCII);
         goto malformed;
     }
 
-    instr = tvb_get_string(wmem_packet_scope(), tvb, offset, len);
+    instr = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, len, ENC_ASCII);
 
     /* YYMMDDhhmm */
     for (i=0; i<10; i++) {

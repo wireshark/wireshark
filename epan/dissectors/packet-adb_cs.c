@@ -400,7 +400,7 @@ dissect_adb_cs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
                 expert_add_info(pinfo, sub_item, &ei_incomplete_message);
             }
 
-            col_append_fstr(pinfo->cinfo, COL_INFO, " Fail=<%s>", tvb_get_string(wmem_packet_scope(), tvb, offset, tvb_length_remaining(tvb, offset)));
+            col_append_fstr(pinfo->cinfo, COL_INFO, " Fail=<%s>", tvb_get_string_enc(wmem_packet_scope(), tvb, offset, tvb_length_remaining(tvb, offset), ENC_ASCII));
             offset = tvb_length(tvb);
             return offset;
         }

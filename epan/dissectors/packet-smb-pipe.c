@@ -790,7 +790,7 @@ netshareenum_share_entry(tvbuff_t *tvb, proto_tree *tree, int offset)
 {
 	if (tree) {
 		return proto_tree_add_text(tree, tvb, offset, -1,
-		    "Share %.13s", tvb_get_string(wmem_packet_scope(), tvb, offset, 13));
+		    "Share %.13s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 13, ENC_ASCII));
 	} else
 		return NULL;
 }
@@ -990,7 +990,7 @@ netserverenum2_server_entry(tvbuff_t *tvb, proto_tree *tree, int offset)
 {
 	if (tree) {
 		return proto_tree_add_text(tree, tvb, offset, -1,
-			    "Server %.16s", tvb_get_string(wmem_packet_scope(), tvb, offset, 16));
+			    "Server %.16s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 16, ENC_ASCII));
 	} else
 		return NULL;
 }

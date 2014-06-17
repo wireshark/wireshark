@@ -540,7 +540,7 @@ dissect_imf_siolabel(tvbuff_t *tvb, int offset, int length, proto_item *item, pa
     }
 
     if (tvb_strneql(tvb, item_offset, "marking", 7) == 0) {
-      proto_item_append_text(item, ": %s", tvb_get_string(wmem_packet_scope(), tvb, value_offset, value_length));
+      proto_item_append_text(item, ": %s", tvb_get_string_enc(wmem_packet_scope(), tvb, value_offset, value_length, ENC_ASCII));
       proto_tree_add_item(tree, hf_imf_siolabel_marking, tvb, value_offset, value_length, ENC_ASCII|ENC_NA);
 
     } else if (tvb_strneql(tvb, item_offset, "fgcolor", 7) == 0) {
@@ -550,15 +550,15 @@ dissect_imf_siolabel(tvbuff_t *tvb, int offset, int length, proto_item *item, pa
       proto_tree_add_item(tree, hf_imf_siolabel_bgcolor, tvb, value_offset, value_length, ENC_ASCII|ENC_NA);
 
     } else if (tvb_strneql(tvb, item_offset, "type", 4) == 0) {
-      type = tvb_get_string(wmem_packet_scope(), tvb, value_offset + 1, value_length - 2); /* quoted */
+      type = tvb_get_string_enc(wmem_packet_scope(), tvb, value_offset + 1, value_length - 2, ENC_ASCII); /* quoted */
       proto_tree_add_item(tree, hf_imf_siolabel_type, tvb, value_offset, value_length, ENC_ASCII|ENC_NA);
 
     } else if (tvb_strneql(tvb, item_offset, "label", 5) == 0) {
-      gchar *label = tvb_get_string(wmem_packet_scope(), tvb, value_offset + 1, value_length - 2); /* quoted */
+      gchar *label = tvb_get_string_enc(wmem_packet_scope(), tvb, value_offset + 1, value_length - 2, ENC_ASCII); /* quoted */
       wmem_strbuf_append(label_string, label);
 
       if (tvb_get_guint8(tvb, item_offset + 5) == '*') { /* continuations */
-        int num = (int)strtol(tvb_get_string(wmem_packet_scope(), tvb, item_offset + 6, value_offset - item_offset + 6), NULL, 10);
+        int num = (int)strtol(tvb_get_string_enc(wmem_packet_scope(), tvb, item_offset + 6, value_offset - item_offset + 6, ENC_ASCII), NULL, 10);
         proto_tree_add_string_format(tree, hf_imf_siolabel_label, tvb, value_offset, value_length,
                                      label, "Label[%d]: \"%s\"", num, label);
       } else {
@@ -616,7 +616,7 @@ dissect_imf_content_type(tvbuff_t *tvb, int offset, int length, proto_item *item
     proto_tree_add_item(ct_tree, hf_imf_content_type_type, tvb, offset, len, ENC_ASCII|ENC_NA);
     if(type) {
       /* This string will be automatically freed */
-      (*type) = tvb_get_string(wmem_packet_scope(), tvb, offset, len);
+      (*type) = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, len, ENC_ASCII);
     }
     end_offset = imf_find_field_end (tvb, first_colon + 1, offset + length, NULL);
     if (end_offset == -1) {
@@ -627,7 +627,7 @@ dissect_imf_content_type(tvbuff_t *tvb, int offset, int length, proto_item *item
     proto_tree_add_item(ct_tree, hf_imf_content_type_parameters, tvb, first_colon + 1, len, ENC_ASCII|ENC_NA);
     if(parameters) {
       /* This string will be automatically freed */
-      (*parameters) = tvb_get_string(wmem_packet_scope(), tvb, first_colon + 1, len);
+      (*parameters) = tvb_get_string_enc(wmem_packet_scope(), tvb, first_colon + 1, len, ENC_ASCII);
     }
   }
 }
@@ -719,7 +719,7 @@ dissect_imf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       /* XXX: flag an error */
       break;
     } else {
-      key = tvb_get_string(wmem_packet_scope(), tvb, start_offset, end_offset - start_offset);
+      key = tvb_get_string_enc(wmem_packet_scope(), tvb, start_offset, end_offset - start_offset, ENC_ASCII);
 
       /* convert to lower case */
       ascii_strdown_inplace (key);

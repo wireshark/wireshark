@@ -1010,7 +1010,7 @@ dissect_tds5_lang_token(tvbuff_t *tvb, guint offset, guint len, proto_tree *tree
     offset += 1;
     len    -= 1;
 
-    msg = (gchar*)tvb_get_string(wmem_packet_scope(), tvb, offset, len);
+    msg = (gchar*)tvb_get_string_enc(wmem_packet_scope(), tvb, offset, len, ENC_ASCII);
     proto_tree_add_text(tree, tvb, offset, len, "Language text: %s", msg);
 }
 
@@ -1182,7 +1182,7 @@ dissect_tds7_login(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                  */
 
                 len *= 2;
-                val = (gchar*)tvb_get_string(wmem_packet_scope(), tvb, offset2, len);
+                val = (gchar*)tvb_get_string_enc(wmem_packet_scope(), tvb, offset2, len, ENC_ASCII);
                 val2 = (char *)wmem_alloc(wmem_packet_scope(), len/2+1);
 
                 for(j = 0, k = 0; j < len; j += 2, k++) {

@@ -5916,11 +5916,11 @@ dissect_rsvp_call_id(proto_tree *ti, proto_tree *rsvp_object_tree,
             proto_tree_add_uint_format_value(rsvp_object_tree, hf_rsvp_ctype, tvb, offset+3, 1,
                                 c_type, "2 (globally unique)");
             proto_tree_add_item(rsvp_object_tree, hf_rsvp_call_id_address_type, tvb, offset2, 1, ENC_NA);
-            str = tvb_get_string (wmem_packet_scope(), tvb, offset2 + 1, 3);
+            str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset2 + 1, 3, ENC_ASCII);
             proto_tree_add_item(rsvp_object_tree, hf_rsvp_call_id_international_segment, tvb, offset2 + 1, 3, ENC_NA|ENC_ASCII);
             proto_item_append_text(ti, "Globally-Unique. Addr Type: %s. Intl Segment: %s. ",
                                    val_to_str(type, address_type_vals, "Unknown (%u)"), str);
-            str = tvb_get_string (wmem_packet_scope(), tvb, offset2 + 4, 12);
+            str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset2 + 4, 12, ENC_ASCII);
             proto_tree_add_item(rsvp_object_tree, hf_rsvp_call_id_national_segment, tvb, offset2 + 4, 12, ENC_NA|ENC_ASCII);
             proto_item_append_text(ti, "Natl Segment: %s. ", str);
         }

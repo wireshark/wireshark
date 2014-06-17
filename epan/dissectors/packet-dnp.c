@@ -1948,8 +1948,8 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
             da_len = tvb_get_guint8(tvb, offset+1);
             proto_tree_add_item(point_tree, hf_dnp3_al_da_length, tvb, offset+1, 1, ENC_LITTLE_ENDIAN);
 
-            proto_tree_add_text(point_tree, tvb, offset+2, da_len, "Value: %s", tvb_get_string(wmem_packet_scope(), tvb, offset+2, da_len));
-            proto_item_append_text(object_item, ", Value: %s", tvb_get_string(wmem_packet_scope(), tvb, offset+2, da_len));
+            proto_tree_add_text(point_tree, tvb, offset+2, da_len, "Value: %s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset+2, da_len, ENC_ASCII));
+            proto_item_append_text(object_item, ", Value: %s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset+2, da_len, ENC_ASCII));
 
             offset += 2 + da_len;
 
@@ -2678,7 +2678,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
             if (al_filename_len > 0) {
               const gchar *al_filename;
 
-              al_filename = tvb_get_string(wmem_packet_scope(), tvb, data_pos, al_filename_len);
+              al_filename = tvb_get_string_enc(wmem_packet_scope(), tvb, data_pos, al_filename_len, ENC_ASCII);
               proto_tree_add_text(point_tree, tvb, data_pos, al_filename_len, "File Name: %s", al_filename);
             }
             data_pos += al_filename_len;

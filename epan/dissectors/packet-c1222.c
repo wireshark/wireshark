@@ -462,7 +462,7 @@ parse_c1222_detailed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int cm
         user_id = tvb_get_ntohs(tvb, *offset);
         proto_tree_add_uint(tree, hf_c1222_logon_id, tvb, *offset, 2, user_id);
         *offset += 2;
-        user_name = tvb_get_string(wmem_packet_scope(),tvb, *offset, 10);
+        user_name = tvb_get_string_enc(wmem_packet_scope(),tvb, *offset, 10, ENC_ASCII);
         proto_tree_add_string(tree, hf_c1222_logon_user, tvb, *offset, 10, user_name);
         *offset += 10;
         *length -= 12;
@@ -474,7 +474,7 @@ parse_c1222_detailed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int cm
       break;
     case C1222_CMD_SECURITY:
       if (*length >= 20) {
-        password = tvb_get_string(wmem_packet_scope(),tvb, *offset, 20);
+        password = tvb_get_string_enc(wmem_packet_scope(),tvb, *offset, 20, ENC_ASCII);
         proto_tree_add_string(tree, hf_c1222_security_password, tvb, *offset, 20, password);
         *offset += 20;
         *length -= 20;

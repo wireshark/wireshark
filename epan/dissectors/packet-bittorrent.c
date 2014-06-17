@@ -512,8 +512,8 @@ dissect_bittorrent_welcome (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
       for(i = 0; peer_id[i].name != NULL; ++i)
       {
          if(tvb_memeql(tvb, offset, peer_id[i].id, (int)strlen(peer_id[i].id)) == 0) {
-            version = tvb_get_string(wmem_packet_scope(), tvb, offset + (int)strlen(peer_id[i].id),
-                                     peer_id[i].ver_len);
+            version = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + (int)strlen(peer_id[i].id),
+                                     peer_id[i].ver_len, ENC_ASCII);
             proto_tree_add_text(tree, tvb, offset, 20, "Client is %s v%s",
                                 peer_id[i].name,
                                 format_text((guchar*)version, peer_id[i].ver_len));

@@ -1481,7 +1481,7 @@ gint rtps_util_add_string(proto_tree *tree, tvbuff_t* tvb, gint offset,
   guint32 size = NEXT_guint32(tvb, offset, little_endian);
 
   if (size > 0) {
-    retVal = tvb_get_string(wmem_packet_scope(), tvb, offset+4, size);
+    retVal = tvb_get_string_enc(wmem_packet_scope(), tvb, offset+4, size, ENC_ASCII);
   }
 
   proto_tree_add_string(tree, hf_item, tvb, offset, size+4,
@@ -1583,7 +1583,7 @@ gint rtps_util_add_seq_string(proto_tree *tree, tvbuff_t* tvb, gint offset,
     size = NEXT_guint32(tvb, offset, little_endian);
 
     if (size > 0) {
-      retVal = tvb_get_string(wmem_packet_scope(), tvb, offset+4, size);
+      retVal = tvb_get_string_enc(wmem_packet_scope(), tvb, offset+4, size, ENC_ASCII);
     } else {
       retVal = (const guint8 *)"";
     }
@@ -1786,7 +1786,7 @@ static gint rtps_util_add_typecode(proto_tree *tree, tvbuff_t * tvb, gint offset
         /* Get structure name length */
         struct_name_len = NEXT_guint32(tvb, offset, little_endian);
         offset += 4;
-        struct_name = tvb_get_string(wmem_packet_scope(), tvb, offset, struct_name_len);
+        struct_name = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, struct_name_len, ENC_ASCII);
         offset += struct_name_len;
 
         /* - - - - - - -      Default index      - - - - - - - */
@@ -1808,7 +1808,7 @@ static gint rtps_util_add_typecode(proto_tree *tree, tvbuff_t * tvb, gint offset
           /* Enums has also a name that we should print */
           LONG_ALIGN(offset);
           discriminator_enum_name_length = NEXT_guint32(tvb, offset, little_endian);
-          discriminator_enum_name = tvb_get_string(wmem_packet_scope(), tvb, offset+4, discriminator_enum_name_length);
+          discriminator_enum_name = tvb_get_string_enc(wmem_packet_scope(), tvb, offset+4, discriminator_enum_name_length, ENC_ASCII);
         }
         offset = disc_offset_begin + disc_size;
 #if 0
@@ -1867,7 +1867,7 @@ static gint rtps_util_add_typecode(proto_tree *tree, tvbuff_t * tvb, gint offset
           offset += 4;
 
           /* Name */
-          member_name = tvb_get_string(wmem_packet_scope(), tvb, offset, member_name_len);
+          member_name = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, member_name_len, ENC_ASCII);
           offset += member_name_len;
 
           /* is Pointer ? */
@@ -1965,7 +1965,7 @@ static gint rtps_util_add_typecode(proto_tree *tree, tvbuff_t * tvb, gint offset
         offset += 4;
 
         /* struct name */
-        struct_name = tvb_get_string(wmem_packet_scope(), tvb, offset, struct_name_len);
+        struct_name = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, struct_name_len, ENC_ASCII);
         offset += struct_name_len;
 
 
@@ -2009,7 +2009,7 @@ static gint rtps_util_add_typecode(proto_tree *tree, tvbuff_t * tvb, gint offset
           offset += 4;
 
           /* Name */
-          member_name = tvb_get_string(wmem_packet_scope(), tvb, offset, member_name_len);
+          member_name = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, member_name_len, ENC_ASCII);
           offset += member_name_len;
 
           if (tk_id == RTI_CDR_TK_ENUM) {
@@ -2132,7 +2132,7 @@ static gint rtps_util_add_typecode(proto_tree *tree, tvbuff_t * tvb, gint offset
         LONG_ALIGN(offset);
         alias_name_length = NEXT_guint32(tvb, offset, little_endian);
         offset += 4;
-        alias_name = tvb_get_string(wmem_packet_scope(), tvb, offset, alias_name_length);
+        alias_name = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, alias_name_length, ENC_ASCII);
         offset += alias_name_length;
         g_strlcpy(type_name, alias_name, 40);
         break;
@@ -2161,7 +2161,7 @@ static gint rtps_util_add_typecode(proto_tree *tree, tvbuff_t * tvb, gint offset
         offset += 4;
 
         /* value name */
-        value_name = tvb_get_string(wmem_packet_scope(), tvb, offset, value_name_len);
+        value_name = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, value_name_len, ENC_ASCII);
         offset += value_name_len;
 
         g_snprintf(type_name, 40, "valuetype %s", value_name);
@@ -3171,7 +3171,7 @@ static gboolean dissect_parameter_sequence_v1(proto_tree *rtps_parameter_tree, p
             prev_offset = temp_offset;
             prop_size = NEXT_guint32(tvb, temp_offset, little_endian);
             if (prop_size > 0) {
-              propName = tvb_get_string(wmem_packet_scope(), tvb, temp_offset+4, prop_size);
+              propName = tvb_get_string_enc(wmem_packet_scope(), tvb, temp_offset+4, prop_size, ENC_ASCII);
             } else {
               propName = (const guint8 *)"";
             }
@@ -3180,7 +3180,7 @@ static gboolean dissect_parameter_sequence_v1(proto_tree *rtps_parameter_tree, p
 
             prop_size = NEXT_guint32(tvb, temp_offset, little_endian);
             if (prop_size > 0) {
-              propValue = tvb_get_string(wmem_packet_scope(), tvb, temp_offset+4, prop_size);
+              propValue = tvb_get_string_enc(wmem_packet_scope(), tvb, temp_offset+4, prop_size, ENC_ASCII);
             } else {
               propValue = (const guint8 *)"";
             }

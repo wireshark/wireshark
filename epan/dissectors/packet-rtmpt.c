@@ -661,7 +661,7 @@ rtmpt_get_amf_param(tvbuff_t *tvb, gint offset, gint param, const gchar *prop)
                 if (!prop && iObjType == AMF0_STRING && remain >= 3) {
                         iStringLength = tvb_get_ntohs(tvb, offset+1);
                         if (remain >= iStringLength+3) {
-                                return tvb_get_string(wmem_packet_scope(), tvb, offset+3, iStringLength);
+                                return tvb_get_string_enc(wmem_packet_scope(), tvb, offset+3, iStringLength, ENC_ASCII);
                         }
                 }
 
@@ -682,7 +682,7 @@ rtmpt_get_amf_param(tvbuff_t *tvb, gint offset, gint param, const gchar *prop)
                                         if (remain < 2+iPropLength+3+iStringLength)
                                                 break;
 
-                                        return tvb_get_string(wmem_packet_scope(), tvb, offset+2+iPropLength+3, iStringLength);
+                                        return tvb_get_string_enc(wmem_packet_scope(), tvb, offset+2+iPropLength+3, iStringLength, ENC_ASCII);
                                 }
 
                                 itemlen = rtmpt_get_amf_length(tvb, offset+2+iPropLength);
@@ -785,7 +785,7 @@ rtmpt_get_packet_desc(tvbuff_t *tvb, guint32 offset, guint32 remain, rtmpt_conv_
                         slen = tvb_get_ntohs(tvb, offset+1+soff);
                 }
                 if (slen > 0) {
-                        sFunc = tvb_get_string(wmem_packet_scope(), tvb, offset+3+soff, slen);
+                        sFunc = tvb_get_string_enc(wmem_packet_scope(), tvb, offset+3+soff, slen, ENC_ASCII);
                         RTMPT_DEBUG("got function call '%s'\n", sFunc);
 
                         if (strcmp(sFunc, "connect") == 0) {
@@ -897,7 +897,7 @@ dissect_amf0_property_list(tvbuff_t *tvb, gint offset, proto_tree *tree, guint *
                     tvb_get_guint8(tvb, offset + 2) == AMF0_END_OF_OBJECT)
                         break;
                 count++;
-                iStringValue = tvb_get_string(wmem_packet_scope(), tvb, offset + 2, iStringLength);
+                iStringValue = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 2, iStringLength, ENC_ASCII);
                 prop_ti = proto_tree_add_text(tree, tvb, offset, -1,
                                               "Property '%s'",
                                               iStringValue);

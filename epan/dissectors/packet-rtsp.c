@@ -1062,7 +1062,7 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
                 }
 
                 media_type_str_lower_case = ascii_strdown_inplace(
-                    (gchar *)tvb_get_string(wmem_packet_scope(), tvb, offset, value_len));
+                    (gchar *)tvb_get_string_enc(wmem_packet_scope(), tvb, offset, value_len, ENC_ASCII));
 
             } else if (HDR_MATCHES(rtsp_content_length))
             {
@@ -1101,8 +1101,8 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
                     e164_info.e164_number_type = CALLING_PARTY_NUMBER;
                     e164_info.nature_of_address = 0;
 
-                    e164_info.E164_number_str = tvb_get_string(wmem_packet_scope(), tvb, value_offset,
-                                                                  value_len);
+                    e164_info.E164_number_str = tvb_get_string_enc(wmem_packet_scope(), tvb, value_offset,
+                                                                  value_len, ENC_ASCII);
                     e164_info.E164_number_length = value_len;
                     dissect_e164_number(tvb, sub_tree, value_offset,
                                         value_len, e164_info);

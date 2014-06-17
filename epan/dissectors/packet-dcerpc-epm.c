@@ -180,7 +180,7 @@ epm_dissect_ept_entry_t(tvbuff_t *tvb, int offset,
                                  hf_epm_ann_offset, NULL);
     offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
                                  hf_epm_ann_len, &len);
-    str=tvb_get_string(wmem_packet_scope(), tvb, offset, len);
+    str=tvb_get_string_enc(wmem_packet_scope(), tvb, offset, len, ENC_ASCII);
     proto_tree_add_item(tree, hf_epm_annotation, tvb, offset, len, ENC_ASCII|ENC_NA);
     offset += len;
 
@@ -429,17 +429,17 @@ epm_dissect_tower_data (tvbuff_t *tvb, int offset,
 
         case PROTO_ID_NAMED_PIPES: /* \\PIPE\xxx   named pipe */
             proto_tree_add_item(tr, hf_epm_proto_named_pipes, tvb, offset, len, ENC_ASCII|ENC_NA);
-            proto_item_append_text(tr, "NamedPipe:%s", tvb_get_string(wmem_packet_scope(), tvb, offset, len));
+            proto_item_append_text(tr, "NamedPipe:%s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset, len, ENC_ASCII));
             break;
 
         case PROTO_ID_NAMED_PIPES_2: /* PIPENAME  named pipe */
             proto_tree_add_item(tr, hf_epm_proto_named_pipes, tvb, offset, len, ENC_ASCII|ENC_NA);
-            proto_item_append_text(tr, "PIPE:%s", tvb_get_string(wmem_packet_scope(), tvb, offset, len));
+            proto_item_append_text(tr, "PIPE:%s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset, len, ENC_ASCII));
             break;
 
         case PROTO_ID_NETBIOS: /* \\NETBIOS   netbios name */
             proto_tree_add_item(tr, hf_epm_proto_netbios_name, tvb, offset, len, ENC_ASCII|ENC_NA);
-            proto_item_append_text(tr, "NetBIOS:%s", tvb_get_string(wmem_packet_scope(), tvb, offset, len));
+            proto_item_append_text(tr, "NetBIOS:%s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset, len, ENC_ASCII));
             break;
         case PROTO_ID_HTTP: /* RPC over HTTP */
             proto_tree_add_item(tr, hf_epm_proto_http_port, tvb, offset, 2, ENC_BIG_ENDIAN);

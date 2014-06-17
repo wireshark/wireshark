@@ -446,7 +446,7 @@ proto_add_icq_attr(proto_tree* tree, /* The tree to add to */
 		return -1;	/* length goes past end of packet */
 	proto_tree_add_text(tree, tvb, offset, len+2,
 			"%s[%u]: %.*s", descr, len, len,
-			tvb_get_string(wmem_packet_scope(), tvb, offset + 2, len));
+			tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 2, len, ENC_ASCII));
 	return len + 2;
 }
 
@@ -520,7 +520,7 @@ icqv5_decode_msgType(proto_tree* tree, tvbuff_t *tvb, int offset, int size,
 		break;
 	case MSG_TEXT:
 		proto_tree_add_text(subtree, tvb, offset, left, "Msg: %.*s", left-1,
-					tvb_get_string(wmem_packet_scope(), tvb, offset, left));
+					tvb_get_string_enc(wmem_packet_scope(), tvb, offset, left, ENC_ASCII));
 		break;
 	case MSG_URL:
 		for (n = 0; n < N_URL_FIELDS; n++) {
@@ -534,7 +534,7 @@ icqv5_decode_msgType(proto_tree* tree, tvbuff_t *tvb, int offset, int size,
 				proto_tree_add_text(subtree, tvb, offset, sz, "%s: %.*s",
 							url_field_descr[n],
 							sz - 1,
-							tvb_get_string(wmem_packet_scope(), tvb, offset, sz));
+							tvb_get_string_enc(wmem_packet_scope(), tvb, offset, sz, ENC_ASCII));
 			} else {
 				proto_tree_add_text(subtree, tvb, offset, 0,
 							"%s: %s", url_field_descr[n], "(empty)");
@@ -555,7 +555,7 @@ icqv5_decode_msgType(proto_tree* tree, tvbuff_t *tvb, int offset, int size,
 			proto_tree_add_text(subtree, tvb, offset, sz, "%s: %.*s",
 						email_field_descr[n],
 						sz - 1,
-						tvb_get_string(wmem_packet_scope(), tvb, offset, sz));
+						tvb_get_string_enc(wmem_packet_scope(), tvb, offset, sz, ENC_ASCII));
 		} else {
 			proto_tree_add_text(subtree, tvb, offset, 0, "%s: %s",
 						email_field_descr[n], "(empty)");
@@ -590,7 +590,7 @@ icqv5_decode_msgType(proto_tree* tree, tvbuff_t *tvb, int offset, int size,
 			if (sz != 0) {
 				proto_tree_add_text(subtree, tvb, offset, sz, "%s: %.*s",
 							auth_req_field_descr[n], sz - 1,
-							tvb_get_string(wmem_packet_scope(), tvb, offset, sz));
+							tvb_get_string_enc(wmem_packet_scope(), tvb, offset, sz, ENC_ASCII));
 			} else {
 				proto_tree_add_text(subtree, tvb, offset, 0, "%s: %s",
 							auth_req_field_descr[n], "(empty)");
@@ -610,7 +610,7 @@ icqv5_decode_msgType(proto_tree* tree, tvbuff_t *tvb, int offset, int size,
 		if (sz != 0) {
 			proto_tree_add_text(subtree, tvb, offset, sz, "%s: %.*s",
 						user_added_field_descr[n], sz - 1,
-						tvb_get_string(wmem_packet_scope(), tvb, offset, sz));
+						tvb_get_string_enc(wmem_packet_scope(), tvb, offset, sz, ENC_ASCII));
 		} else {
 			proto_tree_add_text(subtree, tvb, offset, 0, "%s: %s",
 						user_added_field_descr[n], "(empty)");
@@ -640,7 +640,7 @@ icqv5_decode_msgType(proto_tree* tree, tvbuff_t *tvb, int offset, int size,
 				/* The first element is the number of Nick/UIN pairs follow */
 				proto_tree_add_text(subtree, tvb, offset, sz_local,
 							"Number of pairs: %.*s", sz_local - 1,
-							tvb_get_string(wmem_packet_scope(), tvb, offset, sz_local));
+							tvb_get_string_enc(wmem_packet_scope(), tvb, offset, sz_local, ENC_ASCII));
 				n_local++;
 			} else if (!last) {
 				int svsz = sz_local;
@@ -656,8 +656,8 @@ icqv5_decode_msgType(proto_tree* tree, tvbuff_t *tvb, int offset, int size,
 				}
 				proto_tree_add_text(subtree, tvb, offset, sz_local + svsz,
 							"%.*s: %.*s", svsz - 1,
-							tvb_get_string(wmem_packet_scope(), tvb, offset, svsz), sz_local - 1,
-							tvb_get_string(wmem_packet_scope(), tvb, sep_offset_prev + 1, sz_local));
+							tvb_get_string_enc(wmem_packet_scope(), tvb, offset, svsz, ENC_ASCII), sz_local - 1,
+							tvb_get_string_enc(wmem_packet_scope(), tvb, sep_offset_prev + 1, sz_local, ENC_ASCII));
 				n_local += 2;
 			}
 
@@ -690,8 +690,8 @@ icqv5_cmd_send_text_code(proto_tree* tree, /* Tree to put the data in */
 	if (len>0) {
 		proto_tree_add_text(subtree, tvb, offset + CMD_SEND_TEXT_CODE_TEXT,
 				len, "Text: %.*s", len,
-				tvb_get_string(wmem_packet_scope(), tvb, offset + CMD_SEND_TEXT_CODE_TEXT,
-						len));
+				tvb_get_string_enc(wmem_packet_scope(), tvb, offset + CMD_SEND_TEXT_CODE_TEXT,
+						len, ENC_ASCII));
 	}
 
 	x1 = tvb_get_letohs(tvb, offset + CMD_SEND_TEXT_CODE_TEXT + len);
@@ -733,8 +733,8 @@ icqv5_cmd_login(proto_tree* tree, tvbuff_t *tvb, int offset)
 		passwdLen = tvb_get_letohs(tvb, offset + CMD_LOGIN_PASSLEN);
 		proto_tree_add_text(subtree, tvb, offset + CMD_LOGIN_PASSLEN,
 					2 + passwdLen, "Passwd: %.*s", (int)passwdLen,
-					tvb_get_string(wmem_packet_scope(), tvb, offset + CMD_LOGIN_PASSWD,
-						passwdLen));
+					tvb_get_string_enc(wmem_packet_scope(), tvb, offset + CMD_LOGIN_PASSWD,
+						passwdLen, ENC_ASCII));
 		proto_tree_add_text(subtree, tvb,
 					offset + CMD_LOGIN_PASSWD + passwdLen + CMD_LOGIN_IP,
 					4, "IP: %s", tvb_ip_to_str(tvb, offset + CMD_LOGIN_PASSWD + passwdLen + CMD_LOGIN_IP));
@@ -918,7 +918,7 @@ icqv5_srv_meta_user(proto_tree* tree, /* Tree to put the data in */
 		offset+=2;
 		proto_tree_add_text(sstree, tvb, offset - 2,
 				len+2, "About(%d): %.*s", len,
-				len, tvb_get_string(wmem_packet_scope(), tvb, offset, len));
+				len, tvb_get_string_enc(wmem_packet_scope(), tvb, offset, len, ENC_ASCII));
 		break;
 	}
 	case META_USER_INFO:
