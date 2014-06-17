@@ -163,7 +163,7 @@ static const value_string auth_vals[] = {
 
 #define OSPF_LSTYPE_ROUTER      1
 #define OSPF_LSTYPE_NETWORK     2
-#define OSPF_LSTYPE_SUMMERY     3
+#define OSPF_LSTYPE_SUMMARY     3
 #define OSPF_LSTYPE_ASBR        4
 #define OSPF_LSTYPE_ASEXT       5
 #define OSPF_LSTYPE_GRPMEMBER   6
@@ -257,7 +257,7 @@ static const value_string ri_tlv_type_vals[] = {
 static const value_string ls_type_vals[] = {
     {OSPF_LSTYPE_ROUTER,                  "Router-LSA"                   },
     {OSPF_LSTYPE_NETWORK,                 "Network-LSA"                  },
-    {OSPF_LSTYPE_SUMMERY,                 "Summary-LSA (IP network)"     },
+    {OSPF_LSTYPE_SUMMARY,                 "Summary-LSA (IP network)"     },
     {OSPF_LSTYPE_ASBR,                    "Summary-LSA (ASBR)"           },
     {OSPF_LSTYPE_ASEXT,                   "AS-External-LSA (ASBR)"       },
     {OSPF_LSTYPE_GRPMEMBER,               "Group Membership LSA"         },
@@ -845,6 +845,8 @@ static int hf_ospf_metric = -1;
 static int hf_ospf_prefix_length = -1;
 
 static expert_field ei_ospf_header_reserved = EI_INIT;
+static expert_field ei_ospf_lsa_bad_length = EI_INIT;
+static expert_field ei_ospf_lsa_constraint_missing = EI_INIT;
 
 static gint ospf_msg_type_to_filter (guint8 msg_type)
 {
@@ -2605,6 +2607,8 @@ dissect_ospf_v2_lsa(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *t
     guint8               ls_id_type;
     guint8               ls_ri_opaque_field;
 
+    guint8               ls_length_constraints[] = { 0, 24, 28, 28, 28, 36, 20, 36, 20, 20, 20, 20 };
+
     ls_type = tvb_get_guint8(tvb, offset + 3);
     ls_length = tvb_get_ntohs(tvb, offset + 18);
     end_offset = offset + ls_length;
@@ -2678,8 +2682,19 @@ dissect_ospf_v2_lsa(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *t
                         offset + 12, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(ospf_lsa_tree, hf_ospf_filter[OSPFF_LS_CHKSUM], tvb,
                         offset + 16, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(ospf_lsa_tree, hf_ospf_filter[OSPFF_LS_LENGTH], tvb,
+    ti = proto_tree_add_item(ospf_lsa_tree, hf_ospf_filter[OSPFF_LS_LENGTH], tvb,
                         offset + 18, 2, ENC_BIG_ENDIAN);
+
+    if(ls_type && ls_type <= OSPF_LSTYPE_OP_ASWIDE) {
+        if(ls_length < ls_length_constraints[ls_type]) {
+            expert_add_info_format(pinfo, ti, &ei_ospf_lsa_bad_length, "Invalid LSA length (%u) for type %s, expected >= (%u)",
+                                ls_length, val_to_str_const(ls_type, ls_type_vals, "Unknown"), ls_length_constraints[ls_type]);
+            return -1;
+        }
+    } else if(ls_length < 20) { /* As type is unknown, we check for a minimum length of 20 */
+        expert_add_info_format(pinfo, ti, &ei_ospf_lsa_bad_length, "Invalid LSA length (%u) for unknown LSA type (%u), expected minimum of (20)", ls_length, ls_type);
+        return -1;
+    }
 
     /* skip past the LSA header to the body */
     offset += OSPF_LSA_HEADER_LENGTH;
@@ -2701,8 +2716,16 @@ dissect_ospf_v2_lsa(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *t
         }
 
         nr_links = tvb_get_ntohs(tvb, offset + 2);
-        proto_tree_add_item(ospf_lsa_tree, hf_ospf_lsa_number_of_links, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
+        ti = proto_tree_add_item(ospf_lsa_tree, hf_ospf_lsa_number_of_links, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
         offset += 4;
+
+/*      This constraint (>=0) makes no sense
+ *      if (nr_links < 0) {
+ *              expert_add_info_format(pinfo, ti, &ei_ospf_lsa_constraint_missing, "(>= 0 link descriptors required");
+ *              break;
+ *      }
+ */
+
         /* nr_links links follow
          * maybe we should put each of the links into its own subtree ???
          */
@@ -2765,6 +2788,9 @@ dissect_ospf_v2_lsa(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *t
                             tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
 
+        if (offset == end_offset)
+                proto_tree_add_expert_format(ospf_lsa_tree, pinfo, &ei_ospf_lsa_constraint_missing, tvb, offset - 4, 4, "(>= 1 router-IDs  required");
+
         while (offset < end_offset) {
             proto_tree_add_item(ospf_lsa_tree, hf_ospf_filter[OSPFF_LS_NETWORK_ATTACHRTR],
                                 tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -2772,16 +2798,19 @@ dissect_ospf_v2_lsa(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *t
         }
         break;
 
-    case OSPF_LSTYPE_SUMMERY:
+    case OSPF_LSTYPE_SUMMARY:
         /* Type 3 and 4 LSAs have the same format */
     case OSPF_LSTYPE_ASBR:
         proto_tree_add_item(ospf_lsa_tree, hf_ospf_filter[OSPFF_LS_ASBR_NETMASK],
                             tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
 
-        proto_tree_add_uint(ospf_lsa_tree, hf_ospf_metric, tvb, offset, 4,
+        ti = proto_tree_add_uint(ospf_lsa_tree, hf_ospf_metric, tvb, offset, 4,
                             tvb_get_ntoh24(tvb, offset + 1));
         offset += 4;
+
+        if (offset == end_offset)
+                expert_add_info_format(pinfo, ti, &ei_ospf_lsa_constraint_missing, "(>= 1 TOS metric blocks required");
 
         /* Metric specific information, if any */
         while (offset < end_offset) {
@@ -2802,7 +2831,7 @@ dissect_ospf_v2_lsa(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *t
         proto_tree_add_item(ospf_lsa_tree, hf_ospf_lsa_external_type, tvb, offset, 1, ENC_NA);
 
         /* the metric field of a AS-external LAS is specified in 3 bytes */
-        proto_tree_add_item(ospf_lsa_tree, hf_ospf_metric, tvb, offset + 1, 3, ENC_BIG_ENDIAN);
+        ti = proto_tree_add_item(ospf_lsa_tree, hf_ospf_metric, tvb, offset + 1, 3, ENC_BIG_ENDIAN);
         offset += 4;
 
         proto_tree_add_item(ospf_lsa_tree, hf_ospf_filter[OSPFF_LS_ASEXT_FWDADDR],
@@ -2812,6 +2841,9 @@ dissect_ospf_v2_lsa(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *t
         proto_tree_add_item(ospf_lsa_tree, hf_ospf_filter[OSPFF_LS_ASEXT_EXTRTRTAG],
                             tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
+
+        if (offset == end_offset)
+                expert_add_info_format(pinfo, ti, &ei_ospf_lsa_constraint_missing, "(>= 1 TOS forwarding blocks required");
 
         /* Metric specific information, if any */
         while (offset < end_offset) {
@@ -3912,6 +3944,8 @@ proto_register_ospf(void)
 
     static ei_register_info ei[] = {
         { &ei_ospf_header_reserved, { "ospf.reserved.not_zero", PI_PROTOCOL, PI_WARN, "incorrect, should be 0", EXPFILL }},
+        { &ei_ospf_lsa_bad_length, { "ospf.lsa.invalid_length", PI_MALFORMED, PI_WARN, "Invalid length", EXPFILL }},
+        { &ei_ospf_lsa_constraint_missing, { "ospf.lsa.tos_missing", PI_MALFORMED, PI_WARN, "Blocks missing", EXPFILL }},
     };
 
     expert_module_t* expert_ospf;
