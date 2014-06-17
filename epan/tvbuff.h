@@ -342,6 +342,17 @@ WS_DLL_PUBLIC gdouble tvb_get_letohieee_double(tvbuff_t *tvb,
 #error "Unsupported byte order"
 #endif
 
+/* Fetch values from the TVB in dynamic byte order */
+#define __tvb_get_dyn(TVB, OFFSET, LITTLE, SUFFIX) ((LITTLE == ENC_LITTLE_ENDIAN) ? \
+        tvb_get_letoh ## SUFFIX ((TVB), (OFFSET)) : \
+        tvb_get_ntoh  ## SUFFIX ((TVB), (OFFSET)))
+#define tvb_get_16(TVB, OFFSET, LITTLE) __tvb_get_dyn(TVB, OFFSET, LITTLE, s)
+#define tvb_get_24(TVB, OFFSET, LITTLE) __tvb_get_dyn(TVB, OFFSET, LITTLE, 24)
+#define tvb_get_32(TVB, OFFSET, LITTLE) __tvb_get_dyn(TVB, OFFSET, LITTLE, l)
+#define tvb_get_40(TVB, OFFSET, LITTLE) __tvb_get_dyn(TVB, OFFSET, LITTLE, 40)
+#define tvb_get_48(TVB, OFFSET, LITTLE) __tvb_get_dyn(TVB, OFFSET, LITTLE, 48)
+#define tvb_get_56(TVB, OFFSET, LITTLE) __tvb_get_dyn(TVB, OFFSET, LITTLE, 56)
+#define tvb_get_64(TVB, OFFSET, LITTLE) __tvb_get_dyn(TVB, OFFSET, LITTLE, 64)
 
 /* Fetch a time value from an ASCII-style string in the tvb.
  *

@@ -1135,6 +1135,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-q931.c
 	dissectors/packet-q933.c
 	dissectors/packet-qllc.c
+	dissectors/packet-qnet6.c
 	dissectors/packet-quake.c
 	dissectors/packet-quake2.c
 	dissectors/packet-quake3.c

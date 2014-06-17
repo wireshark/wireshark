@@ -1048,6 +1048,7 @@ DISSECTOR_SRC = \
 	packet-q931.c		\
 	packet-q933.c		\
 	packet-qllc.c		\
+	packet-qnet6.c		\
 	packet-quake.c		\
 	packet-quake2.c		\
 	packet-quake3.c		\
