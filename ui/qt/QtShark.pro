@@ -156,7 +156,7 @@ win32 {
 }
 
 SOURCES_TAP = \
-    stats_tree_dialog.cpp
+    "$$PWD/stats_tree_dialog.cpp"
 
 tap_register.name = Generate wireshark-tap-register.c
 tap_register.input = SOURCES_TAP
