@@ -1970,8 +1970,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
   ti = proto_tree_add_item(tree, proto_ip, tvb, offset, hlen, ENC_NA);
   ip_tree = proto_item_add_subtree(ti, ett_ip);
 
-  proto_tree_add_uint(ip_tree, hf_ip_version, tvb, offset, 1,
-                        hi_nibble(iph->ip_v_hl));
+  proto_tree_add_item(ip_tree, hf_ip_version, tvb, offset, 1, ENC_NA);
 
   /* if IP is not referenced from any filters we don't need to worry about
      generating any tree items.  We must do this after we created the actual
@@ -1994,7 +1993,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
     return;
   }
 
-  proto_tree_add_uint_format_value(ip_tree, hf_ip_hdr_len, tvb, offset, 1, hlen,
+  proto_tree_add_uint_format_value(ip_tree, hf_ip_hdr_len, tvb, offset, 1, hlen/4,
                                "%u bytes", hlen);
 
   iph->ip_tos = tvb_get_guint8(tvb, offset + 1);
@@ -2526,11 +2525,11 @@ proto_register_ip(void)
   static hf_register_info hf[] = {
     { &hf_ip_version,
       { "Version", "ip.version", FT_UINT8, BASE_DEC,
-        NULL, 0x0, NULL, HFILL }},
+        NULL, 0xF0, NULL, HFILL }},
 
     { &hf_ip_hdr_len,
       { "Header Length", "ip.hdr_len", FT_UINT8, BASE_DEC,
-        NULL, 0x0, NULL, HFILL }},
+        NULL, 0x0F, NULL, HFILL }},
 
     { &hf_ip_dsfield,
       { "Differentiated Services Field", "ip.dsfield", FT_UINT8, BASE_DEC,
