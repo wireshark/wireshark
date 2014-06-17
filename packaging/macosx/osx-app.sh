@@ -209,15 +209,20 @@ resdir=`pwd`
 pkgexec="$bundle/Contents/MacOS"
 pkgres="$bundle/Contents/Resources"
 pkgbin="$pkgexec"
-if [ "$ui_toolkit" = "gtk" ] ; then
-	pkgbin="$pkgres/bin"
-fi
-# Should pkglib be Contents/Frameworks instead?
-#pkglib="$pkgres/lib"
 pkglib="$bundle/Contents/Frameworks"
 pkgqtplugin="$bundle/Contents/PlugIns"
 pkgplugin="$bundle/Contents/PlugIns/wireshark"
 pkgpython="$pkglib/wireshark/python"
+
+#
+# For Qt, the Wireshark binary is the main binary of the app bundle.
+# For GTK+, the Wireshark binary is wireshark-bin in
+# Contents/Resources/bin, so some of the above setting have to change.
+#
+if [ "$ui_toolkit" = "gtk" ] ; then
+	pkgbin="$pkgres/bin"
+	pkglib="$pkgres/lib"
+fi
 
 mkdir -p "$pkgexec"
 mkdir -p "$pkgbin"
