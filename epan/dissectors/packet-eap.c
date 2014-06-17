@@ -861,7 +861,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
           gint      tvb_len;
           gboolean  save_fragmented;
 
-          tvb_len = tvb_length_remaining(tvb, offset);
+          tvb_len = tvb_captured_length_remaining(tvb, offset);
           if (size < tvb_len)
             tvb_len = size;
 
@@ -1202,7 +1202,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
   } /* switch (eap_code) */
 
-  return tvb_length(tvb);
+  return tvb_captured_length(tvb);
 }
 
 void

@@ -582,7 +582,7 @@ dissect_opsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 	}
 
 	dissect_attributes(tvb, pinfo, opsi_tree, HEADER_LENGTH, MIN(((int)tvb_reported_length(tvb)-HEADER_LENGTH), (tvb_get_ntohs(tvb, PACKET_LENGTH_OFFSET)-HEADER_LENGTH)));
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 
@@ -592,7 +592,7 @@ dissect_opsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 	/* We should mimimally grab the header */
 	tcp_dissect_pdus(tvb, pinfo, tree, opsi_desegment, HEADER_LENGTH, get_opsi_pdu_len,
 		dissect_opsi_pdu, data);
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 

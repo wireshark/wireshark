@@ -638,7 +638,7 @@ dissect_pgsql_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
             dissect_pgsql_be_msg(type, length, tvb, n, ptree);
     }
 
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 /* This function is called once per TCP packet. It sets COL_PROTOCOL and
@@ -662,7 +662,7 @@ dissect_pgsql(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
     tcp_dissect_pdus(tvb, pinfo, tree, pgsql_desegment, 5,
                      pgsql_length, dissect_pgsql_msg, data);
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 void

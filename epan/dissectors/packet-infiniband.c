@@ -1527,7 +1527,7 @@ dissect_infiniband_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
     struct infinibandinfo info = { 0, };
     gint32 nextHeaderSequence = -1; /* defined by this dissector. #define which indicates the upcoming header sequence from OpCode */
     guint8 nxtHdr = 0;              /* Keyed off for header dissection order */
-    guint16 packetLength = 0;       /* Packet Length.  We track this as tvb_length - offset.   */
+    guint16 packetLength = 0;       /* Packet Length.  We track this as tvb_captured_length - offset.   */
                                     /*  It provides the parsing methods a known size            */
                                     /*   that must be available for that header.                */
     struct e_in6_addr SRCgid;       /* Structures to hold GIDs should we need them */
@@ -2362,7 +2362,7 @@ static void parse_PAYLOAD(proto_tree *parentTree,
     {
 
         /* Calculation for Payload:
-        * (tvb_length) Length of entire packet - (local_offset) Starting byte of Payload Data
+        * (tvb_captured_length) Length of entire packet - (local_offset) Starting byte of Payload Data
         * offset addition is more complex for the payload.
         * We need the total length of the packet, - length of previous headers, + offset where payload started.
         * We also need  to reserve 6 bytes for the CRCs which are not actually part of the payload.  */
@@ -2392,7 +2392,7 @@ static void parse_PAYLOAD(proto_tree *parentTree,
 
             /* Get the captured length and reported length of the data
                after the Ethernet type. */
-            captured_length = tvb_length_remaining(tvb, local_offset+4);
+            captured_length = tvb_captured_length_remaining(tvb, local_offset+4);
             reported_length = tvb_reported_length_remaining(tvb, local_offset+4);
 
             next_tvb = tvb_new_subset(tvb, local_offset+4, captured_length, reported_length);
@@ -2450,7 +2450,7 @@ static void parse_PAYLOAD(proto_tree *parentTree,
 
         }
 
-        captured_length = tvb_length_remaining(tvb, local_offset);
+        captured_length = tvb_captured_length_remaining(tvb, local_offset);
         reported_length = tvb_reported_length_remaining(tvb,
                                 local_offset);
 
@@ -2513,7 +2513,7 @@ static void parse_IPvSix(proto_tree *parentTree, tvbuff_t *tvb, gint *offset, pa
 
     /* (- 2) for VCRC which lives at the end of the packet   */
     ipv6_tvb = tvb_new_subset(tvb, *offset,
-                  tvb_length_remaining(tvb, *offset) - 2,
+                  tvb_captured_length_remaining(tvb, *offset) - 2,
                   tvb_reported_length_remaining(tvb, *offset) - 2);
     call_dissector(ipv6_handle, ipv6_tvb, pinfo, parentTree);
     *offset = tvb_reported_length(tvb) - 2;
@@ -2555,7 +2555,7 @@ static void parse_RWH(proto_tree *ah_tree, tvbuff_t *tvb, gint *offset, packet_i
 
     /* Get the captured length and reported length of the data
      * after the Ethernet type. */
-    captured_length = tvb_length_remaining(tvb, *offset);
+    captured_length = tvb_captured_length_remaining(tvb, *offset);
     reported_length = tvb_reported_length_remaining(tvb, *offset);
 
     /* Construct a tvbuff for the payload after the Ethernet type,
@@ -2599,7 +2599,7 @@ static gboolean parse_EoIB(proto_tree *tree, tvbuff_t *tvb, gint offset, packet_
         return FALSE;
     }
 
-    encap_tvb = tvb_new_subset(tvb, offset + 4, tvb_length_remaining(tvb, offset + 4), encap_size - 4);
+    encap_tvb = tvb_new_subset(tvb, offset + 4, tvb_captured_length_remaining(tvb, offset + 4), encap_size - 4);
 
     header_item = proto_tree_add_item(tree, hf_infiniband_EOIB, tvb, offset, 4, ENC_NA);
     header_subtree = proto_item_add_subtree(header_item, ett_eoib);

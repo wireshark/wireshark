@@ -818,7 +818,7 @@ dissect_ldap_AssertionValue(gboolean implicit_tag, tvbuff_t *tvb, int offset, as
 		offset=get_ber_identifier(tvb, offset, &ber_class, &pc, &tag);
 		offset=get_ber_length(tvb, offset, &len, &ind);
 	} else {
-		len=tvb_length_remaining(tvb,offset);
+		len=tvb_captured_length_remaining(tvb,offset);
 	}
 
 	if(len==0){
@@ -1151,7 +1151,7 @@ dissect_ldap_LDAPString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
      ldap_do_protocolop(actx->pinfo);
 
      if(parameter_tvb)
-        ldapstring = tvb_get_string_enc(wmem_packet_scope(), parameter_tvb, 0, tvb_length_remaining(parameter_tvb, 0), ENC_UTF_8|ENC_NA);
+        ldapstring = tvb_get_string_enc(wmem_packet_scope(), parameter_tvb, 0, tvb_captured_length_remaining(parameter_tvb, 0), ENC_UTF_8|ENC_NA);
 
      if(hf_index == hf_ldap_baseObject) {
   	/* this is search - put it on the scanline */
@@ -1287,7 +1287,7 @@ char *mechanism = NULL;
      * different type and/or mechanism.
      */
     if(!actx->pinfo->fd->flags.visited) {
-        mechanism = tvb_get_string_enc(NULL, parameter_tvb, 0, tvb_length_remaining(parameter_tvb,0), ENC_UTF_8|ENC_NA);
+        mechanism = tvb_get_string_enc(NULL, parameter_tvb, 0, tvb_captured_length_remaining(parameter_tvb,0), ENC_UTF_8|ENC_NA);
         ldap_info->first_auth_frame = 0;	/* not known until we see the bind reply */
         /*
          * If the mechanism in this request is an empty string (which is
@@ -1336,7 +1336,7 @@ gint32 tag;
 	   * All SPNEGO PDUs are of class CONSTRUCTED while
 	   * GSS PDUs are class APPLICATION
 	   */
-	  if (parameter_tvb && (tvb_length(parameter_tvb) > 0))
+	  if (parameter_tvb && (tvb_captured_length(parameter_tvb) > 0))
 	    call_dissector(spnego_handle, parameter_tvb, actx->pinfo, tree);
 	}
 	/*if ((ldap_info->auth_mech != NULL) && ((strcmp(ldap_info->auth_mech, "GSSAPI") == 0) || (ber_class==BER_CLASS_APP))) {*/
@@ -1344,7 +1344,7 @@ gint32 tag;
 	  /*
 	   * This is a raw GSS-API token.
 	   */
-	  if (parameter_tvb && (tvb_length(parameter_tvb) > 0)) {
+	  if (parameter_tvb && (tvb_captured_length(parameter_tvb) > 0)) {
 	    call_dissector(gssapi_handle, parameter_tvb, actx->pinfo, tree);
 	  }
 	}
@@ -1381,7 +1381,7 @@ dissect_ldap_T_ntlmsspNegotiate(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
        	ldap_do_protocolop(actx->pinfo);
 
 	call_dissector(ntlmssp_handle, tvb, actx->pinfo, tree);
-	offset+=tvb_length_remaining(tvb, offset);
+	offset+=tvb_captured_length_remaining(tvb, offset);
 
 
 
@@ -1397,7 +1397,7 @@ dissect_ldap_T_ntlmsspAuth(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
        	ldap_do_protocolop(actx->pinfo);
 
 	call_dissector(ntlmssp_handle, tvb, actx->pinfo, tree);
-	offset+=tvb_length_remaining(tvb, offset);
+	offset+=tvb_captured_length_remaining(tvb, offset);
 
 
 
@@ -1563,7 +1563,7 @@ dissect_ldap_T_bindResponse_matchedDN(gboolean implicit_tag _U_, tvbuff_t *tvb _
 	offset = dissect_ber_octet_string(FALSE, actx, tree, tvb, offset, hf_ldap_matchedDN, &new_tvb);
 
 	if(  new_tvb
-	&&  (tvb_length(new_tvb)>=7)
+	&&  (tvb_captured_length(new_tvb)>=7)
 	&&  (!tvb_memeql(new_tvb, 0, "NTLMSSP", 7))){
 
 		/* make sure the protocol op comes first */
@@ -1668,7 +1668,7 @@ ldap_conv_info_t *ldap_info;
 	 * which might not be wrapped in GSS-SPNEGO but be a raw
 	 * NTLMSSP blob
 	 */
-	if ( (tvb_length(parameter_tvb)>=7)
+	if ( (tvb_captured_length(parameter_tvb)>=7)
 	&&   (!tvb_memeql(parameter_tvb, 0, "NTLMSSP", 7))){
 	  call_dissector(ntlmssp_handle, parameter_tvb, actx->pinfo, tree);
 	  break;
@@ -1676,14 +1676,14 @@ ldap_conv_info_t *ldap_info;
         /*
          * This is a GSS-API token.
          */
-	if(parameter_tvb && (tvb_length(parameter_tvb) > 0))
+	if(parameter_tvb && (tvb_captured_length(parameter_tvb) > 0))
 	  call_dissector(spnego_handle, parameter_tvb, actx->pinfo, tree);
       } else if (ldap_info->auth_mech != NULL &&
           strcmp(ldap_info->auth_mech, "GSSAPI") == 0) {
         /*
          * This is a GSS-API token.
          */
-        if(parameter_tvb && (tvb_length(parameter_tvb) > 0))
+        if(parameter_tvb && (tvb_captured_length(parameter_tvb) > 0))
           call_dissector(gssapi_handle, parameter_tvb, actx->pinfo, tree);
 		}
 	break;
@@ -1857,7 +1857,7 @@ dissect_ldap_T_and(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 
 	and_filter_string=NULL;
 	if(tree){
-		it=proto_tree_add_text(tree, tvb, offset, tvb_length_remaining(tvb, offset), "and: ");
+		it=proto_tree_add_text(tree, tvb, offset, tvb_captured_length_remaining(tvb, offset), "and: ");
 		tr=proto_item_add_subtree(it, ett_ldap_T_and);
 		tree = tr;
 	}
@@ -1909,7 +1909,7 @@ dissect_ldap_T_or(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, 
 
 	or_filter_string=NULL;
 	if(tree){
-		it=proto_tree_add_text(tree, tvb, offset, tvb_length_remaining(tvb, offset), "or: ");
+		it=proto_tree_add_text(tree, tvb, offset, tvb_captured_length_remaining(tvb, offset), "or: ");
 		tr=proto_item_add_subtree(it, ett_ldap_T_or);
 		tree = tr;
 	}
@@ -2053,7 +2053,7 @@ dissect_ldap_SubstringFilter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 	substring_item_any=NULL;
 	substring_item_final=NULL;
 	if(tree){
-		it=proto_tree_add_text(tree, tvb, offset, tvb_length_remaining(tvb, offset), "substring: ");
+		it=proto_tree_add_text(tree, tvb, offset, tvb_captured_length_remaining(tvb, offset), "substring: ");
 		tr=proto_item_add_subtree(it, ett_ldap_SubstringFilter);
 		tree = tr;
 	}
@@ -2247,7 +2247,7 @@ dissect_ldap_Filter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 	}
 
 	if(tree){
-		it=proto_tree_add_text(tree, tvb, offset, tvb_length_remaining(tvb, offset), "Filter: ");
+		it=proto_tree_add_text(tree, tvb, offset, tvb_captured_length_remaining(tvb, offset), "Filter: ");
 		tr=proto_item_add_subtree(it, ett_ldap_Filter);
 		tree = tr;
 	}
@@ -2348,7 +2348,7 @@ dissect_ldap_AttributeValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
   /* first check if we have a custom attribute type configured */
   if ((hf_id = get_hf_for_header (attr_type)) != NULL)
-    proto_tree_add_item (tree, *hf_id, next_tvb, 0, tvb_length_remaining(next_tvb, 0), ENC_UTF_8|ENC_NA);
+    proto_tree_add_item (tree, *hf_id, next_tvb, 0, tvb_captured_length_remaining(next_tvb, 0), ENC_UTF_8|ENC_NA);
 
   /* if we have an attribute type that isn't binary see if there is a better dissector */
   else if(!attr_type || !next_tvb || !dissector_try_string(ldap_name_dissector_table, attr_type, next_tvb, actx->pinfo, tree, NULL)) {
@@ -2359,14 +2359,14 @@ dissect_ldap_AttributeValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
                                        NULL);
 
 
-    len = tvb_length_remaining(next_tvb, 0);
+    len = tvb_captured_length_remaining(next_tvb, 0);
 
     for(i = 0; i < len; i++)
       if(!g_ascii_isprint(tvb_get_guint8(next_tvb, i)))
         break;
 
     if(i == len) {
-      string = tvb_get_string_enc(wmem_packet_scope(), next_tvb, 0, tvb_length_remaining(next_tvb, 0), ENC_ASCII|ENC_NA);
+      string = tvb_get_string_enc(wmem_packet_scope(), next_tvb, 0, tvb_captured_length_remaining(next_tvb, 0), ENC_ASCII|ENC_NA);
       proto_item_set_text(actx->created_item, "AttributeValue: %s", string);
     }
   }
@@ -2870,7 +2870,7 @@ dissect_ldap_LDAPOID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 	if (!parameter_tvb)
 		return offset;
 
-	object_identifier_id = tvb_get_string_enc(wmem_packet_scope(), parameter_tvb, 0, tvb_length_remaining(parameter_tvb,0), ENC_UTF_8|ENC_NA);
+	object_identifier_id = tvb_get_string_enc(wmem_packet_scope(), parameter_tvb, 0, tvb_captured_length_remaining(parameter_tvb,0), ENC_UTF_8|ENC_NA);
 	name = oid_resolved_from_string(object_identifier_id);
 
 	if(name){
@@ -3428,7 +3428,7 @@ dissect_ldap_DirSyncFlags(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 		dissect_ber_identifier(actx->pinfo, tree, tvb, otheroffset, &ber_class, &pc, &tag);
 		otheroffset=dissect_ber_length(actx->pinfo, tree, tvb, offset, &len, NULL);
 	} else {
-		gint32 remaining=tvb_length_remaining(tvb, offset);
+		gint32 remaining=tvb_captured_length_remaining(tvb, offset);
 		len=remaining>0 ? remaining : 0;
 	}
 
@@ -3908,7 +3908,7 @@ one_more_pdu:
     /* If this was a sasl blob there might be another PDU following in the
      * same blob
      */
-    if(tvb_length_remaining(tvb, offset)>=6){
+    if(tvb_captured_length_remaining(tvb, offset)>=6){
         tvb = tvb_new_subset_remaining(tvb, offset);
 	offset = 0;
 
@@ -4115,7 +4115,7 @@ static void
 				* the token, from which we compute the offset in the tvbuff at
 				* which the plaintext data, i.e. the LDAP message, begins.
 				*/
-				tmp_length = tvb_length_remaining(sasl_tvb, 4);
+				tmp_length = tvb_captured_length_remaining(sasl_tvb, 4);
 				if ((guint)tmp_length > sasl_len)
 					tmp_length = sasl_len;
 				gssapi_tvb = tvb_new_subset(sasl_tvb, 4, tmp_length, sasl_len);
@@ -4367,7 +4367,7 @@ static void dissect_NetLogon_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 
 
   /* Get the length of the buffer */
-  len=tvb_length_remaining(tvb,offset);
+  len=tvb_captured_length_remaining(tvb,offset);
 
   /* check the len if it is to small return */
   if (len < 10) return;
@@ -4386,7 +4386,7 @@ static void dissect_NetLogon_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
   switch(itype){
 
 		case LOGON_SAM_LOGON_RESPONSE:
-			bc = tvb_length_remaining(tvb, offset);
+			bc = tvb_captured_length_remaining(tvb, offset);
 			/* logon server name */
 			fn = get_unicode_or_ascii_string(tvb,&offset,TRUE,&fn_len,FALSE,FALSE,&bc);
 			proto_tree_add_string(tree, hf_mscldap_nb_hostname, tvb,offset, fn_len, fn);
@@ -4566,7 +4566,7 @@ static int
 dissect_sasl_ldap_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	dissect_ldap_pdu(tvb, pinfo, tree, FALSE);
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 static guint
@@ -4588,7 +4588,7 @@ static int
 dissect_normal_ldap_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	dissect_ldap_pdu(tvb, pinfo, tree, FALSE);
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 static void
@@ -4602,7 +4602,7 @@ dissect_ldap_oid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
  *       proto_tree_add_oid() instead.
  */
 
-	oid=tvb_get_string_enc(wmem_packet_scope(), tvb, 0, tvb_length(tvb), ENC_UTF_8|ENC_NA);
+	oid=tvb_get_string_enc(wmem_packet_scope(), tvb, 0, tvb_captured_length(tvb), ENC_UTF_8|ENC_NA);
 	if(!oid){
 		return;
 	}
@@ -4610,9 +4610,9 @@ dissect_ldap_oid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	oidname=oid_resolved_from_string(oid);
 
 	if(oidname){
-		proto_tree_add_text(tree, tvb, 0, tvb_length(tvb), "OID: %s (%s)",oid,oidname);
+		proto_tree_add_text(tree, tvb, 0, tvb_captured_length(tvb), "OID: %s (%s)",oid,oidname);
 	} else {
-		proto_tree_add_text(tree, tvb, 0, tvb_length(tvb), "OID: %s",oid);
+		proto_tree_add_text(tree, tvb, 0, tvb_captured_length(tvb), "OID: %s",oid);
 	}
 }
 
@@ -4694,7 +4694,7 @@ struct access_mask_info ldap_access_mask_info = {
 static void
 dissect_ldap_nt_sec_desc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	dissect_nt_sec_desc(tvb, 0, pinfo, tree, NULL, TRUE, tvb_length(tvb), &ldap_access_mask_info);
+	dissect_nt_sec_desc(tvb, 0, pinfo, tree, NULL, TRUE, tvb_captured_length(tvb), &ldap_access_mask_info);
 }
 
 static void
@@ -4780,7 +4780,7 @@ dissect_ldap_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 	}
 
 	tcp_dissect_pdus(tvb, pinfo, tree, ldap_desegment, 4, get_sasl_ldap_pdu_len, dissect_sasl_ldap_pdu, data);
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 
 this_was_not_sasl:
 	/* check if it is a normal BER encoded LDAP packet
@@ -4860,16 +4860,16 @@ this_was_not_normal_ldap:
 	  dissector_add_uint("tcp.port", tcp_port, ldap_handle);
 
 	  /* we are done */
-	  return tvb_length(tvb);
+	  return tvb_captured_length(tvb);
 	}
 	/* Ok it might be a strange case of SASL still
 	 * It has been seen with Exchange setup to MS AD
 	 * when Exchange pretend that there is SASL but in fact data are still
 	 * in clear*/
-	if ((sasl_len + 4) == (guint32)tvb_length_remaining(tvb, 0))
+	if ((sasl_len + 4) == (guint32)tvb_captured_length_remaining(tvb, 0))
 		tcp_dissect_pdus(tvb, pinfo, tree, ldap_desegment, 4, get_sasl_ldap_pdu_len, dissect_sasl_ldap_pdu, data);
  end:
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 static void

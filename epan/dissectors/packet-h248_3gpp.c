@@ -167,7 +167,7 @@ static void dissect_3gcsd_plmnbc(proto_tree* tree, tvbuff_t* tvb, packet_info* p
 
 	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 	dissect_ber_octet_string(implicit_param ? *((gboolean*)implicit_param) : FALSE, &asn1_ctx, tree, tvb, 0, hfid, NULL);
-	de_bearer_cap(tvb, tree, pinfo, 4, tvb_length(tvb)-4, NULL, 0);
+	de_bearer_cap(tvb, tree, pinfo, 4, tvb_captured_length(tvb)-4, NULL, 0);
 }
 
 static const value_string h248_3GCSD_properties_vals[] = {
@@ -310,7 +310,7 @@ static void dissect_3GTFO_codec_mode(proto_tree* tree, tvbuff_t* tvb, packet_inf
 
 		if (sub_tvb) {
 			proto_tree* pt = proto_item_add_subtree(asn1_ctx.created_item, ett_h248_3GTFO_codec);
-			dissect_codec_mode(pt, sub_tvb, 0, tvb_length(tvb));
+			dissect_codec_mode(pt, sub_tvb, 0, tvb_captured_length(tvb));
 		}
 	} else {
 		proto_tree_add_item(tree,hfid,tvb,0,-1,ENC_NA);
@@ -334,7 +334,7 @@ static void dissect_3GTFO_codec_list(proto_tree* tree, tvbuff_t* tvb, packet_inf
 
 		if (sub_tvb) {
 			proto_tree* pt = proto_item_add_subtree(asn1_ctx.created_item,ett_h248_3GTFO_codec_list);
-			int len = tvb_length(sub_tvb);
+			int len = tvb_captured_length(sub_tvb);
 			int offset = 0;
 			do {
 				offset = dissect_codec_mode(pt, sub_tvb, offset, len);

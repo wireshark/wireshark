@@ -163,10 +163,10 @@ dissect_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 "Parameter length is shorter than 2 in response");
     }
 
-    if (parameter_length < tvb_length_remaining(tvb, offset)) {
+    if (parameter_length < tvb_captured_length_remaining(tvb, offset)) {
         expert_add_info_format(pinfo, pitem, &ei_bthcrp_control_parameter_length,
                 "Parameter length is shorter than payload length");
-    } else if (parameter_length > tvb_length_remaining(tvb, offset)) {
+    } else if (parameter_length > tvb_captured_length_remaining(tvb, offset)) {
         expert_add_info_format(pinfo, pitem, &ei_bthcrp_control_parameter_length,
                 "Parameter length is larger than payload length");
     }
@@ -177,9 +177,9 @@ dissect_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
 
     if (control_pdu_id >= 0x8000) {
-        if (tvb_length_remaining(tvb, offset)) {
+        if (tvb_captured_length_remaining(tvb, offset)) {
             proto_tree_add_item(tree, hf_bthcrp_data, tvb, offset, -1, ENC_NA);
-            offset += tvb_length_remaining(tvb, offset);
+            offset += tvb_captured_length_remaining(tvb, offset);
         }
     } else switch(control_pdu_id) {
         case 0x0001: /* CR_DataChannelCreditGrant */
@@ -249,9 +249,9 @@ dissect_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 guint8 *id;
 
                 proto_tree_add_item(tree, hf_bthcrp_control_1284_id, tvb, offset, -1, ENC_ASCII | ENC_NA);
-                id = tvb_get_string_enc(NULL, tvb, offset, tvb_length_remaining(tvb, offset), ENC_ASCII);
+                id = tvb_get_string_enc(NULL, tvb, offset, tvb_captured_length_remaining(tvb, offset), ENC_ASCII);
                 col_append_fstr(pinfo->cinfo, COL_INFO, " - 1284 ID: %s", id);
-                offset += tvb_length_remaining(tvb, offset);
+                offset += tvb_captured_length_remaining(tvb, offset);
             }
             break;
         case 0x0007: /* CR_SoftReset */
@@ -310,7 +310,7 @@ dissect_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
     next_tvb = tvb_new_subset_remaining(tvb, offset);
     call_dissector(data_handle, next_tvb, pinfo, tree);
 
-    offset += tvb_length_remaining(tvb, offset);
+    offset += tvb_captured_length_remaining(tvb, offset);
 
     return offset;
 }
@@ -338,9 +338,9 @@ dissect_notification(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (notification_pdu_id >= 0x8000) {
         proto_item_append_text(pitem, " (Vendor Specific)");
         col_append_str(pinfo->cinfo, COL_INFO, " (Vendor Specific)");
-        if (tvb_length_remaining(tvb, offset)) {
+        if (tvb_captured_length_remaining(tvb, offset)) {
             proto_tree_add_item(tree, hf_bthcrp_data, tvb, offset, -1, ENC_NA);
-            offset += tvb_length_remaining(tvb, offset);
+            offset += tvb_captured_length_remaining(tvb, offset);
         }
     } else if (notification_pdu_id != 0x001) {
         proto_item_append_text(pitem, " (Reserved)");
@@ -494,7 +494,7 @@ dissect_bthcrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         col_append_fstr(pinfo->cinfo, COL_INFO, "HCRP stream (CID: 0x%04X)", l2cap_data->cid);
     }
 
-    if (tvb_length_remaining(tvb, offset)) {
+    if (tvb_captured_length_remaining(tvb, offset)) {
         proto_item *pitem;
 
         pitem = proto_tree_add_item(main_tree, hf_bthcrp_data, tvb, offset, -1, ENC_NA);

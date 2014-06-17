@@ -358,7 +358,7 @@ dissect_sasp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
             "Invalid SASP Header Type [0x%04x]", hdr_type);
         /* XXX: The folowing should actually happen automatically ? */
         col_set_str(pinfo->cinfo, COL_INFO, "[Malformed: Invalid SASP Header Type]");
-        return tvb_length(tvb);
+        return tvb_captured_length(tvb);
     }
     offset += 2;
 
@@ -463,7 +463,7 @@ dissect_sasp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
                 "Unknown SASP Message Type: 0x%4x", msg_type);
             break;
     }
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 
@@ -472,7 +472,7 @@ dissect_sasp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     tcp_dissect_pdus(tvb, pinfo, tree, sasp_desegment, SASP_MIN_PACKET_LEN, get_sasp_pdu_len,
                         dissect_sasp_pdu, data);
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 

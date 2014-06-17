@@ -79,7 +79,7 @@ dissect_nb_rtpmux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
      */
 
     /* Check that there's enough data */
-    if (tvb_length(tvb) < 6)
+    if (tvb_captured_length(tvb) < 6)
         return 0;
 
     /* Make entries in Protocol column and Info column on summary display */
@@ -141,7 +141,7 @@ dissect_nb_rtpmux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 				/* We have an RTP payload. */
 				if (rtpdissector)
 				{
-					captured_length = tvb_length_remaining(tvb, offset + 5);
+					captured_length = tvb_captured_length_remaining(tvb, offset + 5);
 					if (captured_length > (gint)length)
 						captured_length = length;
 					next_tvb = tvb_new_subset(tvb, offset+5, captured_length,
@@ -160,7 +160,7 @@ dissect_nb_rtpmux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     }
 
     /* Return the amount of data this dissector was able to dissect */
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 

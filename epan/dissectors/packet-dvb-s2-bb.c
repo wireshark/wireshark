@@ -701,7 +701,7 @@ static gboolean test_dvb_s2_crc(tvbuff_t *tvb, guint offset) {
     guint8 input8;
 
     /* only check BB Header and return */
-    if (tvb_length(tvb) < (offset + DVB_S2_BB_HEADER_LEN))
+    if (tvb_captured_length(tvb) < (offset + DVB_S2_BB_HEADER_LEN))
         return FALSE;
 
     input8 = tvb_get_guint8(tvb, offset + DVB_S2_BB_OFFS_CRC);
@@ -821,7 +821,7 @@ static int dissect_dvb_s2_modeadapt(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     guint8      byte;
 
     /* Check that there's enough data */
-    if (tvb_length(tvb) < 1)
+    if (tvb_captured_length(tvb) < 1)
         return 0;
 
     /* Check if first byte is valid for this dissector */

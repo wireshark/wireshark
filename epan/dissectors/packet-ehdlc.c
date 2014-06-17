@@ -138,7 +138,7 @@ dissect_ehdlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			/* Use MIN(...,...) in the following to prevent a premature */
 			/* exception before we try to dissect whatever is available. */
 			ti = proto_tree_add_protocol_format(tree, proto_ehdlc,
-					tvb, offset, MIN(len, tvb_length_remaining(tvb,offset)),
+					tvb, offset, MIN(len, tvb_captured_length_remaining(tvb,offset)),
 					"Ericsson HDLC protocol, type: %s",
 					val_to_str(msg_type, ehdlc_protocol_vals,
 						   "unknown 0x%02x"));

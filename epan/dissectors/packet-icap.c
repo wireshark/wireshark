@@ -247,7 +247,7 @@ is_icap_header:
 		}
 	}
 
-	datalen = tvb_length_remaining(tvb, offset);
+	datalen = tvb_captured_length_remaining(tvb, offset);
 	if (datalen > 0) {
 		call_dissector(data_handle,
 		    tvb_new_subset_remaining(tvb, offset), pinfo, icap_tree);

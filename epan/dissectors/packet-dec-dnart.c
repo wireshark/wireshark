@@ -624,7 +624,7 @@ do_hello_test_msg(
     proto_tree_add_item(tree, hf_dec_rt_src_node, tvb,
         my_offset, 2, ENC_LITTLE_ENDIAN);
     my_offset += 2;
-    remainder_count = tvb_length_remaining(tvb, my_offset);
+    remainder_count = tvb_captured_length_remaining(tvb, my_offset);
     if (remainder_count != 0) {
         proto_tree_add_item(tree, hf_dec_rt_test_data, tvb,
             my_offset, remainder_count, ENC_NA);
@@ -651,7 +651,7 @@ do_routing_msg(
         my_offset, 2, ENC_LITTLE_ENDIAN);
     /* Skip the 1-byte reserved field */
     my_offset += 3;
-    remainder_count = tvb_length_remaining(tvb, my_offset);
+    remainder_count = tvb_captured_length_remaining(tvb, my_offset);
     do {
         /* if the remainder_count == 1, only the checksum remains */
         count = tvb_get_letohs(tvb, my_offset);
@@ -1034,7 +1034,7 @@ handle_nsp_msg(
                     (ack_num & 0x1000) ? "NAK" : "ACK",
                     ack_num & 0xfff);
 
-            if (tvb_length_remaining(tvb, my_offset) > 0) {
+            if (tvb_captured_length_remaining(tvb, my_offset) > 0) {
                 ack_oth = tvb_get_letohs(tvb, my_offset);
                 if (ack_oth & 0x8000) {
                     /* There is an ack_oth field */
@@ -1058,7 +1058,7 @@ handle_nsp_msg(
                 ack_num & 0xfff);
             my_offset += 2;
             /* There may be an optional ack_dat field */
-            if (tvb_length_remaining(tvb, my_offset) > 0) {
+            if (tvb_captured_length_remaining(tvb, my_offset) > 0) {
                 ack_dat = tvb_get_letohs(tvb, my_offset);
                 if (ack_dat & 0x8000) {
                     /* There is an ack_dat field */

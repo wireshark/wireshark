@@ -215,7 +215,7 @@ dissect_hci_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
         fragment_add_seq_check(&hci_usb_reassembly_table,
                                tvb, offset, pinfo, session_id, NULL,
-                               fragment_info->fragment_id, tvb_length_remaining(tvb, offset), (fragment_info->remaining_length == 0) ? FALSE : TRUE);
+                               fragment_info->fragment_id, tvb_captured_length_remaining(tvb, offset), (fragment_info->remaining_length == 0) ? FALSE : TRUE);
         if (fragment_info->remaining_length > 0)
             fragment_info->fragment_id += 1;
         else
@@ -262,7 +262,7 @@ dissect_hci_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         proto_tree_add_item(ttree, hf_bthci_usb_data, tvb, offset, -1, ENC_NA);
     }
 
-    offset += tvb_length_remaining(tvb, offset);
+    offset += tvb_captured_length_remaining(tvb, offset);
 
     pinfo->p2p_dir = p2p_dir_save;
 

@@ -275,7 +275,7 @@ dissect_diameter_3gpp_visited_nw_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto
 
     proto_item* item;
     int offset = 0, i;
-    int length = tvb_length(tvb);
+    int length = tvb_captured_length(tvb);
 
     for(i = 0; i < length; i++)
         if(!g_ascii_isprint(tvb_get_guint8(tvb, i)))
@@ -489,7 +489,7 @@ dissect_diameter_3gpp_path(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
     proto_item* item;
     proto_tree *sub_tree;
     int offset = 0, comma_offset;
-    int end_offset = tvb_length(tvb) - 1;
+    int end_offset = tvb_captured_length(tvb) - 1;
 
     item = proto_tree_add_text(tree, tvb, offset, -1,"Paths");
     sub_tree = proto_item_add_subtree(item,diameter_3gpp_path_ett);
@@ -505,7 +505,7 @@ dissect_diameter_3gpp_path(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
     }
 
 
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 /* AVP Code: 641 Contact
@@ -524,7 +524,7 @@ dissect_diameter_3gpp_contact(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
     item = proto_tree_add_item(tree, hf_diameter_3gpp_contact, tvb, offset, -1, ENC_ASCII|ENC_NA);
     PROTO_ITEM_SET_GENERATED(item);
 
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 /* AVP Code: 701 MSISDN */
@@ -535,7 +535,7 @@ dissect_diameter_3gpp_msisdn(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
     proto_tree *sub_tree;
     int offset = 0;
     const char     *digit_str;
-    int length = tvb_length(tvb);
+    int length = tvb_captured_length(tvb);
 
     item = proto_tree_add_item(tree, hf_diameter_3gpp_msisdn, tvb, offset, length, ENC_NA);
     sub_tree = proto_item_add_subtree(item,diameter_3gpp_msisdn_ett);
@@ -545,7 +545,7 @@ dissect_diameter_3gpp_msisdn(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
     digit_str = unpack_digits(tvb, 1);
     proto_tree_add_string(sub_tree, hf_diameter_address_digits, tvb, 1, -1, digit_str);
 
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 
 }
 
@@ -560,7 +560,7 @@ dissect_diameter_3gpp_msisdn(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 static int
 dissect_diameter_3gpp_user_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_) {
 
-    int length = tvb_length(tvb);
+    int length = tvb_captured_length(tvb);
 
     /* If there is less than 38 characters this is not XML
      * <?xml version="1.0" encoding="UTF-8"?>
@@ -584,7 +584,7 @@ dissect_diameter_3gpp_service_ind(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 
     proto_item* item;
     int offset = 0, i;
-    int length = tvb_length(tvb);
+    int length = tvb_captured_length(tvb);
 
     for(i = 0; i < length; i++)
         if(!g_ascii_isprint(tvb_get_guint8(tvb, i)))
@@ -660,7 +660,7 @@ dissect_diameter_3gpp_rai(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
     int offset = 0;
     guint length;
 
-    length = tvb_length(tvb);
+    length = tvb_captured_length(tvb);
 
     if(length==12){
         diam_sub_dis->avp_str = wmem_strdup_printf(wmem_packet_scope(), "MNC %s, MCC %s, LAC 0x%s, RAC 0x%s",
@@ -700,7 +700,7 @@ dissect_diameter_3gpp_mbms_required_qos(tvbuff_t *tvb, packet_info *pinfo, proto
      */
     proto_tree_add_item(tree, hf_diameter_3gpp_mbms_required_qos_prio, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
-    length = tvb_length(tvb) - 1;
+    length = tvb_captured_length(tvb) - 1;
     de_sm_qos(tvb, tree,  pinfo, offset,length, NULL, 0);
     return offset+length;
 

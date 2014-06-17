@@ -89,7 +89,7 @@ static gint ett_dcc_trace = -1;
 #define D_TEXT(label, endpad) { \
 	int next_offset,left; \
 	while (tvb_offset_exists(tvb, offset+endpad)) { \
-		left = tvb_length_remaining(tvb,offset) - endpad; \
+		left = tvb_captured_length_remaining(tvb,offset) - endpad; \
 		tvb_find_line_end(tvb, offset, left, &next_offset, \
 		    FALSE); \
 		proto_tree_add_text(dcc_optree, tvb, offset, \
@@ -215,7 +215,7 @@ dissect_dcc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 	}
 
 	/* get at least a full packet structure */
-	if ( tvb_length(tvb) < sizeof(DCC_HDR) ) {
+	if ( tvb_captured_length(tvb) < sizeof(DCC_HDR) ) {
 		/* Doesn't have enough bytes to contain packet header. */
 		return FALSE;
 	}
@@ -240,7 +240,7 @@ dissect_dcc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 		proto_tree_add_item(dcc_tree, hf_dcc_len, tvb,
 			offset, 2, ENC_BIG_ENDIAN);
 
-		if ( tvb_length(tvb) < tvb_get_ntohs(tvb, offset)) {
+		if ( tvb_captured_length(tvb) < tvb_get_ntohs(tvb, offset)) {
 			/* Doesn't have number of bytes that header claims. */
 			proto_tree_add_text(dcc_tree, tvb, offset, 2, "Error - packet is shorter than header claims!");
 		}
@@ -320,7 +320,7 @@ dissect_dcc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 			case DCC_OP_ADMN:
 				if ( is_response )
 				{
-					int left_local = tvb_length_remaining(tvb, offset) -
+					int left_local = tvb_captured_length_remaining(tvb, offset) -
 						(int)sizeof(DCC_SIGNATURE);
 					if ( left_local == sizeof(DCC_ADMN_RESP_CLIENTS) )
 					{

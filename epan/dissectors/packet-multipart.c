@@ -175,7 +175,7 @@ base64_decode(packet_info *pinfo, tvbuff_t *b64_tvb, char *name)
 {
     char *data;
     tvbuff_t *tvb;
-    data = tvb_get_string_enc(wmem_packet_scope(), b64_tvb, 0, tvb_length(b64_tvb), ENC_ASCII);
+    data = tvb_get_string_enc(wmem_packet_scope(), b64_tvb, 0, tvb_captured_length(b64_tvb), ENC_ASCII);
 
     tvb = base64_to_tvb(b64_tvb, data);
     add_new_data_source(pinfo, tvb, name);
@@ -446,13 +446,13 @@ find_first_boundary(tvbuff_t *tvb, gint start, const guint8 *boundary,
 {
     gint offset = start, next_offset, line_len, boundary_start;
 
-    while (tvb_length_remaining(tvb, offset + 2 + boundary_len) > 0) {
+    while (tvb_captured_length_remaining(tvb, offset + 2 + boundary_len) > 0) {
         boundary_start = offset;
         if (((tvb_strneql(tvb, offset, (const guint8 *)"--", 2) == 0)
                     && (tvb_strneql(tvb, offset + 2, boundary,  boundary_len) == 0)))
         {
             /* Boundary string; now check if last */
-            if ((tvb_length_remaining(tvb, offset + 2 + boundary_len + 2) >= 0)
+            if ((tvb_captured_length_remaining(tvb, offset + 2 + boundary_len + 2) >= 0)
                     && (tvb_strneql(tvb, offset + 2 + boundary_len,
                             (const guint8 *)"--", 2) == 0)) {
                 *last_boundary = TRUE;
@@ -492,7 +492,7 @@ find_next_boundary(tvbuff_t *tvb, gint start, const guint8 *boundary,
 {
     gint offset = start, next_offset, line_len, boundary_start;
 
-    while (tvb_length_remaining(tvb, offset + 2 + boundary_len) > 0) {
+    while (tvb_captured_length_remaining(tvb, offset + 2 + boundary_len) > 0) {
         line_len =  tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
         if (line_len == -1) {
             return -1;
@@ -502,7 +502,7 @@ find_next_boundary(tvbuff_t *tvb, gint start, const guint8 *boundary,
                     && (tvb_strneql(tvb, next_offset + 2, boundary, boundary_len) == 0)))
         {
             /* Boundary string; now check if last */
-            if ((tvb_length_remaining(tvb, next_offset + 2 + boundary_len + 2) >= 0)
+            if ((tvb_captured_length_remaining(tvb, next_offset + 2 + boundary_len + 2) >= 0)
                     && (tvb_strneql(tvb, next_offset + 2 + boundary_len,
                             (const guint8 *)"--", 2) == 0)) {
                 *last_boundary = TRUE;
@@ -604,7 +604,7 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb, const guint8 *boundary,
         /* Look for the end of the header (denoted by cr)
          * 3:d argument to imf_find_field_end() maxlen; must be last offset in the tvb.
          */
-        next_offset = imf_find_field_end(tvb, offset, tvb_length_remaining(tvb, offset)+offset, &last_field);
+        next_offset = imf_find_field_end(tvb, offset, tvb_captured_length_remaining(tvb, offset)+offset, &last_field);
         /* If cr not found, won't have advanced - get out to avoid infinite loop! */
         if (next_offset == offset) {
             break;
@@ -795,7 +795,7 @@ static int dissect_multipart(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                 "The multipart dissector could not find "
                 "the required boundary parameter.");
         call_dissector(data_handle, tvb, pinfo, tree);
-        return tvb_length(tvb);
+        return tvb_captured_length(tvb);
     }
     boundary = (guint8 *)m_info->boundary;
     boundary_len = m_info->boundary_length;
@@ -829,7 +829,7 @@ static int dissect_multipart(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         call_dissector(data_handle, tvb, pinfo, subtree);
         /* Clean up the dynamically allocated memory */
         cleanup_multipart_info(m_info);
-        return tvb_length(tvb);
+        return tvb_captured_length(tvb);
     }
     /*
      * Process the encapsulated bodies
@@ -840,18 +840,18 @@ static int dissect_multipart(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         if (header_start == -1) {
             /* Clean up the dynamically allocated memory */
             cleanup_multipart_info(m_info);
-            return tvb_length(tvb);
+            return tvb_captured_length(tvb);
         }
     }
     /*
      * Process the multipart trailer
      */
-    if (tvb_length_remaining(tvb, header_start) > 0) {
+    if (tvb_captured_length_remaining(tvb, header_start) > 0) {
        proto_tree_add_text(subtree, tvb, header_start, -1, "Trailer");
     }
     /* Clean up the dynamically allocated memory */
     cleanup_multipart_info(m_info);
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 /* Returns index of method in multipart_headers */

@@ -423,7 +423,7 @@ gdsdb_connect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_item *ti;
 	proto_tree *pref_tree;
 
-	if (tvb_length(tvb) < 16) {
+	if (tvb_captured_length(tvb) < 16) {
 		return 0;
 	}
 	col_append_str(pinfo->cinfo, COL_INFO, ": ");
@@ -481,7 +481,7 @@ gdsdb_connect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 	}
 
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 static int
@@ -489,7 +489,7 @@ gdsdb_accept(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	int offset;
 
-	if (tvb_length(tvb) < 16) {
+	if (tvb_captured_length(tvb) < 16) {
 		return 0;
 	}
 	if (tree) {
@@ -502,7 +502,7 @@ gdsdb_accept(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 		/*offset += 4;*/
 	}
 
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 static int
@@ -510,7 +510,7 @@ gdsdb_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	int offset;
 
-	if (tvb_length(tvb) < 20) {
+	if (tvb_captured_length(tvb) < 20) {
 		return 0;
 	}
 	if (tree) {
@@ -525,7 +525,7 @@ gdsdb_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 						offset, 8, ENC_BIG_ENDIAN);
  	}
 
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 static int
@@ -534,7 +534,7 @@ gdsdb_attach(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	int offset;
 	int length;
 
-	if (tvb_length(tvb) < 20) {
+	if (tvb_captured_length(tvb) < 20) {
 		return 0;
 	}
 
@@ -557,7 +557,7 @@ gdsdb_attach(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 					length, "%i data bytes", length);
 	}
 
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 static int
@@ -565,7 +565,7 @@ gdsdb_compile(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	int offset;
 
-	if (tvb_length(tvb) < 20) {
+	if (tvb_captured_length(tvb) < 20) {
 		return 0;
 	}
 	if (tree) {
@@ -577,7 +577,7 @@ gdsdb_compile(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 							offset, 4, ENC_ASCII|ENC_NA);
 	}
 
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 static int
@@ -585,7 +585,7 @@ gdsdb_receive(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	int offset;
 
-	if (tvb_length(tvb) < 20) {
+	if (tvb_captured_length(tvb) < 20) {
 		return 0;
 	}
 	if (tree) {
@@ -615,7 +615,7 @@ gdsdb_receive(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 		}
 	}
 
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 static int
@@ -623,7 +623,7 @@ gdsdb_send(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	int offset;
 
-	if (tvb_length(tvb) < 20) {
+	if (tvb_captured_length(tvb) < 20) {
 		return 0;
 	}
 	if (tree) {
@@ -644,7 +644,7 @@ gdsdb_send(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 							offset, 4, ENC_BIG_ENDIAN);
 	}
 
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 static int
@@ -653,7 +653,7 @@ gdsdb_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	int offset;
 	int length;
 
-	if (tvb_length(tvb) < 32) {
+	if (tvb_captured_length(tvb) < 32) {
 		return 0;
 	}
 	if (tree) {
@@ -669,10 +669,10 @@ gdsdb_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 		length = tvb_get_ntohl(tvb, offset);
 		offset += length + 4;
 		proto_tree_add_item(tree, hf_gdsdb_response_status, tvb,
-				offset, tvb_length(tvb) - offset, ENC_NA);
+				offset, tvb_captured_length(tvb) - offset, ENC_NA);
 	}
 
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 
 }
 
@@ -681,7 +681,7 @@ gdsdb_transact(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	int offset;
 
-	if (tvb_length(tvb) < 20) {
+	if (tvb_captured_length(tvb) < 20) {
 		return 0;
 	}
 	if (tree) {
@@ -693,7 +693,7 @@ gdsdb_transact(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 							offset, 4, ENC_BIG_ENDIAN);
 	}
 
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 static int
@@ -701,7 +701,7 @@ gdsdb_transact_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	int offset;
 
-	if (tvb_length(tvb) < 8) {
+	if (tvb_captured_length(tvb) < 8) {
 		return 0;
 	}
 	if (tree) {
@@ -710,7 +710,7 @@ gdsdb_transact_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 						tvb, offset, 4, ENC_BIG_ENDIAN);
 	}
 
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 static int
@@ -735,7 +735,7 @@ gdsdb_open_blob2(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 								8, ENC_BIG_ENDIAN);
 	}
 
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 static int
@@ -743,7 +743,7 @@ gdsdb_open_blob(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	int offset;
 
-	if (tvb_length(tvb) < 16) {
+	if (tvb_captured_length(tvb) < 16) {
 		return 0;
 	}
 	if (tree) {
@@ -755,7 +755,7 @@ gdsdb_open_blob(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 								8, ENC_BIG_ENDIAN);
 	}
 
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 static int
@@ -763,7 +763,7 @@ gdsdb_segment(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	/* int offset; */
 
-	if (tvb_length(tvb) < 16) {
+	if (tvb_captured_length(tvb) < 16) {
 		return 0;
 	}
 	if (tree) {
@@ -772,7 +772,7 @@ gdsdb_segment(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 /* hf_gdsdb_segment_segment */
 	}
 
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 static int
@@ -780,7 +780,7 @@ gdsdb_seek_blob(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	/* int offset; */
 
-	if (tvb_length(tvb) < 16) {
+	if (tvb_captured_length(tvb) < 16) {
 		return 0;
 	}
 	if (tree) {
@@ -788,7 +788,7 @@ gdsdb_seek_blob(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 /* hf_gdsdb_seekblob_mode */
 	}
 
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 static int
@@ -796,14 +796,14 @@ gdsdb_reconnect(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	/* int offset; */
 
-	if (tvb_length(tvb) < 12) {
+	if (tvb_captured_length(tvb) < 12) {
 		return 0;
 	}
 	if (tree) {
 /* hf_gdsdb_reconnect_database */
 	}
 
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 static int
@@ -813,7 +813,7 @@ gdsdb_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	int   length;
 	guint opcode;
 
-	if (tvb_length(tvb) < 20) {
+	if (tvb_captured_length(tvb) < 20) {
 		return 0;
 	}
 
@@ -837,7 +837,7 @@ gdsdb_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 							offset, 4, ENC_BIG_ENDIAN);
 	}
 
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 static int
@@ -845,7 +845,7 @@ gdsdb_service_start(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	/* int offset; */
 
-	if (tvb_length(tvb) < 16) {
+	if (tvb_captured_length(tvb) < 16) {
 		return 0;
 	}
 	if (tree) {
@@ -855,7 +855,7 @@ gdsdb_service_start(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 /* hf_gdsdb_info_buffer_length */
 	}
 
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 static int
@@ -863,14 +863,14 @@ gdsdb_release(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	/* int offset; */
 
-	if (tvb_length(tvb) < 8) {
+	if (tvb_captured_length(tvb) < 8) {
 		return 0;
 	}
 	if (tree) {
 /* hf_gdsdb_release_object */
 	}
 
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 #if 0
@@ -879,14 +879,14 @@ gdsdb_prepare2(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	/* int offset; */
 
-	if (tvb_length(tvb) < 12) {
+	if (tvb_captured_length(tvb) < 12) {
 		return 0;
 	}
 	if (tree) {
 /* hf_gdsdb_prepare2_transaction */
 	}
 
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 #endif
 
@@ -895,7 +895,7 @@ gdsdb_event(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	 /* int offset; */
 
-	if (tvb_length(tvb) < 24) {
+	if (tvb_captured_length(tvb) < 24) {
 		return 0;
 	}
 	if (tree) {
@@ -905,7 +905,7 @@ gdsdb_event(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 /* hf_gdsdb_event_arg */
 /* hf_gdsdb_event_rid */
 	}
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 static int
@@ -913,14 +913,14 @@ gdsdb_cancel_events(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	/* int offset; */
 
-	if (tvb_length(tvb) < 12) {
+	if (tvb_captured_length(tvb) < 12) {
 		return 0;
 	}
 	if (tree) {
 /* hf_gdsdb_event_database */
 	}
 
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 static int
@@ -928,7 +928,7 @@ gdsdb_ddl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	/* int offset; */
 
-	if (tvb_length(tvb) < 16) {
+	if (tvb_captured_length(tvb) < 16) {
 		return 0;
 	}
 	if (tree) {
@@ -937,7 +937,7 @@ gdsdb_ddl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 /* hf_gdsdb_ddl_blr */
 	}
 
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 static int
@@ -945,7 +945,7 @@ gdsdb_slice(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	/* int offset; */
 
-	if (tvb_length(tvb) < 24) {
+	if (tvb_captured_length(tvb) < 24) {
 		return 0;
 	}
 	if (tree) {
@@ -955,7 +955,7 @@ gdsdb_slice(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 /* hf_gdsdb_slice_parameters */
 	}
 
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 static int
@@ -963,14 +963,14 @@ gdsdb_slice_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	/* int offset; */
 
-	if (tvb_length(tvb) < 8) {
+	if (tvb_captured_length(tvb) < 8) {
 		return 0;
 	}
 	if (tree) {
 /* hf_gdsdb_sliceresponse_length */
 	}
 
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 static int
@@ -978,7 +978,7 @@ gdsdb_execute(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	/* int offset; */
 
-	if (tvb_length(tvb) < 12) {
+	if (tvb_captured_length(tvb) < 12) {
 		return 0;
 	}
 	if (tree) {
@@ -988,7 +988,7 @@ gdsdb_execute(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 /* hf_gdsdb_execute_messages */
 	}
 
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 static int
@@ -996,7 +996,7 @@ gdsdb_exec_immediate2(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	/* int offset; */
 
-	if (tvb_length(tvb) < 44) {
+	if (tvb_captured_length(tvb) < 44) {
 		return 0;
 	}
 	if (tree) {
@@ -1007,7 +1007,7 @@ gdsdb_exec_immediate2(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 /* hf_gdsdb_prepare2_outmsgnr */
 	}
 
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 static int
@@ -1016,7 +1016,7 @@ gdsdb_prepare(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	int offset;
 	int length;
 
-	if (tvb_length(tvb) < 32) {
+	if (tvb_captured_length(tvb) < 32) {
 		return 0;
 	}
 	col_append_str(pinfo->cinfo, COL_INFO, ": ");
@@ -1047,7 +1047,7 @@ gdsdb_prepare(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 							offset, 2, ENC_BIG_ENDIAN);
 	}
 
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 static int
@@ -1055,7 +1055,7 @@ gdsdb_fetch(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	/* int offset; */
 
-	if (tvb_length(tvb) < 16) {
+	if (tvb_captured_length(tvb) < 16) {
 		return 0;
 	}
 	if (tree) {
@@ -1064,7 +1064,7 @@ gdsdb_fetch(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 /* hf_gdsdb_fetch_messages */
 	}
 
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 static int
@@ -1072,7 +1072,7 @@ gdsdb_fetch_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	/* int offset; */
 
-	if (tvb_length(tvb) < 12) {
+	if (tvb_captured_length(tvb) < 12) {
 		return 0;
 	}
 	if (tree) {
@@ -1080,7 +1080,7 @@ gdsdb_fetch_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 /* hf_gdsdb_fetchresponse_messages */
 	}
 
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 static int
@@ -1088,7 +1088,7 @@ gdsdb_free_statement(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	/* int offset; */
 
-	if (tvb_length(tvb) < 12) {
+	if (tvb_captured_length(tvb) < 12) {
 		return 0;
 	}
 	if (tree) {
@@ -1096,7 +1096,7 @@ gdsdb_free_statement(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 /* hf_gdsdb_free_option */
 	}
 
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 static int
@@ -1104,7 +1104,7 @@ gdsdb_insert(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	/* int offset; */
 
-	if (tvb_length(tvb) < 16) {
+	if (tvb_captured_length(tvb) < 16) {
 		return 0;
 	}
 	if (tree) {
@@ -1113,7 +1113,7 @@ gdsdb_insert(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 /* hf_gdsdb_insert_messages */
 	}
 
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 static int
@@ -1121,7 +1121,7 @@ gdsdb_cursor(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	/* int offset; */
 
-	if (tvb_length(tvb) < 16) {
+	if (tvb_captured_length(tvb) < 16) {
 		return 0;
 	}
 	if (tree) {
@@ -1129,7 +1129,7 @@ gdsdb_cursor(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 /* hf_gdsdb_cursor_type */
 	}
 
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 static int
@@ -1137,14 +1137,14 @@ gdsdb_sql_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	/* int offset; */
 
-	if (tvb_length(tvb) < 8) {
+	if (tvb_captured_length(tvb) < 8) {
 		return 0;
 	}
 	if (tree) {
 /* hf_gdsdb_sqlresponse_messages */
 	}
 
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 static int (*gdsdb_handle_opcode[])(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) = {
@@ -1248,7 +1248,7 @@ dissect_gdsdb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 	gdsdb_tree = NULL; /* So the opcode functions can check on if(tree) */
 	nopi.cinfo = NULL;
 
-	if (tvb_length(tvb) < 4)
+	if (tvb_captured_length(tvb) < 4)
 		return 0;
 
 	opcode = tvb_get_ntohl(tvb, 0);

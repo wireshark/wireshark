@@ -963,11 +963,11 @@ dissect_enable_auto_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
         else if(buffer<=0x1a)
             proto_tree_add_item(info_tree, hf_v52_steady_signal, info_tvb, info_offset+3,1,ENC_BIG_ENDIAN);
 
-        if(tvb_length_remaining(info_tvb, info_offset+4)){
+        if(tvb_captured_length_remaining(info_tvb, info_offset+4)){
             proto_tree_add_item(info_tree, hf_v52_suppression_indicator, info_tvb, info_offset+4,1,ENC_BIG_ENDIAN);
             proto_tree_add_item(info_tree, hf_v52_pulse_duration, info_tvb, info_offset+4,1,ENC_BIG_ENDIAN);
         }
-        if(tvb_length_remaining(info_tvb, info_offset+5)){
+        if(tvb_captured_length_remaining(info_tvb, info_offset+5)){
             proto_tree_add_item(info_tree, hf_v52_ack_request_indicator, info_tvb, info_offset+5,1,ENC_BIG_ENDIAN);
             proto_tree_add_item(info_tree, hf_v52_number_of_pulses, info_tvb, info_offset+5,1,ENC_BIG_ENDIAN);
         }
@@ -1045,7 +1045,7 @@ dissect_cause(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
         proto_item_append_text(ti_info, " %s (0x%x)",val_to_str_const(info_element, info_element_values, "unknown info element"), info_element);
         proto_tree_add_item(info_tree, hf_v52_cause_type, info_tvb, info_offset+2, 1, ENC_BIG_ENDIAN);
 
-        if(tvb_length_remaining(info_tvb, info_offset+3))
+        if(tvb_captured_length_remaining(info_tvb, info_offset+3))
             proto_tree_add_uint_format(info_tree, hf_v52_msg_type, info_tvb, info_offset+3, 1, tvb_get_guint8(info_tvb, info_offset+3),
                                 "Diagnostic: %s",val_to_str_const(tvb_get_guint8(info_tvb, info_offset+3), msg_type_values,"unknown"));
 
@@ -1760,21 +1760,21 @@ dissect_multi_slot_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 
         col_append_fstr(pinfo->cinfo, COL_INFO, " | V5MSlink ID:%u",tvb_get_guint8(info_tvb, info_offset+2));
 
-        if(tvb_length_remaining(info_tvb, info_offset+3))
+        if(tvb_captured_length_remaining(info_tvb, info_offset+3))
             proto_tree_add_item(info_tree, hf_v52_v5_multi_slot_elements, info_tvb, info_offset+3, info_element_length, ENC_BIG_ENDIAN);
-        if(tvb_length_remaining(info_tvb, info_offset+4))
+        if(tvb_captured_length_remaining(info_tvb, info_offset+4))
             proto_tree_add_item(info_tree, hf_v52_v5_multi_slot_elements, info_tvb, info_offset+4, info_element_length, ENC_BIG_ENDIAN);
-        if(tvb_length_remaining(info_tvb, info_offset+5))
+        if(tvb_captured_length_remaining(info_tvb, info_offset+5))
             proto_tree_add_item(info_tree, hf_v52_v5_multi_slot_elements, info_tvb, info_offset+5, info_element_length, ENC_BIG_ENDIAN);
-        if(tvb_length_remaining(info_tvb, info_offset+6))
+        if(tvb_captured_length_remaining(info_tvb, info_offset+6))
             proto_tree_add_item(info_tree, hf_v52_v5_multi_slot_elements, info_tvb, info_offset+6, info_element_length, ENC_BIG_ENDIAN);
-        if(tvb_length_remaining(info_tvb, info_offset+7))
+        if(tvb_captured_length_remaining(info_tvb, info_offset+7))
             proto_tree_add_item(info_tree, hf_v52_v5_multi_slot_elements, info_tvb, info_offset+7, info_element_length, ENC_BIG_ENDIAN);
-        if(tvb_length_remaining(info_tvb, info_offset+8))
+        if(tvb_captured_length_remaining(info_tvb, info_offset+8))
             proto_tree_add_item(info_tree, hf_v52_v5_multi_slot_elements, info_tvb, info_offset+8, info_element_length, ENC_BIG_ENDIAN);
-        if(tvb_length_remaining(info_tvb, info_offset+9))
+        if(tvb_captured_length_remaining(info_tvb, info_offset+9))
             proto_tree_add_item(info_tree, hf_v52_v5_multi_slot_elements, info_tvb, info_offset+9, info_element_length, ENC_BIG_ENDIAN);
-        if(tvb_length_remaining(info_tvb, info_offset+10))
+        if(tvb_captured_length_remaining(info_tvb, info_offset+10))
             proto_tree_add_item(info_tree, hf_v52_v5_multi_slot_elements, info_tvb, info_offset+10, info_element_length, ENC_BIG_ENDIAN);
     }
 }
@@ -1843,9 +1843,9 @@ dissect_bcc_protocol_error_cause(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
         col_append_str(pinfo->cinfo, COL_INFO, " | ");
         col_append_str(pinfo->cinfo, COL_INFO, val_to_str_const(tvb_get_guint8(info_tvb, info_offset+2)-0x80, bcc_protocol_error_cause_type_values, "Unknown element"));
 
-        if(tvb_length_remaining(info_tvb, info_offset+3))
+        if(tvb_captured_length_remaining(info_tvb, info_offset+3))
             proto_tree_add_item(info_tree, hf_v52_diagnostic_message, info_tvb, info_offset+3, info_element_length, ENC_BIG_ENDIAN);
-        if(tvb_length_remaining(info_tvb, info_offset+4))
+        if(tvb_captured_length_remaining(info_tvb, info_offset+4))
             proto_tree_add_item(info_tree, hf_v52_diagnostic_information, info_tvb, info_offset+4, info_element_length, ENC_BIG_ENDIAN);
     }
 }
@@ -1936,7 +1936,7 @@ dissect_v52_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /*int    old_offset;*/
     int    singleoctet;
 
-    while(tvb_length_remaining(tvb,offset) > 0){
+    while(tvb_captured_length_remaining(tvb,offset) > 0){
         singleoctet = 0;
         /* old_offset = offset; */
         info_element = tvb_get_guint8(tvb, offset);

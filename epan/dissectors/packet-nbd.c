@@ -113,7 +113,7 @@ get_nbd_tcp_pdu_len(packet_info *pinfo, tvbuff_t *tvb, int offset)
 				pinfo->srcport, pinfo->destport, 0);
 		if (conversation == NULL) {
 			/* No, so just return the rest of the current packet */
-			return tvb_length(tvb);
+			return tvb_captured_length(tvb);
 		}
 		/*
 		 * Do we have a state structure for this conv
@@ -121,7 +121,7 @@ get_nbd_tcp_pdu_len(packet_info *pinfo, tvbuff_t *tvb, int offset)
 		nbd_info = (nbd_conv_info_t *)conversation_get_proto_data(conversation, proto_nbd);
 		if (!nbd_info) {
 			/* No, so just return the rest of the current packet */
-			return tvb_length(tvb);
+			return tvb_captured_length(tvb);
 		}
 		if(!pinfo->fd->flags.visited){
 			/*
@@ -135,7 +135,7 @@ get_nbd_tcp_pdu_len(packet_info *pinfo, tvbuff_t *tvb, int offset)
 			nbd_trans=(nbd_transaction_t *)wmem_tree_lookup32_array(nbd_info->unacked_pdus, hkey);
 			if(!nbd_trans){
 				/* No, so just return the rest of the current packet */
-				return tvb_length(tvb);
+				return tvb_captured_length(tvb);
 			}
 		} else {
 			/*
@@ -152,7 +152,7 @@ get_nbd_tcp_pdu_len(packet_info *pinfo, tvbuff_t *tvb, int offset)
 			nbd_trans=(nbd_transaction_t *)wmem_tree_lookup32_array(nbd_info->acked_pdus, hkey);
 			if(!nbd_trans){
 				/* No, so just return the rest of the current packet */
-				return tvb_length(tvb);
+				return tvb_captured_length(tvb);
 			}
 		}
 		/* If this is a read response we must add the datalen to
@@ -368,7 +368,7 @@ dissect_nbd_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 		break;
 	}
 
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 static gboolean
@@ -377,7 +377,7 @@ dissect_nbd_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 	guint32 magic, type;
 
 	/* We need at least this much to tell whether this is NBD or not */
-	if(tvb_length(tvb)<4){
+	if(tvb_captured_length(tvb)<4){
 		return FALSE;
 	}
 
@@ -386,7 +386,7 @@ dissect_nbd_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 	switch(magic){
 	case NBD_REQUEST_MAGIC:
 		/* requests are 28 bytes or more */
-		if(tvb_length(tvb)<28){
+		if(tvb_captured_length(tvb)<28){
 			return FALSE;
 		}
 		/* verify type */
@@ -404,7 +404,7 @@ dissect_nbd_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 		return TRUE;
 	case NBD_RESPONSE_MAGIC:
 		/* responses are 16 bytes or more */
-		if(tvb_length(tvb)<16){
+		if(tvb_captured_length(tvb)<16){
 			return FALSE;
 		}
 		tcp_dissect_pdus(tvb, pinfo, tree, nbd_desegment, 16, get_nbd_tcp_pdu_len, dissect_nbd_tcp_pdu, data);

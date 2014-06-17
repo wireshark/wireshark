@@ -217,10 +217,10 @@ static int dissect_generic_rateinfo(tvbuff_t *tvb, packet_info *pinfo _U_, proto
 static int dissect_aim_generic_clientready(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *gen_tree)
 {
 	int offset = 0;
-	proto_item *ti = proto_tree_add_text(gen_tree, tvb, 0, tvb_length(tvb), "Supported services");
+	proto_item *ti = proto_tree_add_text(gen_tree, tvb, 0, tvb_captured_length(tvb), "Supported services");
 	proto_tree *entry = proto_item_add_subtree(ti, ett_generic_clientready);
 
-	while(tvb_length_remaining(tvb, offset) > 0) {
+	while(tvb_captured_length_remaining(tvb, offset) > 0) {
 		guint16 famnum = tvb_get_ntohs(tvb, offset);
 		const aim_family *family = aim_get_family(famnum);
 
@@ -240,10 +240,10 @@ static int dissect_aim_generic_clientready(tvbuff_t *tvb, packet_info *pinfo _U_
 static int dissect_aim_generic_serverready(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *gen_tree)
 {
 	int offset = 0;
-	proto_item *ti = proto_tree_add_text(gen_tree, tvb, offset, tvb_length(tvb), "Supported services");
+	proto_item *ti = proto_tree_add_text(gen_tree, tvb, offset, tvb_captured_length(tvb), "Supported services");
 	proto_tree *entry = proto_item_add_subtree(ti, ett_generic_clientready);
 
-	while(tvb_length_remaining(tvb, offset) > 0) {
+	while(tvb_captured_length_remaining(tvb, offset) > 0) {
 		guint16 famnum = tvb_get_ntohs(tvb, offset);
 		const aim_family *family = aim_get_family(famnum);
 		proto_tree_add_text(entry, tvb, offset, 2, "%s (0x%x)", family?family->name:"Unknown Family", famnum);
@@ -271,10 +271,10 @@ static int dissect_aim_generic_redirect(tvbuff_t *tvb, packet_info *pinfo, proto
 static int dissect_aim_generic_capabilities(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *gen_tree)
 {
 	int offset = 0;
-	proto_item *ti = proto_tree_add_text(gen_tree, tvb, offset, tvb_length(tvb), "Requested services");
+	proto_item *ti = proto_tree_add_text(gen_tree, tvb, offset, tvb_captured_length(tvb), "Requested services");
 	proto_tree *entry = proto_item_add_subtree(ti, ett_generic_clientready);
 
-	while(tvb_length_remaining(tvb, offset) > 0) {
+	while(tvb_captured_length_remaining(tvb, offset) > 0) {
 		guint16 famnum = tvb_get_ntohs(tvb, offset);
 		const aim_family *family = aim_get_family(famnum);
 		proto_tree_add_text(entry, tvb, offset, 4, "%s (0x%x), Version: %d", family?family->name:"Unknown Family", famnum, tvb_get_ntohs(tvb, offset+2));
@@ -286,10 +286,10 @@ static int dissect_aim_generic_capabilities(tvbuff_t *tvb, packet_info *pinfo _U
 static int dissect_aim_generic_capack(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *gen_tree)
 {
 	int offset = 0;
-	proto_item *ti = proto_tree_add_text(gen_tree, tvb, offset, tvb_length(tvb), "Accepted requested services");
+	proto_item *ti = proto_tree_add_text(gen_tree, tvb, offset, tvb_captured_length(tvb), "Accepted requested services");
 	proto_tree *entry = proto_item_add_subtree(ti, ett_generic_clientready);
 
-	while(tvb_length_remaining(tvb, offset) > 0) {
+	while(tvb_captured_length_remaining(tvb, offset) > 0) {
 		guint16 famnum = tvb_get_ntohs(tvb, offset);
 		const aim_family *family = aim_get_family(famnum);
 		proto_tree_add_text(entry, tvb, offset, 4, "%s (0x%x), Version: %d", family?family->name:"Unknown Family", famnum, tvb_get_ntohs(tvb, offset+2));
@@ -310,7 +310,7 @@ static int dissect_aim_generic_motd(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 static int dissect_aim_generic_rateinfoack(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *gen_tree)
 {
 	int offset = 0;
-	while(tvb_length_remaining(tvb, offset) > 0) {
+	while(tvb_captured_length_remaining(tvb, offset) > 0) {
 		proto_tree_add_uint(gen_tree, hf_generic_rateinfoack_group, tvb, offset, 2, tvb_get_ntohs(tvb, offset));
 		offset+=2;
 	}
@@ -330,7 +330,7 @@ static int dissect_aim_generic_ratechange(tvbuff_t *tvb, packet_info *pinfo, pro
 static int dissect_aim_generic_clientpauseack(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *gen_tree)
 {
 	int offset = 0;
-	while(tvb_length_remaining(tvb, offset) > 0) {
+	while(tvb_captured_length_remaining(tvb, offset) > 0) {
 		guint16 famnum = tvb_get_ntohs(tvb, offset);
 		const aim_family *family = aim_get_family(famnum);
 		proto_tree_add_text(gen_tree, tvb, offset, 4, "Family: %s (0x%x)", family?family->name:"Unknown Family", famnum);
@@ -384,7 +384,7 @@ static int dissect_aim_generic_evil(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 {
 	int offset = 0;
 	proto_tree_add_item(gen_tree, hf_generic_evil_new_warn_level, tvb, offset, 2, ENC_BIG_ENDIAN);
-	while(tvb_length_remaining(tvb, offset) > 0) {
+	while(tvb_captured_length_remaining(tvb, offset) > 0) {
 		offset = dissect_aim_userinfo(tvb, pinfo, offset, gen_tree);
 	}
 	return offset;

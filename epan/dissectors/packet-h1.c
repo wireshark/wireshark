@@ -109,7 +109,7 @@ static gboolean dissect_h1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
   unsigned int position = 3;
   unsigned int offset=0;
 
-  if (tvb_length(tvb) < 2)
+  if (tvb_captured_length(tvb) < 2)
     {
       /* Not enough data captured to hold the "S5" header; don't try
          to interpret it as H1. */

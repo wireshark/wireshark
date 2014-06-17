@@ -85,12 +85,12 @@ static int dissect_macsec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     }
 
     /* Check for short length */
-    if (tvb_length(tvb) <= (sectag_length + icv_length)) {
+    if (tvb_captured_length(tvb) <= (sectag_length + icv_length)) {
         return 0;
     }
 
     data_offset = sectag_length;
-    data_length = tvb_length(tvb) - sectag_length - icv_length;
+    data_length = tvb_captured_length(tvb) - sectag_length - icv_length;
     icv_offset  = data_length + data_offset;
 
     next_tvb = tvb_new_subset_length(tvb, data_offset, data_length);
@@ -139,7 +139,7 @@ static int dissect_macsec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
                 icv_length, ENC_NA);
     }
 
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 void

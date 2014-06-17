@@ -51,7 +51,7 @@ static int dissect_aim_snac_signon_logon(tvbuff_t *tvb, packet_info *pinfo,
 					  proto_tree *tree)
 {
 	int offset = 0;
-	while (tvb_length_remaining(tvb, offset) > 0) {
+	while (tvb_captured_length_remaining(tvb, offset) > 0) {
 		offset = dissect_aim_tlv(tvb, pinfo, offset, tree, aim_client_tlvs);
 	}
 	return offset;
@@ -62,7 +62,7 @@ static int dissect_aim_snac_signon_logon_reply(tvbuff_t *tvb,
 					       proto_tree *tree)
 {
 	int offset = 0;
-	while (tvb_length_remaining(tvb, offset) > 0) {
+	while (tvb_captured_length_remaining(tvb, offset) > 0) {
 		offset = dissect_aim_tlv(tvb, pinfo, offset, tree, aim_client_tlvs);
 	}
 	return offset;

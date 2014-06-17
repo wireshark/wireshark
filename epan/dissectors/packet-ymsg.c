@@ -331,7 +331,7 @@ static int get_content_item_length(tvbuff_t *tvb, int offset)
 	int origoffset = offset;
 
 	/* Keep reading until the magic delimiter (or end of tvb) is found */
-	while (tvb_length_remaining(tvb, offset) >= 2) {
+	while (tvb_captured_length_remaining(tvb, offset) >= 2) {
 		if (tvb_get_ntohs(tvb, offset) == 0xc080) {
 			break;
 		}
@@ -469,14 +469,14 @@ dissect_ymsg_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 
 	col_set_fence(pinfo->cinfo, COL_INFO);
 
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 
 static gboolean
 dissect_ymsg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-	if (tvb_length(tvb) < 4) {
+	if (tvb_captured_length(tvb) < 4) {
 		return FALSE;
 	}
 	if (tvb_memeql(tvb, 0, "YMSG", 4) == -1) {

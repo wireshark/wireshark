@@ -57,7 +57,7 @@ dissect_udpencap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 
   /* 1 byte of 0xFF indicates NAT-keepalive */
-  if ((tvb_length(tvb) == 1) && (tvb_get_guint8(tvb, 0) == 0xff)) {
+  if ((tvb_captured_length(tvb) == 1) && (tvb_get_guint8(tvb, 0) == 0xff)) {
     col_set_str(pinfo->cinfo, COL_INFO, "NAT-keepalive");
     if (tree)
       proto_tree_add_text(udpencap_tree, tvb, 0, 1, "NAT-keepalive packet");

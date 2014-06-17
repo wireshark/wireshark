@@ -563,7 +563,7 @@ dissect_gsm_bsslap_ta_res(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, i
 	guint	curr_len;
 
 	curr_offset = offset;
-	curr_len = tvb_length_remaining(tvb,offset);
+	curr_len = tvb_captured_length_remaining(tvb,offset);
 
 	/* Cell Identity IE / 5.4 M TV 3 */
 	ELEM_MAND_TV(BSSLAP_PARAM_CELL_IDENTITY, GSM_A_PDU_TYPE_COMMON, DE_CELL_ID, "Serving Cell Identity");
@@ -592,7 +592,7 @@ dissect_gsm_bsslap_reject(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, i
 	guint	curr_len;
 
 	curr_offset = offset;
-	curr_len = tvb_length_remaining(tvb,offset);
+	curr_len = tvb_captured_length_remaining(tvb,offset);
 
 	/* Cause IE / 5.14 M TV 2 */
 	ELEM_MAND_TV(BSSLAP_PARAM_CAUSE, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_CAUSE,NULL);
@@ -609,7 +609,7 @@ dissect_gsm_bsslap_reset(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, in
 	guint	curr_len;
 
 	curr_offset = offset;
-	curr_len = tvb_length_remaining(tvb,offset);
+	curr_len = tvb_captured_length_remaining(tvb,offset);
 
 	/* Cell Identity IE / 5.4 M TV 3 */
 	ELEM_MAND_TV(BSSLAP_PARAM_CELL_IDENTITY, GSM_A_PDU_TYPE_COMMON, DE_CELL_ID, NULL);
@@ -657,7 +657,7 @@ dissect_gsm_bsslap_abort(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, in
 	guint	curr_len;
 
 	curr_offset = offset;
-	curr_len = tvb_length_remaining(tvb,offset);
+	curr_len = tvb_captured_length_remaining(tvb,offset);
 
 	/* Cause IE / 5.14 M TV 2 */
 	ELEM_MAND_TV(BSSLAP_PARAM_CAUSE, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_CAUSE,NULL);
@@ -673,7 +673,7 @@ dissect_gsm_bsslap_ta_layer3(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo
 	guint	curr_len;
 
 	curr_offset = offset;
-	curr_len = tvb_length_remaining(tvb,offset);
+	curr_len = tvb_captured_length_remaining(tvb,offset);
 
 	/* Timing Advance IE / 5.2 M TV 2 */
 	ELEM_MAND_TV(BSSLAP_PARAM_TIMING_ADVANCE, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_TA, NULL);
@@ -694,7 +694,7 @@ dissect_gsm_bsslap_ms_pos_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinf
 	guint	curr_len;
 
 	curr_offset = offset;
-	curr_len = tvb_length_remaining(tvb,offset);
+	curr_len = tvb_captured_length_remaining(tvb,offset);
 
 	/* RRLP flag IE / 5.15 M TV 2 */
 	ELEM_MAND_TV(BSSLAP_PARAM_RRLP_FLAG, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_RRLP_FLG,"flag");
@@ -711,7 +711,7 @@ dissect_gsm_bsslap_ms_pos_res(tvbuff_t *tvb, proto_tree *tree, packet_info *pinf
 	guint	curr_len;
 
 	curr_offset = offset;
-	curr_len = tvb_length_remaining(tvb,offset);
+	curr_len = tvb_captured_length_remaining(tvb,offset);
 
 	/* flag RRLP flag IE / 5.15 M TV 2  */
 	ELEM_MAND_TV(BSSLAP_PARAM_RRLP_FLAG, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_RRLP_FLG,"flag");
@@ -736,7 +736,7 @@ dissect_gsm_bsslap_u_tdoa_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinf
 	guint	curr_len;
 
 	curr_offset = offset;
-	curr_len = tvb_length_remaining(tvb,offset);
+	curr_len = tvb_captured_length_remaining(tvb,offset);
 
 	/* Delta Timer IE 5.22 O (note 1) TV 2 */
 	ELEM_OPT_TV(BSSLAP_PARAM_DELTA_TIMER, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_DELTA_TIME, NULL);
@@ -754,7 +754,7 @@ dissect_gsm_bsslap_u_tdoa_res(tvbuff_t *tvb, proto_tree *tree, packet_info *pinf
 	guint	curr_len;
 
 	curr_offset = offset;
-	curr_len = tvb_length_remaining(tvb,offset);
+	curr_len = tvb_captured_length_remaining(tvb,offset);
 
 	/* Channel Description IE 5.8 M TV 4 */
 	ELEM_MAND_TV(BSSLAP_PARAM_CHANNEL_DESCRIPTION,GSM_A_PDU_TYPE_RR, DE_RR_CH_DSC, NULL);

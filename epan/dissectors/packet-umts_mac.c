@@ -463,7 +463,7 @@ static void dissect_mac_fdd_fach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
             PROTO_ITEM_SET_GENERATED(channel_type);
 
             /*We need to skip the first two bits (the TCTF bits), and since there is no MAC header, send rest to RRC*/
-            next_tvb= tvb_new_octet_aligned(tvb, 2, (tvb_length(tvb)*8)-2);
+            next_tvb= tvb_new_octet_aligned(tvb, 2, (tvb_captured_length(tvb)*8)-2);
             add_new_data_source(pinfo, next_tvb, "Octet-Aligned BCCH Data");
 
             /* In this case skip RLC and call RRC immediately subdissector */

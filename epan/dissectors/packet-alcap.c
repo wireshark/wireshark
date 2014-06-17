@@ -1349,7 +1349,7 @@ extern void alcap_tree_from_bearer_key(proto_tree* tree, tvbuff_t* tvb, packet_i
 static void dissect_alcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     proto_tree *alcap_tree = NULL;
     alcap_message_info_t* msg_info = wmem_new0(wmem_packet_scope(), alcap_message_info_t);
-    int len = tvb_length(tvb);
+    int len = tvb_captured_length(tvb);
     int offset;
     proto_item* pi;
     proto_tree* compat_tree;

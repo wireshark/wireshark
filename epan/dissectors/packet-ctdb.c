@@ -982,7 +982,7 @@ dissect_ctdb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *d
 	int endianess;
 
 	/* does this look like CTDB? */
-	if(tvb_length_remaining(tvb, offset)<8){
+	if(tvb_captured_length_remaining(tvb, offset)<8){
 		return FALSE;
 	}
 	switch(tvb_get_letohl(tvb, offset+4)){

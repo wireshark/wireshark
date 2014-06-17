@@ -42,8 +42,8 @@ static int bacapp_tap = -1;
 /* formerly bacapp.h  contains definitions and forward declarations */
 
 #ifndef FAULT
-#define FAULT           proto_tree_add_text(subtree, tvb, offset, tvb_length(tvb) - offset, "something is going wrong here !!"); \
-    offset = tvb_length(tvb);
+#define FAULT           proto_tree_add_text(subtree, tvb, offset, tvb_captured_length(tvb) - offset, "something is going wrong here !!"); \
+    offset = tvb_captured_length(tvb);
 #endif
 
 /* BACnet PDU Types */
@@ -5292,10 +5292,10 @@ fTagHeaderTree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                 tvb, lvt_offset, lvt_len, *lvt);
     } /* if (tree) */
 
-    if (*lvt > tvb_length(tvb)) {
+    if (*lvt > tvb_captured_length(tvb)) {
         expert_add_info_format(pinfo, ti, &ei_bacapp_bad_length,
                                "LVT length too long: %d > %d", *lvt,
-                               tvb_length(tvb));
+                               tvb_captured_length(tvb));
         *lvt = 1;
     }
 
@@ -6975,14 +6975,14 @@ fPropertyValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset
         offset += fTagHeaderTree(tvb, pinfo, tree, offset,
                                  &tag_no, &tag_info, &lvt);
         offset  = fAbstractSyntaxNType(tvb, pinfo, tree, offset);
-        if (tvb_length_remaining(tvb, offset) > 0) {
+        if (tvb_captured_length_remaining(tvb, offset) > 0) {
             offset += fTagHeaderTree(tvb, pinfo, tree, offset,
                                      &tag_no, &tag_info, &lvt);
         }
     } else {
-        proto_tree_add_text(tree, tvb, offset, tvb_length(tvb) - offset,
+        proto_tree_add_text(tree, tvb, offset, tvb_captured_length(tvb) - offset,
                             "expected Opening Tag!");
-        offset = tvb_length(tvb);
+        offset = tvb_captured_length(tvb);
     }
 
     return offset;
@@ -7344,7 +7344,7 @@ fConfirmedPrivateTransferRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     if (dissector_try_uint(bacapp_dissector_table,
         vendor_identifier, next_tvb, pinfo, tree)) {
         /* we parsed it so skip over length and we are done */
-        offset += tvb_length(next_tvb);
+        offset += tvb_captured_length(next_tvb);
         return offset;
     }
 

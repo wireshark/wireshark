@@ -621,7 +621,7 @@ read_struct(unsigned int *offset, tvbuff_t *tvb, proto_tree *etch_tree,
   int         i;
 
   ti = proto_tree_add_item(etch_tree, hf_etch_struct, tvb, *offset,
-                           tvb_length(tvb) - *offset, ENC_NA);
+                           tvb_captured_length(tvb) - *offset, ENC_NA);
   new_tree = proto_item_add_subtree(ti, ett_etch_struct);
 
   if (add_type_field) {
@@ -758,7 +758,7 @@ dissect_etch_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     read_struct(&offset, tvb, etch_tree, 0);
   }
 
-  return tvb_length(tvb);
+  return tvb_captured_length(tvb);
 }
 
 /*
@@ -778,7 +778,7 @@ get_etch_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 static int
 dissect_etch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-  if (tvb_length(tvb) < 4) {
+  if (tvb_captured_length(tvb) < 4) {
     /* Too small for an etch packet. */
     return 0;
   }

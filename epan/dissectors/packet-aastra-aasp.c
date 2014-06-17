@@ -157,17 +157,17 @@ dissect_a_binary_command(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
     {
     default:
         {
-            if(tvb_length(tvb) > 1)
+            if(tvb_captured_length(tvb) > 1)
                 proto_tree_add_item(subtree, hf_a_data, tvb, 1, -1, ENC_NA);
             break;
         }
     case CONTEXT_INFO:
         {
-            for(i = 1; i<tvb_length(tvb); )
+            for(i = 1; i<tvb_captured_length(tvb); )
             {
                 switch(tvb_get_guint8(tvb, i))
                 {
-                default: i = tvb_length(tvb); continue;
+                default: i = tvb_captured_length(tvb); continue;
 
                 case 1:
                 case 3:
@@ -209,7 +209,7 @@ dissect_a_binary_command(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
         }
     case SET_TEXT:
         {
-            if(tvb_length(tvb) > 3)
+            if(tvb_captured_length(tvb) > 3)
             {
                 proto_tree_add_item(subtree, hf_a_data, tvb, 1, 3, ENC_NA);
                 proto_tree_add_item(subtree, hf_a_length, tvb, 4, 1, ENC_NA);
@@ -231,7 +231,7 @@ dissect_a_binary_command(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
         {
             proto_tree *infotree;
 
-            for(i=1; i<tvb_length(tvb); )
+            for(i=1; i<tvb_captured_length(tvb); )
             {
                 switch(tvb_get_guint8(tvb, i))
                 {
@@ -347,7 +347,7 @@ dissect_a_binary_command(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
         }
     case DO_COMMAND:
         {
-            if(tvb_length(tvb) > 1)
+            if(tvb_captured_length(tvb) > 1)
             {
                 proto_tree_add_item(subtree, hf_a_line, tvb, 1, 1, ENC_NA);
                 proto_tree_add_item(subtree, hf_a_length, tvb, 2, 1, ENC_NA);
@@ -387,7 +387,7 @@ dissect_aasp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     proto_item *ti; proto_tree *aasp_tree; guint n;
 
     /* Check that there's enough data */
-    n = tvb_length(tvb);
+    n = tvb_captured_length(tvb);
     if(n < 3) return 0;
 
     col_clear(pinfo->cinfo, COL_INFO);

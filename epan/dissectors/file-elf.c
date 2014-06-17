@@ -1155,7 +1155,7 @@ dissect_elf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     guint64          strtab_offset = 0;
     guint64          dynstr_offset = 0;
 
-    if (tvb_length(tvb) < 52)
+    if (tvb_captured_length(tvb) < 52)
         return 0;
 
     if (tvb_memeql(tvb, 0, magic, sizeof(magic)) != 0)
@@ -1703,8 +1703,8 @@ dissect_elf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
         }
     }
 
-    if (segment_info[area_counter - 1].offset + segment_info[area_counter - 1].size < tvb_length(tvb)) {
-            len = tvb_length(tvb) - (guint) (segment_info[area_counter - 1].offset - segment_info[area_counter - 1].size);
+    if (segment_info[area_counter - 1].offset + segment_info[area_counter - 1].size < tvb_captured_length(tvb)) {
+            len = tvb_captured_length(tvb) - (guint) (segment_info[area_counter - 1].offset - segment_info[area_counter - 1].size);
 
             proto_tree_add_text(blackhole_tree, tvb,
                     value_guard(segment_info[area_counter - 1].offset +
@@ -1713,15 +1713,15 @@ dissect_elf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                     segment_info[area_counter - 1].name, len);
     }
 
-    proto_tree_add_text(generated_tree, tvb, 0, 0, "File size: %i", tvb_length(tvb));
+    proto_tree_add_text(generated_tree, tvb, 0, 0, "File size: %i", tvb_captured_length(tvb));
     proto_tree_add_text(generated_tree, tvb, 0, 0, "Header size + all segment size: %i", (int) file_size);
-    proto_tree_add_text(generated_tree, tvb, 0, 0, "Total blackholes size: %i", tvb_length(tvb) - (int) file_size);
+    proto_tree_add_text(generated_tree, tvb, 0, 0, "Total blackholes size: %i", tvb_captured_length(tvb) - (int) file_size);
 
     col_clear(pinfo->cinfo, COL_INFO);
     col_add_str(pinfo->cinfo, COL_INFO, "(ELF)");
 
     /* We jumping around offsets, so treat as bytes as read */
-    offset = tvb_length(tvb);
+    offset = tvb_captured_length(tvb);
 
     return offset;
 }

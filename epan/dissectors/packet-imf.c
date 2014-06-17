@@ -702,7 +702,7 @@ dissect_imf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     tree = proto_item_add_subtree(item, ett_imf);
   }
 
-  max_length = tvb_length(tvb);
+  max_length = tvb_captured_length(tvb);
   /* first go through the tvb until we find a blank line and extract the content type if
      we find one */
 

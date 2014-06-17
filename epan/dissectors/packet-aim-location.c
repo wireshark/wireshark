@@ -104,7 +104,7 @@ static int dissect_aim_location_setuserinfo(tvbuff_t *tvb, packet_info *pinfo, p
 static int dissect_aim_location_watcher_notification(tvbuff_t *tvb, packet_info *pinfo, proto_tree *loc_tree)
 {
 	int offset = 0;
-	while (tvb_length_remaining(tvb, offset) > 0) {
+	while (tvb_captured_length_remaining(tvb, offset) > 0) {
 		offset = dissect_aim_buddyname(tvb, pinfo, offset, loc_tree);
 	}
 	return offset;

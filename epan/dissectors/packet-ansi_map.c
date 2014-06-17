@@ -1431,7 +1431,7 @@ dissect_ansi_map_min_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 
     subtree = proto_item_add_subtree(actx->created_item, ett_mintype);
 
-    digit_str = tvb_bcd_dig_to_wmem_packet_str(tvb, offset, tvb_length_remaining(tvb,offset), NULL, FALSE);
+    digit_str = tvb_bcd_dig_to_wmem_packet_str(tvb, offset, tvb_captured_length_remaining(tvb,offset), NULL, FALSE);
     proto_tree_add_string(subtree, hf_ansi_map_bcd_digits, tvb, offset, -1, digit_str);
     proto_item_append_text(actx->created_item, " - %s", digit_str);
 }
@@ -1476,7 +1476,7 @@ dissect_ansi_map_digits_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
             if(octet_len == 0)
                 return;
             offset++;
-            digit_str = tvb_bcd_dig_to_wmem_packet_str(tvb, offset, tvb_length_remaining(tvb,offset), &Dgt_tbcd, FALSE);
+            digit_str = tvb_bcd_dig_to_wmem_packet_str(tvb, offset, tvb_captured_length_remaining(tvb,offset), &Dgt_tbcd, FALSE);
             proto_tree_add_string(subtree, hf_ansi_map_bcd_digits, tvb, offset, -1, digit_str);
             proto_item_append_text(actx->created_item, " - %s", digit_str);
             break;
@@ -1488,7 +1488,7 @@ dissect_ansi_map_digits_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
                 return;
             offset++;
             proto_tree_add_item(subtree, hf_ansi_map_ia5_digits, tvb, offset, -1, ENC_ASCII|ENC_NA);
-            proto_item_append_text(actx->created_item, " - %s", tvb_get_string_enc(wmem_packet_scope(),tvb,offset,tvb_length_remaining(tvb,offset),ENC_ASCII|ENC_NA));
+            proto_item_append_text(actx->created_item, " - %s", tvb_get_string_enc(wmem_packet_scope(),tvb,offset,tvb_captured_length_remaining(tvb,offset),ENC_ASCII|ENC_NA));
             break;
         case 3:
             /* Octet string */
@@ -1514,14 +1514,14 @@ dissect_ansi_map_digits_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
         switch ((octet&0xf)){
         case 1:
             /* BCD Coding */
-            digit_str = tvb_bcd_dig_to_wmem_packet_str(tvb, offset, tvb_length_remaining(tvb,offset), &Dgt_tbcd, FALSE);
+            digit_str = tvb_bcd_dig_to_wmem_packet_str(tvb, offset, tvb_captured_length_remaining(tvb,offset), &Dgt_tbcd, FALSE);
             proto_tree_add_string(subtree, hf_ansi_map_bcd_digits, tvb, offset, -1, digit_str);
             proto_item_append_text(actx->created_item, " - %s", digit_str);
             break;
         case 2:
             /* IA5 Coding */
             proto_tree_add_item(subtree, hf_ansi_map_ia5_digits, tvb, offset, -1, ENC_ASCII|ENC_NA);
-            proto_item_append_text(actx->created_item, " - %s", tvb_get_string_enc(wmem_packet_scope(),tvb,offset,tvb_length_remaining(tvb,offset),ENC_ASCII|ENC_NA));
+            proto_item_append_text(actx->created_item, " - %s", tvb_get_string_enc(wmem_packet_scope(),tvb,offset,tvb_captured_length_remaining(tvb,offset),ENC_ASCII|ENC_NA));
             break;
         case 3:
             /* Octet string */
@@ -1951,7 +1951,7 @@ dissect_ansi_map_callingfeaturesindicator(tvbuff_t *tvb, packet_info *pinfo _U_,
 
     proto_tree *subtree;
 
-    length = tvb_length_remaining(tvb,offset);
+    length = tvb_captured_length_remaining(tvb,offset);
 
     subtree = proto_item_add_subtree(actx->created_item, ett_mscid);
 
@@ -2108,7 +2108,7 @@ dissect_ansi_map_cdmacallmode(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
 
     proto_tree *subtree;
 
-    length = tvb_length_remaining(tvb,offset);
+    length = tvb_captured_length_remaining(tvb,offset);
 
 
     subtree = proto_item_add_subtree(actx->created_item, ett_mscid);
@@ -2162,7 +2162,7 @@ dissect_ansi_map_cdmachanneldata(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 
     proto_tree *subtree;
 
-    length = tvb_length_remaining(tvb,offset);
+    length = tvb_captured_length_remaining(tvb,offset);
 
 
     subtree = proto_item_add_subtree(actx->created_item, ett_cdmachanneldata);
@@ -6019,7 +6019,7 @@ dissect_ansi_map_CDMA2000HandoffInvokeIOSData(gboolean implicit_tag _U_, tvbuff_
 	if (parameter_tvb){
 		subtree = proto_item_add_subtree(actx->created_item, ett_CDMA2000HandoffInvokeIOSData);
 		dissect_cdma2000_a1_elements(parameter_tvb, actx->pinfo, subtree,
-			0, tvb_length_remaining(parameter_tvb,0));
+			0, tvb_captured_length_remaining(parameter_tvb,0));
 	}
 
 
@@ -6628,7 +6628,7 @@ dissect_ansi_map_CDMA2000HandoffResponseIOSData(gboolean implicit_tag _U_, tvbuf
 	if (parameter_tvb){
 		subtree = proto_item_add_subtree(actx->created_item, ett_CDMA2000HandoffResponseIOSData);
 		dissect_cdma2000_a1_elements(parameter_tvb, actx->pinfo, subtree,
-			0, tvb_length_remaining(parameter_tvb,0));
+			0, tvb_captured_length_remaining(parameter_tvb,0));
 	}
 
 
@@ -10633,7 +10633,7 @@ dissect_ansi_map_SMS_BearerData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
 	if (SMS_BearerData_tvb){
 		/* A zero length OCTET STRING will return a zero length tvb */
-		length = tvb_length_remaining(SMS_BearerData_tvb,0);
+		length = tvb_captured_length_remaining(SMS_BearerData_tvb,0);
 		if (length <=0){
 			proto_item_append_text(actx->created_item," length %u",length);
 			SMS_BearerData_tvb = NULL;
@@ -10679,7 +10679,7 @@ dissect_ansi_map_SMS_TeleserviceIdentifier(gboolean implicit_tag _U_, tvbuff_t *
 
 	if (parameter_tvb){
 		/* A zero length OCTET STRING will return a zero length tvb */
-		length = tvb_length_remaining(parameter_tvb,0);
+		length = tvb_captured_length_remaining(parameter_tvb,0);
 		if (length <=0){
 			proto_item_append_text(actx->created_item, " length %u",length);
 			return offset;
@@ -15480,7 +15480,7 @@ dissect_ansi_map_win_trigger_list(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
     proto_tree *subtree;
     guint8 octet;
 
-    end_offset = tvb_length_remaining(tvb,offset);
+    end_offset = tvb_captured_length_remaining(tvb,offset);
     subtree = proto_item_add_subtree(actx->created_item, ett_win_trigger_list);
 
     while(offset< end_offset) {
@@ -16267,7 +16267,7 @@ dissect_ansi_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
         break;
     }
 
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 static void range_delete_callback(guint32 ssn)

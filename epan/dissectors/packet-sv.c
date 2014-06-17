@@ -192,7 +192,7 @@ dissect_PhsMeas1(gboolean implicit_tag, packet_info *pinfo, proto_tree *tree, tv
 		offset=dissect_ber_identifier(pinfo, tree, tvb, offset, &class, &pc, &tag);
 		offset=dissect_ber_length(pinfo, tree, tvb, offset, &len, NULL);
 	} else {
-		len=tvb_length_remaining(tvb, offset);
+		len=tvb_captured_length_remaining(tvb, offset);
 	}
 
 	if (tree) {
@@ -284,7 +284,7 @@ dissect_sv_UtcTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 	nstime_t ts;
 	gchar *	ptime;
 
-	len = tvb_length_remaining(tvb, offset);
+	len = tvb_captured_length_remaining(tvb, offset);
 
 	if(len != 8)
 	{

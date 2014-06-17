@@ -146,7 +146,7 @@ redbackli_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		redbackli_tree = proto_item_add_subtree(ti, ett_redbackli);
 	}
 
-	len = tvb_length(tvb);
+	len = tvb_captured_length(tvb);
 	offset = 0;
 	eoh = FALSE;
 	while (!eoh && (len > 2)) {
@@ -183,7 +183,7 @@ redbackli_dissect_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 	guint8		avptype, avplen;
 	guint32		avpfound = 0;
 
-	len = tvb_length(tvb);
+	len = tvb_captured_length(tvb);
 	if (len < MIN_REDBACKLI_SIZE)
 		return FALSE;
 

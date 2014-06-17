@@ -4691,7 +4691,7 @@ dissect_ansi_683_for_message(tvbuff_t *tvb, proto_tree *ansi_683_tree)
 
     if (ansi_683_for_msg_fcn[idx] != NULL)
     {
-        (*ansi_683_for_msg_fcn[idx])(tvb, ansi_683_tree, tvb_length(tvb) - 1, 1);
+        (*ansi_683_for_msg_fcn[idx])(tvb, ansi_683_tree, tvb_captured_length(tvb) - 1, 1);
     }
 }
 
@@ -4719,7 +4719,7 @@ dissect_ansi_683_rev_message(tvbuff_t *tvb, proto_tree *ansi_683_tree)
     proto_tree_add_uint(ansi_683_tree, hf_ansi_683_rev_msg_type,
         tvb, 0, 1, msg_type);
 
-    (*ansi_683_rev_msg_fcn[idx])(tvb, ansi_683_tree, tvb_length(tvb) - 1, 1);
+    (*ansi_683_rev_msg_fcn[idx])(tvb, ansi_683_tree, tvb_captured_length(tvb) - 1, 1);
 }
 
 static void

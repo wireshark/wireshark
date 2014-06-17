@@ -2455,7 +2455,7 @@ packet_is_cigi(tvbuff_t *tvb)
     /* CIGI 3 */
     guint16 byte_swap;
 
-    if (tvb_length(tvb) < 3) {
+    if (tvb_captured_length(tvb) < 3) {
         /* Not enough data available to check */
         return FALSE;
     }
@@ -2609,7 +2609,7 @@ dissect_cigi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     }
     dissect_cigi_pdu(tvb, pinfo, tree);
     /* We probably ate the entire packet. */
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 /* Code to actually dissect the CIGI packets */
@@ -2658,7 +2658,7 @@ dissect_cigi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if (tree) {
 
-        ti = proto_tree_add_protocol_format(tree, proto_cigi, tvb, 0, tvb_length(tvb), "Common Image Generator Interface (%i), %s => %s (%u bytes)",
+        ti = proto_tree_add_protocol_format(tree, proto_cigi, tvb, 0, tvb_captured_length(tvb), "Common Image Generator Interface (%i), %s => %s (%u bytes)",
                                             cigi_version, src_str, dest_str, tvb_reported_length(tvb));
 
         cigi_tree = proto_item_add_subtree(ti, ett_cigi);
@@ -2707,7 +2707,7 @@ cigi_add_tree(tvbuff_t *tvb, proto_tree *cigi_tree)
     proto_tree* cigi_packet_tree = NULL;
     proto_item* tipacket;
 
-    length = tvb_length(tvb);
+    length = tvb_captured_length(tvb);
 
     /* Each iteration through this loop is meant to be a separate cigi packet
      * therefore it is okay to assume that at the top of this look we are given
@@ -2798,7 +2798,7 @@ cigi2_add_tree(tvbuff_t *tvb, proto_tree *cigi_tree)
     proto_item* tipacket;
     int hf_cigi2_packet = -1;
 
-    length = tvb_length(tvb);
+    length = tvb_captured_length(tvb);
 
     /* Each iteration through this loop is meant to be a separate cigi packet
      * therefore it is okay to assume that at the top of this look we are given
@@ -2995,7 +2995,7 @@ cigi3_add_tree(tvbuff_t *tvb, proto_tree *cigi_tree)
     proto_item* tipacket;
     int hf_cigi3_packet = -1;
 
-    length = tvb_length(tvb);
+    length = tvb_captured_length(tvb);
 
     /* Each iteration through this loop is meant to be a separate cigi packet
      * therefore it is okay to assume that at the top of this look we are given

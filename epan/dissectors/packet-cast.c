@@ -1027,7 +1027,7 @@ dissect_cast_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     }
   }
 
-  return tvb_length(tvb);
+  return tvb_captured_length(tvb);
 }
 
 /* Get the length of a single CAST PDU */
@@ -1065,7 +1065,7 @@ dissect_cast(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
   hdr_data_length = tvb_get_letohl(tvb, 0);
   hdr_marker      = tvb_get_letohl(tvb, 4);
 
-  /*  data_size       = MIN(8+hdr_data_length, tvb_length(tvb)) - 0xC; */
+  /*  data_size       = MIN(8+hdr_data_length, tvb_captured_length(tvb)) - 0xC; */
 
   if (hdr_data_length < 4 || hdr_marker != 0) {
     return 0;
@@ -1076,7 +1076,7 @@ dissect_cast(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
   col_set_str(pinfo->cinfo, COL_INFO, "Cast Client Control Protocol");
   tcp_dissect_pdus(tvb, pinfo, tree, cast_desegment, 4, get_cast_pdu_len, dissect_cast_pdu, data);
-  return tvb_length(tvb);
+  return tvb_captured_length(tvb);
 }
 
 /* Register the protocol with Wireshark */

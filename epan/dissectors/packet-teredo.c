@@ -265,7 +265,7 @@ dissect_teredo_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
 	if (!global_teredo_heur)
 		return FALSE;
 
-	if (tvb_length_remaining(tvb, offset) < 40)
+	if (tvb_captured_length_remaining(tvb, offset) < 40)
 		return FALSE;
 
 	val = tvb_get_ntohs(tvb, offset);
@@ -282,7 +282,7 @@ dissect_teredo_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
 		aulen = tvb_get_guint8(tvb, offset);
 		offset += 10;
 
-		if (tvb_length_remaining(tvb, offset) < idlen + aulen + 40)
+		if (tvb_captured_length_remaining(tvb, offset) < idlen + aulen + 40)
 			return FALSE;
 
 		offset += idlen + aulen;
@@ -294,7 +294,7 @@ dissect_teredo_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
 	{
 		offset += 8;
 
-		if (tvb_length_remaining(tvb, offset) < 40)
+		if (tvb_captured_length_remaining(tvb, offset) < 40)
 			return FALSE;
 
 		val = tvb_get_ntohs(tvb, offset);
@@ -316,7 +316,7 @@ dissect_teredo_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
 		if (val > 65467)
 			return FALSE; /* length too big for Teredo */
 
-		if (tvb_length_remaining(tvb, offset) != val)
+		if (tvb_captured_length_remaining(tvb, offset) != val)
 			return FALSE; /* length mismatch */
 
 		dissect_teredo (tvb, pinfo, tree);

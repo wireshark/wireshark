@@ -478,7 +478,7 @@ gboolean dissect_bt_dht_heur (tvbuff_t *tvb, packet_info *pinfo,
   /* try dissecting */
   /* Assume dictionary (d) is followed by a one char long (1:) key string. */
 
-  if(tvb_length(tvb) < 4)
+  if(tvb_captured_length(tvb) < 4)
     return FALSE;
 
   if(tvb_memeql(tvb, 0, "d1:", 3) != 0)

@@ -980,7 +980,7 @@ static gboolean
 test_wassp(tvbuff_t *tvb)
 {
 	/* Minimum of 8 bytes, first byte (version) has value of 3 */
-	if ( tvb_length(tvb) < 8
+	if ( tvb_captured_length(tvb) < 8
 		    || tvb_get_guint8(tvb, 0) != 3
 		    /* || tvb_get_guint8(tvb, 2) != 0
 		    || tvb_get_ntohs(tvb, 6) > tvb_reported_length(tvb) */

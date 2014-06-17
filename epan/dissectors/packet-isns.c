@@ -572,7 +572,7 @@ dissect_isns_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 	                       "Unknown function ID 0x%04x"));
 
     if (tree == NULL)
-        return tvb_length(tvb);
+        return tvb_captured_length(tvb);
 
 	/* create display subtree for the protocol */
 	ti = proto_tree_add_item(tree, proto_isns, tvb, 0, -1, ENC_NA);
@@ -652,7 +652,7 @@ dissect_isns_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 
         /* Fall Thru if there are attributes */
         if (tvb_reported_length_remaining(tvb, offset) == 0)
-            return tvb_length(tvb);
+            return tvb_captured_length(tvb);
 
 	/* Messages */
 	case ISNS_FUNC_DEVATTRREG:
@@ -675,7 +675,7 @@ dissect_isns_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 	    /* we can only look at the attributes for the first PDU */
 	    if(!(flags&ISNS_FLAGS_FIRST_PDU)){
 			proto_tree_add_text(tt, tvb, offset, -1, "This is not the first PDU. The attributes are not decoded");
-			return tvb_length(tvb);
+			return tvb_captured_length(tvb);
 	    }
 
         packet_len = tvb_reported_length(tvb);
@@ -685,7 +685,7 @@ dissect_isns_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 	    }
     }
 
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 static guint
@@ -700,7 +700,7 @@ get_isns_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 static int
 dissect_isns_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    gint length = tvb_length(tvb);
+    gint length = tvb_captured_length(tvb);
     guint16 isns_protocol_version;
     guint16 function_id;
 
@@ -731,7 +731,7 @@ dissect_isns_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 static int
 dissect_isns_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    gint length = tvb_length(tvb);
+    gint length = tvb_captured_length(tvb);
     guint16 isns_protocol_version;
     guint16 function_id;
 

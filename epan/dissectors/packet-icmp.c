@@ -1352,7 +1352,7 @@ dissect_icmp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data)
 		col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)", code_str);
 	}
 
-	length = tvb_length(tvb);
+	length = tvb_captured_length(tvb);
 	reported_length = tvb_reported_length(tvb);
 
 	ti = proto_tree_add_item(tree, proto_icmp, tvb, 0, length, ENC_NA);
@@ -1603,8 +1603,8 @@ dissect_icmp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data)
 		/* Make sure we have enough bytes in the payload before trying to
 		 * see if the data looks like a timestamp; otherwise we'll get
 		 * malformed packets as we try to access data that isn't there. */
-		if (tvb_length_remaining(tvb, 8) < 8) {
-			if (tvb_length_remaining(tvb, 8) > 0) {
+		if (tvb_captured_length_remaining(tvb, 8) < 8) {
+			if (tvb_captured_length_remaining(tvb, 8) > 0) {
 				call_dissector(data_handle,
 					       tvb_new_subset_remaining
 					       (tvb, 8), pinfo, icmp_tree);
@@ -1720,7 +1720,7 @@ dissect_icmp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data)
 		tap_queue_packet(icmp_tap, pinfo, trans);
 	}
 
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 void proto_register_icmp(void)

@@ -98,7 +98,7 @@ dissect_wol_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
  *  in Wireshark handing an HTTP packet to your dissector).  For example:
  */
     /* Check that there's enough data */
-    len = tvb_length(tvb);
+    len = tvb_captured_length(tvb);
     if ( len < 102 )    /* wol's smallest packet size is 102 */
         return (0);
 

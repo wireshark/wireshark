@@ -481,14 +481,14 @@ dissect_ieee802154_nonask_phy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
     /* Create the protocol tree. */
     if (tree) {
-        proto_root = proto_tree_add_protocol_format(tree, proto_ieee802154_nonask_phy, tvb, 0, tvb_length(tvb), "IEEE 802.15.4 non-ASK PHY");
+        proto_root = proto_tree_add_protocol_format(tree, proto_ieee802154_nonask_phy, tvb, 0, tvb_captured_length(tvb), "IEEE 802.15.4 non-ASK PHY");
         ieee802154_tree = proto_item_add_subtree(proto_root, ett_ieee802154_nonask_phy);
     }
 
     /* Add the protocol name. */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "IEEE 802.15.4 non-ASK PHY");
     /* Add the packet length. */
-    col_add_fstr(pinfo->cinfo, COL_PACKET_LENGTH, "%i", tvb_length(tvb));
+    col_add_fstr(pinfo->cinfo, COL_PACKET_LENGTH, "%i", tvb_captured_length(tvb));
 
     preamble=tvb_get_letohl(tvb,offset);
     sfd=tvb_get_guint8(tvb,offset+4);
@@ -650,13 +650,13 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
 
     /* Create the protocol tree. */
     if (tree) {
-        proto_root = proto_tree_add_protocol_format(tree, proto_ieee802154, tvb, 0, tvb_length(tvb), "IEEE 802.15.4");
+        proto_root = proto_tree_add_protocol_format(tree, proto_ieee802154, tvb, 0, tvb_captured_length(tvb), "IEEE 802.15.4");
         ieee802154_tree = proto_item_add_subtree(proto_root, ett_ieee802154);
     }
     /* Add the protocol name. */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "IEEE 802.15.4");
     /* Add the packet length. */
-    col_add_fstr(pinfo->cinfo, COL_PACKET_LENGTH, "%i", tvb_length(tvb));
+    col_add_fstr(pinfo->cinfo, COL_PACKET_LENGTH, "%i", tvb_captured_length(tvb));
 
     /* Add the packet length to the filter field */
     hidden_item = proto_tree_add_uint(ieee802154_tree, hf_ieee802154_frame_length, NULL, 0, 0, tvb_reported_length(tvb));
@@ -1012,7 +1012,7 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
         if (!payload_tvb) {
             /* Deal with possible truncation and the FCS field at the end. */
             gint            reported_len = tvb_reported_length(tvb)-offset-IEEE802154_FCS_LEN;
-            gint            captured_len = tvb_length(tvb)-offset;
+            gint            captured_len = tvb_captured_length(tvb)-offset;
             if (reported_len < captured_len) captured_len = reported_len;
             payload_tvb = tvb_new_subset(tvb, offset, captured_len, reported_len);
         }
@@ -1067,7 +1067,7 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
     else {
         /* Deal with possible truncation and the FCS field at the end. */
         gint            reported_len = tvb_reported_length(tvb)-offset-IEEE802154_FCS_LEN;
-        gint            captured_len = tvb_length(tvb)-offset;
+        gint            captured_len = tvb_captured_length(tvb)-offset;
         if (reported_len < captured_len) captured_len = reported_len;
         payload_tvb = tvb_new_subset(tvb, offset, captured_len, reported_len);
     }
@@ -1412,7 +1412,7 @@ dissect_ieee802154_assoc_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     }
 
     /* Call the data dissector for any leftover bytes. */
-    if (tvb_length(tvb) > 1) {
+    if (tvb_captured_length(tvb) > 1) {
         call_dissector(data_handle, tvb_new_subset_remaining(tvb, 1), pinfo, tree);
     }
 } /* dissect_ieee802154_assoc_req */
@@ -1488,7 +1488,7 @@ dissect_ieee802154_assoc_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     }
 
     /* Call the data dissector for any leftover bytes. */
-    if (tvb_length(tvb) > offset) {
+    if (tvb_captured_length(tvb) > offset) {
         call_dissector(data_handle, tvb_new_subset_remaining(tvb, offset), pinfo, tree);
     }
 } /* dissect_ieee802154_assoc_rsp */
@@ -1549,7 +1549,7 @@ dissect_ieee802154_disassoc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
 
     /* Call the data dissector for any leftover bytes. */
-    if (tvb_length(tvb) > 1) {
+    if (tvb_captured_length(tvb) > 1) {
         call_dissector(data_handle, tvb_new_subset_remaining(tvb, 1), pinfo, tree);
     }
 } /* dissect_ieee802154_disassoc */
@@ -1631,7 +1631,7 @@ dissect_ieee802154_realign(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     }
 
     /* Call the data dissector for any leftover bytes. */
-    if (tvb_length(tvb) > offset) {
+    if (tvb_captured_length(tvb) > offset) {
         call_dissector(data_handle, tvb_new_subset_remaining(tvb, offset), pinfo, tree);
     }
 } /* dissect_ieee802154_realign */
@@ -1690,7 +1690,7 @@ dissect_ieee802154_gtsreq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
     }
 
     /* Call the data dissector for any leftover bytes. */
-    if (tvb_length(tvb) > 1) {
+    if (tvb_captured_length(tvb) > 1) {
         call_dissector(data_handle, tvb_new_subset_remaining(tvb, 1), pinfo, tree);
     }
 } /* dissect_ieee802154_gtsreq */
@@ -1853,7 +1853,7 @@ dissect_ieee802154_decrypt(tvbuff_t *tvb, guint offset, packet_info *pinfo, ieee
         captured_len = reported_len;
     }
     else {
-        captured_len = tvb_length_remaining(tvb, offset);
+        captured_len = tvb_captured_length_remaining(tvb, offset);
     }
 
     /* Check if the MIC is present in the captured data. */

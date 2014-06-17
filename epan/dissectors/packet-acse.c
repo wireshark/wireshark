@@ -1785,7 +1785,7 @@ dissect_acse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 	}
 
 	top_tree = NULL;
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 /*--- proto_register_acse ----------------------------------------------*/

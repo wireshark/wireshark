@@ -77,7 +77,7 @@ static gboolean dissect_lanforge(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     guint32 pld_len, magic;
 
     /* check for min size */
-    if(tvb_length(tvb) < 28) {  /* Not a LANforge packet. */
+    if(tvb_captured_length(tvb) < 28) {  /* Not a LANforge packet. */
         return FALSE;
     }
 
@@ -152,7 +152,7 @@ static gboolean dissect_lanforge(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 #if 0
         if(tvb_reported_length_remaining(tvb, offset) > 0) /* random data */
             proto_tree_add_text(lanforge_tree, tvb, offset, -1, "Data (%u bytes)",
-                                tvb_length_remaining(tvb, offset));
+                                tvb_captured_length_remaining(tvb, offset));
 #else
         if(tvb_reported_length_remaining(tvb, offset) > 0) /* random data */
             call_dissector(data_handle, tvb_new_subset_remaining(tvb, offset), pinfo,

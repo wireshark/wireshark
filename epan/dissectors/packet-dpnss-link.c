@@ -141,7 +141,7 @@ dissect_dpnss_link(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	switch (octet){
 	case FRAME_TYPE_UI_EVEN:
 	case FRAME_TYPE_UI_ODD:
-	    protocol_data_length=tvb_length(tvb)-LINK_HEADER_SIZE;
+	    protocol_data_length=tvb_captured_length(tvb)-LINK_HEADER_SIZE;
 	    protocol_data_tvb=tvb_new_subset_length(tvb, LINK_HEADER_SIZE,
 					     protocol_data_length);
 	    if (dpnss_handle && protocol_data_length>0) {

@@ -1390,13 +1390,13 @@ dissect_v5_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tr
   /* extract tag and length from the parameter */
   tag            = tvb_get_ntohs(parameter_tvb, PARAMETER_TAG_OFFSET);
   length         = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
-  padding_length = tvb_length(parameter_tvb) - length;
+  padding_length = tvb_captured_length(parameter_tvb) - length;
 
   if (!tree && tag != V5_PROTOCOL_DATA_PARAMETER_TAG)
     return;    /* Nothing to do here */
 
   /* create proto_tree stuff */
-  parameter_item   = proto_tree_add_text(m3ua_tree, parameter_tvb, PARAMETER_HEADER_OFFSET, tvb_length(parameter_tvb), "%s", val_to_str_const(tag, v5_parameter_tag_values, "Unknown parameter"));
+  parameter_item   = proto_tree_add_text(m3ua_tree, parameter_tvb, PARAMETER_HEADER_OFFSET, tvb_captured_length(parameter_tvb), "%s", val_to_str_const(tag, v5_parameter_tag_values, "Unknown parameter"));
   parameter_tree   = proto_item_add_subtree(parameter_item, ett_parameter);
 
   /* add tag and length to the parameter tree */
@@ -1517,13 +1517,13 @@ dissect_v6_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tr
   /* extract tag and length from the parameter */
   tag            = tvb_get_ntohs(parameter_tvb, PARAMETER_TAG_OFFSET);
   length         = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
-  padding_length = tvb_length(parameter_tvb) - length;
+  padding_length = tvb_captured_length(parameter_tvb) - length;
 
   if (!tree && tag != V6_PROTOCOL_DATA_1_PARAMETER_TAG && tag != V6_PROTOCOL_DATA_2_PARAMETER_TAG)
     return;    /* Nothing to do here */
 
   /* create proto_tree stuff */
-  parameter_item   = proto_tree_add_text(m3ua_tree, parameter_tvb, PARAMETER_HEADER_OFFSET, tvb_length(parameter_tvb), "%s", val_to_str_const(tag, v6_parameter_tag_values, "Unknown parameter"));
+  parameter_item   = proto_tree_add_text(m3ua_tree, parameter_tvb, PARAMETER_HEADER_OFFSET, tvb_captured_length(parameter_tvb), "%s", val_to_str_const(tag, v6_parameter_tag_values, "Unknown parameter"));
   parameter_tree   = proto_item_add_subtree(parameter_item, ett_parameter);
 
   /* add tag and length to the parameter tree */
@@ -1684,13 +1684,13 @@ dissect_v7_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tr
   /* extract tag and length from the parameter */
   tag            = tvb_get_ntohs(parameter_tvb, PARAMETER_TAG_OFFSET);
   length         = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
-  padding_length = tvb_length(parameter_tvb) - length;
+  padding_length = tvb_captured_length(parameter_tvb) - length;
 
   if (!tree && tag != V7_PROTOCOL_DATA_1_PARAMETER_TAG && tag != V7_PROTOCOL_DATA_2_PARAMETER_TAG)
     return;    /* Nothing to do here */
 
   /* create proto_tree stuff */
-  parameter_item   = proto_tree_add_text(m3ua_tree, parameter_tvb, PARAMETER_HEADER_OFFSET, tvb_length(parameter_tvb), "%s", val_to_str_const(tag, v7_parameter_tag_values, "Unknown parameter"));
+  parameter_item   = proto_tree_add_text(m3ua_tree, parameter_tvb, PARAMETER_HEADER_OFFSET, tvb_captured_length(parameter_tvb), "%s", val_to_str_const(tag, v7_parameter_tag_values, "Unknown parameter"));
   parameter_tree   = proto_item_add_subtree(parameter_item, ett_parameter);
 
   /* add tag and length to the parameter tree */
@@ -1850,14 +1850,14 @@ dissect_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tree,
   /* extract tag and length from the parameter */
   tag            = tvb_get_ntohs(parameter_tvb, PARAMETER_TAG_OFFSET);
   length         = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
-  padding_length = tvb_length(parameter_tvb) - length;
+  padding_length = tvb_captured_length(parameter_tvb) - length;
 
 
   if (!tree && tag != PROTOCOL_DATA_PARAMETER_TAG)
     return;    /* Nothing to do here */
 
   /* create proto_tree stuff */
-  parameter_item   = proto_tree_add_text(m3ua_tree, parameter_tvb, PARAMETER_HEADER_OFFSET, tvb_length(parameter_tvb), "%s", val_to_str_const(tag, parameter_tag_values, "Unknown parameter"));
+  parameter_item   = proto_tree_add_text(m3ua_tree, parameter_tvb, PARAMETER_HEADER_OFFSET, tvb_captured_length(parameter_tvb), "%s", val_to_str_const(tag, parameter_tag_values, "Unknown parameter"));
   parameter_tree   = proto_item_add_subtree(parameter_item, ett_parameter);
 
   /* add tag and length to the parameter tree */
@@ -1956,7 +1956,7 @@ dissect_parameters(tvbuff_t *parameters_tvb, packet_info *pinfo, proto_tree *tre
   tvbuff_t *parameter_tvb;
 
   offset = 0;
-  while((remaining_length = tvb_length_remaining(parameters_tvb, offset))) {
+  while((remaining_length = tvb_captured_length_remaining(parameters_tvb, offset))) {
     length       = tvb_get_ntohs(parameters_tvb, offset + PARAMETER_LENGTH_OFFSET);
     total_length = ADD_PADDING(length);
     if (remaining_length >= length)

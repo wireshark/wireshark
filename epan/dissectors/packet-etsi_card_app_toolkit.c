@@ -928,7 +928,7 @@ dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 	unsigned int pos = 0;
 	tvbuff_t *new_tvb;
 	gboolean ims_event = FALSE;
-	guint length = tvb_length(tvb);
+	guint length = tvb_captured_length(tvb);
 	gsm_sms_data_t sms_data;
 
 	cat_ti = proto_tree_add_item(tree, proto_cat, tvb, 0, -1, ENC_NA);

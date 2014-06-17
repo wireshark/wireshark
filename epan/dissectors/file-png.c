@@ -326,7 +326,7 @@ dissect_png_text(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
     gint offset=0, nul_offset;
 
-    nul_offset = tvb_find_guint8(tvb, offset, tvb_length_remaining(tvb, offset), 0);
+    nul_offset = tvb_find_guint8(tvb, offset, tvb_captured_length_remaining(tvb, offset), 0);
     /* nul_offset == 0 means empty keyword, this is not allowed by the png standard */
     if (nul_offset<=0) {
         /* XXX exception */
@@ -336,7 +336,7 @@ dissect_png_text(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
     proto_tree_add_item(tree, &hfi_png_text_keyword, tvb, offset, nul_offset, ENC_ISO_8859_1|ENC_NA);
     offset = nul_offset+1; /* length of the key word + 0 character */
 
-    proto_tree_add_item(tree, &hfi_png_text_string, tvb, offset, tvb_length_remaining(tvb, offset), ENC_ISO_8859_1|ENC_NA);
+    proto_tree_add_item(tree, &hfi_png_text_string, tvb, offset, tvb_captured_length_remaining(tvb, offset), ENC_ISO_8859_1|ENC_NA);
 
 }
 
@@ -442,7 +442,7 @@ dissect_png(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *da
     /* http://libpng.org/pub/png/spec/1.2/PNG-Structure.html#PNG-file-signature */
     static const guint8 magic[8] = { 137, 80, 78, 71, 13, 10, 26, 10 };
 
-    if (tvb_length(tvb) < 20)
+    if (tvb_captured_length(tvb) < 20)
         return 0;
     if (tvb_memeql(tvb, 0, magic, sizeof(magic)) != 0)
         return 0;

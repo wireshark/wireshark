@@ -1145,7 +1145,7 @@ dissect_esp_authentication(proto_tree *tree, tvbuff_t *tvb, gint len, gint esp_a
   else
   {
     /* Truncated so just display what we have */
-    item = proto_tree_add_text(tree, tvb, len - esp_auth_len, esp_auth_len - (len - tvb_length(tvb)),
+    item = proto_tree_add_text(tree, tvb, len - esp_auth_len, esp_auth_len - (len - tvb_captured_length(tvb)),
                                "Authentication Data (truncated)");
     bad = TRUE;
   }
@@ -1296,7 +1296,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if(get_address_ok)
     {
       /* Get the SPI */
-      if (tvb_length(tvb) >= 4)
+      if (tvb_captured_length(tvb) >= 4)
       {
         spi = tvb_get_ntohl(tvb, 0);
       }
@@ -2087,7 +2087,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         else
         {
           /* Truncated so just display what we have */
-          proto_tree_add_text(esp_tree, tvb, len - 12, 12 - (len - tvb_length(tvb)),
+          proto_tree_add_text(esp_tree, tvb, len - 12, 12 - (len - tvb_captured_length(tvb)),
                               "Authentication Data (truncated)");
         }
       }
@@ -2154,7 +2154,7 @@ dissect_ipcomp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      * CPIs, we don't know the algorithm beforehand; if we get it
      * wrong, tvb_uncompress() returns NULL and nothing is displayed.
      */
-    decomp = tvb_child_uncompress(data, data, 0, tvb_length(data));
+    decomp = tvb_child_uncompress(data, data, 0, tvb_captured_length(data));
     if (decomp) {
         add_new_data_source(pinfo, decomp, "IPcomp inflated data");
         saved_match_uint  = pinfo->match_uint;

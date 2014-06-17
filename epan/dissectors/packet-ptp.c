@@ -3031,7 +3031,7 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     proto_item *ptp_tlv_period;
                     proto_tree *ptp_tlv_period_tree;
 
-                    proto_len  = tvb_length(tvb);
+                    proto_len  = tvb_captured_length(tvb);
                     tlv_offset = PTP_V2_SIG_TLV_START;
 
                     while (tlv_offset < proto_len) {

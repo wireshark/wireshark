@@ -77,7 +77,7 @@ dissect_tivoconnect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
         return 0;
     }
 
-    length = tvb_length(tvb);
+    length = tvb_captured_length(tvb);
     string = (gchar*)tvb_get_string_enc(wmem_packet_scope(), tvb, 0, length, ENC_ASCII);
 
     /* Make entries in Protocol column and Info column on summary display */
@@ -184,7 +184,7 @@ dissect_tivoconnect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
 
     /* If this protocol has a sub-dissector call it here, see section 1.8 */
 
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 static int

@@ -1625,7 +1625,7 @@ static void dissect_mih_tlv(tvbuff_t *tvb,int offset, proto_tree *tlv_tree, guin
                                 proto_tree_add_item(tlv_tree, hf_mihf_id, tvb, offset+1, mihf_id_len, ENC_ASCII|ENC_NA);
                         else
                         {
-                                if(mihf_id_len<tvb_length_remaining(tvb,0) && (mihf_id_len==12 || mihf_id_len==64 || mihf_id_len==128))
+                                if(mihf_id_len<tvb_captured_length_remaining(tvb,0) && (mihf_id_len==12 || mihf_id_len==64 || mihf_id_len==128))
                                 {
                                         tvb_mihf_id = tvb_new_composite();
                                         for(i=0; i < mihf_id_len/2; i++)

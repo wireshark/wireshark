@@ -170,7 +170,7 @@ dissect_websocket_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, p
   if (mask) {
     payload_tvb = tvb_unmasked(tvb, offset, payload_length, masking_key);
     tvb_set_child_real_data_tvbuff(tvb, payload_tvb);
-    add_new_data_source(pinfo, payload_tvb, payload_length > tvb_length(payload_tvb) ? "Unmasked Data (truncated)" : "Unmasked Data");
+    add_new_data_source(pinfo, payload_tvb, payload_length > tvb_captured_length(payload_tvb) ? "Unmasked Data (truncated)" : "Unmasked Data");
     ti = proto_tree_add_item(ws_tree, hf_ws_payload_unmask, payload_tvb, offset, payload_length, ENC_NA);
     mask_tree = proto_item_add_subtree(ti, ett_ws_mask);
   } else {
@@ -316,7 +316,7 @@ dissect_websocket(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
   const guint8 *masking_key = NULL;
   tvbuff_t     *tvb_payload;
 
-  length = tvb_length(tvb);
+  length = tvb_captured_length(tvb);
   if (length < 2) {
     pinfo->desegment_len = 2;
     return 0;

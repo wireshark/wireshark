@@ -515,7 +515,7 @@ dissect_llc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			      "Response" : "Command"
 			);
 
-		if (tvb_length_remaining(tvb, llc_header_len) > 0) {
+		if (tvb_captured_length_remaining(tvb, llc_header_len) > 0) {
 			next_tvb = tvb_new_subset_remaining(tvb, llc_header_len);
 			if (XDLC_IS_INFORMATION(control)) {
 				/*

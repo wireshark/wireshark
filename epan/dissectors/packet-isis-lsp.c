@@ -2627,7 +2627,7 @@ dissect_isis_lsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
 		case DATA_MISSING :
 			proto_tree_add_expert_format(tree, pinfo, &ei_isis_lsp_long_packet, tvb, offset, -1,
 					"Packet length %d went beyond packet",
-			 		tvb_length_remaining(tvb, offset_checksum));
+                    tvb_captured_length_remaining(tvb, offset_checksum));
 		break;
 		case CKSUM_NOT_OK :
 			it_cksum = proto_tree_add_uint_format_value(lsp_tree, hf_isis_lsp_checksum, tvb, offset, 2, checksum,
@@ -2691,7 +2691,7 @@ dissect_isis_l1_lsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 	isis_data_t* isis = (isis_data_t*)data;
 	dissect_isis_lsp(tvb, pinfo, tree, 0,
 		clv_l1_lsp_opts, isis->header_length, isis->system_id_len);
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 static int
@@ -2700,7 +2700,7 @@ dissect_isis_l2_lsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 	isis_data_t* isis = (isis_data_t*)data;
 	dissect_isis_lsp(tvb, pinfo, tree, 0,
 		clv_l2_lsp_opts, isis->header_length, isis->system_id_len);
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 void

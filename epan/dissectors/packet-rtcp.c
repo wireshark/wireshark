@@ -1637,7 +1637,7 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
         next_tvb        = tvb_new_subset_length(tvb, offset-8, app_length+4);
         /* look for registered sub-dissectors */
         if (dissector_try_string(rtcp_dissector_table, ascii_name, next_tvb, pinfo, tree, NULL)) {
-            /* found subdissector - return tvb_length */
+            /* found subdissector - return tvb_captured_length */
             offset     += 4;
             packet_len -= 4;
             if ( padding ) {
@@ -2903,7 +2903,7 @@ dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
             gboolean e_bit;
             srtcp_info = p_conv_data->srtcp_info;
             /* get the offset to the start of the SRTCP fields at the end of the packet */
-            srtcp_offset = tvb_length_remaining(tvb, offset) - srtcp_info->auth_tag_len - srtcp_info->mki_len - 4;
+            srtcp_offset = tvb_captured_length_remaining(tvb, offset) - srtcp_info->auth_tag_len - srtcp_info->mki_len - 4;
             /* It has been setup as SRTCP, but skip to the SRTCP E field at the end
                to see if this particular packet is encrypted or not. The E bit is the MSB. */
             srtcp_index = tvb_get_ntohl(tvb,srtcp_offset);

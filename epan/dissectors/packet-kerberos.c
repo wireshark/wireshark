@@ -622,7 +622,7 @@ decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
 	enc_key_t *ek;
 	krb5_data data = {0,0,NULL};
 	krb5_keytab_entry key;
-	int length = tvb_length(cryptotvb);
+	int length = tvb_captured_length(cryptotvb);
 	const guint8 *cryptotext = tvb_get_ptr(cryptotvb, 0, length);
 
 	/* don't do anything if we are not attempting to decrypt data */
@@ -631,7 +631,7 @@ decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
 	}
 
 	/* make sure we have all the data we need */
-	if (tvb_length(cryptotvb) < tvb_reported_length(cryptotvb)) {
+	if (tvb_captured_length(cryptotvb) < tvb_reported_length(cryptotvb)) {
 		return NULL;
 	}
 
@@ -760,7 +760,7 @@ decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
 	krb5_error_code ret;
 	krb5_data data;
 	enc_key_t *ek;
-	int length = tvb_length(cryptotvb);
+	int length = tvb_captured_length(cryptotvb);
 	const guint8 *cryptotext = tvb_get_ptr(cryptotvb, 0, length);
 
 	/* don't do anything if we are not attempting to decrypt data */
@@ -769,7 +769,7 @@ decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
 	}
 
 	/* make sure we have all the data we need */
-	if (tvb_length(cryptotvb) < tvb_reported_length(cryptotvb)) {
+	if (tvb_captured_length(cryptotvb) < tvb_reported_length(cryptotvb)) {
 		return NULL;
 	}
 
@@ -944,7 +944,7 @@ decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
 	GSList *ske;
 	service_key_t *sk;
 	struct des3_ctx ctx;
-	int length = tvb_length(cryptotvb);
+	int length = tvb_captured_length(cryptotvb);
 	const guint8 *cryptotext = tvb_get_ptr(cryptotvb, 0, length);
 
 
@@ -954,7 +954,7 @@ decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
 	}
 
 	/* make sure we have all the data we need */
-	if (tvb_length(cryptotvb) < tvb_reported_length(cryptotvb)) {
+	if (tvb_captured_length(cryptotvb) < tvb_reported_length(cryptotvb)) {
 		return NULL;
 	}
 
@@ -1582,7 +1582,7 @@ dissect_krb5_decrypt_ticket_data (gboolean imp_tag _U_, tvbuff_t *tvb, int offse
 	tvbuff_t *next_tvb;
 
 	next_tvb=tvb_new_subset_remaining(tvb, offset);
-	length=tvb_length_remaining(tvb, offset);
+	length=tvb_captured_length_remaining(tvb, offset);
 
 	/* draft-ietf-krb-wg-kerberos-clarifications-05.txt :
 	 * 7.5.1
@@ -1613,7 +1613,7 @@ dissect_krb5_decrypt_authenticator_data (gboolean imp_tag _U_, tvbuff_t *tvb, in
 	tvbuff_t *next_tvb;
 
 	next_tvb=tvb_new_subset_remaining(tvb, offset);
-	length=tvb_length_remaining(tvb, offset);
+	length=tvb_captured_length_remaining(tvb, offset);
 
 	/* draft-ietf-krb-wg-kerberos-clarifications-05.txt :
 	 * 7.5.1
@@ -1650,7 +1650,7 @@ dissect_krb5_decrypt_KDC_REP_data (gboolean imp_tag _U_, tvbuff_t *tvb, int offs
 	tvbuff_t *next_tvb;
 
 	next_tvb=tvb_new_subset_remaining(tvb, offset);
-	length=tvb_length_remaining(tvb, offset);
+	length=tvb_captured_length_remaining(tvb, offset);
 
 	/* draft-ietf-krb-wg-kerberos-clarifications-05.txt :
 	 * 7.5.1
@@ -1692,7 +1692,7 @@ dissect_krb5_decrypt_PA_ENC_TIMESTAMP (gboolean imp_tag _U_, tvbuff_t *tvb, int 
 	tvbuff_t *next_tvb;
 
 	next_tvb=tvb_new_subset_remaining(tvb, offset);
-	length=tvb_length_remaining(tvb, offset);
+	length=tvb_captured_length_remaining(tvb, offset);
 
 	/* draft-ietf-krb-wg-kerberos-clarifications-05.txt :
 	 * 7.5.1
@@ -1724,7 +1724,7 @@ dissect_krb5_decrypt_AP_REP_data (gboolean imp_tag _U_, tvbuff_t *tvb, int offse
 	tvbuff_t *next_tvb;
 
 	next_tvb=tvb_new_subset_remaining(tvb, offset);
-	length=tvb_length_remaining(tvb, offset);
+	length=tvb_captured_length_remaining(tvb, offset);
 
 	/* draft-ietf-krb-wg-kerberos-clarifications-05.txt :
 	 * 7.5.1
@@ -1755,7 +1755,7 @@ dissect_krb5_decrypt_PRIV_data (gboolean imp_tag _U_, tvbuff_t *tvb, int offset,
 	tvbuff_t *next_tvb;
 
 	next_tvb=tvb_new_subset_remaining(tvb, offset);
-	length=tvb_length_remaining(tvb, offset);
+	length=tvb_captured_length_remaining(tvb, offset);
 
 	/* RFC4120 :
 	 * EncKrbPrivPart encrypted with usage
@@ -1786,7 +1786,7 @@ dissect_krb5_decrypt_CRED_data (gboolean imp_tag _U_, tvbuff_t *tvb, int offset,
 	tvbuff_t *next_tvb;
 
 	next_tvb=tvb_new_subset_remaining(tvb, offset);
-	length=tvb_length_remaining(tvb, offset);
+	length=tvb_captured_length_remaining(tvb, offset);
 
 	/* RFC4120 :
 	 * EncKrbCredPart encrypted with usage
@@ -1839,14 +1839,14 @@ dissect_krb5_rfc1964_checksum(asn1_ctx_t *actx _U_, proto_tree *tree, tvbuff_t *
 
 	/* the next fields are optional so we have to check that we have
 	 * more data in our buffers */
-	if(tvb_length_remaining(tvb, offset)<2){
+	if(tvb_captured_length_remaining(tvb, offset)<2){
 		return offset;
 	}
 	/* dlgopt identifier */
 	proto_tree_add_item(tree, hf_krb_gssapi_dlgopt, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
 
-	if(tvb_length_remaining(tvb, offset)<2){
+	if(tvb_captured_length_remaining(tvb, offset)<2){
 		return offset;
 	}
 	/* dlglen identifier */
@@ -1854,8 +1854,8 @@ dissect_krb5_rfc1964_checksum(asn1_ctx_t *actx _U_, proto_tree *tree, tvbuff_t *
 	proto_tree_add_item(tree, hf_krb_gssapi_dlglen, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
 
-	if(dlglen!=tvb_length_remaining(tvb, offset)){
-		proto_tree_add_text(tree, tvb, 0, 0, "Error: DlgLen:%d is not the same as number of bytes remaining:%d", dlglen, tvb_length_remaining(tvb, offset));
+	if(dlglen!=tvb_captured_length_remaining(tvb, offset)){
+		proto_tree_add_text(tree, tvb, 0, 0, "Error: DlgLen:%d is not the same as number of bytes remaining:%d", dlglen, tvb_captured_length_remaining(tvb, offset));
 		return offset;
 	}
 
@@ -2237,7 +2237,7 @@ dissect_kerberos_T_keyvalue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 #line 309 "../../asn1/kerberos/kerberos.cnf"
 	kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
 
-	private_data->key.keylength = tvb_length_remaining(tvb, offset);
+	private_data->key.keylength = tvb_captured_length_remaining(tvb, offset);
 	private_data->key.keyvalue = tvb_get_ptr(tvb, offset, private_data->key.keylength);
 
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
@@ -4088,7 +4088,7 @@ dissect_kerberos_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 	   All krb5 commands start with an APPL tag and thus is >=0x60
 	   so if first byte is <=16  just blindly assume it is krb4 then
 	*/
-	if(tvb_length(tvb) >= 1 && tvb_get_guint8(tvb, 0)<=0x10){
+	if(tvb_captured_length(tvb) >= 1 && tvb_get_guint8(tvb, 0)<=0x10){
 		if(krb4_handle){
 			gboolean res;
 
@@ -4139,7 +4139,7 @@ dissect_kerberos_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 		col_set_str(pinfo->cinfo, COL_INFO, "Continuation");
 	}
 
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 static int
@@ -4150,7 +4150,7 @@ dissect_kerberos_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 
 	tcp_dissect_pdus(tvb, pinfo, tree, krb_desegment, 4, get_krb_pdu_len,
 					 dissect_kerberos_tcp_pdu, data);
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 /*--- proto_register_kerberos -------------------------------------------*/
@@ -4985,7 +4985,7 @@ static int wrap_dissect_gss_kerb(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	dissect_kerberos_main(auth_tvb, pinfo, tree, FALSE, NULL);
 
-	return tvb_length_remaining(tvb, offset);
+	return tvb_captured_length_remaining(tvb, offset);
 }
 
 

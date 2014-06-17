@@ -4593,7 +4593,7 @@ static int
 dissect_diameter_3gpp_qosprofile(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_) {
 
     decode_qos_umts(tvb, 0, tree, "UMTS GTP QoS Profile", 3);
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 static const gchar *
@@ -5607,7 +5607,7 @@ gchar *dissect_radius_user_loc(proto_tree * tree, tvbuff_t * tvb, packet_info* p
 
     int     offset = 0;
     guint8  geo_loc_type;
-    guint16 length = tvb_length(tvb);
+    guint16 length = tvb_captured_length(tvb);
 
     /* Geographic Location Type */
     proto_tree_add_item(tree, hf_gtp_ext_geo_loc_type, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -7814,7 +7814,7 @@ decode_gtp_unknown(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tr
 
     proto_tree_add_text(tree, tvb, offset, 1, "Unknown extension header");
 
-    return tvb_length_remaining(tvb, offset);
+    return tvb_captured_length_remaining(tvb, offset);
 }
 
 static int
@@ -8065,7 +8065,7 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
                         if (ext_hdr_length == 0) {
                             expert_add_info_format(pinfo, ext_hdr_len_item, &ei_gtp_ext_length_mal,
                                                    "Extension header length is zero");
-                            return tvb_length(tvb);
+                            return tvb_captured_length(tvb);
                         }
                         offset++;
 
@@ -8236,7 +8236,7 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
     tap_queue_packet(gtpv1_tap,pinfo, gtp_hdr);
 
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 static int
@@ -8273,7 +8273,7 @@ dissect_gtp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
         /* GTPv2-C 3GPP TS 29.274 */
         if (gtpv2_handle) {
             call_dissector(gtpv2_handle, tvb, pinfo, tree);
-            return tvb_length(tvb);
+            return tvb_captured_length(tvb);
         }
     }
 

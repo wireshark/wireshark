@@ -486,7 +486,7 @@ dissect_hdfsdata_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     }
   }
 
-  return tvb_length(tvb);
+  return tvb_captured_length(tvb);
 }
 
 static int
@@ -523,7 +523,7 @@ dissect_hdfsdata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
   }
 
   tcp_dissect_pdus(tvb, pinfo, tree, need_reassemble, frame_header_len, get_hdfsdata_message_len, dissect_hdfsdata_message, data);
-  return tvb_length(tvb);
+  return tvb_captured_length(tvb);
 }
 
 /* registers the protcol with the given names */

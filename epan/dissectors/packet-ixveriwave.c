@@ -962,10 +962,10 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
          * take that into account by using the FCS length recorded in pinfo. */
 
         /* Watch out for [erroneously] short frames */
-        if (tvb_length(next_tvb) > (unsigned int) pinfo->pseudo_header->ieee_802_11.fcs_len) {
+        if (tvb_captured_length(next_tvb) > (unsigned int) pinfo->pseudo_header->ieee_802_11.fcs_len) {
             guint32 sent_fcs = 0;
             calc_fcs = crc32_802_tvb(next_tvb,
-                                     tvb_length(next_tvb) - pinfo->pseudo_header->ieee_802_11.fcs_len);
+                                     tvb_captured_length(next_tvb) - pinfo->pseudo_header->ieee_802_11.fcs_len);
 
             /* By virtue of hdr_fcs_ti being set, we know that 'tree' is set,
             * so there's no need to check it here. */

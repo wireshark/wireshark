@@ -805,7 +805,7 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
         /* len */
         offset = get_le_multi_byte_value(tvb, offset, ctrl_tree, &length, hf_mcc_len);
 
-        if (length > (guint32) tvb_length_remaining(tvb, offset)) {
+        if (length > (guint32) tvb_captured_length_remaining(tvb, offset)) {
             expert_add_info_format(pinfo, ctrl_tree, &ei_btrfcomm_mcc_length_bad, "Huge MCC length: %u", length);
             return offset;
         }
@@ -1215,7 +1215,7 @@ dissect_btdun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
     gboolean    is_at_cmd;
     guint       i, length;
 
-    length = tvb_length(tvb);
+    length = tvb_captured_length(tvb);
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "DUN");
 
@@ -1292,7 +1292,7 @@ dissect_btspp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
     proto_item *ti;
     proto_tree *st;
     gboolean    ascii_only;
-    guint       i, length = tvb_length(tvb);
+    guint       i, length = tvb_captured_length(tvb);
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "SPP");
 
@@ -1309,12 +1309,12 @@ dissect_btspp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
         col_add_fstr(pinfo->cinfo, COL_INFO, "%s \"%s%s\"",
                      (pinfo->p2p_dir == P2P_DIR_SENT) ? "Sent" : "Rcvd",
                      tvb_format_text(tvb, 0, length),
-                     (tvb_length(tvb) > length) ? "..." : "");
+                     (tvb_captured_length(tvb) > length) ? "..." : "");
     }
 
     proto_tree_add_item(st, hf_spp_data, tvb, 0, -1, ENC_NA);
 
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 void
@@ -1363,12 +1363,12 @@ dissect_btgnss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
     col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s",
             (pinfo->p2p_dir == P2P_DIR_SENT) ? "Sent" : "Rcvd",
-            tvb_format_text(tvb, 0, tvb_length(tvb)));
+            tvb_format_text(tvb, 0, tvb_captured_length(tvb)));
 
     /* GNSS using NMEA-0183 protocol, but it is not available */
     proto_tree_add_item(main_tree, hf_gnss_data, tvb, 0, -1, ENC_NA | ENC_ASCII);
 
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 void

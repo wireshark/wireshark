@@ -147,7 +147,7 @@ static void dissect_user(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
         }
     }
 
-    len = tvb_length(tvb) - (encap->header_size + encap->trailer_size);
+    len = tvb_captured_length(tvb) - (encap->header_size + encap->trailer_size);
     reported_len = tvb_reported_length(tvb) - (encap->header_size + encap->trailer_size);
 
     payload_tvb = tvb_new_subset(tvb, encap->header_size, len, reported_len);

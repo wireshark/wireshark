@@ -483,7 +483,7 @@ dissect_goose_UtcTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 	nstime_t ts;
 	gchar *	ptime;
 
-	len = tvb_length_remaining(tvb, offset);
+	len = tvb_captured_length_remaining(tvb, offset);
 
 	if(len != 8)
 	{

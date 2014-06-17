@@ -657,7 +657,7 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         break;
 
     case NCP_ALLOCATE_SLOT:        /* Allocate Slot Request */
-        length_remaining = tvb_length_remaining(tvb, commhdr + 4);
+        length_remaining = tvb_captured_length_remaining(tvb, commhdr + 4);
         if (length_remaining > 4) {
             testvar = tvb_get_ntohl(tvb, commhdr+4);
             if (testvar == 0x4c495020) {
@@ -685,7 +685,7 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     switch (header.type) {
 
     case NCP_ALLOCATE_SLOT:        /* Allocate Slot Request */
-        length_remaining = tvb_length_remaining(tvb, commhdr + 4);
+        length_remaining = tvb_captured_length_remaining(tvb, commhdr + 4);
         if (length_remaining > 4) {
             testvar = tvb_get_ntohl(tvb, commhdr+4);
             if (testvar == 0x4c495020) {
@@ -801,7 +801,7 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
              * length of the packet, but that's arguably a
              * feature in this case.
              */
-            length_remaining = tvb_length_remaining(tvb, offset);
+            length_remaining = tvb_captured_length_remaining(tvb, offset);
             if (length_remaining > data_len)
                 length_remaining = data_len;
             if (data_len != 0) {
@@ -849,7 +849,7 @@ get_ncp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
      */
     signature = tvb_get_ntohl(tvb, offset);
     if (signature != NCPIP_RQST && signature != NCPIP_RPLY)
-        return tvb_length_remaining(tvb, offset);
+        return tvb_captured_length_remaining(tvb, offset);
 
     /*
      * Get the length of the NCP-over-TCP packet.  Strip off the "has
@@ -863,7 +863,7 @@ static int
 dissect_ncp_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     dissect_ncp_common(tvb, pinfo, tree, TRUE);
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 static int
@@ -871,7 +871,7 @@ dissect_ncp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     tcp_dissect_pdus(tvb, pinfo, tree, ncp_desegment, 8, get_ncp_pdu_len,
                      dissect_ncp_tcp_pdu, data);
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 void

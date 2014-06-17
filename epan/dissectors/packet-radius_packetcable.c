@@ -370,7 +370,7 @@ static const gchar* dissect_packetcable_redirected_from_info(proto_tree* tree, t
 
 static const gchar* dissect_packetcable_time_electr_surv_ind(proto_tree* tree, tvbuff_t* tvb, packet_info *pinfo _U_) {
 
-	if (tvb_length(tvb) == 0)
+	if (tvb_captured_length(tvb) == 0)
 		return "None";
 
 	proto_tree_add_item(tree, hf_packetcable_electronic_surveillance_indication_df_cdc_address,
@@ -381,7 +381,7 @@ static const gchar* dissect_packetcable_time_electr_surv_ind(proto_tree* tree, t
 						tvb, 8, 2, ENC_BIG_ENDIAN);
 	proto_tree_add_item(tree, hf_packetcable_electronic_surveillance_indication_ccc_port,
 						tvb, 10, 2, ENC_BIG_ENDIAN);
-	proto_tree_add_text(tree, tvb, 12, tvb_length(tvb) - 12, "DF-DF-Key");
+	proto_tree_add_text(tree, tvb, 12, tvb_captured_length(tvb) - 12, "DF-DF-Key");
 
 	return "";
 }

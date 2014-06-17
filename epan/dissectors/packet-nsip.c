@@ -642,7 +642,7 @@ decode_ie(nsip_ie_t *ie, build_info_t *bi) {
 
   int org_offset = bi->offset;
 
-  if (tvb_length_remaining(bi->tvb, bi->offset) < 1) {
+  if (tvb_captured_length_remaining(bi->tvb, bi->offset) < 1) {
     return;
   }
   switch (ie->format) {
@@ -736,7 +736,7 @@ decode_pdu_ns_unitdata(build_info_t *bi) {
     call_dissector(bssgp_handle, next_tvb, bi->pinfo, bi->parent_tree);
   }
   else {
-    sdu_length = tvb_length_remaining(bi->tvb, bi->offset);
+    sdu_length = tvb_captured_length_remaining(bi->tvb, bi->offset);
     proto_tree_add_text(bi->nsip_tree, bi->tvb, bi->offset, sdu_length,
                         "NS SDU (%u bytes)", sdu_length);
   }

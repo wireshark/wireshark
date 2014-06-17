@@ -523,7 +523,7 @@ find_wccp_address_table(tvbuff_t *tvb, int offset, guint16 length,
     type = tvb_get_ntohs(tvb, offset);
     item_length = tvb_get_ntohs(tvb, offset+2);
 
-    if (item_length > tvb_length_remaining(tvb, offset))
+    if (item_length > tvb_captured_length_remaining(tvb, offset))
       return;
 
     if (type == WCCP2r1_ADDRESS_TABLE)
@@ -764,7 +764,7 @@ dissect_wccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
       break;
   }
 
-  return tvb_length(tvb);
+  return tvb_captured_length(tvb);
 }
 
 static guint
@@ -921,12 +921,12 @@ dissect_wccp2_info(tvbuff_t *tvb, int offset, guint16 length,
     item_length = tvb_get_ntohs(tvb, offset+2);
 
 
-    if (item_length > tvb_length_remaining(tvb, offset)) {
+    if (item_length > tvb_captured_length_remaining(tvb, offset)) {
       tf = proto_tree_add_text(wccp_tree, tvb, offset, length,
                                "Excessive WCCP Length values");
       expert_add_info_format(pinfo, tf, &ei_wccp_length_bad,
                              "The length of the item is %d but there are only %d bytes remaining in the packet, I counted %d remaining",
-                             item_length, tvb_length_remaining(tvb, offset), length);
+                             item_length, tvb_captured_length_remaining(tvb, offset), length);
       break;
     }
     switch (type) {

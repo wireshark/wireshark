@@ -486,7 +486,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
           return;
         } else {
-          linelen = tvb_length_remaining(tvb, loffset);
+          linelen = tvb_captured_length_remaining(tvb, loffset);
           next_offset = loffset + linelen;
         }
       }
@@ -507,7 +507,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             tvb_strneql(tvb, loffset, "\r\n.\r\n", 5) == 0)
           eom_seen = TRUE;
 
-        length_remaining = tvb_length_remaining(tvb, loffset);
+        length_remaining = tvb_captured_length_remaining(tvb, loffset);
         if (length_remaining == tvb_reported_length_remaining(tvb, loffset) &&
             tvb_strneql(tvb, loffset + length_remaining - 2, "\r\n", 2) == 0)
           session_state->crlf_seen = TRUE;
@@ -543,7 +543,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                * We are handling a BDAT message.
                * Check if we have reached end of the data chunk.
                */
-              session_state->msg_read_len += tvb_length_remaining(tvb, loffset);
+              session_state->msg_read_len += tvb_captured_length_remaining(tvb, loffset);
 
               if (session_state->msg_read_len == session_state->msg_tot_len) {
                 /*
@@ -759,7 +759,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     case SMTP_PDU_MESSAGE:
       /* Column Info */
-      length_remaining = tvb_length_remaining(tvb, offset);
+      length_remaining = tvb_captured_length_remaining(tvb, offset);
       col_set_str(pinfo->cinfo, COL_INFO, smtp_data_desegment ? "C: DATA fragment" : "C: Message Body");
       col_append_fstr(pinfo->cinfo, COL_INFO, ", %d byte%s", length_remaining,
                         plurality (length_remaining, "", "s"));
@@ -767,7 +767,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       if (smtp_data_desegment) {
         frag_msg = fragment_add_seq_next(&smtp_data_reassembly_table, tvb, 0,
                                          pinfo, spd_frame_data->conversation_id, NULL,
-                                         tvb_length(tvb), spd_frame_data->more_frags);
+                                         tvb_captured_length(tvb), spd_frame_data->more_frags);
       } else {
         /*
          * Message body.

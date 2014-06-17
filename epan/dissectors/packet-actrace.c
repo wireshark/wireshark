@@ -486,7 +486,7 @@ static int dissect_actrace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 				dissect_actrace_isdn(tvb, pinfo, tree, actrace_tree);
 				break;
 		}
-		return tvb_length(tvb);
+		return tvb_captured_length(tvb);
 	}
 
 	return 0;

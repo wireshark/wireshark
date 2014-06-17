@@ -622,11 +622,11 @@ static gboolean verify_control_frame_crc(tvbuff_t * tvb, packet_info * pinfo, pr
     guint8 crc = 0;
     guint8 * data = NULL;
     /* Get data. */
-    data = (guint8 *)tvb_memdup(wmem_packet_scope(), tvb, 0, tvb_length(tvb));
+    data = (guint8 *)tvb_memdup(wmem_packet_scope(), tvb, 0, tvb_captured_length(tvb));
     /* Include only FT flag bit in CRC calculation. */
     data[0] = data[0] & 1;
     /* Calculate crc7 sum. */
-    crc = crc7update(0, data, tvb_length(tvb));
+    crc = crc7update(0, data, tvb_captured_length(tvb));
     crc = crc7finalize(crc); /* finalize crc */
     if (frame_crc == crc) {
         proto_item_append_text(pi, " [correct]");
@@ -988,7 +988,7 @@ dissect_spare_extension_and_crc(tvbuff_t *tvb, packet_info *pinfo,
                                 int offset,guint header_length)
 {
     int         crc_size = 0;
-    int         remain   = tvb_length_remaining(tvb, offset);
+    int         remain   = tvb_captured_length_remaining(tvb, offset);
 
     /* Payload CRC (optional) */
     if ((dch_crc_present == 1) || ((dch_crc_present == 2) && (remain >= 2))) {
@@ -1532,7 +1532,7 @@ dissect_rach_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         /* Info introduced in R6 */
         /* only check if it looks as if they are present */
         if (((p_fp_info->release == 6) || (p_fp_info->release == 7)) &&
-            (tvb_length_remaining(tvb, offset) > 2))
+            (tvb_captured_length_remaining(tvb, offset) > 2))
         {
             int n;
             guint8 flags;
@@ -1756,7 +1756,7 @@ dissect_fach_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         /* New IE flags (if it looks as though they are present) */
         if ((p_fp_info->release == 7) &&
-            (tvb_length_remaining(tvb, offset) > 2)) {
+            (tvb_captured_length_remaining(tvb, offset) > 2)) {
 
             guint8 flags = tvb_get_guint8(tvb, offset);
             guint8 aoa_present = flags & 0x01;
@@ -1918,7 +1918,7 @@ dissect_usch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         /* New IEs */
         if ((p_fp_info->release == 7) &&
-            (tvb_length_remaining(tvb, offset) > 2)) {
+            (tvb_captured_length_remaining(tvb, offset) > 2)) {
 
             guint8 flags = tvb_get_guint8(tvb, offset);
             guint8 bits_extended = flags & 0x01;
@@ -2169,7 +2169,7 @@ dissect_dch_rx_timing_deviation(packet_info *pinfo, proto_tree *tree,
 
     /* May be extended in R7, but in this case there are at least 2 bytes remaining */
     if ((p_fp_info->release == 7) &&
-        (tvb_length_remaining(tvb, offset) >= 2)) {
+        (tvb_captured_length_remaining(tvb, offset) >= 2)) {
 
         /* New IE flags */
         guint64 extended_bits_present;
@@ -2364,7 +2364,7 @@ dissect_dch_timing_advance(proto_tree *tree, packet_info *pinfo,
     offset++;
 
     if ((p_fp_info->release == 7) &&
-        (tvb_length_remaining(tvb, offset) > 0)) {
+        (tvb_captured_length_remaining(tvb, offset) > 0)) {
 
         /* New IE flags */
         guint8 flags = tvb_get_guint8(tvb, offset);
@@ -3214,7 +3214,7 @@ dissect_hsdsch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         /* Extra IEs (if there is room for them) */
         if (((p_fp_info->release == 6) ||
              (p_fp_info->release == 7)) &&
-            (tvb_length_remaining(tvb, offset) > 2)) {
+            (tvb_captured_length_remaining(tvb, offset) > 2)) {
 
             int n;
             guint8 flags;
@@ -3781,7 +3781,7 @@ heur_dissect_fp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
              * i.e. from bit 0 of the first byte of the header (the FT IE) to bit 0 of the last byte of the payload,
              * with the corresponding generator polynomial: G(D) = D7+D6+D2+1. See subclause 7.2.
              */
-            length =  tvb_length(tvb);
+            length =  tvb_captured_length(tvb);
             buf = (unsigned char *)tvb_memdup(wmem_packet_scope(), tvb, 0, length);
             buf[0] = 01;
 

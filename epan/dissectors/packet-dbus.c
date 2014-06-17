@@ -621,7 +621,7 @@ static int
 dissect_dbus_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 	tcp_dissect_pdus(tvb, pinfo, tree, dbus_desegment, DBUS_HEADER_LEN, get_dbus_message_len, dissect_dbus_pdu, data);
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 void

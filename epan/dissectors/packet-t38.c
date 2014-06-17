@@ -680,7 +680,7 @@ dissect_t38_T_field_data(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        1, 65535, FALSE, &value_tvb);
 
-    value_len = tvb_length(value_tvb);
+    value_len = tvb_captured_length(value_tvb);
 
 
 
@@ -1129,7 +1129,7 @@ dissect_t38_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	offset = dissect_UDPTLPacket_PDU(tvb, pinfo, tr, NULL);
 
-	if (tvb_length_remaining(tvb,offset)>0){
+	if (tvb_captured_length_remaining(tvb,offset)>0){
 		if (tr){
 			proto_tree_add_text(tr, tvb, offset, tvb_reported_length_remaining(tvb, offset),
 				"[MALFORMED PACKET or wrong preference settings]");
@@ -1168,13 +1168,13 @@ dissect_t38_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	col_append_str(pinfo->cinfo, COL_INFO, "TCP: IFPPacket");
 
-	while(tvb_length_remaining(tvb,offset)>0)
+	while(tvb_captured_length_remaining(tvb,offset)>0)
 	{
 		next_tvb = tvb_new_subset_remaining(tvb, offset);
 		offset += dissect_IFPPacket_PDU(next_tvb, pinfo, tr, NULL);
 		ifp_packet_number++;
 
-		if(tvb_length_remaining(tvb,offset)>0){
+		if(tvb_captured_length_remaining(tvb,offset)>0){
 			if(t38_tpkt_usage == T38_TPKT_ALWAYS){
 				if(tr){
 					proto_tree_add_text(tr, tvb, offset, tvb_reported_length_remaining(tvb, offset),

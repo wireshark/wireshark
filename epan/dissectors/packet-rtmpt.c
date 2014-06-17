@@ -565,7 +565,7 @@ static gint
 rtmpt_get_amf_length(tvbuff_t *tvb, gint offset)
 {
         guint8  iObjType;
-        gint    remain  = tvb_length_remaining(tvb, offset);
+        gint    remain  = tvb_captured_length_remaining(tvb, offset);
         guint32 depth   = 0;
         gint    itemlen = 0;
         gint    rv      = 0;
@@ -644,7 +644,7 @@ rtmpt_get_amf_length(tvbuff_t *tvb, gint offset)
 static gchar *
 rtmpt_get_amf_param(tvbuff_t *tvb, gint offset, gint param, const gchar *prop)
 {
-        guint32 remain = tvb_length_remaining(tvb, offset);
+        guint32 remain = tvb_captured_length_remaining(tvb, offset);
         guint32 itemlen;
         guint32 iStringLength;
 
@@ -698,7 +698,7 @@ rtmpt_get_amf_param(tvbuff_t *tvb, gint offset, gint param, const gchar *prop)
 static guint32
 rtmpt_get_amf_txid(tvbuff_t *tvb, gint offset)
 {
-        guint32 remain = tvb_length_remaining(tvb, offset);
+        guint32 remain = tvb_captured_length_remaining(tvb, offset);
 
         if (remain > 0) {
                 guint32 itemlen = rtmpt_get_amf_length(tvb, offset);
@@ -1118,7 +1118,7 @@ dissect_amf0_value_type(tvbuff_t *tvb, gint offset, proto_tree *tree, gboolean *
                  * If we can't determine the length, don't carry on;
                  * just skip to the end of the tvbuff.
                  */
-                iValueOffset = tvb_length(tvb);
+                iValueOffset = tvb_captured_length(tvb);
                 break;
         }
         proto_item_set_end(ti, tvb, iValueOffset);
@@ -1557,7 +1557,7 @@ dissect_amf3_value_type(tvbuff_t *tvb, gint offset, proto_tree *tree, proto_item
                  * If we can't determine the length, don't carry on;
                  * just skip to the end of the tvbuff.
                  */
-                iValueOffset = tvb_length(tvb);
+                iValueOffset = tvb_captured_length(tvb);
                 break;
         }
         proto_item_set_end(ti, tvb, iValueOffset);
@@ -1639,7 +1639,7 @@ dissect_rtmpt_body_aggregate(tvbuff_t *tvb, gint offset, proto_tree *rtmpt_tree)
         proto_item *data_item = NULL;
         proto_tree *data_tree = NULL;
 
-        while (tvb_length_remaining(tvb, offset) > 0) {
+        while (tvb_captured_length_remaining(tvb, offset) > 0) {
                 guint8 iTagType;
                 guint  iDataSize;
 
@@ -1697,22 +1697,22 @@ dissect_rtmpt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rtmpt_conv_t 
 
         RTMPT_DEBUG("Dissect: frame=%u visited=%d len=%d tree=%p\n",
                     pinfo->fd->num, pinfo->fd->flags.visited,
-                    tvb_length_remaining(tvb, offset), tree);
+                    tvb_captured_length_remaining(tvb, offset), tree);
 
         /* Clear any previous data in Info column (RTMP packets are protected by a "fence") */
         col_clear(pinfo->cinfo, COL_INFO);
 
-        if (tvb_length_remaining(tvb, offset) < 1) return;
+        if (tvb_captured_length_remaining(tvb, offset) < 1) return;
 
         if (tp->id <= RTMPT_ID_MAX) {
                 if (tp->fmt < 3
-                    && tvb_length_remaining(tvb, offset) >= tp->bhlen+3
+                    && tvb_captured_length_remaining(tvb, offset) >= tp->bhlen+3
                     && tvb_get_ntoh24(tvb, offset+tp->bhlen) == 0xffffff) {
                         haveETS = TRUE;
                 }
 
                 iBodyOffset = offset + tp->bhlen + tp->mhlen;
-                iBodyRemain = tvb_length_remaining(tvb, iBodyOffset);
+                iBodyRemain = tvb_captured_length_remaining(tvb, iBodyOffset);
 
                 if (tp->cmd == RTMPT_TYPE_CHUNK_SIZE && tp->len >= 4 && iBodyRemain >= 4) {
                         guint32 newchunksize = tvb_get_ntohl(tvb, iBodyOffset);
@@ -1893,7 +1893,7 @@ dissect_rtmpt_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rtmpt_
         rtmpt_packet_t *tp;
         tvbuff_t       *pktbuf;
 
-        remain = tvb_length(tvb);
+        remain = tvb_captured_length(tvb);
         if (!remain)
                 return;
 
@@ -2322,7 +2322,7 @@ dissect_rtmpt_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
                 conv->key_ptr->port2 == pinfo->destport) ? 0 : 1;
 
         dissect_rtmpt_common(tvb, pinfo, tree, rconv, cdir, tcpinfo->seq, tcpinfo->lastackseq);
-        return tvb_length(tvb);
+        return tvb_captured_length(tvb);
 }
 
 static void
@@ -2337,7 +2337,7 @@ dissect_rtmpt_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         gint            remain;
 
         offset = 0;
-        remain = tvb_length_remaining(tvb, 0);
+        remain = tvb_captured_length_remaining(tvb, 0);
 
         /*
          * Request flow:
@@ -2447,7 +2447,7 @@ static gboolean
 dissect_rtmpt_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
         conversation_t *conversation;
-        if (tvb_length(tvb) >= 12)
+        if (tvb_captured_length(tvb) >= 12)
         {
                 /* To avoid a too high rate of false positive, this heuristics only matches the protocol
                    from the first server response packet and not from the client request packets before.

@@ -168,7 +168,7 @@ static void dissect_turbocell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
     }
 
-        remaining_length=tvb_length_remaining(tvb, 0x14);
+        remaining_length=tvb_captured_length_remaining(tvb, 0x14);
 
         if (remaining_length > 6) {
 
@@ -183,7 +183,7 @@ static void dissect_turbocell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
                 str_name=tvb_get_stringz_enc(wmem_packet_scope(), tvb, 0x14, &str_len, ENC_ASCII);
                 col_append_fstr(pinfo->cinfo, COL_INFO, ", Network=\"%s\"",format_text(str_name, str_len-1));
 
-                while(tvb_get_guint8(tvb, 0x34 + 8*i)==0x00 && (tvb_length_remaining(tvb,0x34 + 8*i) > 6) && (i<32)) {
+                while(tvb_get_guint8(tvb, 0x34 + 8*i)==0x00 && (tvb_captured_length_remaining(tvb,0x34 + 8*i) > 6) && (i<32)) {
                     proto_tree_add_item(network_tree, hf_turbocell_station[i], tvb, 0x34+8*i, 6, ENC_NA);
                     i++;
                 }
@@ -211,7 +211,7 @@ static void dissect_turbocell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
                 proto_tree_add_item(mpdu_tree, hf_turbocell_aggregate_len, next_tvb, 0x00, 2, ENC_BIG_ENDIAN);
                 proto_tree_add_item(mpdu_tree, hf_turbocell_aggregate_unknown1, next_tvb, 0x02, 2, ENC_BIG_ENDIAN);
 
-                remaining_length=tvb_length_remaining(next_tvb, msdu_offset);
+                remaining_length=tvb_captured_length_remaining(next_tvb, msdu_offset);
 
                 do {
                     msdu_length = (tvb_get_letohs(next_tvb, msdu_offset) & 0x0FFF);

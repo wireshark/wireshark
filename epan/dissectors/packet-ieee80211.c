@@ -9806,7 +9806,7 @@ static void dissect_hs20_indication(proto_tree *tree, tvbuff_t *tvb,
 static void
 dissect_vendor_ie_wfa(packet_info *pinfo, proto_item *item, tvbuff_t *tag_tvb)
 {
-  gint tag_len = tvb_length(tag_tvb);
+  gint tag_len = tvb_captured_length(tag_tvb);
 
   if (tag_len < 4)
     return;
@@ -15874,7 +15874,7 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
       DATA_FRAME_IS_QOS(frame_type_subtype)) {
         qosoff = hdr_len - htc_len - 2;
         qos_control = tvb_get_letohs(tvb, qosoff);
-        if (tvb_length(tvb) > hdr_len) {
+        if (tvb_captured_length(tvb) > hdr_len) {
             meshoff = hdr_len;
             mesh_flags = tvb_get_guint8 (tvb, hdr_len);
             if (has_mesh_control(fcf, qos_control, mesh_flags)) {
@@ -16155,7 +16155,7 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
                                 tvb, offset, 1, ENC_NA);
             offset++;
 
-            while (tvb_length_remaining(tvb, offset) > 0) {
+            while (tvb_captured_length_remaining(tvb, offset) > 0) {
               sta_info_item = proto_tree_add_item(hdr_tree, hf_ieee80211_vht_ndp_annc_sta_info,
                                                   tvb, offset, 2, ENC_NA);
               sta_info_tree = proto_item_add_subtree(sta_info_item, ett_vht_ndp_annc_sta_info_tree);
@@ -16775,7 +16775,7 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
     }
   }
 
-  len = tvb_length_remaining(tvb, hdr_len);
+  len = tvb_captured_length_remaining(tvb, hdr_len);
   reported_len = tvb_reported_length_remaining(tvb, hdr_len);
 
   switch (fcs_len)

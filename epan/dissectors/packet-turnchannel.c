@@ -68,7 +68,7 @@ dissect_turnchannel_message(tvbuff_t *tvb, packet_info *pinfo,
 	proto_tree *turnchannel_tree;
 	heur_dtbl_entry_t *hdtbl_entry;
 
-	len = tvb_length(tvb);
+	len = tvb_captured_length(tvb);
 	/* First, make sure we have enough data to do the check. */
 	if (len < TURNCHANNEL_HDR_LEN) {
 		  return 0;
@@ -102,7 +102,7 @@ dissect_turnchannel_message(tvbuff_t *tvb, packet_info *pinfo,
 	  tvbuff_t *next_tvb;
 	  guint reported_len, new_len;
 
-	  new_len = tvb_length_remaining(tvb, TURNCHANNEL_HDR_LEN);
+	  new_len = tvb_captured_length_remaining(tvb, TURNCHANNEL_HDR_LEN);
 	  reported_len = tvb_reported_length_remaining(tvb,
 						       TURNCHANNEL_HDR_LEN);
 	  if (data_len < reported_len) {
@@ -118,7 +118,7 @@ dissect_turnchannel_message(tvbuff_t *tvb, packet_info *pinfo,
 	  }
 	}
 
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 static guint
@@ -132,7 +132,7 @@ dissect_turnchannel_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 {
 	tcp_dissect_pdus(tvb, pinfo, tree, TRUE, TURNCHANNEL_HDR_LEN,
 			get_turnchannel_message_len, dissect_turnchannel_message, data);
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 
@@ -143,7 +143,7 @@ dissect_turnchannel_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 	guint16 channel_id;
 	guint16 data_len;
 
-  	len = tvb_length(tvb);
+    len = tvb_captured_length(tvb);
 	/* First, make sure we have enough data to do the check. */
 	if (len < TURNCHANNEL_HDR_LEN) {
 		  return FALSE;

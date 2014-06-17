@@ -350,7 +350,7 @@ dissect_reload_framing_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     next_tvb = tvb_new_subset(tvb, offset, effective_length - offset, message_length);
     if (reload_handle == NULL) {
       expert_add_info(pinfo, ti, &ei_reload_no_dissector);
-      return tvb_length(tvb);
+      return tvb_captured_length(tvb);
     }
     call_dissector_only(reload_handle, next_tvb, pinfo, tree, NULL);
   }
@@ -443,7 +443,7 @@ dissect_reload_framing_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     DISSECTOR_ASSERT_NOT_REACHED();
   }
 
-  return tvb_length(tvb);
+  return tvb_captured_length(tvb);
 }
 
 static int
@@ -458,7 +458,7 @@ dissect_reload_framing_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
   /* XXX: Check if we have a valid RELOAD Frame Type ? */
   tcp_dissect_pdus(tvb, pinfo, tree, TRUE, MIN_HDR_LENGTH,
                    get_reload_framing_message_length, dissect_reload_framing, data);
-  return tvb_length(tvb);
+  return tvb_captured_length(tvb);
 }
 
 /* ToDo: If a TCP connection is identified heuristically as reload-framing, then

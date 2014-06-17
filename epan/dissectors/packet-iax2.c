@@ -1999,7 +1999,7 @@ static guint32 dissect_trunkcall_ts(tvbuff_t *tvb, guint32 offset, proto_tree *i
   *scallno = tvb_get_ntohs(tvb, offset + 2);
   ts = tvb_get_ntohs(tvb, offset + 4);
 
-  rlen = MIN(tvb_length(tvb) - offset - 6, datalen);
+  rlen = MIN(tvb_captured_length(tvb) - offset - 6, datalen);
 
   if (iax2_tree) {
     call_item = proto_tree_add_text(iax2_tree, tvb, offset, rlen + 6, "Trunk call from %u, ts: %u", *scallno, ts);
@@ -2032,7 +2032,7 @@ static guint32 dissect_trunkcall_nots(tvbuff_t *tvb, guint32 offset, proto_tree 
   *scallno = tvb_get_ntohs(tvb, offset);
   datalen = tvb_get_ntohs(tvb, offset + 2);
 
-  rlen = MIN(tvb_length(tvb) - offset - 4, datalen);
+  rlen = MIN(tvb_captured_length(tvb) - offset - 4, datalen);
 
   if (iax2_tree) {
     call_item = proto_tree_add_text(iax2_tree, tvb, offset, rlen + 6, "Trunk call from %u", *scallno);
@@ -2131,7 +2131,7 @@ static guint32 dissect_trunkpacket(tvbuff_t *tvb, guint32 offset,
 
   if (trunkts) {
     /* Trunk calls with timestamp */
-    while(tvb_length_remaining(tvb, offset) >= 6) {
+    while(tvb_captured_length_remaining(tvb, offset) >= 6) {
       guint16 scallno;
       offset = dissect_trunkcall_ts(tvb, offset, iax2_tree, &scallno);
       if (!call_list_find(calls, scallno)) {
@@ -2142,7 +2142,7 @@ static guint32 dissect_trunkpacket(tvbuff_t *tvb, guint32 offset,
   }
   else {
     /* Trunk calls without timestamp */
-    while(tvb_length_remaining(tvb, offset) >= 4) {
+    while(tvb_captured_length_remaining(tvb, offset) >= 4) {
       guint16 scallno;
       offset = dissect_trunkcall_nots(tvb, offset, iax2_tree, &scallno);
       if (!call_list_find(calls, scallno)) {

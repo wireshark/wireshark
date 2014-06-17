@@ -96,7 +96,7 @@ dissect_miop_heur (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void 
   /* check magic number and version */
 
 
-  tot_len = tvb_length(tvb);
+  tot_len = tvb_captured_length(tvb);
 
   if (tot_len < MIOP_HEADER_SIZE) /* tot_len < 16 */
     {

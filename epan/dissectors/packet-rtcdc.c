@@ -143,7 +143,7 @@ dissect_open_request_message(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 static void
 dissect_open_response_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *rtcdc_tree, proto_item *rtcdc_item)
 {
-    if (tvb_length(tvb) > DATA_CHANNEL_RESPONSE_LENGTH) {
+    if (tvb_captured_length(tvb) > DATA_CHANNEL_RESPONSE_LENGTH) {
         expert_add_info(pinfo, rtcdc_item, &ei_rtcdc_message_too_long);
     }
     if (rtcdc_tree) {
@@ -159,7 +159,7 @@ dissect_open_response_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *rtc
 static void
 dissect_open_ack_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *rtcdc_tree _U_, proto_item *rtcdc_item)
 {
-    if (tvb_length(tvb) > DATA_CHANNEL_ACK_LENGTH) {
+    if (tvb_captured_length(tvb) > DATA_CHANNEL_ACK_LENGTH) {
         expert_add_info(pinfo, rtcdc_item, &ei_rtcdc_message_too_long);
     }
     return;
@@ -227,7 +227,7 @@ dissect_new_open_request_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
         proto_tree_add_item(rtcdc_tree, hf_new_protocol_length, tvb, NEW_PROTOCOL_LENGTH_OFFSET, NEW_PROTOCOL_LENGTH_LENGTH, ENC_BIG_ENDIAN);
         label_length = tvb_get_ntohs(tvb, NEW_LABEL_LENGTH_OFFSET);
         protocol_length = tvb_get_ntohs(tvb, NEW_PROTOCOL_LENGTH_OFFSET);
-        if (NEW_OPEN_REQUEST_HEADER_LENGTH + (guint)label_length + (guint)protocol_length != tvb_length(tvb)) {
+        if (NEW_OPEN_REQUEST_HEADER_LENGTH + (guint)label_length + (guint)protocol_length != tvb_captured_length(tvb)) {
             expert_add_info(pinfo, rtcdc_item, &ei_rtcdc_inconsistent_label_and_parameter_length);
         }
         proto_tree_add_item(rtcdc_tree, hf_new_label, tvb, NEW_LABEL_OFFSET, label_length, ENC_ASCII|ENC_NA);
@@ -268,7 +268,7 @@ dissect_rtcdc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
             expert_add_info(pinfo, msg_item, &ei_rtcdc_message_type_unknown);
             break;
     }
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 void

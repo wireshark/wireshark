@@ -1405,14 +1405,14 @@ dissect_ansi_801_for_message(tvbuff_t *tvb, proto_tree *tree)
 	}
 
 	offset++;
-	rem_len = tvb_length_remaining(tvb, offset);
+	rem_len = tvb_captured_length_remaining(tvb, offset);
 
 	while ((num_req > 0) &&
 	       (rem_len >= 2))
 	{
 		for_request(tvb, tree, &offset, pd_msg_type);
 
-		rem_len = tvb_length_remaining(tvb, offset);
+		rem_len = tvb_captured_length_remaining(tvb, offset);
 		num_req--;
 	}
 
@@ -1428,7 +1428,7 @@ dissect_ansi_801_for_message(tvbuff_t *tvb, proto_tree *tree)
 	{
 		for_response(tvb, tree, &offset);
 
-		rem_len = tvb_length_remaining(tvb, offset);
+		rem_len = tvb_captured_length_remaining(tvb, offset);
 		num_rsp--;
 	}
 
@@ -1529,14 +1529,14 @@ dissect_ansi_801_rev_message(tvbuff_t *tvb, proto_tree *tree)
 		offset++;
 	}
 
-	rem_len = tvb_length_remaining(tvb, offset);
+	rem_len = tvb_captured_length_remaining(tvb, offset);
 
 	while ((num_req > 0) &&
 	       (rem_len >= 2))
 	{
 		rev_request(tvb, tree, &offset, pd_msg_type);
 
-		rem_len = tvb_length_remaining(tvb, offset);
+		rem_len = tvb_captured_length_remaining(tvb, offset);
 		num_req--;
 	}
 
@@ -1552,7 +1552,7 @@ dissect_ansi_801_rev_message(tvbuff_t *tvb, proto_tree *tree)
 	{
 		rev_response(tvb, tree, &offset);
 
-		rem_len = tvb_length_remaining(tvb, offset);
+		rem_len = tvb_captured_length_remaining(tvb, offset);
 		num_rsp--;
 	}
 

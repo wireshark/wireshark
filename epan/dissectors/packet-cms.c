@@ -291,8 +291,8 @@ cms_verify_msg_digest(proto_item *pi, tvbuff_t *content, const char *alg, tvbuff
 
     sha1_starts(&sha1_ctx);
 
-    sha1_update(&sha1_ctx, tvb_get_ptr(content, 0, tvb_length(content)),
-		tvb_length(content));
+    sha1_update(&sha1_ctx, tvb_get_ptr(content, 0, tvb_captured_length(content)),
+		tvb_captured_length(content));
 
     sha1_finish(&sha1_ctx, digest_buf);
 
@@ -302,8 +302,8 @@ cms_verify_msg_digest(proto_item *pi, tvbuff_t *content, const char *alg, tvbuff
 
     md5_init(&md5_ctx);
 
-    md5_append(&md5_ctx, tvb_get_ptr(content, 0, tvb_length(content)),
-	       tvb_length(content));
+    md5_append(&md5_ctx, tvb_get_ptr(content, 0, tvb_captured_length(content)),
+	       tvb_captured_length(content));
 
     md5_finish(&md5_ctx, digest_buf);
 
@@ -436,7 +436,7 @@ dissect_cms_T_eContent(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 #line 102 "../../asn1/cms/cms.cnf"
 
   offset = dissect_ber_octet_string(FALSE, actx, tree, tvb, offset, hf_index, &content_tvb);
-  proto_item_set_text(actx->created_item, "eContent (%u bytes)", tvb_length (content_tvb));
+  proto_item_set_text(actx->created_item, "eContent (%u bytes)", tvb_captured_length (content_tvb));
 
   call_ber_oid_callback(object_identifier_id, content_tvb, 0, actx->pinfo, top_tree ? top_tree : tree, NULL);
 

@@ -232,7 +232,7 @@ dissect_kingfisher(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
 
     /* verify the length */
     kfp.length = tvb_get_guint8(tvb, 2);
-    if((kfp.length+1) != (guint8)tvb_length(tvb)){
+    if((kfp.length+1) != (guint8)tvb_captured_length(tvb)){
         return FALSE;
     }
 

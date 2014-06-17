@@ -72,7 +72,7 @@ dissect_tte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     proto_tree *tte_tree, *tte_macdest_tree;
 
     /* Check that there's enough data */
-    if (tvb_length(tvb) < TTE_HEADER_LENGTH)
+    if (tvb_captured_length(tvb) < TTE_HEADER_LENGTH)
         return 0;
 
     /* check if data of pcf frame */
@@ -132,7 +132,7 @@ dissect_tte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     ethertype_data.fcs_len = 0;
 
     call_dissector_with_data(ethertype_handle, tvb, pinfo, tree, &ethertype_data);
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 

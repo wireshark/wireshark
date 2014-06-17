@@ -588,7 +588,7 @@ dissect_rpc_opaque_data(tvbuff_t *tvb, int offset,
 		string_length = tvb_get_ntohl(tvb,offset);
 		data_offset = offset + 4;
 	}
-	string_length_captured = tvb_length_remaining(tvb, data_offset);
+	string_length_captured = tvb_captured_length_remaining(tvb, data_offset);
 	string_length_packet = tvb_reported_length_remaining(tvb, data_offset);
 	string_length_full = rpc_roundup(string_length);
 	if (string_length_captured < string_length) {
@@ -606,7 +606,7 @@ dissect_rpc_opaque_data(tvbuff_t *tvb, int offset,
 		/* full string data */
 		string_length_copy = string_length;
 		fill_length = string_length_full - string_length;
-		fill_length_captured = tvb_length_remaining(tvb,
+		fill_length_captured = tvb_captured_length_remaining(tvb,
 		    data_offset + string_length);
 		fill_length_packet = tvb_reported_length_remaining(tvb,
 		    data_offset + string_length);
@@ -1220,7 +1220,7 @@ dissect_rpc_authgss_token(tvbuff_t* tvb, proto_tree* tree, int offset,
 	offset += 4;
 
 	if (opaque_length != 0) {
-		length = tvb_length_remaining(tvb, offset);
+		length = tvb_captured_length_remaining(tvb, offset);
 		reported_length = tvb_reported_length_remaining(tvb, offset);
 		DISSECTOR_ASSERT(length >= 0);
 		DISSECTOR_ASSERT(reported_length >= 0);
@@ -2728,7 +2728,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         /*
          * Don't call any subdissector if we have no more date to dissect.
          */
-        if (tvb_length_remaining(tvb, offset) == 0) {
+        if (tvb_captured_length_remaining(tvb, offset) == 0) {
                 return TRUE;
         }
 
@@ -2805,7 +2805,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 						pinfo, ptree, 4,
 						dissect_function,
 						progname, rpc_call);
-					offset = tvb_length(pinfo->gssapi_decrypted_tvb);
+					offset = tvb_captured_length(pinfo->gssapi_decrypted_tvb);
 				}
 			}
 			break;
@@ -2867,7 +2867,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		break;
 	}
 
-        if (tvb_length_remaining(tvb, offset) > 0) {
+        if (tvb_captured_length_remaining(tvb, offset) > 0) {
           /*
            * dissect any remaining bytes (incomplete dissection) as pure
            * data in the ptree
@@ -2910,7 +2910,7 @@ dissect_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	if (!dissect_rpc_message(tvb, pinfo, tree, NULL, NULL, FALSE, 0,
 	    TRUE)) {
-		if (tvb_length(tvb) != 0)
+		if (tvb_captured_length(tvb) != 0)
 			dissect_rpc_continuation(tvb, pinfo, tree);
 	}
 }
@@ -3135,7 +3135,7 @@ dissect_rpc_fragment(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if (len > max_rpc_tcp_pdu_size)
 		return 0;	/* pretend it's not valid */
 	if (rpc_desegment) {
-		seglen = tvb_length_remaining(tvb, offset + 4);
+		seglen = tvb_captured_length_remaining(tvb, offset + 4);
 
 		if ((gint)len > seglen && pinfo->can_desegment) {
 			/*
@@ -3174,7 +3174,7 @@ dissect_rpc_fragment(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		}
 	}
 	len += 4;	/* include record mark */
-	tvb_len = tvb_length_remaining(tvb, offset);
+	tvb_len = tvb_captured_length_remaining(tvb, offset);
 	tvb_reported_len = tvb_reported_length_remaining(tvb, offset);
 	if (tvb_len > (gint)len)
 		tvb_len = len;
@@ -3751,7 +3751,7 @@ dissect_rpc_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 	if (dissect_rpc_tcp_common(tvb, pinfo, tree, FALSE, tcpinfo) == IS_NOT_RPC)
 		dissect_rpc_continuation(tvb, pinfo, tree);
 
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 /* Discard any state we've saved. */

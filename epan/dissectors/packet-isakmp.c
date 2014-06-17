@@ -1896,7 +1896,7 @@ decrypt_payload(tvbuff_t *tvb, packet_info *pinfo, const guint8 *buf, guint buf_
   add_new_data_source(pinfo, encr_tvb, "Decrypted IKE");
 
   /* Fill in the next IV */
-  if (tvb_length(tvb) > cbc_block_size) {
+  if (tvb_captured_length(tvb) > cbc_block_size) {
     decr->last_cbc_len = cbc_block_size;
     memcpy(decr->last_cbc, buf + buf_len - cbc_block_size, cbc_block_size);
   } else {
@@ -2949,7 +2949,7 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 	  if (decr_tvb) {
             decr_tree = proto_item_add_subtree(ti, ett_isakmp);
             dissect_payloads(decr_tvb, decr_tree, tree, isakmp_version,
-                             hdr.next_payload, 0, tvb_length(decr_tvb), pinfo, decr_data);
+                             hdr.next_payload, 0, tvb_captured_length(decr_tvb), pinfo, decr_data);
 
 	  }
 	}
@@ -3893,7 +3893,7 @@ dissect_cisco_fragmentation(tvbuff_t *tvb, int offset, int length, proto_tree *t
                                       12345,                    /*FIXME:  Fragmented packet id, guint16, somehow get CKY here */
                                       NULL,
                                       seq-1,                    /* fragment sequence number, starting from 0 */
-                                      tvb_length_remaining(tvb, offset), /* fragment length - to the end */
+                                      tvb_captured_length_remaining(tvb, offset), /* fragment length - to the end */
                                       last);                    /* More fragments? */
     defrag_isakmp_tvb = process_reassembled_data(tvb, offset, pinfo,
                                                  "Reassembled ISAKMP", frag_msg, &isakmp_frag_items,

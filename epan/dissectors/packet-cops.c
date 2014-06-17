@@ -986,7 +986,7 @@ dissect_cops_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
         offset += object_len;
     }
 
-    garbage = tvb_length_remaining(tvb, offset);
+    garbage = tvb_captured_length_remaining(tvb, offset);
     if (garbage > 0) {
         proto_tree_add_expert_format(tree, pinfo, &ei_cops_trailing_garbage, tvb, offset, garbage, "Trailing garbage: %d byte%s", garbage, plurality(garbage, "", "s"));
     }
@@ -1121,7 +1121,7 @@ dissect_cops_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
         }
     }
 
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 /* Code to actually dissect the packets */
@@ -1130,7 +1130,7 @@ dissect_cops(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     tcp_dissect_pdus(tvb, pinfo, tree, cops_desegment, 8,
                      get_cops_pdu_len, dissect_cops_pdu, data);
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 static const char *cops_c_type_to_str(guint8 c_num, guint8 c_type)
@@ -1594,7 +1594,7 @@ static int dissect_cops_pr_object_data(tvbuff_t *tvb, packet_info *pinfo, guint3
             gint encoid_len;
             guint8* encoid;
 
-            encoid_len = tvb_length_remaining(oid_tvb,0);
+            encoid_len = tvb_captured_length_remaining(oid_tvb,0);
             if (encoid_len > 0) {
                 encoid = (guint8*)tvb_memdup(wmem_packet_scope(),oid_tvb,0,encoid_len);
                 (*pprid_subids_len) = oid_encoded2subid(encoid, encoid_len, pprid_subids);
@@ -5963,7 +5963,7 @@ cops_analyze_packetcable_dqos_obj(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     }
 
     /* Do the remaining client specific objects */
-    remdata = tvb_length_remaining(tvb, offset);
+    remdata = tvb_captured_length_remaining(tvb, offset);
     while (remdata > 4) {
 
         /* In case we have remaining data, then lets try to get this analyzed */
@@ -6021,7 +6021,7 @@ cops_analyze_packetcable_dqos_obj(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
         offset += object_len;
 
         /* See what we can still get from the buffer */
-        remdata = tvb_length_remaining(tvb, offset);
+        remdata = tvb_captured_length_remaining(tvb, offset);
     }
 }
 

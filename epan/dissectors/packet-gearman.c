@@ -415,7 +415,7 @@ dissect_binary_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
   }
 
   col_set_fence(pinfo->cinfo, COL_INFO);
-  return tvb_length(tvb);
+  return tvb_captured_length(tvb);
 }
 
 static void
@@ -480,7 +480,7 @@ dissect_gearman(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     dissect_management_packet(tvb, pinfo, tree);
   }
 
-  return tvb_length(tvb);
+  return tvb_captured_length(tvb);
 }
 
 void

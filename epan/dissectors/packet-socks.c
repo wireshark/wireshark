@@ -907,7 +907,7 @@ display_ping_and_tracert(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
                 "Traceroute Results");
 
             data = tvb_get_ptr(tvb, offset, -1);
-            dataend = data + tvb_length_remaining(tvb, offset);
+            dataend = data + tvb_captured_length_remaining(tvb, offset);
 
             while (data < dataend) {
 

@@ -2630,7 +2630,7 @@ static gint dissect_dmp_ack (tvbuff_t *tvb, packet_info *pinfo,
 
   if (dmp.ack_rec_present) {
     /* Recipient List */
-    rec_len = tvb_length (tvb);
+    rec_len = tvb_captured_length (tvb);
     if (dmp.checksum) {
       rec_len -= 2;
     }
@@ -3118,7 +3118,7 @@ static gint dissect_dmp_message (tvbuff_t *tvb, packet_info *pinfo,
     offset += 1;
   }
 
-  len = tvb_length_remaining (tvb, offset);
+  len = tvb_captured_length_remaining (tvb, offset);
   if (dmp.checksum) {
     len -= 2;
   }
@@ -3141,7 +3141,7 @@ static gint dissect_dmp_message (tvbuff_t *tvb, packet_info *pinfo,
                          dmp.body_format == FREE_TEXT_SUBJECT)) {
     if (compr_alg == ALGORITHM_ZLIB) {
       if ((body_tvb = tvb_child_uncompress (tvb, tvb, offset, len)) != NULL) {
-        body_len = tvb_length (body_tvb);
+        body_len = tvb_captured_length (body_tvb);
         add_new_data_source (pinfo, body_tvb, "Uncompressed User data");
         tf = proto_tree_add_item (message_tree, hf_message_body_data,
                                   body_tvb, 0, body_len, ENC_NA);
@@ -3839,7 +3839,7 @@ static gint dissect_dmp_content (tvbuff_t *tvb, packet_info *pinfo,
     offset = dissect_dmp_message (tvb, pinfo, dmp_tree, offset);
   } else if (dmp.msg_type == REPORT) {
     /* One or more Delivery Report or Non-Delivery Report Data */
-    rep_len = tvb_length (tvb);
+    rep_len = tvb_captured_length (tvb);
     if (dmp.checksum) {
       rep_len -= 2;
     }
@@ -3934,7 +3934,7 @@ static int dissect_dmp (tvbuff_t *tvb, packet_info *pinfo,
   }
 
   if (dmp.checksum) {
-    length = tvb_length (tvb);
+    length = tvb_captured_length (tvb);
     checksum1 = crc16_x25_ccitt_tvb (tvb, length - 2);
     checksum2 = tvb_get_ntohs (tvb, offset);
 

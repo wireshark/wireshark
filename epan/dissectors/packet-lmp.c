@@ -732,14 +732,14 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 	} else {
 	    expert_add_info_format(pinfo, msg_item, &ei_lmp_invalid_msg_type,
 			    "Invalid message type: %u", message_type);
-		return tvb_length(tvb);
+		return tvb_captured_length(tvb);
 	}
 
 	if (lmp_checksum_config) {
 		cksum = tvb_get_ntohs(tvb, offset+6);
 		ti = proto_tree_add_item(lmp_header_tree, hf_lmp_filter[LMPF_CHECKSUM], tvb,
 							offset+6, 2, ENC_BIG_ENDIAN);
-		if (!pinfo->fragmented && (int) tvb_length(tvb) >= msg_length) {
+		if (!pinfo->fragmented && (int) tvb_captured_length(tvb) >= msg_length) {
 			/* The packet isn't part of a fragmented datagram and isn't truncated, so we can checksum it. */
 			cksum_vec[0].ptr = tvb_get_ptr(tvb, 0, msg_length);
 			cksum_vec[0].len = msg_length;
@@ -781,7 +781,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 	  } else {
 	      expert_add_info_format(pinfo, hidden_item, &ei_lmp_invalid_class,
 			    "Invalid class: %u", lmp_class);
-	      return tvb_length(tvb);
+	      return tvb_captured_length(tvb);
 	  }
 	  lmp_object_tree = proto_item_add_subtree(ti, lmp_class_to_subtree(lmp_class));
 
@@ -1993,7 +1993,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 	} /* while */
     } /* tree */
 
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 static void
 lmp_prefs_applied (void)

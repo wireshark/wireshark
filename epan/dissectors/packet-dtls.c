@@ -593,7 +593,7 @@ dissect_dtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             /* looks like something unknown, so lump into
              * continuation data
              */
-            offset = tvb_length(tvb);
+            offset = tvb_captured_length(tvb);
             col_append_str(pinfo->cinfo, COL_INFO,
                              "Continuation Data");
 
@@ -616,7 +616,7 @@ dissect_dtls_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 {
   /* Stronger confirmation of DTLS packet is provided by verifying the
    * captured payload length against the remainder of the UDP packet size. */
-  guint length = tvb_length(tvb);
+  guint length = tvb_captured_length(tvb);
   guint offset = 0;
 
   if (tvb_reported_length(tvb) == length) {
@@ -639,12 +639,12 @@ dissect_dtls_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
   /* This packet was truncated by the capture process due to a snapshot
    * length - do our best with what we've got. */
-  while (tvb_length_remaining(tvb, offset) >= 3) {
+  while (tvb_captured_length_remaining(tvb, offset) >= 3) {
     if (!looks_like_dtls(tvb, offset))
       return FALSE;
 
     offset += 3;
-    if (tvb_length_remaining(tvb, offset) >= 10 ) {
+    if (tvb_captured_length_remaining(tvb, offset) >= 10 ) {
       offset += tvb_get_ntohs(tvb, offset + 8) + 10;
     } else {
       /* Dissect what we've got, which might be as little as 3 bytes. */
@@ -988,7 +988,7 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
       decrypted = ssl_get_record_info(tvb, proto_dtls, pinfo, offset);
       if (decrypted) {
         dissect_dtls_handshake(decrypted, pinfo, dtls_record_tree, 0,
-                               tvb_length(decrypted), session, is_from_server,
+                               tvb_captured_length(decrypted), session, is_from_server,
                                ssl, content_type);
         add_new_data_source(pinfo, decrypted, "Decrypted SSL record");
       } else {
@@ -1082,7 +1082,7 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
     decrypted = ssl_get_record_info(tvb, proto_dtls, pinfo, offset);
     if (decrypted) {
       dissect_dtls_heartbeat(decrypted, pinfo, dtls_record_tree, 0,
-                             session, tvb_length (decrypted), TRUE);
+                             session, tvb_captured_length (decrypted), TRUE);
       add_new_data_source(pinfo, decrypted, "Decrypted SSL record");
     } else {
       dissect_dtls_heartbeat(tvb, pinfo, dtls_record_tree, offset,

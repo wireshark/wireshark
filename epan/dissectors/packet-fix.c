@@ -118,7 +118,7 @@ tag_search(int key)
 static int fix_next_header(tvbuff_t *tvb, int offset)
 {
     /* try to resync to the next start */
-    guint         min_len = tvb_length_remaining(tvb, offset);
+    guint         min_len = tvb_captured_length_remaining(tvb, offset);
     const guint8 *data    = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, min_len, ENC_ASCII);
     const guint8 *start   = data;
 
@@ -127,7 +127,7 @@ static int fix_next_header(tvbuff_t *tvb, int offset)
         /*  if remaining length < 6 return and let the next desegment round
             test for 8=FIX
         */
-        if (tvb_length_remaining(tvb, min_len + offset) < MARKER_LEN)
+        if (tvb_captured_length_remaining(tvb, min_len + offset) < MARKER_LEN)
            break;
         if (!fix_marker(tvb, min_len +offset) )
             break;
@@ -198,7 +198,7 @@ static int fix_header_len(tvbuff_t *tvb, int offset)
      * If the packet is big enough find the checksum
     */
     size = atoi(value) +tag->ctrla_offset - base_offset +1;
-    if (tvb_length_remaining(tvb, base_offset) > size +4) {
+    if (tvb_captured_length_remaining(tvb, base_offset) > size +4) {
         /* 10= should be there */
         offset = base_offset +size;
         if (tvb_strneql(tvb, offset, "10=", 3) != 0) {
@@ -245,7 +245,7 @@ dissect_fix_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
         ti = proto_tree_add_item(tree, proto_fix, tvb, 0, -1, ENC_NA);
         fix_tree = proto_item_add_subtree(ti, ett_fix);
         proto_tree_add_item(fix_tree, hf_fix_data, tvb, 0, -1, ENC_NA);
-        return tvb_length(tvb);
+        return tvb_captured_length(tvb);
     }
 
     pdu_len = tvb_reported_length(tvb);
@@ -255,20 +255,20 @@ dissect_fix_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
     /* begin string */
     ctrla_offset = tvb_find_guint8(tvb, offset, -1, 0x01);
     if (ctrla_offset == -1) {
-        return tvb_length(tvb);
+        return tvb_captured_length(tvb);
     }
     offset = ctrla_offset + 1;
 
     /* msg length */
     ctrla_offset = tvb_find_guint8(tvb, offset, -1, 0x01);
     if (ctrla_offset == -1) {
-        return tvb_length(tvb);
+        return tvb_captured_length(tvb);
     }
     offset = ctrla_offset + 1;
 
     /* msg type */
     if (!(tag = fix_param(tvb, offset)) || tag->value_len < 1) {
-        return tvb_length(tvb);
+        return tvb_captured_length(tvb);
     }
 
     value = tvb_get_string_enc(wmem_packet_scope(), tvb, tag->value_offset, tag->value_len, ENC_ASCII);
@@ -386,7 +386,7 @@ dissect_fix_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 
         tag_str = NULL;
     }
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 static guint
@@ -416,7 +416,7 @@ dissect_fix_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     tcp_dissect_pdus(tvb, pinfo, tree, fix_desegment, FIX_MIN_LEN,
                      get_fix_pdu_len, dissect_fix_packet, data);
 
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 static int

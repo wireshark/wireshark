@@ -96,7 +96,7 @@ dissect_ddtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     /*
      * If we don't recognize the version number, don't dissect this.
      */
-    if (tvb_length(tvb) >= 4) {
+    if (tvb_captured_length(tvb) >= 4) {
 	if (try_val_to_str(tvb_get_ntohl(tvb, 0), vals_ddtp_version) == NULL)
 	    return 0;
     }
@@ -161,7 +161,7 @@ dissect_ddtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     } else {
 	col_set_str(pinfo->cinfo, COL_INFO, "Encrypted payload");
     }
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 void

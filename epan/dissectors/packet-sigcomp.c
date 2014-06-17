@@ -421,7 +421,7 @@ dissect_sigcomp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *_
 
     col_clear(pinfo->cinfo, COL_INFO);
 
-    length = tvb_length_remaining(tvb,offset);
+    length = tvb_captured_length_remaining(tvb,offset);
 
 try_again:
     /* create display subtree for the protocol */
@@ -454,7 +454,7 @@ try_again:
                 if (udvm_print_detail_level>2)
                     proto_tree_add_text(sigcomp_tree, tvb, offset, 2,
                         "              Illegal escape code");
-                offset = offset + tvb_length_remaining(tvb,offset);
+                offset = offset + tvb_captured_length_remaining(tvb,offset);
                 return offset;
             }
             if ( octet == 0xff){
@@ -753,7 +753,7 @@ dissect_sigcomp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sigcomp_tr
                 ti = proto_tree_add_text(sigcomp_tree, tvb, 0, -1,"Failed to Access state Wireshark UDVM diagnostic: %s.",
                                          val_to_str(result_code, result_code_vals,"Unknown (%u)"));
                 PROTO_ITEM_SET_GENERATED(ti);
-                return tvb_length(tvb);
+                return tvb_captured_length(tvb);
             }
 
             udvm_tvb = tvb_new_child_real_data(tvb, buff,state_length+state_address,state_length+state_address);
@@ -774,7 +774,7 @@ dissect_sigcomp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sigcomp_tr
             if ( decomp_tvb ){
                 proto_item *ti;
                 guint32 compression_ratio =
-                    (guint32)(((float)tvb_length(decomp_tvb) / (float)tvb_length(tvb)) * 100);
+                    (guint32)(((float)tvb_captured_length(decomp_tvb) / (float)tvb_captured_length(tvb)) * 100);
 
                 /* Celebrate success and show compression ratio achieved */
                 proto_tree_add_text(sigcomp_tree, decomp_tvb, 0, -1,"SigComp message Decompressed WOHO!!");
@@ -908,7 +908,7 @@ dissect_sigcomp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sigcomp_tr
                 if ( decomp_tvb ){
                     proto_item *ti;
                     guint32 compression_ratio =
-                        (guint32)(((float)tvb_length(decomp_tvb) / (float)tvb_length(tvb)) * 100);
+                        (guint32)(((float)tvb_captured_length(decomp_tvb) / (float)tvb_captured_length(tvb)) * 100);
 
                     /* Celebrate success and show compression ratio achieved */
                     proto_tree_add_text(sigcomp_tree, decomp_tvb, 0, -1,"SigComp message Decompressed WOHO!!");
@@ -927,7 +927,7 @@ dissect_sigcomp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sigcomp_tr
         }/*if len==0 */
 
     }
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 

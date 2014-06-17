@@ -64,7 +64,7 @@ calc_checksum( tvbuff_t *tvb, int offset, guint len, guint checksum) {
   if ( 0 == checksum )
     return( NO_CKSUM );
 
-  available_len = tvb_length_remaining( tvb, offset );
+  available_len = tvb_captured_length_remaining( tvb, offset );
   if ( available_len < len )
     return( DATA_MISSING );
 
@@ -119,7 +119,7 @@ check_and_get_checksum( tvbuff_t *tvb, int offset, guint len, guint checksum, in
   if ( 0 == checksum )
     return( NO_CKSUM );
 
-  available_len = tvb_length_remaining( tvb, offset );
+  available_len = tvb_captured_length_remaining( tvb, offset );
   offset_check -= offset;
   if ( ( available_len < len ) || ( offset_check < 0 ) || ( (guint)(offset_check+2) > len ) )
     return( DATA_MISSING );

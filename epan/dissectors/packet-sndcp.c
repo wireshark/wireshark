@@ -321,7 +321,7 @@ dissect_sndcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint32         reassembled_in  = 0;
     gboolean        save_fragmented = pinfo->fragmented;
 
-    len = tvb_length_remaining(tvb, offset);
+    len = tvb_captured_length_remaining(tvb, offset);
     if(len<=0){
         return;
     }

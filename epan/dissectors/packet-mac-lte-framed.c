@@ -56,7 +56,7 @@ static void dissect_mac_lte_framed(tvbuff_t *tvb, packet_info *pinfo,
        - fixed header bytes
        - tag for data
        - at least one byte of MAC PDU payload */
-    if ((size_t)tvb_length_remaining(tvb, offset) < (3+2)) {
+    if ((size_t)tvb_captured_length_remaining(tvb, offset) < (3+2)) {
         return;
     }
 

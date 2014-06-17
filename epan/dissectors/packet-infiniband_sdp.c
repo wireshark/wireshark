@@ -172,7 +172,7 @@ dissect_ib_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     conversation_infiniband_data *convo_data = NULL;
     dissector_handle_t infiniband_handle;
 
-    if (tvb_length(tvb) < 16)   /* check this has at least enough bytes for the BSDH */
+    if (tvb_captured_length(tvb) < 16)   /* check this has at least enough bytes for the BSDH */
         return 0;
 
     if (gPREF_MAN_EN) {
@@ -315,7 +315,7 @@ manual_override:
     col_append_fstr(pinfo->cinfo, COL_INFO, "(SDP %s)",
                     rval_to_str(mid, mid_meanings, "Unknown"));
 
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 void

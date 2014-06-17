@@ -11983,7 +11983,7 @@ dissect_ff(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         /*offset += trailer_len;*/
     }
 
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 
@@ -12028,7 +12028,7 @@ dissect_ff_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     guint32 length;
 
     /* Make sure at least the header is there */
-    if (tvb_length(tvb) < 12)
+    if (tvb_captured_length(tvb) < 12)
         return 0;
 
     length = tvb_get_ntohl(tvb, 8);

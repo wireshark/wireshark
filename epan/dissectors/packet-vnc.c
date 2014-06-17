@@ -495,7 +495,7 @@ static guint vnc_h264_encoding(tvbuff_t *tvb, gint *offset, proto_tree *tree);
 		pinfo->destport == vnc_preference_alternate_port
 
 #define VNC_BYTES_NEEDED(a)					\
-	if(a > (guint)tvb_length_remaining(tvb, *offset))	\
+	if(a > (guint)tvb_captured_length_remaining(tvb, *offset))	\
 		return a;
 
 /* Variables for our preferences */
@@ -943,7 +943,7 @@ vnc_is_client_or_server_version_message(tvbuff_t *tvb, packet_info *pinfo, proto
 {
 	proto_item *bug_item;
 
-	if(tvb_length(tvb) != 12) {
+	if(tvb_captured_length(tvb) != 12) {
 		return FALSE;
 	}
 
@@ -1453,7 +1453,7 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 				    tvb, offset, 3, ENC_NA);
 		offset += 3; /* Skip over 3 bytes of padding */
 
-		if(tvb_length_remaining(tvb, offset) > 4) {
+		if(tvb_captured_length_remaining(tvb, offset) > 4) {
 			/* Sometimes the desktop name & length is skipped */
 			proto_tree_add_item(tree, hf_vnc_desktop_name_len,
 					    tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -1641,7 +1641,7 @@ vnc_server_to_client(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 
 	if(bytes_needed > 0 && vnc_preference_desegment &&
 	   pinfo->can_desegment) {
-		length_remaining = tvb_length_remaining(tvb, *offset);
+		length_remaining = tvb_captured_length_remaining(tvb, *offset);
 
 		pinfo->desegment_offset = start_offset;
 		pinfo->desegment_len = bytes_needed - length_remaining;

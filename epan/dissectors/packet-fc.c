@@ -360,7 +360,7 @@ dissect_fc_ba_acc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_set_str(pinfo->cinfo, COL_INFO, "BA_ACC");
 
     if (tree) {
-        ti = proto_tree_add_text (tree, tvb, 0, tvb_length (tvb), "Basic Link Svc");
+        ti = proto_tree_add_text (tree, tvb, 0, tvb_captured_length (tvb), "Basic Link Svc");
         acc_tree = proto_item_add_subtree (ti, ett_fcbls);
 
         proto_tree_add_item (acc_tree, hf_fc_bls_seqid_vld, tvb, offset++, 1, ENC_BIG_ENDIAN);
@@ -390,7 +390,7 @@ dissect_fc_ba_rjt (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_set_str(pinfo->cinfo, COL_INFO, "BA_RJT");
 
     if (tree) {
-        ti = proto_tree_add_text (tree, tvb, 0, tvb_length (tvb), "Basic Link Svc");
+        ti = proto_tree_add_text (tree, tvb, 0, tvb_captured_length (tvb), "Basic Link Svc");
         rjt_tree = proto_item_add_subtree (ti, ett_fcbls);
 
         proto_tree_add_item (rjt_tree, hf_fc_bls_rjtcode, tvb, offset+1, 1, ENC_BIG_ENDIAN);
@@ -1243,7 +1243,7 @@ dissect_fc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
        return 0;
 
     dissect_fc_helper (tvb, pinfo, tree, FALSE, fc_data);
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 static int
@@ -1255,7 +1255,7 @@ dissect_fc_ifcp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
        return 0;
 
     dissect_fc_helper (tvb, pinfo, tree, TRUE, fc_data);
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 static void

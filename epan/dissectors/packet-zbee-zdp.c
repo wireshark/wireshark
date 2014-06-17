@@ -381,7 +381,7 @@ void
 zdp_dump_excess(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree  *root = proto_tree_get_root(tree);
-    guint       length = tvb_length_remaining(tvb, offset);
+    guint       length = tvb_captured_length_remaining(tvb, offset);
     tvbuff_t    *excess;
 
     if (length > 0) {
@@ -727,7 +727,7 @@ zdp_parse_node_desc(proto_tree *tree, gint ettindex, tvbuff_t *tvb, guint *offse
     /*guint16     max_transfer;*/
 
     if ((tree) && (ettindex != -1)) {
-        field_root = proto_tree_add_text(tree, tvb, *offset, tvb_length_remaining(tvb, *offset), "Node Descriptor");
+        field_root = proto_tree_add_text(tree, tvb, *offset, tvb_captured_length_remaining(tvb, *offset), "Node Descriptor");
         field_tree = proto_item_add_subtree(field_root, ettindex);
     }
     else field_tree = tree;
@@ -875,7 +875,7 @@ zdp_parse_simple_desc(proto_tree *tree, gint ettindex, tvbuff_t *tvb, guint *off
     guint8      out_count;
 
     if ((tree) && (ettindex != -1)) {
-        field_root = proto_tree_add_text(tree, tvb, *offset, tvb_length_remaining(tvb, *offset), "Simple Descriptor");
+        field_root = proto_tree_add_text(tree, tvb, *offset, tvb_captured_length_remaining(tvb, *offset), "Simple Descriptor");
         field_tree = proto_item_add_subtree(field_root, ettindex);
     }
     else field_tree = tree;
@@ -1034,7 +1034,7 @@ dissect_zbee_zdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     nwk = (zbee_nwk_packet *)data;
 
     /* Create the protocol tree. */
-    proto_root = proto_tree_add_protocol_format(tree, proto_zbee_zdp, tvb, offset, tvb_length(tvb), "ZigBee Device Profile");
+    proto_root = proto_tree_add_protocol_format(tree, proto_zbee_zdp, tvb, offset, tvb_captured_length(tvb), "ZigBee Device Profile");
     zdp_tree = proto_item_add_subtree(proto_root, ett_zbee_zdp);
 
 #if 0
@@ -1319,7 +1319,7 @@ dissect_zbee_zdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
             break;
     } /* switch */
 
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 } /* dissect_zbee_zdp */
 
 /*FUNCTION:------------------------------------------------------

@@ -297,7 +297,7 @@ dissect_h283_T_deviceListResp(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, FALSE, &next_tvb);
 
-  if (next_tvb && tvb_length(next_tvb)) {
+  if (next_tvb && tvb_captured_length(next_tvb)) {
     call_dissector((rdc_device_list_handle)?rdc_device_list_handle:data_handle, next_tvb, actx->pinfo, tree);
   }
 
@@ -443,7 +443,7 @@ dissect_h283_T_rdcPDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, p
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, FALSE, &next_tvb);
 
-  if (next_tvb && tvb_length(next_tvb)) {
+  if (next_tvb && tvb_captured_length(next_tvb)) {
     call_dissector((rdc_pdu_handle)?rdc_pdu_handle:data_handle, next_tvb, actx->pinfo, proto_tree_get_root(tree));
   }
   info_is_set = TRUE;

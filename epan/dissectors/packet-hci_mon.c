@@ -180,31 +180,31 @@ dissect_hci_mon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
         break;
     case 0x02: /* HCI Command Packet */
         call_dissector_with_data(bthci_cmd_handle, next_tvb, pinfo, tree, hci_data);
-        offset = tvb_length(tvb);
+        offset = tvb_captured_length(tvb);
 
         break;
    case 0x03:  /* HCI Event Packet */
         call_dissector_with_data(bthci_evt_handle, next_tvb, pinfo, tree, hci_data);
-        offset = tvb_length(tvb);
+        offset = tvb_captured_length(tvb);
 
         break;
    case 0x04:  /* ACL Tx Packet */
    case 0x05:  /* ACL Rx Packet */
         call_dissector_with_data(bthci_acl_handle, next_tvb, pinfo, tree, hci_data);
-        offset = tvb_length(tvb);
+        offset = tvb_captured_length(tvb);
 
         break;
    case 0x06:  /* SCO Tx Packet */
    case 0x07:  /* SCO Rx Packet */
         call_dissector_with_data(bthci_sco_handle, next_tvb, pinfo, tree, hci_data);
-        offset = tvb_length(tvb);
+        offset = tvb_captured_length(tvb);
 
         break;
     }
 
-    if (tvb_length_remaining(tvb, offset) > 0) {
+    if (tvb_captured_length_remaining(tvb, offset) > 0) {
         proto_tree_add_expert(hci_mon_tree, pinfo, &ei_unknown_data, tvb, offset, -1);
-        offset = tvb_length(tvb);
+        offset = tvb_captured_length(tvb);
     }
 
    /* NOTE: Oops... HCI_MON have special packet with length 0, but there is a pseudo-header with certain infos,

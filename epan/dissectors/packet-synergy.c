@@ -221,7 +221,7 @@ static void dissect_synergy_handshake( tvbuff_t *tvb, packet_info *pinfo _U_, pr
     proto_tree_add_item(sub_tree, hf_synergy_handshake_majorversion, tvb, offset + 7, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(sub_tree, hf_synergy_handshake_minorversion, tvb, offset + 9, 2, ENC_BIG_ENDIAN);
 
-    if (tvb_length_remaining(tvb, offset + 11) != 0)
+    if (tvb_captured_length_remaining(tvb, offset + 11) != 0)
     {
         proto_tree_add_item(sub_tree, hf_synergy_unknown, tvb, offset + 11, 4, ENC_NA);
         proto_tree_add_item(sub_tree, hf_synergy_handshake_clientname, tvb, offset + 15, -1, ENC_ASCII|ENC_NA);
@@ -262,7 +262,7 @@ static void dissect_synergy_dkdn( tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
     proto_tree_add_item(sub_tree, hf_synergy_dkdn_keyid, tvb, offset + 4, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(sub_tree, hf_synergy_dkdn_keymodifiermask, tvb, offset + 6, 2, ENC_BIG_ENDIAN);
 
-    if (tvb_length_remaining(tvb, offset + 8) != 0)
+    if (tvb_captured_length_remaining(tvb, offset + 8) != 0)
         proto_tree_add_item(sub_tree, hf_synergy_dkdn_keybutton, tvb, offset + 8, 2, ENC_BIG_ENDIAN);
 }
 
@@ -277,7 +277,7 @@ static void dissect_synergy_dkrp( tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
     proto_tree_add_item(sub_tree, hf_synergy_dkrp_keymodifiermask, tvb, offset + 6, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(sub_tree, hf_synergy_dkrp_numberofrepeats, tvb, offset + 8, 2, ENC_BIG_ENDIAN);
 
-    if (tvb_length_remaining(tvb, offset + 10) != 0)
+    if (tvb_captured_length_remaining(tvb, offset + 10) != 0)
         proto_tree_add_item(sub_tree, hf_synergy_dkrp_keybutton, tvb, offset + 10, 2, ENC_BIG_ENDIAN);
 }
 
@@ -291,7 +291,7 @@ static void dissect_synergy_dkup( tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
     proto_tree_add_item(sub_tree, hf_synergy_dkup_keyid, tvb, offset + 4, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(sub_tree, hf_synergy_dkup_keymodifiermask, tvb, offset + 6, 2, ENC_BIG_ENDIAN);
 
-    if (tvb_length_remaining(tvb, offset + 8) != 0)
+    if (tvb_captured_length_remaining(tvb, offset + 8) != 0)
         proto_tree_add_item(sub_tree, hf_synergy_dkup_keybutton, tvb, offset + 8, 2, ENC_BIG_ENDIAN);
 }
 

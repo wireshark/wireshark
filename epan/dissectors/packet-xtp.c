@@ -325,7 +325,7 @@ static expert_field ei_xtp_spans_bad = EI_INIT;
 /* dissector of each payload */
 static int
 dissect_xtp_aseg(tvbuff_t *tvb, proto_tree *tree, guint32 offset) {
-	guint32 len = tvb_length_remaining(tvb, offset);
+	guint32 len = tvb_captured_length_remaining(tvb, offset);
 	guint32 start = offset;
 	proto_item *ti, *ti2, *top_ti;
 	proto_tree *xtp_subtree;
@@ -442,7 +442,7 @@ dissect_xtp_aseg(tvbuff_t *tvb, proto_tree *tree, guint32 offset) {
 static int
 dissect_xtp_traffic_cntl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		guint32 offset) {
-	guint32 len = tvb_length_remaining(tvb, offset);
+	guint32 len = tvb_captured_length_remaining(tvb, offset);
 	guint32 start = offset;
 	proto_item *top_ti;
 	proto_tree *xtp_subtree;
@@ -518,7 +518,7 @@ dissect_xtp_traffic_cntl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 static int
 dissect_xtp_tspec(tvbuff_t *tvb, proto_tree *tree, guint32 offset) {
-	guint32 len = tvb_length_remaining(tvb, offset);
+	guint32 len = tvb_captured_length_remaining(tvb, offset);
 	guint32 start = offset;
 	proto_item *ti, *ti2;
 	proto_tree *xtp_subtree;
@@ -634,7 +634,7 @@ dissect_xtp_tspec(tvbuff_t *tvb, proto_tree *tree, guint32 offset) {
 
 static void
 dissect_xtp_data(tvbuff_t *tvb, proto_tree *tree, guint32 offset, gboolean have_btag) {
-	guint32 len = tvb_length_remaining(tvb, offset);
+	guint32 len = tvb_captured_length_remaining(tvb, offset);
 	proto_item *ti;
 	proto_tree *xtp_subtree;
 	guint64 btag;
@@ -661,7 +661,7 @@ dissect_xtp_data(tvbuff_t *tvb, proto_tree *tree, guint32 offset, gboolean have_
 static void
 dissect_xtp_cntl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		guint32 offset) {
-	guint32 len = tvb_length_remaining(tvb, offset);
+	guint32 len = tvb_captured_length_remaining(tvb, offset);
 	guint32 start = offset;
 	proto_item *top_ti;
 	proto_tree *xtp_subtree;
@@ -733,7 +733,7 @@ dissect_xtp_first(tvbuff_t *tvb, proto_tree *tree, guint32 offset) {
 static void
 dissect_xtp_ecntl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		guint32 offset) {
-	guint32 len = tvb_length_remaining(tvb, offset);
+	guint32 len = tvb_captured_length_remaining(tvb, offset);
 	guint32 start = offset;
 	proto_item *top_ti;
 	proto_tree *xtp_subtree;
@@ -854,7 +854,7 @@ dissect_xtp_jcntl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 static void
 dissect_xtp_diag(tvbuff_t *tvb, proto_tree *tree, guint32 offset) {
-	guint32 len = tvb_length_remaining(tvb, offset);
+	guint32 len = tvb_captured_length_remaining(tvb, offset);
 	guint32 start = offset;
 	proto_item *ti;
 	proto_tree *xtp_subtree;
@@ -879,7 +879,7 @@ dissect_xtp_diag(tvbuff_t *tvb, proto_tree *tree, guint32 offset) {
 	diag->val = tvb_get_ntohl(tvb, offset);
 	offset += 4;
 	/* message(n) */
-	msg_len = tvb_length_remaining(tvb, offset);
+	msg_len = tvb_captured_length_remaining(tvb, offset);
 	diag->msg = tvb_get_string_enc(NULL, tvb, offset, msg_len, ENC_ASCII);
 
 	/** display **/
@@ -919,7 +919,7 @@ dissect_xtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 	guint16 computed_cksum;
 	gboolean have_btag;
 
-	if ((len = tvb_length(tvb)) < XTP_HEADER_LEN)
+	if ((len = tvb_captured_length(tvb)) < XTP_HEADER_LEN)
 		return 0;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "XTP");
@@ -1124,7 +1124,7 @@ dissect_xtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 		}
 	}
 
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 void

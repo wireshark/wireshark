@@ -202,7 +202,7 @@ dissect_btsmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
             break;
     }
 
-    if (tvb_length_remaining(tvb, 0) < 1)
+    if (tvb_captured_length_remaining(tvb, 0) < 1)
         return FALSE;
 
     proto_tree_add_item(st, hf_btsmp_opcode, tvb, 0, 1, ENC_LITTLE_ENDIAN);

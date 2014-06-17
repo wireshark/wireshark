@@ -7017,7 +7017,7 @@ dissect_rsvp_msg_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
 
     cksum = tvb_get_ntohs(tvb, offset+2);
-    if (!pinfo->fragmented && ((int) tvb_length(tvb) >= msg_length)) {
+    if (!pinfo->fragmented && ((int) tvb_captured_length(tvb) >= msg_length)) {
         /* The packet isn't part of a fragmented datagram and isn't
            truncated, so we can checksum it. */
         cksum_vec[0].ptr = tvb_get_ptr(tvb, 0, msg_length);
@@ -7413,7 +7413,7 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "RSVP");
 
     dissect_rsvp_common(tvb, pinfo, tree, FALSE);
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 static int
@@ -7422,7 +7422,7 @@ dissect_rsvp_e2ei(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "RSVP-E2EI");
 
     dissect_rsvp_common(tvb, pinfo, tree, TRUE);
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 static void

@@ -2421,7 +2421,7 @@ static void free_proto_tree(void *tree)
 static guint32
 align_4(tvbuff_t *tvb, guint32 aoffset)
 {
-    if(tvb_length_remaining(tvb, aoffset) > 4 )
+    if(tvb_captured_length_remaining(tvb, aoffset) > 4 )
     {
         return (aoffset%4);
     }
@@ -2437,7 +2437,7 @@ get_string(tvbuff_t* tvb, guint offset, guint str_length)
     gint length_remaining = 0;
     gint max_length = (str_length < NW_UNI_MAX) ? str_length : NW_UNI_MAX;
 
-    length_remaining = tvb_length_remaining(tvb, offset);
+    length_remaining = tvb_captured_length_remaining(tvb, offset);
     if((gint)str_length > length_remaining)
     {
         THROW(ReportedBoundsError);
@@ -3057,7 +3057,7 @@ print_nds_values(proto_tree *vtree, tvbuff_t *tvb, guint32 syntax_type, nds_val 
             break;
         case 0x00000009:        /* Binary String */
             value1 = tvb_get_letohl(tvb, voffset); /* length of field */
-            length_remaining = tvb_length_remaining(tvb, voffset);
+            length_remaining = tvb_captured_length_remaining(tvb, voffset);
             if(length_remaining == -1 || value1 > (guint32) length_remaining)
             {
                 break;
@@ -3070,7 +3070,7 @@ print_nds_values(proto_tree *vtree, tvbuff_t *tvb, guint32 syntax_type, nds_val 
             break;
         case 0x0000000d:        /* Binary String List */
             value1 = tvb_get_letohl(tvb, voffset); /* Overall length of field list */
-            length_remaining = tvb_length_remaining(tvb, voffset);
+            length_remaining = tvb_captured_length_remaining(tvb, voffset);
             if(length_remaining == -1 || value1 > (guint32) length_remaining)
             {
                 break;
@@ -3082,7 +3082,7 @@ print_nds_values(proto_tree *vtree, tvbuff_t *tvb, guint32 syntax_type, nds_val 
             for (r=1; r<=number_of_items; r++)
             {
                 value1 = tvb_get_letohl(tvb, voffset); /* length of field */
-                length_remaining = tvb_length_remaining(tvb, voffset);
+                length_remaining = tvb_captured_length_remaining(tvb, voffset);
                 if(length_remaining == -1 || value1 > (guint32) length_remaining)
                 {
                     break;
@@ -3096,7 +3096,7 @@ print_nds_values(proto_tree *vtree, tvbuff_t *tvb, guint32 syntax_type, nds_val 
             break;
         case 0x00000015:        /* Stream */
             value1 = tvb_get_letohl(tvb, voffset); /* length of field */
-            length_remaining = tvb_length_remaining(tvb, voffset);
+            length_remaining = tvb_captured_length_remaining(tvb, voffset);
             if(length_remaining == -1 || value1 > (guint32) length_remaining)
             {
                 break;
@@ -3246,7 +3246,7 @@ print_nds_values(proto_tree *vtree, tvbuff_t *tvb, guint32 syntax_type, nds_val 
             for (r=1; r <= number_of_items; r++)
             {
                 /* Trap for end of packet */
-                if(tvb_length_remaining(tvb, voffset)<12)
+                if(tvb_captured_length_remaining(tvb, voffset)<12)
                 {
                     THROW(ReportedBoundsError);
                 }
@@ -4161,7 +4161,7 @@ process_search_expression(proto_tree *it_tree, tvbuff_t *tvb, nds_val *values)
         break;
 
     default: /* Unknown Iteration search Item type */
-        if (tvb_length_remaining(tvb, ioffset) < 4) {
+        if (tvb_captured_length_remaining(tvb, ioffset) < 4) {
                 THROW(ReportedBoundsError);
         }
         break;
@@ -4193,7 +4193,7 @@ process_search_subexpression(proto_tree *it_tree, tvbuff_t *tvb, packet_info *pi
             process_set_filter(it_subtree1, tvb, pinfo, values);
             ioffset = values->voffset;
 
-            if (tvb_length_remaining(tvb, ioffset) < 4) {
+            if (tvb_captured_length_remaining(tvb, ioffset) < 4) {
                 THROW(ReportedBoundsError);
                 break;
             }
@@ -4289,7 +4289,7 @@ process_set_filter(proto_tree *it_tree, tvbuff_t *tvb, packet_info *pinfo, nds_v
         process_search_subexpression(it_tree, tvb, pinfo, values);
         break;
     default: /* Unknown Iteration search type */
-        if (tvb_length_remaining(tvb, ioffset) < 4) {
+        if (tvb_captured_length_remaining(tvb, ioffset) < 4) {
             THROW(ReportedBoundsError);
         }
         break;
@@ -4773,7 +4773,7 @@ dissect_nds_iterator(proto_tree *it_tree, tvbuff_t *tvb, packet_info *pinfo, gui
 #if 0
                     ioffset += align_4(tvb, ioffset);
 #endif
-                    if (tvb_length_remaining(tvb, ioffset) < 4) {
+                    if (tvb_captured_length_remaining(tvb, ioffset) < 4) {
                         THROW(ReportedBoundsError);
                         return;
                     }
@@ -4815,7 +4815,7 @@ dissect_nds_iterator(proto_tree *it_tree, tvbuff_t *tvb, packet_info *pinfo, gui
                 ioffset += align_4(tvb, ioffset);
                 break;
             default:
-                if (tvb_length_remaining(tvb, ioffset) < 4) {
+                if (tvb_captured_length_remaining(tvb, ioffset) < 4) {
                     THROW(ReportedBoundsError);
                 }
                 return;
@@ -4890,7 +4890,7 @@ dissect_nds_iterator(proto_tree *it_tree, tvbuff_t *tvb, packet_info *pinfo, gui
                     /* For now we will just skip this offset. NEED TO ADD LOGIC TO HANDLE */
                     ioffset += 8;
 
-                    if (tvb_length_remaining(tvb, ioffset) < 4) {
+                    if (tvb_captured_length_remaining(tvb, ioffset) < 4) {
                         break;
                     }
                 }
@@ -4920,7 +4920,7 @@ dissect_nds_iterator(proto_tree *it_tree, tvbuff_t *tvb, packet_info *pinfo, gui
                 ioffset += 4;
                 break;
             default:
-                if (tvb_length_remaining(tvb, ioffset) < 4) {
+                if (tvb_captured_length_remaining(tvb, ioffset) < 4) {
                     THROW(ReportedBoundsError);
                 }
                 return;
@@ -4928,7 +4928,7 @@ dissect_nds_iterator(proto_tree *it_tree, tvbuff_t *tvb, packet_info *pinfo, gui
         }
         it_verb = tvb_get_letohl(tvb, ioffset);
         ioffset += 4;
-        if (it_verb == IT_DONE || tvb_length_remaining(tvb, ioffset) < 4) {
+        if (it_verb == IT_DONE || tvb_captured_length_remaining(tvb, ioffset) < 4) {
             verb_string = val_to_str_const(it_verb, iterator_subverbs, "Internal error processing NDS iteration verbs");
             proto_tree_add_uint_format(it_tree, hf_ncp_nds_iterverb, tvb, ioffset-4, 4,
                 it_verb, "Iterator Verb: %d, (0x%04x), %s",
@@ -5155,7 +5155,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
                                         2, event_num);
                     ioffset = ioffset + 2;
                     value5 = tvb_get_letohl(tvb, ioffset); /* length of field */
-                    if(value5 > tvb_length_remaining(tvb, ioffset))
+                    if(value5 > tvb_captured_length_remaining(tvb, ioffset))
                     {
                         break;
                     }
@@ -5426,12 +5426,12 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
                 }
                 bvalue = bvalue*2;
                 ioffset += align_4(tvb, ioffset);
-                if(tvb_length_remaining(tvb, ioffset) < 4 )
+                if(tvb_captured_length_remaining(tvb, ioffset) < 4 )
                 {
                     break;
                 }
             }
-            if(tvb_length_remaining(tvb, ioffset) < 4 )
+            if(tvb_captured_length_remaining(tvb, ioffset) < 4 )
             {
                 break;
             }
@@ -5941,12 +5941,12 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
                 if (bvalue==0) {
                     break;
                 }
-                if(tvb_length_remaining(tvb, ioffset) < 4 )
+                if(tvb_captured_length_remaining(tvb, ioffset) < 4 )
                 {
                     break;
                 }
             }
-            if(tvb_length_remaining(tvb, ioffset) < 4 )
+            if(tvb_captured_length_remaining(tvb, ioffset) < 4 )
             {
                 break;
             }
@@ -6011,7 +6011,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
                 if(values->vflags != 5)
                 {
                     value1 = tvb_get_letohl(tvb, ioffset); /* length of field */
-                    length_remaining = tvb_length_remaining(tvb, ioffset);
+                    length_remaining = tvb_captured_length_remaining(tvb, ioffset);
                     if(length_remaining == -1 || value1 > (guint32) length_remaining)
                     {
                         break;
@@ -6098,7 +6098,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
                         proto_tree_add_string(sub2tree, hf_mv_string, tvb, ioffset,
                                               value2, temp_values.vstring);
                         ioffset = ioffset + value2;
-                        if(tvb_length_remaining(tvb, ioffset) < 4 )
+                        if(tvb_captured_length_remaining(tvb, ioffset) < 4 )
                         {
                             break;
                         }
@@ -6173,7 +6173,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
                     proto_tree_add_uint_format(sub1tree, hf_nds_eid, tvb, ioffset,
                                                4, value1, "Default ACL %08x", value1);
                     ioffset = ioffset + 4;
-                    if(tvb_length_remaining(tvb, ioffset) < 4 )
+                    if(tvb_captured_length_remaining(tvb, ioffset) < 4 )
                     {
                         break;
                     }
@@ -6288,7 +6288,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
                     proto_tree_add_uint_format(sub1tree, hf_nds_eid, tvb, ioffset,
                                                4, value1, "Default ACL %08x", value1);
                     ioffset = ioffset + 4;
-                    if(tvb_length_remaining(tvb, ioffset) < 4 )
+                    if(tvb_captured_length_remaining(tvb, ioffset) < 4 )
                     {
                         break;
                     }
@@ -6308,7 +6308,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
                                   value1, values->vstring);
             ioffset = ioffset + value1;
         }
-        if(tvb_length_remaining(tvb, ioffset) < 4 )
+        if(tvb_captured_length_remaining(tvb, ioffset) < 4 )
         {
             break;
         }
@@ -6327,7 +6327,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
                                   value2, values->vstring);
             ioffset = ioffset + value2;
         }
-        if(tvb_length_remaining(tvb, ioffset) < 4 )
+        if(tvb_captured_length_remaining(tvb, ioffset) < 4 )
         {
             break;
         }
@@ -6358,7 +6358,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
                                        4, value1, "Privileges 0x%08x", value1);
             ioffset = ioffset + 4;
         }
-        if(tvb_length_remaining(tvb, ioffset) < 4 )
+        if(tvb_captured_length_remaining(tvb, ioffset) < 4 )
         {
             break;
         }
@@ -6597,7 +6597,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
                                   value3, values->vstring);
             ioffset = ioffset + value3;
 
-            if(tvb_length_remaining(tvb, ioffset) < 4 )
+            if(tvb_captured_length_remaining(tvb, ioffset) < 4 )
             {
                 break;
             }
@@ -6640,7 +6640,7 @@ dissect_ncp_89_6_request(tvbuff_t *tvb, proto_tree *volatile ncp_tree, guint32 o
             proto_tree_add_item(ncp_tree, hf_ncp_directory_path, tvb, offset+2, string_len-2, TRUE);
         }
         offset += string_len;
-        if(tvb_length_remaining(tvb, offset) < 4 )
+        if(tvb_captured_length_remaining(tvb, offset) < 4 )
         {
             break;
         }
@@ -6718,7 +6718,7 @@ dissect_ncp_123_17_reply(tvbuff_t *tvb, proto_tree *volatile ncp_tree)
             break;
         }
         proto_item_set_end(aitem, tvb, loffset);
-        if(tvb_length_remaining(tvb, loffset) < 4 )
+        if(tvb_captured_length_remaining(tvb, loffset) < 4 )
         {
             break;
         }
@@ -7074,7 +7074,7 @@ dissect_ncp_8x20reply(tvbuff_t *tvb, proto_tree *volatile ncp_tree,
 
         proto_item_set_end(aitem, tvb, loffset);
 
-        if(tvb_length_remaining(tvb, loffset) < 4 )
+        if(tvb_captured_length_remaining(tvb, loffset) < 4 )
         {
                 break;
         }
@@ -7449,7 +7449,7 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
     /* Determine which ncp_record to use. */
     switch (type) {
     case NCP_ALLOCATE_SLOT:
-        length_remaining = tvb_length_remaining(tvb, 4);
+        length_remaining = tvb_captured_length_remaining(tvb, 4);
         if (length_remaining > 4)
         {
             testvar = tvb_get_ntohl(tvb, 4);
@@ -9119,7 +9119,7 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
              * is 0, as we checked it above.  Is there any
              * reason why we'd want to do a full dissection
              * if the completion code isn't 0? */
-            if (completion_code != 0 && tvb_length(tvb) == 8) {
+            if (completion_code != 0 && tvb_captured_length(tvb) == 8) {
                 return;
             }
 
@@ -9171,7 +9171,7 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
         /* Check to see if we need to report to the expert table */
         trap_for_expert_event(ncp_tree, pinfo, ncp_rec, 1);
     } else {
-        if (tvb_length(tvb) > 8) {
+        if (tvb_captured_length(tvb) > 8) {
             expert_item = proto_tree_add_text(ncp_tree, tvb, 8, -1,
                                               "No request record found. Parsing is impossible.");
             if (ncp_echo_err) {

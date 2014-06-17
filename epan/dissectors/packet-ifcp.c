@@ -158,7 +158,7 @@ ifcp_header_test(tvbuff_t *tvb, int offset)
 	guint16 flen, flen1;
 
 	/* we can only do this test if we have 16 bytes or more */
-	if(tvb_length_remaining(tvb, offset)<iFCP_MIN_HEADER_LEN){
+	if(tvb_captured_length_remaining(tvb, offset)<iFCP_MIN_HEADER_LEN){
 		return FALSE;
 	}
 
@@ -326,7 +326,7 @@ dissect_ifcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, voi
 	fc_data_t fc_data;
 
 	/* verify we have a full header  (do we need to do this? */
-	if(tvb_length(tvb)<iFCP_ENCAP_HEADER_LEN){
+	if(tvb_captured_length(tvb)<iFCP_ENCAP_HEADER_LEN){
 		return 0;
 	}
 
@@ -496,7 +496,7 @@ dissect_ifcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, voi
 		call_dissector(data_handle, next_tvb, pinfo, parent_tree);
 	}
 
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 static guint
@@ -516,7 +516,7 @@ static int
 dissect_ifcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data)
 {
 	tcp_dissect_pdus(tvb, pinfo, parent_tree, ifcp_desegment, iFCP_MIN_HEADER_LEN, get_ifcp_pdu_len, dissect_ifcp_pdu, data);
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 

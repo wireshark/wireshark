@@ -936,7 +936,7 @@ dissect_ipdc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 	}
 
 	col_set_fence(pinfo->cinfo, COL_INFO);
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 static int
@@ -950,7 +950,7 @@ dissect_ipdc_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 {
 	tcp_dissect_pdus(tvb, pinfo, tree, ipdc_desegment, 4,
 			 get_ipdc_pdu_len, dissect_ipdc_tcp_pdu, data);
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 void

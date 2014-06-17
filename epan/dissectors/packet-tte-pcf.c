@@ -76,7 +76,7 @@ dissect_tte_pcf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint8 sync_domain   = 0;
 
     /* Check that there's enough data */
-    if (tvb_length(tvb) < TTE_PCF_LENGTH )
+    if (tvb_captured_length(tvb) < TTE_PCF_LENGTH )
     {
         return;
     }

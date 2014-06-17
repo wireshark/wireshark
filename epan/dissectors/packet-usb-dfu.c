@@ -290,12 +290,12 @@ dissect_usb_dfu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
         if (command == 0x01) { /* Download */
             proto_tree_add_item(main_tree, hf_data, tvb, offset, -1, ENC_NA);
-            offset = tvb_length(tvb);
+            offset = tvb_captured_length(tvb);
         }
 
-        if (tvb_length_remaining(tvb, offset) > 0) {
-            proto_tree_add_expert(main_tree, pinfo, &ei_unexpected_data, tvb, offset, tvb_length_remaining(tvb, offset));
-            offset = tvb_length(tvb);
+        if (tvb_captured_length_remaining(tvb, offset) > 0) {
+            proto_tree_add_expert(main_tree, pinfo, &ei_unexpected_data, tvb, offset, tvb_captured_length_remaining(tvb, offset));
+            offset = tvb_captured_length(tvb);
         }
 
         /* Save request info (command_data) */
@@ -338,11 +338,11 @@ dissect_usb_dfu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     if (!command_data) {
         col_append_str(pinfo->cinfo, COL_INFO, "Response: Unknown");
 
-        proto_tree_add_expert(main_tree, pinfo, &ei_unknown_data, tvb, offset, tvb_length_remaining(tvb, offset));
+        proto_tree_add_expert(main_tree, pinfo, &ei_unknown_data, tvb, offset, tvb_captured_length_remaining(tvb, offset));
 
         pinfo->p2p_dir = p2p_dir_save;
 
-        return tvb_length(tvb);
+        return tvb_captured_length(tvb);
     }
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "Response: %s",
@@ -369,7 +369,7 @@ dissect_usb_dfu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         }
 
         proto_tree_add_item(main_tree, hf_data, tvb, offset, -1, ENC_NA);
-        offset = tvb_length(tvb);
+        offset = tvb_captured_length(tvb);
 
         break;
     case 0x03: /* Get Status */
@@ -406,9 +406,9 @@ dissect_usb_dfu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     case 0x06: /* Abort */
     default:
         proto_tree_add_expert(command_tree, pinfo, &ei_unexpected_response, tvb, offset, 0);
-        if (tvb_length_remaining(tvb, offset) > 0) {
+        if (tvb_captured_length_remaining(tvb, offset) > 0) {
             proto_tree_add_expert(main_tree, pinfo, &ei_unknown_data, tvb, offset, -1);
-            offset = tvb_length(tvb);
+            offset = tvb_captured_length(tvb);
         }
     }
 

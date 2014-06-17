@@ -228,7 +228,7 @@ dissect_v2_user_data_message(tvbuff_t *message_data_tvb, packet_info *pinfo, pro
   proto_tree *m2pa_li_tree;
   tvbuff_t *payload_tvb;
 
-  if (tvb_length(message_data_tvb) > 0) {
+  if (tvb_captured_length(message_data_tvb) > 0) {
     if (m2pa_tree) {
       m2pa_li_item = proto_tree_add_text(m2pa_tree, message_data_tvb, LI_OFFSET, LI_LENGTH, "Length Indicator");
       m2pa_li_tree = proto_item_add_subtree(m2pa_li_item, ett_m2pa_li);
@@ -255,7 +255,7 @@ dissect_v8_user_data_message(tvbuff_t *message_data_tvb, packet_info *pinfo, pro
   proto_tree *m2pa_li_tree;
   tvbuff_t *payload_tvb;
 
-  if (tvb_length(message_data_tvb) > 0) {
+  if (tvb_captured_length(message_data_tvb) > 0) {
     if (m2pa_tree) {
       m2pa_li_item = proto_tree_add_text(m2pa_tree, message_data_tvb, LI_OFFSET, LI_LENGTH, "Length Indicator");
       m2pa_li_tree = proto_item_add_subtree(m2pa_li_item, ett_m2pa_li);
@@ -284,7 +284,7 @@ dissect_user_data_message(tvbuff_t *message_data_tvb, packet_info *pinfo, proto_
   proto_tree *m2pa_li_tree;
   tvbuff_t *payload_tvb;
 
-  if (tvb_length(message_data_tvb) > 0) {
+  if (tvb_captured_length(message_data_tvb) > 0) {
     if (m2pa_tree) {
       m2pa_li_item = proto_tree_add_text(m2pa_tree, message_data_tvb, PRI_OFFSET, PRI_LENGTH, "Priority");
       m2pa_li_tree = proto_item_add_subtree(m2pa_li_item, ett_m2pa_li);
@@ -338,7 +338,7 @@ dissect_v8_link_status_message(tvbuff_t *message_data_tvb, packet_info *pinfo, p
 
   col_append_fstr(pinfo->cinfo, COL_INFO, "(%s) ", val_to_str_const(tvb_get_ntohl(message_data_tvb, STATUS_OFFSET), v8_link_status_values, "Unknown"));
 
-  filler_length = tvb_length(message_data_tvb) - STATUS_LENGTH;
+  filler_length = tvb_captured_length(message_data_tvb) - STATUS_LENGTH;
 
   proto_tree_add_item(m2pa_tree, hf_v8_status, message_data_tvb, STATUS_OFFSET, STATUS_LENGTH, ENC_BIG_ENDIAN);
   if (filler_length > 0)
@@ -364,7 +364,7 @@ dissect_link_status_message(tvbuff_t *message_data_tvb, packet_info *pinfo, prot
 
   col_append_fstr(pinfo->cinfo, COL_INFO, "(%s) ", val_to_str_const(tvb_get_ntohl(message_data_tvb, STATUS_OFFSET), link_status_values, "Unknown"));
 
-  filler_length = tvb_length(message_data_tvb) - STATUS_LENGTH;
+  filler_length = tvb_captured_length(message_data_tvb) - STATUS_LENGTH;
 
   proto_tree_add_item(m2pa_tree, hf_status, message_data_tvb, STATUS_OFFSET, STATUS_LENGTH, ENC_BIG_ENDIAN);
   if (filler_length > 0)
@@ -376,7 +376,7 @@ dissect_unknown_message(tvbuff_t *message_data_tvb, proto_tree *m2pa_tree)
 {
   guint length;
 
-  length = tvb_length(message_data_tvb);
+  length = tvb_captured_length(message_data_tvb);
   if ((m2pa_tree) && (length > 0))
     proto_tree_add_item(m2pa_tree, hf_unknown_data, message_data_tvb, 0, length, ENC_NA);
 }

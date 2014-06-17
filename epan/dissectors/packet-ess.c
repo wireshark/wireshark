@@ -263,13 +263,13 @@ ess_dissect_attribute_flags (tvbuff_t *tvb, asn1_ctx_t *actx)
   guint i;
 
   tree = proto_item_add_subtree (actx->created_item, ett_Category_attributes);
-  value = (guint8 *)tvb_memdup (wmem_packet_scope(), tvb, 0, tvb_length (tvb));
+  value = (guint8 *)tvb_memdup (wmem_packet_scope(), tvb, 0, tvb_captured_length (tvb));
 
   for (i = 0; i < num_ess_category_attributes; i++) {
     ess_category_attributes_t *u = &(ess_category_attributes[i]);
 
     if ((strcmp (u->oid, object_identifier_id) == 0) &&
-        ((u->lacv / 8) < tvb_length (tvb)) &&
+        ((u->lacv / 8) < tvb_captured_length (tvb)) &&
         (value[u->lacv / 8] & (1 << (7 - (u->lacv % 8)))))
     {
        proto_tree_add_string_format (tree, hf_ess_Category_attribute, tvb,

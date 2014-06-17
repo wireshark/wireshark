@@ -90,7 +90,7 @@ dissect_ndr_datablob(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	subtree = proto_item_add_subtree(item, ett_nt_data_blob);
 
 	if (use_remaining_space) {
-		len = tvb_length_remaining (tvb, offset);
+		len = tvb_captured_length_remaining (tvb, offset);
 	} else {
 		offset = dissect_ndr_uint3264(tvb, offset, pinfo, subtree, di, drep,
 				    hf_nt_data_blob_len, &len);

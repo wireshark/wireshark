@@ -668,7 +668,7 @@ dissect_pana(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
        guint32 avp_length;
 
        /* Get actual buffer length */
-       buffer_length = tvb_length(tvb);
+       buffer_length = tvb_captured_length(tvb);
 
        /* Check minimum buffer length */
        if(buffer_length < 12) {

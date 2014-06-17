@@ -2077,7 +2077,7 @@ dissect_diameter_3gpp_uli(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     guint length;
     guint flags;
     guint flags_3gpp;
-    length       = tvb_length(tvb);
+    length       = tvb_captured_length(tvb);
     flags_3gpp   = tvb_get_guint8(tvb, offset);
 
     proto_tree_add_item(tree, hf_gtpv2_glt, tvb, offset, 1, ENC_BIG_ENDIAN);

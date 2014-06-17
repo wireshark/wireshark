@@ -2406,7 +2406,7 @@ dissect_control(tvbuff_t *parent_tvb, int offset, int control_len,
 	int		len, key;
 	gint		ett;
 
-	length = tvb_length_remaining(parent_tvb, offset);
+	length = tvb_captured_length_remaining(parent_tvb, offset);
 	reported_length = tvb_reported_length_remaining(parent_tvb, offset);
 	if (control_len < length)
 		length = control_len;

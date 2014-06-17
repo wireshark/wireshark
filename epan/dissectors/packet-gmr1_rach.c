@@ -512,7 +512,7 @@ dissect_gmr1_rach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree *rach_tree = NULL, *kls1_tree = NULL, *kls2_tree = NULL;
 	int len, is_moc;
 
-	len = tvb_length(tvb);
+	len = tvb_captured_length(tvb);
 
 	rach_item = proto_tree_add_protocol_format(
 		tree, proto_gmr1_rach, tvb, 0, len,

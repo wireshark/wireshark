@@ -2185,7 +2185,7 @@ dissect_link_control_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
             proto_tree_add_item(tree, hf_bthci_cmd_dedicated_amp_key_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset++;
             proto_tree_add_item(tree, hf_bthci_cmd_dedicated_amp_key, tvb, offset, -1, ENC_NA);
-            offset+=tvb_length_remaining(tvb, offset);
+            offset+=tvb_captured_length_remaining(tvb, offset);
             break;
 
         case 0x0037: /* Disconnect Physical Link */
@@ -2237,7 +2237,7 @@ dissect_link_control_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
         case 0x0044: /* Receive Synchronization Train */
 /* TODO: Implement above cases */
             proto_tree_add_expert(tree, pinfo, &ei_command_undecoded, tvb, offset, -1);
-            offset += tvb_length_remaining(tvb, offset);
+            offset += tvb_captured_length_remaining(tvb, offset);
             break;
     }
 
@@ -2975,7 +2975,7 @@ dissect_host_controller_baseband_cmd(tvbuff_t *tvb, int offset, packet_info *pin
         case 0x078: /* Write Synchronization Train Parameters */
 /* TODO: Implement above cases */
             proto_tree_add_expert(tree, pinfo, &ei_command_undecoded, tvb, offset, -1);
-            offset += tvb_length_remaining(tvb, offset);
+            offset += tvb_captured_length_remaining(tvb, offset);
             break;
     }
 
@@ -3051,7 +3051,7 @@ dissect_status_parameters_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
             proto_tree_add_item(tree, hf_bthci_cmd_amp_remaining_assoc_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset+=2;
             proto_tree_add_item(tree, hf_bthci_cmd_amp_assoc_fragment, tvb, offset, -1, ENC_NA);
-            offset+=tvb_length_remaining(tvb, offset);
+            offset+=tvb_captured_length_remaining(tvb, offset);
             break;
 
         case 0x00D: /* Set Triggered Clock Capture */
@@ -3061,7 +3061,7 @@ dissect_status_parameters_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
         case 0x00C: /* Get MWS Transport Layer Configuration */
 /* TODO: Implement above cases */
             proto_tree_add_expert(tree, pinfo, &ei_command_undecoded, tvb, offset, -1);
-            offset += tvb_length_remaining(tvb, offset);
+            offset += tvb_captured_length_remaining(tvb, offset);
             break;
     }
 
@@ -3099,7 +3099,7 @@ dissect_testing_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tre
         case 0x009: /* AMP Test */
 /* TODO: Implement above case */
             proto_tree_add_expert(tree, pinfo, &ei_command_undecoded, tvb, offset, -1);
-            offset += tvb_length_remaining(tvb, offset);
+            offset += tvb_captured_length_remaining(tvb, offset);
             break;
     }
 
@@ -3435,14 +3435,14 @@ dissect_bthci_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
             default:
                 proto_tree_add_expert(bthci_cmd_tree, pinfo, &ei_command_unknown, tvb, 3, -1);
-                offset += tvb_length_remaining(tvb, offset);
+                offset += tvb_captured_length_remaining(tvb, offset);
                 break;
         }
     }
 
-    if (tvb_length_remaining(tvb, offset) > 0) {
+    if (tvb_captured_length_remaining(tvb, offset) > 0) {
         proto_tree_add_expert(bthci_cmd_tree, pinfo, &ei_command_parameter_unexpected, tvb, offset, -1);
-        /*offset += tvb_length_remaining(tvb, offset);*/
+        /*offset += tvb_captured_length_remaining(tvb, offset);*/
     }
 
     return offset;
@@ -4952,7 +4952,7 @@ dissect_eir_ad_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     gint         end_offset;
     guint        i_uuid;
 
-    data_size = tvb_length(tvb);
+    data_size = tvb_captured_length(tvb);
 
     while (offset < data_size) {
         length = tvb_get_guint8(tvb, offset);
@@ -5245,9 +5245,9 @@ dissect_eir_ad_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
     }
 
-    if (tvb_length_remaining(tvb, offset) > 0) {
+    if (tvb_captured_length_remaining(tvb, offset) > 0) {
         proto_tree_add_item(tree, hf_btcommon_eir_ad_unused, tvb, offset, -1, ENC_NA);
-        offset = tvb_length(tvb);
+        offset = tvb_captured_length(tvb);
     }
 
     return offset + data_size;

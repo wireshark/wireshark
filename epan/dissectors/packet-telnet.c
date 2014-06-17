@@ -1545,7 +1545,7 @@ telnet_sub_option(packet_info *pinfo, proto_tree *option_tree, proto_item *optio
 
   /* Search for an unescaped IAC. */
   cur_offset = offset;
-  len = tvb_length_remaining(tvb, offset);
+  len = tvb_captured_length_remaining(tvb, offset);
   do {
     iac_offset = tvb_find_guint8(tvb, cur_offset, len, TN_IAC);
     iac_found = TRUE;
@@ -1775,7 +1775,7 @@ static int find_unescaped_iac(tvbuff_t *tvb, int offset, int len)
          (tvb_get_guint8(tvb, iac_offset + 1) == TN_IAC))
   {
     iac_offset+=2;
-    len = tvb_length_remaining(tvb, iac_offset);
+    len = tvb_captured_length_remaining(tvb, iac_offset);
   }
   return iac_offset;
 }
@@ -1804,7 +1804,7 @@ dissect_telnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /*
    * Scan through the buffer looking for an IAC byte.
    */
-  while ((len = tvb_length_remaining(tvb, offset)) > 0) {
+  while ((len = tvb_captured_length_remaining(tvb, offset)) > 0) {
     iac_offset = find_unescaped_iac(tvb, offset, len);
     if (iac_offset != -1) {
       /*

@@ -174,7 +174,7 @@ dissect_logcat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     check_length += string_length;
 
     if (length != check_length)
-        proto_tree_add_expert(maintree, pinfo, &ei_invalid_payload_length, tvb, offset, tvb_length_remaining(tvb, offset));
+        proto_tree_add_expert(maintree, pinfo, &ei_invalid_payload_length, tvb, offset, tvb_captured_length_remaining(tvb, offset));
 
     if (have_tap_listener(exported_pdu_tap)) {
         exp_pdu_data_t *exp_pdu_data;

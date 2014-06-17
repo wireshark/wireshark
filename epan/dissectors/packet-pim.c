@@ -186,7 +186,7 @@ dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
          * We are not enabled; skip entire packet to be nice to the
          * IGMP layer (so clicking on IGMP will display the data).
          */
-        return offset+tvb_length_remaining(tvb, offset);
+        return offset+tvb_captured_length_remaining(tvb, offset);
     }
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "PIMv1");
@@ -217,7 +217,7 @@ dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         offset += 2;
         proto_tree_add_item(pim_tree, hf_pim_version, tvb, offset, 1, ENC_BIG_ENDIAN);
-        return offset+tvb_length_remaining(tvb, offset);
+        return offset+tvb_captured_length_remaining(tvb, offset);
     }
 
     /*
@@ -225,7 +225,7 @@ dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
      * Register message, and thus can figure out how much to
      * checksum and whether to make the columns read-only.
      */
-    length = tvb_length(tvb);
+    length = tvb_captured_length(tvb);
     if (pim_type == 1) {
         /*
          * Register message - the PIM header is 8 bytes long.
@@ -490,7 +490,7 @@ dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
 done:;
 
-    return offset+tvb_length_remaining(tvb, offset);
+    return offset+tvb_captured_length_remaining(tvb, offset);
 }
 
 static gboolean
@@ -719,7 +719,7 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     proto_tree_add_item(pim_tree, hf_pim_type, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(pim_tree, hf_pim_res_bytes, tvb, offset + 1, 1, ENC_NA);
     pim_cksum = tvb_get_ntohs(tvb, offset + 2);
-    length = tvb_length(tvb);
+    length = tvb_captured_length(tvb);
     if (PIM_VER(pim_typever) == 2) {
         /*
          * Well, it's PIM v2, so we can check whether this is a Register

@@ -820,7 +820,7 @@ dissect_smb_unknown(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int
 	proto_tree_add_text(tree, tvb, offset, -1, "Data (%u bytes)",
 	    tvb_reported_length_remaining(tvb, offset));
 
-	return offset+tvb_length_remaining(tvb, offset);
+	return offset+tvb_captured_length_remaining(tvb, offset);
 }
 
 #define LOGON_LM10_LOGON_REQUEST		0x00

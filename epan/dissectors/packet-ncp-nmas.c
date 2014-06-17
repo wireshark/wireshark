@@ -191,7 +191,7 @@ static const value_string nmas_errors_enum[] = {
 static int
 align_4(tvbuff_t *tvb, int aoffset)
 {
-    if (tvb_length_remaining(tvb, aoffset) > 4 ) {
+    if (tvb_captured_length_remaining(tvb, aoffset) > 4 ) {
         return (aoffset%4);
     }
     return 0;

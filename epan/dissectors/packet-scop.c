@@ -157,7 +157,7 @@ dissect_scop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     col_clear(pinfo->cinfo, COL_INFO);
 
     /* Create the protocol display tree. */
-    proto_root = proto_tree_add_protocol_format(tree, proto_scop, tvb, 0, tvb_length(tvb),
+    proto_root = proto_tree_add_protocol_format(tree, proto_scop, tvb, 0, tvb_captured_length(tvb),
                                                 "ZigBee SCoP");
     scop_tree = proto_item_add_subtree(proto_root, ett_scop);
 
@@ -204,7 +204,7 @@ dissect_scop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
             break;
     }
 
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 } /* dissect_scop() */
 
 /*FUNCTION:------------------------------------------------------
@@ -249,7 +249,7 @@ static int
 dissect_scop_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     tcp_dissect_pdus(tvb, pinfo, tree, TRUE, SCOP_HEADER_LENGTH, get_scop_length, dissect_scop, data);
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 } /* dissect_scop_tcp */
 
 
@@ -286,7 +286,7 @@ dissect_scop_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     /* If there are any bytes left over, pass them to the data dissector. */
-    if (offset < tvb_length(tvb)) {
+    if (offset < tvb_captured_length(tvb)) {
         tvbuff_t    *payload_tvb = tvb_new_subset_remaining(tvb, offset);
         proto_tree  *root        = proto_tree_get_root(tree);
         call_dissector(data_handle, payload_tvb, pinfo, root);

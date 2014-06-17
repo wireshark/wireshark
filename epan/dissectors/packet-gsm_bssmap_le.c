@@ -938,7 +938,7 @@ dissect_bssmap_le(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	g_tree = tree;
 
-	len = tvb_length(tvb);
+	len = tvb_captured_length(tvb);
 
 	/*
 	 * add BSSMAP message name

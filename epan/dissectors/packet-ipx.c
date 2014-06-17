@@ -788,7 +788,7 @@ dissect_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			    tvb, 0, 0, spx_rexmit_info_p->num,
 			    "This is a retransmission of frame %u",
 			    spx_rexmit_info_p->num);
-			if (tvb_length_remaining(tvb, hdr_len) > 0) {
+			if (tvb_captured_length_remaining(tvb, hdr_len) > 0) {
 				proto_tree_add_text(spx_tree, tvb,
 				    hdr_len, -1,
 				    "Retransmitted data");

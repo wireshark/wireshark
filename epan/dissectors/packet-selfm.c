@@ -1023,7 +1023,7 @@ dissect_relaydef_frame(tvbuff_t *tvb, proto_tree *tree, int offset)
 
     proto_tree_add_item(relaydef_tree, hf_selfm_checksum, tvb, offset, 1, ENC_BIG_ENDIAN);
 
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 
 }
 
@@ -1131,7 +1131,7 @@ dissect_fmconfig_frame(tvbuff_t *tvb, proto_tree *tree, int offset)
 
     proto_tree_add_item(fmconfig_tree, hf_selfm_checksum, tvb, offset, 1, ENC_BIG_ENDIAN);
 
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 
 }
 
@@ -1364,7 +1364,7 @@ dissect_fmdata_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int of
         }
     }
 
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 
 }
 
@@ -1449,7 +1449,7 @@ dissect_foconfig_frame(tvbuff_t *tvb, proto_tree *tree, int offset)
     proto_tree_add_item(foconfig_tree, hf_selfm_checksum, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 
 }
 
@@ -1490,7 +1490,7 @@ dissect_alt_fastop_config_frame(tvbuff_t *tvb, proto_tree *tree, int offset)
     proto_tree_add_item(foconfig_tree, hf_selfm_alt_foconfig_funccode, tvb, offset+7, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(foconfig_tree, hf_selfm_alt_foconfig_funccode, tvb, offset+8, 1, ENC_BIG_ENDIAN);
 
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 
 }
 
@@ -1541,7 +1541,7 @@ dissect_fastop_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int of
    /* Add checksum */
     proto_tree_add_item(fastop_tree, hf_selfm_checksum, tvb, offset, 1, ENC_BIG_ENDIAN);
 
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 
 }
 
@@ -1579,7 +1579,7 @@ dissect_alt_fastop_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, in
     /* Operate Code Validation */
     proto_tree_add_item(fastop_tree, hf_selfm_alt_fastop_valid, tvb, offset, 2, ENC_BIG_ENDIAN);
 
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 
 }
 
@@ -2288,7 +2288,7 @@ dissect_fastser_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
 
     }
 
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 
 }
 
@@ -2312,7 +2312,7 @@ dissect_selfm(tvbuff_t *selfm_tvb, packet_info *pinfo, proto_tree *tree, void* d
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "SEL Fast Msg");
     col_clear(pinfo->cinfo, COL_INFO);
 
-    len = tvb_length(selfm_tvb);
+    len = tvb_captured_length(selfm_tvb);
 
     msg_type = tvb_get_ntohs(selfm_tvb, offset);
 
@@ -2491,7 +2491,7 @@ dissect_selfm(tvbuff_t *selfm_tvb, packet_info *pinfo, proto_tree *tree, void* d
         } /* remaining length > 0 */
     } /* tree */
 
-    return tvb_length(selfm_tvb);
+    return tvb_captured_length(selfm_tvb);
 }
 
 /******************************************************************************************************/
@@ -2505,11 +2505,11 @@ get_selfm_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset _U_)
     guint message_len=0;  /* message length, inclusive of header, data, crc */
 
     /* Get length byte from message */
-    if (tvb_length(tvb) > 2) {
+    if (tvb_captured_length(tvb) > 2) {
         message_len = tvb_get_guint8(tvb, 2);
     }
     /* for 2-byte poll messages, set the length to 2 */
-    else if (tvb_length(tvb) == 2) {
+    else if (tvb_captured_length(tvb) == 2) {
         message_len = 2;
     }
 
@@ -2524,7 +2524,7 @@ dissect_selfm_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 {
 
     tvbuff_t      *selfm_tvb;
-    gint length = tvb_length(tvb);
+    gint length = tvb_captured_length(tvb);
 
     /* Check for a SEL FM packet.  It should begin with 0xA5 */
     if(length < 2 || tvb_get_guint8(tvb, 0) != 0xA5) {
@@ -2554,7 +2554,7 @@ dissect_selfm_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 static int
 dissect_selfm_simple(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    gint length = tvb_length(tvb);
+    gint length = tvb_captured_length(tvb);
 
     /* Check for a SEL FM packet.  It should begin with 0xA5 */
     if(length < 2 || tvb_get_guint8(tvb, 0) != 0xA5) {

@@ -504,7 +504,7 @@ dissect_fcfzs_arzm(tvbuff_t *tvb, proto_tree *tree, gboolean isreq)
                                 len, ENC_ASCII|ENC_NA);
 
             len += (len % 4);
-            plen = tvb_length(tvb) - offset - len;
+            plen = tvb_captured_length(tvb) - offset - len;
 
             numrec = plen/12;   /* each mbr rec is 12 bytes long */
 
@@ -613,7 +613,7 @@ dissect_fcfzs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
     if (tree) {
         ti = proto_tree_add_protocol_format(tree, proto_fcfzs, tvb, 0,
-                                            tvb_length(tvb),
+                                            tvb_captured_length(tvb),
                                             "Zone Server");
         fcfzs_tree = proto_item_add_subtree(ti, ett_fcfzs);
         proto_tree_add_item(fcfzs_tree, hf_fcfzs_opcode, tvb, offset+8, 2, ENC_BIG_ENDIAN);
@@ -667,7 +667,7 @@ dissect_fcfzs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
                                 val_to_str(opcode, fc_fzs_opcode_val,
                                            "0x%x"));
                 /* No record of what this accept is for. Can't decode */
-                proto_tree_add_text(fcfzs_tree, tvb, 0, tvb_length(tvb),
+                proto_tree_add_text(fcfzs_tree, tvb, 0, tvb_captured_length(tvb),
                                     "No record of Exchg. Unable to decode MSG_ACC");
                 return 0;
             }
@@ -697,7 +697,7 @@ dissect_fcfzs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
             if ((cdata == NULL) && (opcode != FCCT_MSG_RJT)) {
                 /* No record of what this accept is for. Can't decode */
-                proto_tree_add_text(fcfzs_tree, tvb, 0, tvb_length(tvb),
+                proto_tree_add_text(fcfzs_tree, tvb, 0, tvb_captured_length(tvb),
                                     "No record of Exchg. Unable to decode MSG_ACC/RJT");
                 return 0;
             }
@@ -761,7 +761,7 @@ dissect_fcfzs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
         break;
     }
 
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 /* Register the protocol with Wireshark */

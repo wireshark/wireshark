@@ -550,7 +550,7 @@ static int
 dissect_mint_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	guint32 offset = 0;
-	guint32 packet_length = tvb_length_remaining(tvb, 0);
+	guint32 packet_length = tvb_captured_length_remaining(tvb, 0);
 
 	offset += dissect_mint_common(tvb, pinfo, tree, 0, packet_length,
 		PORT_MINT_CONTROL_TUNNEL);
@@ -562,7 +562,7 @@ static int
 dissect_mint_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	guint32 offset = 0;
-	guint32 packet_length = tvb_length_remaining(tvb, 0);
+	guint32 packet_length = tvb_captured_length_remaining(tvb, 0);
 
 	offset += dissect_mint_common(tvb, pinfo, tree, 0, packet_length,
 		PORT_MINT_DATA_TUNNEL);
@@ -600,7 +600,7 @@ test_mint_control(tvbuff_t *tvb _U_)
 {
 #if 0
 	/* Minimum of 8 bytes, first byte (version) has value of 3 */
-	if ( tvb_length(tvb) < 8
+	if ( tvb_captured_length(tvb) < 8
 		    || tvb_get_guint8(tvb, 0) != 3
 		    /* || tvb_get_guint8(tvb, 2) != 0
 		    || tvb_get_ntohs(tvb, 6) > tvb_reported_length(tvb) */
@@ -616,7 +616,7 @@ test_mint_data(tvbuff_t *tvb _U_)
 {
 #if 0
 	/* Minimum of 8 bytes, first byte (version) has value of 3 */
-	if ( tvb_length(tvb) < 8
+	if ( tvb_captured_length(tvb) < 8
 		    || tvb_get_guint8(tvb, 0) != 3
 		    /* || tvb_get_guint8(tvb, 2) != 0
 		    || tvb_get_ntohs(tvb, 6) > tvb_reported_length(tvb) */
@@ -632,7 +632,7 @@ test_mint_eth(tvbuff_t *tvb _U_)
 {
 #if 0
 	/* Minimum of 8 bytes, first byte (version) has value of 3 */
-	if ( tvb_length(tvb) < 8
+	if ( tvb_captured_length(tvb) < 8
 		    || tvb_get_guint8(tvb, 0) != 3
 		    /* || tvb_get_guint8(tvb, 2) != 0
 		    || tvb_get_ntohs(tvb, 6) > tvb_reported_length(tvb) */

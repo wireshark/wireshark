@@ -1192,7 +1192,7 @@ static const value_string homeplug_av_coupling_vals[] = {
 #define TVB_LEN_GREATEST  1
 #define TVB_LEN_UNDEF     0
 #define TVB_LEN_SHORTEST -1
-static int check_tvb_length(ptvcursor_t *cursor, const gint length)
+static int check_tvb_captured_length(ptvcursor_t *cursor, const gint length)
 {
    if (!cursor)
       return TVB_LEN_UNDEF;
@@ -3209,7 +3209,7 @@ dissect_homeplug_av(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    cursor = ptvcursor_new(homeplug_av_tree, tvb, 0);
 
    /* Check if we have enough data to process the header */
-   if (check_tvb_length(cursor, HOMEPLUG_AV_MMHDR_LEN) != TVB_LEN_SHORTEST) {
+   if (check_tvb_captured_length(cursor, HOMEPLUG_AV_MMHDR_LEN) != TVB_LEN_SHORTEST) {
 
       dissect_homeplug_av_mmhdr(cursor, &homeplug_av_mmver, &homeplug_av_mmtype);
 

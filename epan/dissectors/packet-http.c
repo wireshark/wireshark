@@ -1137,7 +1137,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	}
 
 	reported_datalen = tvb_reported_length_remaining(tvb, offset);
-	datalen = tvb_length_remaining(tvb, offset);
+	datalen = tvb_captured_length_remaining(tvb, offset);
 
 	/*
 	 * If a content length was supplied, the amount of data to be
@@ -1333,17 +1333,17 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			     g_ascii_strcasecmp(headers.content_encoding, "x-deflate") == 0))
 			{
 				uncomp_tvb = tvb_child_uncompress(tvb, next_tvb, 0,
-				    tvb_length(next_tvb));
+				    tvb_captured_length(next_tvb));
 			}
 
 			/*
 			 * Add the encoded entity to the protocol tree
 			 */
 			e_ti = proto_tree_add_text(http_tree, next_tvb,
-					0, tvb_length(next_tvb),
+					0, tvb_captured_length(next_tvb),
 					"Content-encoded entity body (%s): %u bytes",
 					headers.content_encoding,
-					tvb_length(next_tvb));
+					tvb_captured_length(next_tvb));
 			e_tree = proto_item_add_subtree(e_ti,
 					ett_http_encoded_entity);
 
@@ -1359,7 +1359,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				 *
 				tvb_free(next_tvb);
 				*/
-				proto_item_append_text(e_ti, " -> %u bytes", tvb_length(uncomp_tvb));
+				proto_item_append_text(e_ti, " -> %u bytes", tvb_captured_length(uncomp_tvb));
 				next_tvb = uncomp_tvb;
 				add_new_data_source(pinfo, next_tvb,
 				    "Uncompressed entity body");
@@ -1385,7 +1385,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			eo_info->hostname = conv_data->http_host;
 			eo_info->filename = conv_data->request_uri;
 			eo_info->content_type = headers.content_type;
-			eo_info->payload_len = tvb_length(next_tvb);
+			eo_info->payload_len = tvb_captured_length(next_tvb);
 			eo_info->payload_data = tvb_get_ptr(next_tvb, 0, eo_info->payload_len);
 
 			tap_queue_packet(http_eo_tap, pinfo, eo_info);
@@ -1709,7 +1709,7 @@ chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
 		raw_len = 0;
 
 		if (new_tvb != NULL) {
-			raw_len = tvb_length_remaining(new_tvb, 0);
+			raw_len = tvb_captured_length_remaining(new_tvb, 0);
 			tvb_memcpy(new_tvb, raw_data, 0, raw_len);
 
 			tvb_free(new_tvb);
@@ -2787,7 +2787,7 @@ dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 		}
 	}
 
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 static gboolean

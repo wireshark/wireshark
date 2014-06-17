@@ -311,7 +311,7 @@ dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
        or not - set the Info column now; we'll get an exception before
        we set it otherwise. */
 
-    if (tvb_length(tvb) < cnf_hdr_len) {
+    if (tvb_captured_length(tvb) < cnf_hdr_len) {
         col_add_fstr(pinfo->cinfo, COL_INFO, "%s NPDU %s", pdu_type_string, flag_string);
     }
 
@@ -577,7 +577,7 @@ dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                    dissect it as a CLNP PDU. */
 
                 col_add_fstr(pinfo->cinfo, COL_INFO, "%s NPDU %s", pdu_type_string, flag_string);
-                next_length = tvb_length_remaining(tvb, offset);
+                next_length = tvb_captured_length_remaining(tvb, offset);
                 if (next_length != 0) {
                     /* We have payload; dissect it. */
                     ti = proto_tree_add_text(clnp_tree, tvb, offset, next_length,

@@ -259,7 +259,7 @@ dissect_isl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int fcs_len)
       length -= 12;
 
       /* Trim the captured length. */
-      captured_length = tvb_length_remaining(payload_tvb, 12);
+      captured_length = tvb_captured_length_remaining(payload_tvb, 12);
 
       /* Make sure it's not bigger than the actual length. */
       if (captured_length > length)

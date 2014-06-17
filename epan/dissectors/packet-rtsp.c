@@ -1154,7 +1154,7 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
      * was supplied), the amount of data to be processed is the amount
      * of data remaining in the frame.
      */
-    datalen = tvb_length_remaining(tvb, offset);
+    datalen = tvb_captured_length_remaining(tvb, offset);
     reported_datalen = tvb_reported_length_remaining(tvb, offset);
     if (content_length != -1) {
         /*

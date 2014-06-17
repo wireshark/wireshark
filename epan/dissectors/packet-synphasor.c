@@ -443,7 +443,7 @@ static int dissect_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 {
 	guint8	frame_type;
 	guint16 crc;
-	guint	tvbsize = tvb_length(tvb);
+	guint	tvbsize = tvb_captured_length(tvb);
 
 	/* some heuristics */
 	if (tvbsize < 17		    /* 17 bytes = header frame with only a
@@ -554,7 +554,7 @@ static int dissect_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 		/*offset += 2;*/ /* CRC */
 	} /* if (tree) */
 
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 } /* dissect_synphasor() */
 
 /* called for synchrophasors over UDP */
@@ -573,7 +573,7 @@ static int dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 {
 	tcp_dissect_pdus(tvb, pinfo, tree, TRUE, 4, get_pdu_length, dissect_common, data);
 
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 
@@ -765,7 +765,7 @@ static int dissect_data_frame(tvbuff_t	  *tvb,
 				reported_size += BLOCKSIZE(*block);
 			}
 
-			if (tvb_length(tvb) == reported_size) {
+			if (tvb_captured_length(tvb) == reported_size) {
 				proto_item_append_text(data_item, ", using frame number %"G_GUINT32_FORMAT" as configuration frame",
 						       conf->fnum);
 				config_found = TRUE;
@@ -818,7 +818,7 @@ static int dissect_command_frame(tvbuff_t    *tvb,
 				 packet_info *pinfo)
 {
 	proto_tree *command_tree  = NULL;
-	guint	    tvbsize	  = tvb_length(tvb);
+	guint	    tvbsize	  = tvb_captured_length(tvb);
 	const char *s;
 
 	proto_item_set_text(command_item, "Command data");

@@ -458,7 +458,7 @@ dissect_bfcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
 
 	/* Size of smallest BFCP packet: 12 octets */
-	if (tvb_length(tvb) < 12)
+	if (tvb_captured_length(tvb) < 12)
 		return FALSE;
 
 	/* Check version and reserved bits in first byte */

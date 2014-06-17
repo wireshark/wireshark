@@ -283,7 +283,7 @@ dissect_fp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_ 
   next_tvb = tvb_new_subset_remaining( tvb, FP_HEADER_SIZE) ;
   call_dissector( eth_dissector, next_tvb, pinfo, tree ) ;
 
-  return tvb_length( tvb ) ;
+  return tvb_captured_length( tvb ) ;
 }
 
 /* Register the protocol with Wireshark */

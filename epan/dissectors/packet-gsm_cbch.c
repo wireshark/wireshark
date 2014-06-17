@@ -135,7 +135,7 @@ dissect_schedule_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree
     proto_item *item            = NULL, *schedule_item = NULL;
     proto_tree *sched_tree      = NULL, *sched_subtree = NULL;
 
-    len = tvb_length(tvb);
+    len = tvb_captured_length(tvb);
 
     col_append_str(pinfo->cinfo, COL_INFO, " CBCH Schedule Message ");
 
@@ -365,7 +365,7 @@ dissect_cbch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree    *cbch_tree = NULL;
     tvbuff_t      *reass_tvb = NULL, *msg_tvb = NULL;
 
-    len    = tvb_length(tvb);
+    len    = tvb_captured_length(tvb);
     offset = 0;
     octet  = tvb_get_guint8(tvb, offset);
 

@@ -525,7 +525,7 @@ dissect_pktc_mtafqdn_krbsafeuserdata(packet_info *pinfo, tvbuff_t *tvb, proto_tr
 
     case PKTC_MTAFQDN_REP:
         /* MTA FQDN */
-        string_len = tvb_length_remaining(tvb, offset) - 4;
+        string_len = tvb_captured_length_remaining(tvb, offset) - 4;
         if (string_len <= 0)
                 THROW(ReportedBoundsError);
         proto_tree_add_item(tree, hf_pktc_mtafqdn_fqdn, tvb, offset, string_len, ENC_ASCII|ENC_NA);

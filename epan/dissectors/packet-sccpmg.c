@@ -127,7 +127,7 @@ dissect_sccpmg_unknown_message(tvbuff_t *message_tvb, proto_tree *sccpmg_tree)
 {
 	guint32 message_length;
 
-	message_length = tvb_length(message_tvb);
+	message_length = tvb_captured_length(message_tvb);
 
 	proto_tree_add_text(sccpmg_tree, message_tvb, 0, message_length,
 			    "Unknown message (%u byte%s)", message_length,

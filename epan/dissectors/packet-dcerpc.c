@@ -2758,7 +2758,7 @@ show_stub_data(tvbuff_t *tvb, gint offset, proto_tree *dcerpc_tree,
      * bytes, the reported number of bytes, not the number of bytes
      * that happen to be in the tvbuff.
      */
-    if (tvb_length_remaining(tvb, offset) > 0) {
+    if (tvb_captured_length_remaining(tvb, offset) > 0) {
         auth_pad_len = auth_info?auth_info->auth_pad_len:0;
         length = tvb_reported_length_remaining(tvb, offset);
 
@@ -2923,7 +2923,7 @@ dcerpc_try_handoff(packet_info *pinfo, proto_tree *tree,
 
             init_ndr_pointer_list(info);
 
-            length = tvb_length(decrypted_tvb);
+            length = tvb_captured_length(decrypted_tvb);
             reported_length = tvb_reported_length(decrypted_tvb);
 
             /*
@@ -3164,7 +3164,7 @@ dissect_dcerpc_cn_auth(tvbuff_t *tvb, int stub_offset, packet_info *pinfo,
                     dcerpc_auth_subdissector_fns *auth_fns;
 
                     auth_tvb = tvb_new_subset(tvb, offset,
-                                              MIN(hdr->auth_len,tvb_length_remaining(tvb, offset)),
+                                              MIN(hdr->auth_len,tvb_captured_length_remaining(tvb, offset)),
                                               hdr->auth_len);
 
                     if ((auth_fns = get_auth_subdissector_fns(auth_info->auth_level,
@@ -3590,7 +3590,7 @@ dissect_dcerpc_cn_stub(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
     save_fragmented = pinfo->fragmented;
 
-    length = tvb_length_remaining(tvb, offset);
+    length = tvb_captured_length_remaining(tvb, offset);
     reported_length = tvb_reported_length_remaining(tvb, offset);
     if (reported_length < 0 ||
         (guint32)reported_length < auth_info->auth_size) {
@@ -3608,8 +3608,8 @@ dissect_dcerpc_cn_stub(tvbuff_t *tvb, int offset, packet_info *pinfo,
     /*XXX we should really make sure we calculate auth_info->auth_data
       and use that one instead of this auth_tvb hack
     */
-    if (tvb_length(tvb) == tvb_reported_length(tvb)) {
-        if (tvb_length_remaining(tvb, offset+length) > 8) {
+    if (tvb_captured_length(tvb) == tvb_reported_length(tvb)) {
+        if (tvb_captured_length_remaining(tvb, offset+length) > 8) {
             auth_tvb = tvb_new_subset_remaining(tvb, offset+length+8);
         }
     }
@@ -3649,7 +3649,7 @@ dissect_dcerpc_cn_stub(tvbuff_t *tvb, int offset, packet_info *pinfo,
                         "Encrypted stub data (%d byte%s)",
                         tvb_reported_length(payload_tvb),
 
-                        plurality(tvb_length(payload_tvb), "", "s"));
+                        plurality(tvb_captured_length(payload_tvb), "", "s"));
 
                 add_new_data_source(
                     pinfo, result, "Decrypted stub data");
@@ -3679,7 +3679,7 @@ dissect_dcerpc_cn_stub(tvbuff_t *tvb, int offset, packet_info *pinfo,
     /* debug output of essential fragment data. */
     /* leave it here for future debugging sessions */
     /*printf("DCE num:%u offset:%u frag_len:%u tvb_len:%u\n",
-      pinfo->fd->num, offset, hdr->frag_len, tvb_length(decrypted_tvb));*/
+      pinfo->fd->num, offset, hdr->frag_len, tvb_captured_length(decrypted_tvb));*/
 
     /* if we are not doing reassembly and this is the first fragment
        then just dissect it and exit
@@ -3711,7 +3711,7 @@ dissect_dcerpc_cn_stub(tvbuff_t *tvb, int offset, packet_info *pinfo,
        nor the first fragment then there is nothing more we can do
        so we just have to exit
     */
-    if ( !dcerpc_reassemble || (tvb_length(tvb) != tvb_reported_length(tvb)) )
+    if ( !dcerpc_reassemble || (tvb_captured_length(tvb) != tvb_reported_length(tvb)) )
         goto end_cn_stub;
 
     /* if we didn't get 'frame' we don't know where the PDU started and thus
@@ -3742,7 +3742,7 @@ dissect_dcerpc_cn_stub(tvbuff_t *tvb, int offset, packet_info *pinfo,
      */
     fd_head = fragment_add_seq_next(&dcerpc_co_reassembly_table,
                                     decrypted_tvb, 0, pinfo, frame, NULL,
-                                    tvb_length(decrypted_tvb),
+                                    tvb_captured_length(decrypted_tvb),
                                     hdr->flags&PFC_LAST_FRAG ? FALSE : TRUE /* more_frags */);
 
 end_cn_stub:
@@ -4232,7 +4232,7 @@ dissect_dcerpc_cn_fault(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                 proto_tree_add_expert(dcerpc_tree, pinfo, &ei_dcerpc_no_request_found, tvb, 0, 0);
             }
 
-            length = tvb_length_remaining(tvb, offset);
+            length = tvb_captured_length_remaining(tvb, offset);
             /* as we now create a tvb in dissect_dcerpc_cn() containing only the
              * stub_data, the following calculation is no longer valid:
              * stub_length = hdr->frag_len - offset - auth_info.auth_size;
@@ -4393,7 +4393,7 @@ dissect_dcerpc_cn_rts(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                                    hf_dcerpc_cn_rts_commands_nb, &commands_nb);
 
     /* Create the RTS PDU tree - we do not yet know its name */
-    tf = proto_tree_add_text(dcerpc_tree, tvb, offset, tvb_length_remaining(tvb, offset), "RTS PDU: %u commands", commands_nb);
+    tf = proto_tree_add_text(dcerpc_tree, tvb, offset, tvb_captured_length_remaining(tvb, offset), "RTS PDU: %u commands", commands_nb);
     cn_rts_pdu_tree = proto_item_add_subtree(tf, ett_dcerpc_cn_rts_pdu);
 
     cmd = (guint32 *)wmem_alloc(wmem_packet_scope(), sizeof (guint32) * (commands_nb + 1));
@@ -4753,7 +4753,7 @@ dissect_dcerpc_cn(tvbuff_t *tvb, int offset, packet_info *pinfo,
     if (can_desegment && pinfo->can_desegment
         && !tvb_bytes_exist(tvb, start_offset, hdr.frag_len)) {
         pinfo->desegment_offset = start_offset;
-        pinfo->desegment_len = hdr.frag_len - tvb_length_remaining(tvb, start_offset);
+        pinfo->desegment_len = hdr.frag_len - tvb_captured_length_remaining(tvb, start_offset);
         *pkt_len = 0;   /* desegmentation required */
         return TRUE;
     }
@@ -4864,7 +4864,7 @@ dissect_dcerpc_cn(tvbuff_t *tvb, int offset, packet_info *pinfo,
      * (and other functions might fail as well) computing the right start
      * offset otherwise.
      */
-    subtvb_len = MIN(hdr.frag_len, tvb_length(tvb));
+    subtvb_len = MIN(hdr.frag_len, tvb_captured_length(tvb));
     fragment_tvb = tvb_new_subset(tvb, start_offset,
                                   subtvb_len /* length */,
                                   hdr.frag_len /* reported_length */);
@@ -5029,7 +5029,7 @@ dissect_dcerpc_cn_bs_body(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                  * it was just too short to tell and ask the TCP layer for more
                  * data. */
                 pinfo->desegment_offset = offset;
-                pinfo->desegment_len = (guint32)(sizeof(e_dce_cn_common_hdr_t) - tvb_length_remaining(tvb, offset));
+                pinfo->desegment_len = (guint32)(sizeof(e_dce_cn_common_hdr_t) - tvb_captured_length_remaining(tvb, offset));
             } else {
                 /* Really not DCE-RPC */
                 break;
@@ -5120,7 +5120,7 @@ dissect_dcerpc_dg_auth(tvbuff_t *tvb, int offset, proto_tree *dcerpc_tree,
      * packet body, then dissect the auth info.
      */
     offset += hdr->frag_len;
-    if (tvb_length_remaining(tvb, offset) > 0) {
+    if (tvb_captured_length_remaining(tvb, offset) > 0) {
         switch (hdr->auth_proto) {
 
         case DCE_C_RPC_AUTHN_PROTOCOL_KRB5:
@@ -5280,7 +5280,7 @@ dissect_dcerpc_dg_stub(tvbuff_t *tvb, int offset, packet_info *pinfo,
     col_append_fstr(pinfo->cinfo, COL_INFO, " opnum: %u len: %u",
                     di->call_data->opnum, hdr->frag_len );
 
-    length = tvb_length_remaining(tvb, offset);
+    length = tvb_captured_length_remaining(tvb, offset);
     reported_length = tvb_reported_length_remaining(tvb, offset);
     stub_length = hdr->frag_len;
     if (length > stub_length)
@@ -5580,7 +5580,7 @@ dissect_dcerpc_dg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
      * have an 80 byte header on them.  Which starts with
      * version (4), pkt_type.
      */
-    if (tvb_length(tvb) < sizeof (hdr)) {
+    if (tvb_captured_length(tvb) < sizeof (hdr)) {
         return FALSE;
     }
 

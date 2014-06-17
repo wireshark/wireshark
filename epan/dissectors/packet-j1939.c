@@ -255,7 +255,7 @@ static int dissect_j1939(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
         proto_tree_add_item(msg_tree, hf_j1939_data, tvb, 0, -1, ENC_NA);
     }
 
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 void proto_register_j1939(void)

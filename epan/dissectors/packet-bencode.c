@@ -282,7 +282,7 @@ static int dissect_bencoding_rec(tvbuff_t *tvb, packet_info *pinfo _U_,
 
 static void dissect_bencoding(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  dissect_bencoding_rec(tvb, pinfo, 0, tvb_length(tvb), tree, 0, NULL, 0);
+  dissect_bencoding_rec(tvb, pinfo, 0, tvb_captured_length(tvb), tree, 0, NULL, 0);
 }
 
 void

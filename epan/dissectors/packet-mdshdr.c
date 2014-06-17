@@ -153,7 +153,7 @@ dissect_mdshdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     pktlen  = tvb_get_ntohs(tvb, offset+MDSHDR_PKTLEN_OFFSET) & 0x1FFF;
 
     /* The Mdshdr trailer is at the end of the frame */
-    if ((tvb_length(tvb) >= (MDSHDR_HEADER_SIZE + pktlen))
+    if ((tvb_captured_length(tvb) >= (MDSHDR_HEADER_SIZE + pktlen))
         /* Avoid header/trailer overlap if something wrong */
         && (pktlen >= MDSHDR_TRAILER_SIZE))  {
         trailer_start = MDSHDR_HEADER_SIZE + pktlen - MDSHDR_TRAILER_SIZE;
@@ -213,7 +213,7 @@ dissect_mdshdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         PROTO_ITEM_SET_HIDDEN(hidden_item);
 
         /* Add Mdshdr Trailer part */
-        if (tvb_length(tvb) >= MDSHDR_HEADER_SIZE + pktlen
+        if (tvb_captured_length(tvb) >= MDSHDR_HEADER_SIZE + pktlen
             && 0 != trailer_start) {
             ti_trlr = proto_tree_add_text(mdshdr_tree_main, tvb, trailer_start,
                                           MDSHDR_TRAILER_SIZE,
@@ -230,7 +230,7 @@ dissect_mdshdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
     }
 
-    if (tvb_length(tvb) >= MDSHDR_HEADER_SIZE + pktlen
+    if (tvb_captured_length(tvb) >= MDSHDR_HEADER_SIZE + pktlen
         && 0 != pktlen /*if something wrong*/) {
         next_tvb = tvb_new_subset_length(tvb, MDSHDR_HEADER_SIZE, pktlen);
         /* XXX what to do with the rest of this frame? --ArtemTamazov */

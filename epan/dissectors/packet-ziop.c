@@ -139,7 +139,7 @@ dissect_ziop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data
                                giop_version_minor);
         }
       call_dissector(data_handle, tvb, pinfo, tree);
-      return tvb_length(tvb);
+      return tvb_captured_length(tvb);
     }
 
   col_add_fstr (pinfo->cinfo, COL_INFO, "ZIOP %u.%u %s",
@@ -185,7 +185,7 @@ dissect_ziop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data
       proto_tree_add_item(ziop_tree, hf_ziop_original_length, tvb, offset, 4, byte_order);
     }
 
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 static guint
@@ -218,14 +218,14 @@ dissect_ziop_tcp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* 
       if (tvb_get_ntohl(tvb, 0) == GIOP_MAGIC_NUMBER)
         {
           dissect_giop(tvb, pinfo, tree);
-          return tvb_length(tvb);
+          return tvb_captured_length(tvb);
         }
       return 0;
     }
 
   tcp_dissect_pdus(tvb, pinfo, tree, ziop_desegment, ZIOP_HEADER_SIZE,
                    get_ziop_pdu_len, dissect_ziop, data);
-  return tvb_length(tvb);
+  return tvb_captured_length(tvb);
 }
 
 
@@ -237,7 +237,7 @@ dissect_ziop_heur (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void 
   conversation_t *conversation;
   /* check magic number and version */
 
-  tot_len = tvb_length(tvb);
+  tot_len = tvb_captured_length(tvb);
 
   if (tot_len < ZIOP_HEADER_SIZE) /* tot_len < 12 */
     {

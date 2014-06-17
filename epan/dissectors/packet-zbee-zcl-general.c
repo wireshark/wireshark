@@ -223,7 +223,7 @@ dissect_zbee_zcl_basic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
         }
     }
 
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 } /*dissect_zbee_zcl_basic*/
 
 
@@ -618,7 +618,7 @@ dissect_zbee_zcl_identify(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
         }
     }
 
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 } /*dissect_zbee_zcl_identify*/
 
 
@@ -939,7 +939,7 @@ dissect_zbee_zcl_on_off(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
         /*offset++;*/
     }
 
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 } /*dissect_zbee_zcl_on_off*/
 
 /*FUNCTION:------------------------------------------------------
@@ -1318,7 +1318,7 @@ dissect_zbee_zcl_part(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
         }
     }
 
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 } /*dissect_zbee_zcl_part*/
 
  /*FUNCTION:------------------------------------------------------
@@ -2744,7 +2744,7 @@ dissect_zbee_zcl_ota(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
         }
     }
 
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 } /*dissect_zbee_zcl_ota*/
 
 /*FUNCTION:------------------------------------------------------
@@ -3275,7 +3275,7 @@ dissect_zbee_zcl_pwr_prof (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         }
     }
 
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 } /*dissect_zbee_zcl_pwr_prof*/
 
 /*FUNCTION:------------------------------------------------------
@@ -4450,7 +4450,7 @@ dissect_zbee_zcl_appl_ctrl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         }
     }
 
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 

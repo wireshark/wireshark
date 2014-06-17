@@ -111,7 +111,7 @@ dissect_db_lsp_pdu (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
   proto_tree_add_item (db_lsp_tree, hf_length, tvb, offset, 2, ENC_BIG_ENDIAN);
   offset += 2;
 
-  if (magic != 0x0301 || length > tvb_length_remaining (tvb, offset)) {
+  if (magic != 0x0301 || length > tvb_captured_length_remaining (tvb, offset)) {
     /* Probably an unknown packet */
     /* expert_add_info_format (pinfo, db_lsp_item, PI_UNDECODED, PI_WARN, "Unknown packet"); */
     return 0;
@@ -137,7 +137,7 @@ dissect_db_lsp_pdu (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 
   proto_item_append_text (db_lsp_item, ", Type: %d, Length: %d", type, length);
   proto_item_set_len (db_lsp_item, length + 5);
-  return tvb_length(tvb);
+  return tvb_captured_length(tvb);
 }
 
 static guint
@@ -145,7 +145,7 @@ get_db_lsp_pdu_len (packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
   if (tvb_get_ntohs (tvb, offset + 1) != 0x0301) {
     /* Unknown data, eat remaining data for this frame */
-    return tvb_length_remaining (tvb, offset);
+    return tvb_captured_length_remaining (tvb, offset);
   }
 
   return tvb_get_ntohs (tvb, offset + 3) + 5;
@@ -156,7 +156,7 @@ dissect_db_lsp_tcp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 {
   tcp_dissect_pdus (tvb, pinfo, tree, db_lsp_desegment, 5,
                     get_db_lsp_pdu_len, dissect_db_lsp_pdu, data);
-  return tvb_length(tvb);
+  return tvb_captured_length(tvb);
 }
 
 static void

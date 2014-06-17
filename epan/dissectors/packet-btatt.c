@@ -151,7 +151,7 @@ dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
     proto_tree *st, *ltree;
     guint8 opcode;
 
-    if (tvb_length_remaining(tvb, 0) < 1)
+    if (tvb_captured_length_remaining(tvb, 0) < 1)
         return 0;
 
     ti = proto_tree_add_item(tree, proto_btatt, tvb, 0, -1, ENC_NA);
@@ -220,7 +220,7 @@ dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
             offset++;
 
             if( format == 1 ) {
-                while( tvb_length_remaining(tvb, offset) > 0) {
+                while( tvb_captured_length_remaining(tvb, offset) > 0) {
                     proto_tree_add_item(st, hf_btatt_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
                     offset += 2;
                     proto_tree_add_item(st, hf_btatt_uuid16, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -228,7 +228,7 @@ dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
                 }
             }
             else if( format == 2 ) {
-                while( tvb_length_remaining(tvb, offset) > 0) {
+                while( tvb_captured_length_remaining(tvb, offset) > 0) {
                     proto_tree_add_item(st, hf_btatt_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
                     offset += 2;
                     proto_tree_add_item(st, hf_btatt_uuid128, tvb, offset, 16, ENC_NA);
@@ -257,7 +257,7 @@ dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
         break;
 
     case 0x07: /* Find By Type Value Response */
-        while( tvb_length_remaining(tvb, offset) > 0 ) {
+        while( tvb_captured_length_remaining(tvb, offset) > 0 ) {
             item = proto_tree_add_none_format(st, hf_btatt_handles_info, tvb, offset, 4,
                                             "Handles Info, Handle: 0x%04x, Group End Handle: 0x%04x",
                                             tvb_get_letohs(tvb, offset), tvb_get_letohs(tvb, offset+2));
@@ -282,11 +282,11 @@ dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
         proto_tree_add_item(st, hf_btatt_ending_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         offset += 2;
 
-        if (tvb_length_remaining(tvb, offset) == 2) {
+        if (tvb_captured_length_remaining(tvb, offset) == 2) {
             proto_tree_add_item(st, hf_btatt_uuid16, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset += 2;
         }
-        else if (tvb_length_remaining(tvb, offset) == 16) {
+        else if (tvb_captured_length_remaining(tvb, offset) == 16) {
             item = proto_tree_add_item(st, hf_btatt_uuid128, tvb, offset, 16, ENC_NA);
             proto_item_append_text(item, " (%s)", val_to_str_ext_const(tvb_get_letohs(tvb, offset),
                                             &bt_sig_uuid_vals_ext, "<unknown>"));
@@ -303,9 +303,9 @@ dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 
             if(length > 0) {
                 col_append_fstr(pinfo->cinfo, COL_INFO, ", Attribute List Length: %u",
-                                        tvb_length_remaining(tvb, offset)/length);
+                                        tvb_captured_length_remaining(tvb, offset)/length);
 
-                while (tvb_length_remaining(tvb, offset) >= length)
+                while (tvb_captured_length_remaining(tvb, offset) >= length)
                 {
                     item = proto_tree_add_none_format(st, hf_btatt_attribute_data, tvb,
                                                     offset, length, "Attribute Data, Handle: 0x%04x",
@@ -345,13 +345,13 @@ dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
         break;
 
     case 0x0e: /* Multiple Read Request */
-        if(tvb_length_remaining(tvb, offset) < 4) {
+        if(tvb_captured_length_remaining(tvb, offset) < 4) {
             expert_add_info(pinfo, item, &ei_btatt_handle_too_few);
             break;
         }
 
         col_append_str(pinfo->cinfo, COL_INFO, ", Handles: ");
-        while (tvb_length_remaining(tvb, offset) >= 2) {
+        while (tvb_captured_length_remaining(tvb, offset) >= 2) {
             proto_tree_add_item(st, hf_btatt_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             col_append_fstr(pinfo->cinfo, COL_INFO, "0x%04x ", tvb_get_letohs(tvb, offset));
             offset += 2;
@@ -366,9 +366,9 @@ dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
             offset++;
 
             if(length > 0) {
-                col_append_fstr(pinfo->cinfo, COL_INFO, ", Attribute List Length: %u", tvb_length_remaining(tvb, offset)/length);
+                col_append_fstr(pinfo->cinfo, COL_INFO, ", Attribute List Length: %u", tvb_captured_length_remaining(tvb, offset)/length);
 
-                while (tvb_length_remaining(tvb, offset) >= length) {
+                while (tvb_captured_length_remaining(tvb, offset) >= length) {
                     item = proto_tree_add_none_format(st, hf_btatt_attribute_data, tvb, offset, length,
                                                     "Attribute Data, Handle: 0x%04x, Group End Handle: 0x%04x",
                                                     tvb_get_letohs(tvb, offset), tvb_get_letohs(tvb, offset+2));
@@ -423,7 +423,7 @@ dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
             col_append_fstr(pinfo->cinfo, COL_INFO, ", Handle: 0x%04x", tvb_get_letohs(tvb, offset));
             proto_tree_add_item(st, hf_btatt_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset += 2;
-            length = tvb_length_remaining(tvb, offset);
+            length = tvb_captured_length_remaining(tvb, offset);
             if (length > 12) {
                 proto_tree_add_item(st, hf_btatt_value, tvb, offset, length-12, ENC_NA);
                 offset+=length-12;

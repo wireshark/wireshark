@@ -607,7 +607,7 @@ dissect_memcache (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
                             val_to_str_const (status, status_vals, "Unknown"), status);
   }
 
-  return tvb_length(tvb);
+  return tvb_captured_length(tvb);
 }
 
 /* Obtain the content length by peeping into the header.
@@ -673,7 +673,7 @@ desegment_pdus (tvbuff_t *tvb, packet_info *pinfo, const int offset,
   /* data_offset has been set to start of the data block. */
   if (!tvb_bytes_exist (tvb, data_offset, content_length)) {
 
-    length_remaining = tvb_length_remaining (tvb, data_offset);
+    length_remaining = tvb_captured_length_remaining (tvb, data_offset);
     reported_length_remaining = tvb_reported_length_remaining (tvb, data_offset);
 
     if (length_remaining < reported_length_remaining) {
@@ -735,7 +735,7 @@ memcache_req_resp_hdrs_do_reassembly (
       return FALSE;
     }
 
-    length_remaining = tvb_length_remaining (tvb, next_offset);
+    length_remaining = tvb_captured_length_remaining (tvb, next_offset);
 
     /* Request one more byte if we cannot find a
      * header (i.e. a line end).
@@ -898,7 +898,7 @@ dissect_memcache_message (tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
    * value and the amount of data remaining in the frame.
    *
    */
-  datalen = tvb_length_remaining (tvb, offset);
+  datalen = tvb_captured_length_remaining (tvb, offset);
   if (datalen > 0) {
     /*
      * We've processed "datalen" bytes worth of data
@@ -928,7 +928,7 @@ content_data_dissector (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
    */
   if (tvb_reported_length_remaining (tvb, offset) != 0) {
     /* bytes actually remaining in this tvbuff. */
-    datalen = tvb_length_remaining (tvb, offset);
+    datalen = tvb_captured_length_remaining (tvb, offset);
     if (content_length >= 0) {
       if (datalen >= (content_length + 2)) { /* also consider \r\n*/
         datalen = content_length;
@@ -1917,7 +1917,7 @@ dissect_memcache_tcp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
     dissect_memcache_text (tvb, pinfo, tree);
   }
 
-  return tvb_length(tvb);
+  return tvb_captured_length(tvb);
 }
 
 /* Dissect udp packets based on the type of protocol (text/binary) */
@@ -1935,7 +1935,7 @@ dissect_memcache_udp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
     dissect_memcache_message (tvb, 0, pinfo, tree);
   }
 
-  return tvb_length(tvb);
+  return tvb_captured_length(tvb);
 }
 
 /* Registration functions; register memcache protocol,

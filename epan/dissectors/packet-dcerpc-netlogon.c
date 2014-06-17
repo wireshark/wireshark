@@ -7881,7 +7881,7 @@ dissect_packet_data(tvbuff_t *tvb ,tvbuff_t *auth_tvb _U_,
     guint8* decrypted;
     netlogon_auth_vars *vars;
     netlogon_auth_key key;
-    /*debugprintf("Dissection of request data offset %d len=%d on packet %d\n",offset,tvb_length_remaining(tvb,offset),pinfo->fd->num);*/
+    /*debugprintf("Dissection of request data offset %d len=%d on packet %d\n",offset,tvb_captured_length_remaining(tvb,offset),pinfo->fd->num);*/
 
     generate_hash_key(pinfo,is_server,&key,NULL);
     vars = (netlogon_auth_vars *)g_hash_table_lookup(netlogon_auths, &key);
@@ -7900,7 +7900,7 @@ dissect_packet_data(tvbuff_t *tvb ,tvbuff_t *auth_tvb _U_,
                 int data_len;
                 guint64 copyconfounder = vars->confounder;
 
-                data_len = tvb_length_remaining(tvb,offset);
+                data_len = tvb_captured_length_remaining(tvb,offset);
                 if (data_len < 0) {
                     return NULL;
                 }

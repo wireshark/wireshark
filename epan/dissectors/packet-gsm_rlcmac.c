@@ -7405,7 +7405,7 @@ dissect_dl_gprs_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, RlcMa
   proto_tree  *rlcmac_tree = NULL;
   csnStream_t  ar;
   gint         bit_offset  = 0;
-  guint16      bit_length  = tvb_length(tvb) * 8;
+  guint16      bit_length  = tvb_captured_length(tvb) * 8;
 
   guint8 payload_type = tvb_get_bits8(tvb, 0, 2);
   guint8 rbsn = tvb_get_bits8(tvb, 8, 1);
@@ -7546,7 +7546,7 @@ dissect_egprs_dl_header_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     proto_tree  *rlcmac_tree;
     csnStream_t  ar;
 
-    guint16      bit_length = tvb_length(tvb) * 8;
+    guint16      bit_length = tvb_captured_length(tvb) * 8;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "GSM RLC/MAC");
     col_append_sep_str(pinfo->cinfo, COL_INFO, ":", "EGPRS DL:HEADER");
@@ -7591,7 +7591,7 @@ dissect_ul_pacch_access_burst(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
   proto_item  *ti;
   proto_tree  *rlcmac_tree;
   csnStream_t  ar;
-  guint16      bit_length = tvb_length(tvb) * 8;
+  guint16      bit_length = tvb_captured_length(tvb) * 8;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "GSM RLC/MAC");
   col_append_sep_str(pinfo->cinfo, COL_INFO, ":", "PACCH ACCESS BURST");
@@ -7632,7 +7632,7 @@ dissect_ul_gprs_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, RlcMa
 {
   csnStream_t ar;
   guint8      payload_type = tvb_get_bits8(tvb, 0, 2);
-  guint16     bit_length   = tvb_length(tvb) * 8;
+  guint16     bit_length   = tvb_captured_length(tvb) * 8;
   guint16     bit_offset   = 0;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "GSM RLC/MAC");
@@ -7720,7 +7720,7 @@ dissect_egprs_ul_header_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     proto_tree  *rlcmac_tree;
     csnStream_t  ar;
     guint16      bit_offset = 0;
-    guint16      bit_length = tvb_length(tvb) * 8;
+    guint16      bit_length = tvb_captured_length(tvb) * 8;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL,  "GSM RLC/MAC");
     col_append_sep_str(pinfo->cinfo, COL_INFO, ":",  "EGPRS UL:HEADER");
@@ -7809,7 +7809,7 @@ dissect_egprs_ul_data_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   {
     /* dissect the data segments */
     dissect_egprs_data_segments(tvb, pinfo, data_tree, offset,
-                                tvb_length(tvb), li_count, li_array);
+                                tvb_captured_length(tvb), li_count, li_array);
   }
   else
   {
@@ -7856,7 +7856,7 @@ dissect_egprs_dl_data_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   {
     /* dissect the data segments */
     dissect_egprs_data_segments(tvb, pinfo, data_tree, offset,
-                                tvb_length(tvb), li_count, li_array);
+                                tvb_captured_length(tvb), li_count, li_array);
   }
   else
   {
@@ -7912,7 +7912,7 @@ dissect_gsm_rlcmac_downlink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       break;
   }
 
-  return tvb_length(tvb);
+  return tvb_captured_length(tvb);
 }
 
 
@@ -7932,7 +7932,7 @@ dissect_gsm_rlcmac_uplink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     rlc_ul->block_format = rlc_mac->block_format;
     rlc_ul->flags = rlc_mac->flags;
   }
-  else if (tvb_length(tvb) < 3)
+  else if (tvb_captured_length(tvb) < 3)
   {
     /* assume that little packets are PACCH */
     rlc_ul->block_format = RLCMAC_PRACH;
@@ -7975,7 +7975,7 @@ dissect_gsm_rlcmac_uplink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
       break;
   }
 
-  return tvb_length(tvb);
+  return tvb_captured_length(tvb);
 }
 
 void

@@ -914,7 +914,7 @@ dissect_ppi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     if (ppi_ampdu_reassemble && DOT11N_IS_AGGREGATE(n_ext_flags)) {
-        len_remain = tvb_length_remaining(tvb, offset);
+        len_remain = tvb_captured_length_remaining(tvb, offset);
 #if 0 /* XXX: pad_len never actually used ?? */
         if (DOT11N_MORE_AGGREGATES(n_ext_flags)) {
             pad_len = PADDING4(len_remain);

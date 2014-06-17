@@ -243,14 +243,14 @@ dissect_data_segment(proto_tree *ltp_tree, tvbuff_t *tvb,packet_info *pinfo,int 
 	client_id = evaluate_sdnv_64(tvb,frame_offset + segment_offset,&client_id_size);
 	segment_offset+= client_id_size;
 
-	if((unsigned)(frame_offset + segment_offset) >= tvb_length(tvb)){
+	if((unsigned)(frame_offset + segment_offset) >= tvb_captured_length(tvb)){
 	/* This would mean the data segment is incomplete */
 		return 0;
 	}
 	offset = evaluate_sdnv_64(tvb,frame_offset + segment_offset,&offset_size);
 	segment_offset+= offset_size;
 
-	if((unsigned)(frame_offset + segment_offset) >= tvb_length(tvb)){
+	if((unsigned)(frame_offset + segment_offset) >= tvb_captured_length(tvb)){
 	/* This would mean the data segment is incomplete */
 		return 0;
 	}
@@ -258,7 +258,7 @@ dissect_data_segment(proto_tree *ltp_tree, tvbuff_t *tvb,packet_info *pinfo,int 
 	length = evaluate_sdnv_64(tvb,frame_offset + segment_offset,&length_size);
 	segment_offset+= length_size;
 
-	if((unsigned)(frame_offset + segment_offset) >= tvb_length(tvb)){
+	if((unsigned)(frame_offset + segment_offset) >= tvb_captured_length(tvb)){
 	/* This would mean the data segment is incomplete */
 		return 0;
 	}
@@ -268,7 +268,7 @@ dissect_data_segment(proto_tree *ltp_tree, tvbuff_t *tvb,packet_info *pinfo,int 
 		chkp_sno = evaluate_sdnv_64(tvb,frame_offset + segment_offset,&chkp_sno_size);
 		segment_offset+= chkp_sno_size;
 
-		if((unsigned)(frame_offset + segment_offset) >= tvb_length(tvb)){
+		if((unsigned)(frame_offset + segment_offset) >= tvb_captured_length(tvb)){
 		/* This would mean the data segment is incomplete */
 			return 0;
 		}
@@ -276,7 +276,7 @@ dissect_data_segment(proto_tree *ltp_tree, tvbuff_t *tvb,packet_info *pinfo,int 
 		rpt_sno = evaluate_sdnv_64(tvb,frame_offset + segment_offset,&rpt_sno_size);
 		segment_offset+= rpt_sno_size;
 
-		if((unsigned)(frame_offset + segment_offset) >= tvb_length(tvb)){
+		if((unsigned)(frame_offset + segment_offset) >= tvb_captured_length(tvb)){
 		/* This would mean the data segment is incomplete */
 			return 0;
 		}
@@ -292,7 +292,7 @@ dissect_data_segment(proto_tree *ltp_tree, tvbuff_t *tvb,packet_info *pinfo,int 
 	/* Addition result has wrapped */
 		return 0;
 	}
-	if((unsigned)(frame_offset + segment_offset) > tvb_length(tvb)){
+	if((unsigned)(frame_offset + segment_offset) > tvb_captured_length(tvb)){
 	/* This would mean the data segment is incomplete */
 		return 0;
 	}
@@ -354,13 +354,13 @@ dissect_data_segment(proto_tree *ltp_tree, tvbuff_t *tvb,packet_info *pinfo,int 
 
 	if(new_tvb)
 	{
-		data_length = tvb_length(new_tvb);
+		data_length = tvb_captured_length(new_tvb);
 		while(dissected_data_size < data_length)
 		{
 			ltp_data_data_item = proto_tree_add_text(ltp_data_tree, tvb,frame_offset, 0, "Data[%d]",data_count);
 			ltp_data_data_tree = proto_item_add_subtree(ltp_data_data_item, ett_data_data_segm);
 
-			datatvb = tvb_new_subset(new_tvb, data_offset, (int)data_length - dissected_data_size, tvb_length(new_tvb));
+			datatvb = tvb_new_subset(new_tvb, data_offset, (int)data_length - dissected_data_size, tvb_captured_length(new_tvb));
 			bundle_size = call_dissector(bundle_handle, datatvb, pinfo, ltp_data_data_tree);
 			if(bundle_size == 0) {  /*Couldn't parse bundle*/
 				col_set_str(pinfo->cinfo, COL_INFO, "Dissection Failed");
@@ -447,11 +447,11 @@ dissect_report_segment(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ltp_tree, 
      * max number of claims we can possibly squeeze into the remaining tvbuff, then
      * the packet is malformed.
      */
-	if (rcpt_clm_cnt > tvb_length_remaining(tvb, frame_offset + segment_offset) / 2) {
+	if (rcpt_clm_cnt > tvb_captured_length_remaining(tvb, frame_offset + segment_offset) / 2) {
 		proto_item_set_end(ltp_rpt_item, tvb, frame_offset + segment_offset);
 		expert_add_info_format(pinfo, ltp_tree, &ei_ltp_mal_reception_claim,
 				"Reception claim count impossibly large: %d > %d", rcpt_clm_cnt,
-				tvb_length_remaining(tvb, frame_offset + segment_offset) / 2);
+				tvb_captured_length_remaining(tvb, frame_offset + segment_offset) / 2);
 		return 0;
 	}
 	proto_tree_add_uint(ltp_rpt_tree, hf_ltp_rpt_clm_cnt, tvb, frame_offset + segment_offset, rcpt_clm_cnt_size, rcpt_clm_cnt);
@@ -492,7 +492,7 @@ dissect_report_ack_segment(proto_tree *ltp_tree, tvbuff_t *tvb,int frame_offset)
 	rpt_sno = evaluate_sdnv_64(tvb,frame_offset, &rpt_sno_size);
 	segment_offset += rpt_sno_size;
 
-	if((unsigned)(frame_offset + segment_offset) > tvb_length(tvb)){
+	if((unsigned)(frame_offset + segment_offset) > tvb_captured_length(tvb)){
 		return 0;
 	}
 
@@ -544,17 +544,17 @@ dissect_header_extn(proto_tree *ltp_tree, tvbuff_t *tvb,int frame_offset,int hdr
 		extn_type[i] = tvb_get_guint8(tvb,frame_offset);
 		extn_offset++;
 
-		if((unsigned)(frame_offset + extn_offset) >= tvb_length(tvb)){
+		if((unsigned)(frame_offset + extn_offset) >= tvb_captured_length(tvb)){
 			return 0;
 		}
 		length[i] = evaluate_sdnv_64(tvb,frame_offset,&length_size[i]);
 		extn_offset += length_size[i];
-		if((unsigned)(frame_offset + extn_offset) >= tvb_length(tvb)){
+		if((unsigned)(frame_offset + extn_offset) >= tvb_captured_length(tvb)){
 			return 0;
 		}
 		value[i] = evaluate_sdnv_64(tvb,frame_offset,&value_size[i]);
 		extn_offset += value_size[i];
-		if((unsigned)(frame_offset + extn_offset) >= tvb_length(tvb)){
+		if((unsigned)(frame_offset + extn_offset) >= tvb_captured_length(tvb)){
 			return 0;
 		}
 	}
@@ -594,21 +594,21 @@ dissect_trailer_extn(proto_tree *ltp_tree, tvbuff_t *tvb,int frame_offset,int tr
 		extn_type[i] = tvb_get_guint8(tvb,frame_offset);
 		extn_offset++;
 
-		if((unsigned)(frame_offset + extn_offset) >= tvb_length(tvb)){
+		if((unsigned)(frame_offset + extn_offset) >= tvb_captured_length(tvb)){
 			return 0;
 		}
 
 		length[i] = evaluate_sdnv_64(tvb,frame_offset,&length_size[i]);
 		extn_offset += length_size[i];
 
-		if((unsigned)(frame_offset + extn_offset) >= tvb_length(tvb)){
+		if((unsigned)(frame_offset + extn_offset) >= tvb_captured_length(tvb)){
 			return 0;
 		}
 
 		value[i] = evaluate_sdnv_64(tvb,frame_offset,&value_size[i]);
 		extn_offset += value_size[i];
 
-		if((unsigned)(frame_offset + extn_offset) >= tvb_length(tvb)){
+		if((unsigned)(frame_offset + extn_offset) >= tvb_captured_length(tvb)){
 			return 0;
 		}
 	}
@@ -657,7 +657,7 @@ dissect_ltp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 	proto_tree *ltp_session_tree = NULL;
 
 	/* Check that there's enough data */
-	if(tvb_length(tvb) < LTP_MIN_DATA_BUFFER){
+	if(tvb_captured_length(tvb) < LTP_MIN_DATA_BUFFER){
 		return 0;
 	}
 	frame_offset = 0;
@@ -671,14 +671,14 @@ dissect_ltp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
 	engine_id = evaluate_sdnv_64(tvb,frame_offset + header_offset,&engine_id_size);
 	header_offset += engine_id_size;
-	if((unsigned)header_offset >= tvb_length(tvb)){
+	if((unsigned)header_offset >= tvb_captured_length(tvb)){
 		col_set_str(pinfo->cinfo, COL_INFO, "Protocol Error");
 		return 0;
 	}
 
 	session_num = evaluate_sdnv_64(tvb,frame_offset + header_offset,&session_num_size);
 	header_offset += session_num_size;
-	if((unsigned)header_offset >= tvb_length(tvb)){
+	if((unsigned)header_offset >= tvb_captured_length(tvb)){
 		col_set_str(pinfo->cinfo, COL_INFO, "Protocol Error");
 		return 0;
 	}
@@ -715,7 +715,7 @@ dissect_ltp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
 	col_set_str(pinfo->cinfo, COL_INFO, val_to_str_const(ltp_type,ltp_type_col_info,"Protocol Error"));
 
-	if((unsigned)frame_offset >= tvb_length(tvb)){
+	if((unsigned)frame_offset >= tvb_captured_length(tvb)){
 		col_set_str(pinfo->cinfo, COL_INFO, "Protocol Error");
 		return 0;
 	}
@@ -730,7 +730,7 @@ dissect_ltp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 		frame_offset += hdr_extn_offset;
 	}
 
-	if((unsigned)frame_offset >= tvb_length(tvb)){
+	if((unsigned)frame_offset >= tvb_captured_length(tvb)){
 		col_set_str(pinfo->cinfo, COL_INFO, "Protocol Error");
 		return 0;
 	}
@@ -767,7 +767,7 @@ dissect_ltp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 	frame_offset += segment_offset;
 	/* Check to see if there are any trailer extensions */
 	if(trl_extn_cnt > 0){
-		if((unsigned)frame_offset >= tvb_length(tvb)){
+		if((unsigned)frame_offset >= tvb_captured_length(tvb)){
 		    col_set_str(pinfo->cinfo, COL_INFO, "Protocol Error");
 		    return 0;
 		}
@@ -778,7 +778,7 @@ dissect_ltp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 		}
 	}
 	/* Return the amount of data this dissector was able to dissect */
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 static void
