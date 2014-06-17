@@ -29,16 +29,11 @@ else()
 endif()
 
 find_package( PkgConfig )
-if( GLIB2_FIND_REQUIRED )
-	set( _pkgconfig_REQUIRED "REQUIRED" )
-else()
-	set( _pkgconfig_REQUIRED "" )
-endif()
 
 if( GLIB2_MIN_VERSION )
-	pkg_search_module( GLIB2 ${_pkgconfig_REQUIRED} glib-2.0>=${GLIB2_MIN_VERSION} )
+	pkg_search_module( GLIB2 glib-2.0>=${GLIB2_MIN_VERSION} )
 else()
-	pkg_search_module( GLIB2 ${_pkgconfig_REQUIRED} glib-2.0 )
+	pkg_search_module( GLIB2 glib-2.0 )
 endif()
 
 find_path( GLIB2_MAIN_INCLUDE_DIR
@@ -102,6 +97,8 @@ find_package_handle_standard_args( GLIB2
 if( GLIB2_FOUND )
 	set( GLIB2_LIBRARIES ${GLIB2_LIBRARY} )
 	set( GLIB2_INCLUDE_DIRS ${GLIB2_MAIN_INCLUDE_DIR} ${GLIB2_INTERNAL_INCLUDE_DIR} )
+elseif( GLIB2_FIND_REQUIRED )
+	message( SEND_ERROR "Package required but not found" )
 else()
 	set( GLIB2_LIBRARIES )
 	set( GLIB2_MAIN_INCLUDE_DIRS )

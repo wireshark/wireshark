@@ -15,16 +15,10 @@
 
 include( FindPkgConfig )
 
-if( GTHREAD2_FIND_REQUIRED )
-	set( _pkgconfig_REQUIRED "REQUIRED" )
-else()
-	set( _pkgconfig_REQUIRED "" )
-endif()
-
 if( GTHREAD2_MIN_VERSION )
-	PKG_SEARCH_MODULE( GTHREAD2 ${_pkgconfig_REQUIRED} gthread-2.0>=${GTHREAD2_MIN_VERSION} )
+	PKG_SEARCH_MODULE( GTHREAD2 gthread-2.0>=${GTHREAD2_MIN_VERSION} )
 else()
-	PKG_SEARCH_MODULE( GTHREAD2 ${_pkgconfig_REQUIRED} gthread-2.0 )
+	PKG_SEARCH_MODULE( GTHREAD2 gthread-2.0 )
 endif()
 
 if( GTHREAD2_FOUND )
@@ -51,6 +45,10 @@ else()
 	endif()
 	include( FindPackageHandleStandardArgs )
 	find_package_handle_standard_args( GTHREAD2 DEFAULT_MSG GTHREAD2_LIBRARIES GTHREAD2_INCLUDE_DIRS )
+	if( NOT GTHREAD2_FOUND AND GTHREAD2_FIND_REQUIRED )
+		message( SEND_ERROR "Package required but not found" )
+	endif()
 endif()
+
 
 mark_as_advanced( GTHREAD2_LIBRARIES GTHREAD2_INCLUDE_DIRS )
