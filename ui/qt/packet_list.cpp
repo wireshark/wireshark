@@ -29,6 +29,7 @@
 #include <epan/column-info.h>
 #include <epan/column.h>
 #include <epan/packet.h>
+#include <epan/prefs.h>
 
 #include "packet_list.h"
 #include "proto_tree.h"
@@ -80,11 +81,12 @@ packet_list_append(column_info *cinfo, frame_data *fdata)
 // Copied from ui/gtk/packet_list.c
 void packet_list_resize_column(gint col)
 {
+    Q_UNUSED(col)
     // xxx qtshark
 //    gint col_width;
 //    const gchar *long_str;
 
-g_log(NULL, G_LOG_LEVEL_DEBUG, "FIX: packet_list_resize_column %d", col);
+//g_log(NULL, G_LOG_LEVEL_DEBUG, "FIX: packet_list_resize_column %d", col);
 //    long_str = packet_list_get_widest_column_string(packetlist, col);
 //    if(!long_str || strcmp("",long_str)==0)
 //        /* If we get an empty string leave the width unchanged */
@@ -407,9 +409,7 @@ PacketListModel *PacketList::packetListModel() const {
 void PacketList::showEvent (QShowEvent *event) {
     Q_UNUSED(event);
 
-    if (!cap_file_) return;
-
-    for (int i = 0; i < cap_file_->cinfo.num_cols; i++) {
+    for (int i = 0; i < prefs.num_cols; i++) {
         int fmt, col_width;
         const char *long_str;
 
@@ -567,11 +567,7 @@ void PacketList::setFrameReftime(gboolean set, frame_data *fdata)
 
 void PacketList::setColumnVisibility()
 {
-    if (!cap_file_) {
-        return;
-    }
-
-    for (int i = 0; i < cap_file_->cinfo.num_cols; i++) {
+    for (int i = 0; i < prefs.num_cols; i++) {
         setColumnHidden(i, get_column_visible(i) ? false : true);
     }
 }
@@ -618,6 +614,7 @@ void PacketList::clear() {
      * Reset the sort column, use packetlist as model in case the list is frozen.
      */
     sortByColumn(0, Qt::AscendingOrder);
+    setColumnVisibility();
 }
 
 void PacketList::writeRecent(FILE *rf) {

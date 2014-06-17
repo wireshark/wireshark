@@ -55,7 +55,7 @@ QModelIndex PacketListModel::index(int row, int column, const QModelIndex &paren
 {
     Q_UNUSED(parent);
 
-    if (row >= visible_rows_.count() || row < 0 || !cap_file_ || column >= cap_file_->cinfo.num_cols)
+    if (row >= visible_rows_.count() || row < 0 || !cap_file_ || column >= prefs.num_cols)
         return QModelIndex();
 
     PacketListRecord *record = visible_rows_[row];
@@ -115,9 +115,7 @@ void PacketListModel::resetColumns()
 
 int PacketListModel::rowCount(const QModelIndex &parent) const
 {
-    if (!cap_file_) return 0;
-
-    if (parent.column() >= cap_file_->cinfo.num_cols)
+    if (parent.column() >= prefs.num_cols)
         return 0;
 
     return visible_rows_.count();
@@ -127,9 +125,7 @@ int PacketListModel::columnCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent);
 
-    if (!cap_file_) return 0;
-
-    return cap_file_->cinfo.num_cols;
+    return prefs.num_cols;
 }
 
 QVariant PacketListModel::data(const QModelIndex &index, int role) const
@@ -203,7 +199,7 @@ QVariant PacketListModel::data(const QModelIndex &index, int role) const
     int col_num = index.column();
 //    g_log(NULL, G_LOG_LEVEL_DEBUG, "showing col %d", col_num);
 
-    if (!cap_file_ || col_num > cap_file_->cinfo.num_cols)
+    if (col_num > prefs.num_cols)
         return QVariant();
 
     epan_dissect_t edt;
@@ -302,7 +298,7 @@ QVariant PacketListModel::headerData(int section, Qt::Orientation orientation,
 {
     if (!cap_file_) return QVariant();
 
-    if (orientation == Qt::Horizontal && section < cap_file_->cinfo.num_cols) {
+    if (orientation == Qt::Horizontal && section < prefs.num_cols) {
         switch (role) {
         case Qt::DisplayRole:
             return cap_file_->cinfo.col_title[section];
