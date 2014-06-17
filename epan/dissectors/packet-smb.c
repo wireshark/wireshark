@@ -9043,9 +9043,10 @@ dissect_nt_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 				 * Allocate a new smb_nt_transact_info_t
 				 * structure.
 				 */
-				nti = (smb_nt_transact_info_t *)wmem_alloc(wmem_file_scope(), sizeof(smb_nt_transact_info_t));
+				nti = wmem_new(wmem_file_scope(), smb_nt_transact_info_t);
 				nti->subcmd = subcmd;
 				nti->fid_type = SMB_FID_TYPE_UNKNOWN;
+				nti->ioctl_function = 0;
 				sip->extra_info = nti;
 				sip->extra_info_type = SMB_EI_NTI;
 			} else {
