@@ -1762,6 +1762,21 @@ decrypt_payload(tvbuff_t *tvb, packet_info *pinfo, const guint8 *buf, guint buf_
     case ENC_DES_CBC:
       gcry_cipher_algo = GCRY_CIPHER_DES;
       break;
+    case ENC_AES_CBC:
+      switch (decr->secret_len) {
+      case 16:
+        gcry_cipher_algo = GCRY_CIPHER_AES128;
+        break;
+      case 24:
+        gcry_cipher_algo = GCRY_CIPHER_AES192;
+        break;
+      case 32:
+        gcry_cipher_algo = GCRY_CIPHER_AES256;
+        break;
+      default:
+        return NULL;
+      }
+      break;
     default:
       return NULL;
       break;
