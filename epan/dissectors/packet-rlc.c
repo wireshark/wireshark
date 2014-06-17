@@ -1814,6 +1814,7 @@ rlc_decode_li(enum rlc_mode mode, tvbuff_t *tvb, packet_info *pinfo, proto_tree 
                     * may not be larger than the total remaining length and no
                     * LI may be smaller than its preceding one
                     */
+                    li[num_li].len = li[num_li].li - prev_li;
                     if (((li[num_li].li > total_len) && !global_rlc_headers_expected)
                         || (li[num_li].li < prev_li)) {
                         /* add malformed LI for investigation */
@@ -1821,7 +1822,6 @@ rlc_decode_li(enum rlc_mode mode, tvbuff_t *tvb, packet_info *pinfo, proto_tree 
                         expert_add_info_format(pinfo, malformed, &ei_rlc_li_incorrect_mal, "Incorrect LI value 0x%x", li[num_li].li);
                         return -1; /* just give up on this */
                     }
-                    li[num_li].len = li[num_li].li - prev_li;
                     prev_li = li[num_li].li;
             }
         }
