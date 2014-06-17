@@ -1109,8 +1109,8 @@ install_desktop_files:
 	@echo "Don't forget to run \"update-desktop-database\" and \"update-mime-database /usr/share/mime\""
 
 # Used by svr4-package and osx-package
-# We load top_stagedir with an explicit path so that libtool doesn't freak.
-top_stagedir=`cd $(top_builddir) && pwd`/packaging/staging
+# We load top_stagedir with an absolute path so that libtool doesn't freak.
+top_stagedir=$(abs_top_builddir)/packaging/staging
 stagedir=$(top_stagedir)/$(PACKAGE).inst
 
 host_cpu=@host_cpu@
