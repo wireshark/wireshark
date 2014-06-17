@@ -553,8 +553,10 @@ dissect_ipmi_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			} else {
 				g_snprintf(str, ITEM_LABEL_LENGTH, "Req, %s", cmd->desc);
 			}
-
-			ti = proto_tree_add_string(tree, hf_parent_item, tvb, 0, -1, str);
+			if (proto_registrar_get_ftype(hf_parent_item) == FT_STRING)
+				ti = proto_tree_add_string(tree, hf_parent_item, tvb, 0, -1, str);
+			else
+				ti = proto_tree_add_text(tree, tvb, 0, -1, "%s", str);
 		}
 
 		/* add message sub-tree */
