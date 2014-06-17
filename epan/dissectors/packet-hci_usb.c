@@ -211,7 +211,7 @@ dissect_hci_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             }
         }
 
-        fragment_info->remaining_length -= tvb_ensure_length_remaining(tvb, offset);
+        fragment_info->remaining_length -= tvb_ensure_captured_length_remaining(tvb, offset);
 
         fragment_add_seq_check(&hci_usb_reassembly_table,
                                tvb, offset, pinfo, session_id, NULL,
@@ -232,7 +232,7 @@ dissect_hci_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         pitem = proto_tree_add_item(ttree, hf_bthci_usb_packet_complete, tvb, offset, -1, ENC_NA);
         PROTO_ITEM_SET_GENERATED(pitem);
 
-        if (reassembled->len > tvb_ensure_length_remaining(tvb, offset)) {
+        if (reassembled->len > tvb_ensure_captured_length_remaining(tvb, offset)) {
             next_tvb = process_reassembled_data(tvb, 0, pinfo,
                     "Reassembled HCI_USB",
                     reassembled, &hci_usb_msg_frag_items,

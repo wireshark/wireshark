@@ -3140,7 +3140,7 @@ dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	 * have that routine deal with ASN.1, and just use
 	 * "tcp_dissect_pdus()"?)
 	 */
-	length_remaining = tvb_ensure_length_remaining(tvb, offset);
+	length_remaining = tvb_ensure_captured_length_remaining(tvb, offset);
 
 	/* NOTE: we have to parse the message piece by piece, since the
 	 * capture length may be less than the message length: a 'global'

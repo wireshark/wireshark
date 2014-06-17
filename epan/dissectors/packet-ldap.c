@@ -3838,7 +3838,7 @@ dissect_ldap_payload(tvbuff_t *tvb, packet_info *pinfo,
 
 one_more_pdu:
 
-    length_remaining = tvb_ensure_length_remaining(tvb, offset);
+    length_remaining = tvb_ensure_captured_length_remaining(tvb, offset);
 
     if (length_remaining < 6) return;
 
@@ -3991,7 +3991,7 @@ static void
 		}
 	}
 
-	length_remaining = tvb_ensure_length_remaining(tvb, offset);
+	length_remaining = tvb_ensure_captured_length_remaining(tvb, offset);
 
 	/* It might still be a packet containing a SASL security layer
 	* but it's just that we never saw the BIND packet.

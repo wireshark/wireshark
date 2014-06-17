@@ -501,12 +501,12 @@ ssh_dissect_ssh1(tvbuff_t *tvb, packet_info *pinfo,
 	}
 
 	/*
-	 * We use "tvb_ensure_length_remaining()" to make sure there
+	 * We use "tvb_ensure_captured_length_remaining()" to make sure there
 	 * actually *is* data remaining.
 	 *
 	 * This means we're guaranteed that "remain_length" is positive.
 	 */
-	remain_length = tvb_ensure_length_remaining(tvb, offset);
+	remain_length = tvb_ensure_captured_length_remaining(tvb, offset);
 	/*
 	 * Can we do reassembly?
 	 */
@@ -645,12 +645,12 @@ ssh_dissect_key_exchange(tvbuff_t *tvb, packet_info *pinfo,
 	struct ssh_peer_data *peer_data = &global_data->peer_data[is_response];
 
 	/*
-	 * We use "tvb_ensure_length_remaining()" to make sure there
+	 * We use "tvb_ensure_captured_length_remaining()" to make sure there
 	 * actually *is* data remaining.
 	 *
 	 * This means we're guaranteed that "remain_length" is positive.
 	 */
-	remain_length = tvb_ensure_length_remaining(tvb, offset);
+	remain_length = tvb_ensure_captured_length_remaining(tvb, offset);
 	/*
 	 * Can we do reassembly?
 	 */
@@ -905,12 +905,12 @@ ssh_dissect_protocol(tvbuff_t *tvb, packet_info *pinfo,
 	}
 
 	/*
-	 * We use "tvb_ensure_length_remaining()" to make sure there
+	 * We use "tvb_ensure_captured_length_remaining()" to make sure there
 	 * actually *is* data remaining.
 	 *
 	 * This means we're guaranteed that "remain_length" is positive.
 	 */
-	remain_length = tvb_ensure_length_remaining(tvb, offset);
+	remain_length = tvb_ensure_captured_length_remaining(tvb, offset);
 	/*linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
 	 */
 	linelen = tvb_find_guint8(tvb, offset, -1, '\n');

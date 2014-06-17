@@ -624,7 +624,7 @@ get_payload_length (tvbuff_t *tvb, const int token_number, int offset,
 
   /* get the header line. */
   linelen = tvb_find_line_end (tvb, offset,
-                               tvb_ensure_length_remaining (tvb, offset), &next_offset,
+                               tvb_ensure_captured_length_remaining (tvb, offset), &next_offset,
                                FALSE);
   if (linelen < 0) {
     return FALSE;
@@ -822,7 +822,7 @@ dissect_memcache_message (tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
    * "tvb_get_ptr ()" call won't throw an exception.
    */
   first_linelen = tvb_find_line_end (tvb, offset,
-                                     tvb_ensure_length_remaining (tvb, offset), &next_offset,
+                                     tvb_ensure_captured_length_remaining (tvb, offset), &next_offset,
                                      FALSE);
   if (first_linelen < 0) {
     return -1;
@@ -1007,7 +1007,7 @@ incr_dissector (tvbuff_t *tvb, proto_tree *tree, int offset)
   if (tvb_reported_length_remaining (tvb, offset) != 0) {
     /* Find the end of the line. */
     linelen = tvb_find_line_end (tvb, offset,
-                                 tvb_ensure_length_remaining (tvb, offset), &next_offset,
+                                 tvb_ensure_captured_length_remaining (tvb, offset), &next_offset,
                                  FALSE);
     if (linelen < 0) {
       /* header is out of the packet limits. */
@@ -1058,7 +1058,7 @@ stat_dissector (tvbuff_t *tvb, proto_tree *tree, int offset)
   while (tvb_reported_length_remaining (tvb, offset) != 0) {
     /* Find the end of the line. */
     linelen = tvb_find_line_end (tvb, offset,
-                                 tvb_ensure_length_remaining (tvb, offset), &next_offset,
+                                 tvb_ensure_captured_length_remaining (tvb, offset), &next_offset,
                                  FALSE);
     if (linelen < 0) {
       return -1;
@@ -1171,7 +1171,7 @@ get_response_dissector (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
   while (tvb_reported_length_remaining (tvb, offset) != 0) {
     /* Find the end of the line. */
     linelen = tvb_find_line_end (tvb, offset,
-                                 tvb_ensure_length_remaining (tvb, offset), &next_offset,
+                                 tvb_ensure_captured_length_remaining (tvb, offset), &next_offset,
                                  FALSE);
     if (linelen < 0) {
       /* header is out of the packet limits. */
