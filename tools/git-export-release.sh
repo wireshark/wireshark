@@ -22,12 +22,15 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-# first paremeter if set is a git commit, like v1.12.0-rc1 or 54819e5699f
-# by default HEAD is used
+# First paremeter, if set, is a git commit, like v1.12.0-rc1 or 54819e5699f
+# By default HEAD is used.
+# Note, that filtering takes place base on the _exported_ version's
+# .gitattributes files thus archives generated from older commits will contain
+# the whole tree.
 COMMIT="HEAD"
 if test -n "$1"; then
   COMMIT="$1"
 fi
 VERSION=$(git describe --tags ${COMMIT} | sed 's/^v//')
 
-git archive --prefix=wireshark-${VERSION}/ ${COMMIT}  | bzip2 > wireshark-${VERSION}.tar.bz2
+git archive --prefix=wireshark-${VERSION}/ ${COMMIT}  | xz > wireshark-${VERSION}.tar.xz
