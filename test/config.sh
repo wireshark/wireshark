@@ -98,8 +98,8 @@ export WIRESHARK_QUIT_AFTER_CAPTURE="True"
 CAPTURE_DIR="$TESTS_DIR/captures/"
 
 # Figure out if we were built with lua or not so we can skip the lua tests if we
-# don't have it. Is there a better way to do this than grepping config.h?
-grep -q "#define HAVE_LUA 1" $SOURCE_DIR/config.h
+# don't have it.
+$TSHARK -v | grep -q "with Lua"
 HAVE_LUA=$?
 
 # Display our environment
