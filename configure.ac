@@ -995,7 +995,7 @@ else
 	have_sse42=no
 fi
 dnl build libwsutil_sse42 only if there is SSE4.2
-AM_CONDITIONAL(SSE42_SUPPORTED, test "x$have_sse42" = "xno")
+AM_CONDITIONAL(SSE42_SUPPORTED, test "x$have_sse42" = "xyes")
 
 #
 # If we're running GCC or clang define _U_ to be "__attribute__((unused))"
