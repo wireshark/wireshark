@@ -1724,6 +1724,21 @@ if(NOT ${ENABLE_STATIC})
 	)
 endif()
 
+add_executable(wmem_test wmem/wmem_test.c ${WMEM_FILES})
+target_link_libraries(wmem_test ${GLIB2_LIBRARIES})
+
+add_executable(exntest exntest.c except.c)
+target_link_libraries(exntest ${GLIB2_LIBRARIES})
+
+add_executable(oids_test oids_test.c)
+target_link_libraries(oids_test epan)
+
+add_executable(reassemble_test reassemble_test.c)
+target_link_libraries(reassemble_test epan)
+
+add_executable(tvbtest tvbtest.c)
+target_link_libraries(tvbtest epan)
+
 #
 # Editor modelines  -  http://www.wireshark.org/tools/modelines.html
 #
