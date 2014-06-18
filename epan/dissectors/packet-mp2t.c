@@ -520,8 +520,8 @@ mp2t_fragment_handle(tvbuff_t *tvb, guint offset, packet_info *pinfo,
         gboolean fragment_last, enum pid_payload_type pload_type)
 {
     /* proto_item *ti; */
-    fragment_head *frag_msg = NULL;
-    tvbuff_t      *new_tvb  = NULL;
+    fragment_head *frag_msg;
+    tvbuff_t      *new_tvb;
     gboolean       save_fragmented;
 
     save_fragmented = pinfo->fragmented;
