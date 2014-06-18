@@ -178,9 +178,6 @@
 #define ADNS_JGAA_WIN32 1
 #endif
 
-/* Define to use the Nettle library */
-@HAVE_NETTLE@
-
 /* Define to use the gnutls library */
 @HAVE_LIBGNUTLS@
 

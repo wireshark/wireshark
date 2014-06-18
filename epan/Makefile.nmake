@@ -58,7 +58,6 @@ libwireshark_LIBS = \
 	$(C_ARES_LIBS) \
 	$(ADNS_LIBS) \
 	$(KFW_LIBS) \
-	$(NETTLE_LIBS) \
 	$(ZLIB_LIBS) \
 	$(GNUTLS_LIBS) \
 	$(LUA_LIBS) \

@@ -66,19 +66,6 @@
 #include <string.h>
 #include <glib.h>
 
-#ifdef HAVE_LIBNETTLE
-#define HAVE_KERBEROS
-#ifdef _WIN32
-#include <des.h>
-#include <cbc.h>
-#else
-#include <nettle/des.h>
-#include <nettle/cbc.h>
-#endif
-#include <wsutil/md5.h>
-#include <sys/stat.h>	/* For keyfile manipulation */
-#endif
-
 #include <wsutil/file_util.h>
 #include <epan/packet.h>
 #include <epan/exceptions.h>
@@ -328,7 +315,7 @@ static int hf_kerberos_KDCOptions_renew = -1;
 static int hf_kerberos_KDCOptions_validate = -1;
 
 /*--- End of included file: packet-kerberos-hf.c ---*/
-#line 155 "../../asn1/kerberos/packet-kerberos-template.c"
+#line 142 "../../asn1/kerberos/packet-kerberos-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_kerberos = -1;
@@ -392,7 +379,7 @@ static gint ett_kerberos_KERB_PA_PAC_REQUEST = -1;
 static gint ett_kerberos_ChangePasswdData = -1;
 
 /*--- End of included file: packet-kerberos-ett.c ---*/
-#line 161 "../../asn1/kerberos/packet-kerberos-template.c"
+#line 148 "../../asn1/kerberos/packet-kerberos-template.c"
 
 static expert_field ei_kerberos_decrypted_keytype = EI_INIT;
 
@@ -419,7 +406,7 @@ static gboolean gbl_do_col_info;
 #define KERBEROS_ADDR_TYPE_IPV6  24
 
 /*--- End of included file: packet-kerberos-val.h ---*/
-#line 172 "../../asn1/kerberos/packet-kerberos-template.c"
+#line 159 "../../asn1/kerberos/packet-kerberos-template.c"
 
 static void
 call_kerberos_callbacks(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int tag, kerberos_callbacks *cb)
@@ -3918,7 +3905,7 @@ dissect_kerberos_ChangePasswdData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
 
 /*--- End of included file: packet-kerberos-fn.c ---*/
-#line 1661 "../../asn1/kerberos/packet-kerberos-template.c"
+#line 1648 "../../asn1/kerberos/packet-kerberos-template.c"
 
 /* Make wrappers around exported functions for now */
 int
@@ -4874,7 +4861,7 @@ void proto_register_kerberos(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-kerberos-hfarr.c ---*/
-#line 1960 "../../asn1/kerberos/packet-kerberos-template.c"
+#line 1947 "../../asn1/kerberos/packet-kerberos-template.c"
   };
 
   /* List of subtrees */
@@ -4939,7 +4926,7 @@ void proto_register_kerberos(void) {
     &ett_kerberos_ChangePasswdData,
 
 /*--- End of included file: packet-kerberos-ettarr.c ---*/
-#line 1967 "../../asn1/kerberos/packet-kerberos-template.c"
+#line 1954 "../../asn1/kerberos/packet-kerberos-template.c"
   };
 
   static ei_register_info ei[] = {

@@ -58,19 +58,6 @@
 #include <string.h>
 #include <glib.h>
 
-#ifdef HAVE_LIBNETTLE
-#define HAVE_KERBEROS
-#ifdef _WIN32
-#include <des.h>
-#include <cbc.h>
-#else
-#include <nettle/des.h>
-#include <nettle/cbc.h>
-#endif
-#include <wsutil/md5.h>
-#include <sys/stat.h>	/* For keyfile manipulation */
-#endif
-
 #include <wsutil/file_util.h>
 #include <epan/packet.h>
 #include <epan/exceptions.h>

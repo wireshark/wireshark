@@ -424,18 +424,6 @@ GCC_DLL=libgcc_s_sjlj-1.dll
 #
 KFW_DIR=$(WIRESHARK_LIB_DIR)\kfw-3-2-2-i386-ws-vc6
 
-#
-# Optional: the Nettle library enables ??? decryption.
-#
-# If you have the Nettle encryption library, set this to the
-# directory in which the nettle package is stored.
-#
-# If you don't have Nettle, comment this line out, so that NETTLE_DIR
-# isn't defined.
-#
-# NETTLE_DIR=$(WIRESHARK_LIB_DIR)\nettle-1.10
-
-#
 # Optional: the LUA library enables scripting support.
 #
 # If you have the LUA library, set this to the directory in which
@@ -678,17 +666,6 @@ GCC_DLL=libgcc_s_seh-1.dll
 # isn't defined.
 #
 #KFW_DIR=$(WIRESHARK_LIB_DIR)\kfw-3.2.2-ws1
-
-#
-# Optional: the Nettle library enables ??? decryption.
-#
-# If you have the Nettle encryption library, set this to the
-# directory in which the nettle package is stored.
-#
-# If you don't have Nettle, comment this line out, so that NETTLE_DIR
-# isn't defined.
-#
-# NETTLE_DIR=$(WIRESHARK_LIB_DIR)\nettle-1.10
 
 #
 # Optional: the LUA library enables scripting support.
@@ -1592,17 +1569,6 @@ KFW_CONFIG=^#define HAVE_MIT_KERBEROS 1
 KFW_CFLAGS=
 KFW_LIBS=
 KFW_CONFIG=
-!ENDIF
-
-!IFDEF NETTLE_DIR
-NETTLE_CFLAGS=/I$(NETTLE_DIR)
-NETTLE_LIBS=$(NETTLE_DIR)\libnettle.lib
-# Nmake uses carets to escape special characters
-NETTLE_CONFIG=^#define HAVE_LIBNETTLE 1
-!else
-NETTLE_CFLAGS=
-NETTLE_LIBS=
-NETTLE_CONFIG=
 !ENDIF
 
 !IFDEF GNUTLS_PKG
