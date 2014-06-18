@@ -378,15 +378,15 @@ dissect_coap_opt_uri_query(tvbuff_t *tvb, proto_item *head_item,proto_tree *subt
 	const guint8 *str = NULL;
 
 	if (coap_uri_query[0] == '\0')
-		g_strlcat(coap_uri_query, "?", sizeof(coap_uri_str));
+		g_strlcat(coap_uri_query, "?", sizeof(coap_uri_query));
 	else
-		g_strlcat(coap_uri_query, "&", sizeof(coap_uri_str));
+		g_strlcat(coap_uri_query, "&", sizeof(coap_uri_query));
 
 	if (opt_length == 0) {
 		str = nullstr;
 	} else {
 		str = tvb_get_string(wmem_packet_scope(), tvb, offset, opt_length);
-		g_strlcat(coap_uri_str, str, sizeof(coap_uri_str));
+		g_strlcat(coap_uri_str, str, sizeof(coap_uri_query));
 	}
 
 	proto_tree_add_string(subtree, hf_coap_opt_uri_query, tvb, offset, opt_length, str);
