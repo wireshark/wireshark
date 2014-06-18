@@ -950,7 +950,6 @@ tcp_analyze_sequence_number(packet_info *pinfo, guint32 seq, guint32 ack, guint3
      *  the window in the other direction is 0
      *  the segment is exactly 1 byte
      */
-/*QQQ tested*/
     if( seglen==1
     &&  seq==tcpd->fwd->nextseq
     &&  tcpd->rev->window==0 ) {
@@ -965,7 +964,6 @@ tcp_analyze_sequence_number(packet_info *pinfo, guint32 seq, guint32 ack, guint3
     /* ZERO WINDOW
      * a zero window packet has window == 0   but none of the SYN/FIN/RST set
      */
-/*QQQ tested*/
     if( window==0
     && (flags&(TH_RST|TH_FIN|TH_SYN))==0 ) {
         if(!tcpd->ta) {
@@ -1001,7 +999,6 @@ tcp_analyze_sequence_number(packet_info *pinfo, guint32 seq, guint32 ack, guint3
      * to what should be the next sequence number.
      * SYN/FIN/RST segments are never keepalives
      */
-/*QQQ tested */
     if( (seglen==0||seglen==1)
     &&  seq==(tcpd->fwd->nextseq-1)
     &&  (flags&(TH_SYN|TH_FIN|TH_RST))==0 ) {
@@ -1035,7 +1032,6 @@ tcp_analyze_sequence_number(packet_info *pinfo, guint32 seq, guint32 ack, guint3
      * then we mark it as WINDOW FULL
      * SYN/RST/FIN packets are never WINDOW FULL
      */
-/*QQQ tested*/
     if( seglen>0
     &&  tcpd->rev->win_scale!=-1
     &&  (seq+seglen)==(tcpd->rev->lastack+(tcpd->rev->window<<(tcpd->rev->win_scale==-2?0:tcpd->rev->win_scale)))
@@ -1051,7 +1047,6 @@ tcp_analyze_sequence_number(packet_info *pinfo, guint32 seq, guint32 ack, guint3
      * It is a keepalive ack if it repeats the previous ACK and if
      * the last segment in the reverse direction was a keepalive
      */
-/*QQQ tested*/
     if( seglen==0
     &&  window
     &&  window==tcpd->fwd->window
@@ -1072,7 +1067,6 @@ tcp_analyze_sequence_number(packet_info *pinfo, guint32 seq, guint32 ack, guint3
      * the last segment in the reverse direction was a zerowindowprobe
      * It also repeats the previous zero window indication
      */
-/*QQQ tested*/
     if( seglen==0
     &&  window==0
     &&  window==tcpd->fwd->window
@@ -1128,7 +1122,6 @@ finished_fwd:
     if( tcpd->rev->maxseqtobeacked
     &&  GT_SEQ(ack, tcpd->rev->maxseqtobeacked )
     &&  (flags&(TH_ACK))!=0 ) {
-/*QQQ tested*/
         if(!tcpd->ta) {
             tcp_analyze_get_acked_struct(pinfo->fd->num, seq, ack, TRUE, tcpd);
         }
