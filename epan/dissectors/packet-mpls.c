@@ -829,6 +829,7 @@ proto_reg_handoff_mpls(void)
     dissector_pw_eth_heuristic      = find_dissector("pw_eth_heuristic");
     dissector_pw_fr                 = find_dissector("pw_fr");
     dissector_pw_hdlc_nocw_fr       = find_dissector("pw_hdlc_nocw_fr");
+    dissector_pw_hdlc_nocw_hdlc_ppp = find_dissector("pw_hdlc_nocw_hdlc_ppp");
     dissector_pw_eth_cw             = find_dissector("pw_eth_cw");
     dissector_pw_eth_nocw           = find_dissector("pw_eth_nocw");
     dissector_pw_satop              = find_dissector("pw_satop_mpls");
