@@ -981,6 +981,7 @@ then
 		[
 		        have_sse42=yes
 		        AC_DEFINE(HAVE_SSE4_2, 1, [Support SSSE4.2 (Streaming SIMD Extensions 4.2) instructions])
+			CFLAGS_SSE42="-msse4.2"
 		        AC_MSG_RESULT([yes])
 		],
 		[
@@ -996,6 +997,7 @@ else
 fi
 dnl build libwsutil_sse42 only if there is SSE4.2
 AM_CONDITIONAL(SSE42_SUPPORTED, test "x$have_sse42" = "xyes")
+AC_SUBST(CFLAGS_SSE42)
 
 #
 # If we're running GCC or clang define _U_ to be "__attribute__((unused))"
