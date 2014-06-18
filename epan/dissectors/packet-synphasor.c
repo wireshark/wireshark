@@ -30,6 +30,7 @@
 #include <epan/dissectors/packet-tcp.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include <epan/wmem/wmem.h>
 
 #include <math.h>
 
@@ -43,8 +44,7 @@ void proto_reg_handoff_synphasor(void);
 
 /* global variables */
 
-static int     proto_synphasor	 = -1;
-static GSList *config_frame_list = NULL;
+static int proto_synphasor	 = -1;
 
 /* user preferences */
 static guint global_pref_tcp_port = 4712;
@@ -154,8 +154,8 @@ typedef struct {
 	phasor_notation_e phasor_notation;   /* format of the phasors	       */
 	guint		fnom;		     /* nominal line frequency	       */
 	guint		num_dg;		     /* number of digital status words */
-	GArray	       *phasors;	     /* array of phasor_infos	       */
-	GArray	       *analogs;	     /* array of analog_infos	       */
+	wmem_array_t	       *phasors;	     /* array of phasor_infos	       */
+	wmem_array_t	       *analogs;	     /* array of analog_infos	       */
 } config_block;
 
 /* holds the id the configuration comes from an and
@@ -164,7 +164,7 @@ typedef struct {
 	guint32	 fnum;		/* frame number */
 
 	guint16	 id;
-	GArray	*config_blocks; /* Contains a config_block struct for
+	wmem_array_t	*config_blocks; /* Contains a config_block struct for
 				 * every PMU included in the config frame */
 } config_frame;
 
@@ -316,9 +316,9 @@ static config_frame* config_frame_fast(tvbuff_t *tvb)
 	config_frame *frame;
 
 	/* get a new frame and initialize it */
-	frame = g_slice_new(config_frame);
+	frame = wmem_new(wmem_file_scope(), config_frame);
 
-	frame->config_blocks = g_array_new(FALSE, TRUE, sizeof(config_block));
+	frame->config_blocks = wmem_array_new(wmem_file_scope(), sizeof(config_block));
 
 	idcode = tvb_get_ntohs(tvb, 4);
 	frame->id	= idcode;
@@ -338,8 +338,8 @@ static config_frame* config_frame_fast(tvbuff_t *tvb)
 		config_block block;
 
 		/* initialize the block */
-		block.phasors = g_array_new(FALSE, TRUE, sizeof(phasor_info));
-		block.analogs = g_array_new(FALSE, TRUE, sizeof(analog_info));
+		block.phasors = wmem_array_new(wmem_file_scope(), sizeof(phasor_info));
+		block.analogs = wmem_array_new(wmem_file_scope(), sizeof(analog_info));
 		/* copy the station name from the tvb to block, and add NULL byte */
 		tvb_memcpy(tvb, block.name, offset, CHNAM_LEN); offset += CHNAM_LEN;
 		block.name[CHNAM_LEN] = '\0';
@@ -375,7 +375,7 @@ static config_frame* config_frame_fast(tvbuff_t *tvb)
 			pi.unit = conv & 0xFF000000 ? A : V;
 			pi.conv = conv & 0x00FFFFFF;
 
-			g_array_append_val(block.phasors, pi);
+			wmem_array_append_one(block.phasors, pi);
 		}
 
 		/* read num_an analog value names and conversation factors */
@@ -390,7 +390,7 @@ static config_frame* config_frame_fast(tvbuff_t *tvb)
 			conv = tvb_get_ntohl(tvb, anunit + 4 * i);
 			ai.conv = conv;
 
-			g_array_append_val(block.analogs, ai);
+			wmem_array_append_one(block.analogs, ai);
 		}
 
 		/* the names for the bits in the digital status words aren't saved,
@@ -403,48 +403,11 @@ static config_frame* config_frame_fast(tvbuff_t *tvb)
 		/* skip CFGCNT */
 		offset += 2;
 
-		g_array_append_val(frame->config_blocks, block);
+		wmem_array_append_one(frame->config_blocks, block);
 		num_pmu--;
 	}
 
 	return frame;
-}
-
-/* Frees the memory pointed to by 'frame' and all the contained
- * config_blocks and the data in their GArrays.
- */
-static void config_frame_free(config_frame *frame)
-{
-	int i = frame->config_blocks->len;
-
-	/* free all the config_blocks this frame contains */
-	while (i--) {
-		config_block *block;
-
-		block = &g_array_index(frame->config_blocks, config_block, i);
-		g_array_free(block->phasors, TRUE);
-		g_array_free(block->analogs, TRUE);
-	}
-
-	/* free the array of config blocks itself */
-	g_array_free(frame->config_blocks, TRUE);
-
-	/* and the config_frame */
-	g_slice_free1(sizeof(config_frame), frame);
-}
-
-/* called every time the user loads a capture file or starts to capture */
-static void synphasor_init(void)
-{
-	/* free stuff in the list from a previous run */
-	if (config_frame_list) {
-		g_slist_foreach(config_frame_list, (GFunc) config_frame_free, NULL);
-
-		g_slist_free(config_frame_list);
-
-		config_frame_list = NULL;
-	}
-
 }
 
 /* Checks the CRC of a synchrophasor frame, 'tvb' has to include the whole
@@ -509,8 +472,6 @@ static int dissect_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 			/* fill the config_frame */
 			config_frame *frame = config_frame_fast(tvb);
 			frame->fnum = pinfo->fd->num;
-			/* so we can cleanup later */
-			config_frame_list = g_slist_append(config_frame_list, frame);
 
 			/* find a conversation, create a new if no one exists */
 			conversation = find_or_create_conversation(pinfo);
@@ -772,9 +733,9 @@ static gint dissect_ANALOG (tvbuff_t *tvb, proto_tree *tree, config_block *block
 static gint dissect_DIGITAL(tvbuff_t *tvb, proto_tree *tree, config_block *block, gint offset);
 /* calculates the size (in bytes) of a data frame that the config_block describes */
 #define BLOCKSIZE(x) (2							   /* STAT    */ \
-		   + (x).phasors->len * (integer == (x).format_ph ? 4 : 8) /* PHASORS */ \
-		   +			(integer == (x).format_fr ? 4 : 8) /* (D)FREQ */ \
-		   + (x).analogs->len * (integer == (x).format_an ? 2 : 4) /* ANALOG  */ \
+		   + wmem_array_get_count((x).phasors) * (integer == (x).format_ph ? 4 : 8) /* PHASORS */ \
+		   +			                 (integer == (x).format_fr ? 4 : 8) /* (D)FREQ */ \
+		   + wmem_array_get_count((x).analogs) * (integer == (x).format_an ? 2 : 4) /* ANALOG  */ \
 		   + (x).num_dg * 2)					   /* DIGITAL */
 
 /* Dissects a data frame */
@@ -799,8 +760,8 @@ static int dissect_data_frame(tvbuff_t	  *tvb,
 			/* check if the size of the current frame is the
 			   size of the frame the config_frame describes */
 			size_t reported_size = 0;
-			for (i = 0; i < conf->config_blocks->len; i++) {
-				config_block *block = &g_array_index(conf->config_blocks, config_block, i);
+			for (i = 0; i < wmem_array_get_count(conf->config_blocks); i++) {
+				config_block *block = (config_block*)wmem_array_index(conf->config_blocks, i);
 				reported_size += BLOCKSIZE(*block);
 			}
 
@@ -818,8 +779,8 @@ static int dissect_data_frame(tvbuff_t	  *tvb,
 	}
 
 	/* dissect a PMU block for every config_block in the frame */
-	for (i = 0; i < conf->config_blocks->len; i++) {
-		config_block *block = &g_array_index(conf->config_blocks, config_block, i);
+	for (i = 0; i < wmem_array_get_count(conf->config_blocks); i++) {
+		config_block *block = (config_block*)wmem_array_index(conf->config_blocks, i);
 
 		proto_item *block_item = proto_tree_add_text(data_tree, tvb, offset, BLOCKSIZE(*block),
 						 "Station: \"%s\"", block->name);
@@ -938,12 +899,12 @@ static gint dissect_PHASORS(tvbuff_t *tvb, proto_tree *tree, config_block *block
 	proto_tree *phasor_tree = NULL;
 	guint	    length;
 	gint	    j,
-		    cnt = block->phasors->len; /* number of phasors to dissect */
+		    cnt = wmem_array_get_count(block->phasors); /* number of phasors to dissect */
 
 	if (0 == cnt)
 		return offset;
 
-	length	    = block->phasors->len * (floating_point == block->format_ph ? 8 : 4);
+	length	    = wmem_array_get_count(block->phasors) * (floating_point == block->format_ph ? 8 : 4);
 	temp_item   = proto_tree_add_text(tree, tvb, offset, length, "Phasors (%u)", cnt);
 	phasor_tree = proto_item_add_subtree(temp_item, ett_data_phasors);
 
@@ -952,7 +913,7 @@ static gint dissect_PHASORS(tvbuff_t *tvb, proto_tree *tree, config_block *block
 		double	     mag, phase;
 		phasor_info *pi;
 
-		pi = &g_array_index(block->phasors, phasor_info, j);
+		pi = (phasor_info*)wmem_array_index(block->phasors, j);
 		temp_item = proto_tree_add_text(phasor_tree, tvb, offset,
 						floating_point == block->format_ph ? 8 : 4,
 						"Phasor #%u: \"%s\"", j + 1, pi->name);
@@ -1017,18 +978,18 @@ static gint dissect_ANALOG(tvbuff_t *tvb, proto_tree *tree, config_block *block,
 	proto_item *temp_item	= NULL;
 	guint	    length;
 	gint	    j,
-		    cnt = block->analogs->len; /* number of analog values to dissect */
+		    cnt = wmem_array_get_count(block->analogs); /* number of analog values to dissect */
 
 	if (0 == cnt)
 		return offset;
 
-	length	    = block->analogs->len * (floating_point == block->format_an ? 4 : 2);
+	length	    = wmem_array_get_count(block->analogs) * (floating_point == block->format_an ? 4 : 2);
 	temp_item   = proto_tree_add_text(tree, tvb, offset, length, "Analog values (%u)", cnt);
 
 	analog_tree = proto_item_add_subtree(temp_item, ett_data_analog);
 
 	for (j = 0; j < cnt; j++) {
-		analog_info *ai = &g_array_index(block->analogs, analog_info, j);
+		analog_info *ai = (analog_info *)wmem_array_index(block->analogs, j);
 
 		temp_item = proto_tree_add_text(analog_tree, tvb, offset,
 						floating_point == block->format_an ? 4 : 2,
@@ -1369,8 +1330,6 @@ void proto_register_synphasor(void)
 				       "(if other than the default of 4712)",
 				       10, &global_pref_tcp_port);
 
-	/* register the initalization routine */
-	register_init_routine(&synphasor_init);
 } /* proto_register_synphasor() */
 
 /* called at startup and when the preferences change */
