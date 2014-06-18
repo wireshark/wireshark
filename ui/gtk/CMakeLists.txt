@@ -174,6 +174,8 @@ set(WIRESHARK_TAP_SRC
 	hostlist_wlan.c
 	iax2_analysis.c
 	io_stat.c
+	lbm_stream_dlg.c
+	lbm_uimflow_dlg.c
 	ldap_stat.c
 	mac_lte_stat_dlg.c
 	mcast_stream_dlg.c
