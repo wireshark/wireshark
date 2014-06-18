@@ -1058,11 +1058,9 @@ static gint
 dissect_sip_uri(tvbuff_t *tvb, packet_info *pinfo _U_, gint start_offset,
                 gint line_end_offset, uri_offset_info *uri_offsets)
 {
-    gchar c = '\0';
+    guchar c = '\0';
     gint current_offset;
     gint queried_offset;
-    gint comma_offset;
-    gint semicolon_offset;
     gint parameter_end_offset;
     gboolean in_ipv6 = FALSE;
 
@@ -1077,7 +1075,6 @@ dissect_sip_uri(tvbuff_t *tvb, packet_info *pinfo _U_, gint start_offset,
     uri_offsets->uri_start = current_offset;
 
     /* Check if it's really a sip uri ( it might be a tel uri, parse that?) */
-    tvb_find_guint8(tvb, current_offset, line_end_offset - current_offset, ':');
     if (tvb_strneql(tvb, current_offset, "sip", 3) != 0)
         return -1;
 
@@ -1087,36 +1084,20 @@ dissect_sip_uri(tvbuff_t *tvb, packet_info *pinfo _U_, gint start_offset,
         /* look for the first ',' or ';' which will mark the end of this URI
          * In this case a semicolon indicates a header field parameter, and not an uri parameter.
          */
-        comma_offset = tvb_find_guint8(tvb, current_offset, line_end_offset - current_offset, ',');
-        semicolon_offset = tvb_find_guint8(tvb, current_offset, line_end_offset - current_offset, ';');
+        int end_offset;
 
-        if (semicolon_offset != -1 && comma_offset != -1)
+        end_offset = tvb_pbrk_guint8(tvb, current_offset, line_end_offset - current_offset, ",;", NULL);
+
+        if (end_offset != -1)
         {
-            if(semicolon_offset < comma_offset)
-            {
-                uri_offsets->uri_end = semicolon_offset - 1;
-            }
-            else
-            {
-                uri_offsets->uri_end = comma_offset - 1;
-            }
+            uri_offsets->uri_end = end_offset - 1;
         }
         else
         {
-            if (semicolon_offset != -1)
-            {
-                uri_offsets->uri_end = semicolon_offset - 1;
-            }
-            else if (comma_offset != -1)
-            {
-                uri_offsets->uri_end = comma_offset - 1;
-            } else {
-
-                /* If both offsets are equal to -1, we don't have a semicolon or a comma.
-                * In that case, we assume that the end of the URI is at the line end
-                 */
-                uri_offsets->uri_end = line_end_offset - 3; /* remove '\r\n' */
-            }
+            /* We don't have a semicolon or a comma.
+             * In that case, we assume that the end of the URI is at the line end
+              */
+            uri_offsets->uri_end = line_end_offset - 3; /* remove '\r\n' */
         }
         uri_offsets->name_addr_end = uri_offsets->uri_end;
     }
@@ -1145,7 +1126,14 @@ dissect_sip_uri(tvbuff_t *tvb, packet_info *pinfo _U_, gint start_offset,
     while (parameter_end_offset < line_end_offset)
     {
         parameter_end_offset++;
-        c = tvb_get_guint8(tvb, parameter_end_offset);
+        parameter_end_offset = tvb_pbrk_guint8(tvb, parameter_end_offset, line_end_offset - parameter_end_offset, ">,;? \r:[]", &c);
+        if (parameter_end_offset == -1)
+        {
+            parameter_end_offset = line_end_offset;
+            break;
+        }
+
+        /* after adding character to this switch() , update also string in tvb_pbrk_guint8() call above */
         switch (c) {
             case '>':
             case ',':
@@ -1168,7 +1156,8 @@ dissect_sip_uri(tvbuff_t *tvb, packet_info *pinfo _U_, gint start_offset,
                 in_ipv6 = FALSE;
                 break;
             default :
-            break;
+                DISSECTOR_ASSERT_NOT_REACHED();
+                break;
         }
     }
 
@@ -1183,7 +1172,14 @@ uri_host_end_found:
         while (parameter_end_offset < line_end_offset)
         {
             parameter_end_offset++;
-            c = tvb_get_guint8(tvb, parameter_end_offset);
+            parameter_end_offset = tvb_pbrk_guint8(tvb, parameter_end_offset, line_end_offset - parameter_end_offset, ">,;? \r", &c);
+            if (parameter_end_offset == -1)
+            {
+                parameter_end_offset = line_end_offset;
+                break;
+            }
+
+            /* after adding character to this switch(), update also string in tvb_pbrk_guint8() call above */
             switch (c) {
                 case '>':
                 case ',':
@@ -1196,7 +1192,8 @@ uri_host_end_found:
                 case '\r':
                     goto uri_host_port_end_found;
                 default :
-                break;
+                    DISSECTOR_ASSERT_NOT_REACHED();
+                    break;
             }
         }
 
