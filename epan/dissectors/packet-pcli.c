@@ -41,7 +41,7 @@ void proto_reg_handoff_pcli(void);
 
 /* Define udp_port for lawful intercept */
 
-#define UDP_PORT_PCLI 9000
+#define UDP_PORT_PCLI 0
 
 /* Define the pcli proto */
 
