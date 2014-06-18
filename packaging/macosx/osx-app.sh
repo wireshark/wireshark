@@ -6,7 +6,6 @@
 # This script attempts to build an Wireshark.app bundle for OS X, resolving
 # dynamic libraries, etc.
 # It strips the executable and libraries if '-s' is given.
-# It adds python modules if the '-py option' is given
 # The Info.plist file can be found in the base wireshark directory once
 # configure has been run.
 #
@@ -207,9 +206,7 @@ pkgexec="$bundle/Contents/MacOS"
 pkgres="$bundle/Contents/Resources"
 pkgbin="$pkgexec"
 pkglib="$bundle/Contents/Frameworks"
-pkgqtplugin="$bundle/Contents/PlugIns"
 pkgplugin="$bundle/Contents/PlugIns/wireshark"
-pkgpython="$pkglib/wireshark/python"
 
 #
 # For Qt, the Wireshark binary is the main binary of the app bundle.
@@ -223,9 +220,7 @@ fi
 
 mkdir -p "$pkgexec"
 mkdir -p "$pkgbin"
-mkdir -p "$pkgqtplugin"
 mkdir -p "$pkgplugin"
-mkdir -p "$pkgpython"
 
 if [ "$ui_toolkit" = "qt" ] ; then
 	cp "$binary_path/$wireshark_bin_name" "$pkgexec/Wireshark"
@@ -277,13 +272,10 @@ rsync -av \
 
 rsync -av $binary_path/../lib/*.dylib "$pkglib/"
 
-# Remove the version number from the plugin path
+# Copy the plugins from the "make install" location for them
+# to the plugin directory, removing the version number
 find "$binary_path/../lib/wireshark/plugins" -type f \
 	-exec cp -fv "{}" "$pkgplugin/" \;
-
-# Remove the version number from the python path
-find "$binary_path/../lib/wireshark/python" -type f \
-	-exec cp -fv "{}" "$pkgpython/" \;
 
 cp "$plist" "$bundle/Contents/Info.plist"
 
