@@ -121,13 +121,13 @@ static dissector_handle_t dissector_pw_cesopsn;
 
 enum mpls_default_dissector_t {
     MDD_PW_ETH_HEUR = 0
+    ,MDD_MPLS_PW_ETH_CW
+    ,MDD_MPLS_PW_ETH_NOCW
     ,MDD_PW_SATOP
     ,MDD_PW_CESOPSN
     ,MDD_MPLS_PW_FR_DLCI
     ,MDD_MPLS_PW_HDLC_NOCW_FRPORT
     ,MDD_MPLS_PW_HDLC_NOCW_HDLC_PPP
-    ,MDD_MPLS_PW_ETH_CW
-    ,MDD_MPLS_PW_ETH_NOCW
     ,MDD_MPLS_PW_GENERIC
     ,MDD_ITDM
     ,MDD_MPLS_PW_ATM_N1_CW
@@ -158,21 +158,6 @@ static const enum_val_t mpls_default_payload_defs[] = {
         ,MDD_PW_ETH_HEUR
     },
     {
-        "mpls pw fr dlci"
-        ,"Frame relay DLCI MPLS PW"
-        ,MDD_MPLS_PW_FR_DLCI
-    },
-    {
-        "mpls pw hdlc no_cw fr_port"
-        ,"HDLC MPLS PW (no CW), FR Port mode"
-        ,MDD_MPLS_PW_HDLC_NOCW_FRPORT
-    },
-    {
-        "mpls pw hdlc no_cw hdlc payload_ppp"
-        ,"HDLC MPLS PW (no CW), HDLC mode, PPP payload"
-        ,MDD_MPLS_PW_HDLC_NOCW_HDLC_PPP
-    },
-    {
         "mpls pw ethernet cw"
         ,"Ethernet MPLS PW (with CW)"
         ,MDD_MPLS_PW_ETH_CW
@@ -186,6 +171,21 @@ static const enum_val_t mpls_default_payload_defs[] = {
         "mpls pw generic cw"
         ,"Generic MPLS PW (with Generic/Preferred MPLS CW)"
         ,MDD_MPLS_PW_GENERIC
+    },
+    {
+        "mpls pw fr dlci"
+        ,"Frame relay DLCI MPLS PW"
+        ,MDD_MPLS_PW_FR_DLCI
+    },
+    {
+        "mpls pw hdlc no_cw fr_port"
+        ,"HDLC MPLS PW (no CW), FR Port mode"
+        ,MDD_MPLS_PW_HDLC_NOCW_FRPORT
+    },
+    {
+        "mpls pw hdlc no_cw hdlc payload_ppp"
+        ,"HDLC MPLS PW (no CW), HDLC mode, PPP payload"
+        ,MDD_MPLS_PW_HDLC_NOCW_HDLC_PPP
     },
     {
         "itdm"
@@ -228,7 +228,7 @@ static int hf_mpls_exp = -1;
 static int hf_mpls_bos = -1;
 static int hf_mpls_ttl = -1;
 
-static gint mpls_default_payload = 0;
+static gint mpls_default_payload = MDD_PW_ETH_HEUR;
 
 static int hf_mpls_pw_ach_ver = -1;
 static int hf_mpls_pw_ach_res = -1;
@@ -656,6 +656,12 @@ dissect_mpls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         case MDD_PW_ETH_HEUR:
             call_dissector(dissector_pw_eth_heuristic, next_tvb, pinfo, tree);
             break;
+        case MDD_MPLS_PW_ETH_CW:
+            call_dissector(dissector_pw_eth_cw, next_tvb, pinfo, tree);
+            break;
+        case MDD_MPLS_PW_ETH_NOCW:
+            call_dissector(dissector_pw_eth_nocw, next_tvb, pinfo, tree);
+            break;
         case MDD_MPLS_PW_FR_DLCI:
             call_dissector(dissector_pw_fr, next_tvb, pinfo, tree);
             break;
@@ -664,12 +670,6 @@ dissect_mpls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             break;
         case MDD_MPLS_PW_HDLC_NOCW_HDLC_PPP:
             call_dissector(dissector_pw_hdlc_nocw_hdlc_ppp,next_tvb, pinfo, tree);
-            break;
-        case MDD_MPLS_PW_ETH_CW:
-            call_dissector(dissector_pw_eth_cw, next_tvb, pinfo, tree);
-            break;
-        case MDD_MPLS_PW_ETH_NOCW:
-            call_dissector(dissector_pw_eth_nocw, next_tvb, pinfo, tree);
             break;
         case MDD_ITDM:
             call_dissector(dissector_itdm, next_tvb, pinfo, tree);
