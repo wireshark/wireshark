@@ -287,12 +287,8 @@ else()
 	set(WIRESHARK_EXTRA_COMPILER_CPP_ONLY_FLAGS
 	)
 
-	# With clang some tests don't fail properly during testing but only
-	# during real compiles
-
 	if(CMAKE_C_COMPILER_ID MATCHES "Clang")
 		set(WIRESHARK_COMMON_FLAGS ${WIRESHARK_COMMON_FLAGS}
-			-Qunused-arguments
 			#-fcolor-diagnostics
 	)
 	else()
