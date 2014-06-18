@@ -239,6 +239,15 @@ struct tcp_analysis {
 	 */
 	nstime_t	ts_first;
 
+        /* Remember the timestamp of the most recent SYN in this conversation in
+         * order to calculate the first_rtt below. Not necessarily ts_first, if
+         * the SYN is retransmitted. */
+	nstime_t	ts_mru_syn;
+
+        /* If we have the handshake, remember the RTT between the initial SYN
+         * and ACK for use detecting out-of-order segments. */
+	nstime_t	ts_first_rtt;
+
 	/* Remember the timestamp of the frame that was last seen in this
 	 * tcp conversation to be able to calculate a delta time compared
 	 * to previous frame in this conversation

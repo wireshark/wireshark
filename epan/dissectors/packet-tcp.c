@@ -126,6 +126,7 @@ static int hf_tcp_analysis_flags = -1;
 static int hf_tcp_analysis_bytes_in_flight = -1;
 static int hf_tcp_analysis_acks_frame = -1;
 static int hf_tcp_analysis_ack_rtt = -1;
+static int hf_tcp_analysis_first_rtt = -1;
 static int hf_tcp_analysis_rto = -1;
 static int hf_tcp_analysis_rto_frame = -1;
 static int hf_tcp_analysis_duplicate_ack = -1;
@@ -548,6 +549,8 @@ init_tcp_conversation_data(packet_info *pinfo)
     tcpd->acked_table=wmem_tree_new(wmem_file_scope());
     tcpd->ts_first.secs=pinfo->fd->abs_ts.secs;
     tcpd->ts_first.nsecs=pinfo->fd->abs_ts.nsecs;
+    nstime_set_zero(&tcpd->ts_mru_syn);
+    nstime_set_zero(&tcpd->ts_first_rtt);
     tcpd->ts_prev.secs=pinfo->fd->abs_ts.secs;
     tcpd->ts_prev.nsecs=pinfo->fd->abs_ts.nsecs;
     tcpd->flow1.valid_bif = 1;
@@ -1591,6 +1594,11 @@ tcp_print_sequence_number_analysis(packet_info *pinfo, tvbuff_t *tvb, proto_tree
             tvb, 0, 0, &ta->ts);
                 PROTO_ITEM_SET_GENERATED(item);
         }
+    }
+    if (!nstime_is_zero(&tcpd->ts_first_rtt)) {
+        item = proto_tree_add_time(tree, hf_tcp_analysis_first_rtt,
+                tvb, 0, 0, &(tcpd->ts_first_rtt));
+        PROTO_ITEM_SET_GENERATED(item);
     }
 
     if(ta->bytes_in_flight) {
@@ -4459,6 +4467,8 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                    dst_port_str);
            /* Save the server port to help determine dissector used */
            tcpd->server_port = tcph->th_dport;
+           tcpd->ts_mru_syn.secs = pinfo->fd->abs_ts.secs;
+           tcpd->ts_mru_syn.nsecs = pinfo->fd->abs_ts.nsecs;
         }
     }
     if(tcph->th_flags & TH_FIN)
@@ -4467,6 +4477,21 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if(tcph->th_flags & TH_RST)
         /* XXX - find a way to know the server port and output only that one */
         expert_add_info(pinfo, tf_rst, &ei_tcp_connection_rst);
+
+    if(tcp_analyze_seq
+            && (tcph->th_flags & (TH_SYN|TH_ACK)) == TH_ACK
+            && !nstime_is_zero(&tcpd->ts_mru_syn)
+            &&  nstime_is_zero(&tcpd->ts_first_rtt)) {
+        /* If all of the following:
+         * - we care (the pref is set)
+         * - this is a pure ACK
+         * - we have a timestamp for the most-recently-transmitted SYN
+         * - we haven't seen a pure ACK yet (no ts_first_rtt stored)
+         * then assume it's the last part of the handshake and store the initial
+         * RTT time
+         */
+        nstime_delta(&(tcpd->ts_first_rtt), &(pinfo->fd->abs_ts), &(tcpd->ts_mru_syn));
+    }
 
     /* Supply the sequence number of the first byte and of the first byte
        after the segment. */
@@ -5023,6 +5048,10 @@ proto_register_tcp(void)
         { &hf_tcp_analysis_ack_rtt,
           { "The RTT to ACK the segment was",            "tcp.analysis.ack_rtt", FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
             "How long time it took to ACK the segment (RTT)", HFILL}},
+
+        { &hf_tcp_analysis_first_rtt,
+          { "The initial RTT from SYN to ACK was",            "tcp.analysis.first_rtt", FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
+            "How long it took for the SYN to ACK handshake (RTT)", HFILL}},
 
         { &hf_tcp_analysis_rto,
           { "The RTO for this segment was",            "tcp.analysis.rto", FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
