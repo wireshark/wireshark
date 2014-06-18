@@ -5045,7 +5045,7 @@ proto_register_tcp(void)
             "How long time it took to ACK the segment (RTT)", HFILL}},
 
         { &hf_tcp_analysis_first_rtt,
-          { "iRTT",            "tcp.analysis.first_rtt", FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
+          { "iRTT",            "tcp.analysis.initial_rtt", FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
             "How long it took for the SYN to ACK handshake (iRTT)", HFILL}},
 
         { &hf_tcp_analysis_rto,
