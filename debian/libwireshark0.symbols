@@ -34,8 +34,8 @@ libwireshark.so.0 libwireshark0 #MINVER#
  UnregRejectReason_vals@Base 1.9.1
  UnregRequestReason_vals@Base 1.9.1
  _try_val_to_str_ext_init@Base 1.9.1
- abs_time_secs_to_ep_str@Base 1.12.0~rc1
- abs_time_to_ep_str@Base 1.12.0~rc1
+ abs_time_secs_to_str@Base 1.99.0
+ abs_time_to_str@Base 1.99.0
  add_hosts_file@Base 1.9.1
  add_ip_name_from_string@Base 1.9.1
  add_ipv4_name@Base 1.9.1
@@ -308,6 +308,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  dissect_ndr_uint8@Base 1.9.1
  dissect_ndr_uuid_t@Base 1.9.1
  dissect_nt_64bit_time@Base 1.9.1
+ dissect_nt_64bit_time_ex@Base 1.99.0
  dissect_nt_sid@Base 1.9.1
  dissect_per_BMPString@Base 1.9.1
  dissect_per_GeneralString@Base 1.9.1
@@ -426,12 +427,9 @@ libwireshark.so.0 libwireshark0 #MINVER#
  ep_alloc@Base 1.9.1
  ep_memdup@Base 1.9.1
  ep_sctp_port_to_display@Base 1.12.0~rc1
- ep_strbuf_append@Base 1.9.1
- ep_strbuf_append_c@Base 1.9.1
  ep_strbuf_append_printf@Base 1.9.1
  ep_strbuf_new@Base 1.9.1
  ep_strbuf_printf@Base 1.9.1
- ep_strbuf_sized_new@Base 1.9.1
  ep_strconcat@Base 1.9.1
  ep_strdup@Base 1.9.1
  ep_strdup_printf@Base 1.9.1
@@ -1039,8 +1037,8 @@ libwireshark.so.0 libwireshark0 #MINVER#
  rel_oid_resolved_from_encoded@Base 1.12.0~rc1
  rel_oid_str_to_bytes@Base 1.12.0~rc1
  rel_oid_subid2string@Base 1.12.0~rc1
- rel_time_to_ep_str@Base 1.12.0~rc1
- rel_time_to_secs_ep_str@Base 1.12.0~rc1
+ rel_time_to_secs_str@Base 1.99.0
+ rel_time_to_str@Base 1.99.0
  remove_last_data_source@Base 1.12.0~rc1
  remove_tap_listener@Base 1.9.1
  req_resp_hdrs_do_reassembly@Base 1.9.1
@@ -1091,9 +1089,6 @@ libwireshark.so.0 libwireshark0 #MINVER#
  scsi_ssc_vals_ext@Base 1.12.0~rc1
  se_alloc0@Base 1.9.1
  se_alloc@Base 1.9.1
- se_memdup@Base 1.9.1
- se_strdup@Base 1.9.1
- se_strdup_printf@Base 1.9.1
  set_actual_length@Base 1.9.1
  set_column_custom_field@Base 1.9.1
  set_column_custom_occurrence@Base 1.9.1
@@ -1223,8 +1218,8 @@ libwireshark.so.0 libwireshark0 #MINVER#
  tfs_valid_invalid@Base 1.9.1
  tfs_valid_not_valid@Base 1.12.0~rc1
  tfs_yes_no@Base 1.9.1
- time_msecs_to_ep_str@Base 1.12.0~rc1
- time_secs_to_ep_str@Base 1.12.0~rc1
+ time_msecs_to_str@Base 1.99.0
+ time_secs_to_str@Base 1.99.0
  time_stat_init@Base 1.12.0~rc1
  time_stat_update@Base 1.12.0~rc1
  timestamp_get_precision@Base 1.9.1

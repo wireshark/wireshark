@@ -62,7 +62,6 @@ libwsutil.so.0 libwsutil0 #MINVER#
  get_progfile_dir@Base 1.12.0~rc1
  get_systemfile_dir@Base 1.12.0~rc1
  get_tempfile_path@Base 1.12.0~rc1
- get_wspython_dir@Base 1.12.0~rc1
  has_global_profiles@Base 1.12.0~rc1
  init_process_policies@Base 1.10.0
  init_progfile_dir@Base 1.12.0~rc1
@@ -144,5 +143,6 @@ libwsutil.so.0 libwsutil0 #MINVER#
  update_crc6_by_bytes@Base 1.10.0
  ws_add_crash_info@Base 1.10.0
  ws_base64_decode_inplace@Base 1.12.0~rc1
+ ws_mempbrk@Base 1.99.0
  ws_utf8_char_len@Base 1.12.0~rc1
  ws_xton@Base 1.12.0~rc1
