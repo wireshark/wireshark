@@ -5,8 +5,6 @@
 --  This file is going to be executed before any other lua script.
 --  It can be used to load libraries, disable functions and more.
 --
--- $Id$
---
 -- Wireshark - Network traffic analyzer
 -- By Gerald Combs <gerald@wireshark.org>
 -- Copyright 1998 Gerald Combs
