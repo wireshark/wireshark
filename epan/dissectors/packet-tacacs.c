@@ -749,11 +749,11 @@ tacplus_print_key_entry( gpointer data, gpointer user_data )
 {
 	tacplus_key_entry *tacplus_data=(tacplus_key_entry *)data;
 	if( user_data ) {
-		printf("%s:%s=%s\n", ep_address_to_str( tacplus_data->s ),
-				ep_address_to_str( tacplus_data->c ), tacplus_data->k );
+		printf("%s:%s=%s\n", address_to_str(wmem_packet_scope(), tacplus_data->s),
+				address_to_str(wmem_packet_scope(), tacplus_data->c), tacplus_data->k );
 	} else {
-		printf("%s:%s\n", ep_address_to_str( tacplus_data->s ),
-				ep_address_to_str( tacplus_data->c ) );
+		printf("%s:%s\n", address_to_str(wmem_packet_scope(), tacplus_data->s),
+				address_to_str(wmem_packet_scope(), tacplus_data->c));
 	}
 }
 #endif
