@@ -55,8 +55,8 @@ check_function_exists( "pcap_freecode" HAVE_PCAP_FREECODE )
 # update libpcap without updating the headers.
 #
 check_function_exists( "pcap_breakloop" HAVE_PCAP_BREAKLOOP )
-/* FIXME: The code (at least) in dumpcap assumes that PCAP_CREATE is not
- *        available on Windows */
+# FIXME: The code (at least) in dumpcap assumes that PCAP_CREATE is not
+#        available on Windows
 if( NOT WIN32 )
   check_function_exists( "pcap_create" HAVE_PCAP_CREATE )
 endif()
