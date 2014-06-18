@@ -55,7 +55,11 @@ check_function_exists( "pcap_freecode" HAVE_PCAP_FREECODE )
 # update libpcap without updating the headers.
 #
 check_function_exists( "pcap_breakloop" HAVE_PCAP_BREAKLOOP )
-check_function_exists( "pcap_create" HAVE_PCAP_CREATE )
+/* FIXME: The code (at least) in dumpcap assumes that PCAP_CREATE is not
+ *        available on Windows */
+if( NOT WIN32 )
+  check_function_exists( "pcap_create" HAVE_PCAP_CREATE )
+endif()
 check_function_exists( "pcap_datalink_name_to_val" HAVE_PCAP_DATALINK_NAME_TO_VAL )
 check_function_exists( "pcap_datalink_val_to_description" HAVE_PCAP_DATALINK_VAL_TO_DESCRIPTION )
 check_function_exists( "pcap_datalink_val_to_name" HAVE_PCAP_DATALINK_VAL_TO_NAME )
