@@ -432,7 +432,7 @@ endif()
 # - set HAVE_XXX
 
 #The minimum package list
-set(PACKAGELIST GLIB2 GMODULE2 GTHREAD2 LEX YACC Perl SED SH PythonInterp)
+set(PACKAGELIST Gettext M GLIB2 GMODULE2 GTHREAD2 LEX YACC Perl SED SH PythonInterp)
 set(GLIB2_REQUIRED TRUE)
 set(GLIB2_FIND_REQUIRED TRUE)
 set(GLIB2_MIN_VERSION 2.14.0)
@@ -440,7 +440,6 @@ set(GTHREAD2_REQUIRED TRUE)
 set(PythonInterp_FIND_VERSION 2)
 set(Python_ADDITIONAL_VERSIONS 3)
 if (NOT WIN32)
-	set(PACKAGELIST ${PACKAGELIST} Gettext M)
 	set(M_REQUIRED TRUE)
 endif()
 
@@ -475,7 +474,7 @@ if(BUILD_qtshark)
 			set( QT5_BASE_PATH "$ENV{QT5_BASE_DIR}" )
 			set( CMAKE_PREFIX_PATH "${QT5_BASE_PATH}" )
 			# Used for the creation of setpath.bat
-			set( QT5_DLL_PATH "${QT5_BASE_PATH}\\bin" )
+			set( QT5_DLL_PATH "${QT5_BASE_PATH}/bin" )
 			set( WS_ALL_LIBS ${WS_ALL_LIBS} ${QT5_DLL_PATH} )
 		endif()
 		set(PACKAGELIST ${PACKAGELIST} Qt5Widgets Qt5PrintSupport Qt5LinguistTools)
@@ -551,9 +550,7 @@ if(ENABLE_CAP)
 	set(PACKAGELIST ${PACKAGELIST} CAP SETCAP)
 endif()
 
-if (NOT WIN32)
-	set(PACKAGELIST ${PACKAGELIST} YAPP)
-endif()
+set(PACKAGELIST ${PACKAGELIST} YAPP)
 
 set(PACKAGELIST ${PACKAGELIST} POD)
 
