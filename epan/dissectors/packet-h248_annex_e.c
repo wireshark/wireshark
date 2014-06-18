@@ -1,5 +1,5 @@
 /*
- *  packet-h248-annex_e.c
+ *  packet-h248_annex_e.c
  *  H.248 Annex E
  *
  *  (c) 2006, Luis E. Garcia Ontanon <luis@ontanon.org>
@@ -960,113 +960,113 @@ static h248_package_t h248_pkg_tdmc = {
 void proto_register_h248_annex_e(void) {
 	static hf_register_info hf[] = {
 		/* H.248.1 E.1  Generic Package */
-		{ &hf_h248_pkg_generic, { "Generic Package", "h248.pkg.generic", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-		{ &hf_h248_pkg_generic_cause_evt, { "Cause Event", "h248.pkg.generic.cause", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-		{ &hf_h248_pkg_generic_cause_gencause, { "Generic Cause", "h248.pkg.generic.cause.gencause", FT_UINT32, BASE_HEX, VALS(h248_pkg_generic_cause_gencause_vals), 0, NULL, HFILL }},
-		{ &hf_h248_pkg_generic_cause_failurecause, { "Generic Cause", "h248.pkg.generic.cause.failurecause", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-		{ &hf_h248_pkg_generic_sc_evt, {"Signal Completion2","h248.pkg.generic.sc",FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL}},
-		{ &hf_h248_pkg_generic_sc_sig_id, { "Signal Identity", "h248.pkg.generic.sc.sig_id", FT_BYTES, BASE_NONE, NULL , 0, NULL, HFILL }},
-		{ &hf_h248_pkg_generic_sc_meth, { "Termination Method", "h248.pkg.generic.sc.meth", FT_UINT32, BASE_DEC, VALS(h248_pkg_generic_sc_vals) , 0, NULL, HFILL }},
-		{ &hf_h248_pkg_generic_sc_slid, { "Signal List ID", "h248.pkg.generic.sc.slid", FT_UINT32, BASE_DEC, NULL , 0, NULL, HFILL }},
-		{ &hf_h248_pkg_generic_sc_rid, { "Request ID", "h248.pkg.generic.sc.rid", FT_UINT32, BASE_DEC,  NULL, 0, NULL, HFILL }},
+		{ &hf_h248_pkg_generic, { "Generic Package", "h248.generic", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+		{ &hf_h248_pkg_generic_cause_evt, { "Cause Event", "h248.generic.cause", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+		{ &hf_h248_pkg_generic_cause_gencause, { "Generic Cause", "h248.generic.cause.gencause", FT_UINT32, BASE_HEX, VALS(h248_pkg_generic_cause_gencause_vals), 0, NULL, HFILL }},
+		{ &hf_h248_pkg_generic_cause_failurecause, { "Generic Cause", "h248.generic.cause.failurecause", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+		{ &hf_h248_pkg_generic_sc_evt, {"Signal Completion2","h248.generic.sc",FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL}},
+		{ &hf_h248_pkg_generic_sc_sig_id, { "Signal Identity", "h248.generic.sc.sig_id", FT_BYTES, BASE_NONE, NULL , 0, NULL, HFILL }},
+		{ &hf_h248_pkg_generic_sc_meth, { "Termination Method", "h248.generic.sc.meth", FT_UINT32, BASE_DEC, VALS(h248_pkg_generic_sc_vals) , 0, NULL, HFILL }},
+		{ &hf_h248_pkg_generic_sc_slid, { "Signal List ID", "h248.generic.sc.slid", FT_UINT32, BASE_DEC, NULL , 0, NULL, HFILL }},
+		{ &hf_h248_pkg_generic_sc_rid, { "Request ID", "h248.generic.sc.rid", FT_UINT32, BASE_DEC,  NULL, 0, NULL, HFILL }},
 
 		/* H.248.1.E 3 Tone Generator (tonegeg) */
-		{ &hf_h248_pkg_tonegen, { "Tone Generator (tonegen)", "h248.pkg.tonegen", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-		{ &hf_h248_pkg_tonegen_sig_pt, { "Play Tone (pt)", "h248.pkg.tonegen.pg", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-		{ &hf_h248_pkg_tonegen_sig_pt_tl, { "Tone List ID (tl)", "h248.pkg.tonegen.pt.tl", FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
-		{ &hf_h248_pkg_tonegen_sig_pt_ind, { "Inter-signal Duration (ind)", "h248.pkg.tonegem.pt.ind", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-		{ &hf_h248_pkg_tonegen_sig_pg_btd, { "Tone Direction (btd)", "h248.pkg.tonegen.pt.btd", FT_UINT32, BASE_HEX, VALS(h248_pkg_tonegen_pt_btd_param_vals), 0, NULL, HFILL }},
+		{ &hf_h248_pkg_tonegen, { "Tone Generator (tonegen)", "h248.tonegen", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+		{ &hf_h248_pkg_tonegen_sig_pt, { "Play Tone (pt)", "h248.tonegen.pg", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+		{ &hf_h248_pkg_tonegen_sig_pt_tl, { "Tone List ID (tl)", "h248.tonegen.pt.tl", FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
+		{ &hf_h248_pkg_tonegen_sig_pt_ind, { "Inter-signal Duration (ind)", "h248.tonegem.pt.ind", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+		{ &hf_h248_pkg_tonegen_sig_pg_btd, { "Tone Direction (btd)", "h248.tonegen.pt.btd", FT_UINT32, BASE_HEX, VALS(h248_pkg_tonegen_pt_btd_param_vals), 0, NULL, HFILL }},
 
 		/* H.248.1 E.4 Tone Detection (tonedet) */
-		{ &hf_h248_pkg_tonedet, { "Tone Detection Package", "h248.pkg.tonedet", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-		{ &hf_h248_pkg_tonedet_evt_std, { "Start Tone", "h248.pkg.tonedet.std", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-		{ &hf_h248_pkg_tonedet_evt_etd, { "End Tone", "h248.pkg.tonedet.etd",  FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-		{ &hf_h248_pkg_tonedet_evt_ltd, { "Long Tone", "h248.pkg.tonedet.ltd", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-		{ &hf_h248_pkg_tonedet_evt_tl_param, {"Tone Detail", "h248.pkg.tonedet.evt.tl", FT_UINT16, BASE_DEC, VALS(h248_pkg_tonedet_tl_params_vals), 0, NULL, HFILL }},
-		{ &hf_h248_pkg_tonedet_evt_dur_param, {"Duration (ms)", "h248.pkg.tonedet.evt.dur", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-		{ &hf_h248_pkg_tonedet_evt_tid_param, {"Tone ID", "h248.pkg.tonedet.evt.tid", FT_UINT16, BASE_DEC, VALS(h248_pkg_tonedet_tl_params_vals), 0, NULL, HFILL }},
+		{ &hf_h248_pkg_tonedet, { "Tone Detection Package", "h248.tonedet", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+		{ &hf_h248_pkg_tonedet_evt_std, { "Start Tone", "h248.tonedet.std", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+		{ &hf_h248_pkg_tonedet_evt_etd, { "End Tone", "h248.tonedet.etd",  FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+		{ &hf_h248_pkg_tonedet_evt_ltd, { "Long Tone", "h248.tonedet.ltd", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+		{ &hf_h248_pkg_tonedet_evt_tl_param, {"Tone Detail", "h248.tonedet.evt.tl", FT_UINT16, BASE_DEC, VALS(h248_pkg_tonedet_tl_params_vals), 0, NULL, HFILL }},
+		{ &hf_h248_pkg_tonedet_evt_dur_param, {"Duration (ms)", "h248.tonedet.evt.dur", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+		{ &hf_h248_pkg_tonedet_evt_tid_param, {"Tone ID", "h248.tonedet.evt.tid", FT_UINT16, BASE_DEC, VALS(h248_pkg_tonedet_tl_params_vals), 0, NULL, HFILL }},
 
 
 		/* H.248.1 E.5 Basic DTMF Generator Package */
-		{ &hf_h248_pkg_dg, { "Basic DTMF Generator Package (dg)", "h248.pkg.dg", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-		{ &hf_h248_pkg_dg_sig_pt, { "Play Tone", "h248.pkg.dg.pt", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-		{ &hf_h248_pkg_dg_sig_d0, { "Digit 0", "h248.pkg.dg.d0", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-		{ &hf_h248_pkg_dg_sig_d1, { "Digit 1", "h248.pkg.dg.d1", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-		{ &hf_h248_pkg_dg_sig_d2, { "Digit 2", "h248.pkg.dg.d2", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-		{ &hf_h248_pkg_dg_sig_d3, { "Digit 3", "h248.pkg.dg.d3", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-		{ &hf_h248_pkg_dg_sig_d4, { "Digit 4", "h248.pkg.dg.d4", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-		{ &hf_h248_pkg_dg_sig_d5, { "Digit 5", "h248.pkg.dg.d5", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-		{ &hf_h248_pkg_dg_sig_d6, { "Digit 6", "h248.pkg.dg.d6", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-		{ &hf_h248_pkg_dg_sig_d7, { "Digit 7", "h248.pkg.dg.d7", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-		{ &hf_h248_pkg_dg_sig_d8, { "Digit 8", "h248.pkg.dg.d8", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-		{ &hf_h248_pkg_dg_sig_d9, { "Digit 9", "h248.pkg.dg.d9", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-		{ &hf_h248_pkg_dg_sig_da, { "Digit A", "h248.pkg.dg.da", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-		{ &hf_h248_pkg_dg_sig_db, { "Digit B", "h248.pkg.dg.db", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-		{ &hf_h248_pkg_dg_sig_dc, { "Digit C", "h248.pkg.dg.dc", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-		{ &hf_h248_pkg_dg_sig_dd, { "Digit D", "h248.pkg.dg.dd", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-		{ &hf_h248_pkg_dg_sig_ds, { "Digit *", "h248.pkg.dg.ds", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-		{ &hf_h248_pkg_dg_sig_do, { "Digit #", "h248.pkg.dg.do", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-		{ &hf_h248_pkg_dg_sig_params, { "Event Parameters", "h248.pkg.dg.signal.direction", FT_UINT16, BASE_DEC, VALS(h248_pkg_dg_sig_btd_vals), 0, NULL, HFILL }},
+		{ &hf_h248_pkg_dg, { "Basic DTMF Generator Package (dg)", "h248.dg", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+		{ &hf_h248_pkg_dg_sig_pt, { "Play Tone", "h248.dg.pt", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+		{ &hf_h248_pkg_dg_sig_d0, { "Digit 0", "h248.dg.d0", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+		{ &hf_h248_pkg_dg_sig_d1, { "Digit 1", "h248.dg.d1", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+		{ &hf_h248_pkg_dg_sig_d2, { "Digit 2", "h248.dg.d2", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+		{ &hf_h248_pkg_dg_sig_d3, { "Digit 3", "h248.dg.d3", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+		{ &hf_h248_pkg_dg_sig_d4, { "Digit 4", "h248.dg.d4", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+		{ &hf_h248_pkg_dg_sig_d5, { "Digit 5", "h248.dg.d5", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+		{ &hf_h248_pkg_dg_sig_d6, { "Digit 6", "h248.dg.d6", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+		{ &hf_h248_pkg_dg_sig_d7, { "Digit 7", "h248.dg.d7", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+		{ &hf_h248_pkg_dg_sig_d8, { "Digit 8", "h248.dg.d8", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+		{ &hf_h248_pkg_dg_sig_d9, { "Digit 9", "h248.dg.d9", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+		{ &hf_h248_pkg_dg_sig_da, { "Digit A", "h248.dg.da", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+		{ &hf_h248_pkg_dg_sig_db, { "Digit B", "h248.dg.db", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+		{ &hf_h248_pkg_dg_sig_dc, { "Digit C", "h248.dg.dc", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+		{ &hf_h248_pkg_dg_sig_dd, { "Digit D", "h248.dg.dd", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+		{ &hf_h248_pkg_dg_sig_ds, { "Digit *", "h248.dg.ds", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+		{ &hf_h248_pkg_dg_sig_do, { "Digit #", "h248.dg.do", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+		{ &hf_h248_pkg_dg_sig_params, { "Event Parameters", "h248.dg.signal.direction", FT_UINT16, BASE_DEC, VALS(h248_pkg_dg_sig_btd_vals), 0, NULL, HFILL }},
 
 		/* H.248.1 E.6 DTMF Detection Package */
 #if 0
-		{ &hf_h248_pkg_dd_evt_ce_ds, { "Digit(s) Detected", "h248.pkg.dd.ce.ds", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-		{ &hf_h248_pkg_dd_evt_ce_meth, { "Method Used", "h248.pkg.dd.ce.meth", FT_UINT16, BASE_DEC, VALS(h248_pkg_dd_event_params_vals), 0, NULL, HFILL }},
-		{ &hf_h248_pkg_dd_evt_tl_param, {"Tone Detail", "h248.pkg.dd.evt.tl", FT_UINT16, BASE_DEC, VALS(h248_pkg_dd_event_vals), 0, NULL, HFILL }},
-		{ &hf_h248_pkg_dd_evt_dur_param, {"Duration (ms)", "h248.pkg.dd.evt.dur", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-		{ &hf_h248_pkg_dd_evt_tid_param, {"Tone ID", "h248.pkg.dd.evt.tid", FT_UINT16, BASE_DEC, VALS(h248_pkg_dd_event_vals), 0, NULL, HFILL }},
+		{ &hf_h248_pkg_dd_evt_ce_ds, { "Digit(s) Detected", "h248.dd.ce.ds", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+		{ &hf_h248_pkg_dd_evt_ce_meth, { "Method Used", "h248.dd.ce.meth", FT_UINT16, BASE_DEC, VALS(h248_pkg_dd_event_params_vals), 0, NULL, HFILL }},
+		{ &hf_h248_pkg_dd_evt_tl_param, {"Tone Detail", "h248.dd.evt.tl", FT_UINT16, BASE_DEC, VALS(h248_pkg_dd_event_vals), 0, NULL, HFILL }},
+		{ &hf_h248_pkg_dd_evt_dur_param, {"Duration (ms)", "h248.dd.evt.dur", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+		{ &hf_h248_pkg_dd_evt_tid_param, {"Tone ID", "h248.dd.evt.tid", FT_UINT16, BASE_DEC, VALS(h248_pkg_dd_event_vals), 0, NULL, HFILL }},
 #endif
 
 		/* H.248.1.E.7 Call Progress Tones Generator package */
-		{ &hf_h248_pkg_cg, { "Call Progress Tones Generator", "h248.pkg.cg", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-		{ &hf_h248_pkg_cg_sig_pt, { "Play Tone (pt)", "h248.pkg.cg.pt", FT_UINT16, BASE_HEX, VALS(h248_pkg_cg_sig_cd_evt_vals), 0, NULL, HFILL }},
-		{ &hf_h248_pkg_cg_sig_pt_tl, {"Tone List", "h248.pkg.cg.pt.tl", FT_UINT16, BASE_DEC_HEX, VALS(h248_pkg_cg_sig_cd_evt_vals), 0, NULL, HFILL }},
-		{ &hf_h248_pkg_cg_sig_pt_ind, { "Inter-Signal Duration (ind)", "h248.pkg.cg.pt.ind", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-		{ &hf_h248_pkg_cg_sig_pt_btd, { "Tone Direction (btd)", "h248.pkg.cg.pt.btd", FT_UINT8, BASE_DEC, VALS(h248_pkg_cg_pt_btd_param_vals), 0, NULL, HFILL }},
+		{ &hf_h248_pkg_cg, { "Call Progress Tones Generator", "h248.cg", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+		{ &hf_h248_pkg_cg_sig_pt, { "Play Tone (pt)", "h248.cg.pt", FT_UINT16, BASE_HEX, VALS(h248_pkg_cg_sig_cd_evt_vals), 0, NULL, HFILL }},
+		{ &hf_h248_pkg_cg_sig_pt_tl, {"Tone List", "h248.cg.pt.tl", FT_UINT16, BASE_DEC_HEX, VALS(h248_pkg_cg_sig_cd_evt_vals), 0, NULL, HFILL }},
+		{ &hf_h248_pkg_cg_sig_pt_ind, { "Inter-Signal Duration (ind)", "h248.cg.pt.ind", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+		{ &hf_h248_pkg_cg_sig_pt_btd, { "Tone Direction (btd)", "h248.cg.pt.btd", FT_UINT8, BASE_DEC, VALS(h248_pkg_cg_pt_btd_param_vals), 0, NULL, HFILL }},
 
-		{ &hf_h248_pkg_cg_sig_dt, { "Dial Tone (dt)", "h248.pkg.cg.dt", FT_UINT16, BASE_HEX, VALS(h248_pkg_cg_sig_cd_evt_vals), 0, NULL, HFILL }},
-		{ &hf_h248_pkg_cg_sig_rt, { "Ring Tone (rt)", "h248.pkg.cg.rt",FT_UINT16, BASE_HEX, VALS(h248_pkg_cg_sig_cd_evt_vals), 0, NULL, HFILL }},
-		{ &hf_h248_pkg_cg_sig_bt, { "Buzy Tone (bt)", "h248.pkg.cg.bt", FT_UINT16, BASE_HEX, VALS(h248_pkg_cg_sig_cd_evt_vals), 0, NULL, HFILL }},
-		{ &hf_h248_pkg_cg_sig_ct, { "Congestion Tone (ct)", "h248.pkg.cg.ct", FT_UINT16, BASE_HEX, VALS(h248_pkg_cg_sig_cd_evt_vals), 0, NULL, HFILL }},
-		{ &hf_h248_pkg_cg_sig_sit, { "Special Information Tone (sit)", "h248.pkg.cg.sit", FT_UINT16, BASE_HEX, VALS(h248_pkg_cg_sig_cd_evt_vals), 0, NULL, HFILL }},
-		{ &hf_h248_pkg_cg_sig_wt, { "(Recording) Warning Tone (wt)", "h248.pkg.cg.wt", FT_UINT16, BASE_HEX, VALS(h248_pkg_cg_sig_cd_evt_vals), 0, NULL, HFILL }},
-		{ &hf_h248_pkg_cg_sig_prt, { "Payphone Recognition Tone (prt)", "h248.pkg.cg.prt", FT_UINT16, BASE_HEX, VALS(h248_pkg_cg_sig_cd_evt_vals), 0, NULL, HFILL }},
-		{ &hf_h248_pkg_cg_sig_cw, { "Call Waiting Tone (wt)", "h248.pkg.cg.cw", FT_UINT16, BASE_HEX, VALS(h248_pkg_cg_sig_cd_evt_vals), 0, NULL, HFILL }},
-		{ &hf_h248_pkg_cg_sig_cr, { "Caller Waiting Tone (rt)", "h248.pkg.cg.cr", FT_UINT16, BASE_HEX, VALS(h248_pkg_cg_sig_cd_evt_vals), 0, NULL, HFILL }},
+		{ &hf_h248_pkg_cg_sig_dt, { "Dial Tone (dt)", "h248.cg.dt", FT_UINT16, BASE_HEX, VALS(h248_pkg_cg_sig_cd_evt_vals), 0, NULL, HFILL }},
+		{ &hf_h248_pkg_cg_sig_rt, { "Ring Tone (rt)", "h248.cg.rt",FT_UINT16, BASE_HEX, VALS(h248_pkg_cg_sig_cd_evt_vals), 0, NULL, HFILL }},
+		{ &hf_h248_pkg_cg_sig_bt, { "Buzy Tone (bt)", "h248.cg.bt", FT_UINT16, BASE_HEX, VALS(h248_pkg_cg_sig_cd_evt_vals), 0, NULL, HFILL }},
+		{ &hf_h248_pkg_cg_sig_ct, { "Congestion Tone (ct)", "h248.cg.ct", FT_UINT16, BASE_HEX, VALS(h248_pkg_cg_sig_cd_evt_vals), 0, NULL, HFILL }},
+		{ &hf_h248_pkg_cg_sig_sit, { "Special Information Tone (sit)", "h248.cg.sit", FT_UINT16, BASE_HEX, VALS(h248_pkg_cg_sig_cd_evt_vals), 0, NULL, HFILL }},
+		{ &hf_h248_pkg_cg_sig_wt, { "(Recording) Warning Tone (wt)", "h248.cg.wt", FT_UINT16, BASE_HEX, VALS(h248_pkg_cg_sig_cd_evt_vals), 0, NULL, HFILL }},
+		{ &hf_h248_pkg_cg_sig_prt, { "Payphone Recognition Tone (prt)", "h248.cg.prt", FT_UINT16, BASE_HEX, VALS(h248_pkg_cg_sig_cd_evt_vals), 0, NULL, HFILL }},
+		{ &hf_h248_pkg_cg_sig_cw, { "Call Waiting Tone (wt)", "h248.cg.cw", FT_UINT16, BASE_HEX, VALS(h248_pkg_cg_sig_cd_evt_vals), 0, NULL, HFILL }},
+		{ &hf_h248_pkg_cg_sig_cr, { "Caller Waiting Tone (rt)", "h248.cg.cr", FT_UINT16, BASE_HEX, VALS(h248_pkg_cg_sig_cd_evt_vals), 0, NULL, HFILL }},
 
 		/* H.248.1 E.8 Call Progress Tones Detection Package */
-		{ &hf_h248_pkg_cd, { "Call Progress Tones Detection Package", "h248.pkg.cd", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+		{ &hf_h248_pkg_cd, { "Call Progress Tones Detection Package", "h248.cd", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 
 		/* H.248.1 E.9 Analog Line Supervision Package */
-		{ &hf_h248_pkg_al, { "Analog Line Supervision Package", "h248.pkg.al", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-		{ &hf_h248_pkg_al_sig_cadence, { "Cadence", "h248.pkg.al.sig.cadence", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-		{ &hf_h248_pkg_al_sig_cadence_on_off, { "On/Off Cadence", "h248.pkg.al.sig.cadence_on_off", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+		{ &hf_h248_pkg_al, { "Analog Line Supervision Package", "h248.al", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+		{ &hf_h248_pkg_al_sig_cadence, { "Cadence", "h248.al.sig.cadence", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+		{ &hf_h248_pkg_al_sig_cadence_on_off, { "On/Off Cadence", "h248.al.sig.cadence_on_off", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 #if 0
-		{ &hf_h248_pkg_al_sig_freq, { "Ring Frequency", "h248.pkg.al.sig.freq", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+		{ &hf_h248_pkg_al_sig_freq, { "Ring Frequency", "h248.al.sig.freq", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 #endif
-		{ &hf_h248_pkg_al_evt_onhook, { "onhook", "h248.pkg.al.onhook", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-		{ &hf_h248_pkg_al_evt_offhook, { "offhook", "h248.pkg.al.offhook", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-		{ &hf_h248_pkg_al_evt_flashhook, { "flashhook", "h248.pkg.al.flashhook", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-		{ &hf_h248_pkg_al_evt_onhook_par_strict, { "strict", "h248.pkg.al.ev.onhook.strict", FT_UINT8, BASE_DEC, VALS(h248_pkg_al_evt_onhook_strict_vals), 0, NULL, HFILL }},
-		{ &hf_h248_pkg_al_evt_onhook_par_init, { "init", "h248.pkg.al.ev.onhook.init", FT_BOOLEAN, BASE_NONE, TFS(&h248_pkg_al_evt_onhook_par_init_vals), 0x0, NULL, HFILL }},
-		{ &hf_h248_pkg_al_evt_offhook_par_strict, { "strict", "h248.pkg.al.ev.offhook.strict", FT_UINT8, BASE_DEC, VALS(h248_pkg_al_evt_onhook_strict_vals), 0, NULL, HFILL }},
-		{ &hf_h248_pkg_al_evt_offhook_par_init, { "init", "h248.pkg.al.ev.onhook.init", FT_BOOLEAN, BASE_NONE, TFS(&h248_pkg_al_evt_offhook_par_init_vals), 0x0, NULL, HFILL }},
-		{ &hf_h248_pkg_al_evt_flashhook_par_mindur, { "Minimum duration in ms", "h248.pkg.al.ev.flashhook.mindur", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+		{ &hf_h248_pkg_al_evt_onhook, { "onhook", "h248.al.onhook", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+		{ &hf_h248_pkg_al_evt_offhook, { "offhook", "h248.al.offhook", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+		{ &hf_h248_pkg_al_evt_flashhook, { "flashhook", "h248.al.flashhook", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+		{ &hf_h248_pkg_al_evt_onhook_par_strict, { "strict", "h248.al.ev.onhook.strict", FT_UINT8, BASE_DEC, VALS(h248_pkg_al_evt_onhook_strict_vals), 0, NULL, HFILL }},
+		{ &hf_h248_pkg_al_evt_onhook_par_init, { "init", "h248.al.ev.onhook.init", FT_BOOLEAN, BASE_NONE, TFS(&h248_pkg_al_evt_onhook_par_init_vals), 0x0, NULL, HFILL }},
+		{ &hf_h248_pkg_al_evt_offhook_par_strict, { "strict", "h248.al.ev.offhook.strict", FT_UINT8, BASE_DEC, VALS(h248_pkg_al_evt_onhook_strict_vals), 0, NULL, HFILL }},
+		{ &hf_h248_pkg_al_evt_offhook_par_init, { "init", "h248.al.ev.onhook.init", FT_BOOLEAN, BASE_NONE, TFS(&h248_pkg_al_evt_offhook_par_init_vals), 0x0, NULL, HFILL }},
+		{ &hf_h248_pkg_al_evt_flashhook_par_mindur, { "Minimum duration in ms", "h248.al.ev.flashhook.mindur", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 
 		/* H.248.1 E.10 - Basic Continuity Package */
-		{ &hf_h248_pkg_ct, { "Basic Continuity package", "h248.pkg.ct", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+		{ &hf_h248_pkg_ct, { "Basic Continuity package", "h248.ct", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 
 		/* H.248.1 E.11 Network Package */
-		{ &hf_h248_pkg_nt, { "Network package", "h248.pkg.nt", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+		{ &hf_h248_pkg_nt, { "Network package", "h248.nt", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 
 		/* H.248.1 E.12 RTP package */
-		{ &hf_h248_pkg_rtp, { "RTP package", "h248.pkg.rtp", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-		{ &hf_h248_pkg_rtp_stat_ps, { "Packets Sent", "h248.pkg.rtp.stat.ps", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
+		{ &hf_h248_pkg_rtp, { "RTP package", "h248.rtp", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+		{ &hf_h248_pkg_rtp_stat_ps, { "Packets Sent", "h248.rtp.stat.ps", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
 
 		/* H.248.1 E.13 TDM Circuit Package */
-		{ &hf_h248_pkg_tdmc, { "TDM Circuit Package", "h248.pkg.tdmc", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-		{ &hf_h248_pkg_tdmc_ec, { "Echo Cancellation", "h248.pkg.tdmc.ec", FT_BOOLEAN, BASE_NONE, TFS(&h248_tdmc_ec_vals), 0x0, NULL, HFILL }},
-		{ &hf_h248_pkg_tdmc_gain, { "Gain", "h248.pkg.tdmc.gain", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
+		{ &hf_h248_pkg_tdmc, { "TDM Circuit Package", "h248.tdmc", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+		{ &hf_h248_pkg_tdmc_ec, { "Echo Cancellation", "h248.tdmc.ec", FT_BOOLEAN, BASE_NONE, TFS(&h248_tdmc_ec_vals), 0x0, NULL, HFILL }},
+		{ &hf_h248_pkg_tdmc_gain, { "Gain", "h248.tdmc.gain", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
 	};
 
 	static gint *ett[] = {
