@@ -36,8 +36,6 @@
 	 ** diam_dict.h
 	 ** Diameter Dictionary Import Routines
 	 **
-	 ** $Id$
-	 **
 	 ** (c) 2007, Luis E. Garcia Ontanon <luis@ontanon.org>
 	 **
 	 ** This library is free software; you can redistribute it and/or

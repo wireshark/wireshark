@@ -23,8 +23,6 @@
 	/*
 	 * uat_load.l
 	 *
-	 * $Id$
-	 *
 	 *  User Accessible Tables
 	 *  Mantain an array of user accessible data strucures
 	 *  One parser to fit them all

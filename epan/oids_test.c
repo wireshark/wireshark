@@ -2,8 +2,6 @@
  * ASN.1 Object Identifier handling tests
  * Copyright 2013, Edward J. Beroset <beroset@ieee.org>
  *
- * $Id: oids_test.c$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
