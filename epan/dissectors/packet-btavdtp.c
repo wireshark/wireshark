@@ -2248,6 +2248,10 @@ dissect_bta2dp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     dissector_handle_t   codec_dissector = NULL;
     bta2dp_codec_info_t  bta2dp_codec_info;
     sep_data_t           sep_data;
+    gboolean             no_avdtp_session;
+
+    no_avdtp_session = (proto_btavdtp != (gint) GPOINTER_TO_UINT(wmem_list_frame_data(
+                wmem_list_frame_prev(wmem_list_tail(pinfo->layers)))));
 
     sep_data.codec = CODEC_SBC;
     sep_data.content_protection_type = 0;
@@ -2257,15 +2261,15 @@ dissect_bta2dp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     if (force_a2dp_scms_t || force_a2dp_codec != CODEC_DEFAULT) {
         if (force_a2dp_scms_t)
             sep_data.content_protection_type = 2;
-        else if (data)
+        else if (data && !no_avdtp_session)
             sep_data.content_protection_type = ((sep_data_t *) data)->content_protection_type;
 
         if (force_a2dp_codec != CODEC_DEFAULT)
             sep_data.codec = force_a2dp_codec;
-        else if (data)
+        else if (data && !no_avdtp_session)
             sep_data.codec = ((sep_data_t *) data)->codec;
     } else {
-        if (data)
+        if (data && !no_avdtp_session)
             sep_data = *((sep_data_t *) data);
     }
 
@@ -2417,24 +2421,33 @@ dissect_btvdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     dissector_handle_t   codec_dissector = NULL;
     btvdp_codec_info_t   btvdp_codec_info;
     sep_data_t           sep_data;
+    gboolean             no_avdtp_session;
+
+    no_avdtp_session = (proto_btavdtp != (gint) GPOINTER_TO_UINT(wmem_list_frame_data(
+                wmem_list_frame_prev(wmem_list_tail(pinfo->layers)))));
 
     sep_data.codec = CODEC_H263_BASELINE;
     sep_data.content_protection_type = 0;
     sep_data.acp_seid = 0;
     sep_data.int_seid = 0;
+    sep_data.previous_media_packet_info = NULL;
+    sep_data.current_media_packet_info = NULL;
+    sep_data.stream_number = 1;
+    sep_data.vendor_id = 0;
+    sep_data.vendor_codec = 0;
 
     if (force_vdp_scms_t || force_vdp_codec) {
         if (force_vdp_scms_t)
             sep_data.content_protection_type = 2;
-        else if (data)
+        else if (data  && !no_avdtp_session)
             sep_data.content_protection_type = ((sep_data_t *) data)->content_protection_type;
 
         if (force_vdp_codec)
             sep_data.codec = force_vdp_codec;
-        else if (data)
+        else if (data  && !no_avdtp_session)
             sep_data.codec = ((sep_data_t *) data)->codec;
     } else {
-        if (data)
+        if (data  && !no_avdtp_session)
             sep_data = *((sep_data_t *) data);
     }
 
