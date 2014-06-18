@@ -10848,27 +10848,27 @@ proto_register_amqp(void)
         {&hf_amqp_1_0_amqp_performative, {
             "Performative", "amqp.performative",
             FT_UINT8, BASE_DEC, VALS(amqp_1_0_AMQP_performatives), 0x0,
-            "AMQP Performative", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_sasl_method, {
-            "Method", "amqp.sasl.method",
+            "SASL Method", "amqp.sasl.method",
             FT_UINT8, BASE_DEC, VALS(amqp_1_0_SASL_methods), 0x0,
-            "SASL Method", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_list, {
             "list-item", "amqp.list",
             FT_NONE, BASE_NONE, NULL, 0,
-            "List item", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_map, {
             "map-item", "amqp.map",
             FT_NONE, BASE_NONE, NULL, 0,
-            "Map item", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_array, {
             "array-item", "amqp.array",
             FT_NONE, BASE_NONE, NULL, 0,
-            "Array item", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_containerId, {
             "Container-Id", "amqp.performative.arguments.containerId",
             FT_STRING, BASE_NONE, NULL, 0,
-            "Container ID", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_hostname, {
             "Hostname", "amqp.performative.arguments.hostname",
             FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
@@ -10876,31 +10876,31 @@ proto_register_amqp(void)
         {&hf_amqp_1_0_maxFrameSize, {
             "Max-Frame-Size", "amqp.performative.arguments.maxFrameSize",
             FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
-            "Max frame size", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_channelMax, {
             "Channel-Max", "amqp.performative.arguments.channelMax",
             FT_UINT16, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
-            "Channel max", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_idleTimeOut, {
             "Idle-Timeout", "amqp.performative.arguments.idleTimeout",
             FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
-            "Idle timeout", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_outgoingLocales, {
             "Outgoing-Locales", "amqp.performative.arguments.outgoingLocales",
             FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
-            "Outgoing locales", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_incomingLocales, {
             "Incoming-Locales", "amqp.performative.arguments.incomingLocales",
             FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
-            "Incoming locales", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_offeredCapabilities, {
             "Offered-Capabilities", "amqp.arguments.offeredCapabilities",
             FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
-            "Offered capabilities", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_desiredCapabilities, {
             "Desired-Capabilities", "amqp.performative.arguments.desiredCapabilities",
             FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
-            "Desired capabilities", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_properties, {
             "Properties", "amqp.performative.arguments.properties",
             FT_NONE, BASE_NONE, NULL, 0,
@@ -10908,11 +10908,11 @@ proto_register_amqp(void)
         {&hf_amqp_1_0_nextIncomingId, {
             "Next-Incoming-Id", "amqp.performative.arguments.nextIncomingId",
             FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
-            "Next incoming id", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_deliveryCount, {
             "Delivery-Count", "amqp.performative.arguments.deliveryCount",
             FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
-            "Delivery count", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_sectionNumber, {
             "Section-Number", "amqp.received.sectionNumber",
             FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
@@ -10924,15 +10924,15 @@ proto_register_amqp(void)
         {&hf_amqp_1_0_deliveryFailed, {
             "Delivery-Failed", "amqp.modified.deliveryFailed",
             FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
-            "Deliver failed", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_undeliverableHere, {
             "Undeliverable-Here", "amqp.modified.undeliverableHere",
             FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
-            "Undeliverable here", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_linkCredit, {
             "Link-Credit", "amqp.performative.arguments.linkCredit",
             FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
-            "Link credit", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_available, {
             "Available", "amqp.performative.arguments.available",
             FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
@@ -10948,15 +10948,15 @@ proto_register_amqp(void)
         {&hf_amqp_1_0_deliveryId, {
             "Delivery-Id", "amqp.performative.arguments.deliveryId",
             FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
-            "Delivery id", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_deliveryTag, {
             "Delivery-Tag", "amqp.performative.arguments.deliveryTag",
             FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
-            "Delivery tag", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_messageFormat, {
             "Message-Format", "amqp.performative.arguments.messageFormat",
             FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
-            "Message format", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_settled, {
             "Settled", "amqp.performative.arguments.settled",
             FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
@@ -10996,23 +10996,23 @@ proto_register_amqp(void)
         {&hf_amqp_1_0_remoteChannel, {
             "Remote-Channel", "amqp.performative.arguments.remoteChannel",
             FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
-            "Remote Channel", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_nextOutgoingId, {
             "Next-Outgoing-Id", "amqp.performative.arguments.nextOutgoingId",
             FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
-            "Next outgoing id", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_incomingWindow, {
             "Incoming-Window", "amqp.performative.arguments.incomingWindow",
             FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
-            "Incoming window", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_outgoingWindow, {
             "Outgoing-Window", "amqp.performative.arguments.outgoingWindow",
             FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
-            "Outgoing window", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_handleMax, {
             "Handle-Max", "amqp.performative.arguments.handleMax",
             FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
-            "Handle max", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_name, {
             "Name", "amqp.performative.arguments.name",
             FT_STRING, BASE_NONE, NULL, 0,
@@ -11028,11 +11028,11 @@ proto_register_amqp(void)
         {&hf_amqp_1_0_sndSettleMode, {
             "Send-Settle-Mode", "amqp.performative.arguments.sndSettleMode",
             FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
-            "Send settle mode", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_rcvSettleMode, {
             "Receive-Settle-Mode", "amqp.performative.arguments.rcvSettleMode",
             FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
-            "Receive settle mode", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_source, {
             "Source", "amqp.performative.arguments.source",
             FT_NONE, BASE_NONE, NULL, 0,
@@ -11044,19 +11044,19 @@ proto_register_amqp(void)
         {&hf_amqp_1_0_deleteOnClose, {
             "Delete-On-Close", "amqp.lifetime-policy.deleteOnClose",
             FT_NONE, BASE_NONE, NULL, 0,
-            "Delete on close", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_deleteOnNoLinks, {
             "Delete-On-No-Links", "amqp.lifetime-policy.deleteOnNoLinks",
             FT_NONE, BASE_NONE, NULL, 0,
-            "Delete on no links", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_deleteOnNoMessages, {
             "Delete-On-No-Messages", "amqp.lifetime-policy.deleteOnNoMessages",
             FT_NONE, BASE_NONE, NULL, 0,
-            "Delete on no messages", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_deleteOnNoLinksOrMessages, {
             "Delete-On-No-Links-Or-Messages", "amqp.lifetime-policy.deleteOnNoLinksOrMessages",
             FT_NONE, BASE_NONE, NULL, 0,
-            "Delete on no links or messages", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_coordinator, {
             "Coordinator", "amqp.tx.coordinator",
             FT_NONE, BASE_NONE, NULL, 0,
@@ -11088,7 +11088,7 @@ proto_register_amqp(void)
         {&hf_amqp_1_0_transactionalState, {
             "Transactional-State", "amqp.tx.transactionalState",
             FT_NONE, BASE_NONE, NULL, 0,
-            "Transactional state", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_outcome, {
             "Outcome", "amqp.tx.arguments.outcome",
             FT_NONE, BASE_NONE, NULL, 0,
@@ -11100,15 +11100,15 @@ proto_register_amqp(void)
         {&hf_amqp_1_0_incompleteUnsettled, {
             "Incomplete-Unsettled", "amqp.performative.arguments.incompleteUnsettled",
             FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
-            "Incomplete unsettled", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_initialDeliveryCount, {
             "Initial-Delivery-Count", "amqp.performative.arguments.initDeliveryCount",
             FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
-            "Initial delivery count", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_maxMessageSize, {
             "Max-Message-Size", "amqp.performative.arguments.maxMessageSize",
             FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
-            "Max message size", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_error, {
             "Error", "amqp.performative.arguments.error",
             FT_NONE, BASE_NONE, NULL, 0,
@@ -11116,35 +11116,35 @@ proto_register_amqp(void)
         {&hf_amqp_1_0_messageHeader, {
             "Message-Header", "amqp.header",
             FT_NONE, BASE_NONE, NULL, 0,
-            "Message header", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_messageProperties, {
             "Message-Properties", "amqp.properties",
             FT_NONE, BASE_NONE, NULL, 0,
-            "Message properties", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_deliveryAnnotations, {
             "Delivery-Annotations", "amqp.deliveryAnnotations",
             FT_NONE, BASE_NONE, NULL, 0,
-            "Delivery annotations", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_messageAnnotations, {
             "Message-Annotations", "amqp.messageAnnotations",
             FT_NONE, BASE_NONE, NULL, 0,
-            "Message annotations", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_applicationProperties, {
             "Application-Properties", "amqp.applicationProperties",
             FT_NONE, BASE_NONE, NULL, 0,
-            "Application properties", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_data, {
             "Data", "amqp.data",
             FT_BYTES, BASE_NONE, NULL, 0,
             "Opaque binary data", HFILL}},
         {&hf_amqp_1_0_amqp_sequence, {
-            "AMQP-Sequence", "amqp.amqp_sequence",
+            "AMQP-Sequence", "amqp.sequence",
             FT_NONE, BASE_NONE, NULL, 0,
-            "AMQP sequence", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_amqp_value, {
-            "AMQP-Value", "amqp.amqp_value",
+            "AMQP-Value", "amqp.value",
             FT_BYTES, BASE_NONE, NULL, 0,
-            "AMQP value", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_footer, {
             "Footer", "amqp.footer",
             FT_NONE, BASE_NONE, NULL, 0,
@@ -11192,7 +11192,7 @@ proto_register_amqp(void)
         {&hf_amqp_1_0_terminusDurable, {
             "Terminus-Durable", "amqp.performative.arguments.terminusDurable",
             FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
-            "Terminus durability", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_priority, {
             "Priority", "amqp.message.priority",
             FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
@@ -11204,11 +11204,11 @@ proto_register_amqp(void)
         {&hf_amqp_1_0_firstAcquirer, {
             "First-Acquirer", "amqp.message.firstAcquirer",
             FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
-            "First acquirer", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_expiryPolicy, {
             "Expiry-Policy", "amqp.properties.expiryPolicy",
             FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
-            "Expiry policy", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_timeout, {
             "Timeout", "amqp.properties.timeout",
             FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
@@ -11220,11 +11220,11 @@ proto_register_amqp(void)
         {&hf_amqp_1_0_dynamicNodeProperties, {
             "Dynamic-Node-Properties", "amqp.properties.dynamicNodeProperties",
             FT_NONE, BASE_NONE, NULL, 0,
-            "Dynamic node properties", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_distributionMode, {
             "Distribution-Mode", "amqp.properties.distributionMode",
             FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
-            "Distribution mode", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_filter, {
             "Filter", "amqp.properties.filter",
             FT_NONE, BASE_NONE, NULL, 0,
@@ -11232,7 +11232,7 @@ proto_register_amqp(void)
         {&hf_amqp_1_0_defaultOutcome, {
             "Default-Outcome", "amqp.properties.defaultOutcome",
             FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
-            "Default outcome", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_outcomes, {
             "Outcomes", "amqp.properties.outcomes",
             FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
@@ -11244,11 +11244,11 @@ proto_register_amqp(void)
         {&hf_amqp_1_0_messageId, {
             "Message-Id", "amqp.message.messageId",
             FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
-            "Message id", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_userId, {
             "User-Id", "amqp.message.userId",
             FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
-            "User id", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_to, {
             "To", "amqp.message.to",
             FT_NONE, BASE_NONE, NULL, 0,
@@ -11260,19 +11260,19 @@ proto_register_amqp(void)
         {&hf_amqp_1_0_replyTo, {
             "Reply-To", "amqp.message.replyTo",
             FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
-            "Reply to", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_correlationId, {
             "Correlation-Id", "amqp.message.correlationId",
             FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
-            "Correlation id", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_contentType, {
             "Content-Type", "amqp.message.contentType",
             FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
-            "Content type", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_contentEncoding, {
             "Content-Encoding", "amqp.message.contentEncoding",
             FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
-            "Content encoding", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_absoluteExpiryTime, {
             "Expiry-Time", "amqp.message.expiryTime",
             FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
@@ -11280,19 +11280,19 @@ proto_register_amqp(void)
         {&hf_amqp_1_0_creationTime, {
             "Creation-Time", "amqp.message.creationTime",
             FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
-            "Creation time", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_groupId, {
             "Group-Id", "amqp.message.groupId",
             FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
-            "Croup id", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_groupSequence, {
             "Group-Sequence", "amqp.message.groupSequence",
             FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
-            "Group sequence", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_replyToGroupId, {
             "Reply-To-Group-Id", "amqp.message.replyToGroupId",
             FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
-            "Reply to group id", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_mechanisms, {
             "Mechanisms", "amqp.sasl.mechanisms",
             FT_NONE, BASE_NONE, NULL, 0,
@@ -11304,7 +11304,7 @@ proto_register_amqp(void)
         {&hf_amqp_1_0_initResponse, {
             "Init-Response", "amqp.sasl.initResponse",
             FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
-            "Initial response", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_saslChallenge, {
             "Challenge", "amqp.sasl.challenge",
             FT_BYTES, BASE_NONE, NULL, 0,
@@ -11329,35 +11329,35 @@ proto_register_amqp(void)
         {&hf_amqp_1_0_maxFrameSize_1, {
             "Max-Frame-Size", "amqp.performative.arguments.maxFrameSize",
             FT_UINT8, BASE_DEC, NULL, 0,
-            "Max frame size", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_maxFrameSize_4, {
             "Max-Frame-Size", "amqp.performative.arguments.maxFrameSize",
             FT_UINT32, BASE_DEC, NULL, 0,
-            "Max frame size", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_incomingWindow_1, {
             "Incoming-Window", "amqp.performative.arguments.incomingWindow",
             FT_UINT8, BASE_DEC, NULL, 0,
-            "Incoming window", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_incomingWindow_4, {
             "Incoming-Window", "amqp.performative.arguments.incomingWindow",
             FT_UINT32, BASE_DEC, NULL, 0,
-            "Incoming window", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_outgoingWindow_1, {
             "Outgoing-Window", "amqp.performative.arguments.outgoingWindow",
             FT_UINT8, BASE_DEC, NULL, 0,
-            "Outgoing window", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_outgoingWindow_4, {
             "Outgoing-Window", "amqp.performative.arguments.outgoingWindow",
             FT_UINT32, BASE_DEC, NULL, 0,
-            "Outgoing window", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_linkCredit_1, {
             "Link-Credit", "amqp.performative.arguments.linkCredit",
             FT_UINT8, BASE_DEC, NULL, 0,
-            "Link credit", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_linkCredit_4, {
             "Link-Credit", "amqp.performative.arguments.linkCredit",
             FT_UINT32, BASE_DEC, NULL, 0,
-            "Link credit", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_available_1, {
             "Available", "amqp.performative.arguments.available",
             FT_UINT8, BASE_DEC, NULL, 0,
@@ -11369,11 +11369,11 @@ proto_register_amqp(void)
         {&hf_amqp_1_0_deliveryCount_1, {
             "Delivery-Count", "amqp.performative.arguments.deliveryCount",
             FT_UINT8, BASE_DEC, NULL, 0,
-            "Delivery count", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_deliveryCount_4, {
             "Delivery-Count", "amqp.performative.arguments.deliveryCount",
             FT_UINT32, BASE_DEC, NULL, 0,
-            "Delivery count", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_sectionNumber_1, {
             "Section-Number", "amqp.received.sectionNumber",
             FT_UINT8, BASE_DEC, NULL, 0,
@@ -11385,35 +11385,35 @@ proto_register_amqp(void)
         {&hf_amqp_1_0_idleTimeOut_1, {
             "Idle-Timeout", "amqp.performative.arguments.idleTimeout",
             FT_UINT8, BASE_DEC, NULL, 0,
-            "Idle timeout", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_idleTimeOut_4, {
             "Idle-Timeout", "amqp.performative.arguments.idleTimeout",
             FT_UINT32, BASE_DEC, NULL, 0,
-            "Idle timeout", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_outgoingLocales_sym, {
             "Outgoing-Locales", "amqp.performative.arguments.outgoingLocales",
             FT_STRING, BASE_NONE, NULL, 0,
-            "Outgoing locales", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_incomingLocales_sym, {
             "Incoming-Locales", "amqp.performative.arguments.incomingLocales",
             FT_STRING, BASE_NONE, NULL, 0,
-            "Incoming locales", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_offeredCapabilities_sym, {
             "Offered-Capabilities", "amqp.arguments.offeredCapabilities",
             FT_STRING, BASE_NONE, NULL, 0,
-            "Offered capabilities", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_desiredCapabilities_sym, {
             "Desired-Capabilities", "amqp.performative.arguments.desiredCapabilities",
             FT_STRING, BASE_NONE, NULL, 0,
-            "Desired capabilities", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_nextIncomingId_1, {
             "Next-Incoming-Id", "amqp.performative.arguments.nextIncomingId",
             FT_UINT8, BASE_DEC, NULL, 0,
-            "Next incoming id", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_nextIncomingId_4, {
             "Next-Incoming-Id", "amqp.performative.arguments.nextIncomingId",
             FT_UINT32, BASE_DEC, NULL, 0,
-            "Next incoming id", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_sectionOffset_1, {
             "Section-Offset", "amqp.received.sectionOffset",
             FT_UINT8, BASE_DEC, NULL, 0,
@@ -11425,39 +11425,39 @@ proto_register_amqp(void)
         {&hf_amqp_1_0_maxMessageSize_1, {
             "Max-Message-Size", "amqp.performative.arguments.maxMessageSize",
             FT_UINT8, BASE_DEC, NULL, 0,
-            "Max message size", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_maxMessageSize_8, {
             "Max-Message-Size", "amqp.performative.arguments.maxMessageSize",
             FT_UINT64, BASE_DEC, NULL, 0,
-            "Max message size", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_nextOutgoingId_1, {
             "Next-Outgoing-Id", "amqp.performative.arguments.nextOutgoingId",
             FT_UINT8, BASE_DEC, NULL, 0,
-            "Next outgoing id", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_nextOutgoingId_4, {
             "Next-Outgoing-Id", "amqp.performative.arguments.nextOutgoingId",
             FT_UINT16, BASE_DEC, NULL, 0,
-            "Next outgoing id", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_deliveryId_1, {
             "Delivery-Id", "amqp.performative.arguments.deliveryId",
             FT_UINT8, BASE_DEC, NULL, 0,
-            "Delivery id", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_deliveryId_4, {
             "Delivery-Id", "amqp.performative.arguments.deliveryId",
             FT_UINT16, BASE_DEC, 0, 0,
-            "Delivery id", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_deliveryTag_bin, {
             "Delivery-Tag", "amqp.performative.arguments.deliveryTag",
             FT_BYTES, BASE_NONE, NULL, 0,
-            "Delivery tag", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_messageFormat_1, {
             "Message-Format", "amqp.performative.arguments.messageFormat",
             FT_UINT8, BASE_DEC, NULL, 0,
-            "Message format", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_messageFormat_4, {
             "Message-Format", "amqp.performative.arguments.messageFormat",
             FT_UINT32, BASE_DEC, NULL, 0,
-            "Message format", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_first_1, {
             "First", "amqp.performative.arguments.first",
             FT_UINT8, BASE_DEC, NULL, 0,
@@ -11477,15 +11477,15 @@ proto_register_amqp(void)
         {&hf_amqp_1_0_remoteChannel_2, {
             "Remote-Channel", "amqp.performative.arguments.remoteChannel",
             FT_UINT16, BASE_DEC, NULL, 0,
-            "Remote Channel", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_handleMax_1, {
             "Handle-Max", "amqp.performative.arguments.handleMax",
             FT_UINT8, BASE_DEC, NULL, 0,
-            "Handle max", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_handleMax_4, {
             "Handle-Max", "amqp.performative.arguments.handleMax",
             FT_UINT32, BASE_DEC, NULL, 0,
-            "Handle max", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_handle_1, {
             "Handle", "amqp.performative.arguments.handle",
             FT_UINT8, BASE_DEC, NULL, 0,
@@ -11497,19 +11497,19 @@ proto_register_amqp(void)
         {&hf_amqp_1_0_sndSettleMode_1, {
             "Send-Settle-Mode", "amqp.performative.arguments.sndSettleMode",
             FT_UINT8, BASE_DEC, VALS(amqp_1_0_sndSettleMode_value), 0,
-            "Send settle mode", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_rcvSettleMode_1, {
             "Receive-Settle-Mode", "amqp.performative.arguments.rcvSettleMode",
             FT_UINT8, BASE_DEC, VALS(amqp_1_0_rcvSettleMode_value), 0,
-            "Receive settle mode", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_initialDeliveryCount_1, {
             "Initial-Delivery-Count", "amqp.performative.arguments.initDeliveryCount",
             FT_UINT8, BASE_DEC, NULL, 0,
-            "Initial delivery count", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_initialDeliveryCount_4, {
             "Initial-Delivery-Count", "amqp.performative.arguments.initDeliveryCount",
             FT_UINT32, BASE_DEC, NULL, 0,
-            "Initial delivery count", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_description_str, {
             "Description", "amqp.error.description",
             FT_STRING, BASE_NONE, NULL, 0,
@@ -11521,11 +11521,11 @@ proto_register_amqp(void)
         {&hf_amqp_1_0_terminusDurable_1, {
             "Terminus-Durable", "amqp.performative.arguments.terminusDurable",
             FT_UINT8, BASE_DEC, VALS(amqp_1_0_durable_value), 0,
-            "Terminus durability", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_terminusDurable_4, {
             "Terminus-Durable", "amqp.performative.arguments.terminusDurable",
             FT_UINT32, BASE_DEC, VALS(amqp_1_0_durable_value), 0,
-            "Terminus durability", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_priority_1, {
             "Priority", "amqp.message.priority",
             FT_UINT8, BASE_DEC, NULL, 0,
@@ -11537,11 +11537,11 @@ proto_register_amqp(void)
         {&hf_amqp_1_0_ttl_4, {
             "Ttl", "amqp.message.ttl",
             FT_UINT32, BASE_DEC, NULL, 0,
-            "Time to live", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_expiryPolicy_sym, {
             "Expiry-Policy", "amqp.properties.expiryPolicy",
             FT_STRING, BASE_NONE, NULL, 0,
-            "Expiry policy", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_timeout_1, {
             "Timeout", "amqp.properties.timeout",
             FT_UINT8, BASE_DEC, NULL, 0,
@@ -11553,7 +11553,7 @@ proto_register_amqp(void)
         {&hf_amqp_1_0_distributionMode_sym, {
             "Distribution-Mode", "amqp.properties.distributionMode",
             FT_STRING, BASE_NONE, NULL, 0,
-            "Distribution mode", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_outcomes_sym, {
             "Outcomes", "amqp.properties.outcomes",
             FT_STRING, BASE_NONE, NULL, 0,
@@ -11563,49 +11563,49 @@ proto_register_amqp(void)
             FT_STRING, BASE_NONE, NULL, 0,
             "Extension capabilities of the sender", HFILL}},
         {&hf_amqp_1_0_messageId_1, {
-            "Message-Id", "amqp.message.messageId",
+            "Message-Id", "amqp.message.messageId.uint",
             FT_UINT8, BASE_DEC, NULL, 0,
-            "Message id", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_messageId_str, {
-            "Message-Id", "amqp.message.messageId",
+            "Message-Id", "amqp.message.messageId.string",
             FT_STRING, BASE_NONE, NULL, 0,
-            "Message id", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_messageId_bin, {
-            "Message-Id", "amqp.message.messageId",
+            "Message-Id", "amqp.message.messageId.bytes",
             FT_BYTES, BASE_NONE, NULL, 0,
-            "Message id", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_messageId_uuid, {
-            "Message-Id", "amqp.message.messageId",
+            "Message-Id", "amqp.message.messageId.guid",
             FT_GUID, BASE_NONE, NULL, 0,
-            "Message id", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_messageId_8, {
-            "Message-Id", "amqp.message.messageId",
+            "Message-Id", "amqp.message.messageId.uint",
             FT_UINT64, BASE_DEC, NULL, 0,
-            "Message id", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_correlationId_1, {
-            "Correlation-Id", "amqp.message.correlationId",
+            "Correlation-Id", "amqp.message.correlationId.uint",
             FT_UINT8, BASE_DEC, NULL, 0,
-            "Correlation id", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_correlationId_str, {
-            "Correlation-Id", "amqp.message.correlationId",
+            "Correlation-Id", "amqp.message.correlationId.string",
             FT_STRING, BASE_NONE, NULL, 0,
-            "Correlation id", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_correlationId_bin, {
-            "Correlation-Id", "amqp.message.correlationId",
+            "Correlation-Id", "amqp.message.correlationId.bytes",
             FT_BYTES, BASE_NONE, NULL, 0,
-            "Correlation id", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_correlationId_uuid, {
-            "Correlation-Id", "amqp.message.correlationId",
+            "Correlation-Id", "amqp.message.correlationId.guid",
             FT_GUID, BASE_NONE, NULL, 0,
-            "Correlation id", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_correlationId_8, {
-            "Correlation-Id", "amqp.message.correlationId",
+            "Correlation-Id", "amqp.message.correlationId.uint",
             FT_UINT64, BASE_DEC, NULL, 0,
-            "Correlation id", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_userId_bin, {
             "User-Id", "amqp.message.userId",
             FT_BYTES, BASE_NONE, NULL, 0,
-            "User id", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_to_str, {
             "To", "amqp.message.to",
             FT_STRING, BASE_NONE, NULL, 0,
@@ -11617,15 +11617,15 @@ proto_register_amqp(void)
         {&hf_amqp_1_0_replyTo_str, {
             "Reply-To", "amqp.message.replyTo",
             FT_STRING, BASE_NONE, NULL, 0,
-            "Reply to", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_contentType_sym, {
             "Content-Type", "amqp.message.contentType",
             FT_STRING, BASE_NONE, NULL, 0,
-            "Content type", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_contentEncoding_sym, {
             "Content-Encoding", "amqp.message.contentEncoding",
             FT_STRING, BASE_NONE, NULL, 0,
-            "Content encoding", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_absoluteExpiryTime_timestamp, {
             "Expiry-Time", "amqp.message.expiryTime",
             FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0x0,
@@ -11633,23 +11633,23 @@ proto_register_amqp(void)
         {&hf_amqp_1_0_creationTime_timestamp, {
             "Creation-Time", "amqp.message.creationTime",
             FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0x0,
-            "Creation time", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_groupId_str, {
             "Group-Id", "amqp.message.groupId",
             FT_STRING, BASE_NONE, NULL, 0,
-            "Croup id", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_groupSequence_1, {
             "Group-Sequence", "amqp.message.groupSequence",
             FT_UINT8, BASE_DEC, NULL, 0,
-            "Group sequence", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_groupSequence_4, {
             "Group-Sequence", "amqp.message.groupSequence",
             FT_UINT32, BASE_DEC, NULL, 0,
-            "Group sequence", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_replyToGroupId_str, {
             "Reply-To-Group-Id", "amqp.message.replyToGroupId",
             FT_STRING, BASE_NONE, NULL, 0,
-            "Reply to group id", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_1_0_mechanisms_sym, {
             "Mechanisms", "amqp.sasl.mechanisms",
             FT_STRING, BASE_NONE, NULL, 0,
@@ -11819,11 +11819,11 @@ proto_register_amqp(void)
         {&hf_amqp_0_10_struct_message_properties_message_id, {
             "Message-id", "amqp.message.message-properties.message-id",
             FT_GUID, BASE_NONE, NULL, 0x0,
-            "Message Id", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_0_10_struct_message_properties_correlation, {
             "Correlation-id", "amqp.message.message-properties.correlation-id",
             FT_BYTES, BASE_NONE, NULL, 0x0,
-            "Correlation id", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_0_10_struct_message_properties_reply_to, {
             "Reply-to", "amqp.message.message-properties.reply-to",
             FT_NONE, BASE_NONE, NULL, 0x0,
@@ -11875,11 +11875,11 @@ proto_register_amqp(void)
         {&hf_amqp_0_10_struct_exchange_bound_result_exchange_not_found, {
             "Exchange-not-found", "amqp.exchange.exchange-bound-result.exchange-not-found",
             FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x01,
-            "Exchange was not found", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_0_10_struct_exchange_bound_result_queue_not_found, {
             "Queue-not-found", "amqp.exchange.exchange-bound-result.queue-not-found",
             FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x02,
-            "Queue was not found", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_0_10_struct_exchange_bound_result_queue_not_matched, {
             "Queue-not-matched", "amqp.exchange.exchange-bound-result.queue-not-matched",
             FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x04,
@@ -12179,7 +12179,7 @@ proto_register_amqp(void)
         {&hf_amqp_0_10_method_queue_alt_exchange, {
             "Alternate-exchange", "amqp.queue.declare.alternate-exchange",
             FT_STRING, BASE_NONE, NULL, 0,
-            "Alternate Exchange", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_0_10_method_queue_declare_passive, {
             "Passive", "amqp.queue.declare.passive",
             FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x04,
@@ -12275,7 +12275,7 @@ proto_register_amqp(void)
         {&hf_amqp_0_10_method_file_return_reply_code, {
             "Reply-code", "amqp.file.return.reply-code",
             FT_UINT16, BASE_DEC, VALS(amqp_0_10_file_return_codes), 0x0,
-            "Reply code", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_0_10_method_file_return_reply_text, {
             "Reply-text", "amqp.file.return.reply-text",
             FT_STRING, BASE_NONE, NULL, 0,
@@ -12291,7 +12291,7 @@ proto_register_amqp(void)
         {&hf_amqp_0_10_method_file_deliver_consumer_tag, {
             "Consumer-tag", "amqp.file.deliver.consumer-tag",
             FT_STRING, BASE_NONE, NULL, 0,
-            "Consumer tag", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_0_10_method_file_deliver_delivery_tag, {
             "Delivery-tag", "amqp.file.deliver.delivery-tag",
             FT_UINT64, BASE_HEX, NULL, 0,
@@ -12345,7 +12345,7 @@ proto_register_amqp(void)
         {&hf_amqp_0_10_method_stream_consumer_tag, {
             "Consumer-tag", "amqp.stream.consumer-tag",
             FT_STRING, BASE_NONE, NULL, 0,
-            "Consumer tag", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_0_10_method_stream_consume_no_local, {
             "No-local", "amqp.stream.consume.no-local",
             FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x04,
@@ -12381,7 +12381,7 @@ proto_register_amqp(void)
         {&hf_amqp_0_10_method_stream_return_reply_code, {
             "Reply-code", "amqp.stream.return.reply-code",
             FT_UINT16, BASE_DEC, VALS(amqp_0_10_stream_return_codes), 0x0,
-            "Reply code", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_0_10_method_stream_return_reply_text, {
             "Reply-text", "amqp.stream.return.reply-text",
             FT_STRING, BASE_NONE, NULL, 0,
@@ -12397,7 +12397,7 @@ proto_register_amqp(void)
         {&hf_amqp_0_10_method_stream_deliver_consumer_tag, {
             "Consumer-tag", "amqp.stream.deliver.consumer-tag",
             FT_STRING, BASE_NONE, NULL, 0,
-            "Consumer tag", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_0_10_method_stream_deliver_delivery_tag, {
             "Delivery-tag", "amqp.stream.deliver.delivery-tag",
             FT_UINT64, BASE_HEX, NULL, 0,
