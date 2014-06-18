@@ -1491,6 +1491,11 @@ static tvbuff_t *decipher_payload(tvbuff_t *tvb, packet_info *pinfo, int *offset
         return tvb;
     }
 
+    /* Don't decipher control messages */
+    if ((plane == USER_PLANE) && ((tvb_get_guint8(tvb, 0) & 0x80) == 0x00)) {
+        return tvb;
+    }
+
     /* Don't decipher if not yet past SecurityModeResponse */
     if (!will_be_deciphered) {
         return tvb;
@@ -1707,7 +1712,6 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     proto_tree           *pdcp_tree           = NULL;
     proto_item           *root_ti             = NULL;
     gint                  offset              = 0;
-    gint                  rohc_offset;
     struct pdcp_lte_info *p_pdcp_info;
     tvbuff_t             *rohc_tvb            = NULL;
 
@@ -2199,8 +2203,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                 return;
             }
 
-            rohc_offset = offset;
-            rohc_tvb = tvb_new_subset_remaining(payload_tvb, rohc_offset);
+            rohc_tvb = tvb_new_subset_remaining(payload_tvb, offset);
 
             /* Only enable writing to column if configured to show ROHC */
             if (global_pdcp_lte_layer_to_show != ShowTrafficLayer) {
