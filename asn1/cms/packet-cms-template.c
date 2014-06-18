@@ -96,8 +96,8 @@ cms_verify_msg_digest(proto_item *pi, tvbuff_t *content, const char *alg, tvbuff
 
     sha1_starts(&sha1_ctx);
 
-    sha1_update(&sha1_ctx, tvb_get_ptr(content, 0, tvb_length(content)),
-		tvb_length(content));
+    sha1_update(&sha1_ctx, tvb_get_ptr(content, 0, tvb_captured_length(content)),
+		tvb_captured_length(content));
 
     sha1_finish(&sha1_ctx, digest_buf);
 
@@ -107,8 +107,8 @@ cms_verify_msg_digest(proto_item *pi, tvbuff_t *content, const char *alg, tvbuff
 
     md5_init(&md5_ctx);
 
-    md5_append(&md5_ctx, tvb_get_ptr(content, 0, tvb_length(content)),
-	       tvb_length(content));
+    md5_append(&md5_ctx, tvb_get_ptr(content, 0, tvb_captured_length(content)),
+	       tvb_captured_length(content));
 
     md5_finish(&md5_ctx, digest_buf);
 

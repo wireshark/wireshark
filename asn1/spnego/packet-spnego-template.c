@@ -464,7 +464,7 @@ decrypt_arcfour(packet_info *pinfo,
     int conf_flag;
     int padlen = 0;
 
-    datalen = tvb_length(pinfo->gssapi_encrypted_tvb);
+    datalen = tvb_captured_length(pinfo->gssapi_encrypted_tvb);
 
     if(tvb_get_ntohs(pinfo->gssapi_wrap_tvb, 4)==0x1000){
 	conf_flag=1;
@@ -577,7 +577,7 @@ decrypt_gssapi_krb_arcfour_wrap(proto_tree *tree, packet_info *pinfo, tvbuff_t *
 	guint8 *cryptocopy=NULL; /* workaround for pre-0.6.1 heimdal bug */
 	guint8 *output_message_buffer;
 
-	length=tvb_length(pinfo->gssapi_encrypted_tvb);
+	length=tvb_captured_length(pinfo->gssapi_encrypted_tvb);
 	original_data=tvb_get_ptr(pinfo->gssapi_encrypted_tvb, 0, length);
 
 	/* dont do anything if we are not attempting to decrypt data */
@@ -692,14 +692,14 @@ decrypt_gssapi_krb_cfx_wrap(proto_tree *tree _U_,
 		return;
 	}
 
-	datalen = tvb_length(checksum_tvb) + tvb_length(encrypted_tvb);
+	datalen = tvb_captured_length(checksum_tvb) + tvb_captured_length(encrypted_tvb);
 
 	rotated = (guint8 *)wmem_alloc(pinfo->pool, datalen);
 
 	tvb_memcpy(checksum_tvb, rotated,
-		   0, tvb_length(checksum_tvb));
-	tvb_memcpy(encrypted_tvb, rotated + tvb_length(checksum_tvb),
-		   0, tvb_length(encrypted_tvb));
+		   0, tvb_captured_length(checksum_tvb));
+	tvb_memcpy(encrypted_tvb, rotated + tvb_captured_length(checksum_tvb),
+		   0, tvb_captured_length(encrypted_tvb));
 
 	if (is_dce) {
 		rrc += ec;
@@ -717,13 +717,13 @@ decrypt_gssapi_krb_cfx_wrap(proto_tree *tree _U_,
 	if (output) {
 		guint8 *outdata;
 
-		outdata = (guint8 *)g_memdup(output, tvb_length(encrypted_tvb));
+		outdata = (guint8 *)g_memdup(output, tvb_captured_length(encrypted_tvb));
 		g_free(output);
 
 		pinfo->gssapi_decrypted_tvb=tvb_new_child_real_data(encrypted_tvb,
 			outdata,
-			tvb_length(encrypted_tvb),
-			tvb_length(encrypted_tvb));
+			tvb_captured_length(encrypted_tvb),
+			tvb_captured_length(encrypted_tvb));
 		add_new_data_source(pinfo, pinfo->gssapi_decrypted_tvb, "Decrypted GSS-Krb5");
 		tvb_set_free_cb(pinfo->gssapi_decrypted_tvb, g_free);
 		return;
@@ -822,7 +822,7 @@ dissect_spnego_krb5_wrap_base(tvbuff_t *tvb, int offset, packet_info *pinfo
 		if(!pinfo->gssapi_encrypted_tvb){
 			int len;
 			len=tvb_reported_length_remaining(tvb,offset);
-			if(len>tvb_length_remaining(tvb, offset)){
+			if(len>tvb_captured_length_remaining(tvb, offset)){
 				/* no point in trying to decrypt,
 				   we dont have the full pdu.
 				*/
@@ -916,7 +916,7 @@ dissect_spnego_krb5_getmic_base(tvbuff_t *tvb, int offset, packet_info *pinfo _U
 	 * so we need to test here if there are more bytes in our tvb or not.
 	 *  -- ronnie
 	 */
-	if (tvb_length_remaining(tvb, offset)) {
+	if (tvb_captured_length_remaining(tvb, offset)) {
 	  if (sgn_alg == KRB_SGN_ALG_HMAC) {
 	    proto_tree_add_item(tree, hf_spnego_krb5_confounder, tvb, offset, 8,
 			      ENC_NA);
@@ -1067,7 +1067,7 @@ dissect_spnego_krb5_cfx_wrap_base(tvbuff_t *tvb, int offset, packet_info *pinfo
 		if(!pinfo->gssapi_encrypted_tvb){
 			int len;
 			len=tvb_reported_length_remaining(tvb,offset);
-			if(len>tvb_length_remaining(tvb, offset)){
+			if(len>tvb_captured_length_remaining(tvb, offset)){
 				/* no point in trying to decrypt,
 				   we dont have the full pdu.
 				*/
@@ -1155,7 +1155,7 @@ dissect_spnego_krb5_cfx_getmic_base(tvbuff_t *tvb, int offset, packet_info *pinf
 
 	/* Checksum of plaintext padded data */
 
-	checksum_size = tvb_length_remaining(tvb, offset);
+	checksum_size = tvb_captured_length_remaining(tvb, offset);
 
 	proto_tree_add_item(tree, hf_spnego_krb5_sgn_cksum, tvb, offset,
 			    checksum_size, ENC_NA);

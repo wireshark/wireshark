@@ -61,7 +61,7 @@ dissect_ies(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
   if (q931_ie_handle) {
     call_dissector(q931_ie_handle, tvb, pinfo, tree);
-    offset += tvb_length_remaining(tvb, offset);
+    offset += tvb_captured_length_remaining(tvb, offset);
   }
   return offset;
 }
@@ -72,7 +72,7 @@ dissect_ras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
   if (h225_ras_handle) {
     call_dissector(h225_ras_handle, tvb, pinfo, tree);
-    offset += tvb_length_remaining(tvb, offset);
+    offset += tvb_captured_length_remaining(tvb, offset);
   }
   return offset;
 }

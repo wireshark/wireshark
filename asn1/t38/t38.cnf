@@ -154,7 +154,7 @@ VAL_PTR=&Data_Field_field_type_value
     guint32 value_len;
 
 %(DEFAULT_BODY)s
-    value_len = tvb_length(value_tvb);
+    value_len = tvb_captured_length(value_tvb);
 
 #.FN_FTR Data-Field/_item/field-data
     if (primary_part){

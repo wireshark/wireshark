@@ -100,7 +100,7 @@ call_dop_oid_callback(const char *base_string, tvbuff_t *tvb, int offset, packet
      proto_item *item=NULL;
      proto_tree *next_tree=NULL;
 
-     item = proto_tree_add_text(tree, tvb, 0, tvb_length_remaining(tvb, offset), "Dissector for parameter %s OID:%s not implemented. Contact Wireshark developers if you want this supported", base_string, binding_type ? binding_type : "<empty>");
+     item = proto_tree_add_text(tree, tvb, 0, tvb_captured_length_remaining(tvb, offset), "Dissector for parameter %s OID:%s not implemented. Contact Wireshark developers if you want this supported", base_string, binding_type ? binding_type : "<empty>");
      if (item) {
         next_tree = proto_item_add_subtree(item, ett_dop_unknown);
      }
@@ -209,7 +209,7 @@ dissect_dop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* da
 	  break;
 	default:
 	  proto_tree_add_text(tree, tvb, offset, -1,"Unsupported DOP PDU");
-	  return tvb_length(tvb);
+	  return tvb_captured_length(tvb);
 	}
 
 	if(dop_dissector) {
@@ -225,7 +225,7 @@ dissect_dop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* da
 	  }
 	}
 
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 

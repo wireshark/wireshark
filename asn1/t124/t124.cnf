@@ -133,7 +133,7 @@ RegistryAllocateHandleResponse/result	AllocateHandleResponseResult
       /* Not sure why - but lets ignore the length. */
       /* We assume the OCTET STRING is all of the remaining bytes */
 
-      if(tvb_length(next_tvb) == 42) {
+      if(tvb_captured_length(next_tvb) == 42) {
          /* this is perhaps a naive ... */
 	 next_tvb = tvb_new_subset_remaining(tvb, (old_offset>>3)+1);
       }
@@ -153,7 +153,7 @@ RegistryAllocateHandleResponse/result	AllocateHandleResponseResult
 
 	if(next_tvb) {
 
-	ns = tvb_get_string_enc(NULL, t124NSIdentifier, 0, tvb_length(t124NSIdentifier), ENC_ASCII|ENC_NA);
+	ns = tvb_get_string_enc(NULL, t124NSIdentifier, 0, tvb_captured_length(t124NSIdentifier), ENC_ASCII|ENC_NA);
 	if(ns != NULL) {
 		dissector_try_string(t124_ns_dissector_table, ns, next_tvb, actx->pinfo, top_tree, NULL);
 		g_free(ns);

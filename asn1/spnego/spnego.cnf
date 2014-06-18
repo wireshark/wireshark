@@ -91,11 +91,11 @@ NegotiationToken
     len = call_dissector(next_level_value_lcl->wrap_handle, token_tvb, actx->pinfo,
                          subtree);
     if (len == 0)
-      offset = tvb_length(tvb);
+      offset = tvb_captured_length(tvb);
     else
       offset = offset + len;
   } else
-    offset = tvb_length(tvb);
+    offset = tvb_captured_length(tvb);
 
 #.FN_BODY MechTypeList
 

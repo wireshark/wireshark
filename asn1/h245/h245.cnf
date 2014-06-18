@@ -981,7 +981,7 @@ NonStandardIdentifier/h221NonStandard/manufacturerCode  VAL_PTR = &manufacturerC
   tvbuff_t *next_tvb = NULL;
 
 %(DEFAULT_BODY)s
-  if (next_tvb && tvb_length(next_tvb)) {
+  if (next_tvb && tvb_captured_length(next_tvb)) {
     call_dissector((nsp_handle)?nsp_handle:data_handle, next_tvb, %(ACTX)s->pinfo, tree);
   }
 #.END
@@ -994,7 +994,7 @@ NonStandardIdentifier/h221NonStandard/manufacturerCode  VAL_PTR = &manufacturerC
 
 %(DEFAULT_BODY)s
 
- if (next_tvb && tvb_length(next_tvb)) {
+ if (next_tvb && tvb_captured_length(next_tvb)) {
 	saved_h245_pi = h245_pi;
 	h245_pi = NULL;
 	item = proto_tree_add_text(tree, next_tvb, 0, -1,"The returned function");

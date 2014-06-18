@@ -12,5 +12,5 @@ ChargingMessageType
 #.FN_BODY ExtensionField/value
 
 	proto_tree_add_text(tree, tvb, offset, -1, "Extensions not dissected");
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 #.END

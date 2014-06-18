@@ -55,10 +55,10 @@ dissect_charging_ase(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_item *it;
     proto_tree *tr;
 
-    it=proto_tree_add_protocol_format(tree, proto_charging_ase, tvb, 0, tvb_length(tvb), "Charging ASE");
+    it=proto_tree_add_protocol_format(tree, proto_charging_ase, tvb, 0, tvb_captured_length(tvb), "Charging ASE");
     tr=proto_item_add_subtree(it, ett_charging_ase);
 
-    if(tvb_length(tvb)>0)
+    if(tvb_captured_length(tvb)>0)
     {
         dissect_charging_ase_ChargingMessageType_PDU(tvb , pinfo, tr, NULL);
     }

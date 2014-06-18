@@ -72,7 +72,7 @@ dissect_t125(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *d
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "T.125");
   col_clear(pinfo->cinfo, COL_INFO);
 
-  item = proto_tree_add_item(parent_tree, proto_t125, tvb, 0, tvb_length(tvb), ENC_NA);
+  item = proto_tree_add_item(parent_tree, proto_t125, tvb, 0, tvb_captured_length(tvb), ENC_NA);
   tree = proto_item_add_subtree(item, ett_t125);
 
   get_ber_identifier(tvb, 0, &ber_class, &pc, &tag);
@@ -84,7 +84,7 @@ dissect_t125(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *d
     dissect_DomainMCSPDU_PDU(tvb, pinfo, tree);
   }
 
-  return tvb_length(tvb);
+  return tvb_captured_length(tvb);
 }
 
 static gboolean

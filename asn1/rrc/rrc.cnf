@@ -527,7 +527,7 @@ fp_info       *fpinf ;
 
 %(DEFAULT_BODY)s
 
-  bits_remaining = 8*tvb_length(tvb) - offset;
+  bits_remaining = 8*tvb_captured_length(tvb) - offset;
   whole_octets_remaining = bits_remaining / 8;
 
   gsm_message_tvb = tvb_new_octet_aligned(tvb, offset, 8*whole_octets_remaining);
@@ -542,7 +542,7 @@ fp_info       *fpinf ;
 
 %(DEFAULT_BODY)s
 
-  bits_remaining = 8*tvb_length(tvb) - offset;
+  bits_remaining = 8*tvb_captured_length(tvb) - offset;
   whole_octets_remaining = bits_remaining / 8;
 
   gsm_message_tvb = tvb_new_octet_aligned(tvb, offset, 8*whole_octets_remaining);
@@ -582,7 +582,7 @@ fp_info       *fpinf ;
 
 %(DEFAULT_BODY)s
   if (parameter_tvb){
-    de_ms_cm_3(parameter_tvb, tree, actx->pinfo, 0, tvb_length(parameter_tvb), NULL, 0);
+    de_ms_cm_3(parameter_tvb, tree, actx->pinfo, 0, tvb_captured_length(parameter_tvb), NULL, 0);
   }
 
 #.FN_BODY GSM-MS-RadioAccessCapability VAL_PTR = &parameter_tvb
@@ -590,7 +590,7 @@ fp_info       *fpinf ;
 
 %(DEFAULT_BODY)s
   if (parameter_tvb){
-    de_gmm_ms_radio_acc_cap(parameter_tvb, tree, actx->pinfo, 0, tvb_length(parameter_tvb), NULL, 0);
+    de_gmm_ms_radio_acc_cap(parameter_tvb, tree, actx->pinfo, 0, tvb_captured_length(parameter_tvb), NULL, 0);
   }
 
 #.FN_BODY InterRATHandoverInfoWithInterRATCapabilities-r3-IEs/interRATHandoverInfo VAL_PTR = &parameter_tvb
@@ -680,7 +680,7 @@ HNBName TYPE=FT_STRING DISPLAY=STR_UNICODE
   proto_tree *subtree;
 
 %(DEFAULT_BODY)s
-  length = tvb_length(nas_sys_info_gsm_map_tvb);
+  length = tvb_captured_length(nas_sys_info_gsm_map_tvb);
   if (length) {
     if (actx->private_data) {
       switch (GPOINTER_TO_UINT(actx->private_data)-1) {

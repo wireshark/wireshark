@@ -210,7 +210,7 @@ call_ros_oid_callback(const char *oid, tvbuff_t *tvb, int offset, packet_info *p
 
 	if(!ros_try_string(oid, next_tvb, pinfo, tree, session) &&
            !dissector_try_string(ros_oid_dissector_table, oid, next_tvb, pinfo, tree, session)){
-		proto_item *item=proto_tree_add_text(tree, next_tvb, 0, tvb_length_remaining(tvb, offset), "ROS: Dissector for OID:%s not implemented. Contact Wireshark developers if you want this supported", oid);
+		proto_item *item=proto_tree_add_text(tree, next_tvb, 0, tvb_captured_length_remaining(tvb, offset), "ROS: Dissector for OID:%s not implemented. Contact Wireshark developers if you want this supported", oid);
 		proto_tree *next_tree=proto_item_add_subtree(item, ett_ros_unknown);
 
 		expert_add_info_format(pinfo, item, &ei_ros_dissector_oid_not_implemented,
@@ -222,7 +222,7 @@ call_ros_oid_callback(const char *oid, tvbuff_t *tvb, int offset, packet_info *p
 	 * into new_dissector_t   we have to do this kludge with
 	 * manually step past the content in the ANY type.
 	 */
-	offset+=tvb_length_remaining(tvb, offset);
+	offset+=tvb_captured_length_remaining(tvb, offset);
 
 	return offset;
 }
@@ -432,7 +432,7 @@ dissect_ros(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* da
 		}
 	}
 
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 static void

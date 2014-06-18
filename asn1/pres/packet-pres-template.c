@@ -333,7 +333,7 @@ dissect_pres(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 
 		/* dissect the packet */
 		dissect_UD_type_PDU(tvb, pinfo, clpres_tree);
-		return tvb_length(tvb);
+		return tvb_captured_length(tvb);
 	}
 
 	/*  we can't make any additional checking here   */
@@ -351,7 +351,7 @@ dissect_pres(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 			proto_tree_add_text(parent_tree, tvb, offset,
 					    tvb_reported_length_remaining(tvb,offset),"User data");
 		}
-		return tvb_length(tvb);
+		return tvb_captured_length(tvb);
 	}
 
 	while (tvb_reported_length_remaining(tvb, offset) > 0){
@@ -363,7 +363,7 @@ dissect_pres(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 		}
 	}
 
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 

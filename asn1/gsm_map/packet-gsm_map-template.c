@@ -322,7 +322,7 @@ unpack_digits(tvbuff_t *tvb, int offset) {
   int i=0;
   char *digit_str;
 
-  length = tvb_length(tvb);
+  length = tvb_captured_length(tvb);
   if (length < offset)
     return "";
   digit_str = (char *)wmem_alloc(wmem_packet_scope(), (length - offset)*2+1);
@@ -826,7 +826,7 @@ dissect_gsm_map_msisdn(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
   proto_tree_add_item(tree, hf_gsm_map_nature_of_number, tvb, 0,1,ENC_BIG_ENDIAN);
   proto_tree_add_item(tree, hf_gsm_map_number_plan, tvb, 0,1,ENC_BIG_ENDIAN);
 
-  if(tvb_length(tvb)==1)
+  if(tvb_captured_length(tvb)==1)
     return;
 
   digit_str = unpack_digits(tvb, 1);
@@ -1369,7 +1369,7 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
         proto_tree_add_expert_format(tree, actx->pinfo, &ei_gsm_map_unknown_invokeData,
                                      tvb, offset, -1, "Unknown invokeData %d", opcode);
     }
-    offset+= tvb_length_remaining(tvb,offset);
+    offset+= tvb_captured_length_remaining(tvb,offset);
     break;
   }
   return offset;
@@ -1679,7 +1679,7 @@ static int dissect_returnResultData(proto_tree *tree, tvbuff_t *tvb, int offset,
         proto_tree_add_expert_format(tree, actx->pinfo, &ei_gsm_map_unknown_invokeData,
                                      tvb, offset, -1, "Unknown returnResultData %d", opcode);
    }
-   offset+= tvb_length_remaining(tvb,offset);
+   offset+= tvb_captured_length_remaining(tvb,offset);
    break;
   }
   return offset;
@@ -1842,7 +1842,7 @@ static int dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, int offset, 
         proto_tree_add_expert_format(tree, actx->pinfo, &ei_gsm_map_unknown_invokeData,
                                      tvb, offset, -1, "Unknown returnErrorData %d", opcode);
     }
-    offset+= tvb_length_remaining(tvb,offset);
+    offset+= tvb_captured_length_remaining(tvb,offset);
     break;
   }
   return offset;
@@ -2235,7 +2235,7 @@ dissect_gsm_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void
         tap_queue_packet(gsm_map_tap, pinfo, &tap_rec);
     }
 
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 const value_string ssCode_vals[] = {

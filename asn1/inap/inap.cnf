@@ -217,7 +217,7 @@ static const inap_err_t inap_err_tab[] = {
 	 offset=call_ber_oid_callback(obj_id, tvb, offset, actx->pinfo, tree, NULL);
   }else{
 	 call_dissector(data_handle, tvb, actx->pinfo, tree);
-	 offset = tvb_length_remaining(tvb,offset);
+	 offset = tvb_captured_length_remaining(tvb,offset);
   }
 
 
@@ -252,7 +252,7 @@ dissect_isup_called_party_number_parameter(parameter_tvb, tree, NULL);
  if (!parameter_tvb)
 	return offset;
 
- dissect_q931_bearer_capability_ie(parameter_tvb, 0, tvb_length_remaining(parameter_tvb,0), tree);
+ dissect_q931_bearer_capability_ie(parameter_tvb, 0, tvb_captured_length_remaining(parameter_tvb,0), tree);
 
 #.FN_BODY RedirectionInformation VAL_PTR = &parameter_tvb
 
@@ -297,7 +297,7 @@ dissect_isup_called_party_number_parameter(parameter_tvb, tree, NULL);
         return offset;
 
  subtree = proto_item_add_subtree(actx->created_item, ett_inap_HighLayerCompatibility);
- dissect_q931_high_layer_compat_ie(parameter_tvb, 0, tvb_length_remaining(parameter_tvb,0), subtree);
+ dissect_q931_high_layer_compat_ie(parameter_tvb, 0, tvb_captured_length_remaining(parameter_tvb,0), subtree);
 
 #.TYPE_ATTR
 CallingPartysCategory TYPE = FT_UINT16  DISPLAY = BASE_DEC|BASE_EXT_STRING  STRINGS = &isup_calling_partys_category_value_ext

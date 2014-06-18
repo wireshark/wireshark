@@ -22,7 +22,7 @@ GOOSEpdu
 	nstime_t ts;
 	gchar *	ptime;
 
-	len = tvb_length_remaining(tvb, offset);
+	len = tvb_captured_length_remaining(tvb, offset);
 
 	if(len != 8)
 	{

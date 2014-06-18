@@ -78,7 +78,7 @@ ProtocolIE-ContainerPairList
 
 %(DEFAULT_BODY)s
 
-	if(tvb_length(tvb)==0)
+	if(tvb_captured_length(tvb)==0)
 		return offset;
 
 	if (!parameter_tvb)
@@ -115,7 +115,7 @@ ProtocolExtensionID TYPE = FT_UINT8  DISPLAY = BASE_DEC STRINGS = VALS(x2ap_Prot
   if (!parameter_tvb)
     return offset;
 	/* Get the length */
-	tvb_len = tvb_length(parameter_tvb);
+	tvb_len = tvb_captured_length(parameter_tvb);
 	subtree = proto_item_add_subtree(actx->created_item, ett_x2ap_TransportLayerAddress);
 	if (tvb_len==4){
 		/* IPv4 */
