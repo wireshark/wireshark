@@ -1712,8 +1712,8 @@ if test "x$ac_supports_gcc_flags" = "xyes" ; then
     # compilers treat unknown warning options as errors (I'm looking at
     # you, clang).
     #
-    # If the option begins with "-f", add -Werror to make sure that
-    # we'll get an error if we get "argument unused during compilation"
+    # If the option begins with "-f" or "-m", add -Werror to make sure
+    # that we'll get an error if we get "argument unused during compilation"
     # warnings, as those will either cause a failure for files compiled
     # with -Werror or annoying noise for files compiled without it.
     # (Yeah, you, clang.)
@@ -1726,6 +1726,11 @@ if test "x$ac_supports_gcc_flags" = "xyes" ; then
     elif expr "x$GCC_OPTION" : "x-f.*" >/dev/null
     then
       CFLAGS="$CFLAGS -Werror $GCC_OPTION"
+    elif expr "x$GCC_OPTION" : "x-m.*" >/dev/null
+    then
+      CFLAGS="$CFLAGS -Werror $GCC_OPTION"
+    else
+      CFLAGS="$CFLAGS $GCC_OPTION"
     fi
     AC_COMPILE_IFELSE(
       [
@@ -1797,6 +1802,12 @@ if test "x$ac_supports_gcc_flags" = "xyes" ; then
     # warning about it can be a Good Idea with C, but it's not obvious to
     # me).
     #
+    # If the option begins with "-f" or "-m", add -Werror to make sure
+    # that we'll get an error if we get "argument unused during compilation"
+    # warnings, as those will either cause a failure for files compiled
+    # with -Werror or annoying noise for files compiled without it.
+    # (Yeah, you, clang++.)
+    #
     AC_MSG_CHECKING(whether we can add $GCC_OPTION to CXXFLAGS)
     CXXFLAGS_saved="$CXXFLAGS"
     if expr "x$GCC_OPTION" : "x-W.*" >/dev/null
@@ -1805,6 +1816,11 @@ if test "x$ac_supports_gcc_flags" = "xyes" ; then
     elif expr "x$GCC_OPTION" : "x-f.*" >/dev/null
     then
       CXXFLAGS="$CXXFLAGS -Werror $GCC_OPTION"
+    elif expr "x$GCC_OPTION" : "x-m.*" >/dev/null
+    then
+      CXXFLAGS="$CXXFLAGS -Werror $GCC_OPTION"
+    else
+      CXXFLAGS="$CXXFLAGS $GCC_OPTION"
     fi
     AC_LANG_PUSH([C++])
     AC_COMPILE_IFELSE(
