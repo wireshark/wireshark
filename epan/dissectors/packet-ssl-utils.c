@@ -4169,6 +4169,7 @@ ssl_parse_key_list(const ssldecrypt_assoc_t * uats, GHashTable *key_hash, GTree*
     guint32            addr_data[4];
     int                addr_len, at;
     address_type addr_type[2] = { AT_IPv4, AT_IPv6 };
+    gchar*             address_string;
 
     /* try to load keys file first */
     fp = ws_fopen(uats->keyfile, "rb");
@@ -4233,9 +4234,15 @@ ssl_parse_key_list(const ssldecrypt_assoc_t * uats, GHashTable *key_hash, GTree*
             service->port = atoi(uats->port);
         }
 
+        /*
+         * This gets called outside any dissection scope, so we have to
+         * use a NULL scope and free it ourselves.
+         */
+        address_string = address_to_str(NULL, &service->addr);
         ssl_debug_printf("ssl_init %s addr '%s' (%s) port '%d' filename '%s' password(only for p12 file) '%s'\n",
-            (addr_type[at] == AT_IPv4) ? "IPv4" : "IPv6", uats->ipaddr, address_to_str(wmem_packet_scope(), &service->addr),
+            (addr_type[at] == AT_IPv4) ? "IPv4" : "IPv6", uats->ipaddr, address_string,
             service->port, uats->keyfile, uats->password);
+        wmem_free(NULL, address_string);
 
         ssl_debug_printf("ssl_init private key file %s successfully loaded.\n", uats->keyfile);
 
