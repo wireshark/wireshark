@@ -1888,8 +1888,6 @@ if test "x$ac_supports_gcc_flags" = "xyes" ; then
        AC_MSG_WARN([$CC and $CXX appear to be a mismatched pair])
     fi
   fi
-else
-  AC_MSG_RESULT(no)
 fi
 ])
 
