@@ -1985,7 +1985,6 @@ dissect_sip_sec_mechanism(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, g
 static void dissect_sip_route_header(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, hf_sip_uri_t *sip_route_uri_p, gint start_offset, gint line_end_offset)
 {
     gint current_offset;
-    guchar c;
     uri_offset_info uri_offsets;
 
     current_offset = start_offset;
@@ -1998,9 +1997,9 @@ static void dissect_sip_route_header(tvbuff_t *tvb, proto_tree *tree, packet_inf
     }
 
     while (current_offset < line_end_offset) {
-        c = tvb_get_guint8(tvb, current_offset);
+        current_offset = tvb_find_guint8(tvb, current_offset, (line_end_offset - 1) - current_offset, ',');
 
-        if (c == ',') {
+        if (current_offset != -1) { /* found any ',' ? */
             sip_uri_offset_init(&uri_offsets);
             current_offset = dissect_sip_name_addr_or_addr_spec(tvb, pinfo, start_offset, current_offset, &uri_offsets);
             if(current_offset == -1)
@@ -2010,7 +2009,9 @@ static void dissect_sip_route_header(tvbuff_t *tvb, proto_tree *tree, packet_inf
             current_offset++;
             start_offset = current_offset + 1;
 
-        } else if (current_offset == line_end_offset - 1) {
+        } else {
+            /* current_offset = (line_end_offset - 1); */
+
             sip_uri_offset_init(&uri_offsets);
             current_offset = dissect_sip_name_addr_or_addr_spec(tvb, pinfo, start_offset, line_end_offset, &uri_offsets);
             if(current_offset == -1)
