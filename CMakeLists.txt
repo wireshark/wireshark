@@ -336,15 +336,9 @@ include(CheckCCompilerFlag)
 include(CheckCXXCompilerFlag)
 
 if(NOT DISABLE_WERROR AND NOT ENABLE_EXTRA_COMPILER_WARNINGS)
-	check_c_compiler_flag(-Werror=unknown-warning-option WERR_UNKNOWN)
 	check_c_compiler_flag(-Werror WERROR)
 else()
-	set(WERR_UNKNOWN FALSE)
 	set(WERROR FALSE)
-endif()
-# string of additional compile command line flags for check_c_compiler_flag
-if(WERR_UNKNOWN)
-	set(CMAKE_REQUIRED_FLAGS -Werror=unknown-warning-option )
 endif()
 
 # Sigh: Have to use THIS_FLAG instead of ${F} for some reason
