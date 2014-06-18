@@ -2973,8 +2973,9 @@ static hf_register_info hf[] = {
 *   @param  tvb     The buffer to dissect.
 *   @param  pinfo   Packet Info.
 *   @param  tree    The protocol tree.
+*   @param  data    Optional data parameter given by parent dissector.
 **/
-static void dissect_cstr(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
+static int dissect_cstr(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void *data _U_)
 {
     guint offset = 0;
     while(offset < tvb_reported_length(tvb)) {
@@ -2985,7 +2986,7 @@ static void dissect_cstr(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
             /* we ran out of data: ask for more */
             pinfo->desegment_offset = offset;
             pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
-            return;
+            return (offset + available);
         }
 
         col_set_str(pinfo->cinfo, COL_INFO, "C String");
@@ -3001,6 +3002,7 @@ static void dissect_cstr(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
     /* if we get here, then the end of the tvb coincided with the end of a
        string. Happy days. */
+    return tvb_captured_length(tvb);
 }
 
 This simple dissector will repeatedly return DESEGMENT_ONE_MORE_SEGMENT
