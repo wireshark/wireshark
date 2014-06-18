@@ -148,7 +148,7 @@ dissect_sabp_cb_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     item = proto_tree_add_text(tree, tvb, offset, 83, "CB page %u data",  n+1);
     subtree = proto_item_add_subtree(item, ett_sabp_cbs_page);
     /* octet 2 - 83 CBS-Message-Information-Page 1  */
-    cbs_page_item = proto_tree_add_item(subtree, hf_sabp_cb_msg_inf_page, tvb, offset, 82, ENC_BIG_ENDIAN);
+    cbs_page_item = proto_tree_add_item(subtree, hf_sabp_cb_msg_inf_page, tvb, offset, 82, ENC_NA);
     cb_inf_msg_len = tvb_get_guint8(tvb,offset+82);
     page_tvb = tvb_new_subset_length(tvb, offset, cb_inf_msg_len);
     unpacked_tvb = dissect_cbs_data(sms_encoding, page_tvb, subtree, pinfo, 0);
