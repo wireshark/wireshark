@@ -53,6 +53,7 @@ static int hf_icap_options = -1;
 static gint ett_icap = -1;
 
 static dissector_handle_t data_handle;
+static dissector_handle_t http_handle;
 
 #define TCP_PORT_ICAP			1344
 static int is_icap_message(const guchar *data, int linelen, icap_type_t *type);
@@ -62,6 +63,7 @@ dissect_icap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree	*icap_tree = NULL;
 	proto_item	*ti = NULL;
 	proto_item	*hidden_item;
+    tvbuff_t    *new_tvb;
 	gint		offset = 0;
 	const guchar	*line;
 	gint		next_offset;
@@ -248,9 +250,11 @@ is_icap_header:
 	}
 
 	datalen = tvb_captured_length_remaining(tvb, offset);
-	if (datalen > 0) {
-		call_dissector(data_handle,
-		    tvb_new_subset_remaining(tvb, offset), pinfo, icap_tree);
+    if (datalen > 0) {
+        if(http_handle){
+            new_tvb = tvb_new_subset_remaining(tvb, offset);
+            call_dissector(http_handle, new_tvb, pinfo, icap_tree);
+        }
 	}
 }
 
@@ -326,7 +330,9 @@ proto_reg_handoff_icap(void)
 {
 	dissector_handle_t icap_handle;
 
-        data_handle = find_dissector("data");
+    data_handle = find_dissector("data");
+    http_handle = find_dissector("http");
+
 	icap_handle = create_dissector_handle(dissect_icap, proto_icap);
 	dissector_add_uint("tcp.port", TCP_PORT_ICAP, icap_handle);
 }
