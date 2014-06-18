@@ -225,7 +225,7 @@ tvbparse_wanted_t* tvbparse_chars(const int id,
     char *accept_str;
     gsize i;
 
-    accept_str = g_malloc(256);
+    accept_str = (char *)g_malloc(256);
     memset(accept_str, 0x00, 256);
     for (i = 0; chr[i]; i++)
         accept_str[(unsigned) chr[i]] = 0xFF;
@@ -305,7 +305,7 @@ tvbparse_wanted_t* tvbparse_not_chars(const int id,
     gsize i;
 
     /* cond_chars_common() use accept string, so mark all elements with, and later unset from reject */
-    accept_str = g_malloc(256);
+    accept_str = (char *)g_malloc(256);
     memset(accept_str, 0xFF, 256);
     for (i = 0; chr[i]; i++)
         accept_str[(unsigned) chr[i]] = '\0';
