@@ -598,7 +598,7 @@ static gboolean lbmc_stream_dlg_tap_packet(void * tap_data, packet_info * pinfo,
             LBMC_STREAM_DLG_STORE_BYTES_COLUMN, (guint)0,
             LBMC_STREAM_DLG_STORE_FIRST_FRAME_COLUMN, (guint)0,
             LBMC_STREAM_DLG_STORE_LAST_FRAME_COLUMN, (guint)0,
-            LBMC_STREAM_DLG_STORE_CHANNEL_COLUMN, (guint)stream->channel,
+            LBMC_STREAM_DLG_STORE_CHANNEL_COLUMN, (guint64)stream->channel,
             LBMC_STREAM_DLG_STORE_SUBSTREAM_COLUMN, (guint)0,
             -1);
     }
