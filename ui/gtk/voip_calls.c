@@ -994,6 +994,7 @@ SIPcalls_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 	address tmp_src, tmp_dst;
 	gchar *frame_label = NULL;
 	gchar *comment = NULL;
+	gchar *old_comment = NULL;
 	gchar *key=NULL;
 
 	const sip_info_value_t *pi = (const sip_info_value_t *)SIPinfo;
@@ -1014,9 +1015,17 @@ SIPcalls_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 	/* search the call information in the SIP_HASH */
 	callsinfo = (voip_calls_info_t *)g_hash_table_lookup(tapinfo->callsinfo_hashtable[SIP_HASH], key);
 
-	/* not in the hash? then create a new entry if the message is INVITE -i.e. if this session is a call*/
-	if ((callsinfo==NULL) &&(pi->request_method!=NULL)) {
-		if (strcmp(pi->request_method,"INVITE")==0) {
+	/* Create a new flow entry if the message is INVITE in case of FLOW_ONLY_INVITES,
+	   Create a new flow entry for all messages which have a method in case of FLOW_ALL.
+	   Flows for REGISTER, OPTIONS, MESSAGE and other SIP methods can be seen. */
+
+	if ((callsinfo==NULL) && (pi->request_method!=NULL)) {
+
+		/* check VoIPcalls_get_flow_show_option() == FLOW_ALL or FLOW_ONLY_INVITES */
+
+		if (VoIPcalls_get_flow_show_option() == FLOW_ALL ||
+		    (VoIPcalls_get_flow_show_option() == FLOW_ONLY_INVITES &&
+		     strcmp(pi->request_method,"INVITE")==0)) {
 			callsinfo = (voip_calls_info_t *)g_malloc0(sizeof(voip_calls_info_t));
 			callsinfo->call_active_state = VOIP_ACTIVE;
 			callsinfo->call_state = VOIP_CALL_SETUP;
@@ -1029,16 +1038,21 @@ SIPcalls_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 			callsinfo->protocol=VOIP_SIP;
 			callsinfo->prot_info=g_malloc(sizeof(sip_calls_info_t));
 			callsinfo->free_prot_info = free_sip_info;
+			callsinfo->call_id = g_strdup(pi->tap_call_id);
 			tmp_sipinfo = (sip_calls_info_t *)callsinfo->prot_info;
 			tmp_sipinfo->call_identifier = g_strdup(pi->tap_call_id);
 			tmp_sipinfo->sip_state = SIP_INVITE_SENT;
 			tmp_sipinfo->invite_cseq = pi->tap_cseq_number;
 			callsinfo->npackets = 0;
 			callsinfo->call_num = tapinfo->ncalls++;
+
+			/* show method in comment in conversation list dialog, user can discern different conversation types */
+			callsinfo->call_comment=g_strdup(pi->request_method);
+
 			tapinfo->callsinfo_list = g_list_prepend(tapinfo->callsinfo_list, callsinfo);
 			/* insert the call information in the SIP_HASH */
 			g_hash_table_insert(tapinfo->callsinfo_hashtable[SIP_HASH],
-				tmp_sipinfo->call_identifier, callsinfo);
+					    tmp_sipinfo->call_identifier, callsinfo);
 		}
 	}
 
@@ -1052,7 +1066,7 @@ SIPcalls_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 
 		if (pi->request_method == NULL) {
 			frame_label = g_strdup_printf("%u %s", pi->response_code, pi->reason_phrase );
-			comment = g_strdup("SIP Status");
+			comment = g_strdup_printf("SIP Status %u %s", pi->response_code, pi->reason_phrase );
 
 			if ((tmp_sipinfo && pi->tap_cseq_number == tmp_sipinfo->invite_cseq)&&(ADDRESSES_EQUAL(&tmp_dst,&(callsinfo->initial_speaker)))) {
 				if ((pi->response_code > 199) && (pi->response_code<300) && (tmp_sipinfo->sip_state == SIP_INVITE_SENT)) {
@@ -1062,6 +1076,19 @@ SIPcalls_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 					callsinfo->call_state = VOIP_REJECTED;
 					tapinfo->rejected_calls++;
 				}
+
+				/* UPDATE comment in conversation list dialog with response code and reason.
+				   Multiple code(+reason) may be appended, so skip over intermediate codes (100 trying, 183 ringing, e.t.c.)
+				   TODO: is useful but not perfect, what is appended is truncated when displayed in dialog window */
+				if (pi->response_code >= 200) {
+					old_comment = callsinfo->call_comment;
+					callsinfo->call_comment=g_strdup_printf("%s %u",
+										callsinfo->call_comment,
+										pi->response_code/*, pi->reason_phrase*/);
+					
+					g_free(old_comment);
+				}
+
 			}
 
 		}
@@ -1071,26 +1098,35 @@ SIPcalls_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 			if ((strcmp(pi->request_method,"INVITE")==0)&&(ADDRESSES_EQUAL(&tmp_src,&(callsinfo->initial_speaker)))) {
 				tmp_sipinfo->invite_cseq = pi->tap_cseq_number;
 				callsinfo->call_state = VOIP_CALL_SETUP;
-				comment = g_strdup_printf("SIP From: %s To:%s", callsinfo->from_identity, callsinfo->to_identity);
+				/* TODO: sometimes truncated when displayed in dialog window */
+				comment = g_strdup_printf("SIP INVITE From: %s To:%s Call-ID:%s CSeq:%d",
+							  callsinfo->from_identity, callsinfo->to_identity,
+							  callsinfo->call_id, pi->tap_cseq_number);
 			}
 			else if ((strcmp(pi->request_method,"ACK")==0)&&(pi->tap_cseq_number == tmp_sipinfo->invite_cseq)
 				&&(ADDRESSES_EQUAL(&tmp_src,&(callsinfo->initial_speaker)))&&(tmp_sipinfo->sip_state==SIP_200_REC)
 				&&(callsinfo->call_state == VOIP_CALL_SETUP)) {
 				callsinfo->call_state = VOIP_IN_CALL;
-				comment = g_strdup("SIP Request");
+				comment = g_strdup_printf("SIP Request INVITE ACK 200 CSeq:%d", pi->tap_cseq_number);
 			}
 			else if (strcmp(pi->request_method,"BYE")==0) {
 				callsinfo->call_state = VOIP_COMPLETED;
 				tapinfo->completed_calls++;
-				comment = g_strdup("SIP Request");
+				comment = g_strdup_printf("SIP Request BYE CSeq:%d", pi->tap_cseq_number);
 			}
 			else if ((strcmp(pi->request_method,"CANCEL")==0)&&(pi->tap_cseq_number == tmp_sipinfo->invite_cseq)
 				&&(ADDRESSES_EQUAL(&tmp_src,&(callsinfo->initial_speaker)))&&(callsinfo->call_state==VOIP_CALL_SETUP)) {
 				callsinfo->call_state = VOIP_CANCELLED;
 				tmp_sipinfo->sip_state = SIP_CANCEL_SENT;
-				comment = g_strdup("SIP Request");
+				comment = g_strdup_printf("SIP Request CANCEL CSeq:%d", pi->tap_cseq_number);
 			} else {
-				comment = g_strdup("SIP Request");
+				/* comment = g_strdup_printf("SIP %s", pi->request_method); */
+				tmp_sipinfo->invite_cseq = pi->tap_cseq_number;
+				callsinfo->call_state = VOIP_CALL_SETUP;
+				comment = g_strdup_printf("SIP %s From: %s To:%s CSeq:%d",
+							  pi->request_method,
+							  callsinfo->from_identity,
+							  callsinfo->to_identity, pi->tap_cseq_number);
 			}
 		}
 
@@ -1113,6 +1149,7 @@ SIPcalls_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 				g_free(sdp_summary);
 				sdp_summary = NULL;
 		}
+
 	}
 
 	tapinfo->redraw = TRUE;
@@ -4069,6 +4106,18 @@ remove_tap_listener_voip_calls(void)
 	have_voip_tap_listener=FALSE;
 }
 
+/****************************************************************************/
+static flow_show_options flow_show_option=FLOW_ALL;
+
+flow_show_options VoIPcalls_get_flow_show_option(void)
+{
+	return flow_show_option;
+}
+
+void VoIPcalls_set_flow_show_option(flow_show_options option)
+{
+	flow_show_option = option;
+}
 
 /****************************************************************************/
 /* ***************************TAP for OTHER PROTOCOL **********************************/

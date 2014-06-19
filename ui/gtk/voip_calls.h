@@ -67,6 +67,15 @@ typedef enum _hash_indexes {
 
 extern const char *voip_protocol_name[];
 
+typedef enum _flow_show_options
+{
+    FLOW_ALL,
+    FLOW_ONLY_INVITES
+} flow_show_options;
+
+flow_show_options VoIPcalls_get_flow_show_option(void);
+void VoIPcalls_set_flow_show_option(flow_show_options option);
+
 /** defines specific SIP data */
 
 typedef enum _sip_call_state {

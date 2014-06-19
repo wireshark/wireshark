@@ -312,8 +312,6 @@ voip_calls_on_select_all(GtkButton *button _U_, gpointer user_data _U_)
 	gtk_tree_selection_select_all(selection);
 }
 
-
-
 /* compare two list entries by packet no */
 static gint
 graph_analysis_sort_compare(gconstpointer a, gconstpointer b)
@@ -376,6 +374,13 @@ on_graph_bt_clicked(GtkButton *button _U_, gpointer user_data _U_)
 		graph_analysis_create(graph_analysis_data);  /* create the window */
 	else
 		graph_analysis_update(graph_analysis_data);  /* refresh it */
+}
+
+/****************************************************************************/
+static void
+on_flow_bt_clicked(GtkButton *button _U_, gpointer user_data _U_)
+{
+    on_graph_bt_clicked(button,user_data);
 }
 
 /****************************************************************************/
@@ -470,6 +475,8 @@ add_to_list_store(voip_calls_info_t* strinfo)
 			break;
 		default:
 			field[CALL_COL_COMMENTS][0]='\0';
+			if (strinfo->call_comment)
+				g_snprintf(field[CALL_COL_COMMENTS],30, "%s", strinfo->call_comment);
 	}
 
 	/* Acquire an iterator */
@@ -719,7 +726,7 @@ voip_calls_dlg_create(void)
 	bt_graph = ws_gtk_button_new_from_stock(WIRESHARK_STOCK_VOIP_FLOW);
 	gtk_container_add(GTK_CONTAINER(hbuttonbox), bt_graph);
 	gtk_widget_show(bt_graph);
-	g_signal_connect(bt_graph, "clicked", G_CALLBACK(on_graph_bt_clicked), NULL);
+	g_signal_connect(bt_graph, "clicked", G_CALLBACK(on_flow_bt_clicked), NULL);
 	gtk_widget_set_tooltip_text(bt_graph, "Show a flow graph of the selected calls.");
 
 #ifdef HAVE_LIBPORTAUDIO
@@ -906,6 +913,16 @@ voip_calls_init_tap(const char *dummy _U_, void* userdata _U_)
 void
 voip_calls_launch(GtkAction *action _U_, gpointer user_data _U_)
 {
+	VoIPcalls_set_flow_show_option(FLOW_ONLY_INVITES);
+	voip_calls_init_tap("", NULL);
+}
+
+/****************************************************************************/
+/* entry point when called via the GTK menu */
+void
+voip_flows_launch(GtkAction *action _U_, gpointer user_data _U_)
+{
+	VoIPcalls_set_flow_show_option(FLOW_ALL);
 	voip_calls_init_tap("", NULL);
 }
 

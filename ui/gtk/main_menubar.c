@@ -1324,6 +1324,7 @@ static const char *ui_desc_menubar =
 "      <menuitem name='SMPP' action='/Telephony/smpp_commands'/>\n"
 "      <menuitem name='UCP' action='/Telephony/ucp_messages'/>\n"
 "      <menuitem name='VoIPCalls' action='/Telephony/VoIPCalls'/>\n"
+"      <menuitem name='VoIPFlows' action='/Telephony/VoIPFlows'/>\n"
 "    </menu>\n"
 "    <menu name= 'ToolsMenu' action='/Tools'>\n"
 "      <menuitem name='FirewallACLRules' action='/Tools/FirewallACLRules'/>\n"
@@ -1789,6 +1790,7 @@ static const GtkActionEntry main_menu_bar_entries[] = {
    { "/Telephony/smpp_commands",        NULL,                       "SM_PPOperations",          NULL,                       NULL,               G_CALLBACK(gtk_stats_tree_cb) },
    { "/Telephony/ucp_messages",         NULL,                       "_UCP Messages",            NULL,                       NULL,               G_CALLBACK(gtk_stats_tree_cb) },
    { "/Telephony/VoIPCalls",            WIRESHARK_STOCK_TELEPHONE,  "_VoIP Calls",              NULL,                       NULL,               G_CALLBACK(voip_calls_launch) },
+   { "/Telephony/VoIPFlows",            WIRESHARK_STOCK_TELEPHONE,  "SIP _Flows",               NULL,                       NULL,               G_CALLBACK(voip_flows_launch) },
 
    { "/Tools/FirewallACLRules",     NULL,                           "Firewall ACL Rules",       NULL,                       NULL,               G_CALLBACK(firewall_rule_cb) },
 

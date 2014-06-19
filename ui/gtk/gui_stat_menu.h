@@ -136,6 +136,7 @@ void sctp_stat_start(GtkAction *action, gpointer user_data);
 void gui_iostat_cb(GtkAction *action, gpointer user_data);
 
 void voip_calls_launch(GtkAction *action, gpointer user_data);
+void voip_flows_launch(GtkAction *action, gpointer user_data);
 
 void ansi_a_stat_gtk_bsmap_cb(GtkAction *action, gpointer user_data);
 void ansi_a_stat_gtk_dtap_cb(GtkAction *action, gpointer user_data);
