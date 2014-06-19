@@ -27,22 +27,25 @@
    Y.AMIR, L.E.MOSER, P.M.MELLIAR-SMITH, D.A.AGARWAL, P.CIARFELLA.
    "The Totem Single-Ring Ordering and Membership Protocol"*/
 
+/*
+ * NOTE: the source code at www.corosync.org looks as if it will not
+ * work with multiple OSes in a cluster if it uses IPv6, as it appears
+ * to use the OS's AF_ values in packets, and the value of AF_INET6
+ * is ***NOT*** the same in all OSes.
+ *
+ * (It'll work with IPv4, because AF_INET came out of 4.2BSD and
+ * most if not all OSes just picked up BSD's value of 2.)
+ *
+ * So we just check for all the AF_INET6 values we know about.
+ *
+ * We get the AF_ values from epan/aftypes.h, *not* from the OS
+ * we happen to be built for.
+ */
 
 # include "config.h"
 
 #include <epan/packet.h>
-
-#ifdef HAVE_SYS_SOCKET_H
-#include <sys/socket.h>
-#endif
-
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#endif
-
-#ifdef HAVE_WINSOCK2_H
-#include <winsock2.h>
-#endif
+#include <epan/aftypes.h>
 
 /*
  * Utilities for subdissectors of corosync_totemsrp.
@@ -179,8 +182,13 @@ static const value_string corosync_totemsrp_message_header_encapsulated[] = {
 
 
 static const value_string corosync_totemsrp_ip_address_family[] = {
-  { AF_INET,  "AF_INET"  },
-  { AF_INET6, "AF_INET6" },
+  { COMMON_AF_INET,       "AF_INET"  },
+  { BSD_AF_INET6_BSD,     "AF_INET6 (most BSD)" },
+  { BSD_AF_INET6_FREEBSD, "AF_INET6 (FreeBSD)" },
+  { BSD_AF_INET6_DARWIN,  "AF_INET6 (OS X and iOS)" },
+  { LINUX_AF_INET6,       "AF_INET6 (Linux)" },
+  { SOLARIS_AF_INET6,     "AF_INET6 (Solaris)" },
+  { WINSOCK_AF_INET6,     "AF_INET6 (Windows)" },
   { 0, NULL              }
 };
 
@@ -260,11 +268,16 @@ dissect_corosync_totemsrp_ip_address(tvbuff_t *tvb,
 
   switch (family)
   {
-  case AF_INET:
+  case COMMON_AF_INET:
     len = 4;
     proto_tree_add_item(tree, hf_corosync_totemsrp_ip_address_addr4, tvb, offset, len, ENC_BIG_ENDIAN);
     break;
-  case AF_INET6:
+  case BSD_AF_INET6_BSD:
+  case BSD_AF_INET6_FREEBSD:
+  case BSD_AF_INET6_DARWIN:
+  case LINUX_AF_INET6:
+  case SOLARIS_AF_INET6:
+  case WINSOCK_AF_INET6:
     len = sizeof(struct e_in6_addr);
     proto_tree_add_item(tree, hf_corosync_totemsrp_ip_address_addr6, tvb, offset, len, ENC_NA);
     break;

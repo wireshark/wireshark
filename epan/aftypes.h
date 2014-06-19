@@ -32,6 +32,9 @@
 extern "C" {
 #endif /* __cplusplus */
 
+/* Pretty much everybody uses the same value for AF_INET. */
+#define COMMON_AF_INET		2
+
 /* BSD AF_ values. */
 #define BSD_AF_INET		2
 #define BSD_AF_ISO		7
