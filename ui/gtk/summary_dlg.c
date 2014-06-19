@@ -138,7 +138,7 @@ summary_ok_cb(GtkWidget *w _U_, GtkWidget *view)
   GtkTextIter end_iter;
   gchar *new_comment = NULL;
 
-  if (view != NULL) {
+  if (view != NULL && cfile.filename != NULL) {
     buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (view));
     gtk_text_buffer_get_start_iter (buffer, &start_iter);
     gtk_text_buffer_get_end_iter (buffer, &end_iter);
