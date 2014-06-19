@@ -1072,7 +1072,7 @@ dissect_c1222_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
       dissect_MESSAGE_PDU(tvb, pinfo, c1222_tree);
     }
 
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 /**
@@ -1108,7 +1108,7 @@ dissect_c1222(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
   tcp_dissect_pdus(tvb, pinfo, tree, c1222_desegment, 5,
           get_c1222_message_len, dissect_c1222_common, data);
-  return tvb_length(tvb);
+  return tvb_captured_length(tvb);
 }
 
 /*--- proto_register_c1222 -------------------------------------------*/

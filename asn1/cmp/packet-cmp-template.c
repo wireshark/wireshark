@@ -259,7 +259,7 @@ dissect_cmp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void
 	tcp_dissect_pdus(tvb, pinfo, parent_tree, cmp_desegment, offset, get_cmp_pdu_len,
 			dissect_cmp_tcp_pdu, data);
 
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 

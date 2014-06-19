@@ -140,7 +140,7 @@ dissect_cmip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 			;
 	}
 
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 /*--- proto_register_cmip ----------------------------------------------*/
