@@ -26,11 +26,11 @@
     <example id="AppToolstsharkEx">
       <title>Help information available from tshark</title>
       <programlisting>
-TShark 1.11.0 (SVN Rev 52564 from /trunk)
+TShark 1.12.0 (v1.12.0-rc2-59-g7ea0d6c from master-1.12)
 Dump and analyze network traffic.
 See http://www.wireshark.org for more information.
 
-Copyright 1998-2013 Gerald Combs &lt;gerald@wireshark.org&gt; and contributors.
+Copyright 1998-2014 Gerald Combs &lt;gerald@wireshark.org&gt; and contributors.
 This is free software; see the source for copying conditions. There is NO
 warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
@@ -59,12 +59,13 @@ Capture output:
 RPCAP options:
   -A &lt;user&gt;:&lt;password&gt;     use RPCAP password authentication
 Input file:
-  -r &lt;infile&gt;              set the filename to read from (no pipes or stdin!)
+  -r &lt;infile&gt;              set the filename to read from (no stdin!)
 
 Processing:
   -2                       perform a two-pass analysis
   -R &lt;read filter&gt;         packet Read filter in Wireshark display filter syntax
-  -Y &lt;display filter&gt;      packet displaY filter in Wireshark display filter syntax
+  -Y &lt;display filter&gt;      packet displaY filter in Wireshark display filter
+                           syntax
   -n                       disable all name resolutions (def: all enabled)
   -N &lt;name resolve flags&gt;  enable specific name resolution(s): "mntC"
   -d &lt;layer_type&gt;==&lt;selector&gt;,&lt;decode_as_protocol&gt; ...
@@ -76,7 +77,7 @@ Output:
   -w &lt;outfile|-&gt;           write packets to a pcap-format file named "outfile"
                            (or to the standard output for "-")
   -C &lt;config profile&gt;      start with specified configuration profile
-  -F &lt;output file type&gt;    set the output file type, default is libpcap
+  -F &lt;output file type&gt;    set the output file type, default is pcapng
                            an empty "-F" option will list the file types
   -V                       add output of packet tree        (Packet Details)
   -O &lt;protocols&gt;           Only show packet details of these protocols, comma
@@ -86,7 +87,8 @@ Output:
   -x                       add output of hex and ASCII dump (Packet Bytes)
   -T pdml|ps|psml|text|fields
                            format of text output (def: text)
-  -e &lt;field&gt;               field to print if -Tfields selected (e.g. tcp.port, _ws.col.Info);
+  -e &lt;field&gt;               field to print if -Tfields selected (e.g. tcp.port,
+                           _ws.col.Info)
                            this option can be repeated to print multiple fields
   -E&lt;fieldsoption&gt;=&lt;value&gt; set options for output when -Tfields selected:
      header=y|n            switch headers on and off
@@ -180,7 +182,7 @@ tcpdump -i &lt;interface> -s 65535 -w &lt;some-file>
     <example id="AppToolsdumpcapEx">
       <title>Help information available from dumpcap</title>
       <programlisting>
-Dumpcap 1.11.0 (SVN Rev 52564 from /trunk)
+Dumpcap 1.12.0 (v1.12.0-rc2-59-g7ea0d6c from master-1.12)
 Capture network packets and dump them into a pcapng file.
 See http://www.wireshark.org for more information.
 
@@ -258,7 +260,7 @@ Use Ctrl-C to stop capturing at any time.
     <example id="AppToolscapinfosEx">
       <title>Help information available from capinfos</title>
       <programlisting>
-Capinfos 1.11.0 (SVN Rev 52564 from /trunk)
+Capinfos 1.12.0 (v1.12.0-rc2-59-g7ea0d6c from master-1.12)
 Prints various information (infos) about capture files.
 See http://www.wireshark.org for more information.
 
@@ -332,11 +334,11 @@ output format.
     <example id="AppToolsrawsharkEx">
       <title>Help information available from rawshark</title>
       <programlisting>
-Rawshark 1.11.0 (SVN Rev 52564 from /trunk)
+Rawshark 1.12.0 (v1.12.0-rc2-59-g7ea0d6c from master-1.12)
 Dump and analyze network traffic.
 See http://www.wireshark.org for more information.
 
-Copyright 1998-2013 Gerald Combs &lt;gerald@wireshark.org&gt; and contributors.
+Copyright 1998-2014 Gerald Combs &lt;gerald@wireshark.org&gt; and contributors.
 This is free software; see the source for copying conditions. There is NO
 warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
@@ -386,7 +388,7 @@ Miscellaneous:
       <title>Help information available from editcap</title>
       <para>
       <programlisting>
-Editcap 1.11.0 (SVN Rev 52564 from /trunk)
+Editcap 1.12.0 (v1.12.0-rc2-59-g7ea0d6c from master-1.12)
 Edit and/or translate the format of capture files.
 See http://www.wireshark.org for more information.
 
@@ -461,7 +463,7 @@ Miscellaneous:
   -v                     verbose output.
                          If -v is used with any of the 'Duplicate Packet
                          Removal' options (-d, -D or -w) then Packet lengths
-                         and MD5 hashes are printed to standard-out.
+                         and MD5 hashes are printed to standard-error.
       </programlisting>
       </para>
     </example>
@@ -480,6 +482,14 @@ editcap: The available capture file types for the "-F" flag are:
     eyesdn - EyeSDN USB S0/E1 ISDN trace format
     k12text - K12 text file
     lanalyzer - Novell LANalyzer
+    logcat - Android Logcat Binary format
+    logcat-brief - Android Logcat Brief text format
+    logcat-long - Android Logcat Long text format
+    logcat-process - Android Logcat Process text format
+    logcat-tag - Android Logcat Tag text format
+    logcat-thread - Android Logcat Thread text format
+    logcat-threadtime - Android Logcat Threadtime text format
+    logcat-time - Android Logcat Time text format
     modlibpcap - Modified tcpdump - libpcap
     netmon1 - Microsoft NetMon 1.x
     netmon2 - Microsoft NetMon 2.x
@@ -492,6 +502,7 @@ editcap: The available capture file types for the "-F" flag are:
     nseclibpcap - Wireshark - nanosecond libpcap
     nstrace10 - NetScaler Trace (Version 1.0)
     nstrace20 - NetScaler Trace (Version 2.0)
+    nstrace30 - NetScaler Trace (Version 3.0)
     pcap - Wireshark/tcpdump/... - pcap
     pcapng - Wireshark/... - pcapng
     rf5 - Tektronix K12xx 32-bit .rf5 format
@@ -525,10 +536,13 @@ editcap: The available encapsulation types for the "-T" flag are:
     bacnet-ms-tp - BACnet MS/TP
     bacnet-ms-tp-with-direction - BACnet MS/TP with Directional Info
     ber - ASN.1 Basic Encoding Rules
+    bluetooth-bredr-bb-rf - Bluetooth BR/EDR Baseband RF
     bluetooth-h4 - Bluetooth H4
     bluetooth-h4-linux - Bluetooth H4 with linux header
     bluetooth-hci - Bluetooth without transport layer
     bluetooth-le-ll - Bluetooth Low Energy Link Layer
+    bluetooth-le-ll-rf - Bluetooth Low Energy Link Layer RF
+    bluetooth-linux-monitor - Bluetooth Linux Monitor
     can20b - Controller Area Network 2.0B
     chdlc - Cisco HDLC
     chdlc-with-direction - Cisco HDLC with Directional Info
@@ -539,6 +553,7 @@ editcap: The available encapsulation types for the "-T" flag are:
     dpnss_link - Digital Private Signalling System No 1 Link Layer
     dvbci - DVB-CI (Common Interface)
     enc - OpenBSD enc(4) encapsulating interface
+    epon - Ethernet Passive Optical Network
     erf - Extensible Record Format
     ether - Ethernet
     ether-nettl - Ethernet with nettl headers
@@ -570,6 +585,7 @@ editcap: The available encapsulation types for the "-T" flag are:
     ip-over-ib - IP over Infiniband
     ipfix - IPFIX
     ipmb - Intelligent Platform Management Bus
+    ipmi-trace - IPMI Trace Data Collection
     ipnet - Solaris IPNET
     irda - IrDA
     isdn - ISDN
@@ -595,6 +611,14 @@ editcap: The available encapsulation types for the "-T" flag are:
     linux-atm-clip - Linux ATM CLIP
     linux-lapd - LAPD with Linux pseudo-header
     linux-sll - Linux cooked-mode capture
+    logcat - Android Logcat Binary format
+    logcat_brief - Android Logcat Brief text format
+    logcat_long - Android Logcat Long text format
+    logcat_process - Android Logcat Process text format
+    logcat_tag - Android Logcat Tag text format
+    logcat_thread - Android Logcat Thread text format
+    logcat_threadtime - Android Logcat Threadtime text format
+    logcat_time - Android Logcat Time text format
     ltalk - Localtalk
     mime - MIME
     most - Media Oriented Systems Transport
@@ -606,14 +630,17 @@ editcap: The available encapsulation types for the "-T" flag are:
     mux27010 - MUX27010
     netanalyzer - netANALYZER
     netanalyzer-transparent - netANALYZER-Transparent
+    netlink - Linux Netlink
     nfc-llcp - NFC LLCP
     nflog - NFLOG
     nstrace10 - NetScaler Encapsulation 1.0 of Ethernet
     nstrace20 - NetScaler Encapsulation 2.0 of Ethernet
+    nstrace30 - NetScaler Encapsulation 3.0 of Ethernet
     null - NULL
     packetlogger - PacketLogger
     pflog - OpenBSD PF Firewall logs
     pflog-old - OpenBSD PF Firewall logs, pre-3.4
+    pktap - Apple PKTAP
     ppi - Per-Packet Information header
     ppp - PPP
     ppp-with-direction - PPP with Directional Info
@@ -627,6 +654,8 @@ editcap: The available encapsulation types for the "-T" flag are:
     rawip6 - Raw IPv6
     redback - Redback SmartEdge
     rtac-serial - RTAC serial-line
+    s4607 - STANAG 4607
+    s5066-dpdu - STANAG 5066 Data Transfer Sublayer PDUs(D_PDU)
     sccp - SS7 SCCP
     sctp - SCTP
     sdh - SDH
@@ -740,7 +769,7 @@ editcap: The available encapsulation types for the "-T" flag are:
     <example id="AppToolsmergecapEx">
       <title>Help information available from mergecap</title>
       <programlisting>
-Mergecap 1.11.0 (SVN Rev 52564 from /trunk)
+Mergecap 1.12.0 (v1.12.0-rc2-59-g7ea0d6c from master-1.12)
 Merge two or more capture files into one.
 See http://www.wireshark.org for more information.
 
@@ -844,7 +873,7 @@ Miscellaneous:
     <example id="AppToolstext2pcapEx">
       <title>Help information available from text2pcap</title>
       <programlisting>
-Text2pcap 1.11.0 (SVN Rev 52564 from /trunk)
+Text2pcap 1.12.0 (v1.12.0-rc2-59-g7ea0d6c from master-1.12)
 Generate a capture file from an ASCII hexdump of packets.
 See http://www.wireshark.org for more information.
 
@@ -898,7 +927,7 @@ Prepend dummy header:
                          Example: -4 10.0.0.1,10.0.0.2
   -6 &lt;srcip&gt;,&lt;destip&gt;    replace IPv6 header with specified
                          dest and source address.
-                         Example: -6 fe80:0:0:0:202:b3ff:fe1e:8329, 2001:0db8:85a3:0000:0000:8a2e:0370:7334
+                         Example: -6 fe80:0:0:0:202:b3ff:fe1e:8329,2001:0db8:85a3:0000:0000:8a2e:0370:7334
   -u &lt;srcp&gt;,&lt;destp&gt;      prepend dummy UDP header with specified
                          source and destination ports (in DECIMAL).
                          Automatically prepends Ethernet &amp; IP headers as well.
@@ -1167,7 +1196,7 @@ CLEAN_DISSECTOR_SRC = \
     <example id="AppToolsreordercapEx">
       <title>Help information available from reordercap</title>
       <programlisting>
-Reordercap 1.11.0
+Reordercap 1.12.0
 Reorder timestamps of input file frames into output file.
 See http://www.wireshark.org for more information.
 
@@ -1175,6 +1204,7 @@ Usage: reordercap [options] &lt;infile&gt; &lt;outfile&gt;
 
 Options:
   -n        don't write to output file if the input file is ordered.
+  -h        display this help and exit.
       </programlisting>
     </example>
   </section>
