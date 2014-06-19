@@ -79,7 +79,7 @@ test(tvbuff_t *tvb, const gchar* name,
 		printf("02: Caught wrong exception: ReportedBoundsError\n");
 	}
 	CATCH_ALL {
-		printf("02: Caught wrong exception: %lu, exc->except_id.except_code\n");
+		printf("02: Caught wrong exception: %lu\n", exc->except_id.except_code);
 	}
 	ENDTRY;
 
@@ -106,7 +106,7 @@ test(tvbuff_t *tvb, const gchar* name,
 		ex_thrown = TRUE;
 	}
 	CATCH_ALL {
-		printf("02: Caught wrong exception: %lu, exc->except_id.except_code\n");
+		printf("02: Caught wrong exception: %lu\n", exc->except_id.except_code);
 	}
 	ENDTRY;
 
@@ -132,7 +132,7 @@ test(tvbuff_t *tvb, const gchar* name,
 		printf("04: Caught wrong exception: ReportedBoundsError\n");
 	}
 	CATCH_ALL {
-		printf("02: Caught wrong exception: %lu, exc->except_id.except_code\n");
+		printf("02: Caught wrong exception: %lu\n", exc->except_id.except_code);
 	}
 	ENDTRY;
 
@@ -158,7 +158,7 @@ test(tvbuff_t *tvb, const gchar* name,
 		printf("05: Caught wrong exception: ReportedBoundsError\n");
 	}
 	CATCH_ALL {
-		printf("02: Caught wrong exception: %lu, exc->except_id.except_code\n");
+		printf("02: Caught wrong exception: %lu\n", exc->except_id.except_code);
 	}
 	ENDTRY;
 
@@ -184,7 +184,7 @@ test(tvbuff_t *tvb, const gchar* name,
 		printf("06: Caught wrong exception: ReportedBoundsError\n");
 	}
 	CATCH_ALL {
-		printf("02: Caught wrong exception: %lu, exc->except_id.except_code\n");
+		printf("02: Caught wrong exception: %lu\n", exc->except_id.except_code);
 	}
 	ENDTRY;
 
@@ -254,29 +254,29 @@ test(tvbuff_t *tvb, const gchar* name,
 	 * tvb_memdup() */
 	for (incr = 1; incr < length; incr++) {
 		for (i = 0; i < length - incr; i += incr) {
-			ptr = tvb_memdup(NULL, tvb, i, incr);
+			ptr = (guint8*)tvb_memdup(NULL, tvb, i, incr);
 			if (memcmp(ptr, &expected_data[i], incr) != 0) {
 				printf("11: Failed TVB=%s Offset=%d Length=%d "
 						"Bad memdup\n",
 						name, i, incr);
 				failed = TRUE;
-				g_free(ptr);
+				wmem_free(NULL, ptr);
 				return FALSE;
 			}
-			g_free(ptr);
+			wmem_free(NULL, ptr);
 		}
 	}
 
 	/* One big memdup */
-	ptr = tvb_memdup(NULL, tvb, 0, -1);
+	ptr = (guint8*)tvb_memdup(NULL, tvb, 0, -1);
 	if (memcmp(ptr, expected_data, length) != 0) {
 		printf("12: Failed TVB=%s Offset=0 Length=-1 "
 				"Bad memdup\n", name);
 		failed = TRUE;
-		g_free(ptr);
+		wmem_free(NULL, ptr);
 		return FALSE;
 	}
-	g_free(ptr);
+	wmem_free(NULL, ptr);
 
 
 	printf("Passed TVB=%s\n", name);
@@ -407,7 +407,7 @@ run_tests(void)
 	tvb_comp[1]		= tvb_new_composite();
 	comp_length[1]		= small_length[0] + small_length[1];
 	comp_reported_length[1] = small_reported_length[0] + small_reported_length[1];
-	comp[1]			= g_malloc(comp_length[1]);
+	comp[1]			= (guint8*)g_malloc(comp_length[1]);
 	memcpy(comp[1], small[0], small_length[0]);
 	memcpy(&comp[1][small_length[0]], small[1], small_length[1]);
 	tvb_composite_append(tvb_comp[1], tvb_small[0]);
@@ -428,7 +428,7 @@ run_tests(void)
 	tvb_comp[3]		= tvb_new_composite();
 	comp_length[3]		= subset_length[4] + subset_length[5];
 	comp_reported_length[3] = subset_reported_length[4] + subset_reported_length[5];
-	comp[3]			= g_malloc(comp_length[3]);
+	comp[3]			= (guint8*)g_malloc(comp_length[3]);
 	memcpy(comp[3], subset[4], subset_length[4]);
 	memcpy(&comp[3][subset_length[4]], subset[5], subset_length[5]);
 	tvb_composite_append(tvb_comp[3], tvb_subset[4]);
@@ -440,7 +440,7 @@ run_tests(void)
 	tvb_comp[4]		= tvb_new_composite();
 	comp_length[4]		= small_length[0] + subset_length[1];
 	comp_reported_length[4]	= small_reported_length[0] + subset_reported_length[1];
-	comp[4]			= g_malloc(comp_length[4]);
+	comp[4]			= (guint8*)g_malloc(comp_length[4]);
 	memcpy(&comp[4][0], small[0], small_length[0]);
 	memcpy(&comp[4][small_length[0]], subset[1], subset_length[1]);
 	tvb_composite_append(tvb_comp[4], tvb_small[0]);
@@ -458,7 +458,7 @@ run_tests(void)
 					comp_reported_length[1] +
 					comp_reported_length[2] +
 					comp_reported_length[3];
-	comp[5]			= g_malloc(comp_length[5]);
+	comp[5]			= (guint8*)g_malloc(comp_length[5]);
 
 	len = 0;
 	memcpy(&comp[5][len], comp[0], comp_length[0]);

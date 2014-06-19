@@ -321,8 +321,8 @@ oids_test_2resolved_string(void)
 static void
 oids_test_2both_subids(void)
 {
-    gchar* resolved;
-    gchar* oid;
+    const gchar* resolved;
+    const gchar* oid;
 
     oid_both(ex1.subids_len, ex1.subids, &resolved, &oid);
     g_assert_cmpstr(resolved, ==, ex1.resolved);
@@ -332,8 +332,8 @@ oids_test_2both_subids(void)
 static void
 oids_test_2both_encoded(void)
 {
-    gchar* resolved;
-    gchar* oid;
+    const gchar* resolved;
+    const gchar* oid;
 
     oid_both_from_encoded(ex1.encoded, ex1.encoded_len, &resolved, &oid);
     g_assert_cmpstr(resolved, ==, ex1.resolved);
