@@ -605,12 +605,12 @@ static gchar *key_to_str( const iax_circuit_key *key )
   }
   strp = str[i];
 
-  /* why doesn't address_to_str take a const pointer?
+  /* why doesn't ep_address_to_str take a const pointer?
      cast the warnings into oblivion. */
 
   /* XXX - is this a case for wmem_packet_scope()? */
   g_snprintf(strp, 80, "{%s:%i,%i}",
-             address_to_str(wmem_packet_scope(), (address *)&key->addr),
+             ep_address_to_str((address *)&key->addr),
              key->port,
              key->callno);
   return strp;
@@ -932,8 +932,8 @@ static iax_call_data *iax_lookup_call( packet_info *pinfo,
 #ifdef DEBUG_HASHING
   g_debug("++ iax_lookup_circuit_details: Looking up circuit for frame %u, "
           "from {%s:%u:%u} to {%s:%u:%u}", pinfo->fd->num,
-          address_to_str(wmem_packet_scope(), &pinfo->src), pinfo->srcport, scallno,
-          address_to_str(wmem_packet_scope(), &pinfo->dst), pinfo->destport, dcallno);
+          ep_address_to_str(&pinfo->src), pinfo->srcport, scallno,
+          ep_address_to_str(&pinfo->dst), pinfo->destport, dcallno);
 #endif
 
 
