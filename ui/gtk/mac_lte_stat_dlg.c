@@ -1068,7 +1068,7 @@ static void gtk_mac_lte_stat_init(const char *opt_arg, void *userdata _U_)
     g_free(display_name);
 
     /* Create top-level window */
-    hs->mac_lte_stat_dlg_w = window_new_with_geom(GTK_WINDOW_TOPLEVEL, title, "LTE MAC Statistics");
+    hs->mac_lte_stat_dlg_w = window_new_with_geom(GTK_WINDOW_TOPLEVEL, title, "LTE MAC Statistics", GTK_WIN_POS_CENTER_ON_PARENT);
 
     /* Window size */
     gtk_window_set_default_size(GTK_WINDOW(hs->mac_lte_stat_dlg_w), 750, 300);

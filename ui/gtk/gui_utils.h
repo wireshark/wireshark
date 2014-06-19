@@ -109,9 +109,11 @@ extern GtkWidget *window_new(GtkWindowType type, const gchar *title);
  * @param type window type, typical GTK_WINDOW_TOPLEVEL
  * @param title the title for the new window
  * @param geom_name the name to distinguish this window; will also be used for the recent file (don't use special chars)
+ * @parm pos the initial position of the window if a previously saved geometry was not saved or found.
+ *     If the initial position does not matter, specify GTK_WIN_POS_NONE.
  * @return the newly created window
  */
-extern GtkWidget *window_new_with_geom(GtkWindowType type, const gchar *title, const gchar *geom_name);
+extern GtkWidget *window_new_with_geom(GtkWindowType type, const gchar *title, const gchar *geom_name, GtkWindowPosition pos);
 
 /** Create a new splash window, with no icon or title bar.
  *

@@ -247,7 +247,7 @@ tap_param_dlg_cb(GtkAction *action _U_, gpointer data)
     title = g_strdup_printf("Wireshark: %s: %s", current_dlg->cont.win_title , display_name);
     g_free(display_name);
 
-    current_dlg->dlg=dlg_window_new(title);
+    current_dlg->dlg=dlg_window_new_with_geom(title, current_dlg->cont.win_title, GTK_WIN_POS_CENTER_ON_PARENT);
     gtk_window_set_default_size(GTK_WINDOW(current_dlg->dlg), 300, -1);
     g_free(title);
 

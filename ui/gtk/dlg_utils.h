@@ -101,6 +101,19 @@
  */
 extern GtkWidget *dlg_window_new(const gchar *title);
 
+/** Create a dialog box window that belongs to Wireshark's main window.
+ * If you want to create a window, use window_new_with_geom() instead.
+ * See window_new_with_geom() for general window usage.
+ *
+ * @param title the title for the new dialog
+ * @param geom_name A unique name for the geometry of this new dialog
+ * @parm pos the initial position of the window if a previously saved geometry was not saved or found.
+ *     If the initial position does not matter, specify GTK_WIN_POS_NONE.
+ * @return the newly created dialog
+ */
+extern GtkWidget *
+dlg_window_new_with_geom(const gchar *title, const gchar *geom_name, GtkWindowPosition pos);
+
 /** Create a configuration dialog box window that belongs to Wireshark's
  * main window and add the name of the current profile name to its title bar
  * If you want to create a window, use window_new() instead.

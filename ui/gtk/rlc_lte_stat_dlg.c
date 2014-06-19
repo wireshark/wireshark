@@ -1316,7 +1316,7 @@ static void gtk_rlc_lte_stat_init(const char *opt_arg, void *userdata _U_)
     g_snprintf(title, sizeof(title), "Wireshark: LTE RLC Statistics: %s",
                display_name);
     g_free(display_name);
-    hs->dlg_w = window_new_with_geom(GTK_WINDOW_TOPLEVEL, title, "LTE RLC Statistics");
+    hs->dlg_w = window_new_with_geom(GTK_WINDOW_TOPLEVEL, title, "LTE RLC Statistics", GTK_WIN_POS_CENTER_ON_PARENT);
 
     /* Window size */
     gtk_window_set_default_size(GTK_WINDOW(hs->dlg_w), 600, 300);

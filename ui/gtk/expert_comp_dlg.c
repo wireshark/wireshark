@@ -781,7 +781,8 @@ expert_comp_init(const char *opt_arg _U_, void* userdata _U_)
     ss->warn_events = 0;
     ss->error_events = 0;
 
-    expert_comp_dlg_w = ss->win=dlg_window_new("err");  /* transient_for top_level */
+    expert_comp_dlg_w = ss->win = dlg_window_new_with_geom("Expert Info",
+        NULL, GTK_WIN_POS_CENTER_ON_PARENT);  /* transient_for top_level */
     gtk_window_set_destroy_with_parent (GTK_WINDOW(ss->win), TRUE);
     gtk_window_set_default_size(GTK_WINDOW(ss->win), 700, 300);
 

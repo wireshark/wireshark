@@ -186,7 +186,8 @@ window_new(GtkWindowType  type,
 GtkWidget *
 window_new_with_geom(GtkWindowType  type,
                      const gchar   *title,
-                     const gchar   *geom_name)
+                     const gchar   *geom_name,
+                     GtkWindowPosition pos)
 {
     window_geometry_t geom;
     GtkWidget *win = window_new(type, title);
@@ -203,6 +204,17 @@ window_new_with_geom(GtkWindowType  type,
             geom.set_size       = TRUE;
             geom.set_maximized  = FALSE;  /* don't maximize until window is shown */
             window_set_geometry(win, &geom);
+        } else if (pos != GTK_WIN_POS_NONE) {
+#ifdef _WIN32
+            /* Testing using GTK+ 2.24.10 shows that
+             * GTK_WIN_POS_CENTER_ON_PARENT doesn't seem to work on Windows, so
+             * use the next best thing.  Is this a problem for all OS's though,
+             * or just Windows?  Unknown. (Tested with Windows XP SP3 32-bit)
+             */
+            if (pos == GTK_WIN_POS_CENTER_ON_PARENT)
+                pos = GTK_WIN_POS_CENTER;
+#endif
+            gtk_window_set_position(GTK_WINDOW(win), pos);
         }
     }
 

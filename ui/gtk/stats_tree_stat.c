@@ -451,7 +451,7 @@ init_gtk_tree(const char* opt_arg, void *userdata _U_)
 
 	window_name = g_strdup_printf("%s Stats Tree", st->display_name);
 
-	st->pr->win = window_new_with_geom(GTK_WINDOW_TOPLEVEL,window_name,window_name);
+	st->pr->win = window_new_with_geom(GTK_WINDOW_TOPLEVEL, window_name, NULL, GTK_WIN_POS_CENTER_ON_PARENT);
 	gtk_window_set_default_size(GTK_WINDOW(st->pr->win), st->num_columns*80+80, 400);
 	g_free(window_name);
 
