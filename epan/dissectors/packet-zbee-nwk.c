@@ -73,6 +73,8 @@ void               proto_reg_handoff_zbee_nwk(void);
 /* Global Variables */
 /********************/
 static int proto_zbee_nwk = -1;
+static int proto_zbee_beacon = -1;
+static int proto_zbip_beacon = -1;
 static int hf_zbee_nwk_frame_type = -1;
 static int hf_zbee_nwk_proto_version = -1;
 static int hf_zbee_nwk_discover_route = -1;
@@ -393,11 +395,8 @@ dissect_zbee_nwk_full(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
     /* Add ourself to the protocol column, clear the info column, and create the protocol tree. */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "ZigBee");
     col_clear(pinfo->cinfo, COL_INFO);
-    if (tree) {
-        proto_root = proto_tree_add_protocol_format(tree, proto_zbee_nwk, tvb, offset,
-                                                    tvb_length(tvb), "ZigBee Network Layer");
-        nwk_tree = proto_item_add_subtree(proto_root, ett_zbee_nwk);
-    }
+    proto_root = proto_tree_add_item(tree, proto_zbee_nwk, tvb, offset, -1, ENC_NA);
+    nwk_tree = proto_item_add_subtree(proto_root, ett_zbee_nwk);
 
     /* Get and parse the FCF */
     fcf = tvb_get_letohs(tvb, offset);
@@ -1463,10 +1462,8 @@ static int dissect_zbee_beacon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     /* Add ourself to the protocol column. */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "ZigBee");
     /* Create the tree for this beacon. */
-    if (tree) {
-        beacon_root = proto_tree_add_protocol_format(tree, proto_zbee_nwk, tvb, 0, tvb_length(tvb), "ZigBee Beacon");
-        beacon_tree = proto_item_add_subtree(beacon_root, ett_zbee_beacon);
-    }
+    beacon_root = proto_tree_add_item(tree, proto_zbee_beacon, tvb, 0, -1, ENC_NA);
+    beacon_tree = proto_item_add_subtree(beacon_root, ett_zbee_beacon);
 
     /* Update the info column. */
     col_add_fstr(pinfo->cinfo, COL_INFO, "Beacon, Src: 0x%04x", packet->src16);
@@ -1602,10 +1599,8 @@ static int dissect_zbip_beacon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     /* Add ourself to the protocol column. */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "ZigBee IP");
     /* Create the tree for this beacon. */
-    if (tree) {
-        beacon_root = proto_tree_add_protocol_format(tree, proto_zbee_nwk, tvb, 0, tvb_length(tvb), "ZigBee IP Beacon");
-        beacon_tree = proto_item_add_subtree(beacon_root, ett_zbee_beacon);
-    }
+    beacon_root = proto_tree_add_item(tree, proto_zbip_beacon, tvb, 0, -1, ENC_NA);
+    beacon_tree = proto_item_add_subtree(beacon_root, ett_zbee_beacon);
 
     /* Update the info column. */
     col_clear(pinfo->cinfo, COL_INFO);
@@ -1995,13 +1990,15 @@ void proto_register_zbee_nwk(void)
 
     /* Register the protocol with Wireshark. */
     proto_zbee_nwk = proto_register_protocol("ZigBee Network Layer", "ZigBee NWK", ZBEE_PROTOABBREV_NWK);
+    proto_zbee_beacon = proto_register_protocol("ZigBee Beacon", "ZigBee Beacon", "zbee_beacon");
+    proto_zbip_beacon = proto_register_protocol("ZigBee IP Beacon", "ZigBee IP Beacon", "zbip_beacon");
     proto_register_field_array(proto_zbee_nwk, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
     /* Register the dissectors with Wireshark. */
     new_register_dissector(ZBEE_PROTOABBREV_NWK, dissect_zbee_nwk, proto_zbee_nwk);
-    new_register_dissector("zbee_beacon", dissect_zbee_beacon, proto_zbee_nwk);
-    new_register_dissector("zbip_beacon", dissect_zbip_beacon, proto_zbee_nwk);
+    new_register_dissector("zbee_beacon", dissect_zbee_beacon, proto_zbee_beacon);
+    new_register_dissector("zbip_beacon", dissect_zbip_beacon, proto_zbip_beacon);
 
     /* Register the Security dissector. */
     zbee_security_register(NULL, proto_zbee_nwk);
@@ -2027,8 +2024,8 @@ void proto_reg_handoff_zbee_nwk(void)
 
     /* Register our dissector with IEEE 802.15.4 */
     dissector_add_handle(IEEE802154_PROTOABBREV_WPAN_PANID, find_dissector(ZBEE_PROTOABBREV_NWK));
-    heur_dissector_add(IEEE802154_PROTOABBREV_WPAN_BEACON, dissect_zbee_beacon_heur, proto_zbee_nwk);
-    heur_dissector_add(IEEE802154_PROTOABBREV_WPAN_BEACON, dissect_zbip_beacon_heur, proto_zbee_nwk);
+    heur_dissector_add(IEEE802154_PROTOABBREV_WPAN_BEACON, dissect_zbee_beacon_heur, proto_zbee_beacon);
+    heur_dissector_add(IEEE802154_PROTOABBREV_WPAN_BEACON, dissect_zbip_beacon_heur, proto_zbip_beacon);
     heur_dissector_add(IEEE802154_PROTOABBREV_WPAN, dissect_zbee_nwk_heur, proto_zbee_nwk);
 
     /* Handoff the ZigBee security dissector code. */
