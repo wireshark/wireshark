@@ -330,7 +330,7 @@ static void lbmc_uim_flow_graph_dlg_create(void)
     GtkWidget * bt_cancel = NULL;
     GtkWidget * bt_ok = NULL;
     GtkWidget * range_fr = NULL;
-    GtkWidget * range_tb = NULL;
+    GtkWidget * range_grid = NULL;
 
     flow_graph_dlg_w = dlg_window_new("Wireshark: UIM Flow Graph");
     gtk_window_set_destroy_with_parent(GTK_WINDOW(flow_graph_dlg_w), TRUE);
@@ -347,15 +347,16 @@ static void lbmc_uim_flow_graph_dlg_create(void)
     range_fr = gtk_frame_new("Choose packets");
     gtk_box_pack_start(GTK_BOX(main_vb), range_fr, FALSE, FALSE, 5);
 
-    range_tb = gtk_table_new(4, 4, FALSE);
-    gtk_container_set_border_width(GTK_CONTAINER(range_tb), 5);
-    gtk_container_add(GTK_CONTAINER(range_fr), range_tb);
+    range_grid = ws_gtk_grid_new();
+    gtk_container_set_border_width(GTK_CONTAINER(range_grid), 5);
+    gtk_container_add(GTK_CONTAINER(range_fr), range_grid);
 
     /* Process all packets */
     dialog_data.select_all_radio_button = gtk_radio_button_new_with_mnemonic_from_widget(NULL, "_All packets");
     gtk_widget_set_tooltip_text(dialog_data.select_all_radio_button, ("Process all packets"));
     g_signal_connect(dialog_data.select_all_radio_button, "toggled", G_CALLBACK(lbmc_uim_flow_toggle_select_all_cb), NULL);
-    gtk_table_attach_defaults(GTK_TABLE(range_tb), dialog_data.select_all_radio_button, 0, 1, 0, 1);
+    ws_gtk_grid_attach_extended(GTK_GRID(range_grid), dialog_data.select_all_radio_button, 0, 0, 1, 1,
+                                (GtkAttachOptions)(GTK_FILL), (GtkAttachOptions)(0), 0, 0);
     if (dialog_data.packet_select_type == select_all_packets)
     {
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(dialog_data.select_all_radio_button), TRUE);
@@ -367,14 +368,15 @@ static void lbmc_uim_flow_graph_dlg_create(void)
         gtk_radio_button_new_with_mnemonic_from_widget(GTK_RADIO_BUTTON(dialog_data.select_all_radio_button), "_Displayed packets");
     gtk_widget_set_tooltip_text(dialog_data.select_displayed_radio_button, ("Process displayed packets"));
     g_signal_connect(dialog_data.select_displayed_radio_button, "toggled", G_CALLBACK(lbmc_uim_flow_toggle_select_displayed_cb), NULL);
-    gtk_table_attach_defaults(GTK_TABLE(range_tb), dialog_data.select_displayed_radio_button, 0, 1, 1, 2);
+    ws_gtk_grid_attach_extended(GTK_GRID(range_grid), dialog_data.select_displayed_radio_button, 0, 1, 1, 1,
+                                (GtkAttachOptions)(GTK_FILL), (GtkAttachOptions)(0), 0, 0);
     if (dialog_data.packet_select_type == select_displayed_packets)
     {
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(dialog_data.select_displayed_radio_button), TRUE);
     }
     gtk_widget_show(dialog_data.select_displayed_radio_button);
 
-    gtk_widget_show(range_tb);
+    gtk_widget_show(range_grid);
     gtk_widget_show(range_fr);
 
     /* button row */
