@@ -1162,122 +1162,122 @@ void proto_register_synphasor(void)
 	static hf_register_info hf[] = {
 		/* Sync word */
 		{ &hf_sync,
-		{ "Synchronization word", PROTOCOL_ABBREV ".sync", FT_UINT16, BASE_HEX,
+		{ "Synchronization word", "synphasor.sync", FT_UINT16, BASE_HEX,
 		  NULL, 0x0, NULL, HFILL }},
 			/* Flags in the Sync word */
 			{ &hf_sync_frtype,
-			{ "Frame Type", PROTOCOL_ABBREV ".frtype", FT_UINT16, BASE_HEX,
+			{ "Frame Type", "synphasor.frtype", FT_UINT16, BASE_HEX,
 			  VALS(typenames), 0x0070, NULL, HFILL }},
 
 			{ &hf_sync_version,
-			{ "Version",	PROTOCOL_ABBREV ".version", FT_UINT16, BASE_DEC,
+			{ "Version",	"synphasor.version", FT_UINT16, BASE_DEC,
 			  VALS(versionnames), 0x000F, NULL, HFILL }},
 
 		{ &hf_frsize,
-		{ "Framesize", PROTOCOL_ABBREV ".frsize", FT_UINT16, BASE_DEC,
+		{ "Framesize", "synphasor.frsize", FT_UINT16, BASE_DEC,
 		  NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_idcode,
-		{ "PMU/DC ID number", PROTOCOL_ABBREV ".idcode", FT_UINT16, BASE_DEC,
+		{ "PMU/DC ID number", "synphasor.idcode", FT_UINT16, BASE_DEC,
 		  NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_soc,
-		{ "SOC time stamp (UTC)", PROTOCOL_ABBREV ".soc", FT_STRINGZ, BASE_NONE,
+		{ "SOC time stamp (UTC)", "synphasor.soc", FT_STRINGZ, BASE_NONE,
 		  NULL, 0x0, NULL, HFILL }},
 
 		/* Time quality flags in fracsec */
 		{ &hf_timeqal_lsdir,
-		{ "Leap second direction", PROTOCOL_ABBREV ".timeqal.lsdir", FT_BOOLEAN, 8,
+		{ "Leap second direction", "synphasor.timeqal.lsdir", FT_BOOLEAN, 8,
 		  NULL, 0x40, NULL, HFILL }},
 
 		{ &hf_timeqal_lsocc,
-		{ "Leap second occurred", PROTOCOL_ABBREV ".timeqal.lsocc", FT_BOOLEAN, 8,
+		{ "Leap second occurred", "synphasor.timeqal.lsocc", FT_BOOLEAN, 8,
 		  NULL, 0x20, NULL, HFILL }},
 
 		{ &hf_timeqal_lspend,
-		{ "Leap second pending", PROTOCOL_ABBREV ".timeqal.lspend", FT_BOOLEAN, 8,
+		{ "Leap second pending", "synphasor.timeqal.lspend", FT_BOOLEAN, 8,
 		  NULL, 0x10, NULL, HFILL }},
 
 		{ &hf_timeqal_timequalindic,
-		{ "Time Quality indicator code", PROTOCOL_ABBREV ".timeqal.timequalindic", FT_UINT8, BASE_HEX,
+		{ "Time Quality indicator code", "synphasor.timeqal.timequalindic", FT_UINT8, BASE_HEX,
 		  VALS(timequalcodes), 0x0F, NULL, HFILL }},
 
 		/* Fraction of second */
 		{ &hf_fracsec,
-		{ "Fraction of second (raw)", PROTOCOL_ABBREV ".fracsec", FT_UINT24, BASE_DEC,
+		{ "Fraction of second (raw)", "synphasor.fracsec", FT_UINT24, BASE_DEC,
 		  NULL, 0x0, NULL, HFILL }},
 
 	/* Data types for configuration frames */
 		{ &hf_conf_timebase,
-		{ "Resolution of fractional second time stamp", PROTOCOL_ABBREV ".conf.timebase", FT_UINT24, BASE_DEC,
+		{ "Resolution of fractional second time stamp", "synphasor.conf.timebase", FT_UINT24, BASE_DEC,
 		  NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_conf_numpmu,
-		{ "Number of PMU blocks included in the frame", PROTOCOL_ABBREV ".conf.numpmu", FT_UINT16, BASE_DEC,
+		{ "Number of PMU blocks included in the frame", "synphasor.conf.numpmu", FT_UINT16, BASE_DEC,
 		  NULL, 0x0, NULL, HFILL }},
 
 		/* Bits in the FORMAT word */
 		{ &hf_conf_formatb3,
-		{ "FREQ/DFREQ format", PROTOCOL_ABBREV ".conf.dfreq_format", FT_BOOLEAN, 16,
+		{ "FREQ/DFREQ format", "synphasor.conf.dfreq_format", FT_BOOLEAN, 16,
 		  TFS(&conf_formatb123names), 0x8, NULL, HFILL }},
 
 		{ &hf_conf_formatb2,
-		{ "Analog values format", PROTOCOL_ABBREV ".conf.analog_format", FT_BOOLEAN, 16,
+		{ "Analog values format", "synphasor.conf.analog_format", FT_BOOLEAN, 16,
 		  TFS(&conf_formatb123names), 0x4, NULL, HFILL }},
 
 		{ &hf_conf_formatb1,
-		{ "Phasor format", PROTOCOL_ABBREV ".conf.phasor_format", FT_BOOLEAN, 16,
+		{ "Phasor format", "synphasor.conf.phasor_format", FT_BOOLEAN, 16,
 		  TFS(&conf_formatb123names), 0x2, NULL, HFILL }},
 
 		{ &hf_conf_formatb0,
-		{ "Phasor notation", PROTOCOL_ABBREV ".conf.phasor_notation", FT_BOOLEAN, 16,
+		{ "Phasor notation", "synphasor.conf.phasor_notation", FT_BOOLEAN, 16,
 		  TFS(&conf_formatb0names), 0x1, NULL, HFILL }},
 
 		{ &hf_conf_fnom,
-		{ "Nominal line freqency", PROTOCOL_ABBREV ".conf.fnom", FT_BOOLEAN, 16,
+		{ "Nominal line freqency", "synphasor.conf.fnom", FT_BOOLEAN, 16,
 		  TFS(&conf_fnomnames), 0x0001, NULL, HFILL }},
 
 		{ &hf_conf_cfgcnt,
-		{ "Configuration change count", PROTOCOL_ABBREV ".conf.cfgcnt", FT_UINT16, BASE_DEC,
+		{ "Configuration change count", "synphasor.conf.cfgcnt", FT_UINT16, BASE_DEC,
 		  NULL, 0, NULL, HFILL }},
 
 	/* Data types for data frames */
 		/* Flags in the STAT word */
 		{ &hf_data_statb15,
-		{ "Data valid", PROTOCOL_ABBREV ".data.valid", FT_BOOLEAN, 16,
+		{ "Data valid", "synphasor.data.valid", FT_BOOLEAN, 16,
 		  TFS(&data_statb15names), 0x8000, NULL, HFILL }},
 
 		{ &hf_data_statb14,
-		{ "PMU error", PROTOCOL_ABBREV ".data.PMUerror", FT_BOOLEAN, 16,
+		{ "PMU error", "synphasor.data.PMUerror", FT_BOOLEAN, 16,
 		  TFS(&data_statb14names), 0x4000, NULL, HFILL }},
 
 		{ &hf_data_statb13,
-		{ "Time synchronized", PROTOCOL_ABBREV ".data.sync", FT_BOOLEAN, 16,
+		{ "Time synchronized", "synphasor.data.sync", FT_BOOLEAN, 16,
 		  TFS(&data_statb13names), 0x2000, NULL, HFILL }},
 
 		{ &hf_data_statb12,
-		{ "Data sorting", PROTOCOL_ABBREV ".data.sorting", FT_BOOLEAN, 16,
+		{ "Data sorting", "synphasor.data.sorting", FT_BOOLEAN, 16,
 		  TFS(&data_statb12names), 0x1000, NULL, HFILL }},
 
 		{ &hf_data_statb11,
-		{ "Trigger detected", PROTOCOL_ABBREV ".data.trigger", FT_BOOLEAN, 16,
+		{ "Trigger detected", "synphasor.data.trigger", FT_BOOLEAN, 16,
 		  TFS(&data_statb11names), 0x0800, NULL, HFILL }},
 
 		{ &hf_data_statb10,
-		{ "Configuration changed", PROTOCOL_ABBREV ".data.CFGchange", FT_BOOLEAN, 16,
+		{ "Configuration changed", "synphasor.data.CFGchange", FT_BOOLEAN, 16,
 		  TFS(&data_statb10names), 0x0400, NULL, HFILL }},
 
 		{ &hf_data_statb05to04,
-		{ "Unlocked time", PROTOCOL_ABBREV  ".data.t_unlock", FT_UINT16, BASE_HEX,
+		{ "Unlocked time", "synphasor.data.t_unlock", FT_UINT16, BASE_HEX,
 		  VALS(data_statb05to04names), 0x0030, NULL, HFILL }},
 
 		{ &hf_data_statb03to00,
-		{ "Trigger reason", PROTOCOL_ABBREV  ".data.trigger_reason", FT_UINT16, BASE_HEX,
+		{ "Trigger reason", "synphasor.data.trigger_reason", FT_UINT16, BASE_HEX,
 		  VALS(data_statb03to00names), 0x000F, NULL, HFILL }},
 
 	/* Data type for command frame */
 		{ &hf_command,
-		{ "Command", PROTOCOL_ABBREV ".command", FT_UINT16, BASE_HEX,
+		{ "Command", "synphasor.command", FT_UINT16, BASE_HEX,
 		  VALS(command_names), 0x000F, NULL, HFILL }}
 	};
 

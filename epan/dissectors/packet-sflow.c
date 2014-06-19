@@ -3277,7 +3277,7 @@ proto_register_sflow(void) {
           NULL, HFILL }
       },
       { &hf_sflow_5_extended_80211_rx_packet_duration,
-        { "Packet Duration (ms)", "sflow_5.rx.extended_80211.packet_duration",
+        { "Packet Duration (ms)", "sflow_5.extended_80211.rx.packet_duration",
           FT_UINT32, BASE_DEC, NULL, 0x0,
           NULL, HFILL }
       },

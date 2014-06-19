@@ -1,4 +1,4 @@
-/* packet-openflow.c
+/* packet-openflow_v4.c
  * Routines for OpenFlow dissection
  * Copyright 2013, Anders Broman <anders.broman@ericsson.com>
  * Copyright 2013, Zoltan Lajos Kis <zoltan.lajos.kis@ericsson.com>

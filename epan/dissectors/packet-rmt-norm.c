@@ -960,7 +960,7 @@ void proto_register_norm(void)
     };
 
     static ei_register_info ei[] = {
-        { &ei_version1_only, { "alc.version1_only", PI_PROTOCOL, PI_WARN, "Sorry, this dissector supports ALC version 1 only", EXPFILL }}
+        { &ei_version1_only, { "norm.version1_only", PI_PROTOCOL, PI_WARN, "Sorry, this dissector supports NORM version 1 only", EXPFILL }}
     };
 
     module_t *module;

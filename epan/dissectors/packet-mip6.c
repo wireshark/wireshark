@@ -4621,7 +4621,7 @@ proto_register_mip6(void)
     },
 
     { &hf_mip6_opt_mng_mng_id,
-      { "Mobile Node Group Identifier", "mip6.mng._mng_id",
+      { "Mobile Node Group Identifier", "mip6.mng.mng_id",
         FT_UINT32, BASE_DEC, NULL, 0x0,
         NULL, HFILL }
     },

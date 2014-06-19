@@ -1446,7 +1446,7 @@ proto_register_mikey(void)
 		    FT_NONE, BASE_NONE, NULL, 0x0,
 		    NULL, HFILL }},
 		{ &hf_mikey_pl[PL_PKE],
-		  { PL_PKE_TEXT, "mikey.",
+		  { PL_PKE_TEXT, "mikey.pke",
 		    FT_NONE, BASE_NONE, NULL, 0x0,
 		    NULL, HFILL }},
 		{ &hf_mikey_pl[PL_DH],

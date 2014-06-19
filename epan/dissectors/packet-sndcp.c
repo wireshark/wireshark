@@ -470,70 +470,70 @@ proto_register_sndcp(void)
      */
     { &hf_npdu_fragment_overlap,
       { "Fragment overlap",
-        "npdu.fragment.overlap",
+        "sndcp.npdu.fragment.overlap",
         FT_BOOLEAN, BASE_NONE, NULL, 0x0,
         "Fragment overlaps with other fragments", HFILL
       }
     },
     { &hf_npdu_fragment_overlap_conflict,
       { "Conflicting data in fragment overlap",
-        "npdu.fragment.overlap.conflict",
+        "sndcp.npdu.fragment.overlap.conflict",
         FT_BOOLEAN, BASE_NONE, NULL, 0x0,
         "Overlapping fragments contained conflicting data", HFILL
       }
     },
     { &hf_npdu_fragment_multiple_tails,
       { "Multiple tail fragments found",
-        "npdu.fragment.multipletails",
+        "sndcp.npdu.fragment.multipletails",
         FT_BOOLEAN, BASE_NONE, NULL, 0x0,
         "Several tails were found when defragmenting the packet", HFILL
       }
     },
     { &hf_npdu_fragment_too_long_fragment,
       { "Fragment too long",
-        "npdu.fragment.toolongfragment",
+        "sndcp.npdu.fragment.toolongfragment",
         FT_BOOLEAN, BASE_NONE, NULL, 0x0,
         "Fragment contained data past end of packet", HFILL
       }
     },
     { &hf_npdu_fragment_error,
       { "Defragmentation error",
-        "npdu.fragment.error",
+        "sndcp.npdu.fragment.error",
         FT_FRAMENUM, BASE_NONE, NULL, 0x0,
         "Defragmentation error due to illegal fragments", HFILL
       }
     },
     { &hf_npdu_fragment_count,
       { "Fragment count",
-        "npdu.fragment.count",
+        "sndcp.npdu.fragment.count",
         FT_UINT32, BASE_DEC, NULL, 0x0,
         NULL, HFILL
       }
     },
     { &hf_npdu_reassembled_in,
       { "Reassembled in",
-        "npdu.reassembled.in",
+        "sndcp.npdu.reassembled.in",
         FT_FRAMENUM, BASE_NONE, NULL, 0x0,
         "N-PDU fragments are reassembled in the given packet", HFILL
       }
     },
     { &hf_npdu_reassembled_length,
       { "Reassembled N-PDU length",
-        "npdu.reassembled.length",
+        "sndcp.npdu.reassembled.length",
         FT_UINT32, BASE_DEC, NULL, 0x0,
         "The total length of the reassembled payload", HFILL
       }
     },
     { &hf_npdu_fragment,
       { "N-PDU Fragment",
-        "npdu.fragment",
+        "sndcp.npdu.fragment",
         FT_FRAMENUM, BASE_NONE, NULL, 0x0,
         NULL, HFILL
       }
     },
     { &hf_npdu_fragments,
       { "N-PDU Fragments",
-        "npdu.fragments",
+        "sndcp.npdu.fragments",
         FT_NONE, BASE_NONE, NULL, 0x0,
         NULL, HFILL
       }

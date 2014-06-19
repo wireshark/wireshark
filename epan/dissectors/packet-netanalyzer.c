@@ -70,21 +70,13 @@ void proto_reg_handoff_netanalyzer(void);
 #define INFO_TYPE_OFFSET    18
 
 #define MSK_RX_ERR             0x01
-#define TXT_RX_ERR             "MII RX_ER error"
 #define MSK_ALIGN_ERR          0x02
-#define TXT_ALIGN_ERR          "Alignment error"
 #define MSK_FCS_ERROR          0x04
-#define TXT_FCS_ERROR          "FCS error"
 #define MSK_TOO_LONG           0x08
-#define TXT_TOO_LONG           "Frame too long"
 #define MSK_SFD_ERROR          0x10
-#define TXT_SFD_ERROR          "No valid SFD found"
 #define MSK_SHORT_FRAME        0x20
-#define TXT_SHORT_FRAME        "Frame smaller 64 bytes"
 #define MSK_SHORT_PREAMBLE     0x40
-#define TXT_SHORT_PREAMBLE     "Preamble shorter than 7 bytes"
 #define MSK_LONG_PREAMBLE      0x80
-#define TXT_LONG_PREAMBLE      "Preamble longer than 7 bytes"
 
 static const char *msk_strings[] = {
   "MII RX_ER error",                /* 0x01 */
@@ -395,44 +387,44 @@ void proto_register_netanalyzer(void)
             "Status of Ethernet frame", HFILL }
         },
         { &hf_netanalyzer_status_rx_err,
-          { TXT_RX_ERR, "netanalyzer.packetstatus.rx_er",
+          { "MII RX_ER error", "netanalyzer.packetstatus.rx_er",
             FT_BOOLEAN, 8, NULL, MSK_RX_ERR,
             "RX_ER detected in frame", HFILL }
         },
         { &hf_netanalyzer_status_align_err,
-          { TXT_ALIGN_ERR, "netanalyzer.packetstatus.alignment_error",
+          { "Alignment error", "netanalyzer.packetstatus.alignment_error",
             FT_BOOLEAN, 8, NULL, MSK_ALIGN_ERR,
-            "Alignment error detected in frame", HFILL }
+            NULL, HFILL }
         },
         { &hf_netanalyzer_status_fcs,
-          { TXT_FCS_ERROR, "netanalyzer.packetstatus.fcs_error",
+          { "FCS error", "netanalyzer.packetstatus.fcs_error",
             FT_BOOLEAN, 8, NULL, MSK_FCS_ERROR,
-            "FCS error detected in frame", HFILL }
+            NULL, HFILL }
         },
         { &hf_netanalyzer_status_too_long,
-          { TXT_TOO_LONG, "netanalyzer.packetstatus.too_long",
+          { "Frame too long", "netanalyzer.packetstatus.too_long",
             FT_BOOLEAN, 8, NULL, MSK_TOO_LONG,
             "Frame too long (capture truncated)", HFILL }
         },
         { &hf_netanalyzer_status_sfd_error,
-          { TXT_SFD_ERROR, "netanalyzer.packetstatus.sfd_error",
+          { "No valid SFD found", "netanalyzer.packetstatus.sfd_error",
             FT_BOOLEAN, 8, NULL, MSK_SFD_ERROR,
             "SDF error detected in frame", HFILL }
         },
         { &hf_netanalyzer_status_short_frame,
-          { TXT_SHORT_FRAME, "netanalyzer.packetstatus.short_frame",
+          { "Frame smaller 64 bytes", "netanalyzer.packetstatus.short_frame",
             FT_BOOLEAN, 8, NULL, MSK_SHORT_FRAME,
-            "Frame too short", HFILL }
+            NULL, HFILL }
         },
         { &hf_netanalyzer_status_short_preamble,
-          { TXT_SHORT_PREAMBLE, "netanalyzer.packetstatus.short_preamble",
+          { "Preamble shorter than 7 bytes", "netanalyzer.packetstatus.short_preamble",
             FT_BOOLEAN, 8, NULL, MSK_SHORT_PREAMBLE,
-            "Preamble shorter than 7 bytes", HFILL }
+            NULL, HFILL }
         },
         { &hf_netanalyzer_status_long_preamble,
-          { TXT_LONG_PREAMBLE, "netanalyzer.packetstatus.long_preamble",
+          { "Preamble longer than 7 bytes", "netanalyzer.packetstatus.long_preamble",
             FT_BOOLEAN, 8, NULL, MSK_LONG_PREAMBLE,
-            "Preamble longer than 7 bytes", HFILL }
+            NULL, HFILL }
         },
     };
 

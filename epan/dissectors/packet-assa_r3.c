@@ -10060,7 +10060,7 @@ void proto_register_r3 (void)
     { &ei_r3_response_hasdata_octet_2, { "r3.response_hasdata.octet_2_not_response_hasdata", PI_PROTOCOL, PI_WARN, "Octet 2 not RESPONSE_HASDATA", EXPFILL }},
     { &ei_r3_response_hasdata_octet_3, { "r3.response_hasdata.octet_3_ge_upstreamcommand_last", PI_PROTOCOL, PI_WARN, "Octet 3 >= UPSTREAMCOMMAND_LAST", EXPFILL }},
     { &ei_r3_firmwaredownload_action, { "r3.firmwaredownload.action.unknown", PI_PROTOCOL, PI_WARN, "Unknown Firmware download action", EXPFILL }},
-    { &ei_r3_cmd_downloadfirmwaretimeout, { "r3.r3.command.downloadfirmwaretimeout", PI_UNDECODED, PI_WARN, "Download Firmware Timeout", EXPFILL }},
+    { &ei_r3_cmd_downloadfirmwaretimeout, { "r3.command.downloadfirmwaretimeout", PI_UNDECODED, PI_WARN, "Download Firmware Timeout", EXPFILL }},
     { &ei_r3_unknown_command_value, { "r3.command.unknown", PI_UNDECODED, PI_WARN, "Unknown command value", EXPFILL }},
   };
 

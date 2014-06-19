@@ -78,7 +78,7 @@ proto_register_dvb_ipdc(void)
 #if 0
     static hf_register_info hf[] = {
         {&hf_ipdc_esg_bootstrap_xml,
-         {"ESG Provider Discovery", "ipdc.bootstrap",
+         {"ESG Provider Discovery", "dvb_ipdc.bootstrap",
           FT_STRING, BASE_NONE, NULL, 0x0, "List of ESG Providers", HFILL}}
     };
 #endif

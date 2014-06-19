@@ -2053,12 +2053,12 @@ void proto_register_zbee_aps(void)
     register_init_routine(proto_init_zbee_aps);
 
     /* Register the ZigBee Application Framework protocol with Wireshark. */
-    proto_zbee_apf = proto_register_protocol("ZigBee Application Framework", "ZigBee APF", ZBEE_PROTOABBREV_APF);
+    proto_zbee_apf = proto_register_protocol("ZigBee Application Framework", "ZigBee APF", "zbee_apf");
     proto_register_field_array(proto_zbee_apf, hf_apf, array_length(hf_apf));
     proto_register_subtree_array(ett_apf, array_length(ett_apf));
 
     /* Register the App dissector. */
-    zbee_apf_handle = new_register_dissector(ZBEE_PROTOABBREV_APF, dissect_zbee_apf, proto_zbee_apf);
+    zbee_apf_handle = new_register_dissector("zbee_apf", dissect_zbee_apf, proto_zbee_apf);
 } /* proto_register_zbee_aps */
 
 /*FUNCTION:------------------------------------------------------

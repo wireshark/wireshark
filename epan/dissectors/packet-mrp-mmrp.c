@@ -393,7 +393,7 @@ proto_register_mrp_mmrp(void)
               FT_NONE,  BASE_NONE, NULL, 0x0, NULL, HFILL }
         },
         { &hf_mmrp_three_packed_event,
-            { "Attribute Event",       "mrp-msrp.three_packed_event",
+            { "Attribute Event",       "mrp-mmrp.three_packed_event",
               FT_UINT8, BASE_DEC,  VALS(three_packed_vals), 0x0, NULL, HFILL }
         },
         { &hf_mmrp_end_mark,

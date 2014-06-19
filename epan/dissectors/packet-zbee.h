@@ -785,7 +785,6 @@
 #define ZBEE_PROTOABBREV_NWK                "zbee_nwk"
 #define ZBEE_PROTOABBREV_NWK_GP             "zbee_nwk_gp"
 #define ZBEE_PROTOABBREV_APS                "zbee_aps"
-#define ZBEE_PROTOABBREV_APF                "zbee_apf"
 #define ZBEE_PROTOABBREV_ZCL                "zbee_zcl"
 #define ZBEE_PROTOABBREV_ZCL_APPLCTRL       "zbee_zcl_general.applctrl"
 #define ZBEE_PROTOABBREV_ZCL_BASIC          "zbee_zcl_general.basic"

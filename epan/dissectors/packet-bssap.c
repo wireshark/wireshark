@@ -243,7 +243,7 @@ static value_string_ext bssap_plus_ie_id_values_ext = VALUE_STRING_EXT_INIT(bssa
 
 /* Initialize the protocol and registered fields */
 static int proto_bssap = -1;
-/*static int proto_bssap_plus = -1;*/
+static int proto_bssap_plus = -1;
 static int hf_bssap_pdu_type = -1;
 static int hf_bsap_pdu_type = -1;
 static int hf_bssap_dlci_cc = -1;
@@ -2566,10 +2566,10 @@ proto_register_bssap(void)
 
     /* Register the protocol name and description */
     proto_bssap = proto_register_protocol("BSSAP/BSAP", "BSSAP", "bssap");
-    /*proto_bssap_plus = proto_register_protocol("BSSAP2", "BSSAP2", "bssap2");*/
+    proto_bssap_plus = proto_register_protocol("BSSAP2", "BSSAP2", "bssap_plus");
 
     register_dissector("bssap", dissect_bssap, proto_bssap);
-    register_dissector("bssap_plus", dissect_bssap_plus, proto_bssap);
+    register_dissector("bssap_plus", dissect_bssap_plus, proto_bssap_plus);
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_bssap, hf, array_length(hf));

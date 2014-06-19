@@ -11611,7 +11611,7 @@ proto_register_isup(void)
         NULL, HFILL }},
 
     { &hf_bat_ase_biwfa,
-      { "Interworking Function Address(X.213 NSAP encoded)", "bat_ase_biwfa",
+      { "Interworking Function Address(X.213 NSAP encoded)", "bat_ase.biwfa",
         FT_BYTES, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
 

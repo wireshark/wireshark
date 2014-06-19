@@ -42,7 +42,6 @@ void proto_reg_handoff_tte_pcf(void);
 /* Initialize the protocol and registered fields */
 static int proto_tte_pcf = -1;
 
-/* static int hf_tte_pcf = -1; */
 static int hf_tte_pcf_ic = -1;
 static int hf_tte_pcf_mn = -1;
 /* static int hf_tte_pcf_res0 = -1; */
@@ -146,54 +145,47 @@ proto_register_tte_pcf(void)
 {
     static hf_register_info hf[] = {
 
-#if 0
-        { &hf_tte_pcf,
-            { "Protocol Control Frame", "tte.pcf",
-            FT_BYTES, BASE_NONE, NULL, 0x0,
-            NULL, HFILL }
-        },
-#endif
         { &hf_tte_pcf_ic,
-            { "Integration Cycle", "tte.pcf.ic",
+            { "Integration Cycle", "tte_pcf.ic",
             FT_UINT32, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
             { &hf_tte_pcf_mn,
-            { "Membership New", "tte.pcf.mn",
+            { "Membership New", "tte_pcf.mn",
             FT_UINT32, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
 #if 0
             { &hf_tte_pcf_res0,
-            { "Reserved 0", "tte.pcf.res0",
+            { "Reserved 0", "tte_pcf.res0",
             FT_UINT32, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
 #endif
         { &hf_tte_pcf_sp,
-            { "Sync Priority", "tte.pcf.sp",
+            { "Sync Priority", "tte_pcf.sp",
             FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_tte_pcf_sd,
-            { "Sync Domain", "tte.pcf.sd",
+            { "Sync Domain", "tte_pcf.sd",
             FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_tte_pcf_type,
-            { "Type", "tte.pcf.type",
+            { "Type", "tte_pcf.type",
             FT_UINT8, BASE_HEX, VALS(pcf_type_str_vals), 0x0F,
             NULL, HFILL }
         },
 #if 0
         { &hf_tte_pcf_res1,
-            { "Reserved 1", "tte.pcf.res1",
+            { "Reserved 1", "tte_pcf.res1",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
 #endif
         { &hf_tte_pcf_tc,
-            { "Transparent Clock", "tte.pcf.tc",
+            { "Transparent Clock", "tte_pcf.tc",
             FT_UINT64, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         }

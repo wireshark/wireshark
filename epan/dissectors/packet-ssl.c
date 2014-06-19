@@ -308,9 +308,6 @@ static const fragment_items ssl_segment_items = {
 
 static SSL_COMMON_LIST_T(dissect_ssl3_hf);
 
-/* These two "SSL segment data" items are factored out to obey DRY. */
-#define SSL_SEGMENT_DATA_TEXT "SSL segment data"
-
 static void
 ssl_proto_tree_add_segment_data(
     proto_tree  *tree,
@@ -326,7 +323,7 @@ ssl_proto_tree_add_segment_data(
         offset,
         length,
         NULL,
-        "%s" SSL_SEGMENT_DATA_TEXT " (%u %s)",
+        "%sSSL segment data (%u %s)",
         prefix != NULL ? prefix : "",
         length,
         plurality(length, "byte", "bytes"));
@@ -5517,7 +5514,7 @@ proto_register_ssl(void)
             "The payload of multiple reassembled SSL segments", HFILL }},
 
         { &hf_ssl_segment_data,
-          { SSL_SEGMENT_DATA_TEXT, "ssl.segment.data",
+          { "SSL segment data", "ssl.segment.data",
             FT_BYTES, BASE_NONE, NULL, 0x00,
             "The payload of a single SSL segment", HFILL }
         },
