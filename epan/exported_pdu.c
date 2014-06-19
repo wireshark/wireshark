@@ -27,8 +27,11 @@
 
 #include <epan/packet.h>
 #include <epan/exported_pdu.h>
+#include <epan/tap.h>
 #include <epan/dissectors/packet-mtp3.h>
 #include <epan/dissectors/packet-dvbci.h>
+
+GSList *export_pdu_tap_name_list = NULL;
 
 /**
  * Allocates and fills the exp_pdu_data_t struct according to the wanted_exp_tags
@@ -331,4 +334,25 @@ load_export_pdu_tags(packet_info *pinfo, const char* proto_name, int wtap_encap 
 	}
 
 	return exp_pdu_data;
+}
+
+gint
+register_export_pdu_tap(const char *name)
+{
+    gchar *tap_name = g_strdup(name);
+    export_pdu_tap_name_list = g_slist_prepend(export_pdu_tap_name_list, tap_name);
+    return register_tap(tap_name);
+}
+
+static
+gint sort_pdu_tap_name_list(gconstpointer a, gconstpointer b)
+{
+    return g_strcmp0((const char *)a, (const char*)b);
+}
+
+GSList *
+get_export_pdu_tap_list(void)
+{
+    export_pdu_tap_name_list = g_slist_sort(export_pdu_tap_name_list, sort_pdu_tap_name_list);
+    return export_pdu_tap_name_list;
 }

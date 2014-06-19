@@ -277,6 +277,8 @@ proto_register_logcat(void)
 
     expert_module = expert_register_protocol(proto_logcat);
     expert_register_field_array(expert_module, ei, array_length(ei));
+
+    exported_pdu_tap = register_export_pdu_tap("Logcat");
 }
 
 
@@ -286,8 +288,6 @@ proto_reg_handoff_logcat(void)
     dissector_add_uint("wtap_encap", WTAP_ENCAP_LOGCAT, logcat_handle);
 
     dissector_add_handle("tcp.port", logcat_handle);
-
-    exported_pdu_tap = find_tap_id(EXPORT_PDU_TAP_NAME_LOGCAT);
 }
 
 /*

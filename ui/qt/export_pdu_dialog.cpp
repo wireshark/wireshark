@@ -36,12 +36,13 @@ ExportPDUDialog::ExportPDUDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::ExportPDUDialog)
 {
+    GSList *tap_name_list;
+
     ui->setupUi(this);
 
-    ui->comboBox->addItem(EXPORT_PDU_TAP_NAME_LAYER_7);
-    ui->comboBox->addItem(EXPORT_PDU_TAP_NAME_LAYER_3);
-    ui->comboBox->addItem(EXPORT_PDU_TAP_NAME_DVB_CI);
-    ui->comboBox->addItem(EXPORT_PDU_TAP_NAME_LOGCAT);
+    for (tap_name_list = get_export_pdu_tap_list(); tap_name_list; tap_name_list = g_slist_next(tap_name_list)) {
+        ui->comboBox->addItem((const char*)(tap_name_list->data));
+    }
 }
 void ExportPDUDialog::on_buttonBox_accepted()
 {

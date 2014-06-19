@@ -6146,6 +6146,8 @@ proto_register_dvbci(void)
     /* the dissector for decrypted CI+ SAC messages which we can export */
     new_register_dissector(EXPORTED_SAC_MSG_PROTO,
         dissect_dvbci_exported_sac_msg, proto_dvbci);
+
+    exported_pdu_tap = register_export_pdu_tap("DVB-CI");
 }
 
 
@@ -6163,8 +6165,6 @@ proto_reg_handoff_dvbci(void)
     png_handle = find_dissector("png");
     tcp_dissector_table = find_dissector_table("tcp.port");
     udp_dissector_table = find_dissector_table("udp.port");
-
-    exported_pdu_tap = find_tap_id(EXPORT_PDU_TAP_NAME_DVB_CI);
 
     if (dvbci_sek_bin) {
         g_free(dvbci_sek_bin);
