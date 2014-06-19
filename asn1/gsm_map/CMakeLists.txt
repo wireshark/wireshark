@@ -61,6 +61,7 @@ set( SS_ASN_FILES
 
 set( PROPRIETARY_ASN_FILES
 	Ericsson.asn
+	Nokia.asn
 )
 
 set( ASN_FILE_LIST

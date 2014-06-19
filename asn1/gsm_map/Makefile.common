@@ -54,7 +54,7 @@ SS_ASN_FILES = \
 
 PROPRIETARY_ASN_FILES = \
 	Ericsson.asn \
-	Nokia.asn 
+	Nokia.asn
 
 ASN_FILE_LIST = \
 	MobileDomainDefinitions.asn \

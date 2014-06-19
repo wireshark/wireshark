@@ -7539,7 +7539,7 @@ dissect_h225_H323UserInformation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, PSNAME);
 	col_clear(pinfo->cinfo, COL_INFO);
 
-	it=proto_tree_add_protocol_format(tree, proto_h225, tvb, 0, tvb_length(tvb), PSNAME" CS");
+	it=proto_tree_add_protocol_format(tree, proto_h225, tvb, 0, tvb_captured_length(tvb), PSNAME" CS");
 	tr=proto_item_add_subtree(it, ett_h225);
 
 	offset = dissect_H323_UserInformation_PDU(tvb, pinfo, tr, NULL);
@@ -7574,7 +7574,7 @@ dissect_h225_h225_RasMessage(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, PSNAME);
 
-	it=proto_tree_add_protocol_format(tree, proto_h225, tvb, offset, tvb_length(tvb), PSNAME" RAS");
+	it=proto_tree_add_protocol_format(tree, proto_h225, tvb, offset, tvb_captured_length(tvb), PSNAME" RAS");
 	tr=proto_item_add_subtree(it, ett_h225);
 
 	offset = dissect_RasMessage_PDU(tvb, pinfo, tr, NULL);

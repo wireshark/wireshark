@@ -2141,7 +2141,7 @@ dissect_dop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* da
 	  break;
 	default:
 	  proto_tree_add_text(tree, tvb, offset, -1,"Unsupported DOP PDU");
-	  return tvb_length(tvb);
+	  return tvb_captured_length(tvb);
 	}
 
 	if(dop_dissector) {
@@ -2157,7 +2157,7 @@ dissect_dop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* da
 	  }
 	}
 
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 
