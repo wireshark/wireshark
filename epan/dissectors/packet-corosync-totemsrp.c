@@ -292,7 +292,7 @@ dissect_corosync_totemsrp_ip_address(tvbuff_t *tvb,
   if (len != sizeof(struct e_in6_addr)) {
     gint padding_len;
 
-    padding_len = (sizeof(struct e_in6_addr) - len);
+    padding_len = (gint)(sizeof(struct e_in6_addr) - len);
     proto_tree_add_item (tree, hf_corosync_totemsrp_ip_address_addr4_padding,
                            tvb, offset, padding_len, FALSE);
     offset += padding_len;

@@ -279,7 +279,7 @@ dissect_corosynec_totemnet_with_decryption(tvbuff_t *tvb,
 
 #define PRIVATE_KEY_LEN_MAX 256
   gchar          private_key[PRIVATE_KEY_LEN_MAX];
-  unsigned int   private_key_len;
+  gsize          private_key_len;
   unsigned char* hash_digest;
   unsigned char* salt;
 

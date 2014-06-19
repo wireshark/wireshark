@@ -2,7 +2,10 @@
    cluster engine. corosync cluster engine borrows the implementation
    from LibTomCrypt.
 
-   The latest version of the original code can be found at http://libtom.org */
+   The latest version of the original code can be found at
+   http://libtom.org/?page=features according to which this code is in the
+   Public Domain
+   */
 
 /* About LibTomCrypt:
  * ---------------------------------------------------------------------
@@ -14,7 +17,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtomcrypt.com
+ * Tom St Denis, tomstdenis@iahu.ca, http://libtom.org/?page=features
  */
 
 #include "sober128.h"
