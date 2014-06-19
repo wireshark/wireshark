@@ -112,6 +112,7 @@ sub checkprotoabbrev {
 	my $proto_abbrevpos1;
 	my $proto_abbrevpos2;
 	my $afterabbrev = "";
+	my $check_dup_abbrev = "";
 	my $modprotabbrev = "";
 	my $errorline = 0;
 	my $prefix;
@@ -124,6 +125,7 @@ sub checkprotoabbrev {
 		else {
 			$abbrev = substr($_[0], 0, $abbrevpos);
 			$afterabbrev = substr($_[0], $abbrevpos+1, length($_[0])-$abbrevpos);
+			$check_dup_abbrev = $afterabbrev;
 			$afterabbrev = substr($afterabbrev, 0, length($abbrev));
 		}
 
@@ -152,7 +154,9 @@ sub checkprotoabbrev {
 		}
 
 		# find any underscores that preface or follow a period
-		if ((index($_[0], "._") >= 0) || (index($_[0], "_.") >= 0)) {
+		if (((index($_[0], "._") >= 0) || (index($_[0], "_.") >= 0)) &&
+			#ASN.1 dissectors can intentionally generating this field name, so don't fault the dissector
+			(index($_[0], "_untag_item_element") < 0)) {
 			if ($showlinenoFlag) {
 				push(@elements, "$_[1] $_[0] contains an unnecessary \'_\'\n");
 			} else {
@@ -199,8 +203,23 @@ sub checkprotoabbrev {
 						}
 					}
 				}
-			} else {
+			}
+			else {
 				push(@filemanipulationfilelist, "$currfile\n");
+			}
+
+			#now check the acceptable "fields from a different protocol"
+			if ($errorline == 1) {
+				if (is_from_other_protocol_whitelist($_[0], $currfile) == 1) {
+					$errorline = 0;
+				}
+			}
+
+			#now check the acceptable "fields that include a version number"
+			if ($errorline == 1) {
+				if (is_protocol_version_whitelist($_[0], $currfile) == 1) {
+					$errorline = 0;
+				}
 			}
 		}
 		
@@ -212,12 +231,17 @@ sub checkprotoabbrev {
 				push(@elements, "$_[0] doesn't match PROTOABBREV of $protabbrev\n");
 			}
 		}
-		
+
 		if (($abbrev ne "") && (lc($abbrev) eq lc($afterabbrev))) {
-			if ($showlinenoFlag) {
-				push(@elements_dup, "$_[1] $_[0] duplicates PROTOABBREV of $abbrev\n");
-			} else {
-				push(@elements_dup, "$_[0] duplicates PROTOABBREV of $abbrev\n");
+			#Allow ASN.1 generated files to duplicate part of proto name
+			if ((grep($currfile, @asn1automatedfilelist) == 0) &&
+				#Check "approved" whitelist
+				(is_proto_dup_whitelist($abbrev, $check_dup_abbrev) == 0)) {
+				if ($showlinenoFlag) {
+					push(@elements_dup, "$_[1] $_[0] duplicates PROTOABBREV of $abbrev\n");
+				} else {
+					push(@elements_dup, "$_[0] duplicates PROTOABBREV of $abbrev\n");
+				}
 			}
 		}
 	}	
@@ -303,6 +327,122 @@ sub printprevfile {
 	}	
 }
 
+#--------------------------------------------------------------------
+# This is a list of dissectors that intentionally have filter names
+# where the second segment duplicates (at least partially) the name
+# of the first.  The most common case is in ASN.1 dissectors, but
+# those can be dealt with by looking at the first few lines of the
+# dissector. This list has been vetted and justification will need
+# to be provided to add to it. Acknowledge these dissectors aren't
+# a problem for the pre-commit script
+#--------------------------------------------------------------------
+sub is_proto_dup_whitelist {
+	if (($_[0] eq "bat") && (index($_[1], "batman") >= 0)) {return 1;}
+
+	return 0;
+}
+
+#--------------------------------------------------------------------
+# This is a list of dissectors that intentionally have filter names
+# shared with other dissectors.  This list has been vetted and
+# justification will need to be provided to add to it.
+# Acknowledge these dissectors aren't a problem for the pre-commit script
+#--------------------------------------------------------------------
+sub is_from_other_protocol_whitelist {
+	my $proto_filename;
+	my $dir_index = rindex($_[1], "\\");
+
+	#handle directory names on all platforms
+	if ($dir_index < 0) {
+		$dir_index = rindex($_[1], "/");
+	}
+
+	if ($dir_index < 0) {
+		$proto_filename = $_[1];
+	}
+	else {
+		$proto_filename = substr($_[1], $dir_index+1);
+	}
+
+	# XXX - may be faster to hash this (note 1-many relationship)?
+	if (($proto_filename eq "packet-bpdu.c") && (index($_[0], "mstp") >= 0)) {return 1;}
+	if (($proto_filename eq "packet-cimetrics.c") && (index($_[0], "llc") >= 0)) {return 1;}
+	if (($proto_filename eq "packet-cipsafety.c") && (index($_[0], "cip") >= 0)) {return 1;}
+	if (($proto_filename eq "packet-cipsafety.c") && (index($_[0], "enip") >= 0)) {return 1;}
+	if (($proto_filename eq "packet-dcerpc-netlogon.c") && (index($_[0], "ntlmssp") >= 0)) {return 1;}
+	if (($proto_filename eq "packet-dcom-oxid.c") && (index($_[0], "dcom") >= 0)) {return 1;}
+	if (($proto_filename eq "packet-dvb-data-mpe.c") && (index($_[0], "mpeg_sect") >= 0)) {return 1;}
+	if (($proto_filename eq "packet-dvb-ipdc.c") && (index($_[0], "ipdc") >= 0)) {return 1;}
+	if (($proto_filename eq "packet-enip.c") && (index($_[0], "cip") >= 0)) {return 1;}
+	if (($proto_filename eq "packet-extreme.c") && (index($_[0], "llc") >= 0)) {return 1;}
+	if (($proto_filename eq "packet-fmp_notify.c") && (index($_[0], "fmp") >= 0)) {return 1;}
+	if (($proto_filename eq "packet-foundry.c") && (index($_[0], "llc") >= 0)) {return 1;}
+	if (($proto_filename eq "packet-glusterfs.c") && (index($_[0], "gluster") >= 0)) {return 1;}
+	if (($proto_filename eq "packet-h248_annex_e.c") && (index($_[0], "h248") >= 0)) {return 1;}
+	if (($proto_filename eq "packet-h248_q1950.c") && (index($_[0], "h248") >= 0)) {return 1;}
+	if (($proto_filename eq "packet-ieee80211.c") && (index($_[0], "eapol") >= 0)) {return 1;}
+	if (($proto_filename eq "packet-ieee80211-radio.c") && (index($_[0], "wlan") >= 0)) {return 1;}
+	if (($proto_filename eq "packet-ieee80211-wlancap.c") && (index($_[0], "wlan") >= 0)) {return 1;}
+	if (($proto_filename eq "packet-ieee802154.c") && (index($_[0], "wpan") >= 0)) {return 1;}
+	if (($proto_filename eq "packet-k12.c") && (index($_[0], "aal2") >= 0)) {return 1;}
+	if (($proto_filename eq "packet-k12.c") && (index($_[0], "atm") >= 0)) {return 1;}
+	if (($proto_filename eq "packet-m3ua.c") && (index($_[0], "mtp3") >= 0)) {return 1;}
+	if (($proto_filename eq "packet-mpeg-dsmcc.c") && (index($_[0], "mpeg_sect") >= 0)) {return 1;}
+	if (($proto_filename eq "packet-mpeg-dsmcc.c") && (index($_[0], "etv.dsmcc") >= 0)) {return 1;}
+	if (($proto_filename eq "packet-mpeg1.c") && (index($_[0], "rtp.payload_mpeg_") >= 0)) {return 1;}
+	if (($proto_filename eq "packet-ndps.c") && (index($_[0], "spx.ndps_") >= 0)) {return 1;}
+	if (($proto_filename eq "packet-pw-atm.c") && (index($_[0], "atm") >= 0)) {return 1;}
+	if (($proto_filename eq "packet-pw-atm.c") && (index($_[0], "pw") >= 0)) {return 1;}
+	if (($proto_filename eq "packet-scsi.c") && (index($_[0], "scsi_sbc") >= 0)) {return 1;}
+	if (($proto_filename eq "packet-sndcp-xid.c") && (index($_[0], "llcgprs") >= 0)) {return 1;}
+	if (($proto_filename eq "packet-wlccp.c") && (index($_[0], "llc") >= 0)) {return 1;}
+	if (($proto_filename eq "packet-wps.c") && (index($_[0], "eap") >= 0)) {return 1;}
+	if (($proto_filename eq "packet-wsp.c") && (index($_[0], "wap") >= 0)) {return 1;}
+	if (($proto_filename eq "packet-xot.c") && (index($_[0], "x25") >= 0)) {return 1;}
+
+	#XXX - HACK to get around nested "s in field name
+	if (($proto_filename eq "packet-gsm_sim.c") && (index($_[0], "e\\") >= 0)) {return 1;}
+
+	return 0;
+}
+
+#--------------------------------------------------------------------
+# This is a list of dissectors that use their (protocol) version number
+# as part of the first display filter segment, which checkfiltername
+# usually complains about.  Whitelist them so it can pass
+# pre-commit script
+#--------------------------------------------------------------------
+sub is_protocol_version_whitelist {
+	my $proto_filename;
+	my $dir_index = rindex($_[1], "\\");
+
+	#handle directory names on all platforms
+	if ($dir_index < 0) {
+		$dir_index = rindex($_[1], "/");
+	}
+
+	if ($dir_index < 0) {
+		$proto_filename = $_[1];
+	}
+	else {
+		$proto_filename = substr($_[1], $dir_index+1);
+	}
+
+	# XXX - may be faster to hash this?
+	if (($proto_filename eq "packet-ehs.c") && (index($_[0], "ehs2") >= 0)) {return 1;}
+	if (($proto_filename eq "packet-hsrp.c") && (index($_[0], "hsrp2") >= 0)) {return 1;}
+	if (($proto_filename eq "packet-ipv6.c") && (index($_[0], "ip") >= 0)) {return 1;}
+	if (($proto_filename eq "packet-openflow_v1.c") && (index($_[0], "openflow") >= 0)) {return 1;}
+	if (($proto_filename eq "packet-rtnet.c") && (index($_[0], "tdma-v1") >= 0)) {return 1;}
+	if (($proto_filename eq "packet-scsi-osd.c") && (index($_[0], "scsi_osd2") >= 0)) {return 1;}
+	if (($proto_filename eq "packet-sflow.c") && (index($_[0], "sflow_5") >= 0)) {return 1;}
+	if (($proto_filename eq "packet-sflow.c") && (index($_[0], "sflow_245") >= 0)) {return 1;}
+	if (($proto_filename eq "packet-tipc.c") && (index($_[0], "tipcv2") >= 0)) {return 1;}
+
+
+	return 0;
+}
+
 # ---------------------------------------------------------------------
 #
 # MAIN
@@ -358,7 +498,7 @@ while (<>) {
 			next;
 		}
 		#ASN.1 automated files 
-		elsif ($_ =~ "It is created automatically by the ASN.1 to Wireshark dissector compiler") {
+		elsif ($_ =~ "Generated automatically by the ASN.1 to Wireshark dissector compiler") {
 			push(@asn1automatedfilelist, "$currfile\n");
 			$automated = 1;
 			next;
@@ -492,8 +632,8 @@ while (<>) {
 			$restofline = $1;
 			$state = "s_header_field_info_entry_start";
 			$debug>1 && print "$linenumber $state\n";
-		} elsif (($state eq "s_header_field_info_entry_start") && ($restofline =~ /\"([^\"]*)\"\s*,(.*)/)) {
-			$restofline = $2;
+		} elsif (($state eq "s_header_field_info_entry_start") && ($restofline =~ /((\"([^\"]*)\")|(\w+))\s*,(.*)/)) {
+			$restofline = $5;
 			$debug>1 && print "$linenumber header_field_info_entry_name: $1\n";
 			$state = "s_header_field_info_entry_name";
 		} elsif (($state eq "s_header_field_info_entry_name") && ($restofline =~ /\"([^\"]*)\"\s*,?(.*)/)) {
