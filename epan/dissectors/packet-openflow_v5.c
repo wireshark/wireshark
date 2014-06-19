@@ -1455,17 +1455,22 @@ dissect_openflow_hello_element_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
     proto_tree_add_item(elem_tree, hf_openflow_v5_hello_element_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset+=2;
 
+    if (elem_length >= 4) {
+        elem_length -= 4;
+        /* Otherwise expert info? */
+    }
+
     switch (elem_type) {
     case OFPHET_VERSIONBITMAP:
         /* bitmap */
-        proto_tree_add_item(elem_tree, hf_openflow_v5_hello_element_version_bitmap, tvb, offset, elem_length - 4, ENC_NA);
-        offset += elem_length - 4;
+        proto_tree_add_item(elem_tree, hf_openflow_v5_hello_element_version_bitmap, tvb, offset, elem_length, ENC_NA);
+        offset += elem_length;
         break;
 
     default:
         proto_tree_add_expert_format(tree, pinfo, &ei_openflow_v5_hello_element_undecoded,
-                                     tvb, offset, elem_length - 4, "Unknown hello element body.");
-        offset += elem_length - 4;
+                                     tvb, offset, elem_length, "Unknown hello element body.");
+        offset += elem_length;
         break;
     }
 
