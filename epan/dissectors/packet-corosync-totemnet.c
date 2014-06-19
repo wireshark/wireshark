@@ -478,12 +478,12 @@ proto_register_corosync_totemnet(void)
 void
 proto_reg_handoff_corosync_totemnet(void)
 {
-  static gboolean register_dissector = FALSE;
+  static gboolean initialized = FALSE;
   static dissector_handle_t corosync_totemnet_handle;
   static int port = 0;
 
 
-  if (register_dissector)
+  if (initialized)
     {
       dissector_delete_uint("udp.port", port, corosync_totemnet_handle);
       dissector_delete_uint("udp.port", port - 1, corosync_totemnet_handle);
@@ -494,7 +494,7 @@ proto_reg_handoff_corosync_totemnet(void)
                                                              proto_corosync_totemnet);
       corosync_totemsrp_handle = find_dissector("corosync_totemsrp");
 
-      register_dissector = TRUE;
+      initialized = TRUE;
     }
 
   if (corosync_totemnet_private_keys_list) {
