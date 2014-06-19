@@ -4821,6 +4821,17 @@ bacapp_packet_stats_tree_init(stats_tree* st)
     st_node_packets_by_ip_dst = stats_tree_create_node(st, st_str_packets_by_ip_dst, st_node_packets_by_ip, TRUE);
 }
 
+static gchar *
+bacapp_get_address_label(const char *tag, address *addr)
+{
+    gchar *addr_str, *label_str;
+
+    addr_str = address_to_str(NULL, addr);
+    label_str = wmem_strconcat(NULL, tag, addr_str, NULL);
+    wmem_free(NULL, addr_str);
+    return label_str;
+}
+
 static int
 bacapp_stats_tree_packet(stats_tree* st, packet_info* pinfo, epan_dissect_t* edt _U_, const void* p)
 {
@@ -4838,8 +4849,8 @@ bacapp_stats_tree_packet(stats_tree* st, packet_info* pinfo, epan_dissect_t* edt
     gchar *srcstr;
     const bacapp_info_value_t *binfo = (const bacapp_info_value_t *)p;
 
-    srcstr = wmem_strconcat(wmem_packet_scope(), "Src: ", ep_address_to_str(&pinfo->src), NULL);
-    dststr = wmem_strconcat(wmem_packet_scope(), "Dst: ", ep_address_to_str(&pinfo->dst), NULL);
+    srcstr = bacapp_get_address_label("Src: ", &pinfo->src);
+    dststr = bacapp_get_address_label("Dst: ", &pinfo->dst);
 
     tick_stat_node(st, st_str_packets_by_ip, 0, TRUE);
     packets_for_this_dst = tick_stat_node(st, st_str_packets_by_ip_dst, st_node_packets_by_ip, TRUE);
@@ -4858,6 +4869,9 @@ bacapp_stats_tree_packet(stats_tree* st, packet_info* pinfo, epan_dissect_t* edt
             tick_stat_node(st, binfo->instance_ident, instanceid_for_this_src, FALSE);
         }
     }
+
+    wmem_free(NULL, srcstr);
+    wmem_free(NULL, dststr);
 
     return 1;
 }
@@ -4884,8 +4898,8 @@ bacapp_stats_tree_service(stats_tree* st, packet_info* pinfo, epan_dissect_t* ed
 
     const bacapp_info_value_t *binfo = (const bacapp_info_value_t *)p;
 
-    srcstr = wmem_strconcat(wmem_packet_scope(), "Src: ", ep_address_to_str(&pinfo->src), NULL);
-    dststr = wmem_strconcat(wmem_packet_scope(), "Dst: ", ep_address_to_str(&pinfo->dst), NULL);
+    srcstr = bacapp_get_address_label("Src: ", &pinfo->src);
+    dststr = bacapp_get_address_label("Dst: ", &pinfo->dst);
 
     tick_stat_node(st, st_str_packets_by_service, 0, TRUE);
     if (binfo->service_type) {
@@ -4897,6 +4911,9 @@ bacapp_stats_tree_service(stats_tree* st, packet_info* pinfo, epan_dissect_t* ed
             tick_stat_node(st, binfo->instance_ident, objectid, FALSE);
         }
     }
+
+    wmem_free(NULL, srcstr);
+    wmem_free(NULL, dststr);
 
     return 1;
 }
@@ -4922,8 +4939,8 @@ bacapp_stats_tree_objectid(stats_tree* st, packet_info* pinfo, epan_dissect_t* e
     gchar *srcstr;
     const bacapp_info_value_t *binfo = (const bacapp_info_value_t *)p;
 
-    srcstr = wmem_strconcat(wmem_packet_scope(), "Src: ", ep_address_to_str(&pinfo->src), NULL);
-    dststr = wmem_strconcat(wmem_packet_scope(), "Dst: ", ep_address_to_str(&pinfo->dst), NULL);
+    srcstr = bacapp_get_address_label("Src: ", &pinfo->src);
+    dststr = bacapp_get_address_label("Dst: ", &pinfo->dst);
 
     tick_stat_node(st, st_str_packets_by_objectid, 0, TRUE);
     if (binfo->object_ident) {
@@ -4935,6 +4952,9 @@ bacapp_stats_tree_objectid(stats_tree* st, packet_info* pinfo, epan_dissect_t* e
             tick_stat_node(st, binfo->instance_ident, servicetype, FALSE);
         }
     }
+
+    wmem_free(NULL, srcstr);
+    wmem_free(NULL, dststr);
 
     return 1;
 }
@@ -4960,8 +4980,8 @@ bacapp_stats_tree_instanceid(stats_tree* st, packet_info* pinfo, epan_dissect_t*
     gchar *srcstr;
     const bacapp_info_value_t *binfo = (const bacapp_info_value_t *)p;
 
-    srcstr = wmem_strconcat(wmem_packet_scope(), "Src: ", ep_address_to_str(&pinfo->src), NULL);
-    dststr = wmem_strconcat(wmem_packet_scope(), "Dst: ", ep_address_to_str(&pinfo->dst), NULL);
+    srcstr = bacapp_get_address_label("Src: ", &pinfo->src);
+    dststr = bacapp_get_address_label("Dst: ", &pinfo->dst);
 
     tick_stat_node(st, st_str_packets_by_instanceid, 0, TRUE);
     if (binfo->object_ident) {
@@ -4973,6 +4993,10 @@ bacapp_stats_tree_instanceid(stats_tree* st, packet_info* pinfo, epan_dissect_t*
             tick_stat_node(st, binfo->object_ident, servicetype, FALSE);
         }
     }
+
+    wmem_free(NULL, srcstr);
+    wmem_free(NULL, dststr);
+
     return 1;
 }
 

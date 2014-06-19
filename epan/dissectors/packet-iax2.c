@@ -597,7 +597,9 @@ static guint circuitcount = 0;
 static gchar *key_to_str( const iax_circuit_key *key )
 {
   static int    i = 0;
-  static gchar *strp, str[3][80];
+  static gchar  str[3][80];
+  gchar        *strp;
+  gchar        *addrstr;
 
   i++;
   if (i >= 3) {
@@ -608,11 +610,12 @@ static gchar *key_to_str( const iax_circuit_key *key )
   /* why doesn't ep_address_to_str take a const pointer?
      cast the warnings into oblivion. */
 
-  /* XXX - is this a case for wmem_packet_scope()? */
+  addrstr = address_to_str(NULL, (address *)&key->addr)
   g_snprintf(strp, 80, "{%s:%i,%i}",
-             ep_address_to_str((address *)&key->addr),
+             addrstr,
              key->port,
              key->callno);
+  wmem_free(NULL, addrstr);
   return strp;
 }
 #endif
@@ -928,12 +931,19 @@ static iax_call_data *iax_lookup_call( packet_info *pinfo,
   gboolean       reversed = FALSE;
   iax_call_data *iax_call = NULL;
   guint          src_circuit_id;
+#ifdef DEBUG_HASHING
+  gchar         *srcstr, *dststr;
+#endif
 
 #ifdef DEBUG_HASHING
+  srcstr = address_to_str(NULL, &pinfo->src);
+  dststr = address_to_str(NULL, &pinfo->dst);
   g_debug("++ iax_lookup_circuit_details: Looking up circuit for frame %u, "
           "from {%s:%u:%u} to {%s:%u:%u}", pinfo->fd->num,
-          ep_address_to_str(&pinfo->src), pinfo->srcport, scallno,
-          ep_address_to_str(&pinfo->dst), pinfo->destport, dcallno);
+          srcstr, pinfo->srcport, scallno,
+          dststr, pinfo->destport, dcallno);
+  wmem_free(NULL, srcstr);
+  wmem_free(NULL, dststr);
 #endif
 
 

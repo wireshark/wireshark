@@ -415,7 +415,7 @@ http_reqs_stats_tree_packet(stats_tree* st, packet_info* pinfo, epan_dissect_t* 
 
 
 	if (v->request_method) {
-		ip_str = ep_address_to_str(&pinfo->dst);
+		ip_str = address_to_str(NULL, &pinfo->dst);
 
 		tick_stat_node(st, st_str_reqs, 0, FALSE);
 		tick_stat_node(st, st_str_reqs_by_srv_addr, st_node_reqs, TRUE);
@@ -429,10 +429,12 @@ http_reqs_stats_tree_packet(stats_tree* st, packet_info* pinfo, epan_dissect_t* 
 			tick_stat_node(st, v->http_host, reqs_by_this_addr, FALSE);
 		}
 
+		wmem_free(NULL, ip_str);
+
 		return 1;
 
 	} else if (i != 0) {
-		ip_str = ep_address_to_str(&pinfo->src);
+		ip_str = address_to_str(NULL, &pinfo->src);
 
 		tick_stat_node(st, st_str_resps_by_srv_addr, 0, FALSE);
 		resps_by_this_addr = tick_stat_node(st, ip_str, st_node_resps_by_srv_addr, TRUE);
@@ -442,6 +444,8 @@ http_reqs_stats_tree_packet(stats_tree* st, packet_info* pinfo, epan_dissect_t* 
 		} else {
 			tick_stat_node(st, "KO", resps_by_this_addr, FALSE);
 		}
+
+		wmem_free(NULL, ip_str);
 
 		return 1;
 	}

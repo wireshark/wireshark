@@ -748,13 +748,17 @@ static void
 tacplus_print_key_entry( gpointer data, gpointer user_data )
 {
 	tacplus_key_entry *tacplus_data=(tacplus_key_entry *)data;
+	gchar *s_str, *c_str;
+
+	s_str = address_to_str( NULL, tacplus_data->s );
+	c_str = address_to_str( NULL, tacplus_data->c );
 	if( user_data ) {
-		printf("%s:%s=%s\n", ep_address_to_str( tacplus_data->s ),
-				ep_address_to_str( tacplus_data->c ), tacplus_data->k );
+		printf("%s:%s=%s\n", s_str, c_str, tacplus_data->k );
 	} else {
-		printf("%s:%s\n", ep_address_to_str( tacplus_data->s ),
-				ep_address_to_str( tacplus_data->c ) );
+		printf("%s:%s\n", s_str, c_str );
 	}
+	wmem_free(NULL, s_str);
+	wmem_free(NULL, c_str);
 }
 #endif
 static int

@@ -10889,17 +10889,23 @@ static int
 msg_stats_tree_packet(stats_tree *st, packet_info *pinfo, epan_dissect_t *edt _U_, const void *p)
 {
   const gchar *msg = try_val_to_str_ext(((const isup_tap_rec_t*)p)->message_type, &isup_message_type_value_acro_ext);
-  gchar       *dir;
+  gchar       *src, *dst, *dir;
   int          msg_node;
   int          dir_node;
 
-  dir = wmem_strdup_printf(wmem_packet_scope(), "%s->%s", ep_address_to_str(&pinfo->src), ep_address_to_str(&pinfo->dst));
+  src = address_to_str(NULL, &pinfo->src);
+  dst = address_to_str(NULL, &pinfo->dst);
+  dir = wmem_strdup_printf(NULL, "%s->%s", src, dst);
+  wmem_free(NULL, src);
+  wmem_free(NULL, dst);
 
   msg_node = tick_stat_node(st, msg, st_node_msg, TRUE);
   tick_stat_node(st, dir, msg_node, FALSE);
 
   dir_node = tick_stat_node(st, dir, st_node_dir, TRUE);
   tick_stat_node(st, msg, dir_node, FALSE);
+
+  wmem_free(NULL, dir);
 
   return 1;
 }
