@@ -689,11 +689,24 @@ mp2t_process_fragmented_payload(tvbuff_t *tvb, gint offset, guint remaining_len,
 
         /* "pointer" contains the number of bytes until the
          * start of the new section
+         *
          * if the new section does not start immediately after the
          * pointer field (i.e. pointer>0), the remaining bytes before the
          * start of the section are another fragment of the
-         * current packet */
-        if (pointer>0 && fragmentation) {
+         * current packet
+         *
+         * if pointer is 0, a new upper-layer packet starts at the
+         * beginning of this TS packet
+         * if we have pending fragments, the last TS packet contained the
+         * last fragment and at the time we processed it, we couldn't figure
+         * out that it is the last fragment
+         * this is the case e.g. for PES packets with a 0 length field
+         * ("unbounded length")
+         * to handle this case, we add an empty fragment (pointer==0)
+         * and reassemble, then we process the current TS packet as
+         * usual
+         */
+        if (fragmentation) {
             mp2t_fragment_handle(tvb, offset, pinfo, tree, frag_id, frag_cur_pos,
                     pointer, TRUE, pid_analysis->pload_type);
             frag_id++;
