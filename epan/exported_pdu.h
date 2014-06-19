@@ -27,20 +27,26 @@
 
 #include "config.h"
 
+#include "ws_symbol_export.h"
+
 #include <glib.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
 
 /*
  * Define different common tap names to extract PDUs at different layers,
  * otherwise one packet may be exported several times at different layers
  * if all taps are run.
- * NOTE if a new tap is added here it needs to be added to export_pdu_dlg.c
- * and packet-exported_pdu.c
- * TODO: Use an enum_val_t instead?
  */
 #define EXPORT_PDU_TAP_NAME_LAYER_3 "OSI layer 3"
 #define EXPORT_PDU_TAP_NAME_LAYER_7 "OSI layer 7"
-#define EXPORT_PDU_TAP_NAME_DVB_CI  "DVB-CI"
-#define EXPORT_PDU_TAP_NAME_LOGCAT  "Logcat"
+
+/* To add dynamically an export name, call the following function
+   It returns the registered tap */
+WS_DLL_PUBLIC gint register_export_pdu_tap(const char *name);
+WS_DLL_PUBLIC GSList *get_export_pdu_tap_list(void);
 
 /**
  * This struct is used as the data part of tap_queue_packet() and contains a
@@ -151,5 +157,8 @@ typedef struct _exp_pdu_data_t {
 WS_DLL_PUBLIC exp_pdu_data_t *load_export_pdu_tags(packet_info *pinfo, const char* proto_name,
                                 int wtap_encap, guint8 *wanted_exp_tags, guint16 wanted_exp_tags_len);
 
-#endif /* EXPORTED_PDU_H */
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
+#endif /* EXPORTED_PDU_H */
