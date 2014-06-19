@@ -381,15 +381,26 @@ expert_set_info_vformat(packet_info *pinfo, proto_item *pi, int group, int sever
 	tap_queue_packet(expert_tap, pinfo, ei);
 }
 
-void
-expert_add_info(packet_info *pinfo, proto_item *pi, expert_field *expindex)
+/* Helper function for expert_add_info() to work around compiler's special needs on ARM*/
+static inline void
+expert_add_info_internal(packet_info *pinfo, proto_item *pi, expert_field *expindex, ...)
 {
+	/* the va_list is ignored */
+	va_list unused;
 	expert_field_info* eiinfo;
 
 	/* Look up the item */
 	EXPERT_REGISTRAR_GET_NTH(expindex->ei, eiinfo);
 
-	expert_set_info_vformat(pinfo, pi, eiinfo->group, eiinfo->severity, *eiinfo->hf_info.p_id, FALSE, eiinfo->summary, NULL);
+	va_start(unused, expindex);
+	expert_set_info_vformat(pinfo, pi, eiinfo->group, eiinfo->severity, *eiinfo->hf_info.p_id, FALSE, eiinfo->summary, unused);
+	va_end(unused);
+}
+
+void
+expert_add_info(packet_info *pinfo, proto_item *pi, expert_field *expindex)
+{
+	expert_add_info_internal(pinfo, pi, expindex);
 }
 
 void
@@ -406,19 +417,30 @@ expert_add_info_format(packet_info *pinfo, proto_item *pi, expert_field *expinde
 	va_end(ap);
 }
 
-proto_item *
-proto_tree_add_expert(proto_tree *tree, packet_info *pinfo, expert_field* expindex,
-		tvbuff_t *tvb, gint start, gint length)
+/* Helper function for expert_add_expert() to work around compiler's special needs on ARM*/
+static inline proto_item *
+proto_tree_add_expert_internal(proto_tree *tree, packet_info *pinfo, expert_field* expindex,
+		tvbuff_t *tvb, gint start, gint length, ...)
 {
 	expert_field_info* eiinfo;
 	proto_item *ti;
+	va_list unused;
 
 	/* Look up the item */
 	EXPERT_REGISTRAR_GET_NTH(expindex->ei, eiinfo);
 
 	ti = proto_tree_add_text(tree, tvb, start, length, "%s", eiinfo->summary);
-	expert_set_info_vformat(pinfo, ti, eiinfo->group, eiinfo->severity, *eiinfo->hf_info.p_id, FALSE, eiinfo->summary, NULL);
+	va_start(unused, length);
+	expert_set_info_vformat(pinfo, ti, eiinfo->group, eiinfo->severity, *eiinfo->hf_info.p_id, FALSE, eiinfo->summary, unused);
+	va_end(unused);
 	return ti;
+}
+
+proto_item *
+proto_tree_add_expert(proto_tree *tree, packet_info *pinfo, expert_field* expindex,
+		tvbuff_t *tvb, gint start, gint length)
+{
+	return proto_tree_add_expert_internal(tree, pinfo, expindex, tvb, start, length);
 }
 
 proto_item *
