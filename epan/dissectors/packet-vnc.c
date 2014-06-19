@@ -831,8 +831,8 @@ dissect_vnc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	gint     offset = 0;
 
 	/* Set up structures needed to add the protocol subtree and manage it */
-	proto_item	   *ti	     = NULL;
-	proto_tree	   *vnc_tree = NULL;
+	proto_item	   *ti;
+	proto_tree	   *vnc_tree;
 
 	conversation_t     *conversation;
 	vnc_conversation_t *per_conversation_info;
@@ -860,10 +860,8 @@ dissect_vnc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_clear(pinfo->cinfo, COL_INFO);
 
 	/* create display subtree for the protocol */
-	if(tree) {
-		ti = proto_tree_add_item(tree, proto_vnc, tvb, 0, -1, ENC_NA);
-		vnc_tree = proto_item_add_subtree(ti, ett_vnc);
-	}
+	ti = proto_tree_add_item(tree, proto_vnc, tvb, 0, -1, ENC_NA);
+	vnc_tree = proto_item_add_subtree(ti, ett_vnc);
 
 	offset = 0; /* Start at the beginning of the VNC protocol data */
 
