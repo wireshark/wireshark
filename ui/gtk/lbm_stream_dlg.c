@@ -579,8 +579,7 @@ static gboolean lbmc_stream_dlg_tap_packet(void * tap_data, packet_info * pinfo,
         stream->messages = 0;
         stream->bytes = 0;
         stream->substreams = g_sequence_new(lbmc_stream_dlg_substream_entry_destroy_cb);
-        stream_entry_it = g_sequence_insert_sorted(info->stream_table, (void *)stream, lbmc_stream_dlg_stream_compare_cb, NULL);
-        /* TODO: check stream_entry_it for NULL */
+        (void) g_sequence_insert_sorted(info->stream_table, (void *)stream, lbmc_stream_dlg_stream_compare_cb, NULL);
         if (add_stream_before)
         {
             gtk_tree_store_insert_before(GTK_TREE_STORE(info->model), &stream_iter, NULL, &stream_insert_before_iter);
@@ -680,7 +679,7 @@ static gboolean lbmc_stream_dlg_tap_packet(void * tap_data, packet_info * pinfo,
         substream->messages = 0;
         substream->bytes = 0;
         substream->parent = stream;
-        substream_entry_it = g_sequence_insert_sorted(stream->substreams, (void *)substream, lbmc_stream_dlg_substream_compare_cb, NULL);
+        (void) g_sequence_insert_sorted(stream->substreams, (void *)substream, lbmc_stream_dlg_substream_compare_cb, NULL);
         if (add_substream_before)
         {
             gtk_tree_store_insert_before(GTK_TREE_STORE(info->model), &substream_iter, &stream_iter, &substream_insert_before_iter);
