@@ -311,7 +311,7 @@ proto_reg_handoff_pw_fr(void)
 {
 	dissector_handle_t h;
 	h = find_dissector("pw_fr");
-	dissector_add_uint("mpls.label", MPLS_LABEL_INVALID, h);
+	dissector_add_handle("mpls.label", h);
 	fr_stripped_address_handle = find_dissector("fr_stripped_address");
 }
 

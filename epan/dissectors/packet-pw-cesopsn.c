@@ -456,7 +456,8 @@ void proto_reg_handoff_pw_cesopsn(void)
 {
 	data_handle = find_dissector("data");
 	pw_padding_handle = find_dissector("pw_padding");
-	dissector_add_uint("mpls.label", MPLS_LABEL_INVALID, find_dissector("pw_cesopsn_mpls"));
-	dissector_add_handle("udp.port", find_dissector("pw_cesopsn_udp")); /* For Decode-As */
+	/* For Decode As */
+	dissector_add_handle("mpls.label", find_dissector("pw_cesopsn_mpls"));
+	dissector_add_handle("udp.port", find_dissector("pw_cesopsn_udp"));
 	return;
 }
