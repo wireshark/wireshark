@@ -691,7 +691,7 @@ static struct encap_type_info encap_table_base[] = {
 	{ "STANAG 5066 Data Transfer Sublayer PDUs(D_PDU)", "s5066-dpdu"},
 
 	/* WTAP_ENCAP_NETLINK */
-	{ "Netlink", "Linux netlink" },
+	{ "Linux Netlink", "netlink" },
 
 	/* WTAP_ENCAP_BLUETOOTH_LINUX_MONITOR */
 	{ "Bluetooth Linux Monitor", "bluetooth-linux-monitor" },
