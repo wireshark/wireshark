@@ -93,7 +93,7 @@ LCTPDU
   tvbuff_t *next_tvb = NULL;
 
 %(DEFAULT_BODY)s
-  if (next_tvb && tvb_captured_length(next_tvb)) {
+  if (next_tvb && tvb_length(next_tvb)) {
     call_dissector((rdc_pdu_handle)?rdc_pdu_handle:data_handle, next_tvb, %(ACTX)s->pinfo, proto_tree_get_root(tree));
   }
   info_is_set = TRUE;
@@ -103,7 +103,7 @@ LCTPDU
   tvbuff_t *next_tvb = NULL;
 
 %(DEFAULT_BODY)s
-  if (next_tvb && tvb_captured_length(next_tvb)) {
+  if (next_tvb && tvb_length(next_tvb)) {
     call_dissector((rdc_device_list_handle)?rdc_device_list_handle:data_handle, next_tvb, %(ACTX)s->pinfo, tree);
   }
 #.END

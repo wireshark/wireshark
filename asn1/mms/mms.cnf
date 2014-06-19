@@ -52,7 +52,7 @@ UtcTime	TYPE = FT_STRING DISPLAY = BASE_NONE
 	gchar *	ptime;
 	nstime_t ts;
 
-	len = tvb_captured_length_remaining(tvb, offset);
+	len = tvb_length_remaining(tvb, offset);
 
 	if(len == 4)
 	{
@@ -104,7 +104,7 @@ UtcTime	TYPE = FT_STRING DISPLAY = BASE_NONE
 	nstime_t ts;
 	gchar *	ptime;
 
-	len = tvb_captured_length_remaining(tvb, offset);
+	len = tvb_length_remaining(tvb, offset);
 
 	if(len != 8)
 	{

@@ -90,7 +90,7 @@ gint pdu_type=-1;
                                        &usm_p.engine_tvb);
 	 if (usm_p.engine_tvb) {
 		proto_tree* engine_tree = proto_item_add_subtree(%(ACTX)s->created_item,ett_engineid);
-		dissect_snmp_engineid(engine_tree, usm_p.engine_tvb, 0, tvb_captured_length_remaining(usm_p.engine_tvb,0));
+		dissect_snmp_engineid(engine_tree, usm_p.engine_tvb, 0, tvb_length_remaining(usm_p.engine_tvb,0));
 	}
 
 #.FN_BODY SnmpEngineID
@@ -100,7 +100,7 @@ gint pdu_type=-1;
                                        &param_tvb);
 	 if (param_tvb) {
 		proto_tree* engine_tree = proto_item_add_subtree(%(ACTX)s->created_item,ett_engineid);
-		dissect_snmp_engineid(engine_tree, param_tvb, 0, tvb_captured_length_remaining(param_tvb,0));
+		dissect_snmp_engineid(engine_tree, param_tvb, 0, tvb_length_remaining(param_tvb,0));
 	}
 
 #.FN_PARS UsmSecurityParameters/msgUserName

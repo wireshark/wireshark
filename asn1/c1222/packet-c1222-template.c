@@ -947,7 +947,7 @@ dissect_epsem(tvbuff_t *tvb, int offset, guint32 len, packet_info *pinfo, proto_
     case EAX_MODE_CIPHERTEXT_AUTH:
       /* mode is ciphertext with authentication */
       hasmac = TRUE;
-      len2 = tvb_captured_length_remaining(tvb, offset);
+      len2 = tvb_length_remaining(tvb, offset);
       if (len2 <= 0)
         return offset;
       encrypted = TRUE;
@@ -967,7 +967,7 @@ dissect_epsem(tvbuff_t *tvb, int offset, guint32 len, packet_info *pinfo, proto_
     case EAX_MODE_CLEARTEXT_AUTH:
       /* mode is cleartext with authentication */
       hasmac = TRUE;
-      len2 = tvb_captured_length_remaining(tvb, offset);
+      len2 = tvb_length_remaining(tvb, offset);
       if (len2 <= 0)
         return offset;
       buffer = (guchar *)tvb_memdup(wmem_packet_scope(), tvb, offset, len2);
@@ -1072,7 +1072,7 @@ dissect_c1222_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
       dissect_MESSAGE_PDU(tvb, pinfo, c1222_tree);
     }
 
-    return tvb_captured_length(tvb);
+    return tvb_length(tvb);
 }
 
 /**
@@ -1108,7 +1108,7 @@ dissect_c1222(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
   tcp_dissect_pdus(tvb, pinfo, tree, c1222_desegment, 5,
           get_c1222_message_len, dissect_c1222_common, data);
-  return tvb_captured_length(tvb);
+  return tvb_length(tvb);
 }
 
 /*--- proto_register_c1222 -------------------------------------------*/

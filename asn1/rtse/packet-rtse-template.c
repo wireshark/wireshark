@@ -147,7 +147,7 @@ call_rtse_oid_callback(const char *oid, tvbuff_t *tvb, int offset, packet_info *
 
 	next_tvb = tvb_new_subset_remaining(tvb, offset);
 	if(!dissector_try_string(rtse_oid_dissector_table, oid, next_tvb, pinfo, tree, data)){
-		proto_item *item=proto_tree_add_text(tree, next_tvb, 0, tvb_captured_length_remaining(tvb, offset), "RTSE: Dissector for OID:%s not implemented. Contact Wireshark developers if you want this supported", oid);
+		proto_item *item=proto_tree_add_text(tree, next_tvb, 0, tvb_length_remaining(tvb, offset), "RTSE: Dissector for OID:%s not implemented. Contact Wireshark developers if you want this supported", oid);
 		proto_tree *next_tree=proto_item_add_subtree(item, ett_rtse_unknown);
 
 		expert_add_info_format(pinfo, item, &ei_rtse_dissector_oid_not_implemented,
@@ -159,7 +159,7 @@ call_rtse_oid_callback(const char *oid, tvbuff_t *tvb, int offset, packet_info *
 	 * into new_dissector_t   we have to do this kludge with
 	 * manually step past the content in the ANY type.
 	 */
-	offset+=tvb_captured_length_remaining(tvb, offset);
+	offset+=tvb_length_remaining(tvb, offset);
 
 	return offset;
 }
@@ -245,7 +245,7 @@ dissect_rtse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 		dissect_ber_octet_string(FALSE, &asn1_ctx, tree, tvb, offset, hf_rtse_segment_data, &data_tvb);
 
 		if (data_tvb) {
-			fragment_length = tvb_captured_length_remaining (data_tvb, 0);
+			fragment_length = tvb_length_remaining (data_tvb, 0);
 			proto_item_append_text(asn1_ctx.created_item, " (%u byte%s)", fragment_length,
       	                              plurality(fragment_length, "", "s"));
 			frag_msg = fragment_add_seq_next (&rtse_reassembly_table,
@@ -260,7 +260,7 @@ dissect_rtse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 			pinfo->fragmented = TRUE;
 			data_handled = TRUE;
 		} else {
-			fragment_length = tvb_captured_length_remaining (tvb, offset);
+			fragment_length = tvb_length_remaining (tvb, offset);
 		}
 
 		col_append_fstr(pinfo->cinfo, COL_INFO, "[RTSE fragment, %u byte%s]",
@@ -274,7 +274,7 @@ dissect_rtse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 			/* Return other than 0 to indicate that we handled this packet */
 			return 1;
 		} else {
-			offset = tvb_captured_length (tvb);
+			offset = tvb_length (tvb);
 		}
 		pinfo->fragmented = FALSE;
 		data_handled = TRUE;
@@ -296,7 +296,7 @@ dissect_rtse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 	}
 
 	top_tree = NULL;
-	return tvb_captured_length(tvb);
+	return tvb_length(tvb);
 }
 
 static void rtse_reassemble_init (void)

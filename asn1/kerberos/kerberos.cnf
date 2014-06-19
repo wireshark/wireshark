@@ -308,7 +308,7 @@ guint32 msgtype;
 #.FN_BODY EncryptionKey/keyvalue
 	kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
 
-	private_data->key.keylength = tvb_captured_length_remaining(tvb, offset);
+	private_data->key.keylength = tvb_length_remaining(tvb, offset);
 	private_data->key.keyvalue = tvb_get_ptr(tvb, offset, private_data->key.keylength);
 
 %(DEFAULT_BODY)s

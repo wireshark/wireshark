@@ -94,7 +94,7 @@ ProtocolIE-Single-Container
 #.FN_BODY RANAP-Message  VAL_PTR = &ranap_message_tvb
   tvbuff_t *ranap_message_tvb=NULL;
 %(DEFAULT_BODY)s
- if ((tvb_captured_length(ranap_message_tvb)>0)&&(ranap_handle)) {  /* RUA has a RANAP-PDU */
+ if ((tvb_length(ranap_message_tvb)>0)&&(ranap_handle)) {  /* RUA has a RANAP-PDU */
      col_set_str(actx->pinfo->cinfo, COL_INFO,
              "(RUA) ");                                    /* Set info to (RUA) to make room for RANAP */
      col_set_fence(actx->pinfo->cinfo, COL_INFO);

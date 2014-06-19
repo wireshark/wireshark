@@ -157,7 +157,7 @@ dissect_PhsMeas1(gboolean implicit_tag, packet_info *pinfo, proto_tree *tree, tv
 		offset=dissect_ber_identifier(pinfo, tree, tvb, offset, &class, &pc, &tag);
 		offset=dissect_ber_length(pinfo, tree, tvb, offset, &len, NULL);
 	} else {
-		len=tvb_captured_length_remaining(tvb, offset);
+		len=tvb_length_remaining(tvb, offset);
 	}
 
 	if (tree) {

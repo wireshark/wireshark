@@ -131,13 +131,13 @@ dissect_t124_new(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, voi
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "T.124");
   col_clear(pinfo->cinfo, COL_INFO);
 
-  item = proto_tree_add_item(parent_tree, proto_t124, tvb, 0, tvb_captured_length(tvb), ENC_NA);
+  item = proto_tree_add_item(parent_tree, proto_t124, tvb, 0, tvb_length(tvb), ENC_NA);
   tree = proto_item_add_subtree(item, ett_t124);
 
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
   dissect_t124_ConnectData(tvb, 0, &asn1_ctx, tree, hf_t124_ConnectData);
 
-  return tvb_captured_length(tvb);
+  return tvb_length(tvb);
 }
 
 static void

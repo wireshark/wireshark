@@ -145,12 +145,12 @@ dissect_h450_arg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
       proto_item_append_text(proto_item_get_parent_nth(proto_tree_get_parent(tree), rctx->apdu_depth), " %s", p);
   }
 
-  if (op_ptr->arg_pdu && (tvb_captured_length_remaining(tvb, offset) > 0))
+  if (op_ptr->arg_pdu && (tvb_length_remaining(tvb, offset) > 0))
     offset = op_ptr->arg_pdu(tvb, pinfo, tree, NULL);
   else
-    if (tvb_captured_length_remaining(tvb, offset) > 0) {
+    if (tvb_length_remaining(tvb, offset) > 0) {
       proto_tree_add_text(tree, tvb, offset, -1, "UNSUPPORTED ARGUMENT TYPE (H.450)");
-      offset += tvb_captured_length_remaining(tvb, offset);
+      offset += tvb_length_remaining(tvb, offset);
     }
 
   return offset;
@@ -190,12 +190,12 @@ dissect_h450_res(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
       proto_item_append_text(proto_item_get_parent_nth(proto_tree_get_parent(tree), rctx->apdu_depth), " %s", p);
   }
 
-  if (op_ptr->res_pdu && (tvb_captured_length_remaining(tvb, offset) > 0))
+  if (op_ptr->res_pdu && (tvb_length_remaining(tvb, offset) > 0))
     offset = op_ptr->res_pdu(tvb, pinfo, tree, NULL);
   else
-    if (tvb_captured_length_remaining(tvb, offset) > 0) {
+    if (tvb_length_remaining(tvb, offset) > 0) {
       proto_tree_add_text(tree, tvb, offset, -1, "UNSUPPORTED RESULT TYPE (H.450)");
-      offset += tvb_captured_length_remaining(tvb, offset);
+      offset += tvb_length_remaining(tvb, offset);
     }
 
   return offset;
@@ -235,12 +235,12 @@ dissect_h450_err(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
       proto_item_append_text(proto_item_get_parent_nth(proto_tree_get_parent(tree), rctx->apdu_depth), " %s", p);
   }
 
-  if (err_ptr->err_pdu && (tvb_captured_length_remaining(tvb, offset) > 0))
+  if (err_ptr->err_pdu && (tvb_length_remaining(tvb, offset) > 0))
     offset = err_ptr->err_pdu(tvb, pinfo, tree, NULL);
   else
-    if (tvb_captured_length_remaining(tvb, offset) > 0) {
+    if (tvb_length_remaining(tvb, offset) > 0) {
       proto_tree_add_text(tree, tvb, offset, -1, "UNSUPPORTED ERROR TYPE (H.450)");
-      offset += tvb_captured_length_remaining(tvb, offset);
+      offset += tvb_length_remaining(tvb, offset);
     }
 
   return offset;

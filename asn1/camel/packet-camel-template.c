@@ -1104,7 +1104,7 @@ dissect_camel_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, voi
     tap_queue_packet(camel_tap, pinfo, gp_camelsrt_info);
   }
 
-  return tvb_captured_length(tvb);
+  return tvb_length(tvb);
 }
 
 static int
@@ -1142,7 +1142,7 @@ dissect_camel_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, voi
     tap_queue_packet(camel_tap, pinfo, gp_camelsrt_info);
   }
 
-  return tvb_captured_length(tvb);
+  return tvb_length(tvb);
 }
 
 static int
@@ -1179,7 +1179,7 @@ dissect_camel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
     tap_queue_packet(camel_tap, pinfo, gp_camelsrt_info);
   }
 
-  return tvb_captured_length(tvb);
+  return tvb_length(tvb);
 }
 
 /*--- proto_reg_handoff_camel ---------------------------------------*/

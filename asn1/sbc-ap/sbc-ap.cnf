@@ -100,7 +100,7 @@ ProtocolIE-Field/value ie_field_value
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        3, 3, FALSE, &parameter_tvb);
-	if(tvb_captured_length(tvb)==0)
+	if(tvb_length(tvb)==0)
 		return offset;
 
 	if (!parameter_tvb)

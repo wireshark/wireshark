@@ -256,7 +256,7 @@ dissect_q932_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   proto_tree_add_item(ie_tree, hf_q932_ie_type, tvb, offset, 1, ENC_BIG_ENDIAN);
   proto_tree_add_item(ie_tree, hf_q932_ie_len, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
   offset += 2;
-  if (tvb_captured_length_remaining(tvb, offset) <= 0)
+  if (tvb_length_remaining(tvb, offset) <= 0)
     return;
   switch (ie_type) {
     case Q932_IE_FACILITY :

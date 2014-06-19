@@ -270,7 +270,7 @@ IsupNumber/nationalStandardPartyNumber isupNationalStandardPartyNumber
 	codec_str[0] = '\0';
 
 %(DEFAULT_BODY)s
-	if (value_tvb && tvb_captured_length(value_tvb)) {
+	if (value_tvb && tvb_length(value_tvb)) {
 		dissect_h245_FastStart_OLC(value_tvb, %(ACTX)s->pinfo, tree, codec_str);
 	}
 
@@ -307,7 +307,7 @@ IsupNumber/nationalStandardPartyNumber isupNationalStandardPartyNumber
 %(DEFAULT_BODY)s
   if (h225_pi && h225_pi->is_destinationInfo == TRUE) {
     if (value_tvb) {
-      len = tvb_captured_length(value_tvb);
+      len = tvb_length(value_tvb);
       /* XXX - should this be allocated as an ephemeral string? */
       if (len > sizeof h225_pi->dialedDigits - 1)
         len = sizeof h225_pi->dialedDigits - 1;
@@ -556,7 +556,7 @@ IsupNumber/nationalStandardPartyNumber isupNationalStandardPartyNumber
 	tvbuff_t *h4501_tvb = NULL;
 
 %(DEFAULT_BODY)s
-	if (h4501_tvb && tvb_captured_length(h4501_tvb)) {
+	if (h4501_tvb && tvb_length(h4501_tvb)) {
 		call_dissector(h4501_handle, h4501_tvb, %(ACTX)s->pinfo, tree);
 	}
 #.END
@@ -625,7 +625,7 @@ H221NonStandard/manufacturerCode  VAL_PTR = &manufacturerCode
   tvbuff_t *next_tvb = NULL;
 
 %(DEFAULT_BODY)s
-  if (next_tvb && tvb_captured_length(next_tvb)) {
+  if (next_tvb && tvb_length(next_tvb)) {
     call_dissector((nsp_handle)?nsp_handle:data_handle, next_tvb, %(ACTX)s->pinfo, tree);
   }
 #.END

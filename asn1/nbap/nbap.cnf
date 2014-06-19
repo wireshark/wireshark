@@ -627,7 +627,7 @@ actx->pinfo->link_dir=P2P_DIR_UL;
 # TransportLayerAddress ::= BIT STRING (SIZE (1..160, ...))
 # Assume 4 bytes used in case of IPv4
     /* Get the length */
-    tvb_len = tvb_captured_length(parameter_tvb);
+    tvb_len = tvb_length(parameter_tvb);
     subtree = proto_item_add_subtree(actx->created_item, ett_nbap_TransportLayerAddress);
     if (tvb_len==4){
         /* IPv4 */
@@ -720,7 +720,7 @@ hsdsch_macdflow_ids[num_items-1] = hsdsch_macdflow_id;
 # -- the UDP port field is included in the first octet of the Binding ID.
  BindingID_port = tvb_get_ntohs(parameter_tvb,0);
 
- if(tvb_captured_length(parameter_tvb)==2){
+ if(tvb_length(parameter_tvb)==2){
     proto_item_append_text(actx->created_item, " (%%u)",BindingID_port);
  }
 

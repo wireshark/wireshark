@@ -67,12 +67,12 @@ Invoke/argument  TYPE = FT_BYTES  DISPLAY = BASE_NONE
 #.FN_BODY Invoke/argument
   gint len;
 
-  len = tvb_captured_length_remaining(tvb, offset);
+  len = tvb_length_remaining(tvb, offset);
   if (len)
     proto_tree_add_item(tree, hf_index, tvb, offset, len, ENC_NA);
   arg_next_tvb = tvb_new_subset_remaining(tvb, offset);
 
-  offset += tvb_captured_length_remaining(tvb, offset);
+  offset += tvb_length_remaining(tvb, offset);
 #.END
 
 #.INCLUDE ../ros/ros-inv.cnf
@@ -85,12 +85,12 @@ ReturnResult/result/result  TYPE = FT_BYTES  DISPLAY = BASE_NONE
 #.FN_BODY ReturnResult/result/result
   gint len;
 
-  len = tvb_captured_length_remaining(tvb, offset);
+  len = tvb_length_remaining(tvb, offset);
   if (len)
     proto_tree_add_item(tree, hf_index, tvb, offset, len, ENC_NA);
   res_next_tvb = tvb_new_subset_remaining(tvb, offset);
 
-  offset += tvb_captured_length_remaining(tvb, offset);
+  offset += tvb_length_remaining(tvb, offset);
 
 #.END
 
@@ -105,12 +105,12 @@ ReturnError/parameter  TYPE = FT_BYTES  DISPLAY = BASE_NONE
 
   gint len;
 
-  len = tvb_captured_length_remaining(tvb, offset);
+  len = tvb_length_remaining(tvb, offset);
   if (len)
     proto_tree_add_item(tree, hf_index, tvb, offset, len, ENC_NA);
   err_next_tvb = tvb_new_subset_remaining(tvb, offset);
 
-  offset += tvb_captured_length_remaining(tvb, offset);
+  offset += tvb_length_remaining(tvb, offset);
 #.END
 
 #.INCLUDE ../ros/ros-err.cnf

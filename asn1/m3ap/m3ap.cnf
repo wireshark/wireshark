@@ -138,7 +138,7 @@ ProtocolIE-Field/value ie_field_value
   if (!parameter_tvb)
     return offset;
 
-  tvb_len = tvb_captured_length(parameter_tvb);
+  tvb_len = tvb_length(parameter_tvb);
   proto_tree_add_item(tree, hf_m3ap_IPAddress, parameter_tvb, 0, tvb_len, ENC_NA);
 #.END
 
@@ -152,7 +152,7 @@ ProtocolIE-Field/value ie_field_value
   if (!parameter_tvb)
     return offset;
 
-  tvb_len = tvb_captured_length(parameter_tvb);
+  tvb_len = tvb_length(parameter_tvb);
 
   time_str = tvb_ntp_fmt_ts(parameter_tvb, 0);
   proto_tree_add_string(tree, hf_m3ap_Absolute_Time_ofMBMS_Data_value, parameter_tvb, 0, tvb_len, time_str);
@@ -167,7 +167,7 @@ ProtocolIE-Field/value ie_field_value
   if (!parameter_tvb)
     return offset;
 
-  tvb_len = tvb_captured_length(parameter_tvb);
+  tvb_len = tvb_length(parameter_tvb);
 
   dissect_gtpv2_mbms_service_area(parameter_tvb, actx->pinfo, tree, actx->created_item, tvb_len, 0, 0);
 #.END
@@ -182,7 +182,7 @@ ProtocolIE-Field/value ie_field_value
   if (!parameter_tvb)
     return offset;
 
-  tvb_len = tvb_captured_length(parameter_tvb);
+  tvb_len = tvb_length(parameter_tvb);
 
   proto_item_append_text(actx->created_item, " ");
   dissect_gtpv2_mbms_session_duration(parameter_tvb, actx->pinfo, tree, actx->created_item, tvb_len, 0, 0);
@@ -197,7 +197,7 @@ ProtocolIE-Field/value ie_field_value
   if (!parameter_tvb)
     return offset;
 
-  tvb_len = tvb_captured_length(parameter_tvb);
+  tvb_len = tvb_length(parameter_tvb);
   dissect_gtpv2_mbms_time_to_data_xfer(parameter_tvb, actx->pinfo, tree, actx->created_item, tvb_len, 0, 0);
 #.END
 

@@ -805,7 +805,7 @@ static int dissect_h248_trx_id(gboolean implicit_tag, packet_info *pinfo, proto_
         offset=dissect_ber_identifier(pinfo, tree, tvb, offset, &ber_class, &pc, &tag);
         offset=dissect_ber_length(pinfo, tree, tvb, offset, &len, NULL);
     } else {
-        len=tvb_captured_length_remaining(tvb, offset);
+        len=tvb_length_remaining(tvb, offset);
     }
 
 
@@ -843,7 +843,7 @@ static int dissect_h248_ctx_id(gboolean implicit_tag, packet_info *pinfo, proto_
         offset=dissect_ber_identifier(pinfo, tree, tvb, offset, &ber_class, &pc, &tag);
         offset=dissect_ber_length(pinfo, tree, tvb, offset, &len, NULL);
     } else {
-        len=tvb_captured_length_remaining(tvb, offset);
+        len=tvb_length_remaining(tvb, offset);
     }
 
 
@@ -1237,7 +1237,7 @@ static int dissect_h248_SigParameterName(gboolean implicit_tag _U_, tvbuff_t *tv
     offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset,  hf_index, &next_tvb);
     pi = actx->created_item;
 
-    switch(tvb_captured_length(next_tvb)) {
+    switch(tvb_length(next_tvb)) {
         case 4: param_id = tvb_get_ntohl(next_tvb,0); break;
         case 3: param_id = tvb_get_ntoh24(next_tvb,0); break;
         case 2: param_id = tvb_get_ntohs(next_tvb,0); break;
@@ -1310,7 +1310,7 @@ static int dissect_h248_EventParameterName(gboolean implicit_tag _U_, tvbuff_t *
     pi = actx->created_item;
 
     if (next_tvb) {
-        switch(tvb_captured_length(next_tvb)) {
+        switch(tvb_length(next_tvb)) {
             case 4: param_id = tvb_get_ntohl(next_tvb,0); break;
             case 3: param_id = tvb_get_ntoh24(next_tvb,0); break;
             case 2: param_id = tvb_get_ntohs(next_tvb,0); break;
@@ -1389,7 +1389,7 @@ static int dissect_h248_MtpAddress(gboolean implicit_tag, tvbuff_t *tvb, int off
     if (new_tvb) {
         /* this field is either 2 or 4 bytes  so just read it into an integer */
         val=0;
-        len=tvb_captured_length(new_tvb);
+        len=tvb_length(new_tvb);
         for(i=0;i<len;i++){
             val= (val<<8)|tvb_get_guint8(new_tvb, i);
         }
@@ -1439,7 +1439,7 @@ dissect_h248(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
        dissect with the "megaco" dissector in Wireshark.  (Both
        encodings are MEGACO (RFC 3015) and both are H.248.)
      */
-    if(tvb_captured_length(tvb)>=6){
+    if(tvb_length(tvb)>=6){
         if(!tvb_strneql(tvb, 0, "MEGACO", 6)){
             static dissector_handle_t megaco_handle=NULL;
             if(!megaco_handle){
