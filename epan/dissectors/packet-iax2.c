@@ -607,10 +607,7 @@ static gchar *key_to_str( const iax_circuit_key *key )
   }
   strp = str[i];
 
-  /* why doesn't ep_address_to_str take a const pointer?
-     cast the warnings into oblivion. */
-
-  addrstr = address_to_str(NULL, (address *)&key->addr)
+  addrstr = address_to_str(NULL, &key->addr)
   g_snprintf(strp, 80, "{%s:%i,%i}",
              addrstr,
              key->port,
