@@ -662,10 +662,8 @@ proto_tree_reset(proto_tree *tree)
 		g_hash_table_foreach(tree_data->interesting_hfids,
 			free_GPtrArray_value, NULL);
 
-		/* And then destroy the hash. */
-		g_hash_table_destroy(tree_data->interesting_hfids);
-
-		tree_data->interesting_hfids = NULL;
+		/* And then remove all values. */
+		g_hash_table_remove_all(tree_data->interesting_hfids);
 	}
 
 	/* Reset track of the number of children */
@@ -1423,9 +1421,11 @@ tree_data_add_maybe_interesting_field(tree_data_t *tree_data, field_info *fi)
 			/* Initialize the hash because we now know that it is needed */
 			tree_data->interesting_hfids =
 				g_hash_table_new(g_direct_hash, NULL /* g_direct_equal */);
-		} else
+		} else if (g_hash_table_size(tree_data->interesting_hfids)) {
 			ptrs = (GPtrArray *)g_hash_table_lookup(tree_data->interesting_hfids,
 					   GINT_TO_POINTER(hfinfo->id));
+		}
+
 		if (!ptrs) {
 			/* First element triggers the creation of pointer array */
 			ptrs = g_ptr_array_new();
@@ -6479,10 +6479,14 @@ proto_get_finfo_ptr_array(const proto_tree *tree, const int id)
 gboolean
 proto_tracking_interesting_fields(const proto_tree *tree)
 {
+	GHashTable *interesting_hfids;
+
 	if (!tree)
 		return FALSE;
 
-	return (PTREE_DATA(tree)->interesting_hfids != NULL);
+	interesting_hfids = PTREE_DATA(tree)->interesting_hfids;
+
+	return (interesting_hfids != NULL) && g_hash_table_size(interesting_hfids);
 }
 
 /* Helper struct for proto_find_info() and	proto_all_finfos() */
