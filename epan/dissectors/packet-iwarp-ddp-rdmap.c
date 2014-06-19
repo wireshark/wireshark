@@ -500,155 +500,152 @@ dissect_iwarp_ddp_rdmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	ddp_rdma_packetlist(pinfo, ddp_ctrl_field & DDP_LAST_FLAG, info.opcode);
 
-	if (tree) {
+	offset = 0;
 
-		offset = 0;
+	/* determine header length */
+	if (is_tagged_buffer_model) {
+		header_end = DDP_TAGGED_HEADER_LEN;
+	} else {
+		header_end = DDP_UNTAGGED_HEADER_LEN;
+	}
 
-		/* determine header length */
-		if (is_tagged_buffer_model) {
-			header_end = DDP_TAGGED_HEADER_LEN;
-		} else {
-			header_end = DDP_UNTAGGED_HEADER_LEN;
-		}
+	if (info.opcode == RDMA_READ_REQUEST
+			|| info.opcode == RDMA_TERMINATE) {
+		header_end = -1;
+	}
 
-		if (info.opcode == RDMA_READ_REQUEST
-				|| info.opcode == RDMA_TERMINATE) {
-			header_end = -1;
-		}
+	/* DDP/RDMA protocol tree */
+	ddp_rdma_item = proto_tree_add_item(tree, proto_iwarp_ddp_rdmap,
+			tvb, offset, header_end, ENC_NA);
+	ddp_rdma_tree = proto_item_add_subtree(ddp_rdma_item,
+			ett_iwarp_ddp_rdmap);
 
-		/* DDP/RDMA protocol tree */
-		ddp_rdma_item = proto_tree_add_item(tree, proto_iwarp_ddp_rdmap,
-				tvb, offset, header_end, ENC_NA);
-		ddp_rdma_tree = proto_item_add_subtree(ddp_rdma_item,
-				ett_iwarp_ddp_rdmap);
+	/* DDP protocol header subtree */
+	ddp_item = proto_tree_add_item(ddp_rdma_tree, hf_iwarp_ddp, tvb,
+			offset, header_end, ENC_NA);
+	ddp_tree = proto_item_add_subtree(ddp_item, ett_iwarp_ddp);
 
-		/* DDP protocol header subtree */
-		ddp_item = proto_tree_add_item(ddp_rdma_tree, hf_iwarp_ddp, tvb,
+	/* DDP control field */
+	ddp_ctrl_field_item = proto_tree_add_item(ddp_tree,
+			hf_iwarp_ddp_control_field, tvb, offset,
+			DDP_CONTROL_FIELD_LEN, ENC_NA);
+	ddp_ctrl_field_tree = proto_item_add_subtree(ddp_ctrl_field_item,
+			ett_iwarp_ddp);
+
+	proto_tree_add_item(ddp_ctrl_field_tree, hf_iwarp_ddp_t_flag, tvb,
+			offset, DDP_CONTROL_FIELD_LEN, ENC_BIG_ENDIAN);
+	proto_tree_add_item(ddp_ctrl_field_tree, hf_iwarp_ddp_l_flag, tvb,
+			offset, DDP_CONTROL_FIELD_LEN, ENC_BIG_ENDIAN);
+	proto_tree_add_item(ddp_ctrl_field_tree, hf_iwarp_ddp_rsvd, tvb,
+			offset, DDP_CONTROL_FIELD_LEN, ENC_BIG_ENDIAN);
+	proto_tree_add_item(ddp_ctrl_field_tree, hf_iwarp_ddp_dv, tvb, offset,
+			DDP_CONTROL_FIELD_LEN, ENC_BIG_ENDIAN);
+	offset += DDP_CONTROL_FIELD_LEN;
+
+
+	/* DDP header field RsvdULP */
+	if (!is_tagged_buffer_model) {
+		proto_tree_add_item(ddp_tree, hf_iwarp_ddp_rsvdulp, tvb,
+				offset, DDP_UNTAGGED_RSVDULP_LEN, ENC_NA);
+	}
+
+	/* RDMA protocol header subtree */
+	if (is_tagged_buffer_model) {
+		header_end = RDMA_CONTROL_FIELD_LEN;
+	} else {
+		header_end = RDMA_CONTROL_FIELD_LEN + RDMA_RESERVED_FIELD_LEN;
+	}
+
+	rdma_item = proto_tree_add_item(ddp_rdma_tree, hf_iwarp_rdma, tvb,
 				offset, header_end, ENC_NA);
-		ddp_tree = proto_item_add_subtree(ddp_item, ett_iwarp_ddp);
+	rdma_tree = proto_item_add_subtree(rdma_item, ett_iwarp_rdma);
 
-		/* DDP control field */
-		ddp_ctrl_field_item = proto_tree_add_item(ddp_tree,
-				hf_iwarp_ddp_control_field, tvb, offset,
-				DDP_CONTROL_FIELD_LEN, ENC_NA);
-		ddp_ctrl_field_tree = proto_item_add_subtree(ddp_ctrl_field_item,
+	/* RDMA Control Field */
+	rdma_ctrl_field_item = proto_tree_add_item(rdma_tree,
+			hf_iwarp_rdma_control_field, tvb, offset,
+			RDMA_CONTROL_FIELD_LEN, ENC_NA);
+	rdma_ctrl_field_tree = proto_item_add_subtree(rdma_ctrl_field_item,
+			ett_iwarp_rdma);
+
+	proto_tree_add_item(rdma_ctrl_field_tree, hf_iwarp_rdma_version, tvb,
+			offset, RDMA_CONTROL_FIELD_LEN, ENC_BIG_ENDIAN);
+	proto_tree_add_item(rdma_ctrl_field_tree, hf_iwarp_rdma_rsvd, tvb,
+			offset, RDMA_CONTROL_FIELD_LEN, ENC_BIG_ENDIAN);
+	proto_tree_add_item(rdma_ctrl_field_tree, hf_iwarp_rdma_opcode, tvb,
+			offset, RDMA_CONTROL_FIELD_LEN, ENC_BIG_ENDIAN);
+	offset += RDMA_CONTROL_FIELD_LEN;
+
+	/* dissection of DDP rsvdULP[8:39] with respect to RDMAP */
+	if (info.opcode == RDMA_READ_REQUEST
+			|| info.opcode == RDMA_SEND
+			|| info.opcode == RDMA_SEND_SE
+			|| info.opcode == RDMA_TERMINATE) {
+		proto_tree_add_item(rdma_tree, hf_iwarp_rdma_reserved,
+				tvb, offset, RDMA_RESERVED_FIELD_LEN, ENC_NA);
+	}
+
+	if (info.opcode == RDMA_SEND_INVALIDATE
+			|| info.opcode == RDMA_SEND_SE_INVALIDATE) {
+		proto_tree_add_item(rdma_tree, hf_iwarp_rdma_inval_stag,
+			tvb, offset, RDMA_INVAL_STAG_LEN, ENC_BIG_ENDIAN);
+	}
+
+	if (!is_tagged_buffer_model) {
+		offset += RDMA_RESERVED_FIELD_LEN;
+	}
+
+	/* DDP Buffer Model dissection */
+	if (is_tagged_buffer_model) {
+
+		/* Tagged Buffer Model Case */
+		ddp_buffer_model_item = proto_tree_add_item(ddp_tree,
+				hf_iwarp_ddp_tagged_header, tvb, offset,
+				DDP_BUFFER_MODEL_LEN, ENC_NA);
+		ddp_buffer_model_tree = proto_item_add_subtree(ddp_buffer_model_item,
 				ett_iwarp_ddp);
 
-		proto_tree_add_item(ddp_ctrl_field_tree, hf_iwarp_ddp_t_flag, tvb,
-				offset, DDP_CONTROL_FIELD_LEN, ENC_BIG_ENDIAN);
-		proto_tree_add_item(ddp_ctrl_field_tree, hf_iwarp_ddp_l_flag, tvb,
-				offset, DDP_CONTROL_FIELD_LEN, ENC_BIG_ENDIAN);
-		proto_tree_add_item(ddp_ctrl_field_tree, hf_iwarp_ddp_rsvd, tvb,
-				offset, DDP_CONTROL_FIELD_LEN, ENC_BIG_ENDIAN);
-		proto_tree_add_item(ddp_ctrl_field_tree, hf_iwarp_ddp_dv, tvb, offset,
-				DDP_CONTROL_FIELD_LEN, ENC_BIG_ENDIAN);
-		offset += DDP_CONTROL_FIELD_LEN;
+		proto_tree_add_item(ddp_buffer_model_tree, hf_iwarp_ddp_stag, tvb,
+				offset, DDP_STAG_LEN, ENC_NA);
+		offset += DDP_STAG_LEN;
+		proto_tree_add_item(ddp_buffer_model_tree, hf_iwarp_ddp_to, tvb,
+				offset, DDP_TO_LEN, ENC_NA);
+		offset += DDP_TO_LEN;
 
+		if( info.opcode == RDMA_READ_RESPONSE
+				|| info.opcode == RDMA_WRITE) {
 
-		/* DDP header field RsvdULP */
-		if (!is_tagged_buffer_model) {
-			proto_tree_add_item(ddp_tree, hf_iwarp_ddp_rsvdulp, tvb,
-					offset, DDP_UNTAGGED_RSVDULP_LEN, ENC_NA);
+			/* display the payload */
+			next_tvb = tvb_new_subset_remaining(tvb, DDP_TAGGED_HEADER_LEN);
+			dissect_rdmap_payload(next_tvb, pinfo, tree, &info);
 		}
 
-		/* RDMA protocol header subtree */
-		if (is_tagged_buffer_model) {
-			header_end = RDMA_CONTROL_FIELD_LEN;
-		} else {
-			header_end = RDMA_CONTROL_FIELD_LEN + RDMA_RESERVED_FIELD_LEN;
-		}
+	} else {
 
-		rdma_item = proto_tree_add_item(ddp_rdma_tree, hf_iwarp_rdma, tvb,
-					offset, header_end, ENC_NA);
-		rdma_tree = proto_item_add_subtree(rdma_item, ett_iwarp_rdma);
+		/* Untagged Buffer Model Case */
+		ddp_buffer_model_item = proto_tree_add_item(ddp_tree,
+				hf_iwarp_ddp_untagged_header, tvb, offset,
+				DDP_BUFFER_MODEL_LEN, ENC_NA);
+		ddp_buffer_model_tree = proto_item_add_subtree(ddp_buffer_model_item,
+				ett_iwarp_ddp);
 
-		/* RDMA Control Field */
-		rdma_ctrl_field_item = proto_tree_add_item(rdma_tree,
-				hf_iwarp_rdma_control_field, tvb, offset,
-				RDMA_CONTROL_FIELD_LEN, ENC_NA);
-		rdma_ctrl_field_tree = proto_item_add_subtree(rdma_ctrl_field_item,
-				ett_iwarp_rdma);
+		proto_tree_add_item(ddp_buffer_model_tree, hf_iwarp_ddp_qn, tvb,
+				offset, DDP_QN_LEN, ENC_BIG_ENDIAN);
+		offset += DDP_QN_LEN;
+		proto_tree_add_item(ddp_buffer_model_tree, hf_iwarp_ddp_msn, tvb,
+				offset, DDP_MSN_LEN, ENC_BIG_ENDIAN);
+		offset += DDP_MSN_LEN;
+		proto_tree_add_item(ddp_buffer_model_tree, hf_iwarp_ddp_mo, tvb,
+				offset, DDP_MO_LEN, ENC_BIG_ENDIAN);
+		offset += DDP_MO_LEN;
 
-		proto_tree_add_item(rdma_ctrl_field_tree, hf_iwarp_rdma_version, tvb,
-				offset, RDMA_CONTROL_FIELD_LEN, ENC_BIG_ENDIAN);
-		proto_tree_add_item(rdma_ctrl_field_tree, hf_iwarp_rdma_rsvd, tvb,
-				offset, RDMA_CONTROL_FIELD_LEN, ENC_BIG_ENDIAN);
-		proto_tree_add_item(rdma_ctrl_field_tree, hf_iwarp_rdma_opcode, tvb,
-				offset, RDMA_CONTROL_FIELD_LEN, ENC_BIG_ENDIAN);
-		offset += RDMA_CONTROL_FIELD_LEN;
-
-		/* dissection of DDP rsvdULP[8:39] with respect to RDMAP */
-		if (info.opcode == RDMA_READ_REQUEST
-				|| info.opcode == RDMA_SEND
+		if (info.opcode == RDMA_SEND
+				|| info.opcode == RDMA_SEND_INVALIDATE
 				|| info.opcode == RDMA_SEND_SE
-				|| info.opcode == RDMA_TERMINATE) {
-			proto_tree_add_item(rdma_tree, hf_iwarp_rdma_reserved,
-				 tvb, offset, RDMA_RESERVED_FIELD_LEN, ENC_NA);
-		}
-
-		if (info.opcode == RDMA_SEND_INVALIDATE
 				|| info.opcode == RDMA_SEND_SE_INVALIDATE) {
-			proto_tree_add_item(rdma_tree, hf_iwarp_rdma_inval_stag,
-				tvb, offset, RDMA_INVAL_STAG_LEN, ENC_BIG_ENDIAN);
-		}
 
-		if (!is_tagged_buffer_model) {
-			offset += RDMA_RESERVED_FIELD_LEN;
-		}
-
-		/* DDP Buffer Model dissection */
-		if (is_tagged_buffer_model) {
-
-			/* Tagged Buffer Model Case */
-			ddp_buffer_model_item = proto_tree_add_item(ddp_tree,
-					hf_iwarp_ddp_tagged_header, tvb, offset,
-					DDP_BUFFER_MODEL_LEN, ENC_NA);
-			ddp_buffer_model_tree = proto_item_add_subtree(ddp_buffer_model_item,
-					ett_iwarp_ddp);
-
-			proto_tree_add_item(ddp_buffer_model_tree, hf_iwarp_ddp_stag, tvb,
-					offset, DDP_STAG_LEN, ENC_NA);
-			offset += DDP_STAG_LEN;
-			proto_tree_add_item(ddp_buffer_model_tree, hf_iwarp_ddp_to, tvb,
-					offset, DDP_TO_LEN, ENC_NA);
-			offset += DDP_TO_LEN;
-
-			if( info.opcode == RDMA_READ_RESPONSE
-					|| info.opcode == RDMA_WRITE) {
-
-				/* display the payload */
-				next_tvb = tvb_new_subset_remaining(tvb, DDP_TAGGED_HEADER_LEN);
-				dissect_rdmap_payload(next_tvb, pinfo, tree, &info);
-			}
-
-		} else {
-
-			/* Untagged Buffer Model Case */
-			ddp_buffer_model_item = proto_tree_add_item(ddp_tree,
-					hf_iwarp_ddp_untagged_header, tvb, offset,
-					DDP_BUFFER_MODEL_LEN, ENC_NA);
-			ddp_buffer_model_tree = proto_item_add_subtree(ddp_buffer_model_item,
-					ett_iwarp_ddp);
-
-			proto_tree_add_item(ddp_buffer_model_tree, hf_iwarp_ddp_qn, tvb,
-					offset, DDP_QN_LEN, ENC_BIG_ENDIAN);
-			offset += DDP_QN_LEN;
-			proto_tree_add_item(ddp_buffer_model_tree, hf_iwarp_ddp_msn, tvb,
-					offset, DDP_MSN_LEN, ENC_BIG_ENDIAN);
-			offset += DDP_MSN_LEN;
-			proto_tree_add_item(ddp_buffer_model_tree, hf_iwarp_ddp_mo, tvb,
-					offset, DDP_MO_LEN, ENC_BIG_ENDIAN);
-			offset += DDP_MO_LEN;
-
-			if (info.opcode == RDMA_SEND
-					|| info.opcode == RDMA_SEND_INVALIDATE
-					|| info.opcode == RDMA_SEND_SE
-					|| info.opcode == RDMA_SEND_SE_INVALIDATE) {
-
-				/* display the payload */
-				next_tvb = tvb_new_subset_remaining(tvb, DDP_UNTAGGED_HEADER_LEN);
-				dissect_rdmap_payload(next_tvb, pinfo, tree, &info);
-			}
+			/* display the payload */
+			next_tvb = tvb_new_subset_remaining(tvb, DDP_UNTAGGED_HEADER_LEN);
+			dissect_rdmap_payload(next_tvb, pinfo, tree, &info);
 		}
 	}
 
