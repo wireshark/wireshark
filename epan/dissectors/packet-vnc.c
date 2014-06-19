@@ -863,8 +863,6 @@ dissect_vnc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	ti = proto_tree_add_item(tree, proto_vnc, tvb, 0, -1, ENC_NA);
 	vnc_tree = proto_item_add_subtree(ti, ett_vnc);
 
-	offset = 0; /* Start at the beginning of the VNC protocol data */
-
 	/* Dissect any remaining session startup messages */
 	ret = vnc_startup_messages(tvb, pinfo, offset, vnc_tree,
 				   per_conversation_info);
