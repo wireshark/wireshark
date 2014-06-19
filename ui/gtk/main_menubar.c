@@ -115,6 +115,8 @@
 #include "ui/gtk/conversation_hastables_dlg.h"
 
 #include "ui/gtk/packet_list.h"
+#include "ui/gtk/lbm_stream_dlg.h"
+#include "ui/gtk/lbm_uimflow_dlg.h"
 
 #ifdef HAVE_LIBPCAP
 #include "capture_opts.h"
@@ -1222,6 +1224,27 @@ static const char *ui_desc_menubar =
 "        <menuitem name='ONC-RPC' action='/Statistics/ServiceResponseTime/ONC-RPC'/>\n"
 "      </menu>\n"
 "      <separator/>\n"
+"      <menu name= '29West' action='/Statistics/29West'>\n"
+"        <menu name= '29WestTopicMenu' action='/Statistics/29West/Topics'>\n"
+"          <menuitem name='29WestTopicAdsTopic' action='/Statistics/29West/Topics/lbmr_topic_ads_topic'/>\n"
+"          <menuitem name='29WestTopicAdsSource' action='/Statistics/29West/Topics/lbmr_topic_ads_source'/>\n"
+"          <menuitem name='29WestTopicAdsTransport' action='/Statistics/29West/Topics/lbmr_topic_ads_transport'/>\n"
+"          <menuitem name='29WestTopicQueriesTopic' action='/Statistics/29West/Topics/lbmr_topic_queries_topic'/>\n"
+"          <menuitem name='29WestTopicQueriesReceiver' action='/Statistics/29West/Topics/lbmr_topic_queries_receiver'/>\n"
+"          <menuitem name='29WestTopicQueriesPattern' action='/Statistics/29West/Topics/lbmr_topic_queries_pattern'/>\n"
+"          <menuitem name='29WestTopicQueriesPatternReceiver' action='/Statistics/29West/Topics/lbmr_topic_queries_pattern_receiver'/>\n"
+"        </menu>\n"
+"        <menu name= '29WestQueueMenu' action='/Statistics/29West/Queues'>\n"
+"          <menuitem name='29WestQueueAdsQueue' action='/Statistics/29West/Queues/lbmr_queue_ads_queue'/>\n"
+"          <menuitem name='29WestQueueAdsSource' action='/Statistics/29West/Queues/lbmr_queue_ads_source'/>\n"
+"          <menuitem name='29WestQueueQueriesQueue' action='/Statistics/29West/Queues/lbmr_queue_queries_queue'/>\n"
+"          <menuitem name='29WestQueueQueriesReceiver' action='/Statistics/29West/Queues/lbmr_queue_queries_receiver'/>\n"
+"        </menu>\n"
+"        <menu name= '29WestUIMMenu' action='/Statistics/29West/UIM'>\n"
+"          <menuitem name='29WestUIMStreams' action='/Statistics/29West/UIM/Streams' />\n"
+"          <menuitem name='29WestUIMStreamFlowGraph' action='/Statistics/29West/UIM/StreamFlowGraph' />\n"
+"        </menu>\n"
+"      </menu>\n"
 "      <menuitem name='ANCP' action='/Statistics/ancp'/>\n"
 "      <menu name= 'BACnetMenu' action='/Statistics/BACnet'>\n"
 "        <menuitem name='bacapp_instanceid' action='/Statistics/BACnet/bacapp_instanceid'/>\n"
@@ -1665,6 +1688,24 @@ static const GtkActionEntry main_menu_bar_entries[] = {
    { "/Statistics/ServiceResponseTime",             NULL,           "Service _Response Time",       NULL, NULL, NULL },
    { "/Statistics/ServiceResponseTime/DCE-RPC",     WIRESHARK_STOCK_TIME,           "DCE-RPC...",                   NULL, NULL, G_CALLBACK(gtk_dcerpcstat_cb) },
    { "/Statistics/ServiceResponseTime/ONC-RPC",     WIRESHARK_STOCK_TIME,           "ONC-RPC...",                   NULL, NULL, G_CALLBACK(gtk_rpcstat_cb) },
+
+   { "/Statistics/29West",                                            NULL,                       "29West",                       NULL, NULL, NULL },
+   { "/Statistics/29West/Topics",                                     NULL,                       "Topics",                       NULL, NULL, NULL },
+   { "/Statistics/29West/Topics/lbmr_topic_ads_topic",                NULL,                       "Advertisements by Topic",      NULL, NULL, G_CALLBACK(gtk_stats_tree_cb) },
+   { "/Statistics/29West/Topics/lbmr_topic_ads_source",               NULL,                       "Advertisements by Source",     NULL, NULL, G_CALLBACK(gtk_stats_tree_cb) },
+   { "/Statistics/29West/Topics/lbmr_topic_ads_transport",            NULL,                       "Advertisements by Transport",  NULL, NULL, G_CALLBACK(gtk_stats_tree_cb) },
+   { "/Statistics/29West/Topics/lbmr_topic_queries_topic",            NULL,                       "Queries by Topic",             NULL, NULL, G_CALLBACK(gtk_stats_tree_cb) },
+   { "/Statistics/29West/Topics/lbmr_topic_queries_receiver",         NULL,                       "Queries by Receiver",          NULL, NULL, G_CALLBACK(gtk_stats_tree_cb) },
+   { "/Statistics/29West/Topics/lbmr_topic_queries_pattern",          NULL,                       "Wildcard Queries by Pattern",  NULL, NULL, G_CALLBACK(gtk_stats_tree_cb) },
+   { "/Statistics/29West/Topics/lbmr_topic_queries_pattern_receiver", NULL,                       "Wildcard Queries by Receiver", NULL, NULL, G_CALLBACK(gtk_stats_tree_cb) },
+   { "/Statistics/29West/Queues",                                     NULL,                       "Queues",                       NULL, NULL, NULL },
+   { "/Statistics/29West/Queues/lbmr_queue_ads_queue",                NULL,                       "Advertisements by Queue",      NULL, NULL, G_CALLBACK(gtk_stats_tree_cb) },
+   { "/Statistics/29West/Queues/lbmr_queue_ads_source",               NULL,                       "Advertisements by Source",     NULL, NULL, G_CALLBACK(gtk_stats_tree_cb) },
+   { "/Statistics/29West/Queues/lbmr_queue_queries_queue",            NULL,                       "Queries by Queue",             NULL, NULL, G_CALLBACK(gtk_stats_tree_cb) },
+   { "/Statistics/29West/Queues/lbmr_queue_queries_receiver",         NULL,                       "Queries by Receiver",          NULL, NULL, G_CALLBACK(gtk_stats_tree_cb) },
+   { "/Statistics/29West/UIM",                                        NULL,                       "UIM",                          NULL, NULL, NULL },
+   { "/Statistics/29West/UIM/Streams",                                NULL,                       "Streams",                      NULL, NULL, G_CALLBACK(lbmc_stream_dlg_stream_menu_cb) },
+   { "/Statistics/29West/UIM/StreamFlowGraph",                        WIRESHARK_STOCK_FLOW_GRAPH, "Stream Flow Graph",            NULL, NULL, G_CALLBACK(lbmc_uim_flow_menu_cb) },
 
    { "/Statistics/ancp",                            NULL,       "ANCP",                             NULL, NULL, G_CALLBACK(gtk_stats_tree_cb) },
    { "/Statistics/BACnet",                          NULL,       "BACnet",                           NULL, NULL, NULL },
