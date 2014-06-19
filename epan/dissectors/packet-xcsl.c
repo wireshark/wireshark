@@ -179,7 +179,7 @@ static void dissect_xcsl_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
     while (tvb_reported_length_remaining(tvb, offset) != 0) {
 
-        length_remaining = tvb_ensure_captured_length_remaining(tvb, offset);
+        length_remaining = tvb_ensure_length_remaining(tvb, offset);
         if ( length_remaining == -1 ) {
             return;
         }

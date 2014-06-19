@@ -398,7 +398,7 @@ dissect_sigcomp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *_
      return offset;
 
     /* Search for delimiter 0xffff in the remain tvb buffer */
-    length = tvb_ensure_captured_length_remaining(tvb, offset);
+    length = tvb_ensure_length_remaining(tvb, offset);
     for(i=0; i<(length-1); ++i){
         /* Loop end criteria is (length-1) because we take 2 bytes each loop */
         data = tvb_get_ntohs(tvb, offset+i);

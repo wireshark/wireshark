@@ -2216,7 +2216,7 @@ dissect_tds_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, tds_conv_i
             token_sz = tds_get_variable_token_size(tvb, pos + 1,
                                                    token, &token_len_field_size, &token_len_field_val);
 
-        length_remaining = tvb_ensure_captured_length_remaining(tvb, pos);
+        length_remaining = tvb_ensure_length_remaining(tvb, pos);
 
         if ((int) token_sz < 0) {
             token_item = proto_tree_add_text(tree, tvb, pos, 0, "Token");
@@ -2444,7 +2444,7 @@ dissect_tds_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     void *pd_save;
 
     while (tvb_reported_length_remaining(tvb, offset) != 0) {
-        length_remaining = tvb_ensure_captured_length_remaining(tvb, offset);
+        length_remaining = tvb_ensure_length_remaining(tvb, offset);
 
         /*
          * Can we do reassembly?

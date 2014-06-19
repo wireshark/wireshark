@@ -4372,13 +4372,13 @@ static void dissect_x11_requests(tvbuff_t *tvb, packet_info *pinfo,
 
       while (tvb_reported_length_remaining(tvb, offset) != 0) {
             /*
-             * We use "tvb_ensure_captured_length_remaining()" to make sure there
+             * We use "tvb_ensure_length_remaining()" to make sure there
              * actually *is* data remaining.
              *
              * This means we're guaranteed that "length_remaining" is
              * positive.
              */
-            length_remaining = tvb_ensure_captured_length_remaining(tvb, offset);
+            length_remaining = tvb_ensure_length_remaining(tvb, offset);
 
             /*
              * Can we do reassembly?
@@ -4724,13 +4724,13 @@ dissect_x11_replies(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       offset = 0;
       while (tvb_reported_length_remaining(tvb, offset) != 0) {
             /*
-             * We use "tvb_ensure_captured_length_remaining()" to make sure there
+             * We use "tvb_ensure_length_remaining()" to make sure there
              * actually *is* data remaining.
              *
              * This means we're guaranteed that "length_remaining" is
              * positive.
              */
-            length_remaining = tvb_ensure_captured_length_remaining(tvb, offset);
+            length_remaining = tvb_ensure_length_remaining(tvb, offset);
 
             /*
              * Can we do reassembly?

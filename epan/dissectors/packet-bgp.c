@@ -6580,7 +6580,7 @@ dissect_bgp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
          * That's what we want.  (See "tcp_dissect_pdus()", which is
          * similar.)
          */
-        length_remaining = tvb_ensure_captured_length_remaining(tvb, offset);
+        length_remaining = tvb_ensure_length_remaining(tvb, offset);
 
         /*
          * Can we do reassembly?

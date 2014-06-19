@@ -1069,7 +1069,7 @@ dissect_vendor_dependant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     if (parameter_length == 0) return offset;
 
-    length = tvb_ensure_captured_length_remaining(tvb, offset);
+    length = tvb_ensure_length_remaining(tvb, offset);
     if (packet_type == PACKET_TYPE_START) {
         if (pinfo->fd->flags.visited == 0) {
             k_interface_id = interface_id;

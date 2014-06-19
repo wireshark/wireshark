@@ -212,7 +212,7 @@ dissect_btavctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             val_to_str_const(cr, cr_vals, "unknown CR"), transaction,
             val_to_str_const(packet_type, packet_type_vals, "unknown packet type"));
 
-    length = tvb_ensure_captured_length_remaining(tvb, offset);
+    length = tvb_ensure_length_remaining(tvb, offset);
 
     /* reassembling */
     next_tvb = tvb_new_subset_length(tvb, offset, length);

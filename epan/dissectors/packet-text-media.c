@@ -117,7 +117,7 @@ dissect_text_lines(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 			 * special processing.
 			 */
 			len = tvb_find_line_end(tvb, offset,
-					tvb_ensure_captured_length_remaining(tvb, offset),
+					tvb_ensure_length_remaining(tvb, offset),
 					&next_offset, FALSE);
 			if (len == -1)
 				break;

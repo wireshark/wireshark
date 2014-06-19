@@ -521,7 +521,7 @@ dissect_ldss_transfer (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 			guint digest_type_len;
 
 			linelen = tvb_find_line_end(tvb, offset,
-						    tvb_ensure_captured_length_remaining(tvb, offset), &next_offset,
+						    tvb_ensure_length_remaining(tvb, offset), &next_offset,
 						    FALSE);
 
 			/* Include new-line in line */

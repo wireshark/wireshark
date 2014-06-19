@@ -1767,7 +1767,7 @@ dissect_nbss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
     while (tvb_reported_length_remaining(tvb, offset) > 0) {
         /*
-         * We use "tvb_ensure_captured_length_remaining()" to make sure there actually
+         * We use "tvb_ensure_length_remaining()" to make sure there actually
          * *is* data remaining.  The protocol we're handling could conceivably
          * consists of a sequence of fixed-length PDUs, and therefore the
          * "get_pdu_len" routine might not actually fetch anything from
@@ -1776,7 +1776,7 @@ dissect_nbss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
          *
          * This means we're guaranteed that "length_remaining" is positive.
          */
-        length_remaining = tvb_ensure_captured_length_remaining(tvb, offset);
+        length_remaining = tvb_ensure_length_remaining(tvb, offset);
 
         /*
          * Can we do reassembly?

@@ -1432,7 +1432,7 @@ call_dissect_function(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 {
 	const char *saved_proto;
 
-	tvb_ensure_captured_length_remaining(tvb, offset);
+	tvb_ensure_length_remaining(tvb, offset);
 	if (dissect_function != NULL) {
 		/* set the current protocol name */
 		saved_proto = pinfo->current_proto;
