@@ -156,7 +156,7 @@ int check_for_old_linux_tvb(tvbuff_t *tvb)
 	int		 x, bytes;
 
 	/* Restrict our looping to the boundaries of the frame */
-	bytes = tvb_captured_length(tvb);
+	bytes = tvb_length(tvb);
 	if (bytes > 19) {
 		bytes = 19;
 	}

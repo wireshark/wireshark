@@ -2433,7 +2433,7 @@ dissect_ip_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 */
-    length = tvb_captured_length(tvb);
+    length = tvb_length(tvb);
     if(length<4){
         /* Need at least 4 bytes to make some sort of decision */
         return FALSE;

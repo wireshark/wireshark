@@ -854,7 +854,7 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 	if (has_lf)
 		proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_lf, tvb, realsize, 1, ENC_NA);
 
-	return tvb_captured_length(tvb);
+	return tvb_length(tvb);
 }
 
 void

@@ -2274,7 +2274,7 @@ dissect_ansi_637_tele_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ans
     guint32     curr_offset;
 
     curr_offset = 0;
-    len = tvb_captured_length(tvb);
+    len = tvb_length(tvb);
 
     while ((len - curr_offset) > 0)
     {
@@ -2530,7 +2530,7 @@ dissect_ansi_637_trans(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         curr_offset = 1;
 
-        len = tvb_captured_length(tvb);
+        len = tvb_length(tvb);
 
         while ((len - curr_offset) > 0)
         {

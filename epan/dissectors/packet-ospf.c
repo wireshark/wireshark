@@ -1241,7 +1241,7 @@ dissect_ospf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         return;
     }
 
-    length = tvb_captured_length(tvb);
+    length = tvb_length(tvb);
     /* XXX - include only the length from the OSPF header? */
     reported_length = tvb_reported_length(tvb);
     if (cksum !=0 && !pinfo->fragmented && length >= reported_length

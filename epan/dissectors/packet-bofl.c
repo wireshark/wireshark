@@ -89,7 +89,7 @@ dissect_bofl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (tree) {
         proto_tree_add_uint(bofl_tree, hf_bofl_sequence, tvb, 4, 4, sequence);
 
-        len = tvb_captured_length_remaining(tvb, 8);
+        len = tvb_length_remaining(tvb, 8);
         if (len > 0)
             proto_tree_add_text(bofl_tree, tvb, 8, len,
                                 "Padding (%d byte)", len);

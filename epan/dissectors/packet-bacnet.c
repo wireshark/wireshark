@@ -357,7 +357,7 @@ dissect_bacnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					vendor_id, next_tvb, pinfo, bacnet_tree)) {
 					/* we parsed it so skip over length and we are done */
 					/* Note: offset has now been bumped for message type and vendor id so we take that out of our next_tvb size */
-					offset += tvb_captured_length(next_tvb) -3;
+					offset += tvb_length(next_tvb) -3;
 			}
 		}
 		/* Performance Index (in I-Could-Be-Router-To-Network) */

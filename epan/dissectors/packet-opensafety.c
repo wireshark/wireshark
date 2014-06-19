@@ -1010,7 +1010,7 @@ static void dissect_ssdo_payload ( packet_info *pinfo, tvbuff_t *new_tvb, proto_
     proto_item *item;
     proto_tree *sod_tree, *ext_tree;
 
-    dataLength = tvb_captured_length(new_tvb);
+    dataLength = tvb_length(new_tvb);
 
     ssdoIndex = tvb_get_letohs(new_tvb, 0);
 
@@ -2006,7 +2006,7 @@ opensafety_package_dissector(const gchar *protocolName, const gchar *sub_diss_ha
         next_tvb = NULL;
 
         /* Smallest possible frame size is 11 */
-        if ( tvb_captured_length_remaining(message_tvb, frameOffset ) < OSS_MINIMUM_LENGTH )
+        if ( tvb_length_remaining(message_tvb, frameOffset ) < OSS_MINIMUM_LENGTH )
             break;
 
         /* Finding the start of the first possible safety frame */
@@ -2352,7 +2352,7 @@ dissect_opensafety_udpdata(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree
         return result;
 
     /* An openSAFETY frame has at least OSS_MINIMUM_LENGTH bytes */
-    if ( tvb_captured_length ( message_tvb ) < OSS_MINIMUM_LENGTH )
+    if ( tvb_length ( message_tvb ) < OSS_MINIMUM_LENGTH )
         return result;
 
     /* More than one openSAFETY package could be transported in the same frame,

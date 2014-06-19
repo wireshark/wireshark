@@ -6297,7 +6297,7 @@ dissect_ulp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
   tcp_dissect_pdus(tvb, pinfo, tree, ulp_desegment, ULP_HEADER_SIZE,
                    get_ulp_pdu_len, dissect_ULP_PDU_PDU, data);
-  return tvb_captured_length(tvb);
+  return tvb_length(tvb);
 }
 
 void proto_reg_handoff_ulp(void);

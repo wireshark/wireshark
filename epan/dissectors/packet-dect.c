@@ -1273,7 +1273,7 @@ dissect_bfield(gboolean dect_packet_type _U_, guint8 ba,
 	proto_tree *BFDescrData	    = NULL;
 
 	guint8 bfield_data[DECT_BFIELD_DATA_SIZE];
-	guint bfield_length = tvb_captured_length_remaining(tvb, offset);
+	guint bfield_length = tvb_length_remaining(tvb, offset);
 
 	if (bfield_length > DECT_BFIELD_DATA_SIZE)
 		bfield_length = DECT_BFIELD_DATA_SIZE;
@@ -1953,7 +1953,7 @@ dissect_dect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "DECT");
 
-	pkt_len=tvb_captured_length(tvb);
+	pkt_len=tvb_length(tvb);
 
 	if(pkt_len<=DECT_PACKET_INFO_LEN)
 	{

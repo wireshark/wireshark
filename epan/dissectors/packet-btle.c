@@ -407,12 +407,12 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         case 0x06: /* ADV_SCAN_IND */
             offset = dissect_bd_addr(hf_advertising_address, btle_tree, tvb, offset);
 
-            if (tvb_captured_length_remaining(tvb, offset) > 3) {
-                next_tvb = tvb_new_subset_length(tvb, offset, tvb_captured_length_remaining(tvb, offset) - 3);
+            if (tvb_length_remaining(tvb, offset) > 3) {
+                next_tvb = tvb_new_subset_length(tvb, offset, tvb_length_remaining(tvb, offset) - 3);
                 call_dissector(btcommon_ad_handle, next_tvb, pinfo, btle_tree);
             }
 
-            offset += tvb_captured_length_remaining(tvb, offset) - 3;
+            offset += tvb_length_remaining(tvb, offset) - 3;
 
             break;
         case 0x01: /* ADV_DIRECT_IND */
@@ -428,15 +428,15 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         case 0x04: /* SCAN_RSP */
             offset = dissect_bd_addr(hf_advertising_address, btle_tree, tvb, offset);
 
-            sub_item = proto_tree_add_item(btle_tree, hf_scan_response_data, tvb, offset, tvb_captured_length_remaining(tvb, offset) - 3, ENC_NA);
+            sub_item = proto_tree_add_item(btle_tree, hf_scan_response_data, tvb, offset, tvb_length_remaining(tvb, offset) - 3, ENC_NA);
             sub_tree = proto_item_add_subtree(sub_item, ett_scan_response_data);
 
-            if (tvb_captured_length_remaining(tvb, offset) > 3) {
-                next_tvb = tvb_new_subset_length(tvb, offset, tvb_captured_length_remaining(tvb, offset) - 3);
+            if (tvb_length_remaining(tvb, offset) > 3) {
+                next_tvb = tvb_new_subset_length(tvb, offset, tvb_length_remaining(tvb, offset) - 3);
                 call_dissector(btcommon_ad_handle, next_tvb, pinfo, sub_tree);
             }
 
-            offset += tvb_captured_length_remaining(tvb, offset) - 3;
+            offset += tvb_length_remaining(tvb, offset) - 3;
 
             break;
         case 0x05: /* CONNECT_REQ */
@@ -479,9 +479,9 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
             break;
         default:
-            if (tvb_captured_length_remaining(tvb, offset) > 3) {
-                proto_tree_add_expert(btle_tree, pinfo, &ei_unknown_data, tvb, offset, tvb_captured_length_remaining(tvb, offset) - 3);
-                offset += tvb_captured_length_remaining(tvb, offset) - 3;
+            if (tvb_length_remaining(tvb, offset) > 3) {
+                proto_tree_add_expert(btle_tree, pinfo, &ei_unknown_data, tvb, offset, tvb_length_remaining(tvb, offset) - 3);
+                offset += tvb_length_remaining(tvb, offset) - 3;
             }
         }
     } else { /* data PDU */
@@ -558,9 +558,9 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             case 0x0B: /* LL_PAUSE_ENC_RSP */
             case 0x12: /* LL_PING_REQ */
             case 0x13: /* LL_PING_RSP */
-                if (tvb_captured_length_remaining(tvb, offset) > 3) {
-                    proto_tree_add_expert(btle_tree, pinfo, &ei_unknown_data, tvb, offset, tvb_captured_length_remaining(tvb, offset) - 3);
-                    offset += tvb_captured_length_remaining(tvb, offset) - 3;
+                if (tvb_length_remaining(tvb, offset) > 3) {
+                    proto_tree_add_expert(btle_tree, pinfo, &ei_unknown_data, tvb, offset, tvb_length_remaining(tvb, offset) - 3);
+                    offset += tvb_length_remaining(tvb, offset) - 3;
                 }
 
                 break;
@@ -705,17 +705,17 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
                 break;
             default:
-                if (tvb_captured_length_remaining(tvb, offset) > 3) {
-                    proto_tree_add_expert(btle_tree, pinfo, &ei_unknown_data, tvb, offset, tvb_captured_length_remaining(tvb, offset) - 3);
-                    offset += tvb_captured_length_remaining(tvb, offset) - 3;
+                if (tvb_length_remaining(tvb, offset) > 3) {
+                    proto_tree_add_expert(btle_tree, pinfo, &ei_unknown_data, tvb, offset, tvb_length_remaining(tvb, offset) - 3);
+                    offset += tvb_length_remaining(tvb, offset) - 3;
                 }
             }
 
             break;
         default:
-            if (tvb_captured_length_remaining(tvb, offset) > 3) {
-                proto_tree_add_expert(btle_tree, pinfo, &ei_unknown_data, tvb, offset, tvb_captured_length_remaining(tvb, offset) - 3);
-                offset += tvb_captured_length_remaining(tvb, offset) - 3;
+            if (tvb_length_remaining(tvb, offset) > 3) {
+                proto_tree_add_expert(btle_tree, pinfo, &ei_unknown_data, tvb, offset, tvb_length_remaining(tvb, offset) - 3);
+                offset += tvb_length_remaining(tvb, offset) - 3;
             }
         }
 

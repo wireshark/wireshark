@@ -194,7 +194,7 @@ dissect_babel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
     guint8         version;
     guint16        bodylen;
 
-    if (tvb_captured_length(tvb) < 4)
+    if (tvb_length(tvb) < 4)
         return 0;
 
     if (tvb_get_guint8(tvb, 0) != 42)

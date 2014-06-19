@@ -132,7 +132,7 @@ dissect_rlm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 	rlm_type = tvb_get_guint8(tvb, 1);
 
 	/* we only know about version 2, and I've only seen 8 byte packets */
-	if (tvb_captured_length(tvb) != 8 || version != 2) {
+	if (tvb_length(tvb) != 8 || version != 2) {
 		return FALSE;
 	}
 

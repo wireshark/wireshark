@@ -356,7 +356,7 @@ static gboolean find_ipprim_data_offset(tvbuff_t *tvb, int *data_offset, guint8 
     }
 
     /* Skip any other TLC fields before reach payload */
-    while (tvb_captured_length_remaining(tvb, offset) > 2) {
+    while (tvb_length_remaining(tvb, offset) > 2) {
         /* Look at next tag */
         tag = tvb_get_guint8(tvb, offset++);
 
@@ -463,7 +463,7 @@ static gboolean find_sctpprim_variant1_data_offset(tvbuff_t *tvb, int *data_offs
     offset += skipASNLength(first_length_byte);
 
     /* Skip any other fields before reach payload */
-    while (tvb_captured_length_remaining(tvb, offset) > 2) {
+    while (tvb_length_remaining(tvb, offset) > 2) {
         /* Look at next tag */
         tag = tvb_get_guint8(tvb, offset++);
 
@@ -618,7 +618,7 @@ static gboolean find_sctpprim_variant3_data_offset(tvbuff_t *tvb, int *data_offs
         offset += 2;
 
         /* Some optional params */
-        while ((tag != 0x0c00) && (tvb_captured_length_remaining(tvb, offset) > 4)) {
+        while ((tag != 0x0c00) && (tvb_length_remaining(tvb, offset) > 4)) {
             switch (tag) {
                 case 0x0900:   /* Dest address */
                     /* Length field */
@@ -727,7 +727,7 @@ static void dissect_rlc_umts(tvbuff_t *tvb, gint offset,
     }
 
     /* Keep going until reach data tag or end of frame */
-    while ((tag != 0x41) && tvb_captured_length_remaining(tvb, offset)) { /* i.e. Data */
+    while ((tag != 0x41) && tvb_length_remaining(tvb, offset)) { /* i.e. Data */
         tag = tvb_get_guint8(tvb, offset++);
         switch (tag) {
             case 0x72:  /* UE Id */
@@ -1027,7 +1027,7 @@ static void dissect_rrc_lte(tvbuff_t *tvb, gint offset,
     }
 
     /* Send to RRC dissector, if got here, have sub-dissector and some data left */
-    if ((protocol_handle != NULL) && (tvb_captured_length_remaining(tvb, offset) > 0)) {
+    if ((protocol_handle != NULL) && (tvb_length_remaining(tvb, offset) > 0)) {
         rrc_tvb = tvb_new_subset_remaining(tvb, offset);
         call_dissector_only(protocol_handle, rrc_tvb, pinfo, tree, NULL);
     }
@@ -1089,7 +1089,7 @@ static void dissect_ccpri_lte(tvbuff_t *tvb, gint offset,
     /* Send remainder to lapb dissector (lapb needs patch with preference
        set to call cpri C&M dissector instead of X.25) */
     protocol_handle = find_dissector("lapb");
-    if ((protocol_handle != NULL) && (tvb_captured_length_remaining(tvb, offset) > 0)) {
+    if ((protocol_handle != NULL) && (tvb_length_remaining(tvb, offset) > 0)) {
         ccpri_tvb = tvb_new_subset_length(tvb, offset, length);
         call_dissector_only(protocol_handle, ccpri_tvb, pinfo, tree, NULL);
     }
@@ -1253,7 +1253,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, gint offset,
 
             /* Other optional fields may follow */
             tag = tvb_get_guint8(tvb, offset++);
-            while ((tag != 0x41) && (tvb_captured_length_remaining(tvb, offset) > 2)) {
+            while ((tag != 0x41) && (tvb_length_remaining(tvb, offset) > 2)) {
 
                 if (tag == 0x35) {
                     /* This is MUI */
@@ -1932,7 +1932,7 @@ static void dissect_tty_lines(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
             /* Otherwise show as $hex */
             int n, idx;
             char *hex_string;
-            int tty_string_length = tvb_captured_length_remaining(tvb, offset);
+            int tty_string_length = tvb_length_remaining(tvb, offset);
             int hex_string_length = 1+(2*tty_string_length)+1;
             hex_string = (char *)wmem_alloc(wmem_packet_scope(), hex_string_length);
 
@@ -2465,7 +2465,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             if (strcmp(protocol_name, "comment") == 0) {
                 /* Extract & add the string. */
                 proto_item *string_ti;
-                char *string = (char*)tvb_get_string_enc(wmem_packet_scope(), tvb, offset, tvb_captured_length_remaining(tvb, offset), ENC_ASCII);
+                char *string = (char*)tvb_get_string_enc(wmem_packet_scope(), tvb, offset, tvb_length_remaining(tvb, offset), ENC_ASCII);
 
                 /* Show comment string */
                 string_ti = proto_tree_add_item(dct2000_tree, hf_catapult_dct2000_comment, tvb,
@@ -2492,7 +2492,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             else
             if (strcmp(protocol_name, "sprint") == 0) {
                 /* Extract & add the string. */
-                char *string = (char*)tvb_get_string_enc(wmem_packet_scope(), tvb, offset, tvb_captured_length_remaining(tvb, offset), ENC_ASCII);
+                char *string = (char*)tvb_get_string_enc(wmem_packet_scope(), tvb, offset, tvb_length_remaining(tvb, offset), ENC_ASCII);
 
                 /* Show sprint string */
                 proto_tree_add_item(dct2000_tree, hf_catapult_dct2000_sprint, tvb,

@@ -1813,7 +1813,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
   if (num_items < 0) {
     proto_item_append_text(range_item, " (bogus)");
     expert_add_info(pinfo, range_item, &ei_dnp_num_items_neg);
-    return tvb_captured_length(tvb);
+    return tvb_length(tvb);
   }
 
 
@@ -2788,7 +2788,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
 
             proto_tree_add_text(object_tree, tvb, offset, -1,
               "Unknown Data Chunk, %u Bytes", tvb_reported_length_remaining(tvb, offset));
-            offset = tvb_captured_length(tvb); /* Finish decoding if unknown object is encountered... */
+            offset = tvb_length(tvb); /* Finish decoding if unknown object is encountered... */
             break;
         }
         /* Increment the bit index for next time */
@@ -2799,7 +2799,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
       }
       if (start_offset > offset) {
         expert_add_info(pinfo, point_item, &ei_dnp_invalid_length);
-        offset = tvb_captured_length(tvb); /* Finish decoding if unknown object is encountered... */
+        offset = tvb_length(tvb); /* Finish decoding if unknown object is encountered... */
       }
     }
   }
@@ -2824,7 +2824,7 @@ dissect_dnp3_al(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   nstime_set_zero (&al_cto);
 
-  data_len = tvb_captured_length(tvb);
+  data_len = tvb_length(tvb);
 
   /* Handle the control byte and function code */
   al_ctl = tvb_get_guint8(tvb, offset);
@@ -3398,7 +3398,7 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     }
   }
 
-  return tvb_captured_length(tvb);
+  return tvb_length(tvb);
 }
 
 static guint
@@ -3423,7 +3423,7 @@ get_dnp3_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 static gboolean
 dissect_dnp3_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-  gint length = tvb_captured_length(tvb);
+  gint length = tvb_length(tvb);
 
   /* Check for a dnp packet.  It should begin with 0x0564 */
   if ((length < 2) || (tvb_get_ntohs(tvb, 0) != 0x0564)) {
@@ -3440,7 +3440,7 @@ dissect_dnp3_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 static gboolean
 dissect_dnp3_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-  gint length = tvb_captured_length(tvb);
+  gint length = tvb_length(tvb);
 
   /* Check for a dnp packet.  It should begin with 0x0564 */
   if ((length < 2) || (tvb_get_ntohs(tvb, 0) != 0x0564)) {

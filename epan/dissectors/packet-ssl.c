@@ -852,7 +852,7 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 /* looks like something unknown, so lump into
                  * continuation data
                  */
-                offset = tvb_captured_length(tvb);
+                offset = tvb_length(tvb);
                 col_append_str(pinfo->cinfo, COL_INFO,
                                    "Continuation Data");
 
@@ -1023,7 +1023,7 @@ again:
          */
         if (msp->flags & MSP_FLAGS_REASSEMBLE_ENTIRE_SEGMENT) {
             /* The dissector asked for the entire segment */
-            len = MAX(0, tvb_captured_length_remaining(tvb, offset));
+            len = MAX(0, tvb_length_remaining(tvb, offset));
         } else {
             len = MIN(nxtseq, msp->nxtpdu) - seq;
         }
@@ -1474,7 +1474,7 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
     ti = NULL;
     ssl_record_tree = NULL;
 
-    available_bytes = tvb_captured_length_remaining(tvb, offset);
+    available_bytes = tvb_length_remaining(tvb, offset);
 
     /* TLS 1.0/1.1 just ignores unknown records - RFC 2246 chapter 6. The TLS Record Protocol */
     if ((session->version==SSL_VER_TLS || session->version==SSL_VER_TLSv1DOT1 || session->version==SSL_VER_TLSv1DOT2) &&
@@ -1716,7 +1716,7 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
             /* add desegmented data to the data source list */
             add_new_data_source(pinfo, decrypted, "Decrypted SSL record");
             dissect_ssl3_handshake(decrypted, pinfo, ssl_record_tree, 0,
-                                   tvb_captured_length(decrypted), session,
+                                   tvb_length(decrypted), session,
                                    is_from_server, ssl, content_type);
         } else {
             dissect_ssl3_handshake(tvb, pinfo, ssl_record_tree, offset,
@@ -1770,7 +1770,7 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
         decrypted = ssl_get_record_info(tvb, proto_ssl, pinfo, offset);
         if (decrypted) {
             add_new_data_source(pinfo, decrypted, "Decrypted SSL record");
-            dissect_ssl3_heartbeat(decrypted, pinfo, ssl_record_tree, 0, session, tvb_captured_length (decrypted), TRUE);
+            dissect_ssl3_heartbeat(decrypted, pinfo, ssl_record_tree, 0, session, tvb_length (decrypted), TRUE);
         } else {
             gboolean plaintext = TRUE;
             /* heartbeats before ChangeCipherSpec are unencrypted */
@@ -3462,7 +3462,7 @@ dissect_ssl2_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     byte = tvb_get_guint8(tvb, offset);
     record_length_length = (byte & 0x80) ? 2 : 3;
 
-    available_bytes = tvb_captured_length_remaining(tvb, offset);
+    available_bytes = tvb_length_remaining(tvb, offset);
 
     /*
      * Is the record header split across segment boundaries?

@@ -115,7 +115,7 @@ is_armagetronad_packet(tvbuff_t * tvb)
 	gint offset = 0;
 
 	/* For each message in the frame */
-	while (tvb_captured_length_remaining(tvb, offset) > 2) {
+	while (tvb_length_remaining(tvb, offset) > 2) {
 		gint data_len = tvb_get_ntohs(tvb, offset + 4) * 2;
 
 #if 0
@@ -138,7 +138,7 @@ is_armagetronad_packet(tvbuff_t * tvb)
 	}
 
 	/* The packed should end with a 2 bytes ID */
-	return tvb_captured_length_remaining(tvb, offset) == 2;
+	return tvb_length_remaining(tvb, offset) == 2;
 }
 
 static void
@@ -250,7 +250,7 @@ dissect_armagetronad(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, voi
 	armagetronad_tree = proto_item_add_subtree(ti, ett_armagetronad);
 
 	/* For each message in the frame */
-	while (tvb_captured_length_remaining(tvb, offset) > 2)
+	while (tvb_length_remaining(tvb, offset) > 2)
 		offset += add_message(tvb, offset, armagetronad_tree, info);
 
 	/* After the messages, comes the SenderID */

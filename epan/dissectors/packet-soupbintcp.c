@@ -470,7 +470,7 @@ dissect_soupbintcp_tcp_pdu(
     void        *data _U_)
 {
     dissect_soupbintcp_common(tvb, pinfo, tree);
-    return tvb_captured_length(tvb);
+    return tvb_length(tvb);
 }
 
 
@@ -486,7 +486,7 @@ dissect_soupbintcp_tcp(
                      soupbintcp_desegment, 2,
                      get_soupbintcp_pdu_len,
                      dissect_soupbintcp_tcp_pdu, data);
-    return tvb_captured_length(tvb);
+    return tvb_length(tvb);
 }
 
 static void

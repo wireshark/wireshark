@@ -342,7 +342,7 @@ dissect_draft_error_code_parameter(tvbuff_t *parameter_tvb, proto_tree *paramete
    guint16 offset = MGMT_ERROR_MSG_HEADER_LENGTH + tvb_get_ntohs(parameter_tvb, MGMT_ERROR_MSG_LENGTH_OFFSET) + 4;
    proto_tree_add_item(parameter_tree, hf_draft_error_code, parameter_tvb, offset, MGMT_ERROR_CODE_LENGTH, ENC_BIG_ENDIAN);
    offset += MGMT_ERROR_CODE_LENGTH ;
-   if( tvb_captured_length_remaining(parameter_tvb,offset) > 0 )
+   if( tvb_length_remaining(parameter_tvb,offset) > 0 )
       proto_tree_add_item(parameter_tree, hf_info_string, parameter_tvb, offset, msg_length - offset,ENC_ASCII|ENC_NA);
 }
 /*----------------------Error Indication (Draft)-------------------------------*/
@@ -490,7 +490,7 @@ dissect_draft_tei_status_parameter(tvbuff_t *parameter_tvb, proto_tree *paramete
 {
    gint offset;
    offset = tvb_get_ntohs(parameter_tvb, TEI_STATUS_LENGTH_OFFSET) + 8;
-   if(tvb_captured_length_remaining(parameter_tvb, offset) > 0 ){
+   if(tvb_length_remaining(parameter_tvb, offset) > 0 ){
       proto_tree_add_item(parameter_tree, hf_tei_draft_status, parameter_tvb, offset, TEI_STATUS_LENGTH, ENC_BIG_ENDIAN);
       proto_item_append_text(parameter_item, " (%s)",
             val_to_str_const(tvb_get_ntohl(parameter_tvb, offset), tei_draft_status_values, "Unknown TEI Status"));
@@ -903,13 +903,13 @@ dissect_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *v5ua_
       if((msg_class==0 || msg_class==1 || msg_class==9) && msg_type<=10)
          length = msg_length;
    }
-   padding_length = tvb_captured_length(parameter_tvb) - length;
+   padding_length = tvb_length(parameter_tvb) - length;
    paddingl = padding_length;
 
    /* create proto_tree stuff */
    switch(iua_version){
       case RFC:
-         parameter_item   = proto_tree_add_text(v5ua_tree, parameter_tvb, PARAMETER_HEADER_OFFSET, tvb_captured_length(parameter_tvb), "%s",
+         parameter_item   = proto_tree_add_text(v5ua_tree, parameter_tvb, PARAMETER_HEADER_OFFSET, tvb_length(parameter_tvb), "%s",
                val_to_str_const(tag, parameter_tag_values, "Unknown parameter"));
          parameter_tree   = proto_item_add_subtree(parameter_item, ett_v5ua_parameter);
          /* add tag to the v5ua tree */
@@ -917,7 +917,7 @@ dissect_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *v5ua_
          break;
       case DRAFT:
       default:
-         parameter_item   = proto_tree_add_text(v5ua_tree, parameter_tvb, PARAMETER_HEADER_OFFSET, tvb_captured_length(parameter_tvb), "%s",
+         parameter_item   = proto_tree_add_text(v5ua_tree, parameter_tvb, PARAMETER_HEADER_OFFSET, tvb_length(parameter_tvb), "%s",
                val_to_str_const(tag, parameter_tag_draft_values, "Unknown parameter"));
          parameter_tree   = proto_item_add_subtree(parameter_item, ett_v5ua_parameter);
 
@@ -1031,7 +1031,7 @@ dissect_parameters(tvbuff_t *parameters_tvb, packet_info *pinfo, proto_tree *tre
 
 
    offset = 0;
-   while((remaining_length = tvb_captured_length_remaining(parameters_tvb, offset))) {
+   while((remaining_length = tvb_length_remaining(parameters_tvb, offset))) {
       tag = tvb_get_ntohs(parameters_tvb, offset + PARAMETER_TAG_OFFSET);
       length = tvb_get_ntohs(parameters_tvb, offset + PARAMETER_LENGTH_OFFSET);
       if(iua_version==DRAFT){
@@ -1318,7 +1318,7 @@ dissect_common_header(tvbuff_t *common_header_tvb, packet_info *pinfo, proto_tre
    if (v5ua_tree) {
 
       /* create proto_tree stuff */
-      common_header_item   = proto_tree_add_text(v5ua_tree, common_header_tvb, COMMON_HEADER_OFFSET, tvb_captured_length(common_header_tvb),"Common Msg-Header");
+      common_header_item   = proto_tree_add_text(v5ua_tree, common_header_tvb, COMMON_HEADER_OFFSET, tvb_length(common_header_tvb),"Common Msg-Header");
       common_header_tree   = proto_item_add_subtree(common_header_item, ett_v5ua_common_header);
 
       /* add the components of the common header to the protocol tree */
@@ -1412,7 +1412,7 @@ dissect_v5ua(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    iua_version = RFC;
    offset = COMMON_HEADER_LENGTH;
 
-   remaining_length = tvb_captured_length_remaining(tvb, offset);
+   remaining_length = tvb_length_remaining(tvb, offset);
 
    while(remaining_length) {
       tag = tvb_get_ntohs(tvb, offset);
@@ -1461,7 +1461,7 @@ dissect_v5ua(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       }
       else{
          offset+=2;
-         remaining_length = tvb_captured_length_remaining(tvb, offset);
+         remaining_length = tvb_length_remaining(tvb, offset);
       }
       /* add a notice for the draft version */
       if(iua_version == DRAFT){

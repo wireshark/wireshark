@@ -143,7 +143,7 @@ dissect_rpl_container(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						"Unknown Type"));
 				rpl_container_tree = proto_item_add_subtree(ti,
 					ett_type);
-				length = tvb_captured_length_remaining(tvb, offset);
+				length = tvb_length_remaining(tvb, offset);
 				if (length > sublen)
 					length = sublen;
 				reported_length = tvb_reported_length_remaining(tvb, offset);

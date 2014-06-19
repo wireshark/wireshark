@@ -614,7 +614,7 @@ guint8 len;
 
 
 if(next_tvb) {
-	len = tvb_captured_length_remaining(next_tvb, 0);
+	len = tvb_length_remaining(next_tvb, 0);
 	if(len !=0){
 		/* 0 octets for the Unidirectional,
 		 * 4 octets for Query, Response & Abort
@@ -875,7 +875,7 @@ dissect_ansi_tcap_T_parameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 #line 87 "../../asn1/ansi_tcap/ansi_tcap.cnf"
 
   if(find_tcap_subdissector(tvb, actx, tree))
-    offset = tvb_captured_length(tvb);
+    offset = tvb_length(tvb);
 
 
 
@@ -920,7 +920,7 @@ static int
 dissect_ansi_tcap_T_parameter_01(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 100 "../../asn1/ansi_tcap/ansi_tcap.cnf"
   if(find_tcap_subdissector(tvb, actx, tree))
-    offset = tvb_captured_length(tvb);
+    offset = tvb_length(tvb);
 
 
 
@@ -964,7 +964,7 @@ static int
 dissect_ansi_tcap_T_parameter_02(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 110 "../../asn1/ansi_tcap/ansi_tcap.cnf"
   if(find_tcap_subdissector(tvb, actx, tree))
-    offset = tvb_captured_length(tvb);
+    offset = tvb_length(tvb);
 
 
 

@@ -291,7 +291,7 @@ static int dissect_hazelcast_message(tvbuff_t *tvb, packet_info *pinfo _U_, prot
 
         hcast_tree = proto_item_add_subtree(ti, ett_hazelcast);
     }
-    if (tvb_captured_length_remaining(tvb, 0) < 13) {
+    if (tvb_length_remaining(tvb, 0) < 13) {
         col_set_str(pinfo->cinfo, COL_INFO, "Hazelcast too short");
         return 0;
     }
@@ -422,7 +422,7 @@ static int dissect_hazelcast_message(tvbuff_t *tvb, packet_info *pinfo _U_, prot
         /*offset += valueLength;*/
     }
 
-    return tvb_captured_length(tvb);
+    return tvb_length(tvb);
 }
 
 /*
@@ -434,7 +434,7 @@ static int dissect_hazelcast_message(tvbuff_t *tvb, packet_info *pinfo _U_, prot
 static int dissect_hazelcast(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data) {
 
     tcp_dissect_pdus(tvb, pinfo, tree, hazelcast_desegment, 13, get_hazelcast_message_len, dissect_hazelcast_message, data);
-    return tvb_captured_length(tvb);
+    return tvb_length(tvb);
 }
 
 void proto_register_hazelcast(void) {

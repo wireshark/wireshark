@@ -2122,7 +2122,7 @@ dissect_rdm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		offset += 2;
 
-		if (offset < tvb_captured_length(tvb))
+		if (offset < tvb_length(tvb))
 			proto_tree_add_item(rdm_tree, hf_rdm_trailer, tvb,
 					offset, -1, ENC_NA);
 	}

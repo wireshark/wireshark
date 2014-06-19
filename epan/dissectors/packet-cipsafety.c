@@ -740,9 +740,9 @@ dissect_cip_class_s_supervisor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
    ti = proto_tree_add_item(tree, proto_cip_class_s_supervisor, tvb, 0, -1, ENC_NA);
    class_tree = proto_item_add_subtree( ti, ett_cip_class_s_supervisor );
 
-   dissect_cip_s_supervisor_data( class_tree, tvb, 0, tvb_captured_length(tvb), pinfo );
+   dissect_cip_s_supervisor_data( class_tree, tvb, 0, tvb_length(tvb), pinfo );
 
-   return tvb_captured_length(tvb);
+   return tvb_length(tvb);
 }
 
 static int dissect_s_supervisor_exception_detail(proto_tree *tree, proto_item *item, tvbuff_t *tvb, int offset, int hf_size, int hf_data)
@@ -1299,9 +1299,9 @@ dissect_cip_class_s_validator(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
    ti = proto_tree_add_item(tree, proto_cip_class_s_validator, tvb, 0, -1, ENC_NA);
    class_tree = proto_item_add_subtree( ti, ett_cip_class_s_validator );
 
-   dissect_cip_s_validator_data( class_tree, tvb, 0, tvb_captured_length(tvb), pinfo );
+   dissect_cip_s_validator_data( class_tree, tvb, 0, tvb_length(tvb), pinfo );
 
-   return tvb_captured_length(tvb);
+   return tvb_length(tvb);
 }
 
 static gboolean
@@ -1625,7 +1625,7 @@ dissect_cipsafety(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    ti = proto_tree_add_item(tree, proto_cipsafety, tvb, 0, -1, ENC_NA);
    safety_tree = proto_item_add_subtree( ti, ett_cip_safety);
 
-   dissect_cip_safety_data(safety_tree, ti, tvb, tvb_captured_length(tvb), pinfo );
+   dissect_cip_safety_data(safety_tree, ti, tvb, tvb_length(tvb), pinfo );
 }
 
 static int dissect_sercosiii_link_error_count_p1p2(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,

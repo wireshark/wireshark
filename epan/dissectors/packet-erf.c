@@ -1323,7 +1323,7 @@ dissect_erf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         pinfo->pseudo_header->atm.type = TRAF_UNKNOWN;
         pinfo->pseudo_header->atm.subtype = TRAF_ST_UNKNOWN;
         /* Try to guess the type according to the first bytes */
-        atm_pdu_caplen = tvb_captured_length(new_tvb);
+        atm_pdu_caplen = tvb_length(new_tvb);
         atm_pdu = tvb_get_ptr(new_tvb, 0, atm_pdu_caplen);
         erf_atm_guess_traffic_type(atm_pdu, atm_pdu_caplen, pinfo->pseudo_header);
         break;
@@ -1371,7 +1371,7 @@ dissect_erf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       pinfo->pseudo_header->atm.type = TRAF_UNKNOWN;
       pinfo->pseudo_header->atm.subtype = TRAF_ST_UNKNOWN;
       /* Try to guess the type according to the first bytes */
-      atm_pdu_caplen = tvb_captured_length(new_tvb);
+      atm_pdu_caplen = tvb_length(new_tvb);
       atm_pdu = tvb_get_ptr(new_tvb, 0, atm_pdu_caplen);
       erf_atm_guess_traffic_type(atm_pdu, atm_pdu_caplen, pinfo->pseudo_header);
       break;

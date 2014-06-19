@@ -1032,7 +1032,7 @@ dissect_zbee_nwk_gp_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
     /* Create a subtree for the command. */
     if (tree) {
-        cmd_root = proto_tree_add_text(tree, tvb, offset, tvb_captured_length(tvb), "Command Frame: %s",
+        cmd_root = proto_tree_add_text(tree, tvb, offset, tvb_length(tvb), "Command Frame: %s",
                                        val_to_str_ext_const(cmd_id,
                                                             &zbee_nwk_gp_cmd_names_ext,
                                                             "Unknown Command Frame"));
@@ -1267,11 +1267,11 @@ dissect_zbee_nwk_gp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "ZigBee Green Power");
     col_clear(pinfo->cinfo, COL_INFO);
     if (tree) {
-        proto_root = proto_tree_add_protocol_format(tree, proto_zbee_nwk_gp, tvb, offset, tvb_captured_length(tvb),
+        proto_root = proto_tree_add_protocol_format(tree, proto_zbee_nwk_gp, tvb, offset, tvb_length(tvb),
             "ZGP stub NWK header");
         nwk_tree = proto_item_add_subtree(proto_root, ett_zbee_nwk);
     }
-    enc_buffer = (guint8 *)tvb_memdup(wmem_packet_scope(), tvb, 0, tvb_captured_length(tvb));
+    enc_buffer = (guint8 *)tvb_memdup(wmem_packet_scope(), tvb, 0, tvb_length(tvb));
     /* Get and parse the FCF. */
     fcf = tvb_get_guint8(tvb, offset);
     packet.frame_type = zbee_get_bit_field(fcf, ZBEE_NWK_GP_FCF_FRAME_TYPE);
@@ -1371,7 +1371,7 @@ dissect_zbee_nwk_gp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
     }
     /* Save packet private data. */
     data = (void *)&packet;
-    if ((offset < tvb_captured_length(tvb)) && (packet.security_level != ZBEE_NWK_GP_SECURITY_LEVEL_FULLENCR)) {
+    if ((offset < tvb_length(tvb)) && (packet.security_level != ZBEE_NWK_GP_SECURITY_LEVEL_FULLENCR)) {
         THROW(BoundsError);
     }
     if (packet.security_level == ZBEE_NWK_GP_SECURITY_LEVEL_FULLENCR) {

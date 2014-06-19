@@ -110,7 +110,7 @@ dissect_file_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		gboolean old_visible;
 
 		/* Put in frame header information. */
-		cap_len = tvb_captured_length(tvb);
+		cap_len = tvb_length(tvb);
 		frame_len = tvb_reported_length(tvb);
 
 		cap_plurality = plurality(cap_len, "", "s");

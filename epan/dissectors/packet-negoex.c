@@ -134,7 +134,7 @@ dissect_negoex_alert_message(tvbuff_t *tvb,
   offset += 4;
 
   /* The rest */
-  proto_tree_add_text(tree, tvb, offset, tvb_captured_length(tvb) - offset,
+  proto_tree_add_text(tree, tvb, offset, tvb_length(tvb) - offset,
                       "The rest of the alert message");
 
 }
@@ -366,7 +366,7 @@ dissect_negoex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   negoex_tree = NULL;
   tf = NULL;
   done = FALSE;
-  payload_len = tvb_captured_length(tvb);
+  payload_len = tvb_length(tvb);
 
   /* Set up the initial NEGOEX payload */
   if (tree) {
@@ -461,7 +461,7 @@ dissect_negoex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
        */
       msg_tvb = tvb_new_subset(tvb,
                                start_offset,
-                               MIN(message_len, tvb_captured_length(tvb)),
+                               MIN(message_len, tvb_length(tvb)),
                                message_len);
 
       switch (message_type) {

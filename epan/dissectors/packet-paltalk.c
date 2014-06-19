@@ -75,7 +75,7 @@ dissect_paltalk_desegmented(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		proto_tree_add_item(pt_tree, hf_paltalk_content, tvb, 6, tvb_get_ntohs(tvb, 4), ENC_NA);
 	}
 
-    return tvb_captured_length(tvb);
+    return tvb_length(tvb);
 }
 
 static gboolean

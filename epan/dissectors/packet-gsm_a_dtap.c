@@ -5908,7 +5908,7 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	gboolean      nsd;
 
 
-	len = tvb_captured_length(tvb);
+	len = tvb_length(tvb);
 
 	if (len < 2)
 	{

@@ -607,7 +607,7 @@ is_sbus_pdu(tvbuff_t *tvb)
 
        /* we need at least 8 bytes to determine whether this is sbus or
           not*/
-       if(tvb_captured_length(tvb)<8){
+       if(tvb_length(tvb)<8){
               return FALSE;
        }
 

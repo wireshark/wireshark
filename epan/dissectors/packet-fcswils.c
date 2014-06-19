@@ -1786,7 +1786,7 @@ dissect_fcswils(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
     if (tree) {
         ti = proto_tree_add_protocol_format(tree, proto_fcswils, tvb, 0,
-                                            tvb_captured_length(tvb), "SW_ILS");
+                                            tvb_length(tvb), "SW_ILS");
         swils_tree = proto_item_add_subtree(ti, ett_fcswils);
     }
 
@@ -1831,7 +1831,7 @@ dissect_fcswils(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
         if (!conversation) {
             if (tree && (opcode == FC_SWILS_SWACC)) {
                 /* No record of what this accept is for. Can't decode */
-                proto_tree_add_text(swils_tree, tvb, 0, tvb_captured_length(tvb),
+                proto_tree_add_text(swils_tree, tvb, 0, tvb_length(tvb),
                                     "No record of Exchg. Unable to decode SW_ACC");
                 return 0;
             }
@@ -1851,7 +1851,7 @@ dissect_fcswils(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
             if (tree) {
                 if ((cdata == NULL) && (opcode != FC_SWILS_SWRJT)) {
                     /* No record of what this accept is for. Can't decode */
-                    proto_tree_add_text(swils_tree, tvb, 0, tvb_captured_length(tvb),
+                    proto_tree_add_text(swils_tree, tvb, 0, tvb_length(tvb),
                                         "No record of SW_ILS Req. Unable to decode SW_ACC");
                     return 0;
                 }
@@ -1888,7 +1888,7 @@ dissect_fcswils(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
         call_dissector(data_handle, next_tvb, pinfo, tree);
     }
 
-    return tvb_captured_length(tvb);
+    return tvb_length(tvb);
 }
 
 /* Register the protocol with Wireshark */

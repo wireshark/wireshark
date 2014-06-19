@@ -332,7 +332,7 @@ dissect_ldss_broadcast(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 * instead of just filling out the columns), then give more detail. */
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_ldss,
-					 tvb, 0, (tvb_captured_length(tvb) > 72) ? tvb_captured_length(tvb) : 72, ENC_NA);
+					 tvb, 0, (tvb_length(tvb) > 72) ? tvb_length(tvb) : 72, ENC_NA);
 		ldss_tree = proto_item_add_subtree(ti, ett_ldss_broadcast);
 
 		proto_tree_add_item(ldss_tree, hf_ldss_message_id,
@@ -386,9 +386,9 @@ dissect_ldss_broadcast(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				    tvb, 68, 2, ENC_BIG_ENDIAN);
 		proto_tree_add_item(ldss_tree, hf_ldss_property_count,
 				    tvb, 70, 2, ENC_BIG_ENDIAN);
-		if (tvb_captured_length(tvb) > 72) {
+		if (tvb_length(tvb) > 72) {
 			proto_tree_add_item(ldss_tree, hf_ldss_properties,
-					    tvb, 72, tvb_captured_length(tvb) - 72, ENC_NA);
+					    tvb, 72, tvb_length(tvb) - 72, ENC_NA);
 		}
 	}
 
@@ -437,7 +437,7 @@ dissect_ldss_broadcast(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		highest_num_seen = pinfo->fd->num;
 	}
 
-	return tvb_captured_length(tvb);
+	return tvb_length(tvb);
 }
 
 /* Transfers happen in response to broadcasts, they are always TCP and are
@@ -671,7 +671,7 @@ dissect_ldss_transfer (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 		 * Always desegment if the size is 0 (ie. unknown)
 		 */
 		if (pinfo->can_desegment) {
-			if (size == 0 || tvb_captured_length(tvb) < size) {
+			if (size == 0 || tvb_length(tvb) < size) {
 				pinfo->desegment_offset = 0;
 				pinfo->desegment_len = DESEGMENT_UNTIL_FIN;
 				return 0;
@@ -692,16 +692,16 @@ dissect_ldss_transfer (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 						 tvb, 0, tvb_reported_length(tvb), ENC_NA);
 			ldss_tree = proto_item_add_subtree(ti, ett_ldss_transfer);
 			proto_tree_add_bytes_format(ldss_tree, hf_ldss_file_data,
-						    tvb, 0, tvb_captured_length(tvb), NULL,
+						    tvb, 0, tvb_length(tvb), NULL,
 						    compression == COMPRESSION_GZIP
 						    ? "Gzip compressed data: %d bytes"
 						    : "File data: %d bytes",
-						    tvb_captured_length(tvb));
+						    tvb_length(tvb));
 #ifdef HAVE_LIBZ
 			/* Be nice and uncompress the file data. */
 			if (compression == COMPRESSION_GZIP) {
 				tvbuff_t *uncomp_tvb;
-				uncomp_tvb = tvb_child_uncompress(tvb, tvb, 0, tvb_captured_length(tvb));
+				uncomp_tvb = tvb_child_uncompress(tvb, tvb, 0, tvb_length(tvb));
 				if (uncomp_tvb != NULL) {
 					/* XXX: Maybe not a good idea to add a data_source for
 					        what may very well be a large buffer since then
@@ -712,9 +712,9 @@ dissect_ldss_transfer (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 					*/
 					add_new_data_source(pinfo, uncomp_tvb, "Uncompressed Data");
 					proto_tree_add_bytes_format_value(ldss_tree, hf_ldss_file_data,
-									  uncomp_tvb, 0, tvb_captured_length(uncomp_tvb),
+									  uncomp_tvb, 0, tvb_length(uncomp_tvb),
 									  NULL, "Uncompressed data: %d bytes",
-									  tvb_captured_length(uncomp_tvb));
+									  tvb_length(uncomp_tvb));
 				}
 			}
 #endif
@@ -787,7 +787,7 @@ dissect_ldss_transfer (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 		prepare_ldss_transfer_conv(transfer_info->broadcast);
 	}
 
-	return tvb_captured_length(tvb);
+	return tvb_length(tvb);
 }
 
 static gboolean

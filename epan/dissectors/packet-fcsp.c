@@ -391,7 +391,7 @@ static void dissect_fcsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if (tree) {
         ti = proto_tree_add_protocol_format(tree, proto_fcsp, tvb, 0,
-                                             tvb_captured_length(tvb), "FC-SP");
+                                             tvb_length(tvb), "FC-SP");
         fcsp_tree = proto_item_add_subtree(ti, ett_fcsp);
 
         proto_tree_add_item(fcsp_tree, hf_auth_flags, tvb, offset+1, 1, ENC_BIG_ENDIAN);
@@ -426,7 +426,7 @@ static void dissect_fcsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         case FC_AUTH_FCPAP_INIT:
         case FC_AUTH_FCPAP_ACCEPT:
         case FC_AUTH_FCPAP_COMPLETE:
-            proto_tree_add_text(fcsp_tree, tvb, offset+12, tvb_captured_length(tvb),
+            proto_tree_add_text(fcsp_tree, tvb, offset+12, tvb_length(tvb),
                                 "FCAP Decoding Not Supported");
             break;
         default:

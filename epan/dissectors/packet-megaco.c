@@ -349,7 +349,7 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     top_tree=tree;
     /* Initialize variables */
-    tvb_len                     = tvb_captured_length(tvb);
+    tvb_len                     = tvb_length(tvb);
     megaco_tree                 = NULL;
     ti                          = NULL;
     tvb_offset                  = 0;
@@ -1425,7 +1425,7 @@ dissect_megaco_descriptors(tvbuff_t *tvb, proto_tree *megaco_tree_command_line, 
     gint        tvb_current_offset,tvb_previous_offset,tokenlen;
     gint        tvb_RBRKT, tvb_LBRKT;
 
-    tvb_len     = tvb_captured_length(tvb);
+    tvb_len     = tvb_length(tvb);
 
 
     tvb_LBRKT = megaco_tvb_skip_wsp(tvb, tvb_descriptors_start_offset +1);
@@ -3234,7 +3234,7 @@ static void tvb_raw_text_add(tvbuff_t *tvb, proto_tree *tree){
     gint tvb_linebegin,tvb_lineend,tvb_len,linelen;
 
     tvb_linebegin = 0;
-    tvb_len = tvb_captured_length(tvb);
+    tvb_len = tvb_length(tvb);
 
     proto_tree_add_text(tree, tvb, 0, -1,"-------------- (RAW text output) ---------------");
 
@@ -3262,7 +3262,7 @@ static gint megaco_tvb_skip_wsp(tvbuff_t* tvb, gint offset ){
     gint counter = offset;
     gint end,tvb_len;
     guint8 tempchar;
-    tvb_len = tvb_captured_length(tvb);
+    tvb_len = tvb_length(tvb);
     end = tvb_len;
 
     for(counter = offset; counter < end &&

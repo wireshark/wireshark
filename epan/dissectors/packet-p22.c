@@ -1234,7 +1234,7 @@ dissect_p22_SubjectField(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
 
   if(subject)
-   col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (%s)", tvb_format_text(subject, 0, tvb_captured_length(subject)));
+   col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (%s)", tvb_format_text(subject, 0, tvb_length(subject)));
 
 
 

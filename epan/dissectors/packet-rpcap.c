@@ -387,7 +387,7 @@ dissect_rpcap_error (tvbuff_t *tvb, packet_info *pinfo,
   proto_item *ti;
   gint len;
 
-  len = tvb_captured_length_remaining (tvb, offset);
+  len = tvb_length_remaining (tvb, offset);
   if (len <= 0)
     return;
 
@@ -511,7 +511,7 @@ dissect_rpcap_findalldevs_if (tvbuff_t *tvb, packet_info *pinfo _U_,
 
   for (i = 0; i < naddr; i++) {
     offset = dissect_rpcap_findalldevs_ifaddr (tvb, pinfo, tree, offset);
-    if (tvb_captured_length_remaining (tvb, offset) < 0) {
+    if (tvb_length_remaining (tvb, offset) < 0) {
       /* No more data in packet */
       expert_add_info(pinfo, ti, &ei_no_more_data);
       break;
@@ -537,7 +537,7 @@ dissect_rpcap_findalldevs_reply (tvbuff_t *tvb, packet_info *pinfo _U_,
 
   for (i = 0; i < no_devs; i++) {
     offset = dissect_rpcap_findalldevs_if (tvb, pinfo, tree, offset);
-    if (tvb_captured_length_remaining (tvb, offset) < 0) {
+    if (tvb_length_remaining (tvb, offset) < 0) {
       /* No more data in packet */
       expert_add_info(pinfo, ti, &ei_no_more_data);
       break;
@@ -626,7 +626,7 @@ dissect_rpcap_filter (tvbuff_t *tvb, packet_info *pinfo,
 
   for (i = 0; i < nitems; i++) {
     offset = dissect_rpcap_filterbpf_insn (tvb, pinfo, tree, offset);
-    if (tvb_captured_length_remaining (tvb, offset) < 0) {
+    if (tvb_length_remaining (tvb, offset) < 0) {
       /* No more data in packet */
       expert_add_info(pinfo, ti, &ei_no_more_data);
       break;
@@ -686,7 +686,7 @@ dissect_rpcap_open_request (tvbuff_t *tvb, packet_info *pinfo _U_,
 {
   gint len;
 
-  len = tvb_captured_length_remaining (tvb, offset);
+  len = tvb_length_remaining (tvb, offset);
   proto_tree_add_item (parent_tree, hf_open_request, tvb, offset, len, ENC_ASCII|ENC_NA);
 }
 
@@ -879,7 +879,7 @@ dissect_rpcap_packet (tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree,
    * reported_length_remaining should not be -1, as offset is at
    * most right past the end of the available data in the packet.
    */
-  reported_length_remaining = tvb_captured_length_remaining (tvb, offset);
+  reported_length_remaining = tvb_length_remaining (tvb, offset);
   if (caplen > (guint)reported_length_remaining) {
     expert_add_info(pinfo, ti, &ei_caplen_too_big);
     return;
@@ -985,7 +985,7 @@ dissect_rpcap (tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree, void* da
     dissect_rpcap_stats_reply (tvb, pinfo, tree, offset);
     break;
   default:
-    len = tvb_captured_length_remaining (tvb, offset);
+    len = tvb_length_remaining (tvb, offset);
     if (len) {
       /* Yet unknown, dump as data */
       proto_item_set_len (ti, 8);
@@ -995,7 +995,7 @@ dissect_rpcap (tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree, void* da
     break;
   }
 
-  return tvb_captured_length(tvb);
+  return tvb_length(tvb);
 }
 
 
@@ -1007,7 +1007,7 @@ check_rpcap_heur (tvbuff_t *tvb, gboolean tcp)
   guint16 msg_value;
   guint32 plen, len, caplen;
 
-  if (tvb_captured_length (tvb) < 8)
+  if (tvb_length (tvb) < 8)
     /* Too short */
     return FALSE;
 
@@ -1041,7 +1041,7 @@ check_rpcap_heur (tvbuff_t *tvb, gboolean tcp)
 
   plen = tvb_get_ntohl (tvb, offset);
   offset += 4;
-  len = (guint32) tvb_captured_length_remaining (tvb, offset);
+  len = (guint32) tvb_length_remaining (tvb, offset);
 
   switch (msg_type) {
 

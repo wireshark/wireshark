@@ -68,7 +68,7 @@ dissect_rgmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int off
 	/* we are not enabled, skip entire packet to be nice
 	   to the igmp layer. (so clicking on IGMP will display the data)
 	   */
-	return offset + tvb_captured_length_remaining(tvb, offset);
+	return offset + tvb_length_remaining(tvb, offset);
     }
 
     item = proto_tree_add_item(parent_tree, proto_rgmp, tvb, offset, -1, ENC_NA);

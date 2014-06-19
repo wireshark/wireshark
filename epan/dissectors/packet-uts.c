@@ -75,7 +75,7 @@ static int testchar(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, int op, g
 {
 	gchar temp;
 
-	if (tvb_captured_length_remaining(tvb, offset)) {
+	if (tvb_length_remaining(tvb, offset)) {
 		temp = tvb_get_guint8(tvb, offset) & 0x7f;
 		if (op == FETCH || (op == MATCH && temp == match)) {
 			if (storage != NULL)
@@ -238,7 +238,7 @@ dissect_uts(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree)
 		}
 	}
 
-	while (tvb_captured_length_remaining(tvb, offset) > 0) {					/* now look for the ETX */
+	while (tvb_length_remaining(tvb, offset) > 0) {					/* now look for the ETX */
 		if ((tvb_get_guint8(tvb, offset) & 0x7f) == ETX) {
 			if (header_length == -1)
 				header_length = offset;	/* the header ends at an STX, or if not found, the ETX */
@@ -248,7 +248,7 @@ dissect_uts(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree)
 		}
 		offset++;
 	}
-	if (tvb_captured_length_remaining(tvb, offset))						/* if there is anything left, it could be the BCC and pads */
+	if (tvb_length_remaining(tvb, offset))						/* if there is anything left, it could be the BCC and pads */
 		bcc_start = offset;
 
 	if (tree) {
@@ -300,7 +300,7 @@ dissect_uts(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree)
 
 			if (stx_start) {
 				proto_tree_add_protocol_format(uts_header_tree, proto_uts, tvb, stx_start, 1, "Start of Text");
-				length = tvb_captured_length_remaining(tvb, stx_start+1);    /* find out how much message remains      */
+				length = tvb_length_remaining(tvb, stx_start+1);    /* find out how much message remains      */
 				if (etx_start)
 					length = (etx_start - stx_start - 1);       /* and the data part is the rest...       */
                                                                                     /* whatever preceeds the ETX if it exists */

@@ -3281,7 +3281,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     cksum = tvb_get_ntohs(tvb, offset);
 
     if (1) { /* There's an expert info in here so always execute */
-        length = tvb_captured_length(tvb);
+        length = tvb_length(tvb);
         reported_length = tvb_reported_length(tvb);
         if (!pinfo->fragmented && length >= reported_length) {
             /* The packet isn't part of a fragmented datagram and isn't

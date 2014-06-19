@@ -331,7 +331,7 @@ static const gchar *dissect_chap_password(proto_tree* tree, tvbuff_t* tvb, packe
 	proto_item *ti;
 	proto_tree *chap_tree;
 
-	len = tvb_captured_length(tvb);
+	len = tvb_length(tvb);
 	if (len != 17)
 		return "[wrong length for CHAP-Password]";
 
@@ -348,7 +348,7 @@ static const gchar *dissect_framed_ip_address(proto_tree* tree, tvbuff_t* tvb, p
 	guint32 ip_h;
 	const gchar *str;
 
-	len = tvb_captured_length(tvb);
+	len = tvb_length(tvb);
 	if (len != 4)
 		return "[wrong length for IP address]";
 
@@ -379,7 +379,7 @@ static const gchar *dissect_login_ip_host(proto_tree* tree, tvbuff_t* tvb, packe
 	guint32 ip_h;
 	const gchar *str;
 
-	len = tvb_captured_length(tvb);
+	len = tvb_length(tvb);
 	if (len != 4)
 		return "[wrong length for IP address]";
 
@@ -418,7 +418,7 @@ static const gchar *dissect_ascend_data_filter(proto_tree* tree, tvbuff_t* tvb, 
 	guint16 srcport, dstport;
 	guint8 srcportq, dstportq;
 
-	len=tvb_captured_length(tvb);
+	len=tvb_length(tvb);
 
 	if (len != 24) {
 		return wmem_strdup_printf(wmem_packet_scope(), "Wrong attribute length %d", len);
@@ -471,7 +471,7 @@ static const gchar *dissect_framed_ipx_network(proto_tree* tree, tvbuff_t* tvb, 
 	guint32 net;
 	const gchar *str;
 
-	len = tvb_captured_length(tvb);
+	len = tvb_length(tvb);
 	if (len != 4)
 		return "[wrong length for IPX network]";
 
@@ -490,7 +490,7 @@ static const gchar *dissect_framed_ipx_network(proto_tree* tree, tvbuff_t* tvb, 
 static const gchar* dissect_cosine_vpvc(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo _U_) {
 	guint vpi, vci;
 
-	if ( tvb_captured_length(tvb) != 4 )
+	if ( tvb_length(tvb) != 4 )
 		return "[Wrong Length for VP/VC AVP]";
 
 	vpi = tvb_get_ntohs(tvb,0);
@@ -1219,7 +1219,7 @@ void dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, tvbuff_
 			PROTO_ITEM_SET_GENERATED(avp_len_item);
 		}
 
-		tvb_len = tvb_captured_length_remaining(tvb, offset);
+		tvb_len = tvb_length_remaining(tvb, offset);
 
 		if ((gint)avp_length < tvb_len)
 			tvb_len = avp_length;
@@ -1460,7 +1460,7 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 				tvb, 2, 2, rh.rh_pktlength, "%u (bogus, < %u)",
 				rh.rh_pktlength, HDR_LENGTH);
 		}
-		return tvb_captured_length(tvb);
+		return tvb_length(tvb);
 	}
 
 	avplength = rh.rh_pktlength - HDR_LENGTH;
@@ -1721,7 +1721,7 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 			avplength);
 	}
 
-	return tvb_captured_length(tvb);
+	return tvb_length(tvb);
 }
 
 

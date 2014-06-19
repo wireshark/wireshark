@@ -1741,7 +1741,7 @@ static void
 add_headers (proto_tree *tree, tvbuff_t *tvb, int hf, packet_info *pinfo)
 {
     guint8      hdr_id, val_id, codepage = 1;
-    gint32      tvb_len                  = tvb_captured_length(tvb);
+    gint32      tvb_len                  = tvb_length(tvb);
     gint32      offset                   = 0;
     gint32      hdr_len, hdr_start;
     gint32      val_len, val_start;
@@ -4645,7 +4645,7 @@ add_addresses(proto_tree *tree, tvbuff_t *tvb, int hf)
     guint8             address_flags_len;
     int                address_len;
     proto_tree        *address_flags_tree;
-    guint32            tvb_len = tvb_captured_length(tvb);
+    guint32            tvb_len = tvb_length(tvb);
     guint32            offset  = 0;
     guint32            idx     = 0; /* Address index */
     guint32            address_record_len; /* Length of the entire address record */

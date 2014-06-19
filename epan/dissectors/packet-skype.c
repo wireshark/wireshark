@@ -134,7 +134,7 @@ dissect_skype_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* XXX: Just until we know how to decode skype over tcp */
 	packet_type = 255;
 
-	packet_length = tvb_captured_length(tvb);
+	packet_length = tvb_length(tvb);
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, PROTO_SHORT_NAME);
 	col_add_str(pinfo->cinfo, COL_INFO, val_to_str(packet_type,
@@ -189,7 +189,7 @@ dissect_skype_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	packet_type = tvb_get_guint8(tvb, 2) & SKYPE_SOM_TYPE_MASK;
 	packet_unk = (tvb_get_guint8(tvb, 2) & SKYPE_SOM_UNK_MASK) >> 4;
 
-	packet_length = tvb_captured_length(tvb);
+	packet_length = tvb_length(tvb);
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, PROTO_SHORT_NAME);
 	col_add_str(pinfo->cinfo, COL_INFO, val_to_str(packet_type,
@@ -294,7 +294,7 @@ static gboolean
 test_skype_udp(tvbuff_t *tvb)
 {
 	/* Minimum of 3 bytes, check for valid message type */
-	guint length = tvb_captured_length(tvb);
+	guint length = tvb_length(tvb);
 	guint8 type = tvb_get_guint8(tvb, 2) & 0xF;
 	if ( length >= 3 &&
 		    ( type == 0   ||

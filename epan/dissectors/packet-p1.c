@@ -922,7 +922,7 @@ static void do_address(const char* addr, tvbuff_t* tvb_string, asn1_ctx_t* actx)
 			wmem_strbuf_append(ctx->oraddress, addr);
 		}
 		if (tvb_string) {
-			wmem_strbuf_append(ctx->oraddress, tvb_format_text(tvb_string, 0, tvb_captured_length(tvb_string)));
+			wmem_strbuf_append(ctx->oraddress, tvb_format_text(tvb_string, 0, tvb_length(tvb_string)));
 		}
 	}
 
@@ -936,7 +936,7 @@ static void do_address_str(const char* addr, tvbuff_t* tvb_string, asn1_ctx_t* a
 	do_address(addr, tvb_string, actx);
 
 	if (ctx && ctx->do_address && ddatype && tvb_string)
-		wmem_strbuf_append(ddatype, tvb_format_text(tvb_string, 0, tvb_captured_length(tvb_string)));
+		wmem_strbuf_append(ddatype, tvb_format_text(tvb_string, 0, tvb_length(tvb_string)));
 }
 
 static void do_address_str_tree(const char* addr, tvbuff_t* tvb_string, asn1_ctx_t* actx, proto_tree* tree)
@@ -948,7 +948,7 @@ static void do_address_str_tree(const char* addr, tvbuff_t* tvb_string, asn1_ctx
 
 	if (ctx && ctx->do_address && tvb_string && ddatype) {
 		if (wmem_strbuf_get_len(ddatype) > 0) {
-			proto_item_append_text (tree, " (%s=%s)", wmem_strbuf_get_str(ddatype), tvb_format_text(tvb_string, 0, tvb_captured_length(tvb_string)));
+			proto_item_append_text (tree, " (%s=%s)", wmem_strbuf_get_str(ddatype), tvb_format_text(tvb_string, 0, tvb_length(tvb_string)));
 		}
 	}
 }
@@ -979,10 +979,10 @@ dissect_p1_MTAName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 
 
 	if (ctx && ctx->do_address) {
-		proto_item_append_text(actx->subtree.tree, " %s", tvb_format_text(mtaname, 0, tvb_captured_length(mtaname)));
+		proto_item_append_text(actx->subtree.tree, " %s", tvb_format_text(mtaname, 0, tvb_length(mtaname)));
 	} else {
 		if (mtaname) {
-			col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %s", tvb_format_text(mtaname, 0, tvb_captured_length(mtaname)));
+			col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %s", tvb_format_text(mtaname, 0, tvb_length(mtaname)));
 		}
 	}
 
@@ -1714,10 +1714,10 @@ dissect_p1_LocalIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
 	if(id) {
 		if (ctx && ctx->do_address)
-			proto_item_append_text(actx->subtree.tree, " $ %s)", tvb_format_text(id, 0, tvb_captured_length(id)));
+			proto_item_append_text(actx->subtree.tree, " $ %s)", tvb_format_text(id, 0, tvb_length(id)));
 
 		if (hf_index == hf_p1_subject_identifier)
-			col_append_fstr(actx->pinfo->cinfo, COL_INFO, " $ %s)", tvb_format_text(id, 0, tvb_captured_length(id)));
+			col_append_fstr(actx->pinfo->cinfo, COL_INFO, " $ %s)", tvb_format_text(id, 0, tvb_length(id)));
 	}
 
 
@@ -2200,12 +2200,12 @@ dissect_p1_T_extension_attribute_value(gboolean implicit_tag _U_, tvbuff_t *tvb 
 
 	proto_item_append_text(tree, " (%s)", val_to_str(actx->external.indirect_reference, p1_ExtensionAttributeType_vals, "extension-attribute-type %d"));
 	if (dissector_try_uint(p1_extension_attribute_dissector_table, actx->external.indirect_reference, tvb, actx->pinfo, tree)) {
-		offset =tvb_captured_length(tvb);
+		offset =tvb_length(tvb);
 	} else {
 		proto_item *item = NULL;
 		proto_tree *next_tree = NULL;
 
-		item = proto_tree_add_text(tree, tvb, 0, tvb_captured_length_remaining(tvb, offset),
+		item = proto_tree_add_text(tree, tvb, 0, tvb_length_remaining(tvb, offset),
 			"Dissector for extension-attribute-type %d not implemented.  Contact Wireshark developers if you want this supported", actx->external.indirect_reference);
 		next_tree = proto_item_add_subtree(item, ett_p1_unknown_extension_attribute_type);
 		offset = dissect_unknown_ber(actx->pinfo, tvb, offset, next_tree);
@@ -2667,7 +2667,7 @@ dissect_p1_Time(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, as
 
 
 	if(arrival && ctx && ctx->do_address)
-		proto_item_append_text(actx->subtree.tree, " %s", tvb_format_text(arrival, 0, tvb_captured_length(arrival)));
+		proto_item_append_text(actx->subtree.tree, " %s", tvb_format_text(arrival, 0, tvb_length(arrival)));
 
 
 
@@ -3046,12 +3046,12 @@ dissect_p1_ExtensionValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 	if(actx->external.indirect_ref_present) {
 		proto_item_append_text(tree, " (%s)", val_to_str(actx->external.indirect_reference, p1_StandardExtension_vals, "standard-extension %d"));
 		if (dissector_try_uint(p1_extension_dissector_table, actx->external.indirect_reference, tvb, actx->pinfo, tree)) {
-			offset = tvb_captured_length(tvb);
+			offset = tvb_length(tvb);
 		} else {
 			proto_item *item = NULL;
 			proto_tree *next_tree = NULL;
 
-			item = proto_tree_add_text(tree, tvb, 0, tvb_captured_length_remaining(tvb, offset),
+			item = proto_tree_add_text(tree, tvb, 0, tvb_length_remaining(tvb, offset),
 				"Dissector for standard-extension %d not implemented.  Contact Wireshark developers if you want this supported", actx->external.indirect_reference);
 			next_tree = proto_item_add_subtree(item, ett_p1_unknown_standard_extension);
 			offset = dissect_unknown_ber(actx->pinfo, tvb, offset, next_tree);
@@ -3229,7 +3229,7 @@ dissect_p1_Content(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 
 	/* we can do this now constructed octet strings are supported */
 	offset = dissect_ber_octet_string(FALSE, actx, tree, tvb, offset, hf_index, &next_tvb);
-	proto_item_set_text(actx->created_item, "content (%u bytes)", tvb_captured_length (next_tvb));
+	proto_item_set_text(actx->created_item, "content (%u bytes)", tvb_length (next_tvb));
 
 	if (next_tvb) {
 		if (ctx && ctx->content_type_id) {
@@ -3239,7 +3239,7 @@ dissect_p1_Content(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 		proto_tree *next_tree = NULL;
 
 		proto_tree_add_expert(actx->subtree.top_tree ? actx->subtree.top_tree : tree, actx->pinfo, &ei_p1_unknown_built_in_content_type,
-							  next_tvb, 0, tvb_captured_length_remaining(tvb, offset));
+							  next_tvb, 0, tvb_length_remaining(tvb, offset));
 		if (item) {
 			next_tree=proto_item_add_subtree(item, ett_p1_content_unknown);
 		}
@@ -7200,12 +7200,12 @@ dissect_p1_T_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 
 	proto_item_append_text(tree, " (%s)", val_to_str(actx->external.indirect_reference, p1_TokenDataType_vals, "tokendata-type %d"));
 	if (dissector_try_uint(p1_tokendata_dissector_table, actx->external.indirect_reference, tvb, actx->pinfo, tree)) {
-		offset = tvb_captured_length(tvb);
+		offset = tvb_length(tvb);
 	} else {
 		proto_item *item = NULL;
 		proto_tree *next_tree = NULL;
 
-		item = proto_tree_add_text(tree, tvb, 0, tvb_captured_length_remaining(tvb, offset),
+		item = proto_tree_add_text(tree, tvb, 0, tvb_length_remaining(tvb, offset),
 			"Dissector for tokendata-type %d not implemented.  Contact Wireshark developers if you want this supported", actx->external.indirect_reference);
 		next_tree = proto_item_add_subtree(item, ett_p1_unknown_tokendata_type);
 		offset = dissect_unknown_ber(actx->pinfo, tvb, offset, next_tree);
@@ -8393,7 +8393,7 @@ dissect_p1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* dat
 	  break;
 	default:
 	  proto_tree_add_text(tree, tvb, offset, -1,"Unsupported P1 PDU");
-	  return tvb_captured_length(tvb);
+	  return tvb_length(tvb);
 	}
 
 	col_set_str(pinfo->cinfo, COL_INFO, p1_op_name);
@@ -8407,7 +8407,7 @@ dissect_p1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* dat
 		}
 	}
 	p1_initialize_content_globals (&asn1_ctx, NULL, FALSE);
-	return tvb_captured_length(tvb);
+	return tvb_length(tvb);
 }
 
 

@@ -216,7 +216,7 @@ dissect_adb_cs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         }
 
         /* heuristic to recognize type of (partial) packet */
-        if (tvb_captured_length_remaining(tvb, offset) >= 4) {
+        if (tvb_length_remaining(tvb, offset) >= 4) {
             guint8  hex_ascii_length[5];
 
             hex_ascii_length[4] = 0;
@@ -237,10 +237,10 @@ dissect_adb_cs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
             if (g_str_has_prefix(service, "shell:")) {
                 proto_tree_add_item(main_tree, hf_stdin, tvb, offset, -1, ENC_NA | ENC_ASCII);
-                offset = tvb_captured_length(tvb);
+                offset = tvb_length(tvb);
             } else {
                 proto_tree_add_item(main_tree, hf_data, tvb, offset, -1, ENC_NA);
-                offset = tvb_captured_length(tvb);
+                offset = tvb_length(tvb);
             }
 
             return offset;
@@ -274,7 +274,7 @@ dissect_adb_cs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
             wmem_tree_insert32_array(client_requests, key, client_request);
         }
 
-        if (!pinfo->fd->flags.visited && (length == -1 || (client_request && client_request->service_in == -1 && tvb_captured_length_remaining(tvb, offset) > 0))) { /* save Service to client_requests */
+        if (!pinfo->fd->flags.visited && (length == -1 || (client_request && client_request->service_in == -1 && tvb_length_remaining(tvb, offset) > 0))) { /* save Service to client_requests */
             if (!client_request) {
                 if (pinfo->phdr->presence_flags & WTAP_HAS_INTERFACE_ID)
                     wireshark_interface_id = pinfo->phdr->interface_id;
@@ -300,19 +300,19 @@ dissect_adb_cs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
             }
         }
 
-        if (!client_request_service && tvb_captured_length_remaining(tvb, offset) > 0) {
+        if (!client_request_service && tvb_length_remaining(tvb, offset) > 0) {
             col_append_fstr(pinfo->cinfo, COL_INFO, " Unknown service");
             proto_tree_add_item(main_tree, hf_data, tvb, offset, -1, ENC_NA);
-            offset = tvb_captured_length(tvb);
-        } else if (tvb_captured_length_remaining(tvb, offset) > 0) {
+            offset = tvb_length(tvb);
+        } else if (tvb_length_remaining(tvb, offset) > 0) {
             proto_tree_add_item(main_tree, hf_service, tvb, offset, -1, ENC_NA | ENC_ASCII);
 
-            service = (guint8 *) wmem_alloc(wmem_packet_scope(), tvb_captured_length_remaining(tvb, offset) + 1);
-            tvb_memcpy(tvb, service, offset, tvb_captured_length_remaining(tvb, offset));
-            service[tvb_captured_length_remaining(tvb, offset)] = '\0';
+            service = (guint8 *) wmem_alloc(wmem_packet_scope(), tvb_length_remaining(tvb, offset) + 1);
+            tvb_memcpy(tvb, service, offset, tvb_length_remaining(tvb, offset));
+            service[tvb_length_remaining(tvb, offset)] = '\0';
             col_append_fstr(pinfo->cinfo, COL_INFO, " Service=<%s>", service);
 
-            offset += tvb_captured_length_remaining(tvb, offset);
+            offset += tvb_length_remaining(tvb, offset);
         }
 
     } else if (pinfo->srcport == server_port) { /* Server sent to Client */
@@ -358,7 +358,7 @@ dissect_adb_cs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         if (!service) {
             col_append_fstr(pinfo->cinfo, COL_INFO, " Unknown service");
             proto_tree_add_item(main_tree, hf_data, tvb, offset, -1, ENC_NA);
-            offset = tvb_captured_length(tvb);
+            offset = tvb_length(tvb);
 
             return offset;
         }
@@ -387,7 +387,7 @@ dissect_adb_cs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
         col_append_fstr(pinfo->cinfo, COL_INFO, " Service=<%s>", service);
 
-        if (tvb_captured_length_remaining(tvb, offset) <= 0) return offset;
+        if (tvb_length_remaining(tvb, offset) <= 0) return offset;
 
         if (!pinfo->fd->flags.visited && client_request && client_request->data_in == -1) {
             client_request->data_in = pinfo->fd->num;
@@ -396,12 +396,12 @@ dissect_adb_cs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
         if (status == STATUS_FAIL) {
             sub_item = proto_tree_add_item(main_tree, hf_fail_reason, tvb, offset, -1, ENC_NA | ENC_ASCII);
-            if (length < tvb_captured_length_remaining(tvb, offset)) {
+            if (length < tvb_length_remaining(tvb, offset)) {
                 expert_add_info(pinfo, sub_item, &ei_incomplete_message);
             }
 
-            col_append_fstr(pinfo->cinfo, COL_INFO, " Fail=<%s>", tvb_get_string_enc(wmem_packet_scope(), tvb, offset, tvb_captured_length_remaining(tvb, offset), ENC_ASCII));
-            offset = tvb_captured_length(tvb);
+            col_append_fstr(pinfo->cinfo, COL_INFO, " Fail=<%s>", tvb_get_string_enc(wmem_packet_scope(), tvb, offset, tvb_length_remaining(tvb, offset), ENC_ASCII));
+            offset = tvb_length(tvb);
             return offset;
         }
 
@@ -430,7 +430,7 @@ dissect_adb_cs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
             offset = dissect_ascii_data_length(main_tree, tvb, offset, &data_length);
 
             sub_item = proto_tree_add_item(main_tree, hf_devices, tvb, offset, -1, ENC_NA | ENC_ASCII);
-            if (data_length < tvb_captured_length_remaining(tvb, offset)) {
+            if (data_length < tvb_length_remaining(tvb, offset)) {
                 expert_add_info(pinfo, sub_item, &ei_incomplete_message);
             }
         } else if (g_strcmp0(service, "host:get-state") == 0 ||
@@ -443,7 +443,7 @@ dissect_adb_cs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
             offset = dissect_ascii_data_length(main_tree, tvb, offset, &data_length);
 
             sub_item = proto_tree_add_item(main_tree, hf_result, tvb, offset, -1, ENC_NA | ENC_ASCII);
-            if (data_length < tvb_captured_length_remaining(tvb, offset)) {
+            if (data_length < tvb_length_remaining(tvb, offset)) {
                 expert_add_info(pinfo, sub_item, &ei_incomplete_message);
             }
         } else if (g_str_has_prefix(service, "framebuffer:")) {
@@ -509,7 +509,7 @@ dissect_adb_cs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
                 offset += 4;
             }
 
-            if (tvb_captured_length_remaining(tvb, offset) > 0) {
+            if (tvb_length_remaining(tvb, offset) > 0) {
                 proto_item  *pixel_item;
                 proto_tree  *pixel_tree;
 
@@ -524,8 +524,8 @@ dissect_adb_cs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
                         client_request->data.framebuffer_data->red_offset == 11 &&
                         client_request->data.framebuffer_data->green_offset == 5 &&
                         client_request->data.framebuffer_data->blue_offset == 0) {
-                        while (tvb_captured_length_remaining(tvb, offset) > 0) {
-                            if (tvb_captured_length_remaining(tvb, offset) < 2) {
+                        while (tvb_length_remaining(tvb, offset) > 0) {
+                            if (tvb_length_remaining(tvb, offset) < 2) {
                                 proto_tree_add_item(main_tree, hf_fragment, tvb, offset, -1, ENC_NA);
                                 offset += 1;
                             }
@@ -544,10 +544,10 @@ dissect_adb_cs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
                             client_request->data.framebuffer_data->blue_length == 8 &&
                             (client_request->data.framebuffer_data->alpha_length == 0 ||
                             client_request->data.framebuffer_data->alpha_length == 8)) {
-                        while (tvb_captured_length_remaining(tvb, offset) > 0) {
-                            if (tvb_captured_length_remaining(tvb, offset) < 3 || (tvb_captured_length_remaining(tvb, offset) < 4 && client_request->data.framebuffer_data->alpha_offset > 0)) {
+                        while (tvb_length_remaining(tvb, offset) > 0) {
+                            if (tvb_length_remaining(tvb, offset) < 3 || (tvb_length_remaining(tvb, offset) < 4 && client_request->data.framebuffer_data->alpha_offset > 0)) {
                                 proto_tree_add_item(main_tree, hf_fragment, tvb, offset, -1, ENC_NA);
-                                offset = tvb_captured_length(tvb);
+                                offset = tvb_length(tvb);
                                 break;
                             }
 
@@ -569,10 +569,10 @@ dissect_adb_cs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
                             offset += 3;
                         }
                     } else {
-                        offset = tvb_captured_length(tvb);
+                        offset = tvb_length(tvb);
                     }
                 } else {
-                    offset = tvb_captured_length(tvb);
+                    offset = tvb_length(tvb);
                 }
             }
         } else if (g_strcmp0(service, "track-jdwp") == 0) {
@@ -580,13 +580,13 @@ dissect_adb_cs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
             offset = dissect_ascii_data_length(main_tree, tvb, offset, &data_length);
 
-            if (tvb_captured_length_remaining(tvb, offset) > 0) {
+            if (tvb_length_remaining(tvb, offset) > 0) {
                 sub_item = proto_tree_add_item(main_tree, hf_pids, tvb, offset, -1, ENC_NA | ENC_ASCII);
-                if (data_length < tvb_captured_length_remaining(tvb, offset)) {
+                if (data_length < tvb_length_remaining(tvb, offset)) {
                     expert_add_info(pinfo, sub_item, &ei_incomplete_message);
                 }
             }
-            offset = tvb_captured_length(tvb);
+            offset = tvb_length(tvb);
         } else if ((g_strcmp0(service, "shell:export ANDROID_LOG_TAGS=\"\" ; exec logcat -B") == 0) ||
                 (g_strcmp0(service, "shell:logcat -B") == 0)) {
             tvbuff_t    *next_tvb;
@@ -627,7 +627,7 @@ dissect_adb_cs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
                 }
             }
 
-            size += tvb_captured_length_remaining(tvb, i_offset);
+            size += tvb_length_remaining(tvb, i_offset);
             if (size > 0) {
                 buffer = (guint8 *) wmem_alloc(pinfo->pool, size);
                 if (fragment && i_char > 0)
@@ -642,12 +642,12 @@ dissect_adb_cs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
                 i_offset += 1;
                 old_offset = i_offset;
 
-                while (tvb_captured_length_remaining(tvb, i_offset) > 0) {
+                while (tvb_length_remaining(tvb, i_offset) > 0) {
                     c2 = tvb_get_guint8(tvb, i_offset);
 
                     if (c1 == '\r' && c2 == '\n') {
                         buffer[i_char] = c2;
-                        if (tvb_captured_length_remaining(tvb, i_offset) > 1) {
+                        if (tvb_length_remaining(tvb, i_offset) > 1) {
                             c1 = tvb_get_guint8(tvb, i_offset + 1);
                             i_offset += 2;
                             i_char += 1;
@@ -664,10 +664,10 @@ dissect_adb_cs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
                     i_offset += 1;
                 }
 
-                if (tvb_captured_length_remaining(tvb, old_offset) == 0) {
+                if (tvb_length_remaining(tvb, old_offset) == 0) {
                     buffer[i_char] = c1;
                     i_char += 1;
-                } else if (tvb_captured_length_remaining(tvb, old_offset) > 0) {
+                } else if (tvb_length_remaining(tvb, old_offset) > 0) {
                     buffer[i_char] = c2;
                     i_char += 1;
                 }
@@ -676,8 +676,8 @@ dissect_adb_cs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
                 add_new_data_source(pinfo, next_tvb, "Logcat");
 
                 i_offset = 0;
-                while (tvb_captured_length_remaining(next_tvb, i_offset) > 0) {
-                    if (tvb_captured_length_remaining(next_tvb, i_offset) >= 4) {
+                while (tvb_length_remaining(next_tvb, i_offset) > 0) {
+                    if (tvb_length_remaining(next_tvb, i_offset) >= 4) {
                         payload_length = tvb_get_letohs(next_tvb, i_offset);
                         try_header_size = tvb_get_letohs(next_tvb, i_offset + 2);
 
@@ -687,7 +687,7 @@ dissect_adb_cs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
                             logcat_length = payload_length + 24;
                     }
 
-                    if (tvb_captured_length_remaining(next_tvb, i_offset) >= 4 && tvb_captured_length_remaining(next_tvb, i_offset) >= logcat_length) {
+                    if (tvb_length_remaining(next_tvb, i_offset) >= 4 && tvb_length_remaining(next_tvb, i_offset) >= logcat_length) {
                         new_tvb = tvb_new_subset_length(next_tvb, i_offset, logcat_length);
 
                         call_dissector(logcat_handle, new_tvb, pinfo, main_tree);
@@ -711,7 +711,7 @@ dissect_adb_cs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
                             fragment = wmem_new(wmem_file_scope(), fragment_t);
 
-                            fragment->length = tvb_captured_length_remaining(next_tvb, i_offset);
+                            fragment->length = tvb_length_remaining(next_tvb, i_offset);
                             fragment->data = (guint8 *) wmem_alloc(wmem_file_scope(), fragment->length);
                             tvb_memcpy(next_tvb, fragment->data, i_offset, fragment->length);
                             fragment->reassembled_in_frame = -1;
@@ -720,33 +720,33 @@ dissect_adb_cs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
                         }
 
                         proto_tree_add_item(main_tree, hf_fragment, next_tvb, i_offset, -1, ENC_NA);
-                        i_offset = tvb_captured_length(next_tvb);
+                        i_offset = tvb_length(next_tvb);
                     }
                 }
             }
 
-            offset = tvb_captured_length(tvb);
+            offset = tvb_length(tvb);
         } else if (g_str_has_prefix(service, "shell:")) {
             proto_tree_add_item(main_tree, hf_stdout, tvb, offset, -1, ENC_NA | ENC_ASCII);
-            offset = tvb_captured_length(tvb);
+            offset = tvb_length(tvb);
         } else if (g_str_has_prefix(service, "jdwp:")) {
             proto_tree_add_item(main_tree, hf_data, tvb, offset, -1, ENC_NA);
-            offset = tvb_captured_length(tvb);
+            offset = tvb_length(tvb);
         } else if (g_str_has_prefix(service, "sync:")) {
             proto_tree_add_item(main_tree, hf_data, tvb, offset, -1, ENC_NA);
-            offset = tvb_captured_length(tvb);
+            offset = tvb_length(tvb);
         } else if (g_strcmp0(service, "host:list-forward") == 0 ||
                 g_str_has_prefix(service, "root:") ||
                 g_str_has_prefix(service, "remount:")  ||
                 g_str_has_prefix(service, "tcpip:")  ||
                 g_str_has_prefix(service, "usb:")) {
-            if (tvb_captured_length_remaining(tvb, offset)) {
+            if (tvb_length_remaining(tvb, offset)) {
                 proto_tree_add_item(main_tree, hf_result, tvb, offset, -1, ENC_NA | ENC_ASCII);
-                offset = tvb_captured_length(tvb);
+                offset = tvb_length(tvb);
             }
         } else {
             proto_tree_add_item(main_tree, hf_data, tvb, offset, -1, ENC_NA);
-            offset = tvb_captured_length(tvb);
+            offset = tvb_length(tvb);
         }
 
     } else {
@@ -759,7 +759,7 @@ dissect_adb_cs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
         next_tvb = tvb_new_subset_remaining(tvb, offset);
         call_dissector(data_handle, next_tvb, pinfo, main_tree);
-        offset += tvb_captured_length_remaining(tvb, offset);
+        offset += tvb_length_remaining(tvb, offset);
     }
 
     return offset;

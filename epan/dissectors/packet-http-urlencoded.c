@@ -185,7 +185,7 @@ dissect_form_urlencoded(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 		proto_item_set_len(ti, offset - start_offset);
 	}
 
-	return tvb_captured_length(tvb);
+	return tvb_length(tvb);
 }
 
 void

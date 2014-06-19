@@ -982,7 +982,7 @@ rs_pgo_dissect_add_resp (tvbuff_t * tvb, int offset,
         [out]       error_status_t      *status
 */
 
- buff_remain = tvb_captured_length_remaining(tvb, offset);
+ buff_remain = tvb_length_remaining(tvb, offset);
 
 /* found several add_member responses that had 8 bytes of data. first was 4 0's and last was 3 zeros and a 1 */
 if (buff_remain > 8) {
@@ -1034,7 +1034,7 @@ rs_pgo_dissect_delete_resp (tvbuff_t * tvb, int offset,
         [out]       rs_cache_data_t     *cache_info,
         [out]       error_status_t      *status
 */
- buff_remain = tvb_captured_length_remaining(tvb, offset);
+ buff_remain = tvb_length_remaining(tvb, offset);
 
 /* found several add_member responses that had 8 bytes of data. first was 4 0's and last was 3 zeros and a 1 */
 
@@ -1200,7 +1200,7 @@ rs_pgo_dissect_add_member_resp (tvbuff_t * tvb, int offset,
         [out]       error_status_t      *status
 */
 
- buff_remain = tvb_captured_length_remaining(tvb, offset);
+ buff_remain = tvb_length_remaining(tvb, offset);
 
 /* found several add responses that had 8 bytes of data. first was 4 0's and last was 3 zeros and a 1 */
 if (buff_remain > 8) {

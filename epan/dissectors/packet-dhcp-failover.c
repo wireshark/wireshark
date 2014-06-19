@@ -470,7 +470,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 		return offset;	/* payload offset was bogus */
 
 	if (!tree)
-		return tvb_captured_length(tvb);
+		return tvb_length(tvb);
 
 	/* if there are any additional header bytes */
 	if (poffset != offset) {
@@ -872,7 +872,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 		offset += option_length;
 	}
 
-	return tvb_captured_length(tvb);
+	return tvb_length(tvb);
 }
 
 static int
@@ -880,7 +880,7 @@ dissect_dhcpfo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
 	tcp_dissect_pdus(tvb, pinfo, tree, dhcpfo_desegment, 2,
 	    get_dhcpfo_pdu_len, dissect_dhcpfo_pdu, data);
-	return tvb_captured_length(tvb);
+	return tvb_length(tvb);
 }
 
 /* Register the protocol with Wireshark */

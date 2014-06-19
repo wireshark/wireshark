@@ -290,7 +290,7 @@ get_bittorrent_pdu_length(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
                data from the middle of a message, and just return the
                remaining length in the tvbuff so the rest of the tvbuff
                is displayed as continuation data. */
-            return tvb_captured_length_remaining(tvb, offset);
+            return tvb_length_remaining(tvb, offset);
          }
       } else {
          /* We don't have the type field, so we can't determine
@@ -299,7 +299,7 @@ get_bittorrent_pdu_length(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
             and just return the remaining length in the tvbuff so
             the rest of the tvbuff is displayed as continuation
             data. */
-         return tvb_captured_length_remaining(tvb, offset);
+         return tvb_length_remaining(tvb, offset);
       }
    }
 }
@@ -547,7 +547,7 @@ int dissect_bittorrent_tcp_pdu (tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     col_append_str(pinfo->cinfo, COL_INFO, "  ");
     col_set_fence(pinfo->cinfo, COL_INFO);
 
-    return tvb_captured_length(tvb);
+    return tvb_length(tvb);
 }
 
 static
@@ -555,7 +555,7 @@ int dissect_bittorrent (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 {
    tcp_dissect_pdus(tvb, pinfo, tree, bittorrent_desegment, BITTORRENT_HEADER_LENGTH,
                     get_bittorrent_pdu_length, dissect_bittorrent_tcp_pdu, data);
-   return tvb_captured_length(tvb);
+   return tvb_length(tvb);
 }
 
 static
@@ -564,7 +564,7 @@ gboolean test_bittorrent_packet (tvbuff_t *tvb, packet_info *pinfo,
 {
    conversation_t *conversation;
 
-   if (tvb_captured_length(tvb) >= 20 &&
+   if (tvb_length(tvb) >= 20 &&
        tvb_get_guint8(tvb, 0) == 19 &&
        tvb_memeql(tvb, 1, "BitTorrent protocol", 19) == 0) {
       conversation = find_or_create_conversation(pinfo);

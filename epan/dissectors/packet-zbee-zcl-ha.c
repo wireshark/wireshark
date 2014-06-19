@@ -891,7 +891,7 @@ dissect_zbee_zcl_appl_evtalt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         }
     }
 
-    return tvb_captured_length(tvb);
+    return tvb_length(tvb);
 } /*dissect_zbee_zcl_appl_evtalt*/
 
 /*FUNCTION:------------------------------------------------------
@@ -1316,7 +1316,7 @@ dissect_zbee_zcl_appl_stats (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         }
     }
 
-    return tvb_captured_length(tvb);
+    return tvb_length(tvb);
 } /*dissect_zbee_zcl_appl_stats*/
 
 /*FUNCTION:------------------------------------------------------

@@ -303,7 +303,7 @@ dissect_hpfeeds_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
         }
     }
 
-    return tvb_captured_length(tvb);
+    return tvb_length(tvb);
 }
 
 static int
@@ -315,7 +315,7 @@ dissect_hpfeeds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
     tcp_dissect_pdus(tvb, pinfo, tree, hpfeeds_desegment, HPFEEDS_HDR_LEN,
         get_hpfeeds_pdu_len, dissect_hpfeeds_pdu, data);
-    return tvb_captured_length(tvb);
+    return tvb_length(tvb);
 }
 
 void

@@ -956,7 +956,7 @@ dissect_cmip_AttributeValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
   if(attributeform==ATTRIBUTE_GLOBAL_FORM){
     offset=call_ber_oid_callback(attribute_identifier_id, tvb, offset, actx->pinfo, tree, actx->private_data);
   } else if (dissector_try_uint(attribute_id_dissector_table, attribute_local_id, tvb, actx->pinfo, tree)) {
-    offset=tvb_captured_length (tvb);
+    offset=tvb_length (tvb);
   } else {
     offset=dissect_unknown_ber(actx->pinfo, tvb, offset, tree);
   }
@@ -2092,7 +2092,7 @@ dissect_cmip_T_attributevalue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
   if(attributeform==ATTRIBUTE_GLOBAL_FORM){
     offset=call_ber_oid_callback(attribute_identifier_id, tvb, offset, actx->pinfo, tree, NULL);
   } else if (dissector_try_uint(attribute_id_dissector_table, attribute_local_id, tvb, actx->pinfo, tree)) {
-    offset=tvb_captured_length (tvb);
+    offset=tvb_length (tvb);
   } else {
     offset=dissect_unknown_ber(actx->pinfo, tvb, offset, tree);
   }
@@ -4417,7 +4417,7 @@ dissect_cmip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 			;
 	}
 
-	return tvb_captured_length(tvb);
+	return tvb_length(tvb);
 }
 
 /*--- proto_register_cmip ----------------------------------------------*/

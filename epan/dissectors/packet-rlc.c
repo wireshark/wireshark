@@ -776,7 +776,7 @@ tree_add_li(enum rlc_mode mode, struct rlc_li *li, guint8 li_idx, guint8 hdr_off
     }
 
     if (li->len > 0) {
-        if (li->li > tvb_captured_length_remaining(tvb, hdr_offs)) return li_tree;
+        if (li->li > tvb_length_remaining(tvb, hdr_offs)) return li_tree;
         if (li->len > li->li) return li_tree;
         ti = proto_tree_add_item(li_tree, hf_rlc_li_data, tvb, hdr_offs + li->li - li->len, li->len, ENC_NA);
         PROTO_ITEM_SET_HIDDEN(ti);
@@ -1433,14 +1433,14 @@ rlc_decipher_tvb(tvbuff_t *tvb, packet_info *pinfo, guint32 counter, guint8 rbid
     key_in = translate_hex_key(out);    /*Translation*/
 
     /*Location for decrypted data*/
-    out = g_malloc( tvb_captured_length(tvb) );
+    out = g_malloc( tvb_length(tvb) );
 
     /*Build data input but dont send the header*/
-    for(i = 0; i< tvb_captured_length(tvb)-header_size; i++ ){
+    for(i = 0; i< tvb_length(tvb)-header_size; i++ ){
         out[i+header_size] = tvb_get_guint8(tvb, header_size+i);
     }
     /*Call KASUMI confidentiality function, note that rbid is zero indxed*/
-    f8( key_in, counter, rbid-1, dir, &out[header_size], (tvb_captured_length(tvb)-header_size)*8 );
+    f8( key_in, counter, rbid-1, dir, &out[header_size], (tvb_length(tvb)-header_size)*8 );
 
     /*Restore header in tvb*/
     for (i = 0; i < header_size; i++) {
@@ -1448,7 +1448,7 @@ rlc_decipher_tvb(tvbuff_t *tvb, packet_info *pinfo, guint32 counter, guint8 rbid
     }
 
     /*Create new tvb.*/
-    t = tvb_new_real_data(out,tvb_captured_length(tvb), tvb_reported_length(tvb));
+    t = tvb_new_real_data(out,tvb_length(tvb), tvb_reported_length(tvb));
     /*add_new_data_source(pinfo, tvb, "Data enciphered");*/
     add_new_data_source(pinfo, t, "Deciphered data");
     return t;
@@ -1640,9 +1640,9 @@ rlc_um_reassemble(tvbuff_t *tvb, guint8 offs, packet_info *pinfo, proto_tree *tr
         if ((!li_is_on_2_bytes && (li[i].li == 0x7f)) || (li[i].li == 0x7fff)) {
             /* padding, must be last LI */
             if (tree) {
-                proto_tree_add_item(tree, hf_rlc_pad, tvb, offs, tvb_captured_length_remaining(tvb, offs), ENC_NA);
+                proto_tree_add_item(tree, hf_rlc_pad, tvb, offs, tvb_length_remaining(tvb, offs), ENC_NA);
             }
-            offs += tvb_captured_length_remaining(tvb, offs);
+            offs += tvb_length_remaining(tvb, offs);
         } else if ((!li_is_on_2_bytes && (li[i].li == 0x7c)) || (li[i].li == 0x7ffc)) {
             /* a new SDU starts here, mark this seq as the first PDU. */
             struct rlc_channel  ch_lookup;
@@ -1656,7 +1656,7 @@ rlc_um_reassemble(tvbuff_t *tvb, guint8 offs, packet_info *pinfo, proto_tree *tr
         } else if (li[i].li == 0x7ffa) {
             /* the first data octet in this RLC PDU is the first octet of an RLC SDU
                and the second last octet in this RLC PDU is the last octet of the same RLC SDU */
-            length = tvb_captured_length_remaining(tvb, offs);
+            length = tvb_length_remaining(tvb, offs);
             if (length > 1) {
                 length--;
                 if (tree && length) {
@@ -1690,13 +1690,13 @@ rlc_um_reassemble(tvbuff_t *tvb, guint8 offs, packet_info *pinfo, proto_tree *tr
     }
 
     /* is there data left? */
-    if (tvb_captured_length_remaining(tvb, offs) > 0) {
+    if (tvb_length_remaining(tvb, offs) > 0) {
         if (tree) {
             proto_tree_add_item(tree, hf_rlc_data, tvb, offs, -1, ENC_NA);
         }
         if (global_rlc_perform_reassemby) {
             /* add remaining data as fragment */
-            add_fragment(RLC_UM, tvb, pinfo, tree, offs, seq, i, tvb_captured_length_remaining(tvb, offs), FALSE);
+            add_fragment(RLC_UM, tvb, pinfo, tree, offs, seq, i, tvb_length_remaining(tvb, offs), FALSE);
             if (dissected == FALSE)
                 col_set_str(pinfo->cinfo, COL_INFO, "[RLC UM Fragment]");
         }
@@ -1738,7 +1738,7 @@ rlc_decode_li(enum rlc_mode mode, tvbuff_t *tvb, packet_info *pinfo, proto_tree 
         ext = next_bytes & 0x01;
         hdr_len += li_on_2_bytes ? 2 : 1;
     }
-    total_len = tvb_captured_length_remaining(tvb, hdr_len);
+    total_len = tvb_length_remaining(tvb, hdr_len);
 
     /* do actual evaluation of LIs */
     ext = tvb_get_guint8(tvb, offs++) & 0x01;
@@ -1890,7 +1890,7 @@ dissect_rlc_um(enum rlc_channel_type channel, tvbuff_t *tvb, packet_info *pinfo,
 
     if (global_rlc_li_size == RLC_LI_UPPERLAYER) {
         if (rlcinf->li_size[pos] == RLC_LI_VARIABLE) {
-            li_is_on_2_bytes = (tvb_captured_length(tvb) > 125) ? TRUE : FALSE;
+            li_is_on_2_bytes = (tvb_length(tvb) > 125) ? TRUE : FALSE;
         } else {
             li_is_on_2_bytes = (rlcinf->li_size[pos] == RLC_LI_15BITS) ? TRUE : FALSE;
         }
@@ -1906,7 +1906,7 @@ dissect_rlc_um(enum rlc_channel_type channel, tvbuff_t *tvb, packet_info *pinfo,
 
     if (global_rlc_headers_expected) {
         /* There might not be any data, if only header was logged */
-        is_truncated = (tvb_captured_length_remaining(tvb, offs) == 0);
+        is_truncated = (tvb_length_remaining(tvb, offs) == 0);
         truncated_ti = proto_tree_add_boolean(tree, hf_rlc_header_only, tvb, 0, 0,
                                               is_truncated);
         if (is_truncated) {
@@ -1949,7 +1949,7 @@ dissect_rlc_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guin
 
     bit_offset = offset*8 + 4; /* first SUFI type is always 4 bit shifted */
 
-    while (!seen_last && tvb_captured_length_remaining(tvb, bit_offset/8) > 0) {
+    while (!seen_last && tvb_length_remaining(tvb, bit_offset/8) > 0) {
         /* SUFI */
         sufi_type = tvb_get_bits8(tvb, bit_offset, 4);
         sufi_start_offset = bit_offset/8;
@@ -2184,7 +2184,7 @@ rlc_am_reassemble(tvbuff_t *tvb, guint8 offs, packet_info *pinfo,
             piggyback = TRUE;
         } else if ((!li_is_on_2_bytes && (li[i].li == 0x7f)) || (li[i].li == 0x7fff)) {
             /* padding, must be last LI */
-            if (tvb_captured_length_remaining(tvb, offs) > 0) {
+            if (tvb_length_remaining(tvb, offs) > 0) {
                 if (tree) {
                     proto_tree_add_item(tree, hf_rlc_pad, tvb, offs, -1, ENC_NA);
                 }
@@ -2193,7 +2193,7 @@ rlc_am_reassemble(tvbuff_t *tvb, guint8 offs, packet_info *pinfo,
                     add_fragment(RLC_AM, tvb, pinfo, li[i].tree, offs, seq, i, 0, TRUE);
                 }
             }
-            offs += tvb_captured_length_remaining(tvb, offs);
+            offs += tvb_length_remaining(tvb, offs);
         } else {
             if (tree) {
                 proto_tree_add_item(tree, hf_rlc_data, tvb, offs, li[i].len, ENC_NA);
@@ -2214,14 +2214,14 @@ rlc_am_reassemble(tvbuff_t *tvb, guint8 offs, packet_info *pinfo,
     if (piggyback) {
         dissect_rlc_status(tvb, pinfo, tree, offs);
     } else {
-        if (tvb_captured_length_remaining(tvb, offs) > 0) {
+        if (tvb_length_remaining(tvb, offs) > 0) {
             /* we have remaining data, which we need to mark in the tree */
             if (tree) {
                 proto_tree_add_item(tree, hf_rlc_data, tvb, offs, -1, ENC_NA);
             }
             if (global_rlc_perform_reassemby) {
                 add_fragment(RLC_AM, tvb, pinfo, tree, offs, seq, i,
-                    tvb_captured_length_remaining(tvb,offs), final);
+                    tvb_length_remaining(tvb,offs), final);
                 if (final) {
                     next_tvb = get_reassembled_data(RLC_AM, tvb, pinfo, tree, seq, i);
                 }
@@ -2318,7 +2318,7 @@ dissect_rlc_am(enum rlc_channel_type channel, tvbuff_t *tvb, packet_info *pinfo,
 
     if (global_rlc_li_size == RLC_LI_UPPERLAYER) {
         if (rlcinf->li_size[pos] == RLC_LI_VARIABLE) {
-            li_is_on_2_bytes = (tvb_captured_length(tvb) > 126) ? TRUE : FALSE;
+            li_is_on_2_bytes = (tvb_length(tvb) > 126) ? TRUE : FALSE;
         } else {
             li_is_on_2_bytes = (rlcinf->li_size[pos] == RLC_LI_15BITS) ? TRUE : FALSE;
         }
@@ -2331,7 +2331,7 @@ dissect_rlc_am(enum rlc_channel_type channel, tvbuff_t *tvb, packet_info *pinfo,
     offs += ((li_is_on_2_bytes) ? 2 : 1) * num_li;
     if (global_rlc_headers_expected) {
         /* There might not be any data, if only header was logged */
-        is_truncated = (tvb_captured_length_remaining(tvb, offs) == 0);
+        is_truncated = (tvb_length_remaining(tvb, offs) == 0);
         truncated_ti = proto_tree_add_boolean(tree, hf_rlc_header_only, tvb, 0, 0,
                                               is_truncated);
         if (is_truncated) {
@@ -2608,7 +2608,7 @@ dissect_rlc_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
        - conditional header bytes
        - tag for data
        - at least one byte of RLC PDU payload */
-    if (tvb_captured_length_remaining(tvb, offset) < (gint)(strlen(RLC_START_STRING)+2+2)) {
+    if (tvb_length_remaining(tvb, offset) < (gint)(strlen(RLC_START_STRING)+2+2)) {
         return FALSE;
     }
 

@@ -1570,7 +1570,7 @@ dissect_disp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 	  break;
 	default:
 	  proto_tree_add_text(tree, tvb, offset, -1,"Unsupported DISP PDU");
-	  return tvb_captured_length(tvb);
+	  return tvb_length(tvb);
 	}
 
 	if(disp_dissector) {
@@ -1586,7 +1586,7 @@ dissect_disp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 	  }
 	}
 
-	return tvb_captured_length(tvb);
+	return tvb_length(tvb);
 }
 
 

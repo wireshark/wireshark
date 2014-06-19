@@ -2331,7 +2331,7 @@ dissect_fhandle_data_CELERRA_VNX(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tr
 static void
 dissect_fhandle_data_unknown(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	guint fhlen = tvb_captured_length(tvb);
+	guint fhlen = tvb_length(tvb);
 
 	proto_tree_add_item(tree, hf_nfs_fh_fhandle_data, tvb, 0, fhlen, ENC_NA);
 }
@@ -2400,8 +2400,8 @@ dissect_fhandle_data(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 			val_to_str_ext_const(default_nfs_fhandle_type, &names_fhtype_ext, "Unknown"));
 
 		real_length = fhlen;
-		if (default_nfs_fhandle_type != FHT_UNKNOWN && real_length < tvb_captured_length_remaining(tvb, offset))
-			real_length = tvb_captured_length_remaining(tvb, offset);
+		if (default_nfs_fhandle_type != FHT_UNKNOWN && real_length < tvb_length_remaining(tvb, offset))
+			real_length = tvb_length_remaining(tvb, offset);
 
 		fh_tvb = tvb_new_subset(tvb, offset, real_length, fhlen);
 		if (!dissector_try_uint(nfs_fhandle_table, default_nfs_fhandle_type, fh_tvb, pinfo, tree))

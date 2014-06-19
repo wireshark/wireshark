@@ -198,7 +198,7 @@ dissect_gsm_um(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				tvbuff_t *next_tvb;
 				guint8 pseudo_len, len_left, len_byte;
 
-				len_left = tvb_captured_length(tvb);
+				len_left = tvb_length(tvb);
 				len_byte = tvb_get_guint8(tvb, 0);
 				pseudo_len = len_byte >> 2;
 				next_tvb = tvb_new_subset(tvb, 1, MIN(len_left, pseudo_len), -1);
@@ -209,7 +209,7 @@ dissect_gsm_um(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				}
 
 				/* Only dissect non-empty frames */
-				if( tvb_captured_length(next_tvb) ) {
+				if( tvb_length(next_tvb) ) {
 					call_dissector(dtap_handle, next_tvb, pinfo, tree);
 				}
 			}

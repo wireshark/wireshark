@@ -439,7 +439,7 @@ static const value_string packet_type_mapping[] = {
 static value_string_ext packet_type_mapping_ext = VALUE_STRING_EXT_INIT(packet_type_mapping);
 
 #define SET_PACKET_TYPE(tree, type)                              \
-	proto_tree_add_int(tree, hf_adwin_packet_type, tvb, 0, tvb_captured_length(tvb), type);
+	proto_tree_add_int(tree, hf_adwin_packet_type, tvb, 0, tvb_length(tvb), type);
 
 
 /* Initialize the protocol and registered fields */

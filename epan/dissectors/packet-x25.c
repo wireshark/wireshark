@@ -1535,7 +1535,7 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		/*
 		 * We don't know what it is; just skip it.
 		 */
-		localoffset = tvb_captured_length(tvb);
+		localoffset = tvb_length(tvb);
 	    } else if (is_x_264) {
 		/* It looks like an X.264 UN TPDU, so show it as such. */
 		if (userdata_tree) {
@@ -2040,7 +2040,7 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (payload_check_data){
     /* If the Call Req. has not been captured, let's look at the first
        two bytes of the payload to see if this looks like COTP. */
-    if (tvb_get_guint8(tvb, localoffset) == tvb_captured_length(next_tvb)-1) {
+    if (tvb_get_guint8(tvb, localoffset) == tvb_length(next_tvb)-1) {
       /* First byte contains the length of the remaining buffer */
       if ((tvb_get_guint8(tvb, localoffset+1) & 0x0F) == 0) {
 	/* Second byte contains a valid COTP TPDU */

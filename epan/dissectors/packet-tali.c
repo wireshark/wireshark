@@ -135,7 +135,7 @@ dissect_tali_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     }
   }
 
-  return tvb_captured_length(tvb);
+  return tvb_length(tvb);
 }
 
 static int
@@ -143,7 +143,7 @@ dissect_tali(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
   tcp_dissect_pdus(tvb, pinfo, tree, tali_desegment, TALI_HEADER_LENGTH,
                    get_tali_pdu_len, dissect_tali_pdu, data);
-  return tvb_captured_length(tvb);
+  return tvb_length(tvb);
 }
 
 /*

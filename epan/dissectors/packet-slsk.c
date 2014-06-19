@@ -243,16 +243,16 @@ static gboolean check_slsk_format(tvbuff_t *tvb, int offset, const char format[]
 
   switch ( format[0] ) {
     case 'i':
-      if (tvb_captured_length_remaining(tvb, offset) < 4) return FALSE;
+      if (tvb_length_remaining(tvb, offset) < 4) return FALSE;
       offset += 4;
     break;
     case 'b':
-      if (tvb_captured_length_remaining(tvb, offset) < 1) return FALSE;
+      if (tvb_length_remaining(tvb, offset) < 1) return FALSE;
       offset += 1;
     break;
     case 's':
-      if (tvb_captured_length_remaining(tvb, offset) < 4) return FALSE;
-      if (tvb_captured_length_remaining(tvb, offset) < (int)tvb_get_letohl(tvb, offset)+4) return FALSE;
+      if (tvb_length_remaining(tvb, offset) < 4) return FALSE;
+      if (tvb_length_remaining(tvb, offset) < (int)tvb_get_letohl(tvb, offset)+4) return FALSE;
       offset += tvb_get_letohl(tvb, offset)+4;
     break;
     case '*':
@@ -262,7 +262,7 @@ static gboolean check_slsk_format(tvbuff_t *tvb, int offset, const char format[]
   }
 
   if (format[1] == '\0' ) {
-    if (tvb_captured_length_remaining(tvb, offset) > 0) /* Checks for additional bytes at the end */
+    if (tvb_length_remaining(tvb, offset) > 0) /* Checks for additional bytes at the end */
       return FALSE;
     return TRUE;
   }
@@ -467,7 +467,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           offset += 4;
 
           /* [zlib compressed] */
-          comprlen = tvb_captured_length_remaining(tvb, offset);
+          comprlen = tvb_length_remaining(tvb, offset);
 
           if (slsk_decompress == TRUE){
 
@@ -476,7 +476,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             if (uncompr_tvb == NULL) {
               proto_tree_add_text(slsk_tree, tvb, offset, -1,
                 "[zlib compressed packet]");
-              offset += tvb_captured_length_remaining(tvb, offset);
+              offset += tvb_length_remaining(tvb, offset);
               proto_tree_add_text(slsk_tree, tvb, 0, 0,
                 "(uncompression failed !)");
             } else {
@@ -588,7 +588,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
               "[zlib compressed packet]");
             proto_tree_add_uint_format(slsk_tree, hf_slsk_integer, tvb, offset, 0, 0,
               "(  compressed packet length: %d)", comprlen);
-            offset += tvb_captured_length_remaining(tvb, offset);
+            offset += tvb_length_remaining(tvb, offset);
           }
         }
       break;
@@ -628,16 +628,16 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           offset += 4;
 
           /* [zlib compressed] */
-          comprlen = tvb_captured_length_remaining(tvb, offset);
+          comprlen = tvb_length_remaining(tvb, offset);
 
           if (slsk_decompress == TRUE){
 
             tvbuff_t *uncompr_tvb = tvb_child_uncompress(tvb, tvb, offset, comprlen);
 
             if (uncompr_tvb == NULL) {
-              proto_tree_add_uint_format(slsk_tree, hf_slsk_integer, tvb, offset, tvb_captured_length_remaining(tvb, offset), 0,
+              proto_tree_add_uint_format(slsk_tree, hf_slsk_integer, tvb, offset, tvb_length_remaining(tvb, offset), 0,
                 "[zlib compressed packet]");
-              offset += tvb_captured_length_remaining(tvb, offset);
+              offset += tvb_length_remaining(tvb, offset);
               proto_tree_add_uint_format(slsk_tree, hf_slsk_integer, tvb, 0, 0, 0,
                 "(uncompression failed !)");
             } else {
@@ -647,7 +647,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
               proto_tree_add_uint_format(slsk_tree, hf_slsk_integer, tvb, offset, -1, 0,
                 "(  compressed packet length: %d)", comprlen);
-              uncomprlen = tvb_captured_length_remaining(uncompr_tvb, 0);
+              uncomprlen = tvb_length_remaining(uncompr_tvb, 0);
               proto_tree_add_uint_format(slsk_tree, hf_slsk_integer, tvb, offset, -1, 0,
                 "(uncompressed packet length: %d)", uncomprlen);
 
@@ -733,7 +733,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
               "[zlib compressed packet]");
             proto_tree_add_uint_format(slsk_tree, hf_slsk_integer, tvb, offset, -1, 0,
               "(  compressed packet length: %d)", comprlen);
-            offset += tvb_captured_length_remaining(tvb, offset);
+            offset += tvb_length_remaining(tvb, offset);
           }
         }
       break;
@@ -1171,7 +1171,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           offset += 4;
 
           /* [zlib compressed] */
-          comprlen = tvb_captured_length_remaining(tvb, offset);
+          comprlen = tvb_length_remaining(tvb, offset);
 
           if (slsk_decompress == TRUE){
 
@@ -1180,7 +1180,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             if (uncompr_tvb == NULL) {
               proto_tree_add_text(slsk_tree, tvb, offset, -1,
                 "[zlib compressed packet]");
-              offset += tvb_captured_length_remaining(tvb, offset);
+              offset += tvb_length_remaining(tvb, offset);
               proto_tree_add_text(slsk_tree, tvb, 0, 0,
                 "[uncompression failed !]");
             } else {
@@ -1190,7 +1190,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
               proto_tree_add_uint_format(slsk_tree, hf_slsk_integer, tvb, offset, -1, 0,
                 "[compressed packet length: %d]", comprlen);
-              uncomprlen = tvb_captured_length_remaining(uncompr_tvb, 0);
+              uncomprlen = tvb_length_remaining(uncompr_tvb, 0);
               proto_tree_add_uint_format(slsk_tree, hf_slsk_integer, tvb, offset, -1, 0,
                 "[uncompressed packet length: %d]", uncomprlen);
 
@@ -1299,7 +1299,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
               "[zlib compressed packet]");
             proto_tree_add_uint_format(slsk_tree, hf_slsk_integer, tvb, offset, -1, 0,
               "(  compressed packet length: %d)", comprlen);
-            offset += tvb_captured_length_remaining(tvb, offset);
+            offset += tvb_length_remaining(tvb, offset);
           }
         }
       break;
@@ -1356,7 +1356,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             "Download allowed: %s (Byte: %d)", val_to_str_const(tvb_get_guint8(tvb, offset), slsk_yes_no, "Unknown"), tvb_get_guint8(tvb, offset));
           offset += 1;
           if ( i == 1 ) {
-            if ( tvb_captured_length_remaining(tvb, offset) == 8 ) {
+            if ( tvb_length_remaining(tvb, offset) == 8 ) {
               proto_tree_add_uint(slsk_tree, hf_slsk_size, tvb, offset, 4, tvb_get_letohl(tvb, offset));
               offset += 4;
               proto_tree_add_uint(slsk_tree, hf_slsk_integer, tvb, offset, 4, tvb_get_letohl(tvb, offset));
@@ -2382,14 +2382,14 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
    expert_add_info(pinfo, ti_len, &ei_slsk_unknown_data);
   }
 
-  return tvb_captured_length(tvb);
+  return tvb_length(tvb);
 }
 
 
 static int dissect_slsk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
   tcp_dissect_pdus(tvb, pinfo, tree, slsk_desegment, 4, get_slsk_pdu_len, dissect_slsk_pdu, data);
-  return tvb_captured_length(tvb);
+  return tvb_length(tvb);
 }
 
 

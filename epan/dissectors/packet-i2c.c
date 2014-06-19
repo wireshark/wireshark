@@ -194,7 +194,7 @@ dissect_i2c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	is_event = pinfo->pseudo_header->i2c.is_event;
 	flags = pinfo->pseudo_header->i2c.flags;
 	bus = pinfo->pseudo_header->i2c.bus;
-	len = tvb_captured_length(tvb);
+	len = tvb_length(tvb);
 	if (is_event) {
 		addr = 0;
 	} else {

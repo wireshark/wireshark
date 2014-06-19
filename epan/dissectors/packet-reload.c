@@ -3934,7 +3934,7 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   gboolean              update_col_info = TRUE;
 
   offset = 0;
-  effective_length = tvb_captured_length(tvb);
+  effective_length = tvb_length(tvb);
 
   /* First, make sure we have enough data to do the check. */
   if (effective_length < MIN_HDR_LENGTH)
@@ -4157,7 +4157,7 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     offset = 0;
   }
 
-  effective_length = tvb_captured_length(tvb);
+  effective_length = tvb_length(tvb);
   if (effective_length < msg_length) {
     /* The effective length is too small for the packet */
     expert_add_info(pinfo, NULL, &ei_reload_truncated_packet);

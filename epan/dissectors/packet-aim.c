@@ -1048,7 +1048,7 @@ dissect_aim_tlv_value_client_capabilities(proto_item *ti _U_, guint16 valueid _U
 		offset = dissect_aim_capability(entry, tvb, offset);
 	}
 
-	return tvb_captured_length(tvb);
+	return tvb_length(tvb);
 }
 
 static int
@@ -1065,14 +1065,14 @@ dissect_aim_tlv_value_client_short_capabilities(proto_item *ti _U_, guint16 valu
 		offset = dissect_aim_short_capability(entry, tvb, offset);
 	}
 
-	return tvb_captured_length(tvb);
+	return tvb_length(tvb);
 }
 
 int
 dissect_aim_tlv_value_time(proto_item *ti _U_, guint16 valueid _U_, tvbuff_t *tvb, packet_info *pinfo _U_)
 {
 	/* FIXME */
-	return tvb_captured_length(tvb);
+	return tvb_length(tvb);
 }
 
 int
@@ -1117,7 +1117,7 @@ static int
 dissect_aim_tlv_value_userstatus(proto_item *ti _U_, guint16 valueid _U_, tvbuff_t *tvb, packet_info *pinfo _U_)
 {
 	/* FIXME */
-	return tvb_captured_length(tvb);
+	return tvb_length(tvb);
 }
 
 static int
@@ -1148,7 +1148,7 @@ dissect_aim_tlv_value_string (proto_item *ti, guint16 valueid _U_, tvbuff_t *tvb
 	guint8 *buf;
 	gint string_len;
 
-	string_len = tvb_captured_length(tvb);
+	string_len = tvb_length(tvb);
 	buf = tvb_get_string_enc(wmem_packet_scope(), tvb, 0, string_len, ENC_UTF_8|ENC_NA);
 	proto_item_set_text(ti, "Value: %s", format_text(buf, string_len));
 
@@ -1178,7 +1178,7 @@ dissect_aim_tlv_value_string08_array (proto_item *ti, guint16 valueid _U_, tvbuf
 int
 dissect_aim_tlv_value_bytes (proto_item *ti _U_, guint16 valueid _U_, tvbuff_t *tvb _U_, packet_info *pinfo _U_)
 {
-	return tvb_captured_length(tvb);
+	return tvb_length(tvb);
 }
 
 int
@@ -1461,7 +1461,7 @@ dissect_aim_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
 		break;
 	}
 
-	return tvb_captured_length(tvb);
+	return tvb_length(tvb);
 }
 
 /* Code to actually dissect the packets */
@@ -1471,7 +1471,7 @@ dissect_aim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 	/* check, if this is really an AIM packet, they start with 0x2a */
 	/* XXX - I've seen some stuff starting with 0x5a followed by 0x2a */
 
-	if(tvb_captured_length(tvb) >= 1 && tvb_get_guint8(tvb, 0) != 0x2a)
+	if(tvb_length(tvb) >= 1 && tvb_get_guint8(tvb, 0) != 0x2a)
 	{
 		/* Not an instant messenger packet, just happened to use the
 		 * same port
@@ -1484,7 +1484,7 @@ dissect_aim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
 	tcp_dissect_pdus(tvb, pinfo, tree, aim_desegment, 6, get_aim_pdu_len,
 			 dissect_aim_pdu, data);
-	return tvb_captured_length(tvb);
+	return tvb_length(tvb);
 }
 
 

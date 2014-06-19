@@ -366,7 +366,7 @@ dissect_credssp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
   /* Look for SEQUENCE, CONTEXT 0, and INTEGER 2 */
-  if(tvb_captured_length(tvb) > 7) {
+  if(tvb_length(tvb) > 7) {
     offset = get_ber_identifier(tvb, offset, &ber_class, &pc, &tag);
     if((ber_class == BER_CLASS_UNI) && (tag == BER_UNI_TAG_SEQUENCE) && (pc == TRUE)) {
       offset = get_ber_length(tvb, offset, NULL, NULL);

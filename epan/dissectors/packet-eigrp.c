@@ -1072,7 +1072,7 @@ dissect_eigrp_ipv4_addr (proto_item *ti, proto_tree *tree, tvbuff_t *tvb,
     proto_item *ti_prefixlen, *ti_dst;
     int         first = TRUE;
 
-    for (; tvb_captured_length_remaining(tvb, offset) > 0; offset += (1 + addr_len)) {
+    for (; tvb_length_remaining(tvb, offset) > 0; offset += (1 + addr_len)) {
         length = tvb_get_guint8(tvb, offset);
         addr_len = ipv4_addr_and_mask(tvb, offset + 1, ip_addr, length);
 
@@ -1126,7 +1126,7 @@ dissect_eigrp_ipv6_addr (proto_item *ti, proto_tree *tree, tvbuff_t *tvb,
     proto_item        *ti_prefixlen, *ti_dst;
     int                first = TRUE;
 
-    for (; tvb_captured_length_remaining(tvb, offset) > 0; offset += (1 + addr_len)) {
+    for (; tvb_length_remaining(tvb, offset) > 0; offset += (1 + addr_len)) {
         length = tvb_get_guint8(tvb, offset);
         addr_len = ipv6_addr_and_mask(tvb, offset + 1, &addr, length);
 
@@ -1253,13 +1253,13 @@ dissect_eigrp_service (proto_item *ti, proto_tree *tree, tvbuff_t *tvb,
     tvbuff_t   *sub_tvb, *reach_tvb;
     guint16     service, sub_service;
 
-    remaining = tvb_captured_length_remaining(tvb, offset);
+    remaining = tvb_length_remaining(tvb, offset);
     sub_ti = proto_tree_add_text(tree, tvb, offset, remaining, "SAF Service ");
     sub_tree = proto_item_add_subtree(sub_ti, ett_eigrp_tlv_metric);
     sub_tvb = tvb_new_subset(tvb, offset, remaining, -1);
     sub_offset = 0;
 
-    for (; tvb_captured_length_remaining(sub_tvb, sub_offset) > 0; ) {
+    for (; tvb_length_remaining(sub_tvb, sub_offset) > 0; ) {
         service = tvb_get_ntohs(sub_tvb, sub_offset);
         proto_item_append_text(sub_ti, "%c %s", (sub_offset == 0 ? '=':','),
                                val_to_str_const(service, eigrp_saf_srv2string, ""));
@@ -2471,7 +2471,7 @@ dissect_eigrp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     proto_tree_add_item(eigrp_tree, hf_eigrp_opcode, tvb, 1, 1,
                         ENC_BIG_ENDIAN);
 
-    size          = tvb_captured_length(tvb);
+    size          = tvb_length(tvb);
     checksum      = tvb_get_ntohs(tvb, 2);
     cacl_checksum = ip_checksum(tvb_get_ptr(tvb, 0, size), size);
 
@@ -2523,7 +2523,7 @@ dissect_eigrp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
             size =  tvb_get_ntohs(tvb, offset + 2);
             if (size == 0) {
                 proto_tree_add_expert(eigrp_tree, pinfo, &ei_eigrp_tlv_len, tvb, offset, -1);
-                return(tvb_captured_length(tvb));
+                return(tvb_length(tvb));
             }
 
             ti = proto_tree_add_text(eigrp_tree, tvb, offset, size, "%s",
@@ -2576,7 +2576,7 @@ dissect_eigrp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     }
 
     /* Return the amount of data this dissector was able to dissect */
-    return(tvb_captured_length(tvb));
+    return(tvb_length(tvb));
 }
 
 /**

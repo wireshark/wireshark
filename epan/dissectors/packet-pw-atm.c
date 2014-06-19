@@ -1169,7 +1169,7 @@ dissect_control_word(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, voi
 			expert_add_info_format(pinfo, item, &ei_pw_payload_size_invalid_error,
 					       "Packet (size: %d) is too small to carry MPLS PW Control Word"
 					       ,(int)size);
-			return tvb_captured_length(tvb);
+			return tvb_length(tvb);
 		}
 	}
 
@@ -1331,7 +1331,7 @@ dissect_control_word(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, voi
 		}
 	}
 
-	return tvb_captured_length(tvb);
+	return tvb_length(tvb);
 }
 
 

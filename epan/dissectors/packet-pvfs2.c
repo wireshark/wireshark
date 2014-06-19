@@ -812,7 +812,7 @@ dissect_pvfs_opaque_data(tvbuff_t *tvb, int offset,
 			string_length += 1;
 	}
 
-	string_length_captured = tvb_captured_length_remaining(tvb, data_offset);
+	string_length_captured = tvb_length_remaining(tvb, data_offset);
 	string_length_packet = tvb_reported_length_remaining(tvb, data_offset);
 
 	/*
@@ -846,7 +846,7 @@ dissect_pvfs_opaque_data(tvbuff_t *tvb, int offset,
 		else
 			fill_length = string_length_full - string_length - 4;
 
-		fill_length_captured = tvb_captured_length_remaining(tvb,
+		fill_length_captured = tvb_length_remaining(tvb,
 		    data_offset + string_length);
 		fill_length_packet = tvb_reported_length_remaining(tvb,
 		    data_offset + string_length);
@@ -1535,7 +1535,7 @@ dissect_pvfs2_io_request(tvbuff_t *tvb, proto_tree *tree, int offset,
 	/*offset = */dissect_pvfs_pint_request(tvb, tree, offset);
 
 	/* TODO: remove this!!! */
-	offset = tvb_captured_length(tvb) - 16;
+	offset = tvb_length(tvb) - 16;
 
 	/* offset */
 	proto_tree_add_item(tree, hf_pvfs_offset, tvb, offset, 8, ENC_LITTLE_ENDIAN);
@@ -2381,7 +2381,7 @@ dissect_pvfs2_getconfig_response(tvbuff_t *tvb, proto_tree *parent_tree,
 	ptr = tvb_get_ptr(tvb, offset, total_config_bytes);
 
 	/* Check if all data is available */
-	length_remaining = tvb_captured_length_remaining(tvb, offset);
+	length_remaining = tvb_length_remaining(tvb, offset);
 
 	if (length_remaining < total_config_bytes)
 	{

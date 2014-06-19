@@ -1857,7 +1857,7 @@ dissect_fcdns (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
         break;
     }
 
-    return tvb_captured_length(tvb);
+    return tvb_length(tvb);
 }
 
 /* Register the protocol with Wireshark */

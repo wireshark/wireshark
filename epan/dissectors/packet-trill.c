@@ -142,7 +142,7 @@ dissect_trill( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
   next_tvb = tvb_new_subset_remaining( tvb, TRILL_MIN_FRAME_LENGTH + op_len ) ;
   call_dissector( eth_dissector, next_tvb, pinfo, tree ) ;
 
-  return tvb_captured_length( tvb ) ;
+  return tvb_length( tvb ) ;
 }
 
 /* Register the protocol with Wireshark */

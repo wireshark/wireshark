@@ -227,7 +227,7 @@ dissect_bthci_sco(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void 
 
     proto_tree_add_item(bthci_sco_tree, hf_bthci_sco_data, tvb, offset, -1, ENC_NA);
 
-    return tvb_captured_length(tvb);
+    return tvb_length(tvb);
 }
 
 

@@ -144,7 +144,7 @@ static guint dissect_aol_init(tvbuff_t *tvb, packet_info *pinfo _U_, guint offse
 	guint16     win_ver   = 0;
 
 	/* Add the Data subtree */
-	data_item = proto_tree_add_item(tree,hf_aol_init,tvb,offset,tvb_captured_length_remaining(tvb,offset)-1,ENC_NA);
+	data_item = proto_tree_add_item(tree,hf_aol_init,tvb,offset,tvb_length_remaining(tvb,offset)-1,ENC_NA);
 	data_tree = proto_item_add_subtree(data_item,ett_aol_data);
 
 	/* Now, parse the structure */
@@ -180,8 +180,8 @@ static guint dissect_aol_init(tvbuff_t *tvb, packet_info *pinfo _U_, guint offse
 	proto_tree_add_item(data_tree,hf_aol_num_colors,   tvb,offset,2,ENC_LITTLE_ENDIAN); offset += 2; /* 37b */
 
 	/* WAOL 1.5 (48b), >= 2.5 (49b) */
-	if (tvb_captured_length_remaining(tvb,offset) <= 13) { /* WAOL 1.5 - 3.0 */
-		if (tvb_captured_length_remaining(tvb,offset) == 13) { /* WAOL > 1.5 */
+	if (tvb_length_remaining(tvb,offset) <= 13) { /* WAOL 1.5 - 3.0 */
+		if (tvb_length_remaining(tvb,offset) == 13) { /* WAOL > 1.5 */
 			proto_tree_add_item(data_tree,hf_aol_filler,tvb,offset,1,ENC_BIG_ENDIAN); offset += 1;
 		}
 
@@ -252,7 +252,7 @@ static int dissect_aol_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	if (pdu_len > 0) {
 		old_offset = offset;
 
-		if (tvb_captured_length_remaining(tvb,offset) > pdu_len) {
+		if (tvb_length_remaining(tvb,offset) > pdu_len) {
 			/* Init packets are a special case */
 			if (pdu_type == AOL_P3_TYPE_INIT) {
 				offset = dissect_aol_init(tvb,pinfo,offset,aol_tree);
@@ -287,14 +287,14 @@ static int dissect_aol_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	}
 
 	/* End-of-Frame Marker */
-	if (tvb_captured_length_remaining(tvb,offset) >= 1) {
+	if (tvb_length_remaining(tvb,offset) >= 1) {
 		proto_tree_add_item(aol_tree,hf_aol_end,tvb,offset,1,ENC_NA);/* offset += 1;*/
 	} else {
 		/* Malformed Packet */
 		expert_add_info(pinfo,ti,&ei_aol_end_missing);
 	}
 
-	return tvb_captured_length(tvb);
+	return tvb_length(tvb);
 }
 
 /**
@@ -302,11 +302,11 @@ static int dissect_aol_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
  */
 static int dissect_aol(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
 	/* Ensure this really is an AOL packet */
-	if (tvb_captured_length(tvb) >= 1 && tvb_get_guint8(tvb,0) != AOL_P3_FRAME_START) return 0;
+	if (tvb_length(tvb) >= 1 && tvb_get_guint8(tvb,0) != AOL_P3_FRAME_START) return 0;
 
 	/* Dissect PDUs */
 	tcp_dissect_pdus(tvb,pinfo,tree,aol_desegment,9,get_aol_pdu_len,dissect_aol_pdu,data);
-	return tvb_captured_length(tvb);
+	return tvb_length(tvb);
 }
 
 /**

@@ -563,7 +563,7 @@ static int
 dissect_knet_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     dissect_knet(tvb, pinfo, tree, KNET_TCP_PACKET);
-    return tvb_captured_length(tvb);
+    return tvb_length(tvb);
 }
 
 static int
@@ -573,7 +573,7 @@ dissect_knet_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "KNET");
 
     tcp_dissect_pdus(tvb, pinfo, tree, TRUE, 2, get_knet_pdu_len, dissect_knet_tcp_pdu, data);
-    return tvb_captured_length(tvb);
+    return tvb_length(tvb);
 }
 
 /**
@@ -645,7 +645,7 @@ dissect_knet_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if(tvb_get_guint8(tvb, 0) & UDP_DATAGRAM_RELIABLE_FLAG)
         offset += dissect_reliable_message_index_base(tvb, 3, datagram_tree); /* Calculate RMIB */
 
-    while ((tvb_captured_length_remaining(tvb, offset) > 2) && /* If theres at least 2 bytes available in the buffer */
+    while ((tvb_length_remaining(tvb, offset) > 2) && /* If theres at least 2 bytes available in the buffer */
            (dissect_content_length(tvb, offset, NULL) > 0)) /* Empty data Abort */
     {
         offset += dissect_knet_message(tvb, pinfo, knet_tree, offset, messageindex); /* Call the message subdissector */

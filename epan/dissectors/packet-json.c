@@ -163,11 +163,11 @@ dissect_json(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 	proto_item_set_len(ti, offset);
 
 	/* if we have some unparsed data, pass to data-text-lines dissector (?) */
-	if (tvb_captured_length_remaining(tvb, offset) > 0) {
+	if (tvb_length_remaining(tvb, offset) > 0) {
 		int datalen, reported_datalen;
 		tvbuff_t *next_tvb;
 
-		datalen = tvb_captured_length_remaining(tvb, offset);
+		datalen = tvb_length_remaining(tvb, offset);
 		reported_datalen = tvb_reported_length_remaining(tvb, offset);
 
 		next_tvb = tvb_new_subset(tvb, offset, datalen, reported_datalen);
@@ -177,7 +177,7 @@ dissect_json(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 		col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "(%s)", data_name);
 	}
 
-	return tvb_captured_length(tvb);
+	return tvb_length(tvb);
 }
 
 static void before_object(void *tvbparse_data, const void *wanted_data _U_, tvbparse_elem_t *tok) {

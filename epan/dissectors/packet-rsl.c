@@ -3305,7 +3305,7 @@ dissct_rsl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
         /*  Link Identifier         9.3.2   M TV 2               */
         offset = dissect_rsl_ie_link_id(tvb, pinfo, tree, offset, TRUE);
         /*  L3 Information          9.3.11  O (note 1) TLV 3-23  */
-        if (tvb_captured_length_remaining(tvb,offset) >1)
+        if (tvb_length_remaining(tvb,offset) >1)
             offset = dissect_rsl_ie_L3_inf(tvb, pinfo, tree, offset, FALSE, L3_INF_OTHER);
         break;
     /* 8.3.7 RELEASE REQUEST */
@@ -3338,7 +3338,7 @@ dissct_rsl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
         /*  Link Identifier         9.3.2   M TV 2               */
         offset = dissect_rsl_ie_link_id(tvb, pinfo, tree, offset, TRUE);
         /*  L3 Information          9.3.11  O (note 1) TLV 3-23  */
-        if (tvb_captured_length_remaining(tvb,offset) > 0)
+        if (tvb_length_remaining(tvb,offset) > 0)
             offset = dissect_rsl_ie_L3_inf(tvb, pinfo, tree, offset, FALSE, L3_INF_OTHER);
         break;
 /* Common Channel Management/TRX Management messages */
@@ -3349,10 +3349,10 @@ dissct_rsl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
         /*  System Info Type        9.3.30  M TV 2 */
         offset = dissect_rsl_ie_sys_info_type(tvb, pinfo, tree, offset, TRUE, &sys_info_type);
         /*  Full BCCH Info (SYS INFO) 9.3.39 O 1) TLV 25 */
-        if (tvb_captured_length_remaining(tvb,offset) > 0)
+        if (tvb_length_remaining(tvb,offset) > 0)
             offset = dissect_rsl_ie_full_bcch_inf(tvb, pinfo, tree, offset, TRUE);
         /*  Starting Time           9.3.23  O 2) TV 3 */
-        if (tvb_captured_length_remaining(tvb,offset) > 0)
+        if (tvb_length_remaining(tvb,offset) > 0)
             offset = dissect_rsl_ie_starting_time(tvb, pinfo, tree, offset, FALSE);
         break;
     /* 8.5.2 CCCH LOAD INDICATION 18*/
@@ -3363,7 +3363,7 @@ dissct_rsl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
         /*  RACH Load               9.3.18  C 1) TLV >=8 */
         offset = dissect_rsl_ie_rach_load(tvb, pinfo, tree, offset, FALSE);
         /*  Paging Load             9.3.15  C 2) TV 3 */
-        if (tvb_captured_length_remaining(tvb,offset) > 0)
+        if (tvb_length_remaining(tvb,offset) > 0)
             offset = dissect_rsl_ie_paging_load(tvb, pinfo, tree, offset, FALSE);
         break;
     /* 8.5.3 */
@@ -3375,7 +3375,7 @@ dissct_rsl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
         /* Access Delay             9.3.17  M TV 2 */
         offset = dissect_rsl_ie_access_delay(tvb, pinfo, tree, offset, TRUE);
         /* Physical Context         9.3.16  O 1) TLV >=2 */
-        if (tvb_captured_length_remaining(tvb,offset) > 0)
+        if (tvb_length_remaining(tvb,offset) > 0)
             offset = dissect_rsl_ie_phy_ctx(tvb, pinfo, tree, offset, FALSE);
         break;
     /* 8.5.4 DELETE INDICATION */
@@ -3393,10 +3393,10 @@ dissct_rsl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
         /* MS Identity              9.3.12  M TLV 2-10 2 */
         offset = dissect_rsl_ie_ms_id(tvb, pinfo, tree, offset, TRUE);
         /* Channel Needed           9.3.40  O 1) TV 2 2 */
-        if (tvb_captured_length_remaining(tvb,offset) > 0)
+        if (tvb_length_remaining(tvb,offset) > 0)
             offset = dissect_rsl_ie_ch_needed(tvb, pinfo, tree, offset, FALSE);
         /* eMLPP Priority           9.3.49  O 2) TV 2 2 */
-        if (tvb_captured_length_remaining(tvb,offset) > 0)
+        if (tvb_length_remaining(tvb,offset) > 0)
             offset = dissect_rsl_ie_emlpp_prio(tvb, pinfo, tree, offset, FALSE);
         break;
     /* 8.5.6 IMMEDIATE ASSIGN COMMAND */
@@ -3413,7 +3413,7 @@ dissct_rsl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
         /* SMSCB Information        9.3.36  M TV 24 */
         offset = dissect_rsl_ie_smscb_inf(tvb, pinfo, tree, offset, TRUE);
         /* SMSCB Channel Indicator  9.3.44  O 1) TV 2 */
-        if (tvb_captured_length_remaining(tvb,offset) > 0)
+        if (tvb_length_remaining(tvb,offset) > 0)
             offset = dissect_rsl_ie_smscb_ch_ind(tvb, pinfo, tree, offset, FALSE);
         break;
 /* 8.6 TRX MANAGEMENT MESSAGES */
@@ -3427,11 +3427,11 @@ dissct_rsl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
         /* System Info Type         9.3.30  M TV 2 */
         offset = dissect_rsl_ie_sys_info_type(tvb, pinfo, tree, offset, TRUE, &sys_info_type);
         /* L3 Info (SYS INFO)       9.3.11 O 1) TLV 22 */
-        if (tvb_captured_length_remaining(tvb,offset) > 0)
+        if (tvb_length_remaining(tvb,offset) > 0)
            offset = dissect_rsl_ie_L3_inf(tvb, pinfo, tree, offset, FALSE,
                                           (sys_info_type == 0x48) ? L3_INF_SACCH : L3_INF_OTHER);
         /* Starting Time            9.3.23 O 2) TV 3 */
-        if (tvb_captured_length_remaining(tvb,offset) > 0)
+        if (tvb_length_remaining(tvb,offset) > 0)
             offset = dissect_rsl_ie_starting_time(tvb, pinfo, tree, offset, FALSE);
         break;
     case RSL_MSG_OVERLOAD:      /*  27   8.6.3 */
@@ -3442,16 +3442,16 @@ dissct_rsl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
         /* Cause                    9.3.26  M TLV >=3 */
         offset = dissect_rsl_ie_cause(tvb, pinfo, tree, offset, TRUE);
         /* Message Identifier       9.3.28  O 1) TV 2 */
-        if (tvb_captured_length_remaining(tvb,offset) > 0)
+        if (tvb_length_remaining(tvb,offset) > 0)
             offset = dissect_rsl_ie_message_id(tvb, pinfo, tree, offset, FALSE);
         /* Channel Number           9.3.1   O 2) TV 2 */
-        if (tvb_captured_length_remaining(tvb,offset) > 0)
+        if (tvb_length_remaining(tvb,offset) > 0)
             offset = dissect_rsl_ie_ch_no(tvb, pinfo, tree, offset, TRUE);
         /* Link identifier          9.3.2   O 3) TV 2 */
-        if (tvb_captured_length_remaining(tvb,offset) > 0)
+        if (tvb_length_remaining(tvb,offset) > 0)
             offset = dissect_rsl_ie_link_id(tvb, pinfo, tree, offset, TRUE);
         /* Erroneous Message        9.3.38  O 4) TLV >=3 */
-        if (tvb_captured_length_remaining(tvb,offset) > 0)
+        if (tvb_length_remaining(tvb,offset) > 0)
             offset = dissect_rsl_ie_err_msg(tvb, pinfo, tree, offset, TRUE);
         break;
     /* 8.5.8 SMS BROADCAST COMMAND */
@@ -3463,7 +3463,7 @@ dissct_rsl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
         /* SMSCB message            9.3.42  M TLV 2-90 */
         offset = dissect_rsl_ie_smscb_mess(tvb, pinfo, tree, offset, TRUE);
         /* SMSCB Channel Indicator  9.3.44  O 1) TV 2 */
-        if (tvb_captured_length_remaining(tvb,offset) > 0)
+        if (tvb_length_remaining(tvb,offset) > 0)
             offset = dissect_rsl_ie_smscb_ch_ind(tvb, pinfo, tree, offset, FALSE);
         break;
     case RSL_MSG_CBCH_LOAD_IND: /*  30   8.5.9 */
@@ -3472,7 +3472,7 @@ dissct_rsl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
         /* CBCH Load Information    9.3.43  M TV 2 */
         offset = dissect_rsl_ie_cbch_load_inf(tvb, pinfo, tree, offset, TRUE);
         /* SMSCB Channel Indicator  9.3.44 O 1) TV 2 */
-        if (tvb_captured_length_remaining(tvb,offset) > 0)
+        if (tvb_length_remaining(tvb,offset) > 0)
             offset = dissect_rsl_ie_smscb_ch_ind(tvb, pinfo, tree, offset, FALSE);
         break;
     case RSL_MSG_NOT_CMD:       /*  31   8.5.10 */
@@ -3481,13 +3481,13 @@ dissct_rsl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
         /* Command indicator        9.3.48 M 1) TLV 3-4 */
         offset = dissect_rsl_ie_cmd_ind(tvb, pinfo, tree, offset, TRUE);
         /* Group call reference     9.3.45 O TLV 7 */
-        if (tvb_captured_length_remaining(tvb,offset) > 0)
+        if (tvb_length_remaining(tvb,offset) > 0)
             offset = dissect_rsl_ie_grp_call_ref(tvb, pinfo, tree, offset, FALSE);
         /* Channel Description      9.3.46 O TLV 3-n */
-        if (tvb_captured_length_remaining(tvb,offset) > 0)
+        if (tvb_length_remaining(tvb,offset) > 0)
             offset = dissect_rsl_ie_ch_desc(tvb, pinfo, tree, offset, FALSE);
         /* NCH DRX information      9.3.47 O TLV 3 */
-        if (tvb_captured_length_remaining(tvb,offset) > 0)
+        if (tvb_length_remaining(tvb,offset) > 0)
             offset = dissect_rsl_ie_nch_drx(tvb, pinfo, tree, offset, FALSE);
         break;
 
@@ -3501,46 +3501,46 @@ dissct_rsl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
         /* Channel Mode             9.3.6   M TLV 8-9       */
         offset = dissect_rsl_ie_ch_mode(tvb, pinfo, tree, offset, TRUE);
         /* Channel Identification   9.3.5   O 7) TLV 8      */
-        if (tvb_captured_length_remaining(tvb,offset) > 0)
+        if (tvb_length_remaining(tvb,offset) > 0)
             offset = dissect_rsl_ie_ch_id(tvb, pinfo, tree, offset, FALSE);
         /* Encryption information   9.3.7   O 1) TLV >=3    */
-        if (tvb_captured_length_remaining(tvb,offset) > 0)
+        if (tvb_length_remaining(tvb,offset) > 0)
             offset = dissect_rsl_ie_enc_inf(tvb, pinfo, tree, offset, FALSE);
         /* Handover Reference       9.3.9   C 2) TV 2       */
-        if (tvb_captured_length_remaining(tvb,offset) > 0)
+        if (tvb_length_remaining(tvb,offset) > 0)
             offset = dissect_rsl_ie_ho_ref(tvb, pinfo, tree, offset, FALSE);
         /* BS Power                 9.3.4   O 3) TV 2       */
-        if (tvb_captured_length_remaining(tvb,offset) > 0)
+        if (tvb_length_remaining(tvb,offset) > 0)
             offset = dissect_rsl_ie_bs_power(tvb, pinfo, tree, offset, FALSE);
         /* MS Power                 9.3.13  O 3) TV 2       */
-        if (tvb_captured_length_remaining(tvb,offset) > 0)
+        if (tvb_length_remaining(tvb,offset) > 0)
             offset = dissect_rsl_ie_ms_pow(tvb, pinfo, tree, offset, FALSE);
         /* Timing Advance           9.3.24  C 3) 4) TV 2    */
-        if (tvb_captured_length_remaining(tvb,offset) > 0)
+        if (tvb_length_remaining(tvb,offset) > 0)
             offset = dissect_rsl_ie_timing_adv(tvb, pinfo, tree, offset, FALSE);
         /* BS Power Parameters      9.3.32  O 5) TLV >=2    */
         /* MS Power Parameters      9.3.31  O 5) TLV >=2    */
         /* Physical Context         9.3.16  O 6) TLV >=2    */
-        if (tvb_captured_length_remaining(tvb,offset) > 0)
+        if (tvb_length_remaining(tvb,offset) > 0)
             offset = dissect_rsl_ie_phy_ctx(tvb, pinfo, tree, offset, FALSE);
         /* SACCH Information        9.3.29  O 8) TLV >=3    */
         /* UIC                      9.3.50  O 9) TLV 3      */
-        if (tvb_captured_length_remaining(tvb,offset) > 0)
+        if (tvb_length_remaining(tvb,offset) > 0)
             offset = dissect_rsl_ie_uic(tvb, pinfo, tree, offset, FALSE);
         /* Main channel reference   9.3.51  O 10) TV 2      */
-        if (tvb_captured_length_remaining(tvb,offset) > 0)
+        if (tvb_length_remaining(tvb,offset) > 0)
             offset = dissect_rsl_ie_main_ch_ref(tvb, pinfo, tree, offset, FALSE);
         /* MultiRate configuration  9.3.52  O 11) TLV >=4   */
-        if (tvb_captured_length_remaining(tvb,offset) > 0)
+        if (tvb_length_remaining(tvb,offset) > 0)
             offset = dissect_rsl_ie_multirate_conf(tvb, pinfo, tree, offset, FALSE);
         /* MultiRate Control        9.3.53  O 12) TV 2      */
-        if (tvb_captured_length_remaining(tvb,offset) > 0)
+        if (tvb_length_remaining(tvb,offset) > 0)
             offset = dissect_rsl_ie_multirate_cntrl(tvb, pinfo, tree, offset, FALSE);
             /* Supported Codec Types    9.3.54  O 12) TLV >=5   */
-        if (tvb_captured_length_remaining(tvb,offset) > 0)
+        if (tvb_length_remaining(tvb,offset) > 0)
             offset = dissect_rsl_ie_sup_codec_types(tvb, pinfo, tree, offset, FALSE);
         /* TFO transparent container 9.3.59 O 12) TLV >=3   */
-        if (tvb_captured_length_remaining(tvb,offset) > 0)
+        if (tvb_length_remaining(tvb,offset) > 0)
             offset = dissect_rsl_ie_tfo_transp_cont(tvb, pinfo, tree, offset, FALSE);
         break;
 
@@ -3586,7 +3586,7 @@ dissct_rsl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
         /* Channel number           9.3.1   M TV 2          */
         offset = dissect_rsl_ie_ch_no(tvb, pinfo, tree, offset, TRUE);
         /* Access Delay             9.3.17 O 1) TV 2        */
-        if (tvb_captured_length_remaining(tvb,offset) > 0)
+        if (tvb_length_remaining(tvb,offset) > 0)
             offset = dissect_rsl_ie_access_delay(tvb, pinfo, tree, offset, FALSE);
         break;
     /* 8.4.8 MEASUREMENT RESULT 40 */
@@ -3600,10 +3600,10 @@ dissct_rsl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
         /* BS Power                 9.3.4   M TV 2          */
         offset = dissect_rsl_ie_bs_power(tvb, pinfo, tree, offset, TRUE);
         /* L1 Information           9.3.10 O 1) TV 3        */
-        if (tvb_captured_length_remaining(tvb,offset) > 0)
+        if (tvb_length_remaining(tvb,offset) > 0)
             offset = dissect_rsl_ie_l1_inf(tvb, pinfo, tree, offset, FALSE);
         /* L3 Info (MEAS REP, EXT MEAS REP or ENH MEAS REP) 9.3.11 O 1) TLV 21 */
-        if (tvb_captured_length_remaining(tvb,offset) > 0){
+        if (tvb_length_remaining(tvb,offset) > 0){
             /* Try to figure out of we have (MEAS REP, EXT MEAS REP or ENH MEAS REP) */
             if ( ( tvb_get_guint8(tvb, offset+3) & 0xFE ) == 0x10 ) {
                 /* ENH MEAS REP */
@@ -3613,7 +3613,7 @@ dissct_rsl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
             }
         }
         /* MS Timing Offset         9.3.37 O 2) TV 2        */
-        if (tvb_captured_length_remaining(tvb,offset) > 0)
+        if (tvb_length_remaining(tvb,offset) > 0)
             offset = dissect_rsl_ie_ms_timing_offset(tvb, pinfo, tree, offset, FALSE);
         break;
     /* 8.4.9 MODE MODIFY */
@@ -3623,22 +3623,22 @@ dissct_rsl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
         /* Channel Mode             9.3.6 M TLV 8-9 */
         offset = dissect_rsl_ie_ch_mode(tvb, pinfo, tree, offset, TRUE);
         /* Encryption information   9.3.7 O 1) TLV >=3 */
-        if (tvb_captured_length_remaining(tvb,offset) > 0)
+        if (tvb_length_remaining(tvb,offset) > 0)
             offset = dissect_rsl_ie_enc_inf(tvb, pinfo, tree, offset, FALSE);
         /* Main channel reference   9.3.45 O 2) TV 2 */
-        if (tvb_captured_length_remaining(tvb,offset) > 0)
+        if (tvb_length_remaining(tvb,offset) > 0)
             offset = dissect_rsl_ie_main_ch_ref(tvb, pinfo, tree, offset, FALSE);
         /* MultiRate configuration  9.3.52 O 3) TLV >=3 */
-        if (tvb_captured_length_remaining(tvb,offset) > 0)
+        if (tvb_length_remaining(tvb,offset) > 0)
             offset = dissect_rsl_ie_multirate_conf(tvb, pinfo, tree, offset, FALSE);
         /* Multirate Control        9.3.53 O 4) TV 2 */
-        if (tvb_captured_length_remaining(tvb,offset) > 0)
+        if (tvb_length_remaining(tvb,offset) > 0)
             offset = dissect_rsl_ie_multirate_cntrl(tvb, pinfo, tree, offset, FALSE);
         /* Supported Codec Types    9.3.54 O 4) TLV >=5 */
-        if (tvb_captured_length_remaining(tvb,offset) > 0)
+        if (tvb_length_remaining(tvb,offset) > 0)
             offset = dissect_rsl_ie_sup_codec_types(tvb, pinfo, tree, offset, FALSE);
         /* TFO transparent container 9.3.59 O 4) TLV */
-        if (tvb_captured_length_remaining(tvb,offset) > 0)
+        if (tvb_length_remaining(tvb,offset) > 0)
             offset = dissect_rsl_ie_tfo_transp_cont(tvb, pinfo, tree, offset, FALSE);
         break;
     /* 8.4.10 MODE MODIFY ACKNOWLEDGE */
@@ -3669,7 +3669,7 @@ dissct_rsl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
         /* Timing Advance           9.3.24  M TV 2 */
         offset = dissect_rsl_ie_timing_adv(tvb, pinfo, tree, offset, TRUE);
         /* Physical Context         9.3.16  O 1) TLV */
-        if (tvb_captured_length_remaining(tvb,offset) > 0)
+        if (tvb_length_remaining(tvb,offset) > 0)
             offset = dissect_rsl_ie_phy_ctx(tvb, pinfo, tree, offset, FALSE);
         break;
     /* 8.4.14 RF CHANNEL RELEASE */
@@ -3682,7 +3682,7 @@ dissct_rsl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
         /* Channel number           9.3.1   M TV 2 */
         offset = dissect_rsl_ie_ch_no(tvb, pinfo, tree, offset, TRUE);
         /* MS Power                 9.3.13  M TV 2 */
-        if (tvb_captured_length_remaining(tvb,offset) > 0)
+        if (tvb_length_remaining(tvb,offset) > 0)
             offset = dissect_rsl_ie_ms_pow(tvb, pinfo, tree, offset, FALSE);
         /* MS Power Parameters      9.3.31  O 1) TLV >=2 */
         break;
@@ -3718,11 +3718,11 @@ dissct_rsl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
         /* System Info Type         9.3.30  M TV 2 */
         offset = dissect_rsl_ie_sys_info_type(tvb, pinfo, tree, offset, TRUE, &sys_info_type);
         /* L3 Info                  9.3.11  O 1) TLV 22 */
-        if (tvb_captured_length_remaining(tvb,offset) > 0)
+        if (tvb_length_remaining(tvb,offset) > 0)
             offset = dissect_rsl_ie_L3_inf(tvb, pinfo, tree, offset, FALSE,
                                            (sys_info_type == 0x48) ? L3_INF_SACCH : L3_INF_OTHER);
         /* Starting Time            9.3.23  O 2) TV 3 */
-        if (tvb_captured_length_remaining(tvb,offset) > 0)
+        if (tvb_length_remaining(tvb,offset) > 0)
             offset = dissect_rsl_ie_starting_time(tvb, pinfo, tree, offset, FALSE);
         break;
     /* 8.4.21 TALKER DETECTION */
@@ -3730,7 +3730,7 @@ dissct_rsl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
         /* Channel number           9.3.1   M TV 2 */
         offset = dissect_rsl_ie_ch_no(tvb, pinfo, tree, offset, TRUE);
         /* Access Delay             9.3.17  O 1) TV 2 */
-        if (tvb_captured_length_remaining(tvb,offset) > 0)
+        if (tvb_length_remaining(tvb,offset) > 0)
                 offset = dissect_rsl_ie_ch_no(tvb, pinfo, tree, offset, TRUE);
         break;
     /* 8.4.22 LISTENER DETECTION */
@@ -3738,7 +3738,7 @@ dissct_rsl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
         /* Channel number           9.3.1   M TV 2 */
         offset = dissect_rsl_ie_ch_no(tvb, pinfo, tree, offset, TRUE);
         /* Access Delay             9.3.17  O 1) TV 2 */
-        if (tvb_captured_length_remaining(tvb,offset) > 0)
+        if (tvb_length_remaining(tvb,offset) > 0)
                 offset = dissect_rsl_ie_ch_no(tvb, pinfo, tree, offset, TRUE);
         break;
     /* 8.4.23 REMOTE CODEC CONFIGURATION REPORT */
@@ -3748,10 +3748,10 @@ dissct_rsl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
         /* Codec Configuration      9.3.55  M TLV >=3 */
         offset = dissect_rsl_ie_codec_conf(tvb, pinfo, tree, offset, TRUE);
         /* Supported Codec Types    9.3.54  M TLV >=5 */
-        if (tvb_captured_length_remaining(tvb,offset) > 0)
+        if (tvb_length_remaining(tvb,offset) > 0)
             offset = dissect_rsl_ie_sup_codec_types(tvb, pinfo, tree, offset, FALSE);
         /* TFO transparent container 9.3.59 O 4) TLV >=3 */
-        if (tvb_captured_length_remaining(tvb,offset) > 0)
+        if (tvb_length_remaining(tvb,offset) > 0)
             offset = dissect_rsl_ie_tfo_transp_cont(tvb, pinfo, tree, offset, FALSE);
         break;
     /* 8.4.24 ROUND TRIP DELAY REPORT */
@@ -3770,7 +3770,7 @@ dissct_rsl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
         /* Codec Configuration      9.3.55  M TLV >=3 */
         offset = dissect_rsl_ie_codec_conf(tvb, pinfo, tree, offset, TRUE);
         /* TFO transparent container 9.3.59 O 4) TLV >=3 */
-        if (tvb_captured_length_remaining(tvb,offset) > 0)
+        if (tvb_length_remaining(tvb,offset) > 0)
             offset = dissect_rsl_ie_tfo_transp_cont(tvb, pinfo, tree, offset, FALSE);
         break;
     /* 8.4.26 MULTIRATE CODEC MODIFICATION REQUEST */
@@ -3778,7 +3778,7 @@ dissct_rsl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
         /* Channel number           9.3.1   M TV 2 */
         offset = dissect_rsl_ie_ch_no(tvb, pinfo, tree, offset, TRUE);
         /* MultiRate Configuration  9.3.52  O 1) TLV >=4 */
-        if (tvb_captured_length_remaining(tvb,offset) > 0)
+        if (tvb_length_remaining(tvb,offset) > 0)
             offset = dissect_rsl_ie_multirate_conf(tvb, pinfo, tree, offset, FALSE);
         break;
     /*  8.4.27 MULTIRATE CODEC MODIFICATION ACKNOWLEDGE */
@@ -3786,7 +3786,7 @@ dissct_rsl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
         /* Channel number           9.3.1   M TV 2 */
         offset = dissect_rsl_ie_ch_no(tvb, pinfo, tree, offset, TRUE);
         /* MultiRate Configuration  9.3.52  O 1) TLV >=4 */
-        if (tvb_captured_length_remaining(tvb,offset) > 0)
+        if (tvb_length_remaining(tvb,offset) > 0)
             offset = dissect_rsl_ie_multirate_conf(tvb, pinfo, tree, offset, FALSE);
         break;
     /* 8.4.28 MULTIRATE CODEC MODIFICATION NEGATIVE ACKNOWLEDGE */
@@ -3817,10 +3817,10 @@ dissct_rsl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
         /* MultiRateControl         9.3.53 M TV 2 */
         offset = dissect_rsl_ie_multirate_cntrl(tvb, pinfo, tree, offset, TRUE);
         /* Supported Codec Type     9.3.54 O 1) TLV >=5 */
-        if (tvb_captured_length_remaining(tvb,offset) > 0)
+        if (tvb_length_remaining(tvb,offset) > 0)
             offset = dissect_rsl_ie_sup_codec_types(tvb, pinfo, tree, offset, FALSE);
         /* TFO transparent container 9.3.59 O 4) TLV >=3 */
-        if (tvb_captured_length_remaining(tvb,offset) > 0)
+        if (tvb_length_remaining(tvb,offset) > 0)
             offset = dissect_rsl_ie_tfo_transp_cont(tvb, pinfo, tree, offset, FALSE);
         break;
     /*  0 1 - - - - - - Location Services messages: */

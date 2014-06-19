@@ -2574,7 +2574,7 @@ dissect_h245_T_nsd_data(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, FALSE, &next_tvb);
 
-  if (next_tvb && tvb_captured_length(next_tvb)) {
+  if (next_tvb && tvb_length(next_tvb)) {
     call_dissector((nsp_handle)?nsp_handle:data_handle, next_tvb, actx->pinfo, tree);
   }
 
@@ -14236,7 +14236,7 @@ dissect_h245_T_returnedFunction(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
                                        NO_BOUND, NO_BOUND, FALSE, &next_tvb);
 
 
- if (next_tvb && tvb_captured_length(next_tvb)) {
+ if (next_tvb && tvb_length(next_tvb)) {
 	saved_h245_pi = h245_pi;
 	h245_pi = NULL;
 	item = proto_tree_add_text(tree, next_tvb, 0, -1,"The returned function");
@@ -14517,11 +14517,11 @@ dissect_h245_h245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, PSNAME);
 
-	it=proto_tree_add_protocol_format(parent_tree, proto_h245, tvb, 0, tvb_captured_length(tvb), PSNAME);
+	it=proto_tree_add_protocol_format(parent_tree, proto_h245, tvb, 0, tvb_length(tvb), PSNAME);
 	tr=proto_item_add_subtree(it, ett_h245);
 
 	/* assume that whilst there is more tvb data, there are more h245 commands */
-	while ( tvb_captured_length_remaining( tvb, offset>>3 )>0 ){
+	while ( tvb_length_remaining( tvb, offset>>3 )>0 ){
 		CLEANUP_PUSH(reset_h245_pi, NULL);
 		h245_pi=wmem_new(wmem_packet_scope(), h245_packet_info);
 		init_h245_packet_info(h245_pi);

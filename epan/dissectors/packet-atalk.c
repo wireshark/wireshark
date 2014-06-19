@@ -1213,7 +1213,7 @@ dissect_atp_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
   aspinfo = get_transaction(tvb, pinfo, (struct aspinfo *)data);
   if (!aspinfo)
-     return tvb_captured_length(tvb);
+     return tvb_length(tvb);
 
   fn = (guint8) aspinfo->command;
 
@@ -1224,7 +1224,7 @@ dissect_atp_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
                  val_to_str(fn, zip_atp_function_vals, "Unknown (0x%01x)"), aspinfo->seq);
 
   if (!tree)
-    return tvb_captured_length(tvb);
+    return tvb_length(tvb);
 
   ti = proto_tree_add_item(tree, proto_zip, tvb, offset, -1, ENC_NA);
   zip_tree = proto_item_add_subtree(ti, ett_zip);
@@ -1268,7 +1268,7 @@ dissect_atp_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     }
   }
 
-  return tvb_captured_length(tvb);
+  return tvb_length(tvb);
 }
 
 static void

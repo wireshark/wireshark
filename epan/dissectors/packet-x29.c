@@ -237,7 +237,7 @@ dissect_x29(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 		}
 	}
 
-	return tvb_captured_length(tvb);
+	return tvb_length(tvb);
 }
 
 void

@@ -594,7 +594,7 @@ dissect_mp4ves_VisualObject(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		bit_offset+=24;
 		proto_tree_add_bits_item(tree, hf_mp4ves_start_code, tvb, bit_offset, 8, ENC_BIG_ENDIAN);
 		bit_offset+= 8;
-		if(tvb_captured_length_remaining(tvb,(bit_offset>>3))<=0){
+		if(tvb_length_remaining(tvb,(bit_offset>>3))<=0){
 			item = proto_tree_add_text(tree, tvb, 0, -1, "Config string too short");
 			PROTO_ITEM_SET_GENERATED(item);
 			return -1;
@@ -742,7 +742,7 @@ dissect_mp4ves(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
 	*/
-		if (tvb_captured_length(tvb)< 4){
+		if (tvb_length(tvb)< 4){
 			/* To short to be a start code */
 			proto_tree_add_text(mp4ves_tree, tvb, bit_offset>>3, -1, "Data");
 			return;
@@ -842,7 +842,7 @@ dissect_mp4ves_par_decoderConfigurationInformation(tvbuff_t *tvb, packet_info *p
 
 	dissect_mp4ves_config(tvb, pinfo, tree);
 
-	return tvb_captured_length(tvb);
+	return tvb_length(tvb);
 }
 
 typedef struct _mp4ves_capability_t {
@@ -893,7 +893,7 @@ dissect_mp4ves_name(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree, voi
 		}
 	}
 
-	return tvb_captured_length(tvb);
+	return tvb_length(tvb);
 }
 
 void

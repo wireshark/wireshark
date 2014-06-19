@@ -139,7 +139,7 @@ dissect_banana_element(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
     int i;
 
     /* Accumulate our value/length 'til we hit a valid type */
-    while (tvb_captured_length_remaining(tvb, offset) > 0) {
+    while (tvb_length_remaining(tvb, offset) > 0) {
         byte = tvb_get_guint8(tvb, offset);
         offset++;
 
@@ -228,13 +228,13 @@ dissect_banana(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     proto_tree *banana_tree;
 
     /* Check that there's enough data */
-    if (tvb_captured_length(tvb) < 2)
+    if (tvb_length(tvb) < 2)
         return 0;
 
     /* Fill in our protocol and info columns */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "Banana");
 
-    while (tvb_captured_length_remaining(tvb, offset) > 0 && offset < MAX_ELEMENT_VAL_LEN) {
+    while (tvb_length_remaining(tvb, offset) > 0 && offset < MAX_ELEMENT_VAL_LEN) {
         byte = tvb_get_guint8(tvb, offset);
         if (is_element(byte))
             break;
@@ -255,7 +255,7 @@ dissect_banana(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     }
 
     /* Return the amount of data this dissector was able to dissect */
-    return tvb_captured_length(tvb);
+    return tvb_length(tvb);
 }
 
 static void

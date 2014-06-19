@@ -442,7 +442,7 @@ dissect_iapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         if (pdutree)
         {
             dissect_pdus(tvb, 2, pdutree,
-                tvb_captured_length_remaining(tvb, 2));
+                tvb_length_remaining(tvb, 2));
         }
     }
 }

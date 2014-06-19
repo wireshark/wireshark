@@ -859,7 +859,7 @@ static int dissect_zbee_zcl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     /* Create the protocol tree */
     if ( tree ) {
         proto_root = proto_tree_add_protocol_format(tree, proto_zbee_zcl, tvb, offset,
-                                tvb_captured_length(tvb), "ZigBee Cluster Library Frame");
+                                tvb_length(tvb), "ZigBee Cluster Library Frame");
 
         zcl_tree = proto_item_add_subtree(proto_root, ett_zbee_zcl);
     }
@@ -944,7 +944,7 @@ static int dissect_zbee_zcl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         if (cluster_handle != NULL) {
             /* Call the specific cluster dissector registered. */
             call_dissector_with_data(cluster_handle, payload_tvb, pinfo, zcl_tree, &packet);
-            return tvb_captured_length(tvb);
+            return tvb_length(tvb);
         }
         proto_item_append_text(proto_root, ", Cluster-specific Command: 0x%02x, Seq: %u", packet.cmd_id,
             packet.tran_seqno);
@@ -1266,7 +1266,7 @@ static int dissect_zbee_zcl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         }
         /* Don't decode the tail. */
         zcl_dump_data(tvb, offset, pinfo, zcl_tree);
-        return tvb_captured_length(tvb);
+        return tvb_length(tvb);
     }
 
     if ( zcl_tree ) {
@@ -1327,7 +1327,7 @@ static int dissect_zbee_zcl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         } /* switch */
     }
     zcl_dump_data(tvb, offset, pinfo, zcl_tree);
-    return tvb_captured_length(tvb);
+    return tvb_length(tvb);
 } /* dissect_zbee_zcl */
 
 /*FUNCTION:------------------------------------------------------
@@ -1349,7 +1349,7 @@ void dissect_zcl_read_attr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 {
     guint tvb_len;
 
-    tvb_len = tvb_captured_length(tvb);
+    tvb_len = tvb_length(tvb);
     while ( *offset < tvb_len ) {
         /* Dissect the attribute identifier */
         dissect_zcl_attr_id(tvb, tree, offset, cluster_id);
@@ -1381,7 +1381,7 @@ void dissect_zcl_read_attr_resp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     guint i = 0;
     guint16 attr_id;
 
-    tvb_len = tvb_captured_length(tvb);
+    tvb_len = tvb_length(tvb);
     while ( *offset < tvb_len && i < ZBEE_ZCL_NUM_ATTR_ETT ) {
 
         /* Create subtree for attribute status field */
@@ -1426,7 +1426,7 @@ void dissect_zcl_write_attr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
     guint i = 0;
     guint16 attr_id;
 
-    tvb_len = tvb_captured_length(tvb);
+    tvb_len = tvb_length(tvb);
     while ( *offset < tvb_len && i < ZBEE_ZCL_NUM_ATTR_ETT ) {
 
         /* Create subtree for attribute status field */
@@ -1465,7 +1465,7 @@ static void dissect_zcl_write_attr_resp(tvbuff_t *tvb, packet_info *pinfo _U_, p
     guint tvb_len;
     guint i = 0;
 
-    tvb_len = tvb_captured_length(tvb);
+    tvb_len = tvb_length(tvb);
     while ( *offset < tvb_len && i < ZBEE_ZCL_NUM_ATTR_ETT ) {
 
         /* Create subtree for attribute status field */
@@ -1509,7 +1509,7 @@ static void dissect_zcl_read_report_config_resp(tvbuff_t *tvb, packet_info *pinf
     guint attr_dir;
     guint16 attr_id;
 
-    tvb_len = tvb_captured_length(tvb);
+    tvb_len = tvb_length(tvb);
     while ( *offset < tvb_len && i < ZBEE_ZCL_NUM_ATTR_ETT ) {
 
         /* Create subtree for attribute status field */
@@ -1579,7 +1579,7 @@ static void dissect_zcl_config_report(tvbuff_t *tvb, packet_info *pinfo _U_, pro
     guint data_type;
     guint16 attr_id;
 
-    tvb_len = tvb_captured_length(tvb);
+    tvb_len = tvb_length(tvb);
     while ( *offset < tvb_len && i < ZBEE_ZCL_NUM_ATTR_ETT ) {
 
         /* Create subtree for attribute status field */
@@ -1646,7 +1646,7 @@ static void dissect_zcl_config_report_resp(tvbuff_t *tvb, packet_info *pinfo _U_
     guint tvb_len;
     guint i = 0;
 
-    tvb_len = tvb_captured_length(tvb);
+    tvb_len = tvb_length(tvb);
     while ( *offset < tvb_len && i < ZBEE_ZCL_NUM_ATTR_ETT ) {
 
         /* Create subtree for attribute status field */
@@ -1689,7 +1689,7 @@ static void dissect_zcl_read_report_config(tvbuff_t *tvb, packet_info *pinfo _U_
     guint tvb_len;
     guint i = 0;
 
-    tvb_len = tvb_captured_length(tvb);
+    tvb_len = tvb_length(tvb);
     while ( *offset < tvb_len && i < ZBEE_ZCL_NUM_ATTR_ETT ) {
 
         /* Create subtree for attribute status field */
@@ -1794,7 +1794,7 @@ static void dissect_zcl_discover_attr_resp(tvbuff_t *tvb, packet_info *pinfo _U_
 
     dissect_zcl_attr_uint8(tvb, sub_tree, offset, &hf_zbee_zcl_attr_dis);
 
-    tvb_len = tvb_captured_length(tvb);
+    tvb_len = tvb_length(tvb);
     while ( *offset < tvb_len && i < ZBEE_ZCL_NUM_ATTR_ETT ) {
 
         /* Create subtree for attribute status field */
@@ -2479,7 +2479,7 @@ dissect_zcl_set_type(tvbuff_t *tvb, proto_tree *tree, guint *offset, guint8 elem
 static void zcl_dump_data(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *root   = proto_tree_get_root(tree);
-    guint       length = tvb_captured_length_remaining(tvb, offset);
+    guint       length = tvb_length_remaining(tvb, offset);
     tvbuff_t   *remainder;
 
     if (length > 0) {

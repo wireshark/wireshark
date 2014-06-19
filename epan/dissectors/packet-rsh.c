@@ -231,12 +231,12 @@ dissect_rsh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      * then it must be session data only and we can skip looking
      * for the other fields.
      */
-    if(tvb_find_guint8(tvb, tvb_captured_length(tvb)-1, 1, '\0') == -1){
+    if(tvb_find_guint8(tvb, tvb_length(tvb)-1, 1, '\0') == -1){
         hash_info->state = WAIT_FOR_DATA;
     }
 
     if(hash_info->state == WAIT_FOR_STDERR_PORT
-            && tvb_captured_length_remaining(tvb, offset)){
+            && tvb_length_remaining(tvb, offset)){
         field_stringz = tvb_get_stringz_enc(wmem_packet_scope(), tvb, offset, &length, ENC_ASCII);
 
         /* Check if this looks like the stderr_port field.
@@ -259,7 +259,7 @@ dissect_rsh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
     if(hash_info->state == WAIT_FOR_CLIENT_USERNAME
-            && tvb_captured_length_remaining(tvb, offset)){
+            && tvb_length_remaining(tvb, offset)){
         field_stringz = tvb_get_stringz_enc(wmem_packet_scope(), tvb, offset, &length, ENC_ASCII);
 
         /* Check if this looks like the username field */
@@ -287,7 +287,7 @@ dissect_rsh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
     if(hash_info->state == WAIT_FOR_SERVER_USERNAME
-            && tvb_captured_length_remaining(tvb, offset)){
+            && tvb_length_remaining(tvb, offset)){
         field_stringz = tvb_get_stringz_enc(wmem_packet_scope(), tvb, offset, &length, ENC_ASCII);
 
         /* Check if this looks like the password field */
@@ -317,7 +317,7 @@ dissect_rsh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
     if(hash_info->state == WAIT_FOR_COMMAND
-            && tvb_captured_length_remaining(tvb, offset)){
+            && tvb_length_remaining(tvb, offset)){
         field_stringz = tvb_get_stringz_enc(wmem_packet_scope(), tvb, offset, &length, ENC_ASCII);
 
         /* Check if this looks like the command field */
@@ -340,7 +340,7 @@ dissect_rsh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
     if(hash_info->state == WAIT_FOR_DATA
-            && tvb_captured_length_remaining(tvb, offset)){
+            && tvb_length_remaining(tvb, offset)){
         if(pinfo->destport == RSH_PORT){
             /* Packet going to the server */
             /* offset = 0 since the whole packet is data */

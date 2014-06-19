@@ -2019,7 +2019,7 @@ static int dissect_media( const gchar* fullmediatype, tvbuff_t * tvb, packet_inf
                 dissected = call_dissector(ssl_handle, tvb, pinfo, tree);
             }
         } else if (0 == strcmp("application/gzip", mediatype)) {
-            tvbuff_t *uncomp_tvb = tvb_child_uncompress(tvb, tvb, 0, tvb_captured_length(tvb));
+            tvbuff_t *uncomp_tvb = tvb_child_uncompress(tvb, tvb, 0, tvb_length(tvb));
 
             if( NULL != uncomp_tvb ) {
                 add_new_data_source(pinfo, uncomp_tvb, "Uncompressed Element Content");
@@ -2029,14 +2029,14 @@ static int dissect_media( const gchar* fullmediatype, tvbuff_t * tvb, packet_inf
 
                 if( dissected > 0 ) {
                     /* report back the uncompressed length. */
-                    dissected = tvb_captured_length(tvb);
+                    dissected = tvb_length(tvb);
                 }
             }
         } else {
-            dissected = dissector_try_string(media_type_dissector_table, mediatype, tvb, pinfo, tree, NULL) ? tvb_captured_length(tvb) : 0;
+            dissected = dissector_try_string(media_type_dissector_table, mediatype, tvb, pinfo, tree, NULL) ? tvb_length(tvb) : 0;
 
-            if( dissected != (int) tvb_captured_length(tvb) ) {
-                /* g_message( "%s : %d expected, %d dissected", mediatype, tvb_captured_length(tvb), dissected ); */
+            if( dissected != (int) tvb_length(tvb) ) {
+                /* g_message( "%s : %d expected, %d dissected", mediatype, tvb_length(tvb), dissected ); */
             }
         }
 

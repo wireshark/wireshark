@@ -109,7 +109,7 @@ dissect_tuxedo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "TUXEDO");
 
-	if (tvb_captured_length(tvb) >= 8)
+	if (tvb_length(tvb) >= 8)
 	{
 		magic = tvb_get_ntohl(tvb, 0);
 		if (magic == TUXEDO_MAGIC || magic == TUXEDO_SMAGIC)
@@ -142,7 +142,7 @@ dissect_tuxedo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static gboolean
 dissect_tuxedo_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-	if (tvb_captured_length(tvb) >= 8)
+	if (tvb_length(tvb) >= 8)
 	{
 		guint32 magic;
 		magic = tvb_get_ntohl(tvb, 0);

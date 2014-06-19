@@ -220,7 +220,7 @@ classify_mbrtu_packet(packet_info *pinfo, tvbuff_t *tvb)
     /* Dig into these a little deeper to try to guess the message type */
     if (!pinfo->srcport) {
         /* If length is 8, this is either a query or very short response */
-        if (tvb_captured_length(tvb) == 8) {
+        if (tvb_length(tvb) == 8) {
             /* Only possible to get a response message of 8 bytes with Discrete or Coils */
             if ((tvb_get_guint8(tvb, 1) == READ_COILS) || (tvb_get_guint8(tvb, 1) == READ_DISCRETE_INPUTS)) {
                 /* If this is, in fact, a response then the data byte count will be 3 */
@@ -494,12 +494,12 @@ dissect_mbtcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
     p_add_proto_data(wmem_file_scope(), pinfo, proto_modbus, 0, request_info);
 
     /* Continue with dissection of Modbus data payload following Modbus/TCP frame */
-    if( tvb_captured_length_remaining(tvb, offset) > 0 )
+    if( tvb_length_remaining(tvb, offset) > 0 )
         call_dissector(modbus_handle, next_tvb, pinfo, tree);
 
     p_remove_proto_data(wmem_file_scope(), pinfo, proto_modbus, 0);
     p_add_proto_data(wmem_file_scope(), pinfo, proto_modbus, 0, p_save_proto_data);
-    return tvb_captured_length(tvb);
+    return tvb_length(tvb);
 }
 
 /* Code to dissect Modbus RTU over TCP packets */
@@ -523,7 +523,7 @@ dissect_mbrtu_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "Modbus RTU");
     col_clear(pinfo->cinfo, COL_INFO);
 
-    len = tvb_captured_length(tvb);
+    len = tvb_length(tvb);
 
     unit_id = tvb_get_guint8(tvb, 0);
     function_code = tvb_get_guint8(tvb, 1) & 0x7F;
@@ -636,12 +636,12 @@ dissect_mbrtu_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
     p_add_proto_data(wmem_file_scope(), pinfo, proto_modbus, 0, request_info);
 
     /* Continue with dissection of Modbus data payload following Modbus RTU frame */
-    if( tvb_captured_length_remaining(tvb, offset) > 0 )
+    if( tvb_length_remaining(tvb, offset) > 0 )
         call_dissector(modbus_handle, next_tvb, pinfo, tree);
 
     p_remove_proto_data(wmem_file_scope(), pinfo, proto_modbus, 0);
     p_add_proto_data(wmem_file_scope(), pinfo, proto_modbus, 0, p_save_proto_data);
-    return tvb_captured_length(tvb);
+    return tvb_length(tvb);
 }
 
 
@@ -669,7 +669,7 @@ get_mbrtu_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset _U_)
 {
 
     /* Modbus/TCP frames include a "length" word in each message; Modbus RTU over TCP does not, so don't attempt to get one */
-    return tvb_captured_length(tvb);
+    return tvb_length(tvb);
 }
 
 
@@ -696,7 +696,7 @@ dissect_mbtcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     tcp_dissect_pdus(tvb, pinfo, tree, mbtcp_desegment, 6,
                      get_mbtcp_pdu_len, dissect_mbtcp_pdu, data);
 
-    return tvb_captured_length(tvb);
+    return tvb_length(tvb);
 }
 
 /* Code to dissect Modbus RTU over TCP messages */
@@ -717,7 +717,7 @@ dissect_mbrtu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     tcp_dissect_pdus(tvb, pinfo, tree, mbrtu_desegment, 6,
                      get_mbrtu_pdu_len, dissect_mbrtu_pdu, data);
 
-    return tvb_captured_length(tvb);
+    return tvb_length(tvb);
 }
 
 
@@ -852,7 +852,7 @@ dissect_modbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     guint16       diagnostic_code;
     modbus_request_info_t *request_info;
 
-    len = tvb_captured_length_remaining(tvb, 0);
+    len = tvb_length_remaining(tvb, 0);
 
     /* If the packet is zero-length, we should not attempt to dissect any further */
     if (len == 0)
@@ -1368,7 +1368,7 @@ dissect_modbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         }
     }
 
-    return tvb_captured_length(tvb);
+    return tvb_length(tvb);
 }
 
 

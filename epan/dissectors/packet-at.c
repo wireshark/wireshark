@@ -46,7 +46,7 @@ static gboolean allowed_chars(tvbuff_t *tvb)
     gint offset, len;
     guint8 val;
 
-    len = tvb_captured_length(tvb);
+    len = tvb_length(tvb);
     for (offset = 0; offset < len; offset++) {
         val = tvb_get_guint8(tvb, offset);
         if (!(g_ascii_isprint(val) || (val == 0x0a) || (val == 0x0d)))

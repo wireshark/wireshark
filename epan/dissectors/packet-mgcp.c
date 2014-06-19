@@ -339,7 +339,7 @@ static int dissect_mgcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 	/* Initialize variables */
 	tvb_sectionend = 0;
 	tvb_sectionbegin = tvb_sectionend;
-	tvb_len = tvb_captured_length(tvb);
+	tvb_len = tvb_length(tvb);
 	num_messages = 0;
 	mgcp_tree = NULL;
 	ti = NULL;
@@ -448,7 +448,7 @@ static int dissect_tpkt_mgcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 		 * Dissect ASCII TPKT header
 		 */
 		dissect_asciitpkt(tvb, pinfo, tree, mgcp_handle);
-		offset = tvb_captured_length(tvb);
+		offset = tvb_length(tvb);
 	}
 
 	return offset;
@@ -494,7 +494,7 @@ static void dissect_mgcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	mi->hasDigitMap = FALSE;
 
 	/* Initialize variables */
-	tvb_len = tvb_captured_length(tvb);
+	tvb_len = tvb_length(tvb);
 
 	/*
 	 * Check to see whether we're really dealing with MGCP by looking
@@ -560,7 +560,7 @@ static void mgcp_raw_text_add(tvbuff_t *tvb, proto_tree *tree)
 	gint tvb_linebegin,tvb_lineend,tvb_len,linelen;
 
 	tvb_linebegin = 0;
-	tvb_len = tvb_captured_length(tvb);
+	tvb_len = tvb_length(tvb);
 
 	do
 	{
@@ -1400,7 +1400,7 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
 	static address null_address = { AT_NONE, -1, 0, NULL };
 	tvb_previous_offset = 0;
-	tvb_len = tvb_captured_length(tvb);
+	tvb_len = tvb_length(tvb);
 	tvb_current_offset = tvb_previous_offset;
 	mi->is_duplicate = FALSE;
 	mi->request_available = FALSE;
@@ -1411,7 +1411,7 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
 		do
 		{
-			tvb_current_len = tvb_captured_length_remaining(tvb,tvb_previous_offset);
+			tvb_current_len = tvb_length_remaining(tvb,tvb_previous_offset);
 			tvb_current_offset = tvb_find_guint8(tvb, tvb_previous_offset, tvb_current_len, ' ');
 			if (tvb_current_offset == -1)
 			{
@@ -1773,7 +1773,7 @@ static void dissect_mgcp_params(tvbuff_t *tvb, proto_tree *tree)
 	gint tvb_tokenbegin;
 	proto_tree *mgcp_param_ti, *mgcp_param_tree;
 
-	tvb_len = tvb_captured_length(tvb);
+	tvb_len = tvb_length(tvb);
 	tvb_linebegin = 0;
 	tvb_lineend = tvb_linebegin;
 
@@ -2141,7 +2141,7 @@ static gint tvb_find_null_line(tvbuff_t* tvb, gint offset, gint len, gint* next_
 	}
 	else
 	{
-		tvb_current_len = tvb_captured_length_remaining(tvb,offset);
+		tvb_current_len = tvb_length_remaining(tvb,offset);
 	}
 
 	maxoffset = (tvb_current_len - 1) + offset;
@@ -2151,7 +2151,7 @@ static gint tvb_find_null_line(tvbuff_t* tvb, gint offset, gint len, gint* next_
 	do
 	{
 		tvb_linebegin = tvb_lineend;
-		tvb_current_len = tvb_captured_length_remaining(tvb,tvb_linebegin);
+		tvb_current_len = tvb_length_remaining(tvb,tvb_linebegin);
 		tvb_find_line_end(tvb, tvb_linebegin, tvb_current_len, &tvb_lineend,FALSE);
 		tempchar = tvb_get_guint8(tvb,tvb_linebegin);
 	} while (tempchar != '\r' && tempchar != '\n' && tvb_lineend <= maxoffset);
@@ -2165,7 +2165,7 @@ static gint tvb_find_null_line(tvbuff_t* tvb, gint offset, gint len, gint* next_
 	}
 	else
 	{
-		tvb_current_len = tvb_captured_length_remaining(tvb,offset);
+		tvb_current_len = tvb_length_remaining(tvb,offset);
 	}
 
 	return tvb_current_len;
@@ -2197,7 +2197,7 @@ static gint tvb_find_dot_line(tvbuff_t* tvb, gint offset, gint len, gint* next_o
 	gint tvb_current_offset, tvb_current_len, maxoffset,tvb_len;
 	guint8 tempchar;
 	tvb_current_len = len;
-	tvb_len = tvb_captured_length(tvb);
+	tvb_len = tvb_length(tvb);
 
 	if (len == -1)
 	{

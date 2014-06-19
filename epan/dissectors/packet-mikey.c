@@ -1424,7 +1424,7 @@ dissect_mikey(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 				val_to_str_ext_const(mikey->type, &data_type_vals_ext, "Unknown"));
 
 	/* Return the amount of data this dissector was able to dissect */
-	return tvb_captured_length(tvb);
+	return tvb_length(tvb);
 }
 
 

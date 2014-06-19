@@ -954,7 +954,7 @@ dissect_ntp_ext(tvbuff_t *tvb, proto_tree *ntp_tree, int offset)
 		 */
 		proto_tree_add_text(ntp_tree, tvb, offset+2, 2,
 				    "Extension length %u < 8", extlen);
-		offset += tvb_captured_length_remaining(tvb, offset);
+		offset += tvb_length_remaining(tvb, offset);
 		return offset;
 	}
 	if (extlen % 4) {
@@ -965,7 +965,7 @@ dissect_ntp_ext(tvbuff_t *tvb, proto_tree *ntp_tree, int offset)
 		proto_tree_add_text(ntp_tree, tvb, offset+2, 2,
 			"Extension length %u isn't a multiple of 4",
 				    extlen);
-		offset += tvb_captured_length_remaining(tvb, offset);
+		offset += tvb_length_remaining(tvb, offset);
 		return offset;
 	}
 	endoffset = offset + extlen;

@@ -513,12 +513,12 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		frame_format = (ctrl_fld_fb < 0xe0 )? UI_FORMAT : U_FORMAT;
 	}
 	length = tvb_reported_length(tvb);
-	llc_data_length = tvb_captured_length(tvb);
+	llc_data_length = tvb_length(tvb);
 	if(llc_data_length==length){
 		llc_data_length = length - CRC_LENGTH;
 	}
 	llc_data_reported_length = length - CRC_LENGTH; /* llc_data_reported_length includes the header and the payload */
-	if (tvb_captured_length(tvb) >= length && length >= CRC_LENGTH)
+	if (tvb_length(tvb) >= length && length >= CRC_LENGTH)
 	{
 		/*
 		 * We have all the packet data, including the full FCS,

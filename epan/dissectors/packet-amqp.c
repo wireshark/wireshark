@@ -7178,7 +7178,7 @@ dissect_amqp_1_0_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     col_append_str(pinfo->cinfo, COL_INFO, method_name);
     col_append_str(pinfo->cinfo, COL_INFO, " ");
     col_set_fence(pinfo->cinfo, COL_INFO);
-    return tvb_captured_length(tvb);
+    return tvb_length(tvb);
 }
 
 static int
@@ -7325,7 +7325,7 @@ dissect_amqp_0_10_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
         expert_add_info_format(pinfo, amqp_tree, &ei_amqp_unknown_frame_type, "Unknown frame type %d", frame_type);
     }
 
-    return tvb_captured_length(tvb);
+    return tvb_length(tvb);
 }
 
 /*  Dissection routine for AMQP 0-9 frames  */
@@ -7969,7 +7969,7 @@ dissect_amqp_0_9_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
         expert_add_info_format(pinfo, amqp_tree, &ei_amqp_unknown_frame_type, "Unknown frame type %u", frame_type);
     }
 
-    return tvb_captured_length(tvb);
+    return tvb_length(tvb);
 }
 
 /*  Dissection routine for method Connection.Start                        */

@@ -87,7 +87,7 @@ static void dissect_packetlogger (tvbuff_t *tvb, packet_info *pinfo, proto_tree 
   proto_tree_add_item (packetlogger_tree, hf_type, tvb, 0, 1, ENC_BIG_ENDIAN);
   proto_item_append_text (ti, " %s", val_to_str (pl_type, type_vals, "Unknown 0x%02x"));
 
-  len = tvb_captured_length_remaining (tvb, 1);
+  len = tvb_length_remaining (tvb, 1);
   next_tvb = tvb_new_subset_remaining (tvb, 1);
 
   if (pl_type <= PKT_RECV_ACL_DATA) {

@@ -1293,7 +1293,7 @@ static void dissect_homeplug_mme(ptvcursor_t * cursor, packet_info * pinfo)
 #define TVB_LEN_GREATEST  1
 #define TVB_LEN_UNDEF     0
 #define TVB_LEN_SHORTEST -1
-static int check_tvb_captured_length(ptvcursor_t *cursor, const gint length)
+static int check_tvb_length(ptvcursor_t *cursor, const gint length)
 {
   if (!cursor)
     return TVB_LEN_UNDEF;
@@ -1326,7 +1326,7 @@ dissect_homeplug(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   cursor = ptvcursor_new(homeplug_tree, tvb, 0);
 
   /*  We do not have enough data to read mctrl field stop the dissection */
-  if (check_tvb_captured_length(cursor, HOMEPLUG_MCTRL_LEN) != TVB_LEN_SHORTEST) {
+  if (check_tvb_length(cursor, HOMEPLUG_MCTRL_LEN) != TVB_LEN_SHORTEST) {
 
     dissect_homeplug_mctrl(cursor);
 
@@ -1339,12 +1339,12 @@ dissect_homeplug(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     for (; homeplug_ne > 0; homeplug_ne--) {
 
       /* Check we have enough data in tvb to read MEHDR */
-      if (check_tvb_captured_length(cursor, HOMEPLUG_MEHDR_LEN) == TVB_LEN_SHORTEST)
+      if (check_tvb_length(cursor, HOMEPLUG_MEHDR_LEN) == TVB_LEN_SHORTEST)
         break;
       dissect_homeplug_mehdr(cursor);
 
       /* Check we have enough data in tvb to read MELEN */
-      if (check_tvb_captured_length(cursor, HOMEPLUG_MELEN_LEN) == TVB_LEN_SHORTEST)
+      if (check_tvb_length(cursor, HOMEPLUG_MELEN_LEN) == TVB_LEN_SHORTEST)
         break;
       dissect_homeplug_melen(cursor);
 

@@ -547,7 +547,7 @@ dissect_header(tvbuff_t *tvb, proto_tree *parent, guint offset)
 static gboolean
 packet_is_pathport(tvbuff_t *tvb)
 {
-    if(tvb_captured_length(tvb) < PATHPORT_MIN_LENGTH)
+    if(tvb_length(tvb) < PATHPORT_MIN_LENGTH)
         return FALSE;
 
     if(tvb_get_ntohs(tvb, 0) != PATHPORT_PROTO_MAGIC)

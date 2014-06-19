@@ -1077,7 +1077,7 @@ dissect_dpnss_sup_info_str(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
     gboolean    last_string = FALSE;
     gboolean    has_par;
 
-    tvb_end_offset = tvb_captured_length(tvb);
+    tvb_end_offset = tvb_length(tvb);
 
     str_no = 1;
     while ((offset<tvb_end_offset)&&(last_string == FALSE)) {
@@ -1166,7 +1166,7 @@ dissect_dpnss_LbL_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     int         tvb_end_offset;
     guint8      octet;
 
-    tvb_end_offset = tvb_captured_length(tvb);
+    tvb_end_offset = tvb_length(tvb);
 
     proto_tree_add_item(tree, hf_dpnss_LbL_msg_type, tvb, offset, 1, ENC_BIG_ENDIAN);
     octet = tvb_get_guint8(tvb,offset)&0x0f;
@@ -1182,7 +1182,7 @@ dissect_dpnss_LbL_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             /* Indication Field */
             ind_field_item = proto_tree_add_text(tree, tvb, offset, -1,
                                                  "Indication Field: %s",
-                                                 tvb_format_text(tvb,offset,tvb_captured_length_remaining(tvb, offset)));
+                                                 tvb_format_text(tvb,offset,tvb_length_remaining(tvb, offset)));
             ind_field_tree = proto_item_add_subtree(ind_field_item, ett_dpnss_ind_field);
             offset = dissect_dpnss_sup_info_str(tvb, pinfo, ind_field_tree, offset);
             break;
@@ -1194,7 +1194,7 @@ dissect_dpnss_LbL_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             if (tvb_end_offset>offset) {
                 ind_field_item = proto_tree_add_text(tree, tvb, offset, -1,
                                                      "Indication Field: %s",
-                                                     tvb_format_text(tvb,offset,tvb_captured_length_remaining(tvb, offset)));
+                                                     tvb_format_text(tvb,offset,tvb_length_remaining(tvb, offset)));
                 ind_field_tree = proto_item_add_subtree(ind_field_item, ett_dpnss_ind_field);
                 offset = dissect_dpnss_sup_info_str(tvb, pinfo, ind_field_tree, offset);
             }
@@ -1211,7 +1211,7 @@ dissect_dpnss_LbL_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             /* Indication Field */
             ind_field_item = proto_tree_add_text(tree, tvb, offset, -1,
                                                  "Indication Field: %s",
-                                                 tvb_format_text(tvb,offset,tvb_captured_length_remaining(tvb, offset)));
+                                                 tvb_format_text(tvb,offset,tvb_length_remaining(tvb, offset)));
             ind_field_tree = proto_item_add_subtree(ind_field_item, ett_dpnss_ind_field);
             offset = dissect_dpnss_sup_info_str(tvb, pinfo, ind_field_tree, offset);
             break;
@@ -1228,7 +1228,7 @@ dissect_dpnss_LbL_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             /* Indication Field */
             ind_field_item = proto_tree_add_text(tree, tvb, offset, -1,
                                                  "Indication Field: %s",
-                                                 tvb_format_text(tvb,offset,tvb_captured_length_remaining(tvb, offset)));
+                                                 tvb_format_text(tvb,offset,tvb_length_remaining(tvb, offset)));
             ind_field_tree = proto_item_add_subtree(ind_field_item, ett_dpnss_ind_field);
             offset = dissect_dpnss_sup_info_str(tvb, pinfo, ind_field_tree, offset);
             break;
@@ -1239,7 +1239,7 @@ dissect_dpnss_LbL_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             /* Indication Field */
             ind_field_item = proto_tree_add_text(tree, tvb, offset, -1,
                                                  "Indication Field: %s",
-                                                 tvb_format_text(tvb,offset,tvb_captured_length_remaining(tvb, offset)));
+                                                 tvb_format_text(tvb,offset,tvb_length_remaining(tvb, offset)));
             ind_field_tree = proto_item_add_subtree(ind_field_item, ett_dpnss_ind_field);
             offset = dissect_dpnss_sup_info_str(tvb, pinfo, ind_field_tree, offset);
             break;
@@ -1261,7 +1261,7 @@ dissect_dpnss_e2e_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     int         tvb_end_offset;
     guint8      octet;
 
-    tvb_end_offset = tvb_captured_length(tvb);
+    tvb_end_offset = tvb_length(tvb);
 
     proto_tree_add_item(tree, hf_dpnss_e2e_msg_type, tvb, offset, 1, ENC_BIG_ENDIAN);
     octet = tvb_get_guint8(tvb,offset)&0x0f;
@@ -1277,7 +1277,7 @@ dissect_dpnss_e2e_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             /* Indication Field */
             ind_field_item = proto_tree_add_text(tree, tvb, offset, -1,
                                                  "Indication Field: %s",
-                                                 tvb_format_text(tvb,offset,tvb_captured_length_remaining(tvb, offset)));
+                                                 tvb_format_text(tvb,offset,tvb_length_remaining(tvb, offset)));
             ind_field_tree = proto_item_add_subtree(ind_field_item, ett_dpnss_ind_field);
             offset = dissect_dpnss_sup_info_str(tvb, pinfo, ind_field_tree, offset);
             break;
@@ -1292,7 +1292,7 @@ dissect_dpnss_e2e_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             if (tvb_end_offset>offset) {
                 ind_field_item = proto_tree_add_text(tree, tvb, offset, -1,
                                                      "Indication Field: %s",
-                                                     tvb_format_text(tvb,offset,tvb_captured_length_remaining(tvb, offset)));
+                                                     tvb_format_text(tvb,offset,tvb_length_remaining(tvb, offset)));
                 ind_field_tree = proto_item_add_subtree(ind_field_item, ett_dpnss_ind_field);
                 offset = dissect_dpnss_sup_info_str(tvb, pinfo, ind_field_tree, offset);
             }
@@ -1316,7 +1316,7 @@ dissect_dpnss_e2e_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
              */
             sel_field_item = proto_tree_add_text(tree, tvb, offset, -1,
                                                  "Selection Field: %s",
-                                                 tvb_format_text(tvb,offset,tvb_captured_length_remaining(tvb, offset)));
+                                                 tvb_format_text(tvb,offset,tvb_length_remaining(tvb, offset)));
             sel_field_tree = proto_item_add_subtree(sel_field_item, ett_dpnss_sel_field);
             offset = dissect_dpnss_sup_info_str(tvb, pinfo, sel_field_tree, offset);
             break;
@@ -1358,7 +1358,7 @@ dissect_dpnss_cc_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     int         tvb_end_offset;
     guint8      octet;
 
-    tvb_end_offset = tvb_captured_length(tvb);
+    tvb_end_offset = tvb_length(tvb);
     proto_tree_add_item(tree, hf_dpnss_cc_msg_type, tvb, offset, 1, ENC_BIG_ENDIAN);
     octet = tvb_get_guint8(tvb,offset)&0x0f;
     offset++;
@@ -1393,7 +1393,7 @@ dissect_dpnss_cc_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
              */
             sel_field_item = proto_tree_add_text(tree, tvb, offset, -1,
                                                  "Selection Field: %s",
-                                                 tvb_format_text(tvb,offset,tvb_captured_length_remaining(tvb, offset)));
+                                                 tvb_format_text(tvb,offset,tvb_length_remaining(tvb, offset)));
             sel_field_tree = proto_item_add_subtree(sel_field_item, ett_dpnss_sel_field);
             offset = dissect_dpnss_sup_info_str(tvb, pinfo, sel_field_tree, offset);
             break;
@@ -1403,7 +1403,7 @@ dissect_dpnss_cc_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 /* Indication Field (Optional) */
                 ind_field_item = proto_tree_add_text(tree, tvb, offset, -1,
                                                      "Indication Field: %s",
-                                                     tvb_format_text(tvb,offset,tvb_captured_length_remaining(tvb, offset)));
+                                                     tvb_format_text(tvb,offset,tvb_length_remaining(tvb, offset)));
                 ind_field_tree = proto_item_add_subtree(ind_field_item, ett_dpnss_ind_field);
                 offset = dissect_dpnss_sup_info_str(tvb, pinfo, ind_field_tree, offset);
             }
@@ -1416,7 +1416,7 @@ dissect_dpnss_cc_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             /* Indication Field */
             ind_field_item = proto_tree_add_text(tree, tvb, offset, -1,
                                                  "Indication Field: %s",
-                                                 tvb_format_text(tvb,offset,tvb_captured_length_remaining(tvb, offset)));
+                                                 tvb_format_text(tvb,offset,tvb_length_remaining(tvb, offset)));
             ind_field_tree = proto_item_add_subtree(ind_field_item, ett_dpnss_ind_field);
             offset = dissect_dpnss_sup_info_str(tvb, pinfo, ind_field_tree, offset);
             break;
@@ -1430,7 +1430,7 @@ dissect_dpnss_cc_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             if (tvb_end_offset>offset) {
                 ind_field_item = proto_tree_add_text(tree, tvb, offset, -1,
                                                      "Indication Field: %s",
-                                                     tvb_format_text(tvb,offset,tvb_captured_length_remaining(tvb, offset)));
+                                                     tvb_format_text(tvb,offset,tvb_length_remaining(tvb, offset)));
                 ind_field_tree = proto_item_add_subtree(ind_field_item, ett_dpnss_ind_field);
                 offset = dissect_dpnss_sup_info_str(tvb, pinfo, ind_field_tree, offset);
             }
@@ -1443,7 +1443,7 @@ dissect_dpnss_cc_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             if (tvb_end_offset>offset) {
                 ind_field_item = proto_tree_add_text(tree, tvb, offset, -1,
                                                      "Indication Field: %s",
-                                                     tvb_format_text(tvb,offset,tvb_captured_length_remaining(tvb, offset)));
+                                                     tvb_format_text(tvb,offset,tvb_length_remaining(tvb, offset)));
                 ind_field_tree = proto_item_add_subtree(ind_field_item, ett_dpnss_ind_field);
                 offset = dissect_dpnss_sup_info_str(tvb, pinfo, ind_field_tree, offset);
             }
@@ -1453,7 +1453,7 @@ dissect_dpnss_cc_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             /* Selection Field */
             sel_field_item = proto_tree_add_text(tree, tvb, offset, -1,
                                                  "Selection Field: %s",
-                                                 tvb_format_text(tvb,offset,tvb_captured_length_remaining(tvb, offset)));
+                                                 tvb_format_text(tvb,offset,tvb_length_remaining(tvb, offset)));
             sel_field_tree = proto_item_add_subtree(sel_field_item, ett_dpnss_sel_field);
             offset = dissect_dpnss_sup_info_str(tvb, pinfo, sel_field_tree, offset);
             break;
@@ -1463,7 +1463,7 @@ dissect_dpnss_cc_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             if (tvb_end_offset>offset) {
                 sel_field_item = proto_tree_add_text(tree, tvb, offset, -1,
                                                      "Selection Field: %s",
-                                                     tvb_format_text(tvb,offset,tvb_captured_length_remaining(tvb, offset)));
+                                                     tvb_format_text(tvb,offset,tvb_length_remaining(tvb, offset)));
                 sel_field_tree = proto_item_add_subtree(sel_field_item, ett_dpnss_sel_field);
                 offset = dissect_dpnss_sup_info_str(tvb, pinfo, sel_field_tree, offset);
             }

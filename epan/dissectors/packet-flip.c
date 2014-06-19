@@ -251,7 +251,7 @@ is_payload_rtp(tvbuff_t *tvb)
 
     offset = 0;
 
-    len_remaining = tvb_captured_length_remaining(tvb, offset);
+    len_remaining = tvb_length_remaining(tvb, offset);
     if (len_remaining < RTP_V2_HEADER_MIN_LEN) {
         return FALSE;
     }
@@ -301,7 +301,7 @@ is_payload_rtcp(tvbuff_t *tvb)
 
     offset = 0;
 
-    len_remaining = tvb_captured_length_remaining(tvb, offset);
+    len_remaining = tvb_length_remaining(tvb, offset);
     if (len_remaining < RTCP_V2_HEADER_MIN_LEN) {
         return FALSE;
     }
@@ -392,7 +392,7 @@ dissect_flip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
      */
 
     /* Check that there's enough data at least for the basic header. */
-    frame_len = tvb_captured_length(tvb);
+    frame_len = tvb_length(tvb);
     if (frame_len < FLIP_BASIC_HDR_LEN) {
         /* Not enough. This must be a malformed packet. */
         goto DISSECT_FLIP_EXIT;

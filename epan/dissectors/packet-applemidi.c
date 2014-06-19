@@ -225,7 +225,7 @@ dissect_applemidi_common( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
 		}
 		/* If there is any remaining data (possibly because an unknown command was encountered),
 		 * we just dump it here */
-		len = tvb_captured_length_remaining( tvb, offset );
+		len = tvb_length_remaining( tvb, offset );
 		if ( len > 0 ) {
 			proto_tree_add_item( applemidi_tree, hf_applemidi_unknown_data, tvb, offset, len, ENC_NA );
 		}
@@ -287,7 +287,7 @@ dissect_applemidi_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 	/*struct _rtp_conversation_info *p_conv_data = NULL;*/
 	rtp_dyn_payload_t *rtp_dyn_payload = NULL;
 
-	if ( tvb_captured_length( tvb ) < 4)
+	if ( tvb_length( tvb ) < 4)
 		return FALSE;  /* not enough bytes to check */
 
 	if ( !test_applemidi( tvb, &command, FALSE ) ) {

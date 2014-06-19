@@ -916,7 +916,7 @@ static const fragment_items afs_frag_items = {
 		} else { \
 			if ( ! seen_null ) { \
 			proto_tree_add_text(tree, tvb, offset, \
-				tvb_captured_length_remaining(tvb, offset), \
+				tvb_length_remaining(tvb, offset), \
 				"Null Interface Addresses"); \
 				seen_null = 1; \
 			} \
@@ -971,7 +971,7 @@ static const fragment_items afs_frag_items = {
 	offset += bytes;
 
 /* Raw data - to end of frame */
-#define OUT_BYTES_ALL(field) OUT_BYTES(field, tvb_captured_length_remaining(tvb,offset))
+#define OUT_BYTES_ALL(field) OUT_BYTES(field, tvb_length_remaining(tvb,offset))
 
 /* Raw data */
 #define OUT_BYTES(field, bytes) \
@@ -1025,7 +1025,7 @@ static const fragment_items afs_frag_items = {
 		OUT_RXString(hf_afs_kauth_realm); \
 	}
 
-#define GETSTR (tvb_format_text(tvb,offset,tvb_captured_length_remaining(tvb,offset)))
+#define GETSTR (tvb_format_text(tvb,offset,tvb_length_remaining(tvb,offset)))
 
 #define VALID_OPCODE(opcode) ((opcode >= OPCODE_LOW && opcode <= OPCODE_HIGH) || \
 		(opcode >= VOTE_LOW && opcode <= VOTE_HIGH) || \
@@ -1828,7 +1828,7 @@ dissect_afs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
 		frag_msg = fragment_add_seq_check(&afs_reassembly_table,
 				tvb, offset, pinfo, afs_seqid, NULL,
-				rxinfo->seq-1, tvb_captured_length_remaining(tvb, offset),
+				rxinfo->seq-1, tvb_length_remaining(tvb, offset),
 				! ( rxinfo->flags & RX_LAST_PACKET ) );
 
 		new_tvb = process_reassembled_data( tvb, offset, pinfo, "Reassembled RX", frag_msg,
@@ -1840,7 +1840,7 @@ dissect_afs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 			col_append_str(pinfo->cinfo, COL_INFO, " [AFS reassembled]");
 		} else {
 			col_set_str(pinfo->cinfo, COL_INFO, "[AFS segment of a reassembled PDU]");
-			return tvb_captured_length(tvb);
+			return tvb_length(tvb);
 		}
 	}
 
@@ -1917,7 +1917,7 @@ dissect_afs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
 	}
 
-	return tvb_captured_length(tvb);
+	return tvb_length(tvb);
 }
 
 

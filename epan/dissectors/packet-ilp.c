@@ -4105,7 +4105,7 @@ dissect_ilp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
   tcp_dissect_pdus(tvb, pinfo, tree, ilp_desegment, ILP_HEADER_SIZE,
                    get_ilp_pdu_len, dissect_ILP_PDU_PDU, data);
-  return tvb_captured_length(tvb);
+  return tvb_length(tvb);
 }
 
 void proto_reg_handoff_ilp(void);

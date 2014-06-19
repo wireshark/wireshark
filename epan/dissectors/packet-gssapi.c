@@ -262,8 +262,8 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			fd_head=fragment_add(&gssapi_reassembly_table,
 				tvb, 0, pinfo, fi->first_frame, NULL,
 				gss_info->frag_offset,
-				tvb_captured_length(tvb), TRUE);
-			gss_info->frag_offset+=tvb_captured_length(tvb);
+				tvb_length(tvb), TRUE);
+			gss_info->frag_offset+=tvb_length(tvb);
 
 			/* we need more fragments */
 			if(!fd_head){
@@ -310,14 +310,14 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		if (!(appclass == BER_CLASS_APP && pc && tag == 0)) {
 		  /* It could be NTLMSSP, with no OID.  This can happen
 		     for anything that microsoft calls 'Negotiate' or GSS-SPNEGO */
-			if ((tvb_captured_length_remaining(gss_tvb, start_offset)>7) && (tvb_strneql(gss_tvb, start_offset, "NTLMSSP", 7) == 0)) {
+			if ((tvb_length_remaining(gss_tvb, start_offset)>7) && (tvb_strneql(gss_tvb, start_offset, "NTLMSSP", 7) == 0)) {
 				return_offset = call_dissector(ntlmssp_handle,
 							tvb_new_subset_remaining(gss_tvb, start_offset),
 							pinfo, subtree);
 				goto done;
 			}
 			/* Maybe it's new NTLMSSP payload */
-			if ((tvb_captured_length_remaining(gss_tvb, start_offset)>16) &&
+			if ((tvb_length_remaining(gss_tvb, start_offset)>16) &&
 			   ((tvb_memeql(gss_tvb, start_offset, "\x01\x00\x00\x00", 4) == 0))) {
 				return_offset = call_dissector(ntlmssp_payload_handle,
 							tvb_new_subset_remaining(gss_tvb, start_offset),
@@ -325,7 +325,7 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				pinfo->gssapi_data_encrypted = TRUE;
 				goto done;
 			}
-			if ((tvb_captured_length_remaining(gss_tvb, start_offset)==16) &&
+			if ((tvb_length_remaining(gss_tvb, start_offset)==16) &&
 			   ((tvb_memeql(gss_tvb, start_offset, "\x01\x00\x00\x00", 4) == 0))) {
 				if( is_verifier ) {
 					return_offset = call_dissector(ntlmssp_verf_handle,
@@ -342,7 +342,7 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		  	}
 
 		  /* Maybe it's new GSSKRB5 CFX Wrapping */
-		  if ((tvb_captured_length_remaining(gss_tvb, start_offset)>2) &&
+		  if ((tvb_length_remaining(gss_tvb, start_offset)>2) &&
 		      ((tvb_memeql(gss_tvb, start_offset, "\04\x04", 2) == 0) ||
 		       (tvb_memeql(gss_tvb, start_offset, "\05\x04", 2) == 0))) {
 		    return_offset = call_dissector(spnego_krb5_wrap_handle,
@@ -384,7 +384,7 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     proto_tree_add_text(subtree, gss_tvb, start_offset, 0,
 					  "Unknown header (class=%d, pc=%d, tag=%d)",
 					  appclass, pc, tag);
-		    return_offset = tvb_captured_length(gss_tvb);
+		    return_offset = tvb_length(gss_tvb);
 		    goto done;
 		  } else {
 		    tvbuff_t *oid_tvb_local;
@@ -396,7 +396,7 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			handle = oidvalue->handle;
 		    len = call_dissector(handle, oid_tvb_local, pinfo, subtree);
 		    if (len == 0)
-			return_offset = tvb_captured_length(gss_tvb);
+			return_offset = tvb_length(gss_tvb);
 		    else
 			return_offset = start_offset + len;
 		    goto done; /* We are finished here */
@@ -422,8 +422,8 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		 */
 		if( (!pinfo->fd->flags.visited)
 		&&  (oidvalue)
-		&&  (tvb_captured_length(gss_tvb)==tvb_reported_length(gss_tvb))
-		&&  (len1>(guint32)tvb_captured_length_remaining(gss_tvb, oid_start_offset))
+		&&  (tvb_length(gss_tvb)==tvb_reported_length(gss_tvb))
+		&&  (len1>(guint32)tvb_length_remaining(gss_tvb, oid_start_offset))
 		&&  (gssapi_reassembly) ){
 			fi=wmem_new(wmem_file_scope(), gssapi_frag_info_t);
 			fi->first_frame=pinfo->fd->num;
@@ -432,13 +432,13 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 			fragment_add(&gssapi_reassembly_table,
 				gss_tvb, 0, pinfo, pinfo->fd->num, NULL,
-				0, tvb_captured_length(gss_tvb), TRUE);
+				0, tvb_length(gss_tvb), TRUE);
 			fragment_set_tot_len(&gssapi_reassembly_table,
 				pinfo, pinfo->fd->num, NULL, len1+oid_start_offset);
 
 			gss_info->do_reassembly=TRUE;
 			gss_info->first_frame=pinfo->fd->num;
-			gss_info->frag_offset=tvb_captured_length(gss_tvb);
+			gss_info->frag_offset=tvb_length(gss_tvb);
 			goto done;
 		}
 
@@ -453,7 +453,7 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			proto_tree_add_text(subtree, gss_tvb, oid_start_offset, -1,
 					    "Token object");
 
-			return_offset = tvb_captured_length(gss_tvb);
+			return_offset = tvb_length(gss_tvb);
 			goto done;
 		}
 
@@ -476,13 +476,13 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				len = call_dissector(handle, oid_tvb, pinfo,
 				    subtree);
 				if (len == 0)
-					return_offset = tvb_captured_length(gss_tvb);
+					return_offset = tvb_length(gss_tvb);
 				else
 					return_offset = offset + len;
 			} else {
 				proto_tree_add_text(subtree, gss_tvb, offset, -1,
 				    "Authentication verifier");
-				return_offset = tvb_captured_length(gss_tvb);
+				return_offset = tvb_length(gss_tvb);
 			}
 		} else {
 			handle = oidvalue->handle;
@@ -491,13 +491,13 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				len = call_dissector(handle, oid_tvb, pinfo,
 				    subtree);
 				if (len == 0)
-					return_offset = tvb_captured_length(gss_tvb);
+					return_offset = tvb_length(gss_tvb);
 				else
 					return_offset = offset + len;
 			} else {
 				proto_tree_add_text(subtree, gss_tvb, offset, -1,
 				    "Authentication credentials");
-				return_offset = tvb_captured_length(gss_tvb);
+				return_offset = tvb_length(gss_tvb);
 			}
 		}
 
@@ -615,7 +615,7 @@ wrap_dissect_gssapi(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	dissect_gssapi(auth_tvb, pinfo, tree);
 
-	return tvb_captured_length_remaining(tvb, offset);
+	return tvb_length_remaining(tvb, offset);
 }
 
 int

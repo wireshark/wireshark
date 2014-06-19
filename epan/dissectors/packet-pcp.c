@@ -1483,14 +1483,14 @@ static int dissect_pcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
             expert_add_info(pinfo, pcp_tree, &ei_pcp_unimplemented_packet_type);
             break;
     }
-    return tvb_captured_length(tvb);
+    return tvb_length(tvb);
 }
 
 static int dissect_pcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     /* pass all packets through TCP-reassembally */
     tcp_dissect_pdus(tvb, pinfo, tree, TRUE, PCP_HEADER_LEN, get_pcp_message_len, dissect_pcp_message, data);
-    return tvb_captured_length(tvb);
+    return tvb_length(tvb);
 }
 
 /* setup the dissecting */

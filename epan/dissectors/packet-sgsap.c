@@ -1395,7 +1395,7 @@ dissect_sgsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint8          oct;
 
     /* Save pinfo */
-    len	   = tvb_captured_length(tvb);
+    len	   = tvb_length(tvb);
 
     /* Make entry in the Protocol column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, PSNAME);

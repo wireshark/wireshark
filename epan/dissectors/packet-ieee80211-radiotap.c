@@ -1941,11 +1941,11 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 		 * take that into account by using the FCS length recorded in pinfo. */
 
 		/* Watch out for [erroneously] short frames */
-		if (tvb_captured_length(next_tvb) >
+		if (tvb_length(next_tvb) >
 		    (unsigned int)pinfo->pseudo_header->ieee_802_11.fcs_len) {
 			calc_fcs =
 			    crc32_802_tvb(next_tvb,
-				tvb_captured_length(next_tvb) -
+			    	tvb_length(next_tvb) -
 			    	pinfo->pseudo_header->ieee_802_11.fcs_len);
 
 			/* By virtue of hdr_fcs_ti being set, we know that 'tree' is set,

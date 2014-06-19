@@ -1009,7 +1009,7 @@ dissect_wlccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			if(get_tlv_flag() || get_mic_flag())
 			{
 
-				if (tvb_captured_length_remaining(tvb,offset) < 4)
+				if (tvb_length_remaining(tvb,offset) < 4)
 				{
 				/* something is wrong if the TLV flag is set and there's not enough left in the buffer */
 
@@ -1019,7 +1019,7 @@ dissect_wlccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				else
 				{
 
-					while (tvb_captured_length_remaining(tvb,offset) >= 4)
+					while (tvb_length_remaining(tvb,offset) >= 4)
 					{
 						old_offset = offset;
 						offset = dissect_wlccp_tlvs(wlccp_tree, tvb, offset, 0);
@@ -2010,9 +2010,9 @@ static guint dissect_wlccp_tlvs( proto_tree *_tree, tvbuff_t *_tvb, guint _offse
 				DISSECTOR_ASSERT(_offset > _old_offset);
 			} /* while bytes_left >= 4*/
 
-		} /* _container_flag && (tvb_captured_length_remaining(_tvb,_offset) >= 4) */
+		} /* _container_flag && (tvb_length_remaining(_tvb,_offset) >= 4) */
 
-	} /*_container_flag && (tvb_captured_length_remaining(_tvb,_offset) < 4) */
+	} /*_container_flag && (tvb_length_remaining(_tvb,_offset) < 4) */
 
 
 	/* done with decoding the contained TLVs */

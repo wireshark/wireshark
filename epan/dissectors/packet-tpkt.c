@@ -83,7 +83,7 @@ is_tpkt(tvbuff_t *tvb, int min_len)
 		return -1;
 
 	/* There should at least be 4 bytes left in the frame */
-	if (tvb_captured_length(tvb) < 4)
+	if (tvb_length(tvb) < 4)
 		return -1;	/* there aren't */
 
 	/*
@@ -261,7 +261,7 @@ dissect_asciitpkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             return;
         }
 
-        length_remaining = tvb_captured_length_remaining(tvb, offset);
+        length_remaining = tvb_length_remaining(tvb, offset);
 
         /*
          * Get the length from the TPKT header.
@@ -416,7 +416,7 @@ dissect_tpkt_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			return;
 		}
 
-		length_remaining = tvb_captured_length_remaining(tvb, offset);
+		length_remaining = tvb_length_remaining(tvb, offset);
 
 		/*
 		 * Can we do reassembly?

@@ -5247,7 +5247,7 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
 	if (!request_val) {	/* missing request */
 		col_set_str(pinfo->cinfo, COL_INFO, "[Reply without query?]");
-		return tvb_captured_length(tvb);
+		return tvb_length(tvb);
 	}
 
 	afp_command = request_val->command;
@@ -5278,7 +5278,7 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 			col_set_str(pinfo->cinfo, COL_INFO,
 				    "[Error!IP port reused, you need to split the capture file]");
 			expert_add_info(pinfo, ti, &ei_afp_ip_port_reused);
-			return tvb_captured_length(tvb);
+			return tvb_length(tvb);
 		}
 
 		/*
@@ -5520,7 +5520,7 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 		if (!len) {
 			/* for some calls if the reply is an error there's no data
 			*/
-			return tvb_captured_length(tvb);
+			return tvb_length(tvb);
 		}
 
 		switch (afp_command) {
@@ -5621,7 +5621,7 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 		    pinfo, afp_tree);
 	}
 
-	return tvb_captured_length(tvb);
+	return tvb_length(tvb);
 }
 
 static void afp_reinit( void)

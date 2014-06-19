@@ -2755,7 +2755,7 @@ dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree,
 				 * to the actual size in the frame
 				 */
 				if (!pinfo->can_desegment) {
-					info_element_len = MIN(info_element_len, tvb_captured_length_remaining(tvb, offset + 3));
+					info_element_len = MIN(info_element_len, tvb_length_remaining(tvb, offset + 3));
 				}
 				/*
 				 * Do we have a handle for the H.225
@@ -3117,7 +3117,7 @@ dissect_q931_tpkt_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 	 * is one, and that the code put a TPKT header in one
 	 * segment and the rest of the PDU in another.
 	 */
-	if (tvb_captured_length(tvb) == 4) {
+	if (tvb_length(tvb) == 4) {
 		/*
 		 * It is - call the "dissect TPKT over a TCP stream"
 		 * routine.

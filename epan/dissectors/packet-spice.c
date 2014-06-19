@@ -3157,7 +3157,7 @@ dissect_spice(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
             break;
         case SPICE_SASL_INIT_FROM_SERVER:
             offset = 0;
-            avail = tvb_captured_length_remaining(tvb, offset);
+            avail = tvb_length_remaining(tvb, offset);
             pdu_len = 4;
             GET_PDU_FROM_OFFSET(offset)
             pdu_len = tvb_get_letohl(tvb, offset); /* the length of the following messages */
@@ -3182,7 +3182,7 @@ dissect_spice(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
         case SPICE_SASL_START_TO_SERVER:
             offset = 0;
             while (offset < tvb_reported_length(tvb)) {
-                avail = tvb_captured_length_remaining(tvb, offset);
+                avail = tvb_length_remaining(tvb, offset);
                 pdu_len = 4;
                 GET_PDU_FROM_OFFSET(offset)
                 pdu_len = tvb_get_letohl(tvb, offset); /* the length of the following messages */
@@ -3228,7 +3228,7 @@ dissect_spice(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
         case SPICE_SASL_STEP_FROM_SERVER:
             offset = 0;
             while (offset < tvb_reported_length(tvb)) {
-                avail = tvb_captured_length_remaining(tvb, offset);
+                avail = tvb_length_remaining(tvb, offset);
                 pdu_len = 4;
                 GET_PDU_FROM_OFFSET(offset)
                 pdu_len = tvb_get_letohl(tvb, offset); /* the length of the following messages */
@@ -3264,7 +3264,7 @@ dissect_spice(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
         case SPICE_SASL_START_FROM_SERVER_CONT:
         case SPICE_SASL_STEP_FROM_SERVER_CONT:
             offset = 0;
-            avail = tvb_captured_length_remaining(tvb, offset);
+            avail = tvb_length_remaining(tvb, offset);
             if (avail >= 1) {
                 if (tree && spice_tree == NULL) {
                     ti = proto_tree_add_item(tree, proto_spice, tvb, offset, 1, ENC_NA);
@@ -3293,7 +3293,7 @@ dissect_spice(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
         case SPICE_SASL_STEP_TO_SERVER:
             offset = 0;
             while (offset < tvb_reported_length(tvb)) {
-                avail = tvb_captured_length_remaining(tvb, offset);
+                avail = tvb_length_remaining(tvb, offset);
                 pdu_len = 4;
                 GET_PDU_FROM_OFFSET(offset)
                 pdu_len = tvb_get_letohl(tvb, offset); /* the length of the following messages */
@@ -3328,7 +3328,7 @@ dissect_spice(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
         case SPICE_SASL_DATA:
             offset = 0;
             while (offset < tvb_reported_length(tvb)) {
-                avail = tvb_captured_length_remaining(tvb, offset);
+                avail = tvb_length_remaining(tvb, offset);
                 pdu_len = 4;
                 GET_PDU_FROM_OFFSET(offset)
                 pdu_len = tvb_get_ntohl(tvb, offset); /* the length of the following messages */
@@ -3357,7 +3357,7 @@ dissect_spice(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
         case SPICE_DATA:
             offset = 0;
             while (offset < tvb_reported_length(tvb)) {
-                avail = tvb_captured_length_remaining(tvb, offset);
+                avail = tvb_length_remaining(tvb, offset);
                 if (spice_info->client_mini_header && spice_info->server_mini_header) {
                     pdu_len = sizeof_SpiceMiniDataHeader;
                     GET_PDU_FROM_OFFSET(offset)

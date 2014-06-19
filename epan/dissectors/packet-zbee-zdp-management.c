@@ -593,7 +593,7 @@ dissect_zbee_zdp_rsp_mgmt_nwk_disc(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     table_count = zbee_parse_uint(tree, hf_zbee_zdp_table_count, tvb, &offset, 1, NULL);
 
     if (tree && table_count) {
-        ti = proto_tree_add_text(tree, tvb, offset, tvb_captured_length_remaining(tvb, offset), "Network List");
+        ti = proto_tree_add_text(tree, tvb, offset, tvb_length_remaining(tvb, offset), "Network List");
         field_tree = proto_item_add_subtree(ti, ett_zbee_zdp_nwk);
     }
     for (i=0; i<table_count; i++) {
@@ -639,7 +639,7 @@ dissect_zbee_zdp_rsp_mgmt_lqi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     table_count = zbee_parse_uint(tree, hf_zbee_zdp_table_count, tvb, &offset, 1, NULL);
 
     if (tree && table_count) {
-        ti = proto_tree_add_text(tree, tvb, offset, tvb_captured_length_remaining(tvb, offset), "Neighbor Table");
+        ti = proto_tree_add_text(tree, tvb, offset, tvb_length_remaining(tvb, offset), "Neighbor Table");
         field_tree = proto_item_add_subtree(ti, ett_zbee_zdp_lqi);
     }
     for (i=0; i<table_count; i++) {
@@ -731,7 +731,7 @@ dissect_zbee_zdp_rsp_mgmt_bind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     table_count = zbee_parse_uint(tree, hf_zbee_zdp_table_count, tvb, &offset, 1, NULL);
 
     if (tree && table_count) {
-        ti = proto_tree_add_text(tree, tvb, offset, tvb_captured_length_remaining(tvb, offset), "Binding Table");
+        ti = proto_tree_add_text(tree, tvb, offset, tvb_length_remaining(tvb, offset), "Binding Table");
         field_tree = proto_item_add_subtree(ti, ett_zbee_zdp_bind);
     }
     for (i=0; i<table_count; i++) {

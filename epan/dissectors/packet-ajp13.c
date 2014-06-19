@@ -828,7 +828,7 @@ dissect_ajp13_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
 
   }
 
-  return tvb_captured_length(tvb);
+  return tvb_length(tvb);
 }
 
 
@@ -862,7 +862,7 @@ dissect_ajp13(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
                    get_ajp13_pdu_len,      /* use first 4, calc data len */
                    dissect_ajp13_tcp_pdu, data); /* the naive dissector */
 
-  return tvb_captured_length(tvb);
+  return tvb_length(tvb);
 }
 
 

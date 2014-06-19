@@ -706,7 +706,7 @@ dissect_mic_e(	tvbuff_t    *tvb,
 	const guint8 *addr;
 	const mic_e_dst_code_table_s *dst_code_entry;
 
-	data_len    = tvb_captured_length_remaining( tvb, offset );
+	data_len    = tvb_length_remaining( tvb, offset );
 	new_offset  = offset + data_len;
 
 	info_buffer = (char *)wmem_alloc( wmem_packet_scope(), STRLEN );
@@ -898,7 +898,7 @@ dissect_aprs_weather(	tvbuff_t   *tvb,
 	guint8	     ch;
 
 
-	data_len    = tvb_captured_length_remaining( tvb, offset );
+	data_len    = tvb_length_remaining( tvb, offset );
 	new_offset  = offset + data_len;
 
 	tc = proto_tree_add_item( parent_tree, hf_aprs_weather_idx, tvb, offset, data_len, ENC_ASCII|ENC_NA );
@@ -1100,7 +1100,7 @@ aprs_status( proto_tree *aprs_tree, tvbuff_t *tvb, int offset )
 {
 	int data_len;
 
-	data_len = tvb_captured_length_remaining( tvb, offset );
+	data_len = tvb_length_remaining( tvb, offset );
 
 	if ( ( data_len > 7 ) && ( tvb_get_guint8( tvb, offset+6 ) == 'z' ) )
 		{

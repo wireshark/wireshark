@@ -1487,7 +1487,7 @@ dissect_h225_T_nsp_data(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, FALSE, &next_tvb);
 
-  if (next_tvb && tvb_captured_length(next_tvb)) {
+  if (next_tvb && tvb_length(next_tvb)) {
     call_dissector((nsp_handle)?nsp_handle:data_handle, next_tvb, actx->pinfo, tree);
   }
 
@@ -1584,7 +1584,7 @@ dissect_h225_DialedDigits(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 
   if (h225_pi && h225_pi->is_destinationInfo == TRUE) {
     if (value_tvb) {
-      len = tvb_captured_length(value_tvb);
+      len = tvb_length(value_tvb);
       /* XXX - should this be allocated as an ephemeral string? */
       if (len > sizeof h225_pi->dialedDigits - 1)
         len = sizeof h225_pi->dialedDigits - 1;
@@ -3096,7 +3096,7 @@ dissect_h225_FastStart_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, FALSE, &value_tvb);
 
-	if (value_tvb && tvb_captured_length(value_tvb)) {
+	if (value_tvb && tvb_length(value_tvb)) {
 		dissect_h245_FastStart_OLC(value_tvb, actx->pinfo, tree, codec_str);
 	}
 
@@ -4769,7 +4769,7 @@ dissect_h225_T_h4501SupplementaryService_item(tvbuff_t *tvb _U_, int offset _U_,
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, FALSE, &h4501_tvb);
 
-	if (h4501_tvb && tvb_captured_length(h4501_tvb)) {
+	if (h4501_tvb && tvb_length(h4501_tvb)) {
 		call_dissector(h4501_handle, h4501_tvb, actx->pinfo, tree);
 	}
 
@@ -7539,7 +7539,7 @@ dissect_h225_H323UserInformation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, PSNAME);
 	col_clear(pinfo->cinfo, COL_INFO);
 
-	it=proto_tree_add_protocol_format(tree, proto_h225, tvb, 0, tvb_captured_length(tvb), PSNAME" CS");
+	it=proto_tree_add_protocol_format(tree, proto_h225, tvb, 0, tvb_length(tvb), PSNAME" CS");
 	tr=proto_item_add_subtree(it, ett_h225);
 
 	offset = dissect_H323_UserInformation_PDU(tvb, pinfo, tr, NULL);
@@ -7574,7 +7574,7 @@ dissect_h225_h225_RasMessage(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, PSNAME);
 
-	it=proto_tree_add_protocol_format(tree, proto_h225, tvb, offset, tvb_captured_length(tvb), PSNAME" RAS");
+	it=proto_tree_add_protocol_format(tree, proto_h225, tvb, offset, tvb_length(tvb), PSNAME" RAS");
 	tr=proto_item_add_subtree(it, ett_h225);
 
 	offset = dissect_RasMessage_PDU(tvb, pinfo, tr, NULL);

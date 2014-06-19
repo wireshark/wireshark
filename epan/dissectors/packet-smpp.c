@@ -2411,7 +2411,7 @@ dissect_smpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
         guint32 offset = 0;
         while (tvb_reported_length_remaining(tvb, offset) > 0) {
             guint16 pdu_len = tvb_get_ntohl(tvb, offset);
-            gint pdu_real_len = tvb_captured_length_remaining(tvb, offset);
+            gint pdu_real_len = tvb_length_remaining(tvb, offset);
             tvbuff_t *pdu_tvb;
 
             if (pdu_len < 1)
@@ -2428,7 +2428,7 @@ dissect_smpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
         }
     }
 
-    return tvb_captured_length(tvb);
+    return tvb_length(tvb);
 }
 
 
@@ -2486,7 +2486,7 @@ dissect_smpp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
      * Create display subtree for the protocol
      */
     if (tree) {
-        ti = proto_tree_add_item (tree, proto_smpp, tvb, 0, tvb_captured_length(tvb), ENC_NA);
+        ti = proto_tree_add_item (tree, proto_smpp, tvb, 0, tvb_length(tvb), ENC_NA);
         smpp_tree = proto_item_add_subtree (ti, ett_smpp);
     }
 
@@ -2524,13 +2524,13 @@ dissect_smpp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
          * Physical length: at most command_length
          * Reported length: command_length
          */
-        if (tvb_captured_length_remaining(tvb, offset - 16 + command_length) > 0) {
+        if (tvb_length_remaining(tvb, offset - 16 + command_length) > 0) {
             pdu_tvb = tvb_new_subset(tvb, offset - 16,
                     command_length,     /* Physical length */
                     command_length);    /* Length reported by the protocol */
         } else {
             pdu_tvb = tvb_new_subset(tvb, offset - 16,
-                    tvb_captured_length_remaining(tvb, offset - 16),/* Physical length */
+                    tvb_length_remaining(tvb, offset - 16),/* Physical length */
                     command_length);    /* Length reported by the protocol */
         }
 
@@ -2729,7 +2729,7 @@ dissect_smpp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
         first = FALSE;
     }
 
-    return tvb_captured_length(tvb);
+    return tvb_length(tvb);
 }
 
 

@@ -125,7 +125,7 @@ dissect_netlink_attributes(tvbuff_t *tvb, header_field_info *hfi_type, int ett, 
 	/* align to 4 */
 	offset = (offset + 3) & ~3;
 
-	while (tvb_captured_length_remaining(tvb, offset) >= 4) {
+	while (tvb_length_remaining(tvb, offset) >= 4) {
 		guint16 rta_len, rta_type;
 		int end_offset;
 

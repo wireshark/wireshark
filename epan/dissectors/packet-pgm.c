@@ -922,7 +922,7 @@ dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				ptvcursor_current_offset(cursor), 2, pgmhdr_cksum, "not available");
 		} else {
 			reportedlen = tvb_reported_length(tvb);
-			pgmlen = tvb_captured_length(tvb);
+			pgmlen = tvb_length(tvb);
 			if (pgm_check_checksum && pgmlen >= reportedlen) {
 				vec_t cksum_vec[1];
 				guint16 computed_cksum;

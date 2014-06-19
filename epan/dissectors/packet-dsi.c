@@ -326,7 +326,7 @@ dissect_dsi_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 		break;
 	}
 
-	return tvb_captured_length(tvb);
+	return tvb_length(tvb);
 }
 
 static guint
@@ -340,7 +340,7 @@ get_dsi_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 	if ( dsi_flags > DSIFL_MAX || !dsi_command || dsi_command > DSIFUNC_MAX)
 	{
 	    /* it's not a known dsi pdu start sequence */
-	    return tvb_captured_length_remaining(tvb, offset);
+	    return tvb_length_remaining(tvb, offset);
 	}
 
 	/*
@@ -361,7 +361,7 @@ dissect_dsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 	tcp_dissect_pdus(tvb, pinfo, tree, dsi_desegment, 12,
 	    get_dsi_pdu_len, dissect_dsi_packet, data);
 
-	return tvb_captured_length(tvb);
+	return tvb_length(tvb);
 }
 
 void

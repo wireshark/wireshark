@@ -3082,7 +3082,7 @@ dissect_spc_inquiry(tvbuff_t *tvb_a, packet_info *pinfo,
     };
 
     if (!isreq && ((cdata == NULL) || !(cdata->itlq->flags & 0x3))
-        && (tvb_captured_length_remaining(tvb_a, offset_a) >= 1) ) {
+        && (tvb_length_remaining(tvb_a, offset_a) >= 1) ) {
         /*
          * INQUIRY response with device type information; add device type
          * to list of known devices & their types if not already known.
@@ -3649,7 +3649,7 @@ dissect_scsi_log_page(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
             if (log_parameter && log_parameter->dissector) {
                 tvbuff_t *param_tvb;
 
-                param_tvb = tvb_new_subset(tvb, offset, MIN(tvb_captured_length_remaining(tvb, offset),paramlen), paramlen);
+                param_tvb = tvb_new_subset(tvb, offset, MIN(tvb_length_remaining(tvb, offset),paramlen), paramlen);
                 log_parameter->dissector(param_tvb, pinfo, log_tree);
             } else {
                 /* We did not have a dissector for this page/parameter so
@@ -3756,14 +3756,14 @@ dissect_scsi_blockdescs(tvbuff_t *tvb, packet_info *pinfo _U_,
     if (!cdata)
         return;
 
-    while (tvb_captured_length_remaining(tvb, offset) > 0) {
+    while (tvb_length_remaining(tvb, offset) > 0) {
         if (longlba) {
-            if (tvb_captured_length_remaining(tvb, offset)<8)
+            if (tvb_length_remaining(tvb, offset)<8)
                 return;
             proto_tree_add_item(scsi_tree, hf_scsi_blockdescs_no_of_blocks64, tvb, offset, 8, ENC_BIG_ENDIAN);
             offset += 8;
 
-            if (tvb_captured_length_remaining(tvb, offset)<1)
+            if (tvb_length_remaining(tvb, offset)<1)
                 return;
             proto_tree_add_item(scsi_tree, hf_scsi_blockdescs_density_code, tvb, offset, 1, ENC_NA);
             offset += 1;
@@ -3771,37 +3771,37 @@ dissect_scsi_blockdescs(tvbuff_t *tvb, packet_info *pinfo _U_,
             /* 3 reserved bytes */
             offset += 3;
 
-            if (tvb_captured_length_remaining(tvb, offset)<4)
+            if (tvb_length_remaining(tvb, offset)<4)
                 return;
             proto_tree_add_item(scsi_tree, hf_scsi_blockdescs_block_length32, tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
         } else {
             if ((cdata->itl->cmdset&SCSI_CMDSET_MASK) == SCSI_DEV_SBC) {
-                if (tvb_captured_length_remaining(tvb, offset)<4)
+                if (tvb_length_remaining(tvb, offset)<4)
                     return;
                 proto_tree_add_item(scsi_tree, hf_scsi_blockdescs_no_of_blocks32, tvb, offset, 4, ENC_BIG_ENDIAN);
                 offset += 4;
 
                 offset++;  /* reserved */
 
-                if (tvb_captured_length_remaining(tvb, offset)<3)
+                if (tvb_length_remaining(tvb, offset)<3)
                     return;
                 proto_tree_add_item(scsi_tree, hf_scsi_blockdescs_block_length24, tvb, offset, 3, ENC_BIG_ENDIAN);
                 offset += 3;
             } else {
-                if (tvb_captured_length_remaining(tvb, offset)<1)
+                if (tvb_length_remaining(tvb, offset)<1)
                     return;
                 proto_tree_add_item(scsi_tree, hf_scsi_blockdescs_density_code, tvb, offset, 1, ENC_NA);
                 offset += 1;
 
-                if (tvb_captured_length_remaining(tvb, offset)<3)
+                if (tvb_length_remaining(tvb, offset)<3)
                     return;
                 proto_tree_add_item(scsi_tree, hf_scsi_blockdescs_no_of_blocks24, tvb, offset, 3, ENC_BIG_ENDIAN);
                 offset += 3;
 
                 offset++; /* reserved */
 
-                if (tvb_captured_length_remaining(tvb, offset)<3)
+                if (tvb_length_remaining(tvb, offset)<3)
                     return;
                 proto_tree_add_item(scsi_tree, hf_scsi_blockdescs_block_length24, tvb, offset, 3, ENC_BIG_ENDIAN);
                 offset += 3;
@@ -4447,8 +4447,8 @@ dissect_spc_modeselect6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         offset += 1;
         payload_len -= 1;
 
-        if (tvb_captured_length_remaining(tvb, offset)>0) {
-            blockdesc_tvb = tvb_new_subset(tvb, offset, MIN(tvb_captured_length_remaining(tvb, offset),desclen), desclen);
+        if (tvb_length_remaining(tvb, offset)>0) {
+            blockdesc_tvb = tvb_new_subset(tvb, offset, MIN(tvb_length_remaining(tvb, offset),desclen), desclen);
             dissect_scsi_blockdescs(blockdesc_tvb, pinfo, tree, cdata, FALSE);
         }
         offset += desclen;
@@ -4541,8 +4541,8 @@ dissect_spc_modeselect10(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         offset += 2;
         payload_len -= 2;
 
-        if (tvb_captured_length_remaining(tvb, offset)>0) {
-            blockdesc_tvb = tvb_new_subset(tvb, offset, MIN(tvb_captured_length_remaining(tvb, offset),desclen), desclen);
+        if (tvb_length_remaining(tvb, offset)>0) {
+            blockdesc_tvb = tvb_new_subset(tvb, offset, MIN(tvb_length_remaining(tvb, offset),desclen), desclen);
             dissect_scsi_blockdescs(blockdesc_tvb, pinfo, tree, cdata, longlba);
         }
         offset += desclen;
@@ -4671,8 +4671,8 @@ dissect_spc_modesense6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         tot_len -= 1;
 
 
-        if (tvb_captured_length_remaining(tvb, offset)>0) {
-            blockdesc_tvb = tvb_new_subset(tvb, offset, MIN(tvb_captured_length_remaining(tvb, offset),desclen), desclen);
+        if (tvb_length_remaining(tvb, offset)>0) {
+            blockdesc_tvb = tvb_new_subset(tvb, offset, MIN(tvb_length_remaining(tvb, offset),desclen), desclen);
             dissect_scsi_blockdescs(blockdesc_tvb, pinfo, tree, cdata, FALSE);
         }
         offset += desclen;
@@ -4761,8 +4761,8 @@ dissect_spc_modesense10(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         offset += 2;
         tot_len -= 2;
 
-        if (tvb_captured_length_remaining(tvb, offset)>0) {
-            blockdesc_tvb = tvb_new_subset(tvb, offset, MIN(tvb_captured_length_remaining(tvb, offset),desclen), desclen);
+        if (tvb_length_remaining(tvb, offset)>0) {
+            blockdesc_tvb = tvb_new_subset(tvb, offset, MIN(tvb_length_remaining(tvb, offset),desclen), desclen);
             dissect_scsi_blockdescs(blockdesc_tvb, pinfo, tree, cdata, longlba);
         }
         offset += desclen;
@@ -5985,7 +5985,7 @@ dissect_scsi_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         return;
     }
 
-    payload_len = tvb_captured_length(tvb);
+    payload_len = tvb_length(tvb);
     cdata = wmem_new(wmem_packet_scope(), scsi_task_data_t);
     cdata->itl = itl;
     cdata->itlq = itlq;
@@ -6070,7 +6070,7 @@ dissect_scsi_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     /* If we dont have the entire PDU there is no point in even trying
      * reassembly
      */
-    if (tvb_captured_length_remaining(tvb, offset) != tvb_reported_length_remaining(tvb, offset)) {
+    if (tvb_length_remaining(tvb, offset) != tvb_reported_length_remaining(tvb, offset)) {
         if (relative_offset) {
             call_dissector(data_handle, tvb, pinfo, scsi_tree);
             goto end_of_payload;
@@ -6096,17 +6096,17 @@ dissect_scsi_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     /* If this PDU already contains all the expected data we dont have to do
      * reassembly.
      */
-    if ( (!relative_offset) && ((guint32)tvb_captured_length_remaining(tvb, offset) == expected_length) ) {
+    if ( (!relative_offset) && ((guint32)tvb_length_remaining(tvb, offset) == expected_length) ) {
         goto dissect_the_payload;
     }
 
 
     /* Start reassembly */
 
-    if (tvb_captured_length_remaining(tvb, offset) < 0) {
+    if (tvb_length_remaining(tvb, offset) < 0) {
         goto end_of_payload;
     }
-    if ((tvb_captured_length_remaining(tvb,offset) + relative_offset) != expected_length) {
+    if ((tvb_length_remaining(tvb,offset) + relative_offset) != expected_length) {
         more_frags = TRUE;
     }
     ipfd_head = fragment_add_check(&scsi_reassembly_table, tvb, offset,
@@ -6114,7 +6114,7 @@ dissect_scsi_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                    itlq->first_exchange_frame, /* key */
                                    NULL,
                                    relative_offset,
-                                   tvb_captured_length_remaining(tvb, offset),
+                                   tvb_length_remaining(tvb, offset),
                                    more_frags);
     next_tvb = process_reassembled_data(tvb, offset, pinfo, "Reassembled SCSI DATA", ipfd_head, &scsi_frag_items, &update_col_info, tree);
 

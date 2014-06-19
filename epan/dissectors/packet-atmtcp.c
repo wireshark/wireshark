@@ -101,7 +101,7 @@ dissect_atmtcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     /* Data (for the moment...) */
     next_tvb = tvb_new_subset_remaining(tvb, offset);
     call_dissector(data_handle, next_tvb, pinfo, tree);
-    return tvb_captured_length(tvb);
+    return tvb_length(tvb);
 }
 
 

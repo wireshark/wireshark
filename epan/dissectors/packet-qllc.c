@@ -91,7 +91,7 @@ dissect_qllc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
      */
     if (!(*q_bit_set)) {
         call_dissector(sna_handle, tvb, pinfo, tree);
-        return tvb_captured_length(tvb);
+        return tvb_length(tvb);
     }
 
     /* Summary information */
@@ -157,7 +157,7 @@ dissect_qllc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
         /* yes */
     }
 
-    return tvb_captured_length(tvb);
+    return tvb_length(tvb);
 }
 
 void

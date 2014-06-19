@@ -514,7 +514,7 @@ dissect_osd_attributes_list(packet_info *pinfo, tvbuff_t *tvb, int offset,
      * all remaining bytes.   7.1.3.1
      */
     if (!osd2 && type == 1) {
-        length = tvb_captured_length_remaining(tvb, offset);
+        length = tvb_length_remaining(tvb, offset);
     }
 
     length += (osd2?8:4);
@@ -1610,7 +1610,7 @@ dissect_osd_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         dissect_osd_attribute_data_in(pinfo, tvb, offset, tree, cdata, lun_info);
 
         allocation_length = cdata->itlq->alloc_len;
-        remaining_length = tvb_captured_length_remaining(tvb, offset);
+        remaining_length = tvb_length_remaining(tvb, offset);
         if (remaining_length<allocation_length) allocation_length = remaining_length;
         if (allocation_length<24) return;
 
@@ -3159,7 +3159,7 @@ dissect_osd2_query(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         dissect_osd_attribute_data_in(pinfo, tvb, offset, tree, cdata, lun_info);
 
         allocation_length = cdata->itlq->alloc_len;
-        remaining_length = tvb_captured_length_remaining(tvb, offset);
+        remaining_length = tvb_length_remaining(tvb, offset);
         if (remaining_length<allocation_length) allocation_length = remaining_length;
         if (allocation_length<12) return;
 

@@ -9401,7 +9401,7 @@ static int dissect_nhdr_umq_cmd_resp(tvbuff_t * tvb, int offset, packet_info * p
     proto_tree_add_item(subtree, hf_lbmc_umq_cmd_resp_regid, tvb, offset + O_LBMC_CNTL_UMQ_CMD_RESP_HDR_T_REGID, L_LBMC_CNTL_UMQ_CMD_RESP_HDR_T_REGID, ENC_BIG_ENDIAN);
     len_dissected = L_LBMC_CNTL_UMQ_CMD_RESP_HDR_T;
     resp_type = tvb_get_guint8(tvb, offset + O_LBMC_CNTL_UMQ_CMD_RESP_HDR_T_RESP_TYPE);
-    if (tvb_captured_length_remaining(tvb, offset + L_LBMC_CNTL_UMQ_CMD_RESP_HDR_T) > 0)
+    if (tvb_length_remaining(tvb, offset + L_LBMC_CNTL_UMQ_CMD_RESP_HDR_T) > 0)
     {
         switch (resp_type)
         {

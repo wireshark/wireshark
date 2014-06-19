@@ -267,7 +267,7 @@ dissect_ethertype(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
 	/* Get the captured length and reported length of the data
 	   after the Ethernet type. */
-	captured_length = tvb_captured_length_remaining(tvb, ethertype_data->offset_after_ethertype);
+	captured_length = tvb_length_remaining(tvb, ethertype_data->offset_after_ethertype);
 	reported_length = tvb_reported_length_remaining(tvb,
 							ethertype_data->offset_after_ethertype);
 
@@ -343,7 +343,7 @@ dissect_ethertype(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 	add_dix_trailer(pinfo, tree, ethertype_data->fh_tree, ethertype_data->trailer_id, tvb, next_tvb, ethertype_data->offset_after_ethertype,
 			length_before, ethertype_data->fcs_len);
 
-	return tvb_captured_length(tvb);
+	return tvb_length(tvb);
 }
 
 static void

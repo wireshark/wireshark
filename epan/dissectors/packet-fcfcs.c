@@ -847,7 +847,7 @@ dissect_fcfcs (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
                                  val_to_str (opcode, fc_fcs_opcode_abbrev_val,
                                              "0x%x"));
                 /* No record of what this accept is for. Can't decode */
-                proto_tree_add_text (fcfcs_tree, tvb, 0, tvb_captured_length (tvb),
+                proto_tree_add_text (fcfcs_tree, tvb, 0, tvb_length (tvb),
                                      "No record of Exchg. Unable to decode MSG_ACC/RJT");
                 return 0;
             }
@@ -880,7 +880,7 @@ dissect_fcfcs (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
             if (tree) {
                 if ((cdata == NULL) && (opcode != FCCT_MSG_RJT)) {
                     /* No record of what this accept is for. Can't decode */
-                    proto_tree_add_text (fcfcs_tree, tvb, 0, tvb_captured_length (tvb),
+                    proto_tree_add_text (fcfcs_tree, tvb, 0, tvb_length (tvb),
                                          "No record of Exchg. Unable to decode MSG_ACC/RJT");
                     return 0;
                 }
@@ -985,7 +985,7 @@ dissect_fcfcs (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
         break;
     }
 
-    return tvb_captured_length(tvb);
+    return tvb_length(tvb);
 }
 
 /* Register the protocol with Wireshark */

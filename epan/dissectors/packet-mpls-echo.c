@@ -1703,7 +1703,7 @@ dissect_mpls_echo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     guint8      msgtype;
 
     /* If version != 1 we assume it's not an mpls ping packet */
-    if (tvb_captured_length(tvb) < 5) {
+    if (tvb_length(tvb) < 5) {
         return 0; /* Not enough information to tell version and message type. */
     }
     if (tvb_get_ntohs(tvb, 0) != 1) {
@@ -1802,7 +1802,7 @@ dissect_mpls_echo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         rem    -= len;
     }
 
-    return tvb_captured_length(tvb);
+    return tvb_length(tvb);
 }
 
 /* Register the protocol with Wireshark */

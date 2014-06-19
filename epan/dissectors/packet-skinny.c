@@ -3458,7 +3458,7 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
     }
   }
   tap_queue_packet(skinny_tap, pinfo, si);
-  return tvb_captured_length(tvb);
+  return tvb_length(tvb);
 }
 
 
@@ -3475,7 +3475,7 @@ dissect_skinny(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
   /* check, if this is really an SKINNY packet, they start with a length + 0 */
 
-  if (tvb_captured_length_remaining(tvb, 0) < 8)
+  if (tvb_length_remaining(tvb, 0) < 8)
   {
     return FALSE;
   }
@@ -3483,7 +3483,7 @@ dissect_skinny(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
   hdr_data_length = tvb_get_letohl(tvb, 0);
   hdr_version     = tvb_get_letohl(tvb, 4);
 
-  /*  data_size       = MIN(8+hdr_data_length, tvb_captured_length(tvb)) - 0xC; */
+  /*  data_size       = MIN(8+hdr_data_length, tvb_length(tvb)) - 0xC; */
 
   if (
       (hdr_data_length < 4) ||

@@ -124,7 +124,7 @@ static const value_string setup_request_names_vals[] = {
 };
 
 /* Dissector for mass storage control .
- * Returns tvb_captured_length(tvb) if a class specific dissector was found
+ * Returns tvb_length(tvb) if a class specific dissector was found
  * and 0 othervise.
  */
 static gint
@@ -171,7 +171,7 @@ dissect_usb_ms_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     }
 
     dissector(pinfo, tree, tvb, offset, is_request, usb_trans_info, usb_conv_info);
-    return tvb_captured_length(tvb);
+    return tvb_length(tvb);
 }
 
 
@@ -223,7 +223,7 @@ dissect_usb_ms_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
     /*
      * SCSI CDB inside CBW
      */
-    if(is_request&&(signature==0x43425355)&&(tvb_captured_length(tvb)==31)){
+    if(is_request&&(signature==0x43425355)&&(tvb_length(tvb)==31)){
         tvbuff_t *cdb_tvb;
         int cdbrlen, cdblen;
         guint8 lun, flags;
@@ -292,21 +292,21 @@ dissect_usb_ms_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
         offset+=1;
 
         cdblen=cdbrlen;
-        if(cdblen>tvb_captured_length_remaining(tvb, offset)){
-            cdblen=tvb_captured_length_remaining(tvb, offset);
+        if(cdblen>tvb_length_remaining(tvb, offset)){
+            cdblen=tvb_length_remaining(tvb, offset);
         }
         if(cdblen){
             cdb_tvb=tvb_new_subset(tvb, offset, cdblen, cdbrlen);
             dissect_scsi_cdb(cdb_tvb, pinfo, parent_tree, SCSI_DEV_UNKNOWN, itlq, itl);
         }
-        return tvb_captured_length(tvb);
+        return tvb_length(tvb);
     }
 
 
     /*
      * SCSI RESPONSE inside CSW
      */
-    if((!is_request)&&(signature==0x53425355)&&(tvb_captured_length(tvb)==13)){
+    if((!is_request)&&(signature==0x53425355)&&(tvb_length(tvb)==13)){
         guint8 status;
 
         /* dCSWSignature */
@@ -328,13 +328,13 @@ dissect_usb_ms_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 
         itlq=(itlq_nexus_t *)wmem_tree_lookup32_le(usb_ms_conv_info->itlq, pinfo->fd->num);
         if(!itlq){
-            return tvb_captured_length(tvb);
+            return tvb_length(tvb);
         }
         itlq->last_exchange_frame=pinfo->fd->num;
 
         itl=(itl_nexus_t *)wmem_tree_lookup32(usb_ms_conv_info->itl, itlq->lun);
         if(!itl){
-            return tvb_captured_length(tvb);
+            return tvb_length(tvb);
         }
 
         if(!status){
@@ -343,7 +343,7 @@ dissect_usb_ms_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
             /* just send "check condition" */
             dissect_scsi_rsp(tvb, pinfo, parent_tree, itlq, itl, 0x02);
         }
-        return tvb_captured_length(tvb);
+        return tvb_length(tvb);
     }
 
     /*
@@ -351,16 +351,16 @@ dissect_usb_ms_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
      */
     itlq=(itlq_nexus_t *)wmem_tree_lookup32_le(usb_ms_conv_info->itlq, pinfo->fd->num);
     if(!itlq){
-        return tvb_captured_length(tvb);
+        return tvb_length(tvb);
     }
 
     itl=(itl_nexus_t *)wmem_tree_lookup32(usb_ms_conv_info->itl, itlq->lun);
     if(!itl){
-        return tvb_captured_length(tvb);
+        return tvb_length(tvb);
     }
 
     dissect_scsi_payload(tvb, pinfo, parent_tree, is_request, itlq, itl, 0);
-    return tvb_captured_length(tvb);
+    return tvb_length(tvb);
 }
 
 static gboolean

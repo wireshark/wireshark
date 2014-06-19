@@ -377,7 +377,7 @@ classify_lg8979_packet(tvbuff_t *tvb)
 {
     guint8 func, len, data_len, flags;
 
-    len = tvb_captured_length(tvb);
+    len = tvb_length(tvb);
     /* If TVB length is equal to 5, this is classifed as a 'short response message' */
     /* and is guaranteed to be RTU->Master only */
     if (len == 5) {
@@ -510,7 +510,7 @@ dissect_lg8979(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "L&G 8979");
     col_clear(pinfo->cinfo, COL_INFO);
 
-    len = tvb_captured_length(tvb);
+    len = tvb_length(tvb);
 
     lg8979_item = proto_tree_add_protocol_format(tree, proto_lg8979, tvb, 0, len, "Landis & Gyr Telegyr 8979");
     lg8979_tree = proto_item_add_subtree(lg8979_item, ett_lg8979);
@@ -779,7 +779,7 @@ dissect_lg8979(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
         offset += 1;
 
         /* If this is not a short response, and there are at least 2 bytes remaining continue to process function codes */
-        while ((!shr) && (tvb_captured_length_remaining(tvb, offset) > 2)){
+        while ((!shr) && (tvb_length_remaining(tvb, offset) > 2)){
 
             /* Add Function Code & last Mark Block to Protocol Tree */
             /* Function code is 7 lower bits of byte , LMB is 8th bit*/
@@ -1192,7 +1192,7 @@ dissect_lg8979(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 
     } /* packet type */
 
-    return tvb_captured_length(tvb);
+    return tvb_length(tvb);
 
 }
 
@@ -1204,7 +1204,7 @@ get_lg8979_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset _U_)
 {
 
     guint len;
-    len = tvb_captured_length(tvb);
+    len = tvb_length(tvb);
 
     return len;
 }
@@ -1216,7 +1216,7 @@ static int
 dissect_lg8979_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 
-    gint length = tvb_captured_length(tvb);
+    gint length = tvb_length(tvb);
 
     /* Check for a L&G8979 packet.  It should begin with 0xFF */
     if(length < 2 || tvb_get_guint8(tvb, 0) != 0xFF) {
@@ -1227,7 +1227,7 @@ dissect_lg8979_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     tcp_dissect_pdus(tvb, pinfo, tree, lg8979_desegment, 1,
                    get_lg8979_len, dissect_lg8979, data);
 
-    return tvb_captured_length(tvb);
+    return tvb_length(tvb);
 }
 
 
@@ -1237,7 +1237,7 @@ dissect_lg8979_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 static int
 dissect_lg8979_simple(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    gint length = tvb_captured_length(tvb);
+    gint length = tvb_length(tvb);
 
     /* Check for a L&G8979 packet.  It should begin with 0xFF */
     if(length < 2 || tvb_get_guint8(tvb, 0) != 0xFF) {
@@ -1247,7 +1247,7 @@ dissect_lg8979_simple(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 
     dissect_lg8979(tvb, pinfo, tree, data);
 
-    return tvb_captured_length(tvb);
+    return tvb_length(tvb);
 }
 
 /******************************************************************************************************/

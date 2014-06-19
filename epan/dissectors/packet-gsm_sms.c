@@ -343,7 +343,7 @@ dis_field_addr(tvbuff_t *tvb, proto_tree *tree, guint32 *offset_p, const gchar *
     addrlength = tvb_get_guint8(tvb, offset);
     numdigocts = (addrlength + 1) / 2;
 
-    length = tvb_captured_length_remaining(tvb, offset);
+    length = tvb_length_remaining(tvb, offset);
 
     if (length <= numdigocts)
     {
@@ -911,7 +911,7 @@ dis_field_scts(tvbuff_t *tvb, proto_tree *tree, guint32 *offset_p)
 
     offset = *offset_p;
 
-    length = tvb_captured_length_remaining(tvb, offset);
+    length = tvb_length_remaining(tvb, offset);
 
     if (length < 7)
     {
@@ -960,7 +960,7 @@ dis_field_vp(tvbuff_t *tvb, proto_tree *tree, guint32 *offset_p, guint8 vp_form)
         switch (vp_form)
         {
         case 1:
-            length = tvb_captured_length_remaining(tvb, offset);
+            length = tvb_length_remaining(tvb, offset);
 
             if (length < 7)
             {
@@ -1150,7 +1150,7 @@ dis_field_vp(tvbuff_t *tvb, proto_tree *tree, guint32 *offset_p, guint8 vp_form)
             break;
 
         case 3:
-            length = tvb_captured_length_remaining(tvb, offset);
+            length = tvb_length_remaining(tvb, offset);
 
             if (length < 7)
             {
@@ -1199,7 +1199,7 @@ dis_field_dt(tvbuff_t *tvb, proto_tree *tree, guint32 *offset_p)
 
     offset = *offset_p;
 
-    length = tvb_captured_length_remaining(tvb, offset);
+    length = tvb_length_remaining(tvb, offset);
 
     if (length < 7)
     {
@@ -2777,7 +2777,7 @@ dis_msg_deliver(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 off
     gboolean       udhi;
 
     saved_offset = offset;
-    length = tvb_captured_length_remaining(tvb, offset);
+    length = tvb_length_remaining(tvb, offset);
 
     oct = tvb_get_guint8(tvb, offset);
     udhi = oct & 0x40;
@@ -2839,7 +2839,7 @@ dis_msg_deliver_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guin
 
     udl = 0;
     saved_offset = offset;
-    length = tvb_captured_length_remaining(tvb, offset);
+    length = tvb_length_remaining(tvb, offset);
 
     oct = tvb_get_guint8(tvb, offset);
     udhi = oct & 0x40;
@@ -2958,7 +2958,7 @@ dis_msg_submit(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offs
 
 
     saved_offset = offset;
-    length = tvb_captured_length_remaining(tvb, offset);
+    length = tvb_length_remaining(tvb, offset);
 
     oct = tvb_get_guint8(tvb, offset);
     udhi = oct & 0x40;
@@ -3026,7 +3026,7 @@ dis_msg_submit_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
 
     udl = 0;
     saved_offset = offset;
-    length = tvb_captured_length_remaining(tvb, offset);
+    length = tvb_length_remaining(tvb, offset);
 
     oct = tvb_get_guint8(tvb, offset);
     udhi = oct & 0x40;
@@ -3136,7 +3136,7 @@ dis_msg_status_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
 
     udl = 0;
     saved_offset = offset;
-    length = tvb_captured_length_remaining(tvb, offset);
+    length = tvb_length_remaining(tvb, offset);
 
     oct = tvb_get_guint8(tvb, offset);
     udhi = oct & 0x40;
@@ -3361,7 +3361,7 @@ dissect_gsm_sms(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             (msg_type == 0x03) ||
             (msg_type == 0x07))
         {
-            return tvb_captured_length(tvb);
+            return tvb_length(tvb);
         }
         else
         {
@@ -3380,7 +3380,7 @@ dissect_gsm_sms(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             (*msg_fcn)(tvb, pinfo, gsm_sms_tree, offset, gsm_data);
         }
     }
-    return tvb_captured_length(tvb);
+    return tvb_length(tvb);
 }
 
 

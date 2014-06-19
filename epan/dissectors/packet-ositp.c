@@ -925,7 +925,7 @@ static int ositp_decode_DR(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
   /* User data */
   call_dissector(data_handle, tvb_new_subset_remaining(tvb, offset), pinfo,
                  tree);
-  offset += tvb_captured_length_remaining(tvb, offset);
+  offset += tvb_length_remaining(tvb, offset);
      /* we dissected all of the containing PDU */
 
   return offset;
@@ -1181,7 +1181,7 @@ static int ositp_decode_DT(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
   offset += li;
 
   next_tvb = tvb_new_subset_remaining(tvb, offset);
-  fragment_length = tvb_captured_length(next_tvb);
+  fragment_length = tvb_length(next_tvb);
   if (fragment) {
     col_append_fstr(pinfo->cinfo, COL_INFO, " [COTP fragment, %u byte%s]",
         fragment_length, plurality(fragment_length, "", "s"));
@@ -1253,7 +1253,7 @@ static int ositp_decode_DT(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
     }
   }
 
-  offset += tvb_captured_length_remaining(tvb, offset);
+  offset += tvb_length_remaining(tvb, offset);
   /* we dissected all of the containing PDU */
 
   return offset;
@@ -1455,7 +1455,7 @@ static int ositp_decode_ED(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
   next_tvb = tvb_new_subset_remaining(tvb, offset);
   call_dissector(data_handle,next_tvb, pinfo, tree);
 
-  offset += tvb_captured_length_remaining(tvb, offset);
+  offset += tvb_length_remaining(tvb, offset);
      /* we dissected all of the containing PDU */
 
   return offset;
@@ -1665,7 +1665,7 @@ static int ositp_decode_CC(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
   }
   else
     call_dissector(data_handle, next_tvb, pinfo, tree);
-  offset += tvb_captured_length_remaining(tvb, offset);
+  offset += tvb_length_remaining(tvb, offset);
   /* we dissected all of the containing PDU */
 
   return offset;
@@ -2147,7 +2147,7 @@ static int ositp_decode_UD(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
 
   /*call_dissector(data_handle,next_tvb, pinfo, tree); */
 
-  offset += tvb_captured_length_remaining(tvb, offset);
+  offset += tvb_length_remaining(tvb, offset);
   /* we dissected all of the containing PDU */
 
   return offset;

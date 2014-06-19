@@ -8907,7 +8907,7 @@ void tetra_dissect_pdu(int channel_type, int dir, tvbuff_t *pdu, proto_tree *tre
 	guint8 p;
 
 	tetra_sub_item = proto_tree_add_item(tree, hf_tetra_pdu,
-					     pdu, 0, tvb_captured_length(pdu), ENC_NA);
+					     pdu, 0, tvb_length(pdu), ENC_NA);
 
 	tetra_sub_tree = proto_item_add_subtree(tetra_sub_item, ett_tetra);
 

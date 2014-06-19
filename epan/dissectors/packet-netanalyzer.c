@@ -249,7 +249,7 @@ dissect_netanalyzer_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         if (packet_status & MSK_ALIGN_ERR)
         {
-          proto_tree_add_text(netanalyzer_header_tree, tvb, tvb_captured_length(tvb)-1, 1, "Displayed frame data contains additional nibble due to alignment error (upper nibble is not valid)");
+          proto_tree_add_text(netanalyzer_header_tree, tvb, tvb_length(tvb)-1, 1, "Displayed frame data contains additional nibble due to alignment error (upper nibble is not valid)");
         }
       }
     }
@@ -312,7 +312,7 @@ dissect_netanalyzer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   tvbuff_t                *next_tvb;
   proto_item              *ti = NULL;
 
-  if (tvb_captured_length(tvb) >= 4)
+  if (tvb_length(tvb) >= 4)
   {
     /* generate tvb subset for Ethernet frame */
     if (dissect_netanalyzer_common(tvb, pinfo, tree))
@@ -325,7 +325,7 @@ dissect_netanalyzer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   else
   {
     /* something is wrong */
-    ti = proto_tree_add_text(tree, tvb, 4, tvb_captured_length(tvb)-4, "netANALYZER");
+    ti = proto_tree_add_text(tree, tvb, 4, tvb_length(tvb)-4, "netANALYZER");
     expert_add_info(pinfo, ti, &ei_netanalyzer_header_version_none);
   }
 }
@@ -339,7 +339,7 @@ dissect_netanalyzer_transparent(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
   proto_tree              *transparent_payload_tree = NULL;
   tvbuff_t                *next_tvb;
 
-  if (tvb_captured_length(tvb) >= 4)
+  if (tvb_length(tvb) >= 4)
   {
     /* generate tvb subset for Ethernet frame */
     if (dissect_netanalyzer_common(tvb, pinfo, tree))
@@ -348,7 +348,7 @@ dissect_netanalyzer_transparent(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
        * as normally the transparent mode is used for low level analysis
        * where dissecting the frame's content wouldn't make much sense
        * use data dissector instead */
-      ti = proto_tree_add_text(tree, tvb, 4, tvb_captured_length(tvb)-4, "Raw packet data");
+      ti = proto_tree_add_text(tree, tvb, 4, tvb_length(tvb)-4, "Raw packet data");
       transparent_payload_tree = proto_item_add_subtree(ti, ett_netanalyzer_transparent);
       next_tvb = tvb_new_subset_remaining(tvb, 4);
       call_dissector(data_dissector_handle, next_tvb, pinfo, transparent_payload_tree);
@@ -360,7 +360,7 @@ dissect_netanalyzer_transparent(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
   else
   {
     /* something is wrong */
-    ti = proto_tree_add_text(tree, tvb, 4, tvb_captured_length(tvb)-4, "netANALYZER transparent mode");
+    ti = proto_tree_add_text(tree, tvb, 4, tvb_length(tvb)-4, "netANALYZER transparent mode");
     expert_add_info(pinfo, ti, &ei_netanalyzer_header_version_none);
   }
 }

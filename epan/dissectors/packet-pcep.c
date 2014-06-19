@@ -2613,7 +2613,7 @@ dissect_pcep_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     col_clear(pinfo->cinfo, COL_INFO);
 
     dissect_pcep_msg_tree(tvb, tree, ett_pcep, pinfo);
-    return tvb_captured_length(tvb);
+    return tvb_length(tvb);
 }
 
 static int
@@ -2621,7 +2621,7 @@ dissect_pcep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     tcp_dissect_pdus(tvb, pinfo, tree, TRUE, 4, get_pcep_message_len,
                      dissect_pcep_pdu, data);
-    return tvb_captured_length(tvb);
+    return tvb_length(tvb);
 }
 
 /*Register the protocol with wireshark*/

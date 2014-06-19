@@ -155,7 +155,7 @@ static void dissect_tpncp_data(gint data_id, tvbuff_t *tvb, proto_item *item,
             case 1: case 2: case 3: case 4:
             case 5: case 6: case 7: case 8:
                 if ((g_str_len = current_tpncp_data_field_info->tpncp_data_field_array_dim)) { /* add char array */
-                    g_str_len = MIN(g_str_len, tvb_captured_length_remaining(tvb, *offset));
+                    g_str_len = MIN(g_str_len, tvb_length_remaining(tvb, *offset));
                     proto_tree_add_item(ltree, current_tpncp_data_field_info->tpncp_data_field_descr,
                                           tvb, *offset, g_str_len, ENC_NA|ENC_ASCII);
                     (*offset) += g_str_len;
@@ -220,7 +220,7 @@ static void dissect_tpncp_data(gint data_id, tvbuff_t *tvb, proto_item *item,
                 break;
         }
         current_tpncp_data_field_info = current_tpncp_data_field_info->p_next;
-        if (tvb_captured_length_remaining(tvb, *offset) <= 0) {
+        if (tvb_length_remaining(tvb, *offset) <= 0) {
             break;
         }
     }
@@ -319,7 +319,7 @@ static int dissect_tpncp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
         }
     }
 
-    return tvb_captured_length(tvb);
+    return tvb_length(tvb);
 }
 
 /*-------------------------------------------------------------------------------------------------------------------------------------------*/
@@ -345,7 +345,7 @@ static int dissect_tpncp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         /* Otherwise use the regular dissector (might not give correct dissection). */
         dissect_tpncp(tvb, pinfo, tree, data);
 
-    return tvb_captured_length(tvb);
+    return tvb_length(tvb);
 }
 
 /*-------------------------------------------------------------------------------------------------------------------------------------------*/

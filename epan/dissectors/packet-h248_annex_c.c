@@ -749,7 +749,7 @@ static void dissect_h248_annexc_acodec(proto_tree* tree,
 	dissect_ber_octet_string(implicit_p ? *((gboolean*)implicit_p) : FALSE, &asn1_ctx, tree, tvb, 0, hfid, &new_tvb);
 
 	tree = proto_item_add_subtree(asn1_ctx.created_item,ett_codec);
-	len = tvb_captured_length(new_tvb);
+	len = tvb_length(new_tvb);
 	dissect_codec_mode(tree,new_tvb,0,len);
 }
 
@@ -766,7 +766,7 @@ static void dissect_h248_annexc_BIR(proto_tree* tree,
 	dissect_ber_octet_string(implicit_p ? *((gboolean*)implicit_p) : FALSE, &asn1_ctx, tree, tvb, 0, hfid, &new_tvb);
 
 	if ( new_tvb && h248_info->term && ! h248_info->term->bir ) {
-		h248_info->term->bir = wmem_strdup(wmem_file_scope(), tvb_bytes_to_ep_str(new_tvb,0,tvb_captured_length(new_tvb)));
+		h248_info->term->bir = wmem_strdup(wmem_file_scope(), tvb_bytes_to_ep_str(new_tvb,0,tvb_length(new_tvb)));
 	}
 }
 
@@ -782,9 +782,9 @@ static void dissect_h248_annexc_NSAP(proto_tree* tree,
 	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 	dissect_ber_octet_string(implicit_p ? *((gboolean*)implicit_p) : FALSE, &asn1_ctx, tree, tvb, 0, hfid, &new_tvb);
 	if (new_tvb) {
-		dissect_nsap(new_tvb, 0,tvb_captured_length(new_tvb), tree);
+		dissect_nsap(new_tvb, 0,tvb_length(new_tvb), tree);
 		if ( h248_info->term && ! h248_info->term->nsap) {
-			h248_info->term->nsap = wmem_strdup(wmem_file_scope(), tvb_bytes_to_ep_str(new_tvb,0,tvb_captured_length(new_tvb)));
+			h248_info->term->nsap = wmem_strdup(wmem_file_scope(), tvb_bytes_to_ep_str(new_tvb,0,tvb_length(new_tvb)));
 		}
 	}
 }
@@ -803,7 +803,7 @@ static void dissect_h248_annexc_USI(proto_tree* tree, tvbuff_t* tvb, packet_info
 	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 	dissect_ber_octet_string(implicit_p ? *((gboolean*)implicit_p) : FALSE, &asn1_ctx, tree, tvb, 0, hfid, &new_tvb);
 	if (new_tvb)
-		dissect_q931_bearer_capability_ie(new_tvb, 0, tvb_captured_length(new_tvb), tree);
+		dissect_q931_bearer_capability_ie(new_tvb, 0, tvb_length(new_tvb), tree);
 }
 
 static void dissect_h248_annexc_SDP(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo, int hfid, h248_curr_info_t* h248_info _U_, void* implicit_p _U_) {

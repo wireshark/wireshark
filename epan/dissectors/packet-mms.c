@@ -1840,7 +1840,7 @@ dissect_mms_TimeOfDay(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 	gchar *	ptime;
 	nstime_t ts;
 
-	len = tvb_captured_length_remaining(tvb, offset);
+	len = tvb_length_remaining(tvb, offset);
 
 	if(len == 4)
 	{
@@ -1921,7 +1921,7 @@ dissect_mms_UtcTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 	nstime_t ts;
 	gchar *	ptime;
 
-	len = tvb_captured_length_remaining(tvb, offset);
+	len = tvb_length_remaining(tvb, offset);
 
 	if(len != 8)
 	{

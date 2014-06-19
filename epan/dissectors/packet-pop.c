@@ -203,7 +203,7 @@ dissect_pop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    * Otherwise, just call it a continuation.
    */
   if (is_continuation) {
-    length_remaining = tvb_captured_length_remaining(tvb, offset);
+    length_remaining = tvb_length_remaining(tvb, offset);
     col_add_fstr(pinfo->cinfo, COL_INFO, "S: DATA fragment, %d byte%s",
                    length_remaining, plurality (length_remaining, "", "s"));
   }
@@ -220,7 +220,7 @@ dissect_pop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
       if (!frame_data_p) {
 
-        data_val->msg_read_len += tvb_captured_length(tvb);
+        data_val->msg_read_len += tvb_length(tvb);
 
         frame_data_p = wmem_new(wmem_file_scope(), struct pop_proto_data);
 
@@ -234,7 +234,7 @@ dissect_pop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                        pinfo,
                                        frame_data_p->conversation_id,
                                        NULL,
-                                       tvb_captured_length(tvb),
+                                       tvb_length(tvb),
                                        frame_data_p->more_frags);
 
       next_tvb = process_reassembled_data(tvb, offset, pinfo,

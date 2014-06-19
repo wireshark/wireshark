@@ -433,7 +433,7 @@ static void ts2_standard_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
         frag_msg = NULL;
         pinfo->fragmented = TRUE;
         fragment_number = tvb_get_letohs(tvb, 18);
-        frag_msg = fragment_add_seq_check(&msg_reassembly_table, tvb, 24, pinfo, type, NULL, frag->frag_num, tvb_captured_length_remaining(tvb, 24), fragment_number);
+        frag_msg = fragment_add_seq_check(&msg_reassembly_table, tvb, 24, pinfo, type, NULL, frag->frag_num, tvb_length_remaining(tvb, 24), fragment_number);
         new_tvb = process_reassembled_data(tvb, 24, pinfo,"Reassembled TeamSpeak2", frag_msg, &msg_frag_items, NULL, ts2_tree);
         if (frag_msg) /* XXX: should be if (new_tvb) ?? */
         { /* Reassembled */
@@ -517,7 +517,7 @@ static void ts2_parse_loginend(tvbuff_t *tvb, proto_tree *ts2_tree)
 {
     gint32 offset;
     offset=0;
-    proto_tree_add_item(ts2_tree, hf_ts2_unknown, tvb, offset, tvb_captured_length_remaining(tvb, offset), ENC_NA);
+    proto_tree_add_item(ts2_tree, hf_ts2_unknown, tvb, offset, tvb_length_remaining(tvb, offset), ENC_NA);
 }
 
 /* Parses a ts2 known player joined (TS2_KNOWNPLAYERUPDATE) packet and adds it to the tree */
@@ -577,7 +577,7 @@ static void ts2_parse_playerleft(tvbuff_t *tvb, proto_tree *ts2_tree)
     offset+=4;
     proto_tree_add_item(ts2_tree, hf_ts2_unknown, tvb, offset, 4, ENC_NA);
     offset+=4;
-    proto_tree_add_item(ts2_tree, hf_ts2_unknown, tvb, offset, tvb_captured_length_remaining(tvb, offset), ENC_NA);
+    proto_tree_add_item(ts2_tree, hf_ts2_unknown, tvb, offset, tvb_length_remaining(tvb, offset), ENC_NA);
 }
 
 /* Parses a ts2 login part 2 (TS2T_LOGINPART2) packet and adds it to the tree */
@@ -607,7 +607,7 @@ static void ts2_parse_channellist(tvbuff_t *tvb, proto_tree *ts2_tree)
     offset=0;
     proto_tree_add_item(ts2_tree, hf_ts2_number_of_channels, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset+=4;
-    while(offset<tvb_captured_length_remaining(tvb, 0))
+    while(offset<tvb_length_remaining(tvb, 0))
     {
         proto_tree_add_item(ts2_tree, hf_ts2_channel_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
         offset+=4;
@@ -665,7 +665,7 @@ static void ts2_parse_playerlist(tvbuff_t *tvb, proto_tree *ts2_tree)
     proto_tree_add_item(ts2_tree, hf_ts2_number_of_players, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     number_of_players = tvb_get_letohl(tvb, 0);
     offset+=4;
-    while(offset<tvb_captured_length_remaining(tvb, 0) && x<number_of_players)
+    while(offset<tvb_length_remaining(tvb, 0) && x<number_of_players)
     {
         proto_tree_add_item(ts2_tree, hf_ts2_player_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
         offset+=4;
@@ -680,7 +680,7 @@ static void ts2_parse_playerlist(tvbuff_t *tvb, proto_tree *ts2_tree)
         offset+=30;
         x++;
     }
-    proto_tree_add_item(ts2_tree, hf_ts2_emptyspace, tvb, offset, tvb_captured_length_remaining(tvb, 0), ENC_NA);
+    proto_tree_add_item(ts2_tree, hf_ts2_emptyspace, tvb, offset, tvb_length_remaining(tvb, 0), ENC_NA);
 }
 
 

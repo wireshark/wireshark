@@ -1398,7 +1398,7 @@ dissect_bthci_evt_loopback_command(tvbuff_t *tvb, int offset,
     next_tvb = tvb_new_subset_remaining(tvb, offset);
     call_dissector_with_data(bthci_cmd_handle, next_tvb, pinfo, tree, hci_data);
 
-    offset += tvb_captured_length_remaining(tvb, offset);
+    offset += tvb_length_remaining(tvb, offset);
 
     return offset;
 }
@@ -2821,7 +2821,7 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset,
             proto_tree_add_item(tree, hf_bthci_evt_amp_remaining_assoc_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset += 2;
             proto_tree_add_item(tree, hf_bthci_evt_amp_assoc_fragment, tvb, offset, -1, ENC_NA);
-            offset += tvb_captured_length_remaining(tvb, offset);
+            offset += tvb_length_remaining(tvb, offset);
             break;
 
         case 0x140b: /* Write Remote AMP Assoc */
@@ -2976,7 +2976,7 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset,
 
         default:
             proto_tree_add_item(tree, hf_bthci_evt_ret_params, tvb, offset, -1, ENC_NA);
-            offset += tvb_captured_length_remaining(tvb, offset);
+            offset += tvb_length_remaining(tvb, offset);
             break;
     }
 
@@ -3640,12 +3640,12 @@ dissect_bthci_evt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         case 0xff: /* Vendor-Specific */
 /* TODO: Implement above cases */
             proto_tree_add_expert(bthci_evt_tree, pinfo, &ei_event_undecoded, tvb, offset, -1);
-            offset += tvb_captured_length_remaining(tvb, offset);
+            offset += tvb_length_remaining(tvb, offset);
             break;
 
         default:
             proto_tree_add_expert(bthci_evt_tree, pinfo, &ei_event_unknown, tvb, offset, -1);
-            offset += tvb_captured_length_remaining(tvb, offset);
+            offset += tvb_length_remaining(tvb, offset);
             break;
         }
 

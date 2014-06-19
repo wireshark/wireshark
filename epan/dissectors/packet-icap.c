@@ -249,7 +249,7 @@ is_icap_header:
 		}
 	}
 
-	datalen = tvb_captured_length_remaining(tvb, offset);
+	datalen = tvb_length_remaining(tvb, offset);
     if (datalen > 0) {
         if(http_handle){
             new_tvb = tvb_new_subset_remaining(tvb, offset);

@@ -538,7 +538,7 @@ attr_list(proto_tree *tree, int hf, tvbuff_t *tvb, int offset, int length,
         while (offset+2<length) {
             offset += 2;
             /* If the length passed is longer then the actual payload then this must be an incomplete packet. */
-            if (tvb_captured_length_remaining(tvb, 4)<length) {
+            if (tvb_length_remaining(tvb, 4)<length) {
                 proto_tree_add_text(tree, tvb, offset, -1, "Status: Too much data to pass inside this protocol. Resubmit request using a streaming protocol like TCP.");
                 proto_tree_add_text(tree, tvb, offset, -1, "Note: Protocol dissection is aborted due to packet overflow. See overflow flag.");
                 break;
@@ -1424,7 +1424,7 @@ dissect_srvloc_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
         srvloc_tree = proto_item_add_subtree(ti, ett_srvloc);
     }
     dissect_srvloc(tvb, pinfo, srvloc_tree, NULL);
-    return tvb_captured_length(tvb);
+    return tvb_length(tvb);
 }
 
 static int
@@ -1440,7 +1440,7 @@ dissect_srvloc_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
      */
     tcp_dissect_pdus(tvb, pinfo, tree, srvloc_desegment, 5, get_srvloc_pdu_len,
                      dissect_srvloc_pdu, data);
-    return tvb_captured_length(tvb);
+    return tvb_length(tvb);
 }
 
 /* Register protocol with Wireshark. */

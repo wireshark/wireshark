@@ -328,7 +328,7 @@ dissect_cpfi(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree, void *
   if (pinfo->dst.type != AT_ETHER || pinfo->src.type != AT_ETHER)
     return 0;
 
-  length = tvb_captured_length_remaining(message_tvb, 8);
+  length = tvb_length_remaining(message_tvb, 8);
   reported_length = tvb_reported_length_remaining(message_tvb, 8);
   if (reported_length < 8)
   {
@@ -343,7 +343,7 @@ dissect_cpfi(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree, void *
   if (body_length > reported_body_length)
     body_length = reported_body_length;
 
-  length = tvb_captured_length_remaining(message_tvb, 8+body_length);
+  length = tvb_length_remaining(message_tvb, 8+body_length);
   if (length < 0)
   {
     /* The footer wasn't captured at all.
@@ -383,7 +383,7 @@ dissect_cpfi(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree, void *
   footer_tvb = tvb_new_subset(message_tvb, 8+body_length, length, 8);
   dissect_cpfi_footer(footer_tvb, cpfi_tree);
 
-  return(tvb_captured_length(message_tvb));
+  return(tvb_length(message_tvb));
 
 }
 

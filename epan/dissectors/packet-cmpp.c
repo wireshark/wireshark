@@ -547,7 +547,7 @@ dissect_cmpp_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 	const gchar *command_str; /* Header command string */
 
 	/* Get the length of the PDU */
-	tvb_len = tvb_captured_length(tvb);
+	tvb_len = tvb_length(tvb);
 	/* if the length of the tvb is shorder then the cmpp header length exit */
 	if (tvb_len < CMPP_FIX_HEADER_LENGTH)
 		return 0;
@@ -617,7 +617,7 @@ dissect_cmpp_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 		}
 	}
 
-	return tvb_captured_length(tvb);
+	return tvb_length(tvb);
 }
 
 
@@ -634,7 +634,7 @@ dissect_cmpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 	guint total_length, command_id, tvb_len;
 	/* Check that there's enough data */
-	tvb_len = tvb_captured_length(tvb);
+	tvb_len = tvb_length(tvb);
 	if (tvb_len < CMPP_FIX_HEADER_LENGTH)
 		return 0;
 
@@ -658,7 +658,7 @@ dissect_cmpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 			 get_cmpp_pdu_len, dissect_cmpp_tcp_pdu, data);
 
 	/* Return the amount of data this dissector was able to dissect */
-	return tvb_captured_length(tvb);
+	return tvb_length(tvb);
 
 }
 

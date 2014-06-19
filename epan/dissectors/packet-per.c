@@ -164,7 +164,7 @@ static tvbuff_t *new_octet_aligned_subset(tvbuff_t *tvb, guint32 offset, asn1_ct
   /*  XXX - why are we doing this?  Shouldn't we throw an exception if we've
    *  been asked to decode more octets than exist?
    */
-  actual_length = tvb_captured_length_remaining(tvb,boffset);
+  actual_length = tvb_length_remaining(tvb,boffset);
   if (length <= actual_length)
 	  actual_length = length;
 
@@ -991,7 +991,7 @@ dissect_per_any_oid_str(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_t
   offset = dissect_per_any_oid(tvb, offset, actx, tree, hf_index, (value_stringx) ? &value_tvb : NULL, is_absolute);
 
   if (value_stringx) {
-    if (value_tvb && (length = tvb_captured_length(value_tvb))) {
+    if (value_tvb && (length = tvb_length(value_tvb))) {
       *value_stringx = oid_encoded2string(tvb_get_ptr(value_tvb, 0, length), length);
     } else {
       *value_stringx = "";

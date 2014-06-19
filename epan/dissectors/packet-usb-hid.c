@@ -763,7 +763,7 @@ static const value_string usb_hid_report_type_vals[] = {
 
 /* Dissector for HID class-specific control request as defined in
  * USBHID 1.11, Chapter 7.2.
- * Returns tvb_captured_length(tvb) if a class specific dissector was found
+ * Returns tvb_length(tvb) if a class specific dissector was found
  * and 0 otherwise.
  */
 static gint
@@ -816,7 +816,7 @@ dissect_usb_hid_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     }
 
     dissector(pinfo, tree, tvb, offset, is_request, usb_trans_info, usb_conv_info);
-    return tvb_captured_length(tvb);
+    return tvb_length(tvb);
 }
 
 /* dissect a descriptor that is specific to the HID class */

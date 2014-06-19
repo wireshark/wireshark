@@ -455,7 +455,7 @@ dissect_zbee_secure(tvbuff_t *tvb, packet_info *pinfo, proto_tree* tree, guint o
 
     /* Create a subtree for the security information. */
     if (tree) {
-        sec_root = proto_tree_add_text(tree, tvb, offset, tvb_captured_length_remaining(tvb, offset), "ZigBee Security Header");
+        sec_root = proto_tree_add_text(tree, tvb, offset, tvb_length_remaining(tvb, offset), "ZigBee Security Header");
         sec_tree = proto_item_add_subtree(sec_root, ett_zbee_sec);
     }
 
@@ -474,7 +474,7 @@ dissect_zbee_secure(tvbuff_t *tvb, packet_info *pinfo, proto_tree* tree, guint o
      * is automatically freed before the next packet is processed.
      */
 #ifdef HAVE_LIBGCRYPT
-    enc_buffer = (guint8 *)tvb_memdup(wmem_packet_scope(), tvb, 0, tvb_captured_length(tvb));
+    enc_buffer = (guint8 *)tvb_memdup(wmem_packet_scope(), tvb, 0, tvb_length(tvb));
     /*
      * Override the const qualifiers and patch the security level field, we
      * know it is safe to overide the const qualifiers because we just
@@ -597,7 +597,7 @@ dissect_zbee_secure(tvbuff_t *tvb, packet_info *pinfo, proto_tree* tree, guint o
     if (mic_len) {
         /* Display the MIC. */
         if (tree) {
-            proto_tree_add_item(sec_tree, hf_zbee_sec_mic, tvb, (gint)(tvb_captured_length(tvb)-mic_len),
+            proto_tree_add_item(sec_tree, hf_zbee_sec_mic, tvb, (gint)(tvb_length(tvb)-mic_len),
                    mic_len, ENC_NA);
         }
     }

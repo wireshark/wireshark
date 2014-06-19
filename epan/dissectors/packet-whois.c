@@ -78,7 +78,7 @@ dissect_whois(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         conversation_add_proto_data(conversation, proto_whois, whois_trans);
     }
 
-    len = tvb_captured_length(tvb);
+    len = tvb_length(tvb);
     if (!PINFO_FD_VISITED(pinfo)) {
         if (pinfo->can_desegment) {
             if (is_query) {

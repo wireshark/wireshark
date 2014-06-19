@@ -1089,7 +1089,7 @@ dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo,
     gint        parameters_length;
     guint8      hdr_id, i;
 
-    if (tvb_captured_length_remaining(tvb, offset) > 0) {
+    if (tvb_length_remaining(tvb, offset) > 0) {
         proto_item *hdrs;
         hdrs      = proto_tree_add_item(tree, hf_headers, tvb, offset, item_length, ENC_NA);
         hdrs_tree = proto_item_add_subtree(hdrs, ett_btobex_hdrs);
@@ -1098,7 +1098,7 @@ dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo,
         return offset;
     }
 
-    while (tvb_captured_length_remaining(tvb, offset) > 0) {
+    while (tvb_length_remaining(tvb, offset) > 0) {
         hdr_id = tvb_get_guint8(tvb, offset);
 
         switch(0xC0 & hdr_id)
@@ -1475,22 +1475,22 @@ dissect_btobex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         /* not the first fragment */
         frag_msg = fragment_add_seq_next(&btobex_reassembly_table,
                                 tvb, 0, pinfo, pinfo->p2p_dir, NULL,
-                                tvb_captured_length(tvb), TRUE);
+                                tvb_length(tvb), TRUE);
 
         new_tvb = process_reassembled_data(tvb, 0, pinfo,
                         "Reassembled Obex packet", frag_msg, &btobex_frag_items, NULL, tree);
 
         pinfo->fragmented = TRUE;
     } else {
-        if (tvb_captured_length(tvb) < tvb_get_ntohs(tvb, offset+1)) {
+        if (tvb_length(tvb) < tvb_get_ntohs(tvb, offset+1)) {
             /* first fragment in a sequence */
-            no_of_segments = tvb_get_ntohs(tvb, offset+1)/tvb_captured_length(tvb);
-            if (tvb_get_ntohs(tvb, offset+1) > (no_of_segments * tvb_captured_length(tvb)))
+            no_of_segments = tvb_get_ntohs(tvb, offset+1)/tvb_length(tvb);
+            if (tvb_get_ntohs(tvb, offset+1) > (no_of_segments * tvb_length(tvb)))
                 no_of_segments++;
 
             frag_msg = fragment_add_seq_next(&btobex_reassembly_table,
                                 tvb, 0, pinfo, pinfo->p2p_dir, NULL,
-                                tvb_captured_length(tvb), TRUE);
+                                tvb_length(tvb), TRUE);
 
             fragment_set_tot_len(&btobex_reassembly_table,
                                 pinfo, pinfo->p2p_dir, NULL,
@@ -1501,7 +1501,7 @@ dissect_btobex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
             pinfo->fragmented = TRUE;
             }
-        else if (tvb_captured_length(tvb) == tvb_get_ntohs(tvb, offset+1)) {
+        else if (tvb_length(tvb) == tvb_get_ntohs(tvb, offset+1)) {
             /* non-fragmented */
             complete = TRUE;
             pinfo->fragmented = FALSE;
@@ -1652,9 +1652,9 @@ dissect_btobex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             break;
 
         default:
-            if (length == 0 && tvb_captured_length_remaining(tvb, offset) > 0) {
-                proto_tree_add_expert(st, pinfo, &ei_unexpected_data, tvb, offset, tvb_captured_length_remaining(tvb, offset));
-                offset += tvb_captured_length_remaining(tvb, offset);
+            if (length == 0 && tvb_length_remaining(tvb, offset) > 0) {
+                proto_tree_add_expert(st, pinfo, &ei_unexpected_data, tvb, offset, tvb_length_remaining(tvb, offset));
+                offset += tvb_length_remaining(tvb, offset);
                 break;
             } else if (length == 0) break;
 

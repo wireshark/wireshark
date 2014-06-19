@@ -507,7 +507,7 @@ dissect_aim_rendezvous_extended_message(tvbuff_t *tvb, proto_tree *msg_tree)
 	text = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, text_length, ENC_ASCII|ENC_NA);
 	proto_tree_add_text(msg_tree, tvb, offset, text_length, "Text: %s", text); /* offset+=text_length; */
 
-	offset = tvb_captured_length(tvb);
+	offset = tvb_length(tvb);
 
 	return offset;
 }
@@ -571,7 +571,7 @@ dissect_aim_tlv_value_extended_data(proto_item *ti, guint16 valueid _U_, tvbuff_
 	        /* plugin-specific data follows */
 	        proto_tree_add_text(entry, tvb, offset, -1, "Plugin-specific data");
 	}
-	offset = tvb_captured_length(tvb);
+	offset = tvb_length(tvb);
 
 	return offset;
 }
@@ -604,7 +604,7 @@ dissect_aim_msg_client_err(tvbuff_t *tvb, packet_info *pinfo, proto_tree *msg_tr
 	reason = tvb_get_ntohs(tvb, offset);
 	proto_tree_add_item(msg_tree, hf_aim_icbm_client_err_reason, tvb, offset, 2, ENC_BIG_ENDIAN); offset+=2;
 
-	if (reason == CLIENT_ERR__REASON_CHANNEL_SPECIFIC && tvb_captured_length_remaining(tvb, offset) > 0)
+	if (reason == CLIENT_ERR__REASON_CHANNEL_SPECIFIC && tvb_length_remaining(tvb, offset) > 0)
 	{
 		switch (channel)
 		{

@@ -406,7 +406,7 @@ dissect_dlsw_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 
   }
 
-  return tvb_captured_length(tvb);
+  return tvb_length(tvb);
 }
 
 static void
@@ -540,7 +540,7 @@ dissect_dlsw_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
   }
 
   tcp_dissect_pdus(tvb, pinfo, tree, TRUE, 4, get_dlsw_pdu_len, dissect_dlsw_pdu, data);
-  return tvb_captured_length(tvb);
+  return tvb_length(tvb);
 }
 
 void

@@ -351,7 +351,7 @@ static int dissect_pnrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
      * Validate if it is really a PNRP Packet
      *----------------------------------------*/
     /* Check that there's enough data */
-    /* XXX: ISTR that tvb_captured_length should be used when     */
+    /* XXX: ISTR that tvb_length should be used when     */
     /*      initially checking for a valid packet for a  */
     /*      new style dissector.                         */
     /*      ToDo: confirm                                */

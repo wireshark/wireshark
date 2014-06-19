@@ -578,7 +578,7 @@ dissect_btsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
                                      tvb, offset, 0, "Too many parameters");
     }
 
-    if (tvb_captured_length(tvb) > offset)
+    if (tvb_length(tvb) > offset)
         proto_tree_add_expert(tree, pinfo, &ei_unexpected_data, tvb, offset, -1);
 
     return offset;

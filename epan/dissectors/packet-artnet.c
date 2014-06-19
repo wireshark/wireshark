@@ -3134,7 +3134,7 @@ dissect_artnet_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
   guint64     qword;
 
   /* check if we atleast have the 8 byte header */
-  if (tvb_captured_length(tvb) < 8)
+  if (tvb_length(tvb) < 8)
     return FALSE;
 
   /* Check the 8 byte header "Art-Net\0" = 0x4172742d4e7400*/

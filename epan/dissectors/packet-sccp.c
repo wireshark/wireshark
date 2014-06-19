@@ -842,7 +842,7 @@ sccp_called_calling_looks_valid(guint32 frame_num _U_, tvbuff_t *tvb, guint8 my_
 {
   guint8 ai, ri, gti, ssni, pci;
   guint8 len_needed = 1;      /* need at least the Address Indicator */
-  guint  len        = tvb_captured_length(tvb);
+  guint  len        = tvb_length(tvb);
 
   ai = tvb_get_guint8(tvb, 0);
   if ((my_mtp3_standard == ANSI_STANDARD) && ((ai & ANSI_NATIONAL_MASK) == 0))
@@ -908,7 +908,7 @@ looks_like_valid_sccp(guint32 frame_num _U_, tvbuff_t *tvb, guint8 my_mtp3_stand
   guint  data_ptr       = 0;
   guint  opt_ptr        = 0;
   guint8 pointer_length = POINTER_LENGTH;
-  guint  len            = tvb_captured_length(tvb);
+  guint  len            = tvb_length(tvb);
 
   /* Ensure we can do some basic checks without throwing an exception.
    * Accesses beyond this length need to check the length first because
@@ -1570,7 +1570,7 @@ dissect_sccp_unknown_message(tvbuff_t *message_tvb, proto_tree *sccp_tree)
 {
   guint32 message_length;
 
-  message_length = tvb_captured_length(message_tvb);
+  message_length = tvb_length(message_tvb);
 
   proto_tree_add_text(sccp_tree, message_tvb, 0, message_length,
                       "Unknown message (%u byte%s)",

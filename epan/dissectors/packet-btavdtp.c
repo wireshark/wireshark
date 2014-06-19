@@ -637,8 +637,8 @@ dissect_sep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset,
        when SEP is provided in ACP role, otherwise INT frequently asking for it
     */
     direction = (pinfo->p2p_dir == P2P_DIR_SENT) ? P2P_DIR_RECV : P2P_DIR_SENT;
-    items = tvb_captured_length_remaining(tvb, offset) / 2;
-    while (tvb_captured_length_remaining(tvb, offset) > 0) {
+    items = tvb_length_remaining(tvb, offset) / 2;
+    while (tvb_length_remaining(tvb, offset) > 0) {
         seid = tvb_get_guint8(tvb, offset);
         in_use = seid & 0x02;
         seid = seid >> 2;
@@ -995,7 +995,7 @@ dissect_capabilities(tvbuff_t *tvb, packet_info *pinfo,
     gint        media_type                                    = 0;
     gint        media_codec_type                              = 0;
 
-    capabilities_item = proto_tree_add_item(tree, hf_btavdtp_capabilities, tvb, offset, tvb_captured_length(tvb) - offset, ENC_NA);
+    capabilities_item = proto_tree_add_item(tree, hf_btavdtp_capabilities, tvb, offset, tvb_length(tvb) - offset, ENC_NA);
     capabilities_tree = proto_item_add_subtree(capabilities_item, ett_btavdtp_capabilities);
 
     if (codec)
@@ -1007,7 +1007,7 @@ dissect_capabilities(tvbuff_t *tvb, packet_info *pinfo,
     if (vendor_codec)
         *vendor_codec = 0;
 
-    while (tvb_captured_length_remaining(tvb, offset) > 0) {
+    while (tvb_length_remaining(tvb, offset) > 0) {
         service_category = tvb_get_guint8(tvb, offset);
         losc = tvb_get_guint8(tvb, offset + 1);
         service_item = proto_tree_add_none_format(capabilities_tree, hf_btavdtp_service, tvb, offset, 2 + losc, "Service: %s", val_to_str_const(service_category, service_category_vals, "RFD"));
@@ -1457,7 +1457,7 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             }
         }
 
-        return tvb_captured_length(tvb);
+        return tvb_length(tvb);
     } else if (!(l2cap_data->local_cid == channels_info->control_local_cid &&
             l2cap_data->remote_cid == channels_info->control_remote_cid)) {
         /* Unknown Stream Channel */
@@ -1466,7 +1466,7 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
         col_append_fstr(pinfo->cinfo, COL_INFO, "Unknown channel stream on cid=0x%04x", l2cap_data->cid);
         proto_tree_add_item(btavdtp_tree, hf_btavdtp_data, tvb, offset, -1, ENC_NA);
-        return tvb_captured_length(tvb);
+        return tvb_length(tvb);
     }
 
     /* Signaling Channel */
@@ -1701,7 +1701,7 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         case SIGNAL_ID_START:
             if (message_type == MESSAGE_TYPE_COMMAND) {
                 i_sep = 1;
-                while (tvb_captured_length_remaining(tvb, offset) > 0) {
+                while (tvb_length_remaining(tvb, offset) > 0) {
                     offset = dissect_seid(tvb, pinfo, btavdtp_tree, offset,
                             SEID_ACP, i_sep, NULL,
                             interface_id, adapter_id, chandle, frame_number);
@@ -1774,7 +1774,7 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         case SIGNAL_ID_SUSPEND:
             if (message_type == MESSAGE_TYPE_COMMAND) {
                 i_sep = 1;
-                while (tvb_captured_length_remaining(tvb, offset) > 0) {
+                while (tvb_length_remaining(tvb, offset) > 0) {
                     offset = dissect_seid(tvb, pinfo, btavdtp_tree, offset,
                             SEID_ACP, i_sep, NULL,
                             interface_id, adapter_id, chandle, frame_number);
@@ -1814,7 +1814,7 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                         SEID_ACP, 0, NULL, interface_id,
                         adapter_id, chandle, frame_number);
                 proto_tree_add_item(btavdtp_tree, hf_btavdtp_data, tvb, offset, -1, ENC_NA);
-                offset += tvb_captured_length_remaining(tvb, offset);
+                offset += tvb_length_remaining(tvb, offset);
                 break;
             }
             if (message_type == MESSAGE_TYPE_REJECT) {
@@ -1824,7 +1824,7 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             }
 
             proto_tree_add_item(btavdtp_tree, hf_btavdtp_data, tvb, offset, -1, ENC_NA);
-            offset += tvb_captured_length_remaining(tvb, offset);
+            offset += tvb_length_remaining(tvb, offset);
             break;
         case SIGNAL_ID_DELAY_REPORT:
             if (message_type == MESSAGE_TYPE_COMMAND) {
@@ -1849,7 +1849,7 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
     LABEL_data:
 
-    if (tvb_captured_length_remaining(tvb, offset) > 0) {
+    if (tvb_length_remaining(tvb, offset) > 0) {
         proto_tree_add_item(btavdtp_tree, hf_btavdtp_data, tvb, offset, -1, ENC_NA);
     }
 
@@ -2840,7 +2840,7 @@ dissect_bta2dp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     bluetooth_add_address(pinfo, &pinfo->net_dst, sep_data.stream_number, "BT A2DP", pinfo->fd->num, FALSE, &bta2dp_codec_info);
     call_dissector(rtp_handle, tvb, pinfo, tree);
 
-    offset += tvb_captured_length_remaining(tvb, offset);
+    offset += tvb_length_remaining(tvb, offset);
 
     return offset;
 }
@@ -3021,7 +3021,7 @@ dissect_btvdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
     bluetooth_add_address(pinfo, &pinfo->net_dst, 0, "BT VDP", pinfo->fd->num, TRUE, &btvdp_codec_info);
     call_dissector(rtp_handle, tvb, pinfo, tree);
-    offset += tvb_captured_length_remaining(tvb, offset);
+    offset += tvb_length_remaining(tvb, offset);
 
     return offset;
 }

@@ -211,7 +211,7 @@ dissect_fcoib(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "FCoIB");
-    bytes_remaining = tvb_captured_length_remaining(tvb, FCOIB_HEADER_LEN);
+    bytes_remaining = tvb_length_remaining(tvb, FCOIB_HEADER_LEN);
     if (bytes_remaining > frame_len)
         bytes_remaining = frame_len;        /* backing length */
     next_tvb = tvb_new_subset(tvb, FCOIB_HEADER_LEN, bytes_remaining, frame_len);
@@ -284,7 +284,7 @@ dissect_fcoib(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
                                    crc, crc_computed);
         }
         proto_tree_set_appendix(fcoib_tree, tvb, crc_offset,
-                                tvb_captured_length_remaining (tvb, crc_offset));
+                                tvb_length_remaining (tvb, crc_offset));
     } else {
         item = proto_tree_add_text(fcoib_tree, tvb, crc_offset, 0,
                                    "CRC: [missing]");

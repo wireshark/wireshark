@@ -6713,7 +6713,7 @@ dissect_dcm_pdv_fragmented(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		offset += pdv_body_len;
 	    }
 	    else {
-		guint next_tvb_captured_length = tvb_captured_length(next_tvb);
+		guint next_tvb_length = tvb_length(next_tvb);
 		/* Decode reassembled data */
 
 		if (tree || have_tap_listener(dicom_eo_tap)) {
@@ -6723,15 +6723,15 @@ dissect_dcm_pdv_fragmented(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		       i.e Class & Instance UID, so the export dialog has all information and
 		       that the dicom header is complete
 		    */
-		    offset += dissect_dcm_pdv_body(next_tvb, pinfo, tree, pdv, 0, next_tvb_captured_length, pdv_description);
+		    offset += dissect_dcm_pdv_body(next_tvb, pinfo, tree, pdv, 0, next_tvb_length, pdv_description);
 		}
 
 		if (have_tap_listener(dicom_eo_tap)) {
 		    /* Copy pure DICOM data to buffer, no PDV flags */
 
-		    pdv->data = g_malloc(next_tvb_captured_length);      /* will be freed in dcm_export_create_object() */
-                    tvb_memcpy(next_tvb, pdv->data, 0, next_tvb_captured_length);
-                    pdv->data_len = next_tvb_captured_length;
+		    pdv->data = g_malloc(next_tvb_length);      /* will be freed in dcm_export_create_object() */
+                    tvb_memcpy(next_tvb, pdv->data, 0, next_tvb_length);
+                    pdv->data_len = next_tvb_length;
 
 		    /* Copy to export buffer */
 		    dcm_export_create_object(pinfo, assoc, pdv);

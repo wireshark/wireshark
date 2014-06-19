@@ -387,7 +387,7 @@ dissect_diameter_eap_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	call_dissector(eap_handle, tvb, pinfo, tree);
 
 	col_set_writable(pinfo->cinfo, save_writable);
-	return tvb_captured_length(tvb);
+	return tvb_length(tvb);
 }
 
 /* http://www.3gpp2.org/public_html/X/VSA-VSE.cfm */
@@ -677,10 +677,10 @@ address_rfc_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb, diam_sub_dis_t *dia
 {
 	char *label = (char *)wmem_alloc(wmem_packet_scope(), ITEM_LABEL_LENGTH+1);
 	address_avp_t *t = (address_avp_t *)a->type_data;
-	proto_item *pi = proto_tree_add_item(c->tree,a->hf_value,tvb,0,tvb_captured_length(tvb),ENC_BIG_ENDIAN);
+	proto_item *pi = proto_tree_add_item(c->tree,a->hf_value,tvb,0,tvb_length(tvb),ENC_BIG_ENDIAN);
 	proto_tree *pt = proto_item_add_subtree(pi,t->ett);
 	guint32 addr_type = tvb_get_ntohs(tvb,0);
-	gint len = tvb_captured_length_remaining(tvb,2);
+	gint len = tvb_length_remaining(tvb,2);
 
 	proto_tree_add_item(pt,t->hf_address_type,tvb,0,2,ENC_NA);
 	switch (addr_type ) {
@@ -734,7 +734,7 @@ proto_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb, diam_sub_dis_t *diam_sub_
 static const char *
 time_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb, diam_sub_dis_t *diam_sub_dis_inf _U_)
 {
-	int len = tvb_captured_length(tvb);
+	int len = tvb_length(tvb);
 	char *label = (char *)wmem_alloc(wmem_packet_scope(), ITEM_LABEL_LENGTH+1);
 	proto_item *pi;
 
@@ -755,9 +755,9 @@ address_v16_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb, diam_sub_dis_t *dia
 {
 	char *label = (char *)wmem_alloc(wmem_packet_scope(), ITEM_LABEL_LENGTH+1);
 	address_avp_t *t = (address_avp_t *)a->type_data;
-	proto_item *pi = proto_tree_add_item(c->tree,a->hf_value,tvb,0,tvb_captured_length(tvb),ENC_BIG_ENDIAN);
+	proto_item *pi = proto_tree_add_item(c->tree,a->hf_value,tvb,0,tvb_length(tvb),ENC_BIG_ENDIAN);
 	proto_tree *pt = proto_item_add_subtree(pi,t->ett);
-	guint32 len = tvb_captured_length(tvb);
+	guint32 len = tvb_length(tvb);
 
 	switch (len) {
 		case 4:
@@ -783,7 +783,7 @@ static const char *
 simple_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb, diam_sub_dis_t *diam_sub_dis_inf _U_)
 {
 	char *label = (char *)wmem_alloc(wmem_packet_scope(), ITEM_LABEL_LENGTH+1);
-	proto_item *pi = proto_tree_add_item(c->tree,a->hf_value,tvb,0,tvb_captured_length(tvb),ENC_BIG_ENDIAN);
+	proto_item *pi = proto_tree_add_item(c->tree,a->hf_value,tvb,0,tvb_length(tvb),ENC_BIG_ENDIAN);
 	proto_item_fill_label(PITEM_FINFO(pi), label);
 	label = strstr(label,": ")+2;
 	return label;
@@ -793,7 +793,7 @@ static const char *
 utf8_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb, diam_sub_dis_t *diam_sub_dis_inf _U_)
 {
 	char *label = (char *)wmem_alloc(wmem_packet_scope(), ITEM_LABEL_LENGTH+1);
-	proto_item *pi = proto_tree_add_item(c->tree,a->hf_value,tvb,0,tvb_captured_length(tvb),ENC_UTF_8|ENC_BIG_ENDIAN);
+	proto_item *pi = proto_tree_add_item(c->tree,a->hf_value,tvb,0,tvb_length(tvb),ENC_UTF_8|ENC_BIG_ENDIAN);
 	proto_item_fill_label(PITEM_FINFO(pi), label);
 	label = strstr(label,": ")+2;
 	return label;
@@ -806,9 +806,9 @@ integer32_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb, diam_sub_dis_t *diam_
 	proto_item *pi;
 
 	/* Verify length before adding */
-	gint length = tvb_captured_length_remaining(tvb,0);
+	gint length = tvb_length_remaining(tvb,0);
 	if (length == 4) {
-		pi= proto_tree_add_item(c->tree,a->hf_value,tvb,0,tvb_captured_length_remaining(tvb,0),ENC_BIG_ENDIAN);
+		pi= proto_tree_add_item(c->tree,a->hf_value,tvb,0,tvb_length_remaining(tvb,0),ENC_BIG_ENDIAN);
 		label = (char *)wmem_alloc(wmem_packet_scope(), ITEM_LABEL_LENGTH+1);
 		proto_item_fill_label(PITEM_FINFO(pi), label);
 		label = strstr(label,": ")+2;
@@ -832,9 +832,9 @@ integer64_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb, diam_sub_dis_t *diam_
 	proto_item *pi;
 
 	/* Verify length before adding */
-	gint length = tvb_captured_length_remaining(tvb,0);
+	gint length = tvb_length_remaining(tvb,0);
 	if (length == 8) {
-		pi= proto_tree_add_item(c->tree,a->hf_value,tvb,0,tvb_captured_length_remaining(tvb,0),ENC_BIG_ENDIAN);
+		pi= proto_tree_add_item(c->tree,a->hf_value,tvb,0,tvb_length_remaining(tvb,0),ENC_BIG_ENDIAN);
 		label = (char *)wmem_alloc(wmem_packet_scope(), ITEM_LABEL_LENGTH+1);
 		proto_item_fill_label(PITEM_FINFO(pi), label);
 		label = strstr(label,": ")+2;
@@ -858,9 +858,9 @@ unsigned32_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb, diam_sub_dis_t *diam
 	proto_item *pi;
 
 	/* Verify length before adding */
-	gint length = tvb_captured_length_remaining(tvb,0);
+	gint length = tvb_length_remaining(tvb,0);
 	if (length == 4) {
-		pi= proto_tree_add_item(c->tree,a->hf_value,tvb,0,tvb_captured_length_remaining(tvb,0),ENC_BIG_ENDIAN);
+		pi= proto_tree_add_item(c->tree,a->hf_value,tvb,0,tvb_length_remaining(tvb,0),ENC_BIG_ENDIAN);
 		label = (char *)wmem_alloc(wmem_packet_scope(), ITEM_LABEL_LENGTH+1);
 		proto_item_fill_label(PITEM_FINFO(pi), label);
 		label = strstr(label,": ")+2;
@@ -884,9 +884,9 @@ unsigned64_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb, diam_sub_dis_t *diam
 	proto_item *pi;
 
 	/* Verify length before adding */
-	gint length = tvb_captured_length_remaining(tvb,0);
+	gint length = tvb_length_remaining(tvb,0);
 	if (length == 8) {
-		pi= proto_tree_add_item(c->tree,a->hf_value,tvb,0,tvb_captured_length_remaining(tvb,0),ENC_BIG_ENDIAN);
+		pi= proto_tree_add_item(c->tree,a->hf_value,tvb,0,tvb_length_remaining(tvb,0),ENC_BIG_ENDIAN);
 		label = (char *)wmem_alloc(wmem_packet_scope(), ITEM_LABEL_LENGTH+1);
 		proto_item_fill_label(PITEM_FINFO(pi), label);
 		label = strstr(label,": ")+2;
@@ -910,9 +910,9 @@ float32_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb, diam_sub_dis_t *diam_su
 	proto_item *pi;
 
 	/* Verify length before adding */
-	gint length = tvb_captured_length_remaining(tvb,0);
+	gint length = tvb_length_remaining(tvb,0);
 	if (length == 4) {
-		pi= proto_tree_add_item(c->tree,a->hf_value,tvb,0,tvb_captured_length_remaining(tvb,0),ENC_BIG_ENDIAN);
+		pi= proto_tree_add_item(c->tree,a->hf_value,tvb,0,tvb_length_remaining(tvb,0),ENC_BIG_ENDIAN);
 		label = (char *)wmem_alloc(wmem_packet_scope(), ITEM_LABEL_LENGTH+1);
 		proto_item_fill_label(PITEM_FINFO(pi), label);
 		label = strstr(label,": ")+2;
@@ -936,9 +936,9 @@ float64_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb, diam_sub_dis_t *diam_su
 	proto_item *pi;
 
 	/* Verify length before adding */
-	gint length = tvb_captured_length_remaining(tvb,0);
+	gint length = tvb_length_remaining(tvb,0);
 	if (length == 8) {
-		pi= proto_tree_add_item(c->tree,a->hf_value,tvb,0,tvb_captured_length_remaining(tvb,0),ENC_BIG_ENDIAN);
+		pi= proto_tree_add_item(c->tree,a->hf_value,tvb,0,tvb_length_remaining(tvb,0),ENC_BIG_ENDIAN);
 		label = (char *)wmem_alloc(wmem_packet_scope(), ITEM_LABEL_LENGTH+1);
 		proto_item_fill_label(PITEM_FINFO(pi), label);
 		label = strstr(label,": ")+2;
@@ -959,7 +959,7 @@ static const char *
 grouped_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb, diam_sub_dis_t *diam_sub_dis_inf)
 {
 	int offset = 0;
-	int len = tvb_captured_length(tvb);
+	int len = tvb_length(tvb);
 	proto_item *pi = proto_tree_add_item(c->tree, a->hf_value, tvb , 0 , -1, ENC_BIG_ENDIAN);
 	proto_tree *pt = c->tree;
 
@@ -1229,7 +1229,7 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 		export_diameter_pdu(pinfo,tvb);
 	}
 
-	return tvb_captured_length(tvb);
+	return tvb_length(tvb);
 }
 
 static guint
@@ -1246,7 +1246,7 @@ check_diameter(tvbuff_t *tvb)
 	guint8 flags;
 
 	/* Ensure we don't throw an exception trying to do these heuristics */
-	if (tvb_captured_length(tvb) < 5)
+	if (tvb_length(tvb) < 5)
 		return FALSE;
 
 	/* Check if the Diameter version is 1 */
@@ -1299,7 +1299,7 @@ dissect_diameter_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 				 get_diameter_pdu_len, dissect_diameter_common, data);
 	}
 
-	return tvb_captured_length(tvb);
+	return tvb_length(tvb);
 }
 
 

@@ -2744,7 +2744,7 @@ unpack_digits(tvbuff_t *tvb, int offset) {
   int i=0;
   char *digit_str;
 
-  length = tvb_captured_length(tvb);
+  length = tvb_length(tvb);
   if (length < offset)
     return "";
   digit_str = (char *)wmem_alloc(wmem_packet_scope(), (length - offset)*2+1);
@@ -3248,7 +3248,7 @@ dissect_gsm_map_msisdn(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
   proto_tree_add_item(tree, hf_gsm_map_nature_of_number, tvb, 0,1,ENC_BIG_ENDIAN);
   proto_tree_add_item(tree, hf_gsm_map_number_plan, tvb, 0,1,ENC_BIG_ENDIAN);
 
-  if(tvb_captured_length(tvb)==1)
+  if(tvb_length(tvb)==1)
     return;
 
   digit_str = unpack_digits(tvb, 1);
@@ -3349,7 +3349,7 @@ dissect_gsm_map_T_extType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 	 offset=call_ber_oid_callback(obj_id, tvb, offset, actx->pinfo, tree, NULL);
   }else{
 	 call_dissector(data_handle, tvb, actx->pinfo, tree);
-	 offset = tvb_captured_length_remaining(tvb,offset);
+	 offset = tvb_length_remaining(tvb,offset);
   }
 
 
@@ -3468,7 +3468,7 @@ dissect_gsm_map_TBCD_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
  if (!parameter_tvb)
 	return offset;
- if(tvb_captured_length(parameter_tvb)==0)
+ if(tvb_length(parameter_tvb)==0)
      return offset;
 
  digit_str = unpack_digits(parameter_tvb, 0);
@@ -3820,10 +3820,10 @@ dissect_gsm_map_GSN_Address(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 	octet = tvb_get_guint8(parameter_tvb,0);
 	switch(octet){
 	case 0x04: /* IPv4 */
-		proto_tree_add_item(subtree, hf_gsm_map_GSNAddress_IPv4, parameter_tvb, 1, tvb_captured_length_remaining(parameter_tvb, 1), ENC_BIG_ENDIAN);
+		proto_tree_add_item(subtree, hf_gsm_map_GSNAddress_IPv4, parameter_tvb, 1, tvb_length_remaining(parameter_tvb, 1), ENC_BIG_ENDIAN);
 		break;
 	case 0x50: /* IPv4 */
-		proto_tree_add_item(subtree, hf_gsm_map_GSNAddress_IPv4, parameter_tvb, 1, tvb_captured_length_remaining(parameter_tvb, 1), ENC_BIG_ENDIAN);
+		proto_tree_add_item(subtree, hf_gsm_map_GSNAddress_IPv4, parameter_tvb, 1, tvb_length_remaining(parameter_tvb, 1), ENC_BIG_ENDIAN);
 		break;
 	default:
 		break;
@@ -3966,7 +3966,7 @@ dissect_gsm_map_GlobalCellId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
                 return offset;
 
     subtree = proto_item_add_subtree(actx->created_item, ett_gsm_map_GlobalCellId);
-	be_cell_id_aux(parameter_tvb, subtree, actx->pinfo, 0, tvb_captured_length_remaining(tvb,0), NULL, 0, 0);
+	be_cell_id_aux(parameter_tvb, subtree, actx->pinfo, 0, tvb_length_remaining(tvb,0), NULL, 0, 0);
 
 
 
@@ -8823,7 +8823,7 @@ dissect_gsm_map_ms_APN(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 	if (!parameter_tvb)
                 return offset;
 
-    length = tvb_captured_length(parameter_tvb);
+    length = tvb_length(parameter_tvb);
     name_len = tvb_get_guint8(parameter_tvb, 0);
     apn_str = tvb_get_string_enc(wmem_packet_scope(), parameter_tvb, 1, length - 1, ENC_ASCII|ENC_NA);
     if (name_len < length-1) {
@@ -9182,7 +9182,7 @@ dissect_gsm_map_ms_RadioResourceInformation(gboolean implicit_tag _U_, tvbuff_t 
                 return offset;
 
     subtree = proto_item_add_subtree(actx->created_item, ett_gsm_map_RadioResourceInformation);
-	be_chan_type(parameter_tvb, subtree, actx->pinfo, 0, tvb_captured_length_remaining(tvb,0), NULL, 0);
+	be_chan_type(parameter_tvb, subtree, actx->pinfo, 0, tvb_length_remaining(tvb,0), NULL, 0);
 
 
 
@@ -21189,7 +21189,7 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
         proto_tree_add_expert_format(tree, actx->pinfo, &ei_gsm_map_unknown_invokeData,
                                      tvb, offset, -1, "Unknown invokeData %d", opcode);
     }
-    offset+= tvb_captured_length_remaining(tvb,offset);
+    offset+= tvb_length_remaining(tvb,offset);
     break;
   }
   return offset;
@@ -21499,7 +21499,7 @@ static int dissect_returnResultData(proto_tree *tree, tvbuff_t *tvb, int offset,
         proto_tree_add_expert_format(tree, actx->pinfo, &ei_gsm_map_unknown_invokeData,
                                      tvb, offset, -1, "Unknown returnResultData %d", opcode);
    }
-   offset+= tvb_captured_length_remaining(tvb,offset);
+   offset+= tvb_length_remaining(tvb,offset);
    break;
   }
   return offset;
@@ -21662,7 +21662,7 @@ static int dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, int offset, 
         proto_tree_add_expert_format(tree, actx->pinfo, &ei_gsm_map_unknown_invokeData,
                                      tvb, offset, -1, "Unknown returnErrorData %d", opcode);
     }
-    offset+= tvb_captured_length_remaining(tvb,offset);
+    offset+= tvb_length_remaining(tvb,offset);
     break;
   }
   return offset;
@@ -22055,7 +22055,7 @@ dissect_gsm_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void
         tap_queue_packet(gsm_map_tap, pinfo, &tap_rec);
     }
 
-    return tvb_captured_length(tvb);
+    return tvb_length(tvb);
 }
 
 const value_string ssCode_vals[] = {

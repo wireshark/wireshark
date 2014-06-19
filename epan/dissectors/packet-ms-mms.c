@@ -323,7 +323,7 @@ static gint dissect_msmms_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     /* Work out what type of packet this is and dissect it as such */
 
     /* Just don't dissect if can't even read command signature */
-    if (tvb_captured_length(tvb) < 8)
+    if (tvb_length(tvb) < 8)
     {
         return 0;
     }

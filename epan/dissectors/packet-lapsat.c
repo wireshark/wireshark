@@ -440,7 +440,7 @@ dissect_lapsat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	unsigned int hlen, is_response = 0, plen;
 
 	/* Check that there's enough data */
-	if (tvb_captured_length(tvb) < LAPSAT_HEADER_LEN)
+	if (tvb_length(tvb) < LAPSAT_HEADER_LEN)
 		return;
 
 	/* Set protocol column */
@@ -496,14 +496,14 @@ dissect_lapsat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* Get the payload */
 	plen = (addr & LAPSAT_LFI) ?
-		tvb_get_guint8(tvb, 3) : tvb_captured_length(tvb) - hlen;
+		tvb_get_guint8(tvb, 3) : tvb_length(tvb) - hlen;
 
 	if (!plen)
 		return;	/* No point in doing more if there is no payload */
 
-	DISSECTOR_ASSERT((plen + hlen) <= tvb_captured_length(tvb));
+	DISSECTOR_ASSERT((plen + hlen) <= tvb_length(tvb));
 
-	if ((plen + hlen) == tvb_captured_length(tvb)) {
+	if ((plen + hlen) == tvb_length(tvb)) {
 		/* Need to integrate the last nibble */
 		guint8 *data = (guint8 *)tvb_memdup(NULL, tvb, hlen, plen);
 		data[plen-1] |= tvb_get_guint8(tvb, 2) << 4;

@@ -578,7 +578,7 @@ detect_protocol_options(tvbuff_t *tvb, packet_info *pinfo, int offset, int iComm
        However, if the capture is started after the connection initial handshake, it must be deduced in a heuristic way.
        For the sake of generality, we do not consider the handshake, but only the heuristic way.
     */
-    if (tvb_captured_length_remaining(tvb, offset) >= 12)
+    if (tvb_length_remaining(tvb, offset) >= 12)
     {
         /* Only check commands which start with a "OPENWIRE_TYPE_CACHED" object */
         if (iCommand == OPENWIRE_SESSION_INFO
@@ -631,7 +631,7 @@ detect_protocol_options(tvbuff_t *tvb, packet_info *pinfo, int offset, int iComm
         }
     }
     else if ((tvb_get_guint8(tvb, 4) == OPENWIRE_KEEP_ALIVE_INFO)
-            && (tvb_captured_length(tvb) == 11))
+            && (tvb_length(tvb) == 11))
     {
         /* If the capture is started after a long-lived connection is started,
            a keep-alive command of 11 bytes detects tight encoding (not caching stays unknown).
@@ -685,7 +685,7 @@ dissect_openwire_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
     proto_item *boolean_item = NULL;
     const char *cache_str = "";
 
-    if (type == OPENWIRE_TYPE_CACHED && retrieve_caching(pinfo) == TRUE && tvb_captured_length_remaining(tvb, offset) >= 3)
+    if (type == OPENWIRE_TYPE_CACHED && retrieve_caching(pinfo) == TRUE && tvb_length_remaining(tvb, offset) >= 3)
     {
         guint8 inlined = 0;
         gint cachedID = 0;
@@ -715,7 +715,7 @@ dissect_openwire_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
             offset += 3;
         }
     }
-    if (nullable == TRUE && (type == OPENWIRE_TYPE_NESTED || type == OPENWIRE_TYPE_CACHED || type == OPENWIRE_COMMAND_INNER) && tvb_captured_length_remaining(tvb, offset) >= 1)
+    if (nullable == TRUE && (type == OPENWIRE_TYPE_NESTED || type == OPENWIRE_TYPE_CACHED || type == OPENWIRE_COMMAND_INNER) && tvb_length_remaining(tvb, offset) >= 1)
     {
         nullable = tvb_get_guint8(tvb, offset + 0) == FALSE ? TRUE : FALSE;
         if (openwire_verbose_type)
@@ -730,7 +730,7 @@ dissect_openwire_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
         }
         offset += 1;
     }
-    if (type == OPENWIRE_COMMAND_INNER && tvb_captured_length_remaining(tvb, offset) >= 1)
+    if (type == OPENWIRE_COMMAND_INNER && tvb_length_remaining(tvb, offset) >= 1)
     {
         proto_item * inner_item = NULL;
         proto_tree * object_tree = NULL;
@@ -741,7 +741,7 @@ dissect_openwire_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
         object_tree = proto_item_add_subtree(inner_item, ett_openwire_type);
         return (1 + dissect_openwire_command(tvb, pinfo, object_tree, offset, parentType));
     }
-    if ((type == OPENWIRE_TYPE_NESTED || type == OPENWIRE_TYPE_CACHED) && tvb_captured_length_remaining(tvb, offset) >= 1)
+    if ((type == OPENWIRE_TYPE_NESTED || type == OPENWIRE_TYPE_CACHED) && tvb_length_remaining(tvb, offset) >= 1)
     {
         type = tvb_get_guint8(tvb, offset + 0);
         if (openwire_verbose_type)
@@ -750,7 +750,7 @@ dissect_openwire_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
         }
         offset += 1;
     }
-    if (nullable == TRUE && tvb_captured_length_remaining(tvb, offset) >= 1)
+    if (nullable == TRUE && tvb_length_remaining(tvb, offset) >= 1)
     {
         nullable = tvb_get_guint8(tvb, offset + 0) == FALSE ? TRUE : FALSE;
         if (openwire_verbose_type)
@@ -771,48 +771,48 @@ dissect_openwire_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
     {
         offset += 0;
     }
-    else if (type == OPENWIRE_TYPE_INTEGER && tvb_captured_length_remaining(tvb, offset) >= 4)
+    else if (type == OPENWIRE_TYPE_INTEGER && tvb_length_remaining(tvb, offset) >= 4)
     {
         proto_tree_add_item(tree, particularize(field, hf_openwire_type_integer), tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
     }
-    else if (type == OPENWIRE_TYPE_SHORT && tvb_captured_length_remaining(tvb, offset) >= 2)
+    else if (type == OPENWIRE_TYPE_SHORT && tvb_length_remaining(tvb, offset) >= 2)
     {
         proto_tree_add_item(tree, particularize(field, hf_openwire_type_short), tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
     }
-    else if (type == OPENWIRE_TYPE_LONG && tvb_captured_length_remaining(tvb, offset) >= 8)
+    else if (type == OPENWIRE_TYPE_LONG && tvb_length_remaining(tvb, offset) >= 8)
     {
         proto_tree_add_item(tree, particularize(field, hf_openwire_type_long), tvb, offset, 8, ENC_BIG_ENDIAN);
         offset += 8;
     }
-    else if (type == OPENWIRE_TYPE_BOOLEAN && tvb_captured_length_remaining(tvb, offset) >= 1)
+    else if (type == OPENWIRE_TYPE_BOOLEAN && tvb_length_remaining(tvb, offset) >= 1)
     {
         boolean_item = proto_tree_add_item(tree, particularize(field, hf_openwire_type_boolean), tvb, offset, 1, ENC_BIG_ENDIAN);
         validate_boolean(tvb, pinfo, tree, offset, boolean_item);
         offset += 1;
     }
-    else if (type == OPENWIRE_TYPE_BYTE && tvb_captured_length_remaining(tvb, offset) >= 1)
+    else if (type == OPENWIRE_TYPE_BYTE && tvb_length_remaining(tvb, offset) >= 1)
     {
         proto_tree_add_item(tree, particularize(field, hf_openwire_type_byte), tvb, offset, 1, ENC_NA);
         offset += 1;
     }
-    else if (type == OPENWIRE_TYPE_CHAR && tvb_captured_length_remaining(tvb, offset) >= 2)
+    else if (type == OPENWIRE_TYPE_CHAR && tvb_length_remaining(tvb, offset) >= 2)
     {
         proto_tree_add_item(tree, particularize(field, hf_openwire_type_char), tvb, offset, 2, ENC_NA);
         offset += 2;
     }
-    else if (type == OPENWIRE_TYPE_FLOAT && tvb_captured_length_remaining(tvb, offset) >= 4)
+    else if (type == OPENWIRE_TYPE_FLOAT && tvb_length_remaining(tvb, offset) >= 4)
     {
         proto_tree_add_item(tree, particularize(field, hf_openwire_type_float), tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
     }
-    else if (type == OPENWIRE_TYPE_DOUBLE && tvb_captured_length_remaining(tvb, offset) >= 8)
+    else if (type == OPENWIRE_TYPE_DOUBLE && tvb_length_remaining(tvb, offset) >= 8)
     {
         proto_tree_add_item(tree, particularize(field, hf_openwire_type_double), tvb, offset, 8, ENC_BIG_ENDIAN);
         offset += 8;
     }
-    else if (type == OPENWIRE_TYPE_STRING && tvb_captured_length_remaining(tvb, offset) >= 2)
+    else if (type == OPENWIRE_TYPE_STRING && tvb_length_remaining(tvb, offset) >= 2)
     {
         gint iStringLength = 0;
         iStringLength = tvb_get_ntohs(tvb, offset);
@@ -821,13 +821,13 @@ dissect_openwire_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
             proto_tree_add_item(tree, hf_openwire_type_short, tvb, offset, 2, ENC_BIG_ENDIAN);
         }
         offset += 2;
-        if (tvb_captured_length_remaining(tvb, offset) >= iStringLength)
+        if (tvb_length_remaining(tvb, offset) >= iStringLength)
         {
             proto_tree_add_item(tree, particularize(field, hf_openwire_type_string), tvb, offset, iStringLength, ENC_NA);
             offset += iStringLength;
         }
     }
-    else if (type == OPENWIRE_TYPE_BIG_STRING && tvb_captured_length_remaining(tvb, offset) >= 4)
+    else if (type == OPENWIRE_TYPE_BIG_STRING && tvb_length_remaining(tvb, offset) >= 4)
     {
         gint iStringLength = 0;
         iStringLength = tvb_get_ntohl(tvb, offset);
@@ -836,13 +836,13 @@ dissect_openwire_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
             proto_tree_add_item(tree, hf_openwire_type_integer, tvb, offset, 4, ENC_BIG_ENDIAN);
         }
         offset += 4;
-        if (tvb_captured_length_remaining(tvb, offset) >= iStringLength)
+        if (tvb_length_remaining(tvb, offset) >= iStringLength)
         {
             proto_tree_add_item(tree, particularize(field, hf_openwire_type_string), tvb, offset, iStringLength, ENC_NA);
             offset += iStringLength;
         }
     }
-    else if (type == OPENWIRE_TYPE_BYTE_ARRAY && tvb_captured_length_remaining(tvb, offset) >= 4)
+    else if (type == OPENWIRE_TYPE_BYTE_ARRAY && tvb_length_remaining(tvb, offset) >= 4)
     {
         gint iArrayLength = 0;
         iArrayLength = tvb_get_ntohl(tvb, offset);
@@ -851,7 +851,7 @@ dissect_openwire_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
             proto_tree_add_item(tree, hf_openwire_type_integer, tvb, offset, 4, ENC_BIG_ENDIAN);
         }
         offset += 4;
-        if (tvb_captured_length_remaining(tvb, offset) >= iArrayLength)
+        if (tvb_length_remaining(tvb, offset) >= iArrayLength)
         {
             proto_item * array_item = NULL;
             proto_tree * object_tree = NULL;
@@ -894,7 +894,7 @@ dissect_openwire_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
             offset += iArrayLength;
         }
     }
-    else if (tvb_captured_length_remaining(tvb, offset) >= 1)
+    else if (tvb_length_remaining(tvb, offset) >= 1)
     {
         /* Check for complex types */
         proto_tree    *object_tree;
@@ -905,7 +905,7 @@ dissect_openwire_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
 
         object_tree = proto_item_add_subtree(ti, ett_openwire_type);
 
-        if (type == OPENWIRE_TYPE_OBJECT_ARRAY && tvb_captured_length_remaining(tvb, offset) >= 2)
+        if (type == OPENWIRE_TYPE_OBJECT_ARRAY && tvb_length_remaining(tvb, offset) >= 2)
         {
             gint iArrayLength;
             int iArrayItem = 0;
@@ -918,13 +918,13 @@ dissect_openwire_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
             offset += 2;
             for (iArrayItem = 0; iArrayItem < iArrayLength; iArrayItem++)
             {
-                if (tvb_captured_length_remaining(tvb, offset) >= 0)
+                if (tvb_length_remaining(tvb, offset) >= 0)
                 {
                     offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_none, OPENWIRE_TYPE_NESTED, type, TRUE);
                 }
             }
         }
-        else if (type == OPENWIRE_TYPE_MAP && tvb_captured_length_remaining(tvb, offset) >= 4)
+        else if (type == OPENWIRE_TYPE_MAP && tvb_length_remaining(tvb, offset) >= 4)
         {
             int iMapItem = 0;
             int iMapLength = 0;
@@ -935,7 +935,7 @@ dissect_openwire_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
             }
             proto_item_append_text(ti, " (Size : %d)", iMapLength);
             offset += 4;
-            for (iMapItem = 0; (iMapItem < iMapLength) && (tvb_captured_length_remaining(tvb, offset) > 0); iMapItem++)
+            for (iMapItem = 0; (iMapItem < iMapLength) && (tvb_length_remaining(tvb, offset) > 0); iMapItem++)
             {
                 proto_item * map_entry;
                 proto_tree * entry_tree;
@@ -951,7 +951,7 @@ dissect_openwire_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
                 proto_item_set_len(map_entry, offset - entryStartOffset);
             }
         }
-        else if (type == OPENWIRE_TYPE_THROWABLE && tvb_captured_length_remaining(tvb, offset) >= 2)
+        else if (type == OPENWIRE_TYPE_THROWABLE && tvb_length_remaining(tvb, offset) >= 2)
         {
             gint iStackTraceDepth, iStackTraceItem;
             offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_throwable_class, OPENWIRE_TYPE_STRING, type, TRUE);
@@ -972,7 +972,7 @@ dissect_openwire_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
                     element = proto_tree_add_item(object_tree, hf_openwire_throwable_element, tvb, startElementOffset, -1, ENC_NA);
                     element_tree = proto_item_add_subtree(element, ett_openwire_type);
 
-                    if (tvb_captured_length_remaining(tvb, offset) >= 0)
+                    if (tvb_length_remaining(tvb, offset) >= 0)
                     {
                         offset += dissect_openwire_type(tvb, pinfo, element_tree, offset, hf_openwire_throwable_classname, OPENWIRE_TYPE_STRING, type, TRUE);
                         offset += dissect_openwire_type(tvb, pinfo, element_tree, offset, hf_openwire_throwable_methodname, OPENWIRE_TYPE_STRING, type, TRUE);
@@ -984,47 +984,47 @@ dissect_openwire_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
                 offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_exceptionresponse_exception, OPENWIRE_TYPE_THROWABLE, type, TRUE);
             }
         }
-        else if (type == OPENWIRE_TYPE_LIST && tvb_captured_length_remaining(tvb, offset) >= 4)
+        else if (type == OPENWIRE_TYPE_LIST && tvb_length_remaining(tvb, offset) >= 4)
         {
             /* TODO (unused) */
         }
-        else if (type == OPENWIRE_CONNECTION_ID && tvb_captured_length_remaining(tvb, offset) >= 1)
+        else if (type == OPENWIRE_CONNECTION_ID && tvb_length_remaining(tvb, offset) >= 1)
         {
             offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_connectionid_value, OPENWIRE_TYPE_STRING, type, TRUE);
         }
-        else if (type == OPENWIRE_SESSION_ID && tvb_captured_length_remaining(tvb, offset) >= 2)
+        else if (type == OPENWIRE_SESSION_ID && tvb_length_remaining(tvb, offset) >= 2)
         {
             offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_sessionid_connectionid, OPENWIRE_TYPE_STRING, type, TRUE);
             offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_sessionid_value, OPENWIRE_TYPE_LONG, type, FALSE);
         }
-        else if (type == OPENWIRE_CONSUMER_ID && tvb_captured_length_remaining(tvb, offset) >= 3)
+        else if (type == OPENWIRE_CONSUMER_ID && tvb_length_remaining(tvb, offset) >= 3)
         {
             offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_consumerid_connectionid, OPENWIRE_TYPE_STRING, type, TRUE);
             offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_consumerid_value, OPENWIRE_TYPE_LONG, type, FALSE);
             offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_consumerid_sessionid, OPENWIRE_TYPE_LONG, type, FALSE);
         }
-        else if (type == OPENWIRE_PRODUCER_ID && tvb_captured_length_remaining(tvb, offset) >= 3)
+        else if (type == OPENWIRE_PRODUCER_ID && tvb_length_remaining(tvb, offset) >= 3)
         {
             offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_producerid_connectionid, OPENWIRE_TYPE_STRING, type, TRUE);
             offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_producerid_value, OPENWIRE_TYPE_LONG, type, FALSE);
             offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_producerid_sessionid, OPENWIRE_TYPE_LONG, type, FALSE);
         }
-        else if (type == OPENWIRE_BROKER_ID && tvb_captured_length_remaining(tvb, offset) >= 1)
+        else if (type == OPENWIRE_BROKER_ID && tvb_length_remaining(tvb, offset) >= 1)
         {
             offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_brokerid_value, OPENWIRE_TYPE_STRING, type, TRUE);
         }
-        else if (type == OPENWIRE_MESSAGE_ID && tvb_captured_length_remaining(tvb, offset) >= 3)
+        else if (type == OPENWIRE_MESSAGE_ID && tvb_length_remaining(tvb, offset) >= 3)
         {
             offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_messageid_producerid, OPENWIRE_TYPE_CACHED, type, TRUE);
             offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_messageid_producersequenceid, OPENWIRE_TYPE_LONG, type, FALSE);
             offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_messageid_brokersequenceid, OPENWIRE_TYPE_LONG, type, FALSE);
         }
-        else if (type == OPENWIRE_ACTIVEMQ_LOCAL_TRANSACTION_ID && tvb_captured_length_remaining(tvb, offset) >= 2)
+        else if (type == OPENWIRE_ACTIVEMQ_LOCAL_TRANSACTION_ID && tvb_length_remaining(tvb, offset) >= 2)
         {
             offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_localtransactionid_value, OPENWIRE_TYPE_LONG, type, FALSE);
             offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_localtransactionid_connectionid, OPENWIRE_TYPE_CACHED, type, TRUE);
         }
-        else if (type == OPENWIRE_ACTIVEMQ_XA_TRANSACTION_ID && tvb_captured_length_remaining(tvb, offset) >= 3)
+        else if (type == OPENWIRE_ACTIVEMQ_XA_TRANSACTION_ID && tvb_length_remaining(tvb, offset) >= 3)
         {
             offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_xatransactionid_formatid, OPENWIRE_TYPE_INTEGER, type, FALSE);
             offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_xatransactionid_globaltransactionid, OPENWIRE_TYPE_BYTE_ARRAY, type, TRUE);
@@ -1034,7 +1034,7 @@ dissect_openwire_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
             || type == OPENWIRE_ACTIVEMQ_TOPIC
             || type == OPENWIRE_ACTIVEMQ_TEMP_QUEUE
             || type == OPENWIRE_ACTIVEMQ_TEMP_TOPIC)
-            && tvb_captured_length_remaining(tvb, offset) >= 1)
+            && tvb_length_remaining(tvb, offset) >= 1)
         {
             offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_destination_name, OPENWIRE_TYPE_STRING, type, TRUE);
         }
@@ -1081,10 +1081,10 @@ dissect_openwire_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
             offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_message_brokerintime, OPENWIRE_TYPE_LONG, type, FALSE);
             offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_message_brokerouttime, OPENWIRE_TYPE_LONG, type, FALSE);
         }
-        else if (tvb_captured_length_remaining(tvb, offset) > 0)
+        else if (tvb_length_remaining(tvb, offset) > 0)
         {
             expert_add_info_format(pinfo, object_tree, &ei_openwire_type_not_supported, "OpenWire type not supported by Wireshark : %d", type);
-            offset += tvb_captured_length_remaining(tvb, offset);
+            offset += tvb_length_remaining(tvb, offset);
         }
         proto_item_set_len(ti, offset - startOffset);
 
@@ -1105,7 +1105,7 @@ dissect_openwire_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 
     if (iCommand == OPENWIRE_WIREFORMAT_INFO)
     {
-        if (tvb_captured_length_remaining(tvb, offset) >= 17)
+        if (tvb_length_remaining(tvb, offset) >= 17)
         {
             proto_tree_add_item(tree, hf_openwire_wireformatinfo_magic, tvb, offset + 0, 8, ENC_ASCII|ENC_NA);
             proto_tree_add_item(tree, hf_openwire_wireformatinfo_version, tvb, offset + 8, 4, ENC_BIG_ENDIAN);
@@ -1117,7 +1117,7 @@ dissect_openwire_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
     }
     else
     {
-        if (tvb_captured_length_remaining(tvb, offset) >= 5)
+        if (tvb_length_remaining(tvb, offset) >= 5)
         {
             proto_tree_add_item(tree, hf_openwire_command_id, tvb, offset, 4, ENC_BIG_ENDIAN);
             proto_tree_add_item(tree, hf_openwire_command_response_required, tvb, offset + 4, 1, ENC_BIG_ENDIAN);
@@ -1221,7 +1221,7 @@ dissect_openwire_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
                 guint8 iTransactionType;
                 offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_transactioninfo_connectionid, OPENWIRE_TYPE_CACHED, iCommand, TRUE);
                 offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_transactioninfo_transactionid, OPENWIRE_TYPE_CACHED, iCommand, TRUE);
-                if (tvb_captured_length_remaining(tvb, offset) >= 1)
+                if (tvb_length_remaining(tvb, offset) >= 1)
                 {
                     iTransactionType = tvb_get_guint8(tvb, offset);
                     offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_transactioninfo_type, OPENWIRE_TYPE_BYTE, iCommand, FALSE);
@@ -1302,7 +1302,7 @@ dissect_openwire_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
             {
                 offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_none, iCommand, parentType, FALSE);
             }
-            else if (tvb_captured_length_remaining(tvb, offset) > 0)
+            else if (tvb_length_remaining(tvb, offset) > 0)
             {
                 expert_add_info_format(pinfo, tree, &ei_openwire_command_not_supported, "OpenWire command not supported by Wireshark: %d", iCommand);
             }
@@ -1319,7 +1319,7 @@ dissect_openwire(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "OpenWire");
     col_clear(pinfo->cinfo, COL_INFO);
 
-    if (tvb_captured_length_remaining(tvb, offset) >= 5)
+    if (tvb_length_remaining(tvb, offset) >= 5)
     {
         guint8      iCommand;
         proto_tree *openwireroot_tree;
@@ -1345,7 +1345,7 @@ dissect_openwire(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
         {
             proto_tree_add_item(openwireroot_tree, hf_openwire_command, tvb, offset + 4, 1, ENC_BIG_ENDIAN);
             expert_add_info(pinfo, openwireroot_tree, &ei_openwire_tight_encoding_not_supported);
-            return tvb_captured_length(tvb);
+            return tvb_length(tvb);
         }
 
         caching = retrieve_caching(pinfo);
@@ -1356,19 +1356,19 @@ dissect_openwire(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 
         offset += 4;
         offset += dissect_openwire_command(tvb, pinfo, openwireroot_tree, offset, iCommand);
-        if (tvb_captured_length_remaining(tvb, offset) > 0)
+        if (tvb_length_remaining(tvb, offset) > 0)
         {
             expert_add_info_format(pinfo, tree, &ei_openwire_command_not_supported, "OpenWire command fields unknown to Wireshark: %d", iCommand);
         }
     }
 
-    return tvb_captured_length(tvb);
+    return tvb_length(tvb);
 }
 
 static guint
 get_openwire_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
-    if (tvb_captured_length_remaining(tvb, offset) >= 5)
+    if (tvb_length_remaining(tvb, offset) >= 5)
     {
         return (tvb_get_ntohl(tvb, offset) + 4);
     }
@@ -1379,7 +1379,7 @@ static int
 dissect_openwire_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     tcp_dissect_pdus(tvb, pinfo, tree, openwire_desegment, 5, get_openwire_pdu_len, dissect_openwire, data);
-    return tvb_captured_length(tvb);
+    return tvb_length(tvb);
 }
 
 
@@ -1389,25 +1389,25 @@ dissect_openwire_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
     conversation_t *conversation;
     gboolean        detected = FALSE;
 
-    if (tvb_captured_length(tvb) == 10 || tvb_captured_length(tvb) == 11)
+    if (tvb_length(tvb) == 10 || tvb_length(tvb) == 11)
     {
         /* KeepAlive is sent by default every 30 second.  It is 10 bytes (loose) or 11 bytes (tight) long. */
         if ((tvb_get_guint8(tvb, 4) == OPENWIRE_KEEP_ALIVE_INFO)
-            && (tvb_get_ntohl(tvb, 0) + 4 == tvb_captured_length(tvb)))
+            && (tvb_get_ntohl(tvb, 0) + 4 == tvb_length(tvb)))
         {
             detected = TRUE;
         }
     }
-    else if (tvb_captured_length(tvb) == 14 || tvb_captured_length(tvb) == 15)
+    else if (tvb_length(tvb) == 14 || tvb_length(tvb) == 15)
     {
         /* Response is sent after several commands.  It is 14 bytes (loose) or 15 bytes (tight) long. */
         if ((tvb_get_guint8(tvb, 4) == OPENWIRE_RESPONSE)
-            && (tvb_get_ntohl(tvb, 0) + 4 == tvb_captured_length(tvb)))
+            && (tvb_get_ntohl(tvb, 0) + 4 == tvb_length(tvb)))
         {
             detected = TRUE;
         }
     }
-    else if (tvb_captured_length(tvb) >= 13)
+    else if (tvb_length(tvb) >= 13)
     {
         /* Only the WIREFORMAT_INFO command contains a "magic". It is the first command sent on a connection.
            If the capture was started after this command, a manual "Decode As..." might be required.

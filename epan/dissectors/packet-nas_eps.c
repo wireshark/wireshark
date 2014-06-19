@@ -1018,7 +1018,7 @@ unpack_eps_mid_digits(tvbuff_t *tvb) {
     int     offset = 0;
     char   *digit_str;
 
-    length = tvb_captured_length(tvb);
+    length = tvb_length(tvb);
 
     digit_str = (char *)wmem_alloc(wmem_packet_scope(), length*2);
 
@@ -4671,7 +4671,7 @@ disect_nas_eps_esm_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
     void       (*msg_fcn_p)(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len);
     guint8       oct;
 
-    len = tvb_captured_length(tvb);
+    len = tvb_length(tvb);
     /*
      * EPS bearer identity 9.3.2
      */
@@ -4736,7 +4736,7 @@ dissect_nas_eps_emm_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
     void       (*msg_fcn_p)(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len);
     guint8       security_header_type, oct;
 
-    len = tvb_captured_length(tvb);
+    len = tvb_length(tvb);
 
     /* 9.3.1    Security header type */
     if (second_header) {
@@ -4820,7 +4820,7 @@ dissect_nas_eps_plain(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         /* Protocol discriminator Protocol discriminator 9.2 M V 1/2 */
         proto_tree_add_item(nas_eps_tree, hf_gsm_a_L3_protocol_discriminator, tvb, 0, 1, ENC_BIG_ENDIAN);
         offset++;
-        nas_emm_service_req(tvb, nas_eps_tree, pinfo, offset, tvb_captured_length(tvb)-offset);
+        nas_emm_service_req(tvb, nas_eps_tree, pinfo, offset, tvb_length(tvb)-offset);
         return;
     }
 
@@ -4897,7 +4897,7 @@ dissect_nas_eps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint32     len;
     guint32     msg_auth_code;
 
-    len = tvb_captured_length(tvb);
+    len = tvb_length(tvb);
     /* The protected NAS message header is 6 octets long, and the NAS message header is at least 2 octets long. */
     /* If the length of the tvbuffer is less than 8 octets, we can safely conclude the message is not protected. */
     if (len < 8) {

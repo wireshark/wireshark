@@ -634,7 +634,7 @@ dissect_ancp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     }
     tap_queue_packet(ancp_tap, pinfo, ancp_info);
 
-    return tvb_captured_length(tvb);
+    return tvb_length(tvb);
 }
 
 static guint
@@ -649,7 +649,7 @@ dissect_ancp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     tcp_dissect_pdus(tvb, pinfo, tree, TRUE, ANCP_MIN_HDR,
             get_ancp_msg_len, dissect_ancp_message, data);
 
-    return tvb_captured_length(tvb);
+    return tvb_length(tvb);
 }
 
 void

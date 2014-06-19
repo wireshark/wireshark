@@ -553,7 +553,7 @@ dissect_hip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
                 /* Begin TLV parsing */
                 if (offset < length) {
                         ti_tlv = proto_tree_add_text(hip_tree, tvb, offset,
-                                                     tvb_captured_length(tvb), "HIP Parameters");
+                                                     tvb_length(tvb), "HIP Parameters");
                         hip_tlv_tree = proto_item_add_subtree(ti_tlv, ett_hip_tlv);
                 }
                 /* Parse type and length in TLV */

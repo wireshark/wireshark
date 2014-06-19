@@ -1571,7 +1571,7 @@ dissect_dap_T_pagedResultsQueryReference(gboolean implicit_tag _U_, tvbuff_t *tv
 
 
 	if(out_tvb) {
-		len = tvb_captured_length(out_tvb);
+		len = tvb_length(out_tvb);
 		/* now see if we can add a string representation */
 		for(i=0; i<len; i++)
 			if(!g_ascii_isprint(tvb_get_guint8(out_tvb, i)))

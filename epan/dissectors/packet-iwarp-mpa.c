@@ -308,7 +308,7 @@ remove_markers(tvbuff_t *tvb, packet_info *pinfo, guint32 marker_offset,
 
 	DISSECTOR_ASSERT(num_markers > 0);
 	DISSECTOR_ASSERT(orig_length > MPA_MARKER_LEN * num_markers);
-	DISSECTOR_ASSERT(tvb_captured_length(tvb) == orig_length);
+	DISSECTOR_ASSERT(tvb_length(tvb) == orig_length);
 
 	/* allocate memory for the marker-free buffer */
 	mfree_buff_length = orig_length - (MPA_MARKER_LEN * num_markers);
@@ -795,7 +795,7 @@ dissect_iwarp_mpa(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 	tcpinfo = (struct tcpinfo *)data;
 
 	/* FPDU */
-	if (tvb_captured_length(tvb) >= MPA_SMALLEST_FPDU_LEN && is_mpa_fpdu(pinfo)) {
+	if (tvb_length(tvb) >= MPA_SMALLEST_FPDU_LEN && is_mpa_fpdu(pinfo)) {
 
 		conversation = find_conversation(pinfo->fd->num, &pinfo->src,
 				&pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
@@ -852,7 +852,7 @@ dissect_iwarp_mpa(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 	}
 
 	/* MPA REQUEST or MPA REPLY */
-	if (tvb_captured_length(tvb) >= MPA_REQ_REP_FRAME_HEADER_LEN) {
+	if (tvb_length(tvb) >= MPA_REQ_REP_FRAME_HEADER_LEN) {
 		if (is_mpa_req(tvb, pinfo))
 			return dissect_mpa_req_rep(tvb, pinfo, tree, MPA_REQUEST_FRAME);
 		else if (is_mpa_rep(tvb, pinfo))

@@ -858,7 +858,7 @@ dissect_cimd_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
   int    etxp;
   guint8 opcode = 0;            /* Operation code */
 
-  if (tvb_captured_length(tvb) < CIMD_MIN_LENGTH)
+  if (tvb_length(tvb) < CIMD_MIN_LENGTH)
     return FALSE;
 
   if (tvb_get_guint8(tvb, 0) != CIMD_STX)
