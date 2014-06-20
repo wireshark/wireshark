@@ -2470,12 +2470,10 @@ dissect_tcpopt_sack(const ip_tcp_opt *optp, tvbuff_t *tvb,
         }
     }
 
-    hidden_item = proto_tree_add_item(opt_tree, hf_tcp_option_kind, tvb,
+    proto_tree_add_item(opt_tree, hf_tcp_option_kind, tvb,
                         offset, 1, ENC_BIG_ENDIAN);
-    PROTO_ITEM_SET_HIDDEN(hidden_item);
-    hidden_item = proto_tree_add_item(opt_tree, hf_tcp_option_len, tvb,
+    proto_tree_add_item(opt_tree, hf_tcp_option_len, tvb,
                         offset + 1, 1, ENC_BIG_ENDIAN);
-    PROTO_ITEM_SET_HIDDEN(hidden_item);
 
     tf = proto_tree_add_text(opt_tree, tvb, offset, optlen, "%s:", optp->name);
     offset += 2;    /* skip past type and length */
@@ -2540,12 +2538,10 @@ dissect_tcpopt_echo(const ip_tcp_opt *optp, tvbuff_t *tvb,
     proto_item *hidden_item;
     guint32 echo;
 
-    hidden_item = proto_tree_add_item(opt_tree, hf_tcp_option_kind, tvb,
+    proto_tree_add_item(opt_tree, hf_tcp_option_kind, tvb,
                         offset, 1, ENC_BIG_ENDIAN);
-    PROTO_ITEM_SET_HIDDEN(hidden_item);
-    hidden_item = proto_tree_add_item(opt_tree, hf_tcp_option_len, tvb,
+    proto_tree_add_item(opt_tree, hf_tcp_option_len, tvb,
                         offset + 1, 1, ENC_BIG_ENDIAN);
-    PROTO_ITEM_SET_HIDDEN(hidden_item);
 
     echo = tvb_get_ntohl(tvb, offset + 2);
     hidden_item = proto_tree_add_boolean(opt_tree, hf_tcp_option_echo, tvb, offset,
@@ -2867,12 +2863,10 @@ dissect_tcpopt_cc(const ip_tcp_opt *optp, tvbuff_t *tvb,
     proto_item *hidden_item;
     guint32 cc;
 
-    hidden_item = proto_tree_add_item(opt_tree, hf_tcp_option_kind, tvb,
+    proto_tree_add_item(opt_tree, hf_tcp_option_kind, tvb,
                         offset, 1, ENC_BIG_ENDIAN);
-    PROTO_ITEM_SET_HIDDEN(hidden_item);
-    hidden_item = proto_tree_add_item(opt_tree, hf_tcp_option_len, tvb,
+    proto_tree_add_item(opt_tree, hf_tcp_option_len, tvb,
                         offset + 1, 1, ENC_BIG_ENDIAN);
-    PROTO_ITEM_SET_HIDDEN(hidden_item);
 
     cc = tvb_get_ntohl(tvb, offset + 2);
     hidden_item = proto_tree_add_boolean(opt_tree, hf_tcp_option_cc, tvb, offset,
@@ -2892,12 +2886,10 @@ dissect_tcpopt_qs(const ip_tcp_opt *optp, tvbuff_t *tvb,
 
     guint8 rate = tvb_get_guint8(tvb, offset + 2) & 0x0f;
 
-    hidden_item = proto_tree_add_item(opt_tree, hf_tcp_option_kind, tvb,
+    proto_tree_add_item(opt_tree, hf_tcp_option_kind, tvb,
                         offset, 1, ENC_BIG_ENDIAN);
-    PROTO_ITEM_SET_HIDDEN(hidden_item);
-    hidden_item = proto_tree_add_item(opt_tree, hf_tcp_option_len, tvb,
+    proto_tree_add_item(opt_tree, hf_tcp_option_len, tvb,
                         offset + 1, 1, ENC_BIG_ENDIAN);
-    PROTO_ITEM_SET_HIDDEN(hidden_item);
 
     hidden_item = proto_tree_add_boolean(opt_tree, hf_tcp_option_qs, tvb, offset,
                                          optlen, TRUE);
@@ -2923,12 +2915,10 @@ dissect_tcpopt_scps(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
     guint8      capvector;
     guint8      connid;
 
-    hidden_item = proto_tree_add_item(opt_tree, hf_tcp_option_kind, tvb,
+    proto_tree_add_item(opt_tree, hf_tcp_option_kind, tvb,
         offset, 1, ENC_BIG_ENDIAN);
-    PROTO_ITEM_SET_HIDDEN(hidden_item);
-    hidden_item = proto_tree_add_item(opt_tree, hf_tcp_option_len, tvb,
+    proto_tree_add_item(opt_tree, hf_tcp_option_len, tvb,
         offset + 1, 1, ENC_BIG_ENDIAN);
-    PROTO_ITEM_SET_HIDDEN(hidden_item);
 
     tcpd = get_tcp_conversation_data(NULL,pinfo);
 
@@ -3088,12 +3078,10 @@ dissect_tcpopt_user_to(const ip_tcp_opt *optp, tvbuff_t *tvb,
     gboolean g;
     guint16 to;
 
-    hidden_item = proto_tree_add_item(opt_tree, hf_tcp_option_kind, tvb,
+    proto_tree_add_item(opt_tree, hf_tcp_option_kind, tvb,
                         offset, 1, ENC_BIG_ENDIAN);
-    PROTO_ITEM_SET_HIDDEN(hidden_item);
-    hidden_item = proto_tree_add_item(opt_tree, hf_tcp_option_len, tvb,
+    proto_tree_add_item(opt_tree, hf_tcp_option_len, tvb,
                         offset + 1, 1, ENC_BIG_ENDIAN);
-    PROTO_ITEM_SET_HIDDEN(hidden_item);
 
     g = tvb_get_ntohs(tvb, offset + 2) & 0x8000;
     to = tvb_get_ntohs(tvb, offset + 2) & 0x7FFF;
@@ -3151,12 +3139,10 @@ dissect_tcpopt_snack(const ip_tcp_opt *optp, tvbuff_t *tvb,
     char   *modifier = null_modifier;
     proto_item *hidden_item;
 
-    hidden_item = proto_tree_add_item(opt_tree, hf_tcp_option_kind, tvb,
+    proto_tree_add_item(opt_tree, hf_tcp_option_kind, tvb,
                         offset, 1, ENC_BIG_ENDIAN);
-    PROTO_ITEM_SET_HIDDEN(hidden_item);
-    hidden_item = proto_tree_add_item(opt_tree, hf_tcp_option_len, tvb,
+    proto_tree_add_item(opt_tree, hf_tcp_option_len, tvb,
                         offset + 1, 1, ENC_BIG_ENDIAN);
-    PROTO_ITEM_SET_HIDDEN(hidden_item);
 
     tcpd = get_tcp_conversation_data(NULL,pinfo);
 
@@ -3329,12 +3315,10 @@ dissect_tcpopt_rvbd_probe(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
 
     /* optlen, type, ver are common for all probes */
     field_tree = proto_item_add_subtree(pitem, ett_tcp_opt_rvbd_probe);
-    pitem = proto_tree_add_item(field_tree, hf_tcp_option_len, tvb,
+    proto_tree_add_item(field_tree, hf_tcp_option_len, tvb,
                         offset + PROBE_OPTLEN_OFFSET, 1, ENC_BIG_ENDIAN);
-    PROTO_ITEM_SET_HIDDEN(pitem);
-    pitem = proto_tree_add_item(field_tree, hf_tcp_option_kind, tvb,
+    proto_tree_add_item(field_tree, hf_tcp_option_kind, tvb,
                         offset, 1, ENC_BIG_ENDIAN);
-    PROTO_ITEM_SET_HIDDEN(pitem);
     proto_tree_add_item(field_tree, hf_tcp_option_rvbd_probe_optlen, tvb,
                         offset + PROBE_OPTLEN_OFFSET, 1, ENC_BIG_ENDIAN);
 
@@ -3541,12 +3525,10 @@ dissect_tcpopt_rvbd_trpy(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
         "%s", "");
 
     field_tree = proto_item_add_subtree(pitem, ett_tcp_opt_rvbd_trpy);
-    pitem = proto_tree_add_item(field_tree, hf_tcp_option_len, tvb,
+    proto_tree_add_item(field_tree, hf_tcp_option_len, tvb,
                         offset + PROBE_OPTLEN_OFFSET, 1, ENC_BIG_ENDIAN);
-    PROTO_ITEM_SET_HIDDEN(pitem);
-    pitem = proto_tree_add_item(field_tree, hf_tcp_option_kind, tvb,
+    proto_tree_add_item(field_tree, hf_tcp_option_kind, tvb,
                         offset, 1, ENC_BIG_ENDIAN);
-    PROTO_ITEM_SET_HIDDEN(pitem);
     proto_tree_add_item(field_tree, hf_tcp_option_rvbd_probe_optlen, tvb,
                         offset + PROBE_OPTLEN_OFFSET, 1, ENC_BIG_ENDIAN);
 
