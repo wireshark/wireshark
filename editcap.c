@@ -658,6 +658,16 @@ is_duplicate_rel_time(guint8* fd, guint32 len, const nstime_t *current) {
 }
 
 static void
+print_version(FILE *output)
+{
+  fprintf(output, "Editcap %s"
+#ifdef GITVERSION
+      " (" GITVERSION " from " GITBRANCH ")"
+#endif
+      "\n", VERSION);
+}
+
+static void
 usage(gboolean is_error)
 {
     FILE *output;
@@ -667,11 +677,7 @@ usage(gboolean is_error)
     else
         output = stderr;
 
-    fprintf(output, "Editcap %s"
-#ifdef GITVERSION
-        " (" GITVERSION " from " GITBRANCH ")"
-#endif
-        "\n", VERSION);
+    print_version(output);
     fprintf(output, "Edit and/or translate the format of capture files.\n");
     fprintf(output, "See http://www.wireshark.org for more information.\n");
     fprintf(output, "\n");
@@ -899,7 +905,7 @@ main(int argc, char *argv[])
 #endif
 
     /* Process the options */
-    while ((opt = getopt(argc, argv, "A:B:c:C:dD:E:F:hi:Lrs:S:t:T:vw:")) != -1) {
+    while ((opt = getopt(argc, argv, "A:B:c:C:dD:E:F:hi:Lrs:S:t:T:vVw:")) != -1) {
         switch (opt) {
         case 'A':
         {
@@ -1081,6 +1087,11 @@ main(int argc, char *argv[])
 
         case 'v':
             verbose = !verbose;  /* Just invert */
+            break;
+
+        case 'V':
+            print_version(stdout);
+            exit(0);
             break;
 
         case 'w':
@@ -1297,13 +1308,13 @@ main(int argc, char *argv[])
                     ts_okay = (phdr->ts.secs >= starttime) && (phdr->ts.secs < stoptime);
                 else
                     ts_okay = FALSE;
-	    } else {
-	        /*
-	         * No selected timeframe, so all packets are "in the
-	         * selected timeframe".
-	         */
-	        ts_okay = TRUE;
-	    }
+            } else {
+                /*
+                 * No selected timeframe, so all packets are "in the
+                 * selected timeframe".
+                 */
+                ts_okay = TRUE;
+            }
 
             if (ts_okay && ((!selected(count) && !keep_em)
                             || (selected(count) && keep_em))) {

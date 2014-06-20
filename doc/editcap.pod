@@ -33,6 +33,9 @@ S<[ B<-v> ]>
 I<infile>
 I<outfile>
 
+B<editcap>
+S<[ B<-V> ]>
+
 =head1 DESCRIPTION
 
 B<Editcap> is a program that reads some or all of the captured packets from the
@@ -262,6 +265,10 @@ Causes B<editcap> to print verbose messages while it's working.
 Use of B<-v> with the de-duplication switches of B<-d>, B<-D> or B<-w>
 will cause all MD5 hashes to be printed whether the packet is skipped
 or not.
+
+=item -V
+
+Print the version and exit.
 
 =item -w  E<lt>dup time windowE<gt>
 

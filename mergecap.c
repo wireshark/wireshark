@@ -99,6 +99,16 @@ get_positive_int(const char *string, const char *name)
   return number;
 }
 
+static void
+print_version(FILE *output)
+{
+  fprintf(output, "Mergecap %s"
+#ifdef GITVERSION
+      " (" GITVERSION " from " GITBRANCH ")"
+#endif
+      "\n", VERSION);
+}
+
 /*
  * Show the usage
  */
@@ -114,11 +124,7 @@ usage(gboolean is_error)
     output = stderr;
   }
 
-  fprintf(output, "Mergecap %s"
-#ifdef GITVERSION
-          " (" GITVERSION " from " GITBRANCH ")"
-#endif
-          "\n", VERSION);
+  print_version(output);
   fprintf(output, "Merge two or more capture files into one.\n");
   fprintf(output, "See http://www.wireshark.org for more information.\n");
   fprintf(output, "\n");
@@ -239,7 +245,7 @@ main(int argc, char *argv[])
 #endif /* _WIN32 */
 
   /* Process the options first */
-  while ((opt = getopt(argc, argv, "aF:hs:T:vw:")) != -1) {
+  while ((opt = getopt(argc, argv, "aF:hs:T:vVw:")) != -1) {
 
     switch (opt) {
     case 'a':
@@ -277,6 +283,11 @@ main(int argc, char *argv[])
 
     case 'v':
       verbose = TRUE;
+      break;
+
+    case 'V':
+      print_version(stdout);
+      exit(0);
       break;
 
     case 'w':

@@ -38,8 +38,21 @@
 #include "wsutil/wsgetopt.h"
 #endif
 
+#include "version.h"
+
+static void
+print_version(FILE *output)
+{
+  fprintf(output, "Reordercap %s"
+#ifdef GITVERSION
+      " (" GITVERSION " from " GITBRANCH ")"
+#endif
+      "\n", VERSION);
+}
+
 /* Show command-line usage */
-static void usage(gboolean is_error)
+static void
+usage(gboolean is_error)
 {
     FILE *output;
 
@@ -50,11 +63,7 @@ static void usage(gboolean is_error)
         output = stderr;
     }
 
-    fprintf(output, "Reordercap %s"
-#ifdef GITVERSION
-                      " (" GITVERSION " from " GITBRANCH ")"
-#endif
-                      "\n", VERSION);
+    print_version(output);
     fprintf(output, "Reorder timestamps of input file frames into output file.\n");
     fprintf(output, "See http://www.wireshark.org for more information.\n");
     fprintf(output, "\n");
@@ -155,7 +164,8 @@ frames_compare(gconstpointer a, gconstpointer b)
 /********************************************************************/
 /* Main function.                                                   */
 /********************************************************************/
-int main(int argc, char *argv[])
+int
+main(int argc, char *argv[])
 {
     wtap *wth = NULL;
     wtap_dumper *pdh = NULL;
@@ -179,13 +189,16 @@ int main(int argc, char *argv[])
     char *outfile;
 
     /* Process the options first */
-    while ((opt = getopt(argc, argv, "hn")) != -1) {
+    while ((opt = getopt(argc, argv, "hnv")) != -1) {
         switch (opt) {
             case 'n':
                 write_output_regardless = FALSE;
                 break;
             case 'h':
                 usage(FALSE);
+                exit(0);
+            case 'v':
+                print_version(stdout);
                 exit(0);
             case '?':
                 usage(TRUE);

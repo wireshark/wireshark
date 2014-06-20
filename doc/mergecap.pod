@@ -12,6 +12,7 @@ S<[ B<-h> ]>
 S<[ B<-s> E<lt>I<snaplen>E<gt> ]>
 S<[ B<-T> E<lt>I<encapsulation type>E<gt> ]>
 S<[ B<-v> ]>
+S<[ B<-V> ]>
 S<B<-w> E<lt>I<outfile>E<gt>|->
 E<lt>I<infile>E<gt> [E<lt>I<infile>E<gt> I<...>]
 
@@ -110,6 +111,10 @@ fddi>' is specified).
 =item -v
 
 Causes B<mergecap> to print a number of messages while it's working.
+
+=item -V
+
+Print the version and exit.
 
 =item -w  E<lt>outfileE<gt>|-
 

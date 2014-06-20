@@ -1420,6 +1420,16 @@ fail_null_str:
 
 }
 
+static void
+print_version(FILE *output)
+{
+  fprintf(output, "Text2pcap %s"
+#ifdef GITVERSION
+      " (" GITVERSION " from " GITBRANCH ")"
+#endif
+      "\n", VERSION);
+}
+
 /*----------------------------------------------------------------------
  * Print usage string and exit
  */
@@ -1435,12 +1445,8 @@ usage (gboolean is_error)
         output = stderr;
     }
 
+    print_version(output);
     fprintf(output,
-            "Text2pcap %s"
-#ifdef GITVERSION
-            " (" GITVERSION " from " GITBRANCH ")"
-#endif
-            "\n"
             "Generate a capture file from an ASCII hexdump of packets.\n"
             "See http://www.wireshark.org for more information.\n"
             "\n"
@@ -1520,7 +1526,7 @@ usage (gboolean is_error)
             "  -q                     generate no output at all (automatically disables -d).\n"
             "  -n                     use PCAP-NG instead of PCAP as output format.\n"
             "",
-            VERSION, MAX_PACKET);
+            MAX_PACKET);
 
     exit(is_error ? 1 : 0);
 }
@@ -1540,7 +1546,7 @@ parse_options (int argc, char *argv[])
 #endif /* _WIN32 */
 
     /* Scan CLI parameters */
-    while ((c = getopt(argc, argv, "aDdhqe:i:l:m:no:u:s:S:t:T:4:6:")) != -1) {
+    while ((c = getopt(argc, argv, "aDdhqe:i:l:m:no:u:s:S:t:T:v4:6:")) != -1) {
         switch (c) {
         case '?': usage(TRUE); break;
         case 'h': usage(FALSE); break;
@@ -1718,6 +1724,11 @@ parse_options (int argc, char *argv[])
 
         case 'a':
             identify_ascii = TRUE;
+            break;
+
+        case 'v':
+            print_version(stdout);
+            exit(0);
             break;
 
         case '4':

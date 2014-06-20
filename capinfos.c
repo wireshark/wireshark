@@ -992,6 +992,16 @@ process_cap_file(wtap *wth, const char *filename)
 }
 
 static void
+print_version(FILE *output)
+{
+  fprintf(output, "Capinfos %s"
+#ifdef GITVERSION
+      " (" GITVERSION " from " GITBRANCH ")"
+#endif
+      "\n", VERSION);
+}
+
+static void
 usage(gboolean is_error)
 {
   FILE *output;
@@ -1004,11 +1014,7 @@ usage(gboolean is_error)
     output = stderr;
   }
 
-  fprintf(output, "Capinfos %s"
-#ifdef GITVERSION
-      " (" GITVERSION " from " GITBRANCH ")"
-#endif
-      "\n", VERSION);
+  print_version(output);
   fprintf(output, "Prints various information (infos) about capture files.\n");
   fprintf(output, "See http://www.wireshark.org for more information.\n");
   fprintf(output, "\n");
@@ -1349,6 +1355,11 @@ main(int argc, char *argv[])
 
       case 'h':
         usage(FALSE);
+        exit(0);
+        break;
+
+      case 'v':
+        print_version(stdout);
         exit(0);
         break;
 

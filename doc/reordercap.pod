@@ -7,6 +7,7 @@ reordercap - Reorder input file by timestamp into output file
 
 B<reordercap>
 S<[ B<-n> ]>
+S<[ B<-v> ]>
 E<lt>I<infile>E<gt> E<lt>I<outfile>E<gt>
 
 =head1 DESCRIPTION
@@ -39,6 +40,10 @@ the same way B<reordercap> handles this.
 
 When the B<-n> option is used, B<reordercap> will not write out the output
 file if it finds that the input file is already in order.
+
+=item -v
+
+Print the version and exit.
 
 =back
 
