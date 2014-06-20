@@ -879,6 +879,35 @@ proto_item *
 proto_tree_add_text_valist(proto_tree *tree, tvbuff_t *tvb, gint start,
 	gint length, const char *format, va_list ap);
 
+/** Add a text-only node that creates a subtree underneath.
+ proto_tree_add_text + proto_item_add_subtree
+ @param tree the tree to append this item to
+ @param tvb the tv buffer of the current data
+ @param start start of data in tvb
+ @param length length of data in tvb
+ @param idx one of the ett_ array elements registered with proto_register_subtree_array()
+ @param tree_item item returned with tree creation.
+ @param Can be NULL if going to be unused
+ @param text label for the tree
+ @return the newly created tree */
+proto_tree *
+proto_tree_add_subtree(proto_tree *tree, tvbuff_t *tvb, gint start, gint length, gint idx, proto_item **tree_item, const char *text);
+
+/** Add a text-only node that creates a subtree underneath.
+ proto_tree_add_text + proto_item_add_subtree
+ @param tree the tree to append this item to
+ @param tvb the tv buffer of the current data
+ @param start start of data in tvb
+ @param length length of data in tvb
+ @param idx one of the ett_ array elements registered with proto_register_subtree_array()
+ @param tree_item item returned with tree creation.
+ @param Can be NULL if going to be unused
+ @param format printf like format string
+ @param ... printf like parameters
+ @return the newly created tree */
+proto_tree *
+proto_tree_add_subtree_format(proto_tree *tree, tvbuff_t *tvb, gint start, gint length, gint idx, proto_item **tree_item, const char *format,
+	...) G_GNUC_PRINTF(5,6);
 
 /** Add a text-only node to a proto_tree with tvb_format_text() string. */
 proto_item *

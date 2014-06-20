@@ -1122,6 +1122,43 @@ proto_tree_add_text_valist(proto_tree *tree, tvbuff_t *tvb, gint start,
 	return pi;
 }
 
+/* Add a text-only node that creates a subtree underneath.
+ * proto_tree_add_text + proto_item_add_subtree
+ */
+proto_tree *
+proto_tree_add_subtree(proto_tree *tree, tvbuff_t *tvb, gint start, gint length, gint idx, proto_item **tree_item, const char *text)
+{
+	return proto_tree_add_subtree_format(tree, tvb, start, length, idx, tree_item, "%s", text);
+}
+
+/* Add a text-only node that creates a subtree underneath.
+ * proto_tree_add_text + proto_item_add_subtree
+ */
+proto_tree *
+proto_tree_add_subtree_format(proto_tree *tree, tvbuff_t *tvb, gint start, gint length, gint idx, proto_item **tree_item, const char *format, ...)
+{
+	proto_tree	*pt;
+	proto_item	*pi;
+	va_list		ap;
+	header_field_info *hfinfo;
+
+	TRY_TO_FAKE_THIS_ITEM(tree, hf_text_only, hfinfo);
+
+	pi = proto_tree_add_text_node(tree, tvb, start, length);
+
+	TRY_TO_FAKE_THIS_REPR(pi);
+
+	va_start(ap, format);
+	proto_tree_set_representation(pi, format, ap);
+	va_end(ap);
+
+	pt = proto_item_add_subtree(pi, idx);
+	if (tree_item != NULL)
+		*tree_item = pi;
+
+	return pt;
+}
+
 /* Add a text-only node for debugging purposes. The caller doesn't need
  * to worry about tvbuff, start, or length. Debug message gets sent to
  * STDOUT, too */
