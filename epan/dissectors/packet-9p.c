@@ -2256,7 +2256,7 @@ static void dissect_9P_mode(tvbuff_t *tvb,  proto_item *item, int offset)
 /* dissect 9P Qid */
 static void dissect_9P_qid(tvbuff_t *tvb,  proto_tree *tree, int offset)
 {
-	proto_item *qid_item,*qidtype_item;
+	proto_item *qidtype_item;
 	proto_tree *qid_tree,*qidtype_tree;
 	guint64 path;
 	guint32 vers;
@@ -2269,8 +2269,8 @@ static void dissect_9P_qid(tvbuff_t *tvb,  proto_tree *tree, int offset)
 	vers = tvb_get_letohs(tvb, offset+1);
 	path = tvb_get_letoh64(tvb, offset+1+4);
 
-	qid_item = proto_tree_add_text(tree, tvb, offset, 13, "Qid type=0x%02x vers=%d path=%" G_GINT64_MODIFIER "u", type, vers, path);
-	qid_tree = proto_item_add_subtree(qid_item, ett_9P_qid);
+	qid_tree = proto_tree_add_subtree_format(tree, tvb, offset, 13, ett_9P_qid, NULL,
+                    "Qid type=0x%02x vers=%d path=%" G_GINT64_MODIFIER "u", type, vers, path);
 
 	qidtype_item = proto_tree_add_item(qid_tree, hf_9P_qidtype, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	qidtype_tree = proto_item_add_subtree(qidtype_item, ett_9P_qidtype);

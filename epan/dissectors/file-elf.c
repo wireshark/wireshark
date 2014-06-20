@@ -848,7 +848,6 @@ dissect_eh_frame_hdr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *segment_
         gint offset, gint segment_size _U_, gint register_size, guint machine_encoding)
 {
     proto_item  *item;
-    proto_item  *table_item;
     proto_tree  *table_tree;
     guint8       format;
     gint         efp_length;
@@ -931,15 +930,14 @@ dissect_eh_frame_hdr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *segment_
 
     i_entry = 0;
 
-    table_item = proto_tree_add_text(segment_tree, tvb, offset, value_guard(fde_count * table_entry_length * 2), "Binary Search Table");
-    table_tree = proto_item_add_subtree(table_item, ett_binary_table);
+    table_tree = proto_tree_add_subtree(segment_tree, tvb, offset, value_guard(fde_count * table_entry_length * 2),
+                    ett_binary_table, NULL, "Binary Search Table");
 
     while (++i_entry <= fde_count) {
-        proto_item *entry_item;
         proto_tree *entry_tree;
 
-        entry_item = proto_tree_add_text(table_tree, tvb, offset, table_entry_length * 2, "Binary Table Entry #%u", i_entry);
-        entry_tree = proto_item_add_subtree(entry_item, ett_binary_table_entry);
+        entry_tree = proto_tree_add_subtree_format(table_tree, tvb, offset, table_entry_length * 2, ett_binary_table_entry,
+                NULL, "Binary Table Entry #%u", i_entry);
 
         proto_tree_add_item(entry_tree, hf_elf_eh_frame_hdr_binary_search_table_entry_initial_location, tvb, offset, table_entry_length, machine_encoding);
         offset += table_entry_length;
@@ -957,9 +955,7 @@ dissect_eh_frame(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *segment_tree
         gint offset, gint segment_size _U_, gint register_size _U_, guint machine_encoding)
 {
     proto_tree    *record_tree;
-    proto_item    *record_item;
     proto_tree    *entry_tree;
-    proto_item    *entry_item;
     guint64        length;
     guint64        length_remaining;
     guint64        unsigned_value;
@@ -981,8 +977,8 @@ dissect_eh_frame(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *segment_tree
 
     length_remaining = length;
 
-    record_item = proto_tree_add_text(segment_tree, tvb, offset, value_guard(length + (is_extended_length ? 4 + 8 : 4)), "Common Information Entry");
-    record_tree = proto_item_add_subtree(record_item, ett_elf_cie);
+    record_tree = proto_tree_add_subtree(segment_tree, tvb, offset, value_guard(length + (is_extended_length ? 4 + 8 : 4)),
+            ett_elf_cie, NULL, "Common Information Entry");
 
     proto_tree_add_item(record_tree, hf_elf_eh_frame_length, tvb, offset, 4, machine_encoding);
     offset += 4;
@@ -1035,8 +1031,8 @@ dissect_eh_frame(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *segment_tree
     proto_tree_add_item(record_tree, hf_elf_eh_frame_initial_instructions, tvb, offset, value_guard(length_remaining), machine_encoding);
     offset += value_guard(length_remaining);
 
-    record_item = proto_tree_add_text(segment_tree, tvb, offset, value_guard(segment_size - length - 4), "Frame Description Entries");
-    record_tree = proto_item_add_subtree(record_item, ett_elf_fde);
+    record_tree = proto_tree_add_subtree(segment_tree, tvb, offset, value_guard(segment_size - length - 4),
+            ett_elf_fde, NULL, "Frame Description Entries");
 
     is_extended_length = FALSE;
     entry_number = 1;
@@ -1050,8 +1046,8 @@ dissect_eh_frame(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *segment_tree
                     tvb_get_ntoh64(tvb, offset + 4) : tvb_get_letoh64(tvb, offset + 4);
         }
 
-        entry_item = proto_tree_add_text(record_tree, tvb, offset, value_guard(length + (is_extended_length ? 4 + 8 : 4)), "Entry %i", entry_number);
-        entry_tree = proto_item_add_subtree(entry_item, ett_elf_entry);
+        entry_tree = proto_tree_add_subtree_format(record_tree, tvb, offset, value_guard(length + (is_extended_length ? 4 + 8 : 4)),
+                            ett_elf_entry, NULL, "Entry %i", entry_number);
 
         proto_tree_add_item(entry_tree, hf_elf_eh_frame_fde_length, tvb, offset, 4, machine_encoding);
         offset += 4;
@@ -1106,11 +1102,8 @@ dissect_elf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     proto_item      *main_item;
     proto_tree      *header_tree;
     proto_item      *header_item;
-    proto_item      *program_header_item;
     proto_tree      *program_header_tree;
-    proto_item      *section_header_item;
     proto_tree      *section_header_tree;
-    proto_item      *ph_entry_item;
     proto_tree      *ph_entry_tree;
     proto_item      *sh_entry_item;
     proto_tree      *sh_entry_tree;
@@ -1118,9 +1111,7 @@ dissect_elf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     proto_tree      *segment_tree;
     proto_item      *generated_item;
     proto_tree      *generated_tree;
-    proto_item      *overlapping_item;
     proto_tree      *overlapping_tree;
-    proto_item      *blackhole_item;
     proto_tree      *blackhole_tree;
     proto_item      *entry_item;
     proto_tree      *entry_tree;
@@ -1164,8 +1155,7 @@ dissect_elf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     main_item = proto_tree_add_item(tree, proto_elf, tvb, offset, -1, ENC_NA);
     main_tree = proto_item_add_subtree(main_item, ett_elf);
 
-    header_item = proto_tree_add_text(main_tree, tvb, offset, 1, "Header");
-    header_tree = proto_item_add_subtree(header_item, ett_elf_header);
+    header_tree = proto_tree_add_subtree(main_tree, tvb, offset, 1, ett_elf_header, &header_item, "Header");
 
     /* e_ident */
     proto_tree_add_item(header_tree, hf_elf_magic_bytes, tvb, offset, sizeof(magic), ENC_NA);
@@ -1267,13 +1257,11 @@ dissect_elf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
             tvb_get_ntohs(tvb, offset) : tvb_get_letohs(tvb, offset);
     /*offset += 2;*/
 
-    program_header_item = proto_tree_add_text(main_tree, tvb, value_guard(phoff),
-            phnum * phentsize, "Program Header Table [%d entries]", phnum);
-    program_header_tree = proto_item_add_subtree(program_header_item, ett_elf_program_header);
+    program_header_tree = proto_tree_add_subtree_format(main_tree, tvb, value_guard(phoff),
+            phnum * phentsize, ett_elf_program_header, NULL, "Program Header Table [%d entries]", phnum);
 
-    section_header_item = proto_tree_add_text(main_tree, tvb, value_guard(shoff),
-            shnum * shentsize, "Section Header Table [%d entries]", shnum);
-    section_header_tree = proto_item_add_subtree(section_header_item, ett_elf_section_header);
+    section_header_tree = proto_tree_add_subtree_format(main_tree, tvb, value_guard(shoff),
+            shnum * shentsize, ett_elf_section_header, NULL, "Section Header Table [%d entries]", shnum);
 
     file_size = ehsize + phnum * phentsize + shnum * shentsize;
 
@@ -1306,20 +1294,17 @@ dissect_elf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
         p_type = (machine_encoding == ENC_BIG_ENDIAN) ?
                 tvb_get_ntohl(tvb, offset) : tvb_get_letohl(tvb, offset);
         if (p_type >= 0x60000000 && p_type <= 0x6FFFFFFF) {
-            ph_entry_item = proto_tree_add_text(program_header_tree, tvb, offset,
-                    phentsize, "Entry #%d: Operating System Specific (0x%08x)", phnum - i_16 - 1, p_type);
-            ph_entry_tree = proto_item_add_subtree(ph_entry_item, ett_elf_program_header);
+            ph_entry_tree = proto_tree_add_subtree_format(program_header_tree, tvb, offset, phentsize, ett_elf_program_header, NULL,
+                    "Entry #%d: Operating System Specific (0x%08x)", phnum - i_16 - 1, p_type);
             proto_tree_add_item(ph_entry_tree, hf_elf_p_type_operating_system_specific, tvb, offset, 4, machine_encoding);
         } else if (p_type >= 0x70000000 && p_type <= 0x7FFFFFFF) {
-            ph_entry_item = proto_tree_add_text(program_header_tree, tvb, offset,
-                    phentsize, "Entry #%d: Processor Specific (0x%08x)", phnum - i_16 - 1, p_type);
-            ph_entry_tree = proto_item_add_subtree(ph_entry_item, ett_elf_program_header);
+            ph_entry_tree = proto_tree_add_subtree_format(program_header_tree, tvb, offset, phentsize, ett_elf_program_header, NULL,
+                    "Entry #%d: Processor Specific (0x%08x)", phnum - i_16 - 1, p_type);
             proto_tree_add_item(ph_entry_tree, hf_elf_p_type_processor_specific, tvb, offset, 4, machine_encoding);
         } else {
-            ph_entry_item = proto_tree_add_text(program_header_tree, tvb, offset,
-                    phentsize, "Entry #%d: %s", phnum - i_16 - 1,
+            ph_entry_tree = proto_tree_add_subtree_format(program_header_tree, tvb, offset, phentsize, ett_elf_program_header, NULL,
+                    "Entry #%d: %s", phnum - i_16 - 1,
                     val_to_str_const(p_type, p_type_vals, "Unknown"));
-            ph_entry_tree = proto_item_add_subtree(ph_entry_item, ett_elf_program_header);
             proto_tree_add_item(ph_entry_tree, hf_elf_p_type, tvb, offset, 4, machine_encoding);
         }
         offset += 4;
@@ -1467,9 +1452,8 @@ dissect_elf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
     i_16 = shnum;
     while (i_16-- > 0) {
-        sh_entry_item = proto_tree_add_text(section_header_tree, tvb, offset,
-                shentsize, "Entry #%d: ", shnum - i_16 - 1);
-        sh_entry_tree = proto_item_add_subtree(sh_entry_item, ett_elf_section_header);
+        sh_entry_tree = proto_tree_add_subtree_format(section_header_tree, tvb, offset, shentsize,
+                ett_elf_section_header, &sh_entry_item, "Entry #%d: ", shnum - i_16 - 1);
 
         proto_tree_add_item(sh_entry_tree, hf_elf_sh_name, tvb, offset, 4, machine_encoding);
         sh_name = (machine_encoding == ENC_BIG_ENDIAN) ?
@@ -1590,9 +1574,8 @@ dissect_elf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
             segment_info[area_counter].name = section_name;
             area_counter += 1;
 
-            segment_item = proto_tree_add_text(sh_entry_tree, tvb,
-                    value_guard(segment_offset), value_guard(segment_size), "Segment");
-            segment_tree = proto_item_add_subtree(segment_item, ett_elf_segment);
+            segment_tree = proto_tree_add_subtree(sh_entry_tree, tvb, value_guard(segment_offset),
+                    value_guard(segment_size), ett_elf_segment, &segment_item, "Segment");
 
             if (g_strcmp0(section_name, ".eh_frame") == 0) {
                 next_offset = dissect_eh_frame(tvb, pinfo, segment_tree,
@@ -1610,9 +1593,8 @@ dissect_elf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                 if (sh_entsize > 0) {
                     next_offset = value_guard(segment_offset);
                     for  (i = 1; i < (segment_size / sh_entsize) + 1; i += 1) {
-                        entry_item = proto_tree_add_text(segment_tree, tvb, next_offset,
-                               value_guard(sh_entsize), "Entry #%d", i);
-                        entry_tree = proto_item_add_subtree(entry_item, ett_symbol_table_entry);
+                        entry_tree = proto_tree_add_subtree_format(segment_tree, tvb, next_offset,
+                               value_guard(sh_entsize), ett_symbol_table_entry, NULL, "Entry #%d", i);
 
                         next_offset = dissect_dynamic(tvb, pinfo, entry_tree, entry_item,
                                 next_offset, register_size, machine_encoding);
@@ -1624,9 +1606,8 @@ dissect_elf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                 if (sh_entsize > 0) {
                     next_offset = value_guard(segment_offset);
                     for  (i = 1; i < (segment_size / sh_entsize) + 1; i += 1) {
-                        entry_item = proto_tree_add_text(segment_tree, tvb, next_offset,
-                               value_guard(sh_entsize), "Entry #%d", i);
-                        entry_tree = proto_item_add_subtree(entry_item, ett_symbol_table_entry);
+                        entry_tree = proto_tree_add_subtree_format(segment_tree, tvb, next_offset,
+                               value_guard(sh_entsize), ett_symbol_table_entry, NULL, "Entry #%d", i);
 
                         next_offset = dissect_symbol_table(tvb, pinfo, entry_tree, entry_item,
                                 next_offset, register_size, machine_encoding, (sh_type == 0x02) ? strtab_offset : dynstr_offset,
@@ -1659,15 +1640,11 @@ dissect_elf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     }
 
     /* Try to detect blackholes and overlapping segments */
-    generated_item = proto_tree_add_text(main_tree, tvb, 0, 0, "Infos");
+    generated_tree = proto_tree_add_subtree(main_tree, tvb, 0, 0, ett_elf_info, &generated_item, "Infos");
     PROTO_ITEM_SET_GENERATED(generated_item);
-    generated_tree = proto_item_add_subtree(generated_item, ett_elf_info);
 
-    blackhole_item = proto_tree_add_text(generated_tree, tvb, 0, 0, "Backholes");
-    blackhole_tree = proto_item_add_subtree(blackhole_item, ett_elf_black_holes);
-
-    overlapping_item = proto_tree_add_text(generated_tree, tvb, 0, 0, "Overlapping");
-    overlapping_tree = proto_item_add_subtree(overlapping_item, ett_elf_overlapping);
+    blackhole_tree = proto_tree_add_subtree(generated_tree, tvb, 0, 0, ett_elf_black_holes, NULL, "Backholes");
+    overlapping_tree = proto_tree_add_subtree(generated_tree, tvb, 0, 0, ett_elf_overlapping, NULL, "Overlapping");
 
     /* sorting... */
     for (i = 0; i < area_counter; i += 1) {

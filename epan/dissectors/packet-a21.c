@@ -291,14 +291,13 @@ dissect_a21_mobile_subscription_information(tvbuff_t *tvb, packet_info *pinfo _U
 	guint8 record_id;
 	guint16 record_len=0;
 	proto_tree *record_tree;
-	proto_item *record_item;
 
 	while(offset<length){
 		record_id=tvb_get_guint8(tvb, offset);
 		record_len=tvb_get_guint8(tvb, offset+1);
 
-		record_item = proto_tree_add_text(tree, tvb, offset+2, record_len, "Record %u",i+1);
-		record_tree = proto_item_add_subtree(record_item, ett_a21_record_content);
+		record_tree = proto_tree_add_subtree_format(tree, tvb, offset+2, record_len,
+								ett_a21_record_content, NULL, "Record %u",i+1);
 
 		proto_tree_add_item(record_tree, hf_a21_mob_sub_info_record_id, tvb, offset,  1, ENC_BIG_ENDIAN);
 		offset++;
@@ -544,9 +543,8 @@ dissect_a21_ie_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gi
 			length = tvb_get_guint8(tvb, offset+1);
 		}
 
-		ti = proto_tree_add_text(tree, tvb, offset, 1 + length_len + length, "%s : ",
-									val_to_str_const(ie_type, a21_element_type_vals, "Unknown"));
-		ie_tree = proto_item_add_subtree(ti, ett_a21_ie);
+		ie_tree = proto_tree_add_subtree_format(tree, tvb, offset, 1 + length_len + length, ett_a21_ie, &ti,
+									"%s : ", val_to_str_const(ie_type, a21_element_type_vals, "Unknown"));
 
 		/* Octet 1-element identifie*/
 		proto_tree_add_item(ie_tree, hf_a21_element_identifier, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -627,7 +625,7 @@ dissect_a21(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	guint8 message_type;
 	int offset = 0;
-	proto_item *ti, *tc;
+	proto_item *tc;
 	proto_tree *a21_tree, *corr_tree;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "A21");
@@ -644,9 +642,9 @@ dissect_a21(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree_add_item(tree, proto_a21, tvb, offset,  0, ENC_NA);
 
 	if(tree){
-		ti = proto_tree_add_text(tree, tvb, offset,  1, "%s",
-									val_to_str_const(message_type, a21_message_type_vals, "Unknown"));
-		a21_tree = proto_item_add_subtree(ti, ett_a21);
+		a21_tree = proto_tree_add_subtree(tree, tvb, offset, 1, ett_a21, NULL,
+				            val_to_str_const(message_type, a21_message_type_vals, "Unknown"));
+
 		/* message type in Octet 1 */
 		proto_tree_add_item(a21_tree, hf_a21_message_type, tvb, offset,  1, ENC_BIG_ENDIAN);
 		offset++;

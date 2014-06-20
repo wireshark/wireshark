@@ -498,8 +498,8 @@ acn_add_channel_owner_info_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
   guint32     session_count;
   guint32     x;
 
-  pi        = proto_tree_add_text(tree, tvb, offset, 8, "Channel Owner Info Block");
-  this_tree = proto_item_add_subtree(pi, ett_acn_channel_owner_info_block);
+  this_tree = proto_tree_add_subtree(tree, tvb, offset, 8, ett_acn_channel_owner_info_block, NULL,
+                                    "Channel Owner Info Block");
 
   proto_tree_add_item(this_tree, hf_acn_member_id, tvb, offset, 2, ENC_BIG_ENDIAN);
   offset += 2;
@@ -527,8 +527,8 @@ acn_add_channel_member_info_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
   guint32     session_count;
   guint32     x;
 
-  pi        = proto_tree_add_text(tree, tvb, offset, 8, "Channel Member Info Block");
-  this_tree = proto_item_add_subtree(pi, ett_acn_channel_member_info_block);
+  this_tree = proto_tree_add_subtree(tree, tvb, offset, 8, ett_acn_channel_member_info_block,
+                                NULL, "Channel Member Info Block");
 
   proto_tree_add_item(this_tree, hf_acn_member_id, tvb, offset, 2, ENC_BIG_ENDIAN);
   offset += 2;
@@ -567,11 +567,11 @@ acn_add_expiry(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offs
 static guint32
 acn_add_channel_parameter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
 {
-  proto_item *pi;
   proto_tree *param_tree;
 
-  pi = proto_tree_add_text(tree, tvb, offset, 8, "Channel Parameter Block");
-  param_tree = proto_item_add_subtree(pi, ett_acn_channel_parameter);
+  param_tree = proto_tree_add_subtree(tree, tvb, offset, 8, ett_acn_channel_parameter,
+                            NULL, "Channel Parameter Block");
+
   proto_tree_add_item(param_tree, hf_acn_expiry, tvb, offset, 1, ENC_BIG_ENDIAN);
   offset += 1;
   proto_tree_add_item(param_tree, hf_acn_nak_outbound_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -611,8 +611,7 @@ acn_add_address(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int off
       break;
     case ACN_ADDR_IPV4:
       /* Build tree and add type*/
-      pi         = proto_tree_add_text(tree, tvb, offset, 7, "%s", label);
-      addr_tree  = proto_item_add_subtree(pi, ett_acn_address);
+      addr_tree = proto_tree_add_subtree(tree, tvb, offset, 7, ett_acn_address, &pi, label);
       proto_tree_add_item(addr_tree, hf_acn_ip_address_type, tvb, offset, 1, ENC_BIG_ENDIAN);
       offset    += 1;
       /* Add port */
@@ -629,8 +628,7 @@ acn_add_address(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int off
       break;
     case ACN_ADDR_IPV6:
       /* Build tree and add type*/
-      pi         = proto_tree_add_text(tree, tvb, offset, 19, "%s", label);
-      addr_tree  = proto_item_add_subtree(pi, ett_acn_address);
+      addr_tree = proto_tree_add_subtree(tree, tvb, offset, 19, ett_acn_address, &pi, label);
       proto_tree_add_item(addr_tree, hf_acn_ip_address_type, tvb, offset, 1, ENC_BIG_ENDIAN);
       offset    += 1;
       /* Add port */
@@ -647,8 +645,7 @@ acn_add_address(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int off
       break;
     case ACN_ADDR_IPPORT:
       /* Build tree and add type*/
-      pi         = proto_tree_add_text(tree, tvb, offset, 3, "%s", label);
-      addr_tree  = proto_item_add_subtree(pi, ett_acn_address);
+      addr_tree = proto_tree_add_subtree(tree, tvb, offset, 3, ett_acn_address, &pi, label);
       proto_tree_add_item(addr_tree, hf_acn_ip_address_type, tvb, offset, 1, ENC_BIG_ENDIAN);
       offset    += 1;
       /* Add port */
@@ -667,8 +664,7 @@ acn_add_address(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int off
 static guint32
 acn_add_dmp_address_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, acn_dmp_adt_type *adt)
 {
-  proto_item  *pi;
-  proto_tree  *this_tree = NULL;
+  proto_tree  *this_tree;
   guint8       D;
   const gchar *name;
 
@@ -677,9 +673,9 @@ acn_add_dmp_address_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 
   D = ACN_DMP_ADT_EXTRACT_D(adt->flags);
   name = val_to_str(D, acn_dmp_adt_d_vals, "not valid (%d)");
-  pi = proto_tree_add_text(tree, tvb, offset, 1, "Address and Data Type: %s", name);
+  this_tree = proto_tree_add_subtree_format(tree, tvb, offset, 1, ett_acn_address_type,
+                                NULL, "Address and Data Type: %s", name);
 
-  this_tree = proto_item_add_subtree(pi, ett_acn_address_type);
   proto_tree_add_uint(this_tree, hf_acn_dmp_adt_v, tvb, offset, 1, adt->flags);
   proto_tree_add_uint(this_tree, hf_acn_dmp_adt_r, tvb, offset, 1, adt->flags);
   proto_tree_add_uint(this_tree, hf_acn_dmp_adt_d, tvb, offset, 1, adt->flags);

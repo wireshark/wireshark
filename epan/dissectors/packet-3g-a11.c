@@ -680,7 +680,6 @@ decode_bcmcs(proto_tree* ext_tree, tvbuff_t* tvb, int offset, guint ext_len)
     case 1:
     {
         int i = 0;
-        proto_item   *ti;
         proto_tree   *entry_tree;
         while (ext_len > 0) {
             i++;
@@ -691,8 +690,8 @@ decode_bcmcs(proto_tree* ext_tree, tvbuff_t* tvb, int offset, guint ext_len)
             } else {
                 ext_len = ext_len - entry_len;
             }
-            ti = proto_tree_add_text(ext_tree, tvb, offset, entry_len, "BCMCS Information Entry %u", i);
-            entry_tree = proto_item_add_subtree(ti, ett_a11_bcmcs_entry);
+            entry_tree = proto_tree_add_subtree_format(ext_tree, tvb, offset, entry_len,
+                ett_a11_bcmcs_entry, NULL, "BCMCS Information Entry %u", i);
             proto_tree_add_item(entry_tree, hf_a11_bcmcs_entry_len, tvb, offset, 1, ENC_BIG_ENDIAN);
 
             proto_tree_add_text(ext_tree, tvb, offset, entry_len -1, "Entry Data, Not dissected yet");
@@ -713,7 +712,6 @@ decode_bcmcs(proto_tree* ext_tree, tvbuff_t* tvb, int offset, guint ext_len)
 static void
 dissect_a11_radius( tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree, int app_len)
 {
-    proto_item *ti;
     proto_tree *radius_tree;
 
     /* None of this really matters if we don't have a tree */
@@ -725,9 +723,7 @@ dissect_a11_radius( tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *t
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset - 2, app_len, "Airlink Record");
-
-    radius_tree = proto_item_add_subtree(ti, ett_a11_radiuses);
+    radius_tree = proto_tree_add_subtree(tree, tvb, offset - 2, app_len, ett_a11_radiuses, NULL, "Airlink Record");
 
     dissect_attribute_value_pairs(radius_tree, pinfo, tvb, offset, app_len-2);
 
@@ -795,9 +791,8 @@ dissect_3gpp2_radius_aut_flow_profile_ids(proto_tree  *tree, tvbuff_t  *tvb, pac
         sub_type_length = tvb_get_guint8(tvb,offset+1);
         /* value is 2 octets */
         value = tvb_get_ntohs(tvb,offset+2);
-        item = proto_tree_add_text(tree, tvb, offset, sub_type_length, "%s = %u",
-                                   val_to_str_const(sub_type, a11_aut_flow_prof_subtype_vals, "Unknown"), value);
-        sub_tree = proto_item_add_subtree(item, ett_a11_aut_flow_profile_ids);
+        sub_tree = proto_tree_add_subtree_format(tree, tvb, offset, sub_type_length, ett_a11_aut_flow_profile_ids, &item,
+                                   "%s = %u", val_to_str_const(sub_type, a11_aut_flow_prof_subtype_vals, "Unknown"), value);
 
         proto_tree_add_item(sub_tree, hf_a11_aut_flow_prof_sub_type, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
@@ -825,7 +820,6 @@ dissect_ase(tvbuff_t *tvb, int offset, guint ase_len, proto_tree *ext_tree)
         proto_tree *exts_tree;
         guint8      srid           = tvb_get_guint8(tvb, offset+1);
         guint16     service_option = tvb_get_ntohs(tvb,  offset+2);
-        proto_item *ti;
         guint8      entry_lenght;
         int         entry_start_offset;
 
@@ -834,11 +828,11 @@ dissect_ase(tvbuff_t *tvb, int offset, guint ase_len, proto_tree *ext_tree)
         entry_lenght = tvb_get_guint8(tvb, offset);
 
         if (registration_request_msg && ((service_option == 64) || (service_option == 67)))
-            ti = proto_tree_add_text(ext_tree, tvb, offset, entry_lenght+1, "GRE Key Entry (SRID: %d)", srid);
+            exts_tree = proto_tree_add_subtree_format(ext_tree, tvb, offset, entry_lenght+1,
+                        ett_a11_ase, NULL, "GRE Key Entry (SRID: %d)", srid);
         else
-            ti = proto_tree_add_text(ext_tree, tvb, offset, entry_lenght, "GRE Key Entry (SRID: %d)", srid);
-
-        exts_tree = proto_item_add_subtree(ti, ett_a11_ase);
+            exts_tree = proto_tree_add_subtree_format(ext_tree, tvb, offset, entry_lenght,
+                        ett_a11_ase, NULL, "GRE Key Entry (SRID: %d)", srid);
 
         proto_tree_add_item(exts_tree, hf_a11_ase_len_type, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
@@ -865,15 +859,13 @@ dissect_ase(tvbuff_t *tvb, int offset, guint ase_len, proto_tree *ext_tree)
 
         if ((entry_lenght>14)&&(registration_request_msg)) {
             if (service_option == 0x0043) {
-                proto_item *tl;
                 proto_tree *extv_tree;
                 guint8      profile_count = tvb_get_guint8(tvb, offset+6);
                 guint8      profile_index = 0;
                 guint8      reverse_profile_count;
 
-                proto_item *tj = proto_tree_add_text(exts_tree, tvb, offset,6+(profile_count*2)+1, "Forward ROHC Info");
-
-                proto_tree *extt_tree = proto_item_add_subtree(tj, ett_a11_forward_rohc);
+                proto_tree *extt_tree = proto_tree_add_subtree(exts_tree, tvb, offset,6+(profile_count*2)+1,
+                                        ett_a11_forward_rohc, NULL, "Forward ROHC Info");
 
                 proto_tree_add_item(extt_tree, hf_a11_ase_forward_rohc_info_len, tvb, offset, 1, ENC_BIG_ENDIAN);
                 offset += 1;
@@ -891,8 +883,8 @@ dissect_ase(tvbuff_t *tvb, int offset, guint ase_len, proto_tree *ext_tree)
 
 
                 for (profile_index=0; profile_index<profile_count; profile_index++) {
-                    proto_item *tk = proto_tree_add_text (extt_tree, tvb, offset, (2*profile_count), "Forward Profile : %d", profile_index);
-                    proto_tree *extu_tree = proto_item_add_subtree(tk, ett_a11_forward_profile);
+                    proto_tree *extu_tree = proto_tree_add_subtree_format(extt_tree, tvb, offset, (2*profile_count),
+                                        ett_a11_forward_profile, NULL, "Forward Profile : %d", profile_index);
                     proto_tree_add_item(extu_tree, hf_a11_ase_forward_profile, tvb, offset, 2, ENC_BIG_ENDIAN);
                     offset += 2;
                 }/*for*/
@@ -900,9 +892,8 @@ dissect_ase(tvbuff_t *tvb, int offset, guint ase_len, proto_tree *ext_tree)
 
                 reverse_profile_count=tvb_get_guint8(tvb, offset+6);
 
-                tl = proto_tree_add_text(exts_tree, tvb, offset,6+(reverse_profile_count*2)+1, "Reverse ROHC Info");
-
-                extv_tree = proto_item_add_subtree(tl, ett_a11_reverse_rohc);
+                extv_tree = proto_tree_add_subtree(exts_tree, tvb, offset,6+(reverse_profile_count*2)+1,
+                            ett_a11_reverse_rohc, NULL, "Reverse ROHC Info");
 
                 proto_tree_add_item(extv_tree, hf_a11_ase_reverse_rohc_info_len, tvb, offset, 1, ENC_BIG_ENDIAN);
                 offset += 1;
@@ -922,9 +913,8 @@ dissect_ase(tvbuff_t *tvb, int offset, guint ase_len, proto_tree *ext_tree)
 
 
                 for (profile_index=0; profile_index<reverse_profile_count; profile_index++) {
-                    proto_item *tm = proto_tree_add_text(extv_tree, tvb, offset, (2*profile_count), "Reverse Profile : %d", profile_index);
-
-                    proto_tree *extw_tree = proto_item_add_subtree(tm, ett_a11_reverse_profile);
+                    proto_tree *extw_tree = proto_tree_add_subtree_format(extv_tree, tvb, offset, (2*profile_count),
+                        ett_a11_reverse_profile, NULL, "Reverse Profile : %d", profile_index);
 
                     proto_tree_add_item(extw_tree, hf_a11_ase_reverse_profile, tvb, offset, 2, ENC_BIG_ENDIAN);
                     offset += 2;
@@ -1015,10 +1005,8 @@ dissect_fwd_qosinfo(tvbuff_t *tvb, int offset, proto_tree *ext_tree)
         guint8 entry_len = tvb_get_guint8(tvb, offset+clen);
         guint8 flow_id   = tvb_get_guint8(tvb, offset+clen+1);
 
-        proto_item *ti = proto_tree_add_text
-            (ext_tree, tvb, offset+clen, entry_len+1, "Forward Flow Entry (Flow Id: %d)", flow_id);
-
-        proto_tree *flow_tree = proto_item_add_subtree(ti, ett_a11_fqi_flowentry);
+        proto_tree *flow_tree = proto_tree_add_subtree_format(ext_tree, tvb, offset+clen,
+            entry_len+1, ett_a11_fqi_flowentry, NULL, "Forward Flow Entry (Flow Id: %d)", flow_id);
 
         /* Entry Length */
         proto_tree_add_item(flow_tree, hf_a11_fqi_entrylen, tvb, offset+clen, 1, ENC_BIG_ENDIAN);
@@ -1040,11 +1028,10 @@ dissect_fwd_qosinfo(tvbuff_t *tvb, int offset, proto_tree *ext_tree)
 
         /* Requested QoS Blob */
         if (requested_qos_len) {
-            proto_item *ti2;
             proto_tree *exts_tree2;
 
-            proto_item *ti1 = proto_tree_add_text(flow_tree, tvb, offset+clen,requested_qos_len, "Forward Requested QoS ");
-            proto_tree *exts_tree1 = proto_item_add_subtree(ti1, ett_a11_fqi_requestedqos);
+            proto_tree *exts_tree1 = proto_tree_add_subtree(flow_tree, tvb, offset+clen,requested_qos_len,
+                                ett_a11_fqi_requestedqos, NULL, "Forward Requested QoS ");
 
             proto_tree_add_text(exts_tree1, tvb, offset+clen, requested_qos_len, "Forward Requested QoS Sub Blob");
 
@@ -1059,8 +1046,8 @@ dissect_fwd_qosinfo(tvbuff_t *tvb, int offset, proto_tree *ext_tree)
             clen++;
 
             /* QoS attribute set */
-            ti2 = proto_tree_add_text(exts_tree1, tvb, offset+clen, 4, "QoS Attribute Set");
-            exts_tree2 = proto_item_add_subtree(ti2, ett_a11_fqi_qos_attribute_set);
+            exts_tree2 = proto_tree_add_subtree(exts_tree1, tvb, offset+clen, 4, ett_a11_fqi_qos_attribute_set,
+                                                NULL, "QoS Attribute Set");
 
             /* QoS attribute setid */
             proto_tree_add_item(exts_tree2, hf_a11_fqi_qos_attribute_setid, tvb, offset+clen, 2, ENC_BIG_ENDIAN);
@@ -1082,12 +1069,10 @@ dissect_fwd_qosinfo(tvbuff_t *tvb, int offset, proto_tree *ext_tree)
 
         /* Granted QoS Blob */
         if (granted_qos_len) {
-            proto_item *ti3;
             proto_tree *exts_tree3;
 
-            ti3 = proto_tree_add_text(flow_tree, tvb, offset+clen, granted_qos_len, "Forward Granted QoS ");
-
-            exts_tree3 = proto_item_add_subtree(ti3, ett_a11_fqi_grantedqos);
+            exts_tree3 = proto_tree_add_subtree(flow_tree, tvb, offset+clen, granted_qos_len,
+                        ett_a11_fqi_grantedqos, NULL, "Forward Granted QoS ");
 
             proto_tree_add_text(exts_tree3, tvb, offset+clen, granted_qos_len, "Forward Granted QoS Sub Blob");
 
@@ -1123,10 +1108,9 @@ dissect_rev_qosinfo(tvbuff_t *tvb, int offset, proto_tree *ext_tree)
         guint8 entry_len = tvb_get_guint8(tvb, offset+clen);
         guint8 flow_id   = tvb_get_guint8(tvb, offset+clen+1);
 
-        proto_item *ti = proto_tree_add_text
-            (ext_tree, tvb, offset+clen, entry_len+1, "Reverse Flow Entry (Flow Id: %d)", flow_id);
-
-        proto_tree *flow_tree = proto_item_add_subtree(ti, ett_a11_rqi_flowentry);
+        proto_tree *flow_tree = proto_tree_add_subtree_format
+            (ext_tree, tvb, offset+clen, entry_len+1, ett_a11_rqi_flowentry, NULL,
+            "Reverse Flow Entry (Flow Id: %d)", flow_id);
 
         /* Entry Length */
         proto_tree_add_item(flow_tree, hf_a11_rqi_entrylen, tvb, offset+clen, 1, ENC_BIG_ENDIAN);
@@ -1147,12 +1131,10 @@ dissect_rev_qosinfo(tvbuff_t *tvb, int offset, proto_tree *ext_tree)
 
         /* Requested QoS Blob */
         if (requested_qos_len) {
-            proto_item *ti1, *ti2;
             proto_tree *exts_tree1, *exts_tree2;
 
-            ti1 = proto_tree_add_text(flow_tree, tvb, offset+clen,requested_qos_len , "Reverse Requested QoS ");
-
-            exts_tree1 = proto_item_add_subtree(ti1, ett_a11_rqi_requestedqos);
+            exts_tree1 = proto_tree_add_subtree(flow_tree, tvb, offset+clen,requested_qos_len,
+                        ett_a11_rqi_requestedqos, NULL, "Reverse Requested QoS ");
 
             proto_tree_add_text(exts_tree1, tvb, offset+clen, requested_qos_len, "Reverse Requested QoS Sub Blob");
 
@@ -1167,8 +1149,8 @@ dissect_rev_qosinfo(tvbuff_t *tvb, int offset, proto_tree *ext_tree)
             clen++;
 
             /* QoS attribute set */
-            ti2 = proto_tree_add_text(exts_tree1, tvb, offset+clen, 4, "QoS Attribute Set");
-            exts_tree2 = proto_item_add_subtree(ti2, ett_a11_rqi_qos_attribute_set);
+            exts_tree2 = proto_tree_add_subtree(exts_tree1, tvb, offset+clen, 4,
+                                                ett_a11_rqi_qos_attribute_set, NULL, "QoS Attribute Set");
 
             /* QoS attribute setid */
             proto_tree_add_item(exts_tree2, hf_a11_rqi_qos_attribute_setid, tvb, offset+clen, 2, ENC_BIG_ENDIAN);
@@ -1189,11 +1171,10 @@ dissect_rev_qosinfo(tvbuff_t *tvb, int offset, proto_tree *ext_tree)
 
         /* Granted QoS Blob */
         if (granted_qos_len) {
-            proto_item *ti3;
             proto_tree *exts_tree3;
 
-            ti3 = proto_tree_add_text(flow_tree, tvb, offset+clen,granted_qos_len , "Reverse Granted QoS ");
-            exts_tree3 = proto_item_add_subtree(ti3, ett_a11_rqi_grantedqos);
+            exts_tree3 = proto_tree_add_subtree(flow_tree, tvb, offset+clen,granted_qos_len,
+                                        ett_a11_rqi_grantedqos, NULL, "Reverse Granted QoS ");
 
             proto_tree_add_text(exts_tree3, tvb, offset+clen, granted_qos_len, "Reverse Granted QoS Sub Blob");
 
@@ -1213,12 +1194,10 @@ dissect_subscriber_qos_profile(tvbuff_t *tvb, packet_info *pinfo, int offset, in
 
     int qos_profile_len = ext_len;
 
-    proto_item *ti =
-        proto_tree_add_text (ext_tree, tvb, offset, 0,
+    exts_tree =
+        proto_tree_add_subtree_format(ext_tree, tvb, offset, 0, ett_a11_subscriber_profile, NULL,
                              "Subscriber Qos Profile (%d bytes)",
                              qos_profile_len);
-
-    exts_tree = proto_item_add_subtree(ti, ett_a11_subscriber_profile);
 
     /* Subscriber QoS profile */
     if (qos_profile_len) {
@@ -1249,11 +1228,11 @@ dissect_fwd_qosupdate_info(tvbuff_t *tvb, int offset, proto_tree *ext_tree)
 
         guint8 flow_id = tvb_get_guint8(tvb, offset+clen);
 
-        proto_item *ti = proto_tree_add_text
-            (ext_tree, tvb, offset+clen, 1, "Forward Flow Entry (Flow Id: %d)", flow_id);
+        exts_tree = proto_tree_add_subtree_format
+            (ext_tree, tvb, offset+clen, 1, ett_a11_fqui_flowentry, NULL,
+            "Forward Flow Entry (Flow Id: %d)", flow_id);
 
         clen++;
-        exts_tree = proto_item_add_subtree(ti, ett_a11_fqui_flowentry);
 
         /* Forward QoS Sub Blob Length */
         granted_qos_len = tvb_get_guint8(tvb, offset+clen);
@@ -1291,10 +1270,10 @@ dissect_rev_qosupdate_info(tvbuff_t *tvb, int offset, proto_tree *ext_tree)
 
         guint8      flow_id = tvb_get_guint8(tvb, offset+clen);
 
-        proto_item *ti = proto_tree_add_text
-            (ext_tree, tvb, offset+clen, 1, "Reverse Flow Entry (Flow Id: %d)", flow_id);
+        exts_tree = proto_tree_add_subtree_format
+            (ext_tree, tvb, offset+clen, 1, ett_a11_rqui_flowentry, NULL,
+                    "Reverse Flow Entry (Flow Id: %d)", flow_id);
         clen++;
-        exts_tree = proto_item_add_subtree(ti, ett_a11_rqui_flowentry);
 
         /* Reverse QoS Sub Blob Length */
         granted_qos_len = tvb_get_guint8(tvb, offset+clen);
@@ -1316,7 +1295,6 @@ dissect_rev_qosupdate_info(tvbuff_t *tvb, int offset, proto_tree *ext_tree)
 static void
 dissect_a11_extensions( tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree)
 {
-    proto_item *ti;
     proto_tree *exts_tree;
     proto_tree *ext_tree;
     guint       ext_len;
@@ -1327,8 +1305,7 @@ dissect_a11_extensions( tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tre
     gint16      apptype = -1;
 
     /* Add our tree, if we have extensions */
-    ti = proto_tree_add_text(tree, tvb, offset, -1, "Extensions");
-    exts_tree = proto_item_add_subtree(ti, ett_a11_exts);
+    exts_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_a11_exts, NULL, "Extensions");
 
     /* And, handle each extension */
     while (tvb_reported_length_remaining(tvb, offset) > 0) {
@@ -1352,11 +1329,10 @@ dissect_a11_extensions( tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tre
             hdrLen  = 2;
         }
 
-        ti = proto_tree_add_text(exts_tree, tvb, offset, ext_len + hdrLen,
-                                 "Extension: %s",
+        ext_tree = proto_tree_add_subtree_format(exts_tree, tvb, offset, ext_len + hdrLen,
+                                 ett_a11_ext, NULL, "Extension: %s",
                                  val_to_str(ext_type, a11_ext_types,
                                             "Unknown Extension %u"));
-        ext_tree = proto_item_add_subtree(ti, ett_a11_ext);
 
         proto_tree_add_uint(ext_tree, hf_a11_ext_type, tvb, offset, 1, ext_type);
         offset += 1;

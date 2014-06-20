@@ -371,7 +371,7 @@ dissect_gif(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
         color_resolution = 1 + ((peek & 0x60) >> 4);
         image_bpp = 1 + (peek & 0x07);
 
-        ti = proto_tree_add_text(gif_tree, tvb, 10, 1,
+        subtree = proto_tree_add_subtree(gif_tree, tvb, 10, 1, ett_global_flags, &ti,
                 "Global settings:");
         if (color_map_present)
             proto_item_append_text(ti, " (Global color table present)");
@@ -379,7 +379,6 @@ dissect_gif(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                 " (%u bit%s per color) (%u bit%s per pixel)",
                 color_resolution, plurality(color_resolution, "", "s"),
                 image_bpp, plurality(image_bpp, "", "s"));
-        subtree = proto_item_add_subtree(ti, ett_global_flags);
         proto_tree_add_item(subtree, &hfi_global_color_map_present,
                 tvb, 10, 1, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(subtree, &hfi_global_color_resolution,
@@ -536,7 +535,7 @@ dissect_gif(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                 color_resolution = 1 + ((peek & 0x60) >> 4);
                 image_bpp = 1 + (peek & 0x07);
 
-                ti2 = proto_tree_add_text(subtree, tvb, offset, 1,
+                subtree2 = proto_tree_add_subtree(subtree, tvb, offset, 1, ett_local_flags, &ti2,
                         "Local settings:");
                 if (color_map_present)
                     proto_item_append_text(ti2, " (Local color table present)");
@@ -544,7 +543,6 @@ dissect_gif(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                         " (%u bit%s per color) (%u bit%s per pixel)",
                         color_resolution, plurality(color_resolution, "", "s"),
                         image_bpp, plurality(image_bpp, "", "s"));
-                subtree2 = proto_item_add_subtree(ti2, ett_local_flags);
                 proto_tree_add_item(subtree2, &hfi_local_color_map_present,
                         tvb, offset, 1, ENC_LITTLE_ENDIAN);
                 proto_tree_add_item(subtree2, &hfi_local_color_resolution,

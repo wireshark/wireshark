@@ -383,7 +383,6 @@ dissect_tlvs(tvbuff_t *tvb, proto_tree *njack_tree, guint32 offset)
 {
 	guint8      tlv_type;
 	guint8      tlv_length;
-	proto_item *tlv_item;
 	proto_item *tlv_tree;
 
 	for (;;) {
@@ -402,14 +401,12 @@ dissect_tlvs(tvbuff_t *tvb, proto_tree *njack_tree, guint32 offset)
 			continue;
 		}
 		tlv_length = tvb_get_guint8(tvb, offset + 1);
-		tlv_item = proto_tree_add_text(njack_tree, tvb,
-			offset, tlv_length + 2,
+		tlv_tree = proto_tree_add_subtree_format(njack_tree, tvb,
+			offset, tlv_length + 2, ett_njack_tlv_header, NULL,
 			"T %02x, L %02x: %s",
 			tlv_type,
 			tlv_length,
 			val_to_str_ext_const(tlv_type, &njack_cmd_vals_ext, "Unknown"));
-		tlv_tree = proto_item_add_subtree(tlv_item,
-			ett_njack_tlv_header);
 		proto_tree_add_item(tlv_tree, hf_njack_tlv_type,
 			tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset += 1;

@@ -301,9 +301,8 @@ dissect_mp4_box(guint32 parent_box_type _U_,
     box_type_str = tvb_get_string_enc(wmem_packet_scope(), tvb,
             offset+4, 4, ENC_ASCII|ENC_NA);
 
-    type_pi = proto_tree_add_text(tree, tvb, offset, -1, "%s (%s)",
+    box_tree = proto_tree_add_subtree_format(tree, tvb, offset, -1, ett_mp4_box, &type_pi, "%s (%s)",
             val_to_str_const(box_type, box_types, "unknown"), box_type_str);
-    box_tree = proto_item_add_subtree(type_pi, ett_mp4_box);
 
     size_pi = proto_tree_add_item(box_tree, hf_mp4_box_size,
             tvb, offset, 4, ENC_BIG_ENDIAN);

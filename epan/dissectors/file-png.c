@@ -457,7 +457,7 @@ dissect_png(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *da
 
     while(tvb_reported_length_remaining(tvb, offset) > 0){
         guint32     len_field;
-        proto_item *chunk_it, *len_it;
+        proto_item *len_it;
         proto_tree *chunk_tree;
         guint32     type;
         guint8     *type_str;
@@ -470,9 +470,8 @@ dissect_png(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *da
                 tvb, offset+4, 4, ENC_ASCII|ENC_NA);
 
         /* 4 byte len field, 4 byte chunk type, 4 byte CRC */
-        chunk_it = proto_tree_add_text(tree, tvb, offset, 4+4+len_field+4, "%s (%s)", 
-                val_to_str_const(type, chunk_types, "unknown"), type_str);
-        chunk_tree = proto_item_add_subtree(chunk_it, ett_png_chunk);
+        chunk_tree = proto_tree_add_subtree_format(tree, tvb, offset, 4+4+len_field+4, ett_png_chunk, NULL,
+                "%s (%s)", val_to_str_const(type, chunk_types, "unknown"), type_str);
 
         len_it = proto_tree_add_item(chunk_tree, &hfi_png_chunk_len,
                 tvb, offset, 4, ENC_BIG_ENDIAN);
