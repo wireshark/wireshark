@@ -288,11 +288,13 @@ static gint ett_tcp_segment  = -1;
 static gint ett_tcp_checksum = -1;
 static gint ett_tcp_process_info = -1;
 static gint ett_tcp_option_mptcp = -1;
-
 static gint ett_tcp_opt_rvbd_probe = -1;
 static gint ett_tcp_opt_rvbd_probe_flags = -1;
 static gint ett_tcp_opt_rvbd_trpy = -1;
 static gint ett_tcp_opt_rvbd_trpy_flags = -1;
+static gint ett_tcp_opt_echo = -1;
+static gint ett_tcp_opt_cc = -1;
+static gint ett_tcp_opt_qs = -1;
 
 static expert_field ei_tcp_opt_len_invalid = EI_INIT;
 static expert_field ei_tcp_analysis_retransmission = EI_INIT;
@@ -410,15 +412,44 @@ static const true_false_string tcp_option_user_to_granularity = {
 };
 
 static const value_string tcp_option_kind_vs[] = {
-    { TCPOPT_EXP_FD, "Experimental 0xFD" },
-    { TCPOPT_EXP_FE, "Experimental 0xFE" },
+    { TCPOPT_EOL, "End of Option List" },
+    { TCPOPT_NOP, "No-Operation" },
+    { TCPOPT_MSS, "Maximum Segment Size" },
     { TCPOPT_WINDOW, "Window Scale" },
-    { TCPOPT_SACK_PERM, "SACK Permission" },
-    { TCPOPT_MSS, "MSS size" },
-    { TCPOPT_TIMESTAMP, "Timestamp" },
+    { TCPOPT_SACK_PERM, "SACK Permitted" },
+    { TCPOPT_SACK, "SACK" },
+    { TCPOPT_ECHO, "Echo" },
+    { TCPOPT_ECHOREPLY, "Echo Reply" },
+    { TCPOPT_TIMESTAMP, "Time Stamp Option" },
+    { 9, "Partial Order Connection Permitted" },
+    { 10, "Partial Order Service Profile" },
+    { TCPOPT_CC, "CC" },
+    { TCPOPT_CCNEW, "CC.NEW" },
+    { TCPOPT_CCECHO, "CC.ECHO" },
+    { 14, "TCP Alternate Checksum Request" },
+    { 15, "TCP Alternate Checksum Data" },
+    { 16, "Skeeter" },
+    { 17, "Bubba" },
+    { 18, "Trailer Checksum Option" },
+    { TCPOPT_MD5, "MD5 Signature Option" },
+    { TCPOPT_SCPS, "SCPS Capabilities" },
+    { TCPOPT_SNACK, "Selective Negative Acknowledgements" },
+    { TCPOPT_RECBOUND, "Record Boundaries" },
+    { TCPOPT_CORREXP, "Corruption experienced" },
+    { 24, "SNAP" },
+    { 25, "Unassigned" },
+    { 26, "TCP Compression Filter" },
+    { TCPOPT_QS, "Quick-Start Response" },
+    { TCPOPT_USER_TO, "User Timeout Option" },
+    { 29, "TCP Authentication Option" },
     { TCPOPT_MPTCP, "Multipath TCP" },
+    { TCPOPT_RVBD_PROBE, "Riverbed Probe" },
+    { TCPOPT_RVBD_TRPY, "Riverbed Transparancy" },
+    { TCPOPT_EXP_FD, "RFC3692-style Experiment 1" },
+    { TCPOPT_EXP_FE, "RFC3692-style Experiment 2" },
     { 0, NULL }
 };
+static value_string_ext tcp_option_kind_vs_ext = VALUE_STRING_EXT_INIT(tcp_option_kind_vs);
 
 /* not all of the hf_fields below make sense for TCP but we have to provide
    them anyways to comply with the API (which was aimed for IP fragment
@@ -2474,22 +2505,22 @@ dissect_tcpopt_sack(const ip_tcp_opt *optp, tvbuff_t *tvb,
         }
     }
 
-    proto_tree_add_item(opt_tree, hf_tcp_option_kind, tvb,
+    tf = proto_tree_add_text(opt_tree, tvb, offset, optlen, "%s:", optp->name);
+    field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
+
+    proto_tree_add_item(field_tree, hf_tcp_option_kind, tvb,
                         offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(opt_tree, hf_tcp_option_len, tvb,
+    proto_tree_add_item(field_tree, hf_tcp_option_len, tvb,
                         offset + 1, 1, ENC_BIG_ENDIAN);
 
-    tf = proto_tree_add_text(opt_tree, tvb, offset, optlen, "%s:", optp->name);
+    hidden_item = proto_tree_add_boolean(field_tree, hf_tcp_option_sack, tvb,
+                                         offset, optlen, TRUE);
+    PROTO_ITEM_SET_HIDDEN(hidden_item);
+
     offset += 2;    /* skip past type and length */
     optlen -= 2;    /* subtract size of type and length */
+
     while (optlen > 0) {
-        if (field_tree == NULL) {
-            /* Haven't yet made a subtree out of this option.  Do so. */
-            field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
-            hidden_item = proto_tree_add_boolean(field_tree, hf_tcp_option_sack, tvb,
-                                                 offset, optlen, TRUE);
-            PROTO_ITEM_SET_HIDDEN(hidden_item);
-        }
         if (optlen < 4) {
             proto_tree_add_text(field_tree, tvb, offset,      optlen,
                                 "(suboption would go past end of option)");
@@ -2539,21 +2570,25 @@ static void
 dissect_tcpopt_echo(const ip_tcp_opt *optp, tvbuff_t *tvb,
     int offset, guint optlen, packet_info *pinfo, proto_tree *opt_tree, void *data _U_)
 {
+    proto_tree *field_tree = NULL;
+    proto_item *tf = NULL;
     proto_item *hidden_item;
     guint32 echo;
-
-    proto_tree_add_item(opt_tree, hf_tcp_option_kind, tvb,
-                        offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(opt_tree, hf_tcp_option_len, tvb,
-                        offset + 1, 1, ENC_BIG_ENDIAN);
 
     echo = tvb_get_ntohl(tvb, offset + 2);
     hidden_item = proto_tree_add_boolean(opt_tree, hf_tcp_option_echo, tvb, offset,
                                          optlen, TRUE);
     PROTO_ITEM_SET_HIDDEN(hidden_item);
-    proto_tree_add_text(opt_tree, tvb, offset,      optlen,
+    tf = proto_tree_add_text(opt_tree, tvb, offset, optlen,
                         "%s: %u", optp->name, echo);
     tcp_info_append_uint(pinfo, "ECHO", echo);
+
+    field_tree = proto_item_add_subtree(tf, ett_tcp_opt_echo);
+    proto_tree_add_item(field_tree, hf_tcp_option_kind, tvb,
+                        offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_tcp_option_len, tvb,
+                        offset + 1, 1, ENC_BIG_ENDIAN);
+
 }
 
 /* If set, do not put the TCP timestamp information on the summary line */
@@ -2864,45 +2899,48 @@ static void
 dissect_tcpopt_cc(const ip_tcp_opt *optp, tvbuff_t *tvb,
     int offset, guint optlen, packet_info *pinfo, proto_tree *opt_tree, void *data _U_)
 {
+    proto_tree *field_tree = NULL;
+    proto_item *tf = NULL;
     proto_item *hidden_item;
     guint32 cc;
-
-    proto_tree_add_item(opt_tree, hf_tcp_option_kind, tvb,
-                        offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(opt_tree, hf_tcp_option_len, tvb,
-                        offset + 1, 1, ENC_BIG_ENDIAN);
 
     cc = tvb_get_ntohl(tvb, offset + 2);
     hidden_item = proto_tree_add_boolean(opt_tree, hf_tcp_option_cc, tvb, offset,
                                          optlen, TRUE);
     PROTO_ITEM_SET_HIDDEN(hidden_item);
-    proto_tree_add_text(opt_tree, tvb, offset,      optlen,
-                        "%s: %u", optp->name, cc);
+    tf = proto_tree_add_text(opt_tree, tvb, offset, optlen,
+                             "%s: %u", optp->name, cc);
     tcp_info_append_uint(pinfo, "CC", cc);
+    field_tree = proto_item_add_subtree(tf, ett_tcp_opt_cc);
+    proto_tree_add_item(field_tree, hf_tcp_option_kind, tvb,
+                        offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_tcp_option_len, tvb,
+                        offset + 1, 1, ENC_BIG_ENDIAN);
 }
 
 static void
 dissect_tcpopt_qs(const ip_tcp_opt *optp, tvbuff_t *tvb,
     int offset, guint optlen, packet_info *pinfo, proto_tree *opt_tree, void *data _U_)
 {
-
+    proto_tree *field_tree = NULL;
+    proto_item *tf = NULL;
     proto_item *hidden_item;
 
     guint8 rate = tvb_get_guint8(tvb, offset + 2) & 0x0f;
 
-    proto_tree_add_item(opt_tree, hf_tcp_option_kind, tvb,
-                        offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(opt_tree, hf_tcp_option_len, tvb,
-                        offset + 1, 1, ENC_BIG_ENDIAN);
-
     hidden_item = proto_tree_add_boolean(opt_tree, hf_tcp_option_qs, tvb, offset,
                                          optlen, TRUE);
     PROTO_ITEM_SET_HIDDEN(hidden_item);
-    proto_tree_add_text(opt_tree, tvb, offset,      optlen,
-                        "%s: Rate response, %s, TTL diff %u ", optp->name,
-                        val_to_str_ext_const(rate, &qs_rate_vals_ext, "Unknown"),
-                        tvb_get_guint8(tvb, offset + 3));
+    tf = proto_tree_add_text(opt_tree, tvb, offset, optlen,
+                             "%s: Rate response, %s, TTL diff %u ", optp->name,
+                             val_to_str_ext_const(rate, &qs_rate_vals_ext, "Unknown"),
+                             tvb_get_guint8(tvb, offset + 3));
     col_append_fstr(pinfo->cinfo, COL_INFO, " QSresp=%s", val_to_str_ext_const(rate, &qs_rate_vals_ext, "Unknown"));
+    field_tree = proto_item_add_subtree(tf, ett_tcp_opt_qs);
+    proto_tree_add_item(field_tree, hf_tcp_option_kind, tvb,
+                        offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_tcp_option_len, tvb,
+                        offset + 1, 1, ENC_BIG_ENDIAN);
 }
 
 
@@ -2918,11 +2956,6 @@ dissect_tcpopt_scps(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
     proto_item *tf = NULL, *hidden_item;
     guint8      capvector;
     guint8      connid;
-
-    proto_tree_add_item(opt_tree, hf_tcp_option_kind, tvb,
-        offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(opt_tree, hf_tcp_option_len, tvb,
-        offset + 1, 1, ENC_BIG_ENDIAN);
 
     tcpd = get_tcp_conversation_data(NULL,pinfo);
 
@@ -2954,6 +2987,10 @@ dissect_tcpopt_scps(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
         tf = proto_tree_add_item(opt_tree, hf_tcp_option_scps_vector, tvb,
                                  offset + 2, 1, ENC_BIG_ENDIAN);
         field_tree = proto_item_add_subtree(tf, ett_tcp_option_scps);
+        proto_tree_add_item(field_tree, hf_tcp_option_kind, tvb,
+                            offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(field_tree, hf_tcp_option_len, tvb,
+                            offset + 1, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(field_tree, hf_tcp_scpsoption_flags_bets, tvb,
                             offset + 2, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(field_tree, hf_tcp_scpsoption_flags_snack1, tvb,
@@ -3018,16 +3055,25 @@ dissect_tcpopt_scps(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
 
         if (flow->scps_capable != 1) {
             /* There was no SCPS capabilities option preceding this */
-            proto_tree_add_uint_format(opt_tree, hf_tcp_option_scps_vector,
-                                       tvb, offset, optlen, 0,
-                                       "Illegal SCPS Extended Capabilities (%d bytes)",
-                                       optlen);
+            tf = proto_tree_add_uint_format(opt_tree, hf_tcp_option_scps_vector,
+                                            tvb, offset, optlen, 0,
+                                            "Illegal SCPS Extended Capabilities (%d bytes)",
+                                            optlen);
+            field_tree=proto_item_add_subtree(tf, ett_tcp_option_scps_extended);
+            proto_tree_add_item(field_tree, hf_tcp_option_kind, tvb,
+                                offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(field_tree, hf_tcp_option_len, tvb,
+                                offset + 1, 1, ENC_BIG_ENDIAN);
         } else {
             tf = proto_tree_add_uint_format(opt_tree, hf_tcp_option_scps_vector,
                                             tvb, offset, optlen, 0,
                                             "SCPS Extended Capabilities (%d bytes)",
                                             optlen);
             field_tree=proto_item_add_subtree(tf, ett_tcp_option_scps_extended);
+            proto_tree_add_item(field_tree, hf_tcp_option_kind, tvb,
+                                offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(field_tree, hf_tcp_option_len, tvb,
+                                offset + 1, 1, ENC_BIG_ENDIAN);
 
             /* There may be multiple binding spaces included in a single option,
              * so we will semi-parse each of the stacked binding spaces - skipping
@@ -5088,7 +5134,7 @@ proto_register_tcp(void)
 
         { &hf_tcp_option_kind,
           { "Kind", "tcp.option_kind", FT_UINT8,
-            BASE_DEC, VALS(tcp_option_kind_vs), 0x0, "This TCP option's kind", HFILL }},
+            BASE_DEC|BASE_EXT_STRING, &tcp_option_kind_vs_ext, 0x0, "This TCP option's kind", HFILL }},
 
         { &hf_tcp_option_len,
           { "Length", "tcp.option_len", FT_UINT8,
@@ -5618,6 +5664,9 @@ proto_register_tcp(void)
         &ett_tcp_opt_rvbd_probe_flags,
         &ett_tcp_opt_rvbd_trpy,
         &ett_tcp_opt_rvbd_trpy_flags,
+        &ett_tcp_opt_echo,
+        &ett_tcp_opt_cc,
+        &ett_tcp_opt_qs,
         &ett_tcp_analysis_faults,
         &ett_tcp_analysis,
         &ett_tcp_timestamps,
