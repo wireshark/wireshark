@@ -2161,27 +2161,11 @@ main(int argc, char *argv[])
     GtkosxApplication   *theApp;
 #endif
 
-#ifdef HAVE_LIBPCAP
-#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
-#define OPTSTRING_B "B:"
-#else
-#define OPTSTRING_B ""
-#endif  /* _WIN32 or HAVE_PCAP_CREATE */
-#else /* HAVE_LIBPCAP */
-#define OPTSTRING_B ""
+#ifndef HAVE_LIBPCAP
+#define OPTSTRING_CAPTURE_COMMON ""
 #endif  /* HAVE_LIBPCAP */
-#ifdef HAVE_PCAP_REMOTE
-#define OPTSTRING_A "A:"
-#else
-#define OPTSTRING_A ""
-#endif
-#ifdef HAVE_PCAP_CREATE
-#define OPTSTRING_I "I"
-#else
-#define OPTSTRING_I ""
-#endif
 
-#define OPTSTRING "a:" OPTSTRING_A "b:" OPTSTRING_B "c:C:Df:g:Hhi:" OPTSTRING_I "jJ:kK:lLm:nN:o:P:pr:R:Ss:t:u:vw:X:y:Y:z:"
+#define OPTSTRING OPTSTRING_CAPTURE_COMMON "C:g:Hh" "jJ:kK:lm:nN:o:P:r:R:St:u:vw:X:Y:z:"
 
     static const char optstring[] = OPTSTRING;
 
