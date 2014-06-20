@@ -367,7 +367,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  dissect_tpkt_encap@Base 1.9.1
  dissect_unknown_ber@Base 1.9.1
  dissect_xdlc_control@Base 1.9.1
- dissector_add_handle@Base 1.9.1
+ dissector_add_for_decode_as@Base 1.9.1
  dissector_add_string@Base 1.9.1
  dissector_add_uint@Base 1.9.1
  dissector_add_uint_range@Base 1.12.0~rc1
