@@ -516,8 +516,10 @@ int main(int argc, char *argv[])
 #endif
 
 #define OPTSTRING "a:b:" OPTSTRING_B "c:C:Df:g:Hhi:" OPTSTRING_I "jJ:kK:lLm:nN:o:P:pQr:R:Ss:t:u:vw:X:y:z:"
-    struct option     long_options[] = {
-        {(char *)"read-file", required_argument, NULL, (int)'r' },
+    static const struct option long_options[] = {
+        {(char *)"help", no_argument, NULL, 'h'},
+        {(char *)"read-file", required_argument, NULL, 'r' },
+        {(char *)"version", no_argument, NULL, 'v'},
         {0, 0, 0, 0 }
     };
     static const char optstring[] = OPTSTRING;

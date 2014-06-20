@@ -4176,8 +4176,10 @@ main(int argc, char *argv[])
     GString          *comp_info_str;
     GString          *runtime_info_str;
     int               opt;
-    struct option     long_options[] = {
+    static const struct option long_options[] = {
         {(char *)"capture-comment", required_argument, NULL, LONGOPT_NUM_CAP_COMMENT },
+        {(char *)"help", no_argument, NULL, 'h'},
+        {(char *)"version", no_argument, NULL, 'v'},
         {0, 0, 0, 0 }
     };
 
@@ -4525,8 +4527,8 @@ main(int argc, char *argv[])
     global_capture_opts.saving_to_file      = TRUE;
     global_capture_opts.has_ring_num_files  = TRUE;
 
-	/* Pass on capture_child mode for capture_opts */
-	global_capture_opts.capture_child = capture_child;
+    /* Pass on capture_child mode for capture_opts */
+    global_capture_opts.capture_child = capture_child;
 
     /* Now get our args */
     while ((opt = getopt_long(argc, argv, OPTSTRING, long_options, NULL)) != -1) {

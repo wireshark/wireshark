@@ -40,15 +40,30 @@
 extern "C" {
 #endif /* __cplusplus */
 
-/* Attention:
-   for tshark, we're using a leading - in the optstring to prevent getopt()
-   from permuting the argv[] entries, in this case, unknown argv[] entries
-   will be returned as parameters to a dummy-option 1
-   in short: we must not use 1 here */
+/*
+ * Long options.
+ * We do not currently have long options corresponding to all short
+ * options; we should probably pick appropriate option names for them.
+ *
+ * For long options with no corresponding short options, we define values
+ * outside the range of ASCII graphic characters, make that the last
+ * component of the entry for the long option, and have a case for that
+ * option in the switch statement.
+ *
+ * NOTE:
+ * for tshark, we're using a leading - in the optstring to prevent getopt()
+ * from permuting the argv[] entries, in this case, unknown argv[] entries
+ * will be returned as parameters to a dummy-option 1.
+ * In short: we must not use 1 here, which is another reason to use
+ * values outside the range of ASCII graphic characters.
+ */
+#define LONGOPT_NUM_CAP_COMMENT 128
 
-/* this does not clash with tshark's -2 option which returns '2' */
-#define LONGOPT_NUM_CAP_COMMENT 2
-
+/*
+ * Non-capture long-only options should start here, to avoid collision
+ * with capture options.
+ */
+#define MIN_NON_CAPTURE_LONGOPT 129
 
 #ifdef HAVE_PCAP_REMOTE
 /* Type of capture source */

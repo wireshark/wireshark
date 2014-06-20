@@ -922,8 +922,10 @@ main(int argc, char *argv[])
   GString             *runtime_info_str;
   char                *init_progfile_dir_error;
   int                  opt;
-  struct option     long_options[] = {
+  static const struct option long_options[] = {
     {(char *)"capture-comment", required_argument, NULL, LONGOPT_NUM_CAP_COMMENT },
+    {(char *)"help", no_argument, NULL, 'h'},
+    {(char *)"version", no_argument, NULL, 'v'},
     {0, 0, 0, 0 }
   };
   gboolean             arg_error = FALSE;
