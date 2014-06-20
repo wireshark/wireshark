@@ -404,176 +404,12 @@ static gint ett_ospf_lsa_dyn_hostname_tlv = -1;
 static gint ett_ospf_lsa_unknown_tlv = -1;
 
 
-static const true_false_string tfs_v2_options_dc = {
-    "Demand Circuits are supported",
-    "Demand Circuits are NOT supported"
-};
-static const true_false_string tfs_v2_options_l = {
-    "The packet contains LLS data block",
-    "The packet does NOT contain LLS data block"
-};
-static const true_false_string tfs_v2_options_np = {
-    "NSSA is supported",
-    "NSSA is NOT supported"
-};
-static const true_false_string tfs_v2_options_mc = {
-    "Multicast Capable",
-    "NOT Multicast Capable"
-};
-static const true_false_string tfs_v2_options_e = {
-    "External Routing Capability",
-    "NO External Routing Capability"
-};
-static const true_false_string tfs_v2_options_mt = {
-    "Multi-Topology Routing",
-    "NO Multi-Topology Routing"
-};
-
 /* The Options field in the first TLV of the Opaque RI LSA with type field set to "4" for OSPFv2
    and type field set to "12" in OSPFv3, is interpreted as advertizing optional router capabilties.
    (RFC4970) */
-static const true_false_string tfs_ri_options_grc = {
-    "OSPF Graceful Restart Capable",
-    "NOT OSPF Graceful Restart Capable"
-};
-static const true_false_string tfs_ri_options_grh = {
-    "OSPF Graceful Restart Helper",
-    "NOT OSPF Graceful Restart Helper"
-};
-static const true_false_string tfs_ri_options_srs = {
-    "OSPF Stub Router Support",
-    "NOT OSPF Stub Router Support"
-};
-static const true_false_string tfs_ri_options_tes = {
-    "OSPF Traffic Engineering Support",
-    "NOT OSPF Traffic Engineering Support"
-};
-static const true_false_string tfs_ri_options_p2plan = {
-    "OSPF point-to-point over LAN",
-    "NOT OSPF point-to-point over LAN"
-};
-static const true_false_string tfs_ri_options_ete = {
-    "OSPF Experimental TE",
-    "NOT OSPF Experimental TE"
-};
-
-
-
-static const true_false_string tfs_dbd_i = {
-    "Init bit is SET",
-    "Init bit is NOT set"
-};
-static const true_false_string tfs_dbd_m = {
-    "More bit is SET",
-    "More bit is NOT set"
-};
-static const true_false_string tfs_dbd_ms = {
-    "Master/Slave bit is SET",
-    "Master/Slave bit is NOT set"
-};
-static const true_false_string tfs_dbd_r = {
-    "OOBResync bit is SET",
-    "OOBResync bit is NOT set"
-};
-static const true_false_string tfs_lls_ext_options_lr = {
-    "LSDB Resynchronization (LR-bit) is SET",
-    "LSDB Resynchronization (LR-bit) is NOT set"
-};
-static const true_false_string tfs_lls_ext_options_rs = {
-    "Restart Signal (RS-bit) is SET",
-    "Restart Signal (RS-bit) is NOT set"
-};
-static const true_false_string tfs_v3_lls_ext_options_lr = {
-    "LSDB Resynchronization (LR-bit) is SET",
-    "LSDB Resynchronization (LR-bit) is NOT set"
-};
-static const true_false_string tfs_v3_lls_ext_options_rs = {
-    "Restart Signal (RS-bit) is SET",
-    "Restart Signal (RS-bit) is NOT set"
-};
-static const true_false_string tfs_v3_lls_state_options_r = {
-    "Request (R-bit) is SET",
-    "Request (R-bit) is NOT set",
-};
-static const true_false_string tfs_v3_lls_state_options_a = {
-    "Answer (A-bit) is SET",
-    "Answer (A-bit) is NOT set",
-};
-static const true_false_string tfs_v3_lls_state_options_n = {
-    "Incomplete (N-bit) is SET",
-    "Incomplete (N-bit) is NOT set",
-};
-static const true_false_string tfs_v3_lls_relay_options_a = {
-    "Always (A-bit) is SET",
-    "Always (A-bit) is NOT set",
-};
-static const true_false_string tfs_v3_lls_relay_options_n = {
-    "Never (N-bit) is SET",
-    "Never (N-bit) is NOT set",
-};
-static const true_false_string tfs_v2_router_lsa_flags_b = {
-    "Area border router",
-    "NO Area border router"
-};
-static const true_false_string tfs_v2_router_lsa_flags_e = {
-    "AS boundary router",
-    "NO AS boundary router"
-};
-static const true_false_string tfs_v2_router_lsa_flags_v = {
-    "Virtual link endpoint",
-    "NO Virtual link endpoint"
-};
-static const true_false_string tfs_v2_router_lsa_flags_w = {
-    "Wild-card multicast receiver",
-    "NO Wild-card multicast receiver"
-};
-static const true_false_string tfs_v2_router_lsa_flags_n = {
-    "N flag",
-    "NO N flag"
-};
-static const true_false_string tfs_v3_router_lsa_flags_b = {
-    "Area border router",
-    "NO Area border router"
-};
-static const true_false_string tfs_v3_router_lsa_flags_e = {
-    "AS boundary router",
-    "NO AS boundary router"
-};
-static const true_false_string tfs_v3_router_lsa_flags_v = {
-    "Virtual link endpoint",
-    "NO Virtual link endpoint"
-};
-static const true_false_string tfs_v3_router_lsa_flags_w = {
-    "Wild-card multicast receiver",
-    "NO Wild-card multicast receiver"
-};
-static const true_false_string tfs_v3_as_external_flags_t = {
-    "External Route Tag is included",
-    "External Route Tag is NOT included"
-};
-static const true_false_string tfs_v3_as_external_flags_f = {
-    "Forwarding Address is included",
-    "Forwarding Address is NOT included"
-};
 static const true_false_string tfs_v3_as_external_flags_e = {
-    "Type 2 external metric",
-    "Type 1 external metric"
-};
-static const true_false_string tfs_v3_prefix_options_nu = {
-    "NoUnicast capability bit is SET",
-    "NoUnicast capability bit is NOT set"
-};
-static const true_false_string tfs_v3_prefix_options_la = {
-    "LocalAddress capability bit is SET",
-    "LocalAddress capability bit is NOT set"
-};
-static const true_false_string tfs_v3_prefix_options_mc = {
-    "Multicast capability bit is SET",
-    "Multicast capability bit is NOT set"
-};
-static const true_false_string tfs_v3_prefix_options_p = {
-    "Propagate bit is SET",
-    "Propagate bit is NOT set"
+    "Type 2",
+    "Type 1"
 };
 
 /*-----------------------------------------------------------------------
@@ -1243,7 +1079,7 @@ dissect_ospf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         return;
     }
 
-    length = tvb_length(tvb);
+    length = tvb_captured_length(tvb);
     /* XXX - include only the length from the OSPF header? */
     reported_length = tvb_reported_length(tvb);
     if (cksum !=0 && !pinfo->fragmented && length >= reported_length
@@ -3596,23 +3432,23 @@ proto_register_ospf(void)
          { "Options", "ospf.v2.options", FT_UINT8, BASE_HEX,
            NULL, 0x0, NULL, HFILL }},
         {&hf_ospf_filter[OSPFF_V2_OPTIONS_MT],
-         { "MT", "ospf.v2.options.mt", FT_BOOLEAN, 8,
-           TFS(&tfs_v2_options_mt), OSPF_V2_OPTIONS_MT, NULL, HFILL }},
+         { "(MT) Multi-Topology Routing", "ospf.v2.options.mt", FT_BOOLEAN, 8,
+           TFS(&tfs_yes_no), OSPF_V2_OPTIONS_MT, NULL, HFILL }},
         {&hf_ospf_filter[OSPFF_V2_OPTIONS_E],
-         { "E", "ospf.v2.options.e", FT_BOOLEAN, 8,
-           TFS(&tfs_v2_options_e), OSPF_V2_OPTIONS_E, NULL, HFILL }},
+         { "(E) External Routing", "ospf.v2.options.e", FT_BOOLEAN, 8,
+           TFS(&tfs_capable_not_capable), OSPF_V2_OPTIONS_E, NULL, HFILL }},
         {&hf_ospf_filter[OSPFF_V2_OPTIONS_MC],
-         { "MC", "ospf.v2.options.mc", FT_BOOLEAN, 8,
-           TFS(&tfs_v2_options_mc), OSPF_V2_OPTIONS_MC, NULL, HFILL }},
+         { "(MC) Multicast", "ospf.v2.options.mc", FT_BOOLEAN, 8,
+           TFS(&tfs_capable_not_capable), OSPF_V2_OPTIONS_MC, NULL, HFILL }},
         {&hf_ospf_filter[OSPFF_V2_OPTIONS_NP],
-         { "NP", "ospf.v2.options.np", FT_BOOLEAN, 8,
-           TFS(&tfs_v2_options_np), OSPF_V2_OPTIONS_NP, NULL, HFILL }},
+         { "(N) NSSA", "ospf.v2.options.np", FT_BOOLEAN, 8,
+           TFS(&tfs_supported_not_supported), OSPF_V2_OPTIONS_NP, NULL, HFILL }},
         {&hf_ospf_filter[OSPFF_V2_OPTIONS_L],
-         { "L", "ospf.v2.options.l", FT_BOOLEAN, 8,
-           TFS(&tfs_v2_options_l), OSPF_V2_OPTIONS_L, NULL, HFILL }},
+         { "(L) LLS Data block", "ospf.v2.options.l", FT_BOOLEAN, 8,
+           TFS(&tfs_present_not_present), OSPF_V2_OPTIONS_L, NULL, HFILL }},
         {&hf_ospf_filter[OSPFF_V2_OPTIONS_DC],
-         { "DC", "ospf.v2.options.dc", FT_BOOLEAN, 8,
-           TFS(&tfs_v2_options_dc), OSPF_V2_OPTIONS_DC, NULL, HFILL }},
+         { "(DC) Demand Circuits", "ospf.v2.options.dc", FT_BOOLEAN, 8,
+           TFS(&tfs_supported_not_supported), OSPF_V2_OPTIONS_DC, NULL, HFILL }},
         {&hf_ospf_filter[OSPFF_V2_OPTIONS_O],
          { "O", "ospf.v2.options.o", FT_BOOLEAN, 8,
            TFS(&tfs_set_notset), OSPF_V2_OPTIONS_O, NULL, HFILL }},
@@ -3624,23 +3460,23 @@ proto_register_ospf(void)
          { "RI Options", "ospf.ri.options", FT_UINT8, BASE_HEX,
            NULL, 0x0, NULL, HFILL }},
         {&hf_ospf_filter[OSPFF_RI_OPTIONS_GRC],
-         { "GRC", "ospf.ri.options.grc", FT_BOOLEAN, 8,
-           TFS(&tfs_ri_options_grc), OSPF_RI_OPTIONS_GRC, NULL, HFILL }},
+         { "(GRC) Graceful Restart", "ospf.ri.options.grc", FT_BOOLEAN, 8,
+           TFS(&tfs_capable_not_capable), OSPF_RI_OPTIONS_GRC, NULL, HFILL }},
         {&hf_ospf_filter[OSPFF_RI_OPTIONS_GRH],
-         { "GRH", "ospf.ri.options.grh", FT_BOOLEAN, 8,
-           TFS(&tfs_ri_options_grh), OSPF_RI_OPTIONS_GRH, NULL, HFILL }},
+         { "(GRH) Graceful Restart Helper", "ospf.ri.options.grh", FT_BOOLEAN, 8,
+           TFS(&tfs_enabled_disabled), OSPF_RI_OPTIONS_GRH, NULL, HFILL }},
         {&hf_ospf_filter[OSPFF_RI_OPTIONS_SRS],
-         { "SRS", "ospf.ri.options.srs", FT_BOOLEAN, 8,
-           TFS(&tfs_ri_options_srs), OSPF_RI_OPTIONS_SRS, NULL, HFILL }},
+         { "Stub Router Support", "ospf.ri.options.srs", FT_BOOLEAN, 8,
+           TFS(&tfs_yes_no), OSPF_RI_OPTIONS_SRS, NULL, HFILL }},
         {&hf_ospf_filter[OSPFF_RI_OPTIONS_TES],
-         { "TES", "ospf.ri.options.tes", FT_BOOLEAN, 8,
-           TFS(&tfs_ri_options_tes), OSPF_RI_OPTIONS_TES, NULL, HFILL }},
+         { "(TES) Traffic Engineering", "ospf.ri.options.tes", FT_BOOLEAN, 8,
+           TFS(&tfs_supported_not_supported), OSPF_RI_OPTIONS_TES, NULL, HFILL }},
         {&hf_ospf_filter[OSPFF_RI_OPTIONS_P2PLAN],
-         { "P2PLAN", "ospf.ri.options.p2plan", FT_BOOLEAN, 8,
-           TFS(&tfs_ri_options_p2plan), OSPF_RI_OPTIONS_P2PLAN, NULL, HFILL }},
+         { "(P2PLAN) Point-to-point over LAN", "ospf.ri.options.p2plan", FT_BOOLEAN, 8,
+           TFS(&tfs_capable_not_capable), OSPF_RI_OPTIONS_P2PLAN, NULL, HFILL }},
         {&hf_ospf_filter[OSPFF_RI_OPTIONS_ETE],
-         { "ETE", "ospf.ri.options.ete", FT_BOOLEAN, 8,
-           TFS(&tfs_ri_options_ete), OSPF_RI_OPTIONS_ETE, NULL, HFILL }},
+         { "(ETE) Experimental TE", "ospf.ri.options.ete", FT_BOOLEAN, 8,
+           TFS(&tfs_capable_not_capable), OSPF_RI_OPTIONS_ETE, NULL, HFILL }},
 
         /* An MBZ field for the 24-bits of type field of Opaque RI LSA */
         {&hf_ospf_filter[OSPFF_OPAQUE_LSA_MBZ],
@@ -3681,86 +3517,86 @@ proto_register_ospf(void)
          { "DB Description", "ospf.dbd", FT_UINT8, BASE_HEX,
            NULL, 0x0, NULL, HFILL }},
         {&hf_ospf_filter[OSPFF_DBD_R],
-         { "R", "ospf.dbd.r", FT_BOOLEAN, 8,
-           TFS(&tfs_dbd_r), OSPF_DBD_FLAG_R, NULL, HFILL }},
+         { "(R) OOBResync", "ospf.dbd.r", FT_BOOLEAN, 8,
+           TFS(&tfs_set_notset), OSPF_DBD_FLAG_R, NULL, HFILL }},
         {&hf_ospf_filter[OSPFF_DBD_I],
-         { "I", "ospf.dbd.i", FT_BOOLEAN, 8,
-           TFS(&tfs_dbd_i), OSPF_DBD_FLAG_I, NULL, HFILL }},
+         { "(I) Init", "ospf.dbd.i", FT_BOOLEAN, 8,
+           TFS(&tfs_set_notset), OSPF_DBD_FLAG_I, NULL, HFILL }},
         {&hf_ospf_filter[OSPFF_DBD_M],
-         { "M", "ospf.dbd.m", FT_BOOLEAN, 8,
-           TFS(&tfs_dbd_m), OSPF_DBD_FLAG_M, NULL, HFILL }},
+         { "(M) More", "ospf.dbd.m", FT_BOOLEAN, 8,
+           TFS(&tfs_set_notset), OSPF_DBD_FLAG_M, NULL, HFILL }},
         {&hf_ospf_filter[OSPFF_DBD_MS],
-         { "MS", "ospf.dbd.ms", FT_BOOLEAN, 8,
-           TFS(&tfs_dbd_ms), OSPF_DBD_FLAG_MS, NULL, HFILL }},
+         { "(MS) Master", "ospf.dbd.ms", FT_BOOLEAN, 8,
+           TFS(&tfs_yes_no), OSPF_DBD_FLAG_MS, NULL, HFILL }},
         {&hf_ospf_filter[OSPFF_LLS_EXT_OPTIONS],
          { "Options", "ospf.lls.ext.options", FT_UINT32, BASE_HEX,
            NULL, 0x0, NULL, HFILL }},
         {&hf_ospf_filter[OSPFF_LLS_EXT_OPTIONS_LR],
-         { "LR", "ospf.lls.ext.options.lr", FT_BOOLEAN, 32,
-           TFS(&tfs_lls_ext_options_lr), OSPF_LLS_EXT_OPTIONS_LR, NULL, HFILL }},
+         { "(LR) LSDB Resynchronization", "ospf.lls.ext.options.lr", FT_BOOLEAN, 32,
+           TFS(&tfs_set_notset), OSPF_LLS_EXT_OPTIONS_LR, NULL, HFILL }},
         {&hf_ospf_filter[OSPFF_LLS_EXT_OPTIONS_RS],
-         { "RS", "ospf.lls.ext.options.rs", FT_BOOLEAN, 32,
-           TFS(&tfs_lls_ext_options_rs), OSPF_LLS_EXT_OPTIONS_RS, NULL, HFILL }},
+         { "(RS) Restart Signal", "ospf.lls.ext.options.rs", FT_BOOLEAN, 32,
+           TFS(&tfs_set_notset), OSPF_LLS_EXT_OPTIONS_RS, NULL, HFILL }},
         {&hf_ospf_filter[OSPFF_V2_ROUTER_LSA_FLAG],
          { "Flags", "ospf.v2.router.lsa.flags", FT_UINT8, BASE_HEX,
            NULL, 0x0, NULL, HFILL }},
         {&hf_ospf_filter[OSPFF_V2_ROUTER_LSA_FLAG_B],
-         { "B", "ospf.v2.router.lsa.flags.b", FT_BOOLEAN, 8,
-           TFS(&tfs_v2_router_lsa_flags_b), OSPF_V2_ROUTER_LSA_FLAG_B, NULL, HFILL }},
+         { "(B) Area border router", "ospf.v2.router.lsa.flags.b", FT_BOOLEAN, 8,
+           TFS(&tfs_yes_no), OSPF_V2_ROUTER_LSA_FLAG_B, NULL, HFILL }},
         {&hf_ospf_filter[OSPFF_V2_ROUTER_LSA_FLAG_E],
-         { "E", "ospf.v2.router.lsa.flags.e", FT_BOOLEAN, 8,
-           TFS(&tfs_v2_router_lsa_flags_e), OSPF_V2_ROUTER_LSA_FLAG_E, NULL, HFILL }},
+         { "(E) AS boundary router", "ospf.v2.router.lsa.flags.e", FT_BOOLEAN, 8,
+           TFS(&tfs_yes_no), OSPF_V2_ROUTER_LSA_FLAG_E, NULL, HFILL }},
         {&hf_ospf_filter[OSPFF_V2_ROUTER_LSA_FLAG_V],
-         { "V", "ospf.v2.router.lsa.flags.v", FT_BOOLEAN, 8,
-           TFS(&tfs_v2_router_lsa_flags_v), OSPF_V2_ROUTER_LSA_FLAG_V, NULL, HFILL }},
+         { "(V) Virtual link endpoint", "ospf.v2.router.lsa.flags.v", FT_BOOLEAN, 8,
+           TFS(&tfs_yes_no), OSPF_V2_ROUTER_LSA_FLAG_V, NULL, HFILL }},
         {&hf_ospf_filter[OSPFF_V2_ROUTER_LSA_FLAG_W],
-         { "W", "ospf.v2.router.lsa.flags.w", FT_BOOLEAN, 8,
-           TFS(&tfs_v2_router_lsa_flags_w), OSPF_V2_ROUTER_LSA_FLAG_W, NULL, HFILL }},
+         { "(W) Wild-card multicast receiver", "ospf.v2.router.lsa.flags.w", FT_BOOLEAN, 8,
+           TFS(&tfs_yes_no), OSPF_V2_ROUTER_LSA_FLAG_W, NULL, HFILL }},
         {&hf_ospf_filter[OSPFF_V2_ROUTER_LSA_FLAG_N],
-         { "N", "ospf.v2.router.lsa.flags.n", FT_BOOLEAN, 8,
-           TFS(&tfs_v2_router_lsa_flags_n), OSPF_V2_ROUTER_LSA_FLAG_N, NULL, HFILL }},
+         { "(N) flag", "ospf.v2.router.lsa.flags.n", FT_BOOLEAN, 8,
+           TFS(&tfs_yes_no), OSPF_V2_ROUTER_LSA_FLAG_N, NULL, HFILL }},
         {&hf_ospf_filter[OSPFF_V3_ROUTER_LSA_FLAG],
          { "Flags", "ospf.v3.router.lsa.flags", FT_UINT8, BASE_HEX,
            NULL, 0x0, NULL, HFILL }},
         {&hf_ospf_filter[OSPFF_V3_ROUTER_LSA_FLAG_B],
-         { "B", "ospf.v3.router.lsa.flags.b", FT_BOOLEAN, 8,
-           TFS(&tfs_v3_router_lsa_flags_b), OSPF_V3_ROUTER_LSA_FLAG_B, NULL, HFILL }},
+         { "(B) Area border router", "ospf.v3.router.lsa.flags.b", FT_BOOLEAN, 8,
+           TFS(&tfs_yes_no), OSPF_V3_ROUTER_LSA_FLAG_B, NULL, HFILL }},
         {&hf_ospf_filter[OSPFF_V3_ROUTER_LSA_FLAG_E],
-         { "E", "ospf.v3.router.lsa.flags.e", FT_BOOLEAN, 8,
-           TFS(&tfs_v3_router_lsa_flags_e), OSPF_V3_ROUTER_LSA_FLAG_E, NULL, HFILL }},
+         { "(E) AS boundary router", "ospf.v3.router.lsa.flags.e", FT_BOOLEAN, 8,
+           TFS(&tfs_yes_no), OSPF_V3_ROUTER_LSA_FLAG_E, NULL, HFILL }},
         {&hf_ospf_filter[OSPFF_V3_ROUTER_LSA_FLAG_V],
-         { "V", "ospf.v3.router.lsa.flags.v", FT_BOOLEAN, 8,
-           TFS(&tfs_v3_router_lsa_flags_v), OSPF_V3_ROUTER_LSA_FLAG_V, NULL, HFILL }},
+         { "(V) Virtual link endpoint", "ospf.v3.router.lsa.flags.v", FT_BOOLEAN, 8,
+           TFS(&tfs_yes_no), OSPF_V3_ROUTER_LSA_FLAG_V, NULL, HFILL }},
         {&hf_ospf_filter[OSPFF_V3_ROUTER_LSA_FLAG_W],
-         { "W", "ospf.v3.router.lsa.flags.w", FT_BOOLEAN, 8,
-           TFS(&tfs_v3_router_lsa_flags_w), OSPF_V3_ROUTER_LSA_FLAG_W, NULL, HFILL }},
+         { "(W) Wild-card multicast receiver", "ospf.v3.router.lsa.flags.w", FT_BOOLEAN, 8,
+           TFS(&tfs_yes_no), OSPF_V3_ROUTER_LSA_FLAG_W, NULL, HFILL }},
         {&hf_ospf_filter[OSPFF_V3_AS_EXTERNAL_FLAG],
          { "Flags", "ospf.v3.as.external.flags", FT_UINT8, BASE_HEX,
            NULL, 0x0, NULL, HFILL }},
         {&hf_ospf_filter[OSPFF_V3_AS_EXTERNAL_FLAG_T],
-         { "T", "ospf.v3.as.external.flags.t", FT_BOOLEAN, 8,
-           TFS(&tfs_v3_as_external_flags_t), OSPF_V3_AS_EXTERNAL_FLAG_T, NULL, HFILL }},
+         { "(T) External Route Tag", "ospf.v3.as.external.flags.t", FT_BOOLEAN, 8,
+           TFS(&tfs_present_not_present), OSPF_V3_AS_EXTERNAL_FLAG_T, NULL, HFILL }},
         {&hf_ospf_filter[OSPFF_V3_AS_EXTERNAL_FLAG_F],
-         { "F", "ospf.v3.as.external.flags.f", FT_BOOLEAN, 8,
-           TFS(&tfs_v3_as_external_flags_f), OSPF_V3_AS_EXTERNAL_FLAG_F, NULL, HFILL }},
+         { "(F) Forwarding Address", "ospf.v3.as.external.flags.f", FT_BOOLEAN, 8,
+           TFS(&tfs_present_absent), OSPF_V3_AS_EXTERNAL_FLAG_F, NULL, HFILL }},
         {&hf_ospf_filter[OSPFF_V3_AS_EXTERNAL_FLAG_E],
-         { "E", "ospf.v3.as.external.flags.e", FT_BOOLEAN, 8,
+         { "(E) External Metric", "ospf.v3.as.external.flags.e", FT_BOOLEAN, 8,
            TFS(&tfs_v3_as_external_flags_e), OSPF_V3_AS_EXTERNAL_FLAG_E, NULL, HFILL }},
         {&hf_ospf_filter[OSPFF_V3_PREFIX_OPTION],
          { "PrefixOptions", "ospf.v3.prefix.options", FT_UINT8, BASE_HEX,
            NULL, 0x0, NULL, HFILL }},
         {&hf_ospf_filter[OSPFF_V3_PREFIX_OPTION_NU],
-         { "NU", "ospf.v3.prefix.options.nu", FT_BOOLEAN, 8,
-           TFS(&tfs_v3_prefix_options_nu), OSPF_V3_PREFIX_OPTION_NU, NULL, HFILL }},
+         { "(NU) NoUnicast", "ospf.v3.prefix.options.nu", FT_BOOLEAN, 8,
+           TFS(&tfs_set_notset), OSPF_V3_PREFIX_OPTION_NU, NULL, HFILL }},
         {&hf_ospf_filter[OSPFF_V3_PREFIX_OPTION_LA],
-         { "LA", "ospf.v3.prefix.options.la", FT_BOOLEAN, 8,
-           TFS(&tfs_v3_prefix_options_la), OSPF_V3_PREFIX_OPTION_LA, NULL, HFILL }},
+         { "(LA) Local Address", "ospf.v3.prefix.options.la", FT_BOOLEAN, 8,
+           TFS(&tfs_set_notset), OSPF_V3_PREFIX_OPTION_LA, NULL, HFILL }},
         {&hf_ospf_filter[OSPFF_V3_PREFIX_OPTION_MC],
-         { "MC", "ospf.v3.prefix.options.mc", FT_BOOLEAN, 8,
-           TFS(&tfs_v3_prefix_options_mc), OSPF_V3_PREFIX_OPTION_MC, NULL, HFILL }},
+         { "(MC) Multicast", "ospf.v3.prefix.options.mc", FT_BOOLEAN, 8,
+           TFS(&tfs_set_notset), OSPF_V3_PREFIX_OPTION_MC, NULL, HFILL }},
         {&hf_ospf_filter[OSPFF_V3_PREFIX_OPTION_P],
-         { "P", "ospf.v3.prefix.options.p", FT_BOOLEAN, 8,
-           TFS(&tfs_v3_prefix_options_p), OSPF_V3_PREFIX_OPTION_P, NULL, HFILL }},
+         { "(P) Propogate", "ospf.v3.prefix.options.p", FT_BOOLEAN, 8,
+           TFS(&tfs_set_notset), OSPF_V3_PREFIX_OPTION_P, NULL, HFILL }},
 
         /* Dynamic Hostname contained in the Opaque RI LSA - dynamic hostname TLV*/
         {&hf_ospf_filter[OSPFF_DYN_HOSTNAME],
@@ -3793,11 +3629,11 @@ proto_register_ospf(void)
          { "Options", "ospf.v3.lls.ext.options", FT_UINT32,  BASE_HEX,
            NULL, 0x0, NULL, HFILL }},
         {&hf_ospf_filter[OSPFF_V3_LLS_EXT_OPTIONS_LR],
-         { "LR", "ospf.v3.lls.ext.options.lr", FT_BOOLEAN, 32,
-           TFS(&tfs_v3_lls_ext_options_lr), OSPF_V3_LLS_EXT_OPTIONS_LR, NULL, HFILL }},
+         { "(LR) LSDB Resynchronization", "ospf.v3.lls.ext.options.lr", FT_BOOLEAN, 32,
+           TFS(&tfs_set_notset), OSPF_V3_LLS_EXT_OPTIONS_LR, NULL, HFILL }},
         {&hf_ospf_filter[OSPFF_V3_LLS_EXT_OPTIONS_RS],
-         { "RS", "ospf.v3.lls.ext.options.rs", FT_BOOLEAN, 32,
-           TFS(&tfs_v3_lls_ext_options_rs), OSPF_V3_LLS_EXT_OPTIONS_RS, NULL, HFILL }},
+         { "(RS) Restart Signal", "ospf.v3.lls.ext.options.rs", FT_BOOLEAN, 32,
+           TFS(&tfs_set_notset), OSPF_V3_LLS_EXT_OPTIONS_RS, NULL, HFILL }},
         {&hf_ospf_filter[OSPFF_V3_LLS_STATE_TLV],
          { "State Check Sequence TLV", "ospf.v3.lls.state.tlv", FT_NONE, BASE_NONE,
            NULL, 0x0, NULL, HFILL }},
@@ -3808,14 +3644,14 @@ proto_register_ospf(void)
          { "Options", "ospf.v3.lls.state.options", FT_UINT8,  BASE_HEX,
            NULL, 0x0, NULL, HFILL }},
         {&hf_ospf_filter[OSPFF_V3_LLS_STATE_OPTIONS_R],
-         { "R", "ospf.v3.lls.state.options.r", FT_BOOLEAN, 8,
-           TFS(&tfs_v3_lls_state_options_r), OSPF_V3_LLS_STATE_OPTIONS_R, NULL, HFILL }},
+         { "(R) Resuest", "ospf.v3.lls.state.options.r", FT_BOOLEAN, 8,
+           TFS(&tfs_set_notset), OSPF_V3_LLS_STATE_OPTIONS_R, NULL, HFILL }},
         {&hf_ospf_filter[OSPFF_V3_LLS_STATE_OPTIONS_A],
-         { "A", "ospf.v3.lls.state.options.a", FT_BOOLEAN, 8,
-           TFS(&tfs_v3_lls_state_options_a), OSPF_V3_LLS_STATE_OPTIONS_A , NULL, HFILL }},
+         { "(A) Answer", "ospf.v3.lls.state.options.a", FT_BOOLEAN, 8,
+           TFS(&tfs_set_notset), OSPF_V3_LLS_STATE_OPTIONS_A , NULL, HFILL }},
         {&hf_ospf_filter[OSPFF_V3_LLS_STATE_OPTIONS_N],
-         { "N", "ospf.v3.lls.state.options.n", FT_BOOLEAN, 8,
-           TFS(&tfs_v3_lls_state_options_n), OSPF_V3_LLS_STATE_OPTIONS_N ,NULL, HFILL }},
+         { "(N) Incomplete", "ospf.v3.lls.state.options.n", FT_BOOLEAN, 8,
+           TFS(&tfs_set_notset), OSPF_V3_LLS_STATE_OPTIONS_N ,NULL, HFILL }},
         {&hf_ospf_filter[OSPFF_V3_LLS_DROP_TLV],
          { "Neighbor Drop TLV", "ospf.v3.lls.drop.tlv", FT_NONE, BASE_NONE,
            NULL, 0x0, NULL, HFILL }},
@@ -3829,11 +3665,11 @@ proto_register_ospf(void)
          { "Options", "ospf.v3.lls.relay.options", FT_UINT8,  BASE_HEX,
            NULL, 0x0, NULL, HFILL }},
         {&hf_ospf_filter[OSPFF_V3_LLS_RELAY_OPTIONS_A],
-         { "A", "ospf.v3.lls.relay.options.a", FT_BOOLEAN, 8,
-           TFS(&tfs_v3_lls_relay_options_a), OSPF_V3_LLS_RELAY_OPTIONS_A, NULL, HFILL }},
+         { "(A) Always", "ospf.v3.lls.relay.options.a", FT_BOOLEAN, 8,
+           TFS(&tfs_set_notset), OSPF_V3_LLS_RELAY_OPTIONS_A, NULL, HFILL }},
         {&hf_ospf_filter[OSPFF_V3_LLS_RELAY_OPTIONS_N],
-         { "N", "ospf.v3.lls.relay.options.n", FT_BOOLEAN, 8,
-           TFS(&tfs_v3_lls_relay_options_n), OSPF_V3_LLS_RELAY_OPTIONS_N, NULL, HFILL }},
+         { "(N) Never", "ospf.v3.lls.relay.options.n", FT_BOOLEAN, 8,
+           TFS(&tfs_set_notset), OSPF_V3_LLS_RELAY_OPTIONS_N, NULL, HFILL }},
         {&hf_ospf_filter[OSPFF_V3_LLS_WILLINGNESS_TLV],
          { "Willingness TLV", "ospf.v3.lls.willingness.tlv", FT_NONE, BASE_NONE,
            NULL, 0x0, NULL, HFILL }},
