@@ -804,7 +804,46 @@ else()
 endif()
 
 configure_file(${CMAKE_SOURCE_DIR}/cmakeconfig.h.in ${CMAKE_BINARY_DIR}/config.h)
-configure_file(${CMAKE_SOURCE_DIR}/wireshark.pc.in ${CMAKE_BINARY_DIR}/wireshark.pc @ONLY)
+set( IN_FILES
+	image/libwireshark.rc.in
+	image/text2pcap.rc.in
+	image/capinfos.rc.in
+	image/wireshark.rc.in
+	image/mergecap.rc.in
+	image/tshark.rc.in
+	image/dumpcap.rc.in
+	image/reordercap.rc.in
+	image/rawshark.rc.in
+	image/file_dlg_win32.rc
+	image/tfshark.rc.in
+	image/editcap.rc.in
+	image/captype.rc.in
+	image/libwsutil.rc.in
+	image/filetap.rc.in
+	image/wiretap.rc.in
+	plugins/ethercat/plugin.rc.in
+	plugins/unistim/plugin.rc.in
+	plugins/opcua/plugin.rc.in
+	plugins/asn1/plugin.rc.in
+	plugins/wimax/plugin.rc.in
+	plugins/gryphon/plugin.rc.in
+	plugins/profinet/plugin.rc.in
+	plugins/m2m/plugin.rc.in
+	plugins/stats_tree/plugin.rc.in
+	plugins/wimaxasncp/plugin.rc.in
+	plugins/mate/plugin.rc.in
+	plugins/wimaxmacphy/plugin.rc.in
+	plugins/irda/plugin.rc.in
+	plugins/docsis/plugin.rc.in
+	plugins/easy_codec/plugin.rc.in
+	wireshark.pc.in
+)
+foreach( _in_file ${IN_FILES} )
+	get_filename_component( _path ${_in_file} PATH )
+	string( REGEX REPLACE "(.*)\\.in" "\\1" _outfile ${_in_file}  )
+	configure_file( ${CMAKE_SOURCE_DIR}/${_in_file} ${CMAKE_BINARY_DIR}/${_outfile} @ONLY )
+endforeach()
+
 if( ENABLE_GUIDES )
 	configure_file(
 		${CMAKE_SOURCE_DIR}/doxygen_global.cfg
