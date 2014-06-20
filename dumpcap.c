@@ -4180,6 +4180,7 @@ main(int argc, char *argv[])
         {(char *)"capture-comment", required_argument, NULL, LONGOPT_NUM_CAP_COMMENT },
         {(char *)"help", no_argument, NULL, 'h'},
         {(char *)"version", no_argument, NULL, 'v'},
+        LONGOPT_CAPTURE_COMMON,
         {0, 0, 0, 0 }
     };
 
@@ -4240,11 +4241,9 @@ main(int argc, char *argv[])
 #endif
 
 #ifdef HAVE_PCAP_REMOTE
-#define OPTSTRING_A "A:"
 #define OPTSTRING_r "r"
 #define OPTSTRING_u "u"
 #else
-#define OPTSTRING_A ""
 #define OPTSTRING_r ""
 #define OPTSTRING_u ""
 #endif
@@ -4255,25 +4254,7 @@ main(int argc, char *argv[])
 #define OPTSTRING_m ""
 #endif
 
-#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
-#define OPTSTRING_B "B:"
-#else
-#define OPTSTRING_B ""
-#endif  /* _WIN32 or HAVE_PCAP_CREATE */
-
-#ifdef HAVE_PCAP_CREATE
-#define OPTSTRING_I "I"
-#else
-#define OPTSTRING_I ""
-#endif
-
-#ifdef HAVE_BPF_IMAGE
-#define OPTSTRING_d "d"
-#else
-#define OPTSTRING_d ""
-#endif
-
-#define OPTSTRING "a:" OPTSTRING_A "b:" OPTSTRING_B "C:c:" OPTSTRING_d "Df:ghi:" OPTSTRING_I "k:L" OPTSTRING_m "MN:npPq" OPTSTRING_r "Ss:t" OPTSTRING_u "vw:y:Z:"
+#define OPTSTRING OPTSTRING_CAPTURE_COMMON "C:" OPTSTRING_d "gh" "k:" OPTSTRING_m "MN:nPq" OPTSTRING_r "St" OPTSTRING_u "vw:Z:"
 
 #ifdef DEBUG_CHILD_DUMPCAP
     if ((debug_log = ws_fopen("dumpcap_debug_log.tmp","w")) == NULL) {

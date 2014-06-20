@@ -926,6 +926,7 @@ main(int argc, char *argv[])
     {(char *)"capture-comment", required_argument, NULL, LONGOPT_NUM_CAP_COMMENT },
     {(char *)"help", no_argument, NULL, 'h'},
     {(char *)"version", no_argument, NULL, 'v'},
+    LONGOPT_CAPTURE_COMMON,
     {0, 0, 0, 0 }
   };
   gboolean             arg_error = FALSE;
@@ -973,31 +974,14 @@ main(int argc, char *argv[])
   int                  optind_initial;
   gchar               *output_only = NULL;
 
-#ifdef HAVE_PCAP_REMOTE
-#define OPTSTRING_A "A:"
-#else
-#define OPTSTRING_A ""
-#endif
-#ifdef HAVE_LIBPCAP
-#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
-#define OPTSTRING_B "B:"
-#else
-#define OPTSTRING_B ""
-#endif  /* _WIN32 or HAVE_PCAP_CREATE */
-#else /* HAVE_LIBPCAP */
+#ifndef HAVE_LIBPCAP
 #define OPTSTRING_B ""
 #endif  /* HAVE_LIBPCAP */
-
-#ifdef HAVE_PCAP_CREATE
-#define OPTSTRING_I "I"
-#else
-#define OPTSTRING_I ""
-#endif
 
 /* the leading - ensures that getopt() does not permute the argv[] entries
    we have to make sure that the first getopt() preserves the content of argv[]
    for the subsequent getopt_long() call */
-#define OPTSTRING "-2a:" OPTSTRING_A "b:" OPTSTRING_B "c:C:d:De:E:f:F:gG:hH:i:" OPTSTRING_I "K:lLnN:o:O:pPqQr:R:s:S:t:T:u:vVw:W:xX:y:Y:z:"
+#define OPTSTRING "-2" OPTSTRING_CAPTURE_COMMON "C:d:e:E:F:gG:hH:" "K:lnN:o:O:PqQr:R:S:t:T:u:vVw:W:xX:Y:z:"
 
   static const char    optstring[] = OPTSTRING;
 
