@@ -113,6 +113,40 @@ debugger. Visual $$C++$$ 2010 is also used to create official
 Wireshark builds, so it will likely have fewer development-related
 problems.
 
+[[ChSetupQt]]
+
+
+==== Install Qt (optional but recommended)
+
+If you wish to build QtShark (The Wireshark GUI using the Qt windowing
+toolkit), http://qt-project.org/downloads[download] and install the appropriate
+Qt libraries.
+
+Note that the Qt package also includes the Qt Creator IDE, which may be useful
+for designing graphical components, and includes an interactive debugger.
+You'll need to build wireshark using nmake before you'll be able to build the
+QtShark project (ui/qt/QtShark.pro), however.
+
+[WARNING]
+.Don't use the default full-package Qt installer
+====
+The default (suggested) full-package Qt installer is built with the MinGW
+toolchain, which is not currently supported by Wireshark's build process on
+Windows and so will not work.  Instead, you will want to use the installer for
+the toolchain you are using (e.g. Qt <version> for Windows 32-bit (VS 2010,
+OpenGL) if you are using the toolchain set up by these quick-start
+instructions).
+====
+
+[TIP]
+.Qt migration
+====
+As the GTK+ version of Wireshark is being deprecated in favor of the Qt
+version, it is a good idea to build QtShark and ensure that any features that
+you've added work in that version.
+====
+
+
 [[ChSetupCygwin]]
 
 
@@ -141,7 +175,7 @@ so it shows a version number for:
 
 * Utils/dos2unix
 
-* Utils/patch (optional)
+* Utils/patch (optional) (may be Devel/patch instead)
 
 * Web/wget
 
@@ -284,6 +318,14 @@ step depends on the compiler you are using. For compilers other than Visual
 $$C++$$ 2010, see the table at <<ChToolsMSChain>>.]
 --
 
+.. `QT5_BASE_DIR`: If you plan to build QtShark (the Wireshark GUI application
+which uses the Qt windowing toolkit instead of GTK+), set QT5_BASE_DIR so that
+$(QT5_BASE_DIR)/bin/qmake.exe is valid.  You can use the output of
+"qmake -query QT_INSTALL_PREFIX" as indicated in the comments in config.nmake,
+but make sure that you use backslashes (\\) in the path rather than the forward
+slashes returned by qmake.
+
+
 [[ChSetupPrepareCommandCom]]
 
 ==== Prepare cmd.exe
@@ -349,10 +391,16 @@ to jump into the source directory
 
 Wireshark development depends on several additional environment variables,
 particularly PATH. You can use a batch script to fill these in, along with the
-Visual $$C++$$ variables; for example:
+Visual $$C++$$ variables; a sample script is below.  Note that the paths given
+here may not match your installation - double check CYGWIN_BIN and QT5_BIN in
+particular, and/or remove QT5_BIN if you are not building QtShark.
 
 ----
 @echo off
+
+set CYGWIN_BIN=C:\cygwin\bin
+set QT5_BIN=C:\Qt\5.3\msvc2010_opengl\bin
+set MSVC_BIN="C:\Program Files\Microsoft SDKs\Windows\v7.1\Bin"
 
 if "%1" == "" goto x86
 if /i %1 == x86       goto x86
@@ -370,17 +418,17 @@ goto :eof
 
 :x64
 echo Adding things to the path...
-set PATH=%PATH%;c:\cygwin\bin
+set PATH=%PATH%;%CYGWIN_BIN%;%QT5_BIN%
 set WIRESHARK_TARGET_PLATFORM=win64
-call "c:\Program Files\Microsoft SDKs\Windows\v7.1\Bin\SetEnv.Cmd" /Release /x64
+call %MSVC_BIN%\SetEnv.Cmd /Release /x64
 title Command Prompt (VC++ 2010 x64)
 goto :eof
 
 :x86
 echo Adding things to the path...
-set PATH=%PATH%;c:\cygwin\bin
+set PATH=%PATH%;%CYGWIN_BIN%;%QT5_BIN%
 set WIRESHARK_TARGET_PLATFORM=win32
-call "c:\Program Files\Microsoft SDKs\Windows\v7.1\Bin\SetEnv.Cmd" /Release /x86
+call %MSVC_BIN%\SetEnv.Cmd /Release /x86
 title Command Prompt (VC++ 2010 -x86)
 goto :eof
 ----
@@ -515,6 +563,8 @@ the sources and make "all" again
 ****
 Unfortunately this section hasn't been written. You should be able
 to use the Visual Studio debugger to attach to a running executable.
+Alternately, if you are building QtShark with Qt Creator, you can
+launch QtShark in the debugger included with that IDE.
 ****
 
 ==== Optional: Create User's and Developer's Guide
