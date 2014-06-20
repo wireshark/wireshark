@@ -17,31 +17,34 @@ make or nmake should work.
 
 There are several ways of building qtshark:
 
-1) Using qtcreator:
+1) Qt Creator + CMake:
 
-   The ui/qt directory is loosely coupled with the rest of the codebase.
-   The main Wireshark sources must be built beforehand using CMake on Linux
-   and OS X and nmake on Windows. Autotools + QMake is a basket full of
-   crazy that hasn't yet been sorted and folded.  (Autotools + Boring Old
-   Make, without using QMake at all, might actually be simpler:
+   Open the top-level CMakeLists.txt within Qt Creator. It should ask you to
+   choose a build location. Do so. It should then ask you to run CMake. Fill in
+   any desired build arguments (e.g. "-D CMAKE_BUILD_TYPE:STRING=Debug" or
+   "-D ENABLE_GTK3:BOOL=OFF") and click the "Run CMake" button. When that
+   completes select "Build → Open Build and Run Kit Selector..." and make
+   sure qtshark is selected.
 
-    http://www.mail-archive.com/automake@gnu.org/msg11149.html
+2) CMake:
 
-2) Using cmake:
-   set BUILD_qtshark to ON (default: OFF) in CmakeOptions.txt (may be set
-   in parallel with BUILD_wireshark) or add -DBUILD_qtshark=YES flag
-   Do the normal out-of-tree or in-tree build.
-   To build with Qt5 instead of Qt4, add the following option set ENABLE_QT5
-   to ON. Note: Qt5 requires cmake 2.8.3 or newer.
-   This has only been tested on a current openSUSE Linux system with fairly
-   current QT and cmake. It may be necessary to copy the FindQt4.cmake and
-   supporting files from cmake to Wireshark's cmake/modules/
-   If using cmake installing qtcreator is not required. Basically almost
-   all stuff below can be ignored ;-)
+   Qt (BUILD_qtshark) is enabled by default. Use the "cmake" command to
+   configure a normal out-of-tree or in-tree build, e.g.
 
-3) Using autotools:
+    mkdir cmakebuild
+    cd cmakebuild
+    cmake
+    make
 
-   Pass --with-qt to the configure script and build.
+3) Autotools:
+
+   Qt (--with-qt) is enabled by default.
+
+4) Qt Creator + QtShark.pro:
+
+   NOTE: The bulk of Wireshark isn't a qmake project and the ui/qt directory is
+   loosely coupled with the rest of the codebase. When the CMake environment
+   matures to a sufficient state QtShark.pro will probably be removed.
 
 Work is in progress on this.)
 
@@ -51,7 +54,7 @@ Before compiling you need the Qt SDK and Qt Creator.
 
 1.1.1 OS X
 
-Download the latest Qt Library + Qt Creator (currently 5.1) from
+Download the latest Qt Library + Qt Creator (currently 5.3) from
 http://qt-project.org/downloads/ and install it. For a more native
 look and feel you should also install Qt Mac Extras:
 
