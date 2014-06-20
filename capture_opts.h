@@ -92,11 +92,14 @@ extern "C" {
 #endif
 
 #define LONGOPT_CAPTURE_COMMON \
+        {(char *)"autostop", required_argument, NULL, 'a'}, \
+        {(char *)"ring-buffer", required_argument, NULL, 'b'}, \
         LONGOPT_BUFFER_SIZE \
         {(char *)"list-interfaces", no_argument, NULL, 'D'}, \
         {(char *)"interface", required_argument, NULL, 'i'}, \
         LONGOPT_MONITOR_MODE \
         {(char *)"list-data-link-types", no_argument, NULL, 'L'}, \
+        {(char *)"no-promiscuous-mode", no_argument, NULL, 'p'}, \
         {(char *)"snapshot-length", required_argument, NULL, 's'}, \
         {(char *)"linktype", required_argument, NULL, 'y'}
 
