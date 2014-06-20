@@ -1590,7 +1590,7 @@ vnc_server_to_client(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 {
 	gint start_offset;
 	guint8 message_type;
-	gint bytes_needed = 0, length_remaining;
+	gint bytes_needed = 0;
 
 	proto_item *ti = NULL;
 	proto_tree *vnc_server_message_type_tree;
@@ -1639,13 +1639,9 @@ vnc_server_to_client(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 		break;
 	}
 
-	if(bytes_needed > 0 && vnc_preference_desegment &&
-	   pinfo->can_desegment) {
-		length_remaining = tvb_length_remaining(tvb, *offset);
-
+	if(bytes_needed > 0 && vnc_preference_desegment && pinfo->can_desegment) {
 		pinfo->desegment_offset = start_offset;
-		pinfo->desegment_len = bytes_needed - length_remaining;
-		return;
+		pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
 	}
 }
 
@@ -4625,3 +4621,16 @@ proto_reg_handoff_vnc(void)
 		}
 	}
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */
