@@ -66,19 +66,29 @@ extern "C" {
 #define MIN_NON_CAPTURE_LONGOPT 129
 
 /*
- * Long options for capturing common to all capturing programs.
+ * Options for capturing common to all capturing programs.
  */
+#ifdef HAVE_PCAP_REMOTE
+#define OPTSTRING_A "A:"
+#else
+#define OPTSTRING_A ""
+#endif
+
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
 #define LONGOPT_BUFFER_SIZE \
 	{(char *)"buffer-size", required_argument, NULL, 'B'},
+#define OPTSTRING_B "B:"
 #else
 #define LONGOPT_BUFFER_SIZE
+#define OPTSTRING_B ""
 #endif
 
 #ifdef HAVE_PCAP_CREATE
 #define LONGOPT_MONITOR_MODE {(char *)"monitor-mode", no_argument, NULL, 'I'},
+#define OPTSTRING_I "I"
 #else
 #define LONGOPT_MONITOR_MODE
+#define OPTSTRING_I ""
 #endif
 
 #define LONGOPT_CAPTURE_COMMON \
@@ -89,28 +99,6 @@ extern "C" {
         {(char *)"list-data-link-types", no_argument, NULL, 'L'}, \
         {(char *)"snapshot-length", required_argument, NULL, 's'}, \
         {(char *)"linktype", required_argument, NULL, 'y'}
-
-/*
- * Short options for capturing common to all capturing programs.
- */
-
-#ifdef HAVE_PCAP_REMOTE
-#define OPTSTRING_A "A:"
-#else
-#define OPTSTRING_A ""
-#endif
-
-#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
-#define OPTSTRING_B "B:"
-#else
-#define OPTSTRING_B ""
-#endif  /* _WIN32 or HAVE_PCAP_CREATE */
-
-#ifdef HAVE_PCAP_CREATE
-#define OPTSTRING_I "I"
-#else
-#define OPTSTRING_I ""
-#endif
 
 #define OPTSTRING_CAPTURE_COMMON \
 	 "a:" OPTSTRING_A "b:" OPTSTRING_B "c:Df:i:" OPTSTRING_I "Lps:y:"

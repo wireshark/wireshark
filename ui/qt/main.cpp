@@ -500,6 +500,7 @@ int main(int argc, char *argv[])
 
     // XXX Should the remaining code be in WiresharkApplcation::WiresharkApplication?
 #ifndef HAVE_LIBPCAP
+#define LONGOPT_CAPTURE_COMMON
 #define OPTSTRING_CAPTURE_COMMON ""
 #endif  /* HAVE_LIBPCAP */
 

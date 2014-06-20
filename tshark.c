@@ -915,6 +915,11 @@ show_version(GString *comp_info_str, GString *runtime_info_str)
          runtime_info_str->str);
 }
 
+#ifndef HAVE_LIBPCAP
+#define LONGOPT_CAPTURE_COMMON
+#define OPTSTRING_CAPTURE_COMMON ""
+#endif  /* HAVE_LIBPCAP */
+
 int
 main(int argc, char *argv[])
 {
@@ -973,10 +978,6 @@ main(int argc, char *argv[])
   int                  log_flags;
   int                  optind_initial;
   gchar               *output_only = NULL;
-
-#ifndef HAVE_LIBPCAP
-#define OPTSTRING_CAPTURE_COMMON ""
-#endif  /* HAVE_LIBPCAP */
 
 /* the leading - ensures that getopt() does not permute the argv[] entries
    we have to make sure that the first getopt() preserves the content of argv[]
