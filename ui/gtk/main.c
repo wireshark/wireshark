@@ -2161,10 +2161,6 @@ main(int argc, char *argv[])
     GtkosxApplication   *theApp;
 #endif
 
-#ifndef HAVE_LIBPCAP
-#define OPTSTRING_CAPTURE_COMMON ""
-#endif  /* HAVE_LIBPCAP */
-
 #define OPTSTRING OPTSTRING_CAPTURE_COMMON "C:g:Hh" "jJ:kK:lm:nN:o:P:r:R:St:u:vw:X:Y:z:"
 
     static const char optstring[] = OPTSTRING;

@@ -915,11 +915,6 @@ show_version(GString *comp_info_str, GString *runtime_info_str)
          runtime_info_str->str);
 }
 
-#ifndef HAVE_LIBPCAP
-#define LONGOPT_CAPTURE_COMMON
-#define OPTSTRING_CAPTURE_COMMON ""
-#endif  /* HAVE_LIBPCAP */
-
 int
 main(int argc, char *argv[])
 {
