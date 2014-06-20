@@ -51,6 +51,7 @@
 #include "ui/gtk/old-gtk-compat.h"
 #include "ui/gtk/edit_packet_comment_dlg.h"
 #include "ui/gtk/capture_comment_icons.h"
+#include "ui/gtk/gtkglobals.h"
 
 enum
 {
@@ -86,12 +87,14 @@ typedef struct _expert_comp_dlg_t {
     error_equiv_table note_table;
     error_equiv_table warn_table;
     error_equiv_table error_table;
+    expert_tapdata_t *etd; /* details tab info similar to error_equiv_table for others */
     guint32 pkt_comments_events;
     guint32 disp_events;
     guint32 chat_events;
     guint32 note_events;
     guint32 warn_events;
     guint32 error_events;
+    gboolean use_dfilter;
 } expert_comp_dlg_t;
 
 struct expert_tapdata_s {
@@ -136,6 +139,35 @@ select_row_cb(GtkTreeSelection *selection, gpointer *user_data _U_)
         cf_goto_frame(&cfile, fnumber);
     }
 
+}
+
+static void
+expert_comp_select_filter_cb(GtkWidget *widget, gpointer callback_data, guint callback_action _U_)
+{
+    expert_comp_dlg_t *ss = (expert_comp_dlg_t *)callback_data;
+    const char *filter;
+    GString *error_string;
+
+    ss->use_dfilter = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (widget));
+    if (ss->use_dfilter) {
+        filter = gtk_entry_get_text(GTK_ENTRY(main_display_filter_widget));
+    } else {
+        filter = NULL;
+    }
+    error_string = set_tap_dfilter (ss, filter);
+    if (error_string) {
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_string->str);
+        g_string_free(error_string, TRUE);
+        return;
+    }
+    error_string = set_tap_dfilter (ss->etd, filter);
+    if (error_string) {
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_string->str);
+        g_string_free(error_string, TRUE);
+        return;
+    }
+
+    cf_retap_packets(&cfile);
 }
 
 /* reset of display only, e.g. for filtering */
@@ -226,6 +258,7 @@ error_reset(void *pss)
     ss->note_events = 0;
     ss->chat_events = 0;
     ss->disp_events = 0;
+    ss->use_dfilter = FALSE;
     ss->pkt_comments_events = 0;
 
     reset_error_table_data(&ss->error_table);
@@ -761,7 +794,6 @@ static void
 expert_comp_init(const char *opt_arg _U_, void* userdata _U_)
 {
     expert_comp_dlg_t *ss;
-    const char *filter=NULL;
     GString *error_string;
     GtkWidget *temp_page, *details_page, *comments_page;
     GtkWidget *main_nb;
@@ -771,9 +803,9 @@ expert_comp_init(const char *opt_arg _U_, void* userdata _U_)
     GtkWidget *bbox;
     GtkWidget *close_bt;
     GtkWidget *help_bt;
-    expert_tapdata_t *etd;
+    GtkWidget *filter_cb;
 
-    ss=(expert_comp_dlg_t *)g_malloc(sizeof(expert_comp_dlg_t));
+    ss = (expert_comp_dlg_t *)g_malloc(sizeof(expert_comp_dlg_t));
 
     ss->pkt_comments_events = 0;
     ss->disp_events = 0;
@@ -788,7 +820,7 @@ expert_comp_init(const char *opt_arg _U_, void* userdata _U_)
 
     error_set_title(ss);
 
-    vbox=ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 3, FALSE);
+    vbox = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 3, FALSE);
     gtk_container_add(GTK_CONTAINER(ss->win), vbox);
     gtk_container_set_border_width(GTK_CONTAINER(vbox), 12);
 
@@ -799,7 +831,7 @@ expert_comp_init(const char *opt_arg _U_, void* userdata _U_)
     gtk_widget_show_all(ss->win);
 
     /* Errors */
-    temp_page =ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 6, FALSE);
+    temp_page = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 6, FALSE);
     ss->error_label = gtk_label_new("Errors: 0/y");
     gtk_widget_show(ss->error_label);
     hbox = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
@@ -881,39 +913,49 @@ expert_comp_init(const char *opt_arg _U_, void* userdata _U_)
     gtk_box_pack_start(GTK_BOX(hbox), ss->pkt_comments_label, TRUE, TRUE, 0);
     gtk_notebook_append_page(GTK_NOTEBOOK(main_nb), comments_page, hbox);
 
-    etd = expert_dlg_new_table();
-    etd->label=gtk_label_new("Please wait ...");
-    gtk_misc_set_alignment(GTK_MISC(etd->label), 0.0f, 0.5f);
+    ss->etd = expert_dlg_new_table();
+    ss->etd->label=gtk_label_new("Please wait ...");
+    gtk_misc_set_alignment(GTK_MISC(ss->etd->label), 0.0f, 0.5f);
 
-    etd->win=ss->win;
-    expert_dlg_init_table(etd, details_page);
-    expert_dlg_init_comments_table(etd, comments_page);
+    ss->etd->win=ss->win;
+    expert_dlg_init_table(ss->etd, details_page);
+    expert_dlg_init_comments_table(ss->etd, comments_page);
 
     /* Add tap listener functions for expert details, From expert_dlg.c*/
-    error_string=register_tap_listener("expert", etd, NULL /* fstring */,
-                                       TL_REQUIRES_PROTO_TREE,
+    error_string=register_tap_listener("expert", ss->etd, NULL,
+                                       TL_REQUIRES_NOTHING,
                                        expert_dlg_reset,
                                        expert_dlg_packet,
                                        expert_dlg_draw);
     if(error_string){
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_string->str);
         g_string_free(error_string, TRUE);
-        g_free(etd);
+        g_free(ss->etd);
         return;
     }
 
-    g_signal_connect(etd->win, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
-    g_signal_connect(etd->win, "destroy", G_CALLBACK(expert_dlg_destroy_cb), etd);
+    g_signal_connect(ss->etd->win, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
+    g_signal_connect(ss->etd->win, "destroy", G_CALLBACK(expert_dlg_destroy_cb), ss->etd);
 
     /* Register the tap listener */
 
-    error_string=register_tap_listener("expert", ss, filter, 0, error_reset, error_packet, expert_comp_draw);
+    error_string=register_tap_listener("expert", ss, NULL,
+        TL_REQUIRES_NOTHING, error_reset, error_packet, expert_comp_draw);
     if(error_string){
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_string->str);
         g_string_free(error_string, TRUE);
         g_free(ss);
         return;
     }
+
+    hbox = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, DLG_UNRELATED_SPACING, FALSE);
+    gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
+
+    filter_cb = gtk_check_button_new_with_mnemonic("Limit to display filter");
+    gtk_box_pack_start(GTK_BOX(hbox), filter_cb, FALSE, FALSE, 0);
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(filter_cb), FALSE);
+    gtk_widget_set_tooltip_text(filter_cb, "Limit the expert infos to packets matching the current display filter.");
+    g_signal_connect(filter_cb, "toggled", G_CALLBACK(expert_comp_select_filter_cb), ss);
 
     /* Button row. */
     bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_HELP, NULL);
