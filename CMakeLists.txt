@@ -803,8 +803,14 @@ else()
 	set(WS_MSVC_NORETURN " ")
 endif()
 
+set( VERSION ${PROJECT_VERSION} )
+set( configure_input "Built with CMake ${CMAKE_VERSION}" )
 configure_file(${CMAKE_SOURCE_DIR}/cmakeconfig.h.in ${CMAKE_BINARY_DIR}/config.h)
 set( IN_FILES
+	adns_dll.rc
+	doxygen.cfg.in
+	doxygen_global.cfg
+	epan/doxygen.cfg.in
 	image/libwireshark.rc.in
 	image/text2pcap.rc.in
 	image/capinfos.rc.in
@@ -821,6 +827,7 @@ set( IN_FILES
 	image/libwsutil.rc.in
 	image/filetap.rc.in
 	image/wiretap.rc.in
+	packaging/macosx/Info.plist.in
 	plugins/ethercat/plugin.rc.in
 	plugins/unistim/plugin.rc.in
 	plugins/opcua/plugin.rc.in
@@ -836,6 +843,9 @@ set( IN_FILES
 	plugins/irda/plugin.rc.in
 	plugins/docsis/plugin.rc.in
 	plugins/easy_codec/plugin.rc.in
+	ui/doxygen.cfg.in
+	ui/gtk/doxygen.cfg.in
+	ui/qt/doxygen.cfg.in
 	wireshark.pc.in
 )
 foreach( _in_file ${IN_FILES} )
@@ -843,41 +853,6 @@ foreach( _in_file ${IN_FILES} )
 	string( REGEX REPLACE "(.*)\\.in" "\\1" _outfile ${_in_file}  )
 	configure_file( ${CMAKE_SOURCE_DIR}/${_in_file} ${CMAKE_BINARY_DIR}/${_outfile} @ONLY )
 endforeach()
-
-if( ENABLE_GUIDES )
-	configure_file(
-		${CMAKE_SOURCE_DIR}/doxygen_global.cfg
-		${CMAKE_BINARY_DIR}/doxygen_global.cfg
-	)
-	configure_file(
-		${CMAKE_SOURCE_DIR}/ui/qt/doxygen.cfg.in
-		${CMAKE_BINARY_DIR}/ui/qt/doxygen.cfg
-	)
-	configure_file(
-		${CMAKE_SOURCE_DIR}/ui/gtk/doxygen.cfg.in
-		${CMAKE_BINARY_DIR}/ui/gtk/doxygen.cfg
-	)
-	configure_file(
-		${CMAKE_SOURCE_DIR}/ui/doxygen.cfg.in
-		${CMAKE_BINARY_DIR}/ui/doxygen.cfg
-	)
-	configure_file(
-		${CMAKE_SOURCE_DIR}/epan/doxygen.cfg.in
-		${CMAKE_BINARY_DIR}/epan/doxygen.cfg
-	)
-	configure_file(
-		${CMAKE_SOURCE_DIR}/doxygen.cfg.in
-		${CMAKE_BINARY_DIR}/doxygen.cfg
-	)
-endif()
-
-set( configure_input "Built with CMake ${CMAKE_VERSION}" )
-set( VERSION ${PROJECT_VERSION} )
-
-configure_file(
-	${CMAKE_SOURCE_DIR}/packaging/macosx/Info.plist.in
-	${CMAKE_BINARY_DIR}/packaging/macosx/Info.plist
-	@ONLY)
 
 include(FeatureSummary)
 #SET_FEATURE_INFO(NAME DESCRIPTION [URL [COMMENT] ]
