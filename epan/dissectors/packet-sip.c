@@ -1614,10 +1614,10 @@ dissect_sip_contact_item(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
 
     while(current_offset< line_end_offset){
         c = '\0';
-        while (queried_offset < line_end_offset)
+        queried_offset++;
+        queried_offset = (queried_offset < line_end_offset) ? tvb_pbrk_guint8(tvb, queried_offset, line_end_offset - queried_offset, "\r\n,;\"", &c) : -1;
+        if (queried_offset != -1)
         {
-            queried_offset++;
-            c = tvb_get_guint8(tvb, queried_offset);
             switch (c) {
                 /* prevent tree from displaying the '\r\n' as part of the param */
                 case '\r':
@@ -1627,14 +1627,14 @@ dissect_sip_contact_item(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
                 case ',':
                 case ';':
                 case '"':
-                    goto found;
                     break;
                 default :
+                    DISSECTOR_ASSERT_NOT_REACHED();
                     break;
             }
         }
-    found:
-        if(queried_offset==line_end_offset){
+
+        if (queried_offset == -1) {
             /* Last parameter, line end */
             current_offset = line_end_offset;
         }else if(c=='"'){
@@ -1743,22 +1743,8 @@ dissect_sip_authorization_item(tvbuff_t *tvb, proto_tree *tree, gint start_offse
     name = tvb_get_string_enc(wmem_packet_scope(), tvb, start_offset, par_name_end_offset-start_offset, ENC_UTF_8|ENC_NA);
 
     /* Find end of parameter, it can be a quoted string so check for quoutes too */
-    queried_offset = par_name_end_offset;
-    while (queried_offset < line_end_offset)
-    {
-            queried_offset++;
-            c = tvb_get_guint8(tvb, queried_offset);
-            switch (c) {
-                case ',':
-                case '"':
-                    goto found;
-                    break;
-                default :
-                    break;
-            }
-    }
-found:
-    if(queried_offset==line_end_offset){
+    queried_offset = tvb_pbrk_guint8(tvb, par_name_end_offset, line_end_offset - par_name_end_offset, "'\"", &c);
+    if (queried_offset == -1) {
         /* Last parameter, line end */
         current_offset = line_end_offset;
     }else if(c=='"'){
@@ -2042,15 +2028,33 @@ static void dissect_sip_route_header(tvbuff_t *tvb, proto_tree *tree, packet_inf
     return;
 }
 
-/* Dissect the details of a Via header */
+/* Dissect the details of a Via header 
+ * 
+ * Via               =  ( "Via" / "v" ) HCOLON via-parm *(COMMA via-parm)
+ * via-parm          =  sent-protocol LWS sent-by *( SEMI via-params )
+ * via-params        =  via-ttl / via-maddr
+ *                      / via-received / via-branch
+ *                      / via-extension
+ * via-ttl           =  "ttl" EQUAL ttl
+ * via-maddr         =  "maddr" EQUAL host
+ * via-received      =  "received" EQUAL (IPv4address / IPv6address)
+ * via-branch        =  "branch" EQUAL token
+ * via-extension     =  generic-param
+ * sent-protocol     =  protocol-name SLASH protocol-version
+ *                      SLASH transport
+ * protocol-name     =  "SIP" / token
+ * protocol-version  =  token
+ * transport         =  "UDP" / "TCP" / "TLS" / "SCTP"
+ *                      / other-transport
+ * sent-by           =  host [ COLON port ]
+ * ttl               =  1*3DIGIT ; 0 to 255
+ *
+ */
 static void dissect_sip_via_header(tvbuff_t *tvb, proto_tree *tree, gint start_offset, gint line_end_offset)
 {
     gint  current_offset;
-    gint  transport_start_offset;
     gint  address_start_offset;
     gint  semicolon_offset;
-    guint transport_slash_count;
-    gboolean transport_name_started;
     gboolean colon_seen;
     gboolean ipv6_reference;
     gboolean ipv6_address;
@@ -2062,10 +2066,7 @@ static void dissect_sip_via_header(tvbuff_t *tvb, proto_tree *tree, gint start_o
     while (1)
     {
         /* Reset flags and counters */
-        transport_start_offset = 0;
         semicolon_offset = 0;
-        transport_name_started = FALSE;
-        transport_slash_count = 0;
         ipv6_reference = FALSE;
         ipv6_address = FALSE;
         colon_seen = FALSE;
@@ -2080,30 +2081,57 @@ static void dissect_sip_via_header(tvbuff_t *tvb, proto_tree *tree, gint start_o
         }
 
         /* Now look for the end of the SIP/2.0/transport parameter.
-           There may be spaces between the slashes */
+         *  There may be spaces between the slashes
+         *  sent-protocol     =  protocol-name SLASH protocol-version
+         *                       SLASH transport
+         */
+
+        current_offset = tvb_find_guint8(tvb, current_offset, line_end_offset - current_offset, '/');
+        if (current_offset != -1)
+        {
+            current_offset++;
+            current_offset = tvb_find_guint8(tvb, current_offset, line_end_offset - current_offset, '/');
+        }
+
+        if (current_offset != -1)
+        {
+            current_offset++;
+            /* skip Spaces and Tabs */
+            current_offset = tvb_skip_wsp(tvb, current_offset, line_end_offset - current_offset);
+        } else
+            current_offset = line_end_offset;
+
+
+        /* We should now be at the start of the first transport name (or at the end of the line) */
+
+        /*
+         * transport         =  "UDP" / "TCP" / "TLS" / "SCTP"
+         *                      / other-transport
+         */
         while (current_offset < line_end_offset)
         {
-            c = tvb_get_guint8(tvb, current_offset);
-            if (c == '/')
-            {
-                transport_slash_count++;
-            }
-            else
-            if (!transport_name_started && (transport_slash_count == 2) && isalpha(c))
-            {
-                transport_name_started = TRUE;
-                transport_start_offset = current_offset;
-            }
-            else
-            if (transport_name_started && ((c == ' ') || (c == '\t')))
-            {
+            int transport_start_offset = current_offset;
+
+            current_offset = tvb_pbrk_guint8(tvb, current_offset, line_end_offset - current_offset, "\t /", &c);
+            if (current_offset != -1){
                 proto_tree_add_item(tree, hf_sip_via_transport, tvb, transport_start_offset,
                                     current_offset - transport_start_offset, ENC_UTF_8|ENC_NA);
-
+                /* Check if we have more transport parameters */
+                if(c=='/'){
+                    current_offset++;
+                    continue;
+                }
+                current_offset = tvb_skip_wsp(tvb, current_offset, line_end_offset - current_offset);
+                c = tvb_get_guint8(tvb, current_offset);
+                if(c=='/'){
+                    current_offset++;
+                    continue;
+                }
                 break;
+            }else{
+                current_offset = line_end_offset;
             }
 
-            current_offset++;
         }
 
         /* skip Spaces and Tabs */
@@ -2113,7 +2141,12 @@ static void dissect_sip_via_header(tvbuff_t *tvb, proto_tree *tree, gint start_o
         address_start_offset = current_offset;
         while (current_offset < line_end_offset)
         {
-            c = tvb_get_guint8(tvb, current_offset);
+            current_offset = tvb_pbrk_guint8(tvb, current_offset, line_end_offset - current_offset, "[] \t:;", &c);
+            if (current_offset == -1)
+            {
+                current_offset = line_end_offset;
+                break;
+            }
 
             if (c == '[') {
                 ipv6_reference = TRUE;
@@ -2243,15 +2276,9 @@ static void dissect_sip_via_header(tvbuff_t *tvb, proto_tree *tree, gint start_o
             parameter_name_end = current_offset;
 
             /* Read until end of parameter value */
-            while (current_offset < line_end_offset)
-            {
-                c = tvb_get_guint8(tvb, current_offset);
-                if ((c == ' ') || (c == '\t') || (c == ';') || (c == ','))
-                {
-                    break;
-                }
-                current_offset++;
-            }
+            current_offset = tvb_pbrk_guint8(tvb, current_offset, line_end_offset - current_offset, "\t;, ", NULL);
+            if (current_offset == -1)
+                current_offset = line_end_offset;
 
             /* Note parameter name */
             param_name = tvb_get_string_enc(wmem_packet_scope(), tvb, semicolon_offset+1,
