@@ -499,21 +499,9 @@ int main(int argc, char *argv[])
 
 
     // XXX Should the remaining code be in WiresharkApplcation::WiresharkApplication?
-#ifdef HAVE_LIBPCAP
-#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
-#define OPTSTRING_B "B:"
-#else
-#define OPTSTRING_B ""
-#endif  /* _WIN32 or HAVE_PCAP_CREATE */
-#else /* HAVE_LIBPCAP */
-#define OPTSTRING_B ""
+#ifndef HAVE_LIBPCAP
+#define OPTSTRING_CAPTURE_COMMON ""
 #endif  /* HAVE_LIBPCAP */
-
-#ifdef HAVE_PCAP_CREATE
-#define OPTSTRING_I "I"
-#else
-#define OPTSTRING_I ""
-#endif
 
 #define OPTSTRING OPTSTRING_CAPTURE_COMMON "C:g:Hh" "jJ:kK:lm:nN:o:P:Qr:R:St:u:vw:X:z:"
     static const struct option long_options[] = {

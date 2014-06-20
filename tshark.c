@@ -975,7 +975,7 @@ main(int argc, char *argv[])
   gchar               *output_only = NULL;
 
 #ifndef HAVE_LIBPCAP
-#define OPTSTRING_B ""
+#define OPTSTRING_CAPTURE_COMMON ""
 #endif  /* HAVE_LIBPCAP */
 
 /* the leading - ensures that getopt() does not permute the argv[] entries
