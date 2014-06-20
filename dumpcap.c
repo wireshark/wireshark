@@ -4240,6 +4240,12 @@ main(int argc, char *argv[])
     ws_init_dll_search_path();
 #endif
 
+#ifdef HAVE_BPF_IMAGE
+#define OPTSTRING_d "d"
+#else
+#define OPTSTRING_d ""
+#endif
+
 #ifdef HAVE_PCAP_REMOTE
 #define OPTSTRING_r "r"
 #define OPTSTRING_u "u"

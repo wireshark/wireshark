@@ -112,12 +112,6 @@ extern "C" {
 #define OPTSTRING_I ""
 #endif
 
-#ifdef HAVE_BPF_IMAGE
-#define OPTSTRING_d "d"
-#else
-#define OPTSTRING_d ""
-#endif
-
 #define OPTSTRING_CAPTURE_COMMON \
 	 "a:" OPTSTRING_A "b:" OPTSTRING_B "c:Df:i:" OPTSTRING_I "Lps:y:"
 
