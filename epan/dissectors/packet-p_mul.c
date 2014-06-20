@@ -842,8 +842,8 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   offset += 1;
 
   /* MAP / PDU_Type */
-  en = proto_tree_add_uint_format_value(p_mul_tree, hf_pdu_type, tvb, offset, 1,
-                                   pdu_type, "%s (0x%02x)",
+  en = proto_tree_add_uint_format (p_mul_tree, hf_pdu_type, tvb, offset, 1,
+                                   pdu_type, "PDU Type: %s (0x%02x)",
                                    get_type (pdu_type), pdu_type);
   field_tree = proto_item_add_subtree (en, ett_pdu_type);
 
