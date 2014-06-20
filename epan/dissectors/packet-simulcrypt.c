@@ -1846,8 +1846,8 @@ proto_reg_handoff_simulcrypt(void)
 		{
 			tab_ecm_inter[i].protocol_handle = find_dissector(tab_ecm_inter[i].protocol_name);
 		}
-		dissector_add_handle("tcp.port", simulcrypt_handle);   /* for "decode_as" */
-		dissector_add_handle("udp.port", simulcrypt_handle);   /* for "decode_as" */
+		dissector_add_for_decode_as("tcp.port", simulcrypt_handle);
+		dissector_add_for_decode_as("udp.port", simulcrypt_handle);
 		initialized = TRUE;
 	}
 	else {

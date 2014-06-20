@@ -444,8 +444,8 @@ proto_reg_handoff_btmcap(void)
     dissector_add_uint("btl2cap.service", BTSDP_HDP_SINK_SERVICE_UUID, btmcap_handle);
 
     /* dynamic PSM */
-    dissector_add_handle("btl2cap.psm", btmcap_handle);
-    dissector_add_handle("btl2cap.cid", btmcap_handle);
+    dissector_add_for_decode_as("btl2cap.psm", btmcap_handle);
+    dissector_add_for_decode_as("btl2cap.cid", btmcap_handle);
 }
 
 /*

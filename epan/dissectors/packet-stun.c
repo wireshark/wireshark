@@ -1623,8 +1623,8 @@ proto_reg_handoff_stun(void)
     dissector_add_uint("udp.port", UDP_PORT_STUN, stun_udp_handle);
 
     /* Used for "Decode As" in case STUN negotiation isn't captured */
-    dissector_add_handle("tcp.port", stun_tcp_handle);
-    dissector_add_handle("udp.port", stun_udp_handle);
+    dissector_add_for_decode_as("tcp.port", stun_tcp_handle);
+    dissector_add_for_decode_as("udp.port", stun_udp_handle);
 
     heur_dissector_add("udp", dissect_stun_heur, proto_stun);
 

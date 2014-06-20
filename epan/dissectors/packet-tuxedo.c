@@ -186,6 +186,6 @@ void
 proto_reg_handoff_tuxedo(void)
 {
 	tuxedo_handle = create_dissector_handle(dissect_tuxedo, proto_tuxedo);
-	dissector_add_handle("tcp.port", tuxedo_handle);
+	dissector_add_for_decode_as("tcp.port", tuxedo_handle);
 	heur_dissector_add("tcp", dissect_tuxedo_heur, proto_tuxedo);
 }

@@ -432,7 +432,7 @@ proto_reg_handoff_geneve(void)
 
     geneve_handle = create_dissector_handle(dissect_geneve, proto_geneve);
     dissector_add_uint("udp.port", UDP_PORT_GENEVE, geneve_handle);
-    dissector_add_handle("udp.port", geneve_handle);  /* For 'Decode As' */
+    dissector_add_for_decode_as("udp.port", geneve_handle);
 
     ethertype_dissector_table = find_dissector_table("ethertype");
     data_handle = find_dissector("data");

@@ -221,7 +221,7 @@ proto_reg_handoff_vxlan(void)
 
     vxlan_handle = create_dissector_handle(dissect_vxlan, proto_vxlan);
     dissector_add_uint("udp.port", UDP_PORT_VXLAN, vxlan_handle);
-    dissector_add_handle("udp.port", vxlan_handle);  /* For 'Decode As' */
+    dissector_add_for_decode_as("udp.port", vxlan_handle);
 
 }
 

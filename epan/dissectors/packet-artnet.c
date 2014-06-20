@@ -4324,7 +4324,7 @@ proto_reg_handoff_artnet(void) {
   dissector_handle_t artnet_handle;
 
   artnet_handle   = create_dissector_handle(dissect_artnet, proto_artnet);
-  dissector_add_handle("udp.port", artnet_handle);
+  dissector_add_for_decode_as("udp.port", artnet_handle);
   rdm_handle      = find_dissector("rdm");
   dmx_chan_handle = find_dissector("dmx-chan");
 

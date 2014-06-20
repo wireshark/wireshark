@@ -3800,7 +3800,7 @@ proto_reg_handoff_smpp(void)
      * however.
      */
     smpp_handle = find_dissector("smpp");
-    dissector_add_handle("tcp.port", smpp_handle);
+    dissector_add_for_decode_as("tcp.port", smpp_handle);
     heur_dissector_add("tcp", dissect_smpp_heur, proto_smpp);
     heur_dissector_add("x.25", dissect_smpp_heur, proto_smpp);
 

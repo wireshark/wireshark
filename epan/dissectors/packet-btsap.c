@@ -739,7 +739,7 @@ proto_reg_handoff_btsap(void)
 
     dissector_add_uint("btrfcomm.service", BTSDP_SAP_SERVICE_UUID, btsap_handle);
 
-    dissector_add_handle("btrfcomm.channel", btsap_handle);
+    dissector_add_for_decode_as("btrfcomm.channel", btsap_handle);
 }
 
 /*

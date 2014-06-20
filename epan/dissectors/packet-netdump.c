@@ -212,7 +212,7 @@ void proto_reg_handoff_netdump(void)
 		netdump_handle = create_dissector_handle(dissect_netdump,
 				proto_netdump);
 
-		dissector_add_handle("udp.port", netdump_handle); /* For Decode As */
+		dissector_add_for_decode_as("udp.port", netdump_handle);
 		initalized = TRUE;
 	} else {
 		if (CurrentPort != 0)

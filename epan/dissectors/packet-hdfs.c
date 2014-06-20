@@ -1072,7 +1072,7 @@ proto_reg_handoff_hdfs(void)
     static guint saved_tcp_port;
 
     if (!initialized) {
-        dissector_add_handle("tcp.port", hdfs_handle);  /* for "decode as" */
+        dissector_add_for_decode_as("tcp.port", hdfs_handle);
         initialized = TRUE;
     } else if (saved_tcp_port != 0) {
         dissector_delete_uint("tcp.port", saved_tcp_port, hdfs_handle);

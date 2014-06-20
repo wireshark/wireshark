@@ -195,7 +195,7 @@ proto_reg_handoff_cwids(void)
 
 	if (!initialized) {
 		cwids_handle = create_dissector_handle(dissect_cwids, proto_cwids);
-		dissector_add_handle("udp.port", cwids_handle);
+		dissector_add_for_decode_as("udp.port", cwids_handle);
 		ieee80211_handle = find_dissector("wlan_withoutfcs");
 		initialized = TRUE;
 	} else {

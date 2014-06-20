@@ -1245,7 +1245,7 @@ proto_reg_handoff_ctdb(void)
 	dissector_handle_t ctdb_handle;
 
 	ctdb_handle = new_create_dissector_handle(dissect_ctdb, proto_ctdb);
-	dissector_add_handle("tcp.port", ctdb_handle);
+	dissector_add_for_decode_as("tcp.port", ctdb_handle);
 
 	heur_dissector_add("tcp", dissect_ctdb, proto_ctdb);
 }

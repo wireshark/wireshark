@@ -2860,7 +2860,7 @@ proto_reg_handoff_6lowpan(void)
     ipv6_handle = find_dissector("ipv6");
 
     /* Register the 6LoWPAN dissector with IEEE 802.15.4 */
-    dissector_add_handle(IEEE802154_PROTOABBREV_WPAN_PANID, find_dissector("6lowpan"));
+    dissector_add_for_decode_as(IEEE802154_PROTOABBREV_WPAN_PANID, find_dissector("6lowpan"));
     heur_dissector_add(IEEE802154_PROTOABBREV_WPAN, dissect_6lowpan_heur, proto_6lowpan);
 } /* proto_reg_handoff_6lowpan */
 

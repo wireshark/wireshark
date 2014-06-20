@@ -989,7 +989,7 @@ void proto_reg_handoff_norm(void)
     static dissector_handle_t handle;
 
     handle = new_create_dissector_handle(dissect_norm, proto_rmt_norm);
-    dissector_add_handle("udp.port", handle);
+    dissector_add_for_decode_as("udp.port", handle);
     heur_dissector_add("udp", dissect_norm_heur, proto_rmt_norm);
 
     rmt_fec_handle = find_dissector("rmt-fec");

@@ -245,7 +245,7 @@ proto_reg_handoff_gdb(void)
         initialized = TRUE;
     }
 
-    dissector_add_handle("tcp.port", gdb_handle);
+    dissector_add_for_decode_as("tcp.port", gdb_handle);
 }
 
 /*

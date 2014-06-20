@@ -259,7 +259,7 @@ proto_reg_handoff_nb_rtpmux(void)
     nb_rtpmux_handle = new_create_dissector_handle(dissect_nb_rtpmux,
                                                    proto_nb_rtpmux);
 
-    dissector_add_handle("udp.port", nb_rtpmux_handle);
+    dissector_add_for_decode_as("udp.port", nb_rtpmux_handle);
     rtpdissector = find_dissector("rtp");
 }
 

@@ -6800,7 +6800,7 @@ void proto_reg_handoff_lbmr(void)
     if (!already_registered)
     {
         lbmr_dissector_handle = new_create_dissector_handle(dissect_lbmr, proto_lbmr);
-        dissector_add_handle("udp.port", lbmr_dissector_handle);  /* for "decode as" */
+        dissector_add_for_decode_as("udp.port", lbmr_dissector_handle);
         heur_dissector_add("udp", test_lbmr_packet, proto_lbmr);
     }
 

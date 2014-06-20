@@ -437,8 +437,8 @@ proto_reg_handoff_lsc(void)
   if (!initialized) {
     lsc_udp_handle = new_create_dissector_handle(dissect_lsc_udp, proto_lsc);
     lsc_tcp_handle = new_create_dissector_handle(dissect_lsc_tcp, proto_lsc);
-    dissector_add_handle("udp.port", lsc_udp_handle);   /* for 'decode-as' */
-    dissector_add_handle("tcp.port", lsc_tcp_handle);   /* ...             */
+    dissector_add_for_decode_as("udp.port", lsc_udp_handle);
+    dissector_add_for_decode_as("tcp.port", lsc_tcp_handle);
     initialized = TRUE;
   } else {
     if (saved_lsc_port != 0) {

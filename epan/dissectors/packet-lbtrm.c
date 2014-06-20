@@ -1892,7 +1892,7 @@ void proto_reg_handoff_lbtrm(void)
     if (!already_registered)
     {
         lbtrm_dissector_handle = new_create_dissector_handle(dissect_lbtrm, proto_lbtrm);
-        dissector_add_handle("udp.port", lbtrm_dissector_handle); /* for "decode as* */
+        dissector_add_for_decode_as("udp.port", lbtrm_dissector_handle);
         heur_dissector_add("udp", test_lbtrm_packet, proto_lbtrm);
         lbtrm_tap_handle = register_tap("lbtrm");
     }

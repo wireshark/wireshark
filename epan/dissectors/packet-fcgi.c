@@ -410,7 +410,7 @@ proto_reg_handoff_fcgi(void)
    static guint saved_tcp_port;
 
    if (!initialized) {
-      dissector_add_handle("tcp.port", fcgi_handle);  /* for "decode as" */
+      dissector_add_for_decode_as("tcp.port", fcgi_handle);
       initialized = TRUE;
    } else if (saved_tcp_port != 0) {
       dissector_delete_uint("tcp.port", saved_tcp_port, fcgi_handle);

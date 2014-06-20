@@ -2752,7 +2752,7 @@ proto_reg_handoff_pkt_ccc(void)
 
     if (!initialized) {
         pkt_ccc_handle = find_dissector("pkt_ccc");
-        dissector_add_handle("udp.port", pkt_ccc_handle);  /* for 'decode-as' */
+        dissector_add_for_decode_as("udp.port", pkt_ccc_handle);
         initialized = TRUE;
     } else {
         if (saved_pkt_ccc_udp_port != 0) {
@@ -3679,7 +3679,7 @@ proto_reg_handoff_rtp(void)
         rtp_handle = find_dissector("rtp");
         rtp_rfc2198_handle = find_dissector("rtp.rfc2198");
 
-        dissector_add_handle("udp.port", rtp_handle);  /* for 'decode-as' */
+        dissector_add_for_decode_as("udp.port", rtp_handle);
         dissector_add_string("rtp_dyn_payload_type", "red", rtp_rfc2198_handle);
         heur_dissector_add( "udp", dissect_rtp_heur_udp,  proto_rtp);
         heur_dissector_add("stun", dissect_rtp_heur_stun, proto_rtp);
@@ -3709,7 +3709,7 @@ proto_reg_handoff_rtp(void)
 
         dissector_add_string("rtp_dyn_payload_type", "v150fw", v150fw_handle);
 
-        dissector_add_handle("btl2cap.cid", rtp_handle);
+        dissector_add_for_decode_as("btl2cap.cid", rtp_handle);
 
         rtp_prefs_initialized = TRUE;
     } else {

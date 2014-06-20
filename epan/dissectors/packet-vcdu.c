@@ -641,7 +641,7 @@ proto_register_vcdu(void)
 void
 proto_reg_handoff_vcdu(void)
 {
-    dissector_add_handle("udp.port", vcdu_handle); /* for 'decode as' */
+    dissector_add_for_decode_as("udp.port", vcdu_handle);
     ccsds_handle = find_dissector("ccsds");
 }
 

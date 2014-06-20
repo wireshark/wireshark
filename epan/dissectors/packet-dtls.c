@@ -301,8 +301,8 @@ dtls_parse_uat(void)
     }
   }
 
-  dissector_add_handle("sctp.port", dtls_handle);
-  dissector_add_handle("udp.port", dtls_handle);
+  dissector_add_for_decode_as("sctp.port", dtls_handle);
+  dissector_add_for_decode_as("udp.port", dtls_handle);
 }
 
 static void

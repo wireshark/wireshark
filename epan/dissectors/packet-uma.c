@@ -1756,7 +1756,7 @@ proto_reg_handoff_uma(void)
 	if (!Initialized) {
 		uma_tcp_handle = find_dissector("umatcp");
 		uma_udp_handle = find_dissector("umaudp");
-		dissector_add_handle("udp.port", uma_udp_handle);  /* for "decode-as" */
+		dissector_add_for_decode_as("udp.port", uma_udp_handle);
 		data_handle = find_dissector("data");
 		rtcp_handle = find_dissector("rtcp");
 		llc_handle = find_dissector("llcgprs");

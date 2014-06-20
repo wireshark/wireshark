@@ -2579,7 +2579,7 @@ proto_reg_handoff_btavdtp(void)
 
     dissector_add_uint("btl2cap.psm", BTL2CAP_PSM_AVDTP, btavdtp_handle);
 
-    dissector_add_handle("btl2cap.cid", btavdtp_handle);
+    dissector_add_for_decode_as("btl2cap.cid", btavdtp_handle);
 }
 
 
@@ -2929,7 +2929,7 @@ proto_reg_handoff_bta2dp(void)
     dissector_add_uint("btl2cap.service", BTSDP_A2DP_SOURCE_SERVICE_UUID, bta2dp_handle);
     dissector_add_uint("btl2cap.service", BTSDP_A2DP_SINK_SERVICE_UUID, bta2dp_handle);
     dissector_add_uint("btl2cap.service", BTSDP_A2DP_DISTRIBUTION_SERVICE_UUID, bta2dp_handle);
-    dissector_add_handle("btl2cap.cid", bta2dp_handle);
+    dissector_add_for_decode_as("btl2cap.cid", bta2dp_handle);
 }
 
 static gint
@@ -3099,7 +3099,7 @@ proto_reg_handoff_btvdp(void)
     dissector_add_uint("btl2cap.service", BTSDP_VDP_SOURCE_SERVICE_UUID, btvdp_handle);
     dissector_add_uint("btl2cap.service", BTSDP_VDP_SINK_SERVICE_UUID, btvdp_handle);
     dissector_add_uint("btl2cap.service", BTSDP_VDP_DISTRIBUTION_SERVICE_UUID, btvdp_handle);
-    dissector_add_handle("btl2cap.cid", btvdp_handle);
+    dissector_add_for_decode_as("btl2cap.cid", btvdp_handle);
 }
 
 

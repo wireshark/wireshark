@@ -803,7 +803,7 @@ proto_reg_handoff_hdfsdata(void)
     static guint saved_tcp_port;
 
     if (!initialized) {
-        dissector_add_handle("tcp.port", hdfsdata_handle);  /* for "decode as" */
+        dissector_add_for_decode_as("tcp.port", hdfsdata_handle);
         initialized = TRUE;
     } else if (saved_tcp_port != 0) {
         dissector_delete_uint("tcp.port", saved_tcp_port, hdfsdata_handle);

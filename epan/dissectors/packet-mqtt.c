@@ -587,7 +587,7 @@ void proto_register_mqtt(void)
  */
 void proto_reg_handoff_mqtt(void)
 {
-  dissector_add_handle("tcp.port", mqtt_handle);
+  dissector_add_for_decode_as("tcp.port", mqtt_handle);
 }
 
 /*

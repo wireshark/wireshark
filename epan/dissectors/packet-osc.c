@@ -903,7 +903,8 @@ proto_reg_handoff_osc(void)
     if(! initialized)
     {
         osc_tcp_handle = new_create_dissector_handle(dissect_osc_tcp, proto_osc);
-        dissector_add_handle("tcp.port", osc_tcp_handle); /* for "decode-as" */
+        /* register for "decode as" for TCP connections */
+        dissector_add_for_decode_as("tcp.port", osc_tcp_handle);
 
         /* XXX: Add port pref and  "decode as" for UDP ? */
         /*      (The UDP heuristic is a bit expensive    */

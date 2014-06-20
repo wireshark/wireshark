@@ -1112,7 +1112,7 @@ proto_reg_handoff_bthid(void)
 
     dissector_add_uint("btl2cap.psm", BTL2CAP_PSM_HID_CTRL, bthid_handle);
     dissector_add_uint("btl2cap.psm", BTL2CAP_PSM_HID_INTR, bthid_handle);
-    dissector_add_handle("btl2cap.cid", bthid_handle);
+    dissector_add_for_decode_as("btl2cap.cid", bthid_handle);
 }
 
 /*

@@ -2033,7 +2033,7 @@ proto_reg_handoff_bthfp(void)
 {
     dissector_add_uint("btrfcomm.service", BTSDP_HFP_SERVICE_UUID, bthfp_handle);
     dissector_add_uint("btrfcomm.service", BTSDP_HFP_GW_SERVICE_UUID, bthfp_handle);
-    dissector_add_handle("btrfcomm.channel", bthfp_handle);
+    dissector_add_for_decode_as("btrfcomm.channel", bthfp_handle);
 }
 
 /*

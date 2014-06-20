@@ -587,8 +587,8 @@ proto_reg_handoff_usb_dfu(void)
     dissector_add_uint("usb.product", (0x1d50 << 16) | 0x6082, usb_dfu_handle); /* Facecandy *USB DFU loader */
     dissector_add_uint("usb.product", (0x1d50 << 16) | 0x6084, usb_dfu_handle); /* arcin arcade controller (USB DFU loader) */
 
-    dissector_add_handle("usb.device",   usb_dfu_handle);
-    dissector_add_handle("usb.protocol", usb_dfu_handle);
+    dissector_add_for_decode_as("usb.device",   usb_dfu_handle);
+    dissector_add_for_decode_as("usb.protocol", usb_dfu_handle);
 }
 
 /*

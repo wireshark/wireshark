@@ -1753,7 +1753,7 @@ proto_reg_handoff_zbee_nwk_gp(void)
     /* Find the other dissectors we need. */
     data_handle = find_dissector("data");
     /* Register our dissector with IEEE 802.15.4. */
-    dissector_add_handle(IEEE802154_PROTOABBREV_WPAN_PANID, find_dissector(ZBEE_PROTOABBREV_NWK_GP));
+    dissector_add_for_decode_as(IEEE802154_PROTOABBREV_WPAN_PANID, find_dissector(ZBEE_PROTOABBREV_NWK_GP));
     heur_dissector_add(IEEE802154_PROTOABBREV_WPAN, dissect_zbee_nwk_heur_gp, proto_zbee_nwk_gp);
 } /* proto_reg_handoff_zbee */
 

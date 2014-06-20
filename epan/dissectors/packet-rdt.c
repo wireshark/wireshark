@@ -2192,7 +2192,7 @@ void proto_reg_handoff_rdt(void)
         /* Register this dissector as one that can be selected by a
            UDP port number. */
         rdt_handle = find_dissector("rdt");
-        dissector_add_handle("udp.port", rdt_handle);
+        dissector_add_for_decode_as("udp.port", rdt_handle);
         rdt_prefs_initialized = TRUE;
     }
     else

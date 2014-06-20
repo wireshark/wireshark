@@ -186,7 +186,7 @@ proto_reg_handoff_bt3ds(void)
     dissector_add_uint("btl2cap.service", BTSDP_3D_GLASSES_UUID, b3ds_handle);
 
     dissector_add_uint("btl2cap.psm", BTL2CAP_PSM_3DS, b3ds_handle);
-    dissector_add_handle("btl2cap.cid", b3ds_handle);
+    dissector_add_for_decode_as("btl2cap.cid", b3ds_handle);
 }
 
 /*

@@ -938,7 +938,7 @@ proto_reg_handoff_pana(void)
     heur_dissector_add("udp", dissect_pana, proto_pana);
 
     pana_handle = new_create_dissector_handle(dissect_pana, proto_pana);
-    dissector_add_handle("udp.port", pana_handle);
+    dissector_add_for_decode_as("udp.port", pana_handle);
 
     eap_handle = find_dissector("eap");
 /**    if(!eap_handle) fprintf(stderr,"PANA warning: EAP dissector not found\n"); **/

@@ -519,7 +519,7 @@ proto_reg_handoff_osi(void)
 
 
     osi_tpkt_handle = create_dissector_handle(dissect_osi_tpkt, proto_osi);
-    dissector_add_handle("tcp.port", osi_tpkt_handle); /* for 'decode-as' */
+    dissector_add_for_decode_as("tcp.port", osi_tpkt_handle);
     osi_prefs_initialized = TRUE;
   } else {
     if (tcp_port_osi_over_tpkt != 0) {

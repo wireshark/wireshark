@@ -1162,7 +1162,7 @@ proto_reg_handoff_bthsp(void)
     dissector_add_uint("btrfcomm.service", BTSDP_HSP_SERVICE_UUID, bthsp_handle);
     dissector_add_uint("btrfcomm.service", BTSDP_HSP_HS_SERVICE_UUID, bthsp_handle);
     dissector_add_uint("btrfcomm.service", BTSDP_HSP_GW_SERVICE_UUID, bthsp_handle);
-    dissector_add_handle("btrfcomm.channel", bthsp_handle);
+    dissector_add_for_decode_as("btrfcomm.channel", bthsp_handle);
 }
 
 /*

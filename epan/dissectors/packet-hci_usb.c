@@ -411,7 +411,7 @@ proto_reg_handoff_hci_usb(void)
     dissector_add_uint("usb.protocol", 0xE00101, hci_usb_handle);
     dissector_add_uint("usb.protocol", 0xE00104, hci_usb_handle);
 
-    dissector_add_handle("usb.device", hci_usb_handle);
+    dissector_add_for_decode_as("usb.device", hci_usb_handle);
 }
 
 /*

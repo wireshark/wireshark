@@ -1170,5 +1170,5 @@ proto_reg_handoff_zrtp(void)
   dissector_handle_t zrtp_handle;
 
   zrtp_handle = find_dissector("zrtp");
-  dissector_add_handle("udp.port", zrtp_handle);
+  dissector_add_for_decode_as("udp.port", zrtp_handle);
 }

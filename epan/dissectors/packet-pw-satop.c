@@ -472,6 +472,6 @@ void proto_reg_handoff_pw_satop(void)
 	data_handle = find_dissector("data");
 	pw_padding_handle = find_dissector("pw_padding");
 	/* For Decode As */
-	dissector_add_handle("mpls.label", find_dissector("pw_satop_mpls"));
-	dissector_add_handle("udp.port", find_dissector("pw_satop_udp"));
+	dissector_add_for_decode_as("mpls.label", find_dissector("pw_satop_mpls"));
+	dissector_add_for_decode_as("udp.port", find_dissector("pw_satop_udp"));
 }

@@ -685,8 +685,8 @@ proto_reg_handoff_bthcrp(void)
     dissector_add_uint("btl2cap.service", BTSDP_HCRP_SCAN_SERVICE_UUID, bthcrp_handle);
     dissector_add_uint("btl2cap.service", BTSDP_HCRP_SERVICE_UUID, bthcrp_handle);
 
-    dissector_add_handle("btl2cap.psm", bthcrp_handle);
-    dissector_add_handle("btl2cap.cid", bthcrp_handle);
+    dissector_add_for_decode_as("btl2cap.psm", bthcrp_handle);
+    dissector_add_for_decode_as("btl2cap.cid", bthcrp_handle);
 }
 
 /*

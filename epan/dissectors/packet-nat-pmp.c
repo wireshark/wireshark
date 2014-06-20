@@ -807,7 +807,7 @@ void proto_reg_handoff_nat_pmp(void)
      NAT-PMP, but it backwards compatible.  However, still let NAT-PMP
      use Decode As
    */
-  dissector_add_handle("udp.port", nat_pmp_handle);
+  dissector_add_for_decode_as("udp.port", nat_pmp_handle);
 }
 
 /*

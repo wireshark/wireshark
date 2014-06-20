@@ -581,9 +581,9 @@ void proto_reg_handoff_h245(void) {
 
 
 	h245_handle = find_dissector("h245");
-	dissector_add_handle("tcp.port", h245_handle);
+	dissector_add_for_decode_as("tcp.port", h245_handle);
 	MultimediaSystemControlMessage_handle = find_dissector("h245dg");
-	dissector_add_handle("udp.port", MultimediaSystemControlMessage_handle);
+	dissector_add_for_decode_as("udp.port", MultimediaSystemControlMessage_handle);
 }
 
 static void init_h245_packet_info(h245_packet_info *pi)

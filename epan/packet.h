@@ -318,8 +318,12 @@ WS_DLL_PUBLIC dissector_handle_t dissector_get_default_string_handle(
     const char *name, const gchar *string);
 
 /* Add a handle to the list of handles that *could* be used with this
-   table.  That list is used by code in the UI. */
-WS_DLL_PUBLIC void dissector_add_handle(const char *name, dissector_handle_t handle);
+   table.  That list is used by the "Decode As"/"-d" code in the UI. */
+WS_DLL_PUBLIC void dissector_add_for_decode_as(const char *name,
+    dissector_handle_t handle);
+
+/* DEPRECATED, do not use in new code, call dissector_add_for_decode_as directly! */
+#define dissector_add_handle dissector_add_for_decode_as
 
 /** Get the list of handles for a dissector table
  */
@@ -339,7 +343,7 @@ typedef GSList *heur_dissector_list_t;
 typedef struct {
 	heur_dissector_t dissector;
 	protocol_t *protocol; /* this entry's protocol */
-  gchar *list_name;     /* the list name this entry is in the list of */
+	gchar *list_name;     /* the list name this entry is in the list of */
 	gboolean enabled;
 } heur_dtbl_entry_t;
 

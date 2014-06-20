@@ -1004,7 +1004,7 @@ proto_reg_handoff_adb_cs(void)
     logcat_handle = find_dissector("logcat");
     data_handle   = find_dissector("data");
 
-    dissector_add_handle("tcp.port", adb_cs_handle);
+    dissector_add_for_decode_as("tcp.port", adb_cs_handle);
 }
 
 /*

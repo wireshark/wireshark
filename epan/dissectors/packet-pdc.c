@@ -584,7 +584,7 @@ void proto_reg_handoff_pdc(void)
 	{
 		asterix_handle = find_dissector("asterix");
 		pdc_tcp_handle = create_dissector_handle(tcp_dissect_pdc, proto_pdc);
-		dissector_add_handle("tcp.port", pdc_tcp_handle); /* for "decode-as" */
+		dissector_add_for_decode_as("tcp.port", pdc_tcp_handle);
 		initialized    = TRUE;
 	}
 	else

@@ -1966,13 +1966,13 @@ proto_reg_handoff_pw_atm_ata(void)
 {
 	dissector_handle_t h;
 	h = find_dissector("mpls_pw_atm_n1_cw");
-	dissector_add_handle( "mpls.label", h );
+	dissector_add_for_decode_as( "mpls.label", h );
 	h = find_dissector("mpls_pw_atm_n1_nocw");
-	dissector_add_handle( "mpls.label", h );
+	dissector_add_for_decode_as( "mpls.label", h );
 	h = find_dissector("mpls_pw_atm_11_or_aal5_pdu");
-	dissector_add_handle( "mpls.label", h );
+	dissector_add_for_decode_as( "mpls.label", h );
 	h = find_dissector("mpls_pw_atm_aal5_sdu");
-	dissector_add_handle( "mpls.label", h );
+	dissector_add_for_decode_as( "mpls.label", h );
 
 	dh_cell		   = find_dissector("mpls_pw_atm_cell");
 	dh_cell_header	   = find_dissector("mpls_pw_atm_cell_header");

@@ -10106,7 +10106,7 @@ proto_reg_handoff_s1ap(void)
 		nas_eps_handle = find_dissector("nas-eps");
 		lppa_handle = find_dissector("lppa");
 		bssgp_handle = find_dissector("bssgp");
-		dissector_add_handle("sctp.port", s1ap_handle);   /* for "decode-as"  */
+		dissector_add_for_decode_as("sctp.port", s1ap_handle);
 		dissector_add_uint("sctp.ppi", S1AP_PAYLOAD_PROTOCOL_ID,   s1ap_handle);
 		Initialized=TRUE;
 

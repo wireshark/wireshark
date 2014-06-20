@@ -688,5 +688,5 @@ void proto_register_erldp(void) {
 /*--- proto_reg_handoff_erldp -------------------------------------------*/
 void proto_reg_handoff_erldp(void) {
 
-  dissector_add_handle("tcp.port", erldp_handle);
+  dissector_add_for_decode_as("tcp.port", erldp_handle);
 }

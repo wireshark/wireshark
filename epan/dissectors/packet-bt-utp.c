@@ -492,7 +492,7 @@ proto_reg_handoff_bt_utp(void)
     heur_dissector_add("udp", dissect_bt_utp, proto_bt_utp);
 
     bt_utp_handle = new_create_dissector_handle(dissect_bt_utp, proto_bt_utp);
-    dissector_add_handle("udp.port", bt_utp_handle);
+    dissector_add_for_decode_as("udp.port", bt_utp_handle);
 
     prefs_initialized = TRUE;
   }

@@ -328,7 +328,7 @@ void
 proto_reg_handoff_ziop (void)
 {
   ziop_tcp_handle = new_create_dissector_handle(dissect_ziop_tcp, proto_ziop);
-  dissector_add_handle("udp.port", ziop_tcp_handle);  /* For 'Decode As' */
+  dissector_add_for_decode_as("udp.port", ziop_tcp_handle);
 
   heur_dissector_add("tcp", dissect_ziop_heur, proto_ziop);
 

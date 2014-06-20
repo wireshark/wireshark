@@ -286,8 +286,8 @@ proto_reg_handoff_pn532_hci(void)
 
     dissector_add_uint("usb.product", (0x04e6 << 16) | 0x5591, pn532_hci_handle);
 
-    dissector_add_handle("usb.device", pn532_hci_handle);
-    dissector_add_handle("usb.protocol", pn532_hci_handle);
+    dissector_add_for_decode_as("usb.device", pn532_hci_handle);
+    dissector_add_for_decode_as("usb.protocol", pn532_hci_handle);
 }
 
 /*

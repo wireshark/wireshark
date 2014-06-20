@@ -697,8 +697,8 @@ void proto_reg_handoff_bfcp(void)
 	{
 		heur_dissector_add("tcp", dissect_bfcp_heur, proto_bfcp);
 		heur_dissector_add("udp", dissect_bfcp_heur, proto_bfcp);
-		dissector_add_handle("tcp.port", bfcp_handle);
-		dissector_add_handle("udp.port", bfcp_handle);
+		dissector_add_for_decode_as("tcp.port", bfcp_handle);
+		dissector_add_for_decode_as("udp.port", bfcp_handle);
 		prefs_initialized = TRUE;
 	}
 

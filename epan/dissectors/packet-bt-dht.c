@@ -598,7 +598,7 @@ proto_reg_handoff_bt_dht(void)
     heur_dissector_add("udp", dissect_bt_dht_heur, proto_bt_dht);
 
     bt_dht_handle = new_create_dissector_handle(dissect_bt_dht, proto_bt_dht);
-    dissector_add_handle("udp.port", bt_dht_handle);   /* for "decode_as" */
+    dissector_add_for_decode_as("udp.port", bt_dht_handle);
 
     prefs_initialized = TRUE;
   }

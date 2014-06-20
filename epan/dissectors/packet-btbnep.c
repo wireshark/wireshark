@@ -553,7 +553,7 @@ proto_reg_handoff_btbnep(void)
     dissector_add_uint("btl2cap.service", BTSDP_PAN_GN_SERVICE_UUID, btbnep_handle);
 
     dissector_add_uint("btl2cap.psm", BTL2CAP_PSM_BNEP, btbnep_handle);
-    dissector_add_handle("btl2cap.cid", btbnep_handle);
+    dissector_add_for_decode_as("btl2cap.cid", btbnep_handle);
 }
 
 /*

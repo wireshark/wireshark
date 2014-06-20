@@ -1437,7 +1437,7 @@ proto_reg_handoff_http2(void)
     data_handle = find_dissector("data");
 
     http2_handle = new_create_dissector_handle(dissect_http2, proto_http2);
-    dissector_add_handle("tcp.port", http2_handle);
+    dissector_add_for_decode_as("tcp.port", http2_handle);
 
     heur_dissector_add("ssl", dissect_http2_heur, proto_http2);
     heur_dissector_add("http", dissect_http2_heur, proto_http2);

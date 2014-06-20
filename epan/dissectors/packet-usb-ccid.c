@@ -667,9 +667,9 @@ proto_reg_handoff_ccid(void)
 
     dissector_add_uint("usb.bulk", IF_CLASS_SMART_CARD, usb_ccid_handle);
 
-    dissector_add_handle("usb.device", usb_ccid_handle);
-    dissector_add_handle("usb.product", usb_ccid_handle);
-    dissector_add_handle("usb.protocol", usb_ccid_handle);
+    dissector_add_for_decode_as("usb.device", usb_ccid_handle);
+    dissector_add_for_decode_as("usb.product", usb_ccid_handle);
+    dissector_add_for_decode_as("usb.protocol", usb_ccid_handle);
 
     sub_handles[SUB_DATA] = find_dissector("data");
     sub_handles[SUB_ISO7816] = find_dissector("iso7816");

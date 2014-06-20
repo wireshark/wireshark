@@ -955,10 +955,11 @@ dissector_add_uint(const char *name, const guint32 pattern, dissector_handle_t h
 			     GUINT_TO_POINTER( pattern), (gpointer)dtbl_entry);
 
 	/*
-	 * Now add it to the list of handles that could be used with this
-	 * table, because it *is* being used with this table.
+	 * Now add it to the list of handles that could be used for
+	 * "Decode As" with this table, because it *is* being used
+	 * with this table.
 	 */
-	dissector_add_handle(name, handle);
+	dissector_add_for_decode_as(name, handle);
 }
 
 
@@ -1275,10 +1276,11 @@ dissector_add_string(const char *name, const gchar *pattern,
 			     (gpointer)dtbl_entry);
 
 	/*
-	 * Now add it to the list of handles that could be used with this
-	 * table, because it *is* being used with this table.
+	 * Now add it to the list of handles that could be used for
+	 * "Decode As" with this table, because it *is* being used
+	 * with this table.
 	 */
-	dissector_add_handle(name, handle);
+	dissector_add_for_decode_as(name, handle);
 }
 
 /* Delete the entry for a dissector in a string dissector table
@@ -1493,9 +1495,9 @@ dissector_compare_filter_name(gconstpointer dissector_a, gconstpointer dissector
 }
 
 /* Add a handle to the list of handles that *could* be used with this
-   table.  That list is used by code in the UI. */
+   table.  That list is used by the "Decode As"/"-d" code in the UI. */
 void
-dissector_add_handle(const char *name, dissector_handle_t handle)
+dissector_add_for_decode_as(const char *name, dissector_handle_t handle)
 {
 	dissector_table_t  sub_dissectors = find_dissector_table( name);
 	GSList            *entry;

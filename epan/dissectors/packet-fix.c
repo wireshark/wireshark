@@ -534,6 +534,6 @@ proto_reg_handoff_fix(void)
     /* Let the tcp dissector know that we're interested in traffic      */
     heur_dissector_add("tcp", dissect_fix_heur, proto_fix);
     /* Register a fix handle to "tcp.port" to be able to do 'decode-as' */
-    dissector_add_handle("tcp.port", fix_handle);
+    dissector_add_for_decode_as("tcp.port", fix_handle);
 }
 

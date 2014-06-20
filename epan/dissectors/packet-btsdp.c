@@ -5681,7 +5681,7 @@ void
 proto_reg_handoff_btsdp(void)
 {
     dissector_add_uint("btl2cap.psm", BTL2CAP_PSM_SDP, btsdp_handle);
-    dissector_add_handle("btl2cap.cid", btsdp_handle);
+    dissector_add_for_decode_as("btl2cap.cid", btsdp_handle);
 
     btrfcomm_service_table = find_dissector_table("btrfcomm.service");
     btl2cap_service_table = find_dissector_table("btl2cap.service");

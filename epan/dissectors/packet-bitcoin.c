@@ -1300,7 +1300,7 @@ proto_register_bitcoin(void)
 void
 proto_reg_handoff_bitcoin(void)
 {
-  dissector_add_handle("tcp.port", bitcoin_handle);  /* for 'decode-as' */
+  dissector_add_for_decode_as("tcp.port", bitcoin_handle);
 
   heur_dissector_add( "tcp", dissect_bitcoin_heur, hfi_bitcoin->id);
 }

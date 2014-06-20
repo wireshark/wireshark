@@ -3246,7 +3246,7 @@ proto_reg_handoff_acn(void)
 {
   /* dissector_handle_t acn_handle; */
   /* acn_handle = new_create_dissector_handle(dissect_acn, proto_acn); */
-  /* dissector_add_handle("udp.port", acn_handle);                         */
+  /* dissector_add_for_decode_as("udp.port", acn_handle);                         */
   heur_dissector_add("udp", dissect_acn_heur, proto_acn);
 }
 

@@ -1201,7 +1201,7 @@ void
 proto_reg_handoff_btrfcomm(void)
 {
     dissector_add_uint("btl2cap.psm", BTL2CAP_PSM_RFCOMM, btrfcomm_handle);
-    dissector_add_handle("btl2cap.cid", btrfcomm_handle);
+    dissector_add_for_decode_as("btl2cap.cid", btrfcomm_handle);
 
     data_handle = find_dissector("data");
 }
@@ -1280,7 +1280,7 @@ void
 proto_reg_handoff_btdun(void)
 {
     dissector_add_uint("btrfcomm.service", BTSDP_DUN_SERVICE_UUID, btdun_handle);
-    dissector_add_handle("btrfcomm.channel", btdun_handle);
+    dissector_add_for_decode_as("btrfcomm.channel", btdun_handle);
 
     ppp_handle = find_dissector("ppp_raw_hdlc");
 }
@@ -1345,7 +1345,7 @@ void
 proto_reg_handoff_btspp(void)
 {
     dissector_add_uint("btrfcomm.service", BTSDP_SPP_SERVICE_UUID, btspp_handle);
-    dissector_add_handle("btrfcomm.channel", btspp_handle);
+    dissector_add_for_decode_as("btrfcomm.channel", btspp_handle);
 }
 
 
@@ -1398,7 +1398,7 @@ proto_reg_handoff_btgnss(void)
 {
     dissector_add_uint("btrfcomm.service", BTSDP_GNSS_UUID, btgnss_handle);
     dissector_add_uint("btrfcomm.service", BTSDP_GNSS_SERVER_UUID, btgnss_handle);
-    dissector_add_handle("btrfcomm.channel", btgnss_handle);
+    dissector_add_for_decode_as("btrfcomm.channel", btgnss_handle);
 }
 
 /*

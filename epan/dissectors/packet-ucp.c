@@ -2795,7 +2795,7 @@ proto_reg_handoff_ucp(void)
      * Also register as a dissector that can be selected by a TCP port number via "decode as".
      */
     ucp_handle = new_create_dissector_handle(dissect_ucp_tcp, proto_ucp);
-    dissector_add_handle("tcp.port", ucp_handle);
+    dissector_add_for_decode_as("tcp.port", ucp_handle);
 
     /* Tapping setup */
     stats_tree_register_with_group("ucp", "ucp_messages", "_UCP Messages", 0,

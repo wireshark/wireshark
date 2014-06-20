@@ -5462,7 +5462,7 @@ void proto_reg_handoff_giop (void) {
   heur_dissector_add("tcp", dissect_giop_heur, proto_giop);
   /* Support DIOP (GIOP/UDP) */
   heur_dissector_add("udp", dissect_giop_heur, proto_giop);
-  dissector_add_handle("tcp.port", giop_tcp_handle);  /* for "decode-as" */
+  dissector_add_for_decode_as("tcp.port", giop_tcp_handle);
 }
 
 

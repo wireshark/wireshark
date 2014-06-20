@@ -4084,7 +4084,7 @@ proto_reg_handoff_unistim(void) {
 
    if (!initialized) {
       unistim_handle=new_create_dissector_handle(dissect_unistim,proto_unistim);
-      dissector_add_handle("udp.port", unistim_handle);  /* for "decode as" */
+      dissector_add_for_decode_as("udp.port", unistim_handle);
       initialized=TRUE;
    } else {
       if (unistim_port != 0) {

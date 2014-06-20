@@ -550,9 +550,9 @@ proto_reg_handoff_nbap(void)
 	fp_handle = find_dissector("fp");
 	dissector_add_uint("sctp.ppi", NBAP_PAYLOAD_PROTOCOL_ID, nbap_handle);
 #ifdef EXTRA_PPI
-		dissector_add_uint("sctp.ppi", 17, nbap_handle);
+	dissector_add_uint("sctp.ppi", 17, nbap_handle);
 #endif
-	dissector_add_handle("sctp.port", nbap_handle);  /* for "decode-as" */
+	dissector_add_for_decode_as("sctp.port", nbap_handle);
 
 #include "packet-nbap-dis-tab.c"
 }

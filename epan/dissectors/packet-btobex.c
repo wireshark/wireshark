@@ -2582,9 +2582,9 @@ proto_reg_handoff_btobex(void)
     xml_handle  = find_dissector("xml");
     data_handle = find_dissector("data");
 
-    dissector_add_handle("btrfcomm.channel", btobex_handle);
-    dissector_add_handle("btl2cap.psm", btobex_handle);
-    dissector_add_handle("btl2cap.cid", btobex_handle);
+    dissector_add_for_decode_as("btrfcomm.channel", btobex_handle);
+    dissector_add_for_decode_as("btl2cap.psm", btobex_handle);
+    dissector_add_for_decode_as("btl2cap.cid", btobex_handle);
 }
 
 /*

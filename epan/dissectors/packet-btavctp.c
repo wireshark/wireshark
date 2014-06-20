@@ -511,7 +511,7 @@ proto_reg_handoff_btavctp(void)
     dissector_add_uint("btl2cap.psm", BTL2CAP_PSM_AVCTP_CTRL, btavctp_handle);
     dissector_add_uint("btl2cap.psm", BTL2CAP_PSM_AVCTP_BRWS, btavctp_handle);
 
-    dissector_add_handle("btl2cap.cid", btavctp_handle);
+    dissector_add_for_decode_as("btl2cap.cid", btavctp_handle);
 }
 
 /*

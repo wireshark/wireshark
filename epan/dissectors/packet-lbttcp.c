@@ -801,7 +801,7 @@ void proto_reg_handoff_lbttcp(void)
     if (!already_registered)
     {
         lbttcp_dissector_handle = new_create_dissector_handle(dissect_lbttcp, proto_lbttcp);
-        dissector_add_handle("tcp.port", lbttcp_dissector_handle); /* for decode as */
+        dissector_add_for_decode_as("tcp.port", lbttcp_dissector_handle);
         heur_dissector_add("tcp", test_lbttcp_packet, proto_lbttcp);
     }
 

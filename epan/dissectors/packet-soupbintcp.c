@@ -619,7 +619,7 @@ proto_reg_handoff_soupbintcp(void)
                                                 proto_soupbintcp);
 
     /* For "decode-as" */
-    dissector_add_handle("tcp.port", soupbintcp_handle);
+    dissector_add_for_decode_as("tcp.port", soupbintcp_handle);
 }
 
 

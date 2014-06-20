@@ -448,8 +448,8 @@ proto_reg_handoff_skype(void)
 	dissector_handle_t skype_handle;
 
 	skype_handle = new_create_dissector_handle(dissect_skype_static, proto_skype);
-	dissector_add_handle("tcp.port", skype_handle);
-	dissector_add_handle("udp.port", skype_handle);
+	dissector_add_for_decode_as("tcp.port", skype_handle);
+	dissector_add_for_decode_as("udp.port", skype_handle);
 #if SKYPE_HEUR
 	heur_dissector_add("tcp", dissect_skype_heur, proto_skype);
 	heur_dissector_add("udp", dissect_skype_heur, proto_skype);

@@ -438,7 +438,7 @@ void proto_reg_handoff_lbmpdm_tcp(void)
     if (!already_registered)
     {
         lbmpdm_tcp_dissector_handle = create_dissector_handle(dissect_lbmpdm_tcp, lbmpdm_tcp_protocol_handle);
-        dissector_add_handle("tcp.port", lbmpdm_tcp_dissector_handle); /* for "decode as" */
+        dissector_add_for_decode_as("tcp.port", lbmpdm_tcp_dissector_handle);
         heur_dissector_add("tcp", test_lbmpdm_tcp_packet, lbmpdm_tcp_protocol_handle);
     }
 

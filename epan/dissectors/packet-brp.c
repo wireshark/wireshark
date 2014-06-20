@@ -422,7 +422,7 @@ void proto_reg_handoff_brp(void)
     static guint              saved_brp_port;
 
     if (!initialized) {
-        dissector_add_handle("udp.port", brp_handle);
+        dissector_add_for_decode_as("udp.port", brp_handle);
         initialized = TRUE;
     } else {
         if (saved_brp_port != 0) {

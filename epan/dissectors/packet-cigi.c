@@ -12005,8 +12005,8 @@ proto_reg_handoff_cigi(void)
     if( !inited ) {
 
         cigi_handle = new_create_dissector_handle(dissect_cigi, proto_cigi);
-        dissector_add_handle("udp.port", cigi_handle);
-        dissector_add_handle("tcp.port", cigi_handle);
+        dissector_add_for_decode_as("udp.port", cigi_handle);
+        dissector_add_for_decode_as("tcp.port", cigi_handle);
         heur_dissector_add("udp", dissect_cigi_heur, proto_cigi);
 
         inited = TRUE;

@@ -2023,7 +2023,7 @@ void proto_reg_handoff_lbtru(void)
     if (!already_registered)
     {
         lbtru_dissector_handle = new_create_dissector_handle(dissect_lbtru, proto_lbtru);
-        dissector_add_handle("udp.port", lbtru_dissector_handle);  /* for "decode as" */
+        dissector_add_for_decode_as("udp.port", lbtru_dissector_handle);
         heur_dissector_add("udp", test_lbtru_packet, proto_lbtru);
         lbtru_tap_handle = register_tap("lbtru");
     }

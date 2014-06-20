@@ -2020,5 +2020,5 @@ proto_reg_handoff_openwire(void)
 {
     heur_dissector_add("tcp", dissect_openwire_heur, proto_openwire);
     openwire_tcp_handle = new_create_dissector_handle(dissect_openwire_tcp, proto_openwire);
-    dissector_add_handle("tcp.port", openwire_tcp_handle);
+    dissector_add_for_decode_as("tcp.port", openwire_tcp_handle);
 }

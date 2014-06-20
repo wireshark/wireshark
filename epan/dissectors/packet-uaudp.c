@@ -685,7 +685,7 @@ void proto_reg_handoff_uaudp(void)
         {
             /* If all ports are set to 0, then just register the handle so
              * at least "Decode As..." will work. */
-            dissector_add_handle("udp.port", uaudp_handle);
+            dissector_add_for_decode_as("udp.port", uaudp_handle);
         }
     }
 }

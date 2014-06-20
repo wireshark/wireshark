@@ -1412,7 +1412,7 @@ proto_register_pgm(void)
    * (Note: Initially the ports are set to zero and the ports
    *        are not registered so the dissecting of PGM
    *        encapsulated in UDP packets is off by default;
-   *        dissector_add_handle is called so that pgm
+   *        dissector_add_for_decode_as is called so that pgm
    *        is available for 'decode-as'
    */
   pgm_module = prefs_register_protocol(proto_pgm, proto_reg_handoff_pgm);
@@ -1451,7 +1451,7 @@ proto_reg_handoff_pgm(void)
 
   if (! initialized) {
     pgm_handle = create_dissector_handle(dissect_pgm, proto_pgm);
-    dissector_add_handle("udp.port", pgm_handle);  /* for 'decode-as' */
+    dissector_add_for_decode_as("udp.port", pgm_handle);
     dissector_add_uint("ip.proto", IP_PROTO_PGM, pgm_handle);
     data_handle = find_dissector("data");
     initialized = TRUE;

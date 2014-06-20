@@ -1580,7 +1580,7 @@ proto_reg_handoff_sgsap(void)
     gsm_a_dtap_handle = find_dissector("gsm_a_dtap");
 
     if (!Initialized) {
-        dissector_add_handle("sctp.port", sgsap_handle);   /* for "decode-as"  */
+        dissector_add_for_decode_as("sctp.port", sgsap_handle);
         Initialized=TRUE;
     } else {
         dissector_delete_uint_range("sctp.port", sgsap_port_range, sgsap_handle);

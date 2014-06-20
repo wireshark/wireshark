@@ -814,7 +814,7 @@ void proto_reg_handoff_lwm(void)
     data_handle     = find_dissector("data");
 
     /* Register our dissector with IEEE 802.15.4 */
-    dissector_add_handle(IEEE802154_PROTOABBREV_WPAN_PANID, find_dissector("lwm"));
+    dissector_add_for_decode_as(IEEE802154_PROTOABBREV_WPAN_PANID, find_dissector("lwm"));
     heur_dissector_add(IEEE802154_PROTOABBREV_WPAN, dissect_lwm_heur, proto_lwm);
 
 } /* proto_reg_handoff_lwm */

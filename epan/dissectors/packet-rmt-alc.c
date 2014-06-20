@@ -238,7 +238,7 @@ void proto_reg_handoff_alc(void)
     {
         preferences_initialized = TRUE;
         handle = new_create_dissector_handle(dissect_alc, proto_rmt_alc);
-        dissector_add_handle("udp.port", handle);
+        dissector_add_for_decode_as("udp.port", handle);
         xml_handle = find_dissector("xml");
         rmt_lct_handle = find_dissector("rmt-lct");
         rmt_fec_handle = find_dissector("rmt-fec");

@@ -209,13 +209,13 @@ proto_reg_handoff_pw_eth(void)
     eth_withoutfcs_handle = find_dissector("eth_withoutfcs");
 
     pw_eth_handle_cw = find_dissector("pw_eth_cw");
-    dissector_add_handle("mpls.label", pw_eth_handle_cw);
+    dissector_add_for_decode_as("mpls.label", pw_eth_handle_cw);
 
     pw_eth_handle_nocw = find_dissector("pw_eth_nocw");
-    dissector_add_handle("mpls.label", pw_eth_handle_nocw);
+    dissector_add_for_decode_as("mpls.label", pw_eth_handle_nocw);
 
     pw_eth_handle_heuristic = find_dissector("pw_eth_heuristic");
-    dissector_add_handle("mpls.label", pw_eth_handle_heuristic);
+    dissector_add_for_decode_as("mpls.label", pw_eth_handle_heuristic);
 }
 
 /*

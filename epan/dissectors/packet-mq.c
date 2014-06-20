@@ -4656,7 +4656,7 @@ void proto_reg_handoff_mq(void)
     mq_tcp_handle = new_create_dissector_handle(dissect_mq_tcp, proto_mq);
     mq_spx_handle = create_dissector_handle(dissect_mq_spx, proto_mq);
 
-    dissector_add_handle("tcp.port", mq_tcp_handle);
+    dissector_add_for_decode_as("tcp.port", mq_tcp_handle);
     heur_dissector_add("tcp",     dissect_mq_heur_tcp, proto_mq);
     heur_dissector_add("netbios", dissect_mq_heur_netbios, proto_mq);
     heur_dissector_add("http",    dissect_mq_heur_http, proto_mq);

@@ -3317,8 +3317,8 @@ proto_reg_handoff_ubertooth(void)
     dissector_add_uint("usb.product", (0x1d50 << 16) | 0x6000, ubertooth_handle); /* Ubertooth Zero */
     dissector_add_uint("usb.product", (0x1d50 << 16) | 0x6002, ubertooth_handle); /* Ubertooth One */
 
-    dissector_add_handle("usb.device",   ubertooth_handle);
-    dissector_add_handle("usb.protocol", ubertooth_handle);
+    dissector_add_for_decode_as("usb.device",   ubertooth_handle);
+    dissector_add_for_decode_as("usb.protocol", ubertooth_handle);
 }
 
 /*

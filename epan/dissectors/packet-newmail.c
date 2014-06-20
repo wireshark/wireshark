@@ -115,7 +115,7 @@ proto_reg_handoff_newmail(void)
 
 	if(!inited) {
 		newmail_handle = find_dissector("newmail");
-		dissector_add_handle("udp.port", newmail_handle); /* for 'decode-as' */
+		dissector_add_for_decode_as("udp.port", newmail_handle);
 		inited = TRUE;
 	} else {
 		if (preference_default_port_last != 0) {
