@@ -2535,14 +2535,14 @@ static int
 dissect_h501_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   dissect_tpkt_encap(tvb, pinfo, tree, FALSE, h501_pdu_handle);
-  return tvb_length(tvb);
+  return tvb_captured_length(tvb);
 }
 
 static int
 dissect_h501_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   dissect_tpkt_encap(tvb, pinfo, tree, h501_desegment_tcp, h501_pdu_handle);
-  return tvb_length(tvb);
+  return tvb_captured_length(tvb);
 }
 
 /*--- proto_register_h501 ----------------------------------------------*/

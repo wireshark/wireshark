@@ -716,7 +716,7 @@ static int dissect_idmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
         dissect_idmp_IDM_PDU(FALSE, tvb, offset, &asn1_ctx, tree, hf_idmp_PDU);
     }
 
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 static guint get_idmp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
@@ -731,7 +731,7 @@ static guint get_idmp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 static int dissect_idmp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data)
 {
     tcp_dissect_pdus(tvb, pinfo, parent_tree, idmp_desegment, 0, get_idmp_pdu_len, dissect_idmp, data);
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 static void idmp_reassemble_init (void)
