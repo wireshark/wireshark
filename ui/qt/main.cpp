@@ -509,7 +509,7 @@ int main(int argc, char *argv[])
         {(char *)"help", no_argument, NULL, 'h'},
         {(char *)"read-file", required_argument, NULL, 'r' },
         {(char *)"version", no_argument, NULL, 'v'},
-        LONGOPT_CAPTURE_COMMON,
+        LONGOPT_CAPTURE_COMMON
         {0, 0, 0, 0 }
     };
     static const char optstring[] = OPTSTRING;

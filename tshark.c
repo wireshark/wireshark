@@ -931,7 +931,7 @@ main(int argc, char *argv[])
     {(char *)"capture-comment", required_argument, NULL, LONGOPT_NUM_CAP_COMMENT },
     {(char *)"help", no_argument, NULL, 'h'},
     {(char *)"version", no_argument, NULL, 'v'},
-    LONGOPT_CAPTURE_COMMON,
+    LONGOPT_CAPTURE_COMMON
     {0, 0, 0, 0 }
   };
   gboolean             arg_error = FALSE;

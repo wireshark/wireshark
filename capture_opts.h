@@ -101,7 +101,7 @@ extern "C" {
         {(char *)"list-data-link-types", no_argument, NULL, 'L'}, \
         {(char *)"no-promiscuous-mode", no_argument, NULL, 'p'}, \
         {(char *)"snapshot-length", required_argument, NULL, 's'}, \
-        {(char *)"linktype", required_argument, NULL, 'y'}
+        {(char *)"linktype", required_argument, NULL, 'y'},
 
 #define OPTSTRING_CAPTURE_COMMON \
 	 "a:" OPTSTRING_A "b:" OPTSTRING_B "c:Df:i:" OPTSTRING_I "Lps:y:"
