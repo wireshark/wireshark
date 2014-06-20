@@ -923,7 +923,6 @@ main(int argc, char *argv[])
   char                *init_progfile_dir_error;
   int                  opt;
   static const struct option long_options[] = {
-    {(char *)"capture-comment", required_argument, NULL, LONGOPT_NUM_CAP_COMMENT },
     {(char *)"help", no_argument, NULL, 'h'},
     {(char *)"version", no_argument, NULL, 'v'},
     LONGOPT_CAPTURE_COMMON

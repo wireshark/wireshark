@@ -92,6 +92,7 @@ extern "C" {
 #endif
 
 #define LONGOPT_CAPTURE_COMMON \
+        {(char *)"capture-comment", required_argument, NULL, LONGOPT_NUM_CAP_COMMENT}, \
         {(char *)"autostop", required_argument, NULL, 'a'}, \
         {(char *)"ring-buffer", required_argument, NULL, 'b'}, \
         LONGOPT_BUFFER_SIZE \
