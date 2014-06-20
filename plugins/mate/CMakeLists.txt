@@ -70,6 +70,7 @@ register_dissector_files(plugin.c
 
 add_library(mate ${LINK_MODE_MODULE}
 	${PLUGIN_FILES}
+	plugin.rc
 )
 set_target_properties(mate PROPERTIES PREFIX "")
 set_target_properties(mate PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")

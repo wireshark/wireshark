@@ -906,6 +906,7 @@ if(WIN32)
 		ui/win32/console_win32.c
 		ui/win32/file_dlg_win32.c
 		ui/win32/print_win32.c
+		image/file_dlg_win32.rc
 	)
 endif()
 
@@ -1050,6 +1051,7 @@ if( (BUILD_wireshark AND GTK_FOUND) OR (BUILD_qtshark AND QT_FOUND) )
 		${SHARK_COMMON_CAPTURE_SRC}
 		${SHARK_COMMON_SRC}
 		${PLATFORM_UI_SRC}
+		image/wireshark.rc
 	)
 endif()
 
@@ -1121,6 +1123,7 @@ if(BUILD_tshark)
 		${TSHARK_TAP_SRC}
 		${SHARK_COMMON_CAPTURE_SRC}
 		${SHARK_COMMON_SRC}
+		image/tshark.rc
 	)
 	add_executable(tshark ${tshark_FILES})
 	add_dependencies(tshark gitversion)
@@ -1142,6 +1145,7 @@ if(BUILD_tfshark)
 		tfshark.c
 		${TSHARK_TAP_SRC}
 		${SHARK_COMMON_SRC}
+		image/tfshark.rc
 	)
 	add_executable(tfshark ${tfshark_FILES})
 	add_dependencies(tfshark gitversion)
@@ -1161,6 +1165,7 @@ if(BUILD_rawshark AND PCAP_FOUND)
 		${SHARK_COMMON_SRC}
 		rawshark.c
 		ui/util.c
+		image/rawshark.rc
 	)
 	add_executable(rawshark ${rawshark_FILES})
 	add_dependencies(rawshark gitversion)
@@ -1219,6 +1224,7 @@ if(BUILD_text2pcap)
 	)
 	set(text2pcap_FILES
 		${text2pcap_CLEAN_FILES}
+		image/text2pcap.rc
 	)
 	add_lex_files(text2pcap_FILES
 		text2pcap-scanner.l
@@ -1240,6 +1246,7 @@ if(BUILD_mergecap)
 	set(mergecap_FILES
 		mergecap.c
 		version.h
+		image/mergecap.rc
 	)
 	add_executable(mergecap ${mergecap_FILES})
 	add_dependencies(mergecap gitversion)
@@ -1258,6 +1265,7 @@ if(BUILD_reordercap)
 	set(reordercap_FILES
 		reordercap.c
 		version.h
+		image/reordercap.rc
 	)
 	add_executable(reordercap ${reordercap_FILES})
 	add_dependencies(reordercap gitversion)
@@ -1277,6 +1285,7 @@ if(BUILD_capinfos)
 	)
 	set(capinfos_FILES
 		capinfos.c
+		image/capinfos.rc
 	)
 	add_executable(capinfos ${capinfos_FILES})
 	add_dependencies(capinfos gitversion)
@@ -1295,6 +1304,7 @@ if(BUILD_captype)
 	)
 	set(captype_FILES
 		captype.c
+		image/captype.rc
 	)
 	add_executable(captype ${captype_FILES})
 	add_dependencies(captype gitversion)
@@ -1312,6 +1322,7 @@ if(BUILD_editcap)
 	)
 	set(editcap_FILES
 		editcap.c
+		image/editcap.rc
 	)
 	add_executable(editcap ${editcap_FILES})
 	add_dependencies(editcap gitversion)
@@ -1350,6 +1361,7 @@ if(BUILD_dumpcap AND PCAP_FOUND)
 		version_info.c
 		ws80211_utils.c
 		${PLATFORM_PCAP_SRC}
+		image/dumpcap.rc
 	)
 	add_executable(dumpcap ${dumpcap_FILES})
 	add_dependencies(dumpcap gitversion)

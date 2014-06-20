@@ -117,6 +117,7 @@ endif()
 
 add_library(wsutil ${LINK_MODE_LIB}
 	${WSUTIL_FILES}
+	../image/libwsutil.rc
 )
 
 set(FULL_SO_VERSION "0.0.0")

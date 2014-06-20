@@ -38,6 +38,7 @@ endif()
 
 add_library(stats_tree ${LINK_MODE_MODULE}
 	${TAP_SRC}
+	plugin.rc
 )
 set_target_properties(stats_tree PROPERTIES PREFIX "")
 set_target_properties(stats_tree PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")

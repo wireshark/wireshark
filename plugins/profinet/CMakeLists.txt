@@ -61,6 +61,7 @@ register_dissector_files(plugin.c
 
 add_library(profinet ${LINK_MODE_MODULE}
 	${PLUGIN_FILES}
+	plugin.rc
 )
 set_target_properties(profinet PROPERTIES PREFIX "")
 set_target_properties(profinet PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")

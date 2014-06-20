@@ -53,6 +53,7 @@ set(filetap_LIBS
 
 add_library(filetap ${LINK_MODE_LIB}
 	${FILETAP_FILES}
+	../image/filetap.rc
 )
 
 set(FULL_SO_VERSION "0.0.0")

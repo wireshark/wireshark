@@ -64,6 +64,7 @@ register_dissector_files(plugin.c
 
 add_library(opcua ${LINK_MODE_MODULE}
 	${PLUGIN_FILES}
+	plugin.rc
 )
 set_target_properties(opcua PROPERTIES PREFIX "")
 set_target_properties(opcua PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")

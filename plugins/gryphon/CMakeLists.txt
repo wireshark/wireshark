@@ -49,6 +49,7 @@ register_dissector_files(plugin.c
 
 add_library(gryphon ${LINK_MODE_MODULE}
 	${PLUGIN_FILES}
+	plugin.rc
 )
 set_target_properties(gryphon PROPERTIES PREFIX "")
 set_target_properties(gryphon PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")

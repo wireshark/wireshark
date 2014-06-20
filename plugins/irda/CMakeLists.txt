@@ -51,6 +51,7 @@ register_dissector_files(plugin.c
 
 add_library(irda ${LINK_MODE_MODULE}
 	${PLUGIN_FILES}
+	plugin.rc
 )
 set_target_properties(irda PROPERTIES PREFIX "")
 set_target_properties(irda PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")

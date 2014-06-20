@@ -112,6 +112,7 @@ set(wiretap_LIBS
 
 add_library(wiretap ${LINK_MODE_LIB}
 	${WIRETAP_FILES}
+	../image/wiretap.rc
 )
 
 set(FULL_SO_VERSION "0.0.0")

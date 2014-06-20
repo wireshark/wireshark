@@ -49,6 +49,7 @@ register_dissector_files(plugin.c
 
 add_library(wimaxmacphy ${LINK_MODE_MODULE}
 	${PLUGIN_FILES}
+	plugin.rc
 )
 set_target_properties(wimaxmacphy PROPERTIES PREFIX "")
 set_target_properties(wimaxmacphy PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")

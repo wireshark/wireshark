@@ -54,6 +54,7 @@ register_dissector_files(plugin.c
 
 add_library(m2m ${LINK_MODE_MODULE}
 	${PLUGIN_FILES}
+	plugin.rc
 )
 set_target_properties(m2m PROPERTIES PREFIX "")
 set_target_properties(m2m PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")

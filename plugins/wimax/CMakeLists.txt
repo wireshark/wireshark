@@ -94,6 +94,7 @@ register_dissector_files(plugin.c
 
 add_library(wimax ${LINK_MODE_MODULE}
 	${PLUGIN_FILES}
+	plugin.rc
 )
 set_target_properties(wimax PROPERTIES PREFIX "")
 set_target_properties(wimax PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")

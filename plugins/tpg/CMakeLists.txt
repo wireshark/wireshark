@@ -69,6 +69,7 @@ ADD_CUSTOM_COMMAND(
 
 add_library(tpg ${LINK_MODE_MODULE}
 	${PLUGIN_FILES}
+	plugin.rc
 )
 set_target_properties(tpg PROPERTIES PREFIX "")
 set_target_properties(tpg PROPERTIES LINK_FLAGS ${WS_LINK_FLAGS})
