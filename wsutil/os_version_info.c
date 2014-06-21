@@ -22,6 +22,9 @@
 
 #include "config.h"
 
+#include <string.h>
+#include <errno.h>
+
 #ifdef HAVE_SYS_UTSNAME_H
 #include <sys/utsname.h>
 #endif
@@ -32,7 +35,6 @@
 #endif
 
 #include <glib.h>
-#include <errno.h>
 
 #include <wsutil/unicode-utils.h>
 
