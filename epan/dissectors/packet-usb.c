@@ -3020,6 +3020,7 @@ dissect_linux_usb_iso_transfer(packet_info *pinfo _U_, proto_tree *urb_tree,
 
     tii = proto_tree_add_uint(urb_tree, hf_usb_bInterfaceClass, tvb, offset, 0, usb_conv_info->interfaceClass);
     PROTO_ITEM_SET_GENERATED(tii);
+
     /* All fields which belong to Linux usbmon headers are in host-endian
      * byte order. The fields coming from the USB communication are in little
      * endian format (see usb_20.pdf, chapter 8.1 Byte/Bit ordering).
@@ -3061,10 +3062,6 @@ dissect_linux_usb_iso_transfer(packet_info *pinfo _U_, proto_tree *urb_tree,
         offset += 4;
     }
 
-    /*
-     * If this has a 64-byte header, process the extra 16 bytes of
-     * pseudo-header information.
-     */
     if (header_info & USB_HEADER_IS_64_BYTES)
         offset = dissect_linux_usb_pseudo_header_ext(tvb, offset, pinfo, urb_tree);
 
@@ -3194,17 +3191,13 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
             PROTO_ITEM_SET_GENERATED(item);
 
             if (header_info & USB_HEADER_IS_LINUX) {
-                /* Skip setup/isochronous header - it's not applicable */
+                /* bulk and interrupt transfers never contain a setup packet
+                   XXX - bring up an expert info if usb_conv_info->is_setup==TRUE? */
                 proto_tree_add_item(tree, hf_usb_urb_unused_setup_header, tvb, offset, 8, ENC_NA);
                 offset += 8;
-            }
 
-            /*
-             * If this has a 64-byte header, process the extra 16 bytes of
-             * pseudo-header information.
-             */
-            if (header_info & USB_HEADER_IS_64_BYTES) {
-                offset = dissect_linux_usb_pseudo_header_ext(tvb, offset, pinfo, tree);
+                if (header_info & USB_HEADER_IS_64_BYTES)
+                    offset = dissect_linux_usb_pseudo_header_ext(tvb, offset, pinfo, tree);
             }
             break;
 
