@@ -21,7 +21,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-# C source files that are part of the libwsutil source; this includes only
+# C source files that are part of the libechld source; this includes only
 # .c files, not YACC or Lex or... files (as Makefile.nmake maps this list
 # into a list of object files by replacing ".c" with ".obj") or files
 # generated from YACC or Lex files (as Automake doesn't want them in
@@ -47,7 +47,6 @@ LIBECHLD_MORE_SRC = \
 	../capture_stop_conditions.c	\
 	../capture_sync.c \
 	../cfile.c	\
-	../cfutils.c	\
 	../clopts_common.c	\
 	../conditions.c	\
 	../pcapio.c	\
