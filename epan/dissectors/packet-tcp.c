@@ -2361,7 +2361,13 @@ tcp_dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 static void
 tcp_info_append_uint(packet_info *pinfo, const char *abbrev, guint32 val)
 {
-    col_append_fstr(pinfo->cinfo, COL_INFO, " %s=%u", abbrev, val);
+    char buf[16];
+
+    guint32_to_str_buf(val, buf, sizeof(buf));
+    /* fstr(" %s=%u", abbrev, val) */
+    col_append_lstr(pinfo->cinfo, COL_INFO,
+        " ", abbrev, "=", buf,
+        COL_ADD_LSTR_TERMINATOR);
 }
 
 static void
@@ -2935,7 +2941,9 @@ dissect_tcpopt_qs(const ip_tcp_opt *optp, tvbuff_t *tvb,
                              "%s: Rate response, %s, TTL diff %u ", optp->name,
                              val_to_str_ext_const(rate, &qs_rate_vals_ext, "Unknown"),
                              tvb_get_guint8(tvb, offset + 3));
-    col_append_fstr(pinfo->cinfo, COL_INFO, " QSresp=%s", val_to_str_ext_const(rate, &qs_rate_vals_ext, "Unknown"));
+    col_append_lstr(pinfo->cinfo, COL_INFO,
+        " QSresp=", val_to_str_ext_const(rate, &qs_rate_vals_ext, "Unknown"),
+        COL_ADD_LSTR_TERMINATOR);
     field_tree = proto_item_add_subtree(tf, ett_tcp_opt_qs);
     proto_tree_add_item(field_tree, hf_tcp_option_kind, tvb,
                         offset, 1, ENC_BIG_ENDIAN);
@@ -3025,8 +3033,10 @@ dissect_tcpopt_scps(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
                 if (capvector & capvecs[i].mask) {
                     proto_item_append_text(tf, "%s%s", anyflag ? ", " : " (",
                                            capvecs[i].str);
-                    col_append_fstr(pinfo->cinfo, COL_INFO, "%s%s",
-                                    anyflag ? ", " : "", capvecs[i].str);
+                    col_append_lstr(pinfo->cinfo, COL_INFO,
+                                    anyflag ? ", " : "",
+                                    capvecs[i].str,
+                                    COL_ADD_LSTR_TERMINATOR);
                     anyflag = TRUE;
                 }
             }
@@ -4356,7 +4366,10 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     flags_str = tcp_flags_to_str(tcph);
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, " [%s] Seq=%u", flags_str, tcph->th_seq);
+    col_append_lstr(pinfo->cinfo, COL_INFO,
+        " [", flags_str, "]",
+        COL_ADD_LSTR_TERMINATOR);
+    tcp_info_append_uint(pinfo, "Seq", tcph->th_seq);
     if (tcph->th_flags&TH_ACK)
         tcp_info_append_uint(pinfo, "Ack", tcph->th_ack);
 

@@ -312,6 +312,45 @@ col_custom_prime_edt(epan_dissect_t *edt, column_info *cinfo)
   }
 }
 
+void
+col_append_lstr(column_info *cinfo, const gint el, const gchar *str, ...)
+{
+  va_list ap;
+  size_t pos, max_len;
+  int    i;
+
+  if (!CHECK_COL(cinfo, el))
+    return;
+
+  if (el == COL_INFO)
+    max_len = COL_MAX_INFO_LEN;
+  else
+    max_len = COL_MAX_LEN;
+
+  for (i = cinfo->col_first[el]; i <= cinfo->col_last[el]; i++) {
+    if (cinfo->fmt_matx[i][el]) {
+      /*
+       * First arrange that we can append, if necessary.
+       */
+      COL_CHECK_APPEND(cinfo, i, max_len);
+
+      pos = strlen(cinfo->col_buf[i]);
+      if (pos >= max_len)
+         return;
+
+      va_start(ap, str);
+      do {
+         if G_UNLIKELY(str == NULL)
+             str = "(null)";
+
+         pos += g_strlcpy(&cinfo->col_buf[i][pos], str, max_len - pos);
+
+      } while (pos < max_len && (str = va_arg(ap, const char *)) != COL_ADD_LSTR_TERMINATOR);
+      va_end(ap);
+    }
+  }
+}
+
 static void
 col_do_append_fstr(column_info *cinfo, const int el, const char *separator, const char *format, va_list ap)
 {
