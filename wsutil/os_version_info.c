@@ -31,12 +31,10 @@
 #include "cfutils.h"
 #endif
 
-#ifdef _WIN32
-#include <windows.h>
-#endif
-
 #include <glib.h>
 #include <errno.h>
+
+#include <wsutil/unicode-utils.h>
 
 #include <wsutil/os_version_info.h>
 
