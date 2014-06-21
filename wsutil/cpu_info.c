@@ -65,4 +65,3 @@ get_cpu_info(GString *str _U_)
 	if (ws_cpuid_sse42())
 		g_string_append(str, " (with SSE4.2)");
 }
-
