@@ -3010,7 +3010,7 @@ dissect_usbpcap_iso_packets(packet_info *pinfo _U_, proto_tree *urb_tree, guint8
 
 
 static gint
-dissect_linux_usb_iso_transfer(packet_info *pinfo _U_, proto_tree *tree,
+dissect_linux_usb_iso_transfer(packet_info *pinfo _U_, proto_tree *urb_tree,
         guint8 header_info, tvbuff_t *tvb, gint offset,
         usb_conv_info_t *usb_conv_info, gint *type_2)
 {
@@ -3018,7 +3018,7 @@ dissect_linux_usb_iso_transfer(packet_info *pinfo _U_, proto_tree *tree,
     proto_item *tii;
     proto_tree *parent;
 
-    tii = proto_tree_add_uint(tree, hf_usb_bInterfaceClass, tvb, offset, 0, usb_conv_info->interfaceClass);
+    tii = proto_tree_add_uint(urb_tree, hf_usb_bInterfaceClass, tvb, offset, 0, usb_conv_info->interfaceClass);
     PROTO_ITEM_SET_GENERATED(tii);
     /* All fields which belong to Linux usbmon headers are in host-endian
      * byte order. The fields coming from the USB communication are in little
@@ -3029,7 +3029,7 @@ dissect_linux_usb_iso_transfer(packet_info *pinfo _U_, proto_tree *tree,
      * wiretap/pcap-common.c, pcap_process_linux_usb_pseudoheader().
      */
 
-    parent = proto_tree_get_root(tree);
+    parent = proto_tree_get_root(urb_tree);
 
     if (usb_conv_info->is_setup) {
         proto_item *ti;
@@ -3053,11 +3053,11 @@ dissect_linux_usb_iso_transfer(packet_info *pinfo _U_, proto_tree *tree,
         guint32 val32;
 
         tvb_memcpy(tvb, (guint8 *)&val32, offset, 4);
-        proto_tree_add_uint(tree, hf_usb_iso_error_count, tvb, offset, 4, val32);
+        proto_tree_add_uint(urb_tree, hf_usb_iso_error_count, tvb, offset, 4, val32);
         offset += 4;
 
         tvb_memcpy(tvb, (guint8 *)&iso_numdesc, offset, 4);
-        proto_tree_add_uint(tree, hf_usb_iso_numdesc, tvb, offset, 4, iso_numdesc);
+        proto_tree_add_uint(urb_tree, hf_usb_iso_numdesc, tvb, offset, 4, iso_numdesc);
         offset += 4;
     }
 
@@ -3066,10 +3066,9 @@ dissect_linux_usb_iso_transfer(packet_info *pinfo _U_, proto_tree *tree,
      * pseudo-header information.
      */
     if (header_info & USB_HEADER_IS_64_BYTES)
-        offset = dissect_linux_usb_pseudo_header_ext(tvb, offset, pinfo, tree);
+        offset = dissect_linux_usb_pseudo_header_ext(tvb, offset, pinfo, urb_tree);
 
     if (usb_conv_info->is_setup) {
-        proto_tree   *urb_tree;
         guint32       i;
         unsigned int  data_base;
         guint32       iso_status;
@@ -3080,7 +3079,6 @@ dissect_linux_usb_iso_transfer(packet_info *pinfo _U_, proto_tree *tree,
         proto_tree   *iso_desc_tree;
 
         data_base = offset + iso_numdesc * 16;
-        urb_tree = tree;
         for (i = 0; i != iso_numdesc; i++) {
             /* Fetch ISO descriptor fields stored in host
              * endian byte order.
