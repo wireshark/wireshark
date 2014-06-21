@@ -3089,14 +3089,10 @@ dissect_linux_usb_iso_transfer(packet_info *pinfo _U_, proto_tree *tree,
 
             if (parent) {
                 proto_item *ti;
-                if (iso_len > 0) {
-                    ti = proto_tree_add_protocol_format(urb_tree, proto_usb, tvb, offset,
-                            16, "USB isodesc %u [%s]  (%u bytes)", i,
-                            val_to_str_ext(iso_status, &usb_urb_status_vals_ext, "Error %d"), iso_len);
-                } else {
-                    ti = proto_tree_add_protocol_format(urb_tree, proto_usb, tvb, offset,
-                            16, "USB isodesc %u [%s]", i, val_to_str_ext(iso_status, &usb_urb_status_vals_ext, "Error %d"));
-                }
+                ti = proto_tree_add_protocol_format(urb_tree, proto_usb, tvb, offset,
+                        16, "USB isodesc %u [%s]", i, val_to_str_ext(iso_status, &usb_urb_status_vals_ext, "Error %d"));
+                if (iso_len > 0)
+                    proto_item_append_text(ti, " (%u bytes)", iso_len);
                 tree = proto_item_add_subtree(ti, usb_isodesc);
             }
 
