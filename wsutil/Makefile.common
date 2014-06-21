@@ -32,6 +32,7 @@ LIBWSUTIL_SRC = 	\
 	airpdcap_wep.c	\
 	base64.c	\
 	bitswap.c	\
+	cfutils.c	\
 	copyright_info.c \
 	crash_info.c	\
 	crc6.c		\
@@ -51,6 +52,7 @@ LIBWSUTIL_SRC = 	\
 	md5.c		\
 	mpeg-audio.c	\
 	nstime.c	\
+	os_version_info.c \
 	plugins.c	\
 	privileges.c	\
 	sha1.c		\
@@ -74,6 +76,7 @@ LIBWSUTIL_INCLUDES = 	\
 	bits_ctz.h	\
 	bits_count_ones.h	\
 	bitswap.h		\
+	cfutils.h	\
 	copyright_info.h \
 	crash_info.h	\
 	crc6.h		\
@@ -93,6 +96,7 @@ LIBWSUTIL_INCLUDES = 	\
 	md5.h		\
 	mpeg-audio.h	\
 	nstime.h	\
+	os_version_info.h \
 	plugins.h	\
 	privileges.h	\
 	sha1.h		\

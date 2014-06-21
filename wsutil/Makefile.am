@@ -103,6 +103,7 @@ libwsutil_la_DEPENDENCIES=	\
 	$(wsutil_optional_objects)
 
 libwsutil_la_LIBADD =		\
+	@COREFOUNDATION_FRAMEWORKS@	\
 	@GLIB_LIBS@		\
 	@LIBGCRYPT_LIBS@	\
 	nghttp2/libnghttp2.la	\

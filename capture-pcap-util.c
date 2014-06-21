@@ -66,7 +66,7 @@
 #include <CoreFoundation/CoreFoundation.h>
 #include <SystemConfiguration/SystemConfiguration.h>
 
-#include "cfutils.h"
+#include <wsutil/cfutils.h>
 
 /*
  * On OS X, we get the "friendly name" and interface type for the interface

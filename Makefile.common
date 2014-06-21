@@ -44,7 +44,6 @@ SHARK_COMMON_SRC =	\
 	$(PLATFORM_PCAP_SRC)	\
 	capture-pcap-util.c	\
 	cfile.c			\
-	cfutils.c		\
 	clopts_common.c		\
 	frame_tvbuff.c		\
 	sync_pipe_write.c	\
@@ -56,7 +55,6 @@ SHARK_COMMON_INCLUDES =	\
 	capture-pcap-util.h	\
 	capture-pcap-util-int.h	\
 	cfile.h			\
-	cfutils.h		\
 	clopts_common.h		\
 	cmdarg_err.h		\
 	color.h			\
@@ -178,7 +176,6 @@ dumpcap_SOURCES =	\
 	capture_opts.c	\
 	capture-pcap-util.c	\
 	capture_stop_conditions.c	\
-	cfutils.c	\
 	clopts_common.c	\
 	conditions.c	\
 	dumpcap.c	\

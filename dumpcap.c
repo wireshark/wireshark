@@ -123,6 +123,7 @@
 #include "wsutil/tempfile.h"
 #include "log.h"
 #include "wsutil/file_util.h"
+#include "wsutil/os_version_info.h"
 
 #include "ws80211_utils.h"
 

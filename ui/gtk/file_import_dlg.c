@@ -50,6 +50,7 @@
 #include "file.h"
 #include "wsutil/file_util.h"
 #include "wsutil/tempfile.h"
+#include "wsutil/os_version_info.h"
 
 #define INPUT_FRM_KEY                   "input_frame"
 

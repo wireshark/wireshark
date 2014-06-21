@@ -22,5 +22,22 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-extern char *CFString_to_C_string(CFStringRef cfstring);
+#ifndef __WSUTIL_CFUTILS_H__
+#define __WSUTIL_CFUTILS_H__
 
+#include "ws_symbol_export.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
+/*
+ * Convert a CFString to a g_malloc()ated C string.
+ */
+WS_DLL_PUBLIC char *CFString_to_C_string(CFStringRef cfstring);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
+
+#endif /* __WSUTIL_CFUTILS_H__ */

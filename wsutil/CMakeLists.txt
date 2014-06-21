@@ -44,6 +44,7 @@ set(WSUTIL_FILES
 	airpdcap_wep.c
 	base64.c
 	bitswap.c
+	cfutils.c
 	copyright_info.c
 	crash_info.c
 	crc10.c
@@ -63,6 +64,7 @@ set(WSUTIL_FILES
 	md5.c
 	mpeg-audio.c
 	nstime.c
+	os_version_info.c
 	plugins.c
 	privileges.c
 	sha1.c
@@ -88,6 +90,7 @@ set(WSUTIL_FILES
 )
 
 set(wsutil_LIBS
+	${APPLE_CORE_FOUNDATION_LIBRARY}
 	${GMODULE2_LIBRARIES}
 	${GLIB2_LIBRARIES}
 	${GCRYPT_LIBRARIES}
