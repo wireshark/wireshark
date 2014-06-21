@@ -64,6 +64,7 @@ set(WSUTIL_FILES
 	g711.c
 	md4.c
 	md5.c
+	mem_info.c
 	mpeg-audio.c
 	nstime.c
 	os_version_info.c

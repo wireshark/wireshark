@@ -36,10 +36,11 @@
 #include <wsutil/os_version_info.h>
 #include <wsutil/compiler_info.h>
 #include <wsutil/cpu_info.h>
+#include <wsutil/mem_info.h>
 
 #include "version.h"
 
-#ifdef HAVE_WINDOWS_H
+#ifdef _WIN32
 #include <windows.h>
 #endif
 
@@ -166,19 +167,6 @@ get_compiled_version_info(GString *str, void (*prepend_info)(GString *),
 	g_string_append(str, ".");
 
 	end_string(str);
-}
-
-static void get_mem_info(GString *str _U_)
-{
-#if defined(_WIN32)
-	MEMORYSTATUSEX statex;
-
-	statex.dwLength = sizeof (statex);
-
-	if(GlobalMemoryStatusEx (&statex))
-		g_string_append_printf(str, ", with ""%" G_GINT64_MODIFIER "d" "MB of physical memory.\n", statex.ullTotalPhys/(1024*1024));
-#endif
-
 }
 
 /*
