@@ -31,7 +31,7 @@
 
 #ifdef HAVE_OS_X_FRAMEWORKS
 #include <CoreFoundation/CoreFoundation.h>
-#include "cfutils.h"
+#include <wsutil/cfutils.h>
 #endif
 
 #include <glib.h>

@@ -27,7 +27,7 @@
 #ifdef HAVE_OS_X_FRAMEWORKS
 #include <glib.h>
 #include <CoreFoundation/CoreFoundation.h>
-#include "cfutils.h"
+#include <wsutil/cfutils.h>
 
 /*
  * Convert a CFString to a UTF-8-encoded C string; the resulting string
