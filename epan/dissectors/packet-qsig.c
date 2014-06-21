@@ -2076,13 +2076,11 @@ dissect_qsig_T_extensionArgument(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
     next_tvb = tvb_new_subset_remaining(tvb, offset);
     if (!dissector_try_string(extension_dissector_table, extension_oid, next_tvb, actx->pinfo, tree, NULL)) {
-        proto_item *item=NULL;
-        proto_tree *next_tree=NULL;
+        proto_tree *next_tree;
 
-        item=proto_tree_add_text(tree, next_tvb, 0, tvb_length_remaining(tvb, offset), "QSIG: Dissector for extension with OID:%s not implemented.", extension_oid);
-        if(item){
-            next_tree=proto_item_add_subtree(item, ett_qsig_unknown_extension);
-        }
+        next_tree=proto_tree_add_subtree_format(tree, next_tvb, 0, -1, ett_qsig_unknown_extension, NULL,
+                               "QSIG: Dissector for extension with OID:%s not implemented.", extension_oid);
+
         dissect_unknown_ber(actx->pinfo, next_tvb, offset, next_tree);
     }
 
@@ -2114,7 +2112,7 @@ dissect_qsig_Extension(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 static int
 dissect_qsig_PSS1InformationElement_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 166 "../../asn1/qsig/qsig.cnf"
+#line 164 "../../asn1/qsig/qsig.cnf"
   tvbuff_t *out_tvb = NULL;
   proto_tree *data_tree;
 
@@ -9202,7 +9200,7 @@ dissect_qsig_wtmau_DefinedIDs(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
 static int
 dissect_qsig_wtmau_T_param(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 162 "../../asn1/qsig/qsig.cnf"
+#line 160 "../../asn1/qsig/qsig.cnf"
 
 
 
@@ -12557,7 +12555,7 @@ dissect_qsig_party_category_ie(tvbuff_t *tvb, int offset, packet_info *pinfo  _U
 static void
 dissect_qsig_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int codeset) {
   gint offset;
-  proto_item *ti, *ti_ie, *hidden_item;
+  proto_item *ti, *hidden_item;
   proto_tree *ie_tree;
   guint8 ie_type, ie_len;
 
@@ -12569,9 +12567,9 @@ dissect_qsig_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int codeset
   ie_type = tvb_get_guint8(tvb, offset);
   ie_len = tvb_get_guint8(tvb, offset + 1);
 
-  ti_ie = proto_tree_add_text(tree, tvb, offset, -1, "%s",
+  ie_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_qsig_ie, NULL,
             val_to_str(ie_type, VALS(qsig_str_ie_type[codeset]), "unknown (0x%02X)"));
-  ie_tree = proto_item_add_subtree(ti_ie, ett_qsig_ie);
+
   proto_tree_add_item(ie_tree, *hf_qsig_ie_type_arr[codeset], tvb, offset, 1, ENC_BIG_ENDIAN);
   hidden_item = proto_tree_add_item(ie_tree, hf_qsig_ie_type, tvb, offset, 1, ENC_BIG_ENDIAN);
   PROTO_ITEM_SET_HIDDEN(hidden_item);

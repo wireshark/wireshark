@@ -133,8 +133,7 @@ static int dissect_cmp_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pa
 		proto_tree_add_item(tree, hf_cmp_tcptrans_type, tvb, offset++, 1, ENC_BIG_ENDIAN);
 	} else {
 		/* post RFC2510 TCP transport - the former "type" field is now "version" */
-		ti = proto_tree_add_text(tree, tvb, offset, 7, "TCP transport");
-		tcptrans_tree = proto_item_add_subtree(ti, ett_cmp);
+		tcptrans_tree = proto_tree_add_subtree(tree, tvb, offset, 7, ett_cmp, NULL, "TCP transport");
 		pdu_type=tvb_get_guint8(tvb, 6);
 		proto_tree_add_item(tcptrans_tree, hf_cmp_tcptrans_len, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;

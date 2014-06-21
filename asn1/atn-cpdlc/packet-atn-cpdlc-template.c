@@ -162,16 +162,9 @@ dissect_atn_cpdlc(
 		if(!atn_cv){ /* atn conversation not found */
 			return 0; }
 
-		ti = proto_tree_add_text(
-				tree,
-				tvb,
-				0,
-				tvb_reported_length_remaining(tvb, 0) ,
+		atn_cpdlc_tree = proto_tree_add_subtree(
+				tree, tvb, 0, -1, ett_atn_cpdlc, NULL,
 				ATN_CPDLC_PROTO );
-
-		atn_cpdlc_tree = proto_item_add_subtree(
-				ti,
-				ett_atn_cpdlc);
 
 		switch(atn_cv->ae_qualifier){
 				case  pmcpdlc:

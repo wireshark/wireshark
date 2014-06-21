@@ -539,12 +539,11 @@ MessageToken						B	"2.6.1.7.36"	"id-hat-forwarded-token"
 		if (dissector_try_uint(p1_extension_dissector_table, actx->external.indirect_reference, tvb, actx->pinfo, tree)) {
 			offset = tvb_length(tvb);
 		} else {
-			proto_item *item = NULL;
-			proto_tree *next_tree = NULL;
+			proto_item *item;
+			proto_tree *next_tree;
 
-			item = proto_tree_add_text(tree, tvb, 0, tvb_length_remaining(tvb, offset),
+			next_tree = proto_tree_add_subtree_format(tree, tvb, 0, -1, ett_p1_unknown_standard_extension, &item,
 				"Dissector for standard-extension %%d not implemented.  Contact Wireshark developers if you want this supported", actx->external.indirect_reference);
-			next_tree = proto_item_add_subtree(item, ett_p1_unknown_standard_extension);
 			offset = dissect_unknown_ber(actx->pinfo, tvb, offset, next_tree);
 			expert_add_info(actx->pinfo, item, &ei_p1_unknown_standard_extension);
 		}
@@ -578,12 +577,11 @@ MessageToken						B	"2.6.1.7.36"	"id-hat-forwarded-token"
 	if (dissector_try_uint(p1_extension_attribute_dissector_table, actx->external.indirect_reference, tvb, actx->pinfo, tree)) {
 		offset =tvb_length(tvb);
 	} else {
-		proto_item *item = NULL;
-		proto_tree *next_tree = NULL;
+		proto_item *item;
+		proto_tree *next_tree;
 
-		item = proto_tree_add_text(tree, tvb, 0, tvb_length_remaining(tvb, offset),
+		next_tree = proto_tree_add_subtree_format(tree, tvb, 0, -1, ett_p1_unknown_extension_attribute_type, &item,
 			"Dissector for extension-attribute-type %%d not implemented.  Contact Wireshark developers if you want this supported", actx->external.indirect_reference);
-		next_tree = proto_item_add_subtree(item, ett_p1_unknown_extension_attribute_type);
 		offset = dissect_unknown_ber(actx->pinfo, tvb, offset, next_tree);
 		expert_add_info(actx->pinfo, item, &ei_p1_unknown_extension_attribute_type);
 	}
@@ -674,16 +672,15 @@ MessageToken						B	"2.6.1.7.36"	"id-hat-forwarded-token"
 	if (next_tvb) {
 		if (ctx && ctx->content_type_id) {
 			(void) call_ber_oid_callback(ctx->content_type_id, next_tvb, 0, actx->pinfo, actx->subtree.top_tree ? actx->subtree.top_tree : tree, actx->private_data);
-	} else if (ctx && ctx->report_unknown_content_type) {
-		proto_item *item = NULL;
-		proto_tree *next_tree = NULL;
+		} else if (ctx && ctx->report_unknown_content_type) {
+			proto_item *item;
+			proto_tree *next_tree;
 
-		proto_tree_add_expert(actx->subtree.top_tree ? actx->subtree.top_tree : tree, actx->pinfo, &ei_p1_unknown_built_in_content_type,
+			item = proto_tree_add_expert(actx->subtree.top_tree ? actx->subtree.top_tree : tree, actx->pinfo, &ei_p1_unknown_built_in_content_type,
 							  next_tvb, 0, tvb_length_remaining(tvb, offset));
-		if (item) {
 			next_tree=proto_item_add_subtree(item, ett_p1_content_unknown);
-		}
-		dissect_unknown_ber(actx->pinfo, next_tvb, 0, next_tree);
+
+			dissect_unknown_ber(actx->pinfo, next_tvb, 0, next_tree);
 		} else {
 			proto_item_append_text (actx->created_item, " (unknown content-type)");
 		}
@@ -1176,12 +1173,11 @@ MessageToken						B	"2.6.1.7.36"	"id-hat-forwarded-token"
 	if (dissector_try_uint(p1_tokendata_dissector_table, actx->external.indirect_reference, tvb, actx->pinfo, tree)) {
 		offset = tvb_length(tvb);
 	} else {
-		proto_item *item = NULL;
-		proto_tree *next_tree = NULL;
+		proto_item *item;
+		proto_tree *next_tree;
 
-		item = proto_tree_add_text(tree, tvb, 0, tvb_length_remaining(tvb, offset),
+		next_tree = proto_tree_add_subtree_format(tree, tvb, 0, -1, ett_p1_unknown_tokendata_type, &item,
 			"Dissector for tokendata-type %%d not implemented.  Contact Wireshark developers if you want this supported", actx->external.indirect_reference);
-		next_tree = proto_item_add_subtree(item, ett_p1_unknown_tokendata_type);
 		offset = dissect_unknown_ber(actx->pinfo, tvb, offset, next_tree);
 		expert_add_info(actx->pinfo, item, &ei_p1_unknown_tokendata_type);
 	}

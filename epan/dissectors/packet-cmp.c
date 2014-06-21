@@ -1515,8 +1515,7 @@ static int dissect_cmp_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pa
 		proto_tree_add_item(tree, hf_cmp_tcptrans_type, tvb, offset++, 1, ENC_BIG_ENDIAN);
 	} else {
 		/* post RFC2510 TCP transport - the former "type" field is now "version" */
-		ti = proto_tree_add_text(tree, tvb, offset, 7, "TCP transport");
-		tcptrans_tree = proto_item_add_subtree(ti, ett_cmp);
+		tcptrans_tree = proto_tree_add_subtree(tree, tvb, offset, 7, ett_cmp, NULL, "TCP transport");
 		pdu_type=tvb_get_guint8(tvb, 6);
 		proto_tree_add_item(tcptrans_tree, hf_cmp_tcptrans_len, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
@@ -2337,7 +2336,7 @@ void proto_register_cmp(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-cmp-hfarr.c ---*/
-#line 326 "../../asn1/cmp/packet-cmp-template.c"
+#line 325 "../../asn1/cmp/packet-cmp-template.c"
 	};
 
 	/* List of subtrees */
@@ -2395,7 +2394,7 @@ void proto_register_cmp(void) {
     &ett_cmp_PollRepContent_item,
 
 /*--- End of included file: packet-cmp-ettarr.c ---*/
-#line 332 "../../asn1/cmp/packet-cmp-template.c"
+#line 331 "../../asn1/cmp/packet-cmp-template.c"
 	};
 	module_t *cmp_module;
 
@@ -2489,7 +2488,7 @@ void proto_reg_handoff_cmp(void) {
 
 
 /*--- End of included file: packet-cmp-dis-tab.c ---*/
-#line 404 "../../asn1/cmp/packet-cmp-template.c"
+#line 403 "../../asn1/cmp/packet-cmp-template.c"
 		inited = TRUE;
 	}
 

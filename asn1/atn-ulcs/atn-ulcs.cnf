@@ -68,13 +68,9 @@ PDV-list/presentation-data-values/arbitrary pdv-list_presentation-data-values_ar
 			/* call appropiate dissector for bitstring data */
 			switch(ulcs_context_value){
 					case  1: /* ACSE PDU*/
-							ti = proto_tree_add_text(
-									root_tree,
-									tvb,
-									offset,
-									0,
-									ATN_ACSE_PROTO );
-							atn_ulcs_tree = proto_item_add_subtree(ti, ett_atn_acse);
+							atn_ulcs_tree = proto_tree_add_subtree(
+									root_tree, tvb, offset, 0,
+									ett_atn_acse, NULL, ATN_ACSE_PROTO );
 
 							dissect_ACSE_apdu_PDU(
 									tvb_new_subset_remaining(tvb_usr, 0),

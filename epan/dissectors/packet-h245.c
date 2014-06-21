@@ -7231,7 +7231,7 @@ static const per_choice_t DataType_choice[] = {
 
 static int
 dissect_h245_DataType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1008 "../../asn1/h245/h245.cnf"
+#line 1007 "../../asn1/h245/h245.cnf"
 gint choice_index;
 
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
@@ -14239,8 +14239,7 @@ dissect_h245_T_returnedFunction(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
  if (next_tvb && tvb_length(next_tvb)) {
 	saved_h245_pi = h245_pi;
 	h245_pi = NULL;
-	item = proto_tree_add_text(tree, next_tvb, 0, -1,"The returned function");
-	subtree = proto_item_add_subtree(item, ett_h245_returnedFunction);
+	subtree = proto_tree_add_subtree(tree, next_tvb, 0, -1, ett_h245_returnedFunction, &item, "The returned function");
 	PROTO_ITEM_SET_GENERATED(item);
 	dissect_h245_MultimediaSystemControlMessage(next_tvb, 0, actx, subtree, hf_h245_pdu_type);
 	h245_pi = saved_h245_pi;
@@ -14517,7 +14516,7 @@ dissect_h245_h245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, PSNAME);
 
-	it=proto_tree_add_protocol_format(parent_tree, proto_h245, tvb, 0, tvb_captured_length(tvb), PSNAME);
+	it=proto_tree_add_protocol_format(parent_tree, proto_h245, tvb, 0, -1, PSNAME);
 	tr=proto_item_add_subtree(it, ett_h245);
 
 	/* assume that whilst there is more tvb data, there are more h245 commands */

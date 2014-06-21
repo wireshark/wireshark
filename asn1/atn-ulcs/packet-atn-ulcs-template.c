@@ -616,16 +616,9 @@ dissect_atn_ulcs(
 				value_ses_pres = tvb_get_ntohs(tvb, offset);
 
 				/* SPDU: dissect session layer */
-				ti = proto_tree_add_text(
-						tree,
-						tvb,
-						offset,
-						0,
-						ATN_SES_PROTO );
-
-				atn_ulcs_tree = proto_item_add_subtree(
-						ti,
-						ett_atn_ses);
+				atn_ulcs_tree = proto_tree_add_subtree(
+						tree, tvb, offset, 0,
+						ett_atn_ses, NULL, ATN_SES_PROTO );
 
 				/* get SPDU (1 octet) */
 				value_ses = tvb_get_guint8(tvb, offset);
@@ -675,14 +668,9 @@ dissect_atn_ulcs(
 				offset++;
 
 				/* PPDU: dissect presentation layer */
-				ti = proto_tree_add_text(
-						tree,
-						tvb,
-						offset,
-						0,
-						ATN_PRES_PROTO );
-
-				atn_ulcs_tree = proto_item_add_subtree(ti, ett_atn_pres);
+				atn_ulcs_tree = proto_tree_add_subtree(
+						tree, tvb, offset, 0,
+						ett_atn_pres, NULL, ATN_PRES_PROTO );
 
 				value_pres = tvb_get_guint8(tvb, offset);
 
@@ -718,16 +706,9 @@ dissect_atn_ulcs(
 				offset++;
 
 				/* ACSE PDU: dissect application layer */
-				ti = proto_tree_add_text(
-						tree,
-						tvb,
-						offset,
-						0,
-						ATN_ACSE_PROTO );
-
-				atn_ulcs_tree = proto_item_add_subtree(
-						ti,
-						ett_atn_acse);
+				atn_ulcs_tree = proto_tree_add_subtree(
+						tree, tvb, offset, 0,
+						ett_atn_acse, NULL, ATN_ACSE_PROTO );
 
 				dissect_ACSE_apdu_PDU(
 						tvb_new_subset_remaining(tvb, offset),

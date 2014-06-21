@@ -897,8 +897,7 @@ const char *x509af_get_last_algorithm_id(void) {
 static int
 dissect_pkix_crl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data _U_)
 {
-	proto_item *item=NULL;
-	proto_tree *tree=NULL;
+	proto_tree *tree;
 	asn1_ctx_t asn1_ctx;
 	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
@@ -907,10 +906,7 @@ dissect_pkix_crl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, voi
 	col_set_str(pinfo->cinfo, COL_INFO, "Certificate Revocation List");
 
 
-	if(parent_tree){
-		item=proto_tree_add_text(parent_tree, tvb, 0, -1, "Certificate Revocation List");
-		tree = proto_item_add_subtree(item, ett_pkix_crl);
-	}
+	tree=proto_tree_add_subtree(parent_tree, tvb, 0, -1, ett_pkix_crl, NULL, "Certificate Revocation List");
 
 	return dissect_x509af_CertificateList(FALSE, tvb, 0, &asn1_ctx, tree, -1);
 }
@@ -1229,7 +1225,7 @@ void proto_register_x509af(void) {
         "INTEGER", HFILL }},
 
 /*--- End of included file: packet-x509af-hfarr.c ---*/
-#line 97 "../../asn1/x509af/packet-x509af-template.c"
+#line 93 "../../asn1/x509af/packet-x509af-template.c"
   };
 
   /* List of subtrees */
@@ -1272,7 +1268,7 @@ void proto_register_x509af(void) {
     &ett_x509af_DSS_Params,
 
 /*--- End of included file: packet-x509af-ettarr.c ---*/
-#line 103 "../../asn1/x509af/packet-x509af-template.c"
+#line 99 "../../asn1/x509af/packet-x509af-template.c"
   };
 
   /* Register protocol */
@@ -1315,7 +1311,7 @@ void proto_reg_handoff_x509af(void) {
 
 
 /*--- End of included file: packet-x509af-dis-tab.c ---*/
-#line 131 "../../asn1/x509af/packet-x509af-template.c"
+#line 127 "../../asn1/x509af/packet-x509af-template.c"
 
 	/*XXX these should really go to a better place but since that
 	  I have not that ITU standard, ill put it here for the time

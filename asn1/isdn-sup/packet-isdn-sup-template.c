@@ -161,7 +161,7 @@ dissect_isdn_sup_arg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
   if (!op_ptr)
     return offset;
 
-  ti = proto_tree_add_item(tree, proto_isdn_sup, tvb, offset, tvb_captured_length(tvb), ENC_NA);
+  ti = proto_tree_add_item(tree, proto_isdn_sup, tvb, offset, -1, ENC_NA);
   isdn_sup_tree = proto_item_add_subtree(ti, ett_isdn_sup);
 
   proto_tree_add_uint(isdn_sup_tree, hf_isdn_sup_operation, tvb, 0, 0, opcode);
@@ -210,7 +210,7 @@ dissect_isdn_sup_res(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
   if (!op_ptr)
     return offset;
 
-  ti = proto_tree_add_item(tree, proto_isdn_sup, tvb, offset, tvb_captured_length(tvb), ENC_NA);
+  ti = proto_tree_add_item(tree, proto_isdn_sup, tvb, offset, -1, ENC_NA);
   isdn_sup_tree = proto_item_add_subtree(ti, ett_isdn_sup);
 
   proto_tree_add_uint(isdn_sup_tree, hf_isdn_sup_operation, tvb, 0, 0, opcode);
@@ -260,7 +260,7 @@ dissect_isdn_sup_err(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
   if (!err_ptr)
     return offset;
 
-  ti = proto_tree_add_item(tree, proto_isdn_sup, tvb, offset, tvb_captured_length(tvb), ENC_NA);
+  ti = proto_tree_add_item(tree, proto_isdn_sup, tvb, offset, -1, ENC_NA);
   isdn_sup_tree = proto_item_add_subtree(ti, ett_isdn_sup);
 
   proto_tree_add_uint(isdn_sup_tree, hf_isdn_sup_error, tvb, 0, 0, errcode);

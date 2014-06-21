@@ -2029,13 +2029,12 @@ call_dop_oid_callback(const char *base_string, tvbuff_t *tvb, int offset, packet
   if (dissector_try_string(dop_dissector_table, binding_param, tvb, pinfo, tree, data)) {
      offset = tvb_reported_length (tvb);
   } else {
-     proto_item *item=NULL;
-     proto_tree *next_tree=NULL;
+     proto_item *item;
+     proto_tree *next_tree;
 
-     item = proto_tree_add_text(tree, tvb, 0, tvb_length_remaining(tvb, offset), "Dissector for parameter %s OID:%s not implemented. Contact Wireshark developers if you want this supported", base_string, binding_type ? binding_type : "<empty>");
-     if (item) {
-        next_tree = proto_item_add_subtree(item, ett_dop_unknown);
-     }
+     next_tree = proto_tree_add_subtree_format(tree, tvb, 0, -1, ett_dop_unknown, &item,
+         "Dissector for parameter %s OID:%s not implemented. Contact Wireshark developers if you want this supported", base_string, binding_type ? binding_type : "<empty>");
+
      offset = dissect_unknown_ber(pinfo, tvb, offset, next_tree);
      expert_add_info(pinfo, item, &ei_dop_unknown_binding_parameter);
    }
@@ -2933,7 +2932,7 @@ void proto_register_dop(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-dop-hfarr.c ---*/
-#line 240 "../../asn1/dop/packet-dop-template.c"
+#line 239 "../../asn1/dop/packet-dop-template.c"
   };
 
   /* List of subtrees */
@@ -3012,7 +3011,7 @@ void proto_register_dop(void) {
     &ett_dop_GrantsAndDenials,
 
 /*--- End of included file: packet-dop-ettarr.c ---*/
-#line 247 "../../asn1/dop/packet-dop-template.c"
+#line 246 "../../asn1/dop/packet-dop-template.c"
   };
 
   static ei_register_info ei[] = {
@@ -3075,7 +3074,7 @@ void proto_reg_handoff_dop(void) {
 
 
 /*--- End of included file: packet-dop-dis-tab.c ---*/
-#line 287 "../../asn1/dop/packet-dop-template.c"
+#line 286 "../../asn1/dop/packet-dop-template.c"
   /* APPLICATION CONTEXT */
 
   oid_add_from_string("id-ac-directory-operational-binding-management","2.5.3.3");

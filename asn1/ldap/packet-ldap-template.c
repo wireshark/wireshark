@@ -1,7 +1,7 @@
-/* packet-ldap.c
+/* packet-ldap-template.c
  * Routines for ldap packet dissection
  *
- * See RFC 1777 (LDAP v2), RFC 4511 (LDAP v3), and RFC 2222 (SASL).
+ * See RFC 1777 (LDtAP v2), RFC 4511 (LDAP v3), and RFC 2222 (SASL).
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -1120,8 +1120,7 @@ static void
 	*/
 
 	if (doing_sasl_security && tvb_get_guint8(tvb, offset) == 0) {
-		proto_item *sasl_item = NULL;
-		proto_tree *sasl_tree = NULL;
+		proto_tree *sasl_tree;
 		tvbuff_t *sasl_tvb;
 		guint sasl_len, sasl_msg_len, length;
 		/*
@@ -1167,13 +1166,10 @@ static void
 		if (length > sasl_msg_len) length = sasl_msg_len;
 		sasl_tvb = tvb_new_subset(tvb, offset, length, sasl_msg_len);
 
-		if (ldap_tree) {
-			proto_tree_add_uint(ldap_tree, hf_ldap_sasl_buffer_length, sasl_tvb, 0, 4,
+		proto_tree_add_uint(ldap_tree, hf_ldap_sasl_buffer_length, sasl_tvb, 0, 4,
 				sasl_len);
 
-			sasl_item = proto_tree_add_text(ldap_tree, sasl_tvb, 0,  sasl_msg_len, "SASL Buffer");
-			sasl_tree = proto_item_add_subtree(sasl_item, ett_ldap_sasl_blob);
-		}
+		sasl_tree = proto_tree_add_subtree(ldap_tree, sasl_tvb, 0, sasl_msg_len, ett_ldap_sasl_blob, NULL, "SASL Buffer");
 
 		if (ldap_info->auth_mech != NULL &&
 			((strcmp(ldap_info->auth_mech, "GSS-SPNEGO") == 0) ||
@@ -1232,8 +1228,7 @@ static void
 				}
 
 				if (decr_tvb) {
-					proto_item *enc_item = NULL;
-					proto_tree *enc_tree = NULL;
+					proto_tree *enc_tree;
 
 					/*
 					* The LDAP message was encrypted in the packet, and has
@@ -1242,16 +1237,14 @@ static void
 					col_set_str(pinfo->cinfo, COL_INFO, "SASL GSS-API Privacy (decrypted): ");
 
 					if (sasl_tree) {
-						enc_item = proto_tree_add_text(sasl_tree, gssapi_tvb, ver_len, -1,
-							"GSS-API Encrypted payload (%d byte%s)",
+						enc_tree = proto_tree_add_subtree_format(sasl_tree, gssapi_tvb, ver_len, -1,
+							ett_ldap_payload, NULL, "GSS-API Encrypted payload (%d byte%s)",
 							sasl_len - ver_len,
 							plurality(sasl_len - ver_len, "", "s"));
-						enc_tree = proto_item_add_subtree(enc_item, ett_ldap_payload);
 					}
 					dissect_ldap_payload(decr_tvb, pinfo, enc_tree, ldap_info, is_mscldap);
 				} else if (plain_tvb) {
-					proto_item *plain_item = NULL;
-					proto_tree *plain_tree = NULL;
+					proto_tree *plain_tree;
 
 					/*
 					* The LDAP message wasn't encrypted in the packet;
@@ -1260,11 +1253,10 @@ static void
 					col_set_str(pinfo->cinfo, COL_INFO, "SASL GSS-API Integrity: ");
 
 					if (sasl_tree) {
-						plain_item = proto_tree_add_text(sasl_tree, gssapi_tvb, ver_len, -1,
-							"GSS-API payload (%d byte%s)",
+						plain_tree = proto_tree_add_subtree_format(sasl_tree, gssapi_tvb, ver_len, -1,
+							ett_ldap_payload, NULL, "GSS-API payload (%d byte%s)",
 							sasl_len - ver_len,
 							plurality(sasl_len - ver_len, "", "s"));
-						plain_tree = proto_item_add_subtree(plain_item, ett_ldap_payload);
 					}
 
 					dissect_ldap_payload(plain_tvb, pinfo, plain_tree, ldap_info, is_mscldap);
@@ -1374,7 +1366,7 @@ static int dissect_mscldap_netlogon_flags(proto_tree *parent_tree, tvbuff_t *tvb
 {
   guint32 flags;
   proto_item *item;
-  proto_tree *tree=NULL;
+  proto_tree *tree;
   guint  *field;
   header_field_info *hfi;
   gboolean one_bit_set = FALSE;
@@ -1398,9 +1390,7 @@ static int dissect_mscldap_netlogon_flags(proto_tree *parent_tree, tvbuff_t *tvb
 
   flags=tvb_get_letohl(tvb, offset);
   item=proto_tree_add_item(parent_tree, hf_mscldap_netlogon_flags, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-  if(parent_tree){
-    tree = proto_item_add_subtree(item, ett_mscldap_netlogon_flags);
-  }
+  tree = proto_item_add_subtree(item, ett_mscldap_netlogon_flags);
 
   proto_item_append_text(item, " (");
 

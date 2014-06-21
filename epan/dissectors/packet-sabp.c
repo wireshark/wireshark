@@ -6,7 +6,7 @@
 /* Input file: packet-sabp-template.c */
 
 #line 1 "../../asn1/sabp/packet-sabp-template.c"
-/* packet-sabp.c
+/* packet-sabp-template.c
  * Routines for UTRAN Iu-BC Interface: Service Area Broadcast Protocol (SABP) packet dissection
  * Copyright 2007, Tomas Kukosa <tomas.kukosa@siemens.com>
  *
@@ -1762,7 +1762,7 @@ static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, p
 static void
 dissect_sabp_cb_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  proto_item *item, *cbs_page_item;
+  proto_item *cbs_page_item;
   proto_tree *subtree;
   tvbuff_t *page_tvb, *unpacked_tvb;
   int offset = 0;
@@ -1782,8 +1782,8 @@ dissect_sabp_cb_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     return;
   }
   for (n = 0; n < nr_pages; n++) {
-    item = proto_tree_add_text(tree, tvb, offset, 83, "CB page %u data",  n+1);
-    subtree = proto_item_add_subtree(item, ett_sabp_cbs_page);
+    subtree = proto_tree_add_subtree_format(tree, tvb, offset, 83, ett_sabp_cbs_page, NULL,
+                "CB page %u data",  n+1);
     /* octet 2 - 83 CBS-Message-Information-Page 1  */
     cbs_page_item = proto_tree_add_item(subtree, hf_sabp_cb_msg_inf_page, tvb, offset, 82, ENC_NA);
     cb_inf_msg_len = tvb_get_guint8(tvb,offset+82);

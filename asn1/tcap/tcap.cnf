@@ -125,10 +125,8 @@ ENDTRY;
 #.FN_BODY OrigTransactionID
 tvbuff_t *parameter_tvb;
 guint8 len, i;
-proto_item *tid_item;
 proto_tree *subtree;
-tid_item = proto_tree_add_text(tree, tvb, offset, -1, "Source Transaction ID");
-subtree = proto_item_add_subtree(tid_item, ett_otid);
+subtree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_otid, NULL, "Source Transaction ID");
 
 dissect_ber_octet_string(implicit_tag, actx, subtree, tvb, offset, hf_tcap_tid, NULL);
 PROTO_ITEM_SET_HIDDEN(actx->created_item);
@@ -166,10 +164,8 @@ if (parameter_tvb){
 #.FN_BODY DestTransactionID
 tvbuff_t *parameter_tvb;
 guint8 len , i;
-proto_item *tid_item;
 proto_tree *subtree;
-tid_item = proto_tree_add_text(tree, tvb, offset, -1, "Destination Transaction ID");
-subtree = proto_item_add_subtree(tid_item, ett_dtid);
+subtree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_dtid, NULL, "Destination Transaction ID");
 
 dissect_ber_octet_string(implicit_tag, actx, subtree, tvb, offset, hf_tcap_tid, NULL);
 PROTO_ITEM_SET_HIDDEN(actx->created_item);

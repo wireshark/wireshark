@@ -549,15 +549,17 @@ dissect_snmp_VarBind(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,
 	seq_len += offset - seq_offset;
 
 	if (!pc && ber_class==BER_CLASS_UNI && tag==BER_UNI_TAG_SEQUENCE) {
-		proto_item* pi = proto_tree_add_text(tree, tvb, seq_offset, seq_len,"VarBind must be an universal class sequence");
-		pt = proto_item_add_subtree(pi,ett_decoding_error);
+		proto_item* pi;
+		pt = proto_tree_add_subtree(tree, tvb, seq_offset, seq_len,
+				ett_decoding_error, &pi, "VarBind must be an universal class sequence");
 		expert_add_info(actx->pinfo, pi, &ei_snmp_varbind_not_uni_class_seq);
 		return dissect_unknown_ber(actx->pinfo, tvb, seq_offset, pt);
 	}
 
 	if (ind) {
-		proto_item* pi = proto_tree_add_text(tree, tvb, seq_offset, seq_len,"Indicator must be clear in VarBind");
-		pt = proto_item_add_subtree(pi,ett_decoding_error);
+		proto_item* pi;
+		pt = proto_tree_add_subtree(tree, tvb, seq_offset, seq_len,
+					ett_decoding_error, &pi, "Indicator must be clear in VarBind");
 		expert_add_info(actx->pinfo, pi, &ei_snmp_varbind_has_indicator);
 		return dissect_unknown_ber(actx->pinfo, tvb, seq_offset, pt);
 	}
@@ -568,15 +570,17 @@ dissect_snmp_VarBind(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,
 	name_offset = offset = get_ber_length(tvb, offset, &name_len, &ind);
 
 	if (! ( !pc && ber_class==BER_CLASS_UNI && tag==BER_UNI_TAG_OID) ) {
-		proto_item* pi = proto_tree_add_text(tree, tvb, seq_offset, seq_len,"ObjectName must be an OID in primitive encoding");
-		pt = proto_item_add_subtree(pi,ett_decoding_error);
+		proto_item* pi;
+		pt = proto_tree_add_subtree(tree, tvb, seq_offset, seq_len,
+				ett_decoding_error, &pi, "ObjectName must be an OID in primitive encoding");
 		expert_add_info(actx->pinfo, pi, &ei_snmp_objectname_not_oid);
 		return dissect_unknown_ber(actx->pinfo, tvb, seq_offset, pt);
 	}
 
 	if (ind) {
-		proto_item* pi = proto_tree_add_text(tree, tvb, seq_offset, seq_len,"Indicator must be clear in ObjectName");
-		pt = proto_item_add_subtree(pi,ett_decoding_error);
+		proto_item* pi;
+		pt = proto_tree_add_subtree(tree, tvb, seq_offset, seq_len,
+				ett_decoding_error, &pi, "Indicator must be clear in ObjectName");
 		expert_add_info(actx->pinfo, pi, &ei_snmp_objectname_has_indicator);
 		return dissect_unknown_ber(actx->pinfo, tvb, seq_offset, pt);
 	}
@@ -589,8 +593,9 @@ dissect_snmp_VarBind(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,
 	value_offset = get_ber_length(tvb, offset, &value_len, &ind);
 
 	if (! (!pc) ) {
-		proto_item* pi = proto_tree_add_text(tree, tvb, seq_offset, seq_len,"the value must be in primitive encoding");
-		pt = proto_item_add_subtree(pi,ett_decoding_error);
+		proto_item* pi;
+		pt = proto_tree_add_subtree(tree, tvb, seq_offset, seq_len,
+				ett_decoding_error, &pi, "the value must be in primitive encoding");
 		expert_add_info(actx->pinfo, pi, &ei_snmp_value_not_primitive_encoding);
 		return dissect_unknown_ber(actx->pinfo, tvb, seq_offset, pt);
 	}
@@ -600,8 +605,7 @@ dissect_snmp_VarBind(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,
 
 
 	/* we add the varbind tree root with a dummy label we'll fill later on */
-	pi_varbind = proto_tree_add_text(tree,tvb,seq_offset,seq_len,"VarBind");
-	pt_varbind = proto_item_add_subtree(pi_varbind,ett_varbind);
+	pt_varbind = proto_tree_add_subtree(tree,tvb,seq_offset,seq_len,ett_varbind,&pi_varbind,"VarBind");
 	*label = '\0';
 
 	pi_name = proto_tree_add_item(pt_varbind,hf_snmp_objectname,tvb,name_offset,name_len,ENC_NA);
@@ -617,8 +621,7 @@ dissect_snmp_VarBind(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,
 		proto_item* pi;
 
 		repr = oid_encoded2string(oid_bytes, name_len);
-		pi = proto_tree_add_text(pt_name,tvb, 0, 0, "invalid oid: %s", repr);
-		pt = proto_item_add_subtree(pi, ett_decoding_error);
+		pt = proto_tree_add_subtree_format(pt_name,tvb, 0, 0, ett_decoding_error, &pi, "invalid oid: %s", repr);
 		expert_add_info_format(actx->pinfo, pi, &ei_snmp_invalid_oid, "invalid oid: %s", repr);
 		return dissect_unknown_ber(actx->pinfo, tvb, name_offset, pt);
 	}
@@ -651,8 +654,8 @@ dissect_snmp_VarBind(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,
 				note = "endOfMibView";
 				break;
 			default: {
-				pi = proto_tree_add_text(pt_varbind,tvb,0,0,"Wrong tag for Error Value: expected 0, 1, or 2 but got: %d",tag);
-				pt = proto_item_add_subtree(pi,ett_decoding_error);
+				pt = proto_tree_add_subtree_format(pt_varbind,tvb,0,0,ett_decoding_error,&pi,
+								"Wrong tag for Error Value: expected 0, 1, or 2 but got: %d",tag);
 				expert_add_info(actx->pinfo, pi, &ei_snmp_varbind_wrong_tag);
 				return dissect_unknown_ber(actx->pinfo, tvb, value_start, pt);
 			}
@@ -1065,19 +1068,21 @@ set_label:
 
 	switch (format_error) {
 		case BER_WRONG_LENGTH: {
+			proto_item* pi;
 			proto_tree* p_tree = proto_item_add_subtree(pi_value,ett_decoding_error);
-			proto_item* pi = proto_tree_add_text(p_tree,tvb,0,0,"Wrong value length: %u  expecting: %u <= len <= %u",
+			pt = proto_tree_add_subtree_format(p_tree,tvb,0,0,ett_decoding_error,&pi,
+							     "Wrong value length: %u  expecting: %u <= len <= %u",
 							     value_len, min_len, max_len == -1 ? 0xFFFFFF : max_len);
-			pt = proto_item_add_subtree(pi,ett_decoding_error);
 			expert_add_info(actx->pinfo, pi, &ei_snmp_varbind_wrong_length_value);
 			return dissect_unknown_ber(actx->pinfo, tvb, value_start, pt);
 		}
 		case BER_WRONG_TAG: {
+			proto_item* pi;
 			proto_tree* p_tree = proto_item_add_subtree(pi_value,ett_decoding_error);
-			proto_item* pi = proto_tree_add_text(p_tree,tvb,0,0,"Wrong class/tag for Value expected: %d,%d got: %d,%d",
+			pt = proto_tree_add_subtree_format(p_tree,tvb,0,0,ett_decoding_error,&pi,
+							     "Wrong class/tag for Value expected: %d,%d got: %d,%d",
 							     oid_info->value_type->ber_class, oid_info->value_type->ber_tag,
 							     ber_class, tag);
-			pt = proto_item_add_subtree(pi,ett_decoding_error);
 			expert_add_info(actx->pinfo, pi, &ei_snmp_varbind_wrong_class_tag);
 			return dissect_unknown_ber(actx->pinfo, tvb, value_start, pt);
 		}

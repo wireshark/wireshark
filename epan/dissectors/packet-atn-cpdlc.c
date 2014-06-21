@@ -5359,16 +5359,9 @@ dissect_atn_cpdlc(
 		if(!atn_cv){ /* atn conversation not found */
 			return 0; }
 
-		ti = proto_tree_add_text(
-				tree,
-				tvb,
-				0,
-				tvb_reported_length_remaining(tvb, 0) ,
+		atn_cpdlc_tree = proto_tree_add_subtree(
+				tree, tvb, 0, -1, ett_atn_cpdlc, NULL,
 				ATN_CPDLC_PROTO );
-
-		atn_cpdlc_tree = proto_item_add_subtree(
-				ti,
-				ett_atn_cpdlc);
 
 		switch(atn_cv->ae_qualifier){
 				case  pmcpdlc:
@@ -7918,7 +7911,7 @@ void proto_register_atn_cpdlc (void)
         NULL, HFILL }},
 
 /*--- End of included file: packet-atn-cpdlc-hfarr.c ---*/
-#line 316 "../../asn1/atn-cpdlc/packet-atn-cpdlc-template.c"
+#line 309 "../../asn1/atn-cpdlc/packet-atn-cpdlc-template.c"
 			};
 
 		static gint *ett[] = {
@@ -8069,7 +8062,7 @@ void proto_register_atn_cpdlc (void)
     &ett_atn_cpdlc_WindSpeed,
 
 /*--- End of included file: packet-atn-cpdlc-ettarr.c ---*/
-#line 320 "../../asn1/atn-cpdlc/packet-atn-cpdlc-template.c"
+#line 313 "../../asn1/atn-cpdlc/packet-atn-cpdlc-template.c"
 				&ett_atn_cpdlc
 		};
 

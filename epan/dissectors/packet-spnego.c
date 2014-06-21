@@ -6,7 +6,7 @@
 /* Input file: packet-spnego-template.c */
 
 #line 1 "../../asn1/spnego/packet-spnego-template.c"
-/* packet-spnego.c
+/* packet-spnego-template.c
  * Routines for the simple and protected GSS-API negotiation mechanism
  * as described in RFC 2478.
  * Copyright 2002, Tim Potter <tpot@samba.org>
@@ -1392,15 +1392,13 @@ dissect_spnego_krb5_cfx_flags(tvbuff_t *tvb, int offset,
 			      proto_tree *spnego_krb5_tree,
 			      guint8 cfx_flags)
 {
-	proto_tree *cfx_flags_tree = NULL;
-	proto_item *tf = NULL;
+	proto_tree *cfx_flags_tree;
+	proto_item *tf;
 
-	if (spnego_krb5_tree) {
-		tf = proto_tree_add_uint(spnego_krb5_tree,
+	tf = proto_tree_add_uint(spnego_krb5_tree,
 					 hf_spnego_krb5_cfx_flags,
 					 tvb, offset, 1, cfx_flags);
-		cfx_flags_tree = proto_item_add_subtree(tf, ett_spnego_krb5_cfx_flags);
-	}
+	cfx_flags_tree = proto_item_add_subtree(tf, ett_spnego_krb5_cfx_flags);
 
 	proto_tree_add_boolean(cfx_flags_tree,
 			       hf_spnego_krb5_cfx_flags_04,
@@ -1952,7 +1950,7 @@ void proto_register_spnego(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-spnego-hfarr.c ---*/
-#line 1407 "../../asn1/spnego/packet-spnego-template.c"
+#line 1405 "../../asn1/spnego/packet-spnego-template.c"
 	};
 
 	/* List of subtrees */
@@ -1975,7 +1973,7 @@ void proto_register_spnego(void) {
     &ett_spnego_InitialContextToken_U,
 
 /*--- End of included file: packet-spnego-ettarr.c ---*/
-#line 1417 "../../asn1/spnego/packet-spnego-template.c"
+#line 1415 "../../asn1/spnego/packet-spnego-template.c"
 	};
 
 	/* Register protocol */

@@ -676,7 +676,6 @@ HNBName TYPE=FT_STRING DISPLAY=STR_UNICODE
 #.FN_BODY NAS-SystemInformationGSM-MAP VAL_PTR = &nas_sys_info_gsm_map_tvb
   tvbuff_t *nas_sys_info_gsm_map_tvb = NULL;
   guint32 length;
-  proto_item *item;
   proto_tree *subtree;
 
 %(DEFAULT_BODY)s
@@ -685,18 +684,18 @@ HNBName TYPE=FT_STRING DISPLAY=STR_UNICODE
     if (actx->private_data) {
       switch (GPOINTER_TO_UINT(actx->private_data)-1) {
         case RRC_NAS_SYS_INFO_CN_COMMON:
-          item = proto_tree_add_text(tree, nas_sys_info_gsm_map_tvb, 0, length, "CN Common GSM-MAP NAS system information");
-          subtree = proto_item_add_subtree(item, ett_rrc_cn_CommonGSM_MAP_NAS_SysInfo);
+          subtree = proto_tree_add_subtree(tree, nas_sys_info_gsm_map_tvb, 0, length,
+					ett_rrc_cn_CommonGSM_MAP_NAS_SysInfo, NULL, "CN Common GSM-MAP NAS system information");
           de_cn_common_gsm_map_nas_sys_info(nas_sys_info_gsm_map_tvb, subtree, actx->pinfo, 0, length, NULL, 0);
           break;
         case RRC_NAS_SYS_INFO_CS:
-          item = proto_tree_add_text(tree, nas_sys_info_gsm_map_tvb, 0, length, "CS domain specific system information");
-          subtree = proto_item_add_subtree(item, ett_rrc_cn_CommonGSM_MAP_NAS_SysInfo);
+          subtree = proto_tree_add_subtree(tree, nas_sys_info_gsm_map_tvb, 0, length,
+					ett_rrc_cn_CommonGSM_MAP_NAS_SysInfo, NULL, "CS domain specific system information");
           de_cs_domain_spec_sys_info(nas_sys_info_gsm_map_tvb, subtree, actx->pinfo, 0, length, NULL, 0);
           break;
         case RRC_NAS_SYS_INFO_PS:
-          item = proto_tree_add_text(tree, nas_sys_info_gsm_map_tvb, 0, length, "PS domain specific system information");
-          subtree = proto_item_add_subtree(item, ett_rrc_cn_CommonGSM_MAP_NAS_SysInfo);
+          subtree = proto_tree_add_subtree(tree, nas_sys_info_gsm_map_tvb, 0, length,
+				ett_rrc_cn_CommonGSM_MAP_NAS_SysInfo, NULL, "PS domain specific system information");
           de_ps_domain_spec_sys_info(nas_sys_info_gsm_map_tvb, subtree, actx->pinfo, 0, length, NULL, 0);
           break;
         default:

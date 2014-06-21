@@ -264,8 +264,11 @@ call_ros_oid_callback(const char *oid, tvbuff_t *tvb, int offset, packet_info *p
 
 	if(!ros_try_string(oid, next_tvb, pinfo, tree, session) &&
            !dissector_try_string(ros_oid_dissector_table, oid, next_tvb, pinfo, tree, session)){
-		proto_item *item=proto_tree_add_text(tree, next_tvb, 0, tvb_length_remaining(tvb, offset), "ROS: Dissector for OID:%s not implemented. Contact Wireshark developers if you want this supported", oid);
-		proto_tree *next_tree=proto_item_add_subtree(item, ett_ros_unknown);
+        proto_item *item;
+        proto_tree *next_tree;
+        
+        next_tree = proto_tree_add_subtree_format(tree, next_tvb, 0, -1, ett_ros_unknown, &item,
+                "ROS: Dissector for OID:%s not implemented. Contact Wireshark developers if you want this supported", oid);
 
 		expert_add_info_format(pinfo, item, &ei_ros_dissector_oid_not_implemented,
                                         "ROS: Dissector for OID %s not implemented", oid);
@@ -1000,7 +1003,7 @@ dissect_ros_Code(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, a
 
 
 /*--- End of included file: packet-ros-fn.c ---*/
-#line 368 "../../asn1/ros/packet-ros-template.c"
+#line 371 "../../asn1/ros/packet-ros-template.c"
 
 /*
 * Dissect ROS PDUs inside a PPDU.
@@ -1056,14 +1059,10 @@ dissect_ros(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* da
 		old_offset=offset;
 		offset=dissect_ros_ROS(FALSE, tvb, offset, &asn1_ctx , tree, -1);
 		if(offset == old_offset){
-			item = proto_tree_add_text(tree, tvb, offset, -1,"Unknown ROS PDU");
+			next_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_ros_unknown, &item, "Unknown ROS PDU");
 
-			if(item){
-				expert_add_info(pinfo, item, &ei_ros_unknown_ros_pdu);
-				next_tree=proto_item_add_subtree(item, ett_ros_unknown);
-				dissect_unknown_ber(pinfo, tvb, offset, next_tree);
-			}
-
+			expert_add_info(pinfo, item, &ei_ros_unknown_ros_pdu);
+			dissect_unknown_ber(pinfo, tvb, offset, next_tree);
 			break;
 		}
 	}
@@ -1226,7 +1225,7 @@ void proto_register_ros(void) {
         "OBJECT_IDENTIFIER", HFILL }},
 
 /*--- End of included file: packet-ros-hfarr.c ---*/
-#line 481 "../../asn1/ros/packet-ros-template.c"
+#line 480 "../../asn1/ros/packet-ros-template.c"
   };
 
   /* List of subtrees */
@@ -1247,7 +1246,7 @@ void proto_register_ros(void) {
     &ett_ros_Code,
 
 /*--- End of included file: packet-ros-ettarr.c ---*/
-#line 488 "../../asn1/ros/packet-ros-template.c"
+#line 487 "../../asn1/ros/packet-ros-template.c"
   };
 
   static ei_register_info ei[] = {

@@ -238,7 +238,7 @@ dissect_q932_ni_ie(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree
 static void
 dissect_q932_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   gint offset;
-  proto_item *ti, *ti_ie;
+  proto_item *ti;
   proto_tree *ie_tree;
   guint8 ie_type, ie_len;
 
@@ -250,9 +250,9 @@ dissect_q932_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   ie_type = tvb_get_guint8(tvb, offset);
   ie_len = tvb_get_guint8(tvb, offset + 1);
 
-  ti_ie = proto_tree_add_text(tree, tvb, offset, -1, "%s",
+  ie_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_q932_ie, NULL,
             val_to_str(ie_type, VALS(q932_str_ie_type), "unknown (0x%02X)"));
-  ie_tree = proto_item_add_subtree(ti_ie, ett_q932_ie);
+
   proto_tree_add_item(ie_tree, hf_q932_ie_type, tvb, offset, 1, ENC_BIG_ENDIAN);
   proto_tree_add_item(ie_tree, hf_q932_ie_len, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
   offset += 2;
@@ -267,7 +267,7 @@ dissect_q932_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
       break;
     default:
       if (ie_len > 0) {
-        if (tree) proto_tree_add_item(ie_tree, hf_q932_ie_data, tvb, offset, ie_len, ENC_NA);
+        proto_tree_add_item(ie_tree, hf_q932_ie_data, tvb, offset, ie_len, ENC_NA);
       }
   }
 }

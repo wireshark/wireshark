@@ -75,19 +75,10 @@ dissect_atn_cm(
 		void *data _U_)
 {
 		int 	type;
-		proto_item *ti;
 		proto_tree *sub_tree;
 
-		ti = proto_tree_add_text(
-			tree,
-			tvb,
-			0,
-			tvb_reported_length_remaining(tvb, 0) ,
-			ATN_CM_PROTO);
-
-		sub_tree = proto_item_add_subtree(
-			ti,
-			ett_atn_cm);
+		sub_tree = proto_tree_add_subtree(
+			tree, tvb, 0, -1, ett_atn_cm, NULL, ATN_CM_PROTO);
 
 		/* ti = proto_tree_add_item(tree, proto_atn_cm, tvb, 0, 0 , ENC_NA); */
 		/* sub_tree = proto_item_add_subtree(ti, ett_atn_cm_pdu); */

@@ -21670,67 +21670,51 @@ static int dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, int offset, 
 
 /* Private extension container for PLMN Data */
 static void dissect_gsm_mapext_PlmnContainer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree) {
-  proto_item    *item=NULL;
-  proto_tree    *tree=NULL;
+  proto_tree    *tree;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   /* create display subtree for the protocol */
-  if(parent_tree){
-    item = proto_tree_add_text(parent_tree, tvb, 0, -1, "MAP Ext. Plmn Container");
-    tree = proto_item_add_subtree(item, ett_gsm_old_PlmnContainer_U);
-  }
+  tree = proto_tree_add_subtree(parent_tree, tvb, 0, -1, ett_gsm_old_PlmnContainer_U, NULL, "MAP Ext. Plmn Container");
+
   dissect_gsm_old_PlmnContainer(FALSE, tvb, 0, &asn1_ctx, tree, -1);
 }
 
 static void dissect_NokiaMAP_ext_SriResExtension(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree) {
-  proto_item    *item=NULL;
-  proto_tree    *tree=NULL;
+  proto_tree    *tree;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   /* create display subtree for the protocol */
-  if(parent_tree){
-    item = proto_tree_add_text(parent_tree, tvb, 0, -1, "Nokia Extension");
-    tree = proto_item_add_subtree(item, ett_NokiaMAP_Extensions_SriResExtension_U);
-  }
+  tree = proto_tree_add_subtree(parent_tree, tvb, 0, -1, ett_NokiaMAP_Extensions_SriResExtension_U, NULL, "Nokia Extension");
   dissect_NokiaMAP_Extensions_SriResExtension(FALSE, tvb, 0, &asn1_ctx, tree, -1);
 }
 
 static void dissect_NokiaMAP_ext_CanLocArgExt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree) {
-  proto_item    *item=NULL;
-  proto_tree    *tree=NULL;
+  proto_tree    *tree;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   /* create display subtree for the protocol */
-  if(parent_tree){
-    item = proto_tree_add_text(parent_tree, tvb, 0, -1, "Nokia Extension");
-    tree = proto_item_add_subtree(item, ett_NokiaMAP_Extensions_CanLocArgExt_U);
-  }
+  tree = proto_tree_add_subtree(parent_tree, tvb, 0, -1, ett_NokiaMAP_Extensions_CanLocArgExt_U, NULL, "Nokia Extension");
+
   dissect_NokiaMAP_Extensions_CanLocArgExt(FALSE, tvb, 0, &asn1_ctx, tree, -1);
 }
 
 static void dissect_NokiaMAP_ext_ATMargExt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree) {
-  proto_item    *item=NULL;
-  proto_tree    *tree=NULL;
+  proto_tree    *tree;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   /* create display subtree for the protocol */
-  if(parent_tree){
-    item = proto_tree_add_text(parent_tree, tvb, 0, -1, "Nokia Extension");
-    tree = proto_item_add_subtree(item, ett_NokiaMAP_Extensions_ATMargExt_U);
-  }
+  tree = proto_tree_add_subtree(parent_tree, tvb, 0, -1, ett_NokiaMAP_Extensions_ATMargExt_U, NULL, "Nokia Extension");
+
   dissect_NokiaMAP_Extensions_ATMargExt(FALSE, tvb, 0, &asn1_ctx, tree, -1);
 }
 
 static void dissect_NokiaMAP_ext_DTMargExt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree) {
-  proto_item    *item=NULL;
-  proto_tree    *tree=NULL;
+  proto_tree    *tree;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   /* create display subtree for the protocol */
-  if(parent_tree){
-    item = proto_tree_add_text(parent_tree, tvb, 0, -1, "Nokia Extension");
-    tree = proto_item_add_subtree(item, ett_NokiaMAP_Extensions_DTMargExt_U);
-  }
+  tree = proto_tree_add_subtree(parent_tree, tvb, 0, -1, ett_NokiaMAP_Extensions_DTMargExt_U, NULL, "Nokia Extension");
+
   dissect_NokiaMAP_Extensions_DTMargExt(FALSE, tvb, 0, &asn1_ctx, tree, -1);
 }
 
@@ -21742,15 +21726,12 @@ static void dissect_NokiaMAP_ext_NumberPorted(tvbuff_t *tvb, packet_info *pinfo,
 }
 
 static void dissect_NokiaMAP_ext_ATMresExt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree) {
-  proto_item    *item=NULL;
-  proto_tree    *tree=NULL;
+  proto_tree    *tree;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   /* create display subtree for the protocol */
-  if(parent_tree){
-    item = proto_tree_add_text(parent_tree, tvb, 0, -1, "Nokia Extension");
-    tree = proto_item_add_subtree(item, ett_NokiaMAP_Extensions_ATMresExt_U);
-  }
+  tree = proto_tree_add_subtree(parent_tree, tvb, 0, -1, ett_NokiaMAP_Extensions_ATMresExt_U, NULL, "Nokia Extension");
+
   dissect_NokiaMAP_Extensions_ATMresExt(FALSE, tvb, 0, &asn1_ctx, tree, -1);
 }
 
@@ -21762,106 +21743,82 @@ static void dissect_NokiaMAP_ext_AbsentSubscriberExt(tvbuff_t *tvb, packet_info 
 }
 
 static void dissect_NokiaMAP_ext_SriForSMArgExt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree) {
-  proto_item    *item=NULL;
-  proto_tree    *tree=NULL;
+  proto_tree    *tree;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   /* create display subtree for the protocol */
-  if(parent_tree){
-    item = proto_tree_add_text(parent_tree, tvb, 0, -1, "Nokia Extension");
-    tree = proto_item_add_subtree(item, ett_NokiaMAP_Extensions_SriForSMArgExt_U);
-  }
+  tree = proto_tree_add_subtree(parent_tree, tvb, 0, -1, ett_NokiaMAP_Extensions_SriForSMArgExt_U, NULL, "Nokia Extension");
+
   dissect_NokiaMAP_Extensions_SriForSMArgExt(FALSE, tvb, 0, &asn1_ctx, tree, -1);
 }
 
 static void dissect_NokiaMAP_ext_ReportSMDelStatArgExt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree) {
-  proto_item    *item=NULL;
-  proto_tree    *tree=NULL;
+  proto_tree    *tree;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   /* create display subtree for the protocol */
-  if(parent_tree){
-    item = proto_tree_add_text(parent_tree, tvb, 0, -1, "Nokia Extension");
-    tree = proto_item_add_subtree(item, ett_NokiaMAP_Extensions_ReportSMDelStatArgExt_U);
-  }
+  tree = proto_tree_add_subtree(parent_tree, tvb, 0, -1, ett_NokiaMAP_Extensions_ReportSMDelStatArgExt_U, NULL, "Nokia Extension");
+
   dissect_NokiaMAP_Extensions_ReportSMDelStatArgExt(FALSE, tvb, 0, &asn1_ctx, tree, -1);
 }
 
 static void dissect_NokiaMAP_ext_UdlArgExt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree) {
-  proto_item    *item=NULL;
-  proto_tree    *tree=NULL;
+  proto_tree    *tree;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   /* create display subtree for the protocol */
-  if(parent_tree){
-    item = proto_tree_add_text(parent_tree, tvb, 0, -1, "Nokia Extension");
-    tree = proto_item_add_subtree(item, ett_NokiaMAP_Extensions_UdlArgExt_U);
-  }
+  tree = proto_tree_add_subtree(parent_tree, tvb, 0, -1, ett_NokiaMAP_Extensions_UdlArgExt_U, NULL, "Nokia Extension");
+
   dissect_NokiaMAP_Extensions_UdlArgExt(FALSE, tvb, 0, &asn1_ctx, tree, -1);
 }
 
 static void dissect_NokiaMAP_ext_RoamNotAllowedExt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree) {
-  proto_item    *item=NULL;
-  proto_tree    *tree=NULL;
+  proto_tree    *tree;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   /* create display subtree for the protocol */
-  if(parent_tree){
-    item = proto_tree_add_text(parent_tree, tvb, 0, -1, "Nokia Extension");
-    tree = proto_item_add_subtree(item, ett_NokiaMAP_Extensions_RoamNotAllowedExt_U);
-  }
+  tree = proto_tree_add_subtree(parent_tree, tvb, 0, -1, ett_NokiaMAP_Extensions_RoamNotAllowedExt_U, NULL, "Nokia Extension");
+
   dissect_NokiaMAP_Extensions_RoamNotAllowedExt(FALSE, tvb, 0, &asn1_ctx, tree, -1);
 }
 
 static void dissect_NokiaMAP_ext_MO_ForwardSM_ArgExt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree) {
-  proto_item    *item=NULL;
-  proto_tree    *tree=NULL;
+  proto_tree    *tree;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   /* create display subtree for the protocol */
-  if(parent_tree){
-    item = proto_tree_add_text(parent_tree, tvb, 0, -1, "Nokia Extension");
-    tree = proto_item_add_subtree(item, ett_NokiaMAP_Extensions_MO_ForwardSM_ArgExt_U);
-  }
+  tree = proto_tree_add_subtree(parent_tree, tvb, 0, -1, ett_NokiaMAP_Extensions_MO_ForwardSM_ArgExt_U, NULL, "Nokia Extension");
+
   dissect_NokiaMAP_Extensions_MO_ForwardSM_ArgExt(FALSE, tvb, 0, &asn1_ctx, tree, -1);
 }
 
 static void dissect_NokiaMAP_ext_ErrOlcmInfoTableExt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree) {
-  proto_item    *item=NULL;
-  proto_tree    *tree=NULL;
+  proto_tree    *tree;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   /* create display subtree for the protocol */
-  if(parent_tree){
-    item = proto_tree_add_text(parent_tree, tvb, 0, -1, "Nokia Extension");
-    tree = proto_item_add_subtree(item, ett_NokiaMAP_Extensions_ErrOlcmInfoTableExt_U);
-  }
+  tree = proto_tree_add_subtree(parent_tree, tvb, 0, -1, ett_NokiaMAP_Extensions_ErrOlcmInfoTableExt_U, NULL, "Nokia Extension");
+
   dissect_NokiaMAP_Extensions_ErrOlcmInfoTableExt(FALSE, tvb, 0, &asn1_ctx, tree, -1);
 }
 
 static void dissect_NokiaMAP_ext_RoutingCategoryExt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree) {
-  proto_item    *item=NULL;
-  proto_tree    *tree=NULL;
+  proto_tree    *tree;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   /* create display subtree for the protocol */
-  if(parent_tree){
-    item = proto_tree_add_text(parent_tree, tvb, 0, -1, "Nokia Extension");
-    tree = proto_item_add_subtree(item, ett_NokiaMAP_Extensions_RoutingCategoryExt_U);
-  }
+  tree = proto_tree_add_subtree(parent_tree, tvb, 0, -1, ett_NokiaMAP_Extensions_RoutingCategoryExt_U, NULL, "Nokia Extension");
+
   dissect_NokiaMAP_Extensions_RoutingCategoryExt(FALSE, tvb, 0, &asn1_ctx, tree, -1);
 }
 
 static void dissect_NokiaMAP_ext_AnyTimeModArgExt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree) {
-  proto_item    *item=NULL;
-  proto_tree    *tree=NULL;
+  proto_tree    *tree;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   /* create display subtree for the protocol */
-  if(parent_tree){
-    item = proto_tree_add_text(parent_tree, tvb, 0, -1, "Nokia Extension");
-    tree = proto_item_add_subtree(item, ett_NokiaMAP_Extensions_AnyTimeModArgExt_U);
-  }
+  tree = proto_tree_add_subtree(parent_tree, tvb, 0, -1, ett_NokiaMAP_Extensions_AnyTimeModArgExt_U, NULL, "Nokia Extension");
+
   dissect_NokiaMAP_Extensions_AnyTimeModArgExt(FALSE, tvb, 0, &asn1_ctx, tree, -1);
 }
 
@@ -21893,94 +21850,73 @@ static void dissect_NokiaMAP_ext_AllowedServiceData(tvbuff_t *tvb, packet_info *
 }
 
 static void dissect_NokiaMAP_ext_SriExtension(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree) {
-  proto_item    *item=NULL;
-  proto_tree    *tree=NULL;
+  proto_tree    *tree;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   /* create display subtree for the protocol */
-  if(parent_tree){
-    item = proto_tree_add_text(parent_tree, tvb, 0, -1, "Nokia Extension");
-    tree = proto_item_add_subtree(item, ett_NokiaMAP_Extensions_SriExtension_U);
-  }
+  tree = proto_tree_add_subtree(parent_tree, tvb, 0, -1, ett_NokiaMAP_Extensions_SriExtension_U, NULL, "Nokia Extension");
+
   dissect_NokiaMAP_Extensions_SriExtension(FALSE, tvb, 0, &asn1_ctx, tree, -1);
 }
 
 static void dissect_NokiaMAP_ExtraSignalInfo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree) {
-  proto_item    *item=NULL;
-  proto_tree    *tree=NULL;
+  proto_tree    *tree;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   /* create display subtree for the protocol */
-  if(parent_tree){
-    item = proto_tree_add_text(parent_tree, tvb, 0, -1, "Nokia Extension");
-    tree = proto_item_add_subtree(item, ett_NokiaMAP_Extensions_ExtraSignalInfo_U);
-  }
+  tree = proto_tree_add_subtree(parent_tree, tvb, 0, -1, ett_NokiaMAP_Extensions_ExtraSignalInfo_U, NULL, "Nokia Extension");
+
   dissect_NokiaMAP_Extensions_ExtraSignalInfo(FALSE, tvb, 0, &asn1_ctx, tree, -1);
 }
 
 static void dissect_NokiaMAP_ext_SS_DataExtension(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree) {
-  proto_item    *item=NULL;
-  proto_tree    *tree=NULL;
+  proto_tree    *tree;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   /* create display subtree for the protocol */
-  if(parent_tree){
-    item = proto_tree_add_text(parent_tree, tvb, 0, -1, "Nokia Extension");
-    tree = proto_item_add_subtree(item, ett_NokiaMAP_Extensions_SS_DataExtension_U);
-  }
+  tree = proto_tree_add_subtree(parent_tree, tvb, 0, -1, ett_NokiaMAP_Extensions_SS_DataExtension_U, NULL, "Nokia Extension");
+
   dissect_NokiaMAP_Extensions_SS_DataExtension(FALSE, tvb, 0, &asn1_ctx, tree, -1);
 }
 
 static void dissect_NokiaMAP_ext_HOExtension(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree) {
-  proto_item    *item=NULL;
-  proto_tree    *tree=NULL;
+  proto_tree    *tree;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   /* create display subtree for the protocol */
-  if(parent_tree){
-    item = proto_tree_add_text(parent_tree, tvb, 0, -1, "Nokia Extension");
-    tree = proto_item_add_subtree(item, ett_NokiaMAP_Extensions_HO_Ext_U);
-  }
+  tree = proto_tree_add_subtree(parent_tree, tvb, 0, -1, ett_NokiaMAP_Extensions_HO_Ext_U, NULL, "Nokia Extension");
+
   dissect_NokiaMAP_Extensions_HO_Ext(FALSE, tvb, 0, &asn1_ctx, tree, -1);
 }
 
 static void dissect_NokiaMAP_ext_UlResExtension(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree) {
-  proto_item    *item=NULL;
-  proto_tree    *tree=NULL;
+  proto_tree    *tree;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   /* create display subtree for the protocol */
-  if(parent_tree){
-    item = proto_tree_add_text(parent_tree, tvb, 0, -1, "Nokia Extension");
-    tree = proto_item_add_subtree(item, ett_NokiaMAP_Extensions_UlResExt_U);
-  }
+  tree = proto_tree_add_subtree(parent_tree, tvb, 0, -1, ett_NokiaMAP_Extensions_UlResExt_U, NULL, "Nokia Extension");
+
   dissect_NokiaMAP_Extensions_UlResExt(FALSE, tvb, 0, &asn1_ctx, tree, -1);
 }
 
 
 static void dissect_NokiaMAP_ext_IsdArgExtension(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree) {
-  proto_item    *item=NULL;
-  proto_tree    *tree=NULL;
+  proto_tree    *tree;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   /* create display subtree for the protocol */
-  if(parent_tree){
-    item = proto_tree_add_text(parent_tree, tvb, 0, -1, "Nokia Extension");
-    tree = proto_item_add_subtree(item, ett_NokiaMAP_Extensions_IsdArgExt_U);
-  }
+  tree = proto_tree_add_subtree(parent_tree, tvb, 0, -1, ett_NokiaMAP_Extensions_IsdArgExt_U, NULL, "Nokia Extension");
+
   dissect_NokiaMAP_Extensions_IsdArgExt(FALSE, tvb, 0, &asn1_ctx, tree, -1);
 }
 
 static void dissect_NokiaMAP_ext_DsdArgExt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree) {
-  proto_item    *item=NULL;
-  proto_tree    *tree=NULL;
+  proto_tree    *tree;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   /* create display subtree for the protocol */
-  if(parent_tree){
-    item = proto_tree_add_text(parent_tree, tvb, 0, -1, "Nokia Extension");
-    tree = proto_item_add_subtree(item, ett_NokiaMAP_Extensions_DsdArgExt_U);
-  }
+  tree = proto_tree_add_subtree(parent_tree, tvb, 0, -1, ett_NokiaMAP_Extensions_DsdArgExt_U, NULL, "Nokia Extension");
+
   dissect_NokiaMAP_Extensions_DsdArgExt(FALSE, tvb, 0, &asn1_ctx, tree, -1);
 }
 
@@ -29543,7 +29479,7 @@ void proto_register_gsm_map(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-gsm_map-hfarr.c ---*/
-#line 2957 "../../asn1/gsm_map/packet-gsm_map-template.c"
+#line 2893 "../../asn1/gsm_map/packet-gsm_map-template.c"
   };
 
   /* List of subtrees */
@@ -30251,7 +30187,7 @@ void proto_register_gsm_map(void) {
     &ett_NokiaMAP_Extensions_AllowedServiceData,
 
 /*--- End of included file: packet-gsm_map-ettarr.c ---*/
-#line 2988 "../../asn1/gsm_map/packet-gsm_map-template.c"
+#line 2924 "../../asn1/gsm_map/packet-gsm_map-template.c"
   };
 
   static ei_register_info ei[] = {
@@ -30353,7 +30289,7 @@ void proto_register_gsm_map(void) {
 
 
 /*--- End of included file: packet-gsm_map-dis-tab.c ---*/
-#line 3024 "../../asn1/gsm_map/packet-gsm_map-template.c"
+#line 2960 "../../asn1/gsm_map/packet-gsm_map-template.c"
   oid_add_from_string("ericsson-gsm-Map-Ext","1.2.826.0.1249.58.1.0" );
   oid_add_from_string("accessTypeNotAllowed-id","1.3.12.2.1107.3.66.1.2");
   /*oid_add_from_string("map-ac networkLocUp(1) version3(3)","0.4.0.0.1.0.1.3" );

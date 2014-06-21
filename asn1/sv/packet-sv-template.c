@@ -131,7 +131,7 @@ dissect_PhsMeas1(gboolean implicit_tag, packet_info *pinfo, proto_tree *tree, tv
 	gint32 tag;
 	guint32 len;
 	proto_item *it;
-	proto_tree *subtree = NULL;
+	proto_tree *subtree;
 	gint32 value;
 	guint32 qual;
 	guint32 i;
@@ -160,10 +160,7 @@ dissect_PhsMeas1(gboolean implicit_tag, packet_info *pinfo, proto_tree *tree, tv
 		len=tvb_length_remaining(tvb, offset);
 	}
 
-	if (tree) {
-		it = proto_tree_add_text(tree, tvb, offset, len, "PhsMeas1");
-		subtree = proto_item_add_subtree(it, ett_phsmeas);
-	}
+	subtree = proto_tree_add_subtree(tree, tvb, offset, len, ett_phsmeas, NULL, "PhsMeas1");
 
 	sv_data.num_phsMeas = 0;
 	for (i = 0; i < len/8; i++) {
@@ -198,16 +195,15 @@ dissect_sv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
 	int offset = 0;
 	int old_offset;
-	proto_item *item = NULL;
-	proto_tree *tree = NULL;
+	proto_item *item;
+	proto_tree *tree;
 	asn1_ctx_t asn1_ctx;
 
 	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
-	if (parent_tree){
-		item = proto_tree_add_item(parent_tree, proto_sv, tvb, 0, -1, ENC_NA);
-		tree = proto_item_add_subtree(item, ett_sv);
-	}
+	item = proto_tree_add_item(parent_tree, proto_sv, tvb, 0, -1, ENC_NA);
+	tree = proto_item_add_subtree(item, ett_sv);
+
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, PNAME);
 	col_clear(pinfo->cinfo, COL_INFO);
 

@@ -759,10 +759,8 @@ dissect_tcap_OrigTransactionID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 #line 126 "../../asn1/tcap/tcap.cnf"
 tvbuff_t *parameter_tvb;
 guint8 len, i;
-proto_item *tid_item;
 proto_tree *subtree;
-tid_item = proto_tree_add_text(tree, tvb, offset, -1, "Source Transaction ID");
-subtree = proto_item_add_subtree(tid_item, ett_otid);
+subtree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_otid, NULL, "Source Transaction ID");
 
 dissect_ber_octet_string(implicit_tag, actx, subtree, tvb, offset, hf_tcap_tid, NULL);
 PROTO_ITEM_SET_HIDDEN(actx->created_item);
@@ -811,7 +809,7 @@ static const ber_sequence_t Begin_sequence[] = {
 
 static int
 dissect_tcap_Begin(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 204 "../../asn1/tcap/tcap.cnf"
+#line 200 "../../asn1/tcap/tcap.cnf"
 gp_tcapsrt_info->ope=TC_BEGIN;
 
 /*  Do not change col_add_str() to col_append_str() here: we _want_ this call
@@ -833,13 +831,11 @@ gp_tcapsrt_info->ope=TC_BEGIN;
 
 static int
 dissect_tcap_DestTransactionID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 167 "../../asn1/tcap/tcap.cnf"
+#line 165 "../../asn1/tcap/tcap.cnf"
 tvbuff_t *parameter_tvb;
 guint8 len , i;
-proto_item *tid_item;
 proto_tree *subtree;
-tid_item = proto_tree_add_text(tree, tvb, offset, -1, "Destination Transaction ID");
-subtree = proto_item_add_subtree(tid_item, ett_dtid);
+subtree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_dtid, NULL, "Destination Transaction ID");
 
 dissect_ber_octet_string(implicit_tag, actx, subtree, tvb, offset, hf_tcap_tid, NULL);
 PROTO_ITEM_SET_HIDDEN(actx->created_item);
@@ -885,7 +881,7 @@ static const ber_sequence_t End_sequence[] = {
 
 static int
 dissect_tcap_End(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 218 "../../asn1/tcap/tcap.cnf"
+#line 214 "../../asn1/tcap/tcap.cnf"
 gp_tcapsrt_info->ope=TC_END;
 
 	col_set_str(actx->pinfo->cinfo, COL_INFO, "End ");
@@ -907,7 +903,7 @@ static const ber_sequence_t Continue_sequence[] = {
 
 static int
 dissect_tcap_Continue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 225 "../../asn1/tcap/tcap.cnf"
+#line 221 "../../asn1/tcap/tcap.cnf"
 gp_tcapsrt_info->ope=TC_CONT;
 
 	col_set_str(actx->pinfo->cinfo, COL_INFO, "Continue ");
@@ -978,7 +974,7 @@ static const ber_sequence_t Abort_sequence[] = {
 
 static int
 dissect_tcap_Abort(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 232 "../../asn1/tcap/tcap.cnf"
+#line 228 "../../asn1/tcap/tcap.cnf"
 gp_tcapsrt_info->ope=TC_ABORT;
 
 	col_set_str(actx->pinfo->cinfo, COL_INFO, "Abort ");
@@ -2360,9 +2356,8 @@ tcaphash_begin_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 #endif
 	    p_tcaphash_context=p_tcaphash_begincall->context;
 	    if (gtcap_DisplaySRT && tree) {
-	      stat_item = proto_tree_add_text(tree, tvb, 0, -1, "Stat");
+	      stat_tree = proto_tree_add_subtree(tree, tvb, 0, -1, ett_tcap_stat, &stat_item, "Stat");
 	      PROTO_ITEM_SET_GENERATED(stat_item);
-	      stat_tree = proto_item_add_subtree(stat_item, ett_tcap_stat);
 	      pi = proto_tree_add_uint_format(stat_tree, hf_tcapsrt_Duplicate, tvb, 0, 0,
 					      p_tcaphash_context->first_frame,
 					      "Duplicate with session %u in frame %u",
@@ -2403,9 +2398,8 @@ tcaphash_begin_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   if ( gtcap_DisplaySRT && tree &&
        p_tcaphash_context &&
        p_tcaphash_context->session_id) {
-    stat_item = proto_tree_add_text(tree, tvb, 0, 0, "Stat");
+    stat_tree = proto_tree_add_subtree(tree, tvb, 0, 0, ett_tcap_stat, &stat_item, "Stat");
     PROTO_ITEM_SET_GENERATED(stat_item);
-    stat_tree = proto_item_add_subtree(stat_item, ett_tcap_stat);
     pi = proto_tree_add_uint(stat_tree, hf_tcapsrt_SessionId, tvb, 0,0, p_tcaphash_context->session_id);
     PROTO_ITEM_SET_GENERATED(pi);
 
@@ -2552,9 +2546,8 @@ tcaphash_cont_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   if (gtcap_DisplaySRT && tree &&
       p_tcaphash_context &&
       p_tcaphash_context->session_id) {
-    stat_item = proto_tree_add_text(tree, tvb, 0, -1, "Stat");
+    stat_tree = proto_tree_add_subtree(tree, tvb, 0, -1, ett_tcap_stat, &stat_item, "Stat");
     PROTO_ITEM_SET_GENERATED(stat_item);
-    stat_tree = proto_item_add_subtree(stat_item, ett_tcap_stat);
     pi = proto_tree_add_uint(stat_tree, hf_tcapsrt_SessionId, tvb, 0,0, p_tcaphash_context->session_id);
     PROTO_ITEM_SET_GENERATED(pi);
   }
@@ -2656,9 +2649,8 @@ tcaphash_end_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     dbg(12,"Found, req=%d ",p_tcaphash_context->first_frame);
 #endif
     if (gtcap_DisplaySRT && tree) {
-      stat_item = proto_tree_add_text(tree, tvb, 0, -1, "Stat");
+      stat_tree = proto_tree_add_subtree(tree, tvb, 0, -1, ett_tcap_stat, &stat_item, "Stat");
       PROTO_ITEM_SET_GENERATED(stat_item);
-      stat_tree = proto_item_add_subtree(stat_item, ett_tcap_stat);
 
       pi = proto_tree_add_uint(stat_tree, hf_tcapsrt_SessionId, tvb, 0,0, p_tcaphash_context->session_id);
       PROTO_ITEM_SET_GENERATED(pi);
@@ -2780,9 +2772,8 @@ tcaphash_ansi_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	isResponse=TRUE;
 
 	if (gtcap_DisplaySRT && tree) {
-	  stat_item = proto_tree_add_text(tree, tvb, 0, -1, "Stat");
+	  stat_tree = proto_tree_add_subtree(tree, tvb, 0, -1, ett_tcap_stat, &stat_item, "Stat");
 	  PROTO_ITEM_SET_GENERATED(stat_item);
-	  stat_tree = proto_item_add_subtree(stat_item, ett_tcap_stat);
 
 	  pi = proto_tree_add_uint(stat_tree, hf_tcapsrt_SessionId, tvb, 0,0, p_tcaphash_context->session_id);
 	  PROTO_ITEM_SET_GENERATED(pi);
@@ -2873,9 +2864,8 @@ tcaphash_ansi_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 #endif
 
 	    if (gtcap_DisplaySRT && tree) {
-	      stat_item = proto_tree_add_text(tree, tvb, 0, -1, "Stat");
+	      stat_tree = proto_tree_add_subtree(tree, tvb, 0, -1, ett_tcap_stat, &stat_item, "Stat");
 	      PROTO_ITEM_SET_GENERATED(stat_item);
-	      stat_tree = proto_item_add_subtree(stat_item, ett_tcap_stat);
 
 	      pi = proto_tree_add_uint(stat_tree, hf_tcapsrt_SessionId, tvb, 0,0, p_tcaphash_context->session_id);
 	      PROTO_ITEM_SET_GENERATED(pi);
@@ -2926,9 +2916,8 @@ tcaphash_ansi_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   if ( gtcap_DisplaySRT && tree &&
        p_tcaphash_context &&
        p_tcaphash_context->session_id) {
-    stat_item = proto_tree_add_text(tree, tvb, 0, -1, "Stat");
+    stat_tree = proto_tree_add_subtree(tree, tvb, 0, -1, ett_tcap_stat, &stat_item, "Stat");
     PROTO_ITEM_SET_GENERATED(stat_item);
-    stat_tree = proto_item_add_subtree(stat_item, ett_tcap_stat);
     pi = proto_tree_add_uint(stat_tree, hf_tcapsrt_SessionId, tvb, 0,0, p_tcaphash_context->session_id);
     PROTO_ITEM_SET_GENERATED(pi);
   }
@@ -3352,7 +3341,7 @@ proto_reg_handoff_tcap(void)
 
 
 /*--- End of included file: packet-tcap-dis-tab.c ---*/
-#line 2077 "../../asn1/tcap/packet-tcap-template.c"
+#line 2070 "../../asn1/tcap/packet-tcap-template.c"
 }
 
 static void init_tcap(void);
@@ -3683,7 +3672,7 @@ proto_register_tcap(void)
         NULL, HFILL }},
 
 /*--- End of included file: packet-tcap-hfarr.c ---*/
-#line 2139 "../../asn1/tcap/packet-tcap-template.c"
+#line 2132 "../../asn1/tcap/packet-tcap-template.c"
     };
 
 /* Setup protocol subtree array */
@@ -3732,7 +3721,7 @@ proto_register_tcap(void)
     &ett_tcap_Associate_source_diagnostic,
 
 /*--- End of included file: packet-tcap-ettarr.c ---*/
-#line 2149 "../../asn1/tcap/packet-tcap-template.c"
+#line 2142 "../../asn1/tcap/packet-tcap-template.c"
     };
 
     /*static enum_val_t tcap_options[] = {
@@ -3840,7 +3829,6 @@ dissect_tcap_param(asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset
     gint tag_offset, saved_offset, len_offset;
     tvbuff_t	*next_tvb;
     proto_tree *subtree;
-    proto_item *pi;
     gint8 ber_class;
     gboolean pc;
     gint32 tag;
@@ -3863,10 +3851,9 @@ dissect_tcap_param(asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset
 
         if (pc)
         {
-            pi = proto_tree_add_text(tree, tvb, saved_offset,
-                len + (len_offset - saved_offset),
+            subtree = proto_tree_add_subtree(tree, tvb, saved_offset,
+                len + (len_offset - saved_offset), ett_param, NULL,
                 "CONSTRUCTOR");
-            subtree = proto_item_add_subtree(pi, ett_param);
             proto_tree_add_uint_format(subtree, hf_tcap_tag, tvb,
                 saved_offset, tag_length, tag,
                 "CONSTRUCTOR Tag");
@@ -3889,11 +3876,9 @@ dissect_tcap_param(asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset
         }
         else
         {
-            pi = proto_tree_add_text(tree, tvb, saved_offset,
-                len + (len_offset - saved_offset),
+            subtree = proto_tree_add_subtree_format(tree, tvb, saved_offset,
+                len + (len_offset - saved_offset), ett_param, NULL,
                 "Parameter (0x%.2x)", tag);
-
-            subtree = proto_item_add_subtree(pi, ett_param);
 
             proto_tree_add_uint(subtree, hf_tcap_tag, tvb, saved_offset,
                 tag_length, tag);

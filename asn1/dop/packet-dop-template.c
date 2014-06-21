@@ -97,13 +97,12 @@ call_dop_oid_callback(const char *base_string, tvbuff_t *tvb, int offset, packet
   if (dissector_try_string(dop_dissector_table, binding_param, tvb, pinfo, tree, data)) {
      offset = tvb_reported_length (tvb);
   } else {
-     proto_item *item=NULL;
-     proto_tree *next_tree=NULL;
+     proto_item *item;
+     proto_tree *next_tree;
 
-     item = proto_tree_add_text(tree, tvb, 0, tvb_length_remaining(tvb, offset), "Dissector for parameter %s OID:%s not implemented. Contact Wireshark developers if you want this supported", base_string, binding_type ? binding_type : "<empty>");
-     if (item) {
-        next_tree = proto_item_add_subtree(item, ett_dop_unknown);
-     }
+     next_tree = proto_tree_add_subtree_format(tree, tvb, 0, -1, ett_dop_unknown, &item,
+         "Dissector for parameter %s OID:%s not implemented. Contact Wireshark developers if you want this supported", base_string, binding_type ? binding_type : "<empty>");
+
      offset = dissect_unknown_ber(pinfo, tvb, offset, next_tree);
      expert_add_info(pinfo, item, &ei_dop_unknown_binding_parameter);
    }

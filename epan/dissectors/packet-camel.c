@@ -7949,7 +7949,7 @@ dissect_camel_camelPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn
 static int
 dissect_camel_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data)
 {
-  proto_item  *item, *stat_item;
+  proto_item  *item;
   proto_tree  *tree = NULL, *stat_tree = NULL;
   struct tcap_private_t * p_private_tcap = (struct tcap_private_t*)data;
   asn1_ctx_t asn1_ctx;
@@ -7974,8 +7974,7 @@ dissect_camel_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, voi
   if (gcamel_HandleSRT &&
       gp_camelsrt_info->tcap_context ) {
     if (gcamel_DisplaySRT && tree) {
-      stat_item = proto_tree_add_text(tree, tvb, 0, 0, "Stat");
-      stat_tree = proto_item_add_subtree(stat_item, ett_camel_stat);
+      stat_tree = proto_tree_add_subtree(tree, tvb, 0, 0, ett_camel_stat, NULL, "Stat");
     }
     camelsrt_call_matching(tvb, pinfo, stat_tree, gp_camelsrt_info);
     tap_queue_packet(camel_tap, pinfo, gp_camelsrt_info);
@@ -7987,7 +7986,7 @@ dissect_camel_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, voi
 static int
 dissect_camel_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data)
 {
-  proto_item  *item, *stat_item;
+  proto_item  *item;
   proto_tree  *tree = NULL, *stat_tree = NULL;
   struct tcap_private_t * p_private_tcap = (struct tcap_private_t*)data;
   asn1_ctx_t asn1_ctx;
@@ -8012,8 +8011,7 @@ dissect_camel_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, voi
   if (gcamel_HandleSRT &&
       gp_camelsrt_info->tcap_context ) {
     if (gcamel_DisplaySRT && tree) {
-      stat_item = proto_tree_add_text(tree, tvb, 0, 0, "Stat");
-      stat_tree = proto_item_add_subtree(stat_item, ett_camel_stat);
+      stat_tree = proto_tree_add_subtree(tree, tvb, 0, 0, ett_camel_stat, NULL, "Stat");
     }
     camelsrt_call_matching(tvb, pinfo, stat_tree, gp_camelsrt_info);
     tap_queue_packet(camel_tap, pinfo, gp_camelsrt_info);
@@ -8025,7 +8023,7 @@ dissect_camel_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, voi
 static int
 dissect_camel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data)
 {
-  proto_item  *item, *stat_item;
+  proto_item  *item;
   proto_tree  *tree, *stat_tree = NULL;
   struct tcap_private_t * p_private_tcap = (struct tcap_private_t*)data;
   asn1_ctx_t asn1_ctx;
@@ -8049,8 +8047,7 @@ dissect_camel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
   if (gcamel_HandleSRT &&
       gp_camelsrt_info->tcap_context ) {
     if (gcamel_DisplaySRT && tree) {
-      stat_item = proto_tree_add_text(tree, tvb, 0, 0, "Stat");
-      stat_tree = proto_item_add_subtree(stat_item, ett_camel_stat);
+      stat_tree = proto_tree_add_subtree(tree, tvb, 0, 0, ett_camel_stat, NULL, "Stat");
     }
     camelsrt_call_matching(tvb, pinfo, stat_tree, gp_camelsrt_info);
     tap_queue_packet(camel_tap, pinfo, gp_camelsrt_info);
@@ -8105,7 +8102,7 @@ void proto_reg_handoff_camel(void) {
 
 
 /*--- End of included file: packet-camel-dis-tab.c ---*/
-#line 1224 "../../asn1/camel/packet-camel-template.c"
+#line 1221 "../../asn1/camel/packet-camel-template.c"
   } else {
     range_foreach(ssn_range, range_delete_callback);
     g_free(ssn_range);
@@ -10219,7 +10216,7 @@ void proto_register_camel(void) {
         "InvokeId_present", HFILL }},
 
 /*--- End of included file: packet-camel-hfarr.c ---*/
-#line 1397 "../../asn1/camel/packet-camel-template.c"
+#line 1394 "../../asn1/camel/packet-camel-template.c"
   };
 
   /* List of subtrees */
@@ -10434,7 +10431,7 @@ void proto_register_camel(void) {
     &ett_camel_InvokeId,
 
 /*--- End of included file: packet-camel-ettarr.c ---*/
-#line 1413 "../../asn1/camel/packet-camel-template.c"
+#line 1410 "../../asn1/camel/packet-camel-template.c"
   };
 
   static ei_register_info ei[] = {

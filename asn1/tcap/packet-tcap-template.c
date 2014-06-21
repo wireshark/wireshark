@@ -1089,9 +1089,8 @@ tcaphash_begin_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 #endif
 	    p_tcaphash_context=p_tcaphash_begincall->context;
 	    if (gtcap_DisplaySRT && tree) {
-	      stat_item = proto_tree_add_text(tree, tvb, 0, -1, "Stat");
+	      stat_tree = proto_tree_add_subtree(tree, tvb, 0, -1, ett_tcap_stat, &stat_item, "Stat");
 	      PROTO_ITEM_SET_GENERATED(stat_item);
-	      stat_tree = proto_item_add_subtree(stat_item, ett_tcap_stat);
 	      pi = proto_tree_add_uint_format(stat_tree, hf_tcapsrt_Duplicate, tvb, 0, 0,
 					      p_tcaphash_context->first_frame,
 					      "Duplicate with session %u in frame %u",
@@ -1132,9 +1131,8 @@ tcaphash_begin_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   if ( gtcap_DisplaySRT && tree &&
        p_tcaphash_context &&
        p_tcaphash_context->session_id) {
-    stat_item = proto_tree_add_text(tree, tvb, 0, 0, "Stat");
+    stat_tree = proto_tree_add_subtree(tree, tvb, 0, 0, ett_tcap_stat, &stat_item, "Stat");
     PROTO_ITEM_SET_GENERATED(stat_item);
-    stat_tree = proto_item_add_subtree(stat_item, ett_tcap_stat);
     pi = proto_tree_add_uint(stat_tree, hf_tcapsrt_SessionId, tvb, 0,0, p_tcaphash_context->session_id);
     PROTO_ITEM_SET_GENERATED(pi);
 
@@ -1281,9 +1279,8 @@ tcaphash_cont_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   if (gtcap_DisplaySRT && tree &&
       p_tcaphash_context &&
       p_tcaphash_context->session_id) {
-    stat_item = proto_tree_add_text(tree, tvb, 0, -1, "Stat");
+    stat_tree = proto_tree_add_subtree(tree, tvb, 0, -1, ett_tcap_stat, &stat_item, "Stat");
     PROTO_ITEM_SET_GENERATED(stat_item);
-    stat_tree = proto_item_add_subtree(stat_item, ett_tcap_stat);
     pi = proto_tree_add_uint(stat_tree, hf_tcapsrt_SessionId, tvb, 0,0, p_tcaphash_context->session_id);
     PROTO_ITEM_SET_GENERATED(pi);
   }
@@ -1385,9 +1382,8 @@ tcaphash_end_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     dbg(12,"Found, req=%d ",p_tcaphash_context->first_frame);
 #endif
     if (gtcap_DisplaySRT && tree) {
-      stat_item = proto_tree_add_text(tree, tvb, 0, -1, "Stat");
+      stat_tree = proto_tree_add_subtree(tree, tvb, 0, -1, ett_tcap_stat, &stat_item, "Stat");
       PROTO_ITEM_SET_GENERATED(stat_item);
-      stat_tree = proto_item_add_subtree(stat_item, ett_tcap_stat);
 
       pi = proto_tree_add_uint(stat_tree, hf_tcapsrt_SessionId, tvb, 0,0, p_tcaphash_context->session_id);
       PROTO_ITEM_SET_GENERATED(pi);
@@ -1509,9 +1505,8 @@ tcaphash_ansi_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	isResponse=TRUE;
 
 	if (gtcap_DisplaySRT && tree) {
-	  stat_item = proto_tree_add_text(tree, tvb, 0, -1, "Stat");
+	  stat_tree = proto_tree_add_subtree(tree, tvb, 0, -1, ett_tcap_stat, &stat_item, "Stat");
 	  PROTO_ITEM_SET_GENERATED(stat_item);
-	  stat_tree = proto_item_add_subtree(stat_item, ett_tcap_stat);
 
 	  pi = proto_tree_add_uint(stat_tree, hf_tcapsrt_SessionId, tvb, 0,0, p_tcaphash_context->session_id);
 	  PROTO_ITEM_SET_GENERATED(pi);
@@ -1602,9 +1597,8 @@ tcaphash_ansi_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 #endif
 
 	    if (gtcap_DisplaySRT && tree) {
-	      stat_item = proto_tree_add_text(tree, tvb, 0, -1, "Stat");
+	      stat_tree = proto_tree_add_subtree(tree, tvb, 0, -1, ett_tcap_stat, &stat_item, "Stat");
 	      PROTO_ITEM_SET_GENERATED(stat_item);
-	      stat_tree = proto_item_add_subtree(stat_item, ett_tcap_stat);
 
 	      pi = proto_tree_add_uint(stat_tree, hf_tcapsrt_SessionId, tvb, 0,0, p_tcaphash_context->session_id);
 	      PROTO_ITEM_SET_GENERATED(pi);
@@ -1655,9 +1649,8 @@ tcaphash_ansi_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   if ( gtcap_DisplaySRT && tree &&
        p_tcaphash_context &&
        p_tcaphash_context->session_id) {
-    stat_item = proto_tree_add_text(tree, tvb, 0, -1, "Stat");
+    stat_tree = proto_tree_add_subtree(tree, tvb, 0, -1, ett_tcap_stat, &stat_item, "Stat");
     PROTO_ITEM_SET_GENERATED(stat_item);
-    stat_tree = proto_item_add_subtree(stat_item, ett_tcap_stat);
     pi = proto_tree_add_uint(stat_tree, hf_tcapsrt_SessionId, tvb, 0,0, p_tcaphash_context->session_id);
     PROTO_ITEM_SET_GENERATED(pi);
   }
@@ -2253,7 +2246,6 @@ dissect_tcap_param(asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset
     gint tag_offset, saved_offset, len_offset;
     tvbuff_t	*next_tvb;
     proto_tree *subtree;
-    proto_item *pi;
     gint8 ber_class;
     gboolean pc;
     gint32 tag;
@@ -2276,10 +2268,9 @@ dissect_tcap_param(asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset
 
         if (pc)
         {
-            pi = proto_tree_add_text(tree, tvb, saved_offset,
-                len + (len_offset - saved_offset),
+            subtree = proto_tree_add_subtree(tree, tvb, saved_offset,
+                len + (len_offset - saved_offset), ett_param, NULL,
                 "CONSTRUCTOR");
-            subtree = proto_item_add_subtree(pi, ett_param);
             proto_tree_add_uint_format(subtree, hf_tcap_tag, tvb,
                 saved_offset, tag_length, tag,
                 "CONSTRUCTOR Tag");
@@ -2302,11 +2293,9 @@ dissect_tcap_param(asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset
         }
         else
         {
-            pi = proto_tree_add_text(tree, tvb, saved_offset,
-                len + (len_offset - saved_offset),
+            subtree = proto_tree_add_subtree_format(tree, tvb, saved_offset,
+                len + (len_offset - saved_offset), ett_param, NULL,
                 "Parameter (0x%.2x)", tag);
-
-            subtree = proto_item_add_subtree(pi, ett_param);
 
             proto_tree_add_uint(subtree, hf_tcap_tag, tvb, saved_offset,
                 tag_length, tag);

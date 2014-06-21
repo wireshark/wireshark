@@ -1,4 +1,4 @@
-/* packet-rtse_asn1.c
+/* packet-rtse-template.c
  * Routines for RTSE packet dissection
  * Graeme Lunt 2005
  *
@@ -147,8 +147,10 @@ call_rtse_oid_callback(const char *oid, tvbuff_t *tvb, int offset, packet_info *
 
 	next_tvb = tvb_new_subset_remaining(tvb, offset);
 	if(!dissector_try_string(rtse_oid_dissector_table, oid, next_tvb, pinfo, tree, data)){
-		proto_item *item=proto_tree_add_text(tree, next_tvb, 0, tvb_captured_length_remaining(tvb, offset), "RTSE: Dissector for OID:%s not implemented. Contact Wireshark developers if you want this supported", oid);
-		proto_tree *next_tree=proto_item_add_subtree(item, ett_rtse_unknown);
+		proto_item *item;
+		proto_tree *next_tree;
+		next_tree = proto_tree_add_subtree_format(tree, next_tvb, 0, -1, ett_rtse_unknown, &item,
+							"RTSE: Dissector for OID:%s not implemented. Contact Wireshark developers if you want this supported", oid);
 
 		expert_add_info_format(pinfo, item, &ei_rtse_dissector_oid_not_implemented,
                                         "RTSE: Dissector for OID %s not implemented", oid);
@@ -285,10 +287,9 @@ dissect_rtse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 			old_offset=offset;
 			offset=dissect_rtse_RTSE_apdus(TRUE, tvb, offset, &asn1_ctx, tree, -1);
 			if(offset == old_offset){
-				item = proto_tree_add_text(tree, tvb, offset, -1, "Unknown RTSE PDU");
-
+				next_tree = proto_tree_add_subtree(tree, tvb, offset, -1,
+								ett_rtse_unknown, &item, "Unknown RTSE PDU");
 				expert_add_info (pinfo, item, &ei_rtse_unknown_rtse_pdu);
-				next_tree=proto_item_add_subtree(item, ett_rtse_unknown);
 				dissect_unknown_ber(pinfo, tvb, offset, next_tree);
 				break;
 			}

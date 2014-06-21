@@ -397,9 +397,8 @@ dissect_ansi_tcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 #if 0 /* Skip this part for now it will be rewritten */
     if (g_ansi_tcap_HandleSRT && !tcap_subdissector_used ) {
                 if (gtcap_DisplaySRT && tree) {
-                        stat_item = proto_tree_add_text(tree, tvb, 0, 0, "Stat");
+                        stat_tree = proto_tree_add_subtree(tree, tvb, 0, 0, ett_ansi_tcap_stat, &stat_item, "Stat");
                         PROTO_ITEM_SET_GENERATED(stat_item);
-                        stat_tree = proto_item_add_subtree(stat_item, ett_ansi_tcap_stat);
                 }
                 p_tcap_context=tcapsrt_call_matching(tvb, pinfo, stat_tree, gp_tcapsrt_info);
                 ansi_tcap_private.context=p_tcap_context;

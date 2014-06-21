@@ -425,7 +425,7 @@ dissect_h245_h245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, PSNAME);
 
-	it=proto_tree_add_protocol_format(parent_tree, proto_h245, tvb, 0, tvb_captured_length(tvb), PSNAME);
+	it=proto_tree_add_protocol_format(parent_tree, proto_h245, tvb, 0, -1, PSNAME);
 	tr=proto_item_add_subtree(it, ett_h245);
 
 	/* assume that whilst there is more tvb data, there are more h245 commands */

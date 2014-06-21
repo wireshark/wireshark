@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-isdn-sup.c                                                          */
-/* ../../tools/asn2wrs.py -b -k -p isdn-sup -c ./isdn-sup.cnf -s ./packet-isdn-sup-template -D . -O ../../epan/dissectors Addressing-Data-Elements.asn Basic-Service-Elements.asn Embedded-Q931-Types.asn General-Errors.asn Advice-of-Charge-Operations.asn Closed-User-Group-Service-Operations.asn Conference-Add-On-Operations.asn Diversion-Operations.asn MCID-Operations.asn User-To-User-Signalling-Operations.asn Freephone-Operations.asn */
+/* ../../tools/asn2wrs.py -b -p isdn-sup -c ./isdn-sup.cnf -s ./packet-isdn-sup-template -D . -O ../../epan/dissectors Addressing-Data-Elements.asn Basic-Service-Elements.asn Embedded-Q931-Types.asn General-Errors.asn Advice-of-Charge-Operations.asn Closed-User-Group-Service-Operations.asn Conference-Add-On-Operations.asn Diversion-Operations.asn MCID-Operations.asn User-To-User-Signalling-Operations.asn Freephone-Operations.asn */
 
 /* Input file: packet-isdn-sup-template.c */
 
@@ -2641,7 +2641,7 @@ dissect_isdn_sup_arg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
   if (!op_ptr)
     return offset;
 
-  ti = proto_tree_add_item(tree, proto_isdn_sup, tvb, offset, tvb_captured_length(tvb), ENC_NA);
+  ti = proto_tree_add_item(tree, proto_isdn_sup, tvb, offset, -1, ENC_NA);
   isdn_sup_tree = proto_item_add_subtree(ti, ett_isdn_sup);
 
   proto_tree_add_uint(isdn_sup_tree, hf_isdn_sup_operation, tvb, 0, 0, opcode);
@@ -2690,7 +2690,7 @@ dissect_isdn_sup_res(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
   if (!op_ptr)
     return offset;
 
-  ti = proto_tree_add_item(tree, proto_isdn_sup, tvb, offset, tvb_captured_length(tvb), ENC_NA);
+  ti = proto_tree_add_item(tree, proto_isdn_sup, tvb, offset, -1, ENC_NA);
   isdn_sup_tree = proto_item_add_subtree(ti, ett_isdn_sup);
 
   proto_tree_add_uint(isdn_sup_tree, hf_isdn_sup_operation, tvb, 0, 0, opcode);
@@ -2740,7 +2740,7 @@ dissect_isdn_sup_err(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
   if (!err_ptr)
     return offset;
 
-  ti = proto_tree_add_item(tree, proto_isdn_sup, tvb, offset, tvb_captured_length(tvb), ENC_NA);
+  ti = proto_tree_add_item(tree, proto_isdn_sup, tvb, offset, -1, ENC_NA);
   isdn_sup_tree = proto_item_add_subtree(ti, ett_isdn_sup);
 
   proto_tree_add_uint(isdn_sup_tree, hf_isdn_sup_error, tvb, 0, 0, errcode);

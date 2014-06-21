@@ -1432,9 +1432,8 @@ dissect_ansi_tcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 #if 0 /* Skip this part for now it will be rewritten */
     if (g_ansi_tcap_HandleSRT && !tcap_subdissector_used ) {
                 if (gtcap_DisplaySRT && tree) {
-                        stat_item = proto_tree_add_text(tree, tvb, 0, 0, "Stat");
+                        stat_tree = proto_tree_add_subtree(tree, tvb, 0, 0, ett_ansi_tcap_stat, &stat_item, "Stat");
                         PROTO_ITEM_SET_GENERATED(stat_item);
-                        stat_tree = proto_item_add_subtree(stat_item, ett_ansi_tcap_stat);
                 }
                 p_tcap_context=tcapsrt_call_matching(tvb, pinfo, stat_tree, gp_tcapsrt_info);
                 ansi_tcap_private.context=p_tcap_context;
@@ -1734,7 +1733,7 @@ proto_register_ansi_tcap(void)
         NULL, HFILL }},
 
 /*--- End of included file: packet-ansi_tcap-hfarr.c ---*/
-#line 494 "../../asn1/ansi_tcap/packet-ansi_tcap-template.c"
+#line 493 "../../asn1/ansi_tcap/packet-ansi_tcap-template.c"
     };
 
 /* Setup protocol subtree array */
@@ -1772,7 +1771,7 @@ proto_register_ansi_tcap(void)
     &ett_ansi_tcap_T_paramSet,
 
 /*--- End of included file: packet-ansi_tcap-ettarr.c ---*/
-#line 505 "../../asn1/ansi_tcap/packet-ansi_tcap-template.c"
+#line 504 "../../asn1/ansi_tcap/packet-ansi_tcap-template.c"
     };
 
     static const enum_val_t ansi_tcap_response_matching_type_values[] = {
