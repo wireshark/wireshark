@@ -357,7 +357,7 @@ dissect_snmp_variable_string(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 
 	proto_tree_add_item(tree, hf_snmp_var_bind_str, tvb, 0, -1, ENC_ASCII|ENC_NA);
 
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 /*
@@ -1512,8 +1512,8 @@ get_user_assoc(tvbuff_t* engine_tvb, tvbuff_t* user_tvb)
 
 	if (! ( user_tvb && engine_tvb ) ) return NULL;
 
-	given_username_len = tvb_length(user_tvb);
-	given_engine_len = tvb_length(engine_tvb);
+	given_username_len = tvb_captured_length(user_tvb);
+	given_engine_len = tvb_captured_length(engine_tvb);
 	if (! ( given_engine_len && given_username_len ) ) return NULL;
 	given_username = (guint8*)tvb_memdup(wmem_packet_scope(),user_tvb,0,-1);
 	given_engine = (guint8*)tvb_memdup(wmem_packet_scope(),engine_tvb,0,-1);
@@ -1563,14 +1563,14 @@ snmp_usm_auth_md5(snmp_usm_params_t* p, guint8** calc_auth_p, guint* calc_auth_l
 	}
 
 
-	auth_len = tvb_length_remaining(p->auth_tvb,0);
+	auth_len = tvb_captured_length(p->auth_tvb);
 
 	if (auth_len != 12) {
 		*error = "Authenticator length wrong";
 		return FALSE;
 	}
 
-	msg_len = tvb_length_remaining(p->msg_tvb,0);
+	msg_len = tvb_captured_length(p->msg_tvb);
 	if (msg_len <= 0) {
 		*error = "Not enough data remaining";
 		return FALSE;
@@ -1627,7 +1627,7 @@ snmp_usm_auth_sha1(snmp_usm_params_t* p _U_, guint8** calc_auth_p, guint* calc_a
 	}
 
 
-	auth_len = tvb_length_remaining(p->auth_tvb,0);
+	auth_len = tvb_captured_length(p->auth_tvb);
 
 
 	if (auth_len != 12) {
@@ -1635,7 +1635,7 @@ snmp_usm_auth_sha1(snmp_usm_params_t* p _U_, guint8** calc_auth_p, guint* calc_a
 		return FALSE;
 	}
 
-	msg_len = tvb_length_remaining(p->msg_tvb,0);
+	msg_len = tvb_captured_length(p->msg_tvb);
 	if (msg_len <= 0) {
 		*error = "Not enough data remaining";
 		return FALSE;
@@ -1681,7 +1681,7 @@ snmp_usm_priv_des(snmp_usm_params_t* p _U_, tvbuff_t* encryptedData _U_, gchar c
 	guint i;
 
 
-	salt_len = tvb_length_remaining(p->priv_tvb,0);
+	salt_len = tvb_captured_length(p->priv_tvb);
 
 	if (salt_len != 8)  {
 		*error = "decryptionError: msgPrivacyParameters length != 8";
@@ -1697,7 +1697,7 @@ snmp_usm_priv_des(snmp_usm_params_t* p _U_, tvbuff_t* encryptedData _U_, gchar c
 		iv[i] = pre_iv[i] ^ salt[i];
 	}
 
-	cryptgrm_len = tvb_length_remaining(encryptedData,0);
+	cryptgrm_len = tvb_captured_length(encryptedData);
 
 	if ((cryptgrm_len <= 0) || (cryptgrm_len % 8)) {
 		*error = "decryptionError: the length of the encrypted data is not a mutiple of 8 octets";
@@ -1754,7 +1754,7 @@ snmp_usm_priv_aes_common(snmp_usm_params_t* p, tvbuff_t* encryptedData, gchar co
 	guint8* cryptgrm;
 	tvbuff_t* clear_tvb;
 
-	priv_len = tvb_length_remaining(p->priv_tvb,0);
+	priv_len = tvb_captured_length(p->priv_tvb);
 
 	if (priv_len != 8)  {
 		*error = "decryptionError: msgPrivacyParameters length != 8";
@@ -1771,7 +1771,7 @@ snmp_usm_priv_aes_common(snmp_usm_params_t* p, tvbuff_t* encryptedData, gchar co
 	iv[7] = (p->time & 0x000000ff);
 	tvb_memcpy(p->priv_tvb,&(iv[8]),0,8);
 
-	cryptgrm_len = tvb_length_remaining(encryptedData,0);
+	cryptgrm_len = tvb_captured_length(encryptedData);
 	if (cryptgrm_len <= 0) {
 		*error = "Not enough data remaining";
 		return NULL;

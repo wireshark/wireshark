@@ -12408,7 +12408,7 @@ dissect_qsig_arg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     return offset;
   service = get_service(opcode);
 
-  ti = proto_tree_add_item(tree, proto_qsig, tvb, offset, tvb_length(tvb), ENC_NA);
+  ti = proto_tree_add_item(tree, proto_qsig, tvb, offset, tvb_captured_length(tvb), ENC_NA);
   qsig_tree = proto_item_add_subtree(ti, ett_qsig);
 
   proto_tree_add_uint(qsig_tree, hf_qsig_operation, tvb, 0, 0, opcode);
@@ -12427,9 +12427,9 @@ dissect_qsig_arg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
   if (op_ptr->arg_pdu)
     offset = op_ptr->arg_pdu(tvb, pinfo, qsig_tree, NULL);
   else
-    if (tvb_length_remaining(tvb, offset) > 0) {
+    if (tvb_reported_length_remaining(tvb, offset) > 0) {
       proto_tree_add_text(qsig_tree, tvb, offset, -1, "UNSUPPORTED ARGUMENT TYPE (QSIG)");
-      offset += tvb_length_remaining(tvb, offset);
+      offset += tvb_captured_length_remaining(tvb, offset);
     }
 
   return offset;
@@ -12462,7 +12462,7 @@ dissect_qsig_res(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     return offset;
   service = get_service(opcode);
 
-  ti = proto_tree_add_item(tree, proto_qsig, tvb, offset, tvb_length(tvb), ENC_NA);
+  ti = proto_tree_add_item(tree, proto_qsig, tvb, offset, tvb_captured_length(tvb), ENC_NA);
   qsig_tree = proto_item_add_subtree(ti, ett_qsig);
 
   proto_tree_add_uint(qsig_tree, hf_qsig_operation, tvb, 0, 0, opcode);
@@ -12481,9 +12481,9 @@ dissect_qsig_res(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
   if (op_ptr->res_pdu)
     offset = op_ptr->res_pdu(tvb, pinfo, qsig_tree, NULL);
   else
-    if (tvb_length_remaining(tvb, offset) > 0) {
+    if (tvb_reported_length_remaining(tvb, offset) > 0) {
       proto_tree_add_text(qsig_tree, tvb, offset, -1, "UNSUPPORTED RESULT TYPE (QSIG)");
-      offset += tvb_length_remaining(tvb, offset);
+      offset += tvb_captured_length_remaining(tvb, offset);
     }
 
   return offset;
@@ -12515,7 +12515,7 @@ dissect_qsig_err(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
   if (!err_ptr)
     return offset;
 
-  ti = proto_tree_add_item(tree, proto_qsig, tvb, offset, tvb_length(tvb), ENC_NA);
+  ti = proto_tree_add_item(tree, proto_qsig, tvb, offset, tvb_captured_length(tvb), ENC_NA);
   qsig_tree = proto_item_add_subtree(ti, ett_qsig);
 
   proto_tree_add_uint(qsig_tree, hf_qsig_error, tvb, 0, 0, errcode);
@@ -12530,9 +12530,9 @@ dissect_qsig_err(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
   if (err_ptr->err_pdu)
     offset = err_ptr->err_pdu(tvb, pinfo, qsig_tree, NULL);
   else
-    if (tvb_length_remaining(tvb, offset) > 0) {
+    if (tvb_reported_length_remaining(tvb, offset) > 0) {
       proto_tree_add_text(qsig_tree, tvb, offset, -1, "UNSUPPORTED ERROR TYPE (QSIG)");
-      offset += tvb_length_remaining(tvb, offset);
+      offset += tvb_captured_length_remaining(tvb, offset);
     }
 
   return offset;
@@ -12577,7 +12577,7 @@ dissect_qsig_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int codeset
   PROTO_ITEM_SET_HIDDEN(hidden_item);
   proto_tree_add_item(ie_tree, hf_qsig_ie_len, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
   offset += 2;
-  if (tvb_length_remaining(tvb, offset) <= 0)
+  if (tvb_reported_length_remaining(tvb, offset) <= 0)
     return;
   switch ((codeset << 8) | ie_type) {
     case CS4 | QSIG_IE_TRANSIT_COUNTER :

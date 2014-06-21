@@ -604,7 +604,7 @@ dissect_ldap_AssertionValue(gboolean implicit_tag, tvbuff_t *tvb, int offset, as
 		offset=get_ber_identifier(tvb, offset, &ber_class, &pc, &tag);
 		offset=get_ber_length(tvb, offset, &len, &ind);
 	} else {
-		len=tvb_length_remaining(tvb,offset);
+		len=tvb_captured_length_remaining(tvb,offset);
 	}
 
 	if(len==0){
@@ -984,7 +984,7 @@ one_more_pdu:
     /* If this was a sasl blob there might be another PDU following in the
      * same blob
      */
-    if(tvb_length_remaining(tvb, offset)>=6){
+    if(tvb_reported_length_remaining(tvb, offset)>=6){
         tvb = tvb_new_subset_remaining(tvb, offset);
 	offset = 0;
 
@@ -1191,7 +1191,7 @@ static void
 				* the token, from which we compute the offset in the tvbuff at
 				* which the plaintext data, i.e. the LDAP message, begins.
 				*/
-				tmp_length = tvb_length_remaining(sasl_tvb, 4);
+				tmp_length = tvb_reported_length_remaining(sasl_tvb, 4);
 				if ((guint)tmp_length > sasl_len)
 					tmp_length = sasl_len;
 				gssapi_tvb = tvb_new_subset(sasl_tvb, 4, tmp_length, sasl_len);
@@ -1443,7 +1443,7 @@ static void dissect_NetLogon_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 
 
   /* Get the length of the buffer */
-  len=tvb_length_remaining(tvb,offset);
+  len=tvb_reported_length_remaining(tvb,offset);
 
   /* check the len if it is to small return */
   if (len < 10) return;
@@ -1462,7 +1462,7 @@ static void dissect_NetLogon_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
   switch(itype){
 
 		case LOGON_SAM_LOGON_RESPONSE:
-			bc = tvb_length_remaining(tvb, offset);
+			bc = tvb_captured_length_remaining(tvb, offset);
 			/* logon server name */
 			fn = get_unicode_or_ascii_string(tvb,&offset,TRUE,&fn_len,FALSE,FALSE,&bc);
 			proto_tree_add_string(tree, hf_mscldap_nb_hostname, tvb,offset, fn_len, fn);
@@ -1642,7 +1642,7 @@ static int
 dissect_sasl_ldap_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	dissect_ldap_pdu(tvb, pinfo, tree, FALSE);
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 static guint
@@ -1664,7 +1664,7 @@ static int
 dissect_normal_ldap_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	dissect_ldap_pdu(tvb, pinfo, tree, FALSE);
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 static void
@@ -1678,7 +1678,7 @@ dissect_ldap_oid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
  *       proto_tree_add_oid() instead.
  */
 
-	oid=tvb_get_string_enc(wmem_packet_scope(), tvb, 0, tvb_length(tvb), ENC_UTF_8|ENC_NA);
+	oid=tvb_get_string_enc(wmem_packet_scope(), tvb, 0, tvb_captured_length(tvb), ENC_UTF_8|ENC_NA);
 	if(!oid){
 		return;
 	}
@@ -1686,9 +1686,9 @@ dissect_ldap_oid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	oidname=oid_resolved_from_string(oid);
 
 	if(oidname){
-		proto_tree_add_text(tree, tvb, 0, tvb_length(tvb), "OID: %s (%s)",oid,oidname);
+		proto_tree_add_text(tree, tvb, 0, tvb_captured_length(tvb), "OID: %s (%s)",oid,oidname);
 	} else {
-		proto_tree_add_text(tree, tvb, 0, tvb_length(tvb), "OID: %s",oid);
+		proto_tree_add_text(tree, tvb, 0, tvb_captured_length(tvb), "OID: %s",oid);
 	}
 }
 
@@ -1770,7 +1770,7 @@ struct access_mask_info ldap_access_mask_info = {
 static void
 dissect_ldap_nt_sec_desc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	dissect_nt_sec_desc(tvb, 0, pinfo, tree, NULL, TRUE, tvb_length(tvb), &ldap_access_mask_info);
+	dissect_nt_sec_desc(tvb, 0, pinfo, tree, NULL, TRUE, tvb_captured_length(tvb), &ldap_access_mask_info);
 }
 
 static void
@@ -1856,7 +1856,7 @@ dissect_ldap_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 	}
 
 	tcp_dissect_pdus(tvb, pinfo, tree, ldap_desegment, 4, get_sasl_ldap_pdu_len, dissect_sasl_ldap_pdu, data);
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 
 this_was_not_sasl:
 	/* check if it is a normal BER encoded LDAP packet
@@ -1936,16 +1936,16 @@ this_was_not_normal_ldap:
 	  dissector_add_uint("tcp.port", tcp_port, ldap_handle);
 
 	  /* we are done */
-	  return tvb_length(tvb);
+	  return tvb_captured_length(tvb);
 	}
 	/* Ok it might be a strange case of SASL still
 	 * It has been seen with Exchange setup to MS AD
 	 * when Exchange pretend that there is SASL but in fact data are still
 	 * in clear*/
-	if ((sasl_len + 4) == (guint32)tvb_length_remaining(tvb, 0))
+	if ((sasl_len + 4) == (guint32)tvb_captured_length_remaining(tvb, 0))
 		tcp_dissect_pdus(tvb, pinfo, tree, ldap_desegment, 4, get_sasl_ldap_pdu_len, dissect_sasl_ldap_pdu, data);
  end:
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 static void

@@ -204,7 +204,7 @@ generate_key_or_iv(unsigned int id, tvbuff_t *salt_tvb, unsigned int iter,
 
   cur_keylen = 0;
 
-  salt_size = tvb_length(salt_tvb);
+  salt_size = tvb_captured_length(salt_tvb);
   salt_p = (char *)tvb_memdup(wmem_packet_scope(), salt_tvb, 0, salt_size);
 
   if (pw == NULL)
@@ -405,7 +405,7 @@ int PBE_decrypt_data(const char *object_identifier_id_param, tvbuff_t *encrypted
 		  }
 	}
 
-	datalen = tvb_length(encrypted_tvb);
+	datalen = tvb_captured_length(encrypted_tvb);
 	clear_data = (char *)g_malloc(datalen);
 
 	err = gcry_cipher_decrypt (cipher, clear_data, datalen, (char *)tvb_memdup(wmem_packet_scope(), encrypted_tvb, 0, datalen), datalen);

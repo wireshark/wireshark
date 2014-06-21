@@ -922,7 +922,7 @@ static void do_address(const char* addr, tvbuff_t* tvb_string, asn1_ctx_t* actx)
 			wmem_strbuf_append(ctx->oraddress, addr);
 		}
 		if (tvb_string) {
-			wmem_strbuf_append(ctx->oraddress, tvb_format_text(tvb_string, 0, tvb_length(tvb_string)));
+			wmem_strbuf_append(ctx->oraddress, tvb_format_text(tvb_string, 0, tvb_captured_length(tvb_string)));
 		}
 	}
 
@@ -936,7 +936,7 @@ static void do_address_str(const char* addr, tvbuff_t* tvb_string, asn1_ctx_t* a
 	do_address(addr, tvb_string, actx);
 
 	if (ctx && ctx->do_address && ddatype && tvb_string)
-		wmem_strbuf_append(ddatype, tvb_format_text(tvb_string, 0, tvb_length(tvb_string)));
+		wmem_strbuf_append(ddatype, tvb_format_text(tvb_string, 0, tvb_captured_length(tvb_string)));
 }
 
 static void do_address_str_tree(const char* addr, tvbuff_t* tvb_string, asn1_ctx_t* actx, proto_tree* tree)
@@ -948,7 +948,7 @@ static void do_address_str_tree(const char* addr, tvbuff_t* tvb_string, asn1_ctx
 
 	if (ctx && ctx->do_address && tvb_string && ddatype) {
 		if (wmem_strbuf_get_len(ddatype) > 0) {
-			proto_item_append_text (tree, " (%s=%s)", wmem_strbuf_get_str(ddatype), tvb_format_text(tvb_string, 0, tvb_length(tvb_string)));
+			proto_item_append_text (tree, " (%s=%s)", wmem_strbuf_get_str(ddatype), tvb_format_text(tvb_string, 0, tvb_captured_length(tvb_string)));
 		}
 	}
 }
@@ -8393,7 +8393,7 @@ dissect_p1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* dat
 	  break;
 	default:
 	  proto_tree_add_text(tree, tvb, offset, -1,"Unsupported P1 PDU");
-	  return tvb_length(tvb);
+	  return tvb_captured_length(tvb);
 	}
 
 	col_set_str(pinfo->cinfo, COL_INFO, p1_op_name);
@@ -8407,7 +8407,7 @@ dissect_p1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* dat
 		}
 	}
 	p1_initialize_content_globals (&asn1_ctx, NULL, FALSE);
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 
