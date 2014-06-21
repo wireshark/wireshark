@@ -50,5 +50,3 @@ CFString_to_C_string(CFStringRef cfstring)
 	return string;
 }
 #endif
-
-
