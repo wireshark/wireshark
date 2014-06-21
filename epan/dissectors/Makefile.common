@@ -826,6 +826,7 @@ DISSECTOR_SRC = \
 	packet-lldp.c		\
 	packet-llrp.c		\
 	packet-llt.c		\
+	packet-lltd.c		\
 	packet-lmi.c		\
 	packet-lmp.c		\
 	packet-logcat.c		\

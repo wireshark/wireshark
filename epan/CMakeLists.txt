@@ -900,6 +900,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-lldp.c
 	dissectors/packet-llrp.c
 	dissectors/packet-llt.c
+	dissectors/packet-lltd.c
 	dissectors/packet-lmi.c
 	dissectors/packet-lmp.c
 	dissectors/packet-logcat.c
