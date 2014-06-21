@@ -45,6 +45,7 @@ set(WSUTIL_FILES
 	base64.c
 	bitswap.c
 	cfutils.c
+	compiler_info.c
 	copyright_info.c
 	crash_info.c
 	crc10.c
