@@ -3077,6 +3077,7 @@ dissect_linux_usb_iso_transfer(packet_info *pinfo _U_, proto_tree *tree,
         guint32       iso_len;
         guint32       iso_pad;
         proto_item   *iso_desc_ti;
+        proto_tree   *iso_desc_tree;
 
         data_base = offset + iso_numdesc * 16;
         urb_tree = tree;
@@ -3088,31 +3089,29 @@ dissect_linux_usb_iso_transfer(packet_info *pinfo _U_, proto_tree *tree,
             tvb_memcpy(tvb, (guint8 *)&iso_off, offset+4,  4);
             tvb_memcpy(tvb, (guint8 *)&iso_len, offset+8,  4);
 
-            if (parent) {
-                iso_desc_ti = proto_tree_add_protocol_format(urb_tree, proto_usb, tvb, offset,
-                        16, "USB isodesc %u [%s]", i, val_to_str_ext(iso_status, &usb_urb_status_vals_ext, "Error %d"));
-                if (iso_len > 0)
-                    proto_item_append_text(iso_desc_ti, " (%u bytes)", iso_len);
-                tree = proto_item_add_subtree(iso_desc_ti, usb_isodesc);
-            }
+            iso_desc_ti = proto_tree_add_protocol_format(urb_tree, proto_usb, tvb, offset,
+                    16, "USB isodesc %u [%s]", i, val_to_str_ext(iso_status, &usb_urb_status_vals_ext, "Error %d"));
+            if (iso_len > 0)
+                proto_item_append_text(iso_desc_ti, " (%u bytes)", iso_len);
+            iso_desc_tree = proto_item_add_subtree(iso_desc_ti, usb_isodesc);
 
-            proto_tree_add_int(tree, hf_usb_iso_status, tvb, offset, 4, iso_status);
+            proto_tree_add_int(iso_desc_tree, hf_usb_iso_status, tvb, offset, 4, iso_status);
             offset += 4;
 
-            proto_tree_add_uint(tree, hf_usb_iso_off, tvb, offset, 4, iso_off);
+            proto_tree_add_uint(iso_desc_tree, hf_usb_iso_off, tvb, offset, 4, iso_off);
             offset += 4;
 
-            proto_tree_add_uint(tree, hf_usb_iso_len, tvb, offset, 4, iso_len);
+            proto_tree_add_uint(iso_desc_tree, hf_usb_iso_len, tvb, offset, 4, iso_len);
             offset += 4;
 
             /* When the ISO status is OK and there is ISO data and this ISO data is
              * fully captured then show this data.
              */
             if (!iso_status && iso_len && data_base + iso_off + iso_len <= tvb_captured_length(tvb))
-                proto_tree_add_item(tree, hf_usb_iso_data, tvb, data_base + iso_off, iso_len, ENC_NA);
+                proto_tree_add_item(iso_desc_tree, hf_usb_iso_data, tvb, data_base + iso_off, iso_len, ENC_NA);
 
             tvb_memcpy(tvb, (guint8 *)&iso_pad, offset, 4);
-            proto_tree_add_uint(tree, hf_usb_iso_pad, tvb, offset, 4, iso_pad);
+            proto_tree_add_uint(iso_desc_tree, hf_usb_iso_pad, tvb, offset, 4, iso_pad);
             offset += 4;
         }
     }
