@@ -40,10 +40,6 @@
 
 #include "version.h"
 
-#ifdef _WIN32
-#include <windows.h>
-#endif
-
 #ifdef HAVE_LIBCAP
 # include <sys/capability.h>
 #endif
@@ -218,23 +214,6 @@ get_runtime_version_info(GString *str, void (*additional_info)(GString *))
 
 	end_string(str);
 }
-
-#if defined(_WIN32)
-/*
- * Get the major OS version.
- */
-/* XXX - Should this return the minor version as well, e.g. 0x00050002? */
-guint32
-get_os_major_version()
-{
-	OSVERSIONINFO info;
-	info.dwOSVersionInfoSize = sizeof info;
-	if (GetVersionEx(&info)) {
-		return info.dwMajorVersion;
-	}
-	return 0;
-}
-#endif
 
 /*
  * Editor modelines

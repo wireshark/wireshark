@@ -66,6 +66,7 @@
 #include <wsutil/filesystem.h>
 #include <wsutil/report_err.h>
 #include <wsutil/copyright_info.h>
+#include <wsutil/os_version_info.h>
 
 #include "globals.h"
 #include <epan/timestamp.h>
@@ -895,7 +896,7 @@ check_capture_privs(void) {
 #ifdef _WIN32
   load_wpcap();
   /* Warn the user if npf.sys isn't loaded. */
-  if (!npf_sys_is_running() && get_os_major_version() >= 6) {
+  if (!npf_sys_is_running() && get_windows_major_version() >= 6) {
     fprintf(stderr, "The NPF driver isn't running.  You may have trouble "
       "capturing or\nlisting interfaces.\n");
   }

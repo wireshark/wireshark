@@ -56,13 +56,6 @@ void get_compiled_version_info(GString *str,
 void get_runtime_version_info(GString *str,
     void (*additional_info)(GString *));
 
-#if defined(_WIN32)
-/*
- * Get the major OS version.
- */
-guint32 get_os_major_version();
-#endif
-
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

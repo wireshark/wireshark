@@ -63,6 +63,7 @@
 #include <wsutil/report_err.h>
 #include <wsutil/u3.h>
 #include <wsutil/copyright_info.h>
+#include <wsutil/os_version_info.h>
 
 #include <wiretap/merge.h>
 
@@ -2100,7 +2101,7 @@ check_and_warn_user_startup(gchar *cf_name _U_)
 
 #ifdef _WIN32
     /* Warn the user if npf.sys isn't loaded. */
-    if (!get_stdin_capture() && !cf_name && !npf_sys_is_running() && recent.privs_warn_if_no_npf && get_os_major_version() >= 6) {
+    if (!get_stdin_capture() && !cf_name && !npf_sys_is_running() && recent.privs_warn_if_no_npf && get_windows_major_version() >= 6) {
         priv_warning_dialog = simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
         "The NPF driver isn't running.  You may have trouble\n"
         "capturing or listing interfaces.");

@@ -476,3 +476,27 @@ get_os_version_info(GString *str)
 	g_string_append(str, "an unknown OS");
 #endif
 }
+
+#if defined(_WIN32)
+/*
+ * Get the Windows major OS version.
+ *
+ * XXX - Should this return the minor version as well, e.g. 0x00050002?
+ *
+ * XXX - I think Microsoft have now stuck it at 6 forever, so it really
+ * distinguishes, on the versions of Windows we currently support and
+ * future Windows versions between Windows 2000/XP (major version 5) and
+ * everything after it (major version 6).
+ */
+guint32
+get_windows_major_version(void)
+{
+	OSVERSIONINFO info;
+
+	info.dwOSVersionInfoSize = sizeof info;
+	if (GetVersionEx(&info)) {
+		return info.dwMajorVersion;
+	}
+	return 0;
+}
+#endif
