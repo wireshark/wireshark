@@ -70,6 +70,7 @@
 #include <wsutil/filesystem.h>
 #include <wsutil/plugins.h>
 #include <wsutil/report_err.h>
+#include <wsutil/copyright_info.h>
 
 #include "globals.h"
 #include <epan/packet.h>

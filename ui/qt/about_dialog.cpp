@@ -50,6 +50,7 @@
 #include "wsutil/file_util.h"
 #include "wsutil/tempfile.h"
 #include "wsutil/plugins.h"
+#include "wsutil/copyright_info.h"
 
 #include "qt_ui_utils.h"
 

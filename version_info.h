@@ -61,11 +61,6 @@ void get_os_version_info(GString *str);
 void get_runtime_version_info(GString *str,
     void (*additional_info)(GString *));
 
-/*
- * Get copyright information.
- */
-const char *get_copyright_info(void);
-
 #if defined(_WIN32)
 /*
  * Get the major OS version.

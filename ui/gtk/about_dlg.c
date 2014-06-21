@@ -29,6 +29,7 @@
 
 #include <wsutil/filesystem.h>
 #include <wsutil/plugins.h>
+#include <wsutil/copyright_info.h>
 #ifdef HAVE_LIBSMI
 #include <epan/oids.h>
 #endif

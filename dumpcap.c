@@ -68,6 +68,7 @@
 #include <errno.h>
 
 #include <wsutil/crash_info.h>
+#include <wsutil/copyright_info.h>
 
 #ifndef HAVE_GETOPT
 #include "wsutil/wsgetopt.h"

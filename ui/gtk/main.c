@@ -62,6 +62,7 @@
 #include <wsutil/privileges.h>
 #include <wsutil/report_err.h>
 #include <wsutil/u3.h>
+#include <wsutil/copyright_info.h>
 
 #include <wiretap/merge.h>
 

@@ -69,6 +69,7 @@
 #include "wsutil/crash_info.h"
 #include "wsutil/privileges.h"
 #include "wsutil/filesystem.h"
+#include "wsutil/copyright_info.h"
 #include "epan/epan.h"
 #include "epan/prefs.h"
 #include "epan/ex-opt.h"
