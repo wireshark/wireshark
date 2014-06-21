@@ -47,6 +47,7 @@ set(WSUTIL_FILES
 	cfutils.c
 	compiler_info.c
 	copyright_info.c
+	cpu_info.c
 	crash_info.c
 	crc10.c
 	crc16.c
