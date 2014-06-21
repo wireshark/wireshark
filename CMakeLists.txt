@@ -36,6 +36,9 @@ if (POLICY CMP0020)
 	cmake_policy(SET CMP0020 OLD)
 endif()
 
+#Where to find local cmake scripts
+set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules)
+
 # This cannot be implemented via option(...)
 if( NOT CMAKE_BUILD_TYPE )
 	set( CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING
@@ -44,6 +47,22 @@ if( NOT CMAKE_BUILD_TYPE )
 endif()
 message(STATUS "Configuration types: ${CMAKE_CONFIGURATION_TYPES}")
 message(STATUS "${CMAKE_BUILD_TYPE}: ${CMAKE_C_FLAGS_RELWITHDEBINFO}")
+#Where to put executables and libraries in the build tree
+if(NOT ARCHIVE_OUTPUT_PATH)
+	set(ARCHIVE_OUTPUT_PATH ${Wireshark_BINARY_DIR}/run CACHE INTERNAL
+		   "Single output directory for building all archives.")
+endif()
+if(NOT EXECUTABLE_OUTPUT_PATH)
+	set(EXECUTABLE_OUTPUT_PATH ${Wireshark_BINARY_DIR}/run CACHE INTERNAL
+		   "Single output directory for building all executables.")
+endif()
+if(NOT LIBRARY_OUTPUT_PATH)
+	set(LIBRARY_OUTPUT_PATH ${Wireshark_BINARY_DIR}/run CACHE INTERNAL
+		   "Single output directory for building all libraries.")
+endif()
+# Under linux the release mode (CMAKE_BUILD_TYPE=release) defines NDEBUG
+#Defines CMAKE_INSTALL_BINDIR, CMAKE_INSTALL_DATADIR, etc ...
+include(CMakeInstallDirs)
 
 # set(PROJECT_MAJOR_VERSION 1)
 # set(PROJECT_MINOR_VERSION 9)
@@ -85,7 +104,6 @@ if(NOT PROJECT_MAJOR_VERSION)
 	)
 endif()
 
-
 if(PROJECT_VERSION_EXTENSION)
 	set(PROJECT_VERSION ${PROJECT_MAJOR_VERSION}.${PROJECT_MINOR_VERSION}.${PROJECT_PATCH_VERSION}${PROJECT_VERSION_EXTENSION})
 else()
@@ -94,17 +112,10 @@ endif()
 
 message(STATUS "V: ${PROJECT_VERSION}, MaV: ${PROJECT_MAJOR_VERSION}, MiV: ${PROJECT_MINOR_VERSION}, PL: ${PROJECT_PATCH_VERSION}, EV: ${PROJECT_VERSION_EXTENSION}.")
 
-#Where to find local cmake scripts
-set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules)
 include(UseLemon)
 include(UseMakeDissectorReg)
 include(UseMakeTapReg)
 include(UseAsn2Wrs)
-
-# Under linux the release mode (CMAKE_BUILD_TYPE=release) defines NDEBUG
-
-#Defines CMAKE_INSTALL_BINDIR, CMAKE_INSTALL_DATADIR, etc ...
-include(CMakeInstallDirs)
 
 include_directories(
 	${CMAKE_BINARY_DIR}
@@ -114,20 +125,6 @@ include_directories(
 	${CMAKE_SOURCE_DIR}/tools/lemon
 	${CMAKE_SOURCE_DIR}/wiretap
 )
-
-#Where to put executables and libraries in the build tree
-if(NOT ARCHIVE_OUTPUT_PATH)
-	set(ARCHIVE_OUTPUT_PATH ${Wireshark_BINARY_DIR}/run CACHE INTERNAL
-		   "Single output directory for building all archives.")
-endif()
-if(NOT EXECUTABLE_OUTPUT_PATH)
-	set(EXECUTABLE_OUTPUT_PATH ${Wireshark_BINARY_DIR}/run CACHE INTERNAL
-		   "Single output directory for building all executables.")
-endif()
-if(NOT LIBRARY_OUTPUT_PATH)
-	set(LIBRARY_OUTPUT_PATH ${Wireshark_BINARY_DIR}/run CACHE INTERNAL
-		   "Single output directory for building all libraries.")
-endif()
 
 include( CMakeOptions.txt )
 if( DUMPCAP_INSTALL_OPTION STREQUAL "suid" )
