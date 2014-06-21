@@ -3076,6 +3076,7 @@ dissect_linux_usb_iso_transfer(packet_info *pinfo _U_, proto_tree *tree,
         guint32       iso_off;
         guint32       iso_len;
         guint32       iso_pad;
+        proto_item   *iso_desc_ti;
 
         data_base = offset + iso_numdesc * 16;
         urb_tree = tree;
@@ -3088,12 +3089,11 @@ dissect_linux_usb_iso_transfer(packet_info *pinfo _U_, proto_tree *tree,
             tvb_memcpy(tvb, (guint8 *)&iso_len, offset+8,  4);
 
             if (parent) {
-                proto_item *ti;
-                ti = proto_tree_add_protocol_format(urb_tree, proto_usb, tvb, offset,
+                iso_desc_ti = proto_tree_add_protocol_format(urb_tree, proto_usb, tvb, offset,
                         16, "USB isodesc %u [%s]", i, val_to_str_ext(iso_status, &usb_urb_status_vals_ext, "Error %d"));
                 if (iso_len > 0)
-                    proto_item_append_text(ti, " (%u bytes)", iso_len);
-                tree = proto_item_add_subtree(ti, usb_isodesc);
+                    proto_item_append_text(iso_desc_ti, " (%u bytes)", iso_len);
+                tree = proto_item_add_subtree(iso_desc_ti, usb_isodesc);
             }
 
             proto_tree_add_int(tree, hf_usb_iso_status, tvb, offset, 4, iso_status);
