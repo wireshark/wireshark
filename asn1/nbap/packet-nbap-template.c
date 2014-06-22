@@ -427,9 +427,9 @@ static void nbap_init(void){
 	if(com_context_map){
 		g_tree_destroy(com_context_map);
 	}
-/*	if(edch_flow_port_map){
+	if(edch_flow_port_map){
 		g_tree_destroy(edch_flow_port_map);
-	}*/
+	}
 	/*Initialize*/
 	com_context_map = g_tree_new_full(nbap_key_cmp,
                        NULL,      /* data pointer, optional */
