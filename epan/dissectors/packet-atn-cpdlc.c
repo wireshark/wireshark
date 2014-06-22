@@ -5325,7 +5325,6 @@ dissect_atn_cpdlc(
 		/* The use of CPDLC is *optional* as the pilot  */
 		/* may always use a voice radio channel to talk to the controller.*/
 
-		proto_item *ti = NULL;
 		proto_tree *atn_cpdlc_tree = NULL;
 		atn_conversation_t *atn_cv = NULL;
 
@@ -7911,7 +7910,7 @@ void proto_register_atn_cpdlc (void)
         NULL, HFILL }},
 
 /*--- End of included file: packet-atn-cpdlc-hfarr.c ---*/
-#line 309 "../../asn1/atn-cpdlc/packet-atn-cpdlc-template.c"
+#line 308 "../../asn1/atn-cpdlc/packet-atn-cpdlc-template.c"
 			};
 
 		static gint *ett[] = {
@@ -8062,7 +8061,7 @@ void proto_register_atn_cpdlc (void)
     &ett_atn_cpdlc_WindSpeed,
 
 /*--- End of included file: packet-atn-cpdlc-ettarr.c ---*/
-#line 313 "../../asn1/atn-cpdlc/packet-atn-cpdlc-template.c"
+#line 312 "../../asn1/atn-cpdlc/packet-atn-cpdlc-template.c"
 				&ett_atn_cpdlc
 		};
 

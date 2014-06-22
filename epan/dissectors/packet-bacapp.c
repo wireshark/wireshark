@@ -8913,7 +8913,6 @@ flistOfEventSummaries(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
     guint8      tag_no, tag_info;
     guint32     lvt;
     proto_tree* subtree = tree;
-    proto_item* ti = 0;
 
     while (tvb_reported_length_remaining(tvb, offset) > 0) {  /* exit loop if nothing happens inside */
         lastoffset = offset;

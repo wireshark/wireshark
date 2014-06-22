@@ -46,7 +46,6 @@ PDV-list/presentation-data-values/arbitrary pdv-list_presentation-data-values_ar
 
 		packet_info * pinfo = actx->pinfo;
 		tvbuff_t *tvb_usr = NULL;
-		proto_item *ti = NULL;
 		proto_tree *atn_ulcs_tree = NULL;
 		atn_conversation_t *atn_cv = NULL;
 		heur_dtbl_entry_t *hdtbl_entry;

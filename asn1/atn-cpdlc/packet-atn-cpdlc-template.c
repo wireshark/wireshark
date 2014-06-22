@@ -128,7 +128,6 @@ dissect_atn_cpdlc(
 		/* The use of CPDLC is *optional* as the pilot  */
 		/* may always use a voice radio channel to talk to the controller.*/
 
-		proto_item *ti = NULL;
 		proto_tree *atn_cpdlc_tree = NULL;
 		atn_conversation_t *atn_cv = NULL;
 

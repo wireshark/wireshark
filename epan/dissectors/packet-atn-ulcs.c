@@ -380,7 +380,6 @@ dissect_atn_ulcs_T_pdv_list_presentation_data_values_arbitrary(tvbuff_t *tvb _U_
 
 		packet_info * pinfo = actx->pinfo;
 		tvbuff_t *tvb_usr = NULL;
-		proto_item *ti = NULL;
 		proto_tree *atn_ulcs_tree = NULL;
 		atn_conversation_t *atn_cv = NULL;
 		heur_dtbl_entry_t *hdtbl_entry;
