@@ -4612,7 +4612,7 @@ decode_apn(tvbuff_t * tvb, int offset, guint16 length, proto_tree * tree, proto_
     guint    curr_len;
 
     /* init buffer and copy it */
-    memset(str, 0, MAX_APN_LENGTH);
+    memset(str, 0, MAX_APN_LENGTH+1);
     tvb_memcpy(tvb, str, offset, length<MAX_APN_LENGTH?length:MAX_APN_LENGTH);
 
     curr_len = 0;
