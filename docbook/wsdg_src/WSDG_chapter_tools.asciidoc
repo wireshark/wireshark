@@ -82,12 +82,18 @@ Click on one of the "Install Cygwin now" links to download the
 appropriate setup utility.  After the download completes, run it.
 
 The setup utility will ask you for some settings. The defaults
-should usually work well, at least initially. At the "Select
-Packages" page, you'll need to select some additional packages,
-which are not installed by default. Navigate to the required
-Category/Package row and click on the "Skip" item in the "New"
-column so it shows a version number for the required
-package.
+should usually work well, at least initially.
+
+If, at the "Choose A Download Source" page, you use the default "Install
+from Internet" setting, you will need to choose a download site at the
+"Choose A Download Site" page.  See the list of mirror sites at
+http://cygwin.com/mirrors.html[] to choose a download site appropriate
+to your location.
+
+At the "Select Packages" page, you'll need to select some additional
+packages, which are not installed by default.  Navigate to the required
+Category/Package row and click on the "Skip" item in the "New" column so
+it shows a version number for the required package.
 
 After clicking the Next button several times the setup
 will then download and install the selected packages (this may
