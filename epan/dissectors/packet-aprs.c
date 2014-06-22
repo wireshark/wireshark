@@ -848,17 +848,12 @@ dissect_aprs_storm(	tvbuff_t   *tvb,
 			const storm_items_s *storm_items
 			)
 {
-	proto_tree  *storm_tree	  = NULL;
+	proto_tree  *storm_tree;
+	proto_tree *tc;
 
-	if ( parent_tree )
-		{
-		proto_tree *tc;
-		int	    data_len;
+	tc = proto_tree_add_item( parent_tree, hf_aprs_storm_idx, tvb, offset, -1, ENC_ASCII|ENC_NA );
+	storm_tree = proto_item_add_subtree( tc, ett_aprs_storm_idx );
 
-		data_len = tvb_reported_length_remaining( tvb, offset );
-		tc = proto_tree_add_item( parent_tree, hf_aprs_storm_idx, tvb, offset, data_len, ENC_ASCII|ENC_NA );
-		storm_tree = proto_item_add_subtree( tc, ett_aprs_storm_idx );
-		}
 	proto_tree_add_item( storm_tree, *storm_items->hf_aprs_storm_dir,  tvb, offset, 3, ENC_BIG_ENDIAN );
 	offset += 3;
 	offset += 1;

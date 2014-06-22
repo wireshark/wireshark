@@ -2146,7 +2146,7 @@ static guint16
 de_bssgp_pfc_flow_ctrl(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     proto_tree *pfc_tree;
-    proto_item *pi, *ti2;
+    proto_item *pi;
 
     guint32 curr_offset;
     guint8 num_pfc, i, pfc_len;
@@ -2172,9 +2172,8 @@ de_bssgp_pfc_flow_ctrl(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, 
     b_pfc_included = (pfc_len == 6);
 
     for (i = 0; i < num_pfc; i++) {
-        ti2 = proto_tree_add_text(tree, tvb, curr_offset, pfc_len,
-                      "PFC (%u)", i + 1);
-        pfc_tree = proto_item_add_subtree(ti2, ett_bssgp_pfc_flow_control_parameters_pfc);
+        pfc_tree = proto_tree_add_subtree_format(tree, tvb, curr_offset, pfc_len,
+                      ett_bssgp_pfc_flow_control_parameters_pfc, NULL, "PFC (%u)", i + 1);
 
         /* PFI: Packet Flow Identifier.
          * Coded as the value part of the Packet Flow Identifier information element in
@@ -2409,7 +2408,6 @@ static value_string_ext bssgp_mbms_num_ra_ids_vals_ext = VALUE_STRING_EXT_INIT(b
 static guint16
 de_bssgp_mbms_ra_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-    proto_item *ti;
     proto_tree *rai_tree;
     guint32 curr_offset;
     guint8 num_ra_ids;
@@ -2423,8 +2421,8 @@ de_bssgp_mbms_ra_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, g
 
     /* octet 4 - 11 Routing Area Identification 1 (etc)*/
     for (i = 0; i < num_ra_ids; i++) {
-        ti = proto_tree_add_text(tree, tvb, curr_offset, 8, "Routing Area Identification (%u)", i + 1);
-        rai_tree = proto_item_add_subtree(ti, ett_bssgp_ra_id);
+        rai_tree = proto_tree_add_subtree_format(tree, tvb, curr_offset, 8,
+                    ett_bssgp_ra_id, NULL, "Routing Area Identification (%u)", i + 1);
 
         /* The element is coded as the Routing Area Identification information element in
          * 3GPP TS 24.008, not including 3GPP TS 24.008 IEI and 3GPP TS 24.008 length indicator.
@@ -2520,7 +2518,7 @@ static guint16
 de_bssgp_pfcs_to_be_set_up_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     proto_tree *pfc_tree, *pft_tree, *abqp_tree, *arp_tree, *t10_tree;
-    proto_item *pi, *ti2;
+    proto_item *pi;
 
     guint32 curr_offset;
     guint8 num_pfc, i, pfc_len;
@@ -2544,9 +2542,8 @@ de_bssgp_pfcs_to_be_set_up_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
     pfc_len = (len - 1) / num_pfc;
 
     for (i = 0; i < num_pfc; i++) {
-        ti2 = proto_tree_add_text(tree, tvb, curr_offset, pfc_len,
-                      "PFC (%u)", i + 1);
-        pfc_tree = proto_item_add_subtree(ti2, ett_bssgp_pfcs_to_be_set_up_list);
+        pfc_tree = proto_tree_add_subtree_format(tree, tvb, curr_offset, pfc_len,
+                      ett_bssgp_pfcs_to_be_set_up_list, NULL, "PFC (%u)", i + 1);
 
         de_sm_pflow_id(tvb, pfc_tree, pinfo, curr_offset, 1, NULL, 0);
         curr_offset++;
@@ -2554,8 +2551,8 @@ de_bssgp_pfcs_to_be_set_up_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
         /* PFT: Packet Flow Timer. Coded as the GPRS Timer information element,
          * see sub-clause 11.3.44.
          */
-        proto_tree_add_text(pfc_tree, tvb, curr_offset, 3, "Packet Flow Timer(PFT)");
-        pft_tree = proto_item_add_subtree(ti2, ett_bssgp_pfcs_to_be_set_up_list_pft);
+        pft_tree = proto_tree_add_subtree(pfc_tree, tvb, curr_offset, 3,
+                    ett_bssgp_pfcs_to_be_set_up_list_pft, NULL, "Packet Flow Timer(PFT)");
         proto_tree_add_item(pft_tree, hf_bssgp_unit_val, tvb, curr_offset, 3, ENC_BIG_ENDIAN);
         proto_tree_add_item(pft_tree, hf_bssgp_gprs_timer, tvb, curr_offset, 3, ENC_BIG_ENDIAN);
         curr_offset += 3;
@@ -2563,8 +2560,8 @@ de_bssgp_pfcs_to_be_set_up_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
         /* ABQP: Aggregate BSS QoS Profile.
          * Coded as the Aggregate BSS QoS Profile information element, see sub-clause 11.3.43.
          */
-        proto_tree_add_text(pfc_tree, tvb, curr_offset, 3, "Aggregate BSS QoS Profile(ABQP)");
-        abqp_tree = proto_item_add_subtree(ti2, ett_bssgp_pfcs_to_be_set_up_list_abqp);
+        abqp_tree = proto_tree_add_subtree(pfc_tree, tvb, curr_offset, 3,
+            ett_bssgp_pfcs_to_be_set_up_list_abqp, NULL, "Aggregate BSS QoS Profile(ABQP)");
         /* Unsure about length 16 */
         curr_offset = curr_offset + de_sm_qos(tvb, abqp_tree, pinfo, curr_offset, 16, NULL, 0);
 
@@ -2573,8 +2570,8 @@ de_bssgp_pfcs_to_be_set_up_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
          * This information element is optionally included.
          */
         if(pfc_len>17){
-            proto_tree_add_text(pfc_tree, tvb, curr_offset, 3, "Allocation/Retention Priority");
-            arp_tree = proto_item_add_subtree(ti2, ett_bssgp_pfcs_to_be_set_up_list_arp);
+            arp_tree = proto_tree_add_subtree(pfc_tree, tvb, curr_offset, 3,
+                ett_bssgp_pfcs_to_be_set_up_list_arp, NULL, "Allocation/Retention Priority");
             curr_offset = curr_offset + be_prio(tvb, arp_tree, pinfo, curr_offset, 1, NULL, 0);
         }
         /* T10: T10.
@@ -2583,8 +2580,8 @@ de_bssgp_pfcs_to_be_set_up_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
          * is present and if queuing is allowed for the PFC.
          */
         if(pfc_len>18){
-            proto_tree_add_text(pfc_tree, tvb, curr_offset, 3, "T10");
-            t10_tree = proto_item_add_subtree(ti2, ett_bssgp_pfcs_to_be_set_up_list_t10);
+            t10_tree = proto_tree_add_subtree(pfc_tree, tvb, curr_offset, 3,
+                    ett_bssgp_pfcs_to_be_set_up_list_t10, NULL, "T10");
             proto_tree_add_item(t10_tree, hf_bssgp_unit_val, tvb, curr_offset, 3, ENC_BIG_ENDIAN);
             proto_tree_add_item(t10_tree, hf_bssgp_gprs_timer, tvb, curr_offset, 3, ENC_BIG_ENDIAN);
             curr_offset += 3;
@@ -2599,7 +2596,7 @@ static guint16
 de_bssgp_list_of_setup_pfcs(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     proto_tree *pfc_tree;
-    proto_item *pi, *ti2;
+    proto_item *pi;
 
     guint32 curr_offset;
     guint8 num_pfc, i;
@@ -2621,9 +2618,8 @@ de_bssgp_list_of_setup_pfcs(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo 
         return (curr_offset-offset);
 
     for (i = 0; i < num_pfc; i++) {
-        ti2 = proto_tree_add_text(tree, tvb, curr_offset, 1,
-                      "PFC (%u)", i + 1);
-        pfc_tree = proto_item_add_subtree(ti2, ett_bssgp_list_of_setup_pfcs);
+        pfc_tree = proto_tree_add_subtree_format(tree, tvb, curr_offset, 1,
+                      ett_bssgp_list_of_setup_pfcs, NULL, "PFC (%u)", i + 1);
 
         de_sm_pflow_id(tvb, pfc_tree, pinfo, curr_offset, 1, NULL, 0);
         curr_offset++;
@@ -2949,7 +2945,7 @@ static guint16
 de_bssgp_active_pfcs_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     proto_tree *pfc_tree;
-    proto_item *pi, *ti2;
+    proto_item *pi;
 
     guint32 curr_offset;
     guint8 num_pfc, i;
@@ -2971,8 +2967,8 @@ de_bssgp_active_pfcs_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U
         return (curr_offset-offset);
 
     for (i = 0; i < num_pfc; i++) {
-        ti2 = proto_tree_add_text(tree, tvb, curr_offset, 1, "PFC (%u)", i + 1);
-        pfc_tree = proto_item_add_subtree(ti2, ett_bssgp_pfc_flow_control_parameters_pfc);
+        pfc_tree = proto_tree_add_subtree_format(tree, tvb, curr_offset, 1,
+            ett_bssgp_pfc_flow_control_parameters_pfc, NULL, "PFC (%u)", i + 1);
 
         de_sm_pflow_id(tvb, pfc_tree, pinfo, curr_offset, 1, NULL, 0);
         curr_offset++;

@@ -184,8 +184,8 @@ dissect_bmc_schedule_message(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
     proto_tree_add_item(tree, hf_bmc_new_message_bitmap, tvb, offset, new_message_bitmap_len, ENC_NA);
     offset += new_message_bitmap_len;
 
-    ti = proto_tree_add_text(tree, tvb, offset, 0, "Message Description" );
-    message_description_tree = proto_item_add_subtree(ti, ett_bmc_message_description);
+    message_description_tree = proto_tree_add_subtree(tree, tvb, offset, 0,
+                    ett_bmc_message_description, &ti, "Message Description" );
     saved_offset = offset;
 
     bit=1;

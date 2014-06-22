@@ -162,7 +162,6 @@ static int dissect_generic_rateinfo(tvbuff_t *tvb, packet_info *pinfo _U_, proto
 {
 	int offset = 0;
 	guint16 i;
-	proto_item *ti;
 	guint16 numclasses = tvb_get_ntohs(tvb, 0);
 	proto_tree *classes_tree = NULL, *groups_tree, *group_tree;
 	proto_tree_add_uint(tree, hf_generic_rateinfo_numclasses, tvb, 0, 2, numclasses );
@@ -170,19 +169,18 @@ static int dissect_generic_rateinfo(tvbuff_t *tvb, packet_info *pinfo _U_, proto
 
 	if(tree) {
 		/* sizeof(rate_class_struct) = 35 ! */
-		ti = proto_tree_add_text(tree, tvb, offset, 35 * numclasses, "Available Rate Classes");
-		classes_tree = proto_item_add_subtree(ti, ett_generic_rateinfo_classes);
+		classes_tree = proto_tree_add_subtree(tree, tvb, offset, 35 * numclasses,
+						ett_generic_rateinfo_classes, NULL, "Available Rate Classes");
 	}
 
 	for(i = 0; i < numclasses; i++) {
 		guint16 myid = tvb_get_ntohs(tvb, offset);
-		proto_item *ti_local = proto_tree_add_text(classes_tree, tvb, offset, 35, "Rate Class 0x%02x", myid);
-		proto_tree *class_tree = proto_item_add_subtree(ti_local, ett_generic_rateinfo_class);
+		proto_tree *class_tree = proto_tree_add_subtree_format(classes_tree, tvb, offset, 35,
+						ett_generic_rateinfo_class, NULL, "Rate Class 0x%02x", myid);
 		offset = dissect_rate_class(tvb, pinfo, offset, class_tree);
 	}
 
-	ti = proto_tree_add_text(tree, tvb, offset, -1, "Rate Groups");
-	groups_tree = proto_item_add_subtree(ti, ett_generic_rateinfo_groups);
+	groups_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_generic_rateinfo_groups, NULL, "Rate Groups");
 
 	for(i = 0; i < numclasses; i++) {
 		guint16 j;
@@ -192,8 +190,8 @@ static int dissect_generic_rateinfo(tvbuff_t *tvb, packet_info *pinfo _U_, proto
 		 * sizeof(rate_group) = sizeof(class_id) + sizeof(numpairs) + numpairs * 2 * sizeof(uint16_t)
 		 *                    = 2 + 2 + numpairs * 4
 		 */
-		proto_item *ti_local = proto_tree_add_text(groups_tree, tvb, offset, 4 + 4 * numpairs, "Rate Group 0x%02x", myid);
-		group_tree = proto_item_add_subtree(ti_local, ett_generic_rateinfo_group);
+		group_tree = proto_tree_add_subtree_format(groups_tree, tvb, offset, 4 + 4 * numpairs,
+									ett_generic_rateinfo_group, NULL, "Rate Group 0x%02x", myid);
 		proto_tree_add_uint(group_tree, hf_generic_rateinfo_classid, tvb, offset, 2, myid);offset+=2;
 		proto_tree_add_uint(group_tree, hf_generic_rateinfo_numpairs, tvb, offset, 2, numpairs); offset+=2;
 		for(j = 0; j < numpairs; j++) {
@@ -217,18 +215,16 @@ static int dissect_generic_rateinfo(tvbuff_t *tvb, packet_info *pinfo _U_, proto
 static int dissect_aim_generic_clientready(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *gen_tree)
 {
 	int offset = 0;
-	proto_item *ti = proto_tree_add_text(gen_tree, tvb, 0, tvb_length(tvb), "Supported services");
-	proto_tree *entry = proto_item_add_subtree(ti, ett_generic_clientready);
+	proto_tree *entry = proto_tree_add_subtree(gen_tree, tvb, 0, -1, ett_generic_clientready, NULL, "Supported services");
 
 	while(tvb_length_remaining(tvb, offset) > 0) {
 		guint16 famnum = tvb_get_ntohs(tvb, offset);
 		const aim_family *family = aim_get_family(famnum);
 
 		proto_tree *subentry;
-		ti = proto_tree_add_text(entry, tvb, offset, 2, "%s (0x%x)", family?family->name:"Unknown Family", famnum);
+		subentry = proto_tree_add_subtree_format(entry, tvb, offset, 2, ett_generic_clientready_item, NULL,
+						"%s (0x%x)", family?family->name:"Unknown Family", famnum);
 		offset+=2;
-
-		subentry = proto_item_add_subtree(ti, ett_generic_clientready_item);
 
 		proto_tree_add_text(subentry, tvb, offset, 2, "Version: %d", tvb_get_ntohs(tvb, offset) ); offset += 2;
 		proto_tree_add_text(subentry, tvb, offset, 4, "DLL Version: %u", tvb_get_ntoh24(tvb, offset) ); offset += 4;
@@ -240,8 +236,7 @@ static int dissect_aim_generic_clientready(tvbuff_t *tvb, packet_info *pinfo _U_
 static int dissect_aim_generic_serverready(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *gen_tree)
 {
 	int offset = 0;
-	proto_item *ti = proto_tree_add_text(gen_tree, tvb, offset, tvb_length(tvb), "Supported services");
-	proto_tree *entry = proto_item_add_subtree(ti, ett_generic_clientready);
+	proto_tree *entry = proto_tree_add_subtree(gen_tree, tvb, offset, -1, ett_generic_clientready, NULL, "Supported services");
 
 	while(tvb_length_remaining(tvb, offset) > 0) {
 		guint16 famnum = tvb_get_ntohs(tvb, offset);
@@ -271,8 +266,7 @@ static int dissect_aim_generic_redirect(tvbuff_t *tvb, packet_info *pinfo, proto
 static int dissect_aim_generic_capabilities(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *gen_tree)
 {
 	int offset = 0;
-	proto_item *ti = proto_tree_add_text(gen_tree, tvb, offset, tvb_length(tvb), "Requested services");
-	proto_tree *entry = proto_item_add_subtree(ti, ett_generic_clientready);
+	proto_tree *entry = proto_tree_add_subtree(gen_tree, tvb, offset, -1, ett_generic_clientready, NULL, "Requested services");
 
 	while(tvb_length_remaining(tvb, offset) > 0) {
 		guint16 famnum = tvb_get_ntohs(tvb, offset);
@@ -286,8 +280,7 @@ static int dissect_aim_generic_capabilities(tvbuff_t *tvb, packet_info *pinfo _U
 static int dissect_aim_generic_capack(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *gen_tree)
 {
 	int offset = 0;
-	proto_item *ti = proto_tree_add_text(gen_tree, tvb, offset, tvb_length(tvb), "Accepted requested services");
-	proto_tree *entry = proto_item_add_subtree(ti, ett_generic_clientready);
+	proto_tree *entry = proto_tree_add_subtree(gen_tree, tvb, offset, -1, ett_generic_clientready, NULL, "Accepted requested services");
 
 	while(tvb_length_remaining(tvb, offset) > 0) {
 		guint16 famnum = tvb_get_ntohs(tvb, offset);
@@ -343,13 +336,12 @@ static int dissect_aim_generic_migration_req(tvbuff_t *tvb, packet_info *pinfo, 
 {
 	int offset = 0;
 	guint32 n, i;
-	proto_item *ti;
 	proto_tree *entry;
 
 	n = tvb_get_ntohs(tvb, offset);offset+=2;
 	proto_tree_add_uint(gen_tree, hf_generic_migration_numfams, tvb, offset, 2, n);
-	ti = proto_tree_add_text(gen_tree, tvb, offset, 2 * n, "Families to migrate");
-	entry = proto_item_add_subtree(ti, ett_generic_migratefamilies);
+	entry = proto_tree_add_subtree(gen_tree, tvb, offset, 2 * n,
+			ett_generic_migratefamilies, NULL, "Families to migrate");
 	for(i = 0; i < n; i++) {
 		guint16 famnum = tvb_get_ntohs(tvb, offset);
 		const aim_family *family = aim_get_family(famnum);

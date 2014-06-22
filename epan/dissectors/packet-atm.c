@@ -286,9 +286,8 @@ dissect_lan_destination(tvbuff_t *tvb, int offset, const char *type, proto_tree 
   guint16     tag;
   proto_tree *rd_tree;
 
-  td = proto_tree_add_text(tree, tvb, offset, 8, "%s LAN destination",
-                           type);
-  dest_tree = proto_item_add_subtree(td, ett_atm_lane_lc_lan_dest);
+  dest_tree = proto_tree_add_subtree_format(tree, tvb, offset, 8,
+                                    ett_atm_lane_lc_lan_dest, NULL, "%s LAN destination", type);
   tag = tvb_get_ntohs(tvb, offset);
   proto_tree_add_item(dest_tree, hf_atm_lan_destination_tag, tvb, offset, 2, ENC_BIG_ENDIAN );
   offset += 2;
@@ -301,7 +300,7 @@ dissect_lan_destination(tvbuff_t *tvb, int offset, const char *type, proto_tree 
 
   case TAG_ROUTE_DESCRIPTOR:
     offset += 4;
-    proto_tree_add_item(dest_tree, hf_atm_lan_destination_route_desc, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    td = proto_tree_add_item(dest_tree, hf_atm_lan_destination_route_desc, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     rd_tree = proto_item_add_subtree(td, ett_atm_lane_lc_lan_dest_rd);
     proto_tree_add_item(rd_tree, hf_atm_lan_destination_lan_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(rd_tree, hf_atm_lan_destination_bridge_num, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -369,15 +368,13 @@ dissect_le_control_tlvs(tvbuff_t *tvb, int offset, guint num_tlvs,
 {
   guint32     tlv_type;
   guint8      tlv_length;
-  proto_item *ttlv;
   proto_tree *tlv_tree;
 
   while (num_tlvs != 0) {
     tlv_type = tvb_get_ntohl(tvb, offset);
     tlv_length = tvb_get_guint8(tvb, offset+4);
-    ttlv = proto_tree_add_text(tree, tvb, offset, 5+tlv_length, "TLV type: %s",
-                               val_to_str(tlv_type, le_tlv_type_vals, "Unknown (0x%08x)"));
-    tlv_tree = proto_item_add_subtree(ttlv, ett_atm_lane_lc_tlv);
+    tlv_tree = proto_tree_add_subtree_format(tree, tvb, offset, 5+tlv_length, ett_atm_lane_lc_tlv, NULL,
+                                                "TLV type: %s", val_to_str(tlv_type, le_tlv_type_vals, "Unknown (0x%08x)"));
     proto_tree_add_item(tlv_tree, hf_atm_le_control_tlv_type, tvb, offset, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(tlv_tree, hf_atm_le_control_tlv_length, tvb, offset+4, 1, ENC_BIG_ENDIAN);
     offset += 5+tlv_length;

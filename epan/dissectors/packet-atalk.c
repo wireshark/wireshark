@@ -609,7 +609,7 @@ dissect_rtmp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
     i = 1;
     while (tvb_offset_exists(tvb, offset)) {
-      proto_tree *tuple_item, *tuple_tree;
+      proto_tree *tuple_tree;
       guint16 tuple_net;
       guint8 tuple_dist;
       guint16 tuple_range_end;
@@ -619,15 +619,16 @@ dissect_rtmp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
       if (tuple_dist & 0x80) {
         tuple_range_end = tvb_get_ntohs(tvb, offset+3);
-        tuple_item = proto_tree_add_text(rtmp_tree, tvb, offset, 6,
+        tuple_tree = proto_tree_add_subtree_format(rtmp_tree, tvb, offset, 6,
+                                         ett_rtmp_tuple, NULL,
                                          "Tuple %d:  Range Start: %u  Dist: %u  Range End: %u",
                                          i, tuple_net, tuple_dist&0x7F, tuple_range_end);
       } else {
-        tuple_item = proto_tree_add_text(rtmp_tree, tvb, offset, 3,
+        tuple_tree = proto_tree_add_subtree_format(rtmp_tree, tvb, offset, 3,
+                                         ett_rtmp_tuple, NULL,
                                          "Tuple %d:  Net: %u  Dist: %u",
                                          i, tuple_net, tuple_dist);
       }
-      tuple_tree = proto_item_add_subtree(tuple_item, ett_rtmp_tuple);
 
       if (tuple_dist & 0x80) {
         proto_tree_add_uint(tuple_tree, hf_rtmp_tuple_range_start, tvb, offset, 2,
@@ -693,9 +694,8 @@ dissect_nbp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
       proto_tree *node_item,*node_tree;
       int soffset = offset;
 
-      node_item = proto_tree_add_text(nbp_tree, tvb, offset, -1,
-                                      "Node %u", i+1);
-      node_tree = proto_item_add_subtree(node_item, ett_nbp_node);
+      node_tree = proto_tree_add_subtree_format(nbp_tree, tvb, offset, -1,
+                                      ett_nbp_node, &node_item, "Node %u", i+1);
 
       proto_tree_add_item(node_tree, hf_nbp_node_net, tvb, offset, 2, ENC_BIG_ENDIAN);
       offset += 2;

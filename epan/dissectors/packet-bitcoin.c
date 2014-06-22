@@ -714,8 +714,7 @@ dissect_bitcoin_msg_getdata(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
   {
     proto_tree *subtree;
 
-    ti = proto_tree_add_text(tree, tvb, offset, 36, "Inventory vector");
-    subtree = proto_item_add_subtree(ti, ett_getdata_list);
+    subtree = proto_tree_add_subtree(tree, tvb, offset, 36, ett_getdata_list, NULL, "Inventory vector");
 
     proto_tree_add_item(subtree, &hfi_msg_getdata_type, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;

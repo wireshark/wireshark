@@ -53,8 +53,8 @@ static int hf_iap_unknown_bytes = -1;
 static int
 dissect_aruba_iap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    proto_tree *ti = NULL;
-    proto_tree *aruba_iap_tree = NULL;
+    proto_tree *ti;
+    proto_tree *aruba_iap_tree;
     guint16 magic;
     int offset = 0;
 
@@ -68,10 +68,8 @@ dissect_aruba_iap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "IAP");
     col_clear(pinfo->cinfo, COL_INFO);
 
-    if (tree) {
-        ti = proto_tree_add_item(tree, proto_aruba_iap, tvb, 0, 0, ENC_NA);
-        aruba_iap_tree = proto_item_add_subtree(ti, ett_aruba_iap);
-    }
+    ti = proto_tree_add_item(tree, proto_aruba_iap, tvb, 0, 0, ENC_NA);
+    aruba_iap_tree = proto_item_add_subtree(ti, ett_aruba_iap);
 
     proto_tree_add_item(aruba_iap_tree, hf_iap_magic, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;

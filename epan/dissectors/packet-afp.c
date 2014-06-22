@@ -1344,17 +1344,15 @@ decode_file_bitmap (proto_tree *tree, tvbuff_t *tvb, gint offset)
 static guint16
 decode_file_attribute(proto_tree *tree, tvbuff_t *tvb, gint offset, int shared)
 {
-	proto_tree *sub_tree = NULL;
-	proto_item *item;
+	proto_tree *sub_tree;
 	guint16	    attribute;
 
 	attribute = tvb_get_ntohs(tvb, offset);
 	if (!tree) {
 		return attribute;
 	}
-	item = proto_tree_add_text(tree, tvb, offset, 2,
+	sub_tree = proto_tree_add_subtree_format(tree, tvb, offset, 2, ett_afp_file_attribute, NULL,
 				"File Attributes: 0x%04x", attribute);
-	sub_tree = proto_item_add_subtree(item, ett_afp_file_attribute);
 	proto_tree_add_item(sub_tree, hf_afp_file_attribute_Invisible	 , tvb, offset, 2, ENC_BIG_ENDIAN);
 	if (!shared)
 		proto_tree_add_item(sub_tree, hf_afp_file_attribute_MultiUser	 , tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -1414,12 +1412,10 @@ static void
 decode_unix_privs (proto_tree *tree, tvbuff_t *tvb, gint offset)
 {
 	proto_tree *sub_tree;
-	proto_item *item;
 
 	if (tree) {
-		item = proto_tree_add_text(tree, tvb, offset, 16,
+		sub_tree = proto_tree_add_subtree(tree, tvb, offset, 16, ett_afp_unix_privs, NULL,
 		    "UNIX privileges");
-		sub_tree = proto_item_add_subtree(item, ett_afp_unix_privs);
 
 		proto_tree_add_item(sub_tree, hf_afp_unix_privs_uid, tvb, offset, 4, ENC_BIG_ENDIAN);
 		proto_tree_add_item(sub_tree, hf_afp_unix_privs_gid, tvb, offset+4, 4, ENC_BIG_ENDIAN);
@@ -1624,15 +1620,13 @@ decode_dir_bitmap (proto_tree *tree, tvbuff_t *tvb, gint offset)
 static guint16
 decode_dir_attribute(proto_tree *tree, tvbuff_t *tvb, gint offset)
 {
-	proto_tree *sub_tree = NULL;
-	proto_item *item;
+	proto_tree *sub_tree;
 	guint16		attribute;
 
 	attribute = tvb_get_ntohs(tvb, offset);
 	if (tree) {
-		item = proto_tree_add_text(tree, tvb, offset, 2,
-					"Directory Attributes: 0x%04x", attribute);
-		sub_tree = proto_item_add_subtree(item, ett_afp_dir_attribute);
+		sub_tree = proto_tree_add_subtree_format(tree, tvb, offset, 2,
+					ett_afp_dir_attribute, NULL, "Directory Attributes: 0x%04x", attribute);
 
 		proto_tree_add_item(sub_tree, hf_afp_dir_attribute_Invisible	, tvb, offset, 2, ENC_BIG_ENDIAN);
 		proto_tree_add_item(sub_tree, hf_afp_dir_attribute_IsExpFolder	, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -1914,7 +1908,6 @@ decode_name_label (proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, gint off
 	const gchar *name;
 	guint8 type;
 	proto_tree *sub_tree = NULL;
-	proto_item *item;
 
 	type = tvb_get_guint8(tvb, offset);
 	if (type == 3) {
@@ -1935,8 +1928,8 @@ decode_name_label (proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, gint off
 	}
 
 	if (tree) {
-		item = proto_tree_add_text(tree, tvb, offset, len +header, label, name);
-		sub_tree = proto_item_add_subtree(item, ett_afp_path_name);
+		sub_tree = proto_tree_add_subtree_format(tree, tvb, offset, len +header,
+				ett_afp_path_name, NULL, label, name);
 
 		proto_tree_add_item(  sub_tree, hf_afp_path_type, tvb, offset,	 1, ENC_BIG_ENDIAN);
 		offset++;
@@ -2043,10 +2036,9 @@ dissect_reply_afp_get_server_param(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 	guint8 len;
 	guint8 flag;
 	guint8 i;
-	proto_tree *sub_tree = NULL;
+	proto_tree *sub_tree;
 	proto_tree *flag_tree;
 	proto_item *item;
-	proto_item *ti;
 
 	if (!tree)
 		return offset;
@@ -2055,20 +2047,20 @@ dissect_reply_afp_get_server_param(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 	offset += 4;
 
 	num = tvb_get_guint8(tvb, offset);
-	item = proto_tree_add_text(tree, tvb, offset, 1, "Volumes : %d", num);
-	sub_tree = proto_item_add_subtree(item, ett_afp_server_vol);
+	sub_tree = proto_tree_add_subtree_format(tree, tvb, offset, 1,
+						ett_afp_server_vol, NULL, "Volumes : %d", num);
 	offset++;
 
 	for (i = 0; i < num; i++) {
 		const gchar *rep;
 
-		item = proto_tree_add_text(sub_tree, tvb, offset, -1,"Volume");
-		tree = proto_item_add_subtree(item, ett_afp_vol_list);
+		tree = proto_tree_add_subtree(sub_tree, tvb, offset, -1,
+				ett_afp_vol_list, NULL, "Volume");
 
 		flag = tvb_get_guint8(tvb, offset);
 
-		ti = proto_tree_add_text(tree, tvb, offset , 1,"Flags : 0x%02x", flag);
-		flag_tree = proto_item_add_subtree(ti, ett_afp_vol_flag);
+		flag_tree = proto_tree_add_subtree_format(tree, tvb, offset, 1,
+						ett_afp_vol_flag, &item, "Flags : 0x%02x", flag);
 		proto_tree_add_item(flag_tree, hf_afp_vol_flag_passwd, tvb, offset, 1, ENC_BIG_ENDIAN);
 		proto_tree_add_item(flag_tree, hf_afp_vol_flag_has_config, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset++;
@@ -2204,7 +2196,6 @@ loop_record(tvbuff_t *tvb, proto_tree *ptree, gint offset,
 		int count, guint16 d_bitmap, guint16 f_bitmap, int add, int ext)
 {
 	proto_tree *tree = NULL;
-	proto_item *item;
 	guint8	*name;
 	guint8	flags;
 	guint	size;
@@ -2236,12 +2227,13 @@ loop_record(tvbuff_t *tvb, proto_tree *ptree, gint offset,
 				name = name_in_fbitmap(tvb, offset +decal, f_bitmap);
 			}
 			if (name) {
-				item = proto_tree_add_text(ptree, tvb, offset, size, "%s", name);
+				tree = proto_tree_add_subtree(ptree, tvb, offset, size,
+										ett_afp_enumerate_line, NULL, name);
 			}
 			else {
-				item = proto_tree_add_text(ptree, tvb, offset, size, "line %d", i+1);
+				tree = proto_tree_add_subtree_format(ptree, tvb, offset, size,
+									ett_afp_enumerate_line, NULL, "line %d", i+1);
 			}
-			tree = proto_item_add_subtree(item, ett_afp_enumerate_line);
 		}
 		if (ext) {
 			proto_tree_add_item(tree, hf_afp_struct_size16, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -2313,8 +2305,7 @@ dissect_reply_afp_enumerate_ext(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 static gint
 catsearch_spec(tvbuff_t *tvb, proto_tree *ptree, gint offset, int ext, guint32	bitmap, const gchar *label)
 {
-	proto_tree *tree = NULL;
-	proto_item *item;
+	proto_tree *tree;
 	guint16	size;
 	gint	org;
 
@@ -2327,8 +2318,7 @@ catsearch_spec(tvbuff_t *tvb, proto_tree *ptree, gint offset, int ext, guint32	b
 		size = tvb_get_guint8(tvb, offset) +2;
 	}
 
-	item = proto_tree_add_text(ptree, tvb, offset, size, "%s", label);
-	tree = proto_item_add_subtree(item, ett_afp_cat_spec);
+	tree = proto_tree_add_subtree(ptree, tvb, offset, size, ett_afp_cat_spec, NULL, label);
 
 	if (ext) {
 		proto_tree_add_item(tree, hf_afp_struct_size16, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -3083,20 +3073,15 @@ dissect_query_afp_exchange_file(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 static gint
 dissect_query_afp_copy_file(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
 {
-	proto_tree *sub_tree = NULL;
-	proto_item *item;
+	proto_tree *sub_tree;
 
 	PAD(1);
-	if (tree) {
-		item = proto_tree_add_text(tree, tvb, offset, 6,"Source volume");
-		sub_tree = proto_item_add_subtree(item, ett_afp_vol_did);
-	}
+	sub_tree = proto_tree_add_subtree(tree, tvb, offset, 6, ett_afp_vol_did, NULL, "Source volume");
+
 	offset = decode_vol_did(sub_tree, tvb, offset);
 
-	if (tree) {
-		item = proto_tree_add_text(tree, tvb, offset, 6,"Dest volume");
-		sub_tree = proto_item_add_subtree(item, ett_afp_vol_did);
-	}
+	sub_tree = proto_tree_add_subtree(tree, tvb, offset, 6, ett_afp_vol_did, NULL, "Dest volume");
+
 	offset = decode_vol_did(sub_tree, tvb, offset);
 
 	offset = decode_name_label(tree, pinfo, tvb, offset, "Source path: %s");
@@ -3124,15 +3109,12 @@ dissect_query_afp_rename(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
 static gint
 dissect_query_afp_byte_lock(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
 {
-	proto_tree *sub_tree = NULL;
-	proto_item *item;
+	proto_tree *sub_tree;
 	guint8 flag;
 
 	flag = tvb_get_guint8(tvb, offset);
-	if (tree) {
-		item = proto_tree_add_text(tree, tvb, offset, 1, "Flags: 0x%02x", flag);
-		sub_tree = proto_item_add_subtree(item, ett_afp_lock_flags);
-	}
+	sub_tree = proto_tree_add_subtree_format(tree, tvb, offset, 1,
+					ett_afp_lock_flags, NULL, "Flags: 0x%02x", flag);
 
 	proto_tree_add_item(sub_tree, hf_afp_lock_op, tvb, offset, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_item(sub_tree, hf_afp_lock_from, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -3163,15 +3145,12 @@ dissect_reply_afp_byte_lock(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 static gint
 dissect_query_afp_byte_lock_ext(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
 {
-	proto_tree *sub_tree = NULL;
-	proto_item *item;
+	proto_tree *sub_tree;
 	guint8 flag;
 
 	flag = tvb_get_guint8(tvb, offset);
-	if (tree) {
-		item = proto_tree_add_text(tree, tvb, offset, 1, "Flags: 0x%02x", flag);
-		sub_tree = proto_item_add_subtree(item, ett_afp_lock_flags);
-	}
+	sub_tree = proto_tree_add_subtree_format(tree, tvb, offset, 1,
+						ett_afp_lock_flags, NULL, "Flags: 0x%02x", flag);
 
 	proto_tree_add_item(sub_tree, hf_afp_lock_op, tvb, offset, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_item(sub_tree, hf_afp_lock_from, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -3812,11 +3791,10 @@ decode_attr_name (proto_tree *tree, packet_info *pinfo _U_, tvbuff_t *tvb, gint 
 	if (tree) {
 		gchar *name;
 		proto_tree *sub_tree;
-		proto_item *item;
 
 		name = tvb_format_text(tvb,offset+2, len);
-		item = proto_tree_add_text(tree, tvb, offset, len + 2, label, name);
-		sub_tree = proto_item_add_subtree(item, ett_afp_extattr_names);
+		sub_tree = proto_tree_add_subtree_format(tree, tvb, offset, len + 2,
+										ett_afp_extattr_names, NULL, label, name);
 
 		proto_tree_add_item(sub_tree, hf_afp_extattr_namelen, tvb, offset, 2, ENC_BIG_ENDIAN);
 		proto_tree_add_item(sub_tree, hf_afp_extattr_name, tvb, offset +2, len, ENC_UTF_8|ENC_NA);
@@ -3955,7 +3933,6 @@ dissect_query_afp_list_ext_attrs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 static gint
 dissect_reply_afp_list_ext_attrs(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
 {
-	proto_item *item;
 	proto_tree *sub_tree;
 	gint length = 0, orig_offset = offset;
 	int remain;
@@ -3971,8 +3948,8 @@ dissect_reply_afp_list_ext_attrs(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 	remain =  tvb_reported_length_remaining(tvb, offset);
 	if (remain >= length) {
 
-		item = proto_tree_add_text(tree, tvb, offset, remain , "Attributes");
-		sub_tree = proto_item_add_subtree(item, ett_afp_extattr_names);
+		sub_tree = proto_tree_add_subtree(tree, tvb, offset, remain,
+								ett_afp_extattr_names, NULL, "Attributes");
 		while ( remain > 0) {
 			length = tvb_strsize(tvb, offset);
 			proto_tree_add_item(sub_tree, hf_afp_extattr_name, tvb, offset, length, ENC_UTF_8|ENC_NA);
@@ -4300,7 +4277,8 @@ spotlight_dissect_query_loop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 			case SQ_CPX_TYPE_ARRAY:
 			case SQ_CPX_TYPE_DICT:
 				subquery_count = (gint)(query_data64 >> 32);
-				item_query = proto_tree_add_text(tree, tvb, offset, query_length,
+				sub_tree = proto_tree_add_subtree_format(tree, tvb, offset, query_length,
+								 ett_afp_spotlight_query_line, NULL,
 								 "%s, toc index: %u, children: %u",
 								 spotlight_get_cpx_qtype_string(complex_query_type),
 								 toc_index + 1,
@@ -4310,7 +4288,8 @@ spotlight_dissect_query_loop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 				subquery_count = 1;
 				query_data64 = spotlight_ntoh64(tvb, offset + 8, encoding);
 				query_length = ((gint)query_data64 & 0xffff) * 8;
-				item_query = proto_tree_add_text(tree, tvb, offset, query_length + 8,
+				sub_tree = proto_tree_add_subtree_format(tree, tvb, offset, query_length + 8,
+								 ett_afp_spotlight_query_line, NULL,
 								 "%s, toc index: %u, string: '%s'",
 								 spotlight_get_cpx_qtype_string(complex_query_type),
 								 toc_index + 1,
@@ -4336,7 +4315,8 @@ spotlight_dissect_query_loop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 				} else
 					mark_exists = TRUE;
 
-				item_query = proto_tree_add_text(tree, tvb, offset, query_length + 8,
+				sub_tree = proto_tree_add_subtree_format(tree, tvb, offset, query_length + 8,
+								 ett_afp_spotlight_query_line, NULL,
 								 "%s, toc index: %u, utf-16 string: '%s'",
 								 spotlight_get_cpx_qtype_string(complex_query_type),
 								 toc_index + 1,
@@ -4345,7 +4325,8 @@ spotlight_dissect_query_loop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 				break;
 			default:
 				subquery_count = 1;
-				item_query = proto_tree_add_text(tree, tvb, offset, query_length,
+				sub_tree = proto_tree_add_subtree_format(tree, tvb, offset, query_length,
+								 ett_afp_spotlight_query_line, NULL,
 								 "type: %s (%s), toc index: %u, children: %u",
 								 spotlight_get_qtype_string(query_type),
 								 spotlight_get_cpx_qtype_string(complex_query_type),
@@ -4354,7 +4335,6 @@ spotlight_dissect_query_loop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 				break;
 			}
 
-			sub_tree = proto_item_add_subtree(item_query, ett_afp_spotlight_query_line);
 			offset += 8;
 			offset = spotlight_dissect_query_loop(tvb, pinfo, sub_tree, offset, complex_query_type, subquery_count, toc_offset, encoding);
 			count--;
@@ -4384,22 +4364,19 @@ spotlight_dissect_query_loop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 			offset += query_length;
 			break;
 		case SQ_TYPE_INT64:
-			item_query = proto_tree_add_text(tree, tvb, offset, 8, "int64");
-			sub_tree = proto_item_add_subtree(item_query, ett_afp_spotlight_query_line);
+			sub_tree = proto_tree_add_subtree(tree, tvb, offset, 8, ett_afp_spotlight_query_line, NULL, "int64");
 			j = spotlight_int64(tvb, sub_tree, offset, encoding);
 			count -= j;
 			offset += query_length;
 			break;
 		case SQ_TYPE_UUID:
-			item_query = proto_tree_add_text(tree, tvb, offset, 8, "UUID");
-			sub_tree = proto_item_add_subtree(item_query, ett_afp_spotlight_query_line);
+			sub_tree = proto_tree_add_subtree(tree, tvb, offset, 8, ett_afp_spotlight_query_line, NULL, "UUID");
 			j = spotlight_uuid(tvb, sub_tree, offset, encoding);
 			count -= j;
 			offset += query_length;
 			break;
 		case SQ_TYPE_FLOAT:
-			item_query = proto_tree_add_text(tree, tvb, offset, 8, "float");
-			sub_tree = proto_item_add_subtree(item_query, ett_afp_spotlight_query_line);
+			sub_tree = proto_tree_add_subtree(tree, tvb, offset, 8, ett_afp_spotlight_query_line, NULL, "float");
 			j = spotlight_float(tvb, sub_tree, offset, encoding);
 			count -= j;
 			offset += query_length;
@@ -4428,8 +4405,8 @@ spotlight_dissect_query_loop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 				if (query_length <= 8) {
 					/* item_query = */ proto_tree_add_text(tree, tvb, offset, query_length, "filemeta (empty)");
 				} else {
-					item_query = proto_tree_add_text(tree, tvb, offset, query_length, "filemeta");
-					sub_tree = proto_item_add_subtree(item_query, ett_afp_spotlight_query_line);
+					sub_tree = proto_tree_add_subtree(tree, tvb, offset, query_length,
+											ett_afp_spotlight_query_line, NULL, "filemeta");
 					spotlight_tvb = tvb_new_subset_length(tvb, offset+8, query_length);
 					call_dissector(spotlight_handle, spotlight_tvb, pinfo, sub_tree);
 				}
@@ -4439,11 +4416,11 @@ spotlight_dissect_query_loop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 			offset += query_length;
 			break;
 		case SQ_TYPE_CNIDS:
+			sub_tree = proto_tree_add_subtree(tree, tvb, offset, query_length,
+							ett_afp_spotlight_query_line, &item_query, "CNID Array");
 			if (query_length <= 8) {
-				/* item_query = */ proto_tree_add_text(tree, tvb, offset, query_length, "CNID Array (empty)");
+				proto_item_append_text(item_query, " (empty)");
 			} else {
-				item_query = proto_tree_add_text(tree, tvb, offset, query_length, "CNID Array");
-				sub_tree = proto_item_add_subtree(item_query, ett_afp_spotlight_query_line);
 				spotlight_CNID_array(tvb, sub_tree, offset + 8, encoding);
 			}
 			count--;
@@ -4478,9 +4455,7 @@ dissect_spotlight(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 	gint toc_entries;
 	guint64 toc_entry;
 
-	proto_item *item_queries_data;
 	proto_tree *sub_tree_queries;
-	proto_item *item_toc;
 	proto_tree *sub_tree_toc;
 
 	if (strncmp(tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 8, ENC_UTF_8|ENC_NA), "md031234", 8) == 0)
@@ -4551,12 +4526,9 @@ dissect_spotlight(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 
 	toc_entries = (gint)(spotlight_ntoh64(tvb, offset + (gint)toc_offset, encoding) & 0xffff);
 
-	item_queries_data = proto_tree_add_text(tree,
-						tvb,
-						offset,
-						(gint)toc_offset,
+	sub_tree_queries = proto_tree_add_subtree(tree, tvb, offset, (gint)toc_offset,
+						ett_afp_spotlight_queries, NULL,
 						"Spotlight RPC data");
-	sub_tree_queries = proto_item_add_subtree(item_queries_data, ett_afp_spotlight_queries);
 
 	/* Queries */
 	offset = spotlight_dissect_query_loop(tvb, pinfo, sub_tree_queries, offset, SQ_CPX_TYPE_ARRAY, INT_MAX, offset + (gint)toc_offset + 8, encoding);
@@ -4572,13 +4544,11 @@ dissect_spotlight(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 		return tvb_captured_length(tvb);
 	}
 	toc_entries -= 1;
-	item_toc = proto_tree_add_text(tree,
-				       tvb,
-				       offset,
+	sub_tree_toc = proto_tree_add_subtree_format(tree, tvb, offset,
 				       (gint)querylen - (gint)toc_offset,
+                       ett_afp_spotlight_toc, NULL,
 				       "Complex types ToC (%u entries)",
 				       toc_entries);
-	sub_tree_toc = proto_item_add_subtree(item_toc, ett_afp_spotlight_toc);
 	proto_tree_add_text(sub_tree_toc, tvb, offset, 2, "Number of entries (%u)", toc_entries);
 	proto_tree_add_text(sub_tree_toc, tvb, offset + 2, 2, "unknown");
 	proto_tree_add_text(sub_tree_toc, tvb, offset + 4, 4, "unknown");
@@ -4935,8 +4905,7 @@ dissect_afp_server_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 	guint   len;
 	guint   i;
 
-	ti = proto_tree_add_text(tree, tvb, offset, -1, "Get Status");
-	tree = proto_item_add_subtree(ti, ett_afp_status);
+	tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_afp_status, NULL, "Get Status");
 
 	ofs = tvb_get_ntohs(tvb, AFPSTATUS_MACHOFF);
 	proto_tree_add_text(tree, tvb, AFPSTATUS_MACHOFF, 2, "Machine offset: %u", ofs);
@@ -5025,9 +4994,9 @@ dissect_afp_server_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 	if (offset) {
 		if (offset >= variable_data_offset) {
 			nbe = tvb_get_guint8(tvb, offset);
-			ti = proto_tree_add_text(tree, tvb, offset, 1, "Version list: %u", nbe);
+			sub_tree = proto_tree_add_subtree_format(tree, tvb, offset, 1,
+									ett_afp_vers, NULL, "Version list: %u", nbe);
 			offset++;
-			sub_tree = proto_item_add_subtree(ti, ett_afp_vers);
 			for (i = 0; i < nbe; i++) {
 				len = tvb_get_guint8(tvb, offset);
 				proto_tree_add_item(sub_tree, hf_afp_server_vers, tvb, offset, 1, ENC_ASCII|ENC_NA);
@@ -5040,9 +5009,9 @@ dissect_afp_server_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 	if (offset) {
 		if (offset >= variable_data_offset) {
 			nbe = tvb_get_guint8(tvb, offset);
-			ti = proto_tree_add_text(tree, tvb, offset, 1, "UAMS list: %u", nbe);
+			sub_tree = proto_tree_add_subtree_format(tree, tvb, offset, 1,
+										ett_afp_uams, NULL, "UAMS list: %u", nbe);
 			offset++;
-			sub_tree = proto_item_add_subtree(ti, ett_afp_uams);
 			for (i = 0; i < nbe; i++) {
 				len = tvb_get_guint8(tvb, offset);
 				proto_tree_add_item(sub_tree, hf_afp_server_uams, tvb, offset, 1, ENC_ASCII|ENC_NA);
@@ -5072,9 +5041,9 @@ dissect_afp_server_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 
 			offset = adr_ofs;
 			nbe = tvb_get_guint8(tvb, offset);
-			ti = proto_tree_add_text(tree, tvb, offset, 1, "Address list: %d", nbe);
+			adr_tree = proto_tree_add_subtree_format(tree, tvb, offset, 1,
+						ett_afp_server_addr, NULL, "Address list: %d", nbe);
 			offset++;
-			adr_tree = proto_item_add_subtree(ti, ett_afp_server_addr);
 			for (i = 0; i < nbe; i++) {
 				guint8 type;
 
@@ -5083,17 +5052,21 @@ dissect_afp_server_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 				switch (type) {
 				case 1:	/* IP */
 					ti = proto_tree_add_text(adr_tree, tvb, offset, len, "IP: %s", tvb_ip_to_str(tvb, offset+2));
+					sub_tree = proto_item_add_subtree(ti,ett_afp_server_addr_line);
 					break;
 				case 2: /* IP + port */
 					port = tvb_get_ntohs(tvb, offset+6);
-					ti = proto_tree_add_text(adr_tree, tvb, offset, len, "IP: %s:%d", tvb_ip_to_str(tvb, offset+2), port);
+					sub_tree = proto_tree_add_subtree_format(adr_tree, tvb, offset, len,
+										ett_afp_server_addr_line, NULL,
+										"IP: %s:%d", tvb_ip_to_str(tvb, offset+2), port);
 					break;
 				case 3: /* DDP, atalk_addr_to_str want host order not network */
 					net  = tvb_get_ntohs(tvb, offset+2);
 					node = tvb_get_guint8(tvb, offset +4);
 					port = tvb_get_guint8(tvb, offset +5);
-					ti = proto_tree_add_text(adr_tree, tvb, offset, len, "DDP: %u.%u:%u",
-					    net, node, port);
+					sub_tree = proto_tree_add_subtree_format(adr_tree, tvb, offset, len,
+										ett_afp_server_addr_line, NULL,
+										"DDP: %u.%u:%u", net, node, port);
 					break;
 				case 4: /* DNS */
 				case 5: /* SSH tunnel */
@@ -5127,27 +5100,31 @@ dissect_afp_server_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 						tmp = tvb_get_string_enc(wmem_packet_scope(), tvb, offset +2, len -2, ENC_ASCII|ENC_NA);
 						ti = proto_tree_add_text(adr_tree, tvb, offset, len, "%s: %s",
 									(type==4)?"DNS":"IP (SSH tunnel)", tmp);
+						sub_tree = proto_item_add_subtree(ti,ett_afp_server_addr_line);
 						break;
 					}
 					else {
-						ti = proto_tree_add_text(adr_tree, tvb, offset, len, "Malformed DNS address");
+						sub_tree = proto_tree_add_subtree(adr_tree, tvb, offset, len,
+										ett_afp_server_addr_line, NULL, "Malformed DNS address");
 					}
 					break;
 				case 6: /* IP6 */
 					ti = proto_tree_add_text(adr_tree, tvb, offset, len, "IPv6: %s",
 					    tvb_ip6_to_str(tvb, offset+2));
+					sub_tree = proto_item_add_subtree(ti,ett_afp_server_addr_line);
 					break;
 				case 7: /* IP6 + 2bytes port */
 					port = tvb_get_ntohs(tvb, offset+ 2+INET6_ADDRLEN);
-					ti = proto_tree_add_text(adr_tree, tvb, offset, len, "IPv6: %s:%d",
-					    tvb_ip6_to_str(tvb, offset+2), port);
+					sub_tree = proto_tree_add_subtree_format(adr_tree, tvb, offset, len,
+										ett_afp_server_addr_line, NULL,
+										"IPv6: %s:%d", tvb_ip6_to_str(tvb, offset+2), port);
 					break;
 				default:
 					ti = proto_tree_add_text(adr_tree, tvb, offset, len,"Unknown type: %u", type);
+					sub_tree = proto_item_add_subtree(ti,ett_afp_server_addr_line);
 					break;
 				}
 				len -= 2;
-				sub_tree = proto_item_add_subtree(ti,ett_afp_server_addr_line);
 				proto_tree_add_item(sub_tree, hf_afp_server_addr_len, tvb, offset, 1, ENC_BIG_ENDIAN);
 				offset++;
 				proto_tree_add_item(sub_tree, hf_afp_server_addr_type, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -5162,9 +5139,9 @@ dissect_afp_server_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 		if (dir_ofs >= variable_data_offset) {
 			offset = dir_ofs;
 			nbe = tvb_get_guint8(tvb, offset);
-			ti = proto_tree_add_text(tree, tvb, offset, 1, "Directory services list: %d", nbe);
+			sub_tree = proto_tree_add_subtree_format(tree, tvb, offset, 1,
+						ett_afp_directory, NULL, "Directory services list: %d", nbe);
 			offset++;
-			sub_tree = proto_item_add_subtree(ti, ett_afp_directory);
 			for (i = 0; i < nbe; i++) {
 				len = tvb_get_guint8(tvb, offset);
 				proto_tree_add_item(sub_tree, hf_afp_server_directory, tvb, offset, 1, ENC_ASCII|ENC_NA);
@@ -5181,8 +5158,8 @@ dissect_afp_server_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 			offset = utf_ofs;
 			ulen = tvb_get_ntohs(tvb, offset);
 			tmp = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 2, ulen, ENC_UTF_8|ENC_NA);
-			ti = proto_tree_add_text(tree, tvb, offset, ulen + 2, "UTF-8 server name: %s", tmp);
-			sub_tree = proto_item_add_subtree(ti, ett_afp_utf8_name);
+			sub_tree = proto_tree_add_subtree_format(tree, tvb, offset, ulen + 2,
+						ett_afp_utf8_name, NULL, "UTF-8 server name: %s", tmp);
 			proto_tree_add_uint(sub_tree, hf_afp_utf8_server_name_len, tvb, offset, 2, ulen);
 			offset += 2;
 			proto_tree_add_string(sub_tree, hf_afp_utf8_server_name, tvb, offset, ulen, tmp);
@@ -5261,10 +5238,9 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 				"Unknown error (%u)"), aspinfo->code);
 	}
 
-	if (tree) {
-		ti = proto_tree_add_item(tree, proto_afp, tvb, offset, -1, ENC_NA);
-		afp_tree = proto_item_add_subtree(ti, ett_afp);
-	}
+	ti = proto_tree_add_item(tree, proto_afp, tvb, offset, -1, ENC_NA);
+	afp_tree = proto_item_add_subtree(ti, ett_afp);
+
 	if (!aspinfo->reply)  {
 
 		ti = proto_tree_add_uint(afp_tree, hf_afp_command, tvb,offset, 1, afp_command);

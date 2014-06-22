@@ -155,14 +155,12 @@ static int dissect_ssi_ssi_items(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 {
 	int offset = 0;
 	gint ssi_entry_size;
-	proto_item *ti;
 	proto_tree *ssi_entry = NULL;
 	int size = tvb_length(tvb);
 	while (size > offset)
 	{
 		ssi_entry_size = calc_ssi_entry_size(tvb, offset);
-		ti = proto_tree_add_text(tree, tvb, offset, ssi_entry_size, "SSI Entry");
-		ssi_entry = proto_item_add_subtree(ti, ett_aim_ssi);
+		ssi_entry = proto_tree_add_subtree(tree, tvb, offset, ssi_entry_size, ett_aim_ssi, NULL, "SSI Entry");
 		offset = dissect_ssi_item(tvb, pinfo, offset, ssi_entry);
 	}
 	return offset;
@@ -199,7 +197,6 @@ static int dissect_aim_snac_ssi_time_and_items_num(tvbuff_t *tvb, packet_info *p
 static int dissect_aim_snac_ssi_list(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	int offset = 0;
-	proto_item *ti;
 	proto_tree *ssi_entry = NULL;
 	guint16 num_items, i;
 	nstime_t tmptime;
@@ -216,8 +213,8 @@ static int dissect_aim_snac_ssi_list(tvbuff_t *tvb, packet_info *pinfo _U_, prot
 
 	for(i = 0; i < num_items; i++) {
 		ssi_entry_size = calc_ssi_entry_size(tvb, offset);
-		ti = proto_tree_add_text(tree, tvb, offset, ssi_entry_size, "SSI Entry %u", i);
-		ssi_entry = proto_item_add_subtree(ti, ett_aim_ssi);
+		ssi_entry = proto_tree_add_subtree_format(tree, tvb, offset, ssi_entry_size,
+				ett_aim_ssi, NULL, "SSI Entry %u", i);
 		offset = dissect_ssi_item(tvb, pinfo, offset, ssi_entry);
 	}
 	tmptime.secs = tvb_get_ntohl(tvb, offset);

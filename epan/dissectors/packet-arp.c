@@ -688,16 +688,16 @@ check_for_duplicate_addresses(packet_info *pinfo, proto_tree *tree,
   /* Add report to tree if we found a duplicate */
   if (result != NULL) {
     proto_tree *duplicate_tree;
+    proto_item *ti;
 
     /* Create subtree */
-    proto_item *ti = proto_tree_add_text(tree, tvb, 0, 0,
+    duplicate_tree = proto_tree_add_subtree_format(tree, tvb, 0, 0, ett_arp_duplicate_address, &ti,
                                                 "Duplicate IP address detected for %s (%s) - also in use by %s (frame %u)",
                                                 arpproaddr_to_str((guint8*)&ip, 4, ETHERTYPE_IP),
                                                 ether_to_str(mac),
                                                 ether_to_str(result->mac),
                                                 result->frame_num);
     PROTO_ITEM_SET_GENERATED(ti);
-    duplicate_tree = proto_item_add_subtree(ti, ett_arp_duplicate_address);
 
     /* Add item for navigating to earlier frame */
     ti = proto_tree_add_uint(duplicate_tree, hf_arp_duplicate_ip_address_earlier_frame,
@@ -1127,23 +1127,23 @@ dissect_atmarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     proto_tree_add_uint(arp_tree, hf_arp_proto_type, tvb, ATM_AR_PRO, 2,ar_pro);
 
-    tl = proto_tree_add_text(arp_tree, tvb, ATM_AR_SHTL, 1,
+    tl_tree = proto_tree_add_subtree_format(arp_tree, tvb, ATM_AR_SHTL, 1,
+                             ett_atmarp_tl, NULL,
                              "Sender ATM number type/length: %s/%u",
                              (ar_shtl & ATMARP_IS_E164 ?
                               "E.164" :
                               "ATM Forum NSAPA"),
                              ar_shl);
-    tl_tree = proto_item_add_subtree(tl, ett_atmarp_tl);
     proto_tree_add_boolean(tl_tree, hf_atmarp_sht, tvb, ATM_AR_SHTL, 1, ar_shtl);
     proto_tree_add_uint(tl_tree, hf_atmarp_shl, tvb, ATM_AR_SHTL, 1, ar_shtl);
 
-    tl = proto_tree_add_text(arp_tree, tvb, ATM_AR_SSTL, 1,
+    tl_tree = proto_tree_add_subtree_format(arp_tree, tvb, ATM_AR_SSTL, 1,
+                             ett_atmarp_tl, NULL,
                              "Sender ATM subaddress type/length: %s/%u",
                              (ar_sstl & ATMARP_IS_E164 ?
                               "E.164" :
                               "ATM Forum NSAPA"),
                              ar_ssl);
-    tl_tree = proto_item_add_subtree(tl, ett_atmarp_tl);
     proto_tree_add_boolean(tl_tree, hf_atmarp_sst, tvb, ATM_AR_SSTL, 1, ar_sstl);
     proto_tree_add_uint(tl_tree, hf_atmarp_ssl, tvb, ATM_AR_SSTL, 1, ar_sstl);
 
@@ -1152,23 +1152,23 @@ dissect_atmarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     proto_tree_add_uint(arp_tree, hf_atmarp_spln, tvb, ATM_AR_SPLN, 1, ar_spln);
 
-    tl = proto_tree_add_text(arp_tree, tvb, ATM_AR_THTL, 1,
+    tl_tree = proto_tree_add_subtree_format(arp_tree, tvb, ATM_AR_THTL, 1,
+                             ett_atmarp_tl, NULL,
                              "Target ATM number type/length: %s/%u",
                              (ar_thtl & ATMARP_IS_E164 ?
                               "E.164" :
                               "ATM Forum NSAPA"),
                              ar_thl);
-    tl_tree = proto_item_add_subtree(tl, ett_atmarp_tl);
     proto_tree_add_boolean(tl_tree, hf_atmarp_tht, tvb, ATM_AR_THTL, 1, ar_thtl);
     proto_tree_add_uint(tl_tree, hf_atmarp_thl, tvb, ATM_AR_THTL, 1, ar_thtl);
 
-    tl = proto_tree_add_text(arp_tree, tvb, ATM_AR_TSTL, 1,
+    tl = proto_tree_add_subtree_format(arp_tree, tvb, ATM_AR_TSTL, 1,
+                             ett_atmarp_tl, NULL,
                              "Target ATM subaddress type/length: %s/%u",
                              (ar_tstl & ATMARP_IS_E164 ?
                               "E.164" :
                               "ATM Forum NSAPA"),
                              ar_tsl);
-    tl_tree = proto_item_add_subtree(tl, ett_atmarp_tl);
     proto_tree_add_boolean(tl_tree, hf_atmarp_tst, tvb, ATM_AR_TSTL, 1, ar_tstl);
     proto_tree_add_uint(tl_tree, hf_atmarp_tsl, tvb, ATM_AR_TSTL, 1, ar_tstl);
 

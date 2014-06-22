@@ -63,7 +63,7 @@ static void
 dissect_bofl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_item  *ti;
-    proto_tree  *bofl_tree = NULL;
+    proto_tree  *bofl_tree;
     gint        len;
     guint32     pdu, sequence;
 
@@ -71,29 +71,25 @@ dissect_bofl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     col_clear(pinfo->cinfo, COL_INFO);
 
-    if (tree) {
-        ti = proto_tree_add_item(tree, proto_bofl, tvb, 0, -1, ENC_NA);
-        bofl_tree = proto_item_add_subtree(ti, ett_bofl);
-    }
+    ti = proto_tree_add_item(tree, proto_bofl, tvb, 0, -1, ENC_NA);
+    bofl_tree = proto_item_add_subtree(ti, ett_bofl);
 
     pdu = tvb_get_ntohl(tvb, 0);
     col_add_fstr(pinfo->cinfo, COL_INFO,
         "PDU: 0x%08x", pdu);
-    if (tree)
-        proto_tree_add_uint(bofl_tree, hf_bofl_pdu, tvb, 0, 4, pdu);
+    proto_tree_add_uint(bofl_tree, hf_bofl_pdu, tvb, 0, 4, pdu);
 
     sequence = tvb_get_ntohl(tvb, 4);
 
     col_append_fstr(pinfo->cinfo, COL_INFO,
         " Sequence: %u", sequence);
-    if (tree) {
-        proto_tree_add_uint(bofl_tree, hf_bofl_sequence, tvb, 4, 4, sequence);
 
-        len = tvb_length_remaining(tvb, 8);
-        if (len > 0)
-            proto_tree_add_text(bofl_tree, tvb, 8, len,
-                                "Padding (%d byte)", len);
-    }
+    proto_tree_add_uint(bofl_tree, hf_bofl_sequence, tvb, 4, 4, sequence);
+
+    len = tvb_length_remaining(tvb, 8);
+    if (len > 0)
+        proto_tree_add_text(bofl_tree, tvb, 8, len,
+                            "Padding (%d byte)", len);
 }
 
 

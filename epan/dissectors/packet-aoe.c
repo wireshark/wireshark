@@ -326,24 +326,21 @@ dissect_aoe_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   guint8 flags, cmd;
   guint32 tag;
-  proto_item *flags_item=NULL;
-  proto_tree *flags_tree=NULL;
+  proto_item *flags_item;
+  proto_tree *flags_tree;
 
   /* read and dissect the flags */
   flags=tvb_get_guint8(tvb, 0)&0x0f;
-  if(tree){
-    flags_item=proto_tree_add_text(tree, tvb, 0, 1, "Flags:");
-    flags_tree=proto_item_add_subtree(flags_item, ett_aoe_flags);
-  }
+
+  flags_tree=proto_tree_add_subtree(tree, tvb, 0, 1, ett_aoe_flags, &flags_item, "Flags:");
+
   proto_tree_add_item(flags_tree, hf_aoe_flags_response, tvb, 0, 1, ENC_BIG_ENDIAN);
   proto_tree_add_item(flags_tree, hf_aoe_flags_error, tvb, 0, 1, ENC_BIG_ENDIAN);
-  if(flags_item){
-    proto_item_append_text(flags_item,(flags&AOE_FLAGS_RESPONSE)?" Response":" Request");
-    if(flags&AOE_FLAGS_ERROR){
-      proto_item_append_text(flags_item, " Error");
-    }
-  }
 
+  proto_item_append_text(flags_item,(flags&AOE_FLAGS_RESPONSE)?" Response":" Request");
+  if(flags&AOE_FLAGS_ERROR){
+      proto_item_append_text(flags_item, " Error");
+  }
 
   /* error */
   if(flags&AOE_FLAGS_ERROR){

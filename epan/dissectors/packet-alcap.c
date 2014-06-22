@@ -1319,9 +1319,8 @@ static void alcap_leg_tree(proto_tree* tree, tvbuff_t* tvb, packet_info *pinfo, 
 
     if(leg->msgs) {
         alcap_msg_data_t* msg = leg->msgs;
-        proto_item* pi_local = proto_tree_add_text(tree,tvb,0,0,"[Messages in this leg]");
-        proto_tree* tree_local = proto_item_add_subtree(pi_local,ett_leg);
-
+        proto_item* pi_local;
+        proto_tree* tree_local = proto_tree_add_subtree(tree,tvb,0,0,ett_leg,&pi_local,"[Messages in this leg]");
 
         do {
             pi_local = proto_tree_add_uint(tree_local,hf_alcap_leg_frame,tvb,0,0,msg->framenum);

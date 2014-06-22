@@ -4094,7 +4094,8 @@ dissect_packetcable_mta_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len
 					raw_val = tvb_get_ntohs(tvb, subopt_off);
 					tvb_memcpy(tvb, asc_val, subopt_off, 2);
 
-					mib_ti = proto_tree_add_text(subtree, tvb, subopt_off, 2, "%s (%s)",
+					subtree2 = proto_tree_add_subtree_format(subtree, tvb, subopt_off, 2,
+						ett_bootp_option, &mib_ti, "%s (%s)",
 						val_to_str_const(raw_val, pkt_mdc_mib_orgs, "Unknown"), asc_val);
 					if (subopt_off > off + 4 + 2) {
 						proto_item_append_text(ti, ", ");
@@ -4111,7 +4112,6 @@ dissect_packetcable_mta_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len
 					switch (raw_val) {
 
 					case PKT_MDC_MIB_CL:
-						subtree2 = proto_item_add_subtree(mib_ti, ett_bootp_option);
 
 						for (i = 0; i < 8; i++) {
 							if (mib_val & pkt_mdc_cl_mib_vals[i].value) {
@@ -4123,8 +4123,6 @@ dissect_packetcable_mta_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len
 						break;
 
 					case PKT_MDC_MIB_IETF:
-						subtree2 = proto_item_add_subtree(mib_ti, ett_bootp_option);
-
 						for (i = 0; i < 8; i++) {
 							if (mib_val & pkt_mdc_ietf_mib_vals[i].value) {
 								decode_bitfield_value(bit_fld, mib_val, pkt_mdc_ietf_mib_vals[i].value, 8);
@@ -4135,8 +4133,6 @@ dissect_packetcable_mta_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len
 						break;
 
 					case PKT_MDC_MIB_EURO:
-						subtree2 = proto_item_add_subtree(mib_ti, ett_bootp_option);
-
 						for (i = 0; i < 8; i++) {
 							if (mib_val & pkt_mdc_euro_mib_vals[i].value) {
 								decode_bitfield_value(bit_fld, mib_val, pkt_mdc_euro_mib_vals[i].value, 8);

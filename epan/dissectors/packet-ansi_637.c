@@ -624,7 +624,6 @@ static void
 tele_param_user_data_cmas(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint len, guint32 offset, gboolean *has_private_data_p _U_)
 {
     proto_tree  *subtree;
-    proto_item  *item;
     guint8      bit_mask_8;
     guint8      oct, oct2;
     guint8      encoding;
@@ -698,12 +697,9 @@ tele_param_user_data_cmas(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
 
         record_len = tvb_get_guint8(tvb_out, offset + 1);
 
-        item =
-            proto_tree_add_text(tree, tvb_out, offset, record_len + 2,
-                "%s",
-                str);
-
-        subtree = proto_item_add_subtree(item, ett_tia_1149_cmas_param[subtree_idx]);
+        subtree =
+            proto_tree_add_subtree(tree, tvb_out, offset, record_len + 2,
+                ett_tia_1149_cmas_param[subtree_idx], NULL,  str);
 
         proto_tree_add_uint_format_value(subtree, hf_ansi_637_tele_cmas_record_type, tvb_out, offset, 1,
             record_type,
@@ -2215,12 +2211,9 @@ dissect_ansi_637_tele_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     ett_param_idx = ett_ansi_637_tele_param[idx];
     param_fcn = ansi_637_tele_param_fcn[idx];
 
-    item =
-        proto_tree_add_text(tree, tvb, curr_offset, -1,
-            "%s",
-            str);
-
-    subtree = proto_item_add_subtree(item, ett_param_idx);
+    subtree =
+        proto_tree_add_subtree(tree, tvb, curr_offset, -1,
+            ett_param_idx, &item, str);
 
     proto_tree_add_uint(subtree, hf_ansi_637_tele_subparam_id, tvb, curr_offset, 1, oct);
 
@@ -2419,9 +2412,7 @@ dissect_ansi_637_trans_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     ett_param_idx = ett_ansi_637_trans_param[idx];
     param_fcn = ansi_637_trans_param_fcn[idx];
 
-    item = proto_tree_add_text(tree, tvb, curr_offset, -1, "%s", str);
-
-    subtree = proto_item_add_subtree(item, ett_param_idx);
+    subtree = proto_tree_add_subtree(tree, tvb, curr_offset, -1, ett_param_idx, &item, str);
 
     proto_tree_add_uint(subtree, hf_ansi_637_trans_param_id, tvb, curr_offset, 1, oct);
 

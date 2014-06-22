@@ -3184,12 +3184,7 @@ dissect_amqp_0_10_array(tvbuff_t *tvb,
             struct_length = tvb_get_ntohl(tvb, offset);
             AMQP_INCREMENT(offset, 4, bound);
             length -= 4;
-            /*
-             * Always add a tree for structs - the struct formatter will
-             * change the item text to the struct type then add elements to it.
-             */
-            if (array_tree == 0)
-                array_tree = proto_item_add_subtree(item, ett_amqp_0_10_array);
+            array_tree = proto_item_add_subtree(item, ett_amqp_0_10_array);
             sub = proto_tree_add_none_format(array_tree, hf_amqp_field, tvb,
                                              element_start,
                                              offset - element_start,

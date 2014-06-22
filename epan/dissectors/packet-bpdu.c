@@ -272,10 +272,10 @@ dissect_bpdu_pvst_tlv(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb) {
     tlv_type = tvb_get_ntohs(tvb, offset);
     tlv_length = tvb_get_ntohs(tvb, offset + 2);
 
-    ti = proto_tree_add_text(tree, tvb, offset, 4 + tlv_length, "%s",
+    tlv_tree = proto_tree_add_subtree(tree, tvb, offset, 4 + tlv_length,
+                        ett_bpdu_pvst_tlv, NULL,
                         val_to_str(tlv_type, bpdu_pvst_tlv_vals, "Unknown TLV type: 0x%04x"));
 
-    tlv_tree = proto_item_add_subtree(ti, ett_bpdu_pvst_tlv);
     proto_tree_add_item(tlv_tree, hf_bpdu_pvst_tlvtype, tvb, offset, 2, ENC_BIG_ENDIAN);
     tlv_length_item = proto_tree_add_item(tlv_tree, hf_bpdu_pvst_tlvlength,
                         tvb, offset + 2, 2, ENC_BIG_ENDIAN);
@@ -356,15 +356,12 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean is_bp
   proto_tree *bpdu_tree;
   proto_tree *mstp_tree, *msti_tree, *spt_tree = NULL, *aux_mcid_tree = NULL, *agreement_tree = NULL;
   proto_item *bpdu_item;
-  proto_item *mstp_item, *msti_item, *spt_item = NULL, *aux_mcid_item = NULL, *agreement_item = NULL;
+  proto_item *agreement_item;
   proto_tree *flags_tree;
   proto_item *flags_item;
   proto_tree *root_id_tree;
-  proto_item *root_id_item;
   proto_tree *bridge_id_tree;
-  proto_item *bridge_id_item;
   proto_tree *cist_bridge_id_tree;
-  proto_item *cist_bridge_id_item;
   proto_item *hidden_item;
   const char *sep;
 
@@ -594,13 +591,13 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean is_bp
      * bpdu_use_system_id_extensions
      * */
     if (bpdu_use_system_id_extensions) {
-      root_id_item = proto_tree_add_text(bpdu_tree, tvb,
+      root_id_tree = proto_tree_add_subtree_format(bpdu_tree, tvb,
                                          BPDU_ROOT_IDENTIFIER, 8,
+                                         ett_root_id, NULL,
                                          "Root Identifier: %d / %d / %s",
                                          root_identifier_bridge_priority,
                                          root_identifier_system_id_extension,
                                          root_identifier_mac_str);
-      root_id_tree = proto_item_add_subtree(root_id_item, ett_root_id);
       proto_tree_add_uint(root_id_tree, hf_bpdu_root_prio, tvb,
                           BPDU_ROOT_IDENTIFIER , 1,
                           root_identifier_bridge_priority);
@@ -611,12 +608,12 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean is_bp
                           BPDU_ROOT_IDENTIFIER + 2, 6, ENC_NA);
 
     } else {
-      root_id_item = proto_tree_add_text(bpdu_tree, tvb,
+      root_id_tree = proto_tree_add_subtree_format(bpdu_tree, tvb,
                                          BPDU_ROOT_IDENTIFIER, 8,
+                                         ett_root_id, NULL,
                                          "Root Identifier: %d / %s",
                                          root_identifier_bridge_priority,
                                          root_identifier_mac_str);
-      root_id_tree = proto_item_add_subtree(root_id_item, ett_root_id);
       proto_tree_add_uint(root_id_tree, hf_bpdu_root_prio, tvb,
                           BPDU_ROOT_IDENTIFIER , 2,
                           root_identifier_bridge_priority);
@@ -632,13 +629,13 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean is_bp
      * bpdu_use_system_id_extensions
      * */
     if (bpdu_use_system_id_extensions) {
-      bridge_id_item = proto_tree_add_text(bpdu_tree, tvb,
+      bridge_id_tree = proto_tree_add_subtree_format(bpdu_tree, tvb,
                                            BPDU_BRIDGE_IDENTIFIER, 8,
+                                           ett_bridge_id, NULL,
                                            "Bridge Identifier: %d / %d / %s",
                                            bridge_identifier_bridge_priority,
                                            bridge_identifier_system_id_extension,
                                            bridge_identifier_mac_str);
-      bridge_id_tree = proto_item_add_subtree(bridge_id_item, ett_bridge_id);
       proto_tree_add_uint(bridge_id_tree, hf_bpdu_bridge_prio, tvb,
                           BPDU_BRIDGE_IDENTIFIER , 1,
                           bridge_identifier_bridge_priority);
@@ -648,12 +645,12 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean is_bp
       proto_tree_add_item(bridge_id_tree, hf_bpdu_bridge_mac, tvb,
                           BPDU_BRIDGE_IDENTIFIER + 2, 6, ENC_NA);
     } else {
-      bridge_id_item = proto_tree_add_text(bpdu_tree, tvb,
+      bridge_id_tree = proto_tree_add_subtree_format(bpdu_tree, tvb,
                                            BPDU_BRIDGE_IDENTIFIER, 8,
+                                           ett_bridge_id, NULL,
                                            "Bridge Identifier: %d / %s",
                                            bridge_identifier_bridge_priority,
                                            bridge_identifier_mac_str);
-      bridge_id_tree = proto_item_add_subtree(bridge_id_item, ett_bridge_id);
       proto_tree_add_uint(bridge_id_tree, hf_bpdu_bridge_prio, tvb,
                           BPDU_BRIDGE_IDENTIFIER , 2,
                           bridge_identifier_bridge_priority);
@@ -759,9 +756,8 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean is_bp
         set_actual_length(tvb, BPDU_MSTI + total_msti_length);
       }
 
-      mstp_item = proto_tree_add_text(bpdu_tree, tvb, BPDU_VERSION_3_LENGTH,
-                                      -1, "MST Extension");
-      mstp_tree = proto_item_add_subtree(mstp_item, ett_mstp);
+      mstp_tree = proto_tree_add_subtree(bpdu_tree, tvb, BPDU_VERSION_3_LENGTH,
+                                      -1, ett_mstp, NULL, "MST Extension");
 
       proto_tree_add_item(mstp_tree, hf_bpdu_mst_config_format_selector, tvb,
                           BPDU_MST_CONFIG_FORMAT_SELECTOR, 1, ENC_BIG_ENDIAN);
@@ -789,13 +785,13 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean is_bp
           cist_bridge_identifier_system_id_extension = cist_bridge_identifier_bridge_priority & 0x0fff;
           cist_bridge_identifier_bridge_priority &= 0xf000;
 
-          cist_bridge_id_item = proto_tree_add_text(mstp_tree, tvb,
+          cist_bridge_id_tree = proto_tree_add_subtree_format(mstp_tree, tvb,
                                                     BPDU_CIST_BRIDGE_IDENTIFIER, 8,
+                                                    ett_cist_bridge_id, NULL,
                                                     "CIST Bridge Identifier: %d / %d / %s",
                                                     cist_bridge_identifier_bridge_priority,
                                                     cist_bridge_identifier_system_id_extension,
                                                     cist_bridge_identifier_mac_str);
-          cist_bridge_id_tree = proto_item_add_subtree(cist_bridge_id_item, ett_cist_bridge_id);
           proto_tree_add_uint(cist_bridge_id_tree, hf_bpdu_cist_bridge_prio, tvb,
                               BPDU_CIST_BRIDGE_IDENTIFIER , 1,
                               cist_bridge_identifier_bridge_priority);
@@ -806,12 +802,12 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean is_bp
                               BPDU_CIST_BRIDGE_IDENTIFIER + 2, 6, ENC_NA);
 
         } else {
-          cist_bridge_id_item = proto_tree_add_text(mstp_tree, tvb,
+          cist_bridge_id_tree = proto_tree_add_subtree_format(mstp_tree, tvb,
                                                     BPDU_CIST_BRIDGE_IDENTIFIER, 8,
+                                                    ett_cist_bridge_id, NULL,
                                                     "CIST Bridge Identifier: %d / %s",
                                                     cist_bridge_identifier_bridge_priority,
                                                     cist_bridge_identifier_mac_str);
-          cist_bridge_id_tree = proto_item_add_subtree(cist_bridge_id_item, ett_cist_bridge_id);
           proto_tree_add_uint(cist_bridge_id_tree, hf_bpdu_cist_bridge_prio, tvb,
                               BPDU_CIST_BRIDGE_IDENTIFIER , 2,
                               cist_bridge_identifier_bridge_priority);
@@ -833,13 +829,13 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean is_bp
           cist_bridge_identifier_system_id_extension = cist_bridge_identifier_bridge_priority & 0x0fff;
           cist_bridge_identifier_bridge_priority &= 0xf000;
 
-          cist_bridge_id_item = proto_tree_add_text(mstp_tree, tvb,
+          cist_bridge_id_tree = proto_tree_add_subtree_format(mstp_tree, tvb,
                                                     ALT_BPDU_CIST_BRIDGE_IDENTIFIER, 8,
+                                                    ett_cist_bridge_id, NULL,
                                                     "CIST Bridge Identifier: %d / %d / %s",
                                                     cist_bridge_identifier_bridge_priority,
                                                     cist_bridge_identifier_system_id_extension,
                                                     cist_bridge_identifier_mac_str);
-          cist_bridge_id_tree = proto_item_add_subtree(cist_bridge_id_item, ett_cist_bridge_id);
           proto_tree_add_uint(cist_bridge_id_tree, hf_bpdu_cist_bridge_prio, tvb,
                               ALT_BPDU_CIST_BRIDGE_IDENTIFIER , 1,
                               cist_bridge_identifier_bridge_priority);
@@ -849,12 +845,12 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean is_bp
           proto_tree_add_item(cist_bridge_id_tree, hf_bpdu_cist_bridge_mac, tvb,
                               ALT_BPDU_CIST_BRIDGE_IDENTIFIER + 2, 6, ENC_NA);
         } else {
-          cist_bridge_id_item = proto_tree_add_text(mstp_tree, tvb,
+          cist_bridge_id_tree = proto_tree_add_subtree_format(mstp_tree, tvb,
                                                     ALT_BPDU_CIST_BRIDGE_IDENTIFIER, 8,
+                                                    ett_cist_bridge_id, NULL,
                                                     "CIST Bridge Identifier: %d / %s",
                                                     cist_bridge_identifier_bridge_priority,
                                                     cist_bridge_identifier_mac_str);
-          cist_bridge_id_tree = proto_item_add_subtree(cist_bridge_id_item, ett_cist_bridge_id);
           proto_tree_add_uint(cist_bridge_id_tree, hf_bpdu_cist_bridge_prio, tvb,
                               ALT_BPDU_CIST_BRIDGE_IDENTIFIER , 2,
                               cist_bridge_identifier_bridge_priority);
@@ -885,12 +881,11 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean is_bp
                                      tvb_get_guint8(tvb,  offset+ MSTI_REGIONAL_ROOT+1);
           msti_regional_root_mac_str = tvb_ether_to_str(tvb, offset + MSTI_REGIONAL_ROOT + 2);
 
-          msti_item = proto_tree_add_text(mstp_tree, tvb, offset, 16,
+          msti_tree = proto_tree_add_subtree_format(mstp_tree, tvb, offset, 16, ett_msti, NULL,
                                           "MSTID %d, Regional Root Identifier %d / %s",
                                           msti_regional_root_mstid,
                                           msti_regional_root_priority,
                                           msti_regional_root_mac_str);
-          msti_tree = proto_item_add_subtree(msti_item, ett_msti);
 
           /* flags */
           flags = tvb_get_guint8(tvb, offset+MSTI_FLAGS);
@@ -969,12 +964,11 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean is_bp
                                      tvb_get_guint8(tvb,  offset+ ALT_MSTI_REGIONAL_ROOT+1);
           msti_regional_root_mac_str = tvb_ether_to_str(tvb, offset+ ALT_MSTI_REGIONAL_ROOT + 2);
 
-          msti_item = proto_tree_add_text(mstp_tree, tvb, offset, 16,
+          msti_tree = proto_tree_add_subtree_format(mstp_tree, tvb, offset, 16, ett_msti, NULL,
                                           "MSTID %d, Regional Root Identifier %d / %s",
                                           msti_regional_root_mstid,
                                           msti_regional_root_priority,
                                           msti_regional_root_mac_str);
-          msti_tree = proto_item_add_subtree(msti_item, ett_msti);
 
           msti_mstid = tvb_get_ntohs(tvb,  offset+ ALT_MSTI_MSTID);
           proto_tree_add_text(msti_tree, tvb, offset+ALT_MSTI_MSTID, 2,
@@ -1073,18 +1067,15 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean is_bp
         /* version 4 length is 55 or more.
          */
         if (version_4_length >= 53) {
-          spt_item = proto_tree_add_text(bpdu_tree, tvb,
-                                         bpdu_version_4_length, -1, "SPT Extension");
-
-          spt_tree = proto_item_add_subtree(spt_item, ett_spt);
+          spt_tree = proto_tree_add_subtree(bpdu_tree, tvb, bpdu_version_4_length, -1,
+              ett_spt, NULL, "SPT Extension");
 
           spt_offset = (bpdu_version_4_length + 2);
 
           /* Aux MCID: */
 
-          aux_mcid_item = proto_tree_add_text(spt_tree, tvb, spt_offset,
-                                              MCID_LEN, "MCID Data");
-          aux_mcid_tree = proto_item_add_subtree(aux_mcid_item, ett_aux_mcid);
+          aux_mcid_tree = proto_tree_add_subtree(spt_tree, tvb, spt_offset,
+                                              MCID_LEN, ett_aux_mcid, NULL, "MCID Data");
 
           proto_tree_add_item(aux_mcid_tree,
                               hf_bpdu_spt_config_format_selector, tvb, spt_offset, 1,
@@ -1100,9 +1091,8 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean is_bp
           spt_offset += MCID_LEN;
 
           /* Agreement Data */
-          agreement_item = proto_tree_add_text(spt_tree, tvb, spt_offset,
-                                               -1, "Agreement Data");
-          agreement_tree = proto_item_add_subtree(agreement_item, ett_agreement);
+          agreement_tree = proto_tree_add_subtree(spt_tree, tvb, spt_offset,
+                                               -1, ett_agreement, &agreement_item, "Agreement Data");
 
           spt_agree_data = tvb_get_guint8(tvb, spt_offset);
 

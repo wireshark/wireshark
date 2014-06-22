@@ -149,7 +149,6 @@ static void
 dissect_aodv_ext(tvbuff_t * tvb, int offset, proto_tree * tree)
 {
     proto_tree *ext_tree;
-    proto_item *ti;
     guint8      type, len;
 
     if (!tree)
@@ -162,8 +161,7 @@ dissect_aodv_ext(tvbuff_t * tvb, int offset, proto_tree * tree)
     type = tvb_get_guint8(tvb, offset);
     len = tvb_get_guint8(tvb, offset + 1);
 
-    ti = proto_tree_add_text(tree, tvb, offset, 2 + len, "Extensions");
-    ext_tree = proto_item_add_subtree(ti, ett_aodv_extensions);
+    ext_tree = proto_tree_add_subtree(tree, tvb, offset, 2 + len, ett_aodv_extensions, NULL, "Extensions");
 
     proto_tree_add_text(ext_tree, tvb, offset, 1,
 			"Type: %u (%s)", type,
@@ -218,8 +216,7 @@ dissect_aodv_rreq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *aodv_tree,
 
     flags = tvb_get_guint8(tvb, offset);
     if (aodv_tree) {
-	tj = proto_tree_add_text(aodv_tree, tvb, offset, 1, "Flags:");
-	aodv_flags_tree = proto_item_add_subtree(tj, ett_aodv_flags);
+	aodv_flags_tree = proto_tree_add_subtree(aodv_tree, tvb, offset, 1, ett_aodv_flags, &tj, "Flags:");
 	proto_tree_add_boolean(aodv_flags_tree, hf_aodv_flags_rreq_join,
 			       tvb, offset, 1, flags);
 	proto_tree_add_boolean(aodv_flags_tree, hf_aodv_flags_rreq_repair,
@@ -347,8 +344,7 @@ dissect_aodv_rrep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *aodv_tree,
 
     flags = tvb_get_guint8(tvb, offset);
     if (aodv_tree) {
-	tj = proto_tree_add_text(aodv_tree, tvb, offset, 1, "Flags:");
-	aodv_flags_tree = proto_item_add_subtree(tj, ett_aodv_flags);
+	aodv_flags_tree = proto_tree_add_subtree(aodv_tree, tvb, offset, 1, ett_aodv_flags, &tj, "Flags:");
 	proto_tree_add_boolean(aodv_flags_tree, hf_aodv_flags_rrep_repair,
 			       tvb, offset, 1, flags);
 	proto_tree_add_boolean(aodv_flags_tree, hf_aodv_flags_rrep_ack, tvb,
@@ -461,8 +457,7 @@ dissect_aodv_rerr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *aodv_tree,
 
     flags = tvb_get_guint8(tvb, offset);
     if (aodv_tree) {
-	tj = proto_tree_add_text(aodv_tree, tvb, offset, 1, "Flags:");
-	aodv_flags_tree = proto_item_add_subtree(tj, ett_aodv_flags);
+	aodv_flags_tree = proto_tree_add_subtree(aodv_tree, tvb, offset, 1, ett_aodv_flags, &tj, "Flags:");
 	proto_tree_add_boolean(aodv_flags_tree, hf_aodv_flags_rerr_nodelete,
 			       tvb, offset, 1, flags);
 	if (flags & RERR_NODEL)
@@ -479,10 +474,9 @@ dissect_aodv_rerr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *aodv_tree,
     offset += 1;
 
     if (is_ipv6) {
-	tj = proto_tree_add_text(aodv_tree, tvb, offset,
-				 (INET6_ADDRLEN + 4)*dest_count,
+	aodv_unreach_dest_tree = proto_tree_add_subtree(aodv_tree, tvb, offset,
+				 (INET6_ADDRLEN + 4)*dest_count, ett_aodv_unreach_dest, NULL,
 				 "Unreachable Destinations");
-	aodv_unreach_dest_tree = proto_item_add_subtree(tj, ett_aodv_unreach_dest);
 	for (i = 0; i < dest_count; i++) {
 	    proto_tree_add_item(aodv_unreach_dest_tree,
 				hf_aodv_unreach_dest_ipv6,
@@ -493,9 +487,8 @@ dissect_aodv_rerr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *aodv_tree,
 	    offset += 4;
 	}
     } else {
-	tj = proto_tree_add_text(aodv_tree, tvb, offset, (4 + 4)*dest_count,
-				 "Unreachable Destinations");
-	aodv_unreach_dest_tree = proto_item_add_subtree(tj, ett_aodv_unreach_dest);
+	aodv_unreach_dest_tree = proto_tree_add_subtree(aodv_tree, tvb, offset, (4 + 4)*dest_count,
+				 ett_aodv_unreach_dest, NULL, "Unreachable Destinations");
 	for (i = 0; i < dest_count; i++) {
 	    proto_tree_add_item(aodv_unreach_dest_tree, hf_aodv_unreach_dest_ip,
 				tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -525,8 +518,7 @@ dissect_aodv_draft_01_v6_rreq(tvbuff_t *tvb, packet_info *pinfo,
 
     flags = tvb_get_guint8(tvb, offset);
     if (aodv_tree) {
-	tj = proto_tree_add_text(aodv_tree, tvb, offset, 1, "Flags:");
-	aodv_flags_tree = proto_item_add_subtree(tj, ett_aodv_flags);
+	aodv_flags_tree = proto_tree_add_subtree(aodv_tree, tvb, offset, 1, ett_aodv_flags, &tj, "Flags:");
 	proto_tree_add_boolean(aodv_flags_tree, hf_aodv_flags_rreq_join,
 			       tvb, offset, 1, flags);
 	proto_tree_add_boolean(aodv_flags_tree, hf_aodv_flags_rreq_repair,
@@ -628,8 +620,7 @@ dissect_aodv_draft_01_v6_rrep(tvbuff_t *tvb, packet_info *pinfo,
 
     flags = tvb_get_guint8(tvb, offset);
     if (aodv_tree) {
-	tj = proto_tree_add_text(aodv_tree, tvb, offset, 1, "Flags:");
-	aodv_flags_tree = proto_item_add_subtree(tj, ett_aodv_flags);
+	aodv_flags_tree = proto_tree_add_subtree(aodv_tree, tvb, offset, 1, ett_aodv_flags, &tj, "Flags:");
 	proto_tree_add_boolean(aodv_flags_tree, hf_aodv_flags_rrep_repair,
 			       tvb, offset, 1, flags);
 	proto_tree_add_boolean(aodv_flags_tree, hf_aodv_flags_rrep_ack, tvb,
@@ -717,8 +708,7 @@ dissect_aodv_draft_01_v6_rerr(tvbuff_t *tvb, packet_info *pinfo,
 
     flags = tvb_get_guint8(tvb, offset);
     if (aodv_tree) {
-	tj = proto_tree_add_text(aodv_tree, tvb, offset, 1, "Flags:");
-	aodv_flags_tree = proto_item_add_subtree(tj, ett_aodv_flags);
+	aodv_flags_tree = proto_tree_add_subtree(aodv_tree, tvb, offset, 1, ett_aodv_flags, &tj, "Flags:");
 	proto_tree_add_boolean(aodv_flags_tree, hf_aodv_flags_rerr_nodelete,
 			       tvb, offset, 1, flags);
 	if (flags & RERR_NODEL)
@@ -735,10 +725,10 @@ dissect_aodv_draft_01_v6_rerr(tvbuff_t *tvb, packet_info *pinfo,
 			dest_count);
     offset += 1;
 
-    tj = proto_tree_add_text(aodv_tree, tvb, offset,
+    aodv_unreach_dest_tree = proto_tree_add_subtree(aodv_tree, tvb, offset,
 			     (4 + INET6_ADDRLEN)*dest_count,
+			     ett_aodv_unreach_dest, NULL,
 			     "Unreachable Destinations");
-    aodv_unreach_dest_tree = proto_item_add_subtree(tj, ett_aodv_unreach_dest);
     for (i = 0; i < dest_count; i++) {
 	proto_tree_add_item(aodv_unreach_dest_tree, hf_aodv_dest_seqno,
 			    tvb, offset, 4, ENC_BIG_ENDIAN);

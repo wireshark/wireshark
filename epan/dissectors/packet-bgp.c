@@ -1672,7 +1672,6 @@ static int
 decode_path_prefix4(proto_tree *tree, int hf_path_id, int hf_addr, tvbuff_t *tvb, gint offset,
                     const char *tag)
 {
-    proto_item *ti;
     proto_tree *prefix_tree;
     union {
        guint8 addr_bytes[4];
@@ -1691,10 +1690,9 @@ decode_path_prefix4(proto_tree *tree, int hf_path_id, int hf_addr, tvbuff_t *tvb
         return -1;
     }
     /* put prefix into protocol tree */
-    ti = proto_tree_add_text(tree, tvb, offset,
-                             4 + 1 + length, "%s/%u PathId %u ",
+    prefix_tree = proto_tree_add_subtree_format(tree, tvb, offset,  4 + 1 + length,
+                            ett_bgp_prefix, NULL, "%s/%u PathId %u ",
                             ip_to_str(ip_addr.addr_bytes), plen, path_identifier);
-    prefix_tree = proto_item_add_subtree(ti, ett_bgp_prefix);
     if (hf_path_id != -1) {
         proto_tree_add_uint(prefix_tree, hf_path_id, tvb, offset, 4,
                             path_identifier);
@@ -1721,7 +1719,6 @@ static int
 decode_prefix4(proto_tree *tree, proto_item *parent_item, int hf_addr, tvbuff_t *tvb, gint offset,
                guint16 tlen, const char *tag)
 {
-    proto_item *ti;
     proto_tree *prefix_tree;
     union {
        guint8 addr_bytes[4];
@@ -1740,15 +1737,14 @@ decode_prefix4(proto_tree *tree, proto_item *parent_item, int hf_addr, tvbuff_t 
     }
 
     /* put prefix into protocol tree */
-    ti = proto_tree_add_text(tree, tvb, offset,
-            tlen != 0 ? tlen : 1 + length, "%s/%u",
-                             ip_to_str(ip_addr.addr_bytes), plen);
+    prefix_tree = proto_tree_add_subtree_format(tree, tvb, offset,
+            tlen != 0 ? tlen : 1 + length, ett_bgp_prefix, NULL,
+            "%s/%u", ip_to_str(ip_addr.addr_bytes), plen);
        /* append parent item if not NULL */
     if (parent_item != NULL)
       proto_item_append_text(parent_item, " (%s/%u)",
                              ip_to_str(ip_addr.addr_bytes), plen);
 
-    prefix_tree = proto_item_add_subtree(ti, ett_bgp_prefix);
     proto_tree_add_text(prefix_tree, tvb, offset, 1, "%s prefix length: %u",
         tag, plen);
     if (hf_addr != -1) {
@@ -1768,7 +1764,6 @@ static int
 decode_prefix6(proto_tree *tree, int hf_addr, tvbuff_t *tvb, gint offset,
                guint16 tlen, const char *tag)
 {
-    proto_item        *ti;
     proto_tree        *prefix_tree;
     struct e_in6_addr addr;     /* IPv6 address                       */
     int               plen;     /* prefix length                      */
@@ -1784,10 +1779,9 @@ decode_prefix6(proto_tree *tree, int hf_addr, tvbuff_t *tvb, gint offset,
     }
 
     /* put prefix into protocol tree */
-    ti = proto_tree_add_text(tree, tvb, offset,
-            tlen != 0 ? tlen : 1 + length, "%s/%u",
+    prefix_tree = proto_tree_add_subtree_format(tree, tvb, offset,
+            tlen != 0 ? tlen : 1 + length, ett_bgp_prefix, NULL, "%s/%u",
             ip6_to_str(&addr), plen);
-    prefix_tree = proto_item_add_subtree(ti, ett_bgp_prefix);
     proto_tree_add_text(prefix_tree, tvb, offset, 1, "%s prefix length: %u",
         tag, plen);
     if (hf_addr != -1) {
@@ -3872,12 +3866,12 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
                     return -1;
                 }
 
-                ti = proto_tree_add_text(tree, tvb, start_offset,
+                prefix_tree = proto_tree_add_subtree_format(tree, tvb, start_offset,
                                          (offset + length) - start_offset,
+                                         ett_bgp_prefix, NULL,
                                          "Label Stack=%s IPv4=%s/%u",
                                          wmem_strbuf_get_str(stack_strbuf),
                                          ip_to_str(ip4addr.addr_bytes), plen);
-                prefix_tree = proto_item_add_subtree(ti, ett_bgp_prefix);
                 proto_tree_add_text(prefix_tree, tvb, start_offset, 1, "%s Prefix length: %u",
                                     tag, plen + labnum * 3 * 8);
                 proto_tree_add_text(prefix_tree, tvb, start_offset + 1, 3 * labnum, "%s Label Stack: %s",
@@ -3942,11 +3936,11 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
                     wmem_strbuf_append_printf(comm_strbuf, "Invalid RT type");
                     break;
                 }
-                ti = proto_tree_add_text(tree, tvb, offset + 1, length, "%s %u:%s/%u",
+                prefix_tree = proto_tree_add_subtree_format(tree, tvb, offset + 1, length,
+                                    ett_bgp_prefix, NULL, "%s %u:%s/%u",
                                     tag, tvb_get_ntohl(tvb, offset + 1 + 0),
                                     wmem_strbuf_get_str(comm_strbuf),
                                     plen);
-                prefix_tree = proto_item_add_subtree(ti, ett_bgp_prefix);
                 proto_tree_add_text(prefix_tree, tvb, offset, 1, "%s Prefix length: %u",
                                                     tag, plen);
                 proto_tree_add_text(prefix_tree, tvb, offset + 1, 4, "%s Originating AS: %u",
@@ -3991,11 +3985,11 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
                                         tag, plen + 16);
                     return -1;
                 }
-                ti = proto_tree_add_text(tree, tvb, start_offset,
+                prefix_tree = proto_tree_add_subtree_format(tree, tvb, start_offset,
                                          (offset + length) - start_offset,
+                                         ett_bgp_prefix, NULL,
                                          "Tunnel Identifier=0x%x IPv4=%s/%u",
                                          tnl_id, ip_to_str(ip4addr.addr_bytes), plen);
-                prefix_tree = proto_item_add_subtree(ti, ett_bgp_prefix);
 
                 proto_tree_add_text(prefix_tree, tvb, start_offset, 1, "%s Prefix length: %u",
                                     tag, plen + 16);
@@ -4048,14 +4042,14 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
                             return -1;
                         }
 
-                        ti = proto_tree_add_text(tree, tvb, start_offset,
+                        prefix_tree = proto_tree_add_subtree_format(tree, tvb, start_offset,
                                                  (offset + 8 + length) - start_offset,
+                                                 ett_bgp_prefix, NULL,
                                                  "Label Stack=%s RD=%u:%u, IPv4=%s/%u",
                                                  wmem_strbuf_get_str(stack_strbuf),
                                                  tvb_get_ntohs(tvb, offset + 2),
                                                  tvb_get_ntohl(tvb, offset + 4),
                                                  ip_to_str(ip4addr.addr_bytes), plen);
-                        prefix_tree = proto_item_add_subtree(ti, ett_bgp_prefix);
                         proto_tree_add_text(prefix_tree, tvb, start_offset, 1, "%s Prefix length: %u",
                                             tag, plen + labnum * 3 * 8 + 8 * 8);
                         proto_tree_add_text(prefix_tree, tvb, start_offset + 1, 3 * labnum,
@@ -4085,15 +4079,15 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
                             return -1;
                         }
 
-                        ti = proto_tree_add_text(tree, tvb, start_offset,
+                        prefix_tree = proto_tree_add_subtree_format(tree, tvb, start_offset,
                                                  (offset + 8 + length) - start_offset,
+                                                 ett_bgp_prefix, NULL,
                                                  "Label Stack=%s RD=%s:%u, IPv4=%s/%u",
                                                  wmem_strbuf_get_str(stack_strbuf),
                                                  ip_to_str(ip4addr.addr_bytes),
                                                  tvb_get_ntohs(tvb, offset + 6),
                                                  ip_to_str(ip4addr2.addr_bytes),
                                                  plen);
-                        prefix_tree = proto_item_add_subtree(ti, ett_bgp_prefix);
                         proto_tree_add_text(prefix_tree, tvb, start_offset, 1, "%s Prefix length: %u",
                                             tag, plen + labnum * 3 * 8 + 8 * 8);
                         proto_tree_add_text(prefix_tree, tvb, start_offset + 1, 3 * labnum,
@@ -4121,15 +4115,15 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
                             return -1;
                         }
 
-                        ti = proto_tree_add_text(tree, tvb, start_offset,
+                        prefix_tree = proto_tree_add_subtree_format(tree, tvb, start_offset,
                                                  (offset + 8 + length) - start_offset,
+                                                 ett_bgp_prefix, NULL,
                                                  "Label Stack=%s RD=%u.%u:%u, IPv4=%s/%u",
                                                  wmem_strbuf_get_str(stack_strbuf),
                                                  tvb_get_ntohs(tvb, offset + 2),
                                                  tvb_get_ntohs(tvb, offset + 4),
                                                  tvb_get_ntohs(tvb, offset + 6),
                                                  ip_to_str(ip4addr.addr_bytes), plen);
-                        prefix_tree = proto_item_add_subtree(ti, ett_bgp_prefix);
                         proto_tree_add_text(prefix_tree, tvb, start_offset, 1, "%s Prefix length: %u",
                                             tag, plen + labnum * 3 * 8 + 8 * 8);
                         proto_tree_add_text(prefix_tree, tvb, start_offset + 1, 3 * labnum,
@@ -5421,7 +5415,7 @@ dissect_bgp_update_pmsi_attr(packet_info *pinfo, proto_tree *parent_tree, tvbuff
                 proto_tree_add_item(tunnel_id_tree, hf_bgp_pmsi_tunnel_mldp_fec_el_opa_val_ext_len, tvb, offset+14+rn_addr_length, 2, ENC_BIG_ENDIAN);
                 opaque_value_length = tvb_get_ntohs(tvb, offset+14+rn_addr_length);
                 proto_tree_add_item(tunnel_id_tree, hf_bgp_pmsi_tunnel_mldp_fec_el_opa_value_str, tvb, offset+16+rn_addr_length,
-                                    opaque_value_length, ENC_ASCII);
+                                    opaque_value_length, ENC_ASCII|ENC_NA);
             }
             else {
                 /* This covers situation when opaque id is 0 (reserved) or any other value */
@@ -5864,11 +5858,10 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
                                         val_to_str_const(saf, bgpattr_nlri_safi, saf >= 134 ? "Vendor specific" : "Unknown"),
                                         saf);
                     nexthop_len = tvb_get_guint8(tvb, o + i + aoff + 3);
-                    ti = proto_tree_add_text(subtree2, tvb, o + i + aoff + 3,
-                                             nexthop_len + 1,
+                    subtree3 = proto_tree_add_subtree_format(subtree2, tvb, o + i + aoff + 3,
+                                             nexthop_len + 1, ett_bgp_mp_nhna, NULL,
                                              "Next hop network address (%d byte%s)",
                                              nexthop_len, plurality(nexthop_len, "", "s"));
-                    subtree3 = proto_item_add_subtree(ti, ett_bgp_mp_nhna);
 
                     /*
                      * The addresses don't contain lengths, so if we
@@ -6032,10 +6025,9 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
                         ssa_type = tvb_get_ntohs(tvb, q) & BGP_SSA_TYPE;
                         ssa_len = tvb_get_ntohs(tvb, q + 2);
 
-                        ti = proto_tree_add_text(subtree2, tvb, q, MIN(ssa_len + 4, end - q),
-                                                 "%s Information",
+                        subtree3 = proto_tree_add_subtree_format(subtree2, tvb, q, MIN(ssa_len + 4, end - q),
+                                                 ett_bgp_ssa, NULL, "%s Information",
                                                  val_to_str_const(ssa_type, bgp_ssa_type, "Unknown SSA"));
-                        subtree3 = proto_item_add_subtree(ti, ett_bgp_ssa);
 
                         proto_tree_add_item(subtree3, hf_bgp_ssa_t, tvb,
                                             q, 1, ENC_BIG_ENDIAN);
@@ -6057,8 +6049,7 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
                                 proto_tree_add_item(subtree3, hf_bgp_ssa_l2tpv3_pref, tvb,
                                                     q + 4, 2, ENC_BIG_ENDIAN);
 
-                                ti = proto_tree_add_text(subtree3, tvb, q + 6, 1, "Flags");
-                                subtree4 = proto_item_add_subtree(ti, ett_bgp_ssa_subtree) ;
+                                subtree4 = proto_tree_add_subtree(subtree3, tvb, q + 6, 1, ett_bgp_ssa_subtree, NULL, "Flags");
                                 proto_tree_add_item(subtree4, hf_bgp_ssa_l2tpv3_s, tvb,
                                                     q + 6, 1, ENC_BIG_ENDIAN);
                                 proto_tree_add_item(subtree4, hf_bgp_ssa_l2tpv3_unused, tvb,
@@ -6101,22 +6092,20 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
                     q = o + i + aoff;
                     end = o + i + aoff + tlen;
 
-                    ti = proto_tree_add_text(subtree2, tvb, q, tlen, "TLV Encodings");
-                    subtree3 = proto_item_add_subtree(ti, ett_bgp_tunnel_tlv);
+                    subtree3 = proto_tree_add_subtree(subtree2, tvb, q, tlen, ett_bgp_tunnel_tlv, NULL, "TLV Encodings");
 
                      while (q < end) {
                         encaps_tunnel_type = tvb_get_ntohs(tvb, q);
                         encaps_tunnel_len = tvb_get_ntohs(tvb, q + 2);
 
-                        ti = proto_tree_add_text(subtree3, tvb, q, encaps_tunnel_len + 4, "%s (%u bytes)",
+                        subtree4 = proto_tree_add_subtree_format(subtree3, tvb, q, encaps_tunnel_len + 4,
+                             ett_bgp_tunnel_tlv_subtree, NULL, "%s (%u bytes)",
                              val_to_str_const(encaps_tunnel_type, bgp_attr_tunnel_type, "Unknown"), encaps_tunnel_len + 4);
-                        subtree4 = proto_item_add_subtree(ti, ett_bgp_tunnel_tlv_subtree);
 
                         proto_tree_add_item(subtree4, hf_bgp_update_encaps_tunnel_tlv_type, tvb, q, 2, ENC_NA);
                         proto_tree_add_item(subtree4, hf_bgp_update_encaps_tunnel_tlv_len, tvb, q + 2, 2, ENC_NA);
 
-                        ti = proto_tree_add_text(subtree4, tvb, q + 4, encaps_tunnel_len, "Sub-TLV Encodings");
-                        subtree5 = proto_item_add_subtree(ti, ett_bgp_tunnel_subtlv);
+                        subtree5 = proto_tree_add_subtree(subtree4, tvb, q + 4, encaps_tunnel_len, ett_bgp_tunnel_subtlv, NULL, "Sub-TLV Encodings");
 
                         q += 4;
                         j = q + encaps_tunnel_len;
@@ -6124,8 +6113,8 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
                             encaps_tunnel_subtype = tvb_get_guint8(tvb, q);
                             encaps_tunnel_sublen = tvb_get_guint8(tvb, q + 1);
 
-                            ti = proto_tree_add_text(subtree5, tvb, q, encaps_tunnel_sublen + 2, "%s (%u bytes)", val_to_str_const(encaps_tunnel_subtype, subtlv_type, "Unknown"), encaps_tunnel_sublen + 2);
-                            subtree6 = proto_item_add_subtree(ti, ett_bgp_tunnel_tlv_subtree);
+                            subtree6 = proto_tree_add_subtree_format(subtree5, tvb, q, encaps_tunnel_sublen + 2, ett_bgp_tunnel_tlv_subtree, NULL,
+                                "%s (%u bytes)", val_to_str_const(encaps_tunnel_subtype, subtlv_type, "Unknown"), encaps_tunnel_sublen + 2);
 
                             proto_tree_add_item(subtree6, hf_bgp_update_encaps_tunnel_subtlv_type, tvb, q, 1, ENC_NA);
                             proto_tree_add_item(subtree6, hf_bgp_update_encaps_tunnel_subtlv_len, tvb, q + 1, 1, ENC_NA);

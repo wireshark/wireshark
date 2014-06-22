@@ -1026,10 +1026,8 @@ try_dissect_unknown_ber(packet_info *pinfo, tvbuff_t *tvb, volatile int offset, 
 
         switch (ber_class) {
         case BER_CLASS_UNI:
-            item = proto_tree_add_text(tree, tvb, offset, len, "%s", val_to_str_ext_const(tag, &ber_uni_tag_codes_ext, "Unknown"));
-            if (item) {
-                next_tree = proto_item_add_subtree(item, ett_ber_SEQUENCE);
-            }
+            next_tree = proto_tree_add_subtree(tree, tvb, offset, len, ett_ber_SEQUENCE, NULL,
+                                               val_to_str_ext_const(tag, &ber_uni_tag_codes_ext, "Unknown"));
             while (offset < (int)(start_offset + len + hdr_len))
                 offset = try_dissect_unknown_ber(pinfo, tvb, offset, next_tree, nest_level+1);
             break;
@@ -1037,10 +1035,8 @@ try_dissect_unknown_ber(packet_info *pinfo, tvbuff_t *tvb, volatile int offset, 
         case BER_CLASS_CON:
         case BER_CLASS_PRI:
         default:
-            item = proto_tree_add_text(tree, tvb, offset, len, "[%s %d]", val_to_str_const(ber_class, ber_class_codes, "Unknown"), tag);
-            if (item) {
-                next_tree = proto_item_add_subtree(item, ett_ber_SEQUENCE);
-            }
+            next_tree = proto_tree_add_subtree_format(tree, tvb, offset, len, ett_ber_SEQUENCE, NULL,
+                            "[%s %d]", val_to_str_const(ber_class, ber_class_codes, "Unknown"), tag);
             while (offset < (int)(start_offset + len + hdr_len))
                 offset = try_dissect_unknown_ber(pinfo, tvb, offset, next_tree, nest_level+1);
             break;

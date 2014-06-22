@@ -435,15 +435,12 @@ dissect_bssap_data_param(tvbuff_t *tvb, packet_info *pinfo,
 static void
 dissect_bssap_dlci_param(tvbuff_t *tvb, proto_tree *tree, guint16 length)
 {
-    proto_item *dlci_item;
     proto_tree *dlci_tree;
     guint8      oct;
 
-    dlci_item =
-        proto_tree_add_text(tree, tvb, 0, length,
-                    "Data Link Connection Identifier");
-
-    dlci_tree = proto_item_add_subtree(dlci_item, ett_bssap_dlci);
+    dlci_tree =
+        proto_tree_add_subtree(tree, tvb, 0, length,
+                    ett_bssap_dlci, NULL, "Data Link Connection Identifier");
 
     oct = tvb_get_guint8(tvb, 0);
 

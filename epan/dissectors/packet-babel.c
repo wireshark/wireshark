@@ -306,11 +306,11 @@ dissect_babel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
                                     tvb_get_ptr(tvb, message + 4, len - 2),
                                     len - 2,
                                     nh);
-                ti = proto_tree_add_text(message_tree,
+                subtree = proto_tree_add_subtree_format(message_tree,
                                          tvb, message + 4, len - 2,
+                                         ett_subtree, NULL,
                                          "NH: %s",
                                          format_address(rc < 0 ? NULL : nh));
-                subtree = proto_item_add_subtree(ti, ett_subtree);
                 proto_tree_add_item(subtree, hf_babel_message_ae,
                                     tvb, message + 2, 1, ENC_NA);
                 proto_tree_add_item(subtree, hf_babel_message_prefix,
@@ -343,12 +343,12 @@ dissect_babel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
                                     tvb, message + 8, 2, ENC_BIG_ENDIAN);
                 proto_tree_add_item(message_tree, hf_babel_message_metric,
                                     tvb, message + 10, 2, ENC_BIG_ENDIAN);
-                ti = proto_tree_add_text(message_tree,
+                subtree = proto_tree_add_subtree_format(message_tree,
                                          tvb, message + 12, len - 10,
+                                         ett_subtree, NULL,
                                          "Prefix: %s",
                                          format_prefix(rc < 0 ? NULL : p,
                                                        plen));
-                subtree = proto_item_add_subtree(ti, ett_subtree);
                 proto_tree_add_item(subtree, hf_babel_message_ae,
                                     tvb, message + 2, 1, ENC_NA);
                 proto_tree_add_item(subtree, hf_babel_message_plen,
@@ -367,12 +367,12 @@ dissect_babel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
                                    tvb_get_ptr(tvb, message + 4, len - 2),
                                    NULL,
                                    len - 2, p);
-                ti = proto_tree_add_text(message_tree,
+                subtree = proto_tree_add_subtree_format(message_tree,
                                          tvb, message + 4, len - 2,
+                                         ett_subtree, NULL,
                                          "Prefix: %s",
                                          format_prefix(rc < 0 ? NULL : p,
                                                        plen));
-                subtree = proto_item_add_subtree(ti, ett_subtree);
                 proto_tree_add_item(subtree, hf_babel_message_ae,
                                     tvb, message + 2, 1, ENC_NA);
                 proto_tree_add_item(subtree, hf_babel_message_plen,
@@ -395,12 +395,12 @@ dissect_babel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
                                     tvb, message + 6, 1, ENC_NA);
                 proto_tree_add_item(message_tree, hf_babel_message_routerid,
                                     tvb, message + 8, 8, ENC_NA);
-                ti = proto_tree_add_text(message_tree,
+                subtree = proto_tree_add_subtree_format(message_tree,
                                          tvb, message + 16, len - 14,
+                                         ett_subtree, NULL,
                                          "Prefix: %s",
                                          format_prefix(rc < 0 ? NULL : p,
                                                        plen));
-                subtree = proto_item_add_subtree(ti, ett_subtree);
                 proto_tree_add_item(subtree, hf_babel_message_ae,
                                     tvb, message + 2, 1, ENC_NA);
                 proto_tree_add_item(subtree, hf_babel_message_plen,

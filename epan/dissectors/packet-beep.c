@@ -499,9 +499,8 @@ dissect_beep_tree(tvbuff_t *tvb, int offset, packet_info *pinfo,
   if (cmd_temp != NULL) {
 
     if (tree) {
-      ti = proto_tree_add_text(tree, tvb, offset, header_len(tvb, offset) + 2, "Header");
-
-      hdr = proto_item_add_subtree(ti, ett_header);
+      hdr = proto_tree_add_subtree(tree, tvb, offset, header_len(tvb, offset) + 2,
+            ett_header, NULL, "Header");
 
       ti = proto_tree_add_item(hdr, hf_beep_cmd, tvb, offset, 3, ENC_NA|ENC_ASCII);
       /* Include space */
@@ -659,9 +658,8 @@ dissect_beep_tree(tvbuff_t *tvb, int offset, packet_info *pinfo,
     proto_tree *tr = NULL;
 
     if (tree) {
-      ti = proto_tree_add_text(tree, tvb, offset, MIN(5, MAX(0, tvb_length_remaining(tvb, offset))), "Trailer");
-
-      tr = proto_item_add_subtree(ti, ett_trailer);
+      tr = proto_tree_add_subtree(tree, tvb, offset, MIN(5, MAX(0, tvb_length_remaining(tvb, offset))),
+                                    ett_trailer, NULL, "Trailer");
 
       proto_tree_add_item(hdr, hf_beep_cmd, tvb, offset, 3, ENC_NA|ENC_ASCII);
     }

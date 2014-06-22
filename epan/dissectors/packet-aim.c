@@ -689,11 +689,10 @@ dissect_aim_snac(tvbuff_t *tvb, packet_info *pinfo, int offset,
 	if( aim_tree && subtype != NULL )
 	{
 		offset = orig_offset;
-		ti1 = proto_tree_add_text(aim_tree, tvb, 6, 10,
+		aim_tree_fnac = proto_tree_add_subtree_format(aim_tree, tvb, 6, 10, ett_aim_fnac, NULL,
 					  "FNAC: Family: %s (0x%04x), Subtype: %s (0x%04x)",
 					  family ? family->name : "Unknown", family_id,
 					  (subtype && subtype->name) ? subtype->name : "Unknown", subtype_id);
-		aim_tree_fnac = proto_item_add_subtree(ti1, ett_aim_fnac);
 
 		proto_tree_add_uint_format_value (aim_tree_fnac, hf_aim_fnac_family,
 						  tvb, offset, 2, family_id, "%s (0x%04x)",
@@ -809,18 +808,16 @@ dissect_aim_buddyname(tvbuff_t *tvb, packet_info *pinfo _U_, int offset,
 		      proto_tree *tree)
 {
 	guint8 buddyname_length = 0;
-	proto_item *ti = NULL;
-	proto_tree *buddy_tree = NULL;
+	proto_tree *buddy_tree;
 
 	buddyname_length = tvb_get_guint8(tvb, offset);
 	offset++;
 
 	if(tree)
 	{
-		ti = proto_tree_add_text(tree, tvb, offset-1, 1+buddyname_length,
-					 "Buddy: %s",
+		buddy_tree = proto_tree_add_subtree_format(tree, tvb, offset-1, 1+buddyname_length,
+					 ett_aim_buddyname, NULL, "Buddy: %s",
 					 tvb_format_text(tvb, offset, buddyname_length));
-		buddy_tree = proto_item_add_subtree(ti, ett_aim_buddyname);
 		proto_tree_add_item(buddy_tree, hf_aim_buddyname_len, tvb, offset-1, 1, ENC_BIG_ENDIAN);
 		proto_tree_add_item(buddy_tree, hf_aim_buddyname, tvb, offset, buddyname_length, ENC_UTF_8|ENC_NA);
 	}
@@ -1330,9 +1327,8 @@ dissect_aim_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, int offset,
 		else
 			desc = "Unknown";
 
-		ti1 = proto_tree_add_text(tree, tvb, offset, length + 4, "TLV: %s", desc);
-
-		tlv_tree = proto_item_add_subtree(ti1, ett_aim_tlv);
+		tlv_tree = proto_tree_add_subtree_format(tree, tvb, offset, length + 4,
+												ett_aim_tlv, NULL, "TLV: %s", desc);
 
 		proto_tree_add_text(tlv_tree, tvb, offset, 2,
 				    "Value ID: %s (0x%04x)", desc, valueid);

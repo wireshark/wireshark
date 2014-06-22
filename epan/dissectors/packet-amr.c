@@ -440,7 +440,7 @@ dissect_amr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint amr
     gboolean    first_time;
 
 /* Set up structures needed to add the protocol subtree and manage it */
-    proto_item *ti,*toc_item;
+    proto_item *ti;
     proto_tree *amr_tree, *toc_tree;
 
     ti = proto_tree_add_item(tree, proto_amr, tvb, 0, -1, ENC_NA);
@@ -507,8 +507,7 @@ dissect_amr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint amr
      *   P bits: padding bits, MUST be set to zero.
      */
     octet = tvb_get_guint8(tvb,offset);
-    toc_item = proto_tree_add_text(amr_tree, tvb, offset, -1, "Payload Table of Contents");
-    toc_tree = proto_item_add_subtree(toc_item, ett_amr_toc);
+    toc_tree = proto_tree_add_subtree(amr_tree, tvb, offset, -1, ett_amr_toc, NULL, "Payload Table of Contents");
 
     first_time = TRUE;
     while ((( octet& 0x80 ) == 0x80) || (first_time == TRUE)) {

@@ -327,11 +327,11 @@ dissect_bfd_authentication(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     auth_len  = tvb_get_guint8(tvb, offset + 1);
 
     if (tree) {
-        auth_item = proto_tree_add_text(tree, tvb, offset, auth_len, "Authentication: %s",
+        auth_tree = proto_tree_add_subtree_format(tree, tvb, offset, auth_len,
+                                        ett_bfd_auth, NULL, "Authentication: %s",
                                         val_to_str(auth_type,
                                                    bfd_control_auth_type_values,
                                                    "Unknown Authentication Type (%d)") );
-        auth_tree = proto_item_add_subtree(auth_item, ett_bfd_auth);
 
         proto_tree_add_item(auth_tree, hf_bfd_auth_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 

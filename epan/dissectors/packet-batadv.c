@@ -1744,16 +1744,15 @@ static void dissect_batadv_icmp_v6(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 static void
 dissect_batadv_icmp_rr(proto_tree *batadv_icmp_tree, tvbuff_t *tvb, int offset)
 {
-	proto_tree *field_tree = NULL;
-	proto_item *tf;
+	proto_tree *field_tree;
 	int ptr, i;
 
 	ptr = tvb_get_guint8(tvb, offset);
 	if (ptr < 1 || ptr > BAT_RR_LEN)
 		return;
 
-	tf = proto_tree_add_text(batadv_icmp_tree, tvb, offset, 1+ 6 * BAT_RR_LEN, "ICMP RR");
-	field_tree = proto_item_add_subtree(tf, ett_batadv_icmp_rr);
+	field_tree = proto_tree_add_subtree(batadv_icmp_tree, tvb, offset, 1+ 6 * BAT_RR_LEN,
+										ett_batadv_icmp_rr, NULL, "ICMP RR");
 	proto_tree_add_text(field_tree, tvb, offset, 1, "Pointer: %d", ptr);
 
 	ptr--;
