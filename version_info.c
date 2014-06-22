@@ -38,16 +38,8 @@
 #include <wsutil/cpu_info.h>
 #include <wsutil/mem_info.h>
 
-#include "version.h"
-
 #ifdef HAVE_LIBCAP
 # include <sys/capability.h>
-#endif
-
-#ifdef GITVERSION
-	const char *wireshark_gitversion = " (" GITVERSION " from " GITBRANCH ")";
-#else
-	const char *wireshark_gitversion = "";
 #endif
 
 /*

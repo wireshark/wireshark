@@ -42,6 +42,7 @@
 #include <wsutil/tempfile.h>
 #include <wsutil/file_util.h>
 #include <wsutil/filesystem.h>
+#include <wsutil/ws_version_info.h>
 
 #include <wiretap/merge.h>
 
@@ -75,8 +76,6 @@
 #include "ui/main_statusbar.h"
 #include "ui/progress_dlg.h"
 #include "ui/ui_util.h"
-
-#include "version_info.h"
 
 /* Needed for addrinfo */
 #ifdef HAVE_SYS_TYPES_H
@@ -2622,7 +2621,7 @@ cf_print_packets(capture_file *cf, print_args_t *print_args)
   callback_args.num_visible_cols = 0;
   callback_args.visible_cols = NULL;
 
-  if (!print_preamble(print_args->stream, cf->filename, wireshark_gitversion)) {
+  if (!print_preamble(print_args->stream, cf->filename, get_ws_vcs_version_info())) {
     destroy_print_stream(print_args->stream);
     return CF_PRINT_WRITE_ERROR;
   }

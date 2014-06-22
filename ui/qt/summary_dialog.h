@@ -38,8 +38,6 @@
 #include "file.h"
 #include "summary.h"
 
-#include "version_info.h"
-
 #ifdef HAVE_LIBPCAP
     #include "capture.h"
     #include "ui/capture_globals.h"

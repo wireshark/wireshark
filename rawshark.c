@@ -102,6 +102,8 @@
 #include <wiretap/libpcap.h>
 #include <wiretap/pcap-encap.h>
 
+#include <wsutil/ws_version_info.h>
+
 #ifdef HAVE_LIBPCAP
 #include <setjmp.h>
 #include "capture-pcap-util.h"
@@ -189,12 +191,12 @@ print_usage(gboolean print_ver)
     if (print_ver) {
         output = stdout;
         fprintf(output,
-                "Rawshark " VERSION "%s\n"
+                "Rawshark %s\n"
                 "Dump and analyze network traffic.\n"
                 "See http://www.wireshark.org for more information.\n"
                 "\n"
                 "%s",
-                wireshark_gitversion, get_copyright_info());
+                get_ws_vcs_version_info(), get_copyright_info());
     } else {
         output = stderr;
     }
@@ -427,14 +429,14 @@ set_link_type(const char *lt_arg) {
 static void
 show_version(GString *comp_info_str, GString *runtime_info_str)
 {
-    printf("Rawshark " VERSION "%s\n"
+    printf("Rawshark %s\n"
            "\n"
            "%s"
            "\n"
            "%s"
            "\n"
            "%s",
-           wireshark_gitversion, get_copyright_info(), comp_info_str->str,
+           get_ws_vcs_version_info(), get_copyright_info(), comp_info_str->str,
            runtime_info_str->str);
 }
 
@@ -480,12 +482,12 @@ main(int argc, char *argv[])
     get_runtime_version_info(runtime_info_str, NULL);
 
     /* Add it to the information to be reported on a crash. */
-    ws_add_crash_info("Rawshark " VERSION "%s\n"
+    ws_add_crash_info("Rawshark %s\n"
            "\n"
            "%s"
            "\n"
            "%s",
-        wireshark_gitversion, comp_info_str->str, runtime_info_str->str);
+        get_ws_vcs_version_info(), comp_info_str->str, runtime_info_str->str);
 
 #ifdef _WIN32
     arg_list_utf_16to8(argc, argv);

@@ -69,7 +69,8 @@ LIBWSUTIL_SRC = 	\
 	type_util.c	\
 	ws_mempbrk.c	\
 	u3.c		\
-	unicode-utils.c
+	unicode-utils.c	\
+	ws_version_info.c
 
 # Header files that are not generated from other files
 LIBWSUTIL_INCLUDES = 	\
@@ -119,8 +120,8 @@ LIBWSUTIL_INCLUDES = 	\
 	u3.h		\
 	unicode-utils.h \
 	ws_cpuid.h	\
-	ws_mempbrk.h
-
+	ws_mempbrk.h	\
+	ws_version_info.h
 
 #
 # Editor modelines  -  http://www.wireshark.org/tools/modelines.html

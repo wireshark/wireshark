@@ -38,7 +38,6 @@
 #endif
 
 #include "../log.h"
-#include "../version_info.h"
 #include "../register.h"
 
 #include "ui/text_import_scanner.h"
@@ -51,6 +50,7 @@
 #include "wsutil/tempfile.h"
 #include "wsutil/plugins.h"
 #include "wsutil/copyright_info.h"
+#include "wsutil/ws_version_info.h"
 
 #include "qt_ui_utils.h"
 
@@ -136,7 +136,7 @@ AboutDialog::AboutDialog(QWidget *parent) :
 
     /* Construct the message string */
     message = QString(
-        "Version " VERSION "%1\n"
+        "Version %1\n"
         "\n"
         "%2"
         "\n"
@@ -147,7 +147,7 @@ AboutDialog::AboutDialog(QWidget *parent) :
         "Wireshark is Open Source Software released under the GNU General Public License.\n"
         "\n"
         "Check the man page and http://www.wireshark.org for more information.")
-        .arg(wireshark_gitversion).arg(get_copyright_info()).arg(comp_info_str->str)
+        .arg(get_ws_vcs_version_info()).arg(get_copyright_info()).arg(comp_info_str->str)
         .arg(runtime_info_str->str);
 
     ui->label_wireshark->setTextInteractionFlags(Qt::TextSelectableByMouse);

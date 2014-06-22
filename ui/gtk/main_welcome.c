@@ -37,6 +37,7 @@
 
 #include <wsutil/file_util.h>
 #include <wsutil/str_util.h>
+#include <wsutil/ws_version_info.h>
 
 #ifdef HAVE_LIBPCAP
 #include "ui/iface_lists.h"
@@ -65,7 +66,6 @@
 #include "ui/gtk/webbrowser.h"
 #endif
 #endif /* HAVE_LIBPCAP */
-#include "../version_info.h"
 
 #ifdef _WIN32
 #include <tchar.h>
@@ -335,8 +335,8 @@ welcome_header_set_message(gchar *msg) {
 
         if ((prefs.gui_version_placement == version_welcome_only) ||
             (prefs.gui_version_placement == version_both)) {
-            g_string_append_printf(message, "</span>\n<span size=\"large\" foreground=\"white\">Version " VERSION "%s",
-                                   wireshark_gitversion);
+            g_string_append_printf(message, "</span>\n<span size=\"large\" foreground=\"white\">Version %s",
+                                   get_ws_vcs_version_info());
         }
     }
 

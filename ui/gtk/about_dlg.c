@@ -30,6 +30,7 @@
 #include <wsutil/filesystem.h>
 #include <wsutil/plugins.h>
 #include <wsutil/copyright_info.h>
+#include <wsutil/ws_version_info.h>
 #ifdef HAVE_LIBSMI
 #include <epan/oids.h>
 #endif
@@ -41,7 +42,6 @@
 #endif
 
 #include "../log.h"
-#include "../version_info.h"
 #include "../register.h"
 
 #include "ui/last_open_dir.h"
@@ -314,7 +314,7 @@ about_wireshark_page_new(void)
 
   /* Construct the message string */
   message = g_strdup_printf(
-       "Version " VERSION "%s\n"
+       "Version %s\n"
        "\n"
        "%s"
        "\n"
@@ -325,7 +325,7 @@ about_wireshark_page_new(void)
        "Wireshark is Open Source Software released under the GNU General Public License.\n"
        "\n"
        "Check the man page and http://www.wireshark.org for more information.",
-       wireshark_gitversion, get_copyright_info(), comp_info_str->str,
+       get_ws_vcs_version_info(), get_copyright_info(), comp_info_str->str,
        runtime_info_str->str);
 
   msg_label = gtk_label_new(message);

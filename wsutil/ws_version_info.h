@@ -1,6 +1,6 @@
-/* version_info.h
- * Declarations of outines to report version information for stuff used
- * by Wireshark
+/* ws_version_info.h
+ * Declarations of routines to report version information for Wireshark
+ * programs
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -21,38 +21,24 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef __VERSION_INFO_H__
-#define __VERSION_INFO_H__
+#ifndef __WSUTIL_WS_VERSION_INFO_H__
+#define __WSUTIL_WS_VERSION_INFO_H__
+
+#include "ws_symbol_export.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
 
 /*
- * Get various library compile-time versions and append them to
- * the specified GString.
- *
- * "prepend_info" is called at the start to prepend any additional
- * information.
- *
- * "append_info" is called at the end to append any additional
- * information; this is required in order to, for example, put the
- * Portaudio information at the end of the string, as we currently
- * don't use Portaudio in TShark.
+ * Return a version number string for Wireshark, including, for builds
+ * from a tree checked out from Wireshark's version control system,
+ * something identifying what version was checked out.
  */
-void get_compiled_version_info(GString *str,
-    void (*prepend_info)(GString *),
-    void (*append_info)(GString *));
-
-/*
- * Get various library run-time versions, and the OS version, and append
- * them to the specified GString.
- */
-void get_runtime_version_info(GString *str,
-    void (*additional_info)(GString *));
+WS_DLL_PUBLIC const char *get_ws_vcs_version_info(void);
 
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
 
-#endif /* __VERSION_INFO_H__ */
+#endif /* __WSUTIL_WS_VERSION_INFO_H__ */

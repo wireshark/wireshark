@@ -33,7 +33,7 @@
 #include "gui_utils.h"
 #include "main_titlebar.h"
 
-#include "../version_info.h"
+#include <wsutil/ws_version_info.h>
 
 /*
  * Key to attach the "un-decorated" title to the window, so that if the
@@ -76,7 +76,7 @@ main_titlebar_update(void)
         if ((prefs.gui_version_placement == version_title_only) ||
             (prefs.gui_version_placement == version_both)) {
             gchar *old_title = title;
-            title = g_strdup_printf("%s   [Wireshark %s %s]", title, VERSION, wireshark_gitversion);
+            title = g_strdup_printf("%s   [Wireshark %s]", title, get_ws_vcs_version_info());
             g_free(old_title);
         }
         gtk_window_set_title(GTK_WINDOW(top_level), title);

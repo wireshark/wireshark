@@ -495,8 +495,8 @@ static void preinit_epan(char* argv0, int (*main)(int, char **)) {
 	}
 
 	 /* Add it to the information to be reported on a crash. */
-	ws_add_crash_info("Echld " VERSION "%s\n%s\n%s",
-		wireshark_gitversion, comp_info_str->str, runtime_info_str->str);
+	ws_add_crash_info("Echld %s\n%s\n%s",
+		ws_get_version_info(), comp_info_str->str, runtime_info_str->str);
 
 	init_stuff();
 

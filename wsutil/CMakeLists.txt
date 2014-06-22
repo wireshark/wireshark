@@ -83,6 +83,7 @@ set(WSUTIL_FILES
 	unicode-utils.c
 	ws_mempbrk.c
 	ws_mempbrk_sse42.c
+	ws_version_info.c
 	nghttp2/nghttp2_buf.c
 	nghttp2/nghttp2_hd.c
 	nghttp2/nghttp2_hd_huffman.c

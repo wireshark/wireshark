@@ -44,6 +44,7 @@
 #include <ui/simple_dialog.h>
 
 #include <wsutil/file_util.h>
+#include <wsutil/ws_version_info.h>
 
 #include "ui/gtk/color_utils.h"
 #include "ui/gtk/stock_icons.h"
@@ -60,8 +61,6 @@
 #include "wsutil/tempfile.h"
 #include "ui/win32/print_win32.h"
 #endif
-
-#include "version_info.h"
 
 /* static variable declarations to speed up the performance
  * of follow_load_text and follow_add_to_gtk_text
@@ -458,7 +457,7 @@ follow_print_stream(GtkWidget * w _U_, gpointer data)
         return;
     }
 
-    if (!print_preamble(stream, cfile.filename, wireshark_gitversion))
+    if (!print_preamble(stream, cfile.filename, get_ws_vcs_version_info()))
         goto print_error;
 
     switch (follow_read_stream(follow_info, follow_print_text, stream)) {

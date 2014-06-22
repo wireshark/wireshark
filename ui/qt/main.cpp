@@ -47,6 +47,7 @@
 #include <wsutil/report_err.h>
 #include <wsutil/u3.h>
 #include <wsutil/copyright_info.h>
+#include <wsutil/ws_version_info.h>
 
 #include <wiretap/merge.h>
 
@@ -206,12 +207,12 @@ print_usage(gboolean print_ver) {
 
     if (print_ver) {
         output = stdout;
-        fprintf(output, "Wireshark " VERSION "%s\n"
+        fprintf(output, "Wireshark %s\n"
                 "Interactively dump and analyze network traffic.\n"
                 "See http://www.wireshark.org for more information.\n"
                 "\n"
                 "%s",
-                wireshark_gitversion, get_copyright_info());
+                get_ws_vcs_version_info(), get_copyright_info());
     } else {
         output = stderr;
     }
@@ -296,14 +297,14 @@ print_usage(gboolean print_ver) {
 static void
 show_version(void)
 {
-    printf(PACKAGE " " VERSION "%s\n"
+    printf(PACKAGE " %s\n"
            "\n"
            "%s"
            "\n"
            "%s"
            "\n"
            "%s",
-           wireshark_gitversion, get_copyright_info(), comp_info_str->str,
+           get_ws_vcs_version_info(), get_copyright_info(), comp_info_str->str,
            runtime_info_str->str);
 }
 
@@ -521,12 +522,12 @@ int main(int argc, char *argv[])
     // xxx qtshark
     get_runtime_version_info(runtime_info_str, get_gui_runtime_info);
 
-    ws_add_crash_info(PACKAGE " " VERSION "%s\n"
+    ws_add_crash_info(PACKAGE " %s\n"
            "\n"
            "%s"
            "\n"
            "%s",
-        wireshark_gitversion, comp_info_str->str, runtime_info_str->str);
+        get_ws_vcs_version_info(), comp_info_str->str, runtime_info_str->str);
 
     /*
      * Get credential information for later use, and drop privileges

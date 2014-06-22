@@ -67,6 +67,7 @@
 #include <wsutil/report_err.h>
 #include <wsutil/copyright_info.h>
 #include <wsutil/os_version_info.h>
+#include <wsutil/ws_version_info.h>
 
 #include "globals.h"
 #include <epan/timestamp.h>
@@ -276,12 +277,12 @@ print_usage(gboolean print_ver)
   if (print_ver) {
     output = stdout;
     fprintf(output,
-        "TShark " VERSION "%s\n"
+        "TShark %s\n"
         "Dump and analyze network traffic.\n"
         "See http://www.wireshark.org for more information.\n"
         "\n"
         "%s",
-         wireshark_gitversion, get_copyright_info());
+        get_ws_vcs_version_info(), get_copyright_info());
   } else {
     output = stderr;
   }
@@ -403,7 +404,7 @@ glossary_option_help(void)
 
   output = stdout;
 
-  fprintf(output, "TShark " VERSION "%s\n", wireshark_gitversion);
+  fprintf(output, "TShark %s\n", get_ws_vcs_version_info());
 
   fprintf(output, "\n");
   fprintf(output, "Usage: tshark -G [report]\n");
@@ -906,14 +907,14 @@ check_capture_privs(void) {
 static void
 show_version(GString *comp_info_str, GString *runtime_info_str)
 {
-  printf("TShark " VERSION "%s\n"
+  printf("TShark %s\n"
          "\n"
          "%s"
          "\n"
          "%s"
          "\n"
          "%s",
-         wireshark_gitversion, get_copyright_info(), comp_info_str->str,
+         get_ws_vcs_version_info(), get_copyright_info(), comp_info_str->str,
          runtime_info_str->str);
 }
 
@@ -991,12 +992,12 @@ main(int argc, char *argv[])
   get_runtime_version_info(runtime_info_str, NULL);
 
   /* Add it to the information to be reported on a crash. */
-  ws_add_crash_info("TShark " VERSION "%s\n"
+  ws_add_crash_info("TShark %s\n"
          "\n"
          "%s"
          "\n"
          "%s",
-      wireshark_gitversion, comp_info_str->str, runtime_info_str->str);
+      get_ws_vcs_version_info(), comp_info_str->str, runtime_info_str->str);
 
 #ifdef _WIN32
   arg_list_utf_16to8(argc, argv);
@@ -3084,7 +3085,7 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
     }
     /* If we don't have an application name add Tshark */
     if (shb_hdr->shb_user_appl == NULL) {
-        g_snprintf(appname, sizeof(appname), "TShark " VERSION "%s", wireshark_gitversion);
+        g_snprintf(appname, sizeof(appname), "TShark %s", get_ws_vcs_version_info());
         shb_hdr->shb_user_appl = appname;
     }
 
@@ -3584,7 +3585,7 @@ write_preamble(capture_file *cf)
   switch (output_action) {
 
   case WRITE_TEXT:
-    return print_preamble(print_stream, cf ? cf->filename : NULL, wireshark_gitversion);
+    return print_preamble(print_stream, cf ? cf->filename : NULL, get_ws_vcs_version_info());
 
   case WRITE_XML:
     if (print_details)

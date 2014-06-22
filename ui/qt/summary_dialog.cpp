@@ -26,6 +26,8 @@
 
 #include "wireshark_application.h"
 
+#include <wsutil/ws_version_info.h>
+
 #include <QtGui>
 #include <QPushButton>
 
@@ -125,7 +127,7 @@ QString SummaryDialog::SummaryToString()
     QString summaryStr;
     QTextStream out(&summaryStr);
 
-    out << tr("Summary created by Wireshark %1\n\n").arg(wireshark_gitversion);
+    out << tr("Summary created by Wireshark %1\n\n").arg(get_ws_vcs_version_info());
 
     // File Section
     out << tr("File: \n");

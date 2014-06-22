@@ -69,6 +69,7 @@
 
 #include <wsutil/crash_info.h>
 #include <wsutil/copyright_info.h>
+#include <wsutil/ws_version_info.h>
 
 #ifndef HAVE_GETOPT
 #include "wsutil/wsgetopt.h"
@@ -477,10 +478,10 @@ print_usage(gboolean print_ver)
     if (print_ver) {
         output = stdout;
         fprintf(output,
-                "Dumpcap " VERSION "%s\n"
+                "Dumpcap %s\n"
                 "Capture network packets and dump them into a pcapng file.\n"
                 "See http://www.wireshark.org for more information.\n",
-                wireshark_gitversion);
+                get_ws_vcs_version_info());
     } else {
         output = stderr;
     }
@@ -564,13 +565,13 @@ static void
 show_version(GString *comp_info_str, GString *runtime_info_str)
 {
     printf(
-        "Dumpcap " VERSION "%s\n"
+        "Dumpcap %s\n"
         "\n"
         "%s\n"
         "%s\n"
         "%s\n"
         "See http://www.wireshark.org for more information.\n",
-        wireshark_gitversion, get_copyright_info(), comp_info_str->str, runtime_info_str->str);
+        get_ws_vcs_version_info(), get_copyright_info(), comp_info_str->str, runtime_info_str->str);
 }
 
 /*
@@ -2877,7 +2878,7 @@ capture_loop_init_output(capture_options *capture_opts, loop_data *ld, char *err
             os_info_str = g_string_new("");
             get_os_version_info(os_info_str);
 
-            g_snprintf(appname, sizeof(appname), "Dumpcap " VERSION "%s", wireshark_gitversion);
+            g_snprintf(appname, sizeof(appname), "Dumpcap %s", get_ws_vcs_version_info());
             successful = pcapng_write_session_header_block(ld->pdh,
                                 (const char *)capture_opts->capture_comment,   /* Comment*/
                                 NULL,                        /* HW*/
@@ -3370,7 +3371,7 @@ do_file_switch_or_stop(capture_options *capture_opts,
                 os_info_str = g_string_new("");
                 get_os_version_info(os_info_str);
 
-                g_snprintf(appname, sizeof(appname), "Dumpcap " VERSION "%s", wireshark_gitversion);
+                g_snprintf(appname, sizeof(appname), "Dumpcap %s", get_ws_vcs_version_info());
                 successful = pcapng_write_session_header_block(global_ld.pdh,
                                 NULL,                        /* Comment */
                                 NULL,                        /* HW */
@@ -4223,12 +4224,12 @@ main(int argc, char *argv[])
     get_runtime_version_info(runtime_info_str, NULL);
 
     /* Add it to the information to be reported on a crash. */
-    ws_add_crash_info("Dumpcap " VERSION "%s\n"
+    ws_add_crash_info("Dumpcap %s\n"
            "\n"
            "%s"
            "\n"
            "%s",
-        wireshark_gitversion, comp_info_str->str, runtime_info_str->str);
+        get_ws_vcs_version_info(), comp_info_str->str, runtime_info_str->str);
 
 #ifdef _WIN32
     arg_list_utf_16to8(argc, argv);

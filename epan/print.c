@@ -1232,7 +1232,7 @@ print_preamble_ps(print_stream_t *self, gchar *filename, const char *version_str
 
     fputs("%% the page title\n", output->fh);
     ps_clean_string(psbuffer, filename, MAX_PS_LINE_LENGTH);
-    fprintf(output->fh, "/ws_pagetitle (%s - Wireshark " VERSION "%s) def\n", psbuffer, version_string);
+    fprintf(output->fh, "/ws_pagetitle (%s - Wireshark %s) def\n", psbuffer, version_string);
     fputs("\n", output->fh);
     return !ferror(output->fh);
 }
