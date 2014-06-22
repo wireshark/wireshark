@@ -54,7 +54,8 @@ development tasks in <<ChapterSources>>.
 Cygwin provides a lot of UNIX based tools on the Win32 platform. It uses a UNIX
 emulation layer which might be a bit slower compared to the native Win32 tools,
 but at an acceptable level. The installation and update is pretty easy and done
-through a single utility, 'setup.exe'.
+through a single utility, 'setup-x86.exe' for 32-bit Windows and
+'setup-x86_64.exe' for 64-bit Windows.
 
 The native Windows tools will typically be a bit faster but more complicated to
 install, as you would have to download the tools from different web sites and
@@ -69,16 +70,18 @@ of Cygwin is required in any case. This may change in the future as packaging
 systems such as NuGet and Chocolatey mature.
 ====
 
-Although Cygwin consists of several separate packages, the installation and
-update is done through a single utility, 'setup.exe', which acts similar to
-other web based installers. All tools will be installed into one base folder.
-The default is 'C:\cygwin'.
+Although Cygwin consists of several separate packages, the installation
+and update is done through a single utility, 'setup-x86.exe' or
+'setup-x86_64.exe', which acts similar to other web based installers. 
+All tools will be installed into one base folder.  The default is
+'C:\cygwin'. 
 
-You will find 'setup.exe' at http://www.cygwin.com/[]. Click on one of the
-"Install Cygwin now" links to download 'setup.exe'. After the download
-completes, run it.
+You will find 'setup-x86.exe', for 32-bit systems, and
+'setup-x86_64.exe', for 64-bit systems, at http://www.cygwin.com/[]. 
+Click on one of the "Install Cygwin now" links to download the
+appropriate setup utility.  After the download completes, run it. 
 
-Setup.exe will ask you for some settings. The defaults
+The setup utility will ask you for some settings. The defaults
 should usually work well, at least initially. At the "Select
 Packages" page, you'll need to select some additional packages,
 which are not installed by default. Navigate to the required
@@ -98,12 +101,13 @@ interpreters (command.com / cmd.exe) but much more powerful.
 
 ==== Add/Update/Remove Cygwin Packages
 
-If you want to add, update, or remove packages later you can do so by running
-'setup.exe' again. At the "Select Packages" page, the entry in the "New" column
-will control what is done (or not) with the package. If a new version of a
-package is available, the new version number will be displayed, so it will be
-automatically updated. You can change the current setting by simply clicking at
-it, it will change between:
+If you want to add, update, or remove packages later you can do so by
+running the setup utility again.  At the "Select Packages" page, the
+entry in the "New" column will control what is done (or not) with the
+package.  If a new version of a package is available, the new version
+number will be displayed, so it will be automatically updated.  You can
+change the current setting by simply clicking at it, it will change
+between:
 
 * 'A specific version number.' This specific package version will be installed.
 

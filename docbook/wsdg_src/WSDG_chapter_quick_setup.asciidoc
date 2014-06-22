@@ -118,7 +118,10 @@ problems.
 
 ==== Install Cygwin
 
-http://www.cygwin.com/setup.exe[Download the Cygwin installer] and start it.
+On 32-bit Windows, http://www.cygwin.com/setup-x86.exe[download the
+32-bit Cygwin installer] and start it.  On 64-bit Windows,
+http://www.cygwin.com/setup-x86_64.exe[download the 64-bit Cygwin
+installer] and start it.
 
 At the "Select Packages" page, you'll need to select
 some additional packages which are not installed by default.
@@ -183,9 +186,10 @@ The official command-line installer is available at http://msysgit.github.io/.
 
 ===== From Cygwin
 
-Cygwin comes with a port of git. To install it, run Cygwin's setup.exe, navigate
-to Devel/git, and if the package has a "Skip" item in the "New" column, click on
-the "Skip" item so it shows a version number.
+Cygwin comes with a port of git.  To install it, run Cygwin's
+setup-x86.exe or setup-x86_64, navigate to Devel/git, and if the package
+has a "Skip" item in the "New" column, click on the "Skip" item so it
+shows a version number.
 
 ===== Git Extensions
 
