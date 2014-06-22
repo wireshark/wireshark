@@ -134,7 +134,7 @@ static char* new_child_cmd(char** params, char** err) {
 		return NULL;
 	}
 
-	child = echld_new(paramsets[ps_id],NULL);
+	child = echld_new(paramsets[ps_id],NULL,NULL);
 
 	if (child <= 0) {
 		*err = g_strdup("No child\n");
@@ -377,7 +377,7 @@ int got_param = 0;
 int main(int argc _U_, char** argv _U_) {
 	struct timeval tv;
 	int tot_cycles = 0;
-	echld_init_t init = {ECHLD_ENCODING_JSON,argv[0],main,NULL,NULL,NULL,NULL};
+	echld_init_t init = {ECHLD_ENCODING_JSON,argv[0],main,NULL,NULL,NULL,NULL,NULL,NULL};
 
 
 	tv.tv_sec = 5;

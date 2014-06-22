@@ -119,7 +119,7 @@ static long dbg_r = 0;
 #define DISP_DBG(attrs) ( dispatcher_debug attrs )
 #define DISP_DBG_INIT() do { debug_fp = stderr;  DCOM(); } while(0)
 #define DISP_DBG_START(fname) do { debug_fp = fopen(fname,"a"); DCOM(); DISP_DBG((0,"Log Started"));  } while(0)
-#define DISP_WRITE(FD,BA,CH,T,RH) ( dbg_r = echld_write_frame(FD,BA,CH,T,RH,NULL), DISP_DBG((1,"SND fd=%d ch=%d ty='%s' rh=%d msg='%s'",FD,CH,TY(T),RH, (dbg_r>0?"ok":strerror(errno)))), dbg_r )
+#define DISP_WRITE(FD,BA,CH,T,RH) ( dbg_r = echld_write_frame(FD,BA,CH,T,RH,NULL), DISP_DBG((1,"SND fd=%d ch=%d ty='%s' rh=%d msg='%s'",FD,CH,TY(T),RH, (dbg_r>0?"ok":strerror(errno)))))
 #define CHLD_SET_STATE(c,st) do { DISP_DBG((1,"Child[%d] State %s => %s",(c)->chld_id, ST((c)->state), ST((st)) )); (c)->state=(st); } while(0)
 #else
 #define DISP_DBG(attrs)
@@ -486,8 +486,8 @@ static void preinit_epan(char* argv0, int (*main)(int, char **)) {
 	runtime_info_str = g_string_new("Running ");
 	get_runtime_version_info(runtime_info_str, NULL);
 
-	version_long_str = g_strdup_printf("%s%s\n%s\n%s\n%s",
-		version_str, wireshark_gitversion, get_copyright_info(),
+	version_long_str = g_strdup_printf("Echld %s\n%s\n%s\n%s",
+		get_ws_vcs_version_info(), get_copyright_info(),
 		comp_info_str->str, runtime_info_str->str);
 
 	if (error) {
@@ -496,7 +496,7 @@ static void preinit_epan(char* argv0, int (*main)(int, char **)) {
 
 	 /* Add it to the information to be reported on a crash. */
 	ws_add_crash_info("Echld %s\n%s\n%s",
-		ws_get_version_info(), comp_info_str->str, runtime_info_str->str);
+		get_ws_vcs_version_info(), comp_info_str->str, runtime_info_str->str);
 
 	init_stuff();
 

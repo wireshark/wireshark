@@ -70,6 +70,8 @@
 #include "wsutil/privileges.h"
 #include "wsutil/filesystem.h"
 #include "wsutil/copyright_info.h"
+#include "wsutil/ws_version_info.h"
+#include "epan/addr_resolv.h"
 #include "epan/epan.h"
 #include "epan/prefs.h"
 #include "epan/ex-opt.h"
