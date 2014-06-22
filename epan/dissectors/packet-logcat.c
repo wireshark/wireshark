@@ -48,8 +48,10 @@ static int hf_logcat_log = -1;
 
 static gint ett_logcat = -1;
 static gint ett_logcat_timestamp = -1;
+static gint ett_logcat_log = -1;
 
 static dissector_handle_t logcat_handle;
+static dissector_handle_t data_text_lines_handle;
 
 static gint exported_pdu_tap = -1;
 
@@ -101,6 +103,7 @@ dissect_logcat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     gint         logger_version;
     guint8      *log;
     gchar       *c;
+    tvbuff_t    *next_tvb;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "Logcat");
 
@@ -166,7 +169,11 @@ dissect_logcat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     while ((c = g_utf8_strchr(log, string_length, '\r')))
         *c = ' ';
 
-    proto_tree_add_item(maintree, hf_logcat_log, tvb, offset, string_length, ENC_ASCII | ENC_NA);
+    subitem = proto_tree_add_item(maintree, hf_logcat_log, tvb, offset, string_length, ENC_ASCII | ENC_NA);
+    subtree = proto_item_add_subtree(subitem, ett_logcat_log);
+
+    next_tvb = tvb_new_subset_length(tvb, offset, string_length - 1);
+    call_dissector(data_text_lines_handle, next_tvb, pinfo, subtree);
 
     col_clear(pinfo->cinfo, COL_INFO);
     col_add_str(pinfo->cinfo, COL_INFO, log);
@@ -263,7 +270,8 @@ proto_register_logcat(void)
 
     static gint *ett[] = {
         &ett_logcat,
-        &ett_logcat_timestamp
+        &ett_logcat_timestamp,
+        &ett_logcat_log
     };
 
     static ei_register_info ei[] = {
@@ -285,6 +293,8 @@ proto_register_logcat(void)
 void
 proto_reg_handoff_logcat(void)
 {
+    data_text_lines_handle = find_dissector("data-text-lines");
+
     dissector_add_uint("wtap_encap", WTAP_ENCAP_LOGCAT, logcat_handle);
 
     dissector_add_for_decode_as("tcp.port", logcat_handle);
