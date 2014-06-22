@@ -346,7 +346,7 @@ void SequenceDialog::fillDiagram()
     seq_analysis_info_t new_sa;
 
     new_sa = seq_analysis_;
-    new_sa.list = NULL;
+    new_sa.items = g_queue_new();
     new_sa.ht = NULL;
     new_sa.num_nodes = 0;
     sequence_analysis_list_get(cap_file_, &new_sa);

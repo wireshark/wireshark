@@ -430,7 +430,7 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 	display_items = draw_height/ITEM_HEIGHT;
 
 	/* get the items to display and fill the matrix array */
-	list = g_list_first(user_data->graph_info->list);
+	list = g_queue_peek_nth_link(user_data->graph_info->items, 0);
 	current_item = 0;
 	i = 0;
 	while (list)

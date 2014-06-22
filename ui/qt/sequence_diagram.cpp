@@ -106,7 +106,7 @@ void SequenceDiagram::setData(seq_analysis_info_t *sainfo)
     QFontMetrics com_fm(comment_axis_->tickLabelFont());
     int elide_w = com_fm.height() * max_comment_em_width_;
 
-    for (GList *cur = g_list_first(sainfo->list); cur; cur = g_list_next(cur)) {
+    for (GList *cur = g_queue_peek_nth_link(sainfo->items, 0); cur; cur = g_list_next(cur)) {
         seq_analysis_item_t *sai = (seq_analysis_item_t *) cur->data;
 
         new_data.key = cur_key;

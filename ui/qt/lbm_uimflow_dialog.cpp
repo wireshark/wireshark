@@ -152,7 +152,7 @@ static gboolean lbm_uimflow_add_to_graph(seq_analysis_info_t * seq_info, packet_
     item->conv_num = (guint16)LBM_CHANNEL_ID(stream_info->channel);
     item->display = TRUE;
     item->line_style = 1;
-    seq_info->list = g_list_prepend(seq_info->list, (gpointer)item);
+    g_queue_push_tail(seq_info->items, item);
     return (TRUE);
 }
 
@@ -178,11 +178,10 @@ static void lbm_uimflow_get_analysis(capture_file * cfile, seq_analysis_info_t *
 
     register_tap_listener("lbm_uim", (void *)seq_info, NULL, TL_REQUIRES_COLUMNS, NULL, lbm_uimflow_tap_packet, NULL);
     cf_retap_packets(cfile);
-    seq_info->list = g_list_reverse(seq_info->list);
     remove_tap_listener((void *)seq_info);
 
     /* Fill in the timestamps. */
-    list = g_list_first(seq_info->list);
+    list = g_queue_peek_nth_link(seq_info->items, 0);
     while (list != NULL)
     {
         seq_analysis_item_t * seq_item = (seq_analysis_item_t *)list->data;
@@ -506,7 +505,7 @@ void LBMUIMFlowDialog::fillDiagram(void)
     seq_analysis_info_t new_sa;
 
     new_sa = m_sequence_analysis;
-    new_sa.list = NULL;
+    new_sa.items = g_queue_new();
     new_sa.ht = NULL;
     new_sa.num_nodes = 0;
     lbm_uimflow_get_analysis(m_capture_file, &new_sa);

@@ -67,6 +67,7 @@ flow_graph_data_init(void) {
 	graph_analysis = (seq_analysis_info_t *)g_malloc0(sizeof(seq_analysis_info_t));
 	graph_analysis->type = SEQ_ANALYSIS_ANY;
 	graph_analysis->all_packets = TRUE;
+	graph_analysis->items = g_queue_new();
 }
 
 

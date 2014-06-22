@@ -209,11 +209,11 @@ voip_calls_on_filter(GtkButton *button _U_, gpointer user_data _U_)
 	g_string_append_printf(filter_string_fwd, "(");
 
 	/* Build a new filter based on frame numbers */
-	lista = g_list_first(voip_calls_get_info()->callsinfo_list);
+	lista = g_queue_peek_nth_link(voip_calls_get_info()->callsinfos, 0);
 	while (lista) {
 		listinfo = (voip_calls_info_t *)lista->data;
 		if (listinfo->selected) {
-			listb = g_list_first(voip_calls_get_info()->graph_analysis->list);
+			listb = g_queue_peek_nth_link(voip_calls_get_info()->graph_analysis->items, 0);
 			while (listb) {
 				gai = (seq_analysis_item_t *)listb->data;
 				if (gai->conv_num == listinfo->call_num) {
@@ -238,7 +238,7 @@ voip_calls_on_filter(GtkButton *button _U_, gpointer user_data _U_)
 		g_string_append_printf(filter_string_fwd, "(");
 		is_first = TRUE;
 		/* Build a new filter based on protocol fields */
-		lista = g_list_first(voip_calls_get_info()->callsinfo_list);
+		lista = g_queue_peek_nth_link(voip_calls_get_info()->callsinfos, 0);
 		while (lista) {
 			listinfo = (voip_calls_info_t *)lista->data;
 			if (listinfo->selected) {
@@ -314,10 +314,10 @@ voip_calls_on_select_all(GtkButton *button _U_, gpointer user_data _U_)
 
 /* compare two list entries by packet no */
 static gint
-graph_analysis_sort_compare(gconstpointer a, gconstpointer b)
+graph_analysis_sort_compare(gconstpointer a, gconstpointer b, gpointer user_data _U_)
 {
-    const seq_analysis_item_t *entry_a = (const seq_analysis_item_t *)a;
-    const seq_analysis_item_t *entry_b = (const seq_analysis_item_t *)b;
+	const seq_analysis_item_t *entry_a = (const seq_analysis_item_t *)a;
+	const seq_analysis_item_t *entry_b = (const seq_analysis_item_t *)b;
 
 	if(entry_a->fd->num < entry_b->fd->num)
 		return -1;
@@ -337,15 +337,10 @@ on_graph_bt_clicked(GtkButton *button _U_, gpointer user_data _U_)
 	GList* listb;
 	voip_calls_info_t *listinfo;
 
-	if(!voip_calls_get_info()->reversed) {
-		voip_calls_get_info()->callsinfo_list=
-			g_list_reverse(voip_calls_get_info()->callsinfo_list);
-		voip_calls_get_info()->graph_analysis->list=
-			g_list_sort(voip_calls_get_info()->graph_analysis->list, graph_analysis_sort_compare);
-		voip_calls_get_info()->reversed=1;
-	}
+	g_queue_sort(voip_calls_get_info()->graph_analysis->items, graph_analysis_sort_compare, NULL);
+
 	/* reset the "display" parameter in graph analysis */
-	listb = g_list_first(voip_calls_get_info()->graph_analysis->list);
+	listb = g_queue_peek_nth_link(voip_calls_get_info()->graph_analysis->items, 0);
 	while (listb) {
 		gai = (seq_analysis_item_t *)listb->data;
 		gai->display = FALSE;
@@ -353,11 +348,11 @@ on_graph_bt_clicked(GtkButton *button _U_, gpointer user_data _U_)
 	}
 
 	/* set the display for selected calls */
-	lista = g_list_first(voip_calls_get_info()->callsinfo_list);
+	lista = g_queue_peek_nth_link(voip_calls_get_info()->callsinfos, 0);
 	while (lista) {
 		listinfo = (voip_calls_info_t *)lista->data;
 		if (listinfo->selected) {
-			listb = g_list_first(voip_calls_get_info()->graph_analysis->list);
+			listb = g_queue_peek_nth_link(voip_calls_get_info()->graph_analysis->items, 0);
 			while (listb) {
 				gai = (seq_analysis_item_t *)listb->data;
 				if (gai->conv_num == listinfo->call_num) {
@@ -790,7 +785,7 @@ voip_calls_dlg_update(GList *listx)
 
 		g_snprintf(label_text, sizeof(label_text),
 			"Total: Calls: %u   Start packets: %u   Completed calls: %u   Rejected calls: %u",
-			g_list_length(voip_calls_get_info()->callsinfo_list),
+			g_queue_get_length(voip_calls_get_info()->callsinfos),
 			voip_calls_get_info()->start_packets,
 			voip_calls_get_info()->completed_calls,
 			voip_calls_get_info()->rejected_calls);
@@ -825,7 +820,7 @@ void
 voip_calls_dlg_draw(void *ptr _U_)
 {
 	if (voip_calls_get_info()->redraw) {
-		voip_calls_dlg_update(voip_calls_get_info()->callsinfo_list);
+		voip_calls_dlg_update(g_queue_peek_nth_link(voip_calls_get_info()->callsinfos, 0));
 		voip_calls_get_info()->redraw = FALSE;
 	}
 }

@@ -65,7 +65,7 @@ static void lbmc_uim_flow_graph_data_init(void)
     dialog_data.graph_analysis->all_packets = TRUE;
     dialog_data.graph_analysis->any_addr = TRUE;
     dialog_data.graph_analysis->nconv = 0;
-    dialog_data.graph_analysis->list = NULL;
+    dialog_data.graph_analysis->items = g_queue_new();
     dialog_data.graph_analysis->ht = NULL;
     dialog_data.graph_analysis->num_nodes = 0;
 }
@@ -96,7 +96,7 @@ static void lbmc_uim_flow_tap_reset(void * tap_data _U_)
     if (dialog_data.graph_analysis != NULL)
     {
         /* free the graph data items */
-        list = g_list_first(dialog_data.graph_analysis->list);
+        list = g_queue_peek_nth_link(dialog_data.graph_analysis->items, 0);
         while (list)
         {
             graph_item = (seq_analysis_item_t *)list->data;
@@ -106,9 +106,8 @@ static void lbmc_uim_flow_tap_reset(void * tap_data _U_)
             g_free(list->data);
             list = g_list_next(list);
         }
-        g_list_free(dialog_data.graph_analysis->list);
+        g_queue_clear(dialog_data.graph_analysis->items);
         dialog_data.graph_analysis->nconv = 0;
-        dialog_data.graph_analysis->list = NULL;
     }
 }
 
@@ -223,7 +222,7 @@ static int lbmc_uim_flow_graph_add_to_graph(packet_info * pinfo, const lbm_uim_s
     item->conv_num = (guint16)LBM_CHANNEL_ID(stream_info->channel);
     item->display = TRUE;
     item->line_style = 1;
-    dialog_data.graph_analysis->list = g_list_prepend(dialog_data.graph_analysis->list, (gpointer)item);
+    g_queue_push_tail(dialog_data.graph_analysis->items, item);
     return (1);
 }
 
@@ -280,9 +279,8 @@ static void lbmc_uim_flow_graph_on_ok_cb(GtkButton * button _U_, gpointer user_d
         dialog_data.have_tap_listener = TRUE;
     }
     cf_retap_packets(&cfile);
-    dialog_data.graph_analysis->list = g_list_reverse(dialog_data.graph_analysis->list);
     /* Fill in the timestamps. */
-    list = g_list_first(dialog_data.graph_analysis->list);
+    list = g_queue_peek_nth_link(dialog_data.graph_analysis->items, 0);
     while (list != NULL)
     {
         seq_analysis_item_t * seq_item = (seq_analysis_item_t *)list->data;

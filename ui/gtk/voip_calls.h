@@ -170,7 +170,7 @@ typedef struct _voip_calls_info {
 
 typedef struct _voip_calls_tapinfo {
 	int     ncalls;							/**< number of call */
-	GList*  callsinfo_list;					/**< list with all calls */
+	GQueue*  callsinfos;					/**< queue with all calls */
 	GHashTable* callsinfo_hashtable[1];		/**< array of hashes per voip protocol; currently only the one for SIP is used */
 	int     npackets;						/**< total number of packets of all calls */
 	voip_calls_info_t* filter_calls_fwd;	/**< used as filter in some tap modes */
@@ -179,7 +179,6 @@ typedef struct _voip_calls_tapinfo {
 	int completed_calls;
 	int rejected_calls;
 	seq_analysis_info_t* graph_analysis;
-	gboolean reversed;
 	gboolean redraw;
 	/*
 	 * Now add dummy variables, one for each tap listener.

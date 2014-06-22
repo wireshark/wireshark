@@ -71,7 +71,7 @@ typedef struct _seq_analysis_info {
     gboolean    all_packets; /**< all packets vs only displayed */
     gboolean    any_addr;    /**< any addr (DL+net) vs net-only */
     int         nconv;       /**< number of conversations in the list */
-    GList*      list;        /**< list with the graph analysis items */
+    GQueue*     items;        /**< list with the graph analysis items */
     GHashTable *ht;          /**< hash table for retrieving graph analysis items */
     address nodes[MAX_NUM_NODES]; /**< horizontal node list */
     guint32 num_nodes;       /**< actual number of nodes */
