@@ -507,7 +507,7 @@ typedef struct _infodata_t {
   guint16 direction;
 } infodata_t;
 
-static GSList *assoc_info_list = NULL;
+static wmem_list_t *assoc_info_list = NULL;
 static guint num_assocs = 0;
 
 UAT_CSTRING_CB_DEF(type_fields, type_name, type_field_t)
@@ -656,34 +656,38 @@ static infodata_t
 find_assoc_index(assoc_info_t* tmpinfo)
 {
   assoc_info_t *info = NULL;
-  GSList* list;
+  wmem_list_frame_t *elem;
   gboolean cmp = FALSE;
   infodata_t inf;
 
-  if ((list = assoc_info_list) != NULL) {
-    while (list) {
-      cmp = sctp_assoc_vtag_cmp(tmpinfo, (assoc_info_t*)(list->data));
-      if (cmp < ASSOC_NOT_FOUND) {
-        info = (assoc_info_t *)(list->data);
-        switch (cmp)
-        {
-          case FORWARD_ADD_FORWARD_VTAG:
-          case BACKWARD_ADD_FORWARD_VTAG:
-            info->verification_tag1 = tmpinfo->verification_tag1;
-          case BACKWARD_ADD_BACKWARD_VTAG:
-            info->verification_tag2 = tmpinfo->verification_tag1;
-        }
-        if (cmp == FORWARD_STREAM || cmp == FORWARD_ADD_FORWARD_VTAG) {
-          info->direction = 1;
-        } else {
-          info->direction = 2;
-        }
-        inf.assoc_index = info->assoc_index;
-        inf.direction = info->direction;
-        return inf;
+  if (assoc_info_list == NULL) {
+    assoc_info_list = wmem_list_new(wmem_file_scope());
+  }
+
+  elem = wmem_list_head(assoc_info_list);
+
+  while (elem) {
+    info = (assoc_info_t*) wmem_list_frame_data(elem);
+    cmp = sctp_assoc_vtag_cmp(tmpinfo, info);
+    if (cmp < ASSOC_NOT_FOUND) {
+      switch (cmp)
+      {
+        case FORWARD_ADD_FORWARD_VTAG:
+        case BACKWARD_ADD_FORWARD_VTAG:
+          info->verification_tag1 = tmpinfo->verification_tag1;
+        case BACKWARD_ADD_BACKWARD_VTAG:
+          info->verification_tag2 = tmpinfo->verification_tag1;
       }
-      list = g_slist_next(list);
+      if (cmp == FORWARD_STREAM || cmp == FORWARD_ADD_FORWARD_VTAG) {
+        info->direction = 1;
+      } else {
+        info->direction = 2;
+      }
+      inf.assoc_index = info->assoc_index;
+      inf.direction = info->direction;
+      return inf;
     }
+    elem = wmem_list_frame_next(elem);
   }
   info = wmem_new0(wmem_file_scope(), assoc_info_t);
   info->assoc_index = num_assocs;
@@ -693,7 +697,7 @@ find_assoc_index(assoc_info_t* tmpinfo)
   info->verification_tag2 = tmpinfo->verification_tag2;
   info->initiate_tag = tmpinfo->initiate_tag;
   num_assocs++;
-  assoc_info_list = g_slist_prepend(assoc_info_list, info);
+  wmem_list_prepend(assoc_info_list, info);
   inf.assoc_index = info->assoc_index;
   inf.direction = 1;
   return inf;
@@ -2539,10 +2543,8 @@ static void
 sctp_init(void)
 {
   frag_table_init();
-  if (num_assocs > 0) {
-    num_assocs = 0;
-    assoc_info_list = NULL;
-  }
+  num_assocs = 0;
+  assoc_info_list = NULL;
 }
 
 
@@ -4845,3 +4847,16 @@ proto_reg_handoff_sctp(void)
   dissector_add_uint("ip.proto", IP_PROTO_SCTP, sctp_handle);
   dissector_add_uint("udp.port", UDP_TUNNELING_PORT, sctp_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */
