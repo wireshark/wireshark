@@ -8185,7 +8185,7 @@ cncp             4785/udp # Cisco Nexus Control Protocol [Joseph_Swaminathan] [J
 smart-install    4786/tcp # Smart Install Service [Amit_Nigam] [Amit_Nigam] 2009-08-24
 sia-ctrl-plane   4787/tcp # Service Insertion Architecture (SIA) Control-Plane [Shree_Murthy] [Shree_Murthy] 2009-10-29
 xmcp             4788/tcp # eXtensible Messaging Client Protocol [Cisco] [Glenn_Matthews] 2011-05-23 2011-10-25 Defined TXT keys:     txtvers=1 (as described in the draft)      protovers=<comma-separated list of major/minor versions supported>(examples: "protovers=1.0" "protovers=1.1,2.0"
-vxlan            4789/udp # Virtual eXtensible Local Area Network (VXLAN) [Lawrence_Kreeger] [Lawrence_Kreeger] 2013-04-19
+vxlan            4789/udp # Virtual eXtensible Local Area Network (VXLAN) [Lawrence_Kreeger] [Lawrence_Kreeger] 2013-04-19 2014-06-17 [RFC-mahalingam-dutt-dcops-vxlan-09]
 iims             4800/tcp # Icona Instant Messenging System
 iims             4800/udp # Icona Instant Messenging System
 iwec             4801/tcp # Icona Web Embedded Chat
@@ -8434,6 +8434,7 @@ llrp             5084/udp # EPCglobal Low-Level Reader Protocol [Margaret_Wasser
 encrypted-llrp   5085/tcp # EPCglobal Encrypted LLRP [Margaret_Wasserman] [Margaret_Wasserman] 2006-11
 encrypted-llrp   5085/udp # EPCglobal Encrypted LLRP [Margaret_Wasserman] [Margaret_Wasserman] 2006-11
 aprigo-cs        5086/tcp # Aprigo Collection Service [Ron_Zalkind] [Ron_Zalkind] 2010-05-28
+biotic           5087/tcp # BIOTIC - Binary Internet of Things Interoperable Communication [Clayster_Laboratorios_Chile_S.A.] [Peter_Waher] 2014-06-16
 car              5090/sctp # Candidate AR
 cxtp             5091/sctp # Context Transfer Protocol 2005-07 [RFC4065]
 magpie           5092/udp # Magpie Binary [Phil_Maker] [Phil_Maker] 2008-06-18
