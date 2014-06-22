@@ -25,6 +25,8 @@
 #ifndef __WSUTIL_CFUTILS_H__
 #define __WSUTIL_CFUTILS_H__
 
+#ifdef HAVE_OS_X_FRAMEWORKS
+
 #include "ws_symbol_export.h"
 
 #ifdef __cplusplus
@@ -39,5 +41,7 @@ WS_DLL_PUBLIC char *CFString_to_C_string(CFStringRef cfstring);
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
+
+#endif /* HAVE_OS_X_FRAMEWORKS */
 
 #endif /* __WSUTIL_CFUTILS_H__ */
