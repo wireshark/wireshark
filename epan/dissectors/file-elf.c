@@ -1594,7 +1594,7 @@ dissect_elf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                     next_offset = value_guard(segment_offset);
                     for  (i = 1; i < (segment_size / sh_entsize) + 1; i += 1) {
                         entry_tree = proto_tree_add_subtree_format(segment_tree, tvb, next_offset,
-                               value_guard(sh_entsize), ett_symbol_table_entry, NULL, "Entry #%d", i);
+                               value_guard(sh_entsize), ett_symbol_table_entry, &entry_item, "Entry #%d", i);
 
                         next_offset = dissect_dynamic(tvb, pinfo, entry_tree, entry_item,
                                 next_offset, register_size, machine_encoding);
@@ -1607,7 +1607,7 @@ dissect_elf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                     next_offset = value_guard(segment_offset);
                     for  (i = 1; i < (segment_size / sh_entsize) + 1; i += 1) {
                         entry_tree = proto_tree_add_subtree_format(segment_tree, tvb, next_offset,
-                               value_guard(sh_entsize), ett_symbol_table_entry, NULL, "Entry #%d", i);
+                               value_guard(sh_entsize), ett_symbol_table_entry, &entry_item, "Entry #%d", i);
 
                         next_offset = dissect_symbol_table(tvb, pinfo, entry_tree, entry_item,
                                 next_offset, register_size, machine_encoding, (sh_type == 0x02) ? strtab_offset : dynstr_offset,
