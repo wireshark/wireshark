@@ -145,6 +145,13 @@ so it shows a version number for:
 
 * Web/wget
 
+You might also have to install
+
+* Interpreters/m4
+
+if installing Devel/bison doesn't provide a working version of Bison; if
+m4 is missing, Bison will fail.
+
 After clicking the Next button several times, the setup
 will then download and install the selected packages (this
 may take a while).
