@@ -322,8 +322,8 @@ static int
 dissect_lltd_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, gboolean* end)
 {
     guint8     i, type, length = 0;
-	proto_item *tlv_item, *type_item;
-	proto_tree *tlv_tree, *type_tree;
+    proto_item *tlv_item, *type_item;
+    proto_tree *tlv_tree, *type_tree;
     guint32 temp32;
 
     type = tvb_get_guint8(tvb, offset);
@@ -559,8 +559,8 @@ dissect_lltd_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 of
 static void
 dissect_lltd_discovery(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
-	proto_item *header_item, *func_item, *func_subitem;
-	proto_tree *header_tree, *func_tree, *func_subtree;
+    proto_item *header_item, *func_item, *func_subitem;
+    proto_tree *header_tree, *func_tree, *func_subtree;
     guint8     func;
     guint16    temp16;
     gboolean   end_tlv = FALSE;
@@ -683,8 +683,8 @@ dissect_lltd_discovery(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 static void
 dissect_lltd_qos(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
-	proto_item *header_item, *func_item, *func_subitem;
-	proto_tree *header_tree, *func_tree, *func_subtree;
+    proto_item *header_item, *func_item, *func_subitem;
+    proto_tree *header_tree, *func_tree, *func_subtree;
     guint8     func;
     guint16    seq_num, temp16;
     int loop_offset;
@@ -791,10 +791,10 @@ dissect_lltd_qos(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
 }
 
 static int
-dissect_lltd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_lltd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-	proto_item *ti;
-	proto_tree *lltd_tree;
+    proto_item *ti;
+    proto_tree *lltd_tree;
     guint8     tos;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "LLTD");
@@ -830,7 +830,7 @@ dissect_lltd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 void
 proto_register_lltd(void)
 {
-	static hf_register_info hf[] = {
+    static hf_register_info hf[] = {
 
         { &hf_lltd_version, {"Version", "lltd.version", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
         { &hf_lltd_type_of_service, {"Type of Service", "lltd.tos", FT_UINT8, BASE_HEX, VALS(lltd_tos_vals), 0, NULL, HFILL }},
@@ -930,8 +930,8 @@ proto_register_lltd(void)
         { &hf_lltd_qos_snapshot_packets_sent, {"Packets Sent", "lltd.qos_snapshot.packets_sent", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }}
     };
 
-	static gint *ett[] = {
-		&ett_lltd,
+    static gint *ett[] = {
+        &ett_lltd,
         &ett_base_header,
         &ett_discover_stations,
         &ett_tlv,
@@ -947,7 +947,7 @@ proto_register_lltd(void)
         &ett_qos_event_item,
         &ett_qos_snapshot_list,
         &ett_qos_snapshot_item
-	};
+    };
 
     static ei_register_info ei[] = {
         { &ei_lltd_tlv_length_invalid, { "lltd.tlv.length.invalid", PI_MALFORMED, PI_ERROR, "Invalid length", EXPFILL }},
@@ -973,7 +973,7 @@ void
 proto_reg_handoff_lltd(void)
 {
     dissector_handle_t lltd_handle;
-    lltd_handle = create_dissector_handle(dissect_lltd, proto_lltd);
+    lltd_handle = new_create_dissector_handle(dissect_lltd, proto_lltd);
     dissector_add_uint("ethertype", ETHERTYPE_LLTD, lltd_handle);
 }
 
