@@ -782,7 +782,7 @@ $(ZLIB_DLL):
 	rm -r -f zlib.tmp
 !ENDIF
 
-wsutil::
+wsutil:: version.h
 	cd wsutil
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
 	cd ..
