@@ -435,9 +435,11 @@ get_gui_compiled_info(GString *str)
 static void
 get_wireshark_runtime_info(GString *str)
 {
+#ifdef HAVE_LIBPCAP
     /* Libpcap */
     g_string_append(str, ", ");
     get_runtime_pcap_version(str);
+#endif
 
     /* zlib */
 #if defined(HAVE_LIBZ) && !defined(_WIN32)
