@@ -549,12 +549,12 @@ _U_
 {
         /* GnuTLS */
 #ifdef HAVE_LIBGNUTLS
-	g_string_append_printf(str, ", GnuTLS %s", gnutls_check_version(NULL));
+	g_string_append_printf(str, ", with GnuTLS %s", gnutls_check_version(NULL));
 #endif /* HAVE_LIBGNUTLS */
 
         /* Gcrypt */
 #ifdef HAVE_LIBGCRYPT
-	g_string_append_printf(str, ", Gcrypt %s", gcry_check_version(NULL));
+	g_string_append_printf(str, ", with Gcrypt %s", gcry_check_version(NULL));
 #endif /* HAVE_LIBGCRYPT */
 }
 

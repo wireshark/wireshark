@@ -45,6 +45,10 @@
 #include "wsutil/wsgetopt.h"
 #endif
 
+#ifdef HAVE_LIBZ
+#include <zlib.h>	/* to get the libz version number */
+#endif
+
 #ifdef _WIN32 /* Needed for console I/O */
 
 #include <fcntl.h>
@@ -1949,8 +1953,20 @@ get_gui_compiled_info(GString *str)
 }
 
 static void
-get_gui_runtime_info(GString *str)
+get_wireshark_runtime_info(GString *str)
 {
+#ifdef HAVE_LIBPCAP
+    /* Libpcap */
+    g_string_append(str, ", ");
+    get_runtime_pcap_version(str);
+#endif
+
+    /* zlib */
+#if defined(HAVE_LIBZ) && !defined(_WIN32)
+    g_string_append_printf(str, ", with libz %s", zlibVersion());
+#endif
+
+    /* stuff used by libwireshark */
     epan_get_runtime_version_info(str);
 
 #ifdef HAVE_AIRPCAP
@@ -2251,7 +2267,7 @@ main(int argc, char *argv[])
 
     /* Assemble the run-time version information string */
     runtime_info_str = g_string_new("Running ");
-    get_runtime_version_info(runtime_info_str, get_gui_runtime_info);
+    get_runtime_version_info(runtime_info_str, get_wireshark_runtime_info);
 
 #ifdef _WIN32
     ws_add_crash_info(PACKAGE " %s\n"

@@ -23,13 +23,13 @@
 #ifndef __CAPTURE_PCAP_UTIL_H__
 #define __CAPTURE_PCAP_UTIL_H__
 
-#ifdef HAVE_LIBPCAP
-
-#include <pcap.h>
-
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
+
+#ifdef HAVE_LIBPCAP
+
+#include <pcap.h>
 
 /*
  * A snapshot length of 0 is useless - and libpcap/WinPcap don't guarantee
@@ -50,10 +50,6 @@ GList *get_remote_interface_list(const char *hostname, const char *port,
 const char *linktype_val_to_name(int dlt);
 int linktype_name_to_val(const char *linktype);
 
-#ifdef __cplusplus
-}
-#endif /* __cplusplus */
-
 #endif /* HAVE_LIBPCAP */
 
 /*
@@ -70,5 +66,9 @@ extern void get_compiled_pcap_version(GString *str);
  * or nothing, if we weren't compiled with libpcap/WinPcap.
  */
 extern void get_runtime_pcap_version(GString *str);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif /* __CAPTURE_PCAP_UTIL_H__ */

@@ -31,6 +31,10 @@
 
 #include <signal.h>
 
+#ifdef HAVE_LIBZ
+#include <zlib.h>	/* to get the libz version number */
+#endif
+
 #ifndef HAVE_GETOPT
 #  include "wsutil/wsgetopt.h"
 #else
@@ -419,7 +423,7 @@ get_gui_compiled_info(GString *str)
     g_string_append(str, ", ");
     g_string_append(str, "without PortAudio");
 
-  g_string_append(str, ", ");
+    g_string_append(str, ", ");
 #ifdef HAVE_AIRPCAP
     get_compiled_airpcap_version(str);
 #else
@@ -429,8 +433,18 @@ get_gui_compiled_info(GString *str)
 
 // xxx copied from ../gtk/main.c
 static void
-get_gui_runtime_info(GString *str)
+get_wireshark_runtime_info(GString *str)
 {
+    /* Libpcap */
+    g_string_append(str, ", ");
+    get_runtime_pcap_version(str);
+
+    /* zlib */
+#if defined(HAVE_LIBZ) && !defined(_WIN32)
+    g_string_append_printf(str, ", with libz %s", zlibVersion());
+#endif
+
+    /* stuff used by libwireshark */
     epan_get_runtime_version_info(str);
 
 #ifdef HAVE_AIRPCAP
@@ -438,12 +452,10 @@ get_gui_runtime_info(GString *str)
     get_runtime_airpcap_version(str);
 #endif
 
-
     if(u3_active()) {
         g_string_append(str, ", ");
         u3_runtime_info(str);
     }
-
 }
 
 /* And now our feature presentation... [ fade to music ] */
@@ -520,7 +532,7 @@ int main(int argc, char *argv[])
     /* Assemble the run-time version information string */
     runtime_info_str = g_string_new("Running ");
     // xxx qtshark
-    get_runtime_version_info(runtime_info_str, get_gui_runtime_info);
+    get_runtime_version_info(runtime_info_str, get_wireshark_runtime_info);
 
     ws_add_crash_info(PACKAGE " %s\n"
            "\n"

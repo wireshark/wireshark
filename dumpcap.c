@@ -67,6 +67,10 @@
 #include <signal.h>
 #include <errno.h>
 
+#ifdef HAVE_LIBZ
+#include <zlib.h>	/* to get the libz version number */
+#endif
+
 #include <wsutil/crash_info.h>
 #include <wsutil/copyright_info.h>
 #include <wsutil/ws_version_info.h>
@@ -4172,6 +4176,19 @@ out:
     return ret;
 }
 
+static void
+get_dumpcap_runtime_info(GString *str)
+{
+    /* Libpcap */
+    g_string_append(str, ", ");
+    get_runtime_pcap_version(str);
+
+    /* zlib */
+#if defined(HAVE_LIBZ) && !defined(_WIN32)
+    g_string_append_printf(str, ", with libz %s", zlibVersion());
+#endif
+}
+
 /* And now our feature presentation... [ fade to music ] */
 int
 main(int argc, char *argv[])
@@ -4221,7 +4238,7 @@ main(int argc, char *argv[])
 
     /* Assemble the run-time version information string */
     runtime_info_str = g_string_new("Running ");
-    get_runtime_version_info(runtime_info_str, NULL);
+    get_runtime_version_info(runtime_info_str, get_dumpcap_runtime_info);
 
     /* Add it to the information to be reported on a crash. */
     ws_add_crash_info("Dumpcap %s\n"

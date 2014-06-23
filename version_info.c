@@ -180,15 +180,6 @@ get_runtime_version_info(GString *str, void (*additional_info)(GString *))
 		g_string_append(str, ", without locale");
 #endif
 
-	/* Libpcap */
-	g_string_append(str, ", ");
-	get_runtime_pcap_version(str);
-
-	/* zlib */
-#if defined(HAVE_LIBZ) && !defined(_WIN32)
-	g_string_append_printf(str, ", with libz %s", zlibVersion());
-#endif
-
 	/* Additional application-dependent information */
 	if (additional_info)
 		(*additional_info)(str);
