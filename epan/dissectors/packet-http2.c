@@ -51,25 +51,48 @@
 
 #include "packet-tcp.h"
 
+/* Decompressed header field */
+typedef struct {
+    /* header data */
+    char *data;
+    /* length of data */
+    guint datalen;
+} http2_header_t;
+
+/* Cached decompressed header data in one packet_info */
+typedef struct {
+    /* list of pointer to wmem_array_t, which is array of
+       http2_header_t */
+    wmem_list_t *header_list;
+    /* This points to the list frame containing current decompressed
+       header for dessecting later. */
+    wmem_list_frame_t *current;
+} http2_header_data_t;
+
+/* In-flight SETTINGS data. */
+typedef struct {
+    /* header table size */
+    uint32_t header_table_size;
+    /* nonzero if header_table_size has effective value. */
+    int has_header_table_size;
+} http2_settings_t;
+
 /* struct to hold data per HTTP/2 session */
 typedef struct {
-    /* We need 2 inflater object for both client and server.  Since
-       inflater object is symmetrical, we just want to know which
-       inflater is used for each TCP flow.  The hd_inflater_first_flow
-       is used to select which one to use.  Basically, we first record
-       fwd of tcp_analysis in hd_inflater_first_flow and if processing
-       packet_info has fwd of tcp_analysis equal to
-       hd_inflater_first_flow, we use hd_inflater[0], otherwise 2nd
-       one.
-     */
+    /* We need to distinguish the direction of the flow to keep track
+       of in-flight SETTINGS and HPACK inflater objects.  To achieve
+       this, we use fwd member of tcp_analysis.  In the first packet,
+       we record fwd of tcp_analysis.  Later, if processing
+       packet_info has fwd of tcp_analysis equal to the recorded fwd,
+       we use index 0 of settings_queue and hd_inflater.  We keep
+       track of SETTINGS frame sent in this direction in
+       settings_queue[0] and inflate header block using
+       hd_inflater[0].  Otherwise, we use settings_queue[1] and
+       hd_inflater[1]. */
+    wmem_queue_t *settings_queue[2];
     nghttp2_hd_inflater *hd_inflater[2];
-    tcp_flow_t *hd_inflater_first_flow;
+    tcp_flow_t *fwd_flow;
 } http2_session_t;
-
-typedef struct {
-    /* Hash table, associates TCP stream index to http2_session_t object */
-    wmem_map_t *sessions;
-} http2_data_t;
 
 void proto_register_http2(void);
 void proto_reg_handoff_http2(void);
@@ -275,74 +298,104 @@ static const value_string http2_settings_vals[] = {
     { 0, NULL }
 };
 
-static http2_session_t*
-create_http2_session(packet_info *pinfo)
+static gboolean
+hd_inflate_del_cb(wmem_allocator_t *allocator _U_, wmem_cb_event_t event _U_, void *user_data)
 {
-    conversation_t *conversation;
-    http2_data_t *http2;
-    http2_session_t *h2session;
-    struct tcp_analysis *tcpd;
+    nghttp2_hd_inflate_del((nghttp2_hd_inflater*)user_data);
 
-    conversation = find_or_create_conversation(pinfo);
-
-    http2 = (http2_data_t*)conversation_get_proto_data(conversation,
-                                                       proto_http2);
-
-    if(http2 == NULL) {
-        http2 = wmem_new(wmem_file_scope(), http2_data_t);
-
-        http2->sessions = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
-
-        conversation_add_proto_data(conversation, proto_http2, http2);
-    }
-
-    tcpd = get_tcp_conversation_data(NULL, pinfo);
-
-    h2session = wmem_new(wmem_file_scope(), http2_session_t);
-    nghttp2_hd_inflate_new(&h2session->hd_inflater[0]);
-    nghttp2_hd_inflate_new(&h2session->hd_inflater[1]);
-    h2session->hd_inflater_first_flow = tcpd->fwd;
-
-    wmem_map_insert(http2->sessions, GUINT_TO_POINTER(tcpd->stream), h2session);
-
-    return h2session;
+    return FALSE;
 }
 
 static http2_session_t*
 get_http2_session(packet_info *pinfo)
 {
     conversation_t *conversation;
-    http2_data_t *http2;
     http2_session_t *h2session;
-    struct tcp_analysis *tcpd;
 
     conversation = find_or_create_conversation(pinfo);
 
-    http2 = (http2_data_t*)conversation_get_proto_data(conversation,
-                                                       proto_http2);
+    h2session = (http2_session_t*)conversation_get_proto_data(conversation,
+                                                              proto_http2);
 
-    if(!http2) {
-        return NULL;
+    if(!h2session) {
+        struct tcp_analysis *tcpd;
+
+        tcpd = get_tcp_conversation_data(NULL, pinfo);
+
+        h2session = wmem_new0(wmem_file_scope(), http2_session_t);
+
+        nghttp2_hd_inflate_new(&h2session->hd_inflater[0]);
+        nghttp2_hd_inflate_new(&h2session->hd_inflater[1]);
+
+        wmem_register_callback(wmem_file_scope(), hd_inflate_del_cb,
+                               h2session->hd_inflater[0]);
+        wmem_register_callback(wmem_file_scope(), hd_inflate_del_cb,
+                               h2session->hd_inflater[1]);
+
+        h2session->fwd_flow = tcpd->fwd;
+        h2session->settings_queue[0] = wmem_queue_new(wmem_file_scope());
+        h2session->settings_queue[1] = wmem_queue_new(wmem_file_scope());
+
+        conversation_add_proto_data(conversation, proto_http2, h2session);
     }
-
-    tcpd = get_tcp_conversation_data(NULL, pinfo);
-
-    h2session = (http2_session_t*)wmem_map_lookup(http2->sessions, GUINT_TO_POINTER(tcpd->stream));
 
     return h2session;
 }
 
-static nghttp2_hd_inflater*
-select_http2_hd_inflater(packet_info *pinfo, http2_session_t *h2session)
+static int
+select_http2_flow_index(packet_info *pinfo, http2_session_t *h2session)
 {
     struct tcp_analysis *tcpd;
 
     tcpd = get_tcp_conversation_data(NULL, pinfo);
 
-    if(tcpd->fwd == h2session->hd_inflater_first_flow) {
-        return h2session->hd_inflater[0];
+    if(tcpd->fwd == h2session->fwd_flow) {
+        return 0;
     } else {
-        return h2session->hd_inflater[1];
+        return 1;
+    }
+}
+
+static void
+push_settings(packet_info *pinfo, http2_session_t *h2session,
+              http2_settings_t *settings)
+{
+    wmem_queue_t *queue;
+    int flow_index;
+
+    flow_index = select_http2_flow_index(pinfo, h2session);
+
+    queue = h2session->settings_queue[flow_index];
+
+    wmem_queue_push(queue, settings);
+}
+
+static void
+apply_and_pop_settings(packet_info *pinfo, http2_session_t *h2session)
+{
+    wmem_queue_t *queue;
+    http2_settings_t *settings;
+    nghttp2_hd_inflater *inflater;
+    int flow_index;
+
+    /* When header table size is applied, it affects the inflater of
+       opposite side. */
+
+    flow_index = select_http2_flow_index(pinfo, h2session);
+
+    inflater = h2session->hd_inflater[flow_index];
+
+    queue = h2session->settings_queue[flow_index ^ 1];
+
+    if(wmem_queue_count(queue) == 0) {
+        return;
+    }
+
+    settings = (http2_settings_t*)wmem_queue_pop(queue);
+
+    if(settings->has_header_table_size) {
+        nghttp2_hd_inflate_change_table_size(inflater,
+                                             settings->header_table_size);
     }
 }
 
@@ -362,67 +415,125 @@ inflate_http2_header_block(tvbuff_t *tvb, packet_info *pinfo, guint offset,
     nghttp2_hd_inflater *hd_inflater;
     tvbuff_t *header_tvb = tvb_new_composite();
     int rv;
-    int header_len = 0, len;
+    int header_len = 0;
     int final;
-    if(!h2session) {
-        /* We may not be able to track all HTTP/2 session if we miss
-           first magic (connection preface) */
-        return;
+    int flow_index;
+    http2_header_data_t *header_data;
+    wmem_list_t *header_list;
+    wmem_array_t *headers;
+    guint i;
+
+    header_data = (http2_header_data_t*)p_get_proto_data(wmem_file_scope(), pinfo, proto_http2, 0);
+    header_list = header_data->header_list;
+
+    if(!PINFO_FD_VISITED(pinfo)) {
+        /* This packet has not been processed yet, which means this is
+           the first linear scan.  We do header decompression only
+           once in linear scan and cache the result.  If we don't
+           cache, already processed data will be fed into decompressor
+           again and again since dissector will be called randomly.
+           This makes context out-of-sync. */
+
+        headbuf = (guint8*)wmem_alloc(wmem_packet_scope(), headlen);
+        tvb_memcpy(tvb, headbuf, offset, headlen);
+
+        flow_index = select_http2_flow_index(pinfo, h2session);
+        hd_inflater = h2session->hd_inflater[flow_index];
+
+        final = flags & HTTP2_FLAGS_END_HEADERS;
+
+        headers = wmem_array_sized_new(wmem_file_scope(), sizeof(http2_header_t), 16);
+
+        for(;;) {
+            nghttp2_nv nv;
+            int inflate_flags = 0;
+
+            rv = (int)nghttp2_hd_inflate_hd(hd_inflater, &nv,
+                                            &inflate_flags, headbuf, headlen, final);
+
+            if(rv < 0) {
+                break;
+            }
+
+            headbuf += rv;
+            headlen -= rv;
+
+            if(inflate_flags & NGHTTP2_HD_INFLATE_EMIT) {
+                char *str;
+                uint32_t len;
+                http2_header_t *out;
+
+                out = wmem_new(wmem_file_scope(), http2_header_t);
+
+                out->datalen = (guint)(4 + nv.namelen + 4 + nv.valuelen);
+
+                /* Prepare buffer... with the following format
+                   name length (uint32)
+                   name (string)
+                   value length (uint32)
+                   value (string)
+                */
+                str = wmem_alloc_array(wmem_file_scope(), char, out->datalen);
+
+                /* nv.namelen and nv.valuelen are of size_t.  In order
+                   to get length in 4 bytes, we have to copy it to
+                   uint32_t. */
+                len = (uint32_t)nv.namelen;
+                memcpy(&str[0], (char *)&len, sizeof(len));
+                memcpy(&str[4], nv.name, nv.namelen);
+
+                len = (uint32_t)nv.valuelen;
+                memcpy(&str[4 + nv.namelen], (char *)&len, sizeof(len));
+                memcpy(&str[4 + nv.namelen + 4], nv.value, nv.valuelen);
+
+                out->data = str;
+
+                wmem_array_append(headers, out, 1);
+            }
+            if(inflate_flags & NGHTTP2_HD_INFLATE_FINAL) {
+                nghttp2_hd_inflate_end_headers(hd_inflater);
+                break;
+            }
+            if((inflate_flags & NGHTTP2_HD_INFLATE_EMIT) == 0 &&
+               headlen == 0) {
+                break;
+            }
+        }
+
+        wmem_list_append(header_list, headers);
+
+        if(!header_data->current) {
+            header_data->current = wmem_list_head(header_list);
+        }
+
+    } else {
+        headers = (wmem_array_t*)wmem_list_frame_data(header_data->current);
+
+        header_data->current = wmem_list_frame_next(header_data->current);
+
+        if(!header_data->current) {
+            header_data->current = wmem_list_head(header_list);
+        }
     }
 
-    headbuf = (guint8*)wmem_alloc(wmem_packet_scope(), headlen);
-    tvb_memcpy(tvb, headbuf, offset, headlen);
+    for(i = 0; i < wmem_array_get_count(headers); ++i) {
+        http2_header_t *in;
+        tvbuff_t *next_tvb;
+        char *str;
 
-    hd_inflater = select_http2_hd_inflater(pinfo, h2session);
+        in = (http2_header_t*)wmem_array_index(headers, i);
 
-    final = flags & HTTP2_FLAGS_END_HEADERS;
+        str = (char *)g_malloc(in->datalen);
+        memcpy(str, in->data, in->datalen);
 
-    for(;;) {
-        nghttp2_nv nv;
-        int inflate_flags = 0;
+        header_len += in->datalen;
 
-        rv = (int)nghttp2_hd_inflate_hd(hd_inflater, &nv,
-                                        &inflate_flags, headbuf, headlen, final);
-
-        if(rv < 0) {
-            break;
-        }
-
-        headbuf += rv;
-        headlen -= rv;
-
-        if(inflate_flags & NGHTTP2_HD_INFLATE_EMIT) {
-            tvbuff_t *next_tvb;
-            char *str = (char *)g_malloc(4 + nv.namelen + 4  + nv.valuelen);
-            /* Prepare tvb buffer... with the following format
-               name length (uint32)
-               name (string)
-               value length (uint32)
-               value (string)
-
-            */
-            memcpy(&str[0], (char *)&nv.namelen, 4);
-            memcpy(&str[4], nv.name, nv.namelen);
-            memcpy(&str[4+nv.namelen], (char *)&nv.valuelen, 4);
-            memcpy(&str[4+nv.namelen+4], nv.value, nv.valuelen);
-
-            len = (int)(4 + nv.namelen + 4 + nv.valuelen);
-            header_len += len;
-
-            /* Now setup the tvb buffer to have the new data */
-            next_tvb = tvb_new_child_real_data(tvb, str, len, len);
-            tvb_set_free_cb(next_tvb, g_free);
-            tvb_composite_append(header_tvb, next_tvb);
-        }
-        if(inflate_flags & NGHTTP2_HD_INFLATE_FINAL) {
-            nghttp2_hd_inflate_end_headers(hd_inflater);
-            break;
-        }
-        if((inflate_flags & NGHTTP2_HD_INFLATE_EMIT) == 0 &&
-           headlen == 0) {
-            break;
-        }
+        /* Now setup the tvb buffer to have the new data */
+        next_tvb = tvb_new_child_real_data(tvb, str, in->datalen, in->datalen);
+        tvb_set_free_cb(next_tvb, g_free);
+        tvb_composite_append(header_tvb, next_tvb);
     }
+
     tvb_composite_finalize(header_tvb);
     add_new_data_source(pinfo, header_tvb, "Decompressed Header");
 
@@ -638,15 +749,17 @@ dissect_http2_rst_stream(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *http
 
 /* Settings */
 static int
-dissect_http2_settings(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *http2_tree, guint offset, guint8 flags _U_)
+dissect_http2_settings(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *http2_tree, guint offset, guint8 flags)
 {
     guint32 settingsid;
     proto_item *ti_settings;
     proto_tree *settings_tree;
+    uint32_t header_table_size;
+    int header_table_size_found;
+    http2_session_t *h2session;
 
-    /* FIXME: If we send SETTINGS_HEADER_TABLE_SIZE, after receiving
-       ACK from peer, we have to apply its value to HPACK decoder
-       using nghttp2_hd_inflate_change_table_size() */
+    header_table_size_found = 0;
+    header_table_size = 0;
 
     while(tvb_reported_length_remaining(tvb, offset) > 0){
 
@@ -662,6 +775,10 @@ dissect_http2_settings(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *http2_
         switch(settingsid){
             case HTTP2_SETTINGS_HEADER_TABLE_SIZE:
                 proto_tree_add_item(settings_tree, hf_http2_settings_header_table_size, tvb, offset, 4, ENC_NA);
+
+                /* We only care the last header table size in SETTINGS */
+                header_table_size_found = 1;
+                header_table_size = tvb_get_ntohl(tvb, offset);
             break;
             case HTTP2_SETTINGS_ENABLE_PUSH:
                 proto_tree_add_item(settings_tree, hf_http2_settings_enable_push, tvb, offset, 4, ENC_NA);
@@ -678,6 +795,24 @@ dissect_http2_settings(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *http2_
         }
         proto_item_append_text(ti_settings, " : %u", tvb_get_ntohl(tvb, offset));
         offset += 4;
+    }
+
+
+    if(!PINFO_FD_VISITED(pinfo)) {
+        h2session = get_http2_session(pinfo);
+
+        if(flags & HTTP2_FLAGS_ACK) {
+            apply_and_pop_settings(pinfo, h2session);
+        } else {
+            http2_settings_t *settings;
+
+            settings = wmem_new(wmem_file_scope(), http2_settings_t);
+
+            settings->header_table_size = header_table_size;
+            settings->has_header_table_size = header_table_size_found;
+
+            push_settings(pinfo, h2session, settings);
+        }
     }
 
     return offset;
@@ -842,6 +977,17 @@ dissect_http2_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
     guint16 length;
     guint32 streamid;
 
+    if(!p_get_proto_data(wmem_file_scope(), pinfo, proto_http2, 0)) {
+        http2_header_data_t *header_data;
+
+        header_data = wmem_new(wmem_file_scope(), http2_header_data_t);
+        header_data->header_list = wmem_list_new(wmem_file_scope());
+        header_data->current = NULL;
+
+        p_add_proto_data(wmem_file_scope(), pinfo, proto_http2, 0, header_data);
+    }
+
+
     /* 4.1 Frame Format
          0                   1                   2                   3
          0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
@@ -875,8 +1021,6 @@ dissect_http2_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
         proto_item_append_text(ti, ": Magic");
 
         proto_tree_add_item(http2_tree, hf_http2_magic, tvb, offset, MAGIC_FRAME_LENGTH, ENC_ASCII|ENC_NA);
-
-        create_http2_session(pinfo);
 
         return MAGIC_FRAME_LENGTH;
     }
