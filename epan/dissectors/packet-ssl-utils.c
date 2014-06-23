@@ -5373,6 +5373,398 @@ ssl_dissect_hnd_hello_ext(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
     return offset;
 }
 
+
+/* ClientKeyExchange algo-specific dissectors */
+
+static void
+dissect_ssl3_hnd_cli_keyex_ecdh(ssl_common_dissect_t *hf, tvbuff_t *tvb,
+                                proto_tree *tree, guint32 offset,
+                                guint32 length)
+{
+    gint        point_len;
+    proto_item *ti_ecdh;
+    proto_tree *ssl_ecdh_tree;
+
+    ti_ecdh = proto_tree_add_text(tree, tvb, offset, length,
+                                  "EC Diffie-Hellman Client Params");
+    ssl_ecdh_tree = proto_item_add_subtree(ti_ecdh, hf->ett.keyex_params);
+
+    /* point */
+    point_len = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(ssl_ecdh_tree, hf->hf.hs_client_keyex_point_len, tvb,
+                        offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ssl_ecdh_tree, hf->hf.hs_client_keyex_point, tvb,
+                        offset + 1, point_len, ENC_NA);
+}
+
+static void
+dissect_ssl3_hnd_cli_keyex_dh(ssl_common_dissect_t *hf, tvbuff_t *tvb,
+                              proto_tree *tree, guint32 offset, guint32 length)
+{
+    gint        yc_len;
+    proto_item *ti_dh;
+    proto_tree *ssl_dh_tree;
+
+    ti_dh = proto_tree_add_text(tree, tvb, offset, length,
+                                "Diffie-Hellman Client Params");
+    ssl_dh_tree = proto_item_add_subtree(ti_dh, hf->ett.keyex_params);
+
+    /* ClientDiffieHellmanPublic.dh_public (explicit) */
+    yc_len  = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_item(ssl_dh_tree, hf->hf.hs_client_keyex_yc_len, tvb,
+                        offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ssl_dh_tree, hf->hf.hs_client_keyex_yc, tvb,
+                        offset + 2, yc_len, ENC_NA);
+}
+
+static void
+dissect_ssl3_hnd_cli_keyex_rsa(ssl_common_dissect_t *hf, tvbuff_t *tvb,
+                               proto_tree *tree, guint32 offset,
+                               guint32 length, const SslSession *session)
+{
+    gint        epms_len;
+    proto_item *ti_rsa;
+    proto_tree *ssl_rsa_tree;
+
+    ti_rsa = proto_tree_add_text(tree, tvb, offset, length,
+                                 "RSA Encrypted PreMaster Secret");
+    ssl_rsa_tree = proto_item_add_subtree(ti_rsa, hf->ett.keyex_params);
+
+    /* EncryptedPreMasterSecret.pre_master_secret */
+    switch (session->version) {
+    case SSL_VER_SSLv2:
+    case SSL_VER_SSLv3:
+    case SSL_VER_DTLS_OPENSSL:
+        /* OpenSSL pre-0.9.8f DTLS and pre-TLS quirk: 2-octet length vector is
+         * not present. The handshake contents represents the EPMS, see:
+         * https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=10222 */
+        epms_len = length;
+        break;
+
+    default:
+        /* TLS and DTLS include vector length before EPMS */
+        epms_len = tvb_get_ntohs(tvb, offset);
+        proto_tree_add_item(ssl_rsa_tree, hf->hf.hs_client_keyex_epms_len, tvb,
+                            offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
+        break;
+    }
+    proto_tree_add_item(ssl_rsa_tree, hf->hf.hs_client_keyex_epms, tvb,
+                        offset, epms_len, ENC_NA);
+}
+
+/* Used in PSK cipher suites */
+static void
+dissect_ssl3_hnd_cli_keyex_psk(ssl_common_dissect_t *hf, tvbuff_t *tvb,
+                               proto_tree *tree, guint32 offset, guint32 length)
+{
+    guint        identity_len;
+    proto_item *ti_psk;
+    proto_tree *ssl_psk_tree;
+
+    ti_psk = proto_tree_add_text(tree, tvb, offset, length,
+                                 "PSK Client Params");
+    ssl_psk_tree = proto_item_add_subtree(ti_psk, hf->ett.keyex_params);
+
+    /* identity */
+    identity_len = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_item(ssl_psk_tree, hf->hf.hs_client_keyex_identity_len, tvb,
+                        offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ssl_psk_tree, hf->hf.hs_client_keyex_identity, tvb,
+                        offset + 2, identity_len, ENC_NA);
+}
+
+/* Used in RSA PSK cipher suites */
+static void
+dissect_ssl3_hnd_cli_keyex_rsa_psk(ssl_common_dissect_t *hf, tvbuff_t *tvb,
+                                   proto_tree *tree, guint32 offset,
+                                   guint32 length)
+{
+    gint        identity_len, epms_len;
+    proto_item *ti_psk;
+    proto_tree *ssl_psk_tree;
+
+    ti_psk = proto_tree_add_text(tree, tvb, offset, length,
+                                 "RSA PSK Client Params");
+    ssl_psk_tree = proto_item_add_subtree(ti_psk, hf->ett.keyex_params);
+
+    /* identity */
+    identity_len = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_item(ssl_psk_tree, hf->hf.hs_client_keyex_identity_len,
+                        tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ssl_psk_tree, hf->hf.hs_client_keyex_identity,
+                        tvb, offset + 2, identity_len, ENC_NA);
+    offset += 2 + identity_len;
+
+    /* Yc */
+    epms_len = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_item(ssl_psk_tree, hf->hf.hs_client_keyex_epms_len, tvb,
+                        offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ssl_psk_tree, hf->hf.hs_client_keyex_epms, tvb,
+                        offset + 2, epms_len, ENC_NA);
+}
+
+
+/* ServerKeyExchange algo-specific dissectors */
+
+/* dissects signed_params inside a ServerKeyExchange for some keyex algos */
+static void
+dissect_ssl3_hnd_srv_keyex_sig(ssl_common_dissect_t *hf, tvbuff_t *tvb,
+                               proto_tree *tree, guint32 offset,
+                               const SslSession *session)
+{
+    gint        sig_len;
+    proto_item *ti_algo;
+    proto_tree *ssl_algo_tree;
+
+    switch (session->version) {
+    case SSL_VER_TLSv1DOT2:
+    case SSL_VER_DTLS1DOT2:
+        ti_algo = proto_tree_add_item(tree, hf->hf.hs_sig_hash_alg, tvb,
+                                      offset, 2, ENC_BIG_ENDIAN);
+        ssl_algo_tree = proto_item_add_subtree(ti_algo, hf->ett.hs_sig_hash_alg);
+
+        /* SignatureAndHashAlgorithm { hash, signature } */
+        proto_tree_add_item(ssl_algo_tree, hf->hf.hs_sig_hash_hash, tvb,
+                            offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(ssl_algo_tree, hf->hf.hs_sig_hash_sig, tvb,
+                            offset + 1, 1, ENC_BIG_ENDIAN);
+        offset += 2;
+        break;
+
+    default:
+        break;
+    }
+
+    /* Sig */
+    sig_len = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_item(tree, hf->hf.hs_server_keyex_sig_len, tvb,
+                        offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf->hf.hs_server_keyex_sig, tvb,
+                        offset + 2, sig_len, ENC_NA);
+}
+
+static void
+dissect_ssl3_hnd_srv_keyex_ecdh(ssl_common_dissect_t *hf, tvbuff_t *tvb,
+                                proto_tree *tree, guint32 offset,
+                                guint32 length, const SslSession *session)
+{
+    /*
+     * RFC 4492 ECC cipher suites for TLS
+     *
+     *  struct {
+     *      ECCurveType    curve_type;
+     *      select (curve_type) {
+     *          case explicit_prime:
+     *              ...
+     *          case explicit_char2:
+     *              ...
+     *          case named_curve:
+     *              NamedCurve namedcurve;
+     *      };
+     *  } ECParameters;
+     *
+     *  struct {
+     *      opaque point <1..2^8-1>;
+     *  } ECPoint;
+     *
+     *  struct {
+     *      ECParameters    curve_params;
+     *      ECPoint         public;
+     *  } ServerECDHParams;
+     *
+     *  select (KeyExchangeAlgorithm) {
+     *      case ec_diffie_hellman:
+     *          ServerECDHParams    params;
+     *          Signature           signed_params;
+     *  } ServerKeyExchange;
+     */
+
+    gint        curve_type;
+    gint        point_len;
+    proto_item *ti_ecdh;
+    proto_tree *ssl_ecdh_tree;
+
+    ti_ecdh = proto_tree_add_text(tree, tvb, offset, length,
+                                  "EC Diffie-Hellman Server Params");
+    ssl_ecdh_tree = proto_item_add_subtree(ti_ecdh, hf->ett.keyex_params);
+
+    /* ECParameters.curve_type */
+    curve_type = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(ssl_ecdh_tree, hf->hf.hs_server_keyex_curve_type, tvb,
+                        offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+    if (curve_type != 3)
+        return; /* only named_curves are supported */
+
+    /* case curve_type == named_curve; ECParameters.namedcurve */
+    proto_tree_add_item(ssl_ecdh_tree, hf->hf.hs_server_keyex_named_curve, tvb,
+                        offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    /* ECPoint.point */
+    point_len = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(ssl_ecdh_tree, hf->hf.hs_server_keyex_point_len, tvb,
+                        offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ssl_ecdh_tree, hf->hf.hs_server_keyex_point, tvb,
+                        offset + 1, point_len, ENC_NA);
+    offset += 1 + point_len;
+
+    /* Signature */
+    dissect_ssl3_hnd_srv_keyex_sig(hf, tvb, ssl_ecdh_tree, offset, session);
+}
+
+static void
+dissect_ssl3_hnd_srv_keyex_dhe(ssl_common_dissect_t *hf, tvbuff_t *tvb,
+                               proto_tree *tree, guint32 offset, guint32 length,
+                               const SslSession *session)
+{
+    gint        p_len, g_len, ys_len;
+    proto_item *ti_dh;
+    proto_tree *ssl_dh_tree;
+
+    ti_dh = proto_tree_add_text(tree, tvb, offset, length,
+                                "Diffie-Hellman Server Params");
+    ssl_dh_tree = proto_item_add_subtree(ti_dh, hf->ett.keyex_params);
+
+    /* p */
+    p_len = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_item(ssl_dh_tree, hf->hf.hs_server_keyex_p_len, tvb,
+                        offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ssl_dh_tree, hf->hf.hs_server_keyex_p, tvb,
+                        offset + 2, p_len, ENC_NA);
+    offset += 2 + p_len;
+
+    /* g */
+    g_len = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_item(ssl_dh_tree, hf->hf.hs_server_keyex_g_len, tvb,
+                        offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ssl_dh_tree, hf->hf.hs_server_keyex_g, tvb,
+                        offset + 2, g_len, ENC_NA);
+    offset += 2 + g_len;
+
+    /* Ys */
+    ys_len = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_uint(ssl_dh_tree, hf->hf.hs_server_keyex_ys_len, tvb,
+                        offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ssl_dh_tree, hf->hf.hs_server_keyex_ys, tvb,
+                        offset + 2, ys_len, ENC_NA);
+    offset += 2 + ys_len;
+
+    /* Signature */
+    dissect_ssl3_hnd_srv_keyex_sig(hf, tvb, ssl_dh_tree, offset, session);
+}
+
+/* Only used in RSA-EXPORT cipher suites */
+static void
+dissect_ssl3_hnd_srv_keyex_rsa(ssl_common_dissect_t *hf, tvbuff_t *tvb,
+                               proto_tree *tree, guint32 offset, guint32 length,
+                               const SslSession *session)
+{
+    gint        modulus_len, exponent_len;
+    proto_item *ti_rsa;
+    proto_tree *ssl_rsa_tree;
+
+    ti_rsa = proto_tree_add_text(tree, tvb, offset, length,
+                                 "RSA-EXPORT Server Params");
+    ssl_rsa_tree = proto_item_add_subtree(ti_rsa, hf->ett.keyex_params);
+
+    /* modulus */
+    modulus_len = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_item(ssl_rsa_tree, hf->hf.hs_server_keyex_modulus_len, tvb,
+                        offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ssl_rsa_tree, hf->hf.hs_server_keyex_modulus, tvb,
+                        offset + 2, modulus_len, ENC_NA);
+    offset += 2 + modulus_len;
+
+    /* exponent */
+    exponent_len = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_item(ssl_rsa_tree, hf->hf.hs_server_keyex_exponent_len,
+                        tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ssl_rsa_tree, hf->hf.hs_server_keyex_exponent,
+                        tvb, offset + 2, exponent_len, ENC_NA);
+    offset += 2 + exponent_len;
+
+    /* Signature */
+    dissect_ssl3_hnd_srv_keyex_sig(hf, tvb, ssl_rsa_tree, offset, session);
+}
+
+/* Used in RSA PSK and PSK cipher suites */
+static void
+dissect_ssl3_hnd_srv_keyex_psk(ssl_common_dissect_t *hf, tvbuff_t *tvb,
+                               proto_tree *tree, guint32 offset, guint32 length)
+{
+    guint        hint_len;
+    proto_item *ti_psk;
+    proto_tree *ssl_psk_tree;
+
+    hint_len = tvb_get_ntohs(tvb, offset);
+    if ((2 + hint_len) != length) {
+        /* Lengths don't line up (wasn't what we expected?) */
+        return;
+    }
+
+    ti_psk = proto_tree_add_text(tree, tvb, offset, length,
+                                 "PSK Server Params");
+    ssl_psk_tree = proto_item_add_subtree(ti_psk, hf->ett.keyex_params);
+
+    /* hint */
+    proto_tree_add_item(ssl_psk_tree, hf->hf.hs_server_keyex_hint_len, tvb,
+                        offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ssl_psk_tree, hf->hf.hs_server_keyex_hint, tvb,
+                        offset + 2, hint_len, ENC_NA);
+}
+
+
+void
+ssl_dissect_hnd_cli_keyex(ssl_common_dissect_t *hf, tvbuff_t *tvb,
+                          proto_tree *tree, guint32 offset, guint32 length,
+                          const SslSession *session)
+{
+    switch (ssl_get_keyex_alg(session->cipher)) {
+    case KEX_RSA: /* rsa: EncryptedPreMasterSecret */
+        dissect_ssl3_hnd_cli_keyex_rsa(hf, tvb, tree, offset, length, session);
+        break;
+    case KEX_DH: /* DHE_RSA: ClientDiffieHellmanPublic */
+        /* XXX: DHE_DSS, DH_DSS, DH_RSA, DH_ANON; same format */
+        dissect_ssl3_hnd_cli_keyex_dh(hf, tvb, tree, offset, length);
+        break;
+    case KEX_ECDH: /* ec_diffie_hellman: ClientECDiffieHellmanPublic */
+        dissect_ssl3_hnd_cli_keyex_ecdh(hf, tvb, tree, offset, length);
+        break;
+    case KEX_PSK:
+        dissect_ssl3_hnd_cli_keyex_psk(hf, tvb, tree, offset, length);
+        break;
+    case KEX_RSA_PSK:
+        dissect_ssl3_hnd_cli_keyex_rsa_psk(hf, tvb, tree, offset, length);
+        break;
+    }
+}
+
+void
+ssl_dissect_hnd_srv_keyex(ssl_common_dissect_t *hf, tvbuff_t *tvb,
+                          proto_tree *tree, guint32 offset, guint32 length,
+                          const SslSession *session)
+{
+    switch (ssl_get_keyex_alg(session->cipher)) {
+    case KEX_DH: /* DHE_RSA: ServerDHParams + signature */
+        /* XXX: DHE_DSS, same format */
+        /* XXX: DHE_ANON, almost the same, but without signed_params */
+        dissect_ssl3_hnd_srv_keyex_dhe(hf, tvb, tree, offset, length, session);
+        break;
+    case KEX_RSA: /* TLSv1.0 and older: RSA_EXPORT cipher suites */
+        dissect_ssl3_hnd_srv_keyex_rsa(hf, tvb, tree, offset, length, session);
+        break;
+    case KEX_ECDH: /* ec_diffie_hellman: ServerECDHParams + signature */
+        dissect_ssl3_hnd_srv_keyex_ecdh(hf, tvb, tree, offset, length, session);
+        break;
+    case KEX_RSA_PSK:
+    case KEX_PSK:
+        dissect_ssl3_hnd_srv_keyex_psk(hf, tvb, tree, offset, length);
+        break;
+    }
+}
+
 #ifdef HAVE_LIBGNUTLS
 void
 ssl_common_register_options(module_t *module, ssl_common_options_t *options)
