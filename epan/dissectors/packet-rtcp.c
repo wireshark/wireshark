@@ -48,6 +48,8 @@
  *
  * RTCP FB is specified in RFC 4585 and extended by RFC 5104
  *
+ * MS-RTP: Real-time Transport Protocol (RTP) Extensions http://msdn.microsoft.com/en-us/library/office/cc431492.aspx
+ *
  */
 
 /*
@@ -136,7 +138,7 @@ static const value_string rtcp_packet_type_vals[] =
     { RTCP_BYE,     "Goodbye" },
     { RTCP_APP,     "Application specific" },
     { RTCP_RTPFB,   "Generic RTP Feedback" },
-    { RTCP_PSFB,    "Payload-specific" },
+    { RTCP_PSFB,    "Payload-specific Feedback" },
     { RTCP_XR,      "Extended report (RFC 3611)"},
     { RTCP_AVB,     "AVB RTCP packet (IEEE1733)" },
     { RTCP_RSI,     "Receiver Summary Information" },
@@ -377,6 +379,44 @@ static const value_string rtcp_psfb_fmt_vals[] =
     {   0,  NULL }
 };
 
+static const value_string rtcp_psfb_fmt_summary_vals[] =
+{
+    {   1,  "PLI"},
+    {   2,  "SLI"},
+    {   3,  "RPSI"},
+    {   4,  "FIR"},
+    {   5,  "TSTR"},
+    {   6,  "TSTN"},
+    {   7,  "VBCM"},
+    {  15,  "ALFB"},
+    {  31,  "Reserved"},
+    {   0,  NULL }
+};
+
+/* Microsoft Profile Specific Extension Types */
+static const value_string rtcp_ms_profile_extension_vals[] =
+{
+    {   1,  "MS - Estimated Bandwidth"},
+    {   4,  "MS - Packet Loss Notification"},
+    {   5,  "MS - Video Preference"},
+    {   6,  "MS - Padding"},
+    {   7,  "MS - Policy Server Bandwidth"},
+    {   8,  "MS - TURN Server Bandwidth"},
+    {   9,  "MS - Audio Healer Metrics"},
+    {   10,  "MS - Receiver-side Bandwidth Limit"},
+    {   11,  "MS - Packet Train Packet"},
+    {   12,  "MS - Peer Info Exchange"},
+    {   13,  "MS - Network Congestion Notification"},
+    {   14,  "MS - Modality Send Bandwidth Limit"},
+    {   0,  NULL }
+};
+
+static const value_string rtcp_ssrc_values[] = {
+    {  0xFFFFFFFF,   "SOURCE_NONE" },
+    {  0xFFFFFFFE,   "SOURCE_ANY" },
+    {   0,  NULL }
+};
+
 /* RTCP header fields                   */
 static int proto_rtcp = -1;
 static int hf_rtcp_version = -1;
@@ -419,6 +459,8 @@ static int hf_rtcp_fsn = -1;
 static int hf_rtcp_blp = -1;
 static int hf_rtcp_padding_count = -1;
 static int hf_rtcp_padding_data = -1;
+static int hf_rtcp_profile_specific_extension_type = -1;
+static int hf_rtcp_profile_specific_extension_length = -1;
 static int hf_rtcp_profile_specific_extension = -1;
 static int hf_rtcp_app_poc1 = -1;
 static int hf_rtcp_app_poc1_subtype = -1;
@@ -508,6 +550,9 @@ static int hf_rtcp_fci = -1;
 static int hf_rtcp_psfb_fir_fci_ssrc = -1;
 static int hf_rtcp_psfb_fir_fci_csn = -1;
 static int hf_rtcp_psfb_fir_fci_reserved = -1;
+static int hf_rtcp_psfb_sli_first = -1;
+static int hf_rtcp_psfb_sli_number = -1;
+static int hf_rtcp_psfb_sli_picture_id = -1;
 static int hf_rtcp_psfb_remb_fci_identifier = -1;
 static int hf_rtcp_psfb_remb_fci_number_ssrcs = -1;
 static int hf_rtcp_psfb_remb_fci_ssrc = -1;
@@ -546,7 +591,70 @@ static int hf_rtcp_last_sr_timestamp_frame = -1;
 static int hf_rtcp_time_since_last_sr = -1;
 static int hf_rtcp_roundtrip_delay = -1;
 
-
+/* MS Profile Specific Extension Fields */
+static int hf_rtcp_pse_ms_bandwidth = -1;
+static int hf_rtcp_pse_ms_confidence_level = -1;
+static int hf_rtcp_pse_ms_seq_num = -1;
+static int hf_rtcp_pse_ms_frame_resolution_width = -1;
+static int hf_rtcp_pse_ms_frame_resolution_height = -1;
+static int hf_rtcp_pse_ms_bitrate = -1;
+static int hf_rtcp_pse_ms_frame_rate = -1;
+static int hf_rtcp_pse_ms_concealed_frames = -1;
+static int hf_rtcp_pse_ms_stretched_frames = -1;
+static int hf_rtcp_pse_ms_compressed_frames = -1;
+static int hf_rtcp_pse_ms_total_frames = -1;
+static int hf_rtcp_pse_ms_receive_quality_state = -1;
+static int hf_rtcp_pse_ms_fec_distance_request = -1;
+static int hf_rtcp_pse_ms_last_packet_train = -1;
+static int hf_rtcp_pse_ms_packet_idx = -1;
+static int hf_rtcp_pse_ms_packet_cnt = -1;
+static int hf_rtcp_pse_ms_packet_train_byte_cnt = -1;
+static int hf_rtcp_pse_ms_inbound_bandwidth = -1;
+static int hf_rtcp_pse_ms_outbound_bandwidth = -1;
+static int hf_rtcp_pse_ms_no_cache = -1;
+static int hf_rtcp_pse_ms_congestion_info = -1;
+static int hf_rtcp_pse_ms_modality = -1;
+/* Microsoft PLI Extension */
+static int hf_rtcp_psfb_pli_ms_request_id = -1;
+static int hf_rtcp_psfb_pli_ms_sfr = -1;
+/* Microsoft Video Source Request */
+static int hf_rtcp_psfb_ms_type = -1;
+static int hf_rtcp_psfb_ms_length = -1;
+static int hf_rtcp_psfb_ms_msi = -1;
+static int hf_rtcp_psfb_ms_vsr_request_id = -1;
+static int hf_rtcp_psfb_ms_vsr_version = -1;
+static int hf_rtcp_psfb_ms_vsr_key_frame_request = -1;
+static int hf_rtcp_psfb_ms_vsr_num_entries = -1;
+static int hf_rtcp_psfb_ms_vsr_entry_length = -1;
+static int hf_rtcp_psfb_ms_vsre_payload_type = -1;
+static int hf_rtcp_psfb_ms_vsre_ucconfig_mode = -1;
+static int hf_rtcp_psfb_ms_vsre_no_sp_frames = -1;
+static int hf_rtcp_psfb_ms_vsre_baseline = -1;
+static int hf_rtcp_psfb_ms_vsre_cgs = -1;
+static int hf_rtcp_psfb_ms_vsre_aspect_ratio_bitmask = -1;
+static int hf_rtcp_psfb_ms_vsre_aspect_ratio_4by3 = -1;
+static int hf_rtcp_psfb_ms_vsre_aspect_ratio_16by9 = -1;
+static int hf_rtcp_psfb_ms_vsre_aspect_ratio_1by1 = -1;
+static int hf_rtcp_psfb_ms_vsre_aspect_ratio_3by4 = -1;
+static int hf_rtcp_psfb_ms_vsre_aspect_ratio_9by16 = -1;
+static int hf_rtcp_psfb_ms_vsre_aspect_ratio_20by3 = -1;
+static int hf_rtcp_psfb_ms_vsre_max_width = -1;
+static int hf_rtcp_psfb_ms_vsre_max_height = -1;
+static int hf_rtcp_psfb_ms_vsre_min_bitrate = -1;
+static int hf_rtcp_psfb_ms_vsre_bitrate_per_level = -1;
+static int hf_rtcp_psfb_ms_vsre_bitrate_histogram = -1;
+static int hf_rtcp_psfb_ms_vsre_frame_rate_mask = -1;
+static int hf_rtcp_psfb_ms_vsre_frame_rate_7_5 = -1;
+static int hf_rtcp_psfb_ms_vsre_frame_rate_12_5 = -1;
+static int hf_rtcp_psfb_ms_vsre_frame_rate_15 = -1;
+static int hf_rtcp_psfb_ms_vsre_frame_rate_25 = -1;
+static int hf_rtcp_psfb_ms_vsre_frame_rate_30 = -1;
+static int hf_rtcp_psfb_ms_vsre_frame_rate_50= -1;
+static int hf_rtcp_psfb_ms_vsre_frame_rate_60 = -1;
+static int hf_rtcp_psfb_ms_vsre_must_instances = -1;
+static int hf_rtcp_psfb_ms_vsre_may_instances = -1;
+static int hf_rtcp_psfb_ms_vsre_quality_histogram = -1;
+static int hf_rtcp_psfb_ms_vsre_max_pixels = -1;
 
 /* RTCP fields defining a sub tree */
 static gint ett_rtcp                    = -1;
@@ -575,6 +683,10 @@ static gint ett_xr_ssrc                 = -1;
 static gint ett_xr_loss_chunk           = -1;
 static gint ett_poc1_conn_contents      = -1;
 static gint ett_rtcp_nack_blp           = -1;
+static gint ett_pse                     = -1;
+static gint ett_ms_vsr                  = -1;
+static gint ett_ms_vsr_entry            = -1;
+static gint ett_ms_ds                   = -1;
 
 static expert_field ei_rtcp_bye_reason_not_padded = EI_INIT;
 static expert_field ei_rtcp_xr_block_length_bad = EI_INIT;
@@ -722,9 +834,11 @@ dissect_rtcp_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     /* First packet within compound packet is supposed to be a sender
        or receiver report.
        - allow BYE because this happens anyway
-       - allow APP because TBCP ("PoC1") packets aren't compound... */
+       - allow APP because TBCP ("PoC1") packets aren't compound...
+       - allow PSFB for MS */
     if (!((packet_type == RTCP_SR)  || (packet_type == RTCP_RR) ||
-          (packet_type == RTCP_BYE) || (packet_type == RTCP_APP)))
+          (packet_type == RTCP_BYE) || (packet_type == RTCP_APP) ||
+          (packet_type == RTCP_PSFB)))
     {
         return FALSE;
     }
@@ -818,6 +932,147 @@ dissect_rtcp_rtpfb_tmmbr( tvbuff_t *tvb, int offset, proto_tree *rtcp_tree, prot
           proto_item_append_text(top_item, ": TMMBR: %u", bitrate);
       }
 
+    return offset;
+}
+
+/* Dissect Application Specific Feedback messages */
+static int
+dissect_rtcp_asfb_ms( tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo)
+{
+    guint8  num_entries;
+    guint8  desc = 0;
+    guint16  type;
+    guint16 length;
+    guint8  i;
+    guint32 msi;
+    guint32 min_bitrate, bitrate_per_level;
+    proto_tree *rtcp_ms_vsr_tree;
+    proto_tree *rtcp_ms_vsr_entry_tree;
+    proto_tree *rtcp_ms_ds_tree;
+    proto_item *item;
+
+    type = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_item( tree, hf_rtcp_psfb_ms_type, tvb, offset, 2, ENC_BIG_ENDIAN );
+    offset += 2;
+
+    length = tvb_get_ntohs(tvb, offset) - 1;
+    proto_tree_add_item( tree, hf_rtcp_psfb_ms_length, tvb, offset, 2, ENC_BIG_ENDIAN );
+    offset += 2;
+
+    if (type == 1)
+    {
+        item = proto_tree_add_text(tree, tvb, offset, hf_rtcp_psfb_ms_length, "MS Video Source Request");
+        rtcp_ms_vsr_tree = proto_item_add_subtree(item, ett_ms_vsr);
+
+        col_append_fstr(pinfo->cinfo, COL_INFO,"( MS-VSR )");
+
+        item = proto_tree_add_item( rtcp_ms_vsr_tree, hf_rtcp_psfb_ms_msi, tvb, offset, 4, ENC_BIG_ENDIAN );
+        msi = tvb_get_ntohl (tvb, offset);
+        /* Decode if it is NONE or ANY and add to line */
+        proto_item_append_text(item," %s", val_to_str_const(msi, rtcp_ssrc_values, ""));
+        offset += 4;
+
+        proto_tree_add_item( rtcp_ms_vsr_tree, hf_rtcp_psfb_ms_vsr_request_id, tvb, offset, 2, ENC_BIG_ENDIAN );
+        offset += 2;
+        /* 2 reserved bytes */
+        offset += 2;
+        proto_tree_add_item( rtcp_ms_vsr_tree, hf_rtcp_psfb_ms_vsr_version, tvb, offset, 1, ENC_BIG_ENDIAN );
+        offset++;
+        proto_tree_add_item( rtcp_ms_vsr_tree, hf_rtcp_psfb_ms_vsr_key_frame_request, tvb, offset, 1, ENC_BIG_ENDIAN );
+        offset++;
+        num_entries = tvb_get_guint8(tvb, offset);
+        proto_tree_add_item( rtcp_ms_vsr_tree, hf_rtcp_psfb_ms_vsr_num_entries, tvb, offset, 1, ENC_BIG_ENDIAN );
+        offset++;
+        proto_tree_add_item( rtcp_ms_vsr_tree, hf_rtcp_psfb_ms_vsr_entry_length, tvb, offset, 1, ENC_BIG_ENDIAN );
+        offset++;
+        /* 4 reserved bytes */
+        offset += 4;
+
+        while (num_entries-- && tvb_captured_length_remaining (tvb, offset) >= 0x44)
+        {
+            item = proto_tree_add_text(rtcp_ms_vsr_tree, tvb, offset, 0x44, "MS Video Source Request Entry #%d", ++desc);
+            rtcp_ms_vsr_entry_tree = proto_item_add_subtree(item, ett_ms_vsr_entry);
+
+            proto_tree_add_item (rtcp_ms_vsr_entry_tree, hf_rtcp_psfb_ms_vsre_payload_type,    tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset++;
+            proto_tree_add_item (rtcp_ms_vsr_entry_tree, hf_rtcp_psfb_ms_vsre_ucconfig_mode,  tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset++;
+            proto_tree_add_item (rtcp_ms_vsr_entry_tree, hf_rtcp_psfb_ms_vsre_no_sp_frames,  tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item (rtcp_ms_vsr_entry_tree, hf_rtcp_psfb_ms_vsre_baseline,  tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item (rtcp_ms_vsr_entry_tree, hf_rtcp_psfb_ms_vsre_cgs,  tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset++;
+            proto_tree_add_item (rtcp_ms_vsr_entry_tree, hf_rtcp_psfb_ms_vsre_aspect_ratio_bitmask,  tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item (rtcp_ms_vsr_entry_tree, hf_rtcp_psfb_ms_vsre_aspect_ratio_20by3,  tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item (rtcp_ms_vsr_entry_tree, hf_rtcp_psfb_ms_vsre_aspect_ratio_9by16,  tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item (rtcp_ms_vsr_entry_tree, hf_rtcp_psfb_ms_vsre_aspect_ratio_3by4,  tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item (rtcp_ms_vsr_entry_tree, hf_rtcp_psfb_ms_vsre_aspect_ratio_1by1,  tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item (rtcp_ms_vsr_entry_tree, hf_rtcp_psfb_ms_vsre_aspect_ratio_16by9,  tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item (rtcp_ms_vsr_entry_tree, hf_rtcp_psfb_ms_vsre_aspect_ratio_4by3,  tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset++;
+            proto_tree_add_item (rtcp_ms_vsr_entry_tree, hf_rtcp_psfb_ms_vsre_max_width,  tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset += 2;;
+            proto_tree_add_item (rtcp_ms_vsr_entry_tree, hf_rtcp_psfb_ms_vsre_max_height,  tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset += 2;;
+            proto_tree_add_item (rtcp_ms_vsr_entry_tree, hf_rtcp_psfb_ms_vsre_min_bitrate,  tvb, offset, 4, ENC_BIG_ENDIAN);
+            min_bitrate = tvb_get_ntohl (tvb, offset);
+            offset += 4;
+            /* 4 Reserved bytes */
+            offset += 4;
+            proto_tree_add_item (rtcp_ms_vsr_entry_tree, hf_rtcp_psfb_ms_vsre_bitrate_per_level,  tvb, offset, 4, ENC_BIG_ENDIAN);
+            bitrate_per_level = tvb_get_ntohl (tvb, offset);
+            offset += 4;
+            for (i = 0 ; i < 10 ; i++)
+            {
+                item = proto_tree_add_item (rtcp_ms_vsr_entry_tree, hf_rtcp_psfb_ms_vsre_bitrate_histogram,  tvb, offset, 2, ENC_BIG_ENDIAN);
+                proto_item_prepend_text(item,"Bitrate %d - %d ",
+                        min_bitrate + i * bitrate_per_level,
+                        min_bitrate + (i + 1) * bitrate_per_level);
+                offset += 2;
+            }
+            proto_tree_add_item (rtcp_ms_vsr_entry_tree, hf_rtcp_psfb_ms_vsre_frame_rate_mask,  tvb, offset, 4, ENC_BIG_ENDIAN);
+            offset +=3;      /* Move to low byte of mask where valid setting are */
+            proto_tree_add_item (rtcp_ms_vsr_entry_tree, hf_rtcp_psfb_ms_vsre_frame_rate_60,  tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item (rtcp_ms_vsr_entry_tree, hf_rtcp_psfb_ms_vsre_frame_rate_50,  tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item (rtcp_ms_vsr_entry_tree, hf_rtcp_psfb_ms_vsre_frame_rate_30,  tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item (rtcp_ms_vsr_entry_tree, hf_rtcp_psfb_ms_vsre_frame_rate_25,  tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item (rtcp_ms_vsr_entry_tree, hf_rtcp_psfb_ms_vsre_frame_rate_15,  tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item (rtcp_ms_vsr_entry_tree, hf_rtcp_psfb_ms_vsre_frame_rate_12_5,  tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item (rtcp_ms_vsr_entry_tree, hf_rtcp_psfb_ms_vsre_frame_rate_7_5,  tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset++;;
+            proto_tree_add_item (rtcp_ms_vsr_entry_tree, hf_rtcp_psfb_ms_vsre_must_instances,  tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset += 2;
+            proto_tree_add_item (rtcp_ms_vsr_entry_tree, hf_rtcp_psfb_ms_vsre_may_instances,  tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset += 2;
+            for (i = 0 ; i < 8 ; i++)
+            {
+                item = proto_tree_add_item (rtcp_ms_vsr_entry_tree, hf_rtcp_psfb_ms_vsre_quality_histogram,  tvb, offset, 2, ENC_BIG_ENDIAN);
+                proto_item_prepend_text(item, "Quality Level %d ", i+1 );
+                offset += 2;
+            }
+            proto_tree_add_item (rtcp_ms_vsr_entry_tree, hf_rtcp_psfb_ms_vsre_max_pixels,  tvb, offset, 4, ENC_BIG_ENDIAN);
+            offset += 4;
+        }
+    }
+    else if (type == 3)
+    {
+        /* MS Dominant Speaker History */
+        item = proto_tree_add_text(tree, tvb, offset, hf_rtcp_psfb_ms_length, "MS Dominant Speaker History");
+        rtcp_ms_ds_tree = proto_item_add_subtree(item, ett_ms_ds);
+        col_append_fstr(pinfo->cinfo, COL_INFO,"( MS-DSH )");
+        while (length-- && tvb_captured_length_remaining (tvb, offset) >= 4)
+        {
+            item = proto_tree_add_item( rtcp_ms_ds_tree, hf_rtcp_psfb_ms_msi, tvb, offset, 4, ENC_BIG_ENDIAN );
+            msi = tvb_get_ntohl (tvb, offset);
+            proto_item_append_text(item," %s", val_to_str_const(msi, rtcp_ssrc_values, ""));
+            offset += 4;
+            length --;
+        }
+    }
+    else
+    {
+        proto_tree_add_text(tree, tvb, offset, -1, "Unknown Application Layer Feedback Type %d", type);
+        offset += tvb_captured_length_remaining (tvb, offset);
+    }
     return offset;
 }
 
@@ -983,11 +1238,15 @@ dissect_rtcp_psfb( tvbuff_t *tvb, int offset, proto_tree *rtcp_tree,
     proto_item   *ti;
     unsigned int  rtcp_psfb_fmt;
     int           base_offset = offset;
+    int           i;
 
     /* Payload-specific FB message */
     /* Feedback message type (FMT): 5 bits */
     proto_tree_add_item( rtcp_tree, hf_rtcp_psfb_fmt, tvb, offset, 1, ENC_BIG_ENDIAN );
     rtcp_psfb_fmt = (tvb_get_guint8(tvb, offset) & 0x1f);
+    col_append_fstr(pinfo->cinfo, COL_INFO, "%s  ",
+                  val_to_str_const(rtcp_psfb_fmt, rtcp_psfb_fmt_summary_vals, "Unknown"));
+
     offset++;
 
     /* Packet type, 8 bits */
@@ -1003,15 +1262,46 @@ dissect_rtcp_psfb( tvbuff_t *tvb, int offset, proto_tree *rtcp_tree,
     offset += 4;
 
     /* SSRC of media source, 32 bits */
-    proto_tree_add_item( rtcp_tree, hf_rtcp_ssrc_media_source, tvb, offset, 4, ENC_BIG_ENDIAN );
+    ti = proto_tree_add_item( rtcp_tree, hf_rtcp_ssrc_media_source, tvb, offset, 4, ENC_BIG_ENDIAN );
+    /* Decode if it is NONE or ANY and add to line */
+    proto_item_append_text(ti," %s", val_to_str_const(tvb_get_ntohl(tvb,offset), rtcp_ssrc_values, ""));
     offset += 4;
 
     /* Feedback Control Information (FCI) */
     counter  = 0;
     read_fci = 0;
     while ( read_fci < num_fci ) {
-        /* Handle FIR */
-        if (rtcp_psfb_fmt == 4) {
+        switch (rtcp_psfb_fmt)
+        {
+        case 1:     /* Picture Loss Indications (PLI) */
+        {
+            /* Handle MS PLI Extension */
+            ti = proto_tree_add_text( rtcp_tree, tvb, offset, 8, "MS PLI");
+            proto_tree_add_item( rtcp_tree, hf_rtcp_psfb_pli_ms_request_id, tvb, offset, 2, ENC_BIG_ENDIAN );
+            offset += 2;
+            /* 2 reserved bytes */
+            offset += 2;
+            for (i = 0 ; i < 8 ; i++)
+            {
+                ti = proto_tree_add_item( rtcp_tree, hf_rtcp_psfb_pli_ms_sfr, tvb, offset, 1, ENC_BIG_ENDIAN );
+                proto_item_prepend_text(ti,"PRID %d - %d ",
+                        i * 8, (i+1) * 8 - 1);
+                offset++;;
+            }
+            read_fci += 3;
+            break;
+        }
+        case 2:     /* Slice Loss Indication (SLI) */
+            /* Handle SLI */
+            ti = proto_tree_add_text( rtcp_tree, tvb, offset, 8, "SLI %u", ++counter );
+            proto_tree_add_item( rtcp_tree, hf_rtcp_psfb_sli_first,      tvb, offset, 4, ENC_BIG_ENDIAN );
+            proto_tree_add_item( rtcp_tree, hf_rtcp_psfb_sli_number,     tvb, offset, 4, ENC_BIG_ENDIAN );
+            proto_tree_add_item( rtcp_tree, hf_rtcp_psfb_sli_picture_id, tvb, offset, 4, ENC_BIG_ENDIAN );
+            offset +=4;
+            read_fci++;
+            break;
+        case 4:     /* Handle FIR */
+        {
             /* Create a new subtree for a length of 8 bytes */
             ti        = proto_tree_add_text( rtcp_tree, tvb, offset, 8, "FIR %u", ++counter );
             fci_tree  = proto_item_add_subtree( ti, ett_ssrc );
@@ -1026,10 +1316,21 @@ dissect_rtcp_psfb( tvbuff_t *tvb, int offset, proto_tree *rtcp_tree,
             proto_tree_add_item( fci_tree, hf_rtcp_psfb_fir_fci_reserved, tvb, offset, 3, ENC_BIG_ENDIAN );
             offset   += 3;
             read_fci += 2;
-        } else if (rtcp_psfb_fmt == 15) {
+            break;
+        }
+        case 15:
+        {
+            /* Handle MS Application Layer Feedback Messages */
+            offset = dissect_rtcp_asfb_ms(tvb, offset, rtcp_tree, pinfo);
+            read_fci = num_fci;     /* Consume all the bytes. */
             /* Handle REMB (Receiver Estimated Maximum Bitrate) - http://tools.ietf.org/html/draft-alvestrand-rmcat-remb-00 */
-            offset = dissect_rtcp_psfb_remb(tvb, offset, rtcp_tree, top_item, counter, &read_fci);
-        } else {
+            /* offset = dissect_rtcp_psfb_remb(tvb, offset, rtcp_tree, top_item, counter, &read_fci); */
+            break;
+        }
+        case 3:             /* Reference Picture Selection Indication (RPSI) - Not decoded*/
+        default:
+            /* Consume anything left so it doesn't make an infinite loop. */
+            read_fci = num_fci;
             break;
         }
     }
@@ -2402,6 +2703,135 @@ dissect_rtcp_token( tvbuff_t *tvb, packet_info *pinfo _U_, int offset, proto_tre
     return offset + (packet_len - 4);
 }
 
+static void
+dissect_rtcp_profile_specific_extensions (packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree, int offset, int remaining)
+{
+    gint16  extension_type;
+    gint16  extension_length;
+    proto_tree *pse_tree;
+    proto_item *pse_item;
+    proto_item *item;
+
+    col_append_fstr(pinfo->cinfo, COL_INFO, "(");
+    while (remaining)
+    {
+        extension_type   = tvb_get_ntohs (tvb, offset);
+        extension_length = tvb_get_ntohs (tvb, offset+2);
+
+        pse_item = proto_tree_add_text(tree, tvb, offset, extension_length, "Payload Specific Extension");
+        pse_tree = proto_item_add_subtree( pse_item, ett_pse);
+        proto_item_append_text(pse_item, " (%s)",
+                val_to_str_const(extension_type, rtcp_ms_profile_extension_vals, "Unknown"));
+        col_append_fstr(pinfo->cinfo, COL_INFO, "PSE:%s  ",
+                      val_to_str_const(extension_type, rtcp_ms_profile_extension_vals, "Unknown"));
+
+        proto_tree_add_item(pse_tree, hf_rtcp_profile_specific_extension_type, tvb, offset,
+                2, ENC_NA);
+        offset += 2;
+        proto_tree_add_item(pse_tree, hf_rtcp_profile_specific_extension_length, tvb, offset,
+                2, ENC_NA);
+        offset += 2;
+
+        switch (extension_type)
+        {
+        case 1:
+            /* MS Estimated Bandwidth */
+            item = proto_tree_add_item(pse_tree, hf_rtcp_ssrc_sender, tvb, offset, 4, ENC_BIG_ENDIAN);
+            /* Decode if it is NONE or ANY and add to line */
+            proto_item_append_text(item," %s", val_to_str_const(tvb_get_ntohl (tvb, offset), rtcp_ssrc_values, ""));
+            proto_tree_add_item(pse_tree, hf_rtcp_pse_ms_bandwidth, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
+            /* Confidence level byte is optional so check length first */
+            if (extension_length == 16)
+            {
+                proto_tree_add_item(pse_tree, hf_rtcp_pse_ms_confidence_level, tvb, offset + 8, 1, ENC_BIG_ENDIAN);
+            }
+            break;
+        case 4:
+            /* MS Packet Loss Notification */
+            proto_tree_add_item(pse_tree, hf_rtcp_pse_ms_seq_num, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
+            break;
+        case 5:
+            /* MS Video Preference */
+            proto_tree_add_item(pse_tree, hf_rtcp_pse_ms_frame_resolution_width, tvb, offset + 4, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(pse_tree, hf_rtcp_pse_ms_frame_resolution_height, tvb, offset + 6, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(pse_tree, hf_rtcp_pse_ms_bitrate, tvb, offset + 8, 4, ENC_BIG_ENDIAN);
+            proto_tree_add_item(pse_tree, hf_rtcp_pse_ms_frame_rate, tvb, offset + 12, 2, ENC_BIG_ENDIAN);
+            break;
+        case 7:
+            /* MS Policy Server Bandwidth */
+            /* First 4 bytes are reserved */
+            proto_tree_add_item(pse_tree, hf_rtcp_pse_ms_bandwidth, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
+            break;
+        case 8:
+            /* MS TURN Server Bandwidth */
+            /* First 4 bytes are reserved */
+            proto_tree_add_item(pse_tree, hf_rtcp_pse_ms_bandwidth, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
+            break;
+        case 9:
+            /* MS Audio Healer Metrics */
+            item = proto_tree_add_item(pse_tree, hf_rtcp_ssrc_sender, tvb, offset, 4, ENC_BIG_ENDIAN);
+            /* Decode if it is NONE or ANY and add to line */
+            proto_item_append_text(item," %s", val_to_str_const(tvb_get_ntohl (tvb, offset), rtcp_ssrc_values, ""));
+            proto_tree_add_item(pse_tree, hf_rtcp_pse_ms_concealed_frames, tvb, offset+4, 4, ENC_BIG_ENDIAN);
+            proto_tree_add_item(pse_tree, hf_rtcp_pse_ms_stretched_frames, tvb, offset+8, 4, ENC_BIG_ENDIAN);
+            proto_tree_add_item(pse_tree, hf_rtcp_pse_ms_compressed_frames, tvb, offset+12, 4, ENC_BIG_ENDIAN);
+            proto_tree_add_item(pse_tree, hf_rtcp_pse_ms_total_frames, tvb, offset+16, 4, ENC_BIG_ENDIAN);
+            /* 2 bytes Reserved */
+            proto_tree_add_item(pse_tree, hf_rtcp_pse_ms_receive_quality_state, tvb, offset+22, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(pse_tree, hf_rtcp_pse_ms_fec_distance_request, tvb, offset+23, 1, ENC_BIG_ENDIAN);
+            break;
+        case 10:
+            /* MS Receiver-side Bandwidth Limit */
+            /* First 4 bytes are reserved */
+            proto_tree_add_item(pse_tree, hf_rtcp_pse_ms_bandwidth, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
+            break;
+        case 11:
+            /* MS Packet Train Packet */
+            item = proto_tree_add_item(pse_tree, hf_rtcp_ssrc_sender, tvb, offset, 4, ENC_BIG_ENDIAN);
+            /* Decode if it is NONE or ANY and add to line */
+            proto_item_append_text(item," %s", val_to_str_const(tvb_get_ntohl (tvb, offset), rtcp_ssrc_values, ""));
+            proto_tree_add_item(pse_tree, hf_rtcp_pse_ms_last_packet_train, tvb, offset+4, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(pse_tree, hf_rtcp_pse_ms_packet_idx, tvb, offset+4, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(pse_tree, hf_rtcp_pse_ms_packet_cnt, tvb, offset+5, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(pse_tree, hf_rtcp_pse_ms_packet_train_byte_cnt, tvb, offset+6, 2, ENC_BIG_ENDIAN);
+            break;
+        case 12:
+            /* MS Peer Info Exchange */
+            item = proto_tree_add_item(pse_tree, hf_rtcp_ssrc_sender, tvb, offset, 4, ENC_BIG_ENDIAN);
+            /* Decode if it is NONE or ANY and add to line */
+            proto_item_append_text(item," %s", val_to_str_const(tvb_get_ntohl (tvb, offset), rtcp_ssrc_values, ""));
+            proto_tree_add_item(pse_tree, hf_rtcp_pse_ms_inbound_bandwidth, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
+            proto_tree_add_item(pse_tree, hf_rtcp_pse_ms_outbound_bandwidth, tvb, offset + 8, 4, ENC_BIG_ENDIAN);
+            proto_tree_add_item(pse_tree, hf_rtcp_pse_ms_no_cache, tvb, offset + 12, 1, ENC_BIG_ENDIAN);
+            break;
+        case 13:
+            /* MS Network Congestion Notification */
+            proto_tree_add_item(pse_tree, hf_rtcp_ntp_msw, tvb, offset, 4, ENC_BIG_ENDIAN);
+            proto_tree_add_item(pse_tree, hf_rtcp_ntp_lsw, tvb, offset+4, 4, ENC_BIG_ENDIAN);
+            proto_tree_add_item(pse_tree, hf_rtcp_ntp, tvb, offset, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
+            proto_tree_add_item(pse_tree, hf_rtcp_pse_ms_congestion_info, tvb, offset + 12, 1, ENC_BIG_ENDIAN);
+            break;
+        case 14:
+            /* MS Modality Send Bandwidth Limit */
+            proto_tree_add_item(pse_tree, hf_rtcp_pse_ms_modality, tvb, offset, 1, ENC_BIG_ENDIAN);
+            /* 3 bytes Reserved */
+            proto_tree_add_item(pse_tree, hf_rtcp_pse_ms_bandwidth, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
+            break;
+
+        case 6:
+            /* MS Padding */
+        default:
+            /* Unrecognized */
+            proto_tree_add_item(pse_tree, hf_rtcp_profile_specific_extension, tvb, offset,
+                    extension_length - 4, ENC_NA);
+            break;
+        }
+        remaining -= extension_length;
+        offset += extension_length - 4;
+    }
+    col_append_fstr(pinfo->cinfo, COL_INFO, ")  ");
+}
+
 static int
 dissect_rtcp_rr( packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree,
     unsigned int count, unsigned int packet_length )
@@ -2490,8 +2920,7 @@ dissect_rtcp_rr( packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree
     /* If length remaining, assume profile-specific extension bytes */
     if ((offset-rr_offset) < (int)packet_length)
     {
-        proto_tree_add_item(tree, hf_rtcp_profile_specific_extension, tvb, offset,
-                            packet_length - (offset - rr_offset), ENC_NA);
+        dissect_rtcp_profile_specific_extensions (pinfo, tvb, tree, offset, packet_length - (offset - rr_offset));
         offset = rr_offset + packet_length;
     }
 
@@ -2545,8 +2974,7 @@ dissect_rtcp_sr( packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree
         /* If length remaining, assume profile-specific extension bytes */
         if ((offset-sr_offset) < (int)packet_length)
         {
-            proto_tree_add_item(tree, hf_rtcp_profile_specific_extension, tvb, offset,
-                                packet_length - (offset - sr_offset), ENC_NA);
+            dissect_rtcp_profile_specific_extensions (pinfo, tvb,  tree, offset, packet_length - (offset - sr_offset));
             offset = sr_offset + packet_length;
         }
     }
@@ -4040,6 +4468,30 @@ proto_register_rtcp(void)
             }
         },
         {
+            &hf_rtcp_profile_specific_extension_type,
+            {
+                "Extension Type",
+                "rtcp.profile-specific-extension.type",
+                FT_UINT16,
+                BASE_DEC,
+                VALS( rtcp_ms_profile_extension_vals ),
+                0x0,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_rtcp_profile_specific_extension_length,
+            {
+                "Extension Length",
+                "rtcp.profile-specific-extension.length",
+                FT_UINT16,
+                BASE_DEC,
+                NULL,
+                0x0,
+                NULL, HFILL
+            }
+        },
+        {
             &hf_rtcp_profile_specific_extension,
             {
                 "Profile-specific extension",
@@ -4848,7 +5300,7 @@ proto_register_rtcp(void)
             {
                 "Reserved",
                 "rtcp.psfb.fir.fci.reserved",
-                FT_UINT32,
+                FT_UINT24,
                 BASE_DEC,
                 NULL,
                 0x0,
@@ -4856,6 +5308,42 @@ proto_register_rtcp(void)
             }
         },
     {
+            &hf_rtcp_psfb_sli_first,
+            {
+                "First MB",
+                "rtcp.psfb.fir.sli.first",
+                FT_UINT32,
+                BASE_DEC,
+                NULL,
+                0xFFF80000,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_rtcp_psfb_sli_number,
+            {
+                "Number of MBs",
+                "rtcp.psfb.fir.sli.number",
+                FT_UINT32,
+                BASE_DEC,
+                NULL,
+                0x0007FFC0,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_rtcp_psfb_sli_picture_id,
+            {
+                "Picture ID",
+                "rtcp.psfb.fir.sli.picture_id",
+                FT_UINT32,
+                BASE_DEC,
+                NULL,
+                0x0007FFC0,
+                NULL, HFILL
+            }
+        },
+        {
       &hf_rtcp_psfb_remb_fci_identifier,
             {
                 "Unique Identifier",
@@ -5182,6 +5670,744 @@ proto_register_rtcp(void)
                 NULL, HFILL
             }
         },
+        /* MS Profile Specific Extension Fields */
+        {
+            &hf_rtcp_pse_ms_bandwidth,
+            {
+                "Bandwidth",
+                "rtcp.ms_pse.bandwidth",
+                FT_UINT32,
+                BASE_DEC,
+                NULL,
+                0x0,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_rtcp_pse_ms_confidence_level,
+            {
+                "Confidence Level",
+                "rtcp.ms_pse.confidence_level",
+                FT_UINT8,
+                BASE_DEC,
+                NULL,
+                0x0,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_rtcp_pse_ms_seq_num,
+            {
+                "Sequence Number",
+                "rtcp.ms_pse.seq_num",
+                FT_UINT16,
+                BASE_DEC,
+                NULL,
+                0x0,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_rtcp_pse_ms_frame_resolution_width,
+            {
+                "Frame Resolution Width",
+                "rtcp.ms_pse.frame_res_width",
+                FT_UINT16,
+                BASE_DEC,
+                NULL,
+                0x0,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_rtcp_pse_ms_frame_resolution_height,
+            {
+                "Frame Resolution Height",
+                "rtcp.ms_pse.frame_res_height",
+                FT_UINT16,
+                BASE_DEC,
+                NULL,
+                0x0,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_rtcp_pse_ms_bitrate,
+            {
+                "Bitrate",
+                "rtcp.ms_pse.bitrate",
+                FT_UINT32,
+                BASE_DEC,
+                NULL,
+                0x0,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_rtcp_pse_ms_frame_rate,
+            {
+                "Frame Rate",
+                "rtcp.ms_pse.frame_rate",
+                FT_UINT16,
+                BASE_DEC,
+                NULL,
+                0x0,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_rtcp_pse_ms_concealed_frames,
+            {
+                "Concealed Frames",
+                "rtcp.ms_pse.concealed_frames",
+                FT_UINT32,
+                BASE_DEC,
+                NULL,
+                0x0,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_rtcp_pse_ms_stretched_frames,
+            {
+                "Stretched Frames",
+                "rtcp.ms_pse.stretched_frames",
+                FT_UINT32,
+                BASE_DEC,
+                NULL,
+                0x0,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_rtcp_pse_ms_compressed_frames,
+            {
+                "Compressed Frames",
+                "rtcp.ms_pse.compressed_frames",
+                FT_UINT32,
+                BASE_DEC,
+                NULL,
+                0x0,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_rtcp_pse_ms_total_frames,
+            {
+                "Total Frames",
+                "rtcp.ms_pse.total_frames",
+                FT_UINT32,
+                BASE_DEC,
+                NULL,
+                0x0,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_rtcp_pse_ms_receive_quality_state,
+            {
+                "Received Quality State",
+                "rtcp.ms_pse.receive_quality_state",
+                FT_UINT8,
+                BASE_DEC,
+                NULL,
+                0x0,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_rtcp_pse_ms_fec_distance_request,
+            {
+                "FEC Distance Request",
+                "rtcp.ms_pse.fec_distance_request",
+                FT_UINT8,
+                BASE_DEC,
+                NULL,
+                0x0,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_rtcp_pse_ms_last_packet_train,
+            {
+                "Last Packet Train Flag",
+                "rtcp.ms_pse.last_packet_train",
+                FT_BOOLEAN,
+                8,
+                NULL,
+                0x80,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_rtcp_pse_ms_packet_idx,
+            {
+                "Packet Index",
+                "rtcp.ms_pse.packet_index",
+                FT_UINT8,
+                BASE_DEC,
+                NULL,
+                0x7f,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_rtcp_pse_ms_packet_cnt,
+            {
+                "Packet Count",
+                "rtcp.ms_pse.packet_count",
+                FT_UINT8,
+                BASE_DEC,
+                NULL,
+                0x7f,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_rtcp_pse_ms_packet_train_byte_cnt,
+            {
+                "Packet Train Byte Count",
+                "rtcp.ms_pse.packet_train_byte_count",
+                FT_UINT16,
+                BASE_DEC,
+                NULL,
+                0x0,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_rtcp_pse_ms_inbound_bandwidth,
+            {
+                "Inbound Link Bandwidth",
+                "rtcp.ms_pse.inbound_bandwidth",
+                FT_UINT32,
+                BASE_DEC,
+                NULL,
+                0x0,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_rtcp_pse_ms_outbound_bandwidth,
+            {
+                "Outbound Link Bandwidth",
+                "rtcp.ms_pse.outbound_bandwidth",
+                FT_UINT32,
+                BASE_DEC,
+                NULL,
+                0x0,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_rtcp_pse_ms_no_cache,
+            {
+                "No Cache Flag",
+                "rtcp.ms_pse.no_cache",
+                FT_BOOLEAN,
+                8,
+                NULL,
+                0x80,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_rtcp_pse_ms_congestion_info,
+            {
+                "Congestion Information",
+                "rtcp.ms_pse.congestion_info",
+                FT_UINT8,
+                BASE_DEC,
+                NULL,
+                0x0,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_rtcp_pse_ms_modality,
+            {
+                "Modality",
+                "rtcp.ms_pse.modality",
+                FT_UINT8,
+                BASE_DEC,
+                NULL,
+                0x0,
+                NULL, HFILL
+            }
+        },
+
+        /* Microsoft PLI */
+        {
+            &hf_rtcp_psfb_pli_ms_request_id,
+            {
+                "Request ID",
+                "rtcp.psfb.ms.pli.request_id",
+                FT_UINT16,
+                BASE_DEC,
+                NULL,
+                0x0,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_rtcp_psfb_pli_ms_sfr,
+            {
+                "Sync Frame Request",
+                "rtcp.psfb.ms.pli.sync_frame_request",
+                FT_UINT8,
+                BASE_DEC,
+                NULL,
+                0x0,
+                NULL, HFILL
+            }
+        },
+
+        /* Microsoft Application Feedback Video Source Request */
+        {
+            &hf_rtcp_psfb_ms_type,
+            {
+                "Application Layer Feedback Type",
+                "rtcp.psfb.ms.afb_type",
+                FT_UINT16,
+                BASE_DEC,
+                NULL,
+                0x0,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_rtcp_psfb_ms_length,
+            {
+                "Length",
+                "rtcp.psfb.ms.length",
+                FT_UINT16,
+                BASE_DEC,
+                NULL,
+                0x0,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_rtcp_psfb_ms_msi,
+            {
+                "Requested Media Source ID (MSI)",
+                "rtcp.psfb.ms.msi",
+                FT_UINT32,
+                BASE_HEX_DEC,
+                NULL,
+                0x0,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_rtcp_psfb_ms_vsr_request_id,
+            {
+                "Request Id",
+                "rtcp.psfb.ms.vsr.request_id",
+                FT_UINT16,
+                BASE_DEC,
+                NULL,
+                0x0,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_rtcp_psfb_ms_vsr_version,
+            {
+                "Version",
+                "rtcp.psfb.ms.vsr.version",
+                FT_UINT8,
+                BASE_DEC,
+                NULL,
+                0x0,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_rtcp_psfb_ms_vsr_key_frame_request,
+            {
+                "Key Frame Request",
+                "rtcp.psfb.ms.vsr.key_frame_request",
+                FT_BOOLEAN,
+                8,
+                NULL,
+                0x01,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_rtcp_psfb_ms_vsr_num_entries,
+            {
+                "Number of Entries",
+                "rtcp.psfb.ms.vsr.num_entries",
+                FT_UINT8,
+                BASE_DEC,
+                NULL,
+                0x0,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_rtcp_psfb_ms_vsr_entry_length,
+            {
+                "Entry Length",
+                "rtcp.psfb.ms.vsr.entry_length",
+                FT_UINT8,
+                BASE_DEC,
+                NULL,
+                0x0,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_rtcp_psfb_ms_vsre_payload_type,
+            {
+                "Payload Type",
+                "rtcp.psfb.ms.vsr.entry.payload_type",
+                FT_UINT8,
+                BASE_DEC,
+                NULL,
+                0x0,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_rtcp_psfb_ms_vsre_ucconfig_mode,
+            {
+                "UCConfig Mode",
+                "rtcp.psfb.ms.vsr.entry.ucconfig_mode",
+                FT_UINT8,
+                BASE_DEC,
+                NULL,
+                0x0,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_rtcp_psfb_ms_vsre_no_sp_frames,
+            {
+                "No support for SP Frames (RT only)",
+                "rtcp.psfb.ms.vsr.entry.no_sp_frames",
+                FT_BOOLEAN,
+                8,
+                NULL,
+                0x04,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_rtcp_psfb_ms_vsre_baseline,
+            {
+                "Only Supports Constrained Baseline (H.264 only)",
+                "rtcp.psfb.ms.vsr.entry.no_sp_baseline",
+                FT_BOOLEAN,
+                8,
+                NULL,
+                0x02,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_rtcp_psfb_ms_vsre_cgs,
+            {
+                "Supports CGS rewrite (H.264 only)",
+                "rtcp.psfb.ms.vsr.entry.cgs",
+                FT_BOOLEAN,
+                8,
+                NULL,
+                0x01,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_rtcp_psfb_ms_vsre_aspect_ratio_bitmask,
+            {
+                "Aspect Ratio Bitmask",
+                "rtcp.psfb.ms.vsr.entry.apsect_ratio",
+                FT_UINT8,
+                BASE_HEX,
+                NULL,
+                0x0,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_rtcp_psfb_ms_vsre_aspect_ratio_4by3,
+            {
+                "Aspect Ratio 4 by 3",
+                "rtcp.psfb.ms.vsr.entry.apsect_ratio_4by3",
+                FT_BOOLEAN,
+                8,
+                NULL,
+                0x01,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_rtcp_psfb_ms_vsre_aspect_ratio_16by9,
+            {
+                "Aspect Ratio 16 by 9",
+                "rtcp.psfb.ms.vsr.entry.apsect_ratio_16by9",
+                FT_BOOLEAN,
+                8,
+                NULL,
+                0x02,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_rtcp_psfb_ms_vsre_aspect_ratio_1by1,
+            {
+                "Aspect Ratio 1 by 1",
+                "rtcp.psfb.ms.vsr.entry.apsect_ratio_1by1",
+                FT_BOOLEAN,
+                8,
+                NULL,
+                0x04,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_rtcp_psfb_ms_vsre_aspect_ratio_3by4,
+            {
+                "Aspect Ratio 3 by 4",
+                "rtcp.psfb.ms.vsr.entry.apsect_ratio_3by4",
+                FT_BOOLEAN,
+                8,
+                NULL,
+                0x08,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_rtcp_psfb_ms_vsre_aspect_ratio_9by16,
+            {
+                "Aspect Ratio 9 by 16",
+                "rtcp.psfb.ms.vsr.entry.apsect_ratio_9by16",
+                FT_BOOLEAN,
+                8,
+                NULL,
+                0x10,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_rtcp_psfb_ms_vsre_aspect_ratio_20by3,
+            {
+                "Aspect Ratio 20 by 3",
+                "rtcp.psfb.ms.vsr.entry.apsect_ratio_20by3",
+                FT_BOOLEAN,
+                8,
+                NULL,
+                0x20,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_rtcp_psfb_ms_vsre_max_width,
+            {
+                "Max Width",
+                "rtcp.psfb.ms.vsr.entry.max_width",
+                FT_UINT16,
+                BASE_DEC,
+                NULL,
+                0x0,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_rtcp_psfb_ms_vsre_max_height,
+            {
+                "Max Height",
+                "rtcp.psfb.ms.vsr.entry.max_height",
+                FT_UINT16,
+                BASE_DEC,
+                NULL,
+                0x0,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_rtcp_psfb_ms_vsre_min_bitrate,
+            {
+                "Min bit rate",
+                "rtcp.psfb.ms.vsr.entry.min_bitrate",
+                FT_UINT32,
+                BASE_DEC,
+                NULL,
+                0x0,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_rtcp_psfb_ms_vsre_bitrate_per_level,
+            {
+                "Bit rate per level",
+                "rtcp.psfb.ms.vsr.entry.bitrate_per_level",
+                FT_UINT32,
+                BASE_DEC,
+                NULL,
+                0x0,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_rtcp_psfb_ms_vsre_bitrate_histogram,
+            {
+                "Receiver Count",
+                "rtcp.psfb.ms.vsr.entry.bitrate_histogram",
+                FT_UINT16,
+                BASE_DEC,
+                NULL,
+                0x0,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_rtcp_psfb_ms_vsre_frame_rate_mask,
+            {
+                "Frame rate mask",
+                "rtcp.psfb.ms.vsr.entry.frame_rate_mask",
+                FT_UINT32,
+                BASE_HEX,
+                NULL,
+                0x0,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_rtcp_psfb_ms_vsre_frame_rate_7_5,
+            {
+                "7.5 fps",
+                "rtcp.psfb.ms.vsr.entry.frame_rate_7_5",
+                FT_BOOLEAN,
+                8,
+                NULL,
+                0x01,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_rtcp_psfb_ms_vsre_frame_rate_12_5,
+            {
+                "12.5 fps",
+                "rtcp.psfb.ms.vsr.entry.frame_rate_12_5",
+                FT_BOOLEAN,
+                8,
+                NULL,
+                0x02,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_rtcp_psfb_ms_vsre_frame_rate_15,
+            {
+                "15 fps",
+                "rtcp.psfb.ms.vsr.entry.frame_rate_15",
+                FT_BOOLEAN,
+                8,
+                NULL,
+                0x04,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_rtcp_psfb_ms_vsre_frame_rate_25,
+            {
+                "25 fps",
+                "rtcp.psfb.ms.vsr.entry.frame_rate_25",
+                FT_BOOLEAN,
+                8,
+                NULL,
+                0x08,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_rtcp_psfb_ms_vsre_frame_rate_30,
+            {
+                "30 fps",
+                "rtcp.psfb.ms.vsr.entry.frame_rate_30",
+                FT_BOOLEAN,
+                8,
+                NULL,
+                0x10,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_rtcp_psfb_ms_vsre_frame_rate_50,
+            {
+                "50 fps",
+                "rtcp.psfb.ms.vsr.entry.frame_rate_50",
+                FT_BOOLEAN,
+                8,
+                NULL,
+                0x20,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_rtcp_psfb_ms_vsre_frame_rate_60,
+            {
+                "60 fps",
+                "rtcp.psfb.ms.vsr.entry.frame_rate_60",
+                FT_BOOLEAN,
+                8,
+                NULL,
+                0x40,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_rtcp_psfb_ms_vsre_must_instances,
+            {
+                "Number of MUST instances",
+                "rtcp.psfb.ms.vsr.entry.musts",
+                FT_UINT16,
+                BASE_DEC,
+                NULL,
+                0x0,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_rtcp_psfb_ms_vsre_may_instances,
+            {
+                "Number of MAY instances",
+                "rtcp.psfb.ms.vsr.entry.mays",
+                FT_UINT16,
+                BASE_DEC,
+                NULL,
+                0x0,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_rtcp_psfb_ms_vsre_quality_histogram,
+            {
+                "Receiver Count",
+                "rtcp.psfb.ms.vsr.entry.quality_histogram",
+                FT_UINT16,
+                BASE_DEC,
+                NULL,
+                0x0,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_rtcp_psfb_ms_vsre_max_pixels,
+            {
+                "Max Pixels per Frame",
+                "rtcp.psfb.ms.vsr.entry.max_pixels",
+                FT_UINT32,
+                BASE_DEC,
+                NULL,
+                0x0,
+                NULL, HFILL
+            }
+        },
+
     };
 
     static gint *ett[] =
@@ -5212,6 +6438,10 @@ proto_register_rtcp(void)
         &ett_xr_loss_chunk,
         &ett_poc1_conn_contents,
         &ett_rtcp_nack_blp,
+        &ett_pse,
+        &ett_ms_vsr,
+        &ett_ms_vsr_entry,
+        &ett_ms_ds
     };
 
     static ei_register_info ei[] = {
