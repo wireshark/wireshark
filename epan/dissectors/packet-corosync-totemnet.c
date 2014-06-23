@@ -29,14 +29,6 @@
 #include <wsutil/sha1.h>
 #include <wsutil/sober128.h>
 
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#endif
-
-#ifdef HAVE_WINSOCK2_H
-#include <winsock2.h>
-#endif
-
 static dissector_handle_t corosync_totemsrp_handle;
 
 /* This dissector deals packets defined in totemnet.c of corosync
