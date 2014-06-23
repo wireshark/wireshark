@@ -3202,7 +3202,7 @@ de_sm_apn(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
 	curr_offset = offset;
 
 	/* init buffer and copy it */
-	memset ( str , 0 , MAX_APN_LENGTH );
+	memset ( str , 0 , MAX_APN_LENGTH+1 );
 	memcpy ( str , cptr , len<MAX_APN_LENGTH?len:MAX_APN_LENGTH );
 
 	curr_len = 0;
