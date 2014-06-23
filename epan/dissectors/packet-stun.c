@@ -36,6 +36,7 @@
  * MS-TURN: Traversal Using Relay NAT (TURN) Extensions http://msdn.microsoft.com/en-us/library/cc431507.aspx
  * MS-ICE2BWN: Interactive Connectivity Establishment (ICE) 2.0 Bandwidth Management Extensions http://msdn.microsoft.com/en-us/library/ff595756.aspx
  * MS-TURNBWM:  Traversal using Relay NAT (TURN) Bandwidth Management Extensions http://msdn.microsoft.com/en-us/library/ff595670.aspx
+ * MS-ICE2:  Interactive Connectivity Establishment ICE Extensions 2.0 http://msdn.microsoft.com/en-us/library/office/cc431504.aspx
  */
 
 #include "config.h"
@@ -122,6 +123,7 @@ static int hf_stun_att_ms_connection_id = -1;
 static int hf_stun_att_ms_sequence_number = -1;
 static int hf_stun_att_ms_stream_type = -1;
 static int hf_stun_att_ms_service_quality = -1;
+static int hf_stun_att_ms_foundation = -1;
 static int hf_stun_att_bandwidth_acm_type = -1;
 static int hf_stun_att_bandwidth_rsv_id = -1;
 static int hf_stun_att_bandwidth_rsv_amount_misb = -1;
@@ -217,6 +219,7 @@ typedef struct _stun_conv_info_t {
 #define RESPONSE_ORIGIN         0x802b /* draft-ietf-behave-nat-behavior-discovery-03 */
 #define OTHER_ADDRESS           0x802c /* draft-ietf-behave-nat-behavior-discovery-03 */
 #define MS_SEQUENCE_NUMBER      0x8050 /* MS-TURN */
+#define MS_CANDIDATE_IDENTIFIER 0x8054 /* MS-ICE2 */
 #define MS_SERVICE_QUALITY      0x8055 /* MS-TURN */
 #define BANDWIDTH_ACM           0x8056 /* MS-TURNBWM */
 #define BANDWIDTH_RSV_ID        0x8057 /* MS-TURNBWM */
@@ -232,6 +235,7 @@ typedef struct _stun_conv_info_t {
 #define SIP_DIALOG_ID           0x8061 /* MS-TURNBWM */
 #define SIP_CALL_ID             0x8062 /* MS-TURNBWM */
 #define LOCATION_PROFILE        0x8068 /* MS-TURNBWM */
+#define MS_IMPLEMENTATION_VER   0x8070 /* MS-ICE2 */
 #define MS_ALT_MAPPED_ADDRESS   0x8090 /* MS-TURN */
 
 
@@ -321,6 +325,7 @@ static const value_string attributes[] = {
     {ICE_CONTROLLING       , "ICE-CONTROLLING"},
     {RESPONSE_ORIGIN       , "RESPONSE-ORIGIN"},
     {OTHER_ADDRESS         , "OTHER-ADDRESS"},
+    {MS_CANDIDATE_IDENTIFIER, "MS-CANDIDATE-IDENTIFIER"},
     {MS_SEQUENCE_NUMBER    , "MS-SEQUENCE-NUMBER"},
     {MS_SERVICE_QUALITY    , "MS-SERVICE-QUALITY"},
     {BANDWIDTH_ACM         , "Bandwidth Admission Control Message"},
@@ -337,6 +342,7 @@ static const value_string attributes[] = {
     {SIP_DIALOG_ID         , "SIP Dialog Identifier"},
     {SIP_CALL_ID           , "SIP Call Identifier"},
     {LOCATION_PROFILE      , "Location Profile"},
+    {MS_IMPLEMENTATION_VER , "MS-IMPLEMENTATION-VERSION"},
     {MS_ALT_MAPPED_ADDRESS , "MS-ALT-MAPPED-ADDRESS"},
     {0x00                  , NULL}
 };
@@ -1183,6 +1189,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                 break;
 
             case MS_VERSION:
+            case MS_IMPLEMENTATION_VER:
                 proto_tree_add_item(att_tree, hf_stun_att_ms_version, tvb, offset, 4, ENC_BIG_ENDIAN);
                 proto_item_append_text(att_tree, ": %s", val_to_str(tvb_get_ntohl(tvb, offset), ms_version_vals, "Unknown (0x%u)"));
                 break;
@@ -1234,6 +1241,10 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                 proto_tree_add_item(att_tree, hf_stun_att_lp_federation, tvb, offset+2, 1, ENC_BIG_ENDIAN);
                 proto_tree_add_item(att_tree, hf_stun_att_reserved, tvb, offset+3, 1, ENC_NA);
                 break;
+            case MS_CANDIDATE_IDENTIFIER:
+                proto_tree_add_item(att_tree, hf_stun_att_ms_foundation, tvb, offset, 4, ENC_ASCII);
+                break;
+
             default:
                 if (att_length > 0)
                     proto_tree_add_item(att_tree, hf_stun_att_value, tvb, offset, att_length, ENC_NA);
@@ -1517,6 +1528,10 @@ proto_register_stun(void)
           { "Service Quality", "stun.att.ms.service_quality", FT_UINT16,
             BASE_DEC, VALS(ms_service_quality_vals), 0x0, NULL, HFILL}
          },
+         { &hf_stun_att_ms_foundation,
+           { "Foundation", "stun.att.ms.foundation", FT_STRING,
+             BASE_NONE, NULL, 0x0, NULL, HFILL}
+          },
         { &hf_stun_att_bandwidth_acm_type,
           { "Message Type", "stun.att.bandwidth_acm.type", FT_UINT16,
             BASE_DEC, VALS(bandwidth_acm_type_vals), 0x0, NULL, HFILL}
