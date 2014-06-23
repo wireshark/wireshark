@@ -638,6 +638,32 @@ typedef struct ssl_common_dissect {
         gint hs_sig_hash_algs;
         gint hs_sig_hash_hash;
         gint hs_sig_hash_sig;
+        gint hs_client_keyex_epms_len;
+        gint hs_client_keyex_epms;
+        gint hs_server_keyex_modulus_len;
+        gint hs_server_keyex_exponent_len;
+        gint hs_server_keyex_sig_len;
+        gint hs_server_keyex_p_len;
+        gint hs_server_keyex_g_len;
+        gint hs_server_keyex_ys_len;
+        gint hs_client_keyex_yc_len;
+        gint hs_client_keyex_point_len;
+        gint hs_server_keyex_point_len;
+        gint hs_server_keyex_p;
+        gint hs_server_keyex_g;
+        gint hs_server_keyex_curve_type;
+        gint hs_server_keyex_named_curve;
+        gint hs_server_keyex_ys;
+        gint hs_client_keyex_yc;
+        gint hs_server_keyex_point;
+        gint hs_client_keyex_point;
+        gint hs_server_keyex_modulus;
+        gint hs_server_keyex_exponent;
+        gint hs_server_keyex_sig;
+        gint hs_server_keyex_hint_len;
+        gint hs_server_keyex_hint;
+        gint hs_client_keyex_identity_len;
+        gint hs_client_keyex_identity;
     } hf;
     struct {
         gint hs_ext;
@@ -652,6 +678,7 @@ typedef struct ssl_common_dissect {
         gint hs_sig_hash_alg;
         gint hs_sig_hash_algs;
         gint urlhash;
+        gint keyex_params;
     } ett;
     struct {
         expert_field hs_ext_cert_status_undecoded;
@@ -670,15 +697,27 @@ ssl_dissect_hash_alg_list(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
 extern void
 ssl_dissect_hnd_cert_url(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree, guint32 offset);
 
+extern void
+ssl_dissect_hnd_cli_keyex(ssl_common_dissect_t *hf, tvbuff_t *tvb,
+                          proto_tree *tree, guint32 offset, guint32 length,
+                          const SslSession *session);
+
+extern void
+ssl_dissect_hnd_srv_keyex(ssl_common_dissect_t *hf, tvbuff_t *tvb,
+                          proto_tree *tree, guint32 offset, guint32 length,
+                          const SslSession *session);
+
 #define SSL_COMMON_LIST_T(name) \
 ssl_common_dissect_t name = {   \
     /* hf */ {                  \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
-        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,                     \
+        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
+        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
+        -1, -1, -1, -1, -1,                                             \
     },                                                                  \
     /* ett */ {                                                         \
-        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,                 \
+        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,             \
     },                                                                  \
     /* ei */ {                                                          \
         EI_INIT,                                                        \
@@ -896,6 +935,136 @@ ssl_common_dissect_t name = {   \
         FT_UINT8, BASE_DEC, VALS(tls_signature_algorithm), 0x0,         \
         NULL, HFILL }                                                   \
     },                                                                  \
+    { & name .hf.hs_client_keyex_epms_len,                              \
+      { "Encrypted PreMaster length", prefix ".handshake.epms_len",     \
+        FT_UINT16, BASE_DEC, NULL, 0x0,                                 \
+        "Length of encrypted PreMaster secret", HFILL }                 \
+    },                                                                  \
+    { & name .hf.hs_client_keyex_epms,                                  \
+      { "Encrypted PreMaster", prefix ".handshake.epms",                \
+        FT_BYTES, BASE_NONE, NULL, 0x0,                                 \
+        "Encrypted PreMaster secret", HFILL }                           \
+    },                                                                  \
+    { & name .hf.hs_server_keyex_modulus_len,                           \
+      { "Modulus Length", prefix ".handshake.modulus_len",              \
+        FT_UINT16, BASE_DEC, NULL, 0x0,                                 \
+        "Length of RSA-EXPORT modulus", HFILL }                         \
+    },                                                                  \
+    { & name .hf.hs_server_keyex_exponent_len,                          \
+      { "Exponent Length", prefix ".handshake.exponent_len",            \
+        FT_UINT16, BASE_DEC, NULL, 0x0,                                 \
+        "Length of RSA-EXPORT exponent", HFILL }                        \
+    },                                                                  \
+    { & name .hf.hs_server_keyex_sig_len,                               \
+      { "Signature Length", prefix ".handshake.sig_len",                \
+        FT_UINT16, BASE_DEC, NULL, 0x0,                                 \
+        "Length of Signature", HFILL }                                  \
+    },                                                                  \
+    { & name .hf.hs_server_keyex_p_len,                                 \
+      { "p Length", prefix ".handshake.p_len",                          \
+        FT_UINT16, BASE_DEC, NULL, 0x0,                                 \
+        "Length of p", HFILL }                                          \
+    },                                                                  \
+    { & name .hf.hs_server_keyex_g_len,                                 \
+      { "g Length", prefix ".handshake.g_len",                          \
+        FT_UINT16, BASE_DEC, NULL, 0x0,                                 \
+        "Length of g", HFILL }                                          \
+    },                                                                  \
+    { & name .hf.hs_server_keyex_ys_len,                                \
+      { "Pubkey Length", prefix ".handshake.ys_len",                    \
+        FT_UINT16, BASE_DEC, NULL, 0x0,                                 \
+        "Length of server's Diffie-Hellman public key", HFILL }         \
+    },                                                                  \
+    { & name .hf.hs_client_keyex_yc_len,                                \
+      { "Pubkey Length", prefix ".handshake.yc_len",                    \
+        FT_UINT16, BASE_DEC, NULL, 0x0,                                 \
+        "Length of client's Diffie-Hellman public key", HFILL }         \
+    },                                                                  \
+    { & name .hf.hs_client_keyex_point_len,                             \
+      { "Pubkey Length", prefix ".handshake.client_point_len",          \
+        FT_UINT8, BASE_DEC, NULL, 0x0,                                  \
+        "Length of client's EC Diffie-Hellman public key", HFILL }      \
+    },                                                                  \
+    { & name .hf.hs_server_keyex_point_len,                             \
+      { "Pubkey Length", prefix ".handshake.server_point_len",          \
+        FT_UINT8, BASE_DEC, NULL, 0x0,                                  \
+        "Length of server's EC Diffie-Hellman public key", HFILL }      \
+    },                                                                  \
+    { & name .hf.hs_server_keyex_p,                                     \
+      { "p", prefix ".handshake.p",                                     \
+        FT_BYTES, BASE_NONE, NULL, 0x0,                                 \
+        "Diffie-Hellman p", HFILL }                                     \
+    },                                                                  \
+    { & name .hf.hs_server_keyex_g,                                     \
+      { "g", prefix ".handshake.g",                                     \
+        FT_BYTES, BASE_NONE, NULL, 0x0,                                 \
+        "Diffie-Hellman g", HFILL }                                     \
+    },                                                                  \
+    { & name .hf.hs_server_keyex_curve_type,                            \
+      { "Curve Type", prefix ".handshake.server_curve_type",          \
+        FT_UINT8, BASE_HEX, VALS(ssl_curve_types), 0x0,               \
+        "Server curve_type", HFILL }                                  \
+    },                                                                  \
+    { & name .hf.hs_server_keyex_named_curve,                           \
+      { "Named Curve", prefix ".handshake.server_named_curve",        \
+        FT_UINT16, BASE_HEX, VALS(ssl_extension_curves), 0x0,         \
+        "Server named_curve", HFILL }                                 \
+    },                                                                  \
+    { & name .hf.hs_server_keyex_ys,                                    \
+      { "Pubkey", prefix ".handshake.ys",                               \
+        FT_BYTES, BASE_NONE, NULL, 0x0,                                 \
+        "Diffie-Hellman server pubkey", HFILL }                         \
+    },                                                                  \
+    { & name .hf.hs_client_keyex_yc,                                    \
+      { "Pubkey", prefix ".handshake.yc",                               \
+        FT_BYTES, BASE_NONE, NULL, 0x0,                                 \
+        "Diffie-Hellman client pubkey", HFILL }                         \
+    },                                                                  \
+    { & name .hf.hs_server_keyex_point,                                 \
+      { "Pubkey", prefix ".handshake.server_point",                     \
+        FT_BYTES, BASE_NONE, NULL, 0x0,                                 \
+        "EC Diffie-Hellman server pubkey", HFILL }                      \
+    },                                                                  \
+    { & name .hf.hs_client_keyex_point,                                 \
+      { "Pubkey", prefix ".handshake.client_point",                     \
+        FT_BYTES, BASE_NONE, NULL, 0x0,                                 \
+        "EC Diffie-Hellman client pubkey", HFILL }                      \
+    },                                                                  \
+    { & name .hf.hs_server_keyex_modulus,                               \
+      { "Modulus", prefix ".handshake.modulus",                         \
+        FT_BYTES, BASE_NONE, NULL, 0x0,                                 \
+        "RSA-EXPORT modulus", HFILL }                                   \
+    },                                                                  \
+    { & name .hf.hs_server_keyex_exponent,                              \
+      { "Exponent", prefix ".handshake.exponent",                       \
+        FT_BYTES, BASE_NONE, NULL, 0x0,                                 \
+        "RSA-EXPORT exponent", HFILL }                                  \
+    },                                                                  \
+    { & name .hf.hs_server_keyex_sig,                                   \
+      { "Signature", prefix ".handshake.sig",                           \
+        FT_BYTES, BASE_NONE, NULL, 0x0,                                 \
+        "Diffie-Hellman server signature", HFILL }                      \
+    },                                                                  \
+    { & name .hf.hs_server_keyex_hint_len,                              \
+      { "Hint Length", prefix ".handshake.hint_len",                    \
+        FT_UINT16, BASE_DEC, NULL, 0x0,                                 \
+        "Length of PSK Hint", HFILL }                                   \
+    },                                                                  \
+    { & name .hf.hs_server_keyex_hint,                                  \
+      { "Hint", prefix ".handshake.hint",                               \
+        FT_BYTES, BASE_NONE, NULL, 0x0,                                 \
+        "PSK Hint", HFILL }                                             \
+    },                                                                  \
+    { & name .hf.hs_client_keyex_identity_len,                          \
+      { "Identity Length", prefix ".handshake.identity_len",            \
+        FT_UINT16, BASE_DEC, NULL, 0x0,                                 \
+        "Length of PSK Identity", HFILL }                               \
+    },                                                                  \
+    { & name .hf.hs_client_keyex_identity,                              \
+      { "Identity", prefix ".handshake.identity",                       \
+        FT_BYTES, BASE_NONE, NULL, 0x0,                                 \
+        "PSK Identity", HFILL }                                         \
+    },                                                                  \
     { & name .hf.hs_ext_heartbeat_mode,                                 \
       { "Mode", prefix ".handshake.extension.heartbeat.mode",           \
         FT_UINT8, BASE_DEC, VALS(tls_heartbeat_mode), 0x0,              \
@@ -914,7 +1083,8 @@ ssl_common_dissect_t name = {   \
         & name .ett.hs_ext_server_name,             \
         & name .ett.hs_sig_hash_alg,                \
         & name .ett.hs_sig_hash_algs,               \
-        & name .ett.urlhash
+        & name .ett.urlhash,                        \
+        & name .ett.keyex_params
 
 
 #define SSL_COMMON_EI_LIST(name, prefix)                       \
