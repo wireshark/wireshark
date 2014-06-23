@@ -32,6 +32,7 @@
 extern "C" {
 #endif /* __cplusplus */
 
+#define COMMON_AF_UNSPEC	0
 /* Pretty much everybody uses the same value for AF_INET. */
 #define COMMON_AF_INET		2
 
@@ -88,12 +89,37 @@ extern value_string_ext linux_af_vals_ext;
 
 /* Solaris AF_ values. */
 #define SOLARIS_AF_INET		2
-#define SOLARIS_AF_INET6       	26
+#define SOLARIS_AF_INET6	26
 
 /* Winsock AF_ values. */
+
+#define WINSOCK_AF_UNSPEC	0
+#define WINSOCK_AF_UNIX		1
 #define WINSOCK_AF_INET		2
+#define WINSOCK_AF_IMPLINK	3
+#define WINSOCK_AF_PUP		4
+#define WINSOCK_AF_CHAOS	5
 #define WINSOCK_AF_IPX		6
+#define WINSOCK_AF_NS		6
+#define WINSOCK_AF_ISO		7
+#define WINSOCK_AF_OSI		WINSOCK_AF_ISO
+#define WINSOCK_AF_ECMA		8
+#define WINSOCK_AF_DATAKIT	9
+#define WINSOCK_AF_CCITT	10
+#define WINSOCK_AF_SNA		11
+#define WINSOCK_AF_DECnet	12
+#define WINSOCK_AF_DLI		13
+#define WINSOCK_AF_LAT		14
+#define WINSOCK_AF_HYLINK	15
+#define WINSOCK_AF_APPLETALK	16
+#define WINSOCK_AF_NETBIOS	17
+#define WINSOCK_AF_VOICEVIEW	18
+#define WINSOCK_AF_FIREFOX	19
+#define WINSOCK_AF_UNKNOWN1	20
+#define WINSOCK_AF_BAN		21
+#define WINSOCK_AF_ATM		22
 #define WINSOCK_AF_INET6	23
+#define WINSOCK_AF_BTH		32
 
 #ifdef __cplusplus
 }
