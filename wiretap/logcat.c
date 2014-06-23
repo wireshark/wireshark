@@ -320,8 +320,8 @@ gboolean logcat_binary_dump_open(wtap_dumper *wdh, int *err)
     wdh->subtype_write = logcat_binary_dump;
     wdh->subtype_close = NULL;
 
-    switch (wdh->file_type_subtype) {
-        case WTAP_FILE_TYPE_SUBTYPE_LOGCAT:
+    switch (wdh->encap) {
+        case WTAP_ENCAP_LOGCAT:
             wdh->tsprecision = WTAP_FILE_TSPREC_USEC;
             break;
 
@@ -383,9 +383,7 @@ static gboolean logcat_dump_text(wtap_dumper *wdh,
     while (dumper->type != DUMP_LONG && (str_end = strchr(str_begin, '\n'))) {
         log_part = (gchar *) g_malloc(str_end - str_begin + 1);
         g_strlcpy(log_part, str_begin, str_end - str_begin + 1);
-#if 0
-        log_part[str_end - str_begin] = '\0';
-#endif
+
         str_begin = str_end + 1;
 
         buf = logcat_log(dumper, *datetime, *nanoseconds / 1000000, *pid, *tid,
@@ -410,9 +408,6 @@ static gboolean logcat_dump_text(wtap_dumper *wdh,
     if (*str_begin != '\0') {
         log_part = (gchar *) g_malloc(strlen(str_begin) + 1);
         g_strlcpy(log_part, str_begin, strlen(str_begin) + 1);
-#if 0
-        log_part[strlen(str_begin)] = '\0';
-#endif
 
         buf = logcat_log(dumper, *datetime, *nanoseconds / 1000000, *pid, *tid,
                 priority, tag, log_part);
