@@ -1184,7 +1184,7 @@ decode_sdp_fmtp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint offset
      * in bit-significance order, starting from the
      * most significant bit, and 3) level_idc.
      */
-    if ((mime_type != NULL) && (g_ascii_strcasecmp(mime_type, "H264") == 0)) {
+    if ((mime_type != NULL) && ((g_ascii_strcasecmp(mime_type, "H264") == 0) || (g_ascii_strcasecmp(mime_type, "H264-SVC") == 0))) {
         if (strcmp(field_name, "profile-level-id") == 0) {
             int length = 0;
 

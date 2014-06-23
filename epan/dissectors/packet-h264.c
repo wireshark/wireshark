@@ -21,8 +21,11 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
  * References:
- * http://www.ietf.org/rfc/rfc3984.txt?number=3984
+ * http://www.ietf.org/rfc/rfc3984.txt?number=3984      Obsolete
+ * http://www.ietf.org/rfc/rfc6184.txt?number=6184
+ * http://www.ietf.org/rfc/rfc6190.txt?number=6190
  * http://www.itu.int/rec/T-REC-H.264/en
+ * MS-H264PF http://msdn.microsoft.com/en-us/library/hh659565.aspx
  */
 
 #include "config.h"
@@ -59,7 +62,9 @@ static int hf_h264_constraint_set0_flag                    = -1;
 static int hf_h264_constraint_set1_flag                    = -1;
 static int hf_h264_constraint_set2_flag                    = -1;
 static int hf_h264_constraint_set3_flag                    = -1;
-static int hf_h264_reserved_zero_4bits                     = -1;
+static int hf_h264_constraint_set4_flag                    = -1;
+static int hf_h264_constraint_set5_flag                    = -1;
+static int hf_h264_reserved_zero_2bits                     = -1;
 static int hf_h264_level_idc                               = -1;
 static int hf_h264_nal_unit                                = -1;
 static int hf_h264_forbidden_zero_bit                      = -1;
@@ -126,6 +131,68 @@ static int hf_h264_par_ProfileIOP                          = -1;
 static int hf_h264_par_constraint_set0_flag                = -1;
 static int hf_h264_par_constraint_set1_flag                = -1;
 static int hf_h264_par_constraint_set2_flag                = -1;
+/* Packetization Values */
+static int hf_h264_nalu_size                               = -1;
+static int hf_h264_don                                     = -1;
+static int hf_h264_dond                                    = -1;
+static int hf_h264_ts_offset16                             = -1;
+static int hf_h264_ts_offset24                             = -1;
+/* Extension Header */
+static int hf_h264_nal_extension_subtype                   = -1;
+static int hf_h264_nal_extension_j                         = -1;
+static int hf_h264_nal_extension_k                         = -1;
+static int hf_h264_nal_extension_l                         = -1;
+
+/* SEI Decoding Information */
+static int hf_h264_sei_uuid                                = -1;
+/* Microsoft Layout SEI */
+static int hf_h264_sei_ms_lpb                              = -1;
+static int hf_h264_sei_ms_layout_p                         = -1;
+static int hf_h264_sei_ms_layout_ldsize                    = -1;
+static int hf_h264_sei_ms_layer_desc_coded_width           = -1;
+static int hf_h264_sei_ms_layer_desc_coded_height          = -1;
+static int hf_h264_sei_ms_layer_desc_display_width         = -1;
+static int hf_h264_sei_ms_layer_desc_display_height        = -1;
+static int hf_h264_sei_ms_layer_desc_bitrate               = -1;
+static int hf_h264_sei_ms_layer_desc_frame_rate            = -1;
+static int hf_h264_sei_ms_layer_desc_layer_type            = -1;
+static int hf_h264_sei_ms_layer_desc_prid                  = -1;
+static int hf_h264_sei_ms_layer_desc_cb                    = -1;
+/* Microsoft Bitstream SEI */
+static int hf_h264_sei_ms_bitstream_ref_frame_cnt          = -1;
+static int hf_h264_sei_ms_bitstream_num_nalus              = -1;
+/* Microsoft Crop SEI */
+static int hf_h264_sei_ms_crop_num_data                    = -1;
+static int hf_h264_sei_ms_crop_info_type                   = -1;
+static int hf_h264_sei_ms_crop_confidence_level            = -1;
+static int hf_h264_sei_ms_crop_frame_left_offset           = -1;
+static int hf_h264_sei_ms_crop_frame_right_offset          = -1;
+static int hf_h264_sei_ms_crop_frame_top_offset            = -1;
+static int hf_h264_sei_ms_crop_frame_bottom_offset         = -1;
+/* SVC NAL Header Extension Values Annex G.7.3.1.1 */
+static int hf_h264_nal_hdr_ext_svc                         = -1;
+static int hf_h264_nal_hdr_ext_i                           = -1;
+static int hf_h264_nal_hdr_ext_prid                        = -1;
+static int hf_h264_nal_hdr_ext_n                           = -1;
+static int hf_h264_nal_hdr_ext_did                         = -1;
+static int hf_h264_nal_hdr_ext_qid                         = -1;
+static int hf_h264_nal_hdr_ext_tid                         = -1;
+static int hf_h264_nal_hdr_ext_u                           = -1;
+static int hf_h264_nal_hdr_ext_d                           = -1;
+static int hf_h264_nal_hdr_ext_o                           = -1;
+static int hf_h264_nal_hdr_ext_rr                          = -1;
+/* PACSI Values */
+static int hf_h264_pacsi_x                                 = -1;
+static int hf_h264_pacsi_y                                 = -1;
+static int hf_h264_pacsi_t                                 = -1;
+static int hf_h264_pacsi_a                                 = -1;
+static int hf_h264_pacsi_p                                 = -1;
+static int hf_h264_pacsi_c                                 = -1;
+static int hf_h264_pacsi_s                                 = -1;
+static int hf_h264_pacsi_e                                 = -1;
+static int hf_h264_pacsi_tl0picidx                         = -1;
+static int hf_h264_pacsi_idrpicid                          = -1;
+static int hf_h264_pacsi_donc                              = -1;
 
 /* VUI parameters */
 static int hf_h264_aspect_ratio_info_present_flag          = -1;
@@ -188,8 +255,15 @@ static int ett_h264_nal_unit                               = -1;
 static int ett_h264_par_profile                            = -1;
 static int ett_h264_par_AdditionalModesSupported           = -1;
 static int ett_h264_par_ProfileIOP                         = -1;
+static int ett_h264_ms_layer_description                   = -1;
+static int ett_h264_ms_crop_data                           = -1;
 
 static expert_field ei_h264_undecoded = EI_INIT;
+static expert_field ei_h264_ms_layout_missing_presence = EI_INIT;
+static expert_field ei_h264_ms_layout_wrong_length = EI_INIT;
+static expert_field ei_h264_bad_nal_length = EI_INIT;
+static expert_field ei_h264_ms_sei_extra_data = EI_INIT;
+static expert_field ei_h264_sei_invalid_length = EI_INIT;
 
 /* The dynamic payload type range which will be dissected as H.264 */
 
@@ -233,6 +307,14 @@ static const true_false_string h264_forbidden_bit_vals = {
 
 #define H264_SEQ_PAR_SET        7
 #define H264_PIC_PAR_SET        8
+#define H264_PREFIX             14
+#define H264_STAP_A             24
+#define H264_STAP_B             25
+#define H264_MTAP16             26
+#define H264_MTAP24             27
+#define H264_PACSI              30
+#define H264_EXTENSION          31
+
 
 static const value_string h264_type_values[] = {
     {  0,   "Undefined" },
@@ -249,24 +331,74 @@ static const value_string h264_type_values[] = {
     { 11,   "NAL unit - End of stream" },
     { 12,   "NAL unit - Filler data" },
     { 13,   "NAL unit - Sequence parameter set extension" },
-    { 14,   "NAL unit - Reserved" },
-    { 15,   "NAL unit - Reserved" },
+    { H264_PREFIX,   "NAL unit - Prefix" },
+    { 15,   "NAL unit - Subset sequence parameter set" },
     { 16,   "NAL unit - Reserved" },
     { 17,   "NAL unit - Reserved" },
     { 18,   "NAL unit - Reserved" },
     { 19,   "NAL unit - Coded slice of an auxiliary coded picture without partitioning" },
-    { 20,   "NAL unit - Reserved" },
-    { 21,   "NAL unit - Reserved" },
+    { 20,   "NAL unit - Coded slice extension" },
+    { 21,   "NAL unit - Coded slice extension for depth view components" },
     { 22,   "NAL unit - Reserved" },
     { 23,   "NAL unit - Reserved" },
-    { 24,   "STAP-A" },     /* Single-time aggregation packet */
-    { 25,   "STAP-B" },     /* Single-time aggregation packet */
-    { 26,   "MTAP16" },     /* Multi-time aggregation packet */
-    { 27,   "MTAP24" },     /* Multi-time aggregation packet */
-    { 28,   "FU-A" },       /* Fragmentation unit */
-    { 29,   "FU-B" },       /* Fragmentation unit */
-    { 30,   "undefined" },
-    { 31,   "undefined" },
+    { 24,   "Single-time aggregation packet A (STAP-A)" },
+    { 25,   "Single-time aggregation packet B (STAP-B)" },
+    { 26,   "Multi-time aggregation packet 16 (MTAP16)" },
+    { 27,   "Multi-time aggregation packet 24 (MTAP24)" },
+    { 28,   "Fragmentation unit A (FU-A)" },
+    { 29,   "Fragmentation unit B (FU-B)" },
+    { 30,   "NAL unit - Payload Content Scalability Information (PACSI)" },
+    { 31,   "NAL unit - Extended NAL Header" },
+    { 0,    NULL }
+};
+
+static const value_string h264_type_summary_values[] = {
+    {  0,   "Undefined" },
+    {  1,   "non-IDR-Slice" },    /* Single NAL unit packet per H.264 */
+    {  2,   "Slice-A" },
+    {  3,   "Slice-B" },
+    {  4,   "Slice-C" },
+    {  5,   "IDR-Slice" },
+    {  6,   "SEI" },
+    { H264_SEQ_PAR_SET, "SPS" },              /* 7 */
+    { H264_PIC_PAR_SET, "PPS" },               /* 8 */
+    {  9,   "Access-Delimiter" },
+    { 10,   "End-of-Seq" },
+    { 11,   "End-of-Stream" },
+    { 12,   "Filler" },
+    { 13,   "SPS-Ext" },
+    { H264_PREFIX,   "Prefix" },
+    { 15,   "Reserved" },
+    { 16,   "Reserved" },
+    { 17,   "Reserved" },
+    { 18,   "Reserved" },
+    { 19,   "Slice-Aux" },
+    { 20,   "Slice-Ext" },
+    { 21,   "Slice-Ext-Depth" },
+    { 22,   "Reserved" },
+    { 23,   "Reserved" },
+    { 24,   "STAP-A" },
+    { 25,   "STAP-B" },
+    { 26,   "MTAP16" },
+    { 27,   "MTAP24" },
+    { 28,   "FU-A" },
+    { 29,   "FU-B" },
+    { 30,   "PACSI" },
+    { 31,   "EXT" },
+    { 0,    NULL }
+};
+
+/* Extension Subtype Strings RFC 6190 4.3 */
+static const value_string h264_subtype_values[] = {
+    {  0,   "Reserved" },
+    {  1,   "NAL Unit - Empty" },
+    {  2,   "Non-interleaved Multi-Time Aggregation Packet (NI-MTAP)" },
+    { 0,    NULL }
+};
+static const value_string h264_subtype_summary_values[] = {
+    {  0,   "Reserved" },
+    {  1,   "Empty" },
+    {  2,   "NI-MTAP" },
     { 0,    NULL }
 };
 
@@ -274,10 +406,14 @@ static const value_string h264_type_values[] = {
 static const value_string h264_profile_idc_values[] = {
     {  66,  "Baseline profile" },
     {  77,  "Main profile" },
+    {  83,  "Scalable Baseline" },
+    {  86,  "Scalable High" },
     {  88,  "Extended profile" },
     { 100,  "High profile" },
     { 110,  "High 10 profile" },
+    { 118,  "Multi-view High" },
     { 122,  "High 4:2:2 profile" },
+    { 128,  "Stereo High" },
     { 144,  "High 4:4:4 profile" },
     { 0,    NULL }
 };
@@ -299,6 +435,7 @@ static const value_string h264_level_bitrate_values[] = {
     { 42,   "50 Mb/s" },
     { 50,   "135 Mb/s" },
     { 51,   "240 Mb/s" },
+    { 52,   "240 Mb/s" },
     { 0,    NULL }
 };
 
@@ -317,14 +454,14 @@ static const value_string h264_nal_unit_type_vals[] = {
     { 11,   "End of stream" },
     { 12,   "Filler data" },
     { 13,   "Sequence parameter set extension" },
-    { 14,   "Reserved" },
-    { 15,   "Reserved" },
+    { 14,   "Prefix" },
+    { 15,   "Subset sequence parameter set" },
     { 16,   "Reserved" },
     { 17,   "Reserved" },
     { 18,   "Reserved" },
     { 19,   "Coded slice of an auxiliary coded picture without partitioning" },
-    { 20,   "Reserved" },
-    { 21,   "Reserved" },
+    { 20,   "Coded slice extension" },
+    { 21,   "Coded slice extension for depth view components" },
     { 22,   "Reserved" },
     { 23,   "Reserved" },
     { 24,   "Unspecified" },
@@ -363,6 +500,31 @@ static const value_string h264_slice_type_vals[] = {
     { 9,    "SI (SI slice)" },
     { 0,    NULL }
 };
+
+/* Microsoft Frame per second index */
+static const value_string h264_sei_ms_frame_values[] = {
+    { 0,   "7.5 fps" },
+    { 1,   "12.5 fps" },
+    { 2,   "15 fps" },
+    { 3,   "25 fps" },
+    { 4,   "30 fps" },
+    { 5,   "50 fps" },
+    { 6,   "60 fps" },
+    { 0,    NULL }
+};
+
+/* Microsoft UUIDs from MS-H264-PF */
+#define MS_LAYOUT       0
+#define MS_CROPPING     1
+#define MS_BITSTREAM    2
+static const e_guid_t ms_guids[3] = {
+    { 0x139FB1A9, 0x446A, 0x4DEC, {0x8C, 0xBF, 0x65, 0xB1, 0xE1, 0x2D, 0x2C, 0xFD}},    /* Stream Layout */
+    { 0xBB7FC1A0, 0x6986, 0x4052, {0x90, 0xF0, 0x09, 0x29, 0x21, 0x75, 0x39, 0xCF}},    /* Cropping Information*/
+    { 0x05FBC6B9, 0x5A80, 0x40E5, {0xA2, 0x2A, 0xAB, 0x40, 0x20, 0x26, 0x7E, 0x26}}     /* Bitstream Information */
+};
+
+static void
+dissect_h264(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 /* byte_aligned( ) is specified as follows.
  * - If the current position in the bitstream is on a byte boundary, i.e.,
@@ -1019,7 +1181,9 @@ dissect_h264_profile(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
     proto_tree_add_item(h264_profile_tree, hf_h264_constraint_set1_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(h264_profile_tree, hf_h264_constraint_set2_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(h264_profile_tree, hf_h264_constraint_set3_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(h264_profile_tree, hf_h264_reserved_zero_4bits, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(h264_profile_tree, hf_h264_constraint_set4_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(h264_profile_tree, hf_h264_constraint_set5_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(h264_profile_tree, hf_h264_reserved_zero_2bits, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
     /* A level to which the bitstream conforms shall be indicated by the syntax element level_idc as follows.
@@ -1176,20 +1340,141 @@ dissect_h264_slice_data_partition_c_layer_rbsp(proto_tree *tree, tvbuff_t *tvb, 
 static int
 h264_user_data_unregistered(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint bit_offset, guint32 payloadSize)
 {
+    guint8  i;
+    guint8  ld_size;
+    guint8  p_flag;
+    guint8  desc =0;
+    guint8  num_crops;
+    gint offset = bit_offset >> 3;
+    proto_item *item;
+    proto_item *uuid_item;
+    proto_tree *h264_ms_layer_desc_tree;
+    proto_tree *h264_ms_crop_data_tree;
+    e_guid_t   guid;
+
+
     /* user_data_unregistered( payloadSize ) { C Descriptor */
     /* uuid_iso_iec_11578 5 u(128)
      * uuid_iso_iec_11578 shall have a value specified as a UUID
      * according to the procedures of ISO/IEC 11578:1996 Annex A.
      */
-    proto_tree_add_text(tree, tvb, bit_offset>>3, 16, "uuid_iso_iec_1157");
-    bit_offset+=128;
+
+    uuid_item = proto_tree_add_item (tree, hf_h264_sei_uuid, tvb, offset, 16, ENC_BIG_ENDIAN);
+    /* Extract the ISO/IEC value for comparison */
+    tvb_get_ntohguid(tvb, offset, &guid);
+    offset+=16;
+
+    /* Microsoft MS-H264PF Specification */
+    if ( memcmp(&guid, &(ms_guids[MS_LAYOUT]), sizeof(e_guid_t)) == 0)
+    {
+        col_append_fstr(pinfo->cinfo, COL_INFO, ":MS_Layout");
+        proto_item_append_text(uuid_item,"  - Microsoft Stream Layout SEI Message");
+        /* Loop through the layer presence bytes 0-7 */
+        for (i = 0; i < 8 ; i++)
+        {
+            proto_tree_add_item (tree, hf_h264_sei_ms_lpb, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset++;
+        }
+        /* Get the presence bit for the layer description.
+         * NOTE: This byte is supposed to be in the structure according to the spec but seems to be missing in the Microsoft implementation.
+         * So to determine if it is there check for a value less than or equal to 1.  When Microsoft forgets to put it in the length is next and that
+         * has a minimum size of 16.
+         */
+        p_flag = tvb_get_guint8 (tvb, offset);
+        if (p_flag <= 1)
+        {
+            proto_tree_add_item (tree, hf_h264_sei_ms_layout_p, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset++;
+        }
+        else
+        {
+            /* When it is missing act like it was set to 1. */
+            proto_tree_add_expert(tree, pinfo, &ei_h264_ms_layout_missing_presence, tvb, offset, 0);
+            p_flag = 1;
+        }
+        if (p_flag == 1)
+        {
+            ld_size = tvb_get_guint8 (tvb, offset);
+            proto_tree_add_item (tree, hf_h264_sei_ms_layout_ldsize, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset++;
+            /* MS Errata - Microsoft seems to be setting the LD size to 1 but then including 2 layer descriptions
+             * To compensate for that keep decoding layers as long as there are 16 or more bytes left in the SEI message.
+             */
+            if (tvb_reported_length_remaining (tvb, offset) != ld_size)
+            {
+                item = proto_tree_add_expert(tree, pinfo, &ei_h264_ms_layout_wrong_length, tvb, offset-1, 1);
+                proto_item_append_text(item," Size of %d, remaining size %d",
+                        ld_size,
+                        tvb_reported_length_remaining (tvb, offset));
+            }
+            while (tvb_reported_length_remaining (tvb, offset) >= 16)
+            {
+                h264_ms_layer_desc_tree = proto_tree_add_subtree_format(tree, tvb, offset, 16, ett_h264_ms_layer_description, NULL, "MS Layer Description  #%d", ++desc);
+
+                proto_tree_add_item (h264_ms_layer_desc_tree, hf_h264_sei_ms_layer_desc_coded_width,    tvb, offset, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item (h264_ms_layer_desc_tree, hf_h264_sei_ms_layer_desc_coded_height,   tvb, offset + 2, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item (h264_ms_layer_desc_tree, hf_h264_sei_ms_layer_desc_display_width,  tvb, offset + 4, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item (h264_ms_layer_desc_tree, hf_h264_sei_ms_layer_desc_display_height, tvb, offset + 6, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item (h264_ms_layer_desc_tree, hf_h264_sei_ms_layer_desc_bitrate,        tvb, offset + 8, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item (h264_ms_layer_desc_tree, hf_h264_sei_ms_layer_desc_frame_rate,     tvb, offset + 12, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item (h264_ms_layer_desc_tree, hf_h264_sei_ms_layer_desc_layer_type,     tvb, offset + 12, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item (h264_ms_layer_desc_tree, hf_h264_sei_ms_layer_desc_prid,           tvb, offset + 13, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item (h264_ms_layer_desc_tree, hf_h264_sei_ms_layer_desc_cb,             tvb, offset + 13, 1, ENC_BIG_ENDIAN);
+                offset += 16;
+            }
+            if (tvb_reported_length_remaining (tvb, offset) != 0)
+            {
+                item = proto_tree_add_expert(tree, pinfo, &ei_h264_ms_sei_extra_data, tvb, offset, tvb_reported_length_remaining (tvb, offset));
+                proto_item_append_text(item," Extra %d bytes", tvb_reported_length_remaining (tvb, offset));
+                /* Skip over data. */
+                offset += tvb_reported_length_remaining (tvb, offset);
+            }
+        }
+    }
+    else if ( memcmp(&guid, &(ms_guids[MS_CROPPING]), sizeof(e_guid_t)) == 0)
+    {
+        col_append_fstr(pinfo->cinfo, COL_INFO, ":MS_Cropping");
+        proto_item_append_text(uuid_item,"  - Microsoft Cropping Info SEI Message");
+        num_crops = tvb_get_guint8 (tvb, offset);
+        proto_tree_add_item (tree, hf_h264_sei_ms_crop_num_data, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset++;
+        proto_tree_add_item (tree, hf_h264_sei_ms_crop_info_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset++;
+        while (num_crops != 0)
+        {
+            h264_ms_crop_data_tree = proto_tree_add_subtree_format(tree, tvb, offset, 9, ett_h264_ms_crop_data, NULL, "Crop Data #%d", ++desc);
+            proto_tree_add_item (h264_ms_crop_data_tree, hf_h264_sei_ms_crop_confidence_level,    tvb, offset,   1, ENC_BIG_ENDIAN);
+            proto_tree_add_item (h264_ms_crop_data_tree, hf_h264_sei_ms_crop_frame_left_offset,   tvb, offset+1, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item (h264_ms_crop_data_tree, hf_h264_sei_ms_crop_frame_right_offset,  tvb, offset+3, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item (h264_ms_crop_data_tree, hf_h264_sei_ms_crop_frame_top_offset,    tvb, offset+5, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item (h264_ms_crop_data_tree, hf_h264_sei_ms_crop_frame_bottom_offset, tvb, offset+7, 2, ENC_BIG_ENDIAN);
+            num_crops--;
+            offset += 9;
+        }
+    }
+    else if ( memcmp(&guid, &(ms_guids[MS_BITSTREAM]), sizeof(e_guid_t)) == 0)
+    {
+        col_append_fstr(pinfo->cinfo, COL_INFO, ":MS_Bitstream");
+        proto_item_append_text(uuid_item,"  - Microsoft Bitstream Info SEI Message");
+        proto_tree_add_item (tree, hf_h264_sei_ms_bitstream_ref_frame_cnt, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset++;
+        proto_tree_add_item (tree, hf_h264_sei_ms_bitstream_num_nalus, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset++;
+    }
+    else
+    {
+        proto_tree_add_text(tree, tvb, offset, 16, "Unparsed iso_iec information");
     /*  for (i = 16; i < payloadSize; i++)
      *  user_data_payload_byte 5 b(8)
      */
-    proto_tree_add_text(tree, tvb, bit_offset>>3, payloadSize-16, "user_data_payload");
-    bit_offset+=(payloadSize-16)<<3;
+        if (payloadSize > 16)
+        {
+            proto_tree_add_expert(tree, pinfo, &ei_h264_undecoded, tvb, offset, payloadSize-16);
+            offset+=(payloadSize-16);
+        }
+    }
 
-    return bit_offset;
+    return offset << 3;
 }
 
 /* D.1 SEI payload syntax */
@@ -1216,7 +1501,23 @@ static const value_string h264_sei_payload_vals[] = {
     { 19,   "film_grain_characteristics)" },
     { 20,   "deblocking_filter_display_preference)" },
     { 21,   "stereo_video_info)" },
-    { 22,   "reserved_sei_message)" },
+    { 22,   "post_filter_hint" },
+    { 23,   "tone_mapping_info" },
+    /* Annex G Values */
+    { 24,   "scalability_info" },
+    { 25,   "sub_pic_scalable_layer" },
+    { 26,   "non_required_layer_rep" },
+    { 27,   "priority_layer_info" },
+    { 28,   "layers_not_present" },
+    { 29,   "layer_dependency_change" },
+    { 30,   "scalable_nesting" },
+    { 31,   "base_layer_temporal_hrd" },
+    { 32,   "quality_layer_integrity_check" },
+    { 33,   "redundant_pic_property" },
+    { 34,   "tl0_dep_rep_index" },
+    { 35,   "tl_switching_point" },
+    /* Annex H  37 to 46 - Not Decoded*/
+    /* Annex I  47 to 53 - Not Decoded*/
     { 0,    NULL }
 };
 
@@ -1357,7 +1658,10 @@ dissect_h264_sei_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, g
      * the return value of more_rbsp_data( ) is equal to TRUE.
      */
     /* rbsp_trailing_bits( ) 5 */
+    if (tvb_reported_length_remaining (tvb, bit_offset >> 3) != 0 || (bit_offset & 0x7) != 0)
+    {
     bit_offset = dissect_h264_rbsp_trailing_bits(tree, tvb, pinfo, bit_offset);
+    }
 
     return bit_offset;
 }
@@ -1394,8 +1698,14 @@ dissect_h264_seq_parameter_set_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_info
     /* constraint_set3_flag 0 u(1) */
     proto_tree_add_item(tree, hf_h264_constraint_set3_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
 
+    /* constraint_set4_flag 0 u(1) */
+    proto_tree_add_item(tree, hf_h264_constraint_set4_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
+
+    /* constraint_set5_flag 0 u(1) */
+    proto_tree_add_item(tree, hf_h264_constraint_set5_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
+
     /* reserved_zero_4bits  equal to 0  0 u(4)*/
-    proto_tree_add_item(tree, hf_h264_reserved_zero_4bits, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_h264_reserved_zero_2bits, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
     /* level_idc 0 u(8) */
@@ -1416,7 +1726,11 @@ dissect_h264_seq_parameter_set_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_info
 
 
     if ((profile_idc == 100) || (profile_idc == 110) ||
-        (profile_idc == 122) || (profile_idc == 144)) {
+        (profile_idc == 122) || (profile_idc == 144) ||
+        (profile_idc ==  44) || (profile_idc ==  83) ||
+        (profile_idc ==  86) || (profile_idc == 118) ||
+        (profile_idc == 128) || (profile_idc == 138))
+    {
 
         /* chroma_format_idc 0 ue(v) */
         chroma_format_idc = dissect_h264_exp_golomb_code(tree, hf_h264_chroma_format_idc, tvb, &bit_offset, H264_UE_V);
@@ -1543,6 +1857,7 @@ dissect_h264_seq_parameter_set_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_info
 
     offset = bit_offset>>3;
 
+    /* TODO - Add dissector of SPS SVC extension from Annex G*/
     return offset;
 }
 
@@ -1727,9 +2042,298 @@ dissect_h264_seq_parameter_set_extension_rbsp(proto_tree *tree, tvbuff_t *tvb, p
     proto_tree_add_expert(tree, pinfo, &ei_h264_undecoded, tvb, offset, -1);
 }
 
+/* RFC 6190 Section: 1.1.3 - NAL Unit Header Extension - H.264 Annex G*/
+static gint
+dissect_h264_svc_nal_header_extension(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint offset)
+{
+    proto_tree_add_item(tree, hf_h264_nal_hdr_ext_svc,  tvb, offset,     1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_h264_nal_hdr_ext_i,    tvb, offset,     1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_h264_nal_hdr_ext_prid, tvb, offset,     1, ENC_BIG_ENDIAN);
+
+    proto_tree_add_item(tree, hf_h264_nal_hdr_ext_n,    tvb, offset + 1, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_h264_nal_hdr_ext_did,  tvb, offset + 1, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_h264_nal_hdr_ext_qid,  tvb, offset + 1, 1, ENC_BIG_ENDIAN);
+
+    proto_tree_add_item(tree, hf_h264_nal_hdr_ext_tid,  tvb, offset + 2, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_h264_nal_hdr_ext_u,    tvb, offset + 2, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_h264_nal_hdr_ext_d,    tvb, offset + 2, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_h264_nal_hdr_ext_o,    tvb, offset + 2, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_h264_nal_hdr_ext_rr,   tvb, offset + 2, 1, ENC_BIG_ENDIAN);
+
+    return offset + 3;
+}
+/* H.264 Annex G Prefix NAL Unit */
+
+static int dissect_h264_prefix(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint offset)
+{
+    guint8  svc_extension_flag;
+
+    svc_extension_flag = tvb_get_bits8(tvb, offset << 3, 1);
+    if (svc_extension_flag)
+    {
+        /* Annex G NAL Unit Header SVC Extension */
+        dissect_h264_svc_nal_header_extension (tree, tvb, pinfo, offset);
+    }
+    else
+    {
+        /* Annex H NAL Unit Header MVC Extension */
+        /* Not Decoded */
+        offset +=3;
+    }
+    return offset;
+}
+
+/* RFC 6190 Section: 4.9 - Payload Content Scalability Information (PACSI) */
+static void
+dissect_h264_pacsi(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint offset)
+{
+    gint8       pacsi_flags;
+    guint16     nal_unit_size;
+    tvbuff_t    *nalu_tvb;
+    gboolean    error = FALSE;
+    gboolean    contains_sei = FALSE;
+    proto_item  *item;
+
+    offset = dissect_h264_svc_nal_header_extension(tree, tvb, pinfo, offset);
+
+    pacsi_flags = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(tree, hf_h264_pacsi_x, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_h264_pacsi_y, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_h264_pacsi_t, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_h264_pacsi_a, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_h264_pacsi_p, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_h264_pacsi_c, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_h264_pacsi_s, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_h264_pacsi_e, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
+    if (pacsi_flags & 0x40)
+    {
+        proto_tree_add_item(tree, hf_h264_pacsi_tl0picidx, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset++;
+        proto_tree_add_item(tree, hf_h264_pacsi_idrpicid, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
+    }
+    if (pacsi_flags & 0x20)
+    {
+        proto_tree_add_item(tree, hf_h264_pacsi_donc, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
+    }
+    if (tvb_reported_length_remaining(tvb, offset) > 0)
+    {
+        contains_sei = TRUE;
+        col_append_fstr(pinfo->cinfo, COL_INFO, "(");
+    }
+
+    /* Decode the SEI units that are in the packet. */
+    while (tvb_reported_length_remaining(tvb, offset) > 0 && !error)
+    {
+        nal_unit_size = tvb_get_ntohs(tvb, offset);
+        /* Perform a sanity check on the value. */
+        if (nal_unit_size == 0 || nal_unit_size > tvb_reported_length_remaining(tvb, offset))
+        {
+            /* Microsoft has a bug where it doesn't put in the P flag byte in the Layout message, but sets the size as if is there, so the size is off by
+             * byte too many in the first SEI message.   Back up one and then try again.
+             */
+            item = proto_tree_add_expert(tree, pinfo, &ei_h264_sei_invalid_length, tvb, offset, 2);
+            proto_item_append_text (item, " Size is %d, Remaining:%d, Try backing up 1 byte.",
+                    nal_unit_size, tvb_reported_length_remaining(tvb, offset));
+            offset--;
+            nal_unit_size = tvb_get_ntohs(tvb, offset);
+        }
+        proto_tree_add_item(tree, hf_h264_nalu_size, tvb, offset, 2, ENC_NA);
+        offset += 2;
+
+        if (nal_unit_size == 0 || nal_unit_size > tvb_reported_length_remaining(tvb, offset))
+        {
+            item = proto_tree_add_expert(tree, pinfo, &ei_h264_bad_nal_length, tvb, offset-2, 2);
+            error = TRUE;
+        }
+        else
+        {
+            /* Make a new subset of the existing buffer for the NAL unit */
+            nalu_tvb = tvb_new_subset(tvb, offset, tvb_captured_length_remaining(tvb,offset), nal_unit_size);
+            /* Decode the NAL unit */
+            dissect_h264(nalu_tvb, pinfo, tree);
+            offset += nal_unit_size;
+        }
+    }
+    if (contains_sei == TRUE)
+    {
+        col_append_fstr(pinfo->cinfo, COL_INFO, ")");
+    }
+}
 
 /*
- * Dissect NAL unit as recived in sprop-parameter-sets of SDP
+ * RFC 3984 Section 5.7.1 - Single-Time Aggregation Packet (STAP)
+ */
+static void
+dissect_h264_stap(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint offset, gint8 nal_type)
+{
+    guint16     nal_unit_size;
+    tvbuff_t    *nalu_tvb;
+    proto_item  *item;
+
+    /* If it is a STAP-B then the Decoder Order Number if present before the NAL Units */
+    if (nal_type == H264_STAP_B)
+    {
+        proto_tree_add_item(tree, hf_h264_don, tvb, offset, 2, ENC_NA);
+        offset += 2;
+    }
+
+    while (tvb_reported_length_remaining(tvb, offset) > 0)
+    {
+        /* Get the size of the NAL unit and display */
+        proto_tree_add_item(tree, hf_h264_nalu_size, tvb, offset, 2, ENC_NA);
+        nal_unit_size = tvb_get_ntohs(tvb, offset);
+        offset += 2;
+
+        /* Do a sanity check on the unit size versus what is left in the packet. */
+        if (nal_unit_size == 0 || tvb_reported_length_remaining(tvb, offset) < nal_unit_size)
+        {
+            /* Throw an exception if the size is wrong and don't try to decode the rest of the packet. */
+            col_append_fstr(pinfo->cinfo, COL_INFO, "  [Bad NAL Length]");
+            item = proto_tree_add_expert (tree, pinfo, &ei_h264_bad_nal_length, tvb, offset-2, 2);
+            proto_item_append_text(item, " Size of %d, Remaining %d",
+                    nal_unit_size, tvb_reported_length_remaining(tvb, offset));
+            offset += tvb_reported_length_remaining(tvb, offset);
+        }
+        else
+        {
+            /* Make a new subset of the existing buffer for the NAL unit */
+            nalu_tvb = tvb_new_subset(tvb, offset, tvb_captured_length_remaining(tvb, offset), nal_unit_size);
+            /* Decode the NAL unit */
+            dissect_h264(nalu_tvb, pinfo, tree);
+            offset += nal_unit_size;
+        }
+    }
+}
+
+/*
+ * RFC 3984 Section 5.7.2 Multi-Time Aggregation Packet (MTAP)
+ */
+static void
+dissect_h264_mtap(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint offset, gint8 nal_type)
+{
+    gint        size_offset;
+    guint16     nal_unit_size;
+    tvbuff_t    *nalu_tvb;
+    proto_item  *item;
+
+    /* Get the DON base value for type MTAP16 & MTAP24 */
+    proto_tree_add_item(tree, hf_h264_don, tvb, offset, 2, ENC_NA);
+    offset += 2;
+
+    while (tvb_reported_length_remaining(tvb, offset) > 0)
+    {
+        proto_tree_add_item(tree, hf_h264_nalu_size, tvb, offset, 2, ENC_NA);
+        nal_unit_size = tvb_get_ntohs(tvb, offset);
+        size_offset = offset;
+        offset += 2;
+        proto_tree_add_item(tree, hf_h264_dond, tvb, offset, 1, ENC_NA);
+        offset += 1;
+
+        if (nal_type == H264_MTAP16)
+        {
+            /* Get the 16 bit DOND value */
+            proto_tree_add_item(tree, hf_h264_ts_offset16, tvb, offset, 2, ENC_NA);
+            offset += 2;
+        }
+        else
+        {
+            /* Get the 24 bit DOND value */
+            proto_tree_add_item(tree, hf_h264_ts_offset24, tvb, offset, 2, ENC_NA);
+            offset += 3;
+        }
+
+        if (nal_unit_size == 0 || tvb_reported_length_remaining(tvb, offset) < nal_unit_size)
+        {
+            /* Throw an exception if the size is wrong and don't try to decode the rest of the packet. */
+            col_append_fstr(pinfo->cinfo, COL_INFO, "  [Bad NAL Length]");
+            item = proto_tree_add_expert (tree, pinfo, &ei_h264_bad_nal_length, tvb, size_offset, 2);
+            proto_item_append_text(item, " Size of %d, Remaining %d",
+                    nal_unit_size, tvb_reported_length_remaining(tvb, offset));
+            offset += tvb_reported_length_remaining(tvb, offset);
+        }
+        else
+        {
+            /* Make a new subset of the existing buffer for the NAL unit */
+            nalu_tvb = tvb_new_subset(tvb, offset, tvb_captured_length_remaining(tvb, offset), nal_unit_size);
+            /* Decode the NAL unit */
+            dissect_h264(nalu_tvb, pinfo, tree);
+            offset += nal_unit_size;
+        }
+    }
+}
+
+/*
+ * Dissect NAL Header extension and NI-MTAP Subtype defined in RFC 6190
+ */
+static void
+dissect_h264_nalu_extension (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint offset)
+{
+    gint        size_offset;
+    guint16     nal_unit_size;
+    tvbuff_t    *nalu_tvb;
+    guint8      subtype;
+    guint8      j_flag;
+    guint8      bit_offset = offset << 3;
+    guint8      unit = 1;
+    proto_item  *item;
+
+    subtype = tvb_get_bits8(tvb, bit_offset, 5);
+    j_flag  = tvb_get_bits8(tvb, bit_offset+5, 1);
+
+    /* NAL Header Extension Decoding */
+    proto_tree_add_item(tree, hf_h264_nal_extension_subtype, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_h264_nal_extension_j, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_h264_nal_extension_k, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_h264_nal_extension_l, tvb, offset, 1, ENC_NA);
+    col_append_fstr(pinfo->cinfo, COL_INFO, "  %s",
+                    val_to_str(subtype, h264_subtype_summary_values, "Unknown Subtype (%u)"));
+    offset++;
+
+    if (subtype == 2)
+    {
+        /* Multi-Time Aggregation Packet (NI-MTAP) - RFC 6190 Section 4.7.1 */
+        while (tvb_reported_length_remaining(tvb, offset) > 0)
+        {
+            proto_tree_add_text(tree, tvb, offset, 1, "NI-MTAP Unit %d", unit++);
+            proto_tree_add_item(tree, hf_h264_nalu_size, tvb, offset, 2, ENC_NA);
+            nal_unit_size = tvb_get_ntohs(tvb, offset);
+            size_offset = offset;
+            offset += 2;
+            proto_tree_add_item(tree, hf_h264_ts_offset16, tvb, offset, 2, ENC_NA);
+            offset += 2;
+            /* If J flag is set then DON is present in packet */
+            if (j_flag)
+            {
+                proto_tree_add_item(tree, hf_h264_don, tvb, offset, 2, ENC_NA);
+                offset += 2;
+            }
+            if (nal_unit_size == 0 || tvb_reported_length_remaining(tvb, offset) < nal_unit_size)
+            {
+                /* Throw an exception if the size is wrong and don't try to decode the rest of the packet. */
+                col_append_fstr(pinfo->cinfo, COL_INFO, "  [Bad NAL Length]");
+                item = proto_tree_add_expert (tree, pinfo, &ei_h264_bad_nal_length, tvb, size_offset, 2);
+                proto_item_append_text(item, " Size of %d, Remaining %d",
+                        nal_unit_size, tvb_reported_length_remaining(tvb, offset));
+                offset += tvb_reported_length_remaining(tvb, offset);
+            }
+            else
+            {
+                /* Make a new subset of the existing buffer for the NAL unit */
+                nalu_tvb = tvb_new_subset(tvb, offset, tvb_captured_length_remaining(tvb, offset), nal_unit_size);
+                /* Decode the NAL unit */
+                dissect_h264(nalu_tvb, pinfo, tree);
+                offset += nal_unit_size;
+            }
+        }
+    }
+}
+
+/*
+ * Dissect NAL unit as received in sprop-parameter-sets of SDP
  * or "DecoderConfiguration parameter in H.245
  */
 void
@@ -1847,13 +2451,13 @@ dissect_h264(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     tvbuff_t   *rbsp_tvb;
 
 
-/* Make entries in Protocol column and Info column on summary display */
+    /* Make entries in Protocol column and Info column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "H264");
 
     type = tvb_get_guint8(tvb, offset)&0x1f;
 
     col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
-                    val_to_str(type, h264_type_values, "Unknown Type (%u)"));
+                    val_to_str(type, h264_type_summary_values, "Unknown Type (%u)"));
 
     if (tree) {
         item = proto_tree_add_item(tree, proto_h264, tvb, 0, -1, ENC_NA);
@@ -1891,16 +2495,23 @@ dissect_h264(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             proto_tree_add_item(fua_tree, hf_h264_nal_unit_type, tvb, offset, 1, ENC_BIG_ENDIAN);
             if ((tvb_get_guint8(tvb, offset)&0x80) == 0x80) {
                 type = tvb_get_guint8(tvb, offset)&0x1f;
+                col_append_fstr(pinfo->cinfo, COL_INFO, " Start:%s",
+                                val_to_str(type, h264_type_summary_values, "Unknown Type (%u)"));
                 offset++;
             }
             else
+            {
+                if ((tvb_get_guint8(tvb, offset)&0x40) == 0x40) {
+                    col_append_fstr(pinfo->cinfo, COL_INFO, " End");
+                }
                 return;
+        }
         }
 
         /* Unescape NAL unit */
         rbsp_tvb = dissect_h265_unescap_nal_unit(tvb, pinfo, offset);
 
-        stream_tree = proto_tree_add_subtree(h264_tree, tvb, offset, -1, ett_h264_stream, NULL, "H264 bitstream");
+        stream_tree = proto_tree_add_subtree(h264_tree, tvb, offset, -1, ett_h264_stream, NULL, "H264 NAL Unit Payload");
         switch (type) {
         case 1:             /* 1 Coded slice of a non-IDR picture */
             dissect_h264_slice_layer_without_partitioning_rbsp(stream_tree, rbsp_tvb, pinfo, 0);
@@ -1923,8 +2534,25 @@ dissect_h264(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         case H264_PIC_PAR_SET:  /* 8 Picture parameter set */
             dissect_h264_pic_parameter_set_rbsp(stream_tree, rbsp_tvb, pinfo, 0);
             break;
+        case H264_PREFIX:
+            dissect_h264_prefix(stream_tree, rbsp_tvb, pinfo, 0);
+            break;
         case 19:    /* Coded slice of an auxiliary coded picture without partitioning */
             dissect_h264_slice_layer_without_partitioning_rbsp(stream_tree, rbsp_tvb, pinfo, 0);
+            break;
+        case H264_STAP_A:       /* STAP-A */
+        case H264_STAP_B:       /* STAP-B */
+            dissect_h264_stap(stream_tree, tvb, pinfo, offset, type);
+            break;
+        case H264_MTAP16:       /* MSTAP16 */
+        case H264_MTAP24:       /* MSTAP24 */
+            dissect_h264_mtap(stream_tree, tvb, pinfo, offset, type);
+            break;
+        case H264_PACSI:        /* PACSI */
+            dissect_h264_pacsi(stream_tree, tvb, pinfo, offset);
+            break;
+        case H264_EXTENSION:    /* Extension Header */
+            dissect_h264_nalu_extension(stream_tree, rbsp_tvb, pinfo, 0);
             break;
         default:
             break;
@@ -2208,9 +2836,19 @@ proto_register_h264(void)
             FT_UINT8, BASE_DEC, NULL, 0x10,
             NULL, HFILL }
         },
-        { &hf_h264_reserved_zero_4bits,
-            { "Reserved_zero_4bits",           "h264.reserved_zero_4bits",
-            FT_UINT8, BASE_DEC, NULL, 0x0f,
+        { &hf_h264_constraint_set4_flag,
+            { "Constraint_set4_flag",           "h264.constraint_set4_flag",
+            FT_UINT8, BASE_DEC, NULL, 0x08,
+            NULL, HFILL }
+        },
+        { &hf_h264_constraint_set5_flag,
+            { "Constraint_set5_flag",           "h264.constraint_set5_flag",
+            FT_UINT8, BASE_DEC, NULL, 0x04,
+            NULL, HFILL }
+        },
+        { &hf_h264_reserved_zero_2bits,
+            { "Reserved_zero_2bits",           "h264.reserved_zero_2bits",
+            FT_UINT8, BASE_DEC, NULL, 0x03,
             NULL, HFILL }
         },
         { &hf_h264_level_idc,
@@ -2773,6 +3411,280 @@ proto_register_h264(void)
                 { "constraint_set2_flag", "h264.par.constraint_set2_flag",
             FT_BOOLEAN, 8, NULL, 0x20,
             NULL, HFILL}},
+        /* Packization Values */
+        { &hf_h264_nalu_size,
+            { "NAL Unit Size", "h264.nalu_size",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_h264_don,
+            { "Decoder Order Number", "h264.don",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_h264_dond,
+            { "MTAP Decoder Order Number Delta", "h264.don_delta",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_h264_ts_offset16,
+            { "MTAP TS Offset", "h264.ts_offset16",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_h264_ts_offset24,
+            { "MTAP TS Offset", "h264.ts_offset24",
+            FT_UINT24, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_h264_nal_extension_subtype,
+            { "Extension Header Subtype", "h264.nal_hdr_extension.subtype",
+            FT_UINT8, BASE_DEC, VALS(h264_subtype_values), 0xF8,
+            NULL, HFILL }
+        },
+        { &hf_h264_nal_extension_j,
+            { "Extension Header J - DON Present Indicator", "h264.nal_hdr_extension.j",
+            FT_BOOLEAN, 8, NULL, 0x4,
+            NULL, HFILL }
+        },
+        { &hf_h264_nal_extension_k,
+            { "Extension Header K", "h264.nal_hdr_extension.k",
+            FT_BOOLEAN, 8, NULL, 0x2,
+            NULL, HFILL }
+        },
+        { &hf_h264_nal_extension_l,
+            { "Extension Header L", "h264.nal_hdr_extension.l",
+            FT_BOOLEAN, 8, NULL, 0x1,
+            NULL, HFILL }
+        },
+
+        /* SEI Parsing values */
+        { &hf_h264_sei_uuid,
+            { "UUID", "h264.sei.uuid",
+            FT_GUID, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_h264_sei_ms_lpb,
+            { "Stream Layer Presence", "h264.sei.ms.layout.lpb",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_h264_sei_ms_layout_p,
+            { "Stream Layer Description Presence", "h264.sei.ms.layout.p",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_h264_sei_ms_layout_ldsize,
+            { "Stream Layer Description Size", "h264.sei.ms.layout.desc.ldsize",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_h264_sei_ms_layer_desc_coded_width,
+            { "Coded Width", "h264.sei.ms.layout.desc.coded_width",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_h264_sei_ms_layer_desc_coded_height,
+            { "Coded Height", "h264.sei.ms.layout.desc.coded_height",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_h264_sei_ms_layer_desc_display_width,
+            { "Display Width", "h264.sei.ms.layout.desc.display_width",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_h264_sei_ms_layer_desc_display_height,
+            { "Display Height", "h264.sei.ms.layout.desc.display_height",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_h264_sei_ms_layer_desc_bitrate,
+            { "Bitrate", "h264.sei.ms.layout.desc.bitrate",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_h264_sei_ms_layer_desc_frame_rate,
+            { "Frame Rate Index", "h264.sei.ms.layout.desc.frame_rate",
+            FT_UINT8, BASE_DEC, VALS(h264_sei_ms_frame_values), 0xF8,
+            NULL, HFILL }
+        },
+        { &hf_h264_sei_ms_layer_desc_layer_type,
+            { "Layer Type", "h264.sei.ms.layout.desc.layer_type",
+            FT_UINT8, BASE_DEC, NULL, 0x07,
+            NULL, HFILL }
+        },
+        { &hf_h264_sei_ms_layer_desc_prid,
+            { "Priority ID", "h264.sei.ms.layout.desc.prid",
+            FT_UINT8, BASE_DEC, NULL, 0xFC,
+            NULL, HFILL }
+        },
+        { &hf_h264_sei_ms_layer_desc_cb,
+            { "Constrained Baseline", "h264.sei.ms.layout.desc.constrained_baseline",
+            FT_BOOLEAN, 8, NULL, 0x02,
+            NULL, HFILL }
+        },
+        /* MS Bitstream SEI */
+        { &hf_h264_sei_ms_bitstream_ref_frame_cnt,
+            { "Reference Frame Count", "h264.sei.ms.bitstream_info.ref_frm_cnt",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_h264_sei_ms_bitstream_num_nalus,
+            { "Number of NAL units", "h264.sei.ms.bitstrea3416m_info.num_nalus",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        /* MS Crop SEI */
+        { &hf_h264_sei_ms_crop_num_data,
+            { "Number of Data Entries", "h264.sei.ms.crop.num_data",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_h264_sei_ms_crop_info_type,
+            { "Info Type", "h264.sei.ms.crop.info_type",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_h264_sei_ms_crop_confidence_level,
+            { "Confidence Level", "h264.sei.ms.crop.confidence_level",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_h264_sei_ms_crop_frame_left_offset,
+            { "Left Offset", "h264.sei.ms.crop.left_offset",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_h264_sei_ms_crop_frame_right_offset,
+            { "Right Offset", "h264.sei.ms.crop.right_offset",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_h264_sei_ms_crop_frame_top_offset,
+            { "Top Offset", "h264.sei.ms.crop.top_offset",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_h264_sei_ms_crop_frame_bottom_offset,
+            { "Bottom Offset", "h264.sei.ms.crop.bottom_offset",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        /* NALU Header Extension */
+        /* Annex G NAL Unit Header SVC Extension */
+        { &hf_h264_nal_hdr_ext_svc,
+            { "SVC Extension / Reserved", "h264.nal_hdr_ext.r",
+            FT_BOOLEAN, 8, NULL, 0x80,
+            NULL, HFILL }
+        },
+        { &hf_h264_nal_hdr_ext_i,
+            { "IDR Picture", "h264.nal_hdr_ext.i",
+            FT_BOOLEAN, 8, NULL, 0x40,
+            NULL, HFILL }
+        },
+        { &hf_h264_nal_hdr_ext_prid,
+            { "Priority ID", "h264.nal_hdr_ext.prid",
+            FT_UINT8, BASE_DEC, NULL, 0x3f,
+            NULL, HFILL }
+        },
+        { &hf_h264_nal_hdr_ext_n,
+            { "No Inter Layer Prediction", "h264.nal_hdr_ext.n",
+            FT_BOOLEAN, 8, NULL, 0x80,
+            NULL, HFILL }
+        },
+        { &hf_h264_nal_hdr_ext_did,
+            { "Dependency ID", "h264.nal_hdr_ext.did",
+            FT_UINT8, BASE_DEC, NULL, 0x70,
+            NULL, HFILL }
+        },
+        { &hf_h264_nal_hdr_ext_qid,
+            { "Quality ID", "h264.nal_hdr_ext.qid",
+            FT_UINT8, BASE_DEC, NULL, 0x0f,
+            NULL, HFILL }
+        },
+        { &hf_h264_nal_hdr_ext_tid,
+            { "Temporal ID", "h264.nal_hdr_ext.tid",
+            FT_UINT8, BASE_DEC, NULL, 0xe0,
+            NULL, HFILL }
+        },
+        { &hf_h264_nal_hdr_ext_u,
+            { "Use Ref Base Picture", "h264.nal_hdr_ext.u",
+            FT_BOOLEAN, 8, NULL, 0x10,
+            NULL, HFILL }
+        },
+        { &hf_h264_nal_hdr_ext_d,
+            { "Discardable", "h264.nal_hdr_ext.d",
+            FT_BOOLEAN, 8, NULL, 0x08,
+            NULL, HFILL }
+        },
+        { &hf_h264_nal_hdr_ext_o,
+            { "Output", "h264.nal_hdr_ext.o",
+            FT_BOOLEAN, 8, NULL, 0x04,
+            NULL, HFILL }
+        },
+        { &hf_h264_nal_hdr_ext_rr,
+            { "Reserved", "h264.nal_hdr_ext.rr",
+            FT_UINT8, BASE_HEX, NULL, 0x03,
+            NULL, HFILL }
+        },
+        /* PACSI Values */
+        { &hf_h264_pacsi_x,
+            { "X - A,P,C Field Indicator", "h264.pacsi.x",
+            FT_BOOLEAN, 8, NULL, 0x80,
+            NULL, HFILL }
+        },
+        { &hf_h264_pacsi_y,
+            { "Y - Pic Fields Indicator", "h264.pacsi.y",
+            FT_BOOLEAN, 8, NULL, 0x40,
+            NULL, HFILL }
+        },
+        { &hf_h264_pacsi_t,
+            { "T - DONC Field Indicator", "h264.pacsi.t",
+            FT_BOOLEAN, 8, NULL, 0x20,
+            NULL, HFILL }
+        },
+        { &hf_h264_pacsi_a,
+            { "A - Anchor Layer", "h264.pacsi.a",
+            FT_BOOLEAN, 8, NULL, 0x10,
+            NULL, HFILL }
+        },
+        { &hf_h264_pacsi_p,
+            { "P - Redundant Slice", "h264.pacsi.p",
+            FT_BOOLEAN, 8, NULL, 0x08,
+            NULL, HFILL }
+        },
+        { &hf_h264_pacsi_c,
+            { "C - Intra Slice", "h264.pacsi.c",
+            FT_BOOLEAN, 8, NULL, 0x04,
+            NULL, HFILL }
+        },
+        { &hf_h264_pacsi_s,
+            { "S - First Nal Unit of Layer", "h264.pacsi.s",
+            FT_BOOLEAN, 8, NULL, 0x02,
+            NULL, HFILL }
+        },
+        { &hf_h264_pacsi_e,
+            { "E - Last Nal Unit of Layer", "h264.pacsi.e",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_h264_pacsi_tl0picidx,
+            { "TL0PICIDX", "h264.pacsi.tl0picidx",
+            FT_UINT8, BASE_DEC, NULL, 0xFF,
+            NULL, HFILL }
+        },
+        { &hf_h264_pacsi_idrpicid,
+            { "IDRPICID - IDR Picture ID", "h264.pacsi.idrpicid",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_h264_pacsi_donc,
+            { "DONC - Cross Session Decoder Order Number", "h264.pacsi.donc",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+
     };
 
 /* Setup protocol subtree array */
@@ -2786,10 +3698,17 @@ proto_register_h264(void)
         &ett_h264_par_profile,
         &ett_h264_par_AdditionalModesSupported,
         &ett_h264_par_ProfileIOP,
+        &ett_h264_ms_layer_description,
+        &ett_h264_ms_crop_data
     };
 
     static ei_register_info ei[] = {
         { &ei_h264_undecoded, { "h264.undecoded", PI_UNDECODED, PI_WARN, "[Not decoded yet]", EXPFILL }},
+        { &ei_h264_ms_layout_missing_presence, { "h264.ms_layout.missing_presence", PI_PROTOCOL, PI_WARN, "[Missing Presence Byte]", EXPFILL }},
+        { &ei_h264_ms_layout_wrong_length, { "h264.ms_layout.wrong_length", PI_PROTOCOL, PI_WARN, "[Wrong Layer Description Table Length]", EXPFILL }},
+        { &ei_h264_ms_sei_extra_data, { "h264.sei_extra_data", PI_PROTOCOL, PI_WARN, "[Extra data in SEI message]", EXPFILL }},
+        { &ei_h264_sei_invalid_length, { "h264.sei_invalid_length", PI_PROTOCOL, PI_WARN, "[Bad SEI Unit Size in PACSI]", EXPFILL }},
+        { &ei_h264_bad_nal_length, { "h264.bad_nalu_length", PI_MALFORMED, PI_ERROR, "[Bad NAL Unit Length]", EXPFILL }},
     };
 
 /* Register the protocol name and description */
@@ -2829,6 +3748,8 @@ proto_reg_handoff_h264(void)
 
         h264_handle = find_dissector("h264");
         dissector_add_string("rtp_dyn_payload_type","H264", h264_handle);
+        dissector_add_string("rtp_dyn_payload_type","H264-SVC", h264_handle);
+        dissector_add_string("rtp_dyn_payload_type","X-H264UC", h264_handle);
 
         h264_name_handle = new_create_dissector_handle(dissect_h264_name, proto_h264);
         for (ftr=h264_capability_tab; ftr->id; ftr++) {
