@@ -77,9 +77,10 @@ All tools will be installed into one base folder.  The default is
 'C:\cygwin'.
 
 You will find 'setup-x86.exe', for 32-bit systems, and
-'setup-x86_64.exe', for 64-bit systems, at http://www.cygwin.com/[].
-Click on one of the "Install Cygwin now" links to download the
-appropriate setup utility.  After the download completes, run it.
+'setup-x86_64.exe', for 64-bit systems, at
+http://www.cygwin.com/install.html[].  Click on the link for the
+appropriate setup utility to download it.  After the download completes,
+run it.
 
 The setup utility will ask you for some settings. The defaults
 should usually work well, at least initially.
