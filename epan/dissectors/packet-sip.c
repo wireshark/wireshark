@@ -54,7 +54,6 @@
 
 #include "packet-isup.h"
 #include "packet-sip.h"
-#include "packet-sip-hdrs.h"
 
 #include "packet-sdp.h"  /* SDP needs a transport layer to determine request/response */
 
@@ -271,6 +270,255 @@ static const char *sip_methods[] = {
 #define SIP_METHOD_PUBLISH  17
         "PUBLISH"
 };
+
+/* from RFC 3261
+ * Updated with info from http://www.iana.org/assignments/sip-parameters
+ * (last updated 2009-11-11)
+ * Updated with: http://www.ietf.org/internet-drafts/draft-ietf-sip-resource-priority-05.txt
+ */
+typedef struct {
+        const char *name;
+        const char *compact_name;
+} sip_header_t;
+static const sip_header_t sip_headers[] = {
+    { "Unknown-header",                 NULL }, /* 0 Pad so that the real headers start at index 1 */
+    { "Accept",                         NULL }, /* 1 */
+#define POS_ACCEPT                       1
+    { "Accept-Contact",                 "a"  }, /* 2 RFC3841  */
+#define POS_ACCEPT_CONTACT               2
+    { "Accept-Encoding",                NULL }, /* 3 */
+#define POS_ACCEPT_ENCODING              3
+    { "Accept-Language",                NULL }, /* 4 */
+#define POS_ACCEPT_LANGUAGE              4
+    { "Accept-Resource-Priority",       NULL }, /* 5 RFC4412 */
+#define POS_ACCEPT_RESOURCE_PRIORITY     5
+    { "Alert-Info",                     NULL },
+#define POS_ALERT_INFO                   6
+    { "Allow",                          NULL },
+#define POS_ALLOW                        7
+    { "Allow-Events",                   "u"  }, /* 8 RFC3265  */
+#define POS_ALLOW_EVENTS                 8
+    { "Answer-Mode",                    NULL }, /* 9 RFC5373 */
+#define POS_ANSWER_MODE                  9
+    { "Authentication-Info",            NULL },
+#define POS_AUTHENTICATION_INFO         10
+    { "Authorization",                  NULL }, /* 11 */
+#define POS_AUTHORIZATION               11
+    { "Call-ID",                        "i"  },
+#define POS_CALL_ID                     12
+    { "Call-Info",                      NULL },
+#define POS_CALL_INFO                   13
+    { "Contact",                        "m"  },
+#define POS_CONTACT                     14
+    { "Content-Disposition",            NULL },
+#define POS_CONTENT_DISPOSITION         15
+    { "Content-Encoding",               "e"  },  /*  16 */
+#define POS_CONTENT_ENCODING            16
+    { "Content-Language",               NULL },
+#define POS_CONTENT_LANGUAGE            17
+    { "Content-Length",                 "l"  },
+#define POS_CONTENT_LENGTH              18
+    { "Content-Type",                   "c"  },
+#define POS_CONTENT_TYPE                19
+    { "CSeq",                           NULL },
+#define POS_CSEQ                        20
+    { "Date",                           NULL },  /*  21 */
+#define POS_DATE                        21
+/*              Encryption (Deprecated)       [RFC3261] */
+    { "Error-Info",                     NULL },  /*  22 */
+#define POS_ERROR_INFO                  22
+    { "Event",                          "o"  },  /*  23 */
+#define POS_EVENT                       23
+    { "Expires",                        NULL },  /*  24 */
+#define POS_EXPIRES                     24
+    { "Feature-Caps",                   NULL },  /*  25 [RFC6809 */
+#define POS_FEATURE_CAPS                25
+    { "Flow-Timer",                     NULL },  /*  26 RFC5626  */
+#define POS_FLOW_TIMER                  26
+    { "From",                           "f"  },  /*  27 */
+#define POS_FROM                        27
+
+    { "Geolocation",                   NULL  },  /*  28 */
+#define POS_GEOLOCATION                 28
+    { "Geolocation-Error",             NULL  },  /*  29 */
+#define POS_GEOLOCATION_ERROR           29
+    { "Geolocation-Routing",           NULL  },  /*  30 */
+#define POS_GEOLOCATION_ROUTING         30
+
+/*              Hide                          [RFC3261] (deprecated)*/
+    { "History-Info",                   NULL },  /*  31 RFC4244  */
+#define POS_HISTORY_INFO                31
+    { "Identity",                       "y"  },  /*  32 RFC4474  */
+#define POS_IDENTITY                    32
+    { "Identity-Info",                  "n"  },  /*  33 RFC4474  */
+#define POS_IDENTITY_INFO               33
+    { "Info-Package",                   NULL },  /*  34 RFC-ietf-sipcore-info-events-10.txt  */
+#define POS_INFO_PKG                    34
+    { "In-Reply-To",                    NULL },  /*  35 RFC3261  */
+#define POS_IN_REPLY_TO                 35
+    { "Join",                           NULL },  /*  36 RFC3911  */
+#define POS_JOIN                        36
+    { "Max-Breadth",                    NULL },  /*  37 RFC5393*/
+#define POS_MAX_BREADTH                 37
+    { "Max-Forwards",                   NULL },  /*  38 */
+#define POS_MAX_FORWARDS                38
+    { "MIME-Version",                   NULL },  /*  39 */
+#define POS_MIME_VERSION                39
+    { "Min-Expires",                    NULL },  /*  40 */
+#define POS_MIN_EXPIRES                 40
+    { "Min-SE",                         NULL },  /*  41 RFC4028  */
+#define POS_MIN_SE                      41
+    { "Organization",                   NULL },  /*  42 RFC3261  */
+#define POS_ORGANIZATION                42
+    { "P-Access-Network-Info",          NULL },  /*  43 RFC3455  */
+#define POS_P_ACCESS_NETWORK_INFO       43
+    { "P-Answer-State",                 NULL },  /*  44 RFC4964  */
+#define POS_P_ANSWER_STATE              44
+    { "P-Asserted-Identity",            NULL },  /*  45 RFC3325  */
+#define POS_P_ASSERTED_IDENTITY         45
+    { "P-Asserted-Service",             NULL },  /*  46 RFC6050  */
+#define POS_P_ASSERTED_SERV             46
+    { "P-Associated-URI",               NULL },  /*  47 RFC3455  */
+#define POS_P_ASSOCIATED_URI            47
+    { "P-Called-Party-ID",              NULL },  /*  48 RFC3455  */
+#define POS_P_CALLED_PARTY_ID           48
+    { "P-Charging-Function-Addresses",  NULL },  /*  49 RFC3455  */
+#define POS_P_CHARGING_FUNC_ADDRESSES   49
+    { "P-Charging-Vector",              NULL },  /*  50 RFC3455  */
+#define POS_P_CHARGING_VECTOR           50
+    { "P-DCS-Trace-Party-ID",           NULL },  /*  51 RFC5503  */
+#define POS_P_DCS_TRACE_PARTY_ID        51
+    { "P-DCS-OSPS",                     NULL },  /*  52 RFC5503  */
+#define POS_P_DCS_OSPS                  52
+    { "P-DCS-Billing-Info",             NULL },  /*  53 RFC5503  */
+#define POS_P_DCS_BILLING_INFO          53
+    { "P-DCS-LAES",                     NULL },  /*  54 RFC5503  */
+#define POS_P_DCS_LAES                  54
+    { "P-DCS-Redirect",                 NULL },  /*  55 RFC5503  */
+#define POS_P_DCS_REDIRECT              55
+    { "P-Early-Media",                  NULL },  /*  56 RFC5009  */
+#define POS_P_EARLY_MEDIA               56
+    { "P-Media-Authorization",          NULL },  /*  57 RFC3313  */
+#define POS_P_MEDIA_AUTHORIZATION       57
+    { "P-Preferred-Identity",           NULL },  /*  58 RFC3325  */
+#define POS_P_PREFERRED_IDENTITY        58
+    { "P-Preferred-Service",            NULL },  /*  58 RFC6050  */
+#define POS_P_PREFERRED_SERV            59
+    { "P-Profile-Key",                  NULL },  /*  60 RFC5002  */
+#define POS_P_PROFILE_KEY               60
+    { "P-Refused-URI-List",             NULL },  /*  61 RFC5318  */
+#define POS_P_REFUSED_URI_LST           61
+    { "P-Served-User",                  NULL },  /*  62 RFC5502  */
+#define POS_P_SERVED_USER               62
+    { "P-User-Database",                NULL },  /*  63 RFC4457  */
+#define POS_P_USER_DATABASE             63
+    { "P-Visited-Network-ID",           NULL },  /*  64 RFC3455  */
+#define POS_P_VISITED_NETWORK_ID        64
+    { "Path",                           NULL },  /*  65 RFC3327  */
+#define POS_PATH                        65
+    { "Permission-Missing",             NULL },  /*  66 RFC5360  */
+#define POS_PERMISSION_MISSING          66
+    { "Policy-Contact",                 NULL },  /*  67 RFC3261  */
+#define POS_POLICY_CONTACT              67
+    { "Policy-ID",                      NULL },  /*  68 RFC3261  */
+#define POS_POLICY_ID                   68
+    { "Priority",                       NULL },  /*  69 RFC3261  */
+#define POS_PRIORITY                    69
+    { "Priv-Answer-Mode",               NULL },  /*  70 RFC5373  */
+#define POS_PRIV_ANSWER_MODE            70
+    { "Privacy",                        NULL },  /*  71 RFC3323  */
+#define POS_PRIVACY                     71
+    { "Proxy-Authenticate",             NULL },  /*  72 */
+#define POS_PROXY_AUTHENTICATE          72
+    { "Proxy-Authorization",            NULL },  /*  73 */
+#define POS_PROXY_AUTHORIZATION         73
+    { "Proxy-Require",                  NULL },  /*  74 */
+#define POS_PROXY_REQUIRE               74
+    { "RAck",                           NULL },  /*  75 RFC3262  */
+#define POS_RACK                        75
+    { "Reason",                         NULL },  /*  76 RFC3326  */
+#define POS_REASON                      76
+    { "Reason-Phrase",                  NULL },  /*  77 RFC3326  */
+#define POS_REASON_PHRASE               77
+    { "Record-Route",                   NULL },  /*  78 */
+#define POS_RECORD_ROUTE                78
+    { "Recv-Info",                      NULL },  /*  79 RFC-ietf-sipcore-info-events-10.txt*/
+#define POS_RECV_INFO                   79
+    { "Refer-Sub",                      NULL },  /*  80 RFC4488  */
+#define POS_REFER_SUB                   80
+    { "Refer-To",                       "r"  },  /*  81 RFC3515  */
+#define POS_REFER_TO                    81
+    { "Referred-By",                    "b"  },  /*  82 RFC3892  */
+#define POS_REFERED_BY                  82
+    { "Reject-Contact",                 "j"  },  /*  83 RFC3841  */
+#define POS_REJECT_CONTACT              83
+    { "Replaces",                       NULL },  /*  84 RFC3891  */
+#define POS_REPLACES                    84
+    { "Reply-To",                       NULL },  /*  85 RFC3261  */
+#define POS_REPLY_TO                    85
+    { "Request-Disposition",            "d"  },  /*  86 RFC3841  */
+#define POS_REQUEST_DISPOSITION         86
+    { "Require",                        NULL },  /*  87 RFC3261  */
+#define POS_REQUIRE                     87
+    { "Resource-Priority",              NULL },  /*  88 RFC4412  */
+#define POS_RESOURCE_PRIORITY           88
+    /*{ "Response-Key (Deprecated)     [RFC3261]*/
+    { "Retry-After",                    NULL },  /*  89 RFC3261  */
+#define POS_RETRY_AFTER                 89
+    { "Route",                          NULL },  /*  90 RFC3261  */
+#define POS_ROUTE                       90
+    { "RSeq",                           NULL },  /*  91 RFC3262  */
+#define POS_RSEQ                        91
+    { "Security-Client",                NULL },  /*  92 RFC3329  */
+#define POS_SECURITY_CLIENT             92
+    { "Security-Server",                NULL },  /*  93 RFC3329  */
+#define POS_SECURITY_SERVER             93
+    { "Security-Verify",                NULL },  /*  94 RFC3329  */
+#define POS_SECURITY_VERIFY             94
+    { "Server",                         NULL },  /*  95 RFC3261  */
+#define POS_SERVER                      95
+    { "Service-Route",                  NULL },  /*  96 RFC3608  */
+#define POS_SERVICE_ROUTE               96
+    { "Session-Expires",                "x"  },  /*  97 RFC4028  */
+#define POS_SESSION_EXPIRES             97
+    { "SIP-ETag",                       NULL },  /*  98 RFC3903  */
+#define POS_SIP_ETAG                    98
+    { "SIP-If-Match",                   NULL },  /*  99 RFC3903  */
+#define POS_SIP_IF_MATCH                99
+    { "Subject",                        "s"  },  /* 100 RFC3261  */
+#define POS_SUBJECT                     100
+    { "Subscription-State",             NULL },  /* 101 RFC3265  */
+#define POS_SUBSCRIPTION_STATE          101
+    { "Supported",                      "k"  },  /* 102 RFC3261  */
+#define POS_SUPPORTED                   102
+    { "Suppress-If-Match",              NULL },  /* 103 RFC5839  */
+#define POS_SUPPRESS_IF_MATCH           103
+    { "Target-Dialog",                  NULL },  /* 104 RFC4538  */
+#define POS_TARGET_DIALOG               104
+    { "Timestamp",                      NULL },  /* 105 RFC3261  */
+#define POS_TIMESTAMP                   105
+    { "To",                             "t"  },  /* 106 RFC3261  */
+#define POS_TO                          106
+    { "Trigger-Consent",                NULL },  /* 107 RFC5360  */
+#define POS_TRIGGER_CONSENT             107
+    { "Unsupported",                    NULL },  /* 108 RFC3261  */
+#define POS_UNSUPPORTED                 108
+    { "User-Agent",                     NULL },  /* 109 RFC3261  */
+#define POS_USER_AGENT                  109
+    { "Via",                            "v"  },  /* 110 RFC3261  */
+#define POS_VIA                         110
+    { "Warning",                        NULL },  /* 111 RFC3261  */
+#define POS_WARNING                     111
+    { "WWW-Authenticate",               NULL },  /* 112 RFC3261  */
+#define POS_WWW_AUTHENTICATE            112
+    { "Diversion",                      NULL },  /* 113 RFC5806  */
+#define POS_DIVERSION                   113
+    { "User-to-User",                   NULL },  /* 106 draft-johnston-sipping-cc-uui-09  */
+#define POS_USER_TO_USER                114
+};
+
+
+
 
 static gint hf_header_array[] = {
     -1, /* 0"Unknown-header" - Pad so that the real headers start at index 1 */
@@ -585,6 +833,7 @@ static line_type_t sip_parse_line(tvbuff_t *tvb, int offset, gint linelen,
     guint *token_1_len);
 static gboolean sip_is_known_request(tvbuff_t *tvb, int meth_offset,
     guint meth_len, guint *meth_idx);
+static gint sip_is_known_sip_header(gchar *header_name, guint header_len);
 static void dfilter_sip_request_line(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gint offset,
     guint meth_len, gint linelen);
 static void dfilter_sip_status_line(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gint line_end, gint offset);
@@ -645,6 +894,7 @@ static sip_info_value_t *stat_info;
  ****************************************************************************/
 
 static GHashTable *sip_hash = NULL;           /* Hash table */
+static GHashTable *sip_headers_hash = NULL;     /* Hash table */
 
 /* Types for hash table keys and values */
 #define MAX_CALL_ID_SIZE 128
@@ -717,12 +967,28 @@ static gint sip_equal(gconstpointer v, gconstpointer v2)
 static void
 sip_init_protocol(void)
 {
+     guint i;
+     gchar *value_copy;
+
     /* Destroy any existing hashes. */
     if (sip_hash)
         g_hash_table_destroy(sip_hash);
 
     /* Now create them again */
     sip_hash = g_hash_table_new(g_str_hash , sip_equal);
+    /* Create a hashtable with the SIP headers; it will be used to find the related hf entry (POS_x).
+     * This is faster than the previously used for loop.
+     * There is no g_hash_table_destroy as the lifetime is the same as the lifetime of Wireshark.
+     */
+    if(!sip_headers_hash){
+        sip_headers_hash = g_hash_table_new(g_str_hash , g_str_equal);
+        for (i = 1; i < array_length(sip_headers); i++){
+            value_copy = g_strdup (sip_headers[i].name);
+            /* Store (and compare) the string in lower case) */
+            ascii_strdown_inplace(value_copy);
+            g_hash_table_insert(sip_headers_hash, (gpointer)value_copy, GINT_TO_POINTER(i));
+        }
+    }
 }
 /* Call the export PDU tap with relevant data */
 static void
@@ -2724,7 +2990,8 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                                 proto_tree_add_string_format(hdr_tree,
                                                              hf_header_array[hf_index], tvb,
                                                              offset, next_offset - offset,
-                                                             value+sub_value_offset, "CSeq String too big: %d bytes",
+                                                             value+sub_value_offset, "%s String too big: %d bytes",
+                                                             sip_headers[POS_CSEQ].name,
                                                              strlen_to_copy);
                             }
                             THROW(ReportedBoundsError);
@@ -3702,6 +3969,31 @@ static gboolean sip_is_known_request(tvbuff_t *tvb, int meth_offset,
     return FALSE;
 }
 
+/*
+ * Returns index of method in sip_headers
+ * Header namne should be in lower case
+ */
+static gint sip_is_known_sip_header(gchar *header_name, guint header_len)
+{
+    guint pos;
+
+    /* Compact name is one character long */
+    if(header_len>1){
+        pos = GPOINTER_TO_UINT(g_hash_table_lookup(sip_headers_hash, header_name));
+        if (pos!=0)
+            return pos;
+    }
+
+    /* Look for compact name match */
+    for (pos = 1; pos < array_length(sip_headers); pos++) {
+        if (sip_headers[pos].compact_name != NULL &&
+                header_len == strlen(sip_headers[pos].compact_name) &&
+                g_ascii_strncasecmp(header_name, sip_headers[pos].compact_name, header_len) == 0)
+            return pos;
+    }
+
+    return -1;
+}
 
 /*
  * Display the entire message as raw text.

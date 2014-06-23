@@ -1130,7 +1130,6 @@ DISSECTOR_SRC = \
 	packet-sigcomp.c	\
 	packet-simulcrypt.c	\
 	packet-sip.c		\
-	packet-sip-hdrs.c	\
 	packet-sipfrag.c	\
 	packet-sita.c		\
 	packet-skinny.c		\
@@ -1632,7 +1631,6 @@ DISSECTOR_INCLUDES =	\
 	packet-sdp.h	\
 	packet-ses.h	\
 	packet-sip.h	\
-	packet-sip-hdrs.h	\
 	packet-skinny.h		\
 	packet-sll.h	\
 	packet-smb.h	\
