@@ -604,7 +604,7 @@ module_t *ppcap_module;
 	{ "OPC",     "ppcap.opc",   FT_UINT16,
 		BASE_DEC,       NULL,   0x00,   NULL,     HFILL}},
 	{ &hf_ppcap_source_ip_address1,
-	{ "Source IP Addresss",     "ppcap.source_ip_address1",   FT_IPv4,
+	{ "Source IP Address",     "ppcap.source_ip_address1",   FT_IPv4,
 		BASE_NONE,       NULL,   0x00,   NULL,     HFILL}},
 	{ &hf_ppcap_source_ip_address2,
 	{ "Source IP Address",     "ppcap.source_ip_address2",   FT_IPv6,
