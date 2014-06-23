@@ -735,6 +735,7 @@ foreach(PLUGIN_DIR ${PLUGIN_SRC_DIRS})
 endforeach()
 
 add_subdirectory( asn1 EXCLUDE_FROM_ALL )
+add_subdirectory( capchild )
 add_subdirectory( codecs )
 add_subdirectory( epan )
 add_subdirectory( filetap )
@@ -861,6 +862,7 @@ link_directories(
 	${CMAKE_BINARY_DIR}/ui
 	${CMAKE_BINARY_DIR}/ui/gtk
 	${CMAKE_BINARY_DIR}/ui/qt
+	${CMAKE_BINARY_DIR}/capchild
 	${CMAKE_BINARY_DIR}/codecs
 	${CMAKE_BINARY_DIR}/epan
 	${CMAKE_BINARY_DIR}/filetap
@@ -922,8 +924,6 @@ set(SHARK_COMMON_SRC
 # sources common for wireshark and tshark, but not rawshark;
 # these are for programs that capture traffic by running dumpcap
 set(SHARK_COMMON_CAPTURE_SRC
-	capture_ifinfo.c
-	capture_sync.c
 	capture_ui_utils.c
 )
 
@@ -1055,6 +1055,7 @@ if(BUILD_wireshark AND GTK_FOUND)
 	set(wireshark_LIBS
 		gtkui
 		ui
+		capchild
 		${GTK2_LIBRARIES}
 		${GTK3_LIBRARIES}
 		${GTHREAD2_LIBRARIES}
@@ -1081,6 +1082,7 @@ if(BUILD_qtshark AND QT_FOUND)
 	set(qtshark_LIBS
 		qtui
 		ui
+		capchild
 		${QT_LIBRARIES}
 		${GTHREAD2_LIBRARIES}
 		codecs
@@ -1108,6 +1110,7 @@ register_tap_files(tshark-tap-register.c
 if(BUILD_tshark)
 	set(tshark_LIBS
 		ui
+		capchild
 		${LIBEPAN_LIBS}
 		${APPLE_CORE_FOUNDATION_LIBRARY}
 		${APPLE_SYSTEM_CONFIGURATION_LIBRARY}

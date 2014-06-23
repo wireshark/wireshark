@@ -1676,10 +1676,13 @@ LIBS="$ac_save_LIBS"
 if test "$ac_cv_glib_supports_modules" = yes ; then
   AC_MSG_RESULT(yes)
   have_plugins=yes
+  plugins_dir="plugins"
 else
   AC_MSG_RESULT(no)
   have_plugins=no
+  plugins_dir=""
 fi
+AC_SUBST(plugins_dir)
 
 #
 # If we have <dlfcn.h>, check whether we have dladdr.
@@ -2873,6 +2876,7 @@ AC_OUTPUT(
   asn1/x509if/Makefile
   asn1/x509sat/Makefile
   asn1/x721/Makefile
+  capchild/Makefile
   doc/Makefile
   docbook/Makefile
   epan/Makefile

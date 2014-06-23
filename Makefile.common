@@ -68,15 +68,11 @@ SHARK_COMMON_INCLUDES =	\
 # sources common for wireshark and tshark, but not rawshark;
 # these are for programs that capture traffic by running dumpcap
 SHARK_COMMON_CAPTURE_SRC =	\
-	capture_ifinfo.c	\
-	capture_sync.c		\
 	capture_ui_utils.c
 
 # corresponding headers
 SHARK_COMMON_CAPTURE_INCLUDES =	\
-	capture_ifinfo.h	\
 	capture_session.h	\
-	capture_sync.h		\
 	capture_ui_utils.h
 
 # wireshark specifics

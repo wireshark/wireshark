@@ -265,6 +265,7 @@ packaging_zip: all
 #      See: http://ask.wireshark.org/questions/8660/wireshark-building-and-debugging-on-visual-c-or-visual-studio
 wireshark.bsc: \
 	*.sbr				\
+	capchild\*.sbr			\
 	codecs\*.sbr			\
 	epan\*.sbr			\
 	epan\crypt\*.sbr		\
@@ -314,21 +315,21 @@ $(RESOURCES): image
 filetap\filetap-$(FTAP_VERSION).lib: image $(ZLIB_DLL) filetap
 wiretap\wiretap-$(WTAP_VERSION).lib: image $(ZLIB_DLL) wiretap
 
-wireshark.exe	: $(LIBS_CHECK) config.h $(wireshark_OBJECTS) codecs epan ui gtk win32 image\wireshark.res image\file_dlg_win32.res wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib codecs\codecs.lib ui\libui.lib ui\gtk\libgtkui.lib ui\win32\libgtkui_win32.lib plugins
+wireshark.exe	: $(LIBS_CHECK) config.h $(wireshark_OBJECTS) capchild codecs epan ui gtk win32 image\wireshark.res image\file_dlg_win32.res wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib codecs\codecs.lib ui\libui.lib ui\gtk\libgtkui.lib ui\win32\libgtkui_win32.lib plugins
 	@echo Linking $@
 	$(LINK) @<<
-		/OUT:$(PROGRAM_NAME).exe $(guiflags) $(guilibsdll) $(LDFLAGS) /LARGEADDRESSAWARE $(wireshark_LIBS) $(GTK_LIBS) codecs\codecs.lib ui\gtk\libgtkui.lib ui\win32\libgtkui_win32.lib ui\libui.lib $(wireshark_OBJECTS) image\wireshark.res image\file_dlg_win32.res
+		/OUT:$(PROGRAM_NAME).exe $(guiflags) $(guilibsdll) $(LDFLAGS) /LARGEADDRESSAWARE $(wireshark_LIBS) $(GTK_LIBS) capchild\capchild.lib codecs\codecs.lib ui\gtk\libgtkui.lib ui\win32\libgtkui_win32.lib ui\libui.lib $(wireshark_OBJECTS) image\wireshark.res image\file_dlg_win32.res
 <<
 !IFDEF MANIFEST_INFO_REQUIRED
 	mt.exe -nologo -manifest "wireshark.exe.manifest" -outputresource:$(PROGRAM_NAME).exe;1
 !ENDIF
 
-qtshark.exe	: install-generated-files $(LIBS_CHECK) config.h epan ui qt wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib plugins
+qtshark.exe	: install-generated-files $(LIBS_CHECK) config.h capchild epan ui qt wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib plugins
 
-tshark.exe	: $(LIBS_CHECK) config.h $(tshark_OBJECTS) epan ui cli image\tshark.res wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib plugins
+tshark.exe	: $(LIBS_CHECK) config.h $(tshark_OBJECTS) capchild epan ui cli image\tshark.res wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib plugins
 	@echo Linking $@
 	$(LINK) @<<
-		/OUT:tshark.exe $(conflags) $(conlibsdll) $(LDFLAGS) /LARGEADDRESSAWARE $(tshark_LIBS) $(tshark_OBJECTS) ui\cli\libcliui.lib ui\libui.lib image\tshark.res
+		/OUT:tshark.exe $(conflags) $(conlibsdll) $(LDFLAGS) /LARGEADDRESSAWARE $(tshark_LIBS) $(tshark_OBJECTS) capchild\libcapchild.lib ui\cli\libcliui.lib ui\libui.lib image\tshark.res
 <<
 !IFDEF MANIFEST_INFO_REQUIRED
 	mt.exe -nologo -manifest "tshark.exe.manifest" -outputresource:tshark.exe;1
@@ -795,6 +796,11 @@ wiretap::
 filetap::
 	cd filetap
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
+	cd ..
+
+capchild:: help config.h version.h doxygen
+	cd capchild
+	$(MAKE) /$(MAKEFLAGS) /f Makefile.nmake libcapchild.lib
 	cd ..
 
 codecs::

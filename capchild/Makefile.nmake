@@ -1,0 +1,77 @@
+## Makefile for building wireshark.exe with Microsoft C and nmake
+## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
+#
+
+include ..\config.nmake
+include ..\Makefile.nmake.inc
+
+############### no need to modify below this line #########
+
+# We use GENERATED_CFLAGS to get around flex's non-LLP64-compliant output
+GENERATED_CFLAGS=\
+	$(STANDARD_CFLAGS) \
+	/Zm800 \
+	/I.. /I../wiretap $(GLIB_CFLAGS) $(GNUTLS_CFLAGS) \
+	/I$(PCAP_DIR)\WPCAP\LIBPCAP /I$(PCAP_DIR)\WPCAP\LIBPCAP\bpf \
+	/I$(PCAP_DIR)\WPCAP\LIBPCAP\lbl \
+	/I$(PCAP_DIR)\include $(AIRPCAP_CFLAGS) \
+	$(PORTAUDIO_CFLAGS) $(GEOIP_CFLAGS) $(WINSPARKLE_CFLAGS) \
+	$(HHC_CFLAGS)
+
+CFLAGS=$(WARNINGS_ARE_ERRORS) $(GENERATED_CFLAGS)
+
+.c.obj::
+	$(CC) $(CFLAGS) $(WSUG_CFLAGS) -Fd.\ -c $<
+
+include Makefile.common
+
+
+# if you add files here, be sure to include them also in Makefile.am EXTRA_DIST
+CAPCHILD_OBJECTS = \
+	$(CAPCHILD_SRC:.c=.obj)
+
+RUNLEX=..\tools\runlex.sh
+
+libcapchild.lib	: ..\config.h $(CAPCHILD_OBJECTS)
+	link /lib /out:libcapchild.lib $(CAPCHILD_OBJECTS)
+
+clean:
+	rm -f $(CAPCHILD_OBJECTS) $(WIRESHARK_TAP_OBJECTS) libcapchild.lib *.pdb *.sbr \
+		doxygen.cfg html/*.* wireshark-tap-register-cache.pkl
+	if exist html rmdir html
+
+distclean: clean
+
+maintainer-clean: distclean
+	rm -f $(GENERATED_FILES)
+
+# convert doxygen.cfg.in to doxygen.cfg with stamped version info
+doxygen.cfg: ..\config.nmake doxygen.cfg.in
+!IFDEF DOXYGEN
+	sed -e s/@VERSION@/$(VERSION)/ \
+	    < doxygen.cfg.in > $@
+!ENDIF
+
+doxygen-run:
+!IFDEF DOXYGEN
+	$(DOXYGEN) doxygen.cfg
+!ENDIF
+
+# MS html help compiler hhc returns 1 on success, but as nmake expects 0 it would stop here.
+# the prepended -1 will raise the accepted error levels of nmake, so it will continue
+doxygen.chm:
+!IFDEF HHC
+	-1 $(HHC) html\index.hhp
+!ENDIF
+
+doxygen: doxygen.cfg doxygen-run doxygen.chm
+
+checkapi: checkapi-base checkapi-todo
+
+checkapi-base:
+	$(PERL) ../tools/checkAPIs.pl -g deprecated-gtk -build \
+	$(CAPCHILD_SRC)
+
+checkapi-todo:
+	$(PERL) ../tools/checkAPIs.pl -M -g deprecated-gtk-todo -build \
+	$(CAPCHILD_SRC)

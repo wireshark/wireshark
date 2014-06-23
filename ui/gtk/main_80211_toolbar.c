@@ -47,7 +47,7 @@
 
 #include "ws80211_utils.h"
 #include "capture_session.h"
-#include "capture_sync.h"
+#include <capchild/capture_sync.h>
 
 static GtkWidget *tb80211_tb, *tb80211_iface_list_box, *tb80211_freq_list_box, *tb80211_chan_type_box, *tb80211_info_label;
 

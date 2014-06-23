@@ -351,6 +351,7 @@ endif
 # GLIB_LIBS (that's the case on my machine right now, for example).
 #
 wireshark_ldadd = \
+	capchild/libcapchild.a		\
 	ui/libui.a			\
 	ui/libui_dirty.a		\
 	codecs/libcodec.a		\
@@ -418,6 +419,7 @@ endif
 
 # Libraries and plugin flags with which to link tshark.
 tshark_LDADD = \
+	capchild/libcapchild.a		\
 	ui/cli/libcliui.a		\
 	ui/libui.a			\
 	wiretap/libwiretap.la		\
@@ -1049,13 +1051,42 @@ endif
 endif
 
 
-DIST_SUBDIRS = asn1 codecs doc epan echld filetap ui ui/cli ui/gtk ui/qt help packaging plugins tools wiretap wsutil docbook
+DIST_SUBDIRS = \
+	asn1		\
+	capchild	\
+	codecs		\
+	doc		\
+	epan		\
+	echld		\
+	filetap		\
+	ui		\
+	ui/cli		\
+	ui/gtk		\
+	ui/qt		\
+	help		\
+	packaging	\
+	plugins		\
+	tools		\
+	wiretap		\
+	wsutil		\
+	docbook
 
-if HAVE_PLUGINS
-SUBDIRS = tools wsutil wiretap filetap epan @echld_dir@ plugins packaging help ui @wireshark_SUBDIRS@ ui/cli . doc
-else
-SUBDIRS = tools wsutil wiretap filetap epan @echld_dir@ packaging help ui @wireshark_SUBDIRS@ ui/cli . doc
-endif
+SUBDIRS = \
+	tools			\
+	wsutil			\
+	wiretap			\
+	filetap			\
+	epan			\
+	capchild		\
+	@echld_dir@		\
+	@plugins_dir@		\
+	packaging		\
+	help			\
+	ui			\
+	@wireshark_SUBDIRS@	\
+	ui/cli			\
+	.			\
+	doc
 
 help/faq.txt: $(srcdir)/help/faq.py
 	$(AM_V_GEN)(cd help ; \
@@ -1199,6 +1230,7 @@ checkapi: checkapi_local
 	cd wiretap && $(MAKE) checkapi
 	cd filetap && $(MAKE) checkapi
 	cd codecs && $(MAKE) checkapi
+	cd capchild && $(MAKE) checkapi
 	cd ui && $(MAKE) checkapi
 	cd ui/gtk && $(MAKE) checkapi
 ##	cd epan && $(MAKE) checkapi
@@ -1214,6 +1246,7 @@ wsar_html: doxygen.cfg doxygen_global.cfg FORCE
 if HAVE_DOXYGEN
 	rm -rf wsar_html
 	cd epan && $(MAKE) $@
+	cd capchild && $(MAKE) $@
 	cd ui && $(MAKE) $@
 	(umask 022 ; $(DOXYGEN) doxygen.cfg)
 endif
