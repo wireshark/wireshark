@@ -25,18 +25,7 @@
 
 #include "config.h"
 
-#ifdef HAVE_SYS_TYPES_H
-#include <sys/types.h>
-#endif
-
-#ifdef HAVE_SYS_SOCKET_H
-#include <sys/socket.h>
-#endif
-
-#ifdef HAVE_WINSOCK2_H
-#include <winsock2.h>
-#endif
-
+#include <epan/aftypes.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/to_str.h>
@@ -298,8 +287,8 @@ static const value_string auth_type[] = {
 };
 
 static const value_string address_family[] = {
-  { AF_UNSPEC, "AF_UNSPEC" },
-  { AF_INET,   "AF_INET"   },
+  { COMMON_AF_UNSPEC,	"AF_UNSPEC" },
+  { COMMON_AF_INET,	"AF_INET"   },
   { 0,   NULL }
 };
 
@@ -418,7 +407,7 @@ dissect_rpcap_ifaddr (tvbuff_t *tvb, packet_info *pinfo,
   proto_tree_add_item (tree, hf_if_af, tvb, offset, 2, ENC_BIG_ENDIAN);
   offset += 2;
 
-  if (af == AF_INET) {
+  if (af == COMMON_AF_INET) {
     proto_tree_add_item (tree, hf_if_port, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
@@ -435,7 +424,7 @@ dissect_rpcap_ifaddr (tvbuff_t *tvb, packet_info *pinfo,
     offset += 120;
   } else {
     ti = proto_tree_add_item (tree, hf_if_unknown, tvb, offset, 126, ENC_NA);
-    if (af != AF_UNSPEC) {
+    if (af != COMMON_AF_UNSPEC) {
       expert_add_info_format(pinfo, ti, &ei_if_unknown,
 			      "Unknown address family: %d", af);
     }
