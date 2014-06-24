@@ -318,7 +318,7 @@ wiretap\wiretap-$(WTAP_VERSION).lib: image $(ZLIB_DLL) wiretap
 wireshark.exe	: $(LIBS_CHECK) config.h $(wireshark_OBJECTS) capchild codecs epan ui gtk win32 image\wireshark.res image\file_dlg_win32.res wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib codecs\codecs.lib ui\libui.lib ui\gtk\libgtkui.lib ui\win32\libgtkui_win32.lib plugins
 	@echo Linking $@
 	$(LINK) @<<
-		/OUT:$(PROGRAM_NAME).exe $(guiflags) $(guilibsdll) $(LDFLAGS) /LARGEADDRESSAWARE $(wireshark_LIBS) $(GTK_LIBS) capchild\capchild.lib codecs\codecs.lib ui\gtk\libgtkui.lib ui\win32\libgtkui_win32.lib ui\libui.lib $(wireshark_OBJECTS) image\wireshark.res image\file_dlg_win32.res
+		/OUT:$(PROGRAM_NAME).exe $(guiflags) $(guilibsdll) $(LDFLAGS) /LARGEADDRESSAWARE $(wireshark_LIBS) $(GTK_LIBS) capchild\libcapchild.lib codecs\codecs.lib ui\gtk\libgtkui.lib ui\win32\libgtkui_win32.lib ui\libui.lib $(wireshark_OBJECTS) image\wireshark.res image\file_dlg_win32.res
 <<
 !IFDEF MANIFEST_INFO_REQUIRED
 	mt.exe -nologo -manifest "wireshark.exe.manifest" -outputresource:$(PROGRAM_NAME).exe;1
