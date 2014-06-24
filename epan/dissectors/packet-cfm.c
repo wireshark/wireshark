@@ -1329,7 +1329,6 @@ static void dissect_cfm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			{
 				guint16 cfm_tlv_length;
 				gint tlv_header_modifier;
-				proto_item *fi;
 				proto_tree *cfm_tlv_tree;
 				cfm_tlv_type = tvb_get_guint8(tvb, cfm_tlv_offset);
 
@@ -1341,10 +1340,9 @@ static void dissect_cfm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					cfm_tlv_length = tvb_get_ntohs(tvb, cfm_tlv_offset+1);
 				}
 
-				fi = proto_tree_add_text(cfm_all_tlvs_tree, tvb, cfm_tlv_offset, cfm_tlv_length+tlv_header_modifier,
-					       "TLV: %s (t=%d,l=%d)", val_to_str(cfm_tlv_type, tlvtypefieldvalues, "Unknown (0x%02x)"),
+				cfm_tlv_tree = proto_tree_add_subtree_format(cfm_all_tlvs_tree, tvb, cfm_tlv_offset, cfm_tlv_length+tlv_header_modifier,
+					       ett_cfm_tlv, NULL, "TLV: %s (t=%d,l=%d)", val_to_str(cfm_tlv_type, tlvtypefieldvalues, "Unknown (0x%02x)"),
 					       cfm_tlv_type, cfm_tlv_length);
-				cfm_tlv_tree = proto_item_add_subtree(fi, ett_cfm_tlv);
 
 				proto_tree_add_item(cfm_tlv_tree, hf_cfm_tlv_type, tvb, cfm_tlv_offset, 1, ENC_BIG_ENDIAN);
 				cfm_tlv_offset += 1;

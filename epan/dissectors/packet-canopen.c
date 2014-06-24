@@ -232,7 +232,7 @@ dissect_canopen(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
                     tvb_bytes_to_ep_str_punct(tvb, offset, can_data_len, ' '));
 
     if (tree) {
-        proto_item *ti, *cob_ti, *type_ti;
+        proto_item *ti, *cob_ti;
         proto_tree *canopen_tree;
         proto_tree *canopen_cob_tree;
         proto_tree *canopen_type_tree;
@@ -254,11 +254,9 @@ dissect_canopen(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
         /* add CANopen frame type */
 
-        type_ti = proto_tree_add_text(canopen_tree, tvb, 0,
+        canopen_type_tree = proto_tree_add_subtree_format(canopen_tree, tvb, 0,
                                       (msg_type_id != MT_SYNC) ? -1 : 0,
-                                      "Type: %s", function_code_str);
-        canopen_type_tree = proto_item_add_subtree(type_ti, ett_canopen);
-
+                                      ett_canopen, NULL, "Type: %s", function_code_str);
         switch(msg_type_id)
         {
         case MT_NMT_CTRL:

@@ -346,8 +346,8 @@ dissect_ccsds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     ccsds_tree   = proto_item_add_subtree(ccsds_packet, ett_ccsds);
 
             /* build the ccsds primary header tree */
-    primary_header = proto_tree_add_text(ccsds_tree, tvb, offset, CCSDS_PRIMARY_HEADER_LENGTH, "Primary CCSDS Header");
-    primary_header_tree = proto_item_add_subtree(primary_header, ett_ccsds_primary_header);
+    primary_header_tree = proto_tree_add_subtree(ccsds_tree, tvb, offset, CCSDS_PRIMARY_HEADER_LENGTH,
+                            ett_ccsds_primary_header, &primary_header, "Primary CCSDS Header");
 
     proto_tree_add_uint(primary_header_tree, hf_ccsds_version, tvb, offset, 2, first_word);
     proto_tree_add_uint(primary_header_tree, hf_ccsds_type, tvb, offset, 2, first_word);
@@ -371,8 +371,8 @@ dissect_ccsds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* build the ccsds secondary header tree */
     if ( first_word & HDR_SECHDR )
     {
-        secondary_header = proto_tree_add_text(ccsds_tree, tvb, offset, CCSDS_SECONDARY_HEADER_LENGTH, "Secondary CCSDS Header");
-        secondary_header_tree = proto_item_add_subtree(secondary_header, ett_ccsds_secondary_header);
+        secondary_header_tree = proto_tree_add_subtree(ccsds_tree, tvb, offset, CCSDS_SECONDARY_HEADER_LENGTH,
+                        ett_ccsds_secondary_header, &secondary_header, "Secondary CCSDS Header");
 
                     /* command ccsds secondary header flags */
             coarse_time = tvb_get_ntohl(tvb, offset);

@@ -438,12 +438,10 @@ dissect_unid(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, proto_item *pi,
              int hf_ssn_date, int hf_ssn_time, int hf_macid, gint ett, gint ett_ssn)
 {
    proto_tree *tree, *ssn_tree;
-   proto_item *ssn_item;
 
    tree = proto_item_add_subtree(pi, ett);
 
-   ssn_item = proto_tree_add_text(tree, tvb, offset, 6, "%s", ssn_name);
-   ssn_tree = proto_item_add_subtree(ssn_item, ett_ssn);
+   ssn_tree = proto_tree_add_subtree(tree, tvb, offset, 6, ett_ssn, NULL, ssn_name);
    dissect_cipsafety_ssn(ssn_tree, tvb, pinfo, offset, hf_ssn_timestamp, hf_ssn_date, hf_ssn_time);
 
    proto_tree_add_item(tree, hf_macid, tvb, offset+6, 4, ENC_LITTLE_ENDIAN);
@@ -490,8 +488,7 @@ dissect_cip_s_supervisor_data( proto_tree *item_tree,
 
    /* Add Service code & Request/Response tree */
    service   = tvb_get_guint8( tvb, offset );
-   rrsc_item = proto_tree_add_text( item_tree, tvb, offset, 1, "Service: " );
-   rrsc_tree = proto_item_add_subtree( rrsc_item, ett_ssupervisor_rrsc );
+   rrsc_tree = proto_tree_add_subtree( item_tree, tvb, offset, 1, ett_ssupervisor_rrsc, &rrsc_item, "Service: " );
 
    /* Add Request/Response */
    proto_tree_add_item( rrsc_tree, hf_cip_reqrsp, tvb, offset, 1, ENC_LITTLE_ENDIAN );
@@ -528,9 +525,8 @@ dissect_cip_s_supervisor_data( proto_tree *item_tree,
       /* If there is any command specific data create a sub-tree for it */
       if( ( item_length-4-add_stat_size ) != 0 )
       {
-         pi = proto_tree_add_text( item_tree,
-                         tvb, offset+4+add_stat_size, item_length-4-add_stat_size, "Command Specific Data" );
-         cmd_data_tree = proto_item_add_subtree( pi, ett_ssupervisor_cmd_data );
+         cmd_data_tree = proto_tree_add_subtree( item_tree, tvb, offset+4+add_stat_size,
+                         item_length-4-add_stat_size, ett_ssupervisor_cmd_data, NULL, "Command Specific Data" );
 
          if( gen_status == CI_GRC_SUCCESS || gen_status == CI_GRC_SERVICE_ERROR )
          {
@@ -579,9 +575,8 @@ dissect_cip_s_supervisor_data( proto_tree *item_tree,
       /* If there is any command specific data create a sub-tree for it */
       if( (item_length-req_path_size-2) != 0 )
       {
-         pi = proto_tree_add_text( item_tree, tvb, offset+2+req_path_size, item_length-req_path_size-2,
-                                   "Command Specific Data" );
-         cmd_data_tree = proto_item_add_subtree( pi, ett_ssupervisor_cmd_data );
+         cmd_data_tree = proto_tree_add_subtree( item_tree, tvb, offset+2+req_path_size, item_length-req_path_size-2,
+                                   ett_ssupervisor_cmd_data, NULL, "Command Specific Data" );
 
          /* Check what service code that received */
          switch (service)
@@ -764,8 +759,7 @@ static int dissect_s_supervisor_exception_detail_alarm(packet_info *pinfo, proto
    proto_tree *item_tree;
    int total_size = 0, size;
 
-   pi = proto_tree_add_text(tree, tvb, offset, 1, "Common Exception Detail");
-   item_tree = proto_item_add_subtree(pi, ett_exception_detail_alarm_common);
+   item_tree = proto_tree_add_subtree(tree, tvb, offset, 1, ett_exception_detail_alarm_common, &pi, "Common Exception Detail");
    size = dissect_s_supervisor_exception_detail(item_tree, pi, tvb, offset,
                hf_cip_ssupervisor_exception_detail_alarm_ced_size,
                hf_cip_ssupervisor_exception_detail_alarm_ced_detail);
@@ -776,8 +770,7 @@ static int dissect_s_supervisor_exception_detail_alarm(packet_info *pinfo, proto
    }
    total_size += size;
 
-   pi = proto_tree_add_text(tree, tvb, offset, 1, "Device Exception Detail");
-   item_tree = proto_item_add_subtree(pi, ett_exception_detail_alarm_device);
+   item_tree = proto_tree_add_subtree(tree, tvb, offset, 1, ett_exception_detail_alarm_device, &pi, "Device Exception Detail");
    size = dissect_s_supervisor_exception_detail(item_tree, pi, tvb, offset,
                hf_cip_ssupervisor_exception_detail_alarm_ded_size,
                hf_cip_ssupervisor_exception_detail_alarm_ded_detail);
@@ -788,8 +781,7 @@ static int dissect_s_supervisor_exception_detail_alarm(packet_info *pinfo, proto
    }
    total_size += size;
 
-   pi = proto_tree_add_text(tree, tvb, offset, 1, "Manufacturer Exception Detail");
-   item_tree = proto_item_add_subtree(pi, ett_exception_detail_alarm_manufacturer);
+   item_tree = proto_tree_add_subtree(tree, tvb, offset, 1, ett_exception_detail_alarm_manufacturer, &pi, "Manufacturer Exception Detail");
    size = dissect_s_supervisor_exception_detail(item_tree, pi, tvb, offset,
                hf_cip_ssupervisor_exception_detail_alarm_med_size,
                hf_cip_ssupervisor_exception_detail_alarm_med_detail);
@@ -810,8 +802,7 @@ static int dissect_s_supervisor_exception_detail_warning(packet_info *pinfo, pro
    proto_tree *item_tree;
    int         total_size = 0, size;
 
-   pi = proto_tree_add_text(tree, tvb, offset, 1, "Common Exception Detail");
-   item_tree = proto_item_add_subtree(pi, ett_exception_detail_warning_common);
+   item_tree = proto_tree_add_subtree(tree, tvb, offset, 1, ett_exception_detail_warning_common, &pi, "Common Exception Detail");
    size = dissect_s_supervisor_exception_detail(item_tree, pi, tvb, offset,
                hf_cip_ssupervisor_exception_detail_warning_ced_size,
                hf_cip_ssupervisor_exception_detail_warning_ced_detail);
@@ -822,8 +813,7 @@ static int dissect_s_supervisor_exception_detail_warning(packet_info *pinfo, pro
    }
    total_size += size;
 
-   pi = proto_tree_add_text(tree, tvb, offset, 1, "Device Exception Detail");
-   item_tree = proto_item_add_subtree(pi, ett_exception_detail_warning_device);
+   item_tree = proto_tree_add_subtree(tree, tvb, offset, 1, ett_exception_detail_warning_device, &pi, "Device Exception Detail");
    size = dissect_s_supervisor_exception_detail(item_tree, pi, tvb, offset,
                hf_cip_ssupervisor_exception_detail_warning_ded_size,
                hf_cip_ssupervisor_exception_detail_warning_ded_detail);
@@ -834,8 +824,7 @@ static int dissect_s_supervisor_exception_detail_warning(packet_info *pinfo, pro
    }
    total_size += size;
 
-   pi = proto_tree_add_text(tree, tvb, offset, 1, "Manufacturer Exception Detail");
-   item_tree = proto_item_add_subtree(pi, ett_exception_detail_warning_manufacturer);
+   item_tree = proto_tree_add_subtree(tree, tvb, offset, 1, ett_exception_detail_warning_manufacturer, &pi, "Manufacturer Exception Detail");
    size = dissect_s_supervisor_exception_detail(item_tree, pi, tvb, offset,
                hf_cip_ssupervisor_exception_detail_warning_med_size,
                hf_cip_ssupervisor_exception_detail_warning_med_detail);
@@ -1152,8 +1141,7 @@ dissect_cip_s_validator_data( proto_tree *item_tree,
 
    /* Add Service code & Request/Response tree */
    service   = tvb_get_guint8( tvb, offset );
-   rrsc_item = proto_tree_add_text( item_tree, tvb, offset, 1, "Service: " );
-   rrsc_tree = proto_item_add_subtree( rrsc_item, ett_svalidator_rrsc );
+   rrsc_tree = proto_tree_add_subtree( item_tree, tvb, offset, 1, ett_svalidator_rrsc, &rrsc_item, "Service: " );
 
    /* Add Request/Response */
    proto_tree_add_item( rrsc_tree, hf_cip_reqrsp, tvb, offset, 1, ENC_LITTLE_ENDIAN );
@@ -1192,9 +1180,8 @@ dissect_cip_s_validator_data( proto_tree *item_tree,
       /* If there is any command specific data create a sub-tree for it */
       if( ( item_length-4-add_stat_size ) != 0 )
       {
-         pi = proto_tree_add_text( item_tree,
-                         tvb, offset+4+add_stat_size, item_length-4-add_stat_size, "Command Specific Data" );
-         cmd_data_tree = proto_item_add_subtree( pi, ett_ssupervisor_cmd_data );
+         cmd_data_tree = proto_tree_add_subtree( item_tree, tvb, offset+4+add_stat_size, item_length-4-add_stat_size,
+                                ett_ssupervisor_cmd_data, &pi, "Command Specific Data" );
 
          if( gen_status == CI_GRC_SUCCESS || gen_status == CI_GRC_SERVICE_ERROR )
          {
@@ -1278,9 +1265,8 @@ dissect_cip_s_validator_data( proto_tree *item_tree,
       /* If there is any command specific data create a sub-tree for it */
       if( (item_length-req_path_size-2) != 0 )
       {
-         pi = proto_tree_add_text( item_tree,
-                         tvb, offset+2+req_path_size, item_length-req_path_size-2, "Command Specific Data" );
-         cmd_data_tree = proto_item_add_subtree( pi, ett_ssupervisor_cmd_data );
+         cmd_data_tree = proto_tree_add_subtree( item_tree, tvb, offset+2+req_path_size, item_length-req_path_size-2,
+                                                ett_ssupervisor_cmd_data, NULL, "Command Specific Data" );
          proto_tree_add_item(cmd_data_tree, hf_cip_data,
                          tvb, offset+2+req_path_size, item_length-req_path_size-2, ENC_NA);
       }

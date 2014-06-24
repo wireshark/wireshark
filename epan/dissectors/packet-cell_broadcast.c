@@ -336,8 +336,8 @@ dissect_gsm_cell_broadcast(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       }
       if (tree != NULL)
       {
-         proto_item *item = proto_tree_add_text(cbs_page_tree, tvb, offset, -1, "Cell Broadcast Page Contents");
-         proto_tree *cbs_page_subtree = proto_item_add_subtree(item, ett_gsm_cbs_page_content);
+         proto_tree *cbs_page_subtree = proto_tree_add_subtree(cbs_page_tree, tvb, offset, -1,
+                                        ett_gsm_cbs_page_content, NULL, "Cell Broadcast Page Contents");
          len = tvb_length(cbs_page_tvb);
          proto_tree_add_string(cbs_page_subtree, hf_gsm_cbs_page_content, cbs_page_tvb, 0,
                                text_len, tvb_get_string_enc(wmem_packet_scope(), cbs_page_tvb, 0, text_len, ENC_ASCII));
@@ -390,8 +390,8 @@ void dissect_umts_cell_broadcast_message(tvbuff_t *tvb, packet_info *pinfo, prot
    guint8 sms_encoding;
    guint32       offset = 0;
    guint32       len;
-   proto_item    *cbs_item = NULL, *cbs_item2 = NULL;
-   proto_tree    *cbs_tree = NULL, *cbs_subtree = NULL;
+   proto_item    *cbs_item;
+   proto_tree    *cbs_tree, *cbs_subtree;
    guint         msg_len;
    tvbuff_t * cbs_msg_tvb = NULL;
 
@@ -408,8 +408,8 @@ void dissect_umts_cell_broadcast_message(tvbuff_t *tvb, packet_info *pinfo, prot
    cbs_msg_tvb = dissect_cbs_data(sms_encoding, tvb, cbs_tree, pinfo, offset );
 
    msg_len = tvb_length(cbs_msg_tvb);
-   cbs_item2 = proto_tree_add_text(cbs_tree, tvb, offset, -1, "Cell Broadcast Message Contents (length: %d)", msg_len);
-   cbs_subtree = proto_item_add_subtree(cbs_item2, ett_cbs_msg);
+   cbs_subtree = proto_tree_add_subtree_format(cbs_tree, tvb, offset, -1,
+                    ett_cbs_msg, NULL, "Cell Broadcast Message Contents (length: %d)", msg_len);
    proto_tree_add_text(cbs_subtree, cbs_msg_tvb , 0, tvb_length(cbs_msg_tvb), "%s", tvb_get_string_enc(wmem_packet_scope(), cbs_msg_tvb, 0, msg_len, ENC_ASCII));
 }
 

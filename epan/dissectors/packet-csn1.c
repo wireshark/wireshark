@@ -495,8 +495,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
           proto_item   *ti;
           proto_tree   *test_tree;
 
-          ti = proto_tree_add_text(tree, tvb, bit_offset>>3, 1,  "%s[%d]",pDescr->sz, i++);
-          test_tree = proto_item_add_subtree(ti, ett_csn1);
+          test_tree = proto_tree_add_subtree_format(tree, tvb, bit_offset>>3, 1, ett_csn1, &ti, "%s[%d]",pDescr->sz, i++);
 
           csnStreamInit(&arT, bit_offset, remaining_bits_len);
           Status = csnStreamDissector(test_tree, &arT, (const CSN_DESCR*)pDescr->descr.ptr, tvb, pui8, ett_csn1);
@@ -560,8 +559,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
         proto_item   *ti;
         proto_tree   *test_tree;
 
-        ti = proto_tree_add_text(tree, tvb, bit_offset>>3, 1, "%s", pDescr->sz);
-        test_tree = proto_item_add_subtree(ti, ett_csn1);
+        test_tree = proto_tree_add_subtree_format(tree, tvb, bit_offset>>3, 1, ett_csn1, &ti, "%s", pDescr->sz);
 
         csnStreamInit(&arT, bit_offset, remaining_bits_len);
         Status = csnStreamDissector(test_tree, &arT, (const CSN_DESCR*)pDescr->descr.ptr, tvb, pvDATA(data, pDescr->offset), ett_csn1);
@@ -619,8 +617,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
             }
 
             if (pDescr->sz) {
-              ti = proto_tree_add_text(tree, tvb, bit_offset>>3, 1, "%s", pDescr->sz);
-              test_tree = proto_item_add_subtree(ti, ett_csn1);
+              test_tree = proto_tree_add_subtree(tree, tvb, bit_offset>>3, 1, ett_csn1, &ti, pDescr->sz);
             } else {
               test_tree = tree;
             }
@@ -671,12 +668,10 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
           bit_offset += length_len;
           remaining_bits_len -= length_len;
 
-          ti = proto_tree_add_text(tree, tvb, bit_offset>>3, ((bit_offset+length-1)>>3)-(bit_offset>>3) + 1, "%s", pDescr->sz);
+          test_tree = proto_tree_add_subtree(tree, tvb, bit_offset>>3, ((bit_offset+length-1)>>3)-(bit_offset>>3) + 1, ett_csn1, &ti, pDescr->sz);
         } else {
-          ti = proto_tree_add_text(tree, tvb, bit_offset>>3, 1, "%s", pDescr->sz);
+          test_tree = proto_tree_add_subtree(tree, tvb, bit_offset>>3, 1, ett_csn1, &ti, pDescr->sz);
         }
-
-        test_tree = proto_item_add_subtree(ti, ett_csn1);
 
         csnStreamInit(&arT, bit_offset, length > 0 ? length : remaining_bits_len);
         Status = serialize(test_tree, &arT, tvb, pvDATA(data, pDescr->offset), ett_csn1);
@@ -992,8 +987,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
               proto_item   *ti;
               proto_tree   *test_tree;
 
-              ti = proto_tree_add_text(tree, tvb, bit_offset>>3, 1,  "%s[%d]",pDescr->sz, i++);
-              test_tree = proto_item_add_subtree(ti, ett_csn1);
+              test_tree = proto_tree_add_subtree_format(tree, tvb, bit_offset>>3, 1, ett_csn1, &ti, "%s[%d]",pDescr->sz, i++);
 
               csnStreamInit(&arT, bit_offset, remaining_bits_len);
               Status = csnStreamDissector(test_tree, &arT, (const CSN_DESCR *)pDescr->descr.ptr, tvb, pui8, ett_csn1);
@@ -1045,8 +1039,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
             proto_item   *ti;
             proto_tree   *test_tree;
 
-            ti = proto_tree_add_text(tree, tvb, bit_offset>>3, 1,  "%s",pDescr->sz);
-            test_tree = proto_item_add_subtree(ti, ett_csn1);
+            test_tree = proto_tree_add_subtree(tree, tvb, bit_offset>>3, 1, ett_csn1, &ti, pDescr->sz);
 
             csnStreamInit(&arT, bit_offset, remaining_bits_len);
             Status = csnStreamDissector(test_tree, &arT, (const CSN_DESCR *)pDescr->descr.ptr, tvb, pvDATA(data, pDescr->offset), ett_csn1);
@@ -1301,8 +1294,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
 
          if (remaining_bits_len > 0)
          {
-            proto_item *ti = proto_tree_add_text(tree, tvb, bit_offset>>3, -1,  "Padding Bits");
-            proto_tree *padding_tree = proto_item_add_subtree(ti, ett_csn1);
+            proto_tree *padding_tree = proto_tree_add_subtree(tree, tvb, bit_offset>>3, -1, ett_csn1, NULL, "Padding Bits");
             while (remaining_bits_len > 0)
             {
               gint bits_to_handle = remaining_bits_len + (bit_offset%8);
@@ -1446,8 +1438,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
             proto_item   *ti;
             proto_tree   *test_tree;
 
-            ti = proto_tree_add_text(tree, tvb, bit_offset>>3, 1,  "%s",pDescr->sz);
-            test_tree = proto_item_add_subtree(ti, ett_csn1);
+            test_tree = proto_tree_add_subtree(tree, tvb, bit_offset>>3, 1, ett_csn1, &ti, pDescr->sz);
 
             csnStreamInit(&arT, bit_offset, remaining_bits_len);
             Status = csnStreamDissector(test_tree, &arT, (const CSN_DESCR *)pDescr->descr.ptr, tvb, pvDATA(data, pDescr->offset), ett_csn1);
@@ -1510,8 +1501,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
         { /* get data element */
           ElementCount++;
 
-          ti = proto_tree_add_text(tree, tvb, bit_offset>>3, 1,  "%s[%d]",pDescr->sz, ElementCount-1);
-          test_tree = proto_item_add_subtree(ti, ett_csn1);
+          test_tree = proto_tree_add_subtree_format(tree, tvb, bit_offset>>3, 1, ett_csn1, &ti, "%s[%d]", pDescr->sz, ElementCount-1);
 
           csnStreamInit(&arT, bit_offset, remaining_bits_len);
           Status = csnStreamDissector(test_tree, &arT, (const CSN_DESCR *)pDescr->descr.ptr, tvb, pvDATA(data, pDescr->offset), ett_csn1);

@@ -373,11 +373,10 @@ dissect_classicstun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
                 att_type = tvb_get_ntohs(tvb, offset); /* Type field in attribute header */
                 att_length = tvb_get_ntohs(tvb, offset+2); /* Length field in attribute header */
 
-                ta = proto_tree_add_text(att_type_tree, tvb, offset,
-                             ATTR_HDR_LEN+att_length,
+                att_tree = proto_tree_add_subtree_format(att_type_tree, tvb, offset,
+                             ATTR_HDR_LEN+att_length, ett_classicstun_att, NULL,
                              "Attribute: %s",
                              val_to_str(att_type, attributes, "Unknown (0x%04x)"));
-                att_tree = proto_item_add_subtree(ta, ett_classicstun_att);
 
                 proto_tree_add_uint(att_tree, classicstun_att_type, tvb,
                             offset, 2, att_type);

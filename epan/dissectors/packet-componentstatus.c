@@ -157,7 +157,6 @@ static void
 dissect_componentstatusprotocol_componentstatusreport_message(tvbuff_t *message_tvb, proto_tree *message_tree)
 {
   tvbuff_t   *association_tvb;
-  proto_item *association_item;
   proto_tree *association_tree;
   /* gint        associations; - variable set but not used, so commented out */
   int         i;
@@ -173,9 +172,8 @@ dissect_componentstatusprotocol_componentstatusreport_message(tvbuff_t *message_
   offset = COMPONENTSTATUSREPORT_ASSOCIATIONARRAY_OFFSET;
   i = 1;
   while(tvb_reported_length_remaining(message_tvb, offset) >= COMPONENTASSOCIATION_LENGTH) {
-     association_item = proto_tree_add_text(message_tree, message_tvb, offset, COMPONENTASSOCIATION_LENGTH,
-         "Association #%d", i++);
-     association_tree = proto_item_add_subtree(association_item, ett_association);
+     association_tree = proto_tree_add_subtree_format(message_tree, message_tvb, offset, COMPONENTASSOCIATION_LENGTH,
+         ett_association, NULL, "Association #%d", i++);
      association_tvb  = tvb_new_subset(message_tvb, offset,
                                        MIN(COMPONENTASSOCIATION_LENGTH, tvb_length_remaining(message_tvb, offset)),
                                        COMPONENTASSOCIATION_LENGTH);
@@ -234,15 +232,10 @@ dissect_componentstatusprotocol(tvbuff_t *message_tvb, packet_info *pinfo, proto
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "ComponentStatusProtocol");
 
-  /* In the interest of speed, if "tree" is NULL, don't do any work not
-     necessary to generate protocol tree items. */
-  if (tree) {
-    /* create the componentstatusprotocol protocol tree */
-    componentstatusprotocol_item = proto_tree_add_item(tree, proto_componentstatusprotocol, message_tvb, 0, -1, ENC_NA);
-    componentstatusprotocol_tree = proto_item_add_subtree(componentstatusprotocol_item, ett_componentstatusprotocol);
-  } else {
-    componentstatusprotocol_tree = NULL;
-  };
+  /* create the componentstatusprotocol protocol tree */
+  componentstatusprotocol_item = proto_tree_add_item(tree, proto_componentstatusprotocol, message_tvb, 0, -1, ENC_NA);
+  componentstatusprotocol_tree = proto_item_add_subtree(componentstatusprotocol_item, ett_componentstatusprotocol);
+
   /* dissect the message */
   dissect_componentstatusprotocol_message(message_tvb, pinfo, componentstatusprotocol_tree);
   return(tvb_length(message_tvb));

@@ -115,12 +115,11 @@ static gint ett_dcc_trace = -1;
 
 
 #define D_CHECKSUM() { \
-	proto_tree *cktree, *ckti; \
-	ckti = proto_tree_add_text(dcc_optree, tvb, offset, (int)sizeof(DCC_CK), \
-		"Checksum - %s", val_to_str(tvb_get_guint8(tvb,offset), \
+	proto_tree *cktree; \
+	cktree = proto_tree_add_subtree_format(dcc_optree, tvb, offset, (int)sizeof(DCC_CK), \
+		ett_dcc_ck, NULL, "Checksum - %s", val_to_str(tvb_get_guint8(tvb,offset), \
 		dcc_cktype_vals, \
 		"Unknown Type: %u")); \
-	cktree = proto_item_add_subtree(ckti, ett_dcc_ck); \
 	proto_tree_add_item(cktree, hf_dcc_ck_type, tvb, offset, 1, ENC_BIG_ENDIAN); \
 	offset += 1; \
 	proto_tree_add_item(cktree, hf_dcc_ck_len, tvb, offset, 1, ENC_BIG_ENDIAN); \
@@ -259,8 +258,7 @@ dissect_dcc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 			offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
 
-		ti = proto_tree_add_text(dcc_tree, tvb, offset, -1, "Operation Numbers (Opaque to Server)");
-		dcc_opnumtree = proto_item_add_subtree(ti, ett_dcc_opnums);
+		dcc_opnumtree = proto_tree_add_subtree(dcc_tree, tvb, offset, -1, ett_dcc_opnums, NULL, "Operation Numbers (Opaque to Server)");
 
 		/* Note - these are indeterminate - they are sortof considered opaque to the client */
 		/* Make some attempt to figure out if this data is little endian, not guaranteed to be
@@ -289,9 +287,8 @@ dissect_dcc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 			offset, 4, client_is_le);
 		offset += 4;
 
-		ti = proto_tree_add_text(dcc_tree, tvb, offset, -1, "Operation: %s",
-			val_to_str(op, dcc_op_vals, "Unknown Op: %u"));
-		dcc_optree = proto_item_add_subtree(ti, ett_dcc_op);
+		dcc_optree = proto_tree_add_subtree_format(dcc_tree, tvb, offset, -1, ett_dcc_op, NULL,
+			"Operation: %s", val_to_str(op, dcc_op_vals, "Unknown Op: %u"));
 
 		switch(op) {
 			case DCC_OP_NOP:

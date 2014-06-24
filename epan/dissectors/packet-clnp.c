@@ -580,9 +580,8 @@ dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 next_length = tvb_length_remaining(tvb, offset);
                 if (next_length != 0) {
                     /* We have payload; dissect it. */
-                    ti = proto_tree_add_text(clnp_tree, tvb, offset, next_length,
-                            "Discarded PDU");
-                    discpdu_tree = proto_item_add_subtree(ti, ett_clnp_disc_pdu);
+                    discpdu_tree = proto_tree_add_subtree(clnp_tree, tvb, offset, next_length,
+                            ett_clnp_disc_pdu, NULL, "Discarded PDU");
 
                     /* Save the current value of the "we're inside an error packet"
                        flag, and set that flag; subdissectors may treat packets

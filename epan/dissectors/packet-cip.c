@@ -2672,7 +2672,6 @@ static int dissect_time_sync_port_state_info(packet_info *pinfo, proto_tree *tre
                              int offset, int total_len)
 {
    guint16 i, num_ports;
-   proto_item* ti;
    proto_tree* port_tree;
 
    if (total_len < 2)
@@ -2692,8 +2691,7 @@ static int dissect_time_sync_port_state_info(packet_info *pinfo, proto_tree *tre
 
    for (i = 0; i < num_ports; i++)
    {
-       ti = proto_tree_add_text(tree, tvb, offset+2+i*4, 4, "Port #%d", i+1);
-       port_tree = proto_item_add_subtree(ti, ett_time_sync_port_state_info);
+       port_tree = proto_tree_add_subtree_format(tree, tvb, offset+2+i*4, 4, ett_time_sync_port_state_info, NULL, "Port #%d", i+1);
        proto_tree_add_item(port_tree, hf_time_sync_port_state_info_port_num, tvb, offset+2+i*4, 2, ENC_LITTLE_ENDIAN);
        proto_tree_add_item(port_tree, hf_time_sync_port_state_info_port_state, tvb, offset+4+i*4, 2, ENC_LITTLE_ENDIAN);
    }
@@ -2705,7 +2703,6 @@ static int dissect_time_sync_port_enable_cfg(packet_info *pinfo, proto_tree *tre
                              int offset, int total_len)
 {
    guint16 i, num_ports;
-   proto_item* ti;
    proto_tree* port_tree;
 
    if (total_len < 2)
@@ -2725,8 +2722,7 @@ static int dissect_time_sync_port_enable_cfg(packet_info *pinfo, proto_tree *tre
 
    for (i = 0; i < num_ports; i++)
    {
-       ti = proto_tree_add_text(tree, tvb, offset+2+i*4, 4, "Port #%d", i+1);
-       port_tree = proto_item_add_subtree(ti, ett_time_sync_port_enable_cfg);
+       port_tree = proto_tree_add_subtree_format(tree, tvb, offset+2+i*4, 4, ett_time_sync_port_enable_cfg, NULL, "Port #%d", i+1);
        proto_tree_add_item(port_tree, hf_time_sync_port_enable_cfg_port_num, tvb, offset+2+i*4, 2, ENC_LITTLE_ENDIAN);
        proto_tree_add_item(port_tree, hf_time_sync_port_enable_cfg_port_enable, tvb, offset+4+i*4, 2, ENC_LITTLE_ENDIAN);
    }
@@ -2738,7 +2734,6 @@ static int dissect_time_sync_port_log_announce(packet_info *pinfo, proto_tree *t
                              int offset, int total_len)
 {
    guint16 i, num_ports;
-   proto_item* ti;
    proto_tree* port_tree;
 
    if (total_len < 2)
@@ -2758,8 +2753,7 @@ static int dissect_time_sync_port_log_announce(packet_info *pinfo, proto_tree *t
 
    for (i = 0; i < num_ports; i++)
    {
-       ti = proto_tree_add_text(tree, tvb, offset+2+i*4, 4, "Port #%d", i+1);
-       port_tree = proto_item_add_subtree(ti, ett_time_sync_port_log_announce);
+       port_tree = proto_tree_add_subtree_format(tree, tvb, offset+2+i*4, 4, ett_time_sync_port_log_announce, NULL, "Port #%d", i+1);
        proto_tree_add_item(port_tree, hf_time_sync_port_log_announce_port_num, tvb, offset+2+i*4, 2, ENC_LITTLE_ENDIAN);
        proto_tree_add_item(port_tree, hf_time_sync_port_log_announce_interval, tvb, offset+4+i*4, 2, ENC_LITTLE_ENDIAN);
    }
@@ -2771,7 +2765,6 @@ static int dissect_time_sync_port_log_sync(packet_info *pinfo, proto_tree *tree,
                              int offset, int total_len)
 {
    guint16 i, num_ports;
-   proto_item* ti;
    proto_tree* port_tree;
 
    if (total_len < 2)
@@ -2791,8 +2784,7 @@ static int dissect_time_sync_port_log_sync(packet_info *pinfo, proto_tree *tree,
 
    for (i = 0; i < num_ports; i++)
    {
-       ti = proto_tree_add_text(tree, tvb, offset+2+i*4, 4, "Port #%d", i+1);
-       port_tree = proto_item_add_subtree(ti, ett_time_sync_port_log_sync);
+       port_tree = proto_tree_add_subtree_format(tree, tvb, offset+2+i*4, 4, ett_time_sync_port_log_sync, NULL, "Port #%d", i+1);
        proto_tree_add_item(port_tree, hf_time_sync_port_log_sync_port_num, tvb, offset+2+i*4, 2, ENC_LITTLE_ENDIAN);
        proto_tree_add_item(port_tree, hf_time_sync_port_log_sync_port_log_sync_interval, tvb, offset+4+i*4, 2, ENC_LITTLE_ENDIAN);
    }
@@ -2931,7 +2923,6 @@ static int dissect_time_sync_port_profile_id_info(packet_info *pinfo, proto_tree
                              int offset, int total_len)
 {
    guint16 i, num_ports;
-   proto_item* ti;
    proto_tree* port_tree;
 
    if (total_len < 2)
@@ -2951,8 +2942,7 @@ static int dissect_time_sync_port_profile_id_info(packet_info *pinfo, proto_tree
 
    for (i = 0; i < num_ports; i++)
    {
-       ti = proto_tree_add_text(tree, tvb, offset+2+i*10, 10, "Port #%d", i+1);
-       port_tree = proto_item_add_subtree(ti, ett_time_sync_port_profile_id_info);
+       port_tree = proto_tree_add_subtree_format(tree, tvb, offset+2+i*10, 10, ett_time_sync_port_profile_id_info, NULL, "Port #%d", i+1);
        proto_tree_add_item(port_tree, hf_time_sync_port_profile_id_info_port_num, tvb, offset+2+i*10, 2, ENC_LITTLE_ENDIAN);
        proto_tree_add_item(port_tree, hf_time_sync_port_profile_id_info_profile_id, tvb, offset+4+i*10, 8, ENC_NA);
    }
@@ -2964,7 +2954,6 @@ static int dissect_time_sync_port_phys_addr_info(packet_info *pinfo, proto_tree 
                              int offset, int total_len)
 {
    guint16 i, num_ports;
-   proto_item* ti;
    proto_tree* port_tree;
 
    if (total_len < 2)
@@ -2984,8 +2973,7 @@ static int dissect_time_sync_port_phys_addr_info(packet_info *pinfo, proto_tree 
 
    for (i = 0; i < num_ports; i++)
    {
-       ti = proto_tree_add_text(tree, tvb, offset+2+i*36, 36, "Port #%d", i+1);
-       port_tree = proto_item_add_subtree(ti, ett_time_sync_port_phys_addr_info);
+       port_tree = proto_tree_add_subtree_format(tree, tvb, offset+2+i*36, 36, ett_time_sync_port_phys_addr_info, NULL, "Port #%d", i+1);
        proto_tree_add_item(port_tree, hf_time_sync_port_phys_addr_info_port_num, tvb, offset+2+i*36, 2, ENC_LITTLE_ENDIAN);
        proto_tree_add_item(port_tree, hf_time_sync_port_phys_addr_info_phys_proto, tvb, offset+4+i*36, 16, ENC_NA);
        proto_tree_add_item(port_tree, hf_time_sync_port_phys_addr_info_addr_size, tvb, offset+20+i*36, 2, ENC_LITTLE_ENDIAN);
@@ -2999,7 +2987,6 @@ static int dissect_time_sync_port_proto_addr_info(packet_info *pinfo, proto_tree
                              int offset, int total_len)
 {
    guint16 i, num_ports;
-   proto_item* ti;
    proto_tree* port_tree;
 
    if (total_len < 2)
@@ -3019,8 +3006,7 @@ static int dissect_time_sync_port_proto_addr_info(packet_info *pinfo, proto_tree
 
    for (i = 0; i < num_ports; i++)
    {
-       ti = proto_tree_add_text(tree, tvb, offset+2+i*22, 22, "Port #%d", i+1);
-       port_tree = proto_item_add_subtree(ti, ett_time_sync_port_proto_addr_info);
+       port_tree = proto_tree_add_subtree_format(tree, tvb, offset+2+i*22, 22, ett_time_sync_port_proto_addr_info, NULL, "Port #%d", i+1);
        proto_tree_add_item(port_tree, hf_time_sync_port_proto_addr_info_port_num, tvb, offset+2+i*22, 2, ENC_LITTLE_ENDIAN);
        proto_tree_add_item(port_tree, hf_time_sync_port_proto_addr_info_network_proto, tvb, offset+4+i*22, 2, ENC_LITTLE_ENDIAN);
        proto_tree_add_item(port_tree, hf_time_sync_port_proto_addr_info_addr_size, tvb, offset+6+i*22, 2, ENC_LITTLE_ENDIAN);
@@ -3396,7 +3382,7 @@ void dissect_epath( tvbuff_t *tvb, packet_info *pinfo, proto_item *epath_item, i
    proto_tree *path_tree, *port_tree, *net_tree;
    proto_tree *cia_tree, *ds_tree, *ds_data_tree, *path_seg_tree, *safety_tree;
    proto_item *it, *cia_item, *cia_ret_item, *port_item, *ds_item, *ds_data_item;
-   proto_item *net_item, *hidden_item, *path_seg_item, *safety_item;
+   proto_item *net_item, *hidden_item, *path_seg_item;
 
    attribute_info_t* att_info;
 
@@ -3694,8 +3680,7 @@ void dissect_epath( tvbuff_t *tvb, packet_info *pinfo, proto_item *epath_item, i
                   /* Segment data  */
                   if( seg_size != 0 )
                   {
-                     ds_data_item = proto_tree_add_text( ds_tree, tvb, offset + pathpos+2, 0, "Data" );
-                     ds_data_tree = proto_item_add_subtree( ds_data_item, ett_data_seg_data );
+                     ds_data_tree = proto_tree_add_subtree( ds_tree, tvb, offset + pathpos+2, 0, ett_data_seg_data, &ds_data_item, "Data" );
 
                      for( i=0; i < seg_size/2; i ++ )
                         proto_tree_add_item(ds_data_tree, hf_cip_data_seg_item, tvb, offset + pathpos+2+(i*2), 2, ENC_LITTLE_ENDIAN );
@@ -3820,8 +3805,8 @@ void dissect_epath( tvbuff_t *tvb, packet_info *pinfo, proto_item *epath_item, i
                   temp_data = tvb_get_guint8( tvb, offset + pathpos + 2 );
                   if (temp_data < 3)
                   {
-                     safety_item = proto_tree_add_text(net_tree, tvb, offset + pathpos+3, seg_size-1, "%s", val_to_str_const(temp_data, cip_safety_segment_format_type_vals, "Reserved"));
-                     safety_tree = proto_item_add_subtree( safety_item, ett_network_seg_safety  );
+                     safety_tree = proto_tree_add_subtree(net_tree, tvb, offset + pathpos+3, seg_size-1,
+                            ett_network_seg_safety, NULL, val_to_str_const(temp_data, cip_safety_segment_format_type_vals, "Reserved"));
                      switch (temp_data)
                      {
                      case 0:
@@ -4088,7 +4073,6 @@ dissect_cip_attribute(packet_info *pinfo, proto_tree *tree, proto_item *item, tv
 static void
 dissect_cip_generic_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_length, packet_info *pinfo, proto_item *ti )
 {
-   proto_item *pi;
    proto_tree *cmd_data_tree;
    int req_path_size;
    unsigned char add_stat_size;
@@ -4102,8 +4086,8 @@ dissect_cip_generic_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int 
       /* If there is any command specific data create a sub-tree for it */
       if( ( item_length-4-add_stat_size ) != 0 )
       {
-         pi = proto_tree_add_text( item_tree, tvb, offset+4+add_stat_size, item_length-4-add_stat_size, "Command Specific Data" );
-         cmd_data_tree = proto_item_add_subtree( pi, ett_cmd_data );
+         cmd_data_tree = proto_tree_add_subtree( item_tree, tvb, offset+4+add_stat_size, item_length-4-add_stat_size,
+                                                            ett_cmd_data, NULL, "Command Specific Data" );
 
          /* Add data */
          proto_tree_add_item(cmd_data_tree, hf_cip_data, tvb, offset+4+add_stat_size, item_length-4-add_stat_size, ENC_NA);
@@ -4125,8 +4109,8 @@ dissect_cip_generic_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int 
       /* If there is any command specific data creat a sub-tree for it */
       if( (item_length-req_path_size-2) != 0 )
       {
-         pi = proto_tree_add_text( item_tree, tvb, offset+2+req_path_size, item_length-req_path_size-2, "Command Specific Data" );
-         cmd_data_tree = proto_item_add_subtree( pi, ett_cmd_data );
+         cmd_data_tree = proto_tree_add_subtree( item_tree, tvb, offset+2+req_path_size, item_length-req_path_size-2,
+                                                 ett_cmd_data, NULL, "Command Specific Data" );
 
          proto_tree_add_item(cmd_data_tree, hf_cip_data, tvb, offset+2+req_path_size, item_length-req_path_size-2, ENC_NA);
       }
@@ -4192,8 +4176,7 @@ dissect_cip_get_attribute_list_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree
    proto_tree_add_item(tree, hf_cip_sc_get_attr_list_attr_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 
    /* Add Attribute List */
-   att_list = proto_tree_add_text(tree, tvb, offset+2, att_count*2, "Attribute List" );
-   att_tree = proto_item_add_subtree( att_list, ett_cip_get_attribute_list);
+   att_tree = proto_tree_add_subtree(tree, tvb, offset+2, att_count*2, ett_cip_get_attribute_list, &att_list, "Attribute List" );
 
    for( i=0; i < att_count; i++ )
    {
@@ -4234,8 +4217,7 @@ dissect_cip_set_attribute_list_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree
    proto_tree_add_item(tree, hf_cip_sc_set_attr_list_attr_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 
    /* Add Attribute List */
-   att_list = proto_tree_add_text(tree, tvb, offset+2, att_count*4, "Attribute List" );
-   att_list_tree = proto_item_add_subtree( att_list, ett_cip_set_attribute_list);
+   att_list_tree = proto_tree_add_subtree(tree, tvb, offset+2, att_count*4, ett_cip_set_attribute_list, &att_list, "Attribute List" );
    offset += 2;
    start_offset = offset;
 
@@ -4335,8 +4317,8 @@ dissect_cip_multiple_service_packet_req(tvbuff_t *tvb, packet_info *pinfo, proto
          serv_length = tvb_get_letohs( tvb, offset+2+((i+1)*2) ) - serv_offset;
       }
 
-      mult_serv_item = proto_tree_add_text(tree, tvb, offset+serv_offset, serv_length, "Service Packet #%d", i+1 );
-      mult_serv_tree = proto_item_add_subtree(mult_serv_item, ett_cip_mult_service_packet );
+      mult_serv_tree = proto_tree_add_subtree_format(tree, tvb, offset+serv_offset, serv_length,
+                    ett_cip_mult_service_packet, &mult_serv_item, "Service Packet #%d", i+1 );
       proto_tree_add_item(mult_serv_tree, hf_cip_sc_mult_serv_pack_offset, tvb, offset+2+(i*2) , 2, ENC_LITTLE_ENDIAN);
 
       /* Make sure the offset is valid */
@@ -4384,10 +4366,9 @@ dissect_cip_generic_service_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
    add_cip_service_to_info_column(pinfo, service, cip_sc_vals);
 
    /* Create service tree */
-   cmd_data_item = proto_tree_add_text(tree, tvb, 0, tvb_length(tvb), "%s",
+   cmd_data_tree = proto_tree_add_subtree(tree, tvb, 0, -1, ett_cmd_data, &cmd_data_item,
                         val_to_str(service, cip_sc_vals , "Unknown Service (0x%02x)"));
    proto_item_append_text(cmd_data_item, " (Request)");
-   cmd_data_tree = proto_item_add_subtree( cmd_data_item, ett_cmd_data );
 
    req_path_size = tvb_get_guint8( tvb, offset+1);
    offset += ((req_path_size*2)+2);
@@ -4491,8 +4472,7 @@ dissect_cip_get_attribute_list_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree
    proto_tree_add_item(tree, hf_cip_sc_get_attr_list_attr_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 
    /* Add Attribute List */
-   att_list = proto_tree_add_text(tree, tvb, offset+2, att_count*4, "Attribute List" );
-   att_list_tree = proto_item_add_subtree( att_list, ett_cip_get_attribute_list);
+   att_list_tree = proto_tree_add_subtree(tree, tvb, offset+2, att_count*4, ett_cip_get_attribute_list, &att_list, "Attribute List" );
    offset += 2;
    start_offset = offset;
 
@@ -4558,8 +4538,7 @@ dissect_cip_set_attribute_list_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree
    proto_tree_add_item(tree, hf_cip_sc_set_attr_list_attr_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 
    /* Add Attribute List */
-   att_list = proto_tree_add_text(tree, tvb, offset+2, att_count*4, "Attribute List" );
-   att_list_tree = proto_item_add_subtree( att_list, ett_cip_get_attribute_list);
+   att_list_tree = proto_tree_add_subtree(tree, tvb, offset+2, att_count*4, ett_cip_get_attribute_list, &att_list, "Attribute List" );
    offset += 2;
    start_offset = offset;
 
@@ -4608,7 +4587,6 @@ dissect_cip_get_attribute_single_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 static void
 dissect_cip_multiple_service_packet_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item * item, int offset)
 {
-   proto_item *mult_serv_item;
    proto_tree *mult_serv_tree;
    int i, num_services, serv_offset;
    cip_req_info_t *cip_req_info, *mr_single_req_info;
@@ -4666,8 +4644,8 @@ dissect_cip_multiple_service_packet_rsp(tvbuff_t *tvb, packet_info *pinfo, proto
          serv_length = tvb_get_letohs( tvb, offset+2+((i+1)*2) ) - serv_offset;
       }
 
-      mult_serv_item = proto_tree_add_text( tree, tvb, offset+serv_offset, serv_length, "Service Reply #%d", i+1 );
-      mult_serv_tree = proto_item_add_subtree( mult_serv_item, ett_cip_mult_service_packet );
+      mult_serv_tree = proto_tree_add_subtree_format( tree, tvb, offset+serv_offset, serv_length,
+                                            ett_cip_mult_service_packet, NULL, "Service Reply #%d", i+1 );
       proto_tree_add_item(mult_serv_tree, hf_cip_sc_mult_serv_pack_offset, tvb, offset+2+(i*2) , 2, ENC_LITTLE_ENDIAN);
 
       /*
@@ -4732,10 +4710,9 @@ dissect_cip_generic_service_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
    /* If there is any command specific data create a sub-tree for it */
    if( (item_length-4-add_stat_size ) != 0 )
    {
-      cmd_data_item = proto_tree_add_text(tree, tvb, offset+4+add_stat_size, item_length-4-add_stat_size, "%s",
-                           val_to_str(service, cip_sc_vals , "Unknown Service (0x%02x)"));
+      cmd_data_tree = proto_tree_add_subtree(tree, tvb, offset+4+add_stat_size, item_length-4-add_stat_size,
+                           ett_cmd_data, &cmd_data_item, val_to_str(service, cip_sc_vals , "Unknown Service (0x%02x)"));
       proto_item_append_text(cmd_data_item, " (Response)");
-      cmd_data_tree = proto_item_add_subtree( cmd_data_item, ett_cmd_data );
    }
    else
    {
@@ -4978,7 +4955,6 @@ dissect_cip_cm_fwd_open_rsp_success(cip_req_info_t *preq_info, proto_tree *tree,
    unsigned char app_rep_size;
    guint32 O2TConnID, T2OConnID, DeviceSerialNumber;
    guint16 ConnSerialNumber, VendorID;
-   proto_item *ti;
    proto_tree *pid_tree, *safety_tree;
 
    /* Display originator to target connection ID */
@@ -5024,11 +5000,9 @@ dissect_cip_cm_fwd_open_rsp_success(cip_req_info_t *preq_info, proto_tree *tree,
       }
       else if (preq_info->connInfo->safety.format == CIP_SAFETY_BASE_FORMAT)
       {
-         ti = proto_tree_add_text( tree, tvb, offset+28, 10, "Safety Application Reply Data");
-         safety_tree = proto_item_add_subtree( ti, ett_cip_cm_safety );
+         safety_tree = proto_tree_add_subtree( tree, tvb, offset+28, 10, ett_cip_cm_safety, NULL, "Safety Application Reply Data");
          proto_tree_add_item( safety_tree, hf_cip_cm_consumer_number, tvb, offset+26, 2, ENC_LITTLE_ENDIAN);
-         ti = proto_tree_add_text( safety_tree, tvb, offset+28, 8, "PID/CID");
-         pid_tree = proto_item_add_subtree( ti, ett_cip_cm_pid );
+         pid_tree = proto_tree_add_subtree( safety_tree, tvb, offset+28, 8, ett_cip_cm_pid, NULL, "PID/CID");
          proto_tree_add_item( pid_tree, hf_cip_cm_targ_vendor_id, tvb, offset+28, 2, ENC_LITTLE_ENDIAN);
          proto_tree_add_item( pid_tree, hf_cip_cm_targ_dev_serial_num, tvb, offset+30, 4, ENC_LITTLE_ENDIAN);
          proto_tree_add_item( pid_tree, hf_cip_cm_targ_conn_serial_num, tvb, offset+34, 2, ENC_LITTLE_ENDIAN);
@@ -5038,11 +5012,9 @@ dissect_cip_cm_fwd_open_rsp_success(cip_req_info_t *preq_info, proto_tree *tree,
       }
       else if (preq_info->connInfo->safety.format == CIP_SAFETY_EXTENDED_FORMAT)
       {
-         ti = proto_tree_add_text( tree, tvb, offset+28, 14, "Safety Application Reply Data");
-         safety_tree = proto_item_add_subtree( ti, ett_cip_cm_safety );
+         safety_tree = proto_tree_add_subtree( tree, tvb, offset+28, 14, ett_cip_cm_safety, NULL, "Safety Application Reply Data");
          proto_tree_add_item( safety_tree, hf_cip_cm_consumer_number, tvb, offset+26, 2, ENC_LITTLE_ENDIAN);
-         ti = proto_tree_add_text( safety_tree, tvb, offset+28, 12, "PID/CID");
-         pid_tree = proto_item_add_subtree( ti, ett_cip_cm_pid );
+         pid_tree = proto_tree_add_subtree( safety_tree, tvb, offset+28, 12, ett_cip_cm_pid, NULL, "PID/CID");
          proto_tree_add_item( pid_tree, hf_cip_cm_targ_vendor_id, tvb, offset+28, 2, ENC_LITTLE_ENDIAN);
          proto_tree_add_item( pid_tree, hf_cip_cm_targ_dev_serial_num, tvb, offset+30, 4, ENC_LITTLE_ENDIAN);
          proto_tree_add_item( pid_tree, hf_cip_cm_targ_conn_serial_num, tvb, offset+34, 2, ENC_LITTLE_ENDIAN);
@@ -5077,7 +5049,7 @@ dissect_cip_cm_fwd_open_rsp_success(cip_req_info_t *preq_info, proto_tree *tree,
 static void
 dissect_cip_cm_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_length, packet_info *pinfo )
 {
-   proto_item *pi, *rrsc_item, *status_item, *add_status_item, *temp_item;
+   proto_item *pi, *rrsc_item, *status_item, *temp_item;
    proto_tree *rrsc_tree, *cmd_data_tree, *status_tree, *add_status_tree, *temp_tree;
    int req_path_size, conn_path_size, temp_data;
    unsigned char service, gen_status, add_stat_size;
@@ -5143,8 +5115,7 @@ dissect_cip_cm_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
    col_set_str(pinfo->cinfo, COL_PROTOCOL, "CIP CM");
 
    /* Add Service code & Request/Response tree */
-   rrsc_item = proto_tree_add_text( item_tree, tvb, offset, 1, "Service: " );
-   rrsc_tree = proto_item_add_subtree( rrsc_item, ett_cm_rrsc );
+   rrsc_tree = proto_tree_add_subtree( item_tree, tvb, offset, 1, ett_cm_rrsc, &rrsc_item, "Service: " );
 
    /* Add Request/Response */
    proto_tree_add_item( rrsc_tree, hf_cip_reqrsp, tvb, offset, 1, ENC_LITTLE_ENDIAN );
@@ -5168,8 +5139,7 @@ dissect_cip_cm_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
       if (gen_status == CI_GRC_FAILURE)
       {
          /* Dissect object specific error codes */
-         status_item = proto_tree_add_text(item_tree, tvb, offset+2, 1, "Status: " );
-         status_tree = proto_item_add_subtree( status_item, ett_status_item );
+         status_tree = proto_tree_add_subtree(item_tree, tvb, offset+2, 1, ett_status_item, &status_item, "Status: " );
 
          /* Add general status */
          proto_tree_add_item(status_tree, hf_cip_cm_genstat, tvb, offset+2, 1, ENC_LITTLE_ENDIAN );
@@ -5237,8 +5207,7 @@ dissect_cip_cm_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
                /* Add additional status */
                if (add_stat_size > 1)
                {
-                  add_status_item = proto_tree_add_text( status_tree, tvb, offset+4, add_stat_size, "Additional Status" );
-                  add_status_tree = proto_item_add_subtree( add_status_item, ett_cm_add_status_item );
+                  add_status_tree = proto_tree_add_subtree( status_tree, tvb, offset+4, add_stat_size, ett_cm_add_status_item, NULL, "Additional Status" );
 
                   for( i=0; i < add_stat_size-2; i += 2 )
                      proto_tree_add_item(add_status_tree, hf_cip_cm_add_status, tvb, offset+4+i, 2, ENC_LITTLE_ENDIAN );
@@ -5250,8 +5219,8 @@ dissect_cip_cm_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
       /* If there is any command specific data create a sub-tree for it */
       if( ( item_length-4-add_stat_size ) != 0 )
       {
-         pi = proto_tree_add_text( item_tree, tvb, offset+4+add_stat_size, item_length-4-add_stat_size, "Command Specific Data" );
-         cmd_data_tree = proto_item_add_subtree( pi, ett_cm_cmd_data );
+         cmd_data_tree = proto_tree_add_subtree( item_tree, tvb, offset+4+add_stat_size, item_length-4-add_stat_size,
+                                                 ett_cm_cmd_data, NULL, "Command Specific Data" );
 
          if( gen_status == CI_GRC_SUCCESS || gen_status == CI_GRC_SERVICE_ERROR )
          {
@@ -5371,8 +5340,8 @@ dissect_cip_cm_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
       if( (item_length-req_path_size-2) != 0 )
       {
 
-         pi = proto_tree_add_text( item_tree, tvb, offset+2+req_path_size, item_length-req_path_size-2, "Command Specific Data" );
-         cmd_data_tree = proto_item_add_subtree( pi, ett_cm_cmd_data );
+         cmd_data_tree = proto_tree_add_subtree( item_tree, tvb, offset+2+req_path_size, item_length-req_path_size-2,
+                                                 ett_cm_cmd_data, NULL, "Command Specific Data" );
 
          /* Check what service code that received */
          switch (service)
@@ -5423,8 +5392,7 @@ dissect_cip_cm_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
             proto_tree_add_item(cmd_data_tree, hf_cip_cm_msg_req_size, tvb, offset+2+req_path_size+2, 2, ENC_LITTLE_ENDIAN);
 
             /* Message Request */
-            temp_item = proto_tree_add_text( cmd_data_tree, tvb, offset+2+req_path_size+4, msg_req_siz, "Message Request" );
-            temp_tree = proto_item_add_subtree(temp_item, ett_cm_mes_req );
+            temp_tree = proto_tree_add_subtree( cmd_data_tree, tvb, offset+2+req_path_size+4, msg_req_siz, ett_cm_mes_req, NULL, "Message Request" );
 
             /*
             ** We call our selves again to disect embedded packet
@@ -5518,7 +5486,7 @@ dissect_cip_class_cm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 static void
 dissect_cip_mb_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_length, packet_info *pinfo )
 {
-   proto_item *pi, *rrsc_item;
+   proto_item *rrsc_item;
    proto_tree *rrsc_tree, *cmd_data_tree;
    tvbuff_t *next_tvb;
    int req_path_size;
@@ -5529,8 +5497,7 @@ dissect_cip_mb_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
 
    /* Add Service code & Request/Response tree */
    service = tvb_get_guint8( tvb, offset );
-   rrsc_item = proto_tree_add_text( item_tree, tvb, offset, 1, "Service: " );
-   rrsc_tree = proto_item_add_subtree( rrsc_item, ett_mb_rrsc );
+   rrsc_tree = proto_tree_add_subtree( item_tree, tvb, offset, 1, ett_mb_rrsc, &rrsc_item, "Service: " );
 
    /* Add Request/Response */
    proto_tree_add_item( rrsc_tree, hf_cip_reqrsp, tvb, offset, 1, ENC_LITTLE_ENDIAN );
@@ -5553,8 +5520,8 @@ dissect_cip_mb_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
       /* If there is any command specific data create a sub-tree for it */
       if( ( item_length-4-add_stat_size ) != 0 )
       {
-         pi = proto_tree_add_text( item_tree, tvb, offset+4+add_stat_size, item_length-4-add_stat_size, "Command Specific Data" );
-         cmd_data_tree = proto_item_add_subtree( pi, ett_mb_cmd_data );
+         cmd_data_tree = proto_tree_add_subtree( item_tree, tvb, offset+4+add_stat_size, item_length-4-add_stat_size,
+                                                 ett_mb_cmd_data, NULL, "Command Specific Data" );
 
          if( gen_status == CI_GRC_SUCCESS || gen_status == CI_GRC_SERVICE_ERROR )
          {
@@ -5629,8 +5596,8 @@ dissect_cip_mb_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
       /* If there is any command specific data creat a sub-tree for it */
       if( (item_length-req_path_size-2) != 0 )
       {
-         pi = proto_tree_add_text( item_tree, tvb, offset+2+req_path_size, item_length-req_path_size-2, "Command Specific Data" );
-         cmd_data_tree = proto_item_add_subtree( pi, ett_mb_cmd_data );
+         cmd_data_tree = proto_tree_add_subtree( item_tree, tvb, offset+2+req_path_size, item_length-req_path_size-2,
+                                                ett_mb_cmd_data, NULL, "Command Specific Data" );
 
          /* Check what service code that received */
          switch (service)
@@ -5729,7 +5696,7 @@ dissect_cip_class_mb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 static int
 dissect_cip_cco_all_attribute_common( proto_tree *cmd_tree, tvbuff_t *tvb, int offset, int item_length, packet_info *pinfo)
 {
-   proto_item *pi, *tdii, *ncpi, *iomapi, *confgi;
+   proto_item *pi, *confgi;
    proto_tree *tdi_tree, *iomap_tree;
    proto_tree *ncp_tree, *confg_tree;
    int conn_path_size, variable_data_size = 0, config_data_size;
@@ -5750,8 +5717,7 @@ dissect_cip_cco_all_attribute_common( proto_tree *cmd_tree, tvbuff_t *tvb, int o
       proto_tree_add_item(confg_tree, hf_cip_cco_to_rtf, tvb, offset, 2, ENC_LITTLE_ENDIAN );
 
    /* Target device id */
-   tdii = proto_tree_add_text( cmd_tree, tvb, offset+2, 10, "Target Device ID");
-   tdi_tree = proto_item_add_subtree(tdii, ett_cco_tdi);
+   tdi_tree = proto_tree_add_subtree( cmd_tree, tvb, offset+2, 10, ett_cco_tdi, NULL, "Target Device ID");
 
    dissect_deviceid(tvb, offset+2, tdi_tree,
       hf_cip_cco_tdi_vendor, hf_cip_cco_tdi_devtype, hf_cip_cco_tdi_prodcode,
@@ -5761,8 +5727,7 @@ dissect_cip_cco_all_attribute_common( proto_tree *cmd_tree, tvbuff_t *tvb, int o
    proto_tree_add_item(cmd_tree, hf_cip_cco_cs_data_index, tvb, offset+10, 4, ENC_LITTLE_ENDIAN );
 
    /* Net Connection Parameters */
-   ncpi = proto_tree_add_text( cmd_tree, tvb, offset+14, 14, "Net Connection Parameters");
-   ncp_tree = proto_item_add_subtree(ncpi, ett_cco_ncp);
+   ncp_tree = proto_tree_add_subtree( cmd_tree, tvb, offset+14, 14, ett_cco_ncp, NULL, "Net Connection Parameters");
 
       /* Timeout multiplier */
       proto_tree_add_item(ncp_tree, hf_cip_cco_timeout_multiplier, tvb, offset+14, 1, ENC_LITTLE_ENDIAN );
@@ -5825,8 +5790,7 @@ dissect_cip_cco_all_attribute_common( proto_tree *cmd_tree, tvbuff_t *tvb, int o
    /* I/O Mapping */
    iomap_size = tvb_get_letohs( tvb, offset+variable_data_size+2);
 
-   iomapi = proto_tree_add_text( cmd_tree, tvb, offset+variable_data_size, iomap_size+2, "I/O Mapping");
-   iomap_tree = proto_item_add_subtree(iomapi, ett_cco_iomap);
+   iomap_tree = proto_tree_add_subtree( cmd_tree, tvb, offset+variable_data_size, iomap_size+2, ett_cco_iomap, NULL, "I/O Mapping");
 
       proto_tree_add_item(iomap_tree, hf_cip_cco_iomap_format_number, tvb, offset+variable_data_size, 2, ENC_LITTLE_ENDIAN );
       proto_tree_add_uint_format_value(iomap_tree, hf_cip_cco_iomap_size, tvb, offset+variable_data_size+2, 2, iomap_size, "%d (bytes)", iomap_size);
@@ -5838,8 +5802,7 @@ dissect_cip_cco_all_attribute_common( proto_tree *cmd_tree, tvbuff_t *tvb, int o
    variable_data_size += (iomap_size+4);
 
    /* Proxy device id */
-   tdii = proto_tree_add_text( cmd_tree, tvb, offset+variable_data_size, 10, "Proxy Device ID");
-   tdi_tree = proto_item_add_subtree(tdii, ett_cco_pdi);
+   tdi_tree = proto_tree_add_subtree( cmd_tree, tvb, offset+variable_data_size, 10, ett_cco_pdi, NULL, "Proxy Device ID");
 
    dissect_deviceid(tvb, offset+variable_data_size, tdi_tree,
       hf_cip_cco_pdi_vendor, hf_cip_cco_pdi_devtype, hf_cip_cco_pdi_prodcode,
@@ -5871,8 +5834,7 @@ dissect_cip_cco_all_attribute_common( proto_tree *cmd_tree, tvbuff_t *tvb, int o
    if (offset+variable_data_size < item_length)
    {
       /* Large Net Connection Parameter */
-      ncpi = proto_tree_add_text( cmd_tree, tvb, offset+variable_data_size, 18, "Large Net Connection Parameters");
-      ncp_tree = proto_item_add_subtree(ncpi, ett_cco_ncp);
+      ncp_tree = proto_tree_add_subtree( cmd_tree, tvb, offset+variable_data_size, 18, ett_cco_ncp, NULL, "Large Net Connection Parameters");
 
       proto_tree_add_item(ncp_tree, hf_cip_cco_timeout_multiplier, tvb, offset+variable_data_size, 1, ENC_LITTLE_ENDIAN );
       dissect_transport_type_trigger(tvb, offset+variable_data_size+1, ncp_tree, hf_cip_cco_transport_type_trigger,
@@ -5902,7 +5864,7 @@ return variable_data_size;
 static void
 dissect_cip_cco_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_length, packet_info *pinfo )
 {
-   proto_item *pi, *rrsc_item, *con_sti;
+   proto_item *rrsc_item;
    proto_tree *rrsc_tree, *cmd_data_tree, *con_st_tree;
    int req_path_size;
    int temp_data;
@@ -5914,8 +5876,7 @@ dissect_cip_cco_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item
 
    /* Add Service code & Request/Response tree */
    service = tvb_get_guint8( tvb, offset );
-   rrsc_item = proto_tree_add_text( item_tree, tvb, offset, 1, "Service: " );
-   rrsc_tree = proto_item_add_subtree( rrsc_item, ett_cco_rrsc );
+   rrsc_tree = proto_tree_add_subtree( item_tree, tvb, offset, 1, ett_cco_rrsc, &rrsc_item, "Service: " );
 
    /* Add Request/Response */
    proto_tree_add_item( rrsc_tree, hf_cip_reqrsp, tvb, offset, 1, ENC_LITTLE_ENDIAN );
@@ -5954,8 +5915,8 @@ dissect_cip_cco_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item
       /* If there is any command specific data create a sub-tree for it */
       if( ( item_length-4-add_stat_size ) != 0 )
       {
-         pi = proto_tree_add_text( item_tree, tvb, offset+4+add_stat_size, item_length-4-add_stat_size, "Command Specific Data" );
-         cmd_data_tree = proto_item_add_subtree( pi, ett_cco_cmd_data );
+         cmd_data_tree = proto_tree_add_subtree( item_tree, tvb, offset+4+add_stat_size, item_length-4-add_stat_size,
+                                                 ett_cco_cmd_data, NULL, "Command Specific Data" );
 
          if( gen_status == CI_GRC_SUCCESS || gen_status == CI_GRC_SERVICE_ERROR )
          {
@@ -5978,8 +5939,7 @@ dissect_cip_cco_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item
                   /* Get Attribute All (instance) request */
 
                   /* Connection status */
-                  con_sti = proto_tree_add_text( cmd_data_tree, tvb, offset+4+add_stat_size, 4, "Connection Status");
-                  con_st_tree = proto_item_add_subtree(con_sti, ett_cco_con_status);
+                  con_st_tree = proto_tree_add_subtree( cmd_data_tree, tvb, offset+4+add_stat_size, 4, ett_cco_con_status, NULL, "Connection Status");
 
                   proto_tree_add_item(con_st_tree, hf_cip_genstat, tvb, offset+4+add_stat_size, 1, ENC_LITTLE_ENDIAN );
                   proto_tree_add_item(con_st_tree, hf_cip_pad8, tvb, offset+4+add_stat_size+1, 1, ENC_LITTLE_ENDIAN);
@@ -6020,8 +5980,8 @@ dissect_cip_cco_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item
       if( (item_length-req_path_size-2) != 0 )
       {
 
-         pi = proto_tree_add_text( item_tree, tvb, offset+2+req_path_size, item_length-req_path_size-2, "Command Specific Data" );
-         cmd_data_tree = proto_item_add_subtree( pi, ett_cco_cmd_data );
+         cmd_data_tree = proto_tree_add_subtree( item_tree, tvb, offset+2+req_path_size, item_length-req_path_size-2,
+                                                 ett_cco_cmd_data, NULL, "Command Specific Data" );
 
          /* Check what service code that received */
 
@@ -6151,7 +6111,7 @@ dissect_cip_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, packet_info 
 {
    proto_item *ti;
    proto_tree *cip_tree;
-   proto_item *pi, *rrsc_item, *status_item, *add_status_item;
+   proto_item *pi, *rrsc_item, *status_item;
    proto_tree *rrsc_tree, *status_tree, *add_status_tree;
    int req_path_size;
    unsigned char i, gen_status, add_stat_size;
@@ -6186,8 +6146,7 @@ dissect_cip_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, packet_info 
    if( service & CIP_SC_RESPONSE_MASK )
    {
       /* Response message */
-      status_item = proto_tree_add_text( cip_tree, tvb, offset+2, 1, "Status: " );
-      status_tree = proto_item_add_subtree( status_item, ett_status_item );
+      status_tree = proto_tree_add_subtree( cip_tree, tvb, offset+2, 1, ett_status_item, &status_item, "Status: " );
 
       /* Add general status */
       gen_status = tvb_get_guint8( tvb, offset+2 );
@@ -6208,8 +6167,7 @@ dissect_cip_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, packet_info 
       if( add_stat_size )
       {
          /* Add additional status */
-         add_status_item = proto_tree_add_text( status_tree, tvb, offset+4, add_stat_size*2, "Additional Status" );
-         add_status_tree = proto_item_add_subtree( add_status_item, ett_add_status_item );
+         add_status_tree = proto_tree_add_subtree( status_tree, tvb, offset+4, add_stat_size*2, ett_add_status_item, NULL, "Additional Status" );
 
          for( i=0; i < add_stat_size; i ++ )
             proto_tree_add_item(add_status_tree, hf_cip_add_stat, tvb, offset+4+(i*2), 2, ENC_LITTLE_ENDIAN );

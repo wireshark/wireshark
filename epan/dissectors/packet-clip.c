@@ -50,7 +50,6 @@ static void
 dissect_clip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   proto_tree	*fh_tree;
-  proto_item	*ti;
 
   pinfo->current_proto = "CLIP";
 
@@ -85,8 +84,7 @@ dissect_clip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      for both of those cases, to avoid the headache of having to
      generate capture-filter code to handle both of those cases. */
   if(tree) {
-    ti = proto_tree_add_text(tree, tvb, 0, 0, "Classical IP frame" );
-    fh_tree = proto_item_add_subtree(ti, ett_clip);
+    fh_tree = proto_tree_add_subtree(tree, tvb, 0, 0, ett_clip, NULL, "Classical IP frame" );
     proto_tree_add_text(fh_tree, tvb, 0, 0, "No link information available");
   }
   call_dissector(ip_handle, tvb, pinfo, tree);
