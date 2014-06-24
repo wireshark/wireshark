@@ -93,6 +93,14 @@ set(WSUTIL_FILES
 	${WSUTIL_SSE42_FILES}
 )
 
+if(APPLE)
+	#
+	# We assume that APPLE means OS X so that we have the OS X
+	# frameworks.
+	#
+	FIND_LIBRARY (APPLE_CORE_FOUNDATION_LIBRARY CoreFoundation)
+endif()
+
 set(wsutil_LIBS
 	${APPLE_CORE_FOUNDATION_LIBRARY}
 	${GMODULE2_LIBRARIES}

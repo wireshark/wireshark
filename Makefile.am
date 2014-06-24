@@ -1010,6 +1010,7 @@ EXTRA_DIST = \
 	cmake/modules/FindLUA.cmake		\
 	cmake/modules/FindLYNX.cmake		\
 	cmake/modules/FindM.cmake		\
+	cmake/modules/FindOS_X_FRAMEWORKS.cmake	\
 	cmake/modules/FindPCAP.cmake		\
 	cmake/modules/FindPOD.cmake		\
 	cmake/modules/FindPORTAUDIO.cmake	\
