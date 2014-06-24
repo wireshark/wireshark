@@ -33,7 +33,7 @@
 
 #include "../capture_opts.h"
 #include "../capture_session.h"
-#include "../capture_ifinfo.h"
+#include <capchild/capture_ifinfo.h>
 #include "../capture.h"
 #include "../capture-pcap-util.h"
 #include "../capture_ui_utils.h"
