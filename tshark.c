@@ -897,18 +897,6 @@ print_current_user(void) {
 }
 
 static void
-check_capture_privs(void) {
-#ifdef _WIN32
-  load_wpcap();
-  /* Warn the user if npf.sys isn't loaded. */
-  if (!npf_sys_is_running() && get_windows_major_version() >= 6) {
-    fprintf(stderr, "The NPF driver isn't running.  You may have trouble "
-      "capturing or\nlisting interfaces.\n");
-  }
-#endif
-}
-
-static void
 show_version(GString *comp_info_str, GString *runtime_info_str)
 {
   printf("TShark %s\n"
@@ -1004,6 +992,17 @@ main(int argc, char *argv[])
 #define OPTSTRING "-2" OPTSTRING_CAPTURE_COMMON "C:d:e:E:F:gG:hH:" "K:lnN:o:O:PqQr:R:S:t:T:u:vVw:W:xX:Y:z:"
 
   static const char    optstring[] = OPTSTRING;
+
+#ifdef _WIN32
+  /* Load wpcap if possible. Do this before collecting the run-time version information */
+  load_wpcap();
+
+  /* Warn the user if npf.sys isn't loaded. */
+  if (!npf_sys_is_running() && get_windows_major_version() >= 6) {
+    fprintf(stderr, "The NPF driver isn't running.  You may have trouble "
+      "capturing or\nlisting interfaces.\n");
+  }
+#endif
 
   /* Assemble the compile-time version information string */
   comp_info_str = g_string_new("Compiled ");
@@ -1283,8 +1282,6 @@ main(int argc, char *argv[])
     }
     g_free(dp_path);
   }
-
-  check_capture_privs();
 
   cap_file_init(&cfile);
 
