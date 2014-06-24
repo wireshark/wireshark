@@ -653,6 +653,20 @@ static dissector_handle_t data_handle;
 static gboolean mbim_bulk_heuristic = TRUE;
 static gboolean mbim_control_decode_unknown_itf = FALSE;
 
+enum {
+    SMS_PDU_AUTOMATIC,
+    SMS_PDU_3GPP,
+    SMS_PDU_3GPP2
+};
+
+static const enum_val_t mbim_sms_pdu_format_vals[] = {
+    {"automatic", "Automatic", SMS_PDU_AUTOMATIC},
+    {"3GPP", "3GPP", SMS_PDU_3GPP},
+    {"3GPP2","3GPP2", SMS_PDU_3GPP2},
+    {NULL, NULL, -1}
+};
+static gint mbim_sms_pdu_format = SMS_PDU_AUTOMATIC;
+
 static reassembly_table mbim_reassembly_table;
 
 static wmem_map_t *mbim_uuid_ext_hash = NULL;
@@ -2973,7 +2987,8 @@ mbim_dissect_sms_pdu_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_tree_add_uint(tree, hf_mbim_sms_pdu_record_pdu_data_size, tvb, offset, 4, pdu_data_size);
     /*offset += 4;*/
     if (pdu_data_offset && pdu_data_size) {
-        if ((mbim_conv->cellular_class & MBIM_CELLULAR_CLASS_GSM) && gsm_sms_handle) {
+        if ((((mbim_sms_pdu_format == SMS_PDU_AUTOMATIC) && (mbim_conv->cellular_class & MBIM_CELLULAR_CLASS_GSM)) ||
+             (mbim_sms_pdu_format == SMS_PDU_3GPP)) && gsm_sms_handle) {
             ti = proto_tree_add_item(tree, hf_mbim_sms_pdu_record_pdu_data, tvb, base_offset + pdu_data_offset,
                                      pdu_data_size, ENC_NA);
             subtree = proto_item_add_subtree(ti, ett_mbim_buffer);
@@ -2998,7 +3013,8 @@ mbim_dissect_sms_pdu_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             ti = proto_tree_add_item(tree, hf_mbim_sms_pdu_record_pdu_data, tvb, base_offset + pdu_data_offset,
                                      pdu_data_size, ENC_NA);
             subtree = proto_item_add_subtree(ti, ett_mbim_buffer);
-            if ((mbim_conv->cellular_class & MBIM_CELLULAR_CLASS_CDMA) && cdma_sms_handle) {
+            if ((((mbim_sms_pdu_format == SMS_PDU_AUTOMATIC) && (mbim_conv->cellular_class & MBIM_CELLULAR_CLASS_CDMA)) ||
+                 (mbim_sms_pdu_format == SMS_PDU_3GPP2)) && cdma_sms_handle) {
                 sms_tvb = tvb_new_subset_length(tvb, base_offset + pdu_data_offset, pdu_data_size);
                 call_dissector(cdma_sms_handle, sms_tvb, pinfo, subtree);
             }
@@ -3173,7 +3189,8 @@ mbim_dissect_sms_send_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
     proto_tree_add_uint(tree, hf_mbim_sms_send_pdu_pdu_data_size, tvb, offset, 4, pdu_data_size);
     /*offset += 4;*/
     if (pdu_data_offset && pdu_data_size) {
-        if ((mbim_conv->cellular_class & MBIM_CELLULAR_CLASS_GSM) && gsm_sms_handle) {
+        if ((((mbim_sms_pdu_format == SMS_PDU_AUTOMATIC) && (mbim_conv->cellular_class & MBIM_CELLULAR_CLASS_GSM)) ||
+             (mbim_sms_pdu_format == SMS_PDU_3GPP)) && gsm_sms_handle) {
             ti = proto_tree_add_item(tree, hf_mbim_sms_send_pdu_pdu_data, tvb, base_offset + pdu_data_offset,
                                      pdu_data_size, ENC_NA);
             subtree = proto_item_add_subtree(ti, ett_mbim_buffer);
@@ -3197,7 +3214,8 @@ mbim_dissect_sms_send_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
             ti = proto_tree_add_item(tree, hf_mbim_sms_send_pdu_pdu_data, tvb, base_offset + pdu_data_offset,
                                      pdu_data_size, ENC_NA);
             subtree = proto_item_add_subtree(ti, ett_mbim_buffer);
-            if ((mbim_conv->cellular_class & MBIM_CELLULAR_CLASS_CDMA) && cdma_sms_handle) {
+            if ((((mbim_sms_pdu_format == SMS_PDU_AUTOMATIC) && (mbim_conv->cellular_class & MBIM_CELLULAR_CLASS_CDMA)) ||
+                 (mbim_sms_pdu_format == SMS_PDU_3GPP2)) && cdma_sms_handle) {
                 sms_tvb = tvb_new_subset_length(tvb, base_offset + pdu_data_offset, pdu_data_size);
                 call_dissector(cdma_sms_handle, sms_tvb, pinfo, subtree);
             }
@@ -7998,6 +8016,10 @@ proto_register_mbim(void)
         "Decode control data received on \"usb.control\" with an "
         "unknown interface class as MBIM",
         &mbim_control_decode_unknown_itf);
+    prefs_register_enum_preference(mbim_module, "sms_pdu_format",
+        "SMS PDU format",
+        "Format used for SMS PDU decoding",
+        &mbim_sms_pdu_format, mbim_sms_pdu_format_vals, FALSE);
 }
 
 void
