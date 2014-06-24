@@ -806,6 +806,7 @@ set( configure_input "Built with CMake ${CMAKE_VERSION}" )
 configure_file(${CMAKE_SOURCE_DIR}/cmakeconfig.h.in ${CMAKE_BINARY_DIR}/config.h)
 set( IN_FILES
 	adns_dll.rc
+	capchild/doxygen.cfg.in
 	doxygen.cfg.in
 	doxygen_global.cfg
 	epan/doxygen.cfg.in
