@@ -4144,7 +4144,7 @@ static void
 				}
 
 				if (decr_tvb) {
-					proto_tree *enc_tree;
+					proto_tree *enc_tree = NULL;
 
 					/*
 					* The LDAP message was encrypted in the packet, and has
@@ -4160,7 +4160,7 @@ static void
 					}
 					dissect_ldap_payload(decr_tvb, pinfo, enc_tree, ldap_info, is_mscldap);
 				} else if (plain_tvb) {
-					proto_tree *plain_tree;
+					proto_tree *plain_tree = NULL;
 
 					/*
 					* The LDAP message wasn't encrypted in the packet;
