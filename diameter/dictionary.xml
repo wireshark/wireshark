@@ -31,6 +31,7 @@
 	<!ENTITY SKT			SYSTEM "SKT.xml">
 	<!ENTITY ChinaTelecom		SYSTEM "ChinaTelecom.xml">
 	<!ENTITY VerizonWireless	SYSTEM "VerizonWireless.xml">
+	<!ENTITY HP			SYSTEM "HP.xml">
 	<!ENTITY Custom			SYSTEM "Custom.xml">
 ]>
 <dictionary>
@@ -6744,5 +6745,6 @@
 	&SKT;
 	&ChinaTelecom;
 	&VerizonWireless;
+	&HP;
 	&Custom;
 </dictionary>
