@@ -43,8 +43,6 @@
 
 #include "config.h"
 
-#include <sys/stat.h>
-
 #include <string.h>
 
 #include <glib.h>
