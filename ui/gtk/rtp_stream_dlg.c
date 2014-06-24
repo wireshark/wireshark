@@ -708,9 +708,9 @@ add_to_list_store(rtp_stream_info_t* strinfo)
 		perc = 0;
 	}
 	data[7] = g_strdup_printf("%d (%.1f%%)", lost, perc);
-	data[8] = g_strdup_printf("%.2f", strinfo->rtp_stats.max_delta);
-	data[9] = g_strdup_printf("%.2f", strinfo->rtp_stats.max_jitter);
-	data[10] = g_strdup_printf("%.2f", strinfo->rtp_stats.mean_jitter);
+	data[8] = NULL;
+	data[9] = NULL;
+	data[10] = NULL;
 	if (strinfo->problem)
 		data[11] = g_strdup("X");
 	else
@@ -732,9 +732,9 @@ add_to_list_store(rtp_stream_info_t* strinfo)
 			    RTP_COL_PAYLOAD, data[5],
 			    RTP_COL_PACKETS, strinfo->npackets,
 			    RTP_COL_LOST, data[7],
-			    RTP_COL_MAX_DELTA, data[8],
-			    RTP_COL_MAX_JITTER, data[9],
-			    RTP_COL_MEAN_JITTER, data[10],
+			    RTP_COL_MAX_DELTA, strinfo->rtp_stats.max_delta,
+			    RTP_COL_MAX_JITTER, strinfo->rtp_stats.max_jitter,
+			    RTP_COL_MEAN_JITTER, strinfo->rtp_stats.mean_jitter,
 			    RTP_COL_PROBLEM, data[11],
 			    RTP_COL_DATA, strinfo,
 			    -1);
@@ -770,9 +770,9 @@ create_list_view(void)
 					G_TYPE_STRING,  /* Payload */
 					G_TYPE_UINT,    /* Packets */
 					G_TYPE_STRING,  /* Lost */
-					G_TYPE_STRING,  /* Max. delta */
-					G_TYPE_STRING,  /* Max. jitter */
-					G_TYPE_STRING,  /* Mean jitter */
+					G_TYPE_DOUBLE,  /* Max. delta */
+					G_TYPE_DOUBLE,  /* Max. jitter */
+					G_TYPE_DOUBLE,  /* Mean jitter */
 					G_TYPE_STRING,  /* Problem */
 					G_TYPE_POINTER  /* Data */
 				       );
