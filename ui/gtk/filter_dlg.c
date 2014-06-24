@@ -1242,20 +1242,32 @@ filter_add_expr_bt_cb(GtkWidget *w _U_, gpointer main_w_arg)
     }
 }
 
+
+#if GTK_CHECK_VERSION(3,0,0)
+static void
+ws_style_widget_using_css(GtkWidget *w, const gchar * const css)
+{
+    GtkCssProvider *css_provider;
+    GtkStyleContext *style;
+    css_provider = gtk_css_provider_new();;
+    style = gtk_widget_get_style_context (w);
+    gtk_css_provider_load_from_data(css_provider, css, -1, NULL);
+    gtk_style_context_add_provider(style, GTK_STYLE_PROVIDER(css_provider), GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+    g_object_unref(css_provider);
+}
+#endif
+
 static void
 color_filter_te(GtkWidget *w, guint16 red, guint16 green, guint16 blue)
 {
 #if GTK_CHECK_VERSION(3,0,0)
     static GdkRGBA black = { 0, 0, 0, 1.0 };
-    GdkRGBA bg;
-
-    bg.red      = red / 65535.0;
-    bg.green    = green / 65535.0;
-    bg.blue     = blue / 65535.0;
-    bg.alpha    = 1;
+    gchar *css;
+    css = g_strdup_printf("@define-color theme_selected_bg_color @selected_bg_color; GtkEntry {background: rgb(%d, %d, %d);} .entry:selected {background-color: @theme_selected_bg_color;}", red / 256, green/256, blue/256);
+    ws_style_widget_using_css(w, css);
+    g_free(css);
 
     gtk_widget_override_color(w, GTK_STATE_FLAG_NORMAL, &black);
-    gtk_widget_override_background_color(w, GTK_STATE_FLAG_NORMAL, &bg);
     gtk_widget_override_cursor(w, &black, &black);
 #else
     static GdkColor black = { 0, 0, 0, 0 };
@@ -1278,7 +1290,7 @@ colorize_filter_te_as_empty(GtkWidget *w)
 #if GTK_CHECK_VERSION(3,0,0)
     /* use defaults */
     gtk_widget_override_color(w, GTK_STATE_FLAG_NORMAL, NULL);
-    gtk_widget_override_background_color(w, GTK_STATE_FLAG_NORMAL, NULL);
+    ws_style_widget_using_css(w, "@define-color theme_base_color @base_color; * {background: @theme_base_color}");
     gtk_widget_override_cursor(w, NULL, NULL);
 #else    
     /* use defaults */
