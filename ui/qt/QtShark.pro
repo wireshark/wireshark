@@ -189,10 +189,8 @@ SOURCES_WS_C = \
     ../../airpcap_loader.c \
     ../../capture-pcap-util.c     \
     ../../capture.c       \
-    ../../capture_ifinfo.c \
     ../../capture_info.c  \
     ../../capture_opts.c \
-    ../../capture_sync.c  \
     ../../capture_ui_utils.c \
     ../../cfile.c \
     ../../clopts_common.c \
@@ -337,7 +335,7 @@ unix {
         LIBS += -L../../run -Wl,-rpath ../../run
     }
 
-    LIBS += -lwireshark -lwiretap -lui -lcodecs -lwsutil \
+    LIBS += -lwireshark -lwiretap -lcapchild -lui -lcodecs -lwsutil \
     -lpcap
 
     exists(../libui_dirty.a) {
@@ -405,7 +403,7 @@ win32 {
     LIBS += \
         $${guilibsdll} $${HHC_LIBS} \
         -L../../epan -llibwireshark -L../../wsutil -llibwsutil -L../../wiretap -lwiretap-$${WTAP_VERSION} \
-        -L.. -llibui -L../../codecs -lcodecs \
+        -L../../capchild -lcapchild -L.. -llibui -L../../codecs -lcodecs \
         -L$${GLIB_DIR}/lib -lglib-2.0 -lgmodule-2.0 \
         -L$${ZLIB_DIR}/lib -lzdll \
         -L$${WINSPARKLE_DIR} -lWinSparkle
