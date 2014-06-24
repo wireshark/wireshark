@@ -584,6 +584,8 @@ clean: clean-local
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../filetap
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd ../capchild
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../codecs
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../ui
@@ -638,6 +640,8 @@ distclean: distclean-local
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ../wsutil
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
+	cd ../capchild
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ../codecs
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ../ui
@@ -684,6 +688,8 @@ maintainer-clean: maintainer-clean-local
 	cd ../filetap
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
 	cd ../wsutil
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
+	cd ../capchild
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
 	cd ../codecs
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
@@ -1406,6 +1412,8 @@ checkapi: checkapi_local
 	cd wiretap
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake checkapi
 	cd ../filetap
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake checkapi
+	cd ../capchild
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake checkapi
 	cd ../codecs
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake checkapi
