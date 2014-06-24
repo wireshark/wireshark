@@ -147,7 +147,7 @@ typedef struct _kafka_query_response_t {
 static int
 dissect_kafka_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int start_offset);
 static int
-dissect_kafka_message_set(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int start_offset);
+dissect_kafka_message_set(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int start_offset, gboolean has_length_field);
 
 /* HELPERS */
 
@@ -274,7 +274,7 @@ dissect_kafka_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int s
                 payload = tvb_child_uncompress(tvb, raw, 0, tvb_length(raw));
                 if (payload) {
                     add_new_data_source(pinfo, payload, "Uncompressed Message");
-                    dissect_kafka_message_set(payload, pinfo, subtree, 0);
+                    dissect_kafka_message_set(payload, pinfo, subtree, 0, FALSE);
                 } else {
                     /* TODO make this an expert item */
                     proto_tree_add_text(subtree, tvb, 0, tvb_length(raw), "[Failed to decompress message!]");
@@ -299,20 +299,30 @@ dissect_kafka_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int s
 }
 
 static int
-dissect_kafka_message_set(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int start_offset)
+dissect_kafka_message_set(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int start_offset, gboolean has_length_field)
 {
     proto_item *ti;
     proto_tree *subtree;
+    gint        len;
     int         offset = start_offset;
 
-    if (tvb_reported_length_remaining(tvb, offset) <= 0) {
+    if (has_length_field) {
+        proto_tree_add_item(tree, hf_kafka_message_set_size, tvb, offset, 4, ENC_BIG_ENDIAN);
+        len = (gint)tvb_get_ntohl(tvb, offset);
+        offset += 4;
+        start_offset += 4;
+    }
+    else {
+        len = tvb_reported_length_remaining(tvb, offset);
+    }
+
+    if (len <= 0) {
         return offset;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, -1, "Message Set");
-    subtree = proto_item_add_subtree(ti, ett_kafka_message_set);
+    subtree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_kafka_message_set, &ti, "Message Set");
 
-    while (tvb_reported_length_remaining(tvb, offset) > 0) {
+    while (offset - start_offset < len) {
         proto_tree_add_item(subtree, hf_kafka_offset, tvb, offset, 8, ENC_BIG_ENDIAN);
         offset += 8;
 
@@ -624,10 +634,7 @@ dissect_kafka_fetch_response_partition(tvbuff_t *tvb, packet_info *pinfo _U_, pr
     proto_tree_add_item(subtree, hf_kafka_offset, tvb, offset, 8, ENC_BIG_ENDIAN);
     offset += 8;
 
-    proto_tree_add_item(subtree, hf_kafka_message_set_size, tvb, offset, 4, ENC_BIG_ENDIAN);
-    offset += 4;
-
-    offset = dissect_kafka_message_set(tvb, pinfo, subtree, offset);
+    offset = dissect_kafka_message_set(tvb, pinfo, subtree, offset, TRUE);
 
     proto_item_set_len(ti, offset - start_offset);
 
@@ -672,10 +679,7 @@ dissect_kafka_produce_request_partition(tvbuff_t *tvb, packet_info *pinfo _U_, p
     proto_tree_add_item(subtree, hf_kafka_partition_id, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item(subtree, hf_kafka_message_set_size, tvb, offset, 4, ENC_BIG_ENDIAN);
-    offset += 4;
-
-    offset = dissect_kafka_message_set(tvb, pinfo, subtree, offset);
+    offset = dissect_kafka_message_set(tvb, pinfo, subtree, offset, TRUE);
 
     return offset;
 }
@@ -861,13 +865,16 @@ dissect_kafka(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
         offset += 4;
 
         if (matcher == NULL) {
-            if (wmem_queue_count(match_queue) == 0) {
+            if (wmem_queue_count(match_queue) > 0) {
+                matcher = (kafka_query_response_t *) wmem_queue_peek(match_queue);
+            }
+            if (matcher == NULL || matcher->request_frame >= PINFO_FD_NUM(pinfo)) {
                 col_set_str(pinfo->cinfo, COL_INFO, "Kafka Response (Unknown API, Missing Request)");
                 /* TODO: expert info, don't have request, can't dissect */
                 return tvb_length(tvb);
             }
 
-            matcher = (kafka_query_response_t *) wmem_queue_pop(match_queue);
+            wmem_queue_pop(match_queue);
 
             matcher->response_frame = PINFO_FD_NUM(pinfo);
             matcher->response_found = TRUE;
