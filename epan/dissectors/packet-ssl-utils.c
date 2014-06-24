@@ -5663,7 +5663,7 @@ dissect_ssl3_hnd_srv_keyex_dhe(ssl_common_dissect_t *hf, tvbuff_t *tvb,
     /* Ys */
     ys_len = tvb_get_ntohs(tvb, offset);
     proto_tree_add_uint(ssl_dh_tree, hf->hf.hs_server_keyex_ys_len, tvb,
-                        offset, 2, ENC_BIG_ENDIAN);
+                        offset, 2, ys_len);
     proto_tree_add_item(ssl_dh_tree, hf->hf.hs_server_keyex_ys, tvb,
                         offset + 2, ys_len, ENC_NA);
     offset += 2 + ys_len;
