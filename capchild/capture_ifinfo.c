@@ -48,10 +48,10 @@
 
 #include "capture_opts.h"
 #include "capture_session.h"
-#include "capture_sync.h"
+#include <capchild/capture_sync.h>
 #include "log.h"
 
-#include "capture_ifinfo.h"
+#include <capchild/capture_ifinfo.h>
 
 #ifdef HAVE_PCAP_REMOTE
 static GList *remote_interface_list = NULL;

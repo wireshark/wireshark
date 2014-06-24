@@ -45,7 +45,7 @@
 #include "clopts_common.h"
 #include "cmdarg_err.h"
 
-#include "capture_ifinfo.h"
+#include <capchild/capture_ifinfo.h>
 #include "capture-pcap-util.h"
 #include <wsutil/file_util.h>
 

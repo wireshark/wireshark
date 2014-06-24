@@ -32,7 +32,7 @@
 
 #include "epan/prefs.h"
 #include "epan/ex-opt.h"
-#include "capture_ifinfo.h"
+#include <capchild/capture_ifinfo.h>
 #include "capture_ui_utils.h"
 #include "wiretap/wtap.h"
 #include "epan/to_str.h"

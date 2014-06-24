@@ -30,7 +30,7 @@
 
 #include <epan/strutil.h>
 
-#include "capture_ifinfo.h"
+#include <capchild/capture_ifinfo.h>
 #include "capture-pcap-util.h"
 #include "capture-pcap-util-int.h"
 #include "capture-wpcap.h"

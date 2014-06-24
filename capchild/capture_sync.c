@@ -85,7 +85,7 @@
 #include "file.h"
 
 #include "capture.h"
-#include "capture_sync.h"
+#include <capchild/capture_sync.h>
 
 #include "sync_pipe.h"
 

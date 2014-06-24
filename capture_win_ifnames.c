@@ -47,7 +47,7 @@
 
 #include "log.h"
 
-#include "capture_ifinfo.h"
+#include <capchild/capture_ifinfo.h>
 #include "capture_win_ifnames.h"
 #include "wsutil/file_util.h"
 

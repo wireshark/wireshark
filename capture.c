@@ -38,8 +38,8 @@
 #include <epan/dfilter/dfilter.h>
 #include "file.h"
 #include "capture.h"
-#include "capture_ifinfo.h"
-#include "capture_sync.h"
+#include <capchild/capture_ifinfo.h>
+#include <capchild/capture_sync.h>
 #include "capture_info.h"
 #include "capture_ui_utils.h"
 #include "ui/util.h"

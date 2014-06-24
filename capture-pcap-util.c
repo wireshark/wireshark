@@ -42,7 +42,7 @@
 #include <wtap.h>
 #include <libpcap.h>
 
-#include "capture_ifinfo.h"
+#include <capchild/capture_ifinfo.h>
 #include "capture-pcap-util.h"
 #include "capture-pcap-util-int.h"
 

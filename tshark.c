@@ -102,14 +102,14 @@
 
 #ifdef HAVE_LIBPCAP
 #include "capture_ui_utils.h"
-#include "capture_ifinfo.h"
+#include <capchild/capture_ifinfo.h>
 #include "capture-pcap-util.h"
 #ifdef _WIN32
 #include "capture-wpcap.h"
 #include <wsutil/unicode-utils.h>
 #endif /* _WIN32 */
 #include "capture_session.h"
-#include "capture_sync.h"
+#include <capchild/capture_sync.h>
 #include "capture_opts.h"
 #endif /* HAVE_LIBPCAP */
 #include "log.h"
