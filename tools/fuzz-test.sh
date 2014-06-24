@@ -48,7 +48,7 @@ VALGRIND=0
 # The maximum permitted amount of memory leaked. Eventually this should be
 # worked down to zero, but right now that would fail on every single capture.
 # Only has effect when running under valgrind.
-MAX_LEAK=`expr 1024 \* 500`
+MAX_LEAK=`expr 1024 \* 100`
 
 # To do: add options for file names and limits
 while getopts ":2b:C:d:e:gp:P:" OPTCHAR ; do
