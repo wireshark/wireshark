@@ -398,7 +398,7 @@ endif()
 if( CMAKE_C_COMPILER_ID MATCHES "MSVC")
 	# Set in Makefile.nmake
 	set(WIRESHARK_LD_FLAGS
-		/LARGEADDRESSAWARE
+		"/LARGEADDRESSAWARE /MANIFEST:NO"
 	)
 else()
 	set(WIRESHARK_LD_FLAGS
@@ -1185,7 +1185,7 @@ if(BUILD_dftest)
 	)
 	add_executable(dftest ${dftest_FILES})
 	set_target_properties(dftest PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
-	set_target_properties(dftest PROPERTIES FOLDER "Executables")
+	set_target_properties(dftest PROPERTIES FOLDER "Tests")
 	target_link_libraries(dftest ${dftest_LIBS})
 	install(TARGETS dftest RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()
