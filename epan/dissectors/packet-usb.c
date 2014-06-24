@@ -3337,37 +3337,14 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
         break;
 
     default:
-        /* dont know */
-        if (usb_conv_info->is_setup) {
-            proto_item *ti;
-            proto_tree *setup_tree;
-
-            /* Dissect the setup header - it's applicable */
-
-            ti = proto_tree_add_protocol_format(parent, proto_usb, tvb, offset, 8, "URB setup");
-            setup_tree = proto_item_add_subtree(ti, usb_setup_hdr);
-
-            offset = dissect_usb_bmrequesttype(setup_tree, tvb, offset, &type_2);
-            proto_tree_add_item(setup_tree, hf_usb_request, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-            offset += 1;
-            offset = dissect_usb_setup_generic(pinfo, setup_tree, tvb, offset, usb_conv_info);
-        } else {
-            if (header_info & USB_HEADER_IS_LINUX) {
-                /* Skip setup/isochronous header - it's not applicable */
-                proto_tree_add_item(tree, hf_usb_urb_unused_setup_header, tvb, offset, 8, ENC_NA);
-                offset += 8;
-            }
+        /* unknown transfer type */
+        /* XXX - bring up an expert info if the urb contains a setup packet */
+        if (header_info & USB_HEADER_IS_LINUX) {
+            proto_tree_add_item(tree, hf_usb_urb_unused_setup_header, tvb, offset, 8, ENC_NA);
+            offset += 8;
+            if (header_info & USB_HEADER_IS_64_BYTES)
+                offset = dissect_linux_usb_pseudo_header_ext(tvb, offset, pinfo, tree);
         }
-
-        /*
-         * If this has a 64-byte header, process the extra 16 bytes of
-         * pseudo-header information.
-         */
-        if ((header_info & USB_HEADER_IS_LINUX) &&
-            (header_info & USB_HEADER_IS_64_BYTES)) {
-            offset = dissect_linux_usb_pseudo_header_ext(tvb, offset, pinfo, tree);
-        }
-
         break;
     }
 
