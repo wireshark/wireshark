@@ -131,8 +131,6 @@ so it shows a version number for:
 
 * Archive/unzip
 
-* Base/dos2unix
-
 * Devel/bison
 
 * Devel/flex
@@ -140,6 +138,8 @@ so it shows a version number for:
 * Devel/git (recommended - see discussion about using Git below)
 
 * Interpreters/perl
+
+* Utils/dos2unix
 
 * Utils/patch (optional)
 
