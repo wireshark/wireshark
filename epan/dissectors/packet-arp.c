@@ -1161,7 +1161,7 @@ dissect_atmarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_boolean(tl_tree, hf_atmarp_tht, tvb, ATM_AR_THTL, 1, ar_thtl);
     proto_tree_add_uint(tl_tree, hf_atmarp_thl, tvb, ATM_AR_THTL, 1, ar_thtl);
 
-    proto_tree_add_subtree_format(arp_tree, tvb, ATM_AR_TSTL, 1,
+    tl_tree = proto_tree_add_subtree_format(arp_tree, tvb, ATM_AR_TSTL, 1,
                              ett_atmarp_tl, NULL,
                              "Target ATM subaddress type/length: %s/%u",
                              (ar_tstl & ATMARP_IS_E164 ?
