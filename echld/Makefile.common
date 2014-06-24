@@ -40,12 +40,10 @@ LIBECHLD_INCLUDES = \
 	echld.h
 
 LIBECHLD_MORE_SRC = \
-	../capture_ifinfo.c \
 	../capture_opts.c	\
 	../capture-pcap-util.c \
 	../capture-pcap-util-unix.c \
 	../capture_stop_conditions.c	\
-	../capture_sync.c \
 	../cfile.c	\
 	../clopts_common.c	\
 	../conditions.c	\
