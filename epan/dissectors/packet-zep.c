@@ -43,9 +43,6 @@
 
 #include "config.h"
 
-#ifdef HAVE_SYS_TYPES_H
-#include <sys/types.h>
-#endif
 #include <sys/stat.h>
 
 #include <string.h>
