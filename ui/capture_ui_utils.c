@@ -44,7 +44,7 @@
 char *
 capture_dev_user_descr_find(const gchar *if_name)
 {
-  char *p;
+  char *p, *str;
   char *p2 = NULL;
   char *descr = NULL;
   int lp = 0;
@@ -56,11 +56,15 @@ capture_dev_user_descr_find(const gchar *if_name)
     return NULL;
   }
 
-  if ((p = strstr(prefs.capture_devices_descr, if_name)) == NULL) {
+  /* There might be names like 'lo' and 'nflog' in Ubuntu which can lead to wrong results.
+     Therefore, the search must be more exact. */
+  str = g_strdup_printf(",%s(", if_name);
+  if ((p = strstr(prefs.capture_devices_descr, str)) == NULL) {
     /* There are, but there isn't one for this interface. */
     return NULL;
   }
 
+  p++;
   while (*p != '\0') {
     /* error: ran into next interface description */
     if (*p == ',')
@@ -85,6 +89,7 @@ capture_dev_user_descr_find(const gchar *if_name)
     }
   }
 
+  g_free(str);
   if ((lp == 1) && (ct > 0) && (p2 != NULL)) {
     /* Allocate enough space to return the string,
        which runs from p2 to p, plus a terminating

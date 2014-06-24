@@ -65,6 +65,7 @@ public slots:
     //void getPoints(int row, QList<int> *pts);
     void getPoints(int row, PointList *pts);
     void setSelectedInterfaces();
+    void interfaceListChanged();
 
 private slots:
     void getInterfaceList();

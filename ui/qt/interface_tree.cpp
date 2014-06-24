@@ -331,6 +331,42 @@ void InterfaceTree::setSelectedInterfaces()
 #endif // HAVE_LIBPCAP
 }
 
+void InterfaceTree::interfaceListChanged()
+{
+#ifdef HAVE_LIBPCAP
+    interface_t device;
+    clear();
+    for (guint i = 0; i < global_capture_opts.all_ifaces->len; i++) {
+        QList<int> *points;
+
+        device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
+
+        /* Continue if capture device is hidden */
+        if (device.hidden) {
+            continue;
+        }
+
+        QTreeWidgetItem *ti = new QTreeWidgetItem();
+        ti->setText(0, QString().fromUtf8(device.display_name));
+        ti->setData(0, Qt::UserRole, QString(device.name));
+        points = new QList<int>();
+        ti->setData(1, Qt::UserRole, qVariantFromValue(points));
+        addTopLevelItem(ti);
+        // XXX Add other device information
+        resizeColumnToContents(1);
+        if (strstr(prefs.capture_device, device.name) != NULL) {
+            device.selected = TRUE;
+            global_capture_opts.num_selected++;
+            global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, i);
+            g_array_insert_val(global_capture_opts.all_ifaces, i, device);
+        }
+        if (device.selected) {
+            ti->setSelected(true);
+        }
+    }
+#endif
+}
+
 /*
  * Editor modelines
  *

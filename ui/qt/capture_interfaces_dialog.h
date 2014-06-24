@@ -103,6 +103,7 @@ private slots:
     void on_cbExtraCaptureInfo_toggled(bool checked);
     void on_cbResolveMacAddresses_toggled(bool checked);
     void on_compileBPF_clicked();
+    void on_manage_clicked();
     void on_cbResolveNetworkNames_toggled(bool checked);
     void on_cbResolveTransportNames_toggled(bool checked);
     void start_button_clicked();
@@ -112,6 +113,7 @@ private slots:
     void tableSelected();
     void updateStatistics(void);
     void allFilterChanged();
+    void refreshInterfaceList();
 
 signals:
     void startCapture();
@@ -120,6 +122,8 @@ signals:
     void setSelectedInterfaces();
     void setFilterValid(bool valid);
     void interfacesChanged();
+    void ifsChanged();
+    void interfaceListChanged();
 
 private:
     Ui::CaptureInterfacesDialog *ui;

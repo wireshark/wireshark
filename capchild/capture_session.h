@@ -27,6 +27,12 @@
 extern "C" {
 #endif /* __cplusplus */
 
+#ifndef _WIN32
+#include <sys/types.h>
+#endif
+
+#include "capture_opts.h"
+
 #ifdef HAVE_LIBPCAP
 /* Current state of capture engine. XXX - differentiate states */
 typedef enum {

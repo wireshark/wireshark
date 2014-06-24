@@ -27,6 +27,7 @@
 #include "capture_filter_combo.h"
 #include "ui_capture_interfaces_dialog.h"
 #include "compiled_filter_output.h"
+#include "manage_interfaces_dialog.h"
 
 #include "wireshark_application.h"
 
@@ -71,6 +72,7 @@ CaptureInterfacesDialog::CaptureInterfacesDialog(QWidget *parent) :
     connect(ui->tbInterfaces, SIGNAL(itemSelectionChanged()), this, SLOT(tableSelected()));
     connect(ui->allFilterComboBox, SIGNAL(captureFilterSyntaxChanged(bool)), this, SLOT(allFilterChanged()));
     connect(this, SIGNAL(interfacesChanged()), ui->allFilterComboBox, SIGNAL(interfacesChanged()));
+    connect(this, SIGNAL(ifsChanged()), this, SLOT(refreshInterfaceList()));
 }
 
 void CaptureInterfacesDialog::allFilterChanged()
@@ -261,6 +263,7 @@ void CaptureInterfacesDialog::UpdateInterfaces()
     ui->cbResolveTransportNames->setChecked(gbl_resolv_flags.transport_name);
 
     ui->tbInterfaces->setRowCount(0);
+    ui->tbInterfaces->clearContents();
 
     GList        *list;
     char         *snaplen_string, *linkname;
@@ -386,7 +389,7 @@ void CaptureInterfacesDialog::UpdateInterfaces()
             output = QString(device.cfilter);
             ui->tbInterfaces->setItem(ui->tbInterfaces->rowCount()-1, FILTER, new QTableWidgetItem(output));
 
-            if (strstr(prefs.capture_device, device.name) != NULL) {
+            if (prefs.capture_device && strstr(prefs.capture_device, device.name) != NULL) {
                 device.selected = TRUE;
                 global_capture_opts.num_selected++;
             }
@@ -411,6 +414,12 @@ void CaptureInterfacesDialog::UpdateInterfaces()
         connect(stat_timer_, SIGNAL(timeout()), this, SLOT(updateStatistics()));
         stat_timer_->start(stat_update_interval_);
     }
+}
+
+void CaptureInterfacesDialog::refreshInterfaceList()
+{
+    UpdateInterfaces();
+    emit interfaceListChanged();
 }
 
 void CaptureInterfacesDialog::updateStatistics(void)
@@ -581,6 +590,13 @@ void CaptureInterfacesDialog::saveOptionsToPreferences()
     }
 }
 
+
+void CaptureInterfacesDialog::on_manage_clicked()
+{
+    saveOptionsToPreferences();
+    ManageInterfacesDialog *dlg = new ManageInterfacesDialog(this);
+    dlg->show();
+}
 
 #include <QComboBox>
 

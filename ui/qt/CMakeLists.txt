@@ -63,6 +63,7 @@ set(WIRESHARK_QT_HEADERS
 	main_welcome.h
 	main_window.h
 	main_window_preferences_frame.h
+	manage_interfaces_dialog.h
 	module_preferences_scroll_area.h
 	packet_comment_dialog.h
 	packet_format_group_box.h
@@ -146,6 +147,7 @@ set(WIRESHARK_QT_SRC
 	main_window.cpp
 	main_window_preferences_frame.cpp
 	main_window_slots.cpp
+	manage_interfaces_dialog.cpp
 	module_preferences_scroll_area.cpp
 	packet_comment_dialog.cpp
 	packet_format_group_box.cpp
@@ -217,6 +219,7 @@ set(WIRESHARK_QT_UI
 	main_welcome.ui
 	main_window.ui
 	main_window_preferences_frame.ui
+	manage_interfaces_dialog.ui
 	module_preferences_scroll_area.ui
 	packet_comment_dialog.ui
 	packet_format_group_box.ui

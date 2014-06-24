@@ -303,6 +303,8 @@ MainWindow::MainWindow(QWidget *parent) :
             this->main_welcome_->getInterfaceTree(), SLOT(getPoints(int,PointList*)));
     connect(&capture_interfaces_dialog_, SIGNAL(setSelectedInterfaces()),
             this->main_welcome_->getInterfaceTree(), SLOT(setSelectedInterfaces()));
+    connect(&capture_interfaces_dialog_, SIGNAL(interfaceListChanged()),
+            this->main_welcome_->getInterfaceTree(), SLOT(interfaceListChanged()));
 #endif
 
     main_ui_->mainStack->setCurrentWidget(main_welcome_);

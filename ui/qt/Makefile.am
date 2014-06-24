@@ -169,6 +169,8 @@ main_window.cpp main_window_slots.cpp main_window.h: ui_main_window.h
 
 main_window_preferences_frame.cpp main_window_preferences_frame.h: ui_main_window_preferences_frame.h
 
+manage_interfaces_dialog.cpp manage_interfaces_dialog.h: ui_manage_interfaces_dialog.h
+
 module_preferences_scroll_area.cpp module_preferences_scroll_area.h: ui_module_preferences_scroll_area.h
 
 packet_comment_dialog.cpp packet_comment_dialog.h: ui_packet_comment_dialog.h

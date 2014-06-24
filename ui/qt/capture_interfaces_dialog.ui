@@ -23,9 +23,15 @@
       <attribute name="title">
        <string>Input</string>
       </attribute>
-      <layout class="QVBoxLayout" name="verticalLayout_10" stretch="1,0">
+      <layout class="QVBoxLayout" name="verticalLayout_5">
        <item>
         <widget class="QTableWidget" name="tbInterfaces">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <property name="editTriggers">
           <set>QAbstractItemView::DoubleClicked</set>
          </property>
@@ -47,6 +53,9 @@
          <property name="columnCount">
           <number>8</number>
          </property>
+         <attribute name="horizontalHeaderStretchLastSection">
+          <bool>true</bool>
+         </attribute>
          <column>
           <property name="text">
            <string>Interface</string>
@@ -90,7 +99,7 @@
         </widget>
        </item>
        <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_2">
+        <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="1,0">
          <item>
           <layout class="QVBoxLayout" name="verticalLayout_2">
            <item>
@@ -142,9 +151,12 @@
          <item>
           <layout class="QVBoxLayout" name="verticalLayout_4">
            <item>
-            <widget class="QPushButton" name="bClose_2">
+            <widget class="QPushButton" name="manage">
              <property name="enabled">
-              <bool>false</bool>
+              <bool>true</bool>
+             </property>
+             <property name="toolTip">
+              <string>Add a </string>
              </property>
              <property name="text">
               <string>Manage Interfaces...</string>

@@ -23,6 +23,10 @@
 
 #include <glib.h>
 
+#ifdef HAVE_LIBPCAP
+#include "ui/capture_globals.h"
+#endif
+
 #include "capture_preferences_frame.h"
 #include "ui_capture_preferences_frame.h"
 
@@ -73,11 +77,24 @@ void CapturePreferencesFrame::updateWidgets()
     int err;
 
     ui->defaultInterfaceComboBox->clear();
-    if_list = capture_interface_list(&err, NULL,main_window_update);
-    combo_list = build_capture_combo_list(if_list, FALSE);
-    free_interface_list(if_list);
-    for (combo_entry = combo_list; combo_entry != NULL && combo_entry->data != NULL; combo_entry = g_list_next(combo_entry)) {
-        ui->defaultInterfaceComboBox->addItem(QString((const char *)combo_entry->data));
+    if (global_capture_opts.all_ifaces->len > 0) {
+        interface_t device;
+        for (guint i = 0; i < global_capture_opts.all_ifaces->len; i++) {
+            device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
+
+            /* Continue if capture device is hidden */
+            if (device.hidden) {
+                continue;
+            }
+            ui->defaultInterfaceComboBox->addItem(QString((const char *)device.display_name));
+        }
+    } else {
+        if_list = capture_interface_list(&err, NULL,main_window_update);
+        combo_list = build_capture_combo_list(if_list, FALSE);
+        free_interface_list(if_list);
+        for (combo_entry = combo_list; combo_entry != NULL && combo_entry->data != NULL; combo_entry = g_list_next(combo_entry)) {
+            ui->defaultInterfaceComboBox->addItem(QString((const char *)combo_entry->data));
+        }
     }
 
     if (pref_device_->stashed_val.string) {

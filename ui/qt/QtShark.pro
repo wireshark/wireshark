@@ -253,7 +253,8 @@ FORMS += \
     summary_dialog.ui \
     time_shift_dialog.ui \
     uat_dialog.ui \
-    tcp_stream_dialog.ui
+    tcp_stream_dialog.ui \
+    manage_interfaces_dialog.ui
 
 HEADERS += $$HEADERS_WS_C \
     about_dialog.h \
@@ -295,7 +296,8 @@ HEADERS += $$HEADERS_WS_C \
     summary_dialog.h \
     tango_colors.h \
     uat_dialog.h \
-    tcp_stream_dialog.h
+    tcp_stream_dialog.h \
+    manage_interfaces_dialog.h
 
 win32 {
     OBJECTS_WS_C = $$SOURCES_WS_C
@@ -647,4 +649,5 @@ SOURCES += \
     time_shift_dialog.cpp \
     uat_dialog.cpp \
     wireshark_application.cpp \
-    tcp_stream_dialog.cpp
+    tcp_stream_dialog.cpp \
+    manage_interfaces_dialog.cpp
