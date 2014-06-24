@@ -181,6 +181,11 @@ static void capture_cleanup(int);
 static void report_counts_siginfo(int);
 #endif /* SIGINFO */
 #endif /* _WIN32 */
+
+#else /* HAVE_LIBPCAP */
+
+static char *output_file_name;
+
 #endif /* HAVE_LIBPCAP */
 
 static int load_cap_file(capture_file *, char *, int, gboolean, int, gint64);
@@ -1319,8 +1324,16 @@ main(int argc, char *argv[])
         return status;
       }
 #else
-      capture_option_specified = TRUE;
-      arg_error = TRUE;
+      if (opt == 'w') {
+        /*
+         * Output file name, if we're reading a file and writing to another
+         * file.
+         */
+        output_file_name = optarg;
+      } else {
+        capture_option_specified = TRUE;
+        arg_error = TRUE;
+      }
 #endif
       break;
     case 'C':
@@ -2074,7 +2087,7 @@ main(int argc, char *argv[])
           global_capture_opts.has_autostop_packets ? global_capture_opts.autostop_packets : 0,
           global_capture_opts.has_autostop_filesize ? global_capture_opts.autostop_filesize : 0);
 #else
-      err = load_cap_file(&cfile, NULL, out_file_type, out_file_name_res, 0, 0);
+      err = load_cap_file(&cfile, output_file_name, out_file_type, out_file_name_res, 0, 0);
 #endif
     }
     CATCH(OutOfMemoryError) {
