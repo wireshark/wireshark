@@ -633,8 +633,9 @@ count and the end of a capture are not sent to stderr.
 =item -r  E<lt>infileE<gt>
 
 Read packet data from I<infile>, can be any supported capture file format
-(including gzipped files).  It's B<not> possible to use named pipes
-or stdin here!
+(including gzipped files).  It is possible to use named pipes or stdin (-)
+here but only with certain (not compressed) capture file formats (in
+particular: those that can be read without seeking backwards).
 
 =item -R  E<lt>Read filterE<gt>
 
