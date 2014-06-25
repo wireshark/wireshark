@@ -2552,7 +2552,7 @@ dissect_ospf_v2_lsa(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *t
         }
 
         nr_links = tvb_get_ntohs(tvb, offset + 2);
-        ti = proto_tree_add_item(ospf_lsa_tree, hf_ospf_lsa_number_of_links, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
+        /* ti =*/ proto_tree_add_item(ospf_lsa_tree, hf_ospf_lsa_number_of_links, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
         offset += 4;
 
 /*      This constraint (>=0) makes no sense
