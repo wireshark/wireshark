@@ -186,10 +186,9 @@ dissect_dtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		type = tvb_get_ntohs(tvb, offset);
 		length = tvb_get_ntohs(tvb, offset + 2);
 
-		ti = proto_tree_add_text(dtp_tree, tvb, offset, length, "%s",
+		tlv_tree = proto_tree_add_subtree(dtp_tree, tvb, offset, length, ett_dtp_tlv, NULL,
 					 val_to_str(type, dtp_tlv_type_vals, "Unknown TLV type: 0x%02x"));
 
-		tlv_tree = proto_item_add_subtree(ti, ett_dtp_tlv);
 		proto_tree_add_uint(tlv_tree, hf_dtp_tlvtype, tvb, offset, 2, type);
 		offset+=2;
 
@@ -227,7 +226,6 @@ dissect_dtp_tlv(packet_info *pinfo, tvbuff_t *tvb, int offset, int length,
 
 	case DTP_TLV_TRSTATUS:
 		if (length == 1) { /* Value field length must be 1 byte */
-			proto_item * value_item = NULL;
 			proto_tree * field_tree = NULL;
 			guint8 trunk_status = tvb_get_guint8(tvb, offset);
 
@@ -236,11 +234,10 @@ dissect_dtp_tlv(packet_info *pinfo, tvbuff_t *tvb, int offset, int length,
 				val_to_str_const(DTP_TOSVALUE(trunk_status), dtp_tos_vals, "Unknown operating status"),
 				val_to_str_const(DTP_TASVALUE(trunk_status), dtp_tas_vals, "Unknown administrative status"),
 				trunk_status);
-			value_item = proto_tree_add_text(tree, tvb, offset, length, "Value: %s/%s (0x%02x)",
+			field_tree = proto_tree_add_subtree_format(tree, tvb, offset, length, ett_dtp_status, NULL, "Value: %s/%s (0x%02x)",
 				val_to_str_const(DTP_TOSVALUE(trunk_status), dtp_tos_vals, "Unknown operating status"),
 				val_to_str_const(DTP_TASVALUE(trunk_status), dtp_tas_vals, "Unknown administrative status"),
 				trunk_status);
-			field_tree = proto_item_add_subtree(value_item, ett_dtp_status);
 			proto_tree_add_item(field_tree, hf_dtp_tos, tvb, offset, length, ENC_NA);
 			proto_tree_add_item(field_tree, hf_dtp_tas, tvb, offset, length, ENC_NA);
 			}
@@ -251,19 +248,17 @@ dissect_dtp_tlv(packet_info *pinfo, tvbuff_t *tvb, int offset, int length,
 
 	case DTP_TLV_TRTYPE:
 		if (length == 1) { /* Value field length must be 1 byte */
-			proto_item * value_item = NULL;
-			proto_tree * field_tree = NULL;
+			proto_tree * field_tree;
 			guint8 trunk_type = tvb_get_guint8(tvb, offset);
 			proto_item_append_text(ti,
 				" (Operating/Administrative): %s/%s (0x%02x)",
 				val_to_str_const(DTP_TOTVALUE(trunk_type), dtp_tot_vals, "Unknown operating type"),
 				val_to_str_const(DTP_TATVALUE(trunk_type), dtp_tat_vals, "Unknown administrative type"),
 				trunk_type);
-			value_item = proto_tree_add_text(tree, tvb, offset, length, "Value: %s/%s (0x%02x)",
+			field_tree = proto_tree_add_subtree_format(tree, tvb, offset, length, ett_dtp_type, NULL, "Value: %s/%s (0x%02x)",
 				val_to_str_const(DTP_TOTVALUE(trunk_type), dtp_tot_vals, "Unknown operating type"),
 				val_to_str_const(DTP_TATVALUE(trunk_type), dtp_tat_vals, "Unknown administrative type"),
 				trunk_type);
-			field_tree = proto_item_add_subtree(value_item, ett_dtp_type);
 			proto_tree_add_item(field_tree, hf_dtp_tot, tvb, offset, length, ENC_NA);
 			proto_tree_add_item(field_tree, hf_dtp_tat, tvb, offset, length, ENC_NA);
 			}

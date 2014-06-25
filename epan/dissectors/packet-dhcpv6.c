@@ -1286,10 +1286,9 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
         return 0;
     }
 
-    option_item = proto_tree_add_text(bp_tree, tvb, off, 4 + optlen,
-                             "%s", val_to_str_ext(opttype, &opttype_vals_ext, "DHCP option %u"));
+    subtree = proto_tree_add_subtree(bp_tree, tvb, off, 4 + optlen, ett_dhcpv6_option, &option_item,
+                             val_to_str_ext(opttype, &opttype_vals_ext, "DHCP option %u"));
 
-    subtree = proto_item_add_subtree(option_item, ett_dhcpv6_option);
     proto_tree_add_item(subtree, hf_option_type, tvb, off, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(subtree, hf_option_length, tvb, off + 2, 2, ENC_BIG_ENDIAN);
     off += 4;
@@ -1368,9 +1367,8 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
         while (optlen > temp_optlen) {
             subopt_type = tvb_get_ntohs(tvb, off + temp_optlen);
             subopt_len = tvb_get_ntohs(tvb,  off + 2 + temp_optlen);
-            ti = proto_tree_add_text(subtree, tvb, off+temp_optlen, 4 + subopt_len,
-                                     "%s", val_to_str(subopt_type, ntp_server_opttype_vals, "NTP Server suboption %u"));
-            subtree_2 = proto_item_add_subtree(ti, ett_dhcpv6_netserver_option);
+            subtree_2 = proto_tree_add_subtree(subtree, tvb, off+temp_optlen, 4 + subopt_len, ett_dhcpv6_netserver_option, &ti,
+                                     val_to_str(subopt_type, ntp_server_opttype_vals, "NTP Server suboption %u"));
             proto_tree_add_item(subtree_2, hf_option_ntpserver_type,   tvb, off + temp_optlen,     2, ENC_BIG_ENDIAN);
             proto_tree_add_item(subtree_2, hf_option_ntpserver_length, tvb, off + temp_optlen + 2, 2, ENC_BIG_ENDIAN);
             temp_optlen += 4;
@@ -1569,9 +1567,8 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
 
                 while ((optlen - 4 - optoffset) > 0) {
                     int olen = tvb_get_ntohs(tvb, off + optoffset + 6);
-                    ti = proto_tree_add_text(subtree, tvb, off + optoffset + 4,
-                                             4 + olen, "option");
-                    subtree_2 = proto_item_add_subtree(ti, ett_dhcpv6_option_vsoption);
+                    subtree_2 = proto_tree_add_subtree(subtree, tvb, off + optoffset + 4,
+                                             4 + olen, ett_dhcpv6_option_vsoption, NULL, "option");
                     proto_tree_add_item(subtree_2, hf_vendoropts_enterprise_option_code, tvb, off + optoffset + 4, 2, ENC_BIG_ENDIAN);
                     proto_tree_add_item(subtree_2, hf_vendoropts_enterprise_option_length, tvb, off + optoffset + 6, 2, ENC_BIG_ENDIAN);
                     proto_tree_add_item(subtree_2, hf_vendoropts_enterprise_option_data, tvb, off + optoffset + 8, olen, ENC_NA);
@@ -2009,8 +2006,7 @@ dissect_dhcpv6_bulk_leasequery_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     col_add_fstr(pinfo->cinfo, COL_INFO, "%s, Transaction ID: %5u",
                       val_to_str_ext_const(msg_type, &msgtype_vals_ext, "Unknown"), trans_id);
 
-    ti = proto_tree_add_text(bulk_tree, tvb, offset, -1, "DHCPv6 Options");
-    option_tree = proto_item_add_subtree(ti, ett_dhcpv6_bulk_leasequery_options);
+    option_tree = proto_tree_add_subtree(bulk_tree, tvb, offset, -1, ett_dhcpv6_bulk_leasequery_options, NULL, "DHCPv6 Options");
     end = size + 2;
     while ((offset < end) && !at_end)
         offset += dhcpv6_option(tvb, pinfo, option_tree, FALSE, offset,

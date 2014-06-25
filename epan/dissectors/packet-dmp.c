@@ -1509,9 +1509,8 @@ static void dmp_add_seq_ack_analysis (tvbuff_t *tvb, packet_info *pinfo,
     return;
   }
 
-  en = proto_tree_add_text (dmp_tree, tvb, 0, 0, "SEQ/ACK analysis");
+  analysis_tree = proto_tree_add_subtree(dmp_tree, tvb, 0, 0, ett_analysis, &en, "SEQ/ACK analysis");
   PROTO_ITEM_SET_GENERATED (en);
-  analysis_tree = proto_item_add_subtree (en, ett_analysis);
 
   if ((dmp.msg_type == STANAG) || (dmp.msg_type == IPM) ||
       (dmp.msg_type == REPORT) || (dmp.msg_type == NOTIF)) {

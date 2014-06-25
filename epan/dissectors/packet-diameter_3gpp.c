@@ -486,13 +486,11 @@ dissect_diameter_3gpp_feature_list(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 static int
 dissect_diameter_3gpp_path(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_) {
 
-    proto_item* item;
     proto_tree *sub_tree;
     int offset = 0, comma_offset;
     int end_offset = tvb_length(tvb) - 1;
 
-    item = proto_tree_add_text(tree, tvb, offset, -1,"Paths");
-    sub_tree = proto_item_add_subtree(item,diameter_3gpp_path_ett);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, -1, diameter_3gpp_path_ett, NULL, "Paths");
 
     while (offset < end_offset){
         comma_offset = tvb_find_guint8(tvb, offset, -1, ',');

@@ -1067,7 +1067,6 @@ dissect_dpnns_sup_str_par(tvbuff_t *tvb, proto_tree * tree, int par_type_num, in
 static int
 dissect_dpnss_sup_info_str(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
 {
-    proto_item *sup_str_item;
     proto_tree *sup_str_tree;
     gint        start_offset, hash_offset, tvb_end_offset, sup_inf_str_end_offset, str_no;
     gint        par_start_offset, par_end_offset, number_of_found_par;
@@ -1090,10 +1089,9 @@ dissect_dpnss_sup_info_str(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
             /* offset points to start of supplementary information string */
             offset++;
             hash_offset = tvb_find_guint8(tvb, offset, -1, '#');
-            sup_str_item = proto_tree_add_text(tree, tvb, start_offset, hash_offset-start_offset+1,
-                                               "Supplementary Information %u: %s",str_no,
+            sup_str_tree = proto_tree_add_subtree_format(tree, tvb, start_offset, hash_offset-start_offset+1,
+                                               ett_dpnss_sup_str, NULL, "Supplementary Information %u: %s",str_no,
                                                tvb_format_text(tvb,start_offset,hash_offset-start_offset+1));
-            sup_str_tree = proto_item_add_subtree(sup_str_item, ett_dpnss_sup_str);
             /* SUPPLEMENTARY INFORMATION STRING IDENTIFIER
              * Get the parameter number string and translate it to an index into the dpnns_sup_serv_set.
              * The number may have a trailing alpha character at the end.
@@ -1160,7 +1158,7 @@ dissect_dpnss_sup_info_str(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 static int
 dissect_dpnss_LbL_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    proto_item *sic_field_item, *ind_field_item;
+    proto_item *ind_field_item;
     proto_tree *sic_field_tree, *ind_field_tree;
     int         offset = 0;
     int         tvb_end_offset;
@@ -1205,8 +1203,7 @@ dissect_dpnss_LbL_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
              * Note: On data calls the SIC may comprise more than one octet.
              * The Service Indicator Code is coded in accordance with ANNEX 1.
              */
-            sic_field_item = proto_tree_add_text(tree, tvb, offset, -1, "Service Indicator Code");
-            sic_field_tree = proto_item_add_subtree(sic_field_item, ett_dpnss_sic_field);
+            sic_field_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_dpnss_sic_field, NULL, "Service Indicator Code");
             offset =dissect_dpnss_sic(tvb, pinfo, sic_field_tree, offset);
             /* Indication Field */
             ind_field_item = proto_tree_add_text(tree, tvb, offset, -1,
@@ -1255,7 +1252,7 @@ dissect_dpnss_LbL_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static int
 dissect_dpnss_e2e_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    proto_item *sel_field_item, *sic_field_item, *ind_field_item;
+    proto_item *sel_field_item, *ind_field_item;
     proto_tree *sel_field_tree, *sic_field_tree, *ind_field_tree;
     int         offset = 0;
     int         tvb_end_offset;
@@ -1305,8 +1302,7 @@ dissect_dpnss_e2e_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
              * Note: On data calls the SIC may comprise more than one octet.
              * The Service Indicator Code is coded in accordance with ANNEX 1.
              */
-            sic_field_item = proto_tree_add_text(tree, tvb, offset, -1, "Service Indicator Code");
-            sic_field_tree = proto_item_add_subtree(sic_field_item, ett_dpnss_sic_field);
+            sic_field_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_dpnss_sic_field, NULL, "Service Indicator Code");
             offset =dissect_dpnss_sic(tvb, pinfo, sic_field_tree, offset);
             /*
              * Selection Field
@@ -1352,7 +1348,7 @@ dissect_dpnss_e2e_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static int
 dissect_dpnss_cc_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    proto_item *sel_field_item, *sic_field_item, *ind_field_item;
+    proto_item *sel_field_item, *ind_field_item;
     proto_tree *sel_field_tree, *sic_field_tree, *ind_field_tree;
     int         offset = 0;
     int         tvb_end_offset;
@@ -1382,8 +1378,7 @@ dissect_dpnss_cc_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
              * Note: On data calls the SIC may comprise more than one octet.
              * The Service Indicator Code is coded in accordance with ANNEX 1.
              */
-            sic_field_item = proto_tree_add_text(tree, tvb, offset, -1, "Service Indicator Code");
-            sic_field_tree = proto_item_add_subtree(sic_field_item, ett_dpnss_sic_field);
+            sic_field_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_dpnss_sic_field, NULL, "Service Indicator Code");
             offset =dissect_dpnss_sic(tvb, pinfo, sic_field_tree, offset);
             /*
              * Selection Field

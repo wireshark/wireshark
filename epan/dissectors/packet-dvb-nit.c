@@ -84,7 +84,6 @@ dissect_dvb_nit(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
 
     proto_item *ti;
     proto_tree *dvb_nit_tree;
-    proto_item *tsi;
     proto_tree *dvb_nit_ts_tree;
 
     col_set_str(pinfo->cinfo, COL_INFO, "Network Information Table (NIT)");
@@ -124,8 +123,8 @@ dissect_dvb_nit(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
         tsid = tvb_get_ntohs(tvb, offset);
         ts_desc_len = 3 + (tvb_get_ntohs(tvb, offset + 4) & DVB_NIT_TRANSPORT_DESCRIPTORS_LENGTH_MASK);
 
-        tsi = proto_tree_add_text(dvb_nit_tree, tvb, offset, ts_desc_len, "Stream ID=0x%04hx", tsid);
-        dvb_nit_ts_tree = proto_item_add_subtree(tsi, ett_dvb_nit_ts);
+        dvb_nit_ts_tree = proto_tree_add_subtree_format(dvb_nit_tree, tvb, offset, ts_desc_len,
+                               ett_dvb_nit_ts, NULL, "Stream ID=0x%04hx", tsid);
 
         proto_tree_add_item(dvb_nit_ts_tree, hf_dvb_nit_transport_stream_id, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;

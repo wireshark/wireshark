@@ -105,7 +105,6 @@ dissect_dvb_bat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     proto_item *ti;
     proto_tree *dvb_bat_tree;
-    proto_item *tsi;
     proto_tree *transport_stream_tree;
 
     col_set_str(pinfo->cinfo, COL_INFO, "Bouquet Association Table (BAT)");
@@ -147,8 +146,8 @@ dissect_dvb_bat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         ts_id = tvb_get_ntohs(tvb, offset);
         descriptor_len = tvb_get_ntohs(tvb, offset + 4) & DVB_BAT_TRANSPORT_DESCRIPTORS_LENGTH_MASK;
 
-        tsi = proto_tree_add_text(dvb_bat_tree, tvb, offset, 6 + descriptor_len, "Transport Stream 0x%04x", ts_id);
-        transport_stream_tree = proto_item_add_subtree(tsi, ett_dvb_bat_transport_stream);
+        transport_stream_tree = proto_tree_add_subtree_format(dvb_bat_tree, tvb, offset, 6 + descriptor_len,
+            ett_dvb_bat_transport_stream, NULL, "Transport Stream 0x%04x", ts_id);
 
         proto_tree_add_item(transport_stream_tree, hf_dvb_bat_transport_stream_id, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;

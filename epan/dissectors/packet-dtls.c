@@ -1568,7 +1568,6 @@ dissect_dtls_hnd_hello_common(tvbuff_t *tvb, proto_tree *tree,
   /* show the client's random challenge */
   nstime_t gmt_unix_time;
   guint8   session_id_length;
-  proto_item *ti_rnd;
   proto_tree *dtls_rnd_tree;
 
   if (tree || ssl)
@@ -1593,8 +1592,7 @@ dissect_dtls_hnd_hello_common(tvbuff_t *tvb, proto_tree *tree,
                        ssl->state);
     }
 
-    ti_rnd = proto_tree_add_text(tree, tvb, offset, 32, "Random");
-    dtls_rnd_tree = proto_item_add_subtree(ti_rnd, ett_dtls_random);
+    dtls_rnd_tree = proto_tree_add_subtree(tree, tvb, offset, 32, ett_dtls_random, NULL, "Random");
 
     /* show the time */
     gmt_unix_time.secs  = tvb_get_ntohl(tvb, offset);
@@ -1907,7 +1905,6 @@ dissect_dtls_hnd_new_ses_ticket(tvbuff_t *tvb,
                            proto_tree *tree, guint32 offset, guint32 length)
 {
     guint nst_len;
-    proto_item *ti;
     proto_tree *subtree;
 
 
@@ -1916,8 +1913,7 @@ dissect_dtls_hnd_new_ses_ticket(tvbuff_t *tvb,
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, 6+nst_len, "TLS Session Ticket");
-    subtree = proto_item_add_subtree(ti, ett_dtls_new_ses_ticket);
+    subtree = proto_tree_add_subtree(tree, tvb, offset, 6+nst_len, ett_dtls_new_ses_ticket, NULL, "TLS Session Ticket");
 
     proto_tree_add_item(subtree, hf_dtls_handshake_session_ticket_lifetime_hint,
                         tvb, offset, 4, ENC_BIG_ENDIAN);

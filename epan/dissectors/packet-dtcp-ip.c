@@ -140,7 +140,7 @@ dissect_dtcp_ip(tvbuff_t *tvb, packet_info *pinfo,
 {
     guint        offset = 0;
     guint16      length;
-    proto_item  *pi, *pi_ctrl;
+    proto_item  *pi;
     proto_tree  *dtcp_ip_tree, *dtcp_ip_ctrl_tree;
     guint8       subfct_val;
     const gchar *subfct_str;
@@ -169,9 +169,8 @@ dissect_dtcp_ip(tvbuff_t *tvb, packet_info *pinfo,
         tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    pi_ctrl = proto_tree_add_text(dtcp_ip_tree,
-            tvb, offset, CTRL_LEN, "Control");
-    dtcp_ip_ctrl_tree = proto_item_add_subtree(pi_ctrl, ett_dtcp_ip_ctrl);
+    dtcp_ip_ctrl_tree = proto_tree_add_subtree(dtcp_ip_tree,
+            tvb, offset, CTRL_LEN, ett_dtcp_ip_ctrl, NULL, "Control");
 
     /* for now, we don't display the 4 reserved bits */
     proto_tree_add_item(dtcp_ip_ctrl_tree, hf_dtcp_ip_ctype,

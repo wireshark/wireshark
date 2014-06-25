@@ -100,7 +100,6 @@ dissect_dvb_eit(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     proto_item *ti;
     proto_tree *dvb_eit_tree;
-    proto_item *ei;
     proto_tree *dvb_eit_event_tree;
     proto_item *duration_item;
 
@@ -150,8 +149,7 @@ dissect_dvb_eit(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     while (offset < length) {
 
         evt_id = tvb_get_ntohs(tvb, offset);
-        ei = proto_tree_add_text(dvb_eit_tree, tvb, offset, 12, "Event 0x%04hx", evt_id);
-        dvb_eit_event_tree = proto_item_add_subtree(ei, ett_dvb_eit_event);
+        dvb_eit_event_tree = proto_tree_add_subtree_format(dvb_eit_tree, tvb, offset, 12, ett_dvb_eit_event, NULL, "Event 0x%04hx", evt_id);
 
         proto_tree_add_item(dvb_eit_event_tree, hf_dvb_eit_event_id, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;

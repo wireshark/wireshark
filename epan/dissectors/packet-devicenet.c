@@ -270,13 +270,11 @@ static const value_string devicenet_io_attribute_vals[] = {
 static gint body_type_8_over_8_dissection(guint8 data_length, proto_tree *devicenet_tree,
                                           tvbuff_t *tvb, packet_info *pinfo _U_, gint offset)
 {
-    proto_item *devicenet_8_8;
     guint16 class_id, instance, attribute;
     attribute_info_t* att_info;
     gint start_offset = offset, length;
 
-    devicenet_8_8 = proto_tree_add_text(devicenet_tree, tvb, offset, -1, "DeviceNet 8/8");
-    devicenet_tree = proto_item_add_subtree(devicenet_8_8, ett_devicenet_8_8);
+    devicenet_tree = proto_tree_add_subtree(devicenet_tree, tvb, offset, -1, ett_devicenet_8_8, NULL, "DeviceNet 8/8");
 
     proto_tree_add_item(devicenet_tree, hf_devicenet_class8,  tvb, offset, 1, ENC_LITTLE_ENDIAN);
     class_id = tvb_get_guint8(tvb, offset);
@@ -310,12 +308,10 @@ static gint body_type_8_over_8_dissection(guint8 data_length, proto_tree *device
 static gint body_type_8_over_16_dissection(guint8 data_length, proto_tree *devicenet_tree,
                                            tvbuff_t *tvb, packet_info *pinfo _U_, gint offset)
 {
-    proto_item *devicenet_8_16;
     guint16 class_id, instance, attribute;
     attribute_info_t* att_info;
 
-    devicenet_8_16 = proto_tree_add_text(devicenet_tree, tvb, offset, -1, "DeviceNet 8/16");
-    devicenet_tree = proto_item_add_subtree(devicenet_8_16, ett_devicenet_8_16);
+    devicenet_tree = proto_tree_add_subtree(devicenet_tree, tvb, offset, -1, ett_devicenet_8_16, NULL, "DeviceNet 8/16");
 
     proto_tree_add_item(devicenet_tree, hf_devicenet_class8, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     class_id = tvb_get_guint8(tvb, offset);
@@ -341,12 +337,10 @@ static gint body_type_8_over_16_dissection(guint8 data_length, proto_tree *devic
 static gint body_type_16_over_8_dissection(guint8 data_length, proto_tree *devicenet_tree, tvbuff_t *tvb,
                                            packet_info *pinfo _U_, gint offset)
 {
-    proto_item *devicenet_16_8;
     guint16 class_id, instance, attribute;
     attribute_info_t* att_info;
 
-    devicenet_16_8 = proto_tree_add_text(devicenet_tree, tvb, offset, -1, "DeviceNet 16/8");
-    devicenet_tree = proto_item_add_subtree(devicenet_16_8, ett_devicenet_16_8);
+    devicenet_tree = proto_tree_add_subtree(devicenet_tree, tvb, offset, -1, ett_devicenet_16_8, NULL, "DeviceNet 16/8");
 
     proto_tree_add_item(devicenet_tree, hf_devicenet_class16, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     class_id = tvb_get_letohs(tvb, offset);
@@ -373,13 +367,10 @@ static gint body_type_16_over_8_dissection(guint8 data_length, proto_tree *devic
 static gint body_type_16_over_16_dissection(guint8 data_length, proto_tree *devicenet_tree, tvbuff_t *tvb,
                                             packet_info *pinfo _U_, gint offset)
 {
-    proto_item *devicenet_16_16;
-
     guint16 class_id, instance, attribute;
     attribute_info_t* att_info;
 
-    devicenet_16_16 = proto_tree_add_text(devicenet_tree, tvb, offset, 4, "DeviceNet 16/16");
-    devicenet_tree = proto_item_add_subtree(devicenet_16_16, ett_devicenet_16_16);
+    devicenet_tree = proto_tree_add_subtree(devicenet_tree, tvb, offset, 4, ett_devicenet_16_16, NULL, "DeviceNet 16/16");
 
     proto_tree_add_item(devicenet_tree, hf_devicenet_class16, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     class_id = tvb_get_letohs(tvb, offset);
@@ -410,7 +401,7 @@ struct can_identifier
 
 static int dissect_devicenet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
-    proto_item *ti, *can_id_item, *devicenet_contents,
+    proto_item *ti, *can_id_item,
                *msg_id_item, *service_item;
     proto_tree *devicenet_tree, *can_tree, *content_tree;
 
@@ -436,8 +427,7 @@ static int dissect_devicenet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     ti = proto_tree_add_item(tree, proto_devicenet, tvb, offset, -1, ENC_NA);
     devicenet_tree = proto_item_add_subtree(ti, ett_devicenet);
 
-    ti = proto_tree_add_text(devicenet_tree, tvb, 0, 0, "CAN Identifier: 0x%04x", can_id.id);
-    can_tree = proto_item_add_subtree(ti, ett_devicenet_can);
+    can_tree = proto_tree_add_subtree_format(devicenet_tree, tvb, 0, 0, ett_devicenet_can, NULL, "CAN Identifier: 0x%04x", can_id.id);
     can_id_item = proto_tree_add_uint(can_tree, hf_devicenet_can_id, tvb, 0, 0, can_id.id);
     PROTO_ITEM_SET_GENERATED(can_id_item);
 
@@ -482,8 +472,7 @@ static int dissect_devicenet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         *src_address = (guint8)((can_id.id & MESSAGE_GROUP_2_MAC_ID_MASK) >> 3);
         SET_ADDRESS(&pinfo->src, AT_DEVICENET, 1, (const void*)src_address);
 
-        devicenet_contents = proto_tree_add_text(devicenet_tree, tvb, offset, -1, "Contents");
-        content_tree = proto_item_add_subtree(devicenet_contents, ett_devicenet_contents);
+        content_tree = proto_tree_add_subtree(devicenet_tree, tvb, offset, -1, ett_devicenet_contents, NULL, "Contents");
 
         switch (message_id)
         {
@@ -551,8 +540,7 @@ static int dissect_devicenet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         {
             col_set_str(pinfo->cinfo, COL_INFO, "Group 3 Message Fragment");
 
-            devicenet_contents = proto_tree_add_text(devicenet_tree, tvb, offset, -1, "Fragmentation");
-            content_tree = proto_item_add_subtree(devicenet_contents, ett_devicenet_contents);
+            content_tree = proto_tree_add_subtree(devicenet_tree, tvb, offset, -1, ett_devicenet_contents, NULL, "Fragmentation");
 
             proto_tree_add_item(content_tree, hf_devicenet_fragment_type, tvb, offset, 1, ENC_NA);
             proto_tree_add_item(content_tree, hf_devicenet_fragment_count, tvb, offset, 1, ENC_NA);
@@ -566,10 +554,9 @@ static int dissect_devicenet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         {
             service_rr = tvb_get_guint8(tvb, offset);
 
-            devicenet_contents = proto_tree_add_text(devicenet_tree, tvb, offset, -1, "Service: %s (%s)",
-                        val_to_str_const(service_rr & CIP_SC_MASK, devicenet_service_code_vals, "Unknown"),
+            content_tree = proto_tree_add_subtree_format(devicenet_tree, tvb, offset, -1, ett_devicenet_contents, NULL,
+                        "Service: %s (%s)", val_to_str_const(service_rr & CIP_SC_MASK, devicenet_service_code_vals, "Unknown"),
                         service_rr & CIP_SC_RESPONSE_MASK ? "Response" : "Request");
-            content_tree = proto_item_add_subtree(devicenet_contents, ett_devicenet_contents);
 
             proto_tree_add_item(content_tree, hf_devicenet_rr_bit, tvb, offset, 1, ENC_NA);
             service_item = proto_tree_add_item(content_tree, hf_devicenet_service_code, tvb, offset, 1, ENC_NA);

@@ -1754,7 +1754,6 @@ dissect_opp_cap_loop(guint8 cap_loop_len, const gchar *title,
         tvbuff_t *tvb, gint offset,
         packet_info *pinfo _U_, proto_tree *tree)
 {
-    proto_item *ti        = NULL;
     proto_tree *loop_tree = NULL;
     guint       i;
 
@@ -1764,8 +1763,7 @@ dissect_opp_cap_loop(guint8 cap_loop_len, const gchar *title,
         return -1;
 
     if (tree && cap_loop_len>0) {
-        ti = proto_tree_add_text(tree, tvb, offset, cap_loop_len, "%s", title);
-        loop_tree = proto_item_add_subtree(ti, ett_dvbci_opp_cap_loop);
+        loop_tree = proto_tree_add_subtree(tree, tvb, offset, cap_loop_len, ett_dvbci_opp_cap_loop, NULL, title);
     }
     for (i=0; i<cap_loop_len; i+=item_len) {
         proto_tree_add_item(loop_tree, item_hf,
@@ -1825,7 +1823,7 @@ static gint
 dissect_conn_desc(tvbuff_t *tvb, gint offset,  circuit_t *circuit,
         packet_info *pinfo, proto_tree *tree)
 {
-    proto_item *ti             = NULL;
+    proto_item *ti;
     proto_tree *conn_desc_tree = NULL;
     guint32     tag;
     gint        offset_start, offset_body;
@@ -1842,9 +1840,8 @@ dissect_conn_desc(tvbuff_t *tvb, gint offset,  circuit_t *circuit,
     if (tag!= T_CONNECTION_DESCRIPTOR)
         return 0;
 
-    ti = proto_tree_add_text(tree, tvb,
-            offset_start, -1, "Connection descriptor");
-    conn_desc_tree = proto_item_add_subtree(ti, ett_dvbci_lsc_conn_desc);
+    conn_desc_tree = proto_tree_add_subtree(tree, tvb,
+            offset_start, -1, ett_dvbci_lsc_conn_desc, &ti, "Connection descriptor");
 
     proto_tree_add_item(conn_desc_tree, hf_dvbci_apdu_tag,
             tvb, offset, APDU_TAG_SIZE, ENC_BIG_ENDIAN);
@@ -2034,7 +2031,7 @@ static gint
 dissect_cc_item(tvbuff_t *tvb, gint offset,
         packet_info *pinfo, proto_tree *tree, guint8 *dat_id_ptr)
 {
-    proto_item *ti           = NULL;
+    proto_item *ti;
     proto_tree *cc_item_tree = NULL;
     gint        offset_start;
     guint16     dat_len;
@@ -2050,9 +2047,8 @@ dissect_cc_item(tvbuff_t *tvb, gint offset,
     if (dat_id_ptr)
         *dat_id_ptr = dat_id;
 
-    ti = proto_tree_add_text(tree, tvb, offset_start, -1, "CC data item: %s",
-            val_to_str_const(dat_id, dvbci_cc_dat_id, "unknown"));
-    cc_item_tree = proto_item_add_subtree(ti, ett_dvbci_cc_item);
+    cc_item_tree = proto_tree_add_subtree_format(tree, tvb, offset_start, -1, ett_dvbci_cc_item, &ti,
+        "CC data item: %s", val_to_str_const(dat_id, dvbci_cc_dat_id, "unknown"));
 
     proto_tree_add_item(cc_item_tree, hf_dvbci_cc_dat_id,
             tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -2487,7 +2483,7 @@ dissect_ca_desc(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 {
     gint        offset_start;
     guint8      tag, len_byte;
-    proto_item *ti           = NULL;
+    proto_item *ti;
     proto_tree *ca_desc_tree = NULL;
 
     offset_start = offset;
@@ -2499,9 +2495,8 @@ dissect_ca_desc(tvbuff_t *tvb, gint offset, packet_info *pinfo,
         return 0;
     }
 
-    ti = proto_tree_add_text(
-            tree, tvb, offset_start, -1, "Conditional Access descriptor");
-    ca_desc_tree = proto_item_add_subtree(ti, ett_dvbci_ca_desc);
+    ca_desc_tree = proto_tree_add_subtree(
+            tree, tvb, offset_start, -1, ett_dvbci_ca_desc, &ti, "Conditional Access descriptor");
     offset++;
 
     len_byte = tvb_get_guint8(tvb,offset);
@@ -2533,7 +2528,7 @@ static gint
 dissect_es(tvbuff_t *tvb, gint offset,
         packet_info *pinfo, proto_tree *tree, gboolean *scrambled)
 {
-    proto_item *ti      = NULL;
+    proto_item *ti;
     proto_tree *es_tree = NULL;
     gint        offset_start, ca_desc_len;
     gint        es_info_len, all_len;
@@ -2546,8 +2541,7 @@ dissect_es(tvbuff_t *tvb, gint offset,
         *scrambled = FALSE;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset_start, -1, "Elementary Stream");
-    es_tree = proto_item_add_subtree(ti, ett_dvbci_application);
+    es_tree = proto_tree_add_subtree(tree, tvb, offset_start, -1, ett_dvbci_application, &ti, "Elementary Stream");
 
     proto_tree_add_item(
             es_tree, hf_dvbci_stream_type, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -2590,7 +2584,7 @@ static gint
 dissect_dvbci_text(const gchar *title, tvbuff_t *tvb, gint offset,
                    packet_info *pinfo, proto_tree *tree, int hf)
 {
-    proto_item *ti = NULL;
+    proto_item *ti;
     proto_tree *text_tree;
     guint32     tag;
     gint        offset_start;
@@ -2606,8 +2600,7 @@ dissect_dvbci_text(const gchar *title, tvbuff_t *tvb, gint offset,
     if (tag!=T_TEXT_LAST && tag!=T_TEXT_MORE)
         return 0;
 
-    ti = proto_tree_add_text(tree, tvb, offset_start, -1, "%s", title);
-    text_tree = proto_item_add_subtree(ti, ett_dvbci_text);
+    text_tree = proto_tree_add_subtree(tree, tvb, offset_start, -1, ett_dvbci_text, &ti, title);
 
     proto_tree_add_item(text_tree, hf_dvbci_apdu_tag,
             tvb, offset, APDU_TAG_SIZE, ENC_BIG_ENDIAN);
@@ -2658,9 +2651,8 @@ dissect_res_id(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                 RES_VER(res_id));
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, tvb_data_len,
-            "Resource ID: 0x%04x", res_id);
-    res_tree = proto_item_add_subtree(ti, ett_dvbci_res);
+    res_tree = proto_tree_add_subtree_format(tree, tvb, offset, tvb_data_len,
+            ett_dvbci_res, &ti, "Resource ID: 0x%04x", res_id);
 
     /* parameter "value" == complete resource id,
        RES_..._MASK will be applied by the hf definition */
@@ -2754,7 +2746,6 @@ dissect_dvbci_payload_ca(guint32 tag, gint len_field,
         packet_info *pinfo, proto_tree *tree)
 {
     const gchar *tag_str;
-    proto_item  *pi;
     guint16      prog_num;
     guint8       byte;
     guint        prog_info_len;
@@ -2849,8 +2840,7 @@ dissect_dvbci_payload_ca(guint32 tag, gint len_field,
         offset++;
         while (tvb_reported_length_remaining(tvb, offset) > 0) {
             /* there's no need to check for tree==NULL */
-            pi = proto_tree_add_text(tree, tvb, offset, 3, "Elementary Stream");
-            es_tree = proto_item_add_subtree(pi, ett_dvbci_application);
+            es_tree = proto_tree_add_subtree(tree, tvb, offset, 3, ett_dvbci_application, NULL, "Elementary Stream");
 
             proto_tree_add_item(es_tree, hf_dvbci_es_pid,
                     tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -3325,7 +3315,7 @@ dissect_sac_msg(guint32 tag, tvbuff_t *tvb, gint offset,
     gint        offset_start;
     guint32     msg_ctr;
     guint8      enc_flag, enc_cip;
-    proto_item *enc_flag_pi, *ti;
+    proto_item *enc_flag_pi;
     guint16     sac_payload_len;          /* payload data and padding */
     gint        sac_payload_data_len = 0; /* just payload data */
     tvbuff_t   *clear_sac_body_tvb;
@@ -3380,9 +3370,8 @@ dissect_sac_msg(guint32 tag, tvbuff_t *tvb, gint offset,
     if (enc_flag)
         add_new_data_source(pinfo, clear_sac_body_tvb, "Clear SAC message body");
     if (sac_payload_len>0) {
-        ti = proto_tree_add_text(tree, clear_sac_body_tvb, 0, sac_payload_len,
-                "SAC message payload");
-        sac_tree = proto_item_add_subtree(ti, ett_dvbci_sac_msg_body);
+        sac_tree = proto_tree_add_subtree(tree, clear_sac_body_tvb, 0, sac_payload_len,
+                ett_dvbci_sac_msg_body, NULL, "SAC message payload");
         if (tag==T_CC_SAC_DATA_REQ || tag==T_CC_SAC_DATA_CNF) {
             sac_payload_data_len = dissect_cc_data_payload(tag,
                     clear_sac_body_tvb, 0, pinfo, sac_tree, &is_exportable);
@@ -3589,7 +3578,6 @@ dissect_dvbci_ami_file_ack(tvbuff_t *tvb, gint offset,
     guint8     *file_name_str;
     guint32     file_data_len;
     tvbuff_t   *png_file_tvb = NULL;
-    proto_item *ti;
     proto_tree *req_tree;
 
     req_type = tvb_get_guint8(tvb, offset+1);
@@ -3653,11 +3641,9 @@ dissect_dvbci_ami_file_ack(tvbuff_t *tvb, gint offset,
                 tvb_reported_length_remaining(tvb, offset), ENC_NA);
     }
     else if (req_type==REQ_TYPE_REQ) {
-        ti = proto_tree_add_text(tree, tvb,
+        req_tree = proto_tree_add_subtree(tree, tvb,
                 offset, tvb_reported_length_remaining(tvb, offset),
-                "Supported request types");
-        req_tree = proto_item_add_subtree(
-                ti, ett_dvbci_ami_req_types);
+                ett_dvbci_ami_req_types, NULL, "Supported request types");
         while (tvb_reported_length_remaining(tvb, offset) > 0) {
             proto_tree_add_item(req_tree, hf_dvbci_req_type,
                     tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -4160,7 +4146,6 @@ static void
 dissect_dvbci_apdu(tvbuff_t *tvb, circuit_t *circuit,
         packet_info *pinfo, proto_tree *tree, guint8 direction)
 {
-    proto_item  *ti;
     proto_tree  *app_tree;
     guint32      apdu_len, tag, len_field;
     const gchar *tag_str;
@@ -4173,8 +4158,7 @@ dissect_dvbci_apdu(tvbuff_t *tvb, circuit_t *circuit,
 
     apdu_len = tvb_reported_length(tvb);
 
-    ti = proto_tree_add_text(tree, tvb, 0, apdu_len, "Application Layer");
-    app_tree = proto_item_add_subtree(ti, ett_dvbci_application);
+    app_tree = proto_tree_add_subtree(tree, tvb, 0, apdu_len, ett_dvbci_application, NULL, "Application Layer");
 
     tag = tvb_get_ntoh24(tvb, 0);
     tag_str = try_val_to_str(tag, dvbci_apdu_tag);
@@ -4277,8 +4261,7 @@ dissect_dvbci_spdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     spdu_len = tvb_reported_length(tvb);
 
-    ti = proto_tree_add_text(tree, tvb, 0, -1, "Session Layer");
-    sess_tree = proto_item_add_subtree(ti, ett_dvbci_session);
+    sess_tree = proto_tree_add_subtree(tree, tvb, 0, -1, ett_dvbci_session, &ti, "Session Layer");
 
     tag = tvb_get_guint8(tvb,0);
     tag_str = try_val_to_str(tag, dvbci_spdu_tag);
@@ -4579,8 +4562,7 @@ dissect_dvbci_tpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     col_clear(pinfo->cinfo, COL_INFO);
 
-    ti = proto_tree_add_text(tree, tvb, 0, -1, "Transport Layer");
-    trans_tree = proto_item_add_subtree(ti, ett_dvbci_transport);
+    trans_tree = proto_tree_add_subtree(tree, tvb, 0, -1, ett_dvbci_transport, &ti, "Transport Layer");
 
     offset = dissect_dvbci_tpdu_hdr(tvb, pinfo, trans_tree, direction,
             lpdu_tcid, tpdu_len, &hdr_tag, &body_len);
@@ -4638,7 +4620,6 @@ static void
 dissect_dvbci_lpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         guint8 direction)
 {
-    proto_item    *ti;
     proto_tree    *link_tree;
     guint32        payload_len;
     guint8         tcid, more_last;
@@ -4651,8 +4632,7 @@ dissect_dvbci_lpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     col_set_str(pinfo->cinfo, COL_INFO, "LPDU");
 
-    ti = proto_tree_add_text(tree, tvb, 0, 2, "Link Layer");
-    link_tree = proto_item_add_subtree(ti, ett_dvbci_link);
+    link_tree = proto_tree_add_subtree(tree, tvb, 0, 2, ett_dvbci_link, NULL, "Link Layer");
 
     tcid = tvb_get_guint8(tvb, 0);
     col_append_sep_fstr(pinfo->cinfo, COL_INFO, ": ", "tcid %d", tcid);
@@ -4822,9 +4802,8 @@ dissect_dvbci_cis_payload_config(tvbuff_t *data_tvb,
     while (tvb_reported_length_remaining(data_tvb, offset) > 0) {
         st_code = tvb_get_guint8(data_tvb, offset);
         st_code_str = val_to_str_const(st_code, dvbci_cis_subtpl_code, "unknown");
-        st_item = proto_tree_add_text(tree, data_tvb, offset, -1,
-                "Subtuple: %s (0x%x)", st_code_str, st_code);
-        st_tree = proto_item_add_subtree(st_item, ett_dvbci_cis_subtpl);
+        st_tree = proto_tree_add_subtree_format(tree, data_tvb, offset, -1,
+                ett_dvbci_cis_subtpl, &st_item, "Subtuple: %s (0x%x)", st_code_str, st_code);
         proto_tree_add_item(st_tree, hf_dvbci_cis_st_code,
             data_tvb, offset, 1, ENC_LITTLE_ENDIAN);
         offset++;
@@ -4902,7 +4881,7 @@ dissect_dvbci_cis(tvbuff_t *tvb, gint offset,
 {
     gint         offset_start;
     proto_tree  *cis_tree = NULL, *tpl_tree = NULL;
-    proto_item  *ti_main  = NULL, *ti_tpl;
+    proto_item  *ti_main, *ti_tpl;
     guint8       tpl_code;
     const gchar *tpl_code_str = NULL;
     guint8       len_field;
@@ -4910,17 +4889,15 @@ dissect_dvbci_cis(tvbuff_t *tvb, gint offset,
 
     offset_start = offset;
 
-    ti_main = proto_tree_add_text(tree, tvb, offset, -1,
-            "Card Information Structure (CIS)");
-    cis_tree = proto_item_add_subtree(ti_main, ett_dvbci_cis);
+    cis_tree = proto_tree_add_subtree(tree, tvb, offset, -1,
+            ett_dvbci_cis, &ti_main, "Card Information Structure (CIS)");
 
     do {
         tpl_code = tvb_get_guint8(tvb, offset);
         tpl_code_str = val_to_str_const(tpl_code, dvbci_cis_tpl_code, "unknown");
 
-        ti_tpl = proto_tree_add_text(cis_tree,
-                tvb, offset, -1, "CIS tuple: %s", tpl_code_str);
-        tpl_tree = proto_item_add_subtree(ti_tpl, ett_dvbci_cis_tpl);
+        tpl_tree = proto_tree_add_subtree_format(cis_tree,
+                tvb, offset, -1, ett_dvbci_cis_tpl, &ti_tpl, "CIS tuple: %s", tpl_code_str);
 
         proto_tree_add_uint_format(tpl_tree, hf_dvbci_cis_tpl_code,
                 tvb, offset, 1, tpl_code, "Tuple code: %s (0x%x)",
@@ -4985,7 +4962,7 @@ dissect_dvbci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
     guint8       version, event;
     const gchar *event_str;
     guint16      len_field;
-    proto_item  *ti, *ti_hdr;
+    proto_item  *ti;
     proto_tree  *dvbci_tree, *hdr_tree;
     tvbuff_t    *payload_tvb;
     guint16      cor_addr;
@@ -5020,8 +4997,7 @@ dissect_dvbci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
     ti = proto_tree_add_protocol_format(tree, proto_dvbci,
             tvb, 0, packet_len, "DVB Common Interface: %s", event_str);
     dvbci_tree = proto_item_add_subtree(ti, ett_dvbci);
-    ti_hdr = proto_tree_add_text(dvbci_tree, tvb, 0, offset, "Pseudo header");
-    hdr_tree = proto_item_add_subtree(ti_hdr, ett_dvbci_hdr);
+    hdr_tree = proto_tree_add_subtree(dvbci_tree, tvb, 0, offset, ett_dvbci_hdr, NULL, "Pseudo header");
     proto_tree_add_text(hdr_tree, tvb, offset_ver, 1, "Version: %d", version);
     proto_tree_add_item(hdr_tree, hf_dvbci_event, tvb, offset_evt, 1, ENC_BIG_ENDIAN);
     proto_tree_add_text(hdr_tree, tvb, offset_len_field, 2,

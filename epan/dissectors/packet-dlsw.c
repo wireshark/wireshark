@@ -292,9 +292,9 @@ dissect_dlsw_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 
     hlen=tvb_get_guint8(tvb,1);
 
-    ti2 = proto_tree_add_text (dlsw_tree, tvb, 0, hlen,"DLSw header, %s",
+    dlsw_header_tree = proto_tree_add_subtree_format(dlsw_tree, tvb, 0, hlen, ett_dlsw_header, NULL,
+                               "DLSw header, %s",
                                val_to_str_const(version , dlsw_version_vals, "Unknown Version"));
-    dlsw_header_tree = proto_item_add_subtree(ti2, ett_dlsw_header);
 
     proto_tree_add_item(dlsw_header_tree, hf_dlsw_version, tvb, 0, 1, ENC_NA);
     proto_tree_add_item(dlsw_header_tree, hf_dlsw_header_length, tvb, 1, 1, ENC_NA);
@@ -375,8 +375,7 @@ dissect_dlsw_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 
 /* end of header dissector */
 
-    ti2 = proto_tree_add_text (dlsw_tree, tvb, hlen, mlen,"DLSw data");
-    dlsw_data_tree = proto_item_add_subtree(ti2, ett_dlsw_data);
+    dlsw_data_tree = proto_tree_add_subtree(dlsw_tree, tvb, hlen, mlen, ett_dlsw_data, NULL, "DLSw data");
 
     switch (mtype)
     {
@@ -413,7 +412,7 @@ static void
 dissect_dlsw_capex(tvbuff_t *tvb, proto_tree *tree, proto_tree *ti2)
 {
   int mlen,vlen,vtype,offset=4,gdsid,sap,i=0;
-  proto_tree *ti,*dlsw_vector_tree;
+  proto_tree *dlsw_vector_tree;
   mlen=tvb_get_ntohs(tvb,0);
   gdsid=tvb_get_ntohs(tvb,2);
   proto_tree_add_item(tree, hf_dlsw_capabilities_length, tvb, 0, 2, ENC_BIG_ENDIAN);
@@ -431,9 +430,8 @@ dissect_dlsw_capex(tvbuff_t *tvb, proto_tree *tree, proto_tree *ti2)
         vlen=tvb_get_guint8(tvb,offset);
         if (vlen < 3) THROW(ReportedBoundsError);
         vtype=tvb_get_guint8(tvb,offset+1);
-        ti=proto_tree_add_text (tree,tvb,offset,vlen,"%s",
+        dlsw_vector_tree=proto_tree_add_subtree (tree,tvb,offset,vlen,ett_dlsw_vector,NULL,
                                 val_to_str_const(vtype,dlsw_vector_vals,"Unknown vector type"));
-        dlsw_vector_tree = proto_item_add_subtree(ti, ett_dlsw_vector);
         proto_tree_add_item(dlsw_vector_tree, hf_dlsw_vector_length, tvb, offset, 1, ENC_NA);
         proto_tree_add_item(dlsw_vector_tree, hf_dlsw_vector_type, tvb, offset+1, 1, ENC_NA);
         switch (vtype){

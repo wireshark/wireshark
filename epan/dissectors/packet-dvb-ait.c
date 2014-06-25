@@ -284,8 +284,7 @@ dissect_dvb_ait_descriptor(tvbuff_t *tvb, guint offset,
     gint        ret;
     guint       offset_start;
     guint8      tag, len;
-    proto_item *descr_tree_ti = NULL;
-    proto_tree *descr_tree = NULL;
+    proto_tree *descr_tree;
 
     tag = tvb_get_guint8(tvb, offset);
     len = tvb_get_guint8(tvb, offset+1);
@@ -297,9 +296,8 @@ dissect_dvb_ait_descriptor(tvbuff_t *tvb, guint offset,
     if (try_val_to_str(tag, ait_descr_tag)) {
 
         offset_start = offset;
-        descr_tree_ti = proto_tree_add_text(tree, tvb, offset_start, len+2,
-                "Descriptor Tag=0x%02x", tag);
-        descr_tree = proto_item_add_subtree(descr_tree_ti, ett_dvb_ait_descr);
+        descr_tree = proto_tree_add_subtree_format(tree, tvb, offset_start, len+2,
+                ett_dvb_ait_descr, NULL, "Descriptor Tag=0x%02x", tag);
 
         proto_tree_add_item(descr_tree, hf_dvb_ait_descr_tag,
                 tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -413,9 +411,8 @@ dissect_dvb_ait(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
         offset_app_start = offset;
         org_id = tvb_get_ntohl(tvb, offset);
         app_id = tvb_get_ntohs(tvb, offset+4);
-        app_tree_ti = proto_tree_add_text(ait_tree, tvb, offset, -1,
-                "Application: Org 0x%x, App 0x%x", org_id, app_id);
-        ait_app_tree = proto_item_add_subtree(app_tree_ti, ett_dvb_ait_app);
+        ait_app_tree = proto_tree_add_subtree_format(ait_tree, tvb, offset, -1,
+                ett_dvb_ait_app, &app_tree_ti, "Application: Org 0x%x, App 0x%x", org_id, app_id);
 
         proto_tree_add_item(ait_app_tree, hf_dvb_ait_org_id,
             tvb, offset, 4, ENC_BIG_ENDIAN);

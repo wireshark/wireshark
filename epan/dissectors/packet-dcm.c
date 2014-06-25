@@ -4674,8 +4674,8 @@ dissect_dcm_assoc_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
      *	Decode association header
      */
 
-    proto_item *assoc_header_pitem = NULL;
-    proto_tree *assoc_header_ptree = NULL;	/* Tree for item details */
+    proto_item *assoc_header_pitem;
+    proto_tree *assoc_header_ptree;	/* Tree for item details */
 
     guint16  assoc_ver;
 
@@ -4692,8 +4692,7 @@ dissect_dcm_assoc_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
     guint8  abort_source;
     guint8  abort_reason;
 
-    assoc_header_pitem = proto_tree_add_text(tree, tvb, offset, pdu_len, "Association Header");
-    assoc_header_ptree = proto_item_add_subtree(assoc_header_pitem, ett_assoc_header);
+    assoc_header_ptree = proto_tree_add_subtree(tree, tvb, offset, pdu_len, ett_assoc_header, &assoc_header_pitem, "Association Header");
 
     switch (pdu_type) {
     case 1:					/* Association Request */
@@ -4900,8 +4899,8 @@ dissect_dcm_assoc_item(tvbuff_t *tvb, proto_tree *tree, guint32 offset,
      *
      */
 
-    proto_tree *assoc_item_ptree = NULL;	/* Tree for item details */
-    proto_item *assoc_item_pitem = NULL;
+    proto_tree *assoc_item_ptree;	/* Tree for item details */
+    proto_item *assoc_item_pitem;
     dcm_uid_t  *uid = NULL;
 
     guint32 item_number = 0;
@@ -4919,8 +4918,7 @@ dissect_dcm_assoc_item(tvbuff_t *tvb, proto_tree *tree, guint32 offset,
     item_type = tvb_get_guint8(tvb, offset);
     item_len  = tvb_get_ntohs(tvb, offset+2);
 
-    assoc_item_pitem = proto_tree_add_text(tree, tvb, offset, item_len+4, "%s", pitem_prefix);
-    assoc_item_ptree = proto_item_add_subtree(assoc_item_pitem, ett_subtree);
+    assoc_item_ptree = proto_tree_add_subtree(tree, tvb, offset, item_len+4, ett_subtree, &assoc_item_pitem, pitem_prefix);
 
     proto_tree_add_uint(assoc_item_ptree, *hf_type, tvb, offset, 1, item_type);
     proto_tree_add_uint(assoc_item_ptree, *hf_len, tvb, offset+2, 2, item_len);
@@ -5175,8 +5173,8 @@ dissect_dcm_pctx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	In the response, set the accepted transfer syntax, if any
     */
 
-    proto_tree *pctx_ptree = NULL;	/* Tree for presentation context details */
-    proto_item *pctx_pitem = NULL;
+    proto_tree *pctx_ptree;	/* Tree for presentation context details */
+    proto_item *pctx_pitem;
 
     dcm_state_pctx_t *pctx = NULL;
 
@@ -5207,8 +5205,7 @@ dissect_dcm_pctx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     item_type = tvb_get_guint8(tvb, offset-4);
     item_len  = tvb_get_ntohs(tvb, offset-2);
 
-    pctx_pitem = proto_tree_add_text(tree, tvb, offset-4, item_len+4, "%s", pitem_prefix);
-    pctx_ptree = proto_item_add_subtree(pctx_pitem, ett_assoc_pctx);
+    pctx_ptree = proto_tree_add_subtree(tree, tvb, offset-4, item_len+4, ett_assoc_pctx, &pctx_pitem, pitem_prefix);
 
     pctx_id     = tvb_get_guint8(tvb, offset);
     pctx_result = tvb_get_guint8(tvb, 2 + offset);	/* only set in responses, otherwise reserved and 0x00 */
@@ -6306,18 +6303,20 @@ dissect_dcm_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (is_sequence | is_item) {
 
 	if (global_dcm_seq_subtree) {
-	    /* Use different ett_ for Sequences & Items, so that fold/unfold state makes sense */
-    	    seq_ptree = proto_item_add_subtree(tag_pitem, (is_sequence ? ett_dcm_data_seq : ett_dcm_data_item));
-	    if (global_dcm_tag_subtree)	    tag_ptree = seq_ptree;
-	    else			    tag_ptree = NULL;
+		/* Use different ett_ for Sequences & Items, so that fold/unfold state makes sense */
+		    seq_ptree = proto_item_add_subtree(tag_pitem, (is_sequence ? ett_dcm_data_seq : ett_dcm_data_item));
+		if (global_dcm_tag_subtree)
+			tag_ptree = seq_ptree;
+		else
+			tag_ptree = NULL;
 	}
 	else {
 	    seq_ptree = tree;
 	    if (global_dcm_tag_subtree) {
-		tag_ptree = proto_item_add_subtree(tag_pitem, ett_dcm_data_tag);
+			tag_ptree = proto_item_add_subtree(tag_pitem, ett_dcm_data_tag);
 	    }
 	    else {
-		tag_ptree = NULL;
+			tag_ptree = NULL;
 	    }
 	}
     }
@@ -6798,8 +6797,7 @@ dissect_dcm_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	pdv_len = tvb_get_ntohl(tvb, offset);
 
-	pdv_pitem = proto_tree_add_text(tree, tvb, offset, pdv_len+4, "PDV");
-	pdv_ptree = proto_item_add_subtree(pdv_pitem, ett_dcm_data_pdv);
+	pdv_ptree = proto_tree_add_subtree(tree, tvb, offset, pdv_len+4, ett_dcm_data_pdv, &pdv_pitem, "PDV");
 
 	pdvlen_item = proto_tree_add_item(pdv_ptree, hf_dcm_pdv_len, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;

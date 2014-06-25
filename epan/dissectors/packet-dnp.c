@@ -1557,8 +1557,7 @@ dnp3_al_obj_quality(tvbuff_t *tvb, int offset, guint8 al_ptflags, proto_tree *po
 
   /* Common code */
   proto_item_append_text(point_item, " (Quality: ");
-  quality_item = proto_tree_add_text(point_tree, tvb, offset, 1, "Quality: ");
-  quality_tree = proto_item_add_subtree(quality_item, ett_dnp3_al_obj_quality);
+  quality_tree = proto_tree_add_subtree(point_tree, tvb, offset, 1, ett_dnp3_al_obj_quality, &quality_item, "Quality: ");
 
   if (al_ptflags & AL_OBJ_BI_FLAG0) {
     dnp3_append_2item_text(point_item, quality_item, "Online");
@@ -1690,7 +1689,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
   guint32     al_ptaddr = 0;
   int         num_items = 0;
   int         orig_offset, rangebytes = 0;
-  proto_item *object_item, *qualifier_item, *range_item;
+  proto_item *object_item, *range_item;
   proto_tree *object_tree, *qualifier_tree, *range_tree;
 
   orig_offset = offset;
@@ -1721,18 +1720,17 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
   al_objq_index = al_objq_index >> 4;
   al_objq_code = al_objq & AL_OBJQ_CODE;
 
-  qualifier_item = proto_tree_add_text(object_tree, tvb, offset, 1, "Qualifier Field, Prefix: %s, Code: %s",
+  qualifier_tree = proto_tree_add_subtree_format(object_tree, tvb, offset, 1, ett_dnp3_al_obj_qualifier, NULL,
+    "Qualifier Field, Prefix: %s, Code: %s",
     val_to_str_ext_const(al_objq_index, &dnp3_al_objq_index_vals_ext, "Unknown Index Type"),
     val_to_str_ext_const(al_objq_code, &dnp3_al_objq_code_vals_ext, "Unknown Code Type"));
-  qualifier_tree = proto_item_add_subtree(qualifier_item, ett_dnp3_al_obj_qualifier);
   proto_tree_add_item(qualifier_tree, hf_dnp3_al_objq_index, tvb, offset, 1, ENC_BIG_ENDIAN);
   proto_tree_add_item(qualifier_tree, hf_dnp3_al_objq_code, tvb, offset, 1, ENC_BIG_ENDIAN);
 
   offset += 1;
 
   /* Create (possibly synthesized) number of items and range field tree */
-  range_item = proto_tree_add_text(object_tree, tvb, offset, 0, "Number of Items: ");
-  range_tree = proto_item_add_subtree(range_item, ett_dnp3_al_obj_range);
+  range_tree = proto_tree_add_subtree(object_tree, tvb, offset, 0, ett_dnp3_al_obj_range, &range_item, "Number of Items: ");
 
   switch (al_objq_code)
   {
@@ -1837,10 +1835,9 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
 
       /* Create Point item and Process Index */
       if (al_objq_index <= AL_OBJQL_IDX_4O)
-        point_item = proto_tree_add_text(object_tree, tvb, offset, -1, "Point Number");
+        point_tree = proto_tree_add_subtree(object_tree, tvb, offset, -1, ett_dnp3_al_obj_point, &point_item, "Point Number");
       else
-        point_item = proto_tree_add_text(object_tree, tvb, offset, -1, "Object: Size");
-      point_tree   = proto_item_add_subtree(point_item, ett_dnp3_al_obj_point);
+        point_tree = proto_tree_add_subtree(object_tree, tvb, offset, -1, ett_dnp3_al_obj_point, &point_item, "Object: Size");
 
       data_pos   = offset;
       indexbytes = dnp3_al_obj_procindex(tvb, offset, al_objq_index, &al_ptaddr, point_tree);
@@ -2140,13 +2137,12 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
 
           case AL_OBJ_CTLOP_BLK:/* Control Relay Output Block (Obj:12, Var:01) */
           {
-            proto_item  *tcc_item;
             proto_tree  *tcc_tree;
 
             /* Add a expand/collapse for TCC */
             al_tcc_code = tvb_get_guint8(tvb, data_pos);
-            tcc_item = proto_tree_add_text(point_tree, tvb, data_pos, 1, "Control Code [0x%02x]",al_tcc_code);
-            tcc_tree = proto_item_add_subtree(tcc_item, ett_dnp3_al_obj_point_tcc);
+            tcc_tree = proto_tree_add_subtree_format(point_tree, tvb, data_pos, 1,
+                        ett_dnp3_al_obj_point_tcc, NULL, "Control Code [0x%02x]",al_tcc_code);
 
             /* Add the Control Code to the Point number list for quick visual reference as to the operation */
             proto_item_append_text(point_item, " [%s]", val_to_str_const((al_tcc_code & AL_OBJCTLC_CODE),
@@ -2817,7 +2813,7 @@ dissect_dnp3_al(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint8        al_ctl, al_seq, al_func, al_class = 0, i;
   guint16       bytes, obj_type = 0;
   guint         data_len = 0, offset = 0;
-  proto_item   *ti, *tc, *t_robj;
+  proto_item   *ti, *tc;
   proto_tree   *al_tree, *field_tree, *robj_tree;
   const gchar  *func_code_str, *obj_type_str;
   nstime_t      al_cto;
@@ -2838,15 +2834,12 @@ dissect_dnp3_al(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   col_set_fence(pinfo->cinfo, COL_INFO);
 
   /* format up the text representation */
-  ti = proto_tree_add_text(tree, tvb, offset, data_len, "Application Layer: (");
+  al_tree = proto_tree_add_subtree(tree, tvb, offset, data_len, ett_dnp3_al, &ti, "Application Layer: (");
   if (al_ctl & DNP3_AL_FIR)  proto_item_append_text(ti, "FIR, ");
   if (al_ctl & DNP3_AL_FIN)  proto_item_append_text(ti, "FIN, ");
   if (al_ctl & DNP3_AL_CON)  proto_item_append_text(ti, "CON, ");
   if (al_ctl & DNP3_AL_UNS)  proto_item_append_text(ti, "UNS, ");
   proto_item_append_text(ti, "Sequence %u, %s)", al_seq, func_code_str);
-
-  /* Add the al tree branch */
-  al_tree = proto_item_add_subtree(ti, ett_dnp3_al);
 
   /* Application Layer control byte subtree */
   tc = proto_tree_add_uint_format(al_tree, hf_dnp3_al_ctl, tvb, offset, 1, al_ctl,
@@ -2884,8 +2877,7 @@ dissect_dnp3_al(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case AL_FUNC_READ:     /* Read Function Code 0x01 */
 
       /* Create Read Request Data Objects Tree */
-      t_robj = proto_tree_add_text(al_tree, tvb, offset, -1, "READ Request Data Objects");
-      robj_tree = proto_item_add_subtree(t_robj, ett_dnp3_al_objdet);
+      robj_tree = proto_tree_add_subtree(al_tree, tvb, offset, -1, ett_dnp3_al_objdet, NULL, "READ Request Data Objects");
 
       /* Process Data Object Details */
       while (offset <= (data_len-2))  {  /* 2 octet object code + CRC32 */
@@ -2923,8 +2915,7 @@ dissect_dnp3_al(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case AL_FUNC_WRITE:     /* Write Function Code 0x02 */
 
       /* Create Write Request Data Objects Tree */
-      t_robj = proto_tree_add_text(al_tree, tvb, offset, -1, "WRITE Request Data Objects");
-      robj_tree = proto_item_add_subtree(t_robj, ett_dnp3_al_objdet);
+      robj_tree = proto_tree_add_subtree(al_tree, tvb, offset, -1, ett_dnp3_al_objdet, NULL, "WRITE Request Data Objects");
 
       /* Process Data Object Details */
       while (offset <= (data_len-2))  {  /* 2 octet object code + CRC32 */
@@ -2941,8 +2932,7 @@ dissect_dnp3_al(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case AL_FUNC_SELECT:     /* Select Function Code 0x03 */
 
       /* Create Select Request Data Objects Tree */
-      t_robj    = proto_tree_add_text(al_tree, tvb, offset, -1, "SELECT Request Data Objects");
-      robj_tree = proto_item_add_subtree(t_robj, ett_dnp3_al_objdet);
+      robj_tree = proto_tree_add_subtree(al_tree, tvb, offset, -1, ett_dnp3_al_objdet, NULL, "SELECT Request Data Objects");
 
       /* Process Data Object Details */
       while (offset <= (data_len-2))  {  /* 2 octet object code + CRC32 */
@@ -2955,8 +2945,7 @@ dissect_dnp3_al(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       /* Functionally identical to 'SELECT' Function Code */
 
       /* Create Operate Request Data Objects Tree */
-      t_robj = proto_tree_add_text(al_tree, tvb, offset, -1, "OPERATE Request Data Objects");
-      robj_tree = proto_item_add_subtree(t_robj, ett_dnp3_al_objdet);
+      robj_tree = proto_tree_add_subtree(al_tree, tvb, offset, -1, ett_dnp3_al_objdet, NULL, "OPERATE Request Data Objects");
 
       /* Process Data Object Details */
       while (offset <= (data_len-2))  {  /* 2 octet object code + CRC32 */
@@ -2970,8 +2959,7 @@ dissect_dnp3_al(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       /* Functionally identical to 'SELECT' Function Code */
 
       /* Create Direct Operate Request Data Objects Tree */
-      t_robj = proto_tree_add_text(al_tree, tvb, offset, -1, "DIRECT OPERATE Request Data Objects");
-      robj_tree = proto_item_add_subtree(t_robj, ett_dnp3_al_objdet);
+      robj_tree = proto_tree_add_subtree(al_tree, tvb, offset, -1, ett_dnp3_al_objdet, NULL, "DIRECT OPERATE Request Data Objects");
 
       /* Process Data Object Details */
       while (offset <= (data_len-2))  {  /* 2 octet object code + CRC32 */
@@ -2986,8 +2974,7 @@ dissect_dnp3_al(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case AL_FUNC_FRZCLRNACK: /* Freeze and Clear No ACK Function Code 0x0A */
 
       /* Create Freeze Request Data Objects Tree */
-      t_robj = proto_tree_add_text(al_tree, tvb, offset, -1, "Freeze Request Data Objects");
-      robj_tree = proto_item_add_subtree(t_robj, ett_dnp3_al_objdet);
+      robj_tree = proto_tree_add_subtree(al_tree, tvb, offset, -1, ett_dnp3_al_objdet, NULL, "Freeze Request Data Objects");
 
       /* Process Data Object Details */
       while (offset <= (data_len-2))  {  /* 2 octet object code + CRC32 */
@@ -2999,8 +2986,7 @@ dissect_dnp3_al(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case AL_FUNC_ENSPMSG:   /* Enable Spontaneous Messages Function Code 0x14 */
 
       /* Create Enable Spontaneous Messages Data Objects Tree */
-      t_robj = proto_tree_add_text(al_tree, tvb, offset, -1, "Enable Spontaneous Msg's Data Objects");
-      robj_tree = proto_item_add_subtree(t_robj, ett_dnp3_al_objdet);
+      robj_tree = proto_tree_add_subtree(al_tree, tvb, offset, -1, ett_dnp3_al_objdet, NULL, "Enable Spontaneous Msg's Data Objects");
 
       /* Process Data Object Details */
       while (offset <= (data_len-2))  {  /* 2 octet object code + CRC32 */
@@ -3012,8 +2998,7 @@ dissect_dnp3_al(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case AL_FUNC_DISSPMSG:   /* Disable Spontaneous Messages Function Code 0x15 */
 
       /* Create Disable Spontaneous Messages Data Objects Tree */
-      t_robj = proto_tree_add_text(al_tree, tvb, offset, -1, "Disable Spontaneous Msg's Data Objects");
-      robj_tree = proto_item_add_subtree(t_robj, ett_dnp3_al_objdet);
+      robj_tree = proto_tree_add_subtree(al_tree, tvb, offset, -1, ett_dnp3_al_objdet, NULL, "Disable Spontaneous Msg's Data Objects");
 
       /* Process Data Object Details */
       while (offset <= (data_len-2))  {  /* 2 octet object code + CRC32 */
@@ -3031,8 +3016,7 @@ dissect_dnp3_al(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case AL_FUNC_DELETEFILE:      /* Delete File Function Code 0x1B */
 
       /* Create File Data Objects Tree */
-      t_robj = proto_tree_add_text(al_tree, tvb, offset, -1, "File Data Objects");
-      robj_tree = proto_item_add_subtree(t_robj, ett_dnp3_al_objdet);
+      robj_tree = proto_tree_add_subtree(al_tree, tvb, offset, -1, ett_dnp3_al_objdet, NULL, "File Data Objects");
 
       /* Process Data Object Details */
       while (offset <= (data_len-2))  {  /* 2 octet object code + CRC32 */
@@ -3055,8 +3039,7 @@ dissect_dnp3_al(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       if (bytes > 0)
       {
         /* Create Response Data Objects Tree */
-        t_robj = proto_tree_add_text(al_tree, tvb, offset, -1,"RESPONSE Data Objects");
-        robj_tree = proto_item_add_subtree(t_robj, ett_dnp3_al_objdet);
+        robj_tree = proto_tree_add_subtree(al_tree, tvb, offset, -1, ett_dnp3_al_objdet, NULL, "RESPONSE Data Objects");
 
         /* Process Data Object Details */
         while (offset <= (data_len-2)) {  /* 2 octet object code + CRC32 */
@@ -3120,7 +3103,7 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
   dnp3_tree = proto_item_add_subtree(ti, ett_dnp3);
 
   /* Create Subtree for Data Link Layer */
-  tdl = proto_tree_add_text(dnp3_tree, tvb, offset, DNP_HDR_LEN,
+  dl_tree = proto_tree_add_subtree_format(dnp3_tree, tvb, offset, DNP_HDR_LEN, ett_dnp3_dl, &tdl,
         "Data Link Layer, Len: %u, From: %u, To: %u, ", dl_len, dl_src, dl_dst);
   if (dl_prm) {
     if (dl_ctl & DNP3_CTL_DIR) proto_item_append_text(tdl, "DIR, ");
@@ -3135,7 +3118,6 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     if (dl_ctl & DNP3_CTL_DFC) proto_item_append_text(tdl, "DFC, ");
   }
   proto_item_append_text(tdl, "%s", func_code_str);
-  dl_tree = proto_item_add_subtree(tdl, ett_dnp3_dl);
 
   /* start bytes */
   proto_tree_add_item(dl_tree, hf_dnp3_start, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -3214,7 +3196,6 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
       (dl_func != DL_FUNC_RESET_LINK) && (dl_func != DL_FUNC_ACK))
   {
     proto_tree *tr_tree, *al_tree;
-    proto_item *al_chunks;
     guint8      tr_ctl, tr_seq;
     gboolean    tr_fir, tr_fin;
     guint8     *tmp, *tmp_ptr;
@@ -3243,8 +3224,7 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     proto_tree_add_item(tr_tree, hf_dnp3_tr_seq, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     /* Allocate AL chunk tree */
-    al_chunks = proto_tree_add_text(tr_tree, tvb, offset + 1, -1, "Application data chunks");
-    al_tree   = proto_item_add_subtree(al_chunks, ett_dnp3_al_data);
+    al_tree = proto_tree_add_subtree(tr_tree, tvb, offset + 1, -1, ett_dnp3_al_data, NULL, "Application data chunks");
 
     /* extract the application layer data, validating the CRCs */
 

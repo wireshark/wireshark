@@ -160,12 +160,10 @@ static gint
 dissect_dsi_open_session(tvbuff_t *tvb, proto_tree *dsi_tree, gint offset, gint dsi_length)
 {
 	proto_tree      *tree;
-	proto_item	*ti;
 	guint8		type;
 	guint8		len;
 
-	ti = proto_tree_add_text(dsi_tree, tvb, offset, -1, "Open Session");
-	tree = proto_item_add_subtree(ti, ett_dsi_open);
+	tree = proto_tree_add_subtree(dsi_tree, tvb, offset, -1, ett_dsi_open, NULL, "Open Session");
 
 	while( dsi_length >2 ) {
 
@@ -207,8 +205,7 @@ dissect_dsi_attention(tvbuff_t *tvb, proto_tree *dsi_tree, gint offset)
 		return offset;
 
 	flag = tvb_get_ntohs(tvb, offset);
-	ti = proto_tree_add_text(dsi_tree, tvb, offset, -1, "Attention");
-	tree = proto_item_add_subtree(ti, ett_dsi_attn);
+	tree = proto_tree_add_subtree(dsi_tree, tvb, offset, -1, ett_dsi_attn, NULL, "Attention");
 
 	ti = proto_tree_add_item(tree, hf_dsi_attn_flag, tvb, offset, 2, ENC_BIG_ENDIAN);
 	tree = proto_item_add_subtree(ti, ett_dsi_attn_flag);

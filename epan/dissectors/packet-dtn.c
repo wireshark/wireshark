@@ -485,13 +485,11 @@ static int
 dissect_dictionary(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, dictionary_data_t* dict_data,
                     guint8 pri_hdr_procflags, gchar **bundle_custodian)
 {
-    proto_item  *ti;
     proto_tree  *dict_tree;
     int          sdnv_length;
     const gchar *src_node, *dst_node;
 
-    ti = proto_tree_add_text(tree, tvb, offset, dict_data->bundle_header_dict_length, "Dictionary");
-    dict_tree = proto_item_add_subtree(ti, ett_dictionary);
+    dict_tree = proto_tree_add_subtree(tree, tvb, offset, dict_data->bundle_header_dict_length, ett_dictionary, NULL, "Dictionary");
 
     /*
      * If the dictionary length is 0, then the CBHE block compression method is applied. (RFC6260)
@@ -1068,8 +1066,7 @@ dissect_payload_header(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int 
     proto_tree *payload_tree;
     int         sdnv_length, payload_length;
 
-    payload_item = proto_tree_add_text(tree, tvb, offset, -1, "Payload Header");
-    payload_tree = proto_item_add_subtree(payload_item, ett_payload_hdr);
+    payload_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_payload_hdr, &payload_item, "Payload Header");
 
     proto_tree_add_text(payload_tree, tvb, offset, 1, "Header Type: 1");
     ++offset;
@@ -1183,8 +1180,8 @@ dissect_admin_record(proto_tree *primary_tree, tvbuff_t *tvb, packet_info *pinfo
     int         endpoint_length;
 
     *success = FALSE;
-    admin_record_item = proto_tree_add_text(primary_tree, tvb, offset, -1, "Administrative Record");
-    admin_record_tree = proto_item_add_subtree(admin_record_item, ett_admin_record);
+    admin_record_tree = proto_tree_add_subtree(primary_tree, tvb, offset, -1,
+                        ett_admin_record, &admin_record_item, "Administrative Record");
     record_type = tvb_get_guint8(tvb, offset);
 
     proto_tree_add_item(admin_record_tree, hf_bundle_admin_record_type, tvb, offset, 1, ENC_NA);
@@ -1472,8 +1469,7 @@ display_metadata_block(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int 
     proto_item   *block_flag_item;
 
     type = tvb_get_guint8(tvb, offset);
-    block_item = proto_tree_add_text(tree, tvb, offset, -1, "Metadata Block");
-    block_tree = proto_item_add_subtree(block_item, ett_metadata_hdr);
+    block_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_metadata_hdr, &block_item, "Metadata Block");
 
     proto_tree_add_item(block_tree, hf_bundle_block_type_code, tvb, offset, 1, ENC_BIG_ENDIAN);
     ++offset;
@@ -1741,8 +1737,7 @@ dissect_dtn_contact_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     ti = proto_tree_add_item(tree, proto_tcp_conv, tvb, offset, -1, ENC_NA);
     conv_proto_tree = proto_item_add_subtree(ti, ett_tcp_conv);
 
-    ti = proto_tree_add_text(conv_proto_tree, tvb, offset, -1, "Contact Header");
-    conv_tree = proto_item_add_subtree(ti, ett_tcp_conv);
+    conv_tree = proto_tree_add_subtree(conv_proto_tree, tvb, offset, -1, ett_tcp_conv, NULL, "Contact Header");
 
     proto_tree_add_item(conv_tree, hf_contact_hdr_magic, tvb, offset, 4, ENC_NA|ENC_ASCII);
     offset += 4;
@@ -1817,7 +1812,7 @@ dissect_tcpcl_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
     guint8         conv_hdr;
     int            offset = 0;
     int            sdnv_length, segment_length, convergence_hdr_size;
-    proto_item    *ci, *conv_item, *sub_item;
+    proto_item    *ci, *sub_item;
     proto_tree    *conv_proto_tree, *conv_tree, *sub_tree;
     fragment_head *frag_msg;
     tvbuff_t      *new_tvb;
@@ -1829,8 +1824,7 @@ dissect_tcpcl_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
     ci = proto_tree_add_item(tree, proto_tcp_conv, tvb, offset, -1, ENC_NA);
     conv_proto_tree = proto_item_add_subtree(ci, ett_tcp_conv);
 
-    conv_item = proto_tree_add_text(conv_proto_tree, tvb, 0, -1, "TCP Convergence Header");
-    conv_tree = proto_item_add_subtree(conv_item, ett_tcp_conv_hdr);
+    conv_tree = proto_tree_add_subtree(conv_proto_tree, tvb, 0, -1, ett_tcp_conv_hdr, NULL, "TCP Convergence Header");
 
     conv_hdr = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(conv_tree, hf_tcp_convergence_pkt_type, tvb, offset, 1, ENC_NA);
@@ -2050,8 +2044,7 @@ dissect_bundle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     ti = proto_tree_add_item(tree, proto_bundle, tvb, offset, -1, ENC_NA);
     bundle_tree = proto_item_add_subtree(ti, ett_bundle);
 
-    ti = proto_tree_add_text(tree, tvb, offset, -1, "Primary Bundle Header");
-    primary_tree = proto_item_add_subtree(ti, ett_primary_hdr);
+    primary_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_primary_hdr, &ti, "Primary Bundle Header");
 
     proto_tree_add_item(primary_tree, hf_bundle_pdu_version, tvb, offset, 1, ENC_BIG_ENDIAN);
     if (version == 4) {

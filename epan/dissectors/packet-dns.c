@@ -1313,12 +1313,11 @@ dissect_dns_query(tvbuff_t *tvb, int offset, int dns_data_offset,
     }
   }
   if (dns_tree != NULL) {
-    tq = proto_tree_add_text(dns_tree, tvb, offset, len, "%s: type %s, class %s",
+    q_tree = proto_tree_add_subtree_format(dns_tree, tvb, offset, len, ett_dns_qd, &tq, "%s: type %s, class %s",
                              name_out, type_name, dns_class_name(dns_class));
     if (is_mdns) {
       proto_item_append_text(tq, ", \"%s\" question", qu ? "QU" : "QM");
     }
-    q_tree = proto_item_add_subtree(tq, ett_dns_qd);
 
     proto_tree_add_string(q_tree, hf_dns_qry_name, tvb, offset, name_len, name);
 
@@ -1654,18 +1653,16 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
      */
     name_out = format_text(name, strlen(name));
     if (dns_type != T_OPT) {
-      trr = proto_tree_add_text(dns_tree, tvb, offsetx,
+      rr_tree = proto_tree_add_subtree_format(dns_tree, tvb, offsetx,
                                 (data_offset - data_start) + data_len,
-                                "%s: type %s, class %s",
+                                ett_dns_rr, &trr, "%s: type %s, class %s",
                                 name_out, type_name, class_name);
-      rr_tree = proto_item_add_subtree(trr, ett_dns_rr);
       add_rr_to_tree(rr_tree, tvb, offsetx, name, name_len,
                                dns_type, pinfo, is_mdns);
     } else  {
-      trr = proto_tree_add_text(dns_tree, tvb, offsetx,
+      rr_tree = proto_tree_add_subtree_format(dns_tree, tvb, offsetx,
                                 (data_offset - data_start) + data_len,
-                                "%s: type %s", name_out, type_name);
-      rr_tree = proto_item_add_subtree(trr, ett_dns_rr);
+                                ett_dns_rr, &trr, "%s: type %s", name_out, type_name);
       add_opt_rr_to_tree(rr_tree, tvb, offsetx, name, name_len, is_mdns);
     }
     if (is_mdns && flush) {
@@ -3489,8 +3486,7 @@ dissect_query_records(tvbuff_t *tvb, int cur_off, int dns_data_offset,
 
   start_off = cur_off;
 
-  ti = proto_tree_add_text(dns_tree, tvb, start_off, -1, "%s", s);
-  qatree = proto_item_add_subtree(ti, ett_dns_qry);
+  qatree = proto_tree_add_subtree(dns_tree, tvb, start_off, -1, ett_dns_qry, &ti, s);
 
   while (count-- > 0) {
     add_off = dissect_dns_query(tvb, cur_off, dns_data_offset, cinfo, qatree,
@@ -3514,8 +3510,7 @@ dissect_answer_records(tvbuff_t *tvb, int cur_off, int dns_data_offset,
 
   start_off = cur_off;
   if (dns_tree) {
-    ti = proto_tree_add_text(dns_tree, tvb, start_off, -1, "%s", name);
-    qatree = proto_item_add_subtree(ti, ett_dns_ans);
+    qatree = proto_tree_add_subtree(dns_tree, tvb, start_off, -1, ett_dns_ans, &ti, name);
   }
   while (count-- > 0) {
     add_off = dissect_dns_answer(

@@ -720,9 +720,8 @@ dissect_drda(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
             proto_item_append_text(ti, " (%s)", val_to_str_ext(iCommand, &drda_opcode_vals_ext, "Unknown (0x%02x)"));
             drdaroot_tree = proto_item_add_subtree(ti, ett_drda);
 
-            ti = proto_tree_add_text(drdaroot_tree, tvb, offset, 10, DRDA_TEXT_DDM);
+            drda_tree = proto_tree_add_subtree(drdaroot_tree, tvb, offset, 10, ett_drda_ddm, &ti, DRDA_TEXT_DDM);
             proto_item_append_text(ti, " (%s)", val_to_str_ext(iCommand, &drda_opcode_abbr_ext, "Unknown (0x%02x)"));
-            drda_tree = proto_item_add_subtree(ti, ett_drda_ddm);
 
             proto_tree_add_item(drda_tree, hf_drda_ddm_length, tvb, offset + 0, 2, ENC_BIG_ENDIAN);
             proto_tree_add_item(drda_tree, hf_drda_ddm_magic, tvb, offset + 2, 1, ENC_BIG_ENDIAN);
@@ -754,10 +753,9 @@ dissect_drda(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
                     if (tvb_length_remaining(tvb, offset) >= iLengthParam)
                     {
                         iParameterCP = tvb_get_ntohs(tvb, offset + 2);
-                        ti = proto_tree_add_text(drdaroot_tree, tvb, offset, iLengthParam,
-                                     DRDA_TEXT_PARAM);
+                        drda_tree_sub = proto_tree_add_subtree(drdaroot_tree, tvb, offset, iLengthParam,
+                                     ett_drda_param, &ti, DRDA_TEXT_PARAM);
                         proto_item_append_text(ti, " (%s)", val_to_str_ext(iParameterCP, &drda_opcode_vals_ext, "Unknown (0x%02x)"));
-                        drda_tree_sub = proto_item_add_subtree(ti, ett_drda_param);
                         proto_tree_add_item(drda_tree_sub, hf_drda_param_length, tvb, offset, 2, ENC_BIG_ENDIAN);
                         proto_tree_add_item(drda_tree_sub, hf_drda_param_codepoint, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
                         proto_tree_add_item(drda_tree_sub, hf_drda_param_data, tvb, offset + 4, iLengthParam - 4, ENC_UTF_8|ENC_NA);
