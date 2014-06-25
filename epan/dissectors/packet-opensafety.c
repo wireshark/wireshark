@@ -48,6 +48,7 @@
 #include <epan/expert.h>
 #include <epan/reassemble.h>
 #include <epan/strutil.h>
+#include <epan/tfs.h>
 #include <epan/dissectors/packet-udp.h>
 #include <epan/dissectors/packet-frame.h>
 
@@ -200,68 +201,63 @@ static const value_string sn_fail_error_group[] = {
     { 0, NULL }
 };
 
-/* SNTM extended Services */
-#define OPENSAFETY_MSG_SSDO_ABORT                           0x04
-#define OPENSAFETY_MSG_SSDO_UPLOAD_SEGMENT_MIDDLE           0x08
-#define OPENSAFETY_MSG_SSDO_DOWNLOAD_SEGMENT_MIDDLE         0x09
-#define OPENSAFETY_MSG_SSDO_UPLOAD_INITIATE_EXPEDITED       0x20
-#define OPENSAFETY_MSG_SSDO_DOWNLOAD_INITIATE_EXPEDITED     0x21
-#define OPENSAFETY_MSG_SSDO_UPLOAD_INITIATE_SEGMENTED       0x28
-#define OPENSAFETY_MSG_SSDO_DOWNLOAD_INITIATE_SEGMENTED     0x29
-#define OPENSAFETY_MSG_SSDO_UPLOAD_SEGMENT_END              0x48
-#define OPENSAFETY_MSG_SSDO_DOWNLOAD_SEGMENT_END            0x49
-#if 0
-#define OPENSAFETY_MSG_SSDO_BLOCK_UPLOAD_SEGMENT_MIDDLE     0x88
-#define OPENSAFETY_MSG_SSDO_BLOCK_DOWNLOAD_SEGMENT_MIDDLE   0x89
-#define OPENSAFETY_MSG_SSDO_BLOCK_UPLOAD_INITIATE           0xA8
-#define OPENSAFETY_MSG_SSDO_BLOCK_DOWNLOAD_INITIATE         0xA9
-#define OPENSAFETY_MSG_SSDO_BLOCK_UPLOAD_INITIATE_EXPEDITED 0xC0
-#define OPENSAFETY_MSG_SSDO_BLOCK_UPLOAD_SEGMENT_END        0x40
-#define OPENSAFETY_MSG_SSDO_BLOCK_DOWNLOAD_SEGMENT_END      0xC9
-#endif
+/* SSDO Access Command */
+
+#define OPENSAFETY_SSDO_SACMD_ACC  0x01
+#define OPENSAFETY_SSDO_SACMD_PRLD 0x02
+#define OPENSAFETY_SSDO_SACMD_ABRT 0x04
+#define OPENSAFETY_SSDO_SACMD_SEG  0x08
+#define OPENSAFETY_SSDO_SACMD_TGL  0x10
+#define OPENSAFETY_SSDO_SACMD_INI  0x20
+#define OPENSAFETY_SSDO_SACMD_ENSG 0x40
+#define OPENSAFETY_SSDO_SACMD_RES  0x80
+
+#define OPENSAFETY_SSDO_UPLOAD     0x00
+#define OPENSAFETY_SSDO_DOWNLOAD   0x01
+
+#define OPENSAFETY_MSG_SSDO_ABORT                           ( OPENSAFETY_SSDO_SACMD_ABRT )
+#define OPENSAFETY_MSG_SSDO_UPLOAD_SEGMENT_MIDDLE           ( OPENSAFETY_SSDO_SACMD_SEG | OPENSAFETY_SSDO_UPLOAD )
+#define OPENSAFETY_MSG_SSDO_DOWNLOAD_SEGMENT_MIDDLE         ( OPENSAFETY_SSDO_SACMD_SEG | OPENSAFETY_SSDO_DOWNLOAD )
+#define OPENSAFETY_MSG_SSDO_UPLOAD_SEGMENT_MID_PRELOAD      ( OPENSAFETY_MSG_SSDO_UPLOAD_SEGMENT_MIDDLE | OPENSAFETY_SSDO_SACMD_PRLD )
+#define OPENSAFETY_MSG_SSDO_DOWNLOAD_SEGMENT_MID_PRELOAD    ( OPENSAFETY_MSG_SSDO_DOWNLOAD_SEGMENT_MIDDLE | OPENSAFETY_SSDO_SACMD_PRLD )
+#define OPENSAFETY_MSG_SSDO_UPLOAD_INITIATE_EXPEDITED       ( OPENSAFETY_SSDO_SACMD_INI | OPENSAFETY_SSDO_UPLOAD )
+#define OPENSAFETY_MSG_SSDO_DOWNLOAD_INITIATE_EXPEDITED     ( OPENSAFETY_SSDO_SACMD_INI | OPENSAFETY_SSDO_DOWNLOAD )
+#define OPENSAFETY_MSG_SSDO_UPLOAD_INITIATE_EXP_PRELOAD     ( OPENSAFETY_MSG_SSDO_UPLOAD_INITIATE_EXPEDITED | OPENSAFETY_SSDO_SACMD_PRLD )
+#define OPENSAFETY_MSG_SSDO_DOWNLOAD_INITIATE_EXP_PRELOAD   ( OPENSAFETY_MSG_SSDO_DOWNLOAD_INITIATE_EXPEDITED | OPENSAFETY_SSDO_SACMD_PRLD )
+#define OPENSAFETY_MSG_SSDO_UPLOAD_INITIATE_SEGMENTED       ( OPENSAFETY_SSDO_SACMD_INI | OPENSAFETY_SSDO_SACMD_SEG | OPENSAFETY_SSDO_UPLOAD )
+#define OPENSAFETY_MSG_SSDO_DOWNLOAD_INITIATE_SEGMENTED     ( OPENSAFETY_SSDO_SACMD_INI | OPENSAFETY_SSDO_SACMD_SEG | OPENSAFETY_SSDO_DOWNLOAD )
+#define OPENSAFETY_MSG_SSDO_UPLOAD_INITIATE_SEG_PRELOAD     ( OPENSAFETY_MSG_SSDO_UPLOAD_INITIATE_SEGMENTED | OPENSAFETY_SSDO_SACMD_PRLD )
+#define OPENSAFETY_MSG_SSDO_DOWNLOAD_INITIATE_SEG_PRELOAD   ( OPENSAFETY_MSG_SSDO_DOWNLOAD_INITIATE_SEGMENTED | OPENSAFETY_SSDO_SACMD_PRLD )
+#define OPENSAFETY_MSG_SSDO_UPLOAD_SEGMENT_END              ( OPENSAFETY_SSDO_SACMD_ENSG | OPENSAFETY_SSDO_SACMD_SEG | OPENSAFETY_SSDO_UPLOAD )
+#define OPENSAFETY_MSG_SSDO_DOWNLOAD_SEGMENT_END            ( OPENSAFETY_SSDO_SACMD_ENSG | OPENSAFETY_SSDO_SACMD_SEG | OPENSAFETY_SSDO_DOWNLOAD )
 
 static const value_string ssdo_sacmd_values[] = {
-#if 0
-    { OPENSAFETY_MSG_SSDO_BLOCK_DOWNLOAD_SEGMENT_END,      "Block Download Segment End" },
-    { OPENSAFETY_MSG_SSDO_BLOCK_UPLOAD_INITIATE,           "Block Upload Expedited Initiate" },
-    { OPENSAFETY_MSG_SSDO_BLOCK_UPLOAD_INITIATE_EXPEDITED, "Block Upload Initiate" },
-    { OPENSAFETY_MSG_SSDO_BLOCK_DOWNLOAD_INITIATE,         "Block Download Initiate" },
-    { OPENSAFETY_MSG_SSDO_BLOCK_DOWNLOAD_SEGMENT_MIDDLE,   "Block Download Middle Segment" },
-    { OPENSAFETY_MSG_SSDO_BLOCK_UPLOAD_SEGMENT_MIDDLE,     "Block Upload Middle Segment" },
-    { OPENSAFETY_MSG_SSDO_BLOCK_UPLOAD_SEGMENT_END,        "Block Upload End Segment" },
-#endif
     { OPENSAFETY_MSG_SSDO_DOWNLOAD_SEGMENT_END,            "Download End Segment" },
     { OPENSAFETY_MSG_SSDO_UPLOAD_SEGMENT_END,              "Upload End Segment" },
     { OPENSAFETY_MSG_SSDO_DOWNLOAD_INITIATE_EXPEDITED,     "Download Expedited Initiate" },
     { OPENSAFETY_MSG_SSDO_UPLOAD_INITIATE_SEGMENTED,       "Upload Initiate Segmented" },
     { OPENSAFETY_MSG_SSDO_DOWNLOAD_INITIATE_SEGMENTED,     "Download Initiate Segmented" },
     { OPENSAFETY_MSG_SSDO_UPLOAD_INITIATE_EXPEDITED,       "Upload Expedited Initiate" },
+    { OPENSAFETY_MSG_SSDO_UPLOAD_INITIATE_EXP_PRELOAD,     "Upload Expedited Initiate w.Preload" },
+    { OPENSAFETY_MSG_SSDO_DOWNLOAD_INITIATE_EXP_PRELOAD,   "Download Initiate Segmented w.Preload" },
+    { OPENSAFETY_MSG_SSDO_UPLOAD_INITIATE_SEG_PRELOAD,     "Upload Initiate Segmented w. Preload" },
+    { OPENSAFETY_MSG_SSDO_DOWNLOAD_INITIATE_SEG_PRELOAD,   "Download Expedited Initiate w.Preload" },
     { OPENSAFETY_MSG_SSDO_DOWNLOAD_SEGMENT_MIDDLE,         "Download Middle Segment" },
     { OPENSAFETY_MSG_SSDO_UPLOAD_SEGMENT_MIDDLE,           "Upload Middle Segment" },
+    { OPENSAFETY_MSG_SSDO_DOWNLOAD_SEGMENT_MID_PRELOAD,    "Download Middle Segment w. Preload" },
+    { OPENSAFETY_MSG_SSDO_UPLOAD_SEGMENT_MID_PRELOAD,      "Upload Middle Segment w. Preload" },
     { OPENSAFETY_MSG_SSDO_ABORT,                           "Abort" },
     { 0, NULL }
 };
 
-#define OPENSAFETY_SSDO_SACMD_ACC  0x01
-#define OPENSAFETY_SSDO_SACMD_RES  0x02
-#define OPENSAFETY_SSDO_SACMD_ABRT 0x04
-#define OPENSAFETY_SSDO_SACMD_SEG  0x08
-#define OPENSAFETY_SSDO_SACMD_TGL  0x10
-#define OPENSAFETY_SSDO_SACMD_INI  0x20
-#define OPENSAFETY_SSDO_SACMD_ENSG 0x40
-#define OPENSAFETY_SSDO_SACMD_BLK  0x80
-
-static const true_false_string opensafety_sacmd_acc  = { "Write Access", "Read Access" };
+static const true_false_string opensafety_sacmd_acc   = { "Write Access", "Read Access" };
+static const true_false_string opensafety_sacmd_abrt  = { "Abort Transfer", "Successful Transfer" };
+static const true_false_string opensafety_sacmd_seg   = { "Segmented Access", "Expedited Access" };
+static const true_false_string opensafety_sacmd_ini   = { "Initiate", "No Initiate" };
+static const true_false_string opensafety_sacmd_ensg  = { "No more segments", "More segments" };
 #if 0
-static const true_false_string opensafety_sacmd_res  = { "Reserved", "Reserved" };
+static const true_false_string opensafety_sacmd_res   = { "Reserved", "Reserved" };
 #endif
-static const true_false_string opensafety_sacmd_abrt = { "Abort Transfer", "Successful Transfer" };
-static const true_false_string opensafety_sacmd_seg  = { "Segmented Access", "Expedited Access" };
-static const true_false_string opensafety_on_off     = { "On", "Off" };
-static const true_false_string opensafety_set_notset = { "Set", "Not set" };
-static const true_false_string opensafety_sacmd_ini  = { "Initiate", "No Initiate" };
-static const true_false_string opensafety_sacmd_ensg = { "No more segments", "More segments" };
-static const true_false_string opensafety_sacmd_blk  = { "Block Transfer", "Normal Transfer" };
 
 #define OPENSAFETY_SPDO_CONNECTION_VALID  0x04
 
@@ -503,8 +499,9 @@ static int hf_oss_ssdo_payload = -1;
 static int hf_oss_ssdo_payload_size = -1;
 static int hf_oss_ssdo_sodentry_size = -1;
 static int hf_oss_ssdo_sodentry_data = -1;
-/* static int hf_oss_ssdo_inhibit_time = -1; */
 static int hf_oss_ssdo_abort_code = -1;
+static int hf_oss_ssdo_preload_queue = -1;
+static int hf_oss_ssdo_preload_error = -1;
 
 static int hf_oss_sod_par_timestamp = -1;
 static int hf_oss_sod_par_checksum = -1;
@@ -512,13 +509,15 @@ static int hf_oss_ssdo_sodmapping = -1;
 static int hf_oss_ssdo_sodmapping_bits = -1;
 
 static int hf_oss_ssdo_sacmd_access_type = -1;
-/* static int hf_oss_ssdo_sacmd_reserved = -1; */
+static int hf_oss_ssdo_sacmd_preload = -1;
 static int hf_oss_ssdo_sacmd_abort_transfer = -1;
 static int hf_oss_ssdo_sacmd_segmentation = -1;
 static int hf_oss_ssdo_sacmd_toggle = -1;
 static int hf_oss_ssdo_sacmd_initiate = -1;
 static int hf_oss_ssdo_sacmd_end_segment = -1;
-static int hf_oss_ssdo_sacmd_block_transfer = -1;
+#if 0
+static int hf_oss_ssdo_sacmd_reserved = -1;
+#endif
 
 static int hf_oss_ssdo_extpar_parset = -1;
 static int hf_oss_ssdo_extpar_version = -1;
@@ -1195,15 +1194,14 @@ dissect_opensafety_ssdo_message(tvbuff_t *message_tvb, packet_info *pinfo, proto
     proto_tree    *ssdo_tree, *ssdo_payload, *ssdo_sacmd_tree;
     guint16        taddr                = 0, sdn = 0, server = 0, client = 0, n = 0, ct = 0;
     guint32        abortcode, ssdoIndex = 0, ssdoSubIndex = 0, payloadSize, fragmentId = 0, entry = 0;
-    guint8         db0Offset, db0, sacmd, payloadOffset;
+    guint8         db0Offset, db0, sacmd, payloadOffset, preload;
     guint          dataLength;
     gint           calcDataLength;
-    gboolean       isResponse, decodePayload, isEndSegment, isSegmented, saveFragmented;
+    gboolean       isResponse, isDownload, isInitiate, isEndSegment, isSegmented, saveFragmented;
     tvbuff_t      *new_tvb              = NULL;
     fragment_head *frag_msg             = NULL;
 
     dataLength = tvb_get_guint8(message_tvb, OSS_FRAME_POS_LEN + frameStart1);
-    decodePayload = FALSE;
 
     db0Offset = frameStart1 + OSS_FRAME_POS_DATA;
     db0 = tvb_get_guint8(message_tvb, db0Offset);
@@ -1214,6 +1212,12 @@ dissect_opensafety_ssdo_message(tvbuff_t *message_tvb, packet_info *pinfo, proto
     if ( ( sacmd & OPENSAFETY_SSDO_SACMD_TGL ) == OPENSAFETY_SSDO_SACMD_TGL )
         sacmd = sacmd & ( ~OPENSAFETY_SSDO_SACMD_TGL );
 
+    isDownload = ( sacmd & OPENSAFETY_SSDO_DOWNLOAD ) == OPENSAFETY_SSDO_DOWNLOAD;
+    isInitiate = ( sacmd & OPENSAFETY_SSDO_SACMD_INI ) == OPENSAFETY_SSDO_SACMD_INI;
+    isSegmented = ( sacmd & OPENSAFETY_SSDO_SACMD_SEG ) == OPENSAFETY_SSDO_SACMD_SEG;
+    isEndSegment = ( sacmd & OPENSAFETY_SSDO_SACMD_ENSG ) == OPENSAFETY_SSDO_SACMD_ENSG;
+
+    /* Response is determined by the openSAFETY message field */
     isResponse = ( ( OSS_FRAME_ID_T(message_tvb, frameStart1) & 0x04 ) == 0x04 );
 
     if ( validSCMUDID )
@@ -1297,12 +1301,15 @@ dissect_opensafety_ssdo_message(tvbuff_t *message_tvb, packet_info *pinfo, proto
     col_append_fstr(pinfo->cinfo, COL_INFO, ", SACMD: %s", val_to_str_const(sacmd, ssdo_sacmd_values, " "));
 
     ssdo_sacmd_tree = proto_item_add_subtree(item, ett_opensafety_ssdo_sacmd);
-    proto_tree_add_boolean(ssdo_sacmd_tree, hf_oss_ssdo_sacmd_block_transfer, message_tvb, db0Offset, 1, db0);
+#if 0
+    proto_tree_add_boolean(ssdo_sacmd_tree, hf_oss_ssdo_sacmd_reserved, message_tvb, db0Offset, 1, db0);
+#endif
     proto_tree_add_boolean(ssdo_sacmd_tree, hf_oss_ssdo_sacmd_end_segment,    message_tvb, db0Offset, 1, db0);
     proto_tree_add_boolean(ssdo_sacmd_tree, hf_oss_ssdo_sacmd_initiate,       message_tvb, db0Offset, 1, db0);
     proto_tree_add_boolean(ssdo_sacmd_tree, hf_oss_ssdo_sacmd_toggle,         message_tvb, db0Offset, 1, db0);
     proto_tree_add_boolean(ssdo_sacmd_tree, hf_oss_ssdo_sacmd_segmentation,   message_tvb, db0Offset, 1, db0);
     proto_tree_add_boolean(ssdo_sacmd_tree, hf_oss_ssdo_sacmd_abort_transfer, message_tvb, db0Offset, 1, db0);
+    proto_tree_add_boolean(ssdo_sacmd_tree, hf_oss_ssdo_sacmd_preload,        message_tvb, db0Offset, 1, db0);
     proto_tree_add_boolean(ssdo_sacmd_tree, hf_oss_ssdo_sacmd_access_type,    message_tvb, db0Offset, 1, db0);
 
     payloadOffset = db0Offset + 1;
@@ -1313,10 +1320,29 @@ dissect_opensafety_ssdo_message(tvbuff_t *message_tvb, packet_info *pinfo, proto
 
     proto_tree_add_uint(ssdo_tree, hf_oss_ssdo_sano, message_tvb, frameStart1 + 3, 1, ct );
 
+    /* Evaluate preload field [field TR] */
+    if ( validSCMUDID && ( ( sacmd & OPENSAFETY_SSDO_SACMD_PRLD ) == OPENSAFETY_SSDO_SACMD_PRLD ) && isResponse )
+    {
+        /* Preload info are the higher 6 bit of the TR field */
+        preload = ( (tvb_get_guint8(message_tvb, frameStart2 + 4) ^ scm_udid[4]) & 0xFC ) >> 2;
+
+        if ( isInitiate )
+        {
+            /* Use the lower 4 bits from the preload as size */
+            proto_tree_add_uint_format_value(ssdo_tree, hf_oss_ssdo_preload_queue, message_tvb, frameStart2 + 4, 1,
+                    preload & 0x0F, "%d", preload & 0x0F );
+        }
+        else
+        {
+            /* The highest 2 bits of information contain an error flag */
+            item = proto_tree_add_boolean(ssdo_tree, hf_oss_ssdo_preload_error, message_tvb, frameStart2 + 4, 1, ( (preload & 0x30) == 0x30 ) );
+            if ( (preload & 0x30) == 0x30 )
+                proto_item_append_text(item, " (SOD Access Request Number is last successful)" );
+        }
+    }
+
     /* When the following clause is met, DB1,2 contain the SOD index, and DB3 the SOD subindex */
-    if ( ( ( sacmd & OPENSAFETY_SSDO_SACMD_INI ) == OPENSAFETY_SSDO_SACMD_INI ) &&
-            ( sacmd != OPENSAFETY_MSG_SSDO_ABORT )
-    )
+    if ( isInitiate && sacmd != OPENSAFETY_MSG_SSDO_ABORT )
     {
         ssdoIndex = tvb_get_letohs(message_tvb, db0Offset + 1);
         ssdoSubIndex = tvb_get_guint8(message_tvb, db0Offset + 3);
@@ -1350,34 +1376,18 @@ dissect_opensafety_ssdo_message(tvbuff_t *message_tvb, packet_info *pinfo, proto
 
 
     } else {
-
         /* Either the SSDO msg is a response, then data is sent by the server and only in uploads,
          * or the message is a request, then data is coming from the client and payload data is
-         * sent in downloads */
-        if ( ( isResponse && (sacmd == OPENSAFETY_MSG_SSDO_UPLOAD_INITIATE_SEGMENTED ||
-                    sacmd == OPENSAFETY_MSG_SSDO_UPLOAD_INITIATE_EXPEDITED ||
-                    sacmd == OPENSAFETY_MSG_SSDO_UPLOAD_SEGMENT_MIDDLE ||
-                    sacmd == OPENSAFETY_MSG_SSDO_UPLOAD_SEGMENT_END ) )||
-                    ( !isResponse && (sacmd == OPENSAFETY_MSG_SSDO_DOWNLOAD_INITIATE_SEGMENTED ||
-                    sacmd == OPENSAFETY_MSG_SSDO_DOWNLOAD_INITIATE_EXPEDITED ||
-                    sacmd == OPENSAFETY_MSG_SSDO_DOWNLOAD_SEGMENT_MIDDLE ||
-                    sacmd == OPENSAFETY_MSG_SSDO_DOWNLOAD_SEGMENT_END ) ) )
-                {
-                   decodePayload = TRUE;
-                }
-
-        if ( decodePayload )
+         * sent in downloads. Data is only sent in initiate, segmented or end-segment messages */
+        if ( ( isInitiate || isSegmented || isEndSegment ) &&
+             ( ( isResponse && !isDownload ) || ( !isResponse && isDownload ) ) )
         {
             saveFragmented = pinfo->fragmented;
             if ( server != 0 && client != 0 )
                 fragmentId = (guint32)((((guint32)client) << 16 ) + server );
 
-            isSegmented = ( ( db0 & OPENSAFETY_SSDO_SACMD_SEG ) == OPENSAFETY_SSDO_SACMD_SEG );
-
             /* If payload data has to be calculated, either a total size is given, or not */
-            if ( ( sacmd == OPENSAFETY_MSG_SSDO_DOWNLOAD_INITIATE_SEGMENTED ) ||
-                    ( sacmd == OPENSAFETY_MSG_SSDO_UPLOAD_INITIATE_SEGMENTED )
-                )
+            if ( isSegmented && isInitiate )
             {
 
                 payloadOffset += 4;
@@ -1417,10 +1427,6 @@ dissect_opensafety_ssdo_message(tvbuff_t *message_tvb, packet_info *pinfo, proto
             }
             else
             {
-                isEndSegment = FALSE;
-                if ( ( sacmd == OPENSAFETY_MSG_SSDO_DOWNLOAD_SEGMENT_END ) || ( sacmd == OPENSAFETY_MSG_SSDO_UPLOAD_SEGMENT_END ) )
-                    isEndSegment = TRUE;
-
                 payloadSize = dataLength - (payloadOffset - db0Offset);
 
                 if ( fragmentId != 0 && isSegmented )
@@ -2621,24 +2627,24 @@ proto_register_opensafety(void)
          {"Reassembled Data", "opensafety.ssdo.reassembled.data",
           FT_BYTES, BASE_NONE, NULL, 0x00, NULL, HFILL } },
 
-#if 0
-        { &hf_oss_ssdo_inhibit_time,
-          { "Inhibit Time", "opensafety.ssdo.inhibittime",
-            FT_UINT32,  BASE_HEX, NULL,    0x0, NULL, HFILL } },
-#endif
         { &hf_oss_ssdo_abort_code,
           { "Abort Code", "opensafety.ssdo.abortcode",
             FT_UINT32,  BASE_HEX, NULL,    0x0, NULL, HFILL } },
+
+        { &hf_oss_ssdo_preload_error,
+          { "Wrong/missing segment", "opensafety.ssdo.preload.error",
+            FT_BOOLEAN, BASE_NONE, NULL,    0x0, NULL, HFILL } },
+        { &hf_oss_ssdo_preload_queue,
+          { "Preload Queue Size", "opensafety.ssdo.preload.queuesize",
+            FT_UINT8,  BASE_DEC, NULL,    0x0, NULL, HFILL } },
 
         /* SSDO SACmd specific fields */
         { &hf_oss_ssdo_sacmd_access_type,
           { "Access Type", "opensafety.ssdo.sacmd.access",
             FT_BOOLEAN,  8, TFS(&opensafety_sacmd_acc), OPENSAFETY_SSDO_SACMD_ACC, NULL, HFILL } },
-#if 0
-        { &hf_oss_ssdo_sacmd_reserved,
-          { "Reserved", "opensafety.ssdo.sacmd.reserved",
-            FT_BOOLEAN,  8, TFS(&opensafety_sacmd_res), OPENSAFETY_SSDO_SACMD_RES, NULL, HFILL } },
-#endif
+        { &hf_oss_ssdo_sacmd_preload,
+          { "Preload Transfer", "opensafety.ssdo.sacmd.preload",
+            FT_BOOLEAN,  8, TFS(&tfs_enabled_disabled), OPENSAFETY_SSDO_SACMD_PRLD, NULL, HFILL } },
         { &hf_oss_ssdo_sacmd_abort_transfer,
           { "Abort Transfer", "opensafety.ssdo.sacmd.abort_transfer",
             FT_BOOLEAN,  8, TFS(&opensafety_sacmd_abrt), OPENSAFETY_SSDO_SACMD_ABRT, NULL, HFILL } },
@@ -2647,21 +2653,23 @@ proto_register_opensafety(void)
             FT_BOOLEAN,  8, TFS(&opensafety_sacmd_seg), OPENSAFETY_SSDO_SACMD_SEG, NULL, HFILL } },
         { &hf_oss_ssdo_sacmd_toggle,
           { "Toggle Bit", "opensafety.ssdo.sacmd.toggle",
-            FT_BOOLEAN,  8, TFS(&opensafety_on_off), OPENSAFETY_SSDO_SACMD_TGL, NULL, HFILL } },
+            FT_BOOLEAN,  8, TFS(&tfs_on_off), OPENSAFETY_SSDO_SACMD_TGL, NULL, HFILL } },
         { &hf_oss_ssdo_sacmd_initiate,
           { "Initiate Transfer", "opensafety.ssdo.sacmd.initiate",
             FT_BOOLEAN,  8, TFS(&opensafety_sacmd_ini), OPENSAFETY_SSDO_SACMD_INI, NULL, HFILL } },
         { &hf_oss_ssdo_sacmd_end_segment,
           { "End Segment", "opensafety.ssdo.sacmd.end_segment",
             FT_BOOLEAN,  8, TFS(&opensafety_sacmd_ensg), OPENSAFETY_SSDO_SACMD_ENSG, NULL, HFILL } },
-        { &hf_oss_ssdo_sacmd_block_transfer,
-          { "Block Transfer", "opensafety.ssdo.sacmd.block_transfer",
-            FT_BOOLEAN,  8, TFS(&opensafety_sacmd_blk), OPENSAFETY_SSDO_SACMD_BLK, NULL, HFILL } },
+#if 0
+        { &hf_oss_ssdo_sacmd_reserved,
+          { "Reserved", "opensafety.ssdo.sacmd.reserved",
+            FT_BOOLEAN,  8, TFS(&opensafety_sacmd_res), OPENSAFETY_SSDO_SACMD_RES, NULL, HFILL } },
+#endif
 
         /* SPDO Specific fields */
         { &hf_oss_spdo_connection_valid,
           { "Connection Valid Bit", "opensafety.spdo.connection_valid",
-            FT_BOOLEAN,  BASE_NONE, TFS(&opensafety_set_notset),  0x0, NULL, HFILL } },
+            FT_BOOLEAN,  BASE_NONE, TFS(&tfs_set_notset),  0x0, NULL, HFILL } },
         { &hf_oss_spdo_payload,
           { "SPDO Payload", "opensafety.spdo.payload",
             FT_BYTES,  BASE_NONE, NULL,    0x0, NULL, HFILL } },
