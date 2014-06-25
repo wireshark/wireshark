@@ -763,21 +763,24 @@ static int libpcap_read_header(wtap *wth, FILE_T fh, int *err, gchar **err_info,
 	}
 
         if (hdr->hdr.orig_len > 64*1024*1024) {
-		/*
+                /*
                  * In theory I guess the on-the-wire packet size can be
                  * arbitrarily large, and it can certainly be larger than the
-                 * 64KB which bounds the snapshot size, but any file claiming
-                 * 64MB in a single packet is *probably* corrupt, and makes the
-                 * heuristics much more reliable. See, for example,
-                 * https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=9634
-                 * (64MB is an arbitrary size at this point)
-		 */
-		*err = WTAP_ERR_BAD_FILE;
-		if (err_info != NULL) {
-			*err_info = g_strdup_printf("pcap: File claims packet was %u bytes on the wire",
-			    hdr->hdr.orig_len);
-		}
-		return -1;
+                 * maximum snapshot length which bounds the snapshot size,
+                 * but any file claiming 64MB in a single packet is *probably*
+                 * corrupt, and treating them as such makes the heuristics
+                 * much more reliable. See, for example,
+                 *
+                 *    https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=9634
+                 *
+                 * (64MB is an arbitrary size at this point).
+                 */
+                *err = WTAP_ERR_BAD_FILE;
+                if (err_info != NULL) {
+                        *err_info = g_strdup_printf("pcap: File claims packet was %u bytes on the wire",
+                            hdr->hdr.orig_len);
+                }
+                return -1;
         }
 
         /* Disabling because this is not a fatal error, and packets that have
