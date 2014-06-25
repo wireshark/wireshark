@@ -591,6 +591,7 @@ ssl_restore_session_ticket(SslDecryptSession* ssl, GHashTable *session_hash);
 extern gint
 ssl_is_valid_content_type(guint8 type);
 
+/* common header fields, subtrees and expert info for SSL and DTLS dissectors */
 typedef struct ssl_common_dissect {
     struct {
         gint hs_exts_len;
@@ -662,6 +663,8 @@ typedef struct ssl_common_dissect {
         gint hs_server_keyex_hint;
         gint hs_client_keyex_identity_len;
         gint hs_client_keyex_identity;
+
+        /* do not forget to update SSL_COMMON_LIST_T and SSL_COMMON_HF_LIST! */
     } hf;
     struct {
         gint hs_ext;
@@ -677,9 +680,13 @@ typedef struct ssl_common_dissect {
         gint hs_sig_hash_algs;
         gint urlhash;
         gint keyex_params;
+
+        /* do not forget to update SSL_COMMON_LIST_T and SSL_COMMON_ETT_LIST! */
     } ett;
     struct {
         expert_field hs_ext_cert_status_undecoded;
+
+        /* do not forget to update SSL_COMMON_LIST_T and SSL_COMMON_EI_LIST! */
     } ei;
 } ssl_common_dissect_t;
 
@@ -705,6 +712,7 @@ ssl_dissect_hnd_srv_keyex(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                           proto_tree *tree, guint32 offset, guint32 length,
                           const SslSession *session);
 
+/* {{{ */
 #define SSL_COMMON_LIST_T(name) \
 ssl_common_dissect_t name = {   \
     /* hf */ {                  \
@@ -721,7 +729,9 @@ ssl_common_dissect_t name = {   \
         EI_INIT,                                                        \
     },                                                                  \
 }
+/* }}} */
 
+/* {{{ */
 #define SSL_COMMON_HF_LIST(name, prefix)                                \
     { & name .hf.hs_exts_len,                                           \
       { "Extensions Length", prefix ".handshake.extensions_length",     \
@@ -999,14 +1009,14 @@ ssl_common_dissect_t name = {   \
         "Diffie-Hellman g", HFILL }                                     \
     },                                                                  \
     { & name .hf.hs_server_keyex_curve_type,                            \
-      { "Curve Type", prefix ".handshake.server_curve_type",          \
-        FT_UINT8, BASE_HEX, VALS(ssl_curve_types), 0x0,               \
-        "Server curve_type", HFILL }                                  \
+      { "Curve Type", prefix ".handshake.server_curve_type",            \
+        FT_UINT8, BASE_HEX, VALS(ssl_curve_types), 0x0,                 \
+        "Server curve_type", HFILL }                                    \
     },                                                                  \
     { & name .hf.hs_server_keyex_named_curve,                           \
-      { "Named Curve", prefix ".handshake.server_named_curve",        \
-        FT_UINT16, BASE_HEX, VALS(ssl_extension_curves), 0x0,         \
-        "Server named_curve", HFILL }                                 \
+      { "Named Curve", prefix ".handshake.server_named_curve",          \
+        FT_UINT16, BASE_HEX, VALS(ssl_extension_curves), 0x0,           \
+        "Server named_curve", HFILL }                                   \
     },                                                                  \
     { & name .hf.hs_server_keyex_ys,                                    \
       { "Pubkey", prefix ".handshake.ys",                               \
@@ -1068,8 +1078,9 @@ ssl_common_dissect_t name = {   \
         FT_UINT8, BASE_DEC, VALS(tls_heartbeat_mode), 0x0,              \
         "Heartbeat extension mode", HFILL }                             \
     }
+/* }}} */
 
-
+/* {{{ */
 #define SSL_COMMON_ETT_LIST(name)                   \
         & name .ett.hs_ext,                         \
         & name .ett.hs_ext_alpn,                    \
@@ -1079,15 +1090,18 @@ ssl_common_dissect_t name = {   \
         & name .ett.hs_ext_npn,                     \
         & name .ett.hs_ext_reneg_info,              \
         & name .ett.hs_ext_server_name,             \
+        & name .ett.hs_ext_padding,                 \
         & name .ett.hs_sig_hash_alg,                \
         & name .ett.hs_sig_hash_algs,               \
         & name .ett.urlhash,                        \
         & name .ett.keyex_params
+/* }}} */
 
-
+/* {{{ */
 #define SSL_COMMON_EI_LIST(name, prefix)                       \
         { & name .ei.hs_ext_cert_status_undecoded, { prefix ".handshake.status_request.undecoded", PI_UNDECODED, PI_NOTE,   \
           "Responder ID list or Request Extensions are not implemented, contact Wireshark developers if you want this to be supported", EXPFILL }}
+/* }}} */
 
 typedef struct ssl_common_options {
     const gchar        *psk;
