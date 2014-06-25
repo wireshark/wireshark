@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 
-# Copyright 2010, Jeff Morriss <jeff.morriss[AT]ulticom.com>
+# Copyright 2010, Jeff Morriss <jeff.morriss.ws[AT]gmail.com>
 #
 # A simple tool to remove bogus blurbs from hf entries.
 # This has already been run so it may not be necessary any more, but

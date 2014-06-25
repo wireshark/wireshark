@@ -1,7 +1,7 @@
 #!/usr/bin/env perl
 
 #
-# Copyright 2006, Jeff Morriss <jeff.morriss[AT]ulticom.com>
+# Copyright 2006, Jeff Morriss <jeff.morriss.ws[AT]gmail.com>
 #
 # A simple tool to check source code for function calls that should not
 # be called by Wireshark code and to perform certain other checks.
