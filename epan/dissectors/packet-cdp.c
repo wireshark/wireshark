@@ -1232,7 +1232,6 @@ dissect_nrgyz_tlv(tvbuff_t *tvb, int offset, guint16 length, guint16 num,
                   proto_tree *tree)
 {
     guint32     tlvt, tlvl, ip_addr;
-    proto_item *it    = NULL;
     proto_tree *etree = NULL;
     char const *ttext = NULL;
 
