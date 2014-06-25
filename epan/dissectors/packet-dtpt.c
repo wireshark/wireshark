@@ -508,7 +508,6 @@ dissect_dtpt_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		protocols_length = tvb_get_letohl(tvb, offset+4);
 	}
 	if (dtpt_tree) {
-		proto_item	*dtpt_protocols_item = NULL;
 		proto_tree	*dtpt_protocols_tree = NULL;
 		guint32		i;
 
@@ -523,7 +522,6 @@ dissect_dtpt_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				proto_tree_add_uint(dtpt_protocols_tree, hf_dtpt_protocols_length,
 						tvb, offset+4, 4, protocols_length);
 			for (i=0;i<num_protocols;i++) {
-				proto_item	*dtpt_protocol_item = NULL;
 				proto_tree	*dtpt_protocol_tree = NULL;
 
 				dtpt_protocol_tree = proto_tree_add_subtree_format(dtpt_protocols_tree,
