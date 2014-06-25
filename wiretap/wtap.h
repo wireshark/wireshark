@@ -328,10 +328,10 @@ extern "C" {
 
 /*
  * Maximum packet size we'll support.
- * 131072 is the largest snapshot length that libpcap supports, so we
+ * 262144 is the largest snapshot length that libpcap supports, so we
  * use that.
  */
-#define WTAP_MAX_PACKET_SIZE    131072
+#define WTAP_MAX_PACKET_SIZE    262144
 
 /*
  * "Pseudo-headers" are used to supply to the clients of wiretap
