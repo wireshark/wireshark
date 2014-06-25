@@ -1089,8 +1089,11 @@ ENABLE_LIBWIRESHARK=USE
 #
 # install (debug) directory for Wireshark (relative to your source dir)
 INSTALL_DIR=wireshark-gtk2
+INSTALL_DIR_QT=wireshark-qt-release 
 
-
+#
+# Lacking a better way, define the Qt version used here
+QT_VERSION=5.2
 
 ##### C-Runtime Redistributable #####
 #
