@@ -375,8 +375,7 @@ dissect_dlsw_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 
 /* end of header dissector */
 
-    ti2 = proto_tree_add_text (dlsw_tree, tvb, hlen, mlen,"DLSw data");
-    dlsw_data_tree = proto_item_add_subtree(ti2, ett_dlsw_data);
+    dlsw_data_tree = proto_tree_add_subtree(dlsw_tree, tvb, hlen, mlen, ett_dlsw_data, &ti2, "DLSw data");
 
     switch (mtype)
     {
