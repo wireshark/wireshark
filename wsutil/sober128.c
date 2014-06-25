@@ -839,7 +839,6 @@ unsigned long sober128_read(unsigned char *buf, unsigned long nbytes, sober128_p
 {
    ulong32               t, tlen;
 
-   t = 0;
    tlen = nbytes;
 
    /* handle any previously buffered bytes */
