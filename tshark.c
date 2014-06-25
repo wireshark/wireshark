@@ -1922,6 +1922,14 @@ main(int argc, char *argv[])
      of the filter.  We can now process all the "-z" arguments. */
   start_requested_stats();
 
+  /* At this point MATE will have registered its field array so we can
+     check if the fields specified by the user are all good.
+   */
+  if (!output_fields_valid(output_fields)) {
+    cmdarg_err("Some fields aren't valid");
+    return 1;
+  }
+
 #ifdef HAVE_LIBPCAP
   /* We currently don't support taps, or printing dissected packets,
      if we're writing to a pipe. */

@@ -1429,6 +1429,32 @@ void output_fields_add(output_fields_t *fields, const gchar *field)
 
 }
 
+static void
+output_field_check(void *data, void *user_data)
+{
+    gchar *field = (gchar *)data;
+    gboolean *all_valid = (gboolean *)user_data;
+
+    if (!strncmp(field, COLUMN_FIELD_FILTER, strlen(COLUMN_FIELD_FILTER)))
+        return;
+
+    if (!proto_registrar_get_byname(field)) {
+        g_warning("'%s' isn't a valid field!", field);
+        *all_valid = FALSE;
+    }
+
+}
+
+gboolean
+output_fields_valid(output_fields_t *fields)
+{
+    gboolean all_valid = TRUE;
+
+    g_ptr_array_foreach(fields->fields, output_field_check, &all_valid);
+
+    return all_valid;
+}
+
 gboolean output_fields_set_option(output_fields_t *info, gchar *option)
 {
     const gchar *option_name;
