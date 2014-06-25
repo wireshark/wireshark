@@ -300,7 +300,6 @@ HEADERS += $$HEADERS_WS_C \
     summary_dialog.h \
     tango_colors.h \
     uat_dialog.h \
-    elided_label.h \
     tcp_stream_dialog.h
 
 win32 {
