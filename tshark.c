@@ -325,7 +325,7 @@ print_usage(gboolean print_ver)
 #endif
   /*fprintf(output, "\n");*/
   fprintf(output, "Input file:\n");
-  fprintf(output, "  -r <infile>              set the filename to read from (no stdin!)\n");
+  fprintf(output, "  -r <infile>              set the filename to read from (- to read from stdin)\n");
 
   fprintf(output, "\n");
   fprintf(output, "Processing:\n");
