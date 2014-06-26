@@ -146,10 +146,9 @@ typedef struct _io_stat_calc_type_t {
 } io_stat_calc_type_t;
 #endif
 
-#define NUM_IO_ITEMS 100000
 typedef struct _io_stat_graph_t {
     struct _io_stat_t *io;
-    io_graph_item_t    items[NUM_IO_ITEMS];
+    io_graph_item_t   *items;
     int                plot_style;
     gboolean           display;
     GtkWidget         *display_button;
@@ -174,6 +173,7 @@ typedef struct _io_stat_t {
     guint32        last_interval; /* the last *displayed* interval */
     guint32        max_interval; /* the maximum interval based on the capture duration */
     guint32        num_items;   /* total number of items in all intervals (zero relative) */
+    guint32        space_items; /* space for items allocated */
     guint32        left_x_border;
     guint32        right_x_border;
     gboolean       view_as_time;
@@ -220,7 +220,7 @@ io_stat_reset(io_stat_t *io)
 
     io->needs_redraw = TRUE;
     for (i=0; i<MAX_GRAPHS; i++) {
-        reset_io_graph_items((io_graph_item_t *)io->graphs[i].items, NUM_IO_ITEMS);
+        reset_io_graph_items(io->graphs[i].items, io->num_items);
     }
     io->last_interval    = 0xffffffff;
     io->max_interval     = 0;
@@ -242,9 +242,9 @@ static gboolean
 tap_iostat_packet(void *g, packet_info *pinfo, epan_dissect_t *edt, const void *dummy _U_)
 {
     io_stat_graph_t *graph = (io_stat_graph_t *)g;
-    io_stat_t       *io;
+    io_stat_t       *io = graph->io;
     epan_dissect_t  *adv_edt = NULL;
-    int              idx;
+    unsigned int     idx;
 
     /* we sometimes get called when the graph is disabled.
        this is a bug since the tap listener should be removed first */
@@ -252,20 +252,43 @@ tap_iostat_packet(void *g, packet_info *pinfo, epan_dissect_t *edt, const void *
         return FALSE;
     }
 
-    io = graph->io;  /* Point up to the parent io_stat_t struct */
     io->needs_redraw = TRUE;
 
-    idx = get_io_graph_index(pinfo, io->interval);
-    
-    /* some sanity checks */
-    if ((idx < 0) || (idx >= NUM_IO_ITEMS)) {
-        io->num_items = NUM_IO_ITEMS-1;
-        return FALSE;
+    {
+        int idx_signed;
+        idx_signed = get_io_graph_index(pinfo, io->interval);
+
+        /* some sanity checks */
+        if (idx_signed < 0) {
+            return FALSE;
+        } else {
+            idx = idx_signed;
+        }
     }
 
     /* update num_items */
-    if ((guint32)idx > io->num_items) {
-        io->num_items = (guint32) idx;
+    if (idx + 1 > io->num_items) {
+        if (idx + 1 > io->space_items) {
+            /* reallocate graphs */
+            const gsize new_size = exp2(log2(idx + 1) + 1);
+            if (io->space_items == 0) {
+                /* nothing allocated yet */
+                int i;
+                for (i = 0; i < MAX_GRAPHS; i++) {
+                  io->graphs[i].items = (io_graph_item_t *)g_malloc(sizeof(io->graphs[i].items[0]) * new_size);
+                    reset_io_graph_items(io->graphs[i].items, new_size);
+                }
+            } else {
+                /* resize */
+                int i;
+                for (i = 0; i < MAX_GRAPHS; i++) {
+                    io->graphs[i].items = (io_graph_item_t *)g_realloc(io->graphs[i].items, sizeof(io->graphs[i].items[0]) * new_size);
+                    reset_io_graph_items(&io->graphs[i].items[io->space_items], new_size - io->space_items);
+                }
+            }
+            io->space_items = new_size;
+        }
+        io->num_items =  idx + 1;
     }
 
     /* set start time */
@@ -278,7 +301,7 @@ tap_iostat_packet(void *g, packet_info *pinfo, epan_dissect_t *edt, const void *
         adv_edt = edt;
     }
 
-    if (!update_io_graph_item((io_graph_item_t*) graph->items, idx, pinfo, adv_edt, graph->hf_index, CALC_TYPE_TO_ITEM_UNIT(graph->calc_type), io->interval)) {
+    if (!update_io_graph_item(graph->items, idx, pinfo, adv_edt, graph->hf_index, CALC_TYPE_TO_ITEM_UNIT(graph->calc_type), io->interval)) {
         return FALSE;
     }
 
@@ -294,7 +317,9 @@ get_it_value(io_stat_t *io, int graph, int idx)
     guint32    interval;
 
     g_assert(graph < MAX_GRAPHS);
-    g_assert(idx < NUM_IO_ITEMS);
+    if (((guint)idx > io->num_items + 1) || (0 == io->num_items)) {
+        return 0;
+    }
 
     it = &io->graphs[graph].items[idx];
 
@@ -510,7 +535,6 @@ io_stat_draw(io_stat_t *io)
     GtkAllocation  widget_alloc;
 
     /* new variables */
-    guint32        num_time_intervals; /* number of intervals relative to 1 */
     guint64        max_value;   /* max value of seen data */
     guint32        max_y;       /* max value of the Y scale */
     gboolean       draw_y_as_time;
@@ -530,28 +554,6 @@ io_stat_draw(io_stat_t *io)
         ((cfile.elapsed_time.nsecs+500000)/1000000) +
         io->interval);
     io->max_interval = (io->max_interval / io->interval) * io->interval;
-    if (io->max_interval >= NUM_IO_ITEMS * io->interval) {
-        /* XXX: Truncate the graph if it covers too much real time, as
-         * otherwise we crash later trying to make the graph too wide. There's
-         * no good way of warning the user, since this gets recalculated a
-         * lot and any dialogue we pop up would spawn 100+ times when scrolling.
-         *
-         * Should at least stop us from crashing in:
-         * https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8583
-         */
-        io->max_interval = (NUM_IO_ITEMS - 1) * io->interval;
-    }
-    /*
-    * Find the length of the intervals we have data for
-    * so we know how large arrays we need to malloc()
-    */
-    num_time_intervals = io->num_items+1;
-
-    /* XXX move this check to _packet() */
-    if (num_time_intervals > NUM_IO_ITEMS) {
-        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "IO-Stat error. There are too many entries, bailing out");
-        return;
-    }
 
     /*
     * find the max value so we can autoscale the y axis
@@ -563,7 +565,7 @@ io_stat_draw(io_stat_t *io)
         if (!io->graphs[i].display) {
             continue;
         }
-        for (idx=0; (guint32)(idx) < num_time_intervals; idx++) {
+        for (idx=0; (guint32)(idx) < io->num_items; idx++) {
             guint64 val;
 
             val = get_it_value(io, i, idx);
@@ -679,24 +681,6 @@ io_stat_draw(io_stat_t *io)
     */
     draw_width = io->surface_width-io->right_x_border - io->left_x_border;
     draw_height = io->surface_height-top_y_border - bottom_y_border;
-
-    /*
-    * Add a warning if too many entries
-    */
-    if (num_time_intervals >= NUM_IO_ITEMS-1) {
-        g_snprintf (label_string, sizeof(label_string), "Warning: Graph limited to %d entries", NUM_IO_ITEMS);
-        pango_layout_set_text(layout, label_string, -1);
-
-#if GTK_CHECK_VERSION(2,22,0)
-        cr = cairo_create (io->surface);
-#else
-        cr = gdk_cairo_create (io->pixmap);
-#endif
-        cairo_move_to (cr, 5, io->surface_height-bottom_y_border-draw_height-label_height/2);
-        pango_cairo_show_layout (cr, layout);
-        cairo_destroy (cr);
-        cr = NULL;
-    }
 
     /* Draw the y axis and labels
     * (we always draw the y scale with 11 ticks along the axis)
@@ -1199,6 +1183,7 @@ iostat_init(const char *opt_arg _U_, void* userdata _U_)
     io->last_interval        = 0xffffffff;
     io->max_interval         = 0;
     io->num_items            = 0;
+    io->space_items          = 0;
     io->left_x_border        = 0;
     io->right_x_border       = 500;
     io->view_as_time         = FALSE;
@@ -1278,6 +1263,7 @@ draw_area_destroy_cb(GtkWidget *widget _U_, gpointer user_data)
             g_free(io->graphs[i].args);
             io->graphs[i].args = NULL;
         }
+        g_free(io->graphs[i].items);
     }
     g_free(io);
 
