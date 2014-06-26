@@ -2614,6 +2614,7 @@ gboolean
 capture_input_new_file(capture_session *cap_session, gchar *new_file)
 {
   capture_options *capture_opts = cap_session->capture_opts;
+  capture_file *cf = (capture_file *) cap_session->cf;
   gboolean is_tempfile;
   int      err;
 
@@ -2628,16 +2629,19 @@ capture_input_new_file(capture_session *cap_session, gchar *new_file)
   if (capture_opts->save_file != NULL) {
 
     /* we start a new capture file, close the old one (if we had one before) */
-    if ( ((capture_file *) cap_session->cf)->state != FILE_CLOSED) {
-      if ( ((capture_file *) cap_session->cf)->wth != NULL) {
-        wtap_close(((capture_file *) cap_session->cf)->wth);
-	((capture_file *) cap_session->cf)->wth = NULL;
+    if (cf->state != FILE_CLOSED) {
+      if (cf->wth != NULL) {
+        wtap_close(cf->wth);
+        cf->wth = NULL;
       }
-      ((capture_file *) cap_session->cf)->state = FILE_CLOSED;
+      cf->state = FILE_CLOSED;
     }
 
     g_free(capture_opts->save_file);
     is_tempfile = FALSE;
+
+    epan_free(cf->epan);
+    cf->epan = tshark_epan_new(cf);
   } else {
     /* we didn't had a save_file before, must be a tempfile */
     is_tempfile = TRUE;
