@@ -1894,7 +1894,7 @@ void proto_reg_handoff_lbtrm(void)
         lbtrm_dissector_handle = new_create_dissector_handle(dissect_lbtrm, proto_lbtrm);
         dissector_add_for_decode_as("udp.port", lbtrm_dissector_handle);
         heur_dissector_add("udp", test_lbtrm_packet, proto_lbtrm);
-        lbtrm_tap_handle = register_tap("lbtrm");
+        lbtrm_tap_handle = register_tap("lbm_lbtrm");
     }
 
     /* Make sure the low MC address is <= the high MC address. If not, don't change them. */

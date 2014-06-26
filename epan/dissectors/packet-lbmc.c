@@ -14303,7 +14303,7 @@ void proto_register_lbmc(void)
     expert_lbmc = expert_register_protocol(proto_lbmc);
     expert_register_field_array(expert_lbmc, ei, array_length(ei));
 
-    register_heur_dissector_list("29westdata", &lbmc_heuristic_subdissector_list);
+    register_heur_dissector_list("lbm_msg_payload", &lbmc_heuristic_subdissector_list);
 
     prefs_register_protocol(tnw_protocol_handle, NULL);
     lbmc_module = prefs_register_protocol_subtree("29West", proto_lbmc, proto_reg_handoff_lbmc);

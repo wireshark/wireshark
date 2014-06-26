@@ -1303,7 +1303,7 @@ void LBMLBTRMTransportDialog::fillTree(void)
     }
     m_dialog_info->setDialog(this);
 
-    error_string = register_tap_listener("lbtrm",
+    error_string = register_tap_listener("lbm_lbtrm",
         (void *)m_dialog_info,
         m_ui->displayFilterLineEdit->text().toUtf8().constData(),
         TL_REQUIRES_COLUMNS,

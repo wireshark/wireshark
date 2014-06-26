@@ -1721,7 +1721,7 @@ void LBMLBTRUTransportDialog::fillTree(void)
     }
     m_dialog_info->setDialog(this);
 
-    error_string = register_tap_listener("lbtru",
+    error_string = register_tap_listener("lbm_lbtru",
         (void *)m_dialog_info,
         m_ui->displayFilterLineEdit->text().toUtf8().constData(),
         TL_REQUIRES_COLUMNS,

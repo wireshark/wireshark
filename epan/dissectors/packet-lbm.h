@@ -25,6 +25,17 @@
 #ifndef PACKET_LBM_H_INCLUDED
 #define PACKET_LBM_H_INCLUDED
 
+/* A list of the taps etc. made available by these dissectors:
+   Taps:
+     lbm_stream
+     lbm_uim
+     lbm_lbmr
+     lbm_lbtrm
+     lbm_lbtru
+   Heuristic subdissector tables:
+     lbm_msg_payload
+*/
+
 #if defined(__FreeBSD__)
 #include <sys/types.h>
 #include <netinet/in.h>

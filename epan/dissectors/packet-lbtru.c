@@ -2025,7 +2025,7 @@ void proto_reg_handoff_lbtru(void)
         lbtru_dissector_handle = new_create_dissector_handle(dissect_lbtru, proto_lbtru);
         dissector_add_for_decode_as("udp.port", lbtru_dissector_handle);
         heur_dissector_add("udp", test_lbtru_packet, proto_lbtru);
-        lbtru_tap_handle = register_tap("lbtru");
+        lbtru_tap_handle = register_tap("lbm_lbtru");
     }
 
     /* Make sure the low source port is <= the high source port. If not, don't change them. */
