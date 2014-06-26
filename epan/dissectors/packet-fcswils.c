@@ -615,7 +615,6 @@ dissect_swils_ess_capability_obj(tvbuff_t *tvb, proto_tree *tree, int offset)
 {
     int         i = 0, num_entries = 0, len = 0, total_len = 0;
     guint8      type, subtype, srvr_type;
-    proto_item *ti           = NULL;
     proto_tree *capinfo_tree = NULL;
 
     if (tree) {

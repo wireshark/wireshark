@@ -149,7 +149,6 @@ dissect_flip_chksum_hdr(tvbuff_t    *tvb,
                         guint16     computed_chksum,
                         gboolean    *ext_hdr_follows_ptr)
 {
-    proto_item *item;
     proto_tree *chksum_hdr_tree;
     guint32  dw;
     guint8   chksum_hdr_etype;
@@ -160,7 +159,6 @@ dissect_flip_chksum_hdr(tvbuff_t    *tvb,
     gint bytes_dissected;
     gint offset;
 
-    item            = NULL;
     chksum_hdr_tree = NULL;
 
     bytes_dissected = 0;
@@ -338,7 +336,6 @@ is_payload_rtcp(tvbuff_t *tvb)
 static int
 dissect_flip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    proto_item *item;
     proto_item *ti;
     proto_tree *flip_tree;
     proto_tree *basic_hdr_tree;
@@ -365,7 +362,6 @@ dissect_flip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     /* Error handling for basic header. */
     gboolean is_faulty_frame;
 
-    item             = NULL;
     ti               = NULL;
     flip_tree        = NULL;
     basic_hdr_tree   = NULL;

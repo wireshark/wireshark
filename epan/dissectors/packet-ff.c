@@ -4538,6 +4538,8 @@ dissect_ff_msg_fms_put_od_rsp(tvbuff_t *tvb, gint offset,
     if (length) {
         sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
             ett_ff_fms_put_od_rsp, NULL, "FMS Put OD Response");
+        proto_tree_add_text(sub_tree, tvb, offset, length,
+            "[Unknown] (%u bytes)", length);
     }
 
     return;
