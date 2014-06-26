@@ -2426,15 +2426,8 @@ dissect_btvdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     no_avdtp_session = (proto_btavdtp != (gint) GPOINTER_TO_UINT(wmem_list_frame_data(
                 wmem_list_frame_prev(wmem_list_tail(pinfo->layers)))));
 
+    memset(&sep_data, 0, sizeof(sep_data));
     sep_data.codec = CODEC_H263_BASELINE;
-    sep_data.content_protection_type = 0;
-    sep_data.acp_seid = 0;
-    sep_data.int_seid = 0;
-    sep_data.previous_media_packet_info = NULL;
-    sep_data.current_media_packet_info = NULL;
-    sep_data.stream_number = 1;
-    sep_data.vendor_id = 0;
-    sep_data.vendor_codec = 0;
 
     if (force_vdp_scms_t || force_vdp_codec) {
         if (force_vdp_scms_t)
