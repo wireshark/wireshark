@@ -653,16 +653,15 @@ static void
 dissect_fr_uncompressed(tvbuff_t *tvb, packet_info *pinfo,
                                     proto_tree *tree)
 {
-  proto_item *ti = NULL;
-  proto_tree *fr_tree = NULL;
+  proto_item *ti;
+  proto_tree *fr_tree;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "FR");
   col_clear(pinfo->cinfo, COL_INFO);
 
-  if (tree) {
-      ti = proto_tree_add_protocol_format(tree, proto_fr, tvb, 0, -1, "Frame Relay");
-      fr_tree = proto_item_add_subtree(ti, ett_fr);
-  }
+  ti = proto_tree_add_protocol_format(tree, proto_fr, tvb, 0, -1, "Frame Relay");
+  fr_tree = proto_item_add_subtree(ti, ett_fr);
+
   dissect_fr_nlpid(tvb, 0, pinfo, tree, ti, fr_tree, XDLC_U);
 }
 

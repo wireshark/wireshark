@@ -178,8 +178,8 @@ dissect_error_cause(tvbuff_t *cause_tvb, proto_tree *parameter_tree)
   length         = tvb_get_ntohs(cause_tvb, CAUSE_LENGTH_OFFSET);
   padding_length = tvb_length(cause_tvb) - length;
 
-  cause_item = proto_tree_add_text(parameter_tree, cause_tvb, CAUSE_HEADER_OFFSET, tvb_length(cause_tvb), "%s", val_to_str_const(code, cause_code_values, "Unknown error cause"));
-  cause_tree = proto_item_add_subtree(cause_item, ett_enrp_cause);
+  cause_tree = proto_tree_add_subtree(parameter_tree, cause_tvb, CAUSE_HEADER_OFFSET, -1,
+                    ett_enrp_cause, &cause_item, val_to_str_const(code, cause_code_values, "Unknown error cause"));
 
   proto_tree_add_item(cause_tree, hf_cause_code,   cause_tvb, CAUSE_CODE_OFFSET,   CAUSE_CODE_LENGTH,   ENC_BIG_ENDIAN);
   proto_tree_add_item(cause_tree, hf_cause_length, cause_tvb, CAUSE_LENGTH_OFFSET, CAUSE_LENGTH_LENGTH, ENC_BIG_ENDIAN);
@@ -636,7 +636,7 @@ static void
 dissect_parameter(tvbuff_t *parameter_tvb, proto_tree *enrp_tree)
 {
   guint16 type, length, padding_length;
-  proto_item *parameter_item;
+  proto_tree *parameter_item;
   proto_tree *parameter_tree;
 
   /* extract tag and length from the parameter */
@@ -645,8 +645,8 @@ dissect_parameter(tvbuff_t *parameter_tvb, proto_tree *enrp_tree)
   padding_length = tvb_length(parameter_tvb) - length;
 
   /* create proto_tree stuff */
-  parameter_item   = proto_tree_add_text(enrp_tree, parameter_tvb, PARAMETER_HEADER_OFFSET, tvb_length(parameter_tvb), "%s", val_to_str_const(type, parameter_type_values, "Unknown Parameter"));
-  parameter_tree   = proto_item_add_subtree(parameter_item, ett_enrp_parameter);
+  parameter_tree   = proto_tree_add_subtree(enrp_tree, parameter_tvb, PARAMETER_HEADER_OFFSET, -1,
+      ett_enrp_parameter, &parameter_item, val_to_str_const(type, parameter_type_values, "Unknown Parameter"));
 
   /* add tag and length to the enrp tree */
   proto_tree_add_item(parameter_tree, hf_parameter_type,   parameter_tvb, PARAMETER_TYPE_OFFSET,   PARAMETER_TYPE_LENGTH,   ENC_BIG_ENDIAN);

@@ -143,11 +143,9 @@ dissect_nv_pairs(tvbuff_t *tvb, proto_tree *fcgi_tree, gint offset, guint16 len)
 static int
 dissect_begin_request(tvbuff_t *tvb, proto_tree *fcgi_tree, gint offset, guint16 len)
 {
-   proto_item *br;
    proto_tree *br_tree;
 
-   br = proto_tree_add_text(fcgi_tree, tvb, offset, len, "Begin Request:");
-   br_tree = proto_item_add_subtree(br, ett_fcgi_begin_request);
+   br_tree = proto_tree_add_subtree(fcgi_tree, tvb, offset, len, ett_fcgi_begin_request, NULL, "Begin Request:");
 
    proto_tree_add_item(br_tree, hf_fcgi_begin_request_role, tvb, offset, 2, ENC_BIG_ENDIAN);
    offset += 2;
@@ -172,11 +170,9 @@ dissect_abort_request(tvbuff_t *tvb, proto_tree *fcgi_tree, gint offset, guint16
 static int
 dissect_end_request(tvbuff_t *tvb, proto_tree *fcgi_tree, gint offset, guint16 len)
 {
-   proto_item *er;
    proto_tree *er_tree;
 
-   er = proto_tree_add_text(fcgi_tree, tvb, offset, len, "End Request:");
-   er_tree = proto_item_add_subtree(er, ett_fcgi_end_request);
+   er_tree = proto_tree_add_subtree(fcgi_tree, tvb, offset, len, ett_fcgi_end_request, NULL, "End Request:");
 
    proto_tree_add_item(er_tree, hf_fcgi_end_request_app_status, tvb, offset, 4, ENC_BIG_ENDIAN);
    offset += 4;
@@ -192,11 +188,9 @@ dissect_end_request(tvbuff_t *tvb, proto_tree *fcgi_tree, gint offset, guint16 l
 static void
 dissect_params(tvbuff_t *tvb, proto_tree *fcgi_tree, gint offset, guint16 len)
 {
-   proto_item *p;
    proto_tree *p_tree;
 
-   p = proto_tree_add_text(fcgi_tree, tvb, offset, len, "Params:");
-   p_tree = proto_item_add_subtree(p, ett_fcgi_params);
+   p_tree = proto_tree_add_subtree(fcgi_tree, tvb, offset, len, ett_fcgi_params, NULL, "Params:");
 
    dissect_nv_pairs(tvb, p_tree, offset, len);
 
@@ -206,11 +200,9 @@ dissect_params(tvbuff_t *tvb, proto_tree *fcgi_tree, gint offset, guint16 len)
 static void
 dissect_get_values(tvbuff_t *tvb, proto_tree *fcgi_tree, gint offset, guint16 len)
 {
-   proto_item *gv;
    proto_tree *gv_tree;
 
-   gv = proto_tree_add_text(fcgi_tree, tvb, offset, len, "Get Values:");
-   gv_tree = proto_item_add_subtree(gv, ett_fcgi_params);
+   gv_tree = proto_tree_add_subtree(fcgi_tree, tvb, offset, len, ett_fcgi_params, NULL, "Get Values:");
 
    dissect_nv_pairs(tvb, gv_tree, offset, len);
 
@@ -220,11 +212,9 @@ dissect_get_values(tvbuff_t *tvb, proto_tree *fcgi_tree, gint offset, guint16 le
 static void
 dissect_get_values_result(tvbuff_t *tvb, proto_tree *fcgi_tree, gint offset, guint16 len)
 {
-   proto_item *gvr;
    proto_tree *gvr_tree;
 
-   gvr = proto_tree_add_text(fcgi_tree, tvb, offset, len, "Get Values:");
-   gvr_tree = proto_item_add_subtree(gvr, ett_fcgi_params);
+   gvr_tree = proto_tree_add_subtree(fcgi_tree, tvb, offset, len, ett_fcgi_params, NULL, "Get Values:");
 
    dissect_nv_pairs(tvb, gvr_tree, offset, len);
 

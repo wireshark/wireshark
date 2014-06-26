@@ -632,14 +632,12 @@ static const true_false_string tfs_fc_fcels_cmn_payload = {
 static void
 dissect_cmnsvc (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint16 flags, guint8 opcode)
 {
-    proto_item *item=NULL;
-    proto_tree *tree=NULL;
+    proto_item *item;
+    proto_tree *tree;
 
-    if(parent_tree){
-        item=proto_tree_add_uint(parent_tree, hf_fcels_cmnfeatures,
-                                 tvb, offset, 2, flags);
-        tree=proto_item_add_subtree(item, ett_fcels_cmnfeatures);
-    }
+    item=proto_tree_add_uint(parent_tree, hf_fcels_cmnfeatures,
+                                tvb, offset, 2, flags);
+    tree=proto_item_add_subtree(item, ett_fcels_cmnfeatures);
 
     proto_tree_add_boolean(tree, hf_fcels_cmn_cios, tvb, offset, 2, flags);
     if (flags&0x8000){
@@ -746,14 +744,12 @@ static const true_false_string tfs_fc_fcels_cls_nzctl = {
 static void
 dissect_clssvc_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint16 flags, guint8 opcode)
 {
-    proto_item *item=NULL;
-    proto_tree *tree=NULL;
+    proto_item *item;
+    proto_tree *tree;
 
-    if(parent_tree){
-        item=proto_tree_add_uint(parent_tree, hf_fcels_clsflags,
-                                 tvb, offset, 2, flags);
-        tree=proto_item_add_subtree(item, ett_fcels_clsflags);
-    }
+    item=proto_tree_add_uint(parent_tree, hf_fcels_clsflags,
+                                tvb, offset, 2, flags);
+    tree=proto_item_add_subtree(item, ett_fcels_clsflags);
 
     proto_tree_add_boolean(tree, hf_fcels_cls_cns, tvb, offset, 2, flags);
     if (!(flags&0x8000)){
@@ -821,14 +817,12 @@ static const true_false_string tfs_fc_fcels_fcpflags_wrxr = {
 static void
 dissect_fcp_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint32 flags, guint8 isreq)
 {
-    proto_item *item=NULL;
-    proto_tree *tree=NULL;
+    proto_item *item;
+    proto_tree *tree;
 
-    if(parent_tree){
-        item=proto_tree_add_uint(parent_tree, hf_fcels_fcpflags,
-                                 tvb, offset, 4, flags);
-        tree=proto_item_add_subtree(item, ett_fcels_fcpflags);
-    }
+    item=proto_tree_add_uint(parent_tree, hf_fcels_fcpflags,
+                                tvb, offset, 4, flags);
+    tree=proto_item_add_subtree(item, ett_fcels_fcpflags);
 
     if (isreq) {
         proto_tree_add_boolean(tree, hf_fcels_fcpflags_trireq, tvb, offset, 4, flags);
@@ -890,16 +884,14 @@ dissect_fcp_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint32 f
 static void
 dissect_speed_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint32 flags, int port)
 {
-    proto_item *item=NULL;
-    proto_tree *tree=NULL;
+    proto_item *item;
+    proto_tree *tree;
 
-    if(parent_tree){
-        item=proto_tree_add_uint_format(parent_tree, hf_fcels_speedflags,
-                                        tvb, offset, 2, flags,
-                                        "Port Speed Capabilities (Port %u): 0x%04x",
-                                        port, flags);
-        tree=proto_item_add_subtree(item, ett_fcels_speedflags);
-    }
+    item=proto_tree_add_uint_format(parent_tree, hf_fcels_speedflags,
+                                    tvb, offset, 2, flags,
+                                    "Port Speed Capabilities (Port %u): 0x%04x",
+                                    port, flags);
+    tree=proto_item_add_subtree(item, ett_fcels_speedflags);
 
     proto_tree_add_boolean(tree, hf_fcels_speedflags_1gb, tvb, offset, 2, flags);
     if (flags&0x8000){
@@ -942,14 +934,12 @@ static const true_false_string tfs_fc_fcels_prliloflags_eip = {
 static void
 dissect_prlilo_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, int flags, guint8 opcode)
 {
-    proto_item *item=NULL;
-    proto_tree *tree=NULL;
+    proto_item *item;
+    proto_tree *tree;
 
-    if(parent_tree){
-        item=proto_tree_add_uint(parent_tree, hf_fcels_prliloflags,
-                                 tvb, offset, 1, flags);
-        tree=proto_item_add_subtree(item, ett_fcels_prliloflags);
-    }
+    item=proto_tree_add_uint(parent_tree, hf_fcels_prliloflags,
+                                tvb, offset, 1, flags);
+    tree=proto_item_add_subtree(item, ett_fcels_prliloflags);
 
     if (opcode == FC_ELS_TPRLO) {
         proto_tree_add_boolean(tree, hf_fcels_tprloflags_opav, tvb, offset, 1, flags);
@@ -1022,14 +1012,12 @@ static const true_false_string tfs_fc_fcels_initctl_ackgaa = {
 static void
 dissect_initctl_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint16 flags, guint8 opcode)
 {
-    proto_item *item=NULL;
-    proto_tree *tree=NULL;
+    proto_item *item;
+    proto_tree *tree;
 
-    if(parent_tree){
-        item=proto_tree_add_uint(parent_tree, hf_fcels_initctl,
-                                 tvb, offset, 2, flags);
-        tree=proto_item_add_subtree(item, ett_fcels_initctl);
-    }
+    item=proto_tree_add_uint(parent_tree, hf_fcels_initctl,
+                                tvb, offset, 2, flags);
+    tree=proto_item_add_subtree(item, ett_fcels_initctl);
 
     if ((opcode == FC_ELS_PLOGI) || (opcode == FC_ELS_PDISC)) {
         proto_tree_add_uint(tree, hf_fcels_initctl_initial_pa,
@@ -1080,14 +1068,12 @@ static const value_string rcptctl_category_vals[] = {
 static void
 dissect_rcptctl_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint16 flags, guint8 opcode)
 {
-    proto_item *item=NULL;
-    proto_tree *tree=NULL;
+    proto_item *item;
+    proto_tree *tree;
 
-    if(parent_tree){
-        item=proto_tree_add_uint(parent_tree, hf_fcels_rcptctl,
-                                 tvb, offset, 2, flags);
-        tree=proto_item_add_subtree(item, ett_fcels_rcptctl);
-    }
+    item=proto_tree_add_uint(parent_tree, hf_fcels_rcptctl,
+                                tvb, offset, 2, flags);
+    tree=proto_item_add_subtree(item, ett_fcels_rcptctl);
 
     if ((opcode == FC_ELS_PLOGI) || (opcode == FC_ELS_PDISC)) {
         proto_tree_add_boolean(tree, hf_fcels_rcptctl_ack0, tvb, offset, 2, flags);
@@ -1141,16 +1127,13 @@ dissect_fcels_logi (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
         svcvld = 0,
         svcclass;
     proto_tree *logi_tree, *cmnsvc_tree;
-    proto_item *subti;
     guint16 flag;
 
     if (tree) {
         logi_tree = proto_item_add_subtree (ti, ett_fcels_logi);
         proto_tree_add_item (logi_tree, hf_fcels_opcode, tvb, offset, 1, ENC_BIG_ENDIAN);
 
-        subti = proto_tree_add_text (logi_tree, tvb, offset+4, 16,
-                                     "Common Svc Parameters");
-        cmnsvc_tree = proto_item_add_subtree (subti, ett_fcels_logi_cmnsvc);
+        cmnsvc_tree = proto_tree_add_subtree(logi_tree, tvb, offset+4, 16, ett_fcels_logi_cmnsvc, NULL, "Common Svc Parameters");
         proto_tree_add_item (cmnsvc_tree, hf_fcels_b2b, tvb, offset+6, 2, ENC_BIG_ENDIAN);
         flag = tvb_get_ntohs (tvb, offset+8);
 
@@ -1173,9 +1156,8 @@ dissect_fcels_logi (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
         /* Add subtree for class paramters */
         offset = 36;
         for (svcclass = 1; svcclass < 5; svcclass++) {
-            subti = proto_tree_add_text (logi_tree, tvb, offset, 16,
-                                         "Class %d Svc Parameters", svcclass);
-            cmnsvc_tree = proto_item_add_subtree (subti, ett_fcels_logi_cmnsvc);
+            cmnsvc_tree = proto_tree_add_subtree_format(logi_tree, tvb, offset, 16,
+                                         ett_fcels_logi_cmnsvc, NULL, "Class %d Svc Parameters", svcclass);
 
             flag = tvb_get_ntohs (tvb, offset);
             dissect_clssvc_flags (cmnsvc_tree, tvb, offset, flag, opcode);
@@ -1533,7 +1515,6 @@ dissect_fcels_rpl (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     /* Set up structures needed to add the protocol subtree and manage it */
     int offset = 0;
     proto_tree *rpl_tree, *pb_tree;
-    proto_item *subti;
     int loop;
 
     if (tree) {
@@ -1563,9 +1544,8 @@ dissect_fcels_rpl (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
             offset = 12;
             /* The following loop is for dissecting the port blocks */
             for (loop = tvb_get_ntoh24 (tvb, 5); loop > 0; loop--) {
-                subti = proto_tree_add_text (rpl_tree, tvb, offset+12, 16,
-                                             "Port Block %u", loop);
-                pb_tree = proto_item_add_subtree (subti, ett_fcels_rplpb);
+                pb_tree = proto_tree_add_subtree_format(rpl_tree, tvb, offset+12, 16,
+                                             ett_fcels_rplpb, NULL, "Port Block %u", loop);
 
                 proto_tree_add_text (pb_tree, tvb, offset, 4,
                                      "Physical Port #: %u",
@@ -1611,7 +1591,6 @@ dissect_fcels_rscn (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     /* Set up structures needed to add the protocol subtree and manage it */
     int offset = 1;
     proto_tree *rscn_tree, *rectree;
-    proto_item *subti;
     int numrec, plen, i;
 
     if (tree) {
@@ -1630,9 +1609,8 @@ dissect_fcels_rscn (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
         offset = 4;
         for (i = 0; i < numrec; i++) {
-            subti = proto_tree_add_text (rscn_tree, tvb, offset, 4,
-                                         "Affected N_Port Page %u", i);
-            rectree = proto_item_add_subtree (subti, ett_fcels_rscn_rec);
+            rectree = proto_tree_add_subtree_format(rscn_tree, tvb, offset, 4,
+                                         ett_fcels_rscn_rec, NULL, "Affected N_Port Page %u", i);
 
             proto_tree_add_item (rectree, hf_fcels_rscn_evqual, tvb, offset,
                                  1, ENC_BIG_ENDIAN);
@@ -1672,7 +1650,6 @@ dissect_fcels_rnft (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     int offset = 0;
     guint16 numrec, i;
     proto_tree *rnft_tree, *fc4_tree;
-    proto_item *subti;
 
     if (tree) {
         rnft_tree = proto_item_add_subtree (ti, ett_fcels_rnft);
@@ -1697,9 +1674,8 @@ dissect_fcels_rnft (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                                  tvb_get_guint8 (tvb, offset+7));
             offset = 8;
             for (i = 0; i < numrec; i++) {
-                subti = proto_tree_add_text (rnft_tree, tvb, offset, 4,
-                                             "FC-4 Entry #%u", i);
-                fc4_tree = proto_item_add_subtree (subti, ett_fcels_rnft_fc4);
+                fc4_tree = proto_tree_add_subtree_format(rnft_tree, tvb, offset, 4,
+                                             ett_fcels_rnft_fc4, NULL, "FC-4 Entry #%u", i);
 
                 proto_tree_add_item (fc4_tree, hf_fcels_rnft_fc4type, tvb,
                                      offset, 1, ENC_BIG_ENDIAN);
@@ -1753,7 +1729,6 @@ dissect_fcels_prlilo_payload (tvbuff_t *tvb, packet_info *pinfo _U_,
     guint8 type;
     proto_tree *prli_tree, *svcpg_tree;
     int num_svcpg, payload_len, i, flag;
-    proto_item *subti;
 
     /* We're assuming that we're invoked only if tree is not NULL i.e.
      * we don't do the usual "if (tree)" check here, the caller must.
@@ -1772,9 +1747,8 @@ dissect_fcels_prlilo_payload (tvbuff_t *tvb, packet_info *pinfo _U_,
 
     offset = 4;
     for (i = 0; i < num_svcpg; i++) {
-        subti = proto_tree_add_text (prli_tree, tvb, offset, 16,
-                                     "Service Parameter Page %u", i);
-        svcpg_tree = proto_item_add_subtree (subti, ett_fcels_prli_svcpg);
+        svcpg_tree = proto_tree_add_subtree_format(prli_tree, tvb, offset, 16,
+                                     ett_fcels_prli_svcpg, NULL, "Service Parameter Page %u", i);
 
         type = tvb_get_guint8 (tvb, offset);
         proto_tree_add_text (svcpg_tree, tvb, offset, 1,

@@ -108,24 +108,21 @@ dissect_eapol(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint16     eapol_len;
   guint8      keydesc_type;
   guint       len;
-  proto_tree *ti = NULL;
-  proto_tree *eapol_tree = NULL;
+  proto_tree *ti;
+  proto_tree *eapol_tree;
   tvbuff_t   *next_tvb;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "EAPOL");
   col_clear(pinfo->cinfo, COL_INFO);
 
-  if (tree) {
-    ti = proto_tree_add_item(tree, proto_eapol, tvb, 0, -1, ENC_NA);
-    eapol_tree = proto_item_add_subtree(ti, ett_eapol);
+  ti = proto_tree_add_item(tree, proto_eapol, tvb, 0, -1, ENC_NA);
+  eapol_tree = proto_item_add_subtree(ti, ett_eapol);
 
-    proto_tree_add_item(eapol_tree, hf_eapol_version, tvb, offset, 1, ENC_BIG_ENDIAN);
-  }
+  proto_tree_add_item(eapol_tree, hf_eapol_version, tvb, offset, 1, ENC_BIG_ENDIAN);
   offset++;
 
   eapol_type = tvb_get_guint8(tvb, offset);
-  if (tree)
-    proto_tree_add_item(eapol_tree, hf_eapol_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item(eapol_tree, hf_eapol_type, tvb, offset, 1, ENC_BIG_ENDIAN);
   col_add_str(pinfo->cinfo, COL_INFO,
                 val_to_str(eapol_type, eapol_type_vals, "Unknown Type (0x%02X)"));
   offset++;
@@ -171,7 +168,7 @@ dissect_eapol_rc4_key(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, v
   int         offset = 0;
   guint16     eapol_key_len;
   gboolean    generated_locally;
-  proto_tree *ti = NULL;
+  proto_tree *ti;
   proto_tree *key_index_tree;
   gint        eapol_len;
 

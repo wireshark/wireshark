@@ -1175,11 +1175,9 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
         **********************************************************************/
       case EAP_TYPE_EXT:
       {
-        proto_item *expti   = NULL;
-        proto_tree *exptree = NULL;
+        proto_tree *exptree;
 
-        expti   = proto_tree_add_text(eap_tree, tvb, offset, size, "Expanded Type");
-        exptree = proto_item_add_subtree(expti, ett_eap_exp_attr);
+        exptree   = proto_tree_add_subtree(eap_tree, tvb, offset, size, ett_eap_exp_attr, NULL, "Expanded Type");
         dissect_exteap(exptree, tvb, offset, size, pinfo);
       }
       break;

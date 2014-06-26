@@ -2116,7 +2116,7 @@ dissect_epl_asnd_resp(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo _U
 gint
 dissect_epl_asnd_sres(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, guint8 epl_src, gint offset)
 {
-	proto_item  *ti_seb, *ti_el, *ti_el_entry, *ti_el_entry_type;
+	proto_item  *ti_el_entry, *ti_el_entry_type;
 	proto_tree  *epl_seb_tree, *epl_el_tree, *epl_el_entry_tree, *epl_el_entry_type_tree;
 	guint       number_of_entries, cnt;    /* used for dissection of ErrorCodeList */
 	guint8      nmt_state;
@@ -2143,9 +2143,7 @@ dissect_epl_asnd_sres(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, g
 	offset += 4;
 
 	/* Subtree for the static error bitfield */
-	ti_seb = proto_tree_add_text(epl_tree, tvb, offset, 8, "StaticErrorBitfield");
-
-	epl_seb_tree = proto_item_add_subtree(ti_seb, ett_epl_seb);
+	epl_seb_tree = proto_tree_add_subtree(epl_tree, tvb, offset, 8, ett_epl_seb, NULL, "StaticErrorBitfield");
 
 	proto_tree_add_item(epl_seb_tree, hf_epl_asnd_statusresponse_seb_err_errorregister_u8_bit0, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(epl_seb_tree, hf_epl_asnd_statusresponse_seb_err_errorregister_u8_bit1, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -2163,16 +2161,12 @@ dissect_epl_asnd_sres(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, g
 	/* get the number of entries in the error code list*/
 	number_of_entries = (tvb_reported_length(tvb)-offset)/20;
 
-	ti_el = proto_tree_add_text(epl_tree, tvb, offset, -1, "ErrorCodeList: %d entries", number_of_entries);
-
-	epl_el_tree = proto_item_add_subtree(ti_el, ett_epl_el);
+	epl_el_tree = proto_tree_add_subtree_format(epl_tree, tvb, offset, -1, ett_epl_el, NULL, "ErrorCodeList: %d entries", number_of_entries);
 
 	/*Dissect the whole Error List (display each entry)*/
 	for (cnt = 0; cnt<number_of_entries; cnt++)
 	{
-		ti_el_entry = proto_tree_add_text(epl_el_tree, tvb, offset, 20, "Entry %d", cnt+1);
-
-		epl_el_entry_tree = proto_item_add_subtree(ti_el_entry, ett_epl_el_entry);
+		epl_el_entry_tree = proto_tree_add_subtree_format(epl_el_tree, tvb, offset, 20, ett_epl_el_entry, &ti_el_entry, "Entry %d", cnt+1);
 
 		/*Entry Type*/
 		ti_el_entry_type = proto_tree_add_item(ti_el_entry,

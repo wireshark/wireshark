@@ -1201,7 +1201,8 @@ dissect_erf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint8              flags;
   guint8              erf_type;
   guint32             atm_hdr  = 0;
-  proto_tree         *erf_tree = NULL;
+  proto_tree         *erf_tree;
+  proto_item         *erf_item;
   guint               atm_pdu_caplen;
   const guint8       *atm_pdu;
   erf_hdlc_type_vals  hdlc_type;
@@ -1216,16 +1217,13 @@ dissect_erf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   col_add_fstr(pinfo->cinfo, COL_INFO, "%s",
        val_to_str(erf_type, erf_type_vals, "Unknown type %u"));
 
-  if (tree) {
-    proto_item *erf_item;
-    erf_item = proto_tree_add_item(tree, proto_erf, tvb, 0, -1, ENC_NA);
-    erf_tree = proto_item_add_subtree(erf_item, ett_erf);
+  erf_item = proto_tree_add_item(tree, proto_erf, tvb, 0, -1, ENC_NA);
+  erf_tree = proto_item_add_subtree(erf_item, ett_erf);
 
-    dissect_erf_pseudo_header(tvb, pinfo, erf_tree);
-    if (pinfo->pseudo_header->erf.phdr.type & 0x80) {
-      dissect_erf_pseudo_extension_header(tvb, pinfo, erf_tree);
+  dissect_erf_pseudo_header(tvb, pinfo, erf_tree);
+  if (pinfo->pseudo_header->erf.phdr.type & 0x80) {
+    dissect_erf_pseudo_extension_header(tvb, pinfo, erf_tree);
     }
-  }
 
   flags = pinfo->pseudo_header->erf.phdr.flags;
   /*

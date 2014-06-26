@@ -383,7 +383,6 @@ static const value_string elsm_subtype_vals[] = {
 static int
 dissect_tlv_header(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, int length _U_, proto_tree *tree)
 {
-	proto_item	*tlv_item;
 	proto_tree	*tlv_tree;
 	guint8		tlv_marker;
 	guint8		tlv_type;
@@ -393,12 +392,11 @@ dissect_tlv_header(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, int length
 	tlv_type = tvb_get_guint8(tvb, offset + 1);
 	tlv_length = tvb_get_ntohs(tvb, offset + 2);
 
-	tlv_item = proto_tree_add_text(tree, tvb, offset, 4,
-		"Marker 0x%02x, length %d, type %d = %s",
+	tlv_tree = proto_tree_add_subtree_format(tree, tvb, offset, 4,
+		ett_edp_tlv_header, NULL, "Marker 0x%02x, length %d, type %d = %s",
 		tlv_marker, tlv_length, tlv_type,
 		val_to_str(tlv_type, edp_type_vals, "Unknown (0x%02x)"));
 
-	tlv_tree = proto_item_add_subtree(tlv_item, ett_edp_tlv_header);
 	proto_tree_add_item(tlv_tree, hf_edp_tlv_marker, tvb, offset, 1,
 		ENC_BIG_ENDIAN);
 	offset += 1;
@@ -457,7 +455,6 @@ dissect_null_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length _U_, 
 static int
 dissect_info_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, proto_tree *tree)
 {
-	proto_item *ver_item;
 	proto_tree *ver_tree;
 	guint8 major1, major2, sustaining, internal;
 	guint16 port, slot;
@@ -502,11 +499,9 @@ dissect_info_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, prot
 	offset += 6;
 
 	/* Begin version subtree */
-	ver_item = proto_tree_add_text(info_tree, tvb, offset, 4,
-		"Version: %u.%u.%u Internal: %u", major1, major2,
+	ver_tree = proto_tree_add_subtree_format(info_tree, tvb, offset, 4,
+		ett_edp_info_version, NULL, "Version: %u.%u.%u Internal: %u", major1, major2,
 		sustaining, internal);
-
-	ver_tree = proto_item_add_subtree(ver_item, ett_edp_info_version);
 
 	proto_tree_add_item(ver_tree, hf_edp_info_version, tvb, offset, 4,
 		ENC_BIG_ENDIAN);

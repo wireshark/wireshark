@@ -628,20 +628,17 @@ dissect_swils_ess_capability_obj(tvbuff_t *tvb, proto_tree *tree, int offset)
         if (type != FCCT_GSTYPE_VENDOR) {
             num_entries = tvb_get_guint8(tvb, offset+3);
             total_len = 4 + (num_entries*8);
-            ti = proto_tree_add_text(tree, tvb, offset,
-                                     total_len, "Capability Object (%s)",
+            capinfo_tree = proto_tree_add_subtree_format(tree, tvb, offset,
+                                     total_len, ett_fcswils_capinfo, NULL, "Capability Object (%s)",
                                      val_to_str(type, fc_ct_gstype_vals,
                                                 "Unknown (0x%x)"));
-            capinfo_tree = proto_item_add_subtree(ti, ett_fcswils_capinfo);
-
         } else {
             i = tvb_get_guint8(tvb, offset+3);
             i += 12;
 
-            ti = proto_tree_add_text(tree, tvb, offset,
-                                     i, "Capability Object (Vendor-specific 0x%x)",
+            capinfo_tree = proto_tree_add_subtree_format(tree, tvb, offset,
+                                     i, ett_fcswils_capinfo, NULL, "Capability Object (Vendor-specific 0x%x)",
                                      type);
-            capinfo_tree = proto_item_add_subtree(ti, ett_fcswils_capinfo);
         }
 
         proto_tree_add_item(capinfo_tree, hf_swils_ess_cap_type, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -856,7 +853,6 @@ dissect_swils_efp(tvbuff_t *tvb, proto_tree *efp_tree, guint8 isreq _U_)
 {
 
 /* Set up structures needed to add the protocol subtree and manage it */
-    proto_item  *subti;
     proto_tree  *lrec_tree;
     int          num_listrec = 0;
     int          offset      = 0;
@@ -899,12 +895,11 @@ dissect_swils_efp(tvbuff_t *tvb, proto_tree *efp_tree, guint8 isreq _U_)
         num_listrec = (efp.payload_len - FC_SWILS_EFP_SIZE)/efp.reclen;
         while (num_listrec-- > 0) {
             rec_type = tvb_get_guint8(tvb, offset);
-            subti = proto_tree_add_text(efp_tree, tvb, offset, -1,
-                                        "%s",
+            lrec_tree = proto_tree_add_subtree(efp_tree, tvb, offset, -1,
+                                        ett_fcswils_efplist, NULL,
                                         val_to_str(rec_type,
                                                    fcswils_rectype_val,
                                                    "Unknown record type (0x%02x)"));
-            lrec_tree = proto_item_add_subtree(subti, ett_fcswils_efplist);
             proto_tree_add_uint(lrec_tree, hf_swils_efp_rec_type, tvb, offset, 1,
                                 rec_type);
             switch (rec_type) {
@@ -974,13 +969,11 @@ dissect_swils_rdi(tvbuff_t *tvb, proto_tree *rdi_tree, guint8 isreq)
 static void
 dissect_swils_fspf_hdr(tvbuff_t *tvb, proto_tree *tree, int offset)
 {
-    proto_item *subti;
     proto_tree *fspfh_tree;
 
     if (tree) {
         /* 20 is the size of FSPF header */
-        subti = proto_tree_add_text(tree, tvb, offset, 20, "FSPF Header");
-        fspfh_tree = proto_item_add_subtree(subti, ett_fcswils_fspfhdr);
+        fspfh_tree = proto_tree_add_subtree(tree, tvb, offset, 20, ett_fcswils_fspfhdr, NULL, "FSPF Header");
 
         proto_tree_add_item(fspfh_tree, hf_swils_fspfh_rev, tvb, offset+4,
                             1, ENC_BIG_ENDIAN);
@@ -1028,21 +1021,17 @@ dissect_swils_fspf_lsrec(tvbuff_t *tvb, proto_tree *tree, int offset,
                          int num_lsrec)
 {
     int         i, j, num_ldrec;
-    proto_item *subti1, *subti;
     proto_tree *lsrec_tree, *ldrec_tree, *lsrechdr_tree;
 
     if (tree) {
         for (j = 0; j < num_lsrec; j++) {
             num_ldrec = tvb_get_ntohs(tvb, offset+26);
-            subti = proto_tree_add_text(tree, tvb, offset, (28+num_ldrec*16),
-                                        "Link State Record %d (Domain %d)", j,
+            lsrec_tree = proto_tree_add_subtree_format(tree, tvb, offset, (28+num_ldrec*16),
+                                        ett_fcswils_lsrec, NULL, "Link State Record %d (Domain %d)", j,
                                         tvb_get_guint8(tvb, offset+15));
-            lsrec_tree = proto_item_add_subtree(subti, ett_fcswils_lsrec);
 
-            subti = proto_tree_add_text(lsrec_tree, tvb, offset, 24,
-                                        "Link State Record Header");
-            lsrechdr_tree = proto_item_add_subtree(subti,
-                                                   ett_fcswils_lsrechdr);
+            lsrechdr_tree = proto_tree_add_subtree(lsrec_tree, tvb, offset, 24,
+                                        ett_fcswils_lsrechdr, NULL, "Link State Record Header");
 
             dissect_swils_fspf_lsrechdr(tvb, lsrechdr_tree, offset);
             proto_tree_add_text(tree, tvb, offset+26, 2, "Number of Links: %d",
@@ -1050,11 +1039,10 @@ dissect_swils_fspf_lsrec(tvbuff_t *tvb, proto_tree *tree, int offset,
             offset += 28;
 
             for (i = 0; i < num_ldrec; i++) {
-                subti1 = proto_tree_add_text(lsrec_tree, tvb, offset, 16,
-                                             "Link Descriptor %d "
+                ldrec_tree = proto_tree_add_subtree_format(lsrec_tree, tvb, offset, 16,
+                                             ett_fcswils_ldrec, NULL, "Link Descriptor %d "
                                              "(Neighbor domain %d)", i,
                                              tvb_get_guint8(tvb, offset+3));
-                ldrec_tree = proto_item_add_subtree(subti1, ett_fcswils_ldrec);
                 dissect_swils_fspf_ldrec(tvb, ldrec_tree, offset);
                 offset += 16;
             }
@@ -1108,7 +1096,6 @@ dissect_swils_lsack(tvbuff_t *tvb, proto_tree *lsa_tree, guint8 isreq _U_)
     /* Set up structures needed to add the protocol subtree and manage it */
     int         offset = 0;
     int         num_lsrechdr, i;
-    proto_item *subti;
     proto_tree *lsrechdr_tree;
 
     if (lsa_tree) {
@@ -1125,11 +1112,9 @@ dissect_swils_lsack(tvbuff_t *tvb, proto_tree *lsa_tree, guint8 isreq _U_)
         offset = 28;
 
         for (i = 0; i < num_lsrechdr; i++) {
-            subti = proto_tree_add_text(lsa_tree, tvb, offset, 24,
-                                        "Link State Record Header (Domain %d)",
+            lsrechdr_tree = proto_tree_add_subtree_format(lsa_tree, tvb, offset, 24,
+                                        ett_fcswils_lsrechdr, NULL, "Link State Record Header (Domain %d)",
                                         tvb_get_guint8(tvb, offset+15));
-            lsrechdr_tree = proto_item_add_subtree(subti,
-                                                   ett_fcswils_lsrechdr);
             dissect_swils_fspf_lsrechdr(tvb, lsrechdr_tree, offset);
             offset += 24;
         }
@@ -1143,7 +1128,6 @@ dissect_swils_rscn(tvbuff_t *tvb, proto_tree *rscn_tree, guint8 isreq)
     int         offset = 0;
     proto_tree *dev_tree;
     int         numrec, i;
-    proto_item *subti;
 
     if (rscn_tree) {
         if (!isreq)
@@ -1169,9 +1153,8 @@ dissect_swils_rscn(tvbuff_t *tvb, proto_tree *rscn_tree, guint8 isreq)
 
         offset = 16;
         for (i = 0; i < numrec; i++) {
-            subti = proto_tree_add_text(rscn_tree, tvb, offset, 20,
-                                        "Device Entry %d", i);
-            dev_tree = proto_item_add_subtree(subti, ett_fcswils_rscn_dev);
+            dev_tree = proto_tree_add_subtree_format(rscn_tree, tvb, offset, 20,
+                                        ett_fcswils_rscn_dev, NULL, "Device Entry %d", i);
 
             proto_tree_add_item(dev_tree, hf_swils_rscn_portstate, tvb, offset, 1, ENC_BIG_ENDIAN);
             proto_tree_add_string(dev_tree, hf_swils_rscn_portid, tvb, offset+1, 3,
@@ -1271,7 +1254,6 @@ dissect_swils_zone_obj(tvbuff_t *tvb, proto_tree *zobj_tree, int offset)
     proto_tree *zmbr_tree;
     int         mbrlen, numrec, i, objtype;
     char       *str;
-    proto_item *subti;
 
     objtype = tvb_get_guint8(tvb, offset);
 
@@ -1296,10 +1278,8 @@ dissect_swils_zone_obj(tvbuff_t *tvb, proto_tree *zobj_tree, int offset)
         }
         else {
             mbrlen = 4 + tvb_get_guint8(tvb, offset+3);
-            subti = proto_tree_add_text(zobj_tree, tvb, offset, mbrlen,
-                                        "Zone Member %d", i);
-            zmbr_tree = proto_item_add_subtree(subti,
-                                               ett_fcswils_zonembr);
+            zmbr_tree = proto_tree_add_subtree_format(zobj_tree, tvb, offset, mbrlen,
+                                        ett_fcswils_zonembr, NULL, "Zone Member %d", i);
             dissect_swils_zone_mbr(tvb, zmbr_tree, offset);
             offset += mbrlen;
         }
@@ -1314,7 +1294,6 @@ dissect_swils_mergereq(tvbuff_t *tvb, proto_tree *mr_tree, guint8 isreq)
     proto_tree *zobjlist_tree, *zobj_tree;
     int         numrec, i, zonesetlen, objlistlen, objlen;
     char       *str;
-    proto_item *subti;
 
     if (mr_tree) {
         if (isreq) {
@@ -1335,10 +1314,8 @@ dissect_swils_mergereq(tvbuff_t *tvb, proto_tree *mr_tree, guint8 isreq)
                 offset = offset + (4 + ZONENAME_LEN(tvb, offset+4));
                 numrec = tvb_get_ntohl(tvb, offset);
 
-                subti = proto_tree_add_text(mr_tree, tvb, offset, objlistlen,
-                                            "Active Zone Set");
-                zobjlist_tree = proto_item_add_subtree(subti,
-                                                       ett_fcswils_zoneobjlist);
+                zobjlist_tree = proto_tree_add_subtree(mr_tree, tvb, offset, objlistlen,
+                                            ett_fcswils_zoneobjlist, NULL, "Active Zone Set");
 
                 proto_tree_add_text(zobjlist_tree, tvb, offset, 4,
                                     "Number of zoning objects: %d", numrec);
@@ -1346,9 +1323,8 @@ dissect_swils_mergereq(tvbuff_t *tvb, proto_tree *mr_tree, guint8 isreq)
                 offset += 4;
                 for (i = 0; i < numrec; i++) {
                     objlen = get_zoneobj_len(tvb, offset);
-                    subti = proto_tree_add_text(zobjlist_tree, tvb, offset+4,
-                                                objlen, "Zone Object %d", i);
-                    zobj_tree = proto_item_add_subtree(subti, ett_fcswils_zoneobj);
+                    zobj_tree = proto_tree_add_subtree_format(zobjlist_tree, tvb, offset+4, objlen,
+                                                ett_fcswils_zoneobj, NULL, "Zone Object %d", i);
                     dissect_swils_zone_obj(tvb, zobj_tree, offset);
                     offset += objlen;
                 }
@@ -1367,19 +1343,16 @@ dissect_swils_mergereq(tvbuff_t *tvb, proto_tree *mr_tree, guint8 isreq)
                 offset += 4;
                 numrec = tvb_get_ntohl(tvb, offset);
 
-                subti = proto_tree_add_text(mr_tree, tvb, offset, objlistlen,
-                                            "Full Zone Set");
+                zobjlist_tree = proto_tree_add_subtree(mr_tree, tvb, offset, objlistlen,
+                                            ett_fcswils_zoneobjlist, NULL, "Full Zone Set");
 
-                zobjlist_tree = proto_item_add_subtree(subti,
-                                                       ett_fcswils_zoneobjlist);
                 proto_tree_add_text(zobjlist_tree, tvb, offset, 4,
                                     "Number of zoning objects: %d", numrec);
                 offset += 4;
                 for (i = 0; i < numrec; i++) {
                     objlen = get_zoneobj_len(tvb, offset);
-                    subti = proto_tree_add_text(zobjlist_tree, tvb, offset,
-                                                objlen, "Zone Object %d", i);
-                    zobj_tree = proto_item_add_subtree(subti, ett_fcswils_zoneobj);
+                    zobj_tree = proto_tree_add_subtree_format(zobjlist_tree, tvb, offset,
+                                                objlen, ett_fcswils_zoneobj, NULL, "Zone Object %d", i);
                     dissect_swils_zone_obj(tvb, zobj_tree, offset);
                     offset += objlen;
                 }
@@ -1460,7 +1433,6 @@ dissect_swils_sfc(tvbuff_t *tvb, proto_tree *sfc_tree, guint8 isreq)
     proto_tree *zobjlist_tree, *zobj_tree;
     int         numrec, i, zonesetlen, objlistlen, objlen;
     char       *str;
-    proto_item *subti;
 
     if (sfc_tree) {
         if (isreq) {
@@ -1482,10 +1454,8 @@ dissect_swils_sfc(tvbuff_t *tvb, proto_tree *sfc_tree, guint8 isreq)
                 offset = offset + (4 + ZONENAME_LEN(tvb, offset+4));
                 numrec = tvb_get_ntohl(tvb, offset);
 
-                subti = proto_tree_add_text(sfc_tree, tvb, offset, objlistlen,
-                                            "Zone Set");
-                zobjlist_tree = proto_item_add_subtree(subti,
-                                                       ett_fcswils_zoneobjlist);
+                zobjlist_tree = proto_tree_add_subtree(sfc_tree, tvb, offset, objlistlen,
+                                            ett_fcswils_zoneobjlist, NULL, "Zone Set");
 
                 proto_tree_add_text(zobjlist_tree, tvb, offset, 4,
                                     "Number of zoning objects: %d", numrec);
@@ -1493,9 +1463,8 @@ dissect_swils_sfc(tvbuff_t *tvb, proto_tree *sfc_tree, guint8 isreq)
                 offset += 4;
                 for (i = 0; i < numrec; i++) {
                     objlen = get_zoneobj_len(tvb, offset);
-                    subti = proto_tree_add_text(zobjlist_tree, tvb, offset,
-                                                objlen, "Zone Object %d", i);
-                    zobj_tree = proto_item_add_subtree(subti, ett_fcswils_zoneobj);
+                    zobj_tree = proto_tree_add_subtree_format(zobjlist_tree, tvb, offset, objlen,
+                                                ett_fcswils_zoneobj, NULL, "Zone Object %d", i);
                     dissect_swils_zone_obj(tvb, zobj_tree, offset);
                     offset += objlen;
                 }
@@ -1514,19 +1483,16 @@ dissect_swils_sfc(tvbuff_t *tvb, proto_tree *sfc_tree, guint8 isreq)
                 offset += 4;
                 numrec = tvb_get_ntohl(tvb, offset);
 
-                subti = proto_tree_add_text(sfc_tree, tvb, offset, objlistlen,
-                                            "Full Zone Set");
+                zobjlist_tree = proto_tree_add_subtree(sfc_tree, tvb, offset, objlistlen,
+                                            ett_fcswils_zoneobjlist, NULL, "Full Zone Set");
 
-                zobjlist_tree = proto_item_add_subtree(subti,
-                                                       ett_fcswils_zoneobjlist);
                 proto_tree_add_text(zobjlist_tree, tvb, offset, 4,
                                     "Number of zoning objects: %d", numrec);
                 offset += 4;
                 for (i = 0; i < numrec; i++) {
                     objlen = get_zoneobj_len(tvb, offset);
-                    subti = proto_tree_add_text(zobjlist_tree, tvb, offset,
-                                                objlen, "Zone Object %d", i);
-                    zobj_tree = proto_item_add_subtree(subti, ett_fcswils_zoneobj);
+                    zobj_tree = proto_tree_add_subtree_format(zobjlist_tree, tvb, offset, objlen,
+                                                ett_fcswils_zoneobj, NULL, "Zone Object %d", i);
                     dissect_swils_zone_obj(tvb, zobj_tree, offset);
                     offset += objlen;
                 }
@@ -1570,7 +1536,6 @@ dissect_swils_esc(tvbuff_t *tvb, proto_tree *esc_tree, guint8 isreq)
     int         offset = 0;
     int         i, numrec, plen;
     proto_tree *pdesc_tree;
-    proto_item *subti;
 
     if (esc_tree) {
         if (isreq) {
@@ -1583,10 +1548,8 @@ dissect_swils_esc(tvbuff_t *tvb, proto_tree *esc_tree, guint8 isreq)
             offset = 12;
 
             for (i = 0; i < numrec; i++) {
-                subti = proto_tree_add_text(esc_tree, tvb, offset, 12,
-                                            "Protocol Descriptor %d", i);
-                pdesc_tree = proto_item_add_subtree(subti,
-                                                    ett_fcswils_esc_pdesc);
+                pdesc_tree = proto_tree_add_subtree_format(esc_tree, tvb, offset, 12,
+                                            ett_fcswils_esc_pdesc, NULL, "Protocol Descriptor %d", i);
                 proto_tree_add_item(pdesc_tree, hf_swils_esc_pdesc_vendorid, tvb,
                                     offset, 8, ENC_ASCII|ENC_NA);
                 proto_tree_add_item(pdesc_tree, hf_swils_esc_protocolid,
@@ -1597,9 +1560,8 @@ dissect_swils_esc(tvbuff_t *tvb, proto_tree *esc_tree, guint8 isreq)
         else {
             proto_tree_add_item(esc_tree, hf_swils_esc_swvendorid, tvb,
                                 offset+4, 8, ENC_ASCII|ENC_NA);
-            subti = proto_tree_add_text(esc_tree, tvb, offset+12, 12,
-                                        "Accepted Protocol Descriptor");
-            pdesc_tree = proto_item_add_subtree(subti, ett_fcswils_esc_pdesc);
+            pdesc_tree = proto_tree_add_subtree(esc_tree, tvb, offset+12, 12,
+                                        ett_fcswils_esc_pdesc, NULL, "Accepted Protocol Descriptor");
 
             proto_tree_add_item(pdesc_tree, hf_swils_esc_pdesc_vendorid, tvb,
                                 offset+12, 8, ENC_ASCII|ENC_NA);
@@ -1638,8 +1600,7 @@ dissect_swils_ess(tvbuff_t *tvb, proto_tree *ess_tree, guint8 isreq _U_)
     gint16      numcapobj   = 0;
     gint        len         = 0;
     gint        capobjlen   = 0;
-    proto_item *ti          = NULL;
-    proto_tree *ieinfo_tree = NULL;
+    proto_tree *ieinfo_tree;
 
     if (!ess_tree) {
         return;
@@ -1649,10 +1610,9 @@ dissect_swils_ess(tvbuff_t *tvb, proto_tree *ess_tree, guint8 isreq _U_)
     proto_tree_add_item(ess_tree, hf_swils_ess_len, tvb, offset+8, 4, ENC_BIG_ENDIAN);
     len = tvb_get_ntohl(tvb, offset+8);
 
-    ti = proto_tree_add_text(ess_tree, tvb, offset+12,
+    ieinfo_tree = proto_tree_add_subtree(ess_tree, tvb, offset+12,
                              MAX_INTERCONNECT_ELEMENT_INFO_LEN+4,
-                             "Interconnect Element Info");
-    ieinfo_tree = proto_item_add_subtree(ti, ett_fcswils_ieinfo);
+                             ett_fcswils_ieinfo, NULL, "Interconnect Element Info");
     dissect_swils_interconnect_element_info(tvb, ieinfo_tree, offset+12);
     len -= 256;                /* the interconnect obj above is 256 bytes */
     offset += 268;
@@ -1784,11 +1744,8 @@ dissect_fcswils(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     /* decoding of this is done by each individual opcode handler */
     opcode = tvb_get_guint8(tvb, 0);
 
-    if (tree) {
-        ti = proto_tree_add_protocol_format(tree, proto_fcswils, tvb, 0,
-                                            tvb_length(tvb), "SW_ILS");
-        swils_tree = proto_item_add_subtree(ti, ett_fcswils);
-    }
+    ti = proto_tree_add_protocol_format(tree, proto_fcswils, tvb, 0, -1, "SW_ILS");
+    swils_tree = proto_item_add_subtree(ti, ett_fcswils);
 
     /* Register conversation if this is not a response */
     if ((opcode != FC_SWILS_SWACC) && (opcode != FC_SWILS_SWRJT)) {

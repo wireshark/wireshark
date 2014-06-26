@@ -270,10 +270,8 @@ dissect_evrc_aux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, evrc_varia
         while (further_entries && (frame_count < sizeof(speech_data_len)) &&
             ((len - offset) > 0))
         {
-            item =
-                proto_tree_add_text(evrc_tree, tvb, offset, 1, "ToC [%u]", frame_count+1);
-
-            toc_tree = proto_item_add_subtree(item, ett_toc);
+            toc_tree =
+                proto_tree_add_subtree_format(evrc_tree, tvb, offset, 1, ett_toc, NULL, "ToC [%u]", frame_count+1);
 
             proto_tree_add_item(toc_tree, hf_evrc_legacy_toc_fe_ind, tvb, offset, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(toc_tree, hf_evrc_legacy_toc_reduc_rate, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -356,11 +354,9 @@ dissect_evrc_aux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, evrc_varia
         offset++;
         saved_offset = offset;
 
-        item =
-            proto_tree_add_text(evrc_tree, tvb, offset, -1, "ToC - %u frame%s",
+        toc_tree =
+            proto_tree_add_subtree_format(evrc_tree, tvb, offset, -1, ett_toc, &item, "ToC - %u frame%s",
                 frame_count, plurality(frame_count, "", "s"));
-
-        toc_tree = proto_item_add_subtree(item, ett_toc);
 
         i = 0;
         while ((i < frame_count) &&

@@ -172,15 +172,10 @@ dissect_fractalgeneratorprotocol(tvbuff_t *message_tvb, packet_info *pinfo, prot
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "FractalGeneratorProtocol");
 
-  /* In the interest of speed, if "tree" is NULL, don't do any work not
-     necessary to generate protocol tree items. */
-  if (tree) {
-    /* create the fractalgeneratorprotocol protocol tree */
-    fractalgeneratorprotocol_item = proto_tree_add_item(tree, proto_fractalgeneratorprotocol, message_tvb, 0, -1, ENC_NA);
-    fractalgeneratorprotocol_tree = proto_item_add_subtree(fractalgeneratorprotocol_item, ett_fractalgeneratorprotocol);
-  } else {
-    fractalgeneratorprotocol_tree = NULL;
-  };
+  /* create the fractalgeneratorprotocol protocol tree */
+  fractalgeneratorprotocol_item = proto_tree_add_item(tree, proto_fractalgeneratorprotocol, message_tvb, 0, -1, ENC_NA);
+  fractalgeneratorprotocol_tree = proto_item_add_subtree(fractalgeneratorprotocol_item, ett_fractalgeneratorprotocol);
+
   /* dissect the message */
   dissect_fractalgeneratorprotocol_message(message_tvb, pinfo, fractalgeneratorprotocol_tree);
   return(TRUE);

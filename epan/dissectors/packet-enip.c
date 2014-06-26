@@ -1767,7 +1767,7 @@ static void
 dissect_cpf(enip_request_key_t *request_key, int command, tvbuff_t *tvb,
             packet_info *pinfo, proto_tree *tree, proto_tree *dissector_tree, int offset, guint32 ifacehndl)
 {
-   proto_item            *temp_item, *count_item, *type_item, *sockaddr_item, *io_item;
+   proto_item            *temp_item, *count_item, *type_item, *io_item;
    proto_tree            *temp_tree, *count_tree, *item_tree, *sockaddr_tree, *io_tree;
    int                    item_count, item_length, item, io_length;
    unsigned char          name_length;
@@ -1978,8 +1978,7 @@ dissect_cpf(enip_request_key_t *request_key, int command, tvbuff_t *tvb,
                proto_tree_add_item( item_tree, hf_enip_encapver, tvb, offset+6, 2, ENC_LITTLE_ENDIAN );
 
                /* Socket Address */
-               sockaddr_item = proto_tree_add_text( item_tree, tvb, offset+8, 16, "Socket Address");
-               sockaddr_tree = proto_item_add_subtree( sockaddr_item, ett_sockadd );
+               sockaddr_tree = proto_tree_add_subtree( item_tree, tvb, offset+8, 16, ett_sockadd, NULL, "Socket Address");
 
                /* Socket address struct - sin_family */
                proto_tree_add_item(sockaddr_tree, hf_enip_sinfamily,
@@ -2191,7 +2190,7 @@ dissect_enip_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
    conversation_t     *conversation;
 
    /* Set up structures needed to add the protocol subtree and manage it */
-   proto_item *ti, *encaph, *csf;
+   proto_item *ti;
    proto_tree *enip_tree, *header_tree = NULL, *csftree;
 
    /* Make entries in Protocol column and Info column on summary display */
@@ -2249,8 +2248,7 @@ dissect_enip_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
       enip_tree = proto_item_add_subtree(ti, ett_enip);
 
       /* Add encapsulation header tree */
-      encaph     = proto_tree_add_text( enip_tree, tvb, 0, 24, "Encapsulation Header");
-      header_tree = proto_item_add_subtree(encaph, ett_enip);
+      header_tree = proto_tree_add_subtree( enip_tree, tvb, 0, 24, ett_enip, NULL, "Encapsulation Header");
 
       /* Add EtherNet/IP encapsulation header */
       proto_tree_add_item( header_tree, hf_enip_command, tvb, 0, 2, ENC_LITTLE_ENDIAN );
@@ -2295,10 +2293,8 @@ dissect_enip_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
    {
       /* The packet have some command specific data, buid a sub tree for it */
 
-      csf = proto_tree_add_text( enip_tree, tvb, 24, encap_data_length,
-                                "Command Specific Data");
-
-      csftree = proto_item_add_subtree(csf, ett_command_tree);
+      csftree = proto_tree_add_subtree( enip_tree, tvb, 24, encap_data_length,
+                                ett_command_tree, NULL, "Command Specific Data");
 
       switch ( encap_cmd )
       {
@@ -2419,7 +2415,7 @@ static gboolean
 dissect_dlr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
    proto_item *ti;
-   proto_tree *dlr_tree = NULL;
+   proto_tree *dlr_tree;
    guint8      dlr_subtype;
    guint8      dlr_protover;
    guint8      dlr_frametype;
@@ -2429,12 +2425,9 @@ dissect_dlr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
    col_clear(pinfo->cinfo, COL_INFO);
 
-   if ( tree )
-   {
-      /* Create display subtree for the protocol */
-      ti = proto_tree_add_item(tree, proto_dlr, tvb, 0, -1, ENC_NA );
-      dlr_tree = proto_item_add_subtree( ti, ett_dlr );
-   }
+   /* Create display subtree for the protocol */
+   ti = proto_tree_add_item(tree, proto_dlr, tvb, 0, -1, ENC_NA );
+   dlr_tree = proto_item_add_subtree( ti, ett_dlr );
 
    /* Get values for the Common Frame Header Format */
    dlr_subtype  = tvb_get_guint8(tvb, DLR_CFH_SUB_TYPE);

@@ -861,12 +861,11 @@ ehs_secondary_header_dissector ( int protocol, proto_tree* ehs_secondary_header_
 static void
 aoslos_data_zone_dissector ( proto_tree* ehs_tree, tvbuff_t* tvb, int* offset, packet_info* pinfo _U_)
 {
-  proto_item *ehs_data_zone;
   proto_tree *ehs_data_zone_tree;
 
   /* create the data zone tree */
-  ehs_data_zone = proto_tree_add_text ( ehs_tree, tvb, *offset, tvb_reported_length(tvb) - *offset, "AOS/LOS Data Zone" );
-  ehs_data_zone_tree = proto_item_add_subtree ( ehs_data_zone, ett_ehs_data_zone );
+  ehs_data_zone_tree = proto_tree_add_subtree( ehs_tree, tvb, *offset, tvb_reported_length(tvb) - *offset,
+                                               ett_ehs_data_zone, NULL, "AOS/LOS Data Zone" );
 
   /* since the aos/los EHS packet data zone is well known, format it for display as well
    *
@@ -894,14 +893,13 @@ aoslos_data_zone_dissector ( proto_tree* ehs_tree, tvbuff_t* tvb, int* offset, p
 static void
 udsm_data_zone_dissector ( proto_tree* ehs_tree, tvbuff_t* tvb, int* offset, packet_info* pinfo _U_)
 {
-  proto_item *ehs_data_zone;
   proto_tree *ehs_data_zone_tree;
 
   int year, jday, hour, minute, second;
 
   /* create the data zone tree */
-  ehs_data_zone = proto_tree_add_text ( ehs_tree, tvb, *offset, tvb_reported_length(tvb) - *offset, "UDSM Data Zone" );
-  ehs_data_zone_tree = proto_item_add_subtree ( ehs_data_zone, ett_ehs_data_zone );
+  ehs_data_zone_tree = proto_tree_add_subtree( ehs_tree, tvb, *offset, tvb_reported_length(tvb) - *offset,
+                                                ett_ehs_data_zone, NULL, "UDSM Data Zone" );
 
   proto_tree_add_item ( ehs_data_zone_tree, hf_ehs_dz_udsm_ccsds_vs_bpdu, tvb, *offset, 1, ENC_BIG_ENDIAN );
   /* proto_tree_add_item ( ehs_data_zone_tree, hf_ehs_dz_udsm_unused1, tvb, *offset, 1, ENC_BIG_ENDIAN ); */
@@ -1061,10 +1059,8 @@ dissect_ehs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_item *ehs_packet;
   proto_tree *ehs_tree;
 
-  proto_item *ehs_primary_header;
   proto_tree *ehs_primary_header_tree;
 
-  proto_item *ehs_secondary_header;
   proto_tree *ehs_secondary_header_tree;
 
   int         protocol;
@@ -1077,8 +1073,8 @@ dissect_ehs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   ehs_tree = proto_item_add_subtree ( ehs_packet, ett_ehs );
 
   /* build the ehs primary header tree */
-  ehs_primary_header = proto_tree_add_text ( ehs_tree, tvb, offset, EHS_PRIMARY_HEADER_SIZE, "Primary EHS Header" );
-  ehs_primary_header_tree = proto_item_add_subtree ( ehs_primary_header, ett_ehs_primary_header );
+  ehs_primary_header_tree = proto_tree_add_subtree( ehs_tree, tvb, offset, EHS_PRIMARY_HEADER_SIZE,
+                                                    ett_ehs_primary_header, NULL, "Primary EHS Header" );
 
   proto_tree_add_item ( ehs_primary_header_tree, hf_ehs_ph_version, tvb, offset, 1, ENC_BIG_ENDIAN );
   proto_tree_add_item ( ehs_primary_header_tree, hf_ehs_ph_project, tvb, offset, 1, ENC_BIG_ENDIAN );
@@ -1140,9 +1136,8 @@ dissect_ehs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   offset += 2;
 
   /* build the ehs secondary header tree */
-  ehs_secondary_header = proto_tree_add_text ( ehs_tree, tvb, offset,
-                                               ehs_secondary_header_size ( protocol, tvb, offset ), "Secondary EHS Header" );
-  ehs_secondary_header_tree = proto_item_add_subtree ( ehs_secondary_header, ett_ehs_secondary_header );
+  ehs_secondary_header_tree = proto_tree_add_subtree( ehs_tree, tvb, offset, ehs_secondary_header_size ( protocol, tvb, offset ),
+                                        ett_ehs_secondary_header, NULL, "Secondary EHS Header" );
 
   /* since each protocol can have a different ehs secondary header structure, we will offload
    * this processing to lower levels of code so we don't have to insert all of that complexity

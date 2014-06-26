@@ -120,7 +120,7 @@ dissect_esio(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 {
 
 /* Set up structures needed to add the protocol subtree and manage it */
-       proto_item *ti, *et;
+       proto_item *ti;
        proto_tree *esio_tree, *esio_header_tree, *esio_transfer_header_tree,
                   *esio_data_tansfer_tree, *esio_data_tree;
 
@@ -175,8 +175,7 @@ dissect_esio(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
        ti = proto_tree_add_item(tree, proto_esio, tvb, offset, -1, ENC_NA);
        esio_tree = proto_item_add_subtree(ti, ett_esio);
 /*Add subtree for Ether-S-I/O header*/
-       et = proto_tree_add_text(esio_tree, tvb, offset, 12, "Ether-S-I/O header");
-       esio_header_tree = proto_item_add_subtree(et, ett_esio_header);
+       esio_header_tree = proto_tree_add_subtree(esio_tree, tvb, offset, 12, ett_esio_header, NULL, "Ether-S-I/O header");
        offset += 4; /*first four bytes are "ESIO"*/
 /* add items to the Ether-S-I/O header subtree*/
        esio_tlg_type = tvb_get_ntohs(tvb,offset);
@@ -196,8 +195,8 @@ dissect_esio(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
        case ESIO_TRANSFER:
               if (tree) {
                      /*Add subtree for Ether-S-I/O header*/
-                     et = proto_tree_add_text(esio_tree, tvb, offset, 12, "Transfer header");
-                     esio_transfer_header_tree = proto_item_add_subtree(et, ett_esio_transfer_header);
+                     esio_transfer_header_tree = proto_tree_add_subtree(esio_tree, tvb, offset, 12,
+                                                        ett_esio_transfer_header, NULL, "Transfer header");
                      proto_tree_add_item(esio_transfer_header_tree,
                                          hf_esio_tlg_id, tvb, offset, 4, ENC_BIG_ENDIAN);
                      offset += 4;
@@ -215,10 +214,10 @@ dissect_esio(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                             /*Add subtree(s) for Ether-S-I/O data transfers*/
                             esio_transfer_dest_id = tvb_get_ntohl(tvb,(offset+4));
                             esio_transfer_length = tvb_get_ntohs(tvb,(offset+8));
-                            et = proto_tree_add_text(esio_tree, tvb, offset,
-                                                     (esio_transfer_length + 10), "Data transfer to ID: %d ",
-                                                     esio_transfer_dest_id);
-                            esio_data_tansfer_tree = proto_item_add_subtree(et, ett_esio_transfer_data);
+                            esio_data_tansfer_tree = proto_tree_add_subtree_format(esio_tree, tvb, offset,
+                                                     (esio_transfer_length + 10), ett_esio_transfer_data, NULL,
+                                                     "Data transfer to ID: %d ", esio_transfer_dest_id);
+
                             proto_tree_add_item(esio_data_tansfer_tree,
                                                 hf_esio_data_transfer_id, tvb, offset, 4, ENC_BIG_ENDIAN);
                             offset += 4;
@@ -229,9 +228,8 @@ dissect_esio(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                                                 hf_esio_data_length, tvb, offset, 2, ENC_BIG_ENDIAN);
                             offset += 2;
                             /*here comes the data*/
-                            et = proto_tree_add_text(esio_data_tansfer_tree, tvb, offset,
-                                                     esio_transfer_length, "Data bytes ");
-                            esio_data_tree = proto_item_add_subtree(et, ett_esio_data);
+                            esio_data_tree = proto_tree_add_subtree(esio_data_tansfer_tree, tvb, offset,
+                                                     esio_transfer_length, ett_esio_data, NULL, "Data bytes ");
                             for (i=((esio_transfer_length)); i>0; i--) {
                                    proto_tree_add_item(esio_data_tree,
                                                        hf_esio_data, tvb, offset,

@@ -350,7 +350,6 @@ static void
 dissect_fc_ba_acc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     /* Set up structures needed to add the protocol subtree and manage it */
-    proto_item *ti;
     proto_tree *acc_tree;
     int offset = 0;
 
@@ -360,8 +359,7 @@ dissect_fc_ba_acc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_set_str(pinfo->cinfo, COL_INFO, "BA_ACC");
 
     if (tree) {
-        ti = proto_tree_add_text (tree, tvb, 0, tvb_length (tvb), "Basic Link Svc");
-        acc_tree = proto_item_add_subtree (ti, ett_fcbls);
+        acc_tree = proto_tree_add_subtree(tree, tvb, 0, -1, ett_fcbls, NULL, "Basic Link Svc");
 
         proto_tree_add_item (acc_tree, hf_fc_bls_seqid_vld, tvb, offset++, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item (acc_tree, hf_fc_bls_lastvld_seqid, tvb, offset++, 1, ENC_BIG_ENDIAN);
@@ -380,7 +378,6 @@ static void
 dissect_fc_ba_rjt (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     /* Set up structures needed to add the protocol subtree and manage it */
-    proto_item *ti;
     proto_tree *rjt_tree;
     int offset = 0;
 
@@ -390,8 +387,7 @@ dissect_fc_ba_rjt (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_set_str(pinfo->cinfo, COL_INFO, "BA_RJT");
 
     if (tree) {
-        ti = proto_tree_add_text (tree, tvb, 0, tvb_length (tvb), "Basic Link Svc");
-        rjt_tree = proto_item_add_subtree (ti, ett_fcbls);
+        rjt_tree = proto_tree_add_subtree(tree, tvb, 0, -1, ett_fcbls, NULL, "Basic Link Svc");
 
         proto_tree_add_item (rjt_tree, hf_fc_bls_rjtcode, tvb, offset+1, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item (rjt_tree, hf_fc_bls_rjtdetail, tvb, offset+2, 1, ENC_BIG_ENDIAN);
@@ -565,18 +561,16 @@ dissect_fc_vft(proto_tree *parent_tree,
 static void
 dissect_fc_fctl(packet_info *pinfo _U_, proto_tree *parent_tree, tvbuff_t *tvb, int offset)
 {
-    proto_item *item=NULL;
-    proto_tree *tree=NULL;
+    proto_item *item;
+    proto_tree *tree;
     guint32 flags;
 
     flags = tvb_get_guint8 (tvb, offset);
     flags = (flags<<8) | tvb_get_guint8 (tvb, offset+1);
     flags = (flags<<8) | tvb_get_guint8 (tvb, offset+2);
 
-    if(parent_tree){
-        item=proto_tree_add_uint(parent_tree, hf_fc_fctl, tvb, offset, 3, flags);
-        tree=proto_item_add_subtree(item, ett_fctl);
-    }
+    item=proto_tree_add_uint(parent_tree, hf_fc_fctl, tvb, offset, 3, flags);
+    tree=proto_item_add_subtree(item, ett_fctl);
 
     proto_tree_add_boolean(tree, hf_fc_fctl_exchange_responder, tvb, offset, 3, flags);
     if (flags&FC_FCTL_EXCHANGE_RESPONDER){

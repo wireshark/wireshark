@@ -561,9 +561,8 @@ static int dissect_edonkey_list(tvbuff_t *tvb, packet_info *pinfo _U_,
         int item_start_offset;
 
         item_start_offset = offset;
-        ti = proto_tree_add_text( tree, tvb, item_start_offset, 1, "%s[%u/%u]", listdesc, i+1, listnum);
-
-        subtree = proto_item_add_subtree(ti, ett_edonkey_listitem );
+        subtree = proto_tree_add_subtree_format( tree, tvb, item_start_offset, 1, ett_edonkey_listitem, &ti,
+                                    "%s[%u/%u]", listdesc, i+1, listnum);
 
         /* dissect one list element */
         offset = (*item_dissector)(tvb, pinfo, offset, subtree);
@@ -2337,8 +2336,7 @@ static int dissect_kademlia_tag(tvbuff_t *tvb, packet_info *pinfo _U_,
 
     item_start_offset = offset;
     /* tag_node length is adjusted at the end of this function */
-    tag_node = proto_tree_add_text( tree, tvb, offset, 1, "Tag " );
-    subtree = proto_item_add_subtree( tag_node, ett_kademlia_tag );
+    subtree = proto_tree_add_subtree( tree, tvb, offset, 1, ett_kademlia_tag, &tag_node, "Tag " );
 
     type = tvb_get_guint8( tvb, offset );
     str_type = val_to_str_const(type, kademlia_tag_types, "Unknown" );
@@ -2936,7 +2934,7 @@ static guint get_edonkey_tcp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int 
 static int dissect_edonkey_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_item *ti;
-    proto_tree *edonkey_tree = NULL, *edonkey_msg_tree = NULL, *emule_zlib_tree = NULL;
+    proto_tree *edonkey_tree, *edonkey_msg_tree = NULL, *emule_zlib_tree = NULL;
     int offset;
     guint8 protocol, msg_type;
     guint32 msg_len;
@@ -2946,10 +2944,8 @@ static int dissect_edonkey_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "eDonkey");
 
-    if (tree) {
-        ti = proto_tree_add_item(tree, proto_edonkey, tvb, 0, -1, ENC_NA);
-        edonkey_tree = proto_item_add_subtree(ti, ett_edonkey);
-    }
+    ti = proto_tree_add_item(tree, proto_edonkey, tvb, 0, -1, ENC_NA);
+    edonkey_tree = proto_item_add_subtree(ti, ett_edonkey);
 
     offset = 0;
     protocol = tvb_get_guint8(tvb, offset);

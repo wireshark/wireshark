@@ -139,8 +139,7 @@ dissect_ecp_unknown_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 	guint16 tempLen;
 	guint16 tempShort;
 
-	proto_tree *ecp_unknown_tlv_tree = NULL;
-	proto_item *ti = NULL;
+	proto_tree *ecp_unknown_tlv_tree;
 
 	/* Get tlv type and length */
 	tempShort = tvb_get_ntohs(tvb, offset);
@@ -148,11 +147,7 @@ dissect_ecp_unknown_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 	/* Get tlv length */
 	tempLen = TLV_INFO_LEN(tempShort);
 
-	if (tree)
-	{
-		ti = proto_tree_add_text(tree, tvb, offset, (tempLen + 2), "Unknown TLV");
-		ecp_unknown_tlv_tree = proto_item_add_subtree(ti, ett_ecp);
-	}
+	ecp_unknown_tlv_tree = proto_tree_add_subtree(tree, tvb, offset, (tempLen + 2), ett_ecp, NULL, "Unknown TLV");
 
 	proto_tree_add_item(ecp_unknown_tlv_tree, hf_ecp_subtype, tvb, offset, 2, ENC_BIG_ENDIAN);
 
@@ -168,17 +163,12 @@ dissect_vdp_fi_macvid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, g
 	guint32 tempOffset = offset;
 	const guint8 *mac_addr = NULL;
 
-	proto_tree *ecp_vdp_tlv_fi_subtree = NULL;
-	proto_item *ti = NULL;
+	proto_tree *ecp_vdp_tlv_fi_subtree;
 
 	entries = tvb_get_ntohs(tvb, offset);
 
-	if (tree)
-	{
-		ti = proto_tree_add_text(tree, tvb, tempOffset, 2, "%i MAC/VID pair%s",
-		    entries, plurality((entries > 1), "s", ""));
-		ecp_vdp_tlv_fi_subtree = proto_item_add_subtree(ti, ett_ecp);
-	}
+	ecp_vdp_tlv_fi_subtree = proto_tree_add_subtree_format(tree, tvb, tempOffset, 2, ett_ecp, NULL,
+			"%i MAC/VID pair%s", entries, plurality((entries > 1), "s", ""));
 
 	tempOffset += 2;
 
@@ -212,8 +202,7 @@ dissect_vdp_org_specific_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 	guint8 subType, format;
 	const char *subTypeStr;
 
-	proto_tree	*ecp_vdp_tlv_subtree = NULL;
-	proto_item	*ti = NULL;
+	proto_tree	*ecp_vdp_tlv_subtree;
 
 	tempLen = 0;
 	tempShort = tvb_get_ntohs(tvb, offset);
@@ -232,6 +221,7 @@ dissect_vdp_org_specific_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 	tempOffset += 3;
 
 	subType = tvb_get_guint8(tvb, tempOffset);
+	tempOffset++;
 
 	switch(oui) {
 	case OUI_IEEE_802_1QBG:
@@ -242,13 +232,8 @@ dissect_vdp_org_specific_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 		break;
 	}
 
-	if (tree) {
-		ti = proto_tree_add_text(tree, tvb, offset, (len + 2), "%s - %s",
-		    ouiStr, subTypeStr);
-		ecp_vdp_tlv_subtree = proto_item_add_subtree(ti, ett_ecp);
-	}
-
-	tempOffset++;
+	ecp_vdp_tlv_subtree = proto_tree_add_subtree_format(tree, tvb, offset, (len + 2), ett_ecp, NULL,
+			"%s - %s", ouiStr, subTypeStr);
 
 	proto_tree_add_item(ecp_vdp_tlv_subtree, hf_ecp_vdp_mode, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
 	tempOffset++;
@@ -301,8 +286,7 @@ dissect_vdp_end_of_vdpdu_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 	guint16 tempLen;
 	guint16 tempShort;
 
-	proto_tree	*end_of_vdpdu_tree = NULL;
-	proto_item	*tf = NULL;
+	proto_tree	*end_of_vdpdu_tree;
 
 	/* Get tlv type and length */
 	tempShort = tvb_get_ntohs(tvb, offset);
@@ -313,8 +297,8 @@ dissect_vdp_end_of_vdpdu_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 	if (tree)
 	{
 		/* Set port tree */
-		tf = proto_tree_add_text(tree, tvb, offset, (tempLen + 2), "End of VDPDU");
-		end_of_vdpdu_tree = proto_item_add_subtree(tf, ett_end_of_vdpdu);
+		end_of_vdpdu_tree = proto_tree_add_subtree(tree, tvb, offset, (tempLen + 2),
+										ett_end_of_vdpdu, NULL, "End of VDPDU");
 
 		proto_tree_add_item(end_of_vdpdu_tree, hf_ecp_tlv_type, tvb, offset, 2, ENC_BIG_ENDIAN);
 		proto_tree_add_item(end_of_vdpdu_tree, hf_ecp_tlv_len, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -326,8 +310,8 @@ dissect_vdp_end_of_vdpdu_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 static void
 dissect_ecp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	proto_tree *ecp_tree = NULL;
-	proto_item *ti = NULL;
+	proto_tree *ecp_tree;
+	proto_item *ti;
 	gint32 tempLen = 0;
 	guint32 offset = 0;
 	guint16 tempShort;
@@ -336,10 +320,8 @@ dissect_ecp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "ECP");
 
-	if (tree) {
-	    ti = proto_tree_add_item(tree, proto_ecp, tvb, 0, -1, ENC_NA);
-		ecp_tree = proto_item_add_subtree(ti, ett_ecp);
-	}
+	ti = proto_tree_add_item(tree, proto_ecp, tvb, 0, -1, ENC_NA);
+	ecp_tree = proto_item_add_subtree(ti, ett_ecp);
 
 	proto_tree_add_item(ecp_tree, hf_ecp_subtype, tvb, offset, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_item(ecp_tree, hf_ecp_mode, tvb, offset+1, 1, ENC_BIG_ENDIAN);

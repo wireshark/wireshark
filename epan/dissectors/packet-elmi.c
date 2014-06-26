@@ -93,10 +93,9 @@ dissect_elmi_info_elem(
     if (tag==0)
         return -1;
 
-    tree_pi = proto_tree_add_text(
-            tree, tvb, offset, -1, "Information element: %s",
-            val_to_str_const(tag, elmi_info_elem_tag, "unknown"));
-    info_elem_tree = proto_item_add_subtree(tree_pi, ett_elmi_info_elem);
+    info_elem_tree = proto_tree_add_subtree_format(
+            tree, tvb, offset, -1, ett_elmi_info_elem, &tree_pi,
+            "Information element: %s", val_to_str_const(tag, elmi_info_elem_tag, "unknown"));
 
     proto_tree_add_item(info_elem_tree, hf_elmi_info_elem,
             tvb, offset, 1, ENC_BIG_ENDIAN);

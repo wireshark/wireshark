@@ -210,14 +210,12 @@ static gint dissect_etf_dist_header(packet_info *pinfo _U_, tvbuff_t *tvb, gint 
   offset += flen;
 
   acrs_offset = offset;
-  ti_acrs = proto_tree_add_text(tree, tvb, offset, 0, "AtomCacheRefs");
-  acrs_tree = proto_item_add_subtree(ti_acrs, ett_etf_acrs);
+  acrs_tree = proto_tree_add_subtree(tree, tvb, offset, 0, ett_etf_acrs, &ti_acrs, "AtomCacheRefs");
   for (i=0; i<num; i++) {
     flg = tvb_get_guint8(tvb, flg_offset + i / 2);
     new_entry = flg & (0x08 << 4*(i%2));
     acr_offset = offset;
-    ti_acr = proto_tree_add_text(acrs_tree, tvb, offset, 0, "AtomCacheRef[%2d]:", i);
-    acr_tree = proto_item_add_subtree(ti_acr, ett_etf_acr);
+    acr_tree = proto_tree_add_subtree_format(acrs_tree, tvb, offset, 0, ett_etf_acr, &ti_acr, "AtomCacheRef[%2d]:", i);
     isi = tvb_get_guint8(tvb, offset);
     proto_tree_add_uint(acr_tree, hf_erldp_internal_segment_index, tvb, offset, 1, isi);
     proto_item_append_text(ti_acr, " %3d", isi);
@@ -358,8 +356,7 @@ static gint dissect_etf_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     return 0;
   }
 
-  ti = proto_tree_add_text(tree, tvb, offset, -1, "%s", (label) ? label : "External Term Format");
-  etf_tree = proto_item_add_subtree(ti, ett_etf);
+  etf_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_etf, &ti, (label) ? label : "External Term Format");
 
   proto_tree_add_text(etf_tree, tvb, offset, 1, "VERSION_MAGIC: %d", mag);
   offset++;
@@ -385,8 +382,7 @@ static gint dissect_etf_type(const gchar *label, packet_info *pinfo, tvbuff_t *t
   proto_tree *etf_tree;
   gchar *value_str = NULL;
 
-  ti = proto_tree_add_text(tree, tvb, offset, -1, "%s", (label) ? label : "External Term Format");
-  etf_tree = proto_item_add_subtree(ti, ett_etf);
+  etf_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_etf, &ti, (label) ? label : "External Term Format");
 
   tag = tvb_get_guint8(tvb, offset);
   proto_tree_add_item(etf_tree, hf_etf_tag, tvb, offset, 1, ENC_BIG_ENDIAN);

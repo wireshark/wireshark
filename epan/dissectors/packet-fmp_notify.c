@@ -180,7 +180,6 @@ dissect_handleList(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	int         numHandles;
 	int         listLength;
 	int         i;
-	proto_item *handleListItem;
 	proto_tree *handleListTree;
 
 	numHandles = tvb_get_ntohl(tvb, offset);
@@ -190,10 +189,8 @@ dissect_handleList(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 		listLength += (4 + tvb_get_ntohl(tvb, offset + listLength));
 	}
 
-	handleListItem =  proto_tree_add_text(tree, tvb, offset, listLength,
-	                                      "Handle List");
-	handleListTree = proto_item_add_subtree(handleListItem,
-	                                        ett_fmp_notify_hlist);
+	handleListTree =  proto_tree_add_subtree(tree, tvb, offset, listLength,
+	                                      ett_fmp_notify_hlist, NULL, "Handle List");
 
 	offset = dissect_rpc_uint32(tvb,  handleListTree,
 	                            hf_fmp_handleListLen, offset);
@@ -468,14 +465,10 @@ static int
 dissect_fmp_notify_extent(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
                    proto_tree *tree, guint32 ext_num)
 {
-	proto_item *extItem;
 	proto_tree *extTree;
 
-	extItem = proto_tree_add_text(tree, tvb, offset, 20 ,
-	                              "Extent (%u)", (guint32) ext_num);
-
-
-	extTree = proto_item_add_subtree(extItem, ett_fmp_ext);
+	extTree = proto_tree_add_subtree_format(tree, tvb, offset, 20 ,
+	                              ett_fmp_ext, NULL, "Extent (%u)", (guint32) ext_num);
 
 	offset = dissect_rpc_uint32(tvb,  extTree, hf_fmp_firstLogBlk,
 	                            offset);
@@ -496,16 +489,14 @@ dissect_fmp_notify_extentList(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 {
 	guint32     numExtents;
 	guint32     totalLength;
-	proto_item *extListItem;
 	proto_tree *extListTree;
 	guint32     i;
 
 	numExtents = tvb_get_ntohl(tvb, offset);
 	totalLength = 4 + (20 * numExtents);
 
-	extListItem =  proto_tree_add_text(tree, tvb, offset, totalLength,
-	                                   "Extent List");
-	extListTree = proto_item_add_subtree(extListItem, ett_fmp_extList);
+	extListTree =  proto_tree_add_subtree(tree, tvb, offset, totalLength,
+	                                   ett_fmp_extList, NULL, "Extent List");
 
 	offset = dissect_rpc_uint32(tvb, extListTree,
 	                            hf_fmp_extentList_len, offset);

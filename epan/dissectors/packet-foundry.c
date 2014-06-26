@@ -111,7 +111,6 @@ static const value_string fdp_type_vals[] = {
 static int
 dissect_tlv_header(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, int length _U_, proto_tree *tree)
 {
-	proto_item	*tlv_item;
 	proto_tree	*tlv_tree;
 	guint16		tlv_type;
 	guint16		tlv_length;
@@ -119,12 +118,11 @@ dissect_tlv_header(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, int length
 	tlv_type = tvb_get_ntohs(tvb, offset);
 	tlv_length = tvb_get_ntohs(tvb, offset + 2);
 
-	tlv_item = proto_tree_add_text(tree, tvb, offset, 4,
-		"Length %d, type %d = %s",
+	tlv_tree = proto_tree_add_subtree_format(tree, tvb, offset, 4,
+		ett_fdp_tlv_header, NULL, "Length %d, type %d = %s",
 		tlv_length, tlv_type,
 		val_to_str(tlv_type, fdp_type_vals, "Unknown (%d)"));
 
-	tlv_tree = proto_item_add_subtree(tlv_item, ett_fdp_tlv_header);
 	proto_tree_add_uint(tlv_tree, hf_fdp_tlv_type, tvb, offset, 2, tlv_type);
 	offset += 2;
 

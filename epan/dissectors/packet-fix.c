@@ -376,8 +376,8 @@ dissect_fix_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
           proto_tree *field_tree;
 
           /* XXX - it could be -1 if the tag isn't a number */
-          ti = proto_tree_add_text(fix_tree, tvb, field_offset, tag->field_len, "%i: %s", tag_value, value);
-          field_tree = proto_item_add_subtree(ti, ett_unknow);
+          field_tree = proto_tree_add_subtree_format(fix_tree, tvb, field_offset, tag->field_len, ett_unknow, NULL,
+              "%i: %s", tag_value, value);
           proto_tree_add_uint(field_tree, hf_fix_field_tag, tvb, field_offset, tag->tag_len, tag_value);
           proto_tree_add_item(field_tree, hf_fix_field_value, tvb, tag->value_offset, tag->value_len, ENC_ASCII|ENC_NA);
         }

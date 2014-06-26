@@ -181,9 +181,8 @@ dissect_flip_chksum_hdr(tvbuff_t    *tvb,
     }
 
     if (tree) {
-        item = proto_tree_add_text(tree, tvb,
-                                   offset + 0, 4, "Checksum Header");
-        chksum_hdr_tree = proto_item_add_subtree(item, ett_flip_chksum);
+        chksum_hdr_tree = proto_tree_add_subtree(tree, tvb, offset + 0, 4,
+                            ett_flip_chksum, NULL, "Checksum Header");
 
         /* ETYPE: 8 bits */
         proto_tree_add_uint_format_value(chksum_hdr_tree, hf_flip_chksum_etype,
@@ -447,8 +446,7 @@ dissect_flip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
         flip_tree = proto_item_add_subtree(ti, ett_flip);
 
         /* basic header */
-        item = proto_tree_add_text(flip_tree, flip_tvb, 0, 8, "Basic Header");
-        basic_hdr_tree = proto_item_add_subtree(item, ett_flip_basic);
+        basic_hdr_tree = proto_tree_add_subtree(flip_tree, flip_tvb, 0, 8, ett_flip_basic, NULL, "Basic Header");
 
         /* Extension header follows? 1 bit. */
         proto_tree_add_uint_format_value(basic_hdr_tree,

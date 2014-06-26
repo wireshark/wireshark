@@ -366,17 +366,15 @@ fcdns_init_protocol(void)
 static void
 dissect_cos_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, const header_field_info *hfinfo)
 {
-    proto_item *item=NULL;
-    proto_tree *tree=NULL;
+    proto_item *item;
+    proto_tree *tree;
     guint32 flags;
 
     flags = tvb_get_ntohl (tvb, offset);
-    if(parent_tree){
-        item=proto_tree_add_uint(parent_tree, hfinfo,
-                                 tvb, offset, 1, flags);
-        tree=proto_item_add_subtree(item, ett_cos_flags);
-    }
 
+    item=proto_tree_add_uint(parent_tree, hfinfo,
+                                 tvb, offset, 1, flags);
+    tree=proto_item_add_subtree(item, ett_cos_flags);
 
     proto_tree_add_boolean(tree, &hfi_fcdns_cos_f, tvb, offset, 4, flags);
     if (flags&0x01){
@@ -423,17 +421,16 @@ dissect_cos_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, const hea
 static void
 dissect_fc4features_and_type (proto_tree *parent_tree, tvbuff_t *tvb, int offset)
 {
-    proto_item *item=NULL;
-    proto_tree *tree=NULL;
+    proto_item *item;
+    proto_tree *tree;
     guint8 flags, type;
 
     flags = tvb_get_guint8(tvb, offset);
     type = tvb_get_guint8(tvb, offset+1);
-    if(parent_tree){
-        item=proto_tree_add_uint(parent_tree, &hfi_fcdns_fc4features,
+
+    item=proto_tree_add_uint(parent_tree, &hfi_fcdns_fc4features,
                                  tvb, offset, 1, flags);
-        tree=proto_item_add_subtree(item, ett_fc4features);
-    }
+    tree=proto_item_add_subtree(item, ett_fc4features);
 
     if(type==FC_TYPE_SCSI){
         proto_tree_add_boolean(tree, &hfi_fcdns_fc4features_i, tvb, offset, 1, flags);
@@ -457,16 +454,14 @@ dissect_fc4features_and_type (proto_tree *parent_tree, tvbuff_t *tvb, int offset
 static void
 dissect_fc4features (proto_tree *parent_tree, tvbuff_t *tvb, int offset)
 {
-    proto_item *item=NULL;
-    proto_tree *tree=NULL;
+    proto_item *item;
+    proto_tree *tree;
     guint8 flags;
 
     flags = tvb_get_guint8(tvb, offset);
-    if(parent_tree){
-        item=proto_tree_add_uint(parent_tree, &hfi_fcdns_fc4features,
+    item=proto_tree_add_uint(parent_tree, &hfi_fcdns_fc4features,
                                  tvb, offset, 1, flags);
-        tree=proto_item_add_subtree(item, ett_fc4features);
-    }
+    tree=proto_item_add_subtree(item, ett_fc4features);
 
     proto_tree_add_boolean(tree, &hfi_fcdns_fc4features_i, tvb, offset, 1, flags);
     if (flags&0x02){
@@ -487,15 +482,13 @@ dissect_fc4features (proto_tree *parent_tree, tvbuff_t *tvb, int offset)
 static void
 dissect_fc4type (proto_tree *parent_tree, tvbuff_t *tvb, int offset, header_field_info *hfinfo)
 {
-    proto_item *item=NULL;
-    proto_tree *tree=NULL;
+    proto_item *item;
+    proto_tree *tree;
     guint32 flags;
 
-    if(parent_tree){
-        item=proto_tree_add_item(parent_tree, hfinfo, tvb, offset,
-                                 32, ENC_NA);
-        tree=proto_item_add_subtree(item, ett_fc4flags);
-    }
+    item=proto_tree_add_item(parent_tree, hfinfo, tvb, offset,
+                                32, ENC_NA);
+    tree=proto_item_add_subtree(item, ett_fc4flags);
 
     flags = tvb_get_ntohl (tvb, offset);
 

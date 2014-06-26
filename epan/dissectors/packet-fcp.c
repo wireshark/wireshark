@@ -180,15 +180,13 @@ static const true_false_string fcp_mgmt_flags_abort_task_set_tfs = {
 static void
 dissect_task_mgmt_flags(packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset)
 {
-    proto_item *item = NULL;
-    proto_tree *tree = NULL;
+    proto_item *item;
+    proto_tree *tree;
 
     guint8 flags;
 
-    if (parent_tree) {
-        item = proto_tree_add_item(parent_tree, hf_fcp_taskmgmt, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        tree = proto_item_add_subtree(item, ett_fcp_taskmgmt);
-    }
+    item = proto_tree_add_item(parent_tree, hf_fcp_taskmgmt, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    tree = proto_item_add_subtree(item, ett_fcp_taskmgmt);
 
     flags = tvb_get_guint8(tvb, offset);
 
@@ -285,15 +283,13 @@ static const true_false_string fcp_rsp_flags_res_vld_tfs = {
 static void
 dissect_rsp_flags(proto_tree *parent_tree, tvbuff_t *tvb, int offset)
 {
-    proto_item *item               = NULL;
-    proto_tree *tree               = NULL;
+    proto_item *item;
+    proto_tree *tree;
     gboolean    bidi_resid_present = FALSE;
     guint8      flags;
 
-    if (parent_tree) {
-        item = proto_tree_add_item(parent_tree, hf_fcp_rspflags, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        tree = proto_item_add_subtree(item, ett_fcp_rsp_flags);
-    }
+    item = proto_tree_add_item(parent_tree, hf_fcp_rspflags, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    tree = proto_item_add_subtree(item, ett_fcp_rsp_flags);
 
     flags = tvb_get_guint8(tvb, offset);
 

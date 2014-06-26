@@ -1872,7 +1872,6 @@ dissect_ff_msg_fda_open_sess_req(tvbuff_t *tvb, gint offset,
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FDA Open Session Request");
 
@@ -1880,9 +1879,8 @@ dissect_ff_msg_fda_open_sess_req(tvbuff_t *tvb, gint offset,
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, length,
-        "FDA Open Session Request");
-    sub_tree = proto_item_add_subtree(ti, ett_ff_fda_open_sess_req);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+        ett_ff_fda_open_sess_req, NULL, "FDA Open Session Request");
 
     proto_tree_add_item(sub_tree,
         hf_ff_fda_open_sess_req_sess_idx, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -1942,7 +1940,6 @@ dissect_ff_msg_fda_open_sess_rsp(tvbuff_t *tvb, gint offset,
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FDA Open Session Response");
 
@@ -1950,9 +1947,8 @@ dissect_ff_msg_fda_open_sess_rsp(tvbuff_t *tvb, gint offset,
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, length,
-        "FDA Open Session Response");
-    sub_tree = proto_item_add_subtree(ti, ett_ff_fda_open_sess_rsp);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+        ett_ff_fda_open_sess_rsp, NULL, "FDA Open Session Response");
 
     proto_tree_add_item(sub_tree,
         hf_ff_fda_open_sess_rsp_sess_idx, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -2012,7 +2008,6 @@ dissect_ff_msg_fda_open_sess_err(tvbuff_t *tvb, gint offset,
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
     guint8      ErrorClass;
     guint8      ErrorCode;
     const char *error_code;
@@ -2023,9 +2018,8 @@ dissect_ff_msg_fda_open_sess_err(tvbuff_t *tvb, gint offset,
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, length,
-        "FDA Open Session Error");
-    sub_tree = proto_item_add_subtree(ti, ett_ff_fda_open_sess_err);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+        ett_ff_fda_open_sess_err, NULL, "FDA Open Session Error");
 
     ErrorClass = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(sub_tree,
@@ -2070,7 +2064,6 @@ dissect_ff_msg_fda_idle_req(tvbuff_t *tvb, gint offset,
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FDA Idle Request");
 
@@ -2079,9 +2072,8 @@ dissect_ff_msg_fda_idle_req(tvbuff_t *tvb, gint offset,
     }
 
     if (length) {
-        ti = proto_tree_add_text(tree, tvb, offset, length,
-            "FDA Idle Request");
-        sub_tree = proto_item_add_subtree(ti, ett_ff_fda_idle_req);
+        sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+            ett_ff_fda_idle_req, NULL, "FDA Idle Request");
 
         proto_tree_add_text(sub_tree, tvb, offset, length,
             "[Unknown] (%u bytes)", length);
@@ -2100,7 +2092,6 @@ dissect_ff_msg_fda_idle_rsp(tvbuff_t *tvb, gint offset,
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FDA Idle Response");
 
@@ -2109,9 +2100,8 @@ dissect_ff_msg_fda_idle_rsp(tvbuff_t *tvb, gint offset,
     }
 
     if (length) {
-        ti = proto_tree_add_text(tree, tvb, offset, length,
-            "FDA Idle Response");
-        sub_tree = proto_item_add_subtree(ti, ett_ff_fda_idle_rsp);
+        sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+            ett_ff_fda_idle_rsp, NULL, "FDA Idle Response");
 
         proto_tree_add_text(sub_tree, tvb, offset, length,
             "[Unknown] (%u bytes)", length);
@@ -2130,7 +2120,6 @@ dissect_ff_msg_fda_idle_err(tvbuff_t *tvb, gint offset,
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
     guint8      ErrorClass;
     guint8      ErrorCode;
     const char *error_code;
@@ -2141,9 +2130,8 @@ dissect_ff_msg_fda_idle_err(tvbuff_t *tvb, gint offset,
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, length,
-        "FDA Idle Error");
-    sub_tree = proto_item_add_subtree(ti, ett_ff_fda_idle_err);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+        ett_ff_fda_idle_err, NULL, "FDA Idle Error");
 
     ErrorClass = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(sub_tree,
@@ -2188,7 +2176,6 @@ dissect_ff_msg_sm_find_tag_query_req(tvbuff_t *tvb, gint offset,
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
 
     col_set_str(pinfo->cinfo, COL_INFO, "SM Find Tag Query Request");
 
@@ -2196,9 +2183,8 @@ dissect_ff_msg_sm_find_tag_query_req(tvbuff_t *tvb, gint offset,
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, length,
-        "SM Find Tag Query Request");
-    sub_tree = proto_item_add_subtree(ti, ett_ff_sm_find_tag_query_req);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+        ett_ff_sm_find_tag_query_req, NULL, "SM Find Tag Query Request");
 
     proto_tree_add_item(sub_tree,
         hf_ff_sm_find_tag_query_req_query_type, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -2273,17 +2259,15 @@ dissect_ff_msg_sm_find_tag_reply_req_list_of_fda_addr_selectors(tvbuff_t *tvb,
     gint offset, proto_tree *tree, guint16 value)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
     guint       d;
 
     if (!tree) {
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, 2 * value,
+    sub_tree = proto_tree_add_subtree_format(tree, tvb, offset, 2 * value,
+        ett_ff_sm_find_tag_reply_req_list_of_fda_addr_selectors, NULL,
         "List of FDA Address Selectors (%u bytes)", 2 * value);
-    sub_tree = proto_item_add_subtree(ti,
-        ett_ff_sm_find_tag_reply_req_list_of_fda_addr_selectors);
 
     for (d = 0; d < value; d++) {
         proto_tree_add_item(sub_tree,
@@ -2303,7 +2287,6 @@ dissect_ff_msg_sm_find_tag_reply_req(tvbuff_t *tvb, gint offset,
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
     guint8      DuplicateDetectionState;
     guint16     NumOfFDAAddrSelectors;
 
@@ -2313,9 +2296,8 @@ dissect_ff_msg_sm_find_tag_reply_req(tvbuff_t *tvb, gint offset,
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, length,
-        "SM Find Tag Reply Request");
-    sub_tree = proto_item_add_subtree(ti, ett_ff_sm_find_tag_reply_req);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+        ett_ff_sm_find_tag_reply_req, NULL, "SM Find Tag Reply Request");
 
     proto_tree_add_item(sub_tree,
         hf_ff_sm_find_tag_reply_req_query_type, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -2406,7 +2388,6 @@ dissect_ff_msg_sm_id_req(tvbuff_t *tvb, gint offset,
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
 
     col_set_str(pinfo->cinfo, COL_INFO, "SM Identify Request");
 
@@ -2415,9 +2396,8 @@ dissect_ff_msg_sm_id_req(tvbuff_t *tvb, gint offset,
     }
 
     if (length) {
-        ti = proto_tree_add_text(tree, tvb, offset, length,
-            "SM Identify Request");
-        sub_tree = proto_item_add_subtree(ti, ett_ff_sm_id_req);
+        sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+            ett_ff_sm_id_req, NULL, "SM Identify Request");
 
         proto_tree_add_text(sub_tree, tvb, offset, length,
             "[Unknown] (%u bytes)", length);
@@ -2436,16 +2416,13 @@ dissect_ff_msg_sm_id_rsp_h1_node_addr(tvbuff_t *tvb,
     gint offset, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
 
     if (!tree) {
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, 2,
-        "H1 Node Address Version Number (%u bytes)", 2);
-    sub_tree = proto_item_add_subtree(ti,
-        ett_ff_sm_id_rsp_h1_node_addr);
+    sub_tree = proto_tree_add_subtree_format(tree, tvb, offset, 2,
+        ett_ff_sm_id_rsp_h1_node_addr, NULL, "H1 Node Address Version Number (%u bytes)", 2);
 
     proto_tree_add_item(sub_tree,
         hf_ff_sm_id_rsp_h1_node_addr_ver_num_h1_node_addr,
@@ -2466,17 +2443,14 @@ dissect_ff_msg_sm_id_rsp_entries_node_addr(tvbuff_t *tvb,
     gint offset, proto_tree *tree, guint32 value)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
     guint       d;
 
     if (!tree) {
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, 4 * value,
-        "Version Number List (%u bytes)", 4 * value);
-    sub_tree = proto_item_add_subtree(ti,
-        ett_ff_sm_id_rsp_entries_node_addr);
+    sub_tree = proto_tree_add_subtree_format(tree, tvb, offset, 4 * value,
+        ett_ff_sm_id_rsp_entries_node_addr, NULL, "Version Number List (%u bytes)", 4 * value);
 
     for (d = 0; d < value * 2; d++) {
         dissect_ff_msg_sm_id_rsp_h1_node_addr(tvb, offset, sub_tree);
@@ -2493,16 +2467,13 @@ dissect_ff_msg_sm_id_rsp_h1_live_list(tvbuff_t *tvb,
     gint offset, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
 
     if (!tree) {
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, 4,
-        "H1 Live-list Version Number (%u bytes)", 4);
-    sub_tree = proto_item_add_subtree(ti,
-        ett_ff_sm_id_rsp_h1_live_list);
+    sub_tree = proto_tree_add_subtree_format(tree, tvb, offset, 4,
+        ett_ff_sm_id_rsp_h1_live_list, NULL, "H1 Live-list Version Number (%u bytes)", 4);
 
     proto_tree_add_item(sub_tree,
         hf_ff_sm_id_rsp_h1_live_list_h1_link_id, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -2526,17 +2497,14 @@ dissect_ff_msg_sm_id_rsp_entries_link_id(tvbuff_t *tvb,
     gint offset, proto_tree *tree, guint32 value)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
     guint       d;
 
     if (!tree) {
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, 4 * value,
-        "Version Number List (%u bytes)", 4 * value);
-    sub_tree = proto_item_add_subtree(ti,
-        ett_ff_sm_id_rsp_entries_h1_live_list);
+    sub_tree = proto_tree_add_subtree_format(tree, tvb, offset, 4 * value,
+        ett_ff_sm_id_rsp_entries_h1_live_list, NULL, "Version Number List (%u bytes)", 4 * value);
 
     for (d = 0; d < value; d++) {
         dissect_ff_msg_sm_id_rsp_h1_live_list(tvb, offset, sub_tree);
@@ -2693,7 +2661,6 @@ dissect_ff_msg_sm_id_rsp(tvbuff_t *tvb, gint offset,
     guint32 length, packet_info *pinfo, proto_tree *tree, guint32 FDAAddress)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
 
     guint8  SMKState;
     guint8  DeviceType;
@@ -2707,9 +2674,7 @@ dissect_ff_msg_sm_id_rsp(tvbuff_t *tvb, gint offset,
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, length, "SM Identify Response");
-    sub_tree = proto_item_add_subtree(ti,
-        ett_ff_sm_id_rsp);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, length, ett_ff_sm_id_rsp, NULL, "SM Identify Response");
 
     SMKState = tvb_get_guint8(tvb, offset);
     dissect_ff_msg_sm_id_rsp_smk_state(tvb, offset, sub_tree, SMKState);
@@ -2823,7 +2788,6 @@ dissect_ff_msg_sm_id_err(tvbuff_t *tvb, gint offset,
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
     guint8      ErrorClass;
     guint8      ErrorCode;
     const char *error_code;
@@ -2834,8 +2798,7 @@ dissect_ff_msg_sm_id_err(tvbuff_t *tvb, gint offset,
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, length, "SM Identify Error");
-    sub_tree = proto_item_add_subtree(ti, ett_ff_sm_id_err);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, length, ett_ff_sm_id_err, NULL, "SM Identify Error");
 
     ErrorClass = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(sub_tree,
@@ -2880,7 +2843,6 @@ dissect_ff_msg_sm_clear_addr_req(tvbuff_t *tvb, gint offset,
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
 
     col_set_str(pinfo->cinfo, COL_INFO, "SM Clear Address Request");
 
@@ -2888,9 +2850,8 @@ dissect_ff_msg_sm_clear_addr_req(tvbuff_t *tvb, gint offset,
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, length,
-        "SM Clear Address Request");
-    sub_tree = proto_item_add_subtree(ti, ett_ff_sm_id_err);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+        ett_ff_sm_id_err, NULL, "SM Clear Address Request");
 
     proto_tree_add_item(sub_tree,
         hf_ff_sm_clear_addr_req_dev_id, tvb, offset, 32, ENC_ASCII|ENC_NA);
@@ -2929,7 +2890,6 @@ dissect_ff_msg_sm_clear_addr_rsp(tvbuff_t *tvb, gint offset,
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
 
     col_set_str(pinfo->cinfo, COL_INFO, "SM Clear Address Response");
 
@@ -2938,9 +2898,8 @@ dissect_ff_msg_sm_clear_addr_rsp(tvbuff_t *tvb, gint offset,
     }
 
     if (length) {
-        ti = proto_tree_add_text(tree, tvb, offset, length,
-            "SM Clear Address Response");
-        sub_tree = proto_item_add_subtree(ti, ett_ff_sm_clear_addr_rsp);
+        sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+            ett_ff_sm_clear_addr_rsp, NULL, "SM Clear Address Response");
 
         proto_tree_add_text(sub_tree, tvb, offset, length,
             "[Unknown] (%u bytes)", length);
@@ -2959,7 +2918,6 @@ dissect_ff_msg_sm_clear_addr_err(tvbuff_t *tvb, gint offset,
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
     guint8      ErrorClass;
     guint8      ErrorCode;
     const char *error_code;
@@ -2970,9 +2928,8 @@ dissect_ff_msg_sm_clear_addr_err(tvbuff_t *tvb, gint offset,
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, length,
-        "SM Clear Address Error");
-    sub_tree = proto_item_add_subtree(ti, ett_ff_sm_clear_addr_err);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+        ett_ff_sm_clear_addr_err, NULL, "SM Clear Address Error");
 
     ErrorClass = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(sub_tree,
@@ -3081,7 +3038,6 @@ dissect_ff_msg_sm_set_assign_info_req(tvbuff_t *tvb, gint offset,
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
     guint8      DeviceRedundancyState;
     guint8      ClearDuplicateDetectionState;
 
@@ -3091,10 +3047,8 @@ dissect_ff_msg_sm_set_assign_info_req(tvbuff_t *tvb, gint offset,
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, length,
-        "SM Set Assignment Info Request");
-    sub_tree = proto_item_add_subtree(ti,
-        ett_ff_sm_set_assign_info_req);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+        ett_ff_sm_set_assign_info_req, NULL, "SM Set Assignment Info Request");
 
     proto_tree_add_item(sub_tree,
         hf_ff_sm_set_assign_info_req_dev_id, tvb, offset, 32, ENC_ASCII|ENC_NA);
@@ -3171,7 +3125,6 @@ dissect_ff_msg_sm_set_assign_info_rsp(tvbuff_t *tvb, gint offset,
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
 
     col_set_str(pinfo->cinfo, COL_INFO, "SM Set Assignment Info Response");
 
@@ -3179,10 +3132,8 @@ dissect_ff_msg_sm_set_assign_info_rsp(tvbuff_t *tvb, gint offset,
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, length,
-        "SM Set Assignment Info Response");
-    sub_tree = proto_item_add_subtree(ti,
-        ett_ff_sm_set_assign_info_rsp);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+        ett_ff_sm_set_assign_info_rsp, NULL, "SM Set Assignment Info Response");
 
     proto_tree_add_item(sub_tree,
         hf_ff_sm_set_assign_info_rsp_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -3217,7 +3168,6 @@ dissect_ff_msg_sm_set_assign_info_err(tvbuff_t *tvb, gint offset,
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
     guint8      ErrorClass;
     guint8      ErrorCode;
     const char *error_code;
@@ -3228,9 +3178,8 @@ dissect_ff_msg_sm_set_assign_info_err(tvbuff_t *tvb, gint offset,
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, length,
-        "SM Set Assignment Info Error");
-    sub_tree = proto_item_add_subtree(ti, ett_ff_sm_set_assign_info_err);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+        ett_ff_sm_set_assign_info_err, NULL, "SM Set Assignment Info Error");
 
     ErrorClass = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(sub_tree,
@@ -3276,7 +3225,6 @@ dissect_ff_msg_sm_clear_assign_info_req(tvbuff_t *tvb, gint offset,
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
 
     col_set_str(pinfo->cinfo, COL_INFO, "SM Clear Assignment Info Request");
 
@@ -3284,10 +3232,8 @@ dissect_ff_msg_sm_clear_assign_info_req(tvbuff_t *tvb, gint offset,
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, length,
-        "SM Clear Assignment Info Request");
-    sub_tree = proto_item_add_subtree(ti,
-        ett_ff_sm_clear_assign_info_req);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+        ett_ff_sm_clear_assign_info_req, NULL, "SM Clear Assignment Info Request");
 
     proto_tree_add_item(sub_tree,
         hf_ff_sm_clear_assign_info_req_dev_id, tvb, offset, 32, ENC_ASCII|ENC_NA);
@@ -3317,7 +3263,6 @@ dissect_ff_msg_sm_clear_assign_info_rsp(tvbuff_t *tvb, gint offset,
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
 
     col_set_str(pinfo->cinfo, COL_INFO, "SM Clear Assignment Info Response");
 
@@ -3326,10 +3271,8 @@ dissect_ff_msg_sm_clear_assign_info_rsp(tvbuff_t *tvb, gint offset,
     }
 
     if (length) {
-        ti = proto_tree_add_text(tree, tvb, offset, length,
-            "SM Clear Assignment Info Response");
-        sub_tree = proto_item_add_subtree(ti,
-            ett_ff_sm_clear_assign_info_rsp);
+        sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+            ett_ff_sm_clear_assign_info_rsp, NULL, "SM Clear Assignment Info Response");
 
         proto_tree_add_text(sub_tree, tvb, offset, length,
             "[Unknown] (%u bytes)", length);
@@ -3348,7 +3291,6 @@ dissect_ff_msg_sm_clear_assign_info_err(tvbuff_t *tvb, gint offset,
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
     guint8      ErrorClass;
     guint8      ErrorCode;
     const char *error_code;
@@ -3359,10 +3301,8 @@ dissect_ff_msg_sm_clear_assign_info_err(tvbuff_t *tvb, gint offset,
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, length,
-        "SM Clear Assignment Info Error");
-    sub_tree = proto_item_add_subtree(ti,
-        ett_ff_sm_clear_assign_info_err);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+        ett_ff_sm_clear_assign_info_err, NULL, "SM Clear Assignment Info Error");
 
     ErrorClass = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(sub_tree,
@@ -3408,16 +3348,13 @@ dissect_ff_msg_sm_dev_annunc_req_h1_node_addr(tvbuff_t *tvb,
     gint offset, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
 
     if (!tree) {
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, 2,
-        "H1 Node Address Version Number (%u bytes)", 2);
-    sub_tree = proto_item_add_subtree(ti,
-        ett_ff_sm_dev_annunc_req_h1_node_addr);
+    sub_tree = proto_tree_add_subtree_format(tree, tvb, offset, 2,
+        ett_ff_sm_dev_annunc_req_h1_node_addr, NULL, "H1 Node Address Version Number (%u bytes)", 2);
 
     proto_tree_add_item(sub_tree,
         hf_ff_sm_dev_annunc_req_h1_node_addr_ver_num_h1_node_addr,
@@ -3439,17 +3376,14 @@ dissect_ff_msg_sm_dev_annunc_req_entries_node_addr(tvbuff_t *tvb,
     gint offset, proto_tree *tree, guint32 value)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
     guint       d;
 
     if (!tree) {
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, 4 * value,
-        "Version Number List (%u bytes)", 4 * value);
-    sub_tree = proto_item_add_subtree(ti,
-        ett_ff_sm_dev_annunc_req_entries_node_addr);
+    sub_tree = proto_tree_add_subtree_format(tree, tvb, offset, 4 * value,
+        ett_ff_sm_dev_annunc_req_entries_node_addr, NULL, "Version Number List (%u bytes)", 4 * value);
 
     for (d = 0; d < value * 2; d++) {
         dissect_ff_msg_sm_dev_annunc_req_h1_node_addr(tvb, offset, sub_tree);
@@ -3466,16 +3400,13 @@ dissect_ff_msg_sm_dev_annunc_req_h1_live_list(tvbuff_t *tvb,
     gint offset, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
 
     if (!tree) {
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, 4,
-        "H1 Live-list Version Number (%u bytes)", 4);
-    sub_tree = proto_item_add_subtree(ti,
-        ett_ff_sm_dev_annunc_req_h1_live_list);
+    sub_tree = proto_tree_add_subtree_format(tree, tvb, offset, 4,
+        ett_ff_sm_dev_annunc_req_h1_live_list, NULL, "H1 Live-list Version Number (%u bytes)", 4);
 
     proto_tree_add_item(sub_tree,
         hf_ff_sm_dev_annunc_req_h1_live_list_h1_link_id, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -3499,17 +3430,14 @@ dissect_ff_msg_sm_dev_annunc_req_entries_link_id(tvbuff_t *tvb,
     gint offset, proto_tree *tree, guint32 value)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
     guint       d;
 
     if (!tree) {
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, 4 * value,
-        "Version Number List (%u bytes)", 4 * value);
-    sub_tree = proto_item_add_subtree(ti,
-        ett_ff_sm_dev_annunc_req_entries_h1_live_list);
+    sub_tree = proto_tree_add_subtree_format(tree, tvb, offset, 4 * value,
+        ett_ff_sm_dev_annunc_req_entries_h1_live_list, NULL, "Version Number List (%u bytes)", 4 * value);
 
     for (d = 0; d < value; d++) {
         dissect_ff_msg_sm_dev_annunc_req_h1_live_list(tvb, offset, sub_tree);
@@ -3664,7 +3592,6 @@ dissect_ff_msg_sm_dev_annunc_req(tvbuff_t *tvb, gint offset,
     guint32 length, packet_info *pinfo, proto_tree *tree, guint32 FDAAddress)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
 
     guint8  SMKState;
     guint8  DeviceType;
@@ -3678,10 +3605,9 @@ dissect_ff_msg_sm_dev_annunc_req(tvbuff_t *tvb, gint offset,
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, length,
-        "SM Device Annunciation Request");
-    sub_tree = proto_item_add_subtree(ti,
-        ett_ff_sm_dev_annunc_req);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+        ett_ff_sm_dev_annunc_req, NULL, "SM Device Annunciation Request");
+
 
     SMKState = tvb_get_guint8(tvb, offset);
     dissect_ff_msg_sm_dev_annunc_req_smk_state(tvb, offset, sub_tree, SMKState);
@@ -3797,7 +3723,6 @@ dissect_ff_msg_fms_init_req(tvbuff_t *tvb, gint offset,
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Initiate Request");
 
@@ -3805,8 +3730,7 @@ dissect_ff_msg_fms_init_req(tvbuff_t *tvb, gint offset,
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, length, "FMS Initiate Request");
-    sub_tree = proto_item_add_subtree(ti, ett_ff_fms_init_req);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, length, ett_ff_fms_init_req, NULL, "FMS Initiate Request");
 
     proto_tree_add_item(sub_tree,
         hf_ff_fms_init_req_conn_opt, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -3858,7 +3782,6 @@ dissect_ff_msg_fms_init_rsp(tvbuff_t *tvb, gint offset,
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Initiate Response");
 
@@ -3866,9 +3789,8 @@ dissect_ff_msg_fms_init_rsp(tvbuff_t *tvb, gint offset,
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, length,
-        "FMS Initiate Response");
-    sub_tree = proto_item_add_subtree(ti, ett_ff_fms_init_rep);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+        ett_ff_fms_init_rep, NULL, "FMS Initiate Response");
 
     proto_tree_add_item(sub_tree,
         hf_ff_fms_init_rsp_ver_od_called, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -3898,7 +3820,6 @@ dissect_ff_msg_fms_init_err(tvbuff_t *tvb, gint offset,
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
     guint8      ErrorClass;
     guint8      ErrorCode;
     const char *error_code;
@@ -3909,8 +3830,7 @@ dissect_ff_msg_fms_init_err(tvbuff_t *tvb, gint offset,
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, length, "FMS Initiate Error");
-    sub_tree = proto_item_add_subtree(ti, ett_ff_fms_init_err);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, length, ett_ff_fms_init_err, NULL, "FMS Initiate Error");
 
     ErrorClass = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(sub_tree,
@@ -3955,7 +3875,6 @@ dissect_ff_msg_fms_abort_req(tvbuff_t *tvb, gint offset,
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Abort Request");
 
@@ -3963,8 +3882,7 @@ dissect_ff_msg_fms_abort_req(tvbuff_t *tvb, gint offset,
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, length, "FMS Abort Request");
-    sub_tree = proto_item_add_subtree(ti, ett_ff_fms_abort_req);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, length, ett_ff_fms_abort_req, NULL, "FMS Abort Request");
 
     proto_tree_add_text(sub_tree, tvb, offset, 16,
         "Abort Detail (%u bytes)", 16);
@@ -4005,7 +3923,6 @@ dissect_ff_msg_fms_status_req(tvbuff_t *tvb, gint offset,
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Status Request");
 
@@ -4014,9 +3931,8 @@ dissect_ff_msg_fms_status_req(tvbuff_t *tvb, gint offset,
     }
 
     if (length) {
-        ti = proto_tree_add_text(tree, tvb, offset, length,
-            "FMS Status Request");
-        sub_tree = proto_item_add_subtree(ti, ett_ff_fms_status_req);
+        sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+            ett_ff_fms_status_req, NULL, "FMS Status Request");
 
         proto_tree_add_text(sub_tree, tvb, offset, length,
             "[Unknown] (%u bytes)", length);
@@ -4035,7 +3951,6 @@ dissect_ff_msg_fms_status_rsp(tvbuff_t *tvb, gint offset,
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Status Response");
 
@@ -4043,8 +3958,7 @@ dissect_ff_msg_fms_status_rsp(tvbuff_t *tvb, gint offset,
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, length, "FMS Status Response");
-    sub_tree = proto_item_add_subtree(ti, ett_ff_fms_status_rsp);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, length, ett_ff_fms_status_rsp, NULL, "FMS Status Response");
 
     proto_tree_add_item(sub_tree,
         hf_ff_fms_status_rsp_logical_status, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -4084,7 +3998,6 @@ dissect_ff_msg_fms_status_err(tvbuff_t *tvb, gint offset,
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
     guint8      ErrorClass;
     guint8      ErrorCode;
     const char *error_code;
@@ -4095,8 +4008,7 @@ dissect_ff_msg_fms_status_err(tvbuff_t *tvb, gint offset,
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, length, "FMS Status Error");
-    sub_tree = proto_item_add_subtree(ti, ett_ff_fms_status_err);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, length, ett_ff_fms_status_err, NULL, "FMS Status Error");
 
     ErrorClass = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(sub_tree,
@@ -4141,7 +4053,6 @@ dissect_ff_msg_fms_unsolicited_status_req(tvbuff_t *tvb, gint offset,
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Unsolicited Status Request");
 
@@ -4149,9 +4060,8 @@ dissect_ff_msg_fms_unsolicited_status_req(tvbuff_t *tvb, gint offset,
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, length,
-        "FMS Unsolicited Status Request");
-    sub_tree = proto_item_add_subtree(ti, ett_ff_fms_unsolicited_status_req);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+        ett_ff_fms_unsolicited_status_req, NULL, "FMS Unsolicited Status Request");
 
     proto_tree_add_item(sub_tree,
         hf_ff_fms_unsolicited_status_req_logical_status, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -4193,7 +4103,6 @@ dissect_ff_msg_fms_id_req(tvbuff_t *tvb, gint offset,
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Identify Request");
 
@@ -4202,9 +4111,8 @@ dissect_ff_msg_fms_id_req(tvbuff_t *tvb, gint offset,
     }
 
     if (length) {
-        ti = proto_tree_add_text(tree, tvb, offset, length,
-            "FMS Identify Request");
-        sub_tree = proto_item_add_subtree(ti, ett_ff_fms_id_req);
+        sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+            ett_ff_fms_id_req, NULL, "FMS Identify Request");
 
         proto_tree_add_text(sub_tree, tvb, offset, length,
             "[Unknown] (%u bytes)", length);
@@ -4223,7 +4131,6 @@ dissect_ff_msg_fms_id_rsp(tvbuff_t *tvb, gint offset,
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Identify Response");
 
@@ -4231,9 +4138,8 @@ dissect_ff_msg_fms_id_rsp(tvbuff_t *tvb, gint offset,
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, length,
-        "FMS Identify Response");
-    sub_tree = proto_item_add_subtree(ti, ett_ff_fms_id_rsp);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+        ett_ff_fms_id_rsp, NULL, "FMS Identify Response");
 
     proto_tree_add_item(sub_tree,
         hf_ff_fms_id_rsp_vendor_name, tvb, offset, 32, ENC_ASCII|ENC_NA);
@@ -4268,7 +4174,6 @@ dissect_ff_msg_fms_id_err(tvbuff_t *tvb, gint offset,
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
     guint8      ErrorClass;
     guint8      ErrorCode;
     const char *error_code;
@@ -4279,8 +4184,7 @@ dissect_ff_msg_fms_id_err(tvbuff_t *tvb, gint offset,
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, length, "FMS Identify Error");
-    sub_tree = proto_item_add_subtree(ti, ett_ff_fms_id_err);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, length, ett_ff_fms_id_err, NULL, "FMS Identify Error");
 
     ErrorClass = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(sub_tree,
@@ -4325,7 +4229,6 @@ dissect_ff_msg_fms_get_od_req(tvbuff_t *tvb, gint offset,
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Get OD Request");
 
@@ -4333,8 +4236,7 @@ dissect_ff_msg_fms_get_od_req(tvbuff_t *tvb, gint offset,
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, length, "FMS Get OD Request");
-    sub_tree = proto_item_add_subtree(ti, ett_ff_fms_get_od_req);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, length, ett_ff_fms_get_od_req, NULL, "FMS Get OD Request");
 
     proto_tree_add_item(sub_tree,
         hf_ff_fms_get_od_req_all_attrs, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -4374,7 +4276,6 @@ dissect_ff_msg_fms_get_od_rsp(tvbuff_t *tvb, gint offset,
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Get OD Response");
 
@@ -4382,8 +4283,7 @@ dissect_ff_msg_fms_get_od_rsp(tvbuff_t *tvb, gint offset,
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, length, "FMS Get OD Response");
-    sub_tree = proto_item_add_subtree(ti, ett_ff_fms_get_od_rsp);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, length, ett_ff_fms_get_od_rsp, NULL, "FMS Get OD Response");
 
     proto_tree_add_item(sub_tree,
         hf_ff_fms_get_od_rsp_more_follows, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -4418,7 +4318,6 @@ dissect_ff_msg_fms_get_od_err(tvbuff_t *tvb, gint offset,
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
     guint8      ErrorClass;
     guint8      ErrorCode;
     const char *error_code;
@@ -4429,8 +4328,7 @@ dissect_ff_msg_fms_get_od_err(tvbuff_t *tvb, gint offset,
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, length, "FMS Get OD Error");
-    sub_tree = proto_item_add_subtree(ti, ett_ff_fms_get_od_err);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, length, ett_ff_fms_get_od_err, NULL, "FMS Get OD Error");
 
     ErrorClass = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(sub_tree,
@@ -4475,17 +4373,14 @@ dissect_ff_msg_fms_init_put_od_req(tvbuff_t *tvb, gint offset,
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
-
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Initiate Put OD Request");
 
     if (!tree) {
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, length,
-        "FMS Initiate Put OD Request");
-    sub_tree = proto_item_add_subtree(ti, ett_ff_fms_init_put_od_req);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+        ett_ff_fms_init_put_od_req, NULL, "FMS Initiate Put OD Request");
 
     proto_tree_add_item(sub_tree,
         hf_ff_fms_init_put_od_req_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -4515,7 +4410,6 @@ dissect_ff_msg_fms_init_put_od_rsp(tvbuff_t *tvb, gint offset,
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Initiate Put OD Response");
 
@@ -4524,9 +4418,8 @@ dissect_ff_msg_fms_init_put_od_rsp(tvbuff_t *tvb, gint offset,
     }
 
     if (length) {
-        ti = proto_tree_add_text(tree, tvb, offset, length,
-            "FMS Initiate Put OD Response");
-        sub_tree = proto_item_add_subtree(ti, ett_ff_fms_init_put_od_rsp);
+        sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+            ett_ff_fms_init_put_od_rsp, NULL, "FMS Initiate Put OD Response");
 
         proto_tree_add_text(sub_tree, tvb, offset, length,
             "[Unknown] (%u bytes)", length);
@@ -4545,7 +4438,6 @@ dissect_ff_msg_fms_init_put_od_err(tvbuff_t *tvb, gint offset,
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
     guint8      ErrorClass;
     guint8      ErrorCode;
     const char *error_code;
@@ -4556,9 +4448,8 @@ dissect_ff_msg_fms_init_put_od_err(tvbuff_t *tvb, gint offset,
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, length,
-        "FMS Initiate Put OD Error");
-    sub_tree = proto_item_add_subtree(ti, ett_ff_fms_init_put_od_err);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+        ett_ff_fms_init_put_od_err, NULL, "FMS Initiate Put OD Error");
 
     ErrorClass = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(sub_tree,
@@ -4603,7 +4494,6 @@ dissect_ff_msg_fms_put_od_req(tvbuff_t *tvb, gint offset,
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Put OD Request");
 
@@ -4611,8 +4501,7 @@ dissect_ff_msg_fms_put_od_req(tvbuff_t *tvb, gint offset,
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, length, "FMS Put OD Request");
-    sub_tree = proto_item_add_subtree(ti, ett_ff_fms_put_od_req);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, length, ett_ff_fms_put_od_req, NULL, "FMS Put OD Request");
 
     proto_tree_add_item(sub_tree,
         hf_ff_fms_put_od_req_num_of_obj_desc, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -4639,7 +4528,6 @@ dissect_ff_msg_fms_put_od_rsp(tvbuff_t *tvb, gint offset,
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Put OD Response");
 
@@ -4648,12 +4536,8 @@ dissect_ff_msg_fms_put_od_rsp(tvbuff_t *tvb, gint offset,
     }
 
     if (length) {
-        ti = proto_tree_add_text(tree, tvb, offset, length,
-            "FMS Put OD Response");
-        sub_tree = proto_item_add_subtree(ti, ett_ff_fms_put_od_rsp);
-
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+            ett_ff_fms_put_od_rsp, NULL, "FMS Put OD Response");
     }
 
     return;
@@ -4669,7 +4553,6 @@ dissect_ff_msg_fms_put_od_err(tvbuff_t *tvb, gint offset,
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
     guint8      ErrorClass;
     guint8      ErrorCode;
     const char *error_code;
@@ -4680,9 +4563,8 @@ dissect_ff_msg_fms_put_od_err(tvbuff_t *tvb, gint offset,
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, length,
-        "FMS Put OD Error");
-    sub_tree = proto_item_add_subtree(ti, ett_ff_fms_put_od_err);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+        ett_ff_fms_put_od_err, NULL, "FMS Put OD Error");
 
     ErrorClass = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(sub_tree,
@@ -4727,7 +4609,6 @@ dissect_ff_msg_fms_terminate_put_od_req(tvbuff_t *tvb, gint offset,
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Terminate Put OD Request");
 
@@ -4736,9 +4617,8 @@ dissect_ff_msg_fms_terminate_put_od_req(tvbuff_t *tvb, gint offset,
     }
 
     if (length) {
-        ti = proto_tree_add_text(tree, tvb, offset, length,
-            "FMS Terminate Put OD Request");
-        sub_tree = proto_item_add_subtree(ti, ett_ff_fms_terminate_put_od_req);
+        sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+            ett_ff_fms_terminate_put_od_req, NULL, "FMS Terminate Put OD Request");
 
         proto_tree_add_text(sub_tree, tvb, offset, length,
             "[Unknown] (%u bytes)", length);
@@ -4757,7 +4637,6 @@ dissect_ff_msg_fms_terminate_put_od_rsp(tvbuff_t *tvb, gint offset,
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Terminate Put OD Response");
 
@@ -4766,9 +4645,8 @@ dissect_ff_msg_fms_terminate_put_od_rsp(tvbuff_t *tvb, gint offset,
     }
 
     if (length) {
-        ti = proto_tree_add_text(tree, tvb, offset, length,
-            "FMS Terminate Put OD Response");
-        sub_tree = proto_item_add_subtree(ti, ett_ff_fms_terminate_put_od_rsp);
+        sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+            ett_ff_fms_terminate_put_od_rsp, NULL, "FMS Terminate Put OD Response");
 
         proto_tree_add_text(sub_tree, tvb, offset, length,
             "[Unknown] (%u bytes)", length);
@@ -4787,7 +4665,6 @@ dissect_ff_msg_fms_terminate_put_od_err(tvbuff_t *tvb, gint offset,
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
     guint8      ErrorClass;
     guint8      ErrorCode;
     const char *error_code;
@@ -4798,9 +4675,8 @@ dissect_ff_msg_fms_terminate_put_od_err(tvbuff_t *tvb, gint offset,
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, length,
-        "FMS Terminate Put OD Error");
-    sub_tree = proto_item_add_subtree(ti, ett_ff_fms_terminate_put_od_err);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+        ett_ff_fms_terminate_put_od_err, NULL, "FMS Terminate Put OD Error");
 
     proto_tree_add_item(sub_tree,
         hf_ff_fms_terminate_put_od_err_index, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -4854,7 +4730,6 @@ dissect_ff_msg_fms_generic_init_download_sequence_req(
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Generic Initiate Download Sequence Request");
 
@@ -4862,9 +4737,8 @@ dissect_ff_msg_fms_generic_init_download_sequence_req(
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, length,
-        "FMS Generic Initiate Download Sequence Request");
-    sub_tree = proto_item_add_subtree(ti, ett_ff_fms_gen_init_download_seq_req);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+        ett_ff_fms_gen_init_download_seq_req, NULL, "FMS Generic Initiate Download Sequence Request");
 
     proto_tree_add_item(sub_tree,
         hf_ff_fms_gen_init_download_seq_req_idx, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -4890,7 +4764,6 @@ dissect_ff_msg_fms_generic_init_download_sequence_rsp(
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Generic Initiate Download Sequence Response");
 
@@ -4899,10 +4772,8 @@ dissect_ff_msg_fms_generic_init_download_sequence_rsp(
     }
 
     if (length) {
-        ti = proto_tree_add_text(tree, tvb, offset, length,
-            "FMS Generic Initiate Download Sequence Response");
-        sub_tree = proto_item_add_subtree(ti,
-            ett_ff_fms_gen_init_download_seq_rep);
+        sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+            ett_ff_fms_gen_init_download_seq_rep, NULL, "FMS Generic Initiate Download Sequence Response");
 
         proto_tree_add_text(sub_tree, tvb, offset, length,
             "[Unknown] (%u bytes)", length);
@@ -4922,7 +4793,6 @@ dissect_ff_msg_fms_generic_init_download_sequence_err(
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
     guint8      ErrorClass;
     guint8      ErrorCode;
     const char *error_code;
@@ -4933,9 +4803,8 @@ dissect_ff_msg_fms_generic_init_download_sequence_err(
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, length,
-        "FMS Generic Initiate Download Sequence Error");
-    sub_tree = proto_item_add_subtree(ti, ett_ff_fms_gen_init_download_seq_err);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+        ett_ff_fms_gen_init_download_seq_err, NULL, "FMS Generic Initiate Download Sequence Error");
 
     ErrorClass = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(sub_tree,
@@ -4984,7 +4853,6 @@ dissect_ff_msg_fms_generic_download_segment_req(
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Generic Download Segment Request");
 
@@ -4992,9 +4860,8 @@ dissect_ff_msg_fms_generic_download_segment_req(
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, length,
-        "FMS Generic Download Segment Request");
-    sub_tree = proto_item_add_subtree(ti, ett_ff_fms_gen_download_seg_req);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+        ett_ff_fms_gen_download_seg_req, NULL, "FMS Generic Download Segment Request");
 
     proto_tree_add_item(sub_tree,
         hf_ff_fms_gen_download_seg_req_idx, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -5029,7 +4896,6 @@ dissect_ff_msg_fms_generic_download_segment_rsp(
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Generic Download Segment Response");
 
@@ -5038,10 +4904,8 @@ dissect_ff_msg_fms_generic_download_segment_rsp(
     }
 
     if (length) {
-        ti = proto_tree_add_text(tree, tvb, offset, length,
-            "FMS Generic Download Segment Response");
-        sub_tree = proto_item_add_subtree(ti,
-            ett_ff_fms_gen_download_seg_rsp);
+        sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+            ett_ff_fms_gen_download_seg_rsp, NULL, "FMS Generic Download Segment Response");
 
         proto_tree_add_text(sub_tree, tvb, offset, length,
             "[Unknown] (%u bytes)", length);
@@ -5061,7 +4925,6 @@ dissect_ff_msg_fms_generic_download_segment_err(
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
     guint8      ErrorClass;
     guint8      ErrorCode;
     const char *error_code;
@@ -5072,9 +4935,8 @@ dissect_ff_msg_fms_generic_download_segment_err(
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, length,
-        "FMS Generic Download Segment Error");
-    sub_tree = proto_item_add_subtree(ti, ett_ff_fms_gen_download_seg_err);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+        ett_ff_fms_gen_download_seg_err, NULL, "FMS Generic Download Segment Error");
 
     ErrorClass = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(sub_tree,
@@ -5123,7 +4985,6 @@ dissect_ff_msg_fms_generic_terminate_download_sequence_req(
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Generic Terminate Download Sequence Request");
 
@@ -5131,10 +4992,8 @@ dissect_ff_msg_fms_generic_terminate_download_sequence_req(
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, length,
-        "FMS Generic Terminate Download Sequence Request");
-    sub_tree = proto_item_add_subtree(ti,
-        ett_ff_fms_gen_terminate_download_seq_req);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+        ett_ff_fms_gen_terminate_download_seq_req, NULL, "FMS Generic Terminate Download Sequence Request");
 
     proto_tree_add_item(sub_tree,
         hf_ff_fms_gen_terminate_download_seq_req_idx, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -5160,7 +5019,6 @@ dissect_ff_msg_fms_generic_terminate_download_sequence_rsp(
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Generic Terminate Download Sequence Response");
 
@@ -5168,10 +5026,8 @@ dissect_ff_msg_fms_generic_terminate_download_sequence_rsp(
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, length,
-        "FMS Generic Terminate Download Sequence Response");
-    sub_tree = proto_item_add_subtree(ti,
-        ett_ff_fms_gen_terminate_download_seq_rsp);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+        ett_ff_fms_gen_terminate_download_seq_rsp, NULL, "FMS Generic Terminate Download Sequence Response");
 
     proto_tree_add_item(sub_tree,
         hf_ff_fms_gen_terminate_download_seq_rsp_final_result,
@@ -5202,7 +5058,6 @@ dissect_ff_msg_fms_generic_terminate_download_sequence_err(
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
     guint8      ErrorClass;
     guint8      ErrorCode;
     const char *error_code;
@@ -5213,10 +5068,8 @@ dissect_ff_msg_fms_generic_terminate_download_sequence_err(
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, length,
-        "FMS Generic Terminate Download Sequence Error");
-    sub_tree = proto_item_add_subtree(ti,
-        ett_ff_fms_gen_terminate_download_seq_err);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+        ett_ff_fms_gen_terminate_download_seq_err, NULL, "FMS Generic Terminate Download Sequence Error");
 
     ErrorClass = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(sub_tree,
@@ -5266,7 +5119,6 @@ dissect_ff_msg_fms_init_download_sequence_req(
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Initiate Download Sequence Request");
 
@@ -5274,10 +5126,8 @@ dissect_ff_msg_fms_init_download_sequence_req(
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, length,
-        "FMS Initiate Download Sequence Request");
-    sub_tree = proto_item_add_subtree(ti,
-        ett_ff_fms_init_download_seq_req);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+        ett_ff_fms_init_download_seq_req, NULL, "FMS Initiate Download Sequence Request");
 
     proto_tree_add_item(sub_tree,
         hf_ff_fms_init_download_seq_req_idx, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -5303,7 +5153,6 @@ dissect_ff_msg_fms_init_download_sequence_rsp(
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Initiate Download Sequence Response");
 
@@ -5312,10 +5161,8 @@ dissect_ff_msg_fms_init_download_sequence_rsp(
     }
 
     if (length) {
-        ti = proto_tree_add_text(tree, tvb, offset, length,
-            "FMS Initiate Download Sequence Response");
-        sub_tree = proto_item_add_subtree(ti,
-            ett_ff_fms_init_download_seq_rsp);
+        sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+            ett_ff_fms_init_download_seq_rsp, NULL, "FMS Initiate Download Sequence Response");
 
         proto_tree_add_text(sub_tree, tvb, offset, length,
             "[Unknown] (%u bytes)", length);
@@ -5335,7 +5182,6 @@ dissect_ff_msg_fms_init_download_sequence_err(
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
     guint8      ErrorClass;
     guint8      ErrorCode;
     const char *error_code;
@@ -5346,9 +5192,8 @@ dissect_ff_msg_fms_init_download_sequence_err(
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, length,
-        "FMS Initiate Download Sequence Error");
-    sub_tree = proto_item_add_subtree(ti, ett_ff_fms_init_download_seq_err);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+        ett_ff_fms_init_download_seq_err, NULL, "FMS Initiate Download Sequence Error");
 
     ErrorClass = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(sub_tree,
@@ -5395,7 +5240,6 @@ dissect_ff_msg_fms_download_segment_req(tvbuff_t *tvb, gint offset,
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Download Segment Request");
 
@@ -5403,9 +5247,8 @@ dissect_ff_msg_fms_download_segment_req(tvbuff_t *tvb, gint offset,
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, length,
-        "FMS Download Segment Request");
-    sub_tree = proto_item_add_subtree(ti, ett_ff_fms_download_seg_req);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+        ett_ff_fms_download_seg_req, NULL, "FMS Download Segment Request");
 
     proto_tree_add_item(sub_tree,
         hf_ff_fms_download_seg_req_idx, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -5430,7 +5273,6 @@ dissect_ff_msg_fms_download_segment_rsp(tvbuff_t *tvb, gint offset,
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Download Segment Response");
 
@@ -5438,9 +5280,8 @@ dissect_ff_msg_fms_download_segment_rsp(tvbuff_t *tvb, gint offset,
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, length,
-        "FMS Download Segment Response");
-    sub_tree = proto_item_add_subtree(ti, ett_ff_fms_download_seg_rsp);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+        ett_ff_fms_download_seg_rsp, NULL, "FMS Download Segment Response");
 
     proto_tree_add_item(sub_tree,
         hf_ff_fms_download_seg_rsp_more_follows, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -5469,7 +5310,6 @@ dissect_ff_msg_fms_download_segment_err(tvbuff_t *tvb, gint offset,
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
     guint8      ErrorClass;
     guint8      ErrorCode;
     const char *error_code;
@@ -5480,9 +5320,8 @@ dissect_ff_msg_fms_download_segment_err(tvbuff_t *tvb, gint offset,
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, length,
-        "FMS Download Segment Error");
-    sub_tree = proto_item_add_subtree(ti, ett_ff_fms_download_seg_err);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+        ett_ff_fms_download_seg_err, NULL, "FMS Download Segment Error");
 
     ErrorClass = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(sub_tree,
@@ -5529,7 +5368,6 @@ dissect_ff_msg_fms_terminate_download_sequence_req(
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Terminate Download Sequence Request");
 
@@ -5537,10 +5375,8 @@ dissect_ff_msg_fms_terminate_download_sequence_req(
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, length,
-        "FMS Terminate Download Sequence Request");
-    sub_tree = proto_item_add_subtree(ti,
-        ett_ff_fms_terminate_download_seq_req);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+        ett_ff_fms_terminate_download_seq_req, NULL, "FMS Terminate Download Sequence Request");
 
     proto_tree_add_item(sub_tree,
         hf_ff_fms_terminate_download_seq_req_idx, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -5576,7 +5412,6 @@ dissect_ff_msg_fms_terminate_download_sequence_rsp(
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Terminate Download Sequence Response");
 
@@ -5585,10 +5420,8 @@ dissect_ff_msg_fms_terminate_download_sequence_rsp(
     }
 
     if (length) {
-        ti = proto_tree_add_text(tree, tvb, offset, length,
-            "FMS Terminate Download Sequence Response");
-        sub_tree = proto_item_add_subtree(ti,
-            ett_ff_fms_terminate_download_seq_rsp);
+        sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+            ett_ff_fms_terminate_download_seq_rsp, NULL, "FMS Terminate Download Sequence Response");
 
         proto_tree_add_text(sub_tree, tvb, offset, length,
             "[Unknown] (%u bytes)", length);
@@ -5608,7 +5441,6 @@ dissect_ff_msg_fms_terminate_download_sequence_err(
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
     guint8      ErrorClass;
     guint8      ErrorCode;
     const char *error_code;
@@ -5619,10 +5451,8 @@ dissect_ff_msg_fms_terminate_download_sequence_err(
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, length,
-        "FMS Terminate Download Sequence Error");
-    sub_tree = proto_item_add_subtree(ti,
-        ett_ff_fms_terminate_download_seq_err);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+        ett_ff_fms_terminate_download_seq_err, NULL, "FMS Terminate Download Sequence Error");
 
     ErrorClass = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(sub_tree,
@@ -5671,7 +5501,6 @@ dissect_ff_msg_fms_init_upload_seq_req(
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Initiate Upload Sequence Request");
 
@@ -5679,9 +5508,8 @@ dissect_ff_msg_fms_init_upload_seq_req(
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, length,
-        "FMS Initiate Upload Sequence Request");
-    sub_tree = proto_item_add_subtree(ti, ett_ff_fms_init_upload_seq_req);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+        ett_ff_fms_init_upload_seq_req, NULL, "FMS Initiate Upload Sequence Request");
 
     proto_tree_add_item(sub_tree,
         hf_ff_fms_init_upload_seq_req_idx, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -5707,7 +5535,6 @@ dissect_ff_msg_fms_init_upload_seq_rsp(
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Initiate Upload Sequence Response");
 
@@ -5716,9 +5543,8 @@ dissect_ff_msg_fms_init_upload_seq_rsp(
     }
 
     if (length) {
-        ti = proto_tree_add_text(tree, tvb, offset, length,
-            "FMS Initiate Upload Sequence Response");
-        sub_tree = proto_item_add_subtree(ti, ett_ff_fms_init_upload_seq_rsp);
+        sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+            ett_ff_fms_init_upload_seq_rsp, NULL, "FMS Initiate Upload Sequence Response");
 
         proto_tree_add_text(sub_tree, tvb, offset, length,
             "[Unknown] (%u bytes)", length);
@@ -5738,7 +5564,6 @@ dissect_ff_msg_fms_init_upload_seq_err(
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
     guint8      ErrorClass;
     guint8      ErrorCode;
     const char *error_code;
@@ -5749,9 +5574,8 @@ dissect_ff_msg_fms_init_upload_seq_err(
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, length,
-        "FMS Initiate Upload Sequence Error");
-    sub_tree = proto_item_add_subtree(ti, ett_ff_fms_init_upload_seq_err);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+        ett_ff_fms_init_upload_seq_err, NULL, "FMS Initiate Upload Sequence Error");
 
     ErrorClass = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(sub_tree,
@@ -5796,7 +5620,6 @@ dissect_ff_msg_fms_upload_segment_req(tvbuff_t *tvb, gint offset,
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Upload Segment Request");
 
@@ -5804,9 +5627,8 @@ dissect_ff_msg_fms_upload_segment_req(tvbuff_t *tvb, gint offset,
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, length,
-        "FMS Upload Segment Request");
-    sub_tree = proto_item_add_subtree(ti, ett_ff_fms_upload_seg_req);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+        ett_ff_fms_upload_seg_req, NULL, "FMS Upload Segment Request");
 
     proto_tree_add_item(sub_tree,
         hf_ff_fms_upload_seg_req_idx, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -5831,7 +5653,6 @@ dissect_ff_msg_fms_upload_segment_rsp(tvbuff_t *tvb, gint offset,
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Upload Segment Response");
 
@@ -5839,9 +5660,8 @@ dissect_ff_msg_fms_upload_segment_rsp(tvbuff_t *tvb, gint offset,
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, length,
-        "FMS Upload Segment Response");
-    sub_tree = proto_item_add_subtree(ti, ett_ff_fms_upload_seg_rsp);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+        ett_ff_fms_upload_seg_rsp, NULL, "FMS Upload Segment Response");
 
     proto_tree_add_item(sub_tree,
         hf_ff_fms_upload_seg_rsp_more_follows, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -5870,7 +5690,6 @@ dissect_ff_msg_fms_upload_segment_err(tvbuff_t *tvb, gint offset,
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
     guint8      ErrorClass;
     guint8      ErrorCode;
     const char *error_code;
@@ -5881,9 +5700,8 @@ dissect_ff_msg_fms_upload_segment_err(tvbuff_t *tvb, gint offset,
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, length,
-        "FMS Upload Segment Error");
-    sub_tree = proto_item_add_subtree(ti, ett_ff_fms_upload_seg_err);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+        ett_ff_fms_upload_seg_err, NULL, "FMS Upload Segment Error");
 
     ErrorClass = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(sub_tree,
@@ -5930,7 +5748,6 @@ dissect_ff_msg_fms_terminate_upload_seq_req(
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Terminate Upload Sequence Request");
 
@@ -5938,9 +5755,8 @@ dissect_ff_msg_fms_terminate_upload_seq_req(
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, length,
-        "FMS Terminate Upload Sequence Request");
-    sub_tree = proto_item_add_subtree(ti, ett_ff_fms_terminate_upload_seq_req);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+        ett_ff_fms_terminate_upload_seq_req, NULL, "FMS Terminate Upload Sequence Request");
 
     proto_tree_add_item(sub_tree,
         hf_ff_fms_terminate_upload_seq_req_idx, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -5966,7 +5782,6 @@ dissect_ff_msg_fms_terminate_upload_seq_rsp(
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Terminate Upload Sequence Response");
 
@@ -5975,10 +5790,8 @@ dissect_ff_msg_fms_terminate_upload_seq_rsp(
     }
 
     if (length) {
-        ti = proto_tree_add_text(tree, tvb, offset, length,
-            "FMS Terminate Upload Sequence Response");
-        sub_tree = proto_item_add_subtree(ti,
-            ett_ff_fms_terminate_upload_seq_rsp);
+        sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+            ett_ff_fms_terminate_upload_seq_rsp, NULL, "FMS Terminate Upload Sequence Response");
 
         proto_tree_add_text(sub_tree, tvb, offset, length,
             "[Unknown] (%u bytes)", length);
@@ -5998,7 +5811,6 @@ dissect_ff_msg_fms_terminate_upload_seq_err(
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
     guint8      ErrorClass;
     guint8      ErrorCode;
     const char *error_code;
@@ -6009,9 +5821,8 @@ dissect_ff_msg_fms_terminate_upload_seq_err(
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, length,
-        "FMS Terminate Upload Sequence Error");
-    sub_tree = proto_item_add_subtree(ti, ett_ff_fms_terminate_upload_seq_err);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+        ett_ff_fms_terminate_upload_seq_err, NULL, "FMS Terminate Upload Sequence Error");
 
     ErrorClass = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(sub_tree,
@@ -6060,7 +5871,6 @@ dissect_ff_msg_fms_req_dom_download_req(
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Request Domain Download Request");
 
@@ -6068,9 +5878,8 @@ dissect_ff_msg_fms_req_dom_download_req(
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, length,
-        "FMS Request Domain Download Request");
-    sub_tree = proto_item_add_subtree(ti, ett_ff_fms_req_dom_download_req);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+        ett_ff_fms_req_dom_download_req, NULL, "FMS Request Domain Download Request");
 
     proto_tree_add_item(sub_tree,
         hf_ff_fms_req_dom_download_req_idx, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -6097,7 +5906,6 @@ dissect_ff_msg_fms_req_dom_download_rsp(
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Request Domain Download Response");
 
@@ -6106,10 +5914,8 @@ dissect_ff_msg_fms_req_dom_download_rsp(
     }
 
     if (length) {
-        ti = proto_tree_add_text(tree, tvb, offset, length,
-            "FMS Request Domain Download Response");
-        sub_tree = proto_item_add_subtree(ti,
-            ett_ff_fms_req_dom_download_rsp);
+        sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+            ett_ff_fms_req_dom_download_rsp, NULL, "FMS Request Domain Download Response");
 
         proto_tree_add_text(sub_tree, tvb, offset, length,
             "[Unknown] (%u bytes)", length);
@@ -6129,7 +5935,6 @@ dissect_ff_msg_fms_req_dom_download_err(
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
     guint8      ErrorClass;
     guint8      ErrorCode;
     const char *error_code;
@@ -6140,9 +5945,8 @@ dissect_ff_msg_fms_req_dom_download_err(
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, length,
-        "FMS Request Domain Download Error");
-    sub_tree = proto_item_add_subtree(ti, ett_ff_fms_req_dom_download_err);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+        ett_ff_fms_req_dom_download_err, NULL, "FMS Request Domain Download Error");
 
     ErrorClass = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(sub_tree,
@@ -6190,7 +5994,6 @@ dissect_ff_msg_fms_req_dom_upload_req(
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Request Domain Upload Request");
 
@@ -6198,9 +6001,8 @@ dissect_ff_msg_fms_req_dom_upload_req(
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, length,
-        "FMS Request Domain Upload Request");
-    sub_tree = proto_item_add_subtree(ti, ett_ff_fms_req_dom_upload_req);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+        ett_ff_fms_req_dom_upload_req, NULL, "FMS Request Domain Upload Request");
 
     proto_tree_add_item(sub_tree,
         hf_ff_fms_req_dom_upload_req_idx, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -6227,7 +6029,6 @@ dissect_ff_msg_fms_req_dom_upload_rsp(
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Request Domain Upload Response");
 
@@ -6236,10 +6037,8 @@ dissect_ff_msg_fms_req_dom_upload_rsp(
     }
 
     if (length) {
-        ti = proto_tree_add_text(tree, tvb, offset, length,
-            "FMS Request Domain Upload Response");
-        sub_tree = proto_item_add_subtree(ti,
-            ett_ff_fms_req_dom_upload_rsp);
+        sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+            ett_ff_fms_req_dom_upload_rsp, NULL, "FMS Request Domain Upload Response");
 
         proto_tree_add_text(sub_tree, tvb, offset, length,
             "[Unknown] (%u bytes)", length);
@@ -6259,7 +6058,6 @@ dissect_ff_msg_fms_req_dom_upload_err(
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
     guint8      ErrorClass;
     guint8      ErrorCode;
     const char *error_code;
@@ -6270,9 +6068,8 @@ dissect_ff_msg_fms_req_dom_upload_err(
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, length,
-        "FMS Request Domain Upload Error");
-    sub_tree = proto_item_add_subtree(ti, ett_ff_fms_req_dom_upload_err);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+        ett_ff_fms_req_dom_upload_err, NULL, "FMS Request Domain Upload Error");
 
     ErrorClass = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(sub_tree,
@@ -6318,17 +6115,14 @@ dissect_ff_msg_fms_create_pi_req_dom_idxes(tvbuff_t *tvb,
     gint offset, proto_tree *tree, guint16 value)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
     guint       d;
 
     if (!tree) {
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, 4 * value,
-        "List Of Domain Indexes (%u bytes)", 4 * value);
-    sub_tree = proto_item_add_subtree(ti,
-        ett_ff_fms_create_pi_req_list_of_dom_idxes);
+    sub_tree = proto_tree_add_subtree_format(tree, tvb, offset, 4 * value,
+        ett_ff_fms_create_pi_req_list_of_dom_idxes, NULL, "List Of Domain Indexes (%u bytes)", 4 * value);
 
     for (d = 0; d < value; d++) {
         proto_tree_add_item(sub_tree,
@@ -6347,7 +6141,6 @@ dissect_ff_msg_fms_create_pi_req(tvbuff_t *tvb, gint offset,
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
     guint16     NumOfDomIdxes;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Create Program Invocation Request");
@@ -6356,10 +6149,8 @@ dissect_ff_msg_fms_create_pi_req(tvbuff_t *tvb, gint offset,
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, length,
-        "FMS Create Program Invocation Request");
-    sub_tree = proto_item_add_subtree(ti,
-        ett_ff_fms_create_pi_req);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+        ett_ff_fms_create_pi_req, NULL, "FMS Create Program Invocation Request");
 
     proto_tree_add_item(sub_tree,
         hf_ff_fms_create_pi_req_reusable, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -6403,7 +6194,6 @@ dissect_ff_msg_fms_create_pi_rsp(tvbuff_t *tvb, gint offset,
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Create Program Invocation Response");
 
@@ -6411,10 +6201,8 @@ dissect_ff_msg_fms_create_pi_rsp(tvbuff_t *tvb, gint offset,
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, length,
-        "FMS Create Program Invocation Response");
-    sub_tree = proto_item_add_subtree(ti,
-        ett_ff_fms_create_pi_rsp);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+        ett_ff_fms_create_pi_rsp, NULL, "FMS Create Program Invocation Response");
 
     proto_tree_add_item(sub_tree,
         hf_ff_fms_create_pi_rsp_idx, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -6439,7 +6227,6 @@ dissect_ff_msg_fms_create_pi_err(tvbuff_t *tvb, gint offset,
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
     guint8      ErrorClass;
     guint8      ErrorCode;
     const char *error_code;
@@ -6450,10 +6237,8 @@ dissect_ff_msg_fms_create_pi_err(tvbuff_t *tvb, gint offset,
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, length,
-        "FMS Create Program Invocation Error");
-    sub_tree = proto_item_add_subtree(ti,
-        ett_ff_fms_create_pi_err);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+        ett_ff_fms_create_pi_err, NULL, "FMS Create Program Invocation Error");
 
     ErrorClass = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(sub_tree,
@@ -6499,7 +6284,6 @@ dissect_ff_msg_fms_del_pi_req(tvbuff_t *tvb, gint offset,
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Delete Program Invocation Request");
 
@@ -6507,10 +6291,8 @@ dissect_ff_msg_fms_del_pi_req(tvbuff_t *tvb, gint offset,
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, length,
-        "FMS Delete Program Invocation Request");
-    sub_tree = proto_item_add_subtree(ti,
-        ett_ff_fms_del_pi_req);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+        ett_ff_fms_del_pi_req, NULL, "FMS Delete Program Invocation Request");
 
     proto_tree_add_item(sub_tree,
         hf_ff_fms_del_pi_req_idx, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -6535,7 +6317,6 @@ dissect_ff_msg_fms_del_pi_rsp(tvbuff_t *tvb, gint offset,
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Delete Program Invocation Response");
 
@@ -6544,10 +6325,8 @@ dissect_ff_msg_fms_del_pi_rsp(tvbuff_t *tvb, gint offset,
     }
 
     if (length) {
-        ti = proto_tree_add_text(tree, tvb, offset, length,
-            "FMS Delete Program Invocation Response");
-        sub_tree = proto_item_add_subtree(ti,
-            ett_ff_fms_del_pi_rsp);
+        sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+            ett_ff_fms_del_pi_rsp, NULL, "FMS Delete Program Invocation Response");
 
         proto_tree_add_text(sub_tree, tvb, offset, length,
             "[Unknown] (%u bytes)", length);
@@ -6566,7 +6345,6 @@ dissect_ff_msg_fms_del_pi_err(tvbuff_t *tvb, gint offset,
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
     guint8      ErrorClass;
     guint8      ErrorCode;
     const char *error_code;
@@ -6577,10 +6355,8 @@ dissect_ff_msg_fms_del_pi_err(tvbuff_t *tvb, gint offset,
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, length,
-        "FMS Delete Program Invocation Error");
-    sub_tree = proto_item_add_subtree(ti,
-        ett_ff_fms_del_pi_err);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+        ett_ff_fms_del_pi_err, NULL, "FMS Delete Program Invocation Error");
 
     ErrorClass = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(sub_tree,
@@ -6626,7 +6402,6 @@ dissect_ff_msg_fms_start_pi_req(tvbuff_t *tvb, gint offset,
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Start Request");
 
@@ -6634,8 +6409,7 @@ dissect_ff_msg_fms_start_pi_req(tvbuff_t *tvb, gint offset,
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, length, "FMS Start Request");
-    sub_tree = proto_item_add_subtree(ti, ett_ff_fms_start_req);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, length, ett_ff_fms_start_req, NULL, "FMS Start Request");
 
     proto_tree_add_item(sub_tree,
         hf_ff_fms_start_req_idx, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -6660,7 +6434,6 @@ dissect_ff_msg_fms_start_pi_rsp(tvbuff_t *tvb, gint offset,
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Start Response");
 
@@ -6669,9 +6442,8 @@ dissect_ff_msg_fms_start_pi_rsp(tvbuff_t *tvb, gint offset,
     }
 
     if (length) {
-        ti = proto_tree_add_text(tree, tvb, offset, length,
-            "FMS Start Response");
-        sub_tree = proto_item_add_subtree(ti, ett_ff_fms_start_rsp);
+        sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+            ett_ff_fms_start_rsp, NULL, "FMS Start Response");
 
         proto_tree_add_text(sub_tree, tvb, offset, length,
             "[Unknown] (%u bytes)", length);
@@ -6690,7 +6462,6 @@ dissect_ff_msg_fms_start_pi_err(tvbuff_t *tvb, gint offset,
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
     guint8      ErrorClass;
     guint8      ErrorCode;
     const char *error_code;
@@ -6701,8 +6472,7 @@ dissect_ff_msg_fms_start_pi_err(tvbuff_t *tvb, gint offset,
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, length, "FMS Start Error");
-    sub_tree = proto_item_add_subtree(ti, ett_ff_fms_start_err);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, length, ett_ff_fms_start_err, NULL, "FMS Start Error");
 
     proto_tree_add_item(sub_tree,
         hf_ff_fms_start_err_pi_state, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -6756,7 +6526,6 @@ dissect_ff_msg_fms_stop_pi_req(tvbuff_t *tvb, gint offset,
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Stop Request");
 
@@ -6764,8 +6533,7 @@ dissect_ff_msg_fms_stop_pi_req(tvbuff_t *tvb, gint offset,
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, length, "FMS Stop Request");
-    sub_tree = proto_item_add_subtree(ti, ett_ff_fms_stop_req);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, length, ett_ff_fms_stop_req, NULL, "FMS Stop Request");
 
     proto_tree_add_item(sub_tree,
         hf_ff_fms_stop_req_idx, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -6790,7 +6558,6 @@ dissect_ff_msg_fms_stop_pi_rsp(tvbuff_t *tvb, gint offset,
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Stop Response");
 
@@ -6799,9 +6566,8 @@ dissect_ff_msg_fms_stop_pi_rsp(tvbuff_t *tvb, gint offset,
     }
 
     if (length) {
-        ti = proto_tree_add_text(tree, tvb, offset, length,
-            "FMS Stop Response");
-        sub_tree = proto_item_add_subtree(ti, ett_ff_fms_stop_rsp);
+        sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+            ett_ff_fms_stop_rsp, NULL, "FMS Stop Response");
 
         proto_tree_add_text(sub_tree, tvb, offset, length,
             "[Unknown] (%u bytes)", length);
@@ -6820,7 +6586,6 @@ dissect_ff_msg_fms_stop_pi_err(tvbuff_t *tvb, gint offset,
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
     guint8      ErrorClass;
     guint8      ErrorCode;
     const char *error_code;
@@ -6831,8 +6596,7 @@ dissect_ff_msg_fms_stop_pi_err(tvbuff_t *tvb, gint offset,
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, length, "FMS Stop Error");
-    sub_tree = proto_item_add_subtree(ti, ett_ff_fms_stop_err);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, length, ett_ff_fms_stop_err, NULL, "FMS Stop Error");
 
     proto_tree_add_item(sub_tree,
         hf_ff_fms_stop_err_pi_state, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -6886,7 +6650,6 @@ dissect_ff_msg_fms_resume_pi_req(tvbuff_t *tvb, gint offset,
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Resume Request");
 
@@ -6894,8 +6657,7 @@ dissect_ff_msg_fms_resume_pi_req(tvbuff_t *tvb, gint offset,
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, length, "FMS Resume Request");
-    sub_tree = proto_item_add_subtree(ti, ett_ff_fms_resume_req);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, length, ett_ff_fms_resume_req, NULL, "FMS Resume Request");
 
     proto_tree_add_item(sub_tree,
         hf_ff_fms_resume_req_idx, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -6920,7 +6682,6 @@ dissect_ff_msg_fms_resume_pi_rsp(tvbuff_t *tvb, gint offset,
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Resume Response");
 
@@ -6929,9 +6690,8 @@ dissect_ff_msg_fms_resume_pi_rsp(tvbuff_t *tvb, gint offset,
     }
 
     if (length) {
-        ti = proto_tree_add_text(tree, tvb, offset, length,
-            "FMS Resume Response");
-        sub_tree = proto_item_add_subtree(ti, ett_ff_fms_resume_rsp);
+        sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+            ett_ff_fms_resume_rsp, NULL, "FMS Resume Response");
 
         proto_tree_add_text(sub_tree, tvb, offset, length,
             "[Unknown] (%u bytes)", length);
@@ -6950,7 +6710,6 @@ dissect_ff_msg_fms_resume_pi_err(tvbuff_t *tvb, gint offset,
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
     guint8      ErrorClass;
     guint8      ErrorCode;
     const char *error_code;
@@ -6961,8 +6720,7 @@ dissect_ff_msg_fms_resume_pi_err(tvbuff_t *tvb, gint offset,
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, length, "FMS Resume Error");
-    sub_tree = proto_item_add_subtree(ti, ett_ff_fms_resume_err);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, length, ett_ff_fms_resume_err, NULL, "FMS Resume Error");
 
     proto_tree_add_item(sub_tree,
         hf_ff_fms_resume_err_pi_state, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -7016,7 +6774,6 @@ dissect_ff_msg_fms_reset_pi_req(tvbuff_t *tvb, gint offset,
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Reset Request");
 
@@ -7024,8 +6781,7 @@ dissect_ff_msg_fms_reset_pi_req(tvbuff_t *tvb, gint offset,
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, length, "FMS Reset Request");
-    sub_tree = proto_item_add_subtree(ti, ett_ff_fms_reset_req);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, length, ett_ff_fms_reset_req, NULL, "FMS Reset Request");
 
     proto_tree_add_item(sub_tree,
         hf_ff_fms_reset_req_idx, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -7050,7 +6806,6 @@ dissect_ff_msg_fms_reset_pi_rsp(tvbuff_t *tvb, gint offset,
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Reset Response");
 
@@ -7059,9 +6814,8 @@ dissect_ff_msg_fms_reset_pi_rsp(tvbuff_t *tvb, gint offset,
     }
 
     if (length) {
-        ti = proto_tree_add_text(tree, tvb, offset, length,
-            "FMS Reset Response");
-        sub_tree = proto_item_add_subtree(ti, ett_ff_fms_reset_rsp);
+        sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+            ett_ff_fms_reset_rsp, NULL, "FMS Reset Response");
 
         proto_tree_add_text(sub_tree, tvb, offset, length,
             "[Unknown] (%u bytes)", length);
@@ -7080,7 +6834,6 @@ dissect_ff_msg_fms_reset_pi_err(tvbuff_t *tvb, gint offset,
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
     guint8      ErrorClass;
     guint8      ErrorCode;
     const char *error_code;
@@ -7091,8 +6844,7 @@ dissect_ff_msg_fms_reset_pi_err(tvbuff_t *tvb, gint offset,
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, length, "FMS Reset Error");
-    sub_tree = proto_item_add_subtree(ti, ett_ff_fms_reset_err);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, length, ett_ff_fms_reset_err, NULL, "FMS Reset Error");
 
     proto_tree_add_item(sub_tree,
         hf_ff_fms_reset_err_pi_state, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -7146,7 +6898,6 @@ dissect_ff_msg_fms_kill_pi_req(tvbuff_t *tvb, gint offset,
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Kill Request");
 
@@ -7154,8 +6905,7 @@ dissect_ff_msg_fms_kill_pi_req(tvbuff_t *tvb, gint offset,
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, length, "FMS Kill Request");
-    sub_tree = proto_item_add_subtree(ti, ett_ff_fms_kill_req);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, length, ett_ff_fms_kill_req, NULL, "FMS Kill Request");
 
     proto_tree_add_item(sub_tree,
         hf_ff_fms_kill_req_idx, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -7180,7 +6930,6 @@ dissect_ff_msg_fms_kill_pi_rsp(tvbuff_t *tvb, gint offset,
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Kill Response");
 
@@ -7189,9 +6938,8 @@ dissect_ff_msg_fms_kill_pi_rsp(tvbuff_t *tvb, gint offset,
     }
 
     if (length) {
-        ti = proto_tree_add_text(tree, tvb, offset, length,
-            "FMS Kill Response");
-        sub_tree = proto_item_add_subtree(ti, ett_ff_fms_kill_rsp);
+        sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+            ett_ff_fms_kill_rsp, NULL, "FMS Kill Response");
 
         proto_tree_add_text(sub_tree, tvb, offset, length,
             "[Unknown] (%u bytes)", length);
@@ -7210,7 +6958,6 @@ dissect_ff_msg_fms_kill_pi_err(tvbuff_t *tvb, gint offset,
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
     guint8      ErrorClass;
     guint8      ErrorCode;
     const char *error_code;
@@ -7221,8 +6968,7 @@ dissect_ff_msg_fms_kill_pi_err(tvbuff_t *tvb, gint offset,
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, length, "FMS Kill Error");
-    sub_tree = proto_item_add_subtree(ti, ett_ff_fms_kill_err);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, length, ett_ff_fms_kill_err, NULL, "FMS Kill Error");
 
     ErrorClass = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(sub_tree,
@@ -7267,7 +7013,6 @@ dissect_ff_msg_fms_read_req(tvbuff_t *tvb, gint offset,
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Read Request");
 
@@ -7275,8 +7020,7 @@ dissect_ff_msg_fms_read_req(tvbuff_t *tvb, gint offset,
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, length, "FMS Read Request");
-    sub_tree = proto_item_add_subtree(ti, ett_ff_fms_read_req);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, length, ett_ff_fms_read_req, NULL, "FMS Read Request");
 
     proto_tree_add_item(sub_tree,
         hf_ff_fms_read_req_idx, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -7301,7 +7045,6 @@ dissect_ff_msg_fms_read_rsp(tvbuff_t *tvb, gint offset,
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Read Response");
 
@@ -7309,8 +7052,7 @@ dissect_ff_msg_fms_read_rsp(tvbuff_t *tvb, gint offset,
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, length, "FMS Read Response");
-    sub_tree = proto_item_add_subtree(ti, ett_ff_fms_read_rsp);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, length, ett_ff_fms_read_rsp, NULL, "FMS Read Response");
 
     proto_tree_add_text(sub_tree, tvb, offset, length,
         "Data (%u bytes)", length);
@@ -7328,7 +7070,6 @@ dissect_ff_msg_fms_read_err(tvbuff_t *tvb, gint offset,
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
     guint8      ErrorClass;
     guint8      ErrorCode;
     const char *error_code;
@@ -7339,8 +7080,7 @@ dissect_ff_msg_fms_read_err(tvbuff_t *tvb, gint offset,
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, length, "FMS Read Error");
-    sub_tree = proto_item_add_subtree(ti, ett_ff_fms_read_err);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, length, ett_ff_fms_read_err, NULL, "FMS Read Error");
 
     ErrorClass = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(sub_tree,
@@ -7385,7 +7125,6 @@ dissect_ff_msg_fms_read_subindex_req(tvbuff_t *tvb, gint offset,
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Read with Subindex Request");
 
@@ -7393,9 +7132,8 @@ dissect_ff_msg_fms_read_subindex_req(tvbuff_t *tvb, gint offset,
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, length,
-        "FMS Read with Subindex Request");
-    sub_tree = proto_item_add_subtree(ti, ett_ff_fms_read_with_subidx_req);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+        ett_ff_fms_read_with_subidx_req, NULL, "FMS Read with Subindex Request");
 
     proto_tree_add_item(sub_tree,
         hf_ff_fms_read_with_subidx_req_idx, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -7425,7 +7163,6 @@ dissect_ff_msg_fms_read_subindex_rsp(tvbuff_t *tvb, gint offset,
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Read with Subindex Response");
 
@@ -7433,9 +7170,8 @@ dissect_ff_msg_fms_read_subindex_rsp(tvbuff_t *tvb, gint offset,
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, length,
-        "FMS Read with Subindex Response");
-    sub_tree = proto_item_add_subtree(ti, ett_ff_fms_read_with_subidx_rsp);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+        ett_ff_fms_read_with_subidx_rsp, NULL, "FMS Read with Subindex Response");
 
     proto_tree_add_text(sub_tree, tvb, offset, length,
         "Data (%u bytes)", length);
@@ -7453,7 +7189,6 @@ dissect_ff_msg_fms_read_subindex_err(tvbuff_t *tvb, gint offset,
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
     guint8      ErrorClass;
     guint8      ErrorCode;
     const char *error_code;
@@ -7464,9 +7199,8 @@ dissect_ff_msg_fms_read_subindex_err(tvbuff_t *tvb, gint offset,
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, length,
-        "FMS Read with Subindex Error");
-    sub_tree = proto_item_add_subtree(ti, ett_ff_fms_read_with_subidx_err);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+        ett_ff_fms_read_with_subidx_err, NULL, "FMS Read with Subindex Error");
 
     ErrorClass = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(sub_tree,
@@ -7513,7 +7247,6 @@ dissect_ff_msg_fms_write_req(tvbuff_t *tvb, gint offset,
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Write Request");
 
@@ -7521,8 +7254,7 @@ dissect_ff_msg_fms_write_req(tvbuff_t *tvb, gint offset,
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, length, "FMS Write Request");
-    sub_tree = proto_item_add_subtree(ti, ett_ff_fms_write_req);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, length, ett_ff_fms_write_req, NULL, "FMS Write Request");
 
     proto_tree_add_item(sub_tree,
         hf_ff_fms_write_req_idx, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -7547,7 +7279,6 @@ dissect_ff_msg_fms_write_rsp(tvbuff_t *tvb, gint offset,
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Write Response");
 
@@ -7556,9 +7287,8 @@ dissect_ff_msg_fms_write_rsp(tvbuff_t *tvb, gint offset,
     }
 
     if (length) {
-        ti = proto_tree_add_text(tree, tvb, offset, length,
-            "FMS Write Response");
-        sub_tree = proto_item_add_subtree(ti, ett_ff_fms_write_rsp);
+        sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+            ett_ff_fms_write_rsp, NULL, "FMS Write Response");
 
         proto_tree_add_text(sub_tree, tvb, offset, length,
             "[Unknown] (%u bytes)", length);
@@ -7577,7 +7307,6 @@ dissect_ff_msg_fms_write_err(tvbuff_t *tvb, gint offset,
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
     guint8      ErrorClass;
     guint8      ErrorCode;
     const char *error_code;
@@ -7588,8 +7317,7 @@ dissect_ff_msg_fms_write_err(tvbuff_t *tvb, gint offset,
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, length, "FMS Write Error");
-    sub_tree = proto_item_add_subtree(ti, ett_ff_fms_write_err);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, length, ett_ff_fms_write_err, NULL, "FMS Write Error");
 
     ErrorClass = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(sub_tree,
@@ -7634,7 +7362,6 @@ dissect_ff_msg_fms_write_subindex_req(tvbuff_t *tvb, gint offset,
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Write with Subindex Request");
 
@@ -7642,9 +7369,8 @@ dissect_ff_msg_fms_write_subindex_req(tvbuff_t *tvb, gint offset,
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, length,
-        "FMS Write with Subindex Request");
-    sub_tree = proto_item_add_subtree(ti, ett_ff_fms_write_with_subidx_req);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+        ett_ff_fms_write_with_subidx_req, NULL, "FMS Write with Subindex Request");
 
     proto_tree_add_item(sub_tree,
         hf_ff_fms_write_with_subidx_req_idx, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -7674,7 +7400,6 @@ dissect_ff_msg_fms_write_subindex_rsp(tvbuff_t *tvb, gint offset,
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Write with Subindex Response");
 
@@ -7683,9 +7408,8 @@ dissect_ff_msg_fms_write_subindex_rsp(tvbuff_t *tvb, gint offset,
     }
 
     if (length) {
-        ti = proto_tree_add_text(tree, tvb, offset, length,
-            "FMS Write with Subindex Response");
-        sub_tree = proto_item_add_subtree(ti, ett_ff_fms_write_with_subidx_rsp);
+        sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+            ett_ff_fms_write_with_subidx_rsp, NULL, "FMS Write with Subindex Response");
 
         proto_tree_add_text(sub_tree, tvb, offset, length,
             "[Unknown] (%u bytes)", length);
@@ -7704,7 +7428,6 @@ dissect_ff_msg_fms_write_subindex_err(tvbuff_t *tvb, gint offset,
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
     guint8      ErrorClass;
     guint8      ErrorCode;
     const char *error_code;
@@ -7715,9 +7438,8 @@ dissect_ff_msg_fms_write_subindex_err(tvbuff_t *tvb, gint offset,
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, length,
-        "FMS Write with Subindex Error");
-    sub_tree = proto_item_add_subtree(ti, ett_ff_fms_write_with_subidx_err);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+        ett_ff_fms_write_with_subidx_err, NULL, "FMS Write with Subindex Error");
 
     ErrorClass = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(sub_tree,
@@ -7764,17 +7486,14 @@ dissect_ff_msg_fms_def_variable_list_req_list_of_idxes(tvbuff_t *tvb,
     gint offset, proto_tree *tree, guint32 value)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
     guint       d;
 
     if (!tree) {
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, 4 * value,
-        "List Of Indexes (%u bytes)", 4 * value);
-    sub_tree = proto_item_add_subtree(ti,
-        ett_ff_fms_def_variable_list_req_list_of_idxes);
+    sub_tree = proto_tree_add_subtree_format(tree, tvb, offset, 4 * value,
+        ett_ff_fms_def_variable_list_req_list_of_idxes, NULL, "List Of Indexes (%u bytes)", 4 * value);
 
     for (d = 0; d < value; d++) {
         proto_tree_add_item(sub_tree,
@@ -7792,7 +7511,6 @@ dissect_ff_msg_fms_def_variable_list_req(tvbuff_t *tvb, gint offset,
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
     guint32     NumOfIndexes;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Define Variable List Request");
@@ -7801,9 +7519,8 @@ dissect_ff_msg_fms_def_variable_list_req(tvbuff_t *tvb, gint offset,
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, length,
-        "FMS Define Variable List Request");
-    sub_tree = proto_item_add_subtree(ti, ett_ff_fms_def_variable_list_req);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+        ett_ff_fms_def_variable_list_req, NULL, "FMS Define Variable List Request");
 
     NumOfIndexes = tvb_get_ntohl(tvb, offset);
     proto_tree_add_item(sub_tree,
@@ -7836,7 +7553,6 @@ dissect_ff_msg_fms_def_variable_list_rsp(tvbuff_t *tvb, gint offset,
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Define Variable List Response");
 
@@ -7844,9 +7560,8 @@ dissect_ff_msg_fms_def_variable_list_rsp(tvbuff_t *tvb, gint offset,
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, length,
-        "FMS Define Variable List Response");
-    sub_tree = proto_item_add_subtree(ti, ett_ff_fms_def_variable_list_rsp);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+        ett_ff_fms_def_variable_list_rsp, NULL, "FMS Define Variable List Response");
 
     proto_tree_add_item(sub_tree,
         hf_ff_fms_def_variable_list_rsp_idx, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -7871,7 +7586,6 @@ dissect_ff_msg_fms_def_variable_list_err(tvbuff_t *tvb, gint offset,
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
     guint8      ErrorClass;
     guint8      ErrorCode;
     const char *error_code;
@@ -7882,9 +7596,8 @@ dissect_ff_msg_fms_def_variable_list_err(tvbuff_t *tvb, gint offset,
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, length,
-        "FMS Define Variable List Error");
-    sub_tree = proto_item_add_subtree(ti, ett_ff_fms_def_variable_list_err);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+        ett_ff_fms_def_variable_list_err, NULL, "FMS Define Variable List Error");
 
     ErrorClass = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(sub_tree,
@@ -7931,7 +7644,6 @@ dissect_ff_msg_fms_del_variable_list_req(tvbuff_t *tvb, gint offset,
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Delete Variable List Request");
 
@@ -7939,9 +7651,8 @@ dissect_ff_msg_fms_del_variable_list_req(tvbuff_t *tvb, gint offset,
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, length,
-        "FMS Delete Variable List Request");
-    sub_tree = proto_item_add_subtree(ti, ett_ff_fms_del_variable_list_req);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+        ett_ff_fms_del_variable_list_req, NULL, "FMS Delete Variable List Request");
 
     proto_tree_add_item(sub_tree,
         hf_ff_fms_del_variable_list_req_idx, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -7966,7 +7677,6 @@ dissect_ff_msg_fms_del_variable_list_rsp(tvbuff_t *tvb, gint offset,
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Delete Variable List Response");
 
@@ -7975,9 +7685,8 @@ dissect_ff_msg_fms_del_variable_list_rsp(tvbuff_t *tvb, gint offset,
     }
 
     if (length) {
-        ti = proto_tree_add_text(tree, tvb, offset, length,
-            "FMS Delete Variable List Response");
-        sub_tree = proto_item_add_subtree(ti, ett_ff_fms_del_variable_list_rsp);
+        sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+            ett_ff_fms_del_variable_list_rsp, NULL, "FMS Delete Variable List Response");
 
         proto_tree_add_text(sub_tree, tvb, offset, length,
             "[Unknown] (%u bytes)", length);
@@ -7996,7 +7705,6 @@ dissect_ff_msg_fms_del_variable_list_err(tvbuff_t *tvb, gint offset,
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
     guint8      ErrorClass;
     guint8      ErrorCode;
     const char *error_code;
@@ -8007,9 +7715,8 @@ dissect_ff_msg_fms_del_variable_list_err(tvbuff_t *tvb, gint offset,
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, length,
-        "FMS Delete Variable List Error");
-    sub_tree = proto_item_add_subtree(ti, ett_ff_fms_del_variable_list_err);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+        ett_ff_fms_del_variable_list_err, NULL, "FMS Delete Variable List Error");
 
     ErrorClass = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(sub_tree,
@@ -8056,7 +7763,6 @@ dissect_ff_msg_fms_info_report_req(tvbuff_t *tvb, gint offset,
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Information Report Request");
 
@@ -8064,9 +7770,8 @@ dissect_ff_msg_fms_info_report_req(tvbuff_t *tvb, gint offset,
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, length,
-        "FMS Information Report Request");
-    sub_tree = proto_item_add_subtree(ti, ett_ff_fms_info_report_req);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+        ett_ff_fms_info_report_req, NULL, "FMS Information Report Request");
 
     proto_tree_add_item(sub_tree,
         hf_ff_fms_info_report_req_idx, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -8093,7 +7798,6 @@ dissect_ff_msg_fms_info_report_subindex_req(tvbuff_t *tvb, gint offset,
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Information Report with Subindex Request");
 
@@ -8101,10 +7805,8 @@ dissect_ff_msg_fms_info_report_subindex_req(tvbuff_t *tvb, gint offset,
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, length,
-        "FMS Information Report with Subindex Request");
-    sub_tree = proto_item_add_subtree(ti,
-        ett_ff_fms_info_report_with_subidx_req);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+        ett_ff_fms_info_report_with_subidx_req, NULL, "FMS Information Report with Subindex Request");
 
     proto_tree_add_item(sub_tree,
         hf_ff_fms_info_report_with_subidx_req_idx, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -8135,7 +7837,6 @@ dissect_ff_msg_fms_info_report_change_req(tvbuff_t *tvb, gint offset,
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Information Report On Change Request");
 
@@ -8143,9 +7844,8 @@ dissect_ff_msg_fms_info_report_change_req(tvbuff_t *tvb, gint offset,
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, length,
-        "FMS Information Report On Change Request");
-    sub_tree = proto_item_add_subtree(ti, ett_ff_fms_info_report_on_change_req);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+        ett_ff_fms_info_report_on_change_req, NULL, "FMS Information Report On Change Request");
 
     proto_tree_add_item(sub_tree,
         hf_ff_fms_info_report_on_change_req_idx, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -8173,7 +7873,6 @@ dissect_ff_msg_fms_info_report_change_subindex_req(
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Information Report On Change with Subindex Request");
 
@@ -8181,10 +7880,8 @@ dissect_ff_msg_fms_info_report_change_subindex_req(
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, length,
-        "FMS Information Report On Change with Subindex Request");
-    sub_tree = proto_item_add_subtree(ti,
-        ett_ff_fms_info_report_on_change_with_subidx_req);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+        ett_ff_fms_info_report_on_change_with_subidx_req, NULL, "FMS Information Report On Change with Subindex Request");
 
     proto_tree_add_item(sub_tree,
         hf_ff_fms_info_report_on_change_with_subidx_req_idx,
@@ -8218,7 +7915,6 @@ dissect_ff_msg_fms_ev_notification_req(
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Event Notification Request");
 
@@ -8226,9 +7922,8 @@ dissect_ff_msg_fms_ev_notification_req(
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, length,
-        "FMS Event Notification Request");
-    sub_tree = proto_item_add_subtree(ti, ett_ff_fms_ev_notification_req);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+        ett_ff_fms_ev_notification_req, NULL, "FMS Event Notification Request");
 
     proto_tree_add_item(sub_tree,
         hf_ff_fms_ev_notification_req_idx, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -8260,7 +7955,6 @@ dissect_ff_msg_fms_alter_alter_ev_condition_monitoring_req(
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Alter Event Condition Monitoring Request");
 
@@ -8268,10 +7962,8 @@ dissect_ff_msg_fms_alter_alter_ev_condition_monitoring_req(
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, length,
-        "FMS Alter Event Condition Monitoring Request");
-    sub_tree = proto_item_add_subtree(ti,
-        ett_ff_fms_alter_ev_condition_monitoring_req);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+        ett_ff_fms_alter_ev_condition_monitoring_req, NULL, "FMS Alter Event Condition Monitoring Request");
 
     proto_tree_add_item(sub_tree,
         hf_ff_fms_alter_ev_condition_monitoring_req_idx, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -8307,7 +7999,6 @@ dissect_ff_msg_fms_alter_alter_ev_condition_monitoring_rsp(
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Alter Event Condition Monitoring Response");
 
@@ -8316,10 +8007,8 @@ dissect_ff_msg_fms_alter_alter_ev_condition_monitoring_rsp(
     }
 
     if (length) {
-        ti = proto_tree_add_text(tree, tvb, offset, length,
-            "FMS Alter Event Condition Monitoring Response");
-        sub_tree = proto_item_add_subtree(ti,
-            ett_ff_fms_alter_ev_condition_monitoring_rsp);
+        sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+            ett_ff_fms_alter_ev_condition_monitoring_rsp, NULL, "FMS Alter Event Condition Monitoring Response");
 
         proto_tree_add_text(sub_tree, tvb, offset, length,
             "[Unknown] (%u bytes)", length);
@@ -8339,7 +8028,6 @@ dissect_ff_msg_fms_alter_alter_ev_condition_monitoring_err(
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
     guint8      ErrorClass;
     guint8      ErrorCode;
     const char *error_code;
@@ -8350,10 +8038,8 @@ dissect_ff_msg_fms_alter_alter_ev_condition_monitoring_err(
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, length,
-        "FMS Alter Event Condition Monitoring Error");
-    sub_tree = proto_item_add_subtree(ti,
-        ett_ff_fms_alter_ev_condition_monitoring_err);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+        ett_ff_fms_alter_ev_condition_monitoring_err, NULL, "FMS Alter Event Condition Monitoring Error");
 
     ErrorClass = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(sub_tree,
@@ -8403,7 +8089,6 @@ dissect_ff_msg_fms_ack_ev_notification_req(
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Acknowledge Event Notification Request");
 
@@ -8411,9 +8096,8 @@ dissect_ff_msg_fms_ack_ev_notification_req(
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, length,
-        "FMS Acknowledge Event Notification Request");
-    sub_tree = proto_item_add_subtree(ti, ett_ff_fms_ack_ev_notification_req);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+        ett_ff_fms_ack_ev_notification_req, NULL, "FMS Acknowledge Event Notification Request");
 
     proto_tree_add_item(sub_tree,
         hf_ff_fms_ack_ev_notification_req_idx, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -8444,7 +8128,6 @@ dissect_ff_msg_fms_ack_ev_notification_rsp(
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
 
     col_set_str(pinfo->cinfo, COL_INFO, "FMS Acknowledge Event Notification Response");
 
@@ -8453,10 +8136,8 @@ dissect_ff_msg_fms_ack_ev_notification_rsp(
     }
 
     if (length) {
-        ti = proto_tree_add_text(tree, tvb, offset, length,
-            "FMS Acknowledge Event Notification Response");
-        sub_tree = proto_item_add_subtree(ti,
-            ett_ff_fms_ack_ev_notification_rsp);
+        sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+            ett_ff_fms_ack_ev_notification_rsp, NULL, "FMS Acknowledge Event Notification Response");
 
         proto_tree_add_text(sub_tree, tvb, offset, length,
             "[Unknown] (%u bytes)", length);
@@ -8476,7 +8157,6 @@ dissect_ff_msg_fms_ack_ev_notification_err(
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
     guint8      ErrorClass;
     guint8      ErrorCode;
     const char *error_code;
@@ -8487,9 +8167,8 @@ dissect_ff_msg_fms_ack_ev_notification_err(
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, length,
-        "FMS Acknowledge Event Notification Error");
-    sub_tree = proto_item_add_subtree(ti, ett_ff_fms_ack_ev_notification_err);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+        ett_ff_fms_ack_ev_notification_err, NULL, "FMS Acknowledge Event Notification Error");
 
     ErrorClass = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(sub_tree,
@@ -8538,7 +8217,6 @@ dissect_ff_msg_lr_get_info_req(
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
 
     col_set_str(pinfo->cinfo, COL_INFO, "LAN Redundancy Get Information Request");
 
@@ -8547,10 +8225,8 @@ dissect_ff_msg_lr_get_info_req(
     }
 
     if (length) {
-        ti = proto_tree_add_text(tree, tvb, offset, length,
-            "LAN Redundancy Get Information Request");
-        sub_tree = proto_item_add_subtree(ti,
-            ett_ff_lr_get_info_req);
+        sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+            ett_ff_lr_get_info_req, NULL, "LAN Redundancy Get Information Request");
 
         proto_tree_add_text(sub_tree, tvb, offset, length,
             "[Unknown] (%u bytes)", length);
@@ -8617,7 +8293,6 @@ dissect_ff_msg_lr_get_info_rsp(
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
     guint8      MaxMsgNumDiff;
     guint8      LRFlags;
 
@@ -8627,9 +8302,8 @@ dissect_ff_msg_lr_get_info_rsp(
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, length,
-        "LAN Redundancy Get Information Response");
-    sub_tree = proto_item_add_subtree(ti, ett_ff_lr_get_info_rsp);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+        ett_ff_lr_get_info_rsp, NULL, "LAN Redundancy Get Information Response");
 
     proto_tree_add_item(sub_tree,
         hf_ff_lr_get_info_rsp_lr_attrs_ver, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -8718,7 +8392,6 @@ dissect_ff_msg_lr_get_info_err(
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
     guint8      ErrorClass;
     guint8      ErrorCode;
     const char *error_code;
@@ -8729,9 +8402,8 @@ dissect_ff_msg_lr_get_info_err(
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, length,
-        "LAN Redundancy Get Information Error");
-    sub_tree = proto_item_add_subtree(ti, ett_ff_lr_get_info_err);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+        ett_ff_lr_get_info_err, NULL, "LAN Redundancy Get Information Error");
 
     ErrorClass = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(sub_tree,
@@ -8825,7 +8497,6 @@ dissect_ff_msg_lr_put_info_req(
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
     guint8      MaxMsgNumDiff;
     guint8      LRFlags;
 
@@ -8835,9 +8506,8 @@ dissect_ff_msg_lr_put_info_req(
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, length,
-        "LAN Redundancy Put Information Request");
-    sub_tree = proto_item_add_subtree(ti, ett_ff_lr_put_info_req);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+        ett_ff_lr_put_info_req, NULL, "LAN Redundancy Put Information Request");
 
     proto_tree_add_item(sub_tree,
         hf_ff_lr_put_info_req_lr_attrs_ver, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -8973,7 +8643,6 @@ dissect_ff_msg_lr_put_info_rsp(
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
     guint8      MaxMsgNumDiff;
     guint8      LRFlags;
 
@@ -8983,9 +8652,8 @@ dissect_ff_msg_lr_put_info_rsp(
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, length,
-        "LAN Redundancy Put Information Response");
-    sub_tree = proto_item_add_subtree(ti, ett_ff_lr_put_info_rsp);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+        ett_ff_lr_put_info_rsp, NULL, "LAN Redundancy Put Information Response");
 
     proto_tree_add_item(sub_tree,
         hf_ff_lr_put_info_rsp_lr_attrs_ver, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -9074,7 +8742,6 @@ dissect_ff_msg_lr_put_info_err(
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
     guint8      ErrorClass;
     guint8      ErrorCode;
     const char *error_code;
@@ -9085,9 +8752,8 @@ dissect_ff_msg_lr_put_info_err(
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, length,
-        "LAN Redundancy Put Information Error");
-    sub_tree = proto_item_add_subtree(ti, ett_ff_lr_put_info_err);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+        ett_ff_lr_put_info_err, NULL, "LAN Redundancy Put Information Error");
 
     ErrorClass = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(sub_tree,
@@ -9134,7 +8800,6 @@ dissect_ff_msg_lr_get_statistics_req(
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
 
     col_set_str(pinfo->cinfo, COL_INFO, "LAN Redundancy Get Statistics Request");
 
@@ -9143,9 +8808,8 @@ dissect_ff_msg_lr_get_statistics_req(
     }
 
     if (length) {
-        ti = proto_tree_add_text(tree, tvb, offset, length,
-            "LAN Redundancy Get Statistics Request");
-        sub_tree = proto_item_add_subtree(ti, ett_ff_lr_get_statistics_req);
+        sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+            ett_ff_lr_get_statistics_req, NULL, "LAN Redundancy Get Statistics Request");
 
         proto_tree_add_text(sub_tree, tvb, offset, length,
             "[Unknown] (%u bytes)", length);
@@ -9164,17 +8828,15 @@ dissect_ff_msg_lr_get_statistics_rsp_x_cable_stat(tvbuff_t *tvb,
     gint offset, proto_tree *tree, guint32 value)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
     guint       d;
 
     if (!tree) {
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, 4 * value,
+    sub_tree = proto_tree_add_subtree_format(tree, tvb, offset, 4 * value,
+        ett_ff_lr_get_statistics_rsp_list_of_x_cable_stat, NULL,
         "List of Crossed Cable Status (%u bytes)", 4 * value);
-    sub_tree = proto_item_add_subtree(ti,
-        ett_ff_lr_get_statistics_rsp_list_of_x_cable_stat);
 
     for (d = 0; d < value; d++) {
         proto_tree_add_item(sub_tree,
@@ -9194,7 +8856,6 @@ dissect_ff_msg_lr_get_statistics_rsp(
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
     guint32     NumXcableStat;
 
     col_set_str(pinfo->cinfo, COL_INFO, "LAN Redundancy Get Statistics Response");
@@ -9203,9 +8864,8 @@ dissect_ff_msg_lr_get_statistics_rsp(
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, length,
-        "LAN Redundancy Get Statistics Response");
-    sub_tree = proto_item_add_subtree(ti, ett_ff_lr_get_statistics_rsp);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+        ett_ff_lr_get_statistics_rsp, NULL, "LAN Redundancy Get Statistics Response");
 
     proto_tree_add_item(sub_tree,
         hf_ff_lr_get_statistics_rsp_num_diag_svr_ind_recv_a,
@@ -9275,7 +8935,6 @@ dissect_ff_msg_lr_get_statistics_err(
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
     guint8      ErrorClass;
     guint8      ErrorCode;
     const char *error_code;
@@ -9286,10 +8945,8 @@ dissect_ff_msg_lr_get_statistics_err(
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, length,
-        "LAN Redundancy Get Statistics Error");
-    sub_tree = proto_item_add_subtree(ti,
-        ett_ff_lr_get_statistics_err);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+        ett_ff_lr_get_statistics_err, NULL, "LAN Redundancy Get Statistics Error");
 
     ErrorClass = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(sub_tree,
@@ -9366,17 +9023,15 @@ dissect_ff_msg_diagnostic_msg_req_if_a_to_a_status(tvbuff_t *tvb,
     gint offset, proto_tree *tree, guint32 value)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
     guint       d;
 
     if (!tree) {
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, 4 * value,
+    sub_tree = proto_tree_add_subtree_format(tree, tvb, offset, 4 * value,
+        ett_ff_lr_diagnostic_msg_req_a_to_a_status, NULL,
         "List of Interface AtoA Statuses (%u bytes)", 4 * value);
-    sub_tree = proto_item_add_subtree(ti,
-        ett_ff_lr_diagnostic_msg_req_a_to_a_status);
 
     for (d = 0; d < value; d++) {
         proto_tree_add_item(sub_tree,
@@ -9396,17 +9051,15 @@ dissect_ff_msg_diagnostic_msg_req_if_b_to_a_status(tvbuff_t *tvb,
     gint offset, proto_tree *tree, guint32 value)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
     guint       d;
 
     if (!tree) {
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, 4 * value,
+    sub_tree = proto_tree_add_subtree_format(tree, tvb, offset, 4 * value,
+        ett_ff_lr_diagnostic_msg_req_b_to_a_status, NULL,
         "List of Interface BtoA Statuses (%u bytes)", 4 * value);
-    sub_tree = proto_item_add_subtree(ti,
-        ett_ff_lr_diagnostic_msg_req_b_to_a_status);
 
     for (d = 0; d < value; d++) {
         proto_tree_add_item(sub_tree,
@@ -9426,17 +9079,15 @@ dissect_ff_msg_diagnostic_msg_req_if_a_to_b_status(tvbuff_t *tvb,
     gint offset, proto_tree *tree, guint32 value)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
     guint       d;
 
     if (!tree) {
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, 4 * value,
+    sub_tree = proto_tree_add_subtree_format(tree, tvb, offset, 4 * value,
+        ett_ff_lr_diagnostic_msg_req_a_to_b_status, NULL,
         "List of Interface AtoB Statuses (%u bytes)", 4 * value);
-    sub_tree = proto_item_add_subtree(ti,
-        ett_ff_lr_diagnostic_msg_req_a_to_b_status);
 
     for (d = 0; d < value; d++) {
         proto_tree_add_item(sub_tree,
@@ -9456,17 +9107,15 @@ dissect_ff_msg_diagnostic_msg_req_if_b_to_b_status(tvbuff_t *tvb,
     gint offset, proto_tree *tree, guint32 value)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
     guint       d;
 
     if (!tree) {
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, 4 * value,
+    sub_tree = proto_tree_add_subtree_format(tree, tvb, offset, 4 * value,
+        ett_ff_lr_diagnostic_msg_req_b_to_b_status, NULL,
         "List of Interface BtoB Statuses (%u bytes)", 4 * value);
-    sub_tree = proto_item_add_subtree(ti,
-        ett_ff_lr_diagnostic_msg_req_b_to_b_status);
 
     for (d = 0; d < value; d++) {
         proto_tree_add_item(sub_tree,
@@ -9487,7 +9136,6 @@ dissect_ff_msg_diagnostic_msg_req(
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
     guint16     DeviceIndex;
     guint8      DuplicateDetectionState;
     guint16     NumOfInterfaceStatuses;
@@ -9498,9 +9146,8 @@ dissect_ff_msg_diagnostic_msg_req(
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, length,
-        "Diagnostic Message Request");
-    sub_tree = proto_item_add_subtree(ti, ett_ff_lr_diagnostic_msg_req);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+        ett_ff_lr_diagnostic_msg_req, NULL, "Diagnostic Message Request");
 
     DeviceIndex = tvb_get_ntohs(tvb, offset);
     if (DeviceIndex) {
@@ -11685,7 +11332,6 @@ dissect_ff_msg_trailer(tvbuff_t *tvb,
     gint offset, guint32 length, proto_tree *tree, guint8 Options)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
     proto_item *hidden_item;
 
     if (!tree) {
@@ -11695,9 +11341,8 @@ dissect_ff_msg_trailer(tvbuff_t *tvb,
     hidden_item = proto_tree_add_boolean(tree, hf_ff_fda_msg_trailer, tvb, 0, 0, 1);
     PROTO_ITEM_SET_HIDDEN(hidden_item);
 
-    ti = proto_tree_add_text(tree,
-        tvb, offset, length, "FDA Message Trailer");
-    sub_tree = proto_item_add_subtree(ti, ett_ff_fda_msg_trailer);
+    sub_tree = proto_tree_add_subtree(tree,
+        tvb, offset, length, ett_ff_fda_msg_trailer, NULL, "FDA Message Trailer");
 
     if (Options & OPTION_MESSAGE_NUMBER_MASK) {
         proto_tree_add_item(sub_tree,
@@ -11863,7 +11508,6 @@ dissect_ff_msg_hdr(tvbuff_t *tvb,
     proto_tree *tree, guint8 Options, guint8 ProtocolAndType, guint8 Service)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
     proto_item *hidden_item;
     gint        offset   = 0;
 
@@ -11874,9 +11518,8 @@ dissect_ff_msg_hdr(tvbuff_t *tvb,
     hidden_item = proto_tree_add_boolean(tree, hf_ff_fda_msg_hdr, tvb, 0, 0, 1);
     PROTO_ITEM_SET_HIDDEN(hidden_item);
 
-    ti = proto_tree_add_text(tree,
-        tvb, offset, 12, "FDA Message Header");
-    sub_tree = proto_item_add_subtree(ti, ett_ff_fda_msg_hdr);
+    sub_tree = proto_tree_add_subtree(tree,
+        tvb, offset, 12, ett_ff_fda_msg_hdr, NULL, "FDA Message Header");
 
     /* FDA Message Version */
     proto_tree_add_item(sub_tree,
@@ -11915,8 +11558,8 @@ dissect_ff_msg_hdr(tvbuff_t *tvb,
 static int
 dissect_ff(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    proto_tree *sub_tree = NULL;
-    proto_item *ti       = NULL;
+    proto_tree *sub_tree;
+    proto_item *ti;
     gint        offset   = 0;
 
     guint8  Options         = 0; /* Options */
@@ -11935,10 +11578,8 @@ dissect_ff(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     FDAAddress      = tvb_get_ntohl(tvb, 4);
     length          = tvb_get_ntohl(tvb, 8);
 
-    if (tree) {
-        ti = proto_tree_add_item(tree, proto_ff, tvb, offset, length, ENC_NA);
-        sub_tree = proto_item_add_subtree(ti, ett_ff);
-    }
+    ti = proto_tree_add_item(tree, proto_ff, tvb, offset, length, ENC_NA);
+    sub_tree = proto_item_add_subtree(ti, ett_ff);
 
     if (Options & OPTION_MESSAGE_NUMBER_MASK) {
         length      -= 4;

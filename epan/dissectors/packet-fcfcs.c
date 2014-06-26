@@ -788,12 +788,10 @@ dissect_fcfcs (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     /* Make entries in Protocol column and Info column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "FC-FCS");
 
-    if (tree) {
-        ti = proto_tree_add_protocol_format (tree, proto_fcfcs, tvb, 0,
-                                             tvb_reported_length (tvb),
-                                             "FCS");
-        fcfcs_tree = proto_item_add_subtree (ti, ett_fcfcs);
-    }
+    ti = proto_tree_add_protocol_format (tree, proto_fcfcs, tvb, 0,
+                                            tvb_reported_length (tvb),
+                                            "FCS");
+    fcfcs_tree = proto_item_add_subtree (ti, ett_fcfcs);
 
     tvb_memcpy (tvb, (guint8 *)&cthdr, offset, FCCT_PRMBL_SIZE);
     cthdr.revision = tvb_get_guint8 (tvb, offset);
