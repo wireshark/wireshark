@@ -191,6 +191,7 @@ static gint ett_endpoint_wMaxPacketSize = -1;
 static expert_field ei_usb_bLength_even = EI_INIT;
 static expert_field ei_usb_bLength_too_short = EI_INIT;
 static expert_field ei_usb_desc_length_invalid = EI_INIT;
+static expert_field ei_usb_invalid_setup = EI_INIT;
 
 static const int *usb_endpoint_fields[] = {
     &hf_usb_endpoint_direction,
@@ -2714,6 +2715,8 @@ dissect_linux_usb_pseudo_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     if (flag[0] == 0) {
         usb_conv_info->is_setup = TRUE;
         proto_tree_add_string(tree, hf_usb_setup_flag, tvb, 14, 1, "relevant (0)");
+        if (usb_conv_info->transfer_type!=URB_CONTROL)
+            proto_tree_add_expert(tree, pinfo, &ei_usb_invalid_setup, tvb, 14, 1);
     } else {
         usb_conv_info->is_setup = FALSE;
         proto_tree_add_string_format_value(tree, hf_usb_setup_flag, tvb,
@@ -3037,7 +3040,6 @@ dissect_linux_usb_iso_transfer(packet_info *pinfo _U_, proto_tree *urb_tree,
 
     /* iso urbs on linux can't possibly contain a setup packet
        see mon_bin_event() in the linux kernel */
-    /* XXX - bring up an expert info if usb_conv_info->is_setup==TRUE */
 
     /* Process ISO related fields (usbmon_packet.iso). The fields are
      * in host endian byte order so use tvb_memcopy() and
@@ -3178,8 +3180,7 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
             PROTO_ITEM_SET_GENERATED(item);
 
             if (header_info & USB_HEADER_IS_LINUX) {
-                /* bulk and interrupt transfers never contain a setup packet
-                   XXX - bring up an expert info if usb_conv_info->is_setup==TRUE? */
+                /* bulk and interrupt transfers never contain a setup packet */
                 proto_tree_add_item(tree, hf_usb_urb_unused_setup_header, tvb, offset, 8, ENC_NA);
                 offset += 8;
 
@@ -3338,7 +3339,6 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
 
     default:
         /* unknown transfer type */
-        /* XXX - bring up an expert info if the urb contains a setup packet */
         if (header_info & USB_HEADER_IS_LINUX) {
             proto_tree_add_item(tree, hf_usb_urb_unused_setup_header, tvb, offset, 8, ENC_NA);
             offset += 8;
@@ -4052,6 +4052,7 @@ proto_register_usb(void)
         { &ei_usb_bLength_even, { "usb.bLength.even", PI_PROTOCOL, PI_WARN, "Invalid STRING DESCRIPTOR Length (must be even)", EXPFILL }},
         { &ei_usb_bLength_too_short, { "usb.bLength.too_short", PI_MALFORMED, PI_ERROR, "Invalid STRING DESCRIPTOR Length (must be 2 or larger)", EXPFILL }},
         { &ei_usb_desc_length_invalid, { "usb.desc_length.invalid", PI_MALFORMED, PI_ERROR, "Invalid descriptor length", EXPFILL }},
+        { &ei_usb_invalid_setup, { "usb.setup.invalid", PI_MALFORMED, PI_ERROR, "Only control URBs may contain a setup packet", EXPFILL }}
     };
 
     expert_module_t* expert_usb;
