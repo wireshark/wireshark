@@ -279,7 +279,7 @@ dissect_iser(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if ((convo_data->service_id & SID_MASK) != SID_ULP_TCP)
         return 0;   /* the service id doesn't match that of TCP ULP - nothing for us to do here */
 
-    if (!(value_is_in_range(gPORT_RANGE, convo_data->service_id & SID_PORT_MASK)))
+    if (!(value_is_in_range(gPORT_RANGE, (guint32)(convo_data->service_id & SID_PORT_MASK))))
         return 0;   /* the port doesn't match that of iSER - nothing for us to do here */
 
     return dissect_packet(tvb, pinfo, tree);
