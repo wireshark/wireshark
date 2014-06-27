@@ -1450,6 +1450,10 @@ output_fields_valid(output_fields_t *fields)
 {
     gboolean all_valid = TRUE;
 
+    if (fields->fields == NULL) {
+        return TRUE;
+    }
+
     g_ptr_array_foreach(fields->fields, output_field_check, &all_valid);
 
     return all_valid;
