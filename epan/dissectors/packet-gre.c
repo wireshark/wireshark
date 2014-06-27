@@ -235,9 +235,8 @@ dissect_gre_3gpp2_attribs(tvbuff_t *tvb, int offset, proto_tree *tree)
         guint8 attrib_id = tvb_get_guint8(tvb, offset);
         guint8 attrib_length = tvb_get_guint8(tvb, offset + 1);
 
-        attr_item = proto_tree_add_text(atree, tvb, offset, attrib_length + 1 + 1, "%s",
+        attr_tree = proto_tree_add_subtree(atree, tvb, offset, attrib_length + 1 + 1, ett_3gpp2_attr, &attr_item,
                                         val_to_str((attrib_id&0x7f), gre_3ggp2_attrib_id_vals, "%u (Unknown)"));
-        attr_tree = proto_item_add_subtree(attr_item, ett_3gpp2_attr);
 
         proto_tree_add_item(attr_tree, hf_gre_3ggp2_attrib_id, tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(attr_tree, hf_gre_3ggp2_attrib_length, tvb, offset+1, 1, ENC_BIG_ENDIAN);

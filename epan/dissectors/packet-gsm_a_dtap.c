@@ -1187,14 +1187,23 @@ de_mm_timer(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 off
 
 	switch (oct>>5)
 	{
-		case 0:  str = "sec"; val*=2; break;
-		case 1:  str = "min"; break;
-		case 2:  str = "min"; val*=6; break;
-		case 7:  str = "";
+		case 0:
+			str = "sec"; val*=2;
+			break;
+		case 1:
+			str = "min";
+			break;
+		case 2:
+			str = "min"; val*=6;
+			break;
+		case 7:
+			str = "";
 			item = proto_tree_add_uint_format_value(tree, hf_gsm_a_dtap_mm_timer, tvb, offset, 1,
 			                           oct, "timer is deactivated");
 			break;
-		default:  str = "min";
+		default:
+			str = "min";
+			break;
 	}
 
 	if (item == NULL) {
@@ -1521,11 +1530,10 @@ de_bearer_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 o
 	 * warning, bearer cap uses extended values that
 	 * are reversed from other parameters!
 	 */
-	item =
-		proto_tree_add_text(tree,
+	subtree =
+		proto_tree_add_subtree(tree,
 			tvb, curr_offset, 1,
-			"Octet 3");
-	subtree = proto_item_add_subtree(item, ett_bc_oct_3);
+			ett_bc_oct_3, NULL, "Octet 3");
 
 	extended = (oct & 0x80) ? FALSE : TRUE;
 	itc = oct & 0x07;
@@ -1610,12 +1618,10 @@ de_bearer_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 o
 	case DE_BC_ITC_SPEECH:
 		/* octets 3a */
 
-		item =
-			proto_tree_add_text(tree,
-				tvb, curr_offset, -1,
+		subtree =
+			proto_tree_add_subtree(tree,
+				tvb, curr_offset, -1, ett_bc_oct_3a, &item,
 				"Octets 3a - Speech Versions");
-
-		subtree = proto_item_add_subtree(item, ett_bc_oct_3a);
 
 		saved_offset = curr_offset;
 
@@ -1640,12 +1646,10 @@ de_bearer_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 o
 		default:
 		/* octet 4 */
 
-		item =
-			proto_tree_add_text(tree,
+		subtree =
+			proto_tree_add_subtree(tree,
 				tvb, curr_offset, 1,
-				"Octet 4");
-
-		subtree = proto_item_add_subtree(item, ett_bc_oct_4);
+				ett_bc_oct_4, NULL, "Octet 4");
 
 		proto_tree_add_item(subtree, hf_gsm_a_extension, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 		proto_tree_add_item(subtree, is_uplink ? hf_gsm_a_dtap_compression_up : hf_gsm_a_dtap_compression,
@@ -1662,12 +1666,10 @@ de_bearer_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 o
 
 	/* octet 5 */
 
-	item =
-		proto_tree_add_text(tree,
+	subtree =
+		proto_tree_add_subtree(tree,
 		tvb, curr_offset, 1,
-		"Octet 5");
-
-	subtree = proto_item_add_subtree(item, ett_bc_oct_5);
+		ett_bc_oct_5, NULL, "Octet 5");
 
 	oct = tvb_get_guint8(tvb, curr_offset);
 
@@ -1685,12 +1687,10 @@ de_bearer_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 o
 
 	/* octet 5a */
 
-	item =
-		proto_tree_add_text(tree,
+	subtree =
+		proto_tree_add_subtree(tree,
 		tvb, curr_offset, 1,
-		"Octet 5a");
-
-	subtree = proto_item_add_subtree(item, ett_bc_oct_5a);
+		ett_bc_oct_5a, NULL, "Octet 5a");
 
 	oct = tvb_get_guint8(tvb, curr_offset);
 
@@ -1708,12 +1708,10 @@ de_bearer_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 o
 
 	/* octet 5b */
 
-	item =
-		proto_tree_add_text(tree,
+	subtree =
+		proto_tree_add_subtree(tree,
 		tvb, curr_offset, 1,
-		"Octet 5b");
-
-	subtree = proto_item_add_subtree(item, ett_bc_oct_5b);
+		ett_bc_oct_5b, NULL, "Octet 5b");
 
 	proto_tree_add_item(subtree, hf_gsm_a_extension, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_item(subtree, hf_gsm_a_dtap_rate_adaption_header, tvb, curr_offset, 1, ENC_NA);
@@ -1732,12 +1730,10 @@ bc_octet_6:
 
 	/* octet 6 */
 
-	item =
-		proto_tree_add_text(tree,
+	subtree =
+		proto_tree_add_subtree(tree,
 		tvb, curr_offset, 1,
-		"Octet 6");
-
-	subtree = proto_item_add_subtree(item, ett_bc_oct_6);
+		ett_bc_oct_6, NULL, "Octet 6");
 
 	oct = tvb_get_guint8(tvb, curr_offset);
 
@@ -1761,12 +1757,10 @@ bc_octet_6:
 
 	/* octet 6a */
 
-	item =
-		proto_tree_add_text(tree,
+	subtree =
+		proto_tree_add_subtree(tree,
 		tvb, curr_offset, 1,
-		"Octet 6a");
-
-	subtree = proto_item_add_subtree(item, ett_bc_oct_6a);
+		ett_bc_oct_6a, NULL, "Octet 6a");
 
 	oct = tvb_get_guint8(tvb, curr_offset);
 
@@ -1788,12 +1782,10 @@ bc_octet_6:
 
 	/* octet 6b */
 
-	item =
-		proto_tree_add_text(tree,
+	subtree =
+		proto_tree_add_subtree(tree,
 		tvb, curr_offset, 1,
-		"Octet 6b");
-
-	subtree = proto_item_add_subtree(item, ett_bc_oct_6b);
+		ett_bc_oct_6b, NULL, "Octet 6b");
 
 	oct = tvb_get_guint8(tvb, curr_offset);
 
@@ -1812,12 +1804,10 @@ bc_octet_6:
 
 	/* octet 6c */
 
-	item =
-		proto_tree_add_text(tree,
+	subtree =
+		proto_tree_add_subtree(tree,
 		tvb, curr_offset, 1,
-		"Octet 6c");
-
-	subtree = proto_item_add_subtree(item, ett_bc_oct_6c);
+		ett_bc_oct_6c, NULL, "Octet 6c");
 
 	oct = tvb_get_guint8(tvb, curr_offset);
 
@@ -1836,12 +1826,10 @@ bc_octet_6:
 
 	/* octet 6d */
 
-	item =
-		proto_tree_add_text(tree,
+	subtree =
+		proto_tree_add_subtree(tree,
 		tvb, curr_offset, 1,
-		"Octet 6d");
-
-	subtree = proto_item_add_subtree(item, ett_bc_oct_6d);
+		ett_bc_oct_6d, NULL, "Octet 6d");
 
 	oct = tvb_get_guint8(tvb, curr_offset);
 
@@ -1859,12 +1847,10 @@ bc_octet_6:
 
 	/* octet 6e */
 
-	item =
-		proto_tree_add_text(tree,
+	subtree =
+		proto_tree_add_subtree(tree,
 		tvb, curr_offset, 1,
-		"Octet 6e");
-
-	subtree = proto_item_add_subtree(item, ett_bc_oct_6e);
+		ett_bc_oct_6e, NULL, "Octet 6e");
 
 	oct = tvb_get_guint8(tvb, curr_offset);
 
@@ -1898,12 +1884,10 @@ bc_octet_6:
 
 	/* octet 6f */
 
-	item =
-		proto_tree_add_text(tree,
+	subtree =
+		proto_tree_add_subtree(tree,
 		tvb, curr_offset, 1,
-		"Octet 6f");
-
-	subtree = proto_item_add_subtree(item, ett_bc_oct_6f);
+		ett_bc_oct_6f, NULL, "Octet 6f");
 
 	oct = tvb_get_guint8(tvb, curr_offset);
 
@@ -1930,12 +1914,10 @@ bc_octet_6:
 
 	/* octet 6g */
 
-	item =
-		proto_tree_add_text(tree,
+	subtree =
+		proto_tree_add_subtree(tree,
 		tvb, curr_offset, 1,
-		"Octet 6g");
-
-	subtree = proto_item_add_subtree(item, ett_bc_oct_6g);
+		ett_bc_oct_6g, NULL, "Octet 6g");
 
 	oct = tvb_get_guint8(tvb, curr_offset);
 
@@ -1962,13 +1944,10 @@ bc_octet_6:
 bc_octet_7:
 	/* octet 7 */
 
-	item =
-		proto_tree_add_text(tree,
+	subtree =
+		proto_tree_add_subtree(tree,
 		tvb, curr_offset, 1,
-		"Octet 7");
-
-	subtree = proto_item_add_subtree(item, ett_bc_oct_7);
-		oct = tvb_get_guint8(tvb, curr_offset);
+		ett_bc_oct_7, NULL, "Octet 7");
 
 	proto_tree_add_item(subtree, hf_gsm_a_extension, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
@@ -2090,14 +2069,12 @@ de_call_state(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 o
 {
 	guint8      oct, coding_standard, call_state;
 	proto_tree *subtree;
-	proto_item *item;
 
-	item =
-	proto_tree_add_text(tree,
-		tvb, offset, 1, "%s",
+	subtree =
+	proto_tree_add_subtree(tree,
+		tvb, offset, 1, ett_gsm_dtap_elem[DE_CALL_STATE], NULL,
 		val_to_str_ext_const(DE_CALL_STATE, &gsm_dtap_elem_strings_ext, ""));
 
-	subtree = proto_item_add_subtree(item, ett_gsm_dtap_elem[DE_CALL_STATE]);
 	proto_tree_add_item(subtree, hf_gsm_a_dtap_coding_standard, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 	oct = tvb_get_guint8(tvb, offset);
@@ -2420,7 +2397,6 @@ de_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset
 	guint32      curr_offset;
 	guint32      diag_length;
 	proto_tree  *subtree;
-	proto_item  *item;
 	const gchar *str;
 
 	curr_offset = offset;
@@ -2524,8 +2500,8 @@ de_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset
 
 	NO_MORE_DATA_CHECK(len);
 
-	item = proto_tree_add_text(tree, tvb, curr_offset, len - (curr_offset - offset), "Diagnostics");
-	subtree = proto_item_add_subtree(item, ett_gsm_dtap_elem[DE_CAUSE]);
+	subtree = proto_tree_add_subtree(tree, tvb, curr_offset, len - (curr_offset - offset),
+										ett_gsm_dtap_elem[DE_CAUSE], NULL, "Diagnostics");
 
 	/*
 	 * Diagnostics for supplementary services may be included in the case of
@@ -3006,14 +2982,12 @@ de_u2u(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, 
 {
 	guint32     curr_offset;
 	proto_tree *subtree;
-	proto_item *item;
 
 	curr_offset = offset;
 	proto_tree_add_item(tree, hf_gsm_a_dtap_u2u_prot_discr, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	curr_offset++;
 
-	item = proto_tree_add_text(tree, tvb, curr_offset, len - 1, "User-user information");
-	subtree = proto_item_add_subtree(item, ett_gsm_dtap_elem[DE_USER_USER]);
+	subtree = proto_tree_add_subtree(tree, tvb, curr_offset, len - 1, ett_gsm_dtap_elem[DE_USER_USER], NULL, "User-user information");
 	proto_tree_add_item(subtree, hf_gsm_a_dtap_data, tvb, curr_offset, len - 1, ENC_NA);
 
 	return(len);
@@ -3187,7 +3161,6 @@ de_sup_codec_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
 	guint32     curr_offset;
 	guint8      length;
 	proto_tree *subtree;
-	proto_item *item;
 	guint8      sysid_counter;
 
 	curr_offset = offset;
@@ -3208,8 +3181,8 @@ de_sup_codec_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
 		curr_offset++;
 		if (length > 0)
 		{
-			item = proto_tree_add_text(tree, tvb, curr_offset, length, "Codec Bitmap for SysID %u", sysid_counter);
-			subtree = proto_item_add_subtree(item, ett_gsm_dtap_elem[DE_SUP_CODEC_LIST]);
+			subtree = proto_tree_add_subtree_format(tree, tvb, curr_offset, length, ett_gsm_dtap_elem[DE_SUP_CODEC_LIST], NULL,
+												"Codec Bitmap for SysID %u", sysid_counter);
 			/* 6.2 Codec Bitmap
 			 * The Codec Types are coded in the first and second octet of the Codec List
 			 * Bitmap as follows:
@@ -3744,7 +3717,6 @@ de_tp_epc_ue_tl_a_lb_setup(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
 	guint32     curr_offset;
 	guint32     count, nb_lb;
 	guint8      drb;
-	proto_item *item          = NULL;
 	proto_tree *lb_setup_tree = NULL;
 
 	curr_offset = offset;
@@ -3754,8 +3726,9 @@ de_tp_epc_ue_tl_a_lb_setup(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
 
 	proto_tree_add_text(tree, tvb, curr_offset, len, "Number of LB entities: %d", nb_lb);
 	while ((count < nb_lb) && (count < 8)){
-		item = proto_tree_add_text(tree, tvb, curr_offset, 3, "LB entity %d", count);
-		lb_setup_tree = proto_item_add_subtree(item, ett_epc_ue_tl_a_lb_setup);
+		lb_setup_tree = proto_tree_add_subtree_format(tree, tvb, curr_offset, 3,
+								ett_epc_ue_tl_a_lb_setup, NULL, "LB entity %d", count);
+
 		proto_tree_add_bits_item(lb_setup_tree, hf_gsm_a_dtap_epc_ue_tl_a_ul_sdu_size, tvb, curr_offset<<3, 16, ENC_BIG_ENDIAN);
 		curr_offset += 2;
 		drb = tvb_get_guint8(tvb, curr_offset) & 0x1f;
@@ -3994,7 +3967,6 @@ dtap_mm_auth_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint3
 	guint       curr_len;
 	guint8      oct;
 	proto_tree *subtree;
-	proto_item *item;
 
 	curr_offset = offset;
 	curr_len = len;
@@ -4008,12 +3980,10 @@ dtap_mm_auth_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint3
 
 	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, curr_offset<<3, 4, ENC_BIG_ENDIAN);
 
-	item =
-	proto_tree_add_text(tree,
-		tvb, curr_offset, 1, "%s",
+	subtree =
+	proto_tree_add_subtree(tree,
+		tvb, curr_offset, 1, ett_gsm_common_elem[DE_CIPH_KEY_SEQ_NUM], NULL,
 		val_to_str_ext_const(DE_CIPH_KEY_SEQ_NUM, &gsm_common_elem_strings_ext, ""));
-
-	subtree = proto_item_add_subtree(item, ett_gsm_common_elem[DE_CIPH_KEY_SEQ_NUM]);
 
 	proto_tree_add_bits_item(subtree, hf_gsm_a_spare_bits, tvb, (curr_offset<<3)+4, 1, ENC_BIG_ENDIAN);
 
@@ -4096,7 +4066,6 @@ dtap_mm_cm_reestab_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, 
 	guint       curr_len;
 	guint8      oct;
 	proto_tree *subtree;
-	proto_item *item;
 
 	curr_offset = offset;
 	curr_len = len;
@@ -4110,12 +4079,10 @@ dtap_mm_cm_reestab_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, 
 
 	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, curr_offset<<3, 4, ENC_BIG_ENDIAN);
 
-	item =
-	proto_tree_add_text(tree,
-		tvb, curr_offset, 1, "%s",
+	subtree =
+	proto_tree_add_subtree(tree,
+		tvb, curr_offset, 1, ett_gsm_common_elem[DE_CIPH_KEY_SEQ_NUM], NULL,
 		val_to_str_ext_const(DE_CIPH_KEY_SEQ_NUM, &gsm_common_elem_strings_ext, ""));
-
-	subtree = proto_item_add_subtree(item, ett_gsm_common_elem[DE_CIPH_KEY_SEQ_NUM]);
 
 	proto_tree_add_bits_item(subtree, hf_gsm_a_spare_bits, tvb, (curr_offset<<3)+4, 1, ENC_BIG_ENDIAN);
 
@@ -4241,7 +4208,6 @@ dtap_mm_cm_srvc_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
 	guint        curr_len;
 	guint8       oct;
 	proto_tree  *subtree;
-	proto_item  *item;
 
 	curr_offset = offset;
 	curr_len = len;
@@ -4253,12 +4219,10 @@ dtap_mm_cm_srvc_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
 	 */
 	oct = tvb_get_guint8(tvb, curr_offset);
 
-	item =
-	proto_tree_add_text(tree,
-		tvb, curr_offset, 1, "%s",
+	subtree =
+	proto_tree_add_subtree(tree,
+		tvb, curr_offset, 1, ett_gsm_common_elem[DE_CIPH_KEY_SEQ_NUM], NULL,
 		val_to_str_ext_const(DE_CIPH_KEY_SEQ_NUM, &gsm_common_elem_strings_ext, ""));
-
-	subtree = proto_item_add_subtree(item, ett_gsm_common_elem[DE_CIPH_KEY_SEQ_NUM]);
 
 	proto_tree_add_bits_item(subtree, hf_gsm_a_spare_bits, tvb, curr_offset<<3, 1, ENC_BIG_ENDIAN);
 
@@ -4274,12 +4238,10 @@ dtap_mm_cm_srvc_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
 		break;
 	}
 
-	item =
-	proto_tree_add_text(tree,
-		tvb, curr_offset, 1, "%s",
+	subtree =
+	proto_tree_add_subtree(tree,
+		tvb, curr_offset, 1, ett_gsm_dtap_elem[DE_CM_SRVC_TYPE], NULL,
 		val_to_str_ext_const(DE_CM_SRVC_TYPE, &gsm_dtap_elem_strings_ext, ""));
-
-	subtree = proto_item_add_subtree(item, ett_gsm_dtap_elem[DE_CM_SRVC_TYPE]);
 
 	proto_tree_add_item(subtree, hf_gsm_a_dtap_service_type, tvb, curr_offset, 1, ENC_NA);
 
@@ -4322,7 +4284,6 @@ dtap_mm_id_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 
 	guint32      curr_offset;
 	guint        curr_len;
 	proto_tree  *subtree;
-	proto_item  *item;
 
 	curr_offset = offset;
 	curr_len = len;
@@ -4334,12 +4295,10 @@ dtap_mm_id_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 
 	 */
 	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, curr_offset<<3, 4, ENC_BIG_ENDIAN);
 
-	item =
-	proto_tree_add_text(tree,
-		tvb, curr_offset, 1, "%s",
+	subtree =
+	proto_tree_add_subtree(tree,
+		tvb, curr_offset, 1, ett_gsm_dtap_elem[DE_ID_TYPE], NULL,
 		val_to_str_ext_const(DE_ID_TYPE, &gsm_dtap_elem_strings_ext, ""));
-
-	subtree = proto_item_add_subtree(item, ett_gsm_dtap_elem[DE_ID_TYPE]);
 
 	proto_tree_add_bits_item(subtree, hf_gsm_a_spare_bits, tvb, (curr_offset<<3)+4, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_item(subtree, hf_gsm_a_dtap_type_of_identity, tvb, curr_offset, 1, ENC_NA);
@@ -4479,7 +4438,7 @@ dtap_mm_loc_upd_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
 	guint	curr_len;
 	guint8	oct;
 	proto_tree	*subtree;
-	proto_item	*item;
+	proto_item  *item;
 
 	curr_offset = offset;
 	curr_len = len;
@@ -4491,12 +4450,10 @@ dtap_mm_loc_upd_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
 	 */
 	oct = tvb_get_guint8(tvb, curr_offset);
 
-	item =
-	proto_tree_add_text(tree,
-		tvb, curr_offset, 1, "%s",
+	subtree =
+	proto_tree_add_subtree(tree,
+		tvb, curr_offset, 1, ett_gsm_common_elem[DE_CIPH_KEY_SEQ_NUM], NULL,
 		val_to_str_ext_const(DE_CIPH_KEY_SEQ_NUM, &gsm_common_elem_strings_ext, ""));
-
-	subtree = proto_item_add_subtree(item, ett_gsm_common_elem[DE_CIPH_KEY_SEQ_NUM]);
 
 	proto_tree_add_bits_item(subtree, hf_gsm_a_spare_bits, tvb, curr_offset<<3, 1, ENC_BIG_ENDIAN);
 
@@ -4512,12 +4469,10 @@ dtap_mm_loc_upd_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
 		break;
 	}
 
-	item =
-	proto_tree_add_text(tree,
-		tvb, curr_offset, 1, "%s",
+	subtree =
+	proto_tree_add_subtree(tree,
+		tvb, curr_offset, 1, ett_gsm_dtap_elem[DE_LOC_UPD_TYPE], &item,
 		val_to_str_ext_const(DE_LOC_UPD_TYPE, &gsm_dtap_elem_strings_ext, ""));
-
-	subtree = proto_item_add_subtree(item, ett_gsm_dtap_elem[DE_LOC_UPD_TYPE]);
 
 	proto_tree_add_item(subtree, hf_gsm_a_dtap_follow_on_request, tvb, curr_offset, 1, ENC_NA);
 
@@ -4740,7 +4695,6 @@ dtap_cc_congestion_control(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
 	guint        curr_len;
 	guint8       oct;
 	proto_tree  *subtree;
-	proto_item  *item;
 
 	curr_offset = offset;
 	curr_len = len;
@@ -4754,12 +4708,10 @@ dtap_cc_congestion_control(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
 
 	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, curr_offset<<3, 4, ENC_BIG_ENDIAN);
 
-	item =
-		proto_tree_add_text(tree,
-			tvb, curr_offset, 1, "%s",
+	subtree =
+	proto_tree_add_subtree(tree,
+			tvb, curr_offset, 1, ett_gsm_dtap_elem[DE_CONGESTION], NULL,
 			val_to_str_ext_const(DE_CONGESTION, &gsm_dtap_elem_strings_ext, ""));
-
-	subtree = proto_item_add_subtree(item, ett_gsm_dtap_elem[DE_CONGESTION]);
 
 	proto_tree_add_uint_format_value(subtree, hf_gsm_a_dtap_congestion_level, tvb, curr_offset, 1,
             oct, "%s", val_to_str_const(oct & 0xF, gsm_a_dtap_congestion_level_vals, "Reserved"));

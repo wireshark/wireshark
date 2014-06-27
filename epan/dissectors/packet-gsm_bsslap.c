@@ -291,8 +291,7 @@ de_cell_id_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 off
 	while(len>0){
 		num_cells++;
 		consumed = 0;
-		item = proto_tree_add_text(tree, tvb, curr_offset, -1, "Cell %u", num_cells);
-		subtree = proto_item_add_subtree(item, ett_bsslap_cell_list);
+		subtree = proto_tree_add_subtree_format(tree, tvb, curr_offset, -1, ett_bsslap_cell_list, &item, "Cell %u", num_cells);
 
 		if (add_string)
 			add_string[0] = '\0';

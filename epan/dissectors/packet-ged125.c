@@ -633,8 +633,7 @@ floating_fields(tvbuff_t* tvb, packet_info *pinfo, proto_tree* tree, gint offset
 	if (size - offset > 0)
 		length = size - offset;
 
-	ti = proto_tree_add_text(tree, tvb, offset, length, "Float Message");
-	ged125_tree = proto_item_add_subtree(ti, ett_ged125_floating);
+	ged125_tree = proto_tree_add_subtree(tree, tvb, offset, length, ett_ged125_floating, NULL, "Float Message");
 
 	/*The Universal Floating-Fields Loop of Fun*/
 	while (offset < size-2)
@@ -730,8 +729,8 @@ service_control_dissect(tvbuff_t* tvb,proto_tree* msg_tree, proto_tree* ged125_t
 	proto_tree *service_tree, *data_tree;
 	guint32 mess_type, DialogueID, SendSeqNo;
 
-	ti = proto_tree_add_text(msg_tree, tvb, *offset, 12, "Service-Control Header");
-	service_tree = proto_item_add_subtree(ti, ett_ged125_service_control_header);
+	service_tree = proto_tree_add_subtree(msg_tree, tvb, *offset, 12,
+			ett_ged125_service_control_header, NULL, "Service-Control Header");
 
 	/* get message sub type, don't want to output that just yet */
 	mess_type = tvb_get_ntohl(tvb, *offset);
@@ -1006,14 +1005,12 @@ dissect_ged125_base_messages(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree
 	ged125_tree = proto_item_add_subtree( ti, ett_ged125);
 
 	/* Message header */
-	ti = proto_tree_add_text(ged125_tree, tvb, 0, 8, "GED125 Header");
-	ged125_header_tree = proto_item_add_subtree(ti, ett_ged125_header);
+	ged125_header_tree = proto_tree_add_subtree(ged125_tree, tvb, 0, 8, ett_ged125_header, NULL, "GED125 Header");
 
 	proto_tree_add_item(ged125_header_tree, hf_ged125_length, tvb, 0, 4, ENC_BIG_ENDIAN);
 	proto_tree_add_item(ged125_header_tree, hf_ged125_value, tvb, 4, 4, ENC_BIG_ENDIAN);
 
-	message_item = proto_tree_add_text(ged125_tree, tvb, offset, -1, "GED125 Message");
-	ged125_message_tree = proto_item_add_subtree(message_item, ett_ged125_message);
+	ged125_message_tree = proto_tree_add_subtree(ged125_tree, tvb, offset, -1, ett_ged125_message, &message_item, "GED125 Message");
 
 	switch (message_type)
 	{

@@ -356,11 +356,8 @@ dis_field_addr(tvbuff_t *tvb, proto_tree *tree, guint32 *offset_p, const gchar *
         return;
     }
 
-    item = proto_tree_add_text(tree, tvb,
-            offset, numdigocts + 2, "%s",
-            title);
-
-    subtree = proto_item_add_subtree(item, ett_addr);
+    subtree = proto_tree_add_subtree(tree, tvb,
+            offset, numdigocts + 2, ett_addr, &item, title);
 
     proto_tree_add_text(subtree,
         tvb, offset, 1,
@@ -1241,12 +1238,9 @@ dis_field_st(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 oct)
     const gchar        *str2 = NULL;
 
 
-    item =
-        proto_tree_add_text(tree, tvb,
+    subtree = proto_tree_add_subtree(tree, tvb,
             offset, 1,
-            "TP-Status");
-
-    subtree = proto_item_add_subtree(item, ett_st);
+            ett_st, &item, "TP-Status");
 
     other_decode_bitfield_value(bigbuf, oct, 0x80, 8);
     proto_tree_add_text(subtree, tvb,
@@ -1913,8 +1907,6 @@ dis_iei_tf(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 length, gsm_s
 {
     const gchar *str = NULL;
     guint8       oct;
-    proto_item  *item;
-    proto_item  *item_colour;
     proto_tree  *subtree;
     proto_tree  *subtree_colour;
 
@@ -1934,9 +1926,8 @@ dis_iei_tf(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 length, gsm_s
 
     oct = tvb_get_guint8(tvb, offset);
 
-    item = proto_tree_add_text(tree, tvb, offset, 1, "formatting mode");
+    subtree = proto_tree_add_subtree(tree, tvb, offset, 1, ett_udh_tfm, NULL, "formatting mode");
 
-    subtree = proto_item_add_subtree(item, ett_udh_tfm);
     switch(oct & 0x03)
     {
         case 0x00:
@@ -2008,10 +1999,7 @@ dis_iei_tf(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 length, gsm_s
     if (length > 3)
     {
         oct = tvb_get_guint8(tvb, offset);
-        item_colour = proto_tree_add_text(tree, tvb, offset, 1, "Text Colour");
-
-        subtree_colour = proto_item_add_subtree(item_colour, ett_udh_tfc);
-
+        subtree_colour = proto_tree_add_subtree(tree, tvb, offset, 1, ett_udh_tfc, NULL, "Text Colour");
 
         str = val_to_str_ext_const(oct & 0x0f, &text_color_values_ext, "Unknown");
         proto_tree_add_text(subtree_colour, tvb, offset, 1,
@@ -2287,7 +2275,6 @@ dis_field_ud_iei(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 length,
 {
     void (*iei_fcn)(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 length, gsm_sms_udh_fields_t *p_udh_fields);
     guint8         oct;
-    proto_item    *item;
     proto_tree    *subtree;
     const gchar   *str = NULL;
     guint8         iei_len;
@@ -2370,13 +2357,11 @@ dis_field_ud_iei(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 length,
 
         iei_len = tvb_get_guint8(tvb, offset + 1);
 
-        item =
-            proto_tree_add_text(tree,
+        subtree =
+            proto_tree_add_subtree_format(tree,
                                 tvb, offset, iei_len + 2,
-                                "IE: %s",
+                                ett_udh_ieis[oct], NULL, "IE: %s",
                                 str);
-
-        subtree = proto_item_add_subtree(item, ett_udh_ieis[oct]);
 
         proto_tree_add_text(subtree,
                             tvb, offset, 1,
@@ -2416,7 +2401,6 @@ dis_field_udh(tvbuff_t *tvb, proto_tree *tree, guint32 *offset, guint32 *length,
               guint8 *udl, enum character_set cset, guint8 *fill_bits, gsm_sms_udh_fields_t *p_udh_fields)
 {
     guint8      oct;
-    proto_item *udh_item;
     proto_tree *udh_subtree;
     static const guint8 fill_bits_mask_gsm[7] = { 0x0, 0x01, 0x03, 0x07, 0x0f, 0x1f, 0x3f };
     static const guint8 fill_bits_mask_ascii[7] = { 0x00, 0x80, 0xc0, 0xe0, 0xf0, 0xf8, 0xfc };
@@ -2425,12 +2409,10 @@ dis_field_udh(tvbuff_t *tvb, proto_tree *tree, guint32 *offset, guint32 *length,
 
     oct = tvb_get_guint8(tvb, *offset);
 
-    udh_item =
-        proto_tree_add_text(tree, tvb,
+    udh_subtree =
+        proto_tree_add_subtree(tree, tvb,
                             *offset, oct + 1,
-                            "User-Data Header");
-
-    udh_subtree = proto_item_add_subtree(udh_item, ett_udh);
+                            ett_udh, NULL, "User-Data Header");
 
     proto_tree_add_text(udh_subtree,
                         tvb, *offset, 1,
@@ -2483,7 +2465,6 @@ dis_field_ud(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
              guint32 length, gboolean udhi, guint8 udl, gboolean seven_bit,
              gboolean eight_bit, gboolean ucs2, gboolean compressed, gsm_sms_data_t *data)
 {
-    proto_item        *item;
     proto_tree        *subtree;
     tvbuff_t          *sm_tvb = NULL;
     fragment_head     *fd_sm = NULL;
@@ -2504,11 +2485,10 @@ dis_field_ud(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
     memset(&udh_fields, 0, sizeof(udh_fields));
     fill_bits = 0;
 
-    item =
-        proto_tree_add_text(tree, tvb,
+    subtree =
+        proto_tree_add_subtree(tree, tvb,
                             offset, length,
-                            "TP-User-Data");
-    subtree = proto_item_add_subtree(item, ett_ud);
+                            ett_ud, NULL, "TP-User-Data");
 
     if (udhi)
     {
@@ -2713,16 +2693,12 @@ dis_field_ud(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
 static void
 dis_field_pi(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 oct)
 {
-    proto_item        *item;
     proto_tree        *subtree;
 
-
-    item =
-        proto_tree_add_text(tree, tvb,
-            offset, 1,
+    subtree =
+        proto_tree_add_subtree(tree, tvb,
+            offset, 1, ett_pi, NULL,
             "TP-Parameter-Indicator");
-
-    subtree = proto_item_add_subtree(item, ett_pi);
 
     other_decode_bitfield_value(bigbuf, oct, 0x80, 8);
     proto_tree_add_text(subtree, tvb,

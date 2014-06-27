@@ -100,16 +100,13 @@ gluster_dump_reply_detail(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	proto_tree *detail_tree;
 	const gchar *progname = NULL;
 
-	detail_item = proto_tree_add_text(tree, tvb, offset, -1,
-							"Available Progam: ");
-	detail_tree = proto_item_add_subtree(detail_item,
-						ett_gluster_dump_detail);
+	detail_tree = proto_tree_add_subtree(tree, tvb, offset, -1,
+							ett_gluster_dump_detail, &detail_item, "Available Progam: ");
 
 	/* progname */
 	offset = dissect_rpc_string(tvb, detail_tree, hf_gluster_progname,
 							offset, &progname);
-	if (tree)
-		proto_item_append_text(detail_item, "%s", progname);
+	proto_item_append_text(detail_item, "%s", progname);
 
 	/* prognumber (marked as uint64) */
 	offset = dissect_rpc_uint64(tvb, detail_tree, hf_gluster_prognum,

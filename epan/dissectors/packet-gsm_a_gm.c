@@ -1416,11 +1416,9 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 		}
 
 		indx++;
-		tf = proto_tree_add_text(tree,
+		tf_tree = proto_tree_add_subtree_format(tree,
 				tvb, curr_offset, 1,
-				"MS RA capability %d", indx);
-
-		tf_tree = proto_item_add_subtree(tf, ett_gmm_radio_cap);
+				ett_gmm_radio_cap, &tf, "MS RA capability %d", indx);
 
 		/*
 		 * Access Technology
@@ -3050,7 +3048,6 @@ guint16
 de_gmm_rai(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	proto_tree *subtree;
-	proto_item *item;
 	guint32	    mcc;
 	guint32	    mnc;
 	guint32	    lac;
@@ -3071,12 +3068,11 @@ de_gmm_rai(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
 	lac = tvb_get_ntohs(tvb, curr_offset+3);
 	rac = tvb_get_guint8(tvb, curr_offset+5);
 
-	item = proto_tree_add_text(tree,
-		tvb, curr_offset, 6,
+	subtree = proto_tree_add_subtree_format(tree,
+		tvb, curr_offset, 6, ett_gmm_rai, NULL,
 		"Routing area identification: %x-%x-%u-%u",
 		mcc, mnc, lac, rac);
 
-	subtree = proto_item_add_subtree(item, ett_gmm_rai);
 	dissect_e212_mcc_mnc(tvb, pinfo, subtree, offset, TRUE);
 
 	proto_tree_add_item(subtree, hf_gsm_a_lac, tvb, curr_offset+3, 2, ENC_BIG_ENDIAN);
@@ -3572,18 +3568,25 @@ de_gc_timer(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 off
 	guint8       oct;
 	guint16      val;
 	const gchar *str;
-	proto_tree  *subtree;
 	proto_item  *item = NULL;
+	proto_tree  *subtree;
 
 	oct = tvb_get_guint8(tvb, offset);
 	val = oct&0x1f;
 
 	switch (oct>>5)
 	{
-		case 0:  str = "sec"; val*=2; break;
-		case 1:  str = "min"; break;
-		case 2:  str = "min"; val*=6; break;
-		case 7:  str = "";
+		case 0:
+			str = "sec"; val*=2;
+			break;
+		case 1:
+			str = "min";
+			break;
+		case 2:
+			str = "min"; val*=6;
+			break;
+		case 7:
+			str = "";
 			item = proto_tree_add_text(tree, tvb, offset, 1,
 			                           "GPRS Timer: timer is deactivated");
 			break;
@@ -3624,9 +3627,15 @@ de_gc_timer2(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 of
 
 	switch (oct>>5)
 	{
-		case 0:  str = "sec"; val*=2; break;
-		case 1:  str = "min"; break;
-		case 2:  str = "min"; val*=6; break;
+		case 0:
+			str = "sec"; val*=2;
+			break;
+		case 1:
+			str = "min";
+			break;
+		case 2:
+			str = "min"; val*=6;
+			break;
 		case 7:
 			item = proto_tree_add_text(tree, tvb, curr_offset, 1,
 			                           "GPRS Timer: timer is deactivated");
@@ -5255,11 +5264,9 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 of
 	if ((e_bit == 1) && curr_len) {
 		count = 0;
 		while (curr_len) {
-			proto_item *tf;
 			proto_tree *tf_tree;
 			pf_length = tvb_get_guint8(tvb, curr_offset+1);
-			tf        = proto_tree_add_text(tree, tvb, curr_offset, pf_length+2, "Parameter %d", count);
-			tf_tree   = proto_item_add_subtree(tf, ett_sm_tft);
+			tf_tree   = proto_tree_add_subtree_format(tree, tvb, curr_offset, pf_length+2, ett_sm_tft, NULL, "Parameter %d", count);
 			param     = tvb_get_guint8(tvb, curr_offset);
 			proto_tree_add_item(tf_tree, hf_gsm_a_sm_tft_param_id, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 			curr_offset += 2;

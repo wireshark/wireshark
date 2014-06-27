@@ -114,14 +114,12 @@ static int
 dissect_gpef_efsblob(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, void *data _U_)
 {
 	int offset = 0;
-	proto_tree *tree = NULL;
-	proto_item *item = NULL;
+	proto_tree *tree;
+	proto_item *item;
 	guint32 count;
 
-	if (parent_tree) {
-		item = proto_tree_add_item(parent_tree, proto_gpef, tvb, 0, -1, ENC_NA);
-		tree = proto_item_add_subtree(item, ett_gpef);
-	}
+	item = proto_tree_add_item(parent_tree, proto_gpef, tvb, 0, -1, ENC_NA);
+	tree = proto_item_add_subtree(item, ett_gpef);
 
 	/* reserved, must be 0x01 0x00 0x01 0x00 */
 	offset += 4;

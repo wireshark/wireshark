@@ -193,8 +193,8 @@ dissect_schedule_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree
                 }
             }
             /* print the array of new messages */
-            item = proto_tree_add_text(sched_tree, tvb, offset-6, 6, "This schedule contains %d slots with new messages", k);
-            sched_subtree = proto_item_add_subtree(item, ett_schedule_new_msg);
+            sched_subtree = proto_tree_add_subtree_format(sched_tree, tvb, offset-6, 6, ett_schedule_new_msg, &item,
+                                                            "This schedule contains %d slots with new messages", k);
             for (i=0; i<k; i++)
             {
                 DISSECTOR_ASSERT(new_slots[i] <= 48);
@@ -261,8 +261,8 @@ dissect_schedule_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree
             proto_item_set_end(item, tvb, offset);
 
             /* print schedule of other messages */
-            item = proto_tree_add_text(sched_tree, tvb, offset, 0, "Other message slots in this schedule");
-            sched_subtree = proto_item_add_subtree(item, ett_schedule_new_msg);
+            sched_subtree = proto_tree_add_subtree(sched_tree, tvb, offset, 0,
+                                ett_schedule_new_msg, &item, "Other message slots in this schedule");
             for (k=0; offset < len; j++)
             {
                 /* XXX I don't know if a message can validly contain more than

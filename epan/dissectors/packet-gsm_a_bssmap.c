@@ -2059,16 +2059,13 @@ be_dlci(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset,
 {
     guint8      oct;
     guint32     curr_offset;
-    proto_item *item    = NULL;
-    proto_tree *subtree = NULL;
+    proto_tree *subtree;
 
     curr_offset = offset;
 
-    item =
-    proto_tree_add_text(tree, tvb, curr_offset, 1,
-        "Data Link Connection Identifier");
-
-    subtree = proto_item_add_subtree(item, ett_dlci);
+    subtree =
+    proto_tree_add_subtree(tree, tvb, curr_offset, 1,
+        ett_dlci, NULL, "Data Link Connection Identifier");
 
     oct = tvb_get_guint8(tvb, curr_offset);
 
@@ -2141,13 +2138,11 @@ be_cell_id_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 off
     num_cells = 0;
     do
     {
-        item =
-        proto_tree_add_text(tree,
+        subtree =
+        proto_tree_add_subtree_format(tree,
             tvb, curr_offset, -1,
-            "Cell %u",
+            ett_cell_list, &item, "Cell %u",
             num_cells + 1);
-
-        subtree = proto_item_add_subtree(item, ett_cell_list);
 
         if (add_string)
             add_string[0] = '\0';
@@ -3962,8 +3957,8 @@ be_speech_codec_lst(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
     while (curr_offset-offset < len) {
         number++;
         consumed = 0;
-        item = proto_tree_add_text(tree, tvb, curr_offset, 1, "Speech Codec Element %u",number);
-        subtree = proto_item_add_subtree(item, ett_codec_lst);
+        subtree = proto_tree_add_subtree_format(tree, tvb, curr_offset, 1,
+                    ett_codec_lst, &item, "Speech Codec Element %u",number);
         codec = tvb_get_guint8(tvb,curr_offset)&0x0f;
         switch (codec) {
             case 0:
@@ -4116,8 +4111,8 @@ be_speech_codec(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32
     while (curr_offset-offset < len) {
         number++;
         consumed = 0;
-        item = proto_tree_add_text(tree, tvb, curr_offset, 1, "Speech Codec Element %u",number);
-        subtree = proto_item_add_subtree(item, ett_codec_lst);
+        subtree = proto_tree_add_subtree_format(tree, tvb, curr_offset, 1, ett_codec_lst, &item,
+                        "Speech Codec Element %u",number);
         codec = tvb_get_guint8(tvb,curr_offset)&0x0f;
         switch (codec) {
             case 0:

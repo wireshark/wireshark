@@ -1352,13 +1352,12 @@ static int
 dissect_gadu_gadu_notify_common(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
 {
 	proto_tree *contact_tree;
-	proto_item *ti;
 
 	while (tvb_reported_length_remaining(tvb, offset) >= 4+1) {
 		guint32 uin = tvb_get_letohl(tvb, offset);
 
-		ti = proto_tree_add_text(tree, tvb, offset, 5, "Contact: %u", uin);
-		contact_tree = proto_item_add_subtree(ti, ett_gadu_gadu_contact);
+		contact_tree = proto_tree_add_subtree_format(tree, tvb, offset, 5,
+								ett_gadu_gadu_contact, NULL, "Contact: %u", uin);
 
 		proto_tree_add_item(contact_tree, &hfi_gadu_gadu_contact_uin, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset += 4;
@@ -1399,8 +1398,7 @@ dissect_gadu_gadu_notify105(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 		char *uin;
 
-		ti = proto_tree_add_text(tree, tvb, offset, 0, "Contact: ");
-		contact_tree = proto_item_add_subtree(ti, ett_gadu_gadu_contact);
+		contact_tree = proto_tree_add_subtree(tree, tvb, offset, 0, ett_gadu_gadu_contact, &ti, "Contact: ");
 
 		offset = dissect_gadu_gadu_notify105_common(tvb, contact_tree, offset, &uin);
 		proto_item_append_text(ti, "%s", uin);

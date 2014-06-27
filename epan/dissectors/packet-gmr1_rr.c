@@ -1008,14 +1008,13 @@ static const crumb_spec_t rr_pkt_imm_ass_2_prm_ac_rlc_dblk_gnt_crumbs[] = {
 GMR1_IE_FUNC(gmr1_ie_rr_pkt_imm_ass_2_prm)
 {
 	proto_tree *subtree_ac, *subtree_d;
-	proto_item *item_ac, *item_d;
 
 
 	/* Terminal AC */
 	/* ----------- */
 
-	item_ac = proto_tree_add_text(tree, tvb, offset, 5, "GMPRS Terminal type A or C");
-	subtree_ac = proto_item_add_subtree(item_ac, ett_gmr1_ie_rr[GMR1_IE_RR_PKT_IMM_ASS_2_PRM]);
+	subtree_ac = proto_tree_add_subtree(tree, tvb, offset, 5,
+			ett_gmr1_ie_rr[GMR1_IE_RR_PKT_IMM_ASS_2_PRM], NULL, "GMPRS Terminal type A or C");
 
 	/* Spare */
 	proto_tree_add_item(subtree_ac, hf_rr_pkt_imm_ass_2_prm_ac_spare1,
@@ -1067,8 +1066,8 @@ GMR1_IE_FUNC(gmr1_ie_rr_pkt_imm_ass_2_prm)
 	/* Terminal D */
 	/* ---------- */
 
-	item_d = proto_tree_add_text(tree, tvb, offset, 5, "GMPRS Terminal type D");
-	subtree_d = proto_item_add_subtree(item_d, ett_gmr1_ie_rr[GMR1_IE_RR_PKT_IMM_ASS_2_PRM]);
+	subtree_d = proto_tree_add_subtree(tree, tvb, offset, 5,
+			ett_gmr1_ie_rr[GMR1_IE_RR_PKT_IMM_ASS_2_PRM], NULL, "GMPRS Terminal type D");
 
 	/* Channel MCS command */
 	proto_tree_add_item(subtree_d, hf_rr_pkt_imm_ass_2_prm_d_chan_mcs_cmd,

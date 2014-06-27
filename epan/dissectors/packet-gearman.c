@@ -206,9 +206,8 @@ dissect_binary_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
     ti = proto_tree_add_item(tree, proto_gearman, tvb, 0, -1, ENC_NA);
     gearman_tree = proto_item_add_subtree(ti, ett_gearman);
 
-    ti = proto_tree_add_text(gearman_tree, tvb, 0, GEARMAN_COMMAND_HEADER_SIZE+size,
+    command_tree = proto_tree_add_subtree_format(gearman_tree, tvb, 0, GEARMAN_COMMAND_HEADER_SIZE+size, ett_gearman_command, NULL,
                              "[%s] %s(%d) LEN=%d", magic_code, val_to_str(type, gearman_command_names, "Unknown (0x%08x)"), type, size);
-    command_tree = proto_item_add_subtree(ti, ett_gearman_command);
 
     proto_tree_add_string(command_tree, hf_gearman_magic_code, tvb, 0, 4, magic_code);
     proto_tree_add_item(command_tree, hf_gearman_pkt_type, tvb, 4, 4, ENC_BIG_ENDIAN);

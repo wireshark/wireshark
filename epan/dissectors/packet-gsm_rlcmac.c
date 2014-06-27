@@ -3851,7 +3851,6 @@ static CSN_CallBackStatus_t callback_UTRAN_FDD_map_NrOfFrequencies(proto_tree *t
 
 static CSN_CallBackStatus_t callback_UTRAN_FDD_compute_FDD_CELL_INFORMATION(proto_tree *tree, tvbuff_t *tvb, void* param1, void* param2 _U_, int bit_offset, int ett_csn1)
 {
-  proto_item   *ti;
   proto_tree   *subtree;
   UTRAN_FDD_NeighbourCells_t * pUtranFddNcell = (UTRAN_FDD_NeighbourCells_t*)param1;
   gint xdd_cell_info, wsize, nwi, jwi, w[64], i, iused;
@@ -3862,8 +3861,7 @@ static CSN_CallBackStatus_t callback_UTRAN_FDD_compute_FDD_CELL_INFORMATION(prot
 
   if ( idx > 0 )
   {
-    ti = proto_tree_add_text(tree, tvb, curr_bit_offset>>3, 1,  "FDD_CELL_INFORMATION: ");
-    subtree = proto_item_add_subtree(ti, ett_csn1);
+    subtree = proto_tree_add_subtree(tree, tvb, curr_bit_offset>>3, 1, ett_csn1, NULL, "FDD_CELL_INFORMATION: ");
 
     if (pUtranFddNcell->Indic0)
     {
@@ -3953,7 +3951,6 @@ static CSN_CallBackStatus_t callback_UTRAN_TDD_map_NrOfFrequencies(proto_tree *t
 
 static CSN_CallBackStatus_t callback_UTRAN_TDD_compute_TDD_CELL_INFORMATION(proto_tree *tree, tvbuff_t *tvb, void* param1, void* param2 _U_, int bit_offset, int ett_csn1)
 {
-  proto_item   *ti;
   proto_tree   *subtree;
   UTRAN_TDD_NeighbourCells_t *pUtranTddNcell = (UTRAN_TDD_NeighbourCells_t *)param1;
   gint xdd_cell_info, wsize, nwi, jwi, w[64], i, iused;
@@ -3964,8 +3961,7 @@ static CSN_CallBackStatus_t callback_UTRAN_TDD_compute_TDD_CELL_INFORMATION(prot
 
   if ( idx > 0 )
   {
-    ti = proto_tree_add_text(tree, tvb, curr_bit_offset>>3, 1,  "TDD_CELL_INFORMATION: ");
-    subtree = proto_item_add_subtree(ti, ett_csn1);
+    subtree = proto_tree_add_subtree(tree, tvb, curr_bit_offset>>3, 1, ett_csn1, NULL, "TDD_CELL_INFORMATION: ");
 
     if (pUtranTddNcell->Indic0)
     {

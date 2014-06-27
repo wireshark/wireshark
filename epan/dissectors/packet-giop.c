@@ -3875,8 +3875,7 @@ static void decode_ServiceContextList(tvbuff_t *tvb, packet_info *pinfo _U_, pro
   /* set length to -1 (to the end) now and correct with proto_item_set_len()
    * later
    */
-  tf = proto_tree_add_text (ptree, tvb, *offset, -1, "ServiceContextList");
-  tree = proto_item_add_subtree (tf, ett_giop_scl);
+  tree = proto_tree_add_subtree(ptree, tvb, *offset, -1, ett_giop_scl, &tf, "ServiceContextList");
 
   /* Get sequence length (number of elements) */
   seqlen = get_CDR_ulong(tvb, offset, stream_is_be, boundary);
@@ -4150,11 +4149,9 @@ static void dissect_giop_reply (tvbuff_t * tvb, packet_info * pinfo, proto_tree 
   guint32     request_id;
   guint32     reply_status;
   proto_tree *reply_tree;
-  proto_item *tf;
   guint32     mfn;              /* matching frame number */
 
-  tf = proto_tree_add_text (tree, tvb, offset, -1, "General Inter-ORB Protocol Reply");
-  reply_tree = proto_item_add_subtree (tf, ett_giop_reply);
+  reply_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_giop_reply, NULL, "General Inter-ORB Protocol Reply");
 
   /*
    * Decode IOP::ServiceContextList
@@ -4214,11 +4211,9 @@ static void dissect_giop_reply_1_2 (tvbuff_t * tvb, packet_info * pinfo,
   guint32     request_id;
   guint32     reply_status;
   proto_tree *reply_tree;
-  proto_item *tf;
   guint32     mfn;              /* matching frame number */
 
-  tf = proto_tree_add_text (tree, tvb, offset, -1, "General Inter-ORB Protocol Reply");
-  reply_tree = proto_item_add_subtree (tf, ett_giop_reply);
+  reply_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_giop_reply, NULL, "General Inter-ORB Protocol Reply");
 
   request_id = get_CDR_ulong(tvb, &offset, stream_is_big_endian, GIOP_HEADER_SIZE);
   col_append_fstr(pinfo->cinfo, COL_INFO, " id=%u", request_id);
@@ -4271,10 +4266,9 @@ static void dissect_giop_cancel_request (tvbuff_t * tvb, packet_info * pinfo,
   guint       offset = 0;
   guint32     request_id;
   proto_tree *cancel_request_tree;
-  proto_item *tf;
 
-  tf = proto_tree_add_text (tree, tvb, offset, -1, "General Inter-ORB Protocol CancelRequest");
-  cancel_request_tree = proto_item_add_subtree (tf, ett_giop_cancel_request);
+  cancel_request_tree = proto_tree_add_subtree(tree, tvb, offset, -1,
+        ett_giop_cancel_request, NULL, "General Inter-ORB Protocol CancelRequest");
 
   request_id = get_CDR_ulong(tvb, &offset, stream_is_big_endian, GIOP_HEADER_SIZE);
   col_append_fstr(pinfo->cinfo, COL_INFO, " id=%u", request_id);
@@ -4317,8 +4311,7 @@ dissect_giop_request_1_1 (tvbuff_t * tvb, packet_info * pinfo,
 
   gchar       *repoid;        /* from object key lookup in objkey hash */
 
-  tf = proto_tree_add_text (tree, tvb, offset, -1, "General Inter-ORB Protocol Request");
-  request_tree = proto_item_add_subtree (tf, ett_giop_request);
+  request_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_giop_request, &tf, "General Inter-ORB Protocol Request");
 
   /*
    * Decode IOP::ServiceContextList
@@ -4477,15 +4470,13 @@ dissect_giop_request_1_2 (tvbuff_t * tvb, packet_info * pinfo,
   const gchar *reserved;
   const gchar *operation  = NULL;
   proto_tree  *request_tree;
-  proto_item  *tf;
   gboolean     exres      = FALSE; /* result of trying explicit dissectors */
 
   guint32      objkey_len = 0;  /* object key length */
   const gchar *objkey     = NULL; /* object key sequence */
   gchar       *repoid     = NULL; /* from object key lookup in objkey hash */
 
-  tf = proto_tree_add_text (tree, tvb, offset, -1, "General Inter-ORB Protocol Request");
-  request_tree = proto_item_add_subtree (tf, ett_giop_request);
+  request_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_giop_request, NULL, "General Inter-ORB Protocol Request");
 
   request_id = get_CDR_ulong(tvb, &offset, stream_is_big_endian, GIOP_HEADER_SIZE);
   header->req_id = request_id;
@@ -4583,8 +4574,8 @@ dissect_giop_locate_request( tvbuff_t * tvb, packet_info * pinfo,
   proto_tree *locate_request_tree;
   proto_item *tf;
 
-  tf = proto_tree_add_text (tree, tvb, offset, -1, "General Inter-ORB Locate Request");
-  locate_request_tree = proto_item_add_subtree (tf, ett_giop_locate_request);
+  locate_request_tree = proto_tree_add_subtree(tree, tvb, offset, -1,
+      ett_giop_locate_request, &tf, "General Inter-ORB Locate Request");
 
   request_id = get_CDR_ulong(tvb, &offset, stream_is_big_endian, GIOP_HEADER_SIZE);
   col_append_fstr(pinfo->cinfo, COL_INFO, " id=%u op=LocateRequest", request_id);
@@ -4622,10 +4613,8 @@ dissect_giop_locate_reply( tvbuff_t * tvb, packet_info * pinfo,
   guint16 addr_disp;
 
   proto_tree *locate_reply_tree;
-  proto_item *tf;
 
-  tf = proto_tree_add_text (tree, tvb, offset, -1, "General Inter-ORB Locate Reply");
-  locate_reply_tree = proto_item_add_subtree (tf, ett_giop_locate_reply);
+  locate_reply_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_giop_locate_reply, NULL, "General Inter-ORB Locate Reply");
 
   request_id = get_CDR_ulong(tvb, &offset, stream_is_big_endian, GIOP_HEADER_SIZE);
   col_append_fstr(pinfo->cinfo, COL_INFO, " id=%u", request_id);
@@ -4671,10 +4660,8 @@ dissect_giop_fragment( tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
   guint32     offset = 0;
   guint32     request_id;
   proto_tree *fragment_tree;
-  proto_item *tf;
 
-  tf = proto_tree_add_text (tree, tvb, offset, -1, "General Inter-ORB Fragment");
-  fragment_tree = proto_item_add_subtree (tf, ett_giop_fragment);
+  fragment_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_giop_fragment, NULL, "General Inter-ORB Fragment");
 
   request_id = get_CDR_ulong(tvb, &offset, stream_is_big_endian, GIOP_HEADER_SIZE);
   col_append_fstr(pinfo->cinfo, COL_INFO, " id=%u", request_id);
@@ -4717,13 +4704,11 @@ static int dissect_giop_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree 
   stream_is_big_endian = is_big_endian (&header);
 
   /* Dissect GIOP header */
-  ti = proto_tree_add_text (giop_tree, tvb, offset, GIOP_HEADER_SIZE, "GIOP Header");
-  header_tree = proto_item_add_subtree (ti, ett_giop_header);
+  header_tree = proto_tree_add_subtree(giop_tree, tvb, offset, GIOP_HEADER_SIZE, ett_giop_header, NULL, "GIOP Header");
   proto_tree_add_item(header_tree, hf_giop_message_magic, tvb, 0, 4, ENC_NA|ENC_ASCII);
 
-  version_item = proto_tree_add_text (header_tree, tvb, 4, 2,
+  header_version_tree = proto_tree_add_subtree_format(header_tree, tvb, 4, 2, ett_giop_header_version, &version_item,
                      "Version: %u.%u", header.GIOP_version.major, header.GIOP_version.minor);
-  header_version_tree = proto_item_add_subtree (version_item, ett_giop_header_version);
   proto_tree_add_item(header_version_tree, hf_giop_message_major_version, tvb, 4, 1, ENC_NA);
   proto_tree_add_item(header_version_tree, hf_giop_message_minor_version, tvb, 5, 1, ENC_NA);
 
@@ -5515,15 +5500,13 @@ static void decode_IOR(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int
   guint32 u_octet4;
 
   proto_tree *tree;     /* IOR tree */
-  proto_item *tf;
 
   const gchar *repobuf; /* for repository ID */
 
   guint32 i;
 
   /* create a subtree */
-  tf = proto_tree_add_text (ptree, tvb, *offset, -1, "IOR");
-  tree = proto_item_add_subtree (tf, ett_giop_ior);
+  tree = proto_tree_add_subtree(ptree, tvb, *offset, -1, ett_giop_ior, NULL, "IOR");
 
   /* Get type_id  == Repository ID */
 

@@ -733,6 +733,7 @@ static int hf_gsm_a_geo_loc_offset_angle = -1;
 static int hf_gsm_a_geo_loc_included_angle = -1;
 
 static expert_field ei_gsm_a_extraneous_data = EI_INIT;
+static expert_field ei_gsm_a_unknown_element = EI_INIT;
 
 static char a_bigbuf[1024];
 
@@ -1249,17 +1250,16 @@ guint16 elem_tlv(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint8 iei
 
         elem_name = try_val_to_str_ext(idx, &elem_names_ext);
 
-        item =
-        proto_tree_add_text(tree,
-            tvb, curr_offset, parm_len + 1 + lengt_length,
-            "%s%s", elem_name ? elem_name : "Unknown - aborting dissection",
-            (name_add == NULL) || (name_add[0] == '\0') ? "" : name_add);
-
         /* idx is out of range */
-        if (elem_name == NULL)
+        if (elem_name == NULL) {
+            proto_tree_add_expert_format(tree, pinfo, &ei_gsm_a_unknown_element,
+                tvb, curr_offset, parm_len + 1 + lengt_length,
+                "Unknown - aborting dissection%s", (name_add == NULL) || (name_add[0] == '\0') ? "" : name_add);
             return consumed;
+        }
 
-        subtree = proto_item_add_subtree(item, elem_ett[idx]);
+        subtree = proto_tree_add_subtree_format(tree, tvb, curr_offset, parm_len + 1 + lengt_length, elem_ett[idx], &item,
+                                             "%s%s", elem_name, (name_add == NULL) || (name_add[0] == '\0') ? "" : name_add);
 
         proto_tree_add_uint(subtree,
             get_hf_elem_id(pdu_type), tvb,
@@ -1342,17 +1342,16 @@ guint16 elem_telv(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint8 ie
 
         elem_name = try_val_to_str_ext(idx, &elem_names_ext);
 
-        item =
-        proto_tree_add_text(tree,
-            tvb, curr_offset, parm_len + 1 + lengt_length,
-            "%s%s", elem_name ? elem_name : "Unknown - aborting dissection",
-            (name_add == NULL) || (name_add[0] == '\0') ? "" : name_add);
-
         /* idx is out of range */
-        if (elem_name == NULL)
+        if (elem_name == NULL) {
+            proto_tree_add_expert_format(tree, pinfo, &ei_gsm_a_unknown_element,
+                tvb, curr_offset, parm_len + 1 + lengt_length,
+                "Unknown - aborting dissection%s", (name_add == NULL) || (name_add[0] == '\0') ? "" : name_add);
             return consumed;
+        }
 
-        subtree = proto_item_add_subtree(item, elem_ett[idx]);
+        subtree = proto_tree_add_subtree_format(tree, tvb, curr_offset, parm_len + 1 + lengt_length, elem_ett[idx], &item,
+                                             "%s%s", elem_name, (name_add == NULL) || (name_add[0] == '\0') ? "" : name_add);
 
         proto_tree_add_uint(subtree,
             get_hf_elem_id(pdu_type), tvb,
@@ -1427,15 +1426,16 @@ guint16 elem_tlv_e(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint8 i
 
         elem_name = try_val_to_str_ext(idx, &elem_names_ext);
 
-        item = proto_tree_add_text(tree, tvb, curr_offset, parm_len + 1 + 2,
-            "%s%s", elem_name ? elem_name : "Unknown - aborting dissection",
-            (name_add == NULL) || (name_add[0] == '\0') ? "" : name_add);
-
         /* idx is out of range */
-        if (elem_name == NULL)
+        if (elem_name == NULL) {
+            proto_tree_add_expert_format(tree, pinfo, &ei_gsm_a_unknown_element,
+                tvb, curr_offset, parm_len + 1 + 2,
+                "Unknown - aborting dissection%s", (name_add == NULL) || (name_add[0] == '\0') ? "" : name_add);
             return consumed;
+        }
 
-        subtree = proto_item_add_subtree(item, elem_ett[idx]);
+        subtree = proto_tree_add_subtree_format(tree, tvb, curr_offset, parm_len + 1 + 2, elem_ett[idx], &item,
+                                             "%s%s", elem_name, (name_add == NULL) || (name_add[0] == '\0') ? "" : name_add);
 
         proto_tree_add_uint(subtree,
             get_hf_elem_id(pdu_type), tvb,
@@ -1506,16 +1506,16 @@ guint16 elem_tv(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint8 iei,
     {
         elem_name = try_val_to_str_ext(idx, &elem_names_ext);
 
-        item =
-            proto_tree_add_text(tree, tvb, curr_offset, -1,
-                "%s%s", elem_name ? elem_name : "Unknown - aborting dissection",
-                (name_add == NULL) || (name_add[0] == '\0') ? "" : name_add);
-
         /* idx is out of range */
-        if (elem_name == NULL)
+        if (elem_name == NULL) {
+            proto_tree_add_expert_format(tree, pinfo, &ei_gsm_a_unknown_element,
+                tvb, curr_offset, -1,
+                "Unknown - aborting dissection%s", (name_add == NULL) || (name_add[0] == '\0') ? "" : name_add);
             return consumed;
+        }
 
-        subtree = proto_item_add_subtree(item, elem_ett[idx]);
+        subtree = proto_tree_add_subtree_format(tree, tvb, curr_offset, -1, elem_ett[idx], &item,
+                                             "%s%s", elem_name, (name_add == NULL) || (name_add[0] == '\0') ? "" : name_add);
 
         proto_tree_add_uint(subtree,
             get_hf_elem_id(pdu_type), tvb,
@@ -1584,17 +1584,16 @@ guint16 elem_tv_short(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint
     {
         elem_name = try_val_to_str_ext(idx, &elem_names_ext);
 
-        item =
-            proto_tree_add_text(tree,
-                tvb, curr_offset, -1,
-                "%s%s", elem_name ? elem_name : "Unknown - aborting dissection",
-                (name_add == NULL) || (name_add[0] == '\0') ? "" : name_add);
-
         /* idx is out of range */
-        if (elem_name == NULL)
+        if (elem_name == NULL) {
+            proto_tree_add_expert_format(tree, pinfo, &ei_gsm_a_unknown_element,
+                tvb, curr_offset, -1,
+                "Unknown - aborting dissection%s", (name_add == NULL) || (name_add[0] == '\0') ? "" : name_add);
             return consumed;
+        }
 
-        subtree = proto_item_add_subtree(item, elem_ett[idx]);
+        subtree = proto_tree_add_subtree_format(tree, tvb, curr_offset, -1, elem_ett[idx], &item,
+                                             "%s%s", elem_name, (name_add == NULL) || (name_add[0] == '\0') ? "" : name_add);
 
         other_decode_bitfield_value(buf, oct, 0xf0, 8);
         proto_tree_add_text(subtree,
@@ -1694,17 +1693,16 @@ elem_lv(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gint pdu_type, int 
 
     elem_name = try_val_to_str_ext(idx, &elem_names_ext);
 
-    item =
-        proto_tree_add_text(tree,
-            tvb, curr_offset, parm_len + 1,
-            "%s%s", elem_name ? elem_name : "Unknown - aborting dissection",
-            (name_add == NULL) || (name_add[0] == '\0') ? "" : name_add);
-
     /* idx is out of range */
-    if (elem_name == NULL)
+    if (elem_name == NULL) {
+        proto_tree_add_expert_format(tree, pinfo, &ei_gsm_a_unknown_element,
+            tvb, curr_offset, parm_len + 1,
+            "Unknown - aborting dissection%s", (name_add == NULL) || (name_add[0] == '\0') ? "" : name_add);
         return consumed;
+    }
 
-    subtree = proto_item_add_subtree(item, elem_ett[idx]);
+    subtree = proto_tree_add_subtree_format(tree, tvb, curr_offset, parm_len + 1, elem_ett[idx], &item,
+                                            "%s%s", elem_name, (name_add == NULL) || (name_add[0] == '\0') ? "" : name_add);
 
     proto_tree_add_uint(subtree, hf_gsm_a_length, tvb,
         curr_offset, 1, parm_len);
@@ -1763,15 +1761,16 @@ guint16 elem_lv_e(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gint pdu_
 
     elem_name = try_val_to_str_ext(idx, &elem_names_ext);
 
-    item = proto_tree_add_text(tree, tvb, curr_offset, parm_len + 2,
-            "%s%s", elem_name ? elem_name : "Unknown - aborting dissection",
-            (name_add == NULL) || (name_add[0] == '\0') ? "" : name_add);
-
     /* idx is out of range */
-    if (elem_name == NULL)
+    if (elem_name == NULL) {
+        proto_tree_add_expert_format(tree, pinfo, &ei_gsm_a_unknown_element,
+            tvb, curr_offset, parm_len + 2,
+            "Unknown - aborting dissection%s", (name_add == NULL) || (name_add[0] == '\0') ? "" : name_add);
         return consumed;
+    }
 
-    subtree = proto_item_add_subtree(item, elem_ett[idx]);
+    subtree = proto_tree_add_subtree_format(tree, tvb, curr_offset, parm_len + 2, elem_ett[idx], &item,
+                                            "%s%s", elem_name, (name_add == NULL) || (name_add[0] == '\0') ? "" : name_add);
 
     proto_tree_add_uint(subtree, hf_gsm_a_length, tvb,
         curr_offset, 2, parm_len);
@@ -1843,13 +1842,11 @@ guint16 elem_v(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gint pdu_typ
     {
         gchar *a_add_string;
 
-        item =
-            proto_tree_add_text(tree,
+        subtree =
+            proto_tree_add_subtree_format(tree,
                 tvb, curr_offset, 0,
-                "%s%s", elem_name,
+                elem_ett[idx], &item, "%s%s", elem_name,
                 (name_add == NULL) || (name_add[0] == '\0') ? "" : name_add);
-
-        subtree = proto_item_add_subtree(item, elem_ett[idx]);
 
         a_add_string= (gchar*)wmem_alloc(wmem_packet_scope(), 1024);
         a_add_string[0] = '\0';
@@ -1889,16 +1886,14 @@ guint16 elem_v_short(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gint p
 
     elem_name = try_val_to_str_ext(idx, &elem_names_ext);
 
-    item = proto_tree_add_text(tree,
-            tvb, curr_offset, 0,
-            "%s%s", elem_name ? elem_name : "Unknown - aborting dissection",
-            "");
-
     /* idx is out of range */
-    if (elem_name == NULL)
+    if (elem_name == NULL) {
+        proto_tree_add_expert(tree, pinfo, &ei_gsm_a_unknown_element,
+            tvb, curr_offset, 0);
         return consumed;
+    }
 
-    subtree = proto_item_add_subtree(item, elem_ett[idx]);
+    subtree = proto_tree_add_subtree(tree, tvb, curr_offset, 0, elem_ett[idx], &item, elem_name);
 
     a_add_string= (gchar*)wmem_alloc(wmem_packet_scope(), 1024);
     a_add_string[0] = '\0';
@@ -2149,11 +2144,9 @@ de_lai(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guin
 
     curr_offset = offset;
 
-    item = proto_tree_add_text(tree,
-                               tvb, curr_offset, 5, "%s",
+    subtree = proto_tree_add_subtree(tree,
+                               tvb, curr_offset, 5, ett_gsm_common_elem[DE_LAI], &item,
                                val_to_str_ext_const(DE_LAI, &gsm_common_elem_strings_ext, ""));
-
-    subtree = proto_item_add_subtree(item, ett_gsm_common_elem[DE_LAI]);
 
     octs[0] = tvb_get_guint8(tvb, curr_offset);
     octs[1] = tvb_get_guint8(tvb, curr_offset + 1);
@@ -2379,16 +2372,13 @@ de_ms_cm_1(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offs
 {
     guint32     curr_offset;
     proto_tree *subtree;
-    proto_item *item;
 
     curr_offset = offset;
 
-    item =
-    proto_tree_add_text(tree,
-        tvb, curr_offset, 1, "%s",
+    subtree =
+    proto_tree_add_subtree(tree,
+        tvb, curr_offset, 1, ett_gsm_common_elem[DE_MS_CM_1], NULL,
         val_to_str_ext_const(DE_MS_CM_1, &gsm_common_elem_strings_ext, ""));
-
-    subtree = proto_item_add_subtree(item, ett_gsm_common_elem[DE_MS_CM_1]);
 
     proto_tree_add_item(subtree, hf_gsm_a_b8spare, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
@@ -3320,19 +3310,16 @@ de_pd_sapi(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offs
     guint8       oct;
     guint32      curr_offset;
     proto_tree  *subtree;
-    proto_item  *item;
     const gchar *str;
 
     curr_offset = offset;
 
     oct = tvb_get_guint8(tvb, curr_offset);
 
-    item =
-    proto_tree_add_text(tree,
-        tvb, curr_offset, 1, "%s",
+    subtree =
+    proto_tree_add_subtree(tree,
+        tvb, curr_offset, 1, ett_gsm_dtap_elem[DE_PD_SAPI], NULL,
         val_to_str_ext_const(DE_PD_SAPI, &gsm_dtap_elem_strings_ext, ""));
-
-    subtree = proto_item_add_subtree(item, ett_gsm_dtap_elem[DE_PD_SAPI]);
 
     proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, curr_offset<<3, 2, ENC_BIG_ENDIAN);
 
@@ -4475,6 +4462,7 @@ proto_register_gsm_a_common(void)
 
     static ei_register_info ei[] = {
         { &ei_gsm_a_extraneous_data, { "gsm_a.extraneous_data", PI_PROTOCOL, PI_NOTE, "Extraneous Data, dissector bug or later version spec(report to wireshark.org)", EXPFILL }},
+        { &ei_gsm_a_unknown_element, { "gsm_a.unknown_element", PI_PROTOCOL, PI_ERROR, "Unknown - aborting dissection", EXPFILL }},
     };
 
     expert_module_t* expert_a_common;

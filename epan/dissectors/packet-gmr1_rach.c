@@ -409,7 +409,7 @@ static void
 dissect_gmr1_rach_kls2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
                        int is_moc)
 {
-	proto_item *dialed_num_item = NULL, *gps_pos_item = NULL;
+	proto_item *dialed_num_item = NULL;
 	proto_tree *dialed_num_tree = NULL, *gps_pos_tree = NULL;
 
 	/* MES Power Class */
@@ -492,10 +492,9 @@ dissect_gmr1_rach_kls2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 	                    tvb, offset + 9, 1, ENC_BIG_ENDIAN);
 
 	/* GPS Position */
-	gps_pos_item = proto_tree_add_text(
+	gps_pos_tree = proto_tree_add_subtree(
 		tree, tvb, offset + 10, 5,
-		"GPS Position");
-	gps_pos_tree = proto_item_add_subtree(gps_pos_item, ett_rach_gps_pos);
+		ett_rach_gps_pos, NULL, "GPS Position");
 
 	dissect_gmr1_rach_gps_pos(tvb, offset + 10, pinfo, gps_pos_tree);
 
@@ -508,8 +507,8 @@ dissect_gmr1_rach_kls2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 static void
 dissect_gmr1_rach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	proto_item *rach_item = NULL, *kls1_item = NULL, *kls2_item = NULL;
-	proto_tree *rach_tree = NULL, *kls1_tree = NULL, *kls2_tree = NULL;
+	proto_item *rach_item;
+	proto_tree *rach_tree, *kls1_tree, *kls2_tree;
 	int len, is_moc;
 
 	len = tvb_length(tvb);
@@ -527,17 +526,15 @@ dissect_gmr1_rach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	col_append_str(pinfo->cinfo, COL_INFO, "(RACH) ");
 
-	kls1_item = proto_tree_add_text(
+	kls1_tree = proto_tree_add_subtree(
 		rach_tree, tvb, 0, 2,
-		"Class-1 informations");
-	kls1_tree = proto_item_add_subtree(kls1_item, ett_rach_kls1);
+		ett_rach_kls1, NULL, "Class-1 informations");
 
 	dissect_gmr1_rach_kls1(tvb, 0, pinfo, kls1_tree, &is_moc);
 
-	kls2_item = proto_tree_add_text(
+	kls2_tree = proto_tree_add_subtree(
 		rach_tree, tvb, 2, 16,
-		"Class-2 informations");
-	kls2_tree = proto_item_add_subtree(kls2_item, ett_rach_kls2);
+		ett_rach_kls2, NULL, "Class-2 informations");
 
 	dissect_gmr1_rach_kls2(tvb, 2, pinfo, kls2_tree, is_moc);
 }
