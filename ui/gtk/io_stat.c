@@ -270,7 +270,9 @@ tap_iostat_packet(void *g, packet_info *pinfo, epan_dissect_t *edt, const void *
     if (idx + 1 > io->num_items) {
         if (idx + 1 > io->space_items) {
             /* reallocate graphs */
-            const gsize new_size = exp2(log2(idx + 1) + 1);
+            static const gsize exp_inc_limit = 1000000;
+            static const gsize step = 100000;
+            const gsize new_size = (idx < exp_inc_limit)?exp2(log2(idx + 1) + 1):(idx + step);
             if (io->space_items == 0) {
                 /* nothing allocated yet */
                 int i;
