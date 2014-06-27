@@ -1076,6 +1076,7 @@ dissect_rtcp_asfb_ms( tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *
     return offset;
 }
 
+#if 0
 static int
 dissect_rtcp_psfb_remb( tvbuff_t *tvb, int offset, proto_tree *rtcp_tree, proto_item *top_item, int num_fci, int *read_fci)
 {
@@ -1123,6 +1124,7 @@ dissect_rtcp_psfb_remb( tvbuff_t *tvb, int offset, proto_tree *rtcp_tree, proto_
 
     return offset;
 }
+#endif
 
 
 static int
@@ -1320,11 +1322,32 @@ dissect_rtcp_psfb( tvbuff_t *tvb, int offset, proto_tree *rtcp_tree,
         }
         case 15:
         {
-            /* Handle MS Application Layer Feedback Messages */
+            /*
+             * Handle Application Layer Feedback messages.
+             *
+             * XXX - how do we determine how to interpret these?
+             *
+             * REMB (Receiver Estimated Maximum Bitrate) is, according
+             * to section 2.3 "Signaling of use of this extension" of
+             * http://tools.ietf.org/html/draft-alvestrand-rmcat-remb-03,
+             * indicated as an SDP option when the session is set up.
+             *
+             * MS-RTP is, according to MS-RTP and according to MS-SDPEXT
+             * section 3.1.5.30.2 "a=rtcp-fb attribute", indicated as an
+             * SDP option when the session is set up.
+             *
+             * Those would work if we have the SDP setup traffic and parse
+             * the a=rtcp-fb attribute, but if we don't, we'd need to have
+             * the user specify it somehow.
+             */
+#if 0
+            /* Handle REMB (Receiver Estimated Maximum Bitrate) - http://tools.ietf.org/html/draft-alvestrand-rmcat-remb-00 */
+            offset = dissect_rtcp_psfb_remb(tvb, offset, rtcp_tree, top_item, counter, &read_fci);
+#else
+            /* Handle MS Application Layer Feedback Messages - MS-RTP */
             offset = dissect_rtcp_asfb_ms(tvb, offset, rtcp_tree, pinfo);
             read_fci = num_fci;     /* Consume all the bytes. */
-            /* Handle REMB (Receiver Estimated Maximum Bitrate) - http://tools.ietf.org/html/draft-alvestrand-rmcat-remb-00 */
-            /* offset = dissect_rtcp_psfb_remb(tvb, offset, rtcp_tree, top_item, counter, &read_fci); */
+#endif
             break;
         }
         case 3:             /* Reference Picture Selection Indication (RPSI) - Not decoded*/
@@ -3520,10 +3543,10 @@ dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
                 offset = dissect_rtcp_nack( tvb, offset, rtcp_tree );
                 break;
             case RTCP_RTPFB:
-              offset = dissect_rtcp_rtpfb( tvb, offset, rtcp_tree, ti, pinfo );
+                offset = dissect_rtcp_rtpfb( tvb, offset, rtcp_tree, ti, pinfo );
                 break;
             case RTCP_PSFB:
-              offset = dissect_rtcp_psfb( tvb, offset, rtcp_tree, packet_length, ti, pinfo );
+                offset = dissect_rtcp_psfb( tvb, offset, rtcp_tree, packet_length, ti, pinfo );
                 break;
             default:
                 /*
