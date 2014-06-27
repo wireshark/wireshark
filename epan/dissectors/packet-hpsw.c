@@ -258,10 +258,8 @@ dissect_hpsw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         if (( length < 1 ) || ( length > tvb_length_remaining(tvb, offset+2)))
             break;
 
-        ti = proto_tree_add_text(hp_tree, tvb, offset, length+2, "%s",
+        tlv_tree = proto_tree_add_subtree(hp_tree, tvb, offset, length+2, ett_hpsw_tlv, NULL,
                                  val_to_str(type, hpsw_tlv_type_vals, "Unknown TLV type: 0x%02x"));
-
-        tlv_tree = proto_item_add_subtree(ti, ett_hpsw_tlv);
 
         /* type */
         proto_tree_add_uint(tlv_tree, hf_hpsw_tlvtype, tvb, offset, 1, type);

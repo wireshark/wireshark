@@ -829,10 +829,10 @@ static int dissect_zbee_zcl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     tvbuff_t *payload_tvb;
     dissector_handle_t cluster_handle;
 
-    proto_tree *zcl_tree = NULL;
+    proto_tree *zcl_tree;
     proto_tree *sub_tree = NULL;
 
-    proto_item  *proto_root = NULL;
+    proto_item  *proto_root;
     proto_item  *ti;
 
     zbee_nwk_packet *nwk;
@@ -857,12 +857,10 @@ static int dissect_zbee_zcl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     cluster_handle = dissector_get_uint_handle(zbee_zcl_dissector_table, cluster_id);
 
     /* Create the protocol tree */
-    if ( tree ) {
-        proto_root = proto_tree_add_protocol_format(tree, proto_zbee_zcl, tvb, offset,
-                                tvb_length(tvb), "ZigBee Cluster Library Frame");
+    proto_root = proto_tree_add_protocol_format(tree, proto_zbee_zcl, tvb, offset,
+                            -1, "ZigBee Cluster Library Frame");
 
-        zcl_tree = proto_item_add_subtree(proto_root, ett_zbee_zcl);
-    }
+    zcl_tree = proto_item_add_subtree(proto_root, ett_zbee_zcl);
 
     /* Clear info column */
     col_clear(pinfo->cinfo, COL_INFO);
@@ -877,10 +875,9 @@ static int dissect_zbee_zcl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     /* Display the FCF */
     if ( tree ) {
         /* Create the subtree */
-        ti = proto_tree_add_text(zcl_tree, tvb, offset, 1,
-                    "Frame Control Field: %s (0x%02x)",
+        sub_tree = proto_tree_add_subtree_format(zcl_tree, tvb, offset, 1,
+                    ett_zbee_zcl_fcf, NULL, "Frame Control Field: %s (0x%02x)",
                     val_to_str_const(packet.frame_type, zbee_zcl_frame_types, "Unknown"), fcf);
-        sub_tree = proto_item_add_subtree(ti, ett_zbee_zcl_fcf);
 
                 /* Add the frame type */
         proto_tree_add_item(sub_tree, hf_zbee_zcl_fcf_frame_type, tvb, offset, 1, ENC_NA);
@@ -1374,8 +1371,7 @@ void dissect_zcl_read_attr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
  */
 void dissect_zcl_read_attr_resp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint *offset, guint16 cluster_id)
 {
-    proto_item *ti       = NULL;
-    proto_tree *sub_tree = NULL;
+    proto_tree *sub_tree;
 
     guint tvb_len;
     guint i = 0;
@@ -1385,8 +1381,7 @@ void dissect_zcl_read_attr_resp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     while ( *offset < tvb_len && i < ZBEE_ZCL_NUM_ATTR_ETT ) {
 
         /* Create subtree for attribute status field */
-        ti = proto_tree_add_text(tree, tvb, *offset, 0, "Status Record");
-        sub_tree = proto_item_add_subtree(ti, ett_zbee_zcl_attr[i]);
+        sub_tree = proto_tree_add_subtree(tree, tvb, *offset, 0, ett_zbee_zcl_attr[i], NULL, "Status Record");
         i++;
 
         /* Dissect the attribute identifier */
@@ -1419,8 +1414,7 @@ void dissect_zcl_read_attr_resp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
  */
 void dissect_zcl_write_attr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint *offset, guint16 cluster_id)
 {
-    proto_item *ti       = NULL;
-    proto_tree *sub_tree = NULL;
+    proto_tree *sub_tree;
 
     guint tvb_len;
     guint i = 0;
@@ -1430,8 +1424,7 @@ void dissect_zcl_write_attr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
     while ( *offset < tvb_len && i < ZBEE_ZCL_NUM_ATTR_ETT ) {
 
         /* Create subtree for attribute status field */
-        ti = proto_tree_add_text(tree, tvb, *offset, 0, "Attribute Field");
-        sub_tree = proto_item_add_subtree(ti, ett_zbee_zcl_attr[i]);
+        sub_tree = proto_tree_add_subtree(tree, tvb, *offset, 0, ett_zbee_zcl_attr[i], NULL, "Attribute Field");
         i++;
 
         /* Dissect the attribute identifier */
@@ -1459,8 +1452,7 @@ void dissect_zcl_write_attr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
  */
 static void dissect_zcl_write_attr_resp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint *offset, guint16 cluster_id)
 {
-    proto_item *ti       = NULL;
-    proto_tree *sub_tree = NULL;
+    proto_tree *sub_tree;
 
     guint tvb_len;
     guint i = 0;
@@ -1469,8 +1461,7 @@ static void dissect_zcl_write_attr_resp(tvbuff_t *tvb, packet_info *pinfo _U_, p
     while ( *offset < tvb_len && i < ZBEE_ZCL_NUM_ATTR_ETT ) {
 
         /* Create subtree for attribute status field */
-        ti = proto_tree_add_text(tree, tvb, *offset, 0, "Status Record");
-        sub_tree = proto_item_add_subtree(ti, ett_zbee_zcl_attr[i]);
+        sub_tree = proto_tree_add_subtree(tree, tvb, *offset, 0, ett_zbee_zcl_attr[i], NULL, "Status Record");
         i++;
 
         /* Dissect the status */
@@ -1499,8 +1490,7 @@ static void dissect_zcl_write_attr_resp(tvbuff_t *tvb, packet_info *pinfo _U_, p
 static void dissect_zcl_read_report_config_resp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                 guint *offset, guint16 cluster_id)
 {
-    proto_item *ti       = NULL;
-    proto_tree *sub_tree = NULL;
+    proto_tree *sub_tree;
 
     guint tvb_len;
     guint i = 0;
@@ -1513,8 +1503,7 @@ static void dissect_zcl_read_report_config_resp(tvbuff_t *tvb, packet_info *pinf
     while ( *offset < tvb_len && i < ZBEE_ZCL_NUM_ATTR_ETT ) {
 
         /* Create subtree for attribute status field */
-        ti = proto_tree_add_text(tree, tvb, *offset, 3, "Reporting Configuration Record");
-        sub_tree = proto_item_add_subtree(ti, ett_zbee_zcl_attr[i]);
+        sub_tree = proto_tree_add_subtree(tree, tvb, *offset, 3, ett_zbee_zcl_attr[i], NULL, "Reporting Configuration Record");
         i++;
 
         /* Dissect the status */
@@ -1571,8 +1560,7 @@ static void dissect_zcl_read_report_config_resp(tvbuff_t *tvb, packet_info *pinf
  */
 static void dissect_zcl_config_report(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint *offset, guint16 cluster_id)
 {
-    proto_item *ti       = NULL;
-    proto_tree *sub_tree = NULL;
+    proto_tree *sub_tree;
 
     guint tvb_len;
     guint i = 0;
@@ -1583,8 +1571,7 @@ static void dissect_zcl_config_report(tvbuff_t *tvb, packet_info *pinfo _U_, pro
     while ( *offset < tvb_len && i < ZBEE_ZCL_NUM_ATTR_ETT ) {
 
         /* Create subtree for attribute status field */
-        ti = proto_tree_add_text(tree, tvb, *offset, 3, "Reporting Configuration Record");
-        sub_tree = proto_item_add_subtree(ti, ett_zbee_zcl_attr[i]);
+        sub_tree = proto_tree_add_subtree(tree, tvb, *offset, 3, ett_zbee_zcl_attr[i], NULL, "Reporting Configuration Record");
         i++;
 
         /* Dissect the direction and any reported configuration */
@@ -1640,8 +1627,7 @@ static void dissect_zcl_config_report(tvbuff_t *tvb, packet_info *pinfo _U_, pro
 static void dissect_zcl_config_report_resp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                 guint *offset, guint16 cluster_id)
 {
-    proto_item *ti       = NULL;
-    proto_tree *sub_tree = NULL;
+    proto_tree *sub_tree;
 
     guint tvb_len;
     guint i = 0;
@@ -1650,8 +1636,7 @@ static void dissect_zcl_config_report_resp(tvbuff_t *tvb, packet_info *pinfo _U_
     while ( *offset < tvb_len && i < ZBEE_ZCL_NUM_ATTR_ETT ) {
 
         /* Create subtree for attribute status field */
-        ti = proto_tree_add_text(tree, tvb, *offset, 3, "Attribute Status Record");
-        sub_tree = proto_item_add_subtree(ti, ett_zbee_zcl_attr[i]);
+        sub_tree = proto_tree_add_subtree(tree, tvb, *offset, 3, ett_zbee_zcl_attr[i], NULL, "Attribute Status Record");
         i++;
 
         /* Dissect the status */
@@ -1683,8 +1668,7 @@ static void dissect_zcl_config_report_resp(tvbuff_t *tvb, packet_info *pinfo _U_
 static void dissect_zcl_read_report_config(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                 guint *offset, guint16 cluster_id)
 {
-    proto_item *ti       = NULL;
-    proto_tree *sub_tree = NULL;
+    proto_tree *sub_tree;
 
     guint tvb_len;
     guint i = 0;
@@ -1693,8 +1677,7 @@ static void dissect_zcl_read_report_config(tvbuff_t *tvb, packet_info *pinfo _U_
     while ( *offset < tvb_len && i < ZBEE_ZCL_NUM_ATTR_ETT ) {
 
         /* Create subtree for attribute status field */
-        ti = proto_tree_add_text(tree, tvb, *offset, 3, "Attribute Status Record");
-        sub_tree = proto_item_add_subtree(ti, ett_zbee_zcl_attr[i]);
+        sub_tree = proto_tree_add_subtree(tree, tvb, *offset, 3, ett_zbee_zcl_attr[i], NULL, "Attribute Status Record");
         i++;
 
         /* Dissect the direction */
@@ -1786,20 +1769,19 @@ static void dissect_zcl_discover_attr(tvbuff_t *tvb, packet_info *pinfo _U_, pro
 static void dissect_zcl_discover_attr_resp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                 guint *offset, guint16 cluster_id)
 {
-    proto_item *ti       = NULL;
     proto_tree *sub_tree = NULL;
 
     guint tvb_len;
     guint i = 0;
 
+    /* XXX - tree is never available!!!*/
     dissect_zcl_attr_uint8(tvb, sub_tree, offset, &hf_zbee_zcl_attr_dis);
 
     tvb_len = tvb_length(tvb);
     while ( *offset < tvb_len && i < ZBEE_ZCL_NUM_ATTR_ETT ) {
 
         /* Create subtree for attribute status field */
-        ti = proto_tree_add_text(tree, tvb, *offset, 3, "Attribute Status Record");
-        sub_tree = proto_item_add_subtree(ti, ett_zbee_zcl_attr[i]);
+        sub_tree = proto_tree_add_subtree(tree, tvb, *offset, 3, ett_zbee_zcl_attr[i], NULL, "Attribute Status Record");
         i++;
 
         /* Dissect the attribute identifier */
@@ -2395,23 +2377,22 @@ static guint dissect_zcl_attr_uint8(tvbuff_t *tvb, proto_tree *tree, guint *offs
 static void
 dissect_zcl_array_type(tvbuff_t *tvb, proto_tree *tree, guint *offset, guint8 elements_type, guint16 elements_num)
 {
-    proto_item *ti       = NULL;
-    proto_tree *sub_tree = NULL;
+    proto_tree *sub_tree;
 
     guint tvb_len;
     guint i = 1;   /* First element has a 1-index value */
 
     tvb_len = tvb_captured_length(tvb);
     while ( (*offset < tvb_len) && (elements_num != 0) ) {
-        /* Create subtree for array element field */
-        ti = proto_tree_add_text(tree, tvb, *offset, 0, "Element #%d", i);
 
         /* Have "common" use case give individual tree control to all elements,
            but don't prevent dissection if list is large */
         if (i < ZBEE_ZCL_NUM_ARRAY_ELEM_ETT-1)
-            sub_tree = proto_item_add_subtree(ti, ett_zbee_zcl_array_elements[i]);
+            sub_tree = proto_tree_add_subtree_format(tree, tvb, *offset, 0,
+                        ett_zbee_zcl_array_elements[i], NULL, "Element #%d", i);
         else
-            sub_tree = proto_item_add_subtree(ti, ett_zbee_zcl_array_elements[ZBEE_ZCL_NUM_ARRAY_ELEM_ETT-1]);
+            sub_tree = proto_tree_add_subtree_format(tree, tvb, *offset, 0,
+                        ett_zbee_zcl_array_elements[ZBEE_ZCL_NUM_ARRAY_ELEM_ETT-1], NULL, "Element #%d", i);
 
         dissect_zcl_attr_data(tvb, sub_tree, offset, elements_type);
         elements_num--;
@@ -2437,24 +2418,22 @@ dissect_zcl_array_type(tvbuff_t *tvb, proto_tree *tree, guint *offset, guint8 el
 static void
 dissect_zcl_set_type(tvbuff_t *tvb, proto_tree *tree, guint *offset, guint8 elements_type, guint16 elements_num)
 {
-    proto_item *ti       = NULL;
-    proto_tree *sub_tree = NULL;
+    proto_tree *sub_tree;
 
     guint tvb_len;
     guint i = 1;   /* First element has a 1-index value */
 
     tvb_len = tvb_captured_length(tvb);
     while ( (*offset < tvb_len) && (elements_num != 0) ) {
-        /* Create subtree for array element field */
-        ti = proto_tree_add_text(tree, tvb, *offset, 0, "Element");
-
         /* Piggyback on array ett_ variables */
         /* Have "common" use case give individual tree control to all elements,
            but don't prevent dissection if list is large */
         if (i < ZBEE_ZCL_NUM_ARRAY_ELEM_ETT-1)
-            sub_tree = proto_item_add_subtree(ti, ett_zbee_zcl_array_elements[i]);
+            sub_tree = proto_tree_add_subtree(tree, tvb, *offset, 0,
+                            ett_zbee_zcl_array_elements[i], NULL, "Element");
         else
-            sub_tree = proto_item_add_subtree(ti, ett_zbee_zcl_array_elements[ZBEE_ZCL_NUM_ARRAY_ELEM_ETT-1]);
+            sub_tree = proto_tree_add_subtree(tree, tvb, *offset, 0,
+                        ett_zbee_zcl_array_elements[ZBEE_ZCL_NUM_ARRAY_ELEM_ETT-1], NULL, "Element");
 
         dissect_zcl_attr_data(tvb, sub_tree, offset, elements_type);
         elements_num--;

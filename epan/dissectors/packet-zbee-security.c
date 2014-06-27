@@ -422,8 +422,7 @@ zbee_security_handoff(void)
 tvbuff_t *
 dissect_zbee_secure(tvbuff_t *tvb, packet_info *pinfo, proto_tree* tree, guint offset)
 {
-    proto_tree     *sec_tree = NULL;
-    proto_item     *sec_root;
+    proto_tree     *sec_tree;
     proto_tree     *field_tree;
     proto_item     *ti;
 
@@ -454,10 +453,7 @@ dissect_zbee_secure(tvbuff_t *tvb, packet_info *pinfo, proto_tree* tree, guint o
         proto_get_id_by_filter_name(IEEE802154_PROTOABBREV_WPAN), 0);
 
     /* Create a subtree for the security information. */
-    if (tree) {
-        sec_root = proto_tree_add_text(tree, tvb, offset, tvb_length_remaining(tvb, offset), "ZigBee Security Header");
-        sec_tree = proto_item_add_subtree(sec_root, ett_zbee_sec);
-    }
+    sec_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_zbee_sec, NULL, "ZigBee Security Header");
 
     /*  Get and display the Security control field */
     packet.control  = tvb_get_guint8(tvb, offset);

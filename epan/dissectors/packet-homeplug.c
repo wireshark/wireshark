@@ -1308,8 +1308,8 @@ static int check_tvb_length(ptvcursor_t *cursor, const gint length)
 static void
 dissect_homeplug(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 {
-  proto_item * it= NULL;
-  proto_tree * homeplug_tree= NULL;
+  proto_item * it;
+  proto_tree * homeplug_tree;
   ptvcursor_t * cursor;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "HomePlug");
@@ -1318,10 +1318,8 @@ dissect_homeplug(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
   homeplug_offset = 0;
 
-  if (tree) {
-    it = proto_tree_add_item(tree, proto_homeplug, tvb, homeplug_offset, -1, ENC_NA);
-    homeplug_tree = proto_item_add_subtree(it, ett_homeplug);
-  }
+  it = proto_tree_add_item(tree, proto_homeplug, tvb, homeplug_offset, -1, ENC_NA);
+  homeplug_tree = proto_item_add_subtree(it, ett_homeplug);
 
   cursor = ptvcursor_new(homeplug_tree, tvb, 0);
 

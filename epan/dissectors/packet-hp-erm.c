@@ -90,17 +90,15 @@ static void
 dissect_hp_erm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_item *ti;
-    proto_tree *hp_erm_tree = NULL;
+    proto_tree *hp_erm_tree;
     tvbuff_t   *eth_tvb;
     int        offset = 0;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, PROTO_SHORT_NAME);
     col_set_str(pinfo->cinfo, COL_INFO, PROTO_SHORT_NAME ":");
 
-    if (tree) {
-        ti = proto_tree_add_item(tree, proto_hp_erm, tvb, 0, -1, ENC_NA);
-        hp_erm_tree = proto_item_add_subtree(ti, ett_hp_erm);
-    }
+    ti = proto_tree_add_item(tree, proto_hp_erm, tvb, 0, -1, ENC_NA);
+    hp_erm_tree = proto_item_add_subtree(ti, ett_hp_erm);
 
     proto_tree_add_item(hp_erm_tree, hf_hp_erm_unknown1, tvb, offset, 8, ENC_NA);
     offset += 8;

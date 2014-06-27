@@ -1841,7 +1841,7 @@ static void
 dissect_h264(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     int         offset = 0;
-    proto_item *item, *ti, *stream_item, *fua_item;
+    proto_item *item;
     proto_tree *h264_tree, *h264_nal_tree, *stream_tree, *fua_tree;
     guint8      type;
     tvbuff_t   *rbsp_tvb;
@@ -1861,10 +1861,9 @@ dissect_h264(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         /* if the type is 28, it would be draw another title */
         if (type == 28)
-            ti = proto_tree_add_text(h264_tree, tvb, offset, 1, "FU identifier");
+            h264_nal_tree = proto_tree_add_subtree(h264_tree, tvb, offset, 1, ett_h264_nal, NULL, "FU identifier");
         else
-            ti = proto_tree_add_text(h264_tree, tvb, offset, 1, "NAL unit header or first byte of the payload");
-        h264_nal_tree = proto_item_add_subtree(ti, ett_h264_nal);
+            h264_nal_tree = proto_tree_add_subtree(h264_tree, tvb, offset, 1, ett_h264_nal, NULL, "NAL unit header or first byte of the payload");
 
         /* +---------------+
          * |0|1|2|3|4|5|6|7|
@@ -1885,8 +1884,7 @@ dissect_h264(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_item(h264_nal_tree, hf_h264_type, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
         if (type == 28) {
-            fua_item = proto_tree_add_text(h264_tree, tvb, offset, 1, "FU Header");
-            fua_tree = proto_item_add_subtree(fua_item, ett_h264_fua);
+            fua_tree = proto_tree_add_subtree(h264_tree, tvb, offset, 1, ett_h264_fua, NULL, "FU Header");
             proto_tree_add_item(fua_tree, hf_h264_start_bit,     tvb, offset, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(fua_tree, hf_h264_end_bit,       tvb, offset, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(fua_tree, hf_h264_forbidden_bit, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1902,8 +1900,7 @@ dissect_h264(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         /* Unescape NAL unit */
         rbsp_tvb = dissect_h265_unescap_nal_unit(tvb, pinfo, offset);
 
-        stream_item = proto_tree_add_text(h264_tree, tvb, offset, -1, "H264 bitstream");
-        stream_tree = proto_item_add_subtree(stream_item, ett_h264_stream);
+        stream_tree = proto_tree_add_subtree(h264_tree, tvb, offset, -1, ett_h264_stream, NULL, "H264 bitstream");
         switch (type) {
         case 1:             /* 1 Coded slice of a non-IDR picture */
             dissect_h264_slice_layer_without_partitioning_rbsp(stream_tree, rbsp_tvb, pinfo, 0);

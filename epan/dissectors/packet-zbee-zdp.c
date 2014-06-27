@@ -627,7 +627,6 @@ zdp_parse_chanmask(proto_tree *tree, tvbuff_t *tvb, guint *offset)
 guint8
 zdp_parse_cinfo(proto_tree *tree, gint ettindex, tvbuff_t *tvb, guint *offset)
 {
-    proto_item  *ti;
     proto_tree  *field_tree;
     guint8      flags;
 
@@ -635,10 +634,11 @@ zdp_parse_cinfo(proto_tree *tree, gint ettindex, tvbuff_t *tvb, guint *offset)
     flags = tvb_get_guint8(tvb, *offset);
     if (tree) {
         if (ettindex != -1) {
-            ti = proto_tree_add_text(tree, tvb, *offset, (int)sizeof(guint8), "Capability Information");
-            field_tree = proto_item_add_subtree(ti, ettindex);
+            field_tree = proto_tree_add_subtree(tree, tvb, *offset, (int)sizeof(guint8),
+                        ettindex, NULL, "Capability Information");
         }
-        else field_tree = tree;
+        else
+            field_tree = tree;
 
         proto_tree_add_boolean(field_tree, hf_zbee_zdp_cinfo_alt_coord, tvb, *offset, (int)sizeof(guint8), flags & ZBEE_CINFO_ALT_COORD);
         proto_tree_add_boolean(field_tree, hf_zbee_zdp_cinfo_ffd, tvb, *offset, (int)sizeof(guint8), flags & ZBEE_CINFO_FFD);
@@ -670,7 +670,6 @@ zdp_parse_cinfo(proto_tree *tree, gint ettindex, tvbuff_t *tvb, guint *offset)
 guint16
 zdp_parse_server_flags(proto_tree *tree, gint ettindex, tvbuff_t *tvb, guint *offset)
 {
-    proto_item  *ti;
     proto_tree  *field_tree;
     guint16      flags;
 
@@ -678,10 +677,10 @@ zdp_parse_server_flags(proto_tree *tree, gint ettindex, tvbuff_t *tvb, guint *of
     flags = tvb_get_letohs(tvb, *offset);
     if (tree) {
         if (ettindex != -1) {
-            ti = proto_tree_add_text(tree, tvb, *offset, 2, "Server Flags");
-            field_tree = proto_item_add_subtree(ti, ettindex);
+            field_tree = proto_tree_add_subtree(tree, tvb, *offset, 2, ettindex, NULL, "Server Flags");
         }
-        else field_tree = tree;
+        else
+            field_tree = tree;
 
         proto_tree_add_boolean(field_tree, hf_zbee_zdp_server_pri_trust, tvb, *offset, (int)sizeof(guint16), flags & ZBEE_ZDP_NODE_SERVER_PRIMARY_TRUST);
         proto_tree_add_boolean(field_tree, hf_zbee_zdp_server_bak_trust, tvb, *offset, (int)sizeof(guint16), flags & ZBEE_ZDP_NODE_SERVER_BACKUP_TRUST);
@@ -727,10 +726,10 @@ zdp_parse_node_desc(proto_tree *tree, gint ettindex, tvbuff_t *tvb, guint *offse
     /*guint16     max_transfer;*/
 
     if ((tree) && (ettindex != -1)) {
-        field_root = proto_tree_add_text(tree, tvb, *offset, tvb_length_remaining(tvb, *offset), "Node Descriptor");
-        field_tree = proto_item_add_subtree(field_root, ettindex);
+        field_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ettindex, &field_root, "Node Descriptor");
     }
-    else field_tree = tree;
+    else
+        field_tree = tree;
 
     /* Get and display the flags. */
     flags = tvb_get_letohs(tvb, *offset);
@@ -762,10 +761,10 @@ zdp_parse_node_desc(proto_tree *tree, gint ettindex, tvbuff_t *tvb, guint *offse
         zdp_parse_server_flags(field_tree, ett_zbee_zdp_server, tvb, offset);
         zbee_parse_uint(field_tree, hf_zbee_zdp_node_max_outgoing_transfer, tvb, offset, 2, NULL);
         d_c_field = tvb_get_guint8(tvb, *offset);
-        if (tree) {
-            ti = proto_tree_add_text(field_tree, tvb, *offset, 1, "Descriptor Capability Field");
-            field_tree = proto_item_add_subtree(ti, ett_zbee_zdp_descriptor_capability_field);
-        }
+
+        field_tree = proto_tree_add_subtree(field_tree, tvb, *offset, 1,
+                    ett_zbee_zdp_descriptor_capability_field, NULL, "Descriptor Capability Field");
+
         proto_tree_add_boolean(field_tree, hf_zbee_zdp_dcf_eaela, tvb, *offset, 1, d_c_field & ZBEE_ZDP_DCF_EAELA);
         proto_tree_add_boolean(field_tree, hf_zbee_zdp_dcf_esdla, tvb, *offset, 1, d_c_field & ZBEE_ZDP_DCF_ESDLA);
         *offset += 1;
@@ -806,8 +805,7 @@ zdp_parse_power_desc(proto_tree *tree, gint ettindex, tvbuff_t *tvb, guint *offs
     guint16     level;
 
     if ((tree) && (ettindex != -1)) {
-        ti = proto_tree_add_text(tree, tvb, *offset, (int)sizeof(guint16), "Power Descriptor");
-        field_tree = proto_item_add_subtree(ti, ettindex);
+        field_tree = proto_tree_add_subtree(tree, tvb, *offset, (int)sizeof(guint16), ettindex, NULL, "Power Descriptor");
     }
     else field_tree = tree;
 
@@ -862,7 +860,6 @@ zdp_parse_power_desc(proto_tree *tree, gint ettindex, tvbuff_t *tvb, guint *offs
 void
 zdp_parse_simple_desc(proto_tree *tree, gint ettindex, tvbuff_t *tvb, guint *offset, guint8 version)
 {
-    proto_item  *ti;
     proto_item  *field_root = NULL;
     proto_tree  *field_tree = NULL, *cluster_tree = NULL;
     guint       i, sizeof_cluster;
@@ -875,8 +872,7 @@ zdp_parse_simple_desc(proto_tree *tree, gint ettindex, tvbuff_t *tvb, guint *off
     guint8      out_count;
 
     if ((tree) && (ettindex != -1)) {
-        field_root = proto_tree_add_text(tree, tvb, *offset, tvb_length_remaining(tvb, *offset), "Simple Descriptor");
-        field_tree = proto_item_add_subtree(field_root, ettindex);
+        field_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ettindex, &field_root, "Simple Descriptor");
     }
     else field_tree = tree;
 
@@ -889,8 +885,8 @@ zdp_parse_simple_desc(proto_tree *tree, gint ettindex, tvbuff_t *tvb, guint *off
 
     in_count    = zbee_parse_uint(field_tree, hf_zbee_zdp_in_count, tvb, offset, (int)sizeof(guint8), NULL);
     if ((tree) && (in_count)) {
-        ti = proto_tree_add_text(field_tree, tvb, *offset, in_count*sizeof_cluster, "Input Cluster List");
-        cluster_tree = proto_item_add_subtree(ti, ett_zbee_zdp_node_in);
+        cluster_tree = proto_tree_add_subtree(field_tree, tvb, *offset, in_count*sizeof_cluster,
+                                                ett_zbee_zdp_node_in, NULL, "Input Cluster List");
     }
     for (i=0; i<in_count && tvb_bytes_exist(tvb, *offset, sizeof_cluster); i++) {
         zbee_parse_uint(cluster_tree, hf_zbee_zdp_in_cluster, tvb, offset, sizeof_cluster, NULL);
@@ -898,8 +894,8 @@ zdp_parse_simple_desc(proto_tree *tree, gint ettindex, tvbuff_t *tvb, guint *off
 
     out_count = zbee_parse_uint(field_tree, hf_zbee_zdp_out_count, tvb, offset, (int)sizeof(guint8), NULL);
     if ((tree) && (out_count)) {
-        ti = proto_tree_add_text(field_tree, tvb, *offset, in_count*sizeof_cluster, "Output Cluster List");
-        cluster_tree = proto_item_add_subtree(ti, ett_zbee_zdp_node_out);
+        cluster_tree = proto_tree_add_subtree(field_tree, tvb, *offset, in_count*sizeof_cluster,
+                                                ett_zbee_zdp_node_out, NULL, "Output Cluster List");
     }
     for (i=0; (i<out_count) && tvb_bytes_exist(tvb, *offset, sizeof_cluster); i++) {
         zbee_parse_uint(cluster_tree, hf_zbee_zdp_out_cluster, tvb, offset, sizeof_cluster, NULL);
@@ -954,7 +950,6 @@ zdp_parse_complex_desc(proto_tree *tree, gint ettindex, tvbuff_t *tvb, guint *of
 
     const gint max_len = 128;
 
-    proto_item  *field_root;
     proto_tree  *field_tree;
 
     gchar   *str = (gchar *)wmem_alloc(wmem_packet_scope(), length);
@@ -962,10 +957,10 @@ zdp_parse_complex_desc(proto_tree *tree, gint ettindex, tvbuff_t *tvb, guint *of
     guint8  tag;
 
     if ((tree) && (ettindex != -1)) {
-        field_root = proto_tree_add_text(tree, tvb, *offset, length, "Complex Descriptor");
-        field_tree = proto_item_add_subtree(field_root, ettindex);
+        field_tree = proto_tree_add_subtree(tree, tvb, *offset, length, ettindex, NULL, "Complex Descriptor");
     }
-    else field_tree = tree;
+    else
+        field_tree = tree;
 
     tag = tvb_get_guint8(tvb, *offset);
     if (tag == tag_charset) {

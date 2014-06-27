@@ -86,17 +86,15 @@ dissect_hyperscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint16    hs_fragno;
   gint       offset = 0;
   proto_tree *hs_hdr_tree, *hs_pdu_tree;
-  proto_tree *hs_tree = NULL;
+  proto_tree *hs_tree;
   proto_item *ti;
   guint8     hs_cmd, hs_ver;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "HyperSCSI");
   col_clear(pinfo->cinfo, COL_INFO);
 
-  if (tree) {
-    ti = proto_tree_add_item(tree, proto_hyperscsi, tvb, offset, -1, ENC_NA);
-    hs_tree = proto_item_add_subtree(ti, ett_hyperscsi);
-  }
+  ti = proto_tree_add_item(tree, proto_hyperscsi, tvb, offset, -1, ENC_NA);
+  hs_tree = proto_item_add_subtree(ti, ett_hyperscsi);
 
   hs_hdr1 = tvb_get_guint8(tvb, offset);
   offset++;
@@ -114,8 +112,7 @@ dissect_hyperscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    */
 
   if (tree) {
-    ti = proto_tree_add_text(hs_tree, tvb, 0, 3, "HyperSCSI Header");
-    hs_hdr_tree = proto_item_add_subtree(ti, ett_hs_hdr);
+    hs_hdr_tree = proto_tree_add_subtree(hs_tree, tvb, 0, 3, ett_hs_hdr, NULL, "HyperSCSI Header");
 
     /*
      * Now, add the header items
@@ -142,8 +139,7 @@ dissect_hyperscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                    val_to_str(hs_cmd, hscsi_opcodes, "Unknown HyperSCSI Request or Response (%u)"));
 
   if (tree) {
-    ti = proto_tree_add_text(hs_tree, tvb, 3, -1, "HyperSCSI PDU");
-    hs_pdu_tree = proto_item_add_subtree(ti, ett_hs_pdu);
+    hs_pdu_tree = proto_tree_add_subtree(hs_tree, tvb, 3, -1, ett_hs_pdu, NULL, "HyperSCSI PDU");
 
     proto_tree_add_uint(hs_pdu_tree, hf_hs_ver, tvb, 3, 1, hs_ver);
 

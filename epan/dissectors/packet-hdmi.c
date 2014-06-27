@@ -103,7 +103,7 @@ sub_check_hdmi(packet_info *pinfo _U_)
 static gint
 dissect_hdmi_edid(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree)
 {
-    proto_item *ti, *yi;
+    proto_item *yi;
     proto_tree *edid_tree;
     guint64     edid_hdr;
     guint16     manf_id;
@@ -113,10 +113,9 @@ dissect_hdmi_edid(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tr
     guint8      edid_ver, edid_rev;
 
 
-    ti = proto_tree_add_text(tree, tvb,
-            offset, tvb_reported_length_remaining(tvb, offset),
+    edid_tree = proto_tree_add_subtree(tree, tvb,
+            offset, -1, ett_hdmi_edid, NULL,
             "Extended Display Identification Data (EDID)");
-    edid_tree = proto_item_add_subtree(ti, ett_hdmi_edid);
 
     edid_hdr = tvb_get_ntoh64(tvb, offset);
     if (edid_hdr != EDID_HDR_VALUE)

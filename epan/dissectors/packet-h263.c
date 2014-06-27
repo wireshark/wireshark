@@ -639,10 +639,8 @@ static void dissect_h263_data( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
 	col_append_str( pinfo->cinfo, COL_INFO, "H263 payload ");
 
-	if( tree ) {
-	  h263_payload_item = proto_tree_add_item( tree, proto_h263_data, tvb, offset, -1, ENC_NA );
-	  h263_payload_tree = proto_item_add_subtree( h263_payload_item, ett_h263_payload );
-	}
+	h263_payload_item = proto_tree_add_item( tree, proto_h263_data, tvb, offset, -1, ENC_NA );
+	h263_payload_tree = proto_item_add_subtree( h263_payload_item, ett_h263_payload );
 
 	length = tvb_reported_length_remaining(tvb,0);
 	if(length<4){

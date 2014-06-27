@@ -3192,8 +3192,8 @@ dissect_homeplug_av_mme(ptvcursor_t *cursor, guint8 homeplug_av_mmver, guint16 h
 static void
 dissect_homeplug_av(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-   proto_item  *ti               = NULL;
-   proto_tree  *homeplug_av_tree = NULL;
+   proto_item  *ti;
+   proto_tree  *homeplug_av_tree;
    ptvcursor_t *cursor;
    guint8       homeplug_av_mmver;
    guint16      homeplug_av_mmtype;
@@ -3201,10 +3201,8 @@ dissect_homeplug_av(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    col_set_str(pinfo->cinfo, COL_PROTOCOL, "HomePlug AV");
    col_set_str(pinfo->cinfo, COL_INFO, "MAC Management");
 
-   if (tree) {
-      ti = proto_tree_add_item(tree, proto_homeplug_av, tvb, 0, -1, ENC_NA);
-      homeplug_av_tree = proto_item_add_subtree(ti, ett_homeplug_av);
-   }
+   ti = proto_tree_add_item(tree, proto_homeplug_av, tvb, 0, -1, ENC_NA);
+   homeplug_av_tree = proto_item_add_subtree(ti, ett_homeplug_av);
 
    cursor = ptvcursor_new(homeplug_av_tree, tvb, 0);
 

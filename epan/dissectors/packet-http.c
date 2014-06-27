@@ -1004,18 +1004,13 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		 */
 		saw_req_resp_or_header = TRUE;
 		if (is_request_or_reply) {
-		    	char *text = tvb_format_text(tvb, offset, next_offset - offset);
-			if (tree) {
-				hdr_item = proto_tree_add_text(http_tree, tvb,
-				    offset, next_offset - offset, "%s", text);
-			}
+			char *text = tvb_format_text(tvb, offset, next_offset - offset);
+
+			req_tree = proto_tree_add_subtree(http_tree, tvb,
+				    offset, next_offset - offset, ett_http_request, &hdr_item, text);
+
 			expert_add_info_format(pinfo, hdr_item, &ei_http_chat, "%s", text);
 			if (reqresp_dissector) {
-				if (tree)
-					req_tree = proto_item_add_subtree(hdr_item, ett_http_request);
-				else
-					req_tree = NULL;
-
 				reqresp_dissector(tvb, req_tree, offset, line,
 						  lineend, conv_data);
 			}
@@ -1343,13 +1338,11 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			/*
 			 * Add the encoded entity to the protocol tree
 			 */
-			e_ti = proto_tree_add_text(http_tree, next_tvb,
-					0, tvb_length(next_tvb),
+			e_tree = proto_tree_add_subtree_format(http_tree, next_tvb,
+					0, tvb_length(next_tvb), ett_http_encoded_entity, &e_ti,
 					"Content-encoded entity body (%s): %u bytes",
 					headers.content_encoding,
 					tvb_length(next_tvb));
-			e_tree = proto_item_add_subtree(e_ti,
-					ett_http_encoded_entity);
 
 			if (uncomp_tvb != NULL) {
 				/*
@@ -1630,8 +1623,8 @@ chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
 	tvbuff_t *tvb = NULL;
 	tvbuff_t *new_tvb = NULL;
 	gint chunked_data_size = 0;
-	proto_tree *subtree = NULL;
-	proto_item *ti = NULL;
+	proto_tree *subtree;
+	proto_item *ti;
 
 	if (tvb_ptr == NULL || *tvb_ptr == NULL) {
 		return 0;
@@ -1641,12 +1634,8 @@ chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
 
 	datalen = tvb_reported_length_remaining(tvb, offset);
 
-	if (tree) {
-		ti = proto_tree_add_text(tree, tvb, offset, datalen,
-					 "HTTP chunked response");
-		subtree = proto_item_add_subtree(ti, ett_http_chunked_response);
-	}
-
+	subtree = proto_tree_add_subtree(tree, tvb, offset, datalen,
+					 ett_http_chunked_response, NULL, "HTTP chunked response");
 
 	while (datalen > 0) {
 		proto_item *chunk_ti = NULL;
@@ -1733,19 +1722,15 @@ chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
 
 		if (subtree) {
 			if(chunk_size == 0) {
-				chunk_ti = proto_tree_add_text(subtree, tvb,
-					    offset,
-					    chunk_offset - offset + chunk_size + 2,
-					    "End of chunked encoding");
+				chunk_subtree = proto_tree_add_subtree(subtree, tvb,
+					    offset, chunk_offset - offset + chunk_size + 2,
+					    ett_http_chunk_data, NULL, "End of chunked encoding");
 			} else {
-				chunk_ti = proto_tree_add_text(subtree, tvb,
+				chunk_subtree = proto_tree_add_subtree_format(subtree, tvb,
 					    offset,
 					    chunk_offset - offset + chunk_size + 2,
-					    "Data chunk (%u octets)", chunk_size);
+					    ett_http_chunk_data, NULL, "Data chunk (%u octets)", chunk_size);
 			}
-
-			chunk_subtree = proto_item_add_subtree(chunk_ti,
-			    ett_http_chunk_data);
 
 			proto_tree_add_text(chunk_subtree, tvb, offset,
 			    chunk_offset - offset, "Chunk size: %u octets",
@@ -1825,13 +1810,8 @@ chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
 
 	datalen = tvb_reported_length_remaining(tvb, offset);
 
-	subtree = NULL;
-	if (tree) {
-		proto_item *ti;
-		ti = proto_tree_add_text(tree, tvb, offset, datalen,
-					 "HTTP chunked response");
-		subtree = proto_item_add_subtree(ti, ett_http_chunked_response);
-	}
+	subtree = proto_tree_add_subtree(tree, tvb, offset, datalen,
+					 ett_http_chunked_response, NULL, "HTTP chunked response");
 
 	/* Dechunk the "chunked response" to a new memory buffer */
 	orig_datalen      = datalen;
@@ -1889,23 +1869,21 @@ chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
 		raw_len += chunk_size;
 
 		if (subtree) {
-			proto_item *chunk_ti;
 			proto_tree *chunk_subtree;
 
 			if(chunk_size == 0) {
-				chunk_ti = proto_tree_add_text(subtree, tvb,
+				chunk_subtree = proto_tree_add_subtree(subtree, tvb,
 					    offset,
 					    chunk_offset - offset + chunk_size + 2,
+					    ett_http_chunk_data, NULL,
 					    "End of chunked encoding");
 			} else {
-				chunk_ti = proto_tree_add_text(subtree, tvb,
+				chunk_subtree = proto_tree_add_subtree_format(subtree, tvb,
 					    offset,
 					    chunk_offset - offset + chunk_size + 2,
+					    ett_http_chunk_data, NULL,
 					    "Data chunk (%u octets)", chunk_size);
 			}
-
-			chunk_subtree = proto_item_add_subtree(chunk_ti,
-			    ett_http_chunk_data);
 
 			proto_tree_add_text(chunk_subtree, tvb, offset,
 			    chunk_offset - offset, "Chunk size: %u octets",

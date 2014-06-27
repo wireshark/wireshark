@@ -829,7 +829,6 @@ dissect_zbee_nwk_gp_cmd_attr_reporting(tvbuff_t *tvb, packet_info *pinfo _U_, pr
     zbee_nwk_green_power_packet *packet _U_, guint offset)
 {
     guint16 cluster_id;
-    proto_item *ti;
     proto_tree *field_tree;
 
     /* Get cluster ID and add it into the tree. */
@@ -838,8 +837,8 @@ dissect_zbee_nwk_gp_cmd_attr_reporting(tvbuff_t *tvb, packet_info *pinfo _U_, pr
 
     offset += 2;
     /* Create subtree and parse ZCL Write Attribute Payload. */
-    ti = proto_tree_add_text(tree, tvb, offset, 2, "Attribute reporting command for cluster: 0x%02X", cluster_id);
-    field_tree = proto_item_add_subtree(ti, ett_zbee_nwk_cmd_options);
+    field_tree = proto_tree_add_subtree_format(tree, tvb, offset, 2, ett_zbee_nwk_cmd_options, NULL,
+                                "Attribute reporting command for cluster: 0x%02X", cluster_id);
     dissect_zcl_write_attr(tvb, pinfo, field_tree, &offset, cluster_id);
 
     return offset;
@@ -1026,20 +1025,18 @@ dissect_zbee_nwk_gp_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 {
     guint offset = 0;
     guint8 cmd_id = tvb_get_guint8(tvb, offset);
-    proto_item *cmd_root = NULL;
-    proto_tree *cmd_tree = NULL;
+    proto_item *cmd_root;
+    proto_tree *cmd_tree;
     zbee_nwk_green_power_packet *packet = (zbee_nwk_green_power_packet *)data;
 
     /* Create a subtree for the command. */
-    if (tree) {
-        cmd_root = proto_tree_add_text(tree, tvb, offset, tvb_length(tvb), "Command Frame: %s",
-                                       val_to_str_ext_const(cmd_id,
+    cmd_tree = proto_tree_add_subtree_format(tree, tvb, offset, -1, ett_zbee_nwk_cmd, &cmd_root,
+                                        "Command Frame: %s", val_to_str_ext_const(cmd_id,
                                                             &zbee_nwk_gp_cmd_names_ext,
                                                             "Unknown Command Frame"));
-        cmd_tree = proto_item_add_subtree(cmd_root, ett_zbee_nwk_cmd);
-        /* Add the command ID. */
-        proto_tree_add_uint(cmd_tree, hf_zbee_nwk_gp_command_id, tvb, offset, 1, cmd_id);
-    }
+    /* Add the command ID. */
+    proto_tree_add_uint(cmd_tree, hf_zbee_nwk_gp_command_id, tvb, offset, 1, cmd_id);
+
     offset += 1;
     /* Add the command name to the info column. */
     col_set_str(pinfo->cinfo, COL_INFO, val_to_str_ext_const(cmd_id, &zbee_nwk_gp_cmd_names_ext, "Unknown command"));

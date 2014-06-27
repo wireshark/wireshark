@@ -537,8 +537,8 @@ dissect_hdfs_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 
     if (tree) {
 
-        proto_item *ti = NULL;
-        proto_tree *hdfs_tree = NULL;
+        proto_item *ti;
+        proto_tree *hdfs_tree;
 
         ti = proto_tree_add_item(tree, proto_hdfs, tvb, 0, -1, ENC_NA);
         hdfs_tree = proto_item_add_subtree(ti, ett_hdfs);

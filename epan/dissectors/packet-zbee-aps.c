@@ -1053,9 +1053,8 @@ static void dissect_zbee_aps_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     guint8      cmd_id = tvb_get_guint8(tvb, offset);
 
     /*  Create a subtree for the APS Command frame, and add the command ID to it. */
-    cmd_root = proto_tree_add_text(tree, tvb, offset, tvb_length(tvb),
+    cmd_tree = proto_tree_add_subtree_format(tree, tvb, offset, -1, ett_zbee_aps_cmd, &cmd_root,
             "Command Frame: %s", val_to_str_const(cmd_id, zbee_aps_cmd_names, "Unknown"));
-    cmd_tree = proto_item_add_subtree(cmd_root, ett_zbee_aps_cmd);
 
     /* Add the command ID. */
     proto_tree_add_uint(cmd_tree, hf_zbee_aps_cmd_id, tvb, offset, 1, cmd_id);
@@ -1679,11 +1678,10 @@ dissect_zbee_t2(tvbuff_t *tvb, proto_tree *tree, guint16 cluster_id)
 {
     guint offset = 0;
     guint8 payload_length;
-    proto_item *ti;
     proto_tree *t2_tree;
 
-    ti = proto_tree_add_text(tree, tvb, 0, tvb_length(tvb), "ZigBee Test Profile #2");
-    t2_tree = proto_item_add_subtree(ti, ett_zbee_aps_t2);
+    t2_tree = proto_tree_add_subtree(tree, tvb, 0, -1, ett_zbee_aps_t2, NULL, "ZigBee Test Profile #2");
+
     switch (cluster_id) {
         case ZBEE_APS_T2_CID_BTRES:
             payload_length = tvb_get_guint8(tvb, offset);

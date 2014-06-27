@@ -286,7 +286,7 @@ static int dissect_hazelcast_message(tvbuff_t *tvb, packet_info *pinfo _U_, prot
 
     if (tree) {
 
-        proto_item *ti = NULL;
+        proto_item *ti;
         ti = proto_tree_add_item(tree, proto_hazelcast, tvb, 0, -1, ENC_NA);
 
         hcast_tree = proto_item_add_subtree(ti, ett_hazelcast);

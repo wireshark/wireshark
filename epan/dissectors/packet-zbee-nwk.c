@@ -612,11 +612,8 @@ dissect_zbee_nwk_full(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
         guint16 relay_addr;
         guint   i;
 
-        if (tree) {
-            /* Create a subtree for the source route field. */
-            ti = proto_tree_add_text(nwk_tree, tvb, offset, 1, "Source Route");
-            field_tree = proto_item_add_subtree(ti, ett_zbee_nwk_route);
-        }
+        /* Create a subtree for the source route field. */
+        field_tree = proto_tree_add_subtree(nwk_tree, tvb, offset, 1, ett_zbee_nwk_route, &ti, "Source Route");
 
         /* Get and display the relay count. */
         relay_count = tvb_get_guint8(tvb, offset);
@@ -733,21 +730,18 @@ dissect_zbee_nwk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
  */
 static void dissect_zbee_nwk_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, zbee_nwk_packet* packet)
 {
-    proto_tree  *cmd_tree = NULL;
-    proto_item  *cmd_root = NULL;
+    proto_tree  *cmd_tree;
+    proto_item  *cmd_root;
 
     guint       offset=0;
     guint8      cmd_id = tvb_get_guint8(tvb, offset);
 
     /* Create a subtree for this command. */
-    if (tree) {
-        cmd_root = proto_tree_add_text(tree, tvb, offset, tvb_length(tvb), "Command Frame: %s",
-                                        val_to_str_const(cmd_id, zbee_nwk_cmd_names, "Unknown"));
-        cmd_tree = proto_item_add_subtree(cmd_root, ett_zbee_nwk_cmd);
+    cmd_tree = proto_tree_add_subtree_format(tree, tvb, offset, -1, ett_zbee_nwk_cmd, &cmd_root, "Command Frame: %s",
+                                    val_to_str_const(cmd_id, zbee_nwk_cmd_names, "Unknown"));
 
-        /* Add the command ID. */
-        proto_tree_add_uint(cmd_tree, hf_zbee_nwk_cmd_id, tvb, offset, 1, cmd_id);
-    }
+    /* Add the command ID. */
+    proto_tree_add_uint(cmd_tree, hf_zbee_nwk_cmd_id, tvb, offset, 1, cmd_id);
     offset += 1;
 
     /* Add the command name to the info column. */

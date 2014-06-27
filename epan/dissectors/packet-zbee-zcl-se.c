@@ -164,7 +164,6 @@ static const value_string zbee_zcl_msg_ctrl_importance_names[] = {
 static int
 dissect_zbee_zcl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
-    proto_item        *payload_root;
     proto_tree        *payload_tree;
     zbee_zcl_packet   *zcl;
     guint             offset = 0;
@@ -190,8 +189,7 @@ dissect_zbee_zcl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
         /* Check is this command has a payload, than add the payload tree */
         rem_len = tvb_reported_length_remaining(tvb, ++offset);
         if (rem_len > 0) {
-            payload_root = proto_tree_add_text(tree, tvb, offset, rem_len, "Payload");
-            payload_tree = proto_item_add_subtree(payload_root, ett_zbee_zcl_msg);
+            payload_tree = proto_tree_add_subtree(tree, tvb, offset, rem_len, ett_zbee_zcl_msg, NULL, "Payload");
 
             /* Call the appropriate command dissector */
             switch (cmd_id) {
@@ -221,8 +219,7 @@ dissect_zbee_zcl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
         /* Check is this command has a payload, than add the payload tree */
         rem_len = tvb_reported_length_remaining(tvb, ++offset);
         if (rem_len > 0) {
-            payload_root = proto_tree_add_text(tree, tvb, offset, rem_len, "Payload");
-            payload_tree = proto_item_add_subtree(payload_root, ett_zbee_zcl_msg);
+            payload_tree = proto_tree_add_subtree(tree, tvb, offset, rem_len, ett_zbee_zcl_msg, NULL, "Payload");
 
             /* Call the appropriate command dissector */
             switch (cmd_id) {

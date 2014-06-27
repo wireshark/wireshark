@@ -205,51 +205,39 @@ dissect_hclnfsd_authorize_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_
 	offset += 4;
 
 	request_type = tvb_get_ntohl(tvb, offset);
-	if (tree)
-		proto_tree_add_uint(tree, hf_hclnfsd_request_type, tvb, offset,
+	proto_tree_add_uint(tree, hf_hclnfsd_request_type, tvb, offset,
 			4, request_type);
 	offset += 4;
 
 	offset = dissect_rpc_string(tvb, tree, hf_hclnfsd_device, offset,
 		NULL);
 
-	if (tree)
+	ident_tree = proto_tree_add_subtree(tree, tvb, offset, -1,
+		ett_hclnfsd_auth_ident, &ident_item, "Authentication Ident");
+
+	if (ident_tree)
 	{
-		ident_item = proto_tree_add_text(tree, tvb, offset, -1,
-			"Authentication Ident");
+		newoffset = dissect_rpc_string(tvb, ident_tree,
+			hf_hclnfsd_auth_ident_obscure, offset, &ident);
 
-		if (ident_item)
+		if (ident)
 		{
-			ident_tree = proto_item_add_subtree(ident_item,
-				ett_hclnfsd_auth_ident);
+			ident_len = (int)strlen(ident);
 
-			if (ident_tree)
-			{
-				newoffset = dissect_rpc_string(tvb, ident_tree,
-					hf_hclnfsd_auth_ident_obscure, offset, &ident);
+			proto_item_set_len(ident_item, ident_len);
 
-				if (ident)
-				{
-					ident_len = (int)strlen(ident);
+			ident_decoded = hclnfsd_decode_obscure(ident, ident_len);
 
-					proto_item_set_len(ident_item, ident_len);
+			username = ident_decoded + 2;
+			password = username + strlen(username) + 1;
 
-					ident_decoded = hclnfsd_decode_obscure(ident, ident_len);
+			proto_tree_add_text(ident_tree, tvb, offset, ident_len,
+				"Username: %s", username);
 
-					username = ident_decoded + 2;
-					password = username + strlen(username) + 1;
+			proto_tree_add_text(ident_tree, tvb, offset, ident_len,
+				"Password: %s", password);
 
-					proto_tree_add_text(ident_tree, tvb, offset, ident_len,
-						"Username: %s", username);
-
-					proto_tree_add_text(ident_tree, tvb, offset, ident_len,
-						"Password: %s", password);
-
-					offset = newoffset;
-
-					ident = NULL;
-				}
-			}
+			offset = newoffset;
 		}
 	}
 
