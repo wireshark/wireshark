@@ -3269,7 +3269,8 @@ main(int argc, char *argv[])
 
 #ifdef _WIN32
     /* hide the (unresponsive) main window, while asking the user to close the console window */
-    gtk_widget_hide(top_level);
+    if (G_IS_OBJECT(top_level))
+        gtk_widget_hide(top_level);
 
     software_update_cleanup();
 

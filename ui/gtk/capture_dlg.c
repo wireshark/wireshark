@@ -1087,7 +1087,7 @@ iftype_combo_box_add (GtkWidget *iftype_cbx, interface_t *device)
   GtkTreeIter   iter;
   gboolean      create_new = FALSE;
   gchar        *string;
-  guint         i, pos     = REMOTE_HOST_START;
+  guint         pos = REMOTE_HOST_START;
   struct remote_host_info *rh;
 
   rh = g_hash_table_lookup (remote_host_list, device->remote_opts.remote_host_opts.remote_host);
@@ -1100,12 +1100,9 @@ iftype_combo_box_add (GtkWidget *iftype_cbx, interface_t *device)
     rh->remote_host = g_strdup (device->remote_opts.remote_host_opts.remote_host);
     create_new = TRUE;
   } else {
-    model = gtk_combo_box_get_model(GTK_COMBO_BOX(iftype_cbx));
-    if (gtk_tree_model_get_iter_first(model, &iter)) {
-      /* Skip the first entries */
-      for (i = 0; i < REMOTE_HOST_START; i++)
-        gtk_tree_model_iter_next(model, &iter);
-      do {
+    model = (GtkTreeModel *)gtk_combo_box_get_model(GTK_COMBO_BOX(iftype_cbx));
+    if (gtk_tree_model_get_iter_first(GTK_TREE_MODEL(model), &iter)) {
+      while (gtk_tree_model_iter_next(model, &iter)) {
         gtk_tree_model_get(model, &iter, 0, &string, -1);
         if (string) {
           if (strcmp (device->remote_opts.remote_host_opts.remote_host, string) == 0) {
@@ -1116,7 +1113,7 @@ iftype_combo_box_add (GtkWidget *iftype_cbx, interface_t *device)
           g_free (string);
         }
         pos++;
-      } while (gtk_tree_model_iter_next(model, &iter));
+      }
     }
 
     g_free (rh->remote_port);
@@ -1462,12 +1459,6 @@ capture_remote_adjust_sensitivity(GtkWidget *tb _U_, gpointer parent_w)
   gtk_widget_set_sensitive(GTK_WIDGET(passwd_te), state);
 }
 
-/* user requested to destroy the dialog */
-static void
-capture_remote_destroy_cb(GtkWidget *win, gpointer user_data _U_)
-{
-  g_object_set_data(G_OBJECT(interface_management_w), E_CAP_REMOTE_DIALOG_PTR_KEY, NULL);
-}
 
 /* user requested to accept remote interface options */
 static void
@@ -1503,9 +1494,9 @@ capture_remote_ok_cb(GtkWidget *win _U_, GtkWidget *remote_w)
   global_remote_opts.remote_host_opts.auth_password =
     g_strdup(gtk_entry_get_text(GTK_ENTRY(passwd_te)));
 
-  window_destroy(GTK_WIDGET(remote_w));
   update_interface_list();
   fill_remote_list();
+  window_destroy(GTK_WIDGET(g_object_get_data(G_OBJECT(interface_management_w), E_CAP_REMOTE_DIALOG_PTR_KEY)));
 }
 
 static void
@@ -1654,7 +1645,7 @@ capture_remote_cb(GtkWidget *w, gboolean focus_username)
   gtk_entry_set_visibility(GTK_ENTRY(passwd_te), FALSE);
   ws_gtk_grid_attach_defaults(GTK_GRID (auth_passwd_grid), passwd_te, 1, 1, 1, 1);
 
-  /* Button row: "Start" and "Cancel" buttons */
+  /* Button row: "OK" and "Cancel" buttons */
   bbox = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_CANCEL, NULL);
   gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 5);
 
@@ -1680,13 +1671,11 @@ capture_remote_cb(GtkWidget *w, gboolean focus_username)
      entries, so that if the user types Return there, we act as if the
      "OK" button had been selected, as happens if Return is typed if some
      widget that *doesn't* handle the Return key has the input focus. */
-  dlg_set_activate(host_te, ok_but);
   dlg_set_activate(port_te, ok_but);
   dlg_set_activate(user_te, ok_but);
   dlg_set_activate(passwd_te, ok_but);
 
   g_signal_connect(remote_w, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
-  g_signal_connect(remote_w, "destroy", G_CALLBACK(capture_remote_destroy_cb), NULL);
 
   g_object_set_data(G_OBJECT(remote_w), E_REMOTE_HOST_TE_KEY, host_te);
   g_object_set_data(G_OBJECT(remote_w), E_REMOTE_PORT_TE_KEY, port_te);
@@ -3838,10 +3827,8 @@ fill_remote_list(void)
   gchar        *host = "";
   GtkTreeView  *remote_l;
   GtkTreeStore *store;
-  GtkWidget    *host_te, *remote_w;
 
   num_selected = 0;
-  gtk_widget_set_sensitive(g_object_get_data(G_OBJECT(interface_management_w), E_REMOTE_DEL_BT_KEY), FALSE);
   remote_l = GTK_TREE_VIEW(g_object_get_data(G_OBJECT(interface_management_w), E_CAP_REMOTE_L_KEY));
   store = gtk_tree_store_new(4, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_BOOLEAN, G_TYPE_STRING);
   for (i = 0; i < global_capture_opts.all_ifaces->len; i++) {
@@ -3851,9 +3838,6 @@ fill_remote_list(void)
     } else {
       /* fill the store */
       if (strcmp(host, device.remote_opts.remote_host_opts.remote_host) != 0) {
-        remote_w = g_object_get_data(G_OBJECT(interface_management_w), E_CAP_REMOTE_DIALOG_PTR_KEY);
-        host_te = (GtkWidget *)g_object_get_data(G_OBJECT(remote_w), E_REMOTE_HOST_TE_KEY);
-        iftype_combo_box_add (host_te, &device);
         host = g_strdup(device.remote_opts.remote_host_opts.remote_host);
         gtk_tree_store_append(store, &iter, NULL);
         gtk_tree_store_set(store, &iter, 0, host, 3, "FALSE", -1);
@@ -4030,6 +4014,12 @@ show_add_interfaces_dialog(GtkWidget *bt _U_, GtkWidget *parent_win)
   GtkWidget         *button_hbox, *help_hbox;
   GtkTreeSelection  *selection;
 #endif
+
+  if (interface_management_w != NULL && G_IS_OBJECT(interface_management_w)) {
+    /* There's already a "Manage Interfaces" dialog box; reactivate it. */
+    reactivate_window(interface_management_w);
+    return;
+  }
 
   interface_management_w = window_new(GTK_WINDOW_TOPLEVEL, "Interface Management");
   gtk_window_set_transient_for(GTK_WINDOW(interface_management_w), GTK_WINDOW(parent_win));
@@ -4423,7 +4413,7 @@ update_properties_all(void)
 
   /* If we don't have a Capture Options dialog open, there's nothing
      for us to do. */
-  if (cap_open_w == NULL)
+  if (!cap_open_w)
     return;
 
   /* Determine whether all interfaces:
@@ -4582,7 +4572,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   if (interfaces_dialog_window_present()) {
     destroy_if_window();
   }
-  if (cap_open_w != NULL) {
+  if (cap_open_w != NULL && G_IS_OBJECT(cap_open_w)) {
     /* There's already a "Capture Options" dialog box; reactivate it. */
     reactivate_window(cap_open_w);
     return;
@@ -4823,7 +4813,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   g_object_set_data(G_OBJECT(cap_open_w), E_CAP_IFTYPE_CBX_KEY, iftype_cbx);
 
   gtk_box_pack_start(GTK_BOX(right_vb), iftype_cbx, FALSE, FALSE, 0);
-  g_signal_connect(iftype_cbx, "clicked", G_CALLBACK(show_add_interfaces_dialog), cap_open_w);
+  g_signal_connect(iftype_cbx, "clicked", G_CALLBACK(show_add_interfaces_dialog), NULL);
   gtk_widget_show(iftype_cbx);
 
   main_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, DLG_UNRELATED_SPACING, FALSE);
@@ -5255,9 +5245,6 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_widget_grab_default(ok_bt);
 
   /* Attach pointers to needed widgets to the capture prefs window/object */
-#if defined(HAVE_PCAP_REMOTE)
-  g_object_set_data(G_OBJECT(cap_open_w), E_CAP_REMOTE_DIALOG_PTR_KEY, NULL);
-#endif
   g_object_set_data(G_OBJECT(cap_open_w), E_CAP_KEY_ALL, all_cb);
   g_object_set_data(G_OBJECT(cap_open_w), E_CAP_PROMISC_KEY_ALL, promisc_cb);
   g_object_set_data(G_OBJECT(cap_open_w), E_CAP_PCAP_NG_KEY, pcap_ng_cb);
@@ -5845,6 +5832,8 @@ capture_prep_destroy_cb(GtkWidget *win _U_, gpointer user_data _U_)
   GtkWidget *remote_w;
 #endif
 
+  if (!cap_open_w || !G_IS_OBJECT(cap_open_w))
+      return;
   /* Is there a file selection dialog associated with this
      Capture Options dialog? */
   fs = (GtkWidget *)g_object_get_data(G_OBJECT(cap_open_w), E_FILE_SEL_DIALOG_PTR_KEY);
@@ -5856,7 +5845,7 @@ capture_prep_destroy_cb(GtkWidget *win _U_, gpointer user_data _U_)
   }
 #endif
 
-  if (fs != NULL) {
+  if (fs != NULL && G_IS_OBJECT(fs)) {
     /* Yes.  Destroy it. */
     window_destroy(fs);
   }
@@ -5871,7 +5860,9 @@ capture_prep_destroy_cb(GtkWidget *win _U_, gpointer user_data _U_)
 #endif
 
 #ifdef HAVE_PCAP_REMOTE
-  remote_w = g_object_get_data(G_OBJECT(interface_management_w), E_CAP_REMOTE_DIALOG_PTR_KEY);
+  if (interface_management_w && G_IS_OBJECT(interface_management_w)) {
+      remote_w = g_object_get_data(G_OBJECT(interface_management_w), E_CAP_REMOTE_DIALOG_PTR_KEY);
+  }
   if (remote_w != NULL)
       window_destroy(remote_w);
 #endif
