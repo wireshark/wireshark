@@ -278,10 +278,13 @@ clopts_step_valid_name_resolving() {
 }
 
 test_dump_glossary() {
-	$TSHARK -G $1 > /dev/null
+	$TSHARK -G $1 > /dev/null 2> ./testout.txt
 	RETURNVALUE=$?
 	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
 		test_step_failed "exit status: $RETURNVALUE"
+	elif [ -s ./testout.txt ]; then
+		test_step_output_print ./testout.txt
+		test_step_failed "Error messages on stderr"
 	else
 		test_step_ok
 	fi

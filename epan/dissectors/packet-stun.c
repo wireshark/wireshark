@@ -325,8 +325,8 @@ static const value_string attributes[] = {
     {ICE_CONTROLLING       , "ICE-CONTROLLING"},
     {RESPONSE_ORIGIN       , "RESPONSE-ORIGIN"},
     {OTHER_ADDRESS         , "OTHER-ADDRESS"},
-    {MS_CANDIDATE_IDENTIFIER, "MS-CANDIDATE-IDENTIFIER"},
     {MS_SEQUENCE_NUMBER    , "MS-SEQUENCE-NUMBER"},
+    {MS_CANDIDATE_IDENTIFIER, "MS-CANDIDATE-IDENTIFIER"},
     {MS_SERVICE_QUALITY    , "MS-SERVICE-QUALITY"},
     {BANDWIDTH_ACM         , "Bandwidth Admission Control Message"},
     {BANDWIDTH_RSV_ID      , "Bandwidth Reservation Identifier"},
@@ -1242,7 +1242,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                 proto_tree_add_item(att_tree, hf_stun_att_reserved, tvb, offset+3, 1, ENC_NA);
                 break;
             case MS_CANDIDATE_IDENTIFIER:
-                proto_tree_add_item(att_tree, hf_stun_att_ms_foundation, tvb, offset, 4, ENC_ASCII);
+                proto_tree_add_item(att_tree, hf_stun_att_ms_foundation, tvb, offset, 4, ENC_ASCII|ENC_NA);
                 break;
 
             default:
