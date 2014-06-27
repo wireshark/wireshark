@@ -119,7 +119,9 @@ capture_interface_list(int *err, char **err_str, void (*update_cb)(void))
     /* Try to get our interface list */
     ret = sync_interface_list_open(&data, &primary_msg, &secondary_msg, update_cb);
     if (ret != 0) {
-        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture Interface List failed!");
+        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture Interface List failed, error %d, %s (%s)!",
+              *err, primary_msg ? primary_msg : "no message",
+              secondary_msg ? secondary_msg : "no secondary message");
         if (err_str) {
             *err_str = primary_msg;
         } else {
@@ -219,7 +221,9 @@ capture_get_if_capabilities(const gchar *ifname, gboolean monitor_mode,
     err = sync_if_capabilities_open(ifname, monitor_mode, &data,
                                     &primary_msg, &secondary_msg, update_cb);
     if (err != 0) {
-        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture Interface Capabilities failed!");
+        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture Interface Capabilities failed, error %d, %s (%s)!",
+              err, primary_msg ? primary_msg : "no message",
+              secondary_msg ? secondary_msg : "no secondary message");
         if (err_str) {
             *err_str = primary_msg;
         } else {
