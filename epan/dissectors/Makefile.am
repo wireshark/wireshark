@@ -86,11 +86,11 @@ x11-dissector: $(top_srcdir)/tools/process-x11-fields.pl x11-fields $(top_srcdir
 # pass only the first few names in the list to the shell, for some
 # reason.
 #
-# Therefore, we have a script to generate the register.c file.
-# The shell script runs slowly, as multiple greps and seds are run
-# for each input file; this is especially slow on Windows. Therefore,
-# if Python is present (as indicated by PYTHON being defined), we run
-# a faster Python script to do that work instead.
+# Therefore, we use a script to generate the register.c file.
+# There are two versions of the script, a shell and a Python version.
+# The Python script runs faster, since it uses caching to speed up
+# repeated runs and doesn't invoke external processes, so we prefer
+# that if Python is available.
 #
 # The first argument is the directory in which the source files live.
 # The second argument is "dissectors", to indicate that we should build
