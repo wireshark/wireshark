@@ -263,9 +263,19 @@ sequence_analysis_list_free(seq_analysis_info_t *sainfo)
     if (!sainfo) return;
 
     /* free the graph data items */
-    g_queue_free_full(sainfo->items, sequence_analysis_item_free);
+#if GLIB_CHECK_VERSION (2, 32, 0)
+       g_queue_free_full(sainfo->items, sequence_analysis_item_free);
+#else
+    {
+        GList *list = g_queue_peek_nth_link(sainfo->items, 0);
+        while (list)
+        {
+            sequence_analysis_item_free(list->data);
+        }
+        g_queue_free(sainfo->items);
+    }
+#endif
 
-    sainfo->items = NULL;
     sainfo->nconv = 0;
     sainfo->items = g_queue_new();
 
