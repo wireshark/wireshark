@@ -271,6 +271,7 @@ sequence_analysis_list_free(seq_analysis_info_t *sainfo)
         while (list)
         {
             sequence_analysis_item_free(list->data);
+            list = g_list_next(list);
         }
         g_queue_free(sainfo->items);
     }
