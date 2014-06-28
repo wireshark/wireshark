@@ -932,7 +932,6 @@ dissect_zcl_appl_evtalt_alerts_struct(tvbuff_t *tvb, proto_tree *tree, guint *of
 static void
 dissect_zcl_appl_evtalt_get_alerts_rsp(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
-    proto_item  *ti = NULL;
     proto_tree  *sub_tree = NULL;
     guint       i;
     guint8      count;

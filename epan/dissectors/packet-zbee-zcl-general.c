@@ -3404,7 +3404,6 @@ dissect_zcl_sched_energy_phase(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 static void
 dissect_zcl_pwr_prof_enphsschednotif(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
-    proto_item  *ti = NULL;
     proto_tree  *sub_tree = NULL;
 
     guint i;
@@ -3485,7 +3484,6 @@ dissect_zcl_energy_phase(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 static void
 dissect_zcl_pwr_prof_pwrprofnotif(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
-    proto_item  *ti = NULL;
     proto_tree  *sub_tree = NULL;
 
     guint i;
@@ -3572,7 +3570,6 @@ dissect_zcl_power_profile(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 static void
 dissect_zcl_pwr_prof_pwrprofstatersp(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
-    proto_item  *ti = NULL;
     proto_tree  *sub_tree = NULL;
 
     guint i;
@@ -4517,7 +4514,6 @@ dissect_zcl_appl_ctrl_attr_func(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 static void
 dissect_zcl_appl_ctrl_wr_funcs(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
-  proto_item  *ti = NULL;
   proto_tree  *sub_tree = NULL;
   guint tvb_len;
   guint i = 0;
