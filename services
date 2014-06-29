@@ -8420,6 +8420,7 @@ tag-pm           5073/udp # Advantage Group Port Mgr [James_Goddard] [James_Godd
 alesquery        5074/tcp # ALES Query [Tim_Maloney] [Tim_Maloney] 2005-08
 alesquery        5074/udp # ALES Query [Tim_Maloney] [Tim_Maloney] 2005-08
 pvaccess         5075/tcp # Experimental Physics and Industrial Control System [Matej_Sekoranja] [Matej_Sekoranja] 2012-03-23
+pixelpusher      5078/udp # PixelPusher pixel data [heroicrobotics.com] [Jasmine_Strong] 2014-06-24
 cp-spxrpts       5079/udp # Cambridge Pixel SPx Reports [Richard_Warren] [Richard_Warren] 2008-09-17
 onscreen         5080/tcp # OnScreen Data Collection Service [Christopher_Miller_2] [Christopher_Miller_2] 2008-01-14
 onscreen         5080/udp # OnScreen Data Collection Service [Christopher_Miller_2] [Christopher_Miller_2] 2008-01-14
@@ -8875,8 +8876,8 @@ auriga-router    5680/udp # Auriga Router Service [Vincent_Gaudeul] [Vincent_Gau
 ncxcp            5681/tcp # Net-coneX Control Protocol [Ryan_Werber] [Ryan_Werber] 2006-06
 ncxcp            5681/udp # Net-coneX Control Protocol [Ryan_Werber] [Ryan_Werber] 2006-06
 brightcore       5682/udp # BrightCore control & data transfer exchange [Marko_Bjelac] [Marko_Bjelac] 2010-06-10
-coap             5683/udp # Constrained Application Protocol [IESG] [IETF_Chair] 2011-06-13 2013-07-25 [RFC-ietf-core-coap-18]
-coaps            5684/udp # DTLS-secured CoAP [IESG] [IETF_Chair] 2013-07-25 [RFC-ietf-core-coap-18]
+coap             5683/udp # Constrained Application Protocol [IESG] [IETF_Chair] 2011-06-13 2013-07-25 [RFC7252]
+coaps            5684/udp # DTLS-secured CoAP [IESG] [IETF_Chair] 2013-07-25 [RFC7252]
 ggz              5688/tcp # GGZ Gaming Zone [Josef_Spillner] [Josef_Spillner] 2003-01
 ggz              5688/udp # GGZ Gaming Zone [Josef_Spillner] [Josef_Spillner] 2003-01
 qmvideo          5689/tcp # QM video network management protocol [Jamie_Lokier] [Jamie_Lokier] 2006-05
