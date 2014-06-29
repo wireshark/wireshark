@@ -166,6 +166,7 @@ static void open_failure_message(const char *filename, int err,
 static void failure_message(const char *msg_format, va_list ap);
 static void read_failure_message(const char *filename, int err);
 static void write_failure_message(const char *filename, int err);
+static void failure_message_cont(const char *msg_format, va_list ap);
 
 capture_file cfile;
 
