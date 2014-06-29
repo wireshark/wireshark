@@ -549,14 +549,13 @@ dissect_juniper_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, prot
       if (ext_len == 0 || ext_len > (ext_total_len - EXT_TLV_HEADER_SIZE)) /* a few sanity checks */
         break;
 
-      tisub = proto_tree_add_text (juniper_ext_subtree, tvb, ext_offset, EXT_TLV_HEADER_SIZE + ext_len,
-                                   "%s Extension TLV #%u, length: %u",
+      juniper_ext_subtree_item = proto_tree_add_subtree_format(juniper_ext_subtree, tvb, ext_offset, EXT_TLV_HEADER_SIZE + ext_len,
+                                   ett_juniper, &tisub, "%s Extension TLV #%u, length: %u",
                                    val_to_str_const(ext_type, ext_tlv_vals, "Unknown"),
                                    ext_type,
                                    ext_len);
 
       ext_val = juniper_ext_get_tlv_value(tvb, ext_type, ext_len, ext_offset+EXT_TLV_HEADER_SIZE);
-      juniper_ext_subtree_item = proto_item_add_subtree(tisub, ett_juniper);
 
       switch (ext_type) {
       case EXT_TLV_IFD_MEDIATYPE:

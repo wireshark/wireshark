@@ -285,7 +285,6 @@ dissect_linx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	int	payloadsize;
 	int	version;
 	int     conntype;
-	proto_item *item;
 	proto_tree *multicore_header_tree;
 	proto_tree *main_header_tree;
 	proto_tree *conn_header_tree;
@@ -314,8 +313,7 @@ dissect_linx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/* check if we have multicore header*/
 		if (nexthdr == ETHCM_MAIN)
 		{
-			item = proto_tree_add_text(linx_tree, tvb, 0, 4, "Multicore Header");
-			multicore_header_tree = proto_item_add_subtree(item, ett_linx_multicore);
+			multicore_header_tree = proto_tree_add_subtree(linx_tree, tvb, 0, 4, ett_linx_multicore, NULL, "Multicore Header");
 
 			/* Multicore header */
 			/*
@@ -348,8 +346,7 @@ dissect_linx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 
 		/* main header */
-		item = proto_tree_add_text(linx_tree, linx_tvb, offset, 4, "Main Header");
-		main_header_tree = proto_item_add_subtree(item, ett_linx_main);
+		main_header_tree = proto_tree_add_subtree(linx_tree, linx_tvb, offset, 4, ett_linx_main, NULL, "Main Header");
 
 		/* Main header */
 		/*
@@ -402,8 +399,7 @@ dissect_linx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					*/
 
 					size = (dword >>21) & 0x7;
-					item = proto_tree_add_text(linx_tree, linx_tvb, offset, (4+2*size), "Connection Header");
-					conn_header_tree = proto_item_add_subtree(item, ett_linx_main);
+					conn_header_tree = proto_tree_add_subtree(linx_tree, linx_tvb, offset, (4+2*size), ett_linx_main, NULL, "Connection Header");
 					proto_tree_add_item(conn_header_tree, hf_linx_nexthdr      , linx_tvb, offset, 4, ENC_BIG_ENDIAN);
 					proto_tree_add_item(conn_header_tree, hf_linx_conn_cmd     , linx_tvb, offset, 4, ENC_BIG_ENDIAN);
 					proto_tree_add_item(conn_header_tree, hf_linx_conn_size    , linx_tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -442,8 +438,7 @@ dissect_linx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					/* guess there will be padding if the Seqno doesn't reach */
 					/* a 32bit boundary */
 
-					item = proto_tree_add_text(linx_tree, linx_tvb, offset, 4, "NACK Header");
-					nack_header_tree = proto_item_add_subtree(item, ett_linx_main);
+					nack_header_tree = proto_tree_add_subtree(linx_tree, linx_tvb, offset, 4, ett_linx_main, NULL, "NACK Header");
 					proto_tree_add_item(nack_header_tree, hf_linx_nexthdr     , linx_tvb, offset, 4, ENC_BIG_ENDIAN);
 					proto_tree_add_item(nack_header_tree, hf_linx_nack_reserv1, linx_tvb, offset, 4, ENC_BIG_ENDIAN);
 					proto_tree_add_item(nack_header_tree, hf_linx_nack_count  , linx_tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -487,8 +482,7 @@ dissect_linx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					*/
 
 
-					item = proto_tree_add_text(linx_tree, linx_tvb, offset, 12, "Udata Header");
-					udata_header_tree = proto_item_add_subtree(item, ett_linx_main);
+					udata_header_tree = proto_tree_add_subtree(linx_tree, linx_tvb, offset, 12, ett_linx_main, NULL, "Udata Header");
 					proto_tree_add_item(udata_header_tree, hf_linx_nexthdr, linx_tvb, offset, 4, ENC_BIG_ENDIAN);
 					proto_tree_add_item(udata_header_tree, hf_linx_udata_reserved , linx_tvb, offset, 4, ENC_BIG_ENDIAN);
 					proto_tree_add_item(udata_header_tree, hf_linx_udata_morefrags, linx_tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -522,8 +516,7 @@ dissect_linx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						col_append_fstr(pinfo->cinfo, COL_INFO, "rlnh:%s ", val_to_str_const(dword, linx_short_rlnh_names, "unknown"));
 
 						/* create new paragraph for RLNH */
-						item = proto_tree_add_text(linx_tree, linx_tvb, offset, 4, "RLNH");
-						rlnh_header_tree = proto_item_add_subtree(item, ett_linx_main);
+						rlnh_header_tree = proto_tree_add_subtree(linx_tree, linx_tvb, offset, 4, ett_linx_main, NULL, "RLNH");
 
 						if(version == 1) {
 							proto_tree_add_item(rlnh_header_tree, hf_linx_rlnh_msg_type32, linx_tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -604,8 +597,7 @@ dissect_linx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					  | Next  |R| Res.|         Ackno         |         Seqno         |
 					  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 					*/
-					item = proto_tree_add_text(linx_tree, linx_tvb, offset, 4, "Ack Header");
-					ack_header_tree = proto_item_add_subtree(item, ett_linx_main);
+					ack_header_tree = proto_tree_add_subtree(linx_tree, linx_tvb, offset, 4, ett_linx_main, NULL, "Ack Header");
 					proto_tree_add_item(ack_header_tree, hf_linx_nexthdr     , linx_tvb, offset, 4, ENC_BIG_ENDIAN);
 					proto_tree_add_item(ack_header_tree, hf_linx_ack_request , linx_tvb, offset, 4, ENC_BIG_ENDIAN);
 					proto_tree_add_item(ack_header_tree, hf_linx_ack_reserved, linx_tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -625,8 +617,7 @@ dissect_linx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 					 */
 
-					item = proto_tree_add_text(linx_tree, linx_tvb, offset, 4, "Fragmentation Header");
-					frag_header_tree = proto_item_add_subtree(item, ett_linx_main);
+					frag_header_tree = proto_tree_add_subtree(linx_tree, linx_tvb, offset, 4, ett_linx_main, NULL, "Fragmentation Header");
 					proto_tree_add_item(frag_header_tree, hf_linx_nexthdr       , linx_tvb, offset, 4, ENC_BIG_ENDIAN);
 					proto_tree_add_item(frag_header_tree, hf_linx_frag_reserved , linx_tvb, offset, 4, ENC_BIG_ENDIAN);
 					proto_tree_add_item(frag_header_tree, hf_linx_frag_morefrags, linx_tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -842,7 +833,6 @@ dissect_linx_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint32 dword;
 	tvbuff_t *linx_tcp_tvb;
 	int offset = 0;
-	proto_item *item;
 	proto_item *ti;
 	proto_tree *linx_tcp_tree;
 	proto_tree *tcp_header_tree;
@@ -882,8 +872,7 @@ dissect_linx_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_text(linx_tcp_tree, linx_tcp_tvb, 0, 0, "Version %u not yet supported and might be dissected incorrectly!", version);
 	}
 
-	item = proto_tree_add_text(linx_tcp_tree, linx_tcp_tvb, 0, 16, "TCP CM Header");
-	tcp_header_tree = proto_item_add_subtree(item, ett_linx_tcp);
+	tcp_header_tree = proto_tree_add_subtree(linx_tcp_tree, linx_tcp_tvb, 0, 16, ett_linx_tcp, NULL, "TCP CM Header");
 
 	proto_tree_add_item(tcp_header_tree, hf_linx_tcp_type, linx_tcp_tvb, 0, 4, ENC_BIG_ENDIAN);
 	proto_tree_add_item(tcp_header_tree, hf_linx_tcp_version, linx_tcp_tvb, 0, 4, ENC_BIG_ENDIAN);
@@ -904,8 +893,7 @@ dissect_linx_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			col_append_fstr(pinfo->cinfo, COL_INFO, "rlnh:%s ", val_to_str_const(dword, linx_short_rlnh_names, "unknown"));
 
 			/* create new paragraph for RLNH */
-			item = proto_tree_add_text(linx_tcp_tree, linx_tcp_tvb, offset, 4, "RLNH");
-			rlnh_header_tree = proto_item_add_subtree(item, ett_linx_tcp);
+			rlnh_header_tree = proto_tree_add_subtree(linx_tcp_tree, linx_tcp_tvb, offset, 4, ett_linx_tcp, NULL, "RLNH");
 
 			if(version == 1) {
 				proto_tree_add_item(rlnh_header_tree, hf_linx_tcp_rlnh_msg_type32, linx_tcp_tvb, offset, 4, ENC_BIG_ENDIAN);

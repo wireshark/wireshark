@@ -352,8 +352,7 @@ static int dissect_lwm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
             guint16     lwm_multi_header;
 
             lwm_multi_header =  tvb_get_letohs(tvb, 7);
-            ti = proto_tree_add_text(lwm_tree, tvb, 7, 2, "Multicast Header");
-            multi_tree = proto_item_add_subtree(ti, ett_lwm_multi_tree);
+            multi_tree = proto_tree_add_subtree(lwm_tree, tvb, 7, 2, ett_lwm_multi_tree, NULL, "Multicast Header");
 
             proto_tree_add_uint(multi_tree, hf_lwm_multi_nmrad, tvb, 7, 2,
                                 (lwm_multi_header & LWM_MULTI_NON_MEM_RAD_MASK) >> LWM_MULTI_NON_MEM_RAD_OFFSET);
@@ -423,9 +422,8 @@ static int dissect_lwm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
         col_add_fstr(pinfo->cinfo, COL_INFO, "%s",
             val_to_str(lwm_cmd, lwm_cmd_names, LWM_CMD_UNKNOWN_VAL_STRING));
 
-        ti = proto_tree_add_text(lwm_tree, new_tvb, 0, -1, "%s",
+        lwm_cmd_tree = proto_tree_add_subtree(lwm_tree, new_tvb, 0, -1, ett_lwm_cmd_tree, &ti,
             val_to_str(lwm_cmd, lwm_cmd_names, LWM_CMD_UNKNOWN_VAL_STRING));
-        lwm_cmd_tree = proto_item_add_subtree(ti, ett_lwm_cmd_tree);
 
         proto_tree_add_uint(lwm_cmd_tree, hf_lwm_cmd, new_tvb, 0, 1, lwm_cmd);
 

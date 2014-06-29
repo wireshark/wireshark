@@ -330,17 +330,17 @@ dissect_lltd_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 of
     if (type == 0)
     {
         /* End of Property type doesn't have length */
-        tlv_item = proto_tree_add_text(tree, tvb, offset, 1, "TLV Item (End of Property List)");
+        tlv_tree = proto_tree_add_subtree(tree, tvb, offset, 1, ett_tlv_item, &tlv_item, "TLV Item (End of Property List)");
         *end = TRUE;
     }
     else
     {
         length = tvb_get_guint8(tvb, offset+1);
-        tlv_item = proto_tree_add_text(tree, tvb, offset, length+2, "TLV Item (%s)", val_to_str(type, lltd_tlv_type_vals, "Unknown (0x%02x)"));
+        tlv_tree = proto_tree_add_subtree_format(tree, tvb, offset, length+2, ett_tlv_item, &tlv_item,
+                    "TLV Item (%s)", val_to_str(type, lltd_tlv_type_vals, "Unknown (0x%02x)"));
         *end = FALSE;
     }
 
-    tlv_tree = proto_item_add_subtree(tlv_item, ett_tlv_item);
     proto_tree_add_item(tlv_tree, hf_lltd_tlv_type, tvb, offset, 1, ENC_NA);
     if (type != 0)
         proto_tree_add_item(tlv_tree, hf_lltd_tlv_length, tvb, offset+1, 1, ENC_NA);
@@ -373,8 +373,7 @@ dissect_lltd_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 of
         }
         else
         {
-            type_item = proto_tree_add_text(tree, tvb, offset+2, 4, "Characteristics");
-            type_tree = proto_item_add_subtree(type_item, ett_characteristics);
+            type_tree = proto_tree_add_subtree(tree, tvb, offset+2, 4, ett_characteristics, &type_item, "Characteristics");
             proto_tree_add_item(type_tree, hf_lltd_char_p, tvb, offset+2, 4, ENC_BIG_ENDIAN);
             proto_tree_add_item(type_tree, hf_lltd_char_x, tvb, offset+2, 4, ENC_BIG_ENDIAN);
             proto_tree_add_item(type_tree, hf_lltd_char_f, tvb, offset+2, 4, ENC_BIG_ENDIAN);
@@ -504,8 +503,7 @@ dissect_lltd_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 of
         }
         else
         {
-            type_item = proto_tree_add_text(tlv_tree, tvb, offset+2, 4, "QoS Characteristics");
-            type_tree = proto_item_add_subtree(type_item, ett_qos_characteristics);
+            type_tree = proto_tree_add_subtree(tlv_tree, tvb, offset+2, 4, ett_qos_characteristics, &type_item, "QoS Characteristics");
             proto_tree_add_item(type_tree, hf_lltd_qos_char_e, tvb, offset+2, 4, ENC_BIG_ENDIAN);
             proto_tree_add_item(type_tree, hf_lltd_qos_char_q, tvb, offset+2, 4, ENC_BIG_ENDIAN);
             proto_tree_add_item(type_tree, hf_lltd_qos_char_p, tvb, offset+2, 4, ENC_BIG_ENDIAN);
@@ -532,8 +530,7 @@ dissect_lltd_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 of
         proto_tree_add_item(tlv_tree, hf_lltd_sees_list_working_set, tvb, offset+2, 2, ENC_BIG_ENDIAN);
         break;
     case 0x1B: /* Repeater AP Lineage */
-        type_item = proto_tree_add_text(tree, tvb, offset+2, length, "Repeater AP Lineage");
-        type_tree = proto_item_add_subtree(type_item, ett_repeater_ap_lineage);
+        type_tree = proto_tree_add_subtree(tree, tvb, offset+2, length, ett_repeater_ap_lineage, NULL, "Repeater AP Lineage");
         for (i = 0; i < length; i += 6)
             proto_tree_add_item(type_tree, hf_lltd_repeater_ap_lineage, tvb, offset+2+i, 6, ENC_NA);
 
@@ -559,7 +556,7 @@ dissect_lltd_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 of
 static void
 dissect_lltd_discovery(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
-    proto_item *header_item, *func_item, *func_subitem;
+    proto_item *header_item, *func_item;
     proto_tree *header_tree, *func_tree, *func_subtree;
     guint8     func;
     guint16    temp16;
@@ -572,8 +569,7 @@ dissect_lltd_discovery(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
     offset++;
 
     /* Demultiplex header */
-    header_item = proto_tree_add_text(tree, tvb, offset, 14, "Base header");
-    header_tree = proto_item_add_subtree(header_item, ett_base_header);
+    header_tree = proto_tree_add_subtree(tree, tvb, offset, 14, ett_base_header, &header_item, "Base header");
 
     proto_tree_add_item(header_tree, hf_lltd_discovery_real_dest_addr, tvb, offset, 6, ENC_NA);
     proto_tree_add_item(header_tree, hf_lltd_discovery_real_src_addr, tvb, offset+6, 6, ENC_NA);
@@ -590,8 +586,7 @@ dissect_lltd_discovery(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
         temp16 = tvb_get_ntohs(tvb, offset+16);
         if (temp16 > 0)
         {
-            func_item = proto_tree_add_text(tree, tvb, offset+18, temp16*6, "Stations");
-            func_tree = proto_item_add_subtree(func_item, ett_discover_stations);
+            func_tree = proto_tree_add_subtree(tree, tvb, offset+18, temp16*6, ett_discover_stations, NULL, "Stations");
             for (loop_offset = 0; loop_offset < temp16*6; loop_offset += 6)
                 proto_tree_add_item(func_tree, hf_lltd_discover_station, tvb, offset+18+loop_offset, 6, ENC_NA);
         }
@@ -601,8 +596,7 @@ dissect_lltd_discovery(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
         proto_tree_add_item(tree, hf_lltd_hello_current_address, tvb, offset+16, 6, ENC_NA);
         proto_tree_add_item(tree, hf_lltd_hello_apparent_address, tvb, offset+22, 6, ENC_NA);
 
-        func_item = proto_tree_add_text(tree, tvb, offset+28, 0, "TLVs");
-        func_tree = proto_item_add_subtree(func_item, ett_tlv);
+        func_tree = proto_tree_add_subtree(tree, tvb, offset+28, 0, ett_tlv, &func_item, "TLVs");
         start_offset = loop_offset = offset+28;
         while ((end_tlv == FALSE) && (tvb_length_remaining(tvb, loop_offset) >= 1))
         {
@@ -615,12 +609,10 @@ dissect_lltd_discovery(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
         temp16 = tvb_get_ntohs(tvb, offset+14);
         if (temp16 > 0)
         {
-            func_item = proto_tree_add_text(tree, tvb, offset+16, temp16*14, "EmiteeDescs");
-            func_tree = proto_item_add_subtree(func_item, ett_emitee_descs);
+            func_tree = proto_tree_add_subtree(tree, tvb, offset+16, temp16*14, ett_emitee_descs, NULL, "EmiteeDescs");
             for (loop_offset = 0; loop_offset < temp16*14; loop_offset += 14)
             {
-                func_subitem = proto_tree_add_text(func_tree, tvb, offset+16+loop_offset, 14, "EmiteeDescs Item");
-                func_subtree = proto_item_add_subtree(func_subitem, ett_emitee_descs_item);
+                func_subtree = proto_tree_add_subtree(func_tree, tvb, offset+16+loop_offset, 14, ett_emitee_descs_item, NULL, "EmiteeDescs Item");
 
                 proto_tree_add_item(func_subtree, hf_lltd_emit_type, tvb, offset+16+loop_offset, 1, ENC_NA);
                 proto_tree_add_item(func_subtree, hf_lltd_emit_pause, tvb, offset+16+loop_offset+1, 1, ENC_NA);
@@ -636,12 +628,11 @@ dissect_lltd_discovery(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
         temp16 = tvb_get_ntohs(tvb, offset+14) & LLTD_QUERY_RESP_NUM_DESCS_MASK;
         if (temp16 > 0)
         {
-            func_item = proto_tree_add_text(tree, tvb, offset+16, temp16*20, "RecveeDescs");
-            func_tree = proto_item_add_subtree(func_item, ett_recvee_descs);
+            func_tree = proto_tree_add_subtree(tree, tvb, offset+16, temp16*20, ett_recvee_descs, NULL, "RecveeDescs");
             for (loop_offset = 0; loop_offset < temp16*14; loop_offset += 20)
             {
-                func_subitem = proto_tree_add_text(func_tree, tvb, offset+16+loop_offset, 20, "RecveeDescs Item");
-                func_subtree = proto_item_add_subtree(func_subitem, ett_recvee_descs_item);
+                func_subtree = proto_tree_add_subtree(func_tree, tvb, offset+16+loop_offset, 20,
+                                                    ett_recvee_descs_item, NULL, "RecveeDescs Item");
 
                 proto_tree_add_item(func_subtree, hf_lltd_queryresp_type, tvb, offset+16+loop_offset, 2, ENC_NA);
                 proto_tree_add_item(func_subtree, hf_lltd_queryresp_real_src_addr, tvb, offset+16+loop_offset+2, 6, ENC_NA);
@@ -683,7 +674,7 @@ dissect_lltd_discovery(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 static void
 dissect_lltd_qos(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
-    proto_item *header_item, *func_item, *func_subitem;
+    proto_item *header_item;
     proto_tree *header_tree, *func_tree, *func_subtree;
     guint8     func;
     guint16    seq_num, temp16;
@@ -694,8 +685,7 @@ dissect_lltd_qos(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
     col_add_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str(func, lltd_qos_diag_vals, "Unknown (0x%02x)"));
     offset++;
 
-    header_item = proto_tree_add_text(tree, tvb, offset, 14, "Base header");
-    header_tree = proto_item_add_subtree(header_item, ett_base_header);
+    header_tree = proto_tree_add_subtree(tree, tvb, offset, 14, ett_base_header, &header_item, "Base header");
 
     proto_tree_add_item(header_tree, hf_lltd_qos_real_dest_addr, tvb, offset, 6, ENC_NA);
     proto_tree_add_item(header_tree, hf_lltd_qos_real_src_addr, tvb, offset+6, 6, ENC_NA);
@@ -734,12 +724,10 @@ dissect_lltd_qos(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
         temp16 = tvb_get_ntohs(tvb, offset+14) & LLTD_QUERY_RESP_NUM_DESCS_MASK;
         if (temp16 > 0)
         {
-            func_item = proto_tree_add_text(tree, tvb, offset+16, temp16*18, "QosEventDesc");
-            func_tree = proto_item_add_subtree(func_item, ett_qos_event_descs);
+            func_tree = proto_tree_add_subtree(tree, tvb, offset+16, temp16*18, ett_qos_event_descs, NULL, "QosEventDesc");
             for (loop_offset = 0; loop_offset < temp16*18; loop_offset += 18)
             {
-                func_subitem = proto_tree_add_text(func_tree, tvb, offset+16+loop_offset, 18, "Qos Event");
-                func_subtree = proto_item_add_subtree(func_subitem, ett_qos_event_item);
+                func_subtree = proto_tree_add_subtree(func_tree, tvb, offset+16+loop_offset, 18, ett_qos_event_item, NULL, "Qos Event");
 
                 proto_tree_add_item(func_subtree, hf_lltd_qos_query_resp_controller_timestamp, tvb, offset+16+loop_offset, 8, ENC_BIG_ENDIAN);
                 proto_tree_add_item(func_subtree, hf_lltd_qos_query_resp_sink_timestamp, tvb, offset+16+loop_offset+8, 8, ENC_BIG_ENDIAN);
@@ -767,12 +755,10 @@ dissect_lltd_qos(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
         temp16 = tvb_get_guint8(tvb, offset+17);
         if (temp16 > 0)
         {
-            func_item = proto_tree_add_text(tree, tvb, offset+18, temp16*4, "Snapshot List");
-            func_tree = proto_item_add_subtree(func_item, ett_qos_snapshot_list);
+            func_tree = proto_tree_add_subtree(tree, tvb, offset+18, temp16*4, ett_qos_snapshot_list, NULL, "Snapshot List");
             for (loop_offset = 0; loop_offset < temp16*4; loop_offset += 4)
             {
-                func_subitem = proto_tree_add_text(func_tree, tvb, offset+18+loop_offset, 4, "Snapshot");
-                func_subtree = proto_item_add_subtree(func_subitem, ett_qos_snapshot_item);
+                func_subtree = proto_tree_add_subtree(func_tree, tvb, offset+18+loop_offset, 4, ett_qos_snapshot_item, NULL, "Snapshot");
 
                 proto_tree_add_item(func_subtree, hf_lltd_qos_snapshot_bytes_recv, tvb, offset+16+loop_offset, 2, ENC_BIG_ENDIAN);
                 proto_tree_add_item(func_subtree, hf_lltd_qos_snapshot_packets_recv, tvb, offset+16+loop_offset+2, 2, ENC_BIG_ENDIAN);

@@ -527,12 +527,9 @@ dissect_ldss_transfer (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 			/* Include new-line in line */
 			line = (guint8 *)tvb_memdup(NULL, tvb, offset, linelen+1); /* XXX - memory leak? */
 
-			if (tree) {
-				ti = proto_tree_add_text(ldss_tree, tvb, offset, linelen,
-							 "%s",
+			line_tree = proto_tree_add_subtree(ldss_tree, tvb, offset, linelen,
+							 ett_ldss_transfer_req, NULL,
 							 tvb_format_text(tvb, offset, next_offset-offset));
-				line_tree = proto_item_add_subtree(ti, ett_ldss_transfer_req);
-			}
 
 			/* Reduce code duplication processing digest lines.
 			 * There are too many locals to pass to a function - the signature

@@ -161,10 +161,9 @@ dissect_lmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         ele_id = tvb_get_guint8( tvb, offset);
         len =  tvb_get_guint8( tvb, offset + 1);
 
-        ti = proto_tree_add_text(lmi_tree, tvb, offset, len + 2,
-                "Information Element: %s",
+        lmi_subtree = proto_tree_add_subtree_format(lmi_tree, tvb, offset, len + 2,
+                ett_lmi_ele, NULL, "Information Element: %s",
                 val_to_str(ele_id, element_type_str, "Unknown (%u)"));
-        lmi_subtree = proto_item_add_subtree(ti, ett_lmi_ele);
 
         proto_tree_add_uint(lmi_subtree, hf_lmi_inf_ele, tvb, offset, 1,
                 ele_id);

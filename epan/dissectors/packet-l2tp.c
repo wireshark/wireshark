@@ -1305,7 +1305,6 @@ static int dissect_l2tp_cisco_avps(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
     guint32     avp_vendor_id;
     guint16     avp_len;
     guint16     ver_len_hidden;
-    proto_item *tf, *te;
     proto_tree *l2tp_avp_tree, *l2tp_avp_tree_sub;
 
     ver_len_hidden  = tvb_get_ntohs(tvb, offset);
@@ -1313,13 +1312,10 @@ static int dissect_l2tp_cisco_avps(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
     avp_vendor_id   = tvb_get_ntohs(tvb, offset + 2);
     avp_type        = tvb_get_ntohs(tvb, offset + 4);
 
-    tf =  proto_tree_add_text(tree, tvb, offset,
-                              avp_len, "Vendor %s: %s AVP",
+    l2tp_avp_tree =  proto_tree_add_subtree_format(tree, tvb, offset,
+                              avp_len, ett_l2tp_avp, NULL, "Vendor %s: %s AVP",
                               val_to_str_ext(avp_vendor_id, &sminmpec_values_ext, "Unknown (%u)"),
                               val_to_str(avp_type, cisco_avp_type_vals, "Unknown (%u)"));
-
-
-    l2tp_avp_tree = proto_item_add_subtree(tf,  ett_l2tp_avp);
 
     proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_mandatory, tvb, offset, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_hidden, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -1347,9 +1343,8 @@ static int dissect_l2tp_cisco_avps(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
         break;
 
     case CISCO_PW_CAPABILITY_LIST:
-        te = proto_tree_add_text(l2tp_avp_tree, tvb, offset, avp_len,
-                                    "Pseudowire Capabilities List");
-        l2tp_avp_tree_sub = proto_item_add_subtree(te, ett_l2tp_avp_sub);
+        l2tp_avp_tree_sub = proto_tree_add_subtree(l2tp_avp_tree, tvb, offset, avp_len,
+                                    ett_l2tp_avp_sub, NULL, "Pseudowire Capabilities List");
         while (avp_len >= 2) {
             proto_tree_add_item(l2tp_avp_tree_sub, hf_l2tp_cisco_pw_type, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
@@ -1414,7 +1409,6 @@ dissect_l2tp_vnd_cablelabs_avps(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     guint32     avp_vendor_id;
     guint32     avp_len;
     guint16     ver_len_hidden;
-    proto_item *tf;
     proto_tree *l2tp_avp_tree;
 
     ver_len_hidden  = tvb_get_ntohs(tvb, offset);
@@ -1422,11 +1416,10 @@ dissect_l2tp_vnd_cablelabs_avps(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     avp_vendor_id   = tvb_get_ntohs(tvb, offset + 2);
     avp_type        = tvb_get_ntohs(tvb, offset + 4);
 
-    tf =  proto_tree_add_text(tree, tvb, offset,
-                              avp_len, "Vendor %s: %s AVP",
+    l2tp_avp_tree =  proto_tree_add_subtree_format(tree, tvb, offset,
+                              avp_len, ett_l2tp_avp, NULL, "Vendor %s: %s AVP",
                               val_to_str_ext(avp_vendor_id, &sminmpec_values_ext, "Unknown (%u)"),
                               val_to_str(avp_type, cablelabs_avp_type_vals, "Unknown (%u)"));
-    l2tp_avp_tree = proto_item_add_subtree(tf,  ett_l2tp_avp);
 
     proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_mandatory, tvb, offset, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_hidden, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -1545,12 +1538,10 @@ static void process_control_avps(tvbuff_t *tvb,
             } else {
                 /* Vendor-Specific AVP */
                 if (!dissector_try_uint_new(l2tp_vendor_avp_dissector_table, avp_vendor_id, avp_tvb, pinfo, l2tp_tree, FALSE, l2tp_cntrl_data)){
-                    tf =  proto_tree_add_text(l2tp_tree, tvb, idx,
-                                          avp_len, "Vendor %s AVP Type %u",
+                    l2tp_avp_tree =  proto_tree_add_subtree_format(l2tp_tree, tvb, idx,
+                                          avp_len, ett_l2tp_avp, NULL, "Vendor %s AVP Type %u",
                                           val_to_str_ext(avp_vendor_id, &sminmpec_values_ext, "Unknown (%u)"),
                                           avp_type);
-
-                    l2tp_avp_tree = proto_item_add_subtree(tf,  ett_l2tp_avp);
 
                     proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_mandatory, tvb, idx, 2, ENC_BIG_ENDIAN);
                     proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_hidden, tvb, idx, 2, ENC_BIG_ENDIAN);
@@ -1575,11 +1566,9 @@ static void process_control_avps(tvbuff_t *tvb,
         }
 
         /* IETF AVP:s */
-        tf =  proto_tree_add_text(l2tp_tree, tvb, idx,
-                                  avp_len, "%s AVP",
+        l2tp_avp_tree =  proto_tree_add_subtree_format(l2tp_tree, tvb, idx,
+                                  avp_len, ett_l2tp_avp, NULL, "%s AVP",
                                   val_to_str_ext(avp_type, &avp_type_vals_ext, "Unknown (%u)"));
-
-        l2tp_avp_tree = proto_item_add_subtree(tf,  ett_l2tp_avp);
 
         proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_mandatory, tvb, idx, 2, ENC_BIG_ENDIAN);
         proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_hidden, tvb, idx, 2, ENC_BIG_ENDIAN);
@@ -1938,9 +1927,8 @@ static void process_control_avps(tvbuff_t *tvb,
             store_ccid(tunnel, tvb, idx, msg_type);
             break;
         case PW_CAPABILITY_LIST:
-            te = proto_tree_add_text(l2tp_avp_tree, tvb, idx, avp_len,
-                                     "Pseudowire Capabilities List");
-            l2tp_avp_tree_sub = proto_item_add_subtree(te, ett_l2tp_avp_sub);
+            l2tp_avp_tree_sub = proto_tree_add_subtree(l2tp_avp_tree, tvb, idx, avp_len,
+                                     ett_l2tp_avp_sub, NULL, "Pseudowire Capabilities List");
 
             while (avp_len >= 2) {
                 proto_tree_add_item(l2tp_avp_tree_sub, hf_l2tp_avp_pw_type, tvb, idx, 2, ENC_BIG_ENDIAN);
@@ -2230,8 +2218,8 @@ static void
 process_l2tpv3_data_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                         l2tpv3_conversation_t *l2tp_conv)
 {
-    proto_tree *l2tp_tree = NULL, *ctrl_tree;
-    proto_item *l2tp_item = NULL, *ti;
+    proto_tree *l2tp_tree, *ctrl_tree;
+    proto_item *l2tp_item;
 
     int idx = 0;
     int control;
@@ -2242,16 +2230,16 @@ process_l2tpv3_data_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     idx += 2;                       /* Skip the reserved */
     sid = tvb_get_ntohl(tvb, idx);
 
+    l2tp_item = proto_tree_add_item(tree, proto_l2tp, tvb, 0, -1, ENC_NA);
+    l2tp_tree = proto_item_add_subtree(l2tp_item, ett_l2tp);
+
     if (tree) {
-        l2tp_item = proto_tree_add_item(tree, proto_l2tp, tvb, 0, -1, ENC_NA);
-        l2tp_tree = proto_item_add_subtree(l2tp_item, ett_l2tp);
         proto_item_append_text(l2tp_item, " version 3");
 
-        ti = proto_tree_add_text(l2tp_tree, tvb, 0, 2,
-                                 "Packet Type: %s Session Id=%u",
+        ctrl_tree = proto_tree_add_subtree_format(l2tp_tree, tvb, 0, 2,
+                                 ett_l2tp_ctrl, NULL, "Packet Type: %s Session Id=%u",
                                  data_msg, sid);
 
-        ctrl_tree = proto_item_add_subtree(ti, ett_l2tp_ctrl);
         proto_tree_add_uint(ctrl_tree, hf_l2tp_type, tvb, 0, 2, control);
         proto_tree_add_boolean(ctrl_tree, hf_l2tp_length_bit, tvb, 0, 2, control);
         proto_tree_add_boolean(ctrl_tree, hf_l2tp_seq_bit, tvb, 0, 2, control);
@@ -2303,7 +2291,7 @@ process_l2tpv3_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
                        l2tpv3_conversation_t *l2tp_conv)
 {
     proto_tree *l2tp_tree = NULL, *ctrl_tree;
-    proto_item *l2tp_item = NULL, *ti;
+    proto_item *l2tp_item = NULL;
 
     int     idx     = baseIdx;
     int     tmp_idx;
@@ -2391,11 +2379,10 @@ process_l2tpv3_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
         if (baseIdx) {
             proto_tree_add_item(l2tp_tree, hf_l2tp_sid, tvb, 0, 4, ENC_BIG_ENDIAN);
         }
-        ti = proto_tree_add_text(l2tp_tree, tvb, baseIdx, 2,
-                                 "Packet Type: %s Control Connection Id=%d",
+        ctrl_tree = proto_tree_add_subtree_format(l2tp_tree, tvb, baseIdx, 2,
+                                 ett_l2tp_ctrl, NULL, "Packet Type: %s Control Connection Id=%d",
                                  (CONTROL_BIT(control) ? control_msg : data_msg), ccid);
 
-        ctrl_tree = proto_item_add_subtree(ti, ett_l2tp_ctrl);
         proto_tree_add_uint(ctrl_tree, hf_l2tp_type, tvb, baseIdx, 2, control);
         proto_tree_add_boolean(ctrl_tree, hf_l2tp_length_bit, tvb, baseIdx, 2, control);
         proto_tree_add_boolean(ctrl_tree, hf_l2tp_seq_bit, tvb, baseIdx, 2, control);
@@ -2403,25 +2390,17 @@ process_l2tpv3_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
     }
     idx = baseIdx + 2;
     if (LENGTH_BIT(control)) {
-        if (tree) {
-            proto_tree_add_item(l2tp_tree, hf_l2tp_length, tvb, idx, 2, ENC_BIG_ENDIAN);
-        }
+        proto_tree_add_item(l2tp_tree, hf_l2tp_length, tvb, idx, 2, ENC_BIG_ENDIAN);
         idx += 2;
     }
 
-    if (tree) {
-        proto_tree_add_item(l2tp_tree, hf_l2tp_ccid, tvb, idx, 4, ENC_BIG_ENDIAN);
-    }
+    proto_tree_add_item(l2tp_tree, hf_l2tp_ccid, tvb, idx, 4, ENC_BIG_ENDIAN);
     idx += 4;
 
     if (SEQUENCE_BIT(control)) {
-        if (tree) {
-            proto_tree_add_item(l2tp_tree, hf_l2tp_Ns, tvb, idx, 2, ENC_BIG_ENDIAN);
-        }
+        proto_tree_add_item(l2tp_tree, hf_l2tp_Ns, tvb, idx, 2, ENC_BIG_ENDIAN);
         idx += 2;
-        if (tree) {
-            proto_tree_add_item(l2tp_tree, hf_l2tp_Nr, tvb, idx, 2, ENC_BIG_ENDIAN);
-        }
+        proto_tree_add_item(l2tp_tree, hf_l2tp_Nr, tvb, idx, 2, ENC_BIG_ENDIAN);
         idx += 2;
 
     }
@@ -2468,8 +2447,8 @@ process_l2tpv3_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 static int
 dissect_l2tp_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    proto_tree *l2tp_tree = NULL, *ctrl_tree;
-    proto_item *l2tp_item = NULL, *ti;
+    proto_tree *l2tp_tree, *ctrl_tree;
+    proto_item *l2tp_item;
     int         idx       = 0;
     int         tmp_idx;
     guint16     length    = 0;  /* Length field */
@@ -2613,15 +2592,14 @@ dissect_l2tp_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
         set_actual_length(tvb, length);
     }
 
-    if (tree) {
-        l2tp_item = proto_tree_add_item(tree,proto_l2tp, tvb, 0, -1, ENC_NA);
-        l2tp_tree = proto_item_add_subtree(l2tp_item, ett_l2tp);
+    l2tp_item = proto_tree_add_item(tree,proto_l2tp, tvb, 0, -1, ENC_NA);
+    l2tp_tree = proto_item_add_subtree(l2tp_item, ett_l2tp);
 
-        ti = proto_tree_add_text(l2tp_tree, tvb, 0, 2,
+    if (tree) {
+        ctrl_tree = proto_tree_add_subtree_format(l2tp_tree, tvb, 0, 2, ett_l2tp_ctrl, NULL,
                                  "Packet Type: %s Tunnel Id=%d Session Id=%d",
                                  (CONTROL_BIT(control) ? control_msg : data_msg), tid, cid);
 
-        ctrl_tree = proto_item_add_subtree(ti, ett_l2tp_ctrl);
         proto_tree_add_uint(ctrl_tree, hf_l2tp_type, tvb, 0, 2, control);
         proto_tree_add_boolean(ctrl_tree, hf_l2tp_length_bit, tvb, 0, 2, control);
         proto_tree_add_boolean(ctrl_tree, hf_l2tp_seq_bit, tvb, 0, 2, control);

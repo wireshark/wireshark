@@ -703,11 +703,10 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 	ti = proto_tree_add_item(tree, proto_lmp, tvb, offset, msg_length,
 	    ENC_NA);
 	lmp_tree = proto_item_add_subtree(ti, lmp_subtree[LMP_TREE_MAIN]);
-	ti = proto_tree_add_text(lmp_tree, tvb, offset, 12, "LMP Header. %s",
-				 val_to_str(message_type, message_type_vals,
-					    "Unknown Message (%u). "));
-	lmp_header_tree = proto_item_add_subtree(ti, lmp_subtree[LMP_TREE_HEADER]);
-        proto_tree_add_text(lmp_header_tree, tvb, offset, 1, "LMP Version: %u",
+	lmp_header_tree = proto_tree_add_subtree_format(lmp_tree, tvb, offset, 12,
+                 lmp_subtree[LMP_TREE_HEADER], NULL, "LMP Header. %s",
+				 val_to_str(message_type, message_type_vals, "Unknown Message (%u). "));
+    proto_tree_add_text(lmp_header_tree, tvb, offset, 1, "LMP Version: %u",
 			    version);
 	ti = proto_tree_add_text(lmp_header_tree, tvb, offset+2, 1, "Flags: %02x",
 				 flags);
@@ -785,13 +784,11 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 	  }
 	  lmp_object_tree = proto_item_add_subtree(ti, lmp_class_to_subtree(lmp_class));
 
-	  ti2 = proto_tree_add_text(lmp_object_tree, tvb, offset, 4,
-				    "Header. Class %d, C-Type %d, Length %d, %s",
+	  lmp_object_header_tree = proto_tree_add_subtree_format(lmp_object_tree, tvb, offset, 4,
+				    lmp_subtree[LMP_TREE_OBJECT_HEADER], &ti2,
+                    "Header. Class %d, C-Type %d, Length %d, %s",
 				    lmp_class, type, obj_length,
 				    negotiable ? "Negotiable" : "Not Negotiable");
-
-	  lmp_object_header_tree =
-	      proto_item_add_subtree(ti2, lmp_subtree[LMP_TREE_OBJECT_HEADER]);
 
 	  proto_tree_add_text(lmp_object_header_tree, tvb, offset, 1,
 			      negotiable ? "Negotiable" : "Not Negotiable");
@@ -1306,10 +1303,8 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
 	      for (l=0; l<obj_length - 4; ) {
 
-		  ti2 = proto_tree_add_text(lmp_object_tree, tvb, offset2+l, k,
-					    "Interface-Id");
-		  lmp_subobj_tree = proto_item_add_subtree(ti2,
-							   lmp_subtree[LMP_TREE_CHANNEL_STATUS_ID]);
+		  lmp_subobj_tree = proto_tree_add_subtree(lmp_object_tree, tvb, offset2+l, k,
+					    lmp_subtree[LMP_TREE_CHANNEL_STATUS_ID], &ti2, "Interface-Id");
 		  switch(type) {
 
 		  case 1:

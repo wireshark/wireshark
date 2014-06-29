@@ -496,7 +496,7 @@ static int
 dissect_lg8979(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 /* Set up structures needed to add the protocol subtree and manage it */
-    proto_item    *lg8979_item=NULL, *lg8979_flags_item=NULL, *lg8979_fc_item=NULL, *lg8979_point_item=NULL, *lg8979_ts_item=NULL, *lg8979_slot_item=NULL, *lg8979_expparm_item=NULL;
+    proto_item    *lg8979_item=NULL, *lg8979_flags_item=NULL, *lg8979_point_item=NULL, *lg8979_ts_item=NULL, *lg8979_slot_item=NULL, *lg8979_expparm_item=NULL;
     proto_tree    *lg8979_tree=NULL, *lg8979_flags_tree=NULL, *lg8979_fc_tree=NULL, *lg8979_point_tree=NULL, *lg8979_ts_tree=NULL;
     int           offset=0;
     guint8        rtu_addr, func, packet_type, data_len, ptnum8, tripclose, rl, exp_code, exp_parm;
@@ -532,8 +532,8 @@ dissect_lg8979(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
         shr = tvb_get_guint8(tvb, offset) & 0x80;
         ack = tvb_get_guint8(tvb, offset) & 0x04;
 
-        lg8979_flags_item = proto_tree_add_text(lg8979_tree, tvb, offset, 1, "Flags");
-        lg8979_flags_tree = proto_item_add_subtree(lg8979_flags_item, ett_lg8979_flags);
+        lg8979_flags_tree = proto_tree_add_subtree(lg8979_tree, tvb, offset, 1,
+                                    ett_lg8979_flags, &lg8979_flags_item, "Flags");
 
         proto_item_append_text(lg8979_flags_item, " (");
         if (shr) comma_needed = add_item_text(lg8979_flags_item, "SHR", comma_needed);
@@ -559,9 +559,8 @@ dissect_lg8979(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 
             col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%s", val_to_str_const(func, lg8979_funccode_vals, "Unknown Function Code"));
 
-            lg8979_fc_item = proto_tree_add_text(lg8979_tree, tvb, offset, 1,
+            lg8979_fc_tree = proto_tree_add_subtree_format(lg8979_tree, tvb, offset, 1, ett_lg8979_funccode, NULL,
                       "Function Code: %s (%d)", val_to_str_const(func, lg8979_funccode_vals, "Unknown Function Code"), func);
-            lg8979_fc_tree = proto_item_add_subtree(lg8979_fc_item, ett_lg8979_funccode);
 
             proto_tree_add_item(lg8979_fc_tree, hf_lg8979_lastblock, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             proto_tree_add_item(lg8979_fc_tree, hf_lg8979_funccode, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -606,9 +605,9 @@ dissect_lg8979(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                     ptnum = tvb_get_guint8(tvb, offset);
                     tripclose = (tvb_get_guint8(tvb, offset+1) & 0x80) >> 7;
 
-                    lg8979_point_item = proto_tree_add_text(lg8979_tree, tvb, offset, 2, "SBO Command, Pt.Num: %u, Code: %s",
+                    lg8979_point_tree = proto_tree_add_subtree_format(lg8979_tree, tvb, offset, 2,
+                                            ett_lg8979_point, NULL, "SBO Command, Pt.Num: %u, Code: %s",
                        ptnum, val_to_str_const(tripclose, lg8979_sbo_tripclose_vals, "Unknown Control Code"));
-                    lg8979_point_tree = proto_item_add_subtree(lg8979_point_item, ett_lg8979_point);
 
                     /* Update the Information Column with Command Details */
                     col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Output: %u, Code: %s",
@@ -650,9 +649,9 @@ dissect_lg8979(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                     ptnum = tvb_get_guint8(tvb, offset);
                     rl = (tvb_get_guint8(tvb, offset+1) & 0x80) >> 7;
 
-                    lg8979_point_item = proto_tree_add_text(lg8979_tree, tvb, offset, 2, "Pulse Output, Pt.Num: %u, Code: %s",
+                    lg8979_point_tree = proto_tree_add_subtree_format(lg8979_tree, tvb, offset, 2,
+                                        ett_lg8979_point, NULL, "Pulse Output, Pt.Num: %u, Code: %s",
                        ptnum, val_to_str_const(rl, lg8979_pul_output_rl_vals, "Unknown Control Code"));
-                    lg8979_point_tree = proto_item_add_subtree(lg8979_point_item, ett_lg8979_point);
 
                     /* Add Pulse Output Details to tree */
                     proto_tree_add_item(lg8979_point_tree, hf_lg8979_start_ptnum8, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -751,8 +750,7 @@ dissect_lg8979(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
         sch = tvb_get_guint8(tvb, offset) & 0x08;
         slg = tvb_get_guint8(tvb, offset) & 0x04;
 
-        lg8979_flags_item = proto_tree_add_text(lg8979_tree, tvb, offset, 1, "Flags");
-        lg8979_flags_tree = proto_item_add_subtree(lg8979_flags_item, ett_lg8979_flags);
+        lg8979_flags_tree = proto_tree_add_subtree(lg8979_tree, tvb, offset, 1, ett_lg8979_flags, &lg8979_flags_item, "Flags");
 
         proto_item_append_text(lg8979_flags_item, " (");
         if (shr) comma_needed = add_item_text(lg8979_flags_item, "SHR", comma_needed);
@@ -786,9 +784,8 @@ dissect_lg8979(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
             func = tvb_get_guint8(tvb, offset) & 0x7f;
             col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%s", val_to_str_const(func, lg8979_funccode_vals, "Unknown Function Code"));
 
-            lg8979_fc_item = proto_tree_add_text(lg8979_tree, tvb, offset, 1,
+            lg8979_fc_tree = proto_tree_add_subtree_format(lg8979_tree, tvb, offset, 1, ett_lg8979_funccode, NULL,
                       "Function Code: %s (%d)", val_to_str_const(func, lg8979_funccode_vals, "Unknown Function Code"), func);
-            lg8979_fc_tree = proto_item_add_subtree(lg8979_fc_item, ett_lg8979_funccode);
 
             proto_tree_add_item(lg8979_fc_tree, hf_lg8979_lastblock, tvb, offset, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(lg8979_fc_tree, hf_lg8979_funccode, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -895,9 +892,8 @@ dissect_lg8979(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                         new_status = (tvb_get_guint8(tvb, offset+1) & 0x80) >> 7;
                         change = (tvb_get_guint8(tvb, offset+1) & 0x40) >> 6;
 
-                        lg8979_point_item = proto_tree_add_text(lg8979_tree, tvb, offset, 2,
+                        lg8979_point_tree = proto_tree_add_subtree_format(lg8979_tree, tvb, offset, 2, ett_lg8979_point, NULL,
                            "Indication Change Report, Point Number: %u, Status: %u, Change %u", ptnum, new_status, change);
-                        lg8979_point_tree = proto_item_add_subtree(lg8979_point_item, ett_lg8979_point);
 
                         proto_tree_add_item(lg8979_point_tree, hf_lg8979_ind_chgrpt_ptnum, tvb, offset, 2, ENC_LITTLE_ENDIAN);
                         proto_tree_add_item(lg8979_point_tree, hf_lg8979_ind_chgrpt_status, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -918,8 +914,8 @@ dissect_lg8979(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                     num_points = ((data_len - 2) / 2);
 
                     for (cnt=0; cnt<num_points; cnt++) {
-                        lg8979_point_item = proto_tree_add_text(lg8979_tree, tvb, offset, 1, "Indication Status, Base Point Num %d", ptnum);
-                        lg8979_point_tree = proto_item_add_subtree(lg8979_point_item, ett_lg8979_point);
+                        lg8979_point_tree = proto_tree_add_subtree_format(lg8979_tree, tvb, offset, 1,
+                                          ett_lg8979_point, NULL, "Indication Status, Base Point Num %d", ptnum);
 
                         proto_tree_add_item(lg8979_point_tree, hf_lg8979_ind_frcrpt_status_b0, tvb, offset, 1, ENC_LITTLE_ENDIAN);
                         proto_tree_add_item(lg8979_point_tree, hf_lg8979_ind_frcrpt_status_b1, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -931,8 +927,8 @@ dissect_lg8979(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                         proto_tree_add_item(lg8979_point_tree, hf_lg8979_ind_frcrpt_status_b7, tvb, offset, 1, ENC_LITTLE_ENDIAN);
                         offset += 1;
 
-                        lg8979_point_item = proto_tree_add_text(lg8979_tree, tvb, offset, 1, "Indication Change, Base Point Num %d", ptnum);
-                        lg8979_point_tree = proto_item_add_subtree(lg8979_point_item, ett_lg8979_point);
+                        lg8979_point_tree = proto_tree_add_subtree_format(lg8979_tree, tvb, offset, 1,
+                                    ett_lg8979_point, NULL, "Indication Change, Base Point Num %d", ptnum);
 
                         proto_tree_add_item(lg8979_point_tree, hf_lg8979_ind_frcrpt_change_b0, tvb, offset, 1, ENC_LITTLE_ENDIAN);
                         proto_tree_add_item(lg8979_point_tree, hf_lg8979_ind_frcrpt_change_b1, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -960,9 +956,8 @@ dissect_lg8979(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                         new_status = (tvb_get_guint8(tvb, offset+1) & 0x80) >> 7;
                         change = (tvb_get_guint8(tvb, offset+1) & 0x40) >> 6;
 
-                        lg8979_point_item = proto_tree_add_text(lg8979_tree, tvb, offset, 2,
+                        lg8979_point_tree = proto_tree_add_subtree_format(lg8979_tree, tvb, offset, 2, ett_lg8979_point, NULL,
                            "SOE Change Report, Point Number: %u, Status: %u, Change %u", ptnum, new_status, change);
-                        lg8979_point_tree = proto_item_add_subtree(lg8979_point_item, ett_lg8979_point);
 
                         proto_tree_add_item(lg8979_point_tree, hf_lg8979_soe_chgrpt_ptnum, tvb, offset, 2, ENC_LITTLE_ENDIAN);
                         proto_tree_add_item(lg8979_point_tree, hf_lg8979_soe_chgrpt_status, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -983,8 +978,8 @@ dissect_lg8979(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                     num_points = ((data_len - 2) / 2);
 
                     for (cnt=0; cnt<num_points; cnt++) {
-                        lg8979_point_item = proto_tree_add_text(lg8979_tree, tvb, offset, 1, "SOE Status, Base Point Num %d", ptnum);
-                        lg8979_point_tree = proto_item_add_subtree(lg8979_point_item, ett_lg8979_point);
+                        lg8979_point_tree = proto_tree_add_subtree_format(lg8979_tree, tvb, offset, 1,
+                                                ett_lg8979_point, NULL, "SOE Status, Base Point Num %d", ptnum);
 
                         proto_tree_add_item(lg8979_point_tree, hf_lg8979_soe_frcrpt_status_b0, tvb, offset, 1, ENC_LITTLE_ENDIAN);
                         proto_tree_add_item(lg8979_point_tree, hf_lg8979_soe_frcrpt_status_b1, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -996,8 +991,8 @@ dissect_lg8979(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                         proto_tree_add_item(lg8979_point_tree, hf_lg8979_soe_frcrpt_status_b7, tvb, offset, 1, ENC_LITTLE_ENDIAN);
                         offset += 1;
 
-                        lg8979_point_item = proto_tree_add_text(lg8979_tree, tvb, offset, 1, "SOE Change, Base Point Num %d", ptnum);
-                        lg8979_point_tree = proto_item_add_subtree(lg8979_point_item, ett_lg8979_point);
+                        lg8979_point_tree = proto_tree_add_subtree_format(lg8979_tree, tvb, offset, 1,
+                                        ett_lg8979_point, NULL, "SOE Change, Base Point Num %d", ptnum);
 
                         proto_tree_add_item(lg8979_point_tree, hf_lg8979_soe_frcrpt_change_b0, tvb, offset, 1, ENC_LITTLE_ENDIAN);
                         proto_tree_add_item(lg8979_point_tree, hf_lg8979_soe_frcrpt_change_b1, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -1026,8 +1021,8 @@ dissect_lg8979(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 
                     for (cnt=0; cnt<num_points; cnt++) {
 
-                        lg8979_point_item = proto_tree_add_text(lg8979_tree, tvb, offset, 2, "Digital Input Block %d", ptnum8);
-                        lg8979_point_tree = proto_item_add_subtree(lg8979_point_item, ett_lg8979_point);
+                        lg8979_point_tree = proto_tree_add_subtree_format(lg8979_tree, tvb, offset, 2,
+                                                ett_lg8979_point, NULL, "Digital Input Block %d", ptnum8);
 
                         proto_tree_add_item(lg8979_point_tree, hf_lg8979_digin_b0, tvb, offset, 2, ENC_LITTLE_ENDIAN);
                         proto_tree_add_item(lg8979_point_tree, hf_lg8979_digin_b1, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -1089,9 +1084,8 @@ dissect_lg8979(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                         ptnum = tvb_get_letohs(tvb, offset) & 0xFFF;
                         new_status = (tvb_get_guint8(tvb, offset+1) & 0x80) >> 7;
 
-                        lg8979_point_item = proto_tree_add_text(lg8979_tree, tvb, offset, 9,
+                        lg8979_point_tree = proto_tree_add_subtree_format(lg8979_tree, tvb, offset, 9, ett_lg8979_point, NULL,
                            "SOE Log Change Report, Point Number: %u, New Status: %u", ptnum, new_status);
-                        lg8979_point_tree = proto_item_add_subtree(lg8979_point_item, ett_lg8979_point);
 
                         /* Add 12-bit point number and "new status" bit to tree */
                         proto_tree_add_item(lg8979_point_tree, hf_lg8979_soe_logchg_ptnum, tvb, offset, 2, ENC_LITTLE_ENDIAN);

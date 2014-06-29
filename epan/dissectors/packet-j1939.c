@@ -196,8 +196,8 @@ static int dissect_j1939(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     ti = proto_tree_add_item(tree, proto_j1939, tvb, offset, -1, ENC_NA);
     j1939_tree = proto_item_add_subtree(ti, ett_j1939);
 
-    ti = proto_tree_add_text(j1939_tree, tvb, 0, 0, "CAN Identifier: 0x%08x", can_id.id);
-    can_tree = proto_item_add_subtree(ti, ett_j1939_can);
+    can_tree = proto_tree_add_subtree_format(j1939_tree, tvb, 0, 0,
+                    ett_j1939_can, NULL, "CAN Identifier: 0x%08x", can_id.id);
     can_id_item = proto_tree_add_uint(can_tree, hf_j1939_can_id, tvb, 0, 0, can_id.id);
     PROTO_ITEM_SET_GENERATED(can_id_item);
     ti = proto_tree_add_uint(can_tree, hf_j1939_priority, tvb, 0, 0, can_id.id);
@@ -244,8 +244,7 @@ static int dissect_j1939(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     /* For now just include raw bytes */
     col_append_fstr(pinfo->cinfo, COL_INFO, "   %s", tvb_bytes_to_ep_str_punct(tvb, 0, data_length, ' '));
 
-    ti = proto_tree_add_text(j1939_tree, tvb, 0, -1, "Message");
-    msg_tree = proto_item_add_subtree(ti, ett_j1939_message);
+    msg_tree = proto_tree_add_subtree(j1939_tree, tvb, 0, -1, ett_j1939_message, NULL, "Message");
 
     ti = proto_tree_add_uint(msg_tree, hf_j1939_pgn, tvb, 0, 0, pgn);
     PROTO_ITEM_SET_GENERATED(ti);

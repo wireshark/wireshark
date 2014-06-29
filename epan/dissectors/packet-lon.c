@@ -202,7 +202,6 @@ dissect_lon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 	gint addr_a;
 
 	proto_tree *ti;
-	proto_item *pi;
 	proto_tree *lon_tree;
 	gint npdu, type;
 
@@ -252,16 +251,14 @@ dissect_lon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 	switch(addr_fmt)
 	{
 	case 0: /* Broadcast */
-		pi = proto_tree_add_text(lon_tree, tvb, offset, 3, "Address type 0 (broadcast)");
-		ti = proto_item_add_subtree(pi, ett_address);
+		ti = proto_tree_add_subtree(lon_tree, tvb, offset, 3, ett_address, NULL, "Address type 0 (broadcast)");
 		proto_tree_add_item(ti, hf_lon_addr_srcsub, tvb, offset, 1, ENC_NA);
 		proto_tree_add_item(ti, hf_lon_addr_srcnode, tvb, offset+1, 1, ENC_NA);
 		proto_tree_add_item(ti, hf_lon_addr_dstsub, tvb, offset+2, 1, ENC_NA);
 		offset += 3;
 		break;
 	case 1: /* Multicast */
-		pi = proto_tree_add_text(lon_tree, tvb, offset, 3, "Address type 1 (multicast)");
-		ti = proto_item_add_subtree(pi, ett_address);
+		ti = proto_tree_add_subtree(lon_tree, tvb, offset, 3, ett_address, NULL, "Address type 1 (multicast)");
 		proto_tree_add_item(ti, hf_lon_addr_srcsub, tvb, offset, 1, ENC_NA);
 		proto_tree_add_item(ti, hf_lon_addr_srcnode, tvb, offset+1, 1, ENC_NA);
 		proto_tree_add_item(ti, hf_lon_addr_dstgrp, tvb, offset+2, 1, ENC_NA);
@@ -270,16 +267,14 @@ dissect_lon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 	case 2: /* Unicast/Multicast */
 		addr_a = tvb_get_guint8(tvb, offset+1) >> 7;
 		if (addr_a) { /* Type 2a */
-			pi = proto_tree_add_text(lon_tree, tvb, offset, 4, "Address type 2a (unicast)");
-			ti = proto_item_add_subtree(pi, ett_address);
+			ti = proto_tree_add_subtree(lon_tree, tvb, offset, 4, ett_address, NULL, "Address type 2a (unicast)");
 			proto_tree_add_item(ti, hf_lon_addr_srcsub, tvb, offset, 1, ENC_NA);
 			proto_tree_add_item(ti, hf_lon_addr_srcnode, tvb, offset+1, 1, ENC_NA);
 			proto_tree_add_item(ti, hf_lon_addr_dstsub, tvb, offset+2, 1, ENC_NA);
 			proto_tree_add_item(ti, hf_lon_addr_dstnode, tvb, offset+3, 1, ENC_NA);
 			offset += 4;
 		} else { /* Type 2b */
-			pi = proto_tree_add_text(lon_tree, tvb, offset, 6, "Address type 2b (multicast)");
-			ti = proto_item_add_subtree(pi, ett_address);
+			ti = proto_tree_add_subtree(lon_tree, tvb, offset, 6, ett_address, NULL, "Address type 2b (multicast)");
 			proto_tree_add_item(ti, hf_lon_addr_srcsub, tvb, offset, 1, ENC_NA);
 			proto_tree_add_item(ti, hf_lon_addr_srcnode, tvb, offset+1, 1, ENC_NA);
 			proto_tree_add_item(ti, hf_lon_addr_dstgrp, tvb, offset+2, 1, ENC_NA);
@@ -290,8 +285,7 @@ dissect_lon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 		}
 		break;
 	case 3: /* UID */
-		pi = proto_tree_add_text(lon_tree, tvb, offset, 9, "Address type 3 (UID)");
-		ti = proto_item_add_subtree(pi, ett_address);
+		ti = proto_tree_add_subtree(lon_tree, tvb, offset, 9, ett_address, NULL, "Address type 3 (UID)");
 		proto_tree_add_item(ti, hf_lon_addr_srcsub, tvb, offset, 1, ENC_NA);
 		proto_tree_add_item(ti, hf_lon_addr_srcnode, tvb, offset+1, 1, ENC_NA);
 		proto_tree_add_item(ti, hf_lon_addr_dstsub, tvb, offset+2, 1, ENC_NA);

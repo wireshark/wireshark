@@ -971,10 +971,9 @@ dissect_lldp_chassis_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
 	tlvsubType = tvb_get_guint8(tvb, (offset+2));
 
 	/* Set chassis tree */
-	tf = proto_tree_add_text(tree, tvb, offset, (dataLen + 2), "Chassis Subtype = %s",
+	chassis_tree = proto_tree_add_subtree_format(tree, tvb, offset, (dataLen + 2), ett_chassis_id, &tf, "Chassis Subtype = %s",
                                                         val_to_str_const(tlvsubType, chassis_id_subtypes, "Reserved" ));
 
-	chassis_tree = proto_item_add_subtree(tf, ett_chassis_id);
 	proto_tree_add_item(chassis_tree, hf_lldp_tlv_type, tvb, offset, 2, ENC_BIG_ENDIAN);
 	lf = proto_tree_add_item(chassis_tree, hf_lldp_tlv_len, tvb, offset, 2, ENC_BIG_ENDIAN);
 
@@ -1131,10 +1130,9 @@ dissect_lldp_port_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
 	tlvsubType = tvb_get_guint8(tvb, (offset+2));
 
 	/* Set port tree */
-	tf = proto_tree_add_text(tree, tvb, offset, (dataLen + 2), "Port Subtype = %s",
+	port_tree = proto_tree_add_subtree_format(tree, tvb, offset, (dataLen + 2), ett_port_id, &tf, "Port Subtype = %s",
 		val_to_str_const(tlvsubType, port_id_subtypes, "Unknown" ));
 
-	port_tree = proto_item_add_subtree(tf, ett_port_id);
 	proto_tree_add_item(port_tree, hf_lldp_tlv_type, tvb, offset, 2, ENC_BIG_ENDIAN);
 	lf = proto_tree_add_item(port_tree, hf_lldp_tlv_len, tvb, offset, 2, ENC_BIG_ENDIAN);
 
@@ -1259,8 +1257,7 @@ dissect_lldp_time_to_live(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
 	guint16 tempShort;
 	guint32 dataLen = 0;
 
-	proto_tree	*time_to_live_tree = NULL;
-	proto_item	*tf = NULL;
+	proto_tree	*time_to_live_tree;
 
 	/* Get tlv type */
 	tempShort = tvb_get_ntohs(tvb, offset);
@@ -1275,8 +1272,8 @@ dissect_lldp_time_to_live(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
 	col_append_fstr(pinfo->cinfo, COL_INFO, "TTL = %u ", tempShort);
 
 	/* Set port tree */
-	tf = proto_tree_add_text(tree, tvb, offset, (dataLen + 2), "Time To Live = %u sec", tempShort);
-	time_to_live_tree = proto_item_add_subtree(tf, ett_time_to_live);
+	time_to_live_tree = proto_tree_add_subtree_format(tree, tvb, offset, (dataLen + 2),
+                            ett_time_to_live, NULL, "Time To Live = %u sec", tempShort);
 
 	proto_tree_add_item(time_to_live_tree, hf_lldp_tlv_type, tvb, offset, 2, ENC_BIG_ENDIAN);
 	proto_tree_add_item(time_to_live_tree, hf_lldp_tlv_len, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -1298,8 +1295,7 @@ dissect_lldp_end_of_lldpdu(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 	guint16 dataLen;
 	guint16 tempShort;
 
-	proto_tree	*end_of_lldpdu_tree = NULL;
-	proto_item	*tf = NULL;
+	proto_tree	*end_of_lldpdu_tree;
 
 	/* Get tlv type and length */
 	tempShort = tvb_get_ntohs(tvb, offset);
@@ -1308,8 +1304,7 @@ dissect_lldp_end_of_lldpdu(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 	dataLen = TLV_INFO_LEN(tempShort);
 
 	/* Set port tree */
-	tf = proto_tree_add_text(tree, tvb, offset, (dataLen + 2), "End of LLDPDU");
-	end_of_lldpdu_tree = proto_item_add_subtree(tf, ett_end_of_lldpdu);
+	end_of_lldpdu_tree = proto_tree_add_subtree(tree, tvb, offset, (dataLen + 2), ett_end_of_lldpdu, NULL, "End of LLDPDU");
 
 	proto_tree_add_item(end_of_lldpdu_tree, hf_lldp_tlv_type, tvb, offset, 2, ENC_BIG_ENDIAN);
 	proto_tree_add_item(end_of_lldpdu_tree, hf_lldp_tlv_len, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -1325,8 +1320,7 @@ dissect_lldp_port_desc(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 	guint32 dataLen = 0;
 	const char *strPtr;
 
-	proto_tree	*port_desc_tree = NULL;
-	proto_item	*tf = NULL;
+	proto_tree	*port_desc_tree;
 
 	/* Get tlv type and length */
 	tempShort = tvb_get_ntohs(tvb, offset);
@@ -1337,8 +1331,8 @@ dissect_lldp_port_desc(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 	strPtr = tvb_format_stringzpad(tvb, (offset+2), dataLen);
 
 	/* Set port tree */
-	tf = proto_tree_add_text(tree, tvb, offset, (dataLen + 2), "Port Description = %s", strPtr);
-	port_desc_tree = proto_item_add_subtree(tf, ett_port_description);
+	port_desc_tree = proto_tree_add_subtree_format(tree, tvb, offset, (dataLen + 2),
+							ett_port_description, NULL, "Port Description = %s", strPtr);
 
 	proto_tree_add_item(port_desc_tree, hf_lldp_tlv_type, tvb, offset, 2, ENC_BIG_ENDIAN);
 	proto_tree_add_item(port_desc_tree, hf_lldp_tlv_len, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -1361,8 +1355,7 @@ dissect_lldp_system_name(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 	guint8 tlvsubType;
 	const char *strPtr;
 
-	proto_tree	*system_subtree = NULL;
-	proto_item	*tf = NULL;
+	proto_tree	*system_subtree;
 
 	/* Get tlv type and length */
 	tempShort = tvb_get_ntohs(tvb, offset);
@@ -1375,12 +1368,12 @@ dissect_lldp_system_name(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 
 	/* Set system name tree */
 	if (tlvsubType == SYSTEM_NAME_TLV_TYPE) {
-		tf = proto_tree_add_text(tree, tvb, offset, (dataLen + 2), "System Name = %s", strPtr);
-		system_subtree = proto_item_add_subtree(tf, ett_system_name);
+		system_subtree = proto_tree_add_subtree_format(tree, tvb, offset, (dataLen + 2),
+										ett_system_name, NULL, "System Name = %s", strPtr);
 		col_append_fstr(pinfo->cinfo, COL_INFO, "System Name = %s ", strPtr);
 	} else {
-		tf = proto_tree_add_text(tree, tvb, offset, (dataLen + 2), "System Description = %s", strPtr);
-		system_subtree = proto_item_add_subtree(tf, ett_system_desc);
+		system_subtree = proto_tree_add_subtree_format(tree, tvb, offset, (dataLen + 2),
+										ett_system_desc, NULL, "System Description = %s", strPtr);
 		col_append_fstr(pinfo->cinfo, COL_INFO, "System Description = %s ", strPtr);
 	}
 
@@ -1407,10 +1400,10 @@ dissect_lldp_system_capabilities(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 	guint16 tempShort;
 	guint32 dataLen = 0;
 
-	proto_tree	*system_capabilities_tree = NULL;
-	proto_tree	*capabilities_summary_tree = NULL;
-	proto_tree	*capabilities_enabled_tree = NULL;
-	proto_item	*tf = NULL;
+	proto_tree	*system_capabilities_tree;
+	proto_tree	*capabilities_summary_tree;
+	proto_tree	*capabilities_enabled_tree;
+	proto_item	*tf;
 
 	/* Get tlv type and length */
 	tempShort = tvb_get_ntohs(tvb, offset);
@@ -1419,8 +1412,7 @@ dissect_lldp_system_capabilities(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 	dataLen = TLV_INFO_LEN(tempShort);
 
 	/* Set system capabilities tree */
-	tf = proto_tree_add_text(tree, tvb, offset, (dataLen + 2), "Capabilities");
-	system_capabilities_tree = proto_item_add_subtree(tf, ett_system_cap);
+	system_capabilities_tree = proto_tree_add_subtree(tree, tvb, offset, (dataLen + 2), ett_system_cap, NULL, "Capabilities");
 
 	proto_tree_add_item(system_capabilities_tree, hf_lldp_tlv_type, tvb, offset, 2, ENC_BIG_ENDIAN);
 	proto_tree_add_item(system_capabilities_tree, hf_lldp_tlv_len, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -1469,8 +1461,7 @@ dissect_lldp_management_address(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 	guint8  subtypeByte;
 	guint8  stringLen = 0;
 
-	proto_tree	*system_mgm_addr = NULL;
-	proto_item	*tf = NULL;
+	proto_tree	*system_mgm_addr;
 
 	/* Get tlv type and length */
 	tempShort = tvb_get_ntohs(tvb, offset);
@@ -1479,8 +1470,7 @@ dissect_lldp_management_address(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 	dataLen = TLV_INFO_LEN(tempShort);
 
 	/* Set system capabilities tree */
-	tf = proto_tree_add_text(tree, tvb, offset, (dataLen + 2), "Management Address");
-	system_mgm_addr = proto_item_add_subtree(tf, ett_management_address);
+	system_mgm_addr = proto_tree_add_subtree(tree, tvb, offset, (dataLen + 2), ett_management_address, NULL, "Management Address");
 
 	proto_tree_add_item(system_mgm_addr, hf_lldp_tlv_type, tvb, offset, 2, ENC_BIG_ENDIAN);
 	proto_tree_add_item(system_mgm_addr, hf_lldp_tlv_len, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -1709,9 +1699,9 @@ dissect_dcbx_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint3
 				while(appCount--) {
 					tempShort = tvb_get_ntohs(tvb, offset);
 
-					tf = proto_tree_add_text(subtlv_tree, tvb, offset, 6, "%s Application",
+					apptlv_tree = proto_tree_add_subtree_format(subtlv_tree, tvb, offset, 6,
+						ett_org_spc_dcbx_cee_app, NULL, "%s Application",
 						val_to_str_const(tempShort, dcbx_app_types, "Unknown"));
-					apptlv_tree = proto_item_add_subtree(tf, ett_org_spc_dcbx_cee_app);
 
 					proto_tree_add_item(apptlv_tree, hf_dcbx_feature_app_proto, tvb, offset, 2, ENC_BIG_ENDIAN);
 
@@ -2081,9 +2071,9 @@ dissect_ieee_802_1_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 		while(appCount--) {
 			dcbApp = tvb_get_ntohs(tvb, offset + 1);
 
-			tf = proto_tree_add_text(tree, tvb, offset, 3, "%s Application",
+			apptlv_tree = proto_tree_add_subtree_format(tree, tvb, offset, 3,
+						 ett_org_spc_ieee_dcbx_app, NULL, "%s Application",
 						 val_to_str_const(dcbApp, dcbx_app_types, "Unknown"));
-			apptlv_tree = proto_item_add_subtree(tf, ett_org_spc_ieee_dcbx_app);
 
 			proto_tree_add_item(apptlv_tree, hf_ieee_8021az_app_prio, tvb, offset, 1, ENC_BIG_ENDIAN);
 			proto_tree_add_item(apptlv_tree, hf_ieee_8021az_app_selector, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -2219,8 +2209,7 @@ dissect_ieee_802_3_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 		proto_tree_add_item(autoneg_advertised_subtree, hf_ieee_802_3_pmd_auto_neg_advertised_caps_10base_t, tvb, offset, 2, ENC_BIG_ENDIAN);
 		proto_tree_add_item(autoneg_advertised_subtree, hf_ieee_802_3_pmd_auto_neg_advertised_caps_other, tvb, offset, 2, ENC_BIG_ENDIAN);
 
-		tf = proto_tree_add_text(tree, tvb, offset, 2, "Same in inverse (wrong) bitorder");
-		autoneg_advertised_subtree = proto_item_add_subtree(tf, ett_802_3_autoneg_advertised);
+		autoneg_advertised_subtree = proto_tree_add_subtree(tree, tvb, offset, 2, ett_802_3_autoneg_advertised, NULL, "Same in inverse (wrong) bitorder");
 
 		proto_tree_add_item(autoneg_advertised_subtree, hf_ieee_802_3_pmd_auto_neg_advertised_caps_inv_1000base_tfd, tvb, offset, 2, ENC_BIG_ENDIAN);
 		proto_tree_add_item(autoneg_advertised_subtree, hf_ieee_802_3_pmd_auto_neg_advertised_caps_inv_1000base_t, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -2759,14 +2748,11 @@ dissect_profinet_period(tvbuff_t *tvb, proto_tree *tree, guint32 offset, const g
 {
 	guint32 period;
 	proto_tree	*period_tree;
-	proto_item	*period_item;
-
 
 	period = tvb_get_ntohl(tvb, offset);
 
-	period_item = proto_tree_add_text(tree, tvb, offset, 4, "%s: %s, %uns",
+	period_tree = proto_tree_add_subtree_format(tree, tvb, offset, 4, ett_profinet_period, NULL, "%s: %s, %uns",
 		name, (period & 0x80000000) ? "Valid" : "Invalid", period & 0x7FFFFFFF);
-	period_tree = proto_item_add_subtree(period_item, ett_profinet_period);
 
 	proto_tree_add_uint(period_tree, hf_valid, tvb, offset, 4, period);
 	proto_tree_add_uint(period_tree, hf_value, tvb, offset, 4, period);
@@ -2951,7 +2937,7 @@ dissect_organizational_specific_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	const char *subTypeStr;
 
 	proto_tree	*org_tlv_tree = NULL;
-	proto_item	*tf = NULL, *lf = NULL;
+	proto_item	*lf = NULL;
 	/* Get tlv type and length */
 	tempShort = tvb_get_ntohs(tvb, offset);
 
@@ -3081,8 +3067,7 @@ dissect_organizational_specific_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 		break;
 	}
 
-	tf = proto_tree_add_text(tree, tvb, offset, tLength, "%s - %s", ouiStr, subTypeStr);
-	org_tlv_tree = proto_item_add_subtree(tf, tempTree); /* change to temp: ett_org_spc_tlv */
+	org_tlv_tree = proto_tree_add_subtree_format(tree, tvb, offset, tLength, tempTree, NULL, "%s - %s", ouiStr, subTypeStr);
 	proto_tree_add_item(org_tlv_tree, hf_lldp_tlv_type, tvb, offset, 2, ENC_BIG_ENDIAN);
 
 	lf = proto_tree_add_item(org_tlv_tree, hf_lldp_tlv_len, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -3133,8 +3118,7 @@ dissect_lldp_unknown_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 	guint16 dataLen;
 	guint16 tempShort;
 
-	proto_tree	*unknown_tlv_tree = NULL;
-	proto_item	*tf = NULL;
+	proto_tree	*unknown_tlv_tree;
 
 	/* Get tlv type and length */
 	tempShort = tvb_get_ntohs(tvb, offset);
@@ -3142,8 +3126,7 @@ dissect_lldp_unknown_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 	/* Get tlv length */
 	dataLen = TLV_INFO_LEN(tempShort);
 
-	tf = proto_tree_add_text(tree, tvb, offset, (dataLen + 2), "Unknown TLV");
-	unknown_tlv_tree = proto_item_add_subtree(tf, ett_unknown_tlv);
+	unknown_tlv_tree = proto_tree_add_subtree(tree, tvb, offset, (dataLen + 2), ett_unknown_tlv, NULL, "Unknown TLV");
 
 	proto_tree_add_item(unknown_tlv_tree, hf_lldp_tlv_type, tvb, offset, 2, ENC_BIG_ENDIAN);
 	proto_tree_add_item(unknown_tlv_tree, hf_lldp_tlv_len, tvb, offset, 2, ENC_BIG_ENDIAN);
