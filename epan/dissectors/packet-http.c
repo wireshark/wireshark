@@ -135,6 +135,8 @@ static gint ett_http_header_item = -1;
 static expert_field ei_http_chat = EI_INIT;
 static expert_field ei_http_chunked_and_length = EI_INIT;
 static expert_field ei_http_subdissector_failed = EI_INIT;
+static expert_field ei_http_ssl_port = EI_INIT;
+
 
 static dissector_handle_t http_handle;
 
@@ -700,7 +702,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	const guchar	*linep, *lineend;
 	int		orig_offset;
 	int		first_linelen, linelen;
-	gboolean	is_request_or_reply;
+	gboolean	is_request_or_reply, is_ssl = FALSE;
 	gboolean	saw_req_resp_or_header;
 	guchar		c;
 	http_type_t     http_type;
@@ -779,6 +781,8 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			return -1;
 		}
 	}
+
+	proto_get_frame_protocols(pinfo->layers, NULL, NULL, NULL, NULL, &is_ssl);
 
 	stat_info = wmem_new(wmem_packet_scope(), http_info_value_t);
 	stat_info->framenum = pinfo->fd->num;
@@ -974,14 +978,19 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", format_text(firstline, first_linelen));
 			else
 				col_set_str(pinfo->cinfo, COL_INFO, "Continuation");
-
-			first_loop = FALSE;
 		}
 
 		if ((tree) && (http_tree == NULL)) {
 			ti = proto_tree_add_item(tree, proto_http, tvb, orig_offset, -1, ENC_NA);
 			http_tree = proto_item_add_subtree(ti, ett_http);
 		}
+
+		if (first_loop && !is_ssl && pinfo->ptype == PT_TCP &&
+				(pinfo->srcport == 443 || pinfo->destport == 443)) {
+			expert_add_info(pinfo, ti, &ei_http_ssl_port);
+		}
+
+		first_loop = FALSE;
 
 		/*
 		 * Process this line.
@@ -1027,10 +1036,8 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	if (tree && stat_info->http_host && stat_info->request_uri) {
 		proto_item *e_ti;
-		gboolean    is_ssl = FALSE;
 		gchar      *uri;
 
-		proto_get_frame_protocols(pinfo->layers, NULL, NULL, NULL, NULL, &is_ssl);
 		uri = wmem_strdup_printf(wmem_packet_scope(), "%s://%s%s",
 			    is_ssl ? "https" : "http",
 			    g_strstrip(wmem_strdup(wmem_packet_scope(), stat_info->http_host)), stat_info->request_uri);
@@ -3058,6 +3065,7 @@ proto_register_http(void)
 		{ &ei_http_chat, { "http.chat", PI_SEQUENCE, PI_CHAT, "Formatted text", EXPFILL }},
 		{ &ei_http_chunked_and_length, { "http.chunkd_and_length", PI_MALFORMED, PI_WARN, "It is incorrect to specify a content-length header and chunked encoding together.", EXPFILL }},
 		{ &ei_http_subdissector_failed, { "http.subdissector_failed", PI_MALFORMED, PI_NOTE, "HTTP body subdissector failed, trying heuristic subdissector", EXPFILL }},
+		{ &ei_http_ssl_port, { "http.ssl_port", PI_SECURITY, PI_WARN, "Unencrypted HTTP protocol detected over encrypted port, could indicate a dangerous misconfiguration.", EXPFILL }},
 	};
 
 	/* UAT for header fields */

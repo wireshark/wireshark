@@ -612,8 +612,8 @@ static gint  ssl_looks_like_valid_pct_handshake(tvbuff_t *tvb,
 /*
  * Code to actually dissect the packets
  */
-static void
-dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 
     conversation_t    *conversation;
@@ -633,6 +633,23 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     first_record_in_frame = TRUE;
     ssl_session = NULL;
 
+
+    if (tvb_captured_length(tvb) > 4) {
+        const guint8 *tmp = tvb_get_ptr(tvb, 0, 4);
+        if (g_ascii_isprint(tmp[0]) &&
+                g_ascii_isprint(tmp[1]) &&
+                g_ascii_isprint(tmp[2]) &&
+                g_ascii_isprint(tmp[3])) {
+            /* it is extremely unlikely that real SSL traffic starts with four
+             * printable ascii characters; this looks like it's unencrypted
+             * text, so assume it's not ours (SSL does have some unencrypted
+             * text fields in certain packets, but you'd have to get very
+             * unlucky with TCP fragmentation to have one of those fields at the
+             * beginning of a TCP payload at the beginning of the capture where
+             * reassembly hasn't started yet) */
+            return 0;
+        }
+    }
 
     ssl_debug_printf("\ndissect_ssl enter frame #%u (%s)\n", pinfo->fd->num, (pinfo->fd->flags.visited)?"already visited":"first time");
 
@@ -798,7 +815,7 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           ssl_debug_printf("  need_desegmentation: offset = %d, reported_length_remaining = %d\n",
                            offset, tvb_reported_length_remaining(tvb, offset));
           tap_queue_packet(ssl_tap, pinfo, GINT_TO_POINTER(proto_ssl));
-          return;
+          return tvb_captured_length(tvb);
         }
 
         /* set up for next record in frame, if any */
@@ -810,6 +827,8 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     ssl_debug_flush();
 
     tap_queue_packet(ssl_tap, pinfo, GINT_TO_POINTER(proto_ssl));
+
+    return tvb_captured_length(tvb);
 }
 
 static gint
@@ -4943,7 +4962,7 @@ proto_register_ssl(void)
     /* heuristic dissectors for any premable e.g. CredSSP before RDP */
     register_heur_dissector_list("ssl", &ssl_heur_subdissector_list);
 
-    register_dissector("ssl", dissect_ssl, proto_ssl);
+    new_register_dissector("ssl", dissect_ssl, proto_ssl);
     ssl_handle = find_dissector("ssl");
 
     ssl_associations = g_tree_new(ssl_association_cmp);
