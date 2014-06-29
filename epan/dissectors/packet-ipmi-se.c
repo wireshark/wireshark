@@ -611,14 +611,12 @@ static gboolean
 eti_2_pst_sev(proto_tree *tree, tvbuff_t *tvb, const struct sensor_info *si,
 		guint32 b, guint32 offs _U_, guint32 d)
 {
-	proto_item *ti;
 	proto_tree *s_tree;
 	guint32 tmp;
 	const char *desc;
 
 	if (b == 0x1) {
-		ti = proto_tree_add_text(tree, tvb, 0, 1, "Previous state/severity");
-		s_tree = proto_item_add_subtree(ti, ett_ipmi_se_evt_evd_byte2);
+		s_tree = proto_tree_add_subtree(tree, tvb, 0, 1, ett_ipmi_se_evt_evd_byte2, NULL, "Previous state/severity");
 		proto_tree_add_item(s_tree, hf_ipmi_se_pst_severity, tvb, 0, 1, ENC_NA);
 		tmp = d & 0xf;
 		desc = (tmp == 0x0f) ? "Unspecified" : val_to_str_const(tmp, si->offsets, "Unknown");
@@ -1169,7 +1167,6 @@ static gboolean
 ssi_10_3(proto_tree *tree, tvbuff_t *tvb, const struct sensor_info *si _U_,
 		guint32 b, guint32 offs, guint32 d)
 {
-	proto_item *ti;
 	proto_tree *s_tree;
 	const value_string *off_vals;
 
@@ -1178,8 +1175,7 @@ ssi_10_3(proto_tree *tree, tvbuff_t *tvb, const struct sensor_info *si _U_,
 			return FALSE; /* something went wrong */
 		}
 		off_vals = ssi_10_saveptr->offsets ? ssi_10_saveptr->offsets : et_empty;
-		ti = proto_tree_add_text(tree, tvb, 0, 1, "Logging details/Offset");
-		s_tree = proto_item_add_subtree(ti, ett_ipmi_se_evt_evd_byte3);
+		s_tree = proto_tree_add_subtree(tree, tvb, 0, 1, ett_ipmi_se_evt_evd_byte3, NULL, "Logging details/Offset");
 		proto_tree_add_item(s_tree, hf_ipmi_se_10_logging_disable, tvb, 0, 1, ENC_NA);
 		proto_tree_add_item(s_tree, hf_ipmi_se_10_event, tvb, 0, 1, ENC_NA);
 		d &= 0x0f;
@@ -1224,19 +1220,16 @@ static gboolean
 ssi_12_2(proto_tree *tree, tvbuff_t *tvb, const struct sensor_info *si _U_,
 		guint32 b, guint32 offs, guint32 d _U_)
 {
-	proto_item *ti;
 	proto_tree *s_tree;
 
 	if (b == 0x3 && offs == 0x03) {
-		ti = proto_tree_add_text(tree, tvb, 0, 1, "Log action/type");
-		s_tree = proto_item_add_subtree(ti, ett_ipmi_se_evt_evd_byte2);
+		s_tree = proto_tree_add_subtree(tree, tvb, 0, 1, ett_ipmi_se_evt_evd_byte2, NULL, "Log action/type");
 		proto_tree_add_item(s_tree, hf_ipmi_se_12_log_entry_action, tvb, 0, 1, ENC_NA);
 		proto_tree_add_item(s_tree, hf_ipmi_se_12_log_type, tvb, 0, 1, ENC_NA);
 		return TRUE;
 	}
 	if (b == 0x3 && offs == 0x04) {
-		ti = proto_tree_add_text(tree, tvb, 0, 1, "PEF Actions to be taken");
-		s_tree = proto_item_add_subtree(ti, ett_ipmi_se_evt_evd_byte2);
+		s_tree = proto_tree_add_subtree(tree, tvb, 0, 1, ett_ipmi_se_evt_evd_byte2, NULL, "PEF Actions to be taken");
 		proto_tree_add_item(s_tree, hf_ipmi_se_12_diagnostic_interrupt, tvb, 0, 1, ENC_NA);
 		proto_tree_add_item(s_tree, hf_ipmi_se_12_oem_action, tvb, 0, 1, ENC_NA);
 		proto_tree_add_item(s_tree, hf_ipmi_se_12_power_cycle, tvb, 0, 1, ENC_NA);
@@ -1246,8 +1239,7 @@ ssi_12_2(proto_tree *tree, tvbuff_t *tvb, const struct sensor_info *si _U_,
 		return TRUE;
 	}
 	if (b == 0x3 && offs == 0x05) {
-		ti = proto_tree_add_text(tree, tvb, 0, 1, "Details");
-		s_tree = proto_item_add_subtree(ti, ett_ipmi_se_evt_evd_byte2);
+		s_tree = proto_tree_add_subtree(tree, tvb, 0, 1, ett_ipmi_se_evt_evd_byte2, NULL, "Details");
 		proto_tree_add_item(s_tree, hf_ipmi_se_12_event, tvb, 0, 1, ENC_NA);
 		proto_tree_add_item(s_tree, hf_ipmi_se_12_timestamp_clock_type, tvb, 0, 1, ENC_NA);
 	}
@@ -1378,12 +1370,10 @@ static gboolean
 ssi_23_2(proto_tree *tree, tvbuff_t *tvb, const struct sensor_info *si _U_,
 		guint32 b, guint32 offs _U_, guint32 d _U_)
 {
-	proto_item *ti;
 	proto_tree *s_tree;
 
 	if (b == 0x3) {
-		ti = proto_tree_add_text(tree, tvb, 0, 1, "Timer use/interrupt");
-		s_tree = proto_item_add_subtree(ti, ett_ipmi_se_evt_evd_byte2);
+		s_tree = proto_tree_add_subtree(tree, tvb, 0, 1, ett_ipmi_se_evt_evd_byte2, NULL, "Timer use/interrupt");
 		proto_tree_add_item(s_tree, hf_ipmi_se_23_interrupt_type, tvb, 0, 1, ENC_NA);
 		proto_tree_add_item(s_tree, hf_ipmi_se_23_timer_use_at_expiration, tvb, 0, 1, ENC_NA);
 
@@ -1398,7 +1388,6 @@ static gboolean
 ssi_28_2(proto_tree *tree, tvbuff_t *tvb, const struct sensor_info *si _U_,
 		guint32 b, guint32 offs _U_, guint32 d)
 {
-	proto_item *ti;
 	proto_tree *s_tree;
 
 	if (b == 0x3 && (offs == 0x00 || offs == 0x04)) {
@@ -1406,8 +1395,7 @@ ssi_28_2(proto_tree *tree, tvbuff_t *tvb, const struct sensor_info *si _U_,
 		return TRUE;
 	}
 	if (b == 0x3 && offs == 0x05) {
-		ti = proto_tree_add_text(tree, tvb, 0, 1, "FRU details");
-		s_tree = proto_item_add_subtree(ti, ett_ipmi_se_evt_evd_byte2);
+		s_tree = proto_tree_add_subtree(tree, tvb, 0, 1, ett_ipmi_se_evt_evd_byte2, NULL, "FRU details");
 		ssi28_is_logical_fru = (d & 0x80) ? 1 : 0;
 		proto_tree_add_item(s_tree, hf_ipmi_se_28_logical_fru_device, tvb, 0, 1, ENC_NA);
 		proto_tree_add_item(s_tree, hf_ipmi_se_28_lun_for_master_read_write_command, tvb, 0, 1, ENC_NA);
@@ -1461,12 +1449,10 @@ static gboolean
 ssi_2a_3(proto_tree *tree, tvbuff_t *tvb, const struct sensor_info *si _U_,
 		guint32 b, guint32 offs _U_, guint32 d _U_)
 {
-	proto_item *ti;
 	proto_tree *s_tree;
 
 	if (b == 0x3) {
-		ti = proto_tree_add_text(tree, tvb, 0, 1, "Deactivation cause/Channel #");
-		s_tree = proto_item_add_subtree(ti, ett_ipmi_se_evt_evd_byte3);
+		s_tree = proto_tree_add_subtree(tree, tvb, 0, 1, ett_ipmi_se_evt_evd_byte3, NULL, "Deactivation cause/Channel #");
 		proto_tree_add_item(s_tree, hf_ipmi_se_2a_session_deactivated_by, tvb, 0, 1, ENC_NA);
 		proto_tree_add_item(s_tree, hf_ipmi_se_2a_channel, tvb, 0, 1, ENC_NA);
 		return TRUE;
@@ -1533,12 +1519,10 @@ static gboolean
 ssi_2c_2(proto_tree *tree, tvbuff_t *tvb, const struct sensor_info *si,
 		guint32 b, guint32 offs _U_, guint32 d)
 {
-	proto_item *ti;
 	proto_tree *s_tree;
 
 	if (b == 0x3) {
-		ti = proto_tree_add_text(tree, tvb, 0, 1, "Previous state/Cause");
-		s_tree = proto_item_add_subtree(ti, ett_ipmi_se_evt_evd_byte2);
+		s_tree = proto_tree_add_subtree(tree, tvb, 0, 1, ett_ipmi_se_evt_evd_byte2, NULL, "Previous state/Cause");
 		proto_tree_add_item(s_tree, hf_ipmi_se_2c_cause, tvb, 0, 1, ENC_NA);
 		d &= 0xf;
 		proto_tree_add_uint_format_value(s_tree, hf_ipmi_se_2c_previous_state, tvb, 0, 1,
@@ -1567,12 +1551,10 @@ static gboolean
 ssi_f0_2(proto_tree *tree, tvbuff_t *tvb, const struct sensor_info *si,
 		guint32 b, guint32 offs _U_, guint32 d)
 {
-	proto_item *ti;
 	proto_tree *s_tree;
 
 	if (b == 0x2) {
-		ti = proto_tree_add_text(tree, tvb, 0, 1, "Previous state/Cause");
-		s_tree = proto_item_add_subtree(ti, ett_ipmi_se_evt_evd_byte2);
+		s_tree = proto_tree_add_subtree(tree, tvb, 0, 1, ett_ipmi_se_evt_evd_byte2, NULL, "Previous state/Cause");
 		proto_tree_add_item(s_tree, hf_ipmi_se_f0_cause, tvb, 0, 1, ENC_NA);
 		d &= 0xf;
 		proto_tree_add_uint_format_value(s_tree, hf_ipmi_se_f0_previous_state, tvb, 0, 1,
@@ -1625,12 +1607,10 @@ static gboolean
 ssi_f1_3(proto_tree *tree, tvbuff_t *tvb, const struct sensor_info *si _U_,
 		guint32 b, guint32 offs _U_, guint32 d _U_)
 {
-	proto_item *ti;
 	proto_tree *s_tree;
 
 	if (b == 0x02) {
-		ti = proto_tree_add_text(tree, tvb, 0, 1, "Override state / Local status");
-		s_tree = proto_item_add_subtree(ti, ett_ipmi_se_evt_evd_byte3);
+		s_tree = proto_tree_add_subtree(tree, tvb, 0, 1, ett_ipmi_se_evt_evd_byte3, NULL, "Override state / Local status");
 		proto_tree_add_item(s_tree, hf_ipmi_se_f1_ipmb_b_override_state, tvb, 0, 1, ENC_NA);
 		proto_tree_add_item(s_tree, hf_ipmi_se_f1_ipmb_b_local_status, tvb, 0, 1, ENC_NA);
 		proto_tree_add_item(s_tree, hf_ipmi_se_f1_ipmb_a_override_state, tvb, 0, 1, ENC_NA);
@@ -2565,7 +2545,6 @@ sign_extend(gint16 v, int bits)
 static void
 rs23(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	proto_item *ti;
 	proto_tree *s_tree;
 	guint16 tol, acc, accexp, tmp;
 	gint16 m, b, bexp, rexp;
@@ -2592,9 +2571,9 @@ rs23(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	bexp = sign_extend(bexp, 4);
 	rexp = sign_extend(rexp, 4);
 
-	ti = proto_tree_add_text(tree, tvb, 1, 6, "Factors: M=%d B=%d K1=%d K2=%d Acc=%u*10^%u Tol=%u",
+	s_tree = proto_tree_add_subtree_format(tree, tvb, 1, 6, ett_ipmi_se_23_readingfactors, NULL,
+			"Factors: M=%d B=%d K1=%d K2=%d Acc=%u*10^%u Tol=%u",
 			m, b, bexp, rexp, acc, accexp, tol);
-	s_tree = proto_item_add_subtree(ti, ett_ipmi_se_23_readingfactors);
 
 	proto_tree_add_item(s_tree, hf_ipmi_se_23_m, tvb, 1, 2, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(s_tree, hf_ipmi_se_23_tolerance, tvb, 1, 2, ENC_LITTLE_ENDIAN);
@@ -2689,15 +2668,13 @@ add_events(tvbuff_t *tvb, int offs, proto_tree *tree, const struct true_false_st
 			&hf_ipmi_se_XX_b4_4, &hf_ipmi_se_XX_b4_5, &hf_ipmi_se_XX_b4_6, NULL }
 	};
 	static const int *tsel[] = { &ett_ipmi_se_XX_b1, &ett_ipmi_se_XX_b2, &ett_ipmi_se_XX_b3, &ett_ipmi_se_XX_b4 };
-	proto_item *ti;
 	proto_tree *s_tree;
 	int len = tvb_captured_length(tvb);
 	int i, j, val, msk;
 
 	for (i = 0; (offs < len) && (i < 4); i++, offs++) {
 		val = tvb_get_guint8(tvb, offs);
-		ti = proto_tree_add_text(tree, tvb, offs, 1, "%s (byte %d)", desc, i);
-		s_tree = proto_item_add_subtree(ti, *tsel[i]);
+		s_tree = proto_tree_add_subtree_format(tree, tvb, offs, 1, *tsel[i], NULL, "%s (byte %d)", desc, i);
 		for (j = 7; j >= 0; j--) {
 			if (!bsel[i][j]) {
 				continue;
@@ -2790,7 +2767,6 @@ rs2d(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 			&hf_ipmi_se_2d_b2_4, &hf_ipmi_se_2d_b2_5, &hf_ipmi_se_2d_b2_6, NULL }
 	};
 	static const int *tsel[2] = { &ett_ipmi_se_2d_b1, &ett_ipmi_se_2d_b2 };
-	proto_item *ti;
 	proto_tree *s_tree;
 	int i, j, len;
 
@@ -2798,8 +2774,8 @@ rs2d(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	proto_tree_add_bitmask_text(tree, tvb, 1, 1, NULL, NULL, ett_ipmi_se_2d_byte2, byte2, ENC_LITTLE_ENDIAN, 0);
 	len = tvb_captured_length(tvb);
 	for (i = 0; i < 2 && i < len - 2; i++) {
-		ti = proto_tree_add_text(tree, tvb, i + 2, 1, "Threshold comparisons/assertions (byte %d)", i);
-		s_tree = proto_item_add_subtree(ti, *tsel[i]);
+		s_tree = proto_tree_add_subtree_format(tree, tvb, i + 2, 1, *tsel[i], NULL,
+				"Threshold comparisons/assertions (byte %d)", i);
 		for (j = 7; j >= 0; j--) {
 			if (bsel[i][j]) {
 				proto_tree_add_item(s_tree, *bsel[i][j], tvb, i + 2, 1, ENC_LITTLE_ENDIAN);

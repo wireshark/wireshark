@@ -79,8 +79,8 @@ static const value_string idp_socket_vals[] = {
 static void
 dissect_idp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	proto_tree	*idp_tree = NULL;
-	proto_item	*ti = NULL;
+	proto_tree	*idp_tree;
+	proto_item	*ti;
 	guint16		length;
 	guint8		type;
 	tvbuff_t	*next_tvb;
@@ -88,10 +88,8 @@ dissect_idp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "IDP");
 	col_clear(pinfo->cinfo, COL_INFO);
 
-	if (tree) {
-		ti = proto_tree_add_item(tree, proto_idp, tvb, 0, IDP_HEADER_LEN, ENC_NA);
-		idp_tree = proto_item_add_subtree(ti, ett_idp);
-	}
+	ti = proto_tree_add_item(tree, proto_idp, tvb, 0, IDP_HEADER_LEN, ENC_NA);
+	idp_tree = proto_item_add_subtree(ti, ett_idp);
 
 	proto_tree_add_item(idp_tree, hf_idp_checksum, tvb, 0, 2, ENC_BIG_ENDIAN);
 	length = tvb_get_ntohs(tvb, 2);

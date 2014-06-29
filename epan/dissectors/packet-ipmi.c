@@ -634,13 +634,10 @@ dissect_ipmi_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		netfn_str = ipmi_getnetfnname(ctx->hdr.netfn, cmd_list);
 
 		/* Network function + target LUN */
-		ti = proto_tree_add_text(cmd_tree, tvb, offset, 1,
-				"Target LUN: 0x%02x, NetFN: %s %s (0x%02x)",
+		tmp_tree = proto_tree_add_subtree_format(cmd_tree, tvb, offset, 1,
+				ett_header_byte_1, NULL, "Target LUN: 0x%02x, NetFN: %s %s (0x%02x)",
 				ctx->hdr.rs_lun, netfn_str,
 				is_resp ? "Response" : "Request", ctx->hdr.netfn);
-
-		/* make a sub-tree */
-		tmp_tree = proto_item_add_subtree(ti, ett_header_byte_1);
 
 		/* add Net Fn */
 		proto_tree_add_uint_format(tmp_tree, hf_ipmi_header_netfn, tvb,
@@ -679,13 +676,10 @@ dissect_ipmi_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		/* check if request sequence is specified */
 		if (!(ctx->flags & IPMI_D_NO_SEQ)) {
 			/* Sequence number + source LUN */
-			ti = proto_tree_add_text(cmd_tree, tvb, offset, 1,
-					"%s: 0x%02x, SeqNo: 0x%02x",
+			tmp_tree = proto_tree_add_subtree_format(cmd_tree, tvb, offset, 1,
+					ett_header_byte_4, NULL, "%s: 0x%02x, SeqNo: 0x%02x",
 					(ctx->flags & IPMI_D_TMODE) ? "Bridged" : "Source LUN",
 							ctx->hdr.rq_lun, ctx->hdr.rq_seq);
-
-			/* create byte 4 sub-tree */
-			tmp_tree = proto_item_add_subtree(ti, ett_header_byte_4);
 
 			if (ctx->flags & IPMI_D_TMODE) {
 				proto_tree_add_item(tmp_tree, hf_ipmi_header_bridged,
@@ -736,15 +730,8 @@ dissect_ipmi_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		ipmi_cmd_handler_t hnd = is_resp ? cmd->parse_resp : cmd->parse_req;
 
 		if (hnd && tvb_captured_length(data_tvb)) {
-			if (tree) {
-				/* create data field */
-				ti = proto_tree_add_text(cmd_tree, data_tvb, 0, -1, "Data");
-
-				/* create data sub-tree */
-				tmp_tree = proto_item_add_subtree(ti, ett_data);
-			} else {
-				tmp_tree = NULL;
-			}
+			/* create data field */
+			tmp_tree = proto_tree_add_subtree(cmd_tree, data_tvb, 0, -1, ett_data, NULL, "Data");
 
 			/* save current command */
 			data->curr_hdr = &ctx->hdr;
@@ -1034,7 +1021,6 @@ ipmi_add_typelen(proto_tree *tree, const char *desc, tvbuff_t *tvb,
 	};
 	struct ipmi_parse_typelen *ptr;
 	proto_tree *s_tree;
-	proto_item *ti;
 	guint type, msk, clen, blen, len;
 	const char *unit;
 	char *str;
@@ -1059,9 +1045,8 @@ ipmi_add_typelen(proto_tree *tree, const char *desc, tvbuff_t *tvb,
 	ptr->parse(str, tvb, offs + 1, clen);
 	str[clen] = '\0';
 
-	ti = proto_tree_add_text(tree, tvb, offs, 1, "%s Type/Length byte: %s, %d %s",
-			desc, ptr->desc, len, unit);
-	s_tree = proto_item_add_subtree(ti, ett_typelen);
+	s_tree = proto_tree_add_subtree_format(tree, tvb, offs, 1, ett_typelen, NULL,
+			"%s Type/Length byte: %s, %d %s", desc, ptr->desc, len, unit);
 	proto_tree_add_text(s_tree, tvb, offs, 1, "%sType: %s (0x%02x)",
 			ipmi_dcd8(typelen, 0xc0), ptr->desc, type);
 	proto_tree_add_text(s_tree, tvb, offs, 1, "%sLength: %d %s",

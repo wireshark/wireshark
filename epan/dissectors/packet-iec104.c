@@ -1185,8 +1185,8 @@ static void dissect_iec104asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 			for(i = 0; i < asduh.NumIx; i++)
 			{
 				/* create subtree for the signal values ... */
-				itSignal = proto_tree_add_text(it104tree, tvb, offset, asduh.DataLength + 3, "IOA:s");
-				trSignal = proto_item_add_subtree(itSignal, ett_asdu_objects);
+				trSignal = proto_tree_add_subtree(it104tree, tvb, offset, asduh.DataLength + 3,
+														ett_asdu_objects, &itSignal, "IOA:s");
 
 				/* --------  First Information object address */
 				if (!i)

@@ -157,7 +157,6 @@ static void
 dissect_snp_lsp_entries_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offset,
 	int id_length, int length)
 {
-	proto_item *ti;
 	proto_tree *subtree;
 
 	while ( length > 0 ) {
@@ -167,8 +166,8 @@ dissect_snp_lsp_entries_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree,
 			return;
 		}
 
-		ti = proto_tree_add_text(tree, tvb, offset, 2+id_length+2+4+2, "LSP Entry");
-		subtree = proto_item_add_subtree(ti,ett_isis_csnp_lsp_entry);
+		subtree = proto_tree_add_subtree(tree, tvb, offset, 2+id_length+2+4+2,
+                                    ett_isis_csnp_lsp_entry, NULL, "LSP Entry");
 
 		proto_tree_add_item(tree, hf_isis_csnp_lsp_id, tvb, offset+2, id_length+2, ENC_NA);
 

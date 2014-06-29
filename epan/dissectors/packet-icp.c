@@ -142,7 +142,7 @@ static void dissect_icp_payload(tvbuff_t *tvb, int offset,
 static void dissect_icp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   proto_tree *icp_tree , *payload_tree;
-  proto_item *ti , *payloadtf;
+  proto_item *ti;
   guint8 opcode;
   guint16 message_length;
   guint32 request_number;
@@ -198,10 +198,9 @@ static void dissect_icp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			"Sender Host IP address %s",
 			tvb_ip_to_str(tvb, 16));
 
-        payloadtf = proto_tree_add_text(icp_tree, tvb,
+        payload_tree = proto_tree_add_subtree(icp_tree, tvb,
                         20, message_length - 20,
-                        "Payload");
-        payload_tree = proto_item_add_subtree(payloadtf, ett_icp_payload);
+                        ett_icp_payload, NULL, "Payload");
         dissect_icp_payload(tvb, 20, payload_tree, opcode);
   }
 }

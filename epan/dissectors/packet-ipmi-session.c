@@ -113,7 +113,7 @@ static int
 dissect_ipmi_session(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	proto_tree	*sess_tree = NULL, *s_tree;
-	proto_item	*ti = NULL;
+	proto_item	*ti;
 	tvbuff_t	*next_tvb;
 	guint32		session_id;
 	guint8		authtype, payloadtype = 0;
@@ -183,13 +183,13 @@ dissect_ipmi_session(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 
 		if (authtype == IPMI_AUTH_RMCPP) {
 			/* IPMI v2.0+ */
-			ti = proto_tree_add_text(sess_tree, tvb, offset, 1,
+			s_tree = proto_tree_add_subtree_format(sess_tree, tvb, offset, 1,
+					ett_ipmi_session_payloadtype, NULL,
 					"Payload type: %s (0x%02x), %sencrypted, %sauthenticated",
 					val_to_str_const(payloadtype, ipmi_payload_vals, "Unknown"),
 					payloadtype,
 					payloadtype_enc ? "" : "not ",
 					payloadtype_auth ? "" : "not ");
-			s_tree = proto_item_add_subtree(ti, ett_ipmi_session_payloadtype);
 			proto_tree_add_item(s_tree, hf_ipmi_session_payloadtype_enc, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			proto_tree_add_item(s_tree, hf_ipmi_session_payloadtype_auth, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			proto_tree_add_item(s_tree, hf_ipmi_session_payloadtype, tvb, offset, 1, ENC_LITTLE_ENDIAN);

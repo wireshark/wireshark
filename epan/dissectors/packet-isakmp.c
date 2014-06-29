@@ -3145,9 +3145,9 @@ dissect_rohc_supported(tvbuff_t *tvb, proto_tree *rohc_tree, int offset )
            offset += 2;
 	}
 	if (optlen==0)
- 	{
-    	   proto_tree_add_text(sub_rohc_tree, tvb, offset, 0,"Attribut value is empty");
-	   return 2+len;
+	{
+		proto_tree_add_text(sub_rohc_tree, tvb, offset, 0,"Attribute value is empty");
+		return 2+len;
 	}
 	proto_tree_add_item(sub_rohc_tree, hf_isakmp_notify_data_rohc_attr_value, tvb, offset, optlen, ENC_NA);
 	switch(rohc) {

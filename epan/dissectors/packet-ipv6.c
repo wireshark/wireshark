@@ -899,7 +899,6 @@ dissect_frag6(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
               guint16 *offlg, guint32 *ident) {
     struct ip6_frag  frag;
     int              len;
-    proto_item      *ti;
     proto_tree      *rthdr_tree;
 
     tvb_memcpy(tvb, (guint8 *)&frag, offset, sizeof(frag));
@@ -914,9 +913,8 @@ dissect_frag6(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
                  (frag.ip6f_offlg & IP6F_OFF_MASK) >> IP6F_OFF_SHIFT, frag.ip6f_ident);
 
     if (tree) {
-        ti = proto_tree_add_text(tree, tvb, offset, len,
-                                 "Fragmentation Header");
-        rthdr_tree = proto_item_add_subtree(ti, ett_ipv6);
+        rthdr_tree = proto_tree_add_subtree(tree, tvb, offset, len,
+                                 ett_ipv6, NULL, "Fragmentation Header");
 
         proto_tree_add_item(rthdr_tree, hf_ipv6_frag_nxt, tvb,
                             offset + (int)offsetof(struct ip6_frag, ip6f_nxt), 1,
@@ -1275,7 +1273,6 @@ static const value_string shim6_protocol[] = {
 static void
 dissect_shim6_opt_loclist(proto_tree * opt_tree, tvbuff_t * tvb, gint *offset)
 {
-    proto_item *it;
     proto_tree *subtree;
     guint       count;
     guint       optlen;
@@ -1289,9 +1286,8 @@ dissect_shim6_opt_loclist(proto_tree * opt_tree, tvbuff_t * tvb, gint *offset)
     p++;
 
     /* Verification Methods */
-    it = proto_tree_add_text(opt_tree, tvb, p, optlen,
-                             "Locator Verification Methods");
-    subtree = proto_item_add_subtree(it, ett_ipv6_shim6_verif_methods);
+    subtree = proto_tree_add_subtree(opt_tree, tvb, p, optlen,
+                             ett_ipv6_shim6_verif_methods, NULL, "Locator Verification Methods");
 
     for (count=0; count < optlen; count++)
         proto_tree_add_item(subtree, hf_ipv6_shim6_opt_loc_verif_methods, tvb,
@@ -1305,8 +1301,7 @@ dissect_shim6_opt_loclist(proto_tree * opt_tree, tvbuff_t * tvb, gint *offset)
     }
 
     /* Locators */
-    it = proto_tree_add_text(opt_tree, tvb, p, 16 * optlen, "Locators");
-    subtree = proto_item_add_subtree(it, ett_ipv6_shim6_locators);
+    subtree = proto_tree_add_subtree(opt_tree, tvb, p, 16 * optlen, ett_ipv6_shim6_locators, NULL, "Locators");
 
     for (count=0; count < optlen; count++) {
         proto_tree_add_item(subtree, hf_ipv6_shim6_locator, tvb, p, 16, ENC_NA);
@@ -1319,7 +1314,6 @@ static void
 dissect_shim6_opt_loc_pref(proto_tree * opt_tree, tvbuff_t * tvb, gint *offset, gint len, packet_info *pinfo)
 {
     proto_tree *subtree;
-    proto_item *it;
 
     gint        p;
     gint        optlen;
@@ -1344,8 +1338,8 @@ dissect_shim6_opt_loc_pref(proto_tree * opt_tree, tvbuff_t * tvb, gint *offset, 
     /* Locator Preferences */
     count = 1;
     while (p < len) {
-        it = proto_tree_add_text(opt_tree, tvb, p, optlen, "Locator Preferences %u", count);
-        subtree = proto_item_add_subtree(it, ett_ipv6_shim6_loc_pref);
+        subtree = proto_tree_add_subtree_format(opt_tree, tvb, p, optlen, ett_ipv6_shim6_loc_pref, NULL,
+                                                "Locator Preferences %u", count);
 
         /* Flags */
         if (optlen >= 1)
@@ -1378,7 +1372,6 @@ dissect_shimopts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo
     gint         padding;
     proto_tree  *opt_tree;
     proto_item  *ti;
-    const gchar *ctype;
 
 
     p = offset;
@@ -1392,9 +1385,8 @@ dissect_shimopts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo
     if (tree)
     {
         /* Option Type */
-        ctype = val_to_str_const( (tvb_get_ntohs(tvb, offset) & SHIM6_BITMASK_OPT_TYPE) >> 1, shimoptvals, "Unknown Option Type");
-        ti = proto_tree_add_text(tree, tvb, offset, total_len, "%s", ctype);
-        opt_tree = proto_item_add_subtree(ti, ett_ipv6_shim6_option);
+        opt_tree = proto_tree_add_subtree(tree, tvb, offset, total_len, ett_ipv6_shim6_option, NULL,
+                            val_to_str_const( (tvb_get_ntohs(tvb, offset) & SHIM6_BITMASK_OPT_TYPE) >> 1, shimoptvals, "Unknown Option Type"));
 
         proto_tree_add_item(opt_tree, hf_ipv6_shim6_opt_type, tvb, offset, 2, ENC_BIG_ENDIAN);
 
@@ -1479,7 +1471,6 @@ dissect_shim6_probes(proto_tree * shim_tree, tvbuff_t * tvb, gint offset,
 {
     proto_tree *probes_tree;
     proto_tree *probe_tree;
-    proto_item *it;
     gint        ett_probes;
     gint        ett_probe;
     guint       count;
@@ -1491,12 +1482,11 @@ dissect_shim6_probes(proto_tree * shim_tree, tvbuff_t * tvb, gint offset,
         ett_probes = ett_ipv6_shim6_probes_sent;
         ett_probe = ett_ipv6_shim6_probe_sent;
     }
-    it = proto_tree_add_text(shim_tree, tvb, offset, 40 * nbr_probe, "%s", label);
-    probes_tree = proto_item_add_subtree(it, ett_probes);
+    probes_tree = proto_tree_add_subtree(shim_tree, tvb, offset, 40 * nbr_probe, ett_probes, NULL, label);
 
     for (count=0; count < nbr_probe; count++) {
-        it = proto_tree_add_text(probes_tree, tvb, offset, 40, "Probe %u", count+1);
-        probe_tree = proto_item_add_subtree(it, ett_probe);
+        probe_tree = proto_tree_add_subtree_format(probes_tree, tvb, offset, 40,
+                                            ett_probe, NULL, "Probe %u", count+1);
 
         proto_tree_add_item(probe_tree, hf_ipv6_shim6_psrc, tvb, offset, 16, ENC_NA);
         offset += 16;

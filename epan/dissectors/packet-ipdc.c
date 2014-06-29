@@ -721,7 +721,6 @@ dissect_ipdc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 {
 	proto_item *ti;
 	proto_tree *ipdc_tree;
-	proto_item *ipdc_tag;
 	proto_tree *tag_tree;
 	tvbuff_t *q931_tvb;
 
@@ -798,9 +797,8 @@ dissect_ipdc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 	proto_tree_add_item(ipdc_tree, hf_ipdc_message_code, tvb,
 			    6 + trans_id_size, 2, ENC_BIG_ENDIAN);
 
-	ipdc_tag = proto_tree_add_text(ipdc_tree, tvb, offset,
-				       payload_len - offset, "IPDC tags");
-	tag_tree = proto_item_add_subtree(ipdc_tag, ett_ipdc_tag);
+	tag_tree = proto_tree_add_subtree(ipdc_tree, tvb, offset, payload_len - offset,
+				       ett_ipdc_tag, NULL, "IPDC tags");
 
 	/* iterate through tags. first byte is tag, second is length,
 	   in bytes, following is tag data. tag of 0x0 should be

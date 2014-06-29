@@ -1006,7 +1006,6 @@ static int dissect_BISPDU_ERROR(tvbuff_t * tvb, int offset, proto_tree * tree)
 static int dissect_BISPDU_RIB_REFRESH(tvbuff_t * tvb, int offset, proto_tree * tree)
 {
     proto_tree *sub_tree;
-    proto_item *ti;
     guint8      number_of_non_empty_rib_attributes;
     guint8      number_of_distinguishing_attributes;
     guint8      rib_attribute_type;
@@ -1020,8 +1019,7 @@ static int dissect_BISPDU_RIB_REFRESH(tvbuff_t * tvb, int offset, proto_tree * t
     offset += 1;
 
     /* Path Attributes subtree */
-    ti = proto_tree_add_text(tree, tvb, offset, 0, "Path Attributes");
-    sub_tree = proto_item_add_subtree(ti, ett_idrp_sub);
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, 0, ett_idrp_sub, NULL, "Path Attributes");
 
     /* Number of Non-empty RIB-Atts */
     number_of_non_empty_rib_attributes = tvb_get_guint8(tvb, offset);

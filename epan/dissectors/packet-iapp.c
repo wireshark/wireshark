@@ -405,7 +405,7 @@ dissect_pdus(tvbuff_t *tvb, int offset, proto_tree *pdutree, int pdulen)
 static void
 dissect_iapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    proto_item *ti, *pdutf;
+    proto_item *ti;
     proto_tree *iapp_tree, *pdutree;
     e_iapphdr ih;
     int ia_version;
@@ -435,9 +435,8 @@ dissect_iapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_uint_format_value(iapp_tree, hf_iapp_type, tvb, 1, 1,
             ih.ia_type, "%s(%d)", codestrval, ia_type);
 
-        pdutf = proto_tree_add_text(iapp_tree, tvb, 2, -1,
-                "Protocol data units");
-        pdutree = proto_item_add_subtree(pdutf, ett_iapp_pdu);
+        pdutree = proto_tree_add_subtree(iapp_tree, tvb, 2, -1,
+                ett_iapp_pdu, NULL, "Protocol data units");
 
         if (pdutree)
         {

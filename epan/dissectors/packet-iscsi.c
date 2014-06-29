@@ -703,8 +703,8 @@ handleDataSegmentAsTextKeys(packet_info *pinfo, proto_item *ti, tvbuff_t *tvb, g
         int dataOffset = offset;
         int textLen = MIN(dataSegmentLen, endOffset - offset);
         if(textLen > 0) {
-            proto_item *tf = proto_tree_add_text(ti, tvb, offset, textLen, "Key/Value Pairs");
-            proto_tree *tt = proto_item_add_subtree(tf, ett_iscsi_KeyValues);
+            proto_tree *tt = proto_tree_add_subtree(ti, tvb, offset, textLen,
+                                          ett_iscsi_KeyValues, NULL, "Key/Value Pairs");
             offset = addTextKeys(pinfo, tt, tvb, offset, textLen);
         }
         if(offset < endOffset && (offset & 3) != 0) {
@@ -1487,7 +1487,6 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
         }
         offset=end_offset;
     } else if(opcode == ISCSI_OPCODE_REJECT) {
-        proto_item *tf;
         proto_tree *tt;
         int next_opcode;
         const char *next_opcode_str;
@@ -1507,8 +1506,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
         next_opcode = tvb_get_guint8(tvb, offset) & 0x3f;
         next_opcode_str = try_val_to_str(next_opcode, iscsi_opcodes);
 
-        tf = proto_tree_add_text(ti, tvb, offset, -1, "Rejected Header");
-        tt = proto_item_add_subtree(tf, ett_iscsi_RejectHeader);
+        tt = proto_tree_add_subtree(ti, tvb, offset, -1, ett_iscsi_RejectHeader, NULL, "Rejected Header");
 
         dissect_iscsi_pdu(tvb, pinfo, tt, offset, next_opcode, next_opcode_str, 0, iscsi_session, conversation);
     } else if(opcode == ISCSI_OPCODE_VENDOR_SPECIFIC_I0 ||

@@ -136,7 +136,6 @@ static void dissect_igrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 static void dissect_vektor_igrp (tvbuff_t *tvb, proto_tree *igrp_vektor_tree, guint8 network)
 {
-	proto_item *ti;
 	guint8 *ptr_addr,addr[5];
 
 	addr[0]=network;
@@ -148,9 +147,8 @@ static void dissect_vektor_igrp (tvbuff_t *tvb, proto_tree *igrp_vektor_tree, gu
 	ptr_addr=addr;
 	if (network==0) ptr_addr=&addr[1];
 
-	ti = proto_tree_add_text (igrp_vektor_tree, tvb, 0 ,14,
-	  "Entry for network %s", ip_to_str(ptr_addr)) ;
-	igrp_vektor_tree =  proto_item_add_subtree(ti,ett_igrp_net);
+	igrp_vektor_tree = proto_tree_add_subtree_format(igrp_vektor_tree, tvb, 0 ,14,
+	  ett_igrp_net, NULL, "Entry for network %s", ip_to_str(ptr_addr)) ;
 	proto_tree_add_text (igrp_vektor_tree, tvb, 0 ,3,"Network     = %s",ip_to_str(ptr_addr)) ;
 	proto_tree_add_text (igrp_vektor_tree, tvb, 3 ,3,"Delay       = %d",tvb_get_ntoh24(tvb,3)) ;
 	proto_tree_add_text (igrp_vektor_tree, tvb, 6 ,3,"Bandwidth   = %d",tvb_get_ntoh24(tvb,6)) ;

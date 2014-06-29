@@ -715,8 +715,7 @@ static void dissect_icep_request(tvbuff_t *tvb, guint32 offset,
 
     reqid = tvb_get_letohl(tvb, offset);
 
-    ti = proto_tree_add_text(icep_tree, tvb, offset, -1, "Request Message Body");
-    icep_sub_tree = proto_item_add_subtree(ti, ett_icep_msg);
+    icep_sub_tree = proto_tree_add_subtree(icep_tree, tvb, offset, -1, ett_icep_msg, &ti, "Request Message Body");
 
     proto_tree_add_item(icep_sub_tree, hf_icep_request_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 
@@ -813,9 +812,8 @@ static void dissect_icep_batch_request(tvbuff_t *tvb, guint32 offset,
 
         /* create display subtree for this message type */
 
-        ti = proto_tree_add_text(icep_tree, tvb, offset, -1,
-                         "Batch Request Message Body: #%d", i);
-            icep_sub_tree = proto_item_add_subtree(ti, ett_icep_msg);
+        icep_sub_tree = proto_tree_add_subtree_format(icep_tree, tvb, offset, -1,
+                         ett_icep_msg, &ti, "Batch Request Message Body: #%d", i);
 
         if (i != 0) {
             col_append_str(pinfo->cinfo, COL_INFO, ",");
@@ -868,10 +866,8 @@ static void dissect_icep_reply(tvbuff_t *tvb, guint32 offset,
 
     /* create display subtree for this message type */
 
-    ti = proto_tree_add_text(icep_tree, tvb, offset, -1,
-                     "Reply Message Body");
-
-    icep_sub_tree = proto_item_add_subtree(ti, ett_icep_msg);
+    icep_sub_tree = proto_tree_add_subtree(icep_tree, tvb, offset, -1,
+                     ett_icep_msg, &ti, "Reply Message Body");
 
     proto_tree_add_item(icep_sub_tree, hf_icep_request_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 

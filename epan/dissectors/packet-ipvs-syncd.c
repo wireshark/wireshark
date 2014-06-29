@@ -134,12 +134,12 @@ dissect_ipvs_syncd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 	for (conn = 0; conn < cnt; conn++)
 	{
-		proto_tree *ctree, *ti;
+		proto_tree *ctree;
 		proto_tree *ftree, *fi;
 		guint16 flags;
 
-		ti = proto_tree_add_text(tree, tvb, offset, 24, "Connection #%d", conn+1);
-		ctree = proto_item_add_subtree(ti, ett_conn);
+		ctree = proto_tree_add_subtree_format(tree, tvb, offset, 24, ett_conn, NULL,
+                                                            "Connection #%d", conn+1);
 
 		proto_tree_add_item(ctree, hf_resv8, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset += 1;

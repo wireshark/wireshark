@@ -565,7 +565,6 @@ rs07(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 static void
 rq08(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	proto_item *ti;
 	proto_tree *s_tree;
 	tvbuff_t *sub;
 	guint8 pno;
@@ -580,10 +579,9 @@ rq08(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 		desc = "Reserved";
 	}
 
-	ti = proto_tree_add_text(tree, tvb, 0, 1,
-			"Boot option parameter selector: %s (0x%02x)",
+	s_tree = proto_tree_add_subtree_format(tree, tvb, 0, 1,
+			ett_ipmi_chs_08_byte1, NULL, "Boot option parameter selector: %s (0x%02x)",
 			desc, pno);
-	s_tree = proto_item_add_subtree(ti, ett_ipmi_chs_08_byte1);
 	proto_tree_add_item(s_tree, hf_ipmi_chs_08_valid, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_uint_format_value(s_tree, hf_ipmi_chs_08_selector, tvb, 0, 1,
 			pno, "Boot option parameter selector: %s (0x%02x)",
@@ -613,7 +611,6 @@ static const value_string cc08[] = {
 static void
 rq09(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	proto_item *ti;
 	proto_tree *s_tree;
 	guint8 pno;
 	const char *desc;
@@ -628,10 +625,9 @@ rq09(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	}
 
 
-	ti = proto_tree_add_text(tree, tvb, 0, 1,
-			"Boot option parameter selector: %s (0x%02x)",
+	s_tree = proto_tree_add_subtree_format(tree, tvb, 0, 1,
+			ett_ipmi_chs_09_rq_byte1, NULL, "Boot option parameter selector: %s (0x%02x)",
 			desc, pno);
-	s_tree = proto_item_add_subtree(ti, ett_ipmi_chs_09_rq_byte1);
 	proto_tree_add_uint_format_value(s_tree, hf_ipmi_chs_09_rq_param_select, tvb, 0, 1,
 			pno, "Boot option parameter selector: %s (0x%02x)",
 			desc, pno);
@@ -644,7 +640,6 @@ static void
 rs09(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	static const int *byte1[] = { &hf_ipmi_chs_09_rs_param_version, NULL };
-	proto_item *ti;
 	proto_tree *s_tree;
 	tvbuff_t *sub;
 	guint8 pno;
@@ -662,10 +657,9 @@ rs09(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL,
 			ett_ipmi_chs_09_rs_byte1, byte1, ENC_LITTLE_ENDIAN, 0);
 
-	ti = proto_tree_add_text(tree, tvb, 1, 1,
-			"Boot option parameter selector: %s (0x%02x)",
+	s_tree = proto_tree_add_subtree_format(tree, tvb, 1, 1,
+			ett_ipmi_chs_09_rs_byte2, NULL, "Boot option parameter selector: %s (0x%02x)",
 			desc, pno);
-	s_tree = proto_item_add_subtree(ti, ett_ipmi_chs_09_rs_byte2);
 	proto_tree_add_item(s_tree, hf_ipmi_chs_09_rs_valid, tvb, 1, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_uint_format_value(s_tree, hf_ipmi_chs_09_rs_param_select, tvb, 1, 1,
 			pno, "Boot option parameter selector: %s (0x%02x)",

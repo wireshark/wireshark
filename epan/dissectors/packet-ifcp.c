@@ -244,14 +244,12 @@ static const true_false_string ifcp_flags_spc_tfs = {
 static int
 dissect_ifcpflags(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
 {
-	proto_item *item=NULL;
-	proto_tree *tree=NULL;
+	proto_item *item;
+	proto_tree *tree;
 	guint8 flags;
 
-	if(parent_tree){
-		item=proto_tree_add_item(parent_tree, hf_ifcp_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
-		tree=proto_item_add_subtree (item, ett_ifcp_flags);
-	}
+	item=proto_tree_add_item(parent_tree, hf_ifcp_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
+	tree=proto_item_add_subtree (item, ett_ifcp_flags);
 
 	flags=tvb_get_guint8(tvb, offset);
 
@@ -291,14 +289,12 @@ static const true_false_string ifcp_common_flags_crcv_tfs = {
 static void
 dissect_commonflags(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
 {
-	proto_item *item=NULL;
-	proto_tree *tree=NULL;
+	proto_item *item;
+	proto_tree *tree;
 	guint8 flags;
 
-	if(parent_tree){
-		item=proto_tree_add_item(parent_tree, hf_ifcp_common_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
-		tree=proto_item_add_subtree (item, ett_ifcp_common_flags);
-	}
+	item=proto_tree_add_item(parent_tree, hf_ifcp_common_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
+	tree=proto_item_add_subtree (item, ett_ifcp_common_flags);
 
 	flags=tvb_get_guint8(tvb, offset);
 
@@ -366,16 +362,13 @@ dissect_ifcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, voi
 	/* protocol */
 	protocol = tvb_get_guint8 (tvb, offset);
 	ti=proto_tree_add_item(tree, hf_ifcp_protocol, tvb, offset, 1, ENC_BIG_ENDIAN);
-	if(ti){
-		protocol_tree=proto_item_add_subtree(ti, ett_ifcp_protocol);
-	}
+	protocol_tree=proto_item_add_subtree(ti, ett_ifcp_protocol);
+
 	offset++;
 
 	/* version */
 	ti=proto_tree_add_item(tree, hf_ifcp_version, tvb, offset, 1, ENC_BIG_ENDIAN);
-	if(ti){
-		version_tree=proto_item_add_subtree(ti, ett_ifcp_version);
-	}
+	version_tree=proto_item_add_subtree(ti, ett_ifcp_version);
 	offset++;
 
 	/* protocol complement */
@@ -400,16 +393,12 @@ dissect_ifcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, voi
 
 		/* SOF */
 		ti=proto_tree_add_item(tree, hf_ifcp_sof, tvb, offset, 1, ENC_BIG_ENDIAN);
-		if(ti){
-			sof_tree=proto_item_add_subtree(ti, ett_ifcp_sof);
-		}
+		sof_tree=proto_item_add_subtree(ti, ett_ifcp_sof);
 		offset++;
 
 		/* EOF */
 		ti=proto_tree_add_item(tree, hf_ifcp_eof, tvb, offset, 1, ENC_BIG_ENDIAN);
-		if(ti){
-			eof_tree=proto_item_add_subtree(ti, ett_ifcp_eof);
-		}
+		eof_tree=proto_item_add_subtree(ti, ett_ifcp_eof);
 		offset++;
 	} else {
 		offset+=4;
@@ -422,9 +411,7 @@ dissect_ifcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, voi
 
 	/* frame len */
 	ti=proto_tree_add_item(tree, hf_ifcp_framelen, tvb, offset, 2, ENC_BIG_ENDIAN);
-	if(ti){
-		frame_len_tree=proto_item_add_subtree(ti, ett_ifcp_frame_len);
-	}
+	frame_len_tree=proto_item_add_subtree(ti, ett_ifcp_frame_len);
 	offset+=2;
 
 	/* complement of flags and frame len */

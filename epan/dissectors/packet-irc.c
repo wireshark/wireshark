@@ -118,7 +118,7 @@ static void
 dissect_irc_request(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset, int linelen)
 {
     proto_tree *request_tree, *command_tree = NULL;
-    proto_item *request_item, *command_item;
+    proto_item *request_item;
     int         start_offset                = offset;
     int         end_offset                  = start_offset+linelen;
     gint        eop_offset                  = -1,
@@ -224,8 +224,8 @@ dissect_irc_request(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int off
         /* Create subtree when the first parameter is found */
         if (first_command_param)
         {
-            command_item = proto_tree_add_text(request_tree, tvb, offset, end_offset-offset, "Command parameters");
-            command_tree = proto_item_add_subtree(command_item, ett_irc_request_command );
+            command_tree = proto_tree_add_subtree(request_tree, tvb, offset, end_offset-offset,
+                                             ett_irc_request_command, NULL, "Command parameters");
             first_command_param = FALSE;
         }
 
@@ -286,7 +286,7 @@ static void
 dissect_irc_response(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset, int linelen)
 {
     proto_tree *response_tree, *command_tree = NULL;
-    proto_item *response_item, *command_item, *hidden_item;
+    proto_item *response_item, *hidden_item;
     int         start_offset                 = offset;
     int         end_offset                   = start_offset+linelen;
     gint        eop_offset                   = -1,
@@ -397,8 +397,8 @@ dissect_irc_response(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int of
         /* Create subtree when the first parameter is found */
         if (first_command_param)
         {
-            command_item = proto_tree_add_text(response_tree, tvb, offset, end_offset-offset, "Command parameters");
-            command_tree = proto_item_add_subtree(command_item, ett_irc_response_command );
+            command_tree = proto_tree_add_subtree(response_tree, tvb, offset, end_offset-offset,
+                                        ett_irc_response_command , NULL, "Command parameters");
             first_command_param = FALSE;
         }
 

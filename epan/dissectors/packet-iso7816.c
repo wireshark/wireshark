@@ -393,8 +393,7 @@ dissect_iso7816_params(guint8 ins, tvbuff_t *tvb, gint offset,
                  packet_info *pinfo _U_, proto_tree *tree)
 {
     gint        offset_start, p1_offset, p2_offset;
-    proto_item *ti;
-    proto_tree *params_tree = NULL;
+    proto_tree *params_tree;
     guint8      p1, p2;
     proto_item *p1_it = NULL, *p2_it = NULL;
     proto_tree *p1_tree = NULL, *p2_tree = NULL;
@@ -402,8 +401,8 @@ dissect_iso7816_params(guint8 ins, tvbuff_t *tvb, gint offset,
 
     offset_start = offset;
 
-    ti = proto_tree_add_text(tree, tvb, offset_start, 2, "Parameters");
-    params_tree = proto_item_add_subtree(ti, ett_iso7816_param);
+    params_tree = proto_tree_add_subtree(tree, tvb, offset_start, 2,
+                                ett_iso7816_param, NULL, "Parameters");
 
     p1 = tvb_get_guint8(tvb,offset);
     p1_it = proto_tree_add_item(params_tree, hf_iso7816_p1, tvb,

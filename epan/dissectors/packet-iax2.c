@@ -1321,9 +1321,7 @@ static guint32 dissect_ies(tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
       proto_tree *ies_tree;
       int ie_hf = hf_iax2_ies[ies_type];
 
-      ti = proto_tree_add_text(iax_tree, tvb, offset, ies_len+2, " ");
-
-      ies_tree = proto_item_add_subtree(ti, ett_iax2_ie);
+      ies_tree = proto_tree_add_subtree(iax_tree, tvb, offset, ies_len+2, ett_iax2_ie, &ti, " ");
 
       proto_tree_add_text(ies_tree, tvb, offset, 1, "IE id: %s (0x%02X)",
                           val_to_str_ext_const(ies_type, &iax_ies_type_ext, "Unknown"),
@@ -1385,10 +1383,10 @@ static guint32 dissect_ies(tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
 
         case IAX_IE_APPARENT_ADDR:
         {
-          proto_tree *sockaddr_tree = NULL;
+          proto_tree *sockaddr_tree;
 
-          ie_item = proto_tree_add_text(ies_tree, tvb, offset + 2, 16, "Apparent Address");
-          sockaddr_tree = proto_item_add_subtree(ie_item, ett_iax2_ies_apparent_addr);
+          sockaddr_tree = proto_tree_add_subtree(ies_tree, tvb, offset + 2, 16,
+                            ett_iax2_ies_apparent_addr, NULL, "Apparent Address");
 
           /* The IAX2 I-D says that the "apparent address" structure
              "is the same as the linux struct sockaddr_in", without
@@ -1988,7 +1986,6 @@ static guint32 dissect_minipacket(tvbuff_t *tvb, guint32 offset, guint16 scallno
 
 static guint32 dissect_trunkcall_ts(tvbuff_t *tvb, guint32 offset, proto_tree *iax2_tree, guint16 *scallno)
 {
-  proto_item *call_item;
   proto_tree *call_tree;
   guint16     datalen, rlen, ts;
   /*
@@ -2009,8 +2006,8 @@ static guint32 dissect_trunkcall_ts(tvbuff_t *tvb, guint32 offset, proto_tree *i
   rlen = MIN(tvb_length(tvb) - offset - 6, datalen);
 
   if (iax2_tree) {
-    call_item = proto_tree_add_text(iax2_tree, tvb, offset, rlen + 6, "Trunk call from %u, ts: %u", *scallno, ts);
-    call_tree = proto_item_add_subtree(call_item, ett_iax2_trunk_call);
+    call_tree = proto_tree_add_subtree_format(iax2_tree, tvb, offset, rlen + 6,
+                        ett_iax2_trunk_call, NULL, "Trunk call from %u, ts: %u", *scallno, ts);
 
     proto_tree_add_item(call_tree, hf_iax2_trunk_call_len, tvb, offset, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(call_tree, hf_iax2_trunk_call_scallno, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
@@ -2024,7 +2021,6 @@ static guint32 dissect_trunkcall_ts(tvbuff_t *tvb, guint32 offset, proto_tree *i
 
 static guint32 dissect_trunkcall_nots(tvbuff_t *tvb, guint32 offset, proto_tree *iax2_tree, guint16 *scallno)
 {
-  proto_item *call_item;
   proto_tree *call_tree;
   guint16     datalen, rlen;
   /*
@@ -2042,8 +2038,8 @@ static guint32 dissect_trunkcall_nots(tvbuff_t *tvb, guint32 offset, proto_tree 
   rlen = MIN(tvb_length(tvb) - offset - 4, datalen);
 
   if (iax2_tree) {
-    call_item = proto_tree_add_text(iax2_tree, tvb, offset, rlen + 6, "Trunk call from %u", *scallno);
-    call_tree = proto_item_add_subtree(call_item, ett_iax2_trunk_call);
+    call_tree = proto_tree_add_subtree_format(iax2_tree, tvb, offset, rlen + 6,
+                        ett_iax2_trunk_call, NULL, "Trunk call from %u", *scallno);
 
     proto_tree_add_item(call_tree, hf_iax2_trunk_call_scallno, tvb, offset, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(call_tree, hf_iax2_trunk_call_len, tvb, offset + 2, 2, ENC_BIG_ENDIAN);

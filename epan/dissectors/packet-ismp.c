@@ -236,13 +236,11 @@ dissect_ismp_edp(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *ismp
 	proto_item *edp_neighbors_ti;
 	proto_tree *edp_neighbors_tree;
 
-	proto_item *edp_neighbors_leaf_ti;
 	proto_tree *edp_neighbors_leaf_tree;
 
 	proto_item *edp_tuples_ti;
 	proto_tree *edp_tuples_tree;
 
-	proto_item *edp_tuples_leaf_ti;
 	proto_tree *edp_tuples_leaf_tree;
 
 	/* add column iformation marking this as EDP (Enterasys Discover Protocol */
@@ -359,20 +357,19 @@ dissect_ismp_edp(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *ismp
 			edp_neighbors_tree = proto_item_add_subtree(edp_neighbors_ti, ett_ismp_edp_neighbors);
 			while ( neighbors_count < num_neighbors && tvb_reported_length_remaining(tvb, offset) >= 10)
 			{
-				edp_neighbors_leaf_ti = proto_tree_add_text(edp_neighbors_tree, tvb, offset, 10,
-										"Neighbor%d", (neighbors_count+1));
-				edp_neighbors_leaf_tree = proto_item_add_subtree(edp_neighbors_leaf_ti, ett_ismp_edp_neighbors_leaf);
+				edp_neighbors_leaf_tree = proto_tree_add_subtree_format(edp_neighbors_tree, tvb, offset, 10,
+										ett_ismp_edp_neighbors_leaf, NULL, "Neighbor%d", (neighbors_count+1));
 
 				proto_tree_add_text(edp_neighbors_leaf_tree, tvb, offset, 6,
 					"MAC Address: %s", tvb_ether_to_str(tvb, offset));
 				proto_tree_add_text(edp_neighbors_leaf_tree, tvb, offset, 4,
-					"Assigned Neighbor State 0x%04x", tvb_get_ntohl(tvb, offset));
+					"Assigned Neighbor State: 0x%04x", tvb_get_ntohl(tvb, offset));
 				offset += 10;
 				neighbors_count++;
 			}
 			if (neighbors_count != num_neighbors)
 			{
-				proto_tree_add_text(edp_tree, tvb, offset, tvb_reported_length_remaining(tvb, offset),
+				proto_tree_add_text(edp_tree, tvb, offset, -1,
 				"MALFORMED PACKET");
 				return;
 			}
@@ -408,10 +405,8 @@ dissect_ismp_edp(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *ismp
 			{
 
 				tuple_length = tvb_get_ntohs(tvb, offset+2);
-				edp_tuples_leaf_ti = proto_tree_add_text(edp_tuples_tree, tvb, offset, tuple_length,
-					"Tuple%d", tuples_count+1);
-
-				edp_tuples_leaf_tree = proto_item_add_subtree(edp_tuples_leaf_ti, ett_ismp_edp_tuples_leaf);
+				edp_tuples_leaf_tree = proto_tree_add_subtree_format(edp_tuples_tree, tvb, offset, tuple_length,
+					ett_ismp_edp_tuples_leaf, NULL, "Tuple%d", tuples_count+1);
 
 				tuple_type = tvb_get_ntohs(tvb, offset);
 				proto_tree_add_text(edp_tuples_leaf_tree, tvb, offset, 2,

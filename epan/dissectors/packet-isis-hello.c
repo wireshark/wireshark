@@ -145,7 +145,7 @@ dissect_hello_mt_port_cap_spb_mcid_clv(tvbuff_t *tvb, packet_info* pinfo,
 {
     const int MCID_LEN = 51;
     const int SUBLEN   = 2 * MCID_LEN;
-    proto_tree *subtree, *ti;
+    proto_tree *subtree;
 
     if (sublen != SUBLEN) {
         proto_tree_add_expert_format(tree, pinfo, &ei_isis_hello_short_packet, tvb, offset, -1,
@@ -154,9 +154,8 @@ dissect_hello_mt_port_cap_spb_mcid_clv(tvbuff_t *tvb, packet_info* pinfo,
     }
 
 
-    ti = proto_tree_add_text( tree, tvb, offset-2, sublen+2,
+    subtree = proto_tree_add_subtree_format( tree, tvb, offset-2, sublen+2, ett_isis_hello_clv_mt_port_cap_spb_mcid, NULL,
                                 "SPB MCID: Type: 0x%02x, Length: %d", subtype, sublen);
-    subtree = proto_item_add_subtree(ti, ett_isis_hello_clv_mt_port_cap_spb_mcid);
 
     /* MCID: */
     proto_tree_add_item(subtree, hf_isis_hello_mcid, tvb, offset, MCID_LEN, ENC_NA);
@@ -179,12 +178,11 @@ dissect_hello_mt_port_cap_spb_digest_clv(tvbuff_t *tvb, packet_info* pinfo,
         return;
     }
     else {
-        proto_tree *subtree, *ti;
+        proto_tree *subtree;
         const guint8 vad     = tvb_get_guint8(tvb, offset);
 
-        ti = proto_tree_add_text( tree, tvb, offset-2, sublen+2,
+        subtree = proto_tree_add_subtree_format( tree, tvb, offset-2, sublen+2, ett_isis_hello_clv_mt_port_cap_spb_digest, NULL,
                                   "SPB Digest: Type: 0x%02x, Length: %d", subtype, sublen);
-        subtree = proto_item_add_subtree(ti, ett_isis_hello_clv_mt_port_cap_spb_digest);
 
         proto_tree_add_text( subtree, tvb, offset, 1,
                              "V: %d, A: %d, D: %d",
@@ -203,12 +201,11 @@ static void
 dissect_hello_mt_port_cap_spb_bvid_tuples_clv(tvbuff_t *tvb, packet_info* pinfo,
         proto_tree *tree, int offset, int subtype, int sublen)
 {
-    proto_tree *subtree, *ti;
+    proto_tree *subtree;
     int subofs = offset;
 
-    ti = proto_tree_add_text( tree, tvb, offset-2, sublen+2,
+    subtree = proto_tree_add_subtree_format( tree, tvb, offset-2, sublen+2, ett_isis_hello_clv_mt_port_cap_spb_bvid_tuples, NULL,
                               "SPB Base Vlan Identifiers: Type: 0x%02x, Length: %d", subtype, sublen);
-    subtree = proto_item_add_subtree(ti, ett_isis_hello_clv_mt_port_cap_spb_bvid_tuples);
 
     while (sublen > 0) {
         if (sublen < 6) {

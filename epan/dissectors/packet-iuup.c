@@ -386,8 +386,7 @@ static void dissect_iuup_payload(tvbuff_t* tvb, packet_info* pinfo, proto_tree* 
         guint subflows = rfci->num_of_subflows;
         proto_tree* flow_tree;
 
-        pi = proto_tree_add_text(tree,tvb,offset,-1,"Payload Frame");
-        flow_tree = proto_item_add_subtree(pi,ett_payload_subflows);
+        flow_tree = proto_tree_add_subtree(tree,tvb,offset,-1,ett_payload_subflows,NULL,"Payload Frame");
 
         bit_offset = 0;
 
@@ -517,8 +516,7 @@ static void dissect_iuup_init(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tre
     if (!tree) return;
 
     if (ti) {
-        pi = proto_tree_add_text(tree,tvb,offset,(rfcis/2)+(rfcis%2),"IPTIs");
-        iptis_tree = proto_item_add_subtree(pi,ett_ipti);
+        iptis_tree = proto_tree_add_subtree(tree,tvb,offset,(rfcis/2)+(rfcis%2),ett_ipti,NULL,"IPTIs");
 
         for (i = 0; i <= rfcis; i++) {
             proto_tree_add_item(iptis_tree,hf_iuup_init_ipti[i],tvb,offset,1,ENC_BIG_ENDIAN);

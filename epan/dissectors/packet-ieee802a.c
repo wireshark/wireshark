@@ -81,7 +81,7 @@ ieee802a_add_oui(guint32 oui, const char *table_name, const char *table_ui_name,
 static void
 dissect_ieee802a(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	proto_tree	*ieee802a_tree = NULL;
+	proto_tree	*ieee802a_tree;
 	proto_item	*ti;
 	tvbuff_t	*next_tvb;
 	const gchar	*manuf;
@@ -95,10 +95,8 @@ dissect_ieee802a(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "IEEE802a");
 	col_clear(pinfo->cinfo, COL_INFO);
 
-	if (tree) {
-		ti = proto_tree_add_item(tree, proto_ieee802a, tvb, 0, 5, ENC_NA);
-		ieee802a_tree = proto_item_add_subtree(ti, ett_ieee802a);
-	}
+	ti = proto_tree_add_item(tree, proto_ieee802a, tvb, 0, 5, ENC_NA);
+	ieee802a_tree = proto_item_add_subtree(ti, ett_ieee802a);
 
 	tvb_memcpy(tvb, oui, 0, 3);
 	oui32 = oui[0] << 16 | oui[1] << 8 | oui[2];

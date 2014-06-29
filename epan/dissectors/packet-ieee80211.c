@@ -5453,14 +5453,13 @@ get_mimo_ns (gboolean chan_width, guint8 output_grouping)
 static int
 add_mimo_csi_matrices_report (proto_tree *tree, tvbuff_t *tvb, int offset, mimo_control_t mimo_cntrl)
 {
-  proto_item *snr_item;
   proto_tree *snr_tree;
   int         csi_matrix_size, start_offset;
   int         ns, i;
 
   start_offset = offset;
-  snr_item = proto_tree_add_text(tree, tvb, offset, mimo_cntrl.nc, "Signal to Noise Ratio");
-  snr_tree = proto_item_add_subtree (snr_item, ett_mimo_report);
+  snr_tree = proto_tree_add_subtree(tree, tvb, offset, mimo_cntrl.nc,
+                        ett_mimo_report, NULL, "Signal to Noise Ratio");
 
   for (i = 1; i <= mimo_cntrl.nr; i++)
   {
@@ -5483,14 +5482,12 @@ add_mimo_csi_matrices_report (proto_tree *tree, tvbuff_t *tvb, int offset, mimo_
 static int
 add_mimo_beamforming_feedback_report (proto_tree *tree, tvbuff_t *tvb, int offset, mimo_control_t mimo_cntrl)
 {
-  proto_item *snr_item;
   proto_tree *snr_tree;
   int         csi_matrix_size, start_offset;
   int         ns, i;
 
   start_offset = offset;
-  snr_item = proto_tree_add_text(tree, tvb, offset, mimo_cntrl.nc, "Signal to Noise Ratio");
-  snr_tree = proto_item_add_subtree (snr_item, ett_mimo_report);
+  snr_tree = proto_tree_add_subtree(tree, tvb, offset, mimo_cntrl.nc, ett_mimo_report, NULL, "Signal to Noise Ratio");
 
   for (i = 1; i <= mimo_cntrl.nc; i++)
   {
@@ -5513,14 +5510,13 @@ add_mimo_beamforming_feedback_report (proto_tree *tree, tvbuff_t *tvb, int offse
 static int
 add_mimo_compressed_beamforming_feedback_report (proto_tree *tree, tvbuff_t *tvb, int offset, mimo_control_t mimo_cntrl)
 {
-  proto_item *snr_item;
   proto_tree *snr_tree;
   int         csi_matrix_size, start_offset;
   int         ns, na, i;
 
   start_offset = offset;
-  snr_item = proto_tree_add_text(tree, tvb, offset, mimo_cntrl.nc, "Signal to Noise Ratio");
-  snr_tree = proto_item_add_subtree (snr_item, ett_mimo_report);
+  snr_tree = proto_tree_add_subtree(tree, tvb, offset, mimo_cntrl.nc,
+                        ett_mimo_report, NULL, "Signal to Noise Ratio");
 
   for (i = 1; i <= mimo_cntrl.nc; i++)
   {
@@ -5846,9 +5842,8 @@ dissect_advertisement_protocol(packet_info *pinfo, proto_tree *tree,
 
   left = tag_len;
   offset += 2;
-  adv_item = proto_tree_add_text(tree, tvb, offset, left,
-                                 "Advertisement Protocol element");
-  adv_tree = proto_item_add_subtree(adv_item, ett_adv_proto);
+  adv_tree = proto_tree_add_subtree(tree, tvb, offset, left,
+                                 ett_adv_proto, &adv_item, "Advertisement Protocol element");
 
   while (left >= 2) {
     guint8 id;
@@ -5856,11 +5851,10 @@ dissect_advertisement_protocol(packet_info *pinfo, proto_tree *tree,
     id = tvb_get_guint8(tvb, offset + 1);
     if (id == 0)
       proto_item_append_text(adv_item, ": ANQP");
-    item = proto_tree_add_text(adv_tree, tvb, offset, 2,
+    adv_tuple_tree = proto_tree_add_subtree_format(adv_tree, tvb, offset, 2, ett_adv_proto_tuple, &item,
                                "Advertisement Protocol Tuple: %s",
                                val_to_str(id, adv_proto_id_vals,
                                           "Unknown (%d)"));
-    adv_tuple_tree = proto_item_add_subtree(item, ett_adv_proto_tuple);
 
     proto_tree_add_item(adv_tuple_tree,
                         hf_ieee80211_tag_adv_proto_resp_len_limit, tvb,
@@ -6170,8 +6164,7 @@ dissect_nai_realm_list(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int 
   offset += 2;
   while (count > 0) {
     len = tvb_get_letohs(tvb, offset);
-    r_item = proto_tree_add_text(tree, tvb, offset, 2 + len, "NAI Realm Data");
-    realm_tree = proto_item_add_subtree(r_item, ett_nai_realm);
+    realm_tree = proto_tree_add_subtree(tree, tvb, offset, 2 + len, ett_nai_realm, &r_item, "NAI Realm Data");
 
     item = proto_tree_add_item(realm_tree, hf_ieee80211_ff_anqp_nai_field_len,
                                tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -6191,7 +6184,7 @@ dissect_nai_realm_list(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int 
                                tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
     if (offset + nai_len > f_end) {
-      expert_add_info_format(pinfo, item, &ei_ieee80211_ff_anqp_nai_field_len,
+      expert_add_info_format(pinfo, r_item, &ei_ieee80211_ff_anqp_nai_field_len,
                              "Invalid NAI Realm Data");
       break;
     }
@@ -6210,9 +6203,8 @@ dissect_nai_realm_list(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int 
     while (eap_count > 0) {
       eap_len = tvb_get_guint8(tvb, offset);
       eap_end = offset + 1 + eap_len;
-      item = proto_tree_add_text(realm_tree, tvb, offset, 1 + eap_len,
-                                 "EAP Method");
-      eap_tree = proto_item_add_subtree(item, ett_nai_realm_eap);
+      eap_tree = proto_tree_add_subtree(realm_tree, tvb, offset, 1 + eap_len,
+                                 ett_nai_realm_eap, NULL, "EAP Method");
 
       item = proto_tree_add_item(eap_tree,
                                  hf_ieee80211_ff_anqp_nai_realm_eap_len,
@@ -6433,7 +6425,6 @@ static void
 dissect_hs20_anqp_connection_capability(proto_tree *tree, tvbuff_t *tvb,
                                         int offset, int end)
 {
-  proto_item *item;
   proto_tree *tuple;
   while (offset + 4 <= end) {
     guint8 ip_proto, status;
@@ -6443,12 +6434,11 @@ dissect_hs20_anqp_connection_capability(proto_tree *tree, tvbuff_t *tvb,
     port_num = tvb_get_letohs(tvb, offset + 1);
     status = tvb_get_guint8(tvb, offset + 3);
 
-    item = proto_tree_add_text(tree, tvb, offset, 4, "ProtoPort Tuple - "
-                               "ip_proto=%u port_num=%u status=%s",
+    tuple = proto_tree_add_subtree_format(tree, tvb, offset, 4, ett_hs20_cc_proto_port_tuple, NULL,
+                               "ProtoPort Tuple - ip_proto=%u port_num=%u status=%s",
                                ip_proto, port_num,
                                val_to_str(status, hs20_cc_status_vals,
                                           "Unknown (%u)"));
-    tuple = proto_item_add_subtree(item, ett_hs20_cc_proto_port_tuple);
     proto_tree_add_item(tuple, hf_hs20_anqp_cc_proto_ip_proto,
                         tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset++;
@@ -6682,12 +6672,11 @@ dissect_gas_initial_request(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
   /* Query Request Length (2 octets) */
   req_len = tvb_get_letohs(tvb, offset);
 
-  item = proto_tree_add_text(tree, tvb, offset, 2 + req_len, "Query Request");
+  query = proto_tree_add_subtree(tree, tvb, offset, 2 + req_len, ett_gas_query, &item, "Query Request");
   if (tvb_reported_length_remaining(tvb, offset) < 2 + req_len) {
-    expert_add_info(pinfo, tree, &ei_ieee80211_ff_query_request_length);
+    expert_add_info(pinfo, item, &ei_ieee80211_ff_query_request_length);
     return tvb_reported_length_remaining(tvb, offset);
   }
-  query = proto_item_add_subtree(item, ett_gas_query);
 
   proto_tree_add_item(query, hf_ieee80211_ff_query_request_length,
                       tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -6718,13 +6707,12 @@ dissect_gas_initial_response(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo
   /* Query Response Length (2 octets) */
   resp_len = tvb_get_letohs(tvb, offset);
 
-  item = proto_tree_add_text(tree, tvb, offset, 2 + resp_len,
-                             "Query Response");
+  query = proto_tree_add_subtree(tree, tvb, offset, 2 + resp_len,
+                             ett_gas_query, &item, "Query Response");
   if (tvb_reported_length_remaining(tvb, offset) < 2 + resp_len) {
-    expert_add_info(pinfo, tree, &ei_ieee80211_ff_query_response_length);
+    expert_add_info(pinfo, item, &ei_ieee80211_ff_query_response_length);
     return tvb_reported_length_remaining(tvb, offset);
   }
-  query = proto_item_add_subtree(item, ett_gas_query);
 
   proto_tree_add_item(query, hf_ieee80211_ff_query_response_length,
                       tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -6796,13 +6784,12 @@ dissect_gas_comeback_response(proto_tree *tree, tvbuff_t *tvb, packet_info *pinf
   /* Query Response Length (2 octets) */
   resp_len = tvb_get_letohs(tvb, offset);
 
-  item = proto_tree_add_text(tree, tvb, offset, 2 + resp_len,
-                             "Query Response");
+  query = proto_tree_add_subtree(tree, tvb, offset, 2 + resp_len,
+                             ett_gas_query, &item, "Query Response");
   if (tvb_reported_length_remaining(tvb, offset) < 2 + resp_len) {
-    expert_add_info(pinfo, tree, &ei_ieee80211_ff_query_response_length);
+    expert_add_info(pinfo, item, &ei_ieee80211_ff_query_response_length);
     return tvb_reported_length_remaining(tvb, offset);
   }
-  query = proto_item_add_subtree(item, ett_gas_query);
 
   proto_tree_add_item(query, hf_ieee80211_ff_query_response_length,
                       tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -10954,7 +10941,6 @@ static void
 dissect_ssid_list(proto_tree *tree, tvbuff_t *tvb, int offset, guint32 tag_len)
 {
   int end = offset + tag_len;
-  proto_item *ssid;
   proto_tree *entry;
   gboolean first = TRUE;
 
@@ -10968,8 +10954,7 @@ dissect_ssid_list(proto_tree *tree, tvbuff_t *tvb, int offset, guint32 tag_len)
     str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 2, len, ENC_ASCII);
     proto_item_append_text(tree, "%c %s", (first ? ':' : ','), str);
     first = FALSE;
-    ssid = proto_tree_add_text(tree, tvb, offset, 2 + len, "SSID: %s", str);
-    entry = proto_item_add_subtree(ssid, ett_ssid_list);
+    entry = proto_tree_add_subtree_format(tree, tvb, offset, 2 + len, ett_ssid_list, NULL, "SSID: %s", str);
     proto_tree_add_item(entry, hf_ieee80211_tag_number, tvb, offset, 1,
                         ENC_BIG_ENDIAN);
     offset++;
@@ -12873,18 +12858,18 @@ dissect_neighbor_report(tvbuff_t *tvb, packet_info *pinfo,
         /* TODO */
         break;
       case NR_SUB_ID_HT_CAPABILITIES:
-        parent_item = proto_tree_add_text(tree, tvb, offset, sub_tag_length, "HT Capabilities");
-        sub_tag_tree = proto_item_add_subtree(parent_item, ett_tag_neighbor_report_sub_tag_tree);
+        sub_tag_tree = proto_tree_add_subtree(tree, tvb, offset, sub_tag_length,
+                            ett_tag_neighbor_report_sub_tag_tree, NULL, "HT Capabilities");
         dissect_ht_capability_ie(sub_tag_tvb, pinfo, sub_tag_tree, 0, sub_tag_length, ti_len, FALSE);
         break;
       case NR_SUB_ID_HT_OPERATION:
-        parent_item = proto_tree_add_text (tree, tvb, offset, sub_tag_length, "HT Information");
-        sub_tag_tree = proto_item_add_subtree(parent_item, ett_tag_neighbor_report_sub_tag_tree);
+        sub_tag_tree = proto_tree_add_subtree(tree, tvb, offset, sub_tag_length,
+                            ett_tag_neighbor_report_sub_tag_tree, NULL, "HT Information");
         dissect_ht_info_ie_1_1(sub_tag_tvb, pinfo, sub_tag_tree, 0, sub_tag_length, ti_len);
         break;
       case NR_SUB_ID_SEC_CHANNEL_OFFSET:
-        parent_item = proto_tree_add_text (tree, tvb, offset, sub_tag_length, "Secondary Channel Offset");
-        sub_tag_tree = proto_item_add_subtree(parent_item, ett_tag_neighbor_report_sub_tag_tree);
+        sub_tag_tree = proto_tree_add_subtree(tree, tvb, offset, sub_tag_length,
+                            ett_tag_neighbor_report_sub_tag_tree, NULL, "Secondary Channel Offset");
         dissect_secondary_channel_offset_ie(sub_tag_tvb, pinfo, sub_tag_tree, 0, sub_tag_length, ti_len);
         break;
       case NR_SUB_ID_VENDOR_SPECIFIC:
@@ -14995,7 +14980,6 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
     {
       guint32 i = 0;
       gboolean isGrant;
-      proto_item *sched_item;
       proto_tree * alloc_tree;
       if ((tag_len%15) != 0)
       {
@@ -15006,8 +14990,7 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
       isGrant = ((ftype==CTRL_GRANT)||(ftype==CTRL_GRANT_ACK));
       p_add_proto_data(wmem_file_scope(), pinfo, proto_wlan, IS_CTRL_GRANT_OR_GRANT_ACK_KEY, &isGrant);
       for(i=0; i < tag_len; i+=15) {
-        sched_item = proto_tree_add_text(tree, tvb, offset, 15, "Allocation %d", i/15);
-        alloc_tree = proto_item_add_subtree(sched_item, ett_allocation_tree);
+        alloc_tree = proto_tree_add_subtree_format(tree, tvb, offset, 15, ett_allocation_tree, NULL, "Allocation %d", i/15);
         proto_tree_add_item(alloc_tree, hf_ieee80211_tag_allocation_id, tvb, offset, 2, ENC_NA);
         proto_tree_add_item(alloc_tree, hf_ieee80211_tag_allocation_type, tvb, offset, 2, ENC_NA);
         proto_tree_add_item(alloc_tree, hf_ieee80211_tag_pseduo_static, tvb, offset, 2, ENC_NA);
@@ -15035,7 +15018,6 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
     case TAG_STA_AVAILABILITY:
     {
       guint32 i = 0;
-      proto_item * sta_info_item;
       proto_tree * sta_info_tree;
       if ((tag_len%2) != 0)
       {
@@ -15044,8 +15026,7 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
       }
       offset += 2;
       for(i=0; i < tag_len; i+=2) {
-        sta_info_item = proto_tree_add_text(tree, tvb, offset, 2, "STA Info %d", i/2);
-        sta_info_tree = proto_item_add_subtree(sta_info_item, ett_sta_info);
+        sta_info_tree = proto_tree_add_subtree_format(tree, tvb, offset, 2, ett_sta_info, NULL, "STA Info %d", i/2);
         proto_tree_add_item(sta_info_tree, hf_ieee80211_tag_aid, tvb, offset, 2, ENC_NA);
         proto_tree_add_item(sta_info_tree, hf_ieee80211_tag_cbap, tvb, offset, 2, ENC_NA);
         proto_tree_add_item(sta_info_tree, hf_ieee80211_tag_pp_avail, tvb, offset, 2, ENC_NA);
@@ -15662,9 +15643,7 @@ dissect_ieee80211_mgt (guint16 fcf, tvbuff_t *tvb, packet_info *pinfo, proto_tre
     {
       proto_item *lcl_fixed_hdr;
       proto_tree *lcl_fixed_tree;
-      lcl_fixed_hdr = proto_tree_add_text(mgt_tree, tvb, 0, 0, "Fixed parameters");
-      lcl_fixed_tree = proto_item_add_subtree (lcl_fixed_hdr, ett_fixed_parameters);
-
+      lcl_fixed_tree = proto_tree_add_subtree(mgt_tree, tvb, 0, 0, ett_fixed_parameters, &lcl_fixed_hdr, "Fixed parameters");
       offset += add_fixed_field(lcl_fixed_tree, tvb, pinfo, 0, FIELD_ACTION);
 
       proto_item_set_len(lcl_fixed_hdr, offset);
@@ -15684,8 +15663,7 @@ dissect_ieee80211_mgt (guint16 fcf, tvbuff_t *tvb, packet_info *pinfo, proto_tre
     {
       proto_item *lcl_fixed_hdr;
       proto_tree *lcl_fixed_tree;
-      lcl_fixed_hdr = proto_tree_add_text(mgt_tree, tvb, 0, 0, "Fixed parameters");
-      lcl_fixed_tree = proto_item_add_subtree (lcl_fixed_hdr, ett_fixed_parameters);
+      lcl_fixed_tree = proto_tree_add_subtree(mgt_tree, tvb, 0, 0, ett_fixed_parameters, &lcl_fixed_hdr, "Fixed parameters");
 
       offset += add_fixed_field(lcl_fixed_tree, tvb, pinfo, 0, FIELD_ACTION);
 
@@ -15704,13 +15682,11 @@ dissect_ieee80211_mgt (guint16 fcf, tvbuff_t *tvb, packet_info *pinfo, proto_tre
     }
     case MGT_ARUBA_WLAN:
     {
-      proto_item *aruba_hdr;
       proto_tree *aruba_tree;
       guint16 type;
       type = tvb_get_ntohs(tvb, offset);
 
-      aruba_hdr = proto_tree_add_text(mgt_tree, tvb, 0, 0, "Aruba Management");
-      aruba_tree = proto_item_add_subtree(aruba_hdr, ett_fixed_parameters);
+      aruba_tree = proto_tree_add_subtree(mgt_tree, tvb, 0, 0, ett_fixed_parameters, NULL, "Aruba Management");
 
       proto_tree_add_item(aruba_tree, hf_ieee80211_aruba, tvb, offset, 2, ENC_BIG_ENDIAN);
       offset += 2;
@@ -16073,19 +16049,17 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
        * XXX - Should we look for is_ht as well?
        */
       if ((frame_type_subtype == CTRL_CONTROL_WRAPPER) && tree) {
-        cw_item = proto_tree_add_text(hdr_tree, tvb, offset, 2,
-          "Contained Frame Control");
-        cw_tree = proto_item_add_subtree (cw_item, ett_cntrl_wrapper_fc);
+        cw_tree = proto_tree_add_subtree(hdr_tree, tvb, offset, 2,
+                    ett_cntrl_wrapper_fc, NULL, "Contained Frame Control");
         dissect_frame_control(cw_tree, tvb, FALSE, offset, pinfo);
         dissect_ht_control(hdr_tree, tvb, offset + 2);
         offset += 6;
-        cw_item = proto_tree_add_text(hdr_tree, tvb, offset, 2,
-          "Carried Frame");
-        hdr_tree = proto_item_add_subtree (cw_item, ett_cntrl_wrapper_fc);
+        hdr_tree = proto_tree_add_subtree(hdr_tree, tvb, offset, 2,
+                    ett_cntrl_wrapper_fc, &cw_item, "Carried Frame");
          if(isDMG == TRUE) {
-                 expert_add_info_format(pinfo, hdr_tree, &ei_ieee80211_dmg_subtype,
+                 expert_add_info_format(pinfo, cw_item, &ei_ieee80211_dmg_subtype,
                  "DMG STA shouldn't transmit Control Wrapper frame");
-     }
+         }
       }
 
       if ((frame_type_subtype == CTRL_CFP_END) && tree) {
@@ -16306,8 +16280,7 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
                 proto_tree_add_uint(bar_sub_tree, hf_ieee80211_block_ack_control_multi_tid_info, tvb, offset, 2, tid_count);
                 offset += 2;
 
-                bar_parent_item = proto_tree_add_text (hdr_tree, tvb, offset, tid_count*4, "Per TID Info");
-                bar_mtid_tree = proto_item_add_subtree(bar_parent_item, ett_block_ack);
+                bar_mtid_tree = proto_tree_add_subtree(hdr_tree, tvb, offset, tid_count*4, ett_block_ack, NULL, "Per TID Info");
                 for (iii = 0; iii < tid_count; iii++) {
                   bar_parent_item = proto_tree_add_uint(bar_mtid_tree, hf_ieee80211_block_ack_multi_tid_info, tvb, offset, 4, iii);
                   bar_mtid_sub_tree = proto_item_add_subtree(bar_parent_item, ett_block_ack);
@@ -16447,8 +16420,7 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
                 hf_ieee80211_block_ack_control_compressed_tid_info, tvb, offset, 2, tid_count);
                 offset += 2;
 
-                ba_parent_item = proto_tree_add_text (hdr_tree, tvb, offset, tid_count*4, "Per TID Info");
-                ba_mtid_tree = proto_item_add_subtree(ba_parent_item, ett_block_ack);
+                ba_mtid_tree = proto_tree_add_subtree(hdr_tree, tvb, offset, tid_count*4, ett_block_ack, NULL, "Per TID Info");
                 for (iii = 0; iii < tid_count; iii++) {
                   ba_parent_item = proto_tree_add_uint(ba_mtid_tree, hf_ieee80211_block_ack_multi_tid_info, tvb, offset, 4, iii);
                   ba_mtid_sub_tree = proto_item_add_subtree(ba_parent_item, ett_block_ack);
@@ -17140,35 +17112,31 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
     if ((keybyte & KEY_EXTIV) && (len >= EXTIV_LEN)) {
       /* Extended IV; this frame is likely encrypted with TKIP or CCMP */
       if (tree) {
-        proto_item *extiv_fields;
-
         /* Davide Schiera (2006-11-27): differentiated CCMP and TKIP if  */
         /* it's possible                                */
         if (algorithm==PROTECTION_ALG_TKIP)
-          extiv_fields = proto_tree_add_text(hdr_tree, tvb, hdr_len, 8,
-              "TKIP parameters");
+          wep_tree = proto_tree_add_subtree(hdr_tree, tvb, hdr_len, 8,
+              ett_wep_parameters, NULL, "TKIP parameters");
         else if (algorithm==PROTECTION_ALG_CCMP)
-          extiv_fields = proto_tree_add_text(hdr_tree, tvb, hdr_len, 8,
-            "CCMP parameters");
+          wep_tree = proto_tree_add_subtree(hdr_tree, tvb, hdr_len, 8,
+            ett_wep_parameters, NULL, "CCMP parameters");
         else {
           /* Davide Schiera --------------------------------------------  */
           /* Davide Schiera (2006-11-27): differentiated CCMP and TKIP if*/
           /* it's possible                              */
           if (IS_TKIP(tvb, hdr_len)) {
             algorithm=PROTECTION_ALG_TKIP;
-            extiv_fields = proto_tree_add_text(hdr_tree, tvb, hdr_len, 8,
-                "TKIP parameters");
+            wep_tree = proto_tree_add_subtree(hdr_tree, tvb, hdr_len, 8,
+                ett_wep_parameters, NULL, "TKIP parameters");
           } else if (IS_CCMP(tvb, hdr_len)) {
             algorithm=PROTECTION_ALG_CCMP;
-            extiv_fields = proto_tree_add_text(hdr_tree, tvb, hdr_len, 8,
-                "CCMP parameters");
+            wep_tree = proto_tree_add_subtree(hdr_tree, tvb, hdr_len, 8,
+                ett_wep_parameters, NULL, "CCMP parameters");
           } else
-            extiv_fields = proto_tree_add_text(hdr_tree, tvb, hdr_len, 8,
-                "TKIP/CCMP parameters");
+            wep_tree = proto_tree_add_subtree(hdr_tree, tvb, hdr_len, 8,
+                ett_wep_parameters, NULL, "TKIP/CCMP parameters");
         }
         proto_item_set_len (ti, hdr_len + 8);
-
-        wep_tree = proto_item_add_subtree (extiv_fields, ett_wep_parameters);
 
         if (algorithm==PROTECTION_ALG_TKIP) {
           g_snprintf(out_buff, SHORT_STR, "0x%08X%02X%02X",
@@ -17230,12 +17198,9 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
        */
       iv = tvb_get_ntoh24(tvb, hdr_len);
       if (tree) {
-        proto_item *wep_fields;
+        wep_tree = proto_tree_add_subtree(hdr_tree, tvb, hdr_len, 4,
+            ett_wep_parameters, NULL, "WEP parameters");
 
-        wep_fields = proto_tree_add_text(hdr_tree, tvb, hdr_len, 4,
-            "WEP parameters");
-
-        wep_tree = proto_item_add_subtree (wep_fields, ett_wep_parameters);
         proto_tree_add_uint (wep_tree, hf_ieee80211_wep_iv, tvb, hdr_len, 3, iv);
         tvb_memcpy(tvb, iv_buff, hdr_len, 3);
         is_iv_bad = weak_iv(iv_buff);

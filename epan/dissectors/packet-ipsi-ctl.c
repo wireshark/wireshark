@@ -51,8 +51,8 @@ static gint ett_ipsictl_pdu = -1;
 static void dissect_ipsictl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 
-  proto_tree   *ipsictl_tree = NULL;
-  proto_tree   *pdu_tree = NULL;
+  proto_tree   *ipsictl_tree;
+  proto_tree   *pdu_tree;
   proto_item   *ti;
   int           offset = 0;
   int           loffset = 0;
@@ -70,12 +70,8 @@ static void dissect_ipsictl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   remaining_length=tvb_reported_length_remaining(tvb, offset);
 
-  if (tree) {
-
-      ti = proto_tree_add_item(tree, proto_ipsictl, tvb, offset, remaining_length, ENC_NA);
-      ipsictl_tree = proto_item_add_subtree(ti, ett_ipsictl);
-
-  }
+  ti = proto_tree_add_item(tree, proto_ipsictl, tvb, offset, remaining_length, ENC_NA);
+  ipsictl_tree = proto_item_add_subtree(ti, ett_ipsictl);
 
   magic = tvb_get_ntohs(tvb, offset);
   if (magic == IPSICTL_PDU_MAGIC)
@@ -116,13 +112,9 @@ static void dissect_ipsictl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       llength-=2;
     }
 
-    if (tree) {
-
-      ti = proto_tree_add_uint(ipsictl_tree, hf_ipsictl_pdu, tvb,
+    ti = proto_tree_add_uint(ipsictl_tree, hf_ipsictl_pdu, tvb,
            offset, (length+4), pdu);
-
-      pdu_tree = proto_item_add_subtree(ti, ett_ipsictl_pdu);
-    }
+    pdu_tree = proto_item_add_subtree(ti, ett_ipsictl_pdu);
 
     loffset=offset;
     remaining_length=tvb_reported_length_remaining(tvb, offset);

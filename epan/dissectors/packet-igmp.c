@@ -432,15 +432,13 @@ static int
 dissect_v3_sqrv_bits(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 {
 	proto_tree *tree;
-	proto_item *item;
 	guint8 bits;
 
 	bits = tvb_get_guint8(tvb, offset);
 
-	item = proto_tree_add_text(parent_tree, tvb, offset, 1,
-		"QRV=%d S=%s", bits&IGMP_V3_QRV_MASK,
+	tree = proto_tree_add_subtree_format(parent_tree, tvb, offset, 1,
+		ett_sqrv_bits, NULL, "QRV=%d S=%s", bits&IGMP_V3_QRV_MASK,
 			(bits&IGMP_V3_S)?tfs_s.true_string:tfs_s.false_string);
-	tree = proto_item_add_subtree(item, ett_sqrv_bits);
 
 	/* S flag */
 	proto_tree_add_boolean(tree, hf_suppress, tvb, offset, 1, bits);
@@ -459,17 +457,14 @@ dissect_v3_group_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 	int old_offset = offset;
 	guint8	adl;
 	guint16 num;
-	guint32 ip;
-	guint32 maddr;
+    const gchar* maddr_str;
 	guint8 record_type;
 
-	ip = tvb_get_ipv4(tvb, offset+4);
-	item = proto_tree_add_text(parent_tree, tvb, offset, -1,
-		"Group Record : %s  %s",
-			ip_to_str((guint8*)&ip),
+	tree = proto_tree_add_subtree_format(parent_tree, tvb, offset, -1,
+			ett_group_record, &item, "Group Record : %s  %s",
+			tvb_ip_to_str(tvb, offset+4),
 			val_to_str_const(tvb_get_guint8(tvb, offset), vs_record_type,"")
 		);
-	tree = proto_item_add_subtree(item, ett_group_record);
 
 	/* record type */
 	record_type = tvb_get_guint8(tvb, offset);
@@ -488,35 +483,33 @@ dissect_v3_group_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 
 	/* multicast address */
 	proto_tree_add_item(tree, hf_maddr, tvb, offset, 4, ENC_BIG_ENDIAN);
-	maddr = tvb_get_ipv4(tvb, offset);
+	maddr_str = tvb_ip_to_str(tvb, offset);
 	offset += 4;
 
 	if (num == 0) {
 		switch(record_type) {
 		case IGMP_V3_MODE_IS_INCLUDE:
 		case IGMP_V3_CHANGE_TO_INCLUDE_MODE:
-			col_append_fstr(pinfo->cinfo, COL_INFO, " / Leave group %s",
-				ip_to_str((guint8*)&maddr));
+			col_append_fstr(pinfo->cinfo, COL_INFO, " / Leave group %s", maddr_str);
 			break;
 		case IGMP_V3_MODE_IS_EXCLUDE:
 		case IGMP_V3_CHANGE_TO_EXCLUDE_MODE:
 			col_append_fstr(pinfo->cinfo, COL_INFO,
-				" / Join group %s for any sources", ip_to_str((guint8*)&maddr));
+				" / Join group %s for any sources", maddr_str);
 			break;
 		case IGMP_V3_ALLOW_NEW_SOURCES:
 			col_append_fstr(pinfo->cinfo, COL_INFO,
 				" / Group %s, ALLOW_NEW_SOURCES but no source specified (?)",
-				ip_to_str((guint8*)&maddr));
+				maddr_str);
 			break;
 		case IGMP_V3_BLOCK_OLD_SOURCES:
 			col_append_fstr(pinfo->cinfo, COL_INFO,
 				" / Group %s, BLOCK_OLD_SOURCES but no source specified (?)",
-				ip_to_str((guint8*)&maddr));
+				maddr_str);
 			break;
 		default:
 			col_append_fstr(pinfo->cinfo, COL_INFO,
-				" / Group %s, unknown record type (?)",
-				ip_to_str((guint8*)&maddr));
+				" / Group %s, unknown record type (?)", maddr_str);
 				break;
 		}
 	} else {
@@ -525,28 +518,28 @@ dissect_v3_group_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 		case IGMP_V3_CHANGE_TO_INCLUDE_MODE:
 			col_append_fstr(pinfo->cinfo, COL_INFO,
 				" / Join group %s for source%s {",
-				ip_to_str((guint8*)&maddr), (num>1) ? "s in" : "");
+				maddr_str, (num>1) ? "s in" : "");
 			break;
 		case IGMP_V3_MODE_IS_EXCLUDE:
 		case IGMP_V3_CHANGE_TO_EXCLUDE_MODE:
 			col_append_fstr(pinfo->cinfo, COL_INFO,
 				" / Join group %s, for source%s {",
-				ip_to_str((guint8*)&maddr), (num>1) ? "s not in" : " not");
+				maddr_str, (num>1) ? "s not in" : " not");
 			break;
 		case IGMP_V3_ALLOW_NEW_SOURCES:
 			col_append_fstr(pinfo->cinfo, COL_INFO,
 				" / Group %s, new source%s {",
-				ip_to_str((guint8*)&maddr), (num>1) ? "s" : "");
+				maddr_str, (num>1) ? "s" : "");
 			break;
 		case IGMP_V3_BLOCK_OLD_SOURCES:
 			col_append_fstr(pinfo->cinfo, COL_INFO,
 				" / Group %s, block source%s {",
-				ip_to_str((guint8*)&maddr), (num>1) ? "s" : "");
+				maddr_str, (num>1) ? "s" : "");
 			break;
 		default:
 			col_append_fstr(pinfo->cinfo, COL_INFO,
 				" / Group %s, unknown record type (?), sources {",
-				ip_to_str((guint8*)&maddr));
+				maddr_str);
 			break;
 		}
 	}
@@ -826,16 +819,14 @@ dissect_igmp_mtrace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int typ
 
 	/* Loop through the response data blocks */
 	while (tvb_reported_length_remaining(tvb, offset) >= IGMP_TRACEROUTE_RSP_LEN) {
-		proto_item *bi;
 		proto_tree *block_tree;
 
-		bi = proto_tree_add_text(tree, tvb, offset, IGMP_TRACEROUTE_RSP_LEN,
-			"Response data block: %s -> %s,  Proto: %s,  Forwarding Code: %s",
+		block_tree = proto_tree_add_subtree_format(tree, tvb, offset, IGMP_TRACEROUTE_RSP_LEN,
+			ett_mtrace_block, NULL, "Response data block: %s -> %s,  Proto: %s,  Forwarding Code: %s",
 			tvb_ip_to_str(tvb, offset + 4),
 			tvb_ip_to_str(tvb, offset + 8),
 			val_to_str_const(tvb_get_guint8(tvb, offset + 28), mtrace_rtg_vals, "Unknown"),
 			val_to_str_const(tvb_get_guint8(tvb, offset + 31), mtrace_fwd_code_vals, "Unknown"));
-		block_tree = proto_item_add_subtree(bi, ett_mtrace_block);
 
 		/* Query Arrival Time */
 		proto_tree_add_item(block_tree, hf_mtrace_q_arrival, tvb, offset, 4, ENC_BIG_ENDIAN);

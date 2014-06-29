@@ -454,7 +454,7 @@ static void
 icqv5_decode_msgType(proto_tree* tree, tvbuff_t *tvb, int offset, int size,
 		     packet_info *pinfo)
 {
-	proto_item *ti, *msg_item;
+	proto_item *msg_item;
 	proto_tree *subtree;
 	int left = size;
 	guint16 msgType;
@@ -493,9 +493,8 @@ icqv5_decode_msgType(proto_tree* tree, tvbuff_t *tvb, int offset, int size,
 #define N_USER_ADDED_FIELDS	(sizeof user_added_field_descr / sizeof user_added_field_descr[0])
 
 	msgType = tvb_get_letohs(tvb, offset);
-	ti = proto_tree_add_text(tree, tvb, offset, size,
+	subtree = proto_tree_add_subtree_format(tree, tvb, offset, size, ett_icq_body_parts, NULL,
 				 "%s Message", val_to_str_const(msgType, msgTypeCode, "Unknown"));
-	subtree = proto_item_add_subtree(ti, ett_icq_body_parts);
 
 	msg_item = proto_tree_add_item(subtree, hf_icq_msg_type, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
@@ -1129,8 +1128,7 @@ dissect_icqv5Client(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	col_add_fstr(pinfo->cinfo, COL_INFO, "ICQv5 %s", val_to_str_const(cmd, clientCmdCode, "Unknown"));
 
-	ti = proto_tree_add_text(tree, tvb, 0, ICQ5_CL_HDRSIZE, "Header");
-	icq_header_tree = proto_item_add_subtree(ti, ett_icq_header);
+	icq_header_tree = proto_tree_add_subtree(tree, tvb, 0, ICQ5_CL_HDRSIZE, ett_icq_header, NULL, "Header");
 
 	ti = proto_tree_add_boolean(icq_header_tree, hf_icq_type, tvb, 0, 0, ICQ5_CLIENT);
 	PROTO_ITEM_SET_GENERATED(ti);
@@ -1145,8 +1143,7 @@ dissect_icqv5Client(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	ti = proto_tree_add_uint(icq_header_tree, hf_icq_checkcode_key, tvb, ICQ5_CL_CHECKCODE, 4, key);
 	PROTO_ITEM_SET_GENERATED(ti);
 
-	ti = proto_tree_add_text(tree, decr_tvb, ICQ5_CL_HDRSIZE, pktsize - ICQ5_CL_HDRSIZE, "Body");
-	icq_body_tree = proto_item_add_subtree(ti, ett_icq_body);
+	icq_body_tree = proto_tree_add_subtree(tree, decr_tvb, ICQ5_CL_HDRSIZE, pktsize - ICQ5_CL_HDRSIZE, ett_icq_body, NULL, "Body");
 
 	switch(cmd) {
 	case CMD_ACK:
@@ -1208,8 +1205,7 @@ dissect_icqv5Server(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		pktsize = tvb_reported_length(tvb);
 	}
 
-	ti = proto_tree_add_text(tree, tvb, offset, ICQ5_SRV_HDRSIZE, "Header");
-	icq_header_tree = proto_item_add_subtree(ti, ett_icq_header);
+	icq_header_tree = proto_tree_add_subtree(tree, tvb, offset, ICQ5_SRV_HDRSIZE, ett_icq_header, NULL, "Header");
 
 	ti = proto_tree_add_boolean(icq_header_tree, hf_icq_type, tvb, 0, 0, ICQ5_SERVER);
 	PROTO_ITEM_SET_GENERATED(ti);
@@ -1222,8 +1218,7 @@ dissect_icqv5Server(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree_add_item(icq_header_tree, hf_icq_uin, tvb, offset + ICQ5_SRV_UIN, 4, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(icq_header_tree, hf_icq_checkcode, tvb, offset + ICQ5_SRV_CHECKCODE, 4, ENC_LITTLE_ENDIAN);
 
-	ti = proto_tree_add_text(tree, tvb, ICQ5_CL_HDRSIZE, pktsize - ICQ5_SRV_HDRSIZE, "Body");
-	icq_body_tree = proto_item_add_subtree(ti, ett_icq_body);
+	icq_body_tree = proto_tree_add_subtree(tree, tvb, ICQ5_CL_HDRSIZE, pktsize - ICQ5_SRV_HDRSIZE, ett_icq_body, NULL, "Body");
 
 	switch (cmd) {
 	case SRV_RAND_USER:

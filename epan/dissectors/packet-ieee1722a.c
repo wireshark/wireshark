@@ -325,8 +325,8 @@ static void dissect_1722a (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     /* Loop through all samples and add them to the audio tree. */
                     for (j = 0; j < ((datalen * 8) / (channels_per_frame * sample_width)); j++)
                     {
-                        ti = proto_tree_add_text(audio_tree, tvb, offset, 1, "Sample Chunk %d", j);
-                        sample_tree = proto_item_add_subtree(ti, ett_1722a_sample);
+                        sample_tree = proto_tree_add_subtree_format(audio_tree, tvb, offset, 1,
+                                                        ett_1722a_sample, &ti, "Sample Chunk %d", j);
                         for (i = 0; i < channels_per_frame; i++)
                         {
                             ti = proto_tree_add_item(sample_tree, hf_1722a_sample, tvb, offset, sample_width / 8, ENC_NA);

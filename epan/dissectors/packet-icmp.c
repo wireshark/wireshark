@@ -380,36 +380,33 @@ dissect_mip_extensions(tvbuff_t * tvb, int offset, proto_tree * tree)
 			length = 0;
 		}
 
-		ti = proto_tree_add_text(tree, tvb, offset,
-					 type ? (length + 2) : 1,
-					 "Ext: %s", val_to_str(type,
-							       mip_extensions,
-							       "Unknown ext %u"));
-		mip_tree = proto_item_add_subtree(ti, ett_icmp_mip);
+		mip_tree = proto_tree_add_subtree_format(tree, tvb, offset,
+								1, ett_icmp_mip, &ti,
+								"Ext: %s", val_to_str(type,
+								mip_extensions,
+								"Unknown ext %u"));
+		proto_tree_add_item(mip_tree, hf_icmp_mip_type,
+					tvb, offset, 1,
+					ENC_BIG_ENDIAN);
+		offset++;
+		if (type != ICMP_MIP_EXTENSION_PAD)
+		{
+			proto_item_set_len(ti, length + 2);
+
+			/* length */
+			proto_tree_add_item(mip_tree, hf_icmp_mip_length,
+						tvb, offset, 1,
+						ENC_BIG_ENDIAN);
+			offset++;
+		}
 
 		switch (type) {
 		case ICMP_MIP_EXTENSION_PAD:
 			/* One byte padding extension */
-			/* Add our fields */
-			/* type */
-			proto_tree_add_item(mip_tree, hf_icmp_mip_type,
-					    tvb, offset, 1,
-					    ENC_BIG_ENDIAN);
-			offset++;
 			break;
 		case ICMP_MIP_MOB_AGENT_ADV:
 			/* Mobility Agent Advertisement Extension (RFC 2002) */
 			/* Add our fields */
-			/* type */
-			proto_tree_add_item(mip_tree, hf_icmp_mip_type,
-					    tvb, offset, 1,
-					    ENC_BIG_ENDIAN);
-			offset++;
-			/* length */
-			proto_tree_add_item(mip_tree, hf_icmp_mip_length,
-					    tvb, offset, 1,
-					    ENC_BIG_ENDIAN);
-			offset++;
 			/* sequence number */
 			proto_tree_add_item(mip_tree, hf_icmp_mip_seq, tvb,
 					    offset, 2, ENC_BIG_ENDIAN);
@@ -466,16 +463,6 @@ dissect_mip_extensions(tvbuff_t * tvb, int offset, proto_tree * tree)
 		case ICMP_MIP_PREFIX_LENGTHS:
 			/* Prefix-Lengths Extension  (RFC 2002) */
 			/* Add our fields */
-			/* type */
-			proto_tree_add_item(mip_tree, hf_icmp_mip_type,
-					    tvb, offset, 1,
-					    ENC_BIG_ENDIAN);
-			offset++;
-			/* length */
-			proto_tree_add_item(mip_tree, hf_icmp_mip_length,
-					    tvb, offset, 1,
-					    ENC_BIG_ENDIAN);
-			offset++;
 
 			/* prefix lengths */
 			for (i = 0; i < length; i++) {
@@ -488,16 +475,6 @@ dissect_mip_extensions(tvbuff_t * tvb, int offset, proto_tree * tree)
 			break;
 		case ICMP_MIP_CHALLENGE:
 			/* Challenge Extension  (RFC 3012) */
-			/* type */
-			proto_tree_add_item(mip_tree, hf_icmp_mip_type,
-					    tvb, offset, 1,
-					    ENC_BIG_ENDIAN);
-			offset++;
-			/* length */
-			proto_tree_add_item(mip_tree, hf_icmp_mip_length,
-					    tvb, offset, 1,
-					    ENC_BIG_ENDIAN);
-			offset++;
 			/* challenge */
 			proto_tree_add_item(mip_tree,
 					    hf_icmp_mip_challenge, tvb,
@@ -506,16 +483,6 @@ dissect_mip_extensions(tvbuff_t * tvb, int offset, proto_tree * tree)
 
 			break;
 		default:
-			/* type */
-			proto_tree_add_item(mip_tree, hf_icmp_mip_type,
-					    tvb, offset, 1,
-					    ENC_BIG_ENDIAN);
-			offset++;
-			/* length */
-			proto_tree_add_item(mip_tree, hf_icmp_mip_length,
-					    tvb, offset, 1,
-					    ENC_BIG_ENDIAN);
-			offset++;
 			/* data, if any */
 			if (length != 0) {
 				proto_tree_add_text(mip_tree, tvb, offset,
@@ -612,12 +579,9 @@ dissect_mpls_stack_entry_object(tvbuff_t * tvb, gint offset,
 				break;
 			}
 			/* Create a subtree for each entry (the text will be set later) */
-			tf_entry = proto_tree_add_text(ext_object_tree,
-						       tvb, offset, 4,
-						       " ");
-			mpls_stack_object_tree =
-			    proto_item_add_subtree(tf_entry,
-						   ett_icmp_mpls_stack_object);
+			mpls_stack_object_tree = proto_tree_add_subtree(ext_object_tree,
+								tvb, offset, 4,
+								ett_icmp_mpls_stack_object, &tf_entry, " ");
 
 			/* Label */
 			label = (guint) tvb_get_ntohs(tvb, offset);
@@ -683,7 +647,6 @@ dissect_interface_information_object(tvbuff_t * tvb, gint offset,
 				     proto_tree * ext_object_tree,
 				     proto_item * tf_object)
 {
-	proto_item *ti;
 	proto_tree *int_name_object_tree = NULL;
 	proto_tree *int_ipaddr_object_tree;
 	guint16 obj_length, obj_trunc_length;
@@ -764,12 +727,9 @@ dissect_interface_information_object(tvbuff_t * tvb, gint offset,
 		 * if afi = 1, IPv4 address, 2 bytes afi, 2 bytes rsvd, 4 bytes IP addr
 		 * if afi = 2, IPv6 address, 2 bytes afi, 2 bytes rsvd, 6 bytes IP addr
 		 */
-		ti = proto_tree_add_text(ext_object_tree, tvb, offset,
-					 afi == 1 ? 8 : 10,
+		int_ipaddr_object_tree = proto_tree_add_subtree(ext_object_tree, tvb, offset,
+					 afi == 1 ? 8 : 10, ett_icmp_interface_ipaddr, NULL,
 					 "IP Address Sub-Object");
-
-		int_ipaddr_object_tree =
-		    proto_item_add_subtree(ti, ett_icmp_interface_ipaddr);
 
 		proto_tree_add_uint(int_ipaddr_object_tree,
 				    hf_icmp_int_info_afi, tvb, offset, 2,
@@ -804,13 +764,10 @@ dissect_interface_information_object(tvbuff_t * tvb, gint offset,
 	if (name_flag) {
 		if (obj_end_offset >= offset + 1) {
 			int_name_length = tvb_get_guint8(tvb, offset);
-			ti = proto_tree_add_text(ext_object_tree, tvb,
-						 offset, int_name_length,
+			int_name_object_tree = proto_tree_add_subtree(ext_object_tree, tvb,
+						 offset, int_name_length, ett_icmp_interface_name, NULL,
 						 "Interface Name Sub-Object");
 
-			int_name_object_tree =
-			    proto_item_add_subtree(ti,
-						   ett_icmp_interface_name);
 			proto_tree_add_text(int_name_object_tree, tvb,
 					    offset, 1, "Length: %u",
 					    int_name_length);
@@ -926,12 +883,9 @@ dissect_extensions(tvbuff_t * tvb, gint offset, proto_tree * tree)
 		obj_end_offset = offset + obj_trunc_length;
 
 		/* Add a subtree for this object (the text will be reset later) */
-		tf_object = proto_tree_add_text(ext_tree, tvb, offset,
+		ext_object_tree = proto_tree_add_subtree(ext_tree, tvb, offset,
 						MAX(obj_trunc_length, 4),
-						"Unknown object");
-
-		ext_object_tree =
-		    proto_item_add_subtree(tf_object, ett_icmp_ext_object);
+						ett_icmp_ext_object, &tf_object, "Unknown object");
 
 		proto_tree_add_uint(ext_object_tree, hf_icmp_ext_length,
 				    tvb, offset, 2, obj_length);

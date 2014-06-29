@@ -577,9 +577,8 @@ dissect_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tree,
   padding_length = tvb_length(parameter_tvb) - length;
 
   /* create proto_tree stuff */
-  parameter_item   = proto_tree_add_text(iua_tree, parameter_tvb, PARAMETER_HEADER_OFFSET, tvb_length(parameter_tvb),
+  parameter_tree   = proto_tree_add_subtree_format(iua_tree, parameter_tvb, PARAMETER_HEADER_OFFSET, -1, ett_iua_parameter, &parameter_item,
                                          "%s parameter", val_to_str_const(tag, support_IG?parameter_tag_ig_values:parameter_tag_values, "Unknown"));
-  parameter_tree   = proto_item_add_subtree(parameter_item, ett_iua_parameter);
 
   /* add tag and length to the iua tree */
   proto_tree_add_item(parameter_tree, support_IG?hf_parameter_tag_ig:hf_parameter_tag, parameter_tvb, PARAMETER_TAG_OFFSET, PARAMETER_TAG_LENGTH, ENC_BIG_ENDIAN);
@@ -905,15 +904,10 @@ dissect_iua(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree)
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, support_IG?"IUA (RFC 3057 + IG)":"IUA (RFC 3057)");
 
-  /* In the interest of speed, if "tree" is NULL, don't do any work not
-     necessary to generate protocol tree items. */
-  if (tree) {
-    /* create the m3ua protocol tree */
-    iua_item = proto_tree_add_item(tree, proto_iua, message_tvb, 0, -1, ENC_NA);
-    iua_tree = proto_item_add_subtree(iua_item, ett_iua);
-  } else {
-    iua_tree = NULL;
-  };
+  /* create the m3ua protocol tree */
+  iua_item = proto_tree_add_item(tree, proto_iua, message_tvb, 0, -1, ENC_NA);
+  iua_tree = proto_item_add_subtree(iua_item, ett_iua);
+
   /* dissect the message */
   dissect_iua_message(message_tvb, pinfo, tree, iua_tree);
 }

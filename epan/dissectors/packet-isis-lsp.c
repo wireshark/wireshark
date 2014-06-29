@@ -553,7 +553,6 @@ static void
 dissect_lsp_ext_ip_reachability_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree,
 	int offset, int id_length _U_, int length)
 {
-	proto_item *pi = NULL;
 	proto_tree *subtree = NULL;
 	proto_tree *subtree2 = NULL;
 	guint8     ctrl_info;
@@ -580,8 +579,8 @@ dissect_lsp_ext_ip_reachability_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tre
 			subclvs_len = 1+tvb_get_guint8(tvb, offset+5+byte_length);
 
 		/* open up a new tree per prefix */
-		pi = proto_tree_add_text (tree, tvb, offset, 5+byte_length+subclvs_len, "Ext. IP Reachability");
-		subtree = proto_item_add_subtree (pi, ett_isis_lsp_part_of_clv_ext_ip_reachability);
+		subtree = proto_tree_add_subtree(tree, tvb, offset, 5+byte_length+subclvs_len,
+                            ett_isis_lsp_part_of_clv_ext_ip_reachability, NULL, "Ext. IP Reachability");
 
 		proto_tree_add_ipv4_format_value(subtree, hf_isis_lsp_ext_ip_reachability_ipv4_prefix, tvb, offset+5, byte_length,
                              tvb_get_ntohl(tvb, offset+5), "%s/%u", ip_to_str (prefix), bit_length);
@@ -591,12 +590,9 @@ dissect_lsp_ext_ip_reachability_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tre
 		len = 5 + byte_length;
 		if ((ctrl_info & 0x40) != 0) {
 			subclvs_len = tvb_get_guint8(tvb, offset+len);
-			pi = proto_tree_add_text (subtree, tvb, offset+len, 1, "sub-TLVs present, total length: %u bytes",
-			                          subclvs_len);
-			proto_item_set_len (pi, subclvs_len+1);
-			/* open up a new tree for the subTLVs */
-			subtree2 = proto_item_add_subtree (pi, ett_isis_lsp_clv_ip_reach_subclv);
-
+			subtree2 = proto_tree_add_subtree_format(subtree, tvb, offset+len, subclvs_len+1,
+                                      ett_isis_lsp_clv_ip_reach_subclv, NULL,
+                                      "sub-TLVs present, total length: %u bytes", subclvs_len);
 			i =0;
 			while (i < subclvs_len) {
 				clv_code = tvb_get_guint8(tvb, offset+len+1); /* skip the total subtlv len indicator */
@@ -612,8 +608,7 @@ dissect_lsp_ext_ip_reachability_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tre
 			}
 			len += 1 + subclvs_len;
 		} else {
-			proto_tree_add_text (subtree, tvb, offset+4, 1, "no sub-TLVs present");
-			                     proto_item_set_len (pi, len);
+			proto_tree_add_text (subtree, tvb, offset+4, len, "no sub-TLVs present");
 		}
 
 		offset += len;
@@ -654,7 +649,6 @@ dissect_isis_grp_address_clv(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *
 	guint16 sswid = 0;
 	guint16 lid = 0;
 
-	proto_item *ti=NULL;
 	proto_tree *rt_tree=NULL;
 
 	while (length>0) {
@@ -665,8 +659,8 @@ dissect_isis_grp_address_clv(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *
 
 
 			case GRP_MAC_ADDRESS:
-				ti = proto_tree_add_text (tree, tvb, offset, (mt_block&0x00ff)+2, "GROUP MAC ADDRESS SUB TLV");
-				rt_tree = proto_item_add_subtree(ti,ett_isis_lsp_clv_grp_address_IPv4_prefx);
+				rt_tree = proto_tree_add_subtree(tree, tvb, offset, (mt_block&0x00ff)+2,
+                    ett_isis_lsp_clv_grp_address_IPv4_prefx, NULL, "GROUP MAC ADDRESS SUB TLV");
 
 				length--;
 				offset++;
@@ -778,7 +772,6 @@ dissect_isis_rt_capable_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
 {
 	gint len;
 	guint16 rt_block;
-	proto_item *ti;
 	proto_tree *rt_tree;
 
 	gint root_id = 1;       /* To display the root id */
@@ -794,8 +787,8 @@ dissect_isis_rt_capable_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
 		switch ((rt_block&0xff00)>>8) {
 
 		case TRILL_VERSION:
-			ti = proto_tree_add_text(tree, tvb, offset, (rt_block&0x00ff)+2, "TRILL version sub tlv");
-			rt_tree = proto_item_add_subtree(ti, ett_isis_lsp_clv_rt_capable_IPv4_prefx);
+			rt_tree = proto_tree_add_subtree(tree, tvb, offset, (rt_block&0x00ff)+2,
+                        ett_isis_lsp_clv_rt_capable_IPv4_prefx, NULL, "TRILL version sub tlv");
 
 			length--;
 			offset++;
@@ -809,8 +802,8 @@ dissect_isis_rt_capable_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
 			break;
 
 		case TREES:
-			ti = proto_tree_add_text(tree, tvb, offset, (rt_block&0x00ff)+2, "Trees sub tlv");
-			rt_tree = proto_item_add_subtree(ti, ett_isis_lsp_clv_rt_capable_IPv4_prefx);
+			rt_tree = proto_tree_add_subtree(tree, tvb, offset, (rt_block&0x00ff)+2,
+                                ett_isis_lsp_clv_rt_capable_IPv4_prefx, NULL, "Trees sub tlv");
 
 			length--;
 			offset++;
@@ -837,8 +830,8 @@ dissect_isis_rt_capable_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
 			break;
 
 		case TREE_IDENTIFIER:
-			ti=proto_tree_add_text(tree, tvb, offset, (rt_block&0x00ff)+2, "Tree root identifier sub tlv");
-			rt_tree = proto_item_add_subtree(ti, ett_isis_lsp_clv_rt_capable_IPv4_prefx);
+			rt_tree=proto_tree_add_subtree(tree, tvb, offset, (rt_block&0x00ff)+2,
+                                ett_isis_lsp_clv_rt_capable_IPv4_prefx, NULL, "Tree root identifier sub tlv");
 
 			length--;
 			offset++;
@@ -864,8 +857,8 @@ dissect_isis_rt_capable_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
 			break;
 
 		case NICKNAME:
-			ti=proto_tree_add_text(tree, tvb, offset, (rt_block&0x00ff)+2, "The nickname sub tlv");
-			rt_tree = proto_item_add_subtree(ti, ett_isis_lsp_clv_rt_capable_IPv4_prefx);
+			rt_tree = proto_tree_add_subtree(tree, tvb, offset, (rt_block&0x00ff)+2,
+                                ett_isis_lsp_clv_rt_capable_IPv4_prefx, NULL, "The nickname sub tlv");
 
 			length--;
 			offset++;
@@ -894,8 +887,8 @@ dissect_isis_rt_capable_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
 			break;
 
 		case INTERESTED_VLANS:
-			ti = proto_tree_add_text(tree, tvb, offset, (rt_block&0x00ff)+2, "Interested VLAN and spanning tree root sub tlv");
-			rt_tree = proto_item_add_subtree(ti, ett_isis_lsp_clv_rt_capable_IPv4_prefx);
+			rt_tree = proto_tree_add_subtree(tree, tvb, offset, (rt_block&0x00ff)+2,
+                            ett_isis_lsp_clv_rt_capable_IPv4_prefx, NULL, "Interested VLAN and spanning tree root sub tlv");
 
 			length--;
 			offset++;
@@ -938,8 +931,8 @@ dissect_isis_rt_capable_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
 			break;
 
 		case TREES_USED_IDENTIFIER:
-			ti=proto_tree_add_text(tree, tvb, offset, (rt_block&0x00ff)+2, "Trees used identifier sub tlv");
-			rt_tree = proto_item_add_subtree(ti, ett_isis_lsp_clv_rt_capable_IPv4_prefx);
+			rt_tree = proto_tree_add_subtree(tree, tvb, offset, (rt_block&0x00ff)+2,
+                        ett_isis_lsp_clv_rt_capable_IPv4_prefx, NULL, "Trees used identifier sub tlv");
 
 			length--;
 			offset++;
@@ -966,8 +959,8 @@ dissect_isis_rt_capable_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
 			break;
 
 		case VLAN_GROUP:
-			ti = proto_tree_add_text(tree, tvb, offset, (rt_block&0x00ff)+2, "The VLAN group sub tlv");
-			rt_tree = proto_item_add_subtree(ti, ett_isis_lsp_clv_rt_capable_IPv4_prefx);
+			rt_tree = proto_tree_add_subtree(tree, tvb, offset, (rt_block&0x00ff)+2,
+                            ett_isis_lsp_clv_rt_capable_IPv4_prefx, NULL, "The VLAN group sub tlv");
 
 			length--;
 			offset++;
@@ -1040,7 +1033,6 @@ static void
 dissect_lsp_ipv6_reachability_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offset,
 	int id_length _U_, int length)
 {
-	proto_item        *pi;
 	proto_tree        *subtree = NULL;
 	proto_tree        *subtree2 = NULL;
 	guint8            ctrl_info;
@@ -1066,8 +1058,8 @@ dissect_lsp_ipv6_reachability_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree 
 		if ((ctrl_info & 0x20) != 0)
 			subclvs_len = 1+tvb_get_guint8(tvb, offset+6+byte_length);
 
-		pi = proto_tree_add_text (tree, tvb, offset, 6+byte_length+subclvs_len, "IPv6 Reachability");
-		subtree = proto_item_add_subtree (pi, ett_isis_lsp_part_of_clv_ipv6_reachability);
+		subtree = proto_tree_add_subtree(tree, tvb, offset, 6+byte_length+subclvs_len,
+            ett_isis_lsp_part_of_clv_ipv6_reachability, NULL, "IPv6 Reachability");
 
 		proto_tree_add_ipv6_format_value(subtree, hf_isis_lsp_ipv6_reachability_ipv6_prefix, tvb, offset+6, byte_length,
                              (guint8*)&prefix, "IPv6 prefix: %s/%u", ip6_to_str (&prefix), bit_length);
@@ -1083,11 +1075,9 @@ dissect_lsp_ipv6_reachability_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree 
 		len = 6 + byte_length;
 		if ((ctrl_info & 0x20) != 0) {
 			subclvs_len = tvb_get_guint8(tvb, offset+len);
-			pi = proto_tree_add_text (subtree, tvb, offset+len, 1, "sub-TLVs present, total length: %u bytes",
+			subtree2 = proto_tree_add_subtree_format(subtree, tvb, offset+len, subclvs_len+1,
+                                      ett_isis_lsp_clv_ip_reach_subclv, NULL, "sub-TLVs present, total length: %u bytes",
 			                          subclvs_len);
-			proto_item_set_len (pi, subclvs_len+1);
-			/* open up a new tree for the subTLVs */
-			subtree2 = proto_item_add_subtree (pi, ett_isis_lsp_clv_ip_reach_subclv);
 
 			i =0;
 			while (i < subclvs_len) {
@@ -1098,8 +1088,7 @@ dissect_lsp_ipv6_reachability_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree 
 			}
 			len += 1 + subclvs_len;
 		} else {
-			proto_tree_add_text (subtree, tvb, offset+4, 1, "no sub-TLVs present");
-			proto_item_set_len (pi, len);
+			proto_tree_add_text (subtree, tvb, offset+4, len, "no sub-TLVs present");
 		}
 		offset += len;
 		length -= len;
@@ -1286,9 +1275,8 @@ dissect_isis_lsp_clv_mt_cap_spb_instance(tvbuff_t *tvb, packet_info *pinfo,
 		guint8        num_trees            = tvb_get_guint8(tvb, subofs + NUM_TREES_OFFSET);
 
 		/*************************/
-		ti = proto_tree_add_text( tree, tvb, offset-2, sublen+2,
+		subtree = proto_tree_add_subtree_format( tree, tvb, offset-2, sublen+2, ett_isis_lsp_clv_mt_cap_spb_instance, NULL,
 		                          "SPB Instance: Type: 0x%02x, Length: %d", subtype, sublen);
-		subtree = proto_item_add_subtree(ti, ett_isis_lsp_clv_mt_cap_spb_instance);
 
 		/*************************/
 		proto_tree_add_bytes_format_value( subtree, hf_isis_lsp_mt_cap_spb_instance_cist_root_identifier, tvb, subofs + CIST_ROOT_ID_OFFSET, CIST_ROOT_ID_LEN,
@@ -1377,13 +1365,12 @@ dissect_isis_lsp_clv_mt_cap_spbm_service_identifier(tvbuff_t *tvb, packet_info *
 		return;
 	}
 	else {
-		proto_tree *subtree, *ti;
+		proto_tree *subtree;
 		int subofs = offset;
 
 		/*************************/
-		ti = proto_tree_add_text( tree, tvb, offset-2, sublen+2,
+		subtree = proto_tree_add_subtree_format( tree, tvb, offset-2, sublen+2, ett_isis_lsp_clv_mt_cap_spbm_service_identifier, NULL,
 		                          "SPB Service ID and Unicast Address: Type: 0x%02x, Length: %d", subtype, sublen);
-		subtree = proto_item_add_subtree(ti, ett_isis_lsp_clv_mt_cap_spbm_service_identifier);
 
 		/*************************/
 		proto_tree_add_item(subtree, hf_isis_lsp_mt_cap_spbm_service_identifier_b_mac, tvb, subofs + BMAC_OFFSET, BMAC_LEN, ENC_NA);
@@ -1433,16 +1420,15 @@ dissect_isis_lsp_clv_mt_cap_spbv_mac_address(tvbuff_t *tvb, packet_info *pinfo,
 		return;
 	}
 	else {
-		proto_tree *subtree, *ti;
+		proto_tree *subtree;
 		int subofs = offset;
 		fixed_data = tvb_get_ntohs(tvb, subofs);
 		spvid = (fixed_data & 0x0FFF);
 		sr_bit = (fixed_data & 0x3000) >> 12;
 
 		/*************************/
-		ti = proto_tree_add_text( tree, tvb, offset-2, sublen+2,
+		subtree = proto_tree_add_subtree_format( tree, tvb, offset-2, sublen+2, ett_isis_lsp_clv_mt_cap_spbv_mac_address, NULL,
 		                          "SPBV Mac Address: Type: 0x%02x, Length: %d", subtype, sublen);
-		subtree = proto_item_add_subtree(ti, ett_isis_lsp_clv_mt_cap_spbv_mac_address);
 
 		/*************************/
 		proto_tree_add_uint(subtree, hf_isis_lsp_spb_sr_bit,
@@ -1668,11 +1654,10 @@ dissect_lsp_eis_neighbors_clv_inner(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 		 */
 		if ( tree ) {
 			if ( is_eis ) {
-				ti = proto_tree_add_text(tree, tvb, offset, tlen, "ES Neighbor");
+				ntree = proto_tree_add_subtree(tree, tvb, offset, tlen, ett_isis_lsp_clv_is_neighbors, &ti, "ES Neighbor");
 			} else {
-				ti = proto_tree_add_text(tree, tvb, offset, tlen, "IS Neighbor");
+				ntree = proto_tree_add_subtree(tree, tvb, offset, tlen, ett_isis_lsp_clv_is_neighbors, &ti, "IS Neighbor");
 			}
-			ntree = proto_item_add_subtree(ti, ett_isis_lsp_clv_is_neighbors);
 
 			proto_tree_add_item(ntree, hf_isis_lsp_eis_neighbors_default_metric, tvb, offset, 1, ENC_NA);
 			proto_tree_add_item(ntree, hf_isis_lsp_eis_neighbors_default_metric_ie, tvb, offset, 1, ENC_NA);
@@ -1793,14 +1778,13 @@ dissect_lsp_l2_is_neighbors_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *t
  */
 static void
 dissect_subclv_admin_group (tvbuff_t *tvb, proto_tree *tree, int offset) {
-	proto_item *ti;
 	proto_tree *ntree;
 	guint32    clv_value;
 	guint32    mask;
 	int        i;
 
-	ti = proto_tree_add_text(tree, tvb, offset-2, 6, "Administrative group(s):");
-	ntree = proto_item_add_subtree (ti, ett_isis_lsp_subclv_admin_group);
+	ntree = proto_tree_add_subtree(tree, tvb, offset-2, 6,
+                ett_isis_lsp_subclv_admin_group, NULL, "Administrative group(s):");
 
 	clv_value = tvb_get_ntohl(tvb, offset);
 	mask = 1;
@@ -1883,13 +1867,12 @@ dissect_subclv_rsv_bw(tvbuff_t *tvb, proto_tree *tree, int offset)
 static void
 dissect_subclv_unrsv_bw(tvbuff_t *tvb, proto_tree *tree, int offset)
 {
-	proto_item *ti;
 	proto_tree *ntree;
 	gfloat     bw;
 	int        i;
 
-	ti = proto_tree_add_text (tree, tvb, offset-2, 34, "Unreserved bandwidth:");
-	ntree = proto_item_add_subtree (ti, ett_isis_lsp_subclv_unrsv_bw);
+	ntree = proto_tree_add_subtree(tree, tvb, offset-2, 34,
+                    ett_isis_lsp_subclv_unrsv_bw, NULL, "Unreserved bandwidth:");
 
 	for (i = 0 ; i < 8 ; i++) {
 		bw = tvb_get_ntohieee_float(tvb, offset+4*i)*8/1000000;
@@ -1929,10 +1912,9 @@ dissect_subclv_spb_link_metric(tvbuff_t *tvb, packet_info *pinfo,
 		return;
 	}
 	else {
-		proto_tree *subtree, *ti;
-		ti = proto_tree_add_text( tree, tvb, offset-2, sublen+2,
+		proto_tree *subtree;
+		subtree = proto_tree_add_subtree_format( tree, tvb, offset-2, sublen+2, ett_isis_lsp_subclv_spb_link_metric, NULL,
 		                          "SPB Link Metric: Type: 0x%02x (%d), Length: %d", subtype, subtype, sublen);
-		subtree = proto_item_add_subtree(ti, ett_isis_lsp_subclv_spb_link_metric);
 
 		proto_tree_add_item(subtree, hf_isis_lsp_spb_link_metric,
 		                    tvb, offset, 3, ENC_BIG_ENDIAN);
@@ -1978,8 +1960,8 @@ dissect_lsp_ext_is_reachability_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tre
 	guint      clv_code, clv_len;
 
 	while (length > 0) {
-		ti = proto_tree_add_text(tree, tvb, offset, -1, "IS Neighbor");
-		ntree = proto_item_add_subtree (ti, ett_isis_lsp_part_of_clv_ext_is_reachability );
+		ntree = proto_tree_add_subtree(tree, tvb, offset, -1,
+                ett_isis_lsp_part_of_clv_ext_is_reachability, &ti, "IS Neighbor");
 
 		proto_tree_add_item(ntree, hf_isis_lsp_ext_is_reachability_is_neighbor_id, tvb, offset, 7, ENC_NA);
 		proto_item_append_text(ti, ": %s", tvb_print_system_id(tvb, offset, 7));
@@ -2577,8 +2559,8 @@ static void
 dissect_isis_lsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
 	const isis_clv_handle_t *opts, int header_length, int id_length)
 {
-	proto_item	*ti, *to, *ta;
-	proto_tree	*lsp_tree = NULL, *info_tree, *att_tree;
+	proto_item	*ti, *ta;
+	proto_tree	*lsp_tree, *info_tree, *att_tree;
 	guint16		pdu_length, lifetime, checksum, cacl_checksum=0;
 	guint8		lsp_info;
 	int		len, offset_checksum;
@@ -2648,7 +2630,7 @@ dissect_isis_lsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
 		 * P | ATT | HIPPITY | IS TYPE description.
 		 */
 		lsp_info = tvb_get_guint8(tvb, offset);
-		to = proto_tree_add_text(lsp_tree, tvb, offset, 1,
+		info_tree = proto_tree_add_subtree_format(lsp_tree, tvb, offset, 1, ett_isis_lsp_info, NULL,
 			"Type block(0x%02x): Partition Repair:%d, Attached bits:%d, Overload bit:%d, IS type:%d",
 			lsp_info,
 			ISIS_LSP_PARTITION(lsp_info),
@@ -2657,7 +2639,6 @@ dissect_isis_lsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
 			ISIS_LSP_IS_TYPE(lsp_info)
 			);
 
-		info_tree = proto_item_add_subtree(to, ett_isis_lsp_info);
 		proto_tree_add_boolean(info_tree, hf_isis_lsp_p, tvb, offset, 1, lsp_info);
 		ta = proto_tree_add_uint(info_tree, hf_isis_lsp_att, tvb, offset, 1, lsp_info);
 		att_tree = proto_item_add_subtree(ta, ett_isis_lsp_att);

@@ -517,7 +517,6 @@ isis_dissect_clvs(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offse
 	guint8 code;
 	guint8 length;
 	int q;
-	proto_item	*ti;
 	proto_tree	*clv_tree;
 
 	while ( len > 0 ) {
@@ -544,29 +543,17 @@ isis_dissect_clvs(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offse
 			q++;
 		}
 		if ( opts[q].dissect ) {
-			if (tree) {
-				/* adjust by 2 for code/len octets */
-				ti = proto_tree_add_text(tree, tvb, offset - 2,
-					length + 2, "%s (%u)",
+			/* adjust by 2 for code/len octets */
+			clv_tree = proto_tree_add_subtree_format(tree, tvb, offset - 2,
+					length + 2, *opts[q].tree_id, NULL, "%s (%u)",
 					opts[q].tree_text, length );
-				clv_tree = proto_item_add_subtree(ti,
-					*opts[q].tree_id );
-			} else {
-				clv_tree = NULL;
-			}
 			opts[q].dissect(tvb, pinfo, clv_tree, offset,
 				id_length, length);
 		} else {
 #if 0 /* XXX: Left as commented out in case info about "unknown code" is ever to be displayed under a sub-tree */
-			if (tree) {
-				ti = proto_tree_add_text(tree, tvb, offset - 2,
-					length + 2, "Unknown code %u (%u)",
+			clv_tree = proto_tree_add_subtree_format(tree, tvb, offset - 2,
+					length + 2, unknown_tree_id, NULL, "Unknown code %u (%u)",
 					code, length);
-				clv_tree = proto_item_add_subtree(ti,
-					unknown_tree_id );
-			} else {
-				clv_tree = NULL;
-			}
 #else
 			if (tree) {
 				proto_tree_add_text(tree, tvb, offset - 2,

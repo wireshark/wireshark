@@ -1115,8 +1115,8 @@ dissect_esp_authentication(proto_tree *tree, tvbuff_t *tvb, gint len, gint esp_a
 
   if(esp_auth_len == 0)
   {
-    item = proto_tree_add_text(tree, tvb, len, 0,
-                               "NULL Authentication");
+    icv_tree = proto_tree_add_subtree(tree, tvb, len, 0,
+                               ett_esp_icv, NULL, "NULL Authentication");
     good = TRUE;
   }
 
@@ -1125,32 +1125,31 @@ dissect_esp_authentication(proto_tree *tree, tvbuff_t *tvb, gint len, gint esp_a
   {
     if((authentication_ok) && (authentication_checking_ok))
     {
-      item = proto_tree_add_text(tree, tvb, len - esp_auth_len, esp_auth_len,
-                                 "Authentication Data [correct]");
+      icv_tree = proto_tree_add_subtree(tree, tvb, len - esp_auth_len, esp_auth_len,
+                                 ett_esp_icv, NULL, "Authentication Data [correct]");
       good = TRUE;
     }
 
     else if((authentication_ok) && (!authentication_checking_ok))
     {
-      item = proto_tree_add_text(tree, tvb, len - esp_auth_len, esp_auth_len,
-                                 "Authentication Data [incorrect, should be 0x%s]", authenticator_data_computed);
+      icv_tree = proto_tree_add_subtree_format(tree, tvb, len - esp_auth_len, esp_auth_len,
+                                 ett_esp_icv, NULL, "Authentication Data [incorrect, should be 0x%s]", authenticator_data_computed);
       bad = TRUE;
 
       g_free(authenticator_data_computed);
     }
 
-    else item = proto_tree_add_text(tree, tvb, len - esp_auth_len, esp_auth_len,
-                                    "Authentication Data");
+    else
+        icv_tree = proto_tree_add_subtree(tree, tvb, len - esp_auth_len, esp_auth_len,
+                                    ett_esp_icv, NULL, "Authentication Data");
   }
   else
   {
     /* Truncated so just display what we have */
-    item = proto_tree_add_text(tree, tvb, len - esp_auth_len, esp_auth_len - (len - tvb_length(tvb)),
-                               "Authentication Data (truncated)");
+    icv_tree = proto_tree_add_subtree(tree, tvb, len - esp_auth_len, esp_auth_len - (len - tvb_length(tvb)),
+                               ett_esp_icv, NULL, "Authentication Data (truncated)");
     bad = TRUE;
   }
-
-  icv_tree = proto_item_add_subtree(item, ett_esp_icv);
 
   item = proto_tree_add_boolean(icv_tree, hf_esp_icv_good,
                                 tvb, len - esp_auth_len, esp_auth_len, good);
