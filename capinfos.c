@@ -84,10 +84,10 @@
 #include <wsutil/report_err.h>
 #include <wsutil/privileges.h>
 #include <wsutil/str_util.h>
+#include <wsutil/file_util.h>
 
 #ifdef HAVE_LIBGCRYPT
 #include <wsutil/wsgcrypt.h>
-#include <wsutil/file_util.h>
 #endif
 
 #ifndef HAVE_GETOPT
