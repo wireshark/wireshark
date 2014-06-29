@@ -555,7 +555,7 @@ text2pcap-scanner.obj : text2pcap-scanner.c
 # The following targets will rebuild their respective objs
 # if and when version.h should change.
 #
-text2pcap.obj mergecap.obj capinfos.obj captype.obj editcap.obj reordercap.obj version_info.obj: version.h
+text2pcap.obj mergecap.obj capinfos.obj captype.obj editcap.obj reordercap.obj: version.h
 
 
 clean-local:

@@ -48,6 +48,12 @@ libwsutil.dll : $(OBJECTS) nghttp ..\image\libwsutil.res
 		nghttp2/nghttp2_hd_huffman_data.obj	\
 		nghttp2/nghttp2_helper.obj
 
+#
+# The following target will rebuild its obj
+# if and when version.h should change.
+#
+ws_version_info.obj: ..\version.h
+
 clean-local:
 	rm -f $(OBJECTS) \
 		libwsutil.lib \
