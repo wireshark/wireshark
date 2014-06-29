@@ -45,6 +45,8 @@ set(WSUTIL_FILES
 	base64.c
 	bitswap.c
 	cfutils.c
+	clopts_common.c
+	cmdarg_err.c
 	compiler_info.c
 	copyright_info.c
 	cpu_info.c

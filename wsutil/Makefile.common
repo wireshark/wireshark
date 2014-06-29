@@ -33,6 +33,8 @@ LIBWSUTIL_SRC = 	\
 	base64.c	\
 	bitswap.c	\
 	cfutils.c	\
+	clopts_common.c	\
+	cmdarg_err.c	\
 	compiler_info.c	\
 	copyright_info.c \
 	cpu_info.c	\
@@ -79,8 +81,10 @@ LIBWSUTIL_INCLUDES = 	\
 	base64.h	\
 	bits_ctz.h	\
 	bits_count_ones.h	\
-	bitswap.h		\
+	bitswap.h	\
 	cfutils.h	\
+	clopts_common.h	\
+	cmdarg_err.h	\
 	compiler_info.h	\
 	copyright_info.h \
 	cpu_info.h	\

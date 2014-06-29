@@ -1,5 +1,5 @@
 /* clopts_common.c
- * Handle command-line arguments common to Wireshark and TShark
+ * Handle command-line arguments common to various programs
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -26,8 +26,9 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include "clopts_common.h"
-#include "cmdarg_err.h"
+#include <wsutil/cmdarg_err.h>
+
+#include <wsutil/clopts_common.h>
 
 int
 get_natural_int(const char *string, const char *name)

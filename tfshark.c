@@ -59,6 +59,9 @@
 #include <epan/exceptions.h>
 #include <epan/epan-int.h>
 #include <epan/epan.h>
+
+#include <wsutil/clopts_common.h>
+#include <wsutil/cmdarg_err.h>
 #include <wsutil/crash_info.h>
 #include <wsutil/privileges.h>
 #include <wsutil/file_util.h>
@@ -81,8 +84,6 @@
 #include <epan/print.h>
 #include <epan/addr_resolv.h>
 #include "ui/util.h"
-#include "clopts_common.h"
-#include "cmdarg_err.h"
 #include "version_info.h"
 #include "register.h"
 #include <epan/epan_dissect.h>
@@ -791,6 +792,8 @@ main(int argc, char *argv[])
 #define OPTSTRING "-2C:d:e:E:hK:lo:O:qQr:R:S:t:T:u:vVxX:Y:z:"
 
   static const char    optstring[] = OPTSTRING;
+
+  cmdarg_err_init(failure_message, failure_message_cont);
 
   /* Assemble the compile-time version information string */
   comp_info_str = g_string_new("Compiled ");
@@ -2768,32 +2771,14 @@ write_failure_message(const char *filename, int err)
 }
 
 /*
- * Report an error in command-line arguments.
- */
-void
-cmdarg_err(const char *fmt, ...)
-{
-  va_list ap;
-
-  va_start(ap, fmt);
-  failure_message(fmt, ap);
-  va_end(ap);
-}
-
-/*
  * Report additional information for an error in command-line arguments.
  */
-void
-cmdarg_err_cont(const char *fmt, ...)
+static void
+failure_message_cont(const char *msg_format, va_list ap)
 {
-  va_list ap;
-
-  va_start(ap, fmt);
-  vfprintf(stderr, fmt, ap);
+  vfprintf(stderr, msg_format, ap);
   fprintf(stderr, "\n");
-  va_end(ap);
 }
-
 
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html

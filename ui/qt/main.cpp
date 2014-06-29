@@ -41,6 +41,8 @@
 #  include <getopt.h>
 #endif
 
+#include <wsutil/clopts_common.h>
+#include <wsutil/cmdarg_err.h>
 #include <wsutil/crash_info.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/file_util.h>
@@ -88,8 +90,6 @@
 #include "register.h"
 #include "ringbuffer.h"
 #include "ui/util.h"
-#include "clopts_common.h"
-#include "cmdarg_err.h"
 #include "version_info.h"
 #include "log.h"
 
@@ -317,18 +317,14 @@ show_version(void)
  * Creates a console on Windows.
  */
 // xxx copied from ../gtk/main.c
-void
-cmdarg_err(const char *fmt, ...)
+static void
+wireshark_cmdarg_err(const char *fmt, va_list ap)
 {
-    va_list ap;
-
 #ifdef _WIN32
     create_console();
 #endif
     fprintf(stderr, "wireshark: ");
-    va_start(ap, fmt);
     vfprintf(stderr, fmt, ap);
-    va_end(ap);
     fprintf(stderr, "\n");
 }
 
@@ -339,18 +335,14 @@ cmdarg_err(const char *fmt, ...)
  * terminal isn't the standard error?
  */
 // xxx copied from ../gtk/main.c
-void
-cmdarg_err_cont(const char *fmt, ...)
+static void
+wireshark_cmdarg_err_cont(const char *fmt, va_list ap)
 {
-    va_list ap;
-
 #ifdef _WIN32
     create_console();
 #endif
-    va_start(ap, fmt);
     vfprintf(stderr, fmt, ap);
     fprintf(stderr, "\n");
-    va_end(ap);
 }
 
 static void
@@ -492,6 +484,8 @@ int main(int argc, char *argv[])
 #endif
     e_prefs             *prefs_p;
     GLogLevelFlags       log_flags;
+
+    cmdarg_err_init(wireshark_cmdarg_err, wireshark_cmdarg_err_cont);
 
 #ifdef _WIN32
     create_app_running_mutex();

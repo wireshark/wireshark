@@ -60,6 +60,7 @@
 #include <portaudio.h>
 #endif /* HAVE_LIBPORTAUDIO */
 
+#include <wsutil/clopts_common.h>
 #include <wsutil/crash_info.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/file_util.h>
@@ -92,6 +93,7 @@
 #include <epan/print.h>
 #include <epan/timestamp.h>
 
+#include <wsutil/cmdarg_err.h>
 #include <wsutil/plugins.h>
 
 /* general (not GTK specific) */
@@ -104,8 +106,6 @@
 #include "../register.h"
 #include "../ringbuffer.h"
 #include "ui/util.h"
-#include "../clopts_common.h"
-#include "../cmdarg_err.h"
 #include "../version_info.h"
 #include "../log.h"
 
@@ -1279,19 +1279,17 @@ show_version(void)
 /*
  * Report an error in command-line arguments.
  * Creates a console on Windows.
+ * XXX - pop this up in a window of some sort on UNIX+X11 if the controlling
+ * terminal isn't the standard error?
  */
-void
-cmdarg_err(const char *fmt, ...)
+static void
+wireshark_cmdarg_err(const char *fmt, va_list ap)
 {
-    va_list ap;
-
 #ifdef _WIN32
     create_console();
 #endif
     fprintf(stderr, "wireshark: ");
-    va_start(ap, fmt);
     vfprintf(stderr, fmt, ap);
-    va_end(ap);
     fprintf(stderr, "\n");
 }
 
@@ -1301,18 +1299,14 @@ cmdarg_err(const char *fmt, ...)
  * XXX - pop this up in a window of some sort on UNIX+X11 if the controlling
  * terminal isn't the standard error?
  */
-void
-cmdarg_err_cont(const char *fmt, ...)
+static void
+wireshark_cmdarg_err_cont(const char *fmt, va_list ap)
 {
-    va_list ap;
-
 #ifdef _WIN32
     create_console();
 #endif
-    va_start(ap, fmt);
     vfprintf(stderr, fmt, ap);
     fprintf(stderr, "\n");
-    va_end(ap);
 }
 
 /*
@@ -2184,6 +2178,7 @@ main(int argc, char *argv[])
 
     static const char optstring[] = OPTSTRING;
 
+    cmdarg_err_init(wireshark_cmdarg_err, wireshark_cmdarg_err_cont);
 
     /* Set the C-language locale to the native environment. */
     setlocale(LC_ALL, "");

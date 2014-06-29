@@ -64,6 +64,8 @@
 #include <glib.h>
 #include <epan/epan-int.h>
 #include <epan/epan.h>
+
+#include <wsutil/cmdarg_err.h>
 #include <wsutil/crash_info.h>
 #include <wsutil/privileges.h>
 #include <wsutil/file_util.h>
@@ -83,8 +85,6 @@
 #include <epan/print.h>
 #include <epan/addr_resolv.h>
 #include "ui/util.h"
-#include "clopts_common.h"
-#include "cmdarg_err.h"
 #include "version_info.h"
 #include "register.h"
 #include "conditions.h"
@@ -102,6 +102,7 @@
 #include <wiretap/libpcap.h>
 #include <wiretap/pcap-encap.h>
 
+#include <wsutil/clopts_common.h>
 #include <wsutil/ws_version_info.h>
 
 #ifdef HAVE_LIBPCAP
@@ -158,6 +159,8 @@ static void open_failure_message(const char *filename, int err,
 static void failure_message(const char *msg_format, va_list ap);
 static void read_failure_message(const char *filename, int err);
 static void write_failure_message(const char *filename, int err);
+static void rawshark_cmdarg_err(const char *fmt, va_list ap);
+static void rawshark_cmdarg_err_cont(const char *fmt, va_list ap);
 static void protocolinfo_init(char *field);
 static gboolean parse_field_string_format(char *format);
 
@@ -472,6 +475,8 @@ main(int argc, char *argv[])
 #define OPTSTRING_INIT "d:F:hlnN:o:pr:R:sS:t:v"
 
     static const char    optstring[] = OPTSTRING_INIT;
+
+    cmdarg_err_init(rawshark_cmdarg_err, rawshark_cmdarg_err_cont);
 
     /* Assemble the compile-time version information string */
     comp_info_str = g_string_new("Compiled ");
@@ -1732,32 +1737,23 @@ write_failure_message(const char *filename, int err)
 /*
  * Report an error in command-line arguments.
  */
-void
-cmdarg_err(const char *fmt, ...)
+static void
+rawshark_cmdarg_err(const char *fmt, va_list ap)
 {
-    va_list ap;
-
-    va_start(ap, fmt);
     fprintf(stderr, "rawshark: ");
     vfprintf(stderr, fmt, ap);
     fprintf(stderr, "\n");
-    va_end(ap);
 }
 
 /*
  * Report additional information for an error in command-line arguments.
  */
-void
-cmdarg_err_cont(const char *fmt, ...)
+static void
+rawshark_cmdarg_err_cont(const char *fmt, va_list ap)
 {
-    va_list ap;
-
-    va_start(ap, fmt);
     vfprintf(stderr, fmt, ap);
     fprintf(stderr, "\n");
-    va_end(ap);
 }
-
 
 /*
  * Editor modelines

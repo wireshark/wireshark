@@ -1,5 +1,5 @@
 /* clopts_common.h
- * Handle command-line arguments common to Wireshark and TShark
+ * Handle command-line arguments common to various programs
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -20,19 +20,23 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef __PROTO_DUMPOPTS_H__
-#define __PROTO_DUMPOPTS_H__
+#ifndef __WSUTIL_CLOPTS_COMMON_H__
+#define __WSUTIL_CLOPTS_COMMON_H__
+
+#include "ws_symbol_export.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
 
-int get_natural_int(const char *string, const char *name);
+WS_DLL_PUBLIC int
+get_natural_int(const char *string, const char *name);
 
-int get_positive_int(const char *string, const char *name);
+WS_DLL_PUBLIC int
+get_positive_int(const char *string, const char *name);
 
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
 
-#endif /* __PROTO_DUMPOPTS_H__ */
+#endif /* __WSUTIL_CLOPTS_COMMON_H__ */

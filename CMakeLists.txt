@@ -915,7 +915,6 @@ set(SHARK_COMMON_SRC
 	${PLATFORM_PCAP_SRC}
 	capture-pcap-util.c
 	cfile.c
-	clopts_common.c
 	frame_tvbuff.c
 	version.h
 	sync_pipe_write.c
@@ -1351,7 +1350,6 @@ if(BUILD_dumpcap AND PCAP_FOUND)
 		capture_opts.c
 		capture-pcap-util.c
 		capture_stop_conditions.c
-		clopts_common.c
 		conditions.c
 		dumpcap.c
 		pcapio.c

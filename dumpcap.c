@@ -71,6 +71,7 @@
 #include <zlib.h>	/* to get the libz version number */
 #endif
 
+#include <wsutil/cmdarg_err.h>
 #include <wsutil/crash_info.h>
 #include <wsutil/copyright_info.h>
 #include <wsutil/ws_version_info.h>
@@ -89,8 +90,6 @@
 #endif
 
 #include "ringbuffer.h"
-#include "clopts_common.h"
-#include "cmdarg_err.h"
 #include "version_info.h"
 
 #include "capture-pcap-util.h"
@@ -113,6 +112,7 @@
 # include "wsutil/inet_v6defs.h"
 #endif
 
+#include <wsutil/clopts_common.h>
 #include <wsutil/privileges.h>
 
 #include "sync_pipe.h"
@@ -580,49 +580,41 @@ show_version(GString *comp_info_str, GString *runtime_info_str)
 
 /*
  * Report an error in command-line arguments.
+ * If we're a capture child, send a message back to the parent, otherwise
+ * just print it.
  */
-void
-cmdarg_err(const char *fmt, ...)
+static void
+dumpcap_cmdarg_err(const char *fmt, va_list ap)
 {
-    va_list ap;
-
     if (capture_child) {
         gchar *msg;
         /* Generate a 'special format' message back to parent */
-        va_start(ap, fmt);
         msg = g_strdup_vprintf(fmt, ap);
         sync_pipe_errmsg_to_parent(2, msg, "");
         g_free(msg);
-        va_end(ap);
     } else {
-        va_start(ap, fmt);
         fprintf(stderr, "dumpcap: ");
         vfprintf(stderr, fmt, ap);
         fprintf(stderr, "\n");
-        va_end(ap);
     }
 }
 
 /*
  * Report additional information for an error in command-line arguments.
+ * If we're a capture child, send a message back to the parent, otherwise
+ * just print it.
  */
-void
-cmdarg_err_cont(const char *fmt, ...)
+static void
+dumpcap_cmdarg_err_cont(const char *fmt, va_list ap)
 {
-    va_list ap;
-
     if (capture_child) {
         gchar *msg;
-        va_start(ap, fmt);
         msg = g_strdup_vprintf(fmt, ap);
         sync_pipe_errmsg_to_parent(2, msg, "");
         g_free(msg);
-        va_end(ap);
     } else {
-        va_start(ap, fmt);
         vfprintf(stderr, fmt, ap);
         fprintf(stderr, "\n");
-        va_end(ap);
     }
 }
 
@@ -4231,6 +4223,8 @@ main(int argc, char *argv[])
     struct utsname    osinfo;
 #endif
     GString          *str;
+
+    cmdarg_err_init(dumpcap_cmdarg_err, dumpcap_cmdarg_err_cont);
 
     /* Assemble the compile-time version information string */
     comp_info_str = g_string_new("Compiled ");

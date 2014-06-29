@@ -42,11 +42,11 @@
 
 #include "capture_opts.h"
 #include "ringbuffer.h"
-#include "clopts_common.h"
-#include "cmdarg_err.h"
 
 #include <capchild/capture_ifinfo.h>
 #include "capture-pcap-util.h"
+#include <wsutil/clopts_common.h>
+#include <wsutil/cmdarg_err.h>
 #include <wsutil/file_util.h>
 
 static gboolean capture_opts_output_to_pipe(const char *save_file, gboolean *is_pipe);
