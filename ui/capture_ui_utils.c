@@ -348,26 +348,6 @@ get_interface_descriptive_name(const char *if_name)
   return descr;
 }
 
-
-/* search interface info by interface name */
-static if_info_t *
-search_info(GList *if_list, gchar *if_name)
-{
-  GList *if_entry;
-  if_info_t *if_info;
-
-
-  for (if_entry = if_list; if_entry != NULL; if_entry = g_list_next(if_entry)) {
-    if_info = (if_info_t *)if_entry->data;
-
-    if(strcmp(if_name, if_info->name) == 0) {
-      return if_info;
-    }
-  }
-
-  return NULL;
-}
-
 GList *
 build_capture_combo_list(GList *if_list, gboolean do_hide)
 {
