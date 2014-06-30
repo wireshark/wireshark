@@ -27,4 +27,5 @@ CAPCHILD_SRC = \
 
 noinst_HEADERS = \
 	capture_ifinfo.h	\
+	capture_session.h	\
 	capture_sync.h

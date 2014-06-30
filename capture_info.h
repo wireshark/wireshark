@@ -31,7 +31,7 @@
 #define __CAPTURE_INFO_H__
 
 #include "capture_opts.h"
-#include "capture_session.h"
+#include <capchild/capture_session.h>
 
 #ifdef __cplusplus
 extern "C" {

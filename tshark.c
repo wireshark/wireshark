@@ -111,7 +111,7 @@
 #include "capture-wpcap.h"
 #include <wsutil/unicode-utils.h>
 #endif /* _WIN32 */
-#include "capture_session.h"
+#include <capchild/capture_session.h>
 #include <capchild/capture_sync.h>
 #include "capture_opts.h"
 #endif /* HAVE_LIBPCAP */

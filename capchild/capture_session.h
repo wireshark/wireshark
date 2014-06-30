@@ -20,8 +20,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef __CAPTURE_SESSION_H__
-#define __CAPTURE_SESSION_H__
+#ifndef __CAPCHILD_CAPTURE_SESSION_H__
+#define __CAPCHILD_CAPTURE_SESSION_H__
 
 #ifdef __cplusplus
 extern "C" {
@@ -67,4 +67,4 @@ typedef struct {int dummy;} capture_session;
 }
 #endif /* __cplusplus */
 
-#endif /* __CAPTURE_SESSION_H__ */
+#endif /* __CAPCHILD_CAPTURE_SESSION_H__ */

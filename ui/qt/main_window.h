@@ -37,7 +37,7 @@
 #ifdef HAVE_LIBPCAP
 #include "capture_opts.h"
 #endif
-#include "capture_session.h"
+#include <capchild/capture_session.h>
 
 #include <QMainWindow>
 #include <QSplitter>

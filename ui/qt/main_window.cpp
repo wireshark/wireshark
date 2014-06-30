@@ -33,7 +33,7 @@
 #ifdef HAVE_LIBPCAP
 #include "capture.h"
 #include "capture-pcap-util.h"
-#include "capture_session.h"
+#include <capchild/capture_session.h>
 #endif
 
 #include "ui/alert_box.h"

@@ -32,7 +32,7 @@
 #include <epan/to_str.h>
 
 #include "../capture_opts.h"
-#include "../capture_session.h"
+#include <capchild/capture_session.h>
 #include <capchild/capture_ifinfo.h>
 #include "../capture.h"
 #include "../capture-pcap-util.h"

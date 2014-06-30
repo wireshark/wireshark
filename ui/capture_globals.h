@@ -23,7 +23,7 @@
 #ifndef __CAPTURE_GLOBALS_H__
 #define __CAPTURE_GLOBALS_H__
 
-#include "../capture_session.h"
+#include <capchild/capture_session.h>
 
 #ifdef __cplusplus
 extern "C" {

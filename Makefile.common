@@ -62,18 +62,9 @@ SHARK_COMMON_INCLUDES =	\
 	version_info.h		\
 	ws_symbol_export.h
 
-# sources common for wireshark and tshark, but not rawshark;
-# these are for programs that capture traffic by running dumpcap
-SHARK_COMMON_CAPTURE_SRC =
-
-# corresponding headers
-SHARK_COMMON_CAPTURE_INCLUDES =	\
-	capture_session.h
-
 # wireshark specifics
 WIRESHARK_COMMON_SRC =	\
 	$(SHARK_COMMON_SRC)	\
-	$(SHARK_COMMON_CAPTURE_SRC) \
 	airpcap_loader.c \
 	capture.c	\
 	capture_info.c	\
@@ -108,7 +99,6 @@ WIRESHARK_COMMON_INCLUDES =	\
 # tshark specifics
 tshark_SOURCES =	\
 	$(SHARK_COMMON_SRC)	\
-	$(SHARK_COMMON_CAPTURE_SRC) \
 	capture_opts.c		\
 	tshark.c
 
@@ -185,6 +175,5 @@ dumpcap_INCLUDES = \
 # this target needed for distribution only
 noinst_HEADERS =	\
 	$(SHARK_COMMON_INCLUDES) \
-	$(SHARK_COMMON_CAPTURE_INCLUDES) \
 	$(WIRESHARK_COMMON_INCLUDES) \
 	$(dumpcap_INCLUDES)

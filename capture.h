@@ -30,7 +30,7 @@
  */
 
 #include "capture_opts.h"
-#include "capture_session.h"
+#include <capchild/capture_session.h>
 
 #ifdef __cplusplus
 extern "C" {
