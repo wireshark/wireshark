@@ -73,7 +73,6 @@ WIRESHARK_COMMON_SRC =	\
 	fileset.c	\
 	filters.c	\
 	iface_monitor.c \
-	proto_hier_stats.c	\
 	summary.c	\
 	ws80211_utils.c
 
@@ -88,7 +87,6 @@ WIRESHARK_COMMON_INCLUDES =	\
 	globals.h	\
 	iface_monitor.h \
 	log.h		\
-	proto_hier_stats.h	\
 	stat_menu.h	\
 	summary.h	\
 	sync_pipe.h	\

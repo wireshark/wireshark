@@ -196,7 +196,6 @@ SOURCES_WS_C = \
     ../../fileset.c       \
     ../../filters.c       \
     ../../frame_tvbuff.c   \
-    ../../proto_hier_stats.c      \
     ../../summary.c       \
     ../../sync_pipe_write.c       \
     ../../version_info.c

@@ -32,12 +32,13 @@ set(COMMON_UI_SRC
 	export_object_tftp.c
 	follow.c
 	help_url.c
-	packet_list_utils.c
 	iface_lists.c
 	io_graph_item.c
+	packet_list_utils.c
 	persfilepath_opt.c
 	preference_utils.c
 	profile.c
+	proto_hier_stats.c
 	recent.c
 	software_update.c
 	ssl_key_export.c

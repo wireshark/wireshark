@@ -19,8 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef PROTO_HIER_STATS_H
-#define PROTO_HIER_STATS_H
+#ifndef __UI_PROTO_HIER_STATS_H__
+#define __UI_PROTO_HIER_STATS_H__
 
 #include <epan/proto.h>
 
@@ -46,4 +46,4 @@ ph_stats_t* ph_stats_new(void);
 
 void ph_stats_free(ph_stats_t *ps);
 
-#endif
+#endif /* __UI_PROTO_HIER_STATS_H__ */

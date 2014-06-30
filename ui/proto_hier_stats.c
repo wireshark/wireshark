@@ -25,8 +25,8 @@
 #include <stdio.h>
 
 #include "globals.h"
-#include "proto_hier_stats.h"
 #include "frame_tvbuff.h"
+#include "ui/proto_hier_stats.h"
 #include "ui/progress_dlg.h"
 #include <epan/epan_dissect.h>
 #include <wtap.h>

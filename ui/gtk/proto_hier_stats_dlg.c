@@ -27,7 +27,7 @@
 
 #include <gtk/gtk.h>
 
-#include "../proto_hier_stats.h"
+#include "ui/proto_hier_stats.h"
 #include "ui/simple_dialog.h"
 #include "ui/utf8_entities.h"
 

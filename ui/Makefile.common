@@ -59,6 +59,7 @@ WIRESHARK_UI_SRC = \
 	persfilepath_opt.c	\
 	preference_utils.c	\
 	profile.c		\
+	proto_hier_stats.c	\
 	recent.c		\
 	software_update.c	\
 	ssl_key_export.c	\
@@ -91,6 +92,7 @@ noinst_HEADERS = \
 	preference_utils.h	\
 	profile.h		\
 	progress_dlg.h		\
+	proto_hier_stats.h	\
 	recent.h		\
 	recent_utils.h		\
 	rtp_analysis.h		\
