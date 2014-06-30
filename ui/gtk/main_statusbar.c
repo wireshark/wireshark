@@ -39,7 +39,7 @@
 #ifdef HAVE_LIBPCAP
 #include "../capture_opts.h"
 #include <capchild/capture_session.h>
-#include "../capture.h"
+#include "ui/capture.h"
 #endif
 
 #include <wsutil/str_util.h>

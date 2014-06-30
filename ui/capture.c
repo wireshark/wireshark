@@ -37,7 +37,7 @@
 #include <epan/packet.h>
 #include <epan/dfilter/dfilter.h>
 #include "file.h"
-#include "capture.h"
+#include "ui/capture.h"
 #include <capchild/capture_ifinfo.h>
 #include <capchild/capture_sync.h>
 #include "capture_info.h"

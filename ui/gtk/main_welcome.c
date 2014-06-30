@@ -29,7 +29,7 @@
 
 #include "../color.h"
 #ifdef HAVE_LIBPCAP
-#include "capture.h"
+#include "ui/capture.h"
 #include "capture-pcap-util.h"
 #include "capture_opts.h"
 #endif

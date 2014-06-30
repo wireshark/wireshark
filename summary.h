@@ -24,7 +24,7 @@
 #define __SUMMARY_H__
 
 #ifdef HAVE_LIBPCAP
-#include "capture.h"
+#include "ui/capture.h"
 #endif
 
 #ifdef __cplusplus

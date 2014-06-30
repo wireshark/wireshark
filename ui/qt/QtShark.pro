@@ -188,7 +188,6 @@ win32:INCLUDEPATH += \
 SOURCES_WS_C = \
     ../../airpcap_loader.c \
     ../../capture-pcap-util.c     \
-    ../../capture.c       \
     ../../capture_info.c  \
     ../../capture_opts.c \
     ../../cfile.c \

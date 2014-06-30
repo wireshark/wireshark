@@ -39,7 +39,7 @@
 #include "../capture-pcap-util.h"
 
 #ifdef HAVE_LIBPCAP
-#include "../capture.h"
+#include "ui/capture.h"
 #include "ui/capture_globals.h"
 #endif
 #include "ui/main_statusbar.h"

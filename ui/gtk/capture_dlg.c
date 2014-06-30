@@ -36,7 +36,7 @@
 #include <epan/prefs.h>
 #include <wsutil/filesystem.h>
 
-#include "../capture.h"
+#include "ui/capture.h"
 #include <capchild/capture_ifinfo.h>
 #include "../capture-pcap-util.h"
 #include "../ringbuffer.h"

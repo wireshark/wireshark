@@ -1032,7 +1032,6 @@ set(LIBEPAN_LIBS
 if( (BUILD_wireshark AND GTK_FOUND) OR (BUILD_qtshark AND QT_FOUND) )
 	set(wireshark_FILES
 		airpcap_loader.c
-		capture.c
 		capture_info.c
 		capture_opts.c
 		color_filters.c

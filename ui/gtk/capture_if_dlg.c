@@ -34,7 +34,7 @@
 #include "../capture_opts.h"
 #include <capchild/capture_session.h>
 #include <capchild/capture_ifinfo.h>
-#include "../capture.h"
+#include "ui/capture.h"
 #include "../capture-pcap-util.h"
 #include "wsutil/file_util.h"
 #include <wiretap/wtap.h>

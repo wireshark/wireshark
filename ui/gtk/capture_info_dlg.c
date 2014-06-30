@@ -30,7 +30,7 @@
 
 #include <epan/packet.h>
 
-#include "../capture.h"
+#include "ui/capture.h"
 #include "../capture_info.h"
 #include "../capture-pcap-util.h"
 

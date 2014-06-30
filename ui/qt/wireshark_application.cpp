@@ -35,7 +35,7 @@
 
 #include "qt_ui_utils.h"
 
-#include "capture.h"
+#include "ui/capture.h"
 #include "color_filters.h"
 #include "filters.h"
 #include "log.h"

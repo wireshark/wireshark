@@ -84,7 +84,7 @@
 #include "globals.h"
 #include "file.h"
 
-#include "capture.h"
+#include "ui/capture.h"
 #include <capchild/capture_sync.h>
 
 #include "sync_pipe.h"

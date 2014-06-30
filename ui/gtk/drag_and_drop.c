@@ -32,7 +32,7 @@
 #include "ui/util.h"
 #include "../file.h"
 #ifdef HAVE_LIBPCAP
-#include "../capture.h"
+#include "ui/capture.h"
 #endif
 
 #ifdef HAVE_LIBPCAP

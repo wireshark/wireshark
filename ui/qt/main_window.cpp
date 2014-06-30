@@ -31,7 +31,7 @@
 //#include <wiretap/wtap.h>
 
 #ifdef HAVE_LIBPCAP
-#include "capture.h"
+#include "ui/capture.h"
 #include "capture-pcap-util.h"
 #include <capchild/capture_session.h>
 #endif

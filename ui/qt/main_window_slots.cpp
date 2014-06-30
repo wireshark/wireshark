@@ -43,7 +43,7 @@
 #endif
 
 #ifdef HAVE_LIBPCAP
-#include "capture.h"
+#include "ui/capture.h"
 #include "capture-pcap-util.h"
 #endif
 
