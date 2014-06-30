@@ -368,39 +368,6 @@ search_info(GList *if_list, gchar *if_name)
   return NULL;
 }
 
-
-/* build the string to display in the combo box for the given interface */
-static char *
-build_capture_combo_name(GList *if_list, gchar *if_name)
-{
-  gchar *descr;
-  char *if_string;
-  if_info_t *if_info;
-
-  /* Do we have a user-supplied description? */
-  descr = capture_dev_user_descr_find(if_name);
-  if (descr != NULL) {
-    /* Yes, we have a user-supplied description; use it. */
-    if_string = g_strdup_printf("%s: %s", descr, if_name);
-    g_free(descr);
-  } else {
-    /* No, we don't have a user-supplied description; did we get
-     one from the OS or libpcap? */
-    if_info = search_info(if_list, if_name);
-    if (if_info != NULL && if_info->vendor_description != NULL) {
-      /* Yes - use it. */
-      if_string = g_strdup_printf("%s: %s", if_info->vendor_description,
-                                  if_info->name);
-    } else {
-      /* No. */
-      if_string = g_strdup(if_name);
-    }
-  }
-
-  return if_string;
-}
-
-
 GList *
 build_capture_combo_list(GList *if_list, gboolean do_hide)
 {
