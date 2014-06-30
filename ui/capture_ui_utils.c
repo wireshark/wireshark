@@ -370,7 +370,7 @@ search_info(GList *if_list, gchar *if_name)
 
 
 /* build the string to display in the combo box for the given interface */
-char *
+static char *
 build_capture_combo_name(GList *if_list, gchar *if_name)
 {
   gchar *descr;

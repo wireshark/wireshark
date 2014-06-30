@@ -110,15 +110,6 @@ void free_capture_combo_list(GList *combo_list);
  */
 const char *get_if_name(const char *if_text);
 
-/** Convert plain interface name to the displayed name in the combo box.
- *
- * @param if_list The list of interfaces returned by build_capture_combo_list()
- * @param if_name The name of the interface.
- *
- * @return The descriptive name (must be g_free'd later)
- */
-char *build_capture_combo_name(GList *if_list, gchar *if_name);
-
 /** Return the interface description (after setting it if not already set)
  *
  * @param capture_opts The capture_options structure that contains the used interface
