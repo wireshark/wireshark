@@ -10882,6 +10882,7 @@ int lbmc_dissect_lbmc_packet(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
         memset((void *)found_header, 0, sizeof(found_header));
         puim_stream_info = NULL;
         tcp_sid_info.set = FALSE;
+        tcp_sid_info.session_id = G_MAXUINT32;
         has_source_index = FALSE;
 
         while ((tvb_reported_length_remaining(lbmc_tvb, pkt_offset) >= L_LBMC_BASIC_HDR_T) && (next_hdr != LBMC_NHDR_DATA) && (next_hdr != LBMC_NHDR_NONE))
