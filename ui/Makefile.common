@@ -100,6 +100,7 @@ noinst_HEADERS = \
 	simple_dialog.h		\
 	software_update.h	\
 	ssl_key_export.h	\
+	stat_menu.h		\
 	tap_export_pdu.h	\
 	tap-megaco-common.h	\
 	tap-rtp-common.h	\

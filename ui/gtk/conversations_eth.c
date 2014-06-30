@@ -31,7 +31,7 @@
 #include <epan/tap.h>
 #include <epan/dissectors/packet-eth.h>
 
-#include "../stat_menu.h"
+#include "ui/stat_menu.h"
 
 #include "ui/gtk/gui_stat_menu.h"
 #include "ui/gtk/conversations_table.h"

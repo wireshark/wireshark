@@ -50,7 +50,7 @@
 #include <epan/dissectors/packet-h248.h>
 
 #include "../globals.h"
-#include "../stat_menu.h"
+#include "ui/stat_menu.h"
 
 #include "ui/gtk/graph_analysis.h"
 #include "ui/gtk/voip_calls_dlg.h"

@@ -47,8 +47,8 @@
 #include "cfile.h"
 #include "globals.h"
 #include "color_filters.h"
-#include "stat_menu.h"
 
+#include "ui/stat_menu.h"
 #include "ui/iface_lists.h"
 #include "ui/main_statusbar.h"
 #include "ui/preference_utils.h"

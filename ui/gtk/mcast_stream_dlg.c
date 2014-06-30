@@ -41,7 +41,7 @@
 #include <epan/strutil.h>
 
 #include "../globals.h"
-#include "../stat_menu.h"
+#include "ui/stat_menu.h"
 #include "ui/simple_dialog.h"
 
 #include "ui/gtk/mcast_stream_dlg.h"

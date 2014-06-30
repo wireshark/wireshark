@@ -37,7 +37,7 @@
 #include <epan/tap.h>
 #include <epan/dissectors/packet-mtp3.h>
 
-#include "../stat_menu.h"
+#include "ui/stat_menu.h"
 #include "../globals.h"
 #include "../file.h"
 #include "../summary.h"

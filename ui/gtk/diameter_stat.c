@@ -35,7 +35,7 @@
 #include <epan/dissectors/packet-diameter.h>
 
 #include "../file.h"
-#include "../stat_menu.h"
+#include "ui/stat_menu.h"
 
 #include "ui/simple_dialog.h"
 

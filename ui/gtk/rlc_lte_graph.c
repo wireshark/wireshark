@@ -40,7 +40,7 @@
 #include "../globals.h"
 #include "../frame_tvbuff.h"
 #include "ui/simple_dialog.h"
-#include "../stat_menu.h"
+#include "ui/stat_menu.h"
 
 #include "ui/gtk/gui_utils.h"
 #include "ui/gtk/dlg_utils.h"

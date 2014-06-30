@@ -30,7 +30,7 @@
 #include <epan/stat_cmd_args.h>
 #include <epan/tap.h>
 
-#include "../stat_menu.h"
+#include "ui/stat_menu.h"
 
 #include "ui/gtk/gui_stat_menu.h"
 #include "ui/gtk/conversations_table.h"

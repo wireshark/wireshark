@@ -122,7 +122,7 @@ declare_wslua.h: make-reg.pl $(wslua_modules) taps_wslua.c
 dummy:
 	touch dummy
 
-init.lua: template-init.lua make-init-lua.pl ../ftypes/ftypes.h ../../wiretap/wtap.h  ../proto.h ../../stat_menu.h
+init.lua: template-init.lua make-init-lua.pl ../ftypes/ftypes.h ../../wiretap/wtap.h  ../proto.h ../../ui/stat_menu.h
 	$(PERL) $(srcdir)/make-init-lua.pl $(top_srcdir) $(srcdir)/template-init.lua > init.lua
 
 checkapi:

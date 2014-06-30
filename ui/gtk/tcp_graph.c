@@ -45,8 +45,8 @@
 #include <epan/conv_id.h>
 
 #include "../../globals.h"
-#include "../../stat_menu.h"
 
+#include "ui/stat_menu.h"
 #include "ui/tap-tcp-stream.h"
 #include "ui/utf8_entities.h"
 

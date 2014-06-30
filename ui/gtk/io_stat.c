@@ -35,7 +35,7 @@
 #include <epan/tap.h>
 #include <epan/strutil.h>
 
-#include "../../stat_menu.h"
+#include "ui/stat_menu.h"
 #include "ui/alert_box.h"
 #include "ui/io_graph_item.h"
 #include "ui/simple_dialog.h"

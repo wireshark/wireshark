@@ -27,7 +27,7 @@
 #define _FUNNEL_H
 
 #include <glib.h>
-#include "../stat_menu.h"
+#include "ui/stat_menu.h"
 #include "ws_symbol_export.h"
 
 typedef struct _funnel_progress_window_t funnel_progress_window_t ;

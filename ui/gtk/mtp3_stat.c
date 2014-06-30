@@ -43,7 +43,7 @@
 #include <epan/emem.h>
 #include <epan/dissectors/packet-mtp3.h>
 
-#include "../stat_menu.h"
+#include "ui/stat_menu.h"
 #include "ui/simple_dialog.h"
 
 #include "ui/gtk/gui_stat_menu.h"

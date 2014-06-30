@@ -212,7 +212,7 @@ close PROTO_H;
 $menu_groups .= "-- menu groups for register_menu\n";
 my $menu_i = 0;
 
-open STAT_MENU, "< $WSROOT/stat_menu.h" or die "cannot open '$WSROOT/stat_menu.h':  $!";
+open STAT_MENU, "< $WSROOT/ui/stat_menu.h" or die "cannot open '$WSROOT/ui/stat_menu.h':  $!";
 my $foundit = 0;
 while(<STAT_MENU>) {
     # need to skip matching words in comments, and get to the enum

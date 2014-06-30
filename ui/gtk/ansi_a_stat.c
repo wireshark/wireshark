@@ -43,7 +43,7 @@
 #include <epan/dissectors/packet-bssap.h>
 #include <epan/dissectors/packet-ansi_a.h>
 
-#include "../stat_menu.h"
+#include "ui/stat_menu.h"
 
 #include "ui/simple_dialog.h"
 

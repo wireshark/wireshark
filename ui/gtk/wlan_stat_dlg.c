@@ -37,7 +37,7 @@
 #include "ui/simple_dialog.h"
 #include "ui/utf8_entities.h"
 
-#include "../stat_menu.h"
+#include "ui/stat_menu.h"
 
 #include "ui/gtk/gtkglobals.h"
 #include "ui/gtk/dlg_utils.h"

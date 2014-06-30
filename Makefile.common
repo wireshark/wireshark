@@ -87,7 +87,6 @@ WIRESHARK_COMMON_INCLUDES =	\
 	globals.h	\
 	iface_monitor.h \
 	log.h		\
-	stat_menu.h	\
 	summary.h	\
 	sync_pipe.h	\
 	ws80211_utils.h

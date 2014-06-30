@@ -36,7 +36,7 @@
 #include "wsutil/filesystem.h"
 
 #include "../globals.h"
-#include "../stat_menu.h"
+#include "ui/stat_menu.h"
 
 #include "ui/last_open_dir.h"
 #include "ui/simple_dialog.h"

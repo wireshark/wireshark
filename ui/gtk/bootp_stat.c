@@ -30,7 +30,7 @@
 #include <epan/epan.h>
 #include <epan/tap.h>
 
-#include "../stat_menu.h"
+#include "ui/stat_menu.h"
 
 #include "ui/simple_dialog.h"
 
