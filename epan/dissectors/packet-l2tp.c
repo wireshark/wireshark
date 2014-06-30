@@ -651,23 +651,23 @@ static const value_string avp_type_vals[] = {
     { 83,                           "Withdraw Outgoing Sessions" },                     /*[RFC4045] */
     { 84,                           "Multicast Packets Priority" },                     /*[RFC4045] */
     { 85,                           "Frame-Relay Header Length" },                      /*[RFC4591] */
-    { 86,                           "ATM Maximum Concatenated Cells AVP" },             /*[RFC4454] */
-    { 87,                           "OAM Emulation Required AVP" },                     /*[RFC4454] */
-    { 88,                           "ATM Alarm Status AVP" },                           /*[RFC4454] */
+    { 86,                           "ATM Maximum Concatenated Cells" },                 /*[RFC4454] */
+    { 87,                           "OAM Emulation Required" },                         /*[RFC4454] */
+    { 88,                           "ATM Alarm Status" },                               /*[RFC4454] */
     /*        Also, see ATM Alarm Status AVP Values below */
     { 89,                           "Attachment Group Identifier" },                    /*[RFC4667] */
     { 90,                           "Local End Identifier" },                           /*[RFC4667] */
     { 91,                           "Interface Maximum Transmission Unit" },            /*[RFC4667] */
     { 92,                           "FCS Retention" },                                  /*[RFC4720] */
-    { 93,                           "Tunnel Switching Aggregator ID AVP" },             /*[draft-ietf-l2tpext-tunnel-switching-06.txt] */
-    { 94,                           "Maximum Receive Unit (MRU) AVP" },                 /*[RFC4623] */
-    { 95,                           "Maximum Reassembled Receive Unit (MRRU) AVP" },    /*[RFC4623] */
-    { 96,                           "VCCV Capability AVP" },                            /*[RFC5085] */
-    { 97,                           "Connect Speed Update AVP" },                       /*[RFC5515] */
-    { 98,                           "Connect Speed Update Enable AVP" },                /*[RFC5515] */
-    { 99,                           "TDM Pseudowire AVP" },                             /*[RFC5611] */
+    { 93,                           "Tunnel Switching Aggregator ID" },                 /*[draft-ietf-l2tpext-tunnel-switching-06.txt] */
+    { 94,                           "Maximum Receive Unit (MRU)" },                     /*[RFC4623] */
+    { 95,                           "Maximum Reassembled Receive Unit (MRRU)" },        /*[RFC4623] */
+    { 96,                           "VCCV Capability" },                                /*[RFC5085] */
+    { 97,                           "Connect Speed Update" },                           /*[RFC5515] */
+    { 98,                           "Connect Speed Update Enable" },                    /*[RFC5515] */
+    { 99,                           "TDM Pseudowire" },                                 /*[RFC5611] */
     { 100,                          "RTP AVP" },                                        /*[RFC5611] */
-    { 101,                          "PW Switching Point AVP" },                         /*[RFC6073] */
+    { 101,                          "PW Switching Point" },                             /*[RFC6073] */
     { 0,                         NULL }
 };
 
@@ -1390,7 +1390,7 @@ static int dissect_l2tp_cisco_avps(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 
     default:
         proto_tree_add_text(l2tp_avp_tree, tvb, offset,
-                            avp_len, "Vendor-Specific AVP");
+                            avp_len-6, "Vendor-Specific AVP data");
         break;
     }
     offset += avp_len;
@@ -1557,7 +1557,7 @@ static void process_control_avps(tvbuff_t *tvb,
 
                     proto_tree_add_text(l2tp_avp_tree, tvb, idx, 2, "Type: %u", avp_type);
                     idx += 2;
-                    proto_tree_add_text(l2tp_avp_tree, tvb, idx, avp_len, "Vendor-Specific AVP");
+                    proto_tree_add_text(l2tp_avp_tree, tvb, idx, avp_len-6, "Vendor-Specific AVP data");
                     avp_len-=6;
                 }
                 idx += avp_len;
@@ -2006,8 +2006,9 @@ static void process_control_avps(tvbuff_t *tvb,
             break;
         }
         default:
-            proto_tree_add_text(l2tp_avp_tree, tvb, idx, avp_len,
-                                "Unknown AVP");
+            if(avp_len>0)
+                proto_tree_add_text(l2tp_avp_tree, tvb, idx, avp_len,
+                                    "AVP data not dissected yet");
             break;
         }
 
