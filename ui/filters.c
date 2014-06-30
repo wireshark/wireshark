@@ -598,4 +598,3 @@ void copy_filter_list(filter_list_type_t dest_type, filter_list_type_t src_type)
         *flpp_dest = add_filter_entry(*flpp_dest, filt->name, filt->strval);
     }
 }
-
