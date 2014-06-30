@@ -1059,6 +1059,7 @@ dissect_bthci_evt_disconn_complete(tvbuff_t *tvb, int offset, packet_info *pinfo
     offset += 1;
 
     proto_tree_add_item(tree, hf_bthci_evt_connection_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    connection_handle = tvb_get_letohs(tvb, offset) & 0x0FFF;
     offset += 2;
 
     proto_tree_add_item(tree, hf_bthci_evt_reason, tvb, offset, 1, ENC_LITTLE_ENDIAN);
