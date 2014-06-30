@@ -30,6 +30,7 @@ set(COMMON_UI_SRC
 	export_object_http.c
 	export_object_smb.c
 	export_object_tftp.c
+	filters.c
 	follow.c
 	help_url.c
 	iface_lists.c

@@ -1037,7 +1037,6 @@ if( (BUILD_wireshark AND GTK_FOUND) OR (BUILD_qtshark AND QT_FOUND) )
 		color_filters.c
 		file.c
 		fileset.c
-		filters.c
 		iface_monitor.c
 		summary.c
 		ws80211_utils.c
