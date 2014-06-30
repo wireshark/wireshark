@@ -2265,7 +2265,6 @@ main(int argc, char *argv[])
     runtime_info_str = g_string_new("Running ");
     get_runtime_version_info(runtime_info_str, get_gui_runtime_info);
 
-#ifdef _WIN32
     ws_add_crash_info(PACKAGE " " VERSION "%s\n"
         "\n"
         "%s"
@@ -2273,6 +2272,7 @@ main(int argc, char *argv[])
         "%s",
         wireshark_gitversion, comp_info_str->str, runtime_info_str->str);
 
+#ifdef _WIN32
     /* Start windows sockets */
     WSAStartup( MAKEWORD( 1, 1 ), &wsaData );
 #endif  /* _WIN32 */
