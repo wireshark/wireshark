@@ -12,7 +12,6 @@ include <win32.mak>
 CC = cl
 LINK= link
 BSCMAKE= bscmake
-CURR_DIR= "$(MAKEDIR)"
 
 WIN_SETUP=tools/$(WIRESHARK_TARGET_PLATFORM)-setup.sh
 
@@ -507,6 +506,8 @@ LUA_DIR = $(LUA_DIR:\=/)
 GEOIP_DIR = $(GEOIP_DIR:\=/)
 WINSPARKLE_DIR = $(WINSPARKLE_DIR:\=/)
 
+GCC_DLL = $(GCC_DLL)
+GPGERROR_DLL = $(GPGERROR_DLL)
 INTL_DLL = $(INTL_DLL)
 
 guilibsdll = $(guilibsdll)
@@ -524,7 +525,6 @@ QMAKE_CFLAGS         *= $(STANDARD_CFLAGS)
 # This avoids conflicts with the C++ standard library.
 QMAKE_CXXFLAGS       *= $(STANDARD_CFLAGS) /DNOMINMAX
 QMAKE_LFLAGS         *= /LARGEADDRESSAWARE $(LDFLAGS)
-
 <<KEEP
 
 #
@@ -1402,16 +1402,6 @@ install-all: install-generated-files
 	peflags --dynamicbase=true --nxcompat=true lib/gtk-2.0/modules/*.dll
 !ENDIF
 	cd ..
-!IF DEFINED(QT5_BASE_DIR)
-	cd $(QT5_BASE_DIR)\bin
-!IF "$(QT_VERSION)" == "5.2"
-	if exist windeployqt.exe windeployqt.exe $(CURR_DIR)"\$(INSTALL_DIR_QT)\qtshark.exe"
-!ENDIF
-!IF "$(QT_VERSION)" == "5.3"
-	if exist windeployqt.exe windeployqt.exe --release $(CURR_DIR)"\$(INSTALL_DIR_QT)\qtshark.exe"
-!ENDIF
-	cd "$(MAKEDIR)"
-!ENDIF
 
 checkapi_local:
 	$(PERL) tools/checkAPIs.pl -build \

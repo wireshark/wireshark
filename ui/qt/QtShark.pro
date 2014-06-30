@@ -406,11 +406,12 @@ win32 {
         EXTRA_BINFILES += \"$${MSVCR_DLL}\"
     }
 
-    PLATFORM_DLL_DIR = $(DESTDIR)\\platforms
+    PLATFORM_DLL_DIR = $(DESTDIR)platforms
     CONFIG(debug, debug|release) {
         isEqual(QT_MAJOR_VERSION, 4) {
             EXTRA_DLLS = QtCored4 QtGuid4
-        } else {
+        } else: lessThan(QT_MINOR_VERSION, 3) {
+            # The QT lib parts are copied by windeployqt post 5.3
             EXTRA_DLLS = Qt5Cored Qt5Guid Qt5Widgetsd Qt5PrintSupportd
             EXTRA_PLATFORM_DLLS = qwindowsd
             QMAKE_POST_LINK +=$$quote($(CHK_DIR_EXISTS) $${PLATFORM_DLL_DIR} $(MKDIR) $${PLATFORM_DLL_DIR}$$escape_expand(\\n\\t))
@@ -419,7 +420,8 @@ win32 {
     CONFIG(release, debug|release) {
         isEqual(QT_MAJOR_VERSION, 4) {
             EXTRA_DLLS = QtCore4 QtGui4
-        } else {
+        } else: lessThan(QT_MINOR_VERSION, 3) {
+            # The QT lib parts are copied by windeployqt post 5.3
             EXTRA_DLLS = Qt5Core Qt5Gui Qt5Widgets Qt5PrintSupport
             EXTRA_PLATFORM_DLLS = qwindows
             QMAKE_POST_LINK +=$$quote($(CHK_DIR_EXISTS) $${PLATFORM_DLL_DIR} $(MKDIR) $${PLATFORM_DLL_DIR}$$escape_expand(\\n\\t))
@@ -441,9 +443,9 @@ win32 {
         $${GLIB_DIR}/bin/libglib-2.0-0.dll $${GLIB_DIR}/bin/libgmodule-2.0-0.dll \
         $${GLIB_DIR}/bin/libgthread-2.0-0.dll $${GLIB_DIR}/bin/$${INTL_DLL} \
         $${C_ARES_DIR}/bin/libcares-2.dll $${ZLIB_DIR}/zlib1.dll \
-        $${GNUTLS_DIR}/bin/libffi-6.dll $${GNUTLS_DIR}/bin/$$(GCC_DLL) \
+        $${GNUTLS_DIR}/bin/libffi-6.dll $${GNUTLS_DIR}/bin/$${GCC_DLL} \
         $${GNUTLS_DIR}/bin/libgcrypt-20.dll $${GNUTLS_DIR}/bin/libgmp-10.dll \
-        $${GNUTLS_DIR}/bin/libgnutls-28.dll $${GNUTLS_DIR}/bin/$$(GPGERROR_DLL) \
+        $${GNUTLS_DIR}/bin/libgnutls-28.dll $${GNUTLS_DIR}/bin/$${GPGERROR_DLL} \
         $${GNUTLS_DIR}/bin/libhogweed-2-4.dll $${GNUTLS_DIR}/bin/libnettle-4-6.dll \
         $${GNUTLS_DIR}/bin/libp11-kit-0.dll $${GNUTLS_DIR}/bin/libtasn1-6.dll \
         $${GNUTLS_DIR}/bin/libintl-8.dll $${SMI_DIR}/bin/libsmi-2.dll \
@@ -461,9 +463,9 @@ win32 {
     for(FILE,EXTRA_BINFILES){
         QMAKE_POST_LINK +=$$quote($(COPY_FILE) $${FILE} $(DESTDIR)$$escape_expand(\\n\\t))
     }
-    PLUGINS_DIR = $(DESTDIR)\\plugins\\$${VERSION_FULL}
+    PLUGINS_DIR = $(DESTDIR)plugins\\$${VERSION_FULL}
     QMAKE_POST_LINK +=$$quote($(CHK_DIR_EXISTS) $${PLUGINS_DIR} $(MKDIR) $${PLUGINS_DIR}$$escape_expand(\\n\\t))
-    QMAKE_POST_LINK +=$$quote($(COPY_FILE) ..\\..\\$${INSTALL_DIR}\\plugins\\$${VERSION_FULL}\\*.dll $(DESTDIR)\\plugins\\$${VERSION_FULL}$$escape_expand(\\n\\t))
+    QMAKE_POST_LINK +=$$quote($(COPY_FILE) ..\\..\\$${INSTALL_DIR}\\plugins\\$${VERSION_FULL}\\*.dll $(DESTDIR)plugins\\$${VERSION_FULL}$$escape_expand(\\n\\t))
 
     # This doesn't depend on wireshark-gtk2. It also doesn't work.
     #PLUGINS_IN_PWD=$${IN_PWD}
@@ -471,6 +473,13 @@ win32 {
     #QMAKE_POST_LINK +=$$quote(cd $$replace(PLUGINS_IN_PWD, /, \\)\\..\\..\\plugins$$escape_expand(\\n\\t))
     #QMAKE_POST_LINK +=$$quote(nmake -f Makefile.nmake INSTALL_DIR=$$replace(PLUGINS_OUT_PWD, /, \\)\\$(DESTDIR)$$escape_expand(\\n\\t))
     #QMAKE_POST_LINK +=$$quote(cd $$replace(PLUGINS_IN_PWD, /, \\)$$escape_expand(\\n\\t))
+
+    # Use windeployqt to copy the required QT libs.
+    # Currently the QT bin dir has to be on the path for windeployqt to work
+    isEqual(QT_MAJOR_VERSION, 5):isEqual(QT_MINOR_VERSION, 3) {
+      QMAKE_POST_LINK +=$$quote(set PATH=%PATH%;$(QT5_BASE_DIR)\\bin$$escape_expand(\\n\\t))
+      QMAKE_POST_LINK +=$$quote(windeployqt --release $(DESTDIR)qtshark.exe)$$escape_expand(\\n\\t))
+    }
 }
 
 RESOURCES += \

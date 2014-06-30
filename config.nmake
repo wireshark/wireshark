@@ -332,6 +332,8 @@ QT5_BASE_DIR=C:\Qt\5.2.1\msvc2010
 QT5_BASE_DIR=C:\Qt\5.2.1\msvc2012
 !ELSE IF EXIST(C:\Qt\5.2.1\msvc2012_64)
 QT5_BASE_DIR=C:\Qt\5.2.1\msvc2012_64
+!ELSE IF EXIST(C:\Qt\Qt5.3.0\5.3\msvc2013)
+QT5_BASE_DIR=C:\Qt\Qt5.3.0\5.3\msvc2013
 # Digia official, installed in $(WIRESHARK_LIB_DIR)
 !ELSE IF EXIST($(WIRESHARK_LIB_DIR)\Qt5.1.1\5.1.1\msvc2010)
 QT5_BASE_DIR=$(WIRESHARK_LIB_DIR)\Qt5.1.1\5.1.1\msvc2010
@@ -1090,10 +1092,6 @@ ENABLE_LIBWIRESHARK=USE
 # install (debug) directory for Wireshark (relative to your source dir)
 INSTALL_DIR=wireshark-gtk2
 INSTALL_DIR_QT=wireshark-qt-release 
-
-#
-# Lacking a better way, define the Qt version used here
-QT_VERSION=5.2
 
 ##### C-Runtime Redistributable #####
 #
