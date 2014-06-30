@@ -146,6 +146,11 @@ static gint hf_sip_record_route_user      = -1;
 static gint hf_sip_record_route_host      = -1;
 static gint hf_sip_record_route_port      = -1;
 static gint hf_sip_record_route_param     = -1;
+static gint hf_sip_service_route          = -1;
+static gint hf_sip_service_route_user     = -1;
+static gint hf_sip_service_route_host     = -1;
+static gint hf_sip_service_route_port     = -1;
+static gint hf_sip_service_route_param    = -1;
 
 static gint hf_sip_auth                   = -1;
 static gint hf_sip_auth_scheme            = -1;
@@ -217,6 +222,7 @@ static gint ett_sip_security_verify       = -1;
 static gint ett_sip_rack                  = -1;
 static gint ett_sip_route                 = -1;
 static gint ett_sip_record_route          = -1;
+static gint ett_sip_service_route         = -1;
 static gint ett_sip_ruri                  = -1;
 static gint ett_sip_to_uri                = -1;
 static gint ett_sip_curi                  = -1;
@@ -776,6 +782,15 @@ static hf_sip_uri_t sip_record_route_uri = {
     &hf_sip_record_route_port,
     &hf_sip_record_route_param,
     &ett_sip_record_route
+};
+
+static hf_sip_uri_t sip_service_route_uri = {
+    &hf_sip_service_route,
+    &hf_sip_service_route_user,
+    &hf_sip_service_route_host,
+    &hf_sip_service_route_port,
+    &hf_sip_service_route_param,
+    &ett_sip_service_route
 };
 
 /*
@@ -3331,6 +3346,19 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                             dissect_sip_route_header(tvb, route_tree, pinfo, &sip_record_route_uri, value_offset, line_end_offset);
                         }
                         break;
+                    case POS_SERVICE_ROUTE:
+                        /* Add Service-Route subtree */
+                        if (hdr_tree) {
+                            sip_element_item = proto_tree_add_string(hdr_tree,
+                                                         hf_header_array[hf_index], tvb,
+                                                         offset, next_offset - offset,
+                                                         value);
+                            sip_proto_set_format_text(hdr_tree, sip_element_item, tvb, offset, linelen);
+
+                            route_tree = proto_item_add_subtree(sip_element_item, ett_sip_route);
+                            dissect_sip_route_header(tvb, route_tree, pinfo, &sip_service_route_uri, value_offset, line_end_offset);
+                        }
+                        break;
                     case POS_VIA:
                         /* Add Via subtree */
                         if (hdr_tree) {
@@ -4647,6 +4675,26 @@ void proto_register_sip(void)
           { "Record-Route URI parameter",   "sip.Record-Route.param",
             FT_STRING, BASE_NONE,NULL,0x0,NULL,HFILL }
         },
+        { &hf_sip_service_route,
+          { "Service-Route URI",         "sip.Service-Route.uri",
+            FT_STRING, BASE_NONE,NULL,0x0,NULL,HFILL }
+        },
+        { &hf_sip_service_route_user,
+          { "Service-Route Userinfo",    "sip.Service-Route.user",
+            FT_STRING, BASE_NONE,NULL,0x0,NULL,HFILL }
+        },
+        { &hf_sip_service_route_host,
+          { "Service-Route Host Part",   "sip.Service-Route.host",
+            FT_STRING, BASE_NONE,NULL,0x0,NULL,HFILL }
+        },
+        { &hf_sip_service_route_port,
+          { "Service-Route Host Port",   "sip.Service-Route.port",
+            FT_STRING, BASE_NONE,NULL,0x0,NULL,HFILL }
+        },
+        { &hf_sip_service_route_param,
+          { "Service-Route URI parameter",   "sip.Service-Route.param",
+            FT_STRING, BASE_NONE,NULL,0x0,NULL,HFILL }
+        },
 /* etxjowa end */
         { &hf_sip_contact_param,
           { "Contact parameter",       "sip.contact.parameter",
@@ -5633,6 +5681,7 @@ void proto_register_sip(void)
         &ett_sip_security_verify,
         &ett_sip_rack,
         &ett_sip_record_route,
+        &ett_sip_service_route,
         &ett_sip_route,
         &ett_sip_ruri,
         &ett_sip_pai_uri,
