@@ -445,7 +445,7 @@ static int ws80211_populate_devices(GArray *interfaces)
 	int i;
 	unsigned int j;
 
-	struct ws80211_iface_info pub;
+	struct ws80211_iface_info pub = {-1, WS80211_CHAN_NO_HT};
 	struct __iface_info iface_info;
 	struct ws80211_interface *iface;
 
