@@ -1204,8 +1204,10 @@ iostat_init(const char *opt_arg _U_, void* userdata _U_)
     io->view_as_time         = FALSE;
     io->start_time.secs      = 0;
     io->start_time.nsecs     = 0;
+    io->filter_type          = NO_FILTER;
 
     for (i=0; i<MAX_GRAPHS; i++) {
+        io->graphs[i].plot_style                = DEFAULT_PLOT_STYLE;
         io->graphs[i].color.pixel               = col[i].pixel;
         io->graphs[i].color.red                 = col[i].red;
         io->graphs[i].color.green               = col[i].green;
