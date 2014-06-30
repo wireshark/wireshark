@@ -2393,7 +2393,7 @@ host_name_lookup_process(void) {
     nfds = ares_fds(ghba_chan, &rfds, &wfds);
     if (nfds > 0) {
         if (select(nfds, &rfds, &wfds, NULL, &tv) == -1) { /* call to select() failed */
-            fprintf(stderr, "Warning: call to select() failed, error is %s\n", strerror(errno));
+            fprintf(stderr, "Warning: call to select() failed, error is %s\n", g_strerror(errno));
             return nro;
         }
         ares_process(ghba_chan, &rfds, &wfds);
@@ -2688,15 +2688,17 @@ host_name_lookup_init(void)
     }
     g_free(hostspath);
 #ifdef HAVE_C_ARES
+    if (gbl_resolv_flags.concurrent_dns) {
 #ifdef CARES_HAVE_ARES_LIBRARY_INIT
-    if (ares_library_init(ARES_LIB_INIT_ALL) == ARES_SUCCESS) {
+        if (ares_library_init(ARES_LIB_INIT_ALL) == ARES_SUCCESS) {
 #endif
-        if (ares_init(&ghba_chan) == ARES_SUCCESS && ares_init(&ghbn_chan) == ARES_SUCCESS) {
-            async_dns_initialized = TRUE;
+            if (ares_init(&ghba_chan) == ARES_SUCCESS && ares_init(&ghbn_chan) == ARES_SUCCESS) {
+                async_dns_initialized = TRUE;
+            }
+#ifdef CARES_HAVE_ARES_LIBRARY_INIT
         }
-#ifdef CARES_HAVE_ARES_LIBRARY_INIT
-    }
 #endif
+    }
 #else
 #ifdef HAVE_GNU_ADNS
     /*
@@ -2732,21 +2734,23 @@ host_name_lookup_init(void)
     }
 #endif /* _WIN32 */
 
-    /* XXX - Any flags we should be using? */
-    /* XXX - We could provide config settings for DNS servers, and
-       pass them to ADNS with adns_init_strcfg */
-    if (adns_init(&ads, adns_if_none, 0 /*0=>stderr*/) != 0) {
-        /*
-         * XXX - should we report the error?  I'm assuming that some crashes
-         * reported on a Windows machine with TCP/IP not configured are due
-         * to "adns_init()" failing (due to the lack of TCP/IP) and leaving
-         * ADNS in a state where it crashes due to that.  We'll still try
-         * doing name resolution anyway.
-         */
-        return;
+    if (gbl_resolv_flags.concurrent_dns) {
+        /* XXX - Any flags we should be using? */
+        /* XXX - We could provide config settings for DNS servers, and
+           pass them to ADNS with adns_init_strcfg */
+        if (adns_init(&ads, adns_if_none, 0 /*0=>stderr*/) != 0) {
+            /*
+             * XXX - should we report the error?  I'm assuming that some crashes
+             * reported on a Windows machine with TCP/IP not configured are due
+             * to "adns_init()" failing (due to the lack of TCP/IP) and leaving
+             * ADNS in a state where it crashes due to that.  We'll still try
+             * doing name resolution anyway.
+             */
+            return;
+        }
+        async_dns_initialized = TRUE;
+        async_dns_in_flight = 0;
     }
-    async_dns_initialized = TRUE;
-    async_dns_in_flight = 0;
 #endif /* HAVE_GNU_ADNS */
 #endif /* HAVE_C_ARES */
 
@@ -3221,7 +3225,7 @@ get_host_ipaddr(const char *host, guint32 *addrp)
         if (nfds > 0) {
             tvp = ares_timeout(ghbn_chan, &tv, &tv);
             if (select(nfds, &rfds, &wfds, NULL, tvp) == -1) { /* call to select() failed */
-                fprintf(stderr, "Warning: call to select() failed, error is %s\n", strerror(errno));
+                fprintf(stderr, "Warning: call to select() failed, error is %s\n", g_strerror(errno));
                 return FALSE;
             }
             ares_process(ghbn_chan, &rfds, &wfds);
@@ -3308,7 +3312,7 @@ get_host_ipaddr6(const char *host, struct e_in6_addr *addrp)
     if (nfds > 0) {
         tvp = ares_timeout(ghbn_chan, &tv, &tv);
         if (select(nfds, &rfds, &wfds, NULL, tvp) == -1) { /* call to select() failed */
-            fprintf(stderr, "Warning: call to select() failed, error is %s\n", strerror(errno));
+            fprintf(stderr, "Warning: call to select() failed, error is %s\n", g_strerror(errno));
             return FALSE;
         }
         ares_process(ghbn_chan, &rfds, &wfds);

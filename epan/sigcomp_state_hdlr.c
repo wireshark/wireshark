@@ -610,7 +610,6 @@ void
 sigcomp_init_udvm(void){
 
 	gchar *partial_state_str;
-	guint i;
 	guint8 *sip_sdp_buff, *presence_buff;
 
 	/* Destroy any existing memory chunks / hashes. */
@@ -636,15 +635,7 @@ sigcomp_init_udvm(void){
 	memset(sip_sdp_buff, 0, 8);
 	sip_sdp_buff[0] = SIP_SDP_STATE_LENGTH >> 8;
 	sip_sdp_buff[1] = SIP_SDP_STATE_LENGTH & 0xff;
-	i = 0;
-	while ( i < SIP_SDP_STATE_LENGTH ){
-		sip_sdp_buff[i+8] = sip_sdp_static_dictionaty_for_sigcomp[i];
-		/* Debug
-		 * g_warning(" Loading 0x%x at address %u",sip_sdp_buff[i] , i);
-		 */
-		i++;
-
-	}
+	memcpy(sip_sdp_buff+8, sip_sdp_static_dictionaty_for_sigcomp, SIP_SDP_STATE_LENGTH);
 
 	g_hash_table_insert(state_buffer_table, g_strdup(partial_state_str), sip_sdp_buff);
 	/*	Debug
@@ -659,11 +650,7 @@ sigcomp_init_udvm(void){
 	memset(presence_buff, 0, 8);
 	presence_buff[0] = PRESENCE_STATE_LENGTH >> 8;
 	presence_buff[1] = PRESENCE_STATE_LENGTH & 0xff;
-	i = 0;
-	while ( i < PRESENCE_STATE_LENGTH ){
-		presence_buff[i+8] = presence_static_dictionary_for_sigcomp[i];
-		i++;
-	}
+	memcpy(presence_buff+8, presence_static_dictionary_for_sigcomp, PRESENCE_STATE_LENGTH);
 
 	g_hash_table_insert(state_buffer_table, g_strdup(partial_state_str), presence_buff);
 }
@@ -879,3 +866,15 @@ void udvm_state_free(guint8 buff[],guint16 p_id_start,guint16 p_id_length){
 }
 #endif
 
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

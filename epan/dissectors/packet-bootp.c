@@ -5383,12 +5383,7 @@ bootp_init_protocol(void)
 	guint i;
 
 	/* first copy default_bootp_opt[] to bootp_opt[].  This resets all values to default */
-	for(i=0; i<BOOTP_OPT_NUM; i++)
-	{
-		bootp_opt[i].text = default_bootp_opt[i].text;
-		bootp_opt[i].ftype = default_bootp_opt[i].ftype;
-		bootp_opt[i].phf = default_bootp_opt[i].phf;
-	}
+	memcpy(bootp_opt, default_bootp_opt, sizeof(bootp_opt));
 
 	/* Now apply the custom options */
 	for (i = 0; i < num_bootp_records_uat; i++)
