@@ -493,52 +493,6 @@ int main(int argc, char *argv[])
     create_app_running_mutex();
 #endif
 
-    QString locale;
-    QString *cf_name = NULL;
-    QString *display_filter = NULL;
-    int optind_initial;
-    unsigned int in_file_type = WTAP_TYPE_AUTO;
-
-    // In Qt 5, C strings are treated always as UTF-8 when converted to
-    // QStrings; in Qt 4, the codec must be set to make that happen
-#if (QT_VERSION < QT_VERSION_CHECK(5, 0, 0))
-    // Hopefully we won't have to use QString::fromUtf8() in as many places.
-    QTextCodec *utf8codec = QTextCodec::codecForName("UTF-8");
-    QTextCodec::setCodecForCStrings(utf8codec);
-    // XXX - QObject doesn't *have* a tr method in 5.0, as far as I can see...
-    QTextCodec::setCodecForTr(utf8codec);
-#endif
-
-
-    // XXX Should the remaining code be in WiresharkApplcation::WiresharkApplication?
-#define OPTSTRING OPTSTRING_CAPTURE_COMMON "C:g:Hh" "jJ:kK:lm:nN:o:P:Qr:R:St:u:vw:X:z:"
-    static const struct option long_options[] = {
-        {(char *)"help", no_argument, NULL, 'h'},
-        {(char *)"read-file", required_argument, NULL, 'r' },
-        {(char *)"version", no_argument, NULL, 'v'},
-        LONGOPT_CAPTURE_COMMON
-        {0, 0, 0, 0 }
-    };
-    static const char optstring[] = OPTSTRING;
-
-    /* Assemble the compile-time version information string */
-    comp_info_str = g_string_new("Compiled ");
-
-    // xxx qtshark
-    get_compiled_version_info(comp_info_str, get_qt_compiled_info, get_gui_compiled_info);
-
-    /* Assemble the run-time version information string */
-    runtime_info_str = g_string_new("Running ");
-    // xxx qtshark
-    get_runtime_version_info(runtime_info_str, get_wireshark_runtime_info);
-
-    ws_add_crash_info(PACKAGE " %s\n"
-           "\n"
-           "%s"
-           "\n"
-           "%s",
-        get_ws_vcs_version_info(), comp_info_str->str, runtime_info_str->str);
-
     /*
      * Get credential information for later use, and drop privileges
      * before doing anything else.
@@ -579,7 +533,7 @@ int main(int argc, char *argv[])
 
         if (airpcap_if_list == NULL || g_list_length(airpcap_if_list) == 0){
             if (err == CANT_GET_AIRPCAP_INTERFACE_LIST && err_str != NULL) {
-                simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", "Failed to open Airpcap Adapters!");
+                simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", "Failed to open Airpcap Adapters.");
                 g_free(err_str);
             }
             airpcap_if_active = NULL;
@@ -608,7 +562,54 @@ int main(int argc, char *argv[])
 #endif
     }
 #endif /* HAVE_AIRPCAP */
+#endif /* _WIN32 */
 
+    QString locale;
+    QString *cf_name = NULL;
+    QString *display_filter = NULL;
+    int optind_initial;
+    unsigned int in_file_type = WTAP_TYPE_AUTO;
+
+    // In Qt 5, C strings are treated always as UTF-8 when converted to
+    // QStrings; in Qt 4, the codec must be set to make that happen
+#if (QT_VERSION < QT_VERSION_CHECK(5, 0, 0))
+    // Hopefully we won't have to use QString::fromUtf8() in as many places.
+    QTextCodec *utf8codec = QTextCodec::codecForName("UTF-8");
+    QTextCodec::setCodecForCStrings(utf8codec);
+    // XXX - QObject doesn't *have* a tr method in 5.0, as far as I can see...
+    QTextCodec::setCodecForTr(utf8codec);
+#endif
+
+    // XXX Should the remaining code be in WiresharkApplcation::WiresharkApplication?
+#define OPTSTRING OPTSTRING_CAPTURE_COMMON "C:g:Hh" "jJ:kK:lm:nN:o:P:Qr:R:St:u:vw:X:z:"
+    static const struct option long_options[] = {
+        {(char *)"help", no_argument, NULL, 'h'},
+        {(char *)"read-file", required_argument, NULL, 'r' },
+        {(char *)"version", no_argument, NULL, 'v'},
+        LONGOPT_CAPTURE_COMMON
+        {0, 0, 0, 0 }
+    };
+    static const char optstring[] = OPTSTRING;
+
+    /* Assemble the compile-time version information string */
+    comp_info_str = g_string_new("Compiled ");
+
+    // xxx qtshark
+    get_compiled_version_info(comp_info_str, get_qt_compiled_info, get_gui_compiled_info);
+
+    /* Assemble the run-time version information string */
+    runtime_info_str = g_string_new("Running ");
+    // xxx qtshark
+    get_runtime_version_info(runtime_info_str, get_wireshark_runtime_info);
+
+    ws_add_crash_info(PACKAGE " %s\n"
+           "\n"
+           "%s"
+           "\n"
+           "%s",
+        get_ws_vcs_version_info(), comp_info_str->str, runtime_info_str->str);
+
+#ifdef _WIN32
     /* Start windows sockets */
     WSAStartup( MAKEWORD( 1, 1 ), &wsaData );
 #endif  /* _WIN32 */
