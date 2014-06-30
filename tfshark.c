@@ -821,9 +821,13 @@ main(int argc, char *argv[])
 #endif /* _WIN32 */
 
   /*
-   * Get credential information for later use.
+   * Get credential information for later use, and drop privileges
+   * before doing anything else.
+   * Let the user know if anything happened.
    */
   init_process_policies();
+  relinquish_special_privs_perm();
+  print_current_user();
 
   /*
    * Attempt to get the pathname of the executable file.
@@ -1426,14 +1430,6 @@ main(int argc, char *argv[])
     /*
      * We're reading a capture file.
      */
-
-    /*
-     * Immediately relinquish any special privileges we have; we must not
-     * be allowed to read any capture files the user running TShark
-     * can't open.
-     */
-    relinquish_special_privs_perm();
-    print_current_user();
 
     /* TODO: if tfshark is ever changed to give the user a choice of which
        open_routine reader to use, then the following needs to change. */

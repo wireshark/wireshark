@@ -1040,9 +1040,13 @@ main(int argc, char *argv[])
 #endif /* _WIN32 */
 
   /*
-   * Get credential information for later use.
+   * Get credential information for later use, and drop privileges
+   * before doing anything else.
+   * Let the user know if anything happened.
    */
   init_process_policies();
+  relinquish_special_privs_perm();
+  print_current_user();
 
   /*
    * Attempt to get the pathname of the executable file.
@@ -2058,15 +2062,6 @@ main(int argc, char *argv[])
     /*
      * We're reading a capture file.
      */
-
-    /*
-     * Immediately relinquish any special privileges we have; we must not
-     * be allowed to read any capture files the user running TShark
-     * can't open.
-     */
-    relinquish_special_privs_perm();
-    print_current_user();
-
     if (cf_open(&cfile, cf_name, in_file_type, FALSE, &err) != CF_OK) {
       epan_cleanup();
       return 2;
@@ -2406,30 +2401,6 @@ capture(void)
 #ifndef _WIN32
   struct sigaction  action, oldaction;
 #endif
-
-  /*
-   * XXX - dropping privileges is still required, until code cleanup is done
-   *
-   * remove all dependencies to pcap specific code and using only dumpcap is almost done.
-   * when it's done, we don't need special privileges to run tshark at all,
-   * therefore we don't need to drop these privileges
-   * The only thing we might want to keep is a warning if tshark is run as root,
-   * as it's no longer necessary and potentially dangerous.
-   *
-   * THE FOLLOWING IS THE FORMER COMMENT WHICH IS NO LONGER REALLY VALID:
-   * We've opened the capture device, so we shouldn't need any special
-   * privileges any more; relinquish those privileges.
-   *
-   * XXX - if we have saved set-user-ID support, we should give up those
-   * privileges immediately, and then reclaim them long enough to get
-   * a list of network interfaces and to open one, and then give them
-   * up again, so that stuff we do while processing the argument list,
-   * reading the user's preferences, loading and starting plugins
-   * (especially *user* plugins), etc. is done with the user's privileges,
-   * not special privileges.
-   */
-  relinquish_special_privs_perm();
-  print_current_user();
 
   /* Create new dissection section. */
   epan_free(cfile.epan);
