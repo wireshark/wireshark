@@ -78,6 +78,7 @@ depcomp
 dftest
 dumpcap
 editcap
+echld_test
 exntest
 gitversion.h
 install-sh
