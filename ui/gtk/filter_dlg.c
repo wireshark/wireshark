@@ -30,7 +30,7 @@
 #include <epan/prefs.h>
 #include <epan/proto.h>
 
-#include "../filters.h"
+#include "ui/filters.h"
 #include "ui/simple_dialog.h"
 #include "ui/main_statusbar.h"
 

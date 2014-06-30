@@ -194,7 +194,6 @@ SOURCES_WS_C = \
     ../../color_filters.c \
     ../../file.c  \
     ../../fileset.c       \
-    ../../filters.c       \
     ../../frame_tvbuff.c   \
     ../../summary.c       \
     ../../sync_pipe_write.c       \

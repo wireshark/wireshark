@@ -5,7 +5,6 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
@@ -21,8 +20,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef FILTERS_H
-#define FILTERS_H
+#ifndef __UI_FILTERS_H__
+#define __UI_FILTERS_H__
 
 #ifdef __cplusplus
 extern "C" {
@@ -94,4 +93,4 @@ void copy_filter_list(filter_list_type_t dest_type, filter_list_type_t src_type)
 }
 #endif /* __cplusplus */
 
-#endif /* FILTERS_H */
+#endif /* __UI_FILTERS_H__ */

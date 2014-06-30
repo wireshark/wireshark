@@ -51,6 +51,7 @@ WIRESHARK_UI_SRC = \
 	export_object_http.c	\
 	export_object_smb.c	\
 	export_object_tftp.c	\
+	filters.c		\
 	follow.c		\
 	iface_lists.c		\
 	io_graph_item.c		\
@@ -82,6 +83,7 @@ noinst_HEADERS = \
 	export_object.h		\
 	last_open_dir.h		\
 	file_dialog.h		\
+	filters.h		\
 	follow.h		\
 	help_url.h		\
 	packet_list_utils.h	\

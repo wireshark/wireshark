@@ -100,12 +100,10 @@
 #include "../file.h"
 #include "../frame_tvbuff.h"
 #include "../summary.h"
-#include "../filters.h"
 #include "../color.h"
 #include "../color_filters.h"
 #include "../register.h"
 #include "../ringbuffer.h"
-#include "ui/util.h"
 #include "../version_info.h"
 #include "../log.h"
 
@@ -113,6 +111,7 @@
 
 #include "ui/alert_box.h"
 #include "ui/decode_as_utils.h"
+#include "ui/filters.h"
 #include "ui/main_statusbar.h"
 #include "ui/persfilepath_opt.h"
 #include "ui/preference_utils.h"
@@ -121,6 +120,7 @@
 #include "ui/software_update.h"
 #include "ui/simple_dialog.h"
 #include "ui/ui_util.h"
+#include "ui/util.h"
 
 #ifdef HAVE_LIBPCAP
 #include "ui/capture_ui_utils.h"

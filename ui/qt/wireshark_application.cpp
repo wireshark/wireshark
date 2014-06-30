@@ -35,12 +35,12 @@
 
 #include "qt_ui_utils.h"
 
-#include "ui/capture.h"
 #include "color_filters.h"
-#include "filters.h"
 #include "log.h"
 #include "recent_file_status.h"
 
+#include "ui/capture.h"
+#include "ui/filters.h"
 #include "ui/capture_globals.h"
 #include "ui/software_update.h"
 #include "ui/last_open_dir.h"
