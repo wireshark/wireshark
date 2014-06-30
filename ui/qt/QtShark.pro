@@ -191,7 +191,6 @@ SOURCES_WS_C = \
     ../../capture.c       \
     ../../capture_info.c  \
     ../../capture_opts.c \
-    ../../capture_ui_utils.c \
     ../../cfile.c \
     ../../color_filters.c \
     ../../file.c  \

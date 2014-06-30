@@ -924,7 +924,6 @@ set(SHARK_COMMON_SRC
 # sources common for wireshark and tshark, but not rawshark;
 # these are for programs that capture traffic by running dumpcap
 set(SHARK_COMMON_CAPTURE_SRC
-	capture_ui_utils.c
 )
 
 set(TSHARK_TAP_SRC

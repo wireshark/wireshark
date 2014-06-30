@@ -44,9 +44,9 @@
 #include <epan/crypt/airpdcap_ws.h>
 #include <epan/strutil.h>
 #include <epan/frequency-utils.h>
-#include "capture_ui_utils.h"
 #include <wsutil/file_util.h>
 
+#include "ui/capture_ui_utils.h"
 #include "ui/simple_dialog.h"
 
 #include <airpcap.h>

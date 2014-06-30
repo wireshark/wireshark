@@ -32,8 +32,7 @@
 #include <epan/prefs.h>
 #include <epan/to_str.h>
 
-#include "../capture_ui_utils.h"
-
+#include "ui/capture_ui_utils.h"
 #include "ui/capture_globals.h"
 #include "ui/iface_lists.h"
 #include "../log.h"

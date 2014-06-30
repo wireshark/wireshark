@@ -38,7 +38,6 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
-#include "capture_ui_utils.h"
 
 #include "capture_opts.h"
 #include "ringbuffer.h"

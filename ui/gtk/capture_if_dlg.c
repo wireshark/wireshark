@@ -36,10 +36,10 @@
 #include <capchild/capture_ifinfo.h>
 #include "../capture.h"
 #include "../capture-pcap-util.h"
-#include "../capture_ui_utils.h"
 #include "wsutil/file_util.h"
 #include <wiretap/wtap.h>
 
+#include "ui/capture_ui_utils.h"
 #include "ui/capture_globals.h"
 #include "ui/recent.h"
 #include "ui/simple_dialog.h"

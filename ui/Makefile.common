@@ -43,6 +43,7 @@ GENERATOR_FILES = \
 
 WIRESHARK_UI_SRC = \
 	alert_box.c		\
+	capture_ui_utils.c	\
 	decode_as_utils.c	\
 	export_object.c		\
 	export_object_dicom.c	\
@@ -73,6 +74,7 @@ WIRESHARK_UI_SRC = \
 noinst_HEADERS = \
 	alert_box.h		\
 	capture_globals.h	\
+	capture_ui_utils.h	\
 	decode_as_utils.h	\
 	export_object.h		\
 	last_open_dir.h		\

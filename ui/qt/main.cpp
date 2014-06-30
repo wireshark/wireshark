@@ -95,6 +95,9 @@
 
 #include "ui/alert_box.h"
 #include "ui/capture_globals.h"
+#ifdef HAVE_LIBPCAP
+#  include "ui/capture_ui_utils.h"
+#endif
 #include "ui/iface_lists.h"
 #include "ui/main_statusbar.h"
 #include "ui/persfilepath_opt.h"
@@ -103,7 +106,6 @@
 #include "ui/ui_util.h"
 
 #ifdef HAVE_LIBPCAP
-#  include "capture_ui_utils.h"
 #  include "capture-pcap-util.h"
 #  include <capchild/capture_ifinfo.h>
 #  include "capture.h"

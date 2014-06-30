@@ -27,8 +27,8 @@
 #include <epan/packet.h>
 #include "cfile.h"
 #include "summary.h"
-#ifdef HAVE_LIBPCAP
-#include "capture_ui_utils.h"
+#if 0
+#include "ui/capture_ui_utils.h"
 #endif
 
 

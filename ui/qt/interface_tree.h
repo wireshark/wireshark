@@ -30,7 +30,7 @@
 #include "capture.h"
 #include "capture-pcap-util.h"
 #include "capture_opts.h"
-#include "capture_ui_utils.h"
+#include "ui/capture_ui_utils.h"
 #endif
 
 #include <QTreeWidget>

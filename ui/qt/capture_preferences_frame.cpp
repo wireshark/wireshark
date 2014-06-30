@@ -28,7 +28,7 @@
 
 #include <QSpacerItem>
 
-#include "capture_ui_utils.h"
+#include "ui/capture_ui_utils.h"
 #include "ui/ui_util.h"
 
 #include <cstdio>

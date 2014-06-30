@@ -45,7 +45,6 @@
 #ifdef HAVE_LIBPCAP
 #include "capture.h"
 #include "capture-pcap-util.h"
-#include "capture_ui_utils.h"
 #endif
 
 #include "wsutil/file_util.h"
@@ -56,6 +55,9 @@
 #include <epan/value_string.h>
 
 #include "ui/alert_box.h"
+#ifdef HAVE_LIBPCAP
+#include "ui/capture_ui_utils.h"
+#endif
 #include "ui/ui_util.h"
 #include "ui/capture_globals.h"
 #include "ui/help_url.h"

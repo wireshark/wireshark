@@ -89,6 +89,9 @@
 #include <epan/column.h>
 #include <epan/print.h>
 #include <epan/addr_resolv.h>
+#ifdef HAVE_LIBPCAP
+#include "ui/capture_ui_utils.h"
+#endif
 #include "ui/util.h"
 #include "ui/ui_util.h"
 #include "version_info.h"
@@ -102,7 +105,6 @@
 #include "capture_opts.h"
 
 #ifdef HAVE_LIBPCAP
-#include "capture_ui_utils.h"
 #include <capchild/capture_ifinfo.h>
 #include "capture-pcap-util.h"
 #ifdef _WIN32

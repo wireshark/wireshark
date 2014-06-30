@@ -41,7 +41,7 @@
 #include <capchild/capture_ifinfo.h>
 #include <capchild/capture_sync.h>
 #include "capture_info.h"
-#include "capture_ui_utils.h"
+#include "ui/capture_ui_utils.h"
 #include "ui/util.h"
 #include "capture-pcap-util.h"
 #include <epan/prefs.h>

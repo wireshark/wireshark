@@ -32,8 +32,9 @@
 
 #include "../capture.h"
 #include "../capture_info.h"
-#include "../capture_ui_utils.h"
 #include "../capture-pcap-util.h"
+
+#include "ui/capture_ui_utils.h"
 
 #include "ui/gtk/dlg_utils.h"
 #include "ui/gtk/gui_utils.h"

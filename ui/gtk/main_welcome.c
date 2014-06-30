@@ -32,7 +32,6 @@
 #include "capture.h"
 #include "capture-pcap-util.h"
 #include "capture_opts.h"
-#include "capture_ui_utils.h"
 #endif
 
 #include <wsutil/file_util.h>
@@ -40,6 +39,7 @@
 #include <wsutil/ws_version_info.h>
 
 #ifdef HAVE_LIBPCAP
+#include "ui/capture_ui_utils.h"
 #include "ui/iface_lists.h"
 #include "ui/capture_globals.h"
 #endif

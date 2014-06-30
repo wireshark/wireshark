@@ -123,6 +123,7 @@
 #include "ui/ui_util.h"
 
 #ifdef HAVE_LIBPCAP
+#include "ui/capture_ui_utils.h"
 #include "ui/capture_globals.h"
 #include "ui/iface_lists.h"
 #endif
@@ -130,7 +131,6 @@
 #include "codecs/codecs.h"
 
 #ifdef HAVE_LIBPCAP
-#include "capture_ui_utils.h"
 #include "capture-pcap-util.h"
 #include <capchild/capture_ifinfo.h>
 #include "capture.h"

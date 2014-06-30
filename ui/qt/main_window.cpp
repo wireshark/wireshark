@@ -33,11 +33,13 @@
 #ifdef HAVE_LIBPCAP
 #include "capture.h"
 #include "capture-pcap-util.h"
-#include "capture_ui_utils.h"
 #include "capture_session.h"
 #endif
 
 #include "ui/alert_box.h"
+#ifdef HAVE_LIBPCAP
+#include "ui/capture_ui_utils.h"
+#endif
 #include "ui/capture_globals.h"
 #include "ui/main_statusbar.h"
 #include "ui/recent.h"

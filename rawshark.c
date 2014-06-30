@@ -84,12 +84,14 @@
 #include <epan/column.h>
 #include <epan/print.h>
 #include <epan/addr_resolv.h>
+#ifdef HAVE_LIBPCAP
+#include "ui/capture_ui_utils.h"
+#endif
 #include "ui/util.h"
 #include "version_info.h"
 #include "register.h"
 #include "conditions.h"
 #include "capture_stop_conditions.h"
-#include "capture_ui_utils.h"
 #include <epan/epan_dissect.h>
 #include <epan/stat_cmd_args.h>
 #include <epan/timestamp.h>
