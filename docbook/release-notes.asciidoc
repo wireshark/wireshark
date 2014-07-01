@@ -32,6 +32,7 @@ The following bugs have been fixed:
 // Should be sorted numerically.
 //* Wireshark will practice the jazz flute for hours on end when you're trying to sleep. (ws-buglink:0000[])
 GSM MAP: ensure that p2p_dir is always initialized before calling GSM SMS dissector (ws-buglink:10234[])
+BFCP: include padding length in calculation of correct attribute length (ws-buglink:10240[])
 
 === New and Updated Features
 

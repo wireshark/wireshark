@@ -207,6 +207,8 @@ dissect_bfcp_attributes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 		length = tvb_get_guint8(tvb, offset);
 		offset++;
 
+		pad_len = 0; /* Default to no padding*/
+
 		switch(attribute_type){
 		case 1: /* Beneficiary ID */
 			proto_tree_add_item(bfcp_attr_tree, hf_bfcp_beneficiary_id, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -373,7 +375,7 @@ dissect_bfcp_attributes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 			offset = offset + length - 2; 
 			break;
 		}
-		if (length < (offset - attr_start_offset)){
+		if ((length+pad_len) < (offset - attr_start_offset)){
 			expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR,
 							"Attribute length is too small (%d bytes)", length);
 			break;
