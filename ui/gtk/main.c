@@ -2264,6 +2264,7 @@ main(int argc, char *argv[])
     runtime_info_str = g_string_new("Running ");
     get_runtime_version_info(runtime_info_str, get_wireshark_runtime_info);
 
+    /* Add it to the information to be reported on a crash. */
     ws_add_crash_info(PACKAGE " %s\n"
         "\n"
         "%s"
