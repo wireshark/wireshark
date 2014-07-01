@@ -33,10 +33,11 @@ Source:		http://wireshark.org/download/src/%{name}-%{version}.tar.bz2
 # Or this URL for automated builds:
 #Source:	http://wireshark.org/download/automated/src/%{name}-%{version}.tar.bz2
 URL:		http://www.wireshark.org/
-BuildRoot:	/tmp/wireshark-%{PACKAGE_VERSION}-root
 Packager:	Gerald Combs <gerald[AT]wireshark.org>
 # Some distributions create a wireshark-devel package; get rid of it
 Obsoletes:	wireshark-devel
+
+BuildRoot:	/tmp/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:	autoconf >= @AC_MIN_VERSION@
 BuildRequires:	automake
@@ -365,7 +366,7 @@ gtk-update-icon-cache /usr/share/icons/hicolor &>/dev/null || :
 - Make it possible to not build the GNOME package.
 
 * Tue Nov 12 2013 Jeff Morriss
-- Add q qt package using 'alternatives' to allow the administrator to choose
+- Add a qt package using 'alternatives' to allow the administrator to choose
   which one they actually use.
 
 * Fri Sep 20 2013 Jeff Morriss
