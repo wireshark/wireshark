@@ -227,8 +227,8 @@ if test "x$GCC" = "xyes" -o "x$CC" = "xxlc" -o "x$CC" = "xclang" ; then
 fi
 
 #
-# Set "ac_supports_attribute_unused" if the compiler is known to
-# support "__attribute__(unused)".
+# Set "ac_supports_W_linker_passthrough" if the compiler is known to
+# support "-Wl,{option}" to pass options through to the linker.
 # Currently, we assume GCC and clang do; other compilers should
 # be added here.
 #

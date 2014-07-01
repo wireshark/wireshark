@@ -1553,10 +1553,14 @@ AC_DEFUN([AC_WIRESHARK_GEOIP_CHECK],
 #
 # $1 : ldflag(s) to test
 #
-# The macro first determines if the compiler supports "-Wl,{option}" to
-# pass options through to the linker. Then it attempts to compile with
-# the defined ldflags. The defined flags are added to LDFLAGS only if
-# the compilation succeeds.
+# If we've determined that the compiler supports "-Wl,{option}" to
+# pass options through to the linker, we use that to attempt to
+# compile with the defined ldflags. The defined flags are added to
+# LDFLAGS only if the compilation succeeds.
+#
+# XXX - not all flags passed to AC_WIRESHARK_LDFLAGS_CHECK are
+# -Wl,{option} flags; should we just try the flag without bothering
+# to check whether -Wl,{option} is supported?
 #
 AC_DEFUN([AC_WIRESHARK_LDFLAGS_CHECK],
 [GCC_OPTION="$1"
