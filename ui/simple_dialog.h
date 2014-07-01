@@ -166,11 +166,7 @@ extern void display_queued_messages(void);
  */
 extern void simple_message_box(ESD_TYPE_E type, gboolean *notagain,
                                const char *secondary_msg,
-                               const char *msg_format, ...)
-#if __GNUC__ >= 2
-    __attribute__((format(printf, 4, 5)))
-#endif
-;
+                               const char *msg_format, ...) G_GNUC_PRINTF(4, 5);
 
 /*
  * Error alert box, taking a format and a va_list argument.
