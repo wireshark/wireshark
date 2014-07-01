@@ -874,8 +874,8 @@ dissect_mux27010(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             /*If frame has data inside the length_value is > 0*/
             if (cc.length_value > 0) {
                 /*Add another subtree to the control channel subtree => in this subtree the details of control channel values/data will be displayed*/
-                tf_ctr = proto_tree_add_text(field_tree, tvb, offset, cc.length_value, "Data: %i Byte(s)", cc.length_value);
-                field_tree_ctr = proto_item_add_subtree(tf_ctr, ett_mux27010_controlchannelvalue);
+                field_tree_ctr = proto_tree_add_subtree_format(field_tree, tvb, offset, cc.length_value,
+                                ett_mux27010_controlchannelvalue, NULL, "Data: %i Byte(s)", cc.length_value);
 
                 /*Get data of frame*/
                 offset += getControlChannelValues(tvb, field_tree_ctr, offset, &cc, &cc_type);

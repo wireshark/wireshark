@@ -135,7 +135,7 @@ dissect_mdshdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 
 /* Set up structures needed to add the protocol subtree and manage it */
-    proto_item *ti_main, *ti_hdr, *ti_trlr;
+    proto_item *ti_main;
     proto_item *hidden_item;
     proto_tree *mdshdr_tree_main, *mdshdr_tree_hdr, *mdshdr_tree_trlr;
     int         offset        = 0;
@@ -192,10 +192,9 @@ dissect_mdshdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         mdshdr_tree_main = proto_item_add_subtree(ti_main, ett_mdshdr);
 
         /* Add Header part as subtree first */
-        ti_hdr = proto_tree_add_text(mdshdr_tree_main, tvb, MDSHDR_VER_OFFSET,
-                                     MDSHDR_HEADER_SIZE, "MDS Header");
+        mdshdr_tree_hdr = proto_tree_add_subtree(mdshdr_tree_main, tvb, MDSHDR_VER_OFFSET,
+                                     MDSHDR_HEADER_SIZE, ett_mdshdr_hdr, NULL, "MDS Header");
 
-        mdshdr_tree_hdr = proto_item_add_subtree(ti_hdr, ett_mdshdr_hdr);
         hidden_item = proto_tree_add_item(mdshdr_tree_hdr, hf_mdshdr_sof, tvb, MDSHDR_SOF_OFFSET,
                                           MDSHDR_SIZE_BYTE, ENC_BIG_ENDIAN);
         PROTO_ITEM_SET_HIDDEN(hidden_item);
@@ -215,10 +214,9 @@ dissect_mdshdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         /* Add Mdshdr Trailer part */
         if (tvb_length(tvb) >= MDSHDR_HEADER_SIZE + pktlen
             && 0 != trailer_start) {
-            ti_trlr = proto_tree_add_text(mdshdr_tree_main, tvb, trailer_start,
+            mdshdr_tree_trlr = proto_tree_add_subtree(mdshdr_tree_main, tvb, trailer_start,
                                           MDSHDR_TRAILER_SIZE,
-                                          "MDS Trailer");
-            mdshdr_tree_trlr = proto_item_add_subtree(ti_trlr, ett_mdshdr_trlr);
+                                          ett_mdshdr_trlr, NULL, "MDS Trailer");
 
             proto_tree_add_item(mdshdr_tree_trlr, hf_mdshdr_eof, tvb,
                                 trailer_start, MDSHDR_SIZE_BYTE, ENC_BIG_ENDIAN);

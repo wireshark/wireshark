@@ -149,7 +149,6 @@ dissect_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mndp_tree,
 {
 	guint32 tlv_type;
 	guint32 tlv_length;
-	proto_item *tlv_item;
 	proto_item *tlv_tree;
 	proto_item *type_item;
 	int type_index;
@@ -159,14 +158,13 @@ dissect_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mndp_tree,
 	tlv_type = tvb_get_ntohs(tvb, offset);
 	tlv_length = tvb_get_ntohs(tvb, offset + 2);
 	/* DISSECTOR_ASSERT(tlv_length >= 4); */
-	tlv_item = proto_tree_add_text(mndp_tree, tvb,
-		offset, tlv_length+4,
+	tlv_tree = proto_tree_add_subtree_format(mndp_tree, tvb,
+		offset, tlv_length+4, ett_mndp_tlv_header, NULL,
 		"T %d, L %d: %s",
 		tlv_type,
 		tlv_length,
 		extval_to_str_idx(tlv_type, value_array, NULL, "Unknown"));
-	tlv_tree = proto_item_add_subtree(tlv_item,
-		ett_mndp_tlv_header);
+
 	type_item = proto_tree_add_item(tlv_tree, hf_mndp_tlv_type,
 		tvb, offset, 2, ENC_BIG_ENDIAN);
 	proto_item_append_text(type_item, " = %s",

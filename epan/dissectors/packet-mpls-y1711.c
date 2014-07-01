@@ -119,7 +119,6 @@ dissect_mpls_y1711(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 {
     struct mplsinfo *mplsinfo;
     int              offset          = 0;
-    proto_item      *ti;
     proto_tree      *mpls_y1711_tree;
     int              functype;
     tvbuff_t        *data_tvb;
@@ -156,8 +155,7 @@ dissect_mpls_y1711(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
         return tvb_reported_length(tvb);
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, 44, "Y.1711 OAM");
-    mpls_y1711_tree = proto_item_add_subtree(ti, ett_mpls_y1711);
+    mpls_y1711_tree = proto_tree_add_subtree(tree, tvb, offset, 44, ett_mpls_y1711, NULL, "Y.1711 OAM");
 
     /* checks for exp, bos and ttl encoding */
     if (mplsinfo->label != MPLS_LABEL_OAM_ALERT)

@@ -4244,8 +4244,8 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                 break;
                             }
                             byte = tvb_get_guint8(tvb, curr_offset);
-                            ephr_cell_ti = proto_tree_add_text(ephr_tree, tvb, curr_offset, (!(byte&0x40)?2:1), "PCell PUCCH");
-                            ephr_cell_tree = proto_item_add_subtree(ephr_cell_ti, ett_mac_lte_extended_power_headroom_cell);
+                            ephr_cell_tree = proto_tree_add_subtree(ephr_tree, tvb, curr_offset, (!(byte&0x40)?2:1),
+                                            ett_mac_lte_extended_power_headroom_cell, &ephr_cell_ti, "PCell PUCCH");
                             proto_tree_add_item(ephr_cell_tree, hf_mac_lte_control_ext_power_headroom_power_backoff,
                                                 tvb, curr_offset, 1, ENC_BIG_ENDIAN);
                             proto_tree_add_item(ephr_cell_tree, hf_mac_lte_control_ext_power_headroom_value,
@@ -4274,8 +4274,8 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                             }
                         }
                         byte = tvb_get_guint8(tvb, curr_offset);
-                        ephr_cell_ti = proto_tree_add_text(ephr_tree, tvb, curr_offset, (!(byte&0x40)?2:1), "PCell PUSCH");
-                        ephr_cell_tree = proto_item_add_subtree(ephr_cell_ti, ett_mac_lte_extended_power_headroom_cell);
+                        ephr_cell_tree = proto_tree_add_subtree(ephr_tree, tvb, curr_offset, (!(byte&0x40)?2:1),
+                                            ett_mac_lte_extended_power_headroom_cell, &ephr_cell_ti, "PCell PUSCH");
                         proto_tree_add_item(ephr_cell_tree, hf_mac_lte_control_ext_power_headroom_power_backoff,
                                             tvb, curr_offset, 1, ENC_BIG_ENDIAN);
                         proto_tree_add_item(ephr_cell_tree, hf_mac_lte_control_ext_power_headroom_value,
@@ -4305,8 +4305,8 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                         for (i = 1, scell_bitmap>>=1; i <= 7; i++, scell_bitmap>>=1) {
                             if (scell_bitmap & 0x01) {
                                 byte = tvb_get_guint8(tvb, curr_offset);
-                                ephr_cell_ti = proto_tree_add_text(ephr_tree, tvb, curr_offset, (!(byte&0x40)?2:1), "SCell Index %u PUSCH", i);
-                                ephr_cell_tree = proto_item_add_subtree(ephr_cell_ti, ett_mac_lte_extended_power_headroom_cell);
+                                ephr_cell_tree = proto_tree_add_subtree_format(ephr_tree, tvb, curr_offset, (!(byte&0x40)?2:1),
+                                                    ett_mac_lte_extended_power_headroom_cell, &ephr_cell_ti, "SCell Index %u PUSCH", i);
                                 proto_tree_add_item(ephr_cell_tree, hf_mac_lte_control_ext_power_headroom_power_backoff,
                                                     tvb, curr_offset, 1, ENC_BIG_ENDIAN);
                                 proto_tree_add_item(ephr_cell_tree, hf_mac_lte_control_ext_power_headroom_value,

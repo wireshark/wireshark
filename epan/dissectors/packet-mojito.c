@@ -197,8 +197,7 @@ dissect_mojito_address(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	/* new subtree for socket address*/
 	socket_address_version = tvb_get_guint8(tvb, offset);
-	socket_item = proto_tree_add_text(tree, tvb, offset, 1, "%s", title);
-	socket_tree = proto_item_add_subtree(socket_item, ett_mojito_socket_address);
+	socket_tree = proto_tree_add_subtree(tree, tvb, offset, 1, ett_mojito_socket_address, &socket_item, title);
 
 	proto_tree_add_item(socket_tree, hf_mojito_socketaddress_version, tvb, offset, 1, ENC_NA);
 	offset += 1;
@@ -241,13 +240,12 @@ dissect_mojito_contact(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 
 	if (contact_id > 0)
 	{
-		contact_item = proto_tree_add_text(tree, tvb, offset, 1, "Contact #%d", contact_id);
+		contact_tree = proto_tree_add_subtree_format(tree, tvb, offset, 1, ett_mojito_contact, &contact_item, "Contact #%d", contact_id);
 	}
 	else
 	{
-		contact_item = proto_tree_add_text(tree, tvb, offset, 1, "Contact");
+		contact_tree = proto_tree_add_subtree(tree, tvb, offset, 1, ett_mojito_contact, &contact_item, "Contact");
 	}
-	contact_tree = proto_item_add_subtree(contact_item, ett_mojito_contact);
 
 	proto_tree_add_item(contact_tree, hf_mojito_contactvendor, tvb, offset, 4, ENC_ASCII|ENC_NA);
 	offset += 4;
@@ -279,12 +277,11 @@ dissect_mojito_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                       int offset, mojito_header_data_t* header_data)
 {
 	proto_tree *header_tree, *version_tree, *contact_tree, *flag_tree;
-	proto_item *header_item, *version_item, *contact_item, *flag_item;
+	proto_item *header_item, *contact_item, *flag_item;
 	int         start_offset = offset;
 	int         contact_start_offset;
 
-	header_item = proto_tree_add_text(tree, tvb, offset, 61, "Gnutella Header");
-	header_tree = proto_item_add_subtree(header_item, ett_mojito_header);
+	header_tree = proto_tree_add_subtree(tree, tvb, offset, 61, ett_mojito_header, &header_item, "Gnutella Header");
 
 	proto_tree_add_item(header_tree, hf_mojito_messageid, tvb, offset, 16, ENC_NA);
 	offset += 16;
@@ -292,8 +289,7 @@ dissect_mojito_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	proto_tree_add_item(header_tree, hf_mojito_fdhtmessage, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
-	version_item = proto_tree_add_text(header_tree, tvb, offset, 2, "Version");
-	version_tree = proto_item_add_subtree(version_item, ett_mojito_header_version);
+	version_tree = proto_tree_add_subtree(header_tree, tvb, offset, 2, ett_mojito_header_version, NULL, "Version");
 
 	proto_tree_add_item(version_tree, hf_mojito_mjrversion, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
@@ -311,14 +307,12 @@ dissect_mojito_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	offset += 1;
 
 	contact_start_offset = offset;
-	contact_item = proto_tree_add_text(header_tree, tvb, offset, 35, "Originating Contact");
-	contact_tree = proto_item_add_subtree(contact_item, ett_mojito_contact);
+	contact_tree = proto_tree_add_subtree(header_tree, tvb, offset, 35, ett_mojito_contact, &contact_item, "Originating Contact");
 
 	proto_tree_add_item(contact_tree, hf_mojito_vendor, tvb, offset, 4, ENC_ASCII|ENC_NA);
 	offset += 4;
 
-	version_item = proto_tree_add_text(contact_tree, tvb, offset, 2, "Contact Version");
-	version_tree = proto_item_add_subtree(version_item, ett_mojito_contact_version);
+	version_tree = proto_tree_add_subtree(contact_tree, tvb, offset, 2, ett_mojito_contact_version, NULL, "Contact Version");
 
 	proto_tree_add_item(version_tree, hf_mojito_origmjrversion, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
@@ -371,8 +365,7 @@ dissect_mojito_ping_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
 	/* BigInt subtree */
 	bigintlen = tvb_get_guint8(tvb, offset);
-	bigint_item = proto_tree_add_text(tree, tvb, offset, bigintlen + 1 , "Estimated DHT size");
-	bigint_tree = proto_item_add_subtree(bigint_item, ett_mojito_bigint);
+	bigint_tree = proto_tree_add_subtree(tree, tvb, offset, bigintlen + 1, ett_mojito_bigint, &bigint_item, "Estimated DHT size");
 
 	proto_tree_add_item(bigint_tree, hf_mojito_bigintegerlen, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
@@ -427,8 +420,7 @@ dissect_mojito_store_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	/* For each Contact, display the info */
 	for (ii = 0; ii < contactcount; ii++)
 	{
-		dht_item = proto_tree_add_text(tree, tvb, offset, 1, "DHTValue #%d", ii+1);
-		dht_tree = proto_item_add_subtree(dht_item, ett_mojito_dht);
+		dht_tree = proto_tree_add_subtree_format(tree, tvb, offset, 1, ett_mojito_dht, &dht_item, "DHTValue #%d", ii+1);
 		start_offset = offset;
 		contact_offset = dissect_mojito_contact(tvb, pinfo, dht_tree, offset, -1);
 		if (contact_offset == 0)
@@ -476,8 +468,7 @@ dissect_mojito_store_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
 	/* For each Contact, display the info */
 	for (ii = 0; ii < contactcount; ii++)
 	{
-		sc_item = proto_tree_add_text(tree, tvb, offset, 23, "Status Code %d", ii+1);
-		sc_tree = proto_item_add_subtree(sc_item, ett_mojito_status_code);
+		sc_tree = proto_tree_add_subtree_format(tree, tvb, offset, 23, ett_mojito_status_code, &sc_item, "Status Code %d", ii+1);
 
 		start_offset = offset;
 
@@ -537,7 +528,6 @@ static void
 dissect_mojito_find_value_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
 {
 	proto_tree *kuid_tree;
-	proto_item *kuid_item;
 	guint8      i, kuidcount;
 
 	if (!tree)
@@ -548,8 +538,7 @@ dissect_mojito_find_value_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 
 	kuidcount = tvb_get_guint8(tvb, offset);
 
-	kuid_item = proto_tree_add_text(tree, tvb, offset, (20 * kuidcount) + 1 , "Secondary KUID\'s");
-	kuid_tree = proto_item_add_subtree(kuid_item, ett_mojito_kuids);
+	kuid_tree = proto_tree_add_subtree(tree, tvb, offset, (20 * kuidcount) + 1, ett_mojito_kuids, NULL, "Secondary KUID\'s");
 
 	proto_tree_add_item(kuid_tree, hf_mojito_kuidcount, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
@@ -569,7 +558,7 @@ static void
 dissect_mojito_find_value_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
 	proto_tree *dht_tree, *version_tree, *kuid_tree;
-	proto_item *dht_item, *version_item, *kuid_item;
+	proto_item *dht_item, *version_item;
 	guint16     dhtvaluelength;
 	int         contact_offset, start_offset;
 	guint8      ii, dhtvaluescount, kuidcount;
@@ -584,8 +573,7 @@ dissect_mojito_find_value_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	/* For each Contact, display the info */
 	for (ii = 0; ii < dhtvaluescount; ii++)
 	{
-		dht_item = proto_tree_add_text(tree, tvb, offset, 1, "DHTValue #%d", ii+1);
-		dht_tree = proto_item_add_subtree(dht_item, ett_mojito_dht);
+		dht_tree = proto_tree_add_subtree_format(tree, tvb, offset, 1, ett_mojito_dht, &dht_item, "DHTValue #%d", ii+1);
 		start_offset = offset;
 		contact_offset = dissect_mojito_contact(tvb, pinfo, dht_tree, offset, -1);
 		if (contact_offset == 0)
@@ -622,8 +610,7 @@ dissect_mojito_find_value_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
 	/*KUID Count */
 	kuidcount = tvb_get_guint8(tvb, offset);
-	kuid_item = proto_tree_add_text(tree, tvb, offset, (20 * kuidcount) + 1 , "Secondary KUID\'s");
-	kuid_tree = proto_item_add_subtree(kuid_item, ett_mojito_kuids);
+	kuid_tree = proto_tree_add_subtree(tree, tvb, offset, (20 * kuidcount) + 1, ett_mojito_kuids, NULL, "Secondary KUID\'s");
 	proto_tree_add_item(kuid_tree, hf_mojito_kuidcount, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
@@ -639,7 +626,7 @@ static int
 dissect_mojito(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	proto_tree           *mojito_tree, *opcode_tree;
-	proto_item           *ti, *opcode_item;
+	proto_item           *ti;
 	mojito_header_data_t  header_data;
 	gint                  offset = 0;
 
@@ -654,11 +641,10 @@ dissect_mojito(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 	if (offset == 0) /* Some error occurred */
 		return 0;
 
-	opcode_item = proto_tree_add_text(mojito_tree, tvb,
+	opcode_tree = proto_tree_add_subtree_format(mojito_tree, tvb,
 					  offset, header_data.payloadlength - MOJITO_HEADER_LENGTH,
-					  "Opcode specific data (%s)",
+					  ett_mojito_opcode, NULL, "Opcode specific data (%s)",
 					  val_to_str_const(header_data.opcode, opcodeflags, "Unknown"));
-	opcode_tree = proto_item_add_subtree(opcode_item, ett_mojito_opcode);
 
 	/* Now use the opcode to figure out what to do next */
 	switch (header_data.opcode)

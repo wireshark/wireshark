@@ -458,11 +458,9 @@ dissect_mtp3_sio(tvbuff_t *tvb, proto_tree *mtp3_tree,
     mtp3_addr_pc_t *mtp3_addr_opc, mtp3_addr_pc_t *mtp3_addr_dpc)
 {
   guint8 sio;
-  proto_item *sio_item;
   proto_tree *sio_tree;
 
-  sio_item = proto_tree_add_text(mtp3_tree, tvb, SIO_OFFSET, SIO_LENGTH, "Service information octet");
-  sio_tree = proto_item_add_subtree(sio_item, ett_mtp3_sio);
+  sio_tree = proto_tree_add_subtree(mtp3_tree, tvb, SIO_OFFSET, SIO_LENGTH, ett_mtp3_sio, NULL, "Service information octet");
 
   sio = tvb_get_guint8(tvb, SIO_OFFSET);
   proto_tree_add_uint(sio_tree, hf_mtp3_network_indicator, tvb, SIO_OFFSET, SIO_LENGTH, sio);
@@ -497,7 +495,7 @@ dissect_mtp3_routing_label(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mtp3_t
     mtp3_addr_pc_t *mtp3_addr_opc, mtp3_addr_pc_t *mtp3_addr_dpc)
 {
   guint32 label, dpc, opc;
-  proto_item *label_item, *label_dpc_item, *label_opc_item;
+  proto_item *label_dpc_item, *label_opc_item;
   proto_item *hidden_item;
   proto_tree *label_tree;
   proto_tree *pc_subtree;
@@ -507,8 +505,7 @@ dissect_mtp3_routing_label(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mtp3_t
 
   switch (mtp3_standard) {
   case ITU_STANDARD:
-    label_item = proto_tree_add_text(mtp3_tree, tvb, ROUTING_LABEL_OFFSET, ITU_ROUTING_LABEL_LENGTH, "Routing label");
-    label_tree = proto_item_add_subtree(label_item, ett_mtp3_label);
+    label_tree = proto_tree_add_subtree(mtp3_tree, tvb, ROUTING_LABEL_OFFSET, ITU_ROUTING_LABEL_LENGTH, ett_mtp3_label, NULL, "Routing label");
 
     label = tvb_get_letohl(tvb, ROUTING_LABEL_OFFSET);
 
@@ -554,9 +551,7 @@ dissect_mtp3_routing_label(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mtp3_t
     }
 
     /* Create the Routing Label Tree */
-    label_item = proto_tree_add_text(mtp3_tree, tvb, ROUTING_LABEL_OFFSET, ANSI_ROUTING_LABEL_LENGTH, "Routing label");
-    label_tree = proto_item_add_subtree(label_item, ett_mtp3_label);
-
+    label_tree = proto_tree_add_subtree(mtp3_tree, tvb, ROUTING_LABEL_OFFSET, ANSI_ROUTING_LABEL_LENGTH, ett_mtp3_label, NULL, "Routing label");
 
     /* create and fill the DPC tree */
     dissect_mtp3_3byte_pc(tvb, ANSI_DPC_OFFSET, label_tree, ett_mtp3_label_dpc, hf_dpc_string, hf_mtp3_dpc_network,
@@ -582,8 +577,7 @@ dissect_mtp3_routing_label(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mtp3_t
     break;
 
   case JAPAN_STANDARD:
-    label_item = proto_tree_add_text(mtp3_tree, tvb, ROUTING_LABEL_OFFSET, JAPAN_ROUTING_LABEL_LENGTH, "Routing label");
-    label_tree = proto_item_add_subtree(label_item, ett_mtp3_label);
+    label_tree = proto_tree_add_subtree(mtp3_tree, tvb, ROUTING_LABEL_OFFSET, JAPAN_ROUTING_LABEL_LENGTH, ett_mtp3_label, NULL, "Routing label");
 
     label_dpc_item = proto_tree_add_item(label_tree, hf_mtp3_japan_dpc, tvb, ROUTING_LABEL_OFFSET, JAPAN_PC_LENGTH, ENC_LITTLE_ENDIAN);
     dpc = tvb_get_letohs(tvb, ROUTING_LABEL_OFFSET);
@@ -707,7 +701,7 @@ dissect_mtp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* Set up structures needed to add the protocol subtree and manage it */
     proto_item *mtp3_item = NULL, *gen_item;
-    proto_tree *mtp3_tree = NULL;
+    proto_tree *mtp3_tree;
 
     pref_mtp3_standard = mtp3_standard;
 
@@ -750,10 +744,8 @@ dissect_mtp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	break;
     };
 
-    if (tree) {
 	/* create display subtree for the protocol */
 	mtp3_tree = proto_item_add_subtree(mtp3_item, ett_mtp3);
-    }
 
     mtp3_addr_opc = (mtp3_addr_pc_t *)wmem_alloc0(pinfo->pool, sizeof(mtp3_addr_pc_t));
     mtp3_addr_dpc = (mtp3_addr_pc_t *)wmem_alloc0(pinfo->pool, sizeof(mtp3_addr_pc_t));

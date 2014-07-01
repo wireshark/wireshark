@@ -972,8 +972,8 @@ dissect_mtp3mg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     tvbuff_t *payload_tvb;
 
     /* Set up structures needed to add the protocol subtree and manage it */
-    proto_item *mtp3mg_item = NULL;
-    proto_tree *mtp3mg_tree = NULL;
+    proto_item *mtp3mg_item;
+    proto_tree *mtp3mg_tree;
 
     /* Make entries in Protocol column on summary display */
     switch(mtp3_standard) {
@@ -991,11 +991,9 @@ dissect_mtp3mg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	break;
       };
 
-    if (tree) {
 	/* create display subtree for the protocol */
 	mtp3mg_item = proto_tree_add_item(tree, proto_mtp3mg, tvb, 0, -1, ENC_NA);
 	mtp3mg_tree = proto_item_add_subtree(mtp3mg_item, ett_mtp3mg);
-    }
 
     /*
      *  Dissect the message

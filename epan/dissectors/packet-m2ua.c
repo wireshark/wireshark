@@ -888,9 +888,8 @@ dissect_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tree,
   padding_length = tvb_length(parameter_tvb) - length;
 
   /* create proto_tree stuff */
-  parameter_item   = proto_tree_add_text(m2ua_tree, parameter_tvb, PARAMETER_HEADER_OFFSET, tvb_length(parameter_tvb), "%s",
-                                         val_to_str_const(tag, parameter_tag_values, "Unknown parameter"));
-  parameter_tree   = proto_item_add_subtree(parameter_item, ett_m2ua_parameter);
+  parameter_tree = proto_tree_add_subtree(m2ua_tree, parameter_tvb, PARAMETER_HEADER_OFFSET, -1,
+                                         ett_m2ua_parameter, &parameter_item, val_to_str_const(tag, parameter_tag_values, "Unknown parameter"));
 
   if ((protocol_data_1_global == PROTOCOL_DATA_1_DRAFT_7) &&
       (tag == PROTOCOL_DATA_1_DRAFT_7))
@@ -1049,15 +1048,10 @@ dissect_m2ua(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree)
   /* make entry in the Protocol column on summary display */
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "M2UA");
 
-  /* In the interest of speed, if "tree" is NULL, don't do any work not
-     necessary to generate protocol tree items. */
-  if (tree) {
-    /* create the m2ua protocol tree */
-    m2ua_item = proto_tree_add_item(tree, proto_m2ua, message_tvb, 0, -1, ENC_NA);
-    m2ua_tree = proto_item_add_subtree(m2ua_item, ett_m2ua);
-  } else {
-    m2ua_tree = NULL;
-  };
+  /* create the m2ua protocol tree */
+  m2ua_item = proto_tree_add_item(tree, proto_m2ua, message_tvb, 0, -1, ENC_NA);
+  m2ua_tree = proto_item_add_subtree(m2ua_item, ett_m2ua);
+
   /* dissect the message */
   dissect_message(message_tvb, pinfo, tree, m2ua_tree);
 }

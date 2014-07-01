@@ -1074,8 +1074,7 @@ dissect_circuit_range_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_t
 
   point_code_offset = PARAMETER_VALUE_OFFSET;
   for(point_code_number = 0; point_code_number < number_of_point_codes; point_code_number++) {
-    cic_range_item = proto_tree_add_text(parameter_tree, parameter_tvb, point_code_offset + CIC_RANGE_MASK_OFFSET, CIC_RANGE_LENGTH, "CIC range");
-    cic_range_tree = proto_item_add_subtree(cic_range_item, ett_parameter);
+    cic_range_tree = proto_tree_add_subtree(parameter_tree, parameter_tvb, point_code_offset + CIC_RANGE_MASK_OFFSET, CIC_RANGE_LENGTH, ett_parameter, &cic_range_item, "CIC range");
 
     proto_tree_add_item(cic_range_tree, hf_cic_range_mask,  parameter_tvb, point_code_offset + CIC_RANGE_MASK_OFFSET,  CIC_RANGE_MASK_LENGTH,  ENC_BIG_ENDIAN);
 
@@ -1236,9 +1235,8 @@ dissect_protocol_data_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, pro
     proto_item_append_text(parameter_item, " (SS7 message of %u byte%s)", ulp_length, plurality(ulp_length, "", "s"));
     proto_item_set_len(parameter_item, PARAMETER_HEADER_LENGTH + DATA_HDR_LENGTH);
 
-    item = proto_tree_add_text(parameter_tree,parameter_tvb,0,0,"MTP3 equivalents");
+    parameter_tree = proto_tree_add_subtree(parameter_tree,parameter_tvb,0,0,ett_mtp3_equiv,&item,"MTP3 equivalents");
     PROTO_ITEM_SET_GENERATED(item);
-    parameter_tree = proto_item_add_subtree(item,ett_mtp3_equiv);
 
     item = proto_tree_add_item(parameter_tree, hf_protocol_data_mtp3_opc, parameter_tvb, DATA_OPC_OFFSET, DATA_OPC_LENGTH, ENC_BIG_ENDIAN);
     PROTO_ITEM_SET_GENERATED(item);
@@ -1396,8 +1394,8 @@ dissect_v5_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tr
     return;    /* Nothing to do here */
 
   /* create proto_tree stuff */
-  parameter_item   = proto_tree_add_text(m3ua_tree, parameter_tvb, PARAMETER_HEADER_OFFSET, tvb_length(parameter_tvb), "%s", val_to_str_const(tag, v5_parameter_tag_values, "Unknown parameter"));
-  parameter_tree   = proto_item_add_subtree(parameter_item, ett_parameter);
+  parameter_tree = proto_tree_add_subtree(m3ua_tree, parameter_tvb, PARAMETER_HEADER_OFFSET, -1, ett_parameter, &parameter_item,
+                                        val_to_str_const(tag, v5_parameter_tag_values, "Unknown parameter"));
 
   /* add tag and length to the parameter tree */
   proto_tree_add_item(parameter_tree, hf_v5_parameter_tag, parameter_tvb, PARAMETER_TAG_OFFSET,    PARAMETER_TAG_LENGTH,    ENC_BIG_ENDIAN);
@@ -1523,8 +1521,8 @@ dissect_v6_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tr
     return;    /* Nothing to do here */
 
   /* create proto_tree stuff */
-  parameter_item   = proto_tree_add_text(m3ua_tree, parameter_tvb, PARAMETER_HEADER_OFFSET, tvb_length(parameter_tvb), "%s", val_to_str_const(tag, v6_parameter_tag_values, "Unknown parameter"));
-  parameter_tree   = proto_item_add_subtree(parameter_item, ett_parameter);
+  parameter_tree = proto_tree_add_subtree(m3ua_tree, parameter_tvb, PARAMETER_HEADER_OFFSET, -1,
+            ett_parameter, &parameter_item, val_to_str_const(tag, v6_parameter_tag_values, "Unknown parameter"));
 
   /* add tag and length to the parameter tree */
   proto_tree_add_item(parameter_tree, hf_v6_parameter_tag, parameter_tvb, PARAMETER_TAG_OFFSET,    PARAMETER_TAG_LENGTH,    ENC_BIG_ENDIAN);
@@ -1690,8 +1688,8 @@ dissect_v7_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tr
     return;    /* Nothing to do here */
 
   /* create proto_tree stuff */
-  parameter_item   = proto_tree_add_text(m3ua_tree, parameter_tvb, PARAMETER_HEADER_OFFSET, tvb_length(parameter_tvb), "%s", val_to_str_const(tag, v7_parameter_tag_values, "Unknown parameter"));
-  parameter_tree   = proto_item_add_subtree(parameter_item, ett_parameter);
+  parameter_tree = proto_tree_add_subtree(m3ua_tree, parameter_tvb, PARAMETER_HEADER_OFFSET, -1,
+        ett_parameter, &parameter_item, val_to_str_const(tag, v7_parameter_tag_values, "Unknown parameter"));
 
   /* add tag and length to the parameter tree */
   proto_tree_add_item(parameter_tree, hf_v7_parameter_tag, parameter_tvb, PARAMETER_TAG_OFFSET,    PARAMETER_TAG_LENGTH,    ENC_BIG_ENDIAN);
@@ -1857,8 +1855,8 @@ dissect_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tree,
     return;    /* Nothing to do here */
 
   /* create proto_tree stuff */
-  parameter_item   = proto_tree_add_text(m3ua_tree, parameter_tvb, PARAMETER_HEADER_OFFSET, tvb_length(parameter_tvb), "%s", val_to_str_const(tag, parameter_tag_values, "Unknown parameter"));
-  parameter_tree   = proto_item_add_subtree(parameter_item, ett_parameter);
+  parameter_tree = proto_tree_add_subtree(m3ua_tree, parameter_tvb, PARAMETER_HEADER_OFFSET, -1,
+                ett_parameter, &parameter_item, val_to_str_const(tag, parameter_tag_values, "Unknown parameter"));
 
   /* add tag and length to the parameter tree */
   proto_tree_add_item(parameter_tree, hf_parameter_tag,    parameter_tvb, PARAMETER_TAG_OFFSET,    PARAMETER_TAG_LENGTH,    ENC_BIG_ENDIAN);

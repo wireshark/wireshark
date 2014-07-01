@@ -1224,11 +1224,9 @@ dissect_mip6_hoti(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo _U_)
 {
     if (mip6_tree) {
         proto_tree *data_tree;
-        proto_item *ti;
 
-        ti = proto_tree_add_text(mip6_tree, tvb, MIP6_DATA_OFF,
-                MIP6_HOTI_LEN, "Home Test Init");
-        data_tree = proto_item_add_subtree(ti, ett_mip6);
+        data_tree = proto_tree_add_subtree(mip6_tree, tvb, MIP6_DATA_OFF,
+                MIP6_HOTI_LEN, ett_mip6, NULL, "Home Test Init");
 
         proto_tree_add_item(data_tree, hf_mip6_hoti_cookie, tvb,
                 MIP6_HOTI_COOKIE_OFF, MIP6_HOTI_COOKIE_LEN, ENC_BIG_ENDIAN);
@@ -1242,11 +1240,9 @@ dissect_mip6_coti(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo _U_)
 {
     if (mip6_tree) {
         proto_tree *data_tree;
-        proto_item *ti;
 
-        ti = proto_tree_add_text(mip6_tree, tvb, MIP6_DATA_OFF,
-                MIP6_COTI_LEN, "Care-of Test Init");
-        data_tree = proto_item_add_subtree(ti, ett_mip6);
+        data_tree = proto_tree_add_subtree(mip6_tree, tvb, MIP6_DATA_OFF,
+                MIP6_COTI_LEN, ett_mip6, NULL, "Care-of Test Init");
 
         proto_tree_add_item(data_tree, hf_mip6_coti_cookie, tvb,
                 MIP6_COTI_COOKIE_OFF, MIP6_COTI_COOKIE_LEN, ENC_BIG_ENDIAN);
@@ -1260,11 +1256,9 @@ dissect_mip6_hot(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo _U_)
 {
     if (mip6_tree) {
         proto_tree *data_tree;
-        proto_item *ti;
 
-        ti = proto_tree_add_text(mip6_tree, tvb, MIP6_DATA_OFF,
-                MIP6_HOT_LEN, "Home Test");
-        data_tree = proto_item_add_subtree(ti, ett_mip6);
+        data_tree = proto_tree_add_subtree(mip6_tree, tvb, MIP6_DATA_OFF,
+                MIP6_HOT_LEN, ett_mip6, NULL, "Home Test");
 
         proto_tree_add_item(data_tree, hf_mip6_hot_nindex, tvb,
                 MIP6_HOT_INDEX_OFF, MIP6_HOT_INDEX_LEN, ENC_BIG_ENDIAN);
@@ -1282,11 +1276,9 @@ dissect_mip6_cot(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo _U_)
 {
     if (mip6_tree) {
         proto_tree *data_tree;
-        proto_item *ti;
 
-        ti = proto_tree_add_text(mip6_tree, tvb, MIP6_DATA_OFF,
-                MIP6_COT_LEN, "Care-of Test");
-        data_tree = proto_item_add_subtree(ti, ett_mip6);
+        data_tree = proto_tree_add_subtree(mip6_tree, tvb, MIP6_DATA_OFF,
+                MIP6_COT_LEN, ett_mip6, NULL, "Care-of Test");
 
         proto_tree_add_item(data_tree, hf_mip6_cot_nindex, tvb,
                 MIP6_COT_INDEX_OFF, MIP6_COT_INDEX_LEN, ENC_BIG_ENDIAN);
@@ -1319,12 +1311,10 @@ dissect_mip6_bu(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo _U_)
 {
     if (mip6_tree) {
         proto_tree *data_tree;
-        proto_item *ti;
         int         lifetime;
 
-        ti = proto_tree_add_text(mip6_tree, tvb, MIP6_DATA_OFF,
-                MIP6_BU_LEN, "Binding Update");
-        data_tree = proto_item_add_subtree(ti, ett_mip6);
+        data_tree = proto_tree_add_subtree(mip6_tree, tvb, MIP6_DATA_OFF,
+                MIP6_BU_LEN, ett_mip6, NULL, "Binding Update");
 
         proto_tree_add_item(data_tree, hf_mip6_bu_seqnr, tvb,
                 MIP6_BU_SEQNR_OFF, MIP6_BU_SEQNR_LEN, ENC_BIG_ENDIAN);
@@ -1369,12 +1359,10 @@ dissect_mip6_ba(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo _U_)
 {
     if (mip6_tree) {
         proto_tree *data_tree;
-        proto_item *ti;
         int         lifetime;
 
-        ti = proto_tree_add_text(mip6_tree, tvb, MIP6_DATA_OFF,
-                MIP6_BA_LEN, "Binding Acknowledgement");
-        data_tree = proto_item_add_subtree(ti, ett_mip6);
+        data_tree = proto_tree_add_subtree(mip6_tree, tvb, MIP6_DATA_OFF,
+                MIP6_BA_LEN, ett_mip6, NULL, "Binding Acknowledgement");
 
         proto_tree_add_item(data_tree, hf_mip6_ba_status, tvb,
                 MIP6_BA_STATUS_OFF, MIP6_BA_STATUS_LEN, ENC_BIG_ENDIAN);
@@ -1410,11 +1398,9 @@ dissect_mip6_be(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo _U_)
 {
     if (mip6_tree) {
         proto_tree *data_tree;
-        proto_item *ti;
 
-        ti = proto_tree_add_text(mip6_tree, tvb, MIP6_DATA_OFF,
-                MIP6_BE_LEN, "Binding Error");
-        data_tree = proto_item_add_subtree(ti, ett_mip6);
+        data_tree = proto_tree_add_subtree(mip6_tree, tvb, MIP6_DATA_OFF,
+                MIP6_BE_LEN, ett_mip6, NULL, "Binding Error");
 
         proto_tree_add_item(data_tree, hf_mip6_be_status, tvb,
                 MIP6_BE_STATUS_OFF, MIP6_BE_STATUS_LEN, ENC_BIG_ENDIAN);
@@ -1430,11 +1416,9 @@ dissect_mip6_hb(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo _U_)
 {
     if (mip6_tree) {
         proto_tree *data_tree;
-        proto_item *ti;
 
-        ti = proto_tree_add_text(mip6_tree, tvb, MIP6_DATA_OFF,
-                MIP6_HB_LEN, "Heartbeat");
-        data_tree = proto_item_add_subtree(ti, ett_mip6);
+        data_tree = proto_tree_add_subtree(mip6_tree, tvb, MIP6_DATA_OFF,
+                MIP6_HB_LEN, ett_mip6, NULL, "Heartbeat");
 
         proto_tree_add_item(data_tree, hf_mip6_hb_u_flag, tvb,
                 MIP6_HB_FLAGS_OFF, MIP6_HB_FLAGS_LEN, ENC_BIG_ENDIAN);
@@ -1471,10 +1455,8 @@ dissect_mip6_hi(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo _U_)
 {
     if (mip6_tree) {
         proto_tree *data_tree;
-        proto_item *ti;
 
-        ti = proto_tree_add_text(mip6_tree, tvb, MIP6_DATA_OFF, 4, "Handover Initiate");
-        data_tree = proto_item_add_subtree(ti, ett_mip6);
+        data_tree = proto_tree_add_subtree(mip6_tree, tvb, MIP6_DATA_OFF, 4, ett_mip6, NULL, "Handover Initiate");
 
         proto_tree_add_item(data_tree, hf_mip6_hi_seqnr, tvb,
                 MIP6_DATA_OFF, 2, ENC_BIG_ENDIAN);
@@ -1516,10 +1498,8 @@ dissect_mip6_hack(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo _U_)
 {
     if (mip6_tree) {
         proto_tree *data_tree;
-        proto_item *ti;
 
-        ti = proto_tree_add_text(mip6_tree, tvb, MIP6_DATA_OFF, 4, "Handover Acknowledge ");
-        data_tree = proto_item_add_subtree(ti, ett_mip6);
+        data_tree = proto_tree_add_subtree(mip6_tree, tvb, MIP6_DATA_OFF, 4, ett_mip6, NULL, "Handover Acknowledge ");
 
         proto_tree_add_item(data_tree, hf_mip6_hack_seqnr, tvb,
                 MIP6_DATA_OFF, 2, ENC_BIG_ENDIAN);
@@ -1553,12 +1533,10 @@ dissect_fmip6_fbu(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo _U_)
 {
     if (mip6_tree) {
         proto_tree *data_tree;
-        proto_item *ti;
         int lifetime;
 
-        ti = proto_tree_add_text(mip6_tree, tvb, MIP6_DATA_OFF,
-                MIP6_BU_LEN, "Fast Binding Update");
-        data_tree = proto_item_add_subtree(ti, ett_mip6);
+        data_tree = proto_tree_add_subtree(mip6_tree, tvb, MIP6_DATA_OFF,
+                MIP6_BU_LEN, ett_mip6, NULL, "Fast Binding Update");
 
         proto_tree_add_item(data_tree, hf_fmip6_fbu_seqnr, tvb,
                 FMIP6_FBU_SEQNR_OFF, FMIP6_FBU_SEQNR_LEN, ENC_BIG_ENDIAN);
@@ -1588,12 +1566,10 @@ dissect_fmip6_fback(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo _U_
 {
     if (mip6_tree) {
         proto_tree *data_tree;
-        proto_item *ti;
         int         lifetime;
 
-        ti = proto_tree_add_text(mip6_tree, tvb, MIP6_DATA_OFF,
-                FMIP6_FBACK_LEN, "Fast Binding Acknowledgement");
-        data_tree = proto_item_add_subtree(ti, ett_mip6);
+        data_tree = proto_tree_add_subtree(mip6_tree, tvb, MIP6_DATA_OFF,
+                FMIP6_FBACK_LEN, ett_mip6, NULL, "Fast Binding Acknowledgement");
 
         proto_tree_add_item(data_tree, hf_fmip6_fback_status, tvb,
                 FMIP6_FBACK_STATUS_OFF, FMIP6_FBACK_STATUS_LEN, ENC_BIG_ENDIAN);
@@ -1634,7 +1610,6 @@ dissect_pmip6_bri(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo)
 #define INDICATION  1
 #define ACKNOWLEDGE 2
 
-    proto_item *ti;
     proto_tree *field_tree;
     guint8      br_type;
 
@@ -1647,10 +1622,8 @@ dissect_pmip6_bri(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo)
 
         if (mip6_tree)
         {
-            ti = proto_tree_add_text(mip6_tree, tvb, MIP6_DATA_OFF,
-                PMIP6_BRI_LEN, "Binding Revocation Indication");
-
-            field_tree = proto_item_add_subtree(ti, ett_mip6);
+            field_tree = proto_tree_add_subtree(mip6_tree, tvb, MIP6_DATA_OFF,
+                PMIP6_BRI_LEN, ett_mip6, NULL, "Binding Revocation Indication");
 
             proto_tree_add_item(field_tree, hf_pmip6_bri_brtype, tvb,
                 PMIP6_BRI_BRTYPE_OFF, PMIP6_BRI_BRTYPE_LEN, ENC_BIG_ENDIAN);
@@ -1679,10 +1652,8 @@ dissect_pmip6_bri(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo)
 
         if (mip6_tree)
         {
-            ti = proto_tree_add_text(mip6_tree, tvb, MIP6_DATA_OFF,
-                PMIP6_BRI_LEN, "Binding Revocation Acknowledge");
-
-            field_tree = proto_item_add_subtree(ti, ett_mip6);
+            field_tree = proto_tree_add_subtree(mip6_tree, tvb, MIP6_DATA_OFF,
+                PMIP6_BRI_LEN, ett_mip6, NULL, "Binding Revocation Acknowledge");
 
             proto_tree_add_item(field_tree, hf_pmip6_bri_brtype, tvb,
                 PMIP6_BRI_BRTYPE_OFF, PMIP6_BRI_BRTYPE_LEN, ENC_BIG_ENDIAN);
@@ -1934,10 +1905,8 @@ dissect_mip6_opt_ni(const mip6_opt *optp, tvbuff_t *tvb, int offset,
             proto_tree *opt_tree, proto_item *hdr_item _U_ )
 {
     proto_tree *field_tree;
-    proto_item *tf;
 
-    tf = proto_tree_add_text(opt_tree, tvb, offset, optlen, "%s", optp->name);
-    field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
+    field_tree = proto_tree_add_subtree(opt_tree, tvb, offset, optlen, *optp->subtree_index, NULL, optp->name);
 
     proto_tree_add_item(field_tree, hf_mip6_ni_hni, tvb,
             offset + MIP6_NI_HNI_OFF, MIP6_NI_HNI_LEN, ENC_BIG_ENDIAN);
@@ -1952,10 +1921,8 @@ dissect_mip6_opt_bad(const mip6_opt *optp _U_, tvbuff_t *tvb, int offset,
              proto_tree *opt_tree, proto_item *hdr_item _U_ )
 {
     proto_tree *field_tree;
-    proto_item *tf;
 
-    tf = proto_tree_add_text(opt_tree, tvb, offset, optlen, "%s", optp->name);
-    field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
+    field_tree = proto_tree_add_subtree(opt_tree, tvb, offset, optlen, *optp->subtree_index, NULL, optp->name);
 
     proto_tree_add_item(field_tree, hf_mip6_bad_auth, tvb,
             offset + MIP6_BAD_AUTH_OFF,
@@ -1969,10 +1936,8 @@ dissect_mip6_nemo_opt_mnp(const mip6_opt *optp _U_, tvbuff_t *tvb, int offset,
               proto_tree *opt_tree, proto_item *hdr_item _U_ )
 {
     proto_tree *field_tree;
-    proto_item *tf;
 
-    tf = proto_tree_add_text(opt_tree, tvb, offset, optlen, "%s", optp->name);
-    field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
+    field_tree = proto_tree_add_subtree(opt_tree, tvb, offset, optlen, *optp->subtree_index, NULL, optp->name);
     proto_tree_add_item(opt_tree, hf_mip6_nemo_mnp_pfl, tvb,
             offset + MIP6_NEMO_MNP_PL_OFF, 1, ENC_BIG_ENDIAN);
 
@@ -1987,11 +1952,9 @@ dissect_fmip6_opt_lla(const mip6_opt *optp _U_, tvbuff_t *tvb, int offset,
               proto_tree *opt_tree, proto_item *hdr_item _U_ )
 {
     proto_tree *field_tree;
-    proto_item *tf;
     int         len, p;
 
-    tf = proto_tree_add_text(opt_tree, tvb, offset, optlen, "%s", optp->name);
-    field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
+    field_tree = proto_tree_add_subtree(opt_tree, tvb, offset, optlen, *optp->subtree_index, NULL, optp->name);
 
     proto_tree_add_item(field_tree, hf_mip6_opt_len, tvb, offset+1, 1, ENC_BIG_ENDIAN);
 
@@ -2427,12 +2390,10 @@ dissect_pmip6_opt_mnlli(const mip6_opt *optp _U_, tvbuff_t *tvb, int offset,
 static void dissect_pmip6_opt_lla(const mip6_opt *optp _U_, tvbuff_t *tvb, int offset,
                         guint optlen, packet_info *pinfo _U_, proto_tree *opt_tree, proto_item *hdr_item _U_ )
 {
-    proto_item *ti;
     proto_tree *field_tree;
 
     if (opt_tree) {
-    ti = proto_tree_add_text(opt_tree, tvb, offset, optlen, "%s", optp->name);
-        field_tree = proto_item_add_subtree(ti, *optp->subtree_index);
+        field_tree = proto_tree_add_subtree(opt_tree, tvb, offset, optlen, *optp->subtree_index, NULL, optp->name);
 
         proto_tree_add_item(field_tree, hf_pmip6_opt_lila_lla, tvb, offset + 2, 16, ENC_NA);
    }
@@ -2492,11 +2453,9 @@ dissect_pmip6_opt_ipv4ha(const mip6_opt *optp _U_, tvbuff_t *tvb, int offset,
              guint optlen, packet_info *pinfo _U_, proto_tree *opt_tree, proto_item *hdr_item _U_ )
 {
     proto_tree *field_tree;
-    proto_item *tf;
     int         len, p;
 
-    tf = proto_tree_add_text(opt_tree, tvb, offset, optlen, "%s", optp->name);
-    field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
+    field_tree = proto_tree_add_subtree(opt_tree, tvb, offset, optlen, *optp->subtree_index, NULL, optp->name);
 
     p = offset + MIP6_IPV4HA_PREFIXL_OFF;
     len = MIP6_IPV4HA_PREFIXL_LEN;
@@ -2515,10 +2474,8 @@ dissect_pmip6_opt_ipv4aa(const mip6_opt *optp _U_, tvbuff_t *tvb, int offset,
              guint optlen, packet_info *pinfo _U_, proto_tree *opt_tree, proto_item *hdr_item _U_ )
 {
     proto_tree *field_tree;
-    proto_item *tf;
 
-    tf = proto_tree_add_text(opt_tree, tvb, offset, optlen, "%s", optp->name);
-    field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
+    field_tree = proto_tree_add_subtree(opt_tree, tvb, offset, optlen, *optp->subtree_index, NULL, optp->name);
 
     proto_tree_add_item(field_tree, hf_mip6_ipv4aa_status, tvb,
             offset + MIP6_IPV4AA_STATUS_OFF, MIP6_IPV4AA_STATUS_LEN, ENC_BIG_ENDIAN);
@@ -3586,15 +3543,8 @@ dissect_mip6_options(tvbuff_t *tvb, proto_tree *mip6_tree, int offset, int len,
              packet_info *pinfo)
 {
     proto_tree *opts_tree;
-    proto_item *ti;
 
-#if 0  /* dissect_mipv6_options() calls expert...() */
-    if (!mip6_tree)
-        return len;
-#endif
-
-    ti = proto_tree_add_text(mip6_tree, tvb, offset, len, "Mobility Options");
-    opts_tree = proto_item_add_subtree(ti, ett_mip6);
+    opts_tree = proto_tree_add_subtree(mip6_tree, tvb, offset, len, ett_mip6, NULL, "Mobility Options");
 
     dissect_mipv6_options(tvb, offset, len, mip6_opts, N_MIP6_OPTS, -1, pinfo, opts_tree);
 

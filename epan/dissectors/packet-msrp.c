@@ -722,9 +722,8 @@ dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
         /* continuation-flag */
         proto_tree_add_item(msrp_end_tree,hf_msrp_cnt_flg,tvb,end_line_offset+end_line_len-1,1,ENC_UTF_8|ENC_NA);
 
-        if (global_msrp_raw_text){
-            ti = proto_tree_add_text(tree, tvb, 0, -1,"Message Session Relay Protocol(as raw text)");
-            raw_tree = proto_item_add_subtree(ti, ett_msrp);
+        if (global_msrp_raw_text && tree) {
+            raw_tree = proto_tree_add_subtree(tree, tvb, 0, -1, ett_msrp, NULL, "Message Session Relay Protocol(as raw text)");
             tvb_raw_text_add(tvb,raw_tree);
         }
 

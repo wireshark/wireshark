@@ -126,7 +126,6 @@ dissect_mpeg_pmt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 
     proto_item *ti;
     proto_tree *mpeg_pmt_tree;
-    proto_item *si;
     proto_tree *mpeg_pmt_stream_tree;
 
     /* The TVB should start right after the section_length in the Section packet */
@@ -169,8 +168,8 @@ dissect_mpeg_pmt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
         pid = tvb_get_ntohs(tvb, offset + 1) & MPEG_PMT_STREAM_ELEMENTARY_PID_MASK;
         es_info_len = tvb_get_ntohs(tvb, offset + 3) & MPEG_PMT_STREAM_ES_INFO_LENGTH_MASK;
 
-        si = proto_tree_add_text(mpeg_pmt_tree, tvb, offset, 5 + es_info_len, "Stream PID=0x%04hx", pid);
-        mpeg_pmt_stream_tree = proto_item_add_subtree(si, ett_mpeg_pmt_stream);
+        mpeg_pmt_stream_tree = proto_tree_add_subtree_format(mpeg_pmt_tree, tvb, offset, 5 + es_info_len,
+                            ett_mpeg_pmt_stream, NULL, "Stream PID=0x%04hx", pid);
 
         proto_tree_add_item(mpeg_pmt_stream_tree, hf_mpeg_pmt_stream_type,      tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;

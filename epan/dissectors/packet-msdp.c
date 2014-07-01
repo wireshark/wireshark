@@ -260,18 +260,17 @@ static void dissect_msdp_sa(tvbuff_t *tvb, packet_info *pinfo,
          * This is probably visually better.
          */
         while (entries-- > 0) {
-                proto_item *ei;
                 proto_tree *entry_tree;
 
                 if (length < 12) {
                         *offset += length;
                         return;
                 }
-                ei = proto_tree_add_text(tree, tvb, *offset, 12, "(S,G) block: %s/%u -> %s",
+                entry_tree = proto_tree_add_subtree_format(tree, tvb, *offset, 12, ett_msdp_sa_entry, NULL,
+                                         "(S,G) block: %s/%u -> %s",
                                          tvb_ip_to_str(tvb, *offset + 8),
                                          tvb_get_guint8(tvb, *offset + 3),
                                          tvb_ip_to_str(tvb, *offset + 4));
-                entry_tree = proto_item_add_subtree(ei, ett_msdp_sa_entry);
 
                 proto_tree_add_item(entry_tree, hf_msdp_sa_reserved, tvb, *offset, 3, ENC_BIG_ENDIAN);
                 *offset += 3;
@@ -291,15 +290,13 @@ static void dissect_msdp_sa(tvbuff_t *tvb, packet_info *pinfo,
          * Check if an encapsulated multicast IPv4 packet follows
          */
         if (length > 0) {
-                proto_item *ei;
                 proto_tree *enc_tree;
                 gint available_length, reported_length;
                 tvbuff_t *next_tvb;
 
-                ei = proto_tree_add_text(tree, tvb, *offset, length,
-                                         "Encapsulated IPv4 packet: %u bytes",
+                enc_tree = proto_tree_add_subtree_format(tree, tvb, *offset, length,
+                                         ett_msdp_sa_enc_data, NULL, "Encapsulated IPv4 packet: %u bytes",
                                          length);
-                enc_tree = proto_item_add_subtree(ei, ett_msdp_sa_enc_data);
 
                 available_length = tvb_length_remaining(tvb, *offset);
                 reported_length = tvb_reported_length_remaining(tvb, *offset);

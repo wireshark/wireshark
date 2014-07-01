@@ -1942,7 +1942,6 @@ mbim_dissect_device_caps_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
 static void
 mbim_dissect_subscriber_ready_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
 {
-    proto_item *ti;
     proto_tree *subtree;
     gint base_offset, tel_nb_ref_list_offset = 0;
     guint32 i, subscriber_id_offset, subscriber_id_size, sim_icc_id_offset, sim_icc_id_size, elem_count,
@@ -1970,8 +1969,7 @@ mbim_dissect_subscriber_ready_status(tvbuff_t *tvb, packet_info *pinfo _U_, prot
     offset += 4;
     if (elem_count) {
         tel_nb_ref_list_offset = offset;
-        ti = proto_tree_add_text(tree, tvb, offset, 8*elem_count, "Telephone Numbers Ref List");
-        subtree = proto_item_add_subtree(ti, ett_mbim_pair_list);
+        subtree = proto_tree_add_subtree(tree, tvb, offset, 8*elem_count, ett_mbim_pair_list, NULL, "Telephone Numbers Ref List");
         for (i = 0; i < elem_count; i++) {
             proto_tree_add_item(subtree, hf_mbim_subscr_ready_status_tel_nb_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset += 4;
@@ -2038,12 +2036,10 @@ mbim_dissect_pin_list_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
                                  "Custom"};
     guint i;
     guint32 length;
-    proto_item *ti;
     proto_tree *subtree;
 
     for (i = 0; i < 10; i++) {
-        ti = proto_tree_add_text(tree, tvb, offset, 16, "%s", pin_list[i]);
-        subtree = proto_item_add_subtree(ti, ett_mbim_pin);
+        subtree = proto_tree_add_subtree(tree, tvb, offset, 16, ett_mbim_pin, NULL, pin_list[i]);
         proto_tree_add_item(subtree, hf_mbim_pin_list_pin_mode, tvb, offset, 4, ENC_LITTLE_ENDIAN);
         offset += 4;
         proto_tree_add_item(subtree, hf_mbim_pin_list_pin_format, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -2108,7 +2104,6 @@ mbim_dissect_provider(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, g
 static void
 mbim_dissect_providers(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
 {
-    proto_item *ti;
     proto_tree *subtree;
     gint base_offset;
     guint32 i, elem_count, providers_list_offset, provider_offset, provider_size;
@@ -2120,8 +2115,7 @@ mbim_dissect_providers(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint
     offset += 4;
     if (elem_count) {
         providers_list_offset = offset;
-        ti = proto_tree_add_text(tree, tvb, offset, 8*elem_count, "Providers Ref List");
-        subtree = proto_item_add_subtree(ti, ett_mbim_pair_list);
+        subtree = proto_tree_add_subtree(tree, tvb, offset, 8*elem_count, ett_mbim_pair_list, NULL, "Providers Ref List");
         for (i = 0; i < elem_count; i++) {
             proto_tree_add_item(subtree, hf_mbim_providers_provider_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset += 4;
@@ -2132,8 +2126,8 @@ mbim_dissect_providers(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint
             provider_offset = tvb_get_letohl(tvb, providers_list_offset + 8*i);
             provider_size = tvb_get_letohl(tvb, providers_list_offset + 8*i + 4);
             if (provider_offset && provider_size) {
-                ti = proto_tree_add_text(tree, tvb, base_offset + provider_offset, provider_size, "Provider #%u", i+1);
-                subtree = proto_item_add_subtree(ti, ett_mbim_pair_list);
+                subtree = proto_tree_add_subtree_format(tree, tvb, base_offset + provider_offset, provider_size,
+                            ett_mbim_pair_list, NULL, "Provider #%u", i+1);
                 mbim_dissect_provider(tvb, pinfo, subtree, base_offset + provider_offset);
             }
         }
@@ -2448,7 +2442,6 @@ mbim_dissect_context(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint o
 static void
 mbim_dissect_provisioned_contexts_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
 {
-    proto_item *ti;
     proto_tree *subtree;
     gint base_offset;
     guint32 i, elem_count, provisioned_contexts_list_offset, provisioned_context_offset, provisioned_context_size;
@@ -2459,8 +2452,7 @@ mbim_dissect_provisioned_contexts_info(tvbuff_t *tvb, packet_info *pinfo, proto_
     offset += 4;
     if (elem_count) {
         provisioned_contexts_list_offset = offset;
-        ti = proto_tree_add_text(tree, tvb, offset, 8*elem_count, "Provisioned Context Ref List");
-        subtree = proto_item_add_subtree(ti, ett_mbim_pair_list);
+        subtree = proto_tree_add_subtree(tree, tvb, offset, 8*elem_count, ett_mbim_pair_list, NULL, "Provisioned Context Ref List");
         for (i = 0; i < elem_count; i++) {
             proto_tree_add_item(subtree, hf_mbim_provisioned_contexts_info_provisioned_context_offset,
                                 tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -2473,9 +2465,8 @@ mbim_dissect_provisioned_contexts_info(tvbuff_t *tvb, packet_info *pinfo, proto_
             provisioned_context_offset = tvb_get_letohl(tvb, provisioned_contexts_list_offset + 8*i);
             provisioned_context_size = tvb_get_letohl(tvb, provisioned_contexts_list_offset + 8*i + 4);
             if (provisioned_context_offset && provisioned_context_size) {
-                ti = proto_tree_add_text(tree, tvb, base_offset + provisioned_context_offset,
-                                         provisioned_context_size, "Provisioned Context #%u", i+1);
-                subtree = proto_item_add_subtree(ti, ett_mbim_pair_list);
+                subtree = proto_tree_add_subtree_format(tree, tvb, base_offset + provisioned_context_offset,
+                                         provisioned_context_size, ett_mbim_pair_list, NULL, "Provisioned Context #%u", i+1);
                 mbim_dissect_context(tvb, pinfo, subtree, base_offset + provisioned_context_offset, FALSE);
             }
         }
@@ -2683,7 +2674,6 @@ mbim_dissect_device_service_element(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 static void
 mbim_dissect_device_services_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
 {
-    proto_item *ti;
     proto_tree *subtree;
     gint base_offset;
     guint32 i, device_services_count, device_services_ref_list_base, device_service_elem_offset,
@@ -2697,8 +2687,7 @@ mbim_dissect_device_services_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     offset += 4;
     if (device_services_count) {
         device_services_ref_list_base = offset;
-        ti = proto_tree_add_text(tree, tvb, offset, 8*device_services_count, "Device Services Ref List");
-        subtree = proto_item_add_subtree(ti, ett_mbim_pair_list);
+        subtree = proto_tree_add_subtree(tree, tvb, offset, 8*device_services_count, ett_mbim_pair_list, NULL, "Device Services Ref List");
         for (i = 0; i < device_services_count; i++) {
             proto_tree_add_item(subtree, hf_mbim_device_services_info_device_services_offset,
                                 tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -2711,9 +2700,8 @@ mbim_dissect_device_services_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
             device_service_elem_offset = tvb_get_letohl(tvb, device_services_ref_list_base + 8*i);
             device_service_elem_size = tvb_get_letohl(tvb, device_services_ref_list_base + 8*i + 4);
             if (device_service_elem_offset && device_service_elem_size) {
-                ti = proto_tree_add_text(tree, tvb, base_offset + device_service_elem_offset,
-                                         device_service_elem_size, "Device Service Element #%u", i+1);
-                subtree = proto_item_add_subtree(ti, ett_mbim_pair_list);
+                subtree = proto_tree_add_subtree_format(tree, tvb, base_offset + device_service_elem_offset,
+                                         device_service_elem_size, ett_mbim_pair_list, NULL, "Device Service Element #%u", i+1);
                 mbim_dissect_device_service_element(tvb, pinfo, subtree, base_offset + device_service_elem_offset);
             }
         }
@@ -2793,7 +2781,6 @@ mbim_dissect_event_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
 static void
 mbim_dissect_device_service_subscribe_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
 {
-    proto_item *ti;
     proto_tree *subtree;
     gint base_offset;
     guint32 i, element_count, device_service_subscribe_ref_list_base, device_service_elem_offset,
@@ -2805,8 +2792,7 @@ mbim_dissect_device_service_subscribe_list(tvbuff_t *tvb, packet_info *pinfo, pr
     offset += 4;
     if (element_count) {
         device_service_subscribe_ref_list_base = offset;
-        ti = proto_tree_add_text(tree, tvb, offset, 8*element_count, "Device Service Subscribe Ref List");
-        subtree = proto_item_add_subtree(ti, ett_mbim_pair_list);
+        subtree = proto_tree_add_subtree(tree, tvb, offset, 8*element_count, ett_mbim_pair_list, NULL, "Device Service Subscribe Ref List");
         for (i = 0; i < element_count; i++) {
             proto_tree_add_item(subtree, hf_mbim_device_service_subscribe_device_service_offset,
                                 tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -2819,9 +2805,8 @@ mbim_dissect_device_service_subscribe_list(tvbuff_t *tvb, packet_info *pinfo, pr
             device_service_elem_offset = tvb_get_letohl(tvb, device_service_subscribe_ref_list_base + 8*i);
             device_service_elem_size = tvb_get_letohl(tvb, device_service_subscribe_ref_list_base + 8*i + 4);
             if (device_service_elem_offset && device_service_elem_size) {
-                ti = proto_tree_add_text(tree, tvb, base_offset + device_service_elem_offset,
-                                         device_service_elem_size, "Device Service Element #%u", i+1);
-                subtree = proto_item_add_subtree(ti, ett_mbim_pair_list);
+                subtree = proto_tree_add_subtree_format(tree, tvb, base_offset + device_service_elem_offset,
+                                         device_service_elem_size, ett_mbim_pair_list, NULL, "Device Service Element #%u", i+1);
                 mbim_dissect_event_entry(tvb, pinfo, subtree, base_offset + device_service_elem_offset);
             }
         }
@@ -2879,7 +2864,6 @@ mbim_dissect_single_packet_filter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 static void
 mbim_dissect_packet_filters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
 {
-    proto_item *ti;
     proto_tree *subtree;
     gint base_offset;
     guint32 i, packet_filters_count, packet_filter_ref_list_base, packet_filter_offset, packet_filter_size;
@@ -2892,8 +2876,7 @@ mbim_dissect_packet_filters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     offset += 4;
     if (packet_filters_count) {
         packet_filter_ref_list_base = offset;
-        ti = proto_tree_add_text(tree, tvb, offset, 8*packet_filters_count, "Packet Filter Ref List");
-        subtree = proto_item_add_subtree(ti, ett_mbim_pair_list);
+        subtree = proto_tree_add_subtree(tree, tvb, offset, 8*packet_filters_count, ett_mbim_pair_list, NULL, "Packet Filter Ref List");
         for (i = 0; i < packet_filters_count; i++) {
             proto_tree_add_item(subtree, hf_mbim_packet_filters_packet_filters_packet_filter_offset,
                                 tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -2906,9 +2889,8 @@ mbim_dissect_packet_filters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             packet_filter_offset = tvb_get_letohl(tvb, packet_filter_ref_list_base + 8*i);
             packet_filter_size = tvb_get_letohl(tvb, packet_filter_ref_list_base + 8*i + 4);
             if (packet_filter_offset && packet_filter_size) {
-                ti = proto_tree_add_text(tree, tvb, base_offset + packet_filter_offset,
-                                         packet_filter_size, "Packet Filter Element #%u", i+1);
-                subtree = proto_item_add_subtree(ti, ett_mbim_pair_list);
+                subtree = proto_tree_add_subtree_format(tree, tvb, base_offset + packet_filter_offset,
+                                         packet_filter_size, ett_mbim_pair_list, NULL, "Packet Filter Element #%u", i+1);
                 mbim_dissect_single_packet_filter(tvb, pinfo, subtree, base_offset + packet_filter_offset);
             }
         }
@@ -2993,9 +2975,8 @@ mbim_dissect_sms_pdu_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                      pdu_data_size, ENC_NA);
             subtree = proto_item_add_subtree(ti, ett_mbim_buffer);
             sc_address_size = tvb_get_guint8(tvb, base_offset + pdu_data_offset);
-            ti = proto_tree_add_text(subtree, tvb, base_offset + pdu_data_offset, 1 + sc_address_size,
-                                     "Service Center Address");
-            sc_tree = proto_item_add_subtree(ti, ett_mbim_sc_address);
+            sc_tree = proto_tree_add_subtree(subtree, tvb, base_offset + pdu_data_offset, 1 + sc_address_size,
+                                     ett_mbim_sc_address, NULL, "Service Center Address");
             proto_tree_add_uint(sc_tree, hf_mbim_sms_pdu_record_pdu_data_sc_address_size, tvb,
                                 base_offset + pdu_data_offset, 1, sc_address_size);
             if (sc_address_size) {
@@ -3126,7 +3107,6 @@ static void
 mbim_dissect_sms_read_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset,
                            struct mbim_conv_info *mbim_conv)
 {
-    proto_item *ti;
     proto_tree *subtree;
     gint base_offset;
     guint32 i, format, element_count, sms_ref_list_base, sms_offset, sms_size;
@@ -3140,8 +3120,7 @@ mbim_dissect_sms_read_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     offset += 4;
     if (element_count) {
         sms_ref_list_base = offset;
-        ti = proto_tree_add_text(tree, tvb, offset, 8*element_count, "SMS Ref List");
-        subtree = proto_item_add_subtree(ti, ett_mbim_pair_list);
+        subtree = proto_tree_add_subtree(tree, tvb, offset, 8*element_count, ett_mbim_pair_list, NULL, "SMS Ref List");
         for (i = 0; i < element_count; i++) {
             proto_tree_add_item(subtree, hf_mbim_sms_read_info_sms_offset,
                                 tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -3154,9 +3133,8 @@ mbim_dissect_sms_read_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
             sms_offset = tvb_get_letohl(tvb, sms_ref_list_base + 8*i);
             sms_size = tvb_get_letohl(tvb, sms_ref_list_base + 8*i + 4);
             if (sms_offset && sms_size) {
-                ti = proto_tree_add_text(tree, tvb, base_offset + sms_offset,
-                                         sms_size, "SMS Element #%u", i+1);
-                subtree = proto_item_add_subtree(ti, ett_mbim_pair_list);
+                subtree = proto_tree_add_subtree_format(tree, tvb, base_offset + sms_offset,
+                                         sms_size, ett_mbim_pair_list, NULL, "SMS Element #%u", i+1);
                 if (format == MBIM_SMS_FORMAT_PDU) {
                     mbim_dissect_sms_pdu_record(tvb, pinfo, subtree, base_offset + sms_offset, mbim_conv);
                 } else if (format == MBIM_SMS_FORMAT_CDMA) {
@@ -3195,9 +3173,8 @@ mbim_dissect_sms_send_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
                                      pdu_data_size, ENC_NA);
             subtree = proto_item_add_subtree(ti, ett_mbim_buffer);
             sc_address_size = tvb_get_guint8(tvb, base_offset + pdu_data_offset);
-            ti = proto_tree_add_text(subtree, tvb, base_offset + pdu_data_offset, 1 + sc_address_size,
-                                     "Service Center Address");
-            sc_tree = proto_item_add_subtree(ti, ett_mbim_sc_address);
+            sc_tree = proto_tree_add_subtree(subtree, tvb, base_offset + pdu_data_offset, 1 + sc_address_size,
+                                     ett_mbim_sc_address, NULL, "Service Center Address");
             proto_tree_add_uint(sc_tree, hf_mbim_sms_send_pdu_pdu_data_sc_address_size, tvb,
                                 base_offset + pdu_data_offset, 1, sc_address_size);
             if (sc_address_size) {
@@ -3435,7 +3412,6 @@ mbim_dissect_phonebook_entry(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 static void
 mbim_dissect_phonebook_read_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
 {
-    proto_item *ti;
     proto_tree *subtree;
     gint base_offset;
     guint32 i, element_count, phonebook_ref_list_base, phonebook_offset, phonebook_size;
@@ -3446,8 +3422,7 @@ mbim_dissect_phonebook_read_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     offset += 4;
     if (element_count) {
         phonebook_ref_list_base = offset;
-        ti = proto_tree_add_text(tree, tvb, offset, 8*element_count, "Phonebook Ref List");
-        subtree = proto_item_add_subtree(ti, ett_mbim_pair_list);
+        subtree = proto_tree_add_subtree(tree, tvb, offset, 8*element_count, ett_mbim_pair_list, NULL, "Phonebook Ref List");
         for (i = 0; i < element_count; i++) {
             proto_tree_add_item(subtree, hf_mbim_phonebook_read_info_phonebook_offset,
                                 tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -3460,9 +3435,8 @@ mbim_dissect_phonebook_read_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
             phonebook_offset = tvb_get_letohl(tvb, phonebook_ref_list_base + 8*i);
             phonebook_size = tvb_get_letohl(tvb, phonebook_ref_list_base + 8*i + 4);
             if (phonebook_offset && phonebook_size) {
-                ti = proto_tree_add_text(tree, tvb, base_offset + phonebook_offset,
-                                         phonebook_size, "Phonebook Element #%u", i+1);
-                subtree = proto_item_add_subtree(ti, ett_mbim_pair_list);
+                subtree = proto_tree_add_subtree_format(tree, tvb, base_offset + phonebook_offset,
+                                         phonebook_size, ett_mbim_pair_list, NULL, "Phonebook Element #%u", i+1);
                 mbim_dissect_phonebook_entry(tvb, pinfo, subtree, base_offset + phonebook_offset);
             }
         }
@@ -3832,8 +3806,7 @@ dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
     ti = proto_tree_add_item(mbim_tree, hf_mbim_control, tvb, offset, 0, ENC_NA);
     PROTO_ITEM_SET_HIDDEN(ti);
 
-    ti = proto_tree_add_text(mbim_tree, tvb, offset, 12, "Message Header");
-    header_tree = proto_item_add_subtree(ti, ett_mbim_msg_header);
+    header_tree = proto_tree_add_subtree(mbim_tree, tvb, offset, 12, ett_mbim_msg_header, NULL, "Message Header");
     msg_type = tvb_get_letohl(tvb, offset);
     col_add_fstr(pinfo->cinfo, COL_INFO, "%-19s", val_to_str_const(msg_type, mbim_msg_type_vals, "Unknown"));
     proto_tree_add_uint(header_tree, hf_mbim_header_message_type, tvb, offset, 4, msg_type);
@@ -3874,8 +3847,7 @@ dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                 tvbuff_t *frag_tvb;
                 struct mbim_uuid_ext *uuid_ext_info = NULL;
 
-                ti = proto_tree_add_text(mbim_tree, tvb, offset, 8, "Fragment Header");
-                subtree = proto_item_add_subtree(ti, ett_mbim_frag_header);
+                subtree = proto_tree_add_subtree(mbim_tree, tvb, offset, 8, ett_mbim_frag_header, NULL, "Fragment Header");
                 total_frag = tvb_get_letohl(tvb, offset);
                 proto_tree_add_uint(subtree, hf_mbim_fragment_total, tvb, offset, 4, total_frag);
                 offset += 4;
@@ -3933,8 +3905,7 @@ dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                 offset += 4;
                 subtree = mbim_tree;
                 if (info_buff_len) {
-                    ti = proto_tree_add_text(mbim_tree, frag_tvb, offset, info_buff_len, "Information Buffer");
-                    subtree = proto_item_add_subtree(ti, ett_mbim_info_buffer);
+                    subtree = proto_tree_add_subtree(mbim_tree, frag_tvb, offset, info_buff_len, ett_mbim_info_buffer, NULL, "Information Buffer");
                 }
                 switch (uuid_idx) {
                     case UUID_BASIC_CONNECT:
@@ -4396,8 +4367,7 @@ dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                 tvbuff_t *frag_tvb;
                 struct mbim_uuid_ext *uuid_ext_info = NULL;
 
-                ti = proto_tree_add_text(mbim_tree, tvb, offset, 8, "Fragment Header");
-                subtree = proto_item_add_subtree(ti, ett_mbim_frag_header);
+                subtree = proto_tree_add_subtree(mbim_tree, tvb, offset, 8, ett_mbim_frag_header, NULL, "Fragment Header");
                 total_frag = tvb_get_letohl(tvb, offset);
                 proto_tree_add_uint(subtree, hf_mbim_fragment_total, tvb, offset, 4, total_frag);
                 offset += 4;
@@ -4452,8 +4422,7 @@ dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                 if (info_buff_len == 0) {
                     break;
                 }
-                ti = proto_tree_add_text(mbim_tree, frag_tvb, offset, info_buff_len, "Information Buffer");
-                subtree = proto_item_add_subtree(ti, ett_mbim_info_buffer);
+                subtree = proto_tree_add_subtree(mbim_tree, frag_tvb, offset, info_buff_len, ett_mbim_info_buffer, NULL, "Information Buffer");
                 switch (uuid_idx) {
                     case UUID_BASIC_CONNECT:
                         switch (cid) {
@@ -4915,8 +4884,7 @@ dissect_mbim_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     ti =proto_tree_add_item(mbim_tree, hf_mbim_bulk, tvb, 0, 0, ENC_NA);
     PROTO_ITEM_SET_HIDDEN(ti);
 
-    ti = proto_tree_add_text(mbim_tree, tvb, 0, 0, "NCM Transfer Header");
-    subtree = proto_item_add_subtree(ti, ett_mbim_msg_header);
+    subtree = proto_tree_add_subtree(mbim_tree, tvb, 0, 0, ett_mbim_msg_header, NULL, "NCM Transfer Header");
     proto_tree_add_item(subtree, hf_mbim_bulk_nth_signature, tvb, 0, 4, ENC_ASCII|ENC_NA);
     length = tvb_get_letohs(tvb, 4);
     proto_tree_add_uint(subtree, hf_mbim_bulk_nth_header_length, tvb, 4, 2, length);
@@ -4950,8 +4918,7 @@ dissect_mbim_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     while (next_index) {
         base_offset = offset = next_index;
         nb = 0;
-        ti = proto_tree_add_text(mbim_tree, tvb, offset, 0, "NCM Datagram Pointer");
-        subtree = proto_item_add_subtree(ti, ett_mbim_msg_header);
+        subtree = proto_tree_add_subtree(mbim_tree, tvb, offset, 0, ett_mbim_msg_header, NULL, "NCM Datagram Pointer");
         signature = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 4, ENC_ASCII);
         if ((!is_32bits && !strncmp(signature, "IPS", 3)) ||
             (is_32bits && !strncmp(signature, "ips", 3))) {

@@ -631,15 +631,14 @@ proto_mpeg_descriptor_dissect_service_list(tvbuff_t *tvb, guint offset, guint le
     guint   end = offset + len;
     guint16 svc_id;
 
-    proto_item *si;
     proto_tree *svc_tree;
 
 
     while (offset < end) {
         svc_id = tvb_get_ntohs(tvb, offset);
 
-        si = proto_tree_add_text(tree, tvb, offset, 3, "Service 0x%02x", svc_id);
-        svc_tree = proto_item_add_subtree(si, ett_mpeg_descriptor_service_list);
+        svc_tree = proto_tree_add_subtree_format(tree, tvb, offset, 3,
+                    ett_mpeg_descriptor_service_list, NULL, "Service 0x%02x", svc_id);
 
         proto_tree_add_item(svc_tree, hf_mpeg_descr_service_list_id, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
@@ -906,14 +905,13 @@ proto_mpeg_descriptor_dissect_vbi_data(tvbuff_t *tvb, guint offset, guint len, p
     guint8 svc_id, svc_len;
     guint  end = offset + len, svc_end;
 
-    proto_item *si;
     proto_tree *svc_tree;
 
     while (offset < end) {
         svc_id  = tvb_get_guint8(tvb, offset);
         svc_len = tvb_get_guint8(tvb, offset + 1);
-        si = proto_tree_add_text(tree, tvb, offset, svc_len + 2, "Service 0x%02x", svc_id);
-        svc_tree = proto_item_add_subtree(si, ett_mpeg_descriptor_vbi_data_service);
+        svc_tree = proto_tree_add_subtree_format(tree, tvb, offset, svc_len + 2,
+                    ett_mpeg_descriptor_vbi_data_service, NULL, "Service 0x%02x", svc_id);
 
         proto_tree_add_item(svc_tree, hf_mpeg_descr_vbi_data_service_id, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
@@ -1271,7 +1269,6 @@ proto_mpeg_descriptor_dissect_extended_event(tvbuff_t *tvb, guint offset, proto_
 
     guint8          items_len, item_descr_len, item_len, text_len;
     guint           items_end;
-    proto_item     *ii;
     proto_tree     *item_tree;
     guint           enc_len;
     dvb_encoding_e  encoding;
@@ -1290,8 +1287,7 @@ proto_mpeg_descriptor_dissect_extended_event(tvbuff_t *tvb, guint offset, proto_
     items_end = offset + items_len;
 
     while (offset < items_end) {
-        ii = proto_tree_add_text(tree, tvb, offset, 0, "Item");
-        item_tree = proto_item_add_subtree(ii, ett_mpeg_descriptor_extended_event_item);
+        item_tree = proto_tree_add_subtree(tree, tvb, offset, 0, ett_mpeg_descriptor_extended_event_item, NULL, "Item");
 
         item_descr_len = tvb_get_guint8(tvb, offset);
         proto_tree_add_item(item_tree, hf_mpeg_descr_extended_event_item_description_length, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -2165,7 +2161,6 @@ proto_mpeg_descriptor_dissect_ac3(tvbuff_t *tvb, guint offset, guint len, proto_
     guint  end = offset + len;
     guint8 flags, component_type;
 
-    proto_item *ci;
     proto_tree *component_type_tree;
 
     flags = tvb_get_guint8(tvb, offset);
@@ -2178,8 +2173,8 @@ proto_mpeg_descriptor_dissect_ac3(tvbuff_t *tvb, guint offset, guint len, proto_
 
     if (flags & MPEG_DESCR_AC3_COMPONENT_TYPE_FLAG_MASK) {
         component_type = tvb_get_guint8(tvb, offset);
-        ci = proto_tree_add_text(tree, tvb, offset, 3, "Component Type 0x%02x", component_type);
-        component_type_tree = proto_item_add_subtree(ci, ett_mpeg_descriptor_ac3_component_type);
+        component_type_tree = proto_tree_add_subtree_format(tree, tvb, offset, 3,
+                    ett_mpeg_descriptor_ac3_component_type, NULL, "Component Type 0x%02x", component_type);
         proto_tree_add_item(component_type_tree, hf_mpeg_descr_ac3_component_type_reserved_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(component_type_tree, hf_mpeg_descr_ac3_component_type_full_service_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(component_type_tree, hf_mpeg_descr_ac3_component_type_service_type_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -2267,7 +2262,6 @@ proto_mpeg_descriptor_dissect_content_identifier(tvbuff_t *tvb, guint offset, gu
     guint  end = offset + len, crid_len;
     guint8 crid, crid_location, crid_type;
 
-    proto_item *ci;
     proto_tree *crid_tree;
 
     while (offset < end) {
@@ -2283,8 +2277,8 @@ proto_mpeg_descriptor_dissect_content_identifier(tvbuff_t *tvb, guint offset, gu
             crid_len = 1;
         }
 
-        ci = proto_tree_add_text(tree, tvb, offset, crid_len, "CRID type=0%02x", crid_type);
-        crid_tree = proto_item_add_subtree(ci, ett_mpeg_descriptor_content_identifier_crid);
+        crid_tree = proto_tree_add_subtree_format(tree, tvb, offset, crid_len,
+                ett_mpeg_descriptor_content_identifier_crid, NULL, "CRID type=0%02x", crid_type);
 
         proto_tree_add_item(crid_tree, hf_mpeg_descr_content_identifier_crid_type, tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(crid_tree, hf_mpeg_descr_content_identifier_crid_location, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -2613,8 +2607,8 @@ proto_mpeg_descriptor_dissect_private_ciplus(tvbuff_t *tvb, guint offset, proto_
     if (!tag_str)
         return 0;
 
-    di = proto_tree_add_text(tree, tvb, offset_start, -1, "CI+ private descriptor Tag=0x%02x", tag);
-    descriptor_tree = proto_item_add_subtree(di, ett_mpeg_descriptor);
+    descriptor_tree = proto_tree_add_subtree_format(tree, tvb, offset_start, -1,
+                ett_mpeg_descriptor, &di, "CI+ private descriptor Tag=0x%02x", tag);
 
     proto_tree_add_uint_format(descriptor_tree, hf_mpeg_descriptor_tag,
             tvb, offset, 1, tag, "Descriptor Tag: %s (0x%02x)", tag_str, tag);
@@ -2698,14 +2692,13 @@ proto_mpeg_descriptor_dissect(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
     guint       tag, len;
 
-    proto_item *di;
     proto_tree *descriptor_tree;
 
     tag = tvb_get_guint8(tvb, offset);
     len = tvb_get_guint8(tvb, offset + 1);
 
-    di = proto_tree_add_text(tree, tvb, offset, len + 2, "Descriptor Tag=0x%02x", tag);
-    descriptor_tree = proto_item_add_subtree(di, ett_mpeg_descriptor);
+    descriptor_tree = proto_tree_add_subtree_format(tree, tvb, offset, len + 2,
+                        ett_mpeg_descriptor, NULL, "Descriptor Tag=0x%02x", tag);
 
     proto_tree_add_item(descriptor_tree, hf_mpeg_descriptor_tag,    tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;

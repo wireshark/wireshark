@@ -567,9 +567,8 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             tvb_LBRKT  = tvb_find_guint8(tvb, tvb_offset, tvb_transaction_end_offset, '{');
             tvb_offset = tvb_LBRKT;
 
-            ti = proto_tree_add_text(megaco_tree, tvb, tvb_previous_offset, tvb_offset-tvb_previous_offset,
-                "%s",tvb_format_text(tvb, tvb_previous_offset, tvb_offset-tvb_previous_offset+1));
-            message_body_tree = proto_item_add_subtree(ti, ett_megaco_message_body);
+            message_body_tree = proto_tree_add_subtree(megaco_tree, tvb, tvb_previous_offset, tvb_offset-tvb_previous_offset,
+                ett_megaco_message_body, NULL, tvb_format_text(tvb, tvb_previous_offset, tvb_offset-tvb_previous_offset+1));
 
             my_proto_tree_add_string(message_body_tree, hf_megaco_transaction, tvb,
                 tvb_previous_offset, tokenlen,
@@ -603,9 +602,8 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             tvb_offset = megaco_tvb_skip_wsp(tvb, tvb_offset);
             tvb_LBRKT  = tvb_find_guint8(tvb, tvb_offset, tvb_transaction_end_offset, '{');
             tvb_current_offset = tvb_LBRKT;
-            ti = proto_tree_add_text(megaco_tree, tvb, tvb_previous_offset, tvb_current_offset-tvb_previous_offset,
-                "%s",tvb_format_text(tvb, tvb_previous_offset, tvb_current_offset-tvb_previous_offset+1));
-            message_body_tree = proto_item_add_subtree(ti, ett_megaco_message_body);
+            message_body_tree = proto_tree_add_subtree(megaco_tree, tvb, tvb_previous_offset, tvb_current_offset-tvb_previous_offset,
+                ett_megaco_message_body, NULL, tvb_format_text(tvb, tvb_previous_offset, tvb_current_offset-tvb_previous_offset+1));
 
             tvb_current_offset  = megaco_tvb_skip_wsp_return(tvb, tvb_current_offset-1);
             len = tvb_current_offset - tvb_offset;
@@ -630,9 +628,8 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         case REPLYTOKEN:
             trx_type = GCP_TRX_REPLY;
             tvb_LBRKT  = tvb_find_guint8(tvb, tvb_offset, tvb_transaction_end_offset, '{');
-            ti = proto_tree_add_text(megaco_tree, tvb, tvb_previous_offset, tvb_LBRKT-tvb_previous_offset,
-                    "%s",tvb_format_text(tvb, tvb_previous_offset, tvb_LBRKT-tvb_previous_offset+1));
-            message_body_tree = proto_item_add_subtree(ti, ett_megaco_message_body);
+            message_body_tree = proto_tree_add_subtree(megaco_tree, tvb, tvb_previous_offset, tvb_LBRKT-tvb_previous_offset,
+                    ett_megaco_message_body, NULL, tvb_format_text(tvb, tvb_previous_offset, tvb_LBRKT-tvb_previous_offset+1));
 
             if (tree)
                 my_proto_tree_add_string(message_body_tree, hf_megaco_transaction, tvb,
@@ -665,9 +662,8 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         case TRANSTOKEN:
             /* TransactionRequest   */
             trx_type = GCP_TRX_REQUEST;
-            ti = proto_tree_add_text(megaco_tree, tvb, tvb_previous_offset, tvb_current_offset-tvb_previous_offset,
-                    "%s",tvb_format_text(tvb, tvb_previous_offset, tvb_current_offset-tvb_previous_offset+1));
-            message_body_tree = proto_item_add_subtree(ti, ett_megaco_message_body);
+            message_body_tree = proto_tree_add_subtree(megaco_tree, tvb, tvb_previous_offset, tvb_current_offset-tvb_previous_offset,
+                    ett_megaco_message_body, NULL, tvb_format_text(tvb, tvb_previous_offset, tvb_current_offset-tvb_previous_offset+1));
 
             if(tree)
                 my_proto_tree_add_string(message_body_tree, hf_megaco_transaction, tvb,
@@ -1653,8 +1649,8 @@ dissect_megaco_mediadescriptor(tvbuff_t *tvb, proto_tree *megaco_tree_command_li
     proto_tree  *megaco_mediadescriptor_tree, *megaco_mediadescriptor_ti;
 
     /*
-    megaco_mediadescriptor_ti = proto_tree_add_text(megaco_tree_command_line,tvb,tvb_previous_offset,tokenlen,"Media Descriptor");
-    megaco_mediadescriptor_tree = proto_item_add_subtree(megaco_mediadescriptor_ti, ett_megaco_mediadescriptor);
+    megaco_mediadescriptor_tree = proto_tree_add_subtree(megaco_tree_command_line,tvb,tvb_previous_offset,tokenlen,
+                                                         ett_megaco_mediadescriptor, NULL, "Media Descriptor");
     */
     while ( tvb_previous_offset < tvb_last_RBRKT){
         /* Start of token */

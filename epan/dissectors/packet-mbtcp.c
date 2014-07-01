@@ -841,7 +841,7 @@ dissect_modbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     proto_tree    *modbus_tree, *group_tree, *event_tree,
                   *event_item_tree, *device_objects_tree,
                   *device_objects_item_tree;
-    proto_item    *mi, *mf, *me, *mei, *doe, *doie;
+    proto_item    *mi, *mei;
     int           offset = 0, group_offset;
     gint          payload_start, payload_len, event_index,
                   ii, byte_cnt, len, num_objects, object_index,
@@ -885,8 +885,7 @@ dissect_modbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     }
 
     /* Add items to protocol tree specific to Modbus generic */
-    mf = proto_tree_add_text(tree, tvb, offset, len, "Modbus");
-    modbus_tree = proto_item_add_subtree(mf, ett_modbus_hdr);
+    modbus_tree = proto_tree_add_subtree(tree, tvb, offset, len, ett_modbus_hdr, NULL, "Modbus");
 
     mi = proto_tree_add_uint(modbus_tree, hf_mbtcp_functioncode, tvb, offset, 1,
                              function_code);
@@ -1093,8 +1092,7 @@ dissect_modbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
                     if (byte_cnt-6 > 0) {
                         byte_cnt -= 6;
                         event_index = 0;
-                        me = proto_tree_add_text(modbus_tree, tvb, payload_start+7, byte_cnt, "Events");
-                        event_tree = proto_item_add_subtree(me, ett_events);
+                        event_tree = proto_tree_add_subtree(modbus_tree, tvb, payload_start+7, byte_cnt, ett_events, NULL, "Events");
                         while (byte_cnt > 0) {
                             event_code = tvb_get_guint8(tvb, payload_start+7+event_index);
                             if (event_code == 0) {
@@ -1185,9 +1183,8 @@ dissect_modbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
                     /* add subtrees to describe each group of packet */
                     group_offset = payload_start + 1;
                     for (ii = 0; ii < byte_cnt / 7; ii++) {
-                        mi = proto_tree_add_text( modbus_tree, tvb, group_offset, 7,
-                                "Group %u", ii);
-                        group_tree = proto_item_add_subtree(mi, ett_group_hdr);
+                        group_tree = proto_tree_add_subtree_format( modbus_tree, tvb, group_offset, 7,
+                                ett_group_hdr, NULL, "Group %u", ii);
                         proto_tree_add_item(group_tree, hf_modbus_reftype, tvb, group_offset, 1, ENC_BIG_ENDIAN);
                         proto_tree_add_item(group_tree, hf_modbus_lreference, tvb, group_offset + 1, 4, ENC_BIG_ENDIAN);
                         proto_tree_add_item(group_tree, hf_modbus_wordcnt, tvb, group_offset + 5, 2, ENC_BIG_ENDIAN);
@@ -1204,9 +1201,8 @@ dissect_modbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
                     ii = 0;
                     while (byte_cnt > 0) {
                         group_byte_cnt = (guint32)tvb_get_guint8(tvb, group_offset);
-                        mi = proto_tree_add_text( modbus_tree, tvb, group_offset, group_byte_cnt + 1,
-                                "Group %u", ii);
-                        group_tree = proto_item_add_subtree(mi, ett_group_hdr);
+                        group_tree = proto_tree_add_subtree_format( modbus_tree, tvb, group_offset, group_byte_cnt + 1,
+                                ett_group_hdr, NULL, "Group %u", ii);
                         proto_tree_add_uint(group_tree, hf_modbus_bytecnt, tvb, group_offset, 1,
                                 group_byte_cnt);
                         proto_tree_add_item(group_tree, hf_modbus_reftype, tvb, group_offset + 1, 1, ENC_BIG_ENDIAN);
@@ -1230,9 +1226,8 @@ dissect_modbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
                     while (byte_cnt > 0) {
                         group_word_cnt = tvb_get_ntohs(tvb, group_offset + 5);
                         group_byte_cnt = (2 * group_word_cnt) + 7;
-                        mi = proto_tree_add_text( modbus_tree, tvb, group_offset,
-                                group_byte_cnt, "Group %u", ii);
-                        group_tree = proto_item_add_subtree(mi, ett_group_hdr);
+                        group_tree = proto_tree_add_subtree_format( modbus_tree, tvb, group_offset,
+                                group_byte_cnt, ett_group_hdr, NULL, "Group %u", ii);
                         proto_tree_add_item(group_tree, hf_modbus_reftype, tvb, group_offset, 1, ENC_BIG_ENDIAN);
                         proto_tree_add_item(group_tree, hf_modbus_lreference, tvb, group_offset + 1, 4, ENC_BIG_ENDIAN);
                         proto_tree_add_uint(group_tree, hf_modbus_wordcnt, tvb, group_offset + 5, 2,
@@ -1315,21 +1310,20 @@ dissect_modbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
                             proto_tree_add_item(modbus_tree, hf_modbus_next_object_id, tvb, payload_start+4, 1, ENC_BIG_ENDIAN);
                             num_objects = tvb_get_guint8(tvb, payload_start+5);
                             proto_tree_add_uint(modbus_tree, hf_modbus_num_objects, tvb, payload_start+5, 1, num_objects);
-                            doe = proto_tree_add_text(modbus_tree, tvb, payload_start+6, payload_len-6, "Objects");
+                            device_objects_tree = proto_tree_add_subtree(modbus_tree, tvb, payload_start+6, payload_len-6,
+                                                                            ett_device_id_objects, NULL, "Objects");
 
                             object_index = 0;
                             for (ii = 0; ii < num_objects; ii++)
                             {
-                                device_objects_tree = proto_item_add_subtree(doe, ett_device_id_objects);
-
                                 /* add each "object item" as its own subtree */
 
                                 /* compute length of object */
                                 object_type = tvb_get_guint8(tvb, payload_start+6+object_index);
                                 object_len = tvb_get_guint8(tvb, payload_start+6+object_index+1);
 
-                                doie = proto_tree_add_text(device_objects_tree, tvb, payload_start+6+object_index, 2+object_len, "Object #%d", ii+1);
-                                device_objects_item_tree = proto_item_add_subtree(doie, ett_device_id_object_items);
+                                device_objects_item_tree = proto_tree_add_subtree_format(device_objects_tree, tvb, payload_start+6+object_index, 2+object_len,
+                                                            ett_device_id_object_items, NULL, "Object #%d", ii+1);
 
                                 proto_tree_add_item(device_objects_item_tree, hf_modbus_object_id, tvb, payload_start+6+object_index, 1, ENC_BIG_ENDIAN);
                                 object_index++;

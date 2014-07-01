@@ -70,7 +70,6 @@ dissect_mpeg_pat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     proto_item *ti;
     proto_tree *mpeg_pat_tree;
-    proto_item *pi;
     proto_tree *mpeg_pat_prog_tree;
 
     /* The TVB should start right after the section_length in the Section packet */
@@ -107,8 +106,8 @@ dissect_mpeg_pat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         prog_num = tvb_get_ntohs(tvb, offset);
         prog_pid = tvb_get_ntohs(tvb, offset + 2) & MPEG_PAT_PROGRAM_MAP_PID_MASK;
 
-        pi = proto_tree_add_text(mpeg_pat_tree, tvb, offset, 4, "Program 0x%04hx -> PID 0x%04hx", prog_num, prog_pid);
-        mpeg_pat_prog_tree = proto_item_add_subtree(pi, ett_mpeg_pat_prog);
+        mpeg_pat_prog_tree = proto_tree_add_subtree_format(mpeg_pat_tree, tvb, offset, 4,
+                        ett_mpeg_pat_prog, NULL, "Program 0x%04hx -> PID 0x%04hx", prog_num, prog_pid);
 
         proto_tree_add_item(mpeg_pat_prog_tree, hf_mpeg_pat_program_number, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;

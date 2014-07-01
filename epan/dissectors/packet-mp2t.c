@@ -582,7 +582,6 @@ mp2t_process_fragmented_payload(tvbuff_t *tvb, gint offset, guint remaining_len,
     guint8                     pointer       = 0;
     proto_item                *pi;
     guint                      stuff_len     = 0;
-    proto_item                *si;
     proto_tree                *stuff_tree;
     packet_analysis_data_t    *pdata         = NULL;
     subpacket_analysis_data_t *spdata        = NULL;
@@ -735,8 +734,7 @@ mp2t_process_fragmented_payload(tvbuff_t *tvb, gint offset, guint remaining_len,
             }
 
             if (stuff_len) {
-                si = proto_tree_add_text(tree, tvb, offset, stuff_len, "Stuffing");
-                stuff_tree = proto_item_add_subtree(si, ett_stuff);
+                stuff_tree = proto_tree_add_subtree_format(tree, tvb, offset, stuff_len, ett_stuff, NULL, "Stuffing");
                 proto_tree_add_item(stuff_tree, hf_mp2t_stuff_bytes, tvb, offset, stuff_len, ENC_NA);
                 offset += stuff_len;
                 if (stuff_len >= remaining_len) {
@@ -1175,9 +1173,8 @@ dissect_tsp(tvbuff_t *tvb, volatile gint offset, packet_info *pinfo,
     offset += 4;
 
     /* Create a subtree for analysis stuff */
-    item = proto_tree_add_text(mp2t_tree, tvb, offset, 0, "MPEG2 PCR Analysis");
+    mp2t_analysis_tree = proto_tree_add_subtree_format(mp2t_tree, tvb, offset, 0, ett_mp2t_analysis, &item, "MPEG2 PCR Analysis");
     PROTO_ITEM_SET_GENERATED(item);
-    mp2t_analysis_tree = proto_item_add_subtree(item, ett_mp2t_analysis);
 
     skips = detect_cc_drops(tvb, mp2t_analysis_tree, pinfo, pid, cc, mp2t_data);
 

@@ -498,12 +498,10 @@ dissect_mip_priv_ext_3gpp2(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 static void
 dissect_mip_extensions( tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo)
 {
-  proto_item   *ti;
   proto_tree   *exts_tree=NULL;
   proto_tree   *ext_tree;
   proto_tree   *tf;
   proto_tree   *ext_flags_tree;
-  proto_tree   *tp;
   proto_tree   *pmipv4_tree;
   gint          ext_len;
   guint8        ext_type;
@@ -520,8 +518,7 @@ dissect_mip_extensions( tvbuff_t *tvb, int offset, proto_tree *tree, packet_info
   if (!tree) return;
 
   /* Add our tree, if we have extensions */
-  ti = proto_tree_add_text(tree, tvb, offset, -1, "Extensions");
-  exts_tree = proto_item_add_subtree(ti, ett_mip_exts);
+  exts_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_mip_exts, NULL, "Extensions");
 
   /* And, handle each extension */
   while (tvb_reported_length_remaining(tvb, offset) > 0) {
@@ -550,11 +547,10 @@ dissect_mip_extensions( tvbuff_t *tvb, int offset, proto_tree *tree, packet_info
       hdrLen = 2;
     }
 
-    ti = proto_tree_add_text(exts_tree, tvb, offset, ext_len + hdrLen,
-                 "Extension: %s",
+    ext_tree = proto_tree_add_subtree_format(exts_tree, tvb, offset, ext_len + hdrLen,
+                 ett_mip_ext, NULL, "Extension: %s",
                  val_to_str(ext_type, mip_ext_types,
                             "Unknown Extension %u"));
-    ext_tree = proto_item_add_subtree(ti, ett_mip_ext);
 
     proto_tree_add_uint(ext_tree, hf_mip_ext_type, tvb, offset, 1, ext_type);
     offset++;
@@ -676,10 +672,9 @@ dissect_mip_extensions( tvbuff_t *tvb, int offset, proto_tree *tree, packet_info
     case PMIPv4_SKIP_EXT:   /* draft-leung-mip4-proxy-mode */
       /* sub-type */
       ext_subtype = tvb_get_guint8(tvb, offset);
-      tp = proto_tree_add_text(ext_tree, tvb, offset, ext_len,
-                   "PMIPv4 Sub-Type: %s",
+      pmipv4_tree = proto_tree_add_subtree_format(ext_tree, tvb, offset, ext_len,
+                   ett_mip_pmipv4_ext, NULL, "PMIPv4 Sub-Type: %s",
                    val_to_str(ext_subtype, mip_pmipv4skipext_stypes, "Unknown Sub-Type %u"));
-      pmipv4_tree = proto_item_add_subtree(tp, ett_mip_pmipv4_ext);
       proto_tree_add_uint(pmipv4_tree, hf_mip_pmipv4skipext_stype, tvb, offset, 1, ext_subtype);
 
       if (ext_subtype == PMIPv4_SKIPEXT_STYPE_INTERFACE_ID) {

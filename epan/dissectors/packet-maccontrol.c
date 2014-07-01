@@ -210,8 +210,7 @@ dissect_macctrl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       proto_tree_add_bitmask(macctrl_tree, tvb, 2, hf_macctrl_cbfc_enbv,
                              ett_macctrl_cbfc_enbv, macctrl_cbfc_enbv_list, ENC_BIG_ENDIAN);
 
-      ti = proto_tree_add_text(macctrl_tree, tvb, 4, 8*2, "CBFC Class Pause Times");
-      pause_times_tree = proto_item_add_subtree(ti, ett_macctrl_cbfc_pause_times);
+      pause_times_tree = proto_tree_add_subtree(macctrl_tree, tvb, 4, 8*2, ett_macctrl_cbfc_pause_times, NULL, "CBFC Class Pause Times");
 
       for (i=0; i<8; i++) {
         proto_tree_add_item(pause_times_tree, *macctrl_cbfc_pause_times_list[i], tvb, 4+i*2, 2, ENC_BIG_ENDIAN);

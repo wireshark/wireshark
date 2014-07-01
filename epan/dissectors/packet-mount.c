@@ -209,18 +209,16 @@ dissect_mount1_mnt_reply(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 static int
 dissect_mountlist(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
-	proto_item* lock_item = NULL;
-	proto_tree* lock_tree = NULL;
+	proto_item* lock_item;
+	proto_tree* lock_tree;
 	int old_offset = offset;
 	const char* hostname;
 	const char* directory;
 
-	if (tree) {
-		lock_item = proto_tree_add_item(tree, hf_mount_mountlist, tvb,
+	lock_item = proto_tree_add_item(tree, hf_mount_mountlist, tvb,
 					offset, -1, ENC_NA);
-		if (lock_item)
-			lock_tree = proto_item_add_subtree(lock_item, ett_mount_mountlist);
-	}
+
+	lock_tree = proto_item_add_subtree(lock_item, ett_mount_mountlist);
 
 	offset = dissect_rpc_string(tvb, lock_tree,
 			hf_mount_mountlist_hostname, offset, &hostname);
@@ -306,8 +304,7 @@ dissect_exportlist(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 	if (tree) {
 		groups_item = proto_tree_add_item(exportlist_tree, hf_mount_groups, tvb,
 					offset, -1, ENC_NA);
-		if (groups_item)
-			groups_tree = proto_item_add_subtree(groups_item, ett_mount_groups);
+		groups_tree = proto_item_add_subtree(groups_item, ett_mount_groups);
 	}
 
 	offset = dissect_rpc_list(tvb, pinfo, groups_tree, offset,

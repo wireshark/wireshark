@@ -1991,25 +1991,22 @@ static void dissect_mih(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "MIH");
         col_clear(pinfo->cinfo,COL_INFO);
-        if (tree)
-        {
-                /* we are being asked for details */
-                ti = proto_tree_add_item(tree, proto_mih, tvb, 0, -1, ENC_NA);
-        }
 
+        /* we are being asked for details */
+        ti = proto_tree_add_item(tree, proto_mih, tvb, 0, -1, ENC_NA);
         mih_tree = proto_item_add_subtree(ti, ett_mih);
         if(mih_tree)
-                item = proto_tree_add_item(mih_tree, hf_mih_version, tvb, offset, 1, ENC_BIG_ENDIAN);
-        if(item)
         {
-                ver_flags_tree = proto_item_add_subtree(item, ett_ver_flags);
-                proto_tree_add_item(ver_flags_tree, hf_mih_version, tvb, offset, 1, ENC_BIG_ENDIAN);
-                proto_tree_add_item(ver_flags_tree, hf_mih_ack_req, tvb, offset, 1, ENC_BIG_ENDIAN);
-                proto_tree_add_item(ver_flags_tree, hf_mih_ack_resp, tvb, offset, 1, ENC_BIG_ENDIAN);
-                proto_tree_add_item(ver_flags_tree, hf_mih_uir, tvb, offset, 1, ENC_BIG_ENDIAN);
-                proto_tree_add_item(ver_flags_tree, hf_mih_more_frag, tvb, offset, 1, ENC_BIG_ENDIAN);
-                fragment = tvb_get_guint8(tvb, offset);
-                fragment = fragment << 7;
+            item = proto_tree_add_item(mih_tree, hf_mih_version, tvb, offset, 1, ENC_BIG_ENDIAN);
+
+            ver_flags_tree = proto_item_add_subtree(item, ett_ver_flags);
+            proto_tree_add_item(ver_flags_tree, hf_mih_version, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(ver_flags_tree, hf_mih_ack_req, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(ver_flags_tree, hf_mih_ack_resp, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(ver_flags_tree, hf_mih_uir, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(ver_flags_tree, hf_mih_more_frag, tvb, offset, 1, ENC_BIG_ENDIAN);
+            fragment = tvb_get_guint8(tvb, offset);
+            fragment = fragment << 7;
         }
         offset += 1;
 
@@ -2150,8 +2147,8 @@ static void dissect_mih(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 if(len <= (guint64)payload_length)
                 {
                         /*for type...*/
-                        item = proto_tree_add_text(mih_tree, tvb, offset, 1 + len_of_len + (guint32)len, "MIH TLV : %s", val_to_str(tvb_get_guint8(tvb, offset), typevaluenames, "UNKNOWN"));
-                        tlv_tree = proto_item_add_subtree(item, ett_tlv);
+                        tlv_tree = proto_tree_add_subtree_format(mih_tree, tvb, offset, 1 + len_of_len + (guint32)len, ett_tlv, NULL,
+                                                "MIH TLV : %s", val_to_str(tvb_get_guint8(tvb, offset), typevaluenames, "UNKNOWN"));
                         if(tlv_tree)
                         {
                                 proto_tree_add_item(tlv_tree, hf_mih_type, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -2176,9 +2173,9 @@ static void dissect_mih(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                 dissect_mih_tlv(tvb, offset, tlv_tree, type, (guint32)len);
                                 offset += (guint32)len;
                                 payload_length -= (1 + len_of_len + (guint16)len);
-                                        }else{
-                                                return;
-                                        }
+                        }else{
+                            return;
+                        }
                 }
                 else
                 {

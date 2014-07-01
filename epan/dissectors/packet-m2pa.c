@@ -224,14 +224,12 @@ dissect_header(tvbuff_t *header_tvb, packet_info *pinfo, proto_tree *m2pa_tree)
 static void
 dissect_v2_user_data_message(tvbuff_t *message_data_tvb, packet_info *pinfo, proto_item *m2pa_item, proto_tree *m2pa_tree, proto_tree *tree)
 {
-  proto_item *m2pa_li_item;
   proto_tree *m2pa_li_tree;
   tvbuff_t *payload_tvb;
 
   if (tvb_length(message_data_tvb) > 0) {
     if (m2pa_tree) {
-      m2pa_li_item = proto_tree_add_text(m2pa_tree, message_data_tvb, LI_OFFSET, LI_LENGTH, "Length Indicator");
-      m2pa_li_tree = proto_item_add_subtree(m2pa_li_item, ett_m2pa_li);
+      m2pa_li_tree = proto_tree_add_subtree(m2pa_tree, message_data_tvb, LI_OFFSET, LI_LENGTH, ett_m2pa_li, NULL, "Length Indicator");
 
       proto_tree_add_item(m2pa_li_tree, hf_v2_li_spare, message_data_tvb, LI_OFFSET, LI_LENGTH, ENC_BIG_ENDIAN);
       proto_tree_add_item(m2pa_li_tree, hf_v2_li_prio,  message_data_tvb, LI_OFFSET, LI_LENGTH, ENC_BIG_ENDIAN);
@@ -251,14 +249,12 @@ dissect_v2_user_data_message(tvbuff_t *message_data_tvb, packet_info *pinfo, pro
 static void
 dissect_v8_user_data_message(tvbuff_t *message_data_tvb, packet_info *pinfo, proto_item *m2pa_item, proto_tree *m2pa_tree, proto_tree *tree)
 {
-  proto_item *m2pa_li_item;
   proto_tree *m2pa_li_tree;
   tvbuff_t *payload_tvb;
 
   if (tvb_length(message_data_tvb) > 0) {
     if (m2pa_tree) {
-      m2pa_li_item = proto_tree_add_text(m2pa_tree, message_data_tvb, LI_OFFSET, LI_LENGTH, "Length Indicator");
-      m2pa_li_tree = proto_item_add_subtree(m2pa_li_item, ett_m2pa_li);
+      m2pa_li_tree = proto_tree_add_subtree(m2pa_tree, message_data_tvb, LI_OFFSET, LI_LENGTH, ett_m2pa_li, NULL, "Length Indicator");
       proto_tree_add_item(m2pa_li_tree, hf_v8_li_prio,  message_data_tvb, LI_OFFSET, LI_LENGTH, ENC_BIG_ENDIAN);
       proto_tree_add_item(m2pa_li_tree, hf_v8_li_spare, message_data_tvb, LI_OFFSET, LI_LENGTH, ENC_BIG_ENDIAN);
 
@@ -280,14 +276,12 @@ dissect_v8_user_data_message(tvbuff_t *message_data_tvb, packet_info *pinfo, pro
 static void
 dissect_user_data_message(tvbuff_t *message_data_tvb, packet_info *pinfo, proto_item *m2pa_item, proto_tree *m2pa_tree, proto_tree *tree)
 {
-  proto_item *m2pa_li_item;
   proto_tree *m2pa_li_tree;
   tvbuff_t *payload_tvb;
 
   if (tvb_length(message_data_tvb) > 0) {
     if (m2pa_tree) {
-      m2pa_li_item = proto_tree_add_text(m2pa_tree, message_data_tvb, PRI_OFFSET, PRI_LENGTH, "Priority");
-      m2pa_li_tree = proto_item_add_subtree(m2pa_li_item, ett_m2pa_li);
+      m2pa_li_tree = proto_tree_add_subtree(m2pa_tree, message_data_tvb, PRI_OFFSET, PRI_LENGTH, ett_m2pa_li, NULL, "Priority");
       proto_tree_add_item(m2pa_li_tree, hf_pri_prio,  message_data_tvb, PRI_OFFSET, PRI_LENGTH, ENC_BIG_ENDIAN);
       proto_tree_add_item(m2pa_li_tree, hf_pri_spare, message_data_tvb, PRI_OFFSET, PRI_LENGTH, ENC_BIG_ENDIAN);
 

@@ -573,16 +573,13 @@ static void dissect_request_resolve(tvbuff_t *tvb, int offset,
 /* return the length of the string and the length byte */
 
 	proto_tree      *name_tree;
-	proto_item      *ti;
 
 	int length = tvb_get_guint8( tvb, offset);
 
 	if ( tree){
-  	 	ti = proto_tree_add_text(tree, tvb, offset, length + 1,
-   		 	"Host Name: %.*s", length,
-            tvb_get_string_enc( wmem_packet_scope(),  tvb, offset + 18, length, ENC_ASCII));
-
-		name_tree = proto_item_add_subtree(ti, ett_msproxy_name);
+		name_tree = proto_tree_add_subtree_format(tree, tvb, offset, length + 1,
+			ett_msproxy_name, NULL, "Host Name: %.*s", length,
+			tvb_get_string_enc( wmem_packet_scope(),  tvb, offset + 18, length, ENC_ASCII));
 
 		proto_tree_add_text( name_tree, tvb, offset, 1, "Length: %d",
 			length);

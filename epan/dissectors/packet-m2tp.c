@@ -452,8 +452,8 @@ dissect_m2tp_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *
 
   if (tree) {
     /* create proto_tree stuff */
-    parameter_item   = proto_tree_add_text(m2tp_tree, parameter_tvb, PARAMETER_HEADER_OFFSET, total_length, "Incomplete parameter");
-    parameter_tree   = proto_item_add_subtree(parameter_item, ett_m2tp_parameter);
+    parameter_tree = proto_tree_add_subtree(m2tp_tree, parameter_tvb, PARAMETER_HEADER_OFFSET, total_length,
+                                        ett_m2tp_parameter, &parameter_item, "Incomplete parameter");
 
     /* add tag and length to the m2tp tree */
     proto_tree_add_uint(parameter_tree, hf_m2tp_parameter_tag, parameter_tvb, PARAMETER_TAG_OFFSET, PARAMETER_TAG_LENGTH, tag);
@@ -534,16 +534,10 @@ dissect_m2tp(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree)
   /* make entry in the Protocol column on summary display */
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "M2TP");
 
-  /* In the interest of speed, if "tree" is NULL, don't do any work not
-     necessary to generate protocol tree items. */
-  if (tree) {
-    /* create the m2tp protocol tree */
-    m2tp_item = proto_tree_add_item(tree, proto_m2tp, message_tvb, 0, -1, ENC_NA);
-    m2tp_tree = proto_item_add_subtree(m2tp_item, ett_m2tp);
-  } else {
-    m2tp_item = NULL;
-    m2tp_tree = NULL;
-  };
+  /* create the m2tp protocol tree */
+  m2tp_item = proto_tree_add_item(tree, proto_m2tp, message_tvb, 0, -1, ENC_NA);
+  m2tp_tree = proto_item_add_subtree(m2tp_item, ett_m2tp);
+
   /* dissect the message */
   dissect_m2tp_message(message_tvb, pinfo, m2tp_item, m2tp_tree, tree);
 }

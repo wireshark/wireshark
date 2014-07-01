@@ -337,8 +337,8 @@ dissect_mtp2_su(tvbuff_t *su_tvb, packet_info *pinfo, proto_item *mtp2_item, pro
 static void
 dissect_mtp2_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean validate_crc)
 {
-  proto_item *mtp2_item = NULL;
-  proto_tree *mtp2_tree = NULL;
+  proto_item *mtp2_item;
+  proto_tree *mtp2_tree;
 
   if (pinfo->annex_a_used == MTP2_ANNEX_A_USED_UNKNOWN)
     use_extended_sequence_numbers = use_extended_sequence_numbers_default;
@@ -347,10 +347,8 @@ dissect_mtp2_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "MTP2");
 
-  if (tree) {
-    mtp2_item = proto_tree_add_item(tree, proto_mtp2, tvb, 0, -1, ENC_NA);
-    mtp2_tree = proto_item_add_subtree(mtp2_item, ett_mtp2);
-  };
+  mtp2_item = proto_tree_add_item(tree, proto_mtp2, tvb, 0, -1, ENC_NA);
+  mtp2_tree = proto_item_add_subtree(mtp2_item, ett_mtp2);
 
   dissect_mtp2_su(tvb, pinfo, mtp2_item, mtp2_tree, tree, validate_crc);
 }
