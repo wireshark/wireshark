@@ -353,7 +353,7 @@ wmem_time_allocator(wmem_allocator_type_t type)
 
     allocator = wmem_allocator_force_new(type);
 
-    for (j=0; j<1024; j++) {
+    for (j=0; j<2048; j++) {
         for (i=0; i<MAX_SIMULTANEOUS_ALLOCS; i++) {
             wmem_alloc(allocator, 8);
         }
