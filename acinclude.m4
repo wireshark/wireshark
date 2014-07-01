@@ -1553,35 +1553,25 @@ AC_DEFUN([AC_WIRESHARK_GEOIP_CHECK],
 #
 # $1 : ldflag(s) to test
 #
-# If we've determined that the compiler supports "-Wl,{option}" to
-# pass options through to the linker, we use that to attempt to
-# compile with the defined ldflags. The defined flags are added to
-# LDFLAGS only if the compilation succeeds.
-#
-# XXX - not all flags passed to AC_WIRESHARK_LDFLAGS_CHECK are
-# -Wl,{option} flags; should we just try the flag without bothering
-# to check whether -Wl,{option} is supported?
+# We attempt to compile and link a test program with the specified linker
+# flag. The defined flag is added to LDFLAGS only if the link succeeds.
 #
 AC_DEFUN([AC_WIRESHARK_LDFLAGS_CHECK],
-[GCC_OPTION="$1"
-AC_MSG_CHECKING(whether we can add $GCC_OPTION to LDFLAGS)
-if test "x$ac_supports_W_linker_passthrough" = "xyes"; then
-  LDFLAGS_saved="$LDFLAGS"
-  LDFLAGS="$LDFLAGS $GCC_OPTION"
-  AC_LINK_IFELSE([
-    AC_LANG_SOURCE([[
-		main() { return; }
-                  ]])],
-                  [
-                    AC_MSG_RESULT(yes)
-                  ],
-                  [
-                    AC_MSG_RESULT(no)
-                    LDFLAGS="$LDFLAGS_saved"
-                  ])
-else
-  AC_MSG_RESULT(no)
-fi
+[LD_OPTION="$1"
+AC_MSG_CHECKING(whether we can add $LD_OPTION to LDFLAGS)
+LDFLAGS_saved="$LDFLAGS"
+LDFLAGS="$LDFLAGS $LD_OPTION"
+AC_LINK_IFELSE(
+  [
+    AC_LANG_SOURCE([[main() { return; }]])
+  ],
+  [
+    AC_MSG_RESULT(yes)
+  ],
+  [
+    AC_MSG_RESULT(no)
+    LDFLAGS="$LDFLAGS_saved"
+  ])
 ])
 
 dnl

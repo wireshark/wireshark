@@ -216,28 +216,6 @@ if test "x$GCC" = "xyes" -o "x$CC" = "xclang" ; then
 	ac_supports_gcc_flags=yes
 fi
 
-#
-# Set "ac_supports_W_linker_passthrough" if the compiler is known to
-# support "-Wl,{options}" to pass options through to the linker.
-# Currently, we assume GCC, xlc, and clang do; other compilers should
-# be added here.
-#
-if test "x$GCC" = "xyes" -o "x$CC" = "xxlc" -o "x$CC" = "xclang" ; then
-	ac_supports_W_linker_passthrough=yes
-fi
-
-#
-# Set "ac_supports_W_linker_passthrough" if the compiler is known to
-# support "-Wl,{option}" to pass options through to the linker.
-# Currently, we assume GCC and clang do; other compilers should
-# be added here.
-#
-# XXX - do this with a compiler test?
-#
-if test "x$GCC" = "xyes" -o "x$CC" = "xclang" ; then
-	ac_supports_W_linker_passthrough=yes
-fi
-
 if test "x$CC_FOR_BUILD" = x
 then
        CC_FOR_BUILD=$CC
