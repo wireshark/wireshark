@@ -701,6 +701,25 @@ set(DATAFILE_DIR "${CMAKE_INSTALL_PREFIX}/share/${CPACK_PACKAGE_NAME}")
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
+ADD_CUSTOM_TARGET(
+	gitversion ALL
+	COMMAND ${PERL_EXECUTABLE}
+		${CMAKE_CURRENT_SOURCE_DIR}/make-version.pl
+		${CMAKE_CURRENT_SOURCE_DIR}
+	DEPENDS
+		${CMAKE_CURRENT_SOURCE_DIR}/make-version.pl
+)
+set_target_properties(gitversion PROPERTIES FOLDER "Auxiliary")
+
+ADD_CUSTOM_COMMAND(
+	OUTPUT	version.h
+	COMMAND ${PERL_EXECUTABLE}
+		${CMAKE_CURRENT_SOURCE_DIR}/make-version.pl
+		${CMAKE_CURRENT_SOURCE_DIR}
+	DEPENDS
+		${CMAKE_CURRENT_SOURCE_DIR}/make-version.pl
+)
+
 if(ENABLE_PLUGINS)
 	set(HAVE_PLUGINS 1)
 	set(PLUGIN_DIR "${DATAFILE_DIR}/plugins/${CPACK_PACKAGE_VERSION}")
@@ -870,25 +889,6 @@ link_directories(
 	${CMAKE_BINARY_DIR}/filetap
 	${CMAKE_BINARY_DIR}/wiretap
 	${CMAKE_BINARY_DIR}/wsutil
-)
-
-ADD_CUSTOM_TARGET(
-	gitversion ALL
-	COMMAND ${PERL_EXECUTABLE}
-		${CMAKE_CURRENT_SOURCE_DIR}/make-version.pl
-		${CMAKE_CURRENT_SOURCE_DIR}
-	DEPENDS
-		${CMAKE_CURRENT_SOURCE_DIR}/make-version.pl
-)
-set_target_properties(gitversion PROPERTIES FOLDER "Auxiliary")
-
-ADD_CUSTOM_COMMAND(
-	OUTPUT	version.h
-	COMMAND ${PERL_EXECUTABLE}
-		${CMAKE_CURRENT_SOURCE_DIR}/make-version.pl
-		${CMAKE_CURRENT_SOURCE_DIR}
-	DEPENDS
-		${CMAKE_CURRENT_SOURCE_DIR}/make-version.pl
 )
 
 if(UNIX)
