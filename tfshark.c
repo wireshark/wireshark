@@ -796,22 +796,6 @@ main(int argc, char *argv[])
 
   cmdarg_err_init(failure_message, failure_message_cont);
 
-  /* Assemble the compile-time version information string */
-  comp_info_str = g_string_new("Compiled ");
-  get_compiled_version_info(comp_info_str, NULL, epan_get_compiled_version_info);
-
-  /* Assemble the run-time version information string */
-  runtime_info_str = g_string_new("Running ");
-  get_runtime_version_info(runtime_info_str, NULL);
-
-  /* Add it to the information to be reported on a crash. */
-  ws_add_crash_info("TFShark %s\n"
-         "\n"
-         "%s"
-         "\n"
-         "%s",
-      get_ws_vcs_version_info(), comp_info_str->str, runtime_info_str->str);
-
 #ifdef _WIN32
   arg_list_utf_16to8(argc, argv);
   create_app_running_mutex();
@@ -837,6 +821,24 @@ main(int argc, char *argv[])
     fprintf(stderr, "tfshark: Can't get pathname of tfshark program: %s.\n",
             init_progfile_dir_error);
   }
+
+  initialize_funnel_ops();
+
+  /* Assemble the compile-time version information string */
+  comp_info_str = g_string_new("Compiled ");
+  get_compiled_version_info(comp_info_str, NULL, epan_get_compiled_version_info);
+
+  /* Assemble the run-time version information string */
+  runtime_info_str = g_string_new("Running ");
+  get_runtime_version_info(runtime_info_str, NULL);
+
+  /* Add it to the information to be reported on a crash. */
+  ws_add_crash_info("TFShark %s\n"
+         "\n"
+         "%s"
+         "\n"
+         "%s",
+      get_ws_vcs_version_info(), comp_info_str->str, runtime_info_str->str);
 
   /*
    * In order to have the -X opts assigned before the wslua machine starts
@@ -908,8 +910,6 @@ main(int argc, char *argv[])
   g_log_set_handler(LOG_DOMAIN_MAIN,
                     (GLogLevelFlags)log_flags,
                     tfshark_log_handler, NULL /* user_data */);
-
-  initialize_funnel_ops();
 
   init_report_err(failure_message, open_failure_message, read_failure_message,
                   write_failure_message);

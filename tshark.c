@@ -1002,34 +1002,7 @@ main(int argc, char *argv[])
 
   static const char    optstring[] = OPTSTRING;
 
-#ifdef _WIN32
-  /* Load wpcap if possible. Do this before collecting the run-time version information */
-  load_wpcap();
-
-  /* Warn the user if npf.sys isn't loaded. */
-  if (!npf_sys_is_running() && get_windows_major_version() >= 6) {
-    fprintf(stderr, "The NPF driver isn't running.  You may have trouble "
-      "capturing or\nlisting interfaces.\n");
-  }
-#endif
-
   cmdarg_err_init(failure_message, failure_message_cont);
-
-  /* Assemble the compile-time version information string */
-  comp_info_str = g_string_new("Compiled ");
-  get_compiled_version_info(comp_info_str, NULL, epan_get_compiled_version_info);
-
-  /* Assemble the run-time version information string */
-  runtime_info_str = g_string_new("Running ");
-  get_runtime_version_info(runtime_info_str, get_tshark_runtime_info);
-
-  /* Add it to the information to be reported on a crash. */
-  ws_add_crash_info("TShark %s\n"
-         "\n"
-         "%s"
-         "\n"
-         "%s",
-      get_ws_vcs_version_info(), comp_info_str->str, runtime_info_str->str);
 
 #ifdef _WIN32
   arg_list_utf_16to8(argc, argv);
@@ -1056,6 +1029,35 @@ main(int argc, char *argv[])
     fprintf(stderr, "tshark: Can't get pathname of tshark program: %s.\n",
             init_progfile_dir_error);
   }
+
+  initialize_funnel_ops();
+
+#ifdef _WIN32
+  /* Load wpcap if possible. Do this before collecting the run-time version information */
+  load_wpcap();
+
+  /* Warn the user if npf.sys isn't loaded. */
+  if (!npf_sys_is_running() && get_windows_major_version() >= 6) {
+    fprintf(stderr, "The NPF driver isn't running.  You may have trouble "
+      "capturing or\nlisting interfaces.\n");
+  }
+#endif
+
+  /* Assemble the compile-time version information string */
+  comp_info_str = g_string_new("Compiled ");
+  get_compiled_version_info(comp_info_str, NULL, epan_get_compiled_version_info);
+
+  /* Assemble the run-time version information string */
+  runtime_info_str = g_string_new("Running ");
+  get_runtime_version_info(runtime_info_str, get_tshark_runtime_info);
+
+  /* Add it to the information to be reported on a crash. */
+  ws_add_crash_info("TShark %s\n"
+         "\n"
+         "%s"
+         "\n"
+         "%s",
+      get_ws_vcs_version_info(), comp_info_str->str, runtime_info_str->str);
 
   /*
    * In order to have the -X opts assigned before the wslua machine starts
@@ -1140,8 +1142,6 @@ main(int argc, char *argv[])
                     (GLogLevelFlags)log_flags,
                     tshark_log_handler, NULL /* user_data */);
 #endif
-
-  initialize_funnel_ops();
 
   init_report_err(failure_message, open_failure_message, read_failure_message,
                   write_failure_message);
