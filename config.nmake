@@ -755,13 +755,14 @@ GTK_SCHEMAS_DIR=\share\glib-2.0\schemas
 ##### Tools #####
 
 # Set the following mandatory commands to find the tools.
-# The easiest way is to use the corresponding packages from cygwin.
+# The easiest way is to use the corresponding packages from Cygwin.
 
-# Set up the path to the cygwin binaries
-CYGWIN_PATH=c:\cygwin\bin
-
-# If that doesn't exist, check for a 64-bit cygwin installation
-!IF !EXIST($(CYGWIN_PATH)) && EXIST(C:\cygwin64\bin)
+# Set up the path to the Cygwin binaries
+# First check whether a 32-bit Cygwin installation exists
+# If not, check for a 64-bit Cygwin installation
+!IF EXIST(C:\cygwin\bin)
+CYGWIN_PATH=C:\cygwin\bin
+!ELSE IF EXIST(C:\cygwin64\bin)
 CYGWIN_PATH=C:\cygwin64\bin
 !ELSE
 !ERROR Could not locate Cygwin, please set CYGWIN_PATH explicitly in config.nmake
