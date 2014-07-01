@@ -369,7 +369,7 @@ is_broadcast(const address *addr)
 static gboolean
 ssid_equal(const struct _wlan_stats *st1, const struct _wlan_stats *st2 )
 {
-    return (st1->ssid_len == st2->ssid_len) && (memcmp(st1->ssid, st2->ssid, st1->ssid_len) == 0);
+    return ((st1->ssid_len <= sizeof(st1->ssid)) && st1->ssid_len == st2->ssid_len) && (memcmp(st1->ssid, st2->ssid, st1->ssid_len) == 0);
 }
 
 static int
