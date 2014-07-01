@@ -74,9 +74,9 @@ typedef struct _io_graph_item_t {
  * @param count [in] The number of items in the array.
  */
 static inline void
-reset_io_graph_items(io_graph_item_t *items, int count) {
+reset_io_graph_items(io_graph_item_t *items, gsize count) {
     io_graph_item_t *item;
-    int i;
+    gsize i;
 
     for (i = 0; i < count; i++) {
         item = &items[i];

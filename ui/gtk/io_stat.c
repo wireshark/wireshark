@@ -168,12 +168,12 @@ typedef struct _io_stat_graph_t {
 
 
 typedef struct _io_stat_t {
+    gsize          space_items; /* space for items allocated */
     gboolean       needs_redraw;
     guint32        interval;    /* measurement interval in ms */
     guint32        last_interval; /* the last *displayed* interval */
     guint32        max_interval; /* the maximum interval based on the capture duration */
     guint32        num_items;   /* total number of items in all intervals (zero relative) */
-    guint32        space_items; /* space for items allocated */
     guint32        left_x_border;
     guint32        right_x_border;
     gboolean       view_as_time;
@@ -272,12 +272,12 @@ tap_iostat_packet(void *g, packet_info *pinfo, epan_dissect_t *edt, const void *
             /* reallocate graphs */
             static const gsize exp_inc_limit = 1000000;
             static const gsize step = 100000;
-            const gsize new_size = (idx < exp_inc_limit)?exp2(log2(idx + 1) + 1):(idx + step);
+            const gsize new_size = (gsize)((idx < exp_inc_limit)?exp2(log2(idx + 1) + 1):(idx + step));
             if (io->space_items == 0) {
                 /* nothing allocated yet */
                 int i;
                 for (i = 0; i < MAX_GRAPHS; i++) {
-                  io->graphs[i].items = (io_graph_item_t *)g_malloc(sizeof(io->graphs[i].items[0]) * new_size);
+                    io->graphs[i].items = (io_graph_item_t *)g_malloc(sizeof(io->graphs[i].items[0]) * new_size);
                     reset_io_graph_items(io->graphs[i].items, new_size);
                 }
             } else {
