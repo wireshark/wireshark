@@ -152,12 +152,16 @@
      * This was lifted from GLib; see above for why we don't use
      * G_GNUC_INTERNAL.
      */
-    #define WS_DLL_PUBLIC_DEF
     #if defined(__SUNPRO_C) && (__SUNPRO_C >= 0x590)
+      /* This supports GCC-style __attribute__ ((visibility (XXX))) */
+      #define WS_DLL_PUBLIC_DEF __attribute__ ((visibility ("default")))
       #define WS_DLL_LOCAL __attribute__ ((visibility ("hidden")))
     #elif defined(__SUNPRO_C) && (__SUNPRO_C >= 0x550)
+      /* This doesn't, but supports __global and __hidden */
+      #define WS_DLL_PUBLIC_DEF __global
       #define WS_DLL_LOCAL __hidden
     #else /* not Sun C with "hidden" support */
+      #define WS_DLL_PUBLIC_DEF
       #define WS_DLL_LOCAL
     #endif
   #endif /* __GNUC__ >= 4 */
