@@ -87,7 +87,6 @@ static int hf_frame_pack_preamble_error = -1;
 static int hf_frame_pack_symbol_error = -1;
 static int hf_frame_wtap_encap = -1;
 static int hf_comments_text = -1;
-static int hf_frame_num_p_prot_data = -1;
 
 static gint ett_frame = -1;
 static gint ett_flags = -1;
@@ -439,16 +438,6 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			proto_tree_set_visible(fh_tree, old_visible);
 		}
 
-		if(pinfo->fd->pfd != 0){
-			proto_item *ppd_item;
-			guint num_entries = g_slist_length(pinfo->fd->pfd);
-			guint i;
-			ppd_item = proto_tree_add_uint(fh_tree, hf_frame_num_p_prot_data, tvb, 0, 0, num_entries);
-			PROTO_ITEM_SET_GENERATED(ppd_item);
-			for(i=0; i<num_entries; i++){
-				proto_tree_add_text (fh_tree, tvb, 0, 0, "%s",p_get_proto_name_and_key(wmem_file_scope(), pinfo, i));
-			}
-		}
 		/* Check for existences of P2P pseudo header */
 		if (pinfo->p2p_dir != P2P_DIR_UNKNOWN) {
 			proto_tree_add_int(fh_tree, hf_frame_p2p_dir, tvb,
@@ -805,11 +794,6 @@ proto_register_frame(void)
 		{ &hf_comments_text,
 		  { "Comment", "frame.comment",
 		    FT_STRING, BASE_NONE, NULL, 0x0,
-		    NULL, HFILL }},
-
-		{ &hf_frame_num_p_prot_data,
-		  { "Number of per-protocol-data", "frame.p_prot_data",
-		    FT_UINT32, BASE_DEC, NULL, 0x0,
 		    NULL, HFILL }},
 	};
 
