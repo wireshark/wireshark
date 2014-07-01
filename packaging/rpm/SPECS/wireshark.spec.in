@@ -210,6 +210,12 @@ Contains the Qt Wireshark GUI and desktop integration files.
   %{?_with_qt} \
   --disable-warnings-as-errors
 
+# Remove rpath.  It's prohibited in Fedora[1] and anyway we don't need it (and
+# sometimes it gets in the way).
+# [1] https://fedoraproject.org/wiki/Packaging:Guidelines#Beware_of_Rpath
+sed -i 's|^hardcode_libdir_flag_spec=.*|hardcode_libdir_flag_spec=""|g' libtool
+sed -i 's|^runpath_var=LD_RUN_PATH|runpath_var=DIE_RPATH_DIE|g' libtool
+
 # Suggestion: put this in your ~/.rpmmacros (without the hash sign, of course):
 # %_smp_mflags -j %(grep -c processor /proc/cpuinfo)
 make %{?_smp_mflags}
