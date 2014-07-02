@@ -6956,7 +6956,7 @@ dissect_rsvp_msg_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_tree *rsvp_header_tree;
     proto_tree *rsvp_object_tree;
     proto_tree *ti;
-    proto_item *hidden_item;
+    proto_item *hidden_item, *cksum_item;
     guint16     cksum, computed_cksum;
     vec_t       cksum_vec[1];
     int         offset    = 0;
@@ -6965,6 +6965,7 @@ dissect_rsvp_msg_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     int         session_off, tempfilt_off;
     int         msg_length;
     int         obj_length;
+    gboolean    have_integrity_object = FALSE;
 
     offset       = 0;
     msg_length   = tvb_get_ntohs(tvb, 6);
@@ -7017,27 +7018,9 @@ dissect_rsvp_msg_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
 
     cksum = tvb_get_ntohs(tvb, offset+2);
-    if (!pinfo->fragmented && ((int) tvb_length(tvb) >= msg_length)) {
-        /* The packet isn't part of a fragmented datagram and isn't
-           truncated, so we can checksum it. */
-        cksum_vec[0].ptr = tvb_get_ptr(tvb, 0, msg_length);
-        cksum_vec[0].len = msg_length;
-        computed_cksum = in_cksum(&cksum_vec[0], 1);
-        if (computed_cksum == 0) {
-            proto_tree_add_text(rsvp_header_tree, tvb, offset+2, 2,
-                                "Message Checksum: 0x%04x [correct]",
-                                cksum);
-        } else {
-            proto_tree_add_text(rsvp_header_tree, tvb, offset+2, 2,
-                                "Message Checksum: 0x%04x [incorrect, should be 0x%04x]",
-                                cksum,
-                                in_cksum_shouldbe(cksum, computed_cksum));
-        }
-    } else {
-        proto_tree_add_text(rsvp_header_tree, tvb, offset+2, 2,
-                            "Message Checksum: 0x%04x",
-                            cksum);
-    }
+    cksum_item = proto_tree_add_text(rsvp_header_tree, tvb, offset+2, 2,
+            "Message Checksum: 0x%04x", cksum);
+
     proto_tree_add_item(rsvp_header_tree, hf_rsvp_sending_ttl, tvb, offset+4, 1, ENC_NA);
     proto_tree_add_item(rsvp_header_tree, hf_rsvp_message_length, tvb, offset+6, 2, ENC_BIG_ENDIAN);
 
@@ -7130,6 +7113,7 @@ dissect_rsvp_msg_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             break;
 
         case RSVP_CLASS_INTEGRITY:
+            have_integrity_object = TRUE;
             dissect_rsvp_integrity(ti, rsvp_object_tree, tvb, offset, obj_length, rsvp_class, type);
             break;
 
@@ -7272,6 +7256,24 @@ dissect_rsvp_msg_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         offset += obj_length;
         len += obj_length;
+    }
+
+    /* We delay the checksum check until here so we know if the message
+     * contained an integrity object or not */
+    if (!pinfo->fragmented && ((int) tvb_length(tvb) >= msg_length)) {
+        /* The packet isn't part of a fragmented datagram and isn't
+           truncated, so we can checksum it. */
+        cksum_vec[0].ptr = tvb_get_ptr(tvb, 0, msg_length);
+        cksum_vec[0].len = msg_length;
+        computed_cksum = in_cksum(&cksum_vec[0], 1);
+        if (computed_cksum == 0) {
+            proto_item_append_text(cksum_item, " [correct]");
+        } else if (cksum == 0 && have_integrity_object) {
+            proto_item_append_text(cksum_item, " [ignored, integrity object used]");
+        } else {
+            proto_item_append_text(cksum_item, " [incorrect, should be 0x%04x]",
+                                in_cksum_shouldbe(cksum, computed_cksum));
+        }
     }
 }
 
