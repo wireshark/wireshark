@@ -124,7 +124,7 @@ Tool/File           Cygwin Package          Opt./Mand.  Comments
 xsltproc:           Doc/libxslt             M
 xmllint:            Doc/libxml2             M
 xsl stylesheets:    Doc/docbook-xsl         M           docbook.xsl, chunk.xsl and htmlhelp.xsl
-docbookx.dtd:       Doc/docbook-xml42       M
+docbookx.dtd:       Doc/docbook-xml42       M           a later version may be required (e.g. Doc/docbook-xml45), depending on your asciidoc installation
 lynx:               Web/lynx                M
 asciidoc            Python/asciidoc         M           cygwin python is a dependency and will also be installed (if not installed)
 dblatex             Text/dblatex            O           A number of dependencies will also be installed
