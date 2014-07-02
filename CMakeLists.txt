@@ -712,7 +712,7 @@ ADD_CUSTOM_TARGET(
 set_target_properties(gitversion PROPERTIES FOLDER "Auxiliary")
 
 ADD_CUSTOM_COMMAND(
-	OUTPUT	version.h
+	OUTPUT	${CMAKE_BINARY_DIR}/version.h
 	COMMAND ${PERL_EXECUTABLE}
 		${CMAKE_CURRENT_SOURCE_DIR}/make-version.pl
 		${CMAKE_CURRENT_SOURCE_DIR}
@@ -917,7 +917,7 @@ set(SHARK_COMMON_SRC
 	capture-pcap-util.c
 	cfile.c
 	frame_tvbuff.c
-	version.h
+	${CMAKE_BINARY_DIR}/version.h
 	sync_pipe_write.c
 	version_info.c
 )
@@ -1241,7 +1241,7 @@ if(BUILD_mergecap)
 	)
 	set(mergecap_FILES
 		mergecap.c
-		version.h
+		${CMAKE_BINARY_DIR}/version.h
 		image/mergecap.rc
 	)
 	add_executable(mergecap ${mergecap_FILES})
@@ -1260,7 +1260,7 @@ if(BUILD_reordercap)
 	)
 	set(reordercap_FILES
 		reordercap.c
-		version.h
+		${CMAKE_BINARY_DIR}/version.h
 		image/reordercap.rc
 	)
 	add_executable(reordercap ${reordercap_FILES})
@@ -1343,7 +1343,7 @@ if(BUILD_dumpcap AND PCAP_FOUND)
 		${NL_LIBRARIES}
 	)
 	set(dumpcap_FILES
-		version.h
+		${CMAKE_BINARY_DIR}/version.h
 		capture_opts.c
 		capture-pcap-util.c
 		capture_stop_conditions.c
