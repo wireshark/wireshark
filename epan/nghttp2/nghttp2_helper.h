@@ -27,7 +27,7 @@
 
 #include <config.h>
 
-#include <wsutil/nghttp2/nghttp2/nghttp2.h>
+#include <nghttp2.h>
 
 #define nghttp2_min(A, B) ((A) < (B) ? (A) : (B))
 #define nghttp2_max(A, B) ((A) > (B) ? (A) : (B))

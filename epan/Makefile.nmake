@@ -70,6 +70,7 @@ libwireshark_LIBS = \
 	dfilter\dfilter.lib \
 	wmem\wmem.lib \
 	$(WSLUA_LIB) \
+	nghttp2\nghttp2.lib \
 	dissectors\dissectors.lib
 
 .c.obj::
@@ -89,17 +90,17 @@ DOXYGEN_DEP=doxygen
 !ENDIF
 
 !IFDEF ENABLE_LIBWIRESHARK
-all: crypt ftypes dfilter wmem $(WSLUA_DIR) dissectors libwireshark.dll
+all: crypt ftypes dfilter wmem $(WSLUA_DIR) nghttp2 dissectors libwireshark.dll
 !ELSE
-all: crypt ftypes dfilter wmem $(WSLUA_DIR) dissectors libwireshark.lib
+all: crypt ftypes dfilter wmem $(WSLUA_DIR) nghttp2 dissectors libwireshark.lib
 !ENDIF
 
 # For use when making libwireshark.dll
 libwireshark.lib: libwireshark.dll
 libwireshark.exp: libwireshark.dll
 
-libwireshark.dll: ..\config.h $(LIBWIRESHARK_OBJECTS) crypt ftypes dfilter wmem $(WSLUA_DIR) dissectors $(DOXYGEN_DEP) $(EXTRA_OBJECTS) \
-		crypt\airpdcap.lib ftypes\ftypes.lib dfilter\dfilter.lib wmem\wmem.lib dissectors\dissectors.lib $(WSLUA_LIB) ..\image\libwireshark.res
+libwireshark.dll: ..\config.h $(LIBWIRESHARK_OBJECTS) crypt ftypes dfilter wmem $(WSLUA_DIR) nghttp2 dissectors $(DOXYGEN_DEP) $(EXTRA_OBJECTS) \
+		crypt\airpdcap.lib ftypes\ftypes.lib dfilter\dfilter.lib wmem\wmem.lib dissectors\dissectors.lib $(WSLUA_LIB) nghttp2\nghttp2.lib ..\image\libwireshark.res
 	@echo Linking libwireshark.dll
 	$(link) $(dlllflags) $(conlibsdll) shell32.lib psapi.lib \
 		$(LOCAL_LDFLAGS) $(DLL_LDFLAGS) \
@@ -109,8 +110,8 @@ libwireshark.dll: ..\config.h $(LIBWIRESHARK_OBJECTS) crypt ftypes dfilter wmem 
 		dissectors\register.obj \
 		$(EXTRA_OBJECTS)
 
-libwireshark.lib	: ..\config.h $(LIBWIRESHARK_OBJECTS) crypt ftypes dfilter wmem $(WSLUA_DIR) dissectors $(DOXYGEN_DEP) $(EXTRA_OBJECTS) \
-		crypt\airpdcap.lib ftypes\ftypes.lib dfilter\dfilter.lib wmem\wmem.lib $(WSLUA_LIB) dissectors\dissectors.lib
+libwireshark.lib	: ..\config.h $(LIBWIRESHARK_OBJECTS) crypt ftypes dfilter wmem $(WSLUA_DIR) nghttp2 dissectors $(DOXYGEN_DEP) $(EXTRA_OBJECTS) \
+		crypt\airpdcap.lib ftypes\ftypes.lib dfilter\dfilter.lib wmem\wmem.lib $(WSLUA_LIB) nghttp2\nghttp2.lib dissectors\dissectors.lib
 	link /lib /out:libwireshark.lib $(LIBWIRESHARK_OBJECTS) \
 		$(EXTRA_OBJECTS)
 
@@ -138,6 +139,8 @@ clean:  clean-local
 	cd ../wmem
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../wslua
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd ../nghttp2
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
 
@@ -171,6 +174,8 @@ distclean: distclean-local
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ../wslua
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
+	cd ../nghttp2
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ..
 
 maintainer-clean-local: distclean-local
@@ -187,6 +192,8 @@ maintainer-clean: maintainer-clean-local
 	cd ../wmem
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
 	cd ../wslua
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
+	cd ../nghttp2
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
 	cd ..
 
@@ -217,6 +224,11 @@ wmem:: ..\config.h
 
 wslua:: ..\config.h
 	cd wslua
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
+	cd ..
+
+nghttp2:: ..\config.h
+	cd nghttp2
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
 	cd ..
 

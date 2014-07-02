@@ -29,7 +29,7 @@
 #  include <config.h>
 #endif /* HAVE_CONFIG_H */
 
-#include <wsutil/nghttp2/nghttp2/nghttp2.h>
+#include <nghttp2.h>
 
 #include "nghttp2_hd_huffman.h"
 #include "nghttp2_buf.h"

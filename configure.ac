@@ -2881,6 +2881,7 @@ AC_OUTPUT(
   epan/dissectors/dcerpc/Makefile
   epan/dissectors/pidl/Makefile
   epan/ftypes/Makefile
+  epan/nghttp2/Makefile
   epan/wmem/Makefile
   epan/wslua/Makefile
   filetap/Makefile
@@ -2923,7 +2924,6 @@ AC_OUTPUT(
   tools/lemon/Makefile
   wiretap/Makefile
   wsutil/Makefile
-  wsutil/nghttp2/Makefile
   echld/Makefile
   _CUSTOM_AC_OUTPUT_
   ,)

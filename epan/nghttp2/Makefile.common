@@ -35,8 +35,8 @@ LIBNGHTTP2_INCLUDES =			\
 	nghttp2_helper.h		\
 	nghttp2_int.h			\
 	nghttp2_net.h			\
-	nghttp2/nghttp2.h		\
-	nghttp2/nghttp2ver.h
+	nghttp2.h			\
+	nghttp2ver.h
 
 
 #

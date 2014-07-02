@@ -25,7 +25,6 @@
 #ifndef NGHTTP2_H
 #define NGHTTP2_H
 
-#include "ws_symbol_export.h"
 #include "config.h"
 
 #ifdef  __cplusplus
@@ -33,52 +32,10 @@ extern "C" {
 #endif
 
 #include <stdlib.h>
-#ifdef __WIN32__
-
-typedef __int8 int8_t;
-typedef unsigned __int8 uint8_t;
-typedef __int16 int16_t;
-typedef unsigned __int16 uint16_t;
-typedef __int32 int32_t;
-typedef unsigned __int32 uint32_t;
-typedef __int64 int64_t;
-typedef unsigned __int64 uint64_t;
-
-/* Limits of integral types. */
-#ifndef INT8_MIN
-#define INT8_MIN               (-128)
-#endif
-#ifndef INT16_MIN
-#define INT16_MIN              (-32767-1)
-#endif
-#ifndef INT32_MIN
-#define INT32_MIN              (-2147483647-1)
-#endif
-#ifndef INT8_MAX
-#define INT8_MAX               (127)
-#endif
-#ifndef INT16_MAX
-#define INT16_MAX              (32767)
-#endif
-#ifndef INT32_MAX
-#define INT32_MAX              (2147483647)
-#endif
-#ifndef UINT8_MAX
-#define UINT8_MAX              (255U)
-#endif
-#ifndef UINT16_MAX
-#define UINT16_MAX             (65535U)
-#endif
-#ifndef UINT32_MAX
-#define UINT32_MAX             (4294967295U)
-#endif
-
-#else
 #include <stdint.h>
-#endif
 #include <sys/types.h>
 
-#include <wsutil/nghttp2/nghttp2/nghttp2ver.h>
+#include "nghttp2ver.h"
 
 /**
  * @macro
@@ -2966,14 +2923,14 @@ typedef struct nghttp2_hd_inflater nghttp2_hd_inflater;
  * :enum:`NGHTTP2_ERR_NOMEM`
  *     Out of memory.
  */
-WS_DLL_PUBLIC int nghttp2_hd_inflate_new(nghttp2_hd_inflater **inflater_ptr);
+int nghttp2_hd_inflate_new(nghttp2_hd_inflater **inflater_ptr);
 
 /**
  * @function
  *
  * Deallocates any resources allocated for |inflater|.
  */
-WS_DLL_PUBLIC void nghttp2_hd_inflate_del(nghttp2_hd_inflater *inflater);
+void nghttp2_hd_inflate_del(nghttp2_hd_inflater *inflater);
 
 /**
  * @function
@@ -2990,7 +2947,7 @@ WS_DLL_PUBLIC void nghttp2_hd_inflate_del(nghttp2_hd_inflater *inflater);
  * :enum:`NGHTTP2_ERR_NOMEM`
  *     Out of memory.
  */
-WS_DLL_PUBLIC int nghttp2_hd_inflate_change_table_size(nghttp2_hd_inflater *inflater,
+int nghttp2_hd_inflate_change_table_size(nghttp2_hd_inflater *inflater,
                                          size_t settings_hd_table_bufsize_max);
 
 /**
@@ -3090,7 +3047,7 @@ typedef enum {
  *     }
  *
  */
-WS_DLL_PUBLIC ssize_t nghttp2_hd_inflate_hd(nghttp2_hd_inflater *inflater,
+ssize_t nghttp2_hd_inflate_hd(nghttp2_hd_inflater *inflater,
                               nghttp2_nv *nv_out, int *inflate_flags,
                               uint8_t *in, size_t inlen, int in_final);
 
@@ -3102,7 +3059,7 @@ WS_DLL_PUBLIC ssize_t nghttp2_hd_inflate_hd(nghttp2_hd_inflater *inflater,
  * This function returns 0 if it succeeds. Currently this function
  * always succeeds.
  */
-WS_DLL_PUBLIC int nghttp2_hd_inflate_end_headers(nghttp2_hd_inflater *inflater);
+int nghttp2_hd_inflate_end_headers(nghttp2_hd_inflater *inflater);
 
 #ifdef __cplusplus
 }

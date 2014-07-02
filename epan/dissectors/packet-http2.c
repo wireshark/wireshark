@@ -47,7 +47,7 @@
 #include <epan/conversation.h>
 #include <epan/follow.h>
 
-#include <wsutil/nghttp2/nghttp2/nghttp2.h>
+#include <epan/nghttp2/nghttp2.h>
 
 #include "packet-tcp.h"
 

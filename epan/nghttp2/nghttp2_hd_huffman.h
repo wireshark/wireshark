@@ -29,7 +29,7 @@
 #  include <config.h>
 #endif /* HAVE_CONFIG_H */
 
-#include <wsutil/nghttp2/nghttp2/nghttp2.h>
+#include <nghttp2.h>
 
 typedef enum {
   /* FSA accepts this state as the end of huffman encoding

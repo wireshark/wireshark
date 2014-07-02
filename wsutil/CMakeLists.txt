@@ -87,11 +87,6 @@ set(WSUTIL_FILES
 	ws_mempbrk.c
 	ws_mempbrk_sse42.c
 	ws_version_info.c
-	nghttp2/nghttp2_buf.c
-	nghttp2/nghttp2_hd.c
-	nghttp2/nghttp2_hd_huffman.c
-	nghttp2/nghttp2_hd_huffman_data.c
-	nghttp2/nghttp2_helper.c
 	${WSUTIL_PLATFORM_FILES}
 	${WSUTIL_SSE42_FILES}
 )
