@@ -4665,7 +4665,7 @@ static int
 decode_gtp_pdp_cntxt(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
 {
 
-    guint8             ggsn_addr_len, apn_len, trans_id, vaa, asi, order;
+    guint8             ggsn_addr_len, apn_len, trans_id, vaa, asi, order, ea;
     guint8             nsapi, sapi, pdu_send_no, pdu_rec_no;
     guint8             pdp_cntxt_id, pdp_type_org, pdp_type_num, pdp_addr_len;
     guint16            length, sn_down, sn_up, up_flow;
@@ -4679,12 +4679,14 @@ decode_gtp_pdp_cntxt(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_
     te = proto_tree_add_text(tree, tvb, offset, length + 3, "%s", val_to_str_ext_const(GTP_EXT_PDP_CNTXT, &gtp_val_ext, "Unknown message"));
     ext_tree_pdp = proto_item_add_subtree(te, ett_gtp_ies[GTP_EXT_PDP_CNTXT]);
 
+    ea = (tvb_get_guint8(tvb, offset + 3) >> 7) & 0x01;
     vaa = (tvb_get_guint8(tvb, offset + 3) >> 6) & 0x01;
     asi = (tvb_get_guint8(tvb, offset + 3) >> 5) & 0x01;
     order = (tvb_get_guint8(tvb, offset + 3) >> 4) & 0x01;
     nsapi = tvb_get_guint8(tvb, offset + 3) & 0x0F;
     sapi = tvb_get_guint8(tvb, offset + 4) & 0x0F;
 
+    proto_tree_add_text(ext_tree_pdp, tvb, offset + 3, 1, "Extended End User Address: %s", yesno[ea]);
     proto_tree_add_text(ext_tree_pdp, tvb, offset + 3, 1, "VPLMN address allowed: %s", yesno[vaa]);
     proto_tree_add_text(ext_tree_pdp, tvb, offset + 3, 1, "Activity Status Indicator: %s", yesno[asi]);
     proto_tree_add_text(ext_tree_pdp, tvb, offset + 3, 1, "Reordering required: %s", yesno[order]);
@@ -4814,6 +4816,30 @@ decode_gtp_pdp_cntxt(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_
      */
     trans_id = tvb_get_guint8(tvb, offset);
     proto_tree_add_text(ext_tree_pdp, tvb, offset, 2, "Transaction identifier: %u", trans_id);
+    offset += 2;
+
+    if (ea) {
+        pdp_type_num = tvb_get_guint8(tvb, offset);
+        pdp_addr_len = tvb_get_guint8(tvb, offset + 1);
+
+        proto_tree_add_text(ext_tree_pdp, tvb, offset, 1, "PDP type: %s", val_to_str_const(pdp_type_num, pdp_type, "Unknown PDP type"));
+        proto_tree_add_text(ext_tree_pdp, tvb, offset + 1, 1, "PDP address length: %u", pdp_addr_len);
+
+        if (pdp_addr_len > 0) {
+            switch (pdp_type_num) {
+            case 0x21:
+                addr_ipv4 = tvb_get_ipv4(tvb, offset + 2);
+                proto_tree_add_text(ext_tree_pdp, tvb, offset + 2, 4, "PDP address: %s", ip_to_str((guint8 *) & addr_ipv4));
+                break;
+            case 0x57:
+                tvb_get_ipv6(tvb, offset + 2, &addr_ipv6);
+                proto_tree_add_text(ext_tree_pdp, tvb, offset + 2, 16, "PDP address: %s", ip6_to_str((struct e_in6_addr *) &addr_ipv6));
+                break;
+            default:
+                break;
+            }
+        }
+    }
 
     return 3 + length;
 }
