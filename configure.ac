@@ -903,12 +903,29 @@ esac
 #
 AC_WIRESHARK_COMPILER_FLAGS_CHECK(-fexcess-precision=fast)
 
+#
+# Try to have the compiler default to hiding symbols, so that only
+# symbols explicitly exported with WS_DLL_PUBLIC will be visible
+# outside (shared) libraries; that way, more UN*X builds will catch
+# failures to export symbols, rather than having that fail only on
+# Windows.
+#
 CFLAGS_before_fvhidden="$CFLAGS"
+#
+# GCC and GCC-compatible compilers
+#
 AC_WIRESHARK_COMPILER_FLAGS_CHECK(-fvisibility=hidden)
 if test "x$CFLAGS" = "x$CFLAGS_before_fvhidden"
 then
-	# TODO add other ways of hiding symbols
-	AC_MSG_WARN(Compiler will export all symbols from shared libraries)
+	#
+	# Sun^WOracle C.
+	#
+	AC_WIRESHARK_COMPILER_FLAGS_CHECK(-xldscope=hidden)
+	if test "x$CFLAGS" = "x$CFLAGS_before_fvhidden"
+	then
+		# TODO add other ways of hiding symbols
+		AC_MSG_WARN(Compiler will export all symbols from shared libraries)
+	fi
 fi
 
 AC_WIRESHARK_LDFLAGS_CHECK([-Wl,--as-needed])
