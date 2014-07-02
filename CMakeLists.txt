@@ -1437,7 +1437,7 @@ pod2manhtml( ${CMAKE_SOURCE_DIR}/doc/wireshark-filter 4 )
 add_custom_target(
 	auxiliary ALL
 	DEPENDS
-		AUTHORS-SHORT
+		${CMAKE_BINARY_DIR}/AUTHORS-SHORT
 		capinfos.html
 		captype.html
 		dftest.html
