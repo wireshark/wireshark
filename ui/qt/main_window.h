@@ -339,10 +339,6 @@ private slots:
     void on_actionSCTPAnalyseThisAssociation_triggered();
     void on_actionSCTPFilterThisAssociation_triggered();
 
-#ifdef HAVE_LIBPCAP
-    void on_actionCaptureInterfaces_triggered();
-#endif
-
     void openStatisticsTreeDialog(const gchar *abbr);
     void on_actionStatistics29WestTopics_Advertisements_by_Topic_triggered();
     void on_actionStatistics29WestTopics_Advertisements_by_Source_triggered();

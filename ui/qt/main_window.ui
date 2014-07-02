@@ -164,7 +164,6 @@
     <property name="title">
      <string>&amp;Capture</string>
     </property>
-    <addaction name="actionCaptureInterfaces"/>
     <addaction name="actionCaptureOptions"/>
     <addaction name="actionStartCapture"/>
     <addaction name="actionStopCapture"/>

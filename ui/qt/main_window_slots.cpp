@@ -2329,28 +2329,10 @@ void MainWindow::on_actionSummary_triggered()
 }
 
 #ifdef HAVE_LIBPCAP
-void MainWindow::on_actionCaptureInterfaces_triggered()
+void MainWindow::on_actionCaptureOptions_triggered()
 {
     connect(&capture_interfaces_dialog_, SIGNAL(setFilterValid(bool)), this, SLOT(startInterfaceCapture(bool)));
     capture_interfaces_dialog_.SetTab(0);
-    capture_interfaces_dialog_.UpdateInterfaces();
-
-    if (capture_interfaces_dialog_.isMinimized() == true)
-    {
-        capture_interfaces_dialog_.showNormal();
-    }
-    else
-    {
-        capture_interfaces_dialog_.show();
-    }
-
-    capture_interfaces_dialog_.raise();
-    capture_interfaces_dialog_.activateWindow();
-}
-
-void MainWindow::on_actionCaptureOptions_triggered()
-{
-    capture_interfaces_dialog_.SetTab(2);
     capture_interfaces_dialog_.UpdateInterfaces();
 
     if (capture_interfaces_dialog_.isMinimized() == true)
