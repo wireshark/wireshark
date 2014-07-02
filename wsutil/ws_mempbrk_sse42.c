@@ -34,6 +34,12 @@
 #include <string.h>
 #include "ws_mempbrk.h"
 
+/* __has_feature(address_sanitizer) is used later for Clang, this is for
+ * compatibility with other compilers (such as GCC and MSVC) */
+#ifndef __has_feature
+#   define __has_feature(x) 0
+#endif
+
 #define cast_128aligned__m128i(p) ((const __m128i *) (const void *) (p))
 
 /* Helper for variable shifts of SSE registers.
@@ -93,6 +99,24 @@ _ws_mempbrk_sse42(const char *s, size_t slen, const char *a)
   __m128i mask;
   int offset;
 
+#if __has_feature(address_sanitizer) || defined(__SANITIZE_ADDRESS__)
+  {
+    /* As 'a' is not guarantueed to have a size of at least 16 bytes, and is not
+     * aligned, _mm_load_si128() cannot be used when ASAN is enabled. That
+     * triggers a buffer overflow which is harmless as 'a' is guaranteed to be
+     * '\0' terminated, and the PCMISTRI instruction always ignored everything
+     * starting from EOS ('\0'). A false positive indeed. */
+    size_t length;
+
+    length = strlen(a);
+    /* Don't use SSE4.2 if the length of A > 16. */
+    if (length > 16)
+      return _ws_mempbrk(s, slen, a);
+
+    mask = _mm_setzero_si128();
+    memcpy(&mask, a, length);
+  }
+#else /* else if ASAN is disabled */
   offset = (int) ((size_t) a & 15);
   aligned = (const char *) ((size_t) a & -16L);
   if (offset != 0)
@@ -142,6 +166,7 @@ _ws_mempbrk_sse42(const char *s, size_t slen, const char *a)
             return _ws_mempbrk(s, slen, a);
         }
     }
+#endif /* ASAN disabled */
 
   offset = (int) ((size_t) s & 15);
   aligned = (const char *) ((size_t) s & -16L);
