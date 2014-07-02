@@ -64,6 +64,8 @@ static int hf_kafka_request_frame       = -1;
 static int hf_kafka_response_frame      = -1;
 static int hf_kafka_consumer_group      = -1;
 static int hf_kafka_offset              = -1;
+static int hf_kafka_offset_time         = -1;
+static int hf_kafka_max_offsets         = -1;
 static int hf_kafka_metadata            = -1;
 static int hf_kafka_error               = -1;
 static int hf_kafka_broker_nodeid       = -1;
@@ -740,6 +742,108 @@ dissect_kafka_produce_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     return dissect_kafka_array(tree, tvb, pinfo, offset, &dissect_kafka_produce_response_topic);
 }
 
+/* OFFSET REQUEST/RESPONSE */
+
+static int
+dissect_kafka_offset_request_partition(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
+{
+    proto_item *ti;
+    proto_tree *subtree;
+
+    subtree = proto_tree_add_subtree(tree, tvb, offset, 16, ett_kafka_request_partition, &ti, "Offset Request Partition");
+
+    proto_tree_add_item(subtree, hf_kafka_partition_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    proto_tree_add_item(subtree, hf_kafka_offset_time, tvb, offset, 8, ENC_BIG_ENDIAN);
+    offset += 8;
+
+    proto_tree_add_item(subtree, hf_kafka_max_offsets, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    return offset;
+}
+
+static int
+dissect_kafka_offset_request_topic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int start_offset)
+{
+    proto_item *ti;
+    proto_tree *subtree;
+    int         offset = start_offset;
+
+    subtree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_kafka_request_topic, &ti, "Offset Request Topic");
+
+    offset = dissect_kafka_string(subtree, hf_kafka_topic_name, tvb, pinfo, offset);
+    offset = dissect_kafka_array(subtree, tvb, pinfo, offset, &dissect_kafka_offset_request_partition);
+
+    proto_item_set_len(ti, offset - start_offset);
+
+    return offset;
+}
+
+static int
+dissect_kafka_offset_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
+{
+    proto_tree_add_item(tree, hf_kafka_replica, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    offset = dissect_kafka_array(tree, tvb, pinfo, offset, &dissect_kafka_offset_request_topic);
+
+    return offset;
+}
+
+static int
+dissect_kafka_offset_response_offset(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
+{
+    proto_tree_add_item(tree, hf_kafka_offset, tvb, offset, 8, ENC_BIG_ENDIAN);
+    return offset+8;
+}
+
+static int
+dissect_kafka_offset_response_partition(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int start_offset)
+{
+    proto_item *ti;
+    proto_tree *subtree;
+    int         offset = start_offset;
+
+    subtree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_kafka_response_partition, &ti, "Offset Response Partition");
+
+    proto_tree_add_item(subtree, hf_kafka_partition_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    proto_tree_add_item(subtree, hf_kafka_error, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    offset = dissect_kafka_array(subtree, tvb, pinfo, offset, &dissect_kafka_offset_response_offset);
+
+    proto_item_set_len(ti, offset - start_offset);
+
+    return offset;
+}
+
+static int
+dissect_kafka_offset_response_topic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int start_offset)
+{
+    proto_item *ti;
+    proto_tree *subtree;
+    int         offset = start_offset;
+
+    subtree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_kafka_response_topic, &ti, "Offset Response Topic");
+
+    offset = dissect_kafka_string(subtree, hf_kafka_topic_name, tvb, pinfo, offset);
+    offset = dissect_kafka_array(subtree, tvb, pinfo, offset, &dissect_kafka_offset_response_partition);
+
+    proto_item_set_len(ti, offset - start_offset);
+
+    return offset;
+}
+
+static int
+dissect_kafka_offset_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
+{
+    return dissect_kafka_array(tree, tvb, pinfo, offset, &dissect_kafka_offset_response_topic);
+}
+
 /* MAIN */
 
 static int
@@ -835,6 +939,9 @@ dissect_kafka(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
             case KAFKA_FETCH:
                 /*offset =*/ dissect_kafka_fetch_request(tvb, pinfo, kafka_tree, offset);
                 break;
+            case KAFKA_OFFSET:
+                /*offset =*/ dissect_kafka_offset_request(tvb, pinfo, kafka_tree, offset);
+                break;
         }
     }
     else {
@@ -886,6 +993,9 @@ dissect_kafka(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
             case KAFKA_FETCH:
                 /*offset =*/ dissect_kafka_fetch_response(tvb, pinfo, kafka_tree, offset);
                 break;
+            case KAFKA_OFFSET:
+                /*offset =*/ dissect_kafka_offset_response(tvb, pinfo, kafka_tree, offset);
+                break;
         }
 
     }
@@ -917,6 +1027,16 @@ proto_register_kafka(void)
         { &hf_kafka_offset,
             { "Offset", "kafka.offset",
                FT_INT64, BASE_DEC, 0, 0,
+               NULL, HFILL }
+        },
+        { &hf_kafka_offset_time,
+            { "Time", "kafka.offset_time",
+               FT_INT64, BASE_DEC, 0, 0,
+               NULL, HFILL }
+        },
+        { &hf_kafka_max_offsets,
+            { "Max Offsets", "kafka.max_offsets",
+               FT_INT32, BASE_DEC, 0, 0,
                NULL, HFILL }
         },
         { &hf_kafka_metadata,
