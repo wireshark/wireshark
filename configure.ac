@@ -2265,9 +2265,11 @@ if test "x$enable_setcap_install" = "xno" ; then
 	AC_MSG_RESULT(no)
 else
 	if test "x$SETCAP" = "x" ; then
-		AC_MSG_RESULT(no. Setcap not found)
+		AC_MSG_RESULT(setcap not found)
+		AC_MSG_ERROR([Setcap install was requested, but setcap was not found])
 	elif test "x$enable_dumpcap" = "xno" ; then
-		AC_MSG_ERROR(Setcap install works only with dumpcap but dumpcap is disabled)
+		AC_MSG_RESULT(dumpcap disabled)
+		AC_MSG_ERROR([Setcap install works only with dumpcap, but dumpcap is disabled])
 	else
 		AC_MSG_RESULT(yes)
 	fi
@@ -2287,9 +2289,11 @@ if test "x$enable_setuid_install" = "xno" ; then
 else
 	if test "x$enable_setcap_install" = "xyes" ; then
 		enable_setuid_install=no
-		AC_MSG_RESULT(no; using setcap instead)
+		AC_MSG_RESULT(setcap and setuid both selected)
+		AC_MSG_ERROR(You must choose one of setcap install and setuid install)
 	elif test "x$enable_dumpcap" = "xno" ; then
-		AC_MSG_ERROR(Setuid install works only with dumpcap but dumpcap is disabled)
+		AC_MSG_RESULT(dumpcap disabled)
+		AC_MSG_ERROR([Setuid install works only with dumpcap, but dumpcap is disabled])
 	else
 		AC_MSG_RESULT(yes)
 	fi
