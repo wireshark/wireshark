@@ -1179,7 +1179,7 @@ finished_fwd:
         guint64 t;
         guint64 ooo_thres;
         if (tcpd->ts_first_rtt.nsecs == 0 && tcpd->ts_first_rtt.secs == 0)
-                ooo_thres = 200000000;
+                ooo_thres = 3000000;
         else
                 ooo_thres = tcpd->ts_first_rtt.nsecs + tcpd->ts_first_rtt.secs*1000000000;
 
