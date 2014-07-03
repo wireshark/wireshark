@@ -3204,10 +3204,11 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
         }
 
         if (usb_conv_info->is_request) {
+            /* this is a request */
+
             tvbuff_t *setup_tvb = NULL;
 
             if (usb_conv_info->is_setup) {
-                /* this is a request */
 
                 type_2 = USB_TYPE(tvb_get_guint8(tvb, offset));
 
