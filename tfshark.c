@@ -752,6 +752,11 @@ main(int argc, char *argv[])
   GString             *runtime_info_str;
   char                *init_progfile_dir_error;
   int                  opt;
+  static const struct option long_options[] = {
+    {(char *)"help", no_argument, NULL, 'h'},
+    {(char *)"version", no_argument, NULL, 'v'},
+    {0, 0, 0, 0 }
+  };
   gboolean             arg_error = FALSE;
 
   char                *gpf_path, *pf_path;
@@ -1060,7 +1065,7 @@ main(int argc, char *argv[])
   output_fields = output_fields_new();
 
   /* Now get our args */
-  while ((opt = getopt(argc, argv, optstring)) != -1) {
+  while ((opt = getopt_long(argc, argv, optstring, long_options, NULL)) != -1) {
     switch (opt) {
     case '2':        /* Perform two pass analysis */
       perform_two_pass_analysis = TRUE;
