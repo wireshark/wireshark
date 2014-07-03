@@ -45,6 +45,10 @@
 #include <unistd.h>
 #endif
 
+#ifdef HAVE_GETOPT_H
+#include <getopt.h>
+#endif
+
 #include <errno.h>
 
 #ifdef HAVE_FCNTL_H
@@ -459,6 +463,11 @@ main(int argc, char *argv[])
     GPtrArray           *disp_fields = g_ptr_array_new();
     guint                fc;
     gboolean             skip_pcap_header = FALSE;
+    static const struct option long_options[] = {
+      {(char *)"help", no_argument, NULL, 'h'},
+      {(char *)"version", no_argument, NULL, 'v'},
+      {0, 0, 0, 0 }
+    };
 
 #define OPTSTRING_INIT "d:F:hlnN:o:pr:R:sS:t:v"
 
@@ -617,7 +626,7 @@ main(int argc, char *argv[])
 
     /* Now get our args */
     /* XXX - We should probably have an option to dump libpcap link types */
-    while ((opt = getopt(argc, argv, optstring)) != -1) {
+    while ((opt = getopt_long(argc, argv, optstring, long_options, NULL)) != -1) {
         switch (opt) {
             case 'd':        /* Payload type */
                 if (!set_link_type(optarg)) {
