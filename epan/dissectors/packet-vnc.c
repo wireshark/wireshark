@@ -4615,22 +4615,22 @@ proto_register_vnc(void)
 
 		{ &hf_vnc_fence_request,
 		  { "Fence_request", "vnc.fence_request",
-		    FT_BOOLEAN, BASE_NONE, NULL, VNC_FENCE_REQUEST,
+		    FT_BOOLEAN, 32, NULL, VNC_FENCE_REQUEST,
 		    NULL, HFILL }
 		},
 		{ &hf_vnc_fence_sync_next,
 		  { "Fence_sync_next", "vnc.fence_sync_next",
-		    FT_BOOLEAN, BASE_NONE, NULL, VNC_FENCE_SYNC_NEXT,
+		    FT_BOOLEAN, 32, NULL, VNC_FENCE_SYNC_NEXT,
 		    NULL, HFILL }
 		},
 		{ &hf_vnc_fence_block_after,
 		  { "Fence_block_after", "vnc.fence_block_after",
-		    FT_BOOLEAN, BASE_NONE, NULL, VNC_FENCE_BLOCK_AFTER,
+		    FT_BOOLEAN, 32, NULL, VNC_FENCE_BLOCK_AFTER,
 		    NULL, HFILL }
 		},
 		{ &hf_vnc_fence_block_before,
 		  { "Fence block_before", "vnc.fence_block_before",
-		    FT_BOOLEAN, BASE_NONE, NULL, VNC_FENCE_BLOCK_BEFORE,
+		    FT_BOOLEAN, 32, NULL, VNC_FENCE_BLOCK_BEFORE,
 		    NULL, HFILL }
 		},
 		{ &hf_vnc_fence_payload_length,
