@@ -396,10 +396,10 @@ mergecap.exe	: $(LIBS_CHECK)  config.h $(mergecap_OBJECTS) wsutil\libwsutil.lib 
 	mt.exe -nologo -manifest "mergecap.exe.manifest" -outputresource:mergecap.exe;1
 !ENDIF
 
-reordercap.exe	: $(LIBS_CHECK)  config.h reordercap.obj wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib image\reordercap.res
+reordercap.exe	: $(LIBS_CHECK)  config.h reordercap.obj version_info.obj wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib image\reordercap.res
 	@echo Linking $@
 	$(LINK) @<<
-		/OUT:reordercap.exe $(conflags) $(conlibsdll) $(LDFLAGS) reordercap.obj $(reordercap_LIBS) setargv.obj image\reordercap.res
+		/OUT:reordercap.exe $(conflags) $(conlibsdll) $(LDFLAGS) reordercap.obj version_info.obj $(reordercap_LIBS) setargv.obj image\reordercap.res
 <<
 !IFDEF MANIFEST_INFO_REQUIRED
 	mt.exe -nologo -manifest "reordercap.exe.manifest" -outputresource:reordercap.exe;1
@@ -408,7 +408,7 @@ reordercap.exe	: $(LIBS_CHECK)  config.h reordercap.obj wsutil\libwsutil.lib wir
 text2pcap.exe	: $(LIBS_CHECK) config.h text2pcap.obj text2pcap-scanner.obj pcapio.obj version_info.obj wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib image\text2pcap.res
 	@echo Linking $@
 	$(LINK) @<<
-		/OUT:text2pcap.exe $(conflags) $(conlibsdll) $(LDFLAGS) text2pcap.obj text2pcap-scanner.obj pcapio.obj $(text2pcap_LIBS) image\text2pcap.res
+		/OUT:text2pcap.exe $(conflags) $(conlibsdll) $(LDFLAGS) text2pcap.obj text2pcap-scanner.obj pcapio.obj version_info.obj $(text2pcap_LIBS) image\text2pcap.res
 <<
 !IFDEF MANIFEST_INFO_REQUIRED
 	mt.exe -nologo -manifest "text2pcap.exe.manifest" -outputresource:text2pcap.exe;1
