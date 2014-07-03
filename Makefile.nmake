@@ -72,6 +72,7 @@ captype_OBJECTS = $(captype_SOURCES:.c=.obj)
 dftest_OBJECTS = $(dftest_SOURCES:.c=.obj)
 dumpcap_OBJECTS = $(dumpcap_SOURCES:.c=.obj)
 randpkt_OBJECTS = $(randpkt_SOURCES:.c=.obj)
+reordercap_OBJECTS = $(reordercap_SOURCES:.c=.obj)
 
 #
 # psapi.lib see http://msdn.microsoft.com/en-us/library/windows/desktop/ms683219(v=vs.85).aspx
@@ -396,10 +397,10 @@ mergecap.exe	: $(LIBS_CHECK)  config.h $(mergecap_OBJECTS) wsutil\libwsutil.lib 
 	mt.exe -nologo -manifest "mergecap.exe.manifest" -outputresource:mergecap.exe;1
 !ENDIF
 
-reordercap.exe	: $(LIBS_CHECK)  config.h reordercap.obj version_info.obj wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib image\reordercap.res
+reordercap.exe	: $(LIBS_CHECK)  config.h $(reordercap_OBJECTS) wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib image\reordercap.res
 	@echo Linking $@
 	$(LINK) @<<
-		/OUT:reordercap.exe $(conflags) $(conlibsdll) $(LDFLAGS) reordercap.obj version_info.obj $(reordercap_LIBS) setargv.obj image\reordercap.res
+		/OUT:reordercap.exe $(conflags) $(conlibsdll) $(LDFLAGS) $(reordercap_OBJECTS) $(reordercap_LIBS) setargv.obj image\reordercap.res
 <<
 !IFDEF MANIFEST_INFO_REQUIRED
 	mt.exe -nologo -manifest "reordercap.exe.manifest" -outputresource:reordercap.exe;1
