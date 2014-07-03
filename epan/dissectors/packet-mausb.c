@@ -551,6 +551,10 @@ static guint8 mausb_ep_handle_dev_addr(guint16 handle) {
     return (handle & MAUSB_EP_HANDLE_DEV_ADDR) >> MAUSB_EP_HANDLE_DEV_ADDR_OFFSET;
 }
 
+static guint8 mausb_ep_handle_bus_num(guint16 handle) {
+    return (handle & MAUSB_EP_HANDLE_BUS_NUM) >> MAUSB_EP_HANDLE_BUS_NUM_OFFSET;
+}
+
 /* returns the length field of the MAUSB packet */
 static guint mausb_get_pkt_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
@@ -919,15 +923,17 @@ static conversation_t
     conversation_t *conversation = NULL;
     static usb_address_t  src_addr, dst_addr; /* has to be static due to SET_ADDRESS */
     guint16 device_address;
+    guint16 bus_num;
     int endpoint;
 
     /* Treat data packets the same as URBs */
     if (is_data) {
         device_address = mausb_ep_handle_dev_addr(handle);
         endpoint = mausb_ep_handle_ep_num(handle);
+        bus_num = mausb_ep_handle_bus_num(handle);
 
-        usb_set_addr(pinfo, &src_addr, &dst_addr, device_address, endpoint,
-                     req);
+        usb_set_addr(pinfo, &src_addr, &dst_addr, bus_num, device_address,
+                     endpoint, req);
         conversation = get_usb_conversation(pinfo, &pinfo->src, &pinfo->dst,
                                             pinfo->srcport, pinfo->destport);
     }

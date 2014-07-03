@@ -29,6 +29,7 @@
 typedef struct _usb_address_t {
     guint32 device;
     guint32 endpoint;
+    guint16 bus_id;
 } usb_address_t;
 #define USB_ADDR_LEN (sizeof(usb_address_t))
 
@@ -228,8 +229,8 @@ dissect_usb_setup_request(packet_info *pinfo, proto_tree *parent, tvbuff_t *tvb,
 
 void
 usb_set_addr(packet_info *pinfo, usb_address_t *src_addr,
-             usb_address_t *dst_addr, guint16 device_address, int endpoint,
-             gboolean req);
+             usb_address_t *dst_addr, guint16 bus_id, guint16 device_address,
+             int endpoint, gboolean req);
 
 usb_trans_info_t
 *usb_get_trans_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,

@@ -2821,8 +2821,8 @@ dissect_usbpcap_buffer_packet_header(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 /* Set the usb_address_t fields based on the direction of the urb */
 void
 usb_set_addr(packet_info *pinfo, usb_address_t *src_addr,
-             usb_address_t *dst_addr, guint16 device_address, int endpoint,
-             gboolean req)
+             usb_address_t *dst_addr, guint16 bus_id, guint16 device_address,
+             int endpoint, gboolean req)
 {
     if (req) {
         /* request */
@@ -2837,6 +2837,8 @@ usb_set_addr(packet_info *pinfo, usb_address_t *src_addr,
         dst_addr->device   = 0xffffffff;
         dst_addr->endpoint = NO_ENDPOINT;
     }
+    src_addr->bus_id = GUINT16_TO_LE(bus_id);
+    dst_addr->bus_id = GUINT16_TO_LE(bus_id);
 
     SET_ADDRESS(&pinfo->net_src, AT_USB, USB_ADDR_LEN, (char *)src_addr);
     SET_ADDRESS(&pinfo->src, AT_USB, USB_ADDR_LEN, (char *)src_addr);
@@ -3120,6 +3122,7 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
     usb_conv_info_t      *usb_conv_info;
     conversation_t       *conversation;
     guint16              device_address;
+    guint16              bus_id;
     tvbuff_t             *next_tvb = NULL;
     device_product_data_t   *device_product_data = NULL;
     device_protocol_data_t  *device_protocol_data = NULL;
@@ -3137,16 +3140,18 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
         urb_type = tvb_get_guint8(tvb, 8);
         endpoint = tvb_get_guint8(tvb, 10) & 0x7F;
         device_address = (guint16)tvb_get_guint8(tvb, 11);
+        bus_id = tvb_get_letohs(tvb, 12);
     }
     else if (header_info & USB_HEADER_IS_USBPCAP) {
         urb_type = tvb_get_guint8(tvb, 16) & 0x01 ? URB_COMPLETE : URB_SUBMIT;
         device_address = tvb_get_letohs(tvb, 19);
         endpoint = tvb_get_guint8(tvb, 21) & 0x7F;
+        bus_id = tvb_get_letohs(tvb, 17);
     }
     else
         return; /* invalid USB pseudo header */
 
-    usb_set_addr(pinfo, &src_addr, &dst_addr, device_address, endpoint,
+    usb_set_addr(pinfo, &src_addr, &dst_addr, bus_id, device_address, endpoint,
                  (urb_type == URB_SUBMIT));
 
     conversation = get_usb_conversation(pinfo, &pinfo->src, &pinfo->dst, pinfo->srcport, pinfo->destport);
