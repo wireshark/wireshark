@@ -32,6 +32,10 @@
 #include <unistd.h>
 #endif
 
+#ifdef HAVE_GETOPT_H
+#include <getopt.h>
+#endif
+
 #include "wtap.h"
 
 #ifndef HAVE_GETOPT
@@ -184,12 +188,17 @@ main(int argc, char *argv[])
     FrameRecord_t *prevFrame = NULL;
 
     int opt;
+    static const struct option long_options[] = {
+        {(char *)"help", no_argument, NULL, 'h'},
+        {(char *)"version", no_argument, NULL, 'v'},
+        {0, 0, 0, 0 }
+    };
     int file_count;
     char *infile;
     char *outfile;
 
     /* Process the options first */
-    while ((opt = getopt(argc, argv, "hnv")) != -1) {
+    while ((opt = getopt_long(argc, argv, "hnv", long_options, NULL)) != -1) {
         switch (opt) {
             case 'n':
                 write_output_regardless = FALSE;

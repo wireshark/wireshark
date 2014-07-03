@@ -120,6 +120,10 @@
 # include <unistd.h>
 #endif
 
+#ifdef HAVE_GETOPT_H
+#include <getopt.h>
+#endif
+
 #include <errno.h>
 #include <assert.h>
 
@@ -1539,6 +1543,11 @@ parse_options (int argc, char *argv[])
 {
     int   c;
     char *p;
+    static const struct option long_options[] = {
+        {(char *)"help", no_argument, NULL, 'h'},
+        {(char *)"version", no_argument, NULL, 'v'},
+        {0, 0, 0, 0 }
+    };
 
 #ifdef _WIN32
     arg_list_utf_16to8(argc, argv);
@@ -1546,7 +1555,7 @@ parse_options (int argc, char *argv[])
 #endif /* _WIN32 */
 
     /* Scan CLI parameters */
-    while ((c = getopt(argc, argv, "aDdhqe:i:l:m:no:u:s:S:t:T:v4:6:")) != -1) {
+    while ((c = getopt_long(argc, argv, "aDdhqe:i:l:m:no:u:s:S:t:T:v4:6:", long_options, NULL)) != -1) {
         switch (c) {
         case '?': usage(TRUE); break;
         case 'h': usage(FALSE); break;

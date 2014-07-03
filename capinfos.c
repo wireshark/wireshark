@@ -67,6 +67,10 @@
 #include <unistd.h>
 #endif
 
+#ifdef HAVE_GETOPT_H
+#include <getopt.h>
+#endif
+
 #ifdef HAVE_SYS_TIME_H
 #include <sys/time.h>
 #endif
@@ -1111,6 +1115,11 @@ main(int argc, char *argv[])
   gchar *err_info;
   int    opt;
   int    overall_error_status;
+  static const struct option long_options[] = {
+      {(char *)"help", no_argument, NULL, 'h'},
+      {(char *)"version", no_argument, NULL, 'v'},
+      {0, 0, 0, 0 }
+  };
 
   int status = 0;
 #ifdef HAVE_PLUGINS
@@ -1211,7 +1220,7 @@ main(int argc, char *argv[])
   g_option_context_free(ctx);
 
 #endif /* USE_GOPTION */
-  while ((opt = getopt(argc, argv, "tEcs" FILE_HASH_OPT "dluaeyizvhxokCALTMRrSNqQBmb")) !=-1) {
+  while ((opt = getopt_long(argc, argv, "tEcs" FILE_HASH_OPT "dluaeyizvhxokCALTMRrSNqQBmb", long_options, NULL)) !=-1) {
 
     switch (opt) {
 

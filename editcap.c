@@ -50,6 +50,10 @@
 #include <unistd.h>
 #endif
 
+#ifdef HAVE_GETOPT_H
+#include <getopt.h>
+#endif
+
 #ifdef HAVE_SYS_TIME_H
 #include <sys/time.h>
 #endif
@@ -842,6 +846,11 @@ main(int argc, char *argv[])
     int           i, j, err;
     gchar        *err_info;
     int           opt;
+    static const struct option long_options[] = {
+        {(char *)"help", no_argument, NULL, 'h'},
+        {(char *)"version", no_argument, NULL, 'V'},
+        {0, 0, 0, 0 }
+    };
 
     char         *p;
     guint32       snaplen            = 0; /* No limit               */
@@ -905,7 +914,7 @@ main(int argc, char *argv[])
 #endif
 
     /* Process the options */
-    while ((opt = getopt(argc, argv, "A:B:c:C:dD:E:F:hi:Lrs:S:t:T:vVw:")) != -1) {
+    while ((opt = getopt_long(argc, argv, "A:B:c:C:dD:E:F:hi:Lrs:S:t:T:vVw:", long_options, NULL)) != -1) {
         switch (opt) {
         case 'A':
         {
