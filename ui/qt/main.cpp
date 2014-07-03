@@ -105,8 +105,9 @@
 #include "ui/simple_dialog.h"
 #include "ui/ui_util.h"
 
+#include "capture-pcap-util.h"
+
 #ifdef HAVE_LIBPCAP
-#  include "capture-pcap-util.h"
 #  include <capchild/capture_ifinfo.h>
 #  include "ui/capture.h"
 #  include <capchild/capture_sync.h>

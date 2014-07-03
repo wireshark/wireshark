@@ -104,9 +104,10 @@
 
 #include "capture_opts.h"
 
+#include "capture-pcap-util.h"
+
 #ifdef HAVE_LIBPCAP
 #include <capchild/capture_ifinfo.h>
-#include "capture-pcap-util.h"
 #ifdef _WIN32
 #include "capture-wpcap.h"
 #include <wsutil/unicode-utils.h>

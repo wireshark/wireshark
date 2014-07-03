@@ -130,8 +130,9 @@
 
 #include "codecs/codecs.h"
 
-#ifdef HAVE_LIBPCAP
 #include "capture-pcap-util.h"
+
+#ifdef HAVE_LIBPCAP
 #include <capchild/capture_ifinfo.h>
 #include "ui/capture.h"
 #include <capchild/capture_sync.h>
