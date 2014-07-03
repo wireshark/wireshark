@@ -1651,14 +1651,14 @@ static void dissect_log(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root)
         char    buf[256];
 
 
-        length = tvb_length(tvb);
+        length = tvb_captured_length(tvb);
         if (length > sizeof(buf)-1)
             length = sizeof(buf)-1;
         tvb_memcpy(tvb, buf, 0, length);
         buf[length] = 0;
-        if (buf[length-1] == '\n')
+        if (length > 0 && buf[length-1] == '\n')
             buf[length-1] = 0;
-        else if (buf[length-2] == '\n')
+        else if (length > 1 && buf[length-2] == '\n')
             buf[length-2] = 0;
 
         col_add_str(pinfo->cinfo, COL_INFO, buf);
