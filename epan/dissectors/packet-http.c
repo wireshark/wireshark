@@ -136,7 +136,7 @@ static expert_field ei_http_chat = EI_INIT;
 static expert_field ei_http_chunked_and_length = EI_INIT;
 static expert_field ei_http_subdissector_failed = EI_INIT;
 static expert_field ei_http_ssl_port = EI_INIT;
-
+static expert_field ei_http_leading_crlf = EI_INIT;
 
 static dissector_handle_t http_handle;
 
@@ -720,6 +720,9 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	/*http_info_value_t *si;*/
 	http_eo_t       *eo_info;
 	heur_dtbl_entry_t *hdtbl_entry;
+	int reported_length;
+	guint16 word;
+	gboolean	leading_crlf = FALSE;
 
 	/*
 	 * If this should be a request or response, do this quick check to see if
@@ -727,7 +730,26 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	 * Otherwise, looking for the end of line in a binary file can take a long time
 	 * and this probably isn't HTTP
 	 */
-	if ((tvb_reported_length_remaining(tvb, offset) < 1) || !g_ascii_isprint(tvb_get_guint8(tvb, offset))) {
+	reported_length = tvb_reported_length_remaining(tvb, offset);
+	if (reported_length < 1) {
+		return -1;
+	}
+
+	/* RFC 2616
+	 *   In the interest of robustness, servers SHOULD ignore any empty
+	 *   line(s) received where a Request-Line is expected. In other words, if
+	 *   the server is reading the protocol stream at the beginning of a
+	 *   message and receives a CRLF first, it should ignore the CRLF.
+	 */
+
+	if(reported_length > 3){
+		word = tvb_get_ntohs(tvb,offset);
+		if(word == 0x0d0a){
+			leading_crlf = TRUE;
+			offset+=2;
+		}
+	}
+	if (!g_ascii_isprint(tvb_get_guint8(tvb, offset))) {
 		return -1;
 	}
 
@@ -983,6 +1005,9 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		if ((tree) && (http_tree == NULL)) {
 			ti = proto_tree_add_item(tree, proto_http, tvb, orig_offset, -1, ENC_NA);
 			http_tree = proto_item_add_subtree(ti, ett_http);
+			if(leading_crlf){
+                proto_tree_add_expert(http_tree, pinfo, &ei_http_leading_crlf, tvb, orig_offset-2, 2);
+			}
 		}
 
 		if (first_loop && !is_ssl && pinfo->ptype == PT_TCP &&
@@ -3066,6 +3091,7 @@ proto_register_http(void)
 		{ &ei_http_chunked_and_length, { "http.chunkd_and_length", PI_MALFORMED, PI_WARN, "It is incorrect to specify a content-length header and chunked encoding together.", EXPFILL }},
 		{ &ei_http_subdissector_failed, { "http.subdissector_failed", PI_MALFORMED, PI_NOTE, "HTTP body subdissector failed, trying heuristic subdissector", EXPFILL }},
 		{ &ei_http_ssl_port, { "http.ssl_port", PI_SECURITY, PI_WARN, "Unencrypted HTTP protocol detected over encrypted port, could indicate a dangerous misconfiguration.", EXPFILL }},
+		{ &ei_http_leading_crlf, { "http.leading_crlf", PI_MALFORMED, PI_ERROR, "Leading CRLF previous message in the stream may have extra CRLF", EXPFILL }},
 	};
 
 	/* UAT for header fields */
