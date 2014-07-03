@@ -892,12 +892,12 @@ read_new_line(FILE_T fh, gint64 *offset, gint *length,
     *offset = *offset + *length;
 
     /* ...but don't want to include newline in line length */
-    if (linebuff[*length-1] == '\n') {
+    if (*length > 0 && linebuff[*length-1] == '\n') {
         linebuff[*length-1] = '\0';
         *length = *length - 1;
     }
     /* Nor do we want '\r' (as will be written when log is created on windows) */
-    if (linebuff[*length-1] == '\r') {
+    if (*length > 0 && linebuff[*length-1] == '\r') {
         linebuff[*length-1] = '\0';
         *length = *length - 1;
     }
