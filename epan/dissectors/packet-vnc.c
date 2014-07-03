@@ -31,6 +31,7 @@
  * http://www.realvnc.com/
  * http://www.tightvnc.com/
  * http://ultravnc.sourceforge.net/
+ * [Fedora TigerVNC]
  * ...
  *
  * The protocol itself is known as RFB - Remote Frame Buffer Protocol.
@@ -38,7 +39,43 @@
  * This code is based on the protocol specification:
  *   http://www.realvnc.com/docs/rfbproto.pdf
  *  and the RealVNC free edition & TightVNC source code
+ *  Note: rfbproto.rst [ https://github.com/svn2github/tigervnc/blob/master/rfbproto/rfbproto.rst ]
+ *        seems to have additional information over rfbproto.pdf.
  */
+
+/* XXX:
+ *  This dissector adds items to the protocol tree before completing re-assembly
+ *   of a VNC PDU which extends over more than one TCP segment.
+ *  This is not correct. As noted in Bug #5366 (and elsewhere), the correct method
+ *  is that:
+ *   "one must walk over all the message first, to determine its exact length
+ *    (one of the characteristics of the protocol, hard to determine prior to
+ *    going over the message what its final size would be)".
+ *
+ *  The original method of reassembly:
+ *    When more data is needed to continue dissecting a PDU, repeatedly request
+ *    a few additional bytes (for one or a few more fields of the PDU).
+ *   This resulted in 'one-pass' tshark dissection redissecting
+ *    the PDU repeatedly many, many times with each time dissecting
+ *    the PDU with one or a few more additional fields.
+ *    This generated *lots* of (repeated) output since a reassembled
+ *    VNC PDU can contain many fields (each of short length).
+ *    It also resulted in the fragment table containing many, many small fragments
+ *     for VNC PDUS containing many small fields.
+ *
+ *  The current reassembly method:
+ *    Use DESEGMENT_ONE_MORE_SEGMENT when requesting additional data for a PDU.
+ *    This significantly reduces the amount of repeated data in a dissection,
+ *    but will still result in "partial" repeated dissection output in some cases.
+ */
+
+/* (Somewhat random notes while reviewing the code):
+   Check types, etc against IANA list
+   Optimize: Do col_set(..., COL_INFO) once (after fetching message type & before dispatching ?)
+   Dispatch via a message table (instead of using a switch(...)
+   Worry about globals (vnc_bytes_per_pixel & nc_depth): "Global so they keep their value between packets"
+   Msg type 150: client-server: enable/disable (1+9 bytes); server-client: endofContinousUpdates(1+0 bytes) ?
+*/
 
 #include "config.h"
 
@@ -99,41 +136,71 @@ static const value_string yes_no_vs[] = {
 };
 
 typedef enum {
-	VNC_CLIENT_MESSAGE_TYPE_SET_PIXEL_FORMAT	= 0,
-	VNC_CLIENT_MESSAGE_TYPE_SET_ENCODING		= 2,
-	VNC_CLIENT_MESSAGE_TYPE_FRAMEBUF_UPDATE_REQ	= 3,
-	VNC_CLIENT_MESSAGE_TYPE_KEY_EVENT		= 4,
-	VNC_CLIENT_MESSAGE_TYPE_POINTER_EVENT		= 5,
-	VNC_CLIENT_MESSAGE_TYPE_CLIENT_CUT_TEXT		= 6,
-	VNC_CLIENT_MESSAGE_TYPE_MIRRORLINK		= 128
+	/* Required */
+	VNC_CLIENT_MESSAGE_TYPE_SET_PIXEL_FORMAT	  =   0,
+	VNC_CLIENT_MESSAGE_TYPE_SET_ENCODINGS		  =   2,
+	VNC_CLIENT_MESSAGE_TYPE_FRAMEBUF_UPDATE_REQ	  =   3,
+	VNC_CLIENT_MESSAGE_TYPE_KEY_EVENT		  =   4,
+	VNC_CLIENT_MESSAGE_TYPE_POINTER_EVENT		  =   5,
+	VNC_CLIENT_MESSAGE_TYPE_CLIENT_CUT_TEXT		  =   6,
+	/* Optional */
+	VNC_CLIENT_MESSAGE_TYPE_MIRRORLINK		  = 128,
+	VNC_CLIENT_MESSAGE_TYPE_ENABLE_CONTINUOUS_UPDATES = 150,  /* TightVNC */
+	VNC_CLIENT_MESSAGE_TYPE_FENCE			  = 248,  /* TigerVNC */
+	VNC_CLIENT_MESSAGE_TYPE_XVP			  = 250,
+	VNC_CLIENT_MESSAGE_TYPE_SETR_DESKTOP_SIZE	  = 251,
+	VNC_CLIENT_MESSAGE_TYPE_TIGHT			  = 252,
+	VNC_CLIENT_MESSAGE_TYPE_GII			  = 253,
+	VNC_CLIENT_MESSAGE_TYPE_QEMU			  = 255
 } vnc_client_message_types_e;
 
 static const value_string vnc_client_message_types_vs[] = {
-	{ VNC_CLIENT_MESSAGE_TYPE_SET_PIXEL_FORMAT,    "Set Pixel Format"		},
-	{ VNC_CLIENT_MESSAGE_TYPE_SET_ENCODING,        "Set Encodings"			},
-	{ VNC_CLIENT_MESSAGE_TYPE_FRAMEBUF_UPDATE_REQ, "Framebuffer Update Request"	},
-	{ VNC_CLIENT_MESSAGE_TYPE_KEY_EVENT,           "Key Event"			},
-	{ VNC_CLIENT_MESSAGE_TYPE_POINTER_EVENT,       "Pointer Event"         		},
-	{ VNC_CLIENT_MESSAGE_TYPE_CLIENT_CUT_TEXT,     "Cut Text"                   	},
-	{ VNC_CLIENT_MESSAGE_TYPE_MIRRORLINK,          "MirrorLink"			},
-	{ 0,  NULL                        						}
+	/* Required */
+	{ VNC_CLIENT_MESSAGE_TYPE_SET_PIXEL_FORMAT,	     "Set Pixel Format"		  },
+	{ VNC_CLIENT_MESSAGE_TYPE_SET_ENCODINGS,	     "Set Encodings"		  },
+	{ VNC_CLIENT_MESSAGE_TYPE_FRAMEBUF_UPDATE_REQ,	     "Framebuffer Update Request" },
+	{ VNC_CLIENT_MESSAGE_TYPE_KEY_EVENT,		     "Key Event"		  },
+	{ VNC_CLIENT_MESSAGE_TYPE_POINTER_EVENT,	     "Pointer Event"         	  },
+	{ VNC_CLIENT_MESSAGE_TYPE_CLIENT_CUT_TEXT,	     "Cut Text"                   },
+	/* Optional */
+	{ VNC_CLIENT_MESSAGE_TYPE_MIRRORLINK,		     "MirrorLink"		  },
+	{ VNC_CLIENT_MESSAGE_TYPE_ENABLE_CONTINUOUS_UPDATES, "Enable Continuous Updates"  },
+	{ VNC_CLIENT_MESSAGE_TYPE_FENCE,		     "Fence"			  },
+	{ VNC_CLIENT_MESSAGE_TYPE_XVP,			     "Xvp"			  },
+	{ VNC_CLIENT_MESSAGE_TYPE_SETR_DESKTOP_SIZE,	     "Setr Desktop Size"	  },
+	{ VNC_CLIENT_MESSAGE_TYPE_TIGHT,		     "Tight"			  },
+	{ VNC_CLIENT_MESSAGE_TYPE_GII,			     "Gii"			  },
+	{ VNC_CLIENT_MESSAGE_TYPE_QEMU,			     "Qemu"			  },
+	{ 0,  NULL                        						  }
 };
 
 typedef enum {
-	VNC_SERVER_MESSAGE_TYPE_FRAMEBUFFER_UPDATE   = 0,
-	VNC_SERVER_MESSAGE_TYPE_SET_COLORMAP_ENTRIES = 1,
-	VNC_SERVER_MESSAGE_TYPE_RING_BELL            = 2,
-	VNC_SERVER_MESSAGE_TYPE_CUT_TEXT             = 3,
-	VNC_SERVER_MESSAGE_TYPE_MIRRORLINK           = 128
+	VNC_SERVER_MESSAGE_TYPE_FRAMEBUFFER_UPDATE	  =   0,
+	VNC_SERVER_MESSAGE_TYPE_SET_COLORMAP_ENTRIES	  =   1,
+	VNC_SERVER_MESSAGE_TYPE_RING_BELL		  =   2,
+	VNC_SERVER_MESSAGE_TYPE_CUT_TEXT		  =   3,
+	VNC_SERVER_MESSAGE_TYPE_MIRRORLINK		  = 128,
+	VNC_SERVER_MESSAGE_TYPE_END_CONTINUOUS_UPDATES    = 150,  /* TightVNC */
+	VNC_SERVER_MESSAGE_TYPE_FENCE			  = 248,  /* TigerVNC */
+	VNC_SERVER_MESSAGE_TYPE_XVP			  = 250,
+	VNC_SERVER_MESSAGE_TYPE_TIGHT			  = 252,
+	VNC_SERVER_MESSAGE_TYPE_GII			  = 253,
+	VNC_SERVER_MESSAGE_TYPE_QEMU			  = 255
 } vnc_server_message_types_e;
 
 static const value_string vnc_server_message_types_vs[] = {
-	{ VNC_SERVER_MESSAGE_TYPE_FRAMEBUFFER_UPDATE,   "Framebuffer Update"   },
-	{ VNC_SERVER_MESSAGE_TYPE_SET_COLORMAP_ENTRIES, "Set Colormap Entries" },
-	{ VNC_SERVER_MESSAGE_TYPE_RING_BELL,            "Ring Bell"            },
-	{ VNC_SERVER_MESSAGE_TYPE_CUT_TEXT,             "Cut Text"             },
-	{ VNC_SERVER_MESSAGE_TYPE_MIRRORLINK,           "MirrorLink"           },
-	{ 0,  NULL                        				       }
+	{ VNC_SERVER_MESSAGE_TYPE_FRAMEBUFFER_UPDATE,	     "Framebuffer Update"	 },
+	{ VNC_SERVER_MESSAGE_TYPE_SET_COLORMAP_ENTRIES,	     "Set Colormap Entries"	 },
+	{ VNC_SERVER_MESSAGE_TYPE_RING_BELL,		     "Ring Bell"		 },
+	{ VNC_SERVER_MESSAGE_TYPE_CUT_TEXT,		     "Cut Text"			 },
+	{ VNC_SERVER_MESSAGE_TYPE_MIRRORLINK,		     "MirrorLink"		 },
+	{ VNC_SERVER_MESSAGE_TYPE_END_CONTINUOUS_UPDATES,    "End Continuous Updates" },
+	{ VNC_SERVER_MESSAGE_TYPE_FENCE,		     "Fence"			 },
+	{ VNC_SERVER_MESSAGE_TYPE_XVP,			     "Xvp"			 },
+	{ VNC_SERVER_MESSAGE_TYPE_TIGHT,		     "Tight"			 },
+	{ VNC_SERVER_MESSAGE_TYPE_GII,			     "Gii"			 },
+	{ VNC_SERVER_MESSAGE_TYPE_QEMU,			     "Qemu"			 },
+	{ 0,  NULL									 }
 };
 
 static const true_false_string button_mask_tfs = {
@@ -392,6 +459,13 @@ typedef enum {
 	VNC_SESSION_STATE_NORMAL_TRAFFIC
 } vnc_session_state_e;
 
+typedef enum {
+	VNC_FENCE_BLOCK_BEFORE = 0x00000001,
+	VNC_FENCE_BLOCK_AFTER  = 0x00000002,
+	VNC_FENCE_SYNC_NEXT    = 0x00000004,
+	VNC_FENCE_REQUEST      = 0x80000000
+} vnc_fence_flags_e;
+
 /* This structure will be tied to each conversation. */
 typedef struct {
 	gdouble server_proto_ver, client_proto_ver;
@@ -481,6 +555,8 @@ static guint vnc_supported_encodings(tvbuff_t *tvb, gint *offset,
 static guint vnc_server_identity(tvbuff_t *tvb, gint *offset,
 				 proto_tree *tree, const guint16 width);
 
+static guint vnc_fence(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
+			    proto_tree *tree);
 static guint vnc_mirrorlink(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 			    proto_tree *tree);
 static guint vnc_context_information(tvbuff_t *tvb, gint *offset,
@@ -495,8 +571,8 @@ static guint vnc_h264_encoding(tvbuff_t *tvb, gint *offset, proto_tree *tree);
 		pinfo->destport == vnc_preference_alternate_port
 
 #define VNC_BYTES_NEEDED(a)					\
-	if(a > (guint)tvb_length_remaining(tvb, *offset))	\
-		return a;
+	if((a) > (guint)tvb_length_remaining(tvb, *offset))	\
+		return (a);
 
 /* Variables for our preferences */
 static guint vnc_preference_alternate_port = 0;
@@ -765,6 +841,23 @@ static int hf_vnc_mirrorlink_text_length = -1;
 static int hf_vnc_mirrorlink_text_max_length = -1;
 static int hf_vnc_mirrorlink_unknown = -1;
 
+/* Fence */
+static int hf_vnc_fence_flags = -1;
+static int hf_vnc_fence_request = -1;
+static int hf_vnc_fence_sync_next = -1;
+static int hf_vnc_fence_block_after = -1;
+static int hf_vnc_fence_block_before = -1;
+static int hf_vnc_fence_payload_length = -1;
+static int hf_vnc_fence_payload = -1;
+
+static const int *vnc_fence_flags[] = {
+	&hf_vnc_fence_request,
+	&hf_vnc_fence_sync_next,
+	&hf_vnc_fence_block_after,
+	&hf_vnc_fence_block_before,
+        NULL
+    };
+
 /* Context Information */
 static int hf_vnc_context_information_app_id = -1;
 static int hf_vnc_context_information_app_category = -1;
@@ -806,6 +899,7 @@ static gint ett_vnc_desktop_screen = -1;
 static gint ett_vnc_key_events = -1;
 static gint ett_vnc_touch_events = -1;
 static gint ett_vnc_slrle_subline = -1;
+static gint ett_vnc_fence_flags = -1;
 
 static expert_field ei_vnc_possible_gtk_vnc_bug = EI_INIT;
 static expert_field ei_vnc_auth_code_mismatch = EI_INIT;
@@ -870,11 +964,15 @@ dissect_vnc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	vnc_set_bytes_per_pixel(pinfo, vnc_bytes_per_pixel);
 	vnc_set_depth(pinfo, vnc_depth);
 
-	if(!ret) {
-		if(DEST_PORT_VNC || per_conversation_info->server_port == pinfo->destport)
-			vnc_client_to_server(tvb, pinfo, &offset, vnc_tree);
-		else
-			vnc_server_to_client(tvb, pinfo, &offset, vnc_tree);
+	if (ret) {
+               return;  /* We're in a "startup" state; Cannot yet do "normal" processing */
+	}
+
+	if(DEST_PORT_VNC || per_conversation_info->server_port == pinfo->destport) {
+		vnc_client_to_server(tvb, pinfo, &offset, vnc_tree);
+	}
+	else {
+		vnc_server_to_client(tvb, pinfo, &offset, vnc_tree);
 	}
 }
 
@@ -1522,7 +1620,7 @@ vnc_client_to_server(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 {
 	guint8 message_type;
 
-	proto_item *ti = NULL;
+	proto_item *ti;
 	proto_tree *vnc_client_message_type_tree;
 
 	message_type = tvb_get_guint8(tvb, *offset);
@@ -1542,7 +1640,7 @@ vnc_client_to_server(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 					    vnc_client_message_type_tree);
 		break;
 
-	case VNC_CLIENT_MESSAGE_TYPE_SET_ENCODING :
+	case VNC_CLIENT_MESSAGE_TYPE_SET_ENCODINGS :
 		vnc_client_set_encodings(tvb, pinfo, offset,
 					 vnc_client_message_type_tree);
 		break;
@@ -1572,8 +1670,18 @@ vnc_client_to_server(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 			       vnc_client_message_type_tree);
 		break;
 
+	case VNC_CLIENT_MESSAGE_TYPE_ENABLE_CONTINUOUS_UPDATES :
+		col_append_sep_str(pinfo->cinfo, COL_INFO, "; ", "Client Enable Continuous Updates");
+		*offset += 9;
+		break;
+
+	case VNC_CLIENT_MESSAGE_TYPE_FENCE :
+		vnc_fence(tvb, pinfo, offset,
+			  vnc_client_message_type_tree);
+		break;
+
 	default :
-		col_append_fstr(pinfo->cinfo, COL_INFO,
+		col_append_sep_fstr(pinfo->cinfo, COL_INFO, "; ",
 				"Unknown client message type (%u)",
 				message_type);
 		break;
@@ -1588,9 +1696,10 @@ vnc_server_to_client(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 	guint8 message_type;
 	gint bytes_needed = 0;
 
-	proto_item *ti = NULL;
+	proto_item *ti;
 	proto_tree *vnc_server_message_type_tree;
 
+again:
 	start_offset = *offset;
 
 	message_type = tvb_get_guint8(tvb, *offset);
@@ -1629,15 +1738,33 @@ vnc_server_to_client(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 					      vnc_server_message_type_tree);
 		break;
 
-	default :
-		col_append_str(pinfo->cinfo, COL_INFO,
+	case VNC_SERVER_MESSAGE_TYPE_END_CONTINUOUS_UPDATES :
+		col_append_sep_str(pinfo->cinfo, COL_INFO, "; ", "Server End Continuous Updates");
+		*offset += 1;
+		break;
+
+	case VNC_SERVER_MESSAGE_TYPE_FENCE :
+		bytes_needed = vnc_fence(tvb, pinfo, offset,
+			  vnc_server_message_type_tree);
+		break;
+
+        default :
+		col_append_sep_str(pinfo->cinfo, COL_INFO, "; ",
 				       "Unknown server message type");
+		*offset = tvb_reported_length(tvb);  /* Swallow the rest of the segment */
 		break;
 	}
 
 	if(bytes_needed > 0 && vnc_preference_desegment && pinfo->can_desegment) {
+		proto_tree_add_text(vnc_server_message_type_tree, tvb, start_offset, -1,
+				    "[See further on for dissection of the complete (reassembled) PDU]");
 		pinfo->desegment_offset = start_offset;
 		pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
+		return;
+	}
+
+	if ((unsigned)*offset < tvb_reported_length(tvb)) {
+		goto again;
 	}
 }
 
@@ -1853,14 +1980,15 @@ static guint
 vnc_server_framebuffer_update(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 			      proto_tree *tree)
 {
-	gint        ii;
-	guint16     num_rects, width, height;
+	guint       ii;
+	guint       num_rects;
+	guint16     width, height;
 	guint       bytes_needed = 0;
 	guint32     encoding_type;
 	proto_item *ti, *ti_x, *ti_y, *ti_width, *ti_height;
 	proto_tree *vnc_rect_tree, *vnc_encoding_type_tree;
 
-	col_set_str(pinfo->cinfo, COL_INFO, "Server framebuffer update");
+	col_append_sep_str(pinfo->cinfo, COL_INFO, "; ", "Server framebuffer update");
 
 	proto_tree_add_item(tree, hf_vnc_padding, tvb, *offset, 1, ENC_NA);
 	*offset += 1;
@@ -1868,7 +1996,15 @@ vnc_server_framebuffer_update(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 	num_rects = tvb_get_ntohs(tvb, *offset);
 	ti = proto_tree_add_item(tree, hf_vnc_rectangle_num, tvb, *offset, 2, ENC_BIG_ENDIAN);
 
-	if (num_rects > 5000) {
+        /* In some cases, TIGHT encoding ignores the "number of rectangles" field;        */
+	/* VNC_ENCODING_TYPE_LAST_RECT is used to indicate the end of the rectangle list. */
+	/* (It appears that TIGHT encoding uses 0xFFFF for the num_rects field when the   */
+        /*  field is not being used). For now: we'll assume that a value 0f 0xFFFF means  */
+        /*  that the field is not being used.                                             */
+	if (num_rects == 0xFFFF) {
+		proto_item_append_text(ti, " [TIGHT encoding assumed (field is not used)]");
+	}
+	if ((num_rects != 0xFFFF) && (num_rects > 5000)) {
 		expert_add_info_format(pinfo, ti, &ei_vnc_too_many_rectangles,
 				"Too many rectangles (%d), aborting dissection", num_rects);
 		return(0);
@@ -1877,6 +2013,11 @@ vnc_server_framebuffer_update(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 	*offset += 2;
 
 	for(ii = 0; ii < num_rects; ii++) {
+		if (ii > 5000) {
+			expert_add_info_format(pinfo, ti, &ei_vnc_too_many_rectangles,
+					       "Too many rectangles (%d), aborting dissection", ii);
+			return(0);
+		}
 		VNC_BYTES_NEEDED(12);
 
 		ti = proto_tree_add_text(tree, tvb, *offset, 12,
@@ -2676,6 +2817,40 @@ vnc_mirrorlink(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 }
 
 static guint
+vnc_fence(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
+	  proto_tree *tree)
+{
+	guint payload_length;
+
+	VNC_BYTES_NEEDED(8);
+
+	payload_length = tvb_get_guint8(tvb, *offset+7);
+	VNC_BYTES_NEEDED((8+payload_length));
+
+	col_append_sep_str(pinfo->cinfo, COL_INFO, "; ", "Fence");
+
+	proto_tree_add_item(tree, hf_vnc_padding, tvb, *offset, 3, ENC_NA);
+	*offset += 3;  /* skip padding */
+
+	proto_tree_add_bitmask(tree, tvb, *offset, hf_vnc_fence_flags,
+			       ett_vnc_fence_flags, vnc_fence_flags, ENC_BIG_ENDIAN);
+
+	*offset += 4;
+
+	proto_tree_add_item(tree, hf_vnc_fence_payload_length,
+			    tvb, *offset, 1, ENC_NA);
+
+	*offset += 1;
+
+	if (payload_length > 0) {
+		proto_tree_add_item(tree, hf_vnc_fence_payload,
+				    tvb, *offset, payload_length, ENC_NA);
+		*offset += payload_length;
+	}
+	return 0;
+}
+
+static guint
 vnc_context_information(tvbuff_t *tvb, gint *offset, proto_tree *tree)
 {
 	VNC_BYTES_NEEDED(20);
@@ -2798,7 +2973,7 @@ vnc_zrle_encoding(tvbuff_t *tvb, packet_info *pinfo _U_, gint *offset,
 	gint uncomp_offset = 0;
 	guint length;
 	gint subencoding_type;
-	tvbuff_t *uncomp_tvb = NULL;
+	tvbuff_t *uncomp_tvb;
 	proto_tree *zrle_subencoding_tree;
 	proto_item *ti;
 #endif
@@ -3163,7 +3338,7 @@ vnc_server_set_colormap_entries(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 	proto_item *ti;
 	proto_tree *vnc_colormap_num_groups, *vnc_colormap_color_group;
 
-	col_set_str(pinfo->cinfo, COL_INFO, "Server set colormap entries");
+	col_append_sep_str(pinfo->cinfo, COL_INFO, "; ", "Server set colormap entries");
 
 	number_of_colors = tvb_get_ntohs(tvb, 4);
 
@@ -3229,7 +3404,7 @@ static void
 vnc_server_ring_bell(tvbuff_t *tvb _U_, packet_info *pinfo, gint *offset _U_,
 		     proto_tree *tree _U_)
 {
-	col_set_str(pinfo->cinfo, COL_INFO, "Server ring bell on client");
+	col_append_sep_str(pinfo->cinfo, COL_INFO, "; ", "Server ring bell on client");
 	/* This message type has no payload... */
 }
 
@@ -3241,7 +3416,7 @@ vnc_server_cut_text(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 	guint32     text_len;
 	proto_item *pi;
 
-	col_set_str(pinfo->cinfo, COL_INFO, "Server cut text");
+	col_append_sep_str(pinfo->cinfo, COL_INFO, "; ", "Server cut text");
 
 	text_len = tvb_get_ntohl(tvb, *offset);
 	pi = proto_tree_add_item(tree, hf_vnc_server_cut_text_len, tvb, *offset, 4,
@@ -4433,6 +4608,42 @@ proto_register_vnc(void)
 		    "Unknown data", HFILL }
 		},
 
+		/* Fence */
+		{ &hf_vnc_fence_flags,
+		  {"Fence flags", "vnc.fence_flags", FT_UINT32, BASE_HEX,
+		   NULL, 0, NULL, HFILL}},
+
+		{ &hf_vnc_fence_request,
+		  { "Fence_request", "vnc.fence_request",
+		    FT_BOOLEAN, BASE_NONE, NULL, VNC_FENCE_REQUEST,
+		    NULL, HFILL }
+		},
+		{ &hf_vnc_fence_sync_next,
+		  { "Fence_sync_next", "vnc.fence_sync_next",
+		    FT_BOOLEAN, BASE_NONE, NULL, VNC_FENCE_SYNC_NEXT,
+		    NULL, HFILL }
+		},
+		{ &hf_vnc_fence_block_after,
+		  { "Fence_block_after", "vnc.fence_block_after",
+		    FT_BOOLEAN, BASE_NONE, NULL, VNC_FENCE_BLOCK_AFTER,
+		    NULL, HFILL }
+		},
+		{ &hf_vnc_fence_block_before,
+		  { "Fence block_before", "vnc.fence_block_before",
+		    FT_BOOLEAN, BASE_NONE, NULL, VNC_FENCE_BLOCK_BEFORE,
+		    NULL, HFILL }
+		},
+		{ &hf_vnc_fence_payload_length,
+		  { "Fence payload length", "vnc.fence_payload_length",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_vnc_fence_payload,
+		  { "Fence payload", "vnc.fence_payload",
+		    FT_BYTES, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }
+		},
+
 		/* Context Information */
 		{ &hf_vnc_context_information_app_id,
 		  { "App Id", "vnc.context_information_app_id",
@@ -4527,7 +4738,8 @@ proto_register_vnc(void)
 		&ett_vnc_colormap_color_group,
 		&ett_vnc_key_events,
 		&ett_vnc_touch_events,
-		&ett_vnc_slrle_subline
+		&ett_vnc_slrle_subline,
+		&ett_vnc_fence_flags
 	};
 
 	static ei_register_info ei[] = {
