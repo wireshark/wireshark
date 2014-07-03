@@ -164,9 +164,9 @@ tap_register.output = wireshark-tap-register.c
 tap_register.variable_out = SOURCES
 win32 {
     isEmpty(PYTHON) {
-	tap_register.commands = $${SH} ../../tools/make-tapreg-dotc wireshark-tap-register.c . $$SOURCES_TAP
+        tap_register.commands = $${SH} ../../tools/make-tapreg-dotc wireshark-tap-register.c . $$SOURCES_TAP
     } else {
-	tap_register.commands = $${PYTHON} "../../tools/make-tap-reg.py" . taps $$SOURCES_TAP
+        tap_register.commands = $${PYTHON} "../../tools/make-tap-reg.py" . taps $$SOURCES_TAP
     }
 } else {
     tap_register.commands = python ../../tools/make-tap-reg.py . taps $$SOURCES_TAP
@@ -187,16 +187,16 @@ win32:INCLUDEPATH += \
 # Is there any way to do this automatically?
 SOURCES_WS_C = \
     ../../airpcap_loader.c \
-    ../../capture-pcap-util.c     \
+    ../../capture-pcap-util.c \
     ../../capture_info.c  \
     ../../capture_opts.c \
     ../../cfile.c \
     ../../color_filters.c \
     ../../file.c  \
-    ../../fileset.c       \
-    ../../frame_tvbuff.c   \
-    ../../summary.c       \
-    ../../sync_pipe_write.c       \
+    ../../fileset.c \
+    ../../frame_tvbuff.c \
+    ../../summary.c \
+    ../../sync_pipe_write.c \
     ../../version_info.c
 
 unix:SOURCES_WS_C += ../../capture-pcap-util-unix.c
@@ -233,6 +233,7 @@ FORMS += \
     main_welcome.ui \
     main_window.ui \
     main_window_preferences_frame.ui \
+    manage_interfaces_dialog.ui \
     module_preferences_scroll_area.ui \
     packet_comment_dialog.ui \
     packet_format_group_box.ui \
@@ -251,10 +252,10 @@ FORMS += \
     splash_overlay.ui \
     stats_tree_dialog.ui \
     summary_dialog.ui \
-    time_shift_dialog.ui \
-    uat_dialog.ui \
     tcp_stream_dialog.ui \
-    manage_interfaces_dialog.ui
+    time_shift_dialog.ui \
+    uat_dialog.ui
+
 
 HEADERS += $$HEADERS_WS_C \
     about_dialog.h \
@@ -278,6 +279,7 @@ HEADERS += $$HEADERS_WS_C \
     lbm_stream_dialog.h \
     lbm_uimflow_dialog.h \
     main_window_preferences_frame.h \
+    manage_interfaces_dialog.h
     module_preferences_scroll_area.h \
     packet_comment_dialog.h \
     packet_format_group_box.h \
@@ -295,9 +297,8 @@ HEADERS += $$HEADERS_WS_C \
     stats_tree_dialog.h \
     summary_dialog.h \
     tango_colors.h \
-    uat_dialog.h \
     tcp_stream_dialog.h \
-    manage_interfaces_dialog.h
+    uat_dialog.h \
 
 win32 {
     OBJECTS_WS_C = $$SOURCES_WS_C
@@ -615,6 +616,7 @@ SOURCES += \
     main_window.cpp \
     main_window_preferences_frame.cpp \
     main_window_slots.cpp \
+    manage_interfaces_dialog.cpp \
     module_preferences_scroll_area.cpp \
     packet_comment_dialog.cpp \
     packet_format_group_box.cpp \
@@ -646,8 +648,7 @@ SOURCES += \
     stats_tree_dialog.cpp \
     summary_dialog.cpp \
     syntax_line_edit.cpp \
+    tcp_stream_dialog.cpp \
     time_shift_dialog.cpp \
     uat_dialog.cpp \
-    wireshark_application.cpp \
-    tcp_stream_dialog.cpp \
-    manage_interfaces_dialog.cpp
+    wireshark_application.cpp
