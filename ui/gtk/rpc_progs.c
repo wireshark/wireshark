@@ -39,7 +39,7 @@
 #include <epan/tap.h>
 #include <epan/dissectors/packet-rpc.h>
 
-#include "ui/stat_menu.h"
+#include <epan/stat_groups.h>
 #include "../globals.h"
 
 #include "ui/gtk/gui_stat_menu.h"

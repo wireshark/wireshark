@@ -30,7 +30,7 @@
 #include <epan/tap.h>
 #include <epan/wmem/wmem.h>
 #include <gtk/gtk.h>
-#include <ui/stat_menu.h>
+#include <epan/stat_groups.h>
 #include <ui/gtk/gui_utils.h>
 #include <ui/gtk/dlg_utils.h>
 #include <cfile.h>

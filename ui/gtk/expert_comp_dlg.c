@@ -31,7 +31,7 @@
 #include <epan/tap.h>
 #include <epan/stat_cmd_args.h>
 
-#include "ui/stat_menu.h"
+#include <epan/stat_groups.h>
 
 #include "ui/simple_dialog.h"
 

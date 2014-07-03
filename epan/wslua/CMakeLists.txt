@@ -106,7 +106,7 @@ ADD_CUSTOM_COMMAND(
       ${CMAKE_SOURCE_DIR}/epan/ftypes/ftypes.h
       ${CMAKE_SOURCE_DIR}/wiretap/wtap.h
       ${CMAKE_SOURCE_DIR}/epan/epan.h
-      ${CMAKE_SOURCE_DIR}/ui/stat_menu.h
+      ${CMAKE_SOURCE_DIR}/epan/stat_groups.h
 )
 
 add_custom_target(

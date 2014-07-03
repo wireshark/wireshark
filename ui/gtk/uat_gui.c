@@ -56,7 +56,7 @@
 #include <epan/value_string.h>
 #include <wsutil/filesystem.h>
 
-#include "ui/stat_menu.h"
+#include <epan/stat_groups.h>
 
 #include "ui/help_url.h"
 #include "ui/gtk/gtkglobals.h"

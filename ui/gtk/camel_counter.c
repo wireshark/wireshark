@@ -35,7 +35,7 @@
 #include <epan/asn1.h>
 #include <epan/dissectors/packet-camel.h>
 
-#include "ui/stat_menu.h"
+#include <epan/stat_groups.h>
 
 #include "ui/simple_dialog.h"
 

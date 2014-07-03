@@ -36,7 +36,7 @@
 #include "epan/timestats.h"
 #include "file.h"
 #include "globals.h"
-#include "ui/stat_menu.h"
+#include <epan/stat_groups.h>
 
 #include "tap-megaco-common.h"
 

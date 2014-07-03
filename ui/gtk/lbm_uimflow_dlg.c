@@ -28,8 +28,8 @@
 #include <epan/funnel.h>
 #include <epan/packet.h>
 #include <epan/tap.h>
+#include <epan/stat_groups.h>
 #include <gtk/gtk.h>
-#include <ui/stat_menu.h>
 #include "ui/gtk/gui_utils.h"
 #include "ui/gtk/dlg_utils.h"
 #include <cfile.h>

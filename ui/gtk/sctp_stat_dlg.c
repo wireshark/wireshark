@@ -29,7 +29,7 @@
 #include "epan/to_str.h"
 
 #include "../globals.h"
-#include "ui/stat_menu.h"
+#include <epan/stat_groups.h>
 
 #include "ui/gtk/gui_stat_menu.h"
 #include "ui/gtk/dlg_utils.h"

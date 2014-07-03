@@ -53,7 +53,7 @@
 #include <epan/dissectors/packet-ip.h>
 #include <epan/in_cksum.h>
 
-#include "ui/stat_menu.h"
+#include <epan/stat_groups.h>
 #include "epan/timestats.h"
 
 #include "ui/simple_dialog.h"

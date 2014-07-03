@@ -48,7 +48,7 @@
 #include "globals.h"
 #include "color_filters.h"
 
-#include "ui/stat_menu.h"
+#include <epan/stat_groups.h>
 #include "ui/iface_lists.h"
 #include "ui/main_statusbar.h"
 #include "ui/preference_utils.h"

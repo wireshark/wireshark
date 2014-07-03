@@ -238,6 +238,7 @@ LIBWIRESHARK_INCLUDES =		\
 	sminmpec.h		\
 	sna-utils.h		\
 	stat_cmd_args.h		\
+	stat_groups.h		\
 	stats_tree.h		\
 	stats_tree_priv.h	\
 	stream.h		\

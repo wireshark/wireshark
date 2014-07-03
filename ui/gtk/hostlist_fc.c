@@ -32,7 +32,7 @@
 #include <epan/conversation.h>
 #include <epan/dissectors/packet-fc.h>
 
-#include "ui/stat_menu.h"
+#include <epan/stat_groups.h>
 
 #include "ui/gtk/gui_stat_menu.h"
 #include "ui/gtk/hostlist_table.h"

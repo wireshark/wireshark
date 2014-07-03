@@ -63,7 +63,7 @@
 #include <epan/stat_cmd_args.h>
 #include <epan/strutil.h>
 
-#include "ui/stat_menu.h"
+#include <epan/stat_groups.h>
 
 #include "ui/util.h"
 #include "ui/alert_box.h"

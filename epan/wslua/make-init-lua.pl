@@ -204,7 +204,7 @@ while(<PROTO_H>) {
 close PROTO_H;
 
 #
-# Extract values from stat_menu.h:
+# Extract values from stat_groups.h:
 #
 #	MENU_X_X values for register_stat_group_t
 #
@@ -212,9 +212,9 @@ close PROTO_H;
 $menu_groups .= "-- menu groups for register_menu\n";
 my $menu_i = 0;
 
-open STAT_MENU, "< $WSROOT/ui/stat_menu.h" or die "cannot open '$WSROOT/ui/stat_menu.h':  $!";
+open STAT_GROUPS, "< $WSROOT/epan/stat_groups.h" or die "cannot open '$WSROOT/epan/stat_groups.h':  $!";
 my $foundit = 0;
-while(<STAT_MENU>) {
+while(<STAT_GROUPS>) {
     # need to skip matching words in comments, and get to the enum
     if (/^typedef enum {/) { $foundit = 1; }
     # the problem here is we need to pick carefully, so we don't break existing scripts
@@ -224,7 +224,7 @@ while(<STAT_MENU>) {
         $menu_i++;
     }
 }
-close STAT_MENU;
+close STAT_GROUPS;
 
 
 $bases_table .= "}\n\n";

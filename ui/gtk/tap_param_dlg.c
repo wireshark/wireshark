@@ -32,7 +32,7 @@
 
 #include "../file.h"
 #include "../globals.h"
-#include "ui/stat_menu.h"
+#include <epan/stat_groups.h>
 
 #include "ui/gtk/stock_icons.h"
 #include "ui/gtk/dlg_utils.h"

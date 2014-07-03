@@ -33,7 +33,7 @@
 #include <epan/tap.h>
 #include <epan/dissectors/packet-ip.h>
 
-#include "ui/stat_menu.h"
+#include <epan/stat_groups.h>
 
 #include "ui/gtk/gui_stat_menu.h"
 #include "ui/gtk/hostlist_table.h"

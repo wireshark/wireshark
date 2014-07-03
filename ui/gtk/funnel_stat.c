@@ -45,7 +45,7 @@
 #include <epan/funnel.h>
 
 #include "../file.h"
-#include "ui/stat_menu.h"
+#include <epan/stat_groups.h>
 #include "ui/progress_dlg.h"
 #include "../color_filters.h"
 

@@ -46,7 +46,7 @@
 
 #include "../../globals.h"
 
-#include "ui/stat_menu.h"
+#include <epan/stat_groups.h>
 #include "ui/tap-tcp-stream.h"
 #include "ui/utf8_entities.h"
 

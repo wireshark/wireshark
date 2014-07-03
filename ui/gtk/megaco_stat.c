@@ -39,7 +39,7 @@
 #include "epan/timestats.h"
 #include "ui/simple_dialog.h"
 #include "../file.h"
-#include "ui/stat_menu.h"
+#include <epan/stat_groups.h>
 
 #include "ui/gtk/gui_stat_util.h"
 #include "ui/gtk/dlg_utils.h"

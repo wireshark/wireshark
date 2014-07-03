@@ -27,7 +27,7 @@
 #include <epan/epan.h>
 #include <epan/packet_info.h>
 #include <epan/tap.h>
-#include "ui/stat_menu.h"
+#include <epan/stat_groups.h>
 #include "../register.h"
 #include "ws_symbol_export.h"
 
