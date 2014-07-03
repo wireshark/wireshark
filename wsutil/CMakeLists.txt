@@ -64,6 +64,7 @@ set(WSUTIL_FILES
 	eax.c
 	filesystem.c
 	g711.c
+	glib_version_info.c
 	md4.c
 	md5.c
 	mem_info.c

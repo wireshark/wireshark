@@ -52,6 +52,7 @@ LIBWSUTIL_SRC = 	\
 	eax.c		\
 	filesystem.c	\
 	g711.c		\
+	glib_version_info.c \
 	md4.c		\
 	md5.c		\
 	mem_info.c	\
@@ -102,6 +103,7 @@ LIBWSUTIL_INCLUDES = 	\
 	eax.h		\
 	filesystem.h	\
 	g711.h		\
+	glib_version_info.h \
 	md4.h		\
 	md5.h		\
 	mem_info.h	\

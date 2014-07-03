@@ -33,6 +33,7 @@
 
 #include "version_info.h"
 #include "capture-pcap-util.h"
+#include <wsutil/glib_version_info.h>
 #include <wsutil/os_version_info.h>
 #include <wsutil/compiler_info.h>
 #include <wsutil/cpu_info.h>
@@ -95,15 +96,7 @@ get_compiled_version_info(GString *str, void (*prepend_info)(GString *),
 		g_string_append(str, ", ");
 	}
 
-	/* GLIB */
-	g_string_append(str, "with ");
-	g_string_append_printf(str,
-#ifdef GLIB_MAJOR_VERSION
-	    "GLib %d.%d.%d", GLIB_MAJOR_VERSION, GLIB_MINOR_VERSION,
-	    GLIB_MICRO_VERSION);
-#else
-	    "GLib (version unknown)");
-#endif
+	get_glib_version_info(str);
 
 	/* Additional application-dependent information */
 	if (append_info)
