@@ -139,6 +139,8 @@ add_library(wsutil ${LINK_MODE_LIB}
 	../image/libwsutil.rc
 )
 
+add_dependencies(wsutil gitversion)
+
 set(FULL_SO_VERSION "0.0.0")
 
 set_target_properties(wsutil PROPERTIES COMPILE_DEFINITIONS "WS_BUILD_DLL")

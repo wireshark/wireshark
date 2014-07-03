@@ -1665,8 +1665,6 @@ add_library(epan ${LINK_MODE_LIB}
 	../image/libwireshark.rc
 )
 
-add_dependencies(epan gitversion)
-
 set(FULL_SO_VERSION "0.0.0")
 
 set_target_properties(epan PROPERTIES COMPILE_DEFINITIONS "WS_BUILD_DLL")
