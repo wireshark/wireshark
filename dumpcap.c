@@ -558,8 +558,10 @@ show_version(GString *comp_info_str, GString *runtime_info_str)
 {
     printf("Dumpcap (Wireshark) %s\n"
            "\n"
-           "%s\n"
-           "%s\n"
+           "%s"
+           "\n"
+           "%s"
+           "\n"
            "%s",
            get_ws_vcs_version_info(), get_copyright_info(), comp_info_str->str, runtime_info_str->str);
 }
