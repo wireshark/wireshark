@@ -395,15 +395,67 @@ console_log_handler(const char *log_domain, GLogLevelFlags log_level,
 
 // xxx based from ../gtk/main.c:get_gtk_compiled_info
 static void
-get_qt_compiled_info(GString *str)
+get_wireshark_qt_compiled_info(GString *str)
 {
     g_string_append(str, "with ");
     g_string_append_printf(str,
 #ifdef QT_VERSION
-                    "Qt %s ", QT_VERSION_STR);
+                    "Qt %s", QT_VERSION_STR);
 #else
-                    "Qt (version unknown) ");
+                    "Qt (version unknown)");
 #endif
+
+    /* Libpcap */
+    g_string_append(str, ", ");
+    get_compiled_pcap_version(str);
+
+    /* LIBZ */
+    g_string_append(str, ", ");
+#ifdef HAVE_LIBZ
+    g_string_append(str, "with libz ");
+#ifdef ZLIB_VERSION
+    g_string_append(str, ZLIB_VERSION);
+#else /* ZLIB_VERSION */
+    g_string_append(str, "(version unknown)");
+#endif /* ZLIB_VERSION */
+#else /* HAVE_LIBZ */
+    g_string_append(str, "without libz");
+#endif /* HAVE_LIBZ */
+
+    /*
+     * XXX - these libraries are actually used only by dumpcap,
+     * but we mention them here so that a user reporting a bug
+     * can get information about dumpcap's libraries without
+     * having to run dumpcap.
+     */
+#ifndef _WIN32
+    /* This is UN*X-only. */
+    /* LIBCAP */
+    g_string_append(str, ", ");
+#ifdef HAVE_LIBCAP
+    g_string_append(str, "with POSIX capabilities");
+#ifdef _LINUX_CAPABILITY_VERSION
+    g_string_append(str, " (Linux)");
+#endif /* _LINUX_CAPABILITY_VERSION */
+#else /* HAVE_LIBCAP */
+    g_string_append(str, "without POSIX capabilities");
+#endif /* HAVE_LIBCAP */
+#endif /* _WIN32 */
+
+#ifdef __linux__
+    /* This is a Linux-specific library. */
+    /* LIBNL */
+    g_string_append(str, ", ");
+#if defined(HAVE_LIBNL1)
+    g_string_append(str, "with libnl 1");
+#elif defined(HAVE_LIBNL2)
+    g_string_append(str, "with libnl 2");
+#elif defined(HAVE_LIBNL3)
+    g_string_append(str, "with libnl 3");
+#else /* no libnl */
+    g_string_append(str, "without libnl");
+#endif /* libnl version */
+#endif /* __linux__ */
 }
 
 // xxx copied from ../gtk/main.c
@@ -593,7 +645,8 @@ int main(int argc, char *argv[])
     comp_info_str = g_string_new("Compiled ");
 
     // xxx qtshark
-    get_compiled_version_info(comp_info_str, get_qt_compiled_info, get_gui_compiled_info);
+    get_compiled_version_info(comp_info_str, get_wireshark_qt_compiled_info,
+                              get_gui_compiled_info);
 
     /* Assemble the run-time version information string */
     runtime_info_str = g_string_new("Running ");

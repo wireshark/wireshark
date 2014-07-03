@@ -50,7 +50,6 @@ SHARK_COMMON_SRC =	\
 
 # corresponding headers
 SHARK_COMMON_INCLUDES =	\
-	version.h		\
 	capture-pcap-util.h	\
 	capture-pcap-util-int.h	\
 	cfile.h			\
@@ -107,9 +106,10 @@ rawshark_SOURCES =	\
 
 # text2pcap specifics
 text2pcap_SOURCES = \
-	pcapio.c \
-	text2pcap.c \
-	text2pcap-scanner.l
+	pcapio.c		\
+	text2pcap.c		\
+	text2pcap-scanner.l	\
+	version_info.c
 
 text2pcap_INCLUDES = \
 	pcapio.h \
@@ -117,20 +117,23 @@ text2pcap_INCLUDES = \
 
 # mergecap specifics
 mergecap_SOURCES = \
-	mergecap.c
+	mergecap.c	\
+	version_info.c
 
 # editcap specifics
 editcap_SOURCES = \
-	editcap.c
+	editcap.c	\
+	version_info.c
 
 # reordercap specifics
 reordercap_SOURCES = \
-	reordercap.c \
-	version.h
+	reordercap.c	\
+	version_info.c
 
 # capinfos specifics
 capinfos_SOURCES = \
-	capinfos.c
+	capinfos.c	\
+	version_info.c
 
 # captype specifics
 captype_SOURCES = \

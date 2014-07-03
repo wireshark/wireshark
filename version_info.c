@@ -90,8 +90,10 @@ get_compiled_version_info(GString *str, void (*prepend_info)(GString *),
 	else
 		g_string_append(str, "(64-bit) ");
 
-	if (prepend_info)
+	if (prepend_info) {
 		(*prepend_info)(str);
+		g_string_append(str, ", ");
+	}
 
 	/* GLIB */
 	g_string_append(str, "with ");
@@ -102,52 +104,6 @@ get_compiled_version_info(GString *str, void (*prepend_info)(GString *),
 #else
 	    "GLib (version unknown)");
 #endif
-
-	/* Libpcap */
-	g_string_append(str, ", ");
-	get_compiled_pcap_version(str);
-
-	/* LIBZ */
-	g_string_append(str, ", ");
-#ifdef HAVE_LIBZ
-	g_string_append(str, "with libz ");
-#ifdef ZLIB_VERSION
-	g_string_append(str, ZLIB_VERSION);
-#else /* ZLIB_VERSION */
-	g_string_append(str, "(version unknown)");
-#endif /* ZLIB_VERSION */
-#else /* HAVE_LIBZ */
-	g_string_append(str, "without libz");
-#endif /* HAVE_LIBZ */
-
-#ifndef _WIN32
-	/* This is UN*X-only. */
-	/* LIBCAP */
-	g_string_append(str, ", ");
-#ifdef HAVE_LIBCAP
-	g_string_append(str, "with POSIX capabilities");
-#ifdef _LINUX_CAPABILITY_VERSION
-	g_string_append(str, " (Linux)");
-#endif /* _LINUX_CAPABILITY_VERSION */
-#else /* HAVE_LIBCAP */
-	g_string_append(str, "without POSIX capabilities");
-#endif /* HAVE_LIBCAP */
-#endif /* _WIN32 */
-
-#ifdef __linux__
-	/* This is a Linux-specific library. */
-	/* LIBNL */
-	g_string_append(str, ", ");
-#if defined(HAVE_LIBNL1)
-	g_string_append(str, "with libnl 1");
-#elif defined(HAVE_LIBNL2)
-	g_string_append(str, "with libnl 2");
-#elif defined(HAVE_LIBNL3)
-	g_string_append(str, "with libnl 3");
-#else /* no libnl */
-	g_string_append(str, "without libnl");
-#endif /* libnl version */
-#endif /* __linux__ */
 
 	/* Additional application-dependent information */
 	if (append_info)

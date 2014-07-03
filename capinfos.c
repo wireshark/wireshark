@@ -77,8 +77,16 @@
 
 #include <glib.h>
 
+#ifdef HAVE_LIBZ
+#include <zlib.h>	/* to get the libz version number */
+#endif
+
 #include <wsutil/privileges.h>
 #include <wsutil/filesystem.h>
+#include <wsutil/crash_info.h>
+#include <wsutil/copyright_info.h>
+#include <wsutil/os_version_info.h>
+#include <wsutil/ws_version_info.h>
 
 #ifdef HAVE_PLUGINS
 #include <wsutil/plugins.h>
@@ -86,7 +94,6 @@
 
 #include "wtap.h"
 #include <wsutil/report_err.h>
-#include <wsutil/privileges.h>
 #include <wsutil/str_util.h>
 #include <wsutil/file_util.h>
 
@@ -102,7 +109,7 @@
 #include <wsutil/unicode-utils.h>
 #endif /* _WIN32 */
 
-#include "version.h"
+#include "version_info.h"
 
 /*
  * By default capinfos now continues processing
@@ -996,31 +1003,22 @@ process_cap_file(wtap *wth, const char *filename)
 }
 
 static void
-print_version(FILE *output)
+show_version(GString *comp_info_str, GString *runtime_info_str)
 {
-  fprintf(output, "Capinfos %s"
-#ifdef GITVERSION
-      " (" GITVERSION " from " GITBRANCH ")"
-#endif
-      "\n", VERSION);
+    printf("Capinfos (Wireshark) %s\n"
+           "\n"
+           "%s"
+           "\n"
+           "%s"
+           "\n"
+           "%s",
+           get_ws_vcs_version_info(), get_copyright_info(),
+           comp_info_str->str, runtime_info_str->str);
 }
 
 static void
-usage(gboolean is_error)
+print_usage(FILE *output)
 {
-  FILE *output;
-
-  if (!is_error) {
-    output = stdout;
-    /* XXX - add capinfos header info here */
-  }
-  else {
-    output = stderr;
-  }
-
-  print_version(output);
-  fprintf(output, "Prints various information (infos) about capture files.\n");
-  fprintf(output, "See http://www.wireshark.org for more information.\n");
   fprintf(output, "\n");
   fprintf(output, "Usage: capinfos [options] <infile> ...\n");
   fprintf(output, "\n");
@@ -1107,9 +1105,37 @@ hash_to_str(const unsigned char *hash, size_t length, char *str) {
 }
 #endif /* HAVE_LIBGCRYPT */
 
+static void
+get_capinfos_compiled_info(GString *str)
+{
+  /* LIBZ */
+  g_string_append(str, ", ");
+#ifdef HAVE_LIBZ
+  g_string_append(str, "with libz ");
+#ifdef ZLIB_VERSION
+  g_string_append(str, ZLIB_VERSION);
+#else /* ZLIB_VERSION */
+  g_string_append(str, "(version unknown)");
+#endif /* ZLIB_VERSION */
+#else /* HAVE_LIBZ */
+  g_string_append(str, "without libz");
+#endif /* HAVE_LIBZ */
+}
+
+static void
+get_capinfos_runtime_info(GString *str)
+{
+  /* zlib */
+#if defined(HAVE_LIBZ) && !defined(_WIN32)
+  g_string_append_printf(str, ", with libz %s", zlibVersion());
+#endif
+}
+
 int
 main(int argc, char *argv[])
 {
+  GString *comp_info_str;
+  GString *runtime_info_str;
   wtap  *wth;
   int    err;
   gchar *err_info;
@@ -1131,6 +1157,22 @@ main(int argc, char *argv[])
   gcry_md_hd_t hd = NULL;
   size_t hash_bytes;
 #endif
+
+  /* Assemble the compile-time version information string */
+  comp_info_str = g_string_new("Compiled ");
+  get_compiled_version_info(comp_info_str, NULL, get_capinfos_compiled_info);
+
+  /* Assemble the run-time version information string */
+  runtime_info_str = g_string_new("Running ");
+  get_runtime_version_info(runtime_info_str, get_capinfos_runtime_info);
+
+  /* Add it to the information to be reported on a crash. */
+  ws_add_crash_info("Capinfos (Wireshark) %s\n"
+         "\n"
+         "%s"
+         "\n"
+         "%s",
+      get_ws_vcs_version_info(), comp_info_str->str, runtime_info_str->str);
 
 #ifdef _WIN32
   arg_list_utf_16to8(argc, argv);
@@ -1363,17 +1405,23 @@ main(int argc, char *argv[])
         break;
 
       case 'h':
-        usage(FALSE);
+        printf("Capinfos (Wireshark) %s\n"
+               "Print various information (infos) about capture files.\n"
+               "See http://www.wireshark.org for more information.\n",
+               get_ws_vcs_version_info());
+        print_usage(stdout);
         exit(0);
         break;
 
       case 'v':
-        print_version(stdout);
+        show_version(comp_info_str, runtime_info_str);
+        g_string_free(comp_info_str, TRUE);
+        g_string_free(runtime_info_str, TRUE);
         exit(0);
         break;
 
       case '?':              /* Bad flag - print usage message */
-        usage(TRUE);
+        print_usage(stderr);
         exit(1);
         break;
     }
@@ -1383,7 +1431,7 @@ main(int argc, char *argv[])
   setlocale(LC_ALL, "");
 
   if ((argc - optind) < 1) {
-    usage(TRUE);
+    print_usage(stderr);
     exit(1);
   }
 

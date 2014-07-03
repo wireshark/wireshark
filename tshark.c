@@ -901,12 +901,67 @@ show_version(GString *comp_info_str, GString *runtime_info_str)
          "%s"
          "\n"
          "%s",
-         get_ws_vcs_version_info(), get_copyright_info(), comp_info_str->str,
-         runtime_info_str->str);
+         get_ws_vcs_version_info(), get_copyright_info(),
+         comp_info_str->str, runtime_info_str->str);
 }
 
 static void
-get_tshark_runtime_info(GString *str)
+get_tshark_compiled_version_info(GString *str)
+{
+	/* Libpcap */
+	get_compiled_pcap_version(str);
+
+	/* LIBZ */
+	g_string_append(str, ", ");
+#ifdef HAVE_LIBZ
+	g_string_append(str, "with libz ");
+#ifdef ZLIB_VERSION
+	g_string_append(str, ZLIB_VERSION);
+#else /* ZLIB_VERSION */
+	g_string_append(str, "(version unknown)");
+#endif /* ZLIB_VERSION */
+#else /* HAVE_LIBZ */
+	g_string_append(str, "without libz");
+#endif /* HAVE_LIBZ */
+
+	/*
+	 * XXX - these libraries are actually used only by dumpcap,
+	 * but we mention them here so that a user reporting a bug
+	 * can get information about dumpcap's libraries without
+	 * having to run dumpcap.
+	 */
+#ifndef _WIN32
+	/* This is UN*X-only. */
+	/* LIBCAP */
+	g_string_append(str, ", ");
+#ifdef HAVE_LIBCAP
+	g_string_append(str, "with POSIX capabilities");
+#ifdef _LINUX_CAPABILITY_VERSION
+	g_string_append(str, " (Linux)");
+#endif /* _LINUX_CAPABILITY_VERSION */
+#else /* HAVE_LIBCAP */
+	g_string_append(str, "without POSIX capabilities");
+#endif /* HAVE_LIBCAP */
+#endif /* _WIN32 */
+
+#ifdef __linux__
+	/* This is a Linux-specific library. */
+	/* LIBNL */
+	g_string_append(str, ", ");
+#if defined(HAVE_LIBNL1)
+	g_string_append(str, "with libnl 1");
+#elif defined(HAVE_LIBNL2)
+	g_string_append(str, "with libnl 2");
+#elif defined(HAVE_LIBNL3)
+	g_string_append(str, "with libnl 3");
+#else /* no libnl */
+	g_string_append(str, "without libnl");
+#endif /* libnl version */
+#endif /* __linux__ */
+}
+
+static void
+get_tshark_runtime_version_info(GString *str)
 {
 #ifdef HAVE_LIBPCAP
     /* Libpcap */
@@ -1031,11 +1086,12 @@ main(int argc, char *argv[])
 
   /* Assemble the compile-time version information string */
   comp_info_str = g_string_new("Compiled ");
-  get_compiled_version_info(comp_info_str, NULL, epan_get_compiled_version_info);
+  get_compiled_version_info(comp_info_str, get_tshark_compiled_version_info,
+                            epan_get_compiled_version_info);
 
   /* Assemble the run-time version information string */
   runtime_info_str = g_string_new("Running ");
-  get_runtime_version_info(runtime_info_str, get_tshark_runtime_info);
+  get_runtime_version_info(runtime_info_str, get_tshark_runtime_version_info);
 
   /* Add it to the information to be reported on a crash. */
   ws_add_crash_info("TShark (Wireshark) %s\n"

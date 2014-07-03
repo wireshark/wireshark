@@ -112,6 +112,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <wsutil/file_util.h>
+#include <wsutil/crash_info.h>
+#include <wsutil/copyright_info.h>
+#include <wsutil/os_version_info.h>
+#include <wsutil/ws_version_info.h>
 
 #include <time.h>
 #include <glib.h>
@@ -127,6 +131,10 @@
 #include <errno.h>
 #include <assert.h>
 
+#ifdef HAVE_LIBZ
+#include <zlib.h>	/* to get the libz version number */
+#endif
+
 #ifndef HAVE_GETOPT
 #include "wsutil/wsgetopt.h"
 #endif
@@ -137,7 +145,7 @@
 
 #include "pcapio.h"
 #include "text2pcap.h"
-#include "version.h"
+#include "version_info.h"
 
 #ifdef _WIN32
 #include <wsutil/unicode-utils.h>
@@ -1425,34 +1433,26 @@ fail_null_str:
 }
 
 static void
-print_version(FILE *output)
+show_version(GString *comp_info_str, GString *runtime_info_str)
 {
-  fprintf(output, "Text2pcap %s"
-#ifdef GITVERSION
-      " (" GITVERSION " from " GITBRANCH ")"
-#endif
-      "\n", VERSION);
+    printf("Text2pcap (Wireshark) %s\n"
+           "\n"
+           "%s"
+           "\n"
+           "%s"
+           "\n"
+           "%s",
+           get_ws_vcs_version_info(), get_copyright_info(),
+           comp_info_str->str, runtime_info_str->str);
 }
 
 /*----------------------------------------------------------------------
  * Print usage string and exit
  */
 static void
-usage (gboolean is_error)
+print_usage (FILE *output)
 {
-    FILE *output;
-
-    if (!is_error) {
-        output = stdout;
-    }
-    else {
-        output = stderr;
-    }
-
-    print_version(output);
     fprintf(output,
-            "Generate a capture file from an ASCII hexdump of packets.\n"
-            "See http://www.wireshark.org for more information.\n"
             "\n"
             "Usage: text2pcap [options] <infile> <outfile>\n"
             "\n"
@@ -1531,8 +1531,32 @@ usage (gboolean is_error)
             "  -n                     use PCAP-NG instead of PCAP as output format.\n"
             "",
             MAX_PACKET);
+}
 
-    exit(is_error ? 1 : 0);
+static void
+get_text2pcap_compiled_info(GString *str)
+{
+    /* LIBZ */
+    g_string_append(str, ", ");
+#ifdef HAVE_LIBZ
+    g_string_append(str, "with libz ");
+#ifdef ZLIB_VERSION
+    g_string_append(str, ZLIB_VERSION);
+#else /* ZLIB_VERSION */
+    g_string_append(str, "(version unknown)");
+#endif /* ZLIB_VERSION */
+#else /* HAVE_LIBZ */
+    g_string_append(str, "without libz");
+#endif /* HAVE_LIBZ */
+}
+
+static void
+get_text2pcap_runtime_info(GString *str)
+{
+    /* zlib */
+#if defined(HAVE_LIBZ) && !defined(_WIN32)
+    g_string_append_printf(str, ", with libz %s", zlibVersion());
+#endif
 }
 
 /*----------------------------------------------------------------------
@@ -1541,6 +1565,8 @@ usage (gboolean is_error)
 static void
 parse_options (int argc, char *argv[])
 {
+    GString *comp_info_str;
+    GString *runtime_info_str;
     int   c;
     char *p;
     static const struct option long_options[] = {
@@ -1554,11 +1580,33 @@ parse_options (int argc, char *argv[])
     create_app_running_mutex();
 #endif /* _WIN32 */
 
+    /* Assemble the compile-time version information string */
+    comp_info_str = g_string_new("Compiled ");
+    get_compiled_version_info(comp_info_str, NULL, get_text2pcap_compiled_info);
+
+    /* Assemble the run-time version information string */
+    runtime_info_str = g_string_new("Running ");
+    get_runtime_version_info(runtime_info_str, get_text2pcap_runtime_info);
+
+    /* Add it to the information to be reported on a crash. */
+    ws_add_crash_info("Text2pcap (Wireshark) %s\n"
+         "\n"
+         "%s"
+         "\n"
+         "%s",
+      get_ws_vcs_version_info(), comp_info_str->str, runtime_info_str->str);
+
     /* Scan CLI parameters */
     while ((c = getopt_long(argc, argv, "aDdhqe:i:l:m:no:u:s:S:t:T:v4:6:", long_options, NULL)) != -1) {
         switch (c) {
-        case '?': usage(TRUE); break;
-        case 'h': usage(FALSE); break;
+        case 'h':
+            printf("Text2pcap (Wireshark) %s\n"
+                   "Generate a capture file from an ASCII hexdump of packets.\n"
+                   "See http://www.wireshark.org for more information.\n",
+                   get_ws_vcs_version_info());
+            print_usage(stdout);
+            exit(0);
+            break;
         case 'd': if (!quiet) debug++; break;
         case 'D': has_direction = TRUE; break;
         case 'q': quiet = TRUE; debug = FALSE; break;
@@ -1568,7 +1616,8 @@ parse_options (int argc, char *argv[])
         case 'o':
             if (optarg[0] != 'h' && optarg[0] != 'o' && optarg[0] != 'd') {
                 fprintf(stderr, "Bad argument for '-o': %s\n", optarg);
-                usage(TRUE);
+                print_usage(stderr);
+                exit(1);
             }
             switch (optarg[0]) {
             case 'o': offset_base =  8; break;
@@ -1580,7 +1629,8 @@ parse_options (int argc, char *argv[])
             hdr_ethernet = TRUE;
             if (sscanf(optarg, "%x", &hdr_ethernet_proto) < 1) {
                 fprintf(stderr, "Bad argument for '-e': %s\n", optarg);
-                usage(TRUE);
+                print_usage(stderr);
+                exit(1);
             }
             break;
 
@@ -1590,7 +1640,8 @@ parse_options (int argc, char *argv[])
             if (p == optarg || *p != '\0' || hdr_ip_proto < 0 ||
                   hdr_ip_proto > 255) {
                 fprintf(stderr, "Bad argument for '-i': %s\n", optarg);
-                usage(TRUE);
+                print_usage(stderr);
+                exit(1);
             }
             hdr_ethernet = TRUE;
             hdr_ethernet_proto = 0x800;
@@ -1604,29 +1655,34 @@ parse_options (int argc, char *argv[])
             hdr_sctp_src   = (guint32)strtol(optarg, &p, 10);
             if (p == optarg || (*p != ',' && *p != '\0')) {
                 fprintf(stderr, "Bad src port for '-%c'\n", c);
-                usage(TRUE);
+                print_usage(stderr);
+                exit(1);
             }
             if (*p == '\0') {
                 fprintf(stderr, "No dest port specified for '-%c'\n", c);
-                usage(TRUE);
+                print_usage(stderr);
+                exit(1);
             }
             p++;
             optarg = p;
             hdr_sctp_dest = (guint32)strtol(optarg, &p, 10);
             if (p == optarg || (*p != ',' && *p != '\0')) {
                 fprintf(stderr, "Bad dest port for '-s'\n");
-                usage(TRUE);
+                print_usage(stderr);
+                exit(1);
             }
             if (*p == '\0') {
                 fprintf(stderr, "No tag specified for '-%c'\n", c);
-                usage(TRUE);
+                print_usage(stderr);
+                exit(1);
             }
             p++;
             optarg = p;
             hdr_sctp_tag = (guint32)strtol(optarg, &p, 10);
             if (p == optarg || *p != '\0') {
                 fprintf(stderr, "Bad tag for '-%c'\n", c);
-                usage(TRUE);
+                print_usage(stderr);
+                exit(1);
             }
 
             hdr_ip = TRUE;
@@ -1642,29 +1698,34 @@ parse_options (int argc, char *argv[])
             hdr_sctp_src   = (guint32)strtol(optarg, &p, 10);
             if (p == optarg || (*p != ',' && *p != '\0')) {
                 fprintf(stderr, "Bad src port for '-%c'\n", c);
-                usage(TRUE);
+                print_usage(stderr);
+                exit(1);
             }
             if (*p == '\0') {
                 fprintf(stderr, "No dest port specified for '-%c'\n", c);
-                usage(TRUE);
+                print_usage(stderr);
+                exit(1);
             }
             p++;
             optarg = p;
             hdr_sctp_dest = (guint32)strtol(optarg, &p, 10);
             if (p == optarg || (*p != ',' && *p != '\0')) {
                 fprintf(stderr, "Bad dest port for '-s'\n");
-                usage(TRUE);
+                print_usage(stderr);
+                exit(1);
             }
             if (*p == '\0') {
                 fprintf(stderr, "No ppi specified for '-%c'\n", c);
-                usage(TRUE);
+                print_usage(stderr);
+                exit(1);
             }
             p++;
             optarg = p;
             hdr_data_chunk_ppid = (guint32)strtoul(optarg, &p, 10);
             if (p == optarg || *p != '\0') {
                 fprintf(stderr, "Bad ppi for '-%c'\n", c);
-                usage(TRUE);
+                print_usage(stderr);
+                exit(1);
             }
 
             hdr_ip = TRUE;
@@ -1685,18 +1746,21 @@ parse_options (int argc, char *argv[])
             hdr_src_port = (guint32)strtol(optarg, &p, 10);
             if (p == optarg || (*p != ',' && *p != '\0')) {
                 fprintf(stderr, "Bad src port for '-u'\n");
-                usage(TRUE);
+                print_usage(stderr);
+                exit(1);
             }
             if (*p == '\0') {
                 fprintf(stderr, "No dest port specified for '-u'\n");
-                usage(TRUE);
+                print_usage(stderr);
+                exit(1);
             }
             p++;
             optarg = p;
             hdr_dest_port = (guint32)strtol(optarg, &p, 10);
             if (p == optarg || *p != '\0') {
                 fprintf(stderr, "Bad dest port for '-u'\n");
-                usage(TRUE);
+                print_usage(stderr);
+                exit(1);
             }
             hdr_ip = TRUE;
             hdr_ip_proto = 17;
@@ -1712,18 +1776,21 @@ parse_options (int argc, char *argv[])
             hdr_src_port = (guint32)strtol(optarg, &p, 10);
             if (p == optarg || (*p != ',' && *p != '\0')) {
                 fprintf(stderr, "Bad src port for '-T'\n");
-                usage(TRUE);
+                print_usage(stderr);
+                exit(1);
             }
             if (*p == '\0') {
                 fprintf(stderr, "No dest port specified for '-u'\n");
-                usage(TRUE);
+                print_usage(stderr);
+                exit(1);
             }
             p++;
             optarg = p;
             hdr_dest_port = (guint32)strtol(optarg, &p, 10);
             if (p == optarg || *p != '\0') {
                 fprintf(stderr, "Bad dest port for '-T'\n");
-                usage(TRUE);
+                print_usage(stderr);
+                exit(1);
             }
             hdr_ip = TRUE;
             hdr_ip_proto = 6;
@@ -1736,7 +1803,9 @@ parse_options (int argc, char *argv[])
             break;
 
         case 'v':
-            print_version(stdout);
+            show_version(comp_info_str, runtime_info_str);
+            g_string_free(comp_info_str, TRUE);
+            g_string_free(runtime_info_str, TRUE);
             exit(0);
             break;
 
@@ -1746,7 +1815,8 @@ parse_options (int argc, char *argv[])
 
             if (!p) {
                 fprintf(stderr, "Bad source param addr for '-%c'\n", c);
-                usage(TRUE);
+                print_usage(stderr);
+                exit(1);
             }
 
             *p = '\0';
@@ -1765,43 +1835,51 @@ parse_options (int argc, char *argv[])
             if (hdr_ipv6 == TRUE) {
                 if (inet_pton( AF_INET6, optarg, hdr_ipv6_src_addr) <= 0) {
                         fprintf(stderr, "Bad src addr -%c '%s'\n", c, p);
-                        usage(TRUE);
+                        print_usage(stderr);
+                        exit(1);
                 }
             } else {
                 if (inet_pton( AF_INET, optarg, &hdr_ip_src_addr) <= 0) {
                         fprintf(stderr, "Bad src addr -%c '%s'\n", c, p);
-                        usage(TRUE);
+                        print_usage(stderr);
+                        exit(1);
                 }
             }
 
             p++;
             if (*p == '\0') {
                 fprintf(stderr, "No dest addr specified for '-%c'\n", c);
-                usage(TRUE);
+                print_usage(stderr);
+                exit(1);
             }
 
             if (hdr_ipv6 == TRUE) {
                 if (inet_pton( AF_INET6, p, hdr_ipv6_dest_addr) <= 0) {
                         fprintf(stderr, "Bad dest addr for -%c '%s'\n", c, p);
-                        usage(TRUE);
+                        print_usage(stderr);
+                        exit(1);
                 }
             } else {
                 if (inet_pton( AF_INET, p, &hdr_ip_dest_addr) <= 0) {
                         fprintf(stderr, "Bad dest addr for -%c '%s'\n", c, p);
-                        usage(TRUE);
+                        print_usage(stderr);
+                        exit(1);
                 }
             }
             break;
 
 
+        case '?':
         default:
-            usage(TRUE);
+            print_usage(stderr);
+            exit(1);
         }
     }
 
     if (optind >= argc || argc-optind < 2) {
         fprintf(stderr, "Must specify input and output filename\n");
-        usage(TRUE);
+        print_usage(stderr);
+        exit(1);
     }
 
     if (strcmp(argv[optind], "-")) {

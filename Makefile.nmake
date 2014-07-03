@@ -551,13 +551,6 @@ text2pcap-scanner.c : text2pcap-scanner.l
 text2pcap-scanner.obj : text2pcap-scanner.c
 	$(CC) $(GENERATED_CFLAGS) -Fd.\ -c $?
 
-#
-# The following targets will rebuild their respective objs
-# if and when version.h should change.
-#
-text2pcap.obj mergecap.obj capinfos.obj captype.obj editcap.obj reordercap.obj: version.h
-
-
 clean-local:
 	rm -f $(wireshark_OBJECTS) $(tshark_OBJECTS) $(tfshark_OBJECTS) $(dumpcap_OBJECTS) $(rawshark_OBJECTS) \
 		$(EXECUTABLES) *.pdb *.sbr *.exe.manifest \

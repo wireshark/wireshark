@@ -58,6 +58,10 @@
 #include <sys/time.h>
 #endif
 
+#ifdef HAVE_LIBZ
+#include <zlib.h>	/* to get the libz version number */
+#endif
+
 #include "wtap.h"
 
 #ifndef HAVE_GETOPT
@@ -83,8 +87,12 @@
 #include <wsutil/strnatcmp.h>
 #include <wsutil/md5.h>
 #include <wsutil/plugins.h>
+#include <wsutil/crash_info.h>
+#include <wsutil/copyright_info.h>
+#include <wsutil/os_version_info.h>
+#include <wsutil/ws_version_info.h>
 
-#include "version.h"
+#include "version_info.h"
 
 #include "ringbuffer.h" /* For RINGBUFFER_MAX_NUM_FILES */
 
@@ -662,28 +670,22 @@ is_duplicate_rel_time(guint8* fd, guint32 len, const nstime_t *current) {
 }
 
 static void
-print_version(FILE *output)
+show_version(GString *comp_info_str, GString *runtime_info_str)
 {
-  fprintf(output, "Editcap %s"
-#ifdef GITVERSION
-      " (" GITVERSION " from " GITBRANCH ")"
-#endif
-      "\n", VERSION);
+    printf("Editcap (Wireshark) %s\n"
+           "\n"
+           "%s"
+           "\n"
+           "%s"
+           "\n"
+           "%s",
+           get_ws_vcs_version_info(), get_copyright_info(),
+           comp_info_str->str, runtime_info_str->str);
 }
 
 static void
-usage(gboolean is_error)
+print_usage(FILE *output)
 {
-    FILE *output;
-
-    if (!is_error)
-        output = stdout;
-    else
-        output = stderr;
-
-    print_version(output);
-    fprintf(output, "Edit and/or translate the format of capture files.\n");
-    fprintf(output, "See http://www.wireshark.org for more information.\n");
     fprintf(output, "\n");
     fprintf(output, "Usage: editcap [options] ... <infile> <outfile> [ <packet#>[-<packet#>] ... ]\n");
     fprintf(output, "\n");
@@ -839,9 +841,37 @@ failure_message(const char *msg_format _U_, va_list ap _U_)
 }
 #endif
 
+static void
+get_editcap_compiled_info(GString *str)
+{
+  /* LIBZ */
+  g_string_append(str, ", ");
+#ifdef HAVE_LIBZ
+  g_string_append(str, "with libz ");
+#ifdef ZLIB_VERSION
+  g_string_append(str, ZLIB_VERSION);
+#else /* ZLIB_VERSION */
+  g_string_append(str, "(version unknown)");
+#endif /* ZLIB_VERSION */
+#else /* HAVE_LIBZ */
+  g_string_append(str, "without libz");
+#endif /* HAVE_LIBZ */
+}
+
+static void
+get_editcap_runtime_info(GString *str)
+{
+  /* zlib */
+#if defined(HAVE_LIBZ) && !defined(_WIN32)
+  g_string_append_printf(str, ", with libz %s", zlibVersion());
+#endif
+}
+
 int
 main(int argc, char *argv[])
 {
+    GString      *comp_info_str;
+    GString      *runtime_info_str;
     wtap         *wth;
     int           i, j, err;
     gchar        *err_info;
@@ -887,9 +917,25 @@ main(int argc, char *argv[])
     create_app_running_mutex();
 #endif /* _WIN32 */
 
-  /*
-   * Get credential information for later use.
-   */
+    /* Assemble the compile-time version information string */
+    comp_info_str = g_string_new("Compiled ");
+    get_compiled_version_info(comp_info_str, NULL, get_editcap_compiled_info);
+
+    /* Assemble the run-time version information string */
+    runtime_info_str = g_string_new("Running ");
+    get_runtime_version_info(runtime_info_str, get_editcap_runtime_info);
+
+    /* Add it to the information to be reported on a crash. */
+    ws_add_crash_info("Editcap (Wireshark) %s\n"
+         "\n"
+         "%s"
+         "\n"
+         "%s",
+      get_ws_vcs_version_info(), comp_info_str->str, runtime_info_str->str);
+
+    /*
+     * Get credential information for later use.
+     */
     init_process_policies();
     init_open_routines();
 
@@ -1045,7 +1091,11 @@ main(int argc, char *argv[])
             break;
 
         case 'h':
-            usage(FALSE);
+            printf("Editcap (Wireshark) %s\n"
+                   "Edit and/or translate the format of capture files.\n"
+                   "See http://www.wireshark.org for more information.\n",
+               get_ws_vcs_version_info());
+            print_usage(stdout);
             exit(0);
             break;
 
@@ -1099,7 +1149,9 @@ main(int argc, char *argv[])
             break;
 
         case 'V':
-            print_version(stdout);
+            show_version(comp_info_str, runtime_info_str);
+            g_string_free(comp_info_str, TRUE);
+            g_string_free(runtime_info_str, TRUE);
             exit(0);
             break;
 
@@ -1119,7 +1171,7 @@ main(int argc, char *argv[])
                 list_encap_types();
                 break;
             default:
-                usage(TRUE);
+                print_usage(stderr);
                 break;
             }
             exit(1);
@@ -1132,7 +1184,7 @@ main(int argc, char *argv[])
 #endif
 
     if ((argc - optind) < 1) {
-        usage(TRUE);
+        print_usage(stderr);
         exit(1);
     }
 

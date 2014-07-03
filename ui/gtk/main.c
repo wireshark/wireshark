@@ -1896,7 +1896,7 @@ main_capture_callback(gint event, capture_session *cap_session, gpointer user_da
 #endif
 
 static void
-get_gtk_compiled_info(GString *str)
+get_wireshark_gtk_compiled_info(GString *str)
 {
     g_string_append(str, "with ");
     g_string_append_printf(str,
@@ -1906,17 +1906,66 @@ get_gtk_compiled_info(GString *str)
 #else
                            "GTK+ (version unknown)");
 #endif
-    g_string_append(str, ", ");
+
     /* Cairo */
-    g_string_append(str, "with Cairo ");
+    g_string_append(str, ", with Cairo ");
     g_string_append(str, CAIRO_VERSION_STRING);
-    g_string_append(str, ", ");
 
     /* Pango */
-    g_string_append(str, "with Pango ");
+    g_string_append(str, ", with Pango ");
     g_string_append(str, PANGO_VERSION_STRING);
-    g_string_append(str, ", ");
 
+    /* Libpcap */
+    g_string_append(str, ", ");
+    get_compiled_pcap_version(str);
+
+    /* LIBZ */
+    g_string_append(str, ", ");
+#ifdef HAVE_LIBZ
+    g_string_append(str, "with libz ");
+#ifdef ZLIB_VERSION
+    g_string_append(str, ZLIB_VERSION);
+#else /* ZLIB_VERSION */
+    g_string_append(str, "(version unknown)");
+#endif /* ZLIB_VERSION */
+#else /* HAVE_LIBZ */
+    g_string_append(str, "without libz");
+#endif /* HAVE_LIBZ */
+
+    /*
+     * XXX - these libraries are actually used only by dumpcap,
+     * but we mention them here so that a user reporting a bug
+     * can get information about dumpcap's libraries without
+     * having to run dumpcap.
+     */
+#ifndef _WIN32
+    /* This is UN*X-only. */
+    /* LIBCAP */
+    g_string_append(str, ", ");
+#ifdef HAVE_LIBCAP
+    g_string_append(str, "with POSIX capabilities");
+#ifdef _LINUX_CAPABILITY_VERSION
+    g_string_append(str, " (Linux)");
+#endif /* _LINUX_CAPABILITY_VERSION */
+#else /* HAVE_LIBCAP */
+    g_string_append(str, "without POSIX capabilities");
+#endif /* HAVE_LIBCAP */
+#endif /* _WIN32 */
+
+#ifdef __linux__
+    /* This is a Linux-specific library. */
+    /* LIBNL */
+    g_string_append(str, ", ");
+#if defined(HAVE_LIBNL1)
+    g_string_append(str, "with libnl 1");
+#elif defined(HAVE_LIBNL2)
+    g_string_append(str, "with libnl 2");
+#elif defined(HAVE_LIBNL3)
+    g_string_append(str, "with libnl 3");
+#else /* no libnl */
+    g_string_append(str, "without libnl");
+#endif /* libnl version */
+#endif /* __linux__ */
 }
 
 static void
@@ -2256,7 +2305,8 @@ main(int argc, char *argv[])
     /* Assemble the compile-time version information string */
     comp_info_str = g_string_new("Compiled ");
 
-    get_compiled_version_info(comp_info_str, get_gtk_compiled_info, get_gui_compiled_info);
+    get_compiled_version_info(comp_info_str, get_wireshark_gtk_compiled_info,
+                              get_gui_compiled_info);
 
     /* Assemble the run-time version information string */
     runtime_info_str = g_string_new("Running ");

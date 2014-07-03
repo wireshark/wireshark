@@ -50,6 +50,10 @@
 # include <sys/stat.h>
 #endif
 
+#ifdef HAVE_LIBZ
+#include <zlib.h>	/* to get the libz version number */
+#endif
+
 #ifndef HAVE_GETOPT
 #include "wsutil/wsgetopt.h"
 #endif
@@ -745,6 +749,34 @@ show_version(GString *comp_info_str, GString *runtime_info_str)
          runtime_info_str->str);
 }
 
+static void
+get_tfshark_compiled_version_info(GString *str)
+{
+	/* LIBZ */
+#ifdef HAVE_LIBZ
+	g_string_append(str, "with libz ");
+#ifdef ZLIB_VERSION
+	g_string_append(str, ZLIB_VERSION);
+#else /* ZLIB_VERSION */
+	g_string_append(str, "(version unknown)");
+#endif /* ZLIB_VERSION */
+#else /* HAVE_LIBZ */
+	g_string_append(str, "without libz");
+#endif /* HAVE_LIBZ */
+}
+
+static void
+get_tfshark_runtime_version_info(GString *str)
+{
+    /* zlib */
+#if defined(HAVE_LIBZ) && !defined(_WIN32)
+    g_string_append_printf(str, ", with libz %s", zlibVersion());
+#endif
+
+    /* stuff used by libwireshark */
+    epan_get_runtime_version_info(str);
+}
+
 int
 main(int argc, char *argv[])
 {
@@ -817,11 +849,12 @@ main(int argc, char *argv[])
 
   /* Assemble the compile-time version information string */
   comp_info_str = g_string_new("Compiled ");
-  get_compiled_version_info(comp_info_str, NULL, epan_get_compiled_version_info);
+  get_compiled_version_info(comp_info_str, get_tfshark_compiled_version_info,
+                            epan_get_compiled_version_info);
 
   /* Assemble the run-time version information string */
   runtime_info_str = g_string_new("Running ");
-  get_runtime_version_info(runtime_info_str, NULL);
+  get_runtime_version_info(runtime_info_str, get_tfshark_runtime_version_info);
 
   /* Add it to the information to be reported on a crash. */
   ws_add_crash_info("TFShark (Wireshark) %s\n"
