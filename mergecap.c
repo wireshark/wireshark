@@ -53,8 +53,10 @@
 #include <wsutil/wsgetopt.h>
 #endif
 
+#include <wsutil/clopts_common.h>
 #include <wsutil/strnatcmp.h>
 #include <wsutil/file_util.h>
+#include <wsutil/cmdarg_err.h>
 #include <wsutil/crash_info.h>
 #include <wsutil/copyright_info.h>
 #include <wsutil/os_version_info.h>
@@ -71,45 +73,6 @@
 #ifdef _WIN32
 #include <wsutil/unicode-utils.h>
 #endif /* _WIN32 */
-
-static int
-get_natural_int(const char *string, const char *name)
-{
-  long  number;
-  char *p;
-
-  number = strtol(string, &p, 10);
-  if (p == string || *p != '\0') {
-    fprintf(stderr, "mergecap: The specified %s \"%s\" isn't a decimal number\n",
-            name, string);
-    exit(1);
-  }
-  if (number < 0) {
-    fprintf(stderr, "mergecap: The specified %s is a negative number\n", name);
-    exit(1);
-  }
-  if (number > INT_MAX) {
-    fprintf(stderr, "mergecap: The specified %s is too large (greater than %d)\n",
-            name, INT_MAX);
-    exit(1);
-  }
-  return (int)number;
-}
-
-static int
-get_positive_int(const char *string, const char *name)
-{
-  int number;
-
-  number = get_natural_int(string, name);
-
-  if (number == 0) {
-    fprintf(stderr, "mergecap: The specified %s is zero\n", name);
-    exit(1);
-  }
-
-  return number;
-}
 
 static void
 show_version(GString *comp_info_str, GString *runtime_info_str)
@@ -148,6 +111,27 @@ print_usage(FILE *output)
   fprintf(output, "Miscellaneous:\n");
   fprintf(output, "  -h                display this help and exit.\n");
   fprintf(output, "  -v                verbose output.\n");
+}
+
+/*
+ * Report an error in command-line arguments.
+ */
+static void
+mergecap_cmdarg_err(const char *fmt, va_list ap)
+{
+  fprintf(stderr, "mergecap: ");
+  vfprintf(stderr, fmt, ap);
+  fprintf(stderr, "\n");
+}
+
+/*
+ * Report additional information for an error in command-line arguments.
+ */
+static void
+mergecap_cmdarg_err_cont(const char *fmt, va_list ap)
+{
+  vfprintf(stderr, fmt, ap);
+  fprintf(stderr, "\n");
 }
 
 struct string_elem {
@@ -275,6 +259,8 @@ main(int argc, char *argv[])
   char               *out_filename       = NULL;
   gboolean            got_read_error     = FALSE, got_write_error = FALSE;
   int                 count;
+
+  cmdarg_err_init(mergecap_cmdarg_err, mergecap_cmdarg_err_cont);
 
 #ifdef _WIN32
   arg_list_utf_16to8(argc, argv);
