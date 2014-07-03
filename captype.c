@@ -71,6 +71,10 @@
 #include <wsutil/unicode-utils.h>
 #endif /* _WIN32 */
 
+#ifndef HAVE_GETOPT
+#include "wsutil/wsgetopt.h"
+#endif
+
 #include "version_info.h"
 
 static void
