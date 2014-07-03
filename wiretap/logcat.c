@@ -43,17 +43,50 @@ struct dumper_t {
     enum dump_type_t type;
 };
 
-static gchar get_priority(const guint8 *priority) {
+/* The log format can be found on:
+ * https://android.googlesource.com/platform/system/core/+/master/include/log/logger.h
+ * Log format is assumed to be little-endian (Android platform).
+ */
+/* maximum size of a message payload in a log entry */
+#define LOGGER_ENTRY_MAX_PAYLOAD 4076
+
+struct logger_entry {
+    guint16 len;    /* length of the payload */
+    guint16 __pad;  /* no matter what, we get 2 bytes of padding */
+    gint32  pid;    /* generating process's pid */
+    gint32  tid;    /* generating process's tid */
+    gint32  sec;    /* seconds since Epoch */
+    gint32  nsec;   /* nanoseconds */
+    char    msg[0]; /* the entry's payload */
+};
+
+struct logger_entry_v2 {
+    guint16 len;    /* length of the payload */
+    guint16 hdr_size; /* sizeof(struct logger_entry_v2) */
+    gint32  pid;    /* generating process's pid */
+    gint32  tid;    /* generating process's tid */
+    gint32  sec;    /* seconds since Epoch */
+    gint32  nsec;   /* nanoseconds */
+    union {
+                        /* v1: not present */
+        guint32 euid;   /* v2: effective UID of logger */
+        guint32 lid;    /* v3: log id of the payload */
+    };
+    char    msg[0]; /* the entry's payload */
+};
+
+/* Returns '?' for invalid priorities */
+static gchar get_priority(const guint8 priority) {
     static gchar priorities[] = "??VDIWEFS";
 
-    if (*priority >= (guint8) sizeof(priorities))
+    if (priority >= (guint8) sizeof(priorities))
         return '?';
 
-    return priorities[(int) *priority];
+    return priorities[priority];
 }
 
 static gchar *logcat_log(const struct dumper_t *dumper, guint32 seconds,
-        gint microseconds, gint pid, gint tid, gchar priority, const gchar *tag,
+        gint milliseconds, gint pid, gint tid, gchar priority, const gchar *tag,
         const gchar *log)
 {
     gchar  time_buffer[15];
@@ -80,17 +113,17 @@ static gchar *logcat_log(const struct dumper_t *dumper, guint32 seconds,
             strftime(time_buffer, sizeof(time_buffer), "%m-%d %H:%M:%S",
                     gmtime(&datetime));
             return g_strdup_printf("%s.%03i %c/%-8s(%5i): %s\n",
-                    time_buffer, microseconds, priority, tag, pid, log);
+                    time_buffer, milliseconds, priority, tag, pid, log);
         case DUMP_THREADTIME:
             strftime(time_buffer, sizeof(time_buffer), "%m-%d %H:%M:%S",
                     gmtime(&datetime));
             return g_strdup_printf("%s.%03i %5i %5i %c %-8s: %s\n",
-                    time_buffer, microseconds, pid, tid, priority, tag, log);
+                    time_buffer, milliseconds, pid, tid, priority, tag, log);
         case DUMP_LONG:
             strftime(time_buffer, sizeof(time_buffer), "%m-%d %H:%M:%S",
                     gmtime(&datetime));
             return g_strdup_printf("[ %s.%03i %5i:0x%02x %c/%s ]\n%s\n\n",
-                    time_buffer, microseconds, pid, tid, priority, tag, log);
+                    time_buffer, milliseconds, pid, tid, priority, tag, log);
         default:
             return NULL;
     }
@@ -99,17 +132,20 @@ static gchar *logcat_log(const struct dumper_t *dumper, guint32 seconds,
 
 static gint detect_version(wtap *wth, int *err, gchar **err_info)
 {
-    gint     bytes_read;
-    guint16  payload_length;
-    guint16  try_header_size;
-    guint8  *buffer;
-    gint64   file_offset;
-    guint32  log_length;
-    guint32  tag_length;
-    guint16  tmp;
+    gint                     bytes_read;
+    guint16                  payload_length;
+    guint16                  hdr_size;
+    guint16                  read_sofar;
+    guint16                  entry_len;
+    gint                     version;
+    struct logger_entry     *log_entry;
+    struct logger_entry_v2  *log_entry_v2;
+    guint8                  *buffer;
+    guint16                  tmp;
+    guint8                  *msg_payload, *msg_part, *msg_end;
+    guint16                  msg_len;
 
-    file_offset = file_tell(wth->fh);
-
+    /* 16-bit payload length */
     bytes_read = file_read(&tmp, 2, wth->fh);
     if (bytes_read != 2) {
         *err = file_error(wth->fh, err_info);
@@ -119,6 +155,7 @@ static gint detect_version(wtap *wth, int *err, gchar **err_info)
     }
     payload_length = pletoh16(&tmp);
 
+    /* 16-bit header length (or padding, equal to 0x0000) */
     bytes_read = file_read(&tmp, 2, wth->fh);
     if (bytes_read != 2) {
         *err = file_error(wth->fh, err_info);
@@ -126,42 +163,70 @@ static gint detect_version(wtap *wth, int *err, gchar **err_info)
             *err = WTAP_ERR_SHORT_READ;
         return -1;
     }
-    try_header_size = pletoh16(&tmp);
+    hdr_size = pletoh16(&tmp);
+    read_sofar = 4;
 
-    buffer = (guint8 *) g_malloc(5 * 4 + payload_length);
-    bytes_read = file_read(buffer, 5 * 4 + payload_length, wth->fh);
-    if (bytes_read != 5 * 4 + payload_length) {
-        if (bytes_read != 4 * 4 + payload_length) {
+    /* must contain at least priority and two nulls as separator */
+    if (payload_length < 3)
+        return -1;
+    /* payload length may not exceed the maximum payload size */
+    if (payload_length > LOGGER_ENTRY_MAX_PAYLOAD)
+        return -1;
+
+    /* ensure buffer is large enough for all versions */
+    buffer = (guint8 *) g_malloc(sizeof(*log_entry_v2) + payload_length);
+    log_entry_v2 = (struct logger_entry_v2 *) buffer;
+    log_entry = (struct logger_entry *) buffer;
+
+    /* cannot rely on __pad being 0 for v1, use heuristics to find out what
+     * version is in use. First assume the smallest msg. */
+    for (version = 1; version <= 2; ++version) {
+        if (version == 1) {
+            msg_payload = log_entry->msg;
+            entry_len = sizeof(*log_entry) + payload_length;
+        } else if (version == 2) {
+            /* v2 is 4 bytes longer */
+            msg_payload = log_entry_v2->msg;
+            entry_len = sizeof(*log_entry_v2) + payload_length;
+            if (hdr_size != sizeof(*log_entry_v2))
+                continue;
+        }
+
+        bytes_read = file_read(buffer + read_sofar, entry_len - read_sofar,
+                wth->fh);
+        if (bytes_read != entry_len - read_sofar) {
             *err = file_error(wth->fh, err_info);
             if (*err == 0 && bytes_read != 0)
                 *err = WTAP_ERR_SHORT_READ;
-            g_free(buffer);
-            return -1;
+            /* short read, end of file? Whatever, this cannot be valid. */
+            version = -1;
+            break;
         }
-    }
+        read_sofar += bytes_read;
 
-    if (try_header_size == 24) {
-        tag_length = (guint32)strlen(buffer + 5 * 4 + 1) + 1;
-        log_length = (guint32)strlen(buffer + 5 * 4 + 1 + tag_length) + 1;
-        if (payload_length == 1 + tag_length + log_length) {
-            g_free(buffer);
-            return 2;
-        }
-    }
+        /* A v2 msg has a 32-bit userid instead of v1 priority */
+        if (get_priority(msg_payload[0]) == '?')
+            continue;
 
-    tag_length = (guint32)strlen(buffer + 4 * 4 + 1) + 1;
-    log_length = (guint32)strlen(buffer + 4 * 4 + 1 + tag_length) + 1;
-    if (payload_length == 1 + tag_length + log_length) {
-        if (file_seek(wth->fh, file_offset + 4 * 4 + 1 + tag_length + log_length, SEEK_SET, err) == -1) {
-            g_free(buffer);
-            return -1;
-        }
+        /* Is there a terminating '\0' for the tag? */
+        msg_part = (guint8 *) memchr(msg_payload, '\0', payload_length - 1);
+        if (msg_part == NULL)
+            continue;
+
+        /* if msg is '\0'-terminated, is it equal to the payload len? */
+        ++msg_part;
+        msg_len = payload_length - (msg_part - msg_payload);
+        msg_end = (guint8 *) memchr(msg_part, '\0', msg_len);
+        /* is the end of the buffer (-1) equal to the end of msg? */
+        if (msg_end && (msg_payload + payload_length - 1 != msg_end))
+            continue;
+
         g_free(buffer);
-        return 1;
+        return version;
     }
 
     g_free(buffer);
-    return 0;
+    return -1;
 }
 
 static gboolean logcat_read_packet(struct logcat_phdr *logcat, FILE_T fh,
@@ -172,6 +237,7 @@ static gboolean logcat_read_packet(struct logcat_phdr *logcat, FILE_T fh,
     guint16              payload_length;
     guint                tmp[2];
     guint8              *pd;
+    struct logger_entry *log_entry;
 
     bytes_read = file_read(&tmp, 2, fh);
     if (bytes_read != 2) {
@@ -183,15 +249,16 @@ static gboolean logcat_read_packet(struct logcat_phdr *logcat, FILE_T fh,
     payload_length = pletoh16(tmp);
 
     if (logcat->version == 1) {
-        packet_size = 5 * 4 + payload_length;
+        packet_size = sizeof(struct logger_entry) + payload_length;
     } else if (logcat->version == 2) {
-        packet_size = 6 * 4 + payload_length;
+        packet_size = sizeof(struct logger_entry_v2) + payload_length;
     } else {
         return FALSE;
     }
 
     buffer_assure_space(buf, packet_size);
     pd = buffer_start_ptr(buf);
+    log_entry = (struct logger_entry *) pd;
 
     /* Copy the first two bytes of the packet. */
     memcpy(pd, tmp, 2);
@@ -207,8 +274,8 @@ static gboolean logcat_read_packet(struct logcat_phdr *logcat, FILE_T fh,
 
     phdr->rec_type = REC_TYPE_PACKET;
     phdr->presence_flags = WTAP_HAS_TS;
-    phdr->ts.secs = (time_t) pletoh32(pd + 12);
-    phdr->ts.nsecs = (int) pletoh32(pd + 16);
+    phdr->ts.secs = (time_t) GINT32_FROM_LE(log_entry->sec);
+    phdr->ts.nsecs = GINT32_FROM_LE(log_entry->nsec);
     phdr->caplen = packet_size;
     phdr->len = packet_size;
 
@@ -340,15 +407,19 @@ static gboolean logcat_dump_text(wtap_dumper *wdh,
     gchar                          *buf;
     gint                            length;
     gchar                           priority;
+    const struct logger_entry      *log_entry = (struct logger_entry *) pd;
+    const struct logger_entry_v2   *log_entry_v2 = (struct logger_entry_v2 *) pd;
+    gint                            payload_length;
     const gchar                    *tag;
-    const gint                     *pid;
-    const gint                     *tid;
-    const gchar                    *log;
+    gint32                          pid;
+    gint32                          tid;
+    gint32                          seconds;
+    gint32                          milliseconds;
+    const gchar                    *msg_begin;
+    gint                            msg_pre_skip;
+    gchar                          *log;
     gchar                          *log_part;
-    const gchar                    *str_begin;
-    const gchar                    *str_end;
-    const guint32                  *datetime;
-    const guint32                  *nanoseconds;
+    gchar                          *log_next;
     const union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
     const struct dumper_t          *dumper        = (const struct dumper_t *) wdh->priv;
 
@@ -358,75 +429,69 @@ static gboolean logcat_dump_text(wtap_dumper *wdh,
         return FALSE;
     }
 
+    payload_length = GINT32_FROM_LE(log_entry->len);
+    pid = GINT32_FROM_LE(log_entry->pid);
+    tid = GINT32_FROM_LE(log_entry->tid);
+    seconds = GINT32_FROM_LE(log_entry->sec);
+    milliseconds = GINT32_FROM_LE(log_entry->nsec) / 1000000;
+
+    /* msg: <prio:1><tag:N>\0<msg:N>\0 with N >= 0, last \0 can be missing */
     if (pseudo_header->logcat.version == 1) {
-        pid = (const gint *) (pd + 4);
-        tid = (const gint *) (pd + 2 * 4);
-        datetime = (const guint32 *) (pd + 3 * 4);
-        nanoseconds = (const guint32 *) (pd + 4 * 4);
-        priority = get_priority((const guint8 *) (pd + 5 * 4));
-        tag = (const gchar *) (pd + 5 * 4 + 1);
-        log = tag + strlen(tag) + 1;
+        priority = get_priority(log_entry->msg[0]);
+        tag = log_entry->msg + 1;
+        msg_pre_skip = 1 + strlen(tag) + 1;
+        msg_begin = log_entry->msg + msg_pre_skip;
     } else if (pseudo_header->logcat.version == 2) {
-        pid = (const gint *) (pd + 4);
-        tid = (const gint *) (pd + 2 * 4);
-        datetime = (const guint32 *) (pd + 3 * 4);
-        nanoseconds = (const guint32 *) (pd + 4 * 4);
-        priority = get_priority((const guint8 *) (pd + 6 * 4));
-        tag = (const char *) (pd + 6 * 4 + 1);
-        log = tag + strlen(tag) + 1;
+        priority = get_priority(log_entry_v2->msg[0]);
+        tag = log_entry_v2->msg + 1;
+        msg_pre_skip = 1 + strlen(tag) + 1;
+        msg_begin = log_entry_v2->msg + msg_pre_skip;
     } else {
         *err = WTAP_ERR_UNSUPPORTED;
         return FALSE;
     }
 
-    str_begin = str_end = log;
-    while (dumper->type != DUMP_LONG && (str_end = strchr(str_begin, '\n'))) {
-        log_part = (gchar *) g_malloc(str_end - str_begin + 1);
-        g_strlcpy(log_part, str_begin, str_end - str_begin + 1);
+    /* copy the message part. If a nul byte was missing, it will be added. */
+    log = g_strndup(msg_begin, payload_length - msg_pre_skip);
 
-        str_begin = str_end + 1;
+    /* long format: display one header followed by the whole message (which may
+     * contain new lines). Other formats: include tag, etc. with each line */
+    log_next = log;
+    do {
+        log_part = log_next;
+        if (dumper->type == DUMP_LONG) {
+            /* read until end, there is no next string */
+            log_next = NULL;
+        } else {
+            /* read until next newline */
+            log_next = strchr(log_part, '\n');
+            if (log_next != NULL) {
+                *log_next = '\0';
+                ++log_next;
+                /* ignore trailing newline */
+                if (*log_next == '\0') {
+                    log_next = NULL;
+                }
+            }
+        }
 
-        buf = logcat_log(dumper, *datetime, *nanoseconds / 1000000, *pid, *tid,
+        buf = logcat_log(dumper, seconds, milliseconds, pid, tid,
                 priority, tag, log_part);
         if (!buf) {
-            g_free(log_part);
+            g_free(log);
             return FALSE;
         }
-        g_free(log_part);
         length = (guint32)strlen(buf);
 
         if (!wtap_dump_file_write(wdh, buf, length, err)) {
-            g_free(buf);
+            g_free(log);
             return FALSE;
         }
 
         wdh->bytes_dumped += length;
+    } while (log_next != NULL);
 
-        g_free(buf);
-    }
-
-    if (*str_begin != '\0') {
-        log_part = (gchar *) g_malloc(strlen(str_begin) + 1);
-        g_strlcpy(log_part, str_begin, strlen(str_begin) + 1);
-
-        buf = logcat_log(dumper, *datetime, *nanoseconds / 1000000, *pid, *tid,
-                priority, tag, log_part);
-        if (!buf) {
-            g_free(log_part);
-            return FALSE;
-        }
-        g_free(log_part);
-        length = (guint32)strlen(buf);
-
-        if (!wtap_dump_file_write(wdh, buf, length, err)) {
-            g_free(buf);
-            return FALSE;
-        }
-
-        wdh->bytes_dumped += length;
-        g_free(buf);
-    }
-
+    g_free(log);
     return TRUE;
 }
 
