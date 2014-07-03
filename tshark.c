@@ -4305,7 +4305,6 @@ open_failure_message(const char *filename, int err, gboolean for_writing)
   fprintf(stderr, "\n");
 }
 
-
 /*
  * General errors are reported with an console message in TShark.
  */
