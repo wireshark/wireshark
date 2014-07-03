@@ -55,6 +55,10 @@
 #include <zlib.h>	/* to get the libz version number */
 #endif
 
+#ifdef HAVE_LIBCAP
+# include <sys/capability.h>
+#endif
+
 #ifndef HAVE_GETOPT
 #include "wsutil/wsgetopt.h"
 #endif

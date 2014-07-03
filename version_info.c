@@ -39,10 +39,6 @@
 #include <wsutil/cpu_info.h>
 #include <wsutil/mem_info.h>
 
-#ifdef HAVE_LIBCAP
-# include <sys/capability.h>
-#endif
-
 /*
  * If the string doesn't end with a newline, append one.
  * Then word-wrap it to 80 columns.

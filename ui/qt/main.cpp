@@ -113,6 +113,10 @@
 #  include <capchild/capture_sync.h>
 #endif
 
+#ifdef HAVE_LIBCAP
+# include <sys/capability.h>
+#endif
+
 #ifdef _WIN32
 #  include "capture-wpcap.h"
 #  include "capture_wpcap_packet.h"

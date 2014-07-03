@@ -49,6 +49,10 @@
 #include <zlib.h>	/* to get the libz version number */
 #endif
 
+#ifdef HAVE_LIBCAP
+# include <sys/capability.h>
+#endif
+
 #ifdef _WIN32 /* Needed for console I/O */
 
 #include <fcntl.h>
