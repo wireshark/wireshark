@@ -196,7 +196,7 @@ print_usage(gboolean print_ver)
     if (print_ver) {
         output = stdout;
         fprintf(output,
-                "Rawshark %s\n"
+                "Rawshark (Wireshark) %s\n"
                 "Dump and analyze network traffic.\n"
                 "See http://www.wireshark.org for more information.\n"
                 "\n"
@@ -434,7 +434,7 @@ set_link_type(const char *lt_arg) {
 static void
 show_version(GString *comp_info_str, GString *runtime_info_str)
 {
-    printf("Rawshark %s\n"
+    printf("Rawshark (Wireshark) %s\n"
            "\n"
            "%s"
            "\n"
@@ -489,7 +489,7 @@ main(int argc, char *argv[])
     get_runtime_version_info(runtime_info_str, NULL);
 
     /* Add it to the information to be reported on a crash. */
-    ws_add_crash_info("Rawshark %s\n"
+    ws_add_crash_info("Rawshark (Wireshark) %s\n"
            "\n"
            "%s"
            "\n"

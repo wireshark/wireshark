@@ -290,7 +290,7 @@ print_usage(gboolean print_ver)
   if (print_ver) {
     output = stdout;
     fprintf(output,
-        "TShark %s\n"
+        "TShark (Wireshark) %s\n"
         "Dump and analyze network traffic.\n"
         "See http://www.wireshark.org for more information.\n"
         "\n"
@@ -417,7 +417,7 @@ glossary_option_help(void)
 
   output = stdout;
 
-  fprintf(output, "TShark %s\n", get_ws_vcs_version_info());
+  fprintf(output, "TShark (Wireshark) %s\n", get_ws_vcs_version_info());
 
   fprintf(output, "\n");
   fprintf(output, "Usage: tshark -G [report]\n");
@@ -908,7 +908,7 @@ print_current_user(void) {
 static void
 show_version(GString *comp_info_str, GString *runtime_info_str)
 {
-  printf("TShark %s\n"
+  printf("TShark (Wireshark) %s\n"
          "\n"
          "%s"
          "\n"
@@ -1052,7 +1052,7 @@ main(int argc, char *argv[])
   get_runtime_version_info(runtime_info_str, get_tshark_runtime_info);
 
   /* Add it to the information to be reported on a crash. */
-  ws_add_crash_info("TShark %s\n"
+  ws_add_crash_info("TShark (Wireshark) %s\n"
          "\n"
          "%s"
          "\n"
@@ -3102,7 +3102,7 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
     }
     /* If we don't have an application name add Tshark */
     if (shb_hdr->shb_user_appl == NULL) {
-        g_snprintf(appname, sizeof(appname), "TShark %s", get_ws_vcs_version_info());
+        g_snprintf(appname, sizeof(appname), "TShark (Wireshark) %s", get_ws_vcs_version_info());
         shb_hdr->shb_user_appl = appname;
     }
 

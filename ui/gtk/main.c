@@ -1265,7 +1265,7 @@ print_usage(gboolean print_ver) {
 static void
 show_version(void)
 {
-    printf(PACKAGE " %s\n"
+    printf("Wireshark %s\n"
            "\n"
            "%s"
            "\n"
@@ -2265,7 +2265,7 @@ main(int argc, char *argv[])
     get_runtime_version_info(runtime_info_str, get_wireshark_runtime_info);
 
     /* Add it to the information to be reported on a crash. */
-    ws_add_crash_info(PACKAGE " %s\n"
+    ws_add_crash_info("Wireshark %s\n"
         "\n"
         "%s"
         "\n"

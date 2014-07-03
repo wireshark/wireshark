@@ -482,7 +482,7 @@ print_usage(gboolean print_ver)
     if (print_ver) {
         output = stdout;
         fprintf(output,
-                "Dumpcap %s\n"
+                "Dumpcap (Wireshark) %s\n"
                 "Capture network packets and dump them into a pcapng file.\n"
                 "See http://www.wireshark.org for more information.\n",
                 get_ws_vcs_version_info());
@@ -569,7 +569,7 @@ static void
 show_version(GString *comp_info_str, GString *runtime_info_str)
 {
     printf(
-        "Dumpcap %s\n"
+        "Dumpcap (Wireshark) %s\n"
         "\n"
         "%s\n"
         "%s\n"
@@ -2874,7 +2874,7 @@ capture_loop_init_output(capture_options *capture_opts, loop_data *ld, char *err
             os_info_str = g_string_new("");
             get_os_version_info(os_info_str);
 
-            g_snprintf(appname, sizeof(appname), "Dumpcap %s", get_ws_vcs_version_info());
+            g_snprintf(appname, sizeof(appname), "Dumpcap (Wireshark) %s", get_ws_vcs_version_info());
             successful = pcapng_write_session_header_block(ld->pdh,
                                 (const char *)capture_opts->capture_comment,   /* Comment*/
                                 NULL,                        /* HW*/
@@ -3367,7 +3367,7 @@ do_file_switch_or_stop(capture_options *capture_opts,
                 os_info_str = g_string_new("");
                 get_os_version_info(os_info_str);
 
-                g_snprintf(appname, sizeof(appname), "Dumpcap %s", get_ws_vcs_version_info());
+                g_snprintf(appname, sizeof(appname), "Dumpcap (Wireshark) %s", get_ws_vcs_version_info());
                 successful = pcapng_write_session_header_block(global_ld.pdh,
                                 NULL,                        /* Comment */
                                 NULL,                        /* HW */
@@ -4235,7 +4235,7 @@ main(int argc, char *argv[])
     get_runtime_version_info(runtime_info_str, get_dumpcap_runtime_info);
 
     /* Add it to the information to be reported on a crash. */
-    ws_add_crash_info("Dumpcap %s\n"
+    ws_add_crash_info("Dumpcap (Wireshark) %s\n"
            "\n"
            "%s"
            "\n"
