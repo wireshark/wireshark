@@ -359,7 +359,7 @@ proto_register_iser(void)
     iser_module = prefs_register_protocol(proto_iser, proto_reg_handoff_iser);
 
     prefs_register_bool_preference(iser_module, "manual_en", "Enable manual settings",
-        "Check to treat all traffic between the configured source/destination as SDP",
+        "Check to treat all traffic between the configured source/destination as iSER",
         &gPREF_MAN_EN);
 
     prefs_register_static_text_preference(iser_module, "addr_a", "Address A",
