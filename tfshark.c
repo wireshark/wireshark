@@ -193,22 +193,8 @@ string_elem_print(gpointer data, gpointer not_used _U_)
 #endif
 
 static void
-print_usage(gboolean print_ver)
+print_usage(FILE *output)
 {
-  FILE *output;
-
-  if (print_ver) {
-    output = stdout;
-    fprintf(output,
-        "TFShark (Wireshark) %s\n"
-        "Dump and analyze network traffic.\n"
-        "See http://www.wireshark.org for more information.\n"
-        "\n"
-        "%s",
-        get_ws_vcs_version_info(), get_copyright_info());
-  } else {
-    output = stderr;
-  }
   fprintf(output, "\n");
   fprintf(output, "Usage: tfshark [options] ...\n");
   fprintf(output, "\n");
@@ -1105,7 +1091,11 @@ main(int argc, char *argv[])
       break;
 
     case 'h':        /* Print help and exit */
-      print_usage(TRUE);
+      printf("TFShark (Wireshark) %s\n"
+             "Dump and analyze network traffic.\n"
+             "See http://www.wireshark.org for more information.\n",
+             get_ws_vcs_version_info());
+      print_usage(stdout);
       return 0;
       break;
     case 'l':        /* "Line-buffer" standard output */
@@ -1291,7 +1281,7 @@ main(int argc, char *argv[])
       break;
     default:
     case '?':        /* Bad flag - print usage message */
-      print_usage(TRUE);
+      print_usage(stderr);
       return 1;
       break;
     }
@@ -1329,7 +1319,7 @@ main(int argc, char *argv[])
     print_packet_info = TRUE;
 
   if (arg_error) {
-    print_usage(FALSE);
+    print_usage(stderr);
     return 1;
   }
 

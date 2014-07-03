@@ -283,22 +283,8 @@ list_read_capture_types(void) {
 }
 
 static void
-print_usage(gboolean print_ver)
+print_usage(FILE *output)
 {
-  FILE *output;
-
-  if (print_ver) {
-    output = stdout;
-    fprintf(output,
-        "TShark (Wireshark) %s\n"
-        "Dump and analyze network traffic.\n"
-        "See http://www.wireshark.org for more information.\n"
-        "\n"
-        "%s",
-        get_ws_vcs_version_info(), get_copyright_info());
-  } else {
-    output = stderr;
-  }
   fprintf(output, "\n");
   fprintf(output, "Usage: tshark [options] ...\n");
   fprintf(output, "\n");
@@ -1426,7 +1412,11 @@ main(int argc, char *argv[])
       break;
 
     case 'h':        /* Print help and exit */
-      print_usage(TRUE);
+      printf("TShark (Wireshark) %s\n"
+             "Dump and analyze network traffic.\n"
+             "See http://www.wireshark.org for more information.\n",
+             get_ws_vcs_version_info());
+      print_usage(stdout);
       return 0;
       break;
     case 'l':        /* "Line-buffer" standard output */
@@ -1649,7 +1639,7 @@ main(int argc, char *argv[])
         list_capture_types();
         break;
       default:
-        print_usage(TRUE);
+        print_usage(stderr);
       }
       return 1;
       break;
@@ -1739,7 +1729,7 @@ main(int argc, char *argv[])
     cmdarg_err("This version of TShark was not built with support for capturing packets.");
 #endif
   if (arg_error) {
-    print_usage(FALSE);
+    print_usage(stderr);
     return 1;
   }
 

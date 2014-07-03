@@ -204,21 +204,19 @@ void main_window_quit(void)
 
 // xxx copied from ../gtk/main.c
 static void
-print_usage(gboolean print_ver) {
+print_usage(gboolean for_help_option) {
     FILE *output;
 
 #ifdef _WIN32
     create_console();
 #endif
 
-    if (print_ver) {
+    if (for_help_option) {
         output = stdout;
         fprintf(output, "Wireshark %s\n"
                 "Interactively dump and analyze network traffic.\n"
-                "See http://www.wireshark.org for more information.\n"
-                "\n"
-                "%s",
-                get_ws_vcs_version_info(), get_copyright_info());
+                "See http://www.wireshark.org for more information.\n",
+                get_ws_vcs_version_info());
     } else {
         output = stderr;
     }
@@ -786,7 +784,7 @@ int main(int argc, char *argv[])
             cf_name = new QString(optarg);
             break;
         case '?':
-            print_usage(TRUE);
+            print_usage(FALSE);
             exit(0);
             break;
         }

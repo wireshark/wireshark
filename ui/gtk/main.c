@@ -1160,7 +1160,7 @@ file_quit_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
 }
 
 static void
-print_usage(gboolean print_ver) {
+print_usage(gboolean for_help_option) {
 
     FILE *output;
 
@@ -1168,14 +1168,12 @@ print_usage(gboolean print_ver) {
     create_console();
 #endif
 
-    if (print_ver) {
+    if (for_help_option) {
         output = stdout;
         fprintf(output, "Wireshark %s\n"
             "Interactively dump and analyze network traffic.\n"
-            "See http://www.wireshark.org for more information.\n"
-            "\n"
-            "%s",
-            get_ws_vcs_version_info(), get_copyright_info());
+            "See http://www.wireshark.org for more information.\n",
+            get_ws_vcs_version_info());
     } else {
         output = stderr;
     }

@@ -189,22 +189,8 @@ int encap;
 GPtrArray *string_fmts;
 
 static void
-print_usage(gboolean print_ver)
+print_usage(FILE *output)
 {
-    FILE *output;
-
-    if (print_ver) {
-        output = stdout;
-        fprintf(output,
-                "Rawshark (Wireshark) %s\n"
-                "Dump and analyze network traffic.\n"
-                "See http://www.wireshark.org for more information.\n"
-                "\n"
-                "%s",
-                get_ws_vcs_version_info(), get_copyright_info());
-    } else {
-        output = stderr;
-    }
     fprintf(output, "\n");
     fprintf(output, "Usage: rawshark [options] ...\n");
     fprintf(output, "\n");
@@ -643,7 +629,11 @@ main(int argc, char *argv[])
                 g_ptr_array_add(disp_fields, g_strdup(optarg));
                 break;
             case 'h':        /* Print help and exit */
-                print_usage(TRUE);
+                printf("Rawshark (Wireshark) %s\n"
+                       "Dump and analyze network traffic.\n"
+                       "See http://www.wireshark.org for more information.\n",
+                       get_ws_vcs_version_info());
+                print_usage(stdout);
                 exit(0);
                 break;
             case 'l':        /* "Line-buffer" standard output */
@@ -764,7 +754,7 @@ main(int argc, char *argv[])
             }
             default:
             case '?':        /* Bad flag - print usage message */
-                print_usage(TRUE);
+                print_usage(stderr);
             exit(1);
             break;
         }
@@ -807,7 +797,7 @@ main(int argc, char *argv[])
     }
 
     if (arg_error) {
-        print_usage(FALSE);
+        print_usage(stderr);
         exit(1);
     }
 

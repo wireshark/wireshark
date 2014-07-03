@@ -475,20 +475,8 @@ create_timestamp(void) {
 }
 
 static void
-print_usage(gboolean print_ver)
+print_usage(FILE *output)
 {
-    FILE *output;
-
-    if (print_ver) {
-        output = stdout;
-        fprintf(output,
-                "Dumpcap (Wireshark) %s\n"
-                "Capture network packets and dump them into a pcapng file.\n"
-                "See http://www.wireshark.org for more information.\n",
-                get_ws_vcs_version_info());
-    } else {
-        output = stderr;
-    }
     fprintf(output, "\nUsage: dumpcap [options] ...\n");
     fprintf(output, "\n");
     fprintf(output, "Capture interface:\n");
@@ -4534,7 +4522,11 @@ main(int argc, char *argv[])
     while ((opt = getopt_long(argc, argv, OPTSTRING, long_options, NULL)) != -1) {
         switch (opt) {
         case 'h':        /* Print help and exit */
-            print_usage(TRUE);
+            printf("Dumpcap (Wireshark) %s\n"
+                   "Capture network packets and dump them into a pcapng or pcap file.\n"
+                   "See http://www.wireshark.org for more information.\n",
+                   get_ws_vcs_version_info());
+            print_usage(stdout);
             exit_main(0);
             break;
         case 'v':        /* Show version and exit */
@@ -4679,7 +4671,7 @@ main(int argc, char *argv[])
         pcap_queue_packet_limit = 1000;
     }
     if (arg_error) {
-        print_usage(FALSE);
+        print_usage(stderr);
         exit_main(1);
     }
 
