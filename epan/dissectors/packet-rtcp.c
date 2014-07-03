@@ -2740,6 +2740,9 @@ dissect_rtcp_profile_specific_extensions (packet_info *pinfo, tvbuff_t *tvb, pro
     {
         extension_type   = tvb_get_ntohs (tvb, offset);
         extension_length = tvb_get_ntohs (tvb, offset+2);
+        if (extension_length < 4) {
+            extension_length = 4; /* expert info? */
+        }
 
         pse_item = proto_tree_add_text(tree, tvb, offset, extension_length, "Payload Specific Extension");
         pse_tree = proto_item_add_subtree( pse_item, ett_pse);
