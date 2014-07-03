@@ -137,7 +137,8 @@ capinfos_SOURCES = \
 
 # captype specifics
 captype_SOURCES = \
-	captype.c
+	captype.c	\
+	version_info.c
 
 # dftest specifics
 dftest_SOURCES =	\

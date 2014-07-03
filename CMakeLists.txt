@@ -1305,6 +1305,7 @@ if(BUILD_captype)
 	)
 	set(captype_FILES
 		captype.c
+		version_info.c
 		image/captype.rc
 	)
 	add_executable(captype ${captype_FILES})
