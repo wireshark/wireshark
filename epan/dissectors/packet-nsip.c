@@ -383,13 +383,12 @@ decode_ip_element(nsip_ip_element_info_t *element, build_info_t *bi, proto_tree 
   guint16 udp_port;
   guint32 ip4_addr;
   struct e_in6_addr ip6_addr;
-  proto_item *tf = NULL;
-  proto_tree *field_tree = NULL;
+  proto_item *tf;
+  proto_tree *field_tree;
 
+  field_tree = proto_tree_add_subtree(element_tree, bi->tvb, bi->offset,
+                             element->total_length, ett_nsip_ip_element, &tf, "IP Element");
   if (bi->nsip_tree) {
-    tf = proto_tree_add_text(element_tree, bi->tvb, bi->offset,
-                             element->total_length, "IP Element");
-    field_tree = proto_item_add_subtree(tf, ett_nsip_ip_element);
 
     /* IP address */
     switch (element->version) {
@@ -448,11 +447,10 @@ decode_ip_elements(nsip_ip_element_info_t *element, nsip_ie_t *ie, build_info_t 
   proto_item *tf;
   proto_tree *field_tree;
 
-  tf = proto_tree_add_text(bi->nsip_tree, bi->tvb, ie_start_offset,
-                           ie->total_length,
+  field_tree = proto_tree_add_subtree_format(bi->nsip_tree, bi->tvb, ie_start_offset,
+                           ie->total_length, ett_nsip_ip_element_list, &tf,
                            "List of IP%u Elements (%u Elements)",
                            element->version, num_elements);
-  field_tree = proto_item_add_subtree(tf, ett_nsip_ip_element_list);
 
   for (i = 0; i < num_elements; i++) {
     decode_ip_element(element, bi, field_tree);
@@ -505,17 +503,15 @@ decode_iei_num_ip6_endpoints(nsip_ie_t *ie, build_info_t *bi, int ie_start_offse
 static void
 decode_iei_reset_flag(nsip_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   guint8 flag;
-  proto_item *tf;
   proto_tree *field_tree;
 
   flag = tvb_get_guint8(bi->tvb, bi->offset);
   if (bi->nsip_tree) {
 
-     tf = proto_tree_add_text(bi->nsip_tree, bi->tvb, ie_start_offset,
-                 ie->total_length,
+     field_tree = proto_tree_add_subtree_format(bi->nsip_tree, bi->tvb, ie_start_offset,
+                 ie->total_length, ett_nsip_reset_flag, NULL,
                  "Reset Flag: %#02x", flag);
 
-     field_tree = proto_item_add_subtree(tf, ett_nsip_reset_flag);
      proto_tree_add_boolean(field_tree, hf_nsip_reset_flag, bi->tvb,
                            bi->offset, 1,
                            flag & NSIP_MASK_RESET_FLAG);
@@ -575,17 +571,15 @@ decode_iei_transaction_id(nsip_ie_t *ie, build_info_t *bi, int ie_start_offset) 
 static void
 decode_iei_end_flag(nsip_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   guint8 flag;
-  proto_item *tf;
   proto_tree *field_tree;
 
   if (bi->nsip_tree) {
       flag = tvb_get_guint8(bi->tvb, bi->offset);
 
-      tf = proto_tree_add_text(bi->nsip_tree, bi->tvb, ie_start_offset,
-                     ie->total_length,
+      field_tree = proto_tree_add_subtree_format(bi->nsip_tree, bi->tvb, ie_start_offset,
+                     ie->total_length, ett_nsip_end_flag, NULL,
                      "End Flag: %#02x", flag);
 
-      field_tree = proto_item_add_subtree(tf, ett_nsip_end_flag);
       proto_tree_add_boolean(field_tree, hf_nsip_end_flag, bi->tvb,
                            bi->offset, 1,
                            flag & NSIP_MASK_END_FLAG);
@@ -602,17 +596,15 @@ decode_iei_end_flag(nsip_ie_t *ie, build_info_t *bi, int ie_start_offset) {
 static void
 decode_iei_control_bits(nsip_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   guint8 control_bits;
-  proto_item *tf;
   proto_tree *field_tree;
 
   control_bits = tvb_get_guint8(bi->tvb, bi->offset);
 
   if (bi->nsip_tree) {
-    tf = proto_tree_add_text(bi->nsip_tree, bi->tvb, ie_start_offset,
-                             ie->total_length,
+    field_tree = proto_tree_add_subtree_format(bi->nsip_tree, bi->tvb, ie_start_offset,
+                             ie->total_length, ett_nsip_control_bits, NULL,
                              "NS SDU Control bits: %#02x", control_bits);
 
-    field_tree = proto_item_add_subtree(tf, ett_nsip_control_bits);
     proto_tree_add_boolean(field_tree, hf_nsip_control_bits_r, bi->tvb,
                            bi->offset, 1,
                            control_bits & NSIP_MASK_CONTROL_BITS_R);

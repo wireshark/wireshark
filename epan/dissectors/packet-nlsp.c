@@ -191,7 +191,6 @@ nlsp_dissect_clvs(tvbuff_t *tvb, proto_tree *tree, int offset,
 	guint8 code;
 	guint8 length;
 	int q;
-	proto_item	*ti;
 	proto_tree	*clv_tree;
 
 	while ( len > 0 ) {
@@ -218,34 +217,16 @@ nlsp_dissect_clvs(tvbuff_t *tvb, proto_tree *tree, int offset,
 			q++;
 		}
 		if ( opts[q].dissect ) {
-			if (tree) {
-				/* adjust by 2 for code/len octets */
-				ti = proto_tree_add_text(tree, tvb, offset - 2,
-					length + 2, "%s (%u)",
+			/* adjust by 2 for code/len octets */
+			clv_tree = proto_tree_add_subtree_format(tree, tvb, offset - 2,
+					length + 2, *opts[q].tree_id, NULL, "%s (%u)",
 					opts[q].tree_text, length );
-				clv_tree = proto_item_add_subtree(ti,
-					*opts[q].tree_id );
-			} else {
-				clv_tree = NULL;
-			}
 			opts[q].dissect(tvb, clv_tree, offset,
 			    length);
 		} else {
-			if (tree) {
-#if 0  /* XXX: ?? */
-				ti = proto_tree_add_text(tree, tvb, offset - 2,
+			proto_tree_add_text(tree, tvb, offset - 2,
 					length + 2, "Unknown code %u (%u)",
 					code, length);
-				clv_tree = proto_item_add_subtree(ti,
-					unknown_tree_id );
-			} else {
-				clv_tree = NULL;
-#else
-				proto_tree_add_text(tree, tvb, offset - 2,
-					length + 2, "Unknown code %u (%u)",
-					code, length);
-#endif
-			}
 		}
 		offset += length;
 		len -= length;
@@ -1104,7 +1085,7 @@ static void
 dissect_csnp_lsp_entries(tvbuff_t *tvb, proto_tree *tree, int offset,
     int length)
 {
-	proto_tree *subtree,*ti;
+	proto_tree *subtree;
 
 	while (length > 0) {
 		if (length < 16) {
@@ -1113,14 +1094,12 @@ dissect_csnp_lsp_entries(tvbuff_t *tvb, proto_tree *tree, int offset,
 			return;
 		}
 
-		ti = proto_tree_add_text(tree, tvb, offset, 16,
-		    "LSP-ID: %s, Sequence: 0x%08x, Lifetime: %5us, Checksum: 0x%04x",
+		subtree = proto_tree_add_subtree_format(tree, tvb, offset, 16,
+		    ett_nlsp_csnp_lsp_entry, NULL, "LSP-ID: %s, Sequence: 0x%08x, Lifetime: %5us, Checksum: 0x%04x",
 		    tvb_ether_to_str(tvb, offset+2), /* XXX - rest of system ID */
 		    tvb_get_ntohl(tvb, offset+10),
 		    tvb_get_ntohs(tvb, offset),
 		    tvb_get_ntohs(tvb, offset+14));
-
-		subtree = proto_item_add_subtree(ti, ett_nlsp_csnp_lsp_entry);
 
 		proto_tree_add_text(subtree, tvb, offset+2, 6,
 		    "LSP ID source ID: %s",
@@ -1153,7 +1132,7 @@ static void
 dissect_psnp_lsp_entries(tvbuff_t *tvb, proto_tree *tree, int offset,
     int length)
 {
-	proto_tree *subtree,*ti;
+	proto_tree *subtree;
 
 	while (length > 0) {
 		if (length < 16) {
@@ -1162,14 +1141,12 @@ dissect_psnp_lsp_entries(tvbuff_t *tvb, proto_tree *tree, int offset,
 			return;
 		}
 
-		ti = proto_tree_add_text(tree, tvb, offset, 16,
-		    "LSP-ID: %s, Sequence: 0x%08x, Lifetime: %5us, Checksum: 0x%04x",
+		subtree = proto_tree_add_subtree_format(tree, tvb, offset, 16,
+		    ett_nlsp_psnp_lsp_entry, NULL, "LSP-ID: %s, Sequence: 0x%08x, Lifetime: %5us, Checksum: 0x%04x",
 		    tvb_ether_to_str(tvb, offset+2), /* XXX - rest of system ID */
 		    tvb_get_ntohl(tvb, offset+10),
 		    tvb_get_ntohs(tvb, offset),
 		    tvb_get_ntohs(tvb, offset+14));
-
-		subtree = proto_item_add_subtree(ti, ett_nlsp_psnp_lsp_entry);
 
 		proto_tree_add_text(subtree, tvb, offset+2, 6,
 		    "LSP ID source ID: %s",

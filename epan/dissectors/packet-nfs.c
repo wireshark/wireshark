@@ -1527,15 +1527,12 @@ dissect_fhandle_data_LINUX_KNFSD_LE(tvbuff_t* tvb, packet_info *pinfo _U_, proto
 
 		/* file system id (device) */
 		{
-			proto_item *fsid_item;
 			proto_tree *fsid_tree;
 
-			fsid_item = proto_tree_add_text(tree, tvb,
-							offset+12, 4,
+			fsid_tree = proto_tree_add_subtree_format(tree, tvb,
+							offset+12, 4, ett_nfs_fh_fsid, NULL,
 							"file system ID: %d,%d",
 							fsid_major, fsid_minor);
-			fsid_tree = proto_item_add_subtree(fsid_item,
-							   ett_nfs_fh_fsid);
 			proto_tree_add_uint(fsid_tree, hf_nfs_fh_fsid_major,
 					    tvb, offset+13, 1, fsid_major);
 			proto_tree_add_uint(fsid_tree, hf_nfs_fh_fsid_minor,
@@ -1544,14 +1541,11 @@ dissect_fhandle_data_LINUX_KNFSD_LE(tvbuff_t* tvb, packet_info *pinfo _U_, proto
 
 		/* exported file system id (device) */
 		{
-			proto_item *xfsid_item;
 			proto_tree *xfsid_tree;
 
-			xfsid_item = proto_tree_add_text(tree, tvb,
-							 offset+16, 4,
+			xfsid_tree = proto_tree_add_subtree_format(tree, tvb,
+							 offset+16, 4, ett_nfs_fh_xfsid, NULL,
 							 "exported file system ID: %d,%d", xfsid_major, xfsid_minor);
-			xfsid_tree = proto_item_add_subtree(xfsid_item,
-							    ett_nfs_fh_xfsid);
 			proto_tree_add_uint(xfsid_tree, hf_nfs_fh_xfsid_major,
 					    tvb, offset+17, 1, xfsid_major);
 			proto_tree_add_uint(xfsid_tree, hf_nfs_fh_xfsid_minor,
@@ -1627,7 +1621,6 @@ dissect_fhandle_data_NETAPP(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree *t
 		guint32 nfsexport      = tvb_get_letohl(tvb, offset + 24);
 		guint32 export_snapgen = tvb_get_letohl(tvb, offset + 28);
 
-		proto_item *item = NULL;
 		proto_tree *subtree = NULL;
 		char *flag_string;
 		static const char *strings[] = { " MNT_PNT", " SNAPDIR", " SNAPDIR_ENT",
@@ -1642,16 +1635,14 @@ dissect_fhandle_data_NETAPP(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree *t
 				g_strlcat(flag_string, strings[bit], 512);
 			}
 		}
-		item = proto_tree_add_text(tree, tvb, offset + 0, 8,
-					   "mount (inode %u)", mount);
-		subtree = proto_item_add_subtree(item, ett_nfs_fh_mount);
+		subtree = proto_tree_add_subtree_format(tree, tvb, offset + 0, 8,
+					   ett_nfs_fh_mount, NULL, "mount (inode %u)", mount);
 		proto_tree_add_uint(subtree, hf_nfs_fh_mount_fileid,
 					   tvb, offset + 0, 4, mount);
 		proto_tree_add_uint(subtree, hf_nfs_fh_mount_generation,
 					   tvb, offset + 4, 4, mount_gen);
-		item = proto_tree_add_text(tree, tvb, offset + 8, 16,
-					   "file (inode %u)", inum);
-		subtree = proto_item_add_subtree(item, ett_nfs_fh_file);
+		subtree = proto_tree_add_subtree_format(tree, tvb, offset + 8, 16,
+					   ett_nfs_fh_file, NULL, "file (inode %u)", inum);
 		proto_tree_add_uint_format(subtree, hf_nfs_fh_flags,
 						  tvb, offset + 8, 2, flags,
 						  "Flags: %#02x%s", flags,
@@ -1666,9 +1657,8 @@ dissect_fhandle_data_NETAPP(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree *t
 					   offset + 16, 4, generation);
 		proto_tree_add_uint(subtree, hf_nfs_fh_fsid, tvb,
 					   offset + 20, 4, fsid);
-		item = proto_tree_add_text(tree, tvb, offset + 24, 8,
-					   "export (inode %u)", nfsexport);
-		subtree = proto_item_add_subtree(item, ett_nfs_fh_export);
+		subtree = proto_tree_add_subtree_format(tree, tvb, offset + 24, 8,
+					   ett_nfs_fh_export, NULL, "export (inode %u)", nfsexport);
 		proto_tree_add_uint(subtree, hf_nfs_fh_export_fileid,
 					   tvb, offset + 24, 4, nfsexport);
 		proto_tree_add_uint(subtree,
@@ -1769,15 +1759,13 @@ dissect_fhandle_data_NETAPP_V4(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree
 				g_strlcat(flag_string, strings[bit], 512);
 			}
 		}
-		item = proto_tree_add_text(tree, tvb, offset + 0, 8, "export (inode %u)", fileid);
-		subtree = proto_item_add_subtree(item, ett_nfs4_fh_export);
+		subtree = proto_tree_add_subtree_format(tree, tvb, offset + 0, 8, ett_nfs4_fh_export, NULL, "export (inode %u)", fileid);
 
 		proto_tree_add_uint(subtree, hf_nfs_fh_export_fileid,
 				    tvb, offset + 0, 4, fileid);
 		proto_tree_add_uint(subtree, hf_nfs_fh_export_generation,
 				    tvb, offset + 4, 4, snapgen);
-		item = proto_tree_add_text(tree, tvb, offset + 8, 16, "file (inode %u)", inum);
-		subtree = proto_item_add_subtree(item, ett_nfs4_fh_file);
+		subtree = proto_tree_add_subtree_format(tree, tvb, offset + 8, 16, ett_nfs4_fh_file, NULL, "file (inode %u)", inum);
 		item = proto_tree_add_uint_format_value(subtree, hf_nfs_fh_flags,
 							tvb, offset + 8, 2, flags, "%#02x%s", flags, flag_string);
 		flag_tree = proto_item_add_subtree(item, ett_nfs4_fh_file_flags);
@@ -1879,9 +1867,8 @@ dissect_fhandle_data_NETAPP_GX_v3(tvbuff_t* tvb, packet_info *pinfo _U_, proto_t
 		spinfile_id  = tvb_get_letohl(tvb, offset+12);
 		spinfile_uid = tvb_get_letohl(tvb, offset+16);
 
-		tf = proto_tree_add_text(tree, tvb, offset+4, 16,
-					 "  spin file handle");
-		field_tree = proto_item_add_subtree(tf, ett_nfs3_gxfh_sfhfield);
+		field_tree = proto_tree_add_subtree(tree, tvb, offset+4, 16,
+					 ett_nfs3_gxfh_sfhfield, NULL, "  spin file handle");
 
 		proto_tree_add_item(field_tree, hf_nfs3_gxfh_ldsid, tvb, offset+4, 4, ENC_BIG_ENDIAN);
 		proto_tree_add_item(field_tree, hf_nfs3_gxfh_cid, tvb, offset+8, 2, ENC_BIG_ENDIAN);
@@ -1924,9 +1911,8 @@ dissect_fhandle_data_NETAPP_GX_v3(tvbuff_t* tvb, packet_info *pinfo _U_, proto_t
 		spinfile_id  = tvb_get_letohl(tvb, offset+28);
 		spinfile_uid = tvb_get_letohl(tvb, offset+32);
 
-		tf = proto_tree_add_text(tree, tvb, offset+20, 16,
-					 "  spin (mount point) file handle");
-		field_tree = proto_item_add_subtree(tf, ett_nfs3_gxfh_sfhfield);
+		field_tree = proto_tree_add_subtree(tree, tvb, offset+20, 16,
+					 ett_nfs3_gxfh_sfhfield, NULL, "  spin (mount point) file handle");
 
 		proto_tree_add_item(field_tree, hf_nfs3_gxfh_ldsid, tvb, offset+20, 4, ENC_BIG_ENDIAN);
 		proto_tree_add_item(field_tree, hf_nfs3_gxfh_cid, tvb, offset+24, 2, ENC_BIG_ENDIAN);
@@ -2018,29 +2004,25 @@ dissect_fhandle_data_LINUX_KNFSD_NEW(tvbuff_t* tvb, packet_info *pinfo _U_, prot
 	}
 
 	switch (version) {
-		case 1: {
+		case 1:
 			auth_type   = tvb_get_guint8(tvb, offset + 1);
 			fsid_type   = tvb_get_guint8(tvb, offset + 2);
 			fileid_type = tvb_get_guint8(tvb, offset + 3);
 			if (tree) {
-				proto_item *encoding_item = proto_tree_add_text(tree, tvb,
+				proto_tree *encoding_tree = proto_tree_add_subtree_format(tree, tvb,
 					offset + 1, 3,
-					"encoding: %u %u %u",
+					ett_nfs_fh_encoding, NULL, "encoding: %u %u %u",
 					auth_type, fsid_type, fileid_type);
-				{
-					proto_tree *encoding_tree = proto_item_add_subtree(encoding_item,
-						ett_nfs_fh_encoding);
 
-					proto_tree_add_uint(encoding_tree, hf_nfs_fh_auth_type,
+				proto_tree_add_uint(encoding_tree, hf_nfs_fh_auth_type,
 							tvb, offset+1, 1, auth_type);
-					proto_tree_add_uint(encoding_tree, hf_nfs_fh_fsid_type,
+				proto_tree_add_uint(encoding_tree, hf_nfs_fh_fsid_type,
 							tvb, offset+2, 1, fsid_type);
-					proto_tree_add_uint(encoding_tree, hf_nfs_fh_fileid_type,
+				proto_tree_add_uint(encoding_tree, hf_nfs_fh_fileid_type,
 							tvb, offset+3, 1, fileid_type);
-				}
 			}
 			offset += 4;
-		} break;
+			break;
 		default: {
 			/* unknown version */
 			goto out;
@@ -2072,21 +2054,17 @@ dissect_fhandle_data_LINUX_KNFSD_NEW(tvbuff_t* tvb, packet_info *pinfo _U_, prot
 			fsid_minor = tvb_get_ntohs(tvb, offset + 2);
 			fsid_inode = tvb_get_letohl(tvb, offset + 4);
 			if (tree) {
-				proto_item *fsid_item = proto_tree_add_text(tree, tvb,
-					offset+0, 8,
+				proto_tree *fsid_tree = proto_tree_add_subtree_format(tree, tvb,
+					offset+0, 8, ett_nfs_fh_fsid, NULL,
 					"file system ID: %u,%u (inode %u)",
 					fsid_major, fsid_minor, fsid_inode);
-				{
-					proto_tree *fsid_tree = proto_item_add_subtree(fsid_item,
-						ett_nfs_fh_fsid);
 
-					proto_tree_add_uint(fsid_tree, hf_nfs_fh_fsid_major,
+				proto_tree_add_uint(fsid_tree, hf_nfs_fh_fsid_major,
 							tvb, offset+0, 2, fsid_major);
-					proto_tree_add_uint(fsid_tree, hf_nfs_fh_fsid_minor,
+				proto_tree_add_uint(fsid_tree, hf_nfs_fh_fsid_minor,
 							tvb, offset+2, 2, fsid_minor);
-					proto_tree_add_uint(fsid_tree, hf_nfs_fh_fsid_inode,
+				proto_tree_add_uint(fsid_tree, hf_nfs_fh_fsid_inode,
 							tvb, offset+4, 4, fsid_inode);
-				}
 			}
 			offset += 8;
 		} break;
@@ -2112,19 +2090,15 @@ dissect_fhandle_data_LINUX_KNFSD_NEW(tvbuff_t* tvb, packet_info *pinfo _U_, prot
 			generation = tvb_get_letohl(tvb, offset + 4);
 
 			if (tree) {
-				proto_item *fileid_item = proto_tree_add_text(tree, tvb,
-					offset+0, 8,
+				proto_tree *fileid_tree = proto_tree_add_subtree_format(tree, tvb,
+					offset+0, 8, ett_nfs_fh_fn, NULL,
 					"file ID: %u (%u)",
 					inode, generation);
-				{
-					proto_tree *fileid_tree = proto_item_add_subtree(
-						fileid_item, ett_nfs_fh_fn);
 
-					proto_tree_add_uint(fileid_tree, hf_nfs_fh_fn_inode,
+				proto_tree_add_uint(fileid_tree, hf_nfs_fh_fn_inode,
 						tvb, offset+0, 4, inode);
-					proto_tree_add_uint(fileid_tree, hf_nfs_fh_fn_generation,
+				proto_tree_add_uint(fileid_tree, hf_nfs_fh_fn_generation,
 						tvb, offset+4, 4, generation);
-				}
 			}
 
 			/*offset += 8;*/
@@ -2139,21 +2113,17 @@ dissect_fhandle_data_LINUX_KNFSD_NEW(tvbuff_t* tvb, packet_info *pinfo _U_, prot
 			parent_inode = tvb_get_letohl(tvb, offset + 8);
 
 			if (tree) {
-				 proto_item *fileid_item = proto_tree_add_text(tree, tvb,
-					offset+0, 8,
+				 proto_tree *fileid_tree = proto_tree_add_subtree_format(tree, tvb,
+					offset+0, 8, ett_nfs_fh_fn, NULL,
 					"file ID: %u (%u)",
 					inode, generation);
-				 {
-					proto_tree *fileid_tree = proto_item_add_subtree(
-						fileid_item, ett_nfs_fh_fn);
 
-					proto_tree_add_uint(fileid_tree, hf_nfs_fh_fn_inode,
+				proto_tree_add_uint(fileid_tree, hf_nfs_fh_fn_inode,
 						tvb, offset+0, 4, inode);
-					proto_tree_add_uint(fileid_tree, hf_nfs_fh_fn_generation,
+				proto_tree_add_uint(fileid_tree, hf_nfs_fh_fn_generation,
 						tvb, offset+4, 4, generation);
-					proto_tree_add_uint(fileid_tree, hf_nfs_fh_dirinode,
+				proto_tree_add_uint(fileid_tree, hf_nfs_fh_dirinode,
 						tvb, offset+8, 4, parent_inode);
-				}
 			}
 
 			/*offset += 12;*/
@@ -2230,8 +2200,8 @@ dissect_fhandle_data_CELERRA_VNX(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tr
 	if (fhlen == 32) {
 		/* Create a "File/Dir" subtree: bytes 0 thru 15 of the 32-byte file handle 	 */
 		{
-		proto_item *obj_item = NULL;
-		proto_tree *obj_tree = NULL;
+		proto_item *obj_item;
+		proto_tree *obj_tree;
 		obj_item = proto_tree_add_item(tree, hf_nfs_fh_obj, tvb, offset+0, 16, ENC_NA );
 		obj_tree = proto_item_add_subtree(obj_item, ett_nfs_fh_obj);
 
@@ -2248,8 +2218,8 @@ dissect_fhandle_data_CELERRA_VNX(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tr
 		}
 		{
 		/* Create "Export" subtree (NFSv3: Bytes 16 thru 31 of the 32-byte file handle  */
-		proto_item *ex_item = NULL;
-		proto_tree *ex_tree = NULL;
+		proto_item *ex_item;
+		proto_tree *ex_tree;
 		ex_item = proto_tree_add_item(tree, hf_nfs_fh_ex, tvb,  offset+16, 16, ENC_NA );
 		ex_tree = proto_item_add_subtree(ex_item, ett_nfs_fh_ex);
 
@@ -2284,8 +2254,8 @@ dissect_fhandle_data_CELERRA_VNX(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tr
 
 		/* Create "Export" subtree (bytes 8 thru 23 of the 40-byte file handle  */
 		{
-		proto_item *ex_item = NULL;
-		proto_tree *ex_tree = NULL;
+		proto_item *ex_item;
+		proto_tree *ex_tree;
 		ex_item = proto_tree_add_item(tree, hf_nfs_fh_ex,  tvb,  offset+8, 16, ENC_NA );
 		ex_tree = proto_item_add_subtree(ex_item, ett_nfs_fh_ex);
 
@@ -2302,8 +2272,8 @@ dissect_fhandle_data_CELERRA_VNX(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tr
 		}
 		/* Create a "File/Dir/Object" subtree (bytes 24 thru 39 of the 40-byte file handle) */
 		{
-		proto_item *obj_item = NULL;
-		proto_tree *obj_tree = NULL;
+		proto_item *obj_item;
+		proto_tree *obj_tree;
 		obj_item = proto_tree_add_item(tree, hf_nfs_fh_obj, tvb, offset+24, 16, ENC_NA);
 		obj_tree = proto_item_add_subtree(obj_item, ett_nfs_fh_obj);
 
@@ -2683,15 +2653,11 @@ int
 dissect_fhandle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 	        const char *name, guint32 *hash, rpc_call_info_value *civ)
 {
-	proto_item *fitem = NULL;
-	proto_tree *ftree = NULL;
+	proto_tree *ftree;
 
-	if (tree) {
-		fitem = proto_tree_add_text(tree, tvb, offset, FHSIZE,
-			"%s", name);
+	ftree = proto_tree_add_subtree(tree, tvb, offset, FHSIZE,
+				ett_nfs_fhandle, NULL, name);
 
-		ftree = proto_item_add_subtree(fitem, ett_nfs_fhandle);
-	}
 
 	/* are we snooping fh to filenames ?*/
 	if ((!pinfo->fd->flags.visited) && nfs_file_name_snooping) {
@@ -2848,15 +2814,12 @@ dissect_nfs2_mode(tvbuff_t *tvb, int offset, proto_tree *tree, const char *label
 int
 dissect_nfs2_fattr(tvbuff_t *tvb, int offset, proto_tree *tree, const char *name)
 {
-	proto_item *fattr_item = NULL;
-	proto_tree *fattr_tree = NULL;
+	proto_item *fattr_item;
+	proto_tree *fattr_tree;
 	int	    old_offset = offset;
 
-	if (tree) {
-		fattr_item = proto_tree_add_text(tree, tvb, offset, -1,
-			"%s", name);
-		fattr_tree = proto_item_add_subtree(fattr_item, ett_nfs_fattr);
-	}
+	fattr_tree = proto_tree_add_subtree(tree, tvb, offset, -1,
+			ett_nfs_fattr, &fattr_item, name);
 
 	offset = dissect_nfs2_ftype(tvb, offset, fattr_tree, "type");
 	offset = dissect_nfs2_mode(tvb, offset, fattr_tree, "mode");
@@ -2878,9 +2841,7 @@ dissect_nfs2_fattr(tvbuff_t *tvb, int offset, proto_tree *tree, const char *name
 		hf_nfs_ctime, hf_nfs_ctime_sec, hf_nfs_ctime_usec);
 
 	/* now we know, that fattr is shorter */
-	if (fattr_item) {
-		proto_item_set_len(fattr_item, offset - old_offset);
-	}
+	proto_item_set_len(fattr_item, offset - old_offset);
 
 	return offset;
 }
@@ -2890,15 +2851,12 @@ dissect_nfs2_fattr(tvbuff_t *tvb, int offset, proto_tree *tree, const char *name
 static int
 dissect_nfs2_sattr(tvbuff_t *tvb, int offset, proto_tree *tree, const char *name)
 {
-	proto_item *sattr_item = NULL;
-	proto_tree *sattr_tree = NULL;
+	proto_item *sattr_item;
+	proto_tree *sattr_tree;
 	int	    old_offset = offset;
 
-	if (tree) {
-		sattr_item = proto_tree_add_text(tree, tvb, offset, -1,
-			"%s", name);
-		sattr_tree = proto_item_add_subtree(sattr_item, ett_nfs2_sattr);
-	}
+	sattr_tree = proto_tree_add_subtree(tree, tvb, offset, -1,
+					ett_nfs2_sattr, &sattr_item, name);
 
 	if (tvb_get_ntohl(tvb, offset+0) != 0xffffffff)
 		offset = dissect_nfs2_mode(tvb, offset, sattr_tree, "mode");
@@ -3033,15 +2991,12 @@ static int
 dissect_diropargs(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 				  const char *label, guint32 *hash, const char **name, rpc_call_info_value *civ)
 {
-	proto_item *diropargs_item = NULL;
-	proto_tree *diropargs_tree = NULL;
+	proto_item *diropargs_item;
+	proto_tree *diropargs_tree;
 	int	    old_offset	   = offset;
 
-	if (tree) {
-		diropargs_item = proto_tree_add_text(tree, tvb, offset, -1,
-			"%s", label);
-		diropargs_tree = proto_item_add_subtree(diropargs_item, ett_nfs2_diropargs);
-	}
+	diropargs_tree = proto_tree_add_subtree(tree, tvb, offset, -1,
+			ett_nfs2_diropargs, &diropargs_item, label);
 
 	/* are we snooping fh to filenames ?*/
 	if ((!pinfo->fd->flags.visited) && nfs_file_name_snooping) {
@@ -3062,9 +3017,7 @@ dissect_diropargs(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tre
 	offset = dissect_filename(tvb, offset, diropargs_tree, hf_nfs_name, name);
 
 	/* now we know, that diropargs is shorter */
-	if (diropargs_item) {
-		proto_item_set_len(diropargs_item, offset - old_offset);
-	}
+	proto_item_set_len(diropargs_item, offset - old_offset);
 
 	return offset;
 }
@@ -3826,14 +3779,10 @@ dissect_nfs3_specdata(tvbuff_t *tvb, int offset, proto_tree *tree, const char *n
 	specdata2 = tvb_get_ntohl(tvb, offset+4);
 
 	if (tree) {
-		proto_item *specdata3_item;
 		proto_tree *specdata3_tree;
 
-		specdata3_item = proto_tree_add_text(tree, tvb, offset, 8,
-			"%s: %u,%u", name, specdata1, specdata2);
-
-		specdata3_tree = proto_item_add_subtree(specdata3_item,
-					ett_nfs3_specdata);
+		specdata3_tree = proto_tree_add_subtree_format(tree, tvb, offset, 8,
+			ett_nfs3_specdata, NULL, "%s: %u,%u", name, specdata1, specdata2);
 
 		proto_tree_add_text(specdata3_tree, tvb, offset+0, 4,
 				    "specdata1: %u", specdata1);
@@ -3854,20 +3803,15 @@ dissect_nfs3_fh(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 	guint	    fh3_len;
 	guint	    fh3_len_full;
 	/*guint       fh3_fill;*/
-	proto_item *fitem = NULL;
-	proto_tree *ftree = NULL;
+	proto_tree *ftree;
 	int	    fh_offset, fh_length;
 
 	fh3_len = tvb_get_ntohl(tvb, offset+0);
 	fh3_len_full = rpc_roundup(fh3_len);
 	/*fh3_fill = fh3_len_full - fh3_len;*/
 
-	if (tree) {
-		fitem = proto_tree_add_text(tree, tvb, offset, 4+fh3_len_full,
-			"%s", name);
-
-		ftree = proto_item_add_subtree(fitem, ett_nfs3_fh);
-	}
+	ftree = proto_tree_add_subtree(tree, tvb, offset, 4+fh3_len_full,
+			ett_nfs3_fh, NULL, name);
 
 	/* are we snooping fh to filenames ?*/
 	if ((!pinfo->fd->flags.visited) && nfs_file_name_snooping) {
@@ -3968,11 +3912,8 @@ dissect_nfs_fattr3(packet_info *pinfo, tvbuff_t *tvb, int offset,
 	int	    old_offset	= offset;
 	guint32	    type, mode, uid, gid;
 
-	if (tree) {
-		fattr3_item = proto_tree_add_text(tree, tvb, offset, -1,
-			"%s", name);
-		fattr3_tree = proto_item_add_subtree(fattr3_item, ett_nfs3_fattr);
-	}
+	fattr3_tree = proto_tree_add_subtree(tree, tvb, offset, -1,
+			ett_nfs3_fattr, &fattr3_item, name);
 
 	/* ftype */
 	offset = dissect_ftype3(tvb, offset, fattr3_tree, hf_nfs3_fattr_type, &type);
@@ -4023,10 +3964,7 @@ dissect_nfs_fattr3(packet_info *pinfo, tvbuff_t *tvb, int offset,
 	offset = dissect_nfstime3 (tvb, offset, fattr3_tree, hf_nfs_ctime, hf_nfs_ctime_sec, hf_nfs_ctime_nsec);
 
 	/* now we know, that fattr3 is shorter */
-	if (fattr3_item) {
-		proto_item_set_len(fattr3_item, offset - old_offset);
-	}
-
+	proto_item_set_len(fattr3_item, offset - old_offset);
 
 	/* put some nice info in COL_INFO for GETATTR replies */
 	if (levels & COL_INFO_LEVEL) {
@@ -4061,23 +3999,20 @@ int
 dissect_nfs3_post_op_attr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 			 const char *name)
 {
-	proto_item *post_op_attr_item = NULL;
-	proto_tree *post_op_attr_tree = NULL;
+	proto_item *post_op_attr_item;
+	proto_tree *post_op_attr_tree;
 	int	    old_offset	      = offset;
 	guint32	    attributes_follow = 0;
 
 	attributes_follow = tvb_get_ntohl(tvb, offset+0);
 
-	if (tree) {
-		post_op_attr_item = proto_tree_add_text(tree, tvb, offset, -1,
-			"%s", name);
-		post_op_attr_tree = proto_item_add_subtree(post_op_attr_item,
-			ett_nfs3_post_op_attr);
+	post_op_attr_tree = proto_tree_add_subtree(tree, tvb, offset, -1,
+			ett_nfs3_post_op_attr, &post_op_attr_item, name);
 
-		proto_tree_add_text(post_op_attr_tree, tvb, offset, 4,
+	proto_tree_add_text(post_op_attr_tree, tvb, offset, 4,
 			"attributes_follow: %s (%u)",
 		val_to_str_const(attributes_follow, value_follows, "Unknown"), attributes_follow);
-	}
+
 	offset += 4;
 	switch (attributes_follow) {
 		case TRUE:
@@ -4091,9 +4026,7 @@ dissect_nfs3_post_op_attr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 	}
 
 	/* now we know, that post_op_attr_tree is shorter */
-	if (tree && post_op_attr_item) {
-		proto_item_set_len(post_op_attr_item, offset - old_offset);
-	}
+	proto_item_set_len(post_op_attr_item, offset - old_offset);
 
 	return offset;
 }
@@ -4103,16 +4036,12 @@ dissect_nfs3_post_op_attr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 static int
 dissect_wcc_attr(tvbuff_t *tvb, int offset, proto_tree *tree, const char *name)
 {
-	proto_item *wcc_attr_item = NULL;
-	proto_tree *wcc_attr_tree = NULL;
+	proto_item *wcc_attr_item;
+	proto_tree *wcc_attr_tree;
 	int	    old_offset	  = offset;
 
-	if (tree) {
-		wcc_attr_item = proto_tree_add_text(tree, tvb, offset, -1,
-			"%s", name);
-		wcc_attr_tree = proto_item_add_subtree(wcc_attr_item,
-			ett_nfs3_wcc_attr);
-	}
+	wcc_attr_tree = proto_tree_add_subtree(tree, tvb, offset, -1,
+			ett_nfs3_wcc_attr, &wcc_attr_item, name);
 
 	offset = dissect_rpc_uint64(tvb, wcc_attr_tree, hf_nfs3_wcc_attr_size,
 		offset);
@@ -4121,9 +4050,7 @@ dissect_wcc_attr(tvbuff_t *tvb, int offset, proto_tree *tree, const char *name)
 	offset = dissect_nfstime3(tvb, offset, wcc_attr_tree, hf_nfs_ctime,
 		hf_nfs_ctime_sec, hf_nfs_ctime_nsec);
 	/* now we know, that wcc_attr_tree is shorter */
-	if (wcc_attr_item) {
-		proto_item_set_len(wcc_attr_item, offset - old_offset);
-	}
+	proto_item_set_len(wcc_attr_item, offset - old_offset);
 
 	return offset;
 }
@@ -4133,17 +4060,13 @@ dissect_wcc_attr(tvbuff_t *tvb, int offset, proto_tree *tree, const char *name)
 static int
 dissect_pre_op_attr(tvbuff_t *tvb, int offset, proto_tree *tree, const char *name)
 {
-	proto_item *pre_op_attr_item = NULL;
-	proto_tree *pre_op_attr_tree = NULL;
+	proto_item *pre_op_attr_item;
+	proto_tree *pre_op_attr_tree;
 	int	    old_offset	     = offset;
 	guint32	    attributes_follow;
 
-	if (tree) {
-		pre_op_attr_item = proto_tree_add_text(tree, tvb, offset, -1,
-			"%s", name);
-		pre_op_attr_tree = proto_item_add_subtree(pre_op_attr_item,
-			ett_nfs3_pre_op_attr);
-	}
+	pre_op_attr_tree = proto_tree_add_subtree(tree, tvb, offset, -1,
+			ett_nfs3_pre_op_attr, &pre_op_attr_item, name);
 
 	attributes_follow = tvb_get_ntohl(tvb, offset+0);
 	proto_tree_add_text(pre_op_attr_tree, tvb, offset, 4,
@@ -4161,9 +4084,7 @@ dissect_pre_op_attr(tvbuff_t *tvb, int offset, proto_tree *tree, const char *nam
 	}
 
 	/* now we know, that pre_op_attr_tree is shorter */
-	if (pre_op_attr_item) {
-		proto_item_set_len(pre_op_attr_item, offset - old_offset);
-	}
+	proto_item_set_len(pre_op_attr_item, offset - old_offset);
 
 	return offset;
 }
@@ -4173,24 +4094,18 @@ dissect_pre_op_attr(tvbuff_t *tvb, int offset, proto_tree *tree, const char *nam
 static int
 dissect_wcc_data(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, const char *name)
 {
-	proto_item *wcc_data_item = NULL;
-	proto_tree *wcc_data_tree = NULL;
+	proto_item *wcc_data_item;
+	proto_tree *wcc_data_tree;
 	int	    old_offset	  = offset;
 
-	if (tree) {
-		wcc_data_item = proto_tree_add_text(tree, tvb, offset, -1,
-			"%s", name);
-		wcc_data_tree = proto_item_add_subtree(wcc_data_item,
-			ett_nfs3_wcc_data);
-	}
+	wcc_data_tree = proto_tree_add_subtree(tree, tvb, offset, -1,
+			ett_nfs3_wcc_data, &wcc_data_item, name);
 
 	offset = dissect_pre_op_attr (tvb, offset, wcc_data_tree, "before");
 	offset = dissect_nfs3_post_op_attr(tvb, offset, pinfo, wcc_data_tree, "after" );
 
 	/* now we know, that wcc_data is shorter */
-	if (wcc_data_item) {
-		proto_item_set_len(wcc_data_item, offset - old_offset);
-	}
+	proto_item_set_len(wcc_data_item, offset - old_offset);
 
 	return offset;
 }
@@ -4201,17 +4116,13 @@ static int
 dissect_nfs3_post_op_fh(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		    proto_tree *tree, const char *name, rpc_call_info_value *civ)
 {
-	proto_item *post_op_fh3_item = NULL;
-	proto_tree *post_op_fh3_tree = NULL;
+	proto_item *post_op_fh3_item;
+	proto_tree *post_op_fh3_tree;
 	int	    old_offset	     = offset;
 	guint32	    handle_follows;
 
-	if (tree) {
-		post_op_fh3_item = proto_tree_add_text(tree, tvb, offset, -1,
-			"%s", name);
-		post_op_fh3_tree = proto_item_add_subtree(post_op_fh3_item,
-			ett_nfs3_post_op_fh);
-	}
+	post_op_fh3_tree = proto_tree_add_subtree(tree, tvb, offset, -1,
+			ett_nfs3_post_op_fh, &post_op_fh3_item, name);
 
 	handle_follows = tvb_get_ntohl(tvb, offset+0);
 	proto_tree_add_text(post_op_fh3_tree, tvb, offset, 4,
@@ -4241,25 +4152,21 @@ dissect_nfs3_post_op_fh(tvbuff_t *tvb, int offset, packet_info *pinfo,
 static int
 dissect_set_mode3(tvbuff_t *tvb, int offset, proto_tree *tree, const char *name)
 {
-	proto_item *set_mode3_item = NULL;
-	proto_tree *set_mode3_tree = NULL;
+	proto_item *set_mode3_item;
+	proto_tree *set_mode3_tree;
 	int	    old_offset	   = offset;
 	guint32	    set_it;
 	const char *set_it_name;
 
 	set_it = tvb_get_ntohl(tvb, offset+0);
 
-	if (tree) {
-		set_it_name = val_to_str_const(set_it, value_follows, "Unknown");
+	set_it_name = val_to_str_const(set_it, value_follows, "Unknown");
 
-		set_mode3_item = proto_tree_add_text(tree, tvb, offset, -1,
-			"%s: %s", name, set_it_name);
-		set_mode3_tree = proto_item_add_subtree(set_mode3_item,
-			ett_nfs3_set_mode);
+	set_mode3_tree = proto_tree_add_subtree_format(tree, tvb, offset, -1,
+			ett_nfs3_set_mode, &set_mode3_item, "%s: %s", name, set_it_name);
 
-		proto_tree_add_text(set_mode3_tree, tvb, offset, 4,
+	proto_tree_add_text(set_mode3_tree, tvb, offset, 4,
 			"set_it: %s (%u)", set_it_name, set_it);
-	}
 
 	offset += 4;
 
@@ -4285,25 +4192,20 @@ dissect_set_mode3(tvbuff_t *tvb, int offset, proto_tree *tree, const char *name)
 static int
 dissect_set_uid3(tvbuff_t *tvb, int offset, proto_tree *tree, const char *name)
 {
-	proto_item *set_uid3_item = NULL;
-	proto_tree *set_uid3_tree = NULL;
+	proto_item *set_uid3_item;
+	proto_tree *set_uid3_tree;
 	int	    old_offset	  = offset;
 	guint32	    set_it;
 	const char *set_it_name;
 
 	set_it = tvb_get_ntohl(tvb, offset+0);
+	set_it_name = val_to_str_const(set_it, value_follows, "Unknown");
 
-	if (tree) {
-		set_it_name = val_to_str_const(set_it, value_follows, "Unknown");
+	set_uid3_tree = proto_tree_add_subtree_format(tree, tvb, offset, -1,
+			ett_nfs3_set_uid, &set_uid3_item, "%s: %s", name, set_it_name);
 
-		set_uid3_item = proto_tree_add_text(tree, tvb, offset, -1,
-			"%s: %s", name, set_it_name);
-		set_uid3_tree = proto_item_add_subtree(set_uid3_item,
-			ett_nfs3_set_uid);
-
-		proto_tree_add_text(set_uid3_tree, tvb, offset, 4,
+	proto_tree_add_text(set_uid3_tree, tvb, offset, 4,
 			"set_it: %s (%u)", set_it_name, set_it);
-	}
 	offset += 4;
 
 	switch (set_it) {
@@ -4317,9 +4219,7 @@ dissect_set_uid3(tvbuff_t *tvb, int offset, proto_tree *tree, const char *name)
 	}
 
 	/* now we know, that set_uid3 is shorter */
-	if (set_uid3_item) {
-		proto_item_set_len(set_uid3_item, offset - old_offset);
-	}
+	proto_item_set_len(set_uid3_item, offset - old_offset);
 
 	return offset;
 }
@@ -4329,23 +4229,20 @@ dissect_set_uid3(tvbuff_t *tvb, int offset, proto_tree *tree, const char *name)
 static int
 dissect_set_gid3(tvbuff_t *tvb, int offset, proto_tree *tree, const char *name)
 {
-	proto_item *set_gid3_item = NULL;
-	proto_tree *set_gid3_tree = NULL;
+	proto_item *set_gid3_item;
+	proto_tree *set_gid3_tree;
 	int	    old_offset	  = offset;
 	guint32	    set_it;
 	const char *set_it_name;
 
 	set_it = tvb_get_ntohl(tvb, offset+0);
 
-	if (tree) {
-		set_it_name = val_to_str_const(set_it, value_follows, "Unknown");
-		set_gid3_item = proto_tree_add_text(tree, tvb, offset, -1,
-			"%s: %s", name, set_it_name);
-		set_gid3_tree = proto_item_add_subtree(set_gid3_item,
-			ett_nfs3_set_gid);
-		proto_tree_add_text(set_gid3_tree, tvb, offset, 4,
+	set_it_name = val_to_str_const(set_it, value_follows, "Unknown");
+	set_gid3_tree = proto_tree_add_subtree_format(tree, tvb, offset, -1,
+			ett_nfs3_set_gid, &set_gid3_item, "%s: %s", name, set_it_name);
+
+	proto_tree_add_text(set_gid3_tree, tvb, offset, 4,
 			"set_it: %s (%u)", set_it_name, set_it);
-	}
 
 	offset += 4;
 
@@ -4360,9 +4257,7 @@ dissect_set_gid3(tvbuff_t *tvb, int offset, proto_tree *tree, const char *name)
 	}
 
 	/* now we know, that set_gid3 is shorter */
-	if (set_gid3_item) {
-		proto_item_set_len(set_gid3_item, offset - old_offset);
-	}
+	proto_item_set_len(set_gid3_item, offset - old_offset);
 
 	return offset;
 }
@@ -4372,24 +4267,20 @@ dissect_set_gid3(tvbuff_t *tvb, int offset, proto_tree *tree, const char *name)
 static int
 dissect_set_size3(tvbuff_t *tvb, int offset, proto_tree *tree, const char *name)
 {
-	proto_item *set_size3_item = NULL;
-	proto_tree *set_size3_tree = NULL;
+	proto_item *set_size3_item;
+	proto_tree *set_size3_tree;
 	int	    old_offset	   = offset;
 	guint32	    set_it;
 	const char *set_it_name;
 
 	set_it = tvb_get_ntohl(tvb, offset+0);
 
-	if (tree) {
-		set_it_name = val_to_str_const(set_it, value_follows, "Unknown");
+	set_it_name = val_to_str_const(set_it, value_follows, "Unknown");
 
-		set_size3_item = proto_tree_add_text(tree, tvb, offset, -1,
-			"%s: %s", name, set_it_name);
-		set_size3_tree = proto_item_add_subtree(set_size3_item,
-			ett_nfs3_set_size);
-		proto_tree_add_text(set_size3_tree, tvb, offset, 4,
+	set_size3_tree = proto_tree_add_subtree_format(tree, tvb, offset, -1,
+			ett_nfs3_set_size, &set_size3_item, "%s: %s", name, set_it_name);
+	proto_tree_add_text(set_size3_tree, tvb, offset, 4,
 			"set_it: %s (%u)", set_it_name, set_it);
-	}
 
 	offset += 4;
 
@@ -4404,9 +4295,7 @@ dissect_set_size3(tvbuff_t *tvb, int offset, proto_tree *tree, const char *name)
 	}
 
 	/* now we know, that set_size3 is shorter */
-	if (set_size3_item) {
-		proto_item_set_len(set_size3_item, offset - old_offset);
-	}
+	proto_item_set_len(set_size3_item, offset - old_offset);
 
 	return offset;
 }
@@ -4430,25 +4319,21 @@ static const value_string time_how[] =
 static int
 dissect_set_atime(tvbuff_t *tvb, int offset, proto_tree *tree, const char *name)
 {
-	proto_item *set_atime_item = NULL;
-	proto_tree *set_atime_tree = NULL;
+	proto_item *set_atime_item;
+	proto_tree *set_atime_tree;
 	int	    old_offset	   = offset;
 	guint32	    set_it;
 	const char *set_it_name;
 
 	set_it = tvb_get_ntohl(tvb, offset+0);
 
-	if (tree) {
-		set_it_name = val_to_str_const(set_it, time_how, "Unknown");
+	set_it_name = val_to_str_const(set_it, time_how, "Unknown");
 
-		set_atime_item = proto_tree_add_text(tree, tvb, offset, -1,
-			"%s: %s", name, set_it_name);
-		set_atime_tree = proto_item_add_subtree(set_atime_item,
-			ett_nfs3_set_atime);
+	set_atime_tree = proto_tree_add_subtree_format(tree, tvb, offset, -1,
+			ett_nfs3_set_atime, &set_atime_item, "%s: %s", name, set_it_name);
 
-		proto_tree_add_text(set_atime_tree, tvb, offset, 4,
+	proto_tree_add_text(set_atime_tree, tvb, offset, 4,
 			"set_it: %s (%u)", set_it_name, set_it);
-	}
 	offset += 4;
 
 	switch (set_it) {
@@ -4464,9 +4349,7 @@ dissect_set_atime(tvbuff_t *tvb, int offset, proto_tree *tree, const char *name)
 	}
 
 	/* now we know, that set_atime is shorter */
-	if (set_atime_item) {
-		proto_item_set_len(set_atime_item, offset - old_offset);
-	}
+	proto_item_set_len(set_atime_item, offset - old_offset);
 
 	return offset;
 }
@@ -4476,30 +4359,26 @@ dissect_set_atime(tvbuff_t *tvb, int offset, proto_tree *tree, const char *name)
 static int
 dissect_set_mtime(tvbuff_t *tvb, int offset, proto_tree *tree, const char *name)
 {
-	proto_item *set_mtime_item = NULL;
-	proto_tree *set_mtime_tree = NULL;
+	proto_item *set_mtime_item;
+	proto_tree *set_mtime_tree;
 	int	    old_offset	   = offset;
 	guint32	    set_it;
 	const char *set_it_name;
 
 	set_it = tvb_get_ntohl(tvb, offset+0);
 
-	if (tree) {
-		set_it_name = val_to_str_const(set_it, time_how, "Unknown");
+	set_it_name = val_to_str_const(set_it, time_how, "Unknown");
 
-		set_mtime_item = proto_tree_add_text(tree, tvb, offset, -1,
-			"%s: %s", name, set_it_name);
-		set_mtime_tree = proto_item_add_subtree(set_mtime_item,
-			ett_nfs3_set_mtime);
-		proto_tree_add_text(set_mtime_tree, tvb, offset, 4,
+	set_mtime_tree = proto_tree_add_subtree_format(tree, tvb, offset, -1,
+			ett_nfs3_set_mtime, &set_mtime_item, "%s: %s", name, set_it_name);
+	proto_tree_add_text(set_mtime_tree, tvb, offset, 4,
 				"set_it: %s (%u)", set_it_name, set_it);
-	}
 
 	offset += 4;
 
 	switch (set_it) {
 		case SET_TO_CLIENT_TIME:
-			if (set_mtime_item) {
+			if (set_mtime_tree) {
 				offset = dissect_nfstime3(tvb, offset, set_mtime_tree,
 					hf_nfs_atime, hf_nfs_atime_sec, hf_nfs_atime_nsec);
 			}
@@ -4510,9 +4389,7 @@ dissect_set_mtime(tvbuff_t *tvb, int offset, proto_tree *tree, const char *name)
 	}
 
 	/* now we know, that set_mtime is shorter */
-	if (set_mtime_item) {
-		proto_item_set_len(set_mtime_item, offset - old_offset);
-	}
+	proto_item_set_len(set_mtime_item, offset - old_offset);
 
 	return offset;
 }
@@ -4522,15 +4399,12 @@ dissect_set_mtime(tvbuff_t *tvb, int offset, proto_tree *tree, const char *name)
 static int
 dissect_nfs3_sattr(tvbuff_t *tvb, int offset, proto_tree *tree, const char *name)
 {
-	proto_item *sattr3_item = NULL;
-	proto_tree *sattr3_tree = NULL;
+	proto_item *sattr3_item;
+	proto_tree *sattr3_tree;
 	int	    old_offset	= offset;
 
-	if (tree) {
-		sattr3_item = proto_tree_add_text(tree, tvb, offset, -1,
-			"%s", name);
-		sattr3_tree = proto_item_add_subtree(sattr3_item, ett_nfs3_sattr);
-	}
+	sattr3_tree = proto_tree_add_subtree(tree, tvb, offset, -1,
+			ett_nfs3_sattr, &sattr3_item, name);
 
 	offset = dissect_set_mode3(tvb, offset, sattr3_tree, "mode");
 	offset = dissect_set_uid3 (tvb, offset, sattr3_tree, "uid");
@@ -4540,9 +4414,7 @@ dissect_nfs3_sattr(tvbuff_t *tvb, int offset, proto_tree *tree, const char *name
 	offset = dissect_set_mtime(tvb, offset, sattr3_tree, "mtime");
 
 	/* now we know, that sattr3 is shorter */
-	if (sattr3_item) {
-		proto_item_set_len(sattr3_item, offset - old_offset);
-	}
+	proto_item_set_len(sattr3_item, offset - old_offset);
 
 	return offset;
 }
@@ -4553,18 +4425,14 @@ static int
 dissect_diropargs3(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 				   const char *label, guint32 *hash, const char **name, rpc_call_info_value *civ)
 {
-	proto_item *diropargs3_item = NULL;
-	proto_tree *diropargs3_tree = NULL;
+	proto_item *diropargs3_item;
+	proto_tree *diropargs3_tree;
 	int	    old_offset	    = offset;
 	int	    parent_offset, parent_len;
 	int	    name_offset, name_len;
 
-	if (tree) {
-		diropargs3_item = proto_tree_add_text(tree, tvb, offset, -1,
-			"%s", label);
-		diropargs3_tree = proto_item_add_subtree(diropargs3_item,
-			ett_nfs3_diropargs);
-	}
+	diropargs3_tree = proto_tree_add_subtree(tree, tvb, offset, -1,
+			ett_nfs3_diropargs, &diropargs3_item, label);
 
 	parent_offset = offset+4;
 	parent_len = tvb_get_ntohl(tvb, offset);
@@ -4590,9 +4458,7 @@ dissect_diropargs3(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 
 
 	/* now we know, that diropargs3 is shorter */
-	if (diropargs3_item) {
-		proto_item_set_len(diropargs3_item, offset - old_offset);
-	}
+	proto_item_set_len(diropargs3_item, offset - old_offset);
 
 	return offset;
 }
@@ -4696,25 +4562,21 @@ dissect_nfs3_getattr_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 static int
 dissect_sattrguard3(tvbuff_t *tvb, int offset, proto_tree *tree, const char *name)
 {
-	proto_item *sattrguard3_item = NULL;
-	proto_tree *sattrguard3_tree = NULL;
+	proto_item *sattrguard3_item;
+	proto_tree *sattrguard3_tree;
 	int	    old_offset	     = offset;
 	guint32	    check;
 	const char *check_name;
 
 	check = tvb_get_ntohl(tvb, offset+0);
 
-	if (tree) {
-		check_name = val_to_str_const(check, value_follows, "Unknown");
+	check_name = val_to_str_const(check, value_follows, "Unknown");
 
-		sattrguard3_item = proto_tree_add_text(tree, tvb, offset, -1,
-			"%s: %s", name, check_name);
-		sattrguard3_tree = proto_item_add_subtree(sattrguard3_item,
-			ett_nfs3_sattrguard);
+	sattrguard3_tree = proto_tree_add_subtree_format(tree, tvb, offset, -1,
+			ett_nfs3_sattrguard, &sattrguard3_item, "%s: %s", name, check_name);
 
-		proto_tree_add_text(sattrguard3_tree, tvb, offset, 4,
+	proto_tree_add_text(sattrguard3_tree, tvb, offset, 4,
 			"check: %s (%u)", check_name, check);
-	}
 
 
 	offset += 4;
@@ -4730,9 +4592,7 @@ dissect_sattrguard3(tvbuff_t *tvb, int offset, proto_tree *tree, const char *nam
 	}
 
 	/* now we know, that sattrguard3 is shorter */
-	if (sattrguard3_item) {
-		proto_item_set_len(sattrguard3_item, offset - old_offset);
-	}
+	proto_item_set_len(sattrguard3_item, offset - old_offset);
 
 	return offset;
 }
@@ -6346,10 +6206,8 @@ static int
 dissect_nfs4_lock_owner(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
 	proto_tree *newftree;
-	proto_item *fitem;
 
-	fitem = proto_tree_add_text(tree, tvb, offset, 4, "Owner");
-	newftree = proto_item_add_subtree(fitem, ett_nfs4_lock_owner);
+	newftree = proto_tree_add_subtree(tree, tvb, offset, 4, ett_nfs4_lock_owner, NULL, "Owner");
 	offset = dissect_rpc_uint64(tvb, newftree, hf_nfs4_clientid, offset);
 	offset = dissect_nfsdata(tvb, offset, newftree, hf_nfs_data);
 
@@ -6416,10 +6274,8 @@ static int
 dissect_nfs4_fsid(tvbuff_t *tvb, int offset, proto_tree *tree, const char *name)
 {
 	proto_tree *newftree;
-	proto_item *fitem;
 
-	fitem = proto_tree_add_text(tree, tvb, offset, 0, "%s", name);
-	newftree = proto_item_add_subtree(fitem, ett_nfs4_fsid);
+	newftree = proto_tree_add_subtree(tree, tvb, offset, 0, ett_nfs4_fsid, NULL, name);
 	offset = dissect_rpc_uint64(tvb, newftree, hf_nfs4_fsid_major, offset);
 	offset = dissect_rpc_uint64(tvb, newftree, hf_nfs4_fsid_minor, offset);
 	return offset;
@@ -6468,7 +6324,8 @@ dissect_nfs_aceflags4(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_t
 	proto_item *aceflag_item;
 	proto_tree *aceflag_tree;
 
-	aceflag_item = proto_tree_add_uint(ace_tree, hf_nfs4_aceflags, tvb, offset, 4, aceflags);	proto_item_append_text(aceflag_item, "  (");
+	aceflag_item = proto_tree_add_uint(ace_tree, hf_nfs4_aceflags, tvb, offset, 4, aceflags);
+	proto_item_append_text(aceflag_item, "  (");
 	aceflag_tree = proto_item_add_subtree(aceflag_item, ett_nfs4_aceflag);
 
 	while (flag_bit && flag_bit <= aceflags) {
@@ -6723,11 +6580,8 @@ dissect_nfs4_fs_location(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 			 proto_tree *tree, void *data _U_)
 {
 	proto_tree *newftree;
-	proto_item *fitem;
 
-	fitem = proto_tree_add_text(tree, tvb, offset, 0, "fs_location4");
-
-	newftree = proto_item_add_subtree(fitem, ett_nfs4_fs_location);
+	newftree = proto_tree_add_subtree(tree, tvb, offset, 0, ett_nfs4_fs_location, NULL, "fs_location4");
 
 	offset = dissect_rpc_array(tvb, pinfo, newftree, offset, dissect_nfs4_server, hf_nfs4_server);
 	offset = dissect_nfs4_pathname(tvb, offset, newftree);
@@ -6741,10 +6595,8 @@ dissect_nfs4_fs_locations(tvbuff_t *tvb, packet_info *pinfo, int offset,
 			  proto_tree *tree, const char *name)
 {
 	proto_tree *newftree;
-	proto_item *fitem;
 
-	fitem = proto_tree_add_text(tree, tvb, offset, 0, "%s", name);
-	newftree = proto_item_add_subtree(fitem, ett_nfs4_fs_locations);
+	newftree = proto_tree_add_subtree(tree, tvb, offset, 0, ett_nfs4_fs_locations, NULL, name);
 
 	offset = dissect_nfs4_pathname(tvb, offset, newftree);
 
@@ -6782,19 +6634,16 @@ static int
 dissect_nfs4_fattr_fh_expire_type(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
 	guint32	    expire_type;
-	proto_tree *expire_type_tree = NULL;
+	proto_tree *expire_type_tree;
+	proto_item *expire_type_item;
 
 	expire_type = tvb_get_ntohl(tvb, offset + 0);
 
-	if (tree)
-	{
-		proto_item *expire_type_item;
-		expire_type_item = proto_tree_add_text(tree, tvb, offset, 4,
+	expire_type_item = proto_tree_add_text(tree, tvb, offset, 4,
 			"fattr4_fh_expire_type: 0x%08x", expire_type);
 
-		expire_type_tree = proto_item_add_subtree(expire_type_item,
+	expire_type_tree = proto_item_add_subtree(expire_type_item,
 				ett_nfs4_fattr_fh_expire_type);
-	}
 
 	if (expire_type_tree)
 	{
@@ -7707,15 +7556,16 @@ dissect_nfs4_cb_client4(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
 	proto_tree *cb_location;
 	proto_item *fitem;
-	int	    cbprog;
+	int	    cbprog, old_offset;
 
 	cbprog = tvb_get_ntohl(tvb, offset);
 	reg_callback(cbprog);
 	offset = dissect_rpc_uint32(tvb, tree, hf_nfs4_cb_program, offset);
-	fitem = proto_tree_add_text(tree, tvb, offset, 0, "cb_location");
+    old_offset = offset;
+	cb_location = proto_tree_add_subtree(tree, tvb, offset, 0, ett_nfs4_clientaddr, &fitem, "cb_location");
 
-	cb_location = proto_item_add_subtree(fitem, ett_nfs4_clientaddr);
 	offset = dissect_nfs4_clientaddr(tvb, offset, cb_location);
+    proto_item_set_len(fitem, offset - old_offset);
 
 	return offset;
 }
@@ -7880,13 +7730,11 @@ dissect_nfs4_dirlist(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	guint32	    val_follows;
 	guint32	    name_len;
 	char	   *name;
-	proto_item *ditem;
 	proto_tree *dirlist_tree;
 	proto_item *eitem;
 	proto_tree *entry_tree;
 
-	ditem = proto_tree_add_text(tree, tvb, offset, 0, "Directory Listing");
-	dirlist_tree = proto_item_add_subtree(ditem, ett_nfs4_dirlist);
+	dirlist_tree = proto_tree_add_subtree(tree, tvb, offset, 0, ett_nfs4_dirlist, NULL, "Directory Listing");
 
 	while (1)
 	{
@@ -7946,13 +7794,14 @@ dissect_nfs4_change_info(tvbuff_t *tvb, int offset,
 {
 	proto_tree *newftree;
 	proto_tree *fitem;
+	int old_offset = offset;
 
-	fitem = proto_tree_add_text(tree, tvb, offset, 0, "%s", name);
-	newftree = proto_item_add_subtree(fitem, ett_nfs4_change_info);
+	newftree = proto_tree_add_subtree(tree, tvb, offset, 0, ett_nfs4_change_info, &fitem, name);
 
 	offset = dissect_rpc_bool(  tvb, newftree, hf_nfs4_change_info_atomic, offset);
 	offset = dissect_rpc_uint64(tvb, newftree, hf_nfs4_changeid_before,    offset);
 	offset = dissect_rpc_uint64(tvb, newftree, hf_nfs4_changeid_after,     offset);
+    proto_item_set_len(fitem, offset - old_offset);
 
 	return offset;
 }
@@ -8018,15 +7867,13 @@ static int
 dissect_nfs4_stateid(tvbuff_t *tvb, int offset, proto_tree *tree, guint16 *hash)
 {
 	proto_item *sh_item;
-	proto_tree *newftree = NULL;
+	proto_tree *newftree;
+	proto_item *fitem;
 	guint16	    sid_hash;
 	guint8	   *sidh_array;
+	int old_offset = offset;
 
-	if (tree) {
-		proto_item *fitem;
-		fitem = proto_tree_add_text(tree, tvb, offset, 4, "stateid");
-		newftree = proto_item_add_subtree(fitem, ett_nfs4_stateid);
-	}
+	newftree = proto_tree_add_subtree(tree, tvb, offset, 4, ett_nfs4_stateid, &fitem, "stateid");
 
 	sidh_array = tvb_get_string_enc(NULL, tvb, offset, 16, ENC_ASCII);
 	sid_hash = crc16_ccitt(sidh_array, 16);
@@ -8040,6 +7887,8 @@ dissect_nfs4_stateid(tvbuff_t *tvb, int offset, proto_tree *tree, guint16 *hash)
 
 	if (hash)
 		*hash = sid_hash;
+
+    proto_item_set_len(fitem, offset - old_offset);
 
 	return offset;
 }
@@ -8075,8 +7924,7 @@ dissect_nfs4_state_protect_bitmap(tvbuff_t *tvb, int offset,
 				  proto_tree *tree)
 {
 	guint32 num_bitmaps;
-	proto_item *fitem = NULL;
-	proto_tree *newftree = NULL;
+	proto_tree *newftree;
 	guint32 *bitmap = NULL;
 	guint32 op;
 	guint32 i;
@@ -8090,11 +7938,9 @@ dissect_nfs4_state_protect_bitmap(tvbuff_t *tvb, int offset,
 		THROW(ReportedBoundsError);
 	}
 	tvb_ensure_bytes_exist(tvb, offset, 4 + num_bitmaps * 4);
-	fitem = proto_tree_add_text(tree, tvb, offset, 4 + num_bitmaps * 4,
-				    "%s", "operation mask");
+	newftree = proto_tree_add_subtree(tree, tvb, offset, 4 + num_bitmaps * 4,
+				    ett_nfs4_bitmap, NULL, "operation mask");
 	offset += 4;
-
-	newftree = proto_item_add_subtree(fitem, ett_nfs4_bitmap);
 
 	if (num_bitmaps)
 		bitmap = (guint32 *)wmem_alloc(wmem_packet_scope(), num_bitmaps * sizeof(guint32));
@@ -8595,15 +8441,13 @@ dissect_rpc_serverowner4(tvbuff_t *tvb, int offset, proto_tree *tree)
 static int
 dissect_rpc_chanattrs4(tvbuff_t *tvb, int offset, proto_tree *tree, const char *name)
 {
-	proto_item *chan_attrs_item;
 	proto_tree *chan_attrs_tree;
 	guint i, count, rdma_ird_len;
 
 	rdma_ird_len = tvb_get_ntohl(tvb, offset + 24);
 	count = 28 + rdma_ird_len * 4;
 
-	chan_attrs_item = proto_tree_add_text(tree, tvb, offset, count, name, count);
-	chan_attrs_tree = proto_item_add_subtree(chan_attrs_item, ett_nfs4_chan_attrs);
+	chan_attrs_tree = proto_tree_add_subtree(tree, tvb, offset, count, ett_nfs4_chan_attrs, NULL, name);
 
 	offset = dissect_rpc_uint32(tvb, chan_attrs_tree, hf_nfs4_padsize, offset);
 	offset = dissect_rpc_uint32(tvb, chan_attrs_tree, hf_nfs4_maxreqsize, offset);
@@ -8622,24 +8466,20 @@ dissect_rpc_chanattrs4(tvbuff_t *tvb, int offset, proto_tree *tree, const char *
 static int
 dissect_rpc_nfs_impl_id4(tvbuff_t *tvb, int offset, proto_tree *tree, const char *name)
 {
-	proto_item *impl_id_item;
 	proto_tree *impl_id_tree;
 	guint i, count;
 
 	count = tvb_get_ntohl(tvb, offset);
-	impl_id_item = proto_tree_add_text(tree, tvb, offset, 4, name, count);
-	impl_id_tree = proto_item_add_subtree(impl_id_item, ett_nfs4_clientowner);
+	impl_id_tree = proto_tree_add_subtree(tree, tvb, offset, 4, ett_nfs4_clientowner, NULL, name);
 	offset += 4;
 
 	for (i = 0; i < count; i++) {
-		proto_item *date_item;
 		proto_tree *date_tree;
 
 		offset = dissect_nfs_utf8string(tvb, offset, impl_id_tree, hf_nfs4_nii_domain, NULL);
 		offset = dissect_nfs_utf8string(tvb, offset, impl_id_tree, hf_nfs4_nii_name, NULL);
 
-		date_item = proto_tree_add_text(impl_id_tree, tvb, offset, 12, "Build timestamp(nii_date)");
-		date_tree = proto_item_add_subtree(date_item, ett_nfs4_clientowner);
+		date_tree = proto_tree_add_subtree(impl_id_tree, tvb, offset, 12, ett_nfs4_clientowner, NULL, "Build timestamp(nii_date)");
 		offset = dissect_nfs4_nfstime(tvb, offset, date_tree);
 	}
 	return offset;
@@ -8694,17 +8534,14 @@ dissect_nfs4_layout(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 	guint	    fh_num;
 	guint	    lo_seg_count;
 	guint	    i, lo_seg;
-	proto_item *fitem;
-	proto_item *fh_fitem;
 	proto_tree *newtree;
 	proto_tree *fh_tree;
 
 	lo_seg_count = tvb_get_ntohl(tvb, offset);
 
-	fitem = proto_tree_add_text(tree, tvb, offset, 4, "Layout Segment (count: %u)", lo_seg_count);
+	newtree = proto_tree_add_subtree_format(tree, tvb, offset, 4, ett_nfs4_layoutseg, NULL,
+											"Layout Segment (count: %u)", lo_seg_count);
 	offset += 4;
-
-	newtree = proto_item_add_subtree(fitem, ett_nfs4_layoutseg);
 
 	for (lo_seg = 0; lo_seg < lo_seg_count; lo_seg++) {
 		offset = dissect_rpc_uint64(tvb, newtree, hf_nfs4_offset, offset);
@@ -8732,10 +8569,10 @@ dissect_nfs4_layout(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 
 		fh_num = tvb_get_ntohl(tvb, offset); /* Len of FH list */
 
-		fh_fitem = proto_tree_add_text(newtree, tvb, offset, 4, "File Handles (count: %u)", fh_num);
+		fh_tree = proto_tree_add_subtree_format(newtree, tvb, offset, 4,
+						ett_nfs4_layoutseg_fh, NULL, "File Handles (count: %u)", fh_num);
 		offset += 4;
 
-		fh_tree = proto_item_add_subtree(fh_fitem, ett_nfs4_layoutseg_fh);
 		for (i = 0; i < fh_num; i++)
 			offset = dissect_nfs4_fh(tvb, offset, pinfo, fh_tree, "lo_filehandle", NULL, civ);
 	}
@@ -8918,8 +8755,8 @@ dissect_nfs4_request_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 	guint32	    length;
 	guint64	    lock_length;
 	guint64	    file_offset;
-	proto_item *fitem	    = NULL;
-	proto_tree *ftree	    = NULL;
+	proto_item *fitem;
+	proto_tree *ftree;
 	proto_tree *newftree	    = NULL;
 	nfs4_operation_summary *op_summary;
 
@@ -8941,9 +8778,7 @@ dissect_nfs4_request_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 
 	op_summary = wmem_alloc0_array(wmem_packet_scope(), nfs4_operation_summary, ops);
 
-	if (fitem) {
-		ftree = proto_item_add_subtree(fitem, ett_nfs4_request_op);
-	}
+	ftree = proto_item_add_subtree(fitem, ett_nfs4_request_op);
 
 	if (ops)
 		proto_item_append_text(proto_tree_get_parent(tree), ", Ops(%d):", ops);
@@ -9267,15 +9102,11 @@ dissect_nfs4_request_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 				proto_tree *client_tree = NULL;
 				proto_tree *callback_tree = NULL;
 
-				fitem = proto_tree_add_text(newftree, tvb, offset, 0, "client");
-
-				client_tree = proto_item_add_subtree(fitem, ett_nfs4_client_id);
+				client_tree = proto_tree_add_subtree(newftree, tvb, offset, 0, ett_nfs4_client_id, NULL, "client");
 
 				offset = dissect_nfs4_client_id(tvb, offset, client_tree);
 
-				fitem = proto_tree_add_text(newftree, tvb, offset, 0, "callback");
-				callback_tree = proto_item_add_subtree(fitem,
-						ett_nfs4_cb_client);
+				callback_tree = proto_tree_add_subtree(newftree, tvb, offset, 0, ett_nfs4_cb_client, NULL, "callback");
 
 				offset = dissect_nfs4_cb_client4(tvb, offset, callback_tree);
 
@@ -9324,11 +9155,10 @@ dissect_nfs4_request_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 
 		case NFS4_OP_EXCHANGE_ID:
 			{
-			proto_tree *eia_clientowner_tree = NULL;
+			proto_tree *eia_clientowner_tree;
 			proto_tree *eia_flags_tree = NULL;
 
-			fitem = proto_tree_add_text(newftree, tvb, offset, 0, "eia_clientowner");
-			eia_clientowner_tree = proto_item_add_subtree(fitem, ett_nfs4_clientowner);
+			eia_clientowner_tree = proto_tree_add_subtree(newftree, tvb, offset, 0, ett_nfs4_clientowner, NULL, "eia_clientowner");
 			offset = dissect_rpc_uint64(tvb, eia_clientowner_tree, hf_nfs4_verifier, offset);
 			offset = dissect_nfsdata(tvb, offset, eia_clientowner_tree, hf_nfs_data);
 
@@ -9564,9 +9394,7 @@ dissect_nfs4_response_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 
 	op_summary = wmem_alloc0_array(wmem_packet_scope(), nfs4_operation_summary, ops);
 
-	if (fitem) {
-		ftree = proto_item_add_subtree(fitem, ett_nfs4_response_op);
-	}
+	ftree = proto_item_add_subtree(fitem, ett_nfs4_response_op);
 
 	proto_item_append_text(tree, ", Ops(%d):", ops);
 
@@ -9773,8 +9601,7 @@ dissect_nfs4_response_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 
 				offset = dissect_nfs4_state_protect_r(tvb, offset, newftree);
 
-				fitem = proto_tree_add_text(newftree, tvb, offset, 0, "eir_server_owner");
-				eir_server_owner_tree = proto_item_add_subtree(fitem, ett_nfs4_server_owner);
+				eir_server_owner_tree = proto_tree_add_subtree(newftree, tvb, offset, 0, ett_nfs4_server_owner, NULL, "eir_server_owner");
 				offset = dissect_rpc_serverowner4(tvb, offset, eir_server_owner_tree);
 				offset = dissect_nfsdata(tvb, offset, newftree, hf_nfs4_serverscope4);
 				offset = dissect_rpc_nfs_impl_id4(tvb, offset, newftree, "eir_server_impl_id");
@@ -10282,26 +10109,20 @@ static int
 dissect_nfs4_cb_referring_calls(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
 	guint	    num_reflists, num_refcalls, i, j;
-	proto_item *rl_item, *rc_item;
 	proto_tree *rl_tree, *rc_tree;
 
 	num_reflists = tvb_get_ntohl(tvb, offset);
-	rl_item = proto_tree_add_text(tree, tvb, offset, 4,
-			"referring call lists (count: %u)", num_reflists);
+	rl_tree = proto_tree_add_subtree_format(tree, tvb, offset, 4,
+			ett_nfs4_cb_reflists, NULL, "referring call lists (count: %u)", num_reflists);
 	offset += 4;
-	if (num_reflists == 0)
-		return offset;
-
-	rl_tree = proto_item_add_subtree(rl_item, ett_nfs4_cb_reflists);
 
 	for (i = 0; i < num_reflists; i++) {
 		offset = dissect_nfs4_sessionid(tvb, offset, rl_tree);
 		num_refcalls = tvb_get_ntohl(tvb, offset);
-		rc_item = proto_tree_add_text(rl_tree, tvb, offset, 4,
-				"referring calls (count: %u)", num_refcalls);
+		rc_tree = proto_tree_add_subtree_format(rl_tree, tvb, offset, 4,
+				ett_nfs4_cb_refcalls, NULL, "referring calls (count: %u)", num_refcalls);
 		offset += 4;
 		for (j = 0; j < num_refcalls; j++) {
-			rc_tree = proto_item_add_subtree(rc_item, ett_nfs4_cb_refcalls);
 			offset = dissect_rpc_uint32(tvb, rc_tree, hf_nfs4_seqid, offset);
 			offset = dissect_rpc_uint32(tvb, rc_tree, hf_nfs4_slotid, offset);
 		}
@@ -10342,16 +10163,13 @@ dissect_nfs4_cb_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 	guint32	    ops, ops_counter;
 	guint	    opcode;
 	proto_item *fitem;
-	proto_tree *ftree    = NULL;
+	proto_tree *ftree;
 	proto_tree *newftree = NULL;
 
 	ops = tvb_get_ntohl(tvb, offset+0);
 
-	fitem = proto_tree_add_text(tree, tvb, offset, 4, "Operations (count: %u)", ops);
+	ftree = proto_tree_add_subtree_format(tree, tvb, offset, 4, ett_nfs4_cb_request_op, NULL, "Operations (count: %u)", ops);
 	offset += 4;
-
-	if (fitem)
-	  	ftree = proto_item_add_subtree(fitem, ett_nfs4_cb_request_op);
 
 	for (ops_counter=0; ops_counter<ops; ops_counter++)
 	{
@@ -10438,16 +10256,13 @@ dissect_nfs4_cb_resp_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
  	guint32	    ops, ops_counter;
 	guint32	    opcode;
 	proto_item *fitem;
-	proto_tree *ftree    = NULL;
+	proto_tree *ftree;
 	proto_tree *newftree = NULL;
 	guint32	    status;
 
 	ops   = tvb_get_ntohl(tvb, offset+0);
-	fitem = proto_tree_add_text(tree, tvb, offset, 4, "Operations (count: %u)", ops);
+	ftree = proto_tree_add_subtree_format(tree, tvb, offset, 4, ett_nfs4_cb_resop, NULL, "Operations (count: %u)", ops);
 	offset += 4;
-
-	if (fitem)
-	  	ftree = proto_item_add_subtree(fitem, ett_nfs4_cb_resop);
 
 	for (ops_counter = 0; ops_counter < ops; ops_counter++)
 	{

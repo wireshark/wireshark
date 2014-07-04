@@ -140,8 +140,7 @@ dissect_netlink_attributes(tvbuff_t *tvb, header_field_info *hfi_type, int ett, 
 
 		end_offset = (offset + rta_len + 3) & ~3;
 
-		ti = proto_tree_add_text(tree, tvb, offset, end_offset - offset, "Attribute");
-		attr_tree = proto_item_add_subtree(ti, ett);
+		attr_tree = proto_tree_add_subtree(tree, tvb, offset, end_offset - offset, ett, &ti, "Attribute");
 
 		proto_tree_add_text(attr_tree, tvb, offset, 2, "Len: %d", rta_len);
 		offset += 2;
@@ -225,11 +224,9 @@ dissect_netlink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *_data
 
 		pkt_end_offset = offset + pkt_len;
 
-		ti = proto_tree_add_text(tree, tvb, offset, pkt_len, "Netlink message");
-		fh_msg = proto_item_add_subtree(ti, ett_netlink_msg);
+		fh_msg = proto_tree_add_subtree(tree, tvb, offset, pkt_len, ett_netlink_msg, NULL, "Netlink message");
 
-		ti = proto_tree_add_text(fh_msg, tvb, offset, 16, "Header");
-		fh_hdr = proto_item_add_subtree(ti, ett_netlink_msghdr);
+		fh_hdr = proto_tree_add_subtree(fh_msg, tvb, offset, 16, ett_netlink_msghdr, NULL, "Header");
 
 		proto_tree_add_item(fh_hdr, &hfi_netlink_hdr_len, tvb, offset, 4, encoding);
 		offset += 4;

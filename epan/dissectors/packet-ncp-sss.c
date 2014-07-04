@@ -508,7 +508,7 @@ dissect_sss_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, ncp
 
     switch (subfunc) {
     case 1:
-        aitem = proto_tree_add_text(ncp_tree, tvb, foffset, tvb_length_remaining(tvb, foffset), "Packet Type: %s", val_to_str(subfunc, sss_func_enum, "Unknown (%d)"));
+        aitem = proto_tree_add_text(ncp_tree, tvb, foffset, -1, "Packet Type: %s", val_to_str(subfunc, sss_func_enum, "Unknown (%d)"));
         atree = proto_item_add_subtree(aitem, ett_sss);
         proto_tree_add_item(atree, hf_ping_version, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
         foffset += 4;

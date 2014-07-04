@@ -2240,7 +2240,6 @@ dissect_v9_v10_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, int 
     v9_v10_tmplt_t *tmplt_p;
     v9_v10_tmplt_t  tmplt_key;
     proto_tree     *data_tree;
-    proto_item     *data_item;
     guint           pdu_len;
 
     if (length == 0) {
@@ -2254,9 +2253,8 @@ dissect_v9_v10_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, int 
         /* Note: If the flow contains variable length fields then          */
         /*       tmplt_p->length will be less then actual length of the flow. */
         while (length >= tmplt_p->length) {
-            data_item = proto_tree_add_text(pdutree, tvb,
-                                            offset, tmplt_p->length, "Flow %d", count++);
-            data_tree = proto_item_add_subtree(data_item, ett_dataflowset);
+            data_tree = proto_tree_add_subtree_format(pdutree, tvb, offset, tmplt_p->length,
+                                            ett_dataflowset, NULL, "Flow %d", count++);
 
             pdu_len = dissect_v9_v10_pdu(tvb, pinfo, data_tree, offset, tmplt_p, hdrinfo_p);
 
@@ -3175,8 +3173,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
             const value_string *x_vs;
             int                 x_hf;
 
-            ti = proto_tree_add_text(pdutree, tvb, offset, length, "Forwarding Status");
-            fwdstattree = proto_item_add_subtree(ti, ett_fwdstat);
+            fwdstattree = proto_tree_add_subtree(pdutree, tvb, offset, length, ett_fwdstat, NULL, "Forwarding Status");
 
             forwarding_status = tvb_get_guint8(tvb, offset)>>6;
             switch(forwarding_status) {
@@ -5250,8 +5247,7 @@ dissect_v9_v10_template_fields(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
             }
         }
 
-        field_item = proto_tree_add_text(tmplt_tree, tvb, offset, 4+((pen_str!=NULL)?4:0), "Field (%u/%u)", i+1, count);
-        field_tree = proto_item_add_subtree(field_item, ett_field);
+        field_tree = proto_tree_add_subtree_format(tmplt_tree, tvb, offset, 4+((pen_str!=NULL)?4:0), ett_field, &field_item, "Field (%u/%u)", i+1, count);
         if (fields_type == TF_SCOPES) {
             proto_item_append_text(field_item, " [Scope]");
         }
@@ -5333,8 +5329,7 @@ dissect_v9_v10_options_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *p
 
         id = tvb_get_ntohs(tvb, offset);
 
-        tmplt_item = proto_tree_add_text(pdutree, tvb, offset, -1, "Options Template (Id = %u)", id);
-        tmplt_tree = proto_item_add_subtree(tmplt_item, ett_template);
+        tmplt_tree = proto_tree_add_subtree_format(pdutree, tvb, offset, -1, ett_template, &tmplt_item, "Options Template (Id = %u)", id);
 
         proto_tree_add_item(tmplt_tree, hf_cflow_template_id, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
@@ -5471,7 +5466,6 @@ dissect_v9_v10_data_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdut
         v9_v10_tmplt_t *tmplt_p;
         v9_v10_tmplt_t  tmplt;
         proto_tree     *tmplt_tree;
-        proto_item     *tmplt_item;
         proto_item     *ti;
         guint16         id;
         guint16         count;
@@ -5481,10 +5475,9 @@ dissect_v9_v10_data_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdut
         id = tvb_get_ntohs(tvb, offset);
         count = tvb_get_ntohs(tvb, offset + 2);
 
-        tmplt_item = proto_tree_add_text(pdutree, tvb, offset,
+        tmplt_tree = proto_tree_add_subtree_format(pdutree, tvb, offset,
                                          4 + 4 * count /* hdrsiz + count*2*(sizeof guint16)*/,
-                                         "Template (Id = %u, Count = %u)", id, count);
-        tmplt_tree = proto_item_add_subtree(tmplt_item, ett_template);
+                                         ett_template, NULL, "Template (Id = %u, Count = %u)", id, count);
 
         proto_tree_add_item(tmplt_tree, hf_cflow_template_id, tvb,
                             offset, 2, ENC_BIG_ENDIAN);

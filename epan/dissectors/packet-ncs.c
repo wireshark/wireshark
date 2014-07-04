@@ -41,14 +41,11 @@ static int hf_incarnation = -1;
 static void
 dissect_ncs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    proto_tree	    *ncs_tree = NULL;
+    proto_tree	    *ncs_tree;
     proto_item	    *ti;
 
-    if (tree) {
-        ti = proto_tree_add_item(tree, proto_ncs, tvb, 0, -1, ENC_NA);
-        ncs_tree = proto_item_add_subtree(ti, ett_ncs);
-    }
-
+    ti = proto_tree_add_item(tree, proto_ncs, tvb, 0, -1, ENC_NA);
+    ncs_tree = proto_item_add_subtree(ti, ett_ncs);
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "NCS");
     col_set_str(pinfo->cinfo, COL_INFO, "Novell Cluster Services Heartbeat");

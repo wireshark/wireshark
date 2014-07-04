@@ -938,19 +938,17 @@ static void decode_tlv(proto_tree *tree,
                        guint       offset,
                        guint       length)
 {
-    proto_item *property_item;
     proto_tree *property_tree;
     guint8      property_type;
     guint16     property_length;
 /*  guint64     property_index;*/
 
     /* add text to the frame tree */
-    property_item = proto_tree_add_text(tree,
+    property_tree = proto_tree_add_subtree(tree,
         tvb,
         offset,
-        length,
+        length, ett_body, NULL,
         "NOE Message Body");
-    property_tree = proto_item_add_subtree(property_item, ett_body);
 
     while(length > 0)
     {
@@ -961,7 +959,7 @@ static void decode_tlv(proto_tree *tree,
 
         if (property_type >= P_ARRAY)
         {
-            proto_tree_add_item(property_item, hf_noe_aindx, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(property_tree, hf_noe_aindx, tvb, offset, 1, ENC_NA);
             offset += 1;
             length -= 1;
         }
@@ -1030,17 +1028,15 @@ static void decode_getproperty_tlv(proto_tree *tree,
                                    guint       offset,
                                    guint       length)
 {
-    proto_item *body_item;
     proto_tree *body_tree;
     guint8      body_type;
 
     /* add text to the frame tree */
-    body_item = proto_tree_add_text(tree,
+    body_tree = proto_tree_add_subtree(tree,
         tvb,
         offset,
-        length,
+        length, ett_property, NULL,
         "NOE Message Body");
-    body_tree = proto_item_add_subtree(body_item, ett_property);
 
     while(length > 0)
     {
@@ -1052,7 +1048,7 @@ static void decode_getproperty_tlv(proto_tree *tree,
 
         if (body_type >= P_ARRAY)
         {
-            proto_tree_add_item(body_item, hf_noe_aindx, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(body_tree, hf_noe_aindx, tvb, offset, 1, ENC_NA);
             offset += 1;
             length -= 1;
         }

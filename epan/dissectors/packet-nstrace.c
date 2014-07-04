@@ -157,7 +157,6 @@ dissect_nstrace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint8		flagoffset, flagval;
 	guint8		src_vmname_len = 0, dst_vmname_len = 0;
 	guint8		variable_ns_len = 0;
-	guint 		flagval32;
 
 	wmem_strbuf_append(flags_strbuf, "None");
 
@@ -179,9 +178,7 @@ dissect_nstrace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	case NSPR_HEADER_VERSION300:
 	case NSPR_HEADER_VERSION206:
 		flagoffset = pnstr->ns_activity_offset;
-		flagval32 = tvb_get_letohl(tvb, flagoffset);
-		flagitem = proto_tree_add_uint_format(ns_tree, hf_ns_activity, tvb, flagoffset, 4, flagval32,
-						"Activity Flags: 0x%04x", flagval32);
+		flagitem = proto_tree_add_item(ns_tree, hf_ns_activity, tvb, flagoffset, 4, ENC_LITTLE_ENDIAN);
 		flagtree = proto_item_add_subtree(flagitem, ett_ns_activity_flags);
 		proto_tree_add_item(flagtree, hf_ns_activity_perf_collection, tvb, flagoffset, 4, ENC_LITTLE_ENDIAN);
 		proto_tree_add_item(flagtree, hf_ns_activity_pcb_zombie, tvb, flagoffset, 4, ENC_LITTLE_ENDIAN);
@@ -374,7 +371,7 @@ proto_register_ns(void)
 		},
 
 		{ &hf_ns_activity,
-		  { "NetScaler Activity", "nstrace.activity",
+		  { "Activity Flags", "nstrace.activity",
 		    FT_UINT32, BASE_HEX, NULL, 0x0,
 		    NULL, HFILL}
 		},

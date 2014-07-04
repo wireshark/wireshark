@@ -1295,10 +1295,9 @@ dissect_ntlmssp_target_info_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     content_offset = len_offset + 2;
     item_length    = content_length + 4;
 
-    target_info_tf = proto_tree_add_text(tree, tvb, item_offset, item_length, "Attribute: %s",
-                                  val_to_str_ext(item_type, &ntlm_name_types_ext, "Unknown (%d)"));
+    target_info_tree = proto_tree_add_subtree_format(tree, tvb, item_offset, item_length, *tif_p->ett, &target_info_tf,
+                                  "Attribute: %s", val_to_str_ext(item_type, &ntlm_name_types_ext, "Unknown (%d)"));
 
-    target_info_tree = proto_item_add_subtree (target_info_tf, *tif_p->ett);
     proto_tree_add_item (target_info_tree, *tif_p->hf_item_type,    tvb, type_offset, 2, ENC_LITTLE_ENDIAN);
     proto_tree_add_item (target_info_tree, *tif_p->hf_item_length,  tvb, len_offset,  2, ENC_LITTLE_ENDIAN);
 
@@ -2241,7 +2240,6 @@ decrypt_verifier(tvbuff_t *tvb, int offset, guint32 encrypted_block_length,
                  packet_info *pinfo, proto_tree *tree, gpointer key)
 {
   proto_tree          *decr_tree;
-  proto_item          *tf;
   conversation_t      *conversation;
   guint8*              sign_key;
   rc4_state_struct    *rc4_state;
@@ -2368,11 +2366,11 @@ decrypt_verifier(tvbuff_t *tvb, int offset, guint32 encrypted_block_length,
                       "Decrypted NTLMSSP Verifier");
 
   /* Show the decrypted payload in the tree */
-  tf = proto_tree_add_text(tree, decr_tvb, 0, -1,
+  decr_tree = proto_tree_add_subtree_format(tree, decr_tvb, 0, -1,
+                           ett_ntlmssp, NULL,
                            "Decrypted Verifier (%d byte%s)",
                            encrypted_block_length,
                            plurality(encrypted_block_length, "", "s"));
-  decr_tree = proto_item_add_subtree (tf, ett_ntlmssp);
 
   if (( conv_ntlmssp_info->flags & NTLMSSP_NEGOTIATE_EXTENDED_SECURITY)) {
     proto_tree_add_item (decr_tree, hf_ntlmssp_verf_hmacmd5,

@@ -340,8 +340,8 @@ dissect_netanalyzer_transparent(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
        * as normally the transparent mode is used for low level analysis
        * where dissecting the frame's content wouldn't make much sense
        * use data dissector instead */
-      ti = proto_tree_add_text(tree, tvb, 4, tvb_length(tvb)-4, "Raw packet data");
-      transparent_payload_tree = proto_item_add_subtree(ti, ett_netanalyzer_transparent);
+      transparent_payload_tree = proto_tree_add_subtree(tree, tvb, 4, tvb_length(tvb)-4,
+                                    ett_netanalyzer_transparent, NULL, "Raw packet data");
       next_tvb = tvb_new_subset_remaining(tvb, 4);
       call_dissector(data_dissector_handle, next_tvb, pinfo, transparent_payload_tree);
 

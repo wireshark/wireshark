@@ -298,7 +298,6 @@ static void dissect_nhrp_hdr(tvbuff_t     *tvb,
     guint        total_len = tvb_reported_length(tvb);
     guint16      ipcsum, rx_chksum;
 
-    proto_item *nhrp_tree_item;
     proto_tree *nhrp_tree;
     proto_item *shtl_tree_item;
     proto_tree *shtl_tree;
@@ -306,8 +305,7 @@ static void dissect_nhrp_hdr(tvbuff_t     *tvb,
     proto_tree *sstl_tree;
     proto_item *ti;
 
-    nhrp_tree_item = proto_tree_add_text(tree, tvb, offset, 20, "NHRP Fixed Header");
-    nhrp_tree = proto_item_add_subtree(nhrp_tree_item, ett_nhrp_hdr);
+    nhrp_tree = proto_tree_add_subtree(tree, tvb, offset, 20, ett_nhrp_hdr, NULL, "NHRP Fixed Header");
 
     hdr->ar_pktsz = tvb_get_ntohs(tvb, 10);
     if (total_len > hdr->ar_pktsz) {
@@ -472,8 +470,7 @@ static void dissect_cie_list(tvbuff_t    *tvb,
         guint       cli_saddr_len  = tvb_get_guint8(tvb, offset + 9);
         guint       cli_prot_len   = tvb_get_guint8(tvb, offset + 10);
         guint       cie_len        = 12 + cli_addr_len + cli_saddr_len + cli_prot_len;
-        proto_item *cie_tree_item  = proto_tree_add_text(tree, tvb, offset, cie_len, "Client Information Entry");
-        proto_tree *cie_tree       = proto_item_add_subtree(cie_tree_item, ett_nhrp_cie);
+        proto_tree *cie_tree       = proto_tree_add_subtree(tree, tvb, offset, cie_len, ett_nhrp_cie, NULL, "Client Information Entry");
 
         if (isReq) {
             proto_tree_add_item(cie_tree, hf_nhrp_code, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -587,7 +584,6 @@ static void dissect_nhrp_mand(tvbuff_t    *tvb,
     gboolean isErr   = FALSE;
     gboolean isInd   = FALSE;
 
-    proto_item *nhrp_tree_item;
     proto_tree *nhrp_tree;
 
     tvb_ensure_bytes_exist(tvb, offset, mandLen);
@@ -611,8 +607,7 @@ static void dissect_nhrp_mand(tvbuff_t    *tvb,
         isInd = TRUE;
         break;
     }
-    nhrp_tree_item = proto_tree_add_text(tree, tvb, offset, mandLen, "NHRP Mandatory Part");
-    nhrp_tree = proto_item_add_subtree(nhrp_tree_item, ett_nhrp_mand);
+    nhrp_tree = proto_tree_add_subtree(tree, tvb, offset, mandLen, ett_nhrp_mand, NULL, "NHRP Mandatory Part");
 
     *srcLen = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(nhrp_tree, hf_nhrp_src_proto_len, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -728,8 +723,7 @@ static void dissect_nhrp_mand(tvbuff_t    *tvb,
     if (isInd) {
         gboolean    save_in_error_pkt;
         gint        pkt_len       = mandEnd - offset;
-        proto_item *ind_tree_item = proto_tree_add_text(tree, tvb, offset, pkt_len, "Packet Causing Indication");
-        proto_tree *ind_tree      = proto_item_add_subtree(ind_tree_item, ett_nhrp_indication);
+        proto_tree *ind_tree      = proto_tree_add_subtree(tree, tvb, offset, pkt_len, ett_nhrp_indication, NULL, "Packet Causing Indication");
         gboolean    dissected;
         tvbuff_t   *sub_tvb;
 
@@ -837,7 +831,6 @@ static void dissect_nhrp_ext(tvbuff_t    *tvb,
 
     while ((offset + 4) <= extEnd)
     {
-        proto_item *nhrp_tree_item;
         proto_tree *nhrp_tree;
         gint        extTypeC = tvb_get_ntohs(tvb, offset);
         gint        extType  = extTypeC & 0x3FFF;
@@ -846,15 +839,14 @@ static void dissect_nhrp_ext(tvbuff_t    *tvb,
         if ((extType == NHRP_EXT_NAT_ADDRESS) && (len == 8)) {
             /* Assume it's not really a Cisco NAT extension, but a device
              * capabilities extension instead (see RFC 2735). */
-            nhrp_tree_item =  proto_tree_add_text(tree, tvb, offset,
-                len + 4, "Device Capabilities Extension");
+            nhrp_tree =  proto_tree_add_subtree(tree, tvb, offset,
+                len + 4, ett_nhrp_ext, NULL, "Device Capabilities Extension");
         }
         else {
-            nhrp_tree_item =  proto_tree_add_text(tree, tvb, offset,
-                len + 4, "%s",
+            nhrp_tree =  proto_tree_add_subtree(tree, tvb, offset,
+                len + 4, ett_nhrp_ext, NULL,
                 val_to_str(extType, ext_type_vals, "Unknown (%u)"));
         }
-        nhrp_tree = proto_item_add_subtree(nhrp_tree_item, ett_nhrp_ext);
         proto_tree_add_boolean(nhrp_tree, hf_nhrp_ext_C, tvb, offset, 2, extTypeC);
         proto_tree_add_item(nhrp_tree, hf_nhrp_ext_type, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
@@ -867,16 +859,14 @@ static void dissect_nhrp_ext(tvbuff_t    *tvb,
             if ((extType == NHRP_EXT_NAT_ADDRESS) && (len == 8)) {
                 /* Assume it's not really a Cisco NAT extension, but a device
                  * capabilities extension instead (see RFC 2735). */
-                proto_item *devcap_item;
                 proto_tree *devcap_tree;
                 proto_item *cap_item;
                 proto_tree *cap_tree;
 
-                devcap_item = proto_tree_add_text(nhrp_tree, tvb, offset, len,
-                    "Extension Data: Src is %sVPN-aware; Dst is %sVPN-aware",
+                devcap_tree = proto_tree_add_subtree_format(nhrp_tree, tvb, offset, len,
+                    ett_nhrp_devcap_ext, NULL, "Extension Data: Src is %sVPN-aware; Dst is %sVPN-aware",
                     tvb_get_ntohl(tvb, offset) & 1 ? "" : "non-",
                     tvb_get_ntohl(tvb, offset + 4) & 1 ? "" : "non-");
-                devcap_tree = proto_item_add_subtree(devcap_item, ett_nhrp_devcap_ext);
                 cap_item = proto_tree_add_item(devcap_tree, hf_nhrp_devcap_ext_srccap, tvb, offset, 4, ENC_BIG_ENDIAN);
                 cap_tree = proto_item_add_subtree(cap_item, ett_nhrp_devcap_ext_srccap);
                 proto_tree_add_item(cap_tree, hf_nhrp_devcap_ext_srccap_V, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -905,13 +895,11 @@ static void dissect_nhrp_ext(tvbuff_t    *tvb,
                     expert_add_info_format(pinfo, ti, &ei_nhrp_ext_malformed, "Incomplete Authentication Extension");
                 }
                 else {
-                    proto_item *auth_item;
                     proto_tree *auth_tree;
 
-                    auth_item = proto_tree_add_text(nhrp_tree, tvb, offset, len,
-                        "Extension Data: SPI=%u: Data=%s", tvb_get_ntohs(tvb, offset + 2),
+                    auth_tree = proto_tree_add_subtree_format(nhrp_tree, tvb, offset, len,
+                        ett_nhrp_auth_ext, NULL, "Extension Data: SPI=%u: Data=%s", tvb_get_ntohs(tvb, offset + 2),
                         tvb_bytes_to_ep_str(tvb, offset + 4, len - 4));
-                    auth_tree = proto_item_add_subtree(auth_item, ett_nhrp_auth_ext);
                     proto_tree_add_item(auth_tree, hf_nhrp_auth_ext_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
                     proto_tree_add_item(auth_tree, hf_nhrp_auth_ext_spi, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
                     if (srcLen == 4)
@@ -936,15 +924,13 @@ static void dissect_nhrp_ext(tvbuff_t    *tvb,
                     expert_add_info_format(pinfo, ti, &ei_nhrp_ext_malformed, "Incomplete Vendor-Private Extension");
                 }
                 else {
-                    proto_item *vendor_item;
                     proto_tree *vendor_tree;
                     gchar manuf[3];
 
                     tvb_memcpy(tvb, manuf, offset, 3);
-                    vendor_item = proto_tree_add_text(nhrp_tree, tvb, offset, len,
-                        "Extension Data: Vendor ID=%s, Data=%s", get_manuf_name(manuf),
+                    vendor_tree = proto_tree_add_subtree_format(nhrp_tree, tvb, offset, len,
+                        ett_nhrp_vendor_ext, NULL, "Extension Data: Vendor ID=%s, Data=%s", get_manuf_name(manuf),
                         tvb_bytes_to_ep_str(tvb, offset + 3, len - 3));
-                    vendor_tree = proto_item_add_subtree(vendor_item, ett_nhrp_vendor_ext);
                     proto_tree_add_bytes_format_value(vendor_tree, hf_nhrp_vendor_ext_id, tvb,
                         offset, 3, manuf, "%s", get_manuf_name(manuf));
                     if (len > 3) {

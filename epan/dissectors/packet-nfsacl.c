@@ -164,20 +164,15 @@ dissect_nfsacl_secattr(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 {
 	guint32 aclcnt, dfaclcnt;
 	guint32 i;
-	proto_item *entry_item = NULL;
-	proto_tree *entry_tree = NULL;
+	proto_tree *entry_tree;
 
 	offset = dissect_nfsacl_mask(tvb, offset, tree);
 	offset = dissect_rpc_uint32(tvb, tree, hf_nfsacl_aclcnt, offset);
 
 	aclcnt = tvb_get_ntohl(tvb, offset);
 
-	entry_item = proto_tree_add_text(tree, tvb, offset, 4,
-			"Total ACL entries: %d", aclcnt);
-
-	if (entry_item)
-		entry_tree = proto_item_add_subtree(entry_item,
-				ett_nfsacl_aclent_entries);
+	entry_tree = proto_tree_add_subtree_format(tree, tvb, offset, 4,
+			ett_nfsacl_aclent_entries, NULL, "Total ACL entries: %d", aclcnt);
 
 	offset += 4;
 
@@ -193,12 +188,8 @@ dissect_nfsacl_secattr(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 	dfaclcnt = tvb_get_ntohl(tvb, offset);
 
-	entry_item = proto_tree_add_text(tree, tvb, offset, 4,
-			"Total default ACL entries: %d", dfaclcnt);
-
-	if (entry_item)
-		entry_tree = proto_item_add_subtree(entry_item,
-				ett_nfsacl_aclent_entries);
+	entry_tree = proto_tree_add_subtree_format(tree, tvb, offset, 4,
+			ett_nfsacl_aclent_entries, NULL, "Total default ACL entries: %d", dfaclcnt);
 
 	offset += 4;
 
@@ -411,33 +402,26 @@ dissect_nfsacl3_getacl_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 			     proto_tree *tree, void* data _U_)
 {
 	guint32 status;
-	proto_item *entry_item = NULL;
-	proto_tree *entry_tree = NULL;
+	proto_item *entry_item;
+	proto_tree *entry_tree;
 
 	status = tvb_get_ntohl(tvb, offset + 0);
 
-	if (tree)
-		proto_tree_add_uint(tree, hf_nfs_status, tvb, offset + 0, 4,
+	proto_tree_add_uint(tree, hf_nfs_status, tvb, offset + 0, 4,
 				status);
 
 	offset += 4;
 
-	if (tree)
-	{
-		entry_item = proto_tree_add_item(tree, hf_nfsacl_entry, tvb,
+	entry_item = proto_tree_add_item(tree, hf_nfsacl_entry, tvb,
 				offset + 0, -1, ENC_NA);
-		if (entry_item)
-			entry_tree = proto_item_add_subtree(entry_item, ett_nfsacl_entry);
-	}
+	entry_tree = proto_item_add_subtree(entry_item, ett_nfsacl_entry);
 
-	if (entry_tree)
-		offset = dissect_nfs3_post_op_attr(tvb, offset, pinfo, entry_tree, "attr");
+	offset = dissect_nfs3_post_op_attr(tvb, offset, pinfo, entry_tree, "attr");
 
 	if (status != ACL3_OK)
 		return offset;
 
-	if (entry_tree)
-		offset = dissect_nfsacl_secattr(tvb, offset, pinfo, entry_tree);
+	offset = dissect_nfsacl_secattr(tvb, offset, pinfo, entry_tree);
 
 	return offset;
 }
@@ -447,22 +431,16 @@ dissect_nfsacl3_setacl_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 			    proto_tree *tree, void* data)
 
 {
-	proto_item *acl_item = NULL;
-	proto_tree *acl_tree = NULL;
+	proto_item *acl_item;
+	proto_tree *acl_tree;
 
 	offset = dissect_nfs3_fh(tvb, offset, pinfo, tree, "fhandle", NULL, (rpc_call_info_value*)data);
 
-	if (tree)
-	{
-		acl_item = proto_tree_add_item(tree, hf_nfsacl_entry, tvb, offset + 0,
+	acl_item = proto_tree_add_item(tree, hf_nfsacl_entry, tvb, offset + 0,
 				-1, ENC_NA);
+	acl_tree = proto_item_add_subtree(acl_item, ett_nfsacl_entry);
 
-		if (acl_item)
-			acl_tree = proto_item_add_subtree(acl_item, ett_nfsacl_entry);
-	}
-
-	if (acl_tree)
-		offset = dissect_nfsacl_secattr(tvb, offset, pinfo, acl_tree);
+	offset = dissect_nfsacl_secattr(tvb, offset, pinfo, acl_tree);
 
 	return offset;
 }

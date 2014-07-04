@@ -460,7 +460,6 @@ dissect_nbns_query(tvbuff_t *tvb, int offset, int nbns_data_offset,
     int         data_offset;
     int         data_start;
     proto_tree *q_tree;
-    proto_item *tq;
 
     name = (char *)wmem_alloc(wmem_packet_scope(), MAX_NAME_LEN);
     data_start = data_offset = offset;
@@ -476,10 +475,9 @@ dissect_nbns_query(tvbuff_t *tvb, int offset, int nbns_data_offset,
         col_append_fstr(cinfo, COL_INFO, " %s %s", type_name, name);
 
     if (nbns_tree != NULL) {
-        tq = proto_tree_add_text(nbns_tree, tvb, offset, len,
-                                 "%s: type %s, class %s",  name, type_name,
+        q_tree = proto_tree_add_subtree_format(nbns_tree, tvb, offset, len,
+                                 ett_nbns_qd, NULL, "%s: type %s, class %s",  name, type_name,
                                  dns_class_name(dns_class));
-        q_tree = proto_item_add_subtree(tq, ett_nbns_qd);
 
         add_name_and_type(q_tree, tvb, offset, name_len, "Name", name,
                           name_type);
@@ -1025,21 +1023,19 @@ dissect_query_records(tvbuff_t *tvb, int cur_off, int nbns_data_offset,
 		      int count, column_info *cinfo, proto_tree *nbns_tree)
 {
     int         start_off, add_off;
-    proto_tree *qatree = NULL;
-    proto_item *ti     = NULL;
+    proto_tree *qatree;
+    proto_item *ti;
 
     start_off = cur_off;
-    if (nbns_tree != NULL) {
-        ti = proto_tree_add_text(nbns_tree, tvb, start_off, -1, "Queries");
-        qatree = proto_item_add_subtree(ti, ett_nbns_qry);
-    }
+    qatree = proto_tree_add_subtree(nbns_tree, tvb, start_off, -1, ett_nbns_qry, &ti, "Queries");
+
     while (count-- > 0) {
         add_off = dissect_nbns_query(tvb, cur_off, nbns_data_offset,
                                      cinfo, qatree);
         cur_off += add_off;
     }
-    if (ti != NULL)
-        proto_item_set_len(ti, cur_off - start_off);
+
+    proto_item_set_len(ti, cur_off - start_off);
 
     return cur_off - start_off;
 }
@@ -1050,21 +1046,19 @@ dissect_answer_records(tvbuff_t *tvb, int cur_off, int nbns_data_offset,
 		       int opcode, const char *name)
 {
     int         start_off, add_off;
-    proto_tree *qatree = NULL;
-    proto_item *ti     = NULL;
+    proto_tree *qatree;
+    proto_item *ti;
 
     start_off = cur_off;
-    if (nbns_tree != NULL) {
-        ti = proto_tree_add_text(nbns_tree, tvb, start_off, -1, "%s", name);
-        qatree = proto_item_add_subtree(ti, ett_nbns_ans);
-    }
+    qatree = proto_tree_add_subtree(nbns_tree, tvb, start_off, -1, ett_nbns_ans, &ti, name);
+
     while (count-- > 0) {
         add_off = dissect_nbns_answer(tvb, cur_off, nbns_data_offset,
                                       cinfo, qatree, opcode);
         cur_off += add_off;
     }
-    if (ti != NULL)
-        proto_item_set_len(ti, cur_off - start_off);
+
+    proto_item_set_len(ti, cur_off - start_off);
     return cur_off - start_off;
 }
 

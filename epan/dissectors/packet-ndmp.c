@@ -1373,19 +1373,15 @@ static int
 dissect_execute_cdb_cdb(tvbuff_t *tvb, int offset, packet_info *pinfo,
     proto_tree *parent_tree, gint devtype)
 {
-	proto_item* item = NULL;
-	proto_tree* tree = NULL;
+	proto_tree* tree;
 	guint32 cdb_len;
 	guint32 cdb_len_full;
 
 	cdb_len = tvb_get_ntohl(tvb, offset);
 	cdb_len_full = rpc_roundup(cdb_len);
 
-	if (parent_tree) {
-		item = proto_tree_add_text(parent_tree, tvb, offset,
-				4+cdb_len_full, "CDB");
-		tree = proto_item_add_subtree(item, ett_ndmp_execute_cdb_cdb);
-	}
+	tree = proto_tree_add_subtree(parent_tree, tvb, offset,
+			4+cdb_len_full, ett_ndmp_execute_cdb_cdb, NULL, "CDB");
 
 	proto_tree_add_uint(tree, hf_ndmp_execute_cdb_cdb_len, tvb, offset, 4,
 			cdb_len);
@@ -1431,20 +1427,15 @@ static int
 dissect_execute_cdb_payload(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree,
     const char *name, int hf_len, gboolean isreq)
 {
-	proto_item* item = NULL;
-	proto_tree* tree = NULL;
+	proto_tree* tree;
 	guint32 payload_len;
 	guint32 payload_len_full;
 
 	payload_len = tvb_get_ntohl(tvb, offset);
 	payload_len_full = rpc_roundup(payload_len);
 
-	if (parent_tree) {
-		item = proto_tree_add_text(parent_tree, tvb, offset,
-				4+payload_len_full, "%s", name);
-		tree = proto_item_add_subtree(item,
-		    ett_ndmp_execute_cdb_payload);
-	}
+	tree = proto_tree_add_subtree(parent_tree, tvb, offset,
+				4+payload_len_full, ett_ndmp_execute_cdb_payload, NULL, name);
 
 	proto_tree_add_uint(tree, hf_len, tvb, offset, 4, payload_len);
 	offset += 4;
@@ -1538,19 +1529,15 @@ dissect_execute_cdb_request_tape(tvbuff_t *tvb, int offset, packet_info *pinfo,
 static int
 dissect_execute_cdb_sns(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree)
 {
-	proto_item* item = NULL;
-	proto_tree* tree = NULL;
+	proto_tree* tree;
 	guint32 sns_len;
 	guint32 sns_len_full;
 
 	sns_len = tvb_get_ntohl(tvb, offset);
 	sns_len_full = rpc_roundup(sns_len);
 
-	if (parent_tree) {
-		item = proto_tree_add_text(parent_tree, tvb, offset,
-				4+sns_len_full, "Sense data");
-		tree = proto_item_add_subtree(item, ett_ndmp_execute_cdb_sns);
-	}
+	tree = proto_tree_add_subtree(parent_tree, tvb, offset,
+				4+sns_len_full, ett_ndmp_execute_cdb_sns, NULL, "Sense data");
 
 	proto_tree_add_uint(tree, hf_ndmp_execute_cdb_sns_len, tvb, offset, 4,
 			sns_len);
@@ -1910,16 +1897,12 @@ static int
 dissect_ndmp_addr(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
     proto_tree *parent_tree)
 {
-	proto_item* item = NULL;
-	proto_tree* tree = NULL;
+	proto_tree* tree;
 	guint32 type;
 
 	type=tvb_get_ntohl(tvb, offset);
-	if (parent_tree) {
-		item = proto_tree_add_text(parent_tree, tvb, offset, 4,
+	tree = proto_tree_add_subtree_format(parent_tree, tvb, offset, 4, ett_ndmp_addr, NULL,
 				"Type: %s ", val_to_str(type, addr_type_vals,"Unknown addr type (0x%02x)") );
-		tree = proto_item_add_subtree(item, ett_ndmp_addr);
-	}
 
 	/*address type*/
 	proto_tree_add_item(tree, hf_ndmp_addr_type, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -2365,17 +2348,14 @@ static const value_string file_fs_type_vals[] = {
 static int
 dissect_file_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, void* data _U_)
 {
-	proto_item* item = NULL;
-	proto_tree* tree = NULL;
+	proto_item* item;
+	proto_tree* tree;
 	int old_offset=offset;
 	guint32 type;
 	const char *name;
 
-	if (parent_tree) {
-		item = proto_tree_add_text(parent_tree, tvb, offset, -1,
-				"File");
-		tree = proto_item_add_subtree(item, ett_ndmp_file_name);
-	}
+	tree = proto_tree_add_subtree(parent_tree, tvb, offset, -1,
+				ett_ndmp_file_name, &item, "File");
 
 	/* file type */
 	type=tvb_get_ntohl(tvb, offset);
@@ -2477,16 +2457,13 @@ static const value_string file_type_vals[] = {
 static int
 dissect_file_stats(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, void* data _U_)
 {
-	proto_item* item = NULL;
-	proto_tree* tree = NULL;
+	proto_item* item;
+	proto_tree* tree;
 	int old_offset=offset;
 	nstime_t ns;
 
-	if (parent_tree) {
-		item = proto_tree_add_text(parent_tree, tvb, offset, -1,
-				"Stats:");
-		tree = proto_item_add_subtree(item, ett_ndmp_file_stats);
-	}
+	tree = proto_tree_add_subtree(parent_tree, tvb, offset, -1,
+				ett_ndmp_file_stats, &item, "Stats:");
 
 	/* invalids */
 	offset = dissect_file_invalids(tvb, offset, pinfo, tree);
@@ -2547,15 +2524,12 @@ dissect_file_stats(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *pa
 static int
 dissect_ndmp_file(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, void* data _U_)
 {
-	proto_item* item = NULL;
-	proto_tree* tree = NULL;
+	proto_item* item;
+	proto_tree* tree;
 	int old_offset=offset;
 
-	if (parent_tree) {
-		item = proto_tree_add_text(parent_tree, tvb, offset, -1,
-				"File:");
-		tree = proto_item_add_subtree(item, ett_ndmp_file);
-	}
+	tree = proto_tree_add_subtree(parent_tree, tvb, offset, -1,
+				ett_ndmp_file, &item, "File:");
 
 	/* file names */
 	offset = dissect_rpc_array(tvb, pinfo, tree, offset,
@@ -3036,7 +3010,6 @@ static int
 dissect_ndmp_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, struct ndmp_header *nh)
 {
 	int i;
-	proto_item *cmd_item=NULL;
 	proto_tree *cmd_tree=NULL;
 
 	offset=dissect_ndmp_header(tvb, offset, pinfo, tree, nh);
@@ -3057,9 +3030,7 @@ dissect_ndmp_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree
 
 	if (tvb_reported_length_remaining(tvb, offset) > 0) {
 		if(tree){
-			cmd_item = proto_tree_add_text(tree, tvb, offset, -1, "%s",
-				msg_vals[i].strptr);
-			cmd_tree = proto_item_add_subtree(cmd_item, ett_ndmp);
+			cmd_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_ndmp, NULL, msg_vals[i].strptr);
 		}
 	}
 
@@ -3092,8 +3063,7 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 	ndmp_frag_info* nfi;
 	proto_item *ndmp_item = NULL;
 	proto_tree *ndmp_tree = NULL;
-	proto_item *hdr_item = NULL;
-	proto_tree *hdr_tree = NULL;
+	proto_tree *hdr_tree;
 	wmem_map_t *frags;
 	conversation_t *conversation;
 	proto_item *vers_item;
@@ -3267,11 +3237,10 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 				ndmp_item = proto_tree_add_item(tree, proto_ndmp, tvb, 0, -1, ENC_NA);
 				ndmp_tree = proto_item_add_subtree(ndmp_item, ett_ndmp);
 			}
-			hdr_item = proto_tree_add_text(ndmp_tree, tvb, 0, 4,
-				"Fragment header: %s%u %s",
+			hdr_tree = proto_tree_add_subtree_format(ndmp_tree, tvb, 0, 4,
+				ett_ndmp_fraghdr, NULL, "Fragment header: %s%u %s",
 				(ndmp_rm & RPC_RM_LASTFRAG) ? "Last fragment, " : "",
 				ndmp_rm & RPC_RM_FRAGLEN, plurality(ndmp_rm & RPC_RM_FRAGLEN, "byte", "bytes"));
-			hdr_tree = proto_item_add_subtree(hdr_item, ett_ndmp_fraghdr);
 			proto_tree_add_boolean(hdr_tree, hf_ndmp_lastfrag, tvb, 0, 4, ndmp_rm);
 			proto_tree_add_uint(hdr_tree, hf_ndmp_fraglen, tvb, 0, 4, ndmp_rm);
 
@@ -3384,11 +3353,10 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 	}
 
 	/* Add the record marker information to the tree */
-	hdr_item = proto_tree_add_text(ndmp_tree, tvb, 0, 4,
-		"Fragment header: %s%u %s",
+	hdr_tree = proto_tree_add_subtree_format(ndmp_tree, tvb, 0, 4,
+		ett_ndmp_fraghdr, NULL, "Fragment header: %s%u %s",
 		(ndmp_rm & RPC_RM_LASTFRAG) ? "Last fragment, " : "",
 		ndmp_rm & RPC_RM_FRAGLEN, plurality(ndmp_rm & RPC_RM_FRAGLEN, "byte", "bytes"));
-	hdr_tree = proto_item_add_subtree(hdr_item, ett_ndmp_fraghdr);
 	proto_tree_add_boolean(hdr_tree, hf_ndmp_lastfrag, tvb, 0, 4, ndmp_rm);
 	proto_tree_add_uint(hdr_tree, hf_ndmp_fraglen, tvb, 0, 4, ndmp_rm);
 
