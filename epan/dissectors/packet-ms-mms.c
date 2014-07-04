@@ -323,11 +323,9 @@ static gint dissect_msmms_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     /* Work out what type of packet this is and dissect it as such */
 
     /* Just don't dissect if can't even read command signature */
-    if (tvb_length(tvb) < 8)
-    {
+    if (tvb_captured_length(tvb) < 8) {
         return 0;
     }
-
 
     /* Command */
     if (tvb_get_letohl(tvb, 4) == 0xb00bface)
@@ -377,7 +375,7 @@ static gint dissect_msmms_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     {
         pinfo->desegment_offset = 0;  /* Start at beginning next time */
         pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;     /* Need one more byte to try again */
-        return 0;
+        return -1;
     }
 
     /* Read length field and see if we're short */
@@ -386,7 +384,7 @@ static gint dissect_msmms_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     {
         pinfo->desegment_offset = 0; /* Start at beginning next time */
         pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;   /* Need one more byte to try again */
-        return 0;
+        return -1;
     }
 
 
@@ -645,7 +643,7 @@ static gint dissect_msmms_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     {
         pinfo->desegment_offset = 0;  /* Start from beginning again next time */
         pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;     /* Try again with even one more byte */
-        return 0;
+        return -1;
     }
 
 
@@ -653,7 +651,7 @@ static gint dissect_msmms_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     if (pinfo->ptype == PT_TCP)
     {
         /* Flag value is in 5th byte */
-        value = tvb_get_letohs(tvb, 4) & 0xff00;
+        value = tvb_get_guint8(tvb, 5);
         /* Reject packet if not a recognised packet type */
         if (try_val_to_str(value, tcp_flags_vals) == NULL)
         {
