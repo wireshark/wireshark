@@ -45,7 +45,13 @@ libcaputils_a_SOURCES = \
 	$(CAPUTILS_SRC) \
 	$(noinst_HEADERS)
 
-libcaputils_a_CFLAGS = $(AM_CLEAN_CFLAGS)
+#
+# This is used to build dumpcap, and dumpcap is, if possible, built as
+# a position-independent executable (for address space layout randomization,
+# as it might be running with extra privileges), so this library needs
+# to be built that way as well.
+#
+libcaputils_a_CFLAGS = $(AM_CLEAN_CFLAGS) $(PIE_CFLAGS)
 
 libcaputils_a_DEPENDENCIES =
 
