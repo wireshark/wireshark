@@ -3005,7 +3005,7 @@ dissect_openflow_table_feature_prop_v4(tvbuff_t *tvb, packet_info *pinfo _U_, pr
     guint16 prop_type;
     guint16 prop_length;
     guint16 elem_begin;
-    guint16 body_end;
+    gint32 body_end;
     guint16 pad_length;
 
     ti = proto_tree_add_text(tree, tvb, offset, -1, "Table feature property");
