@@ -899,7 +899,7 @@ cant_get_if_list_error_message(const char *err_str)
  * Append the version of WinPcap with which we were compiled to a GString.
  */
 void
-get_compiled_pcap_version(GString *str)
+get_compiled_caplibs_version(GString *str)
 {
 	g_string_append(str, "with WinPcap (" G_STRINGIFY(WINPCAP_VERSION) ")");
 }
@@ -908,7 +908,7 @@ get_compiled_pcap_version(GString *str)
  * Append the version of WinPcap with which we we're running to a GString.
  */
 void
-get_runtime_pcap_version(GString *str)
+get_runtime_caplibs_version(GString *str)
 {
 	/*
 	 * On Windows, we might have been compiled with WinPcap but
@@ -974,7 +974,7 @@ load_wpcap(void)
  * to a GString.
  */
 void
-get_compiled_pcap_version(GString *str)
+get_compiled_caplibs_version(GString *str)
 {
 	g_string_append(str, "without WinPcap");
 }
@@ -983,7 +983,7 @@ get_compiled_pcap_version(GString *str)
  * Don't append anything, as we weren't even compiled to use WinPcap.
  */
 void
-get_runtime_pcap_version(GString *str _U_)
+get_runtime_caplibs_version(GString *str _U_)
 {
 }
 
