@@ -91,6 +91,8 @@ static int hf_tprof_b29 = -1;
 static int hf_tprof_b30 = -1;
 static int hf_tprof_b31 = -1;
 static int hf_tprof_b32 = -1;
+static int hf_tprof_b33 = -1;
+static int hf_tprof_unknown_byte = -1;
 /* First byte */
 static int hf_tp_prof_dld = -1;
 static int hf_tp_sms_data_dld = -1;
@@ -313,6 +315,12 @@ static int hf_tp_pa_prov_loci_henb_ip_addr = -1;
 static int hf_tp_pa_prov_loci_henb_surround_macro = -1;
 static int hf_tp_launch_params_support_open_chan_server_mode = -1;
 static int hf_tp_direct_com_support_open_chan_server_mode = -1;
+static int hf_tp_pa_sec_prof_env_cont = -1;
+static int hf_tp_cat_serv_list_ecat_client = -1;
+static int hf_tp_support_refresh_enforcement_policy = -1;
+/* 33th byte */
+static int hf_tp_support_dns_addr_req = -1;
+static int hf_tp_support_nw_access_name_reuse = -1;
 static int hf_tp_rfu11 = -1;
 
 static int hf_cat_ber_tag = -1;
@@ -354,6 +362,7 @@ static int ett_tprof_b29 = -1;
 static int ett_tprof_b30 = -1;
 static int ett_tprof_b31 = -1;
 static int ett_tprof_b32 = -1;
+static int ett_tprof_b33 = -1;
 
 static dissector_handle_t sub_handle_cap;
 
@@ -670,6 +679,15 @@ static const int *tprof_b32_fields[] = {
 	&hf_tp_pa_prov_loci_henb_surround_macro,
 	&hf_tp_launch_params_support_open_chan_server_mode,
 	&hf_tp_direct_com_support_open_chan_server_mode,
+	&hf_tp_pa_sec_prof_env_cont,
+	&hf_tp_cat_serv_list_ecat_client,
+	&hf_tp_support_refresh_enforcement_policy,
+	NULL
+};
+
+static const int *tprof_b33_fields[] = {
+	&hf_tp_support_dns_addr_req,
+	&hf_tp_support_nw_access_name_reuse,
 	&hf_tp_rfu11,
 	NULL
 };
@@ -1298,6 +1316,10 @@ dissect_gsm_apdu(guint8 ins, guint8 p1, guint8 p2, guint8 p3, tvbuff_t *tvb,
 		ADD_TP_BYTE(30);
 		ADD_TP_BYTE(31);
 		ADD_TP_BYTE(32);
+		ADD_TP_BYTE(33);
+		while ((offset - start_offset) < p3) {
+			proto_tree_add_item(tree, hf_tprof_unknown_byte, tvb, offset++, 1, ENC_BIG_ENDIAN);
+		}
 		break;
 	case 0x12: /* FETCH */
 		proto_tree_add_item(tree, hf_le, tvb, offset+P3_OFFS, 1, ENC_BIG_ENDIAN);
@@ -2724,9 +2746,47 @@ proto_register_gsm_sim(void)
 			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x10,
 			  NULL, HFILL }
 		},
+		{ &hf_tp_pa_sec_prof_env_cont,
+			{ "Proactive SIM: Security for Profile Container, Envelope Container, COMMAND CONTAINER and ENCAPSULATED SESSION CONTROL", "gsm_sim.tp.sec_prof_env_cont",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x20,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_cat_serv_list_ecat_client,
+			{ "CAT service list for eCAT client", "gsm_sim.tp.serv_list_ecat_client",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x40,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_support_refresh_enforcement_policy,
+			{ "Support of refresh enforcement policy", "gsm_sim.tp.refresh_enforcement_policy",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x80,
+			  NULL, HFILL }
+		},
+
+		/* Terminal Profile Byte 33 */
+		{ &hf_tprof_b33,
+			{ "Terminal Profile Byte 33", "gsm_sim.tp.b33",
+			  FT_UINT8, BASE_HEX, NULL, 0,
+			  NULL, HFILL },
+		},
+		{ &hf_tp_support_dns_addr_req,
+			{ "Support of DNS server address request for OPEN CHANNEL related to packet data service bearer", "gsm_sim.tp.support_dns_addr_req",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_support_nw_access_name_reuse,
+			{ "Support of Network Access Name reuse indication for CLOSE CHANNEL related to packet data service bearer", "gsm_sim.tp.nw_access_name_reuse",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x02,
+			  NULL, HFILL }
+		},
 		{ &hf_tp_rfu11,
 			{ "RFU", "gsm_sim.tp.rfu",
-			  FT_UINT8, BASE_HEX, NULL, 0xe0,
+			  FT_UINT8, BASE_HEX, NULL, 0xfc,
+			  NULL, HFILL },
+		},
+
+		{ &hf_tprof_unknown_byte,
+			{ "Unknown Terminal Profile Byte", "gsm_sim.tp.unknown_byte",
+			  FT_UINT8, BASE_HEX, NULL, 0,
 			  NULL, HFILL },
 		},
 
@@ -2785,6 +2845,7 @@ proto_register_gsm_sim(void)
 		&ett_tprof_b30,
 		&ett_tprof_b31,
 		&ett_tprof_b32,
+		&ett_tprof_b33
 	};
 
 	proto_gsm_sim = proto_register_protocol("GSM SIM 11.11", "GSM SIM",
