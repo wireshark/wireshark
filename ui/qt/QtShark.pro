@@ -298,7 +298,7 @@ HEADERS += $$HEADERS_WS_C \
     summary_dialog.h \
     tango_colors.h \
     tcp_stream_dialog.h \
-    uat_dialog.h \
+    uat_dialog.h
 
 win32 {
     OBJECTS_WS_C = $$SOURCES_WS_C
