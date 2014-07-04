@@ -25,8 +25,8 @@
 #ifndef __IO_GRAPH_ITEM_H__
 #define __IO_GRAPH_ITEM_H__
 
-#import <stdlib.h>
-#import <math.h>
+#include <stdlib.h>
+#include <math.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -199,7 +199,7 @@ update_io_graph_item(io_graph_item_t *items, int idx, packet_info *pinfo, epan_d
                 break;
             case FT_UINT64:
             case FT_INT64:
-                new_int64 = labs(fvalue_get_integer64(&((field_info *)gp->pdata[i])->value));
+                new_int64 = (guint64)labs(fvalue_get_integer64(&((field_info *)gp->pdata[i])->value));
                 if ((new_int64 > item->int_max) || (item->fields == 0)) {
                     item->int_max = new_int64;
                 }
@@ -210,7 +210,7 @@ update_io_graph_item(io_graph_item_t *items, int idx, packet_info *pinfo, epan_d
                 item->fields++;
                 break;
             case FT_FLOAT:
-                new_float = fabs((gfloat)fvalue_get_floating(&((field_info *)gp->pdata[i])->value));
+                new_float = (gfloat)fabs(fvalue_get_floating(&((field_info *)gp->pdata[i])->value));
                 if ((new_float > item->float_max) || (item->fields == 0)) {
                     item->float_max = new_float;
                 }
