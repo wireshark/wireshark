@@ -1013,20 +1013,14 @@ capture_opts_output_to_pipe(const char *save_file, gboolean *is_pipe)
   return 0;
 }
 
-/*
- * Add all non-hidden selected interfaces in the "all interfaces" list
- * to the list of interfaces for the capture.
- */
 void
-collect_ifaces(capture_options *capture_opts)
+capture_opts_del_iface(capture_options *capture_opts, guint index)
 {
-  guint i;
-  interface_t device;
   interface_options interface_opts;
 
-  /* Empty out the existing list of interfaces. */
-  for (i = capture_opts->ifaces->len; i != 0; i--) {
-    interface_opts = g_array_index(capture_opts->ifaces, interface_options, i - 1);
+  interface_opts = g_array_index(capture_opts->ifaces, interface_options, index);
+  /* XXX - check if found? */
+
     g_free(interface_opts.name);
     g_free(interface_opts.descr);
     if (interface_opts.console_display_name != NULL)
@@ -1040,8 +1034,25 @@ collect_ifaces(capture_options *capture_opts)
       g_free(interface_opts.auth_password);
     }
 #endif
-    capture_opts->ifaces = g_array_remove_index(capture_opts->ifaces, i - 1);
-  }
+    capture_opts->ifaces = g_array_remove_index(capture_opts->ifaces, index);
+}
+
+
+
+/*
+ * Add all non-hidden selected interfaces in the "all interfaces" list
+ * to the list of interfaces for the capture.
+ */
+void
+collect_ifaces(capture_options *capture_opts)
+{
+  guint i;
+  interface_t device;
+  interface_options interface_opts;
+
+  /* Empty out the existing list of interfaces. */
+  for (i = capture_opts->ifaces->len; i != 0; i--)
+     capture_opts_del_iface(capture_opts, i-1);
 
   /* Now fill the list up again. */
   for (i = 0; i < capture_opts->all_ifaces->len; i++) {

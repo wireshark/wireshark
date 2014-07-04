@@ -339,6 +339,9 @@ capture_opts_default_iface_if_necessary(capture_options *capture_opts,
                                         const char *capture_device);
 
 extern void
+capture_opts_del_iface(capture_options *capture_opts, guint index);
+
+extern void
 collect_ifaces(capture_options *capture_opts);
 
 /* Default capture buffer size in Mbytes. */

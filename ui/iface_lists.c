@@ -86,6 +86,25 @@ scan_local_interfaces(void (*update_cb)(void))
             device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
             if (device.local && device.type != IF_PIPE && device.type != IF_STDIN) {
                 global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, i);
+
+                if (device.selected) {
+                    global_capture_opts.num_selected--;
+                    /* if device was to be used after this statement,
+                       we should set device.selected=FALSE here */
+                }
+
+                /* if we remove an interface from all_interfaces,
+                   it must also be removed from ifaces if it is present there
+                   otherwise, it would be re-added to all_interfaces below
+                   (interfaces set with -i on the command line are initially present in ifaces but not
+                   in all_interfaces, but these interfaces are not removed here) */
+                for (j = 0; j < global_capture_opts.ifaces->len; j++) {
+                    interface_opts = g_array_index(global_capture_opts.ifaces, interface_options, j);
+                    if (strcmp(device.name, interface_opts.name) == 0) {
+                        /* 2nd param must be the index of ifaces (not all_ifaces) */
+                        capture_opts_del_iface(&global_capture_opts, j);
+                    }
+                }
             }
         }
     }
