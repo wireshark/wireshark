@@ -3458,12 +3458,12 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
     }
   }
   tap_queue_packet(skinny_tap, pinfo, si);
-  return tvb_length(tvb);
+  return tvb_captured_length(tvb);
 }
 
 
 /* Code to actually dissect the packets */
-static gboolean
+static int
 dissect_skinny(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
   /* The general structure of a packet: {IP-Header|TCP-Header|n*SKINNY}
@@ -3475,9 +3475,9 @@ dissect_skinny(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
   /* check, if this is really an SKINNY packet, they start with a length + 0 */
 
-  if (tvb_length_remaining(tvb, 0) < 8)
+  if (tvb_captured_length(tvb) < 8)
   {
-    return FALSE;
+    return 0;
   }
   /* get relevant header information */
   hdr_data_length = tvb_get_letohl(tvb, 0);
@@ -3496,7 +3496,7 @@ dissect_skinny(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
      )
   {
       /* Not an SKINNY packet, just happened to use the same port */
-      return FALSE;
+      return 0;
   }
 
   /* Make entries in Protocol column and Info column on summary display */
@@ -3507,7 +3507,7 @@ dissect_skinny(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
   tcp_dissect_pdus(tvb, pinfo, tree, skinny_desegment, 4,
                    get_skinny_pdu_len, dissect_skinny_pdu, data);
 
-  return TRUE;
+  return tvb_captured_length(tvb);
 }
 
 /* Register the protocol with Wireshark */
