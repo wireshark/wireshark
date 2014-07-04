@@ -50,7 +50,7 @@ static gboolean response_is_continuation(const guchar * data);
 void proto_reg_handoff_kismet(void);
 void proto_register_kismet(void);
 
-static gboolean
+static int
 dissect_kismet(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * data _U_)
 {
 	gboolean is_request;
@@ -84,14 +84,14 @@ dissect_kismet(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * da
 		/*
 		 * Packet is too short
 		 */
-		return FALSE;
+		return 0;
 	} else {
 		for (i = 0; i < 8; ++i) {
 			/*
 			 * Packet contains non-ASCII data
 			 */
 			if (line[i] < 32 || line[i] > 128)
-				return FALSE;
+				return 0;
 		}
 	}
 
@@ -134,7 +134,7 @@ dissect_kismet(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * da
 		 * Put the whole packet into the tree as data.
 		 */
 		call_dissector(data_handle, tvb, pinfo, kismet_tree);
-		return TRUE;
+		return tvb_captured_length(tvb);
 	}
 
 	if (is_request) {
@@ -257,7 +257,7 @@ dissect_kismet(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * da
 		offset = next_offset;
 	}
 
-	return TRUE;
+	return tvb_captured_length(tvb);
 }
 
 static gboolean
@@ -326,3 +326,16 @@ proto_reg_handoff_kismet(void)
 
 	dissector_add_uint("tcp.port", global_kismet_tcp_port, kismet_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */
