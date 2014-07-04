@@ -1177,6 +1177,11 @@ finished_fwd:
     &&  tcpd->fwd->nextseq
     &&  (LT_SEQ(seq, tcpd->fwd->nextseq)) ) {
         guint64 t;
+        guint64 ooo_thres;
+        if (tcpd->ts_first_rtt.nsecs == 0 && tcpd->ts_first_rtt.secs == 0)
+                ooo_thres = 3000000;
+        else
+                ooo_thres = tcpd->ts_first_rtt.nsecs + tcpd->ts_first_rtt.secs*1000000000;
 
         if(tcpd->ta && (tcpd->ta->flags&TCP_A_KEEP_ALIVE) ) {
             goto finished_checking_retransmission_type;
@@ -1201,14 +1206,13 @@ finished_fwd:
             goto finished_checking_retransmission_type;
         }
 
-        /* If the segment came <3ms since the segment with the highest
+        /* If the segment came relatively close since the segment with the highest
          * seen sequence number and it doesn't look like a retransmission
          * then it is an OUT-OF-ORDER segment.
-         *   (3ms is an arbitrary number)
          */
         t=(pinfo->fd->abs_ts.secs-tcpd->fwd->nextseqtime.secs)*1000000000;
         t=t+(pinfo->fd->abs_ts.nsecs)-tcpd->fwd->nextseqtime.nsecs;
-        if( t<3000000
+        if( t < ooo_thres
         && tcpd->fwd->nextseq != seq + seglen ) {
             if(!tcpd->ta) {
                 tcp_analyze_get_acked_struct(pinfo->fd->num, seq, ack, TRUE, tcpd);
