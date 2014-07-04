@@ -27,7 +27,7 @@
 
 #ifdef HAVE_LIBPCAP
 #ifdef _WIN32
-#include "capture-wpcap.h"
+#include "caputils/capture-wpcap.h"
 #endif /* _WIN32 */
 #endif /* HAVE_LIBPCAP */
 

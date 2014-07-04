@@ -44,7 +44,7 @@
 #include <windowsx.h>
 #include <Ntddndis.h>
 
-#include "capture_wpcap_packet.h"
+#include "caputils/capture_wpcap_packet.h"
 #include <wsutil/file_util.h>
 
 /* packet32.h requires sockaddr_storage

@@ -53,19 +53,19 @@ int linktype_name_to_val(const char *linktype);
 #endif /* HAVE_LIBPCAP */
 
 /*
- * Append to a GString an indication of the version of libpcap/WinPcap
- * with which we were compiled, if we were, or an indication that we
- * weren't compiled with libpcap/WinPcap, if we weren't.
+ * Get the versions of capture libraries with which we were compiled,
+ * and append them to a GString.
  */
-extern void get_compiled_pcap_version(GString *str);
+extern void get_compiled_caplibs_version(GString *str);
 
 /*
- * Append to a GString an indication of the version of libpcap/WinPcap
+ * Append to a GString an indication of the version of capture libraries
  * with which we're running, or an indication that we're not running
- * with libpcap/WinPcap, if we were compiled with libpcap/WinPcap,
- * or nothing, if we weren't compiled with libpcap/WinPcap.
+ * with capture libraries, if we were compiled with WinPcap but
+ * WinPcap wasn't loaded, or nothing, if we weren't compiled with
+ * libpcap/WinPcap.
  */
-extern void get_runtime_pcap_version(GString *str);
+extern void get_runtime_caplibs_version(GString *str);
 
 #ifdef __cplusplus
 }

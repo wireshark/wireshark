@@ -42,9 +42,9 @@
 #include <wtap.h>
 #include <libpcap.h>
 
-#include <capchild/capture_ifinfo.h>
-#include "capture-pcap-util.h"
-#include "capture-pcap-util-int.h"
+#include "caputils/capture_ifinfo.h"
+#include "caputils/capture-pcap-util.h"
+#include "caputils/capture-pcap-util-int.h"
 
 #include "wsutil/file_util.h"
 
@@ -53,7 +53,7 @@
 #endif
 
 #ifdef _WIN32
-#include "capture_win_ifnames.h" /* windows friendly interface names */
+#include "caputils/capture_win_ifnames.h" /* windows friendly interface names */
 #endif
 
 /*

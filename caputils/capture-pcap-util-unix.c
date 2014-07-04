@@ -60,13 +60,17 @@ struct rtentry;
 # include <sys/sockio.h>
 #endif
 
-#include "capture-pcap-util.h"
+#include "caputils/capture-pcap-util.h"
 
 #endif  /* HAVE_PCAP_FINDALLDEVS */
 
-#include <capchild/capture_ifinfo.h>
-#include "capture-pcap-util.h"
-#include "capture-pcap-util-int.h"
+#ifdef HAVE_LIBCAP
+# include <sys/capability.h>
+#endif
+
+#include "caputils/capture_ifinfo.h"
+#include "caputils/capture-pcap-util.h"
+#include "caputils/capture-pcap-util-int.h"
 
 #ifdef HAVE_PCAP_REMOTE
 GList *
@@ -331,10 +335,11 @@ cant_get_if_list_error_message(const char *err_str)
 }
 
 /*
- * Append the version of libpcap with which we were compiled to a GString.
+ * Get the versions of libpcap, libpcap, and libnl with which we were
+ * compiled, and append them to a GString.
  */
 void
-get_compiled_pcap_version(GString *str)
+get_compiled_caplibs_version(GString *str)
 {
 	/*
 	 * NOTE: in *some* flavors of UN*X, the data from a shared
@@ -357,13 +362,45 @@ get_compiled_pcap_version(GString *str)
 	 * of libpcap with which we were compiled.
 	 */
 	g_string_append(str, "with libpcap");
+
+	/*
+	 * XXX - these libraries are actually used only by dumpcap,
+	 * but we mention them here so that a user reporting a bug
+	 * can get information about dumpcap's libraries without
+	 * having to run dumpcap.
+	 */
+	/* LIBCAP */
+	g_string_append(str, ", ");
+#ifdef HAVE_LIBCAP
+	g_string_append(str, "with POSIX capabilities");
+#ifdef _LINUX_CAPABILITY_VERSION
+	g_string_append(str, " (Linux)");
+#endif /* _LINUX_CAPABILITY_VERSION */
+#else /* HAVE_LIBCAP */
+	g_string_append(str, "without POSIX capabilities");
+#endif /* HAVE_LIBCAP */
+
+#ifdef __linux__
+	/* This is a Linux-specific library. */
+	/* LIBNL */
+	g_string_append(str, ", ");
+#if defined(HAVE_LIBNL1)
+	g_string_append(str, "with libnl 1");
+#elif defined(HAVE_LIBNL2)
+	g_string_append(str, "with libnl 2");
+#elif defined(HAVE_LIBNL3)
+	g_string_append(str, "with libnl 3");
+#else /* no libnl */
+	g_string_append(str, "without libnl");
+#endif /* libnl version */
+#endif /* __linux__ */
 }
 
 /*
  * Append the version of libpcap with which we we're running to a GString.
  */
 void
-get_runtime_pcap_version(GString *str)
+get_runtime_caplibs_version(GString *str)
 {
 	g_string_append_printf(str, "with ");
 #ifdef HAVE_PCAP_LIB_VERSION
@@ -377,19 +414,20 @@ get_runtime_pcap_version(GString *str)
 
 /*
  * Append an indication that we were not compiled with libpcap
- * to a GString.
+ * to a GString.  Don't even bother mentioning the other
+ * libraries.
  */
 void
-get_compiled_pcap_version(GString *str)
+get_compiled_caplibs_version(GString *str)
 {
 	g_string_append(str, "without libpcap");
 }
 
 /*
- * Don't append anything, as we weren't even compiled to use WinPcap.
+ * Don't append anything, as we weren't even compiled to use libpcap.
  */
 void
-get_runtime_pcap_version(GString *str _U_)
+get_runtime_caplibs_version(GString *str _U_)
 {
 }
 

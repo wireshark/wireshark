@@ -49,11 +49,6 @@ CFLAGS=$(WARNINGS_ARE_ERRORS) $(GENERATED_CFLAGS)
 .c.obj::
 	$(CC) $(CFLAGS) -Fd.\ -c $<
 
-PLATFORM_PCAP_SRC = \
-	capture-wpcap.c \
-	capture_wpcap_packet.c \
-	capture_win_ifnames.c
-
 include Makefile.common
 
 wireshark_OBJECTS = $(WIRESHARK_COMMON_SRC:.c=.obj)
@@ -185,6 +180,7 @@ text2pcap_LIBS= \
 
 dumpcap_LIBS= \
 	wsock32.lib user32.lib \
+	caputils\libcaputils.lib \
 	wsutil\libwsutil.lib \
 	$(GLIB_LIBS) \
 	$(GTHREAD_LIBS)
@@ -271,6 +267,7 @@ packaging_zip: all
 wireshark.bsc: \
 	*.sbr				\
 	capchild\*.sbr			\
+	caputils\*.sbr			\
 	codecs\*.sbr			\
 	epan\*.sbr			\
 	epan\crypt\*.sbr		\
@@ -320,21 +317,21 @@ $(RESOURCES): image
 filetap\filetap-$(FTAP_VERSION).lib: image $(ZLIB_DLL) filetap
 wiretap\wiretap-$(WTAP_VERSION).lib: image $(ZLIB_DLL) wiretap
 
-wireshark.exe	: $(LIBS_CHECK) config.h $(wireshark_OBJECTS) capchild codecs epan ui gtk win32 image\wireshark.res image\file_dlg_win32.res wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib codecs\codecs.lib ui\libui.lib ui\gtk\libgtkui.lib ui\win32\libgtkui_win32.lib plugins
+wireshark.exe	: $(LIBS_CHECK) config.h $(wireshark_OBJECTS) capchild caputils codecs epan ui gtk win32 image\wireshark.res image\file_dlg_win32.res wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib codecs\codecs.lib ui\libui.lib ui\gtk\libgtkui.lib ui\win32\libgtkui_win32.lib plugins
 	@echo Linking $@
 	$(LINK) @<<
-		/OUT:$(PROGRAM_NAME).exe $(guiflags) $(guilibsdll) $(LDFLAGS) /LARGEADDRESSAWARE $(wireshark_LIBS) $(GTK_LIBS) capchild\libcapchild.lib codecs\codecs.lib ui\gtk\libgtkui.lib ui\win32\libgtkui_win32.lib ui\libui.lib $(wireshark_OBJECTS) image\wireshark.res image\file_dlg_win32.res
+		/OUT:$(PROGRAM_NAME).exe $(guiflags) $(guilibsdll) $(LDFLAGS) /LARGEADDRESSAWARE $(wireshark_LIBS) $(GTK_LIBS) capchild\libcapchild.lib caputils\libcaputils.lib codecs\codecs.lib ui\gtk\libgtkui.lib ui\win32\libgtkui_win32.lib ui\libui.lib $(wireshark_OBJECTS) image\wireshark.res image\file_dlg_win32.res
 <<
 !IFDEF MANIFEST_INFO_REQUIRED
 	mt.exe -nologo -manifest "wireshark.exe.manifest" -outputresource:$(PROGRAM_NAME).exe;1
 !ENDIF
 
-qtshark.exe	: install-generated-files $(LIBS_CHECK) config.h capchild epan ui qt wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib plugins
+qtshark.exe	: install-generated-files $(LIBS_CHECK) config.h capchild caputils epan ui qt wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib plugins
 
-tshark.exe	: $(LIBS_CHECK) config.h $(tshark_OBJECTS) capchild epan ui cli image\tshark.res wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib plugins
+tshark.exe	: $(LIBS_CHECK) config.h $(tshark_OBJECTS) capchild caputils epan ui cli image\tshark.res wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib plugins
 	@echo Linking $@
 	$(LINK) @<<
-		/OUT:tshark.exe $(conflags) $(conlibsdll) $(LDFLAGS) /LARGEADDRESSAWARE $(tshark_LIBS) $(tshark_OBJECTS) capchild\libcapchild.lib ui\cli\libcliui.lib ui\libui.lib image\tshark.res
+		/OUT:tshark.exe $(conflags) $(conlibsdll) $(LDFLAGS) /LARGEADDRESSAWARE $(tshark_LIBS) $(tshark_OBJECTS) capchild\libcapchild.lib caputils\libcaputils.lib ui\cli\libcliui.lib ui\libui.lib image\tshark.res
 <<
 !IFDEF MANIFEST_INFO_REQUIRED
 	mt.exe -nologo -manifest "tshark.exe.manifest" -outputresource:tshark.exe;1
@@ -433,7 +430,7 @@ randpkt.exe	: $(randpkt_OBJECTS)
 	mt.exe -nologo -manifest "randpkt.exe.manifest" -outputresource:randpkt.exe;1
 !ENDIF
 
-dumpcap.exe	: $(LIBS_CHECK) config.h $(dumpcap_OBJECTS) wsutil\libwsutil.lib image\dumpcap.res
+dumpcap.exe	: $(LIBS_CHECK) config.h $(dumpcap_OBJECTS) caputils wsutil\libwsutil.lib image\dumpcap.res
 	@echo Linking $@
 	$(LINK) @<<
 		/OUT:dumpcap.exe $(conflags) $(conlibsdll) $(LDFLAGS) $(dumpcap_LIBS) $(dumpcap_OBJECTS) image\dumpcap.res
@@ -585,6 +582,8 @@ clean: clean-local
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../capchild
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd ../caputils
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../codecs
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../ui
@@ -641,6 +640,8 @@ distclean: distclean-local
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ../capchild
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
+	cd ../caputils
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ../codecs
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ../ui
@@ -689,6 +690,8 @@ maintainer-clean: maintainer-clean-local
 	cd ../wsutil
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
 	cd ../capchild
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
+	cd ../caputils
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
 	cd ../codecs
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
@@ -806,6 +809,11 @@ filetap::
 capchild:: help config.h version.h doxygen
 	cd capchild
 	$(MAKE) /$(MAKEFLAGS) /f Makefile.nmake libcapchild.lib
+	cd ..
+
+caputils:: help config.h version.h doxygen
+	cd caputils
+	$(MAKE) /$(MAKEFLAGS) /f Makefile.nmake libcaputils.lib
 	cd ..
 
 codecs::
@@ -1413,6 +1421,8 @@ checkapi: checkapi_local
 	cd ../filetap
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake checkapi
 	cd ../capchild
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake checkapi
+	cd ../caputils
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake checkapi
 	cd ../codecs
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake checkapi

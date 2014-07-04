@@ -44,7 +44,7 @@ capture_if_cb(GtkWidget *widget, gpointer data);
 
 #ifdef HAVE_LIBPCAP
 
-#include <capchild/capture_ifinfo.h>	/* for if_info_t */
+#include "caputils/capture_ifinfo.h"	/* for if_info_t */
 
 /*
  * Used to retrieve the interface icon

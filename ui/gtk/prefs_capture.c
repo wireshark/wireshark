@@ -30,7 +30,7 @@
 #include <epan/prefs.h>
 
 #include "capture_opts.h"
-#include <capchild/capture_ifinfo.h>
+#include "caputils/capture_ifinfo.h"
 #include "ui/capture_ui_utils.h"
 #include "ui/capture_globals.h"
 #include "ui/iface_lists.h"

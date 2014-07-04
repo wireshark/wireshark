@@ -41,16 +41,13 @@ LIBECHLD_INCLUDES = \
 
 LIBECHLD_MORE_SRC = \
 	../capture_opts.c	\
-	../capture-pcap-util.c \
-	../capture-pcap-util-unix.c \
 	../capture_stop_conditions.c	\
 	../cfile.c	\
 	../conditions.c	\
 	../pcapio.c	\
 	../ringbuffer.c	\
 	../sync_pipe_write.c \
-	../version_info.c	\
-	../ws80211_utils.c
+	../version_info.c
 
 OTHER = \
 	../dumpcap.c

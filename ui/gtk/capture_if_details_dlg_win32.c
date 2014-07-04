@@ -56,9 +56,9 @@
 #include <Ntddndis.h>
 #endif
 
-#include "capture_win_ifnames.h"
+#include "caputils/capture_win_ifnames.h"
 
-#include "../capture_wpcap_packet.h"
+#include "caputils/capture_wpcap_packet.h"
 
 /* packet32.h requires sockaddr_storage
  * whether sockaddr_storage is defined or not depends on the Platform SDK

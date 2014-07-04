@@ -41,8 +41,6 @@ GENERATED_FILES = $(GENERATED_C_FILES) $(GENERATED_HEADER_FILES)
 
 # sources common for wireshark, tshark, and rawshark
 SHARK_COMMON_SRC =	\
-	$(PLATFORM_PCAP_SRC)	\
-	capture-pcap-util.c	\
 	cfile.c			\
 	frame_tvbuff.c		\
 	sync_pipe_write.c	\
@@ -50,8 +48,6 @@ SHARK_COMMON_SRC =	\
 
 # corresponding headers
 SHARK_COMMON_INCLUDES =	\
-	capture-pcap-util.h	\
-	capture-pcap-util-int.h	\
 	cfile.h			\
 	color.h			\
 	file.h			\
@@ -71,8 +67,7 @@ WIRESHARK_COMMON_SRC =	\
 	file.c		\
 	fileset.c	\
 	iface_monitor.c \
-	summary.c	\
-	ws80211_utils.c
+	summary.c
 
 # corresponding headers
 WIRESHARK_COMMON_INCLUDES =	\
@@ -85,8 +80,7 @@ WIRESHARK_COMMON_INCLUDES =	\
 	iface_monitor.h \
 	log.h		\
 	summary.h	\
-	sync_pipe.h	\
-	ws80211_utils.h
+	sync_pipe.h
 
 # tshark specifics
 tshark_SOURCES =	\
@@ -150,17 +144,14 @@ randpkt_SOURCES = \
 
 # dumpcap specifics
 dumpcap_SOURCES =	\
-	$(PLATFORM_PCAP_SRC) \
 	capture_opts.c	\
-	capture-pcap-util.c	\
 	capture_stop_conditions.c	\
 	conditions.c	\
 	dumpcap.c	\
 	pcapio.c	\
 	ringbuffer.c	\
 	sync_pipe_write.c	\
-	version_info.c	\
-	ws80211_utils.c
+	version_info.c
 
 # corresponding headers
 dumpcap_INCLUDES = \

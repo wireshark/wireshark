@@ -108,12 +108,12 @@
 
 #include "capture_opts.h"
 
-#include "capture-pcap-util.h"
+#include "caputils/capture-pcap-util.h"
 
 #ifdef HAVE_LIBPCAP
-#include <capchild/capture_ifinfo.h>
+#include "caputils/capture_ifinfo.h"
 #ifdef _WIN32
-#include "capture-wpcap.h"
+#include "caputils/capture-wpcap.h"
 #include <wsutil/unicode-utils.h>
 #endif /* _WIN32 */
 #include <capchild/capture_session.h>
@@ -913,8 +913,8 @@ show_version(GString *comp_info_str, GString *runtime_info_str)
 static void
 get_tshark_compiled_version_info(GString *str)
 {
-	/* Libpcap */
-	get_compiled_pcap_version(str);
+	/* Capture libraries */
+	get_compiled_caplibs_version(str);
 
 	/* LIBZ */
 	g_string_append(str, ", ");
@@ -928,50 +928,15 @@ get_tshark_compiled_version_info(GString *str)
 #else /* HAVE_LIBZ */
 	g_string_append(str, "without libz");
 #endif /* HAVE_LIBZ */
-
-	/*
-	 * XXX - these libraries are actually used only by dumpcap,
-	 * but we mention them here so that a user reporting a bug
-	 * can get information about dumpcap's libraries without
-	 * having to run dumpcap.
-	 */
-#ifndef _WIN32
-	/* This is UN*X-only. */
-	/* LIBCAP */
-	g_string_append(str, ", ");
-#ifdef HAVE_LIBCAP
-	g_string_append(str, "with POSIX capabilities");
-#ifdef _LINUX_CAPABILITY_VERSION
-	g_string_append(str, " (Linux)");
-#endif /* _LINUX_CAPABILITY_VERSION */
-#else /* HAVE_LIBCAP */
-	g_string_append(str, "without POSIX capabilities");
-#endif /* HAVE_LIBCAP */
-#endif /* _WIN32 */
-
-#ifdef __linux__
-	/* This is a Linux-specific library. */
-	/* LIBNL */
-	g_string_append(str, ", ");
-#if defined(HAVE_LIBNL1)
-	g_string_append(str, "with libnl 1");
-#elif defined(HAVE_LIBNL2)
-	g_string_append(str, "with libnl 2");
-#elif defined(HAVE_LIBNL3)
-	g_string_append(str, "with libnl 3");
-#else /* no libnl */
-	g_string_append(str, "without libnl");
-#endif /* libnl version */
-#endif /* __linux__ */
 }
 
 static void
 get_tshark_runtime_version_info(GString *str)
 {
 #ifdef HAVE_LIBPCAP
-    /* Libpcap */
+    /* Capture libraries */
     g_string_append(str, ", ");
-    get_runtime_pcap_version(str);
+    get_runtime_caplibs_version(str);
 #endif
 
     /* zlib */

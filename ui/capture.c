@@ -38,16 +38,16 @@
 #include <epan/dfilter/dfilter.h>
 #include "file.h"
 #include "ui/capture.h"
-#include <capchild/capture_ifinfo.h>
+#include "caputils/capture_ifinfo.h"
 #include <capchild/capture_sync.h>
 #include "capture_info.h"
 #include "ui/capture_ui_utils.h"
 #include "ui/util.h"
-#include "capture-pcap-util.h"
+#include "caputils/capture-pcap-util.h"
 #include <epan/prefs.h>
 
 #ifdef _WIN32
-#include "capture-wpcap.h"
+#include "caputils/capture-wpcap.h"
 #endif
 
 #include "ui/simple_dialog.h"

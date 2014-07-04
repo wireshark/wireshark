@@ -286,9 +286,6 @@ dist_wimaxasncp_DATA = \
 	wimaxasncp/dictionary.xml \
 	wimaxasncp/dictionary.dtd
 
-PLATFORM_PCAP_SRC = \
-	capture-pcap-util-unix.c
-
 if HAVE_PLUGINS
 -include plugins/Custom.make
 plugin_ldadd = $(_CUSTOM_plugin_ldadd_) \
@@ -353,6 +350,7 @@ endif
 #
 wireshark_ldadd = \
 	capchild/libcapchild.a		\
+	caputils/libcaputils.a		\
 	ui/libui.a			\
 	ui/libui_dirty.a		\
 	codecs/libcodec.a		\
@@ -421,6 +419,7 @@ endif
 # Libraries and plugin flags with which to link tshark.
 tshark_LDADD = \
 	capchild/libcapchild.a		\
+	caputils/libcaputils.a		\
 	ui/cli/libcliui.a		\
 	ui/libui.a			\
 	wiretap/libwiretap.la		\
@@ -479,6 +478,7 @@ endif
 
 # Libraries and plugin flags with which to link rawshark.
 rawshark_LDADD = \
+	caputils/libcaputils.a		\
 	ui/libui.a			\
 	wiretap/libwiretap.la		\
 	epan/libwireshark.la		\
@@ -602,6 +602,7 @@ echld_test_CFLAGS = $(AM_CLEAN_CFLAGS)
 
 # Libraries with which to link dumpcap.
 dumpcap_LDADD = \
+	caputils/libcaputils.a		\
 	wsutil/libwsutil.la		\
 	@GLIB_LIBS@			\
 	@PCAP_LIBS@			\
@@ -710,12 +711,6 @@ EXTRA_DIST = \
 	autogen.sh		\
 	capinfos.c		\
 	captype.c		\
-	capture_win_ifnames.c	\
-	capture_win_ifnames.h	\
-	capture-wpcap.c		\
-	capture-wpcap.h		\
-	capture_wpcap_packet.c  \
-	capture_wpcap_packet.h  \
 	cfilters		\
 	colorfilters		\
 	config.h.win32		\
@@ -1056,6 +1051,7 @@ endif
 DIST_SUBDIRS = \
 	asn1		\
 	capchild	\
+	caputils	\
 	codecs		\
 	doc		\
 	epan		\
@@ -1080,6 +1076,7 @@ SUBDIRS = \
 	filetap			\
 	epan			\
 	capchild		\
+	caputils		\
 	@echld_dir@		\
 	@plugins_dir@		\
 	packaging		\
@@ -1233,6 +1230,7 @@ checkapi: checkapi_local
 	cd filetap && $(MAKE) checkapi
 	cd codecs && $(MAKE) checkapi
 	cd capchild && $(MAKE) checkapi
+	cd caputils && $(MAKE) checkapi
 	cd ui && $(MAKE) checkapi
 	cd ui/gtk && $(MAKE) checkapi
 ##	cd epan && $(MAKE) checkapi
@@ -1249,6 +1247,7 @@ if HAVE_DOXYGEN
 	rm -rf wsar_html
 	cd epan && $(MAKE) $@
 	cd capchild && $(MAKE) $@
+	cd caputils && $(MAKE) $@
 	cd ui && $(MAKE) $@
 	(umask 022 ; $(DOXYGEN) doxygen.cfg)
 endif

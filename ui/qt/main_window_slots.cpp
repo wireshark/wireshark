@@ -44,7 +44,9 @@
 
 #ifdef HAVE_LIBPCAP
 #include "ui/capture.h"
+#if 0
 #include "capture-pcap-util.h"
+#endif
 #endif
 
 #include "wsutil/file_util.h"

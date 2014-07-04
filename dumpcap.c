@@ -92,15 +92,17 @@
 #include "ringbuffer.h"
 #include "version_info.h"
 
-#include "capture-pcap-util.h"
+#include "caputils/capture_ifinfo.h"
+#include "caputils/capture-pcap-util.h"
+#include "caputils/capture-pcap-util-int.h"
 #ifdef _WIN32
-#include "capture-wpcap.h"
+#include "caputils/capture-wpcap.h"
 #endif /* _WIN32 */
 
 #include "pcapio.h"
 
 #ifdef _WIN32
-#include "capture-wpcap.h"
+#include "caputils/capture-wpcap.h"
 #include <wsutil/unicode-utils.h>
 #endif
 
@@ -119,7 +121,6 @@
 
 #include "capture_opts.h"
 #include <capchild/capture_session.h>
-#include <capchild/capture_ifinfo.h>
 #include <capchild/capture_sync.h>
 
 #include "conditions.h"
@@ -130,7 +131,7 @@
 #include "wsutil/file_util.h"
 #include "wsutil/os_version_info.h"
 
-#include "ws80211_utils.h"
+#include "caputils/ws80211_utils.h"
 
 /*
  * Get information about libpcap format from "wiretap/libpcap.h".
@@ -4159,9 +4160,9 @@ out:
 static void
 get_dumpcap_compiled_info(GString *str)
 {
-	/* Libpcap */
+	/* Capture libraries */
 	g_string_append(str, ", ");
-	get_compiled_pcap_version(str);
+	get_compiled_caplibs_version(str);
 
 	/* LIBZ */
 	g_string_append(str, ", ");
@@ -4175,43 +4176,14 @@ get_dumpcap_compiled_info(GString *str)
 #else /* HAVE_LIBZ */
 	g_string_append(str, "without libz");
 #endif /* HAVE_LIBZ */
-
-#ifndef _WIN32
-	/* This is UN*X-only. */
-	/* LIBCAP */
-	g_string_append(str, ", ");
-#ifdef HAVE_LIBCAP
-	g_string_append(str, "with POSIX capabilities");
-#ifdef _LINUX_CAPABILITY_VERSION
-	g_string_append(str, " (Linux)");
-#endif /* _LINUX_CAPABILITY_VERSION */
-#else /* HAVE_LIBCAP */
-	g_string_append(str, "without POSIX capabilities");
-#endif /* HAVE_LIBCAP */
-#endif /* _WIN32 */
-
-#ifdef __linux__
-	/* This is a Linux-specific library. */
-	/* LIBNL */
-	g_string_append(str, ", ");
-#if defined(HAVE_LIBNL1)
-	g_string_append(str, "with libnl 1");
-#elif defined(HAVE_LIBNL2)
-	g_string_append(str, "with libnl 2");
-#elif defined(HAVE_LIBNL3)
-	g_string_append(str, "with libnl 3");
-#else /* no libnl */
-	g_string_append(str, "without libnl");
-#endif /* libnl version */
-#endif /* __linux__ */
 }
 
 static void
 get_dumpcap_runtime_info(GString *str)
 {
-    /* Libpcap */
+    /* Capture libraries */
     g_string_append(str, ", ");
-    get_runtime_pcap_version(str);
+    get_runtime_caplibs_version(str);
 
     /* zlib */
 #if defined(HAVE_LIBZ) && !defined(_WIN32)

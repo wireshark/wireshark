@@ -21,10 +21,15 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-CAPCHILD_SRC = \
-	capture_ifinfo.c	\
-	capture_sync.c
+CAPUTILS_SRC = \
+	$(PLATFORM_CAPUTILS_SRC)	\
+	capture-pcap-util.c		\
+	ws80211_utils.c
 
 noinst_HEADERS = \
-	capture_session.h	\
-	capture_sync.h
+	capture_ifinfo.h	\
+	capture-pcap-util.h	\
+	capture-pcap-util-int.h	\
+	capture-wpcap.h		\
+	capture_wpcap_packet.h	\
+	ws80211_utils.h

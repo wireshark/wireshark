@@ -1,7 +1,4 @@
-# Makefile.common
-#     Contains the stuff from Makefile.am and Makefile.nmake that is
-#     a) common to both files and
-#     b) portable between both files
+# CMakeLists.txt
 #
 # Wireshark - Network traffic analyzer
 # By Gerald Combs <gerald@wireshark.org>
@@ -20,11 +17,45 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+#
 
-CAPCHILD_SRC = \
-	capture_ifinfo.c	\
-	capture_sync.c
 
-noinst_HEADERS = \
-	capture_session.h	\
-	capture_sync.h
+if(UNIX)
+	set(PLATFORM_CAPUTILS_SRC
+		capture-pcap-util-unix.c
+	)
+endif()
+
+if(WIN32)
+	set(PLATFORM_CAPUTILS_SRC
+		capture_win_ifnames.c
+		capture-wpcap.c
+		capture_wpcap_packet.c
+	)
+endif()
+
+set(CAPUTILS_SRC
+	${PLATFORM_CAPUTILS_SRC}
+	capture-pcap-util.c
+	ws80211_utils.c
+)
+
+set(CLEAN_FILES
+	${CAPUTILS_SRC}
+)
+
+if (WERROR)
+	set_source_files_properties(
+		${CLEAN_FILES}
+		PROPERTIES
+		COMPILE_FLAGS -Werror
+	)
+endif()
+
+
+add_library(caputils STATIC
+	${CAPUTILS_SRC}
+)
+
+set_target_properties(caputils PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
+set_target_properties(caputils PROPERTIES FOLDER "CAPUTILS")

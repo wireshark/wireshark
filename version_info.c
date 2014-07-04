@@ -32,7 +32,6 @@
 #endif
 
 #include "version_info.h"
-#include "capture-pcap-util.h"
 #include <wsutil/glib_version_info.h>
 #include <wsutil/os_version_info.h>
 #include <wsutil/compiler_info.h>

@@ -760,6 +760,7 @@ endforeach()
 
 add_subdirectory( asn1 EXCLUDE_FROM_ALL )
 add_subdirectory( capchild )
+add_subdirectory( caputils )
 add_subdirectory( codecs )
 add_subdirectory( epan )
 add_subdirectory( filetap )
@@ -831,6 +832,7 @@ configure_file(${CMAKE_SOURCE_DIR}/cmakeconfig.h.in ${CMAKE_BINARY_DIR}/config.h
 set( IN_FILES
 	adns_dll.rc
 	capchild/doxygen.cfg.in
+	caputils/doxygen.cfg.in
 	doxygen.cfg.in
 	doxygen_global.cfg
 	epan/doxygen.cfg.in
@@ -888,6 +890,7 @@ link_directories(
 	${CMAKE_BINARY_DIR}/ui/gtk
 	${CMAKE_BINARY_DIR}/ui/qt
 	${CMAKE_BINARY_DIR}/capchild
+	${CMAKE_BINARY_DIR}/caputils
 	${CMAKE_BINARY_DIR}/codecs
 	${CMAKE_BINARY_DIR}/epan
 	${CMAKE_BINARY_DIR}/filetap
@@ -895,18 +898,7 @@ link_directories(
 	${CMAKE_BINARY_DIR}/wsutil
 )
 
-if(UNIX)
-	set(PLATFORM_PCAP_SRC
-		capture-pcap-util-unix.c
-	)
-endif()
-
 if(WIN32)
-	set(PLATFORM_PCAP_SRC
-		capture_win_ifnames.c
-		capture-wpcap.c
-		capture_wpcap_packet.c
-	)
 	set(PLATFORM_UI_SRC
 		ui/win32/console_win32.c
 		ui/win32/file_dlg_win32.c
@@ -917,8 +909,6 @@ endif()
 
 # sources common for wireshark, tshark, and rawshark
 set(SHARK_COMMON_SRC
-	${PLATFORM_PCAP_SRC}
-	capture-pcap-util.c
 	cfile.c
 	frame_tvbuff.c
 	sync_pipe_write.c
@@ -1043,7 +1033,6 @@ if( (BUILD_wireshark AND GTK_FOUND) OR (BUILD_qtshark AND QT_FOUND) )
 		fileset.c
 		iface_monitor.c
 		summary.c
-		ws80211_utils.c
 		${SHARK_COMMON_CAPTURE_SRC}
 		${SHARK_COMMON_SRC}
 		${PLATFORM_UI_SRC}
@@ -1056,6 +1045,7 @@ if(BUILD_wireshark AND GTK_FOUND)
 		gtkui
 		ui
 		capchild
+		caputils
 		${GTK2_LIBRARIES}
 		${GTK3_LIBRARIES}
 		${GTHREAD2_LIBRARIES}
@@ -1082,6 +1072,7 @@ if(BUILD_qtshark AND QT_FOUND)
 		qtui
 		ui
 		capchild
+		caputils
 		${QT_LIBRARIES}
 		${GTHREAD2_LIBRARIES}
 		codecs
@@ -1109,6 +1100,7 @@ if(BUILD_tshark)
 	set(tshark_LIBS
 		ui
 		capchild
+		caputils
 		${LIBEPAN_LIBS}
 		${APPLE_CORE_FOUNDATION_LIBRARY}
 		${APPLE_SYSTEM_CONFIGURATION_LIBRARY}
@@ -1152,6 +1144,7 @@ endif()
 
 if(BUILD_rawshark AND PCAP_FOUND)
 	set(rawshark_LIBS
+		caputils
 		${LIBEPAN_LIBS}
 		${APPLE_CORE_FOUNDATION_LIBRARY}
 		${APPLE_SYSTEM_CONFIGURATION_LIBRARY}
@@ -1327,6 +1320,7 @@ endif()
 if(BUILD_dumpcap AND PCAP_FOUND)
 	set(dumpcap_LIBS
 		wsutil
+		caputils
 		${PCAP_LIBRARIES}
 		${CAP_LIBRARIES}
 #		@SOCKET_LIBS@
@@ -1340,7 +1334,6 @@ if(BUILD_dumpcap AND PCAP_FOUND)
 	)
 	set(dumpcap_FILES
 		capture_opts.c
-		capture-pcap-util.c
 		capture_stop_conditions.c
 		conditions.c
 		dumpcap.c
@@ -1348,8 +1341,6 @@ if(BUILD_dumpcap AND PCAP_FOUND)
 		ringbuffer.c
 		sync_pipe_write.c
 		version_info.c
-		ws80211_utils.c
-		${PLATFORM_PCAP_SRC}
 		image/dumpcap.rc
 	)
 	add_executable(dumpcap ${dumpcap_FILES})

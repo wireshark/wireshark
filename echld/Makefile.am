@@ -50,12 +50,14 @@ libechld_la_SOURCES = \
 
 
 libechld_la_DEPENDENCIES = \
+	../caputils/libcaputils.a	\
 	../epan/libwireshark.la		\
 	../wiretap/libwiretap.la	\
 	../wsutil/libwsutil.la
 
 
 libechld_la_LIBADD =			\
+	../caputils/libcaputils.a	\
 	../epan/libwireshark.la		\
 	../wsutil/libwsutil.la		\
 	../wiretap/libwiretap.la	\

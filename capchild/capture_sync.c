@@ -48,7 +48,7 @@
 # include <sys/wait.h>
 #endif
 
-#include "capture-pcap-util.h"
+#include "caputils/capture-pcap-util.h"
 
 #ifndef _WIN32
 /*
@@ -90,7 +90,7 @@
 #include "sync_pipe.h"
 
 #ifdef _WIN32
-#include "capture-wpcap.h"
+#include "caputils/capture-wpcap.h"
 #endif
 
 #include "ui/ui_util.h"

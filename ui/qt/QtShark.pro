@@ -187,7 +187,6 @@ win32:INCLUDEPATH += \
 # Is there any way to do this automatically?
 SOURCES_WS_C = \
     ../../airpcap_loader.c \
-    ../../capture-pcap-util.c \
     ../../capture_info.c  \
     ../../capture_opts.c \
     ../../cfile.c \
@@ -199,11 +198,7 @@ SOURCES_WS_C = \
     ../../sync_pipe_write.c \
     ../../version_info.c
 
-unix:SOURCES_WS_C += ../../capture-pcap-util-unix.c
 win32:SOURCES_WS_C += \
-    ../../capture_win_ifnames.c \
-    ../../capture-wpcap.c \
-    ../../capture_wpcap_packet.c \
     ../../ui/win32/console_win32.c \
     ../../ui/win32/file_dlg_win32.c
 
@@ -332,7 +327,7 @@ unix {
         LIBS += -L../../run -Wl,-rpath ../../run
     }
 
-    LIBS += -lwireshark -lwiretap -lcapchild -lui -lcodecs -lwsutil \
+    LIBS += -lwireshark -lwiretap -lcapchild -lcaputils -lui -lcodecs -lwsutil \
     -lpcap
 
     exists(../libui_dirty.a) {
@@ -399,8 +394,10 @@ win32 {
     LIBS += $$PA_OBJECTS
     LIBS += \
         $${guilibsdll} $${HHC_LIBS} \
-        -L../../epan -llibwireshark -L../../wsutil -llibwsutil -L../../wiretap -lwiretap-$${WTAP_VERSION} \
-        -L../../capchild -llibcapchild -L.. -llibui -L../../codecs -lcodecs \
+        -L../../epan -llibwireshark -L../../wsutil -llibwsutil \
+	-L../../wiretap -lwiretap-$${WTAP_VERSION} \
+        -L../../capchild -llibcapchild -L../../caputils -llibcaputils \
+	-L.. -llibui -L../../codecs -lcodecs \
         -L$${GLIB_DIR}/lib -lglib-2.0 -lgmodule-2.0 \
         -L$${ZLIB_DIR}/lib -lzdll \
         -L$${WINSPARKLE_DIR} -lWinSparkle

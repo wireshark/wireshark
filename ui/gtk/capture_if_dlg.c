@@ -33,9 +33,9 @@
 
 #include "../capture_opts.h"
 #include <capchild/capture_session.h>
-#include <capchild/capture_ifinfo.h>
+#include "caputils/capture_ifinfo.h"
 #include "ui/capture.h"
-#include "../capture-pcap-util.h"
+#include "caputils/capture-pcap-util.h"
 #include "wsutil/file_util.h"
 #include <wiretap/wtap.h>
 
@@ -46,7 +46,7 @@
 
 #ifdef _WIN32
 #include "ui/gtk/capture_if_details_dlg_win32.h"
-#include "../../capture-wpcap.h"
+#include "caputils/capture-wpcap.h"
 #endif
 
 #include "ui/gtk/stock_icons.h"

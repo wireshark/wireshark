@@ -37,8 +37,8 @@
 #include <wsutil/filesystem.h>
 
 #include "ui/capture.h"
-#include <capchild/capture_ifinfo.h>
-#include "../capture-pcap-util.h"
+#include "caputils/capture_ifinfo.h"
+#include "caputils/capture-pcap-util.h"
 #include "../ringbuffer.h"
 
 #include "ui/capture_ui_utils.h"

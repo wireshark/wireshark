@@ -2877,6 +2877,8 @@ AC_OUTPUT(
   asn1/x721/Makefile
   capchild/Makefile
   capchild/doxygen.cfg
+  caputils/Makefile
+  caputils/doxygen.cfg
   doc/Makefile
   docbook/Makefile
   epan/Makefile

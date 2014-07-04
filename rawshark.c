@@ -111,12 +111,12 @@
 #include <wsutil/clopts_common.h>
 #include <wsutil/ws_version_info.h>
 
-#include "capture-pcap-util.h"
+#include "caputils/capture-pcap-util.h"
 
 #ifdef HAVE_LIBPCAP
 #include <setjmp.h>
 #ifdef _WIN32
-#include "capture-wpcap.h"
+#include "caputils/capture-wpcap.h"
 #endif /* _WIN32 */
 #endif /* HAVE_LIBPCAP */
 #include "log.h"

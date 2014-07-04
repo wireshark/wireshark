@@ -34,7 +34,7 @@
 # include <sys/types.h>	    /* for gid_t */
 #endif
 
-#include <capchild/capture_ifinfo.h>
+#include <caputils/capture_ifinfo.h>
 
 #ifdef __cplusplus
 extern "C" {
