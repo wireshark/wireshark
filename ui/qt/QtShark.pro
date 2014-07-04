@@ -274,7 +274,7 @@ HEADERS += $$HEADERS_WS_C \
     lbm_stream_dialog.h \
     lbm_uimflow_dialog.h \
     main_window_preferences_frame.h \
-    manage_interfaces_dialog.h
+    manage_interfaces_dialog.h \
     module_preferences_scroll_area.h \
     packet_comment_dialog.h \
     packet_format_group_box.h \
