@@ -683,7 +683,7 @@ dissect_payload_cs_id(int type, mikey_t *mikey, tvbuff_t *tvb, packet_info *pinf
 	entry = mikey_dissector_lookup(cs_id_map, type);
 
 	if (!entry || !entry->dissector) {
-		return -1;
+		return 0;
 	}
 
 	return entry->dissector(mikey, tvb, pinfo, tree);
@@ -733,7 +733,7 @@ dissect_payload_hdr(mikey_t *mikey, tvbuff_t *tvb, packet_info *pinfo, proto_tre
 		len = dissect_payload_cs_id(cs_id_map_type, mikey, sub_tvb, pinfo, tree);
 
 		if (len < 0)
-			return -1;
+			return 0;
 
 		offset += len;
 	}
@@ -785,7 +785,7 @@ dissect_payload_kemac(mikey_t *mikey, tvbuff_t *tvb, packet_info *pinfo, proto_t
 		mac_length = 160/8;
 		break;
 	default:
-		return -1;
+		return 0;
 	}
 
 	tvb_ensure_bytes_exist(tvb, offset+4+encr_length+1, mac_length);
@@ -840,7 +840,7 @@ dissect_payload_dh(mikey_t *mikey _U_, tvbuff_t *tvb, packet_info *pinfo _U_, pr
 		dh_length = 1024/8;
 		break;
 	default:
-		return -1;
+		return 0;
 	}
 
 	tvb_ensure_bytes_exist(tvb, offset+2, dh_length+1);
@@ -854,7 +854,7 @@ dissect_payload_dh(mikey_t *mikey _U_, tvbuff_t *tvb, packet_info *pinfo _U_, pr
 	}
 
 	if (kv != 0) {
-		return -1;
+		return 0;
 	}
 
 	return 2 + dh_length + 1;
@@ -908,7 +908,7 @@ dissect_payload_t(mikey_t *mikey _U_, tvbuff_t *tvb, packet_info *pinfo _U_, pro
 		len = 6;
 		break;
 	default:
-		len = -1;
+		len = 0;
 		break;
 	}
 
@@ -1028,7 +1028,7 @@ dissect_payload_v(mikey_t *mikey _U_, tvbuff_t *tvb, packet_info *pinfo _U_, pro
 		length = 160/8;
 		break;
 	default:
-		return -1;
+		return 0;
 	}
 
 	tvb_ensure_bytes_exist(tvb, offset+2, length);
@@ -1122,7 +1122,7 @@ dissect_payload_sp(mikey_t *mikey _U_, tvbuff_t *tvb, packet_info *pinfo _U_, pr
 		param_len = dissect_payload_sp_param(type, subtvb, tree);
 
 		if (param_len < 0)
-			return -1;
+			return 0;
 
 		sub_pos += param_len;
 	}
@@ -1336,7 +1336,7 @@ dissect_payload(int payload, mikey_t *mikey, tvbuff_t *tvb, packet_info *pinfo, 
 	entry = mikey_dissector_lookup(payload_map, payload);
 
 	if (!entry || !entry->dissector) {
-		return -1;
+		return 0;
 	}
 
 	return entry->dissector(mikey, tvb, pinfo, tree);
@@ -1398,8 +1398,10 @@ dissect_mikey(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 		}
 
 		len = dissect_payload(payload, mikey, subtvb, pinfo, mikey_payload_tree);
-		if (len < 0) {
-			return -1;
+		if (len <= 0) {
+			/* protocol violation or invalid data, stop dissecting
+			 * but accept the data retrieved so far */
+			return tvb_captured_length(tvb);
 		}
 
 		if (sub_ti)
@@ -1424,7 +1426,7 @@ dissect_mikey(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 				val_to_str_ext_const(mikey->type, &data_type_vals_ext, "Unknown"));
 
 	/* Return the amount of data this dissector was able to dissect */
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 
@@ -1946,3 +1948,15 @@ proto_reg_handoff_mikey(void)
 	mikey_udp_port = global_mikey_udp_port;
 	mikey_tcp_port = global_mikey_tcp_port;
 }
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */
