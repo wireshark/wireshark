@@ -78,14 +78,14 @@ dissect_whois(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         conversation_add_proto_data(conversation, proto_whois, whois_trans);
     }
 
-    len = tvb_length(tvb);
+    len = tvb_reported_length(tvb);
     if (!PINFO_FD_VISITED(pinfo)) {
         if (pinfo->can_desegment) {
             if (is_query) {
                 if ((len < 2) || (tvb_memeql(tvb, len - 2, "\r\n", 2))) {
                     pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
                     pinfo->desegment_offset = 0;
-                    return (0);
+                    return -1;
                 } else {
                     whois_trans->req_frame = pinfo->fd->num;
                     whois_trans->req_time = pinfo->fd->abs_ts;
@@ -93,7 +93,7 @@ dissect_whois(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             } else {
                 pinfo->desegment_len = DESEGMENT_UNTIL_FIN;
                 pinfo->desegment_offset = 0;
-                return (0);
+                return -1;
             }
         }
     } else if (is_query && (whois_trans->req_frame == 0)) {
@@ -148,7 +148,7 @@ dissect_whois(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         }
     }
 
-    return (len);
+    return tvb_captured_length(tvb);
 }
 
 void
