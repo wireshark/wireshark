@@ -172,7 +172,7 @@ update_io_graph_item(io_graph_item_t *items, int idx, packet_info *pinfo, epan_d
             case FT_UINT16:
             case FT_UINT24:
             case FT_UINT32:
-                new_int = abs(fvalue_get_uinteger(&((field_info *)gp->pdata[i])->value));
+                new_int = abs((int)fvalue_get_uinteger(&((field_info *)gp->pdata[i])->value));
 
                 if ((new_int > item->int_max) || (item->fields == 0)) {
                     item->int_max = new_int;
@@ -187,7 +187,7 @@ update_io_graph_item(io_graph_item_t *items, int idx, packet_info *pinfo, epan_d
             case FT_INT16:
             case FT_INT24:
             case FT_INT32:
-                new_int = abs(fvalue_get_sinteger(&((field_info *)gp->pdata[i])->value));
+                new_int = abs((int)fvalue_get_sinteger(&((field_info *)gp->pdata[i])->value));
                 if ((new_int > item->int_max) || (item->fields == 0)) {
                     item->int_max = new_int;
                 }
@@ -199,7 +199,7 @@ update_io_graph_item(io_graph_item_t *items, int idx, packet_info *pinfo, epan_d
                 break;
             case FT_UINT64:
             case FT_INT64:
-                new_int64 = (guint64)labs(fvalue_get_integer64(&((field_info *)gp->pdata[i])->value));
+                new_int64 = (guint64)labs((long)fvalue_get_integer64(&((field_info *)gp->pdata[i])->value));
                 if ((new_int64 > item->int_max) || (item->fields == 0)) {
                     item->int_max = new_int64;
                 }
