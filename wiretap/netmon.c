@@ -660,12 +660,12 @@ static process_trailer_retval netmon_process_rec_trailer(netmon_t *netmon,
 		/*
 		 * I haz a trailer.
 		 */
-	    	if (netmon->version_major > 2) {
-	    		/*
-	    		 * Asssume 2.3 format, for now.
-	    		 */
+		if (netmon->version_major > 2) {
+			/*
+			 * Asssume 2.3 format, for now.
+			 */
 			trlr_size = (int)sizeof (struct netmonrec_2_3_trlr);
-	    	} else {
+		} else {
 			switch (netmon->version_minor) {
 
 			case 1:
