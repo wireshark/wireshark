@@ -206,8 +206,9 @@ xmpp_unknown_items(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_ele
     while(childs)
     {
         xmpp_element_t *child = (xmpp_element_t *)childs->data;
-        proto_item *child_item = proto_tree_add_text(tree, tvb, child->offset, child->length, "%s", xmpp_ep_string_upcase(child->name));
-        proto_tree *child_tree = proto_item_add_subtree(child_item, ett_unknown[level]);
+        proto_item *child_item;
+        proto_tree *child_tree = proto_tree_add_subtree(tree, tvb, child->offset, child->length,
+            ett_unknown[level], &child_item, xmpp_ep_string_upcase(child->name));
 
         if(child->default_ns_abbrev)
             proto_item_append_text(child_item, "(%s)", child->default_ns_abbrev);

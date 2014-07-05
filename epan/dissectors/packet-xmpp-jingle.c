@@ -835,7 +835,6 @@ xmpp_jingle_file_transfer_checksum(proto_tree* tree, tvbuff_t* tvb, packet_info*
 static void
 xmpp_jingle_file_transfer_file(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo, xmpp_element_t* element)
 {
-    proto_item *file_item;
     proto_tree *file_tree;
 
     xmpp_attr_info attrs_info[] = {
@@ -848,8 +847,7 @@ xmpp_jingle_file_transfer_file(proto_tree* tree, tvbuff_t* tvb, packet_info* pin
         {NAME, "hashes", xmpp_hashes, ONE}
     };
 
-    file_item = proto_tree_add_text(tree, tvb, element->offset, element->length, "FILE");
-    file_tree = proto_item_add_subtree(file_item, ett_xmpp_jingle_file_transfer_file);
+    file_tree = proto_tree_add_subtree(tree, tvb, element->offset, element->length, ett_xmpp_jingle_file_transfer_file, NULL, "FILE");
 
     xmpp_change_elem_to_attrib("name", "name", element, xmpp_transform_func_cdata);
     xmpp_change_elem_to_attrib("size", "size", element, xmpp_transform_func_cdata);
@@ -888,7 +886,6 @@ xmpp_jinglenodes_services(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, x
 static void
 xmpp_jinglenodes_relay_stun_tracker(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t *element)
 {
-    proto_item *relay_item;
     proto_tree *relay_tree;
 
     xmpp_attr_info attrs_info[] = {
@@ -898,8 +895,7 @@ xmpp_jinglenodes_relay_stun_tracker(proto_tree *tree, tvbuff_t *tvb, packet_info
         {"protocol", NULL, TRUE, TRUE, NULL, NULL},
     };
 
-    relay_item = proto_tree_add_text(tree, tvb, element->offset, element->length, "%s", element->name);
-    relay_tree = proto_item_add_subtree(relay_item, ett_xmpp_services_relay);
+    relay_tree = proto_tree_add_subtree(tree, tvb, element->offset, element->length, ett_xmpp_services_relay, NULL, element->name);
 
     xmpp_display_attrs(relay_tree, element, pinfo, tvb, attrs_info, array_length(attrs_info));
     xmpp_display_elems(relay_tree, element, pinfo, tvb, NULL, 0);

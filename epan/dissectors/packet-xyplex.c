@@ -59,7 +59,7 @@ static const value_string xyplex_reg_vals[] = {
 static int
 dissect_xyplex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-	proto_tree	*xyplex_tree = NULL;
+	proto_tree	*xyplex_tree;
 	proto_item	*ti;
 	conversation_t  *conversation;
 	gint		offset = 0;
@@ -73,10 +73,8 @@ dissect_xyplex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "XYPLEX");
 
-	if (tree) {
-	  ti = proto_tree_add_item(tree, proto_xyplex, tvb, offset, -1, ENC_NA);
-	  xyplex_tree = proto_item_add_subtree(ti, ett_xyplex);
-	}
+	ti = proto_tree_add_item(tree, proto_xyplex, tvb, offset, -1, ENC_NA);
+	xyplex_tree = proto_item_add_subtree(ti, ett_xyplex);
 
 	if (pinfo->destport == UDP_PORT_XYPLEX) {
 		/* This is a registration request from a Unix server

@@ -2471,7 +2471,7 @@ dissect_q931_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	int		offset = 0;
 	proto_tree	*q931_tree = NULL;
 	proto_tree	*ie_tree = NULL;
-	proto_item	*ti, *ti_ie;
+	proto_item	*ti;
 	guint8		prot_discr;
 	guint8		call_ref_len;
 	guint8		call_ref[15];
@@ -2555,9 +2555,8 @@ dissect_q931_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		return;
 	}
 	/* Segmented message IE */
-	ti_ie = proto_tree_add_text(q931_tree, tvb, offset, 1+1+info_element_len, "%s",
+	ie_tree = proto_tree_add_subtree(q931_tree, tvb, offset, 1+1+info_element_len, ett_q931_ie, NULL,
 				    val_to_str(info_element, q931_info_element_vals[0], "Unknown information element (0x%02X)"));
-	ie_tree = proto_item_add_subtree(ti_ie, ett_q931_ie);
 	proto_tree_add_text(ie_tree, tvb, offset, 1, "Information element: %s",
 				    val_to_str(info_element, q931_info_element_vals[0], "Unknown (0x%02X)"));
 	proto_tree_add_text(ie_tree, tvb, offset + 1, 1, "Length: %u", info_element_len);
@@ -2729,13 +2728,11 @@ dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree,
 		    tvb_get_guint8(tvb, offset + 3) == Q931_PROTOCOL_DISCRIMINATOR_ASN1)  {
 			info_element_len = tvb_get_ntohs(tvb, offset + 1);
 			if (q931_tree != NULL) {
-				ti = proto_tree_add_text(q931_tree, tvb, offset,
-				    1+2+info_element_len, "%s",
+				ie_tree = proto_tree_add_subtree(q931_tree, tvb, offset,
+				    1+2+info_element_len, ett_q931_ie, NULL,
 				    val_to_str(info_element,
 				      q931_info_element_vals[codeset],
 				      "Unknown information element (0x%02X)"));
-				ie_tree = proto_item_add_subtree(ti,
-				    ett_q931_ie);
 				proto_tree_add_text(ie_tree, tvb, offset, 1,
 				    "Information element: %s",
 				    val_to_str(info_element,
@@ -2804,9 +2801,8 @@ dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree,
 				}
 			}
 
-			ti = proto_tree_add_text(q931_tree, tvb, offset, 1+1+info_element_len, "%s",
+			ie_tree = proto_tree_add_subtree(q931_tree, tvb, offset, 1+1+info_element_len, ett_q931_ie, &ti,
 				    val_to_str(info_element, q931_info_element_vals[codeset], "Unknown information element (0x%02X)"));
-			ie_tree = proto_item_add_subtree(ti, ett_q931_ie);
 			proto_tree_add_text(ie_tree, tvb, offset, 1, "Information element: %s",
 				    val_to_str(info_element, q931_info_element_vals[codeset], "Unknown (0x%02X)"));
 			proto_tree_add_text(ie_tree, tvb, offset + 1, 1, "Length: %u", info_element_len);

@@ -703,9 +703,8 @@ dump_facilities(proto_tree *tree, int *offset, tvbuff_t *tvb, packet_info *pinfo
 
 	len = tvb_get_guint8(tvb, *offset);
 	if (len && tree) {
-		ti = proto_tree_add_text(tree, tvb, *offset, len + 1,
-							 "Facilities");
-		facilities_tree = proto_item_add_subtree(ti, ett_x25_facilities);
+		facilities_tree = proto_tree_add_subtree(tree, tvb, *offset, len + 1,
+							 ett_x25_facilities, NULL, "Facilities");
 		proto_tree_add_item(facilities_tree, hf_x25_facilities_length, tvb, *offset, 1, ENC_NA);
 	}
 	(*offset)++;
@@ -1399,11 +1398,8 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	if (localoffset < tvb_reported_length(tvb)) /* user data */
 	{
 
-	    if (x25_tree) {
-		ti = proto_tree_add_text(x25_tree, tvb, localoffset, -1,
-			"User data");
-		userdata_tree = proto_item_add_subtree(ti, ett_x25_user_data);
-	    }
+		userdata_tree = proto_tree_add_subtree(x25_tree, tvb, localoffset, -1,
+			ett_x25_user_data, &ti, "User data");
 
 	    /* X.263/ISO 9577 says that:
 

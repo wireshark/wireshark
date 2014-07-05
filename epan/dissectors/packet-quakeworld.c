@@ -347,7 +347,7 @@ static void
 dissect_quakeworld_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo,
 	proto_tree *tree, int direction)
 {
-	proto_tree	*cl_tree   = NULL;
+	proto_tree	*cl_tree;
 	proto_tree	*text_tree = NULL;
 	guint8		*text;
 	int		len;
@@ -358,17 +358,13 @@ dissect_quakeworld_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo,
 	gboolean	command_finished = FALSE;
 
 	marker = tvb_get_ntohl(tvb, 0);
-	if (tree) {
-		proto_item *cl_item;
-		cl_item = proto_tree_add_text(tree, tvb, 0, -1, "Connectionless");
-		cl_tree = proto_item_add_subtree(cl_item, ett_quakeworld_connectionless);
+	cl_tree = proto_tree_add_subtree(tree, tvb, 0, -1, ett_quakeworld_connectionless, NULL, "Connectionless");
 
-		proto_tree_add_uint(cl_tree, hf_quakeworld_connectionless_marker,
+	proto_tree_add_uint(cl_tree, hf_quakeworld_connectionless_marker,
 				tvb, 0, 4, marker);
-	}
 
 	/* all the rest of the packet is just text */
-        offset = 4;
+	offset = 4;
 
 	text = tvb_get_stringz_enc(wmem_packet_scope(), tvb, offset, &len, ENC_ASCII|ENC_NA);
 	/* actually, we should look for a eol char and stop already there */
@@ -589,11 +585,7 @@ dissect_quakeworld_GamePacket(tvbuff_t *tvb, packet_info *pinfo,
 	direction = (pinfo->destport == gbl_quakeworldServerPort) ?
 			DIR_C2S : DIR_S2C;
 
-	if (tree) {
-		proto_item	*game_item;
-		game_item = proto_tree_add_text(tree, tvb, 0, -1, "Game");
-		game_tree = proto_item_add_subtree(game_item, ett_quakeworld_game);
-	}
+	game_tree = proto_tree_add_subtree(tree, tvb, 0, -1, ett_quakeworld_game, NULL, "Game");
 
 	offset = 0;
 
@@ -639,25 +631,17 @@ dissect_quakeworld_GamePacket(tvbuff_t *tvb, packet_info *pinfo,
 	rest_length = tvb_reported_length(tvb) - offset;
 	if (rest_length) {
 		tvbuff_t *next_tvb = tvb_new_subset_remaining(tvb, offset);
+		proto_tree *c_tree;
 
 		if (direction == DIR_C2S) {
-			proto_tree *c_tree = NULL;
-			if (tree) {
-				proto_item *c_item;
-				c_item = proto_tree_add_text(game_tree, next_tvb,
-							     0, -1, "Client Commands");
-				c_tree = proto_item_add_subtree(c_item, ett_quakeworld_game_clc);
-			}
+			c_tree = proto_tree_add_subtree(game_tree, next_tvb,
+							     0, -1, ett_quakeworld_game_clc, NULL, "Client Commands");
 			dissect_quakeworld_client_commands(next_tvb, pinfo, c_tree);
 		}
 		else {
-			proto_tree *c_tree = NULL;
-			if (tree) {
-				proto_item *c_item;
-				c_item = proto_tree_add_text(game_tree, next_tvb,
-							     0, -1, "Server Commands");
-				c_tree = proto_item_add_subtree(c_item, ett_quakeworld_game_svc);
-			}
+			c_tree = proto_tree_add_subtree(game_tree, next_tvb,
+							     0, -1, ett_quakeworld_game_svc, NULL, "Server Commands");
+
 			dissect_quakeworld_server_commands(next_tvb, pinfo, c_tree);
 		}
 	}

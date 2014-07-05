@@ -141,7 +141,7 @@ static void
 dissect_quake3_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo _U_,
 	proto_tree *tree, int* direction)
 {
-	proto_tree	*cl_tree = NULL;
+	proto_tree	*cl_tree;
 	proto_item	*text_item = NULL;
 	proto_tree	*text_tree = NULL;
 	guint8		*text;
@@ -152,16 +152,13 @@ dissect_quake3_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo _U_,
 	int		command_len;
 	gboolean	command_finished = FALSE;
 
-	marker = tvb_get_ntohl(tvb, 0);
-	if (tree) {
-		proto_item *cl_item = NULL;
-		cl_item = proto_tree_add_text(tree, tvb,
-				0, -1, "Connectionless");
-		cl_tree = proto_item_add_subtree(cl_item, ett_quake3_connectionless);
+	cl_tree = proto_tree_add_subtree(tree, tvb,
+			0, -1, ett_quake3_connectionless, NULL, "Connectionless");
 
-		proto_tree_add_uint(cl_tree, hf_quake3_connectionless_marker,
-				    tvb, 0, 4, marker);
-	}
+	marker = tvb_get_ntohl(tvb, 0);
+	proto_tree_add_uint(cl_tree, hf_quake3_connectionless_marker,
+				tvb, 0, 4, marker);
+
 	/* all the rest of the packet is just text */
 	offset = 4;
 
@@ -282,16 +279,12 @@ dissect_quake3_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo _U_,
 				may run on totally unusual ports.  */
 
 			if (text_tree) {
-				proto_item *server_item;
 				proto_tree *server_tree;
-				server_item = proto_tree_add_text(text_tree,
+				server_tree = proto_tree_add_subtree_format(text_tree,
 					tvb, base, 7,
-					"Server: %s:%u",
+					ett_quake3_server, NULL, "Server: %s:%u",
 						get_hostname(ip_addr),
 						udp_port);
-				server_tree = proto_item_add_subtree(
-					server_item,
-					ett_quake3_server);
 				proto_tree_add_ipv4(server_tree, hf_quake3_server_addr,
 						    tvb, base + 1, 4, ip_addr);
 				proto_tree_add_uint(server_tree, hf_quake3_server_port,
@@ -366,7 +359,7 @@ static void
 dissect_quake3_GamePacket(tvbuff_t *tvb, packet_info *pinfo,
 	proto_tree *tree, int *direction)
 {
-	proto_tree	*game_tree = NULL;
+	proto_tree	*game_tree;
 	guint32		seq1;
 	guint32		seq2;
 	int		rel1;
@@ -377,11 +370,7 @@ dissect_quake3_GamePacket(tvbuff_t *tvb, packet_info *pinfo,
 	*direction = (pinfo->destport == gbl_quake3_server_port) ?
 			DIR_C2S : DIR_S2C;
 
-	if (tree) {
-		proto_item *game_item;
-		game_item = proto_tree_add_text(tree, tvb, 0, -1, "Game");
-		game_tree = proto_item_add_subtree(game_item, ett_quake3_game);
-	}
+	game_tree = proto_tree_add_subtree(tree, tvb, 0, -1, ett_quake3_game, NULL, "Game");
 
 	offset = 0;
 
@@ -431,27 +420,18 @@ dissect_quake3_GamePacket(tvbuff_t *tvb, packet_info *pinfo,
 	rest_length = tvb_reported_length(tvb) - offset;
 	if (rest_length) {
 		tvbuff_t *next_tvb = tvb_new_subset_remaining(tvb, offset);
+		proto_tree *c_tree;
 
 		if (*direction == DIR_C2S) {
-			proto_tree *c_tree = NULL;
-			if (tree) {
-				proto_item *c_item;
-				c_item = proto_tree_add_text(game_tree, next_tvb,
-							     0, -1, "Client Commands");
-				c_tree = proto_item_add_subtree(
-					c_item, ett_quake3_game_clc);
-			}
+			c_tree = proto_tree_add_subtree(game_tree, next_tvb,
+							     0, -1, ett_quake3_game_clc, NULL, "Client Commands");
+
 			dissect_quake3_client_commands(next_tvb, pinfo, c_tree);
 		}
 		else {
-			proto_tree *c_tree = NULL;
-			if (tree) {
-				proto_item *c_item;
-				c_item = proto_tree_add_text(game_tree, next_tvb,
-							     0, -1, "Server Commands");
-				c_tree = proto_item_add_subtree(
-					c_item, ett_quake3_game_svc);
-			}
+			c_tree = proto_tree_add_subtree(game_tree, next_tvb,
+							     0, -1, ett_quake3_game_svc, NULL, "Server Commands");
+
 			dissect_quake3_server_commands(next_tvb, pinfo, c_tree);
 		}
 	}

@@ -674,7 +674,6 @@ xmpp_features(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_
 static void
 xmpp_features_mechanisms(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t *packet)
 {
-    proto_item *mechanisms_item;
     proto_tree *mechanisms_tree;
 
     xmpp_attr_info attrs_info [] = {
@@ -685,8 +684,7 @@ xmpp_features_mechanisms(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xm
         {NAME, "mechanism", xmpp_simple_cdata_elem, MANY},
     };
 
-    mechanisms_item = proto_tree_add_text(tree, tvb, packet->offset, packet->length, "MECHANISMS");
-    mechanisms_tree = proto_item_add_subtree(mechanisms_item, ett_xmpp_features_mechanisms);
+    mechanisms_tree = proto_tree_add_subtree(tree, tvb, packet->offset, packet->length, ett_xmpp_features_mechanisms, NULL, "MECHANISMS");
 
     xmpp_display_attrs(mechanisms_tree, packet, pinfo, tvb, attrs_info, array_length(attrs_info));
     xmpp_display_elems(mechanisms_tree, packet, pinfo, tvb, elems_info, array_length(elems_info));

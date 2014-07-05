@@ -89,7 +89,6 @@ dissect_quake2_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo _U_,
         proto_tree *tree, int direction _U_)
 {
     proto_tree *cl_tree;
-    proto_item *cl_item;
     guint8  *text;
     int  len;
     int  offset;
@@ -97,9 +96,8 @@ dissect_quake2_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo _U_,
     guint32 marker;
 
     marker = tvb_get_ntohl(tvb, 0);
-    cl_item = proto_tree_add_text(tree, tvb,
-            0, -1, "Connectionless");
-    cl_tree = proto_item_add_subtree(cl_item, ett_quake2_connectionless);
+    cl_tree = proto_tree_add_subtree(tree, tvb,
+            0, -1, ett_quake2_connectionless, NULL, "Connectionless");
     proto_tree_add_uint(cl_tree, hf_quake2_connectionless_marker,
             tvb, 0, 4, marker);
 
@@ -224,17 +222,15 @@ dissect_quake2_client_commands_move(tvbuff_t *tvb, packet_info *pinfo _U_,
 
     move[MOVES].bits[Q_OFFSET] = offset;
     for (i=0; i < MOVES; i++) {
-        proto_item *move_item, *movebits_item, *bit_item;
+        proto_item *movebits_item, *bit_item;
         proto_item *sub_tree, *field_tree;
 #define SHORT2ANGLE(x) ((float)x/65536.0*360.0)
 
-        move_item = proto_tree_add_text(tree,
+        sub_tree = proto_tree_add_subtree_format(tree,
                 tvb,
                 move[i].bits[Q_OFFSET],
                 move[i+1].bits[Q_OFFSET]-move[i].bits[Q_OFFSET],
-                "Move %u", i+1);
-        sub_tree = proto_item_add_subtree(move_item,
-                ett_quake2_game_clc_cmd_move_moves);
+                ett_quake2_game_clc_cmd_move_moves, NULL, "Move %u", i+1);
 
         movebits_item =
             proto_tree_add_uint(sub_tree, hf_quake2_game_client_command_move,
@@ -572,7 +568,6 @@ dissect_quake2_GamePacket(tvbuff_t *tvb, packet_info *pinfo,
         proto_tree *tree, int direction)
 {
     proto_tree *game_tree;
-    proto_item *game_item;
     guint32    seq1;
     guint32    seq2;
     int        rel1;
@@ -583,9 +578,8 @@ dissect_quake2_GamePacket(tvbuff_t *tvb, packet_info *pinfo,
     direction = (pinfo->destport == gbl_quake2ServerPort) ?
         DIR_C2S : DIR_S2C;
 
-    game_item = proto_tree_add_text(tree, tvb,
-            0, -1, "Game");
-    game_tree = proto_item_add_subtree(game_item, ett_quake2_game);
+    game_tree = proto_tree_add_subtree(tree, tvb,
+            0, -1, ett_quake2_game, NULL, "Game");
 
     offset = 0;
 
@@ -636,25 +630,16 @@ dissect_quake2_GamePacket(tvbuff_t *tvb, packet_info *pinfo,
     if (rest_length) {
         tvbuff_t *next_tvb =
             tvb_new_subset_remaining(tvb, offset);
+        proto_tree *c_tree;
 
         if (direction == DIR_C2S) {
-            proto_tree *c_tree = NULL;
-            if (tree) {
-                proto_item *c_item;
-                c_item = proto_tree_add_text(game_tree, next_tvb,
-                        0, -1, "Client Commands");
-                c_tree = proto_item_add_subtree(c_item, ett_quake2_game_clc);
-            }
+            c_tree = proto_tree_add_subtree(game_tree, next_tvb,
+                        0, -1, ett_quake2_game_clc, NULL, "Client Commands");
             dissect_quake2_client_commands(next_tvb, pinfo, c_tree);
         }
         else {
-            proto_tree *c_tree = NULL;
-            if (tree) {
-                proto_item *c_item;
-                c_item = proto_tree_add_text(game_tree, next_tvb,
-                        0, -1, "Server Commands");
-                c_tree = proto_item_add_subtree(c_item, ett_quake2_game_svc);
-            }
+            c_tree = proto_tree_add_subtree(game_tree, next_tvb,
+                        0, -1, ett_quake2_game_svc, NULL, "Server Commands");
             dissect_quake2_server_commands(next_tvb, pinfo, c_tree);
         }
     }

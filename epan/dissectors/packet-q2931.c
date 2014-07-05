@@ -1354,7 +1354,6 @@ dissect_q2931_number_ie(tvbuff_t *tvb, int offset, int len,
 {
 	guint8 octet;
 	guint8 numbering_plan;
-	proto_item *ti;
 	proto_tree *nsap_tree;
 
 	if (len == 0)
@@ -1391,8 +1390,7 @@ dissect_q2931_number_ie(tvbuff_t *tvb, int offset, int len,
 			    tvb_bytes_to_ep_str(tvb, offset, len));
 			return;
 		}
-		ti = proto_tree_add_text(tree, tvb, offset, len, "Number");
-		nsap_tree = proto_item_add_subtree(ti, ett_q2931_nsap);
+		nsap_tree = proto_tree_add_subtree(tree, tvb, offset, len, ett_q2931_nsap, NULL, "Number");
 		dissect_atm_nsap(tvb, offset, len, nsap_tree);
 		break;
 
@@ -1858,10 +1856,9 @@ dissect_q2931_ie(tvbuff_t *tvb, int offset, int len, proto_tree *tree,
 	proto_tree	*ie_tree;
 	proto_tree	*ie_ext_tree;
 
-	ti = proto_tree_add_text(tree, tvb, offset, 1+1+2+len, "%s",
+	ie_tree = proto_tree_add_subtree(tree, tvb, offset, 1+1+2+len, ett_q2931_ie, NULL,
 	    val_to_str_ext(info_element, &q2931_info_element_vals_ext,
 	      "Unknown information element (0x%02X)"));
-	ie_tree = proto_item_add_subtree(ti, ett_q2931_ie);
 	proto_tree_add_uint(ie_tree, hf_q2931_information_element, tvb, offset, 1, info_element);
 	ti = proto_tree_add_uint(ie_tree, hf_q2931_information_element_extension, tvb, offset + 1, 1, info_element_ext);
 	ie_ext_tree = proto_item_add_subtree(ti, ett_q2931_ie_ext);

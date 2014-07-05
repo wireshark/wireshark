@@ -332,8 +332,7 @@ dissect_xtp_aseg(tvbuff_t *tvb, proto_tree *tree, guint32 offset) {
 	struct xtp_ip_addr_seg aseg[1];
 	int error = 0;
 
-	top_ti = proto_tree_add_text(tree, tvb, offset, len, "Address Segment");
-	xtp_subtree = proto_item_add_subtree(top_ti, ett_xtp_aseg);
+	xtp_subtree = proto_tree_add_subtree(tree, tvb, offset, len, ett_xtp_aseg, &top_ti, "Address Segment");
 
 	if (len < XTP_NULL_ADDR_SEG_LEN) {
 		proto_item_append_text(top_ti, ", bogus length(%u, must be at least %u)",
@@ -448,9 +447,8 @@ dissect_xtp_traffic_cntl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	proto_tree *xtp_subtree;
 	struct xtp_traffic_cntl tcntl[1];
 
-	top_ti = proto_tree_add_text(tree, tvb, offset, len,
-				"Traffic Control Segment");
-	xtp_subtree = proto_item_add_subtree(top_ti, ett_xtp_tcntl);
+	xtp_subtree = proto_tree_add_subtree(tree, tvb, offset, len,
+				ett_xtp_tcntl, &top_ti, "Traffic Control Segment");
 
 	if (len < XTP_TRAFFIC_CNTL_LEN) {
 		proto_item_append_text(top_ti,
@@ -525,8 +523,7 @@ dissect_xtp_tspec(tvbuff_t *tvb, proto_tree *tree, guint32 offset) {
 	struct xtp_traffic_spec1 tspec[1];
 	int error = 0;
 
-	ti = proto_tree_add_text(tree, tvb, offset, len, "Traffic Specifier");
-	xtp_subtree = proto_item_add_subtree(ti, ett_xtp_tspec);
+	xtp_subtree = proto_tree_add_subtree(tree, tvb, offset, len, ett_xtp_tspec, &ti, "Traffic Specifier");
 
 	if (len < XTP_TRAFFIC_SPEC0_LEN) {
 		proto_item_append_text(ti,
@@ -635,12 +632,10 @@ dissect_xtp_tspec(tvbuff_t *tvb, proto_tree *tree, guint32 offset) {
 static void
 dissect_xtp_data(tvbuff_t *tvb, proto_tree *tree, guint32 offset, gboolean have_btag) {
 	guint32 len = tvb_length_remaining(tvb, offset);
-	proto_item *ti;
 	proto_tree *xtp_subtree;
 	guint64 btag;
 
-	ti = proto_tree_add_text(tree, tvb, offset, len, "Data Segment");
-	xtp_subtree = proto_item_add_subtree(ti, ett_xtp_data);
+	xtp_subtree = proto_tree_add_subtree(tree, tvb, offset, len, ett_xtp_data, NULL, "Data Segment");
 
 	if (have_btag) {
 		btag = tvb_get_ntohl(tvb, offset);
@@ -667,9 +662,8 @@ dissect_xtp_cntl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	proto_tree *xtp_subtree;
 	struct xtp_cntl cntl[1];
 
-	top_ti = proto_tree_add_text(tree, tvb, offset, len,
-				"Common Control Segment");
-	xtp_subtree = proto_item_add_subtree(top_ti, ett_xtp_cntl);
+	xtp_subtree = proto_tree_add_subtree(tree, tvb, offset, len,
+				ett_xtp_cntl, &top_ti, "Common Control Segment");
 
 	if (len != XTP_CNTL_PKT_LEN) {
 		proto_item_append_text(top_ti, ", bogus length(%u, must be %u)",
@@ -741,9 +735,8 @@ dissect_xtp_ecntl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	guint spans_len;
 	guint i;
 
-	top_ti = proto_tree_add_text(tree, tvb, offset, len,
-				"Error Control Segment");
-	xtp_subtree = proto_item_add_subtree(top_ti, ett_xtp_ecntl);
+	xtp_subtree = proto_tree_add_subtree(tree, tvb, offset, len,
+				ett_xtp_ecntl, &top_ti, "Error Control Segment");
 
 	if (len < MIN_XTP_ECNTL_PKT_LEN) {
 		proto_item_append_text(top_ti,
@@ -861,8 +854,7 @@ dissect_xtp_diag(tvbuff_t *tvb, proto_tree *tree, guint32 offset) {
 	struct xtp_diag diag[1];
 	guint32 msg_len;
 
-	ti = proto_tree_add_text(tree, tvb, offset, len, "Diagnostic Segment");
-	xtp_subtree = proto_item_add_subtree(ti, ett_xtp_diag);
+	xtp_subtree = proto_tree_add_subtree(tree, tvb, offset, len, ett_xtp_diag, &ti, "Diagnostic Segment");
 
 	if (len < XTP_DIAG_PKT_HEADER_LEN) {
 		proto_item_append_text(ti,

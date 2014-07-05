@@ -369,12 +369,10 @@ dissect_quake_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			val_to_str(direction,names_control_direction,"%u"));
 
 	if (tree) {
-		proto_item *control_item;
-		control_item = proto_tree_add_text(tree, tvb,
-				0, -1, "Control %s: %s",
+		control_tree = proto_tree_add_subtree_format(tree, tvb,
+				0, -1, ett_quake_control, NULL, "Control %s: %s",
 				val_to_str(direction, names_control_direction, "%u"),
 				val_to_str(command, names_control_command, "%u"));
-		control_tree = proto_item_add_subtree(control_item, ett_quake_control);
 		proto_tree_add_uint(control_tree, hf_quake_control_command,
 					tvb, 0, 1, command);
 	}

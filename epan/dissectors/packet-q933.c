@@ -1994,11 +1994,10 @@ dissect_q933(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 */
 		info_element_len = tvb_get_guint8(tvb, offset + 1);
 		if (q933_tree != NULL) {
-			ti = proto_tree_add_text(q933_tree, tvb, offset,
-			    1+1+info_element_len, "%s",
+			ie_tree = proto_tree_add_subtree(q933_tree, tvb, offset,
+			    1+1+info_element_len, ett_q933_ie, NULL,
 			    val_to_str(info_element, q933_info_element_vals[codeset],
 			      "Unknown information element (0x%02X)"));
-				ie_tree = proto_item_add_subtree(ti, ett_q933_ie);
 			proto_tree_add_text(ie_tree, tvb, offset, 1,
 			    "Information element: %s",
 			    val_to_str(info_element, q933_info_element_vals[codeset],

@@ -136,7 +136,6 @@ xmpp_conf_desc(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element
 static void
 xmpp_conf_state(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t *element)
 {
-    proto_item *state_item;
     proto_tree *state_tree;
 
     xmpp_attr_info attrs_info [] = {
@@ -145,8 +144,8 @@ xmpp_conf_state(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_elemen
         {"locked", NULL, FALSE, TRUE, NULL, NULL}
     };
 
-    state_item = proto_tree_add_text(tree, tvb, element->offset, element->length, "CONFERENCE STATE");
-    state_tree = proto_item_add_subtree(state_item, ett_xmpp_conf_state);
+    state_tree = proto_tree_add_subtree(tree, tvb, element->offset, element->length,
+                                        ett_xmpp_conf_state, NULL, "CONFERENCE STATE");
 
     xmpp_change_elem_to_attrib("user-count", "user-count", element, xmpp_transform_func_cdata);
     xmpp_change_elem_to_attrib("active", "active", element, xmpp_transform_func_cdata);
@@ -160,7 +159,6 @@ xmpp_conf_state(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_elemen
 static void
 xmpp_conf_users(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t *element)
 {
-    proto_item *users_item;
     proto_tree *users_tree;
 
     xmpp_attr_info attrs_info [] = {
@@ -171,8 +169,7 @@ xmpp_conf_users(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_elemen
         {NAME, "user", xmpp_conf_user, MANY}
     };
 
-    users_item = proto_tree_add_text(tree, tvb, element->offset, element->length, "USERS");
-    users_tree = proto_item_add_subtree(users_item, ett_xmpp_conf_users);
+    users_tree = proto_tree_add_subtree(tree, tvb, element->offset, element->length, ett_xmpp_conf_users, NULL, "USERS");
 
     xmpp_display_attrs(users_tree, element, pinfo, tvb, attrs_info, array_length(attrs_info));
     xmpp_display_elems(users_tree, element, pinfo, tvb, elems_info, array_length(elems_info));
@@ -180,7 +177,6 @@ xmpp_conf_users(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_elemen
 static void
 xmpp_conf_user(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t *element)
 {
-    proto_item *user_item;
     proto_tree *user_tree;
 
     xmpp_attr_info attrs_info [] = {
@@ -197,8 +193,7 @@ xmpp_conf_user(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element
         {NAME, "endpoint", xmpp_conf_endpoint, MANY},
     };
 
-    user_item = proto_tree_add_text(tree, tvb, element->offset, element->length, "USERS");
-    user_tree = proto_item_add_subtree(user_item, ett_xmpp_conf_user);
+    user_tree = proto_tree_add_subtree(tree, tvb, element->offset, element->length, ett_xmpp_conf_user, NULL, "USERS");
 
     xmpp_change_elem_to_attrib("display-text", "display-text", element, xmpp_transform_func_cdata);
     xmpp_change_elem_to_attrib("cascaded-focus", "cascaded-focus", element, xmpp_transform_func_cdata);
@@ -210,7 +205,6 @@ xmpp_conf_user(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element
 static void
 xmpp_conf_endpoint(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t *element)
 {
-    proto_item *endpoint_item;
     proto_tree *endpoint_tree;
 
     xmpp_attr_info attrs_info [] = {
@@ -231,8 +225,7 @@ xmpp_conf_endpoint(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_ele
 
     };
 
-    endpoint_item = proto_tree_add_text(tree, tvb, element->offset, element->length, "ENDPOINT");
-    endpoint_tree = proto_item_add_subtree(endpoint_item, ett_xmpp_conf_endpoint);
+    endpoint_tree = proto_tree_add_subtree(tree, tvb, element->offset, element->length, ett_xmpp_conf_endpoint, NULL, "ENDPOINT");
 
     xmpp_change_elem_to_attrib("display-text", "display-text", element, xmpp_transform_func_cdata);
     xmpp_change_elem_to_attrib("status", "status", element, xmpp_transform_func_cdata);
@@ -247,7 +240,6 @@ xmpp_conf_endpoint(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_ele
 static void
 xmpp_conf_media(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t *element)
 {
-    proto_item *media_item;
     proto_tree *media_tree;
 
     xmpp_attr_info attrs_info[] = {
@@ -259,8 +251,7 @@ xmpp_conf_media(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_elemen
         {"status", NULL, FALSE, TRUE, NULL, NULL},
     };
 
-    media_item = proto_tree_add_text(tree, tvb, element->offset, element->length, "MEDIA");
-    media_tree = proto_item_add_subtree(media_item, ett_xmpp_conf_media);
+    media_tree = proto_tree_add_subtree(tree, tvb, element->offset, element->length, ett_xmpp_conf_media, NULL, "MEDIA");
 
     xmpp_change_elem_to_attrib("display-text", "display-text", element, xmpp_transform_func_cdata);
     xmpp_change_elem_to_attrib("type", "type", element, xmpp_transform_func_cdata);
