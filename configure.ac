@@ -1110,6 +1110,9 @@ darwin*)
 	#
 	LDFLAGS_SHAREDLIB="-Wl,-single_module"
 	#
+	# Add -Wl,-headerpad_max_install_names to the LDFLAGS, as
+	# code-signing issues is running out of padding space.
+	#
 	# Add -Wl,-search_paths_first to make sure that if we search
 	# directories A and B, in that order, for a given library, a
 	# non-shared version in directory A, rather than a shared
@@ -1125,8 +1128,8 @@ darwin*)
 	# libraries in the rpath, rather than having a script tweak
 	# DYLD_LIBRARY_PATH.
 	#
-	LDFLAGS="-Wl,-search_paths_first -Wl,-rpath,@executable_path/../lib -Wl,-rpath,@executable_path/../Frameworks -Wl,-rpath,/usr/local/lib $LDFLAGS"
-	AC_MSG_RESULT([Apple linker - added -Wl,-single_module and -Wl,-search_paths_first, and rpaths])
+	LDFLAGS="-Wl,-headerpad_max_install_names -Wl,-search_paths_first -Wl,-rpath,@executable_path/../lib -Wl,-rpath,@executable_path/../Frameworks -Wl,-rpath,/usr/local/lib $LDFLAGS"
+	AC_MSG_RESULT([Apple linker - added -Wl,-single_module to shared library linker flags and -Wl,-headerpad_max_install_names -Wl,-search_paths_first and rpaths to all linker flags])
 	;;
 cygwin*)
 	#
