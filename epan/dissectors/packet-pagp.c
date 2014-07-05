@@ -174,8 +174,6 @@ dissect_pagp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       proto_tree *flags_tree;
       proto_item *flags_item;
       proto_tree *tlv_tree;
-      proto_item *tlv_item;
-
 
       const char *sep;
 
@@ -326,10 +324,9 @@ dissect_pagp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		   return;
 		}
 
-		tlv_item = proto_tree_add_text (pagp_tree, tvb, offset, len,
-			   "TLV Entry #%d", ii+1);
+		tlv_tree = proto_tree_add_subtree_format(pagp_tree, tvb, offset, len,
+			   ett_pagp_tlvs, NULL, "TLV Entry #%d", ii+1);
 
-		tlv_tree = proto_item_add_subtree (tlv_item, ett_pagp_tlvs);
 		proto_tree_add_uint_format (tlv_tree, hf_pagp_tlv, tvb,
 			offset,2,tlv,"Type = %d (%s)", tlv,
 			val_to_str_const(tlv,tlv_types, "Unknown")) ;

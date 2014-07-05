@@ -521,8 +521,7 @@ DEBUG_ENTRY("dissect_per_sequence_of_helper");
 		proto_item *litem;
 		proto_tree *ltree;
 
-		litem=proto_tree_add_text(tree, tvb, offset>>3, 0, "Item %d", i);
-		ltree=proto_item_add_subtree(litem, ett_per_sequence_of_item);
+		ltree=proto_tree_add_subtree_format(tree, tvb, offset>>3, 0, ett_per_sequence_of_item, &litem, "Item %d", i);
 
 		offset=(*func)(tvb, offset, actx, ltree, hf_index);
 		proto_item_set_len(litem, (offset>>3)!=(lold_offset>>3)?(offset>>3)-(lold_offset>>3):1);

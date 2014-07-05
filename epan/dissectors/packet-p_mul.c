@@ -549,9 +549,8 @@ static void add_ack_analysis (tvbuff_t *tvb, packet_info *pinfo, proto_tree *p_m
   }
 
   if (pdu_type == Address_PDU) {
-    sa = proto_tree_add_text (p_mul_tree, tvb, 0, 0, "ACK analysis");
+    analysis_tree = proto_tree_add_subtree(p_mul_tree, tvb, 0, 0, ett_ack_analysis, &sa, "ACK analysis");
     PROTO_ITEM_SET_GENERATED (sa);
-    analysis_tree = proto_item_add_subtree (sa, ett_ack_analysis);
 
     /* Fetch package data */
     if ((pkg_data = lookup_seq_val (message_id, 0, src)) == NULL) {
@@ -604,9 +603,8 @@ static void add_ack_analysis (tvbuff_t *tvb, packet_info *pinfo, proto_tree *p_m
       PROTO_ITEM_SET_HIDDEN (sa);
     }
   } else if (pdu_type == Ack_PDU) {
-    sa = proto_tree_add_text (p_mul_tree, tvb, 0, 0, "SEQ/ACK analysis");
+    analysis_tree = proto_tree_add_subtree(p_mul_tree, tvb, 0, 0, ett_seq_ack_analysis, &sa, "SEQ/ACK analysis");
     PROTO_ITEM_SET_GENERATED (sa);
-    analysis_tree = proto_item_add_subtree (sa, ett_seq_ack_analysis);
 
     /* Fetch package data */
     memcpy((guint8 *)&dstIp, dst->data, 4);
@@ -684,9 +682,8 @@ static p_mul_seq_val *add_seq_analysis (tvbuff_t *tvb, packet_info *pinfo,
     return NULL;
   }
 
-  sa = proto_tree_add_text (p_mul_tree, tvb, 0, 0, "SEQ analysis");
+  analysis_tree = proto_tree_add_subtree(p_mul_tree, tvb, 0, 0, ett_seq_analysis, &sa, "SEQ analysis");
   PROTO_ITEM_SET_GENERATED (sa);
-  analysis_tree = proto_item_add_subtree (sa, ett_seq_analysis);
 
   if (pdu_type == Data_PDU || pdu_type == Discard_Message_PDU) {
     /* Add reference to Address_PDU */

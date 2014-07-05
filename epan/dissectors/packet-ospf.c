@@ -1249,7 +1249,6 @@ dissect_ospf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static int
 dissect_ospfv2_lls_tlv(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
-    proto_item *ti;
     proto_tree *ospf_lls_tlv_tree;
     guint16 type;
     guint16 length;
@@ -1257,9 +1256,8 @@ dissect_ospfv2_lls_tlv(tvbuff_t *tvb, int offset, proto_tree *tree)
     type = tvb_get_ntohs(tvb, offset);
     length = tvb_get_ntohs(tvb, offset + 2);
 
-    ti = proto_tree_add_text(tree, tvb, offset, length + 4, "%s",
-                             val_to_str_const(type, lls_tlv_type_vals, "Unknown TLV"));
-    ospf_lls_tlv_tree = proto_item_add_subtree(ti, ett_ospf_lls_tlv);
+    ospf_lls_tlv_tree = proto_tree_add_subtree(tree, tvb, offset, length + 4, ett_ospf_lls_tlv,
+                             NULL, val_to_str_const(type, lls_tlv_type_vals, "Unknown TLV"));
 
     proto_tree_add_item(ospf_lls_tlv_tree, hf_ospf_tlv_type, tvb, offset, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(ospf_lls_tlv_tree, hf_ospf_tlv_length, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
@@ -1402,14 +1400,11 @@ dissect_ospf_lls_data_block(tvbuff_t *tvb, int offset, proto_tree *tree,
                             guint8 version)
 {
     proto_tree *ospf_lls_data_block_tree;
-    proto_item *ti;
     int ospf_lls_len;
     int orig_offset = offset;
 
     ospf_lls_len = tvb_get_ntohs(tvb, offset + 2) * 4;
-    ti = proto_tree_add_text(tree, tvb, offset, -1, "OSPF LLS Data Block");
-    ospf_lls_data_block_tree = proto_item_add_subtree(ti,
-                                                      ett_ospf_lls_data_block);
+    ospf_lls_data_block_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_ospf_lls_data_block, NULL, "OSPF LLS Data Block");
 
     /* TODO: verify checksum */
     proto_tree_add_item(ospf_lls_data_block_tree, hf_ospf_lls_checksum, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -1509,14 +1504,13 @@ static void
 dissect_ospf_db_desc(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree,
                      guint8 version, guint16 length, guint8 address_family)
 {
-    proto_tree *ospf_db_desc_tree=NULL;
+    proto_tree *ospf_db_desc_tree;
     proto_item *ti;
     guint8 reserved;
     int orig_offset = offset;
 
     if (tree) {
-        ti = proto_tree_add_text(tree, tvb, offset, length, "OSPF DB Description");
-        ospf_db_desc_tree = proto_item_add_subtree(ti, ett_ospf_desc);
+        ospf_db_desc_tree = proto_tree_add_subtree(tree, tvb, offset, length, ett_ospf_desc, NULL, "OSPF DB Description");
 
         switch (version ) {
 
@@ -1572,17 +1566,16 @@ static void
 dissect_ospf_ls_req(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree, guint8 version,
                     guint16 length)
 {
-    proto_tree *ospf_lsr_tree;
     proto_item *ti;
+    proto_tree *ospf_lsr_tree;
     guint16 reserved;
     int orig_offset = offset;
 
     /* zero or more LS requests may be within a LS Request */
     /* we place every request for a LSA in a single subtree */
     while (orig_offset + length > offset) {
-        ti = proto_tree_add_text(tree, tvb, offset, OSPF_LS_REQ_LENGTH,
-                                 "Link State Request");
-        ospf_lsr_tree = proto_item_add_subtree(ti, ett_ospf_lsr);
+        ospf_lsr_tree = proto_tree_add_subtree(tree, tvb, offset, OSPF_LS_REQ_LENGTH,
+                                 ett_ospf_lsr, NULL, "Link State Request");
 
         switch ( version ) {
 
@@ -1614,13 +1607,11 @@ static void
 dissect_ospf_ls_upd(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree, guint8 version,
                     guint16 length, guint8 address_family)
 {
-    proto_tree *ospf_lsa_upd_tree=NULL;
-    proto_item *ti;
+    proto_tree *ospf_lsa_upd_tree;
     guint32 lsa_nr;
     guint32 lsa_counter;
 
-    ti = proto_tree_add_text(tree, tvb, offset, length, "LS Update Packet");
-    ospf_lsa_upd_tree = proto_item_add_subtree(ti, ett_ospf_lsa_upd);
+    ospf_lsa_upd_tree = proto_tree_add_subtree(tree, tvb, offset, length, ett_ospf_lsa_upd, NULL, "LS Update Packet");
 
     lsa_nr = tvb_get_ntohl(tvb, offset);
     proto_tree_add_item(ospf_lsa_upd_tree, hf_ospf_ls_number_of_lsas, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -1777,12 +1768,11 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree 
     const guint8 allzero[] = { 0x00, 0x00, 0x00 };
     guint num_bcs = 0;
 
-    ti = proto_tree_add_text(tree, tvb, offset, length,
-                             "MPLS Traffic Engineering LSA");
+    mpls_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+                             ett_ospf_lsa_mpls, NULL, "MPLS Traffic Engineering LSA");
     hidden_item = proto_tree_add_item(tree, hf_ospf_filter[OSPFF_LS_MPLS],
                                       tvb, offset, 2, ENC_BIG_ENDIAN);
     PROTO_ITEM_SET_HIDDEN(hidden_item);
-    mpls_tree = proto_item_add_subtree(ti, ett_ospf_lsa_mpls);
 
     while (length != 0) {
         tlv_type = tvb_get_ntohs(tvb, offset);
@@ -1801,9 +1791,8 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree 
             break;
 
         case MPLS_TLV_LINK:
-            ti = proto_tree_add_text(mpls_tree, tvb, offset, tlv_length+4,
-                                     "Link Information");
-            tlv_tree = proto_item_add_subtree(ti, ett_ospf_lsa_mpls_link);
+            tlv_tree = proto_tree_add_subtree(mpls_tree, tvb, offset, tlv_length+4,
+                                     ett_ospf_lsa_mpls_link, NULL, "Link Information");
             proto_tree_add_uint_format_value(tlv_tree, hf_ospf_tlv_type, tvb, offset, 2, tlv_type, "2 - Link Information");
             proto_tree_add_item(tlv_tree, hf_ospf_tlv_length, tvb, offset+2, 2, ENC_BIG_ENDIAN);
             stlv_offset = offset + 4;
@@ -1816,12 +1805,11 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree 
                 switch (stlv_type) {
 
                 case MPLS_LINK_TYPE:
-                    ti = proto_tree_add_text(tlv_tree, tvb, stlv_offset, stlv_len+4,
-                                             "%s: %u - %s", stlv_name,
+                    stlv_tree = proto_tree_add_subtree_format(tlv_tree, tvb, stlv_offset, stlv_len+4,
+                                             ett_ospf_lsa_mpls_link_stlv, NULL, "%s: %u - %s", stlv_name,
                                              tvb_get_guint8(tvb, stlv_offset + 4),
                                              val_to_str_const(tvb_get_guint8(tvb, stlv_offset + 4),
                                                               mpls_link_stlv_ltype_str, "Unknown Link Type"));
-                    stlv_tree = proto_item_add_subtree(ti, ett_ospf_lsa_mpls_link_stlv);
                     proto_tree_add_uint_format_value(stlv_tree, hf_ospf_tlv_type, tvb, stlv_offset, 2,
                                         stlv_type, "%u: %s", stlv_type, stlv_name);
                     proto_tree_add_item(stlv_tree, hf_ospf_tlv_length, tvb, stlv_offset+2, 2, ENC_BIG_ENDIAN);
@@ -1830,10 +1818,9 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree 
                     break;
 
                 case MPLS_LINK_ID:
-                    ti = proto_tree_add_text(tlv_tree, tvb, stlv_offset, stlv_len+4,
-                                             "%s: %s", stlv_name,
+                    stlv_tree = proto_tree_add_subtree_format(tlv_tree, tvb, stlv_offset, stlv_len+4,
+                                             ett_ospf_lsa_mpls_link_stlv, NULL, "%s: %s", stlv_name,
                                              tvb_ip_to_str(tvb, stlv_offset + 4));
-                    stlv_tree = proto_item_add_subtree(ti, ett_ospf_lsa_mpls_link_stlv);
                     proto_tree_add_uint_format_value(stlv_tree, hf_ospf_tlv_type, tvb, stlv_offset, 2,
                                         stlv_type, "%u: %s", stlv_type, stlv_name);
                     proto_tree_add_item(stlv_tree, hf_ospf_tlv_length, tvb, stlv_offset+2, 2, ENC_BIG_ENDIAN);
@@ -1843,9 +1830,9 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree 
 
                 case MPLS_LINK_LOCAL_IF:
                 case MPLS_LINK_REMOTE_IF:
-                    ti = proto_tree_add_text(tlv_tree, tvb, stlv_offset, stlv_len+4,
-                                             "%s: %s", stlv_name, tvb_ip_to_str(tvb, stlv_offset + 4));
-                    stlv_tree = proto_item_add_subtree(ti, ett_ospf_lsa_mpls_link_stlv);
+                    stlv_tree = proto_tree_add_subtree_format(tlv_tree, tvb, stlv_offset, stlv_len+4,
+                                             ett_ospf_lsa_mpls_link_stlv, NULL, "%s: %s", stlv_name,
+                                             tvb_ip_to_str(tvb, stlv_offset + 4));
                     proto_tree_add_uint_format_value(stlv_tree, hf_ospf_tlv_type, tvb, stlv_offset, 2,
                                         stlv_type, "%u: %s", stlv_type, stlv_name);
                     proto_tree_add_item(stlv_tree, hf_ospf_tlv_length, tvb, stlv_offset+2, 2, ENC_BIG_ENDIAN);
@@ -1860,10 +1847,9 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree 
                     break;
 
                 case MPLS_LINK_TE_METRIC:
-                    ti = proto_tree_add_text(tlv_tree, tvb, stlv_offset, stlv_len+4,
-                                             "%s: %u", stlv_name,
+                    stlv_tree = proto_tree_add_subtree_format(tlv_tree, tvb, stlv_offset, stlv_len+4,
+                                             ett_ospf_lsa_mpls_link_stlv, NULL, "%s: %u", stlv_name,
                                              tvb_get_ntohl(tvb, stlv_offset + 4));
-                    stlv_tree = proto_item_add_subtree(ti, ett_ospf_lsa_mpls_link_stlv);
                     proto_tree_add_uint_format_value(stlv_tree, hf_ospf_tlv_type, tvb, stlv_offset, 2,
                                         stlv_type, "%u: %s", stlv_type, stlv_name);
                     proto_tree_add_item(stlv_tree, hf_ospf_tlv_length, tvb, stlv_offset+2, 2, ENC_BIG_ENDIAN);
@@ -1872,10 +1858,9 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree 
                     break;
 
                 case MPLS_LINK_COLOR:
-                    ti = proto_tree_add_text(tlv_tree, tvb, stlv_offset, stlv_len+4,
-                                             "%s: 0x%08x", stlv_name,
+                    stlv_tree = proto_tree_add_subtree_format(tlv_tree, tvb, stlv_offset, stlv_len+4,
+                                             ett_ospf_lsa_mpls_link_stlv, NULL, "%s: 0x%08x", stlv_name,
                                              tvb_get_ntohl(tvb, stlv_offset + 4));
-                    stlv_tree = proto_item_add_subtree(ti, ett_ospf_lsa_mpls_link_stlv);
                     proto_tree_add_uint_format_value(stlv_tree, hf_ospf_tlv_type, tvb, stlv_offset, 2,
                                         stlv_type, "%u: %s", stlv_type, stlv_name);
                     proto_tree_add_item(stlv_tree, hf_ospf_tlv_length, tvb, stlv_offset+2, 2, ENC_BIG_ENDIAN);
@@ -1897,11 +1882,10 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree 
 
                 case MPLS_LINK_MAX_BW:
                 case MPLS_LINK_MAX_RES_BW:
-                    ti = proto_tree_add_text(tlv_tree, tvb, stlv_offset, stlv_len+4,
-                                             "%s: %.10g bytes/s (%.0f bits/s)", stlv_name,
+                    stlv_tree = proto_tree_add_subtree_format(tlv_tree, tvb, stlv_offset, stlv_len+4,
+                                             ett_ospf_lsa_mpls_link_stlv, NULL, "%s: %.10g bytes/s (%.0f bits/s)", stlv_name,
                                              tvb_get_ntohieee_float(tvb, stlv_offset + 4),
                                              tvb_get_ntohieee_float(tvb, stlv_offset + 4) * 8.0);
-                    stlv_tree = proto_item_add_subtree(ti, ett_ospf_lsa_mpls_link_stlv);
                     proto_tree_add_uint_format_value(stlv_tree, hf_ospf_tlv_type, tvb, stlv_offset, 2,
                                         stlv_type, "%u: %s", stlv_type, stlv_name);
                     proto_tree_add_item(stlv_tree, hf_ospf_tlv_length, tvb, stlv_offset+2, 2, ENC_BIG_ENDIAN);
@@ -1911,9 +1895,8 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree 
                     break;
 
                 case MPLS_LINK_UNRES_BW:
-                    ti = proto_tree_add_text(tlv_tree, tvb, stlv_offset, stlv_len+4,
-                                             "%s", stlv_name);
-                    stlv_tree = proto_item_add_subtree(ti, ett_ospf_lsa_mpls_link_stlv);
+                    stlv_tree = proto_tree_add_subtree(tlv_tree, tvb, stlv_offset, stlv_len+4,
+                                             ett_ospf_lsa_mpls_link_stlv, NULL, stlv_name);
                     proto_tree_add_uint_format_value(stlv_tree, hf_ospf_tlv_type, tvb, stlv_offset, 2,
                                         stlv_type, "%u: %s", stlv_type, stlv_name);
                     proto_tree_add_item(stlv_tree, hf_ospf_tlv_length, tvb, stlv_offset+2, 2, ENC_BIG_ENDIAN);
@@ -1942,10 +1925,8 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree 
                       +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
                     */
 
-                    ti = proto_tree_add_text(tlv_tree, tvb, stlv_offset, stlv_len+4,
-                                             "%s", stlv_name);
-
-                    stlv_tree = proto_item_add_subtree(ti, ett_ospf_lsa_mpls_link_stlv);
+                    stlv_tree = proto_tree_add_subtree(tlv_tree, tvb, stlv_offset, stlv_len+4,
+                                             ett_ospf_lsa_mpls_link_stlv, NULL, stlv_name);
 
                     proto_tree_add_uint_format_value(stlv_tree, hf_ospf_tlv_type, tvb, stlv_offset, 2,
                                         stlv_type, "%u: %s", stlv_type, stlv_name);
@@ -1992,13 +1973,12 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree 
                     break;
 
                 case MPLS_LINK_LOCAL_REMOTE_ID:
-                    ti = proto_tree_add_text(tlv_tree, tvb, stlv_offset, stlv_len+4,
-                                             "%s: %d (0x%x) - %d (0x%x)", stlv_name,
+                    stlv_tree = proto_tree_add_subtree_format(tlv_tree, tvb, stlv_offset, stlv_len+4,
+                                             ett_ospf_lsa_mpls_link_stlv, NULL, "%s: %d (0x%x) - %d (0x%x)", stlv_name,
                                              tvb_get_ntohl(tvb, stlv_offset + 4),
                                              tvb_get_ntohl(tvb, stlv_offset + 4),
                                              tvb_get_ntohl(tvb, stlv_offset + 8),
                                              tvb_get_ntohl(tvb, stlv_offset + 8));
-                    stlv_tree = proto_item_add_subtree(ti, ett_ospf_lsa_mpls_link_stlv);
 
                     proto_tree_add_uint_format_value(stlv_tree, hf_ospf_tlv_type, tvb, stlv_offset, 2,
                                         stlv_type, "%u: %s", stlv_type, stlv_name);
@@ -2012,9 +1992,8 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree 
                     break;
 
                 case MPLS_LINK_IF_SWITCHING_DESC:
-                    ti = proto_tree_add_text(tlv_tree, tvb, stlv_offset, stlv_len+4,
-                                             "%s", stlv_name);
-                    stlv_tree = proto_item_add_subtree(ti, ett_ospf_lsa_mpls_link_stlv);
+                    stlv_tree = proto_tree_add_subtree(tlv_tree, tvb, stlv_offset, stlv_len+4,
+                                             ett_ospf_lsa_mpls_link_stlv, NULL, stlv_name);
                     proto_tree_add_uint_format_value(stlv_tree, hf_ospf_tlv_type, tvb, stlv_offset, 2,
                                         stlv_type, "%u: %s", stlv_type, stlv_name);
                     proto_tree_add_item(stlv_tree, hf_ospf_tlv_length, tvb, stlv_offset+2, 2, ENC_BIG_ENDIAN);
@@ -2047,9 +2026,8 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree 
                     }
                     break;
                 case MPLS_LINK_PROTECTION:
-                    ti = proto_tree_add_text(tlv_tree, tvb, stlv_offset, stlv_len+4,
-                                             "%s", stlv_name);
-                    stlv_tree = proto_item_add_subtree(ti, ett_ospf_lsa_mpls_link_stlv);
+                    stlv_tree = proto_tree_add_subtree(tlv_tree, tvb, stlv_offset, stlv_len+4,
+                                             ett_ospf_lsa_mpls_link_stlv, NULL, stlv_name);
                     proto_tree_add_uint_format_value(stlv_tree, hf_ospf_tlv_type, tvb, stlv_offset, 2,
                                         stlv_type, "%u: %s", stlv_type, stlv_name);
                     proto_tree_add_item(stlv_tree, hf_ospf_tlv_length, tvb, stlv_offset+2, 2, ENC_BIG_ENDIAN);
@@ -2057,9 +2035,8 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree 
                     break;
 
                 case MPLS_LINK_SHARED_RISK_GROUP:
-                    ti = proto_tree_add_text(tlv_tree, tvb, stlv_offset, stlv_len+4,
-                                             "%s", stlv_name);
-                    stlv_tree = proto_item_add_subtree(ti, ett_ospf_lsa_mpls_link_stlv);
+                    stlv_tree = proto_tree_add_subtree(tlv_tree, tvb, stlv_offset, stlv_len+4,
+                                             ett_ospf_lsa_mpls_link_stlv, NULL, stlv_name);
                     proto_tree_add_uint_format_value(stlv_tree, hf_ospf_tlv_type, tvb, stlv_offset, 2,
                                         stlv_type, "%u: %s", stlv_type, stlv_name);
                     proto_tree_add_item(stlv_tree, hf_ospf_tlv_length, tvb, stlv_offset+2, 2, ENC_BIG_ENDIAN);
@@ -2068,10 +2045,9 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree 
                     break;
 
                 case OIF_LOCAL_NODE_ID:
-                    ti = proto_tree_add_text(tlv_tree, tvb, stlv_offset, stlv_len+4,
-                                             "%s: %s", stlv_name,
+                    stlv_tree = proto_tree_add_subtree_format(tlv_tree, tvb, stlv_offset, stlv_len+4,
+                                             ett_ospf_lsa_mpls_link_stlv, NULL, "%s: %s", stlv_name,
                                              tvb_ip_to_str(tvb, stlv_offset + 4));
-                    stlv_tree = proto_item_add_subtree(ti, ett_ospf_lsa_mpls_link_stlv);
                     proto_tree_add_uint_format_value(stlv_tree, hf_ospf_tlv_type, tvb, stlv_offset, 2,
                                         stlv_type, "%u: %s", stlv_type, stlv_name);
                     proto_tree_add_item(stlv_tree, hf_ospf_tlv_length, tvb, stlv_offset+2, 2, ENC_BIG_ENDIAN);
@@ -2081,10 +2057,9 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree 
                     break;
 
                 case OIF_REMOTE_NODE_ID:
-                    ti = proto_tree_add_text(tlv_tree, tvb, stlv_offset, stlv_len+4,
-                                             "%s: %s", stlv_name,
+                    stlv_tree = proto_tree_add_subtree_format(tlv_tree, tvb, stlv_offset, stlv_len+4,
+                                             ett_ospf_lsa_mpls_link_stlv, NULL, "%s: %s", stlv_name,
                                              tvb_ip_to_str(tvb, stlv_offset + 4));
-                    stlv_tree = proto_item_add_subtree(ti, ett_ospf_lsa_mpls_link_stlv);
                     proto_tree_add_uint_format_value(stlv_tree, hf_ospf_tlv_type, tvb, stlv_offset, 2,
                                         stlv_type, "%u: %s", stlv_type, stlv_name);
                     proto_tree_add_item(stlv_tree, hf_ospf_tlv_length, tvb, stlv_offset+2, 2, ENC_BIG_ENDIAN);
@@ -2094,8 +2069,8 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree 
                     break;
 
                 case OIF_SONET_SDH_SWITCHING_CAPABILITY:
-                    ti = proto_tree_add_text(tlv_tree, tvb, stlv_offset, stlv_len+4, "%s", stlv_name);
-                    stlv_tree = proto_item_add_subtree(ti, ett_ospf_lsa_mpls_link_stlv);
+                    stlv_tree = proto_tree_add_subtree(tlv_tree, tvb, stlv_offset, stlv_len+4,
+                                             ett_ospf_lsa_mpls_link_stlv, NULL, stlv_name);
                     proto_tree_add_uint_format_value(stlv_tree, hf_ospf_tlv_type, tvb, stlv_offset, 2,
                                         stlv_type, "%u: %s", stlv_type, stlv_name);
                     proto_tree_add_item(stlv_tree, hf_ospf_tlv_length, tvb, stlv_offset+2, 2, ENC_BIG_ENDIAN);
@@ -2112,10 +2087,9 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree 
 
                     break;
                 default:
-                    ti = proto_tree_add_text(tlv_tree, tvb, stlv_offset, stlv_len+4,
-                                             "Unknown Link sub-TLV: %u %s", stlv_type,
+                    stlv_tree = proto_tree_add_subtree_format(tlv_tree, tvb, stlv_offset, stlv_len+4,
+                                             ett_ospf_lsa_mpls_link_stlv, NULL, "Unknown Link sub-TLV: %u %s", stlv_type,
                                              rval_to_str(stlv_type, mpls_te_sub_tlv_rvals, "Unknown"));
-                    stlv_tree = proto_item_add_subtree(ti, ett_ospf_lsa_mpls_link_stlv);
                     proto_tree_add_uint_format_value(stlv_tree, hf_ospf_tlv_type, tvb, stlv_offset, 2,
                                         stlv_type, "%u: %s %s", stlv_type, stlv_name,
                                         rval_to_str(stlv_type, mpls_te_sub_tlv_rvals, "Unknown"));
@@ -2129,9 +2103,8 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree 
             break;
 
         case OIF_TLV_TNA:
-            ti = proto_tree_add_text(mpls_tree, tvb, offset, tlv_length+4,
-                                     "TNA Information");
-            tlv_tree = proto_item_add_subtree(ti, ett_ospf_lsa_oif_tna);
+            tlv_tree = proto_tree_add_subtree(mpls_tree, tvb, offset, tlv_length+4,
+                                     ett_ospf_lsa_oif_tna, NULL, "TNA Information");
             proto_tree_add_uint_format_value(tlv_tree, hf_ospf_tlv_type, tvb, offset, 2, 32768, "32768 - TNA Information");
             proto_tree_add_item(tlv_tree, hf_ospf_tlv_length, tvb, offset+2, 2, ENC_BIG_ENDIAN);
             stlv_offset = offset + 4;
@@ -2144,10 +2117,9 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree 
                 switch (stlv_type) {
 
                 case OIF_NODE_ID:
-                    ti = proto_tree_add_text(tlv_tree, tvb, stlv_offset, stlv_len+4,
-                                             "%s: %s", stlv_name,
+                    stlv_tree = proto_tree_add_subtree_format(tlv_tree, tvb, stlv_offset, stlv_len+4,
+                                             ett_ospf_lsa_oif_tna_stlv, NULL, "%s: %s", stlv_name,
                                              tvb_ip_to_str(tvb, stlv_offset + 4));
-                    stlv_tree = proto_item_add_subtree(ti, ett_ospf_lsa_oif_tna_stlv);
                     proto_tree_add_uint_format_value(stlv_tree, hf_ospf_tlv_type, tvb, stlv_offset, 2,
                                         stlv_type, "%u: %s", stlv_type, stlv_name);
                     proto_tree_add_item(stlv_tree, hf_ospf_tlv_length, tvb, stlv_offset+2, 2, ENC_BIG_ENDIAN);
@@ -2156,10 +2128,9 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree 
                     break;
 
                 case OIF_TNA_IPv4_ADDRESS:
-                    ti = proto_tree_add_text(tlv_tree, tvb, stlv_offset, stlv_len+4,
-                                             "%s (IPv4): %s", stlv_name,
+                    stlv_tree = proto_tree_add_subtree_format(tlv_tree, tvb, stlv_offset, stlv_len+4,
+                                             ett_ospf_lsa_oif_tna_stlv, NULL, "%s (IPv4): %s", stlv_name,
                                              tvb_ip_to_str(tvb, stlv_offset + 8));
-                    stlv_tree = proto_item_add_subtree(ti, ett_ospf_lsa_oif_tna_stlv);
                     proto_tree_add_uint_format_value(stlv_tree, hf_ospf_tlv_type, tvb, stlv_offset, 2,
                                         stlv_type, "%u: %s (IPv4)", stlv_type, stlv_name);
                     proto_tree_add_item(stlv_tree, hf_ospf_tlv_length, tvb, stlv_offset+2, 2, ENC_BIG_ENDIAN);
@@ -2168,10 +2139,9 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree 
                     break;
 
                 case OIF_TNA_IPv6_ADDRESS:
-                    ti = proto_tree_add_text(tlv_tree, tvb, stlv_offset, stlv_len+4,
-                                             "%s (IPv6): %s", stlv_name,
+                    stlv_tree = proto_tree_add_subtree_format(tlv_tree, tvb, stlv_offset, stlv_len+4,
+                                             ett_ospf_lsa_oif_tna_stlv, NULL, "%s (IPv6): %s", stlv_name,
                                              tvb_ip6_to_str(tvb, stlv_offset + 8));
-                    stlv_tree = proto_item_add_subtree(ti, ett_ospf_lsa_oif_tna_stlv);
                     proto_tree_add_uint_format_value(stlv_tree, hf_ospf_tlv_type, tvb, stlv_offset, 2,
                                         stlv_type, "%u: %s (IPv6)", stlv_type, stlv_name);
                     proto_tree_add_item(stlv_tree, hf_ospf_tlv_length, tvb, stlv_offset+2, 2, ENC_BIG_ENDIAN);
@@ -2180,10 +2150,9 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree 
                     break;
 
                 case OIF_TNA_NSAP_ADDRESS:
-                    ti = proto_tree_add_text(tlv_tree, tvb, stlv_offset, stlv_len+4,
-                                             "%s (NSAP): %s", stlv_name,
+                    stlv_tree = proto_tree_add_subtree_format(tlv_tree, tvb, stlv_offset, stlv_len+4,
+                                             ett_ospf_lsa_oif_tna_stlv, NULL, "%s (NSAP): %s", stlv_name,
                                              tvb_bytes_to_ep_str (tvb, stlv_offset + 8, stlv_len - 4));
-                    stlv_tree = proto_item_add_subtree(ti, ett_ospf_lsa_oif_tna_stlv);
                     proto_tree_add_uint_format_value(stlv_tree, hf_ospf_tlv_type, tvb, stlv_offset, 2,
                                         stlv_type, "%u: %s (NSAP)", stlv_type, stlv_name);
                     proto_tree_add_item(stlv_tree, hf_ospf_tlv_length, tvb, stlv_offset+2, 2, ENC_BIG_ENDIAN);
@@ -2200,10 +2169,9 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree 
             }
             break;
         default:
-            ti = proto_tree_add_text(mpls_tree, tvb, offset, tlv_length+4,
-                                     "Unknown LSA: %u %s", tlv_type,
+            tlv_tree = proto_tree_add_subtree_format(mpls_tree, tvb, offset, tlv_length+4,
+                                     ett_ospf_lsa_mpls_link, NULL, "Unknown LSA: %u %s", tlv_type,
                                      rval_to_str(tlv_type, mpls_te_tlv_rvals, "Unknown"));
-            tlv_tree = proto_item_add_subtree(ti, ett_ospf_lsa_mpls_link);
             proto_tree_add_uint_format_value(tlv_tree, hf_ospf_tlv_type, tvb, offset, 2, tlv_type, "%u - Unknown %s",
                                 tlv_type, rval_to_str(tlv_type, mpls_te_tlv_rvals, "Unknown"));
             proto_tree_add_item(tlv_tree, hf_ospf_tlv_length, tvb, offset+2, 2, ENC_BIG_ENDIAN);
@@ -2300,17 +2268,14 @@ static void
 dissect_ospf_lsa_opaque_ri(tvbuff_t *tvb, int offset, proto_tree *tree,
                            guint32 length)
 {
-    proto_item *ti;
     proto_tree *ri_tree;
     proto_tree *tlv_tree;
 
     int tlv_type;
     int tlv_length;
 
-    ti = proto_tree_add_text(tree, tvb, offset, length,
-                             "Opaque Router Information LSA");
-
-    ri_tree = proto_item_add_subtree(ti, ett_ospf_lsa_opaque_ri);
+    ri_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+                             ett_ospf_lsa_opaque_ri, NULL, "Opaque Router Information LSA");
 
     while (length > 0) {
         tlv_type = tvb_get_ntohs(tvb, offset);
@@ -2319,9 +2284,8 @@ dissect_ospf_lsa_opaque_ri(tvbuff_t *tvb, int offset, proto_tree *tree,
         switch(tlv_type) {
 
         case OPT_RI_TLV:
-           ti = proto_tree_add_text(ri_tree, tvb, offset, tlv_length+4,
-                                    "RI TLV");
-           tlv_tree = proto_item_add_subtree(ti, ett_ospf_lsa_ri_tlv);
+           tlv_tree = proto_tree_add_subtree(ri_tree, tvb, offset, tlv_length+4,
+                                    ett_ospf_lsa_ri_tlv, NULL, "RI TLV");
 
            proto_tree_add_uint_format_value(tlv_tree, hf_ospf_tlv_type, tvb, offset, 2,
                         tlv_type, "Router Informational Capabilities TLV (%u)", tlv_type);
@@ -2332,9 +2296,8 @@ dissect_ospf_lsa_opaque_ri(tvbuff_t *tvb, int offset, proto_tree *tree,
            break;
 
         case DYN_HOSTNAME_TLV:
-           ti = proto_tree_add_text(ri_tree, tvb, offset, tlv_length+4,
-                                    "Dynamic Hostname TLV");
-           tlv_tree = proto_item_add_subtree(ti, ett_ospf_lsa_dyn_hostname_tlv);
+           tlv_tree = proto_tree_add_subtree(ri_tree, tvb, offset, tlv_length+4,
+                                    ett_ospf_lsa_dyn_hostname_tlv, NULL, "Dynamic Hostname TLV");
 
            proto_tree_add_uint_format_value(tlv_tree, hf_ospf_tlv_type, tvb, offset, 2,
                                tlv_type, "Dynamic Hostname TLV (%u)", tlv_type);
@@ -2345,9 +2308,8 @@ dissect_ospf_lsa_opaque_ri(tvbuff_t *tvb, int offset, proto_tree *tree,
            break;
 
         default:
-           ti = proto_tree_add_text(ri_tree, tvb, offset, tlv_length+4,
-                                    "Unknown Opaque RI LSA TLV");
-           tlv_tree = proto_item_add_subtree(ti, ett_ospf_lsa_unknown_tlv);
+           tlv_tree = proto_tree_add_subtree(ri_tree, tvb, offset, tlv_length+4,
+                                    ett_ospf_lsa_unknown_tlv, NULL, "Unknown Opaque RI LSA TLV");
 
            proto_tree_add_uint_format_value(tlv_tree, hf_ospf_tlv_length, tvb, offset, 2,
                                tlv_type, "Unknown TLV (%u)", tlv_type);
@@ -2450,14 +2412,13 @@ dissect_ospf_v2_lsa(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *t
     end_offset = offset + ls_length;
 
     if (disassemble_body) {
-        ti = proto_tree_add_text(tree, tvb, offset, ls_length,
-                                 "LS Type: %s",
+        ospf_lsa_tree = proto_tree_add_subtree_format(tree, tvb, offset, ls_length,
+                                 ett_ospf_lsa, NULL, "LS Type: %s",
                                  val_to_str(ls_type, ls_type_vals, "Unknown (%d)"));
     } else {
-        ti = proto_tree_add_text(tree, tvb, offset, OSPF_LSA_HEADER_LENGTH,
-                                 "LSA Header");
+        ospf_lsa_tree = proto_tree_add_subtree(tree, tvb, offset, OSPF_LSA_HEADER_LENGTH,
+                                 ett_ospf_lsa, NULL, "LSA Header");
     }
-    ospf_lsa_tree = proto_item_add_subtree(ti, ett_ospf_lsa);
 
     proto_tree_add_item(ospf_lsa_tree, hf_ospf_filter[OSPFF_LS_AGE], tvb,
                         offset, 2, ENC_BIG_ENDIAN);
@@ -2567,7 +2528,6 @@ dissect_ospf_v2_lsa(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *t
          */
         for (link_counter = 0; link_counter < nr_links; link_counter++) {
             proto_tree *ospf_lsa_router_link_tree;
-            proto_item *ti_local;
             proto_item *ti_item;
 
 
@@ -2575,15 +2535,12 @@ dissect_ospf_v2_lsa(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *t
             link_type = tvb_get_guint8(tvb, offset + 8);
             nr_metric = tvb_get_guint8(tvb, offset + 9);
 
-            ti_local = proto_tree_add_text(ospf_lsa_tree, tvb, offset, 12 + 4 * nr_metric,
-                                           "Type: %-8s ID: %-15s Data: %-15s Metric: %d",
+            ospf_lsa_router_link_tree = proto_tree_add_subtree_format(ospf_lsa_tree, tvb, offset, 12 + 4 * nr_metric,
+                                           ett_ospf_lsa_router_link, NULL, "Type: %-8s ID: %-15s Data: %-15s Metric: %d",
                                            val_to_str_const(link_type, ospf_v3_lsa_type_short_vals, "Unknown"),
                                            tvb_ip_to_str(tvb, offset),
                                            tvb_ip_to_str(tvb, offset + 4),
                                            tvb_get_ntohs(tvb, offset + 10));
-
-            ospf_lsa_router_link_tree = proto_item_add_subtree(ti_local, ett_ospf_lsa_router_link);
-
 
             ti_item = proto_tree_add_item(ospf_lsa_router_link_tree, hf_ospf_filter[OSPFF_LS_ROUTER_LINKID],
                         tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -2749,13 +2706,12 @@ dissect_ospf_v3_lsa(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *t
     end_offset = offset + ls_length;
 
     if (disassemble_body) {
-        ti = proto_tree_add_text(tree, tvb, offset, ls_length,
-                                 "%s (Type: 0x%04x)", val_to_str_const(ls_type, v3_ls_type_vals,"Unknown"), ls_type);
+        ospf_lsa_tree = proto_tree_add_subtree_format(tree, tvb, offset, ls_length,
+                                 ett_ospf_lsa, NULL, "%s (Type: 0x%04x)", val_to_str_const(ls_type, v3_ls_type_vals,"Unknown"), ls_type);
     } else {
-        ti = proto_tree_add_text(tree, tvb, offset, OSPF_LSA_HEADER_LENGTH,
-                                 "LSA Header");
+        ospf_lsa_tree = proto_tree_add_subtree(tree, tvb, offset, OSPF_LSA_HEADER_LENGTH,
+                                 ett_ospf_lsa, NULL, "LSA Header");
     }
-    ospf_lsa_tree = proto_item_add_subtree(ti, ett_ospf_lsa);
 
     proto_tree_add_text(ospf_lsa_tree, tvb, offset, 2, "LS Age: %u seconds",
                         tvb_get_ntohs(tvb, offset) & ~OSPF_DNA_LSA);

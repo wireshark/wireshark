@@ -78,7 +78,6 @@ static int
 dissect_oipf_ciplus(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
     gint        msg_len;
-    proto_item *ti;
     proto_tree *oipf_ciplus_tree;
     guint       offset           = 0;
     guint8      i, send_datatype_nbr;
@@ -91,8 +90,7 @@ dissect_oipf_ciplus(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, voi
     if (msg_len < 8)
         return 0;
 
-    ti = proto_tree_add_text(tree, tvb, 0, msg_len, "Open IPTV Forum CSPG-CI+");
-    oipf_ciplus_tree = proto_item_add_subtree(ti, ett_oipf_ciplus);
+    oipf_ciplus_tree = proto_tree_add_subtree(tree, tvb, 0, msg_len, ett_oipf_ciplus, NULL, "Open IPTV Forum CSPG-CI+");
 
     proto_tree_add_item(oipf_ciplus_tree, hf_oipf_ciplus_cmd_id,
             tvb, offset, 1, ENC_BIG_ENDIAN);

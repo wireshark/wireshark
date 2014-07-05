@@ -481,16 +481,15 @@ add_ppi_field_header(tvbuff_t *tvb, proto_tree *tree, int *offset)
 static void
 dissect_80211_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int data_len)
 {
-    proto_tree  *ftree = NULL;
-    proto_item  *ti    = NULL;
+    proto_tree  *ftree;
+    proto_item  *ti;
     ptvcursor_t *csr;
     gint         rate_kbps;
     guint32      common_flags;
     guint16      common_frequency;
     gchar       *chan_str;
 
-    ti = proto_tree_add_text(tree, tvb, offset, data_len, "802.11-Common");
-    ftree = proto_item_add_subtree(ti, ett_dot11_common);
+    ftree = proto_tree_add_subtree(tree, tvb, offset, data_len, ett_dot11_common, NULL, "802.11-Common");
     add_ppi_field_header(tvb, ftree, &offset);
     data_len -= 4; /* Subtract field header length */
 
@@ -563,7 +562,6 @@ static void
 dissect_80211n_mac(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, int data_len, gboolean add_subtree, guint32 *n_mac_flags, guint32 *ampdu_id)
 {
     proto_tree  *ftree       = tree;
-    proto_item  *ti          = NULL;
     ptvcursor_t *csr;
     int          subtree_off = add_subtree ? 4 : 0;
 
@@ -571,8 +569,7 @@ dissect_80211n_mac(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int 
     *ampdu_id = tvb_get_letohl(tvb, offset + 4 + subtree_off);
 
     if (add_subtree) {
-        ti = proto_tree_add_text(tree, tvb, offset, data_len, "802.11n MAC");
-        ftree = proto_item_add_subtree(ti, ett_dot11n_mac);
+        ftree = proto_tree_add_subtree(tree, tvb, offset, data_len, ett_dot11n_mac, NULL, "802.11n MAC");
         add_ppi_field_header(tvb, ftree, &offset);
         data_len -= 4; /* Subtract field header length */
     }
@@ -608,14 +605,13 @@ dissect_80211n_mac(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int 
 static void
 dissect_80211n_mac_phy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int data_len, guint32 *n_mac_flags, guint32 *ampdu_id)
 {
-    proto_tree  *ftree = NULL;
-    proto_item  *ti    = NULL;
+    proto_tree  *ftree;
+    proto_item  *ti;
     ptvcursor_t *csr;
     guint16      ext_frequency;
     gchar       *chan_str;
 
-    ti = proto_tree_add_text(tree, tvb, offset, data_len, "802.11n MAC+PHY");
-    ftree = proto_item_add_subtree(ti, ett_dot11n_mac_phy);
+    ftree = proto_tree_add_subtree(tree, tvb, offset, data_len, ett_dot11n_mac_phy, NULL, "802.11n MAC+PHY");
     add_ppi_field_header(tvb, ftree, &offset);
     data_len -= 4; /* Subtract field header length */
 
@@ -682,12 +678,10 @@ dissect_80211n_mac_phy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 static void
 dissect_aggregation_extension(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, int data_len)
 {
-    proto_tree *ftree = tree;
-    proto_item *ti = NULL;
+    proto_tree *ftree;
     ptvcursor_t *csr;
 
-    ti = proto_tree_add_text(tree, tvb, offset, data_len, "Aggregation Extension");
-    ftree = proto_item_add_subtree(ti, ett_aggregation_extension);
+    ftree = proto_tree_add_subtree(tree, tvb, offset, data_len, ett_aggregation_extension, NULL, "Aggregation Extension");
     add_ppi_field_header(tvb, ftree, &offset);
     data_len -= 4; /* Subtract field header length */
 
@@ -705,12 +699,10 @@ dissect_aggregation_extension(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
 static void
 dissect_8023_extension(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, int data_len)
 {
-    proto_tree  *ftree = tree;
-    proto_item  *ti    = NULL;
+    proto_tree  *ftree;
     ptvcursor_t *csr;
 
-    ti = proto_tree_add_text(tree, tvb, offset, data_len, "802.3 Extension");
-    ftree = proto_item_add_subtree(ti, ett_8023_extension);
+    ftree = proto_tree_add_subtree(tree, tvb, offset, data_len, ett_8023_extension, NULL, "802.3 Extension");
     add_ppi_field_header(tvb, ftree, &offset);
     data_len -= 4; /* Subtract field header length */
 
@@ -956,9 +948,9 @@ dissect_ppi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         if (fd_head && tree) {
             ft_fdh = fd_head;
             /* List our fragments */
-            ti = proto_tree_add_text(ppi_tree, tvb, offset, -1, "A-MPDU (%u bytes w/hdrs):", ampdu_len);
+            seg_tree = proto_tree_add_subtree_format(ppi_tree, tvb, offset, -1,
+                    ett_ampdu_segments, &ti, "A-MPDU (%u bytes w/hdrs):", ampdu_len);
             PROTO_ITEM_SET_GENERATED(ti);
-            seg_tree = proto_item_add_subtree(ti, ett_ampdu_segments);
 
             while (ft_fdh) {
                 if (ft_fdh->tvb_data && ft_fdh->len) {
@@ -998,10 +990,7 @@ dissect_ppi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     next_tvb = tvb_new_chain(tvb, fd_head->tvb_data);
                     add_new_data_source(pinfo, next_tvb, mpdu_str);
 
-                    if (agg_tree) {
-                        ti = proto_tree_add_text(agg_tree, next_tvb, 0, -1, "%s", mpdu_str);
-                        ampdu_tree = proto_item_add_subtree(ti, ett_ampdu_segment);
-                    }
+                    ampdu_tree = proto_tree_add_subtree(agg_tree, next_tvb, 0, -1, ett_ampdu_segment, NULL, mpdu_str);
                     call_dissector(ieee80211_ht_handle, next_tvb, pinfo, ampdu_tree);
                 }
                 fd_head = fd_head->next;

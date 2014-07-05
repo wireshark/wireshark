@@ -777,7 +777,6 @@ static void
 dissect_pcep_tlvs(proto_tree *pcep_obj, tvbuff_t *tvb, int offset, gint length, gint ett_pcep_obj)
 {
     proto_tree *tlv;
-    proto_item *ti;
     guint16     tlv_length, tlv_type, of_code;
     int         i, j;
     int         padding = 0;
@@ -785,8 +784,8 @@ dissect_pcep_tlvs(proto_tree *pcep_obj, tvbuff_t *tvb, int offset, gint length, 
     for (j = 0; j < length; j += 4 + tlv_length + padding) {
         tlv_type = tvb_get_ntohs(tvb, offset+j);
         tlv_length = tvb_get_ntohs(tvb, offset + j + 2);
-        ti = proto_tree_add_text(pcep_obj, tvb, offset + j, tlv_length+4, "%s", val_to_str(tlv_type, pcep_tlvs_vals, "Unknown TLV (%u). "));
-        tlv = proto_item_add_subtree(ti, ett_pcep_obj);
+        tlv = proto_tree_add_subtree(pcep_obj, tvb, offset + j, tlv_length+4,
+                    ett_pcep_obj, NULL, val_to_str(tlv_type, pcep_tlvs_vals, "Unknown TLV (%u). "));
         proto_tree_add_item(tlv, hf_pcep_tlv_type, tvb, offset + j, 2, ENC_BIG_ENDIAN);
         proto_tree_add_item(tlv, hf_pcep_tlv_length, tvb, offset + 2 + j, 2, ENC_BIG_ENDIAN);
         switch (tlv_type)
@@ -2292,7 +2291,6 @@ dissect_pcep_obj_tree(proto_tree *pcep_tree, packet_info *pinfo, tvbuff_t *tvb, 
     proto_tree *pcep_object_tree;
     proto_item *pcep_object_item;
     proto_tree *pcep_header_obj_flags;
-    proto_item *ti;
 
     while (len < msg_length) {
         obj_class = tvb_get_guint8(tvb, offset);
@@ -2427,8 +2425,7 @@ dissect_pcep_obj_tree(proto_tree *pcep_tree, packet_info *pinfo, tvbuff_t *tvb, 
 
         ot_res_p_i = tvb_get_guint8(tvb, offset+1);
         type = (ot_res_p_i & MASK_OBJ_TYPE)>>4;
-        ti = proto_tree_add_text(pcep_object_tree, tvb, offset+1, 1, "Flags");
-        pcep_header_obj_flags = proto_item_add_subtree(ti, ett_pcep_hdr);
+        pcep_header_obj_flags = proto_tree_add_subtree(pcep_object_tree, tvb, offset+1, 1, ett_pcep_hdr, NULL, "Flags");
         proto_tree_add_item(pcep_header_obj_flags, hf_pcep_hdr_obj_flags_reserved, tvb, offset+1, 1, ENC_NA);
         proto_tree_add_item(pcep_header_obj_flags, hf_pcep_hdr_obj_flags_p,        tvb, offset+1, 1, ENC_NA);
         proto_tree_add_item(pcep_header_obj_flags, hf_pcep_hdr_obj_flags_i,        tvb, offset+1, 1, ENC_NA);
@@ -2572,8 +2569,8 @@ dissect_pcep_msg_tree(tvbuff_t *tvb, proto_tree *tree, guint tree_mode, packet_i
     ti = proto_tree_add_item(tree, proto_pcep, tvb, offset, msg_length, ENC_NA);
     pcep_tree = proto_item_add_subtree(ti, tree_mode);
 
-    ti = proto_tree_add_text(pcep_tree, tvb, offset, 4, "%s Header", val_to_str(message_type, message_type_vals, "Unknown Message (%u). "));
-    pcep_header_tree = proto_item_add_subtree(ti, ett_pcep_hdr);
+    pcep_header_tree = proto_tree_add_subtree_format(pcep_tree, tvb, offset, 4, ett_pcep_hdr, NULL,
+                    "%s Header", val_to_str(message_type, message_type_vals, "Unknown Message (%u). "));
 
     proto_tree_add_item(pcep_header_tree, hf_pcep_version, tvb, offset, 1, ENC_NA);
 

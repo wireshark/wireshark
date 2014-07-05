@@ -357,9 +357,8 @@ dissect_pgmopts(ptvcursor_t* cursor, packet_info *pinfo, const char *pktname)
 	guint8 genopts_len;
 	guint8 opts_type;
 
-	tf = proto_tree_add_text(ptvcursor_tree(cursor), tvb, ptvcursor_current_offset(cursor), -1,
-		"%s Options", pktname);
-	opts_tree = proto_item_add_subtree(tf, ett_pgm_opts);
+	opts_tree = proto_tree_add_subtree_format(ptvcursor_tree(cursor), tvb, ptvcursor_current_offset(cursor), -1,
+		ett_pgm_opts, &tf, "%s Options", pktname);
 	ptvcursor_set_tree(cursor, opts_tree);
 	opts_type = tvb_get_guint8(tvb, ptvcursor_current_offset(cursor));
 	ti = ptvcursor_add(cursor, hf_pgm_opt_type, 1, ENC_BIG_ENDIAN);
@@ -950,10 +949,10 @@ dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		ptvcursor_add(cursor, hf_pgm_main_gsi, 6, ENC_NA);
 		ptvcursor_add(cursor, hf_pgm_main_tsdulen, 2, ENC_BIG_ENDIAN);
 
-		tf = proto_tree_add_text(pgm_tree, tvb, ptvcursor_current_offset(cursor), plen, "%s Packet", pktname);
 		switch(pgmhdr_type) {
 		case PGM_SPM_PCKT:
-			type_tree = proto_item_add_subtree(tf, ett_pgm_spm);
+			type_tree = proto_tree_add_subtree_format(pgm_tree, tvb, ptvcursor_current_offset(cursor), plen,
+												ett_pgm_spm, NULL, "%s Packet", pktname);
 			ptvcursor_set_tree(cursor, type_tree);
 
 			ptvcursor_add(cursor, hf_pgm_spm_sqn, 4, ENC_BIG_ENDIAN);
@@ -980,7 +979,8 @@ dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			break;
 		case PGM_RDATA_PCKT:
 		case PGM_ODATA_PCKT:
-			type_tree = proto_item_add_subtree(tf, ett_pgm_data);
+			type_tree = proto_tree_add_subtree_format(pgm_tree, tvb, ptvcursor_current_offset(cursor), plen,
+												ett_pgm_data, NULL, "%s Packet", pktname);
 			ptvcursor_set_tree(cursor, type_tree);
 
 			ptvcursor_add(cursor, hf_pgm_spm_sqn, 4, ENC_BIG_ENDIAN);
@@ -989,7 +989,8 @@ dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		case PGM_NAK_PCKT:
 		case PGM_NNAK_PCKT:
 		case PGM_NCF_PCKT:
-			type_tree = proto_item_add_subtree(tf, ett_pgm_nak);
+			type_tree = proto_tree_add_subtree_format(pgm_tree, tvb, ptvcursor_current_offset(cursor), plen,
+												ett_pgm_nak, NULL, "%s Packet", pktname);
 			ptvcursor_set_tree(cursor, type_tree);
 
 			ptvcursor_add(cursor, hf_pgm_nak_sqn, 4, ENC_BIG_ENDIAN);
@@ -1031,7 +1032,8 @@ dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			}
 			break;
 		case PGM_POLL_PCKT:
-			type_tree = proto_item_add_subtree(tf, ett_pgm_poll);
+			type_tree = proto_tree_add_subtree_format(pgm_tree, tvb, ptvcursor_current_offset(cursor), plen,
+												ett_pgm_poll, NULL, "%s Packet", pktname);
 			ptvcursor_set_tree(cursor, type_tree);
 
 			ptvcursor_add(cursor, hf_pgm_poll_sqn, 4, ENC_BIG_ENDIAN);
@@ -1060,7 +1062,8 @@ dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			ptvcursor_add(cursor, hf_pgm_poll_matching_bmask, 4, ENC_BIG_ENDIAN);
 			break;
 		case PGM_POLR_PCKT:
-			type_tree = proto_item_add_subtree(tf, ett_pgm_polr);
+			type_tree = proto_tree_add_subtree_format(pgm_tree, tvb, ptvcursor_current_offset(cursor), plen,
+												ett_pgm_polr, NULL, "%s Packet", pktname);
 			ptvcursor_set_tree(cursor, type_tree);
 
 			ptvcursor_add(cursor, hf_pgm_polr_sqn, 4, ENC_BIG_ENDIAN);
@@ -1068,7 +1071,8 @@ dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			ptvcursor_add(cursor, hf_pgm_polr_res, 2, ENC_BIG_ENDIAN);
 			break;
 		case PGM_ACK_PCKT:
-			type_tree = proto_item_add_subtree(tf, ett_pgm_ack);
+			type_tree = proto_tree_add_subtree_format(pgm_tree, tvb, ptvcursor_current_offset(cursor), plen,
+												ett_pgm_ack, NULL, "%s Packet", pktname);
 			ptvcursor_set_tree(cursor, type_tree);
 
 			ptvcursor_add(cursor, hf_pgm_ack_sqn, 4, ENC_BIG_ENDIAN);

@@ -234,7 +234,7 @@ dissect_dump_entry(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	proto_tree *tree, void* data _U_)
 {
 	int prog, version, proto, port;
-	proto_item *ti, *subtree;
+	proto_tree *subtree;
 
 	prog = tvb_get_ntohl(tvb, offset+0);
 	version = tvb_get_ntohl(tvb, offset+4);
@@ -242,10 +242,9 @@ dissect_dump_entry(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	port = tvb_get_ntohl(tvb, offset+12);
 	if ( tree )
 	{
-		ti = proto_tree_add_text(tree, tvb, offset, 16,
-			"Map Entry: %s (%u) V%d",
+		subtree = proto_tree_add_subtree_format(tree, tvb, offset, 16,
+			ett_portmap_entry, NULL, "Map Entry: %s (%u) V%d",
 			rpc_prog_name(prog), prog, version);
-		subtree = proto_item_add_subtree(ti, ett_portmap_entry);
 
 		proto_tree_add_uint_format_value(subtree, hf_portmap_prog, tvb,
 			offset+0, 4, prog,
@@ -389,17 +388,14 @@ static const value_string portmap2_proc_vals[] = {
 static int
 dissect_rpcb(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
-	proto_item* rpcb_item = NULL;
-	proto_tree* rpcb_tree = NULL;
+	proto_item* rpcb_item;
+	proto_tree* rpcb_tree;
 	int old_offset = offset;
 	guint32 prog;
 
-	if (tree) {
-		rpcb_item = proto_tree_add_item(tree, hf_portmap_rpcb, tvb,
+	rpcb_item = proto_tree_add_item(tree, hf_portmap_rpcb, tvb,
 			offset, -1, ENC_NA);
-		if (rpcb_item)
-			rpcb_tree = proto_item_add_subtree(rpcb_item, ett_portmap_rpcb);
-	}
+	rpcb_tree = proto_item_add_subtree(rpcb_item, ett_portmap_rpcb);
 
 	prog = tvb_get_ntohl(tvb, offset);
 	if (rpcb_tree)

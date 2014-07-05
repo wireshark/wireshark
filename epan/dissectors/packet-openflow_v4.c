@@ -989,7 +989,6 @@ dissect_openflow_oxm_header_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 static int
 dissect_openflow_oxm_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, guint16 length _U_)
 {
-    proto_item *ti;
     proto_tree *oxm_tree;
     guint16 oxm_class;
     guint8  oxm_field_hm;
@@ -1006,8 +1005,7 @@ dissect_openflow_oxm_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     oxm_hm = oxm_field_hm & OXM_HM_MASK;
     field_length = (oxm_hm == 0) ? oxm_length : (oxm_length / 2);
 
-    ti = proto_tree_add_text(tree, tvb, offset, oxm_length + 4, "OXM field");
-    oxm_tree = proto_item_add_subtree(ti, ett_openflow_v4_oxm);
+    oxm_tree = proto_tree_add_subtree(tree, tvb, offset, oxm_length + 4, ett_openflow_v4_oxm, NULL, "OXM field");
 
     offset = dissect_openflow_oxm_header_v4(tvb, pinfo, oxm_tree, offset, length);
 
@@ -1134,8 +1132,7 @@ dissect_openflow_match_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
     guint16 fields_end;
     guint16 pad_length;
 
-    ti = proto_tree_add_text(tree, tvb, offset, -1, "Match");
-    match_tree = proto_item_add_subtree(ti, ett_openflow_v4_match);
+    match_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_openflow_v4_match, &ti, "Match");
 
     /* uint16_t type; */
     match_type = tvb_get_ntohs(tvb, offset);
@@ -1213,8 +1210,7 @@ dissect_openflow_meter_band_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
     guint16 band_type;
     guint16 band_len;
 
-    ti = proto_tree_add_text(tree, tvb, offset, -1, "Meter band");
-    band_tree = proto_item_add_subtree(ti, ett_openflow_v4_meter_band);
+    band_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_openflow_v4_meter_band, &ti, "Meter band");
 
     /* uint16_t type; */
     band_type = tvb_get_ntohs(tvb, offset);
@@ -1285,14 +1281,12 @@ static const value_string openflow_v4_hello_element_type_values[] = {
 static int
 dissect_openflow_hello_element_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, guint16 length)
 {
-    proto_item *ti;
     proto_tree *elem_tree;
     guint16 elem_type;
     guint16 elem_length;
     guint16 pad_length;
 
-    ti = proto_tree_add_text(tree, tvb, offset, length - offset, "Element");
-    elem_tree = proto_item_add_subtree(ti, ett_openflow_v4_hello_element);
+    elem_tree = proto_tree_add_subtree(tree, tvb, offset, length - offset, ett_openflow_v4_hello_element, NULL, "Element");
 
     /* uint16_t type; */
     elem_type = tvb_get_ntohs(tvb, offset);
@@ -1543,7 +1537,6 @@ static const value_string openflow_v4_error_table_features_failed_code_values[] 
 static void
 dissect_openflow_error_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, guint16 length)
 {
-    proto_item *ti;
     proto_tree *data_tree;
     guint16 error_type;
 
@@ -1624,8 +1617,7 @@ dissect_openflow_error_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
     case OFPET_METER_MOD_FAILED:
     case OFPET_TABLE_FEATURES_FAILED:
         /* uint8_t data[0]; contains at least the first 64 bytes of the failed request. */
-        ti = proto_tree_add_text(tree, tvb, offset, length - offset, "Data");
-        data_tree = proto_item_add_subtree(ti, ett_openflow_v4_error_data);
+        data_tree = proto_tree_add_subtree(tree, tvb, offset, length - offset, ett_openflow_v4_error_data, NULL, "Data");
 
         offset = dissect_openflow_header_v4(tvb, pinfo, data_tree, offset, length);
 
@@ -1781,7 +1773,6 @@ static const value_string openflow_v4_packet_in_reason_values[] = {
 static void
 dissect_openflow_packet_in_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, guint16 length _U_)
 {
-    proto_item *ti;
     proto_tree *data_tree;
     tvbuff_t *next_tvb;
     gboolean save_writable;
@@ -1821,8 +1812,7 @@ dissect_openflow_packet_in_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
 
     /* uint8_t data[0]; */
     if (offset < length) {
-        ti = proto_tree_add_text(tree, tvb, offset, length - offset, "Data");
-        data_tree = proto_item_add_subtree(ti, ett_openflow_v4_packet_in_data);
+        data_tree = proto_tree_add_subtree(tree, tvb, offset, length - offset, ett_openflow_v4_packet_in_data, NULL, "Data");
 
         /* save some state */
         save_writable = col_get_writable(pinfo->cinfo);
@@ -1979,7 +1969,6 @@ dissect_openflow_action_header_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 static int
 dissect_openflow_action_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, guint16 length _U_)
 {
-    proto_item *ti;
     proto_tree *act_tree;
     guint16 act_type;
     guint16 act_length;
@@ -1989,8 +1978,7 @@ dissect_openflow_action_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
     act_length = tvb_get_ntohs(tvb, offset + 2);
     act_end = offset + act_length;
 
-    ti = proto_tree_add_text(tree, tvb, offset, act_length, "Action");
-    act_tree = proto_item_add_subtree(ti, ett_openflow_v4_action);
+    act_tree = proto_tree_add_subtree(tree, tvb, offset, act_length, ett_openflow_v4_action, NULL, "Action");
 
     offset = dissect_openflow_action_header_v4(tvb, pinfo, act_tree, offset, length);
 
@@ -2194,8 +2182,7 @@ dissect_openflow_port_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
     proto_item *ti;
     proto_tree *port_tree, *conf_tree, *state_tree, *curr_tree, *adv_tree, *supp_tree, *peer_tree;
 
-    ti = proto_tree_add_text(tree, tvb, offset, 64, "Port");
-    port_tree = proto_item_add_subtree(ti, ett_openflow_v4_port);
+    port_tree = proto_tree_add_subtree(tree, tvb, offset, 64, ett_openflow_v4_port, NULL, "Port");
 
     /* uint32_t port_no; */
     if (tvb_get_ntohl(tvb, offset) <= OFPP_MAX) {
@@ -2370,7 +2357,6 @@ dissect_openflow_port_status_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 static void
 dissect_openflow_packet_out_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, guint16 length _U_)
 {
-    proto_item *ti;
     proto_tree *data_tree;
     guint16 acts_len, acts_end;
     tvbuff_t *next_tvb;
@@ -2412,8 +2398,7 @@ dissect_openflow_packet_out_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 
     /* uint8_t data[0]; */
     if (offset < length) {
-        ti = proto_tree_add_text(tree, tvb, offset, length - offset, "Data");
-        data_tree = proto_item_add_subtree(ti, ett_openflow_v4_packet_out_data);
+        data_tree = proto_tree_add_subtree(tree, tvb, offset, length - offset, ett_openflow_v4_packet_out_data, NULL, "Data");
 
         /* save some state */
         save_writable = col_get_writable(pinfo->cinfo);
@@ -2490,7 +2475,6 @@ dissect_openflow_instruction_header_v4(tvbuff_t *tvb, packet_info *pinfo _U_, pr
 static int
 dissect_openflow_instruction_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, guint16 length _U_)
 {
-    proto_item *ti;
     proto_tree *inst_tree;
     guint16 inst_type;
     guint16 inst_length;
@@ -2499,8 +2483,7 @@ dissect_openflow_instruction_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     inst_type = tvb_get_ntohs(tvb, offset);
     inst_length = tvb_get_ntohs(tvb, offset + 2);
 
-    ti = proto_tree_add_text(tree, tvb, offset, inst_length, "Instruction");
-    inst_tree = proto_item_add_subtree(ti, ett_openflow_v4_instruction);
+    inst_tree = proto_tree_add_subtree(tree, tvb, offset, inst_length, ett_openflow_v4_instruction, NULL, "Instruction");
 
     offset = dissect_openflow_instruction_header_v4(tvb, pinfo, inst_tree, offset, length);
 
@@ -2677,8 +2660,7 @@ dissect_openflow_bucket_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
     guint16 bucket_length;
     guint16 acts_end;
 
-    ti = proto_tree_add_text(tree, tvb, offset, -1, "Bucket");
-    bucket_tree = proto_item_add_subtree(ti, ett_openflow_v4_bucket);
+    bucket_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_openflow_v4_bucket, &ti, "Bucket");
 
     /* uint16_t len; */
     bucket_length = tvb_get_ntohs(tvb, offset);
@@ -3008,8 +2990,7 @@ dissect_openflow_table_feature_prop_v4(tvbuff_t *tvb, packet_info *pinfo _U_, pr
     gint32 body_end;
     guint16 pad_length;
 
-    ti = proto_tree_add_text(tree, tvb, offset, -1, "Table feature property");
-    prop_tree = proto_item_add_subtree(ti, ett_openflow_v4_table_feature_prop);
+    prop_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_openflow_v4_table_feature_prop, &ti, "Table feature property");
 
     /* uint16_t type; */
     prop_type = tvb_get_ntohs(tvb, offset);
@@ -3033,8 +3014,8 @@ dissect_openflow_table_feature_prop_v4(tvbuff_t *tvb, packet_info *pinfo _U_, pr
     case OFPTFPT_INSTRUCTIONS_MISS:
         while (offset < body_end) {
             elem_begin = offset;
-            ti = proto_tree_add_text(prop_tree, tvb, offset, -1, "Instruction ID");
-            elem_tree = proto_item_add_subtree(ti, ett_openflow_v4_table_feature_prop_instruction_id);
+            elem_tree = proto_tree_add_subtree(prop_tree, tvb, offset, -1,
+                        ett_openflow_v4_table_feature_prop_instruction_id, &ti, "Instruction ID");
 
             offset = dissect_openflow_instruction_header_v4(tvb, pinfo, elem_tree, offset, length);
             proto_item_set_len(ti, offset - elem_begin);
@@ -3055,8 +3036,7 @@ dissect_openflow_table_feature_prop_v4(tvbuff_t *tvb, packet_info *pinfo _U_, pr
     case OFPTFPT_APPLY_ACTIONS_MISS:
         while (offset < body_end) {
             elem_begin = offset;
-            ti = proto_tree_add_text(prop_tree, tvb, offset, -1, "Action ID");
-            elem_tree = proto_item_add_subtree(ti, ett_openflow_v4_table_feature_prop_action_id);
+            elem_tree = proto_tree_add_subtree(prop_tree, tvb, offset, -1, ett_openflow_v4_table_feature_prop_action_id, &ti, "Action ID");
 
             offset = dissect_openflow_action_header_v4(tvb, pinfo, elem_tree, offset, length);
             proto_item_set_len(ti, offset - elem_begin);
@@ -3071,8 +3051,7 @@ dissect_openflow_table_feature_prop_v4(tvbuff_t *tvb, packet_info *pinfo _U_, pr
     case OFPTFPT_APPLY_SETFIELD_MISS:
         while (offset < body_end) {
             elem_begin = offset;
-            ti = proto_tree_add_text(prop_tree, tvb, offset, -1, "OXM ID");
-            elem_tree = proto_item_add_subtree(ti, ett_openflow_v4_table_feature_prop_oxm_id);
+            elem_tree = proto_tree_add_subtree(prop_tree, tvb, offset, -1, ett_openflow_v4_table_feature_prop_oxm_id, &ti, "OXM ID");
 
             offset = dissect_openflow_oxm_header_v4(tvb, pinfo, elem_tree, offset, length);
             proto_item_set_len(ti, offset - elem_begin);
@@ -3121,8 +3100,7 @@ dissect_openflow_table_features_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
     guint16 feat_length;
     guint16 feat_end;
 
-    ti = proto_tree_add_text(tree, tvb, offset, -1, "Table features");
-    feat_tree = proto_item_add_subtree(ti, ett_openflow_v4_table_features);
+    feat_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_openflow_v4_table_features, &ti, "Table features");
 
     /* uint16_t length; */
     feat_length = tvb_get_ntohs(tvb, offset);
@@ -3427,8 +3405,7 @@ dissect_openflow_flow_stats_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
     guint16 stats_len;
     guint16 stats_end;
 
-    ti = proto_tree_add_text(tree, tvb, offset, -1, "Flow stats");
-    stats_tree = proto_item_add_subtree(ti, ett_openflow_v4_flow_stats);
+    stats_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_openflow_v4_flow_stats, &ti, "Flow stats");
 
     /* uint16_t length; */
     stats_len = tvb_get_ntohs(tvb, offset);
@@ -3528,11 +3505,9 @@ dissect_openflow_aggregate_stats_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto
 static int
 dissect_openflow_table_stats_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, guint16 length _U_)
 {
-    proto_item *ti;
     proto_tree *stats_tree;
 
-    ti = proto_tree_add_text(tree, tvb, offset, 24, "Table stats");
-    stats_tree = proto_item_add_subtree(ti, ett_openflow_v4_table_stats);
+    stats_tree = proto_tree_add_subtree(tree, tvb, offset, 24, ett_openflow_v4_table_stats, NULL, "Table stats");
 
     /* uint8_t table_id; */
     if (tvb_get_guint8(tvb, offset) <= OFPTT_MAX) {
@@ -3565,11 +3540,9 @@ dissect_openflow_table_stats_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 static int
 dissect_openflow_port_stats_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, guint16 length _U_)
 {
-    proto_item *ti;
     proto_tree *stats_tree;
 
-    ti = proto_tree_add_text(tree, tvb, offset, 112, "Port stats");
-    stats_tree = proto_item_add_subtree(ti, ett_openflow_v4_port_stats);
+    stats_tree = proto_tree_add_subtree(tree, tvb, offset, 112, ett_openflow_v4_port_stats, NULL, "Port stats");
 
     /* uint8_t port_no; */
     if (tvb_get_ntohl(tvb, offset) <= OFPP_MAX) {
@@ -3646,11 +3619,9 @@ dissect_openflow_port_stats_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 static int
 dissect_openflow_queue_stats_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, guint16 length _U_)
 {
-    proto_item *ti;
     proto_tree *stats_tree;
 
-    ti = proto_tree_add_text(tree, tvb, offset, 40, "Queue stats");
-    stats_tree = proto_item_add_subtree(ti, ett_openflow_v4_queue_stats);
+    stats_tree = proto_tree_add_subtree(tree, tvb, offset, 40, ett_openflow_v4_queue_stats, NULL, "Queue stats");
 
     /* uint32_t port_no; */
     if (tvb_get_ntohl(tvb, offset) <= OFPP_MAX) {
@@ -3695,11 +3666,9 @@ dissect_openflow_queue_stats_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 static int
 dissect_openflow_bucket_counter_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, guint16 length _U_)
 {
-    proto_item *ti;
     proto_tree *counter_tree;
 
-    ti = proto_tree_add_text(tree, tvb, offset, 16, "Bucket counter");
-    counter_tree = proto_item_add_subtree(ti, ett_openflow_v4_bucket_counter);
+    counter_tree = proto_tree_add_subtree(tree, tvb, offset, 16, ett_openflow_v4_bucket_counter, NULL, "Bucket counter");
 
     /* uint64_t packet_count; */
     proto_tree_add_item(counter_tree, hf_openflow_v4_bucket_counter_packet_count, tvb, offset, 8, ENC_BIG_ENDIAN);
@@ -3721,8 +3690,7 @@ dissect_openflow_group_stats_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     guint16 stats_len;
     guint16 stats_end;
 
-    ti = proto_tree_add_text(tree, tvb, offset, -1, "Group stats");
-    stats_tree = proto_item_add_subtree(ti, ett_openflow_v4_group_stats);
+    stats_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_openflow_v4_group_stats, &ti, "Group stats");
 
     /* uint16_t length; */
     stats_len = tvb_get_ntohs(tvb, offset);
@@ -3784,8 +3752,7 @@ dissect_openflow_group_desc_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
     guint16 desc_len;
     guint16 desc_end;
 
-    ti = proto_tree_add_text(tree, tvb, offset, -1, "Group description");
-    desc_tree = proto_item_add_subtree(ti, ett_openflow_v4_group_desc);
+    desc_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_openflow_v4_group_desc, &ti, "Group description");
 
     /* uint16_t length; */
     desc_len = tvb_get_ntohs(tvb, offset);
@@ -3949,11 +3916,9 @@ dissect_openflow_group_features_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 static int
 dissect_openflow_meter_band_stats_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, guint16 length _U_)
 {
-    proto_item *ti;
     proto_tree *stats_tree;
 
-    ti = proto_tree_add_text(tree, tvb, offset, 16, "Meter band stats");
-    stats_tree = proto_item_add_subtree(ti, ett_openflow_v4_meter_band_stats);
+    stats_tree = proto_tree_add_subtree(tree, tvb, offset, 16, ett_openflow_v4_meter_band_stats, NULL, "Meter band stats");
 
     /* uint64_t packet_band_count; */
     proto_tree_add_item(stats_tree, hf_openflow_v4_meter_band_stats_packet_band_count, tvb, offset, 8, ENC_BIG_ENDIAN);
@@ -3975,8 +3940,7 @@ dissect_openflow_meter_stats_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     guint16 stats_len;
     guint16 stats_end;
 
-    ti = proto_tree_add_text(tree, tvb, offset, -1, "Meter stats");
-    stats_tree = proto_item_add_subtree(ti, ett_openflow_v4_meter_stats);
+    stats_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_openflow_v4_meter_stats, &ti, "Meter stats");
 
     /* uint32_t meter_id; */
     if (tvb_get_ntohl(tvb, offset) <= OFPM_MAX) {
@@ -4034,8 +3998,7 @@ dissect_openflow_meter_config_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
     guint16 config_len;
     guint16 config_end;
 
-    ti = proto_tree_add_text(tree, tvb, offset, -1, "Meter config");
-    conf_tree = proto_item_add_subtree(ti, ett_openflow_v4_meter_config);
+    conf_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_openflow_v4_meter_config, &ti, "Meter config");
 
     /* uint16_t len; */
     config_len = tvb_get_ntohs(tvb, offset);
@@ -4278,8 +4241,7 @@ dissect_openflow_queue_prop_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
     guint16 prop_type;
     guint16 prop_len;
 
-    ti = proto_tree_add_text(tree, tvb, offset, -1, "Queue property");
-    prop_tree = proto_item_add_subtree(ti, ett_openflow_v4_queue_prop);
+    prop_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_openflow_v4_queue_prop, &ti, "Queue property");
 
     /* uint16_t property; */
     prop_type = tvb_get_ntohs(tvb, offset);
@@ -4367,8 +4329,7 @@ dissect_openflow_packet_queue_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
     guint16 queue_len;
     guint16 queue_end;
 
-    ti = proto_tree_add_text(tree, tvb, offset, -1, "Queue");
-    queue_tree = proto_item_add_subtree(ti, ett_openflow_v4_packet_queue);
+    queue_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_openflow_v4_packet_queue, &ti, "Queue");
 
     /* uint32_t queue_id; */
     if (tvb_get_ntohl(tvb, offset) != OFPQ_ALL) {

@@ -160,7 +160,7 @@ static void
 dissect_pflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   tvbuff_t *next_tvb;
-  proto_tree *pflog_tree = NULL;
+  proto_tree *pflog_tree;
   proto_item *ti = NULL, *ti_len;
   int length;
   guint8 af, action;
@@ -171,11 +171,9 @@ dissect_pflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "PFLOG");
 
-  if (tree) {
-    ti = proto_tree_add_item(tree, proto_pflog, tvb, offset, 0, ENC_NA);
+  ti = proto_tree_add_item(tree, proto_pflog, tvb, offset, 0, ENC_NA);
+  pflog_tree = proto_item_add_subtree(ti, ett_pflog);
 
-    pflog_tree = proto_item_add_subtree(ti, ett_pflog);
-  }
   length = tvb_get_guint8(tvb, offset) + pad_len;
 
   ti_len = proto_tree_add_item(pflog_tree, hf_pflog_length, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -415,8 +413,8 @@ static int
 dissect_old_pflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   tvbuff_t *next_tvb;
-  proto_tree *pflog_tree = NULL;
-  proto_item *ti = NULL;
+  proto_tree *pflog_tree;
+  proto_item *ti;
   guint32 af;
   guint8 *ifname;
   guint16 rnr, action;
@@ -424,53 +422,38 @@ dissect_old_pflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "PFLOG-OLD");
 
-  if (tree) {
-    ti = proto_tree_add_item(tree, proto_old_pflog, tvb, 0, 0, ENC_NA);
+  ti = proto_tree_add_item(tree, proto_old_pflog, tvb, 0, 0, ENC_NA);
+  pflog_tree = proto_item_add_subtree(ti, ett_pflog);
 
-    pflog_tree = proto_item_add_subtree(ti, ett_pflog);
+  proto_tree_add_item(pflog_tree, hf_old_pflog_af, tvb, offset, 4, ENC_BIG_ENDIAN);
 
-    proto_tree_add_item(pflog_tree, hf_old_pflog_af, tvb, offset, 4, ENC_BIG_ENDIAN);
-  }
   af = tvb_get_ntohl(tvb, offset);
   offset +=4;
 
-  if (tree) {
-    proto_tree_add_item(pflog_tree, hf_old_pflog_ifname, tvb, offset, 16, ENC_ASCII|ENC_NA);
-  }
+  proto_tree_add_item(pflog_tree, hf_old_pflog_ifname, tvb, offset, 16, ENC_ASCII|ENC_NA);
   ifname = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 16, ENC_ASCII);
   offset +=16;
 
-  if (tree) {
-    proto_tree_add_item(pflog_tree, hf_old_pflog_rnr, tvb, offset, 2, ENC_BIG_ENDIAN);
-  }
+  proto_tree_add_item(pflog_tree, hf_old_pflog_rnr, tvb, offset, 2, ENC_BIG_ENDIAN);
   rnr = tvb_get_ntohs(tvb, offset);
   offset +=2;
 
-  if (tree) {
-    proto_tree_add_item(pflog_tree, hf_old_pflog_reason, tvb, offset, 2, ENC_BIG_ENDIAN);
-  }
+  proto_tree_add_item(pflog_tree, hf_old_pflog_reason, tvb, offset, 2, ENC_BIG_ENDIAN);
   offset +=2;
 
-  if (tree) {
-    proto_tree_add_item(pflog_tree, hf_old_pflog_action, tvb, offset, 2, ENC_BIG_ENDIAN);
-  }
+  proto_tree_add_item(pflog_tree, hf_old_pflog_action, tvb, offset, 2, ENC_BIG_ENDIAN);
   action = tvb_get_ntohs(tvb, offset);
   offset +=2;
 
-  if (tree) {
-    proto_tree_add_item(pflog_tree, hf_old_pflog_dir, tvb, offset, 2, ENC_BIG_ENDIAN);
-  }
+  proto_tree_add_item(pflog_tree, hf_old_pflog_dir, tvb, offset, 2, ENC_BIG_ENDIAN);
   offset +=2;
 
-  if (tree) {
-    proto_item_set_text(ti, "PF Log (pre 3.4) %s %s on %s by rule %d",
+  proto_item_set_text(ti, "PF Log (pre 3.4) %s %s on %s by rule %d",
       val_to_str(af, pflog_af_vals, "unknown (%u)"),
       val_to_str(action, pflog_action_vals, "unknown (%u)"),
       ifname,
       rnr);
-    proto_item_set_len(ti, offset);
-
-  }
+  proto_item_set_len(ti, offset);
 
   /* Set the tvbuff for the payload after the header */
   next_tvb = tvb_new_subset_remaining(tvb, offset);

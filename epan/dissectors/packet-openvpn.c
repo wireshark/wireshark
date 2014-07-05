@@ -189,7 +189,7 @@ dissect_openvpn_msg_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *openvp
   guint32        msg_mpid      = -1;
   guint32        msg_sessionid = -1;
   guint8         openvpn_predict_tlsauth_arraylength;
-  proto_item    *ti2, *ti3;
+  proto_item    *ti2;
   proto_tree    *packetarray_tree, *type_tree;
   guint32        msg_length_remaining;
   gboolean       msg_lastframe;
@@ -267,8 +267,7 @@ dissect_openvpn_msg_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *openvp
 
       if (pid_arraylength > 0) {
 
-        ti3 = proto_tree_add_text(openvpn_tree, tvb, offset, 0, "Packet-ID Array");
-        packetarray_tree = proto_item_add_subtree(ti3, ett_openvpn_packetarray);
+        packetarray_tree = proto_tree_add_subtree(openvpn_tree, tvb, offset, 0, ett_openvpn_packetarray, NULL, "Packet-ID Array");
         for (i = 0; i < pid_arraylength; i++) {
           proto_tree_add_item(packetarray_tree, hf_openvpn_mpid_arrayelement, tvb, offset, 4, ENC_BIG_ENDIAN);
           offset += 4;
@@ -301,10 +300,10 @@ dissect_openvpn_msg_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *openvp
 
   if (openvpn_opcode != P_CONTROL_V1) {
     proto_tree *data_tree;
-    ti2 = proto_tree_add_text(openvpn_tree, tvb, offset, -1, "Data (%d bytes)",
+    data_tree = proto_tree_add_subtree_format(openvpn_tree, tvb, offset, -1,
+                              ett_openvpn_data, NULL, "Data (%d bytes)",
                               tvb_length_remaining(tvb, offset));
 
-    data_tree = proto_item_add_subtree(ti2, ett_openvpn_data);
     proto_tree_add_item(data_tree, hf_openvpn_data, tvb, offset, -1, ENC_NA);
     return tvb_length(tvb);
   }
@@ -340,10 +339,10 @@ dissect_openvpn_msg_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *openvp
   /* i.e., show if ("not reassembled") or ("reassembled" and "has multiple fragments")  */
   if ((frag_msg == NULL) || (frag_msg->next != NULL)) {
     proto_tree *data_tree;
-    ti2 = proto_tree_add_text(openvpn_tree, tvb, offset, -1, "Message fragment (%d bytes)",
+    data_tree = proto_tree_add_subtree_format(openvpn_tree, tvb, offset, -1,
+                              ett_openvpn_data, NULL, "Message fragment (%d bytes)",
                               tvb_length_remaining(tvb, offset));
 
-    data_tree = proto_item_add_subtree(ti2, ett_openvpn_data);
     proto_tree_add_item(data_tree, hf_openvpn_fragment_bytes, tvb, offset, -1, ENC_NA);
     }
 

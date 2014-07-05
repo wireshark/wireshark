@@ -147,7 +147,7 @@ static int dissect_ppcap_payload_data(tvbuff_t *, packet_info *, proto_tree *, i
 static void
 dissect_ppcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	proto_item *ti, *ti1;
+	proto_item *ti;
 	proto_tree *ppcap_tree, *ppcap_tree1;
 	guint16 msg_type;
 	int offset = 0;
@@ -162,9 +162,8 @@ dissect_ppcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	while (tvb_reported_length_remaining(tvb, offset) > 0)
 	{
 		msg_type = tvb_get_ntohs(tvb, offset);
-		ti1 = proto_tree_add_text(ppcap_tree, tvb, offset, 2, "%s",
+		ppcap_tree1 = proto_tree_add_subtree(ppcap_tree, tvb, offset, 2, ett_ppcap1, NULL,
 					val_to_str(msg_type, payload_tag_values, "Unknown PPCAP message type (%u)"));
-		ppcap_tree1 = proto_item_add_subtree(ti1, ett_ppcap1);
 		offset  = offset + 2;
 		switch (msg_type) {
 		case 1:

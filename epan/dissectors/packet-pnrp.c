@@ -402,7 +402,6 @@ static int dissect_pnrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
         proto_tree *pnrp_header_tree;
 
         proto_item *pnrp_message_tree = NULL;
-        proto_item *pnrp_message_item = NULL;
 
 
         /* Lets add a subtree to our dissection to display the info */
@@ -456,8 +455,8 @@ static int dissect_pnrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
             /* Length must be at least 4, because field_type and data_length are part of data_length information */
             if (data_length < 4) {
                 if (tree) {
-                    pnrp_message_item = proto_tree_add_text(pnrp_tree, tvb, offset, 4, "Message with invalid length %u (< 4)", data_length);
-                    pnrp_message_tree = proto_item_add_subtree(pnrp_message_item, ett_pnrp_message);
+                    pnrp_message_tree = proto_tree_add_subtree_format(pnrp_tree, tvb, offset, 4, ett_pnrp_message, NULL,
+                                        "Message with invalid length %u (< 4)", data_length);
                     proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_type, tvb, offset, 2, ENC_BIG_ENDIAN);
                     proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_length, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
                 }
@@ -470,9 +469,8 @@ static int dissect_pnrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
                 /* First Field in ACK Message */
                 case PNRP_HEADER_ACKED:
                     if (tree) {
-                        pnrp_message_item = proto_tree_add_text(pnrp_tree, tvb, offset,
-                        data_length, "Message ACK ID: ");
-                        pnrp_message_tree = proto_item_add_subtree(pnrp_message_item, ett_pnrp_message);
+                        pnrp_message_tree = proto_tree_add_subtree(pnrp_tree, tvb, offset,
+                                        data_length, ett_pnrp_message, NULL, "Message ACK ID: ");
                         proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_type, tvb, offset , 2, ENC_BIG_ENDIAN);
                         proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_length, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
                         proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_headerack, tvb, offset + 4, data_length -4, ENC_BIG_ENDIAN);
@@ -484,9 +482,8 @@ static int dissect_pnrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
                     /* A validate pnrp id follows as found in FLOOD */
                 case VALIDATE_PNRP_ID:
                     if (tree) {
-                        pnrp_message_item = proto_tree_add_text(pnrp_tree, tvb, offset,
-                                                                data_length, "Validate PNRP ID: ");
-                        pnrp_message_tree = proto_item_add_subtree(pnrp_message_item, ett_pnrp_message);
+                        pnrp_message_tree = proto_tree_add_subtree(pnrp_tree, tvb, offset,
+                                                                data_length, ett_pnrp_message, NULL, "Validate PNRP ID: ");
                         proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_type, tvb, offset , 2, ENC_BIG_ENDIAN);
                         proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_length, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
                         /* We can have a large number of pnrp IDs here */
@@ -499,9 +496,8 @@ static int dissect_pnrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
                     /* The Flags have different meaning, depending on the message */
                 case FLAGS_FIELD:
                     if (tree) {
-                        pnrp_message_item = proto_tree_add_text(pnrp_tree, tvb, offset,
-                                                                data_length, "Flags Field: ");
-                        pnrp_message_tree = proto_item_add_subtree(pnrp_message_item, ett_pnrp_message);
+                        pnrp_message_tree = proto_tree_add_subtree(pnrp_tree, tvb, offset,
+                                                                data_length, ett_pnrp_message, NULL, "Flags Field: ");
                         proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_type, tvb, offset , 2, ENC_BIG_ENDIAN);
                         proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_length, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
                         switch (message_type) {
@@ -547,9 +543,8 @@ static int dissect_pnrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
                     /* Flood controls found in FLOOD Message */
                 case FLOOD_CONTROLS:
                     if (tree) {
-                        pnrp_message_item = proto_tree_add_text(pnrp_tree, tvb, offset,
-                                                                data_length, "Flood Control: ");
-                        pnrp_message_tree = proto_item_add_subtree(pnrp_message_item, ett_pnrp_message);
+                        pnrp_message_tree = proto_tree_add_subtree(pnrp_tree, tvb, offset,
+                                                                data_length, ett_pnrp_message, NULL, "Flood Control: ");
                         proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_type, tvb, offset , 2, ENC_BIG_ENDIAN);
                         proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_length, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
                         /* Reserved 1 - 15 bits */
@@ -568,9 +563,8 @@ static int dissect_pnrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
                     /* Solicit Controls found in SOLICIT Message */
                 case SOLICIT_CONTROLS:
                     if (tree) {
-                        pnrp_message_item = proto_tree_add_text(pnrp_tree, tvb, offset,
-                                                                data_length, "Solicit Controls: ");
-                        pnrp_message_tree = proto_item_add_subtree(pnrp_message_item, ett_pnrp_message);
+                        pnrp_message_tree = proto_tree_add_subtree(pnrp_tree, tvb, offset,
+                                                                data_length, ett_pnrp_message, NULL, "Solicit Controls: ");
                         proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_type, tvb, offset , 2, ENC_BIG_ENDIAN);
                         proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_length, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
                         proto_tree_add_text(pnrp_message_tree, tvb, offset + 4, 1, "Reserved : %d",tvb_get_guint8(tvb,offset+4));
@@ -582,9 +576,8 @@ static int dissect_pnrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
                     /* Lookup controls found in LOOKUP Message */
                 case LOOKUP_CONTROLS:
                     if (tree) {
-                        pnrp_message_item = proto_tree_add_text(pnrp_tree, tvb, offset,
-                                                                data_length, "Lookup Control: ");
-                        pnrp_message_tree = proto_item_add_subtree(pnrp_message_item, ett_pnrp_message);
+                        pnrp_message_tree = proto_tree_add_subtree(pnrp_tree, tvb, offset,
+                                                                data_length, ett_pnrp_message, NULL, "Lookup Control: ");
                         proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_type, tvb, offset , 2, ENC_BIG_ENDIAN);
                         proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_length, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
                         /* 2 Bytes of Flags */
@@ -605,9 +598,8 @@ static int dissect_pnrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
                     /* Target PNRP ID found in Lookup Message */
                 case TARGET_PNRP_ID:
                     if (tree) {
-                        pnrp_message_item = proto_tree_add_text(pnrp_tree, tvb, offset,
-                                                                data_length, "Target PNRP ID: ");
-                        pnrp_message_tree = proto_item_add_subtree(pnrp_message_item, ett_pnrp_message);
+                        pnrp_message_tree = proto_tree_add_subtree(pnrp_tree, tvb, offset,
+                                                                data_length, ett_pnrp_message, NULL, "Target PNRP ID: ");
                         proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_type, tvb, offset , 2, ENC_BIG_ENDIAN);
                         proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_length, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
                         dissect_pnrp_ids(tvb, offset+4, data_length-4, pnrp_message_tree);
@@ -619,9 +611,8 @@ static int dissect_pnrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
                     /* Extended Payload found in AUTHORITY Message */
                 case EXTENDED_PAYLOAD:
                     if (tree) {
-                        pnrp_message_item = proto_tree_add_text(pnrp_tree, tvb, offset,
-                                                                data_length, "Extended Payload: ");
-                        pnrp_message_tree = proto_item_add_subtree(pnrp_message_item, ett_pnrp_message);
+                        pnrp_message_tree = proto_tree_add_subtree(pnrp_tree, tvb, offset,
+                                                                data_length, ett_pnrp_message, NULL, "Extended Payload: ");
                         proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_type, tvb, offset , 2, ENC_BIG_ENDIAN);
                         proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_length, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
                         /* TODO: Do actual parsing */
@@ -632,9 +623,8 @@ static int dissect_pnrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
                     /* Pnrp id Array as found in REQUEST & ADVERTISE Message */
                 case PNRP_ID_ARRAY:
                     if (tree) {
-                        pnrp_message_item = proto_tree_add_text(pnrp_tree, tvb, offset,
-                                                                data_length, "PNRP ID Array: ");
-                        pnrp_message_tree = proto_item_add_subtree(pnrp_message_item, ett_pnrp_message);
+                        pnrp_message_tree = proto_tree_add_subtree(pnrp_tree, tvb, offset,
+                                                                data_length, ett_pnrp_message, NULL, "PNRP ID Array: ");
                         proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_type, tvb, offset , 2, ENC_BIG_ENDIAN);
                         proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_length, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
                         proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_idArray_NumEntries, tvb, offset + 4, 2, ENC_BIG_ENDIAN);
@@ -649,9 +639,8 @@ static int dissect_pnrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
                     /* Cert Chain follows as found in AUTHORITY */
                 case CERT_CHAIN:
                     if (tree) {
-                        pnrp_message_item = proto_tree_add_text(pnrp_tree, tvb, offset,
-                                                                data_length, "CERT Chain: ");
-                        pnrp_message_tree = proto_item_add_subtree(pnrp_message_item, ett_pnrp_message);
+                        pnrp_message_tree = proto_tree_add_subtree(pnrp_tree, tvb, offset,
+                                                                data_length, ett_pnrp_message, NULL, "CERT Chain: ");
                         proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_type, tvb, offset , 2, ENC_BIG_ENDIAN);
                         proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_length, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
                         proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_certChain, tvb, offset + 4, data_length-4, ENC_NA);
@@ -672,9 +661,8 @@ static int dissect_pnrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
                     /* classifier: A classifier string follows as found in AUTHORITY */
                 case CLASSIFIER:
                     if (tree) {
-                        pnrp_message_item = proto_tree_add_text(pnrp_tree, tvb, offset,
-                                                                data_length, "Classifier: ");
-                        pnrp_message_tree = proto_item_add_subtree(pnrp_message_item, ett_pnrp_message);
+                        pnrp_message_tree = proto_tree_add_subtree(pnrp_tree, tvb, offset,
+                                                                data_length, ett_pnrp_message, NULL, "Classifier: ");
                         proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_type, tvb, offset , 2, ENC_BIG_ENDIAN);
                         proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_length, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
                         /* NumEntries */
@@ -704,9 +692,8 @@ static int dissect_pnrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
                     /* A hashed nonce follows as found in ADVERTISE & SOLICIT */
                 case HASHED_NONCE:
                     if (tree) {
-                        pnrp_message_item = proto_tree_add_text(pnrp_tree, tvb, offset,
-                                                                data_length, "Hashed Nonce: ");
-                        pnrp_message_tree = proto_item_add_subtree(pnrp_message_item, ett_pnrp_message);
+                        pnrp_message_tree = proto_tree_add_subtree(pnrp_tree, tvb, offset,
+                                                                data_length, ett_pnrp_message, NULL, "Hashed Nonce: ");
                         proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_type, tvb, offset , 2, ENC_BIG_ENDIAN);
                         proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_length, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
                         proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_hashednonce, tvb, offset + 4, data_length-4, ENC_NA);
@@ -719,9 +706,8 @@ static int dissect_pnrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
                     /* A nonce follows as found in REQUEST & INQUIRE */
                 case NONCE:
                     if (tree) {
-                        pnrp_message_item = proto_tree_add_text(pnrp_tree, tvb, offset,
-                                                                data_length, "Nonce: ");
-                        pnrp_message_tree = proto_item_add_subtree(pnrp_message_item, ett_pnrp_message);
+                        pnrp_message_tree = proto_tree_add_subtree(pnrp_tree, tvb, offset,
+                                                                data_length, ett_pnrp_message, NULL, "Nonce: ");
                         proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_type, tvb, offset , 2, ENC_BIG_ENDIAN);
                         proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_length, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
                         proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_nonce, tvb, offset + 4, data_length-4, ENC_NA);
@@ -733,9 +719,8 @@ static int dissect_pnrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
                     /* split controls as found in AUTHORITY */
                 case SPLIT_CONTROLS:
                     if (tree) {
-                        pnrp_message_item = proto_tree_add_text(pnrp_tree, tvb, offset,
-                                                                data_length, "Split controls: ");
-                        pnrp_message_tree = proto_item_add_subtree(pnrp_message_item, ett_pnrp_message);
+                        pnrp_message_tree = proto_tree_add_subtree(pnrp_tree, tvb, offset,
+                                                                data_length, ett_pnrp_message, NULL, "Split controls: ");
                         proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_type, tvb, offset , 2, ENC_BIG_ENDIAN);
                         proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_length, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
                         /* Size of Authority Buffer */
@@ -752,9 +737,8 @@ static int dissect_pnrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
                     /* routing entry: A route entry follows as found in ADVERTISE, INQUIRE, LOOKUP & AUTHORITY */
                 case ROUTING_ENTRY:
                     if (tree) {
-                        pnrp_message_item = proto_tree_add_text(pnrp_tree, tvb, offset,
-                                                                data_length, "Routing Entry: ");
-                        pnrp_message_tree = proto_item_add_subtree(pnrp_message_item, ett_pnrp_message);
+                        pnrp_message_tree = proto_tree_add_subtree(pnrp_tree, tvb, offset,
+                                                                data_length, ett_pnrp_message, NULL, "Routing Entry: ");
                         proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_type, tvb, offset , 2, ENC_BIG_ENDIAN);
                         proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_length, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
                         dissect_route_entry(tvb,offset+4, tvb_get_ntohs(tvb,offset+2)-4, pnrp_message_tree);
@@ -776,9 +760,8 @@ static int dissect_pnrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
                     /* validate cpa: an encoded CPA structure follows as found in AUTHORITY */
                 case VALIDATE_CPA:
                     if (tree) {
-                        pnrp_message_item = proto_tree_add_text(pnrp_tree, tvb, offset,
-                                                                data_length, "Validate CPA: ");
-                        pnrp_message_tree = proto_item_add_subtree(pnrp_message_item, ett_pnrp_message);
+                        pnrp_message_tree = proto_tree_add_subtree(pnrp_tree, tvb, offset,
+                                                                data_length, ett_pnrp_message, NULL, "Validate CPA: ");
                         proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_type, tvb, offset , 2, ENC_BIG_ENDIAN);
                         proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_length, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
                         /* Do the actual parsing in own method */
@@ -793,9 +776,8 @@ static int dissect_pnrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
                     /* IPV6 Endpoint: an ipv6 endpoint array structure follows as found in LOOKUP */
                 case IPV6_ENDPOINT_ARRAY:
                     if (tree) {
-                        pnrp_message_item = proto_tree_add_text(pnrp_tree, tvb, offset,
-                                                                data_length, "IPv6 Endpoint Array: ");
-                        pnrp_message_tree = proto_item_add_subtree(pnrp_message_item, ett_pnrp_message);
+                        pnrp_message_tree = proto_tree_add_subtree(pnrp_tree, tvb, offset,
+                                                                data_length, ett_pnrp_message, NULL, "IPv6 Endpoint Array: ");
                         proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_type, tvb, offset , 2, ENC_BIG_ENDIAN);
                         proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_length, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
                         /* Number of route entries */
@@ -815,10 +797,9 @@ static int dissect_pnrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
                 default:
                     if (tree) {
-                        pnrp_message_item = proto_tree_add_text(pnrp_tree, tvb, offset,
-                                                                data_length, "Type: %s, length: %u",
+                        pnrp_message_tree = proto_tree_add_subtree_format(pnrp_tree, tvb, offset,
+                                                                data_length, ett_pnrp_message, NULL, "Type: %s, length: %u",
                                                                 val_to_str(field_type, fieldID, "Unknown (0x%04x)"), data_length);
-                        pnrp_message_tree = proto_item_add_subtree(pnrp_message_item, ett_pnrp_message);
                         proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_type, tvb, offset , 2, ENC_BIG_ENDIAN);
                         proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_length, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
                         if(data_length > 4)
@@ -990,12 +971,12 @@ static void dissect_payload_structure(tvbuff_t *tvb, gint offset, gint length, p
 {
     guint16 lengthOfData;
     /* Add a new Subtree */
-    proto_item *pnrp_payload_tree = NULL;
-    proto_item *pnrp_payload_item = NULL;
+    proto_item *pnrp_payload_tree;
     /* Check if we actually should display something */
-    if (0<length ) {
-    pnrp_payload_item = proto_tree_add_text(tree, tvb, offset, length, "Payload Structure");
-    pnrp_payload_tree = proto_item_add_subtree(pnrp_payload_item, ett_pnrp_message_payloadStructure);
+    if (0>=length )
+        return;
+
+    pnrp_payload_tree = proto_tree_add_subtree(tree, tvb, offset, length, ett_pnrp_message_payloadStructure, NULL, "Payload Structure");
 
     /* Dissect the Payload Structure */
     /* Payload Type */
@@ -1016,19 +997,17 @@ static void dissect_payload_structure(tvbuff_t *tvb, gint offset, gint length, p
         offset += 2;
         lengthOfData -=20;
     }
-    }
 }
+
 static void dissect_publicKey_structure(tvbuff_t *tvb, gint offset, gint length, proto_tree *tree)
 {
     guint16 objIDLength;
     guint16 cbDataLength;
     /* Add a new Subtree */
-    proto_item *pnrp_publicKey_tree = NULL;
-    proto_item *pnrp_publicKey_item = NULL;
+    proto_tree *pnrp_publicKey_tree;
     /* Check if we can safely parse Data */
     if (0 < length && 0 <= tvb_reported_length_remaining(tvb, offset+length)) {
-        pnrp_publicKey_item = proto_tree_add_text(tree, tvb, offset, length, "CPA Public Key Structure");
-        pnrp_publicKey_tree = proto_item_add_subtree(pnrp_publicKey_item, ett_pnrp_message_publicKeyStructure);
+        pnrp_publicKey_tree = proto_tree_add_subtree(tree, tvb, offset, length, ett_pnrp_message_publicKeyStructure, NULL, "CPA Public Key Structure");
         /* Parsing of Data */
         /* Field Length of Structure */
         proto_tree_add_text(pnrp_publicKey_tree, tvb, offset,2, "Length of Structure : %d",tvb_get_letohs(tvb,offset));
@@ -1058,12 +1037,11 @@ static void dissect_signature_structure(tvbuff_t *tvb, gint offset, gint length,
 {
     guint16 signatureLength;
     /* Add a new Subtree */
-    proto_item *pnrp_signature_tree = NULL;
-    proto_item *pnrp_signature_item = NULL;
+    proto_tree *pnrp_signature_tree;
+
     /* Check if we can safely parse Data */
     if (0 < length && 0 <= tvb_reported_length_remaining(tvb, offset+length)) {
-        pnrp_signature_item = proto_tree_add_text(tree, tvb, offset, length, "Signature Structure");
-        pnrp_signature_tree = proto_item_add_subtree(pnrp_signature_item, ett_pnrp_message_signatureStructure);
+        pnrp_signature_tree = proto_tree_add_subtree(tree, tvb, offset, length, ett_pnrp_message_signatureStructure, NULL, "Signature Structure");
         /* Parsing of Data */
         /* Field Length of Structure */
         proto_tree_add_text(pnrp_signature_tree, tvb, offset,2, "Length of Structure : %d",tvb_get_letohs(tvb,offset));

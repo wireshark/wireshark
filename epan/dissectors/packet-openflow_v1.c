@@ -548,8 +548,7 @@ dissect_openflow_features_reply_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         for(i=0; i<num_ports ;i++){
             proto_tree *port_tree;
 
-            ti = proto_tree_add_text(tree, tvb, offset, 48, "Port data %u",i+1);
-            port_tree = proto_item_add_subtree(ti, ett_openflow_port);
+            port_tree = proto_tree_add_subtree_format(tree, tvb, offset, 48, ett_openflow_port, NULL, "Port data %u",i+1);
             dissect_openflow_phy_port(tvb, pinfo, port_tree, offset);
             offset+=48;
         }

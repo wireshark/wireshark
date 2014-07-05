@@ -1,4 +1,4 @@
-/* packet-pvfs.c
+/* packet-pvfs2.c
  * Routines for pvfs2 packet dissection
  * By Mike Frisch <mfrisch@platform.com>
  * Joint and Several Copyright 2005, Mike Frisch and Platform Computing Inc.
@@ -558,16 +558,14 @@ static int
 dissect_pvfs_credentials(tvbuff_t *tvb, proto_tree *parent_tree,
 		int offset)
 {
-	proto_item *item;
 	proto_tree *hcred_tree;
 	guint32 uid, gid;
 
 	uid = tvb_get_letohl(tvb, offset);
 	gid = tvb_get_letohl(tvb, offset + 4);
 
-	item = proto_tree_add_text(parent_tree, tvb, offset, 8,
-			"Credentials (UID: %d, GID: %d)", uid, gid);
-	hcred_tree = proto_item_add_subtree(item, ett_pvfs_credentials);
+	hcred_tree = proto_tree_add_subtree_format(parent_tree, tvb, offset, 8,
+			ett_pvfs_credentials, NULL, "Credentials (UID: %d, GID: %d)", uid, gid);
 
 	/* UID */
 	proto_tree_add_item(hcred_tree, hf_pvfs_uid, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -924,15 +922,12 @@ dissect_pvfs_opaque_data(tvbuff_t *tvb, int offset,
 		string_buffer_print="<EMPTY>";
 	}
 
-	if (tree) {
-		string_item = proto_tree_add_text(tree, tvb,offset+0, -1,
-		    "%s: %s", proto_registrar_get_name(hfindex),
+	string_item = proto_tree_add_string(tree, hfindex, tvb, offset+0, -1,
 		    string_buffer_print);
 
-		if (string_item)
-			string_tree = proto_item_add_subtree(string_item,
+	string_tree = proto_item_add_subtree(string_item,
 		    	ett_pvfs_string);
-	}
+
 	if (!fixed_length) {
 		if (string_tree)
 			proto_tree_add_text(string_tree, tvb,offset+0,4,
@@ -1056,12 +1051,10 @@ static int
 dissect_pvfs_fh(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		proto_tree *tree, const char *name, guint32 *hash)
 {
-	proto_item* fitem = NULL;
-	proto_tree* ftree = NULL;
+	proto_tree* ftree;
 
-	fitem = proto_tree_add_text(tree, tvb, offset, PVFS2_FH_LENGTH,
-			"%s", name);
-	ftree = proto_item_add_subtree(fitem, ett_pvfs_fh);
+	ftree = proto_tree_add_subtree(tree, tvb, offset, PVFS2_FH_LENGTH,
+			ett_pvfs_fh, NULL, name);
 
 	/* TODO: add fh to file name snooping code here */
 
@@ -1079,11 +1072,10 @@ static int
 dissect_pvfs_handle_extent(tvbuff_t *tvb, proto_tree *tree, int offset,
 		packet_info *pinfo, guint32 nCount)
 {
-	proto_item *extent_item;
 	proto_tree *extent_tree;
 
-	extent_item = proto_tree_add_text(tree, tvb, offset, 8, "Item %d", nCount);
-	extent_tree = proto_item_add_subtree(extent_item, ett_pvfs_extent_item);
+	extent_tree = proto_tree_add_subtree_format(tree, tvb, offset, 8,
+			ett_pvfs_extent_item, NULL, "Item %d", nCount);
 
 	/* first handle */
 	offset = dissect_pvfs_fh(tvb, offset, pinfo, extent_tree, "first handle",
@@ -1102,22 +1094,18 @@ dissect_pvfs_handle_extent_array(tvbuff_t *tvb, proto_tree *tree, int offset,
 {
 	guint32 extent_count;
 	guint32 nCount;
-	proto_item *extent_array_item;
 	proto_tree *extent_array_tree;
 
 	/* extent count */
 	extent_count = tvb_get_letohl(tvb, offset);
 
-	extent_array_item = proto_tree_add_text(tree, tvb, offset, 4,
-					"Handle Extent Array (count = %d)", extent_count);
+	extent_array_tree = proto_tree_add_subtree_format(tree, tvb, offset, 4,
+					ett_pvfs_extent_array_tree, NULL, "Handle Extent Array (count = %d)", extent_count);
 
 	offset += 4;
 
 	if (extent_count > 0)
 	{
-		extent_array_tree = proto_item_add_subtree(extent_array_item,
-					ett_pvfs_extent_array_tree);
-
 		/* Add extent array items */
 		for (nCount = 0; nCount < extent_count; nCount++)
 			offset = dissect_pvfs_handle_extent(tvb, extent_array_tree, offset,
@@ -1246,11 +1234,9 @@ dissect_pvfs_object_attr(tvbuff_t *tvb, proto_tree *tree, int offset,
 {
 	gint32 ds_type = 0;
 	guint32 attrmask = 0;
-	proto_item *attr_item;
 	proto_tree *attr_tree;
 
-	attr_item = proto_tree_add_text(tree, tvb, offset, -1, "Attributes");
-	attr_tree = proto_item_add_subtree(attr_item, ett_pvfs_attr_tree);
+	attr_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_pvfs_attr_tree, NULL, "Attributes");
 
 	/* UID */
 	proto_tree_add_item(attr_tree, hf_pvfs_uid, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -2228,8 +2214,7 @@ dissect_pvfs2_lookup_path_response(tvbuff_t *tvb, proto_tree *tree,
 	guint32 nCount = 0;
 	guint32 handle_count = 0;
 	guint32 attr_count = 0;
-	proto_item *attr_item = NULL;
-	proto_tree *attr_tree = NULL;
+	proto_tree *attr_tree;
 
 	offset += 4;
 
@@ -2247,14 +2232,8 @@ dissect_pvfs2_lookup_path_response(tvbuff_t *tvb, proto_tree *tree,
 	/* array of attributes */
 	attr_count = tvb_get_letohl(tvb, offset);
 
-	if (tree)
-	{
-		attr_item = proto_tree_add_text(tree, tvb, offset, 4,
-				"Attribute array (total items: %d)", attr_count);
-
-		if (attr_item)
-			attr_tree = proto_item_add_subtree(attr_item, ett_pvfs_attr);
-	}
+	attr_tree = proto_tree_add_subtree_format(tree, tvb, offset, 4,
+				ett_pvfs_attr, NULL, "Attribute array (total items: %d)", attr_count);
 
 	offset += 4;
 
@@ -2340,18 +2319,11 @@ dissect_pvfs2_getconfig_response(tvbuff_t *tvb, proto_tree *parent_tree,
 	guint32 bytes_processed = 0;
 	guint32 length_remaining = 0;
 	const char *ptr = NULL;
-	proto_item *item = NULL, *config_item = NULL;
-	proto_tree *tree = NULL, *config_tree = NULL;
+	proto_tree *tree, *config_tree = NULL;
 	/*guint8 truncated = 0;*/
 
-	if (parent_tree)
-	{
-		item = proto_tree_add_text(parent_tree, tvb, offset, 12,
-				"Server Config");
-
-		if (item)
-			tree = proto_item_add_subtree(item, ett_pvfs_server_config);
-	}
+	tree = proto_tree_add_subtree(parent_tree, tvb, offset, 12,
+				ett_pvfs_server_config, NULL, "Server Config");
 
 	/* Total number of bytes in server config (incl. entry count) */
 	total_bytes = tvb_get_letohl(tvb, offset);
@@ -2447,17 +2419,12 @@ dissect_pvfs2_getconfig_response(tvbuff_t *tvb, proto_tree *parent_tree,
 				if (tmp_entry[1] != '/')
 				{
 					/* Opening token, create new tree root */
-					config_item = proto_tree_add_text(tree, tvb, offset,
-							tmp_entry_length, "%s", tmp_entry);
-
-					if (config_item)
-						config_tree = proto_item_add_subtree(config_item,
-								ett_pvfs_server_config_branch);
+					config_tree = proto_tree_add_subtree(tree, tvb, offset,
+							tmp_entry_length, ett_pvfs_server_config_branch, NULL, tmp_entry);
 				}
 				else
 				{
 					/* Closing token */
-					config_item = NULL;
 					config_tree = NULL;
 				}
 			}
@@ -2576,18 +2543,10 @@ static int
 dissect_pvfs_mgmt_perf_stat(tvbuff_t *tvb, proto_tree *tree, int offset,
 		int nItem)
 {
-	proto_item *stat_item = NULL;
-	proto_tree *stat_tree = NULL;
+	proto_tree *stat_tree;
 
-	if (tree)
-	{
-		stat_item = proto_tree_add_text(tree, tvb, offset, 48,
-				"Stat Array - Element %d", nItem);
-
-		if (stat_item)
-			stat_tree = proto_item_add_subtree(stat_item,
-					ett_pvfs_mgmt_perf_stat);
-	}
+	stat_tree = proto_tree_add_subtree_format(tree, tvb, offset, 48,
+				ett_pvfs_mgmt_perf_stat, NULL, "Stat Array - Element %d", nItem);
 
 	/* TODO: valid_flag */
 	proto_tree_add_item(stat_tree, hf_pvfs_mgmt_perf_stat_valid_flag, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -2682,7 +2641,6 @@ dissect_pvfs2_mgmt_dspace_info_list_response(tvbuff_t *tvb, proto_tree *tree,
 		int offset, packet_info *pinfo)
 {
 	guint32 dspace_info_count, i;
-	proto_item *arr_item = NULL;
 	proto_tree *arr_tree = NULL;
 
 	offset += 4;
@@ -2693,13 +2651,9 @@ dissect_pvfs2_mgmt_dspace_info_list_response(tvbuff_t *tvb, proto_tree *tree,
 
 	if ((dspace_info_count > 0) && (tree))
 	{
-		arr_item = proto_tree_add_text(tree, tvb, offset,
-				dspace_info_count * 40, "dspace_info Array (%d items)",
+		arr_tree = proto_tree_add_subtree_format(tree, tvb, offset,
+				dspace_info_count * 40, ett_pvfs_mgmt_dspace_info, NULL, "dspace_info Array (%d items)",
 				dspace_info_count);
-
-		if (arr_item)
-			arr_tree = proto_item_add_subtree(arr_item,
-					ett_pvfs_mgmt_dspace_info);
 	}
 
 	for (i = 0; i < dspace_info_count; i++)
@@ -3012,7 +2966,7 @@ dissect_pvfs_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 		gboolean dissect_other_as_continuation _U_)
 {
 	guint32 mode = 0;
-	proto_item *item = NULL, *hitem = NULL;
+	proto_item *item;
 	proto_tree *pvfs_tree = NULL, *pvfs_htree = NULL;
 	int offset = 0;
 	guint64 tag;
@@ -3023,21 +2977,14 @@ dissect_pvfs_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 
 	col_clear(pinfo->cinfo, COL_INFO);
 
-	if (parent_tree)
-	{
-		item = proto_tree_add_item(parent_tree, proto_pvfs, tvb, 0, -1, ENC_NA);
-
-		if (item)
-			pvfs_tree = proto_item_add_subtree(item, ett_pvfs);
-	}
+	item = proto_tree_add_item(parent_tree, proto_pvfs, tvb, 0, -1, ENC_NA);
+	pvfs_tree = proto_item_add_subtree(item, ett_pvfs);
 
 	proto_tree_add_text(pvfs_tree, tvb, 0, -1, "Version: 2");
 
 	/* PVFS packet header is 24 bytes */
-	hitem = proto_tree_add_text(pvfs_tree, tvb, 0, BMI_HEADER_SIZE,
-			"BMI Header");
-	if (hitem)
-		pvfs_htree = proto_item_add_subtree(hitem, ett_pvfs_hdr);
+	pvfs_htree = proto_tree_add_subtree(pvfs_tree, tvb, 0, BMI_HEADER_SIZE,
+			ett_pvfs_hdr, NULL, "BMI Header");
 
 	/* Magic number */
 	proto_tree_add_item(pvfs_htree, hf_pvfs_magic_nr, tvb, offset, 4, ENC_LITTLE_ENDIAN);

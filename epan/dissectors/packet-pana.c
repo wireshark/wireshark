@@ -337,11 +337,8 @@ dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree)
        tvbuff_t   *group_tvb;
        tvbuff_t   *eap_tvb;
        tvbuff_t   *encap_tvb;
-       proto_item *single_avp_item;
        proto_tree *single_avp_tree;
-       proto_item *avp_eap_item;
        proto_tree *avp_eap_tree;
-       proto_item *avp_encap_item;
        proto_tree *avp_encap_tree;
 
        offset = 0;
@@ -371,14 +368,12 @@ dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree)
                /* Check padding */
                padding = (4 - (avp_length % 4)) % 4;
 
-               single_avp_item = proto_tree_add_text(avp_tree, tvb, offset, avp_length + padding,
-                                                               "%s (%s) length: %d bytes (%d padded bytes)",
+               single_avp_tree = proto_tree_add_subtree_format(avp_tree, tvb, offset, avp_length + padding,
+                                                               ett_pana_avp_info, NULL, "%s (%s) length: %d bytes (%d padded bytes)",
                                                                val_to_str(avp_code, avp_code_names, "Unknown (%d)"),
                                                                val_to_str(avp_type, avp_type_names, "Unknown (%d)"),
                                                                avp_length,
                                                                avp_length + padding);
-
-               single_avp_tree = proto_item_add_subtree(single_avp_item, ett_pana_avp_info);
 
                /* AVP Code */
                proto_tree_add_uint_format_value(single_avp_tree, hf_pana_avp_code, tvb,
@@ -408,12 +403,10 @@ dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree)
                        /* AVP Value */
                        switch(avp_type) {
                                case PANA_GROUPED: {
-                                       proto_item *avp_group_item;
                                        proto_tree *avp_group_tree;
-                                       avp_group_item = proto_tree_add_text(single_avp_tree,
+                                       avp_group_tree = proto_tree_add_subtree(single_avp_tree,
                                                                             tvb, offset, avp_data_length,
-                                                                            "Grouped AVP");
-                                       avp_group_tree = proto_item_add_subtree(avp_group_item, ett_pana_avp);
+                                                                            ett_pana_avp, NULL, "Grouped AVP");
                                        group_tvb = tvb_new_subset(tvb, offset,
                                                                   MIN(avp_data_length, tvb_reported_length(tvb)-offset),
                                                                   avp_data_length);
@@ -467,10 +460,9 @@ dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree)
                                        break;
                                }
                                case PANA_EAP: {
-                                       avp_eap_item = proto_tree_add_text(single_avp_tree,
+                                       avp_eap_tree = proto_tree_add_subtree(single_avp_tree,
                                                                           tvb, offset, avp_data_length,
-                                                                          "AVP Value (EAP packet)");
-                                       avp_eap_tree = proto_item_add_subtree(avp_eap_item, ett_pana_avp);
+                                                                          ett_pana_avp, NULL, "AVP Value (EAP packet)");
                                        eap_tvb = tvb_new_subset_length(tvb, offset, avp_data_length);
                                        if (eap_handle != NULL) {
                                                call_dissector(eap_handle, eap_tvb, pinfo, avp_eap_tree);
@@ -478,10 +470,9 @@ dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree)
                                        break;
                                }
                                case PANA_ENCAPSULATED: {
-                                       avp_encap_item = proto_tree_add_text(single_avp_tree,
+                                       avp_encap_tree = proto_tree_add_subtree(single_avp_tree,
                                                                           tvb, offset, avp_data_length,
-                                                                          "AVP Value (PANA packet)");
-                                       avp_encap_tree = proto_item_add_subtree(avp_encap_item, ett_pana_avp);
+                                                                          ett_pana_avp, NULL, "AVP Value (PANA packet)");
                                        encap_tvb = tvb_new_subset_length(tvb, offset, avp_data_length);
                                        dissect_pana_pdu(encap_tvb, pinfo, avp_encap_tree);
                                        break;
@@ -639,10 +630,8 @@ dissect_pana_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
        if(avp_length != 0){
                tvbuff_t   *avp_tvb;
                proto_tree *avp_tree;
-               proto_item *avp_item;
                avp_tvb  = tvb_new_subset_length(tvb, offset, avp_length);
-               avp_item = proto_tree_add_text(pana_tree, tvb, offset, avp_length, "Attribute Value Pairs");
-               avp_tree = proto_item_add_subtree(avp_item, ett_pana_avp);
+               avp_tree = proto_tree_add_subtree(pana_tree, tvb, offset, avp_length, ett_pana_avp, NULL, "Attribute Value Pairs");
 
                if (avp_tree != NULL) {
                        dissect_avps(avp_tvb, pinfo, avp_tree);

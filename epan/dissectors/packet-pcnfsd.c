@@ -195,8 +195,8 @@ dissect_pcnfsd2_auth_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	int	newoffset;
 	const char	*ident = NULL;
 	const char	*ident_decoded;
-	proto_item	*ident_item = NULL;
-	proto_tree	*ident_tree = NULL;
+	proto_item	*ident_item;
+	proto_tree	*ident_tree;
 	const char	*password = NULL;
 	proto_item	*password_item = NULL;
 	proto_tree	*password_tree = NULL;
@@ -204,18 +204,12 @@ dissect_pcnfsd2_auth_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	offset = dissect_rpc_string(tvb, tree,
 		hf_pcnfsd_auth_client, offset, NULL);
 
-	if (tree) {
-		ident_item = proto_tree_add_text(tree, tvb,
-				offset, -1, "Authentication Ident");
-		if (ident_item)
-			ident_tree = proto_item_add_subtree(
-				ident_item, ett_pcnfsd_auth_ident);
-	}
+	ident_tree = proto_tree_add_subtree(tree, tvb,
+				offset, -1, ett_pcnfsd_auth_ident, &ident_item, "Authentication Ident");
+
 	newoffset = dissect_rpc_string(tvb, ident_tree,
 		hf_pcnfsd_auth_ident_obscure, offset, &ident);
-	if (ident_item) {
-		proto_item_set_len(ident_item, newoffset-offset);
-	}
+	proto_item_set_len(ident_item, newoffset-offset);
 
 	if (ident) {
 		/* Only attempt to decode the ident if it has been specified */
@@ -236,13 +230,9 @@ dissect_pcnfsd2_auth_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 	offset = newoffset;
 
-	if (tree) {
-		password_item = proto_tree_add_text(tree, tvb,
-				offset, -1, "Authentication Password");
-		if (password_item)
-			password_tree = proto_item_add_subtree(
-				password_item, ett_pcnfsd_auth_password);
-	}
+	password_tree = proto_tree_add_subtree(tree, tvb,
+				offset, -1, ett_pcnfsd_auth_password, NULL, "Authentication Password");
+
 	newoffset = dissect_rpc_string(tvb, password_tree,
 		hf_pcnfsd_auth_password_obscure, offset, &password);
 	if (password_item) {
@@ -279,22 +269,18 @@ dissect_pcnfsd2_auth_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	proto_tree *tree, void* data _U_)
 {
 	int	gids_count;
-	proto_item	*gitem = NULL;
-	proto_tree	*gtree = NULL;
+	proto_tree	*gtree;
 	int	gids_i;
 
 	offset = dissect_rpc_uint32(tvb, tree, hf_pcnfsd_status, offset);
 	offset = dissect_rpc_uint32(tvb, tree, hf_pcnfsd_uid, offset);
 	offset = dissect_rpc_uint32(tvb, tree, hf_pcnfsd_gid, offset);
 	gids_count = tvb_get_ntohl(tvb,offset+0);
-	if (tree) {
-		gitem = proto_tree_add_text(tree, tvb,
-			offset, 4+gids_count*4, "Group IDs: %d", gids_count);
-		gtree = proto_item_add_subtree(gitem, ett_pcnfsd_gids);
-	}
-	if (gtree) {
-		proto_tree_add_item(gtree, hf_pcnfsd_gids_count, tvb, offset, 4, ENC_BIG_ENDIAN);
-	}
+	gtree = proto_tree_add_subtree_format(tree, tvb,
+			offset, 4+gids_count*4, ett_pcnfsd_gids, NULL, "Group IDs: %d", gids_count);
+
+	proto_tree_add_item(gtree, hf_pcnfsd_gids_count, tvb, offset, 4, ENC_BIG_ENDIAN);
+
 	offset += 4;
 	for (gids_i = 0 ; gids_i < gids_count ; gids_i++) {
 		offset = dissect_rpc_uint32(tvb, gtree,

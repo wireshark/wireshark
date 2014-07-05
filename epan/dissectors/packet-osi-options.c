@@ -404,8 +404,7 @@ dissect_option_atn_security_label(const guchar sub_type, guchar length,
                                   tvbuff_t *tvb, guint offset,
                                   proto_tree *tree)
 {
-  proto_item *ti;
-  proto_tree *atn_sl_tree = NULL;
+  proto_tree *atn_sl_tree;
   guchar len = 0;
   guint8 tag_name = 0;
   guint  security_info_end = 0;
@@ -423,10 +422,9 @@ dissect_option_atn_security_label(const guchar sub_type, guchar length,
   if ( tvb_memeql(tvb, ++offset , atn_security_registration_val, OSI_OPT_SECURITY_ATN_SR_LEN) )
     return;
 
-  ti = proto_tree_add_text(tree, tvb, offset, length, "%s",
+  atn_sl_tree = proto_tree_add_subtree(tree, tvb, offset, length, ott_osi_qos, NULL,
                            val_to_str(sub_type, osi_opt_sec_atn_sr_vals, "Unknown (0x%x)"));
 
-  atn_sl_tree = proto_item_add_subtree(ti, ott_osi_qos);
   offset += OSI_OPT_SECURITY_ATN_SR_LEN;
 
   /* Security Information length */
@@ -519,9 +517,8 @@ dissect_osi_options(guchar opt_len, tvbuff_t *tvb, int offset, proto_tree *tree)
        return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, opt_len,
-                             "### Option Section ###");
-    osi_option_tree = proto_item_add_subtree(ti, ott_osi_options);
+    osi_option_tree = proto_tree_add_subtree(tree, tvb, offset, opt_len,
+                             ott_osi_options, &ti, "### Option Section ###");
 
     while ( 0 < opt_len ) {
       parm_type = tvb_get_guint8(tvb, offset++);

@@ -538,8 +538,8 @@ dissect_attributes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *opsi_tree, int
 										"Unknown attribute (%d)", attribute_type);
 		}
 		else {
-			ti = proto_tree_add_text(opsi_tree, tvb, offset, attribute_length, "%s (%d)", opsi_attributes[i].tree_text, attribute_type);
-			ntree = proto_item_add_subtree(ti, *opsi_attributes[i].tree_id);
+			ntree = proto_tree_add_subtree_format(opsi_tree, tvb, offset, attribute_length, *opsi_attributes[i].tree_id, &ti,
+															"%s (%d)", opsi_attributes[i].tree_text, attribute_type);
 			proto_tree_add_item(ntree, hf_opsi_attribute_length, tvb, offset+2, 2, ENC_BIG_ENDIAN);
 			opsi_attributes[i].dissect(tvb, pinfo, ntree, ti, opsi_attributes[i].hf_type_attribute, offset, attribute_length);
 		}

@@ -175,16 +175,14 @@ static int
 dissect_pktc_app_specific_data(packet_info *pinfo _U_, proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint8 doi, guint8 kmmid)
 {
     int old_offset=offset;
-    proto_tree *tree = NULL;
+    proto_tree *tree;
     proto_tree *engineid_tree = NULL;
-    proto_item *item = NULL;
+    proto_item *item;
     proto_item *engineid_item = NULL;
     guint8 len;
 
-    if (parent_tree) {
-        item = proto_tree_add_item(parent_tree, hf_pktc_app_spec_data, tvb, offset, -1, ENC_NA);
-        tree = proto_item_add_subtree(item, ett_pktc_app_spec_data);
-    }
+    item = proto_tree_add_item(parent_tree, hf_pktc_app_spec_data, tvb, offset, -1, ENC_NA);
+    tree = proto_item_add_subtree(item, ett_pktc_app_spec_data);
 
     switch(doi){
     case DOI_SNMPv3:
@@ -201,8 +199,8 @@ dissect_pktc_app_specific_data(packet_info *pinfo _U_, proto_tree *parent_tree, 
 
             /* snmpEngineID */
             engineid_item = proto_tree_add_item(tree, hf_pktc_snmpEngineID, tvb, offset, len, ENC_NA);
-	    engineid_tree = proto_item_add_subtree(engineid_item, ett_pktc_engineid);
-	    dissect_snmp_engineid(engineid_tree, tvb, offset, len);
+            engineid_tree = proto_item_add_subtree(engineid_item, ett_pktc_engineid);
+            dissect_snmp_engineid(engineid_tree, tvb, offset, len);
             offset+=len;
 
             /* boots */
@@ -259,15 +257,12 @@ static int
 dissect_pktc_list_of_ciphersuites(packet_info *pinfo _U_, proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint8 doi)
 {
     int old_offset=offset;
-    proto_tree *tree = NULL;
-    proto_item *item = NULL, *hidden_item;
+    proto_tree *tree;
+    proto_item *item, *hidden_item;
     guint8 len, i;
 
-    if (parent_tree) {
-        item = proto_tree_add_item(parent_tree, hf_pktc_list_of_ciphersuites, tvb, offset, -1, ENC_NA);
-        tree = proto_item_add_subtree(item, ett_pktc_list_of_ciphersuites);
-    }
-
+    item = proto_tree_add_item(parent_tree, hf_pktc_list_of_ciphersuites, tvb, offset, -1, ENC_NA);
+    tree = proto_item_add_subtree(item, ett_pktc_list_of_ciphersuites);
 
     /* number of ciphersuites */
     len=tvb_get_guint8(tvb, offset);
@@ -550,16 +545,14 @@ static void
 dissect_pktc_mtafqdn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     int offset=0;
-    proto_tree *pktc_mtafqdn_tree = NULL;
-    proto_item *item = NULL;
+    proto_tree *pktc_mtafqdn_tree;
+    proto_item *item;
     tvbuff_t *pktc_mtafqdn_tvb;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "PKTC");
 
-    if (tree) {
-        item = proto_tree_add_item(tree, proto_pktc, tvb, 0, 0, ENC_NA);
-        pktc_mtafqdn_tree = proto_item_add_subtree(item, ett_pktc_mtafqdn);
-    }
+    item = proto_tree_add_item(tree, proto_pktc, tvb, 0, 0, ENC_NA);
+    pktc_mtafqdn_tree = proto_item_add_subtree(item, ett_pktc_mtafqdn);
 
     col_add_fstr(pinfo->cinfo, COL_INFO, "MTA FQDN %s",
                     pinfo->srcport == pinfo->match_uint ? "Reply":"Request");
@@ -581,15 +574,13 @@ dissect_pktc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     guint8 kmmid, doi, version;
     int offset=0;
-    proto_tree *pktc_tree = NULL;
-    proto_item *item = NULL, *hidden_item;
+    proto_tree *pktc_tree;
+    proto_item *item, *hidden_item;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "PKTC");
 
-    if (tree) {
-        item = proto_tree_add_item(tree, proto_pktc, tvb, 0, 3, ENC_NA);
-        pktc_tree = proto_item_add_subtree(item, ett_pktc);
-    }
+    item = proto_tree_add_item(tree, proto_pktc, tvb, 0, 3, ENC_NA);
+    pktc_tree = proto_item_add_subtree(item, ett_pktc);
 
     /* key management message id */
     kmmid=tvb_get_guint8(tvb, offset);

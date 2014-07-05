@@ -367,8 +367,8 @@ value_string_ext pp_pid_vals_ext = VALUE_STRING_EXT_INIT(pp_pid_vals);
 static guint dissect_one_tlv(tvbuff_t *tvb, proto_tree *tree,
                 guint offset)
 {
-    proto_item *ti = proto_tree_add_text(tree, tvb, offset, 0, "Property");
-    proto_tree *tlv_tree = proto_item_add_subtree(ti, ett_pp_tlv);
+    proto_item *ti;
+    proto_tree *tlv_tree = proto_tree_add_subtree(tree, tvb, offset, 0, ett_pp_tlv, &ti, "Property");
 
     guint len;
     guint pad_len;
@@ -432,8 +432,8 @@ dissect_data_payload(tvbuff_t *tvb, proto_item *tree, guint offset, guint len)
 
     while(offset < end)
     {
-        proto_item *ti = proto_tree_add_text(tree, tvb, offset, 0, "xDMX Data: ");
-        proto_tree *data_tree = proto_item_add_subtree(ti, ett_pp_data);
+        proto_item *ti;
+        proto_tree *data_tree = proto_tree_add_subtree(tree, tvb, offset, 0, ett_pp_data, &ti, "xDMX Data: ");
         proto_tree_add_item(data_tree, hf_pp_data_encoding, tvb, offset, 2, ENC_NA);
         offset += 2;
         blklen = tvb_get_ntohs(tvb, offset);
@@ -469,13 +469,14 @@ dissect_arp_reply(tvbuff_t *tvb, proto_tree *tree, guint offset, guint len)
 static guint
 dissect_one_pdu(tvbuff_t *tvb, proto_tree *tree, guint offset)
 {
-    proto_item *ti = proto_tree_add_text(tree, tvb, offset, 0, "PDU");
-    proto_tree *pdu_tree = proto_item_add_subtree(ti, ett_pp_pdu);
+    proto_item *ti;
+    proto_tree *pdu_tree = proto_tree_add_subtree(tree, tvb, offset, 0, ett_pp_pdu, &ti, "PDU");
 
     guint len;
 
     guint type = tvb_get_ntohs(tvb, offset);
     const char *name = val_to_str(type, pp_pdu_vals, TYPE_UNKNOWN);
+
     proto_item_append_text(ti, " : %s", name);
 
     proto_tree_add_item(pdu_tree, hf_pp_pdu_type, tvb, offset, 2, ENC_NA);
@@ -525,9 +526,7 @@ dissect_multiple_pdus(tvbuff_t *tvb, proto_item *ti,
 static int
 dissect_header(tvbuff_t *tvb, proto_tree *parent, guint offset)
 {
-    proto_item *ti = proto_tree_add_item(parent, proto_pathport, tvb, offset, PATHPORT_HEADER_LENGTH, ENC_NA);
-    proto_tree *tree = proto_item_add_subtree(ti, ett_pathport);
-    proto_item_set_text(ti, "Header");
+    proto_tree *tree = proto_tree_add_subtree(parent, tvb, offset, PATHPORT_HEADER_LENGTH, ett_pathport, NULL, "Header");
 
     proto_tree_add_item(tree, hf_pp_prot,     tvb, offset, 2, ENC_NA);
     offset += 2;

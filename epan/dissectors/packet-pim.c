@@ -179,7 +179,6 @@ dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_tree *pim_tree = NULL;
     proto_item *ti;
     proto_tree *pimopt_tree = NULL;
-    proto_item *tiopt;
 
     if (!proto_is_protocol_enabled(find_protocol_by_id(proto_pim))) {
         /*
@@ -273,8 +272,7 @@ dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     offset += 3;        /* skip reserved stuff */
 
     if (tvb_reported_length_remaining(tvb, offset) > 0) {
-        tiopt = proto_tree_add_text(pim_tree, tvb, offset, -1, "PIM options");
-        pimopt_tree = proto_item_add_subtree(tiopt, ett_pim_opts);
+        pimopt_tree = proto_tree_add_subtree(pim_tree, tvb, offset, -1, ett_pim_opts, NULL, "PIM options");
     } else
         goto done;
 
@@ -799,8 +797,7 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     offset += 4;
 
     if (tvb_reported_length_remaining(tvb, offset) > 0) {
-        tiopt = proto_tree_add_text(pim_tree, tvb, offset, -1, "PIM options");
-        pimopt_tree = proto_item_add_subtree(tiopt, ett_pim_opts);
+        pimopt_tree = proto_tree_add_subtree(pim_tree, tvb, offset, -1, ett_pim_opts, &tiopt, "PIM options");
     } else
         goto done;
 
@@ -822,10 +819,9 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
             opt_count++;
             hello_opt = tvb_get_ntohs(tvb, offset);
             opt_len = tvb_get_ntohs(tvb, offset + 2);
-            opt_item = proto_tree_add_text(pimopt_tree, tvb, offset, 4 + opt_len,
-                                           "Option %u: %s", hello_opt,
+            opt_tree = proto_tree_add_subtree_format(pimopt_tree, tvb, offset, 4 + opt_len,
+                                           ett_pim_opt, &opt_item, "Option %u: %s", hello_opt,
                                            val_to_str(hello_opt, pim_opt_vals, "Unknown: %u"));
-            opt_tree = proto_item_add_subtree(opt_item, ett_pim_opt);
             proto_tree_add_item(opt_tree, hf_pim_optiontype, tvb, offset, 2, ENC_BIG_ENDIAN);
             proto_tree_add_item(opt_tree, hf_pim_optionlength, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
 
@@ -876,13 +872,11 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
             {
                 int i;
                 proto_tree *sub_tree = NULL;
-                proto_item *addrlist_option;
 
-                addrlist_option = proto_tree_add_text(opt_tree, tvb, offset, 4 + opt_len,
-                                                      "%sAddress List (%u)",
+                sub_tree = proto_tree_add_subtree_format(opt_tree, tvb, offset, 4 + opt_len,
+                                                      ett_pim_opt, NULL, "%sAddress List (%u)",
                                                       hello_opt == 65001 ? "old " : "",
                                                       hello_opt);
-                sub_tree = proto_item_add_subtree(addrlist_option, ett_pim_opt);
                 for (i = offset + 4; i < offset + 4 + opt_len; ) {
                     int advance;
                     if (!dissect_pim_addr(sub_tree, tvb, i, pimv2_unicast, NULL, NULL,

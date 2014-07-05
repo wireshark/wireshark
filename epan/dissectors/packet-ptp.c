@@ -2329,7 +2329,6 @@ dissect_ptp_v2_timeInterval(tvbuff_t *tvb, guint16 *cur_offset, proto_tree *tree
     double      time_double;
     gint64      time_ns;
     guint16     time_subns;
-    proto_item *ptptimeInterval_ti;
     proto_tree *ptptimeInterval_subtree;
 
     time_ns = tvb_get_ntoh64(tvb, *cur_offset);
@@ -2337,10 +2336,8 @@ dissect_ptp_v2_timeInterval(tvbuff_t *tvb, guint16 *cur_offset, proto_tree *tree
     time_ns = time_ns >> 16;
     time_subns = tvb_get_ntohs(tvb, *cur_offset+6);
 
-    ptptimeInterval_ti = proto_tree_add_text(tree, tvb, *cur_offset, 8,
-        "%s: %f nanoseconds", name, time_double);
-
-    ptptimeInterval_subtree = proto_item_add_subtree(ptptimeInterval_ti, ett_ptp_v2_timeInterval);
+    ptptimeInterval_subtree = proto_tree_add_subtree_format(tree, tvb, *cur_offset, 8,
+        ett_ptp_v2_timeInterval, NULL, "%s: %f nanoseconds", name, time_double);
 
     proto_tree_add_uint64_format_value(ptptimeInterval_subtree,
         hf_ptp_v2_timeInterval_ns, tvb, *cur_offset, 6, time_ns, "Ns: %" G_GINT64_MODIFIER "d nanoseconds", time_ns);
@@ -2519,7 +2516,6 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 guint16     tlv_type;
                 guint16     tlv_length;
                 guint16     tlv_total_length;
-                proto_item *tlv_ti;
                 proto_tree *ptp_tlv_tree;
 
                 /* In 802.1AS there is no origin timestamp in an Announce Message */
@@ -2567,17 +2563,15 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     tlv_type = tvb_get_ntohs (tvb, PTP_V2_AN_TLV_OFFSET+tlv_total_length+PTP_V2_AN_TLV_TYPE_OFFSET);
                     tlv_length = tvb_get_ntohs (tvb, PTP_V2_AN_TLV_OFFSET+tlv_total_length+PTP_V2_AN_TLV_LENGTHFIELD_OFFSET);
 
-                    tlv_ti = proto_tree_add_text(
+                    ptp_tlv_tree = proto_tree_add_subtree_format(
                         ptp_tree,
                         tvb,
                         PTP_V2_AN_TLV_OFFSET + tlv_total_length,
                         tlv_length + PTP_V2_AN_TLV_DATA_OFFSET,
-                        "%s TLV",
+                        ett_ptp_v2_tlv, NULL, "%s TLV",
                         val_to_str_ext(tlv_type,
                                        &ptp_v2_TLV_type_vals_ext,
                                        "Unknown (%u)"));
-
-                    ptp_tlv_tree = proto_item_add_subtree(tlv_ti, ett_ptp_v2_tlv);
 
                     proto_tree_add_item(ptp_tlv_tree,
                                         hf_ptp_v2_an_tlv_tlvtype,
@@ -2768,7 +2762,6 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
             case PTP_V2_FOLLOWUP_MESSAGE:{
                 guint16     tlv_length;
-                proto_item *tlv_ti;
                 proto_tree *ptp_tlv_tree;
 
                 proto_tree_add_item(ptp_tree, hf_ptp_v2_fu_preciseorigintimestamp_seconds, tvb,
@@ -2783,15 +2776,12 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     /* There are TLV's to be processed */
                     tlv_length = tvb_get_ntohs (tvb, PTP_AS_FU_TLV_INFORMATION_OFFSET + PTP_AS_FU_TLV_LENGTHFIELD_OFFSET);
 
-                    tlv_ti = proto_tree_add_text(
+                    ptp_tlv_tree = proto_tree_add_subtree(
                         ptp_tree,
                         tvb,
                         PTP_AS_FU_TLV_INFORMATION_OFFSET,
                         tlv_length + PTP_AS_FU_TLV_ORGANIZATIONID_OFFSET,
-                        "%s TLV",
-                        "Follow Up information");
-
-                    ptp_tlv_tree = proto_item_add_subtree(tlv_ti, ett_ptp_v2_tlv);
+                        ett_ptp_v2_tlv, NULL, "Follow Up information TLV");
 
                     proto_tree_add_item(ptp_tlv_tree,
                                         hf_ptp_as_fu_tlv_tlvtype,
@@ -2937,15 +2927,12 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     /* There are TLV's to be processed */
                     tlv_length = tvb_get_ntohs (tvb, PTP_AS_SIG_TLV_MESSAGEINTERVALREQUEST_OFFSET + PTP_AS_SIG_TLV_LENGTHFIELD_OFFSET);
 
-                    tlv_ti = proto_tree_add_text(
+                    ptp_tlv_tree = proto_tree_add_subtree(
                         ptp_tree,
                         tvb,
                         PTP_AS_SIG_TLV_MESSAGEINTERVALREQUEST_OFFSET,
                         tlv_length + PTP_AS_SIG_TLV_ORGANIZATIONID_OFFSET,
-                        "%s TLV",
-                        "Message Interval Request");
-
-                    ptp_tlv_tree = proto_item_add_subtree(tlv_ti, ett_ptp_v2_tlv);
+                        ett_ptp_v2_tlv, NULL, "Message Interval Request TLV");
 
                     proto_tree_add_item(ptp_tlv_tree,
                                         hf_ptp_as_sig_tlv_tlvtype,
@@ -3325,7 +3312,6 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                             case PTP_V2_MM_ID_FAULT_LOG:
                             {
                                 guint16 ii, num = 0;
-                                proto_item  *ptpError_ti;
                                 proto_tree  *ptpError_subtree;
 
                                 num = tvb_get_ntohs (tvb, Offset);
@@ -3336,10 +3322,8 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
                                 for (ii = 0; ii < num; ii++)
                                 {
-                                    ptpError_ti = proto_tree_add_text(ptp_managementData_tree, tvb, Offset, tvb_get_ntohs (tvb, Offset), "Fault record");
-
-                                    /*  (subtree) */
-                                    ptpError_subtree = proto_item_add_subtree(ptpError_ti, ett_ptp_v2_faultRecord);
+                                    ptpError_subtree = proto_tree_add_subtree(ptp_managementData_tree, tvb, Offset, tvb_get_ntohs (tvb, Offset),
+                                            ett_ptp_v2_faultRecord, NULL, "Fault record");
 
                                     proto_tree_add_item(ptpError_subtree, hf_ptp_v2_mm_faultRecordLength, tvb,
                                         Offset, 2, ENC_BIG_ENDIAN);

@@ -191,8 +191,7 @@ static void dissect_pgsql_fe_msg(guchar type, guint length, tvbuff_t *tvb,
         n += siz;
 
         i = tvb_get_ntohs(tvb, n);
-        ti = proto_tree_add_text(tree, tvb, n, 2, "Parameters: %d", i);
-        shrub = proto_item_add_subtree(ti, ett_values);
+        shrub = proto_tree_add_subtree_format(tree, tvb, n, 2, ett_values, NULL, "Parameters: %d", i);
         n += 2;
         while (i-- > 0) {
             proto_tree_add_item(shrub, hf_typeoid, tvb, n, 4, ENC_BIG_ENDIAN);
@@ -211,8 +210,7 @@ static void dissect_pgsql_fe_msg(guchar type, guint length, tvbuff_t *tvb,
         n += siz;
 
         i = tvb_get_ntohs(tvb, n);
-        ti = proto_tree_add_text(tree, tvb, n, 2, "Parameter formats: %d", i);
-        shrub = proto_item_add_subtree(ti, ett_values);
+        shrub = proto_tree_add_subtree_format(tree, tvb, n, 2, ett_values, NULL, "Parameter formats: %d", i);
         n += 2;
         while (i-- > 0) {
             proto_tree_add_item(shrub, hf_format, tvb, n, 2, ENC_BIG_ENDIAN);
@@ -220,8 +218,7 @@ static void dissect_pgsql_fe_msg(guchar type, guint length, tvbuff_t *tvb,
         }
 
         i = tvb_get_ntohs(tvb, n);
-        ti = proto_tree_add_text(tree, tvb, n, 2, "Parameter values: %d", i);
-        shrub = proto_item_add_subtree(ti, ett_values);
+        shrub = proto_tree_add_subtree_format(tree, tvb, n, 2, ett_values, NULL, "Parameter values: %d", i);
         n += 2;
         while (i-- > 0) {
             siz = tvb_get_ntohl(tvb, n);
@@ -234,8 +231,7 @@ static void dissect_pgsql_fe_msg(guchar type, guint length, tvbuff_t *tvb,
         }
 
         i = tvb_get_ntohs(tvb, n);
-        ti = proto_tree_add_text(tree, tvb, n, 2, "Result formats: %d", i);
-        shrub = proto_item_add_subtree(ti, ett_values);
+        shrub = proto_tree_add_subtree_format(tree, tvb, n, 2, ett_values, NULL, "Result formats: %d", i);
         n += 2;
         while (i-- > 0) {
             proto_tree_add_item(shrub, hf_format, tvb, n, 2, ENC_BIG_ENDIAN);
@@ -335,8 +331,7 @@ static void dissect_pgsql_fe_msg(guchar type, guint length, tvbuff_t *tvb,
         n += 4;
 
         i = tvb_get_ntohs(tvb, n);
-        ti = proto_tree_add_text(tree, tvb, n, 2, "Parameter formats: %d", i);
-        shrub = proto_item_add_subtree(ti, ett_values);
+        shrub = proto_tree_add_subtree_format(tree, tvb, n, 2, ett_values, NULL, "Parameter formats: %d", i);
         n += 2;
         while (i-- > 0) {
             proto_tree_add_item(shrub, hf_format, tvb, n, 2, ENC_BIG_ENDIAN);
@@ -344,8 +339,7 @@ static void dissect_pgsql_fe_msg(guchar type, guint length, tvbuff_t *tvb,
         }
 
         i = tvb_get_ntohs(tvb, n);
-        ti = proto_tree_add_text(tree, tvb, n, 2, "Parameter values: %d", i);
-        shrub = proto_item_add_subtree(ti, ett_values);
+        shrub = proto_tree_add_subtree_format(tree, tvb, n, 2, ett_values, NULL, "Parameter values: %d", i);
         n += 2;
         while (i-- > 0) {
             siz = tvb_get_ntohl(tvb, n);
@@ -522,8 +516,7 @@ static void dissect_pgsql_be_msg(guchar type, guint length, tvbuff_t *tvb,
         proto_tree_add_item(tree, hf_format, tvb, n, 1, ENC_BIG_ENDIAN);
         n += 1;
         i = tvb_get_ntohs(tvb, n);
-        ti = proto_tree_add_text(tree, tvb, n, 2, "Columns: %d", i);
-        shrub = proto_item_add_subtree(ti, ett_values);
+        shrub = proto_tree_add_subtree_format(tree, tvb, n, 2, ett_values, NULL, "Columns: %d", i);
         n += 2;
         while (i-- > 2) {
             proto_tree_add_item(shrub, hf_format, tvb, n, 2, ENC_BIG_ENDIAN);
