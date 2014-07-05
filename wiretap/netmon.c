@@ -774,7 +774,7 @@ static process_trailer_retval netmon_process_rec_trailer(netmon_t *netmon,
 			if (!(l_time_min <= secs && secs <= l_time_max)) {
 				*err = WTAP_ERR_BAD_FILE;
 				*err_info = g_strdup_printf("netmon: time stamp outside supported range");
-				return FALSE;
+				return FAILURE;	/* can't handle this time value */
 			}
 
 			/*
