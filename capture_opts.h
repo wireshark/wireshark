@@ -228,9 +228,10 @@ typedef struct interface_options_tag {
 /** Capture options coming from user interface */
 typedef struct capture_options_tag {
     /* general */
-    GArray   *ifaces;               /**< array of interfaces.
-                                         Currently only used by dumpcap. */
-    GArray   *all_ifaces;
+    GArray   *ifaces;         /* the interfaces to use for the next capture,
+                                 entries are of type interface_options */
+    GArray   *all_ifaces;     /* all interfaces,
+                                 entries are of type interface_t */
     guint    num_selected;
 
     /*
