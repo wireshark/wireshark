@@ -358,7 +358,7 @@ check_exists(stnode_t *st_arg1)
 		case STTYPE_STRING:
 		case STTYPE_UNPARSED:
 			dfilter_fail("\"%s\" is neither a field nor a protocol name.",
-					stnode_data(st_arg1));
+					(char *)stnode_data(st_arg1));
 			THROW(TypeError);
 			break;
 
@@ -730,8 +730,8 @@ check_relation_LHS_STRING(const char* relation_string,
 	else if (type2 == STTYPE_STRING || type2 == STTYPE_UNPARSED) {
 		/* Well now that's silly... */
 		dfilter_fail("Neither \"%s\" nor \"%s\" are field or protocol names.",
-				stnode_data(st_arg1),
-				stnode_data(st_arg2));
+				(char *)stnode_data(st_arg1),
+				(char *)stnode_data(st_arg2));
 		THROW(TypeError);
 	}
 	else if (type2 == STTYPE_RANGE) {
@@ -819,8 +819,8 @@ check_relation_LHS_UNPARSED(const char* relation_string,
 	else if (type2 == STTYPE_STRING || type2 == STTYPE_UNPARSED) {
 		/* Well now that's silly... */
 		dfilter_fail("Neither \"%s\" nor \"%s\" are field or protocol names.",
-				stnode_data(st_arg1),
-				stnode_data(st_arg2));
+				(char *)stnode_data(st_arg1),
+				(char *)stnode_data(st_arg2));
 		THROW(TypeError);
 	}
 	else if (type2 == STTYPE_RANGE) {

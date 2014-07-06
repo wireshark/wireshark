@@ -2855,6 +2855,7 @@ trap_for_expert_event(proto_tree *ncp_tree, packet_info *pinfo, const ncp_record
                 }
 
                 expert_add_info_format(pinfo, NULL, &ei_ncp_file_rights,
+                                       "Op-lock open, mode %s for filename %s with rights %s",
                                        val_to_str((guint32)(strtoul(oaction, NULL, 16) & 0xeb), open_create_mode_vals, "Unknown: %d"),
                                        p_filename,
                                        val_to_str((atoi(p_rights) & 0x5f), ncp_rights_vals, "Unknown: %d"));
@@ -12062,3 +12063,16 @@ dissect_ping_req(tvbuff_t *tvb, packet_info *pinfo,
         CLEANUP_CALL_AND_POP;
     }
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 4
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=4 expandtab filetype=c:
+ * :indentSize=4:tabSize=4:noTabs=true:
+ */

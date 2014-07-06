@@ -853,7 +853,7 @@ dissect_zbee_aps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     /* Display the profile ID now that the source endpoint was listed. */
     if (packet.type == ZBEE_APS_FCF_DATA) {
         col_append_fstr(pinfo->cinfo, COL_PROTOCOL, " %s",
-                rval_to_str(packet.profile, zbee_aps_apid_abbrs, ""));
+                rval_to_str_const(packet.profile, zbee_aps_apid_abbrs, ""));
     }
 
     /* Jump here if there is no endpoint addressing in this frame. */

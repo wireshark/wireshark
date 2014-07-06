@@ -36,7 +36,8 @@
 
 /******* dbg_print *********/
 #define DEBUG_BUFFER_SIZE 4096
-extern void dbg_print(const gint* which, gint how, FILE* where, const gchar* fmt, ... );
+extern void dbg_print(const gint* which, gint how, FILE* where,
+	const gchar* fmt, ... ) G_GNUC_PRINTF(4, 5);
 
 
 /******* single copy strings *********/
@@ -49,7 +50,8 @@ typedef struct _scs_collection SCS_collection;
 
 extern gchar* scs_subscribe(SCS_collection* collection, const gchar* s);
 extern void scs_unsubscribe(SCS_collection* collection, gchar* s);
-extern gchar* scs_subscribe_printf(SCS_collection* collection, gchar* fmt, ...);
+extern gchar* scs_subscribe_printf(SCS_collection* collection, gchar* fmt, ...)
+	G_GNUC_PRINTF(2, 3);
 
 /******* AVPs & Co. *********/
 

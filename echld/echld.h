@@ -188,7 +188,9 @@ WS_DLL_PUBLIC enc_msg_t* echld_new_child_params_merge(enc_msg_t*, enc_msg_t*);
 
 #define ECHLD_NC_PARAMS_FMT "  %s='%s',\n" /* param='value' */
 /* truncate takes off last N chars from the last item's fmt or prefix on empty */
-WS_DLL_PUBLIC char* echld_new_child_params_str(enc_msg_t* em, const char* prefix, const char* postfix, int truncate, const char* fmt);
+WS_DLL_PUBLIC char* echld_new_child_params_str(enc_msg_t* em,
+	const char* prefix, const char* postfix, int truncate, const char* fmt)
+	G_GNUC_FORMAT(5, 0);
 
 
 /* create a new worker process */

@@ -877,7 +877,8 @@ proto_tree_add_text(proto_tree *tree, tvbuff_t *tvb, gint start, gint length, co
  @return the newly created item */
 proto_item *
 proto_tree_add_text_valist(proto_tree *tree, tvbuff_t *tvb, gint start,
-	gint length, const char *format, va_list ap);
+	gint length, const char *format, va_list ap)
+	G_GNUC_PRINTF(5, 0);
 
 /** Add a text-only node that creates a subtree underneath.
  proto_tree_add_text + proto_item_add_subtree

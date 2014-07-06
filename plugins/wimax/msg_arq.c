@@ -339,7 +339,7 @@ static void dissect_mac_mgmt_msg_arq_feedback_decoder(tvbuff_t *tvb, packet_info
 
 			arq_fb_item = proto_tree_add_protocol_format(arq_feedback_tree, proto_mac_mgmt_msg_arq_decoder, tvb, offset, tvb_len, "ARQ_Feedback_IE");
 			proto_item_append_text(arq_fb_item, ", CID: %u, %s ARQ feedback IE, %s, BSN: %u",
-				arq_cid, arq_last ? "Last" : "More", val_to_str(arq_ack_type, vals_arq_ack_type, ""), arq_bsn);
+				arq_cid, arq_last ? "Last" : "More", val_to_str_const(arq_ack_type, vals_arq_ack_type, ""), arq_bsn);
 			if (arq_ack_type != ARQ_CUMULATIVE_ACK_ENTRY) {
 				proto_item_append_text(arq_fb_item, ", %u ACK Map(s)", arq_num_ack_maps);
 			}
@@ -442,3 +442,15 @@ proto_reg_handoff_mac_mgmt_msg_arq(void)
 	dissector_add_uint("wmx.mgmtmsg", MAC_MGMT_MSG_ARQ_RESET, arq_handle);
 }
 
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

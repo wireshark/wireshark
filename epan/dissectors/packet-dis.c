@@ -5125,7 +5125,7 @@ static int dissect_DIS_PARSER_SIGNAL_PDU(tvbuff_t *tvb, packet_info *pinfo, prot
         offset = parse_DIS_FIELDS_SIGNAL_LINK16_NETWORK_HEADER(tvb, tree, offset, &messageType);
 
         ti = proto_tree_add_text(tree, tvb, offset, -1, "Link 16 Message Data: %s",
-            val_to_str(messageType, DIS_PDU_Link16_MessageType_Strings, ""));
+            val_to_str_const(messageType, DIS_PDU_Link16_MessageType_Strings, ""));
         sub_tree = proto_item_add_subtree(ti, ett_dis_signal_link16_message_data);
         offset = parse_Link16_Message_Data(sub_tree, tvb, offset, pinfo, encodingScheme, messageType);
         proto_item_set_end(ti, tvb, offset);

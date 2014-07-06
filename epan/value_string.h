@@ -113,7 +113,8 @@ enum { \
 
 WS_DLL_PUBLIC
 const gchar *
-val_to_str(const guint32 val, const value_string *vs, const char *fmt);
+val_to_str(const guint32 val, const value_string *vs, const char *fmt)
+G_GNUC_PRINTF(3, 0);
 
 WS_DLL_PUBLIC
 const gchar *
@@ -136,7 +137,8 @@ typedef struct _val64_string {
 
 WS_DLL_PUBLIC
 const gchar *
-val64_to_str(const guint64 val, const val64_string *vs, const char *fmt);
+val64_to_str(const guint64 val, const val64_string *vs, const char *fmt)
+G_GNUC_PRINTF(3, 0);
 
 WS_DLL_PUBLIC
 const gchar *
@@ -193,7 +195,8 @@ value_string_ext_free(const value_string_ext *vse);
 
 WS_DLL_PUBLIC
 const gchar *
-val_to_str_ext(const guint32 val, const value_string_ext *vs, const char *fmt);
+val_to_str_ext(const guint32 val, const value_string_ext *vs, const char *fmt)
+G_GNUC_PRINTF(3, 0);
 
 WS_DLL_PUBLIC
 const gchar *
@@ -216,7 +219,8 @@ typedef struct _string_string {
 
 WS_DLL_PUBLIC
 const gchar *
-str_to_str(const gchar *val, const string_string *vs, const char *fmt);
+str_to_str(const gchar *val, const string_string *vs, const char *fmt)
+G_GNUC_PRINTF(3, 0);
 
 WS_DLL_PUBLIC
 const gchar *
@@ -236,7 +240,8 @@ typedef struct _range_string {
 
 WS_DLL_PUBLIC
 const gchar *
-rval_to_str(const guint32 val, const range_string *rs, const char *fmt);
+rval_to_str(const guint32 val, const range_string *rs, const char *fmt)
+G_GNUC_PRINTF(3, 0);
 
 WS_DLL_PUBLIC
 const gchar *

@@ -112,7 +112,7 @@ static gint16 *attr_uint16;
 
 static guint wimaxasncp_bits(guint bits, char *n);
 static gint wimaxasncp_decode_type(const gchar *name);
-static void wimaxasncp_dict_debug(const gchar *fmt, ...);
+static void wimaxasncp_dict_debug(const gchar *fmt, ...) G_GNUC_PRINTF(1, 2);
 static void append_to_buffer(const gchar *txt, int len);
 static FILE *wimaxasncp_dict_open(const gchar*, const gchar*);
 
