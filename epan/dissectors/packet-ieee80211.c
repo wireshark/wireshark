@@ -6179,9 +6179,8 @@ dissect_nai_realm_list(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int 
                         tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
     nai_len = tvb_get_guint8(tvb, offset);
-    item = proto_tree_add_item(realm_tree,
-                               hf_ieee80211_ff_anqp_nai_realm_length,
-                               tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(realm_tree, hf_ieee80211_ff_anqp_nai_realm_length,
+                        tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
     if (offset + nai_len > f_end) {
       expert_add_info_format(pinfo, r_item, &ei_ieee80211_ff_anqp_nai_field_len,
