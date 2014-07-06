@@ -324,7 +324,7 @@ void ManageInterfacesDialog::checkBoxChanged(QTableWidgetItem* item)
 
 void ManageInterfacesDialog::on_localButtonBox_accepted()
 {
-    gchar *new_hide = g_strdup("");
+    gchar *new_hide;
     gchar *new_comment = NULL;
     QString name;
     gchar *tmp_descr = NULL;
