@@ -131,12 +131,16 @@ else
 gulong register_count(void)
 {
 EOF
-	proto_regs=`grep RA_REGISTER ${outfile}-tmp | wc -l`
-	handoff_regs=`grep RA_HANDOFF ${outfile}-tmp | wc -l`
+	proto_regs=`grep -c RA_REGISTER ${outfile}-tmp`
+	handoff_regs=`grep -c RA_HANDOFF ${outfile}-tmp`
 	echo "  return $proto_regs + $handoff_regs;" >>${outfile}-tmp
 	echo '}' >>${outfile}-tmp
 fi
 
 # Only overwrite outfile if it differs from newly generated file
-diff ${outfile}-tmp ${outfile} >/dev/null || mv ${outfile}-tmp ${outfile}
-
+if cmp -s ${outfile}-tmp ${outfile}
+then
+  rm ${outfile}-tmp
+else
+  mv ${outfile}-tmp ${outfile}
+fi
