@@ -59,7 +59,8 @@ wchar_t * utf_8to16(const char *utf8str);
  * @param fmt A standard g_printf() format string
  */
 WS_DLL_PUBLIC
-void utf_8to16_snprintf(TCHAR *utf16buf, gint utf16buf_len, const gchar* fmt, ...);
+void utf_8to16_snprintf(TCHAR *utf16buf, gint utf16buf_len, const gchar* fmt,
+	...) G_GNUC_PRINTF(3, 4);
 
 /** Given a UTF-16 string, convert it to UTF-8.  This is meant to be used
  * to convert between GTK+ 2.x (UTF-8) to Windows (UTF-16).

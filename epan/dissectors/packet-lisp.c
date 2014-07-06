@@ -1019,9 +1019,9 @@ dissect_lcaf_geo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offse
     offset += 1;
 
     proto_item_append_text(ti_lat, ": %s %d\302\260 %d' %d\"",
-            val_to_str(north, lat_typevals, ""), deg, min, sec);
+            val_to_str_const(north, lat_typevals, ""), deg, min, sec);
     proto_item_append_text(tir, ": (%s%d\302\260%d'%d\"",
-            val_to_str(north, lat_typevals, ""), deg, min, sec);
+            val_to_str_const(north, lat_typevals, ""), deg, min, sec);
 
     /* PROCESS LONGITUDE */
 
@@ -1056,9 +1056,9 @@ dissect_lcaf_geo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offse
     offset += 1;
 
     proto_item_append_text(ti_lon, ": %s %d\302\260 %d' %d\"",
-            val_to_str(east, lon_typevals, ""), deg, min, sec);
+            val_to_str_const(east, lon_typevals, ""), deg, min, sec);
     proto_item_append_text(tir, ", %s%d\302\260%d'%d\")",
-            val_to_str(east, lon_typevals, ""), deg, min, sec);
+            val_to_str_const(east, lon_typevals, ""), deg, min, sec);
 
     /* PROCESS ALTITUDE */
 

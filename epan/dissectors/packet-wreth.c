@@ -1182,7 +1182,7 @@ gint WrethMailDissection(tvbuff_t *tvb, guint8 Offset, packet_info * pInfo, prot
 
         col_add_fstr(pInfo->cinfo, COL_INFO, "Mail : Codef = Ox%X (%s), Status = %02d (%s), Card = %d, Chan = %d" ,
                      Codef,
-                     val_to_str_ext(Codef, &tabCodef_ext, "Unknown 0x%04x%"),
+                     val_to_str_ext(Codef, &tabCodef_ext, "Unknown 0x%04x"),
                      Status,
                      val_to_str_ext(Status, &tabStatus_ext, "Unknown %d"),
                      Card,

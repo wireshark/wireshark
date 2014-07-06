@@ -164,7 +164,7 @@ extern echld_bool_t paramset_apply_set (param_t* paramsets, char* name, char* va
 extern echld_bool_t paramset_apply_em(param_t* paramset, enc_msg_t* em, char** err);
 
 #define PARAM_LIST_FMT "%s(%s): %s\n" /* name, rw|ro|wo, desc */
-char* paramset_get_params_list(param_t* paramsets,const char* fmt);
+char* paramset_get_params_list(param_t* paramsets, const char* fmt) G_GNUC_PRINTF(2, 0);
 
 #define PARAM_STR(Name, Default) static char* param_ ## Name = Default;  \
  static char* param_get_ ## Name (char** err _U_ ) { return  (param_ ## Name) ? g_strdup(param_ ## Name) : (*err = g_strdup( #Name " not set"), NULL); } \

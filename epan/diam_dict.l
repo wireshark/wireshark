@@ -113,7 +113,7 @@ static ddict_xmlpi_t* last_xmlpi;
 static char** attr_str;
 static unsigned* attr_uint;
 
-static void ddict_debug(const char* fmt, ...);
+static void ddict_debug(const char* fmt, ...) G_GNUC_PRINTF(1, 2);
 static void append_to_buffer(const char* txt, unsigned len);
 static FILE* ddict_open(const char*, const char*);
 

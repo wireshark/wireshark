@@ -744,7 +744,7 @@ dissect_x509if_T_type_02(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
       proto_item_append_text(tree, " (%s)", name);
     }
 
-    if((fmt = val_to_str(hf_index, fmt_vals, "")) && *fmt) {
+    if((fmt = val_to_str_const(hf_index, fmt_vals, "")) && *fmt) {
       /* we have a format */
       last_ava = (char *)wmem_alloc(wmem_packet_scope(), MAX_AVA_STR_LEN); *last_ava = '\0';
       register_frame_end_routine (actx->pinfo, x509if_frame_end);
@@ -796,7 +796,7 @@ dissect_x509if_T_atadv_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
       proto_item_append_text(tree, "%s)", value);
     }
 
-    if((fmt = val_to_str(ava_hf_index, fmt_vals, "")) && *fmt) {
+    if((fmt = val_to_str_const(ava_hf_index, fmt_vals, "")) && *fmt) {
       /* we have a format */
 
       if (!last_ava) {
@@ -985,7 +985,7 @@ dissect_x509if_RDNSequence(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
   proto_item_append_text(top_of_dn, " (%s)", last_dn);
 
  /* see if we should append this to the col info */
-  if((fmt = val_to_str(hf_index, fmt_vals, "")) && *fmt) {
+  if((fmt = val_to_str_const(hf_index, fmt_vals, "")) && *fmt) {
       /* we have a format */
 	col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %s%s", fmt, last_dn);
   }

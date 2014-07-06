@@ -99,7 +99,7 @@ WS_DLL_PUBLIC char	*other_decode_bitfield_value(char *buf, const guint32 val, co
 WS_DLL_PUBLIC char	*decode_bitfield_value(char *buf, const guint32 val, const guint32 mask,
     const int width);
 WS_DLL_PUBLIC const char *decode_numeric_bitfield(const guint32 val, const guint32 mask, const int width,
-  const char *fmt);
+    const char *fmt) G_GNUC_PRINTF(4, 0);
 
 WS_DLL_PUBLIC const gchar* port_type_to_str (port_type type);
 

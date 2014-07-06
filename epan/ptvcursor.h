@@ -111,7 +111,8 @@ ptvcursor_add_with_subtree(ptvcursor_t* ptvc, int hfindex, gint length,
 WS_DLL_PUBLIC
 proto_tree*
 ptvcursor_add_text_with_subtree(ptvcursor_t* ptvc, gint length,
-    gint ett_subtree, const char* format, ...);
+    gint ett_subtree, const char* format, ...)
+    G_GNUC_PRINTF(4, 5);
 
 /* Creates a subtree and adds it to the cursor as the working tree but does not
  * save the old working tree */

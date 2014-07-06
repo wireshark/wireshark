@@ -507,7 +507,7 @@ dissect_q932_ros_GeneralProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
                                                 &problem_val);
 
 #line 53 "../../asn1/q932-ros/q932-ros.cnf"
-  g_strlcpy(problem_str, val_to_str(problem_val, VALS(q932_ros_GeneralProblem_vals), ""), 64);
+  g_strlcpy(problem_str, val_to_str_const(problem_val, VALS(q932_ros_GeneralProblem_vals), ""), 64);
 
   return offset;
 }
@@ -532,7 +532,7 @@ dissect_q932_ros_InvokeProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
                                                 &problem_val);
 
 #line 55 "../../asn1/q932-ros/q932-ros.cnf"
-  g_strlcpy(problem_str, val_to_str(problem_val, VALS(q932_ros_InvokeProblem_vals), ""), 64);
+  g_strlcpy(problem_str, val_to_str_const(problem_val, VALS(q932_ros_InvokeProblem_vals), ""), 64);
 
   return offset;
 }
@@ -552,7 +552,7 @@ dissect_q932_ros_ReturnResultProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U
                                                 &problem_val);
 
 #line 57 "../../asn1/q932-ros/q932-ros.cnf"
-  g_strlcpy(problem_str, val_to_str(problem_val, VALS(q932_ros_ReturnResultProblem_vals), ""), 64);
+  g_strlcpy(problem_str, val_to_str_const(problem_val, VALS(q932_ros_ReturnResultProblem_vals), ""), 64);
 
   return offset;
 }
@@ -574,7 +574,7 @@ dissect_q932_ros_ReturnErrorProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
                                                 &problem_val);
 
 #line 59 "../../asn1/q932-ros/q932-ros.cnf"
-  g_strlcpy(problem_str, val_to_str(problem_val, VALS(q932_ros_ReturnErrorProblem_vals), ""), 64);
+  g_strlcpy(problem_str, val_to_str_const(problem_val, VALS(q932_ros_ReturnErrorProblem_vals), ""), 64);
 
   return offset;
 }

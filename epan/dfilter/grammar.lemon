@@ -81,11 +81,11 @@ any "error" symbols are shifted, if possible. */
 			break;
 		case STTYPE_STRING:
 			dfilter_fail("The string \"%s\" was unexpected in this context.",
-				stnode_data(TOKEN));
+				(char *)stnode_data(TOKEN));
 			break;
 		case STTYPE_UNPARSED:
 			dfilter_fail("\"%s\" was unexpected in this context.",
-				stnode_data(TOKEN));
+				(char *)stnode_data(TOKEN));
 			break;
 		case STTYPE_INTEGER:
 			dfilter_fail("The integer %d was unexpected in this context.",

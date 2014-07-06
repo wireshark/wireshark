@@ -422,7 +422,7 @@ dissect_h450_ros_GeneralProblem(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
   offset = dissect_per_integer(tvb, offset, actx, tree, hf_index, &problem_val);
 
 #line 50 "../../asn1/h450-ros/h450-ros.cnf"
-  g_strlcpy(problem_str, val_to_str(problem_val, VALS(h450_ros_GeneralProblem_vals), ""), 64);
+  g_strlcpy(problem_str, val_to_str_const(problem_val, VALS(h450_ros_GeneralProblem_vals), ""), 64);
   problem_str[64-1] = '\0';
 
   return offset;
@@ -447,7 +447,7 @@ dissect_h450_ros_InvokeProblem(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
   offset = dissect_per_integer(tvb, offset, actx, tree, hf_index, &problem_val);
 
 #line 53 "../../asn1/h450-ros/h450-ros.cnf"
-  g_strlcpy(problem_str, val_to_str(problem_val, VALS(h450_ros_InvokeProblem_vals), ""), 64);
+  g_strlcpy(problem_str, val_to_str_const(problem_val, VALS(h450_ros_InvokeProblem_vals), ""), 64);
   problem_str[64-1] = '\0';
 
   return offset;
@@ -467,7 +467,7 @@ dissect_h450_ros_ReturnResultProblem(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
   offset = dissect_per_integer(tvb, offset, actx, tree, hf_index, &problem_val);
 
 #line 56 "../../asn1/h450-ros/h450-ros.cnf"
-  g_strlcpy(problem_str, val_to_str(problem_val, VALS(h450_ros_ReturnResultProblem_vals), ""), 64);
+  g_strlcpy(problem_str, val_to_str_const(problem_val, VALS(h450_ros_ReturnResultProblem_vals), ""), 64);
   problem_str[64-1] = '\0';
 
   return offset;
@@ -489,7 +489,7 @@ dissect_h450_ros_ReturnErrorProblem(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
   offset = dissect_per_integer(tvb, offset, actx, tree, hf_index, &problem_val);
 
 #line 59 "../../asn1/h450-ros/h450-ros.cnf"
-  g_strlcpy(problem_str, val_to_str(problem_val, VALS(h450_ros_ReturnErrorProblem_vals), ""), 64);
+  g_strlcpy(problem_str, val_to_str_const(problem_val, VALS(h450_ros_ReturnErrorProblem_vals), ""), 64);
   problem_str[64-1] = '\0';
 
   return offset;
