@@ -5829,7 +5829,7 @@ capture_prep_destroy_cb(GtkWidget *win _U_, gpointer user_data _U_)
   GtkWidget *fs;
 #ifdef HAVE_PCAP_REMOTE
   GList     *if_list;
-  GtkWidget *remote_w;
+  GtkWidget *remote_w = NULL;
 #endif
 
   if (!cap_open_w || !G_IS_OBJECT(cap_open_w))
