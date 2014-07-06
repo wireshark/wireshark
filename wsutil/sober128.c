@@ -631,7 +631,7 @@ static const ulong32 Sbox[256] = {
 
 #define B(x,i) ((unsigned char)(((x) >> (8*i)) & 0xFF))
 
-static ulong32 BYTE2WORD(unsigned char *b)
+static ulong32 BYTE2WORD(const unsigned char *b)
 {
    ulong32 t;
    LOAD32L(t, b);
@@ -789,7 +789,7 @@ int sober128_add_entropy(const unsigned char *buf, unsigned long len, sober128_p
        /* assert ((len & 3) == 0); */
 
        for (i = 0; i < len; i += 4) {
-           k = BYTE2WORD((unsigned char *)&buf[i]);
+           k = BYTE2WORD(&buf[i]);
           ADDKEY(k);
           cycle(c->R);
           XORNL(nltap(c));
@@ -814,7 +814,7 @@ int sober128_add_entropy(const unsigned char *buf, unsigned long len, sober128_p
        /* assert ((len & 3) == 0); */
 
        for (i = 0; i < len; i += 4) {
-           k = BYTE2WORD((unsigned char *)&buf[i]);
+           k = BYTE2WORD(&buf[i]);
           ADDKEY(k);
           cycle(c->R);
           XORNL(nltap(c));
