@@ -7139,9 +7139,8 @@ dissect_wbxml_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 						  "(edit WBXML preferences to show)");
 			return;
 		} /* Else: render the WBXML tokens */
-		ti = proto_tree_add_text (wbxml_tree, tvb, offset, -1,
-					  "Data representation");
-		wbxml_content_tree = proto_item_add_subtree (ti, ett_wbxml_content);
+		wbxml_content_tree = proto_tree_add_subtree(wbxml_tree, tvb, offset, -1,
+					  ett_wbxml_content, &ti, "Data representation");
 
 		/* The parse_wbxml_X() functions will process the content correctly,
 		 * irrespective of the WBXML version used. For the WBXML body, this

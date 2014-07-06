@@ -225,9 +225,8 @@ dissect_wfd_subelem_session_info(packet_info *pinfo, proto_tree *tree,
     guint8 dlen = tvb_get_guint8(tvb, offset);
     next = offset + 1 + dlen;
 
-    item = proto_tree_add_text(tree, tvb, offset, 1 + dlen,
-                               "WFD Device Info Descriptor");
-    descr = proto_item_add_subtree(item, ett_wfd_dev_info_descr);
+    descr = proto_tree_add_subtree(tree, tvb, offset, 1 + dlen,
+                               ett_wfd_dev_info_descr, &item, "WFD Device Info Descriptor");
     if (offset + 1 + dlen > end || dlen < 23) {
       expert_add_info(pinfo, item, &ei_wfd_subelem_session_descr_invalid);
       break;
@@ -324,14 +323,13 @@ void dissect_wifi_display_ie(packet_info *pinfo, proto_tree *tree,
 
     id = tvb_get_guint8(tvb, offset);
     len = tvb_get_ntohs(tvb, offset + 1);
-    subelem = proto_tree_add_text(tree, tvb, offset, 3 + len, "%s",
+    wfd_tree = proto_tree_add_subtree(tree, tvb, offset, 3 + len,
+                                  ett_wfd_subelem, &subelem,
                                   val_to_str(id, wfd_subelem_ids,
                                              "Unknown subelement ID (%u)"));
     if (offset + 3 + len > end) {
       expert_add_info_format(pinfo, subelem, &ei_wfd_subelem_len_invalid, "Packet too short for Wi-Fi Display subelement payload");
     }
-
-    wfd_tree = proto_item_add_subtree(subelem, ett_wfd_subelem);
 
     proto_tree_add_item(wfd_tree, hf_wfd_subelem_id, tvb, offset, 1,
                         ENC_BIG_ENDIAN);

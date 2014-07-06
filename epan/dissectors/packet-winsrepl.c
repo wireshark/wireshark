@@ -180,13 +180,10 @@ static int
 dissect_winsrepl_start(tvbuff_t *winsrepl_tvb, _U_ packet_info *pinfo,
 		       int winsrepl_offset, proto_tree *winsrepl_tree)
 {
-	proto_item *start_item = NULL;
-	proto_tree *start_tree = NULL;
+	proto_tree *start_tree;
 
-	if (winsrepl_tree) {
-		start_item = proto_tree_add_text(winsrepl_tree, winsrepl_tvb, winsrepl_offset, -1 , "WREPL_START_ASSOCIATION");
-		start_tree = proto_item_add_subtree(start_item, ett_winsrepl_start);
-	}
+	start_tree = proto_tree_add_subtree(winsrepl_tree, winsrepl_tvb, winsrepl_offset, -1,
+									ett_winsrepl_start, NULL, "WREPL_START_ASSOCIATION");
 
 	/* ASSOC_CTX */
 	proto_tree_add_item(start_tree, hf_winsrepl_assoc_ctx, winsrepl_tvb, winsrepl_offset, 4, ENC_BIG_ENDIAN);
@@ -208,13 +205,11 @@ dissect_winsrepl_stop(tvbuff_t *winsrepl_tvb, _U_ packet_info *pinfo,
 		      int winsrepl_offset, proto_tree *winsrepl_tree)
 {
 	guint32 reason;
-	proto_item *stop_item = NULL;
-	proto_tree *stop_tree = NULL;
+	proto_item *stop_item;
+	proto_tree *stop_tree;
 
-	if (winsrepl_tree) {
-		stop_item = proto_tree_add_text(winsrepl_tree, winsrepl_tvb, winsrepl_offset, -1 , "WREPL_STOP_ASSOCIATION");
-		stop_tree = proto_item_add_subtree(stop_item, ett_winsrepl_stop);
-	}
+	stop_tree = proto_tree_add_subtree(winsrepl_tree, winsrepl_tvb, winsrepl_offset, -1,
+							ett_winsrepl_stop, &stop_item, "WREPL_STOP_ASSOCIATION");
 
 	/* REASON */
 	reason = tvb_get_ntohl(winsrepl_tvb, winsrepl_offset);
@@ -239,15 +234,14 @@ dissect_winsrepl_wins_owner(tvbuff_t *winsrepl_tvb, _U_ packet_info *pinfo,
 			    int winsrepl_offset, proto_tree *winsrepl_tree,
 			    proto_tree *sub_tree, guint32 idx)
 {
-	proto_item *owner_item = NULL;
 	proto_tree *owner_tree = NULL;
 
 	if (sub_tree) {
-		owner_item = proto_tree_add_text(sub_tree, winsrepl_tvb, winsrepl_offset, 24 , "WINS Owner [%u]", idx);
-		owner_tree = proto_item_add_subtree(owner_item, ett_winsrepl_owner);
+		owner_tree = proto_tree_add_subtree_format(sub_tree, winsrepl_tvb, winsrepl_offset, 24,
+												ett_winsrepl_owner, NULL, "WINS Owner [%u]", idx);
 	} else if (winsrepl_tree) {
-		owner_item = proto_tree_add_text(winsrepl_tree, winsrepl_tvb, winsrepl_offset, 24 , "WINS Owner");
-		owner_tree = proto_item_add_subtree(owner_item, ett_winsrepl_owner);
+		owner_tree = proto_tree_add_subtree(winsrepl_tree, winsrepl_tvb, winsrepl_offset, 24,
+												ett_winsrepl_owner, NULL, "WINS Owner");
 	}
 
 	/* ADDRESS */
@@ -273,15 +267,12 @@ static int
 dissect_winsrepl_table_reply(tvbuff_t *winsrepl_tvb, packet_info *pinfo,
 			     int winsrepl_offset, proto_tree *winsrepl_tree)
 {
-	proto_item *table_item = NULL;
-	proto_tree *table_tree = NULL;
+	proto_tree *table_tree;
 	guint32 partner_count;
 	guint32 i;
 
-	if (winsrepl_tree) {
-		table_item = proto_tree_add_text(winsrepl_tree, winsrepl_tvb, winsrepl_offset, -1 , "WREPL_REPL_TABLE_REPLY");
-		table_tree = proto_item_add_subtree(table_item, ett_winsrepl_table_reply);
-	}
+	table_tree = proto_tree_add_subtree(winsrepl_tree, winsrepl_tvb, winsrepl_offset, -1,
+									ett_winsrepl_table_reply, NULL, "WREPL_REPL_TABLE_REPLY");
 
 	/* PARTNER COUNT */
 	partner_count = tvb_get_ntohl(winsrepl_tvb, winsrepl_offset);
@@ -321,11 +312,11 @@ dissect_winsrepl_wins_ip(tvbuff_t *winsrepl_tvb, _U_ packet_info *pinfo,
 	proto_tree *ip_tree = NULL;
 
 	if (sub_tree) {
-		ip_item = proto_tree_add_text(sub_tree, winsrepl_tvb, winsrepl_offset, 8 , "WINS IP [%u]", idx);
-		ip_tree = proto_item_add_subtree(ip_item, ett_winsrepl_ip);
+		ip_tree = proto_tree_add_subtree_format(sub_tree, winsrepl_tvb, winsrepl_offset, 8,
+				ett_winsrepl_ip, &ip_item, "WINS IP [%u]", idx);
 	} else if (winsrepl_tree) {
-		ip_item = proto_tree_add_text(winsrepl_tree, winsrepl_tvb, winsrepl_offset, 8 , "WINS IP");
-		ip_tree = proto_item_add_subtree(ip_item, ett_winsrepl_ip);
+		ip_tree = proto_tree_add_subtree(winsrepl_tree, winsrepl_tvb, winsrepl_offset, 8,
+				ett_winsrepl_ip, &ip_item, "WINS IP");
 	}
 
 	/* OWNER */
@@ -346,17 +337,15 @@ dissect_winsrepl_wins_address_list(tvbuff_t *winsrepl_tvb, packet_info *pinfo,
 				   int winsrepl_offset, proto_tree *winsrepl_tree,
 				   proto_item *parent_item)
 {
-	proto_item *addr_list_item = NULL;
-	proto_tree *addr_list_tree = NULL;
+	proto_item *addr_list_item;
+	proto_tree *addr_list_tree;
 	int old_offset = winsrepl_offset;
 	guint32 num_ips;
 	guint32 ip;
 	guint32 i;
 
-	if (winsrepl_tree) {
-		addr_list_item = proto_tree_add_text(winsrepl_tree, winsrepl_tvb, winsrepl_offset, -1 , "WINS Address List");
-		addr_list_tree = proto_item_add_subtree(addr_list_item, ett_winsrepl_addr_list);
-	}
+	addr_list_tree = proto_tree_add_subtree(winsrepl_tree, winsrepl_tvb, winsrepl_offset, -1,
+							ett_winsrepl_addr_list, &addr_list_item, "WINS Address List");
 
 	/* NUM_IPS */
 	num_ips = tvb_get_letohl(winsrepl_tvb, winsrepl_offset);
@@ -399,11 +388,11 @@ dissect_winsrepl_wins_name(tvbuff_t *winsrepl_tvb, packet_info *pinfo,
 	guint32 addr;
 
 	if (sub_tree) {
-		name_item = proto_tree_add_text(sub_tree, winsrepl_tvb, winsrepl_offset, -1 , "WINS Name [%u]", idx);
-		name_tree = proto_item_add_subtree(name_item, ett_winsrepl_name);
+		name_tree = proto_tree_add_subtree_format(sub_tree, winsrepl_tvb, winsrepl_offset, -1,
+										ett_winsrepl_name, &name_item, "WINS Name [%u]", idx);
 	} else if (winsrepl_tree) {
-		name_item = proto_tree_add_text(winsrepl_tree, winsrepl_tvb, winsrepl_offset, -1 , "WINS Name");
-		name_tree = proto_item_add_subtree(name_item, ett_winsrepl_name);
+		name_tree = proto_tree_add_subtree(winsrepl_tree, winsrepl_tvb, winsrepl_offset, -1,
+												ett_winsrepl_name, &name_item, "WINS Name");
 	}
 
 	/* NAME_LEN */
@@ -495,15 +484,12 @@ static int
 dissect_winsrepl_send_reply(tvbuff_t *winsrepl_tvb, packet_info *pinfo,
 			    int winsrepl_offset, proto_tree *winsrepl_tree)
 {
-	proto_item *rep_item = NULL;
-	proto_tree *rep_tree = NULL;
+	proto_tree *rep_tree;
 	guint32 num_names;
 	guint32 i;
 
-	if (winsrepl_tree) {
-		rep_item = proto_tree_add_text(winsrepl_tree, winsrepl_tvb, winsrepl_offset, -1 , "WREPL_REPL_SEND_REPLY");
-		rep_tree = proto_item_add_subtree(rep_item, ett_winsrepl_send_reply);
-	}
+	rep_tree = proto_tree_add_subtree(winsrepl_tree, winsrepl_tvb, winsrepl_offset, -1,
+								ett_winsrepl_send_reply, NULL, "WREPL_REPL_SEND_REPLY");
 
 	/* NUM NAMES */
 	num_names = tvb_get_ntohl(winsrepl_tvb, winsrepl_offset);
@@ -559,14 +545,12 @@ static int
 dissect_winsrepl_replication(tvbuff_t *winsrepl_tvb, packet_info *pinfo,
 			     int winsrepl_offset, proto_item *winsrepl_item, proto_tree *winsrepl_tree)
 {
-	proto_item *repl_item = NULL;
-	proto_tree *repl_tree = NULL;
+	proto_item *repl_item;
+	proto_tree *repl_tree;
 	enum wrepl_replication_cmd command;
 
-	if (winsrepl_tree) {
-		repl_item = proto_tree_add_text(winsrepl_tree, winsrepl_tvb, winsrepl_offset, -1 , "WREPL_REPLICATION");
-		repl_tree = proto_item_add_subtree(repl_item, ett_winsrepl_replication);
-	}
+	repl_tree = proto_tree_add_subtree(winsrepl_tree, winsrepl_tvb, winsrepl_offset, -1,
+							ett_winsrepl_replication, &repl_item, "WREPL_REPLICATION");
 
 	/* REPLIICATION_CMD */
 	command = (enum wrepl_replication_cmd)tvb_get_ntohl(winsrepl_tvb, winsrepl_offset);

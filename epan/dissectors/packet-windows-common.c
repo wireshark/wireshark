@@ -2010,27 +2010,23 @@ static const true_false_string flags_sec_info_owner = {
 static int
 dissect_nt_ace_object(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
 {
-	proto_item *item = NULL;
-	proto_tree *tree = NULL;
-	proto_item *flags_item = NULL;
-	proto_tree *flags_tree = NULL;
+	proto_item *item;
+	proto_tree *tree;
+	proto_item *flags_item;
+	proto_tree *flags_tree;
 	guint32 flags;
 	int old_offset=offset;
 	const char *sep = " ";
 
-	if(parent_tree){
-		item = proto_tree_add_text(parent_tree, tvb, offset, 0,
-					   "ACE Object");
-		tree = proto_item_add_subtree(item, ett_nt_ace_object);
-	}
+	tree = proto_tree_add_subtree(parent_tree, tvb, offset, 0,
+					   ett_nt_ace_object, &item, "ACE Object");
 
 	/* flags */
 	flags=tvb_get_letohl(tvb, offset);
-	if(tree){
-		flags_item = proto_tree_add_text(tree, tvb, offset, 4,
+	flags_item = proto_tree_add_text(tree, tvb, offset, 4,
 					   "ACE Object Flags (0x%08x)", flags);
-		flags_tree = proto_item_add_subtree(flags_item, ett_nt_ace_object_flags);
-	}
+	flags_tree = proto_item_add_subtree(flags_item, ett_nt_ace_object_flags);
+
 	proto_tree_add_boolean(flags_tree, hf_nt_ace_flags_object_type_present,
 		       tvb, offset, 4, flags);
 	APPEND_ACE_TEXT(flags&0x00000001, flags_item, "%sObject Type Present");
@@ -2116,8 +2112,8 @@ dissect_nt_v2_ace(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		  proto_tree *parent_tree, guint8 *drep,
 		  struct access_mask_info *ami)
 {
-	proto_item *item = NULL;
-	proto_tree *tree = NULL;
+	proto_item *item;
+	proto_tree *tree;
 	int old_offset = offset;
 	char *sid_str = NULL;
 	guint16 size;
@@ -2125,11 +2121,8 @@ dissect_nt_v2_ace(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	guint8 flags;
 	guint32 perms = 0;
 
-	if(parent_tree){
-		item = proto_tree_add_text(parent_tree, tvb, offset, -1,
-					   "NT ACE: ");
-		tree = proto_item_add_subtree(item, ett_nt_ace);
-	}
+	tree = proto_tree_add_subtree(parent_tree, tvb, offset, -1,
+					   ett_nt_ace, &item, "NT ACE: ");
 
 	/* type */
 	type = tvb_get_guint8(tvb, offset);
@@ -2219,8 +2212,8 @@ dissect_nt_acl(tvbuff_t *tvb, int offset_a, packet_info *pinfo,
 	       proto_tree *parent_tree, guint8 *drep, const char *name,
 	       struct access_mask_info *ami)
 {
-	proto_item *volatile item = NULL;
-	proto_tree *volatile tree = NULL;
+	proto_item *item;
+	proto_tree *tree;
 	int old_offset = offset_a;
 	int pre_ace_offset;
 	guint16 revision;
@@ -2229,11 +2222,8 @@ dissect_nt_acl(tvbuff_t *tvb, int offset_a, packet_info *pinfo,
 	volatile gboolean missing_data = FALSE;
 	volatile gboolean bad_ace = FALSE;
 
-	if(parent_tree) {
-		item = proto_tree_add_text(parent_tree, tvb, offset_v, -1,
-					   "NT %s ACL", name);
-		tree = proto_item_add_subtree(item, ett_nt_acl);
-	}
+	tree = proto_tree_add_subtree_format(parent_tree, tvb, offset_v, -1,
+					   ett_nt_acl, &item, "NT %s ACL", name);
 
 	/* revision */
 	/*
@@ -2485,9 +2475,8 @@ dissect_nt_sec_desc(tvbuff_t *tvb, int offset_a, packet_info *pinfo,
 	volatile guint32 sacl_offset;
 	volatile guint32 dacl_offset;
 
-	item = proto_tree_add_text(parent_tree, tvb, offset_v, -1,
-				   "NT Security Descriptor");
-	tree = proto_item_add_subtree(item, ett_nt_sec_desc);
+	tree = proto_tree_add_subtree(parent_tree, tvb, offset_v, -1,
+				   ett_nt_sec_desc, &item, "NT Security Descriptor");
 
 	/* revision */
 	revision = tvb_get_letohs(tvb, offset_v);

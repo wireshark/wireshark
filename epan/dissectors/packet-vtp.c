@@ -240,9 +240,8 @@ dissect_vtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			2, ENC_BIG_ENDIAN);
 		offset += 2;
 
-		ti = proto_tree_add_text (vtp_tree, tvb, offset, -1,
-			"Advertised active (i.e. not pruned) VLANs");
-		vtp_pruning_tree = proto_item_add_subtree(ti, ett_vtp_pruning);
+		vtp_pruning_tree = proto_tree_add_subtree(vtp_tree, tvb, offset, -1,
+			ett_vtp_pruning, NULL, "Advertised active (i.e. not pruned) VLANs");
 
 		while (tvb_reported_length_remaining(tvb, offset) > 0) {
 			guint8 vlan_usage_bitmap;
@@ -318,9 +317,8 @@ dissect_vlan_info(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tre
 	proto_tree *tlv_tree;
 
 	vlan_info_len = tvb_get_guint8(tvb, offset);
-	ti = proto_tree_add_text(tree, tvb, offset, vlan_info_len,
-	    "VLAN Information");
-	vlan_info_tree = proto_item_add_subtree(ti, ett_vtp_vlan_info);
+	vlan_info_tree = proto_tree_add_subtree(tree, tvb, offset, vlan_info_len,
+	    ett_vtp_vlan_info, NULL, "VLAN Information");
 	vlan_info_left = vlan_info_len;
 
 	proto_tree_add_uint(vlan_info_tree, hf_vtp_vlan_info_len, tvb, offset, 1,
@@ -369,11 +367,10 @@ dissect_vlan_info(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tre
 		type = tvb_get_guint8(tvb, offset + 0);
 		length = tvb_get_guint8(tvb, offset + 1);
 
-		ti = proto_tree_add_text(vlan_info_tree, tvb, offset,
-		    2 + length*2, "%s",
+		tlv_tree = proto_tree_add_subtree(vlan_info_tree, tvb, offset,
+		    2 + length*2, ett_vtp_tlv, &ti,
 		    val_to_str(type, vlan_tlv_type_vals,
 		      "Unknown TLV type: 0x%02x"));
-		tlv_tree = proto_item_add_subtree(ti, ett_vtp_tlv);
 		proto_tree_add_item(tlv_tree, hf_vtp_vlan_tlvtype, tvb, offset, 1, ENC_BIG_ENDIAN);
 		proto_tree_add_item(tlv_tree, hf_vtp_vlan_tlvlength, tvb, offset+1, 1, ENC_BIG_ENDIAN);
 		offset += 2;

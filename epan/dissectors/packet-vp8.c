@@ -218,8 +218,7 @@ The first octets after the RTP header are the VP8 payload descriptor,
         +-+-+-+-+-+-+-+-+
 */
 
-    item_descriptor = proto_tree_add_text(vp8_tree, tvb, *offset, -1, "Payload descriptor");
-    vp8_payload_descriptor_tree = proto_item_add_subtree(item_descriptor, ett_vp8_payload_descriptor);
+    vp8_payload_descriptor_tree = proto_tree_add_subtree(vp8_tree, tvb, *offset, -1, ett_vp8_payload_descriptor, &item_descriptor, "Payload descriptor");
 
     proto_tree_add_item(vp8_payload_descriptor_tree, hf_vp8_pld_x_bit, tvb, *offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(vp8_payload_descriptor_tree, hf_vp8_pld_r_bit, tvb, *offset, 1, ENC_BIG_ENDIAN);
@@ -320,8 +319,7 @@ The first three octets of an encoded VP8 frame are referred to as an
 
 */
 
-    item_header = proto_tree_add_text(vp8_tree, tvb, *offset, 3, "Payload header");
-    vp8_payload_header_tree = proto_item_add_subtree(item_header, ett_vp8_payload_header);
+    vp8_payload_header_tree = proto_tree_add_subtree(vp8_tree, tvb, *offset, 3, ett_vp8_payload_header, &item_header, "Payload header");
     proto_tree_add_item(vp8_payload_header_tree, hf_vp8_hdr_frametype, tvb, *offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(vp8_payload_header_tree, hf_vp8_hdr_version, tvb, *offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(vp8_payload_header_tree, hf_vp8_hdr_show_bit, tvb, *offset, 1, ENC_BIG_ENDIAN);
@@ -342,22 +340,18 @@ The first three octets of an encoded VP8 frame are referred to as an
 static void
 dissect_vp8_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *vp8_tree, gint *offset, gint *frametype, gint *partition1_size)
 {
-    proto_item *item_payload;
     proto_tree *vp8_payload_tree;
     gint remainder;
 
-    item_payload = proto_tree_add_text(vp8_tree, tvb, *offset, -1, "Payload");
-    vp8_payload_tree = proto_item_add_subtree(item_payload, ett_vp8_payload);
+    vp8_payload_tree = proto_tree_add_subtree(vp8_tree, tvb, *offset, -1, ett_vp8_payload, NULL, "Payload");
 
     if (*frametype==0)
     {
         guint16 width, height;
         gint start1, start2, start3, horizontal_scale, vertical_scale;
         proto_tree *vp8_keyframe_tree;
-        proto_item *item_keyframe;
 
-        item_keyframe = proto_tree_add_text(vp8_payload_tree, tvb, *offset, -1, "Keyframe header");
-        vp8_keyframe_tree = proto_item_add_subtree(item_keyframe, ett_vp8_keyframe);
+        vp8_keyframe_tree = proto_tree_add_subtree(vp8_payload_tree, tvb, *offset, -1, ett_vp8_keyframe, NULL, "Keyframe header");
 
         proto_tree_add_item(vp8_keyframe_tree, hf_vp8_keyframe_start_code, tvb, *offset, 3, ENC_BIG_ENDIAN);
         start1 = tvb_get_guint8(tvb, *offset);

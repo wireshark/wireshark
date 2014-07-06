@@ -909,17 +909,15 @@ dissect_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *v5ua_
    /* create proto_tree stuff */
    switch(iua_version){
       case RFC:
-         parameter_item   = proto_tree_add_text(v5ua_tree, parameter_tvb, PARAMETER_HEADER_OFFSET, tvb_length(parameter_tvb), "%s",
+         parameter_tree   = proto_tree_add_subtree(v5ua_tree, parameter_tvb, PARAMETER_HEADER_OFFSET, -1, ett_v5ua_parameter, &parameter_item,
                val_to_str_const(tag, parameter_tag_values, "Unknown parameter"));
-         parameter_tree   = proto_item_add_subtree(parameter_item, ett_v5ua_parameter);
          /* add tag to the v5ua tree */
          proto_tree_add_item(parameter_tree, hf_parameter_tag, parameter_tvb, PARAMETER_TAG_OFFSET, PARAMETER_TAG_LENGTH, ENC_BIG_ENDIAN);
          break;
       case DRAFT:
       default:
-         parameter_item   = proto_tree_add_text(v5ua_tree, parameter_tvb, PARAMETER_HEADER_OFFSET, tvb_length(parameter_tvb), "%s",
+         parameter_tree   = proto_tree_add_subtree(v5ua_tree, parameter_tvb, PARAMETER_HEADER_OFFSET, -1, ett_v5ua_parameter, &parameter_item,
                val_to_str_const(tag, parameter_tag_draft_values, "Unknown parameter"));
-         parameter_tree   = proto_item_add_subtree(parameter_item, ett_v5ua_parameter);
 
          /* add tag to the v5ua tree */
          proto_tree_add_item(parameter_tree, hf_parameter_tag_draft, parameter_tvb, PARAMETER_TAG_OFFSET, PARAMETER_TAG_LENGTH, ENC_BIG_ENDIAN);
@@ -1318,8 +1316,8 @@ dissect_common_header(tvbuff_t *common_header_tvb, packet_info *pinfo, proto_tre
    if (v5ua_tree) {
 
       /* create proto_tree stuff */
-      common_header_item   = proto_tree_add_text(v5ua_tree, common_header_tvb, COMMON_HEADER_OFFSET, tvb_length(common_header_tvb),"Common Msg-Header");
-      common_header_tree   = proto_item_add_subtree(common_header_item, ett_v5ua_common_header);
+      common_header_tree   = proto_tree_add_subtree(v5ua_tree, common_header_tvb, COMMON_HEADER_OFFSET, -1,
+                                ett_v5ua_common_header, &common_header_item, "Common Msg-Header");
 
       /* add the components of the common header to the protocol tree */
       proto_tree_add_item(common_header_tree, hf_version, common_header_tvb, COMMON_HEADER_VERSION_OFFSET, COMMON_HEADER_VERSION_LENGTH, ENC_BIG_ENDIAN);

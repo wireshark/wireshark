@@ -5872,9 +5872,8 @@ add_multipart_data (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo)
     offset += count;
     if (nEntries)
     {
-        ti = proto_tree_add_text(tree, tvb, offset - count, 0,
-                    "Multipart body");
-        sub_tree = proto_item_add_subtree(ti, ett_mpartlist);
+        sub_tree = proto_tree_add_subtree(tree, tvb, offset - count, 0,
+                    ett_mpartlist, NULL, "Multipart body");
     }
     while (nEntries--)
     {
@@ -5886,12 +5885,12 @@ add_multipart_data (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo)
         offset += count;
         DataLen = tvb_get_guintvar (tvb, offset, &count);
         offset += count;
-        if (tree) {
-            tvb_ensure_bytes_exist(tvb, part_start, HeadersLen + DataLen + (offset - part_start));
-            ti = proto_tree_add_uint(sub_tree, hf_wsp_mpart, tvb, part_start,
+
+        tvb_ensure_bytes_exist(tvb, part_start, HeadersLen + DataLen + (offset - part_start));
+        ti = proto_tree_add_uint(sub_tree, hf_wsp_mpart, tvb, part_start,
                     HeadersLen + DataLen + (offset - part_start), partnr);
-            mpart_tree = proto_item_add_subtree(ti, ett_multiparts);
-        }
+        mpart_tree = proto_item_add_subtree(ti, ett_multiparts);
+
         nextOffset = add_content_type (mpart_tree, tvb, offset,
                 &contentType, &contentTypeStr);
 

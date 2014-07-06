@@ -85,7 +85,6 @@ dissect_wol_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
 
 /* Set up structures needed to add the protocol subtree and manage it */
     proto_item *ti;
-    proto_item *mti;
     proto_tree *wol_tree;
     proto_tree *mac_tree;
 
@@ -239,9 +238,9 @@ dissect_wol_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
         proto_tree_add_item(wol_tree, hf_wol_sync, tvb, 0, 6, ENC_NA);
 
 /* Continue adding tree items to process the packet here */
-        mti = proto_tree_add_text(wol_tree, tvb, 6, 96, "MAC: %s (%s)",
+        mac_tree = proto_tree_add_subtree_format(wol_tree, tvb, 6, 96,
+            ett_wol_macblock, NULL, "MAC: %s (%s)",
             get_ether_name(mac), ether_to_str(mac));
-        mac_tree = proto_item_add_subtree(mti, ett_wol_macblock);
         for ( offset = 6; offset < 102; offset += 6 )
             proto_tree_add_ether(mac_tree, hf_wol_mac, tvb, offset, 6, mac);
 

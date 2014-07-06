@@ -257,11 +257,10 @@ dissect_vcdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     int ccsds_tree_added = 0;
     int ccsds_len        = 0;
 
-    proto_item *smex_header = NULL;
-    proto_tree *smex_tree   = NULL;
+    proto_item *smex_header;
+    proto_tree *smex_tree;
 
-    proto_item *vcdu_header = NULL;
-    proto_tree *vcdu_tree   = NULL;
+    proto_tree *vcdu_tree;
 
     guint16 first_word = 0;
     guint32 long_word  = 0;
@@ -277,8 +276,7 @@ dissect_vcdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     {
         /* build the smex header tree */
-        smex_header = proto_tree_add_text(tree, tvb, offset, SMEX_HEADER_LENGTH, "SMEX Header");
-        smex_tree   = proto_item_add_subtree(smex_header, ett_smex);
+        smex_tree = proto_tree_add_subtree(tree, tvb, offset, SMEX_HEADER_LENGTH, ett_smex, &smex_header, "SMEX Header");
 
         proto_tree_add_item(smex_tree, hf_smex_gsc, tvb, offset, 8, ENC_BIG_ENDIAN);
         offset += 8;
@@ -330,8 +328,7 @@ dissect_vcdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
         /* build the vcdu header tree */
-        vcdu_header = proto_tree_add_text(tree, tvb, offset, VCDU_HEADER_LENGTH, "VCDU Header");
-        vcdu_tree   = proto_item_add_subtree(vcdu_header, ett_vcdu);
+        vcdu_tree = proto_tree_add_subtree(tree, tvb, offset, VCDU_HEADER_LENGTH, ett_vcdu, NULL, "VCDU Header");
 
         /* extract the virtual channel for use later on */
         first_word = tvb_get_ntohs(tvb, offset);

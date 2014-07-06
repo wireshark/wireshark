@@ -2020,11 +2020,9 @@ vnc_server_framebuffer_update(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 		}
 		VNC_BYTES_NEEDED(12);
 
-		ti = proto_tree_add_text(tree, tvb, *offset, 12,
-					 "Rectangle #%d", ii+1);
+		vnc_rect_tree = proto_tree_add_subtree_format(tree, tvb, *offset, 12,
+					 ett_vnc_rect, NULL, "Rectangle #%d", ii+1);
 
-		vnc_rect_tree =
-			proto_item_add_subtree(ti, ett_vnc_rect);
 
 		ti_x = proto_tree_add_item(vnc_rect_tree, hf_vnc_fb_update_x_pos,
 					   tvb, *offset, 2, ENC_BIG_ENDIAN);
@@ -2190,7 +2188,6 @@ vnc_extended_desktop_size(tvbuff_t *tvb, gint *offset, proto_tree *tree)
 {
 
 	guint8      i, num_of_screens;
-	proto_item *ti;
 	proto_tree *screen_tree;
 
 	num_of_screens = tvb_get_guint8(tvb, *offset);
@@ -2201,8 +2198,7 @@ vnc_extended_desktop_size(tvbuff_t *tvb, gint *offset, proto_tree *tree)
 	VNC_BYTES_NEEDED((guint32)(3 + (num_of_screens * 16)));
 	*offset += 3;
 	for(i = 0; i < num_of_screens; i++) {
-		ti = proto_tree_add_text(tree, tvb, *offset, 16, "Screen #%u", i+1);
-		screen_tree = proto_item_add_subtree(ti, ett_vnc_desktop_screen);
+		screen_tree = proto_tree_add_subtree_format(tree, tvb, *offset, 16, ett_vnc_desktop_screen, NULL, "Screen #%u", i+1);
 
 		proto_tree_add_item(screen_tree, hf_vnc_desktop_screen_id, tvb, *offset, 4, ENC_BIG_ENDIAN);
 		*offset += 4;
@@ -2290,10 +2286,8 @@ vnc_rre_encoding(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 	VNC_BYTES_NEEDED(bytes_needed * num_subrects);
 	for(i = 0; i < num_subrects; i++) {
 
-		ti = proto_tree_add_text(tree, tvb, *offset, bytes_per_pixel +
-					 8, "Subrectangle #%d", i+1);
-		subrect_tree =
-			proto_item_add_subtree(ti, ett_vnc_rre_subrect);
+		subrect_tree = proto_tree_add_subtree_format(tree, tvb, *offset, bytes_per_pixel +
+					 8, ett_vnc_rre_subrect, NULL, "Subrectangle #%d", i+1);
 
 		proto_tree_add_item(subrect_tree, hf_vnc_rre_subrect_pixel,
 				    tvb, *offset, bytes_per_pixel, ENC_NA);
@@ -2328,7 +2322,7 @@ vnc_hextile_encoding(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 	guint8      i, subencoding_mask, num_subrects, subrect_len, tile_height, tile_width;
 	guint32     raw_length;
 	proto_tree *tile_tree, *subencoding_mask_tree, *subrect_tree, *num_subrects_tree;
-	proto_item *ti, *tile_item;
+	proto_item *ti;
 	guint16     current_height  = 0, current_width;
 
 	while(current_height != height) {
@@ -2349,8 +2343,8 @@ vnc_hextile_encoding(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 			VNC_BYTES_NEEDED(1);
 			subencoding_mask = tvb_get_guint8(tvb, *offset);
 
-			tile_item = proto_tree_add_text(tree, tvb, *offset, 1, "Tile {%d:%d}, sub encoding mask %u", current_width, current_height, subencoding_mask);
-			tile_tree = proto_item_add_subtree(tile_item, ett_vnc_hextile_tile);
+			tile_tree = proto_tree_add_subtree_format(tree, tvb, *offset, 1, ett_vnc_hextile_tile, NULL,
+							"Tile {%d:%d}, sub encoding mask %u", current_width, current_height, subencoding_mask);
 
 			ti = proto_tree_add_item(tile_tree, hf_vnc_hextile_subencoding_mask, tvb,
 						 *offset, 1, ENC_BIG_ENDIAN);
@@ -2418,11 +2412,9 @@ vnc_hextile_encoding(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 						proto_item_add_subtree(ti, ett_vnc_hextile_num_subrects);
 
 					for(i = 0; i < num_subrects; i++) {
-						ti = proto_tree_add_text(num_subrects_tree, tvb,
-									 *offset, subrect_len,
+						subrect_tree = proto_tree_add_subtree_format(num_subrects_tree, tvb,
+									 *offset, subrect_len, ett_vnc_hextile_subrect, NULL,
 									 "Subrectangle #%d", i+1);
-						subrect_tree =
-							proto_item_add_subtree(ti, ett_vnc_hextile_subrect);
 
 						if(subencoding_mask & 0x10) {
 							/* Subrects Colored */
@@ -2513,7 +2505,6 @@ vnc_mirrorlink(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 	guint16 length;
 	guint16 num, i;
 	gint end;
-	proto_item *ti;
 	proto_tree *sub_tree;
 
 	/* Header */
@@ -2651,9 +2642,8 @@ vnc_mirrorlink(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 				    tvb, *offset, 2, ENC_BIG_ENDIAN);
 		*offset += 2;
 		VNC_BYTES_NEEDED((guint)(4 * num));
-		ti = proto_tree_add_text(tree, tvb, *offset, 4 * num,
-					 "Key Event List");
-		sub_tree = proto_item_add_subtree(ti, ett_vnc_key_events);
+		sub_tree = proto_tree_add_subtree(tree, tvb, *offset, 4 * num,
+					 ett_vnc_key_events, NULL, "Key Event List");
 		for (; num > 0; num--) {
 			proto_tree_add_item(sub_tree,
 					    hf_vnc_mirrorlink_key_symbol_value,
@@ -2759,10 +2749,8 @@ vnc_mirrorlink(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 		VNC_BYTES_NEEDED((guint)(6 * num));
 		/*sub_tree = proto_item_add_subtree(tree, ett_vnc_touch_events);*/
 		for (i = 0; i < num; i++) {
-			ti = proto_tree_add_text(tree, tvb, *offset, 6,
-						 "Touch Event #%d", i + 1);
-			sub_tree = proto_item_add_subtree(ti,
-							  ett_vnc_touch_events);
+			sub_tree = proto_tree_add_subtree_format(tree, tvb, *offset, 6,
+						 ett_vnc_touch_events, NULL, "Touch Event #%d", i + 1);
 
 			proto_tree_add_item(sub_tree, hf_vnc_mirrorlink_touch_x,
 					    tvb, *offset, 2, ENC_BIG_ENDIAN);
@@ -2892,7 +2880,6 @@ vnc_slrle_encoding(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 	guint8 bytes_per_run;
 	guint16 num_runs, i;
 	guint length;
-	proto_item *ti;
 	proto_tree *sub_tree;
 
 	if (depth_mod <= 4)
@@ -2906,9 +2893,8 @@ vnc_slrle_encoding(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 
 		length = num_runs * bytes_per_run;
 
-		ti = proto_tree_add_text(tree, tvb, *offset, 2 + length,
-					 "Scanline #%d", i+1);
-		sub_tree = proto_item_add_subtree(ti, ett_vnc_slrle_subline);
+		sub_tree = proto_tree_add_subtree_format(tree, tvb, *offset, 2 + length,
+					 ett_vnc_slrle_subline, NULL, "Scanline #%d", i+1);
 
 		proto_tree_add_item(sub_tree, hf_vnc_slrle_run_num,
 				    tvb, *offset, 2, ENC_BIG_ENDIAN);
@@ -3373,13 +3359,9 @@ vnc_server_set_colormap_entries(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 		proto_item_add_subtree(ti, ett_vnc_colormap_num_groups);
 
 	for(counter = 0; counter < number_of_colors; counter++) {
-		ti = proto_tree_add_text(vnc_colormap_num_groups, tvb,
-					 *offset, 6,
+		vnc_colormap_color_group = proto_tree_add_subtree_format(vnc_colormap_num_groups, tvb,
+					 *offset, 6, ett_vnc_colormap_color_group, NULL,
 					 "Color group #%d", counter+1);
-
-		vnc_colormap_color_group =
-			proto_item_add_subtree(ti,
-					       ett_vnc_colormap_color_group);
 
 		proto_tree_add_item(vnc_colormap_color_group,
 				    hf_vnc_colormap_red, tvb,

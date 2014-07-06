@@ -738,9 +738,8 @@ static void dissect_wifi_p2p_group_info(packet_info *pinfo,
     }
 
     ci_len = tvb_get_guint8(tvb, s_offset);
-    item = proto_tree_add_text(tlv_root, tvb, s_offset, 1 + ci_len,
-                               "P2P Client Info Descriptor");
-    tree = proto_item_add_subtree(item, ett_p2p_client_descr);
+    tree = proto_tree_add_subtree(tlv_root, tvb, s_offset, 1 + ci_len,
+                               ett_p2p_client_descr, NULL, "P2P Client Info Descriptor");
 
     item = proto_tree_add_item(tree, hf_p2p_attr_gi_length, tvb, s_offset,
                                1, ENC_BIG_ENDIAN);
@@ -896,10 +895,9 @@ void dissect_wifi_p2p_ie(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
     stype = tvb_get_guint8(tvb, offset);
     slen = tvb_get_letohs(tvb, offset + 1);
 
-    tlv_item = proto_tree_add_text(tree, tvb, offset, 3 + slen, "%s",
+    tlv_root = proto_tree_add_subtree(tree, tvb, offset, 3 + slen, ett_p2p_tlv, &tlv_item,
                                    val_to_str(stype, p2p_attr_types,
                                               "Unknown attribute type (%u)"));
-    tlv_root = proto_item_add_subtree(tlv_item, ett_p2p_tlv);
 
     proto_tree_add_item(tlv_root, hf_p2p_attr_type, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_uint(tlv_root, hf_p2p_attr_len, tvb, offset + 1, 2,
@@ -1022,11 +1020,10 @@ void dissect_wifi_p2p_anqp(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
 
     type = tvb_get_guint8(tvb, offset + 2);
     id = tvb_get_guint8(tvb, offset + 3);
-    item = proto_tree_add_text(tree, tvb, offset, 2 + len,
-                               "Service TLV (Transaction ID: %u  Type: %s)",
+    tlv = proto_tree_add_subtree_format(tree, tvb, offset, 2 + len,
+                               ett_p2p_service_tlv, &item, "Service TLV (Transaction ID: %u  Type: %s)",
                                id, val_to_str(type, p2p_service_protocol_types,
                                               "Unknown (%u)"));
-    tlv = proto_item_add_subtree(item, ett_p2p_service_tlv);
 
     proto_tree_add_item(tlv, hf_p2p_anqp_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;

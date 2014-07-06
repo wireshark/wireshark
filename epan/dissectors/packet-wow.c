@@ -358,12 +358,11 @@ dissect_wow_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 								     offset + 3,
 								     &len, ENC_ASCII);
 
-					ti = proto_tree_add_text(wow_tree, tvb,
+					wow_realms_tree = proto_tree_add_subtree(wow_tree, tvb,
 								 offset, 0,
-								 "%s",
+								 ett_wow_realms, NULL,
 								 realm_name);
 
-					wow_realms_tree = proto_item_add_subtree(ti, ett_wow_realms);
 					proto_tree_add_item(wow_realms_tree, hf_wow_realm_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 					offset += 1;
 

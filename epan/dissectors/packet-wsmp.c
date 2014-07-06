@@ -90,7 +90,7 @@ static void
 dissect_wsmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     /* Set up structures needed to add the protocol subtree and manage it */
-    proto_item *ti, *wsmdata_item;
+    proto_item *ti;
     proto_tree *wsmp_tree, *wsmdata_tree;
     tvbuff_t   *wsmdata_tvb;
     guint16     wsmlength, offset;
@@ -191,9 +191,8 @@ dissect_wsmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         offset    += supLen;
     }
 
-    wsmdata_item = proto_tree_add_text (wsmp_tree, tvb, offset, wsmlength,
-                                        "Wave Short Message");
-    wsmdata_tree = proto_item_add_subtree(wsmdata_item, ett_wsmdata);
+    wsmdata_tree = proto_tree_add_subtree(wsmp_tree, tvb, offset, wsmlength,
+                                        ett_wsmdata, NULL, "Wave Short Message");
 
     wsmdata_tvb  = tvb_new_subset(tvb, offset, -1, wsmlength);
 
