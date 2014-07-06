@@ -706,9 +706,8 @@ tcp_print_timestamps(packet_info *pinfo, tvbuff_t *tvb, proto_tree *parent_tree,
     if (!tcpd)
         return;
 
-    item=proto_tree_add_text(parent_tree, tvb, 0, 0, "Timestamps");
+    tree=proto_tree_add_subtree(parent_tree, tvb, 0, 0, ett_tcp_timestamps, &item, "Timestamps");
     PROTO_ITEM_SET_GENERATED(item);
-    tree=proto_item_add_subtree(item, ett_tcp_timestamps);
 
     nstime_delta(&ts, &pinfo->fd->abs_ts, &tcpd->ts_first);
     item = proto_tree_add_time(tree, hf_tcp_ts_relative, tvb, 0, 0, &ts);
@@ -2462,8 +2461,7 @@ dissect_tcpopt_wscale(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
 
     tcpd=get_tcp_conversation_data(NULL,pinfo);
 
-    wscale_pi = proto_tree_add_text(opt_tree, tvb, offset, 3, "Window scale: ");
-    wscale_tree = proto_item_add_subtree(wscale_pi, ett_tcp_option_wscale);
+    wscale_tree = proto_tree_add_subtree(opt_tree, tvb, offset, 3, ett_tcp_option_wscale, &wscale_pi, "Window scale: ");
 
     proto_tree_add_item(wscale_tree, hf_tcp_option_kind, tvb, offset, 1, ENC_NA);
     offset += 1;
@@ -2494,7 +2492,7 @@ dissect_tcpopt_sack(const ip_tcp_opt *optp, tvbuff_t *tvb,
     int offset, guint optlen, packet_info *pinfo, proto_tree *opt_tree, void *data)
 {
     proto_tree *field_tree = NULL;
-    proto_item *tf=NULL;
+    proto_item *tf;
     proto_item *hidden_item;
     guint32 leftedge, rightedge;
     struct tcp_analysis *tcpd=NULL;
@@ -2511,8 +2509,8 @@ dissect_tcpopt_sack(const ip_tcp_opt *optp, tvbuff_t *tvb,
         }
     }
 
-    tf = proto_tree_add_text(opt_tree, tvb, offset, optlen, "%s:", optp->name);
-    field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
+    field_tree = proto_tree_add_subtree_format(opt_tree, tvb, offset, optlen,
+                *optp->subtree_index, NULL, "%s:", optp->name);
 
     proto_tree_add_item(field_tree, hf_tcp_option_kind, tvb,
                         offset, 1, ENC_BIG_ENDIAN);
@@ -2576,8 +2574,7 @@ static void
 dissect_tcpopt_echo(const ip_tcp_opt *optp, tvbuff_t *tvb,
     int offset, guint optlen, packet_info *pinfo, proto_tree *opt_tree, void *data _U_)
 {
-    proto_tree *field_tree = NULL;
-    proto_item *tf = NULL;
+    proto_tree *field_tree;
     proto_item *hidden_item;
     guint32 echo;
 
@@ -2585,11 +2582,10 @@ dissect_tcpopt_echo(const ip_tcp_opt *optp, tvbuff_t *tvb,
     hidden_item = proto_tree_add_boolean(opt_tree, hf_tcp_option_echo, tvb, offset,
                                          optlen, TRUE);
     PROTO_ITEM_SET_HIDDEN(hidden_item);
-    tf = proto_tree_add_text(opt_tree, tvb, offset, optlen,
-                        "%s: %u", optp->name, echo);
+    field_tree = proto_tree_add_subtree_format(opt_tree, tvb, offset, optlen,
+                        ett_tcp_opt_echo, NULL, "%s: %u", optp->name, echo);
     tcp_info_append_uint(pinfo, "ECHO", echo);
 
-    field_tree = proto_item_add_subtree(tf, ett_tcp_opt_echo);
     proto_tree_add_item(field_tree, hf_tcp_option_kind, tvb,
                         offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(field_tree, hf_tcp_option_len, tvb,
@@ -2608,8 +2604,7 @@ dissect_tcpopt_timestamp(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
     proto_tree *ts_tree;
     guint32 ts_val, ts_ecr;
 
-    ti = proto_tree_add_text(opt_tree, tvb, offset, 10, "Timestamps: ");
-    ts_tree = proto_item_add_subtree(ti, ett_tcp_option_timestamp);
+    ts_tree = proto_tree_add_subtree(opt_tree, tvb, offset, 10, ett_tcp_option_timestamp, &ti, "Timestamps: ");
 
     proto_tree_add_item(ts_tree, hf_tcp_option_kind, tvb, offset, 1, ENC_NA);
     offset += 1;
@@ -2655,8 +2650,7 @@ dissect_tcpopt_mptcp(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
     guint8 flags;
     guint8 ipver;
 
-    ti = proto_tree_add_text(opt_tree, tvb, offset, optlen, "Multipath TCP");
-    mptcp_tree = proto_item_add_subtree(ti, ett_tcp_option_mptcp);
+    mptcp_tree = proto_tree_add_subtree(opt_tree, tvb, offset, optlen, ett_tcp_option_mptcp, &ti, "Multipath TCP");
 
     proto_tree_add_item(mptcp_tree, hf_tcp_option_kind, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
@@ -2905,8 +2899,7 @@ static void
 dissect_tcpopt_cc(const ip_tcp_opt *optp, tvbuff_t *tvb,
     int offset, guint optlen, packet_info *pinfo, proto_tree *opt_tree, void *data _U_)
 {
-    proto_tree *field_tree = NULL;
-    proto_item *tf = NULL;
+    proto_tree *field_tree;
     proto_item *hidden_item;
     guint32 cc;
 
@@ -2914,10 +2907,9 @@ dissect_tcpopt_cc(const ip_tcp_opt *optp, tvbuff_t *tvb,
     hidden_item = proto_tree_add_boolean(opt_tree, hf_tcp_option_cc, tvb, offset,
                                          optlen, TRUE);
     PROTO_ITEM_SET_HIDDEN(hidden_item);
-    tf = proto_tree_add_text(opt_tree, tvb, offset, optlen,
-                             "%s: %u", optp->name, cc);
+    field_tree = proto_tree_add_subtree_format(opt_tree, tvb, offset, optlen,
+                             ett_tcp_opt_cc, NULL, "%s: %u", optp->name, cc);
     tcp_info_append_uint(pinfo, "CC", cc);
-    field_tree = proto_item_add_subtree(tf, ett_tcp_opt_cc);
     proto_tree_add_item(field_tree, hf_tcp_option_kind, tvb,
                         offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(field_tree, hf_tcp_option_len, tvb,
@@ -2928,8 +2920,7 @@ static void
 dissect_tcpopt_qs(const ip_tcp_opt *optp, tvbuff_t *tvb,
     int offset, guint optlen, packet_info *pinfo, proto_tree *opt_tree, void *data _U_)
 {
-    proto_tree *field_tree = NULL;
-    proto_item *tf = NULL;
+    proto_tree *field_tree;
     proto_item *hidden_item;
 
     guint8 rate = tvb_get_guint8(tvb, offset + 2) & 0x0f;
@@ -2937,14 +2928,13 @@ dissect_tcpopt_qs(const ip_tcp_opt *optp, tvbuff_t *tvb,
     hidden_item = proto_tree_add_boolean(opt_tree, hf_tcp_option_qs, tvb, offset,
                                          optlen, TRUE);
     PROTO_ITEM_SET_HIDDEN(hidden_item);
-    tf = proto_tree_add_text(opt_tree, tvb, offset, optlen,
-                             "%s: Rate response, %s, TTL diff %u ", optp->name,
+    field_tree = proto_tree_add_subtree_format(opt_tree, tvb, offset, optlen,
+                             ett_tcp_opt_qs, NULL, "%s: Rate response, %s, TTL diff %u ", optp->name,
                              val_to_str_ext_const(rate, &qs_rate_vals_ext, "Unknown"),
                              tvb_get_guint8(tvb, offset + 3));
     col_append_lstr(pinfo->cinfo, COL_INFO,
         " QSresp=", val_to_str_ext_const(rate, &qs_rate_vals_ext, "Unknown"),
         COL_ADD_LSTR_TERMINATOR);
-    field_tree = proto_item_add_subtree(tf, ett_tcp_opt_qs);
     proto_tree_add_item(field_tree, hf_tcp_option_kind, tvb,
                         offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(field_tree, hf_tcp_option_len, tvb,
@@ -4868,9 +4858,8 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     if (tcpd && ((tcpd->fwd && tcpd->fwd->command) || (tcpd->rev && tcpd->rev->command))) {
-        ti = proto_tree_add_text(tcp_tree, tvb, offset, 0, "Process Information");
+        field_tree = proto_tree_add_subtree(tcp_tree, tvb, offset, 0, ett_tcp_process_info, &ti, "Process Information");
         PROTO_ITEM_SET_GENERATED(ti);
-        field_tree = proto_item_add_subtree(ti, ett_tcp_process_info);
         if (tcpd->fwd && tcpd->fwd->command) {
             proto_tree_add_uint_format_value(field_tree, hf_tcp_proc_dst_uid, tvb, 0, 0,
                                              tcpd->fwd->process_uid, "%u", tcpd->fwd->process_uid);

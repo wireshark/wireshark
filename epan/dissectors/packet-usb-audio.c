@@ -249,24 +249,21 @@ dissect_usb_audio_descriptor(tvbuff_t *tvb, packet_info *pinfo _U_,
     gint        offset = 0;
     guint8      descriptor_len;
     guint8      descriptor_type;
-    proto_item *item = NULL;
     proto_tree *desc_tree;
 
     descriptor_len  = tvb_get_guint8(tvb, offset);
     descriptor_type = tvb_get_guint8(tvb, offset+1);
 
     if (descriptor_type == CS_INTERFACE) {
-        item = proto_tree_add_text(tree, tvb, offset, descriptor_len,
-                "AUDIO CONTROL INTERFACE DESCRIPTOR");
+        desc_tree = proto_tree_add_subtree(tree, tvb, offset, descriptor_len,
+                ett_usb_audio_desc, NULL, "AUDIO CONTROL INTERFACE DESCRIPTOR");
     }
     else if (descriptor_type == CS_ENDPOINT) {
-        item = proto_tree_add_text(tree, tvb, offset, descriptor_len,
-                "AUDIO CONTROL ENDPOINT DESCRIPTOR");
+        desc_tree = proto_tree_add_subtree(tree, tvb, offset, descriptor_len,
+                ett_usb_audio_desc, NULL, "AUDIO CONTROL ENDPOINT DESCRIPTOR");
     }
     else
         return 0;
-
-    desc_tree = proto_item_add_subtree(item, ett_usb_audio_desc);
 
     dissect_usb_descriptor_header(desc_tree, tvb, offset,
             &aud_descriptor_type_vals_ext);

@@ -259,8 +259,7 @@ dissect_uts(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree)
 			proto_tree_add_protocol_format(uts_tree, proto_uts, tvb, 0, 2, "No Traffic");
 			proto_tree_add_protocol_format(uts_tree, proto_uts, tvb, 2, -1, "ETX + padding");
 		} else {
-			ti = proto_tree_add_text(uts_tree, tvb, 0, header_length, "Header");
-			uts_header_tree = proto_item_add_subtree(ti, ett_header_uts);
+			uts_header_tree = proto_tree_add_subtree(uts_tree, tvb, 0, header_length, ett_header_uts, NULL, "Header");
 
 			proto_tree_add_protocol_format(uts_header_tree, proto_uts, tvb, 0, 1, "SOH");
 
@@ -310,8 +309,7 @@ dissect_uts(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree)
 			}
 
 			if (etx_start) {
-				ti = proto_tree_add_text(uts_tree, tvb, etx_start, -1, "Trailer");
-				uts_trailer_tree = proto_item_add_subtree(ti, ett_trailer_uts);
+				uts_trailer_tree = proto_tree_add_subtree(uts_tree, tvb, etx_start, -1, ett_trailer_uts, NULL, "Trailer");
 
 				if (etx_start)
 					proto_tree_add_protocol_format(uts_trailer_tree, proto_uts, tvb, etx_start, 1, "ETX");

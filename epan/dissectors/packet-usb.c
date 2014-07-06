@@ -1205,8 +1205,7 @@ dissect_usb_device_qualifier_descriptor(packet_info *pinfo _U_, proto_tree *pare
     guint32     protocol;
     const gchar *description;
 
-    item = proto_tree_add_text(parent_tree, tvb, offset, -1, "DEVICE QUALIFIER DESCRIPTOR");
-    tree = proto_item_add_subtree(item, ett_descriptor_device);
+    tree = proto_tree_add_subtree(parent_tree, tvb, offset, -1, ett_descriptor_device, &item, "DEVICE QUALIFIER DESCRIPTOR");
 
     dissect_usb_descriptor_header(tree, tvb, offset, NULL);
     offset += 2;
@@ -1295,8 +1294,7 @@ dissect_usb_device_descriptor(packet_info *pinfo, proto_tree *parent_tree,
     gint               field_description_length;
     header_field_info *hfi;
 
-    item = proto_tree_add_text(parent_tree, tvb, offset, -1, "DEVICE DESCRIPTOR");
-    tree = proto_item_add_subtree(item, ett_descriptor_device);
+    tree = proto_tree_add_subtree(parent_tree, tvb, offset, -1, ett_descriptor_device, &item, "DEVICE DESCRIPTOR");
 
     dissect_usb_descriptor_header(tree, tvb, offset, NULL);
     offset += 2;
@@ -1423,8 +1421,7 @@ dissect_usb_string_descriptor(packet_info *pinfo _U_, proto_tree *parent_tree,
     guint8      len;
     proto_item *len_item;
 
-    item = proto_tree_add_text(parent_tree, tvb, offset, -1, "STRING DESCRIPTOR");
-    tree = proto_item_add_subtree(item, ett_descriptor_device);
+    tree = proto_tree_add_subtree(parent_tree, tvb, offset, -1, ett_descriptor_device, &item, "STRING DESCRIPTOR");
 
     len = tvb_get_guint8(tvb, offset);
     /* The USB spec says that the languages / the string are UTF16 and not
@@ -1482,8 +1479,7 @@ dissect_usb_interface_descriptor(packet_info *pinfo, proto_tree *parent_tree,
     guint8      interface_num;
     guint8      alt_setting;
 
-    item = proto_tree_add_text(parent_tree, tvb, offset, -1, "INTERFACE DESCRIPTOR");
-    tree = proto_item_add_subtree(item, ett_descriptor_device);
+    tree = proto_tree_add_subtree(parent_tree, tvb, offset, -1, ett_descriptor_device, &item, "INTERFACE DESCRIPTOR");
 
     len = tvb_get_guint8(tvb, offset);
     dissect_usb_descriptor_header(tree, tvb, offset, NULL);
@@ -1635,8 +1631,7 @@ dissect_usb_endpoint_descriptor(packet_info *pinfo, proto_tree *parent_tree,
     guint8      ep_type;
     guint8      len;
 
-    item = proto_tree_add_text(parent_tree, tvb, offset, -1, "ENDPOINT DESCRIPTOR");
-    tree = proto_item_add_subtree(item, ett_descriptor_device);
+    tree = proto_tree_add_subtree(parent_tree, tvb, offset, -1, ett_descriptor_device, &item, "ENDPOINT DESCRIPTOR");
 
     len = tvb_get_guint8(tvb, offset);
     dissect_usb_descriptor_header(tree, tvb, offset, NULL);
@@ -1731,8 +1726,7 @@ dissect_usb_interface_assn_descriptor(packet_info *pinfo _U_, proto_tree *parent
     proto_tree *tree;
     int         old_offset = offset;
 
-    item = proto_tree_add_text(parent_tree, tvb, offset, -1, "INTERFACE ASSOCIATION DESCRIPTOR");
-    tree = proto_item_add_subtree(item, ett_descriptor_device);
+    tree = proto_tree_add_subtree(parent_tree, tvb, offset, -1, ett_descriptor_device, &item, "INTERFACE ASSOCIATION DESCRIPTOR");
 
     dissect_usb_descriptor_header(tree, tvb, offset, NULL);
     offset += 2;
@@ -1776,9 +1770,7 @@ dissect_usb_unknown_descriptor(packet_info *pinfo _U_, proto_tree *parent_tree,
     proto_tree *tree;
     guint8      bLength;
 
-    item = proto_tree_add_text(parent_tree, tvb, offset, -1, "UNKNOWN DESCRIPTOR");
-    tree = proto_item_add_subtree(item, ett_descriptor_device);
-
+    tree = proto_tree_add_subtree(parent_tree, tvb, offset, -1, ett_descriptor_device, &item, "UNKNOWN DESCRIPTOR");
 
     bLength = tvb_get_guint8(tvb, offset);
     dissect_usb_descriptor_header(tree, tvb, offset, NULL);
@@ -1823,8 +1815,7 @@ dissect_usb_configuration_descriptor(packet_info *pinfo _U_, proto_tree *parent_
     usb_conv_info->interfaceSubclass = IF_SUBCLASS_UNKNOWN;
     usb_conv_info->interfaceProtocol = IF_PROTOCOL_UNKNOWN;
 
-    item = proto_tree_add_text(parent_tree, tvb, offset, -1, "CONFIGURATION DESCRIPTOR");
-    tree = proto_item_add_subtree(item, ett_descriptor_device);
+    tree = proto_tree_add_subtree(parent_tree, tvb, offset, -1, ett_descriptor_device, &item, "CONFIGURATION DESCRIPTOR");
 
     dissect_usb_descriptor_header(tree, tvb, offset, NULL);
     offset += 2;

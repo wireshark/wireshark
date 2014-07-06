@@ -165,7 +165,6 @@ add_option_info(tvbuff_t *tvb, int pos, proto_tree *tree, proto_item *ti)
 {
     guint8      tag, length, fcs_err = 0, encr = 0, seen_fcs_err = 0;
     proto_tree *tag_tree;
-    proto_item *tag_item;
 
     /*
      * Read all option tags in an endless loop. If the packet is malformed this
@@ -175,13 +174,11 @@ add_option_info(tvbuff_t *tvb, int pos, proto_tree *tree, proto_item *ti)
         tag = tvb_get_guint8(tvb, pos);
         if ((tag != TZSP_HDR_PAD) && (tag != TZSP_HDR_END)) {
             length = tvb_get_guint8(tvb, pos+1);
-            tag_item = proto_tree_add_text(tree, tvb, pos, 2+length, "%s", val_to_str_const(tag, option_tag_vals, "Unknown"));
+            tag_tree = proto_tree_add_subtree(tree, tvb, pos, 2+length, ett_tag, NULL, val_to_str_const(tag, option_tag_vals, "Unknown"));
         } else {
-            tag_item = proto_tree_add_text(tree, tvb, pos, 1, "%s", val_to_str_const(tag, option_tag_vals, "Unknown"));
+            tag_tree = proto_tree_add_subtree(tree, tvb, pos, 1, ett_tag, NULL, val_to_str_const(tag, option_tag_vals, "Unknown"));
             length = 0;
         }
-
-        tag_tree = proto_item_add_subtree(tag_item, ett_tag);
 
         proto_tree_add_item(tag_tree, hf_option_tag, tvb, pos, 1, ENC_NA);
         pos++;

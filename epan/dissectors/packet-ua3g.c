@@ -1273,10 +1273,9 @@ decode_ip_device_routing(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
                     frequency_2 = tvb_get_ntohs(tvb, offset + 3);
                     level_2 = (signed char)(tvb_get_guint8(tvb, offset + 5)) / 2;
 
-                    ua3g_param_item = proto_tree_add_text(ua3g_body_tree, tvb, offset, 6,
-                        "Tone Pair %d: %d Hz at %d dB / %d Hz at %d dB",
+                    ua3g_param_tree = proto_tree_add_subtree_format(ua3g_body_tree, tvb, offset, 6,
+                        ett_ua3g_param, NULL, "Tone Pair %d: %d Hz at %d dB / %d Hz at %d dB",
                         i, frequency_1, level_1, frequency_2, level_2);
-                    ua3g_param_tree = proto_item_add_subtree(ua3g_param_item, ett_ua3g_param);
 
                     proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_def_tones_frequency_1, tvb, offset, 2, ENC_BIG_ENDIAN);
                     offset += 2;
@@ -1321,14 +1320,13 @@ decode_ip_device_routing(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
                     tone_silence = tvb_get_guint8(tvb, offset + 2);
 #endif
 
-                    ua3g_param_item = proto_tree_add_text(ua3g_body_tree, tvb, offset, 6,
+                    ua3g_param_tree = proto_tree_add_subtree_format(ua3g_body_tree, tvb, offset, 6,
 #if 0
-                        "Tone Pair %d: Id: %d, Duration: %d ms, Silence: %d ms",
+                        ett_ua3g_param, NULL, "Tone Pair %d: Id: %d, Duration: %d ms, Silence: %d ms",
                         ii+1, tone_id, tone_duration, tone_silence);
 #endif
-                        "Tone Pair %d: Id: %d, Duration: %d ms",
+                        ett_ua3g_param, NULL, "Tone Pair %d: Id: %d, Duration: %d ms",
                         ii+1, tone_id, tone_duration);
-                    ua3g_param_tree = proto_item_add_subtree(ua3g_param_item, ett_ua3g_param);
 
                     proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_start_tone_identification, tvb, offset, 1, ENC_NA);
                     offset++;
@@ -1641,7 +1639,7 @@ decode_lcd_line_cmd(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
     guint8         command, column_n;
     const gchar*  command_str;
     proto_tree    *ua3g_body_tree = tree, *ua3g_param_tree, *ua3g_option_tree;
-    proto_item    *ua3g_param_item, *ua3g_option_item;
+    proto_item    *ua3g_option_item;
     wmem_strbuf_t *strbuf;
 
     command     = tvb_get_guint8(tvb, offset) & 0x03;
@@ -1658,10 +1656,9 @@ decode_lcd_line_cmd(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
 
     wmem_strbuf_append_printf(strbuf, "\"%s\"", tvb_format_text(tvb, offset + 2, length - 2));
 
-    ua3g_param_item = proto_tree_add_text(ua3g_body_tree, tvb, offset,
-        length, "%s %d: %s",
+    ua3g_param_tree = proto_tree_add_subtree_format(ua3g_body_tree, tvb, offset,
+        length, ett_ua3g_param, NULL, "%s %d: %s",
         command_str, column_n, wmem_strbuf_get_str(strbuf));
-    ua3g_param_tree = proto_item_add_subtree(ua3g_param_item, ett_ua3g_param);
 
     proto_tree_add_item(ua3g_body_tree, hf_ua3g_command_lcd_line, tvb, offset, 1, ENC_NA);
     ua3g_option_item = proto_tree_add_item(ua3g_param_tree, hf_ua3g_lcd_line_cmd_lcd_options, tvb, offset, 1, ENC_NA);
@@ -2694,7 +2691,6 @@ decode_ua_dwl_protocol(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
 {
     guint8      command;
     proto_tree    *ua3g_body_tree = tree, *ua3g_param_tree;
-    proto_item    *ua3g_param_item;
 
     command = tvb_get_guint8(tvb, offset);
 
@@ -2733,8 +2729,7 @@ decode_ua_dwl_protocol(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
             length -= 2;
 
             if (length > 2) { /* Not R1 */
-                ua3g_param_item = proto_tree_add_text(ua3g_body_tree, tvb, offset, 1, "Files Included");
-                ua3g_param_tree = proto_item_add_subtree(ua3g_param_item, ett_ua3g_param);
+                ua3g_param_tree = proto_tree_add_subtree(ua3g_body_tree, tvb, offset, 1, ett_ua3g_param, NULL, "Files Included");
                 proto_tree_add_item(ua3g_param_tree, hf_ua3g_ua_dwl_protocol_files_inc_boot_binary,
                         tvb, offset, 1, ENC_NA);
                 proto_tree_add_item(ua3g_param_tree, hf_ua3g_ua_dwl_protocol_files_inc_loader_binary,
@@ -2746,8 +2741,7 @@ decode_ua_dwl_protocol(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
                 offset++;
                 length--;
 
-                ua3g_param_item = proto_tree_add_text(ua3g_body_tree, tvb, offset, 1, "Model Selection");
-                ua3g_param_tree = proto_item_add_subtree(ua3g_param_item, ett_ua3g_param);
+                ua3g_param_tree = proto_tree_add_subtree(ua3g_body_tree, tvb, offset, 1, ett_ua3g_param, NULL, "Model Selection");
                 proto_tree_add_item(ua3g_param_tree, hf_ua3g_ua_dwl_protocol_model_selection_a,
                         tvb, offset, 1, ENC_NA);
                 proto_tree_add_item(ua3g_param_tree, hf_ua3g_ua_dwl_protocol_model_selection_b,
@@ -2758,8 +2752,7 @@ decode_ua_dwl_protocol(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
                         tvb, offset, 1, ENC_NA);
                 offset++;
                 length--;
-                ua3g_param_item = proto_tree_add_text(ua3g_body_tree, tvb, offset, 1, "Hardware Selection");
-                ua3g_param_tree = proto_item_add_subtree(ua3g_param_item, ett_ua3g_param);
+                ua3g_param_tree = proto_tree_add_subtree(ua3g_body_tree, tvb, offset, 1, ett_ua3g_param, NULL, "Hardware Selection");
                 proto_tree_add_item(ua3g_param_tree, hf_ua3g_ua_dwl_protocol_hardware_selection_ivanoe1,
                         tvb, offset, 1, ENC_NA);
                 proto_tree_add_item(ua3g_param_tree, hf_ua3g_ua_dwl_protocol_hardware_selection_ivanoe2,
@@ -2767,8 +2760,7 @@ decode_ua_dwl_protocol(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
                 offset++;
                 length--;
 
-                ua3g_param_item = proto_tree_add_text(ua3g_body_tree, tvb, offset, 1, "Memory Sizes Required");
-                ua3g_param_tree = proto_item_add_subtree(ua3g_param_item, ett_ua3g_param);
+                ua3g_param_tree = proto_tree_add_subtree(ua3g_body_tree, tvb, offset, 1, ett_ua3g_param, NULL, "Memory Sizes Required");
                 proto_tree_add_item(ua3g_param_tree, hf_ua3g_ua_dwl_protocol_memory_sizes_flash,
                         tvb, offset, 1, ENC_NA);
                 proto_tree_add_item(ua3g_param_tree, hf_ua3g_ua_dwl_protocol_memory_sizes_ext_ram,
@@ -3391,7 +3383,6 @@ decode_unsolicited_msg(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
 {
     guint8      command;
     proto_tree *ua3g_body_tree = tree, *ua3g_param_tree;
-    proto_item *ua3g_param_item;
 
     command = tvb_get_guint8(tvb, offset);
 
@@ -3440,8 +3431,7 @@ decode_unsolicited_msg(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
             case 0x04:
             case 0x05:
                 {
-                    ua3g_param_item = proto_tree_add_text(ua3g_body_tree, tvb, offset, 1, "Characteristic Number");
-                    ua3g_param_tree = proto_item_add_subtree(ua3g_param_item, ett_ua3g_param);
+                    ua3g_param_tree = proto_tree_add_subtree(ua3g_body_tree, tvb, offset, 1, ett_ua3g_param, NULL, "Characteristic Number");
                     proto_tree_add_item(ua3g_param_tree, hf_ua3g_unsolicited_msg_char_num_vta_subtype,
                             tvb, offset, 1, ENC_NA);
                     proto_tree_add_item(ua3g_param_tree, hf_ua3g_unsolicited_msg_char_num_generation,
@@ -3454,8 +3444,7 @@ decode_unsolicited_msg(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
                     offset++;
                     length--;
 
-                    ua3g_param_item = proto_tree_add_text(ua3g_body_tree, tvb, offset, 1, "Hardware Configuration");
-                    ua3g_param_tree = proto_item_add_subtree(ua3g_param_item, ett_ua3g_param);
+                    ua3g_param_tree = proto_tree_add_subtree(ua3g_body_tree, tvb, offset, 1, ett_ua3g_param, NULL, "Hardware Configuration");
                     proto_tree_add_item(ua3g_param_tree, hf_ua3g_unsolicited_msg_hardware_config_vta_type,
                             tvb, offset, 1, ENC_NA);
                     proto_tree_add_item(ua3g_param_tree, hf_ua3g_unsolicited_msg_hardware_config_design,
@@ -3491,8 +3480,7 @@ decode_unsolicited_msg(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
                         offset++;
                         length--;
 
-                        ua3g_param_item = proto_tree_add_text(ua3g_body_tree, tvb, offset, 1, "Hardware Configuration");
-                        ua3g_param_tree = proto_item_add_subtree(ua3g_param_item, ett_ua3g_param);
+                        ua3g_param_tree = proto_tree_add_subtree(ua3g_body_tree, tvb, offset, 1, ett_ua3g_param, NULL, "Hardware Configuration");
                         proto_tree_add_item(ua3g_param_tree, hf_ua3g_unsolicited_msg_hardware_config_hard_config_chip,
                                 tvb, offset, 1, ENC_NA);
                         proto_tree_add_item(ua3g_param_tree, hf_ua3g_unsolicited_msg_hardware_config_hard_config_flash,
@@ -3691,7 +3679,7 @@ static int
 dissect_ua3g(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     gint              offset         = 0;
-    proto_item       *ua3g_item, *ua3g_body_item;
+    proto_item       *ua3g_item;
     proto_tree       *ua3g_tree, *ua3g_body_tree;
     gint              length;
     guint8            opcode;
@@ -3737,8 +3725,7 @@ dissect_ua3g(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
     proto_item_append_text(ua3g_item, ", %s", opcode_str);
 
-    ua3g_body_item = proto_tree_add_text(ua3g_tree, tvb, offset, length, "UA3G Body");
-    ua3g_body_tree = proto_item_add_subtree(ua3g_body_item, ett_ua3g_body);
+    ua3g_body_tree = proto_tree_add_subtree(ua3g_tree, tvb, offset, length, ett_ua3g_body, NULL, "UA3G Body");
 
     if (*message_direction == SYS_TO_TERM) {
         switch (opcode) {

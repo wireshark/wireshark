@@ -912,10 +912,9 @@ dissect_usb_video_control_interface_descriptor(proto_tree *parent_tree, tvbuff_t
 
         subtype_str = val_to_str_ext(subtype, &vc_if_descriptor_subtypes_ext, "Unknown (0x%x)");
 
-        item = proto_tree_add_text(parent_tree, tvb, offset, descriptor_len,
-                                   "VIDEO CONTROL INTERFACE DESCRIPTOR [%s]",
+        tree = proto_tree_add_subtree_format(parent_tree, tvb, offset, descriptor_len,
+                                   ett_descriptor_video_control, &item, "VIDEO CONTROL INTERFACE DESCRIPTOR [%s]",
                                    subtype_str);
-        tree = proto_item_add_subtree(item, ett_descriptor_video_control);
     }
 
     /* Common fields */
@@ -1346,7 +1345,6 @@ static int
 dissect_usb_video_streaming_interface_descriptor(proto_tree *parent_tree, tvbuff_t *tvb,
                                                  guint8 descriptor_len)
 {
-    proto_item  *item;
     proto_tree  *tree;
     int          offset = 0;
     const gchar *subtype_str;
@@ -1355,10 +1353,9 @@ dissect_usb_video_streaming_interface_descriptor(proto_tree *parent_tree, tvbuff
     subtype = tvb_get_guint8(tvb, offset+2);
 
     subtype_str = val_to_str_ext(subtype, &vs_if_descriptor_subtypes_ext, "Unknown (0x%x)");
-    item = proto_tree_add_text(parent_tree, tvb, offset, descriptor_len,
-            "VIDEO STREAMING INTERFACE DESCRIPTOR [%s]",
+    tree = proto_tree_add_subtree_format(parent_tree, tvb, offset, descriptor_len,
+            ett_descriptor_video_streaming, NULL, "VIDEO STREAMING INTERFACE DESCRIPTOR [%s]",
             subtype_str);
-    tree = proto_item_add_subtree(item, ett_descriptor_video_streaming);
 
     dissect_usb_descriptor_header(tree, tvb, offset, &vid_descriptor_type_vals_ext);
     proto_tree_add_item(tree, hf_usb_vid_streaming_ifdesc_subtype, tvb, offset+2, 1, ENC_NA);
@@ -1416,7 +1413,6 @@ static int
 dissect_usb_video_endpoint_descriptor(proto_tree *parent_tree, tvbuff_t *tvb,
                                       guint8 descriptor_len)
 {
-    proto_item *item   = NULL;
     proto_tree *tree   = NULL;
     int         offset = 0;
     guint8      subtype;
@@ -1428,10 +1424,9 @@ dissect_usb_video_endpoint_descriptor(proto_tree *parent_tree, tvbuff_t *tvb,
         const gchar* subtype_str;
 
         subtype_str = val_to_str(subtype, vc_ep_descriptor_subtypes, "Unknown (0x%x)");
-        item = proto_tree_add_text(parent_tree, tvb, offset, descriptor_len,
-                "VIDEO CONTROL ENDPOINT DESCRIPTOR [%s]",
+        tree = proto_tree_add_subtree_format(parent_tree, tvb, offset, descriptor_len,
+                ett_descriptor_video_endpoint, NULL, "VIDEO CONTROL ENDPOINT DESCRIPTOR [%s]",
                 subtype_str);
-        tree = proto_item_add_subtree(item, ett_descriptor_video_endpoint);
     }
 
     dissect_usb_descriptor_header(tree, tvb, offset, &vid_descriptor_type_vals_ext);
@@ -1522,7 +1517,7 @@ dissect_usb_vid_descriptor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 static int
 dissect_usb_vid_probe(proto_tree *parent_tree, tvbuff_t *tvb, int offset)
 {
-    proto_tree *tree = NULL;
+    proto_tree *tree;
 
     static const int *hint_bits[] = {
         &hf_usb_vid_probe_hint_D[0],
@@ -1535,13 +1530,7 @@ dissect_usb_vid_probe(proto_tree *parent_tree, tvbuff_t *tvb, int offset)
 
     DISSECTOR_ASSERT(array_length(hint_bits) == (1+array_length(hf_usb_vid_probe_hint_D)));
 
-    if (parent_tree)
-    {
-        proto_item *item;
-
-        item = proto_tree_add_text(parent_tree, tvb, offset, -1, "Probe/Commit Info");
-        tree = proto_item_add_subtree(item, ett_video_probe);
-    }
+    tree = proto_tree_add_subtree(parent_tree, tvb, offset, -1, ett_video_probe, NULL, "Probe/Commit Info");
 
     proto_tree_add_bitmask(tree, tvb, offset, hf_usb_vid_probe_hint,
                            ett_probe_hint, hint_bits, ENC_LITTLE_ENDIAN);

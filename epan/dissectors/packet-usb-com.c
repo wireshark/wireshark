@@ -296,10 +296,8 @@ dissect_usb_com_descriptor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     proto_tree *subtree;
     proto_tree *subtree_capabilities;
     proto_item *subitem_capabilities;
-    proto_item *ti;
 
-    ti = proto_tree_add_text(tree, tvb, offset, -1, "COMMUNICATIONS DESCRIPTOR");
-    subtree = proto_item_add_subtree(ti, ett_usb_com);
+    subtree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_usb_com, NULL, "COMMUNICATIONS DESCRIPTOR");
 
     dissect_usb_descriptor_header(subtree, tvb, offset, &usb_com_descriptor_type_vals_ext);
     offset += 2;

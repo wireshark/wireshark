@@ -2023,7 +2023,7 @@ dissect_tipc_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, voi
 static int
 dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	proto_item *ti, *tipc_data_item, *item;
+	proto_item *ti, *item;
 	proto_tree *tipc_tree, *tipc_data_tree;
 	int offset = 0;
 	guint32 dword;
@@ -2259,8 +2259,8 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 				   destination port of that header have no meaning for such messages
 				   */
 				offset = offset + 8;
-				tipc_data_item = proto_tree_add_text(tipc_tree, tvb, offset, -1, "TIPC_NAME_DISTRIBUTOR %u bytes User Data", (msg_size - hdr_size*4));
-				tipc_data_tree = proto_item_add_subtree(tipc_data_item , ett_tipc_data);
+				tipc_data_tree = proto_tree_add_subtree_format(tipc_tree, tvb, offset, -1, ett_tipc_data, NULL,
+													"TIPC_NAME_DISTRIBUTOR %u bytes User Data", (msg_size - hdr_size*4));
 				data_tvb = tvb_new_subset_remaining(tipc_tvb, offset);
 				dissect_tipc_name_dist_data(data_tvb, tipc_data_tree, 0);
 				return tvb_length(tvb);

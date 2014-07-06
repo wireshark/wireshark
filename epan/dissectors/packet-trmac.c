@@ -167,8 +167,7 @@ sv_text(tvbuff_t *tvb, int svoff, packet_info *pinfo, proto_tree *tree)
 
 	guchar		errors[6];	/* isolating or non-isolating */
 
-	sv_item = proto_tree_add_text(tree, tvb, svoff+0, 1, "Subvector");
-	sv_tree = proto_item_add_subtree(sv_item, ett_tr_sv);
+	sv_tree = proto_tree_add_subtree(tree, tvb, svoff+0, 1, ett_tr_sv, &sv_item, "Subvector");
 
 	sv_length = tvb_get_guint8(tvb, svoff+0);
 	len_item = proto_tree_add_item(sv_tree, hf_trmac_sv_len, tvb, svoff+0, 1, ENC_NA);

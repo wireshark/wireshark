@@ -2192,7 +2192,6 @@ dissect_read_partition(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset,
 {
   gint        start = offset;
   gint        type;
-  proto_item *pi;
   proto_tree *query_list_tree;
   gint        qcode_list_len, i;
 
@@ -2227,9 +2226,8 @@ dissect_read_partition(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset,
 
     if (sf_body_length > (offset - start)) {
       qcode_list_len = sf_body_length - (offset - start);
-      pi = proto_tree_add_text(tn3270_tree, tvb, offset, qcode_list_len,
-                               "Query List");
-      query_list_tree = proto_item_add_subtree(pi, ett_tn3270_query_list);
+      query_list_tree = proto_tree_add_subtree(tn3270_tree, tvb, offset, qcode_list_len,
+                               ett_tn3270_query_list, NULL, "Query List");
       for (i = 0; i < qcode_list_len; i++) {
         proto_tree_add_item(query_list_tree,
                             hf_tn3270_sf_query_reply,
@@ -4648,12 +4646,10 @@ static proto_tree *
 display_sf_hdr(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset,
                    gint sf_length, guint sf_id, guint sf_id_len, const gchar *sf_id_str)
 {
-  proto_item *pi;
   proto_tree *sf_tree;
 
-  pi = proto_tree_add_text(tn3270_tree, tvb, offset, sf_length,
-                           "Structured Field: %s", sf_id_str);
-  sf_tree = proto_item_add_subtree(pi, ett_sf);
+  sf_tree = proto_tree_add_subtree_format(tn3270_tree, tvb, offset, sf_length,
+                           ett_sf, NULL, "Structured Field: %s", sf_id_str);
 
   proto_tree_add_item(sf_tree,
                       hf_tn3270_sf_length,
@@ -5043,10 +5039,9 @@ dissect_tn3270e_header(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset)
 
   data_type = tvb_get_guint8(tvb, offset);
 
-  pi = proto_tree_add_text(tn3270_tree, tvb, offset, -1,
-                           "TN3270E Header (Data Type: %s)",
+  tn3270e_hdr_tree = proto_tree_add_subtree_format(tn3270_tree, tvb, offset, -1,
+                           ett_tn3270e_hdr, &pi, "TN3270E Header (Data Type: %s)",
                            val_to_str_const(data_type, vals_tn3270_header_data_types, "Unknown"));
-  tn3270e_hdr_tree = proto_item_add_subtree(pi, ett_tn3270e_hdr);
 
   offset += tn3270_add_hf_items(tn3270e_hdr_tree, tvb, offset,
                                 fields);

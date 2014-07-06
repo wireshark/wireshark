@@ -874,9 +874,8 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 	address		src_addr;
 
 	ie_value = tvb_get_guint8(tvb,offset);
-	urr_ie_item = proto_tree_add_text(tree,tvb,offset,-1,"%s",
+	urr_ie_tree = proto_tree_add_subtree(tree,tvb,offset,-1, ett_urr_ie, &urr_ie_item,
 		val_to_str_ext(ie_value, &uma_urr_IE_type_vals_ext, "Unknown IE (%u)"));
-	urr_ie_tree = proto_item_add_subtree(urr_ie_item, ett_urr_ie);
 
 	proto_tree_add_item(urr_ie_tree, hf_uma_urr_IE, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;

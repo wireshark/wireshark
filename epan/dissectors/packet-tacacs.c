@@ -480,11 +480,9 @@ dissect_tacplus_body_authen_req_login( tvbuff_t* tvb, proto_tree *tree, int var_
 		case TAC_PLUS_AUTHEN_TYPE_CHAP:
 			proto_tree_add_text( tree, tvb, AUTHEN_S_DATA_LEN_OFF, 1, "CHAP Data Length %d", val );
 			if( val ) {
-				proto_item *pi;
 				proto_tree *pt;
 				guint8 chal_len=val-(1+16); /* Response field alwayes 16 octets */
-				pi = proto_tree_add_text(tree, tvb, var_off, val, "CHAP Data" );
-				pt = proto_item_add_subtree( pi, ett_tacplus_body_chap );
+				pt = proto_tree_add_subtree(tree, tvb, var_off, val, ett_tacplus_body_chap, NULL, "CHAP Data" );
 				proto_tree_add_item(pt, hf_tacplus_chap_id, tvb, var_off, 1, ENC_NA);
 				var_off++;
 				proto_tree_add_item(pt, hf_tacplus_chap_challenge, tvb, var_off, chal_len, ENC_ASCII|ENC_NA);
@@ -495,11 +493,9 @@ dissect_tacplus_body_authen_req_login( tvbuff_t* tvb, proto_tree *tree, int var_
 		case TAC_PLUS_AUTHEN_TYPE_MSCHAP:
 			proto_tree_add_text( tree, tvb, AUTHEN_S_DATA_LEN_OFF, 1, "MSCHAP Data Length %d", val );
 			if( val ) {
-				proto_item *pi;
 				proto_tree *pt;
 				guint8 chal_len=val-(1+49);  /* Response field alwayes 49 octets */
-				pi = proto_tree_add_text(tree, tvb, var_off, val, "MSCHAP Data" );
-				pt = proto_item_add_subtree( pi, ett_tacplus_body_chap );
+				pt = proto_tree_add_subtree(tree, tvb, var_off, val, ett_tacplus_body_chap, NULL, "MSCHAP Data" );
 				proto_tree_add_item(pt, hf_tacplus_mschap_id, tvb, var_off, 1, ENC_NA);
 				var_off++;
 				proto_tree_add_item(pt, hf_tacplus_mschap_challenge, tvb, var_off, chal_len, ENC_ASCII|ENC_NA);
@@ -510,10 +506,8 @@ dissect_tacplus_body_authen_req_login( tvbuff_t* tvb, proto_tree *tree, int var_
 		case TAC_PLUS_AUTHEN_TYPE_ARAP:
 			proto_tree_add_text( tree, tvb, AUTHEN_S_DATA_LEN_OFF, 1, "ARAP Data Length %d", val );
 			if( val ) {
-				proto_item *pi;
 				proto_tree *pt;
-				pi = proto_tree_add_text(tree, tvb, var_off, val, "ARAP Data" );
-				pt = proto_item_add_subtree( pi, ett_tacplus_body_chap );
+				pt = proto_tree_add_subtree(tree, tvb, var_off, val, ett_tacplus_body_chap, NULL, "ARAP Data" );
 				proto_tree_add_item(pt, hf_tacplus_arap_nas_challenge, tvb, var_off, 8, ENC_ASCII|ENC_NA);
 				var_off+=8;
 				proto_tree_add_item(pt, hf_tacplus_arap_remote_challenge, tvb, var_off, 8, ENC_ASCII|ENC_NA);
@@ -880,7 +874,7 @@ static void
 dissect_tacplus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	tvbuff_t	*new_tvb=NULL;
-	proto_tree      *tacplus_tree;
+	proto_tree      *tacplus_tree, *body_tree;
 	proto_item      *ti, *hidden_item;
 	guint8		version,flags;
 	proto_tree      *flags_tree;
@@ -957,8 +951,8 @@ dissect_tacplus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			expert_add_info_format(pinfo, tmp_pi, &ei_tacplus_packet_len_invalid, "Invalid length: %u", len);
 		}
 
-		tmp_pi = proto_tree_add_text(tacplus_tree, tvb, TAC_PLUS_HDR_SIZE, len, "%s%s",
-					((flags&FLAGS_UNENCRYPTED)?"":"Encrypted "), request?"Request":"Reply" );
+		body_tree = proto_tree_add_subtree_format(tacplus_tree, tvb, TAC_PLUS_HDR_SIZE, len,
+						ett_tacplus_body, NULL, "%s%s", ((flags&FLAGS_UNENCRYPTED)?"":"Encrypted "), request?"Request":"Reply" );
 
 		if( flags&FLAGS_UNENCRYPTED ) {
 			new_tvb = tvb_new_subset_length( tvb, TAC_PLUS_HDR_SIZE, len );
@@ -971,10 +965,10 @@ dissect_tacplus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if( new_tvb ) {
 			/* Check to see if I've a decrypted tacacs packet */
 			if( !(flags&FLAGS_UNENCRYPTED) ){
-				tmp_pi = proto_tree_add_text(tacplus_tree, new_tvb, 0, len, "Decrypted %s",
-							request?"Request":"Reply" );
+				body_tree = proto_tree_add_subtree_format(tacplus_tree, new_tvb, 0, len,
+							ett_tacplus_body, NULL, "Decrypted %s", request?"Request":"Reply" );
 			}
-			dissect_tacplus_body( tvb, new_tvb, proto_item_add_subtree( tmp_pi, ett_tacplus_body ));
+			dissect_tacplus_body( tvb, new_tvb, body_tree);
 		}
 	}
 }

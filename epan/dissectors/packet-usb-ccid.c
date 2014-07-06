@@ -240,7 +240,7 @@ dissect_usb_ccid_descriptor(tvbuff_t *tvb, packet_info *pinfo _U_,
     gint        offset = 0;
     guint8      descriptor_type;
     guint8      descriptor_len;
-    proto_item *item, *freq_item;
+    proto_item *freq_item;
     proto_tree *desc_tree;
     guint8      num_clock_supp;
 
@@ -249,9 +249,8 @@ dissect_usb_ccid_descriptor(tvbuff_t *tvb, packet_info *pinfo _U_,
     if (descriptor_type!=USB_DESC_TYPE_SMARTCARD)
         return 0;
 
-    item = proto_tree_add_text(tree, tvb, offset, descriptor_len,
-                "SMART CARD DEVICE CLASS DESCRIPTOR");
-    desc_tree = proto_item_add_subtree(item, ett_ccid_desc);
+    desc_tree = proto_tree_add_subtree(tree, tvb, offset, descriptor_len,
+                ett_ccid_desc, NULL, "SMART CARD DEVICE CLASS DESCRIPTOR");
 
     dissect_usb_descriptor_header(desc_tree, tvb, offset,
             &ccid_descriptor_type_vals_ext);

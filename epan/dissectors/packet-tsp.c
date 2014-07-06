@@ -109,8 +109,8 @@ static const value_string names_tsp_type[] = {
 static void
 dissect_tsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	proto_tree	*tsp_tree = NULL;
-	proto_item	*tsp_item = NULL;
+	proto_tree	*tsp_tree;
+	proto_item	*tsp_item;
 
 	guint8		tsp_type;
 
@@ -121,12 +121,9 @@ dissect_tsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_add_str(pinfo->cinfo, COL_INFO,
 		    val_to_str(tsp_type, names_tsp_type, "Unknown message type (%u)"));
 
-	if (tree) {
-		tsp_item = proto_tree_add_item(tree, proto_tsp,
+	tsp_item = proto_tree_add_item(tree, proto_tsp,
 				tvb, 0, -1, ENC_NA);
-		if (tsp_item)
-			tsp_tree = proto_item_add_subtree(tsp_item, ett_tsp);
-	}
+	tsp_tree = proto_item_add_subtree(tsp_item, ett_tsp);
 
 	if (tsp_tree) {
 		proto_tree_add_uint(tsp_tree, hf_tsp_type,

@@ -464,7 +464,7 @@ dissect_usb_hid_report_localitem_data(packet_info *pinfo _U_, proto_tree *tree, 
 static int
 dissect_usb_hid_report_item(packet_info *pinfo _U_, proto_tree *parent_tree, tvbuff_t *tvb, int offset, usb_trans_info_t *usb_trans_info _U_, usb_conv_info_t *usb_conv_info _U_, const struct usb_hid_global_state *global)
 {
-    proto_item *item=NULL, *subitem=NULL;
+    proto_item *subitem=NULL;
     proto_tree *tree=NULL, *subtree=NULL;
     int old_offset;
     unsigned int tmp;
@@ -503,14 +503,13 @@ dissect_usb_hid_report_item(packet_info *pinfo _U_, proto_tree *parent_tree, tvb
                 break;
         }
 
-        subitem = proto_tree_add_text(parent_tree, tvb, offset, bSize + 1, "%s item (%s)",
+        subtree = proto_tree_add_subtree_format(parent_tree, tvb, offset, bSize + 1,
+            ett_usb_hid_item_header, NULL, "%s item (%s)",
             val_to_str(bType, usb_hid_item_bType_vals, "Unknown/%u"),
             val_to_str(bTag, usb_hid_cur_bTag_vals, "Unknown/%u tag")
         );
-        subtree = proto_item_add_subtree(subitem, ett_usb_hid_item_header);
 
-        item = proto_tree_add_text(subtree, tvb, offset, 1, "Header");
-        tree = proto_item_add_subtree(item, ett_usb_hid_item_header);
+        tree = proto_tree_add_subtree(subtree, tvb, offset, 1, ett_usb_hid_item_header, NULL, "Header");
         proto_tree_add_item(tree, hf_usb_hid_item_bSize, tvb, offset,   1, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(tree, hf_usb_hid_item_bType, tvb, offset,   1, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(tree, hf_usb_hid_curitem_bTag, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -837,8 +836,7 @@ dissect_usb_hid_class_descriptors(tvbuff_t *tvb, packet_info *pinfo _U_,
     if (type != USB_DT_HID)
         return 0;
 
-    ti = proto_tree_add_text(tree, tvb, offset, -1, "HID DESCRIPTOR");
-    desc_tree = proto_item_add_subtree(ti, ett_usb_hid_descriptor);
+    desc_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_usb_hid_descriptor, &ti, "HID DESCRIPTOR");
 
     dissect_usb_descriptor_header(desc_tree, tvb, offset,
             &hid_descriptor_type_vals_ext);

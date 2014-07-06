@@ -138,7 +138,6 @@ tftp_dissect_options(tvbuff_t *tvb, packet_info *pinfo, int offset,
   int         value_offset;
   const char *optionname;
   const char *optionvalue;
-  proto_item *opt_item;
   proto_tree *opt_tree;
 
   while (tvb_offset_exists(tvb, offset)) {
@@ -147,10 +146,9 @@ tftp_dissect_options(tvbuff_t *tvb, packet_info *pinfo, int offset,
     value_len = tvb_strsize(tvb, value_offset); /* length of value */
     optionname = tvb_format_text(tvb, offset, option_len);
     optionvalue = tvb_format_text(tvb, value_offset, value_len);
-    opt_item = proto_tree_add_text(tree, tvb, offset, option_len+value_len,
-                                   "Option: %s = %s", optionname, optionvalue);
+    opt_tree = proto_tree_add_subtree_format(tree, tvb, offset, option_len+value_len,
+                                   ett_tftp_option, NULL, "Option: %s = %s", optionname, optionvalue);
 
-    opt_tree = proto_item_add_subtree(opt_item, ett_tftp_option);
     proto_tree_add_item(opt_tree, hf_tftp_option_name, tvb, offset,
                         option_len, ENC_ASCII|ENC_NA);
     proto_tree_add_item(opt_tree, hf_tftp_option_value, tvb, value_offset,

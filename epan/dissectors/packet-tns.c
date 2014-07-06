@@ -256,15 +256,14 @@ static void dissect_tns_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	{
 		if ( is_sns )
 		{
-			ti = proto_tree_add_text(tns_tree, tvb, offset, -1,
-			    "Secure Network Services");
+			data_tree = proto_tree_add_subtree(tns_tree, tvb, offset, -1,
+			    ett_tns_data, NULL, "Secure Network Services");
 		}
 		else
 		{
-			ti = proto_tree_add_text(tns_tree, tvb, offset, -1,
-			    "Data");
+			data_tree = proto_tree_add_subtree(tns_tree, tvb, offset, -1,
+			    ett_tns_data, NULL, "Data");
 		}
-		data_tree = proto_item_add_subtree(ti, ett_tns_data);
 
 		hidden_item = proto_tree_add_boolean(tns_tree, hf_tns_data, tvb, 0, 0,
 					TRUE);
@@ -316,9 +315,8 @@ static void dissect_tns_connect(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	if ( tree )
 	{
-		ti = proto_tree_add_text(tns_tree, tvb, offset, -1,
-		    "Connect");
-		connect_tree = proto_item_add_subtree(ti, ett_tns_connect);
+		connect_tree = proto_tree_add_subtree(tns_tree, tvb, offset, -1,
+		    ett_tns_connect, NULL, "Connect");
 
 		hidden_item = proto_tree_add_boolean(tns_tree, hf_tns_connect, tvb,
 				    0, 0, TRUE);
@@ -498,32 +496,25 @@ static void dissect_tns_connect(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 static void dissect_tns_accept(tvbuff_t *tvb, int offset, packet_info *pinfo,
-	proto_tree *tree, proto_tree *tns_tree)
+	proto_tree *tree _U_, proto_tree *tns_tree)
 {
-	proto_tree *accept_tree = NULL, *ti;
+	proto_tree *accept_tree, *ti;
 	proto_item *hidden_item;
 	int accept_offset;
 	int accept_len;
 	int tns_offset = offset-8;
 
-	if ( tree )
-	{
-		ti = proto_tree_add_text(tns_tree, tvb, offset, -1,
-		    "Accept");
-		accept_tree = proto_item_add_subtree(ti, ett_tns_accept);
+	accept_tree = proto_tree_add_subtree(tns_tree, tvb, offset, -1,
+		    ett_tns_accept, NULL, "Accept");
 
-		hidden_item = proto_tree_add_boolean(tns_tree, hf_tns_accept, tvb,
+	hidden_item = proto_tree_add_boolean(tns_tree, hf_tns_accept, tvb,
 				    0, 0, TRUE);
-		PROTO_ITEM_SET_HIDDEN(hidden_item);
-	}
+	PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 	col_append_str(pinfo->cinfo, COL_INFO, ", Accept");
 
-	if ( accept_tree )
-	{
-		proto_tree_add_item(accept_tree, hf_tns_version, tvb,
+	proto_tree_add_item(accept_tree, hf_tns_version, tvb,
 			offset, 2, ENC_BIG_ENDIAN);
-	}
 	offset += 2;
 
 	if ( accept_tree )
@@ -615,220 +606,145 @@ static void dissect_tns_accept(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 
 static void dissect_tns_refuse(tvbuff_t *tvb, int offset, packet_info *pinfo,
-	proto_tree *tree, proto_tree *tns_tree)
+	proto_tree *tree _U_, proto_tree *tns_tree)
 {
-	proto_tree *refuse_tree = NULL, *ti;
+	proto_tree *refuse_tree;
 	proto_item *hidden_item;
 
-	if ( tree )
-	{
-		ti = proto_tree_add_text(tns_tree, tvb, offset, -1,
-		    "Refuse");
-		refuse_tree = proto_item_add_subtree(ti, ett_tns_refuse);
+	refuse_tree = proto_tree_add_subtree(tns_tree, tvb, offset, -1,
+		    ett_tns_refuse, NULL, "Refuse");
 
-		hidden_item = proto_tree_add_boolean(tns_tree, hf_tns_refuse, tvb,
+	hidden_item = proto_tree_add_boolean(tns_tree, hf_tns_refuse, tvb,
 				    0, 0, TRUE);
-		PROTO_ITEM_SET_HIDDEN(hidden_item);
-	}
+	PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 	col_append_str(pinfo->cinfo, COL_INFO, ", Refuse");
 
-	if ( refuse_tree )
-	{
-		proto_tree_add_item(refuse_tree, hf_tns_refuse_reason_user, tvb,
+	proto_tree_add_item(refuse_tree, hf_tns_refuse_reason_user, tvb,
 			offset, 1, ENC_BIG_ENDIAN);
-	}
 	offset += 1;
 
-	if ( refuse_tree )
-	{
-		proto_tree_add_item(refuse_tree, hf_tns_refuse_reason_system, tvb,
+	proto_tree_add_item(refuse_tree, hf_tns_refuse_reason_system, tvb,
 			offset, 1, ENC_BIG_ENDIAN);
-	}
 	offset += 1;
 
-	if ( refuse_tree )
-	{
-		proto_tree_add_item(refuse_tree, hf_tns_refuse_data_length, tvb,
+	proto_tree_add_item(refuse_tree, hf_tns_refuse_data_length, tvb,
 			offset, 2, ENC_BIG_ENDIAN);
-	}
 	offset += 2;
 
-	if ( refuse_tree )
-	{
-		proto_tree_add_item(refuse_tree, hf_tns_refuse_data, tvb,
+	proto_tree_add_item(refuse_tree, hf_tns_refuse_data, tvb,
 			offset, -1, ENC_ASCII|ENC_NA);
-	}
-	return;
 }
 
 
 static void dissect_tns_abort(tvbuff_t *tvb, int offset, packet_info *pinfo,
-	proto_tree *tree, proto_tree *tns_tree)
+	proto_tree *tree _U_, proto_tree *tns_tree)
 {
-	proto_tree *abort_tree = NULL, *ti;
+	proto_tree *abort_tree;
 	proto_item *hidden_item;
 
-	if ( tree )
-	{
-		ti = proto_tree_add_text(tns_tree, tvb, offset, -1,
-		    "Abort");
-		abort_tree = proto_item_add_subtree(ti, ett_tns_abort);
+	abort_tree = proto_tree_add_subtree(tns_tree, tvb, offset, -1,
+		    ett_tns_abort, NULL, "Abort");
 
-		hidden_item = proto_tree_add_boolean(tns_tree, hf_tns_abort, tvb,
+	hidden_item = proto_tree_add_boolean(tns_tree, hf_tns_abort, tvb,
 				    0, 0, TRUE);
-		PROTO_ITEM_SET_HIDDEN(hidden_item);
-	}
+	PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 	col_append_str(pinfo->cinfo, COL_INFO, ", Abort");
 
-	if ( abort_tree )
-	{
-		proto_tree_add_item(abort_tree, hf_tns_abort_reason_user, tvb,
+	proto_tree_add_item(abort_tree, hf_tns_abort_reason_user, tvb,
 			offset, 1, ENC_BIG_ENDIAN);
-	}
 	offset += 1;
 
-	if ( abort_tree )
-	{
-		proto_tree_add_item(abort_tree, hf_tns_abort_reason_system, tvb,
+	proto_tree_add_item(abort_tree, hf_tns_abort_reason_system, tvb,
 			offset, 1, ENC_BIG_ENDIAN);
-	}
 	offset += 1;
 
-	if ( abort_tree )
-	{
-		proto_tree_add_item(abort_tree, hf_tns_abort_data, tvb,
+	proto_tree_add_item(abort_tree, hf_tns_abort_data, tvb,
 			offset, -1, ENC_ASCII|ENC_NA);
-	}
-	return;
 }
 
 
 static void dissect_tns_marker(tvbuff_t *tvb, int offset, packet_info *pinfo,
-	proto_tree *tree, proto_tree *tns_tree, int is_attention)
+	proto_tree *tree _U_, proto_tree *tns_tree, int is_attention)
 {
-	proto_tree *marker_tree = NULL, *ti;
+	proto_tree *marker_tree;
 	proto_item *hidden_item;
-
-	if ( tree )
-	{
-		if ( is_attention )
-		{
-			ti = proto_tree_add_text(tns_tree, tvb, offset, -1,
-			    "Marker");
-		}
-		else
-		{
-			ti = proto_tree_add_text(tns_tree, tvb, offset, -1,
-			    "Attention");
-		}
-
-		marker_tree = proto_item_add_subtree(ti, ett_tns_marker);
-		hidden_item = proto_tree_add_boolean(tns_tree, hf_tns_marker, tvb,
-				    0, 0, TRUE);
-		PROTO_ITEM_SET_HIDDEN(hidden_item);
-	}
 
 	if ( is_attention )
 	{
 		col_append_str(pinfo->cinfo, COL_INFO, ", Marker");
+		marker_tree = proto_tree_add_subtree(tns_tree, tvb, offset, -1,
+			    ett_tns_marker, NULL, "Marker");
 	}
 	else
 	{
 		col_append_str(pinfo->cinfo, COL_INFO, ", Attention");
+		marker_tree = proto_tree_add_subtree(tns_tree, tvb, offset, -1,
+			    ett_tns_marker, NULL, "Attention");
 	}
 
-	if ( marker_tree )
-	{
-		proto_tree_add_item(marker_tree, hf_tns_marker_type, tvb,
+	hidden_item = proto_tree_add_boolean(tns_tree, hf_tns_marker, tvb,
+				    0, 0, TRUE);
+	PROTO_ITEM_SET_HIDDEN(hidden_item);
+
+	proto_tree_add_item(marker_tree, hf_tns_marker_type, tvb,
 			offset, 1, ENC_BIG_ENDIAN);
-	}
 	offset += 1;
 
-	if ( marker_tree )
-	{
-		proto_tree_add_item(marker_tree, hf_tns_marker_data_byte, tvb,
+	proto_tree_add_item(marker_tree, hf_tns_marker_data_byte, tvb,
 			offset, 1, ENC_BIG_ENDIAN);
-	}
 	offset += 1;
 
-	if ( marker_tree )
-	{
-		proto_tree_add_item(marker_tree, hf_tns_marker_data_byte, tvb,
+	proto_tree_add_item(marker_tree, hf_tns_marker_data_byte, tvb,
 			offset, 1, ENC_BIG_ENDIAN);
-	}
 	/*offset += 1;*/
-
-	return;
 }
 
 static void dissect_tns_redirect(tvbuff_t *tvb, int offset, packet_info *pinfo,
-	proto_tree *tree, proto_tree *tns_tree)
+	proto_tree *tree _U_, proto_tree *tns_tree)
 {
-	proto_tree *redirect_tree = NULL, *ti;
+	proto_tree *redirect_tree;
 	proto_item *hidden_item;
 
-	if ( tree )
-	{
-		ti = proto_tree_add_text(tns_tree, tvb, offset, -1,
-		    "Redirect");
-		redirect_tree = proto_item_add_subtree(ti, ett_tns_redirect);
+	redirect_tree = proto_tree_add_subtree(tns_tree, tvb, offset, -1,
+		    ett_tns_redirect, NULL, "Redirect");
 
-		hidden_item = proto_tree_add_boolean(tns_tree, hf_tns_redirect, tvb,
+	hidden_item = proto_tree_add_boolean(tns_tree, hf_tns_redirect, tvb,
 				    0, 0, TRUE);
-		PROTO_ITEM_SET_HIDDEN(hidden_item);
-	}
+	PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 	col_append_str(pinfo->cinfo, COL_INFO, ", Redirect");
 
-	if ( redirect_tree )
-	{
-		proto_tree_add_item(redirect_tree, hf_tns_redirect_data_length, tvb,
+	proto_tree_add_item(redirect_tree, hf_tns_redirect_data_length, tvb,
 			offset, 2, ENC_BIG_ENDIAN);
-	}
 	offset += 2;
 
-	if ( redirect_tree )
-	{
-		proto_tree_add_item(redirect_tree, hf_tns_redirect_data, tvb,
+	proto_tree_add_item(redirect_tree, hf_tns_redirect_data, tvb,
 			offset, -1, ENC_ASCII|ENC_NA);
-	}
-	return;
 }
 
 static void dissect_tns_control(tvbuff_t *tvb, int offset, packet_info *pinfo,
-	proto_tree *tree, proto_tree *tns_tree)
+	proto_tree *tree _U_, proto_tree *tns_tree)
 {
-	proto_tree *control_tree = NULL, *ti;
+	proto_tree *control_tree;
 	proto_item *hidden_item;
 
-	if ( tree )
-	{
-		ti = proto_tree_add_text(tns_tree, tvb, offset, -1,
-		    "Control");
-		control_tree = proto_item_add_subtree(ti, ett_tns_control);
+	control_tree = proto_tree_add_subtree(tns_tree, tvb, offset, -1,
+		    ett_tns_control, NULL, "Control");
 
-		hidden_item = proto_tree_add_boolean(tns_tree, hf_tns_control, tvb,
+	hidden_item = proto_tree_add_boolean(tns_tree, hf_tns_control, tvb,
 				    0, 0, TRUE);
-		PROTO_ITEM_SET_HIDDEN(hidden_item);
-	}
+	PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 	col_append_str(pinfo->cinfo, COL_INFO, ", Control");
 
-	if ( control_tree )
-	{
-		proto_tree_add_item(control_tree, hf_tns_control_cmd, tvb,
+	proto_tree_add_item(control_tree, hf_tns_control_cmd, tvb,
 			offset, 2, ENC_BIG_ENDIAN);
-	}
 	offset += 2;
 
-	if ( control_tree )
-	{
-		proto_tree_add_item(control_tree, hf_tns_control_data, tvb,
+	proto_tree_add_item(control_tree, hf_tns_control_data, tvb,
 			offset, -1, ENC_NA);
-	}
-	return;
 }
 
 static guint

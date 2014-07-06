@@ -111,10 +111,10 @@ dissect_udld(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_clear(pinfo->cinfo, COL_INFO);
 
     if (tree) {
-    	proto_item *flags_ti;
+	proto_item *flags_ti;
 	proto_tree *flags_tree;
 
-        ti = proto_tree_add_item(tree, proto_udld, tvb, offset, -1, ENC_NA);
+	ti = proto_tree_add_item(tree, proto_udld, tvb, offset, -1, ENC_NA);
 	udld_tree = proto_item_add_subtree(ti, ett_udld);
 
 	/* UDLD header */
@@ -161,10 +161,9 @@ dissect_udld(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 							  length - 4));
 
 		if (tree) {
-		    tlvi = proto_tree_add_text(udld_tree, tvb, offset,
-				length, "Device ID: %s",
+		    tlv_tree = proto_tree_add_subtree_format(udld_tree, tvb, offset,
+				length, ett_udld_tlv, NULL, "Device ID: %s",
 				tvb_format_stringzpad(tvb, offset + 4, length - 4));
-		    tlv_tree = proto_item_add_subtree(tlvi, ett_udld_tlv);
 		    proto_tree_add_uint(tlv_tree, hf_udld_tlvtype, tvb,
 				offset + TLV_TYPE, 2, type);
 		    proto_tree_add_uint(tlv_tree, hf_udld_tlvlength, tvb,
@@ -193,10 +192,9 @@ dissect_udld(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				    tvb_format_stringzpad(tvb, offset + 4, length - 4));
 
 		if (tree) {
-		    tlvi = proto_tree_add_text(udld_tree, tvb, offset,
-			    real_length, "Port ID: %s",
+		    tlv_tree = proto_tree_add_subtree_format(udld_tree, tvb, offset,
+			    real_length, ett_udld_tlv, NULL, "Port ID: %s",
 			    tvb_format_text(tvb, offset + 4, real_length - 4));
-		    tlv_tree = proto_item_add_subtree(tlvi, ett_udld_tlv);
 		    proto_tree_add_uint(tlv_tree, hf_udld_tlvtype, tvb,
 			    offset + TLV_TYPE, 2, type);
 		    proto_tree_add_uint(tlv_tree, hf_udld_tlvlength, tvb,
@@ -215,11 +213,10 @@ dissect_udld(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    case TYPE_DEVICE_NAME:
 	    case TYPE_SEQUENCE_NUMBER:
 	    default:
-		tlvi = proto_tree_add_text(udld_tree, tvb, offset,
-			length, "Type: %s, length: %u",
+		tlv_tree = proto_tree_add_subtree_format(udld_tree, tvb, offset,
+			length, ett_udld_tlv, NULL, "Type: %s, length: %u",
 			val_to_str(type, type_vals, "Unknown (0x%04x)"),
 			length);
-		tlv_tree = proto_item_add_subtree(tlvi, ett_udld_tlv);
 		proto_tree_add_uint(tlv_tree, hf_udld_tlvtype, tvb,
 			offset + TLV_TYPE, 2, type);
 		proto_tree_add_uint(tlv_tree, hf_udld_tlvlength, tvb,

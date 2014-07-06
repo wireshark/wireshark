@@ -1664,8 +1664,7 @@ telnet_command(packet_info *pinfo, proto_tree *telnet_tree, tvbuff_t *tvb, int s
   offset += 1;  /* skip IAC */
   optcode = tvb_get_guint8(tvb, offset);
 
-  cmd_item = proto_tree_add_text(telnet_tree, tvb, start_offset, 2, "Command header");
-  cmd_tree = proto_item_add_subtree(cmd_item, ett_telnet_cmd);
+  cmd_tree = proto_tree_add_subtree(telnet_tree, tvb, start_offset, 2, ett_telnet_cmd, &cmd_item, "Command header");
   proto_tree_add_item(cmd_tree, hf_telnet_cmd, tvb, offset, 1, ENC_NA);
   offset++;
 

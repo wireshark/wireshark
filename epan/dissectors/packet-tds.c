@@ -941,8 +941,7 @@ dissect_tds_all_headers(tvbuff_t *tvb, guint *offset, packet_info *pinfo, proto_
         guint16 header_type;
 
         header_length = tvb_get_letohl(tvb, *offset);
-        item = proto_tree_add_text(sub_tree, tvb, *offset, header_length, "Header");
-        header_sub_tree = proto_item_add_subtree(item, ett_tds_all_headers_header);
+        header_sub_tree = proto_tree_add_subtree(sub_tree, tvb, *offset, header_length, ett_tds_all_headers_header, NULL, "Header");
         length_item = proto_tree_add_item(header_sub_tree, hf_tds_all_headers_header_length, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
         if(header_length == 0 ) {
             expert_add_info_format(pinfo, length_item, &ei_tds_invalid_length, "Empty header");
@@ -981,12 +980,10 @@ dissect_tds_query_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, td
     guint string_encoding = ENC_UTF_16|ENC_LITTLE_ENDIAN;
     char *msg;
 
-    proto_item *query_hdr;
     proto_tree *query_tree;
 
     offset = 0;
-    query_hdr = proto_tree_add_text(tree, tvb, offset, -1, "TDS Query Packet");
-    query_tree = proto_item_add_subtree(query_hdr, ett_tds7_query);
+    query_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_tds7_query, NULL, "TDS Query Packet");
     dissect_tds_all_headers(tvb, &offset, pinfo, query_tree);
     len = tvb_reported_length_remaining(tvb, offset);
 
@@ -1023,14 +1020,11 @@ dissect_tds_query5_packet(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
     guint token_len_field_val = 0;
     guint8 token;
     guint token_sz;
-    proto_item *query_hdr;
     proto_tree *query_tree;
-    proto_item *token_item;
     proto_tree *token_tree;
 
     offset = 0;
-    query_hdr = proto_tree_add_text(tree, tvb, offset, -1, "TDS5 Query Packet");
-    query_tree = proto_item_add_subtree(query_hdr, ett_tds7_query);
+    query_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_tds7_query, NULL, "TDS5 Query Packet");
 
     /*
      * Until we reach the end of the packet, read tokens.
@@ -1054,10 +1048,9 @@ dissect_tds_query5_packet(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
             break;
         }
 
-        token_item = proto_tree_add_text(query_tree, tvb, pos, token_sz,
-                                         "Token 0x%02x %s", token,
+        token_tree = proto_tree_add_subtree_format(query_tree, tvb, pos, token_sz,
+                                         ett_tds_token, NULL, "Token 0x%02x %s", token,
                                          val_to_str_const(token, token_names, "Unknown Token Type"));
-        token_tree = proto_item_add_subtree(token_item, ett_tds_token);
 
         /*
          * If it's a variable token, put the length field in here
@@ -1086,11 +1079,8 @@ dissect_tds7_login(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint offset, i, j, k, offset2, len;
     char *val, *val2;
 
-    proto_item *login_hdr;
     proto_tree *login_tree;
-    proto_item *header_hdr;
     proto_tree *header_tree;
-    proto_item *length_hdr;
     proto_tree *length_tree;
 
     struct tds7_login_packet_hdr td7hdr;
@@ -1099,10 +1089,8 @@ dissect_tds7_login(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* create display subtree for the protocol */
     offset = 0;
-    login_hdr = proto_tree_add_text(tree, tvb, offset, -1, "TDS7 Login Packet");
-    login_tree = proto_item_add_subtree(login_hdr, ett_tds7_login);
-    header_hdr = proto_tree_add_text(login_tree, tvb, offset, 36, "Login Packet Header");
-    header_tree = proto_item_add_subtree(header_hdr, ett_tds7_hdr);
+    login_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_tds7_login, NULL, "TDS7 Login Packet");
+    header_tree = proto_tree_add_subtree(login_tree, tvb, offset, 36, ett_tds7_hdr, NULL, "Login Packet Header");
 
     td7hdr.total_packet_size = tvb_get_letohl(tvb, offset);
     proto_tree_add_uint(header_tree, hf_tds7_login_total_size, tvb, offset,
@@ -1153,8 +1141,7 @@ dissect_tds7_login(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_uint(header_tree, hf_tds7_collation, tvb, offset, sizeof(td7hdr.collation), td7hdr.collation);
     offset += (int)sizeof(td7hdr.collation);
 
-    length_hdr = proto_tree_add_text(login_tree, tvb, offset, 50, "Lengths and offsets");
-    length_tree = proto_item_add_subtree(length_hdr, ett_tds7_hdr);
+    length_tree = proto_tree_add_subtree(login_tree, tvb, offset, 50, ett_tds7_hdr, NULL, "Lengths and offsets");
 
     for (i = 0; i < 9; i++) {
         offset2 = tvb_get_letohs(tvb, offset + i*4);
@@ -2223,16 +2210,14 @@ dissect_tds_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, tds_conv_i
             expert_add_info_format(pinfo, token_item, &ei_tds_token_length_invalid, "Bogus token size: %u", token_sz);
             break;
         }
-        token_item = proto_tree_add_text(tree, tvb, pos, token_sz,
-                                         "Token 0x%02x %s", token,
+        token_tree = proto_tree_add_subtree_format(tree, tvb, pos, token_sz,
+                                         ett_tds_token, &token_item, "Token 0x%02x %s", token,
                                          val_to_str_const(token, token_names, "Unknown Token Type"));
 
         if ((int) token_len_field_size < 0) {
             expert_add_info_format(pinfo, token_item, &ei_tds_token_length_invalid, "Bogus token length field size: %u", token_len_field_size);
             break;
         }
-
-        token_tree = proto_item_add_subtree(token_item, ett_tds_token);
 
         /*
          * If it's a variable token, put the length field in here
