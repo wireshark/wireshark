@@ -461,7 +461,7 @@ conversation_match_no_addr2_or_port2(gconstpointer v, gconstpointer w)
  * Free the proto_data.  The conversation itself is se_allocated.
  */
 static void
-free_data_list(gpointer key _U_, gpointer value, gpointer user_data _U_)
+free_data_list(gpointer value)
 {
 	conversation_t *conv = (conversation_t *)value;
 
@@ -485,19 +485,15 @@ conversation_cleanup(void)
 	 */
 	conversation_keys = NULL;
 	if (conversation_hashtable_exact != NULL) {
-		g_hash_table_foreach(conversation_hashtable_exact, free_data_list, NULL);
 		g_hash_table_destroy(conversation_hashtable_exact);
 	}
 	if (conversation_hashtable_no_addr2 != NULL) {
-		g_hash_table_foreach(conversation_hashtable_no_addr2, free_data_list, NULL);
 		g_hash_table_destroy(conversation_hashtable_no_addr2);
 	}
 	if (conversation_hashtable_no_port2 != NULL) {
-		g_hash_table_foreach(conversation_hashtable_no_port2, free_data_list, NULL);
 		g_hash_table_destroy(conversation_hashtable_no_port2);
 	}
 	if (conversation_hashtable_no_addr2_or_port2 != NULL) {
-		g_hash_table_foreach(conversation_hashtable_no_addr2_or_port2, free_data_list, NULL);
 		g_hash_table_destroy(conversation_hashtable_no_addr2_or_port2);
 	}
 
@@ -523,17 +519,17 @@ conversation_init(void)
 	 * above.
 	 */
 	conversation_hashtable_exact =
-	    g_hash_table_new(conversation_hash_exact,
-	      conversation_match_exact);
+	    g_hash_table_new_full(conversation_hash_exact,
+	      conversation_match_exact, NULL, free_data_list);
 	conversation_hashtable_no_addr2 =
-	    g_hash_table_new(conversation_hash_no_addr2,
-	      conversation_match_no_addr2);
+	    g_hash_table_new_full(conversation_hash_no_addr2,
+	      conversation_match_no_addr2, NULL, free_data_list);
 	conversation_hashtable_no_port2 =
-	    g_hash_table_new(conversation_hash_no_port2,
-	      conversation_match_no_port2);
+	    g_hash_table_new_full(conversation_hash_no_port2,
+	      conversation_match_no_port2, NULL, free_data_list);
 	conversation_hashtable_no_addr2_or_port2 =
-	    g_hash_table_new(conversation_hash_no_addr2_or_port2,
-	      conversation_match_no_addr2_or_port2);
+	    g_hash_table_new_full(conversation_hash_no_addr2_or_port2,
+	      conversation_match_no_addr2_or_port2, NULL, free_data_list);
 
 	/*
 	 * Start the conversation indices over at 0.

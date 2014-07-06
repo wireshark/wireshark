@@ -424,6 +424,14 @@ rpc_prog_hash(gconstpointer k)
 	return (key->prog);
 }
 
+static void
+rpc_prog_free_val(gpointer v)
+{
+	rpc_prog_info_value *value = (rpc_prog_info_value*)v;
+
+	g_array_free(value->procedure_hfs, TRUE);
+	g_free(value);
+}
 
 void
 rpc_init_prog(int proto, guint32 prog, int ett)
@@ -4033,8 +4041,10 @@ proto_register_rpc(void)
 	 * will be called before any handoff registration routines
 	 * are called.
 	 */
-	rpc_progs = g_hash_table_new(rpc_prog_hash, rpc_prog_equal);
-	rpc_procs = g_hash_table_new(rpc_proc_hash, rpc_proc_equal);
+	rpc_progs = g_hash_table_new_full(rpc_prog_hash, rpc_prog_equal,
+			g_free, rpc_prog_free_val);
+	rpc_procs = g_hash_table_new_full(rpc_proc_hash, rpc_proc_equal,
+			g_free, g_free);
 
 	authgss_contexts=wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 }
