@@ -60,33 +60,43 @@ unittests_step_test() {
 	test_step_ok
 }
 
+set_dut() {
+	if [ "$SOURCE_DIR" = "$WS_BIN_PATH" -o "$WS_SYSTEM" = "Windows" ]; then
+		DUT=$SOURCE_DIR/epan/$1
+	else
+		# In out-of-tree builds, all bianries end up in the same folder
+		# regardless of their path during in-tree builds, so we strip
+		# off any prefix part of the path (such as wmem/ for wmem_test)
+		DUT=$WS_BIN_PATH/${1##*/}
+	fi
+}
 
 unittests_step_exntest() {
-	DUT=$SOURCE_DIR/epan/exntest
+	set_dut exntest
 	ARGS=
 	unittests_step_test
 }
 
 unittests_step_oids_test() {
-	DUT=$SOURCE_DIR/epan/oids_test
+	set_dut oids_test
 	ARGS=
 	unittests_step_test
 }
 
 unittests_step_reassemble_test() {
-	DUT=$SOURCE_DIR/epan/reassemble_test
+	set_dut reassemble_test
 	ARGS=
 	unittests_step_test
 }
 
 unittests_step_tvbtest() {
-	DUT=$SOURCE_DIR/epan/tvbtest
+	set_dut tvbtest
 	ARGS=
 	unittests_step_test
 }
 
 unittests_step_wmem_test() {
-	DUT=$SOURCE_DIR/epan/wmem/wmem_test
+	set_dut wmem/wmem_test
 	ARGS=--verbose
 	unittests_step_test
 }
