@@ -2044,7 +2044,7 @@ dissect_h264_seq_parameter_set_extension_rbsp(proto_tree *tree, tvbuff_t *tvb, p
 
 /* RFC 6190 Section: 1.1.3 - NAL Unit Header Extension - H.264 Annex G*/
 static gint
-dissect_h264_svc_nal_header_extension(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint offset)
+dissect_h264_svc_nal_header_extension(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint offset)
 {
     proto_tree_add_item(tree, hf_h264_nal_hdr_ext_svc,  tvb, offset,     1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_h264_nal_hdr_ext_i,    tvb, offset,     1, ENC_BIG_ENDIAN);
