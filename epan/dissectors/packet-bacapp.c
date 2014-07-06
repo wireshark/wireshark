@@ -2319,8 +2319,8 @@ fApplicationTypesEnumerated(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     const gchar *label, const value_string *vs);
 
 static const char *bacapp_unknown_service_str = "unknown service";  /* Usage: no format specifiers */
-static const char *ASHRAE_Reserved_Fmt = "(%d) Reserved for Use by ASHRAE";
-static const char *Vendor_Proprietary_Fmt = "(%d) Vendor Proprietary Value";
+static const char ASHRAE_Reserved_Fmt[] = "(%d) Reserved for Use by ASHRAE";
+static const char Vendor_Proprietary_Fmt[] = "(%d) Vendor Proprietary Value";
 
 static const value_string
 BACnetTypeName[] = {
@@ -5056,6 +5056,11 @@ fGetMaxAPDUSize(guint8 idx)
 }
 #endif
 
+static const char*
+val_to_split_str(guint32 val, guint32 split_val, const value_string *vs,
+    const char *fmt, const char *split_fmt)
+    G_GNUC_PRINTF(4, 0)
+    G_GNUC_PRINTF(5, 0);
 
 /* Used when there are ranges of reserved and proprietary enumerations */
 static const char*
