@@ -5509,8 +5509,8 @@ responsenet      3045/tcp # ResponseNet [Chul_Yoon] [Chul_Yoon]
 responsenet      3045/udp # ResponseNet [Chul_Yoon] [Chul_Yoon]
 di-ase           3046/tcp # di-ase [Carlos_Hung] [Carlos_Hung]
 di-ase           3046/udp # di-ase [Carlos_Hung] [Carlos_Hung]
-hlserver         3047/tcp # Fast Security HL Server [Michael_Zunke] [Michael_Zunke] 2010-07-23
-hlserver         3047/udp # Fast Security HL Server [Michael_Zunke] [Michael_Zunke] 2010-07-23
+hlserver         3047/tcp # Fast Security HL Server [Safenet_Inc.] [Michael_Zunke_3] 2014-07-02
+hlserver         3047/udp # Fast Security HL Server [Safenet_Inc.] [Michael_Zunke_3] 2014-07-02
 pctrader         3048/tcp # Sierra Net PC Trader [Chris_Hahn] [Chris_Hahn]
 pctrader         3048/udp # Sierra Net PC Trader [Chris_Hahn] [Chris_Hahn]
 nsws             3049/tcp # NSWS [Ray_Gwinn] [Ray_Gwinn]
@@ -8627,9 +8627,9 @@ kfserver         5343/udp # Sculptor Database Server [Keith_Ashman] [Keith_Ashma
 xkotodrcp        5344/tcp # xkoto DRCP [Jeff_Heisz] [Jeff_Heisz] 2006-02
 xkotodrcp        5344/udp # xkoto DRCP [Jeff_Heisz] [Jeff_Heisz] 2006-02
 stuns            5349/tcp # STUN over TLS [RFC5389]
-stuns            5349/udp # Reserved for a future enhancement of STUN [RFC5389]
+stuns            5349/udp # STUN over DTLS [IESG] [IETF_Chair] 2014-07-03 [RFC-ietf-tram-stun-dtls-05] This service name was initially created by [RFC5389].
 turns            5349/tcp # TURN over TLS [RFC5766]
-turns            5349/udp # Reserved for a future enhancement of TURN [RFC5766]
+turns            5349/udp # TURN over DTLS [IESG] [IETF_Chair] 2014-07-03 [RFC-ietf-tram-stun-dtls-05] This service name was initially created by [RFC5766].
 stun-behaviors   5349/tcp # STUN Behavior Discovery over TLS [RFC5780]
 stun-behaviors   5349/udp # Reserved for a future enhancement of STUN-BEHAVIOR [RFC5780]
 pcp-multicast    5350/udp # Port Control Protocol Multicast [IESG] [IETF_Chair] [RFC6887]
