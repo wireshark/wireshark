@@ -1718,8 +1718,8 @@ dissect_rtp_rfc2198(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint8 octet1;
     int cnt;
     gboolean hdr_follow = TRUE;
-    proto_item *ti = NULL;
-    proto_tree *rfc2198_tree = NULL;
+    proto_item *ti;
+    proto_tree *rfc2198_tree;
     proto_tree *rfc2198_hdr_tree = NULL;
     rfc2198_hdr *hdr_last, *hdr_new;
     rfc2198_hdr *hdr_chain = NULL;
@@ -1730,8 +1730,7 @@ dissect_rtp_rfc2198(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     p_conv_data = (struct _rtp_conversation_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_rtp, 0);
 
     /* Add try to RFC 2198 data */
-    ti = proto_tree_add_text(tree, tvb, offset, -1, "RFC 2198: Redundant Audio Data");
-    rfc2198_tree = proto_item_add_subtree(ti, ett_rtp_rfc2198);
+    rfc2198_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_rtp_rfc2198, NULL, "RFC 2198: Redundant Audio Data");
 
     hdr_last = NULL;
     cnt = 0;
@@ -1753,8 +1752,8 @@ dissect_rtp_rfc2198(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             }
         }
         /* Add a subtree for this header and add items */
-        ti = proto_tree_add_text(rfc2198_tree, tvb, offset, (hdr_follow)?4:1, "Header %u", cnt);
-        rfc2198_hdr_tree = proto_item_add_subtree(ti, ett_rtp_rfc2198_hdr);
+        rfc2198_hdr_tree = proto_tree_add_subtree_format(rfc2198_tree, tvb, offset, (hdr_follow)?4:1,
+                                    ett_rtp_rfc2198_hdr, &ti, "Header %u", cnt);
         proto_tree_add_item(rfc2198_hdr_tree, hf_rtp_rfc2198_follow, tvb, offset, 1, ENC_BIG_ENDIAN );
         proto_tree_add_uint_format_value(rfc2198_hdr_tree, hf_rtp_payload_type, tvb,
             offset, 1, octet1, "%s (%u)",
@@ -1802,7 +1801,6 @@ static void
 dissect_rtp_hext_rfc5215_onebyte( tvbuff_t *tvb, packet_info *pinfo,
         proto_tree *rtp_hext_tree )
 {
-    proto_item *ti = NULL;
     proto_tree *rtp_hext_rfc5285_tree = NULL;
     guint ext_offset = 0, start_ext_offset;
 
@@ -1833,8 +1831,8 @@ dissect_rtp_hext_rfc5215_onebyte( tvbuff_t *tvb, packet_info *pinfo,
 
         ext_length = (ext_hdr_hdr & 0x0F) + 1;
         if (rtp_hext_tree) {
-            ti = proto_tree_add_text(rtp_hext_tree, tvb, ext_offset, ext_length + 1, "RFC 5285 Header Extension (One-Byte Header)");
-            rtp_hext_rfc5285_tree = proto_item_add_subtree( ti, ett_hdr_ext_rfc5285);
+            rtp_hext_rfc5285_tree = proto_tree_add_subtree(rtp_hext_tree, tvb, ext_offset, ext_length + 1,
+                                            ett_hdr_ext_rfc5285, NULL, "RFC 5285 Header Extension (One-Byte Header)");
 
             proto_tree_add_uint( rtp_hext_rfc5285_tree, hf_rtp_ext_rfc5285_id, tvb, ext_offset, 1, ext_id);
             proto_tree_add_uint( rtp_hext_rfc5285_tree, hf_rtp_ext_rfc5285_length, tvb, ext_offset, 1, ext_length);
@@ -1856,7 +1854,6 @@ static void
 dissect_rtp_hext_rfc5215_twobytes(tvbuff_t *parent_tvb, guint id_offset,
         guint8 id, tvbuff_t *tvb, packet_info *pinfo, proto_tree *rtp_hext_tree)
 {
-    proto_item *ti = NULL;
     proto_tree *rtp_hext_rfc5285_tree = NULL;
     guint ext_offset = 0, start_ext_offset;
 
@@ -1880,8 +1877,8 @@ dissect_rtp_hext_rfc5215_twobytes(tvbuff_t *parent_tvb, guint id_offset,
         ext_length = tvb_get_guint8 (tvb, ext_offset + 1);
 
         if (rtp_hext_tree) {
-            ti = proto_tree_add_text(rtp_hext_tree, tvb, ext_offset, ext_length + 2, "RFC 5285 Header Extension (Two-Byte Header)");
-            rtp_hext_rfc5285_tree = proto_item_add_subtree( ti, ett_hdr_ext_rfc5285);
+            rtp_hext_rfc5285_tree = proto_tree_add_subtree(rtp_hext_tree, tvb, ext_offset, ext_length + 2,
+                                    ett_hdr_ext_rfc5285, NULL, "RFC 5285 Header Extension (Two-Byte Header)");
 
             proto_tree_add_uint( rtp_hext_rfc5285_tree, hf_rtp_ext_rfc5285_appbits, parent_tvb, id_offset + 1, 1, id & 0x000F);
             proto_tree_add_uint( rtp_hext_rfc5285_tree, hf_rtp_ext_rfc5285_id, tvb, ext_offset, 1, ext_id);

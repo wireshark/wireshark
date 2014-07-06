@@ -266,8 +266,7 @@ static const gchar* dissect_packetcable_em_hdr(proto_tree* tree, tvbuff_t* tvb, 
 	proto_tree *obj_tree;
 
 	proto_tree_add_item(tree, hf_packetcable_em_header_version_id, tvb,  0, 2, ENC_BIG_ENDIAN);
-	ti = proto_tree_add_text(tree, tvb,  2, 24, "BCID");
-	obj_tree = proto_item_add_subtree(ti, ett_radius_vendor_packetcable_bcid);
+	obj_tree = proto_tree_add_subtree(tree, tvb, 2, 24, ett_radius_vendor_packetcable_bcid, NULL, "BCID");
 	decode_packetcable_bcid(tvb, obj_tree,  2);
 
 	proto_tree_add_item(tree, hf_packetcable_em_header_event_message_type, tvb,  26, 2, ENC_BIG_ENDIAN);

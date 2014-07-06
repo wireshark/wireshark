@@ -268,10 +268,9 @@ rsip_parameter(tvbuff_t *tvb, proto_tree *rsip_tree, int off, int eoff)
 	paramtype = tvb_get_guint8(tvb, off);
 	paramlen = tvb_get_ntohs(tvb, off + 1);
 
-	pti = proto_tree_add_text(rsip_tree, tvb, off, 3 + paramlen,
-	    "%s",
+	p_tree = proto_tree_add_subtree(rsip_tree, tvb, off, 3 + paramlen,
+	    ett_rsip_param, &pti,
 	    val_to_str(paramtype, param_type_vals, "Unknown (%d)"));
-	p_tree = proto_item_add_subtree(pti, ett_rsip_param);
 
 	proto_tree_add_item(p_tree, hf_rsip_parameter_type, tvb,
 	    off, 1, ENC_BIG_ENDIAN);

@@ -878,7 +878,6 @@ dissect_amf0_property_list(tvbuff_t *tvb, gint offset, proto_tree *tree, guint *
 {
         proto_item *prop_ti;
         proto_tree *prop_tree;
-        proto_item *name_ti;
         proto_tree *name_tree;
         guint       iStringLength;
         gchar      *iStringValue;
@@ -898,15 +897,13 @@ dissect_amf0_property_list(tvbuff_t *tvb, gint offset, proto_tree *tree, guint *
                         break;
                 count++;
                 iStringValue = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 2, iStringLength, ENC_ASCII);
-                prop_ti = proto_tree_add_text(tree, tvb, offset, -1,
-                                              "Property '%s'",
+                prop_tree = proto_tree_add_subtree_format(tree, tvb, offset, -1,
+                                              ett_amf_property, &prop_ti, "Property '%s'",
                                               iStringValue);
-                prop_tree = proto_item_add_subtree(prop_ti, ett_amf_property);
 
-                name_ti = proto_tree_add_text(prop_tree, tvb,
+                name_tree = proto_tree_add_subtree_format(prop_tree, tvb,
                                               offset, 2+iStringLength,
-                                              "Name: %s", iStringValue);
-                name_tree = proto_item_add_subtree(name_ti, ett_amf_string);
+                                              ett_amf_string, NULL, "Name: %s", iStringValue);
 
                 proto_tree_add_uint(name_tree, hf_amf_stringlength, tvb, offset, 2, iStringLength);
                 offset += 2;
@@ -1186,9 +1183,7 @@ dissect_amf3_value_type(tvbuff_t *tvb, gint offset, proto_tree *tree, proto_item
         guint       iTraitCount;
         proto_item *traits_ti;
         proto_tree *traits_tree;
-        proto_item *name_ti;
         proto_tree *name_tree;
-        proto_item *member_ti;
         proto_tree *member_tree;
         guint8     *iByteArrayValue;
 
@@ -1343,15 +1338,15 @@ dissect_amf3_value_type(tvbuff_t *tvb, gint offset, proto_tree *tree, proto_item
                                                 break;
                                         }
                                         iStringValue = tvb_get_string_enc(wmem_packet_scope(), tvb, iValueOffset+iValueLength, iStringLength, ENC_UTF_8|ENC_NA);
-                                        subval_ti = proto_tree_add_text(val_tree, tvb, iValueOffset, iStringLength, "%s:", iStringValue);
-                                        subval_tree = proto_item_add_subtree(subval_ti, ett_amf_array_element);
+                                        subval_tree = proto_tree_add_subtree(val_tree, tvb, iValueOffset, iStringLength,
+                                                                    ett_amf_array_element, &subval_ti, iStringValue);
                                         proto_tree_add_uint(subval_tree, hf_amf_stringlength, tvb, iValueOffset, iValueLength, iStringLength);
                                         iValueOffset += iValueLength;
                                         proto_tree_add_string(subval_tree, hf_amf_string, tvb, iValueOffset, iStringLength, iStringValue);
                                 } else {
                                         /* the upper 28 bits of the integer value are a string reference index */
-                                        subval_ti = proto_tree_add_text(val_tree, tvb, iValueOffset, iValueLength, "Reference %u:", iIntegerValue >> 1);
-                                        subval_tree = proto_item_add_subtree(subval_ti, ett_amf_array_element);
+                                        subval_tree = proto_tree_add_subtree_format(val_tree, tvb, iValueOffset, iValueLength,
+                                                        ett_amf_array_element, &subval_ti, "Reference %u:", iIntegerValue >> 1);
                                         proto_tree_add_uint(subval_tree, hf_amf_string_reference, tvb, iValueOffset, iValueLength, iIntegerValue >> 1);
                                 }
 
@@ -1408,22 +1403,21 @@ dissect_amf3_value_type(tvbuff_t *tvb, gint offset, proto_tree *tree, proto_item
                                                 /* the upper 28 bits of the integer value is a string length */
                                                 iStringLength = iIntegerValue >> 1;
                                                 iStringValue = tvb_get_string_enc(wmem_packet_scope(), tvb, iValueOffset+iValueLength, iStringLength, ENC_UTF_8|ENC_NA);
-                                                traits_ti = proto_tree_add_text(val_tree, tvb, iValueOffset, -1, "Traits for class %s (%u member names)", iStringValue, iTraitCount);
-                                                traits_tree = proto_item_add_subtree(traits_ti, ett_amf_traits);
-                                                name_ti = proto_tree_add_text(traits_tree, tvb,
+                                                traits_tree = proto_tree_add_subtree_format(val_tree, tvb, iValueOffset, -1,
+                                                            ett_amf_traits, &traits_ti, "Traits for class %s (%u member names)", iStringValue, iTraitCount);
+                                                name_tree = proto_tree_add_subtree_format(traits_tree, tvb,
                                                                               iValueOffset,
                                                                               iValueLength+iStringLength,
-                                                                              "Class name: %s",
+                                                                              ett_amf_string, NULL, "Class name: %s",
                                                                               iStringValue);
-                                                name_tree = proto_item_add_subtree(name_ti, ett_amf_string);
                                                 proto_tree_add_uint(name_tree, hf_amf_classnamelength, tvb, iValueOffset, iValueLength, iStringLength);
                                                 iValueOffset += iValueLength;
                                                 proto_tree_add_string(name_tree, hf_amf_classname, tvb, iValueOffset, iStringLength, iStringValue);
                                                 iValueOffset += iStringLength;
                                         } else {
                                                 /* the upper 28 bits of the integer value are a string reference index */
-                                                traits_ti = proto_tree_add_text(val_tree, tvb, iValueOffset, iValueLength, "Traits for class (reference %u for name)", iIntegerValue >> 1);
-                                                traits_tree = proto_item_add_subtree(traits_ti, ett_amf_traits);
+                                                traits_tree = proto_tree_add_subtree_format(val_tree, tvb, iValueOffset, iValueLength,
+                                                    ett_amf_traits, &traits_ti, "Traits for class (reference %u for name)", iIntegerValue >> 1);
                                                 proto_tree_add_uint(traits_tree, hf_amf_string_reference, tvb, iValueOffset, iValueLength, iIntegerValue >> 1);
                                                 iValueOffset += iValueLength;
                                         }
@@ -1433,8 +1427,8 @@ dissect_amf3_value_type(tvbuff_t *tvb, gint offset, proto_tree *tree, proto_item
                                                         /* the upper 28 bits of the integer value is a string length */
                                                         iStringLength = iIntegerValue >> 1;
                                                         iStringValue = tvb_get_string_enc(wmem_packet_scope(), tvb, iValueOffset+iValueLength, iStringLength, ENC_UTF_8|ENC_NA);
-                                                        member_ti = proto_tree_add_text(traits_tree, tvb, iValueOffset, iValueLength+iStringLength, "Member '%s'", iStringValue);
-                                                        member_tree = proto_item_add_subtree(member_ti, ett_amf_trait_member);
+                                                        member_tree = proto_tree_add_subtree_format(traits_tree, tvb, iValueOffset, iValueLength+iStringLength,
+                                                                                            ett_amf_trait_member, NULL, "Member '%s'", iStringValue);
                                                         proto_tree_add_uint(member_tree, hf_amf_membernamelength, tvb, iValueOffset, iValueLength, iStringLength);
                                                         iValueOffset += iValueLength;
                                                         proto_tree_add_string(member_tree, hf_amf_membername, tvb, iValueOffset, iStringLength, iStringValue);
@@ -1461,22 +1455,21 @@ dissect_amf3_value_type(tvbuff_t *tvb, gint offset, proto_tree *tree, proto_item
                                                                         break;
                                                                 }
                                                                 iStringValue = tvb_get_string_enc(wmem_packet_scope(), tvb, iValueOffset+iValueLength, iStringLength, ENC_UTF_8|ENC_NA);
-                                                                subval_ti = proto_tree_add_text(traits_tree, tvb, iValueOffset, -1, "%s:", iStringValue);
-                                                                subval_tree = proto_item_add_subtree(subval_ti, ett_amf_array_element);
-                                                                name_ti = proto_tree_add_text(subval_tree, tvb,
+                                                                subval_tree = proto_tree_add_subtree_format(traits_tree, tvb, iValueOffset, -1,
+                                                                            ett_amf_array_element, &subval_ti, "%s:", iStringValue);
+                                                                name_tree = proto_tree_add_subtree_format(subval_tree, tvb,
                                                                                               iValueOffset,
                                                                                               iValueLength+iStringLength,
-                                                                                              "Member name: %s",
+                                                                                              ett_amf_string, NULL, "Member name: %s",
                                                                                               iStringValue);
-                                                                name_tree = proto_item_add_subtree(name_ti, ett_amf_string);
                                                                 proto_tree_add_uint(name_tree, hf_amf_membernamelength, tvb, iValueOffset, iValueLength, iStringLength);
                                                                 iValueOffset += iValueLength;
                                                                 proto_tree_add_string(name_tree, hf_amf_membername, tvb, iValueOffset, iStringLength, iStringValue);
                                                                 iValueOffset += iStringLength;
                                                         } else {
                                                                 /* the upper 28 bits of the integer value are a string reference index */
-                                                                subval_ti = proto_tree_add_text(traits_tree, tvb, iValueOffset, iValueLength, "Reference %u:", iIntegerValue >> 1);
-                                                                subval_tree = proto_item_add_subtree(subval_ti, ett_amf_array_element);
+                                                                subval_tree = proto_tree_add_subtree_format(traits_tree, tvb, iValueOffset, iValueLength,
+                                                                                    ett_amf_array_element, &subval_ti, "Reference %u:", iIntegerValue >> 1);
                                                                 proto_tree_add_uint(subval_tree, hf_amf_string_reference, tvb, iValueOffset, iValueLength, iIntegerValue >> 1);
                                                                 iValueOffset += iValueLength;
                                                         }
@@ -1633,11 +1626,9 @@ dissect_rtmpt_body_video(tvbuff_t *tvb, gint offset, proto_tree *rtmpt_tree)
 static void
 dissect_rtmpt_body_aggregate(tvbuff_t *tvb, gint offset, proto_tree *rtmpt_tree)
 {
-        proto_item *tag_item  = NULL;
-        proto_tree *tag_tree  = NULL;
+        proto_tree *tag_tree;
 
-        proto_item *data_item = NULL;
-        proto_tree *data_tree = NULL;
+        proto_tree *data_tree;
 
         while (tvb_length_remaining(tvb, offset) > 0) {
                 guint8 iTagType;
@@ -1646,17 +1637,15 @@ dissect_rtmpt_body_aggregate(tvbuff_t *tvb, gint offset, proto_tree *rtmpt_tree)
                 iTagType  = tvb_get_guint8(tvb, offset + 0);
                 iDataSize = tvb_get_ntoh24(tvb, offset + 1);
 
-                tag_item  = proto_tree_add_text(rtmpt_tree, tvb, offset, 11+iDataSize+4, "%s",
+                tag_tree  = proto_tree_add_subtree(rtmpt_tree, tvb, offset, 11+iDataSize+4, ett_rtmpt_tag, NULL,
                                                val_to_str_const(iTagType, rtmpt_tag_vals, "Unknown Tag"));
-                tag_tree  = proto_item_add_subtree(tag_item, ett_rtmpt_tag);
                 proto_tree_add_item(tag_tree, hf_rtmpt_tag_type, tvb, offset+0, 1, ENC_BIG_ENDIAN);
                 proto_tree_add_item(tag_tree, hf_rtmpt_tag_datasize, tvb, offset+1, 3, ENC_BIG_ENDIAN);
                 proto_tree_add_item(tag_tree, hf_rtmpt_tag_timestamp, tvb, offset+4, 3, ENC_BIG_ENDIAN);
                 proto_tree_add_item(tag_tree, hf_rtmpt_tag_ets, tvb, offset+7, 1, ENC_BIG_ENDIAN);
                 proto_tree_add_item(tag_tree, hf_rtmpt_tag_streamid, tvb, offset+8, 3, ENC_BIG_ENDIAN);
 
-                data_item = proto_tree_add_text(tag_tree, tvb, offset+11, iDataSize, "Data");
-                data_tree = proto_item_add_subtree(data_item, ett_rtmpt_tag_data);
+                data_tree = proto_tree_add_subtree(tag_tree, tvb, offset+11, iDataSize, ett_rtmpt_tag_data, NULL, "Data");
 
                 switch (iTagType) {
                 case 8:
@@ -1764,9 +1753,8 @@ dissect_rtmpt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rtmpt_conv_t 
                         proto_item_append_text(ti, " (%s)",
                                                val_to_str(tp->id, rtmpt_handshake_vals, "Unknown (0x%01x)"));
                         rtmptroot_tree = proto_item_add_subtree(ti, ett_rtmpt);
-                        ti = proto_tree_add_text(rtmptroot_tree, tvb, offset, -1, "%s",
+                        rtmpt_tree = proto_tree_add_subtree(rtmptroot_tree, tvb, offset, -1, ett_rtmpt_handshake, NULL,
                                                  val_to_str(tp->id, rtmpt_handshake_vals, "Unknown (0x%01x)"));
-                        rtmpt_tree = proto_item_add_subtree(ti, ett_rtmpt_handshake);
 
                         if (tp->id == RTMPT_TYPE_HANDSHAKE_1)
                         {
@@ -1807,9 +1795,8 @@ dissect_rtmpt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rtmpt_conv_t 
                 }
 
                 /* Dissect header fields */
-                ti = proto_tree_add_text(rtmptroot_tree, tvb, offset, tp->bhlen+tp->mhlen, RTMPT_TEXT_RTMP_HEADER);
+                rtmpt_tree = proto_tree_add_subtree(rtmptroot_tree, tvb, offset, tp->bhlen+tp->mhlen, ett_rtmpt_header, NULL, RTMPT_TEXT_RTMP_HEADER);
 /*                proto_item_append_text(ti, " (%s)", val_to_str(tp->cmd, rtmpt_opcode_vals, "Unknown (0x%01x)")); */
-                rtmpt_tree = proto_item_add_subtree(ti, ett_rtmpt_header);
 
                 if (tp->fmt <= 3) proto_tree_add_item(rtmpt_tree, hf_rtmpt_header_format, tvb, offset + 0, 1, ENC_BIG_ENDIAN);
                 if (tp->fmt <= 3) proto_tree_add_item(rtmpt_tree, hf_rtmpt_header_csid, tvb, offset + 0, tp->bhlen, ENC_BIG_ENDIAN);
@@ -1834,8 +1821,7 @@ dissect_rtmpt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rtmpt_conv_t 
                 if (tp->len == 0) return;
                 offset = iBodyOffset;
 
-                ti = proto_tree_add_text(rtmptroot_tree, tvb, offset, -1, RTMPT_TEXT_RTMP_BODY);
-                rtmpt_tree = proto_item_add_subtree(ti, ett_rtmpt_body);
+                rtmpt_tree = proto_tree_add_subtree(rtmptroot_tree, tvb, offset, -1, ett_rtmpt_body, NULL, RTMPT_TEXT_RTMP_BODY);
 
                 switch (tp->cmd) {
                 case RTMPT_TYPE_CHUNK_SIZE:
@@ -2498,8 +2484,7 @@ dissect_amf(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
         proto_tree_add_uint(amf_tree, hf_amf_header_count, tvb, offset, 2, header_count);
         offset += 2;
         if (header_count != 0) {
-                ti = proto_tree_add_text(amf_tree, tvb, offset, -1, "Headers");
-                headers_tree = proto_item_add_subtree(ti, ett_amf_headers);
+                headers_tree = proto_tree_add_subtree(amf_tree, tvb, offset, -1, ett_amf_headers, NULL, "Headers");
                 for (i = 0; i < header_count; i++) {
                         string_length = tvb_get_ntohs(tvb, offset);
                         proto_tree_add_item(headers_tree, hf_amf_header_name, tvb, offset, 2, ENC_BIG_ENDIAN|ENC_UTF_8);
@@ -2522,8 +2507,7 @@ dissect_amf(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
         proto_tree_add_uint(amf_tree, hf_amf_message_count, tvb, offset, 2, message_count);
         offset += 2;
         if (message_count != 0) {
-                ti = proto_tree_add_text(amf_tree, tvb, offset, -1, "Messages");
-                messages_tree = proto_item_add_subtree(ti, ett_amf_messages);
+                messages_tree = proto_tree_add_subtree(amf_tree, tvb, offset, -1, ett_amf_messages, NULL, "Messages");
                 for (i = 0; i < message_count; i++) {
                         string_length = tvb_get_ntohs(tvb, offset);
                         proto_tree_add_item(messages_tree, hf_amf_message_target_uri, tvb, offset, 2, ENC_BIG_ENDIAN|ENC_UTF_8);

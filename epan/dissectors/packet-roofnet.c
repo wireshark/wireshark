@@ -132,7 +132,6 @@ static void dissect_roofnet_header(proto_tree *tree, tvbuff_t *tvb, guint *offse
  */
 static void dissect_roofnet_link(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint link)
 {
-  proto_item *it= NULL;
   proto_tree *subtree= NULL;
 
   ptvcursor_t *cursor= NULL;
@@ -143,12 +142,11 @@ static void dissect_roofnet_link(proto_tree *tree, tvbuff_t *tvb, guint *offset,
   addr_src= tvb_get_ipv4(tvb, *offset + ROOFNET_LINK_OFFSET_SRC);
   addr_dst= tvb_get_ipv4(tvb, *offset + ROOFNET_LINK_OFFSET_DST);
 
-  it = proto_tree_add_text(tree, tvb, *offset, ROOFNET_LINK_LEN,
-			    "link: %u, src: %s, dst: %s",
+  subtree = proto_tree_add_subtree_format(tree, tvb, *offset, ROOFNET_LINK_LEN,
+			    ett_roofnet_link, NULL, "link: %u, src: %s, dst: %s",
 			    link,
 			    get_hostname(addr_src),
 			    get_hostname(addr_dst));
-  subtree= proto_item_add_subtree(it, ett_roofnet_link);
 
   proto_tree_add_ipv4(subtree, hf_roofnet_link_src, tvb, *offset, 4, addr_src);
   *offset += 4;

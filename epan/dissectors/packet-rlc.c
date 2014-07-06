@@ -2006,10 +2006,9 @@ dissect_rlc_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guin
                 proto_tree_add_bits_ret_val(sufi_tree, hf_rlc_sufi_fsn, tvb, bit_offset, 12, &sn, ENC_BIG_ENDIAN);
                 bit_offset += 12;
                 proto_tree_add_item(sufi_tree, hf_rlc_sufi_bitmap, tvb, bit_offset/8, (gint)len, ENC_NA);
-                ti = proto_tree_add_text(sufi_tree, tvb, bit_offset/8, (gint)len, "Decoded bitmap:");
+                bitmap_tree = proto_tree_add_subtree(sufi_tree, tvb, bit_offset/8, (gint)len, ett_rlc_bitmap, &ti, "Decoded bitmap:");
                 col_append_str(pinfo->cinfo, COL_INFO, " BITMAP=(");
 
-                bitmap_tree = proto_item_add_subtree(ti, ett_rlc_bitmap);
                 buff = (gchar *)wmem_alloc(wmem_packet_scope(), BUFF_SIZE);
                 for (i=0; i<len; i++) {
                     bits = tvb_get_bits8(tvb, bit_offset, 8);
@@ -2047,8 +2046,7 @@ dissect_rlc_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guin
                 if (len && (((cw[len-1] & 0x01) == 0) || (cw[len-1] == 0x01))) {
                     expert_add_info(pinfo, tree, &ei_rlc_sufi_cw);
                 } else {
-                    ti = proto_tree_add_text(sufi_tree, tvb, previous_bit_offset/8, (bit_offset-previous_bit_offset)/8, "Decoded list:");
-                    rlist_tree = proto_item_add_subtree(ti, ett_rlc_rlist);
+                    rlist_tree = proto_tree_add_subtree(sufi_tree, tvb, previous_bit_offset/8, (bit_offset-previous_bit_offset)/8, ett_rlc_rlist, NULL, "Decoded list:");
                     proto_tree_add_text(rlist_tree, tvb, (previous_bit_offset+4)/8, 12/8,
                                         "Sequence Number = %u (AMD PDU not correctly received)",(unsigned)sn);
                     col_append_fstr(pinfo->cinfo, COL_INFO, " RLIST=(%u", (unsigned)sn);

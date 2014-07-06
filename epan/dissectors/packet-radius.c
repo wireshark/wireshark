@@ -897,14 +897,12 @@ void radius_tlv(radius_attr_info_t* a, proto_tree* tree, packet_info *pinfo _U_,
 			dictionary_entry = &no_dictionary_entry;
 		}
 
-		tlv_item = proto_tree_add_text(tree, tvb, offset, tlv_length,
-					       "TLV: l=%u t=%s(%u)", tlv_length,
+		tlv_tree = proto_tree_add_subtree_format(tree, tvb, offset, tlv_length,
+					       dictionary_entry->ett, &tlv_item, "TLV: l=%u t=%s(%u)", tlv_length,
 					       dictionary_entry->name, tlv_type);
 
 		tlv_length -= 2;
 		offset += 2;
-
-		tlv_tree = proto_item_add_subtree(tlv_item,dictionary_entry->ett);
 
 		if (show_length) {
 			tlv_len_item = proto_tree_add_uint(tlv_tree,
@@ -1394,7 +1392,6 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 	proto_tree *radius_tree = NULL;
 	proto_tree *avptree = NULL;
 	proto_item *ti, *hidden_item;
-	proto_item *avptf;
 	guint avplength;
 	e_radiushdr rh;
 	radius_info_t *rad_info;
@@ -1714,9 +1711,8 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 	if (avplength > 0)
 	{
 		/* list the attribute value pairs */
-		avptf = proto_tree_add_text(radius_tree, tvb, HDR_LENGTH,
-			avplength, "Attribute Value Pairs");
-		avptree = proto_item_add_subtree(avptf, ett_radius_avp);
+		avptree = proto_tree_add_subtree(radius_tree, tvb, HDR_LENGTH,
+			avplength, ett_radius_avp, NULL, "Attribute Value Pairs");
 		dissect_attribute_value_pairs(avptree, pinfo, tvb, HDR_LENGTH,
 			avplength);
 	}

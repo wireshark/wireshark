@@ -1051,13 +1051,12 @@ guint16 rtps_util_add_vendor_id(proto_tree *tree,
 void rtps_util_add_locator_t(proto_tree *tree, packet_info *pinfo, tvbuff_t * tvb, gint offset,
                              gboolean little_endian, const guint8 * label) {
 
-  proto_item * ti;
+  proto_tree * ti;
   proto_tree * locator_tree;
   gint32  kind;
   guint32 port;
 
-  ti = proto_tree_add_text(tree, tvb, offset, 24, "%s", label);
-  locator_tree = proto_item_add_subtree(ti, ett_rtps_locator);
+  locator_tree = proto_tree_add_subtree(tree, tvb, offset, 24, ett_rtps_locator, NULL, label);
 
   kind = NEXT_guint32(tvb, offset, little_endian);
   port = NEXT_guint32(tvb, offset+4, little_endian);
@@ -1087,23 +1086,20 @@ void rtps_util_add_locator_t(proto_tree *tree, packet_info *pinfo, tvbuff_t * tv
 int rtps_util_add_locator_list(proto_tree *tree, packet_info *pinfo, tvbuff_t * tvb,
                                 gint offset, const guint8* label, gboolean little_endian) {
 
-  proto_item *ti;
   proto_tree *locator_tree;
   guint32 num_locators;
 
   num_locators = NEXT_guint32(tvb, offset, little_endian);
-  if (tree) {
-    ti = proto_tree_add_text(tree, tvb, offset, 4,
-                        "%s: %d Locators", label, num_locators);
-  } else {
+  if (tree == NULL) {
     return offset + 4 + ((num_locators > 0) ? (24 * num_locators) : 0);
   }
+
+  locator_tree = proto_tree_add_subtree_format(tree, tvb, offset, 4,
+                        ett_rtps_locator_udp_v4, NULL, "%s: %d Locators", label, num_locators);
   offset += 4;
   if (num_locators > 0) {
     guint32 i;
     char temp_buff[20];
-
-    locator_tree = proto_item_add_subtree(ti, ett_rtps_locator_udp_v4);
 
     for (i = 0; i < num_locators; ++i) {
       g_snprintf(temp_buff, 20, "Locator[%d]", i);
@@ -1151,8 +1147,7 @@ void rtps_util_add_locator_udp_v4(proto_tree *tree, packet_info *pinfo, tvbuff_t
   proto_tree * locator_tree;
   guint32 port;
 
-  ti = proto_tree_add_text(tree, tvb, offset, 8, "%s", label);
-  locator_tree = proto_item_add_subtree(ti, ett_rtps_locator_udp_v4);
+  locator_tree = proto_tree_add_subtree(tree, tvb, offset, 8, ett_rtps_locator_udp_v4, NULL, label);
 
   rtps_util_add_ipv4_address_t(locator_tree, pinfo, tvb, offset,
                                little_endian, hf_rtps_locator_udp_v4);
@@ -1229,12 +1224,11 @@ static void rtps_util_add_guid_prefix_v2(proto_tree *tree, tvbuff_t *tvb, gint o
   safe_label = (label == NULL) ? (const guint8 *)"guidPrefix" : label;
 
   if (tree) {
-    proto_item * ti, *hidden_item;
-    proto_tree * guid_tree;
+    proto_item *hidden_item;
+    proto_tree *guid_tree;
 
     /* The text node (root of the guid prefix sub-tree) */
-    ti = proto_tree_add_text(tree, tvb, offset, 12, "%s", safe_label);
-    guid_tree = proto_item_add_subtree(ti, ett_rtps_guid_prefix);
+    guid_tree = proto_tree_add_subtree(tree, tvb, offset, 12, ett_rtps_guid_prefix, NULL, safe_label);
 
     /* The numeric value (used for searches) */
     hidden_item = proto_tree_add_item(guid_tree, hf_prefix, tvb, offset, 8, ENC_NA);
@@ -1521,11 +1515,9 @@ void rtps_util_add_durability_service_qos(proto_tree *tree,
                         tvbuff_t * tvb,
                         gint       offset,
                         gboolean   little_endian) {
-  proto_item *ti;
   proto_tree *subtree;
 
-  ti = proto_tree_add_text(tree, tvb, offset, 28, "PID_DURABILITY_SERVICE");
-  subtree = proto_item_add_subtree(ti, ett_rtps_durability_service);
+  subtree = proto_tree_add_subtree(tree, tvb, offset, 28, ett_rtps_durability_service, NULL, "PID_DURABILITY_SERVICE");
 
   rtps_util_add_ntp_time(subtree, tvb, offset, little_endian, hf_rtps_durability_service_cleanup_delay);
   proto_tree_add_item(subtree, hf_rtps_durability_service_history_kind, tvb, offset+8, 4,
@@ -1546,11 +1538,9 @@ void rtps_util_add_durability_service_qos(proto_tree *tree,
  */
 void rtps_util_add_liveliness_qos(proto_tree *tree, tvbuff_t * tvb, gint offset, gboolean little_endian) {
 
-  proto_item *ti;
   proto_tree *subtree;
 
-  ti = proto_tree_add_text(tree, tvb, offset, 12, "PID_LIVELINESS");
-  subtree = proto_item_add_subtree(ti, ett_rtps_liveliness);
+  subtree = proto_tree_add_subtree(tree, tvb, offset, 12, ett_rtps_liveliness, NULL, "PID_LIVELINESS");
 
   proto_tree_add_item(subtree, hf_rtps_liveliness_kind, tvb, offset, 4,
                             little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
@@ -1569,15 +1559,13 @@ gint rtps_util_add_seq_string(proto_tree *tree, tvbuff_t* tvb, gint offset,
   guint32 i, num_strings, size;
   const guint8 * retVal;
   proto_tree *string_tree;
-  proto_item *ti;
 
   num_strings = NEXT_guint32(tvb, offset, little_endian);
   proto_tree_add_int(tree, hf_numstring, tvb, offset, 4, num_strings);
   offset += 4;
 
   /* Create the string node with a fake string, the replace it later */
-  ti = proto_tree_add_text(tree, tvb, offset, param_length-8, "%s", label);
-  string_tree = proto_item_add_subtree(ti, ett_rtps_seq_string);
+  string_tree = proto_tree_add_subtree(tree, tvb, offset, param_length-8, ett_rtps_seq_string, NULL, label);
 
   for (i = 0; i < num_strings; ++i) {
     size = NEXT_guint32(tvb, offset, little_endian);
@@ -1608,14 +1596,13 @@ gint rtps_util_add_seq_ulong(proto_tree *tree, tvbuff_t * tvb, gint offset, int 
   guint32 num_elem;
   guint32 i;
   proto_tree *string_tree;
-  proto_item *ti;
 
   num_elem = NEXT_guint32(tvb, offset, little_endian);
   offset += 4;
 
   /* Create the string node with an empty string, the replace it later */
-  ti = proto_tree_add_text(tree, tvb, offset, num_elem*4, "%s (%d elements)", label, num_elem);
-  string_tree = proto_item_add_subtree(ti, ett_rtps_seq_ulong);
+  string_tree = proto_tree_add_subtree_format(tree, tvb, offset, num_elem*4,
+                ett_rtps_seq_ulong, NULL, "%s (%d elements)", label, num_elem);
 
   for (i = 0; i < num_elem; ++i) {
     proto_tree_add_item(string_tree, hf_item, tvb, offset, 4, little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
@@ -2268,8 +2255,7 @@ static int rtps_util_add_bitmap(proto_tree *tree,
   const gint original_offset = offset;
   guint32 datamask;
 
-  ti = proto_tree_add_text(tree, tvb, original_offset, offset-original_offset, "%s", label);
-  bitmap_tree = proto_item_add_subtree(ti, ett_rtps_bitmap);
+  bitmap_tree = proto_tree_add_subtree(tree, tvb, original_offset, offset-original_offset, ett_rtps_bitmap, &ti, label);
 
   /* Bitmap base sequence number */
   rtps_util_add_seq_number(bitmap_tree, tvb, offset, little_endian, "bitmapBase");
@@ -2339,7 +2325,7 @@ static int rtps_util_add_fragment_number_set(proto_tree *tree, packet_info *pinf
   gint expected_size;
   gint base_size;
 
-  ti = proto_tree_add_text(tree, tvb, original_offset, offset-original_offset, "%s", label);
+  bitmap_tree = proto_tree_add_subtree(tree, tvb, original_offset, offset-original_offset, ett_rtps_bitmap, &ti, label);
 
   /* RTI DDS 4.2d was sending the FragmentNumber_t as a 64-bit long integer
    * instead of 32-bit long.
@@ -2390,8 +2376,6 @@ static int rtps_util_add_fragment_number_set(proto_tree *tree, packet_info *pinf
   if (last_one) {
     wmem_strbuf_truncate(temp_buff, (gsize) (last_one - wmem_strbuf_get_str(temp_buff)));
   }
-
-  bitmap_tree = proto_item_add_subtree(ti, ett_rtps_bitmap);
 
   if (base_size == 8) {
     proto_tree_add_uint64(bitmap_tree, hf_rtps_fragment_number_base64, tvb, original_offset, 8,
@@ -2502,7 +2486,6 @@ static gboolean dissect_parameter_sequence_v1(proto_tree *rtps_parameter_tree, p
                         proto_item* parameter_item, proto_item*  param_len_item, gint offset,
                         gboolean little_endian, int size, int param_length,
                         guint16 parameter, guint16 version) {
-  proto_item *ti;
   proto_tree *subtree;
 
   switch(parameter) {
@@ -3054,8 +3037,7 @@ static gboolean dissect_parameter_sequence_v1(proto_tree *rtps_parameter_tree, p
      */
     case PID_RESOURCE_LIMIT:
       ENSURE_LENGTH(12);
-      ti = proto_tree_add_text(rtps_parameter_tree, tvb, offset, 12, "Resource Limit");
-      subtree = proto_item_add_subtree(ti, ett_rtps_resource_limit);
+      subtree = proto_tree_add_subtree(rtps_parameter_tree, tvb, offset, 12, ett_rtps_resource_limit, NULL, "Resource Limit");
       proto_tree_add_item(subtree, hf_rtps_resource_limit_max_samples, tvb, offset, 4, little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
       proto_tree_add_item(subtree, hf_rtps_resource_limit_max_instances, tvb, offset+4, 4, little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
       proto_tree_add_item(subtree, hf_rtps_resource_limit_max_samples_per_instances, tvb, offset+8, 4, little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
@@ -3394,8 +3376,7 @@ static gboolean dissect_parameter_sequence_v1(proto_tree *rtps_parameter_tree, p
       int i = 0;
       guint32 manager_key;
 
-      ti = proto_tree_add_text(rtps_parameter_tree, tvb, offset, param_length, "Manager Keys");
-      subtree = proto_item_add_subtree(ti, ett_rtps_manager_key);
+      subtree = proto_tree_add_subtree(rtps_parameter_tree, tvb, offset, param_length, ett_rtps_manager_key, NULL, "Manager Keys");
 
       while (param_length >= 4) {
         manager_key = NEXT_guint32(tvb, offset, little_endian);
@@ -3845,8 +3826,8 @@ static gboolean dissect_parameter_sequence_v2(proto_tree *rtps_parameter_tree, p
               for (ch = 0; ch < number_of_channels; ++ch) {
                 g_snprintf(temp_buff, 20, "Channel[%u]", ch);
                 old_offset = off;
-                ti_channel = proto_tree_add_text(rtps_parameter_tree, tvb, off, 0, "Channel[%u]", ch);
-                channel_tree = proto_item_add_subtree(ti_channel, ett_rtps_locator_filter_channel);
+                channel_tree = proto_tree_add_subtree_format(rtps_parameter_tree, tvb, off, 0,
+                                ett_rtps_locator_filter_channel, &ti_channel, "Channel[%u]", ch);
 
                 off = rtps_util_add_locator_list(channel_tree, pinfo, tvb, off, temp_buff, little_endian);
                 /* Filter expression */
@@ -3907,8 +3888,7 @@ static gint dissect_parameter_sequence(proto_tree *tree, packet_info *pinfo, tvb
   guint16    parameter, param_length;
   gint       original_offset = offset;
 
-  ti = proto_tree_add_text(tree, tvb, offset, -1, "%s:", label);
-  rtps_parameter_sequence_tree = proto_item_add_subtree(ti, ett_rtps_parameter_sequence);
+  rtps_parameter_sequence_tree = proto_tree_add_subtree_format(tree, tvb, offset, -1, ett_rtps_parameter_sequence, &ti, "%s:", label);
 
   /* Loop through all the parameters defined until PID_SENTINEL is found */
   for (;;) {
@@ -3925,15 +3905,13 @@ static gint dissect_parameter_sequence(proto_tree *tree, packet_info *pinfo, tvb
      */
     parameter = NEXT_guint16(tvb, offset, little_endian);
     if (version < 0x0200) {
-      param_item = proto_tree_add_text(rtps_parameter_sequence_tree, tvb, offset, -1,
-                        "%s", val_to_str(parameter, parameter_id_vals, "Unknown (0x%04x)"));
-      rtps_parameter_tree = proto_item_add_subtree(param_item, ett_rtps_parameter);
+      rtps_parameter_tree = proto_tree_add_subtree(rtps_parameter_sequence_tree, tvb, offset, -1,
+                        ett_rtps_parameter, &param_item, val_to_str(parameter, parameter_id_vals, "Unknown (0x%04x)"));
 
       proto_tree_add_uint(rtps_parameter_tree, hf_rtps_parameter_id, tvb, offset, 2, parameter);
     } else {
-      param_item = proto_tree_add_text(rtps_parameter_sequence_tree, tvb, offset, -1,
-                        "%s", val_to_str(parameter, parameter_id_v2_vals, "Unknown (0x%04x)"));
-      rtps_parameter_tree = proto_item_add_subtree(param_item, ett_rtps_parameter);
+      rtps_parameter_tree = proto_tree_add_subtree(rtps_parameter_sequence_tree, tvb, offset, -1,
+                        ett_rtps_parameter, &param_item, val_to_str(parameter, parameter_id_v2_vals, "Unknown (0x%04x)"));
 
       proto_tree_add_uint(rtps_parameter_tree, hf_rtps_parameter_id_v2, tvb, offset, 2, parameter);
     }
@@ -4006,8 +3984,7 @@ static void dissect_serialized_data(proto_tree *tree, packet_info *pinfo, tvbuff
   gboolean encapsulation_little_endian = FALSE;
 
   /* Creates the sub-tree */
-  ti = proto_tree_add_text(tree, tvb, offset, -1, "%s", label);
-  rtps_parameter_sequence_tree = proto_item_add_subtree(ti, ett_rtps_serialized_data);
+  rtps_parameter_sequence_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_rtps_serialized_data, &ti, label);
 
   /* Encapsulation ID */
   encapsulation_id =  NEXT_guint16(tvb, offset, FALSE);   /* Always big endian */
@@ -5337,11 +5314,11 @@ static void dissect_RTPS_DATA(tvbuff_t *tvb, packet_info *pinfo, gint offset, gu
       guint16 encapsulation_id;
       guint16 encapsulation_len;
       /*int encapsulation_little_endian = 0;*/
-      proto_item * ti = proto_tree_add_text(tree, tvb, offset,
+      proto_item *ti;
+      rtps_pm_tree = proto_tree_add_subtree(tree, tvb, offset,
                         octets_to_next_header - (offset - old_offset) + 4,
-                        "ParticipantMessageData");
+                        ett_rtps_part_message_data, &ti, "ParticipantMessageData");
 
-      rtps_pm_tree = proto_item_add_subtree(ti, ett_rtps_part_message_data);
       /* Encapsulation ID */
       encapsulation_id =  NEXT_guint16(tvb, offset, FALSE);   /* Always big endian */
 
@@ -5729,8 +5706,7 @@ static void dissect_RTPS_DATA_BATCH(tvbuff_t *tvb, packet_info *pinfo, gint offs
     proto_tree *sil_tree;
     sample_info_count = 0;
 
-    list_item = proto_tree_add_text(tree, tvb, offset, -1, "Sample Info List");
-    sil_tree = proto_item_add_subtree(list_item, ett_rtps_sample_info_list);
+    sil_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_rtps_sample_info_list, &list_item, "Sample Info List");
 
     /* Allocate sample_info_flags and sample_info_length
      * to store a copy of the flags for each sample info */
@@ -5755,8 +5731,7 @@ static void dissect_RTPS_DATA_BATCH(tvbuff_t *tvb, packet_info *pinfo, gint offs
         break;
       }
 
-      ti = proto_tree_add_text(sil_tree, tvb, offset, -1, "sampleInfo[%d]", sample_info_count);
-      si_tree = proto_item_add_subtree(ti, ett_rtps_sample_info);
+      si_tree = proto_tree_add_subtree_format(sil_tree, tvb, offset, -1, ett_rtps_sample_info, &ti, "sampleInfo[%d]", sample_info_count);
 
       flags2 = NEXT_guint16(tvb, offset, FALSE); /* Flags are always big endian */
       sample_info_flags[sample_info_count] = flags2;
@@ -5835,8 +5810,7 @@ static void dissect_RTPS_DATA_BATCH(tvbuff_t *tvb, packet_info *pinfo, gint offs
     gint count = 0;
     const char * label;
 
-    ti = proto_tree_add_text(tree, tvb, offset, -1, "Serialized Sample List");
-    sil_tree = proto_item_add_subtree(ti, ett_rtps_sample_batch_list);
+    sil_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_rtps_sample_batch_list, &ti, "Serialized Sample List");
     for (count = 0; count < sample_info_count; ++count) {
       /* Ensure there are enough bytes in the buffer to dissect the next sample */
       if (octets_to_next_header - (offset - old_offset) + 4 < (gint)sample_info_length[count]) {
@@ -6506,20 +6480,19 @@ static gboolean dissect_rtps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
     if ((nature == PORT_METATRAFFIC_UNICAST) || (nature == PORT_USERTRAFFIC_UNICAST) ||
         (version < 0x0200)) {
-      ti = proto_tree_add_text(rtps_tree, tvb, 0, 0,
-                        "Default port mapping: domainId=%d, "
+      mapping_tree = proto_tree_add_subtree_format(rtps_tree, tvb, 0, 0,
+                        ett_rtps_default_mapping, NULL, "Default port mapping: domainId=%d, "
                         "participantIdx=%d, nature=%s",
                         domain_id,
                         participant_idx,
                         val_to_str(nature, nature_type_vals, "%02x"));
     } else {
-      ti = proto_tree_add_text(rtps_tree, tvb, 0, 0,
-                        "Default port mapping: %s, domainId=%d",
+      mapping_tree = proto_tree_add_subtree_format(rtps_tree, tvb, 0, 0,
+                        ett_rtps_default_mapping, NULL, "Default port mapping: %s, domainId=%d",
                         val_to_str(nature, nature_type_vals, "%02x"),
                         domain_id);
     }
 
-    mapping_tree = proto_item_add_subtree(ti, ett_rtps_default_mapping);
     ti = proto_tree_add_uint(mapping_tree, hf_rtps_domain_id, tvb, 0, 0, domain_id);
     PROTO_ITEM_SET_GENERATED(ti);
     if ((nature == PORT_METATRAFFIC_UNICAST) || (nature == PORT_USERTRAFFIC_UNICAST) ||

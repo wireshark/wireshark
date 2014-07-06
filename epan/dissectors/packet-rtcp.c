@@ -902,16 +902,14 @@ dissect_rtcp_rtpfb_tmmbr( tvbuff_t *tvb, int offset, proto_tree *rtcp_tree, prot
     int         bitrate;
     int         exp;
     guint32     mantissa;
-    proto_item *ti;
     proto_tree *fci_tree;
 
     if (is_notification == 1) {
-        ti = proto_tree_add_text( rtcp_tree, tvb, offset, 8, "TMMBN %d", num_fci );
+        fci_tree = proto_tree_add_subtree_format( rtcp_tree, tvb, offset, 8, ett_ssrc, NULL, "TMMBN %d", num_fci );
     } else {
-        ti = proto_tree_add_text( rtcp_tree, tvb, offset, 8, "TMMBR %d", num_fci );
+        fci_tree = proto_tree_add_subtree_format( rtcp_tree, tvb, offset, 8, ett_ssrc, NULL, "TMMBR %d", num_fci );
     }
 
-    fci_tree = proto_item_add_subtree( ti, ett_ssrc );
     /* SSRC 32 bit*/
     proto_tree_add_item( fci_tree, hf_rtcp_rtpfb_tmbbr_fci_ssrc, tvb, offset, 4, ENC_BIG_ENDIAN );
     offset += 4;
@@ -961,8 +959,7 @@ dissect_rtcp_asfb_ms( tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *
 
     if (type == 1)
     {
-        item = proto_tree_add_text(tree, tvb, offset, hf_rtcp_psfb_ms_length, "MS Video Source Request");
-        rtcp_ms_vsr_tree = proto_item_add_subtree(item, ett_ms_vsr);
+        rtcp_ms_vsr_tree = proto_tree_add_subtree(tree, tvb, offset, hf_rtcp_psfb_ms_length, ett_ms_vsr, &item, "MS Video Source Request");
 
         col_append_fstr(pinfo->cinfo, COL_INFO,"( MS-VSR )");
 
@@ -990,8 +987,8 @@ dissect_rtcp_asfb_ms( tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *
 
         while (num_entries-- && tvb_captured_length_remaining (tvb, offset) >= 0x44)
         {
-            item = proto_tree_add_text(rtcp_ms_vsr_tree, tvb, offset, 0x44, "MS Video Source Request Entry #%d", ++desc);
-            rtcp_ms_vsr_entry_tree = proto_item_add_subtree(item, ett_ms_vsr_entry);
+            rtcp_ms_vsr_entry_tree = proto_tree_add_subtree_format(rtcp_ms_vsr_tree, tvb, offset, 0x44,
+                                     ett_ms_vsr_entry, NULL, "MS Video Source Request Entry #%d", ++desc);
 
             proto_tree_add_item (rtcp_ms_vsr_entry_tree, hf_rtcp_psfb_ms_vsre_payload_type,    tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
@@ -1056,8 +1053,7 @@ dissect_rtcp_asfb_ms( tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *
     else if (type == 3)
     {
         /* MS Dominant Speaker History */
-        item = proto_tree_add_text(tree, tvb, offset, hf_rtcp_psfb_ms_length, "MS Dominant Speaker History");
-        rtcp_ms_ds_tree = proto_item_add_subtree(item, ett_ms_ds);
+        rtcp_ms_ds_tree = proto_tree_add_subtree(tree, tvb, offset, hf_rtcp_psfb_ms_length, ett_ms_ds, NULL, "MS Dominant Speaker History");
         col_append_fstr(pinfo->cinfo, COL_INFO,"( MS-DSH )");
         while (length-- && tvb_captured_length_remaining (tvb, offset) >= 4)
         {
@@ -1083,12 +1079,10 @@ dissect_rtcp_psfb_remb( tvbuff_t *tvb, int offset, proto_tree *rtcp_tree, proto_
     guint       exp, indexSsrcs;
     guint8      numberSsrcs;
     guint32     mantissa, bitrate;
-    proto_item *ti;
     proto_tree *fci_tree;
 
-    ti = proto_tree_add_text( rtcp_tree, tvb, offset, 8, "REMB %d", num_fci );
+    fci_tree = proto_tree_add_subtree_format( rtcp_tree, tvb, offset, 8, ett_ssrc, NULL, "REMB %d", num_fci );
 
-    fci_tree = proto_item_add_subtree( ti, ett_ssrc );
     /* Uniquie identifier 'REMB' */
     proto_tree_add_item( fci_tree, hf_rtcp_psfb_remb_fci_identifier, tvb, offset, 4, ENC_ASCII|ENC_NA );
     offset += 4;
@@ -1305,8 +1299,7 @@ dissect_rtcp_psfb( tvbuff_t *tvb, int offset, proto_tree *rtcp_tree,
         case 4:     /* Handle FIR */
         {
             /* Create a new subtree for a length of 8 bytes */
-            ti        = proto_tree_add_text( rtcp_tree, tvb, offset, 8, "FIR %u", ++counter );
-            fci_tree  = proto_item_add_subtree( ti, ett_ssrc );
+            fci_tree  = proto_tree_add_subtree_format( rtcp_tree, tvb, offset, 8, ett_ssrc, NULL, "FIR %u", ++counter );
             /* SSRC 32 bit*/
             proto_tree_add_item( fci_tree, hf_rtcp_psfb_fir_fci_ssrc, tvb, offset, 4, ENC_BIG_ENDIAN );
             offset   += 4;
@@ -1862,12 +1855,13 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 
             case TBCP_CONNECT:
                 {
-                proto_item   *content   = proto_tree_add_text(PoC1_tree, tvb, offset, 2, "SDES item content");
+                proto_item   *content;
+                proto_tree   *content_tree = proto_tree_add_subtree(PoC1_tree, tvb, offset, 2,
+                                            ett_poc1_conn_contents, &content, "SDES item content");
                 gboolean      contents[5];
                 unsigned int  i;
                 guint8        items_set = 0;
 
-                proto_tree *content_tree = proto_item_add_subtree(content, ett_poc1_conn_contents);
                 guint16 items_field = tvb_get_ntohs(tvb, offset );
 
                 /* Dissect each defined bit flag in the SDES item content */
@@ -2071,9 +2065,8 @@ dissect_rtcp_sdes( tvbuff_t *tvb, int offset, proto_tree *tree,
         start_offset = offset;
 
         ssrc = tvb_get_ntohl( tvb, offset );
-        sdes_item = proto_tree_add_text(tree, tvb, offset, -1,
-            "Chunk %u, SSRC/CSRC 0x%X", chunk, ssrc);
-        sdes_tree = proto_item_add_subtree( sdes_item, ett_sdes );
+        sdes_tree = proto_tree_add_subtree_format(tree, tvb, offset, -1,
+            ett_sdes, &sdes_item, "Chunk %u, SSRC/CSRC 0x%X", chunk, ssrc);
 
         /* SSRC_n source identifier, 32 bits */
         proto_tree_add_item( sdes_tree, hf_rtcp_ssrc_source, tvb, offset, 4, ENC_BIG_ENDIAN );
@@ -2082,9 +2075,8 @@ dissect_rtcp_sdes( tvbuff_t *tvb, int offset, proto_tree *tree,
         /* Create a subtree for the SDES items; we don't yet know
            the length */
         items_start_offset = offset;
-        ti = proto_tree_add_text(sdes_tree, tvb, offset, -1,
-            "SDES items" );
-        sdes_item_tree = proto_item_add_subtree( ti, ett_sdes_item );
+        sdes_item_tree = proto_tree_add_subtree(sdes_tree, tvb, offset, -1,
+            ett_sdes_item, &ti, "SDES items" );
 
         /*
          * Not every message is ended with "null" bytes, so check for
@@ -2238,9 +2230,8 @@ dissect_rtcp_xr(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree,
         /*gboolean valid = TRUE;*/
 
         /* Create a subtree for this block, dont know the length yet*/
-        proto_item *block         = proto_tree_add_text(tree, tvb, offset, -1, "Block %u", block_num);
-        proto_tree *xr_block_tree = proto_item_add_subtree(block, ett_xr_block);
-        proto_item *contents;
+        proto_item *block;
+        proto_tree *xr_block_tree = proto_tree_add_subtree_format(tree, tvb, offset, -1, ett_xr_block, &block, "Block %u", block_num);
         proto_tree *content_tree;
 
         proto_tree_add_item(xr_block_tree, hf_rtcp_xr_block_type, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -2267,8 +2258,7 @@ dissect_rtcp_xr(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree,
         offset     += 4;
         packet_len -= 4;
 
-        contents = proto_tree_add_text(xr_block_tree, tvb, offset, content_length, "Contents");
-        content_tree = proto_item_add_subtree(contents, ett_xr_block_contents);
+        content_tree = proto_tree_add_subtree(xr_block_tree, tvb, offset, content_length, ett_xr_block_contents, NULL, "Contents");
 
         switch (block_type) {
         case RTCP_XR_VOIP_METRCS: {
@@ -2465,8 +2455,7 @@ dissect_rtcp_xr(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree,
             gint counter = 0;
             for(counter = 0; counter < sources; counter++) {
                 /* Create a new subtree for a length of 12 bytes */
-                proto_tree *ti = proto_tree_add_text(content_tree, tvb, offset, 12, "Source %u", counter + 1);
-                proto_tree *ssrc_tree = proto_item_add_subtree(ti, ett_xr_ssrc);
+                proto_tree *ssrc_tree = proto_tree_add_subtree_format(content_tree, tvb, offset, 12, ett_xr_ssrc, NULL, "Source %u", counter + 1);
 
                 /* SSRC_n source identifier, 32 bits */
                 proto_tree_add_item(ssrc_tree, hf_rtcp_ssrc_source, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -2521,7 +2510,6 @@ dissect_rtcp_xr(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree,
         case RTCP_XR_DUP_RLE: {
             /* 8 bytes of fixed header */
             gint count = 0, skip = 8;
-            proto_item *chunks_item;
             proto_tree *chunks_tree;
 
             /* Identifier */
@@ -2537,8 +2525,7 @@ dissect_rtcp_xr(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree,
             offset += 2;
 
             /* report Chunks */
-            chunks_item = proto_tree_add_text(content_tree, tvb, offset, content_length,"Report Chunks");
-            chunks_tree = proto_item_add_subtree(chunks_item, ett_xr_loss_chunk);
+            chunks_tree = proto_tree_add_subtree(content_tree, tvb, offset, content_length, ett_xr_loss_chunk, NULL, "Report Chunks");
 
             for(count = 1; skip < content_length; skip += 2, count++) {
                 guint value = tvb_get_ntohs(tvb, offset);
@@ -2744,8 +2731,7 @@ dissect_rtcp_profile_specific_extensions (packet_info *pinfo, tvbuff_t *tvb, pro
             extension_length = 4; /* expert info? */
         }
 
-        pse_item = proto_tree_add_text(tree, tvb, offset, extension_length, "Payload Specific Extension");
-        pse_tree = proto_item_add_subtree( pse_item, ett_pse);
+        pse_tree = proto_tree_add_subtree(tree, tvb, offset, extension_length, ett_pse, &pse_item, "Payload Specific Extension");
         proto_item_append_text(pse_item, " (%s)",
                 val_to_str_const(extension_type, rtcp_ms_profile_extension_vals, "Unknown"));
         col_append_fstr(pinfo->cinfo, COL_INFO, "PSE:%s  ",
@@ -2876,16 +2862,14 @@ dissect_rtcp_rr( packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree
         guint32 lsr, dlsr;
 
         /* Create a new subtree for a length of 24 bytes */
-        ti = proto_tree_add_text(tree, tvb, offset, 24,
-            "Source %u", counter );
-        ssrc_tree = proto_item_add_subtree( ti, ett_ssrc );
+        ssrc_tree = proto_tree_add_subtree_format(tree, tvb, offset, 24,
+            ett_ssrc, NULL, "Source %u", counter );
 
         /* SSRC_n source identifier, 32 bits */
         proto_tree_add_item( ssrc_tree, hf_rtcp_ssrc_source, tvb, offset, 4, ENC_BIG_ENDIAN );
         offset += 4;
 
-        ti = proto_tree_add_text(ssrc_tree, tvb, offset, 20, "SSRC contents" );
-        ssrc_sub_tree = proto_item_add_subtree( ti, ett_ssrc_item );
+        ssrc_sub_tree = proto_tree_add_subtree(ssrc_tree, tvb, offset, 20, ett_ssrc_item, NULL, "SSRC contents" );
 
         /* Fraction lost, 8bits */
         rr_flt = tvb_get_guint8( tvb, offset );

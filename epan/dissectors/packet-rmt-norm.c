@@ -306,8 +306,7 @@ static guint dissect_nack_data(proto_tree *tree, tvbuff_t *tvb, guint offset,
     proto_tree *nack_tree, *flag_tree;
     guint16     len;
 
-    ti = proto_tree_add_text(tree, tvb, offset, -1, "NACK Data");
-    nack_tree = proto_item_add_subtree(ti, ett_nackdata);
+    nack_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_nackdata, &ti, "NACK Data");
     proto_tree_add_item(nack_tree, hf_nack_form, tvb, offset, 1, ENC_BIG_ENDIAN); offset += 1;
 
     tif = proto_tree_add_item(nack_tree, hf_nack_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -355,8 +354,7 @@ static void dissect_norm_data(proto_tree *tree, packet_info *pinfo,
         offset = dissect_norm_hdrext(tree, pinfo, tvb, offset, hlen);
     }
     if (flags & NORM_FLAG_STREAM) {
-        ti = proto_tree_add_text(tree, tvb, offset, 8, "Stream Data");
-        flag_tree = proto_item_add_subtree(ti, ett_streampayload);
+        flag_tree = proto_tree_add_subtree(tree, tvb, offset, 8, ett_streampayload, NULL, "Stream Data");
         proto_tree_add_item(flag_tree, hf_reserved,       tvb, offset, 2, ENC_BIG_ENDIAN); offset += 2;
         proto_tree_add_item(flag_tree, hf_payload_len,    tvb, offset, 2, ENC_BIG_ENDIAN); offset += 2;
         proto_tree_add_item(flag_tree, hf_payload_offset, tvb, offset, 4, ENC_BIG_ENDIAN); offset += 4;
@@ -442,11 +440,10 @@ static guint dissect_norm_cmd_cc(proto_tree *tree, packet_info *pinfo,
         offset = dissect_norm_hdrext(tree, pinfo, tvb, offset, hlen);
     }
     while (offset < hdrlen2bytes(hlen)) {
-        proto_item *ti, *tif;
+        proto_item *tif;
         proto_tree *cc_tree, *flag_tree;
         double grtt;
-        ti = proto_tree_add_text(tree, tvb, offset, 8, "Congestion Control");
-        cc_tree = proto_item_add_subtree(ti, ett_congestioncontrol);
+        cc_tree = proto_tree_add_subtree(tree, tvb, offset, 8, ett_congestioncontrol, NULL, "Congestion Control");
         proto_tree_add_item(cc_tree, hf_cc_node_id, tvb, offset, 4, ENC_BIG_ENDIAN); offset += 4;
         tif = proto_tree_add_item(cc_tree, hf_cc_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
         flag_tree = proto_item_add_subtree(tif, ett_flags);

@@ -98,7 +98,6 @@ static void
 dissect_rpl_container(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	guint16 len, type, sublen, subtyp;
-	proto_item *ti;
 	proto_tree *rpl_container_tree;
 	guint16 offset;
 	gint ett_type;
@@ -136,13 +135,11 @@ dissect_rpl_container(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				if(subtyp == 0x4018) ett_type = ett_rpl_4018;
 				if(subtyp == 0xc005) ett_type = ett_rpl_c005;
 				if(subtyp == 0xc014) ett_type = ett_rpl_c014;
-				ti = proto_tree_add_text(tree, tvb,
-					offset, sublen, "%s",
+				rpl_container_tree = proto_tree_add_subtree(tree, tvb,
+					offset, sublen, ett_type, NULL,
 					val_to_str_const(subtyp,
 						rpl_type_vals,
 						"Unknown Type"));
-				rpl_container_tree = proto_item_add_subtree(ti,
-					ett_type);
 				length = tvb_length_remaining(tvb, offset);
 				if (length > sublen)
 					length = sublen;

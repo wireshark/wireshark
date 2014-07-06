@@ -189,8 +189,7 @@ dissect_rtacser_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     ring = tvb_get_guint8(tvb, offset) & RTACSER_CTRL_RING;
     mbok = tvb_get_guint8(tvb, offset) & RTACSER_CTRL_MBOK;
 
-    cl_item = proto_tree_add_text(rtacser_tree, tvb, offset, 1, "Control Lines");
-    cl_tree = proto_item_add_subtree(cl_item, ett_rtacser_cl);
+    cl_tree = proto_tree_add_subtree(rtacser_tree, tvb, offset, 1, ett_rtacser_cl, &cl_item, "Control Lines");
 
     /* Add UART Control Line information to INFO column */
     col_append_str(pinfo->cinfo, COL_INFO, " ( ");

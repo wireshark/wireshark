@@ -222,15 +222,13 @@ static void
 dissect_unspec_rip_vektor(tvbuff_t *tvb, int offset, guint8 version,
 		      proto_tree *tree)
 {
-    proto_item *ti;
     proto_tree *rip_vektor_tree;
     guint32 metric;
 
     metric = tvb_get_ntohl(tvb, offset+16);
-    ti = proto_tree_add_text(tree, tvb, offset,
-			     RIP_ENTRY_LENGTH, "Address not specified, Metric: %u",
+    rip_vektor_tree = proto_tree_add_subtree_format(tree, tvb, offset,
+			     RIP_ENTRY_LENGTH, ett_rip_vec, NULL, "Address not specified, Metric: %u",
 			     metric);
-    rip_vektor_tree = proto_item_add_subtree(ti, ett_rip_vec);
 
     proto_tree_add_item(rip_vektor_tree, &hfi_rip_family, tvb, offset, 2, ENC_BIG_ENDIAN);
     if (version == RIPv2) {
@@ -249,15 +247,13 @@ static void
 dissect_ip_rip_vektor(tvbuff_t *tvb, int offset, guint8 version,
 		      proto_tree *tree)
 {
-    proto_item *ti;
     proto_tree *rip_vektor_tree;
     guint32 metric;
 
     metric = tvb_get_ntohl(tvb, offset+16);
-    ti = proto_tree_add_text(tree, tvb, offset,
-			     RIP_ENTRY_LENGTH, "IP Address: %s, Metric: %u",
+    rip_vektor_tree = proto_tree_add_subtree_format(tree, tvb, offset,
+			     RIP_ENTRY_LENGTH, ett_rip_vec, NULL, "IP Address: %s, Metric: %u",
 			     tvb_ip_to_str(tvb, offset+4), metric);
-    rip_vektor_tree = proto_item_add_subtree(ti, ett_rip_vec);
 
     proto_tree_add_item(rip_vektor_tree, &hfi_rip_family, tvb, offset, 2, ENC_BIG_ENDIAN);
     if (version == RIPv2) {
@@ -280,7 +276,6 @@ dissect_ip_rip_vektor(tvbuff_t *tvb, int offset, guint8 version,
 static gint
 dissect_rip_authentication(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
-    proto_item *ti;
     proto_tree *rip_authentication_tree;
     guint16 authtype;
     guint32 val, digest_off, auth_data_len;
@@ -288,9 +283,8 @@ dissect_rip_authentication(tvbuff_t *tvb, int offset, proto_tree *tree)
     auth_data_len = 0;
     authtype = tvb_get_ntohs(tvb, offset + 2);
 
-    ti = proto_tree_add_text(tree, tvb, offset, RIP_ENTRY_LENGTH,
-			"Authentication: %s", val_to_str( authtype, rip_auth_type, "Unknown (%u)" ) );
-    rip_authentication_tree = proto_item_add_subtree(ti, ett_rip_vec);
+    rip_authentication_tree = proto_tree_add_subtree_format(tree, tvb, offset, RIP_ENTRY_LENGTH,
+			ett_rip_vec, NULL, "Authentication: %s", val_to_str( authtype, rip_auth_type, "Unknown (%u)" ) );
 
     proto_tree_add_uint(rip_authentication_tree, &hfi_rip_auth, tvb, offset+2, 2,
 		authtype);
@@ -317,9 +311,8 @@ dissect_rip_authentication(tvbuff_t *tvb, int offset, proto_tree *tree)
 			"Seq num: %u" , val );
 	proto_tree_add_text( rip_authentication_tree, tvb, offset+12, 8,
 			"Zero Padding" );
-	ti = proto_tree_add_text( rip_authentication_tree, tvb, offset-4+digest_off,
-			MD5_AUTH_DATA_LEN+4, "Authentication Data Trailer" );
-	rip_authentication_tree = proto_item_add_subtree(ti, ett_auth_vec );
+	rip_authentication_tree = proto_tree_add_subtree( rip_authentication_tree, tvb, offset-4+digest_off,
+			MD5_AUTH_DATA_LEN+4, ett_auth_vec, NULL, "Authentication Data Trailer" );
 	proto_tree_add_text( rip_authentication_tree, tvb, offset-4+digest_off+4,
 			MD5_AUTH_DATA_LEN, "Authentication Data: %s",
 			tvb_bytes_to_ep_str_punct(tvb, offset-4+digest_off+4,

@@ -88,7 +88,7 @@ static int
 dissect_rmcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	proto_tree	*rmcp_tree = NULL, *field_tree;
-	proto_item	*ti, *tf;
+	proto_item	*ti;
 	tvbuff_t	*next_tvb;
 	guint8		rmcp_class;
 	const gchar	*class_str;
@@ -125,11 +125,10 @@ dissect_rmcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 		proto_tree_add_item(rmcp_tree, hf_rmcp_version, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 		proto_tree_add_item(rmcp_tree, hf_rmcp_sequence, tvb, 2, 1, ENC_LITTLE_ENDIAN);
 
-		tf = proto_tree_add_text(rmcp_tree, tvb, 3, 1, "Type: %s, Class: %s",
+		field_tree = proto_tree_add_subtree_format(rmcp_tree, tvb, 3, 1,
+			 ett_rmcp_typeclass, NULL, "Type: %s, Class: %s",
 			 val_to_str(type, rmcp_type_vals, "Unknown (0x%02x)"),
 			 class_str);
-
-		field_tree = proto_item_add_subtree(tf, ett_rmcp_typeclass);
 
 		proto_tree_add_item(field_tree, hf_rmcp_class, tvb, 3, 1, ENC_LITTLE_ENDIAN);
 		proto_tree_add_item(field_tree, hf_rmcp_type, tvb, 3, 1, ENC_LITTLE_ENDIAN);

@@ -72,12 +72,11 @@ static void
 redbackli_dissect_avp(guint8 avptype, guint8 avplen, tvbuff_t *tvb, gint offset, proto_tree *tree)
 {
 	const char	*avpname;
-	proto_tree	*ti, *st = NULL;
+	proto_tree	*st = NULL;
 
 	avpname = val_to_str_const(avptype, avp_names, "Unknown");
 
-	ti = proto_tree_add_text(tree, tvb, offset, avplen+2, "%s AVP", avpname);
-	st = proto_item_add_subtree(ti, ett_redbackli);
+	st = proto_tree_add_subtree_format(tree, tvb, offset, avplen+2, ett_redbackli, NULL, "%s AVP", avpname);
 
 	proto_tree_add_text(st, tvb, offset, 1, "AVP Type: %d", avptype);
 	proto_tree_add_text(st, tvb, offset+1, 1, "AVP Length: %d", avplen);
@@ -135,16 +134,15 @@ redbackli_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint8		avptype, avplen;
 	gint		len, offset = 0;
 	gboolean	eoh;
-	proto_tree	*ti, *redbackli_tree = NULL;
+	proto_item	*ti;
+	proto_tree	*redbackli_tree = NULL;
 	tvbuff_t	*next_tvb;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "RBLI");
 
-	if (tree) {
-		ti = proto_tree_add_item(tree, proto_redbackli,
+	ti = proto_tree_add_item(tree, proto_redbackli,
 					 tvb, 0, -1, ENC_NA);
-		redbackli_tree = proto_item_add_subtree(ti, ett_redbackli);
-	}
+	redbackli_tree = proto_item_add_subtree(ti, ett_redbackli);
 
 	len = tvb_length(tvb);
 	offset = 0;
