@@ -1007,9 +1007,9 @@ dissect_rtcp_asfb_ms( tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *
             proto_tree_add_item (rtcp_ms_vsr_entry_tree, hf_rtcp_psfb_ms_vsre_aspect_ratio_4by3,  tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
             proto_tree_add_item (rtcp_ms_vsr_entry_tree, hf_rtcp_psfb_ms_vsre_max_width,  tvb, offset, 2, ENC_BIG_ENDIAN);
-            offset += 2;;
+            offset += 2;
             proto_tree_add_item (rtcp_ms_vsr_entry_tree, hf_rtcp_psfb_ms_vsre_max_height,  tvb, offset, 2, ENC_BIG_ENDIAN);
-            offset += 2;;
+            offset += 2;
             proto_tree_add_item (rtcp_ms_vsr_entry_tree, hf_rtcp_psfb_ms_vsre_min_bitrate,  tvb, offset, 4, ENC_BIG_ENDIAN);
             min_bitrate = tvb_get_ntohl (tvb, offset);
             offset += 4;
@@ -1035,7 +1035,7 @@ dissect_rtcp_asfb_ms( tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *
             proto_tree_add_item (rtcp_ms_vsr_entry_tree, hf_rtcp_psfb_ms_vsre_frame_rate_15,  tvb, offset, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item (rtcp_ms_vsr_entry_tree, hf_rtcp_psfb_ms_vsre_frame_rate_12_5,  tvb, offset, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item (rtcp_ms_vsr_entry_tree, hf_rtcp_psfb_ms_vsre_frame_rate_7_5,  tvb, offset, 1, ENC_BIG_ENDIAN);
-            offset++;;
+            offset++;
             proto_tree_add_item (rtcp_ms_vsr_entry_tree, hf_rtcp_psfb_ms_vsre_must_instances,  tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
             proto_tree_add_item (rtcp_ms_vsr_entry_tree, hf_rtcp_psfb_ms_vsre_may_instances,  tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -1282,7 +1282,7 @@ dissect_rtcp_psfb( tvbuff_t *tvb, int offset, proto_tree *rtcp_tree,
                 ti = proto_tree_add_item( rtcp_tree, hf_rtcp_psfb_pli_ms_sfr, tvb, offset, 1, ENC_BIG_ENDIAN );
                 proto_item_prepend_text(ti,"PRID %d - %d ",
                         i * 8, (i+1) * 8 - 1);
-                offset++;;
+                offset++;
             }
             read_fci += 3;
             break;
