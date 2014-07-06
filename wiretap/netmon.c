@@ -509,7 +509,7 @@ netmon_process_record(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 		if (*err == 0 && bytes_read != 0) {
 			*err = WTAP_ERR_SHORT_READ;
 		}
-		return FALSE;
+		return FAILURE;
 	}
 
 	switch (netmon->version_major) {
@@ -532,7 +532,7 @@ netmon_process_record(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup_printf("netmon: File has %u-byte packet, bigger than maximum of %u",
 		    packet_size, WTAP_MAX_PACKET_SIZE);
-		return FALSE;
+		return FAILURE;
 	}
 
 	phdr->rec_type = REC_TYPE_PACKET;
@@ -555,11 +555,11 @@ netmon_process_record(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 			*err = WTAP_ERR_BAD_FILE;
 			*err_info = g_strdup_printf("netmon: ATM file has a %u-byte packet, too small to have even an ATM pseudo-header",
 			    packet_size);
-			return FALSE;
+			return FAILURE;
 		}
 		if (!netmon_read_atm_pseudoheader(fh, &phdr->pseudo_header,
 		    err, err_info))
-			return FALSE;	/* Read error */
+			return FAILURE;	/* Read error */
 
 		/*
 		 * Don't count the pseudo-header as part of the packet.
@@ -649,7 +649,7 @@ netmon_process_record(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 	 * Read the packet data.
 	 */
 	if (!wtap_read_packet_bytes(fh, buf, phdr->caplen, err, err_info))
-		return FALSE;
+		return FAILURE;
 
 	/*
 	 * For version 2.1 and later, there's additional information
