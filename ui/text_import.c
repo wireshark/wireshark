@@ -125,7 +125,7 @@
 #include <wsutil/crc32.h>
 #include <epan/in_cksum.h>
 
-#ifdef NEED_STRPTIME_H
+#ifndef HAVE_STRPTIME
 # include "wsutil/strptime.h"
 #endif
 

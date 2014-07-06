@@ -21,6 +21,8 @@
 #include <string.h>
 #include <ctype.h>
 
+#include "wsutil/strncasecmp.h"
+
 /* Compare no more than N characters of S1 and S2,
    ignoring case, returning less than, equal to or
    greater than zero if S1 is lexicographically less

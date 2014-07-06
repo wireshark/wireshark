@@ -25,32 +25,14 @@ DIST_SUBDIRS = $(SUBDIRS)
 ACLOCAL_AMFLAGS = `../aclocal-flags`
 
 # Optional objects that I know how to build. These will be
-# linked into libwsutil.
-wsutil_optional_objects =
-
-if NEED_GETOPT_LO
-wsutil_optional_objects += @GETOPT_LO@
-endif
-
-if NEED_INET_ATON_LO
-wsutil_optional_objects += @INET_ATON_LO@
-endif
-
-if NEED_INET_NTOP_LO
-wsutil_optional_objects += @INET_NTOP_LO@
-endif
-
-if NEED_INET_PTON_LO
-wsutil_optional_objects += @INET_PTON_LO@
-endif
-
-if NEED_STRNCASECMP_LO
-wsutil_optional_objects += @STRNCASECMP_LO@
-endif
-
-if NEED_STRPTIME_LO
-wsutil_optional_objects += @STRPTIME_LO@
-endif
+# linked into libwsutil if necessary.
+wsutil_optional_objects = \
+	@GETOPT_LO@		\
+	@INET_ATON_LO@		\
+	@INET_NTOP_LO@		\
+	@INET_PTON_LO@		\
+	@STRNCASECMP_LO@	\
+	@STRPTIME_LO@
 
 if SSE42_SUPPORTED
 wsutil_optional_objects += libwsutil_sse42.la
@@ -92,6 +74,7 @@ EXTRA_libwsutil_la_SOURCES=	\
 	inet_pton.c		\
 	inet_v6defs.h		\
 	strncasecmp.c		\
+	strncasecmp.h		\
 	strptime.c		\
 	strptime.h		\
 	wsgetopt.c		\

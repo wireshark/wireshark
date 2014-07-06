@@ -31,7 +31,6 @@ check_include_file("dlfcn.h"             HAVE_DLFCN_H)
 check_include_file("fcntl.h"             HAVE_FCNTL_H)
 check_include_file("getopt.h"            HAVE_GETOPT_H)
 check_include_file("grp.h"               HAVE_GRP_H)
-check_include_file("inet/aton.h"         HAVE_INET_ATON_H)
 check_include_file("inttypes.h"          HAVE_INTTYPES_H)
 check_include_file("memory.h"            HAVE_MEMORY_H)
 check_include_file("netinet/in.h"        HAVE_NETINET_IN_H)
@@ -83,6 +82,7 @@ cmake_pop_check_state()
 check_function_exists("gethostbyname2"   HAVE_GETHOSTBYNAME2)
 check_function_exists("getopt"           HAVE_GETOPT)
 check_function_exists("getprotobynumber" HAVE_GETPROTOBYNUMBER)
+check_function_exists("inet_aton"        HAVE_INET_ATON)
 check_function_exists("inet_ntop"        HAVE_INET_NTOP_PROTO)
 check_function_exists("issetugid"        HAVE_ISSETUGID)
 check_function_exists("mmap"             HAVE_MMAP)
@@ -91,6 +91,18 @@ check_function_exists("mkdtemp"          HAVE_MKDTEMP)
 check_function_exists("mkstemp"          HAVE_MKSTEMP)
 check_function_exists("setresgid"        HAVE_SETRESGID)
 check_function_exists("setresuid"        HAVE_SETRESUID)
+
+#
+# Windows doesn't have strncasecmp, but does have stricmp, which has
+# the same signature and behavior.  We #define strncasecmp to stricmp
+# on Windows.
+#
+if(WIN32)
+    check_function_exists("stricmp"          HAVE_STRNCASECMP)
+else()
+    check_function_exists("strncasecmp"      HAVE_STRNCASECMP)
+endif()
+check_function_exists("strptime"         HAVE_STRPTIME)
 check_function_exists("sysconf"          HAVE_SYSCONF)
 
 #Struct members

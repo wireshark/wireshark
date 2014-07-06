@@ -81,7 +81,9 @@
 #include <epan/exceptions.h>
 #include <epan/wmem/wmem.h>
 #include <epan/addr_resolv.h>
+#ifndef HAVE_INET_ATON
 #include <wsutil/inet_aton.h>
+#endif
 #include <epan/expert.h>
 #include <epan/prefs.h>
 #include <ctype.h>

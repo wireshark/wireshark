@@ -77,7 +77,7 @@
 #endif
 #endif
 
-#ifdef NEED_STRPTIME_H
+#ifndef HAVE_STRPTIME
 # include "wsutil/strptime.h"
 #endif
 

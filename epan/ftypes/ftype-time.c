@@ -39,7 +39,7 @@
 #include <ftypes-int.h>
 #include <epan/to_str.h>
 
-#ifdef NEED_STRPTIME_H
+#ifndef HAVE_STRPTIME
 #include "wsutil/strptime.h"
 #endif
 

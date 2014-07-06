@@ -31,6 +31,10 @@
 #include <string.h>
 #include <time.h>
 
+#ifndef HAVE_STRNCASECMP
+#include "wsutil/strncasecmp.h"
+#endif
+
 #ifdef _LIBC
 # include "../locale/localeinfo.h"
 #endif

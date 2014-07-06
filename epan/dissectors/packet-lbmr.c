@@ -41,7 +41,9 @@
 #include <epan/value_string.h>
 #include <epan/wmem/wmem.h>
 #include <epan/to_str.h>
-#include <wsutil/inet_aton.h>
+#ifndef HAVE_INET_ATON
+    #include <wsutil/inet_aton.h>
+#endif
 #include <wsutil/pint.h>
 #include "packet-lbm.h"
 #include "packet-lbtru.h"

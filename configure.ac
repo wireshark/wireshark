@@ -2530,38 +2530,30 @@ AC_C_BIGENDIAN
 # XXX - do we need this?
 AC_PROG_GCC_TRADITIONAL
 
-GETOPT_LO=""
 AC_CHECK_FUNC(getopt,
-  [GETOPT_LO=""
-   AC_DEFINE(HAVE_GETOPT, 1, [Define to 1 if you have the getopt function.])
+  [
+    GETOPT_LO=""
+    AC_DEFINE(HAVE_GETOPT, 1, [Define to 1 if you have the getopt function.])
   ],
-  GETOPT_LO="wsgetopt.lo"
-)
-if test "$ac_cv_func_getopt" = no ; then
-  GETOPT_LO="wsgetopt.lo"
-fi
-AM_CONDITIONAL(NEED_GETOPT_LO, test "x$ac_cv_func_getopt" = "xno")
+  GETOPT_LO="wsgetopt.lo")
 AC_SUBST(GETOPT_LO)
 
-AC_CHECK_FUNC(strncasecmp, STRNCASECMP_LO="",
+AC_CHECK_FUNC(strncasecmp,
+  [
+    STRNCASECMP_LO=""
+    AC_DEFINE(HAVE_STRNCASECMP, 1, [Define to 1 if you have the strncasecmp function.])
+  ],
   STRNCASECMP_LO="strncasecmp.lo")
-if test "$ac_cv_func_strncasecmp" = no ; then
-  STRNCASECMP_LO="strncasecmp.lo"
-fi
-AM_CONDITIONAL(NEED_STRNCASECMP_LO, test "x$ac_cv_func_strncasecmp" = "xno")
 AC_SUBST(STRNCASECMP_LO)
 
 AC_CHECK_FUNCS(mkstemp mkdtemp)
 
-AC_SEARCH_LIBS(inet_aton, [socket nsl], have_inet_aton=yes,
-    have_inet_aton=no)
-if test "$have_inet_aton" = no; then
-  INET_ATON_LO="inet_aton.lo"
-  AC_DEFINE(HAVE_INET_ATON_H, 0, [Define unless inet/aton.h needs to be included])
-else
-  INET_ATON_LO=""
-fi
-AM_CONDITIONAL(NEED_INET_ATON_LO, test "x$have_inet_aton" = "xno")
+AC_SEARCH_LIBS(inet_aton, [socket nsl],
+  [
+    INET_ATON_LO=""
+    AC_DEFINE(HAVE_INET_ATON, 0, [Define to 1 if you have the inet_aton function.])
+  ],
+  INET_ATON_LO="inet_aton.lo")
 AC_SUBST(INET_ATON_LO)
 
 AC_SEARCH_LIBS(inet_pton, [socket nsl], [
@@ -2623,15 +2615,12 @@ extern const char *inet_ntop(int, const void *, char *, socklen_t);],, [
 AM_CONDITIONAL(NEED_INET_NTOP_LO, test "x$INET_NTOP_LO" != "x")
 AC_SUBST(INET_NTOP_LO)
 
-AC_CHECK_FUNC(strptime, STRPTIME_LO="",
-  [STRPTIME_LO="strptime.lo"
-   AC_DEFINE(NEED_STRPTIME_H, 1, [Define if strptime.h needs to be included])
-])
-if test "$ac_cv_func_strptime" = no ; then
-  STRPTIME_LO="strptime.lo"
-fi
-AC_SUBST(STRPTIME_C)
-AM_CONDITIONAL(NEED_STRPTIME_LO, test "x$ac_cv_func_strptime" = "no")
+AC_CHECK_FUNC(strptime,
+  [
+    STRPTIME_LO=""
+    AC_DEFINE(HAVE_STRPTIME, 1, [Define if you have the strptime function.])
+  ],
+  STRPTIME_LO="strptime.lo")
 AC_SUBST(STRPTIME_LO)
 
 AC_CHECK_FUNCS(getprotobynumber gethostbyname2)

@@ -216,9 +216,14 @@
 /* Define to have ntddndis.h */
 @HAVE_NTDDNDIS_H@
 
-/* #undef HAVE_INET_ATON_H */
+/* Define to 1 if you have the strncasecmp function. */
+/* Actually, we don't, but we have strnicmp, and #define strncasecmp to strnicmp below */
+#define HAVE_STRNCASECMP 1
+
+/* Define if you have the strptime function. */
+/* #undef HAVE_STRPTIME 1 */
+
 #define NEED_INET_V6DEFS_H  1
-#define NEED_STRPTIME_H     1
 
 #ifndef WIN32
 #define WIN32			1

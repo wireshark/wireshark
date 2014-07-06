@@ -139,7 +139,7 @@
 #include "wsutil/wsgetopt.h"
 #endif
 
-#ifdef NEED_STRPTIME_H
+#ifndef HAVE_STRPTIME
 # include "wsutil/strptime.h"
 #endif
 
@@ -159,7 +159,7 @@
 #include <winsock2.h>       /* needed to define AF_ values on Windows */
 #endif
 
-#ifndef HAVE_INET_ATON_H
+#ifndef HAVE_INET_ATON
 # include "wsutil/inet_aton.h"
 #endif
 

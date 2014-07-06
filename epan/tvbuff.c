@@ -59,7 +59,7 @@
  * yet defined.
  */
 #include <time.h>
-/*#ifdef NEED_STRPTIME_H*/
+/*#ifndef HAVE_STRPTIME*/
 #ifndef strptime
 #include "wsutil/strptime.h"
 #endif
