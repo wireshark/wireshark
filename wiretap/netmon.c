@@ -878,7 +878,7 @@ netmon_seek_read(wtap *wth, gint64 seek_off,
 	switch (netmon_process_record(wth, wth->random_fh, phdr, buf, err,
 	    err_info)) {
 
-	case RETRY:
+	default:
 		/*
 		 * This should not happen.
 		 */
