@@ -553,12 +553,14 @@ static int hf_rtcp_psfb_fir_fci_reserved = -1;
 static int hf_rtcp_psfb_sli_first = -1;
 static int hf_rtcp_psfb_sli_number = -1;
 static int hf_rtcp_psfb_sli_picture_id = -1;
+#if 0
 static int hf_rtcp_psfb_remb_fci_identifier = -1;
 static int hf_rtcp_psfb_remb_fci_number_ssrcs = -1;
 static int hf_rtcp_psfb_remb_fci_ssrc = -1;
 static int hf_rtcp_psfb_remb_fci_exp = -1;
 static int hf_rtcp_psfb_remb_fci_mantissa = -1;
 static int hf_rtcp_psfb_remb_fci_bitrate = -1;
+#endif
 static int hf_rtcp_rtpfb_tmbbr_fci_ssrc = -1;
 static int hf_rtcp_rtpfb_tmbbr_fci_exp = -1;
 static int hf_rtcp_rtpfb_tmbbr_fci_mantissa = -1;
@@ -5353,6 +5355,7 @@ proto_register_rtcp(void)
                 NULL, HFILL
             }
         },
+#if 0
         {
       &hf_rtcp_psfb_remb_fci_identifier,
             {
@@ -5425,6 +5428,7 @@ proto_register_rtcp(void)
                 NULL, HFILL
             }
         },
+#endif
     {
       &hf_rtcp_rtpfb_tmbbr_fci_ssrc,
             {
