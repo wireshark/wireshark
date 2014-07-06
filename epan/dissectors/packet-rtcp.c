@@ -1272,7 +1272,7 @@ dissect_rtcp_psfb( tvbuff_t *tvb, int offset, proto_tree *rtcp_tree,
         case 1:     /* Picture Loss Indications (PLI) */
         {
             /* Handle MS PLI Extension */
-            ti = proto_tree_add_text( rtcp_tree, tvb, offset, 8, "MS PLI");
+            proto_tree_add_text( rtcp_tree, tvb, offset, 8, "MS PLI");
             proto_tree_add_item( rtcp_tree, hf_rtcp_psfb_pli_ms_request_id, tvb, offset, 2, ENC_BIG_ENDIAN );
             offset += 2;
             /* 2 reserved bytes */
@@ -1289,7 +1289,7 @@ dissect_rtcp_psfb( tvbuff_t *tvb, int offset, proto_tree *rtcp_tree,
         }
         case 2:     /* Slice Loss Indication (SLI) */
             /* Handle SLI */
-            ti = proto_tree_add_text( rtcp_tree, tvb, offset, 8, "SLI %u", ++counter );
+            proto_tree_add_text( rtcp_tree, tvb, offset, 8, "SLI %u", ++counter );
             proto_tree_add_item( rtcp_tree, hf_rtcp_psfb_sli_first,      tvb, offset, 4, ENC_BIG_ENDIAN );
             proto_tree_add_item( rtcp_tree, hf_rtcp_psfb_sli_number,     tvb, offset, 4, ENC_BIG_ENDIAN );
             proto_tree_add_item( rtcp_tree, hf_rtcp_psfb_sli_picture_id, tvb, offset, 4, ENC_BIG_ENDIAN );
