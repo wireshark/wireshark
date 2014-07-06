@@ -1848,7 +1848,7 @@ static gint dissect_mq_MQCO(tvbuff_t *tvb, proto_tree *mq_tree, gint offset, mq_
     }
     return 4;
 }
-static gint dissect_mq_charv(tvbuff_t *tvb, proto_tree *tree, gint offset, gint iSize, gint idx, guint8 *pStr, mq_parm_t *p_mq_parm)
+static gint dissect_mq_charv(tvbuff_t *tvb, proto_tree *tree, gint offset, gint iSize, gint idx, const char *pStr, mq_parm_t *p_mq_parm)
 {
     proto_tree *mq_tree_sub;
     guint32     lStr;
@@ -2194,9 +2194,9 @@ static gint dissect_mq_od(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
                 }
                 if (iVersion >= 4)
                 {
-                    dissect_mq_charv(tvb, mq_tree, offset+336, 20, ett_mq_od_objstr,    (guint8 *)"Object string",          p_mq_parm);
-                    dissect_mq_charv(tvb, mq_tree, offset+356, 20, ett_mq_od_selstr,    (guint8 *)"Selection string",       p_mq_parm);
-                    dissect_mq_charv(tvb, mq_tree, offset+376, 20, ett_mq_od_resobjstr, (guint8 *)"Resolved object string", p_mq_parm);
+                    dissect_mq_charv(tvb, mq_tree, offset+336, 20, ett_mq_od_objstr,    "Object string",                    p_mq_parm);
+                    dissect_mq_charv(tvb, mq_tree, offset+356, 20, ett_mq_od_selstr,    "Selection string",                 p_mq_parm);
+                    dissect_mq_charv(tvb, mq_tree, offset+376, 20, ett_mq_od_resobjstr, "Resolved object string",           p_mq_parm);
                     proto_tree_add_item(mq_tree, hf_mq_od_resolvobjtyp, tvb, offset + 396, 4, p_mq_parm->mq_int_enc);
                 }
             }
