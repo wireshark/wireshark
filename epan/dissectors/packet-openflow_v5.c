@@ -1283,7 +1283,7 @@ dissect_openflow_match_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
     proto_tree *match_tree;
     guint16 match_type;
     guint16 match_length;
-    guint16 fields_end;
+    gint32 fields_end;
     guint16 pad_length;
 
     match_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_openflow_v5_match, &ti, "Match");
@@ -2209,7 +2209,7 @@ dissect_openflow_action_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
     proto_tree *act_tree;
     guint16 act_type;
     guint16 act_length;
-    guint16 act_end;
+    gint32 act_end;
 
     act_type = tvb_get_ntohs(tvb, offset);
     act_length = tvb_get_ntohs(tvb, offset + 2);
@@ -2743,7 +2743,8 @@ static void
 dissect_openflow_packet_out_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, guint16 length _U_)
 {
     proto_tree *data_tree;
-    guint16 acts_len, acts_end;
+    guint16 acts_len;
+    gint32 acts_end;
     tvbuff_t *next_tvb;
     gboolean save_writable;
     gboolean save_in_error_pkt;
@@ -2863,7 +2864,7 @@ dissect_openflow_instruction_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     proto_tree *inst_tree;
     guint16 inst_type;
     guint16 inst_length;
-    guint16 acts_end;
+    gint32 acts_end;
 
     inst_type = tvb_get_ntohs(tvb, offset);
     inst_length = tvb_get_ntohs(tvb, offset + 2);
@@ -2871,6 +2872,10 @@ dissect_openflow_instruction_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     inst_tree = proto_tree_add_subtree(tree, tvb, offset, inst_length, ett_openflow_v5_instruction, NULL, "Instruction");
 
     offset = dissect_openflow_instruction_header_v5(tvb, pinfo, inst_tree, offset, length);
+
+    if (inst_length < 8) {
+        inst_length = 8;
+    }
 
     switch (inst_type) {
     case OFPIT_GOTO_TABLE:
@@ -3043,7 +3048,7 @@ dissect_openflow_bucket_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
     proto_item *ti;
     proto_tree *bucket_tree;
     guint16 bucket_length;
-    guint16 acts_end;
+    gint32 acts_end;
 
     bucket_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_openflow_v5_bucket, &ti, "Bucket");
 
@@ -3052,6 +3057,10 @@ dissect_openflow_bucket_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
     proto_item_set_len(ti, bucket_length);
     proto_tree_add_item(bucket_tree, hf_openflow_v5_bucket_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset+=2;
+
+    if (bucket_length < 16) {
+        bucket_length = 16;
+    }
 
     /* uint16_t weight; */
     proto_tree_add_item(bucket_tree, hf_openflow_v5_bucket_weight, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -3590,7 +3599,7 @@ dissect_openflow_table_feature_prop_v5(tvbuff_t *tvb, packet_info *pinfo _U_, pr
     guint16 prop_type;
     guint16 prop_length;
     guint16 elem_begin;
-    guint16 body_end;
+    gint32 body_end;
     guint16 pad_length;
 
     prop_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_openflow_v5_table_feature_prop, &ti, "Table feature property");
@@ -3605,6 +3614,10 @@ dissect_openflow_table_feature_prop_v5(tvbuff_t *tvb, packet_info *pinfo _U_, pr
     proto_item_set_len(ti, prop_length);
     proto_tree_add_item(prop_tree, hf_openflow_v5_table_feature_prop_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset+=2;
+
+    if (prop_length < 4) {
+        prop_length = 4;
+    }
 
     body_end = offset + prop_length - 4;
 
@@ -3704,7 +3717,7 @@ dissect_openflow_table_features_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
     proto_item *ti;
     proto_tree *feat_tree, *caps_tree;
     guint16 feat_length;
-    guint16 feat_end;
+    gint32 feat_end;
 
     feat_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_openflow_v5_table_features, &ti, "Table features");
 
@@ -4118,7 +4131,7 @@ dissect_openflow_flow_stats_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
     proto_item *ti;
     proto_tree *stats_tree, *flags_tree;
     guint16 stats_len;
-    guint16 stats_end;
+    gint32 stats_end;
 
     stats_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_openflow_v5_flow_stats, &ti, "Flow stats");
 
@@ -4342,7 +4355,7 @@ dissect_openflow_table_desc_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
     proto_item *ti;
     proto_tree *desc_tree, *conf_tree;
     guint16 desc_length;
-    guint16 desc_end;
+    gint32 desc_end;
 
     desc_length = tvb_get_ntohs(tvb, offset);
     desc_end = offset + desc_length;
@@ -4442,7 +4455,7 @@ dissect_openflow_queue_stats_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 {
     proto_tree *stats_tree;
     guint16 stats_len;
-    guint16 stats_end;
+    gint32 stats_end;
 
     stats_len = tvb_get_ntohs(tvb, offset);
     stats_end = offset + stats_len;
@@ -4528,7 +4541,7 @@ dissect_openflow_group_stats_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     proto_item *ti;
     proto_tree *stats_tree;
     guint16 stats_len;
-    guint16 stats_end;
+    gint32 stats_end;
 
     stats_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_openflow_v5_group_stats, &ti, "Group stats");
 
@@ -4590,7 +4603,7 @@ dissect_openflow_group_desc_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
     proto_tree *desc_tree;
 
     guint16 desc_len;
-    guint16 desc_end;
+    gint32 desc_end;
 
     desc_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_openflow_v5_group_desc, &ti, "Group description");
 
@@ -4836,7 +4849,7 @@ dissect_openflow_meter_config_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
     proto_item *ti;
     proto_tree *conf_tree, *flags_tree;
     guint16 config_len;
-    guint16 config_end;
+    gint32 config_end;
 
     conf_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_openflow_v5_meter_config, &ti, "Meter config");
 
@@ -5037,7 +5050,7 @@ dissect_openflow_queue_desc_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 {
     proto_tree *desc_tree;
     guint16 desc_len;
-    guint16 desc_end;
+    gint32 desc_end;
 
     desc_len = tvb_get_ntohs(tvb, offset + 8);
     desc_end = offset + desc_len;
@@ -5100,7 +5113,7 @@ dissect_openflow_flow_update_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     proto_tree *update_tree;
     guint16 update_len;
     guint16 update_event;
-    guint16 update_end;
+    gint32 update_end;
 
     update_len = tvb_get_ntohs(tvb, offset);
     update_end = offset + update_len;
@@ -5811,7 +5824,7 @@ dissect_openflow_message_v5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 {
     guint8 type;
     guint16 length;
-    guint16 msg_end;
+    gint32 msg_end;
 
     type = tvb_get_guint8(tvb, offset + 1);
     length = tvb_get_ntohs(tvb, offset + 2);
