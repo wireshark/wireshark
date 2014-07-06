@@ -34,7 +34,7 @@
 #include <string.h>
 #include "ws_mempbrk.h"
 
-
+#define cast_128aligned__m128i(p) ((const __m128i *) (const void *) (p))
 
 /* Helper for variable shifts of SSE registers.
    Copyright (C) 2010 Free Software Foundation, Inc.
@@ -51,7 +51,7 @@ __m128i_shift_right (__m128i value, unsigned long int offset)
 {
   /* _mm_loadu_si128() works with unaligned data, cast safe */
   return _mm_shuffle_epi8 (value,
-                           _mm_loadu_si128 ((__m128i *) (void *) (___m128i_shift_right + offset)));
+                           _mm_loadu_si128 (cast_128aligned__m128i(___m128i_shift_right + offset)));
 }
 
 /* We use 0x2:
@@ -101,14 +101,14 @@ _ws_mempbrk_sse42(const char *s, size_t slen, const char *a)
 
       /* Load masks.  */
       /* cast safe - _mm_load_si128() it's 16B aligned */
-      mask = __m128i_shift_right(_mm_load_si128 ((__m128i *) (void *) aligned), offset);
+      mask = __m128i_shift_right(_mm_load_si128 (cast_128aligned__m128i(aligned)), offset);
 
       /* Find where the NULL terminator is.  */
       length = _mm_cmpistri (mask, mask, 0x3a);
       if (length == 16 - offset)
         {
           /* There is no NULL terminator.  */
-          __m128i mask1 = _mm_load_si128 ((__m128i *) (void *) (aligned + 16));
+          __m128i mask1 = _mm_load_si128 (cast_128aligned__m128i(aligned + 16));
           int idx = _mm_cmpistri (mask1, mask1, 0x3a);
           length += idx;
 
@@ -121,7 +121,7 @@ _ws_mempbrk_sse42(const char *s, size_t slen, const char *a)
               /* Combine mask0 and mask1.  We could play games with
                  palignr, but frankly this data should be in L1 now
                  so do the merge via an unaligned load.  */
-              mask = _mm_loadu_si128 ((__m128i *) (void *) a);
+              mask = _mm_loadu_si128 (cast_128aligned__m128i(a));
             }
         }
     }
@@ -130,7 +130,7 @@ _ws_mempbrk_sse42(const char *s, size_t slen, const char *a)
       int length;
 
       /* A is aligned.  (cast safe) */
-      mask = _mm_load_si128 ((__m128i *) (void *) a);
+      mask = _mm_load_si128 (cast_128aligned__m128i(a));
 
       /* Find where the NULL terminator is.  */
       length = _mm_cmpistri (mask, mask, 0x3a);
@@ -148,7 +148,7 @@ _ws_mempbrk_sse42(const char *s, size_t slen, const char *a)
   if (offset != 0)
     {
       /* Check partial string. cast safe it's 16B aligned */
-      __m128i value = __m128i_shift_right (_mm_load_si128 ((__m128i *) (void *) aligned), offset);
+      __m128i value = __m128i_shift_right (_mm_load_si128 (cast_128aligned__m128i(aligned)), offset);
 
       int length = _mm_cmpistri (mask, value, 0x2);
       /* No need to check ZFlag since ZFlag is always 1.  */
@@ -171,7 +171,7 @@ _ws_mempbrk_sse42(const char *s, size_t slen, const char *a)
 
   while (slen >= 16)
     {
-      __m128i value = _mm_load_si128 ((__m128i *) (void *) aligned);
+      __m128i value = _mm_load_si128 (cast_128aligned__m128i(aligned));
       int idx = _mm_cmpistri (mask, value, 0x2);
       int cflag = _mm_cmpistrc (mask, value, 0x2);
       int zflag = _mm_cmpistrz (mask, value, 0x2);
