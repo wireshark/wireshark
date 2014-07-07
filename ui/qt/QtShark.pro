@@ -497,6 +497,7 @@ TRANSLATIONS = \
         qtshark_de.ts \
         qtshark_en.ts \
         qtshark_fr.ts \
+        qtshark_ja_JP.ts \
         qtshark_pl.ts \
         qtshark_zh_CN.ts
 

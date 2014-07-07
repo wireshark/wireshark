@@ -255,6 +255,7 @@ set(WIRESHARK_QT_TS
 	qtshark_de.ts
 	qtshark_en.ts # lupdate -pluralonly
 	qtshark_fr.ts
+	qtshark_ja_JP.ts
 	qtshark_pl.ts
 	qtshark_zh_CN.ts
 )
