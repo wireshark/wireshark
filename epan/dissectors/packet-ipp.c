@@ -186,7 +186,7 @@ dissect_ipp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     gboolean     is_request = (pinfo->destport == pinfo->match_uint);
     /* XXX - should this be based on the HTTP header? */
     guint16      status_code;
-    const gchar *status_fmt;
+    const gchar *status_type;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "IPP");
     if (is_request)
@@ -212,31 +212,32 @@ dissect_ipp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             switch (status_code & STATUS_TYPE_MASK) {
 
             case STATUS_SUCCESSFUL:
-                status_fmt = "Successful (0x%04x)";
+                status_type = "Successful";
                 break;
 
             case STATUS_INFORMATIONAL:
-                status_fmt = "Informational (0x%04x)";
+                status_type = "Informational";
                 break;
 
             case STATUS_REDIRECTION:
-                status_fmt = "Redirection (0x%04x)";
+                status_type = "Redirection";
                 break;
 
             case STATUS_CLIENT_ERROR:
-                status_fmt = "Client error (0x%04x)";
+                status_type = "Client error";
                 break;
 
             case STATUS_SERVER_ERROR:
-                status_fmt = "Server error (0x%04x)";
+                status_type = "Server error";
                 break;
 
             default:
-                status_fmt = "Unknown (0x%04x)";
+                status_type = "Unknown";
                 break;
             }
-            proto_tree_add_text(ipp_tree, tvb, offset, 2, "Status-code: %s",
-                                val_to_str(status_code, status_vals, status_fmt));
+            proto_tree_add_text(ipp_tree, tvb, offset, 2, "Status-code: %s (%s)",
+                                status_type,
+                                val_to_str(status_code, status_vals, "0x804x"));
         }
         offset += 2;
 

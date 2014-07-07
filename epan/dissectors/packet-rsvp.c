@@ -4013,9 +4013,9 @@ dissect_rsvp_label_request(proto_item *ti, proto_tree *rsvp_object_tree,
                             rval_to_str(lsp_enc, gmpls_lsp_enc_rvals, "Unknown (%d)"),
                             rval_to_str(tvb_get_guint8(tvb,offset2+1),
                                        gmpls_switching_type_rvals, "Unknown (%d)"),
-                            rval_to_str(l3pid, gmpls_gpid_rvals,
-                                        val_to_str(l3pid, etype_vals,
-                                                   "Unknown (0x%04x)")));
+                            rval_to_str_const(l3pid, gmpls_gpid_rvals,
+                                              val_to_str(l3pid, etype_vals,
+                                                         "Unknown (0x%04x)")));
         break;
     }
 
