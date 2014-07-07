@@ -161,13 +161,13 @@ static void lbm_istream_stream_build_key(guint32 * key_value, wmem_tree_key_t * 
        at a time to an intermediate variable, to prevent any alignment issues with assigning to a 32-bit unsigned int
        on certain platforms.
     */
-    memcpy((void *) &val, (void *) stream->ctxinst_1, sizeof(guint32));
+    memcpy((void *) &val, (const void *) stream->ctxinst_1, sizeof(guint32));
     key_value[LBM_ISTREAM_STREAM_KEY_ELEMENT_CTXINST1_HIGH] = val;
-    memcpy((void *) &val, (void *) (stream->ctxinst_1 + sizeof(guint32)), sizeof(guint32));
+    memcpy((void *) &val, (const void *) (stream->ctxinst_1 + sizeof(guint32)), sizeof(guint32));
     key_value[LBM_ISTREAM_STREAM_KEY_ELEMENT_CTXINST1_LOW] = val;
-    memcpy((void *) &val, (void *) stream->ctxinst_2, sizeof(guint32));
+    memcpy((void *) &val, (const void *) stream->ctxinst_2, sizeof(guint32));
     key_value[LBM_ISTREAM_STREAM_KEY_ELEMENT_CTXINST2_HIGH] = val;
-    memcpy((void *) &val, (void *) (stream->ctxinst_2 + sizeof(guint32)), sizeof(guint32));
+    memcpy((void *) &val, (const void *) (stream->ctxinst_2 + sizeof(guint32)), sizeof(guint32));
     key_value[LBM_ISTREAM_STREAM_KEY_ELEMENT_CTXINST2_LOW] = val;
     key[0].length = LBM_ISTREAM_STREAM_KEY_ELEMENT_COUNT;
     key[0].key = key_value;
@@ -181,9 +181,9 @@ static void lbm_stream_order_istream_key(lbm_istream_entry_t * stream)
 
     if (memcmp((void *)stream->ctxinst_1, (void *)stream->ctxinst_2, LBM_CONTEXT_INSTANCE_BLOCK_SZ) > 0)
     {
-        memcpy((void *)ctxinst, (void *)stream->ctxinst_1, LBM_CONTEXT_INSTANCE_BLOCK_SZ);
-        memcpy((void *)stream->ctxinst_1, (void *)stream->ctxinst_2, LBM_CONTEXT_INSTANCE_BLOCK_SZ);
-        memcpy((void *)stream->ctxinst_2, (void *)ctxinst, LBM_CONTEXT_INSTANCE_BLOCK_SZ);
+        memcpy((void *)ctxinst, (const void *)stream->ctxinst_1, LBM_CONTEXT_INSTANCE_BLOCK_SZ);
+        memcpy((void *)stream->ctxinst_1, (const void *)stream->ctxinst_2, LBM_CONTEXT_INSTANCE_BLOCK_SZ);
+        memcpy((void *)stream->ctxinst_2, (const void *)ctxinst, LBM_CONTEXT_INSTANCE_BLOCK_SZ);
     }
 }
 
@@ -195,8 +195,8 @@ static lbm_istream_entry_t * lbm_stream_istream_find(const guint8 * instance1, c
     wmem_tree_key_t tkey[2];
 
     memset((void *)&key, 0, sizeof(lbm_istream_entry_t));
-    memcpy((void *)key.ctxinst_1, (void *)instance1, LBM_CONTEXT_INSTANCE_BLOCK_SZ);
-    memcpy((void *)key.ctxinst_2, (void *)instance2, LBM_CONTEXT_INSTANCE_BLOCK_SZ);
+    memcpy((void *)key.ctxinst_1, (const void *)instance1, LBM_CONTEXT_INSTANCE_BLOCK_SZ);
+    memcpy((void *)key.ctxinst_2, (const void *)instance2, LBM_CONTEXT_INSTANCE_BLOCK_SZ);
     lbm_stream_order_istream_key(&key);
     lbm_istream_stream_build_key(keyval, tkey, &key);
     entry = (lbm_istream_entry_t *) wmem_tree_lookup32_array(instance_stream_table, tkey);
@@ -215,8 +215,8 @@ static lbm_istream_entry_t * lbm_stream_istream_add(const guint8 * instance1, co
         return (entry);
     }
     entry = wmem_new(wmem_file_scope(), lbm_istream_entry_t);
-    memcpy((void *)entry->ctxinst_1, (void *)instance1, LBM_CONTEXT_INSTANCE_BLOCK_SZ);
-    memcpy((void *)entry->ctxinst_2, (void *)instance2, LBM_CONTEXT_INSTANCE_BLOCK_SZ);
+    memcpy((void *)entry->ctxinst_1, (const void *)instance1, LBM_CONTEXT_INSTANCE_BLOCK_SZ);
+    memcpy((void *)entry->ctxinst_2, (const void *)instance2, LBM_CONTEXT_INSTANCE_BLOCK_SZ);
     lbm_stream_order_istream_key(entry);
     entry->channel = lbm_channel_assign(LBM_CHANNEL_STREAM_TCP);
     entry->next_substream_id = 1;
@@ -239,10 +239,10 @@ static void lbm_istream_substream_build_key(guint32 * key_value, wmem_tree_key_t
        has any particular alignment) to prevent any alignment issues with assigning to a 32-bit unsigned int
        on certain platforms.
     */
-    memcpy((void *) &val, (void *) substream->src_addr.data, sizeof(guint32));
+    memcpy((void *) &val, (const void *) substream->src_addr.data, sizeof(guint32));
     key_value[LBM_ISTREAM_SUBSTREAM_KEY_ELEMENT_SRC_ADDR] = val;
     key_value[LBM_ISTREAM_SUBSTREAM_KEY_ELEMENT_SRC_PORT] = (guint32) substream->src_port;
-    memcpy((void *) &val, (void *) substream->dst_addr.data, sizeof(guint32));
+    memcpy((void *) &val, (const void *) substream->dst_addr.data, sizeof(guint32));
     key_value[LBM_ISTREAM_SUBSTREAM_KEY_ELEMENT_DST_ADDR] = val;
     key_value[LBM_ISTREAM_SUBSTREAM_KEY_ELEMENT_DST_PORT] = (guint32) substream->dst_port;
     key_value[LBM_ISTREAM_SUBSTREAM_KEY_ELEMENT_LBM_STREAM_ID] = substream->lbm_stream_id;
@@ -332,10 +332,10 @@ static void lbm_dstream_stream_build_key(guint32 * key_value, wmem_tree_key_t * 
        on certain platforms.
     */
     key_value[LBM_DSTREAM_STREAM_KEY_ELEMENT_DOMAIN_1] = stream->domain_1;
-    memcpy((void *) &val, (void *) (stream->addr_1.data), sizeof(guint32));
+    memcpy((void *) &val, (const void *) (stream->addr_1.data), sizeof(guint32));
     key_value[LBM_DSTREAM_STREAM_KEY_ELEMENT_ADDR_1] = val;
     key_value[LBM_DSTREAM_STREAM_KEY_ELEMENT_DOMAIN_2] = stream->domain_2;
-    memcpy((void *) &val, (void *) (stream->addr_2.data), sizeof(guint32));
+    memcpy((void *) &val, (const void *) (stream->addr_2.data), sizeof(guint32));
     key_value[LBM_DSTREAM_STREAM_KEY_ELEMENT_ADDR_2] = val;
     key_value[LBM_DSTREAM_STREAM_KEY_ELEMENT_PORT_1] = (guint32) stream->port_1;
     key_value[LBM_DSTREAM_STREAM_KEY_ELEMENT_PORT_2] = (guint32) stream->port_2;
@@ -448,10 +448,10 @@ static void lbm_dstream_substream_build_key(guint32 * key_value, wmem_tree_key_t
        has any particular alignment) to prevent any alignment issues with assigning to a 32-bit unsigned int
        on certain platforms.
     */
-    memcpy((void *) &val, (void *) substream->src_addr.data, sizeof(guint32));
+    memcpy((void *) &val, (const void *) substream->src_addr.data, sizeof(guint32));
     key_value[LBM_DSTREAM_SUBSTREAM_KEY_ELEMENT_SRC_ADDR] = val;
     key_value[LBM_DSTREAM_SUBSTREAM_KEY_ELEMENT_SRC_PORT] = (guint32) substream->src_port;
-    memcpy((void *) &val, (void *) substream->dst_addr.data, sizeof(guint32));
+    memcpy((void *) &val, (const void *) substream->dst_addr.data, sizeof(guint32));
     key_value[LBM_DSTREAM_SUBSTREAM_KEY_ELEMENT_DST_ADDR] = val;
     key_value[LBM_DSTREAM_SUBSTREAM_KEY_ELEMENT_DST_PORT] = (guint32) substream->dst_port;
     key_value[LBM_DSTREAM_SUBSTREAM_KEY_ELEMENT_LBM_STREAM_ID] = substream->lbm_stream_id;
@@ -6130,7 +6130,7 @@ static void lbmc_message_build_key(guint32 * key_value, wmem_tree_key_t * key, c
 
     key_value[LBMC_MESSAGE_KEY_ELEMENT_CHANNEL_HIGH] = (guint32) ((message->channel >> 32) & 0xffffffff);
     key_value[LBMC_MESSAGE_KEY_ELEMENT_CHANNEL_LOW] = (guint32) ((message->channel & 0xffffffff) >> 32);
-    memcpy((void *) &val, (void *) message->addr.data, sizeof(guint32));
+    memcpy((void *) &val, (const void *) message->addr.data, sizeof(guint32));
     key_value[LBMC_MESSAGE_KEY_ELEMENT_ADDR] = val;
     key_value[LBMC_MESSAGE_KEY_ELEMENT_PORT] = (guint32) message->port;
     key_value[LBMC_MESSAGE_KEY_ELEMENT_FIRST_SQN] = message->first_sqn;
@@ -10365,191 +10365,191 @@ static const gchar * lbmc_determine_msg_type(const guint8 * header_array)
 {
     if (header_array[LBMC_NHDR_SSF_INIT] != 0)
     {
-        return ((gchar *)"SSF-INIT");
+        return ("SSF-INIT");
     }
     else if (header_array[LBMC_NHDR_SSF_CREQ] != 0)
     {
-        return ((gchar *)"SSF-CREQ");
+        return ("SSF-CREQ");
     }
     else if (header_array[LBMC_NHDR_UME_PREG] != 0)
     {
-        return ((gchar *)"PREG");
+        return ("PREG");
     }
     else if (header_array[LBMC_NHDR_UME_PREG_RESP] != 0)
     {
-        return ((gchar *)"PREG-RESP");
+        return ("PREG-RESP");
     }
     else if (header_array[LBMC_NHDR_UME_ACK] != 0)
     {
-        return ((gchar *)"ACK");
+        return ("ACK");
     }
     else if (header_array[LBMC_NHDR_UME_RXREQ] != 0)
     {
-        return ((gchar *)"RXREQ");
+        return ("RXREQ");
     }
     else if (header_array[LBMC_NHDR_UME_KEEPALIVE] != 0)
     {
-        return ((gchar *)"UME-KA");
+        return ("UME-KA");
     }
     else if (header_array[LBMC_NHDR_UME_CAPABILITY] != 0)
     {
-        return ((gchar *)"UME-CAP");
+        return ("UME-CAP");
     }
     else if (header_array[LBMC_NHDR_TSNI] != 0)
     {
-        return ((gchar *)"TSNI");
+        return ("TSNI");
     }
     else if (header_array[LBMC_NHDR_UMQ_REG] != 0)
     {
-        return ((gchar *)"UMQ-REG");
+        return ("UMQ-REG");
     }
     else if (header_array[LBMC_NHDR_UMQ_REG_RESP] != 0)
     {
-        return ((gchar *)"UMQ-REG-RSP");
+        return ("UMQ-REG-RSP");
     }
     else if (header_array[LBMC_NHDR_UMQ_ACK] != 0)
     {
-        return ((gchar *)"UMQ-ACK");
+        return ("UMQ-ACK");
     }
     else if (header_array[LBMC_NHDR_UMQ_KA] != 0)
     {
-        return ((gchar *)"UMQ-KA");
+        return ("UMQ-KA");
     }
     else if (header_array[LBMC_NHDR_UMQ_RCR] != 0)
     {
-        return ((gchar *)"UMQ-RCR");
+        return ("UMQ-RCR");
     }
     else if (header_array[LBMC_NHDR_UMQ_RXREQ] != 0)
     {
-        return ((gchar *)"UMQ-RXREQ");
+        return ("UMQ-RXREQ");
     }
     else if (header_array[LBMC_NHDR_UMQ_QMGMT] != 0)
     {
-        return ((gchar *)"UMQ-QMGMT");
+        return ("UMQ-QMGMT");
     }
     else if (header_array[LBMC_NHDR_UME_LJ_INFO] != 0)
     {
-        return ((gchar *)"LJINFO");
+        return ("LJINFO");
     }
     else if (header_array[LBMC_NHDR_UMQ_RESUB_REQ] != 0)
     {
-        return ((gchar *)"UMQ-RESUB-REQ");
+        return ("UMQ-RESUB-REQ");
     }
     else if (header_array[LBMC_NHDR_UMQ_RESUB_RESP] != 0)
     {
-        return ((gchar *)"UMQ-RESUB-RESP");
+        return ("UMQ-RESUB-RESP");
     }
     else if (header_array[LBMC_NHDR_TOPIC_INTEREST] != 0)
     {
-        return ((gchar *)"TOPIC-INT");
+        return ("TOPIC-INT");
     }
     else if (header_array[LBMC_NHDR_PATTERN_INTEREST] != 0)
     {
-        return ((gchar *)"PAT-INT");
+        return ("PAT-INT");
     }
     else if (header_array[LBMC_NHDR_ADVERTISEMENT] != 0)
     {
-        return ((gchar *)"AD");
+        return ("AD");
     }
     else if (header_array[LBMC_NHDR_UMQ_ULB_RCR] != 0)
     {
-        return ((gchar *)"UMQ-ULB-RCR");
+        return ("UMQ-ULB-RCR");
     }
     else if (header_array[LBMC_NHDR_UMQ_LF] != 0)
     {
-        return ((gchar *)"UMQ-LF");
+        return ("UMQ-LF");
     }
     else if (header_array[LBMC_NHDR_CTXINFO] != 0)
     {
-        return ((gchar *)"CTXINFO");
+        return ("CTXINFO");
     }
     else if (header_array[LBMC_NHDR_UME_PSER] != 0)
     {
-        return ((gchar *)"PSER");
+        return ("PSER");
     }
     else if (header_array[LBMC_NHDR_DOMAIN] != 0)
     {
-        return ((gchar *)"DOMAIN");
+        return ("DOMAIN");
     }
     else if (header_array[LBMC_NHDR_TNWG_CAPABILITIES] != 0)
     {
-        return ((gchar *)"TNWG_CAP");
+        return ("TNWG_CAP");
     }
     else if (header_array[LBMC_NHDR_PATIDX] != 0)
     {
-        return ((gchar *)"PATIDX");
+        return ("PATIDX");
     }
     else if (header_array[LBMC_NHDR_UMQ_IDX_CMD] != 0)
     {
-        return ((gchar *)"UMQ-IDX-CMD");
+        return ("UMQ-IDX-CMD");
     }
     else if (header_array[LBMC_NHDR_UMQ_IDX_CMD_RESP] != 0)
     {
-        return ((gchar *)"UMQ-IDX-CMD-RESP");
+        return ("UMQ-IDX-CMD-RESP");
     }
     else if (header_array[LBMC_NHDR_TOPIC_MD_INTEREST] != 0)
     {
-        return ((gchar *)"TOPIC-MD-INT");
+        return ("TOPIC-MD-INT");
     }
     else if (header_array[LBMC_NHDR_PATTERN_MD_INTEREST] != 0)
     {
-        return ((gchar *)"PAT-MD-INT");
+        return ("PAT-MD-INT");
     }
     else if (header_array[LBMC_NHDR_LJI_REQ] != 0)
     {
-        return ((gchar *)"LJI-REQ");
+        return ("LJI-REQ");
     }
     else if (header_array[LBMC_NHDR_TNWG_KA] != 0)
     {
-        return ((gchar *)"TNWG-KA");
+        return ("TNWG-KA");
     }
     else if (header_array[LBMC_NHDR_AUTHENTICATION] != 0)
     {
-        return ((gchar *)"AUTH");
+        return ("AUTH");
     }
     else if (header_array[LBMC_NHDR_UME_RCV_KEEPALIVE] != 0)
     {
-        return ((gchar *)"UME-RCV-KA");
+        return ("UME-RCV-KA");
     }
     else if (header_array[LBMC_NHDR_UMQ_CMD] != 0)
     {
-        return ((gchar *)"UMQ-CMD");
+        return ("UMQ-CMD");
     }
     else if (header_array[LBMC_NHDR_UMQ_CMD_RESP] != 0)
     {
-        return ((gchar *)"UMQ-CMD-RESP");
+        return ("UMQ-CMD-RESP");
     }
     else if (header_array[LBMC_NHDR_EXTOPT] != 0)
     {
-        return ((gchar *)"EXTOPT");
+        return ("EXTOPT");
     }
     else if (header_array[LBMC_NHDR_HMAC] != 0)
     {
-        return ((gchar *)"HMAC");
+        return ("HMAC");
     }
     else if (header_array[LBMC_NHDR_SRI_REQ] != 0)
     {
-        return ((gchar *)"SRI-REQ");
+        return ("SRI-REQ");
     }
     else if (header_array[LBMC_NHDR_SRI] != 0)
     {
-        return ((gchar *)"SRI");
+        return ("SRI");
     }
     else if (header_array[LBMC_NHDR_UME_PSRC_ELECTION_TOKEN] != 0)
     {
-        return ((gchar *)"PSRC-ETOK");
+        return ("PSRC-ETOK");
     }
     else if (header_array[LBMC_NHDR_TOPIC_SOURCE_EXFUNC] != 0)
     {
-        return ((gchar *)"TOPIC-SRC-EX");
+        return ("TOPIC-SRC-EX");
     }
     else if (header_array[LBMC_NHDR_ROUTE_INFO] != 0)
     {
-        return ((gchar *)"RTE-INFO");
+        return ("RTE-INFO");
     }
     else if (header_array[LBMC_NHDR_TCP_SID] != 0)
     {
-        return ((gchar *)"TCP-SID");
+        return ("TCP-SID");
     }
     return (NULL);
 }
@@ -10565,7 +10565,7 @@ static lbm_uim_stream_info_t * lbmc_dup_stream_info(const lbm_uim_stream_info_t 
     ptr->endpoint_a.type = info->endpoint_a.type;
     if (ptr->endpoint_a.type == lbm_uim_instance_stream)
     {
-        memcpy((void *)ptr->endpoint_a.stream_info.ctxinst.ctxinst, (void *)info->endpoint_a.stream_info.ctxinst.ctxinst, LBM_CONTEXT_INSTANCE_BLOCK_SZ);
+        memcpy((void *)ptr->endpoint_a.stream_info.ctxinst.ctxinst, (const void *)info->endpoint_a.stream_info.ctxinst.ctxinst, LBM_CONTEXT_INSTANCE_BLOCK_SZ);
     }
     else
     {
@@ -10574,7 +10574,7 @@ static lbm_uim_stream_info_t * lbmc_dup_stream_info(const lbm_uim_stream_info_t 
     ptr->endpoint_b.type = info->endpoint_b.type;
     if (ptr->endpoint_b.type == lbm_uim_instance_stream)
     {
-        memcpy((void *)ptr->endpoint_b.stream_info.ctxinst.ctxinst, (void *)info->endpoint_b.stream_info.ctxinst.ctxinst, LBM_CONTEXT_INSTANCE_BLOCK_SZ);
+        memcpy((void *)ptr->endpoint_b.stream_info.ctxinst.ctxinst, (const void *)info->endpoint_b.stream_info.ctxinst.ctxinst, LBM_CONTEXT_INSTANCE_BLOCK_SZ);
     }
     else
     {
@@ -11280,17 +11280,17 @@ int lbmc_dissect_lbmc_packet(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
                         stream_tap_info->substream_id = inst_substream->substream_id;
                         stream_tap_info->bytes = msglen;
                         stream_tap_info->endpoint_a.type = lbm_uim_instance_stream;
-                        memcpy((void *) stream_tap_info->endpoint_a.stream_info.ctxinst.ctxinst, (void *)stream_info.ctxinst, LBM_CONTEXT_INSTANCE_BLOCK_SZ);
+                        memcpy((void *) stream_tap_info->endpoint_a.stream_info.ctxinst.ctxinst, (const void *)stream_info.ctxinst, LBM_CONTEXT_INSTANCE_BLOCK_SZ);
                         stream_tap_info->endpoint_b.type = lbm_uim_instance_stream;
-                        memcpy((void *) stream_tap_info->endpoint_b.stream_info.ctxinst.ctxinst, (void *)ctxinstd_info.ctxinst, LBM_CONTEXT_INSTANCE_BLOCK_SZ);
+                        memcpy((void *) stream_tap_info->endpoint_b.stream_info.ctxinst.ctxinst, (const void *)ctxinstd_info.ctxinst, LBM_CONTEXT_INSTANCE_BLOCK_SZ);
                         tap_queue_packet(lbmc_stream_tap_handle, pinfo, (void *) stream_tap_info);
                     }
                     uim_stream_info.channel = inst_stream->channel;
                     uim_stream_info.sqn = stream_info.sqn;
                     uim_stream_info.endpoint_a.type = lbm_uim_instance_stream;
-                    memcpy((void *)uim_stream_info.endpoint_a.stream_info.ctxinst.ctxinst, (void *)stream_info.ctxinst, LBM_CONTEXT_INSTANCE_BLOCK_SZ);
+                    memcpy((void *)uim_stream_info.endpoint_a.stream_info.ctxinst.ctxinst, (const void *)stream_info.ctxinst, LBM_CONTEXT_INSTANCE_BLOCK_SZ);
                     uim_stream_info.endpoint_b.type = lbm_uim_instance_stream;
-                    memcpy((void *)uim_stream_info.endpoint_b.stream_info.ctxinst.ctxinst, (void *)ctxinstd_info.ctxinst, LBM_CONTEXT_INSTANCE_BLOCK_SZ);
+                    memcpy((void *)uim_stream_info.endpoint_b.stream_info.ctxinst.ctxinst, (const void *)ctxinstd_info.ctxinst, LBM_CONTEXT_INSTANCE_BLOCK_SZ);
                     puim_stream_info = &uim_stream_info;
                 }
             }
