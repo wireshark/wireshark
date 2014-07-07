@@ -804,7 +804,8 @@ decode_rtp_stream(rtp_stream_info_t *rsi, gpointer ptr)
 
 			/* Add the audio */
 			for (i = -silence_frames + ((info->current_channel) ? 1 : 0); i < decoded_bytes / (int) sizeof(SAMPLE); i += channels) {
-				sample.val = out_buff[i];
+				if(out_buff)
+					sample.val = out_buff[i];
 				sample.status = status;
 				g_array_append_val(rci->samples, sample);
 				status = S_NORMAL;
@@ -1076,7 +1077,7 @@ init_rtp_channels_vals(void)
 
 	/* if we only have one channel to play, we just use the info from that channel */
 	if (rpci->rci[0] == NULL) {
-		rpci->max_frame_index = rpci->rci[1]->max_frame_index;
+		rpci->max_frame_index = rpci->rci[1] ? rpci->rci[1]->max_frame_index: 0;
 		rpci->start_index[0] = rpci->max_frame_index;
 		rpci->start_index[1] = 0;
 		rpci->end_index[0] = rpci->max_frame_index;
