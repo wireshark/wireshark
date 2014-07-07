@@ -2132,7 +2132,7 @@ dissect_wimaxasncp(
     proto_tree  *tree,
     void *data   _U_)
 {
-    const gchar *unknown = "Unknown";
+    static const gchar unknown[] = "Unknown";
 
     /* Set up structures needed to add the protocol subtree and manage it */
     proto_item *packet_item     = NULL;
