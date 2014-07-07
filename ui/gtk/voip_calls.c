@@ -265,8 +265,10 @@ static void add_to_graph(voip_calls_tapinfo_t *tapinfo _U_, packet_info *pinfo, 
 	gai->time_str = g_strdup(time_str);
 	gai->display=FALSE;
 
-	g_queue_push_tail(tapinfo->graph_analysis->items, gai);
-	g_hash_table_insert(tapinfo->graph_analysis->ht, &gai->fd->num, gai);
+	if(tapinfo->graph_analysis){
+		g_queue_push_tail(tapinfo->graph_analysis->items, gai);
+		g_hash_table_insert(tapinfo->graph_analysis->ht, &gai->fd->num, gai);
+	}
 
 }
 
@@ -279,7 +281,7 @@ static int append_to_frame_graph(voip_calls_tapinfo_t *tapinfo _U_, guint32 fram
 	gchar *frame_label = NULL;
 	gchar *comment = NULL;
 
-	if(NULL!=tapinfo->graph_analysis->ht)
+	if(tapinfo->graph_analysis && NULL!=tapinfo->graph_analysis->ht)
 		gai=(seq_analysis_item_t *)g_hash_table_lookup(tapinfo->graph_analysis->ht, &frame_num);
 	if(gai) {
 		frame_label = gai->frame_label;
@@ -384,23 +386,25 @@ static void insert_to_graph_t38(voip_calls_tapinfo_t *tapinfo _U_, packet_info *
 
 	item_num = 0;
 	inserted = FALSE;
+	if(tapinfo->graph_analysis){
 	list = g_queue_peek_nth_link(tapinfo->graph_analysis->items, 0);
-	while (list)
-	{
-		gai = (seq_analysis_item_t *)list->data;
-		if (gai->fd->num > frame_num) {
-			g_queue_insert_before(tapinfo->graph_analysis->items, list, new_gai);
-			g_hash_table_insert(tapinfo->graph_analysis->ht, &new_gai->fd->num, new_gai);
-			inserted = TRUE;
-			break;
+		while (list)
+		{
+			gai = (seq_analysis_item_t *)list->data;
+			if (gai->fd->num > frame_num) {
+				g_queue_insert_before(tapinfo->graph_analysis->items, list, new_gai);
+				g_hash_table_insert(tapinfo->graph_analysis->ht, &new_gai->fd->num, new_gai);
+				inserted = TRUE;
+				break;
+			}
+			list = g_list_next(list);
+			item_num++;
 		}
-		list = g_list_next(list);
-		item_num++;
-	}
 
-	if (!inserted) {
-		g_queue_push_tail(tapinfo->graph_analysis->items, new_gai);
-		g_hash_table_insert(tapinfo->graph_analysis->ht, &new_gai->fd->num, new_gai);
+		if (!inserted) {
+			g_queue_push_tail(tapinfo->graph_analysis->items, new_gai);
+			g_hash_table_insert(tapinfo->graph_analysis->ht, &new_gai->fd->num, new_gai);
+		}
 	}
 }
 
@@ -599,7 +603,7 @@ static void RTP_packet_draw(void *prs _U_)
 	GList *rtp_streams_list;
 	voip_rtp_stream_info_t *rtp_listinfo;
 	/* GList *voip_calls_graph_list; */
-	seq_analysis_item_t *gai;
+	seq_analysis_item_t *gai = NULL;
 	seq_analysis_item_t *new_gai;
 	guint16 conv_num;
 	guint32 duration;
@@ -613,8 +617,9 @@ static void RTP_packet_draw(void *prs _U_)
 
 		/* using the setup frame number of the RTP stream, we get the call number that it belongs to*/
 		/* voip_calls_graph_list = g_list_first(voip_calls_get_info()->graph_analysis->list); */
-
-		gai = (seq_analysis_item_t *)g_hash_table_lookup(voip_calls_get_info()->graph_analysis->ht, &rtp_listinfo->setup_frame_number);
+		if(voip_calls_get_info()->graph_analysis){
+			gai = (seq_analysis_item_t *)g_hash_table_lookup(voip_calls_get_info()->graph_analysis->ht, &rtp_listinfo->setup_frame_number);
+		}
 		if(gai != NULL) {
 			/* Found the setup frame*/
 			conv_num = gai->conv_num;
@@ -784,7 +789,7 @@ T38_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const vo
 
 	voip_calls_info_t *callsinfo = NULL;
 	voip_calls_info_t *tmp_listinfo;
-	GList *voip_calls_graph_list;
+	GList *voip_calls_graph_list = NULL;
 	GList *list;
 	gchar *frame_label = NULL;
 	gchar *comment = NULL;
@@ -797,7 +802,9 @@ T38_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const vo
 
 	if  (pi->setup_frame_number != 0) {
 		/* using the setup frame number of the T38 packet, we get the call number that it belongs */
-		voip_calls_graph_list = g_queue_peek_nth_link(tapinfo->graph_analysis->items, 0);
+		if(tapinfo->graph_analysis){
+			voip_calls_graph_list = g_queue_peek_nth_link(tapinfo->graph_analysis->items, 0);
+		}
 		while (voip_calls_graph_list)
 		{
 			tmp_gai = (seq_analysis_item_t *)voip_calls_graph_list->data;
@@ -2456,10 +2463,10 @@ MGCPcalls_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, co
 	voip_calls_info_t *callsinfo = NULL;
 	mgcp_calls_info_t *tmp_mgcpinfo = NULL;
 	GList *list;
-	GList *listGraph;
+	GList *listGraph = NULL;
 	gchar *frame_label = NULL;
 	gchar *comment = NULL;
-	seq_analysis_item_t *gai;
+	seq_analysis_item_t *gai = NULL;
 	gboolean newcall = FALSE;
 	gboolean fromEndpoint = FALSE; /* true for calls originated in Endpoints, false for calls from MGC */
 	gdouble diff_time;
@@ -2515,7 +2522,9 @@ MGCPcalls_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, co
 			((pi->mgcp_type == MGCP_REQUEST) && pi->is_duplicate) ) {
 		/* if it is a response OR if it is a duplicated Request, lets look in the Graph to see
 		   if there is a request that matches */
-		listGraph = g_queue_peek_nth_link(tapinfo->graph_analysis->items, 0);
+		if(tapinfo->graph_analysis){
+			listGraph = g_queue_peek_nth_link(tapinfo->graph_analysis->items, 0);
+		}
 		while (listGraph)
 		{
 			gai = (seq_analysis_item_t *)listGraph->data;
