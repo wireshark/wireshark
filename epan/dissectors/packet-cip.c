@@ -3131,10 +3131,7 @@ attribute_info_t* cip_get_attribute(guint class_id, guint instance, guint attrib
 
 static const char *
 segment_name_format(const char *segment_name, const char *fmt)
-#if __GNUC__ >= 2
-    __attribute__ ((format_arg (2)))
-#endif
-;
+    G_GNUC_FORMAT(2);
 
 static const char *
 segment_name_format(const char *segment_name, const char *fmt)
