@@ -1,38 +1,39 @@
 #!/bin/sh
 # Copyright 2013, Alexis La Goutte (See AUTHORS file)
 #
-# For git user, copy pre-commit in .git/hook/ folder
-#   to don't launch the script when commit use --no-verify argument
+# For git user: copy pre-commit to .git/hook/ folder
+#   To not launch the script when committing, use --no-verify argument
 #
 # From
 # http://mark-story.com/posts/view/using-git-commit-hooks-to-prevent-stupid-mistakes
 #
 
 if [ -z $GIT_DIR ]; then GIT_DIR=".git"; fi
+
 # Check for newer versions of the pre-commit script
-if [ ${GIT_DIR}/hooks/pre-commit -ot ./tools/pre-commit ] ; then
+if [ ${GIT_DIR}/hooks/pre-commit -ot ./tools/pre-commit ]; then
     echo "Pre-commit hook script is outdated, please update!"
 fi
 
+exit_status=0
+
 for FILE in `git diff-index --cached --name-only HEAD | grep "\.[ch]$"` ; do
-    #Exit immediately if a command exits with a non-zero status.
-    set -e
 
     #Check if checkhf is good
-    ./tools/checkhf.pl $FILE
+    ./tools/checkhf.pl $FILE            || exit_status=1
 
     #Check if checkAPIs is good
-    ./tools/checkAPIs.pl -p $FILE
+    ./tools/checkAPIs.pl -p $FILE       || exit_status=1
 
     #Check if fix-encoding-args is good
-    ./tools/fix-encoding-args.pl $FILE
+    ./tools/fix-encoding-args.pl $FILE  || exit_status=1
 
 done
 
 # If there are whitespace errors, print the offending file names and fail. (from git pre-commit.sample)
-exec git diff-index --check --cached HEAD
+git diff-index --check --cached HEAD    || exit_status=1
 
-exit
+exit $exit_status
 
 #
 #  Editor modelines
