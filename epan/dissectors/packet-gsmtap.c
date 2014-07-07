@@ -715,8 +715,9 @@ dissect_gsmtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (sub_handle == GSMTAP_SUB_UMTS_RRC)
 		call_dissector(rrc_sub_handles[rrc_sub_handle], payload_tvb,
 			       pinfo, tree);
-	else
+	else if (sub_handles[sub_handle] != NULL)
 		call_dissector(sub_handles[sub_handle], payload_tvb, pinfo, tree);
+	/* TODO: warn user that the WiMAX plugin must be enabled for some types */
 }
 
 static const true_false_string sacch_l1h_fpc_mode_vals = {
@@ -784,6 +785,7 @@ proto_reg_handoff_gsmtap(void)
 {
 	dissector_handle_t gsmtap_handle;
 
+	/* TODO: some dissectors may be NULL if not loaded */
 	sub_handles[GSMTAP_SUB_DATA] = find_dissector("data");
 	sub_handles[GSMTAP_SUB_UM] = find_dissector("gsm_a_ccch");
 	sub_handles[GSMTAP_SUB_UM_LAPDM] = find_dissector("lapdm");
@@ -871,3 +873,16 @@ proto_reg_handoff_gsmtap(void)
 	gsmtap_handle = create_dissector_handle(dissect_gsmtap, proto_gsmtap);
 	dissector_add_uint("udp.port", GSMTAP_UDP_PORT, gsmtap_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */
