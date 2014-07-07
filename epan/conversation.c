@@ -609,8 +609,12 @@ conversation_remove_from_hashtable(GHashTable *hashtable, conversation_t *conv)
 	if (conv == chain_head) {
 		/* We are currently the front of the chain */
 		if (NULL == conv->next) {
-			/* We are the only conversation in the chain */
-			g_hash_table_remove(hashtable, conv->key_ptr);
+			/* We are the only conversation in the chain, no need to
+			 * update next pointer, but do not call
+			 * g_hash_table_remove() either because the conv data
+			 * will be re-inserted. The memory is released when
+			 * conversion_cleanup() is called. */
+			g_hash_table_steal(hashtable, conv->key_ptr);
 		}
 		else {
 			/* Update the head of the chain */
