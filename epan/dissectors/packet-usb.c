@@ -2594,7 +2594,7 @@ try_dissect_next_protocol(proto_tree *tree, proto_tree *parent, tvbuff_t *next_t
 }
 
 
-static int
+int
 dissect_usb_setup_response(packet_info *pinfo, proto_tree *tree,
                            proto_tree *parent, tvbuff_t *tvb, int offset,
                            guint8 urb_type, usb_conv_info_t *usb_conv_info)

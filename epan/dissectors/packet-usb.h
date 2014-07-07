@@ -224,8 +224,14 @@ dissect_usb_unknown_descriptor(packet_info *pinfo _U_, proto_tree *parent_tree,
                                usb_conv_info_t  *usb_conv_info _U_);
 
 int
+dissect_usb_setup_response(packet_info *pinfo, proto_tree *tree,
+                           proto_tree *parent, tvbuff_t *tvb, int offset,
+                           guint8 urb_type, usb_conv_info_t *usb_conv_info);
+
+int
 dissect_usb_setup_request(packet_info *pinfo, proto_tree *parent, tvbuff_t *tvb,
                           int offset, usb_conv_info_t *usb_conv_info, proto_tree **setup_tree);
+
 
 void
 usb_set_addr(packet_info *pinfo, usb_address_t *src_addr,

@@ -541,6 +541,18 @@ static gboolean mausb_has_setup_data(struct mausb_header *header)
     return FALSE;
 }
 
+static gboolean mausb_is_setup_response(struct mausb_header *header)
+{
+    if ((TransferResp == header->type) &&
+        (!mausb_is_from_host(header)) &&
+        (MAUSB_TX_TYPE_CTRL == mausb_tx_type(header))) {
+
+        return TRUE;
+    }
+    return FALSE;
+}
+
+
 /*** EP Handle parsing helper functions */
 
 static guint8 mausb_ep_handle_ep_num(guint16 handle) {
@@ -1175,6 +1187,10 @@ dissect_mausb_pkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                                usb_conv_info, &setup_tree);
         }
 
+        if (mausb_is_setup_response(&header)) {
+            offset = dissect_usb_setup_response(pinfo, mausb_tree, mausb_tree, tvb,
+                                                offset, URB_COMPLETE, usb_conv_info);
+        }
         /*
          * TODO: dissect MA USB Payload with USB class dissectors
          *       (ex: MBIM, USB Audio, etc.)
