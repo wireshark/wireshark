@@ -1977,7 +1977,6 @@ static void check_for_oob_mac_lte_events(packet_info *pinfo, tvbuff_t *tvb, prot
     guint                temp;
     mac_lte_oob_event    oob_event;
     struct mac_lte_info *p_mac_lte_info;
-    tvbuff_t            *mac_lte_tvb = NULL;
     guint16              n;
 
     /* Look for strings matching expected formats */
@@ -2074,8 +2073,7 @@ static void check_for_oob_mac_lte_events(packet_info *pinfo, tvbuff_t *tvb, prot
     }
 
     /* Call MAC dissector */
-    mac_lte_tvb = tvb_new_subset(tvb, 0, 0, 0);
-    call_dissector_only(mac_lte_handle, mac_lte_tvb, pinfo, tree, NULL);
+    call_dissector_only(mac_lte_handle, tvb, pinfo, tree, NULL);
 }
 
 
