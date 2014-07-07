@@ -495,7 +495,7 @@ gint16 csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pD
  *      Par4: C string for the text
  *****************************************************************************/
 #define M_TYPE_LABEL(_STRUCT, _MEMBER, _MEMBER_TYPE, _LABEL)\
-        {CSN_TYPE, 0, {(void*)CSNDESCR_##_MEMBER_TYPE}, offsetof(_STRUCT, _MEMBER), FALSE, _LABEL, {NULL}, NULL}
+        {CSN_TYPE, 0, {(const void*)CSNDESCR_##_MEMBER_TYPE}, offsetof(_STRUCT, _MEMBER), FALSE, _LABEL, {NULL}, NULL}
 
 /******************************************************************************
  * M_UNION(Par1, Par2)
