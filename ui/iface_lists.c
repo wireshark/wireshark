@@ -323,7 +323,9 @@ scan_local_interfaces(void (*update_cb)(void))
         }
         if (!found) {  /* new interface, maybe a pipe */
             device.name         = g_strdup(interface_opts.name);
-            device.display_name = g_strdup_printf("%s: %s", device.name, interface_opts.descr);
+            device.display_name = interface_opts.descr ?
+                g_strdup_printf("%s: %s", device.name, interface_opts.descr) :
+                g_strdup_printf("%s", device.name);
             device.hidden       = FALSE;
             device.selected     = TRUE;
             device.type         = IF_PIPE;
