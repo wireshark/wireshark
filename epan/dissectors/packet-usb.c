@@ -107,6 +107,7 @@ static int hf_usb_iso_pad = -1;
 static int hf_usb_iso_data = -1;
 
 static int hf_usb_bmRequestType = -1;
+static int hf_usb_control_response_generic = -1;
 static int hf_usb_bmRequestType_direction = -1;
 static int hf_usb_bmRequestType_type = -1;
 static int hf_usb_bmRequestType_recipient = -1;
@@ -2592,6 +2593,60 @@ try_dissect_next_protocol(proto_tree *tree, proto_tree *parent, tvbuff_t *next_t
     return offset;
 }
 
+
+static int
+dissect_usb_setup_response(packet_info *pinfo, proto_tree *tree,
+                           proto_tree *parent, tvbuff_t *tvb, int offset,
+                           guint8 urb_type, usb_conv_info_t *usb_conv_info)
+{
+
+    tvbuff_t *next_tvb = NULL;
+    gint type_2 = 0;
+    gint length_remaining;
+    gint new_offset;
+
+    if (usb_conv_info->usb_trans_info) {
+        type_2 = USB_TYPE(usb_conv_info->usb_trans_info->setup.requesttype);
+        switch (type_2) {
+
+        case RQT_SETUP_TYPE_STANDARD:
+            /* This is a standard response */
+            offset = dissect_usb_standard_setup_response(pinfo, parent, tvb,
+                                                         offset, usb_conv_info);
+            break;
+        default:
+            /* Try to find a non-standard specific dissector */
+            if (tvb_reported_length_remaining(tvb, offset) != 0) {
+                next_tvb = tvb_new_subset_remaining(tvb, offset);
+                new_offset = try_dissect_next_protocol(tree, parent, next_tvb, offset, pinfo, usb_conv_info, type_2, urb_type, NULL, NULL);
+                if (new_offset > offset)
+                    offset = new_offset;
+            }
+
+            length_remaining = tvb_reported_length_remaining(tvb, offset);
+            if (length_remaining != 0) {
+                proto_tree_add_item(parent, hf_usb_control_response_generic,
+                                    tvb, offset, length_remaining, ENC_NA);
+                offset += length_remaining;
+            }
+            break;
+        }
+
+    } else {
+        /* no matching request available */
+        length_remaining = tvb_reported_length_remaining(tvb, offset);
+        if (length_remaining != 0) {
+            proto_tree_add_item(parent, hf_usb_control_response_generic, tvb,
+                                offset, length_remaining, ENC_NA);
+            offset += length_remaining;
+        }
+     }
+
+
+    return offset;
+}
+
+
 static int
 dissect_usb_bmrequesttype(proto_tree *parent_tree, tvbuff_t *tvb, int offset, int *type)
 {
@@ -3279,48 +3334,20 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
             }
 
 
-            if (usb_conv_info->usb_trans_info) {
-                /* Check if this is status stage */
-                if ((header_info & USB_HEADER_IS_USBPCAP) &&
-                    (usbpcap_control_stage == USB_CONTROL_STAGE_STATUS)) {
-                    col_add_fstr(pinfo->cinfo, COL_INFO, "%s Status",
-                        val_to_str_ext(usb_conv_info->usb_trans_info->setup.request,
-                            &setup_request_names_vals_ext, "Unknown type %x"));
-                    /* There is no data to dissect */
-                    return;
-                }
+            /* Check if this is status stage */
+            if ((usb_conv_info->usb_trans_info) &&
+                (header_info & USB_HEADER_IS_USBPCAP) &&
+                (usbpcap_control_stage == USB_CONTROL_STAGE_STATUS)) {
+                col_add_fstr(pinfo->cinfo, COL_INFO, "%s Status",
+                    val_to_str_ext(usb_conv_info->usb_trans_info->setup.request,
+                        &setup_request_names_vals_ext, "Unknown type %x"));
+                /* There is no data to dissect */
+                return;
 
-                type_2 = USB_TYPE(usb_conv_info->usb_trans_info->setup.requesttype);
-                switch (type_2) {
-
-                case RQT_SETUP_TYPE_STANDARD:
-                    /* This is a standard response */
-                    offset = dissect_usb_standard_setup_response(pinfo, parent, tvb,
-                                                                 offset, usb_conv_info);
-                    break;
-                default:
-                    /* Try to find a non-standard specific dissector */
-                    if (tvb_reported_length_remaining(tvb, offset) != 0) {
-                        gint new_offset;
-                        next_tvb = tvb_new_subset_remaining(tvb, offset);
-                        new_offset = try_dissect_next_protocol(tree, parent, next_tvb, offset, pinfo, usb_conv_info, type_2, urb_type, NULL, NULL);
-                        if (new_offset > offset)
-                            offset = new_offset;
-                    }
-
-                    if (tvb_reported_length_remaining(tvb, offset) != 0) {
-                        proto_tree_add_text(parent, tvb, offset, -1, "CONTROL response data");
-                        offset += tvb_reported_length_remaining(tvb, offset);
-                    }
-                    break;
-                }
-            } else {
-                /* no matching request available */
-                if (tvb_reported_length_remaining(tvb, offset) != 0) {
-                    proto_tree_add_text(parent, tvb, offset, -1, "CONTROL response data");
-                    offset += tvb_reported_length_remaining(tvb, offset);
-                }
             }
+
+            offset = dissect_usb_setup_response(pinfo, tree, parent, tvb, offset,
+                                                urb_type, usb_conv_info);
         }
         }
         break;
@@ -3599,6 +3626,12 @@ proto_register_usb(void)
         { &hf_usb_bmRequestType,
           { "bmRequestType", "usb.bmRequestType",
             FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }},
+
+        /* Only used when response type cannot be determined */
+        { &hf_usb_control_response_generic,
+          { "CONTROL response data", "usb.control.Response",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_usb_request,
