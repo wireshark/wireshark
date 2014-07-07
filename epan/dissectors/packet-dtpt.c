@@ -438,7 +438,7 @@ dissect_dtpt_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint32		num_addrs;
 	guint32		addrs_length1 = 0;
 	proto_item	*dtpt_addrs_item = NULL;
-	proto_tree	*dtpt_addrs_tree;
+	proto_tree	*dtpt_addrs_tree = NULL;
 	guint32		blob_rawsize = 0;
 	guint32		blob_size = 0;
 	guint32		blob_data_length = 0;
