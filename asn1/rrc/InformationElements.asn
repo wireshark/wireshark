@@ -1,4 +1,4 @@
--- 3GPP TS 25.331 V11.8.0 (2013-12)
+-- 3GPP TS 25.331 V11.8.0 (2013-12) + CR5591
 --
 InformationElements DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -1298,9 +1298,9 @@ MultiCarrier-HSDSCH-physical-layer-category-extension ::= INTEGER (1..36)
 MultiCarrier-HSDSCH-physical-layer-category-extension2 ::= INTEGER (37..64)
 
 MultiflowCapabBandCombination ::= 		SEQUENCE {
-	numberOfCellsBandA				INTEGER(2..6),
+	numberOfCellsBandA				INTEGER(1..6),
 	numberOfFrequenciesBandA		INTEGER(1..3),
-	numberOfCellsBandB				INTEGER(2..6),
+	numberOfCellsBandB				INTEGER(1..6),
 	numberOfFrequenciesBandB		INTEGER(1..3)
 }
 
