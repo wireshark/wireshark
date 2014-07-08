@@ -2146,7 +2146,7 @@ dissect_h264_pacsi(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint off
 
         if (nal_unit_size == 0 || nal_unit_size > tvb_reported_length_remaining(tvb, offset))
         {
-            item = proto_tree_add_expert(tree, pinfo, &ei_h264_bad_nal_length, tvb, offset-2, 2);
+            proto_tree_add_expert(tree, pinfo, &ei_h264_bad_nal_length, tvb, offset-2, 2);
             error = TRUE;
         }
         else
