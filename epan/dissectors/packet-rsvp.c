@@ -2411,7 +2411,7 @@ dissect_rsvp_ifid_tlv(proto_tree *ti, proto_tree *rsvp_object_tree,
     int         tlv_len;
     guint8      isis_len;
     const char *tlv_name, *ip_str;
-    proto_tree *rsvp_ifid_subtree=NULL, *ti2;
+    proto_tree *rsvp_ifid_subtree=NULL, *ti2 = NULL;
 
     for (tlv_off = 0; tlv_off < length; ) {
         tlv_type = tvb_get_ntohs(tvb, offset+tlv_off);
