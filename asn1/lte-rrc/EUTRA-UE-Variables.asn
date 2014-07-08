@@ -1,4 +1,4 @@
--- 3GPP TS 36.331 V11.7.0 (2014-03)
+-- 3GPP TS 36.331 V11.8.0 (2014-06)
 --
 EUTRA-UE-Variables DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -19,6 +19,7 @@ IMPORTS
 	MeasId,
 	MeasIdToAddModList,
 	MeasObjectToAddModList,
+	MeasObjectToAddModList-v9e0,
 	MobilityStateParameters,
 	NeighCellConfig,
 	PhysCellId,
@@ -32,7 +33,6 @@ IMPORTS
 	ReportConfigToAddModList,
 	RLF-Report-r9,
 	RSRP-Range,
---	TraceRecordingSessionRef-r10,
 	TraceReference-r10,
 	maxCellMeas,
 	maxMeasId
@@ -85,6 +85,7 @@ VarMeasConfig ::=					SEQUENCE {
 	measIdList							MeasIdToAddModList					OPTIONAL,
 	-- Measurement objects
 	measObjectList						MeasObjectToAddModList				OPTIONAL,
+	measObjectList-v9i0					MeasObjectToAddModList-v9e0			OPTIONAL,
 	-- Reporting configurations
 	reportConfigList					ReportConfigToAddModList			OPTIONAL,
 	-- Other parameters

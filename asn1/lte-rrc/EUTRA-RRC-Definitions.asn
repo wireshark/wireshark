@@ -1,4 +1,4 @@
--- 3GPP TS 36.331 V11.7.0 (2014-03)
+-- 3GPP TS 36.331 V11.8.0 (2014-06)
 --
 EUTRA-RRC-Definitions DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -1441,7 +1441,12 @@ UECapabilityEnquiry-r8-IEs ::=		SEQUENCE {
 
 UECapabilityEnquiry-v8a0-IEs ::= SEQUENCE {
 	lateNonCriticalExtension			OCTET STRING						OPTIONAL,
-	nonCriticalExtension				SEQUENCE {}							OPTIONAL
+	nonCriticalExtension				UECapabilityEnquiry-v1180-IEs		OPTIONAL
+}
+
+UECapabilityEnquiry-v1180-IEs ::= SEQUENCE {
+	requestedFrequencyBands-r11			SEQUENCE (SIZE (1..16)) OF FreqBandIndicator-r11							OPTIONAL,
+	nonCriticalExtension				SEQUENCE {}				OPTIONAL
 }
 
 UE-CapabilityRequest ::=		SEQUENCE (SIZE (1..maxRAT-Capabilities)) OF RAT-Type
@@ -4766,6 +4771,14 @@ UE-EUTRA-Capability-v1130-IEs ::=	SEQUENCE {
 UE-EUTRA-Capability-v1170-IEs ::=	SEQUENCE {
 	phyLayerParameters-v1170			PhyLayerParameters-v1170				OPTIONAL,
 	ue-Category-v1170					INTEGER (9..10)							OPTIONAL,
+	nonCriticalExtension				UE-EUTRA-Capability-v1180-IEs			OPTIONAL
+}
+
+UE-EUTRA-Capability-v1180-IEs ::=	SEQUENCE {
+	rf-Parameters-v1180					RF-Parameters-v1180						OPTIONAL,
+	mbms-Parameters-r11					MBMS-Parameters-r11					OPTIONAL,
+	fdd-Add-UE-EUTRA-Capabilities-v1180	UE-EUTRA-CapabilityAddXDD-Mode-v1180	OPTIONAL,
+	tdd-Add-UE-EUTRA-Capabilities-v1180	UE-EUTRA-CapabilityAddXDD-Mode-v1180	OPTIONAL,
 	nonCriticalExtension				SEQUENCE {}								OPTIONAL
 }
 
@@ -4795,6 +4808,10 @@ UE-EUTRA-CapabilityAddXDD-Mode-v1130 ::=	SEQUENCE {
 	measParameters-v1130				MeasParameters-v1130				OPTIONAL,
 	otherParameters-r11					Other-Parameters-r11				OPTIONAL,
 	...
+}
+
+UE-EUTRA-CapabilityAddXDD-Mode-v1180 ::=	SEQUENCE {
+	mbms-Parameters-r11				MBMS-Parameters-r11
 }
 
 AccessStratumRelease ::=			ENUMERATED {
@@ -4894,6 +4911,12 @@ RF-Parameters-v1130 ::=				SEQUENCE {
 	supportedBandCombination-v1130			SupportedBandCombination-v1130			OPTIONAL
 }
 
+RF-Parameters-v1180 ::=				SEQUENCE {
+	freqBandRetrieval-r11					ENUMERATED {supported}			OPTIONAL,
+	reportedFrequencyBands-r11				SEQUENCE (SIZE (1.. maxBands)) OF FreqBandIndicator-r11						OPTIONAL,
+	supportedBandCombinationAdd-r11			SupportedBandCombinationAdd-r11		OPTIONAL
+}
+
 SupportedBandCombination-r10 ::= SEQUENCE (SIZE (1..maxBandComb-r10)) OF BandCombinationParameters-r10 
 
 SupportedBandCombinationExt-r10 ::= SEQUENCE (SIZE (1..maxBandComb-r10)) OF BandCombinationParametersExt-r10
@@ -4901,6 +4924,8 @@ SupportedBandCombinationExt-r10 ::= SEQUENCE (SIZE (1..maxBandComb-r10)) OF Band
 SupportedBandCombination-v1090 ::= SEQUENCE (SIZE (1..maxBandComb-r10)) OF BandCombinationParameters-v1090
 
 SupportedBandCombination-v1130 ::= SEQUENCE (SIZE (1..maxBandComb-r10)) OF BandCombinationParameters-v1130
+
+SupportedBandCombinationAdd-r11 ::= SEQUENCE (SIZE (1..maxBandComb-r11)) OF BandCombinationParameters-r11
 
 BandCombinationParameters-r10 ::= SEQUENCE (SIZE (1..maxSimultaneousBands-r10)) OF BandParameters-r10
 
@@ -4914,6 +4939,16 @@ BandCombinationParameters-v1130 ::=	SEQUENCE {
 	multipleTimingAdvance-r11		ENUMERATED {supported}					OPTIONAL,
 	simultaneousRx-Tx-r11			ENUMERATED {supported}					OPTIONAL,
 	bandParameterList-r11			SEQUENCE (SIZE (1..maxSimultaneousBands-r10)) OF BandParameters-v1130	OPTIONAL,
+	...
+}
+
+BandCombinationParameters-r11 ::=	SEQUENCE {
+	bandParameterList-r11			SEQUENCE (SIZE (1..maxSimultaneousBands-r10)) OF 
+			BandParameters-r11,
+	supportedBandwidthCombinationSet-r11	SupportedBandwidthCombinationSet-r10	OPTIONAL,
+	multipleTimingAdvance-r11		ENUMERATED {supported}					OPTIONAL,
+	simultaneousRx-Tx-r11			ENUMERATED {supported}					OPTIONAL,
+	bandInfoEUTRA-r11				BandInfoEUTRA,
 	...
 }
 
@@ -4932,6 +4967,13 @@ BandParameters-v1090 ::= SEQUENCE {
 
 BandParameters-v1130 ::= SEQUENCE {
 	supportedCSI-Proc-r11			ENUMERATED {n1, n3, n4}
+}
+
+BandParameters-r11 ::= SEQUENCE {
+	bandEUTRA-r11					FreqBandIndicator-r11,
+	bandParametersUL-r11			BandParametersUL-r10					OPTIONAL,
+	bandParametersDL-r11			BandParametersDL-r10					OPTIONAL,
+	supportedCSI-Proc-r11			ENUMERATED {n1, n3, n4}					OPTIONAL
 }
 
 BandParametersUL-r10 ::= SEQUENCE (SIZE (1..maxBandwidthClass-r10)) OF CA-MIMO-ParametersUL-r10
@@ -5144,6 +5186,11 @@ Other-Parameters-r11 ::=				SEQUENCE {
 	ue-Rx-TxTimeDiffMeasurements-r11		ENUMERATED {supported}		OPTIONAL
 }
 
+MBMS-Parameters-r11 ::=				SEQUENCE {
+	mbms-SCell-r11							ENUMERATED {supported}		OPTIONAL,
+	mbms-NonServingCell-r11					ENUMERATED {supported}		OPTIONAL
+}
+
 
 UE-TimersAndConstants ::=			SEQUENCE {
 	t300								ENUMERATED {
@@ -5233,6 +5280,7 @@ TMGI-r9 ::=						SEQUENCE {
 
 
 maxBandComb-r10				INTEGER ::=	128	-- Maximum number of band combinations.
+maxBandComb-r11				INTEGER ::=	256	-- Maximum number of additional band combinations.
 maxBands					INTEGER ::= 64	-- Maximum number of bands listed in EUTRA UE caps
 maxBandwidthClass-r10		INTEGER ::=	16	-- Maximum number of supported CA BW classes per band
 maxBandwidthCombSet-r10		INTEGER ::=	32	-- Maximum number of bandwidth combination sets per
