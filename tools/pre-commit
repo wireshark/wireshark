@@ -8,6 +8,8 @@
 # http://mark-story.com/posts/view/using-git-commit-hooks-to-prevent-stupid-mistakes
 #
 
+unset GREP_OPTIONS
+
 if [ -z $GIT_DIR ]; then GIT_DIR=".git"; fi
 
 # Check for newer versions of the pre-commit script
