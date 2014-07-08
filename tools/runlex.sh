@@ -6,6 +6,7 @@
 # First argument is the (quoted) name of the command; if it's null, that
 # means that neither Flex nor Lex was found, so we report an error and
 # quit.
+# Second arg is the sed executable
 #
 # Wireshark - Network traffic analyzer
 # By Gerald Combs <gerald@wireshark.org>
@@ -38,6 +39,7 @@ fi
 case "$OS" in
 
 Windows*)
+	PATH=$PATH:/bin
 	LEX=`cygpath --unix $1`
 	echo "$1 -> $LEX"
 	;;
