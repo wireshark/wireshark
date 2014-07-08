@@ -1647,9 +1647,8 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
                 }
 
                 if (tvb_strncaseeql(tvb, offset, "inline", next_offset-offset) == 0) {
-                    parameter_item = proto_tree_add_text(sdp_media_attribute_tree,
-                        tvb, offset, param_end_offset-offset, "Key parameters");
-                    parameter_tree = proto_item_add_subtree(parameter_item, ett_sdp_crypto_key_parameters);
+                    parameter_tree = proto_tree_add_subtree(sdp_media_attribute_tree, tvb, offset,
+                        param_end_offset-offset, ett_sdp_crypto_key_parameters, NULL, "Key parameters");
                     /* XXX only for SRTP? */
                     /* srtp-key-info       = key-salt ["|" lifetime] ["|" mki] */
                     offset      = next_offset +1;

@@ -509,7 +509,6 @@ attr_list(proto_tree *tree, int hf, tvbuff_t *tvb, int offset, int length,
     int     i, svc, ss, type_len, foffset=offset;
     guint32 prot;
     const guint8  *byte_value;
-    proto_item 	*ti;
     proto_tree 	*srvloc_tree;
     char *tmp;
 
@@ -561,8 +560,7 @@ attr_list(proto_tree *tree, int hf, tvbuff_t *tvb, int offset, int length,
                 i=1;
                 for (foffset = offset; foffset<length; foffset += 2) {
 
-                    ti = proto_tree_add_text(tree, tvb, foffset, -1, "Item %d", i);
-                    srvloc_tree = proto_item_add_subtree(ti, ett_srvloc_attr);
+                    srvloc_tree = proto_tree_add_subtree_format(tree, tvb, foffset, -1, ett_srvloc_attr, NULL, "Item %d", i);
 
                     svc = tvb_get_guint8(tvb, foffset+1);
         			proto_tree_add_text(srvloc_tree, tvb, foffset+1, 1,
@@ -635,8 +633,7 @@ attr_list(proto_tree *tree, int hf, tvbuff_t *tvb, int offset, int length,
         i=1;
         for (foffset = offset + (type_len); foffset<length; foffset++) {
 
-            ti = proto_tree_add_text(tree, tvb, foffset, -1, "Item %d", i);
-            srvloc_tree = proto_item_add_subtree(ti, ett_srvloc_attr);
+            srvloc_tree = proto_tree_add_subtree_format(tree, tvb, foffset, -1, ett_srvloc_attr, NULL, "Item %d", i);
 
             svc = tvb_get_guint8(tvb, foffset+1);
 			proto_tree_add_text(srvloc_tree, tvb, foffset+1, 1,

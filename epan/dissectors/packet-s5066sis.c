@@ -823,18 +823,17 @@ proto_reg_handoff_s5066(void)
 static guint
 dissect_s5066_address(tvbuff_t *tvb, guint offset, proto_tree *tree, gint source)
 {
-        proto_item *ti = NULL;
-        proto_tree *s5066_tree_address = NULL;
+    proto_tree *s5066_tree_address;
 	guint32 addr;
 
-        if (source) {
-		ti = proto_tree_add_text(tree, tvb, offset, 4, "Source Address");
+    if (source) {
+		s5066_tree_address = proto_tree_add_subtree(tree, tvb, offset, 4, ett_s5066_address, NULL, "Source Address");
 	}
 	else {
-		ti = proto_tree_add_text(tree, tvb, offset, 4, "Destination Address");
+		s5066_tree_address = proto_tree_add_subtree(tree, tvb, offset, 4, ett_s5066_address, NULL, "Destination Address");
 	}
-        s5066_tree_address = proto_item_add_subtree(ti, ett_s5066_address);
-	proto_tree_add_item(s5066_tree_address, hf_s5066_ad_size, tvb, offset, 1, ENC_BIG_ENDIAN);
+
+    proto_tree_add_item(s5066_tree_address, hf_s5066_ad_size, tvb, offset, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_item(s5066_tree_address, hf_s5066_ad_group, tvb, offset, 1, ENC_BIG_ENDIAN);
 	addr = tvb_get_ntohl(tvb, offset);
 	addr = addr & 0x1FFFFFFF;
@@ -846,11 +845,9 @@ dissect_s5066_address(tvbuff_t *tvb, guint offset, proto_tree *tree, gint source
 static guint
 dissect_s5066_servicetype(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
-        proto_item *ti = NULL;
-        proto_tree *s5066_tree_servicetype = NULL;
+	proto_tree *s5066_tree_servicetype;
 
-        ti = proto_tree_add_text(tree, tvb, offset, 2, "Service type");
-        s5066_tree_servicetype = proto_item_add_subtree(ti, ett_s5066_servicetype);
+	s5066_tree_servicetype = proto_tree_add_subtree(tree, tvb, offset, 2, ett_s5066_servicetype, NULL, "Service type");
 
 	proto_tree_add_item(s5066_tree_servicetype, hf_s5066_st_txmode, tvb, offset, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_item(s5066_tree_servicetype, hf_s5066_st_delivery_confirmation, tvb, offset, 1, ENC_BIG_ENDIAN);

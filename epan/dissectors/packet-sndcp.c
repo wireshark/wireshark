@@ -202,8 +202,8 @@ dissect_sndcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   /* Set up structures needed to add the protocol subtree and manage it
    */
-  proto_item *ti, *address_field_item, *compression_field_item, *npdu_field_item;
-  proto_tree *sndcp_tree = NULL, *address_field_tree, *compression_field_tree, *npdu_field_tree;
+  proto_item *ti, *address_field_item;
+  proto_tree *sndcp_tree, *address_field_tree, *compression_field_tree, *npdu_field_tree;
 
   /* Make entries in Protocol column and clear Info column on summary display
    */
@@ -212,10 +212,8 @@ dissect_sndcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   /* create display subtree for the protocol
    */
-  if (tree) {
-    ti         = proto_tree_add_item(tree, proto_sndcp, tvb, 0, -1, ENC_NA);
-    sndcp_tree = proto_item_add_subtree(ti, ett_sndcp);
-  }
+  ti         = proto_tree_add_item(tree, proto_sndcp, tvb, 0, -1, ENC_NA);
+  sndcp_tree = proto_item_add_subtree(ti, ett_sndcp);
 
   /* get address field from next byte
    */
@@ -252,21 +250,20 @@ dissect_sndcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (tree) {
       if (!pcomp) {
         if (!dcomp) {
-          compression_field_item = proto_tree_add_text(sndcp_tree, tvb, offset,1, "No compression");
+          compression_field_tree = proto_tree_add_subtree(sndcp_tree, tvb, offset, 1, ett_sndcp_compression_field, NULL, "No compression");
         }
         else {
-          compression_field_item = proto_tree_add_text(sndcp_tree, tvb, offset,1, "Data compression");
+          compression_field_tree = proto_tree_add_subtree(sndcp_tree, tvb, offset, 1, ett_sndcp_compression_field, NULL, "Data compression");
         }
       }
       else {
         if (!dcomp) {
-          compression_field_item = proto_tree_add_text(sndcp_tree, tvb, offset,1, "Protocol compression");
+          compression_field_tree = proto_tree_add_subtree(sndcp_tree, tvb, offset, 1, ett_sndcp_compression_field, NULL, "Protocol compression");
         }
         else {
-          compression_field_item = proto_tree_add_text(sndcp_tree, tvb, offset,1, "Data and Protocol compression");
+          compression_field_tree = proto_tree_add_subtree(sndcp_tree, tvb, offset, 1, ett_sndcp_compression_field, NULL, "Data and Protocol compression");
         }
       }
-      compression_field_tree = proto_item_add_subtree(compression_field_item, ett_sndcp_compression_field);
       proto_tree_add_uint(compression_field_tree, hf_sndcp_dcomp, tvb, offset, 1, comp_field );
       proto_tree_add_uint(compression_field_tree, hf_sndcp_pcomp, tvb, offset, 1, comp_field );
     }
@@ -278,8 +275,7 @@ dissect_sndcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       npdu = npdu_field1 = tvb_get_guint8(tvb,offset);
       col_add_fstr(pinfo->cinfo, COL_INFO, "SN-DATA N-PDU %d", npdu_field1);
       if (tree) {
-        npdu_field_item = proto_tree_add_text(sndcp_tree, tvb, offset,1, "Acknowledged mode, N-PDU %d", npdu_field1 );
-        npdu_field_tree = proto_item_add_subtree(npdu_field_item, ett_sndcp_npdu_field);
+        npdu_field_tree = proto_tree_add_subtree_format(sndcp_tree, tvb, offset, 1, ett_sndcp_npdu_field, NULL, "Acknowledged mode, N-PDU %d", npdu_field1 );
         proto_tree_add_uint(npdu_field_tree, hf_sndcp_npdu1, tvb, offset, 1, npdu_field1 );
       }
       offset++;
@@ -294,8 +290,8 @@ dissect_sndcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     npdu            = (npdu_field2 & 0x0FFF);
     col_add_fstr(pinfo->cinfo, COL_INFO, "SN-UNITDATA N-PDU %d (segment %d)", npdu, segment);
     if (tree) {
-      npdu_field_item = proto_tree_add_text(sndcp_tree, tvb, offset,2, "Unacknowledged mode, N-PDU %d (segment %d)", npdu, segment );
-      npdu_field_tree = proto_item_add_subtree(npdu_field_item, ett_sndcp_npdu_field);
+      npdu_field_tree = proto_tree_add_subtree_format(sndcp_tree, tvb, offset, 2, ett_sndcp_npdu_field, NULL,
+            "Unacknowledged mode, N-PDU %d (segment %d)", npdu, segment );
       proto_tree_add_uint(npdu_field_tree, hf_sndcp_segment, tvb, offset, 2, npdu_field2 );
       proto_tree_add_uint(npdu_field_tree, hf_sndcp_npdu2, tvb, offset, 2, npdu_field2 );
     }

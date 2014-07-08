@@ -829,12 +829,11 @@ static int dissect_spdy_data_payload(tvbuff_t *tvb,
       /*
        * Add the encoded entity to the protocol tree
        */
-      e_ti = proto_tree_add_text(spdy_tree, data_tvb,
-                                 0, tvb_reported_length(data_tvb),
+      e_tree = proto_tree_add_subtree_format(spdy_tree, data_tvb,
+                                 0, tvb_reported_length(data_tvb), ett_spdy_encoded_entity, &e_ti,
                                  "Content-encoded entity body (%s): %u bytes",
                                  si->content_encoding,
                                  tvb_reported_length(data_tvb));
-      e_tree = proto_item_add_subtree(e_ti, ett_spdy_encoded_entity);
       if (si->num_data_frames > 1) {
         wmem_list_t *dflist = si->data_frames;
         wmem_list_frame_t *frame_item;

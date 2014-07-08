@@ -2161,7 +2161,6 @@ dissect_ssl3_hnd_hello_common(tvbuff_t *tvb, proto_tree *tree,
     /* show the client's random challenge */
     nstime_t    gmt_unix_time;
     guint8      session_id_length;
-    proto_item *ti_rnd;
     proto_tree *ssl_rnd_tree;
 
     session_id_length = 0;
@@ -2213,8 +2212,7 @@ dissect_ssl3_hnd_hello_common(tvbuff_t *tvb, proto_tree *tree,
 
     if (tree)
     {
-        ti_rnd = proto_tree_add_text(tree, tvb, offset, 32, "Random");
-        ssl_rnd_tree = proto_item_add_subtree(ti_rnd, ett_ssl_random);
+        ssl_rnd_tree = proto_tree_add_subtree(tree, tvb, offset, 32, ett_ssl_random, NULL, "Random");
 
         /* show the time */
         gmt_unix_time.secs = tvb_get_ntohl(tvb, offset);
@@ -2456,7 +2454,6 @@ dissect_ssl3_hnd_new_ses_ticket(tvbuff_t *tvb, proto_tree *tree,
                               guint32 offset, guint32 length, SslDecryptSession *ssl)
 {
     guint       nst_len;
-    proto_item *ti;
     proto_tree *subtree;
     guint16 session_ticket_length = 0;
 
@@ -2465,8 +2462,7 @@ dissect_ssl3_hnd_new_ses_ticket(tvbuff_t *tvb, proto_tree *tree,
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, 6+nst_len, "TLS Session Ticket");
-    subtree = proto_item_add_subtree(ti, ett_ssl_new_ses_ticket);
+    subtree = proto_tree_add_subtree(tree, tvb, offset, 6+nst_len, ett_ssl_new_ses_ticket, NULL, "TLS Session Ticket");
 
     proto_tree_add_item(subtree, hf_ssl_handshake_session_ticket_lifetime_hint,
                         tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -2709,7 +2705,6 @@ static void
 dissect_ssl3_hnd_cli_cert_verify(tvbuff_t *tvb, proto_tree *tree,
                                 guint32 offset, guint32 length)
 {
-    proto_item *ti_sig;
     proto_tree *ssl_sig_tree;
 
     /*
@@ -2730,9 +2725,8 @@ dissect_ssl3_hnd_cli_cert_verify(tvbuff_t *tvb, proto_tree *tree,
      */
 
 
-    ti_sig = proto_tree_add_text(tree, tvb, offset, length,
-            "Signature with client's private key");
-    ssl_sig_tree = proto_item_add_subtree(ti_sig, ett_ssl_cli_sig);
+    ssl_sig_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+            ett_ssl_cli_sig, NULL, "Signature with client's private key");
 
     proto_tree_add_item(ssl_sig_tree, hf_ssl_handshake_client_cert_vrfy_sig_len,
                         tvb, offset, 2, ENC_BIG_ENDIAN);

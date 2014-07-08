@@ -2297,7 +2297,6 @@ struct negprot_dialects {
 static int
 dissect_negprot_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_tree *smb_tree _U_, smb_info_t *si)
 {
-	proto_item *it = NULL;
 	proto_tree *tr = NULL;
 	guint16     bc;
 	guint8      wc;
@@ -2311,8 +2310,7 @@ dissect_negprot_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 
 	if (tree) {
 		tvb_ensure_bytes_exist(tvb, offset, bc);
-		it = proto_tree_add_text(tree, tvb, offset, bc, "Requested Dialects");
-		tr = proto_item_add_subtree(it, ett_smb_dialects);
+		tr = proto_tree_add_subtree(tree, tvb, offset, bc, ett_smb_dialects, NULL, "Requested Dialects");
 	}
 
 	if (!pinfo->fd->flags.visited && si->sip) {
@@ -5396,19 +5394,15 @@ dissect_search_resume_key(tvbuff_t *tvb, packet_info *pinfo _U_,
     proto_tree *parent_tree, int offset, guint16 *bcp, gboolean *trunc,
     gboolean has_find_id, smb_info_t *si)
 {
-	proto_item *item = NULL;
-	proto_tree *tree = NULL;
+	proto_tree *tree;
 	int         fn_len;
 	const char *fn;
 	char        fname[11+1];
 
 	DISSECTOR_ASSERT(si);
 
-	if (parent_tree) {
-		item = proto_tree_add_text(parent_tree, tvb, offset, 21,
-			"Resume Key");
-		tree = proto_item_add_subtree(item, ett_smb_search_resume_key);
-	}
+	tree = proto_tree_add_subtree(parent_tree, tvb, offset, 21,
+			ett_smb_search_resume_key, NULL, "Resume Key");
 
 	/* reserved byte */
 	CHECK_BYTE_COUNT_SUBR(1);
@@ -5456,19 +5450,15 @@ dissect_search_dir_info(tvbuff_t *tvb, packet_info *pinfo,
     proto_tree *parent_tree, int offset, guint16 *bcp, gboolean *trunc,
     gboolean has_find_id, smb_info_t *si)
 {
-	proto_item *item = NULL;
-	proto_tree *tree = NULL;
+	proto_tree *tree;
 	int         fn_len;
 	const char *fn;
 	char        fname[13+1];
 
 	DISSECTOR_ASSERT(si);
 
-	if (parent_tree) {
-		item = proto_tree_add_text(parent_tree, tvb, offset, 46,
-			"Directory Information");
-		tree = proto_item_add_subtree(item, ett_smb_search_dir_info);
-	}
+	tree = proto_tree_add_subtree(parent_tree, tvb, offset, 46,
+			ett_smb_search_dir_info, NULL, "Directory Information");
 
 	/* resume key */
 	offset = dissect_search_resume_key(tvb, pinfo, tree, offset, bcp,
@@ -5821,11 +5811,9 @@ dissect_locking_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	if (un) {
 		old_offset = offset;
 
-		it = proto_tree_add_text(tree, tvb, offset, -1, "Unlocks");
-		tr = proto_item_add_subtree(it, ett_smb_unlocks);
+		tr = proto_tree_add_subtree(tree, tvb, offset, -1, ett_smb_unlocks, &it, "Unlocks");
 		while (un--) {
-			proto_item *litem_2 = NULL;
-			proto_tree *ltree_2 = NULL;
+			proto_tree *ltree_2;
 			if (lt&0x10) {
 				guint64 val;
 				guint16 lock_pid;
@@ -5833,8 +5821,7 @@ dissect_locking_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 				guint64 lock_length;
 
 				/* large lock format */
-				litem_2 = proto_tree_add_text(tr, tvb, offset, 20, "Unlock");
-				ltree_2 = proto_item_add_subtree(litem_2, ett_smb_unlock);
+				ltree_2 = proto_tree_add_subtree(tr, tvb, offset, 20, ett_smb_unlock, NULL, "Unlock");
 
 				/* PID */
 				CHECK_BYTE_COUNT(2);
@@ -5875,8 +5862,7 @@ dissect_locking_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 				}
 			} else {
 				/* normal lock format */
-				litem_2 = proto_tree_add_text(tr, tvb, offset, 10, "Unlock");
-				ltree_2 = proto_item_add_subtree(litem_2, ett_smb_unlock);
+				ltree_2 = proto_tree_add_subtree(tr, tvb, offset, 10, ett_smb_unlock, NULL, "Unlock");
 
 				/* PID */
 				CHECK_BYTE_COUNT(2);
@@ -5902,11 +5888,9 @@ dissect_locking_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	if (ln) {
 		old_offset = offset;
 
-		it = proto_tree_add_text(tree, tvb, offset, -1, "Locks");
-		tr = proto_item_add_subtree(it, ett_smb_locks);
+		tr = proto_tree_add_subtree(tree, tvb, offset, -1, ett_smb_locks, &it, "Locks");
 		while (ln--) {
-			proto_item *litem_2 = NULL;
-			proto_tree *ltree_2 = NULL;
+			proto_tree *ltree_2;
 			if (lt&0x10) {
 				guint64 val;
 				guint16 lock_pid;
@@ -5914,8 +5898,7 @@ dissect_locking_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 				guint64 lock_length;
 
 				/* large lock format */
-				litem_2 = proto_tree_add_text(tr, tvb, offset, 20, "Lock");
-				ltree_2 = proto_item_add_subtree(litem_2, ett_smb_lock);
+				ltree_2 = proto_tree_add_subtree(tr, tvb, offset, 20, ett_smb_lock, NULL, "Lock");
 
 				/* PID */
 				CHECK_BYTE_COUNT(2);
@@ -5956,8 +5939,7 @@ dissect_locking_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 				}
 			} else {
 				/* normal lock format */
-				litem_2 = proto_tree_add_text(tr, tvb, offset, 10, "Lock");
-				ltree_2 = proto_item_add_subtree(litem_2, ett_smb_lock);
+				ltree_2 = proto_tree_add_subtree(tr, tvb, offset, 10, ett_smb_lock, NULL, "Lock");
 
 				/* PID */
 				CHECK_BYTE_COUNT(2);
@@ -6017,7 +5999,6 @@ dissect_locking_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
 		ld = (smb_locking_saved_info_t *)si->sip->extra_info;
 		if (ld != NULL) {
-			proto_item *lit;
 			proto_tree *ltr;
 			smb_lock_info_t *li;
 			if (tree) {
@@ -6034,8 +6015,7 @@ dissect_locking_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 				proto_tree_add_uint(ltree, hf_smb_number_of_unlocks, tvb, 0, 0, ld->num_unlock);
 				proto_tree_add_uint(ltree, hf_smb_number_of_locks, tvb, 0, 0, ld->num_lock);
 
-				lit = proto_tree_add_text(ltree, tvb, 0, 0, "Locks");
-				ltr = proto_item_add_subtree(lit, ett_smb_lock);
+				ltr = proto_tree_add_subtree(ltree, tvb, 0, 0, ett_smb_lock, NULL, "Locks");
 				li = ld->locks;
 				while (li) {
 					proto_tree_add_uint(ltr, hf_smb_pid, tvb, 0, 0, li->pid);
@@ -6043,8 +6023,7 @@ dissect_locking_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 					proto_tree_add_uint64(ltr, hf_smb_lock_long_length, tvb, 0, 0, li->length);
 					li = li->next;
 				}
-				lit = proto_tree_add_text(ltree, tvb, 0, 0, "Unlocks");
-				ltr = proto_item_add_subtree(lit, ett_smb_unlock);
+				ltr = proto_tree_add_subtree(ltree, tvb, 0, 0, ett_smb_unlock, NULL, "Unlocks");
 				li = ld->unlocks;
 				while (li) {
 					proto_tree_add_uint(ltr, hf_smb_pid, tvb, 0, 0, li->pid);
@@ -7793,7 +7772,6 @@ dissect_tree_connect_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	guint16     bc;
 	int         an_len;
 	int         count          = 0;
-	proto_item *it             = NULL;
 	proto_tree *tr             = NULL;
 	const char *an;
 
@@ -7847,13 +7825,12 @@ dissect_tree_connect_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 		 * has added.
 		 */
 		if (count == 0) {
-			it = proto_tree_add_text(tree, tvb, offset, 4,
-				"Maximal Share Access Rights");
+			tr = proto_tree_add_subtree(tree, tvb, offset, 4,
+				ett_smb_nt_access_mask, NULL, "Maximal Share Access Rights");
 		} else {
-			it = proto_tree_add_text(tree, tvb, offset, 4,
-				"Guest Maximal Share Access Rights");
+			tr = proto_tree_add_subtree(tree, tvb, offset, 4,
+				ett_smb_nt_access_mask, NULL, "Guest Maximal Share Access Rights");
 		}
-		tr = proto_item_add_subtree(it, ett_smb_nt_access_mask);
 
 		offset = dissect_smb_access_mask(tvb, tr, offset);
 		wleft -= 2;
@@ -8571,8 +8548,7 @@ dissect_nt_user_quota(tvbuff_t *tvb, proto_tree *tree, int offset, guint16 *bcp)
 static int
 dissect_nt_trans_data_request(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree, int bc, nt_trans_data *ntd, smb_nt_transact_info_t *nti, smb_info_t *si)
 {
-	proto_item              *item       = NULL;
-	proto_tree              *tree       = NULL;
+	proto_tree              *tree;
 	int                      old_offset = offset;
 	guint16                  bcp        = bc; /* XXX fixme */
 	struct access_mask_info *ami        = NULL;
@@ -8580,15 +8556,9 @@ dissect_nt_trans_data_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pro
 
 	DISSECTOR_ASSERT(si);
 
-	if (parent_tree) {
-		guint32 bytes = 0;
-		bytes = tvb_length_remaining(tvb, offset);
-		/*tvb_ensure_bytes_exist(tvb, offset, bc);*/
-		item = proto_tree_add_text(parent_tree, tvb, offset, bytes,
-				"%s Data",
+	tree = proto_tree_add_subtree_format(parent_tree, tvb, offset, -1,
+				ett_smb_nt_trans_data, NULL, "%s Data",
 				val_to_str_ext(ntd->subcmd, &nt_cmd_vals_ext, "Unknown NT transaction (%u)"));
-		tree = proto_item_add_subtree(item, ett_smb_nt_trans_data);
-	}
 
 	switch(ntd->subcmd) {
 	case NT_TRANS_CREATE:
@@ -8673,19 +8643,15 @@ dissect_nt_trans_data_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pro
 static int
 dissect_nt_trans_param_request(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree, int len, nt_trans_data *ntd, guint16 bc, smb_nt_transact_info_t *nti, smb_info_t *si)
 {
-	proto_item *item = NULL;
-	proto_tree *tree = NULL;
+	proto_tree *tree;
 	guint32     fn_len, create_flags, access_mask, share_access, create_options;
 	const char *fn;
 
 	DISSECTOR_ASSERT(si);
 
-	if (parent_tree) {
-		item = proto_tree_add_text(parent_tree, tvb, offset, len,
-				"%s Parameters",
+	tree = proto_tree_add_subtree_format(parent_tree, tvb, offset, len,
+				ett_smb_nt_trans_param, NULL, "%s Parameters",
 				val_to_str_ext(ntd->subcmd, &nt_cmd_vals_ext, "Unknown NT transaction (%u)"));
-		tree = proto_item_add_subtree(item, ett_smb_nt_trans_param);
-	}
 
 	switch(ntd->subcmd) {
 	case NT_TRANS_CREATE:
@@ -8826,8 +8792,7 @@ dissect_nt_trans_param_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pr
 static int
 dissect_nt_trans_setup_request(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree, int len, nt_trans_data *ntd, smb_info_t *si)
 {
-	proto_item             *item = NULL;
-	proto_tree             *tree = NULL;
+	proto_tree             *tree;
 	smb_nt_transact_info_t *nti  = NULL;
 	smb_saved_info_t       *sip;
 
@@ -8837,13 +8802,9 @@ dissect_nt_trans_setup_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pr
 		nti = (smb_nt_transact_info_t *)sip->extra_info;
 	}
 
-	if (parent_tree) {
-		tvb_ensure_bytes_exist(tvb, offset, len);
-		item = proto_tree_add_text(parent_tree, tvb, offset, len,
-				"%s Setup",
+	tree = proto_tree_add_subtree_format(parent_tree, tvb, offset, len,
+				ett_smb_nt_trans_setup, NULL, "%s Setup",
 				val_to_str_ext(ntd->subcmd, &nt_cmd_vals_ext, "Unknown NT transaction (%u)"));
-		tree = proto_item_add_subtree(item, ett_smb_nt_trans_setup);
-	}
 
 	switch(ntd->subcmd) {
 	case NT_TRANS_CREATE:
@@ -9168,7 +9129,6 @@ dissect_nt_trans_data_response(tvbuff_t *tvb, packet_info *pinfo,
 			       nt_trans_data *ntd _U_,
 			       smb_nt_transact_info_t *nti, smb_info_t *si)
 {
-	proto_item              *item = NULL;
 	proto_tree              *tree = NULL;
 	guint16                  bcp;
 	struct access_mask_info *ami  = NULL;
@@ -9179,18 +9139,17 @@ dissect_nt_trans_data_response(tvbuff_t *tvb, packet_info *pinfo,
 	if (parent_tree) {
 		tvb_ensure_bytes_exist(tvb, offset, len);
 		if (nti != NULL) {
-			item = proto_tree_add_text(parent_tree, tvb, offset, len,
-				"%s Data",
+			tree = proto_tree_add_subtree_format(parent_tree, tvb, offset, len,
+				ett_smb_nt_trans_data, NULL, "%s Data",
 				val_to_str_ext(nti->subcmd, &nt_cmd_vals_ext, "Unknown NT Transaction (%u)"));
 		} else {
 			/*
 			 * We never saw the request to which this is a
 			 * response.
 			 */
-			item = proto_tree_add_text(parent_tree, tvb, offset, len,
-				"Unknown NT Transaction Data (matching request not seen)");
+			tree = proto_tree_add_subtree(parent_tree, tvb, offset, len,
+				ett_smb_nt_trans_data, NULL, "Unknown NT Transaction Data (matching request not seen)");
 		}
-		tree = proto_item_add_subtree(item, ett_smb_nt_trans_data);
 	}
 
 	if (nti == NULL) {
@@ -9246,7 +9205,6 @@ dissect_nt_trans_param_response(tvbuff_t *tvb, packet_info *pinfo,
 				int offset, proto_tree *parent_tree,
 				int len, nt_trans_data *ntd _U_, guint16 bc, smb_info_t *si)
 {
-	proto_item             *item     = NULL;
 	proto_tree             *tree     = NULL;
 	guint32                 fn_len;
 	const char             *fn;
@@ -9269,18 +9227,17 @@ dissect_nt_trans_param_response(tvbuff_t *tvb, packet_info *pinfo,
 	if (parent_tree) {
 		tvb_ensure_bytes_exist(tvb, offset, len);
 		if (nti != NULL) {
-			item = proto_tree_add_text(parent_tree, tvb, offset, len,
-				"%s Parameters",
+			tree = proto_tree_add_subtree_format(parent_tree, tvb, offset, len,
+				ett_smb_nt_trans_param, NULL, "%s Parameters",
 				val_to_str_ext(nti->subcmd, &nt_cmd_vals_ext, "Unknown NT Transaction (%u)"));
 		} else {
 			/*
 			 * We never saw the request to which this is a
 			 * response.
 			 */
-			item = proto_tree_add_text(parent_tree, tvb, offset, len,
-				"Unknown NT Transaction Parameters (matching request not seen)");
+			tree = proto_tree_add_subtree(parent_tree, tvb, offset, len,
+				ett_smb_nt_trans_param, NULL, "Unknown NT Transaction Parameters (matching request not seen)");
 		}
-		tree = proto_item_add_subtree(item, ett_smb_nt_trans_param);
 	}
 
 	if (nti == NULL) {
@@ -9825,18 +9782,14 @@ static int
 dissect_print_queue_element(tvbuff_t *tvb, packet_info *pinfo _U_,
     proto_tree *parent_tree, int offset, guint16 *bcp, gboolean *trunc, smb_info_t *si)
 {
-	proto_item *item = NULL;
-	proto_tree *tree = NULL;
+	proto_tree *tree;
 	int         fn_len;
 	const char *fn;
 
 	DISSECTOR_ASSERT(si);
 
-	if (parent_tree) {
-		item = proto_tree_add_text(parent_tree, tvb, offset, 28,
-			"Queue entry");
-		tree = proto_item_add_subtree(item, ett_smb_print_queue_entry);
-	}
+	tree = proto_tree_add_subtree(parent_tree, tvb, offset, 28,
+			ett_smb_print_queue_entry, NULL, "Queue entry");
 
 	/* queued time */
 	CHECK_BYTE_COUNT_SUBR(4);
@@ -10357,8 +10310,6 @@ dissect_nt_create_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 	   if ExtendedResponses requested. */
 	if ((si->sip != NULL) && (si->sip->extra_info_type == SMB_EI_FILEDATA) &&
 	    (((smb_fid_saved_info_t *)(si->sip->extra_info))->create_flags & 0x10)) {
-		proto_item *mar = NULL;
-		proto_item *gmar = NULL;
 		proto_tree *tr = NULL;
 
 		/* The first field is a Volume GUID ... */
@@ -10372,17 +10323,13 @@ dissect_nt_create_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 				    tvb, offset, 8, ENC_LITTLE_ENDIAN);
 		offset += 8;
 
-		mar = proto_tree_add_text(tree, tvb, offset, 4,
-					  "Maximal Access Rights");
-
-		tr = proto_item_add_subtree(mar, ett_smb_nt_access_mask);
+		tr = proto_tree_add_subtree(tree, tvb, offset, 4,
+					  ett_smb_nt_access_mask, NULL, "Maximal Access Rights");
 
 		offset = dissect_smb_access_mask(tvb, tr, offset);
 
-		gmar = proto_tree_add_text(tree, tvb, offset, 4,
-					   "Guest Maximal Access Rights");
-
-		tr = proto_item_add_subtree(gmar, ett_smb_nt_access_mask);
+		tr = proto_tree_add_subtree(tree, tvb, offset, 4,
+					   ett_smb_nt_access_mask, NULL, "Guest Maximal Access Rights");
 
 		offset = dissect_smb_access_mask(tvb, tr, offset);
 	}
@@ -10902,8 +10849,7 @@ static int
 dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
     proto_tree *parent_tree, int offset, int subcmd, guint16 bc, smb_info_t *si)
 {
-	proto_item           *item = NULL;
-	proto_tree           *tree = NULL;
+	proto_tree           *tree;
 	smb_transact2_info_t *t2i;
 	int                   fn_len;
 	const char           *fn;
@@ -10915,14 +10861,10 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 	else
 		t2i = NULL;
 
-	if (parent_tree) {
-		tvb_ensure_bytes_exist(tvb, offset, bc);
-		item = proto_tree_add_text(parent_tree, tvb, offset, bc,
-				"%s Parameters",
+	tree = proto_tree_add_subtree_format(parent_tree, tvb, offset, bc,
+				ett_smb_transaction_params, NULL, "%s Parameters",
 				val_to_str_ext(subcmd, &trans2_cmd_vals_ext,
 					       "Unknown (0x%02x)"));
-		tree = proto_item_add_subtree(item, ett_smb_transaction_params);
-	}
 
 	switch(subcmd) {
 	case 0x0000:	/*TRANS2_OPEN2*/
@@ -11597,11 +11539,9 @@ dissect_dfs_referral_entry_v3(tvbuff_t *tvb, proto_tree *tree, int oldoffset, in
 		}
 		/* expanded names */
 		if (expoffset) {
-			proto_item *expitem = NULL;
-			proto_tree *exptree = NULL;
+			proto_tree *exptree;
 
-			expitem = proto_tree_add_text(tree, tvb, offset, *bcp, "Expanded Names");
-			exptree = proto_item_add_subtree(expitem, ett_smb_dfs_referral_expnames);
+			exptree = proto_tree_add_subtree(tree, tvb, offset, *bcp, ett_smb_dfs_referral_expnames, NULL, "Expanded Names");
 
 			dissect_dfs_referral_strings(tvb, exptree, hf_smb_dfs_referral_expname,
 						     nexpnames, expoffset+oldoffset, oldoffset, offset,
@@ -11697,32 +11637,22 @@ dissect_get_dfs_referral_data(tvbuff_t *tvb, packet_info *pinfo _U_,
 
 	/* if there are any referrals */
 	if (numref) {
-		proto_item *ref_item = NULL;
-		proto_tree *ref_tree = NULL;
+		proto_item *ref_item;
+		proto_tree *ref_tree;
 		int old_offset = offset;
 
-		if (tree) {
-			tvb_ensure_bytes_exist(tvb, offset, *bcp);
-			ref_item = proto_tree_add_text(tree,
-				tvb, offset, *bcp, "Referrals");
-			ref_tree = proto_item_add_subtree(ref_item,
-				ett_smb_dfs_referrals);
-		}
+		ref_tree = proto_tree_add_subtree(tree,
+				tvb, offset, *bcp, ett_smb_dfs_referrals, &ref_item, "Referrals");
 		ucstring_end = -1;
 
 		while (numref--) {
-			proto_item *ri = NULL;
-			proto_tree *rt = NULL;
+			proto_item *ri;
+			proto_tree *rt;
 			int old_offset_2 = offset;
 			guint16 version;
 
-			if (tree) {
-				tvb_ensure_bytes_exist(tvb, offset, *bcp);
-				ri = proto_tree_add_text(ref_tree,
-					tvb, offset, *bcp, "Referral");
-				rt = proto_item_add_subtree(ri,
-					ett_smb_dfs_referral);
-			}
+			rt = proto_tree_add_subtree(ref_tree,
+					tvb, offset, *bcp, ett_smb_dfs_referral, &ri, "Referral");
 
 			/* referral version */
 			CHECK_BYTE_COUNT_TRANS_SUBR(2);
@@ -12002,9 +11932,8 @@ dissect_4_2_16_2(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 		int start_offset = offset;
 		guint8 *name;
 
-		item = proto_tree_add_text(
-			tree, tvb, offset, 0, "Extended Attribute");
-		subtree = proto_item_add_subtree(item, ett_smb_ea);
+		subtree = proto_tree_add_subtree(
+			tree, tvb, offset, 0, ett_smb_ea, &item, "Extended Attribute");
 
 		/* EA flags */
 
@@ -12391,14 +12320,7 @@ dissect_qfi_SMB_FILE_STREAM_INFO(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 
 		/* next entry offset */
 		CHECK_BYTE_COUNT_SUBR(4);
-		if (parent_tree) {
-			tvb_ensure_bytes_exist(tvb, offset, *bcp);
-			item = proto_tree_add_text(parent_tree, tvb, offset, *bcp, "Stream Info");
-			tree = proto_item_add_subtree(item, ett_smb_ff2_data);
-		} else {
-			item = NULL;
-			tree = NULL;
-		}
+		tree = proto_tree_add_subtree(parent_tree, tvb, offset, *bcp, ett_smb_ff2_data, &item, "Stream Info");
 
 		neo = tvb_get_letohl(tvb, offset);
 		proto_tree_add_uint(tree, hf_smb_next_entry_offset, tvb, offset, 4, neo);
@@ -12644,8 +12566,7 @@ dissect_qspi_unix_acl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 		int old_offset = offset;
 		guint8 ace_type;
 
-		it = proto_tree_add_text(tree, tvb, offset, 0, "ACE");
-		tr = proto_item_add_subtree(it, ett_smb_posix_ace);
+		tr = proto_tree_add_subtree(tree, tvb, offset, 0, ett_smb_posix_ace, &it, "ACE");
 
 		/* ace type */
 		CHECK_BYTE_COUNT_SUBR(1);
@@ -13580,19 +13501,15 @@ static int
 dissect_transaction2_request_data(tvbuff_t *tvb, packet_info *pinfo,
     proto_tree *parent_tree, int offset, int subcmd, guint16 dc, smb_info_t *si)
 {
-	proto_item *item = NULL;
-	proto_tree *tree = NULL;
+	proto_item *item;
+	proto_tree *tree;
 
 	DISSECTOR_ASSERT(si);
 
-	if (parent_tree) {
-		tvb_ensure_bytes_exist(tvb, offset, dc);
-		item = proto_tree_add_text(parent_tree, tvb, offset, dc,
-				"%s Data",
+	tree = proto_tree_add_subtree_format(parent_tree, tvb, offset, dc,
+				ett_smb_transaction_data, &item, "%s Data",
 				val_to_str_ext(subcmd, &trans2_cmd_vals_ext,
 					       "Unknown (0x%02x)"));
-		tree = proto_item_add_subtree(item, ett_smb_transaction_data);
-	}
 
 	switch(subcmd) {
 	case 0x0000:	/*TRANS2_OPEN2*/
@@ -14181,8 +14098,8 @@ dissect_4_3_4_1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	int                   fn_len;
 	const char           *fn;
 	int                   old_offset  = offset;
-	proto_item           *item        = NULL;
-	proto_tree           *tree        = NULL;
+	proto_item           *item;
+	proto_tree           *tree;
 	smb_transact2_info_t *t2i;
 	gboolean              resume_keys = FALSE;
 	guint32               bytes_needed = 0;
@@ -14195,11 +14112,8 @@ dissect_4_3_4_1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 			resume_keys = t2i->resume_keys;
 	}
 
-	if (parent_tree) {
-		item = proto_tree_add_text(parent_tree, tvb, offset, *bcp, "%s",
+	tree = proto_tree_add_subtree(parent_tree, tvb, offset, *bcp, ett_smb_ff2_data, &item,
 		    val_to_str(si->info_level, ff2_il_vals, "Unknown (0x%02x)"));
-		tree = proto_item_add_subtree(item, ett_smb_ff2_data);
-	}
 
 	/*
 	 * Figure out of there are enough bytes to display the whole entry.
@@ -14290,8 +14204,8 @@ dissect_4_3_4_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	int                   fn_len;
 	const char           *fn;
 	int                   old_offset  = offset;
-	proto_item           *item        = NULL;
-	proto_tree           *tree        = NULL;
+	proto_item           *item;
+	proto_tree           *tree;
 	smb_transact2_info_t *t2i;
 	gboolean              resume_keys = FALSE;
 	guint32               bytes_needed = 0;
@@ -14304,11 +14218,8 @@ dissect_4_3_4_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 			resume_keys = t2i->resume_keys;
 	}
 
-	if (parent_tree) {
-		item = proto_tree_add_text(parent_tree, tvb, offset, *bcp, "%s",
+	tree = proto_tree_add_subtree(parent_tree, tvb, offset, *bcp, ett_smb_ff2_data, &item,
 		    val_to_str(si->info_level, ff2_il_vals, "Unknown (0x%02x)"));
-		tree = proto_item_add_subtree(item, ett_smb_ff2_data);
-	}
 
 	/*
 	 * Figure out of there are enough bytes to display the whole entry.
@@ -14412,8 +14323,8 @@ dissect_4_3_4_3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	const char           *fn;
 	int                   old_offset  = offset;
 	int		     ea_size = 0;
-	proto_item           *item        = NULL;
-	proto_tree           *tree        = NULL;
+	proto_item           *item;
+	proto_tree           *tree;
 	smb_transact2_info_t *t2i;
 	gboolean              resume_keys = FALSE;
 
@@ -14426,12 +14337,8 @@ dissect_4_3_4_3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 			resume_keys = t2i->resume_keys;
 	}
 
-	if (parent_tree) {
-		tvb_ensure_bytes_exist(tvb, offset, *bcp);
-		item = proto_tree_add_text(parent_tree, tvb, offset, *bcp, "%s",
+	tree = proto_tree_add_subtree(parent_tree, tvb, offset, *bcp, ett_smb_ff2_data, &item,
 		    val_to_str(si->info_level, ff2_il_vals, "Unknown (0x%02x)"));
-		tree = proto_item_add_subtree(item, ett_smb_ff2_data);
-	}
 
 	if (resume_keys) {
 		/* resume key */
@@ -14520,8 +14427,8 @@ dissect_4_3_4_4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	int         fn_len;
 	const char *fn;
 	int         old_offset = offset;
-	proto_item *item       = NULL;
-	proto_tree *tree       = NULL;
+	proto_item *item;
+	proto_tree *tree;
 	guint32     neo;
 	int         padcnt;
 
@@ -14539,11 +14446,8 @@ dissect_4_3_4_4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	/* Ensure we have the bytes we need, which is up to neo */
 	tvb_ensure_bytes_exist(tvb, offset, neo ? neo : *bcp);
 
-	if (parent_tree) {
-		item = proto_tree_add_text(parent_tree, tvb, offset, *bcp, "%s",
+	tree = proto_tree_add_subtree(parent_tree, tvb, offset, *bcp, ett_smb_ff2_data, &item,
 		    val_to_str(si->info_level, ff2_il_vals, "Unknown (0x%02x)"));
-		tree = proto_item_add_subtree(item, ett_smb_ff2_data);
-	}
 
 	/*
 	 * We assume that the presence of a next entry offset implies the
@@ -14624,8 +14528,8 @@ dissect_4_3_4_5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	int         fn_len;
 	const char *fn;
 	int         old_offset = offset;
-	proto_item *item       = NULL;
-	proto_tree *tree       = NULL;
+	proto_item *item;
+	proto_tree *tree;
 	guint32     neo;
 	int         padcnt;
 
@@ -14643,11 +14547,8 @@ dissect_4_3_4_5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	/* Ensure we have the bytes we need, which is up to neo */
 	tvb_ensure_bytes_exist(tvb, offset, neo ? neo : *bcp);
 
-	if (parent_tree) {
-		item = proto_tree_add_text(parent_tree, tvb, offset, *bcp, "%s",
+	tree = proto_tree_add_subtree(parent_tree, tvb, offset, *bcp, ett_smb_ff2_data, &item,
 		    val_to_str(si->info_level, ff2_il_vals, "Unknown (0x%02x)"));
-		tree = proto_item_add_subtree(item, ett_smb_ff2_data);
-	}
 
 	/*
 	 * We assume that the presence of a next entry offset implies the
@@ -14734,8 +14635,8 @@ dissect_4_3_4_6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	int         fn_len, sfn_len;
 	const char *fn, *sfn;
 	int         old_offset = offset;
-	proto_item *item       = NULL;
-	proto_tree *tree       = NULL;
+	proto_item *item;
+	proto_tree *tree;
 	guint32     neo;
 	int         padcnt;
 
@@ -14753,11 +14654,8 @@ dissect_4_3_4_6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	/* Ensure we have the bytes we need, which is up to neo */
 	tvb_ensure_bytes_exist(tvb, offset, neo ? neo : *bcp);
 
-	if (parent_tree) {
-		item = proto_tree_add_text(parent_tree, tvb, offset, *bcp, "%s",
+	tree = proto_tree_add_subtree(parent_tree, tvb, offset, *bcp, ett_smb_ff2_data, &item,
 		    val_to_str(si->info_level, ff2_il_vals, "Unknown (0x%02x)"));
-		tree = proto_item_add_subtree(item, ett_smb_ff2_data);
-	}
 
 	/*
 	 * XXX - I have not seen any of these that contain a resume
@@ -14870,8 +14768,8 @@ dissect_4_3_4_6full(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	int         fn_len;
 	const char *fn;
 	int         old_offset = offset;
-	proto_item *item       = NULL;
-	proto_tree *tree       = NULL;
+	proto_item *item;
+	proto_tree *tree;
 	guint32     neo;
 	int         padcnt;
 
@@ -14889,11 +14787,8 @@ dissect_4_3_4_6full(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	/* Ensure we have the bytes we need, which is up to neo */
 	tvb_ensure_bytes_exist(tvb, offset, neo ? neo : *bcp);
 
-	if (parent_tree) {
-		item = proto_tree_add_text(parent_tree, tvb, offset, *bcp, "%s",
+	tree = proto_tree_add_subtree(parent_tree, tvb, offset, *bcp, ett_smb_ff2_data, &item,
 		    val_to_str(si->info_level, ff2_il_vals, "Unknown (0x%02x)"));
-		tree = proto_item_add_subtree(item, ett_smb_ff2_data);
-	}
 
 	/*
 	 * XXX - I have not seen any of these that contain a resume
@@ -14995,8 +14890,8 @@ dissect_4_3_4_6_id_both(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 	int         fn_len, sfn_len;
 	const char *fn, *sfn;
 	int         old_offset = offset;
-	proto_item *item       = NULL;
-	proto_tree *tree       = NULL;
+	proto_item *item;
+	proto_tree *tree;
 	guint32     neo;
 	int         padcnt;
 
@@ -15014,11 +14909,8 @@ dissect_4_3_4_6_id_both(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 	/* Ensure we have the bytes we need, which is up to neo */
 	tvb_ensure_bytes_exist(tvb, offset, neo ? neo : *bcp);
 
-	if (parent_tree) {
-		item = proto_tree_add_text(parent_tree, tvb, offset, *bcp, "%s",
+	tree = proto_tree_add_subtree(parent_tree, tvb, offset, *bcp, ett_smb_ff2_data, &item,
 		    val_to_str(si->info_level, ff2_il_vals, "Unknown (0x%02x)"));
-		tree = proto_item_add_subtree(item, ett_smb_ff2_data);
-	}
 
 	/*
 	 * XXX - I have not seen any of these that contain a resume
@@ -15141,8 +15033,8 @@ dissect_4_3_4_7(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	int         fn_len;
 	const char *fn;
 	int         old_offset = offset;
-	proto_item *item       = NULL;
-	proto_tree *tree       = NULL;
+	proto_item *item;
+	proto_tree *tree;
 	guint32     neo;
 	int         padcnt;
 
@@ -15160,11 +15052,8 @@ dissect_4_3_4_7(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	/* Ensure we have the bytes we need, which is up to neo */
 	tvb_ensure_bytes_exist(tvb, offset, neo ? neo : *bcp);
 
-	if (parent_tree) {
-		item = proto_tree_add_text(parent_tree, tvb, offset, *bcp, "%s",
+	tree = proto_tree_add_subtree(parent_tree, tvb, offset, *bcp, ett_smb_ff2_data, &item,
 		    val_to_str(si->info_level, ff2_il_vals, "Unknown (0x%02x)"));
-		tree = proto_item_add_subtree(item, ett_smb_ff2_data);
-	}
 
 	/*
 	 * We assume that the presence of a next entry offset implies the
@@ -15848,12 +15737,10 @@ dissect_qfsi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 	}
 
 	case 0x202: {	/* SMB_QUERY_POSIX_WHOAMI */
-		proto_item *it_gids = NULL;
-		proto_tree *st_gids = NULL;
+		proto_tree *st_gids;
 		guint32     num_gids;
 		guint       i;
-		proto_item *it_sids = NULL;
-		proto_tree *st_sids = NULL;
+		proto_tree *st_sids;
 		int         old_sid_offset;
 		guint32     num_sids;
 		guint32     sids_buflen;
@@ -15910,9 +15797,8 @@ dissect_qfsi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 
 
 		/* GIDs */
-		it_gids = proto_tree_add_text(tree, tvb, offset, num_gids * 8,
-				"Supplementary UNIX GIDs");
-		st_gids = proto_item_add_subtree(it_gids, ett_smb_unix_whoami_gids);
+		st_gids = proto_tree_add_subtree(tree, tvb, offset, num_gids * 8,
+				ett_smb_unix_whoami_gids, NULL, "Supplementary UNIX GIDs");
 
 		for (i = 0; i < num_gids; i++) {
 			CHECK_BYTE_COUNT_TRANS_SUBR(8);
@@ -15922,9 +15808,8 @@ dissect_qfsi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 		}
 
 		/* SIDs */
-		it_sids = proto_tree_add_text(tree, tvb, offset, sids_buflen,
-				"List of SIDs");
-		st_sids = proto_item_add_subtree(it_sids, ett_smb_unix_whoami_sids);
+		st_sids = proto_tree_add_subtree(tree, tvb, offset, sids_buflen,
+				ett_smb_unix_whoami_sids, NULL, "List of SIDs");
 
 		for (i = 0; i < num_sids; i++) {
 			old_sid_offset = offset;
@@ -16047,11 +15932,10 @@ dissect_transaction2_response_data(tvbuff_t *tvb, packet_info *pinfo,
 
 	if (parent_tree) {
 		if ((t2i != NULL) && (t2i->subcmd != -1)) {
-			item = proto_tree_add_text(parent_tree, tvb, offset, dc,
-				"%s Data",
+			tree = proto_tree_add_subtree_format(parent_tree, tvb, offset, dc,
+				ett_smb_transaction_data, &item, "%s Data",
 				val_to_str_ext(t2i->subcmd, &trans2_cmd_vals_ext,
 					       "Unknown (0x%02x)"));
-			tree = proto_item_add_subtree(item, ett_smb_transaction_data);
 		} else {
 			proto_tree_add_text(parent_tree, tvb, offset, dc,
 					    "Unknown Transaction2 Data");
@@ -16224,11 +16108,10 @@ dissect_transaction2_response_parameters(tvbuff_t *tvb, packet_info *pinfo, prot
 
 	if (parent_tree) {
 		if ((t2i != NULL) && (t2i->subcmd != -1)) {
-			item = proto_tree_add_text(parent_tree, tvb, offset, pc,
-				"%s Parameters",
+			tree = proto_tree_add_subtree_format(parent_tree, tvb, offset, pc,
+				ett_smb_transaction_params, &item, "%s Parameters",
 				val_to_str_ext(t2i->subcmd, &trans2_cmd_vals_ext,
 					       "Unknown (0x%02x)"));
-			tree = proto_item_add_subtree(item, ett_smb_transaction_params);
 		} else {
 			proto_tree_add_text(parent_tree, tvb, offset, pc,
 					    "Unknown Transaction2 Parameters");
@@ -17183,13 +17066,11 @@ dissect_smb_command(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *s
 				val_to_str_ext(cmd, &smb_cmd_vals_ext, "Unknown (0x%02x)"));
 		}
 
-		cmd_item = proto_tree_add_text(smb_tree, tvb, offset, -1,
-			"%s %s (0x%02x)",
+		cmd_tree = proto_tree_add_subtree_format(smb_tree, tvb, offset, -1,
+			ett_smb_command, &cmd_item, "%s %s (0x%02x)",
 			val_to_str_ext_const(cmd, &smb_cmd_vals_ext, "Unknown"),
 			(si->request)?"Request":"Response",
 			cmd);
-
-		cmd_tree = proto_item_add_subtree(cmd_item, ett_smb_command);
 
 		/* we track FIDs on a per transaction basis.
 		   if this was a request and the fid was seen in a reply
@@ -17646,8 +17527,8 @@ static void
 dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
 	int                   offset   = 0;
-	proto_item           *item     = NULL, *hitem = NULL;
-	proto_tree           *tree     = NULL, *htree = NULL;
+	proto_item           *item;
+	proto_tree           *tree, *htree;
 	proto_item           *tmp_item = NULL;
 	guint8                flags;
 	guint16               flags2;
@@ -17694,16 +17575,13 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	si->info_level = -1;
 	si->info_count = -1;
 
-	if (parent_tree) {
-		item = proto_tree_add_item(parent_tree, proto_smb, tvb, offset,
+	item = proto_tree_add_item(parent_tree, proto_smb, tvb, offset,
 			-1, ENC_NA);
-		tree = proto_item_add_subtree(item, ett_smb);
+	tree = proto_item_add_subtree(item, ett_smb);
 
-		hitem = proto_tree_add_text(tree, tvb, offset, 32,
-			"SMB Header");
+	htree = proto_tree_add_subtree(tree, tvb, offset, 32,
+			ett_smb_hdr, NULL, "SMB Header");
 
-		htree = proto_item_add_subtree(hitem, ett_smb_hdr);
-	}
 
 	proto_tree_add_text(htree, tvb, offset, 4, "Server Component: SMB");
 	offset += 4;  /* Skip the marker */

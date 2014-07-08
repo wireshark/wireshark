@@ -1449,7 +1449,6 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
   /* Set up structures we will need to add the protocol subtree and manage it */
   proto_item *ti;
   proto_tree *skinny_tree = NULL;
-  proto_item *ti_sub;
   proto_tree *skinny_sub_tree;
   proto_tree *skinny_sub_tree_sav;
   proto_tree *skinny_sub_tree_sav_sav;
@@ -1795,8 +1794,8 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
       capCount=tvb_get_letohl(tvb, offset+28);
       for ( i = 0; i < MAX_CUSTOM_PICTURES; i++ ) {
         if (i < capCount) {
-          ti_sub = proto_tree_add_text(skinny_tree, tvb, offset, 20, "customPictureFormat[%d]", i);
-          skinny_sub_tree = proto_item_add_subtree(ti_sub, ett_skinny_tree);
+          skinny_sub_tree = proto_tree_add_subtree_format(skinny_tree, tvb, offset, 20, ett_skinny_tree, NULL,
+                                    "customPictureFormat[%d]", i);
           proto_tree_add_item(skinny_sub_tree, hf_skinny_pictureWidth, tvb, count, 4, ENC_LITTLE_ENDIAN);
           count+= 4;
           proto_tree_add_item(skinny_sub_tree, hf_skinny_pictureHeight, tvb, count, 4, ENC_LITTLE_ENDIAN);
@@ -1811,8 +1810,7 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
           count+=20;
         }
       }
-      ti_sub = proto_tree_add_text(skinny_tree, tvb, offset, 8, "confResources");
-      skinny_sub_tree = proto_item_add_subtree(ti_sub, ett_skinny_tree);
+      skinny_sub_tree = proto_tree_add_subtree(skinny_tree, tvb, offset, 8, ett_skinny_tree, NULL, "confResources");
       proto_tree_add_item(skinny_sub_tree, hf_skinny_activeStreamsOnRegistration, tvb, count, 4, ENC_LITTLE_ENDIAN);
       count+= 4;
       proto_tree_add_item(skinny_sub_tree, hf_skinny_maxBW, tvb, count, 4, ENC_LITTLE_ENDIAN);
@@ -1821,14 +1819,13 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
       count+= 4;
       skinny_sub_tree_sav = skinny_sub_tree;
       for ( i = 0; i < MAX_SERVICE_TYPE; i++ ) {
-        ti_sub = proto_tree_add_text(skinny_sub_tree_sav, tvb, offset, 20, "serviceResource[%d]", i);
-        skinny_sub_tree = proto_item_add_subtree(ti_sub, ett_skinny_tree);
+        skinny_sub_tree = proto_tree_add_subtree_format(skinny_sub_tree_sav, tvb, offset, 20, ett_skinny_tree, NULL,
+                                                        "serviceResource[%d]", i);
         proto_tree_add_item(skinny_sub_tree, hf_skinny_layoutCount, tvb, count, 4, ENC_LITTLE_ENDIAN);
         count+= 4;
         skinny_sub_tree_sav_sav = skinny_sub_tree_sav;
         for ( t = 0; t < MAX_LAYOUT_WITH_SAME_SERVICE; t++ ) {
-          ti_sub = proto_tree_add_text(skinny_sub_tree_sav, tvb, offset, 20, "layouts[%d]", t);
-          skinny_sub_tree = proto_item_add_subtree(ti_sub, ett_skinny_tree);
+          skinny_sub_tree = proto_tree_add_subtree_format(skinny_sub_tree_sav, tvb, offset, 20, ett_skinny_tree, NULL, "layouts[%d]", t);
           proto_tree_add_item(skinny_sub_tree, hf_skinny_layout, tvb, count, 4, ENC_LITTLE_ENDIAN);
           count+= 4;
         }
@@ -1845,8 +1842,7 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
       capCount=tvb_get_letohl(tvb, offset+12);
       for ( i = 0; i < StationMaxCapabilities; i++ ) {
         if (i < capCount) {
-          ti_sub = proto_tree_add_text(skinny_tree, tvb, offset, 20, "audiocaps[%d]", i);
-          skinny_sub_tree = proto_item_add_subtree(ti_sub, ett_skinny_tree);
+          skinny_sub_tree = proto_tree_add_subtree_format(skinny_tree, tvb, offset, 20, ett_skinny_tree, NULL, "audiocaps[%d]", i);
           proto_tree_add_item(skinny_sub_tree, hf_skinny_payloadCapability, tvb, count, 4, ENC_LITTLE_ENDIAN);
           count+= 4;
           proto_tree_add_item(skinny_sub_tree, hf_skinny_maxFramesPerPacket, tvb, count, 2, ENC_LITTLE_ENDIAN);
@@ -1862,8 +1858,7 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
       capCount=tvb_get_letohl(tvb, offset+16);
       for ( i = 0; i < StationMaxVideoCapabilities; i++ ) {
         if (i < capCount) {
-          ti_sub = proto_tree_add_text(skinny_tree, tvb, offset, 20, "vidCaps[%d]", i);
-          skinny_sub_tree = proto_item_add_subtree(ti_sub, ett_skinny_tree);
+          skinny_sub_tree = proto_tree_add_subtree_format(skinny_tree, tvb, offset, 20, ett_skinny_tree, NULL, "vidCaps[%d]", i);
           proto_tree_add_item(skinny_sub_tree, hf_skinny_payloadCapability, tvb, count, 4, ENC_LITTLE_ENDIAN);
           count+= 4;
           proto_tree_add_item(skinny_sub_tree, hf_skinny_transmitOrReceive, tvb, count, 4, ENC_LITTLE_ENDIAN);
@@ -1872,8 +1867,7 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
           count+= 4;
           skinny_sub_tree_sav = skinny_sub_tree;
           for ( t = 0; t < MAX_LEVEL_PREFERENCE; t++ ) {
-            ti_sub = proto_tree_add_text(skinny_sub_tree_sav, tvb, offset, 20, "levelPreference[%d]", t);
-            skinny_sub_tree = proto_item_add_subtree(ti_sub, ett_skinny_tree);
+            skinny_sub_tree = proto_tree_add_subtree_format(skinny_sub_tree_sav, tvb, offset, 20, ett_skinny_tree, NULL, "levelPreference[%d]", t);
             proto_tree_add_item(skinny_sub_tree, hf_skinny_transmitPreference, tvb, count, 4, ENC_LITTLE_ENDIAN);
             count+= 4;
             proto_tree_add_item(skinny_sub_tree, hf_skinny_format, tvb, count, 4, ENC_LITTLE_ENDIAN);
@@ -1890,8 +1884,7 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
           val = count;
 
           /* H.261 */
-          ti_sub = proto_tree_add_text(skinny_sub_tree_sav, tvb, offset, 8, "h261VideoCapability");
-          skinny_sub_tree = proto_item_add_subtree(ti_sub, ett_skinny_tree);
+          skinny_sub_tree = proto_tree_add_subtree(skinny_sub_tree_sav, tvb, offset, 8, ett_skinny_tree, NULL, "h261VideoCapability");
           proto_tree_add_item(skinny_sub_tree, hf_skinny_temporalSpatialTradeOffCapability, tvb, count, 4, ENC_LITTLE_ENDIAN);
           count+= 4;
           proto_tree_add_item(skinny_sub_tree, hf_skinny_stillImageTransmission, tvb, count, 4, ENC_LITTLE_ENDIAN);
@@ -1899,8 +1892,7 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 
           /* H.263 */
           count = val;
-          ti_sub = proto_tree_add_text(skinny_sub_tree_sav, tvb, offset, 8, "h263VideoCapability");
-          skinny_sub_tree = proto_item_add_subtree(ti_sub, ett_skinny_tree);
+          skinny_sub_tree = proto_tree_add_subtree(skinny_sub_tree_sav, tvb, offset, 8, ett_skinny_tree, NULL, "h263VideoCapability");
           proto_tree_add_item(skinny_sub_tree, hf_skinny_h263_capability_bitfield, tvb, count, 4, ENC_LITTLE_ENDIAN);
           count+= 4;
           proto_tree_add_item(skinny_sub_tree, hf_skinny_annexNandWFutureUse, tvb, count, 4, ENC_LITTLE_ENDIAN);
@@ -1908,8 +1900,7 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 
           /* Video */
           count = val;
-          ti_sub = proto_tree_add_text(skinny_sub_tree_sav, tvb, offset, 8, "vieoVideoCapability");
-          skinny_sub_tree = proto_item_add_subtree(ti_sub, ett_skinny_tree);
+          skinny_sub_tree = proto_tree_add_subtree(skinny_sub_tree_sav, tvb, offset, 8, ett_skinny_tree, NULL, "vieoVideoCapability");
           proto_tree_add_item(skinny_sub_tree, hf_skinny_modelNumber, tvb, count, 4, ENC_LITTLE_ENDIAN);
           count+= 4;
           proto_tree_add_item(skinny_sub_tree, hf_skinny_bandwidth, tvb, count, 4, ENC_LITTLE_ENDIAN);
@@ -1921,8 +1912,7 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
       capCount=tvb_get_letohl(tvb, offset+20);
       for ( i = 0; i < StationMaxDataCapabilities; i++ ) {
         if ( i < capCount) {
-          ti_sub = proto_tree_add_text(skinny_tree, tvb, offset, 20, "dataCaps[%d]", i);
-          skinny_sub_tree = proto_item_add_subtree(ti_sub, ett_skinny_tree);
+          skinny_sub_tree = proto_tree_add_subtree_format(skinny_tree, tvb, offset, 20, ett_skinny_tree, NULL, "dataCaps[%d]", i);
           proto_tree_add_item(skinny_sub_tree, hf_skinny_payloadCapability, tvb, count, 4, ENC_LITTLE_ENDIAN);
           count+= 4;
           proto_tree_add_item(skinny_sub_tree, hf_skinny_transmitOrReceive, tvb, count, 4, ENC_LITTLE_ENDIAN);
@@ -2065,8 +2055,7 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
       capCount=tvb_get_letohl(tvb, offset+28);
       for ( i = 0; i < MAX_CUSTOM_PICTURES; i++ ) {
         if (i < capCount) {
-          ti_sub = proto_tree_add_text(skinny_tree, tvb, offset, 20, "customPictureFormat[%d]", i);
-          skinny_sub_tree = proto_item_add_subtree(ti_sub, ett_skinny_tree);
+          skinny_sub_tree = proto_tree_add_subtree_format(skinny_tree, tvb, offset, 20, ett_skinny_tree, NULL, "customPictureFormat[%d]", i);
           proto_tree_add_item(skinny_sub_tree, hf_skinny_pictureWidth, tvb, count, 4, ENC_LITTLE_ENDIAN);
           count+= 4;
           proto_tree_add_item(skinny_sub_tree, hf_skinny_pictureHeight, tvb, count, 4, ENC_LITTLE_ENDIAN);
@@ -2081,8 +2070,7 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
           count+=20;
         }
       }
-      ti_sub = proto_tree_add_text(skinny_tree, tvb, offset, 8, "confResources");
-      skinny_sub_tree = proto_item_add_subtree(ti_sub, ett_skinny_tree);
+      skinny_sub_tree = proto_tree_add_subtree(skinny_tree, tvb, offset, 8, ett_skinny_tree, NULL, "confResources");
       proto_tree_add_item(skinny_sub_tree, hf_skinny_activeStreamsOnRegistration, tvb, count, 4, ENC_LITTLE_ENDIAN);
       count+= 4;
       proto_tree_add_item(skinny_sub_tree, hf_skinny_maxBW, tvb, count, 4, ENC_LITTLE_ENDIAN);
@@ -2091,14 +2079,12 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
       count+= 4;
       skinny_sub_tree_sav = skinny_sub_tree;
       for ( i = 0; i < MAX_SERVICE_TYPE; i++ ) {
-        ti_sub = proto_tree_add_text(skinny_sub_tree_sav, tvb, offset, 20, "serviceResource[%d]", i);
-        skinny_sub_tree = proto_item_add_subtree(ti_sub, ett_skinny_tree);
+        skinny_sub_tree = proto_tree_add_subtree_format(skinny_sub_tree_sav, tvb, offset, 20, ett_skinny_tree, NULL, "serviceResource[%d]", i);
         proto_tree_add_item(skinny_sub_tree, hf_skinny_layoutCount, tvb, count, 4, ENC_LITTLE_ENDIAN);
         count+= 4;
         skinny_sub_tree_sav_sav = skinny_sub_tree_sav;
         for ( t = 0; t < MAX_LAYOUT_WITH_SAME_SERVICE; t++ ) {
-          ti_sub = proto_tree_add_text(skinny_sub_tree_sav, tvb, offset, 20, "layouts[%d]", t);
-          skinny_sub_tree = proto_item_add_subtree(ti_sub, ett_skinny_tree);
+          skinny_sub_tree = proto_tree_add_subtree_format(skinny_sub_tree_sav, tvb, offset, 20, ett_skinny_tree, NULL, "layouts[%d]", t);
           proto_tree_add_item(skinny_sub_tree, hf_skinny_layout, tvb, count, 4, ENC_LITTLE_ENDIAN);
           count+= 4;
         }
@@ -2115,8 +2101,7 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
       capCount=tvb_get_letohl(tvb, offset+12);
       for ( i = 0; i < StationMaxCapabilities; i++ ) {
         if (i < capCount) {
-          ti_sub = proto_tree_add_text(skinny_tree, tvb, offset, 20, "audiocaps[%d]", i);
-          skinny_sub_tree = proto_item_add_subtree(ti_sub, ett_skinny_tree);
+          skinny_sub_tree = proto_tree_add_subtree_format(skinny_tree, tvb, offset, 20, ett_skinny_tree, NULL, "audiocaps[%d]", i);
           proto_tree_add_item(skinny_sub_tree, hf_skinny_payloadCapability, tvb, count, 4, ENC_LITTLE_ENDIAN);
           count+= 4;
           proto_tree_add_item(skinny_sub_tree, hf_skinny_maxFramesPerPacket, tvb, count, 2, ENC_LITTLE_ENDIAN);
@@ -2132,8 +2117,7 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
       capCount=tvb_get_letohl(tvb, offset+16);
       for ( i = 0; i < StationMaxVideoCapabilities; i++ ) {
         if (i < capCount) {
-          ti_sub = proto_tree_add_text(skinny_tree, tvb, offset, 20, "vidCaps[%d]", i);
-          skinny_sub_tree = proto_item_add_subtree(ti_sub, ett_skinny_tree);
+          skinny_sub_tree = proto_tree_add_subtree_format(skinny_tree, tvb, offset, 20, ett_skinny_tree, NULL, "vidCaps[%d]", i);
           proto_tree_add_item(skinny_sub_tree, hf_skinny_payloadCapability, tvb, count, 4, ENC_LITTLE_ENDIAN);
           count+= 4;
           proto_tree_add_item(skinny_sub_tree, hf_skinny_transmitOrReceive, tvb, count, 4, ENC_LITTLE_ENDIAN);
@@ -2142,8 +2126,7 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
           count+= 4;
           skinny_sub_tree_sav = skinny_sub_tree;
           for ( t = 0; t < MAX_LEVEL_PREFERENCE; t++ ) {
-            ti_sub = proto_tree_add_text(skinny_sub_tree_sav, tvb, offset, 20, "levelPreference[%d]", t);
-            skinny_sub_tree = proto_item_add_subtree(ti_sub, ett_skinny_tree);
+            skinny_sub_tree = proto_tree_add_subtree_format(skinny_sub_tree_sav, tvb, offset, 20, ett_skinny_tree, NULL, "levelPreference[%d]", t);
             proto_tree_add_item(skinny_sub_tree, hf_skinny_transmitPreference, tvb, count, 4, ENC_LITTLE_ENDIAN);
             count+= 4;
             proto_tree_add_item(skinny_sub_tree, hf_skinny_format, tvb, count, 4, ENC_LITTLE_ENDIAN);
@@ -2160,8 +2143,7 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
           val = count;
 
           /* H.261 */
-          ti_sub = proto_tree_add_text(skinny_sub_tree_sav, tvb, offset, 8, "h261VideoCapability");
-          skinny_sub_tree = proto_item_add_subtree(ti_sub, ett_skinny_tree);
+          skinny_sub_tree = proto_tree_add_subtree(skinny_sub_tree_sav, tvb, offset, 8, ett_skinny_tree, NULL, "h261VideoCapability");
           proto_tree_add_item(skinny_sub_tree, hf_skinny_temporalSpatialTradeOffCapability, tvb, count, 4, ENC_LITTLE_ENDIAN);
           count+= 4;
           proto_tree_add_item(skinny_sub_tree, hf_skinny_stillImageTransmission, tvb, count, 4, ENC_LITTLE_ENDIAN);
@@ -2169,8 +2151,7 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 
           /* H.263 */
           count = val;
-          ti_sub = proto_tree_add_text(skinny_sub_tree_sav, tvb, offset, 8, "h263VideoCapability");
-          skinny_sub_tree = proto_item_add_subtree(ti_sub, ett_skinny_tree);
+          skinny_sub_tree = proto_tree_add_subtree(skinny_sub_tree_sav, tvb, offset, 8, ett_skinny_tree, NULL, "h263VideoCapability");
           proto_tree_add_item(skinny_sub_tree, hf_skinny_h263_capability_bitfield, tvb, count, 4, ENC_LITTLE_ENDIAN);
           count+= 4;
           proto_tree_add_item(skinny_sub_tree, hf_skinny_annexNandWFutureUse, tvb, count, 4, ENC_LITTLE_ENDIAN);
@@ -2178,8 +2159,7 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 
           /* Video */
           count = val;
-          ti_sub = proto_tree_add_text(skinny_sub_tree_sav, tvb, offset, 8, "vieoVideoCapability");
-          skinny_sub_tree = proto_item_add_subtree(ti_sub, ett_skinny_tree);
+          skinny_sub_tree = proto_tree_add_subtree(skinny_sub_tree_sav, tvb, offset, 8, ett_skinny_tree, NULL, "vieoVideoCapability");
           proto_tree_add_item(skinny_sub_tree, hf_skinny_modelNumber, tvb, count, 4, ENC_LITTLE_ENDIAN);
           count+= 4;
           proto_tree_add_item(skinny_sub_tree, hf_skinny_bandwidth, tvb, count, 4, ENC_LITTLE_ENDIAN);
@@ -2191,8 +2171,7 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
       capCount=tvb_get_letohl(tvb, offset+20);
       for ( i = 0; i < StationMaxDataCapabilities; i++ ) {
         if ( i < capCount) {
-          ti_sub = proto_tree_add_text(skinny_tree, tvb, offset, 20, "dataCaps[%d]", i);
-          skinny_sub_tree = proto_item_add_subtree(ti_sub, ett_skinny_tree);
+          skinny_sub_tree = proto_tree_add_subtree_format(skinny_tree, tvb, offset, 20, ett_skinny_tree, NULL, "dataCaps[%d]", i);
           proto_tree_add_item(skinny_sub_tree, hf_skinny_payloadCapability, tvb, count, 4, ENC_LITTLE_ENDIAN);
           count+= 4;
           proto_tree_add_item(skinny_sub_tree, hf_skinny_transmitOrReceive, tvb, count, 4, ENC_LITTLE_ENDIAN);
@@ -2416,8 +2395,7 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
       i += 4;
       proto_tree_add_item(skinny_tree, hf_skinny_callSecurityStatus, tvb, i, 4, ENC_LITTLE_ENDIAN);
       i += 4;
-      ti_sub = proto_tree_add_text(skinny_tree, tvb, i, 8, "partyPIRestrictionBits");
-      skinny_sub_tree = proto_item_add_subtree(ti_sub, ett_skinny_tree);
+      skinny_sub_tree = proto_tree_add_subtree(skinny_tree, tvb, i, 8, ett_skinny_tree, NULL, "partyPIRestrictionBits");
       proto_tree_add_item(skinny_sub_tree, hf_skinny_partyPIRestrictionBits_CallingPartyName, tvb, i, 4, ENC_LITTLE_ENDIAN);
       proto_tree_add_item(skinny_sub_tree, hf_skinny_partyPIRestrictionBits_CallingPartyNumber, tvb, i, 4, ENC_LITTLE_ENDIAN);
       proto_tree_add_item(skinny_sub_tree, hf_skinny_partyPIRestrictionBits_CalledPartyName, tvb, i, 4, ENC_LITTLE_ENDIAN);
@@ -2910,22 +2888,20 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
       si->callId = tvb_get_letohl(tvb, offset+28);
 
       /* add audio part of union */
-      ti_sub = proto_tree_add_text(skinny_tree, tvb, offset, 12, "audioParameters");
-      skinny_sub_tree = proto_item_add_subtree(ti_sub, ett_skinny_tree);
+      skinny_sub_tree = proto_tree_add_subtree(skinny_tree, tvb, offset, 12, ett_skinny_tree, NULL, "audioParameters");
       proto_tree_add_item(skinny_sub_tree, hf_skinny_millisecondPacketSize, tvb, offset+44, 4, ENC_LITTLE_ENDIAN);
       proto_tree_add_item(skinny_sub_tree, hf_skinny_echoCancelType, tvb, offset+48, 4, ENC_LITTLE_ENDIAN);
       proto_tree_add_item(skinny_sub_tree, hf_skinny_g723BitRate, tvb, offset+52, 4, ENC_LITTLE_ENDIAN);
 
       /* add video part of union */
-      ti_sub = proto_tree_add_text(skinny_tree, tvb, offset, 30, "vidParameters");
-      skinny_sub_tree = proto_item_add_subtree(ti_sub, ett_skinny_tree);
+      skinny_sub_tree = proto_tree_add_subtree(skinny_tree, tvb, offset, 30, ett_skinny_tree, NULL, "vidParameters");
       proto_tree_add_item(skinny_sub_tree, hf_skinny_bitRate, tvb, offset+44, 4, ENC_LITTLE_ENDIAN);
       proto_tree_add_item(skinny_sub_tree, hf_skinny_pictureFormatCount, tvb, offset+48, 4, ENC_LITTLE_ENDIAN);
       skinny_sub_tree_sav = skinny_sub_tree;
       count = offset+52;
       for ( i = 0; i < MAX_PICTURE_FORMAT; i++ ) {
-        ti_sub = proto_tree_add_text(skinny_sub_tree_sav, tvb, offset, 8 * MAX_PICTURE_FORMAT, "pictureFormat[%d]", i);
-        skinny_sub_tree = proto_item_add_subtree(ti_sub, ett_skinny_tree);
+        skinny_sub_tree = proto_tree_add_subtree_format(skinny_sub_tree_sav, tvb, offset, 8 * MAX_PICTURE_FORMAT,
+                                            ett_skinny_tree, NULL, "pictureFormat[%d]", i);
         proto_tree_add_item(skinny_sub_tree, hf_skinny_format, tvb, count, 4, ENC_LITTLE_ENDIAN);
         count += 4;
         proto_tree_add_item(skinny_sub_tree, hf_skinny_MPI, tvb, count, 4, ENC_LITTLE_ENDIAN);
@@ -2937,31 +2913,27 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 
       val = count;
       /* add H261 part of union */
-      ti_sub = proto_tree_add_text(skinny_sub_tree_sav, tvb, offset, 8, "h261VideoCapability");
-      skinny_sub_tree = proto_item_add_subtree(ti_sub, ett_skinny_tree);
+      skinny_sub_tree = proto_tree_add_subtree(skinny_sub_tree_sav, tvb, offset, 8, ett_skinny_tree, NULL, "h261VideoCapability");
       proto_tree_add_item(skinny_sub_tree, hf_skinny_temporalSpatialTradeOffCapability, tvb, count, 4, ENC_LITTLE_ENDIAN);
       count += 4;
       proto_tree_add_item(skinny_sub_tree, hf_skinny_stillImageTransmission, tvb, count, 4, ENC_LITTLE_ENDIAN);
 
       /* add H263 part of union */
       count = val;
-      ti_sub = proto_tree_add_text(skinny_sub_tree_sav, tvb, offset, 8, "h263VideoCapability");
-      skinny_sub_tree = proto_item_add_subtree(ti_sub, ett_skinny_tree);
+      skinny_sub_tree = proto_tree_add_subtree(skinny_sub_tree_sav, tvb, offset, 8, ett_skinny_tree, NULL, "h263VideoCapability");
       proto_tree_add_item(skinny_sub_tree, hf_skinny_h263_capability_bitfield, tvb, count, 4, ENC_LITTLE_ENDIAN);
       count += 4;
       proto_tree_add_item(skinny_sub_tree, hf_skinny_annexNandWFutureUse, tvb, count, 4, ENC_LITTLE_ENDIAN);
 
       /* add Vieo part of union */
       count = val;
-      ti_sub = proto_tree_add_text(skinny_sub_tree_sav, tvb, offset, 8, "vieoVideoCapability");
-      skinny_sub_tree = proto_item_add_subtree(ti_sub, ett_skinny_tree);
+      skinny_sub_tree = proto_tree_add_subtree(skinny_sub_tree_sav, tvb, offset, 8, ett_skinny_tree, NULL, "vieoVideoCapability");
       proto_tree_add_item(skinny_sub_tree, hf_skinny_modelNumber, tvb, count, 4, ENC_LITTLE_ENDIAN);
       count += 4;
       proto_tree_add_item(skinny_sub_tree, hf_skinny_bandwidth, tvb, count, 4, ENC_LITTLE_ENDIAN);
 
       /* add data part of union */
-      ti_sub = proto_tree_add_text(skinny_tree, tvb, offset, 8, "dataParameters");
-      skinny_sub_tree = proto_item_add_subtree(ti_sub, ett_skinny_tree);
+      skinny_sub_tree = proto_tree_add_subtree(skinny_tree, tvb, offset, 8, ett_skinny_tree, NULL, "dataParameters");
       proto_tree_add_item(skinny_sub_tree, hf_skinny_protocolDependentData, tvb, offset+44, 4, ENC_LITTLE_ENDIAN);
       proto_tree_add_item(skinny_sub_tree, hf_skinny_maxBitRate, tvb, offset+48, 4, ENC_LITTLE_ENDIAN);
       break;
@@ -2980,22 +2952,20 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
       si->callId = tvb_get_letohl(tvb, offset+32);
 
       /* add audio part of union */
-      ti_sub = proto_tree_add_text(skinny_tree, tvb, offset, 12, "audioParameters");
-      skinny_sub_tree = proto_item_add_subtree(ti_sub, ett_skinny_tree);
+      skinny_sub_tree = proto_tree_add_subtree(skinny_tree, tvb, offset, 12, ett_skinny_tree, NULL, "audioParameters");
       proto_tree_add_item(skinny_sub_tree, hf_skinny_millisecondPacketSize, tvb, offset+48, 4, ENC_LITTLE_ENDIAN);
       proto_tree_add_item(skinny_sub_tree, hf_skinny_echoCancelType, tvb, offset+52, 4, ENC_LITTLE_ENDIAN);
       proto_tree_add_item(skinny_sub_tree, hf_skinny_g723BitRate, tvb, offset+56, 4, ENC_LITTLE_ENDIAN);
 
       /* add video part of union */
-      ti_sub = proto_tree_add_text(skinny_tree, tvb, offset, 30, "vidParameters");
-      skinny_sub_tree = proto_item_add_subtree(ti_sub, ett_skinny_tree);
+      skinny_sub_tree = proto_tree_add_subtree(skinny_tree, tvb, offset, 30, ett_skinny_tree, NULL, "vidParameters");
       proto_tree_add_item(skinny_sub_tree, hf_skinny_bitRate, tvb, offset+48, 4, ENC_LITTLE_ENDIAN);
       proto_tree_add_item(skinny_sub_tree, hf_skinny_pictureFormatCount, tvb, offset+52, 4, ENC_LITTLE_ENDIAN);
       skinny_sub_tree_sav = skinny_sub_tree;
       count = offset+56;
       for ( i = 0; i < MAX_PICTURE_FORMAT; i++ ) {
-        ti_sub = proto_tree_add_text(skinny_sub_tree_sav, tvb, offset, 8 * MAX_PICTURE_FORMAT, "pictureFormat[%d]", i);
-        skinny_sub_tree = proto_item_add_subtree(ti_sub, ett_skinny_tree);
+        skinny_sub_tree = proto_tree_add_subtree_format(skinny_sub_tree_sav, tvb, offset, 8 * MAX_PICTURE_FORMAT,
+                                            ett_skinny_tree, NULL, "pictureFormat[%d]", i);
         proto_tree_add_item(skinny_sub_tree, hf_skinny_format, tvb, count, 4, ENC_LITTLE_ENDIAN);
         count += 4;
         proto_tree_add_item(skinny_sub_tree, hf_skinny_MPI, tvb, count, 4, ENC_LITTLE_ENDIAN);
@@ -3007,31 +2977,27 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 
       val = count;
       /* add H261 part of union */
-      ti_sub = proto_tree_add_text(skinny_sub_tree_sav, tvb, offset, 8, "h261VideoCapability");
-      skinny_sub_tree = proto_item_add_subtree(ti_sub, ett_skinny_tree);
+      skinny_sub_tree = proto_tree_add_subtree(skinny_sub_tree_sav, tvb, offset, 8, ett_skinny_tree, NULL, "h261VideoCapability");
       proto_tree_add_item(skinny_sub_tree, hf_skinny_temporalSpatialTradeOffCapability, tvb, count, 4, ENC_LITTLE_ENDIAN);
       count += 4;
       proto_tree_add_item(skinny_sub_tree, hf_skinny_stillImageTransmission, tvb, count, 4, ENC_LITTLE_ENDIAN);
 
       /* add H263 part of union */
       count = val;
-      ti_sub = proto_tree_add_text(skinny_sub_tree_sav, tvb, offset, 8, "h263VideoCapability");
-      skinny_sub_tree = proto_item_add_subtree(ti_sub, ett_skinny_tree);
+      skinny_sub_tree = proto_tree_add_subtree(skinny_sub_tree_sav, tvb, offset, 8, ett_skinny_tree, NULL, "h263VideoCapability");
       proto_tree_add_item(skinny_sub_tree, hf_skinny_h263_capability_bitfield, tvb, count, 4, ENC_LITTLE_ENDIAN);
       count += 4;
       proto_tree_add_item(skinny_sub_tree, hf_skinny_annexNandWFutureUse, tvb, count, 4, ENC_LITTLE_ENDIAN);
 
       /* add Vieo part of union */
       count = val;
-      ti_sub = proto_tree_add_text(skinny_sub_tree_sav, tvb, offset, 8, "vieoVideoCapability");
-      skinny_sub_tree = proto_item_add_subtree(ti_sub, ett_skinny_tree);
+      skinny_sub_tree = proto_tree_add_subtree(skinny_sub_tree_sav, tvb, offset, 8, ett_skinny_tree, NULL, "vieoVideoCapability");
       proto_tree_add_item(skinny_sub_tree, hf_skinny_modelNumber, tvb, count, 4, ENC_LITTLE_ENDIAN);
       count += 4;
       proto_tree_add_item(skinny_sub_tree, hf_skinny_bandwidth, tvb, count, 4, ENC_LITTLE_ENDIAN);
 
       /* add data part of union */
-      ti_sub = proto_tree_add_text(skinny_tree, tvb, offset, 8, "dataParameters");
-      skinny_sub_tree = proto_item_add_subtree(ti_sub, ett_skinny_tree);
+      skinny_sub_tree = proto_tree_add_subtree(skinny_tree, tvb, offset, 8, ett_skinny_tree, NULL, "dataParameters");
       proto_tree_add_item(skinny_sub_tree, hf_skinny_protocolDependentData, tvb, offset+48, 4, ENC_LITTLE_ENDIAN);
       proto_tree_add_item(skinny_sub_tree, hf_skinny_maxBitRate, tvb, offset+52, 4, ENC_LITTLE_ENDIAN);
       break;
@@ -3059,47 +3025,40 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
       /* not sure of format */
 
       /* show videoFastUpdateGOB */
-      ti_sub = proto_tree_add_text(skinny_tree, tvb, offset, 8, "videoFastUpdateGOB");
-      skinny_sub_tree = proto_item_add_subtree(ti_sub, ett_skinny_tree);
+      skinny_sub_tree = proto_tree_add_subtree(skinny_tree, tvb, offset, 8, ett_skinny_tree, NULL, "videoFastUpdateGOB");
       proto_tree_add_item(skinny_sub_tree, hf_skinny_firstGOB, tvb, offset+28, 4, ENC_LITTLE_ENDIAN);
       proto_tree_add_item(skinny_sub_tree, hf_skinny_numberOfGOBs, tvb, offset+32, 4, ENC_LITTLE_ENDIAN);
 
       /* show videoFastUpdateMB */
-      ti_sub = proto_tree_add_text(skinny_tree, tvb, offset, 8, "videoFastUpdateGOB");
-      skinny_sub_tree = proto_item_add_subtree(ti_sub, ett_skinny_tree);
+      skinny_sub_tree = proto_tree_add_subtree(skinny_tree, tvb, offset, 8, ett_skinny_tree, NULL, "videoFastUpdateGOB");
       proto_tree_add_item(skinny_sub_tree, hf_skinny_firstGOB, tvb, offset+28, 4, ENC_LITTLE_ENDIAN);
       proto_tree_add_item(skinny_sub_tree, hf_skinny_firstMB, tvb, offset+32, 4, ENC_LITTLE_ENDIAN);
       proto_tree_add_item(skinny_sub_tree, hf_skinny_numberOfMBs, tvb, offset+36, 4, ENC_LITTLE_ENDIAN);
 
       /* show lostPicture */
-      ti_sub = proto_tree_add_text(skinny_tree, tvb, offset, 8, "lostPicture");
-      skinny_sub_tree = proto_item_add_subtree(ti_sub, ett_skinny_tree);
+      skinny_sub_tree = proto_tree_add_subtree(skinny_tree, tvb, offset, 8, ett_skinny_tree, NULL, "lostPicture");
       proto_tree_add_item(skinny_sub_tree, hf_skinny_pictureNumber, tvb, offset+28, 4, ENC_LITTLE_ENDIAN);
       proto_tree_add_item(skinny_sub_tree, hf_skinny_longTermPictureIndex, tvb, offset+32, 4, ENC_LITTLE_ENDIAN);
 
       /* show lostPartialPicture */
-      ti_sub = proto_tree_add_text(skinny_tree, tvb, offset, 8, "lostPartialPicture");
-      skinny_sub_tree = proto_item_add_subtree(ti_sub, ett_skinny_tree);
+      skinny_sub_tree = proto_tree_add_subtree(skinny_tree, tvb, offset, 8, ett_skinny_tree, NULL, "lostPartialPicture");
       proto_tree_add_item(skinny_sub_tree, hf_skinny_pictureNumber, tvb, offset+28, 4, ENC_LITTLE_ENDIAN);
       proto_tree_add_item(skinny_sub_tree, hf_skinny_longTermPictureIndex, tvb, offset+32, 4, ENC_LITTLE_ENDIAN);
       proto_tree_add_item(skinny_sub_tree, hf_skinny_firstMB, tvb, offset+36, 4, ENC_LITTLE_ENDIAN);
       proto_tree_add_item(skinny_sub_tree, hf_skinny_numberOfMBs, tvb, offset+40, 4, ENC_LITTLE_ENDIAN);
 
       /* show recoveryReferencePicture */
-      ti_sub = proto_tree_add_text(skinny_tree, tvb, offset, 8, "recoveryReferencePicture");
-      skinny_sub_tree = proto_item_add_subtree(ti_sub, ett_skinny_tree);
+      skinny_sub_tree = proto_tree_add_subtree(skinny_tree, tvb, offset, 8, ett_skinny_tree, NULL, "recoveryReferencePicture");
       proto_tree_add_item(skinny_sub_tree, hf_skinny_recoveryReferencePictureCount, tvb, offset+28, 4, ENC_LITTLE_ENDIAN);
       skinny_sub_tree_sav = skinny_sub_tree;
       for ( i = 0; i < MAX_REFERENCE_PICTURE; i++ ) {
-        ti_sub = proto_tree_add_text(skinny_sub_tree_sav, tvb, offset, 8, "recoveryReferencePicture[%d]", i);
-        skinny_sub_tree = proto_item_add_subtree(ti_sub, ett_skinny_tree);
+        skinny_sub_tree = proto_tree_add_subtree_format(skinny_sub_tree_sav, tvb, offset, 8, ett_skinny_tree, NULL, "recoveryReferencePicture[%d]", i);
         proto_tree_add_item(skinny_sub_tree, hf_skinny_pictureNumber, tvb, offset+32+(i*8), 4, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(skinny_sub_tree, hf_skinny_longTermPictureIndex, tvb, offset+36+(i*8), 4, ENC_LITTLE_ENDIAN);
       }
 
       /* show temporalSpatialTradeOff */
-      ti_sub = proto_tree_add_text(skinny_tree, tvb, offset, 4, "temporalSpatialTradeOff");
-      skinny_sub_tree = proto_item_add_subtree(ti_sub, ett_skinny_tree);
+      skinny_sub_tree = proto_tree_add_subtree(skinny_tree, tvb, offset, 4, ett_skinny_tree, NULL, "temporalSpatialTradeOff");
       proto_tree_add_item(skinny_sub_tree, hf_skinny_temporalSpatialTradeOff, tvb, offset+28, 4, ENC_LITTLE_ENDIAN);
       break;
 

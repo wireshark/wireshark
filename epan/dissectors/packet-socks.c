@@ -519,8 +519,7 @@ client_display_socks_v5(tvbuff_t *tvb, int offset, packet_info *pinfo,
         proto_item      *ti;
         guint8 num_auth_methods, auth;
 
-        ti = proto_tree_add_text( tree, tvb, offset, -1, "Client Authentication Methods");
-        AuthTree = proto_item_add_subtree(ti, ett_socks_auth);
+        AuthTree = proto_tree_add_subtree( tree, tvb, offset, -1, ett_socks_auth, &ti, "Client Authentication Methods");
 
         num_auth_methods = tvb_get_guint8(tvb, offset);
         proto_item_set_len(ti, num_auth_methods+1);

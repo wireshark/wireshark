@@ -438,7 +438,6 @@ ssh_dissect_ssh2(tvbuff_t *tvb, packet_info *pinfo,
 		int offset, proto_tree *tree, int is_response,
 		gboolean *need_desegmentation)
 {
-	proto_item *ti;
 	proto_item *ssh2_tree=NULL;
 
 	struct ssh_peer_data *peer_data = &global_data->peer_data[is_response];
@@ -463,8 +462,7 @@ ssh_dissect_ssh2(tvbuff_t *tvb, packet_info *pinfo,
 			wmem_strbuf_append_printf(title, ")");
 		}
 
-		ti=proto_tree_add_text(tree, tvb, offset, -1, "%s", wmem_strbuf_get_str(title));
-		ssh2_tree = proto_item_add_subtree(ti, ett_ssh2);
+		ssh2_tree=proto_tree_add_subtree(tree, tvb, offset, -1, ett_ssh2, NULL, wmem_strbuf_get_str(title));
 	}
 
 	if ((peer_data->frame_key_start == 0) ||
@@ -490,15 +488,11 @@ ssh_dissect_ssh1(tvbuff_t *tvb, packet_info *pinfo,
 	guint8 	msg_code;
 	guint	remain_length;
 
-	proto_item *ti;
-	proto_item *ssh1_tree =NULL;
+	proto_item *ssh1_tree;
 
 	struct ssh_peer_data *peer_data = &global_data->peer_data[is_response];
 
-	if (tree) {
-		ti=proto_tree_add_text(tree, tvb, offset, -1, "SSH Version 1");
-		ssh1_tree = proto_item_add_subtree(ti, ett_ssh1);
-	}
+	ssh1_tree=proto_tree_add_subtree(tree, tvb, offset, -1, ett_ssh1, NULL, "SSH Version 1");
 
 	/*
 	 * We use "tvb_ensure_length_remaining()" to make sure there
@@ -639,7 +633,7 @@ ssh_dissect_key_exchange(tvbuff_t *tvb, packet_info *pinfo,
 	int 	last_offset=offset;
 	guint 	msg_code;
 
-	proto_item *tf, *ti;
+	proto_item *ti;
 	proto_item *key_ex_tree =NULL;
 
 	struct ssh_peer_data *peer_data = &global_data->peer_data[is_response];
@@ -701,8 +695,7 @@ ssh_dissect_key_exchange(tvbuff_t *tvb, packet_info *pinfo,
 	proto_tree_add_uint(tree, hf_ssh_padding_length, tvb, offset, 1, padding_length);
 	offset += 1;
 
-	tf=proto_tree_add_text(tree, tvb, offset, -1, "Key Exchange");
-	key_ex_tree = proto_item_add_subtree(tf, ett_key_exchange);
+	key_ex_tree=proto_tree_add_subtree(tree, tvb, offset, -1, ett_key_exchange, NULL, "Key Exchange");
 
 	/* msg_code */
 	msg_code = tvb_get_guint8(tvb, offset);
@@ -1049,17 +1042,14 @@ ssh_dissect_key_init(tvbuff_t *tvb, int offset, proto_tree *tree,
 {
 	int start_offset = offset;
 
-	proto_item *tf = NULL;
-	proto_item *key_init_tree=NULL;
+	proto_item *tf;
+    proto_tree *key_init_tree;
 
 	struct ssh_peer_data *peer_data = &global_data->peer_data[is_response];
 
-	if (tree) {
-		tf=proto_tree_add_text(tree, tvb, offset, -1, "Algorithms");
-		key_init_tree = proto_item_add_subtree(tf, ett_key_init);
-		proto_tree_add_item(key_init_tree, hf_ssh_cookie,
+	key_init_tree=proto_tree_add_subtree(tree, tvb, offset, -1, ett_key_init, &tf, "Algorithms");
+	proto_tree_add_item(key_init_tree, hf_ssh_cookie,
 				    tvb, offset, 16, ENC_NA);
-	}
 	offset += 16;
 
 	offset = ssh_dissect_proposal(tvb, offset, key_init_tree,

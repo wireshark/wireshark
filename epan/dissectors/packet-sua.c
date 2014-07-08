@@ -926,7 +926,6 @@ static const value_string routing_indicator_values[] = {
 static void
 dissect_source_address_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *parameter_tree, guint8 *ssn)
 {
-  proto_item *address_indicator_item;
   proto_tree *address_indicator_tree;
   tvbuff_t *parameters_tvb;
 
@@ -934,8 +933,7 @@ dissect_source_address_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, pr
 
   if(parameter_tree) {
     proto_tree_add_item(parameter_tree, hf_sua_source_address_routing_indicator, parameter_tvb, ROUTING_INDICATOR_OFFSET, ROUTING_INDICATOR_LENGTH, ENC_BIG_ENDIAN);
-    address_indicator_item = proto_tree_add_text(parameter_tree, parameter_tvb, ADDRESS_INDICATOR_OFFSET, ADDRESS_INDICATOR_LENGTH, "Address Indicator");
-    address_indicator_tree = proto_item_add_subtree(address_indicator_item, ett_sua_source_address_indicator);
+    address_indicator_tree = proto_tree_add_subtree(parameter_tree, parameter_tvb, ADDRESS_INDICATOR_OFFSET, ADDRESS_INDICATOR_LENGTH, ett_sua_source_address_indicator, NULL, "Address Indicator");
     proto_tree_add_item(address_indicator_tree, hf_sua_source_address_reserved_bits, parameter_tvb, ADDRESS_INDICATOR_OFFSET, ADDRESS_INDICATOR_LENGTH, ENC_BIG_ENDIAN);
     proto_tree_add_item(address_indicator_tree, hf_sua_source_address_gt_bit,        parameter_tvb, ADDRESS_INDICATOR_OFFSET, ADDRESS_INDICATOR_LENGTH, ENC_BIG_ENDIAN);
     proto_tree_add_item(address_indicator_tree, hf_sua_source_address_pc_bit,        parameter_tvb, ADDRESS_INDICATOR_OFFSET, ADDRESS_INDICATOR_LENGTH, ENC_BIG_ENDIAN);
@@ -949,7 +947,6 @@ dissect_source_address_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, pr
 static void
 dissect_destination_address_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *parameter_tree, guint8 *ssn)
 {
-  proto_item *address_indicator_item;
   proto_tree *address_indicator_tree;
   tvbuff_t *parameters_tvb;
 
@@ -957,8 +954,7 @@ dissect_destination_address_parameter(tvbuff_t *parameter_tvb, packet_info *pinf
 
   if(parameter_tree) {
     proto_tree_add_item(parameter_tree, hf_sua_destination_address_routing_indicator, parameter_tvb, ROUTING_INDICATOR_OFFSET, ROUTING_INDICATOR_LENGTH, ENC_BIG_ENDIAN);
-    address_indicator_item = proto_tree_add_text(parameter_tree, parameter_tvb, ADDRESS_INDICATOR_OFFSET, ADDRESS_INDICATOR_LENGTH, "Address Indicator");
-    address_indicator_tree = proto_item_add_subtree(address_indicator_item, ett_sua_destination_address_indicator);
+    address_indicator_tree = proto_tree_add_subtree(parameter_tree, parameter_tvb, ADDRESS_INDICATOR_OFFSET, ADDRESS_INDICATOR_LENGTH, ett_sua_destination_address_indicator, NULL, "Address Indicator");
     proto_tree_add_item(address_indicator_tree, hf_sua_destination_address_reserved_bits, parameter_tvb, ADDRESS_INDICATOR_OFFSET, ADDRESS_INDICATOR_LENGTH, ENC_BIG_ENDIAN);
     proto_tree_add_item(address_indicator_tree, hf_sua_destination_address_gt_bit,        parameter_tvb, ADDRESS_INDICATOR_OFFSET, ADDRESS_INDICATOR_LENGTH, ENC_BIG_ENDIAN);
     proto_tree_add_item(address_indicator_tree, hf_sua_destination_address_pc_bit,        parameter_tvb, ADDRESS_INDICATOR_OFFSET, ADDRESS_INDICATOR_LENGTH, ENC_BIG_ENDIAN);
@@ -1064,20 +1060,18 @@ static const true_false_string more_data_bit_value = {
 static void
 dissect_sequence_number_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree)
 {
-  proto_item *sent_sequence_number_item;
   proto_tree *sent_sequence_number_tree;
-  proto_item *receive_sequence_number_item;
   proto_tree *receive_sequence_number_tree;
 
   proto_tree_add_item(parameter_tree, hf_sua_sequence_number_reserved, parameter_tvb, PARAMETER_VALUE_OFFSET, RESERVED_2_LENGTH, ENC_NA);
 
-  receive_sequence_number_item = proto_tree_add_text(parameter_tree, parameter_tvb, SEQUENCE_NUMBER_REC_SEQ_OFFSET, SEQUENCE_NUMBER_REC_SEQ_LENGTH, "Receive Sequence Number");
-  receive_sequence_number_tree = proto_item_add_subtree(receive_sequence_number_item, ett_sua_sequence_number_rec_number);
+  receive_sequence_number_tree = proto_tree_add_subtree(parameter_tree, parameter_tvb, SEQUENCE_NUMBER_REC_SEQ_OFFSET, SEQUENCE_NUMBER_REC_SEQ_LENGTH,
+                                            ett_sua_sequence_number_rec_number, NULL, "Receive Sequence Number");
   proto_tree_add_item(receive_sequence_number_tree, hf_sua_sequence_number_rec_number,    parameter_tvb, SEQUENCE_NUMBER_REC_SEQ_OFFSET, SEQUENCE_NUMBER_REC_SEQ_LENGTH, ENC_BIG_ENDIAN);
   proto_tree_add_item(receive_sequence_number_tree, hf_sua_sequence_number_more_data_bit, parameter_tvb, SEQUENCE_NUMBER_REC_SEQ_OFFSET, SEQUENCE_NUMBER_REC_SEQ_LENGTH, ENC_BIG_ENDIAN);
 
-  sent_sequence_number_item = proto_tree_add_text(parameter_tree, parameter_tvb, SEQUENCE_NUMBER_SENT_SEQ_OFFSET, SEQUENCE_NUMBER_SENT_SEQ_LENGTH, "Sent Sequence Number");
-  sent_sequence_number_tree = proto_item_add_subtree(sent_sequence_number_item, ett_sua_sequence_number_sent_number);
+  sent_sequence_number_tree = proto_tree_add_subtree(parameter_tree, parameter_tvb, SEQUENCE_NUMBER_SENT_SEQ_OFFSET, SEQUENCE_NUMBER_SENT_SEQ_LENGTH,
+                                            ett_sua_sequence_number_sent_number, NULL, "Sent Sequence Number");
   proto_tree_add_item(sent_sequence_number_tree, hf_sua_sequence_number_sent_number, parameter_tvb, SEQUENCE_NUMBER_SENT_SEQ_OFFSET, SEQUENCE_NUMBER_SENT_SEQ_LENGTH, ENC_BIG_ENDIAN);
   proto_tree_add_item(sent_sequence_number_tree, hf_sua_sequence_number_spare_bit,   parameter_tvb, SEQUENCE_NUMBER_SENT_SEQ_OFFSET, SEQUENCE_NUMBER_SENT_SEQ_LENGTH, ENC_BIG_ENDIAN);
 }
@@ -1088,12 +1082,11 @@ dissect_sequence_number_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter
 static void
 dissect_receive_sequence_number_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree)
 {
-  proto_item *receive_sequence_number_item;
   proto_tree *receive_sequence_number_tree;
 
   proto_tree_add_item(parameter_tree, hf_sua_receive_sequence_number_reserved, parameter_tvb, PARAMETER_VALUE_OFFSET, RESERVED_3_LENGTH, ENC_NA);
-  receive_sequence_number_item = proto_tree_add_text(parameter_tree, parameter_tvb, RECEIVE_SEQUENCE_NUMBER_REC_SEQ_OFFSET, RECEIVE_SEQUENCE_NUMBER_REC_SEQ_LENGTH, "Receive Sequence Number");
-  receive_sequence_number_tree = proto_item_add_subtree(receive_sequence_number_item, ett_sua_receive_sequence_number_number);
+  receive_sequence_number_tree = proto_tree_add_subtree(parameter_tree, parameter_tvb, RECEIVE_SEQUENCE_NUMBER_REC_SEQ_OFFSET, RECEIVE_SEQUENCE_NUMBER_REC_SEQ_LENGTH,
+                            ett_sua_receive_sequence_number_number, NULL, "Receive Sequence Number");
   proto_tree_add_item(receive_sequence_number_tree, hf_sua_receive_sequence_number_number,    parameter_tvb, RECEIVE_SEQUENCE_NUMBER_REC_SEQ_OFFSET, RECEIVE_SEQUENCE_NUMBER_REC_SEQ_LENGTH, ENC_BIG_ENDIAN);
   proto_tree_add_item(receive_sequence_number_tree, hf_sua_receive_sequence_number_spare_bit, parameter_tvb, RECEIVE_SEQUENCE_NUMBER_REC_SEQ_OFFSET, RECEIVE_SEQUENCE_NUMBER_REC_SEQ_LENGTH, ENC_BIG_ENDIAN);
 }
@@ -1638,18 +1631,12 @@ dissect_v8_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tr
   length         = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
   padding_length = tvb_length(parameter_tvb) - length;
 
-  if (tree) {
-    /* create proto_tree stuff */
-    parameter_item   = proto_tree_add_text(tree, parameter_tvb, PARAMETER_HEADER_OFFSET, tvb_length(parameter_tvb), "%s", val_to_str_const(tag, v8_parameter_tag_values, "Unknown parameter"));
-    parameter_tree   = proto_item_add_subtree(parameter_item, ett_sua_parameter);
+  /* create proto_tree stuff */
+  parameter_tree = proto_tree_add_subtree(tree, parameter_tvb, PARAMETER_HEADER_OFFSET, -1, ett_sua_parameter, &parameter_item, val_to_str_const(tag, v8_parameter_tag_values, "Unknown parameter"));
 
-    /* add tag and length to the sua tree */
-    proto_tree_add_item(parameter_tree, hf_sua_v8_parameter_tag,    parameter_tvb, PARAMETER_TAG_OFFSET,    PARAMETER_TAG_LENGTH,    ENC_BIG_ENDIAN);
-    proto_tree_add_item(parameter_tree, hf_sua_parameter_length, parameter_tvb, PARAMETER_LENGTH_OFFSET, PARAMETER_LENGTH_LENGTH, ENC_BIG_ENDIAN);
-  } else {
-    parameter_tree = NULL;
-    parameter_item = NULL;
-  }
+  /* add tag and length to the sua tree */
+  proto_tree_add_item(parameter_tree, hf_sua_v8_parameter_tag,    parameter_tvb, PARAMETER_TAG_OFFSET,    PARAMETER_TAG_LENGTH,    ENC_BIG_ENDIAN);
+  proto_tree_add_item(parameter_tree, hf_sua_parameter_length, parameter_tvb, PARAMETER_LENGTH_OFFSET, PARAMETER_LENGTH_LENGTH, ENC_BIG_ENDIAN);
 
   /*
   ** If no tree, only the data and ssn parameters in the source and destination
@@ -1923,31 +1910,25 @@ dissect_parameter(tvbuff_t *parameter_tvb,  packet_info *pinfo, proto_tree *tree
   length         = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
   padding_length = tvb_length(parameter_tvb) - length;
 
-  if (tree) {
-    /* Create proto_tree stuff */
-    /* If it's a known parameter it's present in the value_string.
-     * If param_tag_str = NULL then this is an unknown parameter
-     */
-        param_tag_str    = try_val_to_str(tag, parameter_tag_values);
-        if(param_tag_str) {
-            /* The parameter exists */
-            parameter_item   = proto_tree_add_text(tree, parameter_tvb, PARAMETER_HEADER_OFFSET, tvb_length(parameter_tvb), "%s", param_tag_str);
-        } else {
-            if(dissector_try_uint(sua_parameter_table, tag, parameter_tvb, pinfo,tree)) {
-                return;
-            } else {
-                parameter_item   = proto_tree_add_text(tree, parameter_tvb, PARAMETER_HEADER_OFFSET, tvb_length(parameter_tvb), "Unknown parameter");
-            }
-        }
-        parameter_tree   = proto_item_add_subtree(parameter_item, ett_sua_parameter);
-
-        /* Add tag and length to the sua tree */
-        proto_tree_add_item(parameter_tree, hf_sua_parameter_tag,    parameter_tvb, PARAMETER_TAG_OFFSET,    PARAMETER_TAG_LENGTH,    ENC_BIG_ENDIAN);
-        proto_tree_add_item(parameter_tree, hf_sua_parameter_length, parameter_tvb, PARAMETER_LENGTH_OFFSET, PARAMETER_LENGTH_LENGTH, ENC_BIG_ENDIAN);
+  /* Create proto_tree stuff */
+  /* If it's a known parameter it's present in the value_string.
+   * If param_tag_str = NULL then this is an unknown parameter
+   */
+  param_tag_str    = try_val_to_str(tag, parameter_tag_values);
+  if(param_tag_str) {
+    /* The parameter exists */
+    parameter_tree = proto_tree_add_subtree(tree, parameter_tvb, PARAMETER_HEADER_OFFSET, -1, ett_sua_parameter, &parameter_item, param_tag_str);
   } else {
-        parameter_tree = NULL;
-        parameter_item = NULL;
+    if(dissector_try_uint(sua_parameter_table, tag, parameter_tvb, pinfo,tree)) {
+       return;
+    }
+
+    parameter_tree = proto_tree_add_subtree(tree, parameter_tvb, PARAMETER_HEADER_OFFSET, -1, ett_sua_parameter, &parameter_item, "Unknown parameter");
   }
+
+  /* Add tag and length to the sua tree */
+  proto_tree_add_item(parameter_tree, hf_sua_parameter_tag,    parameter_tvb, PARAMETER_TAG_OFFSET,    PARAMETER_TAG_LENGTH,    ENC_BIG_ENDIAN);
+  proto_tree_add_item(parameter_tree, hf_sua_parameter_length, parameter_tvb, PARAMETER_LENGTH_OFFSET, PARAMETER_LENGTH_LENGTH, ENC_BIG_ENDIAN);
 
   /*
   ** If no tree, only the data, ssn, PC, and GT parameters in the source and destination

@@ -164,11 +164,9 @@ static const value_string sscop_type_vals[] = {
 
 static void dissect_stat_list(proto_tree *tree, tvbuff_t *tvb,guint h) {
 	gint n,i;
-	proto_item* pi;
 
 	if ((n = (tvb_reported_length(tvb))/4 - h)) {
-		pi = proto_tree_add_text(tree,tvb,0,n*4,"SD List");
-		tree = proto_item_add_subtree(pi,ett_stat);
+		tree = proto_tree_add_subtree(tree,tvb,0,n*4,ett_stat,NULL,"SD List");
 
 		for (i = 0; i < n; i++) {
 			proto_tree_add_item(tree, hf_sscop_stat_s, tvb, i*4 + 1,3,ENC_BIG_ENDIAN);

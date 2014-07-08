@@ -429,15 +429,12 @@ dissect_mmc4_getconfiguration (tvbuff_t *tvb_a, packet_info *pinfo,
             switch(feature){
             case 0x0000: /* profile list */
                 while(try_offset<(old_offset+additional_length)){
-                    proto_item *it=NULL;
-                    proto_tree *tr=NULL;
+                    proto_item *it;
+                    proto_tree *tr;
                     guint16 profile;
                     guint8  cur_profile;
 
-                    if(tree){
-                        it=proto_tree_add_text(tree, try_tvb, try_offset, 4, "Profile:");
-                        tr=proto_item_add_subtree(it, ett_scsi_mmc_profile);
-                    }
+                    tr=proto_tree_add_subtree(tree, try_tvb, try_offset, 4, ett_scsi_mmc_profile, &it, "Profile:");
 
                     profile=tvb_get_ntohs(try_tvb, try_offset);
                     proto_tree_add_item (tr, hf_scsi_mmc_feature_profile, try_tvb, try_offset, 2, ENC_BIG_ENDIAN);

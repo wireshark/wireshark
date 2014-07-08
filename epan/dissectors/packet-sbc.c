@@ -116,7 +116,6 @@ dissect_sbc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     proto_item  *ti;
     proto_tree  *sbc_tree;
     proto_item  *pitem;
-    proto_item  *ritem;
     proto_tree  *rtree;
     gint        offset = 0;
     guint8      number_of_frames;
@@ -199,9 +198,8 @@ dissect_sbc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
         expected_speed_data = (frame_length * frequency) / (sbc_subbands * sbc_blocks);
 
-        ritem = proto_tree_add_text(sbc_tree, tvb, offset, 4 + frame_length,
-                "Frame: %3u/%3u", counter, number_of_frames);
-        rtree = proto_item_add_subtree(ritem, ett_sbc_list);
+        rtree = proto_tree_add_subtree_format(sbc_tree, tvb, offset, 4 + frame_length,
+                ett_sbc_list, NULL, "Frame: %3u/%3u", counter, number_of_frames);
 
         pitem = proto_tree_add_item(rtree, hf_sbc_syncword, tvb, offset, 1, ENC_BIG_ENDIAN);
         syncword = tvb_get_guint8(tvb, offset);
@@ -210,32 +208,32 @@ dissect_sbc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         }
         offset += 1;
 
-        proto_tree_add_item(ritem, hf_sbc_sampling_frequency, tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(ritem, hf_sbc_blocks,             tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(ritem, hf_sbc_channel_mode,       tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(ritem, hf_sbc_allocation_method,  tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(ritem, hf_sbc_subbands,           tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(rtree, hf_sbc_sampling_frequency, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(rtree, hf_sbc_blocks,             tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(rtree, hf_sbc_channel_mode,       tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(rtree, hf_sbc_allocation_method,  tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(rtree, hf_sbc_subbands,           tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
-        proto_tree_add_item(ritem, hf_sbc_bitpool,            tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(rtree, hf_sbc_bitpool,            tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
-        proto_tree_add_item(ritem, hf_sbc_crc_check,          tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(rtree, hf_sbc_crc_check,          tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
-        proto_tree_add_item(ritem, hf_sbc_data,  tvb, offset, frame_length, ENC_NA);
+        proto_tree_add_item(rtree, hf_sbc_data,  tvb, offset, frame_length, ENC_NA);
         offset += frame_length;
 
 /* TODO: expert_info for invalid CRC */
 
-        pitem = proto_tree_add_uint(ritem, hf_sbc_expected_data_speed, tvb, offset, 0, expected_speed_data / 1024);
+        pitem = proto_tree_add_uint(rtree, hf_sbc_expected_data_speed, tvb, offset, 0, expected_speed_data / 1024);
         proto_item_append_text(pitem, " KiB/s");
         PROTO_ITEM_SET_GENERATED(pitem);
 
         frame_duration = (((double) frame_length / (double) expected_speed_data) * 1000.0);
         cummulative_frame_duration += frame_duration;
 
-        pitem = proto_tree_add_double(ritem, hf_sbc_frame_duration, tvb, offset, 0, frame_duration);
+        pitem = proto_tree_add_double(rtree, hf_sbc_frame_duration, tvb, offset, 0, frame_duration);
         proto_item_append_text(pitem, " ms");
         PROTO_ITEM_SET_GENERATED(pitem);
 

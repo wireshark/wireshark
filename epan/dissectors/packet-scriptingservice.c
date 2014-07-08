@@ -177,15 +177,10 @@ dissect_ssprotocol(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree, 
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "SSP");
 
-  /* In the interest of speed, if "tree" is NULL, don't do any work not
-     necessary to generate protocol tree items. */
-  if (tree) {
-    /* create the ssprotocol protocol tree */
-    ssprotocol_item = proto_tree_add_item(tree, proto_ssprotocol, message_tvb, 0, -1, ENC_NA);
-    ssprotocol_tree = proto_item_add_subtree(ssprotocol_item, ett_ssprotocol);
-  } else {
-    ssprotocol_tree = NULL;
-  };
+  /* create the ssprotocol protocol tree */
+  ssprotocol_item = proto_tree_add_item(tree, proto_ssprotocol, message_tvb, 0, -1, ENC_NA);
+  ssprotocol_tree = proto_item_add_subtree(ssprotocol_item, ett_ssprotocol);
+
   /* dissect the message */
   return dissect_ssprotocol_message(message_tvb, pinfo, ssprotocol_tree);
 }

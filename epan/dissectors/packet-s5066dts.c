@@ -423,13 +423,11 @@ static void dissect_s5066dts_eow_hftrp(tvbuff_t *tvb,  packet_info * pinfo, guin
 static guint dissect_s5066dts_eow(tvbuff_t *tvb,  packet_info * pinfo, guint offset, proto_tree *tree,
         guint pdu_type)
 {
-    proto_item *ti = NULL;
-    proto_tree *eow_tree = NULL;
+    proto_tree *eow_tree;
     guint eow_type;
 
     eow_type = tvb_get_guint8(tvb, offset) & 0x0F;
-    ti = proto_tree_add_text(tree, tvb, offset, 2, "EOW Field");
-    eow_tree = proto_item_add_subtree(ti, ett_s5066dts_eow);
+    eow_tree = proto_tree_add_subtree(tree, tvb, offset, 2, ett_s5066dts_eow, NULL, "EOW Field");
     proto_tree_add_item(eow_tree, hf_s5066dts_eow_type, tvb, offset, 1, ENC_BIG_ENDIAN); offset++;
 
     switch (eow_type)
@@ -460,8 +458,7 @@ static guint dissect_s5066dts_address(tvbuff_t *tvb, guint offset, proto_tree *t
         guint addr_size)
 {
     guint32 source_address = 0, destination_address = 0;
-    proto_item *ti;
-    proto_tree *address_tree = NULL;
+    proto_tree *address_tree;
     unsigned int i;
 
     for ( i = 0; i < addr_size; i++)
@@ -474,8 +471,7 @@ static guint dissect_s5066dts_address(tvbuff_t *tvb, guint offset, proto_tree *t
                 : (tvb_get_guint8(tvb, offset + (i + addr_size) / 2))) & 0x0F);
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, addr_size, "Destination & Source Addresses");
-    address_tree = proto_item_add_subtree(ti, ett_s5066dts_address);
+    address_tree = proto_tree_add_subtree(tree, tvb, offset, addr_size, ett_s5066dts_address, NULL, "Destination & Source Addresses");
 
     proto_tree_add_text(address_tree,
             tvb,
@@ -644,7 +640,6 @@ static guint dissect_s5066dts_exp_ack_only(tvbuff_t *tvb, guint offset, proto_tr
 static guint dissect_s5066dts_management(tvbuff_t *tvb, guint offset, proto_tree *tree, guint header_size)
 {
     guint8 eow_content;
-    proto_item *hftrp_proto_item = NULL;
     proto_tree *hftrp_token_tree = NULL;
     guint eow_type;
     guint extended_message_size;
@@ -674,9 +669,9 @@ static guint dissect_s5066dts_management(tvbuff_t *tvb, guint offset, proto_tree
         if (eow_type == S5066_EOW_HFTRP_TOKEN)
         {
             /* Add a new subtree for HFTRP token details */
-            hftrp_proto_item = proto_tree_add_text(tree, tvb, offset, extended_message_size, "HFTRP Token (%s)",
+            hftrp_token_tree = proto_tree_add_subtree_format(tree, tvb, offset, extended_message_size,
+                    ett_s5066dts_hftrp_token, NULL, "HFTRP Token (%s)",
                     val_to_str_const(eow_content, s5066dts_eow_hftrp_frame_control, "UNKNOWN_HFTRP_TOKEN"));
-            hftrp_token_tree = proto_item_add_subtree(hftrp_proto_item, ett_s5066dts_hftrp_token);
             proto_tree_add_item(hftrp_token_tree,
                     hf_s5066dts_management_extended_message_hftrp_payload_size, tvb, offset, 2, ENC_BIG_ENDIAN); offset += 2;
             proto_tree_add_item(hftrp_token_tree,
@@ -869,8 +864,7 @@ static int dissect_s5066dts(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         proto_tree_add_item(s5066dts_tree, hf_s5066dts_header_size, tvb, offset, 1, ENC_BIG_ENDIAN); offset++;
         offset = dissect_s5066dts_address(tvb, offset, s5066dts_tree, pinfo, address_size);
         header_size = tvb_get_guint8(tvb, S5066_DPDU_SIZE_OF_HEADER_INDEX) & 0x1F;
-        ti = proto_tree_add_text(s5066dts_tree, tvb, offset, header_size - 6, "D_PDU Type Specific Header");
-        pdu_tree = proto_item_add_subtree(ti, ett_s5066dts_pdu);
+        pdu_tree = proto_tree_add_subtree(s5066dts_tree, tvb, offset, header_size - 6, ett_s5066dts_pdu, NULL, "D_PDU Type Specific Header");
 
         switch (pdu_type)
         {

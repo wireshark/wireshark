@@ -1697,11 +1697,10 @@ dissect_sccp_global_title(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
   /* Shift GTI to where we can work with it */
   gti >>= GTI_SHIFT;
 
-  gt_item = proto_tree_add_text(tree, tvb, offset, length,
+  gt_tree = proto_tree_add_subtree_format(tree, tvb, offset, length,
+                                called ? ett_sccp_called_gt : ett_sccp_calling_gt, &gt_item,
                                 "Global Title 0x%x (%u byte%s)",
                                 gti, length, plurality(length,"", "s"));
-  gt_tree = proto_item_add_subtree(gt_item, called ? ett_sccp_called_gt
-                                   : ett_sccp_calling_gt);
 
   /* Decode Transation Type (if present) */
   if ((gti == AI_GTI_TT) ||
@@ -1841,8 +1840,8 @@ static void
 dissect_sccp_called_calling_param(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
                                   guint length, gboolean called)
 {
-  proto_item *call_item = 0, *call_ai_item = 0, *item, *hidden_item, *expert_item;
-  proto_tree *call_tree = 0, *call_ai_tree = 0;
+  proto_item *call_ai_item, *item, *hidden_item, *expert_item;
+  proto_tree *call_tree, *call_ai_tree;
   guint offset;
   guint8 national = 0xFFU, routing_ind, gti, pci, ssni, ssn;
   tvbuff_t *gt_tvb;
@@ -1850,16 +1849,15 @@ dissect_sccp_called_calling_param(tvbuff_t *tvb, proto_tree *tree, packet_info *
   const char *ssn_dissector_short_name = NULL;
   const char *tcap_ssn_dissector_short_name = NULL;
 
-  call_item = proto_tree_add_text(tree, tvb, 0, length,
+  call_tree = proto_tree_add_subtree_format(tree, tvb, 0, length,
+                                  called ? ett_sccp_called : ett_sccp_calling, NULL,
                                   "%s Party address (%u byte%s)",
                                   called ? "Called" : "Calling", length,
                                   plurality(length, "", "s"));
-  call_tree = proto_item_add_subtree(call_item, called ? ett_sccp_called : ett_sccp_calling);
 
-  call_ai_item = proto_tree_add_text(call_tree, tvb, 0,
+  call_ai_tree = proto_tree_add_subtree(call_tree, tvb, 0,
                                      ADDRESS_INDICATOR_LENGTH,
-                                     "Address Indicator");
-  call_ai_tree = proto_item_add_subtree(call_ai_item, called ? ett_sccp_called_ai : ett_sccp_calling_ai);
+                                     called ? ett_sccp_called_ai : ett_sccp_calling_ai, &call_ai_item, "Address Indicator");
 
   if (decode_mtp3_standard == ANSI_STANDARD) {
     national = tvb_get_guint8(tvb, 0) & ANSI_NATIONAL_MASK;
@@ -2187,17 +2185,14 @@ static void
 dissect_sccp_sequencing_segmenting_param(tvbuff_t *tvb, proto_tree *tree, guint length)
 {
   guint8      rsn, ssn;
-  proto_item *param_item;
   proto_tree *param_tree;
 
   ssn = tvb_get_guint8(tvb, 0) >> 1;
   rsn = tvb_get_guint8(tvb, SEQUENCING_SEGMENTING_SSN_LENGTH) >> 1;
 
-  param_item = proto_tree_add_text(tree, tvb, 0, length, "%s",
+  param_tree = proto_tree_add_subtree(tree, tvb, 0, length, ett_sccp_sequencing_segmenting, NULL,
                                    val_to_str(PARAMETER_SEQUENCING_SEGMENTING,
                                               sccp_parameter_values, "Unknown: %d"));
-  param_tree = proto_item_add_subtree(param_item,
-                                      ett_sccp_sequencing_segmenting);
 
   proto_tree_add_uint(param_tree, hf_sccp_sequencing_segmenting_ssn, tvb, 0,
                       SEQUENCING_SEGMENTING_SSN_LENGTH, ssn);
@@ -2396,13 +2391,11 @@ dissect_sccp_data_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 dissect_sccp_segmentation_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint length)
 {
-  proto_item *param_item;
   proto_tree *param_tree;
 
-  param_item = proto_tree_add_text(tree, tvb, 0, length, "%s",
+  param_tree = proto_tree_add_subtree(tree, tvb, 0, length, ett_sccp_segmentation, NULL,
                                    val_to_str(PARAMETER_SEGMENTATION,
                                               sccp_parameter_values, "Unknown: %d"));
-  param_tree = proto_item_add_subtree(param_item, ett_sccp_segmentation);
 
   proto_tree_add_item(param_tree, hf_sccp_segmentation_first, tvb, 0, 1, ENC_NA);
   proto_tree_add_item(param_tree, hf_sccp_segmentation_class, tvb, 0, 1, ENC_NA);
@@ -2443,14 +2436,11 @@ dissect_sccp_isni_param(tvbuff_t *tvb, proto_tree *tree, guint length)
 {
   guint8 ti;
   guint offset = 0;
-  proto_item *param_item;
   proto_tree *param_tree;
 
   /* Create a subtree for ISNI Routing Control */
-  param_item = proto_tree_add_text(tree, tvb, offset, ANSI_ISNI_ROUTING_CONTROL_LENGTH,
-                                   "ISNI Routing Control");
-  param_tree = proto_item_add_subtree(param_item,
-                                      ett_sccp_ansi_isni_routing_control);
+  param_tree = proto_tree_add_subtree(tree, tvb, offset, ANSI_ISNI_ROUTING_CONTROL_LENGTH,
+                                   ett_sccp_ansi_isni_routing_control, NULL, "ISNI Routing Control");
 
   proto_tree_add_item(param_tree, hf_sccp_ansi_isni_mi, tvb, offset,
                       ANSI_ISNI_ROUTING_CONTROL_LENGTH, ENC_NA);

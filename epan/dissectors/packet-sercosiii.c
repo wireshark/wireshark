@@ -777,23 +777,19 @@ static const value_string siii_at_hotplug_status_error_text[]=
 
 static void dissect_siii_mst(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-  proto_item *ti;
   proto_tree *subtree;
   proto_tree *subtree2;
 
-  ti = proto_tree_add_text(tree, tvb, 0, 6, "MST");
-  subtree = proto_item_add_subtree(ti, ett_siii_mst);
+  subtree = proto_tree_add_subtree(tree, tvb, 0, 6, ett_siii_mst, NULL, "MST");
 
-  ti = proto_tree_add_text(subtree, tvb, 0, 1, "Telegram Type");
-  subtree2 = proto_item_add_subtree(ti, ett_siii_mst_teltype);
+  subtree2 = proto_tree_add_subtree(subtree, tvb, 0, 1, ett_siii_mst_teltype, NULL, "Telegram Type");
 
   proto_tree_add_item(subtree2, hf_siii_mst_channel,       tvb, 0, 1, ENC_LITTLE_ENDIAN);
   proto_tree_add_item(subtree2, hf_siii_mst_type,          tvb, 0, 1, ENC_LITTLE_ENDIAN);
   proto_tree_add_item(subtree2, hf_siii_mst_cyclecntvalid, tvb, 0, 1, ENC_LITTLE_ENDIAN);
   proto_tree_add_item(subtree2, hf_siii_mst_telno,         tvb, 0, 1, ENC_LITTLE_ENDIAN);
 
-  ti = proto_tree_add_text(subtree, tvb, 1, 1, "Phase Field");
-  subtree2 = proto_item_add_subtree(ti, ett_siii_mst_phase);
+  subtree2 = proto_tree_add_subtree(subtree, tvb, 1, 1, ett_siii_mst_phase, NULL, "Phase Field");
 
   proto_tree_add_item(subtree2, hf_siii_mst_phase,    tvb, 1, 1, ENC_LITTLE_ENDIAN);
   proto_tree_add_item(subtree2, hf_siii_mst_cyclecnt, tvb, 1, 1, ENC_LITTLE_ENDIAN);
@@ -807,8 +803,7 @@ static void dissect_siii_mdt_hp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
   proto_tree *subtree2;
   proto_item *ti;
 
-  ti = proto_tree_add_text(tree, tvb, 0, 8, "Hot-Plug");
-  subtree = proto_item_add_subtree(ti, ett_siii_mdt_hp);
+  subtree = proto_tree_add_subtree(tree, tvb, 0, 8, ett_siii_mdt_hp, NULL, "Hot-Plug");
 
   proto_tree_add_item(subtree, hf_siii_mdt_hotplug_address, tvb, 2, 2, ENC_LITTLE_ENDIAN);
 
@@ -886,30 +881,24 @@ static void dissect_siii_mdt_cp1_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree
   tvbuff_t *tvb_n;
 
   guint idx;
-
-  proto_item *ti;
   proto_tree *subtree;
   proto_tree *subtree_svc;
   proto_tree *subtree_devctrl;
 
-  ti = proto_tree_add_text(tree, tvb, 0, SERCOS_SLAVE_GROUP_SIZE * 6, "Service Channels");
-  subtree_svc = proto_item_add_subtree(ti, ett_siii_mdt_svc);
+  subtree_svc = proto_tree_add_subtree(tree, tvb, 0, SERCOS_SLAVE_GROUP_SIZE * 6, ett_siii_mdt_svc, NULL, "Service Channels");
 
-  ti = proto_tree_add_text(tree, tvb, SERCOS_SLAVE_GROUP_SIZE * 6, 512, "Device Control");
-  subtree_devctrl = proto_item_add_subtree(ti, ett_siii_mdt_svc);
+  subtree_devctrl = proto_tree_add_subtree(tree, tvb, SERCOS_SLAVE_GROUP_SIZE * 6, 512, ett_siii_mdt_svc, NULL, "Device Control");
 
   for (idx = 0; idx < SERCOS_SLAVE_GROUP_SIZE; ++idx) /* each MDT of CP1/2 has data for 128 different slaves */
   {
     tvb_n = tvb_new_subset_length(tvb, 6 * idx, 6); /* subset for service channel data */
 
-    ti = proto_tree_add_text(subtree_svc, tvb_n, 0, 6, "Device %u", idx + devstart);
-    subtree = proto_item_add_subtree(ti, ett_siii_mdt_svc_channel);
+    subtree = proto_tree_add_subtree_format(subtree_svc, tvb_n, 0, 6, ett_siii_mdt_svc_channel, NULL, "Device %u", idx + devstart);
     dissect_siii_mdt_svc(tvb_n, pinfo, subtree, idx + devstart);
 
     tvb_n = tvb_new_subset_length(tvb, SERCOS_SLAVE_GROUP_SIZE * 6 + 4 * idx, 2); /* subset for device control information */
 
-    ti = proto_tree_add_text(subtree_devctrl, tvb_n, 0, 2, "Device %u", idx + devstart);
-    subtree = proto_item_add_subtree(ti, ett_siii_mdt_dev_control);
+    subtree = proto_tree_add_subtree_format(subtree_devctrl, tvb_n, 0, 2, ett_siii_mdt_dev_control, NULL, "Device %u", idx + devstart);
 
     dissect_siii_mdt_devctrl(tvb_n, pinfo, subtree);
   }
@@ -932,7 +921,6 @@ static void dissect_siii_mdt_cp3_4(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
 static void dissect_siii_mdt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  proto_item *ti;
   proto_tree *subtree;
   tvbuff_t   *tvb_n;
 
@@ -955,8 +943,7 @@ static void dissect_siii_mdt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
           (t_phase&0x0f));
   }
 
-  ti = proto_tree_add_text(tree, tvb, 0, -1, "MDT%u", telno);
-  subtree = proto_item_add_subtree(ti, ett_siii_mdt);
+  subtree = proto_tree_add_subtree_format(tree, tvb, 0, -1, ett_siii_mdt, NULL, "MDT%u", telno);
 
   dissect_siii_mst(tvb, pinfo, subtree); /* dissect SERCOS III header */
 
@@ -1024,8 +1011,7 @@ static void dissect_siii_at_hp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
   proto_tree *subtree2;
   proto_item *ti;
 
-  ti = proto_tree_add_text(tree, tvb, 0, 8, "Hot-Plug");
-  subtree = proto_item_add_subtree(ti, ett_siii_at_hp);
+  subtree = proto_tree_add_subtree(tree, tvb, 0, 8, ett_siii_at_hp, NULL, "Hot-Plug");
 
   proto_tree_add_item(subtree, hf_siii_at_hotplug_address,              tvb, 2, 2, ENC_LITTLE_ENDIAN);
 
@@ -1082,29 +1068,24 @@ static void dissect_siii_at_cp1_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
   guint idx;
 
-  proto_item *ti;
   proto_tree *subtree;
   proto_tree *subtree_svc;
   proto_tree *subtree_devstat;
 
-  ti = proto_tree_add_text(tree, tvb, 0, SERCOS_SLAVE_GROUP_SIZE * 6, "Service Channel");
-  subtree_svc = proto_item_add_subtree(ti, ett_siii_at_svc);
+  subtree_svc = proto_tree_add_subtree(tree, tvb, 0, SERCOS_SLAVE_GROUP_SIZE * 6, ett_siii_at_svc, NULL, "Service Channel");
 
-  ti = proto_tree_add_text(tree, tvb, SERCOS_SLAVE_GROUP_SIZE * 6, 512, "Device Status");
-  subtree_devstat = proto_item_add_subtree(ti, ett_siii_at_devstats);
+  subtree_devstat = proto_tree_add_subtree(tree, tvb, SERCOS_SLAVE_GROUP_SIZE * 6, 512, ett_siii_at_devstats, NULL, "Device Status");
 
   for (idx = 0; idx < SERCOS_SLAVE_GROUP_SIZE; ++idx) /* each AT of CP1/2 has data of 128 different slaves */
   {
     tvb_n = tvb_new_subset_length(tvb, 6 * idx, 6); /* subset for service channel data */
 
-    ti = proto_tree_add_text(subtree_svc, tvb_n, 0, 6, "Device %u", idx + devstart);
-    subtree = proto_item_add_subtree(ti, ett_siii_at_svc_channel);
+    subtree = proto_tree_add_subtree_format(subtree_svc, tvb_n, 0, 6, ett_siii_at_svc_channel, NULL, "Device %u", idx + devstart);
     dissect_siii_at_svc(tvb_n, pinfo, subtree, idx + devstart);
 
     tvb_n = tvb_new_subset_length(tvb, SERCOS_SLAVE_GROUP_SIZE * 6 + 4 * idx, 2); /* subset for device status information */
 
-    ti = proto_tree_add_text(subtree_devstat, tvb_n, 0, 2, "Device %u", idx + devstart);
-    subtree = proto_item_add_subtree(ti, ett_siii_at_dev_status);
+    subtree = proto_tree_add_subtree_format(subtree_devstat, tvb_n, 0, 2, ett_siii_at_dev_status, NULL, "Device %u", idx + devstart);
     dissect_siii_at_devstat(tvb_n, pinfo, subtree);
   }
 }
@@ -1124,7 +1105,6 @@ static void dissect_siii_at_cp3_4(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
 static void dissect_siii_at(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  proto_item *ti;
   proto_tree *subtree;
   tvbuff_t   *tvb_n;
 
@@ -1147,8 +1127,7 @@ static void dissect_siii_at(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           (phase&0x0f));
   }
 
-  ti = proto_tree_add_text(tree, tvb, 0, -1, "AT%u", telno);
-  subtree = proto_item_add_subtree(ti, ett_siii_at);
+  subtree = proto_tree_add_subtree_format(tree, tvb, 0, -1, ett_siii_at, NULL, "AT%u", telno);
 
   dissect_siii_mst(tvb, pinfo, subtree); /* dissect SERCOS III header */
 

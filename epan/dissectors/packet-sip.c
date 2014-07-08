@@ -2617,10 +2617,9 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
 
     case OTHER_LINE:
         if (sip_tree) {
-            ti_a = proto_tree_add_text(sip_tree, tvb, offset, next_offset,
-                                     "%s line: %s", descr,
+            reqresp_tree = proto_tree_add_subtree_format(sip_tree, tvb, offset, next_offset,
+                                     ett_sip_reqresp, NULL, "%s line: %s", descr,
                                      tvb_format_text(tvb, offset, linelen));
-            reqresp_tree = proto_item_add_subtree(ti_a, ett_sip_reqresp);
             /* XXX: Is adding to 'reqresp_tree as intended ? Changed from original 'sip_tree' */
             proto_tree_add_text(reqresp_tree, tvb, offset, -1, "Continuation data");
         }

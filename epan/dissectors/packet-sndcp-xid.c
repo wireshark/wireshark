@@ -475,7 +475,7 @@ dissect_sndcp_xid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	/* Set up structures needed to add the protocol subtree and manage it
 	*/
-	proto_item *ti, *version_item, *dcomp_item, *pcomp_item;
+	proto_item *ti, *dcomp_item;
 	proto_tree *sndcp_tree, *version_tree, *dcomp_tree, *pcomp_tree;
 	guint16 offset = 0, l3_param_len;
 	guint8 parameter_type, parameter_len;
@@ -494,10 +494,9 @@ dissect_sndcp_xid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 		if (parameter_type == SNDCP_VERSION_PAR_TYPE)
 		{
 			guint8 value = tvb_get_guint8(tvb, offset+2);
-			version_item = proto_tree_add_text(sndcp_tree, tvb, offset, parameter_len+2,
-					"Version (SNDCP version number) - Value %d", value);
+			version_tree = proto_tree_add_subtree_format(sndcp_tree, tvb, offset, parameter_len+2,
+					ett_sndcp_xid_version_field, NULL, "Version (SNDCP version number) - Value %d", value);
 
-			version_tree = proto_item_add_subtree(version_item, ett_sndcp_xid_version_field);
 			proto_tree_add_uint(version_tree, hf_sndcp_xid_type, tvb, offset,
 			1, parameter_type);
 			proto_tree_add_uint(version_tree, hf_sndcp_xid_len, tvb, offset+1,
@@ -511,9 +510,8 @@ dissect_sndcp_xid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 		{
 			tvbuff_t * dcomp_tvb;
 
-			dcomp_item = proto_tree_add_text(sndcp_tree, tvb, offset, parameter_len+2,
-				"Data Compression");
-			dcomp_tree = proto_item_add_subtree(dcomp_item, ett_sndcp_comp_field);
+			dcomp_tree = proto_tree_add_subtree(sndcp_tree, tvb, offset, parameter_len+2,
+				ett_sndcp_comp_field, &dcomp_item, "Data Compression");
 			proto_tree_add_uint(dcomp_tree, hf_sndcp_xid_type, tvb, offset,
 			1, parameter_type);
 			proto_tree_add_uint(dcomp_tree, hf_sndcp_xid_len, tvb, offset+1,
@@ -530,9 +528,8 @@ dissect_sndcp_xid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 		{
 			tvbuff_t * pcomp_tvb;
 
-			pcomp_item = proto_tree_add_text(sndcp_tree, tvb, offset, parameter_len+2,
-				"Protocol Control Information Compression");
-			pcomp_tree = proto_item_add_subtree(pcomp_item, ett_sndcp_comp_field);
+			pcomp_tree = proto_tree_add_subtree(sndcp_tree, tvb, offset, parameter_len+2,
+				ett_sndcp_comp_field, NULL, "Protocol Control Information Compression");
 			proto_tree_add_uint(pcomp_tree, hf_sndcp_xid_type, tvb, offset,
 			1, parameter_type);
 			proto_tree_add_uint(pcomp_tree, hf_sndcp_xid_len, tvb, offset+1,
@@ -559,7 +556,6 @@ static void parse_compression_parameters(tvbuff_t *tvb, proto_tree *tree, gboole
 	gboolean p_bit_set;
 	algo_parameters_t * algo_pars;
 	guint8 function_index;
-	proto_item *comp_entity_field = NULL;
 	proto_tree *comp_entity_tree = NULL;
 	guint16 tvb_len, offset=0 , new_offset, entity_offset;
 	value_string const * comp_algo_str;
@@ -606,10 +602,9 @@ static void parse_compression_parameters(tvbuff_t *tvb, proto_tree *tree, gboole
 			/* Read the length */
 			len = tvb_get_guint8(tvb, offset+2);
 
-			comp_entity_field = proto_tree_add_text(tree, tvb, offset, len + 3,
-				"Entity %d, Algorithm %s",
+			comp_entity_tree = proto_tree_add_subtree_format(tree, tvb, offset, len + 3,
+				ett_sndcp_comp_field, NULL, "Entity %d, Algorithm %s",
 				entity & 0x1F, val_to_str(algo_id & 0x1F, comp_algo_str,"Undefined Algorithm Identifier:%X"));
-			comp_entity_tree = proto_item_add_subtree(comp_entity_field, ett_sndcp_comp_field);
 
 			proto_tree_add_uint(comp_entity_tree, hf_sndcp_xid_comp_pbit, tvb, offset, 1, p_bit_set << 7);
 			proto_tree_add_uint(comp_entity_tree, hf_sndcp_xid_comp_spare_byte1, tvb, offset, 1, entity);
@@ -671,11 +666,9 @@ static void parse_compression_parameters(tvbuff_t *tvb, proto_tree *tree, gboole
 				algo_id = pcomp_entity_algo_id[entity];
 				comp_algo_str = sndcp_xid_pcomp_algo_str;
 			}
-			comp_entity_field = proto_tree_add_text(tree, tvb, offset, len + 2,
-				"Entity %d decoded as Algorithm %s",
+			comp_entity_tree = proto_tree_add_subtree_format(tree, tvb, offset, len + 2,
+				ett_sndcp_comp_field, NULL, "Entity %d decoded as Algorithm %s",
 				entity & 0x1F, val_to_str(algo_id & 0x1F, comp_algo_str,"Undefined Algorithm Identifier:%X"));
-
-			comp_entity_tree = proto_item_add_subtree(comp_entity_field, ett_sndcp_comp_field);
 
 			proto_tree_add_uint(comp_entity_tree, hf_sndcp_xid_comp_pbit, tvb, offset, 1, p_bit_set << 7);
 			proto_tree_add_uint(comp_entity_tree, hf_sndcp_xid_comp_spare_byte1, tvb, offset, 1, entity);

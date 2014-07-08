@@ -670,8 +670,8 @@ static int dissect_config_frame(tvbuff_t *tvb, proto_item *config_item)
 
 		/* STN with new tree to add the rest of the PMU block */
 		str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, CHNAM_LEN, ENC_ASCII);
-		station_item = proto_tree_add_text(config_tree, tvb, offset, CHNAM_LEN, "Station #%i: \"%s\"", j + 1, str);
-		station_tree = proto_item_add_subtree(station_item, ett_conf_station);
+		station_tree = proto_tree_add_subtree_format(config_tree, tvb, offset, CHNAM_LEN,
+						ett_conf_station, &station_item, "Station #%i: \"%s\"", j + 1, str);
 		offset += CHNAM_LEN;
 
 		/* IDCODE */
@@ -782,9 +782,9 @@ static int dissect_data_frame(tvbuff_t	  *tvb,
 	for (i = 0; i < wmem_array_get_count(conf->config_blocks); i++) {
 		config_block *block = (config_block*)wmem_array_index(conf->config_blocks, i);
 
-		proto_item *block_item = proto_tree_add_text(data_tree, tvb, offset, BLOCKSIZE(*block),
-						 "Station: \"%s\"", block->name);
-		proto_tree *block_tree = proto_item_add_subtree(block_item, ett_data_block);
+		proto_item *block_item;
+		proto_tree *block_tree = proto_tree_add_subtree_format(data_tree, tvb, offset, BLOCKSIZE(*block),
+						 ett_data_block, &block_item, "Station: \"%s\"", block->name);
 
 		/* STAT */
 		proto_item *temp_item = proto_tree_add_text(block_tree, tvb, offset, 2, "Flags");
@@ -905,8 +905,7 @@ static gint dissect_PHASORS(tvbuff_t *tvb, proto_tree *tree, config_block *block
 		return offset;
 
 	length	    = wmem_array_get_count(block->phasors) * (floating_point == block->format_ph ? 8 : 4);
-	temp_item   = proto_tree_add_text(tree, tvb, offset, length, "Phasors (%u)", cnt);
-	phasor_tree = proto_item_add_subtree(temp_item, ett_data_phasors);
+	phasor_tree = proto_tree_add_subtree_format(tree, tvb, offset, length, ett_data_phasors, NULL, "Phasors (%u)", cnt);
 
 	/* dissect a phasor for every phasor_info saved in the config_block */
 	for (j = 0; j < cnt; j++) {
@@ -984,9 +983,7 @@ static gint dissect_ANALOG(tvbuff_t *tvb, proto_tree *tree, config_block *block,
 		return offset;
 
 	length	    = wmem_array_get_count(block->analogs) * (floating_point == block->format_an ? 4 : 2);
-	temp_item   = proto_tree_add_text(tree, tvb, offset, length, "Analog values (%u)", cnt);
-
-	analog_tree = proto_item_add_subtree(temp_item, ett_data_analog);
+	analog_tree = proto_tree_add_subtree_format(tree, tvb, offset, length, ett_data_analog, NULL, "Analog values (%u)", cnt);
 
 	for (j = 0; j < cnt; j++) {
 		analog_info *ai = (analog_info *)wmem_array_index(block->analogs, j);
@@ -1014,15 +1011,13 @@ static gint dissect_ANALOG(tvbuff_t *tvb, proto_tree *tree, config_block *block,
 /* used by 'dissect_data_frame()' to dissect the DIGITAL field */
 static gint dissect_DIGITAL(tvbuff_t *tvb, proto_tree *tree, config_block *block, gint offset)
 {
-	proto_item *digital_item = NULL;
 	gint	    j,
 		    cnt = block->num_dg; /* number of digital status words to dissect */
 
 	if (0 == cnt)
 		return offset;
 
-	digital_item = proto_tree_add_text(tree, tvb, offset, cnt * 2, "Digital status words (%u)", cnt);
-	tree	     = proto_item_add_subtree(digital_item, ett_data_digital);
+	tree = proto_tree_add_subtree_format(tree, tvb, offset, cnt * 2, ett_data_digital, NULL, "Digital status words (%u)", cnt);
 
 	for (j = 0; j < cnt; j++) {
 		guint16 tmp = tvb_get_ntohs(tvb, offset);
@@ -1039,15 +1034,13 @@ static gint dissect_DIGITAL(tvbuff_t *tvb, proto_tree *tree, config_block *block
 /* used by 'dissect_config_frame()' to dissect the PHUNIT field */
 static gint dissect_PHUNIT(tvbuff_t *tvb, proto_tree *tree, gint offset, gint cnt)
 {
-	proto_item *temp_item = NULL;
-	proto_tree *temp_tree = NULL;
+	proto_tree *temp_tree;
 	int i;
 
 	if (0 == cnt)
 		return offset;
 
-	temp_item = proto_tree_add_text(tree, tvb, offset, 4 * cnt, "Phasor conversation factors (%u)", cnt);
-	temp_tree = proto_item_add_subtree(temp_item, ett_conf_phconv);
+	temp_tree = proto_tree_add_subtree_format(tree, tvb, offset, 4 * cnt, ett_conf_phconv, NULL, "Phasor conversation factors (%u)", cnt);
 
 	/* Conversion factor for phasor channels. Four bytes for each phasor.
 	 * MSB:		  0 = voltage, 1 = current
@@ -1069,15 +1062,14 @@ static gint dissect_PHUNIT(tvbuff_t *tvb, proto_tree *tree, gint offset, gint cn
 /* used by 'dissect_config_frame()' to dissect the ANUNIT field */
 static gint dissect_ANUNIT(tvbuff_t *tvb, proto_tree *tree, gint offset, gint cnt)
 {
-	proto_item *temp_item = NULL;
-	proto_tree *temp_tree = NULL;
+	proto_item *temp_item;
+	proto_tree *temp_tree;
 	int i;
 
 	if (0 == cnt)
 		return offset;
 
-	temp_item = proto_tree_add_text(tree, tvb, offset, 4 * cnt, "Analog values conversation factors (%u)", cnt);
-	temp_tree = proto_item_add_subtree(temp_item, ett_conf_anconv);
+	temp_tree = proto_tree_add_subtree_format(tree, tvb, offset, 4 * cnt, ett_conf_anconv, NULL, "Analog values conversation factors (%u)", cnt);
 
 	/* Conversation factor for analog channels. Four bytes for each analog value.
 	 * MSB: see 'synphasor_conf_anconvnames' in 'synphasor_strings.c'
@@ -1105,15 +1097,14 @@ static gint dissect_ANUNIT(tvbuff_t *tvb, proto_tree *tree, gint offset, gint cn
 /* used by 'dissect_config_frame()' to dissect the DIGUNIT field */
 static gint dissect_DIGUNIT(tvbuff_t *tvb, proto_tree *tree, gint offset, gint cnt)
 {
-	proto_item *temp_item = NULL;
-	proto_tree *temp_tree = NULL;
+	proto_item *temp_item;
+	proto_tree *temp_tree;
 	int i;
 
 	if (0 == cnt)
 		return offset;
 
-	temp_item = proto_tree_add_text(tree, tvb, offset, 4 * cnt, "Masks for digital status words (%u)", cnt);
-	temp_tree = proto_item_add_subtree(temp_item, ett_conf_dgmask);
+	temp_tree = proto_tree_add_subtree_format(tree, tvb, offset, 4 * cnt, ett_conf_dgmask, NULL, "Masks for digital status words (%u)", cnt);
 
 	/* Mask words for digital status words. Two 16-bit words for each digital word. The first
 	 * inidcates the normal status of the inputs, the second indicated the valid bits in
@@ -1135,15 +1126,13 @@ static gint dissect_DIGUNIT(tvbuff_t *tvb, proto_tree *tree, gint offset, gint c
 /* used by 'dissect_config_frame()' to dissect the "channel name"-fields */
 static gint dissect_CHNAM(tvbuff_t *tvb, proto_tree *tree, gint offset, gint cnt, const char *prefix)
 {
-	proto_item *temp_item = NULL;
-	proto_tree *temp_tree = NULL;
+	proto_tree *temp_tree;
 	int i;
 
 	if (0 == cnt)
 		return offset;
 
-	temp_item = proto_tree_add_text(tree, tvb, offset, CHNAM_LEN * cnt, "%ss (%u)", prefix, cnt);
-	temp_tree = proto_item_add_subtree(temp_item, ett_conf_phnam);
+	temp_tree = proto_tree_add_subtree_format(tree, tvb, offset, CHNAM_LEN * cnt, ett_conf_phnam, NULL, "%ss (%u)", prefix, cnt);
 
 	/* dissect the 'cnt' channel names */
 	for (i = 0; i < cnt; i++) {

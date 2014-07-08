@@ -2456,8 +2456,8 @@ dissect_response_data(tvbuff_t *tvb, packet_info *pinfo, int convert,
 	const char *label;
 	gint ett;
 	const item_t *resp_data;
-	proto_item *data_item;
-	proto_tree *data_tree;
+	proto_item *data_item = NULL;
+	proto_tree *data_tree = NULL;
 	proto_item *entry_item;
 	proto_tree *entry_tree;
 	guint i, j;
@@ -2489,18 +2489,9 @@ dissect_response_data(tvbuff_t *tvb, packet_info *pinfo, int convert,
 				ett = *lanman->ett_data_entry_list;
 			else
 				ett = ett_lanman_unknown_entries;
-			data_item = proto_tree_add_text(tree, tvb, offset, -1, "%s", label);
-			data_tree = proto_item_add_subtree(data_item, ett);
-		} else {
-			data_item = NULL;
-			data_tree = NULL;
+
+			data_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett, &data_item, label);
 		}
-	} else {
-		/*
-		 * Just leave it at the top level.
-		 */
-		data_item = NULL;
-		data_tree = tree;
 	}
 
 	if (trp->data_descrip == NULL) {

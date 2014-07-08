@@ -1166,8 +1166,7 @@ dissect_sbc_unmap (tvbuff_t *tvb, packet_info *pinfo _U_,
             gint64 lba;
             gint32 num_blocks;
 
-            it = proto_tree_add_text(tree, tvb, offset, 16, "UNMAP Block Descriptor: LBA ");
-            tr = proto_item_add_subtree(it, ett_scsi_unmap_block_descriptor);
+            tr = proto_tree_add_subtree(tree, tvb, offset, 16, ett_scsi_unmap_block_descriptor, &it, "UNMAP Block Descriptor: LBA ");
 
             proto_tree_add_item (tr, hf_scsi_sbc_unmap_lba, tvb, offset, 8, ENC_BIG_ENDIAN);
             lba = tvb_get_ntoh64 (tvb, offset);
@@ -1489,8 +1488,7 @@ dissect_sbc_serviceactionin16 (tvbuff_t *tvb, packet_info *pinfo _U_,
                         guint32 num_blocks;
                         guint8  type;
 
-                        it = proto_tree_add_text(tree, tvb, offset, 16, "LBA Status Descriptor:  ");
-                        tr = proto_item_add_subtree(it, ett_scsi_lba_status_descriptor);
+                        tr = proto_tree_add_subtree(tree, tvb, offset, 16, ett_scsi_lba_status_descriptor, &it, "LBA Status Descriptor:  ");
 
                         proto_tree_add_item (tr, hf_scsi_sbc_get_lba_status_lba, tvb, offset, 8, ENC_BIG_ENDIAN);
                         lba = tvb_get_ntoh64(tvb, offset);

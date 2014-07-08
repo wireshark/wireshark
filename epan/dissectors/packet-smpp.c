@@ -2445,8 +2445,8 @@ dissect_smpp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     const gchar    *command_str;
     const gchar    *command_status_str = NULL;
     /* Set up structures needed to add the protocol subtree and manage it */
-    proto_item     *ti                 = NULL;
-    proto_tree     *smpp_tree          = NULL;
+    proto_item     *ti;
+    proto_tree     *smpp_tree;
 
     /*
      * Safety: don't even try to dissect the PDU
@@ -2485,10 +2485,8 @@ dissect_smpp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     /*
      * Create display subtree for the protocol
      */
-    if (tree) {
-        ti = proto_tree_add_item (tree, proto_smpp, tvb, 0, tvb_length(tvb), ENC_NA);
-        smpp_tree = proto_item_add_subtree (ti, ett_smpp);
-    }
+    ti = proto_tree_add_item (tree, proto_smpp, tvb, 0, tvb_length(tvb), ENC_NA);
+    smpp_tree = proto_item_add_subtree (ti, ett_smpp);
 
     /*
      * Cycle over the encapsulated PDUs

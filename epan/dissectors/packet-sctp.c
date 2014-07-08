@@ -1807,8 +1807,9 @@ dissect_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo,
   reported_length = tvb_reported_length(parameter_tvb);
   padding_length  = reported_length - length;
 
-  parameter_item = proto_tree_add_text(chunk_tree, parameter_tvb, PARAMETER_HEADER_OFFSET, tvb_reported_length(parameter_tvb), "%s parameter", val_to_str_const(type, parameter_identifier_values, "Unknown"));
-  parameter_tree = proto_item_add_subtree(parameter_item, ett_sctp_chunk_parameter);
+  parameter_tree = proto_tree_add_subtree_format(chunk_tree, parameter_tvb, PARAMETER_HEADER_OFFSET, -1,
+            ett_sctp_chunk_parameter, &parameter_item, "%s parameter",
+            val_to_str_const(type, parameter_identifier_values, "Unknown"));
   if (final_parameter) {
     if (padding_length > 0) {
       expert_add_info(pinfo, parameter_item, &ei_sctp_parameter_padding);
@@ -2257,8 +2258,8 @@ dissect_error_cause(tvbuff_t *cause_tvb, packet_info *pinfo, proto_tree *chunk_t
   length         = tvb_get_ntohs(cause_tvb, CAUSE_LENGTH_OFFSET);
   padding_length = tvb_reported_length(cause_tvb) - length;
 
-  cause_item = proto_tree_add_text(chunk_tree, cause_tvb, CAUSE_HEADER_OFFSET, tvb_reported_length(cause_tvb), "%s cause", val_to_str_const(code, cause_code_values, "Unknown"));
-  cause_tree = proto_item_add_subtree(cause_item, ett_sctp_chunk_cause);
+  cause_tree = proto_tree_add_subtree_format(chunk_tree, cause_tvb, CAUSE_HEADER_OFFSET, -1,
+            ett_sctp_chunk_cause, &cause_item, "%s cause", val_to_str_const(code, cause_code_values, "Unknown"));
 
   proto_tree_add_item(cause_tree, hf_cause_code, cause_tvb,   CAUSE_CODE_OFFSET,   CAUSE_CODE_LENGTH,   ENC_BIG_ENDIAN);
   proto_tree_add_item(cause_tree, hf_cause_length, cause_tvb, CAUSE_LENGTH_OFFSET, CAUSE_LENGTH_LENGTH, ENC_BIG_ENDIAN);
@@ -3421,7 +3422,6 @@ dissect_sack_chunk(packet_info *pinfo, tvbuff_t *chunk_tvb, proto_tree *chunk_tr
   guint16 gap_block_number, dup_tsn_number, start, end;
   gint gap_block_offset, dup_tsn_offset;
   guint32 cum_tsn_ack;
-  proto_item *block_item;
   proto_tree *block_tree;
   proto_tree *flags_tree;
   proto_item *ctsa_item;
@@ -3461,8 +3461,8 @@ dissect_sack_chunk(packet_info *pinfo, tvbuff_t *chunk_tvb, proto_tree *chunk_tr
     end   = tvb_get_ntohs(chunk_tvb, gap_block_offset + SACK_CHUNK_GAP_BLOCK_START_LENGTH);
     tsn_start = cum_tsn_ack + start;
 
-    block_item = proto_tree_add_text(chunk_tree, chunk_tvb, gap_block_offset, SACK_CHUNK_GAP_BLOCK_LENGTH, "Gap Acknowledgement for TSN %u to %u", cum_tsn_ack + start, cum_tsn_ack + end);
-    block_tree = proto_item_add_subtree(block_item, ett_sctp_sack_chunk_gap_block);
+    block_tree = proto_tree_add_subtree_format(chunk_tree, chunk_tvb, gap_block_offset, SACK_CHUNK_GAP_BLOCK_LENGTH,
+                        ett_sctp_sack_chunk_gap_block, NULL, "Gap Acknowledgement for TSN %u to %u", cum_tsn_ack + start, cum_tsn_ack + end);
 
     pi = proto_tree_add_item(block_tree, hf_sack_chunk_gap_block_start, chunk_tvb, gap_block_offset, SACK_CHUNK_GAP_BLOCK_START_LENGTH, ENC_BIG_ENDIAN);
     pt = proto_item_add_subtree(pi, ett_sctp_sack_chunk_gap_block_start);
@@ -3558,7 +3558,6 @@ dissect_nr_sack_chunk(packet_info *pinfo, tvbuff_t *chunk_tvb, proto_tree *chunk
   guint16 gap_block_number, nr_gap_block_number, dup_tsn_number, start, end;
   gint gap_block_offset, nr_gap_block_offset, dup_tsn_offset;
   guint32 cum_tsn_ack;
-  proto_item *block_item;
   proto_tree *block_tree;
   proto_tree *flags_tree;
   proto_item *ctsa_item;
@@ -3597,8 +3596,8 @@ dissect_nr_sack_chunk(packet_info *pinfo, tvbuff_t *chunk_tvb, proto_tree *chunk
     end   = tvb_get_ntohs(chunk_tvb, gap_block_offset + NR_SACK_CHUNK_GAP_BLOCK_START_LENGTH);
     tsn_start = cum_tsn_ack + start;
 
-    block_item = proto_tree_add_text(chunk_tree, chunk_tvb, gap_block_offset, NR_SACK_CHUNK_GAP_BLOCK_LENGTH, "Gap Acknowledgement for TSN %u to %u", cum_tsn_ack + start, cum_tsn_ack + end);
-    block_tree = proto_item_add_subtree(block_item, ett_sctp_nr_sack_chunk_gap_block);
+    block_tree = proto_tree_add_subtree_format(chunk_tree, chunk_tvb, gap_block_offset, NR_SACK_CHUNK_GAP_BLOCK_LENGTH,
+                        ett_sctp_nr_sack_chunk_gap_block, NULL, "Gap Acknowledgement for TSN %u to %u", cum_tsn_ack + start, cum_tsn_ack + end);
 
     pi = proto_tree_add_item(block_tree, hf_nr_sack_chunk_gap_block_start, chunk_tvb, gap_block_offset, NR_SACK_CHUNK_GAP_BLOCK_START_LENGTH, ENC_BIG_ENDIAN);
     pt = proto_item_add_subtree(pi, ett_sctp_nr_sack_chunk_gap_block_start);
@@ -3654,8 +3653,8 @@ dissect_nr_sack_chunk(packet_info *pinfo, tvbuff_t *chunk_tvb, proto_tree *chunk
     end   = tvb_get_ntohs(chunk_tvb, nr_gap_block_offset + NR_SACK_CHUNK_NR_GAP_BLOCK_START_LENGTH);
     /*tsn_start = cum_tsn_ack + start;*/
 
-    block_item = proto_tree_add_text(chunk_tree, chunk_tvb, nr_gap_block_offset, NR_SACK_CHUNK_NR_GAP_BLOCK_LENGTH, "NR-Gap Acknowledgement for TSN %u to %u", cum_tsn_ack + start, cum_tsn_ack + end);
-    block_tree = proto_item_add_subtree(block_item, ett_sctp_nr_sack_chunk_nr_gap_block);
+    block_tree = proto_tree_add_subtree_format(chunk_tree, chunk_tvb, nr_gap_block_offset, NR_SACK_CHUNK_NR_GAP_BLOCK_LENGTH,
+            ett_sctp_nr_sack_chunk_nr_gap_block, NULL, "NR-Gap Acknowledgement for TSN %u to %u", cum_tsn_ack + start, cum_tsn_ack + end);
 
     pi = proto_tree_add_item(block_tree, hf_nr_sack_chunk_nr_gap_block_start, chunk_tvb, nr_gap_block_offset, NR_SACK_CHUNK_NR_GAP_BLOCK_START_LENGTH, ENC_BIG_ENDIAN);
     pt = proto_item_add_subtree(pi, ett_sctp_nr_sack_chunk_nr_gap_block_start);
@@ -4104,8 +4103,9 @@ dissect_sctp_chunk(tvbuff_t *chunk_tvb,
     col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str_const(type, chunk_type_values, "RESERVED"));
 
   /* create proto_tree stuff */
-  chunk_item   = proto_tree_add_text(sctp_tree, chunk_tvb, CHUNK_HEADER_OFFSET, reported_length, "%s chunk", val_to_str_const(type, chunk_type_values, "RESERVED"));
-  chunk_tree   = proto_item_add_subtree(chunk_item, ett_sctp_chunk);
+  chunk_tree   = proto_tree_add_subtree_format(sctp_tree, chunk_tvb, CHUNK_HEADER_OFFSET, reported_length,
+                    ett_sctp_chunk, &chunk_item, "%s chunk",
+                    val_to_str_const(type, chunk_type_values, "RESERVED"));
   if (reported_length % 4)
     expert_add_info_format(pinfo, chunk_item, &ei_sctp_chunk_length_bad, "Chunk length is not padded to a multiple of 4 bytes (length=%d).", reported_length);
 

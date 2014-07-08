@@ -442,8 +442,7 @@ dissect_announce_change(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 {
 	/*** 0x0A ( Announce change to UAS or SAM ) ***/
 	guint32 info_count;
-	proto_item *ti = NULL;
-	proto_tree *info_tree = NULL;
+	proto_tree *info_tree;
 	guint32 db_index;
 	guint32 domain_sid_size;
 
@@ -490,11 +489,8 @@ dissect_announce_change(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
 		while (info_count != 0) {
 			db_index = tvb_get_letohl(tvb, offset);
-			if (tree) {
-				ti = proto_tree_add_text(tree, tvb, offset, 20,
-				    "DBChange Info Structure: index %u", db_index);
-				info_tree = proto_item_add_subtree(ti, ett_smb_db_info);
-			}
+			info_tree = proto_tree_add_subtree_format(tree, tvb, offset, 20,
+				    ett_smb_db_info, NULL, "DBChange Info Structure: index %u", db_index);
 
 			proto_tree_add_uint(info_tree, hf_db_index, tvb, offset, 4,
 			    db_index);

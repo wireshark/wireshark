@@ -896,9 +896,7 @@ static gint
 dissect_sflow_5_extended_mpls_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset) {
     guint32     in_label_count, out_label_count, label, i, j;
     proto_tree *in_stack;
-    proto_item *ti_in;
     proto_tree *out_stack;
-    proto_item *ti_out;
     struct sflow_address_type addr_type;
 
     addr_type.hf_addr_v4 = hf_sflow_245_nexthop_v4;
@@ -910,8 +908,7 @@ dissect_sflow_5_extended_mpls_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     proto_tree_add_item(tree, hf_sflow_245_extended_mpls_in_label_stack_entries, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    ti_in = proto_tree_add_text(tree, tvb, offset, -1, "In Label Stack");
-    in_stack = proto_item_add_subtree(ti_in, ett_sflow_5_mpls_in_label_stack);
+    in_stack = proto_tree_add_subtree(tree, tvb, offset, -1, ett_sflow_5_mpls_in_label_stack, NULL, "In Label Stack");
 
     /* by applying the mask, we avoid possible corrupted data that causes huge number of loops
      * 255 is a sensible limit of label count */
@@ -926,8 +923,7 @@ dissect_sflow_5_extended_mpls_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     proto_tree_add_item(tree, hf_sflow_245_extended_mpls_out_label_stack_entries, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    ti_out = proto_tree_add_text(tree, tvb, offset, -1, "Out Label Stack");
-    out_stack = proto_item_add_subtree(ti_out, ett_sflow_5_mpls_in_label_stack);
+    out_stack = proto_tree_add_subtree(tree, tvb, offset, -1, ett_sflow_5_mpls_in_label_stack, NULL, "Out Label Stack");
 
     /* by applying the mask, we avoid possible corrupted data that causes huge number of loops
      * 255 is a sensible limit of label count */
@@ -1612,9 +1608,8 @@ dissect_sflow_5_flow_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     /* only accept default enterprise 0 (InMon sFlow) */
     if (enterprise == ENTERPRISE_DEFAULT) {
-        ti = proto_tree_add_text(tree, tvb, offset, -1, "%s",
+        flow_data_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_sflow_5_flow_record, &ti,
                 val_to_str_ext_const(format, &sflow_5_flow_record_type_ext, "Unknown sample format"));
-        flow_data_tree = proto_item_add_subtree(ti, ett_sflow_5_flow_record);
 
         proto_tree_add_uint_format_value(flow_data_tree, hf_sflow_enterprise, tvb, offset, 4,
                             enterprise, "standard sFlow (%u)", enterprise);
@@ -1690,8 +1685,8 @@ dissect_sflow_5_flow_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         }
     } else {
         /* unknown enterprise format, what to do?? */
-        ti = proto_tree_add_text(tree, tvb, offset, -1, "Unknown enterprise format");
-        flow_data_tree = proto_item_add_subtree(ti, ett_sflow_5_flow_record);
+        flow_data_tree = proto_tree_add_subtree(tree, tvb, offset, -1,
+            ett_sflow_5_flow_record, &ti, "Unknown enterprise format");
         proto_tree_add_uint_format_value(flow_data_tree, hf_sflow_enterprise, tvb, offset, -1,
                                     enterprise, "Non-standard sFlow (%u)", enterprise);
     }
@@ -1974,9 +1969,8 @@ dissect_sflow_5_counters_record(tvbuff_t *tvb, proto_tree *tree, gint offset) {
     format = enterprise_format & 0x00000fff;
 
     if (enterprise == ENTERPRISE_DEFAULT) { /* only accept default enterprise 0 (InMon sFlow) */
-        ti = proto_tree_add_text(tree, tvb, offset, -1, "%s",
+        counter_data_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_sflow_5_counters_record, &ti,
                 val_to_str_const(format, sflow_5_counters_record_type, "Unknown sample format"));
-        counter_data_tree = proto_item_add_subtree(ti, ett_sflow_5_counters_record);
 
         proto_tree_add_uint_format_value(counter_data_tree, hf_sflow_enterprise, tvb, offset, 4,
                                 enterprise, "standard sFlow (%u)", enterprise);
@@ -2016,8 +2010,8 @@ dissect_sflow_5_counters_record(tvbuff_t *tvb, proto_tree *tree, gint offset) {
                 break;
         }
     } else { /* unknown enterprise format, what to do?? */
-        ti = proto_tree_add_text(tree, tvb, offset, -1, "Unknown enterprise format");
-        counter_data_tree = proto_item_add_subtree(ti, ett_sflow_5_counters_record);
+        counter_data_tree = proto_tree_add_subtree(tree, tvb, offset, -1,
+            ett_sflow_5_counters_record, &ti, "Unknown enterprise format");
         proto_tree_add_uint_format_value(counter_data_tree, hf_sflow_enterprise, tvb, offset, -1,
                         enterprise, "Non-standard sFlow (%u)", enterprise);
     }
@@ -2274,9 +2268,8 @@ dissect_sflow_245_samples(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
         format = sample_type & 0x00000fff;
 
         if (enterprise == ENTERPRISE_DEFAULT) { /* only accept default enterprise 0 (InMon sFlow) */
-            ti = proto_tree_add_text(tree, tvb, offset, -1, "%s",
+            sflow_245_sample_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_sflow_245_sample, &ti,
                     val_to_str_const(format, sflow_245_sampletype, "Unknown sample format"));
-            sflow_245_sample_tree = proto_item_add_subtree(ti, ett_sflow_245_sample);
 
             proto_tree_add_uint_format_value(sflow_245_sample_tree, hf_sflow_enterprise, tvb, offset, 4, enterprise, "standard sFlow (%u)", enterprise);
             proto_tree_add_item(sflow_245_sample_tree, hf_sflow_245_sampletype12, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -2307,16 +2300,15 @@ dissect_sflow_245_samples(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
             /* current offset points to sample length field, which is 4 bytes from the beginning of the packet*/
             offset += length;
         } else { /* unknown enterprise format, what to do?? */
-            ti = proto_tree_add_text(tree, tvb, offset, -1, "Unknown enterprise format");
-            sflow_245_sample_tree = proto_item_add_subtree(ti, ett_sflow_245_sample);
+            sflow_245_sample_tree = proto_tree_add_subtree(tree, tvb, offset, -1,
+                        ett_sflow_245_sample, &ti, "Unknown enterprise format");
             proto_tree_add_uint_format_value(sflow_245_sample_tree, hf_sflow_enterprise, tvb, offset, -1,
                             enterprise, "Non-standard sFlow (%u)", enterprise);
         }
 
     } else { /* version 2 or 4 */
-        ti = proto_tree_add_text(tree, tvb, offset, -1, "%s",
+        sflow_245_sample_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_sflow_245_sample, &ti,
                 val_to_str_const(sample_type, sflow_245_sampletype, "Unknown sample type"));
-        sflow_245_sample_tree = proto_item_add_subtree(ti, ett_sflow_245_sample);
 
         proto_tree_add_item(sflow_245_sample_tree, hf_sflow_245_sampletype, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;

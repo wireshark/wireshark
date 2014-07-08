@@ -963,7 +963,7 @@ static int
 dissect_relaydef_frame(tvbuff_t *tvb, proto_tree *tree, int offset)
 {
 /* Set up structures needed to add the protocol subtree and manage it */
-    proto_item    *relaydef_item, *relaydef_fm_item, *relaydef_flags_item, *relaydef_proto_item;
+    proto_item    *relaydef_fm_item, *relaydef_flags_item, *relaydef_proto_item;
     proto_tree    *relaydef_tree, *relaydef_fm_tree, *relaydef_flags_tree, *relaydef_proto_tree;
     guint8        len, num_proto, num_fm, num_flags;
     int           count;
@@ -974,8 +974,7 @@ dissect_relaydef_frame(tvbuff_t *tvb, proto_tree *tree, int offset)
     num_flags = tvb_get_guint8(tvb, offset+3);
 
     /* Add items to protocol tree specific to Relay Definition Block */
-    relaydef_item = proto_tree_add_text(tree, tvb, offset, len-2, "Relay Definition Block Details");
-    relaydef_tree = proto_item_add_subtree(relaydef_item, ett_selfm_relaydef);
+    relaydef_tree = proto_tree_add_subtree(tree, tvb, offset, len-2, ett_selfm_relaydef, NULL, "Relay Definition Block Details");
 
     /* Reported length */
     proto_tree_add_item(relaydef_tree, hf_selfm_relaydef_len, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1034,7 +1033,6 @@ static int
 dissect_fmconfig_frame(tvbuff_t *tvb, proto_tree *tree, int offset)
 {
     /* Set up structures needed to add the protocol subtree and manage it */
-    proto_item    *fmconfig_item, *fmconfig_ai_item=NULL, *fmconfig_calc_item=NULL;
     proto_tree    *fmconfig_tree, *fmconfig_ai_tree=NULL, *fmconfig_calc_tree=NULL;
     guint         count;
     guint8        len, sf_loc, num_sf, num_ai, num_calc;
@@ -1049,8 +1047,7 @@ dissect_fmconfig_frame(tvbuff_t *tvb, proto_tree *tree, int offset)
     /* skip num_dig,   position offset+6 */
     num_calc = tvb_get_guint8(tvb, offset+7);
 
-    fmconfig_item = proto_tree_add_text(tree, tvb, offset, len, "Fast Meter Configuration Details");
-    fmconfig_tree = proto_item_add_subtree(fmconfig_item, ett_selfm_fmconfig);
+    fmconfig_tree = proto_tree_add_subtree(tree, tvb, offset, len, ett_selfm_fmconfig, NULL, "Fast Meter Configuration Details");
 
     /* Add items to protocol tree specific to Fast Meter Configuration Block */
 
@@ -1078,8 +1075,8 @@ dissect_fmconfig_frame(tvbuff_t *tvb, proto_tree *tree, int offset)
         tvb_memcpy(tvb, &ai_name, offset, 6);
         ai_name[FM_CONFIG_ANA_CHNAME_LEN] = '\0'; /* Put a terminating null onto the end of the AI name, in case none exists */
 
-        fmconfig_ai_item = proto_tree_add_text(fmconfig_tree, tvb, offset, 10, "Analog Channel: %s", ai_name);
-        fmconfig_ai_tree = proto_item_add_subtree(fmconfig_ai_item, ett_selfm_fmconfig_ai);
+        fmconfig_ai_tree = proto_tree_add_subtree_format(fmconfig_tree, tvb, offset, 10,
+                    ett_selfm_fmconfig_ai, NULL, "Analog Channel: %s", ai_name);
 
         /* Add Channel Name, Channel Data Type, Scale Factor Type and Scale Factor Offset to tree */
         proto_tree_add_text(fmconfig_ai_tree, tvb, offset, 6, "Analog Channel Name: %s", ai_name);
@@ -1093,8 +1090,8 @@ dissect_fmconfig_frame(tvbuff_t *tvb, proto_tree *tree, int offset)
 
     /* 14-byte Calculation block instances based on num_calc */
     for (count = 0; count < num_calc; count++) {
-        fmconfig_calc_item = proto_tree_add_text(fmconfig_tree, tvb, offset, 14, "Calculation Block: %d", count+1);
-        fmconfig_calc_tree = proto_item_add_subtree(fmconfig_calc_item, ett_selfm_fmconfig_calc);
+        fmconfig_calc_tree = proto_tree_add_subtree_format(fmconfig_tree, tvb, offset, 14,
+                            ett_selfm_fmconfig_calc, NULL, "Calculation Block: %d", count+1);
 
         /* Rotation, Voltage Connection and Current Connection are all bit-masked on the same byte */
         proto_tree_add_item(fmconfig_calc_tree, hf_selfm_fmconfig_cblk_rot, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1143,8 +1140,8 @@ static int
 dissect_fmdata_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int offset, guint16 config_cmd_match)
 {
 /* Set up structures needed to add the protocol subtree and manage it */
-    proto_item       *fmdata_item, *fmdata_ai_item=NULL, *fmdata_dig_item=NULL, *fmdata_ai_ch_item=NULL, *fmdata_dig_ch_item=NULL;
-    proto_item       *fmdata_ai_sf_item=NULL;
+    proto_item       *fmdata_item, *fmdata_dig_ch_item;
+    proto_item       *fmdata_ai_sf_item;
     proto_tree       *fmdata_tree, *fmdata_ai_tree=NULL, *fmdata_dig_tree=NULL, *fmdata_ai_ch_tree=NULL, *fmdata_dig_ch_tree=NULL;
     guint8           len, idx=0, j=0, ts_mon, ts_day, ts_year, ts_hour, ts_min, ts_sec;
     guint16          config_cmd, ts_msec;
@@ -1158,8 +1155,7 @@ dissect_fmdata_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int of
 
     len = tvb_get_guint8(tvb, offset);
 
-    fmdata_item = proto_tree_add_text(tree, tvb, offset, len-2, "Fast Meter Data Details");
-    fmdata_tree = proto_item_add_subtree(fmdata_item, ett_selfm_fmdata);
+    fmdata_tree = proto_tree_add_subtree_format(tree, tvb, offset, len-2, ett_selfm_fmdata, &fmdata_item, "Fast Meter Data Details");
 
     /* Reported length */
     proto_tree_add_item(fmdata_tree, hf_selfm_fmdata_len, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1207,22 +1203,19 @@ dissect_fmdata_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int of
 
                         /* Use different lookup strings, depending on how many samples are available per Analog Channel */
                         if (cfg_data->num_ai_samples == 1) {
-                            fmdata_ai_item = proto_tree_add_text(fmdata_tree, tvb, offset, ((cfg_data->offset_ts - cfg_data->offset_ai)/cfg_data->num_ai_samples),
-                                "Analog Channels (%d), Sample: %d (%s)",
+                            fmdata_ai_tree = proto_tree_add_subtree_format(fmdata_tree, tvb, offset, ((cfg_data->offset_ts - cfg_data->offset_ai)/cfg_data->num_ai_samples),
+                                ett_selfm_fmdata_ai, NULL, "Analog Channels (%d), Sample: %d (%s)",
                                 cfg_data->num_ai, j+1, val_to_str_const(j+1, selfm_fmconfig_numsamples1_vals, "Unknown"));
-                            fmdata_ai_tree = proto_item_add_subtree(fmdata_ai_item, ett_selfm_fmdata_ai);
                         }
                         else if (cfg_data->num_ai_samples == 2) {
-                            fmdata_ai_item = proto_tree_add_text(fmdata_tree, tvb, offset, ((cfg_data->offset_ts - cfg_data->offset_ai)/cfg_data->num_ai_samples),
-                                "Analog Channels (%d), Sample: %d (%s)",
+                            fmdata_ai_tree = proto_tree_add_subtree_format(fmdata_tree, tvb, offset, ((cfg_data->offset_ts - cfg_data->offset_ai)/cfg_data->num_ai_samples),
+                                ett_selfm_fmdata_ai, NULL, "Analog Channels (%d), Sample: %d (%s)",
                                 cfg_data->num_ai, j+1, val_to_str_const(j+1, selfm_fmconfig_numsamples2_vals, "Unknown"));
-                            fmdata_ai_tree = proto_item_add_subtree(fmdata_ai_item, ett_selfm_fmdata_ai);
                         }
                         else if (cfg_data->num_ai_samples == 4) {
-                            fmdata_ai_item = proto_tree_add_text(fmdata_tree, tvb, offset, ((cfg_data->offset_ts - cfg_data->offset_ai)/cfg_data->num_ai_samples),
-                                "Analog Channels (%d), Sample: %d (%s)",
+                            fmdata_ai_tree = proto_tree_add_subtree_format(fmdata_tree, tvb, offset, ((cfg_data->offset_ts - cfg_data->offset_ai)/cfg_data->num_ai_samples),
+                                ett_selfm_fmdata_ai, NULL, "Analog Channels (%d), Sample: %d (%s)",
                                 cfg_data->num_ai, j+1, val_to_str_const(j+1, selfm_fmconfig_numsamples4_vals, "Unknown"));
-                            fmdata_ai_tree = proto_item_add_subtree(fmdata_ai_item, ett_selfm_fmdata_ai);
                         }
 
                         /* For each analog channel we encounter... */
@@ -1246,8 +1239,8 @@ dissect_fmdata_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int of
                             }
 
                             /* Build sub-tree for each Analog Channel */
-                            fmdata_ai_ch_item = proto_tree_add_text(fmdata_ai_tree, tvb, offset, ch_size, "Analog Channel %d: %s", idx+1, ai->name);
-                            fmdata_ai_ch_tree = proto_item_add_subtree(fmdata_ai_ch_item, ett_selfm_fmdata_ai_ch);
+                            fmdata_ai_ch_tree = proto_tree_add_subtree_format(fmdata_ai_tree, tvb, offset, ch_size,
+                                            ett_selfm_fmdata_ai_ch, NULL, "Analog Channel %d: %s", idx+1, ai->name);
 
                             /* XXX - Need more decoding options here for different data types, but I need packet capture examples first */
                             /* Decode analog value appropriately, according to data type */
@@ -1317,13 +1310,12 @@ dissect_fmdata_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int of
                 /* Check that we actually have digital data */
                 if (cfg_data->num_dig > 0) {
 
-                    fmdata_dig_item = proto_tree_add_text(fmdata_tree, tvb, offset, cfg_data->num_dig, "Digital Channels (%d)", cfg_data->num_dig);
-                    fmdata_dig_tree = proto_item_add_subtree(fmdata_dig_item, ett_selfm_fmdata_dig);
+                    fmdata_dig_tree = proto_tree_add_subtree_format(fmdata_tree, tvb, offset, cfg_data->num_dig,
+                                        ett_selfm_fmdata_dig, NULL, "Digital Channels (%d)", cfg_data->num_dig);
 
                     for (idx=0; idx < cfg_data->num_dig; idx++) {
 
-                        fmdata_dig_ch_item = proto_tree_add_text(fmdata_dig_tree, tvb, offset, 1, "Digital Word Bit Row: %2d", idx+1);
-                        fmdata_dig_ch_tree = proto_item_add_subtree(fmdata_dig_ch_item, ett_selfm_fmdata_dig_ch);
+                        fmdata_dig_ch_tree = proto_tree_add_subtree_format(fmdata_dig_tree, tvb, offset, 1, ett_selfm_fmdata_dig_ch, &fmdata_dig_ch_item, "Digital Word Bit Row: %2d", idx+1);
 
                         /* Display the bit pattern on the digital channel proto_item */
                         proto_item_append_text(fmdata_dig_ch_item, " [  %d %d %d %d %d %d %d %d  ]",
@@ -1375,7 +1367,7 @@ static int
 dissect_foconfig_frame(tvbuff_t *tvb, proto_tree *tree, int offset)
 {
 /* Set up structures needed to add the protocol subtree and manage it */
-    proto_item    *foconfig_item, *foconfig_brkr_item, *foconfig_rb_item;
+    proto_item    *foconfig_brkr_item, *foconfig_rb_item;
     proto_tree    *foconfig_tree, *foconfig_brkr_tree=NULL, *foconfig_rb_tree=NULL;
     guint         count;
     guint8        len, num_brkr, prb_supp;
@@ -1386,8 +1378,7 @@ dissect_foconfig_frame(tvbuff_t *tvb, proto_tree *tree, int offset)
     num_rb = tvb_get_ntohs(tvb, offset+2);
     prb_supp = tvb_get_guint8(tvb, offset+4);
 
-    foconfig_item = proto_tree_add_text(tree, tvb, offset, len-2, "Fast Operate Configuration Details");
-    foconfig_tree = proto_item_add_subtree(foconfig_item, ett_selfm_foconfig);
+    foconfig_tree = proto_tree_add_subtree(tree, tvb, offset, len-2, ett_selfm_foconfig, NULL, "Fast Operate Configuration Details");
 
     /* Add items to protocol tree specific to Fast Operate Configuration Block */
 
@@ -1460,14 +1451,13 @@ static int
 dissect_alt_fastop_config_frame(tvbuff_t *tvb, proto_tree *tree, int offset)
 {
 /* Set up structures needed to add the protocol subtree and manage it */
-    proto_item    *foconfig_item=NULL;
-    proto_tree    *foconfig_tree=NULL;
+    proto_tree    *foconfig_tree;
     guint8        len;
 
     len = tvb_get_guint8(tvb, offset);
 
-    foconfig_item = proto_tree_add_text(tree, tvb, offset, len-2, "Alternate Fast Operate Configuration Details");
-    foconfig_tree = proto_item_add_subtree(foconfig_item, ett_selfm_foconfig);
+    foconfig_tree = proto_tree_add_subtree(tree, tvb, offset, len-2,
+            ett_selfm_foconfig, NULL, "Alternate Fast Operate Configuration Details");
 
     /* Add items to protocol tree specific to Fast Operate Configuration Block */
 
@@ -1501,7 +1491,6 @@ static int
 dissect_fastop_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int offset)
 {
 /* Set up structures needed to add the protocol subtree and manage it */
-    proto_item    *fastop_item;
     proto_tree    *fastop_tree;
     guint8        len, opcode;
     guint16       msg_type;
@@ -1509,8 +1498,7 @@ dissect_fastop_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int of
     msg_type = tvb_get_ntohs(tvb, offset-2);
     len = tvb_get_guint8(tvb, offset);
 
-    fastop_item = proto_tree_add_text(tree, tvb, offset, len-2, "Fast Operate Details");
-    fastop_tree = proto_item_add_subtree(fastop_item, ett_selfm_fastop);
+    fastop_tree = proto_tree_add_subtree(tree, tvb, offset, len-2, ett_selfm_fastop, NULL, "Fast Operate Details");
 
     /* Add Reported length to tree*/
     proto_tree_add_item(fastop_tree, hf_selfm_fastop_len, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1552,15 +1540,13 @@ static int
 dissect_alt_fastop_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int offset)
 {
 /* Set up structures needed to add the protocol subtree and manage it */
-    proto_item    *fastop_item;
     proto_tree    *fastop_tree;
     guint8        len;
     guint16       opcode;
 
     len = tvb_get_guint8(tvb, offset);
 
-    fastop_item = proto_tree_add_text(tree, tvb, offset, len-2, "Alternate Fast Operate Details");
-    fastop_tree = proto_item_add_subtree(fastop_item, ett_selfm_fastop);
+    fastop_tree = proto_tree_add_subtree(tree, tvb, offset, len-2, ett_selfm_fastop, NULL, "Alternate Fast Operate Details");
 
     /* Add Reported length to tree */
     proto_tree_add_item(fastop_tree, hf_selfm_alt_fastop_len, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1595,7 +1581,7 @@ dissect_alt_fastop_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, in
 static int
 dissect_fastser_readresp_frame(tvbuff_t *tvb, proto_tree *fastser_tree, packet_info *pinfo, int offset, guint8 seq_byte)
 {
-    proto_item        *fastser_tag_item=NULL, *fastser_tag_value_item=NULL, *fmdata_dig_item=NULL;
+    proto_item        *fastser_tag_value_item=NULL, *fmdata_dig_item=NULL;
     proto_item        *pi_baseaddr=NULL, *pi_fnum=NULL, *pi_type=NULL, *pi_qty=NULL;
     proto_tree        *fastser_tag_tree=NULL, *fmdata_dig_tree=NULL;
     guint32           base_addr;
@@ -1709,8 +1695,8 @@ dissect_fastser_readresp_frame(tvbuff_t *tvb, proto_tree *fastser_tree, packet_i
                             break;
                     }
 
-                    fastser_tag_item = proto_tree_add_text(fastser_tree, payload_tvb, payload_offset, data_size, "Data Item Name: %s", dataitem->name);
-                    fastser_tag_tree = proto_item_add_subtree(fastser_tag_item, ett_selfm_fastser_tag);
+                    fastser_tag_tree = proto_tree_add_subtree_format(fastser_tree, payload_tvb, payload_offset, data_size,
+                                    ett_selfm_fastser_tag, NULL, "Data Item Name: %s", dataitem->name);
 
                     /* Load some information from the stored Data Format Response message into the tree for reference */
                     pi_fnum = proto_tree_add_text(fastser_tag_tree, payload_tvb, payload_offset, data_size, "Using frame number %d (Index Pos: %d) as Data Format Reference",dataitem->fnum, dataitem->index_pos );
@@ -1730,8 +1716,8 @@ dissect_fastser_readresp_frame(tvbuff_t *tvb, proto_tree *fastser_tree, packet_i
 
                             for (cnt=1; cnt <= dataitem->quantity; cnt++) {
 
-                                fmdata_dig_item = proto_tree_add_text(fastser_tag_tree, payload_tvb, payload_offset, 1, "8-bit Binary Items (Row: %2d)", cnt);
-                                fmdata_dig_tree = proto_item_add_subtree(fmdata_dig_item, ett_selfm_fmdata_dig);
+                                fmdata_dig_tree = proto_tree_add_subtree_format(fastser_tag_tree, payload_tvb, payload_offset, 1,
+                                                    ett_selfm_fmdata_dig, &fmdata_dig_item, "8-bit Binary Items (Row: %2d)", cnt);
 
                                 /* Display the bit pattern on the digital channel proto_item */
                                 proto_item_append_text(fmdata_dig_item, " [  %d %d %d %d %d %d %d %d  ]",
@@ -1832,9 +1818,9 @@ static int
 dissect_fastser_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int offset)
 {
 /* Set up structures needed to add the protocol subtree and manage it */
-    proto_item    *fastser_item, *fastser_def_fc_item=NULL, *fastser_seq_item=NULL, *fastser_elementlist_item=NULL;
-    proto_item    *fastser_element_item=NULL, *fastser_datareg_item=NULL, *fastser_tag_item=NULL;
-    proto_item    *pi_baseaddr=NULL, *fastser_crc16_item=NULL;
+    proto_item    *fastser_def_fc_item, *fastser_seq_item, *fastser_elementlist_item;
+    proto_item    *fastser_tag_item;
+    proto_item    *pi_baseaddr, *fastser_crc16_item;
     proto_tree    *fastser_tree, *fastser_def_fc_tree=NULL, *fastser_seq_tree=NULL, *fastser_elementlist_tree=NULL;
     proto_tree    *fastser_element_tree=NULL, *fastser_datareg_tree=NULL, *fastser_tag_tree=NULL;
     gint          cnt, num_elements, elmt_status32_ofs=0, elmt_status, null_offset;
@@ -1847,8 +1833,7 @@ dissect_fastser_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
 
     len = tvb_get_guint8(tvb, offset);
 
-    fastser_item = proto_tree_add_text(tree, tvb, offset, len-2, "Fast SER Message Details");
-    fastser_tree = proto_item_add_subtree(fastser_item, ett_selfm_fastser);
+    fastser_tree = proto_tree_add_subtree(tree, tvb, offset, len-2, ett_selfm_fastser, NULL, "Fast SER Message Details");
 
     /* Reported length */
     proto_tree_add_item(fastser_tree, hf_selfm_fastser_len, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -2008,9 +1993,8 @@ dissect_fastser_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
                 elmt_status = ((elmt_status32 >> cnt) & 0x01);
 
                 /* Build the tree */
-                fastser_element_item = proto_tree_add_text(fastser_elementlist_tree, tvb, offset, 4,
+                fastser_element_tree = proto_tree_add_subtree_format(fastser_elementlist_tree, tvb, offset, 4, ett_selfm_fastser_element, NULL,
                     "Reported Event %d (Index: %d, New State: %s)", cnt+1, elmt_idx, val_to_str_const(elmt_status, selfm_ser_status_vals, "Unknown"));
-                fastser_element_tree = proto_item_add_subtree(fastser_element_item, ett_selfm_fastser_element);
 
                 /* Add Index Number and Timestamp offset to tree */
                 proto_tree_add_item(fastser_element_tree, hf_selfm_fastser_unsresp_elmt_idx, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -2186,8 +2170,8 @@ dissect_fastser_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
             /* 16-bit message word count and 16-bit flag field */
             for (cnt=0; cnt<num_reg; cnt++) {
 
-                fastser_datareg_item = proto_tree_add_text(fastser_tree, tvb, offset, 18, "Fast SER Data Region #%d", cnt+1);
-                fastser_datareg_tree = proto_item_add_subtree(fastser_datareg_item, ett_selfm_fastser_datareg);
+                fastser_datareg_tree = proto_tree_add_subtree_format(fastser_tree, tvb, offset, 18,
+                                ett_selfm_fastser_datareg, NULL, "Fast SER Data Region #%d", cnt+1);
 
                 /* 10-Byte Region description */
                 region_name_ptr = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 10, ENC_ASCII);

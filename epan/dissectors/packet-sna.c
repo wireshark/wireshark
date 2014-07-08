@@ -938,7 +938,7 @@ static void
 dissect_optional_14(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_tree	*sub_tree, *bf_tree;
-	proto_item	*sub_item, *bf_item;
+	proto_item	*bf_item;
 	int		len, pad, type, bits, offset, num, sublen;
 
 	if (!tree)
@@ -957,9 +957,8 @@ dissect_optional_14(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    tvb_new_subset_remaining(tvb, offset), pinfo, tree);
 		return;
 	}
-	sub_item = proto_tree_add_text(tree, tvb, offset, len,
-	    "Switching Information Control Vector");
-	sub_tree = proto_item_add_subtree(sub_item, ett_sna_nlp_opti_14_si);
+	sub_tree = proto_tree_add_subtree(tree, tvb, offset, len,
+	    ett_sna_nlp_opti_14_si, NULL, "Switching Information Control Vector");
 
 	proto_tree_add_uint(sub_tree, hf_sna_nlp_opti_14_si_len,
 	    tvb, offset, 1, len);
@@ -1009,9 +1008,8 @@ dissect_optional_14(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    tvb_new_subset_remaining(tvb, offset), pinfo, tree);
 		return;
 	}
-	sub_item = proto_tree_add_text(tree, tvb, offset, len,
-	    "Return Route TG Descriptor Control Vector");
-	sub_tree = proto_item_add_subtree(sub_item, ett_sna_nlp_opti_14_rr);
+	sub_tree = proto_tree_add_subtree(tree, tvb, offset, len,
+	    ett_sna_nlp_opti_14_rr, NULL, "Return Route TG Descriptor Control Vector");
 
 	proto_tree_add_uint(sub_tree, hf_sna_nlp_opti_14_rr_len,
 	    tvb, offset, 1, len);
@@ -1111,7 +1109,6 @@ static void
 dissect_optional(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_tree	*sub_tree;
-	proto_item	*sub_item;
 	int		offset, type, len;
 	gint		ett;
 
@@ -1140,11 +1137,10 @@ dissect_optional(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if(type == 0x14) ett = ett_sna_nlp_opti_14;
 		if(type == 0x22) ett = ett_sna_nlp_opti_22;
 		if (tree) {
-			sub_item = proto_tree_add_text(tree, tvb,
-			    offset, len << 2, "%s",
+			sub_tree = proto_tree_add_subtree(tree, tvb,
+			    offset, len << 2, ett, NULL,
 			    val_to_str(type, sna_nlp_opti_vals,
 			    "Unknown Segment Type"));
-			sub_tree = proto_item_add_subtree(sub_item, ett);
 			proto_tree_add_uint(sub_tree, hf_sna_nlp_opti_len,
 			    tvb, offset, 1, len);
 			proto_tree_add_uint(sub_tree, hf_sna_nlp_opti_type,
@@ -2402,7 +2398,6 @@ dissect_control(tvbuff_t *parent_tvb, int offset, int control_len,
 	tvbuff_t	*tvb;
 	gint		length, reported_length;
 	proto_tree	*sub_tree;
-	proto_item	*sub_item;
 	int		len, key;
 	gint		ett;
 
@@ -2433,14 +2428,13 @@ dissect_control(tvbuff_t *parent_tvb, int offset, int control_len,
 		if (key == 0x0e) ett = ett_sna_control_0e;
 
 		if (((key == 0) || (key == 3) || (key == 5)) && hpr)
-			sub_item = proto_tree_add_text(tree, tvb, 0, -1, "%s",
+			sub_tree = proto_tree_add_subtree(tree, tvb, 0, -1, ett, NULL,
 			    val_to_str_const(key, sna_control_hpr_vals,
 			    "Unknown Control Vector"));
 		else
-			sub_item = proto_tree_add_text(tree, tvb, 0, -1, "%s",
+			sub_tree = proto_tree_add_subtree(tree, tvb, 0, -1, ett, NULL,
 			    val_to_str_const(key, sna_control_vals,
 			    "Unknown Control Vector"));
-		sub_tree = proto_item_add_subtree(sub_item, ett);
 		if (parse == LT) {
 			proto_tree_add_uint(sub_tree, hf_sna_control_len,
 			    tvb, 0, 1, len);

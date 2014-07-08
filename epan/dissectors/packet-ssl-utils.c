@@ -4890,14 +4890,12 @@ ssl_dissect_hnd_hello_ext_npn(ssl_common_dissect_t *hf, tvbuff_t *tvb,
 {
     guint8      npn_length;
     proto_tree *npn_tree;
-    proto_item *ti;
 
     if (ext_len == 0) {
         return offset;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, ext_len, "Next Protocol Negotiation");
-    npn_tree = proto_item_add_subtree(ti, hf->ett.hs_ext_npn);
+    npn_tree = proto_tree_add_subtree(tree, tvb, offset, ext_len, hf->ett.hs_ext_npn, NULL, "Next Protocol Negotiation");
 
     while (ext_len > 0) {
         npn_length = tvb_get_guint8(tvb, offset);
@@ -4924,14 +4922,12 @@ ssl_dissect_hnd_hello_ext_reneg_info(ssl_common_dissect_t *hf, tvbuff_t *tvb,
 {
     guint8      reneg_info_length;
     proto_tree *reneg_info_tree;
-    proto_item *ti;
 
     if (ext_len == 0) {
         return offset;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, ext_len, "Renegotiation Info extension");
-    reneg_info_tree = proto_item_add_subtree(ti, hf->ett.hs_ext_reneg_info);
+    reneg_info_tree = proto_tree_add_subtree(tree, tvb, offset, ext_len, hf->ett.hs_ext_reneg_info, NULL, "Renegotiation Info extension");
 
     reneg_info_length = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(reneg_info_tree, hf->hf.hs_ext_reneg_info_len,
@@ -4953,15 +4949,13 @@ ssl_dissect_hnd_hello_ext_server_name(ssl_common_dissect_t *hf, tvbuff_t *tvb,
 {
     guint16     server_name_length;
     proto_tree *server_name_tree;
-    proto_item *ti;
 
 
    if (ext_len == 0) {
        return offset;
    }
 
-   ti = proto_tree_add_text(tree, tvb, offset, ext_len, "Server Name Indication extension");
-   server_name_tree = proto_item_add_subtree(ti, hf->ett.hs_ext_server_name);
+   server_name_tree = proto_tree_add_subtree(tree, tvb, offset, ext_len, hf->ett.hs_ext_server_name, NULL, "Server Name Indication extension");
 
    proto_tree_add_item(server_name_tree, hf->hf.hs_ext_server_name_list_len,
                        tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -5292,7 +5286,6 @@ ssl_dissect_hnd_hello_ext(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
     guint16     extension_length;
     guint16     ext_type;
     guint16     ext_len;
-    proto_item *pi;
     proto_tree *ext_tree;
 
     if (left < 2)
@@ -5309,13 +5302,10 @@ ssl_dissect_hnd_hello_ext(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
         ext_type = tvb_get_ntohs(tvb, offset);
         ext_len  = tvb_get_ntohs(tvb, offset + 2);
 
-        pi = proto_tree_add_text(tree, tvb, offset, 4 + ext_len,  "Extension: %s",
-                                 val_to_str(ext_type,
+        ext_tree = proto_tree_add_subtree_format(tree, tvb, offset, 4 + ext_len, hf->ett.hs_ext, NULL,
+                                  "Extension: %s", val_to_str(ext_type,
                                             tls_hello_extension_types,
                                             "Unknown %u"));
-        ext_tree = proto_item_add_subtree(pi, hf->ett.hs_ext);
-        if (!ext_tree)
-            ext_tree = tree;
 
         proto_tree_add_uint(ext_tree, hf->hf.hs_ext_type,
                             tvb, offset, 2, ext_type);
@@ -5399,12 +5389,10 @@ dissect_ssl3_hnd_cli_keyex_ecdh(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                                 guint32 length)
 {
     gint        point_len;
-    proto_item *ti_ecdh;
     proto_tree *ssl_ecdh_tree;
 
-    ti_ecdh = proto_tree_add_text(tree, tvb, offset, length,
-                                  "EC Diffie-Hellman Client Params");
-    ssl_ecdh_tree = proto_item_add_subtree(ti_ecdh, hf->ett.keyex_params);
+    ssl_ecdh_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+                                  hf->ett.keyex_params, NULL, "EC Diffie-Hellman Client Params");
 
     /* point */
     point_len = tvb_get_guint8(tvb, offset);
@@ -5419,12 +5407,10 @@ dissect_ssl3_hnd_cli_keyex_dh(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                               proto_tree *tree, guint32 offset, guint32 length)
 {
     gint        yc_len;
-    proto_item *ti_dh;
     proto_tree *ssl_dh_tree;
 
-    ti_dh = proto_tree_add_text(tree, tvb, offset, length,
-                                "Diffie-Hellman Client Params");
-    ssl_dh_tree = proto_item_add_subtree(ti_dh, hf->ett.keyex_params);
+    ssl_dh_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+                                hf->ett.keyex_params, NULL, "Diffie-Hellman Client Params");
 
     /* ClientDiffieHellmanPublic.dh_public (explicit) */
     yc_len  = tvb_get_ntohs(tvb, offset);
@@ -5440,12 +5426,10 @@ dissect_ssl3_hnd_cli_keyex_rsa(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                                guint32 length, const SslSession *session)
 {
     gint        epms_len;
-    proto_item *ti_rsa;
     proto_tree *ssl_rsa_tree;
 
-    ti_rsa = proto_tree_add_text(tree, tvb, offset, length,
-                                 "RSA Encrypted PreMaster Secret");
-    ssl_rsa_tree = proto_item_add_subtree(ti_rsa, hf->ett.keyex_params);
+    ssl_rsa_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+                                 hf->ett.keyex_params, NULL, "RSA Encrypted PreMaster Secret");
 
     /* EncryptedPreMasterSecret.pre_master_secret */
     switch (session->version) {
@@ -5476,13 +5460,10 @@ dissect_ssl3_hnd_cli_keyex_psk(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                                proto_tree *tree, guint32 offset, guint32 length)
 {
     guint        identity_len;
-    proto_item *ti_psk;
     proto_tree *ssl_psk_tree;
 
-    ti_psk = proto_tree_add_text(tree, tvb, offset, length,
-                                 "PSK Client Params");
-    ssl_psk_tree = proto_item_add_subtree(ti_psk, hf->ett.keyex_params);
-
+    ssl_psk_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+                                 hf->ett.keyex_params, NULL, "PSK Client Params");
     /* identity */
     identity_len = tvb_get_ntohs(tvb, offset);
     proto_tree_add_item(ssl_psk_tree, hf->hf.hs_client_keyex_identity_len, tvb,
@@ -5498,12 +5479,10 @@ dissect_ssl3_hnd_cli_keyex_rsa_psk(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                                    guint32 length)
 {
     gint        identity_len, epms_len;
-    proto_item *ti_psk;
     proto_tree *ssl_psk_tree;
 
-    ti_psk = proto_tree_add_text(tree, tvb, offset, length,
-                                 "RSA PSK Client Params");
-    ssl_psk_tree = proto_item_add_subtree(ti_psk, hf->ett.keyex_params);
+    ssl_psk_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+                                 hf->ett.keyex_params, NULL, "RSA PSK Client Params");
 
     /* identity */
     identity_len = tvb_get_ntohs(tvb, offset);
@@ -5599,12 +5578,10 @@ dissect_ssl3_hnd_srv_keyex_ecdh(ssl_common_dissect_t *hf, tvbuff_t *tvb,
 
     gint        curve_type;
     gint        point_len;
-    proto_item *ti_ecdh;
     proto_tree *ssl_ecdh_tree;
 
-    ti_ecdh = proto_tree_add_text(tree, tvb, offset, length,
-                                  "EC Diffie-Hellman Server Params");
-    ssl_ecdh_tree = proto_item_add_subtree(ti_ecdh, hf->ett.keyex_params);
+    ssl_ecdh_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+                                  hf->ett.keyex_params, NULL, "EC Diffie-Hellman Server Params");
 
     /* ECParameters.curve_type */
     curve_type = tvb_get_guint8(tvb, offset);
@@ -5637,12 +5614,10 @@ dissect_ssl3_hnd_srv_keyex_dhe(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                                const SslSession *session)
 {
     gint        p_len, g_len, ys_len;
-    proto_item *ti_dh;
     proto_tree *ssl_dh_tree;
 
-    ti_dh = proto_tree_add_text(tree, tvb, offset, length,
-                                "Diffie-Hellman Server Params");
-    ssl_dh_tree = proto_item_add_subtree(ti_dh, hf->ett.keyex_params);
+    ssl_dh_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+                                hf->ett.keyex_params, NULL, "Diffie-Hellman Server Params");
 
     /* p */
     p_len = tvb_get_ntohs(tvb, offset);
@@ -5679,12 +5654,10 @@ dissect_ssl3_hnd_srv_keyex_rsa(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                                const SslSession *session)
 {
     gint        modulus_len, exponent_len;
-    proto_item *ti_rsa;
     proto_tree *ssl_rsa_tree;
 
-    ti_rsa = proto_tree_add_text(tree, tvb, offset, length,
-                                 "RSA-EXPORT Server Params");
-    ssl_rsa_tree = proto_item_add_subtree(ti_rsa, hf->ett.keyex_params);
+    ssl_rsa_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+                                 hf->ett.keyex_params, NULL, "RSA-EXPORT Server Params");
 
     /* modulus */
     modulus_len = tvb_get_ntohs(tvb, offset);
@@ -5712,7 +5685,6 @@ dissect_ssl3_hnd_srv_keyex_psk(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                                proto_tree *tree, guint32 offset, guint32 length)
 {
     guint        hint_len;
-    proto_item *ti_psk;
     proto_tree *ssl_psk_tree;
 
     hint_len = tvb_get_ntohs(tvb, offset);
@@ -5721,9 +5693,8 @@ dissect_ssl3_hnd_srv_keyex_psk(ssl_common_dissect_t *hf, tvbuff_t *tvb,
         return;
     }
 
-    ti_psk = proto_tree_add_text(tree, tvb, offset, length,
-                                 "PSK Server Params");
-    ssl_psk_tree = proto_item_add_subtree(ti_psk, hf->ett.keyex_params);
+    ssl_psk_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+                                 hf->ett.keyex_params, NULL, "PSK Server Params");
 
     /* hint */
     proto_tree_add_item(ssl_psk_tree, hf->hf.hs_server_keyex_hint_len, tvb,

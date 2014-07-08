@@ -143,12 +143,12 @@ dissect_sita(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_uint(sita_tree, hf_proto, tvb, 0, 0, proto);
 
         flags_string = format_flags_string(flags, flags_str);
-        ti = proto_tree_add_text(sita_tree, tvb, 0, 0, "Flags: 0x%02x (From %s)%s%s",
+        sita_flags_tree = proto_tree_add_subtree_format(sita_tree, tvb, 0, 0,
+                ett_sita_flags, NULL, "Flags: 0x%02x (From %s)%s%s",
                 flags,
                 ((flags & SITA_FRAME_DIR) == SITA_FRAME_DIR_TXED) ? IOP : REMOTE,
                 strlen(flags_string) ? ", " : "",
                 flags_string);
-        sita_flags_tree = proto_item_add_subtree(ti, ett_sita_flags);
         proto_tree_add_boolean(sita_flags_tree, hf_droppedframe,    tvb, 0, 0, flags);
         proto_tree_add_boolean(sita_flags_tree, hf_dir,             tvb, 0, 0, flags);
 

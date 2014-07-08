@@ -2676,10 +2676,10 @@ dissect_scsi_evpd(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     if (tree) {
         pcode = tvb_get_guint8(tvb, offset+1);
         plen = tvb_get_guint8(tvb, offset+3);
-        ti = proto_tree_add_text(tree, tvb, offset, plen+4, "Page Code: %s",
+        evpd_tree = proto_tree_add_subtree_format(tree, tvb, offset, plen+4,
+                                 ett_scsi_page, NULL, "Page Code: %s",
                                  val_to_str(pcode, scsi_evpd_pagecode_val,
                                             "Unknown (0x%08x)"));
-        evpd_tree = proto_item_add_subtree(ti, ett_scsi_page);
 
         proto_tree_add_item(evpd_tree, hf_scsi_inq_qualifier, tvb, offset,
                             1, ENC_BIG_ENDIAN);
@@ -2848,13 +2848,11 @@ dissect_scsi_cmddt(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                    guint offset, guint tot_len _U_)
 {
     proto_tree *cmdt_tree;
-    proto_item *ti;
     guint       plen;
 
     if (tree) {
         plen = tvb_get_guint8(tvb, offset+5);
-        ti = proto_tree_add_text(tree, tvb, offset, plen, "Command Data");
-        cmdt_tree = proto_item_add_subtree(ti, ett_scsi_page);
+        cmdt_tree = proto_tree_add_subtree_format(tree, tvb, offset, plen, ett_scsi_page, NULL, "Command Data");
 
         proto_tree_add_item(cmdt_tree, hf_scsi_inq_qualifier, tvb, offset,
                             1, ENC_BIG_ENDIAN);
@@ -3317,7 +3315,6 @@ dissect_spc_extcopy(tvbuff_t *tvb, packet_info *pinfo _U_,
         guint16 cscd_desc_list_len, seg_desc_len;
         guint32 /*param_list_len,*/ seg_desc_list_len, inline_data_len, i;
         proto_tree *cscds_tree = NULL, *dev_tree = NULL, *cscd_tree = NULL, *segs_tree = NULL, *seg_tree = NULL, *seg_param_tree = NULL;
-        proto_item *ti;
 
         if (isreq && iscdb) {
                proto_tree_add_item(tree, hf_scsi_spc_xcopy_service, tvb, offset, 1, ENC_NA);
@@ -3363,18 +3360,17 @@ dissect_spc_extcopy(tvbuff_t *tvb, packet_info *pinfo _U_,
                         inline_data_len = tvb_get_ntohl(tvb, offset);
                         offset += 4;
                         if (cscd_desc_list_len > 0) {
-                                ti = proto_tree_add_text(tree, tvb, offset, cscd_desc_list_len, "CSCD (Copy Source and Copy Destination) descriptors (%u bytes)", cscd_desc_list_len);
-                                cscds_tree = proto_item_add_subtree(ti, ett_scsi_xcopy_cscds);
+                                cscds_tree = proto_tree_add_subtree_format(tree, tvb, offset, cscd_desc_list_len, ett_scsi_xcopy_cscds, NULL,
+                                                        "CSCD (Copy Source and Copy Destination) descriptors (%u bytes)", cscd_desc_list_len);
                                 i = 1;
                                 while(cscd_desc_list_len > 0) {
                                         cscd_desc_type = tvb_get_guint8(tvb, offset);
                                         if (cscd_desc_type == 0xEA || cscd_desc_type == 0xEB) { /* both types occupy 64 bytes overall, everything else is 32 bytes */
-                                                ti = proto_tree_add_text(cscds_tree, tvb, offset, 64, "CSCD descriptor #%u", i);
+                                                cscd_tree = proto_tree_add_subtree_format(cscds_tree, tvb, offset, 64, ett_scsi_xcopy_cscd, NULL, "CSCD descriptor #%u", i);
                                         } else {
-                                                ti = proto_tree_add_text(cscds_tree, tvb, offset, 32, "CSCD descriptor #%u", i);
+                                                cscd_tree = proto_tree_add_subtree_format(cscds_tree, tvb, offset, 32, ett_scsi_xcopy_cscd, NULL, "CSCD descriptor #%u", i);
                                         }
                                         i++;
-                                        cscd_tree = proto_item_add_subtree(ti, ett_scsi_xcopy_cscd);
                                         proto_tree_add_item(cscd_tree, hf_scsi_spc_xcopy_cscd_desc_type_code, tvb, offset, 1, ENC_NA);
                                         offset += 1;
                                         proto_tree_add_bitmask(cscd_tree, tvb, offset, hf_scsi_spc_xcopy_per_dev_type_byte, ett_xcopy_per_dev_type,  per_dev_type_bitmask_fields, ENC_NA);
@@ -3400,8 +3396,7 @@ dissect_spc_extcopy(tvbuff_t *tvb, packet_info *pinfo _U_,
                                                 proto_tree_add_text(cscd_tree, tvb, offset, des_len, "WWN: %s", tvb_fcwwn_to_str(tvb, offset));
                                         }
                                         offset += 20;
-                                        ti = proto_tree_add_text(cscd_tree, tvb, offset, 4, "Device type specific parameters");
-                                        dev_tree = proto_item_add_subtree(ti, ett_scsi_xcopy_dev_params);
+                                        dev_tree = proto_tree_add_subtree(cscd_tree, tvb, offset, 4, ett_scsi_xcopy_dev_params, NULL, "Device type specific parameters");
                                         if (dev_type == BLOCK_DEV_0 || dev_type == BLOCK_DEV_4 || dev_type == BLOCK_DEV_5 || dev_type == BLOCK_DEV_7 || dev_type == BLOCK_DEV_E) {
                                                 proto_tree_add_text(dev_tree, tvb, offset, 1, "Reserved|PAD|Reserved");
                                                 offset += 1; /*TODO: dissect this byte */
@@ -3418,14 +3413,14 @@ dissect_spc_extcopy(tvbuff_t *tvb, packet_info *pinfo _U_,
                                 }
                         }
                         if (seg_desc_list_len > 0) {
-                                ti = proto_tree_add_text(tree, tvb, offset, seg_desc_list_len, "Segment descriptor list (%u bytes)", seg_desc_list_len);
-                                segs_tree = proto_item_add_subtree(ti, ett_scsi_xcopy_segs);
+                                segs_tree = proto_tree_add_subtree_format(tree, tvb, offset, seg_desc_list_len,
+                                        ett_scsi_xcopy_segs, NULL, "Segment descriptor list (%u bytes)", seg_desc_list_len);
                                 i = 1;
                                 while(seg_desc_list_len > 0) {
                                         seg_desc_len = tvb_get_ntohs(tvb, offset + 2);
-                                        ti = proto_tree_add_text(segs_tree, tvb, offset, seg_desc_len + 4, "Segment descriptor #%u", i);
+                                        seg_tree = proto_tree_add_subtree_format(segs_tree, tvb, offset, seg_desc_len + 4,
+                                                            ett_scsi_xcopy_seg, NULL, "Segment descriptor #%u", i);
                                         i++;
-                                        seg_tree  = proto_item_add_subtree(ti, ett_scsi_xcopy_seg);
                                         proto_tree_add_item(seg_tree, hf_scsi_spc_xcopy_seg_desc_type, tvb, offset, 1, ENC_NA);
                                         seg_type = tvb_get_guint8(tvb, offset);
                                         offset += 1;
@@ -3438,8 +3433,8 @@ dissect_spc_extcopy(tvbuff_t *tvb, packet_info *pinfo _U_,
                                         offset += 2;
                                         proto_tree_add_item(seg_tree, hf_scsi_spc_xcopy_seg_des_dest_desc_id, tvb, offset, 2, ENC_NA);
                                         offset += 2;
-                                        ti = proto_tree_add_text(seg_tree, tvb, offset, seg_desc_len - 4, "Segment descriptor parameters");
-                                        seg_param_tree = proto_item_add_subtree(ti, ett_scsi_xcopy_seg_param);
+                                        seg_param_tree = proto_tree_add_subtree(seg_tree, tvb, offset, seg_desc_len - 4,
+                                                            ett_scsi_xcopy_seg_param, NULL, "Segment descriptor parameters");
                                         seg_desc_list_len -= (seg_desc_len + 4);
                                         if (seg_type == BLOCK_TO_BLOCK) {
                                                 proto_tree_add_item(seg_param_tree, hf_scsi_reserved_16, tvb, offset, 2, ENC_NA);
@@ -3575,18 +3570,15 @@ dissect_scsi_log_page(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     };
     guint16 pagelen, pagecode;
     guint8 paramlen;
-    proto_tree *log_tree = NULL;
-    proto_item *ti = NULL;
+    proto_tree *log_tree;
+    proto_item *ti;
     guint old_offset = offset;
     const log_pages_t *log_page;
 
     pagecode = tvb_get_guint8(tvb, offset) & 0x3f;
 
-    if (tree) {
-        ti = proto_tree_add_text(tree, tvb, offset, -1,
-                                 "Log Page: %s", val_to_str(pagecode, scsi_log_page_val, "Unknown (0x%04x)"));
-        log_tree = proto_item_add_subtree(ti, ett_scsi_log);
-    }
+    log_tree = proto_tree_add_subtree_format(tree, tvb, offset, -1, ett_scsi_log, &ti,
+                                "Log Page: %s", val_to_str(pagecode, scsi_log_page_val, "Unknown (0x%04x)"));
 
     /* page code */
     proto_tree_add_bitmask(log_tree, tvb, offset, hf_scsi_log_pc_flags, ett_scsi_log_pc, pcflags_fields, ENC_BIG_ENDIAN);
@@ -4287,7 +4279,6 @@ dissect_scsi_modepage(tvbuff_t *tvb, packet_info *pinfo,
     guint16             plen;
     guint8              pcode, spf, subpcode = 0;
     proto_tree         *tree;
-    proto_item         *ti;
     const value_string *modepage_val;
     int                 hf_pagecode;
     gboolean (*dissect_modepage)(tvbuff_t *, packet_info *, proto_tree *,
@@ -4351,11 +4342,10 @@ dissect_scsi_modepage(tvbuff_t *tvb, packet_info *pinfo,
         dissect_modepage = dissect_scsi_spc_modepage;
     }
 
-    ti = proto_tree_add_text(scsi_tree, tvb, offset, plen + (spf ? 4 : 2),
-                             "%s Mode Page",
+    tree = proto_tree_add_subtree_format(scsi_tree, tvb, offset, plen + (spf ? 4 : 2),
+                             ett_scsi_page, NULL, "%s Mode Page",
                              val_to_str(pcode & SCSI_MS_PCODE_BITS,
                                         modepage_val, "Unknown (0x%08x)"));
-    tree = proto_item_add_subtree(ti, ett_scsi_page);
     proto_tree_add_item(tree, hf_scsi_modepage_ps, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_scsi_modepage_spf, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_pagecode, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -4979,8 +4969,8 @@ dissect_spc_reportdeviceidentifier(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 
 void
 dissect_scsi_lun(proto_tree *tree, tvbuff_t *tvb, guint offset) {
-    proto_item *ti = proto_tree_add_text(tree, tvb, offset, 8, "LUN: ");
-    proto_tree *tt = proto_item_add_subtree(ti, ett_scsi_lun);
+    proto_item *ti;
+    proto_tree *tt = proto_tree_add_subtree(tree, tvb, offset, 8, ett_scsi_lun, &ti, "LUN: ");
     guint8 address_mode;
     guint16 lun = 0;
 
@@ -5142,11 +5132,8 @@ dissect_spc_mgmt_protocol_in(tvbuff_t *tvb_a, packet_info *pinfo _U_,
                     if (ctdp) {
                         proto_tree *tr;
 
-                        it = proto_tree_add_text(tree, try_tvb, try_offset,
-                                12, "Timeout Descriptor");
-
-                        tr = proto_item_add_subtree(it,
-                                ett_timeout_descriptor);
+                        tr = proto_tree_add_subtree(tree, try_tvb, try_offset,
+                                12, ett_timeout_descriptor, NULL, "Timeout Descriptor");
 
                         proto_tree_add_item(tr, hf_scsi_report_opcodes_tdl,
                                 try_tvb, try_offset, 2, ENC_BIG_ENDIAN);
@@ -5167,11 +5154,9 @@ dissect_spc_mgmt_protocol_in(tvbuff_t *tvb_a, packet_info *pinfo _U_,
                     while (length >= 20) {
                         proto_tree *tr;
 
-                        it = proto_tree_add_text(tree, try_tvb, try_offset,
-                                20, "Command Descriptor: %s",
+                        tr = proto_tree_add_subtree_format(tree, try_tvb, try_offset,
+                                20, ett_command_descriptor, NULL, "Command Descriptor: %s",
                                 val_to_str_ext_const(tvb_get_guint8(try_tvb, try_offset+0), csdata->cdb_vals_ext, "Unknown"));
-                        tr = proto_item_add_subtree(it,
-                                ett_command_descriptor);
 
                         proto_tree_add_item(tr, csdata->hf_opcode,
                                 try_tvb, try_offset+0, 1, ENC_BIG_ENDIAN);
@@ -5196,11 +5181,8 @@ dissect_spc_mgmt_protocol_in(tvbuff_t *tvb_a, packet_info *pinfo _U_,
                             continue;
                         }
 
-                        it = proto_tree_add_text(tree, try_tvb, try_offset,
-                                12, "Timeout Descriptor");
-
-                        tr = proto_item_add_subtree(it,
-                                ett_timeout_descriptor);
+                        tr = proto_tree_add_subtree(tree, try_tvb, try_offset,
+                                12, ett_timeout_descriptor, NULL, "Timeout Descriptor");
 
                         proto_tree_add_item(tr, hf_scsi_report_opcodes_tdl,
                                 try_tvb, try_offset, 2, ENC_BIG_ENDIAN);
@@ -5285,9 +5267,8 @@ dissect_scsi_descriptor_snsinfo(tvbuff_t *tvb, proto_tree *sns_tree, guint offse
        desc_type   = tvb_get_guint8(tvb, offset);
        desc_length = tvb_get_guint8(tvb, offset+1);
        desc_end    = offset+desc_length+2;
-       item = proto_tree_add_text(sns_tree, tvb, offset, desc_length+2, "%s",
+       desc_tree = proto_tree_add_subtree(sns_tree, tvb, offset, desc_length+2, ett_sense_descriptor, NULL,
                   val_to_str(desc_type, scsi_sense_desc_type_val, "Unknown (0x%02x)"));
-       desc_tree = proto_item_add_subtree(item, ett_sense_descriptor);
        proto_tree_add_item(desc_tree, hf_scsi_sns_desc_type, tvb, offset, 1, ENC_BIG_ENDIAN);
        proto_tree_add_item(desc_tree, hf_scsi_sns_desc_length, tvb, offset+1, 1, ENC_BIG_ENDIAN);
        switch (desc_type) {

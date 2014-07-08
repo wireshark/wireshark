@@ -690,11 +690,10 @@ static dissector_handle_t jpeg_handle;
 static guint32
 dissect_SpiceHead(tvbuff_t *tvb, proto_tree *tree, guint32 offset, const guint16 num)
 {
-    proto_item *ti;
     proto_tree *SpiceHead_tree;
 
-    ti = proto_tree_add_text(tree, tvb, offset, sizeof_SpiceHead, "Display Head #%u", num);
-    SpiceHead_tree = proto_item_add_subtree(ti, ett_SpiceHead);
+    SpiceHead_tree = proto_tree_add_subtree_format(tree, tvb, offset, sizeof_SpiceHead,
+                                    ett_SpiceHead, NULL, "Display Head #%u", num);
     proto_tree_add_item(SpiceHead_tree, hf_display_head_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
     proto_tree_add_item(SpiceHead_tree, hf_display_head_surface_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -717,11 +716,10 @@ dissect_SpiceHead(tvbuff_t *tvb, proto_tree *tree, guint32 offset, const guint16
 static guint32
 dissect_AgentMonitorConfig(tvbuff_t *tvb, proto_tree *tree, guint32 offset, const guint16 num)
 {
-    proto_item *ti;
     proto_tree *subtree;
 
-    ti = proto_tree_add_text(tree, tvb, offset, sizeof_AgentMonitorConfig, "Monitor Config #%u", num);
-    subtree = proto_item_add_subtree(ti, ett_SpiceHead);
+    subtree = proto_tree_add_subtree_format(tree, tvb, offset, sizeof_AgentMonitorConfig,
+                            ett_SpiceHead, NULL, "Monitor Config #%u", num);
     proto_tree_add_item(subtree, hf_agent_monitor_height, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
     proto_tree_add_item(subtree, hf_agent_monitor_width, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -745,8 +743,7 @@ dissect_Pixmap(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
     guint32     PixmapSize;
     guint32     strides, height, pallete_ptr;
 
-    ti = proto_tree_add_text(tree, tvb, offset, 0, "Pixmap"); /* size is fixed later */
-    Pixmap_tree = proto_item_add_subtree(ti, ett_Pixmap);
+    Pixmap_tree = proto_tree_add_subtree(tree, tvb, offset, 0, ett_Pixmap, &ti, "Pixmap"); /* size is fixed later */
     proto_tree_add_item(Pixmap_tree, hf_pixmap_format, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
     proto_tree_add_item(Pixmap_tree, hf_pixmap_flags, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -783,11 +780,9 @@ dissect_CursorHeader(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint16 *w
     *height = tvb_get_letohs(tvb, offset + 8 + 1 + 2);
 
     if (tree) {
-        proto_item *ti;
         proto_tree *CursorHeader_tree;
 
-        ti = proto_tree_add_text(tree, tvb, offset, sizeof_CursorHeader, "Cursor Header");
-        CursorHeader_tree = proto_item_add_subtree(ti, ett_cursor_header);
+        CursorHeader_tree = proto_tree_add_subtree(tree, tvb, offset, sizeof_CursorHeader, ett_cursor_header, NULL, "Cursor Header");
         proto_tree_add_item(CursorHeader_tree, hf_cursor_unique,    tvb, offset, 8, ENC_LITTLE_ENDIAN);
         offset += 8;
         proto_tree_add_item(CursorHeader_tree, hf_cursor_type,      tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -808,7 +803,7 @@ dissect_CursorHeader(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint16 *w
 static guint32
 dissect_RedCursor(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
 {
-    proto_item    *ti;
+    proto_item *ti;
     proto_tree    *RedCursor_tree;
     guint8         type;
     guint16        height, width;
@@ -816,8 +811,7 @@ dissect_RedCursor(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
     const guint16  flags       = tvb_get_letohs(tvb, offset);
     guint32        data_size   = 0;
 
-    ti = proto_tree_add_text(tree, tvb, offset, 2, "RedCursor"); /* FIXME - fix size if flag is not NONE */
-    RedCursor_tree = proto_item_add_subtree(ti, ett_RedCursor);
+    RedCursor_tree = proto_tree_add_subtree(tree, tvb, offset, 2, ett_RedCursor, &ti, "RedCursor"); /* FIXME - fix size if flag is not NONE */
 
     proto_tree_add_item(RedCursor_tree, hf_cursor_flags, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     if (flags == SPICE_CURSOR_FLAGS_NONE) {
@@ -871,11 +865,9 @@ dissect_ImageDescriptor(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
     const guint8  type = tvb_get_guint8(tvb, offset + 8);
 
     if (tree) {
-        proto_item *ti;
         proto_tree *ImageDescriptor_tree;
 
-        ti = proto_tree_add_text(tree, tvb, offset, sizeof_ImageDescriptor, "Image Descriptor");
-        ImageDescriptor_tree = proto_item_add_subtree(ti, ett_imagedesc);
+        ImageDescriptor_tree = proto_tree_add_subtree(tree, tvb, offset, sizeof_ImageDescriptor, ett_imagedesc, NULL, "Image Descriptor");
 
         proto_tree_add_item(ImageDescriptor_tree, hf_image_desc_id,     tvb, offset, 8, ENC_LITTLE_ENDIAN);
         offset += 8;
@@ -897,11 +889,9 @@ dissect_ImageQuic(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
     const guint32  QuicSize = tvb_get_letohl(tvb, offset);
 
     if (tree) {
-        proto_item *ti;
         proto_tree *ImageQuic_tree;
 
-        ti = proto_tree_add_text(tree, tvb, offset, QuicSize + 4, "QUIC Image");
-        ImageQuic_tree = proto_item_add_subtree(ti, ett_imageQuic);
+        ImageQuic_tree = proto_tree_add_subtree(tree, tvb, offset, QuicSize + 4, ett_imageQuic, NULL, "QUIC Image");
 
         proto_tree_add_text(ImageQuic_tree, tvb, offset, 4, "QUIC image size: %u bytes", QuicSize);
         offset += 4;
@@ -997,12 +987,10 @@ dissect_ImageLZ_common(tvbuff_t *tvb, proto_tree *tree, guint32 offset, const gb
 static guint32
 dissect_ImageLZ_JPEG(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
 {
-    proto_item    *ti;
     proto_tree    *LZ_JPEG_tree;
     const guint32  LZ_JPEGSize = tvb_get_letohl(tvb, offset);
 
-    ti = proto_tree_add_text(tree, tvb, offset, LZ_JPEGSize + 4, "LZ_JPEG Image");
-    LZ_JPEG_tree = proto_item_add_subtree(ti, ett_LZ_JPEG);
+    LZ_JPEG_tree = proto_tree_add_subtree(tree, tvb, offset, LZ_JPEGSize + 4, ett_LZ_JPEG, NULL, "LZ_JPEG Image");
     proto_tree_add_text(LZ_JPEG_tree, tvb, offset, 4, "LZ JPEG image size: %u bytes", LZ_JPEGSize);
     offset += 4;
     offset += dissect_ImageLZ_common_header(tvb, LZ_JPEG_tree, offset);
@@ -1014,20 +1002,17 @@ dissect_ImageLZ_JPEG(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
 static guint32
 dissect_ImageGLZ_RGB(tvbuff_t *tvb, proto_tree *tree, guint32 offset, const guint32 size)
 {
-    proto_item *ti = NULL;
     proto_tree *GLZ_RGB_tree;
     guint32     GLZ_RGBSize;
 
     if (size == 0) { /* if no size was passed to us, need to fetch it. Otherwise, we already have it from the callee */
         GLZ_RGBSize = tvb_get_letohl(tvb, offset);
-        ti = proto_tree_add_text(tree, tvb, offset, GLZ_RGBSize + 4, "GLZ_RGB Image");
-        GLZ_RGB_tree = proto_item_add_subtree(ti, ett_GLZ_RGB);
+        GLZ_RGB_tree = proto_tree_add_subtree(tree, tvb, offset, GLZ_RGBSize + 4, ett_GLZ_RGB, NULL, "GLZ_RGB Image");
         proto_tree_add_text(GLZ_RGB_tree, tvb, offset, 4, "GLZ RGB image size: %u bytes", GLZ_RGBSize);
         offset += 4;
     } else {
         GLZ_RGBSize = size;
-        ti = proto_tree_add_text(tree, tvb, offset, GLZ_RGBSize, "GLZ_RGB Image");
-        GLZ_RGB_tree = proto_item_add_subtree(ti, ett_GLZ_RGB);
+        GLZ_RGB_tree = proto_tree_add_subtree(tree, tvb, offset, GLZ_RGBSize, ett_GLZ_RGB, NULL, "GLZ_RGB Image");
     }
 
     dissect_ImageLZ_common(tvb, GLZ_RGB_tree, offset, FALSE, GLZ_RGBSize);
@@ -1038,12 +1023,10 @@ dissect_ImageGLZ_RGB(tvbuff_t *tvb, proto_tree *tree, guint32 offset, const guin
 static guint32
 dissect_ImageLZ_RGB(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
 {
-    proto_item    *ti;
     proto_tree    *LZ_RGB_tree;
     const guint32  LZ_RGBSize = tvb_get_letohl(tvb, offset);
 
-    ti = proto_tree_add_text(tree, tvb, offset, LZ_RGBSize + 4, "LZ_RGB Image");
-    LZ_RGB_tree = proto_item_add_subtree(ti, ett_LZ_RGB);
+    LZ_RGB_tree = proto_tree_add_subtree(tree, tvb, offset, LZ_RGBSize + 4, ett_LZ_RGB, NULL, "LZ_RGB Image");
     proto_tree_add_text(LZ_RGB_tree, tvb, offset, 4, "LZ RGB image size: %u bytes", LZ_RGBSize);
     offset += 4;
 
@@ -1055,15 +1038,13 @@ dissect_ImageLZ_RGB(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
 static guint32
 dissect_ImageLZ_PLT(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
 {
-    proto_item *ti;
     proto_tree *LZ_PLT_tree;
     guint32     LZ_PLTSize, pal_size;
 
     const guint32 current_offset = offset;
 
     LZ_PLTSize = tvb_get_letohl(tvb, offset + 1); /* for some reason, it reports two extra bytes */
-    ti = proto_tree_add_text(tree, tvb, offset, (LZ_PLTSize - 2)+ 1 + 4 + 4 + 8 + 4 + 4 + 4 + 4 + 4, "LZ_PLT Image");
-    LZ_PLT_tree = proto_item_add_subtree(ti, ett_LZ_PLT);
+    LZ_PLT_tree = proto_tree_add_subtree(tree, tvb, offset, (LZ_PLTSize - 2)+ 1 + 4 + 4 + 8 + 4 + 4 + 4 + 4 + 4, ett_LZ_PLT, NULL, "LZ_PLT Image");
 
     proto_tree_add_text(LZ_PLT_tree, tvb, offset, 1, "LZ_PLT Flag"); /* TODO: dissect */
     offset += 1;
@@ -1101,7 +1082,6 @@ dissect_ImageLZ_PLT(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
 static guint32
 dissect_ImageJPEG_Alpha(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset)
 {
-    proto_item *ti;
     proto_tree *JPEG_tree;
     tvbuff_t   *jpeg_tvb;
     guint32     JPEG_Size, Data_Size;
@@ -1115,8 +1095,8 @@ dissect_ImageJPEG_Alpha(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
     Data_Size = tvb_get_letohl(tvb, offset);
     offset += 4;
 
-    ti = proto_tree_add_text(tree, tvb, offset - 9, Data_Size + 9, "RGB JPEG Image, Alpha channel (%u bytes)", Data_Size);
-    JPEG_tree = proto_item_add_subtree(ti, ett_JPEG);
+    JPEG_tree = proto_tree_add_subtree_format(tree, tvb, offset - 9, Data_Size + 9,
+            ett_JPEG, NULL, "RGB JPEG Image, Alpha channel (%u bytes)", Data_Size);
 
     jpeg_tvb = tvb_new_subset_length(tvb, offset, JPEG_Size);
     call_dissector(jpeg_handle, jpeg_tvb, pinfo, JPEG_tree);
@@ -1130,13 +1110,11 @@ dissect_ImageJPEG_Alpha(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 static guint32
 dissect_ImageJPEG(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, const guint32 offset)
 {
-    proto_item *ti = NULL;
     proto_tree *JPEG_tree;
     tvbuff_t   *jpeg_tvb;
 
     const guint32 JPEG_Size = tvb_get_letohl(tvb, offset);
-    ti = proto_tree_add_text(tree, tvb, offset, JPEG_Size + 4, "JPEG Image (%u bytes)", JPEG_Size);
-    JPEG_tree = proto_item_add_subtree(ti, ett_JPEG);
+    JPEG_tree = proto_tree_add_subtree_format(tree, tvb, offset, JPEG_Size + 4, ett_JPEG, NULL, "JPEG Image (%u bytes)", JPEG_Size);
 
     jpeg_tvb = tvb_new_subset_length(tvb, offset + 4, JPEG_Size);
     call_dissector(jpeg_handle, jpeg_tvb, pinfo, JPEG_tree);
@@ -1153,11 +1131,10 @@ dissect_ImageZLIB_GLZ_stream(tvbuff_t *tvb, proto_tree *ZLIB_GLZ_tree, packet_in
     proto_tree *Uncomp_tree;
     tvbuff_t   *uncompressed_tvb;
 
-    ti = proto_tree_add_text(ZLIB_GLZ_tree, tvb, offset, ZLIB_GLZSize, "ZLIB stream (%u bytes)", ZLIB_GLZSize);
+    Uncomp_tree = proto_tree_add_subtree_format(ZLIB_GLZ_tree, tvb, offset, ZLIB_GLZSize, ett_Uncomp_tree, &ti, "ZLIB stream (%u bytes)", ZLIB_GLZSize);
     uncompressed_tvb = tvb_child_uncompress(tvb, tvb, offset, ZLIB_GLZSize);
     if (uncompressed_tvb != NULL) {
         add_new_data_source(pinfo, uncompressed_tvb, "Uncompressed GLZ stream");
-        Uncomp_tree = proto_item_add_subtree(ti, ett_Uncomp_tree);
         dissect_ImageGLZ_RGB(uncompressed_tvb, Uncomp_tree, 0, ZLIB_uncompSize);
     } else {
         expert_add_info(pinfo, ti, &ei_spice_decompress_error);
@@ -1175,15 +1152,14 @@ dissect_ImageZLIB_GLZ_stream(tvbuff_t *tvb, proto_tree *ZLIB_GLZ_tree, packet_in
 static guint32
 dissect_ImageZLIB_GLZ(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset)
 {
-    proto_item *ti = NULL;
+    proto_item *ti;
     proto_tree *ZLIB_GLZ_tree;
     guint32     ZLIB_GLZSize, ZLIB_uncompSize;
 
     ZLIB_uncompSize = tvb_get_letohl(tvb, offset);
     ZLIB_GLZSize    = tvb_get_letohl(tvb, offset + 4); /* compressed size */
     if (tree) {
-        ti = proto_tree_add_text(tree, tvb, offset, ZLIB_GLZSize + 8, "ZLIB over GLZ Image");
-        ZLIB_GLZ_tree = proto_item_add_subtree(ti, ett_ZLIB_GLZ);
+        ZLIB_GLZ_tree = proto_tree_add_subtree(tree, tvb, offset, ZLIB_GLZSize + 8, ett_ZLIB_GLZ, NULL, "ZLIB over GLZ Image");
 
         ti = proto_tree_add_item(ZLIB_GLZ_tree, hf_zlib_uncompress_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
         proto_item_append_text(ti, " bytes");
@@ -1251,7 +1227,6 @@ dissect_Image(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offse
 static SpiceRect
 dissect_SpiceRect(tvbuff_t *tvb, proto_tree *tree, const guint32 offset, const gint32 id)
 {
-    proto_item *ti = NULL;
     proto_tree *rect_tree;
     SpiceRect   rect;
 
@@ -1262,13 +1237,12 @@ dissect_SpiceRect(tvbuff_t *tvb, proto_tree *tree, const guint32 offset, const g
 
     if (tree) {
         if (id != -1) {
-            ti = proto_tree_add_text(tree, tvb, offset, sizeof_SpiceRect,
+            rect_tree = proto_tree_add_subtree_format(tree, tvb, offset, sizeof_SpiceRect, ett_rect, NULL,
                                      "RECT %u: (%u-%u, %u-%u)", id, rect.left, rect.top, rect.right, rect.bottom);
         } else { /* single rectangle */
-            ti = proto_tree_add_text(tree, tvb, offset, sizeof_SpiceRect,
+            rect_tree = proto_tree_add_subtree_format(tree, tvb, offset, sizeof_SpiceRect, ett_rect, NULL,
                                      "RECT: (%u-%u, %u-%u)", rect.left, rect.top, rect.right, rect.bottom);
         }
-        rect_tree = proto_item_add_subtree(ti, ett_rect);
 
         proto_tree_add_item(rect_tree, hf_rect_left, tvb, offset, 4, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(rect_tree, hf_rect_top, tvb, offset + 4, 4, ENC_LITTLE_ENDIAN);
@@ -1288,15 +1262,13 @@ rect_is_empty(const SpiceRect r)
 static guint32
 dissect_RectList(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
 {
-    proto_item    *ti            = NULL;
     proto_tree    *rectlist_tree;
     guint32        i;
     const guint32  rectlist_size = tvb_get_letohl(tvb, offset);
 
     if (tree) {
-        ti = proto_tree_add_text(tree, tvb, offset, 4 + (rectlist_size * sizeof_SpiceRect),
-                                 "RectList (%d rects)", rectlist_size);
-        rectlist_tree = proto_item_add_subtree(ti, ett_rectlist);
+        rectlist_tree = proto_tree_add_subtree_format(tree, tvb, offset, 4 + (rectlist_size * sizeof_SpiceRect),
+                                 ett_rectlist, NULL, "RectList (%d rects)", rectlist_size);
 
         proto_tree_add_item(rectlist_tree, hf_rectlist_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
         offset += 4;
@@ -1313,13 +1285,11 @@ dissect_RectList(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
 static guint8
 dissect_Clip(tvbuff_t *tvb, proto_tree *tree, const guint32 offset)
 {
-    proto_item   *ti   = NULL;
     proto_tree   *Clip_tree;
     const guint8  type = tvb_get_guint8(tvb, offset);
 
     if (tree) {
-        ti = proto_tree_add_text(tree, tvb, offset, 1, "SpiceClip");
-        Clip_tree = proto_item_add_subtree(ti, ett_Clip);
+        Clip_tree = proto_tree_add_subtree(tree, tvb, offset, 1, ett_Clip, NULL, "SpiceClip");
         proto_tree_add_item(Clip_tree, hf_Clip_type, tvb, offset, sizeof_Clip, ENC_LITTLE_ENDIAN);
     }
 
@@ -1329,7 +1299,6 @@ dissect_Clip(tvbuff_t *tvb, proto_tree *tree, const guint32 offset)
 static point32_t
 dissect_POINT32(tvbuff_t *tvb, proto_tree *tree, const guint32 offset)
 {
-    proto_item *ti = NULL;
     proto_tree *point_tree;
     point32_t   point;
 
@@ -1337,8 +1306,7 @@ dissect_POINT32(tvbuff_t *tvb, proto_tree *tree, const guint32 offset)
     point.y = tvb_get_letohl(tvb, offset + 4);
 
     if (tree) {
-        ti = proto_tree_add_text(tree, tvb, offset, sizeof(point32_t), "POINT (%u, %u)", point.x, point.y);
-        point_tree = proto_item_add_subtree(ti, ett_point);
+        point_tree = proto_tree_add_subtree_format(tree, tvb, offset, sizeof(point32_t), ett_point, NULL, "POINT (%u, %u)", point.x, point.y);
 
         proto_tree_add_item(point_tree, hf_point32_x, tvb, offset, 4, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(point_tree, hf_point32_y, tvb, offset + 4, 4, ENC_LITTLE_ENDIAN);
@@ -1350,7 +1318,6 @@ dissect_POINT32(tvbuff_t *tvb, proto_tree *tree, const guint32 offset)
 static point16_t
 dissect_POINT16(tvbuff_t *tvb, proto_tree *tree, const guint32 offset)
 {
-    proto_item *ti = NULL;
     proto_tree *point16_tree;
     point16_t   point16;
 
@@ -1358,8 +1325,7 @@ dissect_POINT16(tvbuff_t *tvb, proto_tree *tree, const guint32 offset)
     point16.y = tvb_get_letohs(tvb, offset + 2);
 
     if (tree) {
-        ti = proto_tree_add_text(tree, tvb, offset, sizeof(point16_t), "POINT16 (%u, %u)", point16.x, point16.y);
-        point16_tree = proto_item_add_subtree(ti, ett_point16);
+        point16_tree = proto_tree_add_subtree_format(tree, tvb, offset, sizeof(point16_t), ett_point16, NULL, "POINT16 (%u, %u)", point16.x, point16.y);
 
         proto_tree_add_item(point16_tree, hf_point16_x, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(point16_tree, hf_point16_y, tvb, offset + 2, 2, ENC_LITTLE_ENDIAN);
@@ -1371,12 +1337,11 @@ dissect_POINT16(tvbuff_t *tvb, proto_tree *tree, const guint32 offset)
 static guint32
 dissect_Mask(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
 {
-    proto_item *ti = NULL;
+    proto_item *ti;
     proto_tree *Mask_tree;
     guint32     bitmap;
 
-    ti = proto_tree_add_text(tree, tvb, offset, sizeof_Mask, "Mask");
-    Mask_tree = proto_item_add_subtree(ti, ett_Mask);
+    Mask_tree = proto_tree_add_subtree(tree, tvb, offset, sizeof_Mask, ett_Mask, &ti, "Mask");
 
     bitmap = tvb_get_letohl(tvb, offset + (int)sizeof(point32_t) + 1);
     if (bitmap != 0) {
@@ -1403,22 +1368,19 @@ dissect_Mask(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
 static guint32
 dissect_Brush(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
 {
-    proto_item   *ti   = NULL;
     proto_tree   *brush_tree;
     const guint8  type = tvb_get_guint8(tvb, offset);
 
     switch (type) {
         case SPICE_BRUSH_TYPE_SOLID:
-            ti = proto_tree_add_text(tree, tvb, offset, 5, "Brush - SOLID");
-            brush_tree = proto_item_add_subtree(ti, ett_brush);
+            brush_tree = proto_tree_add_subtree(tree, tvb, offset, 5, ett_brush, NULL, "Brush - SOLID");
             proto_tree_add_item(brush_tree, hf_brush_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset += 1;
             proto_tree_add_item(brush_tree, hf_brush_rgb, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             return 5;
             break;
         case SPICE_BRUSH_TYPE_PATTERN:
-            ti = proto_tree_add_text(tree, tvb, offset, 17, "Brush - PATTERN");
-            brush_tree = proto_item_add_subtree(ti, ett_brush);
+            brush_tree = proto_tree_add_subtree(tree, tvb, offset, 17, ett_brush, NULL, "Brush - PATTERN");
             proto_tree_add_item(brush_tree, hf_brush_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset += 1;
             /* FIXME: this is supposed to be the offset to the image to be used as the pattern.        */
@@ -1445,14 +1407,13 @@ dissect_Brush(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
 static guint32
 dissect_DisplayBase(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
 {
-    proto_item *ti        = NULL;
+    proto_item *ti;
     proto_tree *DisplayBase_tree;
     SpiceRect   rect;
     guint8      clip_type;
     guint32     clip_size = 0;
 
-    ti = proto_tree_add_text(tree, tvb, offset, sizeof_DisplayBase, "SpiceMsgDisplayBase");
-    DisplayBase_tree = proto_item_add_subtree(ti, ett_DisplayBase);
+    DisplayBase_tree = proto_tree_add_subtree(tree, tvb, offset, sizeof_DisplayBase, ett_DisplayBase, &ti, "SpiceMsgDisplayBase");
     proto_tree_add_item(DisplayBase_tree, hf_display_surface_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
     rect = dissect_SpiceRect(tvb, DisplayBase_tree, offset, -1);
@@ -1473,11 +1434,10 @@ dissect_DisplayBase(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
 static guint32
 dissect_SpiceResourceId(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint16 count)
 {
-    proto_item *ti;
     proto_tree *resource_tree;
 
-    ti = proto_tree_add_text(tree, tvb, offset, sizeof_ResourceId, "Resource #%d", count);
-    resource_tree = proto_item_add_subtree(ti, ett_cursor_header);
+    resource_tree = proto_tree_add_subtree_format(tree, tvb, offset, sizeof_ResourceId,
+                            ett_cursor_header, NULL, "Resource #%d", count);
     proto_tree_add_item(resource_tree, hf_resource_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(resource_tree, hf_resource_id, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 
@@ -1572,12 +1532,11 @@ static void
 dissect_spice_mini_data_header(tvbuff_t *tvb, proto_tree *tree, const spice_conversation_t *spice_info,
                                const gboolean client_message, const guint16 message_type, guint32 offset)
 {
-    proto_item* ti;
     proto_tree* subtree;
 
     if (tree) {
-        ti = proto_tree_add_text(tree, tvb, offset, 2, "Message type: %s (%d)", get_message_type_string(message_type, spice_info, client_message), message_type);
-        subtree = proto_item_add_subtree(ti, ett_common_client_message);
+        subtree = proto_tree_add_subtree_format(tree, tvb, offset, 2, ett_common_client_message, NULL,
+                    "Message type: %s (%d)", get_message_type_string(message_type, spice_info, client_message), message_type);
         proto_tree_add_item(subtree, hf_message_type, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         offset += 2;
         proto_tree_add_item(tree, hf_data_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -1588,15 +1547,14 @@ static void
 dissect_spice_data_header(tvbuff_t *tvb, proto_tree *tree, const spice_conversation_t *spice_info,
                           const gboolean client_message, const guint16 message_type, guint32 *sublist_size, guint32 offset)
 {
-    proto_item* ti;
     proto_tree* subtree;
     *sublist_size = tvb_get_letohl(tvb, offset + 14);
 
     if (tree) {
         proto_tree_add_item(tree, hf_serial, tvb, offset, 8, ENC_LITTLE_ENDIAN);
         offset += 8;
-        ti = proto_tree_add_text(tree, tvb, offset, 2, "Message type: %s (%d)", get_message_type_string(message_type, spice_info, client_message), message_type);
-        subtree = proto_item_add_subtree(ti, ett_common_client_message);
+        subtree = proto_tree_add_subtree_format(tree, tvb, offset, 2, ett_common_client_message, NULL,
+            "Message type: %s (%d)", get_message_type_string(message_type, spice_info, client_message), message_type);
         proto_tree_add_item(subtree, hf_message_type, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         offset += 2;
         offset += 2;
@@ -1691,13 +1649,11 @@ dissect_spice_common_server_messages(tvbuff_t *tvb, proto_tree *tree, const guin
 static guint32
 dissect_spice_record_client(tvbuff_t *tvb, proto_tree *tree, const guint16 message_type, guint32 offset)
 {
-    proto_item *ti;
     proto_tree *record_tree;
 
     switch (message_type) {
         case SPICE_MSGC_RECORD_MODE:
-            ti = proto_tree_add_text(tree, tvb, offset, 8, "Client RECORD_MODE message"); /* size is incorrect, fixed later */
-            record_tree = proto_item_add_subtree(ti, ett_record_client);
+            record_tree = proto_tree_add_subtree(tree, tvb, offset, 8, ett_record_client, NULL, "Client RECORD_MODE message"); /* size is incorrect, fixed later */
             proto_tree_add_item(record_tree, hf_audio_timestamp, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset += 4;
             proto_tree_add_item(record_tree, hf_audio_mode, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -2024,7 +1980,6 @@ static guint32
 dissect_spice_playback_server(tvbuff_t *tvb, proto_tree *tree, const guint16 message_type, guint32 message_size, spice_conversation_t *spice_info, guint32 offset)
 {
     guint8 num_channels, i;
-    proto_item* ti;
     proto_tree* subtree;
 
     switch (message_type) {
@@ -2058,8 +2013,7 @@ dissect_spice_playback_server(tvbuff_t *tvb, proto_tree *tree, const guint16 mes
             num_channels = tvb_get_guint8(tvb, offset);
             proto_tree_add_item(tree, hf_audio_channels, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset += 1;
-            ti = proto_tree_add_text(tree, tvb, offset, 2 * num_channels, "Channel volume array");
-            subtree = proto_item_add_subtree(ti, ett_record_server);
+            subtree = proto_tree_add_subtree(tree, tvb, offset, 2 * num_channels, ett_record_server, NULL, "Channel volume array");
             for (i = 0; i < num_channels; i++) {
                 proto_tree_add_item(subtree, hf_audio_volume, tvb, offset, 2, ENC_LITTLE_ENDIAN);
                 offset += 2;
@@ -2136,7 +2090,6 @@ static guint32
 dissect_spice_record_server(tvbuff_t *tvb, proto_tree *tree, const guint16 message_type, guint32 offset)
 {
     guint8 num_channels, i;
-    proto_item* ti;
     proto_tree* subtree;
 
     switch (message_type) {
@@ -2146,8 +2099,7 @@ dissect_spice_record_server(tvbuff_t *tvb, proto_tree *tree, const guint16 messa
             num_channels = tvb_get_guint8(tvb, offset);
             proto_tree_add_item(tree, hf_audio_channels, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset += 1;
-            ti = proto_tree_add_text(tree, tvb, offset, 2 * num_channels, "Volume Array");
-            subtree = proto_item_add_subtree(ti, ett_record_server);
+            subtree = proto_tree_add_subtree(tree, tvb, offset, 2 * num_channels, ett_record_server, NULL, "Volume Array");
             for (i = 0; i < num_channels; i++) {
                 proto_tree_add_item(subtree, hf_audio_volume, tvb, offset, 2, ENC_LITTLE_ENDIAN);
                 offset += 2;
@@ -2167,7 +2119,6 @@ dissect_spice_record_server(tvbuff_t *tvb, proto_tree *tree, const guint16 messa
 static guint32
 dissect_spice_agent_message(tvbuff_t *tvb, proto_tree *tree, const guint32 message_type, guint32 message_len, guint32 offset)
 {
-    proto_item *ti=NULL;
     proto_tree *agent_tree;
     guint32 n_monitors = 0, i;
 
@@ -2223,16 +2174,14 @@ dissect_spice_agent_message(tvbuff_t *tvb, proto_tree *tree, const guint32 messa
             offset += 4;
             break;
         case VD_AGENT_CLIPBOARD_GRAB:
-            ti = proto_tree_add_text(tree, tvb, offset, 4, "VD_AGENT_CLIPBOARD_GRAB message");
-            agent_tree = proto_item_add_subtree(ti, ett_spice_agent);
+            agent_tree = proto_tree_add_subtree(tree, tvb, offset, 4, ett_spice_agent, NULL, "VD_AGENT_CLIPBOARD_GRAB message");
             proto_tree_add_item(agent_tree, hf_agent_clipboard_selection, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset += 1;
             proto_tree_add_text(agent_tree, tvb, offset, 3, "reserved");
             offset += 3;
             break;
         case VD_AGENT_CLIPBOARD_REQUEST:
-            ti = proto_tree_add_text(tree, tvb, offset, 8, "VD_AGENT_CLIPBOARD_REQUEST message");
-            agent_tree = proto_item_add_subtree(ti, ett_spice_agent);
+            agent_tree = proto_tree_add_subtree(tree, tvb, offset, 8, ett_spice_agent, NULL, "VD_AGENT_CLIPBOARD_REQUEST message");
             proto_tree_add_item(agent_tree, hf_agent_clipboard_selection, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset += 1;
             proto_tree_add_text(agent_tree, tvb, offset, 3, "reserved");
@@ -2277,7 +2226,6 @@ dissect_spice_main_server(tvbuff_t *tvb, proto_tree *tree, const guint16 message
 {
     guint32 num_channels, i, agent_msg_type, agent_msg_len, name_len, data_size;
     proto_tree *subtree = NULL;
-    proto_item *ti = NULL;
 
     switch (message_type) {
         case SPICE_MSG_MAIN_MIGRATE_BEGIN:
@@ -2324,13 +2272,11 @@ dissect_spice_main_server(tvbuff_t *tvb, proto_tree *tree, const guint16 message
             num_channels = tvb_get_letohl(tvb, offset);
             proto_tree_add_item(tree, hf_main_num_channels, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset += 4;
-            ti = proto_tree_add_text(tree, tvb, offset, 2 * num_channels, "Channel Array");
-            subtree = proto_item_add_subtree(ti, ett_main_client);
+            subtree = proto_tree_add_subtree(tree, tvb, offset, 2 * num_channels, ett_main_client, NULL, "Channel Array");
             for (i = 0; i < num_channels; i++ ) {
-                proto_tree *subsubtree = NULL;
+                proto_tree *subsubtree;
 
-                ti = proto_tree_add_text(subtree, tvb, offset, 2, "channels[%u]", i);
-                subsubtree = proto_item_add_subtree(ti, ett_main_client);
+                subsubtree = proto_tree_add_subtree_format(subtree, tvb, offset, 2, ett_main_client, NULL, "channels[%u]", i);
 
                 proto_tree_add_item(subsubtree, hf_channel_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
                 offset += 1;
@@ -2397,7 +2343,6 @@ dissect_spice_main_server(tvbuff_t *tvb, proto_tree *tree, const guint16 message
 static guint32
 dissect_spice_main_client(tvbuff_t *tvb, proto_tree *tree, const guint16 message_type, guint32 offset)
 {
-    proto_item *ti = NULL;
     proto_tree *main_tree;
     guint32     agent_msg_type, agent_msg_len;
 
@@ -2409,14 +2354,12 @@ dissect_spice_main_client(tvbuff_t *tvb, proto_tree *tree, const guint16 message
         case SPICE_MSGC_MAIN_ATTACH_CHANNELS:
             break;
         case SPICE_MSGC_MAIN_AGENT_START:
-            ti = proto_tree_add_text(tree, tvb, offset, 4, "Client AGENT_START message");
-            main_tree = proto_item_add_subtree(ti, ett_main_client);
+            main_tree = proto_tree_add_subtree(tree, tvb, offset, 4, ett_main_client, NULL, "Client AGENT_START message");
             proto_tree_add_item(main_tree, hf_main_client_agent_tokens, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset += 4;
             break;
         case SPICE_MSGC_MAIN_AGENT_DATA:
-            ti = proto_tree_add_text(tree, tvb, offset, 24, "Client AGENT_DATA message");
-            main_tree = proto_item_add_subtree(ti, ett_main_client);
+            main_tree = proto_tree_add_subtree(tree, tvb, offset, 24, ett_main_client, NULL, "Client AGENT_DATA message");
             proto_tree_add_item(main_tree, hf_agent_protocol, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset += 4;
             proto_tree_add_item(main_tree, hf_agent_type, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -2439,8 +2382,8 @@ dissect_spice_main_client(tvbuff_t *tvb, proto_tree *tree, const guint16 message
 static int
 dissect_spice_keyboard_modifiers(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
 {
-    proto_item *ti = NULL;
-    proto_tree *subtree = NULL;
+    proto_item *ti;
+    proto_tree *subtree;
 
     ti = proto_tree_add_item(tree, hf_keyboard_modifiers, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     subtree = proto_item_add_subtree(ti, ett_link_caps);
@@ -2454,19 +2397,16 @@ dissect_spice_keyboard_modifiers(tvbuff_t *tvb, proto_tree *tree, guint32 offset
 static guint32
 dissect_spice_inputs_client(tvbuff_t *tvb, proto_tree *tree, const guint16 message_type, guint32 offset)
 {
-    proto_item *ti=NULL;
     proto_tree *inputs_tree;
 
     switch (message_type) {
         case SPICE_MSGC_INPUTS_KEY_DOWN:
-            ti = proto_tree_add_text(tree, tvb, offset, 4, "Client KEY_DOWN message");
-            inputs_tree = proto_item_add_subtree(ti, ett_inputs_client);
+            inputs_tree = proto_tree_add_subtree(tree, tvb, offset, 4, ett_inputs_client, NULL, "Client KEY_DOWN message");
             proto_tree_add_item(inputs_tree, hf_keyboard_code, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset += 4;
             break;
         case SPICE_MSGC_INPUTS_KEY_UP:
-            ti = proto_tree_add_text(tree, tvb, offset, 4, "Client KEY_UP message");
-            inputs_tree = proto_item_add_subtree(ti, ett_inputs_client);
+            inputs_tree = proto_tree_add_subtree(tree, tvb, offset, 4, ett_inputs_client, NULL, "Client KEY_UP message");
             proto_tree_add_item(inputs_tree, hf_keyboard_code, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset += 4;
             break;
@@ -2474,8 +2414,7 @@ dissect_spice_inputs_client(tvbuff_t *tvb, proto_tree *tree, const guint16 messa
             offset += dissect_spice_keyboard_modifiers(tvb, tree, offset);
             break;
         case SPICE_MSGC_INPUTS_MOUSE_POSITION:
-            ti = proto_tree_add_text(tree, tvb, offset, sizeof(point32_t) + 3, "Client MOUSE_POSITION message");
-            inputs_tree = proto_item_add_subtree(ti, ett_inputs_client);
+            inputs_tree = proto_tree_add_subtree(tree, tvb, offset, sizeof(point32_t) + 3, ett_inputs_client, NULL, "Client MOUSE_POSITION message");
             dissect_POINT32(tvb, inputs_tree, offset);
             offset += (int)sizeof(point32_t);
             proto_tree_add_item(inputs_tree, hf_button_state, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -2484,24 +2423,21 @@ dissect_spice_inputs_client(tvbuff_t *tvb, proto_tree *tree, const guint16 messa
             offset += 1;
             break;
         case SPICE_MSGC_INPUTS_MOUSE_MOTION:
-            ti = proto_tree_add_text(tree, tvb, offset, sizeof(point32_t) + 4, "Client MOUSE_MOTION message");
-            inputs_tree = proto_item_add_subtree(ti, ett_inputs_client);
+            inputs_tree = proto_tree_add_subtree(tree, tvb, offset, sizeof(point32_t) + 4, ett_inputs_client, NULL, "Client MOUSE_MOTION message");
             dissect_POINT32(tvb, inputs_tree, offset);
             offset += (int)sizeof(point32_t);
             proto_tree_add_item(inputs_tree, hf_button_state, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset += 2;
             break;
         case SPICE_MSGC_INPUTS_MOUSE_PRESS:
-            ti = proto_tree_add_text(tree, tvb, offset, 3, "Client MOUSE_PRESS message");
-            inputs_tree = proto_item_add_subtree(ti, ett_inputs_client);
+            inputs_tree = proto_tree_add_subtree(tree, tvb, offset, 3, ett_inputs_client, NULL, "Client MOUSE_PRESS message");
             proto_tree_add_item(inputs_tree, hf_button_state, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset += 2;
             proto_tree_add_item(inputs_tree, hf_mouse_display_id, tvb, offset, 1, ENC_NA);
             offset += 1;
             break;
         case SPICE_MSGC_INPUTS_MOUSE_RELEASE:
-            ti = proto_tree_add_text(tree, tvb, offset, 3, "Client MOUSE_RELEASE message");
-            inputs_tree = proto_item_add_subtree(ti, ett_inputs_client);
+            inputs_tree = proto_tree_add_subtree(tree, tvb, offset, 3, ett_inputs_client, NULL, "Client MOUSE_RELEASE message");
             proto_tree_add_item(inputs_tree, hf_button_state, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset += 2;
             proto_tree_add_item(inputs_tree, hf_mouse_display_id, tvb, offset, 1, ENC_NA);
@@ -2675,11 +2611,10 @@ dissect_spice_data_server_pdu(tvbuff_t *tvb, proto_tree *tree, packet_info *pinf
         header_size  = sizeof_SpiceMiniDataHeader;
         message_type = tvb_get_letohs(tvb, offset);
         message_size = tvb_get_letohl(tvb, offset +2);
-        msg_ti = proto_tree_add_text(tree, tvb, offset, 0,
-                                     "%s (%d bytes)",
+        message_tree = proto_tree_add_subtree_format(tree, tvb, offset, 0,
+                                     ett_message, &msg_ti, "%s (%d bytes)",
                                      get_message_type_string(message_type, spice_info, FALSE),
                                      message_size + header_size);
-        message_tree = proto_item_add_subtree(msg_ti, ett_message);
         ti = proto_tree_add_item(message_tree, hf_data, tvb, offset, header_size, ENC_NA);
         data_header_tree = proto_item_add_subtree(ti, ett_data);
         dissect_spice_mini_data_header(tvb, data_header_tree, spice_info, FALSE, message_type, offset);
@@ -2688,11 +2623,10 @@ dissect_spice_data_server_pdu(tvbuff_t *tvb, proto_tree *tree, packet_info *pinf
         header_size  = sizeof_SpiceDataHeader;
         message_type = tvb_get_letohs(tvb, offset + 8);
         message_size = tvb_get_letohl(tvb, offset + 10);
-        msg_ti = proto_tree_add_text(tree, tvb, offset, 0,
-                                     "%s (%d bytes)",
+        message_tree = proto_tree_add_subtree_format(tree, tvb, offset, 0,
+                                     ett_message, &msg_ti, "%s (%d bytes)",
                                      get_message_type_string(message_type, spice_info, FALSE),
                                      message_size + header_size);
-        message_tree = proto_item_add_subtree(msg_ti, ett_message);
         ti = proto_tree_add_item(message_tree, hf_data, tvb, offset, header_size, ENC_NA);
         data_header_tree = proto_item_add_subtree(ti, ett_data);
         dissect_spice_data_header(tvb, data_header_tree, spice_info, FALSE, message_type, &sublist_size, offset);
@@ -2975,18 +2909,16 @@ dissect_spice_link_client_pdu(tvbuff_t *tvb, proto_tree *tree, spice_conversatio
     offset += 4;
 
     if (common_caps_len > 0) {
-        ti = proto_tree_add_text(tree, tvb, offset, common_caps_len * 4,
-                                 "Client Common Capabilities (%d bytes)",
+        caps_tree = proto_tree_add_subtree_format(tree, tvb, offset, common_caps_len * 4,
+                                 ett_link_caps, NULL, "Client Common Capabilities (%d bytes)",
                                  common_caps_len * 4); /* caps_len multiplied by 4 as length is in UINT32 units   */
-        caps_tree = proto_item_add_subtree(ti, ett_link_caps);
         dissect_spice_common_capabilities(tvb, caps_tree, offset, common_caps_len, spice_info, TRUE);
         offset += (common_caps_len * 4);
     }
     if (channel_caps_len > 0) {
-        ti = proto_tree_add_text(tree, tvb, offset, channel_caps_len * 4,
-                                 "Client Channel-specific Capabilities (%d bytes)",
+        caps_tree = proto_tree_add_subtree_format(tree, tvb, offset, channel_caps_len * 4,
+                                 ett_link_caps, NULL, "Client Channel-specific Capabilities (%d bytes)",
                                  channel_caps_len * 4); /* caps_len multiplied by 4 as length is in UINT32 units    */
-        caps_tree = proto_item_add_subtree(ti, ett_link_caps);
         dissect_spice_link_capabilities(tvb, caps_tree, offset, channel_caps_len, spice_info);
     }
 }
@@ -3023,18 +2955,16 @@ dissect_spice_link_server_pdu(tvbuff_t *tvb, proto_tree *tree, spice_conversatio
     offset += (int)sizeof_SpiceLinkHeader + SPICE_TICKET_PUBKEY_BYTES;
 
     if (common_caps_len > 0) {
-        ti = proto_tree_add_text(tree, tvb, offset, common_caps_len * 4,
-                                 "Common Capabilities (%d bytes)",
+        caps_tree = proto_tree_add_subtree_format(tree, tvb, offset, common_caps_len * 4,
+                                 ett_link_caps, NULL, "Common Capabilities (%d bytes)",
                                  common_caps_len * 4); /* caps_len multiplied by 4 as length is in UINT32 units */
-        caps_tree = proto_item_add_subtree(ti, ett_link_caps);
         dissect_spice_common_capabilities(tvb, caps_tree, offset, common_caps_len, spice_info, FALSE);
         offset += (common_caps_len * 4);
     }
     if (channel_caps_len > 0) {
-        ti = proto_tree_add_text(tree, tvb, offset, channel_caps_len * 4,
-                                 "Channel Capabilities (%d bytes)",
+        caps_tree = proto_tree_add_subtree_format(tree, tvb, offset, channel_caps_len * 4,
+                                 ett_link_caps, NULL, "Channel Capabilities (%d bytes)",
                                  channel_caps_len * 4); /* caps_len multiplied by 4 as length is in UINT32 units */
-        caps_tree = proto_item_add_subtree(ti, ett_link_caps);
         dissect_spice_link_capabilities(tvb, caps_tree, offset, channel_caps_len, spice_info);
     }
 }

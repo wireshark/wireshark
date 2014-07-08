@@ -649,7 +649,7 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 {
 
 /* Set up structures needed to add the protocol subtree and manage it */
-       proto_item *ti, *et, *dt, *hi, *cs;
+       proto_item *ti, *hi, *cs;
        proto_tree *sbus_tree, *ethsbus_tree, *sbusdata_tree;
 
        gint i;        /*for CRC calculation*/
@@ -903,8 +903,7 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
               sbus_tree = proto_item_add_subtree(ti, ett_sbus);
 
 /*Add subtree for Ether-S-Bus header*/
-              et = proto_tree_add_text(sbus_tree, tvb, offset, 8, "Ether-S-Bus header");
-              ethsbus_tree = proto_item_add_subtree(et, ett_sbus_ether);
+              ethsbus_tree = proto_tree_add_subtree(sbus_tree, tvb, offset, 8, ett_sbus_ether, NULL, "Ether-S-Bus header");
 
 /* add an item to the subtree*/
               sbus_eth_len = tvb_get_ntohl(tvb,offset);
@@ -993,10 +992,8 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                                                        hf_sbus_addr_rtc, tvb, offset, 2, ENC_BIG_ENDIAN);
                                    offset += 2;
                                    /*Add subtree for Data*/
-                                   dt = proto_tree_add_text(sbus_tree, tvb, offset,
-                                                            ((sbus_media_cnt) * 4),"Data");
-
-                                   sbusdata_tree = proto_item_add_subtree(dt, ett_sbus_data);
+                                   sbusdata_tree = proto_tree_add_subtree(sbus_tree, tvb, offset,
+                                                            ((sbus_media_cnt) * 4), ett_sbus_data, NULL, "Data");
                                    for (i=((sbus_media_cnt)); i>0; i--) {
                                           proto_tree_add_item(sbusdata_tree,
                                                               hf_sbus_data_rtc, tvb, offset,
@@ -1025,10 +1022,9 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                                                        hf_sbus_fio_count, tvb, offset, 1, sbus_fio_cnt);
                                    offset += 1;
                                    /*Add subtree for Data*/
-                                   dt = proto_tree_add_text(sbus_tree, tvb, offset,
-                                                            sbus_media_cnt,"Data");
+                                   sbusdata_tree = proto_tree_add_subtree(sbus_tree, tvb, offset,
+                                                            sbus_media_cnt, ett_sbus_data, NULL, "Data");
 
-                                   sbusdata_tree = proto_item_add_subtree(dt, ett_sbus_data);
                                    for (i=sbus_media_cnt; i>0; i--) {
                                           sbus_helper = 1;
                                           sbus_show_bin = 0;
@@ -1066,9 +1062,8 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                                    proto_tree_add_text(sbus_tree, tvb, offset, 2,
                                                        "Calendar week: %x, Week day: %x", sbus_helper, sbus_helper1);
                                    /*Add subtree for Data*/
-                                   dt = proto_tree_add_text(sbus_tree, tvb, offset,
-                                                            8, "Clock data");
-                                   sbusdata_tree = proto_item_add_subtree(dt, ett_sbus_data);
+                                   sbusdata_tree = proto_tree_add_subtree(sbus_tree, tvb, offset,
+                                                            8, ett_sbus_data, NULL, "Clock data");
 
                                    proto_tree_add_item(sbusdata_tree,
                                                        hf_sbus_week_day, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -1107,10 +1102,9 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                                                        hf_sbus_addr_68k, tvb, offset, 3, ENC_BIG_ENDIAN);
                                    offset += 3;
                                    /*Add subtree for Data*/
-                                   dt = proto_tree_add_text(sbus_tree, tvb, offset,
-                                                            ((sbus_media_cnt) * 4),"Program lines");
+                                   sbusdata_tree = proto_tree_add_subtree(sbus_tree, tvb, offset,
+                                                            ((sbus_media_cnt) * 4), ett_sbus_data, NULL, "Program lines");
 
-                                   sbusdata_tree = proto_item_add_subtree(dt, ett_sbus_data);
                                    for (i=((sbus_media_cnt)); i>0; i--) {
                                           proto_tree_add_item(sbusdata_tree,
                                                               hf_sbus_data_rtc, tvb, offset,
@@ -1145,10 +1139,9 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                                                        hf_sbus_addr_68k, tvb, offset, 3, ENC_BIG_ENDIAN);
                                    offset += 3;
                                    /*Add subtree for Data*/
-                                   dt = proto_tree_add_text(sbus_tree, tvb, offset,
-                                                            ((sbus_media_cnt) * 4),"Data (bytes)");
+                                   sbusdata_tree = proto_tree_add_subtree(sbus_tree, tvb, offset,
+                                                            ((sbus_media_cnt) * 4), ett_sbus_data, NULL, "Data (bytes)");
 
-                                   sbusdata_tree = proto_item_add_subtree(dt, ett_sbus_data);
                                    for (i=sbus_media_cnt; i>0; i--) {
                                           proto_tree_add_item(sbusdata_tree,
                                                               hf_sbus_data_byte, tvb, offset,
@@ -1203,10 +1196,9 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                                    offset += 1;
 
                                    if (sbus_web_size > 1) {
-                                          dt = proto_tree_add_text(sbus_tree, tvb, offset,
-                                                                   (sbus_web_size - 1),"Data (bytes)");
+                                          sbusdata_tree = proto_tree_add_subtree(sbus_tree, tvb, offset,
+                                                                   (sbus_web_size - 1), ett_sbus_data, NULL, "Data (bytes)");
 
-                                          sbusdata_tree = proto_item_add_subtree(dt, ett_sbus_data);
                                           for (i=sbus_web_size -1 ; i>0; i--) {
                                                  proto_tree_add_item(sbusdata_tree,
                                                                      hf_sbus_data_byte, tvb, offset,
@@ -1507,9 +1499,8 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                             case SBUS_RD_PROGRAM_LINE:
                             case SBUS_RD_USER_EEPROM_REGISTER:
                                    /*Add subtree for Data*/
-                                   dt = proto_tree_add_text(sbus_tree, tvb, offset,
-                                                            ((request_val->count) * 4),"Data");
-                                   sbusdata_tree = proto_item_add_subtree(dt, ett_sbus_data);
+                                   sbusdata_tree = proto_tree_add_subtree(sbus_tree, tvb, offset,
+                                                            ((request_val->count) * 4), ett_sbus_data, NULL, "Data");
                                    for (i=(request_val->count); i>0; i--) {
                                           proto_tree_add_item(sbusdata_tree,
                                                               hf_sbus_data_rtc, tvb, offset,
@@ -1530,9 +1521,8 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                             case SBUS_RD_INPUT:
                             case SBUS_RD_OUTPUT:
                                    /*Add subtree for Data*/
-                                   dt = proto_tree_add_text(sbus_tree, tvb, offset,
-                                                            (((request_val->count) + 7) / 8), "Data");
-                                   sbusdata_tree = proto_item_add_subtree(dt, ett_sbus_data);
+                                   sbusdata_tree = proto_tree_add_subtree(sbus_tree, tvb, offset,
+                                                            (((request_val->count) + 7) / 8), ett_sbus_data, NULL, "Data");
 
                                    for (i=(((request_val->count) + 7) / 8); i>0; i--) {
                                           sbus_helper = 1;
@@ -1571,9 +1561,8 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                                    proto_tree_add_text(sbus_tree, tvb, offset, 2,
                                                        "Calendar week: %x, Week day: %x", sbus_helper, sbus_helper1);
                                    /*Add subtree for Data*/
-                                   dt = proto_tree_add_text(sbus_tree, tvb, offset,
-                                                            8, "Clock data");
-                                   sbusdata_tree = proto_item_add_subtree(dt, ett_sbus_data);
+                                   sbusdata_tree = proto_tree_add_subtree(sbus_tree, tvb, offset,
+                                                            8, ett_sbus_data, NULL, "Clock data");
 
                                    proto_tree_add_item(sbusdata_tree,
                                                        hf_sbus_week_day, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -1624,9 +1613,8 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                                    /* Response for Status Flags*/
                             case SBUS_RD_STATUSFLAG_ACCU:
                                    /*Add subtree for Data*/
-                                   dt = proto_tree_add_text(sbus_tree, tvb, offset,
-                                                            1,"ACCU and arithmetic status");
-                                   sbusdata_tree = proto_item_add_subtree(dt, ett_sbus_data);
+                                   sbusdata_tree = proto_tree_add_subtree(sbus_tree, tvb, offset,
+                                                            1, ett_sbus_data, NULL, "ACCU and arithmetic status");
 
                                    proto_tree_add_item(sbusdata_tree, hf_sbus_flags_accu,
                                                        tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1642,10 +1630,9 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                                    /* Response for Read byte */
                             case SBUS_RD_BYTE:
                                    /*Add subtree for Data*/
-                                   dt = proto_tree_add_text(sbus_tree, tvb, offset,
-                                                            (request_val->count),"Data (bytes)");
+                                   sbusdata_tree = proto_tree_add_subtree(sbus_tree, tvb, offset,
+                                                            (request_val->count), ett_sbus_data, NULL, "Data (bytes)");
 
-                                   sbusdata_tree = proto_item_add_subtree(dt, ett_sbus_data);
                                    for (i=(request_val->count); i>0; i--) {
                                           proto_tree_add_item(sbusdata_tree,
                                                               hf_sbus_data_byte, tvb, offset,
@@ -1657,10 +1644,9 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                                    /* Response for Read Index register */
                             case SBUS_RD_INDEX_REGISTER:
                                    /*Add subtree for Data*/
-                                   dt = proto_tree_add_text(sbus_tree, tvb, offset,
-                                                            2,"Data (hex bytes)");
+                                   sbusdata_tree = proto_tree_add_subtree(sbus_tree, tvb, offset,
+                                                            2, ett_sbus_data, NULL, "Data (hex bytes)");
 
-                                   sbusdata_tree = proto_item_add_subtree(dt, ett_sbus_data);
                                    for (i=0; i<2; i++) { /*2 bytes*/
                                           proto_tree_add_item(sbusdata_tree,
                                                               hf_sbus_data_byte_hex, tvb, offset,
@@ -1701,9 +1687,8 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                                    if (request_val->sysinfo == 0x00){ /*sysinfo 0*/
                                           offset += 1; /* this byte is always 0x01*/
                                           /*Add subtree for Data*/
-                                          dt = proto_tree_add_text(sbus_tree, tvb, offset,
-                                                                   1,"System info");
-                                          sbusdata_tree = proto_item_add_subtree(dt, ett_sbus_data);
+                                          sbusdata_tree = proto_tree_add_subtree(sbus_tree, tvb, offset,
+                                                                   1, ett_sbus_data, NULL, "System info");
 
                                           proto_tree_add_item(sbusdata_tree, hf_sbus_sysinfo0_1,
                                                               tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1743,10 +1728,9 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                                                               1, sbus_web_seq);
                                           offset += 1;
 
-                                          dt = proto_tree_add_text(sbus_tree, tvb, offset,
-                                                                   (sbus_web_size - 2),"Data (bytes)");
+                                          sbusdata_tree = proto_tree_add_subtree(sbus_tree, tvb, offset,
+                                                                   (sbus_web_size - 2), ett_sbus_data, NULL, "Data (bytes)");
 
-                                          sbusdata_tree = proto_item_add_subtree(dt, ett_sbus_data);
                                           for (i=sbus_web_size - 2; i>0; i--) {
                                                  proto_tree_add_item(sbusdata_tree,
                                                                      hf_sbus_data_byte, tvb, offset,
