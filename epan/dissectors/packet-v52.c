@@ -1346,10 +1346,10 @@ dissect_sequence_number(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
     col_append_str(pinfo->cinfo, COL_INFO, " | ");
     col_append_str(pinfo->cinfo, COL_INFO, val_to_str_const(tvb_get_guint8(info_tvb, info_offset), info_element_values_short, "Unknown element"));
 
+    hf_v52_sequence_number_tmp = tvb_get_guint8(info_tvb, info_offset+2)-0x80;
     col_append_fstr(pinfo->cinfo, COL_INFO, ": %u", hf_v52_sequence_number_tmp);
 
     if (info_tree != NULL) {
-        hf_v52_sequence_number_tmp = tvb_get_guint8(info_tvb, info_offset+2)-0x80;
         proto_tree_add_item(info_tree, hf_v52_info_element, info_tvb, info_offset, info_element_length, ENC_BIG_ENDIAN);
         proto_tree_add_item(info_tree, hf_v52_info_length, info_tvb, info_offset+1, info_element_length, ENC_BIG_ENDIAN);
         proto_item_append_text(ti_info, " %s (0x%x)",val_to_str_const(info_element, info_element_values, "unknown info element"),info_element);
