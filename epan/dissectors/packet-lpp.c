@@ -28,7 +28,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
- * Ref 3GPP TS 36.355 version 11.5.0 Release 11
+ * Ref 3GPP TS 36.355 version 11.6.0 Release 11
  * http://www.3gpp.org
  */
 
@@ -297,7 +297,7 @@ static int hf_lpp_cellGlobalIdRef = -1;           /* ECGI */
 static int hf_lpp_referenceQuality = -1;          /* OTDOA_MeasQuality */
 static int hf_lpp_neighbourMeasurementList = -1;  /* NeighbourMeasurementList */
 static int hf_lpp_NeighbourMeasurementList_item = -1;  /* NeighbourMeasurementElement */
-static int hf_lpp_physCellIdNeighbor = -1;        /* INTEGER_0_503 */
+static int hf_lpp_physCellIdNeighbour = -1;       /* INTEGER_0_503 */
 static int hf_lpp_cellGlobalIdNeighbour = -1;     /* ECGI */
 static int hf_lpp_earfcnNeighbour = -1;           /* ARFCN_ValueEUTRA */
 static int hf_lpp_rstd = -1;                      /* INTEGER_0_12711 */
@@ -313,6 +313,7 @@ static int hf_lpp_supportedBandListEUTRA_item = -1;  /* SupportedBandEUTRA */
 static int hf_lpp_supportedBandListEUTRA_v9a0 = -1;  /* SEQUENCE_SIZE_1_maxBands_OF_SupportedBandEUTRA_v9a0 */
 static int hf_lpp_supportedBandListEUTRA_v9a0_item = -1;  /* SupportedBandEUTRA_v9a0 */
 static int hf_lpp_interFreqRSTDmeasurement_r10 = -1;  /* T_interFreqRSTDmeasurement_r10 */
+static int hf_lpp_additionalNeighbourCellInfoList_r10 = -1;  /* T_additionalNeighbourCellInfoList_r10 */
 static int hf_lpp_bandEUTRA = -1;                 /* INTEGER_1_maxFBI */
 static int hf_lpp_bandEUTRA_v9a0 = -1;            /* INTEGER_maxFBI_Plus1_maxFBI2 */
 static int hf_lpp_locationServerErrorCauses = -1;  /* OTDOA_LocationServerErrorCauses */
@@ -3817,11 +3818,27 @@ dissect_lpp_T_interFreqRSTDmeasurement_r10(tvbuff_t *tvb _U_, int offset _U_, as
 }
 
 
+static const value_string lpp_T_additionalNeighbourCellInfoList_r10_vals[] = {
+  {   0, "supported" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_lpp_T_additionalNeighbourCellInfoList_r10(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, FALSE, 0, NULL);
+
+  return offset;
+}
+
+
 static const per_sequence_t OTDOA_ProvideCapabilities_sequence[] = {
   { &hf_lpp_otdoa_Mode      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_T_otdoa_Mode },
   { &hf_lpp_supportedBandListEUTRA, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_lpp_SEQUENCE_SIZE_1_maxBands_OF_SupportedBandEUTRA },
   { &hf_lpp_supportedBandListEUTRA_v9a0, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_lpp_SEQUENCE_SIZE_1_maxBands_OF_SupportedBandEUTRA_v9a0 },
   { &hf_lpp_interFreqRSTDmeasurement_r10, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_lpp_T_interFreqRSTDmeasurement_r10 },
+  { &hf_lpp_additionalNeighbourCellInfoList_r10, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_lpp_T_additionalNeighbourCellInfoList_r10 },
   { NULL, 0, 0, NULL }
 };
 
@@ -9817,7 +9834,7 @@ dissect_lpp_NeighbourMeasurementElement_eag_1(tvbuff_t *tvb _U_, int offset _U_,
 
 
 static const per_sequence_t NeighbourMeasurementElement_sequence[] = {
-  { &hf_lpp_physCellIdNeighbor, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_INTEGER_0_503 },
+  { &hf_lpp_physCellIdNeighbour, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_INTEGER_0_503 },
   { &hf_lpp_cellGlobalIdNeighbour, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_ECGI },
   { &hf_lpp_earfcnNeighbour , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_ARFCN_ValueEUTRA },
   { &hf_lpp_rstd            , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_INTEGER_0_12711 },
@@ -11559,8 +11576,8 @@ void proto_register_lpp(void) {
       { "NeighbourMeasurementElement", "lpp.NeighbourMeasurementElement_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_lpp_physCellIdNeighbor,
-      { "physCellIdNeighbor", "lpp.physCellIdNeighbor",
+    { &hf_lpp_physCellIdNeighbour,
+      { "physCellIdNeighbour", "lpp.physCellIdNeighbour",
         FT_UINT32, BASE_DEC, NULL, 0,
         "INTEGER_0_503", HFILL }},
     { &hf_lpp_cellGlobalIdNeighbour,
@@ -11623,6 +11640,10 @@ void proto_register_lpp(void) {
       { "interFreqRSTDmeasurement-r10", "lpp.interFreqRSTDmeasurement_r10",
         FT_UINT32, BASE_DEC, VALS(lpp_T_interFreqRSTDmeasurement_r10_vals), 0,
         "T_interFreqRSTDmeasurement_r10", HFILL }},
+    { &hf_lpp_additionalNeighbourCellInfoList_r10,
+      { "additionalNeighbourCellInfoList-r10", "lpp.additionalNeighbourCellInfoList_r10",
+        FT_UINT32, BASE_DEC, VALS(lpp_T_additionalNeighbourCellInfoList_r10_vals), 0,
+        "T_additionalNeighbourCellInfoList_r10", HFILL }},
     { &hf_lpp_bandEUTRA,
       { "bandEUTRA", "lpp.bandEUTRA",
         FT_UINT32, BASE_DEC, NULL, 0,
