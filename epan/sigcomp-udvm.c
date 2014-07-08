@@ -319,14 +319,15 @@ decompress_sigcomp_message(tvbuff_t *bytecode_tvb, tvbuff_t *message_tvb, packet
 		offset++;
 
 	}
-	/* Largest allowed size for a message is UDVM_MEMORY_SIZE = 65536  */
-	out_buff = (guint8 *)g_malloc(UDVM_MEMORY_SIZE);
 	/* Start executing code */
 	current_address = udvm_start_ip;
 	input_address = 0;
 
 	proto_tree_add_text(udvm_tree, bytecode_tvb, offset, 1,"UDVM EXECUTION STARTED at Address: %u Message size %u",
 		current_address, msg_end);
+
+	/* Largest allowed size for a message is UDVM_MEMORY_SIZE = 65536  */
+	out_buff = (guint8 *)g_malloc(UDVM_MEMORY_SIZE);
 
 execute_next_instruction:
 
@@ -2741,8 +2742,8 @@ decompression_failure:
 
 		proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"DECOMPRESSION FAILURE: %s",
 				    val_to_str(result_code, result_code_vals,"Unknown (%u)"));
-		THROW(ReportedBoundsError);
 		g_free(out_buff);
+		THROW(ReportedBoundsError);
 		return NULL;
 
 }
@@ -3210,3 +3211,15 @@ decomp_dispatch_get_bits(
 
 /* end udvm */
 
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */
