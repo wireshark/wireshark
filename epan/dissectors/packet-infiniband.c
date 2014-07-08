@@ -1540,11 +1540,7 @@ dissect_infiniband_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
     pinfo->srcport = pinfo->destport = 0xffffffff;  /* set the src/dest QPN to something impossible instead of the default 0,
                                                        so we don't mistake it for a MAD. (QP is only 24bit, so can't be 0xffffffff)*/
 
-    /* add any code that should only run the first time the packet is dissected here: */
-    if (!pinfo->fd->flags.visited)
-    {
-        pinfo->ptype = PT_IBQP;     /* set the port-type for this packet to be Infiniband QP number */
-    }
+    pinfo->ptype = PT_IBQP;     /* set the port-type for this packet to be Infiniband QP number */
 
     /* Mark the Packet type as Infiniband in the wireshark UI */
     /* Clear other columns */
