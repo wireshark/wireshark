@@ -75,11 +75,11 @@
 //menu_recent_file_write_all
 
 // If we ever add support for multiple windows this will need to be replaced.
-static MainWindow *gbl_cur_main_window = NULL;
+static MainWindow *gbl_cur_main_window_ = NULL;
 
 void pipe_input_set_handler(gint source, gpointer user_data, int *child_process, pipe_input_cb_t input_cb)
 {
-    gbl_cur_main_window->setPipeInputHandler(source, user_data, child_process, input_cb);
+    gbl_cur_main_window_->setPipeInputHandler(source, user_data, child_process, input_cb);
 }
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -96,7 +96,11 @@ MainWindow::MainWindow(QWidget *parent) :
     pipe_notifier_(NULL)
 #endif
 {
-    gbl_cur_main_window = this;
+    if (!gbl_cur_main_window_) {
+        connect(wsApp, SIGNAL(openStatCommandDialog(QString,const char*,void*)),
+                this, SLOT(openStatCommandDialog(QString,const char*,void*)));
+    }
+    gbl_cur_main_window_ = this;
     main_ui_->setupUi(this);
     setTitlebarForCaptureFile();
     setMenusForCaptureFile();

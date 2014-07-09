@@ -333,7 +333,6 @@ extern "C" {
 void
 register_tap_listener_stats_tree_stat(void)
 {
-
     stats_tree_presentation(NULL,
                 StatsTreeDialog::setupNode,
                 NULL,

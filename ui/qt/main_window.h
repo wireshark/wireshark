@@ -212,6 +212,13 @@ private slots:
     void addDisplayFilterButton(QString df_text);
     void displayFilterButtonClicked();
 
+    /** Pass stat cmd arguments to a slot.
+     * @param slot Partial slot name, e.g. "StatisticsIOGraph".
+     * @param "-z" argument, e.g. "io,stat".
+     * @param userdata Optional user data.
+     */
+    void openStatCommandDialog(const QString &menu_path, const char *arg, void *userdata);
+
     // We should probably move these to main_window_actions.cpp similar to
     // gtk/main_menubar.c
     void on_actionFileOpen_triggered();
@@ -366,6 +373,7 @@ private slots:
     void on_actionStatisticsHTTPRequests_triggered();
     void on_actionStatisticsHTTPLoadDistribution_triggered();
     void on_actionStatisticsPacketLen_triggered();
+    void statCommandIOGraph(const char *arg = NULL, void *userdata = NULL);
     void on_actionStatisticsIOGraph_triggered();
     void on_actionStatisticsSametime_triggered();
 

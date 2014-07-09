@@ -132,7 +132,6 @@ set(WIRESHARK_QT_SRC
 	font_color_preferences_frame.cpp
 	import_text_dialog.cpp
 	interface_tree.cpp
-	io_graph_dialog.cpp
 	label_stack.cpp
 	layout_preferences_frame.cpp
 	lbm_lbtrm_transport_dialog.cpp
@@ -182,6 +181,7 @@ set(WIRESHARK_QT_SRC
 )
 
 set(WIRESHARK_QT_TAP_SRC
+	io_graph_dialog.cpp
 	stats_tree_dialog.cpp
 )
 

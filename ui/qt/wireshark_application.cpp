@@ -617,6 +617,11 @@ void WiresharkApplication::emitAppSignal(AppSignal signal)
     }
 }
 
+void WiresharkApplication::emitStatCommandSignal(const QString &menu_path, const char *arg, void *userdata)
+{
+    emit openStatCommandDialog(menu_path, arg, userdata);
+}
+
 void WiresharkApplication::allSystemsGo()
 {
     QString display_filter = NULL;

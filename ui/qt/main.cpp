@@ -797,65 +797,6 @@ int main(int argc, char *argv[])
     main_w->connect(&ws_app, SIGNAL(openCaptureFile(QString&,QString&,unsigned int)),
             main_w, SLOT(openCaptureFile(QString&,QString&,unsigned int)));
 
-    while ((opt = getopt_long(argc, argv, optstring, long_options, NULL)) != -1) {
-        switch (opt) {
-        case 'r':
-            cf_name = new QString(optarg);
-            break;
-        case '?':
-            print_usage(FALSE);
-            exit(0);
-            break;
-        }
-    }
-
-    if (!arg_error) {
-        argc -= optind;
-        argv += optind;
-        if (argc >= 1) {
-            if (cf_name != NULL) {
-                /*
-                 * Input file name specified with "-r" *and* specified as a regular
-                 * command-line argument.
-                 */
-                cmdarg_err("File name specified both with -r and regular argument");
-                arg_error = TRUE;
-            } else {
-                /*
-                 * Input file name not specified with "-r", and a command-line argument
-                 * was specified; treat it as the input file name.
-                 *
-                 * Yes, this is different from tshark, where non-flag command-line
-                 * arguments are a filter, but this works better on GUI desktops
-                 * where a command can be specified to be run to open a particular
-                 * file - yes, you could have "-r" as the last part of the command,
-                 * but that's a bit ugly.
-                 */
-                cf_name = new QString(g_strdup(argv[0]));
-
-            }
-            argc--;
-            argv++;
-        }
-
-        if (argc != 0) {
-            /*
-             * Extra command line arguments were specified; complain.
-             */
-            cmdarg_err("Invalid argument: %s", argv[0]);
-            arg_error = TRUE;
-        }
-    }
-    if (arg_error) {
-#ifndef HAVE_LIBPCAP
-        if (capture_option_specified) {
-            cmdarg_err("This version of Wireshark was not built with support for capturing packets.");
-        }
-#endif
-        print_usage(FALSE);
-        exit(1);
-    }
-
     /* Init the "Open file" dialog directory */
     /* (do this after the path settings are processed) */
 
@@ -1011,6 +952,80 @@ int main(int argc, char *argv[])
     qtTranslator.load("qt_" + locale, QLibraryInfo::location(QLibraryInfo::TranslationsPath));
     wsApp->installTranslator(&qtTranslator);
 
+    /* Now get our args */
+    while ((opt = getopt_long(argc, argv, optstring, long_options, NULL)) != -1) {
+        switch (opt) {
+        case 'r':
+            cf_name = new QString(optarg);
+            break;
+        case 'z':
+            /* We won't call the init function for the stat this soon
+             as it would disallow MATE's fields (which are registered
+             by the preferences set callback) from being used as
+             part of a tap filter.  Instead, we just add the argument
+             to a list of stat arguments. */
+            if (!process_stat_cmd_arg(optarg)) {
+                cmdarg_err("Invalid -z argument.");
+                cmdarg_err_cont("  -z argument must be one of :");
+                list_stat_cmd_args();
+                exit(1);
+            }
+            break;
+        default:
+        case '?':
+            print_usage(FALSE);
+            exit(0);
+            break;
+        }
+    }
+
+    if (!arg_error) {
+        argc -= optind;
+        argv += optind;
+        if (argc >= 1) {
+            if (cf_name != NULL) {
+                /*
+                 * Input file name specified with "-r" *and* specified as a regular
+                 * command-line argument.
+                 */
+                cmdarg_err("File name specified both with -r and regular argument");
+                arg_error = TRUE;
+            } else {
+                /*
+                 * Input file name not specified with "-r", and a command-line argument
+                 * was specified; treat it as the input file name.
+                 *
+                 * Yes, this is different from tshark, where non-flag command-line
+                 * arguments are a filter, but this works better on GUI desktops
+                 * where a command can be specified to be run to open a particular
+                 * file - yes, you could have "-r" as the last part of the command,
+                 * but that's a bit ugly.
+                 */
+                cf_name = new QString(g_strdup(argv[0]));
+
+            }
+            argc--;
+            argv++;
+        }
+
+        if (argc != 0) {
+            /*
+             * Extra command line arguments were specified; complain.
+             */
+            cmdarg_err("Invalid argument: %s", argv[0]);
+            arg_error = TRUE;
+        }
+    }
+    if (arg_error) {
+#ifndef HAVE_LIBPCAP
+        if (capture_option_specified) {
+            cmdarg_err("This version of Wireshark was not built with support for capturing packets.");
+        }
+#endif
+        print_usage(FALSE);
+        exit(1);
+    }
+
     /* Removed thread code:
      * https://code.wireshark.org/review/gitweb?p=wireshark.git;a=commit;h=9e277ae6154fd04bf6a0a34ec5655a73e5a736a3
      */
@@ -1103,7 +1118,19 @@ int main(int argc, char *argv[])
             display_filter = new QString();
         if (cf_name == NULL)
             cf_name = new QString();
+
+        // XXX We need to call cf_open + start_requested_stats + cf_read
+        // similar to gtk/main.c:3110.
         main_w->openCaptureFile(*cf_name, *display_filter, in_file_type);
+
+        /* Open stat windows; we do so after creating the main window,
+           to avoid Qt warnings, and after successfully opening the
+           capture file, so we know we have something to compute stats
+           on, and after registering all dissectors, so that MATE will
+           have registered its field array and we can have a tap filter
+           with one of MATE's late-registered fields as part of the
+           filter. */
+        start_requested_stats();
     }
 
     g_main_loop_new(NULL, FALSE);

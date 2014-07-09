@@ -22,6 +22,7 @@
 #include "io_graph_dialog.h"
 #include "ui_io_graph_dialog.h"
 
+#include <epan/stat_cmd_args.h>
 #include "epan/stats_tree_priv.h"
 #include "epan/uat-int.h"
 
@@ -49,10 +50,13 @@
 // - You can't manually set a graph color other than manually editing the io_graphs
 //   UAT. We should add a "graph color" preference.
 // - We retap and redraw more than we should.
-// - We don't use scroll bars. Should we?
-// - We should automatically scroll during live captures.
 // - Smoothing doesn't seem to match GTK+
 // - We don't register a tap listener ("-z io,stat", bottom of gtk/io_stat.c)
+
+// To do:
+// - Use scroll bars?
+// - Scroll during live captures
+// - Set ticks per pixel (e.g. pressing "2" sets 2 tpp).
 
 const int name_col_    = 0;
 const int dfilter_col_ = 1;
@@ -2151,6 +2155,21 @@ void IOGraph::tapDraw(void *iog_ptr)
     if (iog->bars_) {
 //        qDebug() << "=tapDraw b" << iog->name_ << iog->bars_->data()->keys().size();
     }
+}
+
+// Stat command + args
+
+static void
+io_graph_init(const char *opt_arg _U_, void* userdata _U_) {
+    wsApp->emitStatCommandSignal("IOGraph", NULL, NULL);
+}
+
+extern "C" {
+void
+register_tap_listener_qt_iostat(void)
+{
+    register_stat_cmd_arg("io,stat", io_graph_init, NULL);
+}
 }
 
 /*

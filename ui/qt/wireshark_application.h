@@ -71,6 +71,7 @@ public:
 
     void registerUpdate(register_action_e action, const char *message);
     void emitAppSignal(AppSignal signal);
+    void emitStatCommandSignal(const QString &menu_path, const char *arg, void *userdata);
     void allSystemsGo();
     e_prefs * readConfigurationFiles(char **gdp_path, char **dp_path);
     QList<recent_item_status *> recentItems() const;
@@ -126,6 +127,8 @@ signals:
     void captureFileReadFinished(const capture_file *cf);
     void captureFileClosing(const capture_file *cf);
     void captureFileClosed(const capture_file *cf);
+
+    void openStatCommandDialog(const QString &menu_path, const char *arg, void *userdata);
 
 public slots:
     void clearRecentItems();

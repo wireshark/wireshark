@@ -97,6 +97,7 @@
 
 #include <QClipboard>
 #include <QMessageBox>
+#include <QMetaObject>
 
 #include <QDebug>
 
@@ -1189,6 +1190,12 @@ void MainWindow::displayFilterButtonClicked()
     }
 }
 
+void MainWindow::openStatCommandDialog(const QString &menu_path, const char *arg, void *userdata)
+{
+    QString slot = QString("statCommand%1").arg(menu_path);
+    QMetaObject::invokeMethod(this, slot.toLatin1().constData(), Q_ARG(const char *, arg), Q_ARG(void *, userdata));
+}
+
 // File Menu
 
 void MainWindow::on_actionFileOpen_triggered()
@@ -2082,8 +2089,10 @@ void MainWindow::on_actionStatisticsPacketLen_triggered()
     openStatisticsTreeDialog("plen");
 }
 
-void MainWindow::on_actionStatisticsIOGraph_triggered()
+void MainWindow::statCommandIOGraph(const char *arg, void *userdata)
 {
+    Q_UNUSED(arg);
+    Q_UNUSED(userdata);
     IOGraphDialog *iog_dialog = new IOGraphDialog(this, cap_file_);
     connect(iog_dialog, SIGNAL(goToPacket(int)), packet_list_, SLOT(goToPacket(int)));
     connect(this, SIGNAL(setCaptureFile(capture_file*)),
@@ -2091,6 +2100,10 @@ void MainWindow::on_actionStatisticsIOGraph_triggered()
     iog_dialog->show();
 }
 
+void MainWindow::on_actionStatisticsIOGraph_triggered()
+{
+    statCommandIOGraph(NULL, NULL);
+}
 void MainWindow::on_actionStatisticsSametime_triggered()
 {
     openStatisticsTreeDialog("sametime");
