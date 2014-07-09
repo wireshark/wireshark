@@ -3619,7 +3619,7 @@ proto_register_usb(void)
 
         { &hf_usb_index,
           { "wIndex", "usb.setup.wIndex",
-            FT_UINT16, BASE_DEC, NULL, 0x0,
+            FT_UINT16, BASE_DEC_HEX, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_usb_length,
