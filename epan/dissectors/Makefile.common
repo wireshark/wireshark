@@ -403,6 +403,7 @@ DISSECTOR_SRC = \
 	packet-corosync-totemnet.c	\
 	packet-corosync-totemsrp.c	\
 	packet-cosine.c		\
+	packet-couchbase.c	\
 	packet-cp2179.c		\
 	packet-cpfi.c		\
 	packet-cpha.c		\

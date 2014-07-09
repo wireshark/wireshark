@@ -70,6 +70,7 @@ RakNet games library
 (LISP) TCP Control Message
 Android ADB
 Android Logcat text
+Couchbase
 --sort-and-group--
 
 === Updated Protocol Support

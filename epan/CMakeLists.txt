@@ -483,6 +483,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-corosync-totemnet.c
 	dissectors/packet-corosync-totemsrp.c
 	dissectors/packet-cosine.c
+	dissectors/packet-couchbase.c
 	dissectors/packet-cp2179.c
 	dissectors/packet-cpfi.c
 	dissectors/packet-cpha.c
