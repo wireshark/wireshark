@@ -147,6 +147,14 @@ struct remote_host_info {
     gboolean nocap_local;
 };
 
+struct remote_host {
+  gchar    *r_host;          /**< Host name or network address for remote capturing */
+  gchar    *remote_port;          /**< TCP port of remote RPCAP server */
+  gint      auth_type;            /**< Authentication type */
+  gchar    *auth_username;        /**< Remote authentication parameters */
+  gchar    *auth_password;        /**< Remote authentication parameters */
+};
+
 typedef struct remote_options_tag {
     capture_source src_type;
     struct remote_host_info remote_host_opts;

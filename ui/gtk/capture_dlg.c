@@ -239,7 +239,6 @@ static gint marked_interface;
 static gint marked_row;
 
 #ifdef HAVE_PCAP_REMOTE
-static GHashTable *remote_host_list=NULL;
 static remote_options global_remote_opts;
 static guint num_selected = 0;
 #endif
@@ -1088,16 +1087,16 @@ iftype_combo_box_add (GtkWidget *iftype_cbx, interface_t *device)
   gboolean      create_new = FALSE;
   gchar        *string;
   guint         pos = REMOTE_HOST_START;
-  struct remote_host_info *rh;
+  struct remote_host *rh;
 
-  rh = g_hash_table_lookup (remote_host_list, device->remote_opts.remote_host_opts.remote_host);
+  rh = recent_get_remote_host(device->remote_opts.remote_host_opts.remote_host);
   if (!rh) {
     rh = g_malloc0 (sizeof (*rh));
-    if (g_hash_table_size (remote_host_list) == 0) {
+    if (recent_get_remote_host_list_size() == 0) {
       iftype_combo_box_add_remote_separators (iftype_cbx);
     }
     gtk_combo_box_text_insert_text(GTK_COMBO_BOX_TEXT(iftype_cbx), pos, device->remote_opts.remote_host_opts.remote_host);
-    rh->remote_host = g_strdup (device->remote_opts.remote_host_opts.remote_host);
+    rh->r_host = g_strdup (device->remote_opts.remote_host_opts.remote_host);
     create_new = TRUE;
   } else {
     model = (GtkTreeModel *)gtk_combo_box_get_model(GTK_COMBO_BOX(iftype_cbx));
@@ -1127,7 +1126,7 @@ iftype_combo_box_add (GtkWidget *iftype_cbx, interface_t *device)
   rh->auth_password = g_strdup (device->remote_opts.remote_host_opts.auth_password);
 
   if (create_new) {
-    g_hash_table_insert (remote_host_list, g_strdup (device->remote_opts.remote_host_opts.remote_host), rh);
+    recent_add_remote_host(g_strdup (device->remote_opts.remote_host_opts.remote_host), rh);
   }
 
   g_object_set_data(G_OBJECT(iftype_cbx), E_CAP_CBX_IFTYPE_NOUPDATE_KEY, GINT_TO_POINTER(1));
@@ -1139,13 +1138,6 @@ static void
 iftype_combo_box_add_remote_host (gpointer key, gpointer value _U_, gpointer user_data)
 {
   gtk_combo_box_text_insert_text(GTK_COMBO_BOX_TEXT(user_data), REMOTE_HOST_START, key);
-
-/*  if (g_array_index(global_capture_opts.ifaces, interface_options, 0).src_type == CAPTURE_IFREMOTE) {*/
-    /* Ensure we select the correct entry */
- /*   if (strcmp ((char *)key, g_array_index(global_capture_opts.ifaces, interface_options, 0).remote_host) == 0) {
-      gtk_combo_box_set_active(GTK_COMBO_BOX(user_data), REMOTE_HOST_START);
-    }
-  }*/
 }
 
 /* Fill the menu of available types of interfaces */
@@ -1153,16 +1145,14 @@ static GtkWidget *
 iftype_combo_box_new(void)
 {
   GtkWidget *iftype_cbx;
+  GHashTable *ht;
 
   iftype_cbx = gtk_combo_box_text_new_with_entry();
 
- /* for (i = 0; i < sizeof(iftype) / sizeof(iftype[0]); i++) {
-    gtk_combo_box_text_append_text(GTK_COMBO_BOX(iftype_cbx), iftype[i].name);
-  }*/
-
-  if (g_hash_table_size (remote_host_list) > 0) {
+  ht = get_remote_host_list();
+  if (g_hash_table_size (ht) > 0) {
     /* Add remote hosts */
-    g_hash_table_foreach (remote_host_list, iftype_combo_box_add_remote_host, iftype_cbx);
+    g_hash_table_foreach (ht, iftype_combo_box_add_remote_host, iftype_cbx);
     iftype_combo_box_add_remote_separators (iftype_cbx);
   }
 
@@ -1410,7 +1400,6 @@ update_interface_list(void)
                                         global_remote_opts.remote_host_opts.auth_username,
                                         global_remote_opts.remote_host_opts.auth_password,
                                         &err, &err_str);
-
     if_list = if_r_list;
   } else {
     if_list = capture_interface_list(&err, &err_str, main_window_update);   /* Warning: see capture_prep_cb() */
@@ -1466,6 +1455,7 @@ capture_remote_ok_cb(GtkWidget *win _U_, GtkWidget *remote_w)
 {
   GtkWidget *host_te, *port_te, *username_te, *passwd_te, *auth_passwd_rb;
   gchar     *hostname;
+  struct remote_host *rh;
 
   if (remote_w == NULL) {
     return;
@@ -1494,6 +1484,15 @@ capture_remote_ok_cb(GtkWidget *win _U_, GtkWidget *remote_w)
   global_remote_opts.remote_host_opts.auth_password =
     g_strdup(gtk_entry_get_text(GTK_ENTRY(passwd_te)));
 
+  rh = g_malloc (sizeof (*rh));
+  rh->r_host = g_strdup(global_remote_opts.remote_host_opts.remote_host);
+  rh->remote_port = g_strdup(global_remote_opts.remote_host_opts.remote_port);
+  rh->auth_type = global_remote_opts.remote_host_opts.auth_type;
+  rh->auth_password = g_strdup("");
+  rh->auth_username = g_strdup("");
+
+  recent_add_remote_host(hostname, rh);
+
   update_interface_list();
   fill_remote_list();
   window_destroy(GTK_WIDGET(g_object_get_data(G_OBJECT(interface_management_w), E_CAP_REMOTE_DIALOG_PTR_KEY)));
@@ -1505,19 +1504,6 @@ capture_remote_cancel_cb(GtkWidget *win, gpointer data)
   window_cancel_button_cb (win, data);
 }
 
-static gboolean
-free_remote_host (gpointer key _U_, gpointer value, gpointer user _U_)
-{
-  struct remote_host *rh = value;
-
-  g_free (rh->remote_host);
-  g_free (rh->remote_port);
-  g_free (rh->auth_username);
-  g_free (rh->auth_password);
-
-  return TRUE;
-}
-
 static void
 select_if_type_cb(GtkComboBox *iftype_cbx, gpointer data _U_)
 {
@@ -1527,10 +1513,10 @@ select_if_type_cb(GtkComboBox *iftype_cbx, gpointer data _U_)
   struct remote_host *rh;
 
   int new_iftype = gtk_combo_box_get_active(GTK_COMBO_BOX(iftype_cbx));
-  gint num_remote = g_hash_table_size (remote_host_list);
+  gint num_remote = recent_get_remote_host_list_size();
 
   if (new_iftype != -1 && new_iftype == num_remote+1) {
-    g_hash_table_foreach_remove (remote_host_list, free_remote_host, NULL);
+    free_remote_host_list();
     num_remote += 2;
     while (num_remote--) { /* Remove separator lines and "Clear" item */
       gtk_combo_box_text_remove (GTK_COMBO_BOX_TEXT(iftype_cbx), num_remote);
@@ -1540,7 +1526,7 @@ select_if_type_cb(GtkComboBox *iftype_cbx, gpointer data _U_)
     capture_remote_cb(GTK_WIDGET(iftype_cbx), FALSE);
   } else {
     string = gtk_combo_box_text_get_active_text (GTK_COMBO_BOX_TEXT(iftype_cbx));
-    rh = g_hash_table_lookup (remote_host_list, string);
+    rh = recent_get_remote_host(string);
     g_free (string);
     if (rh) {
       remote_w = g_object_get_data(G_OBJECT(interface_management_w), E_CAP_REMOTE_DIALOG_PTR_KEY);
@@ -1928,81 +1914,6 @@ options_remote_cb(GtkWidget *w _U_, gpointer d _U_)
 
   gtk_widget_show_all(opt_remote_w);
   window_present(opt_remote_w);
-}
-
-static void
-recent_print_remote_host (gpointer key _U_, gpointer value, gpointer user)
-{
-  FILE *rf = user;
-  struct remote_host_info *ri = value;
-
-  fprintf (rf, RECENT_KEY_REMOTE_HOST ": %s,%s,%d\n", ri->remote_host, ri->remote_port, ri->auth_type);
-}
-
-void
-capture_remote_combo_recent_write_all(FILE *rf)
-{
-  if (remote_host_list && g_hash_table_size (remote_host_list) > 0) {
-    /* Write all remote interfaces to the recent file */
-    g_hash_table_foreach (remote_host_list, recent_print_remote_host, rf);
-  }
-}
-
-gboolean
-capture_remote_combo_add_recent(const gchar *s)
-{
-  GList *vals = prefs_get_string_list (s);
-  GList *valp = vals;
-  gint   auth_type;
-  char  *p;
-  struct remote_host_info *rh;
-
-  if (valp == NULL)
-    return FALSE;
-
-  if (remote_host_list == NULL) {
-    remote_host_list = g_hash_table_new (g_str_hash, g_str_equal);
-  }
-
-  rh = g_malloc (sizeof (*rh));
-
-  /* First value is the host */
-  rh->remote_host = g_strdup (valp->data);
-  if (strlen(rh->remote_host) == 0) {
-    /* Empty remote host */
-    g_free(rh->remote_host);
-    g_free(rh);
-    return FALSE;
-  }
-  rh->auth_type = CAPTURE_AUTH_NULL;
-  valp = valp->next;
-
-  if (valp) {
-    /* Found value 2, this is the port number */
-    rh->remote_port = g_strdup (valp->data);
-    valp = valp->next;
-  } else {
-    /* Did not find a port number */
-    rh->remote_port = g_strdup ("");
-  }
-
-  if (valp) {
-    /* Found value 3, this is the authentication type */
-    auth_type = strtol(valp->data, &p, 0);
-    if (p != valp->data && *p == '\0') {
-      rh->auth_type = auth_type;
-    }
-  }
-
-  /* Do not store username and password */
-  rh->auth_username = g_strdup ("");
-  rh->auth_password = g_strdup ("");
-
-  prefs_clear_string_list(vals);
-
-  g_hash_table_insert (remote_host_list, g_strdup(rh->remote_host), rh);
-
-  return TRUE;
 }
 
 #endif /* HAVE_PCAP_REMOTE */
@@ -3667,6 +3578,14 @@ pipe_sel_list_cb(GtkTreeSelection *sel, gpointer data _U_)
 static void
 cancel_pipe_cb (gpointer w _U_)
 {
+#ifdef HAVE_PCAP_REMOTE
+  GtkWidget *remote_w;
+  if (interface_management_w && G_IS_OBJECT(interface_management_w)) {
+      remote_w = g_object_get_data(G_OBJECT(interface_management_w), E_CAP_REMOTE_DIALOG_PTR_KEY);
+  }
+  if (remote_w != NULL && G_IS_OBJECT(remote_w))
+      window_destroy(remote_w);
+#endif
   window_destroy(GTK_WIDGET(interface_management_w));
   pipe_name = NULL;
 }
@@ -4622,12 +4541,6 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   capture_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, DLG_UNRELATED_SPACING, FALSE);
   gtk_container_set_border_width(GTK_CONTAINER(capture_vb), DLG_OUTER_MARGIN);
   gtk_container_add(GTK_CONTAINER(capture_fr), capture_vb);
-
-#if defined (HAVE_PCAP_REMOTE)
-  if (remote_host_list == NULL) {
-    remote_host_list = g_hash_table_new (g_str_hash, g_str_equal);
-  }
-#endif
 
   swindow = gtk_scrolled_window_new (NULL, NULL);
   gtk_widget_set_size_request(swindow, 676, 100);
@@ -5829,7 +5742,6 @@ capture_prep_destroy_cb(GtkWidget *win _U_, gpointer user_data _U_)
   GtkWidget *fs;
 #ifdef HAVE_PCAP_REMOTE
   GList     *if_list;
-  GtkWidget *remote_w = NULL;
 #endif
 
   if (!cap_open_w || !G_IS_OBJECT(cap_open_w))
@@ -5857,14 +5769,6 @@ capture_prep_destroy_cb(GtkWidget *win _U_, gpointer user_data _U_)
   /* update airpcap toolbar */
   if (airpcap_if_active)
     airpcap_set_toolbar_stop_capture(airpcap_if_active);
-#endif
-
-#ifdef HAVE_PCAP_REMOTE
-  if (interface_management_w && G_IS_OBJECT(interface_management_w)) {
-      remote_w = g_object_get_data(G_OBJECT(interface_management_w), E_CAP_REMOTE_DIALOG_PTR_KEY);
-  }
-  if (remote_w != NULL)
-      window_destroy(remote_w);
 #endif
 }
 

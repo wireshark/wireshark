@@ -536,7 +536,6 @@ HEADERS += \
     capture_filter_edit.h \
     capture_filter_syntax_worker.h \
     capture_info_dialog.h \
-    capture_interface_dialog.h \
     color_dialog.h \
     color_utils.h \
     display_filter_combo.h \
@@ -579,7 +578,6 @@ SOURCES += \
     capture_filter_edit.cpp \
     capture_filter_syntax_worker.cpp \
     capture_info_dialog.cpp \
-    capture_interface_dialog.cpp \
     capture_interfaces_dialog.cpp \
     capture_preferences_frame.cpp \
     color_dialog.cpp \

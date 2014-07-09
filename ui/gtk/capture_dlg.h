@@ -75,16 +75,6 @@ void capture_restart_cb(GtkWidget *widget, gpointer data);
 void
 capture_air_cb(GtkWidget *widget, gpointer data);
 
-#ifdef HAVE_PCAP_REMOTE
-struct remote_host {
-  gchar    *remote_host;          /**< Host name or network address for remote capturing */
-  gchar    *remote_port;          /**< TCP port of remote RPCAP server */
-  gint      auth_type;            /**< Authentication type */
-  gchar    *auth_username;        /**< Remote authentication parameters */
-  gchar    *auth_password;        /**< Remote authentication parameters */
-};
-#endif
-
 gboolean
 capture_dlg_window_present(void);
 

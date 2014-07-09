@@ -29,6 +29,7 @@
 #include <ctype.h>
 #include <errno.h>
 
+#include "capture_opts.h"
 #include <epan/epan.h>
 #include <wsutil/filesystem.h>
 #include <epan/emem.h>
@@ -364,6 +365,134 @@ recent_add_cfilter(const gchar *ifname, const gchar *s)
   else
     g_hash_table_insert(per_interface_cfilter_lists_hash, g_strdup(ifname), cfilter_list);
 }
+
+#ifdef HAVE_PCAP_REMOTE
+static GHashTable *remote_host_list=NULL;
+
+int recent_get_remote_host_list_size()
+{
+    return g_hash_table_size (remote_host_list);
+}
+
+void recent_add_remote_host(gchar *host, struct remote_host *rh)
+{
+    if (remote_host_list == NULL) {
+      remote_host_list = g_hash_table_new (g_str_hash, g_str_equal);
+    }
+    g_hash_table_insert (remote_host_list, g_strdup(host), rh);
+}
+
+static gboolean
+free_remote_host (gpointer key _U_, gpointer value, gpointer user _U_)
+{
+  struct remote_host *rh = value;
+
+  g_free (rh->r_host);
+  g_free (rh->remote_port);
+  g_free (rh->auth_username);
+  g_free (rh->auth_password);
+
+  return TRUE;
+}
+
+GHashTable *get_remote_host_list()
+{
+    return remote_host_list;
+}
+
+static void
+recent_print_remote_host (gpointer key _U_, gpointer value, gpointer user)
+{
+  FILE *rf = user;
+  struct remote_host_info *ri = value;
+
+  fprintf (rf, RECENT_KEY_REMOTE_HOST ": %s,%s,%d\n", ri->remote_host, ri->remote_port, ri->auth_type);
+}
+
+void
+capture_remote_combo_recent_write_all(FILE *rf)
+{
+  if (remote_host_list && g_hash_table_size (remote_host_list) > 0) {
+    /* Write all remote interfaces to the recent file */
+    g_hash_table_foreach (remote_host_list, recent_print_remote_host, rf);
+  }
+}
+
+
+void free_remote_host_list()
+{
+    g_hash_table_foreach_remove(remote_host_list, free_remote_host, NULL);
+}
+
+struct remote_host *
+recent_get_remote_host(const gchar *host)
+{
+  if (host == NULL)
+    return NULL;
+  if (remote_host_list == NULL) {
+    /* No such host exist. */
+    return NULL;
+  }
+  return (struct remote_host *)g_hash_table_lookup(remote_host_list, host);
+}
+
+gboolean
+capture_remote_combo_add_recent(const gchar *s)
+{
+  GList *vals = prefs_get_string_list (s);
+  GList *valp = vals;
+  gint   auth_type;
+  char  *p;
+  struct remote_host *rh;
+
+  if (valp == NULL)
+    return FALSE;
+
+  if (remote_host_list == NULL) {
+    remote_host_list = g_hash_table_new (g_str_hash, g_str_equal);
+  }
+
+  rh = g_malloc (sizeof (*rh));
+
+  /* First value is the host */
+  rh->r_host = g_strdup (valp->data);
+  if (strlen(rh->r_host) == 0) {
+    /* Empty remote host */
+    g_free(rh->r_host);
+    g_free(rh);
+    return FALSE;
+  }
+  rh->auth_type = CAPTURE_AUTH_NULL;
+  valp = valp->next;
+
+  if (valp) {
+    /* Found value 2, this is the port number */
+    rh->remote_port = g_strdup (valp->data);
+    valp = valp->next;
+  } else {
+    /* Did not find a port number */
+    rh->remote_port = g_strdup ("");
+  }
+
+  if (valp) {
+    /* Found value 3, this is the authentication type */
+    auth_type = strtol(valp->data, &p, 0);
+    if (p != valp->data && *p == '\0') {
+      rh->auth_type = auth_type;
+    }
+  }
+
+  /* Do not store username and password */
+  rh->auth_username = g_strdup ("");
+  rh->auth_password = g_strdup ("");
+
+  prefs_clear_string_list(vals);
+
+  g_hash_table_insert (remote_host_list, g_strdup(rh->r_host), rh);
+
+  return TRUE;
+}
+#endif
 
 static void
 cfilter_recent_write_all_list(FILE *rf, const gchar *ifname, GList *cfilter_list)

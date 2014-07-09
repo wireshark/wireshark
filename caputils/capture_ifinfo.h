@@ -27,6 +27,8 @@
 extern "C" {
 #endif /* __cplusplus */
 
+#include <glib.h>
+
 typedef enum {
 	IF_WIRED,
 	IF_AIRPCAP,
