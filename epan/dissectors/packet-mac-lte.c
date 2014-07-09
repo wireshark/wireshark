@@ -553,6 +553,20 @@ static const value_string rar_bi_vals[] =
 };
 
 
+static const value_string rar_ul_grant_tcsp_vals[] =
+{
+    { 0, "-6"},
+    { 1, "-4" },
+    { 2, "-2" },
+    { 3, "0" },
+    { 4, "2" },
+    { 5, "4" },
+    { 6, "6" },
+    { 7, "8" },
+    { 0, NULL }
+};
+
+
 static const value_string buffer_size_vals[] =
 {
     { 0,      "BS = 0"},
@@ -6509,8 +6523,8 @@ void proto_register_mac_lte(void)
         },
         { &hf_mac_lte_rar_ul_grant_tcsp,
             { "TPC command for scheduled PUSCH",
-              "mac-lte.rar.ul-grant.tcsp", FT_UINT8, BASE_DEC, 0, 0x01c,
-              NULL, HFILL
+              "mac-lte.rar.ul-grant.tcsp", FT_UINT8, BASE_DEC, VALS(rar_ul_grant_tcsp_vals), 0x01c,
+              "PUSCH power offset in dB" , HFILL
             }
         },
         { &hf_mac_lte_rar_ul_grant_ul_delay,
