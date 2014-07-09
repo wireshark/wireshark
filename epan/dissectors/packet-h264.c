@@ -259,11 +259,8 @@ static int ett_h264_ms_layer_description                   = -1;
 static int ett_h264_ms_crop_data                           = -1;
 
 static expert_field ei_h264_undecoded = EI_INIT;
-static expert_field ei_h264_ms_layout_missing_presence = EI_INIT;
 static expert_field ei_h264_ms_layout_wrong_length = EI_INIT;
 static expert_field ei_h264_bad_nal_length = EI_INIT;
-static expert_field ei_h264_ms_sei_extra_data = EI_INIT;
-static expert_field ei_h264_sei_invalid_length = EI_INIT;
 
 /* The dynamic payload type range which will be dissected as H.264 */
 
@@ -1372,33 +1369,20 @@ h264_user_data_unregistered(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo 
         /* Loop through the layer presence bytes 0-7 */
         for (i = 0; i < 8 ; i++)
         {
-            proto_tree_add_item (tree, hf_h264_sei_ms_lpb, tvb, offset, 1, ENC_BIG_ENDIAN);
+            item = proto_tree_add_item (tree, hf_h264_sei_ms_lpb, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_item_append_text (item, "  PRID %2d - %2d", (i+1)*8-1, i*8);
             offset++;
         }
-        /* Get the presence bit for the layer description.
-         * NOTE: This byte is supposed to be in the structure according to the spec but seems to be missing in the Microsoft implementation.
-         * So to determine if it is there check for a value less than or equal to 1.  When Microsoft forgets to put it in the length is next and that
-         * has a minimum size of 16.
-         */
         p_flag = tvb_get_guint8 (tvb, offset);
-        if (p_flag <= 1)
-        {
-            proto_tree_add_item (tree, hf_h264_sei_ms_layout_p, tvb, offset, 1, ENC_BIG_ENDIAN);
-            offset++;
-        }
-        else
-        {
-            /* When it is missing act like it was set to 1. */
-            proto_tree_add_expert(tree, pinfo, &ei_h264_ms_layout_missing_presence, tvb, offset, 0);
-            p_flag = 1;
-        }
+        proto_tree_add_item (tree, hf_h264_sei_ms_layout_p, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset++;
         if (p_flag == 1)
         {
             ld_size = tvb_get_guint8 (tvb, offset);
             proto_tree_add_item (tree, hf_h264_sei_ms_layout_ldsize, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
-            /* MS Errata - Microsoft seems to be setting the LD size to 1 but then including 2 layer descriptions
-             * To compensate for that keep decoding layers as long as there are 16 or more bytes left in the SEI message.
+            /* MS Errata - Microsoft seems to be setting the LD size to 16 but then including 2 layer descriptions which should be 32
+             * To compensate for that, keep decoding layers as long as there are 16 or more bytes left in the SEI message.
              */
             if (tvb_reported_length_remaining (tvb, offset) != ld_size)
             {
@@ -1421,13 +1405,6 @@ h264_user_data_unregistered(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo 
                 proto_tree_add_item (h264_ms_layer_desc_tree, hf_h264_sei_ms_layer_desc_prid,           tvb, offset + 13, 1, ENC_BIG_ENDIAN);
                 proto_tree_add_item (h264_ms_layer_desc_tree, hf_h264_sei_ms_layer_desc_cb,             tvb, offset + 13, 1, ENC_BIG_ENDIAN);
                 offset += 16;
-            }
-            if (tvb_reported_length_remaining (tvb, offset) != 0)
-            {
-                item = proto_tree_add_expert(tree, pinfo, &ei_h264_ms_sei_extra_data, tvb, offset, tvb_reported_length_remaining (tvb, offset));
-                proto_item_append_text(item," Extra %d bytes", tvb_reported_length_remaining (tvb, offset));
-                /* Skip over data. */
-                offset += tvb_reported_length_remaining (tvb, offset);
             }
         }
     }
@@ -2092,7 +2069,6 @@ dissect_h264_pacsi(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint off
     tvbuff_t    *nalu_tvb;
     gboolean    error = FALSE;
     gboolean    contains_sei = FALSE;
-    proto_item  *item;
 
     offset = dissect_h264_svc_nal_header_extension(tree, tvb, pinfo, offset);
 
@@ -2129,18 +2105,6 @@ dissect_h264_pacsi(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint off
     while (tvb_reported_length_remaining(tvb, offset) > 0 && !error)
     {
         nal_unit_size = tvb_get_ntohs(tvb, offset);
-        /* Perform a sanity check on the value. */
-        if (nal_unit_size == 0 || nal_unit_size > tvb_reported_length_remaining(tvb, offset))
-        {
-            /* Microsoft has a bug where it doesn't put in the P flag byte in the Layout message, but sets the size as if is there, so the size is off by
-             * byte too many in the first SEI message.   Back up one and then try again.
-             */
-            item = proto_tree_add_expert(tree, pinfo, &ei_h264_sei_invalid_length, tvb, offset, 2);
-            proto_item_append_text (item, " Size is %d, Remaining:%d, Try backing up 1 byte.",
-                    nal_unit_size, tvb_reported_length_remaining(tvb, offset));
-            offset--;
-            nal_unit_size = tvb_get_ntohs(tvb, offset);
-        }
         proto_tree_add_item(tree, hf_h264_nalu_size, tvb, offset, 2, ENC_NA);
         offset += 2;
 
@@ -3465,17 +3429,17 @@ proto_register_h264(void)
             NULL, HFILL }
         },
         { &hf_h264_sei_ms_lpb,
-            { "Stream Layer Presence", "h264.sei.ms.layout.lpb",
+            { "Layer Presence", "h264.sei.ms.layout.lpb",
             FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_h264_sei_ms_layout_p,
-            { "Stream Layer Description Presence", "h264.sei.ms.layout.p",
+            { "Layer Description Present", "h264.sei.ms.layout.p",
             FT_BOOLEAN, 8, NULL, 0x01,
             NULL, HFILL }
         },
         { &hf_h264_sei_ms_layout_ldsize,
-            { "Stream Layer Description Size", "h264.sei.ms.layout.desc.ldsize",
+            { "Layer Description Size", "h264.sei.ms.layout.desc.ldsize",
             FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
@@ -3704,10 +3668,7 @@ proto_register_h264(void)
 
     static ei_register_info ei[] = {
         { &ei_h264_undecoded, { "h264.undecoded", PI_UNDECODED, PI_WARN, "[Not decoded yet]", EXPFILL }},
-        { &ei_h264_ms_layout_missing_presence, { "h264.ms_layout.missing_presence", PI_PROTOCOL, PI_WARN, "[Missing Presence Byte]", EXPFILL }},
         { &ei_h264_ms_layout_wrong_length, { "h264.ms_layout.wrong_length", PI_PROTOCOL, PI_WARN, "[Wrong Layer Description Table Length]", EXPFILL }},
-        { &ei_h264_ms_sei_extra_data, { "h264.sei_extra_data", PI_PROTOCOL, PI_WARN, "[Extra data in SEI message]", EXPFILL }},
-        { &ei_h264_sei_invalid_length, { "h264.sei_invalid_length", PI_PROTOCOL, PI_WARN, "[Bad SEI Unit Size in PACSI]", EXPFILL }},
         { &ei_h264_bad_nal_length, { "h264.bad_nalu_length", PI_MALFORMED, PI_ERROR, "[Bad NAL Unit Length]", EXPFILL }},
     };
 
