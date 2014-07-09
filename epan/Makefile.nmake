@@ -63,7 +63,7 @@ libwireshark_LIBS = \
 	$(LUA_LIBS) \
 	$(SMI_LIBS) \
 	$(GEOIP_LIBS) \
-	..\wsutil\libwsutil.lib \
+	..\wsutil\wsutil.lib \
 	..\wiretap\wiretap-$(WTAP_VERSION).lib \
 	crypt\airpdcap.lib \
 	ftypes\ftypes.lib \
@@ -265,7 +265,7 @@ TVBTEST_OBJ=tvbtest.obj
 TVBTEST_LIBS= ..\wiretap\wiretap-$(WTAP_VERSION).lib \
 	wsock32.lib user32.lib \
 	$(GLIB_LIBS) \
-	..\wsutil\libwsutil.lib \
+	..\wsutil\wsutil.lib \
 	$(GNUTLS_LIBS) \
 !IFDEF ENABLE_LIBWIRESHARK
 	libwireshark.lib \
@@ -293,7 +293,7 @@ OIDS_TEST_OBJ=oids_test.obj
 OIDS_TEST_LIBS= ..\wiretap\wiretap-$(WTAP_VERSION).lib \
 	wsock32.lib user32.lib \
 	$(GLIB_LIBS) \
-	..\wsutil\libwsutil.lib \
+	..\wsutil\wsutil.lib \
 	$(GNUTLS_LIBS) \
 !IFDEF ENABLE_LIBWIRESHARK
 	libwireshark.lib \
@@ -322,7 +322,7 @@ REASSEMBLE_TEST_OBJ=reassemble_test.obj
 REASSEMBLE_TEST_LIBS= ..\wiretap\wiretap-$(WTAP_VERSION).lib \
 	wsock32.lib user32.lib \
 	$(GLIB_LIBS) \
-	..\wsutil\libwsutil.lib \
+	..\wsutil\wsutil.lib \
 	$(GNUTLS_LIBS) \
 !IFDEF ENABLE_LIBWIRESHARK
 	libwireshark.lib \

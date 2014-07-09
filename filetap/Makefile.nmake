@@ -23,7 +23,7 @@ OBJECTS=$(NONGENERATED_C_FILES:.c=.obj)
 
 filetap_LIBS = \
 	$(GLIB_LIBS)	\
-	..\wsutil\libwsutil.lib \
+	..\wsutil\wsutil.lib \
 	$(ZLIB_LIBS)
 
 all: filetap-$(FTAP_VERSION).dll
