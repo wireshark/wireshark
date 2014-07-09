@@ -1730,8 +1730,11 @@ add_custom_command(OUTPUT libwireshark.abi.tar.gz
 
 # By default the name for a library with target name epan will be libepan,
 # but Ethereal is now named Wireshark
-SET_TARGET_PROPERTIES(epan PROPERTIES OUTPUT_NAME "wireshark")
-set_target_properties(epan PROPERTIES FOLDER "DLLs")
+SET_TARGET_PROPERTIES(epan PROPERTIES
+	OUTPUT_NAME "wireshark"
+	PREFIX "lib"
+	FOLDER "DLLs"
+)
 
 target_link_libraries(epan ${epan_LIBS})
 

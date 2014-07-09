@@ -58,10 +58,15 @@ add_library(filetap ${LINK_MODE_LIB}
 
 set(FULL_SO_VERSION "0.0.0")
 
-set_target_properties(filetap PROPERTIES COMPILE_DEFINITIONS "WS_BUILD_DLL")
-set_target_properties(filetap PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
-set_target_properties(filetap PROPERTIES VERSION ${FULL_SO_VERSION} SOVERSION 0)
-set_target_properties(filetap PROPERTIES FOLDER "DLLs")
+set_target_properties(filetap PROPERTIES
+	COMPILE_DEFINITIONS "WS_BUILD_DLL"
+	LINK_FLAGS "${WS_LINK_FLAGS}"
+	VERSION ${FULL_SO_VERSION} SOVERSION 0
+	FOLDER "DLLs"
+)
+IF(MSVC)
+	set_target_properties(filetap PROPERTIES OUTPUT_NAME "filetap-${PROJECT_VERSION}")
+ENDIF()
 
 ABICHECK(libfiletap)
 
