@@ -394,7 +394,7 @@ win32 {
     LIBS += $$PA_OBJECTS
     LIBS += \
         $${guilibsdll} $${HHC_LIBS} \
-        -L../../epan -llibwireshark -L../../wsutil -llibwsutil \
+        -L../../epan -llibwireshark -L../../wsutil -lwsutil \
 	-L../../wiretap -lwiretap-$${WTAP_VERSION} \
         -L../../capchild -llibcapchild -L../../caputils -llibcaputils \
 	-L.. -llibui -L../../codecs -lcodecs \
@@ -439,7 +439,7 @@ win32 {
 
     EXTRA_BINFILES += \
         ../../dumpcap.exe \
-        ../../epan/libwireshark.dll ../../wiretap/wiretap-$${WTAP_VERSION}.dll ../../wsutil/libwsutil.dll \
+        ../../epan/libwireshark.dll ../../wiretap/wiretap-$${WTAP_VERSION}.dll ../../wsutil/wsutil.dll \
         $${GLIB_DIR}/bin/libglib-2.0-0.dll $${GLIB_DIR}/bin/libgmodule-2.0-0.dll \
         $${GLIB_DIR}/bin/libgthread-2.0-0.dll $${GLIB_DIR}/bin/$${INTL_DLL} \
         $${C_ARES_DIR}/bin/libcares-2.dll $${ZLIB_DIR}/zlib1.dll \
