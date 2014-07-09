@@ -17,7 +17,7 @@ EXE=../../tshark.exe ../../editcap.exe \
 	../../wireshark.exe \
 !ENDIF
 	../../text2pcap.exe ../../mergecap.exe ../../capinfos.exe $(WIRESHARK_LIB_DIR)\WinPcap_$(WINPCAP_VERSION).exe
-DLL=../../wiretap/wiretap-$(WTAP_VERSION).dll ../../wsutil/libwsutil.dll
+DLL=../../wiretap/wiretap-$(WTAP_VERSION).dll ../../wsutil/wsutil.dll
 DOC=../../doc/ws.css				\
 	../../doc/capinfos.html			\
 	../../doc/dumpcap.html			\
