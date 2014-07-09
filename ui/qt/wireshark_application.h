@@ -132,7 +132,7 @@ public slots:
 
 private slots:
     void cleanup();
-    void itemStatusFinished(const QString &filename = "", qint64 size = 0, bool accessible = false);
+    void itemStatusFinished(const QString filename = "", qint64 size = 0, bool accessible = false);
     void refreshRecentFiles(void);
     void updateTaps();
 };

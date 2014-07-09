@@ -55,6 +55,7 @@
 #include <QEvent>
 #include <QFileOpenEvent>
 #include <QFontMetrics>
+#include <QMutableListIterator>
 #include <QTimer>
 #include <QUrl>
 
@@ -70,7 +71,7 @@ WiresharkApplication *wsApp = NULL;
 // MUST be UTF-8
 static char *last_open_dir = NULL;
 static bool updated_last_open_dir = FALSE;
-static QList<recent_item_status *> recent_items;
+static QList<recent_item_status *> recent_items_;
 
 void
 topic_action(topic_action_e action)
@@ -108,13 +109,13 @@ add_menu_recent_capture_file(const gchar *cf_name) {
     normalized_cf_name = QDir::cleanPath(normalized_cf_name);
     normalized_cf_name = QDir::toNativeSeparators(normalized_cf_name);
 
-    recent_item_status *ri;
-
     /* Iterate through the recent items list, removing duplicate entries and every
      * item above count_max
      */
     unsigned int cnt = 1;
-    foreach (ri, wsApp->recentItems()) {
+    QMutableListIterator<recent_item_status *> rii(recent_items_);
+    while (rii.hasNext()) {
+        recent_item_status *ri = rii.next();
         /* if this element string is one of our special items (separator, ...) or
          * already in the list or
          * this element is above maximum count (too old), remove it
@@ -128,7 +129,7 @@ add_menu_recent_capture_file(const gchar *cf_name) {
             ri->filename.compare(normalized_cf_name) == 0 ||
 #endif
             cnt >= prefs.gui_recent_files_count_max) {
-            wsApp->recentItems().removeOne(ri);
+            rii.remove();
             delete(ri);
             cnt--;
         }
@@ -143,7 +144,7 @@ extern "C" void menu_recent_file_write_all(FILE *rf) {
     /* we have to iterate backwards through the children's list,
      * so we get the latest item last in the file.
      */
-    QListIterator<recent_item_status *> rii(recent_items);
+    QListIterator<recent_item_status *> rii(recent_items_);
     rii.toBack();
     while (rii.hasPrevious()) {
         QString cf_name;
@@ -163,7 +164,7 @@ void WiresharkApplication::refreshRecentFiles(void) {
     RecentFileStatus *rf_status;
     QThread *rf_thread;
 
-    foreach (ri, recent_items) {
+    foreach (ri, recent_items_) {
         if (ri->in_thread) {
             continue;
         }
@@ -175,7 +176,8 @@ void WiresharkApplication::refreshRecentFiles(void) {
 
         connect(rf_thread, SIGNAL(started()), rf_status, SLOT(start()));
 
-        connect(rf_status, SIGNAL(statusFound(QString, qint64, bool)), this, SLOT(itemStatusFinished(QString, qint64, bool)));
+        connect(rf_status, SIGNAL(statusFound(QString, qint64, bool)),
+                this, SLOT(itemStatusFinished(QString, qint64, bool)), Qt::QueuedConnection);
         connect(rf_status, SIGNAL(finished()), rf_thread, SLOT(quit()));
         connect(rf_status, SIGNAL(finished()), rf_status, SLOT(deleteLater()));
 
@@ -516,12 +518,8 @@ bool WiresharkApplication::event(QEvent *event)
 }
 
 void WiresharkApplication::clearRecentItems() {
-    recent_item_status *ri;
-
-    foreach (ri, recent_items) {
-        recent_items.removeOne(ri);
-        delete(ri);
-    }
+    qDeleteAll(recent_items_.begin(), recent_items_.end());
+    recent_items_.clear();
     emit updateRecentItemStatus(NULL, 0, false);
 }
 
@@ -534,18 +532,16 @@ void WiresharkApplication::cleanup()
     write_recent();
 }
 
-void WiresharkApplication::itemStatusFinished(const QString &filename, qint64 size, bool accessible) {
+void WiresharkApplication::itemStatusFinished(const QString filename, qint64 size, bool accessible) {
     recent_item_status *ri;
     RecentFileStatus *rf_status = qobject_cast<RecentFileStatus *>(QObject::sender());
 
-//    g_log(NULL, G_LOG_LEVEL_DEBUG, "rf isf %d", recent_items.count());
-    foreach (ri, recent_items) {
+    foreach (ri, recent_items_) {
         if (filename == ri->filename && (size != ri->size || accessible != ri->accessible)) {
             ri->size = size;
             ri->accessible = accessible;
             ri->in_thread = false;
 
-//            g_log(NULL, G_LOG_LEVEL_DEBUG, "rf update %s", filename.toUtf8().constData());
             emit updateRecentItemStatus(filename, size, accessible);
         }
     }
@@ -739,7 +735,7 @@ e_prefs * WiresharkApplication::readConfigurationFiles(char **gdp_path, char **d
 }
 
 QList<recent_item_status *> WiresharkApplication::recentItems() const {
-    return recent_items;
+    return recent_items_;
 }
 
 void WiresharkApplication::addRecentItem(const QString &filename, qint64 size, bool accessible) {
@@ -749,7 +745,7 @@ void WiresharkApplication::addRecentItem(const QString &filename, qint64 size, b
     ri->size = size;
     ri->accessible = accessible;
     ri->in_thread = false;
-    recent_items.prepend(ri);
+    recent_items_.prepend(ri);
 
     itemStatusFinished(filename, size, accessible);
 }

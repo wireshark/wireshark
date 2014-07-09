@@ -28,7 +28,7 @@ class RecentFileStatus : public QObject
 {
     Q_OBJECT
 public:
-    RecentFileStatus(const QString &filename, QObject *parent = 0) :
+    RecentFileStatus(const QString filename, QObject *parent = 0) :
         QObject(parent), filename_(filename), size_(0) {}
 
     QString getFilename() const { return (filename_); }
@@ -40,7 +40,7 @@ private:
     size_t size_;
 
 signals:
-    void statusFound(const QString &filename = *new QString(), qint64 size = 0, bool accessible = false);
+    void statusFound(const QString filename = QString(), qint64 size = 0, bool accessible = false);
     void finished();
 
 public slots:
