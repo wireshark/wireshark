@@ -1,7 +1,7 @@
 # FindChocolatey
 # ----------
 #
-# this module looks for Cygwin
+# this module looks for Chocolatey
 
 # This code was copied from
 # http://cmake.org/gitweb?p=cmake.git;a=blob_plain;f=Modules/FindCygwin.cmake;hb=HEAD
