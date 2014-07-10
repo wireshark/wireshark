@@ -228,6 +228,82 @@ static gint detect_version(wtap *wth, int *err, gchar **err_info)
     return -1;
 }
 
+static gint buffered_detect_version(const guint8 *pd)
+{
+    struct logger_entry     *log_entry;
+    struct logger_entry_v2  *log_entry_v2;
+    gint                     version;
+    guint8                  *msg_payload;
+    guint8                  *msg_part;
+    guint8                  *msg_end;
+    guint16                  msg_len;
+
+    log_entry_v2 = (struct logger_entry_v2 *) pd;
+    log_entry = (struct logger_entry *) pd;
+
+    /* must contain at least priority and two nulls as separator */
+    if (log_entry->len < 3)
+        return -1;
+
+    /* payload length may not exceed the maximum payload size */
+    if (log_entry->len > LOGGER_ENTRY_MAX_PAYLOAD)
+        return -1;
+
+    /* cannot rely on __pad being 0 for v1, use heuristics to find out what
+     * version is in use. First assume the smallest msg. */
+    for (version = 1; version <= 2; ++version) {
+        if (version == 1) {
+            msg_payload = log_entry->msg;
+        } else if (version == 2) {
+            /* v2 is 4 bytes longer */
+            msg_payload = log_entry_v2->msg;
+            if (log_entry_v2->hdr_size != sizeof(*log_entry_v2))
+                continue;
+        }
+
+        /* A v2 msg has a 32-bit userid instead of v1 priority */
+        if (get_priority(msg_payload[0]) == '?')
+            continue;
+
+        /* Is there a terminating '\0' for the tag? */
+        msg_part = (guint8 *) memchr(msg_payload, '\0', log_entry->len - 1);
+        if (msg_part == NULL)
+            continue;
+
+        /* if msg is '\0'-terminated, is it equal to the payload len? */
+        ++msg_part;
+        msg_len = log_entry->len - (msg_part - msg_payload);
+        msg_end = (guint8 *) memchr(msg_part, '\0', msg_len);
+        /* is the end of the buffer (-1) equal to the end of msg? */
+        if (msg_end && (msg_payload + log_entry->len - 1 != msg_end))
+            continue;
+
+        return version;
+    }
+
+    return -1;
+}
+
+static gint exported_pdu_length(const guint8 *pd) {
+    guint16 *tag;
+    guint16 *tag_length;
+    gint     length = 0;
+
+    tag = (guint16 *) pd;
+
+    while(GINT16_FROM_BE(*tag)) {
+        tag_length = (guint16 *) (pd + 2);
+        length += 2 + 2 + GINT16_FROM_BE(*tag_length);
+
+        pd += 2 + 2 + GINT16_FROM_BE(*tag_length);
+        tag = (guint16 *) pd;
+    }
+
+    length += 2 + 2;
+
+    return length;
+}
+
 static gboolean logcat_read_packet(struct logcat_phdr *logcat, FILE_T fh,
     struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info)
 {
@@ -357,7 +433,7 @@ int logcat_dump_can_write_encap(int encap)
     if (encap == WTAP_ENCAP_PER_PACKET)
         return WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED;
 
-    if (encap != WTAP_ENCAP_LOGCAT)
+    if (encap != WTAP_ENCAP_LOGCAT && encap != WTAP_ENCAP_WIRESHARK_UPPER_PDU)
         return WTAP_ERR_UNSUPPORTED_ENCAP;
 
     return 0;
@@ -367,16 +443,29 @@ static gboolean logcat_binary_dump(wtap_dumper *wdh,
     const struct wtap_pkthdr *phdr,
     const guint8 *pd, int *err)
 {
+    int caplen;
+
     /* We can only write packet records. */
     if (phdr->rec_type != REC_TYPE_PACKET) {
         *err = WTAP_ERR_REC_TYPE_UNSUPPORTED;
         return FALSE;
     }
 
-    if (!wtap_dump_file_write(wdh, pd, phdr->caplen, err))
+    caplen = phdr->caplen;
+
+    /* Skip EXPORTED_PDU*/
+    if (wdh->encap == WTAP_ENCAP_WIRESHARK_UPPER_PDU) {
+        gint skipped_length;
+
+        skipped_length = exported_pdu_length(pd);
+        pd += skipped_length;
+        caplen -= skipped_length;
+    }
+
+    if (!wtap_dump_file_write(wdh, pd, caplen, err))
         return FALSE;
 
-    wdh->bytes_dumped += phdr->caplen;
+    wdh->bytes_dumped += caplen;
 
     return TRUE;
 }
@@ -388,6 +477,7 @@ gboolean logcat_binary_dump_open(wtap_dumper *wdh, int *err)
 
     switch (wdh->encap) {
         case WTAP_ENCAP_LOGCAT:
+        case WTAP_ENCAP_WIRESHARK_UPPER_PDU:
             wdh->tsprecision = WTAP_FILE_TSPREC_USEC;
             break;
 
@@ -406,8 +496,8 @@ static gboolean logcat_dump_text(wtap_dumper *wdh,
     gchar                          *buf;
     gint                            length;
     gchar                           priority;
-    const struct logger_entry      *log_entry = (struct logger_entry *) pd;
-    const struct logger_entry_v2   *log_entry_v2 = (struct logger_entry_v2 *) pd;
+    const struct logger_entry      *log_entry;
+    const struct logger_entry_v2   *log_entry_v2;
     gint                            payload_length;
     const gchar                    *tag;
     gint32                          pid;
@@ -419,7 +509,7 @@ static gboolean logcat_dump_text(wtap_dumper *wdh,
     gchar                          *log;
     gchar                          *log_part;
     gchar                          *log_next;
-    const union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
+    gint                            logcat_version;
     const struct dumper_t          *dumper        = (const struct dumper_t *) wdh->priv;
 
     /* We can only write packet records. */
@@ -428,6 +518,23 @@ static gboolean logcat_dump_text(wtap_dumper *wdh,
         return FALSE;
     }
 
+    /* Skip EXPORTED_PDU*/
+    if (wdh->encap == WTAP_ENCAP_WIRESHARK_UPPER_PDU) {
+        gint skipped_length;
+
+        skipped_length = exported_pdu_length(pd);
+        pd += skipped_length;
+
+        logcat_version = buffered_detect_version(pd);
+    } else {
+        const union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
+
+        logcat_version = pseudo_header->logcat.version;
+    }
+
+    log_entry = (struct logger_entry *) pd;
+    log_entry_v2 = (struct logger_entry_v2 *) pd;
+
     payload_length = GINT32_FROM_LE(log_entry->len);
     pid = GINT32_FROM_LE(log_entry->pid);
     tid = GINT32_FROM_LE(log_entry->tid);
@@ -435,12 +542,12 @@ static gboolean logcat_dump_text(wtap_dumper *wdh,
     milliseconds = GINT32_FROM_LE(log_entry->nsec) / 1000000;
 
     /* msg: <prio:1><tag:N>\0<msg:N>\0 with N >= 0, last \0 can be missing */
-    if (pseudo_header->logcat.version == 1) {
+    if (logcat_version == 1) {
         priority = get_priority(log_entry->msg[0]);
         tag = log_entry->msg + 1;
         msg_pre_skip = 1 + (gint) strlen(tag) + 1;
         msg_begin = log_entry->msg + msg_pre_skip;
-    } else if (pseudo_header->logcat.version == 2) {
+    } else if (logcat_version == 2) {
         priority = get_priority(log_entry_v2->msg[0]);
         tag = log_entry_v2->msg + 1;
         msg_pre_skip = 1 + (gint) strlen(tag) + 1;
