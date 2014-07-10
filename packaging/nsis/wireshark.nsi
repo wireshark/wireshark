@@ -287,7 +287,7 @@ File "${STAGING_DIR}\wiretap-${WTAP_VERSION}.dll"
 !ifdef ENABLE_LIBWIRESHARK
 File "${STAGING_DIR}\libwireshark.dll"
 !endif
-File "${STAGING_DIR}\wsutil.dll"
+File "${STAGING_DIR}\libwsutil.dll"
 File "${STAGING_DIR}\libgio-2.0-0.dll"
 File "${STAGING_DIR}\libglib-2.0-0.dll"
 File "${STAGING_DIR}\libgobject-2.0-0.dll"
