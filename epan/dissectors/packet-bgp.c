@@ -228,7 +228,7 @@ void proto_reg_handoff_bgp(void);
 #define BGPNLRI_FSPEC_EQUAL              0x01
 #define BGPNLRI_FSPEC_TCPF_NOTBIT        0x02
 #define BGPNLRI_FSPEC_TCPF_MATCHBIT      0x01
-#define BGPNLRI_FSPEC_DSCP_BITMASK       0xFC
+#define BGPNLRI_FSPEC_DSCP_BITMASK       0x3F
 
 /* BGP flow spec specific filter value: TCP flags, Packet fragment ... */
 #define BGPNLRI_FSPEC_TH_FIN  0x01
@@ -1070,7 +1070,7 @@ static const value_string link_state_prefix_descriptors_ospf_route_type[] = {
 static const value_string flowspec_nlri_opvaluepair_type[] = {
     { BGPNLRI_FSPEC_DST_PFIX, "Destination prefix filter" },
     { BGPNLRI_FSPEC_SRC_PFIX, "Source prefix filter" },
-    { BGPNLRI_FSPEC_IP_PROTO, "IP protocol filter" },
+    { BGPNLRI_FSPEC_IP_PROTO, "Protocol / Next Header filter" },
     { BGPNLRI_FSPEC_PORT,     "Port filter" },
     { BGPNLRI_FSPEC_DST_PORT, "Destination port filter" },
     { BGPNLRI_FSPEC_SRC_PORT, "Source port filter" },
@@ -1470,6 +1470,10 @@ static int hf_bgp_flowspec_nlri_fflag_ff = -1;
 static int hf_bgp_flowspec_nlri_fflag_isf = -1;
 static int hf_bgp_flowspec_nlri_fflag_df = -1;
 static int hf_bgp_flowspec_nlri_dscp = -1;
+static int hf_bgp_flowspec_nlri_src_ipv6_pref = -1;
+static int hf_bgp_flowspec_nlri_dst_ipv6_pref = -1;
+static int hf_bgp_flowspec_nlri_ipv6_pref_len = -1;
+static int hf_bgp_flowspec_nlri_ipv6_pref_offset = -1;
 
 /* BGP update safi ndt nlri  draft-nalawade-idr-mdt-safi-03 */
 
@@ -1603,6 +1607,7 @@ static expert_field ei_bgp_ls_error = EI_INIT;
 static expert_field ei_bgp_ext_com_len_bad = EI_INIT;
 static expert_field ei_bgp_attr_pmsi_opaque_type = EI_INIT;
 static expert_field ei_bgp_attr_pmsi_tunnel_type = EI_INIT;
+static expert_field ei_bgp_prefix_length_err = EI_INIT;
 
 static expert_field ei_bgp_evpn_nlri_rt4_len_err = EI_INIT;
 static expert_field ei_bgp_evpn_nlri_rt_type_err = EI_INIT;
@@ -1764,10 +1769,10 @@ static int
 decode_prefix6(proto_tree *tree, int hf_addr, tvbuff_t *tvb, gint offset,
                guint16 tlen, const char *tag)
 {
-    proto_tree        *prefix_tree;
-    struct e_in6_addr addr;     /* IPv6 address                       */
-    int               plen;     /* prefix length                      */
-    int               length;   /* number of octets needed for prefix */
+    proto_tree          *prefix_tree;
+    struct e_in6_addr   addr;     /* IPv6 address                       */
+    int                 plen;     /* prefix length                      */
+    int                 length;   /* number of octets needed for prefix */
 
     /* snarf length and prefix */
     plen = tvb_get_guint8(tvb, offset);
@@ -1792,6 +1797,45 @@ decode_prefix6(proto_tree *tree, int hf_addr, tvbuff_t *tvb, gint offset,
             "%s prefix: %s", tag, ip6_to_str(&addr));
     }
     return(1 + length);
+}
+
+static int
+decode_fspec_match_prefix6(proto_tree *tree, proto_item *parent_item, int hf_addr,
+                           tvbuff_t *tvb, gint offset, guint16 tlen, packet_info *pinfo)
+{
+    proto_tree        *prefix_tree;
+    struct e_in6_addr addr;     /* IPv6 address                       */
+    int               plen;     /* prefix length                      */
+    int               length;   /* number of octets needed for prefix */
+    int               poffset_place = 1;
+    int               plength_place = 0;
+
+    /* snarf length and prefix */
+    plen = tvb_get_guint8(tvb, offset);
+    if (plen == 0) /* I should be facing a draft 04 version where the prefix offset is switched with length */
+    {
+      plen =  tvb_get_guint8(tvb, offset+1);
+      poffset_place = 0;
+      plength_place = 1;
+    }
+    length = ipv6_addr_and_mask(tvb, offset + 2, &addr, plen);
+    if (length < 0) {
+        expert_add_info_format(pinfo, parent_item, &ei_bgp_prefix_length_err, "Length is invalid %u", plen);
+        return -1;
+    }
+
+    /* put prefix into protocol tree */
+    prefix_tree = proto_tree_add_subtree_format(tree, tvb, offset,
+            tlen != 0 ? tlen : 1 + length, ett_bgp_prefix, NULL, "%s/%u",
+            ip6_to_str(&addr), plen);
+    proto_tree_add_item(prefix_tree, hf_bgp_flowspec_nlri_ipv6_pref_len, tvb, offset + plength_place, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(prefix_tree, hf_bgp_flowspec_nlri_ipv6_pref_offset, tvb, offset + poffset_place, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_ipv6(prefix_tree, hf_addr, tvb, offset + 2, length,
+            addr.bytes);
+    if (parent_item != NULL)
+      proto_item_append_text(parent_item, " (%s/%u)",
+                             ip6_to_str(&addr), plen);
+    return(2 + length);
 }
 
 static const char*
@@ -1926,7 +1970,7 @@ decode_bgp_nlri_op_dec_value(proto_tree *parent_tree, proto_item *parent_item, t
         else
         {
             proto_item_append_text(parent_item," %s%s%s%s",
-                 ((nlri_operator & BGPNLRI_FSPEC_AND_BIT) == 0) ? "||" : "&& ",
+                 ((nlri_operator & BGPNLRI_FSPEC_AND_BIT) == 0) ? "|| " : "&& ",
                  ((nlri_operator & BGPNLRI_FSPEC_GREATER_THAN) == 0) ? "" : ">",
                  ((nlri_operator & BGPNLRI_FSPEC_LESS_THAN) == 0) ? "" : "<",
                  ((nlri_operator & BGPNLRI_FSPEC_EQUAL) == 0) ? "" : "=");
@@ -2017,7 +2061,7 @@ decode_bgp_nlri_op_tcpf_value(proto_tree *parent_tree, proto_item *parent_item, 
         else
         {
             proto_item_append_text(parent_item," %s%s%s%s",
-                 ((nlri_operator & BGPNLRI_FSPEC_AND_BIT) == 0) ? "||" : "&& ",
+                 ((nlri_operator & BGPNLRI_FSPEC_AND_BIT) == 0) ? "|| " : "&& ",
                  ((nlri_operator & BGPNLRI_FSPEC_GREATER_THAN) == 0) ? "" : ">",
                  ((nlri_operator & BGPNLRI_FSPEC_LESS_THAN) == 0) ? "" : "<",
                  ((nlri_operator & BGPNLRI_FSPEC_EQUAL) == 0) ? "" : "=");
@@ -2090,7 +2134,7 @@ decode_bgp_nlri_op_fflag_value(proto_tree *parent_tree, proto_item *parent_item,
         else
         {
             proto_item_append_text(parent_item," %s%s%s%s",
-                 ((nlri_operator & BGPNLRI_FSPEC_AND_BIT) == 0) ? "||" : "&& ",
+                 ((nlri_operator & BGPNLRI_FSPEC_AND_BIT) == 0) ? "|| " : "&& ",
                  ((nlri_operator & BGPNLRI_FSPEC_GREATER_THAN) == 0) ? "" : ">",
                  ((nlri_operator & BGPNLRI_FSPEC_LESS_THAN) == 0) ? "" : "<",
                  ((nlri_operator & BGPNLRI_FSPEC_EQUAL) == 0) ? "" : "=");
@@ -2152,7 +2196,7 @@ decode_bgp_nlri_op_dscp_value(proto_tree *parent_tree, proto_item *parent_item, 
         else
         {
             proto_item_append_text(parent_item," %s%s%s%s",
-                 ((nlri_operator & BGPNLRI_FSPEC_AND_BIT) == 0) ? "||" : "&& ",
+                 ((nlri_operator & BGPNLRI_FSPEC_AND_BIT) == 0) ? "|| " : "&& ",
                  ((nlri_operator & BGPNLRI_FSPEC_GREATER_THAN) == 0) ? "" : ">",
                  ((nlri_operator & BGPNLRI_FSPEC_LESS_THAN) == 0) ? "" : "<",
                  ((nlri_operator & BGPNLRI_FSPEC_EQUAL) == 0) ? "" : "=");
@@ -2162,7 +2206,6 @@ decode_bgp_nlri_op_dscp_value(proto_tree *parent_tree, proto_item *parent_item, 
             return -1; /* frag flags have to be coded in 1 byte */
         }
         dscp_flags = tvb_get_guint8(tvb,offset+cursor_op_val);
-        dscp_flags = dscp_flags >> 2;
         proto_tree_add_item(parent_tree, hf_bgp_flowspec_nlri_dscp, tvb, offset+cursor_op_val, 1, ENC_BIG_ENDIAN);
         proto_item_append_text(parent_item,"%s",val_to_str_ext_const(dscp_flags,&dscp_vals_ext, "Unknown DSCP"));
         cursor_op_val = cursor_op_val + value_len;
@@ -2190,7 +2233,7 @@ decode_flowspec_nlri(proto_tree *tree, tvbuff_t *tvb, gint offset, guint16 afi, 
     proto_tree *filter_tree;
 
 
-    if (afi != AFNUM_INET)
+    if (afi != AFNUM_INET && afi != AFNUM_INET6)
     {
         expert_add_info(pinfo, NULL, &ei_bgp_afi_type_not_supported);
         return(-1);
@@ -2232,13 +2275,25 @@ decode_flowspec_nlri(proto_tree *tree, tvbuff_t *tvb, gint offset, guint16 afi, 
         switch (tvb_get_guint8(tvb,offset+cursor_fspec)) {
         case BGPNLRI_FSPEC_DST_PFIX:
             cursor_fspec++;
-            filter_len = decode_prefix4(filter_tree, filter_item, hf_bgp_flowspec_nlri_dst_pref_ipv4, tvb, offset+cursor_fspec, 0, "Destination IP filter");
+            if (afi == AFNUM_INET)
+                filter_len = decode_prefix4(filter_tree, filter_item, hf_bgp_flowspec_nlri_dst_pref_ipv4,
+                                            tvb, offset+cursor_fspec, 0, "Destination IP filter");
+            else if (afi == AFNUM_INET6)
+                filter_len = decode_fspec_match_prefix6(filter_tree, filter_item, hf_bgp_flowspec_nlri_dst_ipv6_pref,
+                                                        tvb, offset+cursor_fspec, 0, pinfo);
+            else cursor_fspec = tot_flow_len;
             if (filter_len == -1)
                 cursor_fspec= tot_flow_len;
             break;
         case BGPNLRI_FSPEC_SRC_PFIX:
             cursor_fspec++;
-            filter_len = decode_prefix4(filter_tree, filter_item, hf_bgp_flowspec_nlri_src_pref_ipv4, tvb, offset+cursor_fspec, 0, "Source IP filter");
+            if (afi == AFNUM_INET)
+                filter_len = decode_prefix4(filter_tree, filter_item, hf_bgp_flowspec_nlri_src_pref_ipv4,
+                                            tvb, offset+cursor_fspec, 0, "Source IP filter");
+            else if (afi == AFNUM_INET6)
+                filter_len = decode_fspec_match_prefix6(filter_tree, filter_item, hf_bgp_flowspec_nlri_src_ipv6_pref,
+                                                        tvb, offset+cursor_fspec, 0, pinfo);
+            else cursor_fspec = tot_flow_len;
             if (filter_len == -1)
               cursor_fspec= tot_flow_len;
             break;
@@ -4337,7 +4392,13 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
                         return -1;
                 } /* switch (rd_type) */
                 break;
-
+            case SAFNUM_FSPEC_RULE:
+            case SAFNUM_FSPEC_VPN_RULE:
+                total_length = decode_flowspec_nlri(tree, tvb, offset, afi, pinfo);
+                if(total_length < 0)
+                    return(-1);
+                total_length++;
+                break;
             default:
                 proto_tree_add_text(tree, tvb, start_offset, 0,
                                     "Unknown SAFI (%u) for AFI %u", safi, afi);
@@ -5290,7 +5351,6 @@ dissect_bgp_update_ext_com(proto_tree *parent_tree, tvbuff_t *tvb, guint16 tlen,
                     case BGP_EXT_COM_STYPE_EXP_F_RMARK: /* Flow spec traffic-remarking [RFC5575] */
                         proto_tree_add_item(community_tree, hf_bgp_ext_com_value_fs_remark, tvb, offset+7, 1, ENC_BIG_ENDIAN);
                         dscp_flags = tvb_get_guint8(tvb,offset+7);
-                        dscp_flags = dscp_flags >> 2;
                         proto_item_append_text(community_item, "%s", val_to_str_ext_const(dscp_flags,&dscp_vals_ext, "Unknown DSCP"));
                         break;
 
@@ -7293,6 +7353,18 @@ proto_register_bgp(void)
       { &hf_bgp_flowspec_nlri_dscp,
         { "Differentiated Services Codepoint", "bgp.flowspec_nlri.val_dsfield", FT_UINT8, BASE_HEX | BASE_EXT_STRING,
           &dscp_vals_ext, BGPNLRI_FSPEC_DSCP_BITMASK, NULL, HFILL }},
+      { &hf_bgp_flowspec_nlri_src_ipv6_pref,
+        { "Source IPv6 prefix", "bgp.flowspec_nlri.src_ipv6_pref", FT_IPv6, BASE_NONE,
+          NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_flowspec_nlri_dst_ipv6_pref,
+        { "Destination IPv6 prefix", "bgp.flowspec_nlri.dst_ipv6_pref", FT_IPv6, BASE_NONE,
+          NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_flowspec_nlri_ipv6_pref_len,
+        { "IPv6 prefix length", "bgp.flowspec_nlri.ipv6_pref_length", FT_UINT8, BASE_DEC,
+          NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_flowspec_nlri_ipv6_pref_offset,
+        { "IPv6 prefix offset", "bgp.flowspec_nlri.ipv6_pref_offset", FT_UINT8, BASE_DEC,
+          NULL, 0x0, NULL, HFILL}},
         /* end of bgp flow spec */
         /* BGP update safi ndt nlri  draft-nalawade-idr-mdt-safi-03 */
       { &hf_bgp_mdt_nlri_safi_rd,
@@ -7892,7 +7964,8 @@ proto_register_bgp(void)
         { &ei_bgp_evpn_nlri_rt4_len_err, { "bgp.evpn.len", PI_MALFORMED, PI_ERROR, "Length is invalid", EXPFILL }},
         { &ei_bgp_evpn_nlri_rt_type_err, { "bgp.evpn.type", PI_MALFORMED, PI_ERROR, "EVPN Route Type is invalid", EXPFILL }},
         { &ei_bgp_attr_pmsi_tunnel_type, { "bgp.attr.pmsi.tunnel_type", PI_PROTOCOL, PI_ERROR, "Unknown Tunnel type", EXPFILL }},
-        { &ei_bgp_attr_pmsi_opaque_type, { "bgp.attr.pmsi.opaque_type", PI_PROTOCOL, PI_ERROR, "Unvalid pmsi opaque type", EXPFILL }}
+        { &ei_bgp_attr_pmsi_opaque_type, { "bgp.attr.pmsi.opaque_type", PI_PROTOCOL, PI_ERROR, "Unvalid pmsi opaque type", EXPFILL }},
+        { &ei_bgp_prefix_length_err, { "bgp.prefix.length", PI_MALFORMED, PI_ERROR, "Unvalid IPv6 prefix length", EXPFILL}}
     };
 
     module_t *bgp_module;
