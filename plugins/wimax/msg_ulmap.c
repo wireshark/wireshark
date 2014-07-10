@@ -43,14 +43,14 @@ void proto_reg_handoff_mac_mgmt_msg_ulmap(void);
 
 #define XBIT(var, bits, desc) \
     do { \
-    var = BIT_BITS(bit, bufptr, bits); \
+    var = TVB_BIT_BITS(bit, tvb, bits); \
     proto_tree_add_text(tree, tvb, BITHI(bit, bits), desc ": %d", var); \
     bit += bits; \
     } while(0)
 
 #define XNIB(var, nibs, desc) \
     do { \
-    var = NIB_NIBS(nib, bufptr, nibs); \
+    var = TVB_NIB_NIBS(nib, tvb, nibs); \
     proto_tree_add_text(tree, tvb, NIBHI(nib, nibs), desc ": %d", var); \
     nib += nibs; \
     } while(0)
@@ -63,7 +63,7 @@ extern gint harq;
 extern gint ir_type;
 extern gint N_layer;
 extern gint RCID_Type;
-extern gint RCID_IE(proto_tree *diuc_tree, const guint8 *bufptr, gint offset, gint length, tvbuff_t *tvb, gint RCID_Type);
+extern gint RCID_IE(proto_tree *diuc_tree, gint offset, gint length, tvbuff_t *tvb, gint RCID_Type);
 
 static gint proto_mac_mgmt_msg_ulmap_decoder = -1;
 
@@ -269,7 +269,7 @@ void init_wimax_globals(void)
  * these functions take offset/length in bits
  *******************************************************************/
 
-static gint Dedicated_UL_Control_IE(proto_tree *uiuc_tree, const guint8 *bufptr, gint offset, gint length, tvbuff_t *tvb)
+static gint Dedicated_UL_Control_IE(proto_tree *uiuc_tree, gint offset, gint length, tvbuff_t *tvb)
 {
     /* 8.4.5.4.24.1 Dedicated_UL_Control_IE -- table 302r */
     /* UL-MAP HARQ Sub-Burst IE * offset/length are in bits */
@@ -293,7 +293,7 @@ static gint Dedicated_UL_Control_IE(proto_tree *uiuc_tree, const guint8 *bufptr,
     return (bit - offset); /* length in bits */
 }
 
-static gint Dedicated_MIMO_UL_Control_IE(proto_tree *uiuc_tree, const guint8 *bufptr, gint offset, gint length, tvbuff_t *tvb)
+static gint Dedicated_MIMO_UL_Control_IE(proto_tree *uiuc_tree, gint offset, gint length, tvbuff_t *tvb)
 {
     /* 8.4.5.4.24.2 Dedicated_MIMO_UL_Control_IE -- table 302s */
     /* UL-MAP HARQ Sub-Burst IE * offset/length are in bits */
@@ -315,7 +315,7 @@ static gint Dedicated_MIMO_UL_Control_IE(proto_tree *uiuc_tree, const guint8 *bu
 
 /* begin Sub-Burst IEs */
 
-static gint UL_HARQ_Chase_Sub_Burst_IE(proto_tree *uiuc_tree, const guint8 *bufptr, gint offset, gint length, tvbuff_t *tvb)
+static gint UL_HARQ_Chase_Sub_Burst_IE(proto_tree *uiuc_tree, gint offset, gint length, tvbuff_t *tvb)
 {
     /* 8.4.5.4.24 UL_HARQ_Chase_sub_burst_IE -- table 302k */
     /* UL-MAP HARQ Sub-Burst IE * offset/length are in bits */
@@ -332,10 +332,10 @@ static gint UL_HARQ_Chase_Sub_Burst_IE(proto_tree *uiuc_tree, const guint8 *bufp
     ti = proto_tree_add_text(uiuc_tree, tvb, BITHI(offset,length), "UL_HARQ_Chase_Sub_Burst_IE");
     tree = proto_item_add_subtree(ti, ett_302k);
 
-    bit += RCID_IE(tree, bufptr, bit, length, tvb, RCID_Type);
+    bit += RCID_IE(tree, bit, length, tvb, RCID_Type);
     XBIT(duci, 1, "Dedicated UL Control Indicator");
     if (duci == 1) {
-        bit += Dedicated_UL_Control_IE(tree, bufptr, bit, length, tvb);
+        bit += Dedicated_UL_Control_IE(tree, bit, length, tvb);
     }
     XBIT(data, 4, "UIUC");
     XBIT(data, 2, "Repetition Coding Indication");
@@ -349,7 +349,7 @@ static gint UL_HARQ_Chase_Sub_Burst_IE(proto_tree *uiuc_tree, const guint8 *bufp
     if (include_cor2_changes)
     {
 	/* CRC-16 is always appended */
-	data = BIT_BITS(bit, bufptr, 16);
+	data = TVB_BIT_BITS(bit, tvb, 16);
 	generic_item = proto_tree_add_text(tree, tvb, BITHI(bit,16), "CRC-16: 0x%04x",data);
 	/* calculate the CRC */
 	calculated_crc = wimax_mac_calc_crc16((guint8 *)tvb_get_ptr(tvb, 0, BIT_TO_BYTE(bit)), BIT_TO_BYTE(bit));
@@ -364,7 +364,7 @@ static gint UL_HARQ_Chase_Sub_Burst_IE(proto_tree *uiuc_tree, const guint8 *bufp
     return (bit - offset); /* length in bits */
 }
 
-static gint UL_HARQ_IR_CTC_Sub_Burst_IE(proto_tree *uiuc_tree, const guint8 *bufptr, gint offset, gint length, tvbuff_t *tvb)
+static gint UL_HARQ_IR_CTC_Sub_Burst_IE(proto_tree *uiuc_tree, gint offset, gint length, tvbuff_t *tvb)
 {
     /* 8.4.5.4.24 UL_HARQ_IR_CTC_sub_burst_IE -- table 302l */
     /* UL-MAP HARQ Sub-Burst IE * offset/length are in bits */
@@ -381,10 +381,10 @@ static gint UL_HARQ_IR_CTC_Sub_Burst_IE(proto_tree *uiuc_tree, const guint8 *buf
     ti = proto_tree_add_text(uiuc_tree, tvb, NIBHI(offset, length), "UL_HARQ_IR_CTC_Sub_Burst_IE");
     tree = proto_item_add_subtree(ti, ett_302l);
 
-    bit += RCID_IE(tree, bufptr, bit, length, tvb, RCID_Type);
+    bit += RCID_IE(tree, bit, length, tvb, RCID_Type);
     XBIT(duci, 1, "Dedicated UL Control Indicator");
     if (duci == 1) {
-        bit += Dedicated_UL_Control_IE(tree, bufptr, bit, length, tvb);
+        bit += Dedicated_UL_Control_IE(tree, bit, length, tvb);
     }
     XBIT(data, 4, "N(EP)");
     XBIT(data, 4, "N(SCH)");
@@ -398,7 +398,7 @@ static gint UL_HARQ_IR_CTC_Sub_Burst_IE(proto_tree *uiuc_tree, const guint8 *buf
     if (include_cor2_changes)
     {
 	/* CRC-16 is always appended */
-	data = BIT_BITS(bit, bufptr, 16);
+	data = TVB_BIT_BITS(bit, tvb, 16);
 	generic_item = proto_tree_add_text(tree, tvb, BITHI(bit,16), "CRC-16: 0x%04x",data);
 	/* calculate the CRC */
 	calculated_crc = wimax_mac_calc_crc16((guint8 *)tvb_get_ptr(tvb, 0, BIT_TO_BYTE(bit)), BIT_TO_BYTE(bit));
@@ -413,7 +413,7 @@ static gint UL_HARQ_IR_CTC_Sub_Burst_IE(proto_tree *uiuc_tree, const guint8 *buf
     return (bit - offset); /* length in bits */
 }
 
-static gint UL_HARQ_IR_CC_Sub_Burst_IE(proto_tree *uiuc_tree, const guint8 *bufptr, gint offset, gint length, tvbuff_t *tvb)
+static gint UL_HARQ_IR_CC_Sub_Burst_IE(proto_tree *uiuc_tree, gint offset, gint length, tvbuff_t *tvb)
 {
     /* 8.4.5.4.24 UL_HARQ_IR_CC_sub_burst_IE -- table 302m */
     /* UL-MAP HARQ Sub-Burst IE * offset/length are in bits */
@@ -430,10 +430,10 @@ static gint UL_HARQ_IR_CC_Sub_Burst_IE(proto_tree *uiuc_tree, const guint8 *bufp
     ti = proto_tree_add_text(uiuc_tree, tvb, NIBHI(offset, length), "UL_HARQ_IR_CC_Sub_Burst_IE");
     tree = proto_item_add_subtree(ti, ett_302m);
 
-    bit += RCID_IE(tree, bufptr, bit, length, tvb, RCID_Type);
+    bit += RCID_IE(tree, bit, length, tvb, RCID_Type);
     XBIT(duci, 1, "Dedicated UL Control Indicator");
     if (duci == 1) {
-        bit += Dedicated_UL_Control_IE(tree, bufptr, bit, length, tvb);
+        bit += Dedicated_UL_Control_IE(tree, bit, length, tvb);
     }
     XBIT(data, 4, "UIUC");
     XBIT(data, 2, "Repetition Coding Indication");
@@ -448,7 +448,7 @@ static gint UL_HARQ_IR_CC_Sub_Burst_IE(proto_tree *uiuc_tree, const guint8 *bufp
     if (include_cor2_changes)
     {
 	/* CRC-16 is always appended */
-	data = BIT_BITS(bit, bufptr, 16);
+	data = TVB_BIT_BITS(bit, tvb, 16);
 	generic_item = proto_tree_add_text(tree, tvb, BITHI(bit,16), "CRC-16: 0x%04x",data);
 	/* calculate the CRC */
 	calculated_crc = wimax_mac_calc_crc16((guint8 *)tvb_get_ptr(tvb, 0, BIT_TO_BYTE(bit)), BIT_TO_BYTE(bit));
@@ -463,7 +463,7 @@ static gint UL_HARQ_IR_CC_Sub_Burst_IE(proto_tree *uiuc_tree, const guint8 *bufp
     return (bit - offset); /* length in bits */
 }
 
-static gint MIMO_UL_Chase_HARQ_Sub_Burst_IE(proto_tree *uiuc_tree, const guint8 *bufptr, gint offset, gint length, tvbuff_t *tvb)
+static gint MIMO_UL_Chase_HARQ_Sub_Burst_IE(proto_tree *uiuc_tree, gint offset, gint length, tvbuff_t *tvb)
 {
     /* 8.4.5.4.24 MIMO_UL_Chase_HARQ_Sub_Burst_IE -- table 302n */
     /* UL-MAP HARQ Sub-Burst IE * offset/length are in bits */
@@ -484,9 +484,9 @@ static gint MIMO_UL_Chase_HARQ_Sub_Burst_IE(proto_tree *uiuc_tree, const guint8 
     XBIT(dmci, 1, "Dedicated MIMO ULControl Indicator");
     XBIT(ackd, 1, "ACK Disable");
     if (muin == 0) {
-        bit += RCID_IE(tree, bufptr, bit, length, tvb, RCID_Type);
+        bit += RCID_IE(tree, bit, length, tvb, RCID_Type);
         if (dmci) {
-            bit += Dedicated_MIMO_UL_Control_IE(tree, bufptr, bit, length, tvb);
+            bit += Dedicated_MIMO_UL_Control_IE(tree, bit, length, tvb);
         }
     } else {
         XBIT(data, 1, "Matrix");
@@ -494,7 +494,7 @@ static gint MIMO_UL_Chase_HARQ_Sub_Burst_IE(proto_tree *uiuc_tree, const guint8 
     XBIT(data, 10, "Duration");
     for (i = 0; i < N_layer; i++) {
         if (muin == 1) {
-            bit += RCID_IE(tree, bufptr, bit, length, tvb, RCID_Type);
+            bit += RCID_IE(tree, bit, length, tvb, RCID_Type);
         }
         XBIT(data, 4, "UIUC");
         XBIT(data, 2, "Repetition Coding Indication");
@@ -508,7 +508,7 @@ static gint MIMO_UL_Chase_HARQ_Sub_Burst_IE(proto_tree *uiuc_tree, const guint8 
     if (include_cor2_changes)
     {
 	/* CRC-16 is always appended */
-	data = BIT_BITS(bit, bufptr, 16);
+	data = TVB_BIT_BITS(bit, tvb, 16);
 	generic_item = proto_tree_add_text(tree, tvb, BITHI(bit,16), "CRC-16: 0x%04x",data);
 	/* calculate the CRC */
 	calculated_crc = wimax_mac_calc_crc16((guint8 *)tvb_get_ptr(tvb, 0, BIT_TO_BYTE(bit)), BIT_TO_BYTE(bit));
@@ -523,7 +523,7 @@ static gint MIMO_UL_Chase_HARQ_Sub_Burst_IE(proto_tree *uiuc_tree, const guint8 
     return (bit - offset); /* length in bits */
 }
 
-static gint MIMO_UL_IR_HARQ__Sub_Burst_IE(proto_tree *uiuc_tree, const guint8 *bufptr, gint offset, gint length, tvbuff_t *tvb)
+static gint MIMO_UL_IR_HARQ__Sub_Burst_IE(proto_tree *uiuc_tree, gint offset, gint length, tvbuff_t *tvb)
 {
     /* 8.4.5.4.24 MIMO_UL_IR_HARQ__Sub_Burst_IE -- table 302o */
     /* UL-MAP HARQ Sub-Burst IE * offset/length are in bits */
@@ -544,9 +544,9 @@ static gint MIMO_UL_IR_HARQ__Sub_Burst_IE(proto_tree *uiuc_tree, const guint8 *b
     XBIT(dmci, 1, "Dedicated MIMO UL Control Indicator");
     XBIT(ackd, 1, "ACK Disable");
     if (muin == 0) {
-        bit += RCID_IE(tree, bufptr, bit, length, tvb, RCID_Type);
+        bit += RCID_IE(tree, bit, length, tvb, RCID_Type);
         if (dmci) {
-            bit += Dedicated_MIMO_UL_Control_IE(tree, bufptr, bit, length, tvb);
+            bit += Dedicated_MIMO_UL_Control_IE(tree, bit, length, tvb);
         }
     } else {
         XBIT(data, 1, "Matrix");
@@ -554,7 +554,7 @@ static gint MIMO_UL_IR_HARQ__Sub_Burst_IE(proto_tree *uiuc_tree, const guint8 *b
     XBIT(data, 4, "N(SCH)");
     for (i = 0; i < N_layer; i++) {
         if (muin == 1) {
-            bit += RCID_IE(tree, bufptr, bit, length, tvb, RCID_Type);
+            bit += RCID_IE(tree, bit, length, tvb, RCID_Type);
         }
         XBIT(data, 4, "N(EP)");
         if (ackd == 0) {
@@ -568,7 +568,7 @@ static gint MIMO_UL_IR_HARQ__Sub_Burst_IE(proto_tree *uiuc_tree, const guint8 *b
     if (include_cor2_changes)
     {
 	/* CRC-16 is always appended */
-	data = BIT_BITS(bit, bufptr, 16);
+	data = TVB_BIT_BITS(bit, tvb, 16);
 	generic_item = proto_tree_add_text(tree, tvb, BITHI(bit,16), "CRC-16: 0x%04x",data);
 	/* calculate the CRC */
 	calculated_crc = wimax_mac_calc_crc16((guint8 *)tvb_get_ptr(tvb, 0, BIT_TO_BYTE(bit)), BIT_TO_BYTE(bit));
@@ -583,7 +583,7 @@ static gint MIMO_UL_IR_HARQ__Sub_Burst_IE(proto_tree *uiuc_tree, const guint8 *b
     return (bit - offset); /* length in bits */
 }
 
-static gint MIMO_UL_IR_HARQ_for_CC_Sub_Burst_UIE(proto_tree *uiuc_tree, const guint8 *bufptr, gint offset, gint length, tvbuff_t *tvb)
+static gint MIMO_UL_IR_HARQ_for_CC_Sub_Burst_UIE(proto_tree *uiuc_tree, gint offset, gint length, tvbuff_t *tvb)
 {
     /* 8.4.5.4.24 MIMO_UL_IR_HARQ_for_CC_Sub_Burst_UIE -- table 302p */
     /* UL-MAP HARQ Sub-Burst IE * offset/length are in bits */
@@ -604,9 +604,9 @@ static gint MIMO_UL_IR_HARQ_for_CC_Sub_Burst_UIE(proto_tree *uiuc_tree, const gu
     XBIT(dmci, 1, "Dedicated MIMO UL Control Indicator");
     XBIT(ackd, 1, "ACK Disable");
     if (muin == 0) {
-        bit += RCID_IE(tree, bufptr, bit, length, tvb, RCID_Type);
+        bit += RCID_IE(tree, bit, length, tvb, RCID_Type);
         if (dmci) {
-            bit += Dedicated_MIMO_UL_Control_IE(tree, bufptr, bit, length, tvb);
+            bit += Dedicated_MIMO_UL_Control_IE(tree, bit, length, tvb);
         }
     } else {
         XBIT(data, 1, "Matrix");
@@ -614,7 +614,7 @@ static gint MIMO_UL_IR_HARQ_for_CC_Sub_Burst_UIE(proto_tree *uiuc_tree, const gu
     XBIT(data, 10, "Duration");
     for (i = 0; i < N_layer; i++) {
         if (muin == 1) {
-            bit += RCID_IE(tree, bufptr, bit, length, tvb, RCID_Type);
+            bit += RCID_IE(tree, bit, length, tvb, RCID_Type);
         }
         XBIT(data, 4, "UIUC");
         XBIT(data, 2, "Repetition Coding Indication");
@@ -629,7 +629,7 @@ static gint MIMO_UL_IR_HARQ_for_CC_Sub_Burst_UIE(proto_tree *uiuc_tree, const gu
     if (include_cor2_changes)
     {
 	/* CRC-16 is always appended */
-	data = BIT_BITS(bit, bufptr, 16);
+	data = TVB_BIT_BITS(bit, tvb, 16);
 	generic_item = proto_tree_add_text(tree, tvb, BITHI(bit,16), "CRC-16: 0x%04x",data);
 	/* calculate the CRC */
 	calculated_crc = wimax_mac_calc_crc16((guint8 *)tvb_get_ptr(tvb, 0, BIT_TO_BYTE(bit)), BIT_TO_BYTE(bit));
@@ -644,7 +644,7 @@ static gint MIMO_UL_IR_HARQ_for_CC_Sub_Burst_UIE(proto_tree *uiuc_tree, const gu
     return (bit - offset); /* length in bits */
 }
 
-static gint MIMO_UL_STC_HARQ_Sub_Burst_IE(proto_tree *uiuc_tree, const guint8 *bufptr, gint offset, gint length, tvbuff_t *tvb)
+static gint MIMO_UL_STC_HARQ_Sub_Burst_IE(proto_tree *uiuc_tree, gint offset, gint length, tvbuff_t *tvb)
 {
     /* 8.4.5.4.24 MIMO_UL_STC_HARQ_Sub_Burst_IE -- table 302q */
     /* UL-MAP HARQ Sub-Burst IE * offset/length are in bits */
@@ -668,7 +668,7 @@ static gint MIMO_UL_STC_HARQ_Sub_Burst_IE(proto_tree *uiuc_tree, const guint8 *b
     if (sboi == 1) {
         XBIT(data, 8, "Sub-burst offset");
     }
-    bit += RCID_IE(tree, bufptr, bit, length, tvb, RCID_Type);
+    bit += RCID_IE(tree, bit, length, tvb, RCID_Type);
     XBIT(ackd, 1, "ACK Disable");
     if (txct == 0) {
         XBIT(data, 4, "UIUC");
@@ -682,7 +682,7 @@ static gint MIMO_UL_STC_HARQ_Sub_Burst_IE(proto_tree *uiuc_tree, const guint8 *b
     if (include_cor2_changes)
     {
 	/* CRC-16 is always appended */
-	data = BIT_BITS(bit, bufptr, 16);
+	data = TVB_BIT_BITS(bit, tvb, 16);
 	generic_item = proto_tree_add_text(tree, tvb, BITHI(bit,16), "CRC-16: 0x%04x",data);
 	/* calculate the CRC */
 	calculated_crc = wimax_mac_calc_crc16((guint8 *)tvb_get_ptr(tvb, 0, BIT_TO_BYTE(bit)), BIT_TO_BYTE(bit));
@@ -702,7 +702,7 @@ static gint MIMO_UL_STC_HARQ_Sub_Burst_IE(proto_tree *uiuc_tree, const guint8 *b
  * table 290a
  *******************************************************************/
 
-static gint Power_Control_IE(proto_tree *uiuc_tree, const guint8 *bufptr, gint offset, gint length, tvbuff_t *tvb)
+static gint Power_Control_IE(proto_tree *uiuc_tree, gint offset, gint length, tvbuff_t *tvb)
 {
     /* UL-MAP Extended IE = 0 */
     /* 8.4.5.4.5 Power_Control_IE */
@@ -725,7 +725,7 @@ static gint Power_Control_IE(proto_tree *uiuc_tree, const guint8 *bufptr, gint o
     return nib;
 }
 
-static gint Mini_Subchannel_allocation_IE(proto_tree *uiuc_tree, const guint8 *bufptr, gint offset, gint length, tvbuff_t *tvb)
+static gint Mini_Subchannel_allocation_IE(proto_tree *uiuc_tree, gint offset, gint length, tvbuff_t *tvb)
 {
     /* UL-MAP Extended IE = 1 */
     /* 8.4.5.4.8 [2] Mini-Subchannel_allocation_IE */
@@ -750,13 +750,13 @@ static gint Mini_Subchannel_allocation_IE(proto_tree *uiuc_tree, const guint8 *b
     XBIT(data, 6, "Duration");
 
     for (j = 0; j < M; j++) {
-        data = BIT_BITS(bit, bufptr, 16);
+        data = TVB_BIT_BITS(bit, tvb, 16);
         proto_tree_add_text(tree, tvb, BITHI(bit, 16), "CID(%d): %d", j, data);
         bit += 16;
-        data = BIT_BITS(bit, bufptr, 4);
+        data = TVB_BIT_BITS(bit, tvb, 4);
         proto_tree_add_text(tree, tvb, BITHI(bit, 4), "UIUC(%d): %d", j, data);
         bit += 4;
-        data = BIT_BITS(bit, bufptr, 2);
+        data = TVB_BIT_BITS(bit, tvb, 2);
         proto_tree_add_text(tree, tvb, BITHI(bit, 2), "Repetition(%d): %d", j, data);
         bit += 2;
     }
@@ -766,7 +766,7 @@ static gint Mini_Subchannel_allocation_IE(proto_tree *uiuc_tree, const guint8 *b
     return BIT_TO_NIB(bit);
 }
 
-static gint AAS_UL_IE(proto_tree *uiuc_tree, const guint8 *bufptr, gint offset, gint length, tvbuff_t *tvb)
+static gint AAS_UL_IE(proto_tree *uiuc_tree, gint offset, gint length, tvbuff_t *tvb)
 {
     /* UL-MAP Extended IE = 2 */
     /* 8.4.5.4.6 [2] AAS_UL_IE*/
@@ -794,7 +794,7 @@ static gint AAS_UL_IE(proto_tree *uiuc_tree, const guint8 *bufptr, gint offset, 
     return BIT_TO_NIB(bit);
 }
 
-static gint CQICH_Alloc_IE(proto_tree *uiuc_tree, const guint8 *bufptr, gint offset, gint length, tvbuff_t *tvb)
+static gint CQICH_Alloc_IE(proto_tree *uiuc_tree, gint offset, gint length, tvbuff_t *tvb)
 {
     /* UL-MAP Extended IE = 3 */
     /* 8.4.5.4.12 [2] CQICH_Alloc_IE */
@@ -819,7 +819,7 @@ static gint CQICH_Alloc_IE(proto_tree *uiuc_tree, const guint8 *bufptr, gint off
         proto_tree_add_text(tree, tvb, BITHI(bit, 1), "CQICH_ID: n/a (size == 0 bits)");
     } else {
         /* variable from 0-9 bits */
-        data = BIT_BITS16(bit, bufptr, cqich_id_size);
+        data = TVB_BIT_BITS16(bit, tvb, cqich_id_size);
         proto_tree_add_text(tree, tvb, BITHI(bit, cqich_id_size), "CQICH_ID: %d (%d bits)", data, cqich_id_size);
         bit += cqich_id_size;
     }
@@ -866,7 +866,7 @@ static gint CQICH_Alloc_IE(proto_tree *uiuc_tree, const guint8 *bufptr, gint off
     return BIT_TO_NIB(bit);	/* Return position in nibbles. */
 }
 
-static gint UL_Zone_IE(proto_tree *uiuc_tree, const guint8 *bufptr, gint offset, gint length, tvbuff_t *tvb)
+static gint UL_Zone_IE(proto_tree *uiuc_tree, gint offset, gint length, tvbuff_t *tvb)
 {
     /* UL-MAP Extended IE = 4 */
     /* 8.4.5.4.7 [2] UL_Zone_IE */
@@ -894,7 +894,7 @@ static gint UL_Zone_IE(proto_tree *uiuc_tree, const guint8 *bufptr, gint offset,
     return BIT_TO_NIB(bit);
 }
 
-static gint PHYMOD_UL_IE(proto_tree *uiuc_tree, const guint8 *bufptr, gint offset, gint length, tvbuff_t *tvb)
+static gint PHYMOD_UL_IE(proto_tree *uiuc_tree, gint offset, gint length, tvbuff_t *tvb)
 {
     /* UL-MAP Extended IE = 5 */
     /* 8.4.5.4.14 [2] PHYMOD_UL_IE */
@@ -924,7 +924,7 @@ static gint PHYMOD_UL_IE(proto_tree *uiuc_tree, const guint8 *bufptr, gint offse
     return BIT_TO_NIB(bit);
 }
 
-static gint MIMO_UL_IE(proto_tree *uiuc_tree, const guint8 *bufptr, gint offset, gint length, tvbuff_t *tvb)
+static gint MIMO_UL_IE(proto_tree *uiuc_tree, gint offset, gint length, tvbuff_t *tvb)
 {
     /* UL-MAP Extended IE = 6 */
     /* 8.4.5.4.11 MIMO_UL_Basic_IE (not implemented) */
@@ -945,7 +945,7 @@ static gint MIMO_UL_IE(proto_tree *uiuc_tree, const guint8 *bufptr, gint offset,
     return nib;
 }
 
-static gint ULMAP_Fast_Tracking_IE(proto_tree *uiuc_tree, const guint8 *bufptr, gint offset, gint length, tvbuff_t *tvb)
+static gint ULMAP_Fast_Tracking_IE(proto_tree *uiuc_tree, gint offset, gint length, tvbuff_t *tvb)
 {
     /* UL-MAP Extended IE = 7 */
     /* 8.4.5.4.22 [2] ULMAP_Fast_Tracking_IE */
@@ -975,7 +975,7 @@ static gint ULMAP_Fast_Tracking_IE(proto_tree *uiuc_tree, const guint8 *bufptr, 
     return BIT_TO_NIB(bit);
 }
 
-static gint UL_PUSC_Burst_Allocation_in_other_segment_IE(proto_tree *uiuc_tree, const guint8 *bufptr, gint offset, gint length, tvbuff_t *tvb)
+static gint UL_PUSC_Burst_Allocation_in_other_segment_IE(proto_tree *uiuc_tree, gint offset, gint length, tvbuff_t *tvb)
 {
     /* UL-MAP Extended IE = 8 */
     /* 8.4.5.4.17 [2] UL_PUSC_Burst_Allocation_in_other_segment_IE */
@@ -1004,7 +1004,7 @@ static gint UL_PUSC_Burst_Allocation_in_other_segment_IE(proto_tree *uiuc_tree, 
     return BIT_TO_NIB(bit);
 }
 
-static gint Fast_Ranging_IE(proto_tree *uiuc_tree, const guint8 *bufptr, gint offset, gint length, tvbuff_t *tvb)
+static gint Fast_Ranging_IE(proto_tree *uiuc_tree, gint offset, gint length, tvbuff_t *tvb)
 {
     /* UL-MAP Extended IE = 9 */
     /* 8.4.5.4.21 [2] Fast_Ranging_IE */
@@ -1039,7 +1039,7 @@ static gint Fast_Ranging_IE(proto_tree *uiuc_tree, const guint8 *bufptr, gint of
     return BIT_TO_NIB(bit);
 }
 
-static gint UL_Allocation_Start_IE(proto_tree *uiuc_tree, const guint8 *bufptr, gint offset, gint length, tvbuff_t *tvb)
+static gint UL_Allocation_Start_IE(proto_tree *uiuc_tree, gint offset, gint length, tvbuff_t *tvb)
 {
     /* UL-MAP Extended IE = 0xA */
     /* 8.4.5.4.15 [2] UL_Allocation_Start_IE */
@@ -1069,7 +1069,7 @@ static gint UL_Allocation_Start_IE(proto_tree *uiuc_tree, const guint8 *bufptr, 
  * table 290c
  *******************************************************************/
 
-static gint CQICH_Enhanced_Allocation_IE(proto_tree *uiuc_tree, const guint8 *bufptr, gint offset, gint length, tvbuff_t *tvb)
+static gint CQICH_Enhanced_Allocation_IE(proto_tree *uiuc_tree, gint offset, gint length, tvbuff_t *tvb)
 {
     /* UL-MAP Extended-2 IE = 0 */
     /* 8.4.5.4.16 [2] CQICH_Enhanced_Allocation_IE */
@@ -1093,7 +1093,7 @@ static gint CQICH_Enhanced_Allocation_IE(proto_tree *uiuc_tree, const guint8 *bu
         proto_tree_add_text(tree, tvb, BITHI(bit, 1), "CQICH_ID: n/a (size == 0 bits)");
     } else {
         /* variable from 0-9 bits */
-        data = BIT_BITS16(bit, bufptr, cqich_id_size);
+        data = TVB_BIT_BITS16(bit, tvb, cqich_id_size);
         proto_tree_add_text(tree, tvb, BITHI(bit, cqich_id_size), "CQICH_ID: %d (%d bits)", data, cqich_id_size);
         bit += cqich_id_size;
     }
@@ -1122,7 +1122,7 @@ static gint CQICH_Enhanced_Allocation_IE(proto_tree *uiuc_tree, const guint8 *bu
     return BIT_TO_NIB(bit);
 }
 
-static gint HO_Anchor_Active_UL_MAP_IE(proto_tree *uiuc_tree, const guint8 *bufptr, gint offset, gint length, tvbuff_t *tvb)
+static gint HO_Anchor_Active_UL_MAP_IE(proto_tree *uiuc_tree, gint offset, gint length, tvbuff_t *tvb)
 {
     /* UL-MAP Extended-2 IE = 1 */
     /* 8.4.5.4.18 [2] HO_Anchor_Active_UL_MAP_IE (not implemented) */
@@ -1143,7 +1143,7 @@ static gint HO_Anchor_Active_UL_MAP_IE(proto_tree *uiuc_tree, const guint8 *bufp
     return nib;
 }
 
-static gint HO_Active_Anchor_UL_MAP_IE(proto_tree *uiuc_tree, const guint8 *bufptr, gint offset, gint length, tvbuff_t *tvb)
+static gint HO_Active_Anchor_UL_MAP_IE(proto_tree *uiuc_tree, gint offset, gint length, tvbuff_t *tvb)
 {
     /* UL-MAP Extended-2 IE = 2 */
     /* 8.4.5.4.19 [2] HO_Active_Anchor_UL_MAP_IE (not implemented) */
@@ -1164,7 +1164,7 @@ static gint HO_Active_Anchor_UL_MAP_IE(proto_tree *uiuc_tree, const guint8 *bufp
     return nib;
 }
 
-static gint Anchor_BS_switch_IE(proto_tree *uiuc_tree, const guint8 *bufptr, gint offset, gint length, tvbuff_t *tvb)
+static gint Anchor_BS_switch_IE(proto_tree *uiuc_tree, gint offset, gint length, tvbuff_t *tvb)
 {
     /* UL-MAP Extended-2 IE = 3 */
     /* 8.4.5.4.23 [2] Anchor_BS_switch_IE */
@@ -1201,7 +1201,7 @@ static gint Anchor_BS_switch_IE(proto_tree *uiuc_tree, const guint8 *bufptr, gin
                 if (cqich_id_size == 0) {
                     proto_tree_add_text(tree, tvb, BITHI(bit, 1), "CQICH_ID: n/a (size == 0 bits)");
                 } else {
-                    data = BIT_BITS16(bit, bufptr, cqich_id_size);
+                    data = TVB_BIT_BITS16(bit, tvb, cqich_id_size);
                     proto_tree_add_text(tree, tvb, BITHI(bit, cqich_id_size),
                         "CQICH_ID: %d (%d bits)", data, cqich_id_size);
                     bit += cqich_id_size;
@@ -1224,7 +1224,7 @@ static gint Anchor_BS_switch_IE(proto_tree *uiuc_tree, const guint8 *bufptr, gin
     return BIT_TO_NIB(bit);
 }
 
-static gint UL_sounding_command_IE(proto_tree *uiuc_tree, const guint8 *bufptr, gint offset, gint length, tvbuff_t *tvb)
+static gint UL_sounding_command_IE(proto_tree *uiuc_tree, gint offset, gint length, tvbuff_t *tvb)
 {
     /* UL-MAP Extended-2 IE = 4 */
     /* 8.4.5.4.26 [2] UL_sounding_command_IE */
@@ -1331,7 +1331,7 @@ static gint UL_sounding_command_IE(proto_tree *uiuc_tree, const guint8 *bufptr, 
     return BIT_TO_NIB(bit);
 }
 
-static gint MIMO_UL_Enhanced_IE(proto_tree *uiuc_tree, const guint8 *bufptr, gint offset, gint length, tvbuff_t *tvb)
+static gint MIMO_UL_Enhanced_IE(proto_tree *uiuc_tree, gint offset, gint length, tvbuff_t *tvb)
 {
     /* UL-MAP Extended-2 IE = 6 */
     /* 8.4.5.4.20 [2] MIMO_UL_Enhanced_IE (not implemented) */
@@ -1352,7 +1352,7 @@ static gint MIMO_UL_Enhanced_IE(proto_tree *uiuc_tree, const guint8 *bufptr, gin
     return nib;
 }
 
-static gint HARQ_ULMAP_IE(proto_tree *uiuc_tree, const guint8 *bufptr, gint offset, gint length, tvbuff_t *tvb)
+static gint HARQ_ULMAP_IE(proto_tree *uiuc_tree, gint offset, gint length, tvbuff_t *tvb)
 {
     /* UL-MAP Extended-2 IE = 7 */
     /* 8.4.5.4.24 HARQ_ULMAP_IE */
@@ -1390,19 +1390,19 @@ static gint HARQ_ULMAP_IE(proto_tree *uiuc_tree, const guint8 *bufptr, gint offs
         nsub++;
         for (i = 0; i < nsub; i++) {
             if (mode == 0) {
-                bit += UL_HARQ_Chase_Sub_Burst_IE(tree, bufptr, bit, bitlength, tvb);
+                bit += UL_HARQ_Chase_Sub_Burst_IE(tree, bit, bitlength, tvb);
             } else if (mode == 1) {
-               bit +=  UL_HARQ_IR_CTC_Sub_Burst_IE(tree, bufptr, bit, bitlength, tvb);
+               bit +=  UL_HARQ_IR_CTC_Sub_Burst_IE(tree, bit, bitlength, tvb);
             } else if (mode == 2) {
-                bit += UL_HARQ_IR_CC_Sub_Burst_IE(tree, bufptr, bit, bitlength, tvb);
+                bit += UL_HARQ_IR_CC_Sub_Burst_IE(tree, bit, bitlength, tvb);
             } else if (mode == 3) {
-                bit += MIMO_UL_Chase_HARQ_Sub_Burst_IE(tree, bufptr, bit, bitlength, tvb);
+                bit += MIMO_UL_Chase_HARQ_Sub_Burst_IE(tree, bit, bitlength, tvb);
             } else if (mode == 4) {
-                bit += MIMO_UL_IR_HARQ__Sub_Burst_IE(tree, bufptr, bit, bitlength, tvb);
+                bit += MIMO_UL_IR_HARQ__Sub_Burst_IE(tree, bit, bitlength, tvb);
             } else if (mode == 5) {
-                bit += MIMO_UL_IR_HARQ_for_CC_Sub_Burst_UIE(tree, bufptr, bit, bitlength, tvb);
+                bit += MIMO_UL_IR_HARQ_for_CC_Sub_Burst_UIE(tree, bit, bitlength, tvb);
             } else if (mode == 6) {
-                bit += MIMO_UL_STC_HARQ_Sub_Burst_IE(tree, bufptr, bit, bitlength, tvb);
+                bit += MIMO_UL_STC_HARQ_Sub_Burst_IE(tree, bit, bitlength, tvb);
             }
         }
     }
@@ -1415,7 +1415,7 @@ static gint HARQ_ULMAP_IE(proto_tree *uiuc_tree, const guint8 *bufptr, gint offs
     return BIT_TO_NIB(bit);
 }
 
-static gint HARQ_ACKCH_Region_Allocation_IE(proto_tree *uiuc_tree, const guint8 *bufptr, gint offset, gint length, tvbuff_t *tvb)
+static gint HARQ_ACKCH_Region_Allocation_IE(proto_tree *uiuc_tree, gint offset, gint length, tvbuff_t *tvb)
 {
     /* UL-MAP Extended-2 IE = 8 */
     /* 8.4.5.4.25 [2] HARQ_ACKCH_Region_Allocation_IE */
@@ -1440,7 +1440,7 @@ static gint HARQ_ACKCH_Region_Allocation_IE(proto_tree *uiuc_tree, const guint8 
     return BIT_TO_NIB(bit);
 }
 
-static gint AAS_SDMA_UL_IE(proto_tree *uiuc_tree, const guint8 *bufptr, gint offset, gint length, tvbuff_t *tvb)
+static gint AAS_SDMA_UL_IE(proto_tree *uiuc_tree, gint offset, gint length, tvbuff_t *tvb)
 {
     /* UL-MAP Extended-2 IE = 0xE */
     /* 8.4.5.4.27 [2] AAS_SDMA_UL_IE  */
@@ -1470,7 +1470,7 @@ static gint AAS_SDMA_UL_IE(proto_tree *uiuc_tree, const guint8 *bufptr, gint off
         XBIT(user, 3, "Number of users");
         XBIT(data, 3, "Reserved");
         for (jj = 0; jj < user; jj++) {
-            bit += RCID_IE(tree, bufptr, bit, length, tvb, RCID_Type);
+            bit += RCID_IE(tree, bit, length, tvb, RCID_Type);
             XBIT(encm, 2, "Encoding Mode");
             XBIT(padj, 1, "Power Adjust");
             XBIT(ppmd, 1, "Pilot Pattern Modifier");
@@ -1524,7 +1524,7 @@ static gint AAS_SDMA_UL_IE(proto_tree *uiuc_tree, const guint8 *bufptr, gint off
     return BIT_TO_NIB(bit);
 }
 
-static gint Feedback_Polling_IE(proto_tree *uiuc_tree, const guint8 *bufptr, gint offset, gint length, tvbuff_t *tvb)
+static gint Feedback_Polling_IE(proto_tree *uiuc_tree, gint offset, gint length, tvbuff_t *tvb)
 {
     /* UL-MAP Extended-2 IE = 0xF */
     /* 8.4.5.4.28 [2] Feedback_Polling_IE */
@@ -1576,12 +1576,12 @@ static gint Feedback_Polling_IE(proto_tree *uiuc_tree, const guint8 *bufptr, gin
  * UL-MAP Miscellany
  *******************************************************************/
 
-gint dissect_ulmap_ie( proto_tree *ie_tree, const guint8 *bufptr, gint offset, gint length _U_, tvbuff_t *tvb)
+gint dissect_ulmap_ie( proto_tree *ie_tree, gint offset, gint length _U_, tvbuff_t *tvb)
 {
     /* decode a single UL-MAP IE and return the
      * length of the IE in nibbles
      * offset = start of IE (nibbles)
-     * length = total length of bufptr (nibbles) */
+     * length = total length of tvb (nibbles) */
     proto_item *ti = NULL;
     proto_tree *tree = NULL;
     gint nibble;
@@ -1607,7 +1607,7 @@ gint dissect_ulmap_ie( proto_tree *ie_tree, const guint8 *bufptr, gint offset, g
         proto_tree_add_uint(tree, hf_ulmap_ie_uiuc, tvb, NIBHI(nibble, 1), uiuc);
         nibble += 1;
 
-        data = NIB_LONG(nibble, bufptr);
+        data = TVB_NIB_LONG(nibble, tvb);
         proto_tree_add_uint(tree, hf_ulmap_uiuc0_symofs, tvb, NIBHI(nibble, 8), data);
         proto_tree_add_uint(tree, hf_ulmap_uiuc0_subofs, tvb, NIBHI(nibble, 8), data);
         proto_tree_add_uint(tree, hf_ulmap_uiuc0_numsym, tvb, NIBHI(nibble, 8), data);
@@ -1618,8 +1618,8 @@ gint dissect_ulmap_ie( proto_tree *ie_tree, const guint8 *bufptr, gint offset, g
     else if (uiuc == 11)
     {
         /* 8.4.5.4.4.2 [2] extended-2 UIUC IE table 290b */
-        ext2_uiuc = NIB_NIBBLE(5+nibble, bufptr);
-        len = NIB_BYTE(5+nibble+1, bufptr);
+        ext2_uiuc = TVB_NIB_NIBBLE(5+nibble, tvb);
+        len = TVB_NIB_BYTE(5+nibble+1, tvb);
 
         ti = proto_tree_add_text(ie_tree, tvb, NIBHI(nibble, 5+3+len*2), "UIUC: %d (Extended-2 IE)", uiuc);
         tree = proto_item_add_subtree(ti, ett_290b);
@@ -1642,43 +1642,43 @@ gint dissect_ulmap_ie( proto_tree *ie_tree, const guint8 *bufptr, gint offset, g
         switch (ext2_uiuc) {
             case 0x00:
                 /* 8.4.5.4.16 CQICH_Enhanced_Allocation_IE */
-                nibble = CQICH_Enhanced_Allocation_IE(tree, bufptr, nibble, len, tvb);
+                nibble = CQICH_Enhanced_Allocation_IE(tree, nibble, len, tvb);
                 break;
             case 0x01:
                 /* 8.4.5.4.18 HO_Anchor_Active_UL_MAP_IE */
-                nibble = HO_Anchor_Active_UL_MAP_IE(tree, bufptr, nibble, len, tvb);
+                nibble = HO_Anchor_Active_UL_MAP_IE(tree, nibble, len, tvb);
                 break;
             case 0x02:
                 /* 8.4.5.4.19 HO_Active_Anchor_UL_MAP_IE */
-                nibble = HO_Active_Anchor_UL_MAP_IE(tree, bufptr, nibble, len, tvb);
+                nibble = HO_Active_Anchor_UL_MAP_IE(tree, nibble, len, tvb);
                 break;
             case 0x03:
                 /* 8.4.5.4.23 Anchor_BS_switch_IE */
-                nibble = Anchor_BS_switch_IE(tree, bufptr, nibble, len, tvb);
+                nibble = Anchor_BS_switch_IE(tree, nibble, len, tvb);
                 break;
             case 0x04:
                 /* 8.4.5.4.26 UL_sounding_command_IE */
-                nibble = UL_sounding_command_IE(tree, bufptr, nibble, len, tvb);
+                nibble = UL_sounding_command_IE(tree, nibble, len, tvb);
                 break;
             case 0x06:
                 /* 8.4.5.4.20 MIMO_UL_Enhanced_IE */
-                nibble = MIMO_UL_Enhanced_IE(tree, bufptr, nibble, len, tvb);
+                nibble = MIMO_UL_Enhanced_IE(tree, nibble, len, tvb);
                 break;
             case 0x07:
                 /* 8.4.5.4.24 HARQ_ULMAP_IE */
-                nibble = HARQ_ULMAP_IE(tree, bufptr, nibble, len, tvb);
+                nibble = HARQ_ULMAP_IE(tree, nibble, len, tvb);
                 break;
             case 0x08:
                 /* 8.4.5.4.25 HARQ_ACKCH_Region_Allocation_IE */
-                nibble = HARQ_ACKCH_Region_Allocation_IE(tree, bufptr, nibble, len, tvb);
+                nibble = HARQ_ACKCH_Region_Allocation_IE(tree, nibble, len, tvb);
                 break;
             case 0x0e:
                 /* 8.4.5.4.27 AAS_SDMA_UL_IE */
-                nibble = AAS_SDMA_UL_IE(tree, bufptr, nibble, len, tvb);
+                nibble = AAS_SDMA_UL_IE(tree, nibble, len, tvb);
                 break;
             case 0x0f:
                 /* 8.4.5.4.28 Feedback_Polling_IE */
-                nibble = Feedback_Polling_IE(tree, bufptr, nibble, len, tvb);
+                nibble = Feedback_Polling_IE(tree, nibble, len, tvb);
                 break;
 
             default:
@@ -1699,7 +1699,7 @@ gint dissect_ulmap_ie( proto_tree *ie_tree, const guint8 *bufptr, gint offset, g
         proto_tree_add_uint(tree, hf_ulmap_ie_uiuc, tvb, NIBHI(nibble, 1), uiuc);
         nibble += 1;
 
-        data32 = NIB_LONG(nibble, bufptr);
+        data32 = TVB_NIB_LONG(nibble, tvb);
         proto_tree_add_uint(tree, hf_ulmap_uiuc12_symofs, tvb, NIBHI(nibble,8), data32);
         proto_tree_add_uint(tree, hf_ulmap_uiuc12_subofs, tvb, NIBHI(nibble,8), data32);
         proto_tree_add_uint(tree, hf_ulmap_uiuc12_numsym, tvb, NIBHI(nibble,8), data32);
@@ -1720,7 +1720,7 @@ gint dissect_ulmap_ie( proto_tree *ie_tree, const guint8 *bufptr, gint offset, g
         proto_tree_add_uint(tree, hf_ulmap_ie_uiuc, tvb, NIBHI(nibble, 1), uiuc);
         nibble += 1;
 
-        data = NIB_LONG(nibble, bufptr);
+        data = TVB_NIB_LONG(nibble, tvb);
         proto_tree_add_uint(tree, hf_ulmap_uiuc13_symofs, tvb, NIBHI(nibble,8), data);
         proto_tree_add_uint(tree, hf_ulmap_uiuc13_subofs, tvb, NIBHI(nibble,8), data);
         proto_tree_add_uint(tree, hf_ulmap_uiuc13_numsym, tvb, NIBHI(nibble,8), data);
@@ -1741,24 +1741,24 @@ gint dissect_ulmap_ie( proto_tree *ie_tree, const guint8 *bufptr, gint offset, g
         proto_tree_add_uint(tree, hf_ulmap_ie_uiuc, tvb, NIBHI(nibble, 1), uiuc);
         nibble += 1;
 
-        data = NIB_WORD(nibble, bufptr);
+        data = TVB_NIB_WORD(nibble, tvb);
         proto_tree_add_uint(tree, hf_ulmap_uiuc14_dur,  tvb, NIBHI(nibble,2), data);
         proto_tree_add_uint(tree, hf_ulmap_uiuc14_uiuc, tvb, NIBHI(nibble+1,2), data);
         proto_tree_add_uint(tree, hf_ulmap_uiuc14_rep,  tvb, NIBHI(nibble+2,1), data);
         proto_tree_add_uint(tree, hf_ulmap_uiuc14_idx,  tvb, NIBHI(nibble+3,1), data);
         nibble += 4;
 
-        data = NIB_BYTE(nibble, bufptr);
+        data = TVB_NIB_BYTE(nibble, tvb);
         proto_tree_add_uint(tree, hf_ulmap_uiuc14_code, tvb, NIBHI(nibble,2), data);
         proto_item_append_text(ti, " (0x%02x)", data);
         nibble += 2;
 
-        data = NIB_BYTE(nibble, bufptr);
+        data = TVB_NIB_BYTE(nibble, tvb);
         proto_tree_add_uint(tree, hf_ulmap_uiuc14_sym,  tvb, NIBHI(nibble,2), data);
         proto_item_append_text(ti, " (0x%02x)", data);
         nibble += 2;
 
-        data = NIB_BYTE(nibble, bufptr);
+        data = TVB_NIB_BYTE(nibble, tvb);
         proto_tree_add_uint(tree, hf_ulmap_uiuc14_sub,  tvb, NIBHI(nibble,2), data);
         proto_item_append_text(ti, " (0x%02x)", data >> 1);
         proto_tree_add_uint(tree, hf_ulmap_uiuc14_bwr,  tvb, NIBHI(nibble+1,1), data);
@@ -1767,8 +1767,8 @@ gint dissect_ulmap_ie( proto_tree *ie_tree, const guint8 *bufptr, gint offset, g
     else if (uiuc == 15)
     {
         /* 8.4.5.4.4 [1] Extended UIUC dependent IE table 291 */
-        ext_uiuc = NIB_NIBBLE(5+nibble, bufptr);
-        len = NIB_NIBBLE(5+nibble+1, bufptr);
+        ext_uiuc = TVB_NIB_NIBBLE(5+nibble, tvb);
+        len = TVB_NIB_NIBBLE(5+nibble+1, tvb);
 
         ti = proto_tree_add_text(ie_tree, tvb, NIBHI(nibble, 5+2+len*2), "UIUC: %d (Extended IE)", uiuc);
         tree = proto_item_add_subtree(ti, ett_291);
@@ -1791,47 +1791,47 @@ gint dissect_ulmap_ie( proto_tree *ie_tree, const guint8 *bufptr, gint offset, g
         switch (ext_uiuc) {
             case 0x00:
                 /* 8.4.5.4.5 Power_Control_IE */
-                nibble = Power_Control_IE(tree, bufptr, nibble, len, tvb);
+                nibble = Power_Control_IE(tree, nibble, len, tvb);
                 break;
             case 0x01:
                 /* 8.4.5.4.8 Mini-Subchannel_allocation_IE*/
-                nibble = Mini_Subchannel_allocation_IE(tree, bufptr, nibble, len, tvb);
+                nibble = Mini_Subchannel_allocation_IE(tree, nibble, len, tvb);
                 break;
             case 0x02:
                 /* 8.4.5.4.6 AAS_UL_IE*/
-                nibble = AAS_UL_IE(tree, bufptr, nibble, len, tvb);
+                nibble = AAS_UL_IE(tree, nibble, len, tvb);
                 break;
             case 0x03:
                 /* 8.4.5.4.12 CQICH_Alloc_IE */
-                nibble = CQICH_Alloc_IE(tree, bufptr, nibble, len, tvb);
+                nibble = CQICH_Alloc_IE(tree, nibble, len, tvb);
                 break;
             case 0x04:
                 /* 8.4.5.4.7 UL_Zone_IE */
-                nibble = UL_Zone_IE(tree, bufptr, nibble, len, tvb);
+                nibble = UL_Zone_IE(tree, nibble, len, tvb);
                 break;
             case 0x05:
                 /* 8.4.5.4.14 PHYMOD_UL_IE */
-                nibble = PHYMOD_UL_IE(tree, bufptr, nibble, len, tvb);
+                nibble = PHYMOD_UL_IE(tree, nibble, len, tvb);
                 break;
             case 0x06:
                 /* 8.4.5.4.11 MIMO_UL_IE */
-                nibble = MIMO_UL_IE(tree, bufptr, nibble, len, tvb);
+                nibble = MIMO_UL_IE(tree, nibble, len, tvb);
                 break;
             case 0x07:
                 /* 8.4.5.4.22 ULMAP_Fast_Tracking_IE */
-                nibble = ULMAP_Fast_Tracking_IE(tree, bufptr, nibble, len, tvb);
+                nibble = ULMAP_Fast_Tracking_IE(tree, nibble, len, tvb);
                 break;
             case 0x08:
                 /* 8.4.5.4.17 UL_PUSC_Burst_Allocation_in_other_segment_IE */
-                nibble = UL_PUSC_Burst_Allocation_in_other_segment_IE(tree, bufptr, nibble, len, tvb);
+                nibble = UL_PUSC_Burst_Allocation_in_other_segment_IE(tree, nibble, len, tvb);
                 break;
             case 0x09:
                 /* 8.4.5.4.21 Fast_Ranging_IE */
-                nibble = Fast_Ranging_IE(tree, bufptr, nibble, len, tvb);
+                nibble = Fast_Ranging_IE(tree, nibble, len, tvb);
                 break;
             case 0x0a:
                 /* 8.4.5.4.15 UL_Allocation_Start_IE */
-                nibble = UL_Allocation_Start_IE(tree, bufptr, nibble, len, tvb);
+                nibble = UL_Allocation_Start_IE(tree, nibble, len, tvb);
                 break;
             default:
                 proto_tree_add_text(tree, tvb, NIBHI(nibble,len), "(reserved Extended UIUC: %d)", ext_uiuc);
@@ -1855,13 +1855,13 @@ gint dissect_ulmap_ie( proto_tree *ie_tree, const guint8 *bufptr, gint offset, g
         proto_tree_add_uint(tree, hf_ulmap_ie_uiuc, tvb, NIBHI(nibble, 1), uiuc);
         nibble += 1;
 
-        data = NIB_WORD(nibble, bufptr);
+        data = TVB_NIB_WORD(nibble, tvb);
         proto_tree_add_uint(tree, hf_ulmap_uiuc10_dur, tvb, NIBHI(nibble,3), data);
         proto_tree_add_uint(tree, hf_ulmap_uiuc10_rep, tvb, NIBHI(nibble+2,1), data);
         nibble += 3;
 
         if (aas_or_amc) {
-            data = NIB_BITS12(nibble, bufptr);
+            data = TVB_NIB_BITS12(nibble, tvb);
             proto_tree_add_text(tree, tvb, NIBHI(nibble,3), "Slot offset: %d", data);
             nibble += 3;
         }
@@ -1881,11 +1881,8 @@ static void dissect_mac_mgmt_msg_ulmap_decoder(tvbuff_t *tvb, packet_info *pinfo
     proto_tree *ulmap_tree = NULL;
     proto_tree *ie_tree    = NULL;
     guint tvb_len;
-    const guint8 *bufptr;
 
     tvb_len = tvb_reported_length(tvb);
-    /* XXX This should be removed, and regular tvb accessors should be used instead. */
-    bufptr = tvb_get_ptr(tvb, offset, tvb_len);
 
     /* display MAC UL-MAP */
     ti = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_ulmap_decoder, tvb, offset, -1, "UL-MAP");
@@ -1908,7 +1905,7 @@ static void dissect_mac_mgmt_msg_ulmap_decoder(tvbuff_t *tvb, packet_info *pinfo
     /* length = BYTE_TO_NIB(length); */ /* convert length to nibbles */
     nib = BYTE_TO_NIB(offset);
     while (nib < ((tvb_len*2)-1)) {
-        nib += dissect_ulmap_ie(ie_tree, bufptr, nib, tvb_len*2, tvb);
+        nib += dissect_ulmap_ie(ie_tree, nib, tvb_len*2, tvb);
     }
     pad = NIB_PADDING(nib);
     if (pad) {
@@ -1918,7 +1915,7 @@ static void dissect_mac_mgmt_msg_ulmap_decoder(tvbuff_t *tvb, packet_info *pinfo
 }
 
 /*gint wimax_decode_ulmapc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)*/
-gint wimax_decode_ulmapc(proto_tree *base_tree, const guint8 *bufptr, gint offset, gint length, tvbuff_t *tvb)
+gint wimax_decode_ulmapc(proto_tree *base_tree, gint offset, gint length, tvbuff_t *tvb)
 {
     /* 8.4.5.6.2 [2] Compressed UL-MAP */
     /* returns length in nibbles */
@@ -1935,20 +1932,20 @@ gint wimax_decode_ulmapc(proto_tree *base_tree, const guint8 *bufptr, gint offse
     tree = proto_item_add_subtree(ti, ett_306);
 
     /* Decode and display the UL-MAP */
-    data = NIB_BYTE(nib, bufptr);
+    data = TVB_NIB_BYTE(nib, tvb);
     proto_tree_add_uint(tree, hf_ulmap_ucd_count, tvb, NIBHI(nib,2), data);
     nib += 2;
-    data = NIB_LONG(nib, bufptr);
+    data = TVB_NIB_LONG(nib, tvb);
     proto_tree_add_uint(tree, hf_ulmap_alloc_start_time, tvb, NIBHI(nib,8), data);
     nib += 8;
-    data = NIB_BYTE(nib, bufptr);
+    data = TVB_NIB_BYTE(nib, tvb);
     proto_tree_add_uint(tree, hf_ulmap_ofdma_sym, tvb, NIBHI(nib,2), data); /* added 2005 */
     nib += 2;
 
     ti = proto_tree_add_text(tree, tvb, NIBHI(nib,length-nib), "UL-MAP IEs (%u bytes)", NIB_ADDR(length-nib));
     ie_tree = proto_item_add_subtree(ti, ett_306_ul);
     while (nib < length-1) {
-        nib += dissect_ulmap_ie(ie_tree, bufptr, nib, length-nib, tvb);
+        nib += dissect_ulmap_ie(ie_tree, nib, length-nib, tvb);
     }
 
     /* padding */
@@ -1962,7 +1959,7 @@ gint wimax_decode_ulmapc(proto_tree *base_tree, const guint8 *bufptr, gint offse
 }
 
 
-gint wimax_decode_ulmap_reduced_aas(proto_tree *base_tree, const guint8 *bufptr, gint offset, gint length, tvbuff_t *tvb)
+gint wimax_decode_ulmap_reduced_aas(proto_tree *base_tree, gint offset, gint length, tvbuff_t *tvb)
 {
     /* 8.4.5.8.2 Reduced AAS private UL-MAP */
     /* offset and length are in bits since this is called from within
@@ -2000,7 +1997,7 @@ gint wimax_decode_ulmap_reduced_aas(proto_tree *base_tree, const guint8 *bufptr,
     }
     if (umii) {
         XBIT(data, 8, "UCD Count");
-        data = BIT_BITS64(bit,bufptr,32);
+        data = TVB_BIT_BITS64(bit,tvb,32);
         proto_tree_add_text(tree, tvb, BITHI(bit,32), "Private Map Allocation Start Time: %u",data);
         bit += 32;
     }
@@ -2008,7 +2005,7 @@ gint wimax_decode_ulmap_reduced_aas(proto_tree *base_tree, const guint8 *bufptr,
         XBIT(data, 1, "Preamble Select");
         XBIT(data, 4, "Preamble Shift Index");
         XBIT(data, 1, "Pilot Pattern Modifier");
-        data = BIT_BITS32(bit,bufptr,22);
+        data = TVB_BIT_BITS32(bit,tvb,22);
         proto_tree_add_text(tree, tvb, BITHI(bit,22), "Pilot Pattern Index: %u",data);
         bit += 22;
     }

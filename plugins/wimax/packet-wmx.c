@@ -35,7 +35,6 @@
 #include <epan/address.h>
 #include <epan/wmem/wmem.h>
 #include "wimax_tlv.h"
-#include "wimax_bits.h"
 
 void proto_register_wimax(void);
 
