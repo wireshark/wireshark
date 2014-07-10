@@ -419,12 +419,14 @@ static const true_false_string tfs_v3_as_external_flags_e = {
 /* The OSPF filtering keys */
 enum {
 
+/* Start of OSPF MSG Type enums ... */
     OSPFF_MSG_MIN,
     OSPFF_MSG_HELLO,
     OSPFF_MSG_DB_DESC,
     OSPFF_MSG_LS_REQ,
     OSPFF_MSG_LS_UPD,
     OSPFF_MSG_LS_ACK,
+/* ... end of OSPF MSG Type enums */
 
     OSPFF_LS_TYPE,
     OSPFF_LS_AGE,
@@ -437,36 +439,37 @@ enum {
 
     OSPFF_LS_MPLS_TE_INSTANCE,
 
+/* Start of OSPF V2 LSA Type enums ... */
     OSPFF_LS_MIN,
-
     OSPFF_LS_ROUTER,
+    OSPFF_LS_NETWORK,
+    OSPFF_LS_SUMMARY,
+    OSPFF_LS_ASBR,
+    OSPFF_LS_ASEXT,
+    OSPFF_LS_GRPMEMBER,
+    OSPFF_LS_ASEXT7,
+    OSPFF_LS_EXTATTR,
+    OSPFF_LS_OPAQUE,
+/* ...end of OSPF V2 LSA Type enums */
+
     OSPFF_LS_ROUTER_LINKTYPE,
     OSPFF_LS_ROUTER_LINKID,
     OSPFF_LS_ROUTER_LINKDATA,
     OSPFF_LS_ROUTER_NUMMETRICS,
     OSPFF_LS_ROUTER_METRIC0,
 
-    OSPFF_LS_NETWORK,
     OSPFF_LS_NETWORK_NETMASK,
     OSPFF_LS_NETWORK_ATTACHRTR,
 
-    OSPFF_LS_SUMMARY,
-
-    OSPFF_LS_ASBR,
     OSPFF_LS_ASBR_NETMASK,
 
-    OSPFF_LS_ASEXT,
     OSPFF_LS_ASEXT_NETMASK,
     OSPFF_LS_ASEXT_FWDADDR,
     OSPFF_LS_ASEXT_EXTRTRTAG,
 
-    OSPFF_LS_GRPMEMBER,
-    OSPFF_LS_ASEXT7,
-    OSPFF_LS_EXTATTR,
-    OSPFF_LS_OPAQUE,
-
     OSPFF_V3_LS_TYPE,
 
+/* Start of OSPF V3 LSA Type enums ... */
     OSPFF_V3_LS_MIN,
     OSPFF_V3_LS_ROUTER,
     OSPFF_V3_LS_NETWORK,
@@ -478,6 +481,7 @@ enum {
     OSPFF_V3_LS_LINK,
     OSPFF_V3_LS_INTRA_AREA_PREFIX,
     OSPFF_V3_LS_OPAQUE_RI,
+/* ...end of OSPF V3 LSA Type enums */
 
     OSPFF_ADV_ROUTER,
     OSPFF_LS_MPLS,
@@ -2413,7 +2417,7 @@ dissect_ospf_v2_lsa(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *t
 
     if (disassemble_body) {
         ospf_lsa_tree = proto_tree_add_subtree_format(tree, tvb, offset, ls_length,
-                                 ett_ospf_lsa, NULL, "LS Type: %s",
+                                 ett_ospf_lsa, NULL, "%s",
                                  val_to_str(ls_type, ls_type_vals, "Unknown (%d)"));
     } else {
         ospf_lsa_tree = proto_tree_add_subtree(tree, tvb, offset, OSPF_LSA_HEADER_LENGTH,
