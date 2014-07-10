@@ -673,6 +673,10 @@ typedef struct ssl_common_dissect {
         gint hs_server_keyex_hint;
         gint hs_client_keyex_identity_len;
         gint hs_client_keyex_identity;
+        gint hs_certificates_len;
+        gint hs_certificates;
+        gint hs_certificate_len;
+        gint hs_certificate;
 
         /* do not forget to update SSL_COMMON_LIST_T and SSL_COMMON_HF_LIST! */
     } hf;
@@ -690,6 +694,7 @@ typedef struct ssl_common_dissect {
         gint hs_sig_hash_algs;
         gint urlhash;
         gint keyex_params;
+        gint certificates;
 
         /* do not forget to update SSL_COMMON_LIST_T and SSL_COMMON_ETT_LIST! */
     } ett;
@@ -708,6 +713,11 @@ ssl_dissect_hnd_hello_ext(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
 extern gint
 ssl_dissect_hash_alg_list(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree,
                           guint32 offset, guint16 len);
+
+extern void
+ssl_dissect_hnd_cert(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree,
+                     guint32 offset, packet_info *pinfo,
+                     const SslSession *session, gint is_from_server);
 
 extern void
 ssl_dissect_hnd_cert_url(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree, guint32 offset);
@@ -730,10 +740,10 @@ ssl_common_dissect_t name = {   \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
-        -1, -1, -1, -1, -1,                                             \
+        -1, -1, -1, -1, -1, -1, -1, -1, -1,                             \
     },                                                                  \
     /* ett */ {                                                         \
-        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,             \
+        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,         \
     },                                                                  \
     /* ei */ {                                                          \
         EI_INIT,                                                        \
@@ -1087,6 +1097,26 @@ ssl_common_dissect_t name = {   \
       { "Mode", prefix ".handshake.extension.heartbeat.mode",           \
         FT_UINT8, BASE_DEC, VALS(tls_heartbeat_mode), 0x0,              \
         "Heartbeat extension mode", HFILL }                             \
+    },                                                                  \
+    { & name .hf.hs_certificates_len,                                   \
+      { "Certificates Length", prefix ".handshake.certificates_length", \
+        FT_UINT24, BASE_DEC, NULL, 0x0,                                 \
+        "Length of certificates field", HFILL }                         \
+    },                                                                  \
+    { & name .hf.hs_certificates,                                       \
+      { "Certificates", prefix ".handshake.certificates",               \
+        FT_NONE, BASE_NONE, NULL, 0x0,                                  \
+        "List of certificates", HFILL }                                 \
+    },                                                                  \
+    { & name .hf.hs_certificate,                                        \
+      { "Certificate", prefix ".handshake.certificate",                 \
+        FT_NONE, BASE_NONE, NULL, 0x0,                                  \
+        NULL, HFILL }                                                   \
+    },                                                                  \
+    { & name .hf.hs_certificate_len,                                    \
+      { "Certificate Length", prefix ".handshake.certificate_length",   \
+        FT_UINT24, BASE_DEC, NULL, 0x0,                                 \
+        "Length of certificate", HFILL }                                \
     }
 /* }}} */
 
@@ -1104,7 +1134,8 @@ ssl_common_dissect_t name = {   \
         & name .ett.hs_sig_hash_alg,                \
         & name .ett.hs_sig_hash_algs,               \
         & name .ett.urlhash,                        \
-        & name .ett.keyex_params
+        & name .ett.keyex_params,                   \
+        & name .ett.certificates,                   \
 /* }}} */
 
 /* {{{ */

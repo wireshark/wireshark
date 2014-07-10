@@ -39,6 +39,8 @@
 #include <epan/addr_resolv.h>
 #include <epan/ipv6-utils.h>
 #include <epan/expert.h>
+#include <epan/asn1.h>
+#include <epan/dissectors/packet-x509af.h>
 #include <wsutil/file_util.h>
 #include <wsutil/str_util.h>
 
@@ -5106,6 +5108,65 @@ ssl_dissect_hnd_hello_ext_cert_type(ssl_common_dissect_t *hf, tvbuff_t *tvb,
     }
 
     return offset;
+}
+
+void
+ssl_dissect_hnd_cert(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree,
+                     guint32 offset, packet_info *pinfo,
+                     const SslSession *session, gint is_from_server)
+{
+    /* opaque ASN.1Cert<2^24-1>;
+     *
+     * struct {
+     *     ASN.1Cert certificate_list<1..2^24-1>;
+     * } Certificate;
+     */
+    guint32     certificate_list_length;
+    proto_item *ti;
+    proto_tree *subtree;
+    asn1_ctx_t  asn1_ctx;
+
+    if (!tree)
+        return;
+
+    asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+
+    certificate_list_length = tvb_get_ntoh24(tvb, offset);
+    proto_tree_add_uint(tree, hf->hf.hs_certificates_len,
+                        tvb, offset, 3, certificate_list_length);
+    offset += 3;            /* 24-bit length value */
+
+    if (certificate_list_length > 0) {
+        ti = proto_tree_add_none_format(tree,
+                                        hf->hf.hs_certificates,
+                                        tvb, offset, certificate_list_length,
+                                        "Certificates (%u bytes)",
+                                        certificate_list_length);
+
+        /* make it a subtree */
+        subtree = proto_item_add_subtree(ti, hf->ett.certificates);
+
+        /* iterate through each certificate */
+        while (certificate_list_length > 0) {
+            /* get the length of the current certificate */
+            guint32 cert_length;
+            cert_length = tvb_get_ntoh24(tvb, offset);
+            certificate_list_length -= 3 + cert_length;
+
+            proto_tree_add_item(subtree, hf->hf.hs_certificate_len,
+                                tvb, offset, 3, ENC_BIG_ENDIAN);
+            offset += 3;
+
+            if ((is_from_server && session->server_cert_type == SSL_HND_CERT_TYPE_RAW_PUBLIC_KEY) ||
+               (!is_from_server && session->client_cert_type == SSL_HND_CERT_TYPE_RAW_PUBLIC_KEY)) {
+                dissect_x509af_SubjectPublicKeyInfo(FALSE, tvb, offset, &asn1_ctx, subtree, hf->hf.hs_certificate);
+            } else {
+                dissect_x509af_Certificate(FALSE, tvb, offset, &asn1_ctx, subtree, hf->hf.hs_certificate);
+            }
+
+            offset += cert_length;
+        }
+    }
 }
 
 void

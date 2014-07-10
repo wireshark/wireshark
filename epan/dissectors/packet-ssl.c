@@ -162,10 +162,6 @@ static gint hf_ssl_handshake_comp_method      = -1;
 static gint hf_ssl_handshake_session_ticket_lifetime_hint = -1;
 static gint hf_ssl_handshake_session_ticket_len = -1;
 static gint hf_ssl_handshake_session_ticket = -1;
-static gint hf_ssl_handshake_certificates_len = -1;
-static gint hf_ssl_handshake_certificates     = -1;
-static gint hf_ssl_handshake_certificate      = -1;
-static gint hf_ssl_handshake_certificate_len  = -1;
 static gint hf_ssl_handshake_cert_types_count = -1;
 static gint hf_ssl_handshake_cert_types       = -1;
 static gint hf_ssl_handshake_cert_type        = -1;
@@ -510,10 +506,6 @@ static void dissect_ssl3_hnd_new_ses_ticket(tvbuff_t *tvb,
                                        proto_tree *tree,
                                        guint32 offset, guint32 length,
                                        SslDecryptSession *ssl);
-
-static void dissect_ssl3_hnd_cert(tvbuff_t *tvb,
-                                  proto_tree *tree, guint32 offset, packet_info *pinfo,
-                                  const SslSession *session, gint is_from_server);
 
 static void dissect_ssl3_hnd_cert_req(tvbuff_t *tvb,
                                       proto_tree *tree,
@@ -1996,7 +1988,7 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
                 break;
 
             case SSL_HND_CERTIFICATE:
-                dissect_ssl3_hnd_cert(tvb, ssl_hand_tree, offset, pinfo, session, is_from_server);
+                ssl_dissect_hnd_cert(&dissect_ssl3_hf, tvb, ssl_hand_tree, offset, pinfo, session, is_from_server);
                 break;
 
             case SSL_HND_SERVER_KEY_EXCHG:
@@ -2488,75 +2480,6 @@ dissect_ssl3_hnd_new_ses_ticket(tvbuff_t *tvb, proto_tree *tree,
     /* Content depends on implementation, so just show data! */
     proto_tree_add_item(subtree, hf_ssl_handshake_session_ticket,
             tvb, offset, nst_len, ENC_NA);
-}
-
-static void
-dissect_ssl3_hnd_cert(tvbuff_t *tvb,
-                      proto_tree *tree, guint32 offset, packet_info *pinfo,
-                      const SslSession *session, gint is_from_server)
-{
-
-    /* opaque ASN.1Cert<2^24-1>;
-     *
-     * struct {
-     *     ASN.1Cert certificate_list<1..2^24-1>;
-     * } Certificate;
-     */
-    guint32     certificate_list_length;
-    proto_item *ti;
-    proto_tree *subtree;
-    asn1_ctx_t  asn1_ctx;
-
-    asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-
-    if (tree)
-    {
-        certificate_list_length = tvb_get_ntoh24(tvb, offset);
-        proto_tree_add_uint(tree, hf_ssl_handshake_certificates_len,
-                            tvb, offset, 3, certificate_list_length);
-        offset += 3;            /* 24-bit length value */
-
-        if (certificate_list_length > 0)
-        {
-            tvb_ensure_bytes_exist(tvb, offset, certificate_list_length);
-            ti = proto_tree_add_none_format(tree,
-                                            hf_ssl_handshake_certificates,
-                                            tvb, offset, certificate_list_length,
-                                            "Certificates (%u byte%s)",
-                                            certificate_list_length,
-                                            plurality(certificate_list_length, "", "s"));
-
-            /* make it a subtree */
-            subtree = proto_item_add_subtree(ti, ett_ssl_certs);
-            if (!subtree)
-            {
-                subtree = tree; /* failsafe */
-            }
-
-            /* iterate through each certificate */
-            while (certificate_list_length > 0)
-            {
-                /* get the length of the current certificate */
-                guint32 cert_length;
-                cert_length = tvb_get_ntoh24(tvb, offset);
-                certificate_list_length -= 3 + cert_length;
-
-                proto_tree_add_item(subtree, hf_ssl_handshake_certificate_len,
-                                    tvb, offset, 3, ENC_BIG_ENDIAN);
-                offset += 3;
-
-                if ((is_from_server && session->server_cert_type == SSL_HND_CERT_TYPE_RAW_PUBLIC_KEY) ||
-                   (!is_from_server && session->client_cert_type == SSL_HND_CERT_TYPE_RAW_PUBLIC_KEY)) {
-                    dissect_x509af_SubjectPublicKeyInfo(FALSE, tvb, offset, &asn1_ctx, subtree, hf_ssl_handshake_certificate);
-                } else {
-                    dissect_x509af_Certificate(FALSE, tvb, offset, &asn1_ctx, subtree, hf_ssl_handshake_certificate);
-                }
-
-                offset += cert_length;
-            }
-        }
-
-    }
 }
 
 static void
@@ -3809,7 +3732,7 @@ dissect_ssl2_hnd_server_hello(tvbuff_t *tvb,
 
     /* get the fixed fields */
     certificate_length = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_uint(tree, hf_ssl_handshake_certificate_len,
+    proto_tree_add_uint(tree, dissect_ssl3_hf.hf.hs_certificate_len,
                         tvb, offset, 2, certificate_length);
     offset += 2;
 
@@ -3826,7 +3749,7 @@ dissect_ssl2_hnd_server_hello(tvbuff_t *tvb,
     /* now the variable length fields */
     if (certificate_length > 0)
     {
-        (void)dissect_x509af_Certificate(FALSE, tvb, offset, &asn1_ctx, tree, hf_ssl_handshake_certificate);
+        (void)dissect_x509af_Certificate(FALSE, tvb, offset, &asn1_ctx, tree, dissect_ssl3_hf.hf.hs_certificate);
         offset += certificate_length;
     }
 
@@ -4491,26 +4414,6 @@ proto_register_ssl(void)
           { "Session Ticket", "ssl.handshake.session_ticket",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             "New TLS Session Ticket", HFILL }
-        },
-        { &hf_ssl_handshake_certificates_len,
-          { "Certificates Length", "ssl.handshake.certificates_length",
-            FT_UINT24, BASE_DEC, NULL, 0x0,
-            "Length of certificates field", HFILL }
-        },
-        { &hf_ssl_handshake_certificates,
-          { "Certificates", "ssl.handshake.certificates",
-            FT_NONE, BASE_NONE, NULL, 0x0,
-            "List of certificates", HFILL }
-        },
-        { &hf_ssl_handshake_certificate,
-          { "Certificate", "ssl.handshake.certificate",
-            FT_NONE, BASE_NONE, NULL, 0x0,
-            NULL, HFILL }
-        },
-        { &hf_ssl_handshake_certificate_len,
-          { "Certificate Length", "ssl.handshake.certificate_length",
-            FT_UINT24, BASE_DEC, NULL, 0x0,
-            "Length of certificate", HFILL }
         },
         { &hf_ssl_handshake_cert_types_count,
           { "Certificate types count", "ssl.handshake.cert_types_count",
