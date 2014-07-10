@@ -88,9 +88,8 @@ p_add_proto_data(wmem_allocator_t *tmp_scope, struct _packet_info* pinfo, int pr
   p1->proto_data = proto_data;
 
   /* Add it to the GSLIST */
-  *proto_list = g_slist_insert_sorted(*proto_list,
-                    (gpointer *)p1,
-                    p_compare);
+  *proto_list = g_slist_prepend(*proto_list,
+                    (gpointer *)p1);
 }
 
 void *
@@ -153,7 +152,7 @@ p_get_proto_name_and_key(wmem_allocator_t *scope, struct _packet_info* pinfo, gu
     temp = (frame_proto_data*)g_slist_nth_data(pinfo->fd->pfd, pfd_index);
   }
 
-  return ep_strdup_printf("[%s, key %u]",proto_get_protocol_name(temp->proto), temp->key);
+  return wmem_strdup_printf(wmem_packet_scope(),"[%s, key %u]",proto_get_protocol_name(temp->proto), temp->key);
 }
 
 #define COMPARE_FRAME_NUM()     ((fdata1->num < fdata2->num) ? -1 : \
