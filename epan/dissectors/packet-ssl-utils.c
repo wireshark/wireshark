@@ -41,6 +41,7 @@
 #include <epan/expert.h>
 #include <epan/asn1.h>
 #include <epan/dissectors/packet-x509af.h>
+#include "packet-x509if.h"
 #include <wsutil/file_util.h>
 #include <wsutil/str_util.h>
 
@@ -5168,6 +5169,151 @@ ssl_dissect_hnd_cert(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree,
         }
     }
 }
+
+void
+ssl_dissect_hnd_cert_req(ssl_common_dissect_t *hf, tvbuff_t *tvb,
+                          proto_tree *tree, guint32 offset, packet_info *pinfo,
+                          const SslSession *session)
+{
+    /*
+     *    enum {
+     *        rsa_sign(1), dss_sign(2), rsa_fixed_dh(3), dss_fixed_dh(4),
+     *        (255)
+     *    } ClientCertificateType;
+     *
+     *    opaque DistinguishedName<1..2^16-1>;
+     *
+     *    struct {
+     *        ClientCertificateType certificate_types<1..2^8-1>;
+     *        DistinguishedName certificate_authorities<3..2^16-1>;
+     *    } CertificateRequest;
+     *
+     *
+     * As per TLSv1.2 (RFC 5246) the format has changed to:
+     *
+     *    enum {
+     *        rsa_sign(1), dss_sign(2), rsa_fixed_dh(3), dss_fixed_dh(4),
+     *        rsa_ephemeral_dh_RESERVED(5), dss_ephemeral_dh_RESERVED(6),
+     *        fortezza_dms_RESERVED(20), (255)
+     *    } ClientCertificateType;
+     *
+     *    enum {
+     *        none(0), md5(1), sha1(2), sha224(3), sha256(4), sha384(5),
+     *        sha512(6), (255)
+     *    } HashAlgorithm;
+     *
+     *    enum { anonymous(0), rsa(1), dsa(2), ecdsa(3), (255) }
+     *      SignatureAlgorithm;
+     *
+     *    struct {
+     *          HashAlgorithm hash;
+     *          SignatureAlgorithm signature;
+     *    } SignatureAndHashAlgorithm;
+     *
+     *    SignatureAndHashAlgorithm
+     *      supported_signature_algorithms<2..2^16-2>;
+     *
+     *    opaque DistinguishedName<1..2^16-1>;
+     *
+     *    struct {
+     *        ClientCertificateType certificate_types<1..2^8-1>;
+     *        SignatureAndHashAlgorithm
+     *          supported_signature_algorithms<2^16-1>;
+     *        DistinguishedName certificate_authorities<0..2^16-1>;
+     *    } CertificateRequest;
+     *
+     */
+    proto_item *ti;
+    proto_tree *subtree;
+    guint8      cert_types_count;
+    gint        sh_alg_length;
+    gint        dnames_length;
+    asn1_ctx_t  asn1_ctx;
+    gint        ret;
+
+    if (!tree)
+        return;
+
+    asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+
+    cert_types_count = tvb_get_guint8(tvb, offset);
+    proto_tree_add_uint(tree, hf->hf.hs_cert_types_count,
+            tvb, offset, 1, cert_types_count);
+    offset++;
+
+    if (cert_types_count > 0) {
+        ti = proto_tree_add_none_format(tree,
+                hf->hf.hs_cert_types,
+                tvb, offset, cert_types_count,
+                "Certificate types (%u type%s)",
+                cert_types_count,
+                plurality(cert_types_count, "", "s"));
+        subtree = proto_item_add_subtree(ti, hf->ett.cert_types);
+
+        while (cert_types_count > 0) {
+            proto_tree_add_item(subtree, hf->hf.hs_cert_type,
+                    tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset++;
+            cert_types_count--;
+        }
+    }
+
+    switch (session->version) {
+        case SSL_VER_TLSv1DOT2:
+        case SSL_VER_DTLS1DOT2:
+            sh_alg_length = tvb_get_ntohs(tvb, offset);
+            if (sh_alg_length % 2) {
+                expert_add_info_format(pinfo, NULL,
+                        &hf->ei.hs_sig_hash_alg_len_bad,
+                        "Signature Hash Algorithm length (%d) must be a multiple of 2",
+                        sh_alg_length);
+                return;
+            }
+
+            proto_tree_add_uint(tree, hf->hf.hs_sig_hash_alg_len,
+                    tvb, offset, 2, sh_alg_length);
+            offset += 2;
+
+            ret = ssl_dissect_hash_alg_list(hf, tvb, tree, offset, sh_alg_length);
+            if (ret >= 0)
+                offset += ret;
+            break;
+
+        default:
+            break;
+    }
+
+    dnames_length = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_uint(tree, hf->hf.hs_dnames_len,
+            tvb, offset, 2, dnames_length);
+    offset += 2;
+
+    if (dnames_length > 0) {
+        ti = proto_tree_add_none_format(tree,
+                hf->hf.hs_dnames,
+                tvb, offset, dnames_length,
+                "Distinguished Names (%d byte%s)",
+                dnames_length,
+                plurality(dnames_length, "", "s"));
+        subtree = proto_item_add_subtree(ti, hf->ett.dnames);
+
+        while (dnames_length > 0) {
+            /* get the length of the current certificate */
+            guint16 name_length;
+            name_length = tvb_get_ntohs(tvb, offset);
+            dnames_length -= 2 + name_length;
+
+            proto_tree_add_item(subtree, hf->hf.hs_dname_len,
+                    tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset += 2;
+
+            dissect_x509if_DistinguishedName(FALSE, tvb, offset, &asn1_ctx,
+                                             subtree, hf->hf.hs_dname);
+            offset += name_length;
+        }
+    }
+}
+
 
 void
 ssl_dissect_hnd_cert_url(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree, guint32 offset)

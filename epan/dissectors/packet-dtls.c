@@ -60,7 +60,6 @@
 #include <epan/wmem/wmem.h>
 #include <epan/tap.h>
 #include <epan/reassemble.h>
-#include "packet-x509if.h"
 #include "packet-ssl-utils.h"
 #include <wsutil/file_util.h>
 #include <epan/uat.h>
@@ -121,17 +120,10 @@ static gint hf_dtls_handshake_comp_method       = -1;
 static gint hf_dtls_handshake_session_ticket_lifetime_hint = -1;
 static gint hf_dtls_handshake_session_ticket_len = -1;
 static gint hf_dtls_handshake_session_ticket    = -1;
-static gint hf_dtls_handshake_cert_types_count  = -1;
-static gint hf_dtls_handshake_cert_types        = -1;
-static gint hf_dtls_handshake_cert_type         = -1;
 static gint hf_dtls_handshake_finished          = -1;
 /* static gint hf_dtls_handshake_md5_hash          = -1; */
 /* static gint hf_dtls_handshake_sha_hash          = -1; */
 static gint hf_dtls_handshake_session_id_len    = -1;
-static gint hf_dtls_handshake_dnames_len        = -1;
-static gint hf_dtls_handshake_dnames            = -1;
-static gint hf_dtls_handshake_dname_len         = -1;
-static gint hf_dtls_handshake_dname             = -1;
 
 static gint hf_dtls_heartbeat_message                 = -1;
 static gint hf_dtls_heartbeat_message_type            = -1;
@@ -161,8 +153,6 @@ static gint ett_dtls_comp_methods      = -1;
 static gint ett_dtls_random            = -1;
 static gint ett_dtls_new_ses_ticket    = -1;
 static gint ett_dtls_certs             = -1;
-static gint ett_dtls_cert_types        = -1;
-static gint ett_dtls_dnames            = -1;
 
 static gint ett_dtls_fragment          = -1;
 static gint ett_dtls_fragments         = -1;
@@ -170,7 +160,6 @@ static gint ett_dtls_fragments         = -1;
 static expert_field ei_dtls_handshake_fragment_length_too_long = EI_INIT;
 static expert_field ei_dtls_handshake_fragment_past_end_msg = EI_INIT;
 static expert_field ei_dtls_msg_len_diff_fragment = EI_INIT;
-static expert_field ei_dtls_handshake_sig_hash_alg_len_bad = EI_INIT;
 static expert_field ei_dtls_heartbeat_payload_length = EI_INIT;
 
 static GHashTable         *dtls_session_hash         = NULL;
@@ -355,13 +344,6 @@ static int dissect_dtls_hnd_hello_verify_request(tvbuff_t *tvb,
 static void dissect_dtls_hnd_new_ses_ticket(tvbuff_t *tvb,
                                        proto_tree *tree,
                                        guint32 offset, guint32 length);
-
-static void dissect_dtls_hnd_cert_req(tvbuff_t *tvb,
-                                      proto_tree *tree,
-                                      guint32 offset,
-                                      packet_info *pinfo,
-                                      const SslSession *session);
-
 
 static void dissect_dtls_hnd_finished(tvbuff_t *tvb,
                                       proto_tree *tree,
@@ -1396,7 +1378,7 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
             break;
 
           case SSL_HND_CERT_REQUEST:
-            dissect_dtls_hnd_cert_req(sub_tvb, ssl_hand_tree, 0, pinfo, session);
+            ssl_dissect_hnd_cert_req(&dissect_dtls_hf, sub_tvb, ssl_hand_tree, 0, pinfo, session);
             break;
 
           case SSL_HND_SVR_HELLO_DONE:
@@ -1893,159 +1875,6 @@ dissect_dtls_hnd_new_ses_ticket(tvbuff_t *tvb,
             tvb, offset + 2, nst_len, ENC_NA);
 }
 
-static void
-dissect_dtls_hnd_cert_req(tvbuff_t *tvb,
-                          proto_tree *tree, guint32 offset, packet_info *pinfo,
-                          const SslSession *session)
-{
-  /*
-   *    enum {
-   *        rsa_sign(1), dss_sign(2), rsa_fixed_dh(3), dss_fixed_dh(4),
-   *        (255)
-   *    } ClientCertificateType;
-   *
-   *    opaque DistinguishedName<1..2^16-1>;
-   *
-   *    struct {
-   *        ClientCertificateType certificate_types<1..2^8-1>;
-   *        DistinguishedName certificate_authorities<3..2^16-1>;
-   *    } CertificateRequest;
-   *
-   *
-   * As per TLSv1.2 (RFC 5246) the format has changed to:
-   *
-   *    enum {
-   *        rsa_sign(1), dss_sign(2), rsa_fixed_dh(3), dss_fixed_dh(4),
-   *        rsa_ephemeral_dh_RESERVED(5), dss_ephemeral_dh_RESERVED(6),
-   *        fortezza_dms_RESERVED(20), (255)
-   *    } ClientCertificateType;
-   *
-   *    enum {
-   *        none(0), md5(1), sha1(2), sha224(3), sha256(4), sha384(5),
-   *        sha512(6), (255)
-   *    } HashAlgorithm;
-   *
-   *    enum { anonymous(0), rsa(1), dsa(2), ecdsa(3), (255) }
-   *      SignatureAlgorithm;
-   *
-   *    struct {
-   *          HashAlgorithm hash;
-   *          SignatureAlgorithm signature;
-   *    } SignatureAndHashAlgorithm;
-   *
-   *    SignatureAndHashAlgorithm
-   *      supported_signature_algorithms<2..2^16-2>;
-   *
-   *    opaque DistinguishedName<1..2^16-1>;
-   *
-   *    struct {
-   *        ClientCertificateType certificate_types<1..2^8-1>;
-   *        SignatureAndHashAlgorithm
-   *          supported_signature_algorithms<2^16-1>;
-   *        DistinguishedName certificate_authorities<0..2^16-1>;
-   *    } CertificateRequest;
-   *
-   */
-
-  proto_tree *ti;
-  proto_tree *subtree;
-  guint8      cert_types_count;
-  gint        sh_alg_length;
-  gint        dnames_length;
-  asn1_ctx_t  asn1_ctx;
-  gint        ret;
-
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-
-  if (tree)
-    {
-      cert_types_count = tvb_get_guint8(tvb, offset);
-      proto_tree_add_uint(tree, hf_dtls_handshake_cert_types_count,
-                          tvb, offset, 1, cert_types_count);
-      offset++;
-
-      if (cert_types_count > 0)
-        {
-          ti = proto_tree_add_none_format(tree,
-                                          hf_dtls_handshake_cert_types,
-                                          tvb, offset, cert_types_count,
-                                          "Certificate types (%u type%s)",
-                                          cert_types_count,
-                                          plurality(cert_types_count, "", "s"));
-          subtree = proto_item_add_subtree(ti, ett_dtls_cert_types);
-          if (!subtree)
-            {
-              subtree = tree;
-            }
-
-          while (cert_types_count > 0)
-            {
-              proto_tree_add_item(subtree, hf_dtls_handshake_cert_type,
-                                  tvb, offset, 1, ENC_BIG_ENDIAN);
-              offset++;
-              cert_types_count--;
-            }
-        }
-
-      switch (session->version) {
-      case SSL_VER_DTLS1DOT2:
-          sh_alg_length = tvb_get_ntohs(tvb, offset);
-          if (sh_alg_length % 2) {
-              expert_add_info_format(pinfo, NULL,
-                      &ei_dtls_handshake_sig_hash_alg_len_bad,
-                      "Signature Hash Algorithm length (%d) must be a multiple of 2",
-                      sh_alg_length);
-              return;
-          }
-
-          proto_tree_add_uint(tree, dissect_dtls_hf.hf.hs_sig_hash_alg_len,
-                  tvb, offset, 2, sh_alg_length);
-          offset += 2;
-
-          ret = ssl_dissect_hash_alg_list(&dissect_dtls_hf, tvb, tree, offset, sh_alg_length);
-          if (ret>=0)
-              offset += ret;
-          break;
-
-      default:
-          break;
-        }
-
-      dnames_length = tvb_get_ntohs(tvb, offset);
-      proto_tree_add_uint(tree, hf_dtls_handshake_dnames_len,
-                          tvb, offset, 2, dnames_length);
-      offset += 2;
-
-      if (dnames_length > 0)
-        {
-          ti = proto_tree_add_none_format(tree,
-                                          hf_dtls_handshake_dnames,
-                                          tvb, offset, dnames_length,
-                                          "Distinguished Names (%d byte%s)",
-                                          dnames_length,
-                                          plurality(dnames_length, "", "s"));
-          subtree = proto_item_add_subtree(ti, ett_dtls_dnames);
-
-          while (dnames_length > 0)
-            {
-              /* get the length of the current certificate */
-              guint16 name_length;
-              name_length = tvb_get_ntohs(tvb, offset);
-              dnames_length -= 2 + name_length;
-
-              proto_tree_add_item(subtree, hf_dtls_handshake_dname_len,
-                                  tvb, offset, 2, ENC_BIG_ENDIAN);
-              offset += 2;
-
-              dissect_x509if_DistinguishedName(FALSE, tvb, offset, &asn1_ctx, subtree, hf_dtls_handshake_dname);
-
-              offset += name_length;
-            }
-        }
-    }
-
-}
-
 
 static void
 dissect_dtls_hnd_finished(tvbuff_t *tvb, proto_tree *tree, guint32 offset,
@@ -2372,21 +2201,6 @@ proto_register_dtls(void)
         FT_BYTES, BASE_NONE, NULL, 0x0,
         "New DTLS Session Ticket", HFILL }
     },
-    { &hf_dtls_handshake_cert_types_count,
-      { "Certificate types count", "dtls.handshake.cert_types_count",
-        FT_UINT8, BASE_DEC, NULL, 0x0,
-        "Count of certificate types", HFILL }
-    },
-    { &hf_dtls_handshake_cert_types,
-      { "Certificate types", "dtls.handshake.cert_types",
-        FT_NONE, BASE_NONE, NULL, 0x0,
-        "List of certificate types", HFILL }
-    },
-    { &hf_dtls_handshake_cert_type,
-      { "Certificate type", "dtls.handshake.cert_type",
-        FT_UINT8, BASE_DEC, VALS(ssl_31_client_certificate_type), 0x0,
-        NULL, HFILL }
-    },
     { &hf_dtls_handshake_finished,
       { "Verify Data", "dtls.handshake.verify_data",
         FT_NONE, BASE_NONE, NULL, 0x0,
@@ -2408,26 +2222,6 @@ proto_register_dtls(void)
       { "Session ID Length", "dtls.handshake.session_id_length",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         "Length of session ID field", HFILL }
-    },
-    { &hf_dtls_handshake_dnames_len,
-      { "Distinguished Names Length", "dtls.handshake.dnames_len",
-        FT_UINT16, BASE_DEC, NULL, 0x0,
-        "Length of list of CAs that server trusts", HFILL }
-    },
-    { &hf_dtls_handshake_dnames,
-      { "Distinguished Names", "dtls.handshake.dnames",
-        FT_NONE, BASE_NONE, NULL, 0x0,
-        "List of CAs that server trusts", HFILL }
-    },
-    { &hf_dtls_handshake_dname_len,
-      { "Distinguished Name Length", "dtls.handshake.dname_len",
-        FT_UINT16, BASE_DEC, NULL, 0x0,
-        "Length of distinguished name", HFILL }
-    },
-    { &hf_dtls_handshake_dname,
-      { "Distinguished Name", "dtls.handshake.dname",
-        FT_BYTES, BASE_NONE, NULL, 0x0,
-        "Distinguished name of a CA that server trusts", HFILL }
     },
     { &hf_dtls_heartbeat_message,
       { "Heartbeat Message", "dtls.heartbeat_message",
@@ -2508,8 +2302,6 @@ proto_register_dtls(void)
     &ett_dtls_random,
     &ett_dtls_new_ses_ticket,
     &ett_dtls_certs,
-    &ett_dtls_cert_types,
-    &ett_dtls_dnames,
     &ett_dtls_fragment,
     &ett_dtls_fragments,
     SSL_COMMON_ETT_LIST(dissect_dtls_hf)
@@ -2519,7 +2311,6 @@ proto_register_dtls(void)
      { &ei_dtls_handshake_fragment_length_too_long, { "dtls.handshake.fragment_length.too_long", PI_PROTOCOL, PI_ERROR, "Fragment length is larger than message length", EXPFILL }},
      { &ei_dtls_handshake_fragment_past_end_msg, { "dtls.handshake.fragment_past_end_msg", PI_PROTOCOL, PI_ERROR, "Fragment runs past the end of the message", EXPFILL }},
      { &ei_dtls_msg_len_diff_fragment, { "dtls.msg_len_diff_fragment", PI_PROTOCOL, PI_ERROR, "Message length differs from value in earlier fragment", EXPFILL }},
-     { &ei_dtls_handshake_sig_hash_alg_len_bad, { "dtls.handshake.sig_hash_alg_len.bad", PI_MALFORMED, PI_ERROR, "Signature Hash Algorithm length must be a multiple of 2", EXPFILL }},
      { &ei_dtls_heartbeat_payload_length, {"dtls.heartbeat_message.payload_length.invalid", PI_MALFORMED, PI_ERROR, "Invalid heartbeat payload length", EXPFILL }},
 
      SSL_COMMON_EI_LIST(dissect_dtls_hf, "dtls")

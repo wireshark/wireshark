@@ -677,6 +677,13 @@ typedef struct ssl_common_dissect {
         gint hs_certificates;
         gint hs_certificate_len;
         gint hs_certificate;
+        gint hs_cert_types_count;
+        gint hs_cert_types;
+        gint hs_cert_type;
+        gint hs_dnames_len;
+        gint hs_dnames;
+        gint hs_dname_len;
+        gint hs_dname;
 
         /* do not forget to update SSL_COMMON_LIST_T and SSL_COMMON_HF_LIST! */
     } hf;
@@ -695,11 +702,14 @@ typedef struct ssl_common_dissect {
         gint urlhash;
         gint keyex_params;
         gint certificates;
+        gint cert_types;
+        gint dnames;
 
         /* do not forget to update SSL_COMMON_LIST_T and SSL_COMMON_ETT_LIST! */
     } ett;
     struct {
         expert_field hs_ext_cert_status_undecoded;
+        expert_field hs_sig_hash_alg_len_bad;
 
         /* do not forget to update SSL_COMMON_LIST_T and SSL_COMMON_EI_LIST! */
     } ei;
@@ -718,6 +728,11 @@ extern void
 ssl_dissect_hnd_cert(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree,
                      guint32 offset, packet_info *pinfo,
                      const SslSession *session, gint is_from_server);
+
+extern void
+ssl_dissect_hnd_cert_req(ssl_common_dissect_t *hf, tvbuff_t *tvb,
+                          proto_tree *tree, guint32 offset, packet_info *pinfo,
+                          const SslSession *session);
 
 extern void
 ssl_dissect_hnd_cert_url(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree, guint32 offset);
@@ -740,13 +755,13 @@ ssl_common_dissect_t name = {   \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
-        -1, -1, -1, -1, -1, -1, -1, -1, -1,                             \
+        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
     },                                                                  \
     /* ett */ {                                                         \
-        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,         \
+        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
     },                                                                  \
     /* ei */ {                                                          \
-        EI_INIT,                                                        \
+        EI_INIT, EI_INIT,                                               \
     },                                                                  \
 }
 /* }}} */
@@ -1117,6 +1132,41 @@ ssl_common_dissect_t name = {   \
       { "Certificate Length", prefix ".handshake.certificate_length",   \
         FT_UINT24, BASE_DEC, NULL, 0x0,                                 \
         "Length of certificate", HFILL }                                \
+    },                                                                  \
+    { & name .hf.hs_cert_types_count,                                   \
+      { "Certificate types count", prefix ".handshake.cert_types_count",\
+        FT_UINT8, BASE_DEC, NULL, 0x0,                                  \
+        "Count of certificate types", HFILL }                           \
+    },                                                                  \
+    { & name .hf.hs_cert_types,                                         \
+      { "Certificate types", prefix ".handshake.cert_types",            \
+        FT_NONE, BASE_NONE, NULL, 0x0,                                  \
+        "List of certificate types", HFILL }                            \
+    },                                                                  \
+    { & name .hf.hs_cert_type,                                          \
+      { "Certificate type", prefix ".handshake.cert_type",              \
+        FT_UINT8, BASE_DEC, VALS(ssl_31_client_certificate_type), 0x0,  \
+        NULL, HFILL }                                                   \
+    },                                                                  \
+    { & name .hf.hs_dnames_len,                                         \
+      { "Distinguished Names Length", prefix ".handshake.dnames_len",   \
+        FT_UINT16, BASE_DEC, NULL, 0x0,                                 \
+        "Length of list of CAs that server trusts", HFILL }             \
+    },                                                                  \
+    { & name .hf.hs_dnames,                                             \
+      { "Distinguished Names", prefix ".handshake.dnames",              \
+        FT_NONE, BASE_NONE, NULL, 0x0,                                  \
+        "List of CAs that server trusts", HFILL }                       \
+    },                                                                  \
+    { & name .hf.hs_dname_len,                                          \
+      { "Distinguished Name Length", prefix ".handshake.dname_len",     \
+        FT_UINT16, BASE_DEC, NULL, 0x0,                                 \
+        "Length of distinguished name", HFILL }                         \
+    },                                                                  \
+    { & name .hf.hs_dname,                                              \
+      { "Distinguished Name", prefix ".handshake.dname",                \
+        FT_NONE, BASE_NONE, NULL, 0x0,                                  \
+        "Distinguished name of a CA that server trusts", HFILL }        \
     }
 /* }}} */
 
@@ -1136,12 +1186,20 @@ ssl_common_dissect_t name = {   \
         & name .ett.urlhash,                        \
         & name .ett.keyex_params,                   \
         & name .ett.certificates,                   \
+        & name .ett.cert_types,                     \
+        & name .ett.dnames,                         \
 /* }}} */
 
 /* {{{ */
 #define SSL_COMMON_EI_LIST(name, prefix)                       \
-        { & name .ei.hs_ext_cert_status_undecoded, { prefix ".handshake.status_request.undecoded", PI_UNDECODED, PI_NOTE,   \
-          "Responder ID list or Request Extensions are not implemented, contact Wireshark developers if you want this to be supported", EXPFILL }}
+    { & name .ei.hs_ext_cert_status_undecoded, \
+        { prefix ".handshake.status_request.undecoded", PI_UNDECODED, PI_NOTE, \
+        "Responder ID list or Request Extensions are not implemented, contact Wireshark developers if you want this to be supported", EXPFILL } \
+    }, \
+    { & name .ei.hs_sig_hash_alg_len_bad, \
+        { prefix ".handshake.sig_hash_alg_len.mult2", PI_MALFORMED, PI_ERROR, \
+        "Signature Hash Algorithm length must be a multiple of 2", EXPFILL } \
+    }, \
 /* }}} */
 
 typedef struct ssl_common_options {
