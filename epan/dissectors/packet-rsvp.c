@@ -2826,7 +2826,7 @@ dissect_rsvp_error(proto_item *ti, proto_tree *rsvp_object_tree,
     guint8      error_flags;
     guint8      error_code;
     guint16     error_val;
-    proto_tree *ti2, *rsvp_error_subtree;
+    proto_tree *ti2 = NULL, *rsvp_error_subtree;
 
     switch(type) {
     case 1: {
@@ -3191,7 +3191,7 @@ dissect_rsvp_tspec(proto_item *ti, proto_tree *rsvp_object_tree,
 {
     int         offset2 = offset + 4;
     int         mylen;
-    proto_tree *tspec_tree, *ti2;
+    proto_tree *tspec_tree, *ti2 = NULL;
     guint8      signal_type;
     guint16     switch_gran;
 
@@ -3466,7 +3466,7 @@ dissect_rsvp_flowspec(proto_item *ti, proto_tree *rsvp_object_tree,
 {
     int         offset2 = offset + 4;
     int         mylen, signal_type;
-    proto_tree *flowspec_tree, *ti2;
+    proto_tree *flowspec_tree, *ti2 = NULL;
     proto_item *item;
     guint16     switch_gran;
 
@@ -4372,7 +4372,7 @@ dissect_rsvp_ero_rro_subobjects(proto_tree *ti, proto_tree *rsvp_object_tree,
                                 int offset, int obj_length, int rsvp_class)
 {
     int         i, j, k, l, flags;
-    proto_tree *ti2, *rsvp_ro_subtree, *rsvp_rro_flags_subtree;
+    proto_tree *ti2 = NULL, *rsvp_ro_subtree, *rsvp_rro_flags_subtree;
     int         tree_type;
 
     switch(rsvp_class) {
@@ -5517,7 +5517,7 @@ dissect_rsvp_gen_uni(proto_tree *ti, proto_tree *rsvp_object_tree,
 {
     int         offset2 = offset + 4;
     int         mylen, i, j, k, l, m;
-    proto_item *ti2;
+    proto_item *ti2= NULL;
     proto_tree *rsvp_gen_uni_subtree, *rsvp_session_subtree, *rsvp_template_subtree;
     int         s_len, s_class, s_type, sobj_len, nsap_len;
     int         offset3;
