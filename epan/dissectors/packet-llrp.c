@@ -2,6 +2,7 @@
  * Routines for Low Level Reader Protocol dissection
  * Copyright 2012, Evan Huus <eapache@gmail.com>
  * Copyright 2012, Martin Kupec <martin.kupec@kupson.cz>
+ * Copyright 2014, Petr Stetiar <petr.stetiar@gaben.cz>
  *
  * http://www.gs1.org/gsmp/kc/epcglobal/llrp
  *
@@ -297,6 +298,9 @@ static int hf_llrp_retry_count                    = -1;
 static int hf_llrp_impinj_access_spec_ordering    = -1;
 static int hf_llrp_impinj_gpo_mode                = -1;
 static int hf_llrp_gpo_pulse_dur                  = -1;
+static int hf_llrp_impinj_hub_id                  = -1;
+static int hf_llrp_impinj_hub_fault_type          = -1;
+static int hf_llrp_impinj_hub_connected_type      = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_llrp = -1;
@@ -1022,6 +1026,9 @@ static value_string_ext impinj_msg_subtype_ext = VALUE_STRING_EXT_INIT(impinj_ms
 #define LLRP_IMPINJ_PARAM_ENABLE_OPTIM_READ                        65
 #define LLRP_IMPINJ_PARAM_ACCESS_SPEC_ORDERING                     66
 #define LLRP_IMPINJ_PARAM_ENABLE_RF_DOPPLER_FREQ                   67
+#define LLRP_IMPINJ_PARAM_ARRAY_VERSION                            1520
+#define LLRP_IMPINJ_PARAM_HUB_VERSIONS                             1537
+#define LLRP_IMPINJ_PARAM_HUB_CONFIGURATION                        1538
 
 static const value_string impinj_param_type[] = {
     { LLRP_IMPINJ_PARAM_REQUESTED_DATA,                          "Requested Data"                           },
@@ -1071,6 +1078,9 @@ static const value_string impinj_param_type[] = {
     { LLRP_IMPINJ_PARAM_ENABLE_OPTIM_READ,                       "Enable optimized read"                    },
     { LLRP_IMPINJ_PARAM_ACCESS_SPEC_ORDERING,                    "AccessSpec ordering"                      },
     { LLRP_IMPINJ_PARAM_ENABLE_RF_DOPPLER_FREQ,                  "Enable RF doppler frequency"              },
+    { LLRP_IMPINJ_PARAM_ARRAY_VERSION,                           "Array specific HW and version info"       },
+    { LLRP_IMPINJ_PARAM_HUB_VERSIONS,                            "Hub specific HW and version info"         },
+    { LLRP_IMPINJ_PARAM_HUB_CONFIGURATION,                       "Hub connection and fault state"           },
     { 0,                                                         NULL                                       }
 };
 static value_string_ext impinj_param_type_ext = VALUE_STRING_EXT_INIT(impinj_param_type);
@@ -1367,6 +1377,44 @@ static const value_string impinj_gpo_mode[] = {
 };
 static value_string_ext impinj_gpo_mode_ext = VALUE_STRING_EXT_INIT(impinj_gpo_mode);
 
+/* Impinj Hub connected type */
+#define LLRP_IMPINJ_HUB_CTYPE_UNKNOWN       0
+#define LLRP_IMPINJ_HUB_CTYPE_DISCONNECTED  1
+#define LLRP_IMPINJ_HUB_CTYPE_CONNECTED     2
+
+static const value_string impinj_hub_connected_type[] = {
+    { LLRP_IMPINJ_HUB_CTYPE_UNKNOWN,        "Unknown"       },
+    { LLRP_IMPINJ_HUB_CTYPE_DISCONNECTED,   "Disconnected"  },
+    { LLRP_IMPINJ_HUB_CTYPE_CONNECTED,      "Connected"     },
+    { 0,                                    NULL            }
+};
+static value_string_ext impinj_hub_connected_type_ext = VALUE_STRING_EXT_INIT(impinj_hub_connected_type);
+
+/* Impinj Hub fault type */
+#define LLRP_IMPINJ_HUB_FTYPE_NO_FAULT          0
+#define LLRP_IMPINJ_HUB_FTYPE_RFPOWER           1
+#define LLRP_IMPINJ_HUB_FTYPE_RFPOWER_HUB1      2
+#define LLRP_IMPINJ_HUB_FTYPE_RFPOWER_HUB2      3
+#define LLRP_IMPINJ_HUB_FTYPE_RFPOWER_HUB3      4
+#define LLRP_IMPINJ_HUB_FTYPE_RFPOWER_HUB4      5
+#define LLRP_IMPINJ_HUB_FTYPE_NO_INIT           6
+#define LLRP_IMPINJ_HUB_FTYPE_SERIAL_OVERFLOW   7
+#define LLRP_IMPINJ_HUB_FTYPE_DISCONNECTED      8
+
+static const value_string impinj_hub_fault_type[] = {
+    { LLRP_IMPINJ_HUB_FTYPE_NO_FAULT,           "No fault"          },
+    { LLRP_IMPINJ_HUB_FTYPE_RFPOWER,            "RF power"          },
+    { LLRP_IMPINJ_HUB_FTYPE_RFPOWER_HUB1,       "RF power on hub 1" },
+    { LLRP_IMPINJ_HUB_FTYPE_RFPOWER_HUB2,       "RF power on hub 2" },
+    { LLRP_IMPINJ_HUB_FTYPE_RFPOWER_HUB3,       "RF power on hub 3" },
+    { LLRP_IMPINJ_HUB_FTYPE_RFPOWER_HUB4,       "RF power on hub 4" },
+    { LLRP_IMPINJ_HUB_FTYPE_NO_INIT,            "No init"           },
+    { LLRP_IMPINJ_HUB_FTYPE_SERIAL_OVERFLOW,    "Serial overflow"   },
+    { LLRP_IMPINJ_HUB_FTYPE_DISCONNECTED,       "Disconnected"      },
+    { 0,                                        NULL },
+};
+static value_string_ext impinj_hub_fault_type_ext = VALUE_STRING_EXT_INIT(impinj_hub_fault_type);
+
 /* Misc */
 #define LLRP_ROSPEC_ALL      0
 #define LLRP_ANTENNA_ALL     0
@@ -1484,6 +1532,7 @@ dissect_llrp_impinj_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *par
     case LLRP_IMPINJ_PARAM_ACCESS_SPEC_CONFIGURATION:
     case LLRP_IMPINJ_PARAM_TAG_REPORT_CONTENT_SELECTOR:
     case LLRP_IMPINJ_PARAM_GPS_NMEA_SENTENCES:
+    case LLRP_IMPINJ_PARAM_HUB_VERSIONS:
         /* Just parameters */
         break;
     case LLRP_IMPINJ_PARAM_REQUESTED_DATA:
@@ -1657,6 +1706,16 @@ dissect_llrp_impinj_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *par
         break;
     case LLRP_IMPINJ_PARAM_ENABLE_RF_DOPPLER_FREQ:
         PARAM_TREE_ADD(impinj_rf_doppler_mode, 2, ENC_BIG_ENDIAN);
+        break;
+    case LLRP_IMPINJ_PARAM_ARRAY_VERSION:
+        suboffset = dissect_llrp_utf8_parameter(tvb, pinfo, param_tree, hf_llrp_serial_number, suboffset);
+        suboffset = dissect_llrp_utf8_parameter(tvb, pinfo, param_tree, hf_llrp_firm_ver, suboffset);
+        suboffset = dissect_llrp_utf8_parameter(tvb, pinfo, param_tree, hf_llrp_pcba_ver, suboffset);
+        break;
+    case LLRP_IMPINJ_PARAM_HUB_CONFIGURATION:
+        PARAM_TREE_ADD(impinj_hub_id, 2, ENC_BIG_ENDIAN);
+        PARAM_TREE_ADD(impinj_hub_connected_type, 2, ENC_BIG_ENDIAN);
+        PARAM_TREE_ADD(impinj_hub_fault_type, 2, ENC_BIG_ENDIAN);
         break;
     default:
         return suboffset;
@@ -3698,6 +3757,17 @@ proto_register_llrp(void)
         { "GPO pulse duration", "llrp.param.gpo_pulse_dur", FT_UINT32, BASE_DEC, NULL, 0,
           NULL, HFILL }},
 
+        { &hf_llrp_impinj_hub_id,
+        { "Hub ID", "llrp.impinj_hub_id", FT_UINT16, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_impinj_hub_fault_type,
+        { "Hub fault type", "llrp.param.impinj_hub_fault_type", FT_UINT16, BASE_DEC | BASE_EXT_STRING, &impinj_hub_fault_type_ext, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_impinj_hub_connected_type,
+        { "Hub connected type", "llrp.param.impinj_hub_connected_type", FT_UINT16, BASE_DEC | BASE_EXT_STRING, &impinj_hub_connected_type_ext, 0,
+          NULL, HFILL }},
     };
 
     /* Setup protocol subtree array */
