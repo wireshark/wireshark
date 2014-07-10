@@ -4368,15 +4368,46 @@ ssl_restore_session_ticket(SslDecryptSession* ssl, GHashTable *session_hash)
     return TRUE;
 }
 
-int
+gboolean
 ssl_is_valid_content_type(guint8 type)
 {
-    if ((type >= 0x14) && (type <= 0x18))
-    {
-        return 1;
+    switch ((ContentType) type) {
+    case SSL_ID_CHG_CIPHER_SPEC:
+    case SSL_ID_ALERT:
+    case SSL_ID_HANDSHAKE:
+    case SSL_ID_APP_DATA:
+    case SSL_ID_HEARTBEAT:
+        return TRUE;
     }
+    return FALSE;
+}
 
-    return 0;
+gboolean
+ssl_is_valid_handshake_type(guint8 hs_type, gboolean is_dtls)
+{
+    switch ((HandshakeType) hs_type) {
+    case SSL_HND_HELLO_VERIFY_REQUEST:
+        /* hello_verify_request is DTLS-only */
+        return is_dtls;
+
+    case SSL_HND_HELLO_REQUEST:
+    case SSL_HND_CLIENT_HELLO:
+    case SSL_HND_SERVER_HELLO:
+    case SSL_HND_NEWSESSION_TICKET:
+    case SSL_HND_CERTIFICATE:
+    case SSL_HND_SERVER_KEY_EXCHG:
+    case SSL_HND_CERT_REQUEST:
+    case SSL_HND_SVR_HELLO_DONE:
+    case SSL_HND_CERT_VERIFY:
+    case SSL_HND_CLIENT_KEY_EXCHG:
+    case SSL_HND_FINISHED:
+    case SSL_HND_CERT_URL:
+    case SSL_HND_CERT_STATUS:
+    case SSL_HND_SUPPLEMENTAL_DATA:
+    case SSL_HND_ENCRYPTED_EXTS:
+        return TRUE;
+    }
+    return FALSE;
 }
 
 static const unsigned int kRSAMasterSecretLength = 48; /* RFC5246 8.1 */
@@ -4426,7 +4457,7 @@ ssl_keylog_parse_session_id(const char* line,
         return FALSE;
     ssl_session->state &= ~(SSL_PRE_MASTER_SECRET|SSL_HAVE_SESSION_KEY);
     ssl_session->state |= SSL_MASTER_SECRET;
-    ssl_debug_printf("found master secret in key log\n");
+    ssl_debug_printf("found master secret in key log via RSA Session-ID\n");
     return TRUE;
 }
 
@@ -4473,7 +4504,7 @@ ssl_keylog_parse_client_random(const char* line,
         return FALSE;
     ssl_session->state &= ~(SSL_PRE_MASTER_SECRET|SSL_HAVE_SESSION_KEY);
     ssl_session->state |= SSL_MASTER_SECRET;
-    ssl_debug_printf("found master secret in key log\n");
+    ssl_debug_printf("found master secret in key log via CLIENT_RANDOM\n");
     return TRUE;
 }
 

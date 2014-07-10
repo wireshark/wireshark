@@ -380,7 +380,6 @@ static void dissect_dtls_hnd_finished(tvbuff_t *tvb,
  *
  */
 /*static void ssl_set_conv_version(packet_info *pinfo, guint version);*/
-static gint  dtls_is_valid_handshake_type(guint8 type);
 
 static gint  dtls_is_authoritative_version_message(guint8 content_type,
                                                    guint8 next_byte);
@@ -878,7 +877,7 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
   /* PAOLO try to decrypt each record (we must keep ciphers "in sync")
    * store plain text only for app data */
 
-  switch (content_type) {
+  switch ((ContentType) content_type) {
   case SSL_ID_CHG_CIPHER_SPEC:
     col_append_str(pinfo->cinfo, COL_INFO, "Change Cipher Spec");
     dissect_dtls_change_cipher_spec(tvb, dtls_record_tree,
@@ -1005,7 +1004,7 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
                         offset, record_length, ENC_NA);
     break;
   case SSL_ID_HEARTBEAT:
-  {
+    {
     tvbuff_t* decrypted;
 
     if (ssl && decrypt_dtls_record(tvb, pinfo, offset,
@@ -1024,12 +1023,7 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
                              session, record_length, FALSE);
     }
     break;
-  }
-
-  default:
-    /* shouldn't get here since we check above for valid types */
-    col_append_str(pinfo->cinfo, COL_INFO, "Bad DTLS Content Type");
-    break;
+    }
   }
   offset += record_length; /* skip to end of record */
 
@@ -1169,7 +1163,6 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
   guint32      fragment_offset;
   guint32      fragment_length;
   gboolean     first_iteration;
-  gboolean     frag_hand;
   guint32      reassembled_length;
 
   msg_type_str    = NULL;
@@ -1278,29 +1271,8 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
         {
           fragmented = TRUE;
 
-          /* Handle fragments of known message type */
-          switch (msg_type) {
-          case SSL_HND_HELLO_REQUEST:
-          case SSL_HND_CLIENT_HELLO:
-          case SSL_HND_HELLO_VERIFY_REQUEST:
-          case SSL_HND_NEWSESSION_TICKET:
-          case SSL_HND_SERVER_HELLO:
-          case SSL_HND_CERTIFICATE:
-          case SSL_HND_SERVER_KEY_EXCHG:
-          case SSL_HND_CERT_REQUEST:
-          case SSL_HND_SVR_HELLO_DONE:
-          case SSL_HND_CERT_VERIFY:
-          case SSL_HND_CLIENT_KEY_EXCHG:
-          case SSL_HND_FINISHED:
-            frag_hand = TRUE;
-            break;
-          default:
-            /* Ignore encrypted handshake messages */
-            frag_hand = FALSE;
-            break;
-          }
-
-          if (frag_hand)
+          /* Handle fragments of known message type, ignore others */
+          if (ssl_is_valid_handshake_type(msg_type, TRUE))
             {
               /* Fragmented handshake message */
               pinfo->fragmented = TRUE;
@@ -1406,7 +1378,7 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
             }
 
           /* now dissect the handshake message, if necessary */
-          switch (msg_type) {
+          switch ((HandshakeType) msg_type) {
           case SSL_HND_HELLO_REQUEST:
             /* hello_request has no fields, so nothing to do! */
             break;
@@ -1468,6 +1440,13 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
 
           case SSL_HND_FINISHED:
             dissect_dtls_hnd_finished(sub_tvb, ssl_hand_tree, 0, session);
+            break;
+
+          case SSL_HND_CERT_URL:
+          case SSL_HND_CERT_STATUS:
+          case SSL_HND_SUPPLEMENTAL_DATA:
+          case SSL_HND_ENCRYPTED_EXTS:
+            /* TODO: does this need further dissection? */
             break;
           }
 
@@ -2193,32 +2172,10 @@ ssl_set_conv_version(packet_info *pinfo, guint version)
 #endif
 
 static gint
-dtls_is_valid_handshake_type(guint8 type)
-{
-
-  switch (type) {
-  case SSL_HND_HELLO_REQUEST:
-  case SSL_HND_CLIENT_HELLO:
-  case SSL_HND_SERVER_HELLO:
-  case SSL_HND_HELLO_VERIFY_REQUEST:
-  case SSL_HND_NEWSESSION_TICKET:
-  case SSL_HND_CERTIFICATE:
-  case SSL_HND_SERVER_KEY_EXCHG:
-  case SSL_HND_CERT_REQUEST:
-  case SSL_HND_SVR_HELLO_DONE:
-  case SSL_HND_CERT_VERIFY:
-  case SSL_HND_CLIENT_KEY_EXCHG:
-  case SSL_HND_FINISHED:
-    return 1;
-  }
-  return 0;
-}
-
-static gint
 dtls_is_authoritative_version_message(guint8 content_type, guint8 next_byte)
 {
   if (content_type == SSL_ID_HANDSHAKE
-      && dtls_is_valid_handshake_type(next_byte))
+      && ssl_is_valid_handshake_type(next_byte, TRUE))
     {
       return (next_byte != SSL_HND_CLIENT_HELLO);
     }

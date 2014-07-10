@@ -590,7 +590,6 @@ static void dissect_pct_msg_error(tvbuff_t *tvb,
  *
  */
 /*static void ssl_set_conv_version(packet_info *pinfo, guint version);*/
-static gint  ssl_is_valid_handshake_type(const guint8 type);
 static gint  ssl_is_valid_ssl_version(const guint16 version);
 static gint  ssl_is_authoritative_version_message(const guint8 content_type,
                                                   const guint8 next_byte);
@@ -1619,7 +1618,7 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
     /* PAOLO try to decrypt each record (we must keep ciphers "in sync")
      * store plain text only for app data */
 
-    switch (content_type) {
+    switch ((ContentType) content_type) {
     case SSL_ID_CHG_CIPHER_SPEC:
         ssl_debug_printf("dissect_ssl3_change_cipher_spec\n");
         col_append_str(pinfo->cinfo, COL_INFO, "Change Cipher Spec");
@@ -1707,7 +1706,7 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
 
         break;
     case SSL_ID_HEARTBEAT:
-    {
+      {
         tvbuff_t *decrypted;
 
         if (ssl && decrypt_ssl3_record(tvb, pinfo, offset,
@@ -1733,12 +1732,7 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
             dissect_ssl3_heartbeat(tvb, pinfo, ssl_record_tree, offset, session, record_length, plaintext);
         }
         break;
-    }
-
-    default:
-        /* shouldn't get here since we check above for valid types */
-        col_append_str(pinfo->cinfo, COL_INFO, "Bad SSLv3 Content Type");
-        break;
+      }
     }
     offset += record_length; /* skip to end of record */
 
@@ -1980,7 +1974,7 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
             offset += 3;
 
             /* now dissect the handshake message, if necessary */
-            switch (msg_type) {
+            switch ((HandshakeType) msg_type) {
             case SSL_HND_HELLO_REQUEST:
                 /* hello_request has no fields, so nothing to do! */
                 break;
@@ -1991,6 +1985,10 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
 
             case SSL_HND_SERVER_HELLO:
                 dissect_ssl3_hnd_srv_hello(tvb, ssl_hand_tree, offset, length, session, ssl);
+                break;
+
+            case SSL_HND_HELLO_VERIFY_REQUEST:
+                /* only valid for DTLS */
                 break;
 
             case SSL_HND_NEWSESSION_TICKET:
@@ -2049,6 +2047,10 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
 
             case SSL_HND_CERT_STATUS:
                 dissect_ssl3_hnd_cert_status(tvb, ssl_hand_tree, offset, pinfo);
+                break;
+
+            case SSL_HND_SUPPLEMENTAL_DATA:
+                /* TODO: dissect this? */
                 break;
 
             case SSL_HND_ENCRYPTED_EXTS:
@@ -2193,7 +2195,7 @@ dissect_ssl3_hnd_hello_common(tvbuff_t *tvb, proto_tree *tree,
             if (!ssl_restore_session(ssl, ssl_session_hash)) {
                 /* If we failed to find the previous session, we may still have
                  * the master secret in the key log. */
-                if (ssl_keylog_lookup(ssl, ssl_options.keylog_filename, NULL)) {
+                if (!ssl_keylog_lookup(ssl, ssl_options.keylog_filename, NULL)) {
                     ssl_debug_printf("  cannot find master secret in keylog file either\n");
                 } else {
                     ssl_debug_printf("  found master secret in keylog file\n");
@@ -4028,27 +4030,6 @@ ssl_set_conv_version(packet_info *pinfo, guint version)
 #endif
 
 static gint
-ssl_is_valid_handshake_type(const guint8 type)
-{
-
-    switch (type) {
-    case SSL_HND_HELLO_REQUEST:
-    case SSL_HND_CLIENT_HELLO:
-    case SSL_HND_SERVER_HELLO:
-    case SSL_HND_NEWSESSION_TICKET:
-    case SSL_HND_CERTIFICATE:
-    case SSL_HND_SERVER_KEY_EXCHG:
-    case SSL_HND_CERT_REQUEST:
-    case SSL_HND_SVR_HELLO_DONE:
-    case SSL_HND_CERT_VERIFY:
-    case SSL_HND_CLIENT_KEY_EXCHG:
-    case SSL_HND_FINISHED:
-        return 1;
-    }
-    return 0;
-}
-
-static gint
 ssl_is_valid_ssl_version(const guint16 version)
 {
     const gchar *version_str;
@@ -4062,7 +4043,7 @@ ssl_is_authoritative_version_message(const guint8 content_type,
                                      const guint8 next_byte)
 {
     if (content_type == SSL_ID_HANDSHAKE
-        && ssl_is_valid_handshake_type(next_byte))
+        && ssl_is_valid_handshake_type(next_byte, FALSE))
     {
         return (next_byte != SSL_HND_CLIENT_HELLO);
     }

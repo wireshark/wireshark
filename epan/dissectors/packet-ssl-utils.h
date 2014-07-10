@@ -72,30 +72,34 @@
 #define SSL_VER_TLSv1DOT2                 7
 
 /* other defines */
-#define SSL_ID_CHG_CIPHER_SPEC         0x14
-#define SSL_ID_ALERT                   0x15
-#define SSL_ID_HANDSHAKE               0x16
-#define SSL_ID_APP_DATA                0x17
-#define SSL_ID_HEARTBEAT               0x18
+typedef enum {
+    SSL_ID_CHG_CIPHER_SPEC         = 0x14,
+    SSL_ID_ALERT                   = 0x15,
+    SSL_ID_HANDSHAKE               = 0x16,
+    SSL_ID_APP_DATA                = 0x17,
+    SSL_ID_HEARTBEAT               = 0x18
+} ContentType;
 
-#define SSL_HND_HELLO_REQUEST          0
-#define SSL_HND_CLIENT_HELLO           1
-#define SSL_HND_SERVER_HELLO           2
-#define SSL_HND_HELLO_VERIFY_REQUEST   3
-#define SSL_HND_NEWSESSION_TICKET      4
-#define SSL_HND_CERTIFICATE            11
-#define SSL_HND_SERVER_KEY_EXCHG       12
-#define SSL_HND_CERT_REQUEST           13
-#define SSL_HND_SVR_HELLO_DONE         14
-#define SSL_HND_CERT_VERIFY            15
-#define SSL_HND_CLIENT_KEY_EXCHG       16
-#define SSL_HND_FINISHED               20
-#define SSL_HND_CERT_URL               21
-#define SSL_HND_CERT_STATUS            22
-#define SSL_HND_SUPPLEMENTAL_DATA      23
-/* Encrypted Extensions was NextProtocol in draft-agl-tls-nextprotoneg-03 and
- * changed in draft 04 */
-#define SSL_HND_ENCRYPTED_EXTS         67
+typedef enum {
+    SSL_HND_HELLO_REQUEST          = 0,
+    SSL_HND_CLIENT_HELLO           = 1,
+    SSL_HND_SERVER_HELLO           = 2,
+    SSL_HND_HELLO_VERIFY_REQUEST   = 3,
+    SSL_HND_NEWSESSION_TICKET      = 4,
+    SSL_HND_CERTIFICATE            = 11,
+    SSL_HND_SERVER_KEY_EXCHG       = 12,
+    SSL_HND_CERT_REQUEST           = 13,
+    SSL_HND_SVR_HELLO_DONE         = 14,
+    SSL_HND_CERT_VERIFY            = 15,
+    SSL_HND_CLIENT_KEY_EXCHG       = 16,
+    SSL_HND_FINISHED               = 20,
+    SSL_HND_CERT_URL               = 21,
+    SSL_HND_CERT_STATUS            = 22,
+    SSL_HND_SUPPLEMENTAL_DATA      = 23,
+    /* Encrypted Extensions was NextProtocol in draft-agl-tls-nextprotoneg-03
+     * and changed in draft 04 */
+    SSL_HND_ENCRYPTED_EXTS         = 67
+} HandshakeType;
 
 #define SSL2_HND_ERROR                 0x00
 #define SSL2_HND_CLIENT_HELLO          0x01
@@ -348,6 +352,7 @@ typedef struct _SslSession {
     gint8 server_cert_type;
 } SslSession;
 
+/* This holds state information for a SSL conversation */
 typedef struct _SslDecryptSession {
     guchar _master_secret[48];
     guchar _session_id[256];
@@ -590,8 +595,11 @@ ssl_save_session_ticket(SslDecryptSession* ssl, GHashTable *session_hash);
 extern gboolean
 ssl_restore_session_ticket(SslDecryptSession* ssl, GHashTable *session_hash);
 
-extern gint
+extern gboolean
 ssl_is_valid_content_type(guint8 type);
+
+extern gboolean
+ssl_is_valid_handshake_type(guint8 hs_type, gboolean is_dtls);
 
 /* common header fields, subtrees and expert info for SSL and DTLS dissectors */
 typedef struct ssl_common_dissect {
