@@ -9401,7 +9401,7 @@ static int dissect_nhdr_umq_cmd_resp(tvbuff_t * tvb, int offset, packet_info * p
     proto_tree_add_item(subtree, hf_lbmc_umq_cmd_resp_regid, tvb, offset + O_LBMC_CNTL_UMQ_CMD_RESP_HDR_T_REGID, L_LBMC_CNTL_UMQ_CMD_RESP_HDR_T_REGID, ENC_BIG_ENDIAN);
     len_dissected = L_LBMC_CNTL_UMQ_CMD_RESP_HDR_T;
     resp_type = tvb_get_guint8(tvb, offset + O_LBMC_CNTL_UMQ_CMD_RESP_HDR_T_RESP_TYPE);
-    if (tvb_length_remaining(tvb, offset + L_LBMC_CNTL_UMQ_CMD_RESP_HDR_T) > 0)
+    if (tvb_reported_length_remaining(tvb, offset + L_LBMC_CNTL_UMQ_CMD_RESP_HDR_T) > 0)
     {
         switch (resp_type)
         {
@@ -11353,10 +11353,20 @@ int lbmc_dissect_lbmc_packet(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
             tvbuff_t * msgprop_tvb = NULL;
             gboolean msg_complete = TRUE;
             gboolean msg_reassembled = FALSE;
+            gboolean can_call_subdissector = FALSE;
             lbmc_message_entry_t * msg = NULL;
             gboolean dissector_found = FALSE;
             heur_dtbl_entry_t *hdtbl_entry;
 
+            /* Note on heuristic subdissectors:
+               If the preference "lbmc.use_heuristic_subdissectors" is TRUE, and a heuristic subdissector is
+               registered for "lbm_msg_payload", we can call the heuristic subdissector under one of the
+               following conditions:
+               - The message is unfragmented
+               - The message is fragmented, AND the preference "lbmc.reassemble_fragments" is TRUE, AND
+                 the entire message has been reassembled.
+               This applies to the lbmpdm subdissector as well.
+             */
 
             if (frag_info.fragment_found == 0)
             {
@@ -11376,6 +11386,7 @@ int lbmc_dissect_lbmc_packet(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
                 }
                 msg_complete = TRUE;
                 msg_reassembled = FALSE;
+                can_call_subdissector = TRUE;
             }
             else
             {
@@ -11417,14 +11428,22 @@ int lbmc_dissect_lbmc_packet(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
                             {
                                 msg->data_is_umq_cmd_resp = TRUE;
                             }
-                            if ((msg->total_len == msg->accumulated_len) && (msg->reassembled_frame == 0))
+                            if (msg->total_len == msg->accumulated_len)
                             {
-                                /* Store the frame number in which the message will be reassembled */
-                                msg->reassembled_frame = pinfo->fd->num;
+                                if (msg->reassembled_frame == 0)
+                                {
+                                    /* Store the frame number in which the message will be reassembled */
+                                    msg->reassembled_frame = pinfo->fd->num;
+                                }
                                 data_tvb = tvb_new_subset_remaining(lbmc_tvb, pkt_offset);
                                 msgprop_tvb = NULL;
                                 msg_reassembled = TRUE;
                                 msg_complete = TRUE;
+                                if (msg->reassembled_frame == pinfo->fd->num)
+                                {
+                                    /* We can only call a subdissector if this is the frame in which the message is reassembled */
+                                    can_call_subdissector = TRUE;
+                                }
                             }
                             else
                             {
@@ -11558,27 +11577,34 @@ int lbmc_dissect_lbmc_packet(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
                 {
                     col_append_sep_str(pinfo->cinfo, COL_INFO, " ", "DATA");
                 }
-                if (lbmc_use_heuristic_subdissectors)
+                if (can_call_subdissector)
                 {
-                    dissector_found = dissector_try_heuristic(lbmc_heuristic_subdissector_list, data_tvb, pinfo, subtree, &hdtbl_entry, NULL);
-                }
-                if (!dissector_found)
-                {
-                    if (lbmc_dissect_lbmpdm)
+                    if (lbmc_use_heuristic_subdissectors)
                     {
-                        int encoding;
-                        int pdmlen;
+                        dissector_found = dissector_try_heuristic(lbmc_heuristic_subdissector_list, data_tvb, pinfo, subtree, &hdtbl_entry, NULL);
+                    }
+                    if (!dissector_found)
+                    {
+                        if (lbmc_dissect_lbmpdm)
+                        {
+                            int encoding;
+                            int pdmlen;
 
-                        dissector_found = lbmpdm_verify_payload(data_tvb, 0, &encoding, &pdmlen);
+                            dissector_found = lbmpdm_verify_payload(data_tvb, 0, &encoding, &pdmlen);
+                        }
+                        if (dissector_found)
+                        {
+                            lbmpdm_dissect_lbmpdm_payload(data_tvb, 0, pinfo, subtree, actual_channel);
+                        }
+                        else
+                        {
+                            call_dissector(lbmc_data_dissector_handle, data_tvb, pinfo, subtree);
+                        }
                     }
-                    if (dissector_found)
-                    {
-                        lbmpdm_dissect_lbmpdm_payload(data_tvb, 0, pinfo, subtree, actual_channel);
-                    }
-                    else
-                    {
-                        call_dissector(lbmc_data_dissector_handle, data_tvb, pinfo, subtree);
-                    }
+                }
+                else
+                {
+                    call_dissector(lbmc_data_dissector_handle, data_tvb, pinfo, subtree);
                 }
             }
             if (msgprop_tvb != NULL)

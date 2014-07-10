@@ -28,12 +28,64 @@
 /* A list of the taps etc. made available by these dissectors:
    Taps:
      lbm_stream
+       - A packet is queued for each UIM (unicast immediate message) LBMC message (or fragment)
+       - The data associated with each tap entry is described by lbm_uim_stream_tap_info_t
+       - A single packet may generate multiple tap entries (in the case that a single packet
+         contains multiple LBMC messages)
+       - An LBMC message that spans multiple packets will cause a single entry to be queued,
+         corresponding to the last packet spanned
      lbm_uim
-     lbm_lbmr
+       - A packet is queued for each complete (possibly reassembled) UIM message
+       - The data associated with each tap entry is described by lbm_uim_stream_info_t
+       - A single packet may generate multiple tap entries (in the case that a single packet
+         contains multiple complete UIM messages)
+       - An complete UIM message that spans multiple packets will cause a single entry to be queued,
+         corresponding to the last packet spanned
+     lbm_lbmr_topic_advertisement
+       - A packet is queued for each LBMR topic advertisement (TIR)
+       - The data associated with each tap entry is described by lbm_lbmr_topic_advertisement_tap_info_t
+       - A single LBMR message (which may span multiple IP frames, reassembled into a single UDP packet)
+         may generate multiple tap entries (in the case that a single LBMR message contains multiple topic
+         advertisements)
+     lbm_lbmr_topic_query
+       - A packet is queued for each LBMR topic query (TQR)
+       - The data associated with each tap entry is described by lbm_lbmr_topic_query_tap_info_t
+       - A single LBMR message (which may span multiple IP frames, reassembled into a single UDP packet)
+         may generate multiple tap entries (in the case that a single LBMR message contains multiple topic
+         queries)
+     lbm_lbmr_pattern_query
+       - A packet is queued for each LBMR pattern query (TQR specifying a pattern)
+       - The data associated with each tap entry is described by lbm_lbmr_pattern_query_tap_info_t
+       - A single LBMR message (which may span multiple IP frames, reassembled into a single UDP packet)
+         may generate multiple tap entries (in the case that a single LBMR message contains multiple pattern
+         queries)
+     lbm_lbmr_queue_advertisement
+       - A packet is queued for each LBMR queue advertisement (QIR)
+       - The data associated with each tap entry is described by lbm_lbmr_queue_advertisement_tap_info_t
+       - A single LBMR message (which may span multiple IP frames, reassembled into a single UDP packet)
+         may generate multiple tap entries (in the case that a single LBMR message contains multiple queue
+         advertisements)
+     lbm_lbmr_queue_query
+       - A packet is queued for each LBMR queue query (QQR)
+       - The data associated with each tap entry is described by lbm_lbmr_queue_query_tap_info_t
+       - A single LBMR message (which may span multiple IP frames, reassembled into a single UDP packet)
+         may generate multiple tap entries (in the case that a single LBMR message contains multiple queue
+         queries)
      lbm_lbtrm
+       - A packet is queued for each LBTRM transport message
+       - The data associated with each tap entry is described by lbm_lbtrm_tap_info_t
+       - A single LBTRM transport message (which may span multiple IP frames, reassembled into a single UDP
+         packet) will generate a single tap entry
      lbm_lbtru
+       - A packet is queued for each LBTRU transport message
+       - The data associated with each tap entry is described by lbm_lbtru_tap_info_t
+       - A single LBTRU transport message (which may span multiple IP frames, reassembled into a single UDP
+         packet) will generate a single tap entry
    Heuristic subdissector tables:
      lbm_msg_payload
+       - If the LBMC preference "Use heuristic sub-dissectors" is enabled, the dissector will call any dissector
+         registered in this table via heur_dissector_add(). This allows a customer plugin to dissect the
+         actual payload of their messages.
 */
 
 #if defined(__FreeBSD__)
@@ -203,6 +255,51 @@ typedef struct
     guint16 rst_type;
     guint32 * sqns;
 } lbm_lbtru_tap_info_t;
+
+typedef struct
+{
+    guint16 size;
+    guint8 topic_length;
+    guint8 source_length;
+    guint32 topic_index;
+    char topic[256];
+    char source[256];
+} lbm_lbmr_topic_advertisement_tap_info_t;
+
+typedef struct
+{
+    guint16 size;
+    guint8 topic_length;
+    char topic[256];
+} lbm_lbmr_topic_query_tap_info_t;
+
+typedef struct
+{
+    guint16 size;
+    guint8 type;
+    guint8 pattern_length;
+    char pattern[256];
+} lbm_lbmr_pattern_query_tap_info_t;
+
+#define LBMR_WILDCARD_PATTERN_TYPE_PCRE 1
+#define LBMR_WILDCARD_PATTERN_TYPE_REGEX 2
+
+typedef struct
+{
+    guint16 size;
+    guint16 port;
+    guint8 queue_length;
+    guint8 topic_length;
+    char queue[256];
+    char topic[256];
+} lbm_lbmr_queue_advertisement_tap_info_t;
+
+typedef struct
+{
+    guint16 size;
+    guint8 queue_length;
+    char queue[256];
+} lbm_lbmr_queue_query_tap_info_t;
 
 #define LBM_TOPIC_OPT_EXFUNC_FFLAG_LJ  0x00000001
 #define LBM_TOPIC_OPT_EXFUNC_FFLAG_UME 0x00000002
