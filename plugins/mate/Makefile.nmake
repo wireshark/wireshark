@@ -25,7 +25,7 @@ CFLAGS=$(WARNINGS_ARE_ERRORS) $(DIRTY_CFLAGS)
 LDFLAGS = $(PLUGIN_LDFLAGS)
 
 !IFDEF ENABLE_LIBWIRESHARK
-LINK_PLUGIN_WITH=..\..\epan\libwireshark.lib ..\..\wsutil\wsutil.lib
+LINK_PLUGIN_WITH=..\..\epan\libwireshark.lib ..\..\wsutil\libwsutil.lib
 CFLAGS=$(CFLAGS)
 
 OBJECTS = $(C_FILES:.c=.obj) $(CPP_FILES:.cpp=.obj) plugin.obj
