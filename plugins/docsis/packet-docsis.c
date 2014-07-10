@@ -188,7 +188,7 @@ static void
 dissect_ehdr (tvbuff_t * tvb, proto_tree * tree, gboolean isfrag)
 {
   proto_tree *ehdr_tree;
-  proto_item *it, *item;
+  proto_item *item;
   gint ehdrlen;
   int pos;
   guint8 type;
@@ -200,8 +200,7 @@ dissect_ehdr (tvbuff_t * tvb, proto_tree * tree, gboolean isfrag)
   ehdrlen = tvb_get_guint8 (tvb, 1);
   pos = 4;
 
-  it = proto_tree_add_text (tree, tvb, pos, ehdrlen, "Extended Header");
-  ehdr_tree = proto_item_add_subtree (it, ett_ehdr);
+  ehdr_tree = proto_tree_add_subtree(tree, tvb, pos, ehdrlen, ett_ehdr, NULL, "Extended Header");
   while (pos < ehdrlen + 4)
     {
       type = (tvb_get_guint8 (tvb, pos) & 0xF0);
@@ -313,18 +312,18 @@ dissect_ehdr (tvbuff_t * tvb, proto_tree * tree, gboolean isfrag)
                                ENC_BIG_ENDIAN);
           break;
         case EH_DS_SERVICE:
-          proto_tree_add_item(ehdr_tree, hf_docsis_ehdr_ds_traffic_pri, tvb, pos+1, 1, FALSE);
+          proto_tree_add_item(ehdr_tree, hf_docsis_ehdr_ds_traffic_pri, tvb, pos+1, 1, ENC_BIG_ENDIAN);
 
           if (len == 3)
           {
-            proto_tree_add_item (ehdr_tree, hf_docsis_ehdr_ds_dsid, tvb, pos+1, 3, FALSE);
+            proto_tree_add_item (ehdr_tree, hf_docsis_ehdr_ds_dsid, tvb, pos+1, 3, ENC_BIG_ENDIAN);
           }
 
           if (len == 5)
           {
-            proto_tree_add_item (ehdr_tree, hf_docsis_ehdr_ds_seq_chg_cnt, tvb, pos+1, 1, FALSE);
-            proto_tree_add_item (ehdr_tree, hf_docsis_ehdr_ds_dsid, tvb, pos+1, 3, FALSE);
-            proto_tree_add_item (ehdr_tree, hf_docsis_ehdr_ds_pkt_seq_num, tvb, pos+4, 2, FALSE);
+            proto_tree_add_item (ehdr_tree, hf_docsis_ehdr_ds_seq_chg_cnt, tvb, pos+1, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item (ehdr_tree, hf_docsis_ehdr_ds_dsid, tvb, pos+1, 3, ENC_BIG_ENDIAN);
+            proto_tree_add_item (ehdr_tree, hf_docsis_ehdr_ds_pkt_seq_num, tvb, pos+4, 2, ENC_BIG_ENDIAN);
           }
 
           break;

@@ -645,13 +645,11 @@ dissect_phs_err (tvbuff_t * tvb, proto_tree * tree, int start,
                  guint16 len)
 {
   guint8 type, length;
-  proto_item *it;
   proto_tree *err_tree;
   int pos = start;
-  it =
-    proto_tree_add_text (tree, tvb, start, len,
+  err_tree =
+    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_sflow_err, NULL,
                          "5 Service Flow Error Encodings (Length = %u)", len);
-  err_tree = proto_item_add_subtree (it, ett_docsis_tlv_sflow_err);
 
   while (pos < (start + len))
     {
@@ -695,13 +693,11 @@ static void
 dissect_phs (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len)
 {
   guint8 type, length;
-  proto_item *it;
   proto_tree *phs_tree;
   int pos = start;
-  it =
-    proto_tree_add_text (tree, tvb, start, len,
+  phs_tree =
+    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_phs, NULL,
                          "26 PHS Encodings (Length = %u)", len);
-  phs_tree = proto_item_add_subtree (it, ett_docsis_tlv_phs);
 
   while (pos < (start + len))
     {
@@ -865,13 +861,11 @@ dissect_sflow_err (tvbuff_t * tvb, proto_tree * tree, int start,
                    guint16 len)
 {
   guint8 type, length;
-  proto_item *it;
   proto_tree *err_tree;
   int pos = start;
-  it =
-    proto_tree_add_text (tree, tvb, start, len,
+  err_tree =
+    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_sflow_err, NULL,
                          "5 Service Flow Error Encodings (Length = %u)", len);
-  err_tree = proto_item_add_subtree (it, ett_docsis_tlv_sflow_err);
 
   while (pos < (start + len))
     {
@@ -1088,20 +1082,18 @@ dissect_sflow (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len,
                guint8 direction)
 {
   guint8 type, length;
-  proto_item *it;
   proto_tree *sflow_tree;
   int pos = start;
   if (direction == 24)
-    it =
-      proto_tree_add_text (tree, tvb, start, len,
+    sflow_tree =
+      proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_clsfr, NULL,
                            "24 Upstream Service Flow (Length = %u)", len);
   else if (direction == 25)
-    it =
-      proto_tree_add_text (tree, tvb, start, len,
+    sflow_tree =
+      proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_clsfr, NULL,
                            "25 Downstream Service Flow (Length = %u)", len);
   else
     return;
-  sflow_tree = proto_item_add_subtree (it, ett_docsis_tlv_clsfr);
 
   while (pos < (start + len))
     {
@@ -1262,13 +1254,11 @@ dissect_dot1q_clsfr (tvbuff_t * tvb, proto_tree * tree, int start,
                      guint16 len)
 {
   guint8 type, length;
-  proto_item *it;
   proto_tree *dot1qclsfr_tree;
   int pos = start;
-  it =
-    proto_tree_add_text (tree, tvb, start, len,
+  dot1qclsfr_tree =
+    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_cos, NULL,
                          "11 801.1P/Q Classifiers (Length = %u)", len);
-  dot1qclsfr_tree = proto_item_add_subtree (it, ett_docsis_tlv_cos);
 
   while (pos < (start + len))
     {
@@ -1316,13 +1306,11 @@ dissect_eth_clsfr (tvbuff_t * tvb, proto_tree * tree, int start,
                    guint16 len)
 {
   guint8 type, length;
-  proto_item *it;
   proto_tree *ethclsfr_tree;
   int pos = start;
-  it =
-    proto_tree_add_text (tree, tvb, start, len,
+  ethclsfr_tree =
+    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_clsfr_eth, NULL,
                          "10 Ethernet Classifiers (Length = %u)", len);
-  ethclsfr_tree = proto_item_add_subtree (it, ett_docsis_tlv_clsfr_eth);
 
   while (pos < (start + len))
     {
@@ -1378,13 +1366,11 @@ dissect_clsfr_err (tvbuff_t * tvb, proto_tree * tree, int start,
                    guint16 len)
 {
   guint8 type, length;
-  proto_item *it;
   proto_tree *err_tree;
   int pos = start;
-  it =
-    proto_tree_add_text (tree, tvb, start, len,
+  err_tree =
+    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_clsfr_err, NULL,
                          "8 Classifier Error Encodings (Length = %u)", len);
-  err_tree = proto_item_add_subtree (it, ett_docsis_tlv_clsfr_err);
 
   while (pos < (start + len))
     {
@@ -1437,13 +1423,11 @@ dissect_ip_classifier (tvbuff_t * tvb, proto_tree * tree, int start,
                        guint16 len)
 {
   guint8 type, length;
-  proto_item *it;
   proto_tree *ipclsfr_tree;
   int pos = start;
-  it =
-    proto_tree_add_text (tree, tvb, start, len,
+  ipclsfr_tree =
+    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_clsfr_ip, NULL,
                          "9 IP Classifier (Length = %u)", len);
-  ipclsfr_tree = proto_item_add_subtree (it, ett_docsis_tlv_clsfr_ip);
 
   while (pos < (start + len))
     {
@@ -1580,22 +1564,20 @@ dissect_classifiers (tvbuff_t * tvb, proto_tree * tree, int start,
                      guint16 len, guint8 direction)
 {
   guint8 type, length;
-  proto_item *it;
   proto_tree *clsfr_tree;
   int pos = start;
   if (direction == 22)
-    it =
-      proto_tree_add_text (tree, tvb, start, len,
+    clsfr_tree =
+      proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_clsfr, NULL,
                            "22 Upstream Packet Classifier (Length = %u)",
                            len);
   else if (direction == 23)
-    it =
-      proto_tree_add_text (tree, tvb, start, len,
+    clsfr_tree =
+      proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_clsfr, NULL,
                            "23 Downstream Packet Classifier (Length = %u)",
                            len);
   else
     return;
-  clsfr_tree = proto_item_add_subtree (it, ett_docsis_tlv_clsfr);
 
   while (pos < (start + len))
     {
@@ -1710,13 +1692,11 @@ dissect_doc10cos (tvbuff_t * tvb, proto_tree * tree, int start,
                   guint16 len)
 {
   guint8 type, length;
-  proto_item *it;
   proto_tree *doc10cos_tree;
   int pos = start;
-  it =
-    proto_tree_add_text (tree, tvb, start, len,
+  doc10cos_tree =
+    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_cos, NULL,
                          "1 Docsis 1.0 Class of Service (Length = %u)", len);
-  doc10cos_tree = proto_item_add_subtree (it, ett_docsis_tlv_cos);
 
   while (pos < (start + len))
     {
@@ -1757,15 +1737,13 @@ dissect_modemcap (tvbuff_t * tvb, proto_tree * tree, int start,
                   guint16 len)
 {
   guint8 type, length;
-  proto_item *it;
   proto_tree *mcap_tree;
   int pos = start;
 
-  it =
-    proto_tree_add_text (tree, tvb, start, len,
+  mcap_tree =
+    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_mcap, NULL,
                          "5 Modem Capabilities Type (Length = %u)", len);
 
-  mcap_tree = proto_item_add_subtree (it, ett_docsis_tlv_mcap);
   while (pos < (start + len))
     {
       type = tvb_get_guint8 (tvb, pos++);
@@ -2222,14 +2200,12 @@ static void
 dissect_cos (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len)
 {
   guint8 type, length;
-  proto_item *it;
   proto_tree *cos_tree;
   int pos = start;
 
-  it =
-    proto_tree_add_text (tree, tvb, start, len,
+  cos_tree =
+    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_cos, NULL,
                          "4 Class of Service Type (Length = %u)", len);
-  cos_tree = proto_item_add_subtree (it, ett_docsis_tlv_cos);
 
   while (pos < (start + len))
     {
@@ -2380,13 +2356,11 @@ dissect_ds_ch_list_single (tvbuff_t * tvb, proto_tree * tree,
                            int start, guint16 len)
 {
   guint8 type, length;
-  proto_item *it;
   proto_tree *single_tree;
   int pos = start;
-  it =
-    proto_tree_add_text (tree, tvb, start, len,
+  single_tree =
+    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_ds_ch_list_single, NULL,
                          "1 Single Downstream Channel (Length = %u)", len);
-  single_tree = proto_item_add_subtree (it, ett_docsis_tlv_ds_ch_list_single);
 
   while (pos < (start + len))
     {
@@ -2426,13 +2400,11 @@ dissect_ds_ch_list_range (tvbuff_t * tvb, proto_tree * tree,
                           int start, guint16 len)
 {
   guint8 type, length;
-  proto_item *it;
   proto_tree *range_tree;
   int pos = start;
-  it =
-    proto_tree_add_text (tree, tvb, start, len,
+  range_tree =
+    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_ds_ch_list_range, NULL,
                          "2 Downstream Frequency Range (Length = %u)", len);
-  range_tree = proto_item_add_subtree (it, ett_docsis_tlv_ds_ch_list_range);
 
   while (pos < (start + len))
     {
@@ -2494,13 +2466,11 @@ dissect_dut_filter (tvbuff_t * tvb, proto_tree * tree,
                     int start, guint16 len)
 {
   guint8 type, length;
-  proto_item *it;
   proto_tree *dut_tree;
   int pos = start;
-  it =
-    proto_tree_add_text (tree, tvb, start, len,
+  dut_tree =
+    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_dut_filter, NULL,
                          "Downstream Unencrypted Traffic (Length = %u)", len);
-  dut_tree = proto_item_add_subtree (it, ett_docsis_tlv_dut_filter);
 
   while (pos < (start + len))
     {
@@ -2532,13 +2502,11 @@ static void
 dissect_ds_ch_list(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
 {
   guint8 type, length;
-  proto_item *it;
   proto_tree *dschlst_tree;
   int pos = start;
-  it =
-    proto_tree_add_text (tree, tvb, start, len,
+  dschlst_tree =
+    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_ds_ch_list, NULL,
                          "41 Downstream Channel List (Length = %u)", len);
-  dschlst_tree = proto_item_add_subtree (it, ett_docsis_tlv_ds_ch_list);
 
   while (pos < (start + len))
     {
@@ -2573,13 +2541,11 @@ static void
 dissect_tcc_err(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
 {
   guint8 type, length;
-  proto_item *it;
   proto_tree *tccerr_tree;
   int pos = start;
-  it =
-    proto_tree_add_text (tree, tvb, start, len,
+  tccerr_tree =
+    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_tcc_err, NULL,
                          "TCC Error Encodings (Length = %u)", len);
-  tccerr_tree = proto_item_add_subtree (it, ett_docsis_tlv_tcc_err);
 
   while (pos < (start + len))
     {
@@ -2618,13 +2584,11 @@ static void
 dissect_tcc_rng_parms(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
 {
   guint8 type, length;
-  proto_item *it;
   proto_tree *rngparm_tree;
   int pos = start;
-  it =
-    proto_tree_add_text (tree, tvb, start, len,
+  rngparm_tree =
+    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_tcc_rng_parms, NULL,
                          "Ranging Parameters (Length = %u)", len);
-  rngparm_tree = proto_item_add_subtree (it, ett_docsis_tlv_tcc_rng_parms);
 
   while (pos < (start + len))
     {
@@ -2701,13 +2665,11 @@ static void
 dissect_sid_cl_so_crit(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
 {
   guint8 type, length;
-  proto_item *it;
   proto_tree *crit_tree;
   int pos = start;
-  it =
-    proto_tree_add_text (tree, tvb, start, len,
+  crit_tree =
+    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_sid_cl_so, NULL,
                          "SID Cluster Switchover Criteria (Length = %u)", len);
-  crit_tree = proto_item_add_subtree (it, ett_docsis_tlv_sid_cl_so);
 
   while (pos < (start + len))
     {
@@ -2772,13 +2734,11 @@ static void
 dissect_sid_cl_enc_map(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
 {
   guint8 type, length;
-  proto_item *it;
   proto_tree *map_tree;
   int pos = start;
-  it =
-    proto_tree_add_text (tree, tvb, start, len,
+  map_tree =
+    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_sid_cl_enc_map, NULL,
                          "SID-to-Channel Mapping (Length = %u)", len);
-  map_tree = proto_item_add_subtree (it, ett_docsis_tlv_sid_cl_enc_map);
 
   while (pos < (start + len))
     {
@@ -2831,13 +2791,11 @@ static void
 dissect_sid_cl_enc(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
 {
   guint8 type, length;
-  proto_item *it;
   proto_tree *enc_tree;
   int pos = start;
-  it =
-    proto_tree_add_text (tree, tvb, start, len,
+  enc_tree =
+    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_sid_cl_enc, NULL,
                          "SID Cluster Encoding (Length = %u)", len);
-  enc_tree = proto_item_add_subtree (it, ett_docsis_tlv_sid_cl_enc);
 
   while (pos < (start + len))
     {
@@ -2872,13 +2830,11 @@ static void
 dissect_sid_cl(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
 {
   guint8 type, length;
-  proto_item *it;
   proto_tree *sid_tree;
   int pos = start;
-  it =
-    proto_tree_add_text (tree, tvb, start, len,
+  sid_tree =
+    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_sid_cl, NULL,
                          "47 Service Flow SID Cluster Assignments (Length = %u)", len);
-  sid_tree = proto_item_add_subtree (it, ett_docsis_tlv_sid_cl);
 
   while (pos < (start + len))
     {
@@ -2914,15 +2870,13 @@ dissect_tcc(tvbuff_t * tvb, packet_info * pinfo _U_,
             proto_tree *tree, int start, guint16 len)
 {
   guint8 type, length;
-  proto_item *it;
   proto_tree *tcc_tree;
   int pos = start;
   tvbuff_t *ucd_tvb;
 
-  it =
-    proto_tree_add_text (tree, tvb, start, len,
+  tcc_tree =
+    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_tcc, NULL,
                          "46 Transmit Channel Configuration (Length = %u)", len);
-  tcc_tree = proto_item_add_subtree (it, ett_docsis_tlv_tcc);
 
   while (pos < (start + len))
     {
@@ -3033,13 +2987,11 @@ static void
 dissect_ch_bl_rng(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
 {
   guint8 type, length;
-  proto_item *it;
   proto_tree *chblrng_tree;
   int pos = start;
-  it =
-    proto_tree_add_text (tree, tvb, start, len,
+  chblrng_tree =
+    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_rcp_ch_bl_rng, NULL,
                          "Receive Module Channel Block Range (Length = %u)", len);
-  chblrng_tree = proto_item_add_subtree (it, ett_docsis_tlv_rcp_ch_bl_rng);
 
   while (pos < (start + len))
     {
@@ -3080,13 +3032,11 @@ static void
 dissect_rcp_rcv_mod(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
 {
   guint8 type, length;
-  proto_item *it;
   proto_tree *rcvmod_tree;
   int pos = start;
-  it =
-    proto_tree_add_text (tree, tvb, start, len,
+  rcvmod_tree =
+    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_rcp_rcv_mod_enc, NULL,
                          "Receive Module Capability (Length = %u)", len);
-  rcvmod_tree = proto_item_add_subtree (it, ett_docsis_tlv_rcp_rcv_mod_enc);
 
   while (pos < (start + len))
     {
@@ -3114,7 +3064,7 @@ dissect_rcp_rcv_mod(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
             {
               proto_tree_add_item (rcvmod_tree,
                                    hf_docsis_rcv_mod_enc_ctr_freq_asgn, tvb, pos,
-                                   length, FALSE);
+                                   length, ENC_BIG_ENDIAN);
             }
           else
             {
@@ -3145,13 +3095,11 @@ static void
 dissect_rcp_rcv_ch(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
 {
   guint8 type, length;
-  proto_item *it;
   proto_tree *rcvch_tree;
   int pos = start;
-  it =
-    proto_tree_add_text (tree, tvb, start, len,
+  rcvch_tree =
+    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_rcp_rcv_ch, NULL,
                          "Receive Channels (Length = %u)", len);
-  rcvch_tree = proto_item_add_subtree (it, ett_docsis_tlv_rcp_rcv_ch);
 
   while (pos < (start + len))
     {
@@ -3211,15 +3159,13 @@ dissect_rcp(tvbuff_t * tvb, packet_info * pinfo _U_,
             proto_tree *tree, int start, guint16 len)
 {
   guint8 type, length;
-  proto_item *it;
   proto_tree *rcp_tree;
   int pos = start;
   tvbuff_t *vsif_tvb;
 
-  it =
-    proto_tree_add_text (tree, tvb, start, len,
+  rcp_tree =
+    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_rcp, NULL,
                           "48 Receive Channel Profile (Length = %u)", len);
-  rcp_tree = proto_item_add_subtree (it, ett_docsis_tlv_rcp);
 
   while (pos < (start + len))
     {
@@ -3282,13 +3228,11 @@ static void
 dissect_rcc_rcv_mod(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
 {
   guint8 type, length;
-  proto_item *it;
   proto_tree *rcvmod_tree;
   int pos = start;
-  it =
-    proto_tree_add_text (tree, tvb, start, len,
+  rcvmod_tree =
+    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_rcc_rcv_mod_enc, NULL,
                          "Receive Module Assignment (Length = %u)", len);
-  rcvmod_tree = proto_item_add_subtree (it, ett_docsis_tlv_rcc_rcv_mod_enc);
 
   while (pos < (start + len))
     {
@@ -3334,13 +3278,11 @@ static void
 dissect_rcc_rcv_ch(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
 {
   guint8 type, length;
-  proto_item *it;
   proto_tree *rcvch_tree;
   int pos = start;
-  it =
-    proto_tree_add_text (tree, tvb, start, len,
+  rcvch_tree =
+    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_rcc_rcv_ch, NULL,
                          "Receive Channels (Length = %u)", len);
-  rcvch_tree = proto_item_add_subtree (it, ett_docsis_tlv_rcc_rcv_ch);
 
   while (pos < (start + len))
     {
@@ -3398,13 +3340,11 @@ static void
 dissect_rcc_err(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
 {
   guint8 type, length;
-  proto_item *it;
   proto_tree *err_tree;
   int pos = start;
-  it =
-    proto_tree_add_text (tree, tvb, start, len,
+  err_tree =
+    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_rcc_rcv_ch, NULL,
                          "RCC Error Encodings (Length = %u)", len);
-  err_tree = proto_item_add_subtree (it, ett_docsis_tlv_rcc_rcv_ch);
 
   while (pos < (start + len))
     {
@@ -3475,15 +3415,13 @@ dissect_rcc(tvbuff_t * tvb, packet_info * pinfo _U_,
             proto_tree *tree, int start, guint16 len)
 {
   guint8 type, length;
-  proto_item *it;
   proto_tree *rcc_tree;
   int pos = start;
   tvbuff_t *vsif_tvb;
 
-  it =
-    proto_tree_add_text (tree, tvb, start, len,
+  rcc_tree =
+    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_rcc, NULL,
                           "49 Receive Channel Configuration (Length = %u)", len);
-  rcc_tree = proto_item_add_subtree (it, ett_docsis_tlv_rcc);
 
   while (pos < (start + len))
     {
@@ -3525,13 +3463,11 @@ static void
 dissect_dsid_ds_reseq(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
 {
   guint8 type, length;
-  proto_item *it;
   proto_tree *dsid_tree;
   int pos = start;
-  it =
-    proto_tree_add_text (tree, tvb, start, len,
+  dsid_tree =
+    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_dsid_ds_reseq, NULL,
                          "Resequencing DSID (Length = %u)", len);
-  dsid_tree = proto_item_add_subtree (it, ett_docsis_tlv_dsid_ds_reseq);
 
   while (pos < (start + len))
     {
@@ -3601,13 +3537,11 @@ static void
 dissect_dsid_mc_addr(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
 {
   guint8 type, length;
-  proto_item *it;
   proto_tree *dsid_tree;
   int pos = start;
-  it =
-    proto_tree_add_text (tree, tvb, start, len,
+  dsid_tree =
+    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_dsid_mc_addr, NULL,
                          "Client MAC Address Encodings (Length = %u)", len);
-  dsid_tree = proto_item_add_subtree (it, ett_docsis_tlv_dsid_mc_addr);
 
   while (pos < (start + len))
     {
@@ -3648,13 +3582,11 @@ static void
 dissect_dsid_mc(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
 {
   guint8 type, length;
-  proto_item *it;
   proto_tree *dsid_tree;
   int pos = start;
-  it =
-    proto_tree_add_text (tree, tvb, start, len,
+  dsid_tree =
+    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_dsid_mc, NULL,
                          "Multicast Encodings (Length = %u)", len);
-  dsid_tree = proto_item_add_subtree (it, ett_docsis_tlv_dsid_mc);
 
   while (pos < (start + len))
     {
@@ -3687,13 +3619,11 @@ static void
 dissect_dsid(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
 {
   guint8 type, length;
-  proto_item *it;
   proto_tree *dsid_tree;
   int pos = start;
-  it =
-    proto_tree_add_text (tree, tvb, start, len,
+  dsid_tree =
+    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_dsid, NULL,
                          "50 DSID Encodings (Length = %u)", len);
-  dsid_tree = proto_item_add_subtree (it, ett_docsis_tlv_dsid);
 
   while (pos < (start + len))
     {
@@ -3740,13 +3670,11 @@ static void
 dissect_sec_assoc(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
 {
   guint8 type, length;
-  proto_item *it;
   proto_tree *sec_tree;
   int pos = start;
-  it =
-    proto_tree_add_text (tree, tvb, start, len,
+  sec_tree =
+    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_dsid, NULL,
                          "51 Security Association Encodings (Length = %u)", len);
-  sec_tree = proto_item_add_subtree (it, ett_docsis_tlv_dsid);
 
   while (pos < (start + len))
     {
@@ -3787,13 +3715,11 @@ static void
 dissect_ch_asgn(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
 {
   guint8 type, length;
-  proto_item *it;
   proto_tree *asgn_tree;
   int pos = start;
-  it =
-    proto_tree_add_text (tree, tvb, start, len,
+  asgn_tree =
+    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_ch_asgn, NULL,
                          "56 Channel Assignment Configuration Settings (Length = %u)", len);
-  asgn_tree = proto_item_add_subtree (it, ett_docsis_tlv_ch_asgn);
 
   while (pos < (start + len))
     {
@@ -3834,13 +3760,11 @@ static void
 dissect_cmts_mc_sess_enc(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
 {
   guint8 type, length;
-  proto_item *it;
   proto_tree *mc_tree;
   int pos = start;
-  it =
-    proto_tree_add_text (tree, tvb, start, len,
+  mc_tree =
+    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_cmts_mc_sess_enc, NULL,
                          "64 CMTS Static Multicast Session Encoding (Length = %u)", len);
-  mc_tree = proto_item_add_subtree (it, ett_docsis_cmts_mc_sess_enc);
 
   while (pos < (start + len))
     {

@@ -61,8 +61,7 @@ dissect_dccack (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     {
       dcc_item =
 	proto_tree_add_protocol_format (tree, proto_docsis_dccack, tvb, 0,
-					tvb_length_remaining (tvb, 0),
-					"DCC-ACK Message");
+					-1, "DCC-ACK Message");
       dcc_tree = proto_item_add_subtree (dcc_item, ett_docsis_dccack);
       proto_tree_add_item (dcc_tree, hf_docsis_dccack_tran_id, tvb, 0, 2, ENC_BIG_ENDIAN);
 

@@ -780,7 +780,7 @@ dissect_gryphon_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_tree      *gryphon_tree;
     proto_item      *ti;
     proto_tree      *header_tree, *body_tree, *local_tree;
-    proto_item      *header_item, *body_item, *local_item;
+    proto_item      *local_item;
     int             msgend;
     int             msglen, msgpad;
     unsigned int    src, dest, i, frmtyp;
@@ -827,8 +827,7 @@ dissect_gryphon_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         return;
     }
 
-    header_item = proto_tree_add_text(gryphon_tree, tvb, offset, MSG_HDR_SZ, "Header");
-    header_tree = proto_item_add_subtree(header_item, ett_gryphon_header);
+    header_tree = proto_tree_add_subtree(gryphon_tree, tvb, offset, MSG_HDR_SZ, ett_gryphon_header, NULL, "Header");
 
     proto_tree_add_item(header_tree, hf_gryphon_src, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(header_tree, hf_gryphon_srcchan, tvb, offset+1, 1, ENC_BIG_ENDIAN);
@@ -850,9 +849,8 @@ dissect_gryphon_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     msgpad = 3 - (msglen + 3) % 4;
     msgend = offset + msglen + msgpad + MSG_HDR_SZ;
 
-    body_item = proto_tree_add_text(gryphon_tree, tvb, offset + MSG_HDR_SZ,
-                                    msglen + msgpad, "Body");
-    body_tree = proto_item_add_subtree(body_item, ett_gryphon_body);
+    body_tree = proto_tree_add_subtree(gryphon_tree, tvb, offset + MSG_HDR_SZ,
+                                    msglen + msgpad, ett_gryphon_body, NULL, "Body");
 
     offset += MSG_HDR_SZ;
     switch (frmtyp) {
@@ -893,7 +891,6 @@ decode_command(tvbuff_t *tvb, int offset, int dst, proto_tree *pt)
     int             cmd, msglen;
     unsigned int    i;
     proto_tree      *ft;
-    proto_item      *ti;
     proto_item      *hi;
 
     msglen = tvb_reported_length_remaining(tvb, offset);
@@ -922,9 +919,8 @@ decode_command(tvbuff_t *tvb, int offset, int dst, proto_tree *pt)
     msglen -= 4;
 
     if (cmds[i].cmd_fnct && msglen > 0) {
-        ti = proto_tree_add_text(pt, tvb, offset, -1, "Data: (%d byte%s)",
-                msglen, msglen == 1 ? "" : "s");
-        ft = proto_item_add_subtree(ti, ett_gryphon_command_data);
+        ft = proto_tree_add_subtree_format(pt, tvb, offset, -1, ett_gryphon_command_data, NULL,
+                "Data: (%d byte%s)", msglen, msglen == 1 ? "" : "s");
         offset = (*(cmds[i].cmd_fnct)) (tvb, offset, ft);
     }
     return offset;
@@ -936,7 +932,6 @@ decode_response(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
     int             cmd, msglen;
     unsigned int    i;
     proto_tree      *ft;
-    proto_item      *ti;
 
     msglen = tvb_reported_length_remaining(tvb, offset);
     cmd = tvb_get_guint8(tvb, offset);
@@ -965,9 +960,8 @@ decode_response(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
     msglen -= 4;
 
     if (cmds[i].rsp_fnct && msglen > 0) {
-        ti = proto_tree_add_text(pt, tvb, offset, msglen, "Data: (%d byte%s)",
-                msglen, msglen == 1 ? "" : "s");
-        ft = proto_item_add_subtree(ti, ett_gryphon_response_data);
+        ft = proto_tree_add_subtree_format(pt, tvb, offset, msglen, ett_gryphon_response_data, NULL,
+            "Data: (%d byte%s)", msglen, msglen == 1 ? "" : "s");
         offset = (*(cmds[i].rsp_fnct)) (tvb, offset, ft);
     }
     return offset;
@@ -976,7 +970,7 @@ decode_response(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
 static int
 decode_data(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
-    proto_item  *item, *item1;
+    proto_item  *item1;
     proto_tree  *tree, *tree1;
     int         hdrsize, datasize, extrasize, /* hdrbits, */ msgsize, padding, mode;
     nstime_t    timestamp;
@@ -988,8 +982,7 @@ decode_data(tvbuff_t *tvb, int offset, proto_tree *pt)
     padding   = 3 - (hdrsize + datasize + extrasize + 3) % 4;
     msgsize   = hdrsize + datasize + extrasize + padding + 16;
 
-    item = proto_tree_add_text(pt, tvb, offset, 16, "Message header");
-    tree = proto_item_add_subtree (item, ett_gryphon_data_header);
+    tree = proto_tree_add_subtree(pt, tvb, offset, 16, ett_gryphon_data_header, NULL, "Message header");
 
     proto_tree_add_item(tree, hf_gryphon_data_header_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_gryphon_data_data_length, tvb, offset+2, 2, ENC_BIG_ENDIAN);
@@ -1017,8 +1010,7 @@ decode_data(tvbuff_t *tvb, int offset, proto_tree *pt)
     proto_tree_add_item(tree, hf_gryphon_reserved3, tvb, offset+13, 3, ENC_BIG_ENDIAN);
     offset += 16;
 
-    item = proto_tree_add_text(pt, tvb, offset, msgsize-16-padding, "Message Body");
-    tree = proto_item_add_subtree (item, ett_gryphon_data_body);
+    tree = proto_tree_add_subtree(pt, tvb, offset, msgsize-16-padding, ett_gryphon_data_body, NULL, "Message Body");
     if (hdrsize) {
         proto_tree_add_item(tree, hf_gryphon_data_header_data, tvb, offset, hdrsize, ENC_NA);
         offset += hdrsize;
@@ -1177,26 +1169,23 @@ cmd_ioctl(tvbuff_t *tvb, int offset, proto_tree *pt)
 static int
 cmd_addfilt(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
-    proto_item  *item;
     proto_tree  *tree;
     int         blocks, i, length;
 
-    item = proto_tree_add_text(pt, tvb, offset, 1, "Flags");
-    tree = proto_item_add_subtree (item, ett_gryphon_flags);
+    tree = proto_tree_add_subtree(pt, tvb, offset, 1, ett_gryphon_flags, NULL, "Flags");
     proto_tree_add_item(tree, hf_gryphon_addfilt_pass, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_gryphon_addfilt_active, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
     blocks = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(pt, hf_gryphon_addfilt_blocks, tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(pt, hf_gryphon_reserved_bytes, tvb, offset+1, 6, ENC_BIG_ENDIAN);
+    proto_tree_add_item(pt, hf_gryphon_reserved_bytes, tvb, offset+1, 6, ENC_NA);
     offset += 7;
 
     for (i = 1; i <= blocks; i++) {
         length = tvb_get_ntohs(tvb, offset+2) * 2 + 8;
         length += 3 - (length + 3) % 4;
-        item = proto_tree_add_text(pt, tvb, offset, length, "Filter block %d", i);
-        tree = proto_item_add_subtree (item, ett_gryphon_cmd_filter_block);
+        tree = proto_tree_add_subtree_format(pt, tvb, offset, length, ett_gryphon_cmd_filter_block, NULL, "Filter block %d", i);
         offset = filter_block(tvb, offset, tree);
     }
     return offset;
@@ -1271,13 +1260,11 @@ resp_events(tvbuff_t *tvb, int offset, proto_tree *pt)
     int             msglen;
     unsigned int    i;
     proto_tree      *tree;
-    proto_item      *item;
 
     msglen = tvb_reported_length_remaining(tvb, offset);
     i = 1;
     while (msglen != 0) {
-        item = proto_tree_add_text(pt, tvb, offset, 20, "Event %d:", i);
-        tree = proto_item_add_subtree (item, ett_gryphon_cmd_events_data);
+        tree = proto_tree_add_subtree_format(pt, tvb, offset, 20, ett_gryphon_cmd_events_data, NULL, "Event %d:", i);
         proto_tree_add_item(tree, hf_gryphon_event_id, tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(tree, hf_gryphon_event_name, tvb, offset+1, 19, ENC_NA|ENC_ASCII);
         offset += 20;
@@ -1346,7 +1333,6 @@ cmd_optimize(tvbuff_t *tvb, int offset, proto_tree *pt)
 static int
 resp_config(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
-    proto_item   *ti, *item;
     proto_tree   *ft, *tree;
     int          devices;
     int          i;
@@ -1369,8 +1355,7 @@ resp_config(tvbuff_t *tvb, int offset, proto_tree *pt)
     offset += 16;
 
     for (i = 1; i <= devices; i++) {
-        ti = proto_tree_add_text(pt, tvb, offset, 80, "Channel %d:", i);
-        ft = proto_item_add_subtree(ti, ett_gryphon_cmd_config_device);
+        ft = proto_tree_add_subtree_format(pt, tvb, offset, 80, ett_gryphon_cmd_config_device, NULL, "Channel %d:", i);
 
         proto_tree_add_item(ft, hf_gryphon_config_driver_name, tvb, offset, 20, ENC_NA|ENC_ASCII);
         offset += 20;
@@ -1383,8 +1368,7 @@ resp_config(tvbuff_t *tvb, int offset, proto_tree *pt)
 
         x = tvb_get_ntohl (tvb, offset);
         if (x) {
-            item = proto_tree_add_text(ft, tvb, offset, 4, "Valid Header lengths");
-            tree = proto_item_add_subtree (item, ett_gryphon_valid_headers);
+            tree = proto_tree_add_subtree(ft, tvb, offset, 4, ett_gryphon_valid_headers, NULL, "Valid Header lengths");
             for (j = 0; ; j++) {
                 if (x & 1) {
                     proto_tree_add_text(tree, tvb, offset, 4, "%d byte%s", j,
@@ -1455,8 +1439,7 @@ cmd_sched(tvbuff_t *tvb, int offset, proto_tree *pt)
         length = 16 + tvb_get_guint8(tvb, offset+16) +
             tvb_get_ntohs(tvb, offset+18) + tvb_get_guint8(tvb, offset+20) + 16;
         length += 3 - (length + 3) % 4;
-        item = proto_tree_add_text(pt, tvb, offset, length, "Message %d", i);
-        tree = proto_item_add_subtree (item, ett_gryphon_cmd_sched_data);
+        tree = proto_tree_add_subtree_format(pt, tvb, offset, length, ett_gryphon_cmd_sched_data, NULL, "Message %d", i);
         proto_tree_add_item(tree, hf_gryphon_sched_sleep, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
         msglen -= 4;
@@ -1485,8 +1468,7 @@ cmd_sched(tvbuff_t *tvb, int offset, proto_tree *pt)
         offset += 4;
         msglen -= 4;
 
-        item1 = proto_tree_add_text(tree, tvb, offset, length, "Message");
-        tree1 = proto_item_add_subtree (item1, ett_gryphon_cmd_sched_cmd);
+        tree1 = proto_tree_add_subtree(tree, tvb, offset, length, ett_gryphon_cmd_sched_cmd, NULL, "Message");
         save_offset = offset;
         offset = decode_data(tvb, offset, tree1);
         msglen -= offset - save_offset;
@@ -1629,15 +1611,13 @@ cmd_addresp(tvbuff_t *tvb, int offset, proto_tree *pt)
     for (i = 1; i <= blocks; i++) {
         length = tvb_get_ntohs(tvb, offset+2) * 2 + 8;
         length += 3 - (length + 3) % 4;
-        item = proto_tree_add_text(pt, tvb, offset, length, "Filter block %d", i);
-        tree = proto_item_add_subtree (item, ett_gryphon_cmd_filter_block);
+        tree = proto_tree_add_subtree_format(pt, tvb, offset, length, ett_gryphon_cmd_filter_block, NULL, "Filter block %d", i);
         offset = filter_block(tvb, offset, tree);
     }
     for (i = 1; i <= responses; i++) {
         msglen = tvb_get_ntohs(tvb, offset+4) + 8;
         length = msglen + 3 - (msglen + 3) % 4;
-        item = proto_tree_add_text(pt, tvb, offset, length, "Response block %d", i);
-        tree = proto_item_add_subtree (item, ett_gryphon_cmd_response_block);
+        tree = proto_tree_add_subtree_format(pt, tvb, offset, length, ett_gryphon_cmd_response_block, NULL, "Response block %d", i);
         next_tvb = tvb_new_subset_length(tvb, offset, msglen);
         dissect_gryphon_message(next_tvb, NULL, tree, TRUE);
         offset += length;
@@ -1775,7 +1755,6 @@ cmd_list(tvbuff_t *tvb, int offset, proto_tree *pt)
 static int
 resp_list(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
-    proto_item  *item;
     proto_tree  *tree;
     unsigned int    i, count;
 
@@ -1788,8 +1767,7 @@ resp_list(tvbuff_t *tvb, int offset, proto_tree *pt)
     offset += 2;
 
     for (i = 1; i <= count; i++) {
-        item = proto_tree_add_text(pt, tvb, offset, 112, "Program %u", i);
-        tree = proto_item_add_subtree (item, ett_gryphon_pgm_list);
+        tree = proto_tree_add_subtree_format(pt, tvb, offset, 112, ett_gryphon_pgm_list, NULL, "Program %u", i);
         proto_tree_add_item(tree, hf_gryphon_list_name, tvb, offset, 32, ENC_NA|ENC_ASCII);
         offset += 32;
 
@@ -1870,7 +1848,6 @@ static int
 cmd_options(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
     int             msglen;
-    proto_item      *item;
     proto_tree      *tree;
     unsigned int    i, size, padding, option, option_length, option_value;
     const char      *string, *string1;
@@ -1885,8 +1862,7 @@ cmd_options(tvbuff_t *tvb, int offset, proto_tree *pt)
         option_length = tvb_get_guint8(tvb, offset+1);
         size = option_length + 2;
         padding = 3 - ((size + 3) %4);
-        item = proto_tree_add_text(pt, tvb, offset, size + padding, "Option number %u", i);
-        tree = proto_item_add_subtree (item, ett_gryphon_pgm_options);
+        tree = proto_tree_add_subtree_format(pt, tvb, offset, size + padding, ett_gryphon_pgm_options, NULL, "Option number %u", i);
         option = tvb_get_guint8(tvb, offset);
         switch (option_length) {
         case 1:
@@ -2020,8 +1996,7 @@ cmd_usdt(tvbuff_t *tvb, int offset, proto_tree *pt)
             bytes = tvb_reported_length_remaining (tvb, offset);
             if (bytes <= 0)
                 break;
-            localItem = proto_tree_add_text(pt, tvb, offset, 16, "%s block of USDT/UUDT IDs", i==0?"First":"Second");
-            localTree = proto_item_add_subtree (localItem, ett_gryphon_usdt_data);
+            localTree = proto_tree_add_subtree_format(pt, tvb, offset, 16, ett_gryphon_usdt_data, NULL, "%s block of USDT/UUDT IDs", i==0?"First":"Second");
 
             size = tvb_get_ntohl (tvb, offset);
             localItem = proto_tree_add_item(localTree, hf_gryphon_usdt_block_size, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -2054,15 +2029,13 @@ cmd_usdt(tvbuff_t *tvb, int offset, proto_tree *pt)
 static int
 cmd_bits_in (tvbuff_t *tvb, int offset, proto_tree *pt)
 {
-    proto_item   *item;
     proto_tree   *tree;
     int          msglen, value;
 
     msglen = tvb_reported_length_remaining(tvb, offset);
     value = tvb_get_guint8(tvb, offset);
     if (value) {
-        item = proto_tree_add_text(pt, tvb, offset, 1, "Digital values set");
-        tree = proto_item_add_subtree (item, ett_gryphon_digital_data);
+        tree = proto_tree_add_subtree(pt, tvb, offset, 1, ett_gryphon_digital_data, NULL, "Digital values set");
 
         proto_tree_add_item(tree, hf_gryphon_bits_in_input1, tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(tree, hf_gryphon_bits_in_input2, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -2080,15 +2053,13 @@ cmd_bits_in (tvbuff_t *tvb, int offset, proto_tree *pt)
 static int
 cmd_bits_out (tvbuff_t *tvb, int offset, proto_tree *pt)
 {
-    proto_item   *item;
     proto_tree   *tree;
     int          msglen, value;
 
     msglen = tvb_reported_length_remaining(tvb, offset);
     value = tvb_get_guint8(tvb, offset);
     if (value) {
-        item = proto_tree_add_text(pt, tvb, offset, 1, "Digital values set");
-        tree = proto_item_add_subtree (item, ett_gryphon_digital_data);
+        tree = proto_tree_add_subtree(pt, tvb, offset, 1, ett_gryphon_digital_data, NULL, "Digital values set");
 
         proto_tree_add_item(tree, hf_gryphon_bits_out_output1, tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(tree, hf_gryphon_bits_out_output2, tvb, offset, 1, ENC_BIG_ENDIAN);

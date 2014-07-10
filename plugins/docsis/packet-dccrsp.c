@@ -59,13 +59,12 @@ static void
 dissect_dccrsp_cm_jump_time (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len)
 {
   guint8 type, length;
-  proto_item *dcc_item;
   proto_tree *dcc_tree;
   int pos;
 
   pos = start;
-  dcc_item = proto_tree_add_text ( tree, tvb, start, len, "2 DCC-RSP CM Time Jump Encodings (Length = %u)", len);
-  dcc_tree = proto_item_add_subtree ( dcc_item , ett_docsis_dccrsp_cm_jump_time);
+  dcc_tree = proto_tree_add_subtree_format( tree, tvb, start, len, ett_docsis_dccrsp_cm_jump_time, NULL,
+            "2 DCC-RSP CM Time Jump Encodings (Length = %u)", len);
 
   while ( pos < ( start + len) )
     {
@@ -117,8 +116,7 @@ dissect_dccrsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     {
       dcc_item =
 	proto_tree_add_protocol_format (tree, proto_docsis_dccrsp, tvb, 0,
-					tvb_length_remaining (tvb, 0),
-					"DCC-RSP Message");
+					-1, "DCC-RSP Message");
       dcc_tree = proto_item_add_subtree (dcc_item, ett_docsis_dccrsp);
       proto_tree_add_item (dcc_tree, hf_docsis_dccrsp_tran_id, tvb, 0, 2, ENC_BIG_ENDIAN);
       proto_tree_add_item (dcc_tree, hf_docsis_dccrsp_conf_code, tvb, 2, 1, ENC_BIG_ENDIAN);

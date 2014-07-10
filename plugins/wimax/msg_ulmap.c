@@ -275,14 +275,12 @@ static gint Dedicated_UL_Control_IE(proto_tree *uiuc_tree, const guint8 *bufptr,
     /* UL-MAP HARQ Sub-Burst IE * offset/length are in bits */
     gint bit;
     gint data;
-    proto_item *ti = NULL;
-    proto_item *tree = NULL;
+    proto_item *tree;
     gint sdma;
 
     bit = offset;
 
-    ti = proto_tree_add_text(uiuc_tree, tvb, NIBHI(offset, length), "Dedicated_UL_Control_IE");
-    tree = proto_item_add_subtree(ti, ett_302r);
+    tree = proto_tree_add_subtree(uiuc_tree, tvb, NIBHI(offset, length), ett_302r, NULL, "Dedicated_UL_Control_IE");
 
     XBIT(data, 4, "Length");
     XBIT(sdma, 4, "Control Header");
@@ -299,13 +297,11 @@ static gint Dedicated_MIMO_UL_Control_IE(proto_tree *uiuc_tree, const guint8 *bu
     /* UL-MAP HARQ Sub-Burst IE * offset/length are in bits */
     gint bit;
     gint data;
-    proto_item *ti = NULL;
-    proto_item *tree = NULL;
+    proto_item *tree;
 
     bit = offset;
 
-    ti = proto_tree_add_text(uiuc_tree, tvb, NIBHI(offset, length), "Dedicated_MIMO_UL_Control_IE");
-    tree = proto_item_add_subtree(ti, ett_302s);
+    tree = proto_tree_add_subtree(uiuc_tree, tvb, NIBHI(offset, length), ett_302s, NULL, "Dedicated_MIMO_UL_Control_IE");
 
     XBIT(data, 2, "Matrix");
     XBIT(N_layer, 2, "N_layer");
@@ -321,16 +317,14 @@ static gint UL_HARQ_Chase_Sub_Burst_IE(proto_tree *uiuc_tree, const guint8 *bufp
     /* UL-MAP HARQ Sub-Burst IE * offset/length are in bits */
     gint bit;
     gint data;
-    proto_item *ti = NULL;
-    proto_item *tree = NULL;
+    proto_item *tree;
     /*proto_item *generic_item = NULL;*/
     gint duci;
     /*guint16 calculated_crc;*/
 
     bit = offset;
 
-    ti = proto_tree_add_text(uiuc_tree, tvb, BITHI(offset,length), "UL_HARQ_Chase_Sub_Burst_IE");
-    tree = proto_item_add_subtree(ti, ett_302k);
+    tree = proto_tree_add_subtree(uiuc_tree, tvb, BITHI(offset,length), ett_302k, NULL, "UL_HARQ_Chase_Sub_Burst_IE");
 
     bit += RCID_IE(tree, bufptr, bit, length, tvb, RCID_Type);
     XBIT(duci, 1, "Dedicated UL Control Indicator");
@@ -370,16 +364,14 @@ static gint UL_HARQ_IR_CTC_Sub_Burst_IE(proto_tree *uiuc_tree, const guint8 *buf
     /* UL-MAP HARQ Sub-Burst IE * offset/length are in bits */
     gint bit;
     gint data;
-    proto_item *ti = NULL;
-    proto_item *tree = NULL;
+    proto_item *tree;
     /*proto_item *generic_item = NULL;*/
     gint duci;
     /*guint16 calculated_crc;*/
 
     bit = offset;
 
-    ti = proto_tree_add_text(uiuc_tree, tvb, NIBHI(offset, length), "UL_HARQ_IR_CTC_Sub_Burst_IE");
-    tree = proto_item_add_subtree(ti, ett_302l);
+    tree = proto_tree_add_subtree(uiuc_tree, tvb, NIBHI(offset, length), ett_302l, NULL, "UL_HARQ_IR_CTC_Sub_Burst_IE");
 
     bit += RCID_IE(tree, bufptr, bit, length, tvb, RCID_Type);
     XBIT(duci, 1, "Dedicated UL Control Indicator");
@@ -419,16 +411,14 @@ static gint UL_HARQ_IR_CC_Sub_Burst_IE(proto_tree *uiuc_tree, const guint8 *bufp
     /* UL-MAP HARQ Sub-Burst IE * offset/length are in bits */
     gint bit;
     gint data;
-    proto_item *ti = NULL;
-    proto_item *tree = NULL;
+    proto_item *tree;
     /*proto_item *generic_item = NULL;*/
     gint duci;
     /*guint16 calculated_crc;*/
 
     bit = offset;
 
-    ti = proto_tree_add_text(uiuc_tree, tvb, NIBHI(offset, length), "UL_HARQ_IR_CC_Sub_Burst_IE");
-    tree = proto_item_add_subtree(ti, ett_302m);
+    tree = proto_tree_add_subtree(uiuc_tree, tvb, NIBHI(offset, length), ett_302m, NULL, "UL_HARQ_IR_CC_Sub_Burst_IE");
 
     bit += RCID_IE(tree, bufptr, bit, length, tvb, RCID_Type);
     XBIT(duci, 1, "Dedicated UL Control Indicator");
@@ -469,16 +459,14 @@ static gint MIMO_UL_Chase_HARQ_Sub_Burst_IE(proto_tree *uiuc_tree, const guint8 
     /* UL-MAP HARQ Sub-Burst IE * offset/length are in bits */
     gint bit;
     gint data;
-    proto_item *ti = NULL;
-    proto_item *tree = NULL;
+    proto_item *tree;
     /*proto_item *generic_item = NULL;*/
     gint muin,dmci,ackd,i;
     /*guint16 calculated_crc;*/
 
     bit = offset;
 
-    ti = proto_tree_add_text(uiuc_tree, tvb, NIBHI(offset, length), "MIMO_UL_Chase_HARQ_Sub_Burst_IE");
-    tree = proto_item_add_subtree(ti, ett_302n);
+    tree = proto_tree_add_subtree(uiuc_tree, tvb, NIBHI(offset, length), ett_302n, NULL, "MIMO_UL_Chase_HARQ_Sub_Burst_IE");
 
     XBIT(muin, 1, "MU indicator");
     XBIT(dmci, 1, "Dedicated MIMO ULControl Indicator");
@@ -529,16 +517,14 @@ static gint MIMO_UL_IR_HARQ__Sub_Burst_IE(proto_tree *uiuc_tree, const guint8 *b
     /* UL-MAP HARQ Sub-Burst IE * offset/length are in bits */
     gint bit;
     gint data;
-    proto_item *ti = NULL;
-    proto_item *tree = NULL;
+    proto_item *tree;
     /*proto_item *generic_item = NULL;*/
     gint muin,dmci,ackd,i;
     /*guint16 calculated_crc;*/
 
     bit = offset;
 
-    ti = proto_tree_add_text(uiuc_tree, tvb, NIBHI(offset, length), "MIMO_UL_IR_HARQ__Sub_Burst_IE");
-    tree = proto_item_add_subtree(ti, ett_302o);
+    tree = proto_tree_add_subtree(uiuc_tree, tvb, NIBHI(offset, length), ett_302o, NULL, "MIMO_UL_IR_HARQ__Sub_Burst_IE");
 
     XBIT(muin, 1, "MU indicator");
     XBIT(dmci, 1, "Dedicated MIMO UL Control Indicator");
@@ -589,16 +575,14 @@ static gint MIMO_UL_IR_HARQ_for_CC_Sub_Burst_UIE(proto_tree *uiuc_tree, const gu
     /* UL-MAP HARQ Sub-Burst IE * offset/length are in bits */
     gint bit;
     gint data;
-    proto_item *ti = NULL;
-    proto_item *tree = NULL;
+    proto_item *tree;
     /*proto_item *generic_item = NULL;*/
     gint muin,dmci,ackd,i;
     /*guint16 calculated_crc;*/
 
     bit = offset;
 
-    ti = proto_tree_add_text(uiuc_tree, tvb, NIBHI(offset, length), "MIMO_UL_IR_HARQ_for_CC_Sub_Burst_UIE");
-    tree = proto_item_add_subtree(ti, ett_302p);
+    tree = proto_tree_add_subtree(uiuc_tree, tvb, NIBHI(offset, length), ett_302p, NULL, "MIMO_UL_IR_HARQ_for_CC_Sub_Burst_UIE");
 
     XBIT(muin, 1, "MU indicator");
     XBIT(dmci, 1, "Dedicated MIMO UL Control Indicator");
@@ -650,16 +634,14 @@ static gint MIMO_UL_STC_HARQ_Sub_Burst_IE(proto_tree *uiuc_tree, const guint8 *b
     /* UL-MAP HARQ Sub-Burst IE * offset/length are in bits */
     gint bit;
     gint data;
-    proto_item *ti = NULL;
-    proto_item *tree = NULL;
+    proto_item *tree;
     /*proto_item *generic_item = NULL;*/
     gint ackd,txct,sboi;
     /*guint16 calculated_crc;*/
 
     bit = offset;
 
-    ti = proto_tree_add_text(uiuc_tree, tvb, NIBHI(offset, length), "MIMO_UL_STC_HARQ_Sub_Burst_IE");
-    tree = proto_item_add_subtree(ti, ett_302q);
+    tree = proto_tree_add_subtree(uiuc_tree, tvb, NIBHI(offset, length), ett_302q, NULL, "MIMO_UL_STC_HARQ_Sub_Burst_IE");
 
     XBIT(txct, 2, "Tx count");
     XBIT(data, 10, "Duration");
@@ -709,13 +691,11 @@ static gint Power_Control_IE(proto_tree *uiuc_tree, const guint8 *bufptr, gint o
     /* offset of TLV in nibbles, length of TLV in nibbles */
     gint nib;
     gint data;
-    proto_item *ti = NULL;
-    proto_item *tree = NULL;
+    proto_item *tree;
 
     nib = offset;
 
-    ti = proto_tree_add_text(uiuc_tree, tvb, NIBHI(offset, length), "Power_Control_IE");
-    tree = proto_item_add_subtree(ti, ett_292);
+    tree = proto_tree_add_subtree(uiuc_tree, tvb, NIBHI(offset, length), ett_292, NULL, "Power_Control_IE");
 
     XNIB(data, 1, "Extended UIUC");
     XNIB(data, 1, "Length");
@@ -732,15 +712,13 @@ static gint Mini_Subchannel_allocation_IE(proto_tree *uiuc_tree, const guint8 *b
     /* offset of TLV in nibbles, length of TLV in nibbles */
     gint bit;
     gint data;
-    proto_item *ti = NULL;
-    proto_item *tree = NULL;
+    proto_item *tree;
     gint j, M;
     const gint m_table[4] = { 2, 2, 3, 6 };
 
     bit = NIB_TO_BIT(offset);
 
-    ti = proto_tree_add_text(uiuc_tree, tvb, NIBHI(offset, length), "Mini_subchannel_allocation_IE");
-    tree = proto_item_add_subtree(ti, ett_295);
+    tree = proto_tree_add_subtree(uiuc_tree, tvb, NIBHI(offset, length), ett_295, NULL, "Mini_subchannel_allocation_IE");
 
     XBIT(data, 4, "Extended-2 UIUC");
     XBIT(data, 8, "Length");
@@ -773,13 +751,11 @@ static gint AAS_UL_IE(proto_tree *uiuc_tree, const guint8 *bufptr, gint offset, 
     /* offset of TLV in nibbles, length of TLV in nibbles */
     gint bit;
     gint data;
-    proto_item *ti = NULL;
-    proto_item *tree = NULL;
+    proto_item *tree;
 
     bit = NIB_TO_BIT(offset);
 
-    ti = proto_tree_add_text(uiuc_tree, tvb, NIBHI(offset, length), "AAS_UL_IE");
-    tree = proto_item_add_subtree(ti, ett_293);
+    tree = proto_tree_add_subtree(uiuc_tree, tvb, NIBHI(offset, length), ett_293, NULL, "AAS_UL_IE");
 
     XBIT(data, 4, "Extended UIUC");
     XBIT(data, 4, "Length");
@@ -802,14 +778,12 @@ static gint CQICH_Alloc_IE(proto_tree *uiuc_tree, const guint8 *bufptr, gint off
     gint bit;
     gint data;
     gint target;
-    proto_item *ti = NULL;
-    proto_item *tree = NULL;
+    proto_item *tree;
     gint rci, rtype, ftype, zperm, mgi, api, pad;
 
     bit = NIB_TO_BIT(offset);
 
-    ti = proto_tree_add_text(uiuc_tree, tvb, NIBHI(offset, length), "CQICH_Alloc_IE");
-    tree = proto_item_add_subtree(ti, ett_300);
+    tree = proto_tree_add_subtree(uiuc_tree, tvb, NIBHI(offset, length), ett_300, NULL, "CQICH_Alloc_IE");
 
     XBIT(data, 4, "Extended UIUC");
     XBIT(data, 4, "Length");
@@ -873,13 +847,11 @@ static gint UL_Zone_IE(proto_tree *uiuc_tree, const guint8 *bufptr, gint offset,
     /* offset of TLV in nibbles, length of TLV in nibbles */
     gint bit;
     gint data;
-    proto_item *ti = NULL;
-    proto_item *tree = NULL;
+    proto_item *tree;
 
     bit = NIB_TO_BIT(offset);
 
-    ti = proto_tree_add_text(uiuc_tree, tvb, NIBHI(offset, length), "UL_Zone_IE");
-    tree = proto_item_add_subtree(ti, ett_294);
+    tree = proto_tree_add_subtree(uiuc_tree, tvb, NIBHI(offset, length), ett_294, NULL, "UL_Zone_IE");
 
     XBIT(data, 4, "Extended UIUC");
     XBIT(data, 4, "Length");
@@ -901,14 +873,12 @@ static gint PHYMOD_UL_IE(proto_tree *uiuc_tree, const guint8 *bufptr, gint offse
     /* offset of TLV in nibbles, length of TLV in nibbles */
     gint bit;
     gint data;
-    proto_item *ti = NULL;
-    proto_item *tree = NULL;
+    proto_item *tree;
     gint pmt;
 
     bit = NIB_TO_BIT(offset);
 
-    ti = proto_tree_add_text(uiuc_tree, tvb, NIBHI(offset, length), "PHYMOD_UL_IE");
-    tree = proto_item_add_subtree(ti, ett_302);
+    tree = proto_tree_add_subtree(uiuc_tree, tvb, NIBHI(offset, length), ett_302, NULL, "PHYMOD_UL_IE");
 
     XBIT(data, 4, "Extended UIUC");
     XBIT(data, 4, "Length");
@@ -931,13 +901,11 @@ static gint MIMO_UL_IE(proto_tree *uiuc_tree, const guint8 *bufptr, gint offset,
     /* offset of TLV in nibbles, length of TLV in nibbles */
     gint nib;
     gint data;
-    proto_item *ti = NULL;
-    proto_item *tree = NULL;
+    proto_item *tree;
 
     nib = offset;
 
-    ti = proto_tree_add_text(uiuc_tree, tvb, NIBHI(offset, length), "MIMO_UL_Basic_IE");
-    tree = proto_item_add_subtree(ti, ett_299);
+    tree = proto_tree_add_subtree(uiuc_tree, tvb, NIBHI(offset, length), ett_299, NULL, "MIMO_UL_Basic_IE");
 
     XNIB(data, 1, "Extended UIUC");
     XNIB(data, 1, "Length");
@@ -952,13 +920,11 @@ static gint ULMAP_Fast_Tracking_IE(proto_tree *uiuc_tree, const guint8 *bufptr, 
     /* offset of TLV in nibbles, length of TLV in nibbles */
     gint bit;
     gint data;
-    proto_item *ti = NULL;
-    proto_item *tree = NULL;
+    proto_item *tree;
 
     bit = NIB_TO_BIT(offset);
 
-    ti = proto_tree_add_text(uiuc_tree, tvb, NIBHI(offset, length), "Fast_Tracking_IE");
-    tree = proto_item_add_subtree(ti, ett_302h);
+    tree = proto_tree_add_subtree(uiuc_tree, tvb, NIBHI(offset, length), ett_302h, NULL, "Fast_Tracking_IE");
 
     length = NIB_TO_BIT(length);
 
@@ -982,13 +948,11 @@ static gint UL_PUSC_Burst_Allocation_in_other_segment_IE(proto_tree *uiuc_tree, 
     /* offset of TLV in nibbles, length of TLV in nibbles */
     gint bit;
     gint data;
-    proto_item *ti = NULL;
-    proto_item *tree = NULL;
+    proto_item *tree;
 
     bit = NIB_TO_BIT(offset);
 
-    ti = proto_tree_add_text(uiuc_tree, tvb, NIBHI(offset, length), "UL_PUSC_Burst_Allocation_in_Other_Segment_IE");
-    tree = proto_item_add_subtree(ti, ett_302c);
+    tree = proto_tree_add_subtree(uiuc_tree, tvb, NIBHI(offset, length), ett_302c, NULL, "UL_PUSC_Burst_Allocation_in_Other_Segment_IE");
 
     XBIT(data, 4, "Extended UIUC");
     XBIT(data, 4, "Length");
@@ -1011,14 +975,12 @@ static gint Fast_Ranging_IE(proto_tree *uiuc_tree, const guint8 *bufptr, gint of
     /* offset of TLV in nibbles, length of TLV in nibbles */
     gint bit;
     gint data;
-    proto_item *ti = NULL;
-    proto_item *tree = NULL;
+    proto_item *tree;
     gint hidi;
 
     bit = NIB_TO_BIT(offset);
 
-    ti = proto_tree_add_text(uiuc_tree, tvb, NIBHI(offset, length), "Fast_Ranging_IE");
-    tree = proto_item_add_subtree(ti, ett_302g);
+    tree = proto_tree_add_subtree(uiuc_tree, tvb, NIBHI(offset, length), ett_302g, NULL, "Fast_Ranging_IE");
 
     XBIT(data, 4, "Extended UIUC");
     XBIT(data, 4, "Length");
@@ -1046,13 +1008,11 @@ static gint UL_Allocation_Start_IE(proto_tree *uiuc_tree, const guint8 *bufptr, 
     /* offset of TLV in nibbles, length of TLV in nibbles */
     gint bit;
     gint data;
-    proto_item *ti = NULL;
-    proto_item *tree = NULL;
+    proto_item *tree;
 
     bit = NIB_TO_BIT(offset);
 
-    ti = proto_tree_add_text(uiuc_tree, tvb, NIBHI(offset, length), "UL_Allocation_start_IE");
-    tree = proto_item_add_subtree(ti, ett_302a);
+    tree = proto_tree_add_subtree(uiuc_tree, tvb, NIBHI(offset, length), ett_302a, NULL, "UL_Allocation_start_IE");
 
     XBIT(data, 4, "Extended UIUC");
     XBIT(data, 4, "Length");
@@ -1076,15 +1036,13 @@ static gint CQICH_Enhanced_Allocation_IE(proto_tree *uiuc_tree, const guint8 *bu
     /* offset of TLV in nibbles, length of TLV in nibbles */
     gint bit;
     gint data;
-    proto_item *ti = NULL;
-    proto_item *tree = NULL;
+    proto_item *tree;
     gint i, cnum, bapm;
     guint pad;
 
     bit = NIB_TO_BIT(offset);
 
-    ti = proto_tree_add_text(uiuc_tree, tvb, NIBHI(offset, length), "CQICH_Enhanced_Alloc_IE");
-    tree = proto_item_add_subtree(ti, ett_302b);
+    tree = proto_tree_add_subtree(uiuc_tree, tvb, NIBHI(offset, length), ett_302b, NULL, "CQICH_Enhanced_Alloc_IE");
 
     XBIT(data, 4, "Extended-2 UIUC");
     XBIT(data, 8, "Length");
@@ -1129,13 +1087,11 @@ static gint HO_Anchor_Active_UL_MAP_IE(proto_tree *uiuc_tree, const guint8 *bufp
     /* offset of TLV in nibbles, length of TLV in nibbles */
     gint nib;
     gint data;
-    proto_item *ti = NULL;
-    proto_item *tree = NULL;
+    proto_item *tree;
 
     nib = offset;
 
-    ti = proto_tree_add_text(uiuc_tree, tvb, NIBHI(offset, length), "HO_Anchor_Active_UL_MAP_IE");
-    tree = proto_item_add_subtree(ti, ett_302d);
+    tree = proto_tree_add_subtree(uiuc_tree, tvb, NIBHI(offset, length), ett_302d, NULL, "HO_Anchor_Active_UL_MAP_IE");
 
     XNIB(data, 1, "Extended-2 UIUC");
     XNIB(data, 2, "Length");
@@ -1150,13 +1106,11 @@ static gint HO_Active_Anchor_UL_MAP_IE(proto_tree *uiuc_tree, const guint8 *bufp
     /* offset of TLV in nibbles, length of TLV in nibbles */
     gint nib;
     gint data;
-    proto_item *ti = NULL;
-    proto_item *tree = NULL;
+    proto_item *tree;
 
     nib = offset;
 
-    ti = proto_tree_add_text(uiuc_tree, tvb, NIBHI(offset, length), "HO_Active_Anchor_UL_MAP_IE");
-    tree = proto_item_add_subtree(ti, ett_302e);
+    tree = proto_tree_add_subtree(uiuc_tree, tvb, NIBHI(offset, length), ett_302e, NULL, "HO_Active_Anchor_UL_MAP_IE");
 
     XNIB(data, 1, "Extended-2 UIUC");
     XNIB(data, 2, "Length");
@@ -1171,15 +1125,13 @@ static gint Anchor_BS_switch_IE(proto_tree *uiuc_tree, const guint8 *bufptr, gin
     /* offset of TLV in nibbles, length of TLV in nibbles */
     gint bit;
     gint data;
-    proto_item *ti = NULL;
-    proto_item *tree = NULL;
+    proto_item *tree;
     gint nbss, acod, cqai, pad;
     gint i;
 
     bit = NIB_TO_BIT(offset);
 
-    ti = proto_tree_add_text(uiuc_tree, tvb, NIBHI(offset, length), "Anchor_BS_switch_IE");
-    tree = proto_item_add_subtree(ti, ett_302i);
+    tree = proto_tree_add_subtree(uiuc_tree, tvb, NIBHI(offset, length), ett_302i, NULL, "Anchor_BS_switch_IE");
 
     XBIT(data, 4, "Extended-2 UIUC");
     XBIT(data, 8, "Length");
@@ -1232,15 +1184,13 @@ static gint UL_sounding_command_IE(proto_tree *uiuc_tree, const guint8 *bufptr, 
     /* offset of TLV in nibbles, length of TLV in nibbles */
     gint bit;
     gint data;
-    proto_item *ti = NULL;
-    proto_item *tree = NULL;
+    proto_item *tree;
     gint stype, ssrf, srlf, iafb, pad, sept, nssym, ncid, amod;
     gint i, j;
 
     bit = NIB_TO_BIT(offset);
 
-    ti = proto_tree_add_text(uiuc_tree, tvb, NIBHI(offset, length), "UL_Sounding_Command_IE");
-    tree = proto_item_add_subtree(ti, ett_315d);
+    tree = proto_tree_add_subtree(uiuc_tree, tvb, NIBHI(offset, length), ett_315d, NULL, "UL_Sounding_Command_IE");
 
     XBIT(data, 4, "Extended-2 UIUC");
     XBIT(data, 8, "Length");
@@ -1338,13 +1288,11 @@ static gint MIMO_UL_Enhanced_IE(proto_tree *uiuc_tree, const guint8 *bufptr, gin
     /* offset of TLV in nibbles, length of TLV in nibbles */
     gint nib;
     gint data;
-    proto_item *ti = NULL;
-    proto_item *tree = NULL;
+    proto_item *tree;
 
     nib = offset;
 
-    ti = proto_tree_add_text(uiuc_tree, tvb, NIBHI(offset, length), "MIMO_UL_Enhanced_IE");
-    tree = proto_item_add_subtree(ti, ett_302f);
+    tree = proto_tree_add_subtree(uiuc_tree, tvb, NIBHI(offset, length), ett_302f, NULL, "MIMO_UL_Enhanced_IE");
 
     XNIB(data, 1, "Extended-2 UIUC");
     XNIB(data, 2, "Length");
@@ -1359,8 +1307,7 @@ static gint HARQ_ULMAP_IE(proto_tree *uiuc_tree, const guint8 *bufptr, gint offs
     /* offset of TLV in nibbles, length of TLV in nibbles */
     gint bit;
     gint data;
-    proto_item *ti = NULL;
-    proto_item *tree = NULL;
+    proto_item *tree;
     gint bitlength;
     gint lastbit;
     gint pad, mode, alsi, nsub;
@@ -1369,8 +1316,7 @@ static gint HARQ_ULMAP_IE(proto_tree *uiuc_tree, const guint8 *bufptr, gint offs
     bit = NIB_TO_BIT(offset);
     bitlength = NIB_TO_BIT(length);
 
-    ti = proto_tree_add_text(uiuc_tree, tvb, NIBHI(offset, length), "HARQ_ULMAP_IE");
-    tree = proto_item_add_subtree(ti, ett_302j);
+    tree = proto_tree_add_subtree(uiuc_tree, tvb, NIBHI(offset, length), ett_302j, NULL, "HARQ_ULMAP_IE");
 
     XBIT(data, 4, "Extended-2 UIUC");
     XBIT(data, 8, "Length");
@@ -1422,13 +1368,11 @@ static gint HARQ_ACKCH_Region_Allocation_IE(proto_tree *uiuc_tree, const guint8 
     /* offset of TLV in nibbles, length of TLV in nibbles */
     gint bit;
     gint data;
-    proto_item *ti = NULL;
-    proto_item *tree = NULL;
+    proto_item *tree;
 
     bit = NIB_TO_BIT(offset);
 
-    ti = proto_tree_add_text(uiuc_tree, tvb, NIBHI(offset, length), "HARQ_ACKCH_Region_IE");
-    tree = proto_item_add_subtree(ti, ett_302t);
+    tree = proto_tree_add_subtree(uiuc_tree, tvb, NIBHI(offset, length), ett_302t, NULL, "HARQ_ACKCH_Region_IE");
 
     XBIT(data, 4, "Extended-2 UIUC");
     XBIT(data, 8, "Length");
@@ -1447,16 +1391,14 @@ static gint AAS_SDMA_UL_IE(proto_tree *uiuc_tree, const guint8 *bufptr, gint off
     /* offset of TLV in nibbles, length of TLV in nibbles */
     gint bit;
     gint data;
-    proto_item *ti = NULL;
-    proto_item *tree = NULL;
+    proto_item *tree;
     gint nreg, pad, user, encm, ppmd, padj;
     gint aasp = 0; /* TODO AAS UL preamble used */
     gint ii, jj;
 
     bit = NIB_TO_BIT(offset);
 
-    ti = proto_tree_add_text(uiuc_tree, tvb, NIBHI(offset, length), "AAS_SDMA_UL_IE");
-    tree = proto_item_add_subtree(ti, ett_302u);
+    tree = proto_tree_add_subtree(uiuc_tree, tvb, NIBHI(offset, length), ett_302u, NULL, "AAS_SDMA_UL_IE");
 
     XBIT(data, 4, "Extended-2 UIUC");
     XBIT(data, 8, "Length");
@@ -1531,15 +1473,13 @@ static gint Feedback_Polling_IE(proto_tree *uiuc_tree, const guint8 *bufptr, gin
     /* offset of TLV in nibbles, length of TLV in nibbles */
     gint bit;
     gint data;
-    proto_item *ti = NULL;
-    proto_item *tree = NULL;
+    proto_item *tree;
     gint nalloc, dula, pad, adur;
     gint i;
 
     bit = NIB_TO_BIT(offset);
 
-    ti = proto_tree_add_text(uiuc_tree, tvb, NIBHI(offset, length), "Feedback_Polling_IE");
-    tree = proto_item_add_subtree(ti, ett_302v);
+    tree = proto_tree_add_subtree(uiuc_tree, tvb, NIBHI(offset, length), ett_302v, NULL, "Feedback_Polling_IE");
 
     XBIT(data, 4, "Extended-2 UIUC");
     XBIT(data, 8, "Length");
@@ -1582,8 +1522,8 @@ gint dissect_ulmap_ie( proto_tree *ie_tree, const guint8 *bufptr, gint offset, g
      * length of the IE in nibbles
      * offset = start of IE (nibbles)
      * length = total length of bufptr (nibbles) */
-    proto_item *ti = NULL;
-    proto_tree *tree = NULL;
+    proto_item *ti;
+    proto_tree *tree;
     gint nibble;
     gint uiuc, ext_uiuc, ext2_uiuc, len, aas_or_amc;
     guint cid;
@@ -1599,8 +1539,7 @@ gint dissect_ulmap_ie( proto_tree *ie_tree, const guint8 *bufptr, gint offset, g
     if (uiuc == 0)
     {
         /* 8.4.5.4.9 FAST-FEEDBACK channel */
-        ti = proto_tree_add_text(ie_tree, tvb, NIBHI(nibble, 5+8), "FAST FEEDBACK Allocation IE");
-        tree = proto_item_add_subtree(ti, ett_ulmap_ffb);
+        tree = proto_tree_add_subtree(ie_tree, tvb, NIBHI(nibble, 5+8), ett_ulmap_ffb, NULL, "FAST FEEDBACK Allocation IE");
 
         proto_tree_add_uint(tree, hf_ulmap_ie_cid, tvb, NIBHI(nibble, 4), cid);
         nibble += 4;
@@ -1621,8 +1560,7 @@ gint dissect_ulmap_ie( proto_tree *ie_tree, const guint8 *bufptr, gint offset, g
         ext2_uiuc = NIB_NIBBLE(5+nibble, bufptr);
         len = NIB_BYTE(5+nibble+1, bufptr);
 
-        ti = proto_tree_add_text(ie_tree, tvb, NIBHI(nibble, 5+3+len*2), "UIUC: %d (Extended-2 IE)", uiuc);
-        tree = proto_item_add_subtree(ti, ett_290b);
+        tree = proto_tree_add_subtree_format(ie_tree, tvb, NIBHI(nibble, 5+3+len*2), ett_290b, NULL, "UIUC: %d (Extended-2 IE)", uiuc);
 
         proto_tree_add_uint(tree, hf_ulmap_ie_cid, tvb, NIBHI(nibble, 4), cid);
         nibble += 4;
@@ -1691,8 +1629,7 @@ gint dissect_ulmap_ie( proto_tree *ie_tree, const guint8 *bufptr, gint offset, g
     else if (uiuc == 12)
     {
         /* 8.4.5.4 [2] CDMA bandwidth request, CDMA ranging */
-        ti = proto_tree_add_text(ie_tree, tvb, NIBHI(nibble, 5+8), "CDMA Bandwidth/Ranging Request IE");
-        tree = proto_item_add_subtree(ti, ett_287_1);
+        tree = proto_tree_add_subtree(ie_tree, tvb, NIBHI(nibble, 5+8), ett_287_1, NULL, "CDMA Bandwidth/Ranging Request IE");
 
         proto_tree_add_uint(tree, hf_ulmap_ie_cid, tvb, NIBHI(nibble, 4), cid);
         nibble += 4;
@@ -1711,8 +1648,7 @@ gint dissect_ulmap_ie( proto_tree *ie_tree, const guint8 *bufptr, gint offset, g
     else if (uiuc == 13)
     {
         /* 8.4.5.4.2 [2] PAPR reduction allocation, safety zone - table 289 */
-        ti = proto_tree_add_text(ie_tree, tvb, NIBHI(nibble,5+8), "PAPR/Safety/Sounding Zone IE");
-        tree = proto_item_add_subtree(ti, ett_289);
+        tree = proto_tree_add_subtree(ie_tree, tvb, NIBHI(nibble,5+8), ett_289, NULL, "PAPR/Safety/Sounding Zone IE");
 
 
         proto_tree_add_uint(tree, hf_ulmap_ie_cid, tvb, NIBHI(nibble, 4), cid);
@@ -1733,8 +1669,7 @@ gint dissect_ulmap_ie( proto_tree *ie_tree, const guint8 *bufptr, gint offset, g
     else if (uiuc == 14)
     {
         /* 8.4.5.4.3 [2] CDMA allocation IE */
-        ti = proto_tree_add_text(ie_tree, tvb, NIBHI(nibble,5+10), "CDMA allocation IE");
-        tree = proto_item_add_subtree(ti, ett_290);
+        tree = proto_tree_add_subtree(ie_tree, tvb, NIBHI(nibble,5+10), ett_290, &ti, "CDMA allocation IE");
 
         proto_tree_add_uint(tree, hf_ulmap_ie_cid, tvb, NIBHI(nibble, 4), cid);
         nibble += 4;
@@ -1770,8 +1705,7 @@ gint dissect_ulmap_ie( proto_tree *ie_tree, const guint8 *bufptr, gint offset, g
         ext_uiuc = NIB_NIBBLE(5+nibble, bufptr);
         len = NIB_NIBBLE(5+nibble+1, bufptr);
 
-        ti = proto_tree_add_text(ie_tree, tvb, NIBHI(nibble, 5+2+len*2), "UIUC: %d (Extended IE)", uiuc);
-        tree = proto_item_add_subtree(ti, ett_291);
+        tree = proto_tree_add_subtree_format(ie_tree, tvb, NIBHI(nibble, 5+2+len*2), ett_291, NULL, "UIUC: %d (Extended IE)", uiuc);
 
         proto_tree_add_uint(tree, hf_ulmap_ie_cid, tvb, NIBHI(nibble,4), cid);
         nibble += 4;
@@ -1847,8 +1781,7 @@ gint dissect_ulmap_ie( proto_tree *ie_tree, const guint8 *bufptr, gint offset, g
 
         if (aas_or_amc) len += 3;
 
-        ti = proto_tree_add_text(ie_tree, tvb, NIBHI(nibble, 5+len), "Data Grant Burst Profile");
-        tree = proto_item_add_subtree(ti, ett_287_2);
+        tree = proto_tree_add_subtree(ie_tree, tvb, NIBHI(nibble, 5+len), ett_287_2, NULL, "Data Grant Burst Profile");
 
         proto_tree_add_uint(tree, hf_ulmap_ie_cid, tvb, NIBHI(nibble, 4), cid);
         nibble += 4;
@@ -1902,8 +1835,7 @@ static void dissect_mac_mgmt_msg_ulmap_decoder(tvbuff_t *tvb, packet_info *pinfo
 
     /* UL-MAP IEs */
     length = tvb_len - offset; /* remaining length in bytes */
-    ti = proto_tree_add_text(ulmap_tree, tvb, offset, length, "UL-MAP IEs (%u bytes)", length);
-    ie_tree = proto_item_add_subtree(ti, ett_ulmap_ie);
+    ie_tree = proto_tree_add_subtree_format(ulmap_tree, tvb, offset, length, ett_ulmap_ie, NULL, "UL-MAP IEs (%u bytes)", length);
 
     /* length = BYTE_TO_NIB(length); */ /* convert length to nibbles */
     nib = BYTE_TO_NIB(offset);
@@ -1945,8 +1877,7 @@ gint wimax_decode_ulmapc(proto_tree *base_tree, const guint8 *bufptr, gint offse
     proto_tree_add_uint(tree, hf_ulmap_ofdma_sym, tvb, NIBHI(nib,2), data); /* added 2005 */
     nib += 2;
 
-    ti = proto_tree_add_text(tree, tvb, NIBHI(nib,length-nib), "UL-MAP IEs (%u bytes)", NIB_ADDR(length-nib));
-    ie_tree = proto_item_add_subtree(ti, ett_306_ul);
+    ie_tree = proto_tree_add_subtree_format(tree, tvb, NIBHI(nib,length-nib), ett_306_ul, NULL, "UL-MAP IEs (%u bytes)", NIB_ADDR(length-nib));
     while (nib < length-1) {
         nib += dissect_ulmap_ie(ie_tree, bufptr, nib, length-nib, tvb);
     }
@@ -1970,14 +1901,12 @@ gint wimax_decode_ulmap_reduced_aas(proto_tree *base_tree, const guint8 *bufptr,
      * return length in bits */
     gint bit;
     guint data;
-    proto_item *ti = NULL;
-    proto_tree *tree = NULL;
+    proto_tree *tree;
     gint azci, azpi, umii, phmi, powi, fbck;
 
     bit = offset;
 
-    ti = proto_tree_add_text(base_tree, tvb, BITHI(bit,length), "Reduced_AAS_Private_UL_MAP");
-    tree = proto_item_add_subtree(ti, ett_308b);
+    tree = proto_tree_add_subtree(base_tree, tvb, BITHI(bit,length), ett_308b, NULL, "Reduced_AAS_Private_UL_MAP");
 
     /* Decode and display the Reduced AAS private UL-MAP */
     XBIT(azci, 1, "AAS zone configuration included");

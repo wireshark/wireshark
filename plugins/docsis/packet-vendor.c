@@ -148,7 +148,6 @@ dissect_cisco (tvbuff_t * tvb, proto_tree * tree, gint vsif_len)
   /* Start at pos = 5, since tvb includes the Vendor ID field */
   int pos = 5;
   guint8 type, length;
-  proto_item *ipprec_it;
   proto_tree *ipprec_tree;
   int templen;
 
@@ -164,10 +163,8 @@ dissect_cisco (tvbuff_t * tvb, proto_tree * tree, gint vsif_len)
                                pos, length, ENC_BIG_ENDIAN);
           break;
         case IP_PREC:
-          ipprec_it =
-            proto_tree_add_text (tree, tvb, pos, length, "IP Precedence");
           ipprec_tree =
-            proto_item_add_subtree (ipprec_it, ett_docsis_vsif_ipprec);
+            proto_tree_add_subtree(tree, tvb, pos, length, ett_docsis_vsif_ipprec, NULL, "IP Precedence");
           /* Handle Sub-TLVs in IP Precedence */
           templen = pos + length;
           while (pos < templen)

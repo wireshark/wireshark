@@ -589,8 +589,7 @@ void parseLocalizedText(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const ch
     proto_item *ti;
     proto_item *ti_inner;
 
-    ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "%s: LocalizedText", szFieldName);
-    subtree = proto_item_add_subtree(ti, ett_opcua_localizedtext);
+    subtree = proto_tree_add_subtree_format(tree, tvb, *pOffset, -1, ett_opcua_localizedtext, &ti, "%s: LocalizedText", szFieldName);
 
     /* parse encoding mask */
     EncodingMask = tvb_get_guint8(tvb, iOffset);
@@ -693,8 +692,7 @@ void parseDiagnosticInfo(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const c
     proto_item *ti;
     proto_item *ti_inner;
 
-    ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "%s: DiagnosticInfo", szFieldName);
-    subtree = proto_item_add_subtree(ti, ett_opcua_diagnosticinfo);
+    subtree = proto_tree_add_subtree_format(tree, tvb, *pOffset, -1, ett_opcua_diagnosticinfo, &ti, "%s: DiagnosticInfo", szFieldName);
 
     /* parse encoding mask */
     EncodingMask = tvb_get_guint8(tvb, iOffset);
@@ -739,8 +737,9 @@ void parseDiagnosticInfo(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const c
 
 void parseQualifiedName(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
-    proto_item *ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "%s: QualifiedName", szFieldName);
-    proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_qualifiedname);
+    proto_item *ti;
+    proto_tree *subtree = proto_tree_add_subtree_format(tree, tvb, *pOffset, -1,
+                    ett_opcua_qualifiedname, &ti, "%s: QualifiedName", szFieldName);
 
     parseUInt16(subtree, tvb, pOffset, hf_opcua_qualifiedname_id);
     parseString(subtree, tvb, pOffset, hf_opcua_qualifiedname_name);
@@ -750,8 +749,9 @@ void parseQualifiedName(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const ch
 
 void parseDataValue(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
-    proto_item *ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "%s: DataValue", szFieldName);
-    proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_datavalue);
+    proto_item *ti;
+    proto_tree *subtree = proto_tree_add_subtree_format(tree, tvb, *pOffset, -1,
+                        ett_opcua_datavalue, &ti, "%s: DataValue", szFieldName);
     proto_tree *mask_tree;
     gint    iOffset = *pOffset;
     guint8  EncodingMask;
@@ -799,8 +799,9 @@ void parseDataValue(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *
 
 void parseVariant(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
-    proto_item *ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "%s: Variant", szFieldName);
-    proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_variant);
+    proto_item *ti;
+    proto_tree *subtree = proto_tree_add_subtree_format(tree, tvb, *pOffset, -1,
+                            ett_opcua_variant, &ti, "%s: Variant", szFieldName);
     gint    iOffset = *pOffset;
     guint8  EncodingMask;
     gint32  ArrayDimensions = 0;
@@ -844,8 +845,9 @@ void parseVariant(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *sz
 
         if (EncodingMask & VARIANT_ARRAYDIMENSIONS)
         {
-            proto_item *ti_2 = proto_tree_add_text(subtree, tvb, iOffset, -1, "ArrayDimensions");
-            proto_tree *subtree_2 = proto_item_add_subtree(ti_2, ett_opcua_variant_arraydims);
+            proto_item *ti_2;
+            proto_tree *subtree_2 = proto_tree_add_subtree(subtree, tvb, iOffset, -1,
+                                ett_opcua_variant_arraydims, &ti_2, "ArrayDimensions");
             int i;
 
             /* read array length */
@@ -912,8 +914,8 @@ void parseVariant(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *sz
  */
 void parseArraySimple(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName, const char *szTypeName, int hfIndex, fctSimpleTypeParser pParserFunction, const gint idx)
 {
-    proto_item *ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "%s: Array of %s", szFieldName, szTypeName);
-    proto_tree *subtree = proto_item_add_subtree(ti, idx);
+    proto_item *ti;
+    proto_tree *subtree = proto_tree_add_subtree_format(tree, tvb, *pOffset, -1, idx, &ti, "%s: Array of %s", szFieldName, szTypeName);
     int i;
     gint32 iLen;
 
@@ -947,8 +949,8 @@ void parseArraySimple(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char
  */
 void parseArrayEnum(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName, const char *szTypeName, fctEnumParser pParserFunction, const gint idx)
 {
-    proto_item *ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "%s: Array of %s", szFieldName, szTypeName);
-    proto_tree *subtree = proto_item_add_subtree(ti, idx);
+    proto_item *ti;
+    proto_tree *subtree = proto_tree_add_subtree_format(tree, tvb, *pOffset, -1, idx, &ti, "%s: Array of %s", szFieldName, szTypeName);
     int i;
     gint32 iLen;
 
@@ -978,8 +980,8 @@ void parseArrayEnum(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *
  */
 void parseArrayComplex(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName, const char *szTypeName, fctComplexTypeParser pParserFunction, const gint idx)
 {
-    proto_item *ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "%s: Array of %s", szFieldName, szTypeName);
-    proto_tree *subtree = proto_item_add_subtree(ti, idx);
+    proto_item *ti;
+    proto_tree *subtree = proto_tree_add_subtree_format(tree, tvb, *pOffset, -1, idx, &ti, "%s: Array of %s", szFieldName, szTypeName);
     int i;
     gint32 iLen;
 
@@ -1007,8 +1009,8 @@ void parseArrayComplex(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const cha
 
 void parseNodeId(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
-    proto_item *ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "%s: NodeId", szFieldName);
-    proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_nodeid);
+    proto_item *ti;
+    proto_tree *subtree = proto_tree_add_subtree_format(tree, tvb, *pOffset, -1, ett_opcua_nodeid, &ti, "%s: NodeId", szFieldName);
     gint    iOffset = *pOffset;
     guint8  EncodingMask;
 
@@ -1066,8 +1068,7 @@ void parseExtensionObject(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const 
     proto_item *ti_inner;
 
     /* add extension object subtree */
-    ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "%s: ExtensionObject", szFieldName);
-    extobj_tree = proto_item_add_subtree(ti, ett_opcua_extensionobject);
+    extobj_tree = proto_tree_add_subtree_format(tree, tvb, *pOffset, -1, ett_opcua_extensionobject, &ti, "%s: ExtensionObject", szFieldName);
 
     /* add nodeid subtree */
     TypeId = getExtensionObjectType(tvb, &iOffset);
@@ -1092,8 +1093,9 @@ void parseExtensionObject(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const 
 
 void parseExpandedNodeId(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
-    proto_item *ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "%s: ExpandedNodeId", szFieldName);
-    proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_expandednodeid);
+    proto_item *ti;
+    proto_tree *subtree = proto_tree_add_subtree_format(tree, tvb, *pOffset, -1,
+                ett_opcua_expandednodeid, &ti, "%s: ExpandedNodeId", szFieldName);
     gint    iOffset = *pOffset;
     guint8  EncodingMask;
 

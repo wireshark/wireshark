@@ -186,7 +186,6 @@ static int
 dissect_unistim(tvbuff_t *tvb,packet_info *pinfo,proto_tree *tree,void *data _U_){
    gint offset=0;
    proto_item *ti= NULL;
-   proto_item *ti1= NULL;
    proto_tree *overall_unistim_tree = NULL;
    proto_tree *rudpm_tree=NULL;
    gint size;
@@ -219,8 +218,7 @@ dissect_unistim(tvbuff_t *tvb,packet_info *pinfo,proto_tree *tree,void *data _U_
    col_clear(pinfo->cinfo, COL_INFO);
    ti = proto_tree_add_item(tree,proto_unistim,tvb,offset,-1,ENC_NA);
    overall_unistim_tree = proto_item_add_subtree(ti,ett_unistim);
-   ti1=proto_tree_add_text(overall_unistim_tree,tvb,offset,5,"Reliable UDP");
-   rudpm_tree=proto_item_add_subtree(ti1,ett_unistim);
+   rudpm_tree=proto_tree_add_subtree(overall_unistim_tree,tvb,offset,5,ett_unistim,NULL,"Reliable UDP");
 
    proto_tree_add_item(rudpm_tree,hf_unistim_seq_nu,tvb,offset,4,ENC_BIG_ENDIAN);
 
@@ -334,12 +332,9 @@ dissect_uftp_message(proto_tree *unistim_tree,packet_info *pinfo _U_,tvbuff_t *t
    guint command;
    guint str_len;
    guint dat_len;
-   proto_item *ti;
    proto_tree *msg_tree;
 
-   ti = proto_tree_add_text(unistim_tree,tvb,offset,-1,"UFTP CMD");
-
-   msg_tree = proto_item_add_subtree(ti,ett_unistim);
+   msg_tree = proto_tree_add_subtree(unistim_tree,tvb,offset,-1,ett_unistim,NULL,"UFTP CMD");
 
    command=tvb_get_guint8(tvb,offset);
 
@@ -404,9 +399,7 @@ dissect_unistim_message(proto_tree *unistim_tree,packet_info *pinfo,tvbuff_t *tv
    proto_item *ti;
    proto_tree *msg_tree;
 
-   ti = proto_tree_add_text(unistim_tree,tvb,offset,-1,"Unistim CMD");
-
-   msg_tree = proto_item_add_subtree(ti,ett_unistim);
+   msg_tree = proto_tree_add_subtree(unistim_tree,tvb,offset,-1,ett_unistim,&ti,"Unistim CMD");
 
    addr=tvb_get_guint8(tvb,offset);
 
@@ -688,8 +681,6 @@ dissect_broadcast_switch(proto_tree *msg_tree,
                          tvbuff_t *tvb,gint offset, guint msg_len){
    guint bcast_cmd;
    guint year,month,day,hour,minute,second;
-   proto_item *date_label;
-   proto_item *time_label;
    proto_tree *date_tree;
    proto_tree *time_tree;
    bcast_cmd=tvb_get_guint8(tvb,offset);
@@ -717,9 +708,8 @@ dissect_broadcast_switch(proto_tree *msg_tree,
          hour=tvb_get_guint8(tvb,offset+3);
          minute=tvb_get_guint8(tvb,offset+4);
          second=tvb_get_guint8(tvb,offset+5);
-         date_label=proto_tree_add_text(msg_tree,tvb,offset,3,
+         date_tree=proto_tree_add_subtree_format(msg_tree,tvb,offset,3,ett_unistim,NULL,
                                         "Date %i/%i/%i",month,day,year%100);
-         date_tree=proto_item_add_subtree(date_label,ett_unistim);
          proto_tree_add_item(date_tree,hf_broadcast_year,tvb,offset,1,ENC_BIG_ENDIAN);
          offset+=1;
          proto_tree_add_item(date_tree,hf_broadcast_month,tvb,offset,1,ENC_BIG_ENDIAN);
@@ -727,9 +717,8 @@ dissect_broadcast_switch(proto_tree *msg_tree,
          proto_tree_add_item(date_tree,hf_broadcast_day,tvb,offset,1,ENC_BIG_ENDIAN);
          offset+=1;
 
-         time_label=proto_tree_add_text(msg_tree,tvb,offset,3,
+         time_tree=proto_tree_add_subtree_format(msg_tree,tvb,offset,3,ett_unistim,NULL,
                                         "Time %i:%i:%i",hour,minute,second);
-         time_tree=proto_item_add_subtree(time_label,ett_unistim);
          proto_tree_add_item(time_tree,hf_broadcast_hour,tvb,offset,1,ENC_BIG_ENDIAN);
          offset+=1;
          proto_tree_add_item(time_tree,hf_broadcast_minute,tvb,offset,1,ENC_BIG_ENDIAN);
@@ -780,7 +769,6 @@ dissect_display_switch(proto_tree *msg_tree,
    guint address_byte;
    guint movement_byte;
    proto_tree *address_tree;
-   proto_item *tmp_ti;
    display_cmd=tvb_get_guint8(tvb,offset);
    proto_tree_add_item(msg_tree,hf_display_switch_cmd,tvb,offset,1,ENC_BIG_ENDIAN);
    offset+=1;msg_len-=1;
@@ -1025,9 +1013,7 @@ dissect_display_switch(proto_tree *msg_tree,
          break;
       case 0x19:
    /*address|yes control|no tag|no*/
-         tmp_ti=proto_tree_add_text(msg_tree,tvb,offset,0,"Address");
-
-         address_tree=proto_item_add_subtree(tmp_ti,ett_unistim);
+         address_tree=proto_tree_add_subtree(msg_tree,tvb,offset,0,ett_unistim,NULL,"Address");
          address_byte=tvb_get_guint8(tvb,offset);
          proto_tree_add_item(address_tree,hf_basic_bit_field,
                              tvb,offset,1,ENC_BIG_ENDIAN);
@@ -1099,8 +1085,7 @@ dissect_display_switch(proto_tree *msg_tree,
          break;
       case 0x1b:
    /*address|yes control|yes tag|no*/
-         tmp_ti=proto_tree_add_text(msg_tree,tvb,offset,0,"Address Data");
-         address_tree=proto_item_add_subtree(tmp_ti,ett_unistim);
+         address_tree=proto_tree_add_subtree(msg_tree,tvb,offset,0,ett_unistim,NULL,"Address Data");
          address_byte=tvb_get_guint8(tvb,offset);
          proto_tree_add_item(address_tree,hf_basic_bit_field,tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(address_tree,
@@ -1166,8 +1151,7 @@ dissect_display_switch(proto_tree *msg_tree,
          break;
       case 0x1d:
    /*address|yes control|no tag|yes*/
-         tmp_ti=proto_tree_add_text(msg_tree,tvb,offset,0,"Address Data");
-         address_tree=proto_item_add_subtree(tmp_ti,ett_unistim);
+         address_tree=proto_tree_add_subtree(msg_tree,tvb,offset,0,ett_unistim,NULL,"Address Data");
          address_byte=tvb_get_guint8(tvb,offset);
          proto_tree_add_item(address_tree,hf_basic_bit_field,tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(address_tree,hf_display_write_address_numeric,tvb,
@@ -1230,8 +1214,7 @@ dissect_display_switch(proto_tree *msg_tree,
          break;
       case 0x1f:
    /*address|yes control|yes tag|yes*/
-         tmp_ti=proto_tree_add_text(msg_tree,tvb,offset,0,"Address");
-         address_tree=proto_item_add_subtree(tmp_ti,ett_unistim);
+         address_tree=proto_tree_add_subtree(msg_tree,tvb,offset,0,ett_unistim,NULL,"Address");
          address_byte=tvb_get_guint8(tvb,offset);
          proto_tree_add_item(address_tree,hf_basic_bit_field,tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(address_tree,hf_display_write_address_numeric,
@@ -1949,7 +1932,6 @@ dissect_network_phone(proto_tree *msg_tree,
                       tvbuff_t *tvb,gint offset, guint msg_len){
    guint network_cmd;
    proto_tree *server_tree;
-   proto_item *server;
    guint i;
    network_cmd=tvb_get_guint8(tvb,offset);
    proto_tree_add_item(msg_tree,hf_network_phone_cmd,tvb,offset,1,ENC_BIG_ENDIAN);
@@ -2017,9 +1999,8 @@ dissect_network_phone(proto_tree *msg_tree,
             if(port_num<1064)
                break;
 */
-            server=proto_tree_add_text(msg_tree,tvb,offset,9,
-                                       "Server (S%d) Server ID: %X",i,i-1);
-            server_tree=proto_item_add_subtree(server,ett_unistim);
+            server_tree=proto_tree_add_subtree_format(msg_tree,tvb,offset,9,
+                                       ett_unistim,NULL,"Server (S%d) Server ID: %X",i,i-1);
             proto_tree_add_item(server_tree,
                                 hf_net_phone_server_port,
                                 tvb,offset,2,ENC_BIG_ENDIAN);
@@ -2061,7 +2042,6 @@ static gint
 dissect_audio_switch(proto_tree *msg_tree,packet_info *pinfo,
                                     tvbuff_t *tvb,gint offset,guint msg_len){
    proto_tree *param_tree;
-   proto_item *param;
    guint audio_cmd;
    guint apb_op_code;
    guint apb_data_len;
@@ -2398,8 +2378,7 @@ dissect_audio_switch(proto_tree *msg_tree,packet_info *pinfo,
          proto_tree_add_item(msg_tree,hf_audio_vocoder_id,tvb,offset,1,ENC_BIG_ENDIAN),
          offset+=1;msg_len-=1;
          while(msg_len>0){
-            param=proto_tree_add_text(msg_tree,tvb,offset,0,"Param");
-            param_tree=proto_item_add_subtree(param,ett_unistim);
+            param_tree=proto_tree_add_subtree(msg_tree,tvb,offset,0,ett_unistim,NULL,"Param");
             vocoder_param=tvb_get_guint8(tvb,offset);
             proto_tree_add_item(param_tree,hf_basic_bit_field,
                                 tvb,offset,1,ENC_BIG_ENDIAN);

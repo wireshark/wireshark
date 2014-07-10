@@ -199,11 +199,10 @@ static void
 	while (pos < len)
 	  {
 	  type = tvb_get_guint8 (tvb, pos);
-	  tlv_item = proto_tree_add_text (ucd_tree, tvb, pos, -1,
-					  "%s",
+	  tlv_tree = proto_tree_add_subtree(ucd_tree, tvb, pos, -1,
+					  ett_tlv, &tlv_item,
 					  val_to_str(type, channel_tlv_vals,
 						     "Unknown TLV (%u)"));
-	  tlv_tree = proto_item_add_subtree (tlv_item, ett_tlv);
 	  proto_tree_add_uint (tlv_tree, hf_docsis_ucd_type,
 			       tvb, pos, 1, type);
 	  pos++;

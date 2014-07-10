@@ -632,13 +632,12 @@ cba_frame_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, cba_fram
         proto_item *sub_item;
         proto_tree *sub_tree;
 
-        sub_item = proto_tree_add_text(tree, tvb, 0, 0,
+        sub_tree = proto_tree_add_subtree_format(tree, tvb, 0, 0, ett_cba_frame_info, &sub_item,
             "Cons:\"%s\" CCRID:0x%x Prov:\"%s\" PCRID:0x%x QoS:%s/%ums Len:%u",
             frame->consparent ? frame->consparent->name : "", frame->conscrid,
             frame->provparent ? frame->provparent->name : "", frame->provcrid,
             val_to_str(frame->qostype, cba_qos_type_short_vals, "%u"),
             frame->qosvalue, frame->length);
-        sub_tree = proto_item_add_subtree(sub_item, ett_cba_frame_info);
         PROTO_ITEM_SET_GENERATED(sub_item);
 
         item = proto_tree_add_uint(sub_tree, hf_cba_acco_conn_qos_type,       tvb, 0, 0, frame->qostype);
@@ -855,14 +854,15 @@ cba_connection_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, cba
         proto_tree *sub_tree;
 
         if (conn->qostype != 0x30) {
-            sub_item = proto_tree_add_text(tree, tvb, 0, 0, "ProvItem:\"%s\" PID:0x%x CID:0x%x QoS:%s/%ums",
+            sub_tree = proto_tree_add_subtree_format(tree, tvb, 0, 0, ett_cba_conn_info, &sub_item,
+                "ProvItem:\"%s\" PID:0x%x CID:0x%x QoS:%s/%ums",
                 conn->provitem, conn->provid, conn->consid,
                 val_to_str(conn->qostype, cba_qos_type_short_vals, "%u"), conn->qosvalue);
         } else {
-            sub_item = proto_tree_add_text(tree, tvb, 0, 0, "ProvItem:\"%s\" PID:0x%x CID:0x%x Len:%u",
+            sub_tree = proto_tree_add_subtree_format(tree, tvb, 0, 0, ett_cba_conn_info, &sub_item,
+                "ProvItem:\"%s\" PID:0x%x CID:0x%x Len:%u",
                 conn->provitem, conn->provid, conn->consid, conn->length);
         }
-        sub_tree = proto_item_add_subtree(sub_item, ett_cba_conn_info);
         PROTO_ITEM_SET_GENERATED(sub_item);
 
         item = proto_tree_add_string(sub_tree, hf_cba_acco_conn_provider_item,    tvb, 0, 0 /* len */, conn->provitem);

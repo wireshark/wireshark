@@ -314,10 +314,8 @@ dissect_mdd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	guint8 subtype, sublength;
 	int i;
 
-	proto_item *tlv_item;
 	proto_tree *tlv_tree;
 
-	proto_item *tlv_sub_item;
 	proto_tree *tlv_sub_tree;
 	proto_item *text_item;
 
@@ -342,8 +340,7 @@ dissect_mdd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	  	{
 			type = tvb_get_guint8 (tvb, pos);
 			length = tvb_get_guint8 (tvb, pos + 1);
-			tlv_item = proto_tree_add_text (mdd_tree, tvb, pos, length + 2,"%s", val_to_str(type, mdd_tlv_vals, "Unknown TLV (%u)"));
-			tlv_tree = proto_item_add_subtree (tlv_item, ett_tlv);
+			tlv_tree = proto_tree_add_subtree(mdd_tree, tvb, pos, length + 2, ett_tlv, NULL, val_to_str(type, mdd_tlv_vals, "Unknown TLV (%u)"));
 
 			switch(type) {
 
@@ -360,8 +357,7 @@ dissect_mdd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 								proto_tree_add_item (tlv_tree, hf_docsis_mdd_downstream_active_channel_list_frequency, tvb, subpos + 2 , 4, ENC_BIG_ENDIAN);
 								break;
 							case DOWNSTREAM_ACTIVE_CHANNEL_LIST_MODULATION_ORDER_ANNEX:
-								tlv_sub_item = proto_tree_add_text (tlv_tree, tvb, subpos + 2, 1, "Modulation Order/Annex");
-								tlv_sub_tree = proto_item_add_subtree (tlv_sub_item, ett_sub_tlv);
+								tlv_sub_tree = proto_tree_add_subtree(tlv_tree, tvb, subpos + 2, 1, ett_sub_tlv, NULL, "Modulation Order/Annex");
 								proto_tree_add_item (tlv_sub_tree, hf_docsis_mdd_downstream_active_channel_list_modulation_order, tvb, subpos + 2 , 1, ENC_BIG_ENDIAN);
 								proto_tree_add_item (tlv_sub_tree, hf_docsis_mdd_downstream_active_channel_list_annex, tvb, subpos + 2 , 1, ENC_BIG_ENDIAN);
 								break;
@@ -369,8 +365,7 @@ dissect_mdd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 								proto_tree_add_item (tlv_tree, hf_docsis_mdd_downstream_active_channel_list_primary_capable, tvb, subpos + 2 , 1, ENC_BIG_ENDIAN);
 								break;
 							case DOWNSTREAM_ACTIVE_CHANNEL_LIST_CM_STATUS_EVENT_ENABLE_BITMASK:
-								tlv_sub_item = proto_tree_add_text (tlv_tree, tvb, subpos + 2, 2, "CM-STATUS Event Enable Bitmask");
-								tlv_sub_tree = proto_item_add_subtree (tlv_sub_item, ett_sub_tlv);
+								tlv_sub_tree = proto_tree_add_subtree(tlv_tree, tvb, subpos + 2, 2, ett_sub_tlv, NULL, "CM-STATUS Event Enable Bitmask");
 								proto_tree_add_item (tlv_sub_tree, hf_docsis_mdd_cm_status_event_enable_bitmask_mdd_timeout, tvb, subpos + 2 , 2,ENC_BIG_ENDIAN);
 								proto_tree_add_item (tlv_sub_tree, hf_docsis_mdd_cm_status_event_enable_bitmask_qam_fec_lock_failure, tvb, subpos + 2 , 2, ENC_BIG_ENDIAN);
 								proto_tree_add_item (tlv_sub_tree, hf_docsis_mdd_cm_status_event_enable_bitmask_mdd_recovery, tvb, subpos + 2 , 2,ENC_BIG_ENDIAN);
@@ -450,8 +445,7 @@ dissect_mdd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 								proto_tree_add_item (tlv_tree, hf_docsis_mdd_upstream_active_channel_list_upstream_channel_id, tvb, subpos + 2 , 1, ENC_BIG_ENDIAN);
 								break;
 							case UPSTREAM_ACTIVE_CHANNEL_LIST_CM_STATUS_EVENT_ENABLE_BITMASK:
-								tlv_sub_item = proto_tree_add_text (tlv_tree, tvb, subpos + 2, 2, "CM-STATUS Event Enable Bitmask");
-								tlv_sub_tree = proto_item_add_subtree (tlv_sub_item, ett_sub_tlv);
+								tlv_sub_tree = proto_tree_add_subtree(tlv_tree, tvb, subpos + 2, 2, ett_sub_tlv, NULL, "CM-STATUS Event Enable Bitmask");
 								proto_tree_add_item (tlv_sub_tree, hf_docsis_mdd_cm_status_event_enable_bitmask_t4_timeout, tvb, subpos + 2 , 2, ENC_BIG_ENDIAN);
 								proto_tree_add_item (tlv_sub_tree, hf_docsis_mdd_cm_status_event_enable_bitmask_t3_retries_exceeded, tvb, subpos + 2 , 2, ENC_BIG_ENDIAN);
 								proto_tree_add_item (tlv_sub_tree, hf_docsis_mdd_cm_status_event_enable_bitmask_successful_ranging_after_t3_retries_exceeded, tvb, subpos + 2 , 2, ENC_BIG_ENDIAN);
@@ -508,7 +502,7 @@ dissect_mdd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 						sublength = tvb_get_guint8 (tvb, subpos + 1);
 						switch(subtype) {
 							case DSG_DA_TO_DSID_ASSOCIATION_DA:
-								proto_tree_add_item (tlv_tree, hf_docsis_mdd_dsg_da_to_dsid_association_da, tvb, subpos + 2, 6, ENC_BIG_ENDIAN);
+								proto_tree_add_item (tlv_tree, hf_docsis_mdd_dsg_da_to_dsid_association_da, tvb, subpos + 2, 6, ENC_NA);
 								break;
 							case DSG_DA_TO_DSID_ASSOCIATION_DSID:
 								proto_tree_add_item (tlv_tree, hf_docsis_mdd_dsg_da_to_dsid_association_dsid, tvb, subpos + 2, 3, ENC_BIG_ENDIAN);
@@ -519,8 +513,7 @@ dissect_mdd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 					break;
 				case CM_STATUS_EVENT_ENABLE_NON_CHANNEL_SPECIFIC_EVENTS:
 					subpos = pos + 2;
-					tlv_sub_item = proto_tree_add_text (tlv_tree, tvb, subpos, 2, "CM-STATUS Event Enable Bitmask for Non-Channel-Specific Events");
-					tlv_sub_tree = proto_item_add_subtree (tlv_sub_item, ett_sub_tlv);
+					tlv_sub_tree = proto_tree_add_subtree(tlv_tree, tvb, subpos, 2, ett_sub_tlv, NULL, "CM-STATUS Event Enable Bitmask for Non-Channel-Specific Events");
 					proto_tree_add_item (tlv_sub_tree, hf_docsis_mdd_cm_status_event_enable_non_channel_specific_events_sequence_out_of_range, tvb, subpos, 2,ENC_BIG_ENDIAN);
 					proto_tree_add_item (tlv_sub_tree, hf_docsis_mdd_cm_status_event_enable_non_channel_specific_events_cm_operating_on_battery_backup, tvb, subpos , 2,ENC_BIG_ENDIAN);
 					proto_tree_add_item (tlv_sub_tree, hf_docsis_mdd_cm_status_event_enable_non_channel_specific_events_cm_returned_to_ac_power, tvb, subpos , 2,ENC_BIG_ENDIAN);

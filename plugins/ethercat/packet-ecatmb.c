@@ -1315,8 +1315,7 @@ static void dissect_ecat_mailbox(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
             ecat_mailbox_tree = proto_item_add_subtree(anItem, ett_ecat_mailbox);
 
             /* Create a mailbox header subtree */
-            anItem = proto_tree_add_text(ecat_mailbox_tree, tvb, offset, ETHERCAT_MBOX_HEADER_LEN, "Header");
-            ecat_mailbox_header_tree = proto_item_add_subtree(anItem, ett_ecat_mailbox_header);
+            ecat_mailbox_header_tree = proto_tree_add_subtree(ecat_mailbox_tree, tvb, offset, ETHERCAT_MBOX_HEADER_LEN, ett_ecat_mailbox_header, NULL, "Header");
 
             /* Add length information to the mailbox header */
             proto_tree_add_item(ecat_mailbox_header_tree, hf_ecat_mailboxlength, tvb, offset, sizeof(hdr.Length), ENC_LITTLE_ENDIAN);

@@ -145,8 +145,6 @@ dissect_attrs (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   guint16 length;
   int pos = 0;
   gint total_len;
-  proto_item *cmid_it, *tekp_it, *scap_it;
-  proto_item *saqry_it, *dnld_it, *sadsc_it;
   proto_tree *cmid_tree, *tekp_tree, *scap_tree;
   proto_tree *saqry_tree, *dnld_tree, *sadsc_tree;
   tvbuff_t *cmid_tvb, *tekp_tvb, *scap_tvb;
@@ -185,11 +183,9 @@ dissect_attrs (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
                                length, ENC_NA);
           break;
         case BPKM_CM_ID:
-          cmid_it =
-            proto_tree_add_text (tree, tvb, pos, length,
-                                 "5 CM Identification");
           cmid_tree =
-            proto_item_add_subtree (cmid_it, ett_docsis_bpkmattr_cmid);
+            proto_tree_add_subtree(tree, tvb, pos, length,
+                                 ett_docsis_bpkmattr_cmid, NULL, "5 CM Identification");
           cmid_tvb = tvb_new_subset_length (tvb, pos, length);
           dissect_attrs (cmid_tvb, pinfo, cmid_tree);
           break;
@@ -240,10 +236,8 @@ dissect_attrs (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
             THROW (ReportedBoundsError);
           break;
         case BPKM_TEK_PARAM:
-          tekp_it =
-            proto_tree_add_text (tree, tvb, pos, length, "13 TEK Parameters");
           tekp_tree =
-            proto_item_add_subtree (tekp_it, ett_docsis_bpkmattr_tekp);
+            proto_tree_add_subtree(tree, tvb, pos, length, ett_docsis_bpkmattr_tekp, NULL, "13 TEK Parameters");
           tekp_tvb = tvb_new_subset_length (tvb, pos, length);
           dissect_attrs (tekp_tvb, pinfo, tekp_tree);
           break;
@@ -272,11 +266,9 @@ dissect_attrs (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
                                length, ENC_NA);
           break;
         case BPKM_SEC_CAPABILITIES:
-          scap_it =
-            proto_tree_add_text (tree, tvb, pos, length,
-                                 "19 Security Capabilities");
           scap_tree =
-            proto_item_add_subtree (scap_it, ett_docsis_bpkmattr_scap);
+            proto_tree_add_subtree(tree, tvb, pos, length,
+                                 ett_docsis_bpkmattr_scap, NULL, "19 Security Capabilities");
           scap_tvb = tvb_new_subset_length (tvb, pos, length);
           dissect_attrs (scap_tvb, pinfo, scap_tree);
           break;
@@ -299,10 +291,8 @@ dissect_attrs (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
             THROW (ReportedBoundsError);
           break;
         case BPKM_SA_DESCRIPTOR:
-          sadsc_it =
-            proto_tree_add_text (tree, tvb, pos, length, "23 SA Descriptor");
           sadsc_tree =
-            proto_item_add_subtree (sadsc_it, ett_docsis_bpkmattr_sadsc);
+            proto_tree_add_subtree(tree, tvb, pos, length, ett_docsis_bpkmattr_sadsc, NULL, "23 SA Descriptor");
           sadsc_tvb = tvb_new_subset_length (tvb, pos, length);
           dissect_attrs (sadsc_tvb, pinfo, sadsc_tree);
           break;
@@ -314,10 +304,8 @@ dissect_attrs (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
             THROW (ReportedBoundsError);
           break;
         case BPKM_SA_QUERY:
-          saqry_it =
-            proto_tree_add_text (tree, tvb, pos, length, "25 SA Query");
           saqry_tree =
-            proto_item_add_subtree (saqry_it, ett_docsis_bpkmattr_saqry);
+            proto_tree_add_subtree(tree, tvb, pos, length, ett_docsis_bpkmattr_saqry, NULL, "25 SA Query");
           saqry_tvb = tvb_new_subset_length (tvb, pos, length);
           dissect_attrs (saqry_tvb, pinfo, saqry_tree);
           break;
@@ -340,11 +328,9 @@ dissect_attrs (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
                                length, ENC_NA);
           break;
         case BPKM_DNLD_PARAMS:
-          dnld_it =
-            proto_tree_add_text (tree, tvb, pos, length,
-                                 "28 Download Parameters");
           dnld_tree =
-            proto_item_add_subtree (dnld_it, ett_docsis_bpkmattr_dnld);
+            proto_tree_add_subtree(tree, tvb, pos, length,
+                                 ett_docsis_bpkmattr_dnld, NULL, "28 Download Parameters");
           dnld_tvb = tvb_new_subset_length (tvb, pos, length);
           dissect_attrs (dnld_tvb, pinfo, dnld_tree);
           break;

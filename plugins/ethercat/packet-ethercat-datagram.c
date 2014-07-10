@@ -542,12 +542,10 @@ static void dissect_ecat_datagram(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
       {
          /* Create the sub tree for the current datagram */
          EcSubFormatter(tvb, suboffset, szText, nMax);
-         aitem = proto_tree_add_text(ecat_datagrams_tree, tvb, suboffset, subsize, "%s", szText);
-         ecat_datagram_tree = proto_item_add_subtree(aitem, ett_ecat_datagram_subtree);
+         ecat_datagram_tree = proto_tree_add_subtree(ecat_datagrams_tree, tvb, suboffset, subsize, ett_ecat_datagram_subtree, NULL, szText);
 
          /* Create a subtree placeholder for the Header */
-         aitem = proto_tree_add_text(ecat_datagram_tree, tvb, offset, EcParserHDR_Len, "Header");
-         ecat_header_tree = proto_item_add_subtree(aitem, ett_ecat_header);
+         ecat_header_tree = proto_tree_add_subtree(ecat_datagram_tree, tvb, offset, EcParserHDR_Len, ett_ecat_header, NULL, "Header");
 
          EcCmdFormatter(ecHdr.cmd, szText, nMax);
          aitem = proto_tree_add_item(ecat_header_tree, hf_ecat_cmd, tvb, suboffset, sizeof(ecHdr.cmd), ENC_LITTLE_ENDIAN);
@@ -601,10 +599,9 @@ static void dissect_ecat_datagram(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
             /* Add information about the length field (11 bit length, 3 bits
                reserved, 1 bit circulating frame and 1 bit more in a sub tree */
-            aitem = proto_tree_add_text(ecat_header_tree, tvb, suboffset, sizeof(ecHdr.len),
-                                        "Length     : %d (0x%x) - %s - %s",
+            length_sub_tree = proto_tree_add_subtree_format(ecat_header_tree, tvb, suboffset, sizeof(ecHdr.len),
+                                        ett_ecat_length, NULL, "Length     : %d (0x%x) - %s - %s",
                                         len, len, ecHdr.len & 0x4000 ? "Roundtrip" : "No Roundtrip", ecHdr.len & 0x8000 ? "More Follows..." : "Last Sub Command");
-            length_sub_tree = proto_item_add_subtree(aitem, ett_ecat_length);
 
             proto_tree_add_item(length_sub_tree, hf_ecat_length_len, tvb, suboffset, sizeof(ecHdr.len), ENC_LITTLE_ENDIAN);
             proto_tree_add_item(length_sub_tree, hf_ecat_length_r, tvb, suboffset, sizeof(ecHdr.len), ENC_LITTLE_ENDIAN);

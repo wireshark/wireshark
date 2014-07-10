@@ -45,12 +45,10 @@ static proto_item *mate_i = NULL;
 
 static void pdu_attrs_tree(proto_tree* tree, tvbuff_t *tvb, mate_pdu* pdu) {
 	AVPN* c;
-	proto_item *avpl_i;
 	proto_tree *avpl_t;
 	int* hfi_p;
 
-	avpl_i = proto_tree_add_text(tree,tvb,0,0,"%s Attributes",pdu->cfg->name);
-	avpl_t = proto_item_add_subtree(avpl_i, pdu->cfg->ett_attr);
+	avpl_t = proto_tree_add_subtree_format(tree,tvb,0,0,pdu->cfg->ett_attr,NULL,"%s Attributes",pdu->cfg->name);
 
 	for ( c = pdu->avpl->null.next; c->avp; c = c->next) {
 		hfi_p = (int *)g_hash_table_lookup(pdu->cfg->my_hfids,(char*)c->avp->n);
@@ -66,12 +64,10 @@ static void pdu_attrs_tree(proto_tree* tree, tvbuff_t *tvb, mate_pdu* pdu) {
 
 static void gop_attrs_tree(proto_tree* tree, tvbuff_t *tvb, mate_gop* gop) {
 	AVPN* c;
-	proto_item *avpl_i;
 	proto_tree *avpl_t;
 	int* hfi_p;
 
-	avpl_i = proto_tree_add_text(tree,tvb,0,0,"%s Attributes",gop->cfg->name);
-	avpl_t = proto_item_add_subtree(avpl_i, gop->cfg->ett_attr);
+	avpl_t = proto_tree_add_subtree_format(tree,tvb,0,0,gop->cfg->ett_attr,NULL,"%s Attributes",gop->cfg->name);
 
 	for ( c = gop->avpl->null.next; c->avp; c = c->next) {
 		hfi_p = (int *)g_hash_table_lookup(gop->cfg->my_hfids,(char*)c->avp->n);
@@ -87,12 +83,10 @@ static void gop_attrs_tree(proto_tree* tree, tvbuff_t *tvb, mate_gop* gop) {
 
 static void gog_attrs_tree(proto_tree* tree, tvbuff_t *tvb, mate_gog* gog) {
 	AVPN* c;
-	proto_item *avpl_i;
 	proto_tree *avpl_t;
 	int* hfi_p;
 
-	avpl_i = proto_tree_add_text(tree,tvb,0,0,"%s Attributes",gog->cfg->name);
-	avpl_t = proto_item_add_subtree(avpl_i, gog->cfg->ett_attr);
+	avpl_t = proto_tree_add_subtree_format(tree,tvb,0,0,gog->cfg->ett_attr,NULL,"%s Attributes",gog->cfg->name);
 
 	for ( c = gog->avpl->null.next; c->avp; c = c->next) {
 		hfi_p = (int *)g_hash_table_lookup(gog->cfg->my_hfids,(char*)c->avp->n);
@@ -111,7 +105,6 @@ static void mate_gop_tree(proto_tree* pdu_tree, tvbuff_t *tvb, mate_gop* gop);
 static void mate_gog_tree(proto_tree* tree, tvbuff_t *tvb, mate_gog* gog, mate_gop* gop) {
 	proto_item *gog_item;
 	proto_tree *gog_tree;
-	proto_item *gog_time_item;
 	proto_tree *gog_time_tree;
 	proto_item *gog_gops_item;
 	proto_tree *gog_gops_tree;
@@ -126,8 +119,7 @@ static void mate_gog_tree(proto_tree* tree, tvbuff_t *tvb, mate_gog* gog, mate_g
 	gog_attrs_tree(gog_tree,tvb,gog);
 
 	if (gog->cfg->show_times) {
-		gog_time_item = proto_tree_add_text(gog_tree,tvb,0,0,"%s Times",gog->cfg->name);
-		gog_time_tree = proto_item_add_subtree(gog_time_item, gog->cfg->ett_times);
+		gog_time_tree = proto_tree_add_subtree_format(gog_tree,tvb,0,0,gog->cfg->ett_times,NULL,"%s Times",gog->cfg->name);
 
 		proto_tree_add_float(gog_time_tree, gog->cfg->hfid_start_time, tvb, 0, 0, gog->start_time);
 		proto_tree_add_float(gog_time_tree, gog->cfg->hfid_last_time, tvb, 0, 0, gog->last_time - gog->start_time);
@@ -183,7 +175,6 @@ static void mate_gog_tree(proto_tree* tree, tvbuff_t *tvb, mate_gog* gog, mate_g
 static void mate_gop_tree(proto_tree* tree, tvbuff_t *tvb, mate_gop* gop) {
 	proto_item *gop_item;
 	proto_tree *gop_time_tree;
-	proto_item *gop_time_item;
 	proto_tree *gop_tree;
 	proto_item *gop_pdu_item;
 	proto_tree *gop_pdu_tree;
@@ -202,8 +193,7 @@ static void mate_gop_tree(proto_tree* tree, tvbuff_t *tvb, mate_gop* gop) {
 	gop_attrs_tree(gop_tree,tvb,gop);
 
 	if (gop->cfg->show_times) {
-		gop_time_item = proto_tree_add_text(gop_tree,tvb,0,0,"%s Times",gop->cfg->name);
-		gop_time_tree = proto_item_add_subtree(gop_time_item, gop->cfg->ett_times);
+		gop_time_tree = proto_tree_add_subtree_format(gop_tree,tvb,0,0,gop->cfg->ett_times,NULL,"%s Times",gop->cfg->name);
 
 		proto_tree_add_float(gop_time_tree, gop->cfg->hfid_start_time, tvb, 0, 0, gop->start_time);
 

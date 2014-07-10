@@ -99,8 +99,7 @@ proto_item *add_tlv_subtree(tlv_info_t *self, proto_tree *tree, int hfindex, tvb
 
 	hf = proto_registrar_get_nth(hfindex);
 
-	tlv_item = proto_tree_add_text(tree, tvb, start, tlv_value_length+tlv_val_offset, "%s", hf->name);
-	tlv_tree = proto_item_add_subtree(tlv_item, ett_tlv[tlv_type]);
+	tlv_tree = proto_tree_add_subtree(tree, tvb, start, tlv_value_length+tlv_val_offset, ett_tlv[tlv_type], NULL, hf->name);
 
 	proto_tree_add_uint(tlv_tree, hf_tlv_type, tvb, start, 1, tlv_type);
 	if (size_of_tlv_length_field > 0) /* It is */
@@ -137,7 +136,6 @@ proto_tree *add_tlv_subtree_no_item(tlv_info_t *self, proto_tree *tree, int hfin
 {
 	header_field_info *hf;
 	proto_tree *tlv_tree;
-	proto_item *tlv_item;
 	gint tlv_value_length, tlv_val_offset;
 	guint8 size_of_tlv_length_field;
 	guint8 tlv_type;
@@ -154,8 +152,7 @@ proto_tree *add_tlv_subtree_no_item(tlv_info_t *self, proto_tree *tree, int hfin
 
 	hf = proto_registrar_get_nth(hfindex);
 
-	tlv_item = proto_tree_add_text(tree, tvb, start, tlv_value_length+tlv_val_offset, "%s", hf->name);
-	tlv_tree = proto_item_add_subtree(tlv_item, ett_tlv[tlv_type]);
+	tlv_tree = proto_tree_add_subtree(tree, tvb, start, tlv_value_length+tlv_val_offset, ett_tlv[tlv_type], NULL, hf->name);
 
 	proto_tree_add_uint(tlv_tree, hf_tlv_type, tvb, start, 1, tlv_type);
 	if (size_of_tlv_length_field > 0) /* It is */
@@ -250,8 +247,7 @@ proto_tree *add_protocol_subtree(tlv_info_t *self, gint idx, proto_tree *tree, i
 			break;
 	}
 	/* Show "TLV value: " */
-	tlv_item = proto_tree_add_text(tlv_tree, tvb, start+tlv_val_offset, tlv_value_length, hex_fmt, label, tlv_value);
-	tlv_tree = proto_item_add_subtree(tlv_item, idx);
+	tlv_tree = proto_tree_add_subtree_format(tlv_tree, tvb, start+tlv_val_offset, tlv_value_length, idx, NULL, hex_fmt, label, tlv_value);
 
 	/* Return a pointer to the value level */
 	return tlv_tree;

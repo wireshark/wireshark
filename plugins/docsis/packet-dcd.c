@@ -129,13 +129,12 @@ static void
 dissect_dcd_dsg_cfg (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len)
 {
   guint8 type, length;
-  proto_item *dcd_item;
   proto_tree *dcd_tree;
   int pos;
 
   pos = start;
-  dcd_item = proto_tree_add_text ( tree, tvb, start, len, "51 DCD DSG Config Encodings (Length = %u)", len);
-  dcd_tree = proto_item_add_subtree ( dcd_item , ett_docsis_dcd_cfg);
+  dcd_tree = proto_tree_add_subtree_format( tree, tvb, start, len,
+            ett_docsis_dcd_cfg, NULL, "51 DCD DSG Config Encodings (Length = %u)", len);
 
   while ( pos < ( start + len) )
     {
@@ -212,13 +211,11 @@ static void
 dissect_dcd_down_classifier_ip (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len)
 {
   guint8 type, length;
-  proto_item *dcd_item;
   proto_tree *dcd_tree;
   int pos;
 
   pos = start;
-  dcd_item = proto_tree_add_text ( tree, tvb, start, len, "23.9 DCD_CFR_IP Encodings (Length = %u)", len);
-  dcd_tree = proto_item_add_subtree ( dcd_item , ett_docsis_dcd_cfr_ip);
+  dcd_tree = proto_tree_add_subtree_format( tree, tvb, start, len, ett_docsis_dcd_cfr_ip, NULL, "23.9 DCD_CFR_IP Encodings (Length = %u)", len);
 
   while ( pos < ( start + len) )
     {
@@ -323,13 +320,11 @@ static void
 dissect_dcd_clid (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len)
 {
   guint8 type, length;
-  proto_item *dcd_item;
   proto_tree *dcd_tree;
   int pos;
 
   pos = start;
-  dcd_item = proto_tree_add_text ( tree, tvb, start, len, "50.4 DCD Rule ClientID Encodings (Length = %u)", len);
-  dcd_tree = proto_item_add_subtree ( dcd_item , ett_docsis_dcd_clid);
+  dcd_tree = proto_tree_add_subtree_format( tree, tvb, start, len, ett_docsis_dcd_clid, NULL, "50.4 DCD Rule ClientID Encodings (Length = %u)", len);
 
   while ( pos < ( start + len) )
     {
@@ -389,13 +384,11 @@ static void
 dissect_dcd_dsg_rule (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len)
 {
   guint8 type, length;
-  proto_item *dcd_item;
   proto_tree *dcd_tree;
   int pos;
 
   pos = start;
-  dcd_item = proto_tree_add_text ( tree, tvb, start, len, "50 DCD DSG Rule Encodings (Length = %u)", len);
-  dcd_tree = proto_item_add_subtree ( dcd_item , ett_docsis_dcd_rule);
+  dcd_tree = proto_tree_add_subtree_format( tree, tvb, start, len, ett_docsis_dcd_rule, NULL, "50 DCD DSG Rule Encodings (Length = %u)", len);
 
   while ( pos < ( start + len) )
     {
@@ -468,13 +461,11 @@ static void
 dissect_dcd_down_classifier (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len)
 {
   guint8 type, length;
-  proto_item *dcd_item;
   proto_tree *dcd_tree;
   int pos;
 
   pos = start;
-  dcd_item = proto_tree_add_text ( tree, tvb, start, len, "23 DCD_CFR Encodings (Length = %u)", len);
-  dcd_tree = proto_item_add_subtree ( dcd_item , ett_docsis_dcd_cfr);
+  dcd_tree = proto_tree_add_subtree_format( tree, tvb, start, len, ett_docsis_dcd_cfr, NULL, "23 DCD_CFR Encodings (Length = %u)", len);
 
   while ( pos < ( start + len) )
     {

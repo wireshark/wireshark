@@ -2665,13 +2665,12 @@ pnio_ar_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pnio_ar_t *ar)
         proto_item *sub_item;
         proto_tree *sub_tree;
 
-        sub_item = proto_tree_add_text(tree, tvb, 0, 0,
+        sub_tree = proto_tree_add_subtree_format(tree, tvb, 0, 0, ett_pn_io_ar_info, &sub_item,
             "ARUUID:%s ContrMAC:%s ContrAlRef:0x%x DevMAC:%s DevAlRef:0x%x InCR:0x%x OutCR=0x%x",
             guid_to_ep_str((const e_guid_t*) &ar->aruuid),
             ether_to_str((const guint8 *)ar->controllermac), ar->controlleralarmref,
             ether_to_str((const guint8 *)ar->devicemac), ar->devicealarmref,
             ar->inputframeid, ar->outputframeid);
-        sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_ar_info);
         PROTO_ITEM_SET_GENERATED(sub_item);
 
         item = proto_tree_add_guid(sub_tree, hf_pn_io_ar_uuid, tvb, 0, 0, (e_guid_t *) &ar->aruuid);

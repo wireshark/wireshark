@@ -891,7 +891,7 @@ proto_tree_add_text_valist(proto_tree *tree, tvbuff_t *tvb, gint start,
  @param Can be NULL if going to be unused
  @param text label for the tree
  @return the newly created tree */
-proto_tree *
+WS_DLL_PUBLIC proto_tree *
 proto_tree_add_subtree(proto_tree *tree, tvbuff_t *tvb, gint start, gint length, gint idx, proto_item **tree_item, const char *text);
 
 /** Add a text-only node that creates a subtree underneath.
@@ -906,7 +906,7 @@ proto_tree_add_subtree(proto_tree *tree, tvbuff_t *tvb, gint start, gint length,
  @param format printf like format string
  @param ... printf like parameters
  @return the newly created tree */
-proto_tree *
+WS_DLL_PUBLIC proto_tree *
 proto_tree_add_subtree_format(proto_tree *tree, tvbuff_t *tvb, gint start, gint length, gint idx, proto_item **tree_item, const char *format, ...) G_GNUC_PRINTF(7,8);
 
 /** Add a text-only node to a proto_tree with tvb_format_text() string. */

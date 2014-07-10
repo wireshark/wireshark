@@ -67,13 +67,11 @@ static void
 dissect_ds_event(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
 {
   guint8 type, length;
-  proto_item *it;
   proto_tree *event_tree;
   int pos = start;
-  it =
-    proto_tree_add_text (tree, tvb, start, len,
+  event_tree =
+    proto_tree_add_subtree_format(tree, tvb, start, len, ett_cmctrl_tlv_ds_event, NULL,
                          "Override Downstream Status Event Event Mask (Length = %u)", len);
-  event_tree = proto_item_add_subtree (it, ett_cmctrl_tlv_ds_event);
 
   while (pos < (start + len))
     {
@@ -112,13 +110,11 @@ static void
 dissect_us_event(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
 {
   guint8 type, length;
-  proto_item *it;
   proto_tree *event_tree;
   int pos = start;
-  it =
-    proto_tree_add_text (tree, tvb, start, len,
+  event_tree =
+    proto_tree_add_subtree_format(tree, tvb, start, len, ett_cmctrl_tlv_us_event, NULL,
                          "Override Upstream Status Enable Event Mask (Length = %u)", len);
-  event_tree = proto_item_add_subtree (it, ett_cmctrl_tlv_us_event);
 
   while (pos < (start + len))
     {

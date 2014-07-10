@@ -196,7 +196,6 @@ dissect_type29ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   guint8 type, length;
   guint8 tlvlen, tlvtype;
   proto_tree *burst_descr_tree;
-  proto_item *it;
   proto_tree *type29ucd_tree;
   proto_item *type29ucd_item;
   guint16 len;
@@ -408,11 +407,10 @@ dissect_type29ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	      break;
 /* DOCSIS 1.1 BURST DESCRIPTOR */
 	     case type29ucd_BURST_DESCR:
-	      it =
-		proto_tree_add_text (type29ucd_tree, tvb, pos, length,
-				     "4 Burst Descriptor (Length = %u)",
+	      burst_descr_tree =
+		  proto_tree_add_subtree_format(type29ucd_tree, tvb, pos, length,
+				     ett_burst_descr, NULL, "4 Burst Descriptor (Length = %u)",
 				     length);
-	      burst_descr_tree = proto_item_add_subtree (it, ett_burst_descr);
 	      proto_tree_add_item (burst_descr_tree, hf_docsis_type29ucd_iuc, tvb,
 				   pos++, 1, ENC_BIG_ENDIAN);
 	      endtlvpos = pos + length - 1;
@@ -560,11 +558,10 @@ dissect_type29ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	       break;
 /* DOCSIS 2.0 Upstream Channel Descriptor */
 	     case type29ucd_BURST_DESCR5:
-	      it =
-		proto_tree_add_text (type29ucd_tree, tvb, pos, length,
-				     "5 Burst Descriptor (Length = %u)",
+	      burst_descr_tree =
+		proto_tree_add_subtree_format(type29ucd_tree, tvb, pos, length,
+				     ett_burst_descr, NULL, "5 Burst Descriptor (Length = %u)",
 				     length);
-	      burst_descr_tree = proto_item_add_subtree (it, ett_burst_descr);
 	      proto_tree_add_item (burst_descr_tree, hf_docsis_type29ucd_iuc, tvb,
 				   pos++, 1, ENC_BIG_ENDIAN);
 	      endtlvpos = pos + length - 1;

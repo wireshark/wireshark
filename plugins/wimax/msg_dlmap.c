@@ -319,8 +319,7 @@ gint RCID_IE(proto_tree *diuc_tree, const guint8 *bufptr, gint offset, gint leng
         else if (RCID_Type_lcl == 3) length = 4;
     }
 
-    ti = proto_tree_add_text(diuc_tree, tvb, BITHI(bit, length), "RCID_IE");
-    tree = proto_item_add_subtree(ti, ett_286j);
+    tree = proto_tree_add_subtree(diuc_tree, tvb, BITHI(bit, length), ett_286j, &ti, "RCID_IE");
 
     if (RCID_Type_lcl == 0) {
         XBIT(cid, 16, "CID");
@@ -360,16 +359,14 @@ static gint Dedicated_DL_Control_IE(proto_tree *diuc_tree, const guint8 *bufptr,
     /* offset of IE in nibbles, length is variable */
     gint nib;
     gint nibble;
-    proto_item *ti = NULL;
-    proto_tree *tree = NULL;
+    proto_tree *tree;
     gint len;
 
     nib = offset;
 
     length = NIB_NIBBLE(nib, bufptr); /* length in nibbles */
 
-    ti = proto_tree_add_text(diuc_tree, tvb, NIBHI(nib, length+1), "Dedicated_DL_Control_IE");
-    tree = proto_item_add_subtree(ti, ett_286i);
+    tree = proto_tree_add_subtree(diuc_tree, tvb, NIBHI(nib, length+1), ett_286i, NULL, "Dedicated_DL_Control_IE");
 
     proto_tree_add_text(tree, tvb, NIBHI(nib,1), "Length: %d", length);
     nib++;
@@ -399,16 +396,14 @@ static gint Dedicated_MIMO_DL_Control_IE(proto_tree *diuc_tree, const guint8 *bu
     /* offset of IE in bits, length is variable */
     gint bit;
     gint data;
-    proto_item *ti = NULL;
-    proto_tree *tree = NULL;
+    proto_tree *tree;
     gint mci, cqi, cmi, matrix = 0, pad, CQICH_num, mimo_mode;
     gint j;
 
     bit = offset;
 
     /* 8.4.5.3.21 table 286t */
-    ti = proto_tree_add_text(diuc_tree, tvb, BITHI(bit, 1), "Dedicated MIMO DL Control IE");
-    tree = proto_item_add_subtree(ti, ett_286t);
+    tree = proto_tree_add_subtree(diuc_tree, tvb, BITHI(bit, 1), ett_286t, NULL, "Dedicated MIMO DL Control IE");
 
     XBIT(length, 5, "Length (nibbles)");
     XBIT(mci, 1, "Control Header (MIMO Control Info)");
@@ -473,16 +468,14 @@ static gint DL_HARQ_Chase_sub_burst_IE(proto_tree *diuc_tree, const guint8 *bufp
     /* offset of IE in nibbles, length is variable */
     gint bit;
     gint data;
-    proto_item *ti = NULL;
-    proto_tree *tree = NULL;
+    proto_tree *tree;
     gint nsub, ddci, dur, sbi, res, diuc, rci, ind, per, ofs;
     gint j;
 
     bit = NIB_TO_BIT(offset);
 
     /* 8.4.5.3.21 table 286m */
-    ti = proto_tree_add_text(diuc_tree, tvb, BITHI(bit, length), "DL_HARQ_Chase_sub_burst_IE");
-    tree = proto_item_add_subtree(ti, ett_286m);
+    tree = proto_tree_add_subtree(diuc_tree, tvb, BITHI(bit, length), ett_286m, NULL, "DL_HARQ_Chase_sub_burst_IE");
 
     XBIT(nsub, 4, "N sub burst[ISI]");
     XBIT(data, 4, "N ACK channel");
@@ -528,8 +521,7 @@ static gint DL_HARQ_IR_CTC_sub_burst_IE(proto_tree *diuc_tree, const guint8 *buf
     /* offset of IE in nibbles, length is variable */
     gint bit;
     guint data;
-    proto_item *ti = NULL;
-    proto_tree *tree = NULL;
+    proto_tree *tree;
     proto_item *generic_item = NULL;
     gint nsub, ddci, dur, ind, per, ofs;
     gint j;
@@ -538,8 +530,7 @@ static gint DL_HARQ_IR_CTC_sub_burst_IE(proto_tree *diuc_tree, const guint8 *buf
     bit = NIB_TO_BIT(offset);
 
     /* 8.4.5.3.21 table 286n */
-    ti = proto_tree_add_text(diuc_tree, tvb, BITHI(bit, 4), "DL HARQ IR CTC sub-burst IE");
-    tree = proto_item_add_subtree(ti, ett_286n);
+    tree = proto_tree_add_subtree(diuc_tree, tvb, BITHI(bit, 4), ett_286n, NULL, "DL HARQ IR CTC sub-burst IE");
 
     XBIT(nsub, 4, "N sub burst[ISI]");
     XBIT(data, 4, "N ACK channel");
@@ -593,8 +584,7 @@ static gint DL_HARQ_IR_CC_sub_burst_IE(proto_tree *diuc_tree, const guint8 *bufp
     /* offset of IE in nibbles, length is variable */
     gint bit;
     gint data;
-    proto_item *ti = NULL;
-    proto_tree *tree = NULL;
+    proto_tree *tree;
     proto_item *generic_item = NULL;
     gint nsub, sbdi, ddci, dur, ind, per, ofs;
     gint j;
@@ -603,8 +593,7 @@ static gint DL_HARQ_IR_CC_sub_burst_IE(proto_tree *diuc_tree, const guint8 *bufp
     bit = NIB_TO_BIT(offset);
 
     /* 8.4.5.3.21 table 286o */
-    ti = proto_tree_add_text(diuc_tree, tvb, BITHI(bit, 4), "DL HARQ IR CC sub-burst IE");
-    tree = proto_item_add_subtree(ti, ett_286o);
+    tree = proto_tree_add_subtree(diuc_tree, tvb, BITHI(bit, 4), ett_286o, NULL, "DL HARQ IR CC sub-burst IE");
 
     XBIT(nsub, 4, "N sub burst[ISI]");
     XBIT(data, 4, "N ACK channel");
@@ -666,8 +655,7 @@ static gint MIMO_DL_Chase_HARQ_sub_burst_IE(proto_tree *diuc_tree, const guint8 
     /* offset of IE in nibbles, length is variable */
     gint bit;
     gint data;
-    proto_item *ti = NULL;
-    proto_tree *tree = NULL;
+    proto_tree *tree;
     proto_item *generic_item = NULL;
     gint nsub, mui, dci, akd;
     gint i, j;
@@ -676,8 +664,7 @@ static gint MIMO_DL_Chase_HARQ_sub_burst_IE(proto_tree *diuc_tree, const guint8 
     bit = NIB_TO_BIT(offset);
 
     /* 8.4.5.3.21 table 286p */
-    ti = proto_tree_add_text(diuc_tree, tvb, BITHI(bit, 1), "MIMO DL Chase HARQ sub-burst IE");
-    tree = proto_item_add_subtree(ti, ett_286p);
+    tree = proto_tree_add_subtree(diuc_tree, tvb, BITHI(bit, 1), ett_286p, NULL, "MIMO DL Chase HARQ sub-burst IE");
 
     XBIT(nsub, 4, "N sub burst[ISI]");
     XBIT(data, 6, "N ACK channel");
@@ -735,8 +722,7 @@ static gint MIMO_DL_IR_HARQ_sub_burst_IE(proto_tree *diuc_tree, const guint8 *bu
     /* offset of IE in nibbles, length is variable */
     gint bit;
     gint data;
-    proto_item *ti = NULL;
-    proto_tree *tree = NULL;
+    proto_tree *tree;
     proto_item *generic_item = NULL;
     gint nsub, mui, dci, akd;
     gint i, j;
@@ -745,8 +731,7 @@ static gint MIMO_DL_IR_HARQ_sub_burst_IE(proto_tree *diuc_tree, const guint8 *bu
     bit = NIB_TO_BIT(offset);
 
     /* 8.4.5.3.21 table 286q */
-    ti = proto_tree_add_text(diuc_tree, tvb, BITHI(bit, 4), "MIMO DL IR HARQ sub-burst IE");
-    tree = proto_item_add_subtree(ti, ett_286q);
+    tree = proto_tree_add_subtree(diuc_tree, tvb, BITHI(bit, 4), ett_286q, NULL, "MIMO DL IR HARQ sub-burst IE");
 
     XBIT(nsub, 4, "N sub burst[ISI]");
     XBIT(data, 6, "N ACK channel");
@@ -798,8 +783,7 @@ static gint MIMO_DL_IR_HARQ_for_CC_sub_burst_IE(proto_tree *diuc_tree, const gui
     /* offset of IE in nibbles, length is variable */
     gint bit;
     gint data;
-    proto_item *ti = NULL;
-    proto_tree *tree = NULL;
+    proto_tree *tree;
     proto_item *generic_item = NULL;
     gint nsub, mui, dci, akd;
     gint i, j;
@@ -808,8 +792,7 @@ static gint MIMO_DL_IR_HARQ_for_CC_sub_burst_IE(proto_tree *diuc_tree, const gui
     bit = NIB_TO_BIT(offset);
 
     /* 8.4.5.3.21 table 286r */
-    ti = proto_tree_add_text(diuc_tree, tvb, BITHI(bit, 1), "MIMO DL IR HARQ for CC sub-burst IE");
-    tree = proto_item_add_subtree(ti, ett_286r);
+    tree = proto_tree_add_subtree(diuc_tree, tvb, BITHI(bit, 1), ett_286r, NULL, "MIMO DL IR HARQ for CC sub-burst IE");
 
     XBIT(nsub, 4, "N sub burst[ISI]");
     XBIT(data, 6, "N ACK channel");
@@ -862,8 +845,7 @@ static gint MIMO_DL_STC_HARQ_sub_burst_IE(proto_tree *diuc_tree, const guint8 *b
     /* offset of IE in nibbles, length is variable */
     gint bit;
     gint data;
-    proto_item *ti = NULL;
-    proto_tree *tree = NULL;
+    proto_tree *tree;
     proto_item *generic_item = NULL;
     gint nsub, sbi, txc, akd, dmci;
     gint j;
@@ -872,8 +854,7 @@ static gint MIMO_DL_STC_HARQ_sub_burst_IE(proto_tree *diuc_tree, const guint8 *b
     bit = NIB_TO_BIT(offset);
 
     /* 8.4.5.3.21 table 286s */
-    ti = proto_tree_add_text(diuc_tree, tvb, BITHI(bit, 1), "MIMO DL STC HARQ sub-burst IE");
-    tree = proto_item_add_subtree(ti, ett_286s);
+    tree = proto_tree_add_subtree(diuc_tree, tvb, BITHI(bit, 1), ett_286s, NULL, "MIMO DL STC HARQ sub-burst IE");
 
     XBIT(nsub, 4, "N sub burst[ISI]");
     XBIT(data, 6, "N ACK channel");
@@ -930,14 +911,12 @@ static gint MBS_MAP_IE(proto_tree *diuc_tree, const guint8 *bufptr, gint offset,
     /* offset of TLV in nibbles, length of TLV in nibbles */
     gint bit;
     gint data;
-    proto_item *ti = NULL;
-    proto_tree *tree = NULL;
+    proto_tree *tree;
     gint mde, dci, s3i;
 
     bit = NIB_TO_BIT(offset);
 
-    ti = proto_tree_add_text(diuc_tree, tvb, NIBHI(offset, length), "MBS_MAP_IE");
-    tree = proto_item_add_subtree(ti, ett_286a);
+    tree = proto_tree_add_subtree(diuc_tree, tvb, NIBHI(offset, length), ett_286a, NULL, "MBS_MAP_IE");
 
     XBIT(data,  4, "Extended-2 DIUC");
     XBIT(data,  8, "Length");
@@ -989,13 +968,11 @@ static gint HO_Anchor_Active_DL_MAP_IE(proto_tree *diuc_tree, const guint8 *bufp
     /* offset of TLV in nibbles, length of TLV in nibbles */
     gint nib;
     gint data;
-    proto_item *ti = NULL;
-    proto_tree *tree = NULL;
+    proto_tree *tree;
 
     nib = offset;
 
-    ti = proto_tree_add_text(diuc_tree, tvb, NIBHI(offset, length), "HO_Anchor_Active_DL_MAP_IE");
-    tree = proto_item_add_subtree(ti, ett_286c);
+    tree = proto_tree_add_subtree(diuc_tree, tvb, NIBHI(offset, length), ett_286c, NULL, "HO_Anchor_Active_DL_MAP_IE");
 
     XNIB(data,  1, "Extended-2 DIUC");
     XNIB(data,  2, "Length");
@@ -1010,13 +987,11 @@ static gint HO_Active_Anchor_DL_MAP_IE(proto_tree *diuc_tree, const guint8 *bufp
     /* offset of TLV in nibbles, length of TLV in nibbles */
     gint nib;
     gint data;
-    proto_item *ti = NULL;
-    proto_tree *tree = NULL;
+    proto_tree *tree;
 
     nib = offset;
 
-    ti = proto_tree_add_text(diuc_tree, tvb, NIBHI(offset, length), "HO_Active_Anchor_DL_MAP_IE");
-    tree = proto_item_add_subtree(ti, ett_286d);
+    tree = proto_tree_add_subtree(diuc_tree, tvb, NIBHI(offset, length), ett_286d, NULL, "HO_Active_Anchor_DL_MAP_IE");
 
     XNIB(data,  1, "Extended-2 DIUC");
     XNIB(data,  2, "Length");
@@ -1031,13 +1006,11 @@ static gint HO_CID_Translation_MAP_IE(proto_tree *diuc_tree, const guint8 *bufpt
     /* offset of TLV in nibbles, length of TLV in nibbles */
     gint nib;
     gint data;
-    proto_item *ti = NULL;
-    proto_tree *tree = NULL;
+    proto_tree *tree;
 
     nib = offset;
 
-    ti = proto_tree_add_text(diuc_tree, tvb, NIBHI(offset, length), "CID_Translation_MAP_IE");
-    tree = proto_item_add_subtree(ti, ett_286e);
+    tree = proto_tree_add_subtree(diuc_tree, tvb, NIBHI(offset, length), ett_286e, NULL, "CID_Translation_MAP_IE");
 
     XNIB(data,  1, "Extended-2 DIUC");
     XNIB(data,  2, "Length");
@@ -1052,13 +1025,11 @@ static gint MIMO_in_another_BS_IE(proto_tree *diuc_tree, const guint8 *bufptr, g
     /* offset of TLV in nibbles, length of TLV in nibbles */
     gint nib;
     gint data;
-    proto_item *ti = NULL;
-    proto_tree *tree = NULL;
+    proto_tree *tree;
 
     nib = offset;
 
-    ti = proto_tree_add_text(diuc_tree, tvb, NIBHI(offset, length), "MIMO_in_another_BS_IE");
-    tree = proto_item_add_subtree(ti, ett_286f);
+    tree = proto_tree_add_subtree(diuc_tree, tvb, NIBHI(offset, length), ett_286f, NULL, "MIMO_in_another_BS_IE");
 
     XNIB(data,  1, "Extended-2 DIUC");
     XNIB(data,  2, "Length");
@@ -1073,13 +1044,11 @@ static gint Macro_MIMO_DL_Basic_IE(proto_tree *diuc_tree, const guint8 *bufptr, 
     /* offset of tlv in nibbles, length of tlv in nibbles */
     gint nib;
     gint data;
-    proto_item *ti = NULL;
-    proto_tree *tree = NULL;
+    proto_tree *tree;
 
     nib = offset;
 
-    ti = proto_tree_add_text(diuc_tree, tvb, NIBHI(offset, length), "Macro_MIMO_DL_Basic_IE");
-    tree = proto_item_add_subtree(ti, ett_286g);
+    tree = proto_tree_add_subtree(diuc_tree, tvb, NIBHI(offset, length), ett_286g, NULL, "Macro_MIMO_DL_Basic_IE");
 
     XNIB(data,  1, "Extended-2 DIUC");
     XNIB(data,  2, "Length");
@@ -1094,13 +1063,11 @@ static gint Skip_IE(proto_tree *diuc_tree, const guint8 *bufptr, gint offset, gi
     /* offset of TLV in nibbles, length of TLV in nibbles */
     gint bit;
     gint data;
-    proto_item *ti = NULL;
-    proto_tree *tree = NULL;
+    proto_tree *tree;
 
     bit = NIB_TO_BIT(offset);
 
-    ti = proto_tree_add_text(diuc_tree, tvb, NIBHI(offset, length), "Skip_IE");
-    tree = proto_item_add_subtree(ti, ett_286k);
+    tree = proto_tree_add_subtree(diuc_tree, tvb, NIBHI(offset, length), ett_286k, NULL, "Skip_IE");
 
     XBIT(data,  4, "Extended-2 DIUC");
     XBIT(data,  8, "Length");
@@ -1118,14 +1085,12 @@ static gint HARQ_DL_MAP_IE(proto_tree *diuc_tree, const guint8 *bufptr, gint off
     /* offset of TLV in nibbles, length of TLV in nibbles */
     gint bit;
     gint data;
-    proto_item *ti = NULL;
-    proto_tree *tree = NULL;
+    proto_tree *tree;
     gint len, lastbit, rui, mode, sub_len, pad;
 
     bit = NIB_TO_BIT(offset);
 
-    ti = proto_tree_add_text(diuc_tree, tvb, NIBHI(offset, length), "HARQ_DL_MAP_IE");
-    tree = proto_item_add_subtree(ti, ett_286l);
+    tree = proto_tree_add_subtree(diuc_tree, tvb, NIBHI(offset, length), ett_286l, NULL, "HARQ_DL_MAP_IE");
 
     XBIT(data,  4, "Extended-2 DIUC");
     XBIT(len,  8, "Length");
@@ -1200,13 +1165,11 @@ static gint HARQ_ACK_IE(proto_tree *diuc_tree, const guint8 *bufptr, gint offset
     /* offset of TLV in nibbles, length of TLV in nibbles */
     gint data;
     gint nib;
-    proto_item *ti = NULL;
-    proto_tree *tree = NULL;
+    proto_tree *tree;
 
     nib = offset;
 
-    ti = proto_tree_add_text(diuc_tree, tvb, NIBHI(offset, length), "HARQ_ACK_IE");
-    tree = proto_item_add_subtree(ti, ett_286u);
+    tree = proto_tree_add_subtree(diuc_tree, tvb, NIBHI(offset, length), ett_286u, NULL, "HARQ_ACK_IE");
 
     XNIB(data,  1, "Extended-2 DIUC");
     XNIB(data,  2, "Length");
@@ -1223,15 +1186,13 @@ static gint Enhanced_DL_MAP_IE(proto_tree *diuc_tree, const guint8 *bufptr, gint
     /* offset of TLV in nibbles, length of TLV in nibbles */
     gint bit;
     gint data;
-    proto_item *ti = NULL;
-    proto_tree *tree = NULL;
+    proto_tree *tree;
     gint numass, n_cid;
     gint i, n;
 
     bit = NIB_TO_BIT(offset);
 
-    ti = proto_tree_add_text(diuc_tree, tvb, NIBHI(offset, length), "Enhanced_DL-MAP_IE");
-    tree = proto_item_add_subtree(ti, ett_286v);
+    tree = proto_tree_add_subtree(diuc_tree, tvb, NIBHI(offset, length), ett_286v, NULL, "Enhanced_DL-MAP_IE");
 
     XBIT(data,  4, "Extended-2 DIUC");
     XBIT(data,  8, "Length");
@@ -1260,13 +1221,11 @@ static gint Closed_loop_MIMO_DL_Enhanced_IE(proto_tree *diuc_tree, const guint8 
     /* offset of TLV in nibbles, length of TLV in nibbles */
     gint nib;
     gint data;
-    proto_item *ti = NULL;
-    proto_tree *tree = NULL;
+    proto_tree *tree;
 
     nib = offset;
 
-    ti = proto_tree_add_text(diuc_tree, tvb, NIBHI(offset, length), "CL_MIMO_DL_Enhanced_IE");
-    tree = proto_item_add_subtree(ti, ett_286w);
+    tree = proto_tree_add_subtree(diuc_tree, tvb, NIBHI(offset, length), ett_286w, NULL, "CL_MIMO_DL_Enhanced_IE");
 
     XNIB(data,  1, "Extended-2 DIUC");
     XNIB(data,  2, "Length");
@@ -1281,8 +1240,7 @@ static gint AAS_SDMA_DL_IE(proto_tree *diuc_tree, const guint8 *bufptr, gint off
     /* offset of TLV in nibbles, length of TLV in nibbles */
     gint bit;
     gint data;
-    proto_item *ti = NULL;
-    proto_tree *tree = NULL;
+    proto_tree *tree;
     gint num_region, num_users, pilot_pattern, encoding_mode, ackch_alloc, cqich_alloc;
     gint aas_preamble = 1;
     gint zone_permut = 0; /* TODO */
@@ -1290,8 +1248,7 @@ static gint AAS_SDMA_DL_IE(proto_tree *diuc_tree, const guint8 *bufptr, gint off
 
     bit = NIB_TO_BIT(offset);
 
-    ti = proto_tree_add_text(diuc_tree, tvb, NIBHI(offset, length), "AAS_SDMA_DL_IE");
-    tree = proto_item_add_subtree(ti, ett_286y);
+    tree = proto_tree_add_subtree(diuc_tree, tvb, NIBHI(offset, length), ett_286y, NULL, "AAS_SDMA_DL_IE");
 
     XBIT(data,  4, "Extended-2 DIUC");
     XBIT(data,  8, "Length");
@@ -1397,13 +1354,11 @@ static gint Channel_Measurement_IE(proto_tree *diuc_tree, const guint8 *bufptr, 
     /* offset of TLV in nibbles, length of TLV in nibbles */
     gint nib;
     gint data;
-    proto_item *ti = NULL;
-    proto_tree *tree = NULL;
+    proto_tree *tree;
 
     nib = offset;
 
-    ti = proto_tree_add_text(diuc_tree, tvb, NIBHI(offset, length), "Channel_Measurement_IE");
-    tree = proto_item_add_subtree(ti, ett_280);
+    tree = proto_tree_add_subtree(diuc_tree, tvb, NIBHI(offset, length), ett_280, NULL, "Channel_Measurement_IE");
 
     XNIB(data,  1, "Extended DIUC");
     XNIB(data,  1, "Length");
@@ -1425,13 +1380,11 @@ static gint STC_Zone_IE(proto_tree *diuc_tree, const guint8 *bufptr, gint offset
      * used in 8.4.5.3.21.1 Dedicated MIMO Control IE 286t */
     gint bit;
     gint data;
-    proto_item *ti = NULL;
-    proto_tree *tree = NULL;
+    proto_tree *tree;
 
     bit = NIB_TO_BIT(offset);
 
-    ti = proto_tree_add_text(diuc_tree, tvb, NIBHI(offset, length), "STC_Zone_IE");
-    tree = proto_item_add_subtree(ti, ett_279);
+    tree = proto_tree_add_subtree(diuc_tree, tvb, NIBHI(offset, length), ett_279, NULL, "STC_Zone_IE");
 
     XBIT(data,  4, "Extended DIUC");
     XBIT(data,  4, "Length");
@@ -1460,13 +1413,11 @@ static gint AAS_DL_IE(proto_tree *diuc_tree, const guint8 *bufptr, gint offset, 
     /* offset of TLV in nibbles, length of TLV in nibbles */
     gint bit;
     gint data;
-    proto_item *ti = NULL;
-    proto_tree *tree = NULL;
+    proto_tree *tree;
 
     bit = NIB_TO_BIT(offset);
 
-    ti = proto_tree_add_text(diuc_tree, tvb, NIBHI(offset, length), "AAS_DL_IE");
-    tree = proto_item_add_subtree(ti, ett_278);
+    tree = proto_tree_add_subtree(diuc_tree, tvb, NIBHI(offset, length), ett_278, NULL, "AAS_DL_IE");
 
     XBIT(data,  4, "Extended DIUC");
     XBIT(data,  4, "Length");
@@ -1490,13 +1441,11 @@ static gint Data_location_in_another_BS_IE(proto_tree *diuc_tree, const guint8 *
     /* offset of TLV in nibbles, length of TLV in nibbles */
     gint bit;
     gint data;
-    proto_item *ti = NULL;
-    proto_tree *tree = NULL;
+    proto_tree *tree;
 
     bit = NIB_TO_BIT(offset);
 
-    ti = proto_tree_add_text(diuc_tree, tvb, NIBHI(offset, length), "Data location in another BS IE");
-    tree = proto_item_add_subtree(ti, ett_281);
+    tree = proto_tree_add_subtree(diuc_tree, tvb, NIBHI(offset, length), ett_281, NULL, "Data location in another BS IE");
 
     XBIT(data,  4, "Extended DIUC");
     XBIT(data,  4, "Length");
@@ -1525,16 +1474,13 @@ static gint CID_Switch_IE(proto_tree *diuc_tree, const guint8 *bufptr, gint offs
     /* offset of TLV in nibbles, length of TLV in nibbles */
     gint nib;
     gint data;
-    proto_item *ti = NULL;
-    proto_tree *tree = NULL;
+    proto_tree *tree;
 
     nib = offset;
 
     INC_CID = INC_CID ? 0 : 1;
 
-    ti = proto_tree_add_text(diuc_tree, tvb, NIBHI(offset, length), "CID_Switch_IE");
-    proto_item_append_text(ti, " (INC_CID = %d)",INC_CID);
-    tree = proto_item_add_subtree(ti, ett_282);
+    tree = proto_tree_add_subtree_format(diuc_tree, tvb, NIBHI(offset, length), ett_282, NULL, "CID_Switch_IE (INC_CID = %d)", INC_CID);
 
     XNIB(data,  1, "Extended DIUC");
     XNIB(data,  1, "Length");
@@ -1549,13 +1495,11 @@ static gint MIMO_DL_Basic_IE(proto_tree *diuc_tree, const guint8 *bufptr, gint o
     /* offset of TLV in nibbles, length of TLV in nibbles */
     gint nib;
     gint data;
-    proto_item *ti = NULL;
-    proto_tree *tree = NULL;
+    proto_tree *tree;
 
     nib = offset;
 
-    ti = proto_tree_add_text(diuc_tree, tvb, NIBHI(offset, length), "MIMO_DL_Basic_IE");
-    tree = proto_item_add_subtree(ti, ett_283);
+    tree = proto_tree_add_subtree(diuc_tree, tvb, NIBHI(offset, length), ett_283, NULL, "MIMO_DL_Basic_IE");
 
     XNIB(data,  1, "Extended-2 DIUC");
     XNIB(data,  2, "Length");
@@ -1570,13 +1514,11 @@ static gint MIMO_DL_Enhanced_IE(proto_tree *diuc_tree, const guint8 *bufptr, gin
     /* offset of TLV in nibbles, length of TLV in nibbles */
     gint nib;
     gint data;
-    proto_item *ti = NULL;
-    proto_tree *tree = NULL;
+    proto_tree *tree;
 
     nib = offset;
 
-    ti = proto_tree_add_text(diuc_tree, tvb, NIBHI(offset, length), "MIMO_DL_Enhanced_IE");
-    tree = proto_item_add_subtree(ti, ett_284);
+    tree = proto_tree_add_subtree(diuc_tree, tvb, NIBHI(offset, length), ett_284, NULL, "MIMO_DL_Enhanced_IE");
 
     XNIB(data,  1, "Extended-2 DIUC");
     XNIB(data,  2, "Length");
@@ -1591,14 +1533,12 @@ static gint HARQ_Map_Pointer_IE(proto_tree *diuc_tree, const guint8 *bufptr, gin
     /* offset of TLV in nibbles, length of TLV in nibbles */
     gint bit;
     gint data;
-    proto_item *ti = NULL;
-    proto_tree *tree = NULL;
+    proto_tree *tree;
     gint length_in_bits, rep, map, diuc, slots, idle, sleep, mask_len;
 
     bit = NIB_TO_BIT(offset);
 
-    ti = proto_tree_add_text(diuc_tree, tvb, NIBHI(offset, length), "HARQ_Map_Pointer_IE");
-    tree = proto_item_add_subtree(ti, ett_285);
+    tree = proto_tree_add_subtree(diuc_tree, tvb, NIBHI(offset, length), ett_285, NULL, "HARQ_Map_Pointer_IE");
 
     XBIT(data,  4, "Extended DIUC");
     XBIT(data,  4, "Length");
@@ -1642,14 +1582,12 @@ static gint PHYMOD_DL_IE(proto_tree *diuc_tree, const guint8 *bufptr, gint offse
     /* offset of TLV in nibbles, length of TLV in nibbles */
     gint bit;
     gint data;
-    proto_item *ti = NULL;
-    proto_tree *tree = NULL;
+    proto_tree *tree;
     gint pmt;
 
     bit = NIB_TO_BIT(offset);
 
-    ti = proto_tree_add_text(diuc_tree, tvb, NIBHI(offset, length), "PHYMOD_DL_IE");
-    tree = proto_item_add_subtree(ti, ett_286);
+    tree = proto_tree_add_subtree(diuc_tree, tvb, NIBHI(offset, length), ett_286, NULL, "PHYMOD_DL_IE");
 
     XBIT(data,  4, "Extended DIUC");
     XBIT(data,  4, "Length");
@@ -1673,14 +1611,12 @@ static gint Broadcast_Control_Pointer_IE(proto_tree *diuc_tree, const guint8 *bu
     /* offset of TLV in nibbles, length of TLV in nibbles */
     gint bit;
     gint data;
-    proto_item *ti = NULL;
-    proto_tree *tree = NULL;
+    proto_tree *tree;
     gint skip;
 
     bit = NIB_TO_BIT(offset);
 
-    ti = proto_tree_add_text(diuc_tree, tvb, NIBHI(offset, length), "Broadcast Control Pointer IE");
-    tree = proto_item_add_subtree(ti, ett_286x);
+    tree = proto_tree_add_subtree(diuc_tree, tvb, NIBHI(offset, length), ett_286x, NULL, "Broadcast Control Pointer IE");
 
     XBIT(data,  4, "Extended DIUC");
     XBIT(data,  4, "Length");
@@ -1701,13 +1637,11 @@ static gint DL_PUSC_Burst_Allocation_in_Other_Segment_IE(proto_tree *diuc_tree, 
     /* offset of TLV in nibbles, length of TLV in nibbles */
     gint bit;
     gint data;
-    proto_item *ti = NULL;
-    proto_tree *tree = NULL;
+    proto_tree *tree;
 
     bit = NIB_TO_BIT(offset);
 
-    ti = proto_tree_add_text(diuc_tree, tvb, NIBHI(offset, length), "DL_PUSC_Burst_Allocation_in_Other_Segment_IE");
-    tree = proto_item_add_subtree(ti, ett_286b);
+    tree = proto_tree_add_subtree(diuc_tree, tvb, NIBHI(offset, length), ett_286b, NULL, "DL_PUSC_Burst_Allocation_in_Other_Segment_IE");
 
     XBIT(data,  4, "Extended DIUC");
     XBIT(data,  4, "Length");
@@ -1737,13 +1671,11 @@ static gint PUSC_ASCA_Alloc_IE(proto_tree *diuc_tree, const guint8 *bufptr, gint
     /* offset of TLV in nibbles, length of TLV in nibbles */
     gint bit;
     gint data;
-    proto_item *ti = NULL;
-    proto_tree *tree = NULL;
+    proto_tree *tree;
 
     bit = NIB_TO_BIT(offset);
 
-    ti = proto_tree_add_text(diuc_tree, tvb, NIBHI(offset, length), "PUSC_ASCA_Alloc_IE");
-    tree = proto_item_add_subtree(ti, ett_286z);
+    tree = proto_tree_add_subtree(diuc_tree, tvb, NIBHI(offset, length), ett_286z, NULL, "PUSC_ASCA_Alloc_IE");
 
     XBIT(data,  4, "Extended DIUC");
     XBIT(data,  4, "Length");
@@ -1767,14 +1699,12 @@ static gint UL_interference_and_noise_level_IE(proto_tree *diuc_tree, const guin
     /* offset of TLV in nibbles, length of TLV in nibbles */
     gint nib;
     gint data;
-    proto_item *ti = NULL;
-    proto_tree *tree = NULL;
+    proto_tree *tree;
     gint bitmap;
 
     nib = offset;
 
-    ti = proto_tree_add_text(diuc_tree, tvb, NIBHI(offset, length), "UL_interference_and_noise_level_IE");
-    tree = proto_item_add_subtree(ti, ett_286h);
+    tree = proto_tree_add_subtree(diuc_tree, tvb, NIBHI(offset, length), ett_286h, NULL, "UL_interference_and_noise_level_IE");
 
     XNIB(data,  1, "Extended DIUC");
     XNIB(data,  1, "Length");
@@ -2079,8 +2009,7 @@ static void dissect_mac_mgmt_msg_dlmap_decoder(tvbuff_t *tvb, packet_info *pinfo
 
     /* PHY Synchronization Field 8.4.5.1 */
     {
-        ti = proto_tree_add_text(dlmap_tree, tvb, offset, 4, "Phy Synchronization Field");
-        phy_tree = proto_item_add_subtree(ti, ett_275_phy);
+        phy_tree = proto_tree_add_subtree(dlmap_tree, tvb, offset, 4, ett_275_phy, NULL, "Phy Synchronization Field");
         proto_tree_add_item(phy_tree, hf_dlmap_phy_fdur_ms, tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(phy_tree, hf_dlmap_phy_fdur_per_sec, tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(phy_tree, hf_dlmap_phy_fdur, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -2097,8 +2026,7 @@ static void dissect_mac_mgmt_msg_dlmap_decoder(tvbuff_t *tvb, packet_info *pinfo
 
     /* DL-MAP IEs */
     length = tvb_len - offset; /* remaining length in bytes */
-    ti = proto_tree_add_text(dlmap_tree, tvb, offset, length, "DL-MAP IEs (%d bytes)", length);
-    ie_tree = proto_item_add_subtree(ti, ett_dlmap_ie);
+    ie_tree = proto_tree_add_subtree_format(dlmap_tree, tvb, offset, length, ett_dlmap_ie, NULL, "DL-MAP IEs (%d bytes)", length);
 
     /* length = BYTE_TO_NIB(length); */ /* convert length to nibbles */
 
@@ -2157,8 +2085,7 @@ gint wimax_decode_dlmapc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *base_tre
     proto_tree_add_item(tree, hf_dlmapc_len,      tvb, offset,   2, ENC_BIG_ENDIAN);
     /* PHY Synchronization Field 8.4.5.1 */
     {
-        ti_phy = proto_tree_add_text(tree, tvb, offset+2, 4, "Phy Synchronization Field");
-        phy_tree = proto_item_add_subtree(ti_phy, ett_275_phy);
+        phy_tree = proto_tree_add_subtree(tree, tvb, offset+2, 4, ett_275_phy, &ti_phy, "Phy Synchronization Field");
         proto_tree_add_item(phy_tree, hf_dlmap_phy_fdur_ms, tvb, offset+2, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(phy_tree, hf_dlmap_phy_fdur_per_sec, tvb, offset+2, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(phy_tree, hf_dlmap_phy_fnum, tvb, offset+3, 3, ENC_BIG_ENDIAN);
@@ -2175,8 +2102,7 @@ gint wimax_decode_dlmapc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *base_tre
     /* DL-MAP IEs */
     length -= 15; /* remaining length in bytes (11 bytes above + CRC at end) */
     if (dl_ie_count) {
-        ti_dlmap_ies = proto_tree_add_text(tree, tvb, offset, length, "DL-MAP IEs (%d bytes)", length);
-        ie_tree = proto_item_add_subtree(ti_dlmap_ies, ett_dlmap_ie);
+        ie_tree = proto_tree_add_subtree_format(tree, tvb, offset, length, ett_dlmap_ie, &ti_dlmap_ies, "DL-MAP IEs (%d bytes)", length);
 
         /* length = BYTE_TO_NIB(mac_len - (int)sizeof(mac_crc) - 1); */ /* convert length to nibbles */
 
@@ -2238,7 +2164,6 @@ gint wimax_decode_sub_dl_ul_map(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     /* decode a SUB-DL-UL-MAP message 6.3.2.3.60 and return the length in bytes */
     /* first three bits are 0x7, which following a compressed DL map indicates this message */
     guint offset = 0;
-    proto_item *ti = NULL;
     proto_tree *tree = NULL;
     proto_tree *ie_tree = NULL;
     proto_item *generic_item = NULL;
@@ -2254,8 +2179,7 @@ gint wimax_decode_sub_dl_ul_map(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 
     sub_dl_ul_map = 1; /* set flag */
 
-    ti = proto_tree_add_text(base_tree, tvb, NIBHI(nib,lennib-nib), "SUB-DL-UL-MAP");
-    tree = proto_item_add_subtree(ti, ett_109x);
+    tree = proto_tree_add_subtree(base_tree, tvb, NIBHI(nib,lennib-nib), ett_109x, NULL, "SUB-DL-UL-MAP");
 
     data = NIB_WORD(nib,bufptr);
     proto_tree_add_uint(tree, hf_109x_cmi,  tvb, NIBHI(nib,4), data);
@@ -2279,8 +2203,7 @@ gint wimax_decode_sub_dl_ul_map(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     nib += 2;
 
     /* DL-MAP IEs */
-    ti = proto_tree_add_text(tree, tvb, NIBHI(nib,1), "DL-MAP IEs");
-    ie_tree = proto_item_add_subtree(ti, ett_109x_dl);
+    ie_tree = proto_tree_add_subtree(tree, tvb, NIBHI(nib,1), ett_109x_dl, NULL, "DL-MAP IEs");
     for (i = 0; i < numie; i++) {
         nib += dissect_dlmap_ie(ie_tree, bufptr, nib, lennib - nib, tvb);
     }
@@ -2294,8 +2217,7 @@ gint wimax_decode_sub_dl_ul_map(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     nib += 2;
 
     /* UL-MAP IEs */
-    ti = proto_tree_add_text(tree, tvb, NIBHI(nib,lennib-nib), "UL-MAP IEs");
-    ie_tree = proto_item_add_subtree(ti, ett_109x_ul);
+    ie_tree = proto_tree_add_subtree(tree, tvb, NIBHI(nib,lennib-nib), ett_109x_ul, NULL, "UL-MAP IEs");
     for ( ; nib < lennib - 1; ) {
         nib += dissect_ulmap_ie(ie_tree, bufptr, nib, lennib - nib, tvb);
     }
