@@ -4274,9 +4274,18 @@ ssl_save_session(SslDecryptSession* ssl, GHashTable *session_hash)
     /* allocate stringinfo chunks for session id and master secret data*/
     StringInfo* session_id;
     StringInfo* master_secret;
+    unsigned i, ms;
 
     if (ssl->session_id.data_len == 0) {
         ssl_debug_printf("ssl_save_session SessionID is empty!\n");
+        return;
+    }
+
+    ms = 0;
+    for (i = 0; i < ssl->master_secret.data_len; i++)
+        ms |= ssl->master_secret.data[i];
+    if (ms == 0) {
+        ssl_debug_printf("%s master secret is empty!\n", __func__);
         return;
     }
 
@@ -4326,9 +4335,18 @@ ssl_save_session_ticket(SslDecryptSession* ssl, GHashTable *session_hash)
     /* allocate stringinfo chunks for session id and master secret data*/
     StringInfo* session_ticket;
     StringInfo* master_secret;
+    unsigned i, ms;
 
     if (ssl->session_ticket.data_len == 0) {
         ssl_debug_printf("ssl_save_session_ticket - session ticket is empty!\n");
+        return;
+    }
+
+    ms = 0;
+    for (i = 0; i < ssl->master_secret.data_len; i++)
+        ms |= ssl->master_secret.data[i];
+    if (ms == 0) {
+        ssl_debug_printf("%s master secret is empty!\n", __func__);
         return;
     }
 
@@ -4369,6 +4387,44 @@ ssl_restore_session_ticket(SslDecryptSession* ssl, GHashTable *session_hash)
     ssl->state |= SSL_MASTER_SECRET;
     ssl_debug_printf("ssl_restore_session_ticket master key retrieved\n");
     return TRUE;
+}
+
+/* Should be called when all parameters are ready (after ChangeCipherSpec), and
+ * the decoder should be attempted to be initialized. */
+void
+ssl_finalize_decryption(SslDecryptSession *ssl, GHashTable *session_hash,
+                        const char *keylog_filename)
+{
+    ssl_debug_printf("%s state = 0x%02X\n", __func__, ssl->state);
+    if (ssl->state & SSL_HAVE_SESSION_KEY) {
+        ssl_debug_printf("  session key already available, nothing to do.\n");
+        return;
+    }
+
+    /* for decryption, there needs to be a master secret (which can be derived
+     * from pre-master secret). If missing, try to pick a master key from cache
+     * (an earlier packet in the capture). If that fails, try to find the master
+     * key in the keylog file. */
+    if (!(ssl->state & (SSL_MASTER_SECRET | SSL_PRE_MASTER_SECRET)) &&
+        !ssl_restore_session(ssl, session_hash) &&
+        !ssl_restore_session_ticket(ssl, session_hash)) {
+        /* If we failed to find the previous session, we may still
+         * have the master secret in the key log. */
+        ssl_debug_printf("Cannot restore session, trying key file\n");
+        if (ssl_keylog_lookup(ssl, keylog_filename, NULL) < 0) {
+            ssl_debug_printf("  cannot find master secret in keylog file either\n");
+            return;
+        } else {
+            ssl_debug_printf("  found master secret in keylog file\n");
+        }
+    }
+
+    if (ssl_generate_keyring_material(ssl) < 0) {
+        ssl_debug_printf("%s can't generate keyring material\n", __func__);
+        return;
+    }
+    ssl_save_session(ssl, session_hash);
+    ssl_debug_printf("%s session keys successfully generated\n", __func__);
 }
 
 gboolean

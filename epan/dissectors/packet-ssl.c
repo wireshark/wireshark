@@ -1595,7 +1595,11 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
         col_append_str(pinfo->cinfo, COL_INFO, "Change Cipher Spec");
         dissect_ssl3_change_cipher_spec(tvb, ssl_record_tree,
                                         offset, session, content_type);
-        if (ssl) ssl_change_cipher(ssl, ssl_packet_from_server(ssl, ssl_associations, pinfo));
+        if (ssl) {
+            ssl_finalize_decryption(ssl, ssl_session_hash,
+                                    ssl_options.keylog_filename);
+            ssl_change_cipher(ssl, ssl_packet_from_server(ssl, ssl_associations, pinfo));
+        }
         break;
     case SSL_ID_ALERT:
     {
@@ -1988,23 +1992,14 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
 
             case SSL_HND_CLIENT_KEY_EXCHG:
                 ssl_dissect_hnd_cli_keyex(&dissect_ssl3_hf, tvb, ssl_hand_tree, offset, length, session);
-                /* PAOLO: here we can have all the data to build session key*/
 
                 if (!ssl)
                     break;
 
+                /* try to find master key from pre-master key */
                 if (ssl_generate_pre_master_secret(ssl, length, tvb, offset, ssl_options.psk, ssl_options.keylog_filename) < 0) {
                     ssl_debug_printf("dissect_ssl3_handshake can't generate pre master secret\n");
-                    break;
                 }
-
-                if (ssl_generate_keyring_material(ssl) < 0) {
-                    ssl_debug_printf("dissect_ssl3_handshake can't generate keyring material\n");
-                    break;
-                }
-
-                ssl_save_session(ssl, ssl_session_hash);
-                ssl_debug_printf("dissect_ssl3_handshake session keys successfully generated\n");
                 break;
 
             case SSL_HND_FINISHED:

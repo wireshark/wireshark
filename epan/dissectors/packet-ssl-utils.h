@@ -595,6 +595,10 @@ ssl_save_session_ticket(SslDecryptSession* ssl, GHashTable *session_hash);
 extern gboolean
 ssl_restore_session_ticket(SslDecryptSession* ssl, GHashTable *session_hash);
 
+extern void
+ssl_finalize_decryption(SslDecryptSession *ssl, GHashTable *session_hash,
+                        const char *keylog_filename);
+
 extern gboolean
 ssl_is_valid_content_type(guint8 type);
 

@@ -851,7 +851,11 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
     col_append_str(pinfo->cinfo, COL_INFO, "Change Cipher Spec");
     dissect_dtls_change_cipher_spec(tvb, dtls_record_tree,
                                     offset, session, content_type);
-    if (ssl) ssl_change_cipher(ssl, ssl_packet_from_server(ssl, dtls_associations, pinfo));
+    if (ssl) {
+        ssl_finalize_decryption(ssl, dtls_session_hash,
+                                dtls_options.keylog_filename);
+        ssl_change_cipher(ssl, ssl_packet_from_server(ssl, dtls_associations, pinfo));
+    }
     break;
   case SSL_ID_ALERT:
     {
@@ -1386,21 +1390,13 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
 
           case SSL_HND_CLIENT_KEY_EXCHG:
             ssl_dissect_hnd_cli_keyex(&dissect_dtls_hf, sub_tvb, ssl_hand_tree, 0, length, session);
-            /* here we can have all the data to build session key */
             if (!ssl)
                 break;
 
+            /* try to find master key from pre-master key */
             if (ssl_generate_pre_master_secret(ssl, length, sub_tvb, 0, dtls_options.psk, dtls_options.keylog_filename) < 0) {
                 ssl_debug_printf("dissect_dtls_handshake can't generate pre master secret\n");
-                break;
             }
-            if (ssl_generate_keyring_material(ssl) < 0) {
-                ssl_debug_printf("dissect_dtls_handshake can't generate keyring material\n");
-                break;
-            }
-
-            ssl_save_session(ssl, dtls_session_hash);
-            ssl_debug_printf("dissect_dtls_handshake session keys successfully generated\n");
             break;
 
           case SSL_HND_FINISHED:
