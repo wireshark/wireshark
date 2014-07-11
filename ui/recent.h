@@ -208,20 +208,20 @@ extern struct remote_host *recent_get_remote_host(const gchar *host);
  *
  * @return size of the hash table
  */
-extern int recent_get_remote_host_list_size();
+extern int recent_get_remote_host_list_size(void);
 
 /**
  * Get the pointer of the remote_host_list.
  *
  * @return Pointer to the hash table
  */
-extern GHashTable *get_remote_host_list();
+extern GHashTable *get_remote_host_list(void);
 
 /**
  * Free all entries of the remote_host_list.
  *
  */
-extern void free_remote_host_list();
+extern void free_remote_host_list(void);
 
 /**
  * Add an entry to the remote_host_list.
