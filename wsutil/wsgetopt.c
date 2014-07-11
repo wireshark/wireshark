@@ -1,4 +1,4 @@
-/* $Id$
+/*
    Copied from glibc-2.15 modified to compile on Windows.
 
    Getopt for GNU.
