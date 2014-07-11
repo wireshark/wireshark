@@ -718,7 +718,7 @@ iseries_parse_packet (wtap * wth, FILE_T fh, struct wtap_pkthdr *phdr,
       /*
        * Skip leading white space.
        */
-      for (offset = 0; isspace(data[offset]); offset++)
+      for (offset = 0; isspace((guchar)data[offset]); offset++)
         ;
 
       /*
