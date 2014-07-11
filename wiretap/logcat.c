@@ -439,12 +439,12 @@ static gboolean logcat_dump_text(wtap_dumper *wdh,
     if (pseudo_header->logcat.version == 1) {
         priority = get_priority(log_entry->msg[0]);
         tag = log_entry->msg + 1;
-        msg_pre_skip = 1 + strlen(tag) + 1;
+        msg_pre_skip = 1 + (gint) strlen(tag) + 1;
         msg_begin = log_entry->msg + msg_pre_skip;
     } else if (pseudo_header->logcat.version == 2) {
         priority = get_priority(log_entry_v2->msg[0]);
         tag = log_entry_v2->msg + 1;
-        msg_pre_skip = 1 + strlen(tag) + 1;
+        msg_pre_skip = 1 + (gint) strlen(tag) + 1;
         msg_begin = log_entry_v2->msg + msg_pre_skip;
     } else {
         *err = WTAP_ERR_UNSUPPORTED;
