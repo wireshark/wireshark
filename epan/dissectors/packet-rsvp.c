@@ -3278,7 +3278,7 @@ dissect_rsvp_tspec(proto_item *ti, proto_tree *rsvp_object_tree,
                 case 128:
                     /* Null Service (RFC2997) */
                     tspec_tree = proto_tree_add_subtree(rsvp_object_tree, tvb,
-                                              offset2, param_len*4, TREE(TT_TSPEC_SUBTREE), NULL,
+                                              offset2, param_len*4, TREE(TT_TSPEC_SUBTREE), &ti2,
                                               "Null Service TSpec: ");
 
                     proto_tree_add_text(tspec_tree, tvb, offset2, 1,
@@ -3306,7 +3306,7 @@ dissect_rsvp_tspec(proto_item *ti, proto_tree *rsvp_object_tree,
                 case 126:
                     /* Compression hint (RFC3006) */
                     tspec_tree = proto_tree_add_subtree(rsvp_object_tree, tvb,
-                                              offset2, param_len*4, TREE(TT_TSPEC_SUBTREE), NULL,
+                                              offset2, param_len*4, TREE(TT_TSPEC_SUBTREE), &ti2,
                                               "Compression Hint: ");
 
                     proto_tree_add_text(tspec_tree, tvb, offset2, 1,
@@ -3570,7 +3570,7 @@ dissect_rsvp_flowspec(proto_item *ti, proto_tree *rsvp_object_tree,
                 case 130:
                     /* Guaranteed-rate RSpec */
                     flowspec_tree = proto_tree_add_subtree(rsvp_object_tree, tvb,
-                                              offset2, param_len*4, TREE(TT_FLOWSPEC_SUBTREE), NULL,
+                                              offset2, param_len*4, TREE(TT_FLOWSPEC_SUBTREE), &ti2,
                                               "Guaranteed-Rate RSpec: ");
                     proto_tree_add_text(flowspec_tree, tvb, offset2, 1,
                                         "Parameter %u - %s",
@@ -3598,7 +3598,7 @@ dissect_rsvp_flowspec(proto_item *ti, proto_tree *rsvp_object_tree,
                 case 128:
                     /* Null Service (RFC2997) */
                     flowspec_tree = proto_tree_add_subtree(rsvp_object_tree, tvb,
-                                              offset2, param_len*4, TREE(TT_FLOWSPEC_SUBTREE), NULL,
+                                              offset2, param_len*4, TREE(TT_FLOWSPEC_SUBTREE), &ti2,
                                               "Null Service Flowspec: ");
 
                     proto_tree_add_text(flowspec_tree, tvb, offset2, 1,
@@ -4394,7 +4394,7 @@ dissect_rsvp_ero_rro_subobjects(proto_tree *ti, proto_tree *rsvp_object_tree,
             k = tvb_get_guint8(tvb, offset+l) & 0x80;
             rsvp_ro_subtree = proto_tree_add_subtree_format(rsvp_object_tree, tvb,
                                       offset+l, 8,
-                                      tree_type, NULL, "IPv4 Subobject - %s%s",
+                                      tree_type, &ti2, "IPv4 Subobject - %s%s",
                                       tvb_ip_to_str(tvb, offset+l+2),
                                       rsvp_class == RSVP_CLASS_EXPLICIT_ROUTE ?
                                       (k ? ", Loose" : ", Strict") : "");
@@ -4440,7 +4440,7 @@ dissect_rsvp_ero_rro_subobjects(proto_tree *ti, proto_tree *rsvp_object_tree,
 
         case 2: /* IPv6 */
             rsvp_ro_subtree = proto_tree_add_subtree(rsvp_object_tree, tvb,
-                                      offset+l, 20, tree_type, NULL,
+                                      offset+l, 20, tree_type, &ti2,
                                       "IPv6 Subobject");
             k = tvb_get_guint8(tvb, offset+l) & 0x80;
             if (rsvp_class == RSVP_CLASS_EXPLICIT_ROUTE)
@@ -4487,7 +4487,7 @@ dissect_rsvp_ero_rro_subobjects(proto_tree *ti, proto_tree *rsvp_object_tree,
             k = tvb_get_guint8(tvb, offset+l) & 0x80;
             rsvp_ro_subtree = proto_tree_add_subtree_format(rsvp_object_tree, tvb,
                                       offset+l, 8,
-                                      tree_type, NULL, "Label Subobject - %d, %s",
+                                      tree_type, &ti2, "Label Subobject - %d, %s",
                                       tvb_get_ntohl(tvb, offset+l+4),
                                       rsvp_class == RSVP_CLASS_EXPLICIT_ROUTE ?
                                       (k ? "Loose" : "Strict") : "");
@@ -4557,7 +4557,7 @@ dissect_rsvp_ero_rro_subobjects(proto_tree *ti, proto_tree *rsvp_object_tree,
             if (rsvp_class == RSVP_CLASS_RECORD_ROUTE) goto defaultsub;
             k = tvb_get_ntohs(tvb, offset+l+2);
             rsvp_ro_subtree = proto_tree_add_subtree_format(rsvp_object_tree, tvb,
-                                      offset+l, 4, tree_type, NULL,
+                                      offset+l, 4, tree_type, &ti2,
                                       "Autonomous System %u",
                                       k);
             proto_tree_add_text(rsvp_ro_subtree, tvb, offset+l, 1,
@@ -4575,7 +4575,7 @@ dissect_rsvp_ero_rro_subobjects(proto_tree *ti, proto_tree *rsvp_object_tree,
             if (rsvp_class == RSVP_CLASS_RECORD_ROUTE) goto defaultsub;
             k = tvb_get_ntohs(tvb, offset+l+2);
             rsvp_ro_subtree = proto_tree_add_subtree_format(rsvp_object_tree, tvb,
-                                      offset+l, 8, tree_type, NULL,
+                                      offset+l, 8, tree_type, &ti2,
                                       "Path Key subobject - %s, %u",
                                       tvb_ip_to_str(tvb, offset+l+4),
                                       k);
@@ -4593,7 +4593,7 @@ dissect_rsvp_ero_rro_subobjects(proto_tree *ti, proto_tree *rsvp_object_tree,
             if (rsvp_class == RSVP_CLASS_RECORD_ROUTE) goto defaultsub;
             k = tvb_get_ntohs(tvb, offset+l+2);
             rsvp_ro_subtree = proto_tree_add_subtree_format(rsvp_object_tree, tvb,
-                                      offset+l, 8, tree_type, NULL,
+                                      offset+l, 8, tree_type, &ti2,
                                       "Path Key subobject - %s, %u",
                                       tvb_ip6_to_str(tvb, offset+l+4),
                                       k);
@@ -4649,7 +4649,7 @@ dissect_rsvp_ero_rro_subobjects(proto_tree *ti, proto_tree *rsvp_object_tree,
                 k = tvb_get_guint8(tvb, offset+l) & 0x80;
                 rsvp_ro_subtree = proto_tree_add_subtree_format(rsvp_object_tree, tvb, offset+l,
                                           tvb_get_guint8(tvb, offset+l+1),
-                                          tree_type, NULL, "Private Subobject: %d", j);
+                                          tree_type, &ti2, "Private Subobject: %d", j);
                 proto_tree_add_text(rsvp_ro_subtree, tvb, offset+l, 1,
                                     k ? "Loose Hop " : "Strict Hop");
                 proto_tree_add_text(rsvp_ro_subtree, tvb, offset+l, 1,
@@ -4672,7 +4672,7 @@ dissect_rsvp_ero_rro_subobjects(proto_tree *ti, proto_tree *rsvp_object_tree,
             rsvp_ro_subtree = proto_tree_add_subtree_format(rsvp_object_tree, tvb,
                                       offset+l,
                                       tvb_get_guint8(tvb, offset+l+1),
-                                      tree_type, NULL, "Unknown subobject: %d", j);
+                                      tree_type, &ti2, "Unknown subobject: %d", j);
             proto_tree_add_text(rsvp_ro_subtree, tvb, offset+l, 1,
                                 k ? "Loose Hop " : "Strict Hop");
             proto_tree_add_text(rsvp_ro_subtree, tvb, offset+l, 1,
@@ -5633,7 +5633,7 @@ dissect_rsvp_gen_uni(proto_tree *ti, proto_tree *rsvp_object_tree,
                 case 1:
                     rsvp_gen_uni_subtree = proto_tree_add_subtree_format(rsvp_object_tree, tvb,
                                               offset2+l, tvb_get_ntohs(tvb, offset2+l),
-                                              TREE(TT_GEN_UNI_SUBOBJ), NULL, "Diversity Subobject");
+                                              TREE(TT_GEN_UNI_SUBOBJ), &ti2, "Diversity Subobject");
                     proto_tree_add_text(rsvp_gen_uni_subtree, tvb, offset2+l+2, 1,
                                         "Class: %d (Diversity)", j);
                     proto_tree_add_text(rsvp_gen_uni_subtree, tvb, offset2+l+3, 1,
@@ -5648,7 +5648,7 @@ dissect_rsvp_gen_uni(proto_tree *ti, proto_tree *rsvp_object_tree,
                     s_class = tvb_get_guint8(tvb, offset2+l+10);
                     s_type = tvb_get_guint8(tvb, offset2+l+11);
                     rsvp_session_subtree = proto_tree_add_subtree(rsvp_gen_uni_subtree, tvb, offset2+l+8,
-                                              s_len, TREE(rsvp_class_to_tree_type(s_class)), NULL, "Session");
+                                              s_len, TREE(rsvp_class_to_tree_type(s_class)), &ti2, "Session");
                     if (s_len < 4) {
                         proto_tree_add_text(rsvp_object_tree, tvb, offset2+l+8, 2,
                             "Length: %u (bogus, must be >= 4)", s_len);
@@ -5665,7 +5665,7 @@ dissect_rsvp_gen_uni(proto_tree *ti, proto_tree *rsvp_object_tree,
                     s_class = tvb_get_guint8(tvb, offset3+l+10);
                     s_type = tvb_get_guint8(tvb, offset3+l+11);
                     rsvp_template_subtree = proto_tree_add_subtree(rsvp_gen_uni_subtree, tvb, offset3+l+8,
-                                              s_len, TREE(rsvp_class_to_tree_type(s_class)), NULL, "Template");
+                                              s_len, TREE(rsvp_class_to_tree_type(s_class)), &ti2, "Template");
 
                     if (s_len < 4) {
                         proto_tree_add_text(rsvp_object_tree, tvb, offset3+l+8, 2,
