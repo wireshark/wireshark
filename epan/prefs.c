@@ -3333,8 +3333,8 @@ read_prefs_file(const char *pf_path, FILE *pf,
 
                  Since we're reading a file, rather than processing
                  explicit user input, for range preferences, silently
-                 silently lower values in excess of the range's maximum,
-                 rather than reporting errors and failing. */
+                 lower values in excess of the range's maximum, rather
+		 than reporting errors and failing. */
               switch (pref_set_pair_fct(cur_var->str, cur_val->str, private_data, FALSE)) {
 
               case PREFS_SET_OK:
@@ -3418,8 +3418,8 @@ read_prefs_file(const char *pf_path, FILE *pf,
 
          Since we're reading a file, rather than processing
          explicit user input, for range preferences, silently
-         silently lower values in excess of the range's maximum,
-         rather than reporting errors and failing. */
+         lower values in excess of the range's maximum, rather
+	 than reporting errors and failing. */
       switch (pref_set_pair_fct(cur_var->str, cur_val->str, private_data, FALSE)) {
 
       case PREFS_SET_OK:
