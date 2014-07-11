@@ -302,7 +302,13 @@ else()
 	if(CMAKE_C_COMPILER_ID MATCHES "Clang")
 		set(WIRESHARK_COMMON_FLAGS ${WIRESHARK_COMMON_FLAGS}
 			#-fcolor-diagnostics
-	)
+		)
+
+		# ccache + clang++ can result in "argument unused during
+		# compilation" warnings.
+		set(WIRESHARK_CPP_ONLY_FLAGS ${WIRESHARK_CPP_ONLY_FLAGS}
+			-Qunused-arguments
+		)
 	else()
 		set(WIRESHARK_COMMON_FLAGS ${WIRESHARK_COMMON_FLAGS}
 			-fexcess-precision=fast
