@@ -2513,15 +2513,9 @@ dissect_ospf_v2_lsa(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *t
         }
 
         nr_links = tvb_get_ntohs(tvb, offset + 2);
-        /* ti =*/ proto_tree_add_item(ospf_lsa_tree, hf_ospf_lsa_number_of_links, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
-        offset += 4;
+        proto_tree_add_item(ospf_lsa_tree, hf_ospf_lsa_number_of_links, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
 
-/*      This constraint (>=0) makes no sense
- *      if (nr_links < 0) {
- *              expert_add_info_format(pinfo, ti, &ei_ospf_lsa_constraint_missing, "(>= 0 link descriptors required");
- *              break;
- *      }
- */
+        offset += 4;
 
         /* nr_links links follow
          * maybe we should put each of the links into its own subtree ???
@@ -2601,9 +2595,6 @@ dissect_ospf_v2_lsa(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *t
         ti = proto_tree_add_uint(ospf_lsa_tree, hf_ospf_metric, tvb, offset, 4,
                             tvb_get_ntoh24(tvb, offset + 1));
         offset += 4;
-
-        if (offset == end_offset)
-                expert_add_info_format(pinfo, ti, &ei_ospf_lsa_constraint_missing, "(>= 1 TOS metric blocks required");
 
         /* Metric specific information, if any */
         while (offset < end_offset) {
