@@ -215,7 +215,7 @@ static gint detect_version(wtap *wth, int *err, gchar **err_info)
 
         /* if msg is '\0'-terminated, is it equal to the payload len? */
         ++msg_part;
-        msg_len = payload_length - (msg_part - msg_payload);
+        msg_len = (guint16)(payload_length - (msg_part - msg_payload));
         msg_end = (guint8 *) memchr(msg_part, '\0', msg_len);
         /* is the end of the buffer (-1) equal to the end of msg? */
         if (msg_end && (msg_payload + payload_length - 1 != msg_end))
@@ -249,9 +249,9 @@ static gboolean logcat_read_packet(struct logcat_phdr *logcat, FILE_T fh,
     payload_length = pletoh16(tmp);
 
     if (logcat->version == 1) {
-        packet_size = sizeof(struct logger_entry) + payload_length;
+        packet_size = (gint)sizeof(struct logger_entry) + payload_length;
     } else if (logcat->version == 2) {
-        packet_size = sizeof(struct logger_entry_v2) + payload_length;
+        packet_size = (gint)sizeof(struct logger_entry_v2) + payload_length;
     } else {
         return FALSE;
     }
