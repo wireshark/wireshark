@@ -402,7 +402,7 @@ dissect_lacp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         proto_tree_add_item(lacpdu_tree, hf_lacp_partner_reserved, tvb,
                 offset, 3, ENC_NA);
-        offset += 3; 
+        offset += 3;
 
         /* Collector Type */
 
@@ -691,3 +691,16 @@ proto_reg_handoff_lacp(void)
     lacp_handle = create_dissector_handle(dissect_lacp, proto_lacp);
     dissector_add_uint("slow.subtype", LACP_SUBTYPE, lacp_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

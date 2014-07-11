@@ -3122,7 +3122,7 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
     guint32                  k_device_address;
     guint32                  k_bus_id;
 
-        
+
     /* the goal is to get the conversation struct as early as possible
        and store all status values in this struct
        at first, we read the fields required to create/identify

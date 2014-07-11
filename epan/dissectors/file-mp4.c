@@ -148,7 +148,7 @@ make_fract(guint x)
     if (x==0)
         return 0.0;
 
-    return (double)(x / exp(log(10.0)*(1+floor(log((double)x)/log(10.0))))); 
+    return (double)(x / exp(log(10.0)*(1+floor(log((double)x)/log(10.0)))));
 }
 
 static gint

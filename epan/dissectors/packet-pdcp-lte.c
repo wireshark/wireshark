@@ -60,7 +60,7 @@ void proto_reg_handoff_pdcp_lte(void);
    - Decipher even if sequence analysis isn't 'OK'?
       - know SN, but might be unsure about HFN.
    - Speed up AES decryption by keeping the crypt handle around for the channel
-     (like ESP decryption in IPSEC dissector) 
+     (like ESP decryption in IPSEC dissector)
    - Add Relay Node user plane data PDU dissection
 */
 

@@ -5649,7 +5649,7 @@ int dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
                 if (!pinfo->fd->flags.visited) {
                     /* Update UE state to this subframe (but before this event is processed) */
                     update_drx_info(pinfo, p_mac_lte_info);
-        
+
                     /* Store 'before' snapshot of UE state for this frame */
                     set_drx_info(pinfo, p_mac_lte_info, TRUE, pdu_instance);
                 }

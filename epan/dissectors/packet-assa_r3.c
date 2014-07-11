@@ -4491,7 +4491,7 @@ dissect_r3_upstreammfgfield_taskflags (tvbuff_t *tvb, guint32 start_offset, guin
   for (i = 0; i < len; i += 5)
   {
     proto_tree *tf_tree = proto_tree_add_subtree_format(tfg_tree, tvb, i, 5,
-                                               ett_r3taskflagsentry, NULL, 
+                                               ett_r3taskflagsentry, NULL,
                                                "Task Flags (%2d: 0x%06x)",
                                                tvb_get_guint8 (tvb, i + 0),
                                                tvb_get_letohl (tvb, i + 1));

@@ -7501,7 +7501,7 @@ dissect_PDSubFrameBlock_block(tvbuff_t *tvb, int offset,
     u16RemainingLength = u16BodyLength - 8;
     while (u16RemainingLength >= 4)
     {
-        guint8 Position, 
+        guint8 Position,
                DataLength;
         sub_item = proto_tree_add_item(tree, hf_pn_io_subframe_data, tvb, offset, 4, ENC_BIG_ENDIAN);
         sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_subframe_data);

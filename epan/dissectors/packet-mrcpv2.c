@@ -1506,7 +1506,7 @@ proto_register_mrcpv2(void)
     };
 
     range_convert_str(&global_mrcpv2_tcp_range, TCP_DEFAULT_RANGE, 65535);
-    mrcpv2_tcp_range = range_empty();	
+    mrcpv2_tcp_range = range_empty();
 
     proto_mrcpv2 = proto_register_protocol(
         "Media Resource Control Protocol Version 2 (MRCPv2)",
@@ -1518,7 +1518,7 @@ proto_register_mrcpv2(void)
 
     mrcpv2_module = prefs_register_protocol(proto_mrcpv2, proto_reg_handoff_mrcpv2);
 
-    prefs_register_obsolete_preference(mrcpv2_module, "tcp.port");	
+    prefs_register_obsolete_preference(mrcpv2_module, "tcp.port");
     prefs_register_range_preference(mrcpv2_module, "tcp.port_range", "MRCPv2 TCP Port",
          "MRCPv2 TCP Ports Range",
          &global_mrcpv2_tcp_range, 65535);

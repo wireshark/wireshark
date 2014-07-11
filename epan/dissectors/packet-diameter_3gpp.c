@@ -214,8 +214,8 @@ dissect_diameter_3gpp_ms_timezone(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
     oct = tvb_get_guint8(tvb, offset);
     sign = (oct & 0x08) ? '-' : '+';
     oct = (oct >> 4) + (oct & 0x07) * 10;
-	hours =  oct / 4;
-	minutes = oct % 4 * 15;
+    hours =  oct / 4;
+    minutes = oct % 4 * 15;
 
     proto_tree_add_text(tree, tvb, offset, 1, "Timezone: GMT %c %d hours %d minutes", sign, hours, minutes);
     offset++;
@@ -224,9 +224,9 @@ dissect_diameter_3gpp_ms_timezone(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
     proto_tree_add_text(tree, tvb, offset, 1, "%s", val_to_str_const(oct, daylight_saving_time_vals, "Unknown"));
     offset++;
 
-    diam_sub_dis->avp_str = wmem_strdup_printf(wmem_packet_scope(), "Timezone: GMT %c %d hours %d minutes %s", 
-        sign, 
-        hours, 
+    diam_sub_dis->avp_str = wmem_strdup_printf(wmem_packet_scope(), "Timezone: GMT %c %d hours %d minutes %s",
+        sign,
+        hours,
         minutes,
         val_to_str_const(oct, daylight_saving_time_vals, "Unknown"));
 
@@ -302,7 +302,7 @@ dissect_diameter_3gpp_feature_list_id(tvbuff_t *tvb, packet_info *pinfo _U_, pro
         diam_sub_dis_inf->feature_list_id = tvb_get_ntohl(tvb,0);
     }
 
-	return 4;
+    return 4;
 }
 
 /* AVP Code: 637 UAR-Flags
@@ -633,7 +633,7 @@ dissect_diameter_3gpp_ipaddr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 
 }
 
-/* AVP Code: 903 RAI AVP 
+/* AVP Code: 903 RAI AVP
  * 17.7.12 RAI AVP
  * The RAI AVP (AVP Code 909) is of type UTF8String, and contains the Routing Area Identity of the SGSN where the
  * UE is registered. RAI use and structure is specified in 3GPP TS 23.003 [40].
@@ -666,14 +666,14 @@ dissect_diameter_3gpp_rai(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
             tvb_get_string_enc(wmem_packet_scope(), tvb,  3, 3, ENC_UTF_8|ENC_NA), /* MCC 3 digits */
             tvb_get_string_enc(wmem_packet_scope(), tvb,  6, 4, ENC_UTF_8|ENC_NA), /* LCC 4 digits */
             tvb_get_string_enc(wmem_packet_scope(), tvb, 10, 2, ENC_UTF_8|ENC_NA)  /* RAC 2 digits */
-			);
+            );
     }else{
         diam_sub_dis->avp_str = wmem_strdup_printf(wmem_packet_scope(), "MNC %s, MCC %s, LAC 0x%s, RAC 0x%s",
             tvb_get_string_enc(wmem_packet_scope(), tvb,  0, 3, ENC_UTF_8|ENC_NA), /* MNC 3 digits */
             tvb_get_string_enc(wmem_packet_scope(), tvb,  3, 2, ENC_UTF_8|ENC_NA), /* MCC 2 digits */
             tvb_get_string_enc(wmem_packet_scope(), tvb,  5, 4, ENC_UTF_8|ENC_NA), /* LCC 4 digits */
             tvb_get_string_enc(wmem_packet_scope(), tvb,  9, 2, ENC_UTF_8|ENC_NA)  /* RAC 2 digits */
-			);
+            );
     }
 
     return offset;
@@ -1006,7 +1006,7 @@ proto_reg_handoff_diameter_3gpp(void)
     /* AVP Code: 23 3GPP-MS-TimeZone */
     dissector_add_uint("diameter.3gpp", 23, new_create_dissector_handle(dissect_diameter_3gpp_ms_timezone, proto_diameter_3gpp));
 
-	/* AVP Code: 600 Visited-Network-Identifier */
+    /* AVP Code: 600 Visited-Network-Identifier */
     dissector_add_uint("diameter.3gpp", 600, new_create_dissector_handle(dissect_diameter_3gpp_visited_nw_id, proto_diameter_3gpp));
 
     /* AVP Code: 606 User-Data */
@@ -1238,7 +1238,7 @@ proto_register_diameter_3gpp(void)
             FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0x0,
             NULL, HFILL }
         },
-		{ &hf_diameter_3gpp_feature_list1_s6a_flags_bit9,
+        { &hf_diameter_3gpp_feature_list1_s6a_flags_bit9,
             { "Regional Subscription", "diameter.3gpp.feature_list1_s6a_flags_bit9",
             FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0x0,
             NULL, HFILL }
@@ -1289,7 +1289,7 @@ proto_register_diameter_3gpp(void)
             FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0x0,
             NULL, HFILL }
         },
-		{ &hf_diameter_3gpp_feature_list1_s6a_flags_bit19,
+        { &hf_diameter_3gpp_feature_list1_s6a_flags_bit19,
             { "Allow an MS to perform self location without interaction with the PLMN", "diameter.3gpp.feature_list1_s6a_flags_bit19",
             FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0x0,
             NULL, HFILL }
@@ -1731,3 +1731,16 @@ proto_register_diameter_3gpp(void)
     proto_register_field_array(proto_diameter_3gpp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

@@ -1010,9 +1010,9 @@ SIPcalls_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 	if(NULL==tapinfo->callsinfo_hashtable[SIP_HASH]) {
 		/* TODO: check how efficient g_str_hash is for sip call ids */
 		tapinfo->callsinfo_hashtable[SIP_HASH]=g_hash_table_new_full(g_str_hash,
-															g_str_equal,
-															NULL, /* key_destroy_func */
-                                                         	NULL);/* value_destroy_func */
+									     g_str_equal,
+									     NULL, /* key_destroy_func */
+									     NULL);/* value_destroy_func */
 	}
 	/* search the call information in the SIP_HASH */
 	callsinfo = (voip_calls_info_t *)g_hash_table_lookup(tapinfo->callsinfo_hashtable[SIP_HASH], key);
@@ -1087,7 +1087,7 @@ SIPcalls_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 					callsinfo->call_comment=g_strdup_printf("%s %u",
 										callsinfo->call_comment,
 										pi->response_code/*, pi->reason_phrase*/);
-					
+
 					g_free(old_comment);
 				}
 
@@ -1647,7 +1647,7 @@ q931_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, co
 				/* get the Q931 Release cause code */
 				if (q931_cause_value != 0xFF) {
 					comment = g_strdup_printf("H225 Q931 Rel Cause (%i):%s", q931_cause_value,
-                                                                  val_to_str_ext_const(q931_cause_value, &q931_cause_code_vals_ext, "<unknown>"));
+								  val_to_str_ext_const(q931_cause_value, &q931_cause_code_vals_ext, "<unknown>"));
 				} else { /* Cause not set */
 					comment = g_strdup("H225 No Q931 Rel Cause");
 				}
@@ -1766,7 +1766,7 @@ q931_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, co
 			}
 			if (q931_cause_value != 0xFF) {
 				comment = g_strdup_printf("AC_ISDN trunk:%u Q931 Rel Cause (%i):%s", actrace_trunk, q931_cause_value,
-                                                          val_to_str_ext_const(q931_cause_value, &q931_cause_code_vals_ext, "<unknown>"));
+							  val_to_str_ext_const(q931_cause_value, &q931_cause_code_vals_ext, "<unknown>"));
 			} else { /* Cause not set */
 				comment = g_strdup("AC_ISDN No Q931 Rel Cause");
 			}
@@ -3714,21 +3714,21 @@ remove_tap_listener_unistim_calls(void)
 
 /* Telecaster to tap-voip call state mapping */
 static const voip_call_state skinny_tap_voip_state[] = {
-        VOIP_NO_STATE,
-        VOIP_CALL_SETUP,
-        VOIP_COMPLETED,
-        VOIP_RINGING,
-        VOIP_RINGING,
-        VOIP_IN_CALL,
-        VOIP_REJECTED,
-        VOIP_REJECTED,
-        VOIP_IN_CALL,
-        VOIP_IN_CALL,
-        VOIP_COMPLETED,
-        VOIP_COMPLETED,
-        VOIP_CALL_SETUP,
-        VOIP_UNKNOWN,
-        VOIP_REJECTED
+	VOIP_NO_STATE,
+	VOIP_CALL_SETUP,
+	VOIP_COMPLETED,
+	VOIP_RINGING,
+	VOIP_RINGING,
+	VOIP_IN_CALL,
+	VOIP_REJECTED,
+	VOIP_REJECTED,
+	VOIP_IN_CALL,
+	VOIP_IN_CALL,
+	VOIP_COMPLETED,
+	VOIP_COMPLETED,
+	VOIP_CALL_SETUP,
+	VOIP_UNKNOWN,
+	VOIP_REJECTED
 };
 
 static int
@@ -4063,7 +4063,7 @@ VoIPcalls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 	callsinfo->call_active_state = pi->call_active_state;
 	if ((callsinfo->call_state != VOIP_COMPLETED) && (pi->call_state == VOIP_COMPLETED))
 		tapinfo->completed_calls++;
-        if (pi->call_state != VOIP_NO_STATE)
+	if (pi->call_state != VOIP_NO_STATE)
 		callsinfo->call_state = pi->call_state;
 	if (pi->call_comment) {
 		g_free(callsinfo->call_comment);

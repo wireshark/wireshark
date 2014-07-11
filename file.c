@@ -2386,7 +2386,7 @@ cf_retap_packets(capture_file *cf)
   if (cf == NULL) {
     return CF_READ_ABORTED;
   }
-  
+
   /* Do we have any tap listeners with filters? */
   filtering_tap_listeners = have_filtering_tap_listeners();
 

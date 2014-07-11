@@ -58,7 +58,7 @@ RWHOD(8)                 UNIX System Manager's Manual                 RWHOD(8)
            };
  *
  */
- 
+
 void proto_register_who(void);
 void proto_reg_handoff_who(void);
 
@@ -299,3 +299,16 @@ proto_reg_handoff_who(void)
 	who_handle = create_dissector_handle(dissect_who, proto_who);
 	dissector_add_uint("udp.port", UDP_PORT_WHO, who_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

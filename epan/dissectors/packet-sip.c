@@ -2058,8 +2058,8 @@ static void dissect_sip_route_header(tvbuff_t *tvb, proto_tree *tree, packet_inf
     return;
 }
 
-/* Dissect the details of a Via header 
- * 
+/* Dissect the details of a Via header
+ *
  * Via               =  ( "Via" / "v" ) HCOLON via-parm *(COMMA via-parm)
  * via-parm          =  sent-protocol LWS sent-by *( SEMI via-params )
  * via-params        =  via-ttl / via-maddr
