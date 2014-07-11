@@ -7647,6 +7647,10 @@ decode_gtp_data_req(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree 
     proto_tree_add_text(ext_tree, tvb, offset, 2, "Length: %u", length);
     offset+=2;
 
+    if (length == 0) {
+        return 3;
+    }
+
     /* Octet 4 Number of Data Records */
     no = tvb_get_guint8(tvb, offset);
     proto_tree_add_text(ext_tree, tvb, offset, 1, "Number of data records: %u", no);
