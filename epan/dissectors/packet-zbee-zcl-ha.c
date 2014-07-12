@@ -1018,10 +1018,8 @@ dissect_zcl_appl_evtalt_cmd_id(proto_tree* tree, tvbuff_t* tvb, guint* offset, g
  *---------------------------------------------------------------
  */
 
-void proto_register_zbee_zcl_appl_evtalt
-  (
-    void
-  )
+void
+proto_register_zbee_zcl_appl_evtalt(void)
 {
     guint i, j;
 
