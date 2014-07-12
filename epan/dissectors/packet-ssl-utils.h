@@ -743,16 +743,6 @@ typedef struct {
     /* Do not forget to initialize dtls_hfs to -1 in packet-dtls.c! */
 } dtls_hfs_t;
 
-extern gint
-ssl_dissect_hnd_hello_ext(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree,
-                          guint32 offset, guint32 left, gboolean is_client,
-                          SslSession *session, SslDecryptSession *ssl);
-
-extern gint
-ssl_dissect_hnd_hello_common(ssl_common_dissect_t *hf, tvbuff_t *tvb,
-                             proto_tree *tree, guint32 offset,
-                             SslDecryptSession *ssl, gboolean from_server);
-
 extern void
 ssl_dissect_hnd_cli_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                           packet_info *pinfo, proto_tree *tree, guint32 offset,
@@ -764,10 +754,6 @@ extern void
 ssl_dissect_hnd_srv_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                           proto_tree *tree, guint32 offset, guint32 length,
                           SslSession *session, SslDecryptSession *ssl);
-
-extern gint
-ssl_dissect_hash_alg_list(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree,
-                          guint32 offset, guint16 len);
 
 extern void
 ssl_dissect_hnd_cert(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree,

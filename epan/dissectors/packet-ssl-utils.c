@@ -4875,7 +4875,7 @@ ssldecrypt_uat_fld_password_chk_cb(void* r _U_, const char* p, guint len _U_, co
 /* dissect a list of hash algorithms, return the number of bytes dissected
    this is used for the signature algorithms extension and for the
    TLS1.2 certificate request */
-gint
+static gint
 ssl_dissect_hash_alg_list(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree,
                           guint32 offset, guint16 len)
 {
@@ -5168,7 +5168,7 @@ ssl_dissect_hnd_hello_ext_cert_type(ssl_common_dissect_t *hf, tvbuff_t *tvb,
     return offset;
 }
 
-gint
+static gint
 ssl_dissect_hnd_hello_common(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                              proto_tree *tree, guint32 offset,
                              SslDecryptSession *ssl, gboolean from_server)
@@ -5235,6 +5235,11 @@ ssl_dissect_hnd_hello_common(ssl_common_dissect_t *hf, tvbuff_t *tvb,
 
     return offset;
 }
+
+static gint
+ssl_dissect_hnd_hello_ext(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree,
+                          guint32 offset, guint32 left, gboolean is_client,
+                          SslSession *session, SslDecryptSession *ssl);
 
 void
 ssl_dissect_hnd_cli_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
@@ -5820,7 +5825,7 @@ ssl_dissect_hnd_hello_ext_ec_point_formats(ssl_common_dissect_t *hf, tvbuff_t *t
     return offset;
 }
 
-gint
+static gint
 ssl_dissect_hnd_hello_ext(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree,
                           guint32 offset, guint32 left, gboolean is_client,
                           SslSession *session, SslDecryptSession *ssl)
