@@ -968,7 +968,7 @@ static const value_string ssl_31_ciphersuite[] = {
     { 0xC0AA, "TLS_PSK_DHE_WITH_AES_128_CCM_8" },
     { 0xC0AB, "TLS_PSK_DHE_WITH_AES_256_CCM_8" },
 
-    /* http://www.iana.org/go/draft-mcgrew-tls-aes-ccm-ecc-08 */
+    /* RFC 7251 */
     { 0xC0AC, "TLS_ECDHE_ECDSA_WITH_AES_128_CCM" },
     { 0xC0AD, "TLS_ECDHE_ECDSA_WITH_AES_256_CCM" },
     { 0xC0AE, "TLS_ECDHE_ECDSA_WITH_AES_128_CCM_8" },
@@ -1103,8 +1103,8 @@ const value_string tls_hello_extension_types[] = {
     { SSL_HND_HELLO_EXT_ALPN, "Application Layer Protocol Negotiation" }, /* RFC 7301 */
     { SSL_HND_HELLO_EXT_STATUS_REQUEST_V2, "status_request_v2" }, /* RFC 6961 */
     { 18, "signed_certificate_timestamp" }, /* RFC 6962 */
-    { SSL_HND_HELLO_EXT_CLIENT_CERT_TYPE, "client_certificate_type" }, /* http://tools.ietf.org/html/draft-ietf-tls-oob-pubkey-11 */
-    { SSL_HND_HELLO_EXT_SERVER_CERT_TYPE, "server_certificate_type" }, /* http://tools.ietf.org/html/draft-ietf-tls-oob-pubkey-11 */
+    { SSL_HND_HELLO_EXT_CLIENT_CERT_TYPE, "client_certificate_type" }, /* RFC 7250 */
+    { SSL_HND_HELLO_EXT_SERVER_CERT_TYPE, "server_certificate_type" }, /* RFC 7250 */
     { SSL_HND_HELLO_EXT_PADDING, "Padding" }, /* http://tools.ietf.org/html/draft-agl-tls-padding */
     { SSL_HND_HELLO_EXT_SESSION_TICKET, "SessionTicket TLS" },  /* RFC 4507 */
     { SSL_HND_HELLO_EXT_NPN, "next_protocol_negotiation"}, /* http://technotes.googlecode.com/git/nextprotoneg.html */
@@ -1147,7 +1147,7 @@ const value_string tls_signature_algorithm[] = {
 const value_string tls_certificate_type[] = {
     { 0, "X.509" },
     { 1, "OpenPGP" },
-    { SSL_HND_CERT_TYPE_RAW_PUBLIC_KEY, "Raw Public Key" }, /* http://tools.ietf.org/html/draft-ietf-tls-oob-pubkey-11 */
+    { SSL_HND_CERT_TYPE_RAW_PUBLIC_KEY, "Raw Public Key" }, /* RFC 7250 */
     { 0, NULL }
 };
 
