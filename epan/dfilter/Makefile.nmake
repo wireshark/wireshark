@@ -58,7 +58,7 @@ distclean: clean
 
 maintainer-clean: distclean
 
-RUNLEX=..\..\tools\runlex.sh
+RUNLEX=../../tools/runlex.sh
 
 scanner_lex.h : scanner.c
 scanner.obj : scanner.c grammar.h

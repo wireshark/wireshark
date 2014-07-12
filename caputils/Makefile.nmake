@@ -35,7 +35,7 @@ include Makefile.common
 CAPUTILS_OBJECTS = \
 	$(CAPUTILS_SRC:.c=.obj)
 
-RUNLEX=..\tools\runlex.sh
+RUNLEX=../tools/runlex.sh
 
 libcaputils.lib	: ..\config.h $(CAPUTILS_OBJECTS)
 	link /lib /out:libcaputils.lib $(CAPUTILS_OBJECTS)

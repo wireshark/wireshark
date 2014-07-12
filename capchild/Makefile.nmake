@@ -30,7 +30,7 @@ include Makefile.common
 CAPCHILD_OBJECTS = \
 	$(CAPCHILD_SRC:.c=.obj)
 
-RUNLEX=..\tools\runlex.sh
+RUNLEX=../tools/runlex.sh
 
 libcapchild.lib	: ..\config.h $(CAPCHILD_OBJECTS)
 	link /lib /out:libcapchild.lib $(CAPCHILD_OBJECTS)

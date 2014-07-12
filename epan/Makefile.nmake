@@ -373,7 +373,7 @@ asm_utils_win32_x86.obj: asm_utils_win32_x86.asm
 update-sminmpec:
 	$(PERL) ../tools/make-sminmpec.pl
 
-RUNLEX=..\tools\runlex.sh
+RUNLEX=../tools/runlex.sh
 
 #
 # We compile these specially because they're Flex-generated and thus

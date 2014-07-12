@@ -39,7 +39,7 @@ wiretap-$(WTAP_VERSION).dll : $(OBJECTS) ..\image\wiretap.res
 		..\image\wiretap.res \
 		$(OBJECTS) $(wiretap_LIBS)
 
-RUNLEX = ..\tools\runlex.sh
+RUNLEX = ../tools/runlex.sh
 
 k12text_lex.h : k12text.c
 k12text.obj : k12text.c

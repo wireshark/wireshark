@@ -116,7 +116,7 @@ maintainer-clean: distclean
 	rm -f $(GENERATED_SRC_FILES) \
 		$(GENERATED_HEADER_FILES)
 
-RUNLEX = ..\..\tools\runlex.sh
+RUNLEX = ../../tools/runlex.sh
 
 #
 # In order to generate mate_parser_lex.h, we need to run Flex on
