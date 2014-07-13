@@ -224,8 +224,8 @@ extern const value_string tls_hello_ext_server_name_type_vs[];
 
 /* XXX Should we use GByteArray instead? */
 typedef struct _StringInfo {
-    guchar* data;
-    guint data_len;
+    guchar  *data;      /*< Backing storage which may be larger than data_len */
+    guint    data_len;  /*< Length of the meaningful part of data */
 } StringInfo;
 
 #define SSL_WRITE_KEY           1
@@ -352,9 +352,12 @@ typedef struct _SslSession {
     gint8 server_cert_type;
 } SslSession;
 
+/* RFC 5246, section 8.1 says that the master secret is always 48 bytes */
+#define SSL_MASTER_SECRET_LENGTH        48
+
 /* This holds state information for a SSL conversation */
 typedef struct _SslDecryptSession {
-    guchar _master_secret[48];
+    guchar _master_secret[SSL_MASTER_SECRET_LENGTH];
     guchar _session_id[256];
     guchar _client_random[32];
     guchar _server_random[32];

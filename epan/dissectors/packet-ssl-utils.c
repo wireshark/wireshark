@@ -1451,15 +1451,15 @@ static gboolean from_hex(StringInfo* out, const char* in, gsize hex_len) {
     if (hex_len & 1)
         return FALSE;
 
-    out->data_len = (guint)hex_len/2;
-    out->data = (guchar *)wmem_alloc(wmem_file_scope(), out->data_len);
-    for (i = 0; i < out->data_len; i++) {
+    out->data = (guchar *)wmem_alloc(wmem_file_scope(), hex_len / 2);
+    for (i = 0; i < hex_len / 2; i++) {
         int a = ws_xton(in[i*2]);
         int b = ws_xton(in[i*2 + 1]);
         if (a == -1 || b == -1)
             return FALSE;
         out->data[i] = a << 4 | b;
     }
+    out->data_len = (guint)hex_len / 2;
     return TRUE;
 }
 
@@ -2101,68 +2101,79 @@ ssl_find_cipher(int num,SslCipherSuite* cs)
     return -1;
 }
 
-static gint
-tls_hash(StringInfo* secret, StringInfo* seed, gint md, StringInfo* out)
+static void
+tls_hash(StringInfo *secret, StringInfo *seed, gint md,
+         StringInfo *out, guint out_len)
 {
+    /* RFC 2246 5. HMAC and the pseudorandom function
+     * '+' denotes concatenation.
+     * P_hash(secret, seed) = HMAC_hash(secret, A(1) + seed) +
+     *                        HMAC_hash(secret, A(2) + seed) + ...
+     * A(0) = seed
+     * A(i) = HMAC_hash(secret, A(i - 1))
+     */
     guint8   *ptr;
-    guint     left;
-    gint      tocpy;
+    guint     left, tocpy;
     guint8   *A;
-    guint8    _A[DIGEST_MAX_SIZE],tmp[DIGEST_MAX_SIZE];
-    guint     A_l,tmp_l;
+    guint8    _A[DIGEST_MAX_SIZE], tmp[DIGEST_MAX_SIZE];
+    guint     A_l, tmp_l;
     SSL_HMAC  hm;
-    ptr  = out->data;
-    left = out->data_len;
 
+    ptr  = out->data;
+    left = out_len;
 
     ssl_print_string("tls_hash: hash secret", secret);
     ssl_print_string("tls_hash: hash seed", seed);
-    A=seed->data;
-    A_l=seed->data_len;
+    /* A(0) = seed */
+    A = seed->data;
+    A_l = seed->data_len;
 
-    while(left){
-        ssl_hmac_init(&hm,secret->data,secret->data_len,md);
-        ssl_hmac_update(&hm,A,A_l);
-        A_l = sizeof(_A);
-        ssl_hmac_final(&hm,_A,&A_l);
+    while (left) {
+        /* A(i) = HMAC_hash(secret, A(i-1)) */
+        ssl_hmac_init(&hm, secret->data, secret->data_len, md);
+        ssl_hmac_update(&hm, A, A_l);
+        A_l = sizeof(_A); /* upper bound len for hash output */
+        ssl_hmac_final(&hm, _A, &A_l);
         ssl_hmac_cleanup(&hm);
-        A=_A;
+        A = _A;
 
-        ssl_hmac_init(&hm,secret->data,secret->data_len,md);
-        ssl_hmac_update(&hm,A,A_l);
-        ssl_hmac_update(&hm,seed->data,seed->data_len);
-        tmp_l = sizeof(tmp);
-        ssl_hmac_final(&hm,tmp,&tmp_l);
+        /* HMAC_hash(secret, A(i) + seed) */
+        ssl_hmac_init(&hm, secret->data, secret->data_len, md);
+        ssl_hmac_update(&hm, A, A_l);
+        ssl_hmac_update(&hm, seed->data, seed->data_len);
+        tmp_l = sizeof(tmp); /* upper bound len for hash output */
+        ssl_hmac_final(&hm, tmp, &tmp_l);
         ssl_hmac_cleanup(&hm);
 
-        tocpy=MIN(left,tmp_l);
-        memcpy(ptr,tmp,tocpy);
-        ptr+=tocpy;
-        left-=tocpy;
+        /* ssl_hmac_final puts the actual digest output size in tmp_l */
+        tocpy = MIN(left, tmp_l);
+        memcpy(ptr, tmp, tocpy);
+        ptr += tocpy;
+        left -= tocpy;
     }
+    out->data_len = out_len;
 
     ssl_print_string("hash out", out);
-    return (0);
 }
 
-static gint
+static gboolean
 tls_prf(StringInfo* secret, const gchar *usage,
-        StringInfo* rnd1, StringInfo* rnd2, StringInfo* out)
+        StringInfo* rnd1, StringInfo* rnd2, StringInfo* out, guint out_len)
 {
     StringInfo  seed, sha_out, md5_out;
     guint8     *ptr;
     StringInfo  s1, s2;
-    guint       i,s_l, r;
+    guint       i,s_l;
     size_t      usage_len;
-    r         = -1;
+    gboolean    success = FALSE;
     usage_len = strlen(usage);
 
     /* initalize buffer for sha, md5 random seed*/
-    if (ssl_data_alloc(&sha_out, MAX(out->data_len,20)) < 0) {
+    if (ssl_data_alloc(&sha_out, MAX(out_len, 20)) < 0) {
         ssl_debug_printf("tls_prf: can't allocate sha out\n");
-        return -1;
+        return FALSE;
     }
-    if (ssl_data_alloc(&md5_out, MAX(out->data_len,16)) < 0) {
+    if (ssl_data_alloc(&md5_out, MAX(out_len, 16)) < 0) {
         ssl_debug_printf("tls_prf: can't allocate md5 out\n");
         goto free_sha;
     }
@@ -2195,18 +2206,17 @@ tls_prf(StringInfo* secret, const gchar *usage,
     memcpy(s2.data,secret->data + (secret->data_len - s_l),s_l);
 
     ssl_debug_printf("tls_prf: tls_hash(md5 secret_len %d seed_len %d )\n", s1.data_len, seed.data_len);
-    if(tls_hash(&s1,&seed,ssl_get_digest_by_name("MD5"),&md5_out) != 0)
-        goto free_all;
+    tls_hash(&s1, &seed, ssl_get_digest_by_name("MD5"), &md5_out, out_len);
     ssl_debug_printf("tls_prf: tls_hash(sha)\n");
-    if(tls_hash(&s2,&seed,ssl_get_digest_by_name("SHA1"),&sha_out) != 0)
-        goto free_all;
+    tls_hash(&s2, &seed, ssl_get_digest_by_name("SHA1"), &sha_out, out_len);
 
-    for(i=0;i<out->data_len;i++)
-      out->data[i]=md5_out.data[i] ^ sha_out.data[i];
-    r =0;
+    for (i = 0; i < out_len; i++)
+        out->data[i] = md5_out.data[i] ^ sha_out.data[i];
+    /* success, now store the new meaningful data length */
+    out->data_len = out_len;
+    success = TRUE;
 
     ssl_print_string("PRF out",out);
-free_all:
     g_free(s2.data);
 free_s1:
     g_free(s1.data);
@@ -2216,11 +2226,12 @@ free_md5:
     g_free(md5_out.data);
 free_sha:
     g_free(sha_out.data);
-    return r;
+    return success;
 }
 
-static gint
-tls12_prf(gint md, StringInfo* secret, const gchar* usage, StringInfo* rnd1, StringInfo* rnd2, StringInfo* out)
+static gboolean
+tls12_prf(gint md, StringInfo* secret, const gchar* usage,
+          StringInfo* rnd1, StringInfo* rnd2, StringInfo* out, guint out_len)
 {
     StringInfo label_seed;
     size_t     usage_len;
@@ -2228,24 +2239,22 @@ tls12_prf(gint md, StringInfo* secret, const gchar* usage, StringInfo* rnd1, Str
     usage_len = strlen(usage);
     if (ssl_data_alloc(&label_seed, usage_len+rnd1->data_len+rnd2->data_len) < 0) {
         ssl_debug_printf("tls12_prf: can't allocate label_seed\n");
-        return -1;
+        return FALSE;
     }
     memcpy(label_seed.data, usage, usage_len);
     memcpy(label_seed.data+usage_len, rnd1->data, rnd1->data_len);
     memcpy(label_seed.data+usage_len+rnd1->data_len, rnd2->data, rnd2->data_len);
 
     ssl_debug_printf("tls12_prf: tls_hash(hash_alg %s secret_len %d seed_len %d )\n", gcry_md_algo_name(md), secret->data_len, label_seed.data_len);
-    if (tls_hash(secret, &label_seed, md, out) != 0){
-        g_free(label_seed.data);
-        return -1;
-    }
+    tls_hash(secret, &label_seed, md, out, out_len);
+    g_free(label_seed.data);
     ssl_print_string("PRF out", out);
-    return 0;
+    return TRUE;
 }
 
-static gint
-ssl3_generate_export_iv(StringInfo* r1,
-        StringInfo* r2, StringInfo* out)
+static void
+ssl3_generate_export_iv(StringInfo *r1, StringInfo *r2,
+                        StringInfo *out, guint out_len)
 {
     SSL_MD5_CTX md5;
     guint8      tmp[16];
@@ -2256,16 +2265,13 @@ ssl3_generate_export_iv(StringInfo* r1,
     ssl_md5_final(tmp,&md5);
     ssl_md5_cleanup(&md5);
 
-    memcpy(out->data,tmp,out->data_len);
+    memcpy(out->data, tmp, out_len);
     ssl_print_string("export iv", out);
-
-    return(0);
 }
 
-static gint
+static gboolean
 ssl3_prf(StringInfo* secret, const gchar* usage,
-        StringInfo* r1,
-        StringInfo* r2,StringInfo* out)
+         StringInfo* r1, StringInfo* r2, StringInfo* out, guint out_len)
 {
     SSL_MD5_CTX  md5;
     SSL_SHA_CTX  sha;
@@ -2276,9 +2282,8 @@ ssl3_prf(StringInfo* secret, const gchar* usage,
 
     rnd1=r1; rnd2=r2;
 
-    for(off=0;off<out->data_len;off+=16){
+    for (off = 0; off < out_len; off += 16) {
         guchar outbuf[16];
-        gint tocpy;
         i++;
 
         ssl_debug_printf("ssl3_prf: sha1_hash(%d)\n",i);
@@ -2311,29 +2316,38 @@ ssl3_prf(StringInfo* secret, const gchar* usage,
         ssl_md5_final(outbuf,&md5);
         ssl_md5_cleanup(&md5);
 
-        tocpy=MIN(out->data_len-off,16);
-        memcpy(out->data+off,outbuf,tocpy);
+        memcpy(out->data + off, outbuf, MIN(out_len - off, 16));
     }
+    out->data_len = out_len;
 
-    return(0);
+    return TRUE;
 }
 
-static gint prf(SslDecryptSession* ssl,StringInfo* secret,const gchar* usage,StringInfo* rnd1,StringInfo* rnd2,StringInfo* out)
+/* out_len is the wanted output length for the pseudorandom function */
+static gboolean
+prf(SslDecryptSession *ssl, StringInfo *secret, const gchar *usage,
+    StringInfo *rnd1, StringInfo *rnd2, StringInfo *out, guint out_len)
 {
-    gint ret;
-    if (ssl->version_netorder==SSLV3_VERSION){
-        ret = ssl3_prf(secret,usage,rnd1,rnd2,out);
-    }else if (ssl->version_netorder==TLSV1_VERSION || ssl->version_netorder==TLSV1DOT1_VERSION ||
-            ssl->version_netorder==DTLSV1DOT0_VERSION || ssl->version_netorder==DTLSV1DOT0_VERSION_NOT){
-        ret = tls_prf(secret,usage,rnd1,rnd2,out);
-    }else{
-        if (ssl->cipher_suite.dig == DIG_SHA384){
-            ret = tls12_prf(GCRY_MD_SHA384, secret, usage, rnd1, rnd2, out);
-        }else{
-            ret = tls12_prf(GCRY_MD_SHA256, secret, usage, rnd1, rnd2, out);
+    switch (ssl->version_netorder) {
+    case SSLV3_VERSION:
+        return ssl3_prf(secret, usage, rnd1, rnd2, out, out_len);
+
+    case TLSV1_VERSION:
+    case TLSV1DOT1_VERSION:
+    case DTLSV1DOT0_VERSION:
+    case DTLSV1DOT0_VERSION_NOT:
+        return tls_prf(secret, usage, rnd1, rnd2, out, out_len);
+
+    default: /* TLSv1.2 */
+        switch (ssl->cipher_suite.dig) {
+        case DIG_SHA384:
+            return tls12_prf(GCRY_MD_SHA384, secret, usage, rnd1, rnd2,
+                             out, out_len);
+        default:
+            return tls12_prf(GCRY_MD_SHA256, secret, usage, rnd1, rnd2,
+                             out, out_len);
         }
     }
-    return ret;
 }
 
 static SslFlow*
@@ -2588,9 +2602,10 @@ ssl_generate_keyring_material(SslDecryptSession*ssl_session)
         ssl_print_string("pre master secret",&ssl_session->pre_master_secret);
         ssl_print_string("client random",&ssl_session->client_random);
         ssl_print_string("server random",&ssl_session->server_random);
-        if (prf(ssl_session,&ssl_session->pre_master_secret,"master secret",
+        if (!prf(ssl_session, &ssl_session->pre_master_secret, "master secret",
                 &ssl_session->client_random,
-                &ssl_session->server_random, &ssl_session->master_secret)) {
+                &ssl_session->server_random, &ssl_session->master_secret,
+                SSL_MASTER_SECRET_LENGTH)) {
             ssl_debug_printf("ssl_generate_keyring_material can't generate master_secret\n");
             return -1;
         }
@@ -2607,12 +2622,11 @@ ssl_generate_keyring_material(SslDecryptSession*ssl_session)
     if(ssl_session->cipher_suite.block>1)
         needed+=ssl_session->cipher_suite.block*2;
 
-    key_block.data_len = needed;
     key_block.data = (guchar *)g_malloc(needed);
     ssl_debug_printf("ssl_generate_keyring_material sess key generation\n");
-    if (prf(ssl_session,&ssl_session->master_secret,"key expansion",
+    if (!prf(ssl_session, &ssl_session->master_secret, "key expansion",
             &ssl_session->server_random,&ssl_session->client_random,
-            &key_block)) {
+            &key_block, needed)) {
         ssl_debug_printf("ssl_generate_keyring_material can't generate key_block\n");
         goto fail;
     }
@@ -2639,10 +2653,6 @@ ssl_generate_keyring_material(SslDecryptSession*ssl_session)
 
     /* export ciphers work with a smaller key length */
     if (ssl_session->cipher_suite.eff_bits < ssl_session->cipher_suite.bits) {
-        StringInfo iv_c,iv_s;
-        StringInfo key_c,key_s;
-        StringInfo k;
-
         if(ssl_session->cipher_suite.block>1){
 
             /* We only have room for MAX_BLOCK_SIZE bytes IVs, but that's
@@ -2653,24 +2663,20 @@ ssl_generate_keyring_material(SslDecryptSession*ssl_session)
                 goto fail;
             }
 
-            iv_c.data = _iv_c;
-            iv_c.data_len = ssl_session->cipher_suite.block;
-            iv_s.data = _iv_s;
-            iv_s.data_len = ssl_session->cipher_suite.block;
-
             if(ssl_session->version_netorder==SSLV3_VERSION){
+                /* The length of these fields are ignored by this caller */
+                StringInfo iv_c, iv_s;
+                iv_c.data = _iv_c;
+                iv_s.data = _iv_s;
+
                 ssl_debug_printf("ssl_generate_keyring_material ssl3_generate_export_iv\n");
-                if (ssl3_generate_export_iv(&ssl_session->client_random,
-                        &ssl_session->server_random,&iv_c)) {
-                    ssl_debug_printf("ssl_generate_keyring_material can't generate sslv3 client iv\n");
-                    goto fail;
-                }
+                ssl3_generate_export_iv(&ssl_session->client_random,
+                        &ssl_session->server_random, &iv_c,
+                        ssl_session->cipher_suite.block);
                 ssl_debug_printf("ssl_generate_keyring_material ssl3_generate_export_iv(2)\n");
-                if (ssl3_generate_export_iv(&ssl_session->server_random,
-                        &ssl_session->client_random,&iv_s)) {
-                    ssl_debug_printf("ssl_generate_keyring_material can't generate sslv3 server iv\n");
-                    goto fail;
-                }
+                ssl3_generate_export_iv(&ssl_session->server_random,
+                        &ssl_session->client_random, &iv_s,
+                        ssl_session->cipher_suite.block);
             }
             else{
                 guint8 _iv_block[MAX_BLOCK_SIZE * 2];
@@ -2682,12 +2688,12 @@ ssl_generate_keyring_material(SslDecryptSession*ssl_session)
                 key_null.data_len = 0;
 
                 iv_block.data = _iv_block;
-                iv_block.data_len = ssl_session->cipher_suite.block*2;
 
                 ssl_debug_printf("ssl_generate_keyring_material prf(iv_block)\n");
-                if(prf(ssl_session,&key_null, "IV block",
+                if (!prf(ssl_session, &key_null, "IV block",
                         &ssl_session->client_random,
-                        &ssl_session->server_random,&iv_block)) {
+                        &ssl_session->server_random, &iv_block,
+                        ssl_session->cipher_suite.block * 2)) {
                     ssl_debug_printf("ssl_generate_keyring_material can't generate tls31 iv block\n");
                     goto fail;
                 }
@@ -2728,17 +2734,16 @@ ssl_generate_keyring_material(SslDecryptSession*ssl_session)
             s_wk=_key_s;
         }
         else{
+            StringInfo key_c, key_s, k;
             key_c.data = _key_c;
-            key_c.data_len = sizeof(_key_c);
             key_s.data = _key_s;
-            key_s.data_len = sizeof(_key_s);
 
             k.data = c_wk;
             k.data_len = ssl_session->cipher_suite.eff_bits/8;
             ssl_debug_printf("ssl_generate_keyring_material PRF(key_c)\n");
-            if (prf(ssl_session,&k,"client write key",
+            if (!prf(ssl_session, &k, "client write key",
                     &ssl_session->client_random,
-                    &ssl_session->server_random, &key_c)) {
+                    &ssl_session->server_random, &key_c, sizeof(_key_c))) {
                 ssl_debug_printf("ssl_generate_keyring_material can't generate tll31 server key \n");
                 goto fail;
             }
@@ -2747,9 +2752,9 @@ ssl_generate_keyring_material(SslDecryptSession*ssl_session)
             k.data = s_wk;
             k.data_len = ssl_session->cipher_suite.eff_bits/8;
             ssl_debug_printf("ssl_generate_keyring_material PRF(key_s)\n");
-            if(prf(ssl_session,&k,"server write key",
+            if (!prf(ssl_session, &k, "server write key",
                     &ssl_session->client_random,
-                    &ssl_session->server_random, &key_s)) {
+                    &ssl_session->server_random, &key_s, sizeof(_key_s))) {
                 ssl_debug_printf("ssl_generate_keyring_material can't generate tll31 client key \n");
                 goto fail;
             }
@@ -3844,19 +3849,23 @@ ssl_session_init(SslDecryptSession* ssl_session)
     ssl_debug_printf("ssl_session_init: initializing ptr %p size %" G_GSIZE_MODIFIER "u\n",
                      (void *)ssl_session, sizeof(SslDecryptSession));
 
+    /* data_len is the part that is meaningful, not the allocated length */
+    ssl_session->master_secret.data_len = 0;
     ssl_session->master_secret.data = ssl_session->_master_secret;
+    ssl_session->session_id.data_len = 0;
     ssl_session->session_id.data = ssl_session->_session_id;
+    ssl_session->client_random.data_len = 0;
     ssl_session->client_random.data = ssl_session->_client_random;
+    ssl_session->server_random.data_len = 0;
     ssl_session->server_random.data = ssl_session->_server_random;
-    ssl_session->session_ticket.data = NULL;
     ssl_session->session_ticket.data_len = 0;
-    ssl_session->master_secret.data_len = 48;
+    ssl_session->session_ticket.data = NULL; /* will be re-alloced as needed */
     ssl_session->server_data_for_iv.data_len = 0;
     ssl_session->server_data_for_iv.data = ssl_session->_server_data_for_iv;
     ssl_session->client_data_for_iv.data_len = 0;
     ssl_session->client_data_for_iv.data = ssl_session->_client_data_for_iv;
-    ssl_session->app_data_segment.data=NULL;
-    ssl_session->app_data_segment.data_len=0;
+    ssl_session->app_data_segment.data = NULL;
+    ssl_session->app_data_segment.data_len = 0;
     SET_ADDRESS(&ssl_session->srv_addr, AT_NONE, 0, NULL);
     ssl_session->srv_ptype = PT_NONE;
     ssl_session->srv_port = 0;
@@ -4273,32 +4282,28 @@ void
 ssl_save_session(SslDecryptSession* ssl, GHashTable *session_hash)
 {
     /* allocate stringinfo chunks for session id and master secret data*/
-    StringInfo* session_id;
-    StringInfo* master_secret;
-    unsigned i, ms;
+    StringInfo *session_id;
+    StringInfo *master_secret;
 
     if (ssl->session_id.data_len == 0) {
         ssl_debug_printf("ssl_save_session SessionID is empty!\n");
         return;
     }
 
-    ms = 0;
-    for (i = 0; i < ssl->master_secret.data_len; i++)
-        ms |= ssl->master_secret.data[i];
-    if (ms == 0) {
+    if (ssl->master_secret.data_len == 0) {
         ssl_debug_printf("%s master secret is empty!\n", G_STRFUNC);
         return;
     }
 
-    session_id = (StringInfo *)wmem_alloc0(wmem_file_scope(), sizeof(StringInfo) + ssl->session_id.data_len);
-    master_secret = (StringInfo *)wmem_alloc0(wmem_file_scope(), 48 + sizeof(StringInfo));
+    /* ssl_hash() depends on session_id->data being aligned for guint access so
+     * be careful in changing how it is allocated. */
+    session_id = (StringInfo *) wmem_alloc0(wmem_file_scope(),
+            sizeof(StringInfo) + ssl->session_id.data_len);
+    session_id->data = (gchar *) (session_id + 1);
 
-    master_secret->data = ((guchar*)master_secret+sizeof(StringInfo));
-
-    /*  ssl_hash() depends on session_id->data being aligned for guint access
-     *  so be careful in changing how it is allocated.
-     */
-    session_id->data = ((guchar*)session_id+sizeof(StringInfo));
+    master_secret = (StringInfo *) wmem_alloc0(wmem_file_scope(),
+            sizeof(StringInfo) + ssl->master_secret.data_len);
+    master_secret->data = (gchar *) (master_secret + 1);
 
     ssl_data_set(session_id, ssl->session_id.data, ssl->session_id.data_len);
     ssl_data_set(master_secret, ssl->master_secret.data, ssl->master_secret.data_len);
@@ -4329,37 +4334,32 @@ ssl_restore_session(SslDecryptSession* ssl, GHashTable *session_hash)
     return TRUE;
 }
 
-/* store master secret into session data cache */
+/* store master secret into session data cache, based on ssl_save_session */
 void
 ssl_save_session_ticket(SslDecryptSession* ssl, GHashTable *session_hash)
 {
     /* allocate stringinfo chunks for session id and master secret data*/
-    StringInfo* session_ticket;
-    StringInfo* master_secret;
-    unsigned i, ms;
+    StringInfo *session_ticket;
+    StringInfo *master_secret;
 
     if (ssl->session_ticket.data_len == 0) {
         ssl_debug_printf("ssl_save_session_ticket - session ticket is empty!\n");
         return;
     }
 
-    ms = 0;
-    for (i = 0; i < ssl->master_secret.data_len; i++)
-        ms |= ssl->master_secret.data[i];
-    if (ms == 0) {
+    if (ssl->master_secret.data_len == 0) {
         ssl_debug_printf("%s master secret is empty!\n", G_STRFUNC);
         return;
     }
 
-    session_ticket = (StringInfo *)wmem_alloc0(wmem_file_scope(), sizeof(StringInfo) + ssl->session_ticket.data_len);
-    master_secret = (StringInfo *)wmem_alloc0(wmem_file_scope(), 48 + sizeof(StringInfo));
-
-    master_secret->data = ((guchar*)master_secret+sizeof(StringInfo));
-
-    /*  ssl_hash() depends on session_id->data being aligned for guint access
-     *  so be careful in changing how it is allocated.
-     */
-    session_ticket->data = ((guchar*)session_ticket+sizeof(StringInfo));
+    /* ssl_hash() depends on session_ticket->data being aligned for guint access
+     * so be careful in changing how it is allocated. */
+    session_ticket = (StringInfo *) wmem_alloc0(wmem_file_scope(),
+            sizeof(StringInfo) + ssl->session_ticket.data_len);
+    session_ticket->data = (guchar *) (session_ticket + 1);
+    master_secret = (StringInfo *) wmem_alloc0(wmem_file_scope(),
+            sizeof(StringInfo) + ssl->master_secret.data_len);
+    master_secret->data = (guchar *) (master_secret + 1);
 
     ssl_data_set(session_ticket, ssl->session_ticket.data, ssl->session_ticket.data_len);
     ssl_data_set(master_secret, ssl->master_secret.data, ssl->master_secret.data_len);
@@ -4470,8 +4470,6 @@ ssl_is_valid_handshake_type(guint8 hs_type, gboolean is_dtls)
     return FALSE;
 }
 
-static const unsigned int kRSAMasterSecretLength = 48; /* RFC5246 8.1 */
-
 /* ssl_keylog_parse_session_id parses, from |line|, a string that looks like:
  *   RSA Session-ID:<hex session id> Master-Key:<hex TLS master secret>.
  *
@@ -4506,7 +4504,7 @@ ssl_keylog_parse_session_id(const char* line,
     line += 2*i;
     len -= 2*i;
 
-    if (len != 12 + kRSAMasterSecretLength*2 ||
+    if (len != 12 + SSL_MASTER_SECRET_LENGTH * 2 ||
         memcmp(line, " Master-Key:", 12) != 0) {
         return FALSE;
     }
@@ -4555,7 +4553,7 @@ ssl_keylog_parse_client_random(const char* line,
     line += 2*kTLSRandomSize;
     len -= 2*kTLSRandomSize;
 
-    if (len != 1 + kRSAMasterSecretLength*2 || line[0] != ' ')
+    if (len != 1 + SSL_MASTER_SECRET_LENGTH * 2 || line[0] != ' ')
         return FALSE;
     line++;
     len--;
@@ -5106,13 +5104,13 @@ static gint
 ssl_dissect_hnd_hello_ext_session_ticket(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                                       proto_tree *tree, guint32 offset, guint32 ext_len, gboolean is_client, SslDecryptSession *ssl)
 {
-    if(is_client && ssl && ext_len != 0)
-    {
-        /*save the ticket on the ssl opaque so that we can use it as key on server hello */
+    if (is_client && ssl && ext_len != 0) {
+        /* Save the Session Ticket such that it can be used as identifier for
+         * restoring a previous Master Secret (in ChangeCipherSpec) */
         ssl->session_ticket.data = (guchar*)wmem_realloc(wmem_file_scope(),
                                     ssl->session_ticket.data, ext_len);
-        tvb_memcpy(tvb,ssl->session_ticket.data, offset, ext_len);
         ssl->session_ticket.data_len = ext_len;
+        tvb_memcpy(tvb,ssl->session_ticket.data, offset, ext_len);
     }
     proto_tree_add_bytes_format(tree, hf->hf.hs_ext_data,
                                 tvb, offset, ext_len, NULL,
@@ -5451,8 +5449,8 @@ ssl_dissect_hnd_new_ses_ticket(ssl_common_dissect_t *hf, tvbuff_t *tvb,
     if (ssl) {
         ssl->session_ticket.data = (guchar*)wmem_realloc(wmem_file_scope(),
                                     ssl->session_ticket.data, ticket_len);
-        tvb_memcpy(tvb, ssl->session_ticket.data, offset, ticket_len);
         ssl->session_ticket.data_len = ticket_len;
+        tvb_memcpy(tvb, ssl->session_ticket.data, offset, ticket_len);
         ssl_save_session_ticket(ssl, session_hash);
     }
 }
