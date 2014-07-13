@@ -104,9 +104,6 @@ static gint hf_dtls_handshake_length            = -1;
 static gint hf_dtls_handshake_message_seq       = -1;
 static gint hf_dtls_handshake_fragment_offset   = -1;
 static gint hf_dtls_handshake_fragment_length   = -1;
-static gint hf_dtls_handshake_session_ticket_lifetime_hint = -1;
-static gint hf_dtls_handshake_session_ticket_len = -1;
-static gint hf_dtls_handshake_session_ticket    = -1;
 static gint hf_dtls_handshake_finished          = -1;
 /* static gint hf_dtls_handshake_md5_hash          = -1; */
 /* static gint hf_dtls_handshake_sha_hash          = -1; */
@@ -137,7 +134,6 @@ static gint ett_dtls_record            = -1;
 static gint ett_dtls_alert             = -1;
 static gint ett_dtls_handshake         = -1;
 static gint ett_dtls_heartbeat         = -1;
-static gint ett_dtls_new_ses_ticket    = -1;
 static gint ett_dtls_certs             = -1;
 
 static gint ett_dtls_fragment          = -1;
@@ -312,10 +308,6 @@ static int dissect_dtls_hnd_hello_verify_request(tvbuff_t *tvb,
                                                   proto_tree *tree,
                                                   guint32 offset,
                                                   SslDecryptSession* ssl);
-
-static void dissect_dtls_hnd_new_ses_ticket(tvbuff_t *tvb,
-                                       proto_tree *tree,
-                                       guint32 offset, guint32 length);
 
 static void dissect_dtls_hnd_finished(tvbuff_t *tvb,
                                       proto_tree *tree,
@@ -1351,7 +1343,9 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
             break;
 
           case SSL_HND_NEWSESSION_TICKET:
-            dissect_dtls_hnd_new_ses_ticket(sub_tvb, ssl_hand_tree, 0, length);
+            ssl_dissect_hnd_new_ses_ticket(&dissect_dtls_hf, sub_tvb,
+                                           ssl_hand_tree, 0, ssl,
+                                           dtls_session_hash);
             break;
 
           case SSL_HND_CERTIFICATE:
@@ -1525,33 +1519,6 @@ dissect_dtls_hnd_hello_verify_request(tvbuff_t *tvb, proto_tree *tree,
 
   return offset;
 }
-
-static void
-dissect_dtls_hnd_new_ses_ticket(tvbuff_t *tvb,
-                           proto_tree *tree, guint32 offset, guint32 length)
-{
-    guint nst_len;
-    proto_tree *subtree;
-
-
-    nst_len = tvb_get_ntohs(tvb, offset+4);
-    if (6 + nst_len != length) {
-        return;
-    }
-
-    subtree = proto_tree_add_subtree(tree, tvb, offset, 6+nst_len, ett_dtls_new_ses_ticket, NULL, "TLS Session Ticket");
-
-    proto_tree_add_item(subtree, hf_dtls_handshake_session_ticket_lifetime_hint,
-                        tvb, offset, 4, ENC_BIG_ENDIAN);
-    offset += 4;
-
-    proto_tree_add_uint(subtree, hf_dtls_handshake_session_ticket_len,
-        tvb, offset, 2, nst_len);
-    /* Content depends on implementation, so just show data! */
-    proto_tree_add_item(subtree, hf_dtls_handshake_session_ticket,
-            tvb, offset + 2, nst_len, ENC_NA);
-}
-
 
 static void
 dissect_dtls_hnd_finished(tvbuff_t *tvb, proto_tree *tree, guint32 offset,
@@ -1808,21 +1775,6 @@ proto_register_dtls(void)
         FT_BYTES, BASE_NONE, NULL, 0x0,
         NULL, HFILL }
     },
-    { &hf_dtls_handshake_session_ticket_lifetime_hint,
-      { "Session Ticket Lifetime Hint", "dtls.handshake.session_ticket_lifetime_hint",
-        FT_UINT32, BASE_DEC, NULL, 0x0,
-        "New DTLS Session Ticket Lifetime Hint", HFILL }
-    },
-    { &hf_dtls_handshake_session_ticket_len,
-      { "Session Ticket Length", "dtls.handshake.session_ticket_length",
-        FT_UINT16, BASE_DEC, NULL, 0x0,
-        "New DTLS Session Ticket Length", HFILL }
-    },
-    { &hf_dtls_handshake_session_ticket,
-      { "Session Ticket", "dtls.handshake.session_ticket",
-        FT_BYTES, BASE_NONE, NULL, 0x0,
-        "New DTLS Session Ticket", HFILL }
-    },
     { &hf_dtls_handshake_finished,
       { "Verify Data", "dtls.handshake.verify_data",
         FT_NONE, BASE_NONE, NULL, 0x0,
@@ -1914,7 +1866,6 @@ proto_register_dtls(void)
     &ett_dtls_alert,
     &ett_dtls_handshake,
     &ett_dtls_heartbeat,
-    &ett_dtls_new_ses_ticket,
     &ett_dtls_certs,
     &ett_dtls_fragment,
     &ett_dtls_fragments,

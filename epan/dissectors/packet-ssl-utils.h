@@ -700,6 +700,9 @@ typedef struct ssl_common_dissect {
         gint hs_comp_methods_len;
         gint hs_comp_methods;
         gint hs_comp_method;
+        gint hs_session_ticket_lifetime_hint;
+        gint hs_session_ticket_len;
+        gint hs_session_ticket;
 
         /* do not forget to update SSL_COMMON_LIST_T and SSL_COMMON_HF_LIST! */
     } hf;
@@ -723,6 +726,7 @@ typedef struct ssl_common_dissect {
         gint hs_random;
         gint cipher_suites;
         gint comp_methods;
+        gint session_ticket;
 
         /* do not forget to update SSL_COMMON_LIST_T and SSL_COMMON_ETT_LIST! */
     } ett;
@@ -756,6 +760,12 @@ ssl_dissect_hnd_srv_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                           SslSession *session, SslDecryptSession *ssl);
 
 extern void
+ssl_dissect_hnd_new_ses_ticket(ssl_common_dissect_t *hf, tvbuff_t *tvb,
+                               proto_tree *tree, guint32 offset,
+                               SslDecryptSession *ssl,
+                               GHashTable *session_hash);
+
+extern void
 ssl_dissect_hnd_cert(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree,
                      guint32 offset, packet_info *pinfo,
                      const SslSession *session, gint is_from_server);
@@ -787,11 +797,11 @@ ssl_common_dissect_t name = {   \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
-        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,                 \
+        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,     \
     },                                                                  \
     /* ett */ {                                                         \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
-        -1, -1, -1,                                                     \
+        -1, -1, -1, -1,                                                 \
     },                                                                  \
     /* ei */ {                                                          \
         EI_INIT, EI_INIT, EI_INIT,                                      \
@@ -1260,6 +1270,22 @@ ssl_common_dissect_t name = {   \
       { "Compression Method", prefix ".handshake.comp_method",          \
         FT_UINT8, BASE_DEC, VALS(ssl_31_compression_method), 0x0,       \
         NULL, HFILL }                                                   \
+    },                                                                  \
+    { & name .hf.hs_session_ticket_lifetime_hint,                       \
+      { "Session Ticket Lifetime Hint",                                 \
+        prefix ".handshake.session_ticket_lifetime_hint",               \
+        FT_UINT32, BASE_DEC, NULL, 0x0,                                 \
+        "New Session Ticket Lifetime Hint", HFILL }                     \
+    },                                                                  \
+    { & name .hf.hs_session_ticket_len,                                 \
+      { "Session Ticket Length", prefix ".handshake.session_ticket_length", \
+        FT_UINT16, BASE_DEC, NULL, 0x0,                                 \
+        "New Session Ticket Length", HFILL }                            \
+    },                                                                  \
+    { & name .hf.hs_session_ticket,                                     \
+      { "Session Ticket", prefix ".handshake.session_ticket",           \
+        FT_BYTES, BASE_NONE, NULL, 0x0,                                 \
+        "New Session Ticket", HFILL }                                   \
     }
 /* }}} */
 
@@ -1284,6 +1310,7 @@ ssl_common_dissect_t name = {   \
         & name .ett.hs_random,                      \
         & name .ett.cipher_suites,                  \
         & name .ett.comp_methods,                   \
+        & name .ett.session_ticket,                 \
 /* }}} */
 
 /* {{{ */

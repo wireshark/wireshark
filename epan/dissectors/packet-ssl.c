@@ -147,9 +147,6 @@ static gint hf_ssl_alert_message_description  = -1;
 static gint hf_ssl_handshake_protocol         = -1;
 static gint hf_ssl_handshake_type             = -1;
 static gint hf_ssl_handshake_length           = -1;
-static gint hf_ssl_handshake_session_ticket_lifetime_hint = -1;
-static gint hf_ssl_handshake_session_ticket_len = -1;
-static gint hf_ssl_handshake_session_ticket = -1;
 static gint hf_ssl_handshake_client_cert_vrfy_sig_len = -1;
 static gint hf_ssl_handshake_client_cert_vrfy_sig     = -1;
 static gint hf_ssl_handshake_cert_status      = -1;
@@ -214,7 +211,6 @@ static gint ett_ssl_alert             = -1;
 static gint ett_ssl_handshake         = -1;
 static gint ett_ssl_heartbeat         = -1;
 static gint ett_ssl_certs             = -1;
-static gint ett_ssl_new_ses_ticket    = -1;
 static gint ett_ssl_cli_sig           = -1;
 static gint ett_ssl_cert_status       = -1;
 static gint ett_ssl_ocsp_resp         = -1;
@@ -462,11 +458,6 @@ static void dissect_ssl3_heartbeat(tvbuff_t *tvb, packet_info *pinfo,
                                    proto_tree *tree, guint32 offset,
                                    const SslSession *session, guint32 record_length,
                                    gboolean decrypted);
-
-static void dissect_ssl3_hnd_new_ses_ticket(tvbuff_t *tvb,
-                                       proto_tree *tree,
-                                       guint32 offset, guint32 length,
-                                       SslDecryptSession *ssl);
 
 static void dissect_ssl3_hnd_cli_cert_verify(tvbuff_t *tvb,
                                             proto_tree *tree,
@@ -1953,7 +1944,9 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
                 break;
 
             case SSL_HND_NEWSESSION_TICKET:
-                dissect_ssl3_hnd_new_ses_ticket(tvb, ssl_hand_tree, offset, length, ssl);
+                ssl_dissect_hnd_new_ses_ticket(&dissect_ssl3_hf, tvb,
+                                               ssl_hand_tree, offset, ssl,
+                                               ssl_session_hash);
                 break;
 
             case SSL_HND_CERTIFICATE:
@@ -2107,46 +2100,6 @@ dissect_ssl3_heartbeat(tvbuff_t *tvb, packet_info *pinfo,
         }
     }
 }
-
-static void
-dissect_ssl3_hnd_new_ses_ticket(tvbuff_t *tvb, proto_tree *tree,
-                              guint32 offset, guint32 length, SslDecryptSession *ssl)
-{
-    guint       nst_len;
-    proto_tree *subtree;
-    guint16 session_ticket_length = 0;
-
-    nst_len = tvb_get_ntohs(tvb, offset+4);
-    if (6 + nst_len != length) {
-        return;
-    }
-
-    subtree = proto_tree_add_subtree(tree, tvb, offset, 6+nst_len, ett_ssl_new_ses_ticket, NULL, "TLS Session Ticket");
-
-    proto_tree_add_item(subtree, hf_ssl_handshake_session_ticket_lifetime_hint,
-                        tvb, offset, 4, ENC_BIG_ENDIAN);
-    offset += 4;
-
-
-    session_ticket_length = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_uint(subtree, hf_ssl_handshake_session_ticket_len,
-        tvb, offset, 2, nst_len);
-    offset += 2;
-
-    /* save the session ticket to cache */
-    if(ssl){
-        ssl->session_ticket.data = (guchar*)wmem_realloc(wmem_file_scope(),
-                                    ssl->session_ticket.data, session_ticket_length);
-        tvb_memcpy(tvb,ssl->session_ticket.data, offset, session_ticket_length);
-        ssl->session_ticket.data_len = session_ticket_length;
-        ssl_save_session_ticket(ssl, ssl_session_hash);
-    }
-
-    /* Content depends on implementation, so just show data! */
-    proto_tree_add_item(subtree, hf_ssl_handshake_session_ticket,
-            tvb, offset, nst_len, ENC_NA);
-}
-
 
 static void
 dissect_ssl3_hnd_cli_cert_verify(tvbuff_t *tvb, proto_tree *tree,
@@ -3867,21 +3820,6 @@ proto_register_ssl(void)
             FT_UINT24, BASE_HEX|BASE_EXT_STRING, &ssl_20_cipher_suites_ext, 0x0,
             "Cipher specification", HFILL }
         },
-        { &hf_ssl_handshake_session_ticket_lifetime_hint,
-          { "Session Ticket Lifetime Hint", "ssl.handshake.session_ticket_lifetime_hint",
-            FT_UINT32, BASE_DEC, NULL, 0x0,
-            "New TLS Session Ticket Lifetime Hint", HFILL }
-        },
-        { &hf_ssl_handshake_session_ticket_len,
-          { "Session Ticket Length", "ssl.handshake.session_ticket_length",
-            FT_UINT16, BASE_DEC, NULL, 0x0,
-            "New TLS Session Ticket Length", HFILL }
-        },
-        { &hf_ssl_handshake_session_ticket,
-          { "Session Ticket", "ssl.handshake.session_ticket",
-            FT_BYTES, BASE_NONE, NULL, 0x0,
-            "New TLS Session Ticket", HFILL }
-        },
         { &hf_ssl_handshake_client_cert_vrfy_sig_len,
             { "Signature length", "ssl.handshake.client_cert_vrfy.sig_len",
               FT_UINT16, BASE_DEC, NULL, 0x0,
@@ -4160,7 +4098,6 @@ proto_register_ssl(void)
         &ett_ssl_handshake,
         &ett_ssl_heartbeat,
         &ett_ssl_certs,
-        &ett_ssl_new_ses_ticket,
         &ett_ssl_cli_sig,
         &ett_ssl_cert_status,
         &ett_ssl_ocsp_resp,

@@ -5421,6 +5421,43 @@ ssl_dissect_hnd_srv_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
 }
 
 void
+ssl_dissect_hnd_new_ses_ticket(ssl_common_dissect_t *hf, tvbuff_t *tvb,
+                               proto_tree *tree, guint32 offset,
+                               SslDecryptSession *ssl, GHashTable *session_hash)
+{
+    proto_tree  *subtree;
+    guint16      ticket_len;
+
+    /* length of session ticket, may be 0 if the server has sent the
+     * SessionTicket extension, but decides not to use one. */
+    ticket_len = tvb_get_ntohs(tvb, offset + 4);
+    subtree = proto_tree_add_subtree(tree, tvb, offset, 6 + ticket_len,
+                                     hf->ett.session_ticket, NULL,
+                                     "TLS Session Ticket");
+
+    /* ticket lifetime hint */
+    proto_tree_add_item(subtree, hf->hf.hs_session_ticket_lifetime_hint,
+                        tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    /* opaque ticket (length, data) */
+    proto_tree_add_item(subtree, hf->hf.hs_session_ticket_len,
+                        tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+    /* Content depends on implementation, so just show data! */
+    proto_tree_add_item(subtree, hf->hf.hs_session_ticket,
+                        tvb, offset, ticket_len, ENC_NA);
+    /* save the session ticket to cache */
+    if (ssl) {
+        ssl->session_ticket.data = (guchar*)wmem_realloc(wmem_file_scope(),
+                                    ssl->session_ticket.data, ticket_len);
+        tvb_memcpy(tvb, ssl->session_ticket.data, offset, ticket_len);
+        ssl->session_ticket.data_len = ticket_len;
+        ssl_save_session_ticket(ssl, session_hash);
+    }
+}
+
+void
 ssl_dissect_hnd_cert(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree,
                      guint32 offset, packet_info *pinfo,
                      const SslSession *session, gint is_from_server)
