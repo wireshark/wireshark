@@ -684,6 +684,10 @@ typedef struct ssl_common_dissect {
         gint hs_dnames;
         gint hs_dname_len;
         gint hs_dname;
+        gint hs_random_time;
+        gint hs_random_bytes;
+        gint hs_session_id;
+        gint hs_session_id_len;
 
         /* do not forget to update SSL_COMMON_LIST_T and SSL_COMMON_HF_LIST! */
     } hf;
@@ -704,6 +708,7 @@ typedef struct ssl_common_dissect {
         gint certificates;
         gint cert_types;
         gint dnames;
+        gint hs_random;
 
         /* do not forget to update SSL_COMMON_LIST_T and SSL_COMMON_ETT_LIST! */
     } ett;
@@ -719,6 +724,11 @@ extern gint
 ssl_dissect_hnd_hello_ext(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree,
                           guint32 offset, guint32 left, gboolean is_client,
                           SslSession *session, SslDecryptSession *ssl);
+
+extern gint
+ssl_dissect_hnd_hello_common(ssl_common_dissect_t *hf, tvbuff_t *tvb,
+                             proto_tree *tree, guint32 offset,
+                             SslDecryptSession *ssl, gboolean from_server);
 
 extern gint
 ssl_dissect_hash_alg_list(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree,
@@ -756,9 +766,11 @@ ssl_common_dissect_t name = {   \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
+        -1, -1, -1, -1,                                                 \
     },                                                                  \
     /* ett */ {                                                         \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
+        -1,                                                             \
     },                                                                  \
     /* ei */ {                                                          \
         EI_INIT, EI_INIT,                                               \
@@ -1167,6 +1179,26 @@ ssl_common_dissect_t name = {   \
       { "Distinguished Name", prefix ".handshake.dname",                \
         FT_NONE, BASE_NONE, NULL, 0x0,                                  \
         "Distinguished name of a CA that server trusts", HFILL }        \
+    },                                                                  \
+    { & name .hf.hs_random_time,                                        \
+      { "GMT Unix Time", prefix ".handshake.random_time",               \
+        FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0,               \
+        "Unix time field of random structure", HFILL }                  \
+    },                                                                  \
+    { & name .hf.hs_random_bytes,                                       \
+      { "Random Bytes", prefix ".handshake.random",                     \
+        FT_BYTES, BASE_NONE, NULL, 0x0,                                 \
+        "Random values used for deriving keys", HFILL }                 \
+    },                                                                  \
+    { & name .hf.hs_session_id,                                         \
+      { "Session ID", prefix ".handshake.session_id",                   \
+        FT_BYTES, BASE_NONE, NULL, 0x0,                                 \
+        "Identifies the SSL session, allowing later resumption", HFILL }\
+    },                                                                  \
+    { & name .hf.hs_session_id_len,                                     \
+      { "Session ID Length", prefix ".handshake.session_id_length",     \
+        FT_UINT8, BASE_DEC, NULL, 0x0,                                  \
+        "Length of Session ID field", HFILL }                           \
     }
 /* }}} */
 
@@ -1188,6 +1220,7 @@ ssl_common_dissect_t name = {   \
         & name .ett.certificates,                   \
         & name .ett.cert_types,                     \
         & name .ett.dnames,                         \
+        & name .ett.hs_random,                      \
 /* }}} */
 
 /* {{{ */

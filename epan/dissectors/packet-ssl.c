@@ -149,12 +149,9 @@ static gint hf_ssl_handshake_type             = -1;
 static gint hf_ssl_handshake_length           = -1;
 static gint hf_ssl_handshake_client_version   = -1;
 static gint hf_ssl_handshake_server_version   = -1;
-static gint hf_ssl_handshake_random_time      = -1;
-static gint hf_ssl_handshake_random_bytes     = -1;
 static gint hf_ssl_handshake_cipher_suites_len = -1;
 static gint hf_ssl_handshake_cipher_suites    = -1;
 static gint hf_ssl_handshake_cipher_suite     = -1;
-static gint hf_ssl_handshake_session_id       = -1;
 static gint hf_ssl_handshake_comp_methods_len = -1;
 static gint hf_ssl_handshake_comp_methods     = -1;
 static gint hf_ssl_handshake_comp_method      = -1;
@@ -173,7 +170,6 @@ static gint hf_ssl_handshake_npn_padding = -1;
 static gint hf_ssl_handshake_finished         = -1;
 static gint hf_ssl_handshake_md5_hash         = -1;
 static gint hf_ssl_handshake_sha_hash         = -1;
-static gint hf_ssl_handshake_session_id_len   = -1;
 static gint hf_ssl2_handshake_cipher_spec_len = -1;
 static gint hf_ssl2_handshake_session_id_len  = -1;
 static gint hf_ssl2_handshake_challenge_len   = -1;
@@ -228,7 +224,6 @@ static gint ett_ssl_heartbeat         = -1;
 static gint ett_ssl_cipher_suites     = -1;
 static gint ett_ssl_comp_methods      = -1;
 static gint ett_ssl_certs             = -1;
-static gint ett_ssl_random            = -1;
 static gint ett_ssl_new_ses_ticket    = -1;
 static gint ett_ssl_cli_sig           = -1;
 static gint ett_ssl_cert_status       = -1;
@@ -2132,95 +2127,6 @@ dissect_ssl3_heartbeat(tvbuff_t *tvb, packet_info *pinfo,
     }
 }
 
-static gint
-dissect_ssl3_hnd_hello_common(tvbuff_t *tvb, proto_tree *tree,
-                              guint32 offset, SslDecryptSession *ssl, gint from_server)
-{
-    /* show the client's random challenge */
-    nstime_t    gmt_unix_time;
-    guint8      session_id_length;
-    proto_tree *ssl_rnd_tree;
-
-    session_id_length = 0;
-
-    if (ssl)
-    {
-        /* PAOLO: get proper peer information*/
-        StringInfo *rnd;
-        if (from_server)
-            rnd = &ssl->server_random;
-        else
-            rnd = &ssl->client_random;
-
-        /* get provided random for keyring generation*/
-        tvb_memcpy(tvb, rnd->data, offset, 32);
-        rnd->data_len = 32;
-        if (from_server)
-            ssl->state |= SSL_SERVER_RANDOM;
-        else
-            ssl->state |= SSL_CLIENT_RANDOM;
-        ssl_debug_printf("dissect_ssl3_hnd_hello_common found %s RANDOM -> state 0x%02X\n",
-            (from_server)?"SERVER":"CLIENT", ssl->state);
-
-        session_id_length = tvb_get_guint8(tvb, offset + 32);
-        /* check stored session id info */
-        if (from_server && (session_id_length == ssl->session_id.data_len) &&
-                 (tvb_memeql(tvb, offset+33, ssl->session_id.data, session_id_length) == 0))
-        {
-            /* client/server id match: try to restore a previous cached session*/
-            if (!ssl_restore_session(ssl, ssl_session_hash)) {
-                /* If we failed to find the previous session, we may still have
-                 * the master secret in the key log. */
-                if (!ssl_keylog_lookup(ssl, ssl_options.keylog_filename, NULL)) {
-                    ssl_debug_printf("  cannot find master secret in keylog file either\n");
-                } else {
-                    ssl_debug_printf("  found master secret in keylog file\n");
-                }
-            }
-            /* if the session_ids match, then there is a chance that we need to restore a session_ticket */
-            if(ssl->session_ticket.data_len != 0)
-            {
-                ssl_restore_session_ticket(ssl, ssl_session_hash);
-            }
-        } else {
-            tvb_memcpy(tvb,ssl->session_id.data, offset+33, session_id_length);
-            ssl->session_id.data_len = session_id_length;
-        }
-    }
-
-    if (tree)
-    {
-        ssl_rnd_tree = proto_tree_add_subtree(tree, tvb, offset, 32, ett_ssl_random, NULL, "Random");
-
-        /* show the time */
-        gmt_unix_time.secs = tvb_get_ntohl(tvb, offset);
-        gmt_unix_time.nsecs = 0;
-        proto_tree_add_time(ssl_rnd_tree, hf_ssl_handshake_random_time,
-                                     tvb, offset, 4, &gmt_unix_time);
-        offset += 4;
-
-        /* show the random bytes */
-        proto_tree_add_item(ssl_rnd_tree, hf_ssl_handshake_random_bytes,
-                            tvb, offset, 28, ENC_NA);
-        offset += 28;
-
-        /* show the session id */
-        session_id_length = tvb_get_guint8(tvb, offset);
-        proto_tree_add_item(tree, hf_ssl_handshake_session_id_len,
-                            tvb, offset++, 1, ENC_BIG_ENDIAN);
-        if (session_id_length > 0)
-        {
-            tvb_ensure_bytes_exist(tvb, offset, session_id_length);
-            proto_tree_add_item(tree, hf_ssl_handshake_session_id,
-                                tvb, offset, session_id_length, ENC_NA);
-        }
-
-    }
-
-    /* XXXX */
-    return session_id_length+33;
-}
-
 static void
 dissect_ssl3_hnd_cli_hello(tvbuff_t *tvb, packet_info *pinfo,
        proto_tree *tree, guint32 offset, guint32 length,
@@ -2257,7 +2163,7 @@ dissect_ssl3_hnd_cli_hello(tvbuff_t *tvb, packet_info *pinfo,
                             offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
         /* show the fields in common with server hello */
-        offset += dissect_ssl3_hnd_hello_common(tvb, tree, offset, ssl, 0);
+        offset = ssl_dissect_hnd_hello_common(&dissect_ssl3_hf, tvb, tree, offset, ssl, FALSE);
         /* tell the user how many cipher suites there are */
         cipher_suite_length = tvb_get_ntohs(tvb, offset);
 
@@ -2379,7 +2285,7 @@ dissect_ssl3_hnd_srv_hello(tvbuff_t *tvb,
         /* first display the elements conveniently in
          * common with client hello
          */
-        offset += dissect_ssl3_hnd_hello_common(tvb, tree, offset, ssl, 1);
+        offset = ssl_dissect_hnd_hello_common(&dissect_ssl3_hf, tvb, tree, offset, ssl, TRUE);
 
         /* PAOLO: handle session cipher suite  */
         if (ssl) {
@@ -3051,7 +2957,7 @@ dissect_ssl2_hnd_client_hello(tvbuff_t *tvb, packet_info *pinfo,
             {
                 tvb_ensure_bytes_exist(tvb, offset, session_id_length);
                 proto_tree_add_bytes_format(tree,
-                                            hf_ssl_handshake_session_id,
+                                            dissect_ssl3_hf.hf.hs_session_id,
                                             tvb, offset, session_id_length,
                                             NULL, "Session ID (%u byte%s)",
                                             session_id_length,
@@ -4191,16 +4097,6 @@ proto_register_ssl(void)
             FT_UINT16, BASE_HEX, VALS(ssl_versions), 0x0,
             "Version selected by server", HFILL }
         },
-        { &hf_ssl_handshake_random_time,
-          { "GMT Unix Time", "ssl.handshake.random_time",
-            FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0,
-            "Unix time field of random structure", HFILL }
-        },
-        { &hf_ssl_handshake_random_bytes,
-          { "Random Bytes", "ssl.handshake.random_bytes",
-            FT_BYTES, BASE_NONE, NULL, 0x0,
-            "Random challenge used to authenticate server", HFILL }
-        },
         { &hf_ssl_handshake_cipher_suites_len,
           { "Cipher Suites Length", "ssl.handshake.cipher_suites_length",
             FT_UINT16, BASE_DEC, NULL, 0x0,
@@ -4220,11 +4116,6 @@ proto_register_ssl(void)
           { "Cipher Spec", "ssl.handshake.cipherspec",
             FT_UINT24, BASE_HEX|BASE_EXT_STRING, &ssl_20_cipher_suites_ext, 0x0,
             "Cipher specification", HFILL }
-        },
-        { &hf_ssl_handshake_session_id,
-          { "Session ID", "ssl.handshake.session_id",
-            FT_BYTES, BASE_NONE, NULL, 0x0,
-            "Identifies the SSL session, allowing later resumption", HFILL }
         },
         { &hf_ssl_handshake_comp_methods_len,
           { "Compression Methods Length", "ssl.handshake.comp_methods_length",
@@ -4315,11 +4206,6 @@ proto_register_ssl(void)
           { "SHA-1 Hash", "ssl.handshake.sha_hash",
             FT_NONE, BASE_NONE, NULL, 0x0,
             "Hash of messages, master_secret, etc.", HFILL }
-        },
-        { &hf_ssl_handshake_session_id_len,
-          { "Session ID Length", "ssl.handshake.session_id_length",
-            FT_UINT8, BASE_DEC, NULL, 0x0,
-            "Length of session ID field", HFILL }
         },
         { &hf_ssl_heartbeat_message,
           { "Heartbeat Message", "ssl.heartbeat_message",
@@ -4541,7 +4427,6 @@ proto_register_ssl(void)
         &ett_ssl_cipher_suites,
         &ett_ssl_comp_methods,
         &ett_ssl_certs,
-        &ett_ssl_random,
         &ett_ssl_new_ses_ticket,
         &ett_ssl_cli_sig,
         &ett_ssl_cert_status,

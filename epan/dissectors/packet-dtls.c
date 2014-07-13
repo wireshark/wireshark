@@ -106,14 +106,11 @@ static gint hf_dtls_handshake_fragment_offset   = -1;
 static gint hf_dtls_handshake_fragment_length   = -1;
 static gint hf_dtls_handshake_client_version    = -1;
 static gint hf_dtls_handshake_server_version    = -1;
-static gint hf_dtls_handshake_random_time       = -1;
-static gint hf_dtls_handshake_random_bytes      = -1;
 static gint hf_dtls_handshake_cookie_len        = -1;
 static gint hf_dtls_handshake_cookie            = -1;
 static gint hf_dtls_handshake_cipher_suites_len = -1;
 static gint hf_dtls_handshake_cipher_suites     = -1;
 static gint hf_dtls_handshake_cipher_suite      = -1;
-static gint hf_dtls_handshake_session_id        = -1;
 static gint hf_dtls_handshake_comp_methods_len  = -1;
 static gint hf_dtls_handshake_comp_methods      = -1;
 static gint hf_dtls_handshake_comp_method       = -1;
@@ -123,7 +120,6 @@ static gint hf_dtls_handshake_session_ticket    = -1;
 static gint hf_dtls_handshake_finished          = -1;
 /* static gint hf_dtls_handshake_md5_hash          = -1; */
 /* static gint hf_dtls_handshake_sha_hash          = -1; */
-static gint hf_dtls_handshake_session_id_len    = -1;
 
 static gint hf_dtls_heartbeat_message                 = -1;
 static gint hf_dtls_heartbeat_message_type            = -1;
@@ -150,7 +146,6 @@ static gint ett_dtls_handshake         = -1;
 static gint ett_dtls_heartbeat         = -1;
 static gint ett_dtls_cipher_suites     = -1;
 static gint ett_dtls_comp_methods      = -1;
-static gint ett_dtls_random            = -1;
 static gint ett_dtls_new_ses_ticket    = -1;
 static gint ett_dtls_certs             = -1;
 
@@ -1510,83 +1505,6 @@ dissect_dtls_heartbeat(tvbuff_t *tvb, packet_info *pinfo,
   }
 }
 
-static gint
-dissect_dtls_hnd_hello_common(tvbuff_t *tvb, proto_tree *tree,
-                              guint32 offset, SslDecryptSession* ssl, gint from_server)
-{
-  /* show the client's random challenge */
-  nstime_t gmt_unix_time;
-  guint8   session_id_length;
-  proto_tree *dtls_rnd_tree;
-
-  if (tree || ssl)
-  {
-    if (ssl)
-    {
-      /* get proper peer information*/
-      StringInfo* rnd;
-      if (from_server)
-        rnd = &ssl->server_random;
-      else
-        rnd = &ssl->client_random;
-
-      /* get provided random for keyring generation*/
-      tvb_memcpy(tvb, rnd->data, offset, 32);
-      rnd->data_len = 32;
-      if (from_server)
-        ssl->state |= SSL_SERVER_RANDOM;
-      else
-        ssl->state |= SSL_CLIENT_RANDOM;
-      ssl_debug_printf("dissect_dtls_hnd_hello_common found random state %X\n",
-                       ssl->state);
-    }
-
-    dtls_rnd_tree = proto_tree_add_subtree(tree, tvb, offset, 32, ett_dtls_random, NULL, "Random");
-
-    /* show the time */
-    gmt_unix_time.secs  = tvb_get_ntohl(tvb, offset);
-    gmt_unix_time.nsecs = 0;
-    proto_tree_add_time(dtls_rnd_tree, hf_dtls_handshake_random_time,
-                          tvb, offset, 4, &gmt_unix_time);
-    offset += 4;
-
-    /* show the random bytes */
-    proto_tree_add_item(dtls_rnd_tree, hf_dtls_handshake_random_bytes,
-                          tvb, offset, 28, ENC_NA);
-    offset += 28;
-
-    /* show the session id */
-    session_id_length = tvb_get_guint8(tvb, offset);
-    proto_tree_add_item(tree, hf_dtls_handshake_session_id_len,
-                          tvb, offset, 1, ENC_BIG_ENDIAN);
-    offset++;
-    if (ssl)
-    {
-      /* check stored session id info */
-      if (from_server && (session_id_length == ssl->session_id.data_len) &&
-          (tvb_memeql(tvb, offset, ssl->session_id.data, session_id_length) == 0))
-      {
-        /* client/server id match: try to restore a previous cached session*/
-        ssl_restore_session(ssl, dtls_session_hash);
-      }
-      else {
-        tvb_memcpy(tvb,ssl->session_id.data, offset, session_id_length);
-        ssl->session_id.data_len = session_id_length;
-      }
-    }
-    if (session_id_length > 0)
-      proto_tree_add_bytes_format(tree, hf_dtls_handshake_session_id,
-                                  tvb, offset, session_id_length,
-                                  NULL, "Session ID (%u byte%s)",
-                                  session_id_length,
-                                  plurality(session_id_length, "", "s"));
-    offset += session_id_length;
-  }
-
-  /* XXXX */
-  return offset;
-}
-
 static void
 dissect_dtls_hnd_cli_hello(tvbuff_t *tvb, packet_info *pinfo,
                            proto_tree *tree, guint32 offset, guint32 length,
@@ -1625,7 +1543,7 @@ dissect_dtls_hnd_cli_hello(tvbuff_t *tvb, packet_info *pinfo,
       offset += 2;
 
       /* show the fields in common with server hello */
-      offset = dissect_dtls_hnd_hello_common(tvb, tree, offset, ssl, 0);
+      offset = ssl_dissect_hnd_hello_common(&dissect_dtls_hf, tvb, tree, offset, ssl, FALSE);
 
       if (!tree)
         return;
@@ -1752,7 +1670,7 @@ dissect_dtls_hnd_srv_hello(tvbuff_t *tvb,
       /* first display the elements conveniently in
        * common with client hello
        */
-      offset = dissect_dtls_hnd_hello_common(tvb, tree, offset, ssl, 1);
+      offset = ssl_dissect_hnd_hello_common(&dissect_dtls_hf, tvb, tree, offset, ssl, TRUE);
 
       /* PAOLO: handle session cipher suite  */
       if (ssl) {
@@ -2131,16 +2049,6 @@ proto_register_dtls(void)
         FT_UINT16, BASE_HEX, VALS(ssl_versions), 0x0,
         "Version selected by server", HFILL }
     },
-    { &hf_dtls_handshake_random_time,
-      { "GMT Unix Time", "dtls.handshake.random_time",
-        FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0,
-        "Unix time field of random structure", HFILL }
-    },
-    { &hf_dtls_handshake_random_bytes,
-      { "Random Bytes", "dtls.handshake.random",
-        FT_BYTES, BASE_NONE, NULL, 0x0,
-        "Random challenge used to authenticate server", HFILL }
-    },
     { &hf_dtls_handshake_cipher_suites_len,
       { "Cipher Suites Length", "dtls.handshake.cipher_suites_length",
         FT_UINT16, BASE_DEC, NULL, 0x0,
@@ -2165,11 +2073,6 @@ proto_register_dtls(void)
       { "Cookie", "dtls.handshake.cookie",
         FT_BYTES, BASE_NONE, NULL, 0x0,
         NULL, HFILL }
-    },
-    { &hf_dtls_handshake_session_id,
-      { "Session ID", "dtls.handshake.session_id",
-        FT_BYTES, BASE_NONE, NULL, 0x0,
-        "Identifies the DTLS session, allowing later resumption", HFILL }
     },
     { &hf_dtls_handshake_comp_methods_len,
       { "Compression Methods Length", "dtls.handshake.comp_methods_length",
@@ -2218,11 +2121,6 @@ proto_register_dtls(void)
         "Hash of messages, master_secret, etc.", HFILL }
     },
 #endif
-    { &hf_dtls_handshake_session_id_len,
-      { "Session ID Length", "dtls.handshake.session_id_length",
-        FT_UINT8, BASE_DEC, NULL, 0x0,
-        "Length of session ID field", HFILL }
-    },
     { &hf_dtls_heartbeat_message,
       { "Heartbeat Message", "dtls.heartbeat_message",
         FT_NONE, BASE_NONE, NULL, 0x0,
@@ -2299,7 +2197,6 @@ proto_register_dtls(void)
     &ett_dtls_heartbeat,
     &ett_dtls_cipher_suites,
     &ett_dtls_comp_methods,
-    &ett_dtls_random,
     &ett_dtls_new_ses_ticket,
     &ett_dtls_certs,
     &ett_dtls_fragment,
