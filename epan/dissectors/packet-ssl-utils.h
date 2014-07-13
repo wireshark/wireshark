@@ -703,6 +703,7 @@ typedef struct ssl_common_dissect {
         gint hs_session_ticket_lifetime_hint;
         gint hs_session_ticket_len;
         gint hs_session_ticket;
+        gint hs_finished;
 
         /* do not forget to update SSL_COMMON_LIST_T and SSL_COMMON_HF_LIST! */
     } hf;
@@ -747,6 +748,14 @@ typedef struct {
     /* Do not forget to initialize dtls_hfs to -1 in packet-dtls.c! */
 } dtls_hfs_t;
 
+/* Header fields specific to SSL. See packet-ssl.c */
+typedef struct {
+    gint hs_md5_hash;
+    gint hs_sha_hash;
+
+    /* Do not forget to initialize ssl_hfs to -1 in packet-ssl.c! */
+} ssl_hfs_t;
+
 extern void
 ssl_dissect_hnd_cli_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                           packet_info *pinfo, proto_tree *tree, guint32 offset,
@@ -776,6 +785,11 @@ ssl_dissect_hnd_cert_req(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                           const SslSession *session);
 
 extern void
+ssl_dissect_hnd_finished(ssl_common_dissect_t *hf, tvbuff_t *tvb,
+                         proto_tree *tree, guint32 offset,
+                         const SslSession *session, ssl_hfs_t *ssl_hfs);
+
+extern void
 ssl_dissect_hnd_cert_url(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree, guint32 offset);
 
 extern void
@@ -797,7 +811,7 @@ ssl_common_dissect_t name = {   \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
-        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,     \
+        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
     },                                                                  \
     /* ett */ {                                                         \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
@@ -1286,6 +1300,11 @@ ssl_common_dissect_t name = {   \
       { "Session Ticket", prefix ".handshake.session_ticket",           \
         FT_BYTES, BASE_NONE, NULL, 0x0,                                 \
         "New Session Ticket", HFILL }                                   \
+    },                                                                  \
+    { & name .hf.hs_finished,                                           \
+      { "Verify Data", prefix ".handshake.verify_data",                 \
+        FT_NONE, BASE_NONE, NULL, 0x0,                                  \
+        "Opaque verification data", HFILL }                             \
     }
 /* }}} */
 

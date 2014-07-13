@@ -5660,6 +5660,37 @@ ssl_dissect_hnd_cert_req(ssl_common_dissect_t *hf, tvbuff_t *tvb,
     }
 }
 
+void
+ssl_dissect_hnd_finished(ssl_common_dissect_t *hf, tvbuff_t *tvb,
+                         proto_tree *tree, guint32 offset,
+                         const SslSession *session, ssl_hfs_t *ssl_hfs)
+{
+    /* For SSLv3:
+     *     struct {
+     *         opaque md5_hash[16];
+     *         opaque sha_hash[20];
+     *     } Finished;
+     *
+     * For (D)TLS:
+     *     struct {
+     *         opaque verify_data[12];
+     *     } Finished;
+     */
+    if (!tree)
+        return;
+
+    if (session->version == SSL_VER_SSLv3) {
+        if (ssl_hfs != NULL) {
+            proto_tree_add_item(tree, ssl_hfs->hs_md5_hash,
+                                tvb, offset, 16, ENC_NA);
+            proto_tree_add_item(tree, ssl_hfs->hs_sha_hash,
+                                tvb, offset + 16, 20, ENC_NA);
+        }
+    } else {
+        proto_tree_add_item(tree, hf->hf.hs_finished,
+                            tvb, offset, 12, ENC_NA);
+    }
+}
 
 void
 ssl_dissect_hnd_cert_url(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree, guint32 offset)

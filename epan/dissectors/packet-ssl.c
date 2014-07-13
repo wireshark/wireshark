@@ -156,9 +156,6 @@ static gint hf_ssl_handshake_npn_selected_protocol_len = -1;
 static gint hf_ssl_handshake_npn_selected_protocol = -1;
 static gint hf_ssl_handshake_npn_padding_len = -1;
 static gint hf_ssl_handshake_npn_padding = -1;
-static gint hf_ssl_handshake_finished         = -1;
-static gint hf_ssl_handshake_md5_hash         = -1;
-static gint hf_ssl_handshake_sha_hash         = -1;
 static gint hf_ssl2_handshake_cipher_spec_len = -1;
 static gint hf_ssl2_handshake_session_id_len  = -1;
 static gint hf_ssl2_handshake_challenge_len   = -1;
@@ -203,6 +200,8 @@ static gint hf_ssl_heartbeat_message_type            = -1;
 static gint hf_ssl_heartbeat_message_payload_length  = -1;
 static gint hf_ssl_heartbeat_message_payload         = -1;
 static gint hf_ssl_heartbeat_message_padding         = -1;
+
+static ssl_hfs_t ssl_hfs = { -1, -1 };
 
 /* Initialize the subtree pointers */
 static gint ett_ssl                   = -1;
@@ -462,11 +461,6 @@ static void dissect_ssl3_heartbeat(tvbuff_t *tvb, packet_info *pinfo,
 static void dissect_ssl3_hnd_cli_cert_verify(tvbuff_t *tvb,
                                             proto_tree *tree,
                                             guint32 offset, guint32 length);
-
-static void dissect_ssl3_hnd_finished(tvbuff_t *tvb,
-                                      proto_tree *tree,
-                                      const guint32 offset,
-                                      const SslSession *session);
 
 static void dissect_ssl3_hnd_cert_status(tvbuff_t *tvb,
                                          proto_tree *tree,
@@ -1982,8 +1976,8 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
                 break;
 
             case SSL_HND_FINISHED:
-                dissect_ssl3_hnd_finished(tvb, ssl_hand_tree,
-                                          offset, session);
+                ssl_dissect_hnd_finished(&dissect_ssl3_hf, tvb, ssl_hand_tree,
+                                         offset, session, &ssl_hfs);
                 break;
 
             case SSL_HND_CERT_URL:
@@ -2135,47 +2129,6 @@ dissect_ssl3_hnd_cli_cert_verify(tvbuff_t *tvb, proto_tree *tree,
                         tvb, offset+2, length-2, ENC_NA);
 }
 
-
-
-static void
-dissect_ssl3_hnd_finished(tvbuff_t *tvb,
-                          proto_tree *tree, const guint32 offset,
-                          const SslSession *session)
-{
-    /* For TLS:
-     *     struct {
-     *         opaque verify_data[12];
-     *     } Finished;
-     *
-     * For SSLv3:
-     *     struct {
-     *         opaque md5_hash[16];
-     *         opaque sha_hash[20];
-     *     } Finished;
-     */
-
-    /* this all needs a tree, so bail if we don't have one */
-    if (!tree)
-    {
-        return;
-    }
-
-    switch (session->version) {
-    case SSL_VER_TLS:
-    case SSL_VER_TLSv1DOT1:
-    case SSL_VER_TLSv1DOT2:
-        proto_tree_add_item(tree, hf_ssl_handshake_finished,
-                            tvb, offset, 12, ENC_NA);
-        break;
-
-    case SSL_VER_SSLv3:
-        proto_tree_add_item(tree, hf_ssl_handshake_md5_hash,
-                            tvb, offset, 16, ENC_NA);
-        proto_tree_add_item(tree, hf_ssl_handshake_sha_hash,
-                            tvb, offset + 16, 20, ENC_NA);
-        break;
-    }
-}
 
 static guint
 dissect_ssl3_ocsp_response(tvbuff_t *tvb, proto_tree *tree,
@@ -3865,17 +3818,12 @@ proto_register_ssl(void)
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
-        { &hf_ssl_handshake_finished,
-          { "Verify Data", "ssl.handshake.verify_data",
-            FT_NONE, BASE_NONE, NULL, 0x0,
-            "Opaque verification data", HFILL }
-        },
-        { &hf_ssl_handshake_md5_hash,
+        { &ssl_hfs.hs_md5_hash,
           { "MD5 Hash", "ssl.handshake.md5_hash",
             FT_NONE, BASE_NONE, NULL, 0x0,
             "Hash of messages, master_secret, etc.", HFILL }
         },
-        { &hf_ssl_handshake_sha_hash,
+        { &ssl_hfs.hs_sha_hash,
           { "SHA-1 Hash", "ssl.handshake.sha_hash",
             FT_NONE, BASE_NONE, NULL, 0x0,
             "Hash of messages, master_secret, etc.", HFILL }

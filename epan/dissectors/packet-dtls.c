@@ -104,9 +104,6 @@ static gint hf_dtls_handshake_length            = -1;
 static gint hf_dtls_handshake_message_seq       = -1;
 static gint hf_dtls_handshake_fragment_offset   = -1;
 static gint hf_dtls_handshake_fragment_length   = -1;
-static gint hf_dtls_handshake_finished          = -1;
-/* static gint hf_dtls_handshake_md5_hash          = -1; */
-/* static gint hf_dtls_handshake_sha_hash          = -1; */
 
 static gint hf_dtls_heartbeat_message                 = -1;
 static gint hf_dtls_heartbeat_message_type            = -1;
@@ -309,10 +306,6 @@ static int dissect_dtls_hnd_hello_verify_request(tvbuff_t *tvb,
                                                   guint32 offset,
                                                   SslDecryptSession* ssl);
 
-static void dissect_dtls_hnd_finished(tvbuff_t *tvb,
-                                      proto_tree *tree,
-                                      guint32 offset,
-                                      const SslSession *session);
 /*
  * Support Functions
  *
@@ -1380,7 +1373,8 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
             break;
 
           case SSL_HND_FINISHED:
-            dissect_dtls_hnd_finished(sub_tvb, ssl_hand_tree, 0, session);
+            ssl_dissect_hnd_finished(&dissect_dtls_hf, sub_tvb, ssl_hand_tree,
+                                     0, session, NULL);
             break;
 
           case SSL_HND_CERT_URL:
@@ -1518,29 +1512,6 @@ dissect_dtls_hnd_hello_verify_request(tvbuff_t *tvb, proto_tree *tree,
   }
 
   return offset;
-}
-
-static void
-dissect_dtls_hnd_finished(tvbuff_t *tvb, proto_tree *tree, guint32 offset,
-                          const SslSession *session)
-{
-  /*
-   *     struct {
-   *         opaque verify_data[12];
-   *     } Finished;
-   */
-
-  switch(session->version) {
-  case SSL_VER_DTLS:
-  case SSL_VER_DTLS_OPENSSL:
-    proto_tree_add_item(tree, hf_dtls_handshake_finished,
-                        tvb, offset, 12, ENC_NA);
-    break;
-  case SSL_VER_DTLS1DOT2:
-    proto_tree_add_item(tree, hf_dtls_handshake_finished,
-                        tvb, offset, 12, ENC_NA);
-    break;
-  }
 }
 
 /*********************************************************************
@@ -1775,23 +1746,6 @@ proto_register_dtls(void)
         FT_BYTES, BASE_NONE, NULL, 0x0,
         NULL, HFILL }
     },
-    { &hf_dtls_handshake_finished,
-      { "Verify Data", "dtls.handshake.verify_data",
-        FT_NONE, BASE_NONE, NULL, 0x0,
-        "Opaque verification data", HFILL }
-    },
-#if 0
-    { &hf_dtls_handshake_md5_hash,
-      { "MD5 Hash", "dtls.handshake.md5_hash",
-        FT_NONE, BASE_NONE, NULL, 0x0,
-        "Hash of messages, master_secret, etc.", HFILL }
-    },
-    { &hf_dtls_handshake_sha_hash,
-      { "SHA-1 Hash", "dtls.handshake.sha_hash",
-        FT_NONE, BASE_NONE, NULL, 0x0,
-        "Hash of messages, master_secret, etc.", HFILL }
-    },
-#endif
     { &hf_dtls_heartbeat_message,
       { "Heartbeat Message", "dtls.heartbeat_message",
         FT_NONE, BASE_NONE, NULL, 0x0,
