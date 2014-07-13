@@ -4155,6 +4155,8 @@ remographlm      2373/tcp # Remograph License Manager [Per_Fahlberg] [Per_Fahlbe
 hydra            2374/tcp # Hydra RPC [Jacob_Feisley] [Jacob_Feisley] 2009-01-21
 docker           2375/tcp # Docker REST API (plain text) [DOCKER] [Christopher_Liljenstolpe] 2014-04-17
 docker-s         2376/tcp # Docker REST API (ssl) [DOCKER] [Christopher_Liljenstolpe] 2014-04-17
+etcd-client      2379/tcp # etcd client communication [CoreOS] [Brian_Harrington] 2014-07-09
+etcd-server      2380/tcp # etcd server to server communication [CoreOS] [Brian_Harrington] 2014-07-09
 compaq-https     2381/tcp # Compaq HTTPS [Scott_Shaffer] [Scott_Shaffer]
 compaq-https     2381/udp # Compaq HTTPS [Scott_Shaffer] [Scott_Shaffer]
 ms-olap3         2382/tcp # Microsoft OLAP
@@ -9384,6 +9386,7 @@ ibprotocol       6714/tcp # Internet Backplane Protocol [Alessandro_Bassi] [Ales
 ibprotocol       6714/udp # Internet Backplane Protocol [Alessandro_Bassi] [Alessandro_Bassi]
 fibotrader-com   6715/tcp # Fibotrader Communications [Robert_Wetzold] [Robert_Wetzold] 2006-01
 fibotrader-com   6715/udp # Fibotrader Communications [Robert_Wetzold] [Robert_Wetzold] 2006-01
+printercare-cc   6716/tcp # PrinterCare cloud service [E-FISH_sp._z.o.o.] [Tomasz_Krakowiak] 2014-07-07
 bmc-perf-agent   6767/tcp # BMC PERFORM AGENT [Portnoy_Boxman] [Portnoy_Boxman]
 bmc-perf-agent   6767/udp # BMC PERFORM AGENT [Portnoy_Boxman] [Portnoy_Boxman]
 bmc-perf-mgrd    6768/tcp # BMC PERFORM MGRD [Portnoy_Boxman] [Portnoy_Boxman]
@@ -9671,6 +9674,8 @@ vsi-omega        7566/udp # VSI Omega [Curtis_Smith] [Curtis_Smith]
 dell-eql-asm     7569/tcp # Dell EqualLogic Host Group Management [James_E_King_III] [James_E_King_III]
 aries-kfinder    7570/tcp # Aries Kfinder [James_King_III] [James_King_III]
 aries-kfinder    7570/udp # Aries Kfinder [James_King_III] [James_King_III]
+coherence        7574/tcp # Oracle Coherence Cluster Service [Oracle_5] [Mark_Falco] 2014-07-09
+coherence-disc   7574/udp # Oracle Coherence Cluster discovery service [Oracle_5] [Mark_Falco] 2014-07-09
 sun-lm           7588/tcp # Sun License Manager [Sophie_Deng] [Sophie_Deng]
 sun-lm           7588/udp # Sun License Manager [Sophie_Deng] [Sophie_Deng]
 indi             7624/tcp # Instrument Neutral Distributed Interface [Elwood_Downey] [Elwood_Downey] 2002-04
