@@ -3043,6 +3043,19 @@ read_prefs_file(const char *pf_path, FILE *pf,
   cur_var = g_string_new("");
 
   while ((got_c = getc(pf)) != EOF) {
+    if (got_c == '\r') {
+      /* Treat CR-LF at the end of a line like LF, so that if we're reading
+       * a Windows-format file on UN*X, we handle it the same way we'd handle
+       * a UN*X-format file. */
+      got_c = getc(pf);
+      if (got_c == EOF)
+        break;
+      if (got_c != '\n') {
+        /* Put back the character after the CR, and process the CR normally. */
+        ungetc(got_c, pf);
+        got_c = '\r';
+      }
+    }
     if (got_c == '\n') {
       state = START;
       fline++;
