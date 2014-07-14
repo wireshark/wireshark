@@ -108,6 +108,7 @@ static const gchar *default_media_types[] = {
     "text/vnd.wap.sl",
     "text/vnd.wap.co",
     "text/vnd.wap.emn",
+    "application/atom+xml",
     "application/auth-policy+xml",
     "application/ccmp+xml",
     "application/cpim-pidf+xml",
