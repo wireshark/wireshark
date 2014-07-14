@@ -837,7 +837,7 @@ detect_cc_drops(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
     frame_analysis_data_t *frame_analysis_data_p = NULL;
     proto_item            *flags_item;
 
-    guint32 detected_drop = 0;
+    gboolean detected_drop = FALSE;
     guint32 skips = 0;
 
     /* The initial sequencial processing stage */
@@ -862,7 +862,7 @@ detect_cc_drops(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
 
         /* Detect if CC is not increasing by one all the time */
         if (cc_curr != ((cc_prev+1) & MP2T_CC_MASK)) {
-            detected_drop = 1;
+            detected_drop = TRUE;
 
             skips = calc_skips(cc_curr, cc_prev);
 
@@ -903,7 +903,7 @@ detect_cc_drops(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
 
             if (ts_data) {
                 if (ts_data->skips > 0) {
-                    detected_drop = 1;
+                    detected_drop = TRUE;
                     cc_prev = ts_data->cc_prev;
                     skips   = ts_data->skips;
                 }
