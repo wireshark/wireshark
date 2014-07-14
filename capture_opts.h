@@ -31,7 +31,7 @@
 #define __CAPTURE_OPTS_H__
 
 #ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>	    /* for gid_t */
+# include <sys/types.h>     /* for gid_t */
 #endif
 
 #include <caputils/capture_ifinfo.h>
@@ -76,7 +76,7 @@ extern "C" {
 
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
 #define LONGOPT_BUFFER_SIZE \
-	{(char *)"buffer-size", required_argument, NULL, 'B'},
+    {(char *)"buffer-size", required_argument, NULL, 'B'},
 #define OPTSTRING_B "B:"
 #else
 #define LONGOPT_BUFFER_SIZE
@@ -105,7 +105,7 @@ extern "C" {
         {(char *)"linktype", required_argument, NULL, 'y'},
 
 #define OPTSTRING_CAPTURE_COMMON \
-	 "a:" OPTSTRING_A "b:" OPTSTRING_B "c:Df:i:" OPTSTRING_I "Lps:y:"
+     "a:" OPTSTRING_A "b:" OPTSTRING_B "c:Df:i:" OPTSTRING_I "Lps:y:"
 
 #ifdef HAVE_PCAP_REMOTE
 /* Type of capture source */
@@ -339,7 +339,7 @@ capture_opts_default_iface_if_necessary(capture_options *capture_opts,
                                         const char *capture_device);
 
 extern void
-capture_opts_del_iface(capture_options *capture_opts, guint index);
+capture_opts_del_iface(capture_options *capture_opts, guint if_index);
 
 extern void
 collect_ifaces(capture_options *capture_opts);

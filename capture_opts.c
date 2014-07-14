@@ -1014,11 +1014,11 @@ capture_opts_output_to_pipe(const char *save_file, gboolean *is_pipe)
 }
 
 void
-capture_opts_del_iface(capture_options *capture_opts, guint index)
+capture_opts_del_iface(capture_options *capture_opts, guint if_index)
 {
   interface_options interface_opts;
 
-  interface_opts = g_array_index(capture_opts->ifaces, interface_options, index);
+  interface_opts = g_array_index(capture_opts->ifaces, interface_options, if_index);
   /* XXX - check if found? */
 
     g_free(interface_opts.name);
@@ -1034,7 +1034,7 @@ capture_opts_del_iface(capture_options *capture_opts, guint index)
       g_free(interface_opts.auth_password);
     }
 #endif
-    capture_opts->ifaces = g_array_remove_index(capture_opts->ifaces, index);
+    capture_opts->ifaces = g_array_remove_index(capture_opts->ifaces, if_index);
 }
 
 
