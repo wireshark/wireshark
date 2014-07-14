@@ -2693,12 +2693,12 @@ void proto_register_pdcp(void)
     prefs_register_enum_preference(pdcp_lte_module, "default_ciphering_algorithm",
         "Ciphering algorithm to use if not signalled",
         "If RRC Security Info not seen, e.g. in Handover",
-        &(gint)global_default_ciphering_algorithm, default_ciphering_algorithm_vals, FALSE);
+        (gint*)&global_default_ciphering_algorithm, default_ciphering_algorithm_vals, FALSE);
 
     prefs_register_enum_preference(pdcp_lte_module, "default_integrity_algorithm",
         "Integrity algorithm to use if not signalled",
         "If RRC Security Info not seen, e.g. in Handover",
-        &(gint)global_default_integrity_algorithm, default_integrity_algorithm_vals, FALSE);
+        (gint*)&global_default_integrity_algorithm, default_integrity_algorithm_vals, FALSE);
 
     /* Attempt to decipher RRC messages */
     prefs_register_bool_preference(pdcp_lte_module, "decipher_signalling",
