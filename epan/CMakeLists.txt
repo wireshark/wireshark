@@ -1250,6 +1250,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-starteam.c
 	dissectors/packet-stat-notify.c
 	dissectors/packet-stat.c
+	dissectors/packet-stt.c
 	dissectors/packet-stun.c
 	dissectors/packet-sua.c
 	dissectors/packet-swipe.c
