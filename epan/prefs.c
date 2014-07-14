@@ -3301,13 +3301,26 @@ read_prefs_file(const char *pf_path, FILE *pf,
   cur_var = g_string_new("");
 
   /* Try to read in the profile name in the first line of the preferences file. */
-  if (fscanf(pf, "# Configuration file for %127[^\n]", ver) == 1) {
+  if (fscanf(pf, "# Configuration file for %127[^\r\n]", ver) == 1) {
     /* Assume trailing period and remove it */
     prefs.saved_at_version = g_strndup(ver, strlen(ver) - 1);
   }
   rewind(pf);
 
   while ((got_c = getc(pf)) != EOF) {
+    if (got_c == '\r') {
+      /* Treat CR-LF at the end of a line like LF, so that if we're reading
+       * a Windows-format file on UN*X, we handle it the same way we'd handle
+       * a UN*X-format file. */
+      got_c = getc(pf);
+      if (got_c == EOF)
+        break;
+      if (got_c != '\n') {
+        /* Put back the character after the CR, and process the CR normally. */
+        ungetc(got_c, pf);
+        got_c = '\r';
+      }
+    }
     if (got_c == '\n') {
       state = START;
       fline++;
