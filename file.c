@@ -106,8 +106,6 @@
 gboolean auto_scroll_live;
 #endif
 
-static void cf_reset_state(capture_file *cf);
-
 static int read_packet(capture_file *cf, dfilter_t *dfcode, epan_dissect_t *edt,
     column_info *cinfo, gint64 offset);
 
@@ -439,21 +437,20 @@ cf_add_encapsulation_type(capture_file *cf, int encap)
   g_array_append_val(cf->linktypes, encap);
 }
 
-/*
- * Reset the state for the currently closed file, but don't do the
- * UI callbacks; this is for use in "cf_open()", where we don't
- * want the UI to go from "file open" to "file closed" back to
- * "file open", we want it to go from "old file open" to "new file
- * open and being read".
- *
- * XXX - currently, cf_open() calls cf_close(), rather than
- * cf_reset_state().
- */
-static void
-cf_reset_state(capture_file *cf)
+/* Reset everything to a pristine state */
+void
+cf_close(capture_file *cf)
 {
+  if (cf->state == FILE_CLOSED)
+    return; /* Nothing to do */
+
   /* Die if we're in the middle of reading a file. */
   g_assert(cf->state != FILE_READ_IN_PROGRESS);
+
+  cf_callback_invoke(cf_cb_file_closing, cf);
+
+  /* close things, if not already closed before */
+  color_filters_cleanup();
 
   if (cf->wth) {
     wtap_close(cf->wth);
@@ -516,25 +513,13 @@ cf_reset_state(capture_file *cf)
 
   reset_tap_listeners();
 
+  epan_free(cf->epan);
+  cf->epan = NULL;
+
   /* We have no file open. */
   cf->state = FILE_CLOSED;
-}
 
-/* Reset everything to a pristine state */
-void
-cf_close(capture_file *cf)
-{
-  if (cf->state != FILE_CLOSED) {
-    cf_callback_invoke(cf_cb_file_closing, cf);
-
-  /* close things, if not already closed before */
-    color_filters_cleanup();
-    cf_reset_state(cf);
-    epan_free(cf->epan);
-    cf->epan = NULL;
-
-    cf_callback_invoke(cf_cb_file_closed, cf);
-  }
+  cf_callback_invoke(cf_cb_file_closed, cf);
 }
 
 static float
