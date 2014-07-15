@@ -25,7 +25,7 @@
 #include <string.h>
 #include "wtap-int.h"
 #include "file_wrappers.h"
-#include "buffer.h"
+#include <wsutil/buffer.h>
 #include "i4b_trace.h"
 #include "i4btrace.h"
 

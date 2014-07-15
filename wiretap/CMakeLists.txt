@@ -28,7 +28,6 @@ set(CLEAN_FILES
 	atm.c
 	ber.c
 	btsnoop.c
-	buffer.c
 	camins.c
 	catapult_dct2000.c
 	commview.c

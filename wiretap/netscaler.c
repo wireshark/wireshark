@@ -23,7 +23,7 @@
 #include <string.h>
 #include "wtap-int.h"
 #include "file_wrappers.h"
-#include "buffer.h"
+#include <wsutil/buffer.h>
 #include "netscaler.h"
 
 /* Defines imported from netscaler code: nsperfrc.h */

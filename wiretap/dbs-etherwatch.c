@@ -20,7 +20,7 @@
 
 #include "config.h"
 #include "wtap-int.h"
-#include "buffer.h"
+#include <wsutil/buffer.h>
 #include "dbs-etherwatch.h"
 #include "file_wrappers.h"
 

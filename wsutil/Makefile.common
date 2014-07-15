@@ -32,6 +32,7 @@ LIBWSUTIL_SRC = 	\
 	airpdcap_wep.c	\
 	base64.c	\
 	bitswap.c	\
+	buffer.c	\
 	cfutils.c	\
 	clopts_common.c	\
 	cmdarg_err.c	\
@@ -83,6 +84,7 @@ LIBWSUTIL_INCLUDES = 	\
 	bits_ctz.h	\
 	bits_count_ones.h	\
 	bitswap.h	\
+	buffer.h	\
 	cfutils.h	\
 	clopts_common.h	\
 	cmdarg_err.h	\

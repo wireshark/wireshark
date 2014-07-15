@@ -22,7 +22,7 @@
 #include <string.h>
 #include "wtap-int.h"
 #include "file_wrappers.h"
-#include "buffer.h"
+#include <wsutil/buffer.h>
 #include "network_instruments.h"
 
 static const char network_instruments_magic[] = {"ObserverPktBufferVersion=15.00"};

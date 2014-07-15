@@ -27,7 +27,7 @@
 
 #include "wtap-int.h"
 #include "file_wrappers.h"
-#include "buffer.h"
+#include <wsutil/buffer.h>
 #include "tnef.h"
 
 static gboolean tnef_read_file(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,

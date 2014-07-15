@@ -27,7 +27,7 @@
 
 #include <glib.h>
 #include <time.h>
-#include <filetap/buffer.h>
+#include <wsutil/buffer.h>
 #include <wsutil/nstime.h>
 #include "ws_symbol_export.h"
 

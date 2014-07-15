@@ -133,7 +133,7 @@ XMIT-Max7:20: (task "_brouterControlTask" at 0xb094ac20, time: 1481.51) 20 octet
 #include <string.h>
 
 #include "wtap-int.h"
-#include "buffer.h"
+#include <wsutil/buffer.h>
 #include "ascendtext.h"
 #include "ascend-int.h"
 #include "file_wrappers.h"

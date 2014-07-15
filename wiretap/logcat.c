@@ -24,7 +24,7 @@
 
 #include "wtap-int.h"
 #include "file_wrappers.h"
-#include "buffer.h"
+#include <wsutil/buffer.h>
 
 #include "logcat.h"
 

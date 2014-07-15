@@ -150,7 +150,7 @@ Number  S/R  Length    Timer                        MAC Address   MAC Address   
 
 #include "config.h"
 #include "wtap-int.h"
-#include "buffer.h"
+#include <wsutil/buffer.h>
 #include "iseries.h"
 #include "file_wrappers.h"
 

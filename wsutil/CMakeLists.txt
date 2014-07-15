@@ -44,6 +44,7 @@ set(WSUTIL_FILES
 	airpdcap_wep.c
 	base64.c
 	bitswap.c
+	buffer.c
 	cfutils.c
 	clopts_common.c
 	cmdarg_err.c
