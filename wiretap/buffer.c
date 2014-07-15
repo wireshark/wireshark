@@ -37,11 +37,12 @@ buffer_init(Buffer* buffer, gsize space)
 	buffer->first_free = 0;
 }
 
-/* Frees the memory used by a buffer, and the buffer struct */
+/* Frees the memory used by a buffer */
 void
 buffer_free(Buffer* buffer)
 {
 	g_free(buffer->data);
+	buffer->data = NULL;
 }
 
 /* Assures that there are 'space' bytes at the end of the used space
