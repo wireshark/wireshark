@@ -3288,8 +3288,14 @@ int
 read_prefs_file(const char *pf_path, FILE *pf,
                 pref_set_pair_cb pref_set_pair_fct, void *private_data)
 {
-  enum { START, IN_VAR, PRE_VAL, IN_VAL, IN_SKIP };
-  int       got_c, state = START;
+  enum {
+    START,    /* beginning of a line */
+    IN_VAR,   /* processing key name */
+    PRE_VAL,  /* finished processing key name, skipping white space befor evalue */
+    IN_VAL,   /* processing value */
+    IN_SKIP   /* skipping to the end of the line */
+  } state = START;
+  int       got_c;
   GString  *cur_val;
   GString  *cur_var;
   gboolean  got_val = FALSE;
@@ -3421,6 +3427,8 @@ read_prefs_file(const char *pf_path, FILE *pf,
         break;
       case IN_VAL:
         g_string_append_c(cur_val, (gchar) got_c);
+        break;
+      case IN_SKIP:
         break;
     }
   }
