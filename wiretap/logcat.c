@@ -199,7 +199,6 @@ static gint detect_version(wtap *wth, int *err, gchar **err_info)
             if (*err == 0 && bytes_read != 0)
                 *err = WTAP_ERR_SHORT_READ;
             /* short read, end of file? Whatever, this cannot be valid. */
-            version = -1;
             break;
         }
         read_sofar += bytes_read;
