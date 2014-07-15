@@ -864,6 +864,13 @@ static nghttp2_hd_entry* add_hd_table_incremental(nghttp2_hd_context *context,
 
     if(rv != 0) {
       --new_ent->ref;
+
+      /* nv->name and nv->value are managed by caller. */
+      new_ent->nv.name = NULL;
+      new_ent->nv.namelen = 0;
+      new_ent->nv.value = NULL;
+      new_ent->nv.valuelen = 0;
+
       nghttp2_hd_entry_free(new_ent);
       free(new_ent);
 
