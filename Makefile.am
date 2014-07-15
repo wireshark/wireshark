@@ -689,7 +689,6 @@ EXTRA_DIST = \
 	README.bsd		\
 	README.DECT		\
 	README.hpux		\
-	README.irix		\
 	README.linux		\
 	README.macos		\
 	README.tru64		\
