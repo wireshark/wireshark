@@ -770,7 +770,9 @@ create_ntlmssp_v1_key(const char *nt_password, const guint8 *serverchallenge, co
   /* now decrypt session key if needed and setup sessionkey for decrypting further communications */
   if (flags & NTLMSSP_NEGOTIATE_KEY_EXCH)
   {
-    memcpy(sessionkey, encryptedsessionkey, NTLMSSP_KEY_LEN);
+    if(encryptedsessionkey){
+      memcpy(sessionkey, encryptedsessionkey, NTLMSSP_KEY_LEN);
+    }
     crypt_rc4_init(&rc4state, keyexchangekey, NTLMSSP_KEY_LEN);
     crypt_rc4(&rc4state, sessionkey, NTLMSSP_KEY_LEN);
   }
