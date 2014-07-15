@@ -2592,7 +2592,7 @@ dissect_ospf_v2_lsa(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *t
                             tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
 
-        ti = proto_tree_add_uint(ospf_lsa_tree, hf_ospf_metric, tvb, offset, 4,
+        proto_tree_add_uint(ospf_lsa_tree, hf_ospf_metric, tvb, offset, 4,
                             tvb_get_ntoh24(tvb, offset + 1));
         offset += 4;
 
