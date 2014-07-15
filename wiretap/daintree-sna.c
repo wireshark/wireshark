@@ -55,7 +55,7 @@
 
 #include "wtap.h"
 #include "wtap-int.h"
-#include "buffer.h"
+#include <wsutil/buffer.h>
 #include "file_wrappers.h"
 #include "daintree-sna.h"
 

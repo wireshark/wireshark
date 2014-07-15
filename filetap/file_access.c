@@ -38,7 +38,7 @@
 
 #include "ftap-int.h"
 #include "ft_file_wrappers.h"
-#include "buffer.h"
+#include <wsutil/buffer.h>
 
 /*
  * Add an extension, and all compressed versions thereof, to a GSList

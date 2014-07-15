@@ -44,7 +44,7 @@
 
 #include "wtap-int.h"
 #include "file_wrappers.h"
-#include "buffer.h"
+#include <wsutil/buffer.h>
 #include "mime_file.h"
 
 typedef struct {

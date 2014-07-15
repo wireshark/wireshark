@@ -23,7 +23,7 @@
 #include <string.h>
 #include "wtap-int.h"
 #include "file_wrappers.h"
-#include "buffer.h"
+#include <wsutil/buffer.h>
 #include "aethra.h"
 
 /* Magic number in Aethra PC108 files. */

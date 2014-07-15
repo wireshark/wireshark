@@ -75,7 +75,7 @@
 #include "wtap-int.h"
 #include "wtap.h"
 #include "file_wrappers.h"
-#include "buffer.h"
+#include <wsutil/buffer.h>
 #include "k12.h"
 #include "k12text_lex.h"
 

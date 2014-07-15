@@ -32,6 +32,7 @@ LIBWSUTIL_SRC = 	\
 	airpdcap_wep.c	\
 	base64.c	\
 	bitswap.c	\
+	buffer.c	\
 	crash_info.c	\
 	crc6.c		\
 	crc7.c		\
@@ -71,6 +72,7 @@ LIBWSUTIL_INCLUDES = 	\
 	bits_ctz.h	\
 	bits_count_ones.h	\
 	bitswap.h		\
+	buffer.h	\
 	crash_info.h	\
 	crc6.h		\
 	crc7.h		\

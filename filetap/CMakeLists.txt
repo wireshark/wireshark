@@ -22,7 +22,6 @@
 include(UseABICheck)
 
 set(CLEAN_FILES
-	buffer.c
 	file_access.c
 	ft_file_wrappers.c
 	ftap.c

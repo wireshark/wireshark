@@ -65,7 +65,7 @@
 #include <errno.h>
 #include "wtap-int.h"
 #include "file_wrappers.h"
-#include "buffer.h"
+#include <wsutil/buffer.h>
 #include "libpcap.h"
 #include "pcap-common.h"
 #include "pcap-encap.h"

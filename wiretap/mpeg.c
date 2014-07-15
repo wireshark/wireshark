@@ -34,7 +34,7 @@
 #include "wsutil/mpeg-audio.h"
 
 #include "wtap-int.h"
-#include "buffer.h"
+#include <wsutil/buffer.h>
 #include "file_wrappers.h"
 #include <errno.h>
 #include <stdlib.h>

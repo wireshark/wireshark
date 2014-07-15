@@ -27,14 +27,12 @@
 # generated from YACC or Lex files (as Automake doesn't want them in
 # _SOURCES variables).
 NONGENERATED_C_FILES = \
-	buffer.c	\
 	file_access.c	\
 	ft_file_wrappers.c	\
 	ftap.c
 
 # Header files that are not generated from other files
 NONGENERATED_HEADER_FILES = \
-	buffer.h		\
 	ft_file_wrappers.h	\
 	ftap.h			\
 	ftap-int.h

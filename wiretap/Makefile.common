@@ -33,7 +33,6 @@ NONGENERATED_C_FILES = \
 	atm.c			\
 	ber.c			\
 	btsnoop.c		\
-	buffer.c		\
 	camins.c		\
 	catapult_dct2000.c	\
 	commview.c		\
@@ -90,7 +89,6 @@ NONGENERATED_HEADER_FILES = \
 	ascend-int.h		\
 	atm.h			\
 	ber.h			\
-	buffer.h		\
 	btsnoop.h		\
 	camins.h		\
 	catapult_dct2000.h	\

@@ -31,7 +31,7 @@
 #include "wtap-int.h"
 #include "wtap.h"
 #include "file_wrappers.h"
-#include "buffer.h"
+#include <wsutil/buffer.h>
 #include "k12.h"
 
 #include <wsutil/str_util.h>

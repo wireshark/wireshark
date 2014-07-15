@@ -38,6 +38,7 @@ set(WSUTIL_FILES
   airpdcap_wep.c
   base64.c
   bitswap.c
+  buffer.c
   crash_info.c
   crc10.c
   crc16.c

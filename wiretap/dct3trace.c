@@ -26,7 +26,7 @@
 
 #include "config.h"
 #include "wtap-int.h"
-#include "buffer.h"
+#include <wsutil/buffer.h>
 #include "dct3trace.h"
 #include "file_wrappers.h"
 

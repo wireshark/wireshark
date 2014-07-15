@@ -39,7 +39,7 @@
 
 #include "ft_file_wrappers.h"
 #include <wsutil/file_util.h>
-#include "buffer.h"
+#include <wsutil/buffer.h>
 
 #ifdef HAVE_PLUGINS
 
