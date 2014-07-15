@@ -310,7 +310,8 @@ static int change_frame_graph(voip_calls_tapinfo_t *tapinfo _U_, guint32 frame_n
 	gchar *frame_label = NULL;
 	gchar *comment = NULL;
 
-	if(NULL!=tapinfo->graph_analysis->ht)
+
+	if(tapinfo->graph_analysis && NULL!=tapinfo->graph_analysis->ht)
 		gai=(seq_analysis_item_t *)g_hash_table_lookup(tapinfo->graph_analysis->ht, &frame_num);
 	if(gai) {
 		frame_label = gai->frame_label;
@@ -339,15 +340,17 @@ static guint change_call_num_graph(voip_calls_tapinfo_t *tapinfo _U_, guint16 ca
 	guint items_changed;
 
 	items_changed = 0;
-	list = g_queue_peek_nth_link(tapinfo->graph_analysis->items, 0);
-	while (list)
-	{
-		gai = (seq_analysis_item_t *)list->data;
-		if (gai->conv_num == call_num) {
-			gai->conv_num = new_call_num;
-			items_changed++;
+	if(tapinfo->graph_analysis){
+		list = g_queue_peek_nth_link(tapinfo->graph_analysis->items, 0);
+		while (list)
+		{
+			gai = (seq_analysis_item_t *)list->data;
+			if (gai->conv_num == call_num) {
+				gai->conv_num = new_call_num;
+				items_changed++;
+			}
+			list = g_list_next(list);
 		}
-		list = g_list_next(list);
 	}
 	return items_changed;
 }
