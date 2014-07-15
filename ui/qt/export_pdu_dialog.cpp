@@ -1,4 +1,5 @@
 /* export_pdu_dialog.cpp
+ * Dialog for exporting PDUs to file
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>

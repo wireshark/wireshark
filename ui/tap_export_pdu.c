@@ -1,5 +1,5 @@
 /* tap_export_pdu.c
- * Routines for exporting PDU:s to file
+ * Routines for exporting PDUs to file
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -80,7 +80,7 @@ export_pdu_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, co
     return FALSE; /* Do not redraw */
 }
 
-void
+static void
 exp_pdu_file_open(exp_pdu_t *exp_pdu_tap_data)
 {
     int   import_file_fd;
@@ -188,10 +188,9 @@ end:
 }
 
 gboolean
-do_export_pdu(const char *filter, gchar *tap_name, gpointer data)
+do_export_pdu(const char *filter, gchar *tap_name, exp_pdu_t *exp_pdu_tap_data)
 {
     GString        *error_string;
-    exp_pdu_t  *exp_pdu_tap_data = (exp_pdu_t *)data;
 
     /* Register this tap listener now */
     error_string = register_tap_listener(tap_name,             /* The name of the tap we want to listen to */
