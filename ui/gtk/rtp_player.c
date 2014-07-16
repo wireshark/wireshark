@@ -1562,6 +1562,20 @@ static void channel_draw(rtp_channel_info_t* rci)
 
 }
 /****************************************************************************/
+#if GTK_CHECK_VERSION(3,0,0)
+static gboolean draw_channels(GtkWidget *widget, cairo_t *cr, gpointer user_data)
+{
+	rtp_channel_info_t *rci = (rtp_channel_info_t *)user_data;
+	GtkAllocation  allocation;
+
+	gtk_widget_get_allocation (widget, &allocation);
+	cairo_set_source_surface (cr, rci->surface, 0, 0);
+	cairo_rectangle (cr, 0, 0, allocation.width, allocation.width);
+	cairo_fill (cr);
+
+	return FALSE;
+}
+#else
 static gboolean expose_event_channels(GtkWidget *widget, GdkEventExpose *event, gpointer user_data)
 {
 	rtp_channel_info_t *rci = (rtp_channel_info_t *)user_data;
@@ -1582,6 +1596,7 @@ static gboolean expose_event_channels(GtkWidget *widget, GdkEventExpose *event, 
 
 	return FALSE;
 }
+#endif
 
 /****************************************************************************/
 static gboolean
@@ -1779,7 +1794,11 @@ add_channel_to_window(gchar *key _U_ , rtp_channel_info_t *rci, guint *counter _
 	gtk_box_pack_start(GTK_BOX (channels_vb), rci->scroll_window, FALSE, FALSE, 0);
 
 	/* signals needed to handle backing pixmap */
+#if GTK_CHECK_VERSION(3,0,0)
+	g_signal_connect(rci->draw_area, "draw", G_CALLBACK(draw_channels), rci);
+#else
 	g_signal_connect(rci->draw_area, "expose_event", G_CALLBACK(expose_event_channels), rci);
+#endif
 	g_signal_connect(rci->draw_area, "configure_event", G_CALLBACK(configure_event_channels), rci);
 	gtk_widget_add_events (rci->draw_area, GDK_BUTTON_PRESS_MASK);
 	g_signal_connect(rci->draw_area, "button_press_event", G_CALLBACK(button_press_event_channel), rci);
