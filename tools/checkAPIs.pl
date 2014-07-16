@@ -2114,6 +2114,11 @@ while ($_ = $ARGV[0])
                 print STDERR "Error: Found %hh in " .$filename."\n";
                 $errorCount++;
         }
+        if ($fileContents =~ m{ __func__ }xo)
+        {
+                print STDERR "Error: __func__ is not portable, use G_STRFUNC\n";
+                $errorCount++;
+        }
         if (($fileContents =~ m{ \$Id .* \$ }xo))
         {
                 print STDERR "Warning: ".$filename." does have an SVN Id tag. Please remove !\n";
