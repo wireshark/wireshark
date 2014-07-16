@@ -3607,6 +3607,10 @@ Sean O. Stalley		<sean.stalley[AT]intel.com> {
 	Dissector for Media Agnostic USB (MA USB)
 }
 
+Qiaoyin Yang <qiaoyin.yang[AT]gmail.com> {
+	Dissector for CP 'Cooper' 2179
+}
+
 and by:
 
 Georgi Guninski		<guninski[AT]guninski.com>
