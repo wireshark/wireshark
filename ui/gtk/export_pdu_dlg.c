@@ -104,7 +104,7 @@ export_pdu_show_cb(GtkWidget *w _U_, gpointer d _U_)
     exp_pdu_dlg_data = (exp_pdu_dlg_t *)g_malloc(sizeof(exp_pdu_dlg_t));
     exp_pdu_dlg_data->exp_pdu_tap_data.pkt_encap = wtap_wtap_encap_to_pcap_encap(WTAP_ENCAP_WIRESHARK_UPPER_PDU);
 
-    export_pdu_dlg = window_new(GTK_WINDOW_TOPLEVEL, "Wireshark: Export PDU:s to pcap-ng file");
+    export_pdu_dlg = window_new(GTK_WINDOW_TOPLEVEL, "Wireshark: Export PDUs to pcap-ng file");
 
     g_signal_connect(export_pdu_dlg, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
     g_signal_connect(export_pdu_dlg, "destroy", G_CALLBACK(export_pdu_destroy_cb), NULL);
@@ -167,7 +167,7 @@ export_pdu_show_cb(GtkWidget *w _U_, gpointer d _U_)
     ok_bt =  (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_OK);
     g_signal_connect(ok_bt, "clicked", G_CALLBACK(file_export_pdu_ok_cb), exp_pdu_dlg_data);
     gtk_widget_grab_default(ok_bt);
-    gtk_widget_set_tooltip_text(ok_bt, "Export PDU:s to a temporary capture file");
+    gtk_widget_set_tooltip_text(ok_bt, "Export PDUs to a temporary capture file");
 
     gtk_widget_show_all(export_pdu_dlg);
     window_present(export_pdu_dlg);

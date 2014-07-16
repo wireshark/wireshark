@@ -1,5 +1,5 @@
 /* export_pdu_dlg.h
- * Routines for exporting PDU:s to file
+ * Routines for dialogs for exporting PDUs to file
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
