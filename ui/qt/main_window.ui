@@ -1668,7 +1668,7 @@
   </action>
   <action name="actionFileExportPDU">
    <property name="text">
-    <string>Export PDUs to File</string>
+    <string>Export PDUs to File...</string>
    </property>
   </action>
   <action name="actionStatisticsIOGraph">
