@@ -1027,7 +1027,7 @@ dissect_oampdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint16   flags,state;
     guint32   i;
 
-    proto_tree *oampdu_tree = NULL;
+    proto_tree *oampdu_tree;
     proto_item *oampdu_item;
     proto_tree *flags_tree;
     proto_item *flags_item;
@@ -1037,13 +1037,12 @@ dissect_oampdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "OAM");
     col_clear(pinfo->cinfo, COL_INFO);
 
-    if (tree)
-    {
-        /* Add OAM Heading */
-        oampdu_item = proto_tree_add_protocol_format(tree, proto_oampdu, tvb,
-                0, -1, "OAM Protocol");
-        oampdu_tree = proto_item_add_subtree(oampdu_item, ett_oampdu);
+    oampdu_item = proto_tree_add_protocol_format(tree, proto_oampdu,
+          tvb, 0, -1, "OAM Protocol");
+    oampdu_tree = proto_item_add_subtree(oampdu_item, ett_oampdu);
 
+    if (oampdu_tree)
+    {
         /* Flags field */
         flags = tvb_get_ntohs(tvb, offset);
         flags_item = proto_tree_add_uint(oampdu_tree, hf_oampdu_flags, tvb,
@@ -1128,10 +1127,8 @@ dissect_oampdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* OAMPDU code */
     oampdu_code = tvb_get_guint8(tvb, offset);
-    if (tree) {
-        proto_tree_add_uint(oampdu_tree, hf_oampdu_code, tvb,
-                offset, 1, oampdu_code);
-    }
+    proto_tree_add_uint(oampdu_tree, hf_oampdu_code, tvb,
+          offset, 1, oampdu_code);
 
     switch (oampdu_code)
     {
