@@ -24,6 +24,7 @@
 CAPUTILS_SRC = \
 	$(PLATFORM_CAPUTILS_SRC)	\
 	capture-pcap-util.c		\
+	iface_monitor.c			\
 	ws80211_utils.c
 
 noinst_HEADERS = \
@@ -32,4 +33,5 @@ noinst_HEADERS = \
 	capture-pcap-util-int.h	\
 	capture-wpcap.h		\
 	capture_wpcap_packet.h	\
+	iface_monitor.h		\
 	ws80211_utils.h

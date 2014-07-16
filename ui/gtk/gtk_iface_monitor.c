@@ -28,7 +28,7 @@
 
 #include <glib.h>
 
-#include "../../iface_monitor.h"
+#include <caputils/iface_monitor.h>
 
 #include "capture_opts.h"
 

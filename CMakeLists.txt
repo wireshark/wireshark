@@ -1037,7 +1037,6 @@ if( (BUILD_wireshark AND GTK_FOUND) OR (BUILD_qtshark AND QT_FOUND) )
 		color_filters.c
 		file.c
 		fileset.c
-		iface_monitor.c
 		summary.c
 		${SHARK_COMMON_CAPTURE_SRC}
 		${SHARK_COMMON_SRC}

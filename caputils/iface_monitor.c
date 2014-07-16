@@ -23,7 +23,7 @@
 
 #ifdef HAVE_LIBPCAP
 
-#include "iface_monitor.h"
+#include <caputils/iface_monitor.h>
 
 #if defined(HAVE_LIBNL)
 

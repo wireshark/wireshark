@@ -66,7 +66,6 @@ WIRESHARK_COMMON_SRC =	\
 	color_filters.c	\
 	file.c		\
 	fileset.c	\
-	iface_monitor.c \
 	summary.c
 
 # corresponding headers
@@ -77,7 +76,6 @@ WIRESHARK_COMMON_INCLUDES =	\
 	capture_opts.h	\
 	color_filters.h	\
 	globals.h	\
-	iface_monitor.h \
 	log.h		\
 	summary.h	\
 	sync_pipe.h
