@@ -1111,13 +1111,13 @@ dissect_tsp(tvbuff_t *tvb, volatile gint offset, packet_info *pinfo,
 
     guint32 tsc;
 
-    proto_item *ti = NULL;
-    proto_item *hi = NULL;
+    proto_item *ti;
+    proto_item *hi;
     proto_item *item = NULL;
-    proto_tree *mp2t_tree = NULL;
-    proto_tree *mp2t_header_tree = NULL;
-    proto_tree *mp2t_analysis_tree = NULL;
-    proto_item *afci = NULL;
+    proto_tree *mp2t_tree;
+    proto_tree *mp2t_header_tree;
+    proto_tree *mp2t_analysis_tree;
+    proto_item *afci;
 
     ti = proto_tree_add_item( tree, proto_mp2t, tvb, offset, MP2T_PACKET_SIZE, ENC_NA );
     mp2t_tree = proto_item_add_subtree( ti, ett_mp2t );
