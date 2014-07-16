@@ -718,88 +718,88 @@ static const value_string dpoe_variable_descriptor_vals[] = {
 };
 
 static const value_string dpoe_variable_response_code_vals[] = {
-  { 0x80, "No Error" },
-  { 0x81, "Too Long" },
-  { 0x86, "Bad Parameters" },
-  { 0x87, "No Resources" },
-  { 0x88, "System Busy" },
-  { 0xA0, "Undetermined Error" },
-  { 0xA1, "Unsupported" },
-  { 0xA2, "May Be Corrupted" },
-  { 0xA3, "Hardware Failure" },
-  { 0xA4, "Overflow" },
-  { 0, NULL }
+    { 0x80, "No Error" },
+    { 0x81, "Too Long" },
+    { 0x86, "Bad Parameters" },
+    { 0x87, "No Resources" },
+    { 0x88, "System Busy" },
+    { 0xA0, "Undetermined Error" },
+    { 0xA1, "Unsupported" },
+    { 0xA2, "May Be Corrupted" },
+    { 0xA3, "Hardware Failure" },
+    { 0xA4, "Overflow" },
+    { 0, NULL }
 };
 
 static const value_string user_port_object_subtype_vals[] = {
-  { 0x00, "Terminator" },
-  { 0x01, "Header" },
-  { 0x02, "Clause" },
-  { 0x03, "Result" },
-  { 0, NULL }
+    { 0x00, "Terminator" },
+    { 0x01, "Header" },
+    { 0x02, "Clause" },
+    { 0x03, "Result" },
+    { 0, NULL }
 };
 
 static const value_string user_port_object_clause_fc_vals[] = {
-  { 0x00, "LLID Index" },
-  { 0x01, "L2 Destination MAC address" },
-  { 0x02, "L2 Source MAC address" },
-  { 0x03, "L2 Type/Len" },
-  { 0x04, "B-DA ([802.1ah])" },
-  { 0x05, "B-SA ([802.1ah])" },
-  { 0x06, "I-Tag ([802.1ah])" },
-  { 0x07, "S-VLAN Tag" },
-  { 0x08, "C-VLAN Tag" },
-  { 0x09, "MPLS" },
-  { 0x0A, "IPv4 TOS/IPv6 Traffic Class" },
-  { 0x0B, "IPv4 TTL/IPv6 Hop Limit" },
-  { 0x0C, "IPv4/IPv6 Protocol Type" },
-  { 0x0D, "IPv4 Source Address" },
-  { 0x0E, "IPv6 Source Address" },
-  { 0x0F, "IPv4 Destination Address" },
-  { 0x10, "IPv6 Destination Address" },
-  { 0x11, "IPv6 Next Header" },
-  { 0x12, "IPv6 Flow Label" },
-  { 0x13, "TCP/UDP source port" },
-  { 0x14, "TCP/UDP destination port" },
-  { 0x15, "Reserved" },
-  { 0x16, "Reserved" },
-  { 0x17, "Reserved" },
-  { 0x18, "Custom field 0" },
-  { 0x19, "Custom field 1" },
-  { 0x1A, "Custom field 2" },
-  { 0x1B, "Custom field 3" },
-  { 0x1C, "Custom field 4" },
-  { 0x1D, "Custom field 5" },
-  { 0x1E, "Custom field 6" },
-  { 0x1F, "Custom field 7" },
-  { 0, NULL }
+    { 0x00, "LLID Index" },
+    { 0x01, "L2 Destination MAC address" },
+    { 0x02, "L2 Source MAC address" },
+    { 0x03, "L2 Type/Len" },
+    { 0x04, "B-DA ([802.1ah])" },
+    { 0x05, "B-SA ([802.1ah])" },
+    { 0x06, "I-Tag ([802.1ah])" },
+    { 0x07, "S-VLAN Tag" },
+    { 0x08, "C-VLAN Tag" },
+    { 0x09, "MPLS" },
+    { 0x0A, "IPv4 TOS/IPv6 Traffic Class" },
+    { 0x0B, "IPv4 TTL/IPv6 Hop Limit" },
+    { 0x0C, "IPv4/IPv6 Protocol Type" },
+    { 0x0D, "IPv4 Source Address" },
+    { 0x0E, "IPv6 Source Address" },
+    { 0x0F, "IPv4 Destination Address" },
+    { 0x10, "IPv6 Destination Address" },
+    { 0x11, "IPv6 Next Header" },
+    { 0x12, "IPv6 Flow Label" },
+    { 0x13, "TCP/UDP source port" },
+    { 0x14, "TCP/UDP destination port" },
+    { 0x15, "Reserved" },
+    { 0x16, "Reserved" },
+    { 0x17, "Reserved" },
+    { 0x18, "Custom field 0" },
+    { 0x19, "Custom field 1" },
+    { 0x1A, "Custom field 2" },
+    { 0x1B, "Custom field 3" },
+    { 0x1C, "Custom field 4" },
+    { 0x1D, "Custom field 5" },
+    { 0x1E, "Custom field 6" },
+    { 0x1F, "Custom field 7" },
+    { 0, NULL }
 };
 
 static const value_string user_port_object_clause_operator_vals[] = {
-  { 0x00, "F" },
-  { 0x01, "==" },
-  { 0x02, "!=" },
-  { 0x03, "<=" },
-  { 0x04, ">=" },
-  { 0x05, "exists" },
-  { 0x06, "!exist" },
-  { 0x07, "T" },
-  { 0, NULL }
+    { 0x00, "F" },
+    { 0x01, "==" },
+    { 0x02, "!=" },
+    { 0x03, "<=" },
+    { 0x04, ">=" },
+    { 0x05, "exists" },
+    { 0x06, "!exist" },
+    { 0x07, "T" },
+    { 0, NULL }
 };
 
 static const value_string user_port_object_result_rr_vals[] = {
-  { 0x00, "NOP" },
-  { 0x01, "Discard" },
-  { 0x02, "Forward" },
-  { 0x03, "Queue" },
-  { 0x04, "Set" },
-  { 0x05, "Copy" },
-  { 0x06, "Delete" },
-  { 0x07, "Insert" },
-  { 0x08, "Replace" },
-  { 0x09, "Clear Delete" },
-  { 0x0A, "Clear Insert" },
-  { 0, NULL }
+    { 0x00, "NOP" },
+    { 0x01, "Discard" },
+    { 0x02, "Forward" },
+    { 0x03, "Queue" },
+    { 0x04, "Set" },
+    { 0x05, "Copy" },
+    { 0x06, "Delete" },
+    { 0x07, "Insert" },
+    { 0x08, "Replace" },
+    { 0x09, "Clear Delete" },
+    { 0x0A, "Clear Insert" },
+    { 0, NULL }
 };
 
 /* Initialise the protocol and registered fields */
@@ -1038,7 +1038,7 @@ dissect_oampdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_clear(pinfo->cinfo, COL_INFO);
 
     oampdu_item = proto_tree_add_protocol_format(tree, proto_oampdu,
-          tvb, 0, -1, "OAM Protocol");
+            tvb, 0, -1, "OAM Protocol");
     oampdu_tree = proto_item_add_subtree(oampdu_item, ett_oampdu);
 
     if (oampdu_tree)
@@ -1217,7 +1217,7 @@ dissect_oampdu_information(tvbuff_t *tvb, proto_tree *tree)
         if (info_type == OAMPDU_INFO_TYPE_ENDMARKER) break;
 
         info_item = proto_tree_add_uint(tree, hf_oampdu_info_type, tvb,
-                                        offset, 1, info_type);
+                offset, 1, info_type);
 
         switch (info_type)
         {
@@ -1241,26 +1241,26 @@ dissect_oampdu_information(tvbuff_t *tvb, proto_tree *tree)
         {
             raw_octet = tvb_get_guint8(tvb, offset);
             proto_tree_add_uint(info_tree, hf_oampdu_info_len,
-                                tvb, offset, 1, raw_octet);
+                    tvb, offset, 1, raw_octet);
 
             offset += OAMPDU_INFO_LENGTH_SZ;
 
             raw_octet = tvb_get_guint8(tvb, offset);
             proto_tree_add_uint(info_tree, hf_oampdu_info_version,
-                                tvb, offset, 1, raw_octet);
+                    tvb, offset, 1, raw_octet);
 
             offset += OAMPDU_INFO_VERSION_SZ;
 
             raw_word = tvb_get_ntohs(tvb, offset);
             proto_tree_add_uint(info_tree, hf_oampdu_info_revision,
-                                tvb, offset, 2, raw_word);
+                    tvb, offset, 2, raw_word);
 
             offset += OAMPDU_INFO_REVISION_SZ;
 
             /* Build OAM State field field */
             raw_octet = tvb_get_guint8(tvb, offset);
             state_item = proto_tree_add_uint(info_tree, hf_oampdu_info_state,
-                                             tvb, offset, 1, raw_octet);
+                    tvb, offset, 1, raw_octet);
 
             if (raw_octet == OAMPDU_INFO_TYPE_LOCAL)
                 state_tree = proto_item_add_subtree(state_item, ett_oampdu_local_info_state);
@@ -1268,17 +1268,17 @@ dissect_oampdu_information(tvbuff_t *tvb, proto_tree *tree)
                 state_tree = proto_item_add_subtree(state_item, ett_oampdu_remote_info_state);
 
             proto_tree_add_uint(state_tree, hf_oampdu_info_state_parser,
-                                tvb, offset, 1, raw_octet);
+                    tvb, offset, 1, raw_octet);
 
             proto_tree_add_boolean(state_tree, hf_oampdu_info_state_mux,
-                                   tvb, offset, 1, raw_octet);
+                    tvb, offset, 1, raw_octet);
 
             offset += OAMPDU_INFO_STATE_SZ;
 
             /* Build OAM configuration field */
             raw_octet = tvb_get_guint8(tvb, offset);
             cfg_item = proto_tree_add_uint(info_tree, hf_oampdu_info_oamConfig,
-                                           tvb, offset, 1, raw_octet);
+                    tvb, offset, 1, raw_octet);
 
             if (raw_octet == OAMPDU_INFO_TYPE_LOCAL)
                 cfg_tree = proto_item_add_subtree(cfg_item, ett_oampdu_local_info_config);
@@ -1286,39 +1286,39 @@ dissect_oampdu_information(tvbuff_t *tvb, proto_tree *tree)
                 cfg_tree = proto_item_add_subtree(cfg_item, ett_oampdu_remote_info_config);
 
             proto_tree_add_boolean(cfg_tree, hf_oampdu_info_oamConfig_mode,
-                                   tvb, offset, 1, raw_octet);
+                    tvb, offset, 1, raw_octet);
 
             proto_tree_add_boolean(cfg_tree, hf_oampdu_info_oamConfig_uni,
-                                   tvb, offset, 1, raw_octet);
+                    tvb, offset, 1, raw_octet);
 
             proto_tree_add_boolean(cfg_tree, hf_oampdu_info_oamConfig_lpbk,
-                                   tvb, offset, 1, raw_octet);
+                    tvb, offset, 1, raw_octet);
 
             proto_tree_add_boolean(cfg_tree, hf_oampdu_info_oamConfig_event,
-                                   tvb, offset, 1, raw_octet);
+                    tvb, offset, 1, raw_octet);
 
             proto_tree_add_boolean(cfg_tree, hf_oampdu_info_oamConfig_var,
-                                   tvb, offset, 1, raw_octet);
+                    tvb, offset, 1, raw_octet);
 
             offset += OAMPDU_INFO_OAM_CONFIG_SZ;
 
             raw_word = tvb_get_ntohs(tvb, offset);
             item = proto_tree_add_uint(info_tree, hf_oampdu_info_oampduConfig,
-                                       tvb, offset, 2, raw_word);
+                    tvb, offset, 2, raw_word);
 
             proto_item_append_text(item, " (bytes)");
 
             offset += OAMPDU_INFO_OAMPDU_CONFIG_SZ;
 
             oui_item = proto_tree_add_item(info_tree, hf_oampdu_info_oui,
-                                           tvb, offset, 3, ENC_NA);
+                    tvb, offset, 3, ENC_NA);
 
             APPEND_OUI_NAME(oui_item, ptr, tvb, offset);
 
             offset += OAMPDU_INFO_OUI_SZ;
 
             proto_tree_add_item(info_tree, hf_oampdu_info_vendor,
-                                tvb, offset, 4, ENC_NA);
+                    tvb, offset, 4, ENC_NA);
 
             offset += OAMPDU_INFO_VENDOR_SPECIFIC_SZ;
         }
@@ -1327,19 +1327,19 @@ dissect_oampdu_information(tvbuff_t *tvb, proto_tree *tree)
             /* see IEEE802.3, section 57.5.2.3 for more details */
             raw_octet = tvb_get_guint8(tvb, offset);
             proto_tree_add_uint(info_tree, hf_oampdu_info_len,
-                                tvb, offset, 1, raw_octet);
+                    tvb, offset, 1, raw_octet);
 
             offset += OAMPDU_INFO_LENGTH_SZ;
 
             oui_item = proto_tree_add_item(info_tree, hf_oampdu_info_oui,
-                                            tvb, offset, 3, ENC_NA);
+                    tvb, offset, 3, ENC_NA);
 
             APPEND_OUI_NAME(oui_item, ptr, tvb, offset);
 
             offset += OAMPDU_INFO_OUI_SZ;
 
             proto_tree_add_item(info_tree, hf_oampdu_info_vendor,
-                                tvb, offset, raw_octet-5, ENC_NA);
+                    tvb, offset, raw_octet-5, ENC_NA);
 
             offset += raw_octet-5;
 
@@ -1405,230 +1405,230 @@ dissect_oampdu_event_notification(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
         if (event_type == OAMPDU_EVENT_TYPE_END) break;
 
         event_item = proto_tree_add_uint(tree, hf_oampdu_event_type,
-                            tvb, offset, 1, event_type);
+                tvb, offset, 1, event_type);
 
         offset += OAMPDU_EVENT_TYPE_SZ;
 
         switch (event_type)
         {
             case OAMPDU_EVENT_TYPE_ESPE:
-            {
-                event_tree = proto_item_add_subtree(event_item,
-                                    ett_oampdu_event_espe);
+                {
+                    event_tree = proto_item_add_subtree(event_item,
+                            ett_oampdu_event_espe);
 
-                raw_octet = tvb_get_guint8(tvb, offset);
-                proto_tree_add_uint(event_tree, hf_oampdu_event_length,
-                        tvb, offset, 1, raw_octet);
+                    raw_octet = tvb_get_guint8(tvb, offset);
+                    proto_tree_add_uint(event_tree, hf_oampdu_event_length,
+                            tvb, offset, 1, raw_octet);
 
-                offset += OAMPDU_EVENT_LENGTH_SZ;
+                    offset += OAMPDU_EVENT_LENGTH_SZ;
 
-                raw_word = tvb_get_ntohs(tvb, offset);
-                proto_tree_add_uint(event_tree, hf_oampdu_event_timeStamp,
-                        tvb, offset, 2, raw_word);
+                    raw_word = tvb_get_ntohs(tvb, offset);
+                    proto_tree_add_uint(event_tree, hf_oampdu_event_timeStamp,
+                            tvb, offset, 2, raw_word);
 
-                offset += OAMPDU_EVENT_TIMESTAMP_SZ;
+                    offset += OAMPDU_EVENT_TIMESTAMP_SZ;
 
-                big = tvb_get_ntoh64(tvb, offset);
-                proto_tree_add_uint64(event_tree, hf_oampdu_event_espeWindow,
-                        tvb, offset, 8, big);
+                    big = tvb_get_ntoh64(tvb, offset);
+                    proto_tree_add_uint64(event_tree, hf_oampdu_event_espeWindow,
+                            tvb, offset, 8, big);
 
-                offset += OAMPDU_ESPE_WINDOW_SZ;
+                    offset += OAMPDU_ESPE_WINDOW_SZ;
 
-                big = tvb_get_ntoh64(tvb, offset);
-                proto_tree_add_uint64(event_tree, hf_oampdu_event_espeThreshold,
-                        tvb, offset, 8, big);
+                    big = tvb_get_ntoh64(tvb, offset);
+                    proto_tree_add_uint64(event_tree, hf_oampdu_event_espeThreshold,
+                            tvb, offset, 8, big);
 
-                offset += OAMPDU_ESPE_THRESHOLD_SZ;
+                    offset += OAMPDU_ESPE_THRESHOLD_SZ;
 
-                big = tvb_get_ntoh64(tvb, offset);
-                proto_tree_add_uint64(event_tree, hf_oampdu_event_espeErrors,
-                        tvb, offset, 8, big);
+                    big = tvb_get_ntoh64(tvb, offset);
+                    proto_tree_add_uint64(event_tree, hf_oampdu_event_espeErrors,
+                            tvb, offset, 8, big);
 
-                offset += OAMPDU_ESPE_ERRORS_SZ;
+                    offset += OAMPDU_ESPE_ERRORS_SZ;
 
-                big = tvb_get_ntoh64(tvb, offset);
-                proto_tree_add_uint64(event_tree, hf_oampdu_event_espeTotalErrors,
-                        tvb, offset, 8, big);
+                    big = tvb_get_ntoh64(tvb, offset);
+                    proto_tree_add_uint64(event_tree, hf_oampdu_event_espeTotalErrors,
+                            tvb, offset, 8, big);
 
-                offset += OAMPDU_ESPE_ERR_TOTAL_SZ;
+                    offset += OAMPDU_ESPE_ERR_TOTAL_SZ;
 
-                dword = tvb_get_ntohl(tvb, offset);
-                proto_tree_add_uint(event_tree, hf_oampdu_event_espeTotalEvents,
-                        tvb, offset, 4, dword);
+                    dword = tvb_get_ntohl(tvb, offset);
+                    proto_tree_add_uint(event_tree, hf_oampdu_event_espeTotalEvents,
+                            tvb, offset, 4, dword);
 
-                offset += OAMPDU_ESPE_TOTAL_SZ;
-                break;
-            }
+                    offset += OAMPDU_ESPE_TOTAL_SZ;
+                    break;
+                }
             case OAMPDU_EVENT_TYPE_EFE:
-            {
-                event_tree = proto_item_add_subtree(event_item,
-                                    ett_oampdu_event_efe);
+                {
+                    event_tree = proto_item_add_subtree(event_item,
+                            ett_oampdu_event_efe);
 
-                raw_octet = tvb_get_guint8(tvb, offset);
-                proto_tree_add_uint(event_tree, hf_oampdu_event_length,
-                        tvb, offset, 1, raw_octet);
+                    raw_octet = tvb_get_guint8(tvb, offset);
+                    proto_tree_add_uint(event_tree, hf_oampdu_event_length,
+                            tvb, offset, 1, raw_octet);
 
-                offset += OAMPDU_EVENT_LENGTH_SZ;
+                    offset += OAMPDU_EVENT_LENGTH_SZ;
 
-                raw_word = tvb_get_ntohs(tvb, offset);
-                proto_tree_add_uint(event_tree, hf_oampdu_event_timeStamp,
-                        tvb, offset, 2, raw_word);
+                    raw_word = tvb_get_ntohs(tvb, offset);
+                    proto_tree_add_uint(event_tree, hf_oampdu_event_timeStamp,
+                            tvb, offset, 2, raw_word);
 
-                offset += OAMPDU_EVENT_TIMESTAMP_SZ;
+                    offset += OAMPDU_EVENT_TIMESTAMP_SZ;
 
-                raw_word = tvb_get_ntohs(tvb, offset);
-                proto_tree_add_uint(event_tree, hf_oampdu_event_efeWindow,
-                        tvb, offset, 2, raw_word);
+                    raw_word = tvb_get_ntohs(tvb, offset);
+                    proto_tree_add_uint(event_tree, hf_oampdu_event_efeWindow,
+                            tvb, offset, 2, raw_word);
 
-                offset += OAMPDU_EFE_WINDOW_SZ;
+                    offset += OAMPDU_EFE_WINDOW_SZ;
 
-                dword = tvb_get_ntohl(tvb, offset);
-                proto_tree_add_uint(event_tree, hf_oampdu_event_efeThreshold,
-                        tvb, offset, 4, dword);
+                    dword = tvb_get_ntohl(tvb, offset);
+                    proto_tree_add_uint(event_tree, hf_oampdu_event_efeThreshold,
+                            tvb, offset, 4, dword);
 
-                offset += OAMPDU_EFE_THRESHOLD_SZ;
+                    offset += OAMPDU_EFE_THRESHOLD_SZ;
 
-                dword = tvb_get_ntohl(tvb, offset);
-                proto_tree_add_uint(event_tree, hf_oampdu_event_efeErrors,
-                        tvb, offset, 4, dword);
+                    dword = tvb_get_ntohl(tvb, offset);
+                    proto_tree_add_uint(event_tree, hf_oampdu_event_efeErrors,
+                            tvb, offset, 4, dword);
 
-                offset += OAMPDU_EFE_ERRORS_SZ;
+                    offset += OAMPDU_EFE_ERRORS_SZ;
 
-                big = tvb_get_ntoh64(tvb, offset);
-                proto_tree_add_uint64(event_tree, hf_oampdu_event_efeTotalErrors,
-                        tvb, offset, 8, big);
+                    big = tvb_get_ntoh64(tvb, offset);
+                    proto_tree_add_uint64(event_tree, hf_oampdu_event_efeTotalErrors,
+                            tvb, offset, 8, big);
 
-                offset += OAMPDU_EFE_ERR_TOTAL_SZ;
+                    offset += OAMPDU_EFE_ERR_TOTAL_SZ;
 
-                dword = tvb_get_ntohl(tvb, offset);
-                proto_tree_add_uint(event_tree, hf_oampdu_event_efeTotalEvents,
-                        tvb, offset, 4, dword);
+                    dword = tvb_get_ntohl(tvb, offset);
+                    proto_tree_add_uint(event_tree, hf_oampdu_event_efeTotalEvents,
+                            tvb, offset, 4, dword);
 
-                offset += OAMPDU_EFE_TOTAL_SZ;
+                    offset += OAMPDU_EFE_TOTAL_SZ;
 
-                break;
-            }
+                    break;
+                }
             case OAMPDU_EVENT_TYPE_EFPE:
-            {
-                event_tree = proto_item_add_subtree(event_item,
-                                    ett_oampdu_event_efpe);
+                {
+                    event_tree = proto_item_add_subtree(event_item,
+                            ett_oampdu_event_efpe);
 
-                raw_octet = tvb_get_guint8(tvb, offset);
-                proto_tree_add_uint(event_tree, hf_oampdu_event_length,
-                        tvb, offset, 1, raw_octet);
+                    raw_octet = tvb_get_guint8(tvb, offset);
+                    proto_tree_add_uint(event_tree, hf_oampdu_event_length,
+                            tvb, offset, 1, raw_octet);
 
-                offset += OAMPDU_EVENT_LENGTH_SZ;
+                    offset += OAMPDU_EVENT_LENGTH_SZ;
 
-                raw_word = tvb_get_ntohs(tvb, offset);
-                proto_tree_add_uint(event_tree, hf_oampdu_event_timeStamp,
-                        tvb, offset, 2, raw_word);
+                    raw_word = tvb_get_ntohs(tvb, offset);
+                    proto_tree_add_uint(event_tree, hf_oampdu_event_timeStamp,
+                            tvb, offset, 2, raw_word);
 
-                offset += OAMPDU_EVENT_TIMESTAMP_SZ;
+                    offset += OAMPDU_EVENT_TIMESTAMP_SZ;
 
-                dword = tvb_get_ntohl(tvb, offset);
-                proto_tree_add_uint(event_tree, hf_oampdu_event_efpeWindow,
-                        tvb, offset, 4, dword);
+                    dword = tvb_get_ntohl(tvb, offset);
+                    proto_tree_add_uint(event_tree, hf_oampdu_event_efpeWindow,
+                            tvb, offset, 4, dword);
 
-                offset += OAMPDU_EFPE_WINDOW_SZ;
+                    offset += OAMPDU_EFPE_WINDOW_SZ;
 
-                dword = tvb_get_ntohl(tvb, offset);
-                proto_tree_add_uint(event_tree, hf_oampdu_event_efpeThreshold,
-                        tvb, offset, 4, dword);
+                    dword = tvb_get_ntohl(tvb, offset);
+                    proto_tree_add_uint(event_tree, hf_oampdu_event_efpeThreshold,
+                            tvb, offset, 4, dword);
 
-                offset += OAMPDU_EFPE_THRESHOLD_SZ;
+                    offset += OAMPDU_EFPE_THRESHOLD_SZ;
 
-                dword = tvb_get_ntohl(tvb, offset);
-                proto_tree_add_uint(event_tree, hf_oampdu_event_efpeErrors,
-                        tvb, offset, 4, dword);
+                    dword = tvb_get_ntohl(tvb, offset);
+                    proto_tree_add_uint(event_tree, hf_oampdu_event_efpeErrors,
+                            tvb, offset, 4, dword);
 
-                offset += OAMPDU_EFPE_ERRORS_SZ;
+                    offset += OAMPDU_EFPE_ERRORS_SZ;
 
-                big = tvb_get_ntoh64(tvb, offset);
-                proto_tree_add_uint64(event_tree, hf_oampdu_event_efpeTotalErrors,
-                        tvb, offset, 8, big);
+                    big = tvb_get_ntoh64(tvb, offset);
+                    proto_tree_add_uint64(event_tree, hf_oampdu_event_efpeTotalErrors,
+                            tvb, offset, 8, big);
 
-                offset += OAMPDU_EFPE_ERR_TOTAL_SZ;
+                    offset += OAMPDU_EFPE_ERR_TOTAL_SZ;
 
-                dword = tvb_get_ntohl(tvb, offset);
-                proto_tree_add_uint(event_tree, hf_oampdu_event_efpeTotalEvents,
-                        tvb, offset, 4, dword);
+                    dword = tvb_get_ntohl(tvb, offset);
+                    proto_tree_add_uint(event_tree, hf_oampdu_event_efpeTotalEvents,
+                            tvb, offset, 4, dword);
 
-                offset += OAMPDU_EFPE_TOTAL_SZ;
+                    offset += OAMPDU_EFPE_TOTAL_SZ;
 
-                break;
-            }
+                    break;
+                }
             case OAMPDU_EVENT_TYPE_EFSSE:
-            {
-                event_tree = proto_item_add_subtree(event_item,
-                                    ett_oampdu_event_efsse);
+                {
+                    event_tree = proto_item_add_subtree(event_item,
+                            ett_oampdu_event_efsse);
 
-                raw_octet = tvb_get_guint8(tvb, offset);
-                proto_tree_add_uint(event_tree, hf_oampdu_event_length,
-                        tvb, offset, 1, raw_octet);
+                    raw_octet = tvb_get_guint8(tvb, offset);
+                    proto_tree_add_uint(event_tree, hf_oampdu_event_length,
+                            tvb, offset, 1, raw_octet);
 
-                offset += OAMPDU_EVENT_LENGTH_SZ;
+                    offset += OAMPDU_EVENT_LENGTH_SZ;
 
-                raw_word = tvb_get_ntohs(tvb, offset);
-                proto_tree_add_uint(event_tree, hf_oampdu_event_timeStamp,
-                        tvb, offset, 2, raw_word);
+                    raw_word = tvb_get_ntohs(tvb, offset);
+                    proto_tree_add_uint(event_tree, hf_oampdu_event_timeStamp,
+                            tvb, offset, 2, raw_word);
 
-                offset += OAMPDU_EVENT_TIMESTAMP_SZ;
+                    offset += OAMPDU_EVENT_TIMESTAMP_SZ;
 
-                raw_word = tvb_get_ntohs(tvb, offset);
-                proto_tree_add_uint(event_tree, hf_oampdu_event_efsseWindow,
-                        tvb, offset, 2, raw_word);
+                    raw_word = tvb_get_ntohs(tvb, offset);
+                    proto_tree_add_uint(event_tree, hf_oampdu_event_efsseWindow,
+                            tvb, offset, 2, raw_word);
 
-                offset += OAMPDU_EFSSE_WINDOW_SZ;
+                    offset += OAMPDU_EFSSE_WINDOW_SZ;
 
-                dword = tvb_get_ntohs(tvb, offset);
-                proto_tree_add_uint(event_tree, hf_oampdu_event_efsseThreshold,
-                        tvb, offset, 2, dword);
+                    dword = tvb_get_ntohs(tvb, offset);
+                    proto_tree_add_uint(event_tree, hf_oampdu_event_efsseThreshold,
+                            tvb, offset, 2, dword);
 
-                offset += OAMPDU_EFSSE_THRESHOLD_SZ;
+                    offset += OAMPDU_EFSSE_THRESHOLD_SZ;
 
-                dword = tvb_get_ntohs(tvb, offset);
-                proto_tree_add_uint(event_tree, hf_oampdu_event_efsseErrors,
-                        tvb, offset, 2, dword);
+                    dword = tvb_get_ntohs(tvb, offset);
+                    proto_tree_add_uint(event_tree, hf_oampdu_event_efsseErrors,
+                            tvb, offset, 2, dword);
 
-                offset += OAMPDU_EFSSE_ERRORS_SZ;
+                    offset += OAMPDU_EFSSE_ERRORS_SZ;
 
-                dword = tvb_get_ntohl(tvb, offset);
-                proto_tree_add_uint(event_tree, hf_oampdu_event_efsseTotalErrors,
-                        tvb, offset, 4, dword);
+                    dword = tvb_get_ntohl(tvb, offset);
+                    proto_tree_add_uint(event_tree, hf_oampdu_event_efsseTotalErrors,
+                            tvb, offset, 4, dword);
 
-                offset += OAMPDU_EFSSE_ERR_TOTAL_SZ;
+                    offset += OAMPDU_EFSSE_ERR_TOTAL_SZ;
 
-                dword = tvb_get_ntohl(tvb, offset);
-                proto_tree_add_uint(event_tree, hf_oampdu_event_efsseTotalEvents,
-                        tvb, offset, 4, dword);
+                    dword = tvb_get_ntohl(tvb, offset);
+                    proto_tree_add_uint(event_tree, hf_oampdu_event_efsseTotalEvents,
+                            tvb, offset, 4, dword);
 
-                offset += OAMPDU_EFSSE_TOTAL_SZ;
+                    offset += OAMPDU_EFSSE_TOTAL_SZ;
 
-                break;
-            }
+                    break;
+                }
             case OAMPDU_EVENT_TYPE_OSE:
-            {
-                event_tree = proto_item_add_subtree(event_item,
-                                    ett_oampdu_event_ose);
-
-                raw_octet = tvb_get_guint8(tvb, offset);
-                event_item = proto_tree_add_uint(event_tree, hf_oampdu_event_length,
-                                     tvb, offset, 1, raw_octet);
-
-                offset += OAMPDU_EVENT_LENGTH_SZ;
-
-                if (raw_octet < 2)
                 {
-                    expert_add_info_format(pinfo, event_item, &ei_oampdu_event_length_bad, "Event length should be at least 2");
+                    event_tree = proto_item_add_subtree(event_item,
+                            ett_oampdu_event_ose);
+
+                    raw_octet = tvb_get_guint8(tvb, offset);
+                    event_item = proto_tree_add_uint(event_tree, hf_oampdu_event_length,
+                            tvb, offset, 1, raw_octet);
+
+                    offset += OAMPDU_EVENT_LENGTH_SZ;
+
+                    if (raw_octet < 2)
+                    {
+                        expert_add_info_format(pinfo, event_item, &ei_oampdu_event_length_bad, "Event length should be at least 2");
+                    }
+                    else
+                    {
+                        offset += (raw_octet-2);
+                    }
+                    break;
                 }
-                else
-                {
-                    offset += (raw_octet-2);
-                }
-                break;
-            }
             default:
-              break;
+                break;
         }
     }
 }
@@ -1675,33 +1675,33 @@ dissect_oampdu_variable_request(tvbuff_t *tvb, proto_tree *tree)
         switch (raw_octet)
         {
             case OAMPDU_VARS_OBJECT:
-            {
-                raw_word = tvb_get_ntohs(tvb, offset);
-                proto_tree_add_uint(tree, hf_oampdu_variable_object,
-                        tvb, offset, 2, raw_word);
-                break;
-            }
+                {
+                    raw_word = tvb_get_ntohs(tvb, offset);
+                    proto_tree_add_uint(tree, hf_oampdu_variable_object,
+                            tvb, offset, 2, raw_word);
+                    break;
+                }
             case OAMPDU_VARS_PACKAGE:
-            {
-                raw_word = tvb_get_ntohs(tvb, offset);
-                proto_tree_add_uint(tree, hf_oampdu_variable_package,
-                        tvb, offset, 2, raw_word);
-                break;
-            }
+                {
+                    raw_word = tvb_get_ntohs(tvb, offset);
+                    proto_tree_add_uint(tree, hf_oampdu_variable_package,
+                            tvb, offset, 2, raw_word);
+                    break;
+                }
             case OAMPDU_VARS_BINDING:
-            {
-                raw_word = tvb_get_ntohs(tvb, offset);
-                proto_tree_add_uint(tree, hf_oampdu_variable_binding,
-                        tvb, offset, 2, raw_word);
-                break;
-            }
+                {
+                    raw_word = tvb_get_ntohs(tvb, offset);
+                    proto_tree_add_uint(tree, hf_oampdu_variable_binding,
+                            tvb, offset, 2, raw_word);
+                    break;
+                }
             case OAMPDU_VARS_ATTRIBUTE:
-            {
-                raw_word = tvb_get_ntohs(tvb, offset);
-                proto_tree_add_uint(tree, hf_oampdu_variable_attribute,
-                        tvb, offset, 2, raw_word);
-                break;
-            }
+                {
+                    raw_word = tvb_get_ntohs(tvb, offset);
+                    proto_tree_add_uint(tree, hf_oampdu_variable_attribute,
+                            tvb, offset, 2, raw_word);
+                    break;
+                }
             default:
                 break;
         }
@@ -1752,33 +1752,33 @@ dissect_oampdu_variable_response(tvbuff_t *tvb, proto_tree *tree)
         switch (branch)
         {
             case OAMPDU_VARS_OBJECT:
-            {
-                raw_word = tvb_get_ntohs(tvb, offset);
-                proto_tree_add_uint(tree, hf_oampdu_variable_object,
-                                    tvb, offset, 2, raw_word);
-                break;
-            }
+                {
+                    raw_word = tvb_get_ntohs(tvb, offset);
+                    proto_tree_add_uint(tree, hf_oampdu_variable_object,
+                            tvb, offset, 2, raw_word);
+                    break;
+                }
             case OAMPDU_VARS_PACKAGE:
-            {
-                raw_word = tvb_get_ntohs(tvb, offset);
-                proto_tree_add_uint(tree, hf_oampdu_variable_package,
-                                    tvb, offset, 2, raw_word);
-                break;
-            }
+                {
+                    raw_word = tvb_get_ntohs(tvb, offset);
+                    proto_tree_add_uint(tree, hf_oampdu_variable_package,
+                            tvb, offset, 2, raw_word);
+                    break;
+                }
             case OAMPDU_VARS_BINDING:
-            {
-                raw_word = tvb_get_ntohs(tvb, offset);
-                proto_tree_add_uint(tree, hf_oampdu_variable_binding,
-                                    tvb, offset, 2, raw_word);
-                break;
-            }
+                {
+                    raw_word = tvb_get_ntohs(tvb, offset);
+                    proto_tree_add_uint(tree, hf_oampdu_variable_binding,
+                            tvb, offset, 2, raw_word);
+                    break;
+                }
             case OAMPDU_VARS_ATTRIBUTE:
-            {
-                raw_word = tvb_get_ntohs(tvb, offset);
-                proto_tree_add_uint(tree, hf_oampdu_variable_attribute,
-                                    tvb, offset, 2, raw_word);
-                break;
-            }
+                {
+                    raw_word = tvb_get_ntohs(tvb, offset);
+                    proto_tree_add_uint(tree, hf_oampdu_variable_attribute,
+                            tvb, offset, 2, raw_word);
+                    break;
+                }
             default:
                 break;
         }
@@ -1856,7 +1856,7 @@ dissect_oampdu_loopback_control(tvbuff_t *tvb, proto_tree *tree)
         ctrl = tvb_get_guint8(tvb, offset);
 
         ctrl_item = proto_tree_add_uint(tree, hf_oampdu_lpbk,
-                            tvb, offset, 1, ctrl);
+                tvb, offset, 1, ctrl);
 
         ctrl_tree = proto_item_add_subtree(ctrl_item, ett_oampdu_lpbk_ctrl);
 
@@ -1935,796 +1935,796 @@ dissect_oampdu_vendor_specific(tvbuff_t *tvb, proto_tree *tree)
     bytes = tvb_captured_length_remaining(tvb, offset);
 
     if (bytes >= 3) {
-      oui_item = proto_tree_add_item(tree, hf_oampdu_info_oui, tvb, offset, 3, ENC_NA);
-      APPEND_OUI_NAME(oui_item, ptr, tvb, offset);
+        oui_item = proto_tree_add_item(tree, hf_oampdu_info_oui, tvb, offset, 3, ENC_NA);
+        APPEND_OUI_NAME(oui_item, ptr, tvb, offset);
 
-      if (tvb_memeql(tvb, offset, oui_cl, OUI_SIZE) == 0) {
+        if (tvb_memeql(tvb, offset, oui_cl, OUI_SIZE) == 0) {
 
-        offset += 3;
+            offset += 3;
 
-        oampdu_vendor_specific_tree = proto_item_add_subtree(oui_item, ett_oampdu_vendor_specific);
-        dpoe_opcode_item = proto_tree_add_item(oampdu_vendor_specific_tree, hf_oampdu_vendor_specific_dpoe_opcode, tvb, offset, 1, ENC_NA);
-        dpoe_opcode_tree = proto_item_add_subtree(dpoe_opcode_item, ett_dpoe_opcode);
-        dpoe_opcode = tvb_get_guint8(tvb, offset);
-        offset +=1;
-        next_byte = tvb_get_guint8(tvb, offset);
-        switch (dpoe_opcode) {
-          case 0x00:
-            break;
-          case DPOE_OPCODE_GET_REQUEST:
-            leaf_branch = tvb_get_ntoh24(tvb, offset);
-              if (leaf_branch == DPOE_LB_ONU_OBJ) {
-                proto_tree_add_item(dpoe_opcode_tree, hf_dpoe_variable_descriptor, tvb, offset, 3, ENC_NA);
-                offset += 3;
-                variable_length = tvb_get_guint8(tvb, offset);
-                offset += 1;
-                offset += variable_length;
-              }
+            oampdu_vendor_specific_tree = proto_item_add_subtree(oui_item, ett_oampdu_vendor_specific);
+            dpoe_opcode_item = proto_tree_add_item(oampdu_vendor_specific_tree, hf_oampdu_vendor_specific_dpoe_opcode, tvb, offset, 1, ENC_NA);
+            dpoe_opcode_tree = proto_item_add_subtree(dpoe_opcode_item, ett_dpoe_opcode);
+            dpoe_opcode = tvb_get_guint8(tvb, offset);
+            offset +=1;
             next_byte = tvb_get_guint8(tvb, offset);
-            while (next_byte != 0x00) {
-              proto_tree_add_item(dpoe_opcode_tree, hf_dpoe_variable_descriptor, tvb, offset, 3, ENC_NA);
-              offset += 3;
-              next_byte = tvb_get_guint8(tvb, offset);
+            switch (dpoe_opcode) {
+                case 0x00:
+                    break;
+                case DPOE_OPCODE_GET_REQUEST:
+                    leaf_branch = tvb_get_ntoh24(tvb, offset);
+                    if (leaf_branch == DPOE_LB_ONU_OBJ) {
+                        proto_tree_add_item(dpoe_opcode_tree, hf_dpoe_variable_descriptor, tvb, offset, 3, ENC_NA);
+                        offset += 3;
+                        variable_length = tvb_get_guint8(tvb, offset);
+                        offset += 1;
+                        offset += variable_length;
+                    }
+                    next_byte = tvb_get_guint8(tvb, offset);
+                    while (next_byte != 0x00) {
+                        proto_tree_add_item(dpoe_opcode_tree, hf_dpoe_variable_descriptor, tvb, offset, 3, ENC_NA);
+                        offset += 3;
+                        next_byte = tvb_get_guint8(tvb, offset);
+                    }
+                    break;
+                case DPOE_OPCODE_GET_RESPONSE: /* Get-Response */
+                case DPOE_OPCODE_SET_REQUEST: /* Set-Request */
+                case DPOE_OPCODE_SET_RESPONSE: /* Set-Response */
+                    while (next_byte != 0x00) {
+                        dpoe_opcode_response = proto_tree_add_item(dpoe_opcode_tree, hf_dpoe_variable_descriptor, tvb, offset, 3, ENC_NA);
+                        leaf_branch = tvb_get_ntoh24(tvb, offset);
+                        offset += 3;
+                        variable_length = tvb_get_guint8(tvb, offset);
+                        dpoe_opcode_response_tree = proto_item_add_subtree(dpoe_opcode_response, ett_dpoe_opcode_response);
+                        if (variable_length >= 0x80) {
+                            proto_tree_add_item(dpoe_opcode_response_tree, hf_dpoe_variable_response_code, tvb, offset, 1, ENC_NA);
+                            variable_length = 0;
+                            offset += 1;
+                        } else if (variable_length == 0) {
+                            offset += 1;
+                            variable_length = 128;
+                            proto_tree_add_item(dpoe_opcode_response_tree, hf_oampdu_variable_value, tvb, offset, variable_length, ENC_NA);
+                        } else {
+                            offset += 1;
+                            if (leaf_branch == (DPOE_LB_ONU_ID)) {
+                                proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_response_eth, tvb, offset, variable_length, ENC_NA);
+                            } else if (leaf_branch == DPOE_LB_MAX_LL) {
+                                proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_mll_b, tvb, offset, 2, ENC_NA);
+                                proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_mll_do, tvb, offset+2, 2, ENC_NA);
+                            } else if (leaf_branch == DPOE_LB_MAX_NET_PORTS) {
+                                proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_response_int, tvb, offset, variable_length, ENC_NA);
+                            } else if (leaf_branch == DPOE_LB_NUM_S1_INT) {
+                                proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_response_int, tvb, offset, variable_length, ENC_NA);
+                            } else if (leaf_branch == DPOE_LB_OAM_FR) {
+                                dpoe_opcode_response = proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_frame_rate_minimum, tvb, offset, 1, ENC_NA);
+                                proto_item_append_text(dpoe_opcode_response, " (PDUs/100ms)");
+                                dpoe_opcode_response = proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_frame_rate_maximum, tvb, offset+1, 1, ENC_NA);
+                                proto_item_append_text(dpoe_opcode_response, " (Number of 100ms)");
+                            } else if (leaf_branch == DPOE_LB_REP_THRESH) {
+                                guint8 nqs;
+                                guint8 rvpqs;
+                                guint8 nqs_i;
+                                guint8 rvpqs_i;
+
+                                proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_repthr_nqs, tvb, offset, 1, ENC_NA);
+                                nqs = tvb_get_guint8(tvb, offset);
+                                proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_repthr_rvpqs, tvb, offset+1, 1, ENC_NA);
+                                rvpqs = tvb_get_guint8(tvb, offset+1);
+
+                                for (nqs_i = 0; nqs_i < nqs; nqs_i++) {
+                                    for (rvpqs_i = 0; rvpqs_i < rvpqs; rvpqs_i++) {
+                                        dpoe_opcode_response = proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_report_threshold, tvb, offset+2+(2*(nqs_i+rvpqs_i)), 2, ENC_NA);
+                                        proto_item_append_text(dpoe_opcode_response, " (Report Threshold %i for Queue Set %i)",  nqs_i, rvpqs_i);
+                                    }
+                                }
+                                /* This will need to be fixed for get-response, now only works for set-requests: */
+                            } else if (leaf_branch == DPOE_LB_S1_INT_PORT_AUTONEG) {
+                                proto_tree_add_bitmask(dpoe_opcode_response_tree, tvb, offset, hf_oam_dpoe_s1_autoneg, ett_oam_dpoe_s1_autoneg, s1_autoneg_mode_bits, ENC_BIG_ENDIAN);
+                            } else if (leaf_branch == DPOE_LB_USER_PORT_OBJ) {
+                                proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_user_port_object, tvb, offset, 1, ENC_NA);
+                            } else if (leaf_branch == DPOE_LB_PORT_INGRESS_RULE) {
+                                guint8 pir_mvl;
+                                pir_subtype = tvb_get_guint8(tvb, offset);
+                                proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_user_port_object_subtype, tvb, offset, 1, ENC_NA);
+                                switch (pir_subtype) {
+                                    /* Terminator */
+                                    case 0:
+                                        /* no further contents */
+                                        break;
+                                        /* Header */
+                                    case 1:
+                                        proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_user_port_object_header_precedence, tvb, offset+1, 1, ENC_NA);
+                                        break;
+                                        /* Clause */
+                                    case 2:
+                                        proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_user_port_object_clause_fc, tvb, offset+1, 1, ENC_NA);
+                                        proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_user_port_object_clause_fi, tvb, offset+2, 1, ENC_NA);
+                                        proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_user_port_object_clause_msbm, tvb, offset+3, 1, ENC_NA);
+                                        proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_user_port_object_clause_lsbm, tvb, offset+4, 1, ENC_NA);
+                                        proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_user_port_object_clause_operator, tvb, offset+5, 1, ENC_NA);
+                                        proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_user_port_object_clause_mvl, tvb, offset+6, 1, ENC_NA);
+                                        pir_mvl = tvb_get_guint8(tvb, offset+6);
+                                        proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_user_port_object_clause_mv, tvb, offset+7, pir_mvl, ENC_NA);
+                                        break;
+                                        /* Result */
+                                    case 3:
+                                        dpoe_opcode_response = proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_user_port_object_result_rr, tvb, offset+1, 1, ENC_NA);
+                                        rr_byte = tvb_get_guint8(tvb, offset+1);
+                                        switch (rr_byte) {
+                                            case 0x00:
+                                                proto_item_append_text(dpoe_opcode_response, " No operation");
+                                                break;
+                                            case 0x01:
+                                                proto_item_append_text(dpoe_opcode_response, " Set Discard Flag for Frame");
+                                                break;
+                                            case 0x02:
+                                                proto_item_append_text(dpoe_opcode_response, " Clear Discard Flag for Frame (Forward Frame)");
+                                                break;
+                                            case 0x03:
+                                                proto_item_append_text(dpoe_opcode_response, " Set destination queue for frame");
+                                                proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_user_port_object_result_rr_queue, tvb, offset+2, 3, ENC_NA);
+                                                break;
+                                            case 0x04:
+                                                proto_item_append_text(dpoe_opcode_response, " Set output field");
+                                                proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_user_port_object_result_rr_set_fc, tvb, offset+2, 1, ENC_NA);
+                                                proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_user_port_object_result_rr_set_fi, tvb, offset+3, 1, ENC_NA);
+                                                break;
+                                            case 0x05:
+                                                proto_item_append_text(dpoe_opcode_response, " Copy output field");
+                                                proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_user_port_object_result_rr_copy, tvb, offset+2, 2, ENC_NA);
+                                                break;
+                                            case 0x06:
+                                                proto_item_append_text(dpoe_opcode_response, " Delete field");
+                                                proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_user_port_object_result_rr_delete, tvb, offset+2, 2, ENC_NA);
+                                                break;
+                                            case 0x07:
+                                                proto_item_append_text(dpoe_opcode_response, " Insert field");
+                                                proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_user_port_object_result_rr_insert, tvb, offset+2, 2, ENC_NA);
+                                                break;
+                                            case 0x08:
+                                                proto_item_append_text(dpoe_opcode_response, " Delete field and Insert current output field");
+                                                proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_user_port_object_result_rr_replace, tvb, offset+2, 2, ENC_NA);
+                                                break;
+                                            case 0x09:
+                                                proto_item_append_text(dpoe_opcode_response, " Do not delete field (override other Delete result)");
+                                                proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_user_port_object_result_rr_cd, tvb, offset+2, 2, ENC_NA);
+                                                break;
+                                            case 0x0A:
+                                                proto_item_append_text(dpoe_opcode_response, " Do not insert field (override other Insert result)");
+                                                proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_user_port_object_result_rr_ci, tvb, offset+2, 2, ENC_NA);
+                                                break;
+                                            default:
+                                                break;
+                                        }
+                                        break;
+                                    default:
+                                        break;
+                                }
+                            } else if (leaf_branch == DPOE_LB_QUEUE_CONFIG) {
+                                /* "qc" is for Queue Configuration. Variable names come from CableLabs spec. */
+                                guint8 qc_n; /* number of upstream logical links */
+                                guint8 qc_m; /* number of upstream queues for link N */
+                                guint8 qc_p; /* number of downstream ports to configure */
+                                guint8 qc_j; /* number of downstream queues for port P */
+                                guint8 qc_n_i; /* iterator */
+                                guint8 qc_m_i; /* iterator */
+                                guint8 qc_p_i; /* iterator */
+                                guint8 qc_j_i; /* iterator */
+
+                                proto_tree *dpoe_oam_qc_upstream;
+                                proto_tree *dpoe_oam_qc_upstream_subtree;
+                                proto_tree *dpoe_oam_qc_downstream;
+                                proto_tree *dpoe_oam_qc_downstream_subtree;
+                                proto_tree *dpoe_oam_qc_nq;
+                                proto_tree *dpoe_oam_qc_nq_subtree;
+
+                                qc_n = tvb_get_guint8(tvb, offset);
+                                dpoe_oam_qc_upstream = proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_qc_ll_u, tvb, offset, 1, ENC_NA);
+                                dpoe_oam_qc_upstream_subtree = proto_item_add_subtree(dpoe_oam_qc_upstream, ett_oam_dpoe_qc_u);
+                                for (qc_n_i = 0; qc_n_i < qc_n; qc_n_i++) {
+
+                                    offset++;
+                                    qc_m = tvb_get_guint8(tvb, offset);
+                                    dpoe_oam_qc_nq = proto_tree_add_item(dpoe_oam_qc_upstream_subtree, hf_oam_dpoe_qc_nq, tvb, offset, 1, ENC_NA);
+                                    proto_item_append_text(dpoe_oam_qc_nq, " (Upstream link %i)", qc_n_i);
+                                    dpoe_oam_qc_nq_subtree = proto_item_add_subtree(dpoe_oam_qc_nq, ett_oam_dpoe_qc_nq);
+                                    for (qc_m_i = 0; qc_m_i < qc_m; qc_m_i++) {
+                                        offset++;
+                                        dpoe_opcode_response = proto_tree_add_item(dpoe_oam_qc_nq_subtree, hf_oam_dpoe_qc_queue_size, tvb, offset, 1, ENC_NA);
+                                        proto_item_append_text(dpoe_opcode_response, " (Upstream link %i queue %i size)",  qc_n_i, qc_m_i);
+                                    }
+                                }
+                                offset++;
+                                qc_p = tvb_get_guint8(tvb, offset);
+                                dpoe_oam_qc_downstream = proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_qc_ports_d, tvb, offset, 1, ENC_NA);
+                                dpoe_oam_qc_downstream_subtree = proto_item_add_subtree(dpoe_oam_qc_downstream, ett_oam_dpoe_qc_d);
+                                for (qc_p_i = 0; qc_p_i < qc_p; qc_p_i++) {
+                                    offset++;
+                                    qc_j = tvb_get_guint8(tvb, offset);
+                                    dpoe_oam_qc_nq = proto_tree_add_item(dpoe_oam_qc_downstream_subtree, hf_oam_dpoe_qc_nq, tvb, offset, 1, ENC_NA);
+                                    proto_item_append_text(dpoe_oam_qc_nq, " (Downstream port %i)", qc_p_i);
+                                    dpoe_oam_qc_nq_subtree = proto_item_add_subtree(dpoe_oam_qc_nq, ett_oam_dpoe_qc_nq);
+                                    for (qc_j_i = 0; qc_j_i < qc_j; qc_j_i++) {
+                                        offset++;
+                                        dpoe_opcode_response = proto_tree_add_item(dpoe_oam_qc_nq_subtree, hf_oam_dpoe_qc_queue_size, tvb, offset, 1, ENC_NA);
+                                        proto_item_append_text(dpoe_opcode_response, " (Downstream port %i queue %i size)",  qc_p_i, qc_j_i);
+                                    }
+                                }
+                                /* fall-through for unmatched: */
+                            } else {
+                                proto_tree_add_item(dpoe_opcode_response_tree, hf_oampdu_variable_value, tvb, offset, variable_length, ENC_NA);
+                            }
+                        }
+                        offset += variable_length;
+                        next_byte = tvb_get_guint8(tvb, offset);
+                    }
+                    break;
+                case 0x05:
+                    break;
+                case 0x06:
+                    break;
+                case 0x07:
+                    break;
+                case 0x08:
+                    break;
+                case 0x09:
+                    break;
+                default:
+                    break;
             }
-            break;
-          case DPOE_OPCODE_GET_RESPONSE: /* Get-Response */
-          case DPOE_OPCODE_SET_REQUEST: /* Set-Request */
-          case DPOE_OPCODE_SET_RESPONSE: /* Set-Response */
-            while (next_byte != 0x00) {
-              dpoe_opcode_response = proto_tree_add_item(dpoe_opcode_tree, hf_dpoe_variable_descriptor, tvb, offset, 3, ENC_NA);
-              leaf_branch = tvb_get_ntoh24(tvb, offset);
-              offset += 3;
-              variable_length = tvb_get_guint8(tvb, offset);
-              dpoe_opcode_response_tree = proto_item_add_subtree(dpoe_opcode_response, ett_dpoe_opcode_response);
-              if (variable_length >= 0x80) {
-                proto_tree_add_item(dpoe_opcode_response_tree, hf_dpoe_variable_response_code, tvb, offset, 1, ENC_NA);
-                variable_length = 0;
-                offset += 1;
-              } else if (variable_length == 0) {
-                offset += 1;
-                variable_length = 128;
-                proto_tree_add_item(dpoe_opcode_response_tree, hf_oampdu_variable_value, tvb, offset, variable_length, ENC_NA);
-              } else {
-                offset += 1;
-                if (leaf_branch == (DPOE_LB_ONU_ID)) {
-                  proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_response_eth, tvb, offset, variable_length, ENC_NA);
-                } else if (leaf_branch == DPOE_LB_MAX_LL) {
-                  proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_mll_b, tvb, offset, 2, ENC_NA);
-                  proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_mll_do, tvb, offset+2, 2, ENC_NA);
-                } else if (leaf_branch == DPOE_LB_MAX_NET_PORTS) {
-                  proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_response_int, tvb, offset, variable_length, ENC_NA);
-                } else if (leaf_branch == DPOE_LB_NUM_S1_INT) {
-                  proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_response_int, tvb, offset, variable_length, ENC_NA);
-                } else if (leaf_branch == DPOE_LB_OAM_FR) {
-                  dpoe_opcode_response = proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_frame_rate_minimum, tvb, offset, 1, ENC_NA);
-                  proto_item_append_text(dpoe_opcode_response, " (PDUs/100ms)");
-                  dpoe_opcode_response = proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_frame_rate_maximum, tvb, offset+1, 1, ENC_NA);
-                  proto_item_append_text(dpoe_opcode_response, " (Number of 100ms)");
-                } else if (leaf_branch == DPOE_LB_REP_THRESH) {
-                  guint8 nqs;
-                  guint8 rvpqs;
-                  guint8 nqs_i;
-                  guint8 rvpqs_i;
-
-                  proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_repthr_nqs, tvb, offset, 1, ENC_NA);
-                  nqs = tvb_get_guint8(tvb, offset);
-                  proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_repthr_rvpqs, tvb, offset+1, 1, ENC_NA);
-                  rvpqs = tvb_get_guint8(tvb, offset+1);
-
-                  for (nqs_i = 0; nqs_i < nqs; nqs_i++) {
-                    for (rvpqs_i = 0; rvpqs_i < rvpqs; rvpqs_i++) {
-                      dpoe_opcode_response = proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_report_threshold, tvb, offset+2+(2*(nqs_i+rvpqs_i)), 2, ENC_NA);
-                      proto_item_append_text(dpoe_opcode_response, " (Report Threshold %i for Queue Set %i)",  nqs_i, rvpqs_i);
-                    }
-                  }
-                /* This will need to be fixed for get-response, now only works for set-requests: */
-                } else if (leaf_branch == DPOE_LB_S1_INT_PORT_AUTONEG) {
-                  proto_tree_add_bitmask(dpoe_opcode_response_tree, tvb, offset, hf_oam_dpoe_s1_autoneg, ett_oam_dpoe_s1_autoneg, s1_autoneg_mode_bits, ENC_BIG_ENDIAN);
-                } else if (leaf_branch == DPOE_LB_USER_PORT_OBJ) {
-                  proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_user_port_object, tvb, offset, 1, ENC_NA);
-                } else if (leaf_branch == DPOE_LB_PORT_INGRESS_RULE) {
-                  guint8 pir_mvl;
-                  pir_subtype = tvb_get_guint8(tvb, offset);
-                  proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_user_port_object_subtype, tvb, offset, 1, ENC_NA);
-                  switch (pir_subtype) {
-                    /* Terminator */
-                    case 0:
-                      /* no further contents */
-                      break;
-                    /* Header */
-                    case 1:
-                      proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_user_port_object_header_precedence, tvb, offset+1, 1, ENC_NA);
-                      break;
-                    /* Clause */
-                    case 2:
-                      proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_user_port_object_clause_fc, tvb, offset+1, 1, ENC_NA);
-                      proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_user_port_object_clause_fi, tvb, offset+2, 1, ENC_NA);
-                      proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_user_port_object_clause_msbm, tvb, offset+3, 1, ENC_NA);
-                      proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_user_port_object_clause_lsbm, tvb, offset+4, 1, ENC_NA);
-                      proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_user_port_object_clause_operator, tvb, offset+5, 1, ENC_NA);
-                      proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_user_port_object_clause_mvl, tvb, offset+6, 1, ENC_NA);
-                      pir_mvl = tvb_get_guint8(tvb, offset+6);
-                      proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_user_port_object_clause_mv, tvb, offset+7, pir_mvl, ENC_NA);
-                      break;
-                    /* Result */
-                    case 3:
-                      dpoe_opcode_response = proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_user_port_object_result_rr, tvb, offset+1, 1, ENC_NA);
-                      rr_byte = tvb_get_guint8(tvb, offset+1);
-                      switch (rr_byte) {
-                        case 0x00:
-                          proto_item_append_text(dpoe_opcode_response, " No operation");
-                          break;
-                        case 0x01:
-                          proto_item_append_text(dpoe_opcode_response, " Set Discard Flag for Frame");
-                          break;
-                        case 0x02:
-                          proto_item_append_text(dpoe_opcode_response, " Clear Discard Flag for Frame (Forward Frame)");
-                          break;
-                        case 0x03:
-                          proto_item_append_text(dpoe_opcode_response, " Set destination queue for frame");
-                          proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_user_port_object_result_rr_queue, tvb, offset+2, 3, ENC_NA);
-                          break;
-                        case 0x04:
-                          proto_item_append_text(dpoe_opcode_response, " Set output field");
-                          proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_user_port_object_result_rr_set_fc, tvb, offset+2, 1, ENC_NA);
-                          proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_user_port_object_result_rr_set_fi, tvb, offset+3, 1, ENC_NA);
-                          break;
-                        case 0x05:
-                          proto_item_append_text(dpoe_opcode_response, " Copy output field");
-                          proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_user_port_object_result_rr_copy, tvb, offset+2, 2, ENC_NA);
-                          break;
-                        case 0x06:
-                          proto_item_append_text(dpoe_opcode_response, " Delete field");
-                          proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_user_port_object_result_rr_delete, tvb, offset+2, 2, ENC_NA);
-                          break;
-                        case 0x07:
-                          proto_item_append_text(dpoe_opcode_response, " Insert field");
-                          proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_user_port_object_result_rr_insert, tvb, offset+2, 2, ENC_NA);
-                          break;
-                        case 0x08:
-                          proto_item_append_text(dpoe_opcode_response, " Delete field and Insert current output field");
-                          proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_user_port_object_result_rr_replace, tvb, offset+2, 2, ENC_NA);
-                          break;
-                        case 0x09:
-                          proto_item_append_text(dpoe_opcode_response, " Do not delete field (override other Delete result)");
-                          proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_user_port_object_result_rr_cd, tvb, offset+2, 2, ENC_NA);
-                          break;
-                        case 0x0A:
-                          proto_item_append_text(dpoe_opcode_response, " Do not insert field (override other Insert result)");
-                          proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_user_port_object_result_rr_ci, tvb, offset+2, 2, ENC_NA);
-                          break;
-                        default:
-                          break;
-                      }
-                      break;
-                    default:
-                      break;
-                  }
-                } else if (leaf_branch == DPOE_LB_QUEUE_CONFIG) {
-                  /* "qc" is for Queue Configuration. Variable names come from CableLabs spec. */
-                  guint8 qc_n; /* number of upstream logical links */
-                  guint8 qc_m; /* number of upstream queues for link N */
-                  guint8 qc_p; /* number of downstream ports to configure */
-                  guint8 qc_j; /* number of downstream queues for port P */
-                  guint8 qc_n_i; /* iterator */
-                  guint8 qc_m_i; /* iterator */
-                  guint8 qc_p_i; /* iterator */
-                  guint8 qc_j_i; /* iterator */
-
-                  proto_tree *dpoe_oam_qc_upstream;
-                  proto_tree *dpoe_oam_qc_upstream_subtree;
-                  proto_tree *dpoe_oam_qc_downstream;
-                  proto_tree *dpoe_oam_qc_downstream_subtree;
-                  proto_tree *dpoe_oam_qc_nq;
-                  proto_tree *dpoe_oam_qc_nq_subtree;
-
-                  qc_n = tvb_get_guint8(tvb, offset);
-                  dpoe_oam_qc_upstream = proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_qc_ll_u, tvb, offset, 1, ENC_NA);
-                  dpoe_oam_qc_upstream_subtree = proto_item_add_subtree(dpoe_oam_qc_upstream, ett_oam_dpoe_qc_u);
-                  for (qc_n_i = 0; qc_n_i < qc_n; qc_n_i++) {
-
-                    offset++;
-                    qc_m = tvb_get_guint8(tvb, offset);
-                    dpoe_oam_qc_nq = proto_tree_add_item(dpoe_oam_qc_upstream_subtree, hf_oam_dpoe_qc_nq, tvb, offset, 1, ENC_NA);
-                    proto_item_append_text(dpoe_oam_qc_nq, " (Upstream link %i)", qc_n_i);
-                    dpoe_oam_qc_nq_subtree = proto_item_add_subtree(dpoe_oam_qc_nq, ett_oam_dpoe_qc_nq);
-                    for (qc_m_i = 0; qc_m_i < qc_m; qc_m_i++) {
-                      offset++;
-                      dpoe_opcode_response = proto_tree_add_item(dpoe_oam_qc_nq_subtree, hf_oam_dpoe_qc_queue_size, tvb, offset, 1, ENC_NA);
-                      proto_item_append_text(dpoe_opcode_response, " (Upstream link %i queue %i size)",  qc_n_i, qc_m_i);
-                    }
-                  }
-                  offset++;
-                  qc_p = tvb_get_guint8(tvb, offset);
-                  dpoe_oam_qc_downstream = proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_qc_ports_d, tvb, offset, 1, ENC_NA);
-                  dpoe_oam_qc_downstream_subtree = proto_item_add_subtree(dpoe_oam_qc_downstream, ett_oam_dpoe_qc_d);
-                  for (qc_p_i = 0; qc_p_i < qc_p; qc_p_i++) {
-                    offset++;
-                    qc_j = tvb_get_guint8(tvb, offset);
-                    dpoe_oam_qc_nq = proto_tree_add_item(dpoe_oam_qc_downstream_subtree, hf_oam_dpoe_qc_nq, tvb, offset, 1, ENC_NA);
-                    proto_item_append_text(dpoe_oam_qc_nq, " (Downstream port %i)", qc_p_i);
-                    dpoe_oam_qc_nq_subtree = proto_item_add_subtree(dpoe_oam_qc_nq, ett_oam_dpoe_qc_nq);
-                    for (qc_j_i = 0; qc_j_i < qc_j; qc_j_i++) {
-                      offset++;
-                      dpoe_opcode_response = proto_tree_add_item(dpoe_oam_qc_nq_subtree, hf_oam_dpoe_qc_queue_size, tvb, offset, 1, ENC_NA);
-                      proto_item_append_text(dpoe_opcode_response, " (Downstream port %i queue %i size)",  qc_p_i, qc_j_i);
-                    }
-                  }
-                /* fall-through for unmatched: */
-                } else {
-                  proto_tree_add_item(dpoe_opcode_response_tree, hf_oampdu_variable_value, tvb, offset, variable_length, ENC_NA);
-                }
-              }
-              offset += variable_length;
-              next_byte = tvb_get_guint8(tvb, offset);
-            }
-            break;
-          case 0x05:
-            break;
-          case 0x06:
-            break;
-          case 0x07:
-            break;
-          case 0x08:
-            break;
-          case 0x09:
-            break;
-          default:
-            break;
         }
-      }
     }
-  }
+}
 
 /* Register the protocol with Wireshark */
 void
 proto_register_oampdu(void)
 {
-/* Setup list of header fields */
+    /* Setup list of header fields */
 
     static hf_register_info hf[] = {
         { &hf_oampdu_flags,
-          { "Flags",    "oampdu.flags",
-            FT_UINT16,    BASE_HEX,    NULL,    0x0,
-            "The Flags Field", HFILL }},
+            { "Flags",    "oampdu.flags",
+                FT_UINT16,    BASE_HEX,    NULL,    0x0,
+                "The Flags Field", HFILL }},
 
         { &hf_oampdu_flags_link_fault,
-          { "Link Fault",        "oampdu.flags.linkFault",
-            FT_BOOLEAN,    8,        TFS(&tfs_true_false),    OAMPDU_FLAGS_LINK_FAULT,
-            "The PHY detected a fault in the receive direction. True = 1, False = 0", HFILL }},
+            { "Link Fault",        "oampdu.flags.linkFault",
+                FT_BOOLEAN,    8,        TFS(&tfs_true_false),    OAMPDU_FLAGS_LINK_FAULT,
+                "The PHY detected a fault in the receive direction. True = 1, False = 0", HFILL }},
 
         { &hf_oampdu_flags_dying_gasp,
-          { "Dying Gasp",        "oampdu.flags.dyingGasp",
-            FT_BOOLEAN,    8,        TFS(&tfs_true_false),    OAMPDU_FLAGS_DYING_GASP,
-            "An unrecoverable local failure occurred. True = 1, False = 0", HFILL }},
+            { "Dying Gasp",        "oampdu.flags.dyingGasp",
+                FT_BOOLEAN,    8,        TFS(&tfs_true_false),    OAMPDU_FLAGS_DYING_GASP,
+                "An unrecoverable local failure occurred. True = 1, False = 0", HFILL }},
 
         { &hf_oampdu_flags_critical_event,
-          { "Critical Event",        "oampdu.flags.criticalEvent",
-            FT_BOOLEAN,    8,        TFS(&tfs_true_false),    OAMPDU_FLAGS_CRITICAL_EVENT,
-            "A critical event has occurred. True = 1, False = 0", HFILL }},
+            { "Critical Event",        "oampdu.flags.criticalEvent",
+                FT_BOOLEAN,    8,        TFS(&tfs_true_false),    OAMPDU_FLAGS_CRITICAL_EVENT,
+                "A critical event has occurred. True = 1, False = 0", HFILL }},
 
         { &hf_oampdu_flags_local_evaluating,
-          { "Local Evaluating",        "oampdu.flags.localEvaluating",
-            FT_BOOLEAN,    8,        TFS(&tfs_true_false),    OAMPDU_FLAGS_LOCAL_EVAL,
-            "Local DTE Discovery process in progress. True = 1, False = 0", HFILL }},
+            { "Local Evaluating",        "oampdu.flags.localEvaluating",
+                FT_BOOLEAN,    8,        TFS(&tfs_true_false),    OAMPDU_FLAGS_LOCAL_EVAL,
+                "Local DTE Discovery process in progress. True = 1, False = 0", HFILL }},
 
         { &hf_oampdu_flags_local_stable,
-          { "Local Stable",        "oampdu.flags.localStable",
-            FT_BOOLEAN,    8,        TFS(&tfs_true_false),    OAMPDU_FLAGS_LOCAL_STABLE,
-            "Local DTE is Stable. True = 1, False = 0", HFILL }},
+            { "Local Stable",        "oampdu.flags.localStable",
+                FT_BOOLEAN,    8,        TFS(&tfs_true_false),    OAMPDU_FLAGS_LOCAL_STABLE,
+                "Local DTE is Stable. True = 1, False = 0", HFILL }},
 
         { &hf_oampdu_flags_remote_evaluating,
-          { "Remote Evaluating",        "oampdu.flags.remoteEvaluating",
-            FT_BOOLEAN,    8,        TFS(&tfs_true_false),    OAMPDU_FLAGS_REMOTE_EVAL,
-            "Remote DTE Discovery process in progress. True = 1, False = 0", HFILL }},
+            { "Remote Evaluating",        "oampdu.flags.remoteEvaluating",
+                FT_BOOLEAN,    8,        TFS(&tfs_true_false),    OAMPDU_FLAGS_REMOTE_EVAL,
+                "Remote DTE Discovery process in progress. True = 1, False = 0", HFILL }},
 
         { &hf_oampdu_flags_remote_stable,
-          { "Remote Stable",        "oampdu.flags.remoteStable",
-            FT_BOOLEAN,    8,        TFS(&tfs_true_false),    OAMPDU_FLAGS_REMOTE_STABLE,
-            "Remote DTE is Stable. True = 1, False = 0", HFILL }},
+            { "Remote Stable",        "oampdu.flags.remoteStable",
+                FT_BOOLEAN,    8,        TFS(&tfs_true_false),    OAMPDU_FLAGS_REMOTE_STABLE,
+                "Remote DTE is Stable. True = 1, False = 0", HFILL }},
 
         { &hf_oampdu_code,
-          { "OAMPDU code",    "oampdu.code",
-            FT_UINT8,    BASE_HEX,    VALS(code_vals),    0x0,
-            "Identifies the TLVs code", HFILL }},
+            { "OAMPDU code",    "oampdu.code",
+                FT_UINT8,    BASE_HEX,    VALS(code_vals),    0x0,
+                "Identifies the TLVs code", HFILL }},
 
         { &hf_oampdu_info_type,
-          { "Type",    "oampdu.info.type",
-            FT_UINT8,    BASE_HEX,    VALS(info_type_vals),    0x0,
-            "Identifies the TLV type", HFILL }},
+            { "Type",    "oampdu.info.type",
+                FT_UINT8,    BASE_HEX,    VALS(info_type_vals),    0x0,
+                "Identifies the TLV type", HFILL }},
 
         { &hf_oampdu_info_len,
-          { "TLV Length",    "oampdu.info.length",
-            FT_UINT8,    BASE_DEC,    NULL,    0x0,
-            "Identifies the TLVs type", HFILL }},
+            { "TLV Length",    "oampdu.info.length",
+                FT_UINT8,    BASE_DEC,    NULL,    0x0,
+                "Identifies the TLVs type", HFILL }},
 
         { &hf_oampdu_info_version,
-          { "TLV Version",    "oampdu.info.version",
-            FT_UINT8,    BASE_HEX,    NULL,    0x0,
-            "Identifies the TLVs version", HFILL }},
+            { "TLV Version",    "oampdu.info.version",
+                FT_UINT8,    BASE_HEX,    NULL,    0x0,
+                "Identifies the TLVs version", HFILL }},
 
         { &hf_oampdu_info_revision,
-          { "TLV Revision",    "oampdu.info.revision",
-            FT_UINT16,    BASE_DEC,    NULL,    0x0,
-            "Identifies the TLVs revision", HFILL }},
+            { "TLV Revision",    "oampdu.info.revision",
+                FT_UINT16,    BASE_DEC,    NULL,    0x0,
+                "Identifies the TLVs revision", HFILL }},
 
         { &hf_oampdu_info_state,
-          { "OAM DTE States",    "oampdu.info.state",
-            FT_UINT8,    BASE_HEX,    NULL,    0x0,
-            "OAM DTE State of the Mux and the Parser", HFILL }},
+            { "OAM DTE States",    "oampdu.info.state",
+                FT_UINT8,    BASE_HEX,    NULL,    0x0,
+                "OAM DTE State of the Mux and the Parser", HFILL }},
 
         { &hf_oampdu_info_state_parser,
-          { "Parser Action",        "oampdu.info.state.parser",
-            FT_UINT8,    BASE_HEX,    VALS(parser_vals),    0x03,
-            NULL, HFILL }},
+            { "Parser Action",        "oampdu.info.state.parser",
+                FT_UINT8,    BASE_HEX,    VALS(parser_vals),    0x03,
+                NULL, HFILL }},
 
         { &hf_oampdu_info_state_mux,
-          { "Muxiplexer Action",        "oampdu.info.state.muxiplexer",
-            FT_BOOLEAN,    8,        TFS(&mux),    0x04,
-            NULL, HFILL }},
+            { "Muxiplexer Action",        "oampdu.info.state.muxiplexer",
+                FT_BOOLEAN,    8,        TFS(&mux),    0x04,
+                NULL, HFILL }},
 
         { &hf_oampdu_info_oamConfig,
-          { "OAM Configuration",    "oampdu.info.oamConfig",
-            FT_UINT8,    BASE_HEX,    NULL,    0x0,
-            NULL, HFILL }},
+            { "OAM Configuration",    "oampdu.info.oamConfig",
+                FT_UINT8,    BASE_HEX,    NULL,    0x0,
+                NULL, HFILL }},
 
         { &hf_oampdu_info_oamConfig_mode,
-          { "OAM Mode",        "oampdu.info.oamConfig.mode",
-            FT_BOOLEAN,    8,        TFS(&oam_mode),    OAMPDU_INFO_CONFIG_MODE,
-            NULL, HFILL }},
+            { "OAM Mode",        "oampdu.info.oamConfig.mode",
+                FT_BOOLEAN,    8,        TFS(&oam_mode),    OAMPDU_INFO_CONFIG_MODE,
+                NULL, HFILL }},
 
         { &hf_oampdu_info_oamConfig_uni,
-          { "Unidirectional support",        "oampdu.flags.dyingGasp",
-            FT_BOOLEAN,    8,        TFS(&oam_uni),    OAMPDU_INFO_CONFIG_UNI,
-            NULL, HFILL }},
+            { "Unidirectional support",        "oampdu.flags.dyingGasp",
+                FT_BOOLEAN,    8,        TFS(&oam_uni),    OAMPDU_INFO_CONFIG_UNI,
+                NULL, HFILL }},
 
         { &hf_oampdu_info_oamConfig_lpbk,
-          { "Loopback support",        "oampdu.flags.criticalEvent",
-            FT_BOOLEAN,    8,        TFS(&oam_lpbk),    OAMPDU_INFO_CONFIG_LPBK,
-            NULL, HFILL }},
+            { "Loopback support",        "oampdu.flags.criticalEvent",
+                FT_BOOLEAN,    8,        TFS(&oam_lpbk),    OAMPDU_INFO_CONFIG_LPBK,
+                NULL, HFILL }},
 
         { &hf_oampdu_info_oamConfig_event,
-          { "Link Events support",        "oampdu.flags.localEvaluating",
-            FT_BOOLEAN,    8,        TFS(&oam_event),    OAMPDU_INFO_CONFIG_EVENT,
-            NULL, HFILL }},
+            { "Link Events support",        "oampdu.flags.localEvaluating",
+                FT_BOOLEAN,    8,        TFS(&oam_event),    OAMPDU_INFO_CONFIG_EVENT,
+                NULL, HFILL }},
 
         { &hf_oampdu_info_oamConfig_var,
-          { "Variable Retrieval",        "oampdu.flags.localStable",
-            FT_BOOLEAN,    8,        TFS(&oam_var),    OAMPDU_INFO_CONFIG_VAR,
-            "Variable Retrieval support", HFILL }},
+            { "Variable Retrieval",        "oampdu.flags.localStable",
+                FT_BOOLEAN,    8,        TFS(&oam_var),    OAMPDU_INFO_CONFIG_VAR,
+                "Variable Retrieval support", HFILL }},
 
         { &hf_oampdu_info_oampduConfig,
-          { "Max OAMPDU Size",    "oampdu.info.oampduConfig",
-            FT_UINT16,    BASE_DEC,    NULL,    0x0,
-            "OAMPDU Configuration", HFILL }},
+            { "Max OAMPDU Size",    "oampdu.info.oampduConfig",
+                FT_UINT16,    BASE_DEC,    NULL,    0x0,
+                "OAMPDU Configuration", HFILL }},
 
         { &hf_oampdu_info_oui,
-          { "Organizationally Unique Identifier", "oampdu.info.oui",
-            FT_BYTES,    BASE_NONE,    NULL,    0x0,
-            NULL, HFILL }},
+            { "Organizationally Unique Identifier", "oampdu.info.oui",
+                FT_BYTES,    BASE_NONE,    NULL,    0x0,
+                NULL, HFILL }},
 
         { &hf_oampdu_info_vendor,
-          { "Vendor Specific Information", "oampdu.info.vendor",
-            FT_BYTES,    BASE_NONE,    NULL,    0x0,
-            NULL, HFILL }},
+            { "Vendor Specific Information", "oampdu.info.vendor",
+                FT_BYTES,    BASE_NONE,    NULL,    0x0,
+                NULL, HFILL }},
 
-/*
- * Reserved for future use:
-        { &hf_oampdu_info_dpoe_oam_version,
-          { "DPoE OAM Version", "oampdu.info.dpoe_oam_version",
-            FT_UINT8,    BASE_DEC,    NULL,    0x0,
-            NULL, HFILL }},
-*/
+        /*
+         * Reserved for future use:
+         { &hf_oampdu_info_dpoe_oam_version,
+         { "DPoE OAM Version", "oampdu.info.dpoe_oam_version",
+         FT_UINT8,    BASE_DEC,    NULL,    0x0,
+         NULL, HFILL }},
+         */
         /*
          * Event notification definitions
          */
         { &hf_oampdu_event_sequence,
-          { "Sequence Number",    "oampdu.event.sequence",
-            FT_UINT16,    BASE_DEC,    NULL,    0x0,
-            "Identifies the Event Notification TLVs", HFILL }},
+            { "Sequence Number",    "oampdu.event.sequence",
+                FT_UINT16,    BASE_DEC,    NULL,    0x0,
+                "Identifies the Event Notification TLVs", HFILL }},
 
         { &hf_oampdu_event_type,
-          { "Event Type",    "oampdu.event.type",
-            FT_UINT8,    BASE_HEX,    VALS(event_type_vals),    0x0,
-            "Identifies the TLV type", HFILL }},
+            { "Event Type",    "oampdu.event.type",
+                FT_UINT8,    BASE_HEX,    VALS(event_type_vals),    0x0,
+                "Identifies the TLV type", HFILL }},
 
         { &hf_oampdu_event_length,
-          { "Event Length",    "oampdu.event.length",
-            FT_UINT8,    BASE_HEX,    NULL,    0x0,
-            "This field indicates the length in octets of the TLV-tuple", HFILL }},
+            { "Event Length",    "oampdu.event.length",
+                FT_UINT8,    BASE_HEX,    NULL,    0x0,
+                "This field indicates the length in octets of the TLV-tuple", HFILL }},
 
         { &hf_oampdu_event_timeStamp,
-          { "Event Timestamp (100ms)",    "oampdu.event.timestamp",
-            FT_UINT16,    BASE_DEC,    NULL,    0x0,
-            "Event Time Stamp in term of 100 ms intervals", HFILL }},
+            { "Event Timestamp (100ms)",    "oampdu.event.timestamp",
+                FT_UINT16,    BASE_DEC,    NULL,    0x0,
+                "Event Time Stamp in term of 100 ms intervals", HFILL }},
 
         /* Errored Symbol Period Event TLV */
         { &hf_oampdu_event_espeWindow,
-          { "Errored Symbol Window",    "oampdu.event.espeWindow",
-            FT_UINT64,    BASE_DEC,    NULL,    0x0,
-            "Number of symbols in the period", HFILL }},
+            { "Errored Symbol Window",    "oampdu.event.espeWindow",
+                FT_UINT64,    BASE_DEC,    NULL,    0x0,
+                "Number of symbols in the period", HFILL }},
 
         { &hf_oampdu_event_espeThreshold,
-          { "Errored Symbol Threshold",    "oampdu.event.espeThreshold",
-            FT_UINT64,    BASE_DEC,    NULL,    0x0,
-            "Number of symbols required to generate the Event", HFILL }},
+            { "Errored Symbol Threshold",    "oampdu.event.espeThreshold",
+                FT_UINT64,    BASE_DEC,    NULL,    0x0,
+                "Number of symbols required to generate the Event", HFILL }},
 
         { &hf_oampdu_event_espeErrors,
-          { "Errored Symbols",    "oampdu.event.espeErrors",
-            FT_UINT64,    BASE_DEC,    NULL,    0x0,
-            "Number of symbols in error", HFILL }},
+            { "Errored Symbols",    "oampdu.event.espeErrors",
+                FT_UINT64,    BASE_DEC,    NULL,    0x0,
+                "Number of symbols in error", HFILL }},
 
         { &hf_oampdu_event_espeTotalErrors,
-          { "Error Running Total",    "oampdu.event.espeTotalErrors",
-            FT_UINT64,    BASE_DEC,    NULL,    0x0,
-            "Number of symbols in error since reset of the sublayer", HFILL }},
+            { "Error Running Total",    "oampdu.event.espeTotalErrors",
+                FT_UINT64,    BASE_DEC,    NULL,    0x0,
+                "Number of symbols in error since reset of the sublayer", HFILL }},
 
         { &hf_oampdu_event_espeTotalEvents,
-          { "Event Running Total",    "oampdu.event.espeTotalEvents",
-            FT_UINT32,    BASE_DEC,    NULL,    0x0,
-            "Total Event generated since reset of the sublayer", HFILL }},
+            { "Event Running Total",    "oampdu.event.espeTotalEvents",
+                FT_UINT32,    BASE_DEC,    NULL,    0x0,
+                "Total Event generated since reset of the sublayer", HFILL }},
 
         /* Errored Frame Event TLV */
         { &hf_oampdu_event_efeWindow,
-          { "Errored Frame Window",    "oampdu.event.efeWindow",
-            FT_UINT16,    BASE_DEC,    NULL,    0x0,
-            "Number of symbols in the period", HFILL }},
+            { "Errored Frame Window",    "oampdu.event.efeWindow",
+                FT_UINT16,    BASE_DEC,    NULL,    0x0,
+                "Number of symbols in the period", HFILL }},
 
         { &hf_oampdu_event_efeThreshold,
-          { "Errored Frame Threshold",    "oampdu.event.efeThreshold",
-            FT_UINT32,    BASE_DEC,    NULL,    0x0,
-            "Number of frames required to generate the Event", HFILL }},
+            { "Errored Frame Threshold",    "oampdu.event.efeThreshold",
+                FT_UINT32,    BASE_DEC,    NULL,    0x0,
+                "Number of frames required to generate the Event", HFILL }},
 
         { &hf_oampdu_event_efeErrors,
-          { "Errored Frames",    "oampdu.event.efeErrors",
-            FT_UINT32,    BASE_DEC,    NULL,    0x0,
-            "Number of symbols in error", HFILL }},
+            { "Errored Frames",    "oampdu.event.efeErrors",
+                FT_UINT32,    BASE_DEC,    NULL,    0x0,
+                "Number of symbols in error", HFILL }},
 
         { &hf_oampdu_event_efeTotalErrors,
-          { "Error Running Total",    "oampdu.event.efeTotalErrors",
-            FT_UINT64,    BASE_DEC,    NULL,    0x0,
-            "Number of frames in error since reset of the sublayer", HFILL }},
+            { "Error Running Total",    "oampdu.event.efeTotalErrors",
+                FT_UINT64,    BASE_DEC,    NULL,    0x0,
+                "Number of frames in error since reset of the sublayer", HFILL }},
 
         { &hf_oampdu_event_efeTotalEvents,
-          { "Event Running Total",    "oampdu.event.efeTotalEvents",
-            FT_UINT32,    BASE_DEC,    NULL,    0x0,
-            "Total Event generated since reset of the sublayer", HFILL }},
+            { "Event Running Total",    "oampdu.event.efeTotalEvents",
+                FT_UINT32,    BASE_DEC,    NULL,    0x0,
+                "Total Event generated since reset of the sublayer", HFILL }},
 
         /* Errored Frame Period Event TLV */
         { &hf_oampdu_event_efpeWindow,
-          { "Errored Frame Window",    "oampdu.event.efpeWindow",
-            FT_UINT32,    BASE_DEC,    NULL,    0x0,
-            "Number of frame in error during the period", HFILL }},
+            { "Errored Frame Window",    "oampdu.event.efpeWindow",
+                FT_UINT32,    BASE_DEC,    NULL,    0x0,
+                "Number of frame in error during the period", HFILL }},
 
         { &hf_oampdu_event_efpeThreshold,
-          { "Errored Frame Threshold",    "oampdu.event.efpeThreshold",
-            FT_UINT32,    BASE_DEC,    NULL,    0x0,
-            "Number of frames required to generate the Event", HFILL }},
+            { "Errored Frame Threshold",    "oampdu.event.efpeThreshold",
+                FT_UINT32,    BASE_DEC,    NULL,    0x0,
+                "Number of frames required to generate the Event", HFILL }},
 
         { &hf_oampdu_event_efpeErrors,
-          { "Errored Frames",    "oampdu.event.efeErrors",
-            FT_UINT32,    BASE_DEC,    NULL,    0x0,
-            "Number of symbols in error", HFILL }},
+            { "Errored Frames",    "oampdu.event.efeErrors",
+                FT_UINT32,    BASE_DEC,    NULL,    0x0,
+                "Number of symbols in error", HFILL }},
 
         { &hf_oampdu_event_efpeTotalErrors,
-          { "Error Running Total",    "oampdu.event.efpeTotalErrors",
-            FT_UINT64,    BASE_DEC,    NULL,    0x0,
-            "Number of frames in error since reset of the sublayer", HFILL }},
+            { "Error Running Total",    "oampdu.event.efpeTotalErrors",
+                FT_UINT64,    BASE_DEC,    NULL,    0x0,
+                "Number of frames in error since reset of the sublayer", HFILL }},
 
         { &hf_oampdu_event_efpeTotalEvents,
-          { "Event Running Total",    "oampdu.event.efpeTotalEvents",
-            FT_UINT32,    BASE_DEC,    NULL,    0x0,
-            "Total Event generated since reset of the sublayer", HFILL }},
+            { "Event Running Total",    "oampdu.event.efpeTotalEvents",
+                FT_UINT32,    BASE_DEC,    NULL,    0x0,
+                "Total Event generated since reset of the sublayer", HFILL }},
 
         /* Errored Frame Second Summary Event TLV */
         { &hf_oampdu_event_efsseWindow,
-          { "Errored Frame Window",    "oampdu.event.efsseWindow",
-            FT_UINT16,    BASE_DEC,    NULL,    0x0,
-            "Number of frame in error during the period", HFILL }},
+            { "Errored Frame Window",    "oampdu.event.efsseWindow",
+                FT_UINT16,    BASE_DEC,    NULL,    0x0,
+                "Number of frame in error during the period", HFILL }},
 
         { &hf_oampdu_event_efsseThreshold,
-          { "Errored Frame Threshold",    "oampdu.event.efsseThreshold",
-            FT_UINT16,    BASE_DEC,    NULL,    0x0,
-            "Number of frames required to generate the Event", HFILL }},
+            { "Errored Frame Threshold",    "oampdu.event.efsseThreshold",
+                FT_UINT16,    BASE_DEC,    NULL,    0x0,
+                "Number of frames required to generate the Event", HFILL }},
 
         { &hf_oampdu_event_efsseErrors,
-          { "Errored Frames",    "oampdu.event.efeErrors",
-            FT_UINT16,    BASE_DEC,    NULL,    0x0,
-            "Number of symbols in error", HFILL }},
+            { "Errored Frames",    "oampdu.event.efeErrors",
+                FT_UINT16,    BASE_DEC,    NULL,    0x0,
+                "Number of symbols in error", HFILL }},
 
         { &hf_oampdu_event_efsseTotalErrors,
-          { "Error Running Total",    "oampdu.event.efsseTotalErrors",
-            FT_UINT32,    BASE_DEC,    NULL,    0x0,
-            "Number of frames in error since reset of the sublayer", HFILL }},
+            { "Error Running Total",    "oampdu.event.efsseTotalErrors",
+                FT_UINT32,    BASE_DEC,    NULL,    0x0,
+                "Number of frames in error since reset of the sublayer", HFILL }},
 
         { &hf_oampdu_event_efsseTotalEvents,
-          { "Event Running Total",    "oampdu.event.efsseTotalEvents",
-            FT_UINT32,    BASE_DEC,    NULL,    0x0,
-            "Total Event generated since reset of the sublayer", HFILL }},
+            { "Event Running Total",    "oampdu.event.efsseTotalEvents",
+                FT_UINT32,    BASE_DEC,    NULL,    0x0,
+                "Total Event generated since reset of the sublayer", HFILL }},
 
         /* Variable request and response definitions*/
         { &hf_oampdu_variable_branch,
-          { "Branch",    "oampdu.variable.branch",
-            FT_UINT8,    BASE_HEX,    VALS(branch_vals),    0x0,
-            "Variable Branch, derived from the CMIP protocol in Annex 30A", HFILL }},
+            { "Branch",    "oampdu.variable.branch",
+                FT_UINT8,    BASE_HEX,    VALS(branch_vals),    0x0,
+                "Variable Branch, derived from the CMIP protocol in Annex 30A", HFILL }},
 
         { &hf_oampdu_variable_object,
-          { "Leaf",    "oampdu.variable.object",
-            FT_UINT16,    BASE_HEX,    VALS(object_vals),    0x0,
-            "Object, derived from the CMIP protocol in Annex 30A", HFILL }},
+            { "Leaf",    "oampdu.variable.object",
+                FT_UINT16,    BASE_HEX,    VALS(object_vals),    0x0,
+                "Object, derived from the CMIP protocol in Annex 30A", HFILL }},
 
         { &hf_oampdu_variable_package,
-          { "Leaf",    "oampdu.variable.package",
-            FT_UINT16,    BASE_HEX,    VALS(package_vals),    0x0,
-            "Package, derived from the CMIP protocol in Annex 30A", HFILL }},
+            { "Leaf",    "oampdu.variable.package",
+                FT_UINT16,    BASE_HEX,    VALS(package_vals),    0x0,
+                "Package, derived from the CMIP protocol in Annex 30A", HFILL }},
 
         { &hf_oampdu_variable_binding,
-          { "Leaf",    "oampdu.variable.binding",
-            FT_UINT16,    BASE_HEX,    VALS(binding_vals),    0x0,
-            "Binding, derived from the CMIP protocol in Annex 30A", HFILL }},
+            { "Leaf",    "oampdu.variable.binding",
+                FT_UINT16,    BASE_HEX,    VALS(binding_vals),    0x0,
+                "Binding, derived from the CMIP protocol in Annex 30A", HFILL }},
 
         { &hf_oampdu_variable_attribute,
-          { "Leaf",    "oampdu.variable.attribute",
-            FT_UINT16,    BASE_HEX|BASE_EXT_STRING,  &attribute_vals_ext,   0x0,
-            "Attribute, derived from the CMIP protocol in Annex 30A", HFILL }},
+            { "Leaf",    "oampdu.variable.attribute",
+                FT_UINT16,    BASE_HEX|BASE_EXT_STRING,  &attribute_vals_ext,   0x0,
+                "Attribute, derived from the CMIP protocol in Annex 30A", HFILL }},
 
         { &hf_oampdu_variable_width,
-          { "Variable Width",    "oampdu.variable.width",
-            FT_UINT8,    BASE_DEC,    NULL,    0x0,
-            "Width", HFILL }},
+            { "Variable Width",    "oampdu.variable.width",
+                FT_UINT8,    BASE_DEC,    NULL,    0x0,
+                "Width", HFILL }},
 
         { &hf_oampdu_variable_indication,
-          { "Variable indication",    "oampdu.variable.indication",
-            FT_UINT8,    BASE_HEX,    VALS(indication_vals),    0x0,
-            NULL, HFILL }},
+            { "Variable indication",    "oampdu.variable.indication",
+                FT_UINT8,    BASE_HEX,    VALS(indication_vals),    0x0,
+                NULL, HFILL }},
 
         { &hf_oampdu_variable_value,
-          { "Variable Value",    "oampdu.variable.value",
-            FT_BYTES,    BASE_NONE,    NULL,    0x0,
-            "Value", HFILL }},
+            { "Variable Value",    "oampdu.variable.value",
+                FT_BYTES,    BASE_NONE,    NULL,    0x0,
+                "Value", HFILL }},
 
         /* Loopback Control definitions*/
         { &hf_oampdu_lpbk,
-          { "Commands", "oampdu.lpbk.commands",
-            FT_UINT8,    BASE_HEX,    NULL,    0x0,
-            "The List of Loopback Commands", HFILL }},
+            { "Commands", "oampdu.lpbk.commands",
+                FT_UINT8,    BASE_HEX,    NULL,    0x0,
+                "The List of Loopback Commands", HFILL }},
 
         { &hf_oampdu_lpbk_enable,
-          { "Enable Remote Loopback", "oampdu.lpbk.commands.enable",
-            FT_BOOLEAN,    8,        NULL,    OAMPDU_LPBK_ENABLE,
-            "Enable Remote Loopback Command", HFILL }},
+            { "Enable Remote Loopback", "oampdu.lpbk.commands.enable",
+                FT_BOOLEAN,    8,        NULL,    OAMPDU_LPBK_ENABLE,
+                "Enable Remote Loopback Command", HFILL }},
 
         { &hf_oampdu_lpbk_disable,
-          { "Disable Remote Loopback", "oampdu.lpbk.commands.disable",
-            FT_BOOLEAN,    8,        NULL,    OAMPDU_LPBK_DISABLE,
-            "Disable Remote Loopback Command", HFILL }},
+            { "Disable Remote Loopback", "oampdu.lpbk.commands.disable",
+                FT_BOOLEAN,    8,        NULL,    OAMPDU_LPBK_DISABLE,
+                "Disable Remote Loopback Command", HFILL }},
 
         /* Vendor-Specific definitions */
         { &hf_oampdu_vendor_specific_dpoe_opcode,
-          { "DPoE Opcode", "oampdu.vendor.specific.opcode",
-            FT_UINT8, BASE_HEX, VALS(vendor_specific_opcode_vals),
-            0x0, NULL, HFILL }},
+            { "DPoE Opcode", "oampdu.vendor.specific.opcode",
+                FT_UINT8, BASE_HEX, VALS(vendor_specific_opcode_vals),
+                0x0, NULL, HFILL }},
 
         /* DPoE Variable Descriptor */
         { &hf_dpoe_variable_descriptor,
-          { "Variable Descriptor", "oampdu.variable.descriptor",
-            FT_UINT8, BASE_HEX, VALS(dpoe_variable_descriptor_vals),
-            0x0, NULL, HFILL }},
+            { "Variable Descriptor", "oampdu.variable.descriptor",
+                FT_UINT8, BASE_HEX, VALS(dpoe_variable_descriptor_vals),
+                0x0, NULL, HFILL }},
 
         { &hf_dpoe_variable_response_code,
-          { "Response Code", "oampdu.variable.response.code",
-            FT_UINT8, BASE_HEX, VALS(dpoe_variable_response_code_vals),
-            0x0, NULL, HFILL }},
+            { "Response Code", "oampdu.variable.response.code",
+                FT_UINT8, BASE_HEX, VALS(dpoe_variable_response_code_vals),
+                0x0, NULL, HFILL }},
 
         { &hf_oam_dpoe_response_eth,
-          { "OAM Response Value", "oampdu.response.eth",
-            FT_ETHER, BASE_NONE, NULL, 0x0,
-            NULL, HFILL }},
+            { "OAM Response Value", "oampdu.response.eth",
+                FT_ETHER, BASE_NONE, NULL, 0x0,
+                NULL, HFILL }},
 
         { &hf_oam_dpoe_response_int,
-          { "OAM Response Value", "oampdu.response.int",
-            FT_UINT16, BASE_DEC, NULL, 0x0,
-            NULL, HFILL }},
+            { "OAM Response Value", "oampdu.response.int",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }},
 
         { &hf_oam_dpoe_mll_b,
-          { "Bidirectional", "oampdu.mll.b",
-            FT_UINT16, BASE_DEC, NULL, 0x0,
-            NULL, HFILL } },
+            { "Bidirectional", "oampdu.mll.b",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                NULL, HFILL } },
 
         { &hf_oam_dpoe_mll_do,
-          { "Downstream-only", "oampdu.mll.do",
-            FT_UINT16, BASE_DEC, NULL, 0x0,
-            NULL, HFILL } },
+            { "Downstream-only", "oampdu.mll.do",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                NULL, HFILL } },
 
         { &hf_oam_dpoe_frame_rate_maximum,
-          { "Maximum OAM Rate", "oampdu.frame.rate.min",
-            FT_UINT16, BASE_DEC, NULL, 0x0,
-            NULL, HFILL } },
+            { "Maximum OAM Rate", "oampdu.frame.rate.min",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                NULL, HFILL } },
 
         { &hf_oam_dpoe_frame_rate_minimum,
-          { "Minimum OAM Rate", "oampdu.frame.rate.max",
-            FT_UINT16, BASE_DEC, NULL, 0x0,
-            NULL, HFILL } },
+            { "Minimum OAM Rate", "oampdu.frame.rate.max",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                NULL, HFILL } },
 
         { &hf_oam_dpoe_repthr_nqs,
-          { "Number of Queue Sets", "oampdu.report.threshold.queue",
-            FT_UINT8, BASE_DEC, NULL, 0x0,
-            NULL, HFILL } },
+            { "Number of Queue Sets", "oampdu.report.threshold.queue",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL } },
 
         { &hf_oam_dpoe_repthr_rvpqs,
-          { "Report Values Per Queue Set", "oampdu.report.threshold.queue.values",
-            FT_UINT16, BASE_DEC, NULL, 0x0,
-            NULL, HFILL } },
+            { "Report Values Per Queue Set", "oampdu.report.threshold.queue.values",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                NULL, HFILL } },
 
         { &hf_oam_dpoe_report_threshold,
-          { "Report Threshold", "oampdu.report.threshold",
-            FT_UINT16, BASE_DEC, NULL, 0x0,
-            NULL, HFILL } },
+            { "Report Threshold", "oampdu.report.threshold",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                NULL, HFILL } },
 
         { &hf_oam_dpoe_s1_autoneg,
-          { "Auto-Negotiation Capability", "oampdu.s1.autoneg",
-            FT_UINT16, BASE_HEX, NULL, 0x0,
-            NULL, HFILL } },
+            { "Auto-Negotiation Capability", "oampdu.s1.autoneg",
+                FT_UINT16, BASE_HEX, NULL, 0x0,
+                NULL, HFILL } },
 
         { &hf_oam_dpoe_s1_autoneg_hd,
-          { "Half Duplex", "oampdu.s1.autoneg.hd",
-            FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x01,
-            NULL, HFILL } },
+            { "Half Duplex", "oampdu.s1.autoneg.hd",
+                FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x01,
+                NULL, HFILL } },
 
         { &hf_oam_dpoe_s1_autoneg_fd,
-          { "Full Duplex", "oampdu.s1.autoneg.fd",
-            FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x02,
-            NULL, HFILL } },
+            { "Full Duplex", "oampdu.s1.autoneg.fd",
+                FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x02,
+                NULL, HFILL } },
 
         { &hf_oam_dpoe_s1_autoneg_10,
-          { "10 Mbps", "oampdu.s1.autoneg.10",
-            FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x04,
-            NULL, HFILL } },
+            { "10 Mbps", "oampdu.s1.autoneg.10",
+                FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x04,
+                NULL, HFILL } },
 
         { &hf_oam_dpoe_s1_autoneg_100,
-          { "100 Mbps", "oampdu.s1.autoneg.100",
-            FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x08,
-            NULL, HFILL } },
+            { "100 Mbps", "oampdu.s1.autoneg.100",
+                FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x08,
+                NULL, HFILL } },
 
         { &hf_oam_dpoe_s1_autoneg_1000,
-          { "1000 Mbps", "oampdu.s1.autoneg.1000",
-            FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x10,
-            NULL, HFILL } },
+            { "1000 Mbps", "oampdu.s1.autoneg.1000",
+                FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x10,
+                NULL, HFILL } },
 
         { &hf_oam_dpoe_s1_autoneg_10000,
-          { "10Gbps", "oampdu.s1.autoneg.10000",
-            FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x20,
-            NULL, HFILL } },
+            { "10Gbps", "oampdu.s1.autoneg.10000",
+                FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x20,
+                NULL, HFILL } },
 
         { &hf_oam_dpoe_s1_autoneg_fc,
-          { "Flow Control", "oampdu.s1.autoneg.fc",
-            FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x40,
-            NULL, HFILL } },
+            { "Flow Control", "oampdu.s1.autoneg.fc",
+                FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x40,
+                NULL, HFILL } },
 
         { &hf_oam_dpoe_s1_autoneg_mdi,
-          { "Auto MDI/MDI-X", "oampdu.s1.autoneg.mdi",
-            FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x80,
-            NULL, HFILL } },
+            { "Auto MDI/MDI-X", "oampdu.s1.autoneg.mdi",
+                FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x80,
+                NULL, HFILL } },
 
         { &hf_oam_dpoe_user_port_object,
-          { "UNI Number", "oampdu.user.port.object",
-            FT_UINT16, BASE_DEC, NULL, 0x0,
-            NULL, HFILL } },
+            { "UNI Number", "oampdu.user.port.object",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                NULL, HFILL } },
 
         { &hf_oam_dpoe_user_port_object_subtype,
-          { "Subtype", "oampdu.user.port.object.subtype",
-            FT_UINT16, BASE_DEC, VALS(user_port_object_subtype_vals), 0x0,
-            NULL, HFILL } },
+            { "Subtype", "oampdu.user.port.object.subtype",
+                FT_UINT16, BASE_DEC, VALS(user_port_object_subtype_vals), 0x0,
+                NULL, HFILL } },
 
         { &hf_oam_dpoe_user_port_object_header_precedence,
-          { "Precedence", "oampdu.user.port.object.header.precedence",
-            FT_UINT8, BASE_HEX, NULL, 0x0,
-            NULL, HFILL } },
+            { "Precedence", "oampdu.user.port.object.header.precedence",
+                FT_UINT8, BASE_HEX, NULL, 0x0,
+                NULL, HFILL } },
 
         { &hf_oam_dpoe_user_port_object_clause_fc,
-          { "Field Code", "oampdu.user.port.object.clause.fc",
-            FT_UINT8, BASE_HEX, VALS(user_port_object_clause_fc_vals), 0x0,
-            NULL, HFILL } },
+            { "Field Code", "oampdu.user.port.object.clause.fc",
+                FT_UINT8, BASE_HEX, VALS(user_port_object_clause_fc_vals), 0x0,
+                NULL, HFILL } },
 
         { &hf_oam_dpoe_user_port_object_clause_fi,
-          { "Field Instance", "oampdu.user.port.object.clause.fi",
-            FT_UINT8, BASE_HEX, NULL, 0x0,
-            NULL, HFILL } },
+            { "Field Instance", "oampdu.user.port.object.clause.fi",
+                FT_UINT8, BASE_HEX, NULL, 0x0,
+                NULL, HFILL } },
 
         { &hf_oam_dpoe_user_port_object_clause_msbm,
-          { "MSB Mask", "oampdu.user.port.object.clause.msbm",
-            FT_UINT8, BASE_HEX, NULL, 0x0,
-            NULL, HFILL } },
+            { "MSB Mask", "oampdu.user.port.object.clause.msbm",
+                FT_UINT8, BASE_HEX, NULL, 0x0,
+                NULL, HFILL } },
 
         { &hf_oam_dpoe_user_port_object_clause_lsbm,
-          { "LSB Mask", "oampdu.user.port.object.clause.lsbm",
-            FT_UINT8, BASE_HEX, NULL, 0x0,
-            NULL, HFILL } },
+            { "LSB Mask", "oampdu.user.port.object.clause.lsbm",
+                FT_UINT8, BASE_HEX, NULL, 0x0,
+                NULL, HFILL } },
 
         { &hf_oam_dpoe_user_port_object_clause_operator,
-          { "Operator", "oampdu.user.port.object.clause.operator",
-            FT_UINT8, BASE_HEX, VALS(user_port_object_clause_operator_vals), 0x0,
-            NULL, HFILL } },
+            { "Operator", "oampdu.user.port.object.clause.operator",
+                FT_UINT8, BASE_HEX, VALS(user_port_object_clause_operator_vals), 0x0,
+                NULL, HFILL } },
 
         { &hf_oam_dpoe_user_port_object_clause_mvl,
-          { "Match Value Length", "oampdu.user.port.object.clause.mvl",
-            FT_UINT8, BASE_DEC, NULL, 0x0,
-            NULL, HFILL } },
+            { "Match Value Length", "oampdu.user.port.object.clause.mvl",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL } },
 
         { &hf_oam_dpoe_user_port_object_clause_mv,
-          { "Match Value", "oampdu.user.port.object.clause.mv",
-            FT_UINT8, BASE_HEX, NULL, 0x0,
-            NULL, HFILL } },
+            { "Match Value", "oampdu.user.port.object.clause.mv",
+                FT_UINT8, BASE_HEX, NULL, 0x0,
+                NULL, HFILL } },
 
         { &hf_oam_dpoe_user_port_object_result_rr,
-          { "Rule Result", "oampdu.user.port.object.result.rr",
-            FT_UINT8, BASE_HEX, VALS(user_port_object_result_rr_vals), 0x0,
-            NULL, HFILL } },
+            { "Rule Result", "oampdu.user.port.object.result.rr",
+                FT_UINT8, BASE_HEX, VALS(user_port_object_result_rr_vals), 0x0,
+                NULL, HFILL } },
 
         { &hf_oam_dpoe_user_port_object_result_rr_queue,
-          { "{port type, port instance, link, queue}", "oampdu.user.port.object.result.rr.queue",
-            FT_UINT8, BASE_HEX, NULL, 0x0,
-            NULL, HFILL } },
+            { "{port type, port instance, link, queue}", "oampdu.user.port.object.result.rr.queue",
+                FT_UINT8, BASE_HEX, NULL, 0x0,
+                NULL, HFILL } },
 
         { &hf_oam_dpoe_user_port_object_result_rr_set_fc,
-          { "Field Code", "oampdu.user.port.object.result.rr.set.fc",
-            FT_UINT8, BASE_HEX, NULL, 0x0,
-            NULL, HFILL } },
+            { "Field Code", "oampdu.user.port.object.result.rr.set.fc",
+                FT_UINT8, BASE_HEX, NULL, 0x0,
+                NULL, HFILL } },
 
         { &hf_oam_dpoe_user_port_object_result_rr_set_fi,
-          { "Field Instance", "oampdu.user.port.object.result.rr.set.fi",
-            FT_UINT8, BASE_HEX, NULL, 0x0,
-            NULL, HFILL } },
+            { "Field Instance", "oampdu.user.port.object.result.rr.set.fi",
+                FT_UINT8, BASE_HEX, NULL, 0x0,
+                NULL, HFILL } },
 
         { &hf_oam_dpoe_user_port_object_result_rr_copy,
-          { "Field Code to set from field used in last clause of rule", "oampdu.user.port.object.result.rr.copy",
-            FT_UINT8, BASE_HEX, NULL, 0x0,
-            NULL, HFILL } },
+            { "Field Code to set from field used in last clause of rule", "oampdu.user.port.object.result.rr.copy",
+                FT_UINT8, BASE_HEX, NULL, 0x0,
+                NULL, HFILL } },
 
         { &hf_oam_dpoe_user_port_object_result_rr_delete,
-          { "Field Code to remove from frame", "oampdu.user.port.object.result.rr.delete",
-            FT_UINT8, BASE_HEX, NULL, 0x0,
-            NULL, HFILL } },
+            { "Field Code to remove from frame", "oampdu.user.port.object.result.rr.delete",
+                FT_UINT8, BASE_HEX, NULL, 0x0,
+                NULL, HFILL } },
 
         { &hf_oam_dpoe_user_port_object_result_rr_insert,
-          { "Field Code to insert into frame", "oampdu.user.port.object.result.rr.insert",
-            FT_UINT8, BASE_HEX, NULL, 0x0,
-            NULL, HFILL } },
+            { "Field Code to insert into frame", "oampdu.user.port.object.result.rr.insert",
+                FT_UINT8, BASE_HEX, NULL, 0x0,
+                NULL, HFILL } },
 
         { &hf_oam_dpoe_user_port_object_result_rr_replace,
-          { "Field Code to replace", "oampdu.user.port.object.result.rr.replace",
-            FT_UINT8, BASE_HEX, NULL, 0x0,
-            NULL, HFILL } },
+            { "Field Code to replace", "oampdu.user.port.object.result.rr.replace",
+                FT_UINT8, BASE_HEX, NULL, 0x0,
+                NULL, HFILL } },
 
         { &hf_oam_dpoe_user_port_object_result_rr_cd,
-          { "Field Code not to delete", "oampdu.user.port.object.result.rr.cd",
-            FT_UINT8, BASE_HEX, NULL, 0x0,
-            NULL, HFILL } },
+            { "Field Code not to delete", "oampdu.user.port.object.result.rr.cd",
+                FT_UINT8, BASE_HEX, NULL, 0x0,
+                NULL, HFILL } },
 
         { &hf_oam_dpoe_user_port_object_result_rr_ci,
-          { "Field Code not to insert", "oampdu.user.port.object.result.rr.ci",
-            FT_UINT8, BASE_HEX, NULL, 0x0,
-            NULL, HFILL } },
+            { "Field Code not to insert", "oampdu.user.port.object.result.rr.ci",
+                FT_UINT8, BASE_HEX, NULL, 0x0,
+                NULL, HFILL } },
 
         { &hf_oam_dpoe_qc_ll_u,
-          { "Upstream Logical Links", "oampdu.queue_configuration.logical_links.upstream",
-            FT_UINT8, BASE_DEC, NULL, 0x0,
-            NULL, HFILL } },
+            { "Upstream Logical Links", "oampdu.queue_configuration.logical_links.upstream",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL } },
 
         { &hf_oam_dpoe_qc_ports_d,
-          { "Downstream Ports", "oampdu.queue_configuration.ports.downstream",
-            FT_UINT8, BASE_DEC, NULL, 0x0,
-            NULL, HFILL } },
+            { "Downstream Ports", "oampdu.queue_configuration.ports.downstream",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL } },
 
         { &hf_oam_dpoe_qc_nq,
-          {"Number of queues", "oampdu.queue_configuration.queues",
-            FT_UINT8, BASE_DEC, NULL, 0x0,
-            NULL, HFILL } },
+            {"Number of queues", "oampdu.queue_configuration.queues",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL } },
 
         { &hf_oam_dpoe_qc_queue_size,
-          {"Queue size (in 4KB units)", "oampdu.queue_configuration.size",
-            FT_UINT8, BASE_DEC, NULL, 0x0,
-            NULL, HFILL } },
+            {"Queue size (in 4KB units)", "oampdu.queue_configuration.size",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL } },
     };
 
     /* Setup protocol subtree array */
@@ -2780,3 +2780,16 @@ proto_reg_handoff_oampdu(void)
     oampdu_handle = create_dissector_handle(dissect_oampdu, proto_oampdu);
     dissector_add_uint("slow.subtype", OAM_SUBTYPE, oampdu_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */
