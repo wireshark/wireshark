@@ -352,7 +352,7 @@ typedef struct frame_analysis_data {
 static mp2t_analysis_data_t *
 init_mp2t_conversation_data(void)
 {
-    mp2t_analysis_data_t *mp2t_data = NULL;
+    mp2t_analysis_data_t *mp2t_data;
 
     mp2t_data = wmem_new0(wmem_file_scope(), struct mp2t_analysis_data);
 
@@ -369,7 +369,7 @@ init_mp2t_conversation_data(void)
 static mp2t_analysis_data_t *
 get_mp2t_conversation_data(conversation_t *conv)
 {
-    mp2t_analysis_data_t *mp2t_data = NULL;
+    mp2t_analysis_data_t *mp2t_data;
 
     mp2t_data = (mp2t_analysis_data_t *)conversation_get_proto_data(conv, proto_mp2t);
     if (!mp2t_data) {
@@ -383,7 +383,7 @@ get_mp2t_conversation_data(conversation_t *conv)
 static frame_analysis_data_t *
 init_frame_analysis_data(mp2t_analysis_data_t *mp2t_data, packet_info *pinfo)
 {
-    frame_analysis_data_t *frame_analysis_data_p = NULL;
+    frame_analysis_data_t *frame_analysis_data_p;
 
     frame_analysis_data_p = wmem_new0(wmem_file_scope(), struct frame_analysis_data);
     frame_analysis_data_p->ts_table = wmem_tree_new(wmem_file_scope());
@@ -398,7 +398,7 @@ init_frame_analysis_data(mp2t_analysis_data_t *mp2t_data, packet_info *pinfo)
 static frame_analysis_data_t *
 get_frame_analysis_data(mp2t_analysis_data_t *mp2t_data, packet_info *pinfo)
 {
-    frame_analysis_data_t *frame_analysis_data_p = NULL;
+    frame_analysis_data_t *frame_analysis_data_p;
     frame_analysis_data_p = (frame_analysis_data_t *)wmem_tree_lookup32(mp2t_data->frame_table, pinfo->fd->num);
     return frame_analysis_data_p;
 }
@@ -406,7 +406,7 @@ get_frame_analysis_data(mp2t_analysis_data_t *mp2t_data, packet_info *pinfo)
 static pid_analysis_data_t *
 get_pid_analysis(mp2t_analysis_data_t *mp2t_data, guint32 pid)
 {
-    pid_analysis_data_t  *pid_data  = NULL;
+    pid_analysis_data_t  *pid_data;
 
     pid_data = (pid_analysis_data_t *)wmem_tree_lookup32(mp2t_data->pid_table, pid);
     if (!pid_data) {
@@ -456,7 +456,7 @@ static guint
 mp2t_get_packet_length(tvbuff_t *tvb, guint offset, packet_info *pinfo,
             guint32 frag_id, enum pid_payload_type pload_type)
 {
-    fragment_head *frag    = NULL;
+    fragment_head *frag;
     tvbuff_t      *len_tvb = NULL, *frag_tvb = NULL, *data_tvb = NULL;
     gint           pkt_len = 0;
     guint          remaining_len;
@@ -806,7 +806,7 @@ save_state:
 static guint32
 calc_skips(gint32 curr, gint32 prev)
 {
-    int res = 0;
+    int res;
 
     /* Only count the missing TS frames in between prev and curr.
      * The "prev" frame CC number seen is confirmed received, it's
