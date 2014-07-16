@@ -959,9 +959,8 @@ static const char cont_sep[] = ", ";
 
 #define APPEND_BOOLEAN_FLAG(flag, item, string) \
     if(flag){                                   \
-        if(item)                                          \
-            proto_item_append_text(item, string, sep);    \
-        sep = cont_sep;                                   \
+        proto_item_append_text(item, string, sep);    \
+        sep = cont_sep;                               \
     }
 
 #define APPEND_OUI_NAME(item, string, tvb, offset) \
