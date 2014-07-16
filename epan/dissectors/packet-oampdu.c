@@ -964,12 +964,8 @@ static const char cont_sep[] = ", ";
     }
 
 #define APPEND_OUI_NAME(item, string, tvb, offset) \
-    if(item){                              \
-        string = tvb_get_manuf_name(tvb, offset);          \
-        proto_item_append_text(item, " (");                \
-        proto_item_append_text(item, "%s", string);        \
-        proto_item_append_text(item, ")");                 \
-    }
+        string = tvb_get_manuf_name(tvb, offset);  \
+        proto_item_append_text(item, " (%s)", string);
 
 static void
 dissect_oampdu_information(tvbuff_t *tvb, proto_tree *tree);
