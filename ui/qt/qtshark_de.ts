@@ -2886,7 +2886,7 @@ live packets from your network</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Export PDUs to File</source>
+        <source>Export PDUs to File...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

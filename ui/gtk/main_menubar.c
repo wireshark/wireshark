@@ -1470,7 +1470,7 @@ static const GtkActionEntry main_menu_bar_entries[] = {
   { "/File/ExportSpecifiedPackets", NULL,         "Export Specified Packets...", NULL,           NULL,           G_CALLBACK(file_export_specified_packets_cmd_cb) },
   { "/File/ExportPacketDissections",  NULL,                        "Export Packet Dissections", NULL,                   NULL,           NULL },
   { "/File/ExportSelectedPacketBytes", NULL,         "Export Selected Packet _Bytes...", "<control>H",           NULL,           G_CALLBACK(savehex_cb) },
-  { "/File/ExportPDUs",            NULL,                            "Export PDUs to file",  NULL,                NULL,           G_CALLBACK(export_pdu_show_cb) },
+  { "/File/ExportPDUs",            NULL,                           "Export PDUs to File...",  NULL,                NULL,           G_CALLBACK(export_pdu_show_cb) },
   { "/File/ExportSSLSessionKeys",  NULL,                   "Export SSL Session Keys...", NULL,                   NULL,           G_CALLBACK(savesslkeys_cb) },
   { "/File/ExportObjects",      NULL,                              "Export Objects",     NULL,                   NULL,           NULL },
   { "/File/Print",              GTK_STOCK_PRINT,                   "_Print...",          "<control>P",           NULL,           G_CALLBACK(file_print_cmd_cb) },

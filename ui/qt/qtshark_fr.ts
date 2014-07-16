@@ -3059,8 +3059,8 @@ plus a propos de Wireshark</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1552"/>
-        <source>Export PDUs to File</source>
-        <translation>Exporter PDU vers un Fichier</translation>
+        <source>Export PDUs to File...</source>
+        <translation>Exporter PDU vers un Fichier...</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1557"/>

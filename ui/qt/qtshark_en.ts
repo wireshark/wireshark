@@ -3432,7 +3432,7 @@ more about Wireshark</source>
     </message>
     <message>
         <location filename="main_window.ui" line="1552"/>
-        <source>Export PDUs to File</source>
+        <source>Export PDUs to File...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
