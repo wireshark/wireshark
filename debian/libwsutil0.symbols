@@ -8,6 +8,11 @@ libwsutil.so.0 libwsutil0 #MINVER#
  ascii_strdown_inplace@Base 1.10.0
  ascii_strup_inplace@Base 1.10.0
  bitswap_buf_inplace@Base 1.12.0~rc1
+ buffer_append@Base 1.99.0
+ buffer_assure_space@Base 1.99.0
+ buffer_free@Base 1.99.0
+ buffer_init@Base 1.99.0
+ buffer_remove_start@Base 1.9.1
  copy_file_binary_mode@Base 1.12.0~rc1
  copy_persconffile_profile@Base 1.12.0~rc1
  crc11_307_noreflect_noxor@Base 1.10.0
