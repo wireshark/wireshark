@@ -65,11 +65,13 @@ typedef struct expert_field_info {
 	/* ------- set by register routines (prefilled by EXPFILL macro, see below) ------ */
 	int id;
 	const gchar *protocol;
+	int orig_severity; /* Matches severity when registered, used to restore original severity
+						* if UAT severity entry is removed */
 	hf_register_info hf_info;
 
 } expert_field_info;
 
-#define EXPFILL 0, NULL, \
+#define EXPFILL 0, NULL, 0, \
         {0, {"Expert Info", NULL, FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL}}
 
 typedef struct ei_register_info {
