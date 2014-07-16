@@ -141,7 +141,7 @@ select_row_cb(GtkTreeSelection *selection, gpointer *user_data _U_)
 }
 
 static void
-expert_comp_select_filter_cb(GtkWidget *widget, gpointer callback_data, guint callback_action)
+expert_comp_select_filter_cb(GtkWidget *widget, gpointer callback_data, guint callback_action _U_)
 {
     expert_comp_dlg_t *ss = (expert_comp_dlg_t *)callback_data;
     const char *filter;
