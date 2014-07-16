@@ -516,6 +516,10 @@ inflate_http2_header_block(tvbuff_t *tvb, packet_info *pinfo, guint offset,
         }
     }
 
+    if(wmem_array_get_count(headers) == 0) {
+        return;
+    }
+
     for(i = 0; i < wmem_array_get_count(headers); ++i) {
         http2_header_t *in;
         tvbuff_t *next_tvb;
