@@ -4285,7 +4285,7 @@ ssl_save_session(SslDecryptSession* ssl, GHashTable *session_hash)
     for (i = 0; i < ssl->master_secret.data_len; i++)
         ms |= ssl->master_secret.data[i];
     if (ms == 0) {
-        ssl_debug_printf("%s master secret is empty!\n", __func__);
+        ssl_debug_printf("%s master secret is empty!\n", G_STRFUNC);
         return;
     }
 
@@ -4346,7 +4346,7 @@ ssl_save_session_ticket(SslDecryptSession* ssl, GHashTable *session_hash)
     for (i = 0; i < ssl->master_secret.data_len; i++)
         ms |= ssl->master_secret.data[i];
     if (ms == 0) {
-        ssl_debug_printf("%s master secret is empty!\n", __func__);
+        ssl_debug_printf("%s master secret is empty!\n", G_STRFUNC);
         return;
     }
 
@@ -4395,7 +4395,7 @@ void
 ssl_finalize_decryption(SslDecryptSession *ssl, GHashTable *session_hash,
                         const char *keylog_filename)
 {
-    ssl_debug_printf("%s state = 0x%02X\n", __func__, ssl->state);
+    ssl_debug_printf("%s state = 0x%02X\n", G_STRFUNC, ssl->state);
     if (ssl->state & SSL_HAVE_SESSION_KEY) {
         ssl_debug_printf("  session key already available, nothing to do.\n");
         return;
@@ -4420,11 +4420,11 @@ ssl_finalize_decryption(SslDecryptSession *ssl, GHashTable *session_hash,
     }
 
     if (ssl_generate_keyring_material(ssl) < 0) {
-        ssl_debug_printf("%s can't generate keyring material\n", __func__);
+        ssl_debug_printf("%s can't generate keyring material\n", G_STRFUNC);
         return;
     }
     ssl_save_session(ssl, session_hash);
-    ssl_debug_printf("%s session keys successfully generated\n", __func__);
+    ssl_debug_printf("%s session keys successfully generated\n", G_STRFUNC);
 }
 
 gboolean
@@ -5191,7 +5191,7 @@ ssl_dissect_hnd_hello_common(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                 ssl->state |= SSL_SERVER_RANDOM;
             else
                 ssl->state |= SSL_CLIENT_RANDOM;
-            ssl_debug_printf("%s found %s RANDOM -> state 0x%02X\n", __func__,
+            ssl_debug_printf("%s found %s RANDOM -> state 0x%02X\n", G_STRFUNC,
                              from_server ? "SERVER" : "CLIENT", ssl->state);
         }
 

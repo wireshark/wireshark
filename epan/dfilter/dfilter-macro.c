@@ -50,7 +50,7 @@ static GHashTable* fvt_cache = NULL;
 /* #define DUMP_DFILTER_MACRO */
 #ifdef DUMP_DFILTER_MACRO
 void dump_dfilter_macro_t(const dfilter_macro_t *m, const char *function, const char *file, int line);
-#define DUMP_MACRO(m) dump_dfilter_macro_t(m, __func__, __FILE__, __LINE__)
+#define DUMP_MACRO(m) dump_dfilter_macro_t(m, G_STRFUNC, __FILE__, __LINE__)
 #else
 #define DUMP_MACRO(m)
 #endif
