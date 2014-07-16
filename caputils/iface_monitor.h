@@ -22,6 +22,10 @@
 #ifndef IFACE_MONITOR_H
 #define IFACE_MONITOR_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 #ifdef HAVE_LIBPCAP
 
 /*
@@ -71,5 +75,9 @@ void
 iface_mon_event(void);
 
 #endif /* HAVE_LIBPCAP */
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif /* IFACE_MONITOR_H */
