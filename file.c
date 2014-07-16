@@ -500,8 +500,10 @@ cf_close(capture_file *cf)
   cf->finfo_selected = NULL;
 
   /* No frame link-layer types, either. */
-  g_array_free(cf->linktypes, TRUE);
-  cf->linktypes = NULL;
+  if (cf->linktypes != NULL) {
+    g_array_free(cf->linktypes, TRUE);
+    cf->linktypes = NULL;
+  }
 
   /* Clear the packet list. */
   packet_list_freeze();
