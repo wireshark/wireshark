@@ -128,7 +128,7 @@ static const value_string ws_close_status_code_vals[] = {
 static dissector_table_t port_subdissector_table;
 static heur_dissector_list_t heur_subdissector_list;
 
-#define MAX_UNMASKED_LEN (1024 * 64)
+#define MAX_UNMASKED_LEN (1024 * 256)
 tvbuff_t *
 tvb_unmasked(tvbuff_t *tvb, const guint offset, guint payload_length, const guint8 *masking_key)
 {
@@ -146,7 +146,7 @@ tvb_unmasked(tvbuff_t *tvb, const guint offset, guint payload_length, const guin
     data_unmask[i] = data_mask[i] ^ masking_key[i%4];
   }
 
-  tvb_unmask = tvb_new_real_data(data_unmask, unmasked_length, unmasked_length);
+  tvb_unmask = tvb_new_real_data(data_unmask, unmasked_length, payload_length);
   tvb_set_free_cb(tvb_unmask, g_free);
   return tvb_unmask;
 }
@@ -168,6 +168,9 @@ dissect_websocket_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, p
     tvb_set_child_real_data_tvbuff(tvb, payload_tvb);
     add_new_data_source(pinfo, payload_tvb, payload_length > tvb_length(payload_tvb) ? "Unmasked Data (truncated)" : "Unmasked Data");
     ti = proto_tree_add_item(ws_tree, hf_ws_payload_unmask, payload_tvb, offset, payload_length, ENC_NA);
+    if (payload_length > tvb_length(payload_tvb)) {
+      proto_item_append_text(ti, " [truncated]");
+    }
     mask_tree = proto_item_add_subtree(ti, ett_ws_mask);
   }else{
     payload_tvb = tvb_new_subset(tvb, offset, payload_length, -1);

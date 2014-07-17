@@ -34,6 +34,7 @@ The following bugs have been fixed:
 GSM MAP: ensure that p2p_dir is always initialized before calling GSM SMS dissector (ws-buglink:10234[])
 BFCP: include padding length in calculation of correct attribute length (ws-buglink:10240[])
 GTP: allow empty Data Record Packet IE (ws-buglink:10277[])
+WebSocket: increase max unmask payload size to 256K and indicate that packet is truncated is going above the new limit (ws-buglink:10283[])
 
 === New and Updated Features
 
