@@ -484,13 +484,12 @@ dissect_pool_handle_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tre
 {
   guint16 handle_length;
   proto_item*    pi;
-  char*          tmp;
 
   handle_length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH;
   pi = proto_tree_add_item(parameter_tree, hf_pool_handle, parameter_tvb, POOL_HANDLE_OFFSET, handle_length, ENC_NA);
 
-  tmp = (gchar*)tvb_get_string_enc(wmem_packet_scope(), parameter_tvb, POOL_HANDLE_OFFSET, handle_length, ENC_ASCII|ENC_NA);
-  proto_item_append_text(pi, " (%s)", tmp);
+  proto_item_append_text(pi, " (%s)",
+                         tvb_format_text(parameter_tvb, POOL_HANDLE_OFFSET, handle_length));
 }
 
 #define PE_PE_IDENTIFIER_LENGTH         4
