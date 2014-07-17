@@ -1736,6 +1736,7 @@
 			<enum name="3GPP Tsp" code="16777309"/>
 			<enum name="3GPP S6m" code="16777310"/>
 			<enum name="3GPP T4" code="16777311"/>
+			<enum name="Ericsson Sx" code="16777327"/>
 			<enum name="Relay" code="4294967295"/>
 		</avp>
 		<avp name="Acct-Application-Id" code="259" mandatory="must" protected="mustnot" may-encrypt="no" vendor-bit="mustnot">
@@ -1840,6 +1841,7 @@
 			<enum name="3GPP Sy" code="16777302"/>
 			<enum name="3GPP Sd" code="16777303"/>
 			<enum name="Ericsson Sy" code="16777304"/>
+			<enum name="Ericsson Sx" code="16777327"/>
 			<!--
 			16777305 HP DTD [Chiranjeev_Agrawal][J_V_Kishore]
 			-->
@@ -6719,6 +6721,7 @@
 	<application id="16777302"	name="3GPP Sy"			uri="http://www.3gpp.org/ftp/Specs/html-info/29219.htm"></application>
 	<application id="16777304"	name="Ericsson Sy"		uri="http://www.iana.org/assignments/aaa-parameters/aaa-parameters.xml"></application>
 	<application id="16777315"	name="Ericsson Diameter Signalling Controller Application (DSC)"	uri="http://www.iana.org/assignments/aaa-parameters/aaa-parameters.xml"></application>
+  <application id="16777327"	name="Ericsson Sx"		uri="http://www.iana.org/assignments/aaa-parameters/aaa-parameters.xml"></application>
 	<application id="4294967295"	name="Relay"			uri="http://www.ietf.org/rfc/rfc6733.txt?number=6733"></application>
 
 	&nasreq;
