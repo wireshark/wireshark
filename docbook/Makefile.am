@@ -57,14 +57,14 @@ endif
 # Used for chapter-by-chapter conversion from DocBook to AsciiDoc.
 # Can be removed after the User's Guide is converted.
 # .asciidoc -> whole book (.dbk) -> chapter (.xml)
-wsug_src/%.asciidoc : wsug_src/%.xml
+wsug_src/%.xml : wsug_src/%.asciidoc
 	$(A2X) --verbose \
 		--asciidoc-opts="--conf-file=$(srcdir)/asciidoc.conf" \
 		--no-xmllint \
 		--format=docbook --doctype=book \
 		$<
-	mv $*.xml $*.dbk
-	xmllint --xpath '//chapter | //preface' $*.dbk > $@
+	mv wsug_src/$*.xml wsug_src/$*.dbk
+	xmllint --xpath '//chapter | //preface' wsug_src/$*.dbk > $@
 
 if HAVE_XSLTPROC
 ALL_TARGETS=git_version_check wsug wsdg release_notes
@@ -289,7 +289,7 @@ clean-local:
 	-rm -rf $(CLEANDIRS)
 
 EXTRA_DIST = \
-	$(WSUG_SOURCE)		\
+	$(WSUG_DIST)		\
 	$(WSDG_DIST)		\
 	$(RELEASE_NOTES_SOURCE)	\
 	check_git_version.sh	\

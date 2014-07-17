@@ -35,7 +35,7 @@ set(WSUG_FILES
 	wsug_src/WSUG_chapter_build_install.xml
 	wsug_src/WSUG_chapter_capture.xml
 	wsug_src/WSUG_chapter_customize.xml
-	wsug_src/WSUG_chapter_introduction.xml
+	WSUG_chapter_introduction.xml
 	wsug_src/WSUG_chapter_io.xml
 	wsug_src/WSUG_chapter_statistics.xml
 	wsug_src/WSUG_chapter_telephony.xml
@@ -43,9 +43,14 @@ set(WSUG_FILES
 	wsug_src/WSUG_chapter_use.xml
 	wsug_src/WSUG_chapter_work.xml
 	wsug_src/WSUG_meta_info.xml
-	wsug_src/WSUG_preface.xml
+	WSUG_preface.xml
 	wsluarm.xml
 	ws.css
+)
+
+set(WSDG_ASCIIDOC_FILES
+	wsug_src/WSUG_chapter_introduction.asciidoc
+	wsug_src/WSUG_preface.asciidoc
 )
 
 set(WSUG_GRAPHICS
@@ -284,14 +289,14 @@ MACRO( ASCIIDOC2CHAPTER _asciidocsource _conffile )
 	LIST( APPEND WSDG_GENERATED_FILES ${CMAKE_CURRENT_BINARY_DIR}/${_output_xml} )
 ENDMACRO()
 
-#FOREACH(ASCIIDOCFILE ${WSDG_ASCIIDOC_FILES})
-#	ASCIIDOC2CHAPTER(
-#		${ASCIIDOCFILE}
-#		asciidoc.conf
-#	)
-#ENDFOREACH()
+FOREACH(ASCIIDOCFILE ${WSDG_ASCIIDOC_FILES})
+	ASCIIDOC2CHAPTER(
+		${ASCIIDOCFILE}
+		asciidoc.conf
+	)
+ENDFOREACH()
 
-#ADD_CUSTOM_TARGET( wsdg_generated_src DEPENDS ${WSDG_GENERATED_FILES} )
+ADD_CUSTOM_TARGET( wsug_generated_src DEPENDS ${WSDG_GENERATED_FILES} )
 
 # developer-guide.xml must be first in the list
 set(WSDG_SOURCE

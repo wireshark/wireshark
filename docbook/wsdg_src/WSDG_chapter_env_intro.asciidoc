@@ -343,7 +343,7 @@ course).
 
 ==== Website
 
-You will find lot's of useful information on the Wireshark homepage at
+You will find lots of useful information on the Wireshark homepage at
 wireshark-web-site:[].
 
 

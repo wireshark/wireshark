@@ -35,19 +35,19 @@ A2X_TEXT_OPTS=$(A2X_TEXT_OPTS) --lynx
 # Used for chapter-by-chapter conversion from DocBook to AsciiDoc.
 # .asciidoc -> whole book (.dbk) -> chapter (.xml)
 # Can be removed after the User's Guide is converted.
-#.asciidoc.xml:
-#	$(SH) <<
-#	PATH=/usr/bin
-#	$(A2X) --verbose \
-#		--asciidoc-opts="--conf-file=asciidoc.conf" \
-#		--no-xmllint \
-#		--format=docbook --doctype=book \
-#		$<
-#<<
-#	mv $*.xml $*.dbk
-#	xmllint --xpath "//chapter | //preface" $*.dbk > $@
+.asciidoc.xml:
+	$(SH) <<
+	PATH=/usr/bin
+	$(A2X) --verbose \
+		--asciidoc-opts="--conf-file=asciidoc.conf" \
+		--no-xmllint \
+		--format=docbook --doctype=book \
+		$<
+<<
+	mv $*.xml $*.dbk
+	xmllint --xpath "//chapter | //preface" $*.dbk > $@
 
-#.SUFFIXES: .asciidoc .xml
+.SUFFIXES: .asciidoc .xml
 
 # -- (Public) targets -------------------------------------------------------
 
