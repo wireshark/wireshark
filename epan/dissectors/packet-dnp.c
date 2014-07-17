@@ -3381,6 +3381,44 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
   return tvb_length(tvb);
 }
 
+static gboolean
+check_dnp3_header(tvbuff_t *tvb)
+{
+  /* Assume the CRC will be bad */
+  gboolean goodCRC = FALSE;
+
+  /* How big is the actual buffer */
+  gint length = tvb_captured_length(tvb);
+
+  /* Calculate the header CRC if the bytes are available */
+  if (length >= DNP_HDR_LEN) {
+    guint16 calc_crc = calculateCRC(tvb_get_ptr(tvb, 0, DNP_HDR_LEN - 2), DNP_HDR_LEN - 2);
+    goodCRC = (calc_crc == tvb_get_letohs(tvb, 8));
+  }
+
+  /* For a heuristic match we must have at least a header, beginning with 0x0564
+     and a valid header CRC */
+  if (dnp3_heuristics) {
+    if ( !goodCRC || (tvb_get_ntohs(tvb, 0) != 0x0564)) {
+      return FALSE;
+    }
+  }
+  else {
+    /* For a non-heuristic match, at least the first byte is 0x05 and if available
+       the second byte is 64 and if available the CRC is valid */
+    if (tvb_get_guint8(tvb, 0) != 0x05) {
+      return FALSE;
+    }
+    if ((length > 1) && (tvb_get_guint8(tvb, 1) != 0x64)) {
+      return FALSE;
+    }
+    if ((length >= DNP_HDR_LEN) && !goodCRC) {
+      return FALSE;
+    }
+  }
+  return TRUE;
+}
+
 static guint
 get_dnp3_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
@@ -3403,11 +3441,7 @@ get_dnp3_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 static gboolean
 dissect_dnp3_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-  gint length = tvb_length(tvb);
-
-  /* If heuristics are enabled check it looks like a dnp packet.  It should begin with 0x0564 */
-  if (dnp3_heuristics && ((length < 2) || (tvb_get_ntohs(tvb, 0) != 0x0564))) {
-    /* Not a DNP 3.0 packet, just happened to use the same port */
+  if (!check_dnp3_header(tvb)) {
     return FALSE;
   }
 
@@ -3420,11 +3454,7 @@ dissect_dnp3_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 static gboolean
 dissect_dnp3_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-  gint length = tvb_length(tvb);
-
-  /* Check for a dnp packet.  It should begin with 0x0564 */
-  if ((length < 2) || (tvb_get_ntohs(tvb, 0) != 0x0564)) {
-    /* Not a DNP 3.0 packet, just happened to use the same port */
+  if (!check_dnp3_header(tvb)) {
     return FALSE;
   }
 
