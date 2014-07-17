@@ -259,10 +259,13 @@ void WiresharkApplication::captureFileCallback(int event, void * data)
     case(cf_cb_file_read_started):
         g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Read started");
         emit captureFileReadStarted(cf);
+        QTimer::singleShot(TAP_UPDATE_DEFAULT_INTERVAL / 5, this, SLOT(updateTaps()));
+        QTimer::singleShot(TAP_UPDATE_DEFAULT_INTERVAL / 2, this, SLOT(updateTaps()));
         break;
     case(cf_cb_file_read_finished):
         g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Read finished");
         emit captureFileReadFinished(cf);
+        updateTaps();
         break;
     case(cf_cb_file_reload_started):
         g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Reload started");
