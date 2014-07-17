@@ -3405,8 +3405,8 @@ dissect_dnp3_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 {
   gint length = tvb_length(tvb);
 
-  /* Check for a dnp packet.  It should begin with 0x0564 */
-  if ((length < 2) || (tvb_get_ntohs(tvb, 0) != 0x0564)) {
+  /* If heuristics are enabled check it looks like a dnp packet.  It should begin with 0x0564 */
+  if (dnp3_heuristics && ((length < 2) || (tvb_get_ntohs(tvb, 0) != 0x0564))) {
     /* Not a DNP 3.0 packet, just happened to use the same port */
     return FALSE;
   }
