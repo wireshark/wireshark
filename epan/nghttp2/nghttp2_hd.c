@@ -133,12 +133,6 @@ static uint32_t hash(const uint8_t *s, size_t n)
   return h;
 }
 
-typedef struct {
-  nghttp2_nv *nva;
-  size_t nvacap;
-  size_t nvlen;
-} nghttp2_nva_out;
-
 int nghttp2_hd_entry_init(nghttp2_hd_entry *ent, uint8_t flags,
                           uint8_t *name, size_t namelen,
                           uint8_t *value, size_t valuelen)
@@ -1334,6 +1328,8 @@ int nghttp2_hd_deflate_new(nghttp2_hd_deflater **deflater_ptr,
   rv =  nghttp2_hd_deflate_init2(deflater, deflate_hd_table_bufsize_max);
 
   if(rv != 0) {
+    free(deflater);
+
     return rv;
   }
 
@@ -2015,7 +2011,7 @@ ssize_t nghttp2_hd_inflate_hd(nghttp2_hd_inflater *inflater,
 
     goto fail;
   }
-  return (ssize_t)(in - first);
+  return in - first;
 
  fail:
   DEBUGF(fprintf(stderr, "inflatehd: error return %zd\n", rv));
@@ -2045,6 +2041,8 @@ int nghttp2_hd_inflate_new(nghttp2_hd_inflater **inflater_ptr)
   rv = nghttp2_hd_inflate_init(inflater);
 
   if(rv != 0) {
+    free(inflater);
+
     return rv;
   }
 
