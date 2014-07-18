@@ -5115,7 +5115,7 @@ void lbmr_tap_queue_packet(packet_info * pinfo, const lbmr_contents_t * contents
                 {
                     lbm_lbmr_topic_query_tap_info_t * tqr_tap = wmem_new0(wmem_packet_scope(), lbm_lbmr_topic_query_tap_info_t);
                     tqr_tap->size = (guint16) sizeof(lbm_lbmr_topic_query_tap_info_t);
-                    tqr_tap->topic_length = strlen(tqr->topic);
+                    tqr_tap->topic_length = (guint8)strlen(tqr->topic);
                     memcpy(tqr_tap->topic, tqr->topic, tqr_tap->topic_length);
                     tap_queue_packet(lbmr_topic_query_tap_handle, pinfo, (void *) tqr_tap);
                     tqr = tqr->next;
@@ -5128,8 +5128,8 @@ void lbmr_tap_queue_packet(packet_info * pinfo, const lbmr_contents_t * contents
                 {
                     lbm_lbmr_topic_advertisement_tap_info_t * tir_tap = wmem_new0(wmem_packet_scope(), lbm_lbmr_topic_advertisement_tap_info_t);
                     tir_tap->size = (guint16) sizeof(lbm_lbmr_topic_advertisement_tap_info_t);
-                    tir_tap->topic_length = strlen(tir->topic);
-                    tir_tap->source_length = strlen(tir->source_string);
+                    tir_tap->topic_length = (guint8)strlen(tir->topic);
+                    tir_tap->source_length = (guint8)strlen(tir->source_string);
                     tir_tap->topic_index = tir->index;
                     memcpy(tir_tap->topic, tir->topic, tir_tap->topic_length);
                     memcpy(tir_tap->source, tir->source_string, tir_tap->source_length);
@@ -5145,7 +5145,7 @@ void lbmr_tap_queue_packet(packet_info * pinfo, const lbmr_contents_t * contents
                     lbm_lbmr_pattern_query_tap_info_t * wctqr_tap = wmem_new0(wmem_packet_scope(), lbm_lbmr_pattern_query_tap_info_t);
                     wctqr_tap->size = (guint16) sizeof(lbm_lbmr_pattern_query_tap_info_t);
                     wctqr_tap->type = wctqr->type;
-                    wctqr_tap->pattern_length = strlen(wctqr->pattern);
+                    wctqr_tap->pattern_length = (guint8)strlen(wctqr->pattern);
                     memcpy(wctqr_tap->pattern, wctqr->pattern, wctqr_tap->pattern_length);
                     tap_queue_packet(lbmr_pattern_query_tap_handle, pinfo, (void *) wctqr_tap);
                     wctqr = wctqr->next;
@@ -5161,7 +5161,7 @@ void lbmr_tap_queue_packet(packet_info * pinfo, const lbmr_contents_t * contents
                 {
                     lbm_lbmr_queue_query_tap_info_t * qqr_tap = wmem_new0(wmem_packet_scope(), lbm_lbmr_queue_query_tap_info_t);
                     qqr_tap->size = (guint16) sizeof(lbm_lbmr_queue_query_tap_info_t);
-                    qqr_tap->queue_length = strlen(qqr->queue);
+                    qqr_tap->queue_length = (guint8)strlen(qqr->queue);
                     memcpy(qqr_tap->queue, qqr->queue, qqr_tap->queue_length);
                     tap_queue_packet(lbmr_queue_advertisement_tap_handle, pinfo, (void *) qqr_tap);
                     qqr = qqr->next;
@@ -5175,8 +5175,8 @@ void lbmr_tap_queue_packet(packet_info * pinfo, const lbmr_contents_t * contents
                     lbm_lbmr_queue_advertisement_tap_info_t * qir_tap = wmem_new0(wmem_packet_scope(), lbm_lbmr_queue_advertisement_tap_info_t);
                     qir_tap->size = (guint16) sizeof(lbm_lbmr_queue_advertisement_tap_info_t);
                     qir_tap->port = qir->port;
-                    qir_tap->queue_length = strlen(qir->queue);
-                    qir_tap->topic_length = strlen(qir->topic);
+                    qir_tap->queue_length = (guint8)strlen(qir->queue);
+                    qir_tap->topic_length = (guint8)strlen(qir->topic);
                     memcpy(qir_tap->queue, qir->queue, qir_tap->queue_length);
                     memcpy(qir_tap->topic, qir->topic, qir_tap->topic_length);
                     tap_queue_packet(lbmr_queue_query_tap_handle, pinfo, (void *) qir_tap);
