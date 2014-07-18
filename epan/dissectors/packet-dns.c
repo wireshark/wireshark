@@ -519,8 +519,9 @@ typedef struct _dns_conv_info_t {
 #define O_OWNER          4              /* Owner, reserved (draft-cheshire-edns0-owner-option) */
 #define O_DAU            5              /* DNSSEC Algorithm Understood (RFC6975) */
 #define O_DHU            6              /* DS Hash Understood (RFC6975) */
-#define O_N3U            7              /* NSEC3 Hash Understood  (RFC6975) */
+#define O_N3U            7              /* NSEC3 Hash Understood (RFC6975) */
 #define O_CLIENT_SUBNET  8              /* Client subnet as assigned by IANA */
+#define O_EDNS_EXPIRE    9              /* EDNS Expire (RFC7314) */
 #define O_CLIENT_SUBNET_EXP 0x50fa      /* Client subnet (placeholder value, draft-vandergaast-edns-client-subnet) */
 
 static const true_false_string tfs_flags_response = {
@@ -930,9 +931,10 @@ static const value_string edns0_opt_code_vals[] = {
   {O_OWNER,      "Owner (reserved)"},
   {O_DAU,        "DAU - DNSSEC Algorithm Understood (RFC6975)"},
   {O_DHU,        "DHU - DS Hash Understood (RFC6975)"},
-  {O_N3U,        "N3U - NSEC3 Hash Understood  (RFC6975)"},
+  {O_N3U,        "N3U - NSEC3 Hash Understood (RFC6975)"},
   {O_CLIENT_SUBNET_EXP, "Experimental - CSUBNET - Client subnet" },
   {O_CLIENT_SUBNET, "CSUBNET - Client subnet" },
+  {O_EDNS_EXPIRE, "EDNS EXPIRE(RFC7314)"},
   {0,            NULL}
  };
 /* DNS-Based Authentication of Named Entities (DANE) Parameters
