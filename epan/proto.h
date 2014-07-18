@@ -174,6 +174,51 @@ WS_DLL_PUBLIC WS_MSVC_NORETURN void proto_report_dissector_bug(const char *messa
     ep_strdup_printf("%s:%u: failed assertion \"DISSECTOR_ASSERT_NOT_REACHED\"", \
      __FILE__, __LINE__)))
 
+/** Compare two integers.
+ *
+ * This is functionally the same as `DISSECTOR_ASSERT(a op b)` except that it
+ * will display the values of a and b upon failure.
+ *
+ *     DISSECTOR_ASSERT_CMPINT(a, ==, b);
+ *     DISSECTOR_ASSERT_CMPINT(min, <=, max);
+ *
+ * This function can currently compare values that fit inside a gint64.
+ *
+ * WARNING: The number of times the arguments are evaluated is undefined.  Do
+ * not use expressions with side effects as arguments.
+ *
+ * @param a  The first integer.
+ * @param op Any binary operator.
+ * @param b  The second integer.
+ */
+#define DISSECTOR_ASSERT_CMPINT(a, op, b)  \
+  ((void) ((a op b) ? (void)0 : \
+   __DISSECTOR_ASSERT_CMPINT (a, op, b, gint64, "%"G_GINT64_MODIFIER"d"))) \
+   __DISSECTOR_ASSERT_STATIC_ANALYSIS_HINT(expression)
+
+/** Like DISSECTOR_ASSERT_CMPINT() except the arguments are treated as
+ * unsigned values.
+ *
+ * This function can currently compare values that fit inside a guint64.
+ */
+#define DISSECTOR_ASSERT_CMPUINT(a, op, b)  \
+  ((void) ((a op b) ? (void)0 : \
+   __DISSECTOR_ASSERT_CMPINT (a, op, b, guint64, "%"G_GINT64_MODIFIER"u"))) \
+   __DISSECTOR_ASSERT_STATIC_ANALYSIS_HINT(expression)
+
+/** Like DISSECTOR_ASSERT_CMPUINT() except the values are displayed in
+ * hexadecimal upon assertion failure.
+ */
+#define DISSECTOR_ASSERT_CMPUINTHEX(a, op, b)  \
+  ((void) ((a op b) ? (void)0 : \
+   __DISSECTOR_ASSERT_CMPINT (a, op, b, guint64, "0x%"G_GINT64_MODIFIER"X"))) \
+   __DISSECTOR_ASSERT_STATIC_ANALYSIS_HINT(expression)
+
+#define __DISSECTOR_ASSERT_CMPINT(a, op, b, type, fmt) \
+  (REPORT_DISSECTOR_BUG( \
+    ep_strdup_printf("%s:%u: failed assertion "#a" "#op" "#b" ("fmt" "#op" "fmt")", \
+     __FILE__, __LINE__, (type)a, (type)b)))
+
 #define __DISSECTOR_ASSERT_STRINGIFY(s)	# s
 
 #define __DISSECTOR_ASSERT(expression, file, lineno)  \
