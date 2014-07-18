@@ -1052,6 +1052,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-openvpn.c
 	dissectors/packet-openwire.c
 	dissectors/packet-opsi.c
+    dissectors/packet-optommp.c
 	dissectors/packet-osc.c
 	dissectors/packet-osi-options.c
 	dissectors/packet-osi.c
