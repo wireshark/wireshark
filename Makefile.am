@@ -1040,19 +1040,24 @@ patch-bzip2: distdir
 # Yes, that violate's autofoo's principle of relocatability.
 # What we (probably) should do is check `pkg-config --variable=prefix gtk+-2.0` to know where
 # to install this stuff...
+#
+# Do not use the -T flag to the install command, as it's not portable.
+# Some versions of install don't support a -T flag at all, and the
+# FreeBSD install command has a -T flag that takes an argument and
+# that has completely different semantics.
 install_desktop_files:
 	mkdir -p $(DESTDIR)/usr/share/{mime/packages,applications}
-	install -m 644 -T wireshark-mime-package.xml $(DESTDIR)/usr/share/mime/packages/wireshark.xml
+	install -m 644 $(srcdir)/wireshark-mime-package.xml $(DESTDIR)/usr/share/mime/packages/wireshark.xml
 	if test x$(DESKTOP_FILE_INSTALL) != x ; then \
-		$(DESKTOP_FILE_INSTALL) --dir $(DESTDIR)/usr/share/applications wireshark.desktop; \
+		$(DESKTOP_FILE_INSTALL) --dir $(DESTDIR)/usr/share/applications $(srcdir)/wireshark.desktop; \
 	else \
-		install -m 644 -T wireshark.desktop $(DESTDIR)/usr/share/applications/wireshark.desktop; \
+		install -m 644 $(srcdir)/wireshark.desktop $(DESTDIR)/usr/share/applications/wireshark.desktop; \
 	fi
 	for size in 16 24 32 48 64 128 256; \
 	do \
 		mkdir -p $(DESTDIR)/usr/share/icons/hicolor/$${size}x$${size}/{apps,mimetypes} ; \
-		install -m 644 image/wsicon$${size}.png  $(DESTDIR)/usr/share/icons/hicolor/$${size}x$${size}/apps/wireshark.png ; \
-		install -m 644 -T image/WiresharkDoc-$${size}.png  $(DESTDIR)/usr/share/icons/hicolor/$${size}x$${size}/mimetypes/application-wireshark-doc.png ; \
+		install -m 644 $(srcdir)/image/wsicon$${size}.png $(DESTDIR)/usr/share/icons/hicolor/$${size}x$${size}/apps/wireshark.png ; \
+		install -m 644 $(srcdir)/image/WiresharkDoc-$${size}.png $(DESTDIR)/usr/share/icons/hicolor/$${size}x$${size}/mimetypes/application-wireshark-doc.png ; \
 	done
 	@echo "Don't forget to run \"update-desktop-database\" and \"update-mime-database /usr/share/mime\""
 
