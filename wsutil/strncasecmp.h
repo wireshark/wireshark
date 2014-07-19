@@ -22,11 +22,19 @@
 #ifndef __STRNCASECMP_H__
 #define __STRNCASECMP_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 #include "ws_symbol_export.h"
 
 /*
  * Version of "strncasecmp()", for the benefit of OSes that don't have it.
  */
 WS_DLL_PUBLIC int strncasecmp (const char *, const char *, size_t);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif
