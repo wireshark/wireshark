@@ -2920,7 +2920,7 @@ static void
 dissect_oampdu_variable_response(tvbuff_t *tvb, proto_tree *tree)
 {
     guint16   raw_word;
-    guint8    raw_octet;
+    guint8    branch, raw_octet;
     guint32   offset;
 
 
@@ -2928,16 +2928,16 @@ dissect_oampdu_variable_response(tvbuff_t *tvb, proto_tree *tree)
 
     while (1)
     {
-        raw_octet = tvb_get_guint8(tvb, offset);
+        branch = tvb_get_guint8(tvb, offset);
 
-        if (raw_octet == 0) break;
+        if (branch == 0) break;
 
         proto_tree_add_uint(tree, hf_oampdu_variable_branch,
-                            tvb,offset, 1, raw_octet);
+                            tvb,offset, 1, branch);
 
         offset+=1;
 
-        switch (raw_octet)
+        switch (branch)
         {
             case OAMPDU_VARS_OBJECT:
             {
@@ -2973,31 +2973,39 @@ dissect_oampdu_variable_response(tvbuff_t *tvb, proto_tree *tree)
 
         offset+=2;
 
-        raw_octet = tvb_get_guint8(tvb, offset);
+        do {
+            raw_octet = tvb_get_guint8(tvb, offset);
 
-        if (raw_octet >= 0x80)
-        {
-            /* Variable Indication */
-            proto_tree_add_uint(tree, hf_oampdu_variable_indication,
-                                tvb,offset, 1, (raw_octet&0x7F));
+            if (raw_octet >= 0x80)
+            {
+                /* Variable Indication */
+                proto_tree_add_uint(tree, hf_oampdu_variable_indication,
+                                    tvb,offset, 1, (raw_octet&0x7F));
 
-            offset+=1;
-        }
-        else
-        {
-            /* Special case for 128 bytes container */
-            if (raw_octet == 0) raw_octet = 128;
+                offset+=1;
+                break;
+            }
+            else
+            {
+                /* Special case for 128 bytes container */
+                if (raw_octet == 0) raw_octet = 128;
 
-            proto_tree_add_uint(tree, hf_oampdu_variable_width,
-                                tvb,offset, 1, raw_octet);
+                proto_tree_add_uint(tree, hf_oampdu_variable_width,
+                                    tvb,offset, 1, raw_octet);
 
-            offset+=1;
+                offset+=1;
 
-            proto_tree_add_item(tree, hf_oampdu_variable_value,
-                                 tvb, offset, raw_octet, ENC_NA);
+                proto_tree_add_item(tree, hf_oampdu_variable_value,
+                                    tvb, offset, raw_octet, ENC_NA);
 
-            offset+=raw_octet;
-        }
+                offset+=raw_octet;
+            }
+
+            /* object and package containers consist of multiple entries
+               (variable indication + variable value), the last entry
+               has only the variable indication and no value
+               binding and attribute objects have only one such entry */
+        } while (branch==OAMPDU_VARS_OBJECT || branch==OAMPDU_VARS_PACKAGE);
     }
 }
 
