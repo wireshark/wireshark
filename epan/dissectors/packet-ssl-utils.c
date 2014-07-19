@@ -3,6 +3,7 @@
  * By Paolo Abeni <paolo.abeni@email.com>
  *
  * Copyright (c) 2013, Hauke Mehrtens <hauke@hauke-m.de>
+ * Copyright (c) 2014, Peter Wu <peter@lekensteyn.nl>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -1429,17 +1430,15 @@ ssl_data_set(StringInfo* str, const guchar* data, guint len)
     str->data_len = len;
 }
 
-
-static guint8
-from_hex_char(gchar c) {
-    /* XXX, ws_xton() */
-    if ((c >= '0') && (c <= '9'))
-        return c - '0';
-    if ((c >= 'A') && (c <= 'F'))
-        return c - 'A' + 10;
-    if ((c >= 'a') && (c <= 'f'))
-        return c - 'a' + 10;
-    return 16;
+static StringInfo *
+ssl_data_clone(StringInfo *str)
+{
+    StringInfo *cloned_str;
+    cloned_str = (StringInfo *) wmem_alloc0(wmem_file_scope(),
+            sizeof(StringInfo) + str->data_len);
+    cloned_str->data = (guchar *) (cloned_str + 1);
+    ssl_data_set(cloned_str, str->data, str->data_len);
+    return cloned_str;
 }
 
 /* from_hex converts |hex_len| bytes of hex data from |in| and sets |*out| to
@@ -2462,20 +2461,28 @@ ssl_create_decoder(SslCipherSuite *cipher_suite, gint compression,
     return dec;
 }
 
+static int
+ssl_decrypt_pre_master_secret(SslDecryptSession *ssl_session,
+                              StringInfo *encrypted_pre_master,
+                              SSL_PRIVATE_KEY *pk);
+static gboolean
+ssl_restore_master_key(SslDecryptSession *ssl, const char *label,
+                       gboolean is_pre_master, GHashTable *ht, StringInfo *key);
 
-int
+gboolean
 ssl_generate_pre_master_secret(SslDecryptSession *ssl_session,
                                guint32 length, tvbuff_t *tvb, guint32 offset,
-                               const gchar *ssl_psk, const gchar *keylog_filename)
+                               const gchar *ssl_psk,
+                               const ssl_master_key_map_t *mk_map)
 {
     /* check for required session data */
-    ssl_debug_printf("ssl_generate_pre_master_secret: found SSL_HND_CLIENT_KEY_EXCHG, state %X\n",
-                     ssl_session->state);
+    ssl_debug_printf("%s: found SSL_HND_CLIENT_KEY_EXCHG, state %X\n",
+                     G_STRFUNC, ssl_session->state);
     if ((ssl_session->state & (SSL_CIPHER|SSL_CLIENT_RANDOM|SSL_SERVER_RANDOM|SSL_VERSION)) !=
         (SSL_CIPHER|SSL_CLIENT_RANDOM|SSL_SERVER_RANDOM|SSL_VERSION)) {
-        ssl_debug_printf("ssl_generate_pre_master_secret: not enough data to generate key (required state %X)\n",
+        ssl_debug_printf("%s: not enough data to generate key (required state %X)\n", G_STRFUNC,
                          (SSL_CIPHER|SSL_CLIENT_RANDOM|SSL_SERVER_RANDOM|SSL_VERSION));
-        return -1;
+        return FALSE;
     }
 
     if (ssl_session->cipher_suite.kex == KEX_PSK)
@@ -2485,20 +2492,22 @@ ssl_generate_pre_master_secret(SslDecryptSession *ssl_session,
         guint psk_len, pre_master_len;
 
         if (!ssl_psk || (ssl_psk[0] == 0)) {
-            ssl_debug_printf("ssl_generate_pre_master_secret: can't find pre-shared-key\n");
-            return -1;
+            ssl_debug_printf("%s: can't find pre-shared-key\n", G_STRFUNC);
+            return FALSE;
         }
 
         /* convert hex string into char*/
         if (!from_hex(&ssl_session->psk, ssl_psk, strlen(ssl_psk))) {
-            ssl_debug_printf("ssl_generate_pre_master_secret: ssl.psk/dtls.psk contains invalid hex\n");
-            return -1;
+            ssl_debug_printf("%s: ssl.psk/dtls.psk contains invalid hex\n",
+                             G_STRFUNC);
+            return FALSE;
         }
 
         psk_len = ssl_session->psk.data_len;
         if (psk_len >= (2 << 15)) {
-            ssl_debug_printf("ssl_generate_pre_master_secret: ssl.psk/dtls.psk must not be larger than 2^15 - 1\n");
-            return -1;
+            ssl_debug_printf("%s: ssl.psk/dtls.psk must not be larger than 2^15 - 1\n",
+                             G_STRFUNC);
+            return FALSE;
         }
 
 
@@ -2526,12 +2535,11 @@ ssl_generate_pre_master_secret(SslDecryptSession *ssl_session,
            case we're renegotiating */
         ssl_session->state &= ~(SSL_MASTER_SECRET|SSL_HAVE_SESSION_KEY);
         ssl_session->state |= SSL_PRE_MASTER_SECRET;
-        return 0;
+        return TRUE;
     }
     else
     {
         StringInfo encrypted_pre_master;
-        gint ret;
         guint encrlen, skip;
         encrlen = length;
         skip = 0;
@@ -2549,33 +2557,41 @@ ssl_generate_pre_master_secret(SslDecryptSession *ssl_session,
             skip = 2;
             if (encrlen > length - 2)
             {
-                ssl_debug_printf("ssl_generate_pre_master_secret: wrong encrypted length (%d max %d)\n",
-                    encrlen, length);
-                return -1;
+                ssl_debug_printf("%s: wrong encrypted length (%d max %d)\n",
+                                 G_STRFUNC, encrlen, length);
+                return FALSE;
             }
         }
+        /* the valid lower bound is higher than 8, but it is sufficient for the
+         * ssl keylog file below */
+        if (encrlen < 8) {
+            ssl_debug_printf("%s: invalid encrypted pre-master key length %d\n",
+                             G_STRFUNC, encrlen);
+            return FALSE;
+        }
+
         encrypted_pre_master.data = (guchar *)wmem_alloc(wmem_file_scope(), encrlen);
         encrypted_pre_master.data_len = encrlen;
         tvb_memcpy(tvb, encrypted_pre_master.data, offset+skip, encrlen);
 
         if (ssl_session->private_key) {
-            /* go with ssl key processessing; encrypted_pre_master
-             * will be used for master secret store*/
-            ret = ssl_decrypt_pre_master_secret(ssl_session, &encrypted_pre_master, ssl_session->private_key);
-            if (ret>=0)
-                return 0;
+            /* try to decrypt encrypted pre-master with RSA key */
+            if (ssl_decrypt_pre_master_secret(ssl_session,
+                &encrypted_pre_master, ssl_session->private_key))
+                return TRUE;
 
-            ssl_debug_printf("ssl_generate_pre_master_secret: can't decrypt pre master secret\n");
+            ssl_debug_printf("%s: can't decrypt pre-master secret\n",
+                             G_STRFUNC);
         }
 
-        if (keylog_filename != NULL) {
-            /* try to find the key in the key log */
-            ret = ssl_keylog_lookup(ssl_session, keylog_filename, &encrypted_pre_master);
-            if (ret>=0)
-                return 0;
-        }
+        /* try to find the pre-master secret from the encrypted one. The
+         * ssl key logfile stores only the first 8 bytes, so truncate it */
+        encrypted_pre_master.data_len = 8;
+        if (ssl_restore_master_key(ssl_session, "Encrypted pre-master secret",
+            TRUE, mk_map->pre_master, &encrypted_pre_master))
+            return TRUE;
     }
-    return -1;
+    return FALSE;
 }
 
 int
@@ -2597,7 +2613,7 @@ ssl_generate_keyring_material(SslDecryptSession*ssl_session)
         return -1;
     }
 
-    /* if master_key is not yet generate, create it now*/
+    /* if master key is not available, generate is from the pre-master secret */
     if (!(ssl_session->state & SSL_MASTER_SECRET)) {
         ssl_debug_printf("ssl_generate_keyring_material:PRF(pre_master_secret)\n");
         ssl_print_string("pre master secret",&ssl_session->pre_master_secret);
@@ -2818,35 +2834,35 @@ ssl_change_cipher(SslDecryptSession *ssl_session, gboolean server)
     }
 }
 
-int
+static gboolean
 ssl_decrypt_pre_master_secret(SslDecryptSession*ssl_session,
     StringInfo* encrypted_pre_master, SSL_PRIVATE_KEY *pk)
 {
     gint i;
 
     if (!encrypted_pre_master)
-        return -1;
+        return FALSE;
 
     if(ssl_session->cipher_suite.kex == KEX_DH) {
-        ssl_debug_printf("ssl_decrypt_pre_master_secret session uses DH (%d) key exchange, which is impossible to decrypt\n",
-            KEX_DH);
-        return -1;
+        ssl_debug_printf("%s: session uses DH (%d) key exchange, which is "
+                         "impossible to decrypt\n", G_STRFUNC, KEX_DH);
+        return FALSE;
     } else if(ssl_session->cipher_suite.kex != KEX_RSA) {
-         ssl_debug_printf("ssl_decrypt_pre_master_secret key exchange %d different from KEX_RSA (%d)\n",
-            ssl_session->cipher_suite.kex, KEX_RSA);
-        return -1;
+         ssl_debug_printf("%s key exchange %d different from KEX_RSA (%d)\n",
+                          G_STRFUNC, ssl_session->cipher_suite.kex, KEX_RSA);
+        return FALSE;
     }
 
     /* with tls key loading will fail if not rsa type, so no need to check*/
     ssl_print_string("pre master encrypted",encrypted_pre_master);
-    ssl_debug_printf("ssl_decrypt_pre_master_secret:RSA_private_decrypt\n");
+    ssl_debug_printf("%s: RSA_private_decrypt\n", G_STRFUNC);
     i=ssl_private_decrypt(encrypted_pre_master->data_len,
         encrypted_pre_master->data, pk);
 
     if (i!=48) {
-        ssl_debug_printf("ssl_decrypt_pre_master_secret wrong "
-            "pre_master_secret length (%d, expected %d)\n", i, 48);
-        return -1;
+        ssl_debug_printf("%s wrong pre_master_secret length (%d, expected "
+                         "%d)\n", G_STRFUNC, i, 48);
+        return FALSE;
     }
 
     /* the decrypted data has been written into the pre_master key buffer */
@@ -2859,7 +2875,7 @@ ssl_decrypt_pre_master_secret(SslDecryptSession*ssl_session,
        case we're renegotiating */
     ssl_session->state &= ~(SSL_MASTER_SECRET|SSL_HAVE_SESSION_KEY);
     ssl_session->state |= SSL_PRE_MASTER_SECRET;
-    return 0;
+    return TRUE;
 }
 
 /* convert network byte order 32 byte number to right-aligned host byte order *
@@ -3792,13 +3808,13 @@ ssl_find_cipher(int num,SslCipherSuite* cs)
         num,cs);
     return 0;
 }
-int
+gboolean
 ssl_generate_pre_master_secret(SslDecryptSession *ssl_session _U_,
         guint32 length _U_, tvbuff_t *tvb _U_, guint32 offset _U_,
-        const gchar *ssl_psk _U_, const gchar *keylog_filename _U_)
+        const gchar *ssl_psk _U_, const ssl_master_key_map_t *mk_map _U_)
 {
-    ssl_debug_printf("ssl_generate_pre_master_secret: impossible without gnutls.\n");
-    return 0;
+    ssl_debug_printf("%s: impossible without gnutls.\n", G_STRFUNC);
+    return FALSE;
 }
 int
 ssl_generate_keyring_material(SslDecryptSession*ssl)
@@ -3812,16 +3828,6 @@ ssl_change_cipher(SslDecryptSession *ssl_session, gboolean server)
 {
     ssl_debug_printf("ssl_change_cipher %s: makes no sense without gnutls. ssl %p\n",
         (server)?"SERVER":"CLIENT", ssl_session);
-}
-
-int
-ssl_decrypt_pre_master_secret(SslDecryptSession* ssl_session,
-    StringInfo* encrypted_pre_master, SSL_PRIVATE_KEY *pk)
-{
-    ssl_debug_printf("ssl_decrypt_pre_master_secret: impossible without gnutls."
-        " ssl %p encrypted_pre_master %p pk %p\n", ssl_session,
-        encrypted_pre_master, pk);
-    return 0;
 }
 
 int
@@ -3905,7 +3911,7 @@ ssl_hash  (gconstpointer v)
     hash = 0;
     id = (const StringInfo*) v;
 
-    /*  id and id->data are mallocated in ssl_save_session().  As such 'data'
+    /*  id and id->data are mallocated in ssl_save_master_key().  As such 'data'
      *  should be aligned for any kind of access (for example as a guint as
      *  is done below).  The intermediate void* cast is to prevent "cast
      *  increases required alignment of target type" warnings on CPUs (such
@@ -4161,19 +4167,39 @@ ssl_get_data_info(int proto, packet_info *pinfo, gint key)
     return NULL;
 }
 
+static void
+ssl_load_keyfile(const gchar *ssl_keylog_filename,
+                 const ssl_master_key_map_t *mk_map);
+
 /* initialize/reset per capture state data (ssl sessions cache) */
 void
-ssl_common_init(GHashTable **session_hash, StringInfo *decrypted_data, StringInfo *compressed_data)
+ssl_common_init(ssl_master_key_map_t *mk_map,
+                StringInfo *decrypted_data, StringInfo *compressed_data,
+                const ssl_common_options_t *options)
 {
-    if (*session_hash)
-        g_hash_table_destroy(*session_hash);
-    *session_hash = g_hash_table_new(ssl_hash, ssl_equal);
+    if (mk_map->session)
+        g_hash_table_remove_all(mk_map->session);
+    else
+        mk_map->session = g_hash_table_new(ssl_hash, ssl_equal);
+
+    if (mk_map->crandom)
+        g_hash_table_remove_all(mk_map->crandom);
+    else
+        mk_map->crandom = g_hash_table_new(ssl_hash, ssl_equal);
+
+    if (mk_map->pre_master)
+        g_hash_table_remove_all(mk_map->pre_master);
+    else
+        mk_map->pre_master = g_hash_table_new(ssl_hash, ssl_equal);
 
     g_free(decrypted_data->data);
     ssl_data_alloc(decrypted_data, 32);
 
     g_free(compressed_data->data);
     ssl_data_alloc(compressed_data, 32);
+
+    if (options->keylog_filename != NULL && *options->keylog_filename)
+        ssl_load_keyfile(options->keylog_filename, mk_map);
 }
 
 /* parse ssl related preferences (private keys and ports association strings) */
@@ -4278,124 +4304,81 @@ ssl_parse_key_list(const ssldecrypt_assoc_t * uats, GHashTable *key_hash, GTree*
     fclose(fp);
 }
 
-/* store master secret into session data cache */
-void
-ssl_save_session(SslDecryptSession* ssl, GHashTable *session_hash)
+/** store a known (pre-)master secret into cache */
+static void
+ssl_save_master_key(const char *label, GHashTable *ht, StringInfo *key,
+                    StringInfo *mk)
 {
-    /* allocate stringinfo chunks for session id and master secret data*/
-    StringInfo *session_id;
-    StringInfo *master_secret;
+    StringInfo *ht_key, *master_secret;
 
-    if (ssl->session_id.data_len == 0) {
-        ssl_debug_printf("ssl_save_session SessionID is empty!\n");
+    if (key->data_len == 0) {
+        ssl_debug_printf("%s: not saving empty %s!\n", G_STRFUNC, label);
         return;
     }
 
-    if (ssl->master_secret.data_len == 0) {
-        ssl_debug_printf("%s master secret is empty!\n", G_STRFUNC);
-        return;
-    }
-
-    /* ssl_hash() depends on session_id->data being aligned for guint access so
-     * be careful in changing how it is allocated. */
-    session_id = (StringInfo *) wmem_alloc0(wmem_file_scope(),
-            sizeof(StringInfo) + ssl->session_id.data_len);
-    session_id->data = (gchar *) (session_id + 1);
-
-    master_secret = (StringInfo *) wmem_alloc0(wmem_file_scope(),
-            sizeof(StringInfo) + ssl->master_secret.data_len);
-    master_secret->data = (gchar *) (master_secret + 1);
-
-    ssl_data_set(session_id, ssl->session_id.data, ssl->session_id.data_len);
-    ssl_data_set(master_secret, ssl->master_secret.data, ssl->master_secret.data_len);
-    g_hash_table_insert(session_hash, session_id, master_secret);
-    ssl_print_string("ssl_save_session stored session id", session_id);
-    ssl_print_string("ssl_save_session stored master secret", master_secret);
-}
-
-gboolean
-ssl_restore_session(SslDecryptSession* ssl, GHashTable *session_hash)
-{
-    StringInfo* ms;
-
-    if (ssl->session_id.data_len == 0) {
-        ssl_debug_printf("ssl_restore_session Cannot restore using an empty SessionID\n");
-        return FALSE;
-    }
-
-    ms = (StringInfo *)g_hash_table_lookup(session_hash, &ssl->session_id);
-
-    if (!ms) {
-        ssl_debug_printf("ssl_restore_session can't find stored session\n");
-        return FALSE;
-    }
-    ssl_data_set(&ssl->master_secret, ms->data, ms->data_len);
-    ssl->state |= SSL_MASTER_SECRET;
-    ssl_debug_printf("ssl_restore_session master key retrieved\n");
-    return TRUE;
-}
-
-/* store master secret into session data cache, based on ssl_save_session */
-void
-ssl_save_session_ticket(SslDecryptSession* ssl, GHashTable *session_hash)
-{
-    /* allocate stringinfo chunks for session id and master secret data*/
-    StringInfo *session_ticket;
-    StringInfo *master_secret;
-
-    if (ssl->session_ticket.data_len == 0) {
-        ssl_debug_printf("ssl_save_session_ticket - session ticket is empty!\n");
-        return;
-    }
-
-    if (ssl->master_secret.data_len == 0) {
-        ssl_debug_printf("%s master secret is empty!\n", G_STRFUNC);
+    if (mk->data_len == 0) {
+        ssl_debug_printf("%s not saving empty (pre-)master secret for %s!\n",
+                         G_STRFUNC, label);
         return;
     }
 
     /* ssl_hash() depends on session_ticket->data being aligned for guint access
      * so be careful in changing how it is allocated. */
-    session_ticket = (StringInfo *) wmem_alloc0(wmem_file_scope(),
-            sizeof(StringInfo) + ssl->session_ticket.data_len);
-    session_ticket->data = (guchar *) (session_ticket + 1);
-    master_secret = (StringInfo *) wmem_alloc0(wmem_file_scope(),
-            sizeof(StringInfo) + ssl->master_secret.data_len);
-    master_secret->data = (guchar *) (master_secret + 1);
+    ht_key = ssl_data_clone(key);
+    master_secret = ssl_data_clone(mk);
+    g_hash_table_insert(ht, ht_key, master_secret);
 
-    ssl_data_set(session_ticket, ssl->session_ticket.data, ssl->session_ticket.data_len);
-    ssl_data_set(master_secret, ssl->master_secret.data, ssl->master_secret.data_len);
-    g_hash_table_insert(session_hash, session_ticket, master_secret);
-    ssl_print_string("ssl_save_session_ticket stored session_ticket", session_ticket);
-    ssl_print_string("ssl_save_session_ticket stored master secret", master_secret);
+    ssl_debug_printf("%s inserted (pre-)master secret for %s\n", G_STRFUNC, label);
+    ssl_print_string("stored key", ht_key);
+    ssl_print_string("stored (pre-)master secret", master_secret);
 }
 
-gboolean
-ssl_restore_session_ticket(SslDecryptSession* ssl, GHashTable *session_hash)
+/** restore a (pre-)master secret given some key in the cache */
+static gboolean
+ssl_restore_master_key(SslDecryptSession *ssl, const char *label,
+                       gboolean is_pre_master, GHashTable *ht, StringInfo *key)
 {
-    StringInfo* ms;
+    StringInfo *ms;
 
-    if (ssl->session_ticket.data_len == 0) {
-        ssl_debug_printf("ssl_restore_session_ticket Cannot restore using an empty session ticket\n");
+    if (key->data_len == 0) {
+        ssl_debug_printf("%s can't restore %smaster secret using an empty %s\n",
+                         G_STRFUNC, is_pre_master ? "pre-" : "", label);
         return FALSE;
     }
 
-    ms = (StringInfo *)g_hash_table_lookup(session_hash, &ssl->session_ticket);
-
+    ms = (StringInfo *)g_hash_table_lookup(ht, key);
     if (!ms) {
-        ssl_debug_printf("ssl_restore_session_ticket can't find stored session ticket\n");
+        ssl_debug_printf("%s can't find %smaster secret by %s\n", G_STRFUNC,
+                         is_pre_master ? "pre-" : "", label);
         return FALSE;
     }
-    ssl_data_set(&ssl->master_secret, ms->data, ms->data_len);
-    ssl->state |= SSL_MASTER_SECRET;
-    ssl_debug_printf("ssl_restore_session_ticket master key retrieved\n");
+
+    /* (pre)master secret found, clear knowledge of other keys and set it in the
+     * current conversation */
+    ssl->state &= ~(SSL_MASTER_SECRET | SSL_PRE_MASTER_SECRET |
+                    SSL_HAVE_SESSION_KEY);
+    if (is_pre_master) {
+        /* unlike master secret, pre-master secret has a variable size (48 for
+         * RSA, varying for PSK) and is therefore not statically allocated */
+        ssl->pre_master_secret.data = (guchar *) wmem_alloc(wmem_file_scope(),
+                                                            ms->data_len);
+        ssl_data_set(&ssl->pre_master_secret, ms->data, ms->data_len);
+        ssl->state |= SSL_PRE_MASTER_SECRET;
+    } else {
+        ssl_data_set(&ssl->master_secret, ms->data, ms->data_len);
+        ssl->state |= SSL_MASTER_SECRET;
+    }
+    ssl_debug_printf("%s %smaster secret retrieved using %s\n", G_STRFUNC,
+                     is_pre_master ? "pre-" : "", label);
+    ssl_print_string(label, key);
+    ssl_print_string("(pre-)master secret", ms);
     return TRUE;
 }
 
 /* Should be called when all parameters are ready (after ChangeCipherSpec), and
  * the decoder should be attempted to be initialized. */
 void
-ssl_finalize_decryption(SslDecryptSession *ssl, GHashTable *session_hash,
-                        const char *keylog_filename)
+ssl_finalize_decryption(SslDecryptSession *ssl, ssl_master_key_map_t *mk_map)
 {
     ssl_debug_printf("%s state = 0x%02X\n", G_STRFUNC, ssl->state);
     if (ssl->state & SSL_HAVE_SESSION_KEY) {
@@ -4405,28 +4388,27 @@ ssl_finalize_decryption(SslDecryptSession *ssl, GHashTable *session_hash,
 
     /* for decryption, there needs to be a master secret (which can be derived
      * from pre-master secret). If missing, try to pick a master key from cache
-     * (an earlier packet in the capture). If that fails, try to find the master
-     * key in the keylog file. */
+     * (an earlier packet in the capture or key logfile). */
     if (!(ssl->state & (SSL_MASTER_SECRET | SSL_PRE_MASTER_SECRET)) &&
-        !ssl_restore_session(ssl, session_hash) &&
-        !ssl_restore_session_ticket(ssl, session_hash)) {
-        /* If we failed to find the previous session, we may still
-         * have the master secret in the key log. */
-        ssl_debug_printf("Cannot restore session, trying key file\n");
-        if (ssl_keylog_lookup(ssl, keylog_filename, NULL) < 0) {
-            ssl_debug_printf("  cannot find master secret in keylog file either\n");
-            return;
-        } else {
-            ssl_debug_printf("  found master secret in keylog file\n");
-        }
+        !ssl_restore_master_key(ssl, "Session ID", FALSE,
+                                mk_map->session, &ssl->session_id) &&
+        !ssl_restore_master_key(ssl, "Session Ticket", FALSE,
+                                mk_map->session, &ssl->session_ticket) &&
+        !ssl_restore_master_key(ssl, "Client Random", FALSE,
+                                mk_map->crandom, &ssl->client_random)) {
+        /* how unfortunate, the master secret could not be found */
+        ssl_debug_printf("  Cannot find master secret\n");
+        return;
     }
 
     if (ssl_generate_keyring_material(ssl) < 0) {
         ssl_debug_printf("%s can't generate keyring material\n", G_STRFUNC);
         return;
     }
-    ssl_save_session(ssl, session_hash);
-    ssl_debug_printf("%s session keys successfully generated\n", G_STRFUNC);
+    ssl_save_master_key("Session ID", mk_map->session,
+                        &ssl->session_id, &ssl->master_secret);
+    ssl_save_master_key("Session Ticket", mk_map->session,
+                        &ssl->session_ticket, &ssl->master_secret);
 }
 
 gboolean
@@ -4471,171 +4453,59 @@ ssl_is_valid_handshake_type(guint8 hs_type, gboolean is_dtls)
     return FALSE;
 }
 
-/* ssl_keylog_parse_session_id parses, from |line|, a string that looks like:
- *   RSA Session-ID:<hex session id> Master-Key:<hex TLS master secret>.
- *
- * It returns TRUE iff the session id matches |ssl_session| and the master
- * secret is correctly extracted. */
+
+/** keyfile handling */
+
 static gboolean
-ssl_keylog_parse_session_id(const char* line,
-                            SslDecryptSession* ssl_session)
+ssl_compile_keyfile_regexes(const char **patterns, GRegex **regexes, size_t n)
 {
-    gsize len = strlen(line);
-    unsigned int i;
+    unsigned i;
+    GError *gerr = NULL;
 
-    if (ssl_session->session_id.data_len == 0)
-        return FALSE;
-
-    if (len < 15 || memcmp(line, "RSA Session-ID:", 15) != 0)
-        return FALSE;
-    line += 15;
-    len -= 15;
-
-    if (len < ssl_session->session_id.data_len*2)
-        return FALSE;
-
-    for (i = 0; i < ssl_session->session_id.data_len; i++) {
-        if (from_hex_char(line[2*i]) != (ssl_session->session_id.data[i] >> 4) ||
-            from_hex_char(line[2*i+1]) != (ssl_session->session_id.data[i] & 15)) {
-            ssl_debug_printf("    line does not match session id\n");
+    for (i = 0; i < n; i++) {
+        regexes[i] = g_regex_new(patterns[i], G_REGEX_OPTIMIZE,
+                G_REGEX_MATCH_ANCHORED, &gerr);
+        if (gerr) {
+            ssl_debug_printf("%s failed to compile %s: %s\n", G_STRFUNC,
+                    patterns[i], gerr->message);
+            g_error_free(gerr);
+            /* failed to compile some regexes, free resources and fail */
+            while (i-- > 0)
+                g_regex_unref(regexes[i]);
             return FALSE;
         }
     }
-
-    line += 2*i;
-    len -= 2*i;
-
-    if (len != 12 + SSL_MASTER_SECRET_LENGTH * 2 ||
-        memcmp(line, " Master-Key:", 12) != 0) {
-        return FALSE;
-    }
-    line += 12;
-    len -= 12;
-
-    if (!from_hex(&ssl_session->master_secret, line, len))
-        return FALSE;
-    ssl_session->state &= ~(SSL_PRE_MASTER_SECRET|SSL_HAVE_SESSION_KEY);
-    ssl_session->state |= SSL_MASTER_SECRET;
-    ssl_debug_printf("found master secret in key log via RSA Session-ID\n");
     return TRUE;
 }
 
-/* ssl_keylog_parse_client_random parses, from |line|, a string that looks like:
- *   CLIENT_RANDOM <hex client_random> <hex TLS master secret>.
- *
- * It returns TRUE iff the client_random matches |ssl_session| and the master
- * secret is correctly extracted. */
-static gboolean
-ssl_keylog_parse_client_random(const char* line,
-                               SslDecryptSession* ssl_session)
+static void
+ssl_load_keyfile(const gchar *ssl_keylog_filename,
+                 const ssl_master_key_map_t *mk_map)
 {
-    static const unsigned int kTLSRandomSize = 32; /* RFC5246 A.6 */
-    gsize len = strlen(line);
-    unsigned int i;
-
-    if (len < 14 || memcmp(line, "CLIENT_RANDOM ", 14) != 0)
-        return FALSE;
-    line += 14;
-    len -= 14;
-
-    if (len < kTLSRandomSize*2 ||
-        ssl_session->client_random.data_len != kTLSRandomSize) {
-        return FALSE;
-    }
-
-    for (i = 0; i < kTLSRandomSize; i++) {
-        if (from_hex_char(line[2*i]) != (ssl_session->client_random.data[i] >> 4) ||
-            from_hex_char(line[2*i+1]) != (ssl_session->client_random.data[i] & 15)) {
-            ssl_debug_printf("    line does not match client random\n");
-            return FALSE;
-        }
-    }
-
-    line += 2*kTLSRandomSize;
-    len -= 2*kTLSRandomSize;
-
-    if (len != 1 + SSL_MASTER_SECRET_LENGTH * 2 || line[0] != ' ')
-        return FALSE;
-    line++;
-    len--;
-
-    if (!from_hex(&ssl_session->master_secret, line, len))
-        return FALSE;
-    ssl_session->state &= ~(SSL_PRE_MASTER_SECRET|SSL_HAVE_SESSION_KEY);
-    ssl_session->state |= SSL_MASTER_SECRET;
-    ssl_debug_printf("found master secret in key log via CLIENT_RANDOM\n");
-    return TRUE;
-}
-
-/* ssl_keylog_parse_session_id parses, from |line|, a string that looks like:
- *   RSA <hex, 8-bytes of encrypted pre-master secret> <hex pre-master secret>.
- *
- * It returns TRUE iff the session id matches |ssl_session| and the master
- * secret is correctly extracted. */
-static gboolean
-ssl_keylog_parse_rsa_premaster(const char* line,
-                               SslDecryptSession* ssl_session,
-                               StringInfo* encrypted_pre_master)
-{
-    static const unsigned int kRSAPremasterLength = 48; /* RFC5246 7.4.7.1 */
-    gsize len = strlen(line);
-    unsigned int i;
-
-    if (encrypted_pre_master == NULL)
-        return FALSE;
-
-    if (encrypted_pre_master->data_len < 8)
-        return FALSE;
-
-    if (len < 4 || memcmp(line, "RSA ", 4) != 0)
-        return FALSE;
-    line += 4;
-    len -= 4;
-
-    if (len < 16)
-        return FALSE;
-
-    for (i = 0; i < 8; i++) {
-        if (from_hex_char(line[2*i]) != (encrypted_pre_master->data[i] >> 4) ||
-            from_hex_char(line[2*i+1]) != (encrypted_pre_master->data[i] & 15)) {
-            ssl_debug_printf("    line does not match encrypted pre-master secret");
-            return FALSE;
-        }
-    }
-
-    line += 16;
-    len -= 16;
-
-    if (len != 1 + kRSAPremasterLength*2 || line[0] != ' ')
-        return FALSE;
-    line++;
-    len--;
-
-    if (!from_hex(&ssl_session->pre_master_secret, line, len))
-        return FALSE;
-    ssl_session->state &= ~(SSL_MASTER_SECRET|SSL_HAVE_SESSION_KEY);
-    ssl_session->state |= SSL_PRE_MASTER_SECRET;
-    ssl_debug_printf("found pre-master secret in key log\n");
-
-    return TRUE;
-}
-
-int
-ssl_keylog_lookup(SslDecryptSession* ssl_session,
-                  const gchar* ssl_keylog_filename,
-                  StringInfo* encrypted_pre_master) {
-    FILE* ssl_keylog;
-    int ret = -1;
-
-    if (!ssl_keylog_filename)
-        return -1;
+    FILE *ssl_keylog;
+    unsigned i;
+#define OCTET "(?:[[:xdigit:]]{2})"
+#define SSL_REGEX_MK "(" OCTET "{" G_STRINGIFY(SSL_MASTER_SECRET_LENGTH) "})"
+    const gchar *patterns[] = {
+        "RSA (" OCTET "{8}) " SSL_REGEX_MK,
+        "RSA Session-ID:(" OCTET "+) Master-Key:" SSL_REGEX_MK,
+        "CLIENT_RANDOM (" OCTET "{32}) " SSL_REGEX_MK
+    };
+    GRegex *regexes[array_length(patterns)];
+    GHashTable *hts[] = {
+        mk_map->pre_master,
+        mk_map->session,
+        mk_map->crandom
+    };
+#undef SSL_REGEX_MK
+#undef OCTET
 
     ssl_debug_printf("trying to use SSL keylog in %s\n", ssl_keylog_filename);
 
     ssl_keylog = ws_fopen(ssl_keylog_filename, "r");
     if (!ssl_keylog) {
         ssl_debug_printf("failed to open SSL keylog\n");
-        return -1;
+        return;
     }
 
     /* The format of the file is a series of records with one of the following formats:
@@ -4657,6 +4527,9 @@ ssl_keylog_lookup(SslDecryptSession* ssl_session,
      *     (This format allows non-RSA SSL connections to be decrypted, i.e.
      *     ECDHE-RSA.)
      */
+    if (!ssl_compile_keyfile_regexes(patterns, regexes, array_length(regexes)))
+        return;
+
     for (;;) {
         char buf[512], *line;
         gsize bytes_read;
@@ -4667,7 +4540,7 @@ ssl_keylog_lookup(SslDecryptSession* ssl_session,
 
         bytes_read = strlen(line);
         /* fgets includes the \n at the end of the line. */
-        if (bytes_read > 0) {
+        if (bytes_read > 0 && line[bytes_read - 1] == '\n') {
             line[bytes_read - 1] = 0;
             bytes_read--;
         }
@@ -4677,20 +4550,39 @@ ssl_keylog_lookup(SslDecryptSession* ssl_session,
         }
 
         ssl_debug_printf("  checking keylog line: %s\n", line);
+        for (i = 0; i < array_length(regexes); i++) {
+            gchar *hex_key, *hex_ms;
+            StringInfo *ms, *key;
+            GMatchInfo *mi;
+            if (!g_regex_match(regexes[i], line, G_REGEX_MATCH_ANCHORED, &mi)) {
+                g_match_info_free(mi);
+                continue;
+            }
 
-        if (ssl_keylog_parse_session_id(line, ssl_session) ||
-            ssl_keylog_parse_rsa_premaster(line, ssl_session,
-                                           encrypted_pre_master) ||
-            ssl_keylog_parse_client_random(line, ssl_session)) {
-            ret = 1;
-            break;
-        } else {
-            ssl_debug_printf("    line does not match\n");
+            /* convert from hex to bytes and save to hashtable */
+            hex_key = g_match_info_fetch(mi, 1);
+            hex_ms = g_match_info_fetch(mi, 2);
+            g_match_info_free(mi);
+
+            key = (StringInfo *) wmem_alloc(wmem_file_scope(), sizeof(StringInfo));
+            ms = (StringInfo *) wmem_alloc(wmem_file_scope(), sizeof(StringInfo));
+            from_hex(key, hex_key, strlen(hex_key));
+            from_hex(ms, hex_ms, strlen(hex_ms));
+            g_hash_table_insert(hts[i], key, ms);
+            g_free(hex_key);
+            g_free(hex_ms);
+            ssl_debug_printf("    matched type %d\n", i);
+            break; /* found a match, no need to continue */
         }
+
+        if (i == array_length(regexes))
+            ssl_debug_printf("    unrecognized line\n");
     }
 
+    for (i = 0; i < array_length(regexes); i++)
+        g_regex_unref(regexes[i]);
+
     fclose(ssl_keylog);
-    return ret;
 }
 
 #ifdef SSL_DECRYPT_DEBUG
@@ -5422,7 +5314,8 @@ ssl_dissect_hnd_srv_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
 void
 ssl_dissect_hnd_new_ses_ticket(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                                proto_tree *tree, guint32 offset,
-                               SslDecryptSession *ssl, GHashTable *session_hash)
+                               SslDecryptSession *ssl,
+                               GHashTable *session_hash)
 {
     proto_tree  *subtree;
     guint16      ticket_len;
@@ -5446,13 +5339,19 @@ ssl_dissect_hnd_new_ses_ticket(ssl_common_dissect_t *hf, tvbuff_t *tvb,
     /* Content depends on implementation, so just show data! */
     proto_tree_add_item(subtree, hf->hf.hs_session_ticket,
                         tvb, offset, ticket_len, ENC_NA);
-    /* save the session ticket to cache */
+    /* save the session ticket to cache for ssl_finalize_decryption */
     if (ssl) {
         ssl->session_ticket.data = (guchar*)wmem_realloc(wmem_file_scope(),
                                     ssl->session_ticket.data, ticket_len);
         ssl->session_ticket.data_len = ticket_len;
         tvb_memcpy(tvb, ssl->session_ticket.data, offset, ticket_len);
-        ssl_save_session_ticket(ssl, session_hash);
+        /* NewSessionTicket is received after the first (client)
+         * ChangeCipherSpec, and before the second (server) ChangeCipherSpec.
+         * Since the second CCS has already the session key available it will
+         * just return. To ensure that the session ticket is mapped to a
+         * master key (from the first CCS), save the ticket here too. */
+        ssl_save_master_key("Session Ticket", session_hash,
+                            &ssl->session_ticket, &ssl->master_secret);
     }
 }
 

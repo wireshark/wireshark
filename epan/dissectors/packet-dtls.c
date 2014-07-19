@@ -141,7 +141,7 @@ static expert_field ei_dtls_handshake_fragment_past_end_msg = EI_INIT;
 static expert_field ei_dtls_msg_len_diff_fragment = EI_INIT;
 static expert_field ei_dtls_heartbeat_payload_length = EI_INIT;
 
-static GHashTable         *dtls_session_hash         = NULL;
+static ssl_master_key_map_t dtls_master_key_map;
 static GHashTable         *dtls_key_hash             = NULL;
 static reassembly_table    dtls_reassembly_table;
 static GTree*              dtls_associations         = NULL;
@@ -191,7 +191,8 @@ dtls_init(void)
   module_t *dtls_module = prefs_find_module("dtls");
   pref_t   *keys_list_pref;
 
-  ssl_common_init(&dtls_session_hash, &dtls_decrypted_data, &dtls_compressed_data);
+  ssl_common_init(&dtls_master_key_map, &dtls_decrypted_data,
+                  &dtls_compressed_data, &dtls_options);
   reassembly_table_init (&dtls_reassembly_table, &addresses_reassembly_table_functions);
 
   /* We should have loaded "keys_list" by now. Mark it obsolete */
@@ -814,8 +815,7 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
     dissect_dtls_change_cipher_spec(tvb, dtls_record_tree,
                                     offset, session, content_type);
     if (ssl) {
-        ssl_finalize_decryption(ssl, dtls_session_hash,
-                                dtls_options.keylog_filename);
+        ssl_finalize_decryption(ssl, &dtls_master_key_map);
         ssl_change_cipher(ssl, ssl_packet_from_server(ssl, dtls_associations, pinfo));
     }
     break;
@@ -1338,7 +1338,7 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
           case SSL_HND_NEWSESSION_TICKET:
             ssl_dissect_hnd_new_ses_ticket(&dissect_dtls_hf, sub_tvb,
                                            ssl_hand_tree, 0, ssl,
-                                           dtls_session_hash);
+                                           dtls_master_key_map.session);
             break;
 
           case SSL_HND_CERTIFICATE:
@@ -1367,7 +1367,9 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
                 break;
 
             /* try to find master key from pre-master key */
-            if (ssl_generate_pre_master_secret(ssl, length, sub_tvb, 0, dtls_options.psk, dtls_options.keylog_filename) < 0) {
+            if (!ssl_generate_pre_master_secret(ssl, length, sub_tvb, 0,
+                                                dtls_options.psk,
+                                                &dtls_master_key_map)) {
                 ssl_debug_printf("dissect_dtls_handshake can't generate pre master secret\n");
             }
             break;

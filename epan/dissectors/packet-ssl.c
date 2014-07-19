@@ -61,8 +61,6 @@
  *   - Identifies, but does not fully dissect the following messages:
  *
  *     - SSLv3/TLS (These need more state from previous handshake msgs)
- *       - Server Key Exchange
- *       - Client Key Exchange
  *       - Certificate Verify
  *
  *     - SSLv2 (These don't appear in the clear)
@@ -72,9 +70,6 @@
  *       - Server Finished
  *       - Request Certificate
  *       - Client Certificate
- *
- *    - Decryption is supported only for session that use RSA key exchange,
- *      if the host private key is provided via preference.
  *
  *    - Decryption needs to be performed 'sequentially', so it's done
  *      at packet reception time. This may cause a significant packet capture
@@ -267,6 +262,7 @@ ssl_proto_tree_add_segment_data(
 }
 
 
+static ssl_master_key_map_t       ssl_master_key_map;
 /* ssl_session_hash is used by "Export SSL Session Keys" */
 GHashTable *ssl_session_hash   = NULL;
 
@@ -309,9 +305,13 @@ ssl_init(void)
     module_t *ssl_module = prefs_find_module("ssl");
     pref_t   *keys_list_pref;
 
-    ssl_common_init(&ssl_session_hash, &ssl_decrypted_data, &ssl_compressed_data);
+    ssl_common_init(&ssl_master_key_map, &ssl_decrypted_data,
+                    &ssl_compressed_data, &ssl_options);
     ssl_fragment_init();
     ssl_debug_flush();
+
+    /* for "Export SSL Session Keys" */
+    ssl_session_hash = ssl_master_key_map.session;
 
     /* We should have loaded "keys_list" by now. Mark it obsolete */
     if (ssl_module) {
@@ -1558,8 +1558,7 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
         dissect_ssl3_change_cipher_spec(tvb, ssl_record_tree,
                                         offset, session, content_type);
         if (ssl) {
-            ssl_finalize_decryption(ssl, ssl_session_hash,
-                                    ssl_options.keylog_filename);
+            ssl_finalize_decryption(ssl, &ssl_master_key_map);
             ssl_change_cipher(ssl, ssl_packet_from_server(ssl, ssl_associations, pinfo));
         }
         break;
@@ -1940,7 +1939,7 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
             case SSL_HND_NEWSESSION_TICKET:
                 ssl_dissect_hnd_new_ses_ticket(&dissect_ssl3_hf, tvb,
                                                ssl_hand_tree, offset, ssl,
-                                               ssl_session_hash);
+                                               ssl_master_key_map.session);
                 break;
 
             case SSL_HND_CERTIFICATE:
@@ -1970,7 +1969,9 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
                     break;
 
                 /* try to find master key from pre-master key */
-                if (ssl_generate_pre_master_secret(ssl, length, tvb, offset, ssl_options.psk, ssl_options.keylog_filename) < 0) {
+                if (!ssl_generate_pre_master_secret(ssl, length, tvb, offset,
+                                                    ssl_options.psk,
+                                                    &ssl_master_key_map)) {
                     ssl_debug_printf("dissect_ssl3_handshake can't generate pre master secret\n");
                 }
                 break;

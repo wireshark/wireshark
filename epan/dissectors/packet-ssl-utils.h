@@ -421,6 +421,21 @@ typedef struct _ssldecrypt_assoc_t {
     char* password;
 } ssldecrypt_assoc_t;
 
+typedef struct ssl_common_options {
+    const gchar        *psk;
+    const gchar        *keylog_filename;
+} ssl_common_options_t;
+
+/** Map from something to a (pre-)master secret */
+typedef struct {
+    GHashTable *session;    /*< Session ID/Ticket to master secret. It uses the
+                                observation that Session IDs are 1-32 bytes and
+                                tickets are much longer */
+    GHashTable *crandom;    /*< Client Random to master secret */
+    GHashTable *pre_master; /*< First 8 bytes of encrypted pre-master secret to
+                                pre-master secret */
+} ssl_master_key_map_t;
+
 gint ssl_get_keyex_alg(gint cipher);
 
 gboolean ssldecrypt_uat_fld_ip_chk_cb(void*, const char*, unsigned, const void*, const void*, const char** err);
@@ -475,10 +490,11 @@ ssl_find_private_key(SslDecryptSession *ssl_session, GHashTable *key_hash, GTree
 extern gint
 ssl_find_cipher(int num,SslCipherSuite* cs);
 
-int
+gboolean
 ssl_generate_pre_master_secret(SslDecryptSession *ssl_session,
                                guint32 length, tvbuff_t *tvb, guint32 offset,
-                               const gchar *ssl_psk, const gchar *keylog_filename);
+                               const gchar *ssl_psk,
+                               const ssl_master_key_map_t *mk_map);
 
 /** Expand the pre_master_secret to generate all the session information
  * (master secret, session keys, ivs)
@@ -489,26 +505,6 @@ ssl_generate_keyring_material(SslDecryptSession*ssl_session);
 
 extern void
 ssl_change_cipher(SslDecryptSession *ssl_session, gboolean server);
-
-/** Try to find the pre-master secret for the given encrypted pre-master secret
-    from a log of secrets.
- @param ssl_session the store for the decrypted pre_master_secret
- @param ssl_keylog_filename a file that contains a log of secrets (may be NULL)
- @param encrypted_pre_master the rsa encrypted pre_master_secret (may be NULL)
- @return 0 on success */
-int
-ssl_keylog_lookup(SslDecryptSession* ssl_session,
-                  const gchar* ssl_keylog_filename,
-                  StringInfo* encrypted_pre_master);
-
-/** Try to decrypt in place the encrypted pre_master_secret
- @param ssl_session the store for the decrypted pre_master_secret
- @param encrypted_pre_master the rsa encrypted pre_master_secret
- @param pk the private key to be used for decryption
- @return 0 on success */
-extern gint
-ssl_decrypt_pre_master_secret(SslDecryptSession*ssl_session,
-    StringInfo* encrypted_pre_master, SSL_PRIVATE_KEY *pk);
 
 /** Try to decrypt an ssl record
  @param ssl ssl_session the store all the session data
@@ -579,7 +575,9 @@ ssl_get_data_info(int proto, packet_info *pinfo, gint key);
 
 /* initialize/reset per capture state data (ssl sessions cache) */
 extern void
-ssl_common_init(GHashTable **session_hash, StringInfo *decrypted_data, StringInfo *compressed_data);
+ssl_common_init(ssl_master_key_map_t *master_key_map,
+                StringInfo *decrypted_data, StringInfo *compressed_data,
+                const ssl_common_options_t *options);
 
 /* parse ssl related preferences (private keys and ports association strings) */
 extern void
@@ -589,18 +587,8 @@ ssl_parse_key_list(const ssldecrypt_assoc_t * uats, GHashTable *key_hash, GTree*
 extern void
 ssl_save_session(SslDecryptSession* ssl, GHashTable *session_hash);
 
-extern gboolean
-ssl_restore_session(SslDecryptSession* ssl, GHashTable *session_hash);
-
 extern void
-ssl_save_session_ticket(SslDecryptSession* ssl, GHashTable *session_hash);
-
-extern gboolean
-ssl_restore_session_ticket(SslDecryptSession* ssl, GHashTable *session_hash);
-
-extern void
-ssl_finalize_decryption(SslDecryptSession *ssl, GHashTable *session_hash,
-                        const char *keylog_filename);
+ssl_finalize_decryption(SslDecryptSession *ssl, ssl_master_key_map_t *mk_map);
 
 extern gboolean
 ssl_is_valid_content_type(guint8 type);
@@ -1350,11 +1338,6 @@ ssl_common_dissect_t name = {   \
         "Cipher suite length must be a multiple of 2", EXPFILL } \
     }
 /* }}} */
-
-typedef struct ssl_common_options {
-    const gchar        *psk;
-    const gchar        *keylog_filename;
-} ssl_common_options_t;
 
 extern void
 ssl_common_register_options(module_t *module, ssl_common_options_t *options);
