@@ -35,7 +35,7 @@ extern "C" {
 #include <stdint.h>
 #include <sys/types.h>
 
-#include <nghttp2ver.h>
+#include "nghttp2ver.h"
 
 /**
  * @macro
