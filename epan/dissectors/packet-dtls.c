@@ -104,13 +104,6 @@ static gint hf_dtls_handshake_length            = -1;
 static gint hf_dtls_handshake_message_seq       = -1;
 static gint hf_dtls_handshake_fragment_offset   = -1;
 static gint hf_dtls_handshake_fragment_length   = -1;
-static gint hf_dtls_handshake_client_version    = -1;
-static gint hf_dtls_handshake_cookie_len        = -1;
-static gint hf_dtls_handshake_cookie            = -1;
-static gint hf_dtls_handshake_cipher_suites_len = -1;
-static gint hf_dtls_handshake_cipher_suites     = -1;
-static gint hf_dtls_handshake_comp_methods_len  = -1;
-static gint hf_dtls_handshake_comp_methods      = -1;
 static gint hf_dtls_handshake_session_ticket_lifetime_hint = -1;
 static gint hf_dtls_handshake_session_ticket_len = -1;
 static gint hf_dtls_handshake_session_ticket    = -1;
@@ -135,14 +128,15 @@ static gint hf_dtls_fragment_count              = -1;
 static gint hf_dtls_reassembled_in              = -1;
 static gint hf_dtls_reassembled_length          = -1;
 
+/* header fields used in ssl-utils, but defined here. */
+static dtls_hfs_t dtls_hfs = { -1, -1 };
+
 /* Initialize the subtree pointers */
 static gint ett_dtls                   = -1;
 static gint ett_dtls_record            = -1;
 static gint ett_dtls_alert             = -1;
 static gint ett_dtls_handshake         = -1;
 static gint ett_dtls_heartbeat         = -1;
-static gint ett_dtls_cipher_suites     = -1;
-static gint ett_dtls_comp_methods      = -1;
 static gint ett_dtls_new_ses_ticket    = -1;
 static gint ett_dtls_certs             = -1;
 
@@ -313,14 +307,6 @@ static void dissect_dtls_heartbeat(tvbuff_t *tvb, packet_info *pinfo,
                                    proto_tree *tree, guint32 offset,
                                    const SslSession *session, guint32 record_length,
                                    gboolean decrypted);
-
-
-static void dissect_dtls_hnd_cli_hello(tvbuff_t *tvb,
-                                       packet_info *pinfo,
-                                       proto_tree *tree,
-                                       guint32 offset, guint32 length,
-                                       SslSession *session,
-                                       SslDecryptSession* ssl);
 
 static int dissect_dtls_hnd_hello_verify_request(tvbuff_t *tvb,
                                                   proto_tree *tree,
@@ -1344,7 +1330,15 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
             break;
 
           case SSL_HND_CLIENT_HELLO:
-            dissect_dtls_hnd_cli_hello(sub_tvb, pinfo, ssl_hand_tree, 0, length, session, ssl);
+            if (ssl) {
+                /* ClientHello is first packet so set direction and try to
+                 * find a private key matching the server port */
+                ssl_set_server(ssl, &pinfo->dst, pinfo->ptype, pinfo->destport);
+                ssl_find_private_key(ssl, dtls_key_hash, dtls_associations, pinfo);
+            }
+            ssl_dissect_hnd_cli_hello(&dissect_dtls_hf, sub_tvb, pinfo,
+                                      ssl_hand_tree, 0, length, session, ssl,
+                                      &dtls_hfs);
             break;
 
           case SSL_HND_SERVER_HELLO:
@@ -1493,142 +1487,6 @@ dissect_dtls_heartbeat(tvbuff_t *tvb, packet_info *pinfo,
   }
 }
 
-static void
-dissect_dtls_hnd_cli_hello(tvbuff_t *tvb, packet_info *pinfo,
-                           proto_tree *tree, guint32 offset, guint32 length,
-                           SslSession *session, SslDecryptSession *ssl)
-{
-  /* struct {
-   *     ProtocolVersion client_version;
-   *     Random random;
-   *     SessionID session_id;
-   *     opaque cookie<0..32>;                   //new field
-   *     CipherSuite cipher_suites<2..2^16-1>;
-   *     CompressionMethod compression_methods<1..2^8-1>;
-   *     Extension client_hello_extension_list<0..2^16-1>;
-   * } ClientHello;
-   *
-   */
-
-  proto_tree *ti;
-  proto_tree *cs_tree;
-  guint16     cipher_suite_length;
-  guint8      compression_methods_length;
-  guint8      compression_method;
-  guint16     start_offset   = offset;
-  guint8      cookie_length;
-
-    if (ssl) {
-        ssl_set_server(ssl, &pinfo->dst, pinfo->ptype, pinfo->destport);
-        ssl_find_private_key(ssl, dtls_key_hash, dtls_associations, pinfo);
-    }
-
-  if (tree || ssl)
-    {
-      /* show the client version */
-      proto_tree_add_item(tree, hf_dtls_handshake_client_version, tvb,
-                            offset, 2, ENC_BIG_ENDIAN);
-      offset += 2;
-
-      /* show the fields in common with server hello */
-      offset = ssl_dissect_hnd_hello_common(&dissect_dtls_hf, tvb, tree, offset, ssl, FALSE);
-
-      if (!tree)
-        return;
-
-      /* look for a cookie */
-      cookie_length = tvb_get_guint8(tvb, offset);
-
-      proto_tree_add_uint(tree, hf_dtls_handshake_cookie_len,
-                          tvb, offset, 1, cookie_length);
-      offset ++;            /* skip opaque length */
-
-      if (cookie_length > 0)
-        {
-          proto_tree_add_item(tree, hf_dtls_handshake_cookie, tvb, offset,
-                              cookie_length, ENC_NA);
-          offset += cookie_length;
-        }
-
-      /* tell the user how many cipher suites there are */
-      cipher_suite_length = tvb_get_ntohs(tvb, offset);
-
-      proto_tree_add_uint(tree, hf_dtls_handshake_cipher_suites_len,
-                          tvb, offset, 2, cipher_suite_length);
-      offset += 2;            /* skip opaque length */
-
-      if (cipher_suite_length > 0)
-        {
-          ti = proto_tree_add_none_format(tree,
-                                          hf_dtls_handshake_cipher_suites,
-                                          tvb, offset, cipher_suite_length,
-                                          "Cipher Suites (%u suite%s)",
-                                          cipher_suite_length / 2,
-                                          plurality(cipher_suite_length/2, "", "s"));
-
-          /* make this a subtree */
-          cs_tree = proto_item_add_subtree(ti, ett_dtls_cipher_suites);
-          if (!cs_tree)
-            {
-              cs_tree = tree; /* failsafe */
-            }
-
-          while (cipher_suite_length > 0)
-            {
-              proto_tree_add_item(cs_tree, dissect_dtls_hf.hf.hs_cipher_suite,
-                                  tvb, offset, 2, ENC_BIG_ENDIAN);
-              offset += 2;
-              cipher_suite_length -= 2;
-            }
-        }
-
-      /* tell the user how man compression methods there are */
-      compression_methods_length = tvb_get_guint8(tvb, offset);
-      proto_tree_add_uint(tree, hf_dtls_handshake_comp_methods_len,
-                          tvb, offset, 1, compression_methods_length);
-      offset++;
-
-      if (compression_methods_length > 0)
-        {
-          ti = proto_tree_add_none_format(tree,
-                                          hf_dtls_handshake_comp_methods,
-                                          tvb, offset, compression_methods_length,
-                                          "Compression Methods (%u method%s)",
-                                          compression_methods_length,
-                                          plurality(compression_methods_length,
-                                                    "", "s"));
-
-          /* make this a subtree */
-          cs_tree = proto_item_add_subtree(ti, ett_dtls_comp_methods);
-
-          while (compression_methods_length > 0)
-            {
-              compression_method = tvb_get_guint8(tvb, offset);
-              if (compression_method < 64)
-                proto_tree_add_uint(cs_tree, dissect_dtls_hf.hf.hs_comp_method,
-                                    tvb, offset, 1, compression_method);
-              else if (compression_method > 63 && compression_method < 193)
-                proto_tree_add_text(cs_tree, tvb, offset, 1,
-                                    "Compression Method: Reserved - to be assigned by IANA (%u)",
-                                    compression_method);
-              else
-                proto_tree_add_text(cs_tree, tvb, offset, 1,
-                                    "Compression Method: Private use range (%u)",
-                                    compression_method);
-              offset++;
-              compression_methods_length--;
-            }
-        }
-
-      if (length > offset - start_offset)
-        {
-          ssl_dissect_hnd_hello_ext(&dissect_dtls_hf, tvb, tree, offset,
-                                    length - (offset - start_offset), TRUE,
-                                    session, ssl);
-        }
-    }
-}
-
 static int
 dissect_dtls_hnd_hello_verify_request(tvbuff_t *tvb, proto_tree *tree,
                                       guint32 offset, SslDecryptSession* ssl _U_)
@@ -1651,13 +1509,13 @@ dissect_dtls_hnd_hello_verify_request(tvbuff_t *tvb, proto_tree *tree,
   /* look for a cookie */
   cookie_length = tvb_get_guint8(tvb, offset);
 
-  proto_tree_add_uint(tree, hf_dtls_handshake_cookie_len,
+  proto_tree_add_uint(tree, dtls_hfs.hf_dtls_handshake_cookie_len,
                         tvb, offset, 1, cookie_length);
   offset ++;            /* skip opaque length */
 
   if (cookie_length > 0)
   {
-     proto_tree_add_bytes_format(tree, hf_dtls_handshake_cookie,
+     proto_tree_add_bytes_format(tree, dtls_hfs.hf_dtls_handshake_cookie,
                                     tvb, offset, cookie_length,
                                     NULL, "Cookie (%u byte%s)",
                                     cookie_length,
@@ -1940,40 +1798,15 @@ proto_register_dtls(void)
         FT_UINT24, BASE_DEC, NULL, 0x0,
         "Fragment length of handshake message", HFILL }
     },
-    { &hf_dtls_handshake_client_version,
-      { "Version", "dtls.handshake.client_version",
-        FT_UINT16, BASE_HEX, VALS(ssl_versions), 0x0,
-        "Maximum version supported by client", HFILL }
-    },
-    { &hf_dtls_handshake_cipher_suites_len,
-      { "Cipher Suites Length", "dtls.handshake.cipher_suites_length",
-        FT_UINT16, BASE_DEC, NULL, 0x0,
-        "Length of cipher suites field", HFILL }
-    },
-    { &hf_dtls_handshake_cipher_suites,
-      { "Cipher Suites", "dtls.handshake.ciphersuites",
-        FT_NONE, BASE_NONE, NULL, 0x0,
-        "List of cipher suites supported by client", HFILL }
-    },
-    { &hf_dtls_handshake_cookie_len,
+    { &dtls_hfs.hf_dtls_handshake_cookie_len,
       { "Cookie Length", "dtls.handshake.cookie_length",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         "Length of the cookie field", HFILL }
     },
-    { &hf_dtls_handshake_cookie,
+    { &dtls_hfs.hf_dtls_handshake_cookie,
       { "Cookie", "dtls.handshake.cookie",
         FT_BYTES, BASE_NONE, NULL, 0x0,
         NULL, HFILL }
-    },
-    { &hf_dtls_handshake_comp_methods_len,
-      { "Compression Methods Length", "dtls.handshake.comp_methods_length",
-        FT_UINT8, BASE_DEC, NULL, 0x0,
-        "Length of compression methods field", HFILL }
-    },
-    { &hf_dtls_handshake_comp_methods,
-      { "Compression Methods", "dtls.handshake.comp_methods",
-        FT_NONE, BASE_NONE, NULL, 0x0,
-        "List of compression methods supported by client", HFILL }
     },
     { &hf_dtls_handshake_session_ticket_lifetime_hint,
       { "Session Ticket Lifetime Hint", "dtls.handshake.session_ticket_lifetime_hint",
@@ -2081,8 +1914,6 @@ proto_register_dtls(void)
     &ett_dtls_alert,
     &ett_dtls_handshake,
     &ett_dtls_heartbeat,
-    &ett_dtls_cipher_suites,
-    &ett_dtls_comp_methods,
     &ett_dtls_new_ses_ticket,
     &ett_dtls_certs,
     &ett_dtls_fragment,

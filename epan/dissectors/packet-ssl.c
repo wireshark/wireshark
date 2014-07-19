@@ -147,11 +147,6 @@ static gint hf_ssl_alert_message_description  = -1;
 static gint hf_ssl_handshake_protocol         = -1;
 static gint hf_ssl_handshake_type             = -1;
 static gint hf_ssl_handshake_length           = -1;
-static gint hf_ssl_handshake_client_version   = -1;
-static gint hf_ssl_handshake_cipher_suites_len = -1;
-static gint hf_ssl_handshake_cipher_suites    = -1;
-static gint hf_ssl_handshake_comp_methods_len = -1;
-static gint hf_ssl_handshake_comp_methods     = -1;
 static gint hf_ssl_handshake_session_ticket_lifetime_hint = -1;
 static gint hf_ssl_handshake_session_ticket_len = -1;
 static gint hf_ssl_handshake_session_ticket = -1;
@@ -218,8 +213,6 @@ static gint ett_ssl_record            = -1;
 static gint ett_ssl_alert             = -1;
 static gint ett_ssl_handshake         = -1;
 static gint ett_ssl_heartbeat         = -1;
-static gint ett_ssl_cipher_suites     = -1;
-static gint ett_ssl_comp_methods      = -1;
 static gint ett_ssl_certs             = -1;
 static gint ett_ssl_new_ses_ticket    = -1;
 static gint ett_ssl_cli_sig           = -1;
@@ -232,7 +225,6 @@ static gint ett_pct_exch_suites       = -1;
 static gint ett_ssl_segments          = -1;
 static gint ett_ssl_segment           = -1;
 
-static expert_field ei_ssl_handshake_cipher_suites_mult2 = EI_INIT;
 static expert_field ei_ssl2_handshake_session_id_len_error = EI_INIT;
 static expert_field ei_ssl3_heartbeat_payload_length = EI_INIT;
 
@@ -470,12 +462,6 @@ static void dissect_ssl3_heartbeat(tvbuff_t *tvb, packet_info *pinfo,
                                    proto_tree *tree, guint32 offset,
                                    const SslSession *session, guint32 record_length,
                                    gboolean decrypted);
-
-static void dissect_ssl3_hnd_cli_hello(tvbuff_t *tvb, packet_info *pinfo,
-                                       proto_tree *tree,
-                                       guint32 offset, guint32 length,
-                                       SslSession *session,
-                                       SslDecryptSession *ssl);
 
 static void dissect_ssl3_hnd_new_ses_ticket(tvbuff_t *tvb,
                                        proto_tree *tree,
@@ -1946,7 +1932,15 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
                 break;
 
             case SSL_HND_CLIENT_HELLO:
-                dissect_ssl3_hnd_cli_hello(tvb, pinfo, ssl_hand_tree, offset, length, session, ssl);
+                if (ssl) {
+                    /* ClientHello is first packet so set direction and try to
+                     * find a private key matching the server port */
+                    ssl_set_server(ssl, &pinfo->dst, pinfo->ptype, pinfo->destport);
+                    ssl_find_private_key(ssl, ssl_key_hash, ssl_associations, pinfo);
+                }
+                ssl_dissect_hnd_cli_hello(&dissect_ssl3_hf, tvb, pinfo,
+                                          ssl_hand_tree, offset, length, session, ssl,
+                                          NULL);
                 break;
 
             case SSL_HND_SERVER_HELLO:
@@ -2110,135 +2104,6 @@ dissect_ssl3_heartbeat(tvbuff_t *tvb, packet_info *pinfo,
                                 val_to_str_const(session->version, ssl_version_short_names, "SSL"));
             proto_item_set_text(tls_heartbeat_tree,
                                 "Encrypted Heartbeat Message");
-        }
-    }
-}
-
-static void
-dissect_ssl3_hnd_cli_hello(tvbuff_t *tvb, packet_info *pinfo,
-       proto_tree *tree, guint32 offset, guint32 length,
-       SslSession *session, SslDecryptSession*ssl)
-{
-    /* struct {
-     *     ProtocolVersion client_version;
-     *     Random random;
-     *     SessionID session_id;
-     *     CipherSuite cipher_suites<2..2^16-1>;
-     *     CompressionMethod compression_methods<1..2^8-1>;
-     *     Extension client_hello_extension_list<0..2^16-1>;
-     * } ClientHello;
-     *
-     */
-    proto_item *ti;
-    proto_tree *cs_tree;
-    gint        cipher_suite_length;
-    guint8      compression_methods_length;
-    guint8      compression_method;
-    guint16     start_offset;
-
-    start_offset = offset;
-
-    if (ssl) {
-        ssl_set_server(ssl, &pinfo->dst, pinfo->ptype, pinfo->destport);
-        ssl_find_private_key(ssl, ssl_key_hash, ssl_associations, pinfo);
-    }
-    if (tree || ssl)
-    {
-        /* show the client version */
-        if (tree)
-            proto_tree_add_item(tree, hf_ssl_handshake_client_version, tvb,
-                            offset, 2, ENC_BIG_ENDIAN);
-        offset += 2;
-        /* show the fields in common with server hello */
-        offset = ssl_dissect_hnd_hello_common(&dissect_ssl3_hf, tvb, tree, offset, ssl, FALSE);
-        /* tell the user how many cipher suites there are */
-        cipher_suite_length = tvb_get_ntohs(tvb, offset);
-
-        /* even if there's no tree, we'll have to dissect the whole record to get to the extensions.
-         * we will continue with tree==NULL */
-
-        proto_tree_add_uint(tree, hf_ssl_handshake_cipher_suites_len,
-                        tvb, offset, 2, cipher_suite_length);
-        offset += 2;            /* skip opaque length */
-        if (cipher_suite_length > 0)
-        {
-            tvb_ensure_bytes_exist(tvb, offset, cipher_suite_length);
-            ti = proto_tree_add_none_format(tree,
-                                            hf_ssl_handshake_cipher_suites,
-                                            tvb, offset, cipher_suite_length,
-                                            "Cipher Suites (%d suite%s)",
-                                            cipher_suite_length / 2,
-                                            plurality(cipher_suite_length/2, "", "s"));
-            if (cipher_suite_length % 2) {
-                proto_tree_add_text(tree, tvb, offset, 2,
-                    "Invalid cipher suite length: %d", cipher_suite_length);
-                expert_add_info_format(pinfo, NULL, &ei_ssl_handshake_cipher_suites_mult2,
-                    "Cipher suite length (%d) must be a multiple of 2",
-                    cipher_suite_length);
-                return;
-            }
-
-            /* make this a subtree */
-            cs_tree = proto_item_add_subtree(ti, ett_ssl_cipher_suites);
-            if (!cs_tree)
-            {
-                cs_tree = tree; /* failsafe */
-            }
-
-            while (cipher_suite_length > 0)
-            {
-                proto_tree_add_item(cs_tree, dissect_ssl3_hf.hf.hs_cipher_suite,
-                                    tvb, offset, 2, ENC_BIG_ENDIAN);
-                offset += 2;
-                cipher_suite_length -= 2;
-            }
-        }
-        /* tell the user how many compression methods there are */
-        compression_methods_length = tvb_get_guint8(tvb, offset);
-        proto_tree_add_uint(tree, hf_ssl_handshake_comp_methods_len,
-                            tvb, offset, 1, compression_methods_length);
-        offset += 1;
-        if (compression_methods_length > 0)
-        {
-            tvb_ensure_bytes_exist(tvb, offset, compression_methods_length);
-            ti = proto_tree_add_none_format(tree,
-                                            hf_ssl_handshake_comp_methods,
-                                            tvb, offset, compression_methods_length,
-                                            "Compression Methods (%u method%s)",
-                                            compression_methods_length,
-                                            plurality(compression_methods_length,
-                                              "", "s"));
-
-            /* make this a subtree */
-            cs_tree = proto_item_add_subtree(ti, ett_ssl_comp_methods);
-            if (!cs_tree)
-            {
-                cs_tree = tree; /* failsafe */
-            }
-
-            while (compression_methods_length > 0)
-            {
-                compression_method = tvb_get_guint8(tvb, offset);
-                if (compression_method < 64)
-                    proto_tree_add_uint(cs_tree, dissect_ssl3_hf.hf.hs_comp_method,
-                                        tvb, offset, 1, compression_method);
-                else if (compression_method > 63 && compression_method < 193)
-                    proto_tree_add_text(cs_tree, tvb, offset, 1,
-                                        "Compression Method: Reserved - to be assigned by IANA (%u)",
-                                        compression_method);
-                else
-                    proto_tree_add_text(cs_tree, tvb, offset, 1,
-                                        "Compression Method: Private use range (%u)",
-                                        compression_method);
-                offset++;
-                compression_methods_length--;
-            }
-        }
-        if (length > offset - start_offset)
-        {
-            ssl_dissect_hnd_hello_ext(&dissect_ssl3_hf, tvb, tree, offset,
-                                      length - (offset - start_offset), TRUE,
-                                      session, ssl);
         }
     }
 }
@@ -2803,7 +2668,7 @@ dissect_ssl2_hnd_client_hello(tvbuff_t *tvb, packet_info *pinfo,
     {
         /* show the version */
         if (tree)
-            proto_tree_add_item(tree, hf_ssl_handshake_client_version, tvb,
+            proto_tree_add_item(tree, dissect_ssl3_hf.hf.hs_client_version, tvb,
                             offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
 
@@ -2837,13 +2702,13 @@ dissect_ssl2_hnd_client_hello(tvbuff_t *tvb, packet_info *pinfo,
         {
             /* tell the user how many cipher specs they've won */
             tvb_ensure_bytes_exist(tvb, offset, cipher_spec_length);
-            ti = proto_tree_add_none_format(tree, hf_ssl_handshake_cipher_suites,
+            ti = proto_tree_add_none_format(tree, dissect_ssl3_hf.hf.hs_cipher_suites,
                                             tvb, offset, cipher_spec_length,
                                             "Cipher Specs (%u specs)",
                                             cipher_spec_length/3);
 
             /* make this a subtree and expand the actual specs below */
-            cs_tree = proto_item_add_subtree(ti, ett_ssl_cipher_suites);
+            cs_tree = proto_item_add_subtree(ti, dissect_ssl3_hf.ett.cipher_suites);
             if (!cs_tree)
             {
                 cs_tree = tree;     /* failsafe */
@@ -3415,12 +3280,12 @@ dissect_ssl2_hnd_server_hello(tvbuff_t *tvb,
         /* provide a collapsing node for the cipher specs */
         tvb_ensure_bytes_exist(tvb, offset, cipher_spec_length);
         ti = proto_tree_add_none_format(tree,
-                                        hf_ssl_handshake_cipher_suites,
+                                        dissect_ssl3_hf.hf.hs_cipher_suites,
                                         tvb, offset, cipher_spec_length,
                                         "Cipher Specs (%u spec%s)",
                                         cipher_spec_length/3,
                                         plurality(cipher_spec_length/3, "", "s"));
-        subtree = proto_item_add_subtree(ti, ett_ssl_cipher_suites);
+        subtree = proto_item_add_subtree(ti, dissect_ssl3_hf.ett.cipher_suites);
         if (!subtree)
         {
             subtree = tree;
@@ -3997,35 +3862,10 @@ proto_register_ssl(void)
             FT_UINT24, BASE_DEC, NULL, 0x0,
             "Length of handshake message", HFILL }
         },
-        { &hf_ssl_handshake_client_version,
-          { "Version", "ssl.handshake.version",
-            FT_UINT16, BASE_HEX, VALS(ssl_versions), 0x0,
-            "Maximum version supported by client", HFILL }
-        },
-        { &hf_ssl_handshake_cipher_suites_len,
-          { "Cipher Suites Length", "ssl.handshake.cipher_suites_length",
-            FT_UINT16, BASE_DEC, NULL, 0x0,
-            "Length of cipher suites field", HFILL }
-        },
-        { &hf_ssl_handshake_cipher_suites,
-          { "Cipher Suites", "ssl.handshake.ciphersuites",
-            FT_NONE, BASE_NONE, NULL, 0x0,
-            "List of cipher suites supported by client", HFILL }
-        },
         { &hf_ssl2_handshake_cipher_spec,
           { "Cipher Spec", "ssl.handshake.cipherspec",
             FT_UINT24, BASE_HEX|BASE_EXT_STRING, &ssl_20_cipher_suites_ext, 0x0,
             "Cipher specification", HFILL }
-        },
-        { &hf_ssl_handshake_comp_methods_len,
-          { "Compression Methods Length", "ssl.handshake.comp_methods_length",
-            FT_UINT8, BASE_DEC, NULL, 0x0,
-            "Length of compression methods field", HFILL }
-        },
-        { &hf_ssl_handshake_comp_methods,
-          { "Compression Methods", "ssl.handshake.comp_methods",
-            FT_NONE, BASE_NONE, NULL, 0x0,
-            "List of compression methods supported by client", HFILL }
         },
         { &hf_ssl_handshake_session_ticket_lifetime_hint,
           { "Session Ticket Lifetime Hint", "ssl.handshake.session_ticket_lifetime_hint",
@@ -4319,8 +4159,6 @@ proto_register_ssl(void)
         &ett_ssl_alert,
         &ett_ssl_handshake,
         &ett_ssl_heartbeat,
-        &ett_ssl_cipher_suites,
-        &ett_ssl_comp_methods,
         &ett_ssl_certs,
         &ett_ssl_new_ses_ticket,
         &ett_ssl_cli_sig,
@@ -4336,7 +4174,6 @@ proto_register_ssl(void)
     };
 
     static ei_register_info ei[] = {
-        { &ei_ssl_handshake_cipher_suites_mult2, { "ssl.handshake.cipher_suites_length.mult2", PI_MALFORMED, PI_ERROR, "Cipher suite length must be a multiple of 2", EXPFILL }},
         { &ei_ssl2_handshake_session_id_len_error, { "ssl.handshake.session_id_length.error", PI_MALFORMED, PI_ERROR, "Session ID length error", EXPFILL }},
         { &ei_ssl3_heartbeat_payload_length, {"ssl.heartbeat_message.payload_length.invalid", PI_MALFORMED, PI_ERROR, "Invalid heartbeat payload length", EXPFILL }},
         SSL_COMMON_EI_LIST(dissect_ssl3_hf, "ssl")

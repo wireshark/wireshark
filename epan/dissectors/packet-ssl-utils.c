@@ -5237,6 +5237,124 @@ ssl_dissect_hnd_hello_common(ssl_common_dissect_t *hf, tvbuff_t *tvb,
 }
 
 void
+ssl_dissect_hnd_cli_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
+                          packet_info *pinfo, proto_tree *tree, guint32 offset,
+                          guint32 length, SslSession *session,
+                          SslDecryptSession *ssl, dtls_hfs_t *dtls_hfs)
+{
+    /* struct {
+     *     ProtocolVersion client_version;
+     *     Random random;
+     *     SessionID session_id;
+     *     opaque cookie<0..32>;                   //new field for DTLS
+     *     CipherSuite cipher_suites<2..2^16-1>;
+     *     CompressionMethod compression_methods<1..2^8-1>;
+     *     Extension client_hello_extension_list<0..2^16-1>;
+     * } ClientHello;
+     *
+     */
+    proto_item *ti;
+    proto_tree *cs_tree;
+    guint16     cipher_suite_length;
+    guint8      compression_methods_length;
+    guint8      compression_method;
+    guint16     start_offset = offset;
+
+    /* show the client version */
+    proto_tree_add_item(tree, hf->hf.hs_client_version, tvb,
+                        offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    /* dissect fields that are also present in ClientHello */
+    offset = ssl_dissect_hnd_hello_common(hf, tvb, tree, offset, ssl, FALSE);
+
+    /* fields specific for DTLS (cookie_len, cookie) */
+    if (dtls_hfs != NULL) {
+        /* look for a cookie */
+        guint8 cookie_length = tvb_get_guint8(tvb, offset);
+
+        proto_tree_add_uint(tree, dtls_hfs->hf_dtls_handshake_cookie_len,
+                            tvb, offset, 1, cookie_length);
+        offset++;
+        if (cookie_length > 0) {
+            proto_tree_add_item(tree, dtls_hfs->hf_dtls_handshake_cookie,
+                                tvb, offset, cookie_length, ENC_NA);
+            offset += cookie_length;
+        }
+    }
+
+    /* tell the user how many cipher suites there are */
+    cipher_suite_length = tvb_get_ntohs(tvb, offset);
+    ti = proto_tree_add_item(tree, hf->hf.hs_cipher_suites_len,
+                             tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+    if (cipher_suite_length > 0) {
+        if (cipher_suite_length % 2) {
+            expert_add_info_format(pinfo, ti, &hf->ei.hs_cipher_suites_len_bad,
+                "Cipher suite length (%d) must be a multiple of 2",
+                cipher_suite_length);
+            return;
+        }
+        ti = proto_tree_add_none_format(tree,
+                                        hf->hf.hs_cipher_suites,
+                                        tvb, offset, cipher_suite_length,
+                                        "Cipher Suites (%d suite%s)",
+                                        cipher_suite_length / 2,
+                                        plurality(cipher_suite_length/2, "", "s"));
+
+        /* make this a subtree */
+        cs_tree = proto_item_add_subtree(ti, hf->ett.cipher_suites);
+
+        while (cipher_suite_length > 0) {
+            proto_tree_add_item(cs_tree, hf->hf.hs_cipher_suite,
+                                tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset += 2;
+            cipher_suite_length -= 2;
+        }
+    }
+    /* tell the user how many compression methods there are */
+    compression_methods_length = tvb_get_guint8(tvb, offset);
+    proto_tree_add_uint(tree, hf->hf.hs_comp_methods_len,
+                        tvb, offset, 1, compression_methods_length);
+    offset += 1;
+    if (compression_methods_length > 0) {
+        ti = proto_tree_add_none_format(tree,
+                                        hf->hf.hs_comp_methods,
+                                        tvb, offset, compression_methods_length,
+                                        "Compression Methods (%u method%s)",
+                                        compression_methods_length,
+                                        plurality(compression_methods_length,
+                                          "", "s"));
+
+        /* make this a subtree */
+        cs_tree = proto_item_add_subtree(ti, hf->ett.comp_methods);
+
+        while (compression_methods_length > 0) {
+            compression_method = tvb_get_guint8(tvb, offset);
+            /* TODO: make reserved/private comp meth. fields selectable */
+            if (compression_method < 64)
+                proto_tree_add_uint(cs_tree, hf->hf.hs_comp_method,
+                                    tvb, offset, 1, compression_method);
+            else if (compression_method > 63 && compression_method < 193)
+                proto_tree_add_text(cs_tree, tvb, offset, 1,
+                                    "Compression Method: Reserved - to be assigned by IANA (%u)",
+                                    compression_method);
+            else
+                proto_tree_add_text(cs_tree, tvb, offset, 1,
+                                    "Compression Method: Private use range (%u)",
+                                    compression_method);
+            offset++;
+            compression_methods_length--;
+        }
+    }
+    if (length > offset - start_offset) {
+        ssl_dissect_hnd_hello_ext(hf, tvb, tree, offset,
+                                  length - (offset - start_offset), TRUE,
+                                  session, ssl);
+    }
+}
+
+void
 ssl_dissect_hnd_srv_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                           proto_tree *tree, guint32 offset, guint32 length,
                           SslSession *session, SslDecryptSession *ssl)

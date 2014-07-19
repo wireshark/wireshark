@@ -692,8 +692,13 @@ typedef struct ssl_common_dissect {
         gint hs_random_bytes;
         gint hs_session_id;
         gint hs_session_id_len;
+        gint hs_client_version;
         gint hs_server_version;
+        gint hs_cipher_suites_len;
+        gint hs_cipher_suites;
         gint hs_cipher_suite;
+        gint hs_comp_methods_len;
+        gint hs_comp_methods;
         gint hs_comp_method;
 
         /* do not forget to update SSL_COMMON_LIST_T and SSL_COMMON_HF_LIST! */
@@ -716,16 +721,27 @@ typedef struct ssl_common_dissect {
         gint cert_types;
         gint dnames;
         gint hs_random;
+        gint cipher_suites;
+        gint comp_methods;
 
         /* do not forget to update SSL_COMMON_LIST_T and SSL_COMMON_ETT_LIST! */
     } ett;
     struct {
         expert_field hs_ext_cert_status_undecoded;
         expert_field hs_sig_hash_alg_len_bad;
+        expert_field hs_cipher_suites_len_bad;
 
         /* do not forget to update SSL_COMMON_LIST_T and SSL_COMMON_EI_LIST! */
     } ei;
 } ssl_common_dissect_t;
+
+/* Header fields specific to DTLS. See packet-dtls.c */
+typedef struct {
+    gint hf_dtls_handshake_cookie_len;
+    gint hf_dtls_handshake_cookie;
+
+    /* Do not forget to initialize dtls_hfs to -1 in packet-dtls.c! */
+} dtls_hfs_t;
 
 extern gint
 ssl_dissect_hnd_hello_ext(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree,
@@ -736,6 +752,13 @@ extern gint
 ssl_dissect_hnd_hello_common(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                              proto_tree *tree, guint32 offset,
                              SslDecryptSession *ssl, gboolean from_server);
+
+extern void
+ssl_dissect_hnd_cli_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
+                          packet_info *pinfo, proto_tree *tree, guint32 offset,
+                          guint32 length, SslSession *session,
+                          SslDecryptSession *ssl,
+                          dtls_hfs_t *dtls_hfs);
 
 extern void
 ssl_dissect_hnd_srv_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
@@ -778,14 +801,14 @@ ssl_common_dissect_t name = {   \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
-        -1, -1, -1, -1, -1, -1, -1,                                     \
+        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,                 \
     },                                                                  \
     /* ett */ {                                                         \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
-        -1,                                                             \
+        -1, -1, -1,                                                     \
     },                                                                  \
     /* ei */ {                                                          \
-        EI_INIT, EI_INIT,                                               \
+        EI_INIT, EI_INIT, EI_INIT,                                      \
     },                                                                  \
 }
 /* }}} */
@@ -1212,15 +1235,40 @@ ssl_common_dissect_t name = {   \
         FT_UINT8, BASE_DEC, NULL, 0x0,                                  \
         "Length of Session ID field", HFILL }                           \
     },                                                                  \
+    { & name .hf.hs_client_version,                                     \
+      { "Version", prefix ".handshake.version",                         \
+        FT_UINT16, BASE_HEX, VALS(ssl_versions), 0x0,                   \
+        "Maximum version supported by client", HFILL }                  \
+    },                                                                  \
     { & name .hf.hs_server_version,                                     \
       { "Version", prefix ".handshake.version",                         \
         FT_UINT16, BASE_HEX, VALS(ssl_versions), 0x0,                   \
         "Version selected by server", HFILL }                           \
     },                                                                  \
+    { & name .hf.hs_cipher_suites_len,                                  \
+      { "Cipher Suites Length", prefix ".handshake.cipher_suites_length", \
+        FT_UINT16, BASE_DEC, NULL, 0x0,                                 \
+        "Length of cipher suites field", HFILL }                        \
+    },                                                                  \
+    { & name .hf.hs_cipher_suites,                                      \
+      { "Cipher Suites", prefix ".handshake.ciphersuites",              \
+        FT_NONE, BASE_NONE, NULL, 0x0,                                  \
+        "List of cipher suites supported by client", HFILL }            \
+    },                                                                  \
     { & name .hf.hs_cipher_suite,                                       \
       { "Cipher Suite", prefix ".handshake.ciphersuite",                \
         FT_UINT16, BASE_HEX|BASE_EXT_STRING, &ssl_31_ciphersuite_ext, 0x0, \
         NULL, HFILL }                                                   \
+    },                                                                  \
+    { & name .hf.hs_comp_methods_len,                                   \
+      { "Compression Methods Length", prefix ".handshake.comp_methods_length", \
+        FT_UINT8, BASE_DEC, NULL, 0x0,                                  \
+        "Length of compression methods field", HFILL }                  \
+    },                                                                  \
+    { & name .hf.hs_comp_methods,                                       \
+      { "Compression Methods", prefix ".handshake.comp_methods",        \
+        FT_NONE, BASE_NONE, NULL, 0x0,                                  \
+        "List of compression methods supported by client", HFILL }      \
     },                                                                  \
     { & name .hf.hs_comp_method,                                        \
       { "Compression Method", prefix ".handshake.comp_method",          \
@@ -1248,6 +1296,8 @@ ssl_common_dissect_t name = {   \
         & name .ett.cert_types,                     \
         & name .ett.dnames,                         \
         & name .ett.hs_random,                      \
+        & name .ett.cipher_suites,                  \
+        & name .ett.comp_methods,                   \
 /* }}} */
 
 /* {{{ */
@@ -1260,6 +1310,10 @@ ssl_common_dissect_t name = {   \
         { prefix ".handshake.sig_hash_alg_len.mult2", PI_MALFORMED, PI_ERROR, \
         "Signature Hash Algorithm length must be a multiple of 2", EXPFILL } \
     }, \
+    { & name .ei.hs_cipher_suites_len_bad, \
+        { prefix ".handshake.cipher_suites_length.mult2", PI_MALFORMED, PI_ERROR, \
+        "Cipher suite length must be a multiple of 2", EXPFILL } \
+    }
 /* }}} */
 
 typedef struct ssl_common_options {
