@@ -692,6 +692,9 @@ typedef struct ssl_common_dissect {
         gint hs_random_bytes;
         gint hs_session_id;
         gint hs_session_id_len;
+        gint hs_server_version;
+        gint hs_cipher_suite;
+        gint hs_comp_method;
 
         /* do not forget to update SSL_COMMON_LIST_T and SSL_COMMON_HF_LIST! */
     } hf;
@@ -734,6 +737,11 @@ ssl_dissect_hnd_hello_common(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                              proto_tree *tree, guint32 offset,
                              SslDecryptSession *ssl, gboolean from_server);
 
+extern void
+ssl_dissect_hnd_srv_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
+                          proto_tree *tree, guint32 offset, guint32 length,
+                          SslSession *session, SslDecryptSession *ssl);
+
 extern gint
 ssl_dissect_hash_alg_list(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree,
                           guint32 offset, guint16 len);
@@ -770,7 +778,7 @@ ssl_common_dissect_t name = {   \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
-        -1, -1, -1, -1,                                                 \
+        -1, -1, -1, -1, -1, -1, -1,                                     \
     },                                                                  \
     /* ett */ {                                                         \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
@@ -1203,6 +1211,21 @@ ssl_common_dissect_t name = {   \
       { "Session ID Length", prefix ".handshake.session_id_length",     \
         FT_UINT8, BASE_DEC, NULL, 0x0,                                  \
         "Length of Session ID field", HFILL }                           \
+    },                                                                  \
+    { & name .hf.hs_server_version,                                     \
+      { "Version", prefix ".handshake.version",                         \
+        FT_UINT16, BASE_HEX, VALS(ssl_versions), 0x0,                   \
+        "Version selected by server", HFILL }                           \
+    },                                                                  \
+    { & name .hf.hs_cipher_suite,                                       \
+      { "Cipher Suite", prefix ".handshake.ciphersuite",                \
+        FT_UINT16, BASE_HEX|BASE_EXT_STRING, &ssl_31_ciphersuite_ext, 0x0, \
+        NULL, HFILL }                                                   \
+    },                                                                  \
+    { & name .hf.hs_comp_method,                                        \
+      { "Compression Method", prefix ".handshake.comp_method",          \
+        FT_UINT8, BASE_DEC, VALS(ssl_31_compression_method), 0x0,       \
+        NULL, HFILL }                                                   \
     }
 /* }}} */
 

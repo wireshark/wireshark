@@ -5237,6 +5237,67 @@ ssl_dissect_hnd_hello_common(ssl_common_dissect_t *hf, tvbuff_t *tvb,
 }
 
 void
+ssl_dissect_hnd_srv_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
+                          proto_tree *tree, guint32 offset, guint32 length,
+                          SslSession *session, SslDecryptSession *ssl)
+{
+    /* struct {
+     *     ProtocolVersion server_version;
+     *     Random random;
+     *     SessionID session_id;
+     *     CipherSuite cipher_suite;
+     *     CompressionMethod compression_method;
+     *     Extension server_hello_extension_list<0..2^16-1>;
+     * } ServerHello;
+     */
+    guint16 start_offset = offset;
+
+    /* show the server version */
+    proto_tree_add_item(tree, hf->hf.hs_server_version, tvb,
+                        offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    /* dissect fields that are also present in ClientHello */
+    offset = ssl_dissect_hnd_hello_common(hf, tvb, tree, offset, ssl, TRUE);
+
+    if (ssl) {
+        /* store selected cipher suite for decryption */
+        ssl->session.cipher = tvb_get_ntohs(tvb, offset);
+
+        if (ssl_find_cipher(ssl->session.cipher, &ssl->cipher_suite) < 0) {
+            ssl_debug_printf("%s can't find cipher suite 0x%04X\n",
+                             G_STRFUNC, ssl->session.cipher);
+        } else {
+            /* Cipher found, save this for the delayed decoder init */
+            ssl->state |= SSL_CIPHER;
+            ssl_debug_printf("%s found CIPHER 0x%04X -> state 0x%02X\n",
+                             G_STRFUNC, ssl->session.cipher, ssl->state);
+        }
+    }
+
+    /* now the server-selected cipher suite */
+    proto_tree_add_item(tree, hf->hf.hs_cipher_suite,
+                        tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    if (ssl) {
+        /* store selected compression method for decryption */
+        ssl->session.compression = tvb_get_guint8(tvb, offset);
+    }
+    /* and the server-selected compression method */
+    proto_tree_add_item(tree, hf->hf.hs_comp_method,
+                        tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
+    /* remaining data are extensions */
+    if (length > offset - start_offset) {
+        ssl_dissect_hnd_hello_ext(hf, tvb, tree, offset,
+                                  length - (offset - start_offset), FALSE,
+                                  session, ssl);
+    }
+}
+
+void
 ssl_dissect_hnd_cert(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree,
                      guint32 offset, packet_info *pinfo,
                      const SslSession *session, gint is_from_server)
@@ -5726,7 +5787,10 @@ ssl_dissect_hnd_hello_ext(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
         case SSL_HND_HELLO_EXT_CERT_TYPE:
         case SSL_HND_HELLO_EXT_SERVER_CERT_TYPE:
         case SSL_HND_HELLO_EXT_CLIENT_CERT_TYPE:
-            offset = ssl_dissect_hnd_hello_ext_cert_type(hf, tvb, ext_tree, offset, ext_len, is_client, ext_type, session);
+            offset = ssl_dissect_hnd_hello_ext_cert_type(hf, tvb, ext_tree,
+                                                         offset, ext_len,
+                                                         is_client, ext_type,
+                                                         session);
             break;
         default:
             proto_tree_add_bytes_format(ext_tree, hf->hf.hs_ext_data,

@@ -148,13 +148,10 @@ static gint hf_ssl_handshake_protocol         = -1;
 static gint hf_ssl_handshake_type             = -1;
 static gint hf_ssl_handshake_length           = -1;
 static gint hf_ssl_handshake_client_version   = -1;
-static gint hf_ssl_handshake_server_version   = -1;
 static gint hf_ssl_handshake_cipher_suites_len = -1;
 static gint hf_ssl_handshake_cipher_suites    = -1;
-static gint hf_ssl_handshake_cipher_suite     = -1;
 static gint hf_ssl_handshake_comp_methods_len = -1;
 static gint hf_ssl_handshake_comp_methods     = -1;
-static gint hf_ssl_handshake_comp_method      = -1;
 static gint hf_ssl_handshake_session_ticket_lifetime_hint = -1;
 static gint hf_ssl_handshake_session_ticket_len = -1;
 static gint hf_ssl_handshake_session_ticket = -1;
@@ -475,12 +472,6 @@ static void dissect_ssl3_heartbeat(tvbuff_t *tvb, packet_info *pinfo,
                                    gboolean decrypted);
 
 static void dissect_ssl3_hnd_cli_hello(tvbuff_t *tvb, packet_info *pinfo,
-                                       proto_tree *tree,
-                                       guint32 offset, guint32 length,
-                                       SslSession *session,
-                                       SslDecryptSession *ssl);
-
-static void dissect_ssl3_hnd_srv_hello(tvbuff_t *tvb,
                                        proto_tree *tree,
                                        guint32 offset, guint32 length,
                                        SslSession *session,
@@ -1959,7 +1950,8 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
                 break;
 
             case SSL_HND_SERVER_HELLO:
-                dissect_ssl3_hnd_srv_hello(tvb, ssl_hand_tree, offset, length, session, ssl);
+                ssl_dissect_hnd_srv_hello(&dissect_ssl3_hf, tvb, ssl_hand_tree,
+                                          offset, length, session, ssl);
                 break;
 
             case SSL_HND_HELLO_VERIFY_REQUEST:
@@ -2195,7 +2187,7 @@ dissect_ssl3_hnd_cli_hello(tvbuff_t *tvb, packet_info *pinfo,
 
             while (cipher_suite_length > 0)
             {
-                proto_tree_add_item(cs_tree, hf_ssl_handshake_cipher_suite,
+                proto_tree_add_item(cs_tree, dissect_ssl3_hf.hf.hs_cipher_suite,
                                     tvb, offset, 2, ENC_BIG_ENDIAN);
                 offset += 2;
                 cipher_suite_length -= 2;
@@ -2228,7 +2220,7 @@ dissect_ssl3_hnd_cli_hello(tvbuff_t *tvb, packet_info *pinfo,
             {
                 compression_method = tvb_get_guint8(tvb, offset);
                 if (compression_method < 64)
-                    proto_tree_add_uint(cs_tree, hf_ssl_handshake_comp_method,
+                    proto_tree_add_uint(cs_tree, dissect_ssl3_hf.hf.hs_comp_method,
                                         tvb, offset, 1, compression_method);
                 else if (compression_method > 63 && compression_method < 193)
                     proto_tree_add_text(cs_tree, tvb, offset, 1,
@@ -2246,83 +2238,6 @@ dissect_ssl3_hnd_cli_hello(tvbuff_t *tvb, packet_info *pinfo,
         {
             ssl_dissect_hnd_hello_ext(&dissect_ssl3_hf, tvb, tree, offset,
                                       length - (offset - start_offset), TRUE,
-                                      session, ssl);
-        }
-    }
-}
-
-static void
-dissect_ssl3_hnd_srv_hello(tvbuff_t *tvb,
-                           proto_tree *tree, guint32 offset, guint32 length,
-                           SslSession *session, SslDecryptSession *ssl)
-{
-    /* struct {
-     *     ProtocolVersion server_version;
-     *     Random random;
-     *     SessionID session_id;
-     *     CipherSuite cipher_suite;
-     *     CompressionMethod compression_method;
-     *     Extension server_hello_extension_list<0..2^16-1>;
-     * } ServerHello;
-     */
-    guint16 start_offset;
-
-    start_offset = offset;
-
-    if (tree || ssl)
-    {
-        /* show the server version */
-        if (tree)
-            proto_tree_add_item(tree, hf_ssl_handshake_server_version, tvb,
-                                offset, 2, ENC_BIG_ENDIAN);
-        offset += 2;
-
-        /* first display the elements conveniently in
-         * common with client hello
-         */
-        offset = ssl_dissect_hnd_hello_common(&dissect_ssl3_hf, tvb, tree, offset, ssl, TRUE);
-
-        /* PAOLO: handle session cipher suite  */
-        if (ssl) {
-            /* store selected cipher suite for decryption */
-            ssl->session.cipher = tvb_get_ntohs(tvb, offset);
-            if (ssl_find_cipher(ssl->session.cipher,&ssl->cipher_suite) < 0) {
-                ssl_debug_printf("dissect_ssl3_hnd_srv_hello can't find cipher suite 0x%X\n", ssl->session.cipher);
-                goto no_cipher;
-            }
-
-            ssl->state |= SSL_CIPHER;
-            ssl_debug_printf("dissect_ssl3_hnd_srv_hello found CIPHER 0x%04X -> state 0x%02X\n",
-                ssl->session.cipher, ssl->state);
-
-            /* if we have restored a session now we can have enough material
-             * to build session key, check it out*/
-            ssl_debug_printf("dissect_ssl3_hnd_srv_hello trying to generate keys\n");
-            if (ssl_generate_keyring_material(ssl)<0) {
-                ssl_debug_printf("dissect_ssl3_hnd_srv_hello can't generate keyring material\n");
-                goto no_cipher;
-            }
-        }
-no_cipher:
-
-        /* now the server-selected cipher suite */
-        proto_tree_add_item(tree, hf_ssl_handshake_cipher_suite,
-                            tvb, offset, 2, ENC_BIG_ENDIAN);
-        offset += 2;
-
-        if (ssl) {
-            /* store selected compression method for decryption */
-            ssl->session.compression = tvb_get_guint8(tvb, offset);
-        }
-        /* and the server-selected compression method */
-        proto_tree_add_item(tree, hf_ssl_handshake_comp_method,
-                            tvb, offset, 1, ENC_BIG_ENDIAN);
-        offset += 1;
-
-        if (length > offset - start_offset)
-        {
-            ssl_dissect_hnd_hello_ext(&dissect_ssl3_hf, tvb, tree, offset,
-                                      length - (offset - start_offset), FALSE,
                                       session, ssl);
         }
     }
@@ -3468,7 +3383,7 @@ dissect_ssl2_hnd_server_hello(tvbuff_t *tvb,
     offset += 1;
 
     /* now the server version */
-    proto_tree_add_item(tree, hf_ssl_handshake_server_version,
+    proto_tree_add_item(tree, dissect_ssl3_hf.hf.hs_server_version,
                         tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
@@ -4087,11 +4002,6 @@ proto_register_ssl(void)
             FT_UINT16, BASE_HEX, VALS(ssl_versions), 0x0,
             "Maximum version supported by client", HFILL }
         },
-        { &hf_ssl_handshake_server_version,
-          { "Version", "ssl.handshake.version",
-            FT_UINT16, BASE_HEX, VALS(ssl_versions), 0x0,
-            "Version selected by server", HFILL }
-        },
         { &hf_ssl_handshake_cipher_suites_len,
           { "Cipher Suites Length", "ssl.handshake.cipher_suites_length",
             FT_UINT16, BASE_DEC, NULL, 0x0,
@@ -4101,11 +4011,6 @@ proto_register_ssl(void)
           { "Cipher Suites", "ssl.handshake.ciphersuites",
             FT_NONE, BASE_NONE, NULL, 0x0,
             "List of cipher suites supported by client", HFILL }
-        },
-        { &hf_ssl_handshake_cipher_suite,
-          { "Cipher Suite", "ssl.handshake.ciphersuite",
-            FT_UINT16, BASE_HEX|BASE_EXT_STRING, &ssl_31_ciphersuite_ext, 0x0,
-            NULL, HFILL }
         },
         { &hf_ssl2_handshake_cipher_spec,
           { "Cipher Spec", "ssl.handshake.cipherspec",
@@ -4121,11 +4026,6 @@ proto_register_ssl(void)
           { "Compression Methods", "ssl.handshake.comp_methods",
             FT_NONE, BASE_NONE, NULL, 0x0,
             "List of compression methods supported by client", HFILL }
-        },
-        { &hf_ssl_handshake_comp_method,
-          { "Compression Method", "ssl.handshake.comp_method",
-            FT_UINT8, BASE_DEC, VALS(ssl_31_compression_method), 0x0,
-            NULL, HFILL }
         },
         { &hf_ssl_handshake_session_ticket_lifetime_hint,
           { "Session Ticket Lifetime Hint", "ssl.handshake.session_ticket_lifetime_hint",
