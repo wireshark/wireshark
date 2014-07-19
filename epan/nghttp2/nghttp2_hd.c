@@ -2011,7 +2011,7 @@ ssize_t nghttp2_hd_inflate_hd(nghttp2_hd_inflater *inflater,
 
     goto fail;
   }
-  return in - first;
+  return (ssize_t)(in - first);
 
  fail:
   DEBUGF(fprintf(stderr, "inflatehd: error return %zd\n", rv));
