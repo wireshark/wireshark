@@ -76,8 +76,9 @@ LIBWSUTIL_SRC = 	\
 	unicode-utils.c	\
 	ws_version_info.c
 
-# Header files that are not generated from other files
-LIBWSUTIL_INCLUDES = 	\
+# Header files that don't declare replacement functions for functions
+# present in the APIs/ABIs of some, but not all, targets.
+libwsutil_nonrepl_INCLUDES = \
 	adler32.h	\
 	aes.h		\
 	base64.h	\
@@ -130,6 +131,11 @@ LIBWSUTIL_INCLUDES = 	\
 	ws_cpuid.h	\
 	ws_mempbrk.h	\
 	ws_version_info.h
+
+# Header files that are not generated from other files
+LIBWSUTIL_INCLUDES = 	\
+	$(libwsutil_nonrepl_INCLUDES)	\
+	strncasecmp.h
 
 #
 # Editor modelines  -  http://www.wireshark.org/tools/modelines.html

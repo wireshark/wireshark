@@ -2540,10 +2540,15 @@ AC_SUBST(GETOPT_LO)
 
 AC_CHECK_FUNC(strncasecmp,
   [
+    STRNCASECMP_INCLUDES=""
     STRNCASECMP_LO=""
     AC_DEFINE(HAVE_STRNCASECMP, 1, [Define to 1 if you have the strncasecmp function.])
   ],
-  STRNCASECMP_LO="strncasecmp.lo")
+  [
+    STRNCASECMP_INCLUDES="strncasecmp.h"
+    STRNCASECMP_LO="strncasecmp.lo"
+  ])
+AC_SUBST(STRNCASECMP_INCLUDES)
 AC_SUBST(STRNCASECMP_LO)
 
 AC_CHECK_FUNCS(mkstemp mkdtemp)

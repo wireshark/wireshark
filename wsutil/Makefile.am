@@ -20,6 +20,15 @@
 
 ACLOCAL_AMFLAGS = `../aclocal-flags`
 
+# Optional headers for ABI checking
+wsutil_optional_abi_includes =	\
+	@STRNCASECMP_INCLUDES@
+
+# Header files for functions in libwsutil's ABI on this platform.
+libwsutil_abi_INCLUDES = 	\
+	$(libwsutil_nonrepl_INCLUDES)	\
+	$(wsutil_optional_abi_includes)
+
 # Optional objects that I know how to build. These will be
 # linked into libwsutil if necessary.
 wsutil_optional_objects = \
@@ -108,7 +117,7 @@ MAINTAINERCLEANFILES = \
 dumpabi-libwsutil: all abi-descriptor.xml
 	rm -rf abi-check-headers abi_dumps .libs/*.abi.tar.gz
 	mkdir abi-check-headers
-	cp ../config.h ../ws_symbol_export.h *.h abi-check-headers/
+	cp ../config.h ../ws_symbol_export.h $(libwsutil_abi_INCLUDES) abi-check-headers/
 	abi-compliance-checker -l libwsutil -v1 `readlink .libs/libwsutil.so | sed 's/.*\.so\.//'` \
 		-relpath $(abs_srcdir) -dump-abi abi-descriptor.xml || \
 		cat logs/libwsutil/[0-9]*/log.txt
