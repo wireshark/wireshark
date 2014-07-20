@@ -271,10 +271,11 @@ TS_FILES =	\
 #
 # Should be auto-generated ?
 QM_FILES =	\
-	qtshark_de.qm	\
-	qtshark_en.qm	\
-	qtshark_fr.qm	\
-	qtshark_pl.qm	\
+	qtshark_de.qm		\
+	qtshark_en.qm		\
+	qtshark_fr.qm		\
+	qtshark_ja_JP.qm	\
+	qtshark_pl.qm		\
 	qtshark_zh_CN.qm
 
 #
