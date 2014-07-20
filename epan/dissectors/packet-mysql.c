@@ -413,6 +413,8 @@ static gint ett_field_flags = -1;
 static gint ett_exec_param = -1;
 static gint ett_session_track = -1;
 static gint ett_session_track_data = -1;
+static gint ett_connattrs = -1;
+static gint ett_connattrs_attr = -1;
 
 /* protocol fields */
 static int hf_mysql_caps_server = -1;
@@ -495,6 +497,14 @@ static int hf_mysql_max_packet = -1;
 static int hf_mysql_user = -1;
 static int hf_mysql_table_name = -1;
 static int hf_mysql_schema = -1;
+static int hf_mysql_client_auth_plugin = -1;
+static int hf_mysql_connattrs = -1;
+static int hf_mysql_connattrs_length = -1;
+static int hf_mysql_connattrs_attr = -1;
+static int hf_mysql_connattrs_name_length = -1;
+static int hf_mysql_connattrs_name = -1;
+static int hf_mysql_connattrs_value_length = -1;
+static int hf_mysql_connattrs_value = -1;
 static int hf_mysql_thread_id  = -1;
 static int hf_mysql_salt = -1;
 static int hf_mysql_salt2 = -1;
@@ -805,6 +815,42 @@ mysql_dissect_greeting(tvbuff_t *tvb, packet_info *pinfo, int offset,
 }
 
 
+/*
+  Add a connect attributs entry to the connattrs subtree
+
+  return bytes read
+*/
+static int
+add_connattrs_entry_to_tree(tvbuff_t *tvb, packet_info *pinfo _U_, proto_item *tree, int offset) {
+	guint64 lenstr;
+	int orig_offset = offset, lenfle;
+	proto_item *ti;
+	proto_tree *connattrs_tree;
+
+	ti = proto_tree_add_item(tree, hf_mysql_connattrs_attr, tvb, offset, 1, ENC_NA);
+	connattrs_tree = proto_item_add_subtree(ti, ett_connattrs_attr);
+
+	lenfle = tvb_get_fle(tvb, offset, &lenstr, NULL);
+	proto_tree_add_uint64(connattrs_tree, hf_mysql_connattrs_name_length, tvb, offset, lenfle, lenstr);
+	offset += lenfle;
+
+	proto_tree_add_item(connattrs_tree, hf_mysql_connattrs_name, tvb, offset, (gint)lenstr, ENC_ASCII|ENC_NA);
+	proto_item_append_text(ti, " - %s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset, lenstr, ENC_ASCII|ENC_NA));
+	offset += (int)lenstr;
+
+	lenfle = tvb_get_fle(tvb, offset, &lenstr, NULL);
+	proto_tree_add_uint64(connattrs_tree, hf_mysql_connattrs_value_length, tvb, offset, lenfle, lenstr);
+	offset += lenfle;
+
+	proto_tree_add_item(connattrs_tree, hf_mysql_connattrs_value, tvb, offset, (gint)lenstr, ENC_ASCII|ENC_NA);
+	proto_item_append_text(ti, ": %s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset, lenstr, ENC_ASCII|ENC_NA));
+	offset += (int)lenstr;
+
+	proto_item_set_len(ti, offset - orig_offset);
+
+	return (offset - orig_offset);
+}
+
 static int
 mysql_dissect_login(tvbuff_t *tvb, packet_info *pinfo, int offset,
 		    proto_tree *tree, mysql_conn_data_t *conn_data)
@@ -872,6 +918,34 @@ mysql_dissect_login(tvbuff_t *tvb, packet_info *pinfo, int offset,
 
 		proto_tree_add_item(login_tree, hf_mysql_schema, tvb, offset, lenstr, ENC_ASCII|ENC_NA);
 		offset += lenstr;
+	}
+
+	/* optional: authentication plugin */
+	if (conn_data->clnt_caps_ext & MYSQL_CAPS_PA)
+	{
+		lenstr= my_tvb_strsize(tvb,offset);
+		proto_tree_add_item(login_tree, hf_mysql_client_auth_plugin, tvb, offset, lenstr, ENC_ASCII|ENC_NA);
+		offset += lenstr;
+	}
+
+	/* optional: connection attributes */
+	if (conn_data->clnt_caps_ext & MYSQL_CAPS_CA)
+	{
+		proto_tree *connattrs_tree;
+		int lenfle;
+		guint64 length, connattrs_length;
+
+		lenfle = tvb_get_fle(tvb, offset, &connattrs_length, NULL);
+		tf = proto_tree_add_item(login_tree, hf_mysql_connattrs, tvb, offset, (guint32)connattrs_length, ENC_ASCII|ENC_NA);
+		connattrs_tree = proto_item_add_subtree(tf, ett_connattrs);
+		proto_tree_add_uint64(connattrs_tree, hf_mysql_connattrs_length, tvb, offset, lenfle, connattrs_length);
+		offset += lenfle;
+
+		while (connattrs_length > 0) {
+			length = add_connattrs_entry_to_tree(tvb, pinfo, connattrs_tree, offset);
+			offset += length;
+			connattrs_length -= length;
+		}
 	}
 
 	return offset;
@@ -2395,6 +2469,46 @@ void proto_register_mysql(void)
 		FT_STRING, BASE_NONE, NULL, 0x0,
 		"Login Schema", HFILL }},
 
+		{ &hf_mysql_client_auth_plugin,
+		{ "Client Auth Plugin", "mysql.client_auth_plugin",
+		FT_STRING, BASE_NONE, NULL, 0x0,
+		NULL, HFILL }},
+
+		{ &hf_mysql_connattrs,
+		{ "Connection Attributes", "mysql.connattrs",
+		FT_NONE, BASE_NONE, NULL, 0x0,
+		NULL, HFILL }},
+
+		{ &hf_mysql_connattrs_length,
+		{ "Connection Attributes length", "mysql.connattrs.length",
+		  FT_UINT64, BASE_DEC, NULL, 0x0,
+		  NULL, HFILL }},
+
+		{ &hf_mysql_connattrs_attr,
+		{ "Connection Attribute", "mysql.connattrs.attr",
+		  FT_NONE, BASE_NONE, NULL, 0x0,
+		  NULL, HFILL }},
+
+		{ &hf_mysql_connattrs_name_length,
+		{ "Connection Attribute Name Length", "mysql.connattrs.name.length",
+		  FT_UINT64, BASE_DEC, NULL, 0x0,
+		  NULL, HFILL }},
+
+		{ &hf_mysql_connattrs_name,
+		{ "Connection Attribute Name", "mysql.connattrs.name",
+		  FT_STRINGZ, BASE_NONE, NULL, 0x0,
+		  NULL, HFILL }},
+
+		{ &hf_mysql_connattrs_value_length,
+		{ "Connection Attribute Name Length", "mysql.connattrs.name.length",
+		  FT_UINT64, BASE_DEC, NULL, 0x0,
+		  NULL, HFILL }},
+
+		{ &hf_mysql_connattrs_value,
+		{ "Connection Attribute Value", "mysql.connattrs.value",
+		  FT_STRINGZ, BASE_NONE, NULL, 0x0,
+		  NULL, HFILL }},
+
 		{ &hf_mysql_salt,
 		{ "Salt", "mysql.salt",
 		FT_STRINGZ, BASE_NONE, NULL, 0x0,
@@ -2899,7 +3013,9 @@ void proto_register_mysql(void)
 		&ett_field_flags,
 		&ett_exec_param,
 		&ett_session_track,
-		&ett_session_track_data
+		&ett_session_track_data,
+		&ett_connattrs,
+		&ett_connattrs_attr
 	};
 
 	static ei_register_info ei[] = {
