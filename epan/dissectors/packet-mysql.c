@@ -487,6 +487,7 @@ static int hf_mysql_schema = -1;
 static int hf_mysql_thread_id  = -1;
 static int hf_mysql_salt = -1;
 static int hf_mysql_salt2 = -1;
+static int hf_mysql_auth_plugin = -1;
 static int hf_mysql_charset = -1;
 static int hf_mysql_passwd = -1;
 static int hf_mysql_unused = -1;
@@ -779,6 +780,13 @@ mysql_dissect_greeting(tvbuff_t *tvb, packet_info *pinfo, int offset,
 	if (tvb_reported_length_remaining(tvb, offset)) {
 		lenstr = tvb_strsize(tvb,offset);
 		proto_tree_add_item(greeting_tree, hf_mysql_salt2, tvb, offset, lenstr, ENC_ASCII|ENC_NA);
+		offset += lenstr;
+	}
+
+	/* 5.x server: auth plugin */
+	if (tvb_reported_length_remaining(tvb, offset)) {
+		lenstr = tvb_strsize(tvb,offset);
+		proto_tree_add_item(greeting_tree, hf_mysql_auth_plugin, tvb, offset, lenstr, ENC_ASCII|ENC_NA);
 		offset += lenstr;
 	}
 
@@ -2382,6 +2390,11 @@ void proto_register_mysql(void)
 
 		{ &hf_mysql_salt2,
 		{ "Salt", "mysql.salt2",
+		FT_STRINGZ, BASE_NONE, NULL, 0x0,
+		NULL, HFILL }},
+
+		{ &hf_mysql_auth_plugin,
+		{ "Authentication Plugin", "mysql.auth_plugin",
 		FT_STRINGZ, BASE_NONE, NULL, 0x0,
 		NULL, HFILL }},
 
