@@ -32,9 +32,6 @@
 
 #include "ui/capture.h"
 #include "../capture_info.h"
-#if 0
-#include "../capture-pcap-util.h"
-#endif
 
 #include "ui/capture_ui_utils.h"
 

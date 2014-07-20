@@ -41,9 +41,6 @@
 #ifdef HAVE_LIBPCAP
     #include "ui/capture.h"
     #include "ui/capture_globals.h"
-#if 0
-    #include "capture-pcap-util.h"
-#endif
 #endif
 
 #include <QDialog>
