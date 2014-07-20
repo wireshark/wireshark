@@ -1,6 +1,6 @@
 PRIVATE ENTERPRISE NUMBERS
 
-(last updated 2014-07-11)
+(last updated 2014-07-20)
 
 SMI Network Management Private Enterprise Codes:
 
@@ -30772,7 +30772,7 @@ Decimal
 7704
   Der Polizeipraesident in Berlin
     Thomas Noack
-      ppr.berlin-lka1&snafu.de
+      zseiiic4&polizei.berlin.de
 7705
   Centre For Wireless Communications
     Joshua Liew
@@ -34726,9 +34726,9 @@ Decimal
     Madhu Bajpai
       snmp&npi.stpn.soft.net
 8693
-  Avitec AB
-    Martin Wetterholm
-      martin.wetterholm&avitec.se
+  A-xell Wireless AB (previous was 'Avitec AB')
+    Martin Hancock
+      martin.hancock&axellwireless.com
 8694
   University of Wolverhampton
     Max Caines
@@ -78229,9 +78229,9 @@ Servicos
     Marc Hennings
       marc.hennings&rainbowtours.de
 19669
-  newthinking IT, Inhaber Alexander Scheibner
+  aserva GmbH (previous was 'newthinking IT, Inhaber Alexander Scheibner')
     Alexander Scheibner
-      alexander.scheibner&newthinking.de
+      alexander.scheibner&aserva.de
 19670
   IT University of Copenhagen
     Flemming Lindblad
@@ -94733,9 +94733,9 @@ Development Institute
     Heng PAN
       hengp&adaptix.com
 23792
-  Dekolink Wireless Ltd
-    Uri Reznik
-      uri&dekolink.com
+  Axell Wireless Israel Ltd (previous was 'Dekolink Wireless Ltd')
+    Martin Hancock
+      martin.hancock&axellwireless.com
 23793
   Cluster Resources
     Michael Musson
@@ -126412,9 +126412,9 @@ Decentralization / Helenic Public Administra
     Ruban Selvarajah
       ruban&tamiliptv.tv
 31708
-  MedSphere Technologies Pvt Ltd
+  Meddiff Technologies Pvt. Ltd. (previous was ' MedSphere Technologies Pvt Ltd')
     Tapesh K Agarwal
-      contactus&medspheretech.com
+      contactus&meddiff.com
 31709
   Sistema FIESC
     Murilo Nunes Elias
@@ -135696,9 +135696,9 @@ Decentralization / Helenic Public Administra
     Shaun Skidmore
       ipcosnmp&yahoo.com
 34029
-  HaqaSoft
+  TLSPU (previous was 'HaqaSoft')
     Adrian Hungate
-      adrian&haqa.co.uk
+      adrian&tlspu.com
 34030
   metatux.net
     Lars Buerding
@@ -137196,9 +137196,9 @@ Decentralization / Helenic Public Administra
     Jan Dennis Bungart
       info&unseregedanken.de
 34404
-  comSound Laura Eckardt (previous was 'comSound Maximilian Eckardt')
-    Laura Eckardt
-      iana&comsound.de
+  Unassigned
+    Removed 2014-07-15
+      ---none---
 34405
   City of Cape Town
     Alan Moon
@@ -156934,8 +156934,8 @@ Decentralization / Helenic Public Administra
       tom.geudens&hush.ai
 39338
   Operate4all
-    Rene Stoutjesdijk
-      r.stoutjesdijk&operate4all.eu
+    Bas Schilder
+      noc&operate4all.eu
 39339
   Bagsbug
     Agnes FENAUX
@@ -175756,6 +175756,194 @@ Decentralization / Helenic Public Administra
   BSG-IT Kft.
     Tamas Bagyal
       info&bsg-it.hu
+44044
+  SETCCE
+    Jurij Zelic
+      jurij.zelic&setcce.si
+44045
+  Dos al Cubo
+    Mariano Gonzalez
+      sysadmin&dosalcubo.com
+44046
+  POK Power of Knowledge
+    Martin Paierl
+      martin.paierl&spaixx.ch
+44047
+  Schreiber Foods Inc
+    Jon Simonsen
+      security&schreiberfoods.com
+44048
+  Instytut Hodowli i Aklimatyzacji Roslin - Panstwowy Instytut Badawczy
+    Roman Osinski
+      pki&ihar.edu.pl
+44049
+  Cloud2Ground Technologies Div. Digital Multimedia, LLC
+    John Hooks
+      johnh&cloud2groundtechnologies.com
+44050
+  Cryptografree (David Hoyle)
+    David Hoyle
+      david_j_hoyle&hotmail.com
+44051
+  Sapporo Gakuin University
+    Yasuhiro Hida
+      postmaster&sgu.ac.jp
+44052
+  Beijing Cloud Core Network Technology Co., Ltd.
+    Wang Xuesong
+      wangxuesong&cloudcore.cn
+44053
+  ELFTECH Co., Ltd.
+    Kwak, Ja-Seop
+      jskwak&elftech.co.kr
+44054
+  Hörmann KG Verkaufsgesellschaft
+    Christof Sobek
+      c.sobek.vkg&hoermann.de
+44055
+  Identity And Access Management Technologies (IAM Tec)
+    Jorge de Almeida Pinto
+      JorgeDeAlmeidaPinto&live.com
+44056
+  Aktif Mühendislik
+    Emre Sami Süzer
+      haluk.turan&aktif.net
+44057
+  predata.org
+    Lukas Mika
+      webmaster&predata.org
+44058
+  Avalanche Cloud Corporation
+    Scott Kern
+      scott&hydrantid.com
+44059
+  School District #63 (Saanich)
+    Ryan Tandy
+      ldapadmin&sd63.bc.ca
+44060
+  Iridium Communications Inc
+    redouane laroussi
+      redouane.laroussi&iridium.com
+44061
+  Tippecanoe County Government
+    Bradley Alexander
+      bpalexander&tippecanoe.in.gov
+44062
+  FlightStats Inc.
+    Jason Denning
+      jdenning&flightstats.com
+44063
+  ACCESS CO., LTD.
+    Toshikazu Sakita
+      toshikazu.sakita&access-company.com
+44064
+  Quobyte Inc.
+    Felix Hupfeld
+      support&quobyte.com
+44065
+  PROGSTAR
+    Gustaw Mazurek
+      techniczny&progstar.com.pl
+44066
+  Fachschaftinformatik, WHS
+    Robin Marchel
+      infra&fachschaftinformatik.de
+44067
+  McStas project
+    Peter Willendrup
+      pkwi&fysik.dtu.dk
+44068
+  Major League Baseball Advanced Media
+    Friedrich Seifts
+      friedrich.seifts&mlb.com
+44069
+  Groupe Citypassenger Inc
+    Falempin Sven
+      ovh&citypassenger.com
+44070
+  IFTER
+    Andrzej Nieweglowski
+      andrzej_n&ifter.com.pl
+44071
+  New Relic, Inc
+    Kevin Wright
+      kwright&newrelic.com
+44072
+  Lee County Schools
+    James Hunter
+      rhunter&lee.k12.nc.us
+44073
+  Data People Pty Ltd
+    Paul Whitman
+      paul&datapeople.com.au
+44074
+  Servyou
+    Jin Cheng
+      jinc&servyou.com.cn
+44075
+  Beijing Nan Bao Technology Co., Ltd.
+    yuqing bai
+      yuqing&baonanbao.com
+44076
+  Landtag von Baden-Württemberg
+    Ralph Geisser
+      Ralph.Geisser&landtag-bw.de
+44077
+  PST AG
+    Peter Piehler
+      info&pst.ag
+44078
+  Taiwan Mobile Payment Co.
+    Wei-Ching Su
+      tsmrd01&mail.fisc.com.tw
+44079
+  NPO SISTEMI S.p.A.
+    Massimo Bianchi
+      massimo.bianchi&nposistemi.it
+44080
+  TNTNET
+    Thorsten Seeger
+      quicksilver&tntnet.eu
+44081
+  UNI LEADER INTERNATIONAL LTD
+    Patricia Gisselle Alba
+      p.g.alba&unilintl.com
+44082
+  Beijing DTLT Technology CO., LTD.
+    Jackie Deng
+      jackie.deng&lqtech.com
+44083
+  GuiLin HYGJ communication technology co., Ltd
+    David Qin
+      qinxingsheng&foxmail.com
+44084
+  B. Metzler seel. Sohn & Co. KGaA
+    Joerg Huber
+      cet&metzler.com
+44085
+  Display Quality Equipment, S.L
+    Francisco Javier Perez Gomez
+      fperez&dqebroadcast.com
+44086
+  E-T-A Elektrotechnische Apparate GmbH
+    Werner Ruempelein
+      werner.ruempelein&e-t-a.de
+44087
+  Hammond Consulting Services
+    Wesley Hammond
+      wes.hammond&hotmail.com
+44088
+  CODESA - Grupo Empresarial de la Construcción, Santiago de Cuba, Cuba
+    Sr. Hector Suarez Planas
+      hector.suarez&codesa.co.cu
+44089
+  ABit Consulting
+    Tristan Marlow
+      software&abit-wa.com.au
+44090
+  CSG Global LLC
+    Simon Rak
+      srak&csggc.com
 
 
 End of Document

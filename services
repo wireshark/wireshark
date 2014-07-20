@@ -3573,7 +3573,7 @@ kme-trap-port    2081/udp # KME PRINTER TRAP PORT [Masakatsu_Matsuo] [Masakatsu_
 infowave         2082/tcp # Infowave Mobility Server [Kaz_Kylheku] [Kaz_Kylheku]
 infowave         2082/udp # Infowave Mobility Server [Kaz_Kylheku] [Kaz_Kylheku]
 radsec           2083/tcp # Secure Radius Service [IESG] [IETF_Chair] 2005-05 [RFC6614] The TCP port 2083 was already      previously assigned by IANA for "RadSec", an early implementation      of RADIUS/TLS, prior to issuance of this RFC.  This early      implementation can be configured to be compatible to RADIUS/TLS as      specified by the IETF.  See [RFC6614],      Appendix A for details.
-radsec           2083/udp # Secure Radius Service [Mike_McCauley] [Mike_McCauley] 2005-05
+radsec           2083/udp # Secure Radius Service [IESG] [IETF_Chair] 2005-05 2014-07-14 [RFC-ietf-radext-dtls-13] The UDP port 2083 was already previously assigned by IANA for       "RadSec", an early implementation of RADIUS/TLS, prior to issuance of this       RFC.
 sunclustergeo    2084/tcp # SunCluster Geographic [Oracle_2] [Steve_McKinty] 2005-11 2013-08-14
 sunclustergeo    2084/udp # SunCluster Geographic [Oracle_2] [Steve_McKinty] 2005-11 2013-08-14
 ada-cip          2085/tcp # ADA Control [Eugene_Frenkel] [Eugene_Frenkel] 2005-11
@@ -4322,8 +4322,8 @@ qadmifoper       2461/tcp # qadmifoper
 qadmifoper       2461/udp # qadmifoper
 qadmifevent      2462/tcp # qadmifevent [Pekka_Takaranta] [Pekka_Takaranta]
 qadmifevent      2462/udp # qadmifevent [Pekka_Takaranta] [Pekka_Takaranta]
-lsi-raid-mgmt    2463/tcp # LSI RAID Management [Kevin_Copas] [Kevin_Copas] 2008-02-07
-lsi-raid-mgmt    2463/udp # LSI RAID Management [Kevin_Copas] [Kevin_Copas] 2008-02-07
+lsi-raid-mgmt    2463/tcp # LSI RAID Management [NetApp] [MSW_architecture_team] 2014-07-18
+lsi-raid-mgmt    2463/udp # LSI RAID Management [NetApp] [MSW_architecture_team] 2014-07-18
 direcpc-si       2464/tcp # DirecPC SI [Doug_Dillon] [Doug_Dillon]
 direcpc-si       2464/udp # DirecPC SI [Doug_Dillon] [Doug_Dillon]
 lbm              2465/tcp # Load Balance Management
@@ -5561,10 +5561,10 @@ ls3              3069/tcp # ls3 [Jim_Thompson] [Jim_Thompson]
 ls3              3069/udp # ls3 [Jim_Thompson] [Jim_Thompson]
 mgxswitch        3070/tcp # MGXSWITCH [George_Walter] [George_Walter]
 mgxswitch        3070/udp # MGXSWITCH [George_Walter] [George_Walter]
-csd-mgmt-port    3071/tcp # ContinuStor Manager Port
-csd-mgmt-port    3071/udp # ContinuStor Manager Port
-csd-monitor      3072/tcp # ContinuStor Monitor Port [Ray_Jantz] [Ray_Jantz]
-csd-monitor      3072/udp # ContinuStor Monitor Port [Ray_Jantz] [Ray_Jantz]
+csd-mgmt-port    3071/tcp # ContinuStor Manager Port [NetApp] [MSW_architecture_team] 2014-07-18
+csd-mgmt-port    3071/udp # ContinuStor Manager Port [NetApp] [MSW_architecture_team] 2014-07-18
+csd-monitor      3072/tcp # ContinuStor Monitor Port [NetApp] [MSW_architecture_team] 2014-07-18
+csd-monitor      3072/udp # ContinuStor Monitor Port [NetApp] [MSW_architecture_team] 2014-07-18
 vcrp             3073/tcp # Very simple chatroom prot [Andreas_Wurf] [Andreas_Wurf]
 vcrp             3073/udp # Very simple chatroom prot [Andreas_Wurf] [Andreas_Wurf]
 xbox             3074/tcp # Xbox game port [Damon_Danieli] [Damon_Danieli]
