@@ -19,8 +19,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-(set -o igncr) 2>/dev/null && set -o igncr;  # hack to force this file to be processed by cygwin bash with -o igncr
-					     # needed when this file is exec'd from win32-setup.sh & win64-setup.sh
+#
+# The cygwin version of bash has an option to ignore the extra CR at
+# the end of a script line that would cause an error otherwise. Use this
+# option if supported.
+# Note: The following line must be the first non-comment line
+(set -o igncr) 2>/dev/null && set -o igncr;
 
 err_exit () {
 	echo ""
@@ -32,28 +36,6 @@ err_exit () {
 	echo ""
 	exit 1
 }
-
-if [ -z "$DOWNLOAD_TAG" ]; then
-	err_exit "DOWNLOAD_TAG not defined (internal error)"
-fi
-
-if [ -z "$WIRESHARK_TARGET_PLATFORM" ]; then
-	err_exit "WIRESHARK_TARGET_PLATFORM not defined (internal error)"
-fi
-
-# This MUST be in the form
-#   http://anonsvn.wireshark.org/wireshark-win32-libs/tags/<date>/packages
-# or
-#   http://anonsvn.wireshark.org/wireshark-win64-libs/tags/<date>/packages
-# in order to provide backward compatibility with older trees (e.g. a
-# previous release or an older SVN checkout).
-# Save previous tag.
-
-# Set DOWNLOAD_PREFIX to /packages to test uploads before creating the tag.
-#DOWNLOAD_PREFIX="http://anonsvn.wireshark.org/wireshark-$WIRESHARK_TARGET_PLATFORM-libs/trunk/packages/"
-DOWNLOAD_PREFIX="http://anonsvn.wireshark.org/wireshark-$WIRESHARK_TARGET_PLATFORM-libs/tags/$DOWNLOAD_TAG/packages/"
-
-TAG_FILE="current_tag.txt"
 
 usage () {
 	echo "Usage:"
@@ -110,7 +92,28 @@ find_proxy() {
 	fi
 }
 
+# Main
+if [ -z "$DOWNLOAD_TAG" ]; then
+	err_exit "DOWNLOAD_TAG not defined (internal error)"
+fi
 
+if [ -z "$WIRESHARK_TARGET_PLATFORM" ]; then
+	err_exit "WIRESHARK_TARGET_PLATFORM not defined (internal error)"
+fi
+
+# This MUST be in the form
+#   http://anonsvn.wireshark.org/wireshark-win32-libs/tags/<date>/packages
+# or
+#   http://anonsvn.wireshark.org/wireshark-win64-libs/tags/<date>/packages
+# in order to provide backward compatibility with older trees (e.g. a
+# previous release or an older SVN checkout).
+# Save previous tag.
+
+# Set DOWNLOAD_PREFIX to /packages to test uploads before creating the tag.
+#DOWNLOAD_PREFIX="http://anonsvn.wireshark.org/wireshark-$WIRESHARK_TARGET_PLATFORM-libs/trunk/packages/"
+DOWNLOAD_PREFIX="http://anonsvn.wireshark.org/wireshark-$WIRESHARK_TARGET_PLATFORM-libs/tags/$DOWNLOAD_TAG/packages/"
+
+TAG_FILE="current_tag.txt"
 
 case "$1" in
 --appverify)
