@@ -94,25 +94,8 @@ find_proxy() {
 
 # Main
 if [ -z "$DOWNLOAD_TAG" ]; then
-	err_exit "DOWNLOAD_TAG not defined (internal error)"
+	err_exit "DOWNLOAD_TAG not defined"
 fi
-
-if [ -z "$WIRESHARK_TARGET_PLATFORM" ]; then
-	err_exit "WIRESHARK_TARGET_PLATFORM not defined (internal error)"
-fi
-
-# This MUST be in the form
-#   http://anonsvn.wireshark.org/wireshark-win32-libs/tags/<date>/packages
-# or
-#   http://anonsvn.wireshark.org/wireshark-win64-libs/tags/<date>/packages
-# in order to provide backward compatibility with older trees (e.g. a
-# previous release or an older SVN checkout).
-# Save previous tag.
-
-# Set DOWNLOAD_PREFIX to /packages to test uploads before creating the tag.
-#DOWNLOAD_PREFIX="http://anonsvn.wireshark.org/wireshark-$WIRESHARK_TARGET_PLATFORM-libs/trunk/packages/"
-DOWNLOAD_PREFIX="http://anonsvn.wireshark.org/wireshark-$WIRESHARK_TARGET_PLATFORM-libs/tags/$DOWNLOAD_TAG/packages/"
-
 TAG_FILE="current_tag.txt"
 
 case "$1" in
@@ -185,6 +168,19 @@ case "$1" in
 	DEST_SUBDIR=$3
 	PACKAGE_PATH=$4
 	PACKAGE=$(basename "$PACKAGE_PATH")
+
+	if [ -z "$WIRESHARK_TARGET_PLATFORM" ]; then
+		err_exit "WIRESHARK_TARGET_PLATFORM not defined"
+	fi
+	# DOWNLOAD_PREFIX MUST be in the form
+	#   http://anonsvn.wireshark.org/wireshark-win32-libs/tags/<date>/packages
+	# or
+	#   http://anonsvn.wireshark.org/wireshark-win64-libs/tags/<date>/packages
+	# or
+	#   /packages to test uploads before creating the tag.
+	#DOWNLOAD_PREFIX="http://anonsvn.wireshark.org/wireshark-$WIRESHARK_TARGET_PLATFORM-libs/trunk/packages"
+	DOWNLOAD_PREFIX="http://anonsvn.wireshark.org/wireshark-$WIRESHARK_TARGET_PLATFORM-libs/tags/$DOWNLOAD_TAG/packages"
+
 	echo ""
 	echo "****** $PACKAGE ******"
 	find_proxy
