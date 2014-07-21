@@ -702,7 +702,7 @@ void WiresharkApplication::ifChangeEventsAvailable()
      *
      * XXX - only if it *did* change.
      */
-    emit ifListChanged();
+    emit localInterfaceListChanged();
 #endif
 }
 

@@ -65,7 +65,7 @@ InterfaceTree::InterfaceTree(QWidget *parent) :
     resizeColumnToContents(0);
 
     connect(wsApp, SIGNAL(appInitialized()), this, SLOT(getInterfaceList()));
-    connect(wsApp, SIGNAL(ifListChanged()), this, SLOT(interfaceListChanged()));
+    connect(wsApp, SIGNAL(localInterfaceListChanged()), this, SLOT(interfaceListChanged()));
     connect(this, SIGNAL(itemSelectionChanged()), this, SLOT(updateSelectedInterfaces()));
 }
 

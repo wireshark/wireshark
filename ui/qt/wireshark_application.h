@@ -104,7 +104,7 @@ protected:
 
 signals:
     void appInitialized();
-    void ifListChanged();
+    void localInterfaceListChanged();
     void openCaptureFile(QString &cf_path, QString &display_filter, unsigned int type);
     void recentFilesRead();
     void updateRecentItemStatus(const QString &filename, qint64 size, bool accessible);
