@@ -94,7 +94,7 @@ EXTRA_DIST = \
 	cppcheck/includes				\
 	cppcheck/suppressions				\
 	debian-setup.sh					\
-	dfilter-test.py 				\
+	dfilter-test.py					\
 	extract_asn1_from_spec.pl			\
 	fix-encoding-args.pl				\
 	fixhf.pl					\
@@ -112,8 +112,8 @@ EXTRA_DIST = \
 	make-dissector-reg				\
 	make-dissector-reg.py				\
 	make-manuf					\
-	make-sminmpec.pl 				\
-	make-services.py 				\
+	make-sminmpec.pl				\
+	make-services.py				\
 	make-tapreg-dotc				\
 	make-tap-reg.py					\
 	msnchat						\
@@ -129,10 +129,8 @@ EXTRA_DIST = \
 	setuid-root.pl.in				\
 	test-common.sh					\
 	test-captures.sh				\
-	textify.sh 					\
+	textify.sh					\
 	valgrind-wireshark.sh				\
-	win32-setup.sh					\
-	win64-setup.sh					\
 	win-setup.sh					\
 	wireshark_be.py					\
 	wireshark_gen.py				\
