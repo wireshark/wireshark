@@ -296,6 +296,7 @@ print_usage(gboolean for_help_option) {
 #ifdef _WIN32
     destroy_console();
 #endif
+    fprintf(output, "\nNOTE: Not all options are already implemented in the QT port.\n");
 }
 
 // xxx copied from ../gtk/main.c
