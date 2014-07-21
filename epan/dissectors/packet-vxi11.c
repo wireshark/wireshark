@@ -95,6 +95,9 @@
 #define VXI11_CORE_PROGRAM 0x0607AF
 #define VXI11_CORE_VERSION 1
 
+#define MAX_DATA_SHOW_SIZE 70
+
+
 void proto_register_vxi11_core(void);
 void proto_reg_handoff_vxi11_core(void);
 void proto_register_vxi11_async(void);
@@ -558,9 +561,16 @@ dissect_device_read_resp(tvbuff_t *tvb,
                          proto_tree *tree, void* data _U_)
 {
     guint32 error;
+    guint32 datalength = 0;
 
     offset = dissect_error(tvb, offset, pinfo, tree, "Device_ReadResp", &error);
     offset = dissect_reason(tvb, offset, tree);
+
+    datalength = tvb_get_ntohl( tvb, offset);
+    if(MAX_DATA_SHOW_SIZE <=datalength)
+        datalength = MAX_DATA_SHOW_SIZE;
+    col_append_fstr( pinfo->cinfo, COL_INFO," %s",tvb_format_text(tvb, offset+4,(guint32) datalength));
+
     offset = dissect_rpc_opaque_data(tvb, offset, tree, NULL, hf_vxi11_core_data, FALSE, 0, FALSE, NULL, NULL);
 
     return offset;
@@ -626,19 +636,25 @@ dissect_device_write_parms(tvbuff_t *tvb,
                            packet_info *pinfo,
                            proto_tree *tree, void* data _U_)
 {
+    guint32 datalength = 0;
     guint32 lid = tvb_get_ntohl(tvb, offset);
 
     offset = dissect_rpc_uint32(tvb, tree, hf_vxi11_core_lid, offset);
     offset = dissect_rpc_uint32(tvb, tree, hf_vxi11_core_io_timeout, offset);
     offset = dissect_rpc_uint32(tvb, tree, hf_vxi11_core_lock_timeout, offset);
     offset = dissect_flags(tvb, offset, tree);
-    offset = dissect_rpc_opaque_data(tvb, offset, tree, NULL, hf_vxi11_core_data, FALSE, 0, FALSE, NULL, NULL);
+    col_append_fstr(pinfo->cinfo, COL_INFO, " LID=%d", lid);
 
+    datalength = tvb_get_ntohl( tvb, offset);
+    if(MAX_DATA_SHOW_SIZE <=datalength)
+        datalength = MAX_DATA_SHOW_SIZE;
+    col_append_fstr( pinfo->cinfo, COL_INFO," %s",tvb_format_text(tvb, offset+4,(guint32) datalength));
+
+    offset = dissect_rpc_opaque_data(tvb, offset, tree, NULL, hf_vxi11_core_data, FALSE, 0, FALSE, NULL, NULL);
     if (tree)
     {
         proto_item_append_text(tree, " (Device_WriteParms) LID=%d", lid);
     }
-    col_append_fstr(pinfo->cinfo, COL_INFO, " LID=%d", lid);
 
     return offset;
 }
