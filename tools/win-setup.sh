@@ -41,9 +41,9 @@ usage () {
 	echo "Usage:"
 	echo "	$0 --appverify <appname> [<appname>] ..."
 	echo "  $0 --libverify <destination> <subdirectory> <package>"
-	echo "	$0 --download  <destination> <subdirectory> <package>"
-	echo "	$0 --settag  <destination>"
-	echo "	$0 --checktag  <destination>"
+	echo "	$0 --download  <destination> <subdirectory> <package> <tag>"
+	echo "	$0 --settag    <destination> <tag>"
+	echo "	$0 --checktag  <destination> <tag>"
 	echo ""
 	exit 1
 }
@@ -93,15 +93,13 @@ find_proxy() {
 }
 
 # Main
-if [ -z "$DOWNLOAD_TAG" ]; then
-	err_exit "DOWNLOAD_TAG not defined"
-fi
 TAG_FILE="current_tag.txt"
-
+if [ -z "$*" ] ; then
+	usage
+fi
 case "$1" in
 --appverify)
 	shift
-
 	if [ -z "$*" ] ; then
 		usage
 	fi
@@ -161,13 +159,13 @@ case "$1" in
 	fi
 	;;
 --download)
-	if [ -z "$2" -o -z "$3" -o -z "$4" ] ; then
+	if [ -z "$2" -o -z "$3" -o -z "$4" -o -z "$5" ] ; then
 		usage
 	fi
 	DEST_PATH=$(cygpath "$2")
 	DEST_SUBDIR=$3
 	PACKAGE_PATH=$4
-	PACKAGE=$(basename "$PACKAGE_PATH")
+	DOWNLOAD_TAG=$5
 
 	if [ -z "$WIRESHARK_TARGET_PLATFORM" ]; then
 		err_exit "WIRESHARK_TARGET_PLATFORM not defined"
@@ -181,6 +179,7 @@ case "$1" in
 	#DOWNLOAD_PREFIX="http://anonsvn.wireshark.org/wireshark-$WIRESHARK_TARGET_PLATFORM-libs/trunk/packages"
 	DOWNLOAD_PREFIX="http://anonsvn.wireshark.org/wireshark-$WIRESHARK_TARGET_PLATFORM-libs/tags/$DOWNLOAD_TAG/packages"
 
+	PACKAGE=$(basename "$PACKAGE_PATH")
 	echo ""
 	echo "****** $PACKAGE ******"
 	find_proxy
@@ -212,18 +211,20 @@ case "$1" in
 	fi
 	;;
 --settag)
-	if [ -z "$2" ] ; then
+	if [ -z "$2"  -o -z "$3" ] ; then
 		usage
 	fi
 	DEST_PATH=$(cygpath "$2")
+	DOWNLOAD_TAG=$3
 	echo "$DOWNLOAD_TAG" > "$DEST_PATH/$TAG_FILE"
 	;;
 --checktag)
-	if [ -z "$2" ] ; then
+	if [ -z "$2" -o -z "$3" ] ; then
 		usage
 	fi
 	DEST_PATH=$(cygpath "$2")
 	WIN_PATH=$(cygpath --windows "$2")
+	DOWNLOAD_TAG=$3
 	LAST_TAG=$(cat "$DEST_PATH/$TAG_FILE" 2> /dev/null)
 	if [ "$DOWNLOAD_TAG" != "$LAST_TAG" ] ; then
 		if [ -z "$LAST_TAG" ] ; then
