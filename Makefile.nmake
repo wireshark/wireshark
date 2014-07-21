@@ -13,11 +13,11 @@ CC = cl
 LINK= link
 BSCMAKE= bscmake
 
-WIN_SETUP=tools/$(WIRESHARK_TARGET_PLATFORM)-setup.sh
+WIN_SETUP=tools/win-setup.sh
 
 # -------------
 # Checking  that the Wireshark Libraries are up-to-date:
-#  1. win??-setup.sh --checktag is invoked during nmake "preprocessing".
+#  1. win-setup.sh --checktag <tag> is invoked during nmake "preprocessing".
 #     If an error status is returned (ie: the libraries are not up-to-date)
 #      then CHECK_TAG is defined as a non-null string.
 #  2. The $(LIBS_CHECK) target is invoked during the nmake:
@@ -27,7 +27,7 @@ WIN_SETUP=tools/$(WIRESHARK_TARGET_PLATFORM)-setup.sh
 #      as to the required library package files will be made.
 #
 LIBS_CHECK=_libs_check_
-!IF [$(SH) $(WIN_SETUP) --checktag "$(WIRESHARK_LIB_DIR)"] != 0
+!IF [$(SH) $(WIN_SETUP) --checktag "$(WIRESHARK_LIB_DIR)" "$(DOWNLOAD_TAG)"] != 0
 CHECK_TAG=_check_tag_
 !ELSE
 CHECK_TAG=
@@ -974,90 +974,129 @@ setup: verify_tools clean_setup process_libs
 
 install_qt:
 	$(SH) $(WIN_SETUP) --download "C:\Qt" \
-		. Qt-5.1.1-MSVC2010-$(WIRESHARK_TARGET_PLATFORM)-ws.zip
+		. \
+		Qt-5.1.1-MSVC2010-$(WIRESHARK_TARGET_PLATFORM)-ws.zip \
+		"$(DOWNLOAD_TAG)"
 	
 # The process_libs target when invoked causes either a --libverify or a --download for all the required libraries.
 # (The choice is determined by the value of the macro WIN_SETUP_OPT).
 process_libs:
 	@if not exist "$(WIRESHARK_LIB_DIR)" md "$(WIRESHARK_LIB_DIR)"
 	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIB_DIR)" \
-		. WinPcap_$(WINPCAP_VERSION).exe
+		. \
+		WinPcap_$(WINPCAP_VERSION).exe \
+		"$(DOWNLOAD_TAG)"
+
 !IFNDEF QT5_BASE_DIR
 !MESSAGE Can't find Qt. This will become a problem at some point.
 !ENDIF
 !IFDEF GTK_DIR
 	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIB_DIR)" \
-		"$(GTK_NAME)" gtk+-bundle_$(GTK_PKG)_$(WIRESHARK_TARGET_PLATFORM)$(PKG_SUFIX).zip
+		"$(GTK_NAME)" \
+		gtk+-bundle_$(GTK_PKG)_$(WIRESHARK_TARGET_PLATFORM)$(PKG_SUFIX).zip \
+		"$(DOWNLOAD_TAG)"
 !ENDIF
 !IFDEF KFW_DIR
 	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIB_DIR)" \
-		. kfw-3-2-2-i386-ws-vc6.zip
+		. \
+		kfw-3-2-2-i386-ws-vc6.zip \
+		"$(DOWNLOAD_TAG)"
 #	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIB_DIR)" \
-#		. kfw-3-2-2.zip
+#		. \
+#		kfw-3-2-2.zip \
+#		"$(DOWNLOAD_TAG)"
 !ENDIF
 !IFDEF PCAP_DIR
 	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIB_DIR)" \
-		. WpdPack_$(WPD_VERSION).zip
+		. \
+		WpdPack_$(WPD_VERSION).zip \
+		"$(DOWNLOAD_TAG)"
 !ENDIF
 !IFDEF AIRPCAP_DIR
 	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIB_DIR)" \
-		AirPcap_Devpack_4_1_0_1622 AirPcap_Devpack_4_1_0_1622.zip
+		AirPcap_Devpack_4_1_0_1622 \
+		AirPcap_Devpack_4_1_0_1622.zip \
+		"$(DOWNLOAD_TAG)"
 !ENDIF
 !IFDEF C_ARES_DIR
 	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIB_DIR)" \
-		. c-ares-$(C_ARES_PKG)-$(WIRESHARK_TARGET_PLATFORM)ws.zip
+		. \
+		c-ares-$(C_ARES_PKG)-$(WIRESHARK_TARGET_PLATFORM)ws.zip \
+		"$(DOWNLOAD_TAG)"
 !ENDIF
 !IFDEF ADNS_DIR
 	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIB_DIR)" \
-		. adns-1.0-win32-05ws.zip
+		. \
+		adns-1.0-win32-05ws.zip \
+		"$(DOWNLOAD_TAG)"
 !ENDIF
 !IFDEF ZLIB_DIR
 	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIB_DIR)" \
 !if "$(WIRESHARK_TARGET_PLATFORM)" == "win32"
-		zlib125 zlib-1.2.5.zip
+		zlib125 zlib-1.2.5.zip \
+		"$(DOWNLOAD_TAG)"
 !else
-		zlib125 zlib125ws.zip
+		zlib125 zlib125ws.zip \
+		"$(DOWNLOAD_TAG)"
 !endif
 !ENDIF
 !IFDEF LUA_DIR
 	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIB_DIR)" \
-		lua5.2.3 lua$(LUA_DIST)_lib.zip
+		lua5.2.3 \
+		lua$(LUA_DIST)_lib.zip \
+		"$(DOWNLOAD_TAG)"
 !ENDIF
 
 !IFDEF GNUTLS_PKG
 	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIB_DIR)" \
-		. gnutls-$(GNUTLS_PKG)-$(WIRESHARK_TARGET_PLATFORM)ws.zip
+		. \
+		gnutls-$(GNUTLS_PKG)-$(WIRESHARK_TARGET_PLATFORM)ws.zip \
+		"$(DOWNLOAD_TAG)"
 !ENDIF
 !IFDEF PORTAUDIO_DIR
 	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIB_DIR)" \
-		. portaudio_v19_2.zip
+		. \
+		portaudio_v19_2.zip \
+		"$(DOWNLOAD_TAG)"
 !ENDIF
 !IFDEF SMI_DIR
 	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIB_DIR)" \
-		. libsmi-$(SMI_PKG)-$(WIRESHARK_TARGET_PLATFORM)ws.zip
+		. \
+		libsmi-$(SMI_PKG)-$(WIRESHARK_TARGET_PLATFORM)ws.zip \
+		"$(DOWNLOAD_TAG)"
 !ENDIF
 !IFDEF GEOIP_DIR
 	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIB_DIR)" \
-		GeoIP-$(GEOIP_PKG)-$(WIRESHARK_TARGET_PLATFORM)ws GeoIP-$(GEOIP_PKG)-$(WIRESHARK_TARGET_PLATFORM)ws.zip
+		GeoIP-$(GEOIP_PKG)-$(WIRESHARK_TARGET_PLATFORM)ws \
+		GeoIP-$(GEOIP_PKG)-$(WIRESHARK_TARGET_PLATFORM)ws.zip \
+		"$(DOWNLOAD_TAG)"
 !ENDIF
 !IFDEF WINSPARKLE_DIR
 	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIB_DIR)" \
-		. WinSparkle-$(WINSPARKLE_PKG).zip
+		. \
+		WinSparkle-$(WINSPARKLE_PKG).zip \
+		"$(DOWNLOAD_TAG)"
 !ENDIF
 !IFDEF HHC_DIR
 	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIB_DIR)" \
-		user-guide user-guide-52567.zip
+		user-guide \
+		user-guide-52567.zip \
+		"$(DOWNLOAD_TAG)"
 !ENDIF
 !IFDEF UPX
 	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIB_DIR)" \
-		. upx303w.zip
+		. \
+		upx303w.zip \
+		"$(DOWNLOAD_TAG)"
 !ENDIF
 !IFDEF NASM
 	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIB_DIR)" \
-		. nasm-2.09.08-win32.zip
+		. \
+		nasm-2.09.08-win32.zip \
+		"$(DOWNLOAD_TAG)"
 !ENDIF
 !IF "$(WIN_SETUP_OPT)" == "--download"
-	@$(SH) $(WIN_SETUP) --settag "$(WIRESHARK_LIB_DIR)"
+	@$(SH) $(WIN_SETUP) --settag "$(WIRESHARK_LIB_DIR)" "$(DOWNLOAD_TAG)"
 !ENDIF
 	@echo.
 	@echo Wireshark is ready to build.
