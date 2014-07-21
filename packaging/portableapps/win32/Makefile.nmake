@@ -105,8 +105,8 @@ source:  WiresharkPortable.ini
 
 findprocdll:
 	if not exist $(FINDPROCDLL) \
-	@$(SH) ../../../tools/win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIB_DIR)" \
-		$(NSIS_PLUGINS) FindProc.zip
+	@$(SH) ../../../tools/win-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIB_DIR)" \
+		$(NSIS_PLUGINS) FindProc.zip "$(DOWNLOAD_TAG)"
 
 
 WiresharkPortable-$(VERSION).paf.exe : dirs appinfo nsis-bits pack source Files/WiresharkPortable.exe Installer.nsi
