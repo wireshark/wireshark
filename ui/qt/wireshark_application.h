@@ -39,6 +39,7 @@
 #include <QFileInfo>
 #include <QFont>
 #include <QList>
+#include <QSocketNotifier>
 #include <QThread>
 #include <QTimer>
 
@@ -95,12 +96,14 @@ private:
     QTimer recent_timer_;
     QTimer tap_update_timer_;
     QList<QString> pending_open_files_;
+    QSocketNotifier *if_notifier_;
 
 protected:
     bool event(QEvent *event);
 
 signals:
     void appInitialized();
+    void ifListChanged();
     void openCaptureFile(QString &cf_path, QString &display_filter, unsigned int type);
     void recentFilesRead();
     void updateRecentItemStatus(const QString &filename, qint64 size, bool accessible);
@@ -135,6 +138,7 @@ public slots:
 
 private slots:
     void cleanup();
+    void ifChangeEventsAvailable();
     void itemStatusFinished(const QString filename = "", qint64 size = 0, bool accessible = false);
     void refreshRecentFiles(void);
     void updateTaps();

@@ -29,6 +29,7 @@
 
 #include "ui/decode_as_utils.h"
 #include "ui/preference_utils.h"
+#include "ui/iface_lists.h"
 #include "ui/recent.h"
 #include "ui/simple_dialog.h"
 #include "ui/util.h"
@@ -38,6 +39,10 @@
 #include "color_filters.h"
 #include "log.h"
 #include "recent_file_status.h"
+
+#ifdef HAVE_LIBPCAP
+#include <caputils/iface_monitor.h>
+#endif
 
 #include "ui/capture.h"
 #include "ui/filters.h"
@@ -625,6 +630,69 @@ void WiresharkApplication::emitStatCommandSignal(const QString &menu_path, const
     emit openStatCommandDialog(menu_path, arg, userdata);
 }
 
+#ifdef HAVE_LIBPCAP
+
+static void
+iface_mon_event_cb(const char *iface, int up)
+{
+    int present = 0;
+    guint ifs, j;
+    interface_t device;
+    interface_options interface_opts;
+
+    for (ifs = 0; ifs < global_capture_opts.all_ifaces->len; ifs++) {
+        device = g_array_index(global_capture_opts.all_ifaces, interface_t, ifs);
+        if (strcmp(device.name, iface) == 0) {
+            present = 1;
+            if (!up) {
+                /*
+                 * Interface went down or disappeared; remove all instances
+                 * of it from the current list of interfaces selected
+                 * for capturing.
+                 */
+                for (j = 0; j < global_capture_opts.ifaces->len; j++) {
+                    interface_opts = g_array_index(global_capture_opts.ifaces, interface_options, j);
+                    if (strcmp(interface_opts.name, device.name) == 0) {
+                        g_array_remove_index(global_capture_opts.ifaces, j);
+                }
+             }
+          }
+        }
+    }
+
+    if (present != up) {
+        /*
+         * We've been told that there's a new interface or that an old
+         * interface is gone; reload the local interface list.
+         */
+        scan_local_interfaces(main_window_update);
+    }
+}
+
+#endif
+
+void WiresharkApplication::ifChangeEventsAvailable()
+{
+#ifdef HAVE_LIBPCAP
+    /*
+     * Something's readable from the descriptor for interface
+     * monitoring.
+     *
+     * Have the interface-monitoring code Read whatever interface-change
+     * events are available, and call the callback for them.
+     */
+    iface_mon_event();
+
+    /*
+     * Now emit a signal to indicate that the list changed, so that all
+     * places displaying the list will get updated.
+     *
+     * XXX - only if it *did* change.
+     */
+    emit ifListChanged();
+#endif
+}
+
 void WiresharkApplication::allSystemsGo()
 {
     QString display_filter = NULL;
@@ -635,6 +703,16 @@ void WiresharkApplication::allSystemsGo()
         pending_open_files_.pop_front();
     }
     software_update_init();
+
+#ifdef HAVE_LIBPCAP
+    int err;
+    err = iface_mon_start(&iface_mon_event_cb);
+    if (err == 0) {
+        if_notifier_ = new QSocketNotifier(iface_mon_get_sock(),
+                                           QSocketNotifier::Read);
+        connect(if_notifier_, SIGNAL(activated(int)), SLOT(ifChangeEventsAvailable()));
+    }
+#endif
 }
 
 e_prefs * WiresharkApplication::readConfigurationFiles(char **gdp_path, char **dp_path)
