@@ -773,7 +773,7 @@ mysql_dissect_greeting(tvbuff_t *tvb, packet_info *pinfo, int offset,
 	offset = mysql_dissect_server_status(tvb, offset, greeting_tree, NULL);
 
 	/* 13 bytes unused */
-	proto_tree_add_item(greeting_tree, hf_mysql_unused, tvb, offset, 13, ENC_ASCII|ENC_NA);
+	proto_tree_add_item(greeting_tree, hf_mysql_unused, tvb, offset, 13, ENC_NA);
 	offset += 13;
 
 	/* 4.1+ server: rest of salt */
@@ -2525,7 +2525,7 @@ void proto_register_mysql(void)
 
 		{ &hf_mysql_unused,
 		{ "Unused", "mysql.unused",
-		FT_STRING, BASE_NONE, NULL, 0x0,
+		FT_BYTES, BASE_NONE, NULL, 0x0,
 		NULL, HFILL }},
 
 		{ &hf_mysql_passwd,
