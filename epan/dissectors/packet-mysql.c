@@ -717,7 +717,7 @@ mysql_dissect_greeting(tvbuff_t *tvb, packet_info *pinfo, int offset,
 	int ver_offset;
 
 	proto_item *tf;
-	proto_item *greeting_tree= NULL;
+	proto_item *greeting_tree;
 
 	protocol= tvb_get_guint8(tvb, offset);
 
@@ -801,15 +801,13 @@ mysql_dissect_login(tvbuff_t *tvb, packet_info *pinfo, int offset,
 	gint lenstr;
 
 	proto_item *tf;
-	proto_item *login_tree= NULL;
+	proto_item *login_tree;
 
 	/* after login there can be OK or DENIED */
 	conn_data->state = RESPONSE_OK;
 
-	if (tree) {
-		tf = proto_tree_add_item(tree, hf_mysql_login_request, tvb, offset, -1, ENC_NA);
-		login_tree = proto_item_add_subtree(tf, ett_login_request);
-	}
+	tf = proto_tree_add_item(tree, hf_mysql_login_request, tvb, offset, -1, ENC_NA);
+	login_tree = proto_item_add_subtree(tf, ett_login_request);
 
 	offset = mysql_dissect_caps_client(tvb, offset, login_tree, &conn_data->clnt_caps);
 
@@ -1056,15 +1054,13 @@ mysql_dissect_request(tvbuff_t *tvb,packet_info *pinfo, int offset,
 	gint opcode;
 	gint lenstr;
 	proto_item *tf = NULL, *ti;
-	proto_item *req_tree = NULL;
+	proto_item *req_tree;
 	guint32 stmt_id;
 	my_stmt_data_t *stmt_data;
 	int stmt_pos, param_offset;
 
-	if (tree) {
-		tf = proto_tree_add_item(tree, hf_mysql_request, tvb, offset, 1, ENC_NA);
-		req_tree = proto_item_add_subtree(tf, ett_request);
-	}
+	tf = proto_tree_add_item(tree, hf_mysql_request, tvb, offset, 1, ENC_NA);
+	req_tree = proto_item_add_subtree(tf, ett_request);
 
 	opcode = tvb_get_guint8(tvb, offset);
 	col_append_fstr(pinfo->cinfo, COL_INFO, " %s", val_to_str(opcode, mysql_command_vals, "Unknown (%u)"));
