@@ -54,9 +54,6 @@ typedef struct _conversations_table {
 
 /** Register the conversation table for the multiple conversation window.
  *
- * @param hide_ports hide the port columns
- * @param table_name the table name to be displayed
- * @param tap_name the registered tap name
  * @param filter the optional filter name or NULL
  * @param packet_func the function to be called for each incoming packet
  */
@@ -64,9 +61,6 @@ extern void register_conversation_table(conversation_type_e conv_type, const cha
 
 /** Init the conversation table for the single conversation window.
  *
- * @param hide_ports hide the port columns
- * @param table_name the table name to be displayed
- * @param tap_name the registered tap name
  * @param filter the optional filter name or NULL
  * @param packet_func the function to be called for each incoming packet
  */

@@ -932,8 +932,7 @@ proto_tree_add_text_valist(proto_tree *tree, tvbuff_t *tvb, gint start,
  @param start start of data in tvb
  @param length length of data in tvb
  @param idx one of the ett_ array elements registered with proto_register_subtree_array()
- @param tree_item item returned with tree creation.
- @param Can be NULL if going to be unused
+ @param tree_item item returned with tree creation. Can be NULL if going to be unused
  @param text label for the tree
  @return the newly created tree */
 WS_DLL_PUBLIC proto_tree *
@@ -946,8 +945,7 @@ proto_tree_add_subtree(proto_tree *tree, tvbuff_t *tvb, gint start, gint length,
  @param start start of data in tvb
  @param length length of data in tvb
  @param idx one of the ett_ array elements registered with proto_register_subtree_array()
- @param tree_item item returned with tree creation.
- @param Can be NULL if going to be unused
+ @param tree_item item returned with tree creation. Can be NULL if going to be unused
  @param format printf like format string
  @param ... printf like parameters
  @return the newly created tree */

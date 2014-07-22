@@ -151,13 +151,13 @@ gboolean conversation_equal(gconstpointer key1, gconstpointer key2);
 
 /** Remove all entries from the conversation table.
  *
- * @param ct the table to reset
+ * @param ch the table to reset
  */
 extern void reset_conversation_table_data(conv_hash_t *ch);
 
 /** Add some data to the conversation table.
  *
- * @param ct the table to add the data to
+ * @param ch the table to add the data to
  * @param src source address
  * @param dst destination address
  * @param src_port source port
@@ -165,8 +165,7 @@ extern void reset_conversation_table_data(conv_hash_t *ch);
  * @param num_frames number of packets
  * @param num_bytes number of bytes
  * @param ts timestamp
- * @param sat address type
- * @param port_type the port type (e.g. PT_TCP)
+ * @param ptype the port type (e.g. PT_TCP)
  */
 extern void add_conversation_table_data(conv_hash_t *ch, const address *src, const address *dst,
             guint32 src_port, guint32 dst_port, int num_frames, int num_bytes, nstime_t *ts,
@@ -176,7 +175,7 @@ extern void add_conversation_table_data(conv_hash_t *ch, const address *src, con
  *  addition to the address and port quadruple to uniquely identify the
  *  conversation.
  *
- * @param ct the table to add the data to
+ * @param ch the table to add the data to
  * @param src source address
  * @param dst destination address
  * @param src_port source port
@@ -184,8 +183,7 @@ extern void add_conversation_table_data(conv_hash_t *ch, const address *src, con
  * @param num_frames number of packets
  * @param num_bytes number of bytes
  * @param ts timestamp
- * @param sat address type
- * @param port_type the port type (e.g. PT_TCP)
+ * @param ptype the port type (e.g. PT_TCP)
  * @param conv_id a value to help differentiate the conversation in case the address and port quadruple is not sufficiently unique
  */
 extern void
