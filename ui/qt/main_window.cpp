@@ -308,7 +308,6 @@ MainWindow::MainWindow(QWidget *parent) :
             this->main_welcome_->getInterfaceTree(), SLOT(setSelectedInterfaces()));
     connect(&capture_interfaces_dialog_, SIGNAL(interfaceListChanged()),
             this->main_welcome_->getInterfaceTree(), SLOT(interfaceListChanged()));
-    connect(wsApp, SIGNAL(localInterfaceListChanged()), this, SLOT(interfaceListChanged()));
 #endif
 
     main_ui_->mainStack->setCurrentWidget(main_welcome_);

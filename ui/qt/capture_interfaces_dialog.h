@@ -114,6 +114,7 @@ private slots:
     void updateStatistics(void);
     void allFilterChanged();
     void refreshInterfaceList();
+    void updateLocalInterfaces();
 
 signals:
     void startCapture();

@@ -73,7 +73,7 @@ CaptureInterfacesDialog::CaptureInterfacesDialog(QWidget *parent) :
     connect(ui->allFilterComboBox, SIGNAL(captureFilterSyntaxChanged(bool)), this, SLOT(allFilterChanged()));
     connect(this, SIGNAL(interfacesChanged()), ui->allFilterComboBox, SIGNAL(interfacesChanged()));
     connect(this, SIGNAL(ifsChanged()), this, SLOT(refreshInterfaceList()));
-    connect(wsApp, SIGNAL(localInterfaceListChanged()), this, SLOT(updateInterfaces()));
+    connect(wsApp, SIGNAL(localInterfaceListChanged()), this, SLOT(updateLocalInterfaces()));
 }
 
 void CaptureInterfacesDialog::allFilterChanged()
@@ -421,6 +421,11 @@ void CaptureInterfacesDialog::refreshInterfaceList()
 {
     UpdateInterfaces();
     emit interfaceListChanged();
+}
+
+void CaptureInterfacesDialog::updateLocalInterfaces()
+{
+    UpdateInterfaces();
 }
 
 void CaptureInterfacesDialog::updateStatistics(void)
