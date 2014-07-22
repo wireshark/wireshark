@@ -24,7 +24,7 @@
 # the end of a script line that would cause an error otherwise. Use this
 # option if supported.
 # Note: The following line must be the first non-comment line
-(set -o igncr) 2>/dev/null && set -o igncr;
+(set -o igncr) 2>/dev/null && set -o igncr; # comment is needed as well
 
 err_exit () {
 	echo ""
