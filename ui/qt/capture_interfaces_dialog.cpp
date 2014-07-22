@@ -34,7 +34,6 @@
 #ifdef HAVE_LIBPCAP
 
 #include <QTimer>
-#include <QMessageBox>
 
 #include "ui/capture_ui_utils.h"
 #include "ui/capture_globals.h"
@@ -87,6 +86,7 @@ void CaptureInterfacesDialog::allFilterChanged()
             it->setText(str);
         }
     }
+    updateWidgets();
 }
 
 void CaptureInterfacesDialog::tableSelected()
@@ -111,6 +111,24 @@ void CaptureInterfacesDialog::tableSelected()
             g_array_insert_val(global_capture_opts.all_ifaces, i, device);
         }
     }
+    updateWidgets();
+}
+
+void CaptureInterfacesDialog::updateWidgets()
+{
+    SyntaxLineEdit *sle = qobject_cast<SyntaxLineEdit *>(ui->allFilterComboBox->lineEdit());
+    if (!sle) {
+        return;
+    }
+
+    bool can_capture = false;
+
+    if (ui->tbInterfaces->selectedItems().count() > 0 && sle->syntaxState() != SyntaxLineEdit::Invalid) {
+        can_capture = true;
+    }
+
+    ui->compileBPF->setEnabled(can_capture);
+    start_bt_->setEnabled(can_capture);
 }
 
 void CaptureInterfacesDialog::tableItemClicked(QTableWidgetItem * item)
@@ -453,18 +471,11 @@ void CaptureInterfacesDialog::updateStatistics(void)
 
 void CaptureInterfacesDialog::on_compileBPF_clicked()
 {
-    QString filter = ui->allFilterComboBox->currentText();
-    if (!filter.compare(QString(""))) {
-        QMessageBox::warning(this, tr("Error"),
-                             tr("Set a filter string to compile."));
-        return;
-    }
     QList<QTableWidgetItem*> selected = ui->tbInterfaces->selectedItems();
-    if (selected.length() == 0) {
-        QMessageBox::warning(this, tr("Error"),
-                             tr("No interfaces selected."));
+    if (selected.length() < 1) {
         return;
     }
+
     QStringList *interfaces = new QStringList();
     for (int row = 0; row < ui->tbInterfaces->rowCount(); row++)
     {
@@ -475,6 +486,7 @@ void CaptureInterfacesDialog::on_compileBPF_clicked()
         }
     }
 
+    QString filter = ui->allFilterComboBox->currentText();
     CompiledFilterOutput *cfo = new CompiledFilterOutput(this, interfaces, filter);
 
     cfo->show();

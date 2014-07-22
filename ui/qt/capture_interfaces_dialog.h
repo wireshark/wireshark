@@ -111,6 +111,7 @@ private slots:
     void on_buttonBox_helpRequested();
     void tableItemClicked(QTableWidgetItem * item);
     void tableSelected();
+    void updateWidgets();
     void updateStatistics(void);
     void allFilterChanged();
     void refreshInterfaceList();

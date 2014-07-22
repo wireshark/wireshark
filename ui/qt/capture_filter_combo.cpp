@@ -36,7 +36,7 @@ CaptureFilterCombo::CaptureFilterCombo(QWidget *parent) :
     QComboBox(parent),
     cf_edit_(NULL)
 {
-    cf_edit_ = new CaptureFilterEdit();
+    cf_edit_ = new CaptureFilterEdit(this, true);
 
     setEditable(true);
     setLineEdit(cf_edit_);
