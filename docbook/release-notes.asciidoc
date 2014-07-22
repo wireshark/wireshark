@@ -1,6 +1,6 @@
 = Wireshark wireshark-version:[] Release Notes
 
-I'm proud to announce the release of Wireshark 1.12.0-rc3. This is a
+I'm proud to announce the release of Wireshark 1.12.0rc4. This is a
 public release candidate for Wireshark 1.12.0.
 
 == What is Wireshark?
