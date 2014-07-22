@@ -1067,23 +1067,23 @@ fill_capture_box(void)
         }
 #endif /* _WIN32 */
     } else {
-       if (if_view) {
-           clear_capture_box();
-       }
+        if (if_view) {
+            clear_capture_box();
+        }
 
-       /* run capture_interface_list(), not to get the interfaces, but to detect
-        * any errors, if there is an error, display an appropriate message in the gui */
-       capture_interface_list(&error, &err_str,main_window_update);
-       switch (error) {
+        /* run capture_interface_list(), not to get the interfaces, but to detect
+         * any errors, if there is an error, display an appropriate message in the gui */
+        capture_interface_list(&error, &err_str,main_window_update);
+        switch (error) {
 
-       case 0:
+        case 0:
             label_text = g_strdup("No interface can be used for capturing in "
                                   "this system with the current configuration.\n"
                                   "\n"
                                   "See Capture Help below for details.");
             break;
 
-       case CANT_GET_INTERFACE_LIST:
+        case CANT_GET_INTERFACE_LIST:
             label_text = g_strdup_printf("No interface can be used for capturing in "
                                          "this system with the current configuration.\n\n"
                                          "(%s)\n"
@@ -1092,7 +1092,7 @@ fill_capture_box(void)
                                          err_str);
             break;
 
-       case DONT_HAVE_PCAP:
+        case DONT_HAVE_PCAP:
             label_text = g_strdup("WinPcap doesn't appear to be installed.  "
                                   "In order to capture packets, WinPcap "
                                   "must be installed; see\n"
@@ -1129,7 +1129,7 @@ fill_capture_box(void)
             break;
         }
         if (err_str != NULL)
-          g_free(err_str);
+            g_free(err_str);
         w = gtk_label_new(label_text);
         gtk_label_set_markup(GTK_LABEL(w), label_text);
         gtk_label_set_line_wrap(GTK_LABEL(w), TRUE);
@@ -1141,13 +1141,13 @@ fill_capture_box(void)
 #endif
         g_object_set_data(G_OBJECT(welcome_hb), CAPTURE_LABEL, w);
         if (error == CANT_GET_INTERFACE_LIST || error == 0) {
-          item_hb_refresh = welcome_button(GTK_STOCK_REFRESH,
-                                           "Refresh Interfaces",
-                                           "Get a new list of the local interfaces.",
-                                           "Click the title to get a new list of interfaces",
-                                           welcome_button_callback_helper, refresh_interfaces_cb);
-          gtk_box_pack_start(GTK_BOX(box_to_fill), item_hb_refresh, FALSE, FALSE, 5);
-          g_object_set_data(G_OBJECT(welcome_hb), CAPTURE_HB_BOX_REFRESH, item_hb_refresh);
+            item_hb_refresh = welcome_button(GTK_STOCK_REFRESH,
+                                             "Refresh Interfaces",
+                                             "Get a new list of the local interfaces.",
+                                             "Click the title to get a new list of interfaces",
+                                             welcome_button_callback_helper, refresh_interfaces_cb);
+            gtk_box_pack_start(GTK_BOX(box_to_fill), item_hb_refresh, FALSE, FALSE, 5);
+            g_object_set_data(G_OBJECT(welcome_hb), CAPTURE_HB_BOX_REFRESH, item_hb_refresh);
         }
     }
 }
