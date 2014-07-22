@@ -1377,16 +1377,11 @@ main(int argc, char *argv[])
 #ifdef HAVE_LIBPCAP
       if_list = capture_interface_list(&err, &err_str,NULL);
       if (if_list == NULL) {
-        switch (err) {
-        case CANT_GET_INTERFACE_LIST:
-        case DONT_HAVE_PCAP:
+      	if (err == 0)
+          cmdarg_err("There are no interfaces on which a capture can be done");
+        else {
           cmdarg_err("%s", err_str);
           g_free(err_str);
-          break;
-
-        case NO_INTERFACES_FOUND:
-          cmdarg_err("There are no interfaces on which a capture can be done");
-          break;
         }
         return 2;
       }

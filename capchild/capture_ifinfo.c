@@ -116,6 +116,8 @@ capture_interface_list(int *err, char **err_str, void (*update_cb)(void))
 
     g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture Interface List ...");
 
+    *err = 0;
+
     /* Try to get our interface list */
     ret = sync_interface_list_open(&data, &primary_msg, &secondary_msg, update_cb);
     if (ret != 0) {
@@ -188,9 +190,6 @@ capture_interface_list(int *err, char **err_str, void (*update_cb)(void))
     }
     g_strfreev(raw_list);
 
-    /* Check to see if we built a list */
-    if (if_list == NULL)
-        *err = NO_INTERFACES_FOUND;
 #ifdef HAVE_PCAP_REMOTE
     if (remote_interface_list && g_list_length(remote_interface_list) > 0) {
         append_remote_list(if_list);

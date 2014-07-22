@@ -1430,16 +1430,11 @@ print_statistics_loop(gboolean machine_readable)
 
     if_list = get_interface_list(&err, &err_str);
     if (if_list == NULL) {
-        switch (err) {
-        case CANT_GET_INTERFACE_LIST:
-        case DONT_HAVE_PCAP:
+    	if (err == 0)
+            cmdarg_err("There are no interfaces on which a capture can be done");
+        else {
             cmdarg_err("%s", err_str);
             g_free(err_str);
-            break;
-
-        case NO_INTERFACES_FOUND:
-            cmdarg_err("There are no interfaces on which a capture can be done");
-            break;
         }
         return err;
     }
@@ -4755,15 +4750,7 @@ main(int argc, char *argv[])
 
         if_list = capture_interface_list(&err, &err_str,NULL);
         if (if_list == NULL) {
-            switch (err) {
-            case CANT_GET_INTERFACE_LIST:
-            case DONT_HAVE_PCAP:
-                cmdarg_err("%s", err_str);
-                g_free(err_str);
-                exit_main(2);
-                break;
-
-            case NO_INTERFACES_FOUND:
+            if (err == 0) {
                 /*
                  * If we're being run by another program, just give them
                  * an empty list of interfaces, don't report this as
@@ -4774,7 +4761,10 @@ main(int argc, char *argv[])
                     cmdarg_err("There are no interfaces on which a capture can be done");
                     exit_main(2);
                 }
-                break;
+            } else {
+                cmdarg_err("%s", err_str);
+                g_free(err_str);
+                exit_main(2);
             }
         }
 

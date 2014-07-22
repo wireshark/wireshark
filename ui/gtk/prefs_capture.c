@@ -1775,7 +1775,7 @@ ifopts_if_liststore_add(void)
 
 	if_list = capture_interface_list(&err, &err_str, main_window_update);  /* if_list = ptr to first element of list (or NULL) */
 	if (if_list == NULL) {
-		if (err != NO_INTERFACES_FOUND) {
+		if (err != 0) {
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_str);
 		}
 		g_free(err_str);

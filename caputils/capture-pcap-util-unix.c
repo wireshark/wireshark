@@ -308,7 +308,7 @@ get_interface_list(int *err, char **err_str)
 		/*
 		 * No interfaces found.
 		 */
-		*err = NO_INTERFACES_FOUND;
+		*err = 0;
 		if (err_str != NULL)
 			*err_str = NULL;
 	}

@@ -1076,6 +1076,13 @@ fill_capture_box(void)
        capture_interface_list(&error, &err_str,main_window_update);
        switch (error) {
 
+       case 0:
+            label_text = g_strdup("No interface can be used for capturing in "
+                                  "this system with the current configuration.\n"
+                                  "\n"
+                                  "See Capture Help below for details.");
+            break;
+
        case CANT_GET_INTERFACE_LIST:
             label_text = g_strdup_printf("No interface can be used for capturing in "
                                          "this system with the current configuration.\n\n"
@@ -1083,13 +1090,6 @@ fill_capture_box(void)
                                          "\n"
                                          "See Capture Help below for details.",
                                          err_str);
-            break;
-
-       case NO_INTERFACES_FOUND:
-            label_text = g_strdup("No interface can be used for capturing in "
-                                  "this system with the current configuration.\n"
-                                  "\n"
-                                  "See Capture Help below for details.");
             break;
 
        case DONT_HAVE_PCAP:
@@ -1140,7 +1140,7 @@ fill_capture_box(void)
         g_signal_connect(w, "activate-link", G_CALLBACK(activate_link_cb), NULL);
 #endif
         g_object_set_data(G_OBJECT(welcome_hb), CAPTURE_LABEL, w);
-        if (error == CANT_GET_INTERFACE_LIST || error == NO_INTERFACES_FOUND) {
+        if (error == CANT_GET_INTERFACE_LIST || error == 0) {
           item_hb_refresh = welcome_button(GTK_STOCK_REFRESH,
                                            "Refresh Interfaces",
                                            "Get a new list of the local interfaces.",
