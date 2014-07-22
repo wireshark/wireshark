@@ -306,7 +306,7 @@ conversation_type_e conversation_title_to_type(const char *title)
             return ct;
         }
     }
-    // Sensible default?
+    /* Sensible default? */
     return CONV_TYPE_TCP;
 }
 
