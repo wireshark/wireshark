@@ -1,8 +1,7 @@
                      Wireshark 1.12.0 Release Notes
 
-   I'm proud to announce the release of Wireshark 1.12.0-rc2. This
-   is the first public release candidate for Wireshark 1.12.0 (rc1
-   was only available as development builds).
+   I'm proud to announce the release of Wireshark 1.12.0-rc3. This
+   is a public release candidate for Wireshark 1.12.0.
      __________________________________________________________
 
 What is Wireshark?
@@ -19,8 +18,8 @@ What's New
    The following bugs have been fixed:
      * "On-the-wire" packet lengths are limited to 65535 bytes.
        ([1]Bug 8808, ws-buglink:9390)
-     * "Follow TCP Stream" shows only the first HTTP req+res.
-       ([2]Bug 9044)
+     * "Follow TCP Stream" shows only the first HTTP request and
+       response. ([2]Bug 9044)
      * Files with pcap-ng Simple Packet Blocks can't be read.
        ([3]Bug 9200)
      * MPLS-over-PPP isn't recognized. ([4]Bug 9492)
@@ -65,9 +64,6 @@ What's New
 
    The following features are new (or have been significantly
    updated) since version 1.10:
-     * Wireshark now uses the Qt application framework. The new UI
-       should provide a significantly better user experience,
-       particularly on Mac OS X and Windows.
      * The Windows installer now uninstalls the previous version
        of Wireshark silently. You can still run the uninstaller
        manually beforehand if you wish to run it interactively.
@@ -245,7 +241,7 @@ Frequently Asked Questions
    A complete FAQ is available on the [22]Wireshark web site.
      __________________________________________________________
 
-   Last updated 2014-06-13 11:50:15 PDT
+   Last updated 2014-07-22 09:52:22 PDT
 
 References
 
