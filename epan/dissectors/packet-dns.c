@@ -934,7 +934,7 @@ static const value_string edns0_opt_code_vals[] = {
   {O_N3U,        "N3U - NSEC3 Hash Understood (RFC6975)"},
   {O_CLIENT_SUBNET_EXP, "Experimental - CSUBNET - Client subnet" },
   {O_CLIENT_SUBNET, "CSUBNET - Client subnet" },
-  {O_EDNS_EXPIRE, "EDNS EXPIRE(RFC7314)"},
+  {O_EDNS_EXPIRE, "EDNS EXPIRE (RFC7314)"},
   {0,            NULL}
  };
 /* DNS-Based Authentication of Named Entities (DANE) Parameters
