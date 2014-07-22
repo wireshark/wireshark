@@ -135,7 +135,13 @@ void InterfaceTree::getInterfaceList()
 
     if (if_list == NULL) {
         QTreeWidgetItem *ti = new QTreeWidgetItem();
-        QLabel *err_label = new QLabel(gchar_free_to_qstring(err_str));
+        QLabel *err_label;
+
+        if (err == CANT_GET_INTERFACE_LIST || err == DONT_HAVE_PCAP) {
+            err_label = new QLabel(gchar_free_to_qstring(err_str));
+        } else {
+            err_label = new QLabel("No interfaces found");
+        }
         err_label->setWordWrap(true);
 
         setColumnCount(1);
@@ -143,8 +149,6 @@ void InterfaceTree::getInterfaceList()
         setItemWidget(ti, 0, err_label);
         resizeColumnToContents(0);
         return;
-    } else if (err_str) {
-        g_free(err_str);
     }
 
     // XXX Do we need to check for this? capture_interface_list returns an error if the length is 0.
