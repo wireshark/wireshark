@@ -1430,7 +1430,7 @@ print_statistics_loop(gboolean machine_readable)
 
     if_list = get_interface_list(&err, &err_str);
     if (if_list == NULL) {
-    	if (err == 0)
+       if (err == 0)
             cmdarg_err("There are no interfaces on which a capture can be done");
         else {
             cmdarg_err("%s", err_str);
