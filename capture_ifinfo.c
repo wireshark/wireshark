@@ -191,11 +191,8 @@ capture_interface_list(int *err, char **err_str)
     g_strfreev(raw_list);
 
     /* Check to see if we built a list */
-    if (if_list == NULL) {
+    if (if_list == NULL)
         *err = NO_INTERFACES_FOUND;
-        if (err_str)
-            *err_str = g_strdup("No interfaces found");
-    }
 #ifdef HAVE_PCAP_REMOTE
     if (remote_interface_list && g_list_length(remote_interface_list) > 0) {
         append_remote_list(if_list);

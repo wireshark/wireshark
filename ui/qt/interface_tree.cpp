@@ -122,13 +122,15 @@ void InterfaceTree::getInterfaceList()
 
     if (if_list == NULL) {
         QTreeWidgetItem *ti = new QTreeWidgetItem();
-        ti->setText(0, QString(tr("%1")).arg(QString().fromUtf8(err_str)));
-        g_free(err_str);
+        if (err == 0) {
+            ti->setText(0, QString("No interfaces found"));
+        } else {
+            ti->setText(0, QString(tr("%1")).arg(QString().fromUtf8(err_str)));
+            g_free(err_str);
+        }
         addTopLevelItem(ti);
         resizeColumnToContents(0);
         return;
-    } else if (err_str) {
-        g_free(err_str);
     }
 
     // XXX Do we need to check for this? capture_interface_list returns an error if the length is 0.
