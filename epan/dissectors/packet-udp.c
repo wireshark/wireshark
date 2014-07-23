@@ -43,6 +43,7 @@
 
 #include "packet-ip.h"
 #include <epan/conversation.h>
+#include <epan/conversation_table.h>
 #include <epan/tap.h>
 #include <epan/decode_as.h>
 
@@ -278,6 +279,33 @@ get_udp_conversation_data(conversation_t *conv, packet_info *pinfo)
   }
 
   return udpd;
+}
+
+static const char* udp_conv_get_filter_type(conv_item_t* conv _U_, conv_filter_type_e filter)
+{
+    if (filter == CONV_FT_SRC_PORT)
+        return "udp.srcport";
+
+    if (filter == CONV_FT_DST_PORT)
+        return "udp.dstport";
+
+    if (filter == CONV_FT_ANY_PORT)
+        return "udp.port";
+
+    return CONV_FILTER_INVALID;
+}
+
+static ct_dissector_info_t udp_ct_dissector_info = {&udp_conv_get_filter_type};
+
+static int
+udpip_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
+{
+  conv_hash_t *hash = (conv_hash_t*) pct;
+  const e_udphdr *udphdr=(const e_udphdr *)vip;
+
+  add_conversation_table_data(hash, &udphdr->ip_src, &udphdr->ip_dst, udphdr->uh_sport, udphdr->uh_dport, 1, pinfo->fd->pkt_len, &pinfo->rel_ts, &udp_ct_dissector_info, PT_UDP);
+
+  return 1;
 }
 
 /* Attach process info to a flow */
@@ -891,6 +919,7 @@ proto_register_udp(void)
                                  &udplite_check_checksum);
 
   register_decode_as(&udp_da);
+  register_conversation_table(proto_udp, FALSE, udpip_conversation_packet);
 
   register_init_routine(udp_init);
 

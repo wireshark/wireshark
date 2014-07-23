@@ -92,6 +92,7 @@
 #include <epan/uat.h>
 #include <epan/print.h>
 #include <epan/timestamp.h>
+#include <epan/conversation_table.h>
 
 #include <wsutil/cmdarg_err.h>
 #include <wsutil/plugins.h>
@@ -189,6 +190,7 @@
 #include "ui/gtk/proto_help.h"
 #include "ui/gtk/packet_list.h"
 #include "ui/gtk/filter_expression_save_dlg.h"
+#include "ui/gtk/conversations_table.h"
 
 #include "ui/gtk/old-gtk-compat.h"
 
@@ -2575,6 +2577,7 @@ main(int argc, char *argv[])
 #endif
 
     register_all_tap_listeners();
+    conversation_table_set_gui_info(init_conversation_table);
 
     splash_update(RA_PREFERENCES, NULL, (gpointer)splash_win);
 

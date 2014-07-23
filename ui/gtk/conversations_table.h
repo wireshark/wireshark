@@ -25,7 +25,8 @@
 #define __CONVERSATIONS_TABLE_H__
 
 #include <epan/conv_id.h>
-#include <ui/conversation_hash.h>
+#include <epan/conversation_table.h>
+#include <ui/conversation_ui.h>
 
 /** @file
  *  Conversation definitions.
@@ -52,19 +53,12 @@ typedef struct _conversations_table {
     int         reselection_idx;     /**< conversation index to reselect */
 } conversations_table;
 
-/** Register the conversation table for the multiple conversation window.
- *
- * @param filter the optional filter name or NULL
- * @param packet_func the function to be called for each incoming packet
- */
-extern void register_conversation_table(conversation_type_e conv_type, const char *filter, tap_packet_cb packet_func);
-
 /** Init the conversation table for the single conversation window.
  *
  * @param filter the optional filter name or NULL
  * @param packet_func the function to be called for each incoming packet
  */
-extern void init_conversation_table(conversation_type_e conv_type, const char *filter, tap_packet_cb packet_func);
+extern void init_conversation_table(struct register_ct* ct, const char *filter);
 
 /** Callback for "Conversations" statistics item.
  *
@@ -72,5 +66,11 @@ extern void init_conversation_table(conversation_type_e conv_type, const char *f
  * @param data unused
  */
 extern void init_conversation_notebook_cb(GtkWidget *widget, gpointer data);
+
+/** Function called to instantiate the "GTK conversation table display"
+ *
+ * @param table conversation table to be created
+ */
+extern void conversation_endpoint_cb(register_ct_t* table);
 
 #endif /* __CONVERSATIONS_TABLE_H__ */

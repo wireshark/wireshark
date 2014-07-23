@@ -27,6 +27,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/exceptions.h>
+#include <epan/conversation_table.h>
 #include <wsutil/pint.h>
 #include "packet-tr.h"
 #include "packet-llc.h"
@@ -126,6 +127,33 @@ static const value_string direction_vals[] = {
 static dissector_handle_t trmac_handle;
 static dissector_handle_t llc_handle;
 static dissector_handle_t data_handle;
+
+static const char* tr_conv_get_filter_type(conv_item_t* conv, conv_filter_type_e filter)
+{
+	if ((filter == CONV_FT_SRC_ADDRESS) && (conv->src_address.type == AT_ETHER))
+		return "tr.src";
+
+	if ((filter == CONV_FT_DST_ADDRESS) && (conv->dst_address.type == AT_ETHER))
+		return "tr.dst";
+
+	if ((filter == CONV_FT_ANY_ADDRESS) && (conv->src_address.type == AT_ETHER))
+		return "tr.addr";
+
+	return CONV_FILTER_INVALID;
+}
+
+static ct_dissector_info_t tr_ct_dissector_info = {&tr_conv_get_filter_type};
+
+static int
+tr_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
+{
+    conv_hash_t *hash = (conv_hash_t*) pct;
+	const tr_hdr *trhdr=(const tr_hdr *)vip;
+
+	add_conversation_table_data(hash, &trhdr->src, &trhdr->dst, 0, 0, 1, pinfo->fd->pkt_len, &pinfo->rel_ts, &tr_ct_dissector_info, PT_NONE);
+
+	return 1;
+}
 
 /*
  * DODGY LINUX HACK DODGY LINUX HACK
@@ -734,6 +762,8 @@ proto_register_tr(void)
 
 	register_dissector("tr", dissect_tr, proto_tr);
 	tr_tap=register_tap("tr");
+
+	register_conversation_table(proto_tr, TRUE, tr_conversation_packet);
 }
 
 void

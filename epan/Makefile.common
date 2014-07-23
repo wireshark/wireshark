@@ -35,6 +35,7 @@ LIBWIRESHARK_SRC =		\
 	column.c		\
 	column-utils.c		\
 	conversation.c		\
+	conversation_table.c	\
 	crc16-tvb.c		\
 	crc32-tvb.c		\
 	crc8-tvb.c		\
@@ -163,6 +164,7 @@ LIBWIRESHARK_INCLUDES =		\
 	column-utils.h		\
 	conversation.h		\
 	conversation_debug.h		\
+	conversation_table.h		\
 	conv_id.h		\
 	crc16-tvb.h		\
 	crc32-tvb.h		\

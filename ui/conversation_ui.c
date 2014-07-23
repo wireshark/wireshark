@@ -1,6 +1,6 @@
-/* stat_cmd_args.h
- * Declarations of routines to register "-z" command-line argument handlers
- * for stats
+/* conversation_ui.c
+ * Copied from gtk/conversations_table.c   2003 Ronnie Sahlberg
+ * Helper routines common to all conversations taps.
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -20,34 +20,32 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
+#include "config.h"
 
-#ifndef __STAT_CMD_ARGS_H__
-#define __STAT_CMD_ARGS_H__
+#include "conversation_ui.h"
+#include "utf8_entities.h"
 
-#include "ws_symbol_export.h"
+const char *column_titles[CONV_NUM_COLUMNS] = {
+    "Address A",
+    "Port A",
+    "Address B",
+    "Port B",
+    "Packets",
+    "Bytes",
+    "Packets A " UTF8_RIGHTWARDS_ARROW " B",
+    "Bytes A " UTF8_RIGHTWARDS_ARROW " B",
+    "Packets B " UTF8_RIGHTWARDS_ARROW " A",
+    "Bytes B " UTF8_RIGHTWARDS_ARROW " A",
+    "Rel Start",
+    "Duration",
+    "bps A " UTF8_RIGHTWARDS_ARROW " B",
+    "bps B " UTF8_RIGHTWARDS_ARROW " A"
+};
 
-#ifdef __cplusplus
-extern "C" {
-#endif /* __cplusplus */
+const char *conn_a_title = "Connection A";
+const char *conn_b_title = "Connection B";
 
-/** Register a stat ("-z") command line argument.
- *
- * @param cmd The command name without arguments, e.g. "conv,tcp" or "io,stat".
- * MUST be valid when other stat_cmd routines below are called.
- * @param func Callbak to be invoked when the CLI argument is supplied.
- * @param userdata Additional data for the callback.
- */
-WS_DLL_PUBLIC void register_stat_cmd_arg(const char *cmd,
-    void (*func)(const char *arg,void* userdata), void* userdata);
-WS_DLL_PUBLIC gboolean process_stat_cmd_arg(char *optstr);
-WS_DLL_PUBLIC void list_stat_cmd_args(void);
-WS_DLL_PUBLIC void start_requested_stats(void);
 
-#ifdef __cplusplus
-}
-#endif /* __cplusplus */
-
-#endif
 
 /*
  * Editor modelines

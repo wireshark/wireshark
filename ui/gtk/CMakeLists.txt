@@ -130,21 +130,6 @@ set(WIRESHARK_TAP_SRC
 	camel_counter.c
 	camel_srt.c
 	compare_stat.c
-	conversations_eth.c
-	conversations_fc.c
-	conversations_fddi.c
-	conversations_ip.c
-	conversations_ipv6.c
-	conversations_ipx.c
-	conversations_jxta.c
-	conversations_ncp.c
-	conversations_rsvp.c
-	conversations_sctp.c
-	conversations_tcpip.c
-	conversations_tr.c
-	conversations_udpip.c
-	conversations_usb.c
-	conversations_wlan.c
 	dcerpc_stat.c
 	diameter_stat.c
 	expert_comp_dlg.c

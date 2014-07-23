@@ -30,6 +30,7 @@
 #include <epan/etypes.h>
 #include <epan/addr_resolv.h>
 #include <epan/expert.h>
+#include <epan/conversation_table.h>
 #include <wsutil/pint.h>
 #include "packet-eth.h"
 #include "packet-ieee8023.h"
@@ -105,6 +106,34 @@ static const true_false_string lg_tfs = {
     "Locally administered address (this is NOT the factory default)",
     "Globally unique address (factory default)"
 };
+
+
+static const char* eth_conv_get_filter_type(conv_item_t* conv, conv_filter_type_e filter)
+{
+    if ((filter == CONV_FT_SRC_ADDRESS) && (conv->src_address.type == AT_ETHER))
+        return "eth.src";
+
+    if ((filter == CONV_FT_DST_ADDRESS) && (conv->dst_address.type == AT_ETHER))
+        return "eth.dst";
+
+    if ((filter == CONV_FT_ANY_ADDRESS) && (conv->src_address.type == AT_ETHER))
+        return "eth.addr";
+
+    return CONV_FILTER_INVALID;
+}
+
+static ct_dissector_info_t eth_ct_dissector_info = {&eth_conv_get_filter_type};
+
+static int
+eth_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
+{
+    conv_hash_t *hash = (conv_hash_t*) pct;
+    const eth_hdr *ehdr=(const eth_hdr *)vip;
+
+    add_conversation_table_data(hash, &ehdr->src, &ehdr->dst, 0, 0, 1, pinfo->fd->pkt_len, &pinfo->rel_ts, &eth_ct_dissector_info, PT_NONE);
+
+    return 1;
+}
 
 /* These are the Netware-ish names for the different Ethernet frame types.
     EthernetII: The ethernet with a Type field instead of a length field
@@ -941,6 +970,8 @@ proto_register_eth(void)
     register_dissector("eth_withfcs", dissect_eth_withfcs, proto_eth);
     register_dissector("eth", dissect_eth_maybefcs, proto_eth);
     eth_tap = register_tap("eth");
+
+    register_conversation_table(proto_eth, TRUE, eth_conversation_packet);
 }
 
 void

@@ -39,6 +39,7 @@
 
 #include <epan/packet.h>
 #include <epan/conversation.h>
+#include <epan/conversation_table.h>
 #include <epan/strutil.h>
 #include <epan/prefs.h>
 #include <epan/tap.h>
@@ -193,6 +194,34 @@ struct jxta_stream_conversation_data {
 };
 
 typedef struct jxta_stream_conversation_data jxta_stream_conversation_data;
+
+static const char* jxta_conv_get_filter_type(conv_item_t* conv, conv_filter_type_e filter)
+{
+    if ((filter == CONV_FT_SRC_ADDRESS) && (conv->src_address.type == AT_URI))
+        return "jxta.message.src";
+
+    if ((filter == CONV_FT_DST_ADDRESS) && (conv->dst_address.type == AT_URI))
+        return "jxta.message.dst";
+
+    if ((filter == CONV_FT_ANY_ADDRESS) && (conv->src_address.type == AT_URI))
+        return "jxta.message.address";
+
+    return CONV_FILTER_INVALID;
+}
+
+static ct_dissector_info_t jxta_ct_dissector_info = {&jxta_conv_get_filter_type};
+
+static int
+jxta_conversation_packet(void *pct, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *vip)
+{
+    conv_hash_t *hash = (conv_hash_t*) pct;
+    const jxta_tap_header *jxtahdr = (const jxta_tap_header *) vip;
+
+    add_conversation_table_data(hash, &jxtahdr->src_address, &jxtahdr->dest_address,
+        0, 0, 1, jxtahdr->size, NULL, &jxta_ct_dissector_info, PT_NONE);
+
+    return 1;
+}
 
 /**
 *   Prototypes
@@ -2322,6 +2351,8 @@ void proto_register_jxta(void)
 
     prefs_register_bool_preference(jxta_module, "sctp.heuristic", "Try to discover JXTA in SCTP connections",
                                    "Enable to inspect SCTP connections for JXTA conversations.", &gSCTP_HEUR);
+
+    register_conversation_table(proto_jxta, TRUE, jxta_conversation_packet);
 }
 
 

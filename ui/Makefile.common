@@ -45,7 +45,7 @@ WIRESHARK_UI_SRC = \
 	alert_box.c		\
 	capture.c		\
 	capture_ui_utils.c	\
-	conversation_hash.c	\
+	conversation_ui.c	\
 	decode_as_utils.c	\
 	export_object.c		\
 	export_object_dicom.c	\
@@ -80,7 +80,7 @@ noinst_HEADERS = \
 	capture.h		\
 	capture_globals.h	\
 	capture_ui_utils.h	\
-	conversation_hash.h	\
+	conversation_ui.h	\
 	decode_as_utils.h	\
 	export_object.h		\
 	last_open_dir.h		\

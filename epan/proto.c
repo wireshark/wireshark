@@ -4827,12 +4827,11 @@ proto_register_protocol(const char *name, const char *short_name,
 	}
 	g_hash_table_insert(proto_names, key, (gpointer)name);
 
-	existing_name = (const char *)g_hash_table_lookup(proto_short_names, (gpointer)short_name);
-	if (existing_name != NULL) {
+	existing_protocol = (const protocol_t *)g_hash_table_lookup(proto_short_names, (gpointer)short_name);
+	if (existing_protocol != NULL) {
 		g_error("Duplicate protocol short_name \"%s\"!"
 			" This might be caused by an inappropriate plugin or a development error.", short_name);
 	}
-	g_hash_table_insert(proto_short_names, (gpointer)short_name, (gpointer)short_name);
 
 	found_invalid = FALSE;
 	for (i = 0; filter_name[i]; i++) {
@@ -4865,6 +4864,7 @@ proto_register_protocol(const char *name, const char *short_name,
 	/* list will be sorted later by name, when all protocols completed registering */
 	protocols = g_list_prepend(protocols, protocol);
 	g_hash_table_insert(proto_filter_names, (gpointer)filter_name, protocol);
+	g_hash_table_insert(proto_short_names, (gpointer)short_name, protocol);
 
 	/* Here we allocate a new header_field_info struct */
 	hfinfo = g_slice_new(header_field_info);
@@ -5006,6 +5006,22 @@ int proto_get_id_by_filter_name(const gchar* filter_name)
 	}
 
 	protocol = (const protocol_t *)g_hash_table_lookup(proto_filter_names, (gpointer)filter_name);
+
+	if (protocol == NULL)
+		return -1;
+	return protocol->proto_id;
+}
+
+int proto_get_id_by_short_name(const gchar* short_name)
+{
+	const protocol_t *protocol = NULL;
+
+	if(!short_name){
+		fprintf(stderr, "No short name present");
+		DISSECTOR_ASSERT(short_name);
+	}
+
+	protocol = (const protocol_t *)g_hash_table_lookup(proto_short_names, (gpointer)short_name);
 
 	if (protocol == NULL)
 		return -1;

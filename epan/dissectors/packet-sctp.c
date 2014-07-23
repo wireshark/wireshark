@@ -64,6 +64,7 @@
 #include <epan/uat.h>
 #include <epan/wmem/wmem.h>
 #include <epan/expert.h>
+#include <epan/conversation_table.h>
 #include <epan/show_exception.h>
 #include <epan/decode_as.h>
 #include <wsutil/crc32.h>
@@ -774,6 +775,34 @@ sctp_ppi_value2(packet_info *pinfo)
     return p_get_proto_data(pinfo->pool, pinfo, proto_sctp, 1);
 }
 
+static const char* sctp_conv_get_filter_type(conv_item_t* conv _U_, conv_filter_type_e filter)
+{
+    if (filter == CONV_FT_SRC_PORT)
+        return "sctp.srcport";
+
+    if (filter == CONV_FT_DST_PORT)
+        return "sctp.dstport";
+
+    if (filter == CONV_FT_ANY_PORT)
+        return "sctp.port";
+
+    return CONV_FILTER_INVALID;
+}
+
+static ct_dissector_info_t sctp_ct_dissector_info = {&sctp_conv_get_filter_type};
+
+static int
+sctp_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
+{
+  conv_hash_t *hash = (conv_hash_t*) pct;
+  const struct _sctp_info *sctphdr=(const struct _sctp_info *)vip;
+
+  add_conversation_table_data(hash, &sctphdr->ip_src, &sctphdr->ip_dst,
+        sctphdr->sport, sctphdr->dport, 1, pinfo->fd->pkt_len, &pinfo->rel_ts, &sctp_ct_dissector_info, PT_SCTP);
+
+
+  return 1;
+}
 
 static unsigned int
 sctp_adler32(const unsigned char *buf, unsigned int len)
@@ -4834,6 +4863,8 @@ proto_register_sctp(void)
 
   register_decode_as(&sctp_da_port);
   register_decode_as(&sctp_da_ppi);
+
+  register_conversation_table(proto_sctp, FALSE, sctp_conversation_packet);
 }
 
 void

@@ -34,6 +34,7 @@
 #include <wiretap/wtap.h>
 #include <epan/reassemble.h>
 #include <epan/conversation.h>
+#include <epan/conversation_table.h>
 #include <epan/etypes.h>
 #include "packet-fc.h"
 #include "packet-fclctl.h"
@@ -205,6 +206,32 @@ fc_exchange_init_protocol(void)
     fcseq_req_hash = g_hash_table_new(fcseq_hash, fcseq_equal);
 }
 
+static const char* fc_conv_get_filter_type(conv_item_t* conv, conv_filter_type_e filter)
+{
+    if ((filter == CONV_FT_SRC_ADDRESS) && (conv->src_address.type == AT_FC))
+        return "fc.s_id";
+
+    if ((filter == CONV_FT_DST_ADDRESS) && (conv->dst_address.type == AT_FC))
+        return "fc.d_id";
+
+    if ((filter == CONV_FT_ANY_ADDRESS) && (conv->src_address.type == AT_FC))
+        return "fc.id";
+
+    return CONV_FILTER_INVALID;
+}
+
+static ct_dissector_info_t fc_ct_dissector_info = {&fc_conv_get_filter_type};
+
+static int
+fc_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
+{
+    conv_hash_t *hash = (conv_hash_t*) pct;
+    const fc_hdr *fchdr=(const fc_hdr *)vip;
+
+    add_conversation_table_data(hash, &fchdr->s_id, &fchdr->d_id, 0, 0, 1, pinfo->fd->pkt_len, &pinfo->rel_ts, &fc_ct_dissector_info, PT_NONE);
+
+    return 1;
+}
 
 const value_string fc_fc4_val[] = {
     {FC_TYPE_BLS,        "Basic Link Svc"},
@@ -1579,6 +1606,8 @@ proto_register_fc(void)
     proto_register_subtree_array(sof_ett, array_length(sof_ett));
 
     fcsof_handle = register_dissector("fcsof", dissect_fcsof, proto_fcsof);
+
+    register_conversation_table(proto_fc, TRUE, fc_conversation_packet);
 }
 
 

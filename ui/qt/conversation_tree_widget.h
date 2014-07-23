@@ -28,8 +28,9 @@
 
 #include <epan/packet.h>
 #include <epan/tap.h>
+#include "epan/conversation_table.h"
 
-#include "ui/conversation_hash.h"
+#include "ui/conversation_ui.h"
 
 #include "filter_action.h"
 
@@ -42,20 +43,19 @@ class ConversationTreeWidget : public QTreeWidget
 {
     Q_OBJECT
 public:
-    explicit ConversationTreeWidget(QWidget *parent, conversation_type_e conv_type);
+    explicit ConversationTreeWidget(QWidget *parent, register_ct_t* table);
     ~ConversationTreeWidget();
 
     static void tapReset(void *conv_tree_ptr);
-    static int tapPacket(void *conv_tree_ptr, packet_info *pinfo, epan_dissect_t *edt, const void *vip);
     static void tapDraw(void *conv_tree_ptr);
 
     // String, int, or double data for each column in a row.
     // Passing -1 returns titles.
     QList<QVariant> rowData(int row);
 
-    conversation_type_e conversationType() { return conv_type_; }
     // Title string plus optional count
     const QString &conversationTitle() { return title_; }
+    conv_hash_t* conversationHash() {return &hash_;}
 
 signals:
     void titleChanged(QWidget *tree, const QString &text);
@@ -68,7 +68,7 @@ protected:
     void contextMenuEvent(QContextMenuEvent *event);
 
 private:
-    conversation_type_e conv_type_;
+    register_ct_t* table_;
     QString title_;
     conv_hash_t hash_;
     bool resolve_names_;

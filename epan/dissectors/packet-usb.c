@@ -34,6 +34,7 @@
 #include <epan/wmem/wmem.h>
 #include <epan/tap.h>
 #include <epan/conversation.h>
+#include <epan/conversation_table.h>
 #include <epan/expert.h>
 #include <epan/prefs.h>
 #include <epan/decode_as.h>
@@ -1101,6 +1102,30 @@ get_usb_iface_conv_info(packet_info *pinfo, guint8 interface_num)
     return get_usb_conv_info(conversation);
 }
 
+static const char* usb_conv_get_filter_type(conv_item_t* conv, conv_filter_type_e filter)
+{
+    if ((filter == CONV_FT_SRC_ADDRESS) && (conv->src_address.type == AT_USB))
+        return "usb.sa";
+
+    if ((filter == CONV_FT_DST_ADDRESS) && (conv->dst_address.type == AT_USB))
+        return "usb.da";
+
+    if ((filter == CONV_FT_ANY_ADDRESS) && (conv->src_address.type == AT_USB))
+        return "usb.addr";
+
+    return CONV_FILTER_INVALID;
+}
+
+static ct_dissector_info_t usb_ct_dissector_info = {&usb_conv_get_filter_type};
+
+static int
+usb_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip _U_)
+{
+    conv_hash_t *hash = (conv_hash_t*) pct;
+    add_conversation_table_data(hash, &pinfo->src, &pinfo->dst, 0, 0, 1, pinfo->fd->pkt_len, &pinfo->rel_ts, &usb_ct_dissector_info, PT_NONE);
+
+    return 1;
+}
 
 /* SETUP dissectors */
 
@@ -4087,6 +4112,11 @@ proto_register_usb(void)
 
     expert_module_t* expert_usb;
 
+    proto_usb = proto_register_protocol("USB", "USB", "usb");
+    proto_register_field_array(proto_usb, hf, array_length(hf));
+    proto_register_subtree_array(usb_subtrees, array_length(usb_subtrees));
+    linux_usb_handle = register_dissector("usb", dissect_linux_usb, proto_usb);
+
     expert_usb = expert_register_protocol(proto_usb);
     expert_register_field_array(expert_usb, ei, array_length(ei));
 
@@ -4095,11 +4125,6 @@ proto_register_usb(void)
     device_to_dissector = register_dissector_table("usb.device",     "USB device",   FT_UINT32, BASE_HEX);
     protocol_to_dissector = register_dissector_table("usb.protocol", "USB protocol", FT_UINT32, BASE_HEX);
     product_to_dissector = register_dissector_table("usb.product",   "USB product",  FT_UINT32, BASE_HEX);
-
-    proto_usb = proto_register_protocol("USB", "USB", "usb");
-    proto_register_field_array(proto_usb, hf, array_length(hf));
-    proto_register_subtree_array(usb_subtrees, array_length(usb_subtrees));
-    linux_usb_handle = register_dissector("usb", dissect_linux_usb, proto_usb);
 
     usb_bulk_dissector_table = register_dissector_table("usb.bulk",
         "USB bulk endpoint", FT_UINT8, BASE_DEC);
@@ -4125,6 +4150,8 @@ proto_register_usb(void)
     register_decode_as(&usb_protocol_da);
     register_decode_as(&usb_product_da);
     register_decode_as(&usb_device_da);
+
+    register_conversation_table(proto_usb, TRUE, usb_conversation_packet);
 }
 
 void

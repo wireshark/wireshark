@@ -49,7 +49,6 @@
 
 #include <QContextMenuEvent>
 #include <QTreeWidgetItemIterator>
-#include <QDebug>
 
 // QTreeWidget subclass that allows tapping
 
@@ -61,6 +60,8 @@ const QString bps_na_ = QObject::tr("N/A");
 QMap<FilterAction::ActionDirection, conv_direction_e> fad_to_cd_;
 
 // QTreeWidgetItem subclass that allows sorting
+const int ci_col_ = 0;
+const int pkts_col_ = 1;
 class ConversationTreeWidgetItem : public QTreeWidgetItem
 {
 public:
@@ -70,9 +71,16 @@ public:
 
     // Set column text to its cooked representation.
     void update(gboolean resolve_names) {
-        conv_item_t *conv_item = data(0, Qt::UserRole).value<conv_item_t *>();
+        conv_item_t *conv_item = data(ci_col_, Qt::UserRole).value<conv_item_t *>();
+        bool ok;
+        quint64 cur_packets = data(pkts_col_, Qt::UserRole).toULongLong(&ok);
 
         if (!conv_item) {
+            return;
+        }
+
+        quint64 packets = conv_item->tx_frames + conv_item->rx_frames;
+        if (ok && cur_packets == packets) {
             return;
         }
 
@@ -84,7 +92,7 @@ public:
         double duration = nstime_to_sec(&conv_item->stop_time) - nstime_to_sec(&conv_item->start_time);
         QString col_str, bps_ab = bps_na_, bps_ba = bps_na_;
 
-        col_str = QString("%L1").arg(conv_item->tx_frames + conv_item->rx_frames);
+        col_str = QString("%L1").arg(packets);
         setText(CONV_COLUMN_PACKETS, col_str);
         col_str = gchar_free_to_qstring(format_size(conv_item->tx_bytes + conv_item->rx_bytes, format_size_unit_none|format_size_prefix_si));
         setText(CONV_COLUMN_BYTES, col_str);
@@ -104,13 +112,12 @@ public:
         }
         setText(CONV_COLUMN_BPS_AB, bps_ab);
         setText(CONV_COLUMN_BPS_BA, bps_ba);
-
-        conv_item->modified = FALSE;
+        setData(pkts_col_, Qt::UserRole, qVariantFromValue(packets));
     }
 
     // Return a string, qulonglong, double, or invalid QVariant representing the raw column data.
     QVariant colData(int col, bool resolve_names) {
-        conv_item_t *conv_item = data(0, Qt::UserRole).value<conv_item_t *>();
+        conv_item_t *conv_item = data(ci_col_, Qt::UserRole).value<conv_item_t *>();
 
         if (!conv_item) {
             return QVariant();
@@ -167,8 +174,8 @@ public:
 
     bool operator< (const QTreeWidgetItem &other) const
     {
-        conv_item_t *conv_item = data(0, Qt::UserRole).value<conv_item_t *>();
-        conv_item_t *other_item = other.data(0, Qt::UserRole).value<conv_item_t *>();
+        conv_item_t *conv_item = data(ci_col_, Qt::UserRole).value<conv_item_t *>();
+        conv_item_t *other_item = other.data(ci_col_, Qt::UserRole).value<conv_item_t *>();
 
         if (!conv_item || !other_item) {
             return false;
@@ -215,9 +222,9 @@ public:
 private:
 };
 
-ConversationTreeWidget::ConversationTreeWidget(QWidget *parent, conversation_type_e conv_type) :
+ConversationTreeWidget::ConversationTreeWidget(QWidget *parent, register_ct_t* table) :
     QTreeWidget(parent),
-    conv_type_(conv_type),
+    table_(table),
     hash_(),
     resolve_names_(false)
 {
@@ -230,10 +237,10 @@ ConversationTreeWidget::ConversationTreeWidget(QWidget *parent, conversation_typ
         headerItem()->setText(i, column_titles[i]);
     }
 
-    if (conversation_hide_ports(conv_type)) {
+    if (get_conversation_hide_ports(table_)) {
         hideColumn(CONV_COLUMN_SRC_PORT);
         hideColumn(CONV_COLUMN_DST_PORT);
-    } else if (conv_type == CONV_TYPE_NCP) {
+    } else if (!strcmp(proto_get_protocol_filter_name(get_conversation_proto_id(table_)), "ncp")) {
         headerItem()->setText(CONV_COLUMN_SRC_PORT, conn_a_title);
         headerItem()->setText(CONV_COLUMN_DST_PORT, conn_b_title);
     }
@@ -322,65 +329,25 @@ ConversationTreeWidget::ConversationTreeWidget(QWidget *parent, conversation_typ
 }
 
 ConversationTreeWidget::~ConversationTreeWidget() {
-    remove_tap_listener(this);
+    remove_tap_listener(&hash_);
     reset_conversation_table_data(&hash_);
 }
 
 // Callbacks for register_tap_listener
 void ConversationTreeWidget::tapReset(void *conv_tree_ptr)
 {
-    ConversationTreeWidget *conv_tree = static_cast<ConversationTreeWidget *>(conv_tree_ptr);
+    conv_hash_t *hash = (conv_hash_t*)conv_tree_ptr;
+    ConversationTreeWidget *conv_tree = static_cast<ConversationTreeWidget *>(hash->user_data);
     if (!conv_tree) return;
 
     conv_tree->clear();
     reset_conversation_table_data(&conv_tree->hash_);
 }
 
-int ConversationTreeWidget::tapPacket(void *conv_tree_ptr, packet_info *pinfo, epan_dissect_t *edt, const void *vip) {
-    Q_UNUSED(edt);
-    ConversationTreeWidget *conv_tree = static_cast<ConversationTreeWidget *>(conv_tree_ptr);
-    if (!conv_tree) return 0;
-
-    switch (conv_tree->conv_type_) {
-    case CONV_TYPE_ETHERNET:
-        return conv_tree->tapEthernetPacket(pinfo, vip);
-    case CONV_TYPE_FIBRE_CHANNEL:
-        return conv_tree->tapFibreChannelPacket(pinfo, vip);
-    case CONV_TYPE_FDDI:
-        return conv_tree->tapFddiPacket(pinfo, vip);
-    case CONV_TYPE_IPV4:
-        return conv_tree->tapIPv4Packet(pinfo, vip);
-    case CONV_TYPE_IPV6:
-        return conv_tree->tapIPv6Packet(pinfo, vip);
-    case CONV_TYPE_IPX:
-        return conv_tree->tapIpxPacket(pinfo, vip);
-    case CONV_TYPE_JXTA:
-        return conv_tree->tapJxtaPacket(pinfo, vip);
-    case CONV_TYPE_NCP:
-        return conv_tree->tapNcpPacket(pinfo, vip);
-    case CONV_TYPE_RSVP:
-        return conv_tree->tapRsvpPacket(pinfo, vip);
-    case CONV_TYPE_SCTP:
-        return conv_tree->tapSctpPacket(pinfo, vip);
-    case CONV_TYPE_TCP:
-        return conv_tree->tapTcpPacket(pinfo, vip);
-    case CONV_TYPE_TOKEN_RING:
-        return conv_tree->tapTokenRingPacket(pinfo, vip);
-    case CONV_TYPE_UDP:
-        return conv_tree->tapUdpPacket(pinfo, vip);
-    case CONV_TYPE_USB:
-        return conv_tree->tapUsbPacket(pinfo, vip);
-    case CONV_TYPE_WLAN:
-        return conv_tree->tapWlanPacket(pinfo, vip);
-    default:
-        return 0;
-    }
-
-}
-
 void ConversationTreeWidget::tapDraw(void *conv_tree_ptr)
 {
-    ConversationTreeWidget *conv_tree = static_cast<ConversationTreeWidget *>(conv_tree_ptr);
+    conv_hash_t *hash = (conv_hash_t*)conv_tree_ptr;
+    ConversationTreeWidget *conv_tree = static_cast<ConversationTreeWidget *>(hash->user_data);
     if (!conv_tree) return;
 
     conv_tree->updateItems();
@@ -443,7 +410,7 @@ void ConversationTreeWidget::initDirectionMap()
 }
 
 void ConversationTreeWidget::updateItems() {
-    title_ = conversation_title(conv_type_);
+    title_ = proto_get_protocol_short_name(find_protocol_by_id(get_conversation_proto_id(table_)));
 
     if (hash_.conv_array && hash_.conv_array->len > 0) {
         title_.append(QString(" %1 %2").arg(UTF8_MIDDLE_DOT).arg(hash_.conv_array->len));
@@ -458,7 +425,7 @@ void ConversationTreeWidget::updateItems() {
     for (int i = topLevelItemCount(); i < (int) hash_.conv_array->len; i++) {
         ConversationTreeWidgetItem *ctwi = new ConversationTreeWidgetItem(this);
         conv_item_t *conv_item = &g_array_index(hash_.conv_array, conv_item_t, i);
-        ctwi->setData(0, Qt::UserRole, qVariantFromValue(conv_item));
+        ctwi->setData(ci_col_, Qt::UserRole, qVariantFromValue(conv_item));
         addTopLevelItem(ctwi);
 
         for (int col = 0; col < columnCount(); col++) {
@@ -497,7 +464,7 @@ void ConversationTreeWidget::filterActionTriggered()
         return;
     }
 
-    conv_item_t *conv_item = ctwi->data(0, Qt::UserRole).value<conv_item_t *>();
+    conv_item_t *conv_item = ctwi->data(ci_col_, Qt::UserRole).value<conv_item_t *>();
     if (!conv_item) {
         return;
     }
@@ -505,159 +472,6 @@ void ConversationTreeWidget::filterActionTriggered()
     QString filter = get_conversation_filter(conv_item, fad_to_cd_[fa->actionDirection()]);
     emit filterAction(filter, fa->action(), fa->actionType());
 }
-
-int ConversationTreeWidget::tapEthernetPacket(packet_info *pinfo, const void *vip)
-{
-    const eth_hdr *ehdr = (const eth_hdr *)vip;
-
-    add_conversation_table_data(&hash_, &ehdr->src, &ehdr->dst, 0, 0, 1, pinfo->fd->pkt_len, &pinfo->rel_ts, CONV_TYPE_ETHERNET, PT_NONE);
-    return 1;
-}
-
-int ConversationTreeWidget::tapFibreChannelPacket(packet_info *pinfo, const void *vip)
-{
-    const fc_hdr *fchdr=(const fc_hdr *)vip;
-
-    add_conversation_table_data(&hash_, &fchdr->s_id, &fchdr->d_id, 0, 0, 1, pinfo->fd->pkt_len, &pinfo->rel_ts, CONV_TYPE_FIBRE_CHANNEL, PT_NONE);
-    return 1;
-}
-
-int ConversationTreeWidget::tapFddiPacket(packet_info *pinfo, const void *vip)
-{
-    const fddi_hdr *ehdr=(const fddi_hdr *)vip;
-
-    add_conversation_table_data(&hash_, &ehdr->src, &ehdr->dst, 0, 0, 1, pinfo->fd->pkt_len, &pinfo->rel_ts, CONV_TYPE_FDDI, PT_NONE);
-    return 1;
-}
-
-int ConversationTreeWidget::tapIPv4Packet(packet_info *pinfo, const void *vip)
-{
-    const ws_ip *iph = (const ws_ip *) vip;
-
-    add_conversation_table_data(&hash_, &iph->ip_src, &iph->ip_dst, 0, 0, 1, pinfo->fd->pkt_len, &pinfo->rel_ts, CONV_TYPE_IPV4, PT_NONE);
-    return 1;
-}
-
-int ConversationTreeWidget::tapIPv6Packet(packet_info *pinfo, const void *vip)
-{
-    const struct ip6_hdr *ip6h = (const struct ip6_hdr *)vip;
-    address src;
-    address dst;
-
-    /* Addresses aren't implemented as 'address' type in struct ip6_hdr */
-    src.type = dst.type = AT_IPv6;
-    src.len  = dst.len = sizeof(struct e_in6_addr);
-    src.data = &ip6h->ip6_src;
-    dst.data = &ip6h->ip6_dst;
-
-    add_conversation_table_data(&hash_, &src, &dst, 0, 0, 1, pinfo->fd->pkt_len, &pinfo->rel_ts, CONV_TYPE_IPV6, PT_NONE);
-    return 1;
-}
-
-int ConversationTreeWidget::tapIpxPacket(packet_info *pinfo, const void *vip)
-{
-    const ipxhdr_t *ipxh = (const ipxhdr_t *)vip;
-
-    add_conversation_table_data(&hash_, &ipxh->ipx_src, &ipxh->ipx_dst, 0, 0, 1, pinfo->fd->pkt_len, &pinfo->rel_ts, CONV_TYPE_IPX, PT_NONE);
-    return 1;
-}
-
-int ConversationTreeWidget::tapJxtaPacket(packet_info *pinfo, const void *vip)
-{
-    Q_UNUSED(pinfo);
-    const jxta_tap_header *jxtahdr = (const jxta_tap_header *) vip;
-
-    add_conversation_table_data(&hash_,
-        &jxtahdr->src_address,
-        &jxtahdr->dest_address,
-        0,
-        0,
-        1,
-        jxtahdr->size,
-        NULL,
-        CONV_TYPE_JXTA,
-        PT_NONE);
-    return 1;
-}
-
-int ConversationTreeWidget::tapNcpPacket(packet_info *pinfo, const void *vip)
-{
-    const struct ncp_common_header *ncph=(const struct ncp_common_header *)vip;
-    guint32 connection;
-
-    connection = (ncph->conn_high * 256) + ncph->conn_low;
-    if (connection < 65535) {
-        add_conversation_table_data(&hash_, &pinfo->src, &pinfo->dst, connection, connection, 1, pinfo->fd->pkt_len, &pinfo->rel_ts, CONV_TYPE_NCP, PT_NCP);
-    }
-    return 1;
-}
-
-int ConversationTreeWidget::tapRsvpPacket(packet_info *pinfo, const void *vip)
-{
-    const rsvp_conversation_info *rsvph = (const rsvp_conversation_info *)vip;
-
-    add_conversation_table_data(&hash_,
-                    &rsvph->source, &rsvph->destination, 0, 0, 1,
-                    pinfo->fd->pkt_len, &pinfo->rel_ts, CONV_TYPE_RSVP, PT_NONE);
-    return 1;
-}
-
-int ConversationTreeWidget::tapSctpPacket(packet_info *pinfo, const void *vip)
-{
-    const struct _sctp_info *sctphdr = (const struct _sctp_info *)vip;
-
-    add_conversation_table_data(&hash_,
-        &sctphdr->ip_src,
-        &sctphdr->ip_dst,
-        sctphdr->sport,
-        sctphdr->dport,
-        (conv_id_t) sctphdr->verification_tag,
-        pinfo->fd->pkt_len,
-        &pinfo->rel_ts,
-        CONV_TYPE_SCTP,
-        PT_SCTP);
-    return 1;
-}
-
-int ConversationTreeWidget::tapTcpPacket(packet_info *pinfo, const void *vip)
-{
-    const struct tcpheader *tcphdr = (const struct tcpheader *) vip;
-
-    add_conversation_table_data_with_conv_id(&hash_, &tcphdr->ip_src, &tcphdr->ip_dst, tcphdr->th_sport, tcphdr->th_dport, (conv_id_t) tcphdr->th_stream, 1, pinfo->fd->pkt_len, &pinfo->rel_ts, CONV_TYPE_TCP, PT_TCP);
-    return 1;
-}
-
-int ConversationTreeWidget::tapTokenRingPacket(packet_info *pinfo, const void *vip)
-{
-    const tr_hdr *trhdr=(const tr_hdr *)vip;
-
-    add_conversation_table_data(&hash_, &trhdr->src, &trhdr->dst, 0, 0, 1, pinfo->fd->pkt_len, &pinfo->rel_ts, CONV_TYPE_TOKEN_RING, PT_NONE);
-    return 1;
-}
-
-int ConversationTreeWidget::tapUdpPacket(packet_info *pinfo, const void *vip)
-{
-    const e_udphdr *udphdr = (const e_udphdr *)vip;
-
-    add_conversation_table_data(&hash_, &udphdr->ip_src, &udphdr->ip_dst, udphdr->uh_sport, udphdr->uh_dport, (conv_id_t) udphdr->uh_stream, pinfo->fd->pkt_len, &pinfo->rel_ts, CONV_TYPE_UDP, PT_UDP);
-    return 1;
-}
-
-int ConversationTreeWidget::tapUsbPacket(packet_info *pinfo, const void *vip)
-{
-    Q_UNUSED(vip);
-    add_conversation_table_data(&hash_, &pinfo->src, &pinfo->dst, 0, 0, 1, pinfo->fd->pkt_len, &pinfo->rel_ts, CONV_TYPE_USB, PT_NONE);
-    return 1;
-}
-
-int ConversationTreeWidget::tapWlanPacket(packet_info *pinfo, const void *vip)
-{
-    const wlan_hdr *whdr=(const wlan_hdr *)vip;
-
-    add_conversation_table_data(&hash_, &whdr->src, &whdr->dst, 0, 0, 1, pinfo->fd->pkt_len, &pinfo->rel_ts, CONV_TYPE_WLAN, PT_NONE);
-    return 1;
-}
-
 
 /*
  * Editor modelines

@@ -54,6 +54,7 @@
 #include "packet-ncp-int.h"
 #include <epan/reassemble.h>
 #include <epan/conversation.h>
+#include <epan/conversation_table.h>
 #include <epan/tap.h>
 
 void proto_register_ncp(void);
@@ -293,6 +294,31 @@ mncp_hash_lookup(conversation_t *conversation, guint32 nwconnection, guint8 nwta
     key.nwtask = nwtask;
 
     return (mncp_rhash_value *)g_hash_table_lookup(mncp_rhash, &key);
+}
+
+static const char* ncp_conv_get_filter_type(conv_item_t* conv _U_, conv_filter_type_e filter)
+{
+    if ((filter == CONV_FT_SRC_PORT) || (filter == CONV_FT_DST_PORT) || (filter == CONV_FT_ANY_PORT))
+        return "ncp.connection";
+
+    return CONV_FILTER_INVALID;
+}
+
+static ct_dissector_info_t ncp_ct_dissector_info = {&ncp_conv_get_filter_type};
+
+static int
+ncp_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
+{
+    conv_hash_t *hash = (conv_hash_t*) pct;
+    const struct ncp_common_header *ncph=(const struct ncp_common_header *)vip;
+    guint32 connection;
+
+    connection = (ncph->conn_high * 256)+ncph->conn_low;
+    if (connection < 65535) {
+        add_conversation_table_data(hash, &pinfo->src, &pinfo->dst, connection, connection, 1, pinfo->fd->pkt_len, &pinfo->rel_ts, &ncp_ct_dissector_info, PT_NCP);
+    }
+
+    return 1;
 }
 
 /*
@@ -1098,8 +1124,10 @@ proto_register_ncp(void)
                                    &ncp_echo_file);
     register_init_routine(&mncp_init_protocol);
     ncp_tap.stat=register_tap("ncp_srt");
-    ncp_tap.hdr=register_tap("ncp_hdr");
+    ncp_tap.hdr=register_tap("ncp");
     register_postseq_cleanup_routine(&mncp_postseq_cleanup);
+
+    register_conversation_table(proto_ncp, FALSE, ncp_conversation_packet);
 }
 
 void

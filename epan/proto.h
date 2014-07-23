@@ -1984,6 +1984,11 @@ WS_DLL_PUBLIC header_field_info *proto_get_next_protocol_field(const int proto_i
  @return proto_id */
 WS_DLL_PUBLIC int proto_get_id_by_filter_name(const gchar* filter_name);
 
+/** Given a protocol's short name.
+ @param short_name the protocol short name to search for
+ @return proto_id */
+WS_DLL_PUBLIC int proto_get_id_by_short_name(const gchar* short_name);
+
 /** Can item # n decoding be disabled?
  @param proto_id protocol id (0-indexed)
  @return TRUE if it's a protocol, FALSE if it's not */

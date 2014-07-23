@@ -36,6 +36,7 @@
 #include <epan/expert.h>
 #include <epan/ip_opts.h>
 #include <epan/prefs.h>
+#include <epan/conversation_table.h>
 #include <epan/reassemble.h>
 #include <epan/etypes.h>
 #include <epan/greproto.h>
@@ -473,6 +474,32 @@ static gpointer ip_value(packet_info *pinfo)
     return GUINT_TO_POINTER(pinfo->ipproto);
 }
 
+static const char* ip_conv_get_filter_type(conv_item_t* conv, conv_filter_type_e filter)
+{
+    if ((filter == CONV_FT_SRC_ADDRESS) && (conv->src_address.type == AT_IPv4))
+        return "ip.src";
+
+    if ((filter == CONV_FT_DST_ADDRESS) && (conv->dst_address.type == AT_IPv4))
+        return "ip.dst";
+
+    if ((filter == CONV_FT_ANY_ADDRESS) && (conv->src_address.type == AT_IPv4))
+        return "ip.addr";
+
+    return CONV_FILTER_INVALID;
+}
+
+static ct_dissector_info_t ip_ct_dissector_info = {&ip_conv_get_filter_type};
+
+static int
+ip_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
+{
+    conv_hash_t *hash = (conv_hash_t*) pct;
+    const ws_ip *iph=(const ws_ip *)vip;
+
+    add_conversation_table_data(hash, &iph->ip_src, &iph->ip_dst, 0, 0, 1, pinfo->fd->pkt_len, &pinfo->rel_ts, &ip_ct_dissector_info, PT_NONE);
+
+    return 1;
+}
 
 /*
  * defragmentation of IPv4
@@ -3050,6 +3077,7 @@ proto_register_ip(void)
   ip_tap = register_tap("ip");
 
   register_decode_as(&ip_da);
+  register_conversation_table(proto_ip, TRUE, ip_conversation_packet);
 }
 
 void

@@ -131,7 +131,9 @@ reset_ct_table_data(conversations_table *ct)
 static void
 reset_ct_table_data_cb(void *arg)
 {
-    reset_ct_table_data((conversations_table *)arg);
+    conv_hash_t *hash = (conv_hash_t*)arg;
+
+    reset_ct_table_data((conversations_table *)hash->user_data);
 }
 
 static void
@@ -139,7 +141,7 @@ ct_win_destroy_cb(GtkWindow *win _U_, gpointer data)
 {
     conversations_table *conversations=(conversations_table *)data;
 
-    remove_tap_listener(conversations);
+    remove_tap_listener(&conversations->hash);
 
     reset_ct_table_data(conversations);
     g_free(conversations);
@@ -1757,7 +1759,9 @@ draw_ct_table_data(conversations_table *ct)
 static void
 draw_ct_table_data_cb(void *arg)
 {
-    draw_ct_table_data((conversations_table *)arg);
+    conv_hash_t *hash = (conv_hash_t*)arg;
+
+    draw_ct_table_data((conversations_table *)hash->user_data);
 }
 
 typedef struct {
@@ -2025,8 +2029,9 @@ init_ct_table_page(conversations_table *conversations, GtkWidget *vbox, gboolean
     gtk_tree_view_set_headers_clickable(conversations->table, TRUE);
     gtk_tree_view_set_reorderable (conversations->table, TRUE);
 
-    conversations->hash.conv_array=NULL;
-    conversations->hash.hashtable=NULL;
+    conversations->hash.conv_array = NULL;
+    conversations->hash.hashtable = NULL;
+    conversations->hash.user_data = conversations;
 
     sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(conversations->table));
     gtk_tree_selection_set_mode(sel, GTK_SELECTION_SINGLE);
@@ -2035,7 +2040,7 @@ init_ct_table_page(conversations_table *conversations, GtkWidget *vbox, gboolean
     ct_create_popup_menu(conversations);
 
     /* register the tap and rerun the taps on the packet list */
-    error_string=register_tap_listener(tap_name, conversations, filter, 0, reset_ct_table_data_cb, packet_func,
+    error_string=register_tap_listener(tap_name, &conversations->hash, filter, 0, reset_ct_table_data_cb, packet_func,
         draw_ct_table_data_cb);
     if(error_string){
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_string->str);
@@ -2163,12 +2168,12 @@ follow_stream_cb(GtkWidget *follow_stream_bt, gpointer data _U_)
 
 
 void
-init_conversation_table(conversation_type_e conv_type, const char *filter, tap_packet_cb packet_func)
+init_conversation_table(struct register_ct* ct, const char *filter)
 {
     conversations_table *conversations;
     char *display_name;
     char title[256];
-    const char *table_name = conversation_title(conv_type);
+    const char *table_name = proto_get_protocol_short_name(find_protocol_by_id(get_conversation_proto_id(ct)));
     GtkWidget *vbox;
     GtkWidget *bbox;
     GtkWidget *close_bt, *help_bt;
@@ -2199,9 +2204,9 @@ init_conversation_table(conversation_type_e conv_type, const char *filter, tap_p
     gtk_container_set_border_width(GTK_CONTAINER(vbox), DLG_OUTER_MARGIN);
 
     ret = init_ct_table_page(conversations, vbox,
-                             conversation_hide_ports(conv_type),
-                             table_name, conversation_tap_name(conv_type),
-                             filter, packet_func);
+                             get_conversation_hide_ports(ct),
+                             table_name, proto_get_protocol_filter_name(get_conversation_proto_id(ct)),
+                             filter, get_conversation_packet_func(ct));
     if(ret == FALSE) {
         g_free(conversations);
         return;
@@ -2341,14 +2346,14 @@ ct_win_destroy_notebook_cb(GtkWindow *win _U_, gpointer data)
 }
 
 static conversations_table *
-init_ct_notebook_page_cb(gboolean hide_ports, const char *table_name, const char *tap_name, const char *filter, tap_packet_cb packet_func)
+init_ct_notebook_page_cb(register_ct_t *table, const char *filter)
 {
     gboolean ret;
     GtkWidget *page_vbox;
     conversations_table *conversations;
 
     conversations=g_new0(conversations_table,1);
-    conversations->name=table_name;
+    conversations->name=proto_get_protocol_short_name(find_protocol_by_id(get_conversation_proto_id(table)));
     conversations->filter=filter;
     conversations->resolve_names=TRUE;
     conversations->use_dfilter=FALSE;
@@ -2357,7 +2362,8 @@ init_ct_notebook_page_cb(gboolean hide_ports, const char *table_name, const char
     conversations->win = page_vbox;
     gtk_container_set_border_width(GTK_CONTAINER(page_vbox), 6);
 
-    ret = init_ct_table_page(conversations, page_vbox, hide_ports, table_name, tap_name, filter, packet_func);
+    ret = init_ct_table_page(conversations, page_vbox, get_conversation_hide_ports(table), conversations->name,
+                    proto_get_protocol_filter_name(get_conversation_proto_id(table)), filter, get_conversation_packet_func(table));
     if(ret == FALSE) {
         g_free(conversations);
         return NULL;
@@ -2365,35 +2371,6 @@ init_ct_notebook_page_cb(gboolean hide_ports, const char *table_name, const char
 
     return conversations;
 }
-
-
-typedef struct {
-    gboolean hide_ports;       /* hide TCP / UDP port columns */
-    const char *table_name;    /* GUI output name */
-    const char *tap_name;      /* internal name */
-    const char *filter;        /* display filter string (unused) */
-    tap_packet_cb packet_func; /* function to be called for new incoming packets */
-} register_ct_t;
-
-
-static GSList *registered_ct_tables = NULL;
-
-void
-register_conversation_table(conversation_type_e conv_type, const char *filter, tap_packet_cb packet_func)
-{
-    register_ct_t *table;
-
-    table = g_new(register_ct_t,1);
-
-    table->hide_ports   = conversation_hide_ports(conv_type);
-    table->table_name   = conversation_title(conv_type);
-    table->tap_name     = conversation_tap_name(conv_type);
-    table->filter       = filter;
-    table->packet_func  = packet_func;
-
-    registered_ct_tables = g_slist_append(registered_ct_tables, table);
-}
-
 
 static void
 ct_resolve_toggle_dest(GtkWidget *widget, gpointer data)
@@ -2438,11 +2415,37 @@ ct_filter_toggle_dest(GtkWidget *widget, gpointer data)
     }
 }
 
+typedef struct _init_ct_page_data {
+    int page;
+    void ** pages;
+    GtkWidget *nb;
+    GtkWidget *win;
+} init_ct_page_data;
+
+static void
+init_ct_page(gpointer data, gpointer user_data)
+{
+    register_ct_t *table = (register_ct_t*)data;
+    init_ct_page_data* ct_page_data = (init_ct_page_data*)user_data;
+
+    conversations_table *conversations;
+    GtkWidget *page_lb;
+
+    conversations = init_ct_notebook_page_cb(table, NULL /*filter*/);
+    if (conversations) {
+
+        g_object_set_data(G_OBJECT(conversations->win), CONV_PTR_KEY, conversations);
+        page_lb = gtk_label_new("");
+        gtk_notebook_append_page(GTK_NOTEBOOK(ct_page_data->nb), conversations->win, page_lb);
+        conversations->win = ct_page_data->win;
+        conversations->page_lb = page_lb;
+        ct_page_data->pages[++ct_page_data->page] = conversations;
+    }
+}
 
 void
 init_conversation_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
 {
-    conversations_table *conversations;
     char *display_name;
     char title[256];
     GtkWidget *vbox;
@@ -2452,19 +2455,16 @@ init_conversation_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
     GtkWidget *win;
     GtkWidget *resolv_cb;
     GtkWidget *filter_cb;
-    int page;
     void ** pages;
     GtkWidget *nb;
-    GtkWidget *page_lb;
-    GSList  *current_table;
-    register_ct_t *registered;
     GtkWidget *copy_bt;
     GtkWidget *follow_stream_bt;
     GtkWidget *graph_a_b_bt;
     GtkWidget *graph_b_a_bt;
     window_geometry_t tl_geom;
+    init_ct_page_data ct_page_iter_data;
 
-    pages = (void **)g_malloc(sizeof(void *) * (g_slist_length(registered_ct_tables) + 1));
+    pages = (void **)g_malloc(sizeof(void *) * (conversation_table_get_num() + 1));
 
     display_name = cf_get_display_name(&cfile);
     g_snprintf(title, sizeof(title), "Conversations: %s", display_name);
@@ -2483,25 +2483,14 @@ init_conversation_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
     gtk_box_pack_start(GTK_BOX (vbox), nb, TRUE, TRUE, 0);
     g_object_set_data(G_OBJECT(nb), NB_PAGES_KEY, pages);
 
-    page = 0;
+    ct_page_iter_data.page = 0;
+    ct_page_iter_data.pages = pages;
+    ct_page_iter_data.nb = nb;
+    ct_page_iter_data.win = win;
 
-    current_table = registered_ct_tables;
-    while(current_table) {
-        registered = (register_ct_t *)current_table->data;
-        conversations = init_ct_notebook_page_cb(registered->hide_ports, registered->table_name, registered->tap_name,
-                                                 registered->filter, registered->packet_func);
-        if (conversations) {
-            g_object_set_data(G_OBJECT(conversations->win), CONV_PTR_KEY, conversations);
-            page_lb = gtk_label_new("");
-            gtk_notebook_append_page(GTK_NOTEBOOK(nb), conversations->win, page_lb);
-            conversations->win = win;
-            conversations->page_lb = page_lb;
-            pages[++page] = conversations;
-        }
-        current_table = g_slist_next(current_table);
-    }
+    conversation_table_iterate_tables(init_ct_page, &ct_page_iter_data);
 
-    pages[0] = GINT_TO_POINTER(page);
+    pages[0] = GINT_TO_POINTER(ct_page_iter_data.page);
 
     hbox = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, DLG_UNRELATED_SPACING, FALSE);
     gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
@@ -2538,13 +2527,13 @@ init_conversation_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
     copy_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_COPY);
     gtk_widget_set_tooltip_text(copy_bt, "Copy all statistical values of this page to the clipboard in CSV (Comma Separated Values) format.");
     g_signal_connect(copy_bt, "clicked", G_CALLBACK(copy_as_csv_cb), NULL);
-    g_object_set_data(G_OBJECT(copy_bt), CONV_PTR_KEY, pages[page]);
+    g_object_set_data(G_OBJECT(copy_bt), CONV_PTR_KEY, pages[ct_page_iter_data.page]);
 
     /* Graph A->B */
     graph_a_b_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), WIRESHARK_STOCK_GRAPH_A_B);
     gtk_widget_set_tooltip_text(graph_a_b_bt, "Graph traffic from address A to address B.");
     g_object_set_data(G_OBJECT(graph_a_b_bt), E_DFILTER_TE_KEY, main_display_filter_widget);
-    g_object_set_data(G_OBJECT(graph_a_b_bt), CONV_PTR_KEY, pages[page]);
+    g_object_set_data(G_OBJECT(graph_a_b_bt), CONV_PTR_KEY, pages[ct_page_iter_data.page]);
     g_signal_connect(graph_a_b_bt, "clicked", G_CALLBACK(graph_cb), (gpointer)FALSE);
     g_object_set_data(G_OBJECT(nb), GRAPH_A_B_BT_KEY, graph_a_b_bt);
 
@@ -2552,7 +2541,7 @@ init_conversation_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
     graph_b_a_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), WIRESHARK_STOCK_GRAPH_B_A);
     gtk_widget_set_tooltip_text(graph_b_a_bt, "Graph traffic from address B to address A.");
     g_object_set_data(G_OBJECT(graph_b_a_bt), E_DFILTER_TE_KEY, main_display_filter_widget);
-    g_object_set_data(G_OBJECT(graph_b_a_bt), CONV_PTR_KEY, pages[page]);
+    g_object_set_data(G_OBJECT(graph_b_a_bt), CONV_PTR_KEY, pages[ct_page_iter_data.page]);
     g_signal_connect(graph_b_a_bt, "clicked", G_CALLBACK(graph_cb), (gpointer)TRUE);
     g_object_set_data(G_OBJECT(nb), GRAPH_B_A_BT_KEY, graph_b_a_bt);
 
@@ -2560,7 +2549,7 @@ init_conversation_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
     follow_stream_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), WIRESHARK_STOCK_FOLLOW_STREAM);
     gtk_widget_set_tooltip_text(follow_stream_bt, "Follow Stream.");
     g_object_set_data(G_OBJECT(follow_stream_bt), E_DFILTER_TE_KEY, main_display_filter_widget);
-    g_object_set_data(G_OBJECT(follow_stream_bt), CONV_PTR_KEY, pages[page]);
+    g_object_set_data(G_OBJECT(follow_stream_bt), CONV_PTR_KEY, pages[ct_page_iter_data.page]);
     g_signal_connect(follow_stream_bt, "clicked", G_CALLBACK(follow_stream_cb), NULL);
 
     g_object_set_data(G_OBJECT(nb), FOLLOW_STREAM_BT_KEY, follow_stream_bt);
@@ -2579,6 +2568,15 @@ init_conversation_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
 
     cf_retap_packets(&cfile);
     gdk_window_raise(gtk_widget_get_window(win));
+}
+
+void conversation_endpoint_cb(register_ct_t* table)
+{
+    char cmd_str[50];
+
+    g_snprintf(cmd_str, 50, "conv,%s", proto_get_protocol_filter_name(get_conversation_proto_id(table)));
+
+    dissector_conversation_init(cmd_str, table);
 }
 
 /*

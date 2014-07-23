@@ -33,6 +33,7 @@
 #include <epan/ip_opts.h>
 #include <epan/addr_resolv.h>
 #include <epan/prefs.h>
+#include <epan/conversation_table.h>
 #include <epan/reassemble.h>
 #include <epan/ipproto.h>
 #include <epan/ipv6-utils.h>
@@ -345,6 +346,41 @@ static void ipv6_next_header_prompt(packet_info *pinfo, gchar* result)
 static gpointer ipv6_next_header_value(packet_info *pinfo)
 {
     return p_get_proto_data(pinfo->pool, pinfo, proto_ipv6, IPV6_PROTO_NXT_HDR);
+}
+
+static const char* ipv6_conv_get_filter_type(conv_item_t* conv, conv_filter_type_e filter)
+{
+    if ((filter == CONV_FT_SRC_ADDRESS) && (conv->src_address.type == AT_IPv6))
+        return "ipv6.src";
+
+    if ((filter == CONV_FT_DST_ADDRESS) && (conv->dst_address.type == AT_IPv6))
+        return "ipv6.dst";
+
+    if ((filter == CONV_FT_ANY_ADDRESS) && (conv->src_address.type == AT_IPv6))
+        return "ipv6.addr";
+
+    return CONV_FILTER_INVALID;
+}
+
+static ct_dissector_info_t ipv6_ct_dissector_info = {&ipv6_conv_get_filter_type};
+
+static int
+ipv6_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
+{
+    conv_hash_t *hash = (conv_hash_t*) pct;
+    const struct ip6_hdr *ip6h = (const struct ip6_hdr *)vip;
+    address src;
+    address dst;
+
+    /* Addresses aren't implemented as 'address' type in struct ip6_hdr */
+    src.type = dst.type = AT_IPv6;
+    src.len  = dst.len = sizeof(struct e_in6_addr);
+    src.data = &ip6h->ip6_src;
+    dst.data = &ip6h->ip6_dst;
+
+    add_conversation_table_data(hash, &src, &dst, 0, 0, 1, pinfo->fd->pkt_len, &pinfo->rel_ts, &ipv6_ct_dissector_info, PT_NONE);
+
+    return 1;
 }
 
 static const fragment_items ipv6_frag_items = {
@@ -2908,6 +2944,8 @@ proto_register_ipv6(void)
 
     register_decode_as(&ipv6_da);
     register_decode_as(&ipv6_next_header_da);
+
+    register_conversation_table(proto_ipv6, TRUE, ipv6_conversation_packet);
 }
 
 void

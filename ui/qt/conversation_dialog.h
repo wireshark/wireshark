@@ -27,6 +27,7 @@
 #include <file.h>
 
 #include "ui/follow.h"
+#include "epan/conversation_table.h"
 
 #include <QAction>
 #include <QMenu>
@@ -42,7 +43,14 @@ class ConversationDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit ConversationDialog(QWidget *parent = 0, capture_file *cf = NULL, const char *stat_arg = NULL);
+    /** Create a new conversation window.
+     *
+     * @param parent Parent widget.
+     * @param cf Capture file. No statistics will be calculated if this is NULL.
+     * @param proto_id If valid, add this protocol and bring it to the front.
+     * @param filter Display filter to apply.
+     */
+    explicit ConversationDialog(QWidget *parent = 0, capture_file *cf = NULL, int proto_id = -1, const char *filter = NULL);
     ~ConversationDialog();
 
 public slots:
@@ -59,16 +67,14 @@ private:
     capture_file *cap_file_;
     QString filter_;
     QMenu conv_type_menu_;
-    QMap<conversation_type_e, ConversationTreeWidget *> conv_type_to_tree_;
+    QMap<int, ConversationTreeWidget *> proto_id_to_tree_;
     QList<QAction> conv_actions_;
     QPushButton *copy_bt_;
     QPushButton *follow_bt_;
     QPushButton *graph_bt_;
 
-    void initStatCmdMap();
     // Adds a conversation tree. Returns true if the tree was freshly created, false if it was cached.
-    bool addConversationType(conversation_type_e conv_type);
-    conversation_type_e tabType(int index);
+    bool addConversationTable(register_ct_t* table);
     conv_item_t *currentConversation();
 
 private slots:
@@ -85,6 +91,8 @@ private slots:
     void graphTcp();
     void on_buttonBox_helpRequested();
 };
+
+void init_conversation_table(struct register_ct* ct, const char *filter);
 
 #endif // CONVERSATION_DIALOG_H
 

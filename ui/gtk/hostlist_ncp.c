@@ -64,7 +64,7 @@ gtk_ncp_hostlist_init(const char *opt_arg, void* userdata _U_)
                 filter=NULL;
         }
 
-        init_hostlist_table(TRUE, "NCP", "ncp_hdr", filter, ncp_hostlist_packet);
+        init_hostlist_table(TRUE, "NCP", "ncp", filter, ncp_hostlist_packet);
 
 }
 
@@ -78,5 +78,5 @@ void
 register_tap_listener_ncp_hostlist(void)
 {
         register_stat_cmd_arg("hosts,ncp", gtk_ncp_hostlist_init,NULL);
-        register_hostlist_table(TRUE, "NCP", "ncp_hdr", NULL /*filter*/, ncp_hostlist_packet);
+        register_hostlist_table(TRUE, "NCP", "ncp", NULL /*filter*/, ncp_hostlist_packet);
 }

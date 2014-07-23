@@ -24,11 +24,33 @@
 #ifndef __HOSTLIST_TABLE_H__
 #define __HOSTLIST_TABLE_H__
 
-#include <ui/conversation_hash.h>
+#include <ui/conversation_ui.h>
 
 /** @file
  *  Hostlist definitions.
  */
+
+/** Conversation types */
+/* Sort alphabetically by title */
+typedef enum {
+    CONV_TYPE_ETHERNET,
+    CONV_TYPE_FIBRE_CHANNEL,
+    CONV_TYPE_FDDI,
+    CONV_TYPE_IPV4,
+    CONV_TYPE_IPV6,
+    CONV_TYPE_IPX,
+    CONV_TYPE_JXTA,
+    CONV_TYPE_NCP,
+    CONV_TYPE_RSVP,
+    CONV_TYPE_SCTP,
+    CONV_TYPE_TCP,
+    CONV_TYPE_TOKEN_RING,
+    CONV_TYPE_UDP,
+    CONV_TYPE_USB,
+    CONV_TYPE_WLAN,
+    N_CONV_TYPES
+} conversation_type_e;
+
 
 /** Hostlist information */
 typedef struct _hostlist_talker_t {

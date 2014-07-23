@@ -2076,8 +2076,7 @@ void MainWindow::on_actionStatisticsCollectd_triggered()
 
 void MainWindow::statCommandConversation(const char *arg, void *userdata)
 {
-    Q_UNUSED(userdata);
-    ConversationDialog *conv_dialog = new ConversationDialog(this, cap_file_, arg);
+    ConversationDialog *conv_dialog = new ConversationDialog(this, cap_file_, GPOINTER_TO_INT(userdata), arg);
     connect(conv_dialog, SIGNAL(filterAction(QString&,FilterAction::Action,FilterAction::ActionType)),
             this, SLOT(filterAction(QString&,FilterAction::Action,FilterAction::ActionType)));
     connect(conv_dialog, SIGNAL(openFollowStreamDialog(follow_type_t)),

@@ -104,6 +104,7 @@
 #include <epan/tap.h>
 #include <epan/stat_cmd_args.h>
 #include <epan/timestamp.h>
+#include <epan/conversation_table.h>
 #include <epan/ex-opt.h>
 
 #include "capture_opts.h"
@@ -1198,6 +1199,7 @@ main(int argc, char *argv[])
   register_all_plugin_tap_listeners();
 #endif
   register_all_tap_listeners();
+  conversation_table_set_gui_info(NULL); /* XXX - TODO: Provide "GUI" function for TShark */
 
   /* If invoked with the "-G" flag, we dump out information based on
      the argument to the "-G" flag; if no argument is specified,

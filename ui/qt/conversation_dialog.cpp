@@ -41,9 +41,8 @@
 #include <QMap>
 #include <QMessageBox>
 #include <QTabWidget>
+#include <QTextStream>
 #include <QToolButton>
-
-#include <QDebug>
 
 // To do:
 // - https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6727
@@ -59,19 +58,17 @@
 // Bugs:
 // - Name resolution doesn't do anything if its preference is disabled.
 // - Columns don't resize correctly.
+// - Closing the capture file clears conversation data.
 
 // Fixed bugs:
 // - Friendly unit displays https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=9231
 // - Misleading bps calculation https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8703
 
-Q_DECLARE_METATYPE(conversation_type_e)
-
-QMap<QString, conversation_type_e> conv_proto_to_type_;
-
-ConversationDialog::ConversationDialog(QWidget *parent, capture_file *cf, const char *stat_arg) :
+ConversationDialog::ConversationDialog(QWidget *parent, capture_file *cf, int proto_id, const char *filter) :
     QDialog(parent),
     ui(new Ui::ConversationDialog),
-    cap_file_(cf)
+    cap_file_(cf),
+    filter_(filter)
 {
     ui->setupUi(this);
     setAttribute(Qt::WA_DeleteOnClose, true);
@@ -100,43 +97,43 @@ ConversationDialog::ConversationDialog(QWidget *parent, capture_file *cf, const 
     graph_bt_->setToolTip(tr("Graph a TCP conversation."));
     connect(graph_bt_, SIGNAL(clicked()), this, SLOT(graphTcp()));
 
-    QList<conversation_type_e> conv_types;
+    QList<int> conv_protos;
     for (GList *conv_tab = recent.conversation_tabs; conv_tab; conv_tab = conv_tab->next) {
-        conversation_type_e ct = conversation_title_to_type((const char *)conv_tab->data);
-        if (!conv_types.contains(ct)) {
-            conv_types.append(ct);
+        int proto_id = proto_get_id_by_short_name((const char *)conv_tab->data);
+        if (proto_id > -1 && !conv_protos.contains(proto_id)) {
+            conv_protos.append(proto_id);
         }
     }
 
     // Reasonable defaults?
-    if (conv_types.isEmpty()) {
-        conv_types << CONV_TYPE_ETHERNET << CONV_TYPE_IPV4 << CONV_TYPE_IPV6 <<CONV_TYPE_TCP << CONV_TYPE_UDP;
+    if (conv_protos.isEmpty()) {
+        conv_protos << proto_get_id_by_filter_name( "tcp" ) << proto_get_id_by_filter_name( "eth" )
+                    << proto_get_id_by_filter_name( "ip" ) << proto_get_id_by_filter_name( "ipv6" )
+                    << proto_get_id_by_filter_name( "udp" );
     }
 
     // Bring the command-line specified type to the front.
-    initStatCmdMap();
-    QStringList stat_args = QString(stat_arg).split(",");
-    if (stat_args.length() > 1 && conv_proto_to_type_.contains(stat_args[1])) {
-        conversation_type_e ct = conv_proto_to_type_[stat_args[1]];
-        conv_types.removeAll(ct);
-        conv_types.prepend(ct);
-        if (stat_args.length() > 2) {
-            filter_ = stat_args[2];
+    if (get_conversation_by_proto_id(proto_id)) {
+        conv_protos.removeAll(proto_id);
+        conv_protos.prepend(proto_id);
+    }
+
+    // QTabWidget selects the first item by default.
+    foreach (int conv_proto, conv_protos) {
+        addConversationTable(get_conversation_by_proto_id(conv_proto));
+    }
+
+    for (guint i = 0; i < conversation_table_get_num(); i++) {
+        int proto_id = get_conversation_proto_id(get_conversation_table_by_num(i));
+        if (proto_id < 0) {
+            continue;
         }
-    }
-
-    foreach (conversation_type_e conv_type, conv_types) {
-        addConversationType(conv_type);
-    }
-
-    for (int i = CONV_TYPE_ETHERNET; i < N_CONV_TYPES; i++) {
-        conversation_type_e ct = (conversation_type_e) i;
-        QString title = conversation_title(ct);
+        QString title = proto_get_protocol_short_name(find_protocol_by_id(proto_id));
 
         QAction *conv_action = new QAction(title, this);
-        conv_action->setData(qVariantFromValue(ct));
+        conv_action->setData(qVariantFromValue(proto_id));
         conv_action->setCheckable(true);
-        conv_action->setChecked(conv_types.contains(ct));
+        conv_action->setChecked(conv_protos.contains(proto_id));
         connect(conv_action, SIGNAL(triggered()), this, SLOT(toggleConversation()));
         conv_type_menu_.addAction(conv_action);
     }
@@ -165,10 +162,10 @@ ConversationDialog::~ConversationDialog()
 
     ConversationTreeWidget *cur_tree = qobject_cast<ConversationTreeWidget *>(ui->conversationTabWidget->currentWidget());
     foreach (QAction *ca, conv_type_menu_.actions()) {
-        conversation_type_e conv_type = ca->data().value<conversation_type_e>();
-        if (conv_type_to_tree_.contains(conv_type) && ca->isChecked()) {
-            char *title = g_strdup(conversation_title(conv_type));
-            if (conv_type_to_tree_[conv_type] == cur_tree) {
+        int proto_id = ca->data().value<int>();
+        if (proto_id_to_tree_.contains(proto_id) && ca->isChecked()) {
+            char *title = g_strdup(proto_get_protocol_short_name(find_protocol_by_id(proto_id)));
+            if (proto_id_to_tree_[proto_id] == cur_tree) {
                 recent.conversation_tabs = g_list_prepend(recent.conversation_tabs, title);
             } else {
                 recent.conversation_tabs = g_list_append(recent.conversation_tabs, title);
@@ -186,40 +183,21 @@ void ConversationDialog::setCaptureFile(capture_file *cf)
     }
 }
 
-void ConversationDialog::initStatCmdMap()
+bool ConversationDialog::addConversationTable(register_ct_t* table)
 {
-    if (conv_proto_to_type_.size() > 0) {
-        return;
-    }
+    int proto_id = get_conversation_proto_id(table);
 
-    conv_proto_to_type_["eth"] = CONV_TYPE_ETHERNET;
-    conv_proto_to_type_["fc"] = CONV_TYPE_FIBRE_CHANNEL;
-    conv_proto_to_type_["fddi"] = CONV_TYPE_FDDI;
-    conv_proto_to_type_["ip"] = CONV_TYPE_IPV4;
-    conv_proto_to_type_["ipv6"] = CONV_TYPE_IPV6;
-    conv_proto_to_type_["ipx"] = CONV_TYPE_IPX;
-    conv_proto_to_type_["jxta"] = CONV_TYPE_JXTA;
-    conv_proto_to_type_["ncp"] = CONV_TYPE_NCP;
-    conv_proto_to_type_["rsvp"] = CONV_TYPE_RSVP;
-    conv_proto_to_type_["sctp"] = CONV_TYPE_SCTP;
-    conv_proto_to_type_["tcp"] = CONV_TYPE_TCP;
-    conv_proto_to_type_["tr"] = CONV_TYPE_TOKEN_RING;
-    conv_proto_to_type_["udp"] = CONV_TYPE_UDP;
-    conv_proto_to_type_["usb"] = CONV_TYPE_USB;
-    conv_proto_to_type_["wlan"] = CONV_TYPE_WLAN;
-}
-
-bool ConversationDialog::addConversationType(conversation_type_e conv_type)
-{
-    if (conv_type_to_tree_.contains(conv_type)) {
+    if (!table || proto_id_to_tree_.contains(proto_id)) {
         return false;
     }
 
-    ConversationTreeWidget *conv_tree = new ConversationTreeWidget(this, conv_type);
+    ConversationTreeWidget *conv_tree = new ConversationTreeWidget(this, table);
 
-    conv_type_to_tree_[conv_type] = conv_tree;
+    proto_id_to_tree_[proto_id] = conv_tree;
+    const char* table_name = proto_get_protocol_short_name(find_protocol_by_id(proto_id));
 
-    ui->conversationTabWidget->addTab(conv_tree, conversation_title(conv_type));
+    ui->conversationTabWidget->addTab(conv_tree, table_name);
+
     connect(conv_tree, SIGNAL(itemSelectionChanged()),
             this, SLOT(itemSelectionChanged()));
     connect(conv_tree, SIGNAL(titleChanged(QWidget*,QString)),
@@ -236,26 +214,21 @@ bool ConversationDialog::addConversationType(conversation_type_e conv_type)
     } else if (!filter_.isEmpty()) {
         filter = filter_.toUtf8().constData();
     }
-    GString *error_string = register_tap_listener(conversation_tap_name(conv_type), conv_tree, filter, 0,
+
+    conv_tree->conversationHash()->user_data = conv_tree;
+
+    GString *error_string = register_tap_listener(proto_get_protocol_filter_name(proto_id), conv_tree->conversationHash(), filter, 0,
                                                   ConversationTreeWidget::tapReset,
-                                                  ConversationTreeWidget::tapPacket,
+                                                  get_conversation_packet_func(table),
                                                   ConversationTreeWidget::tapDraw);
 
     if (error_string) {
-        QMessageBox::warning(this, tr("Conversation %1 failed to register tap listener").arg(conversation_title(conv_type)),
+        QMessageBox::warning(this, tr("Conversation %1 failed to register tap listener").arg(table_name),
                              error_string->str);
         g_string_free(error_string, TRUE);
     }
-    return true;
-}
 
-conversation_type_e ConversationDialog::tabType(int index)
-{
-    ConversationTreeWidget *conv_tree = qobject_cast<ConversationTreeWidget *>(ui->conversationTabWidget->widget(index));
-    if (!conv_tree) {
-        return N_CONV_TYPES; // Need a "none" type?
-    }
-    return conv_tree->conversationType();
+    return true;
 }
 
 conv_item_t *ConversationDialog::currentConversation()
@@ -368,11 +341,11 @@ void ConversationDialog::updateWidgets()
     ui->conversationTabWidget->setUpdatesEnabled(false);
     ui->conversationTabWidget->clear();
     foreach (QAction *ca, conv_type_menu_.actions()) {
-        conversation_type_e conv_type = ca->data().value<conversation_type_e>();
-        if (conv_type_to_tree_.contains(conv_type) && ca->isChecked()) {
-            ui->conversationTabWidget->addTab(conv_type_to_tree_[conv_type],
-                                              conv_type_to_tree_[conv_type]->conversationTitle());
-            conv_type_to_tree_[conv_type]->setNameResolutionEnabled(ui->nameResolutionCheckBox->isChecked());
+        int proto_id = ca->data().value<int>();
+        if (proto_id_to_tree_.contains(proto_id) && ca->isChecked()) {
+            ui->conversationTabWidget->addTab(proto_id_to_tree_[proto_id],
+                                              proto_id_to_tree_[proto_id]->conversationTitle());
+            proto_id_to_tree_[proto_id]->setNameResolutionEnabled(ui->nameResolutionCheckBox->isChecked());
         }
     }
     ui->conversationTabWidget->setCurrentWidget(cur_w);
@@ -386,12 +359,14 @@ void ConversationDialog::toggleConversation()
         return;
     }
 
-    conversation_type_e conv_type = ca->data().value<conversation_type_e>();
-    bool new_conv = addConversationType(conv_type);
+    int proto_id = ca->data().value<int>();
+    register_ct_t* table = get_conversation_by_proto_id(proto_id);
+
+    bool new_conv = addConversationTable(table);
     updateWidgets();
 
     if (ca->isChecked()) {
-        ui->conversationTabWidget->setCurrentWidget(conv_type_to_tree_[conv_type]);
+        ui->conversationTabWidget->setCurrentWidget(proto_id_to_tree_[proto_id]);
     }
 
     if (new_conv) {
@@ -472,34 +447,10 @@ void ConversationDialog::on_buttonBox_helpRequested()
     wsApp->helpTopicAction(HELP_STATS_CONVERSATIONS_DIALOG);
 }
 
-// Stat command + args
-
-static void
-conversation_init(const char *stat_arg, void* userdata _U_) {
-    Q_UNUSED(stat_arg)
-    wsApp->emitStatCommandSignal("Conversation", stat_arg, NULL);
-}
-
-extern "C" {
-void
-register_tap_listener_all_conversations(void)
+void init_conversation_table(struct register_ct* ct, const char *filter)
 {
-    register_stat_cmd_arg("conv,eth", conversation_init, NULL);
-    register_stat_cmd_arg("conv,fc", conversation_init, NULL);
-    register_stat_cmd_arg("conv,fddi", conversation_init, NULL);
-    register_stat_cmd_arg("conv,ip", conversation_init, NULL);
-    register_stat_cmd_arg("conv,ipv6", conversation_init, NULL);
-    register_stat_cmd_arg("conv,ipx", conversation_init, NULL);
-    register_stat_cmd_arg("conv,jxta", conversation_init, NULL);
-    register_stat_cmd_arg("conv,ncp", conversation_init, NULL);
-    register_stat_cmd_arg("conv,rsvp", conversation_init, NULL);
-    register_stat_cmd_arg("conv,sctp", conversation_init, NULL);
-    register_stat_cmd_arg("conv,tcp", conversation_init, NULL);
-    register_stat_cmd_arg("conv,tr", conversation_init, NULL);
-    register_stat_cmd_arg("conv,udp", conversation_init, NULL);
-    register_stat_cmd_arg("conv,usb", conversation_init, NULL);
-    register_stat_cmd_arg("conv,wlan", conversation_init, NULL);
-}
+    Q_UNUSED(ct)
+    wsApp->emitStatCommandSignal("Conversation", filter, GINT_TO_POINTER(get_conversation_proto_id(ct)));
 }
 
 /*

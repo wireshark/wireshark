@@ -1,6 +1,6 @@
-/* stat_cmd_args.h
- * Declarations of routines to register "-z" command-line argument handlers
- * for stats
+/* conversation_ui.h
+ * Copied from gtk/conversations_table.h   2003 Ronnie Sahlberg
+ * Helper routines common to all conversations taps.
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -21,33 +21,46 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef __STAT_CMD_ARGS_H__
-#define __STAT_CMD_ARGS_H__
-
-#include "ws_symbol_export.h"
+#ifndef __CONVERSATION_UI_H__
+#define __CONVERSATION_UI_H__
 
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
 
-/** Register a stat ("-z") command line argument.
- *
- * @param cmd The command name without arguments, e.g. "conv,tcp" or "io,stat".
- * MUST be valid when other stat_cmd routines below are called.
- * @param func Callbak to be invoked when the CLI argument is supplied.
- * @param userdata Additional data for the callback.
+/** @file
+ *  Conversation lists.
  */
-WS_DLL_PUBLIC void register_stat_cmd_arg(const char *cmd,
-    void (*func)(const char *arg,void* userdata), void* userdata);
-WS_DLL_PUBLIC gboolean process_stat_cmd_arg(char *optstr);
-WS_DLL_PUBLIC void list_stat_cmd_args(void);
-WS_DLL_PUBLIC void start_requested_stats(void);
+
+typedef enum {
+    CONV_COLUMN_SRC_ADDR,
+    CONV_COLUMN_SRC_PORT,
+    CONV_COLUMN_DST_ADDR,
+    CONV_COLUMN_DST_PORT,
+    CONV_COLUMN_PACKETS,
+    CONV_COLUMN_BYTES,
+    CONV_COLUMN_PKT_AB,
+    CONV_COLUMN_BYTES_AB,
+    CONV_COLUMN_PKT_BA,
+    CONV_COLUMN_BYTES_BA,
+    CONV_COLUMN_START,
+    CONV_COLUMN_DURATION,
+    CONV_COLUMN_BPS_AB,
+    CONV_COLUMN_BPS_BA,
+    CONV_NUM_COLUMNS,
+    CONV_INDEX_COLUMN = CONV_NUM_COLUMNS
+} column_type_e;
+
+
+extern const char *column_titles[CONV_NUM_COLUMNS];
+extern const char *conn_a_title;
+extern const char *conn_b_title;
 
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
 
-#endif
+#endif /* __CONVERSATION_UI_H__ */
 
 /*
  * Editor modelines

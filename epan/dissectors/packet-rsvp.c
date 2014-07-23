@@ -108,6 +108,7 @@
 #include <epan/etypes.h>
 #include <epan/ipproto.h>
 #include <epan/conversation.h>
+#include <epan/conversation_table.h>
 #include <epan/tap.h>
 #include <epan/sminmpec.h>
 #include <epan/wmem/wmem.h>
@@ -1869,6 +1870,26 @@ rsvp_init_protocol(void)
         g_hash_table_destroy(rsvp_request_hash);
 
     rsvp_request_hash = g_hash_table_new(rsvp_hash, rsvp_equal);
+}
+
+static const char* rsvp_conv_get_filter_type(conv_item_t* conv _U_, conv_filter_type_e filter _U_)
+{
+    /* XXX - Not sure about this */
+    return CONV_FILTER_INVALID;
+}
+
+static ct_dissector_info_t rsvp_ct_dissector_info = {&rsvp_conv_get_filter_type};
+
+static int
+rsvp_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
+{
+    conv_hash_t *hash = (conv_hash_t*) pct;
+    const rsvp_conversation_info *rsvph = (const rsvp_conversation_info *)vip;
+
+    add_conversation_table_data(hash, &rsvph->source, &rsvph->destination,
+        0, 0, 1, pinfo->fd->pkt_len, &pinfo->rel_ts, &rsvp_ct_dissector_info, PT_NONE);
+
+    return 1;
 }
 
 static inline int
@@ -9156,6 +9177,8 @@ proto_register_rsvp(void)
 
     /* Initialization routine for RSVP conversations */
     register_init_routine(&rsvp_init_protocol);
+
+    register_conversation_table(proto_rsvp, TRUE, rsvp_conversation_packet);
 }
 
 void

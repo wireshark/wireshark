@@ -102,6 +102,7 @@
 #include <epan/wmem/wmem.h>
 #include <epan/crypt/wep-wpadefs.h>
 #include <epan/expert.h>
+#include <epan/conversation_table.h>
 #include <epan/uat.h>
 #include <epan/eapol_keydes_types.h>
 
@@ -5171,6 +5172,33 @@ static const value_string ff_psmp_sta_info_flags[] = {
   { PSMP_STA_INFO_INDIVIDUALLY_ADDRESSED, "Individually Addressed"},
   {0, NULL}
 };
+
+static const char* wlan_conv_get_filter_type(conv_item_t* conv, conv_filter_type_e filter)
+{
+    if ((filter == CONV_FT_SRC_ADDRESS) && (conv->src_address.type == AT_ETHER))
+        return "wlan.sa";
+
+    if ((filter == CONV_FT_DST_ADDRESS) && (conv->dst_address.type == AT_ETHER))
+        return "wlan.da";
+
+    if ((filter == CONV_FT_ANY_ADDRESS) && (conv->src_address.type == AT_ETHER))
+        return "wlan.addr";
+
+    return CONV_FILTER_INVALID;
+}
+
+static ct_dissector_info_t wlan_ct_dissector_info = {&wlan_conv_get_filter_type};
+
+static int
+wlan_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
+{
+  conv_hash_t *hash = (conv_hash_t*) pct;
+  const wlan_hdr *whdr=(const wlan_hdr *)vip;
+
+  add_conversation_table_data(hash, &whdr->src, &whdr->dst, 0, 0, 1, pinfo->fd->pkt_len, &pinfo->rel_ts, &wlan_ct_dissector_info, PT_NONE);
+
+  return 1;
+}
 
 static void
 beacon_interval_base_custom(gchar *result, guint32 beacon_interval)
@@ -25898,6 +25926,7 @@ proto_register_ieee80211 (void)
   register_init_routine(ieee80211_gas_reassembly_init);
 
   wlan_tap = register_tap("wlan");
+  register_conversation_table(proto_wlan, TRUE, wlan_conversation_packet);
 
   /* Register configuration options */
   wlan_module = prefs_register_protocol(proto_wlan, init_wepkeys);

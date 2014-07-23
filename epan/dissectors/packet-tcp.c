@@ -38,6 +38,7 @@
 #include <epan/wmem/wmem.h>
 #include <epan/show_exception.h>
 #include <epan/conversation.h>
+#include <epan/conversation_table.h>
 #include <epan/reassemble.h>
 #include <epan/tap.h>
 #include <epan/decode_as.h>
@@ -521,6 +522,34 @@ static void
 tcp_both_prompt(packet_info *pinfo, gchar *result)
 {
     g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "both (%u%s%u)", pinfo->srcport, UTF8_LEFT_RIGHT_ARROW, pinfo->destport);
+}
+
+static const char* tcp_conv_get_filter_type(conv_item_t* conv _U_, conv_filter_type_e filter)
+{
+    if (filter == CONV_FT_SRC_PORT)
+        return "tcp.srcport";
+
+    if (filter == CONV_FT_DST_PORT)
+        return "tcp.dstport";
+
+    if (filter == CONV_FT_ANY_PORT)
+        return "tcp.port";
+
+    return CONV_FILTER_INVALID;
+}
+
+static ct_dissector_info_t tcp_ct_dissector_info = {&tcp_conv_get_filter_type};
+
+static int
+tcpip_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
+{
+    conv_hash_t *hash = (conv_hash_t*) pct;
+    const struct tcpheader *tcphdr=(const struct tcpheader *)vip;
+
+    add_conversation_table_data_with_conv_id(hash, &tcphdr->ip_src, &tcphdr->ip_dst, tcphdr->th_sport, tcphdr->th_dport, (conv_id_t) tcphdr->th_stream, 1, pinfo->fd->pkt_len,
+                                              &pinfo->rel_ts, &tcp_ct_dissector_info, PT_TCP);
+
+    return 1;
 }
 
 /* TCP structs and definitions */
@@ -5818,6 +5847,8 @@ proto_register_tcp(void)
     register_init_routine(tcp_init);
 
     register_decode_as(&tcp_da);
+
+    register_conversation_table(proto_tcp, FALSE, tcpip_conversation_packet);
 }
 
 void

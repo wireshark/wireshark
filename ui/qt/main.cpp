@@ -76,6 +76,7 @@
 #include <epan/uat.h>
 #include <epan/column.h>
 #include <epan/disabled_protos.h>
+#include <epan/conversation_table.h>
 #include <epan/print.h>
 
 #ifdef HAVE_PLUGINS
@@ -141,6 +142,7 @@
 #include <qtranslator.h>
 #include <qlocale.h>
 #include <qlibraryinfo.h>
+#include "conversation_dialog.h"
 
 #ifdef HAVE_LIBPCAP
 capture_options global_capture_opts;
@@ -908,6 +910,7 @@ int main(int argc, char *argv[])
 #endif
 
     register_all_tap_listeners();
+    conversation_table_set_gui_info(init_conversation_table);
 
     if (ex_opt_count("read_format") > 0) {
         in_file_type = open_info_name_to_type(ex_opt_get_next("read_format"));
