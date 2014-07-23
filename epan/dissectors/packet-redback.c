@@ -43,6 +43,7 @@ static dissector_table_t osinl_incl_subdissector_table;
 static dissector_table_t osinl_excl_subdissector_table;
 
 static dissector_handle_t ipv4_handle;
+static dissector_handle_t ipv6_handle;
 static dissector_handle_t ethnofcs_handle;
 static dissector_handle_t clnp_handle;
 static dissector_handle_t arp_handle;
@@ -179,6 +180,13 @@ dissect_redback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			next_tvb = tvb_new_subset_remaining(tvb, dataoff);
 			call_dissector(ethnofcs_handle, next_tvb, pinfo, tree);
 			break;
+		case 0x09: /* IPv6 either encapsulated as ethernet or native ip */
+			next_tvb = tvb_new_subset_remaining(tvb, dataoff);
+			if (dataoff == l3off)
+				call_dissector(ipv6_handle, next_tvb, pinfo, tree);
+			else
+				call_dissector(ethnofcs_handle, next_tvb, pinfo, tree);
+			break;
 		default:
 			if (tree)
 				proto_tree_add_text (rbtree, tvb, 24, -1, "Unknown Protocol Data %u", proto);
@@ -226,6 +234,7 @@ proto_reg_handoff_redback(void)
 	osinl_excl_subdissector_table = find_dissector_table("osinl.excl");
 
 	ipv4_handle = find_dissector("ip");
+	ipv6_handle = find_dissector("ipv6");
 	data_handle = find_dissector("data");
 	ethnofcs_handle = find_dissector("eth_withoutfcs");
 	clnp_handle = find_dissector("clnp");
