@@ -154,7 +154,7 @@ dissect_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
     guint16      uuid_dst;
     guint16      uuid_src;
     guint16      response_message;
-    guint        list_length;
+    guint16      list_length;
     guint        i_item;
 
     proto_tree_add_item(tree, hf_btbnep_control_type, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -203,7 +203,7 @@ dissect_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
             list_length = tvb_get_ntohs(tvb, offset);
             offset += 2;
 
-            for (i_item = 0; i_item < list_length; i_item += 4) {
+            for (i_item = 0; i_item + 4 > i_item && i_item < list_length; i_item += 4) {
                 proto_tree_add_item(tree, hf_btbnep_network_type_start, tvb, offset, 2, ENC_BIG_ENDIAN);
                 offset += 2;
 
@@ -223,7 +223,7 @@ dissect_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
             list_length = tvb_get_ntohs(tvb, offset);
             offset += 2;
 
-            for (i_item = 0; i_item < list_length; i_item += 12) {
+            for (i_item = 0; i_item + 12 > i_item && i_item < list_length; i_item += 12) {
                 proto_tree_add_item(tree, hf_btbnep_multicast_address_start, tvb, offset, 6, ENC_NA);
                 offset += 6;
 

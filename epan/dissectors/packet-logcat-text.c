@@ -79,7 +79,7 @@ typedef int (*tGETTER) (const gchar *frame, const gchar *token, tvbuff_t *tvb,
         proto_tree *maintree, gint start_offset, packet_info *pinfo);
 
 typedef struct {
-    GRegex *regex;
+    GRegex **regex;
     const tGETTER *getters;
     guint no_of_getters;
 } dissect_info_t;
@@ -206,7 +206,7 @@ static int dissect_logcat_text(tvbuff_t *tvb, proto_tree *tree, packet_info *pin
 
     if (!g_regex_match(special_regex, frame, G_REGEX_MATCH_NOTEMPTY, NULL)) {
 
-        tokens = g_regex_split(dinfo->regex, frame, G_REGEX_MATCH_NOTEMPTY);
+        tokens = g_regex_split(*dinfo->regex, frame, G_REGEX_MATCH_NOTEMPTY);
         if (NULL == tokens) return 0;
         if (g_strv_length(tokens) != dinfo->no_of_getters + 2) {
             proto_tree_add_expert(maintree, pinfo, &ei_malformed_token, tvb, offset, -1);
@@ -229,7 +229,7 @@ static int dissect_logcat_text(tvbuff_t *tvb, proto_tree *tree, packet_info *pin
 static int dissect_logcat_text_brief(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         void *data _U_) {
     static const tGETTER getters[] = { get_priority, get_tag, get_pid, get_log };
-    dissect_info_t dinfo = { brief_regex, getters, array_length(getters) };
+    dissect_info_t dinfo = { &brief_regex, getters, array_length(getters) };
 
     return dissect_logcat_text(tvb, tree, pinfo, &dinfo);
 }
@@ -237,7 +237,7 @@ static int dissect_logcat_text_brief(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 static int dissect_logcat_text_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         void *data _U_) {
     static const tGETTER getters[] = { get_priority, get_tag, get_log };
-    dissect_info_t dinfo = { tag_regex, getters, array_length(getters) };
+    dissect_info_t dinfo = { &tag_regex, getters, array_length(getters) };
 
     return dissect_logcat_text(tvb, tree, pinfo, &dinfo);
 }
@@ -245,7 +245,7 @@ static int dissect_logcat_text_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 static int dissect_logcat_text_process(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         void *data _U_) {
     static const tGETTER getters[] = { get_priority, get_pid, get_log };
-    dissect_info_t dinfo = { process_regex, getters, array_length(getters) };
+    dissect_info_t dinfo = { &process_regex, getters, array_length(getters) };
 
     SET_ADDRESS(&pinfo->dst, AT_STRINGZ, 0, "");
     SET_ADDRESS(&pinfo->src, AT_STRINGZ, 0, "");
@@ -256,7 +256,7 @@ static int dissect_logcat_text_process(tvbuff_t *tvb, packet_info *pinfo, proto_
 static int dissect_logcat_text_time(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         void *data _U_) {
     static const tGETTER getters[] = { get_time, get_priority, get_tag, get_pid, get_log };
-    dissect_info_t dinfo = { time_regex, getters, array_length(getters) };
+    dissect_info_t dinfo = { &time_regex, getters, array_length(getters) };
 
     return dissect_logcat_text(tvb, tree, pinfo, &dinfo);
 }
@@ -264,7 +264,7 @@ static int dissect_logcat_text_time(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 static int dissect_logcat_text_thread(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         void *data _U_) {
     static const tGETTER getters[] = { get_priority, get_pid, get_tid, get_log };
-    dissect_info_t dinfo = { thread_regex, getters, array_length(getters) };
+    dissect_info_t dinfo = { &thread_regex, getters, array_length(getters) };
 
     SET_ADDRESS(&pinfo->dst, AT_STRINGZ, 0, "");
     SET_ADDRESS(&pinfo->src, AT_STRINGZ, 0, "");
@@ -275,7 +275,7 @@ static int dissect_logcat_text_thread(tvbuff_t *tvb, packet_info *pinfo, proto_t
 static int dissect_logcat_text_threadtime(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         void *data _U_) {
     static const tGETTER getters[] = { get_time, get_pid, get_tid, get_priority, get_tag, get_log };
-    dissect_info_t dinfo = { threadtime_regex, getters, array_length(getters) };
+    dissect_info_t dinfo = { &threadtime_regex, getters, array_length(getters) };
 
     return dissect_logcat_text(tvb, tree, pinfo, &dinfo);
 }
@@ -283,7 +283,7 @@ static int dissect_logcat_text_threadtime(tvbuff_t *tvb, packet_info *pinfo, pro
 static int dissect_logcat_text_long(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         void *data _U_) {
     static const tGETTER getters[] = { get_time, get_pid, get_tid, get_priority, get_tag, get_log };
-    dissect_info_t dinfo = { long_regex, getters, array_length(getters) };
+    dissect_info_t dinfo = { &long_regex, getters, array_length(getters) };
 
     return dissect_logcat_text(tvb, tree, pinfo, &dinfo);
 }

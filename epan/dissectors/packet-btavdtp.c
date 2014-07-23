@@ -1276,7 +1276,6 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown direction %d ",
                 direction);
             goto LABEL_data;
-            break;
     }
 
     l2cap_data = (btl2cap_data_t *) data;

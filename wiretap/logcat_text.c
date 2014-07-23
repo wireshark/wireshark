@@ -56,16 +56,16 @@ static gchar get_priority(const guint8 priority) {
 
 static gint buffered_detect_version(const guint8 *pd)
 {
-    struct logger_entry     *log_entry;
-    struct logger_entry_v2  *log_entry_v2;
+    const struct logger_entry     *log_entry;
+    const struct logger_entry_v2  *log_entry_v2;
     gint                     version;
-    guint8                  *msg_payload = NULL;
+    const guint8            *msg_payload = NULL;
     guint8                  *msg_part;
     guint8                  *msg_end;
     guint16                  msg_len;
 
-    log_entry_v2 = (struct logger_entry_v2 *) pd;
-    log_entry = (struct logger_entry *) pd;
+    log_entry_v2 = (const struct logger_entry_v2 *) pd;
+    log_entry = (const struct logger_entry *) pd;
 
     /* must contain at least priority and two nulls as separator */
     if (log_entry->len < 3)
@@ -79,10 +79,10 @@ static gint buffered_detect_version(const guint8 *pd)
      * version is in use. First assume the smallest msg. */
     for (version = 1; version <= 2; ++version) {
         if (version == 1) {
-            msg_payload = log_entry->msg;
+            msg_payload = (const guint8 *) (log_entry + 1);
         } else if (version == 2) {
             /* v2 is 4 bytes longer */
-            msg_payload = log_entry_v2->msg;
+            msg_payload = (const guint8 *) (log_entry_v2 + 1);
             if (log_entry_v2->hdr_size != sizeof(*log_entry_v2))
                 continue;
         }
@@ -427,6 +427,7 @@ static gboolean logcat_text_dump_text(wtap_dumper *wdh,
     gint32                          tid;
     gint32                          seconds;
     gint32                          milliseconds;
+    const guint8                   *msg_payload = NULL;
     const gchar                    *msg_begin;
     gint                            msg_pre_skip;
     gchar                          *log;
@@ -458,8 +459,8 @@ static gboolean logcat_text_dump_text(wtap_dumper *wdh,
             logcat_version = pseudo_header->logcat.version;
         }
 
-        log_entry = (struct logger_entry *) pd;
-        log_entry_v2 = (struct logger_entry_v2 *) pd;
+        log_entry = (const struct logger_entry *) pd;
+        log_entry_v2 = (const struct logger_entry_v2 *) pd;
 
         payload_length = GINT32_FROM_LE(log_entry->len);
         pid = GINT32_FROM_LE(log_entry->pid);
@@ -469,15 +470,19 @@ static gboolean logcat_text_dump_text(wtap_dumper *wdh,
 
         /* msg: <prio:1><tag:N>\0<msg:N>\0 with N >= 0, last \0 can be missing */
         if (logcat_version == 1) {
-            priority = get_priority(log_entry->msg[0]);
-            tag = log_entry->msg + 1;
+            msg_payload = (const guint8 *) (log_entry + 1);
+
+            priority = get_priority(msg_payload[0]);
+            tag = msg_payload + 1;
             msg_pre_skip = 1 + (gint) strlen(tag) + 1;
-            msg_begin = log_entry->msg + msg_pre_skip;
+            msg_begin = msg_payload + msg_pre_skip;
         } else if (logcat_version == 2) {
-            priority = get_priority(log_entry_v2->msg[0]);
-            tag = log_entry_v2->msg + 1;
+            msg_payload = (const guint8 *) (log_entry_v2 + 1);
+
+            priority = get_priority(msg_payload[0]);
+            tag = msg_payload + 1;
             msg_pre_skip = 1 + (gint) strlen(tag) + 1;
-            msg_begin = log_entry_v2->msg + msg_pre_skip;
+            msg_begin = msg_payload + msg_pre_skip;
         } else {
             *err = WTAP_ERR_UNSUPPORTED;
             return FALSE;
@@ -533,7 +538,7 @@ static gboolean logcat_text_dump_text(wtap_dumper *wdh,
     case WTAP_ENCAP_LOGCAT_THREADTIME:
     case WTAP_ENCAP_LOGCAT_LONG:
         if (dumper->type == wdh->encap) {
-            if (!wtap_dump_file_write(wdh, (gchar*) pd, phdr->caplen, err)) {
+            if (!wtap_dump_file_write(wdh, (const gchar*) pd, phdr->caplen, err)) {
                 return FALSE;
             }
         } else {

@@ -50,7 +50,9 @@ static gint detect_version(wtap *wth, int *err, gchar **err_info)
     struct logger_entry_v2  *log_entry_v2;
     guint8                  *buffer;
     guint16                  tmp;
-    guint8                  *msg_payload, *msg_part, *msg_end;
+    guint8                  *msg_payload;
+    guint8                  *msg_part;
+    guint8                  *msg_end;
     guint16                  msg_len;
 
     /* 16-bit payload length */
@@ -90,11 +92,11 @@ static gint detect_version(wtap *wth, int *err, gchar **err_info)
      * version is in use. First assume the smallest msg. */
     for (version = 1; version <= 2; ++version) {
         if (version == 1) {
-            msg_payload = log_entry->msg;
+            msg_payload = (guint8 *) (log_entry + 1);
             entry_len = sizeof(*log_entry) + payload_length;
         } else if (version == 2) {
             /* v2 is 4 bytes longer */
-            msg_payload = log_entry_v2->msg;
+            msg_payload = (guint8 *) (log_entry_v2 + 1);
             entry_len = sizeof(*log_entry_v2) + payload_length;
             if (hdr_size != sizeof(*log_entry_v2))
                 continue;
@@ -137,18 +139,18 @@ static gint detect_version(wtap *wth, int *err, gchar **err_info)
 }
 
 gint logcat_exported_pdu_length(const guint8 *pd) {
-    guint16 *tag;
-    guint16 *tag_length;
-    gint     length = 0;
+    const guint16  *tag;
+    const guint16  *tag_length;
+    gint            length = 0;
 
-    tag = (guint16 *) pd;
+    tag = (const guint16 *) pd;
 
     while(GINT16_FROM_BE(*tag)) {
-        tag_length = (guint16 *) (pd + 2);
+        tag_length = (const guint16 *) (pd + 2);
         length += 2 + 2 + GINT16_FROM_BE(*tag_length);
 
         pd += 2 + 2 + GINT16_FROM_BE(*tag_length);
-        tag = (guint16 *) pd;
+        tag = (const guint16 *) pd;
     }
 
     length += 2 + 2;

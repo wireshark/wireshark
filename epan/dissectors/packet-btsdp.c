@@ -1237,6 +1237,7 @@ reassemble_continuation_state(tvbuff_t *tvb, packet_info *pinfo,
     tid_request_t     *tid_request;
     continuation_state_data_t *continuation_state_data;
     wmem_tree_key_t    key[12];
+    wmem_tree_t       *subtree;
     guint32            k_interface_id;
     guint32            k_adapter_id;
     guint32            k_chandle;
@@ -1244,13 +1245,13 @@ reassemble_continuation_state(tvbuff_t *tvb, packet_info *pinfo,
     guint32            k_tid;
     guint32            k_pdu_type;
     guint32            k_frame_number;
-    guint8             *k_continuation_state;
+    guint32           *k_continuation_state_array;
+    guint8            *continuation_state;
     guint32            interface_id;
     guint32            adapter_id;
     guint32            chandle;
     guint32            psm;
     guint32            frame_number;
-    guint32           *continuation_state_array;
 
     if (new_tvb) *new_tvb = NULL;
 
@@ -1330,14 +1331,10 @@ reassemble_continuation_state(tvbuff_t *tvb, packet_info *pinfo,
                     if (tid_request->continuation_state_length > 0) {
                         /* fetch tid_request->continuation_state */
 
-                        k_continuation_state = (guint8 *) wmem_alloc0(wmem_packet_scope(), 20);
-                        k_continuation_state[0] = tid_request->continuation_state_length;
-                        memcpy(&k_continuation_state[1], tid_request->continuation_state, tid_request->continuation_state_length);
-                        continuation_state_array = (guint32 *) k_continuation_state;
-
-                        k_continuation_state = (guint8 *) wmem_alloc0(wmem_packet_scope(), 20);
-                        k_continuation_state[0] = tid_request->continuation_state_length;
-                        memcpy(&k_continuation_state[1], tid_request->continuation_state, tid_request->continuation_state_length);
+                        k_continuation_state_array =  (guint32 *) wmem_alloc0(wmem_packet_scope(), 20);
+                        continuation_state = (guint8 *) k_continuation_state_array;
+                        continuation_state[0] = tid_request->continuation_state_length;
+                        memcpy(&continuation_state[1], tid_request->continuation_state, tid_request->continuation_state_length);
 
                         k_interface_id       = interface_id;
                         k_adapter_id         = adapter_id;
@@ -1357,15 +1354,15 @@ reassemble_continuation_state(tvbuff_t *tvb, packet_info *pinfo,
                         key[4].length = 1;
                         key[4].key    = &k_pdu_type;
                         key[5].length = 1;
-                        key[5].key    = (guint32 *) &k_continuation_state[0];
+                        key[5].key    = &k_continuation_state_array[0];
                         key[6].length = 1;
-                        key[6].key    = (guint32 *) &k_continuation_state[4];
+                        key[6].key    = &k_continuation_state_array[1];
                         key[7].length = 1;
-                        key[7].key    = (guint32 *) &k_continuation_state[8];
+                        key[7].key    = &k_continuation_state_array[2];
                         key[8].length = 1;
-                        key[8].key    = (guint32 *) &k_continuation_state[12];
+                        key[8].key    = &k_continuation_state_array[3];
                         key[9].length = 1;
-                        key[9].key    = (guint32 *) &k_continuation_state[16];
+                        key[9].key    = &k_continuation_state_array[4];
                         key[10].length = 1;
                         key[10].key    = &k_frame_number;
                         key[11].length = 0;
@@ -1377,11 +1374,11 @@ reassemble_continuation_state(tvbuff_t *tvb, packet_info *pinfo,
                                 continuation_state_data->chandle == chandle &&
                                 continuation_state_data->psm == psm &&
                                 continuation_state_data->pdu_type == tid_request->pdu_type &&
-                                continuation_state_data->continuation_state[0] == continuation_state_array[0] &&
-                                continuation_state_data->continuation_state[1] == continuation_state_array[1] &&
-                                continuation_state_data->continuation_state[2] == continuation_state_array[2] &&
-                                continuation_state_data->continuation_state[3] == continuation_state_array[3] &&
-                                continuation_state_data->continuation_state[4] == continuation_state_array[4]) {
+                                continuation_state_data->continuation_state[0] == k_continuation_state_array[0] &&
+                                continuation_state_data->continuation_state[1] == k_continuation_state_array[1] &&
+                                continuation_state_data->continuation_state[2] == k_continuation_state_array[2] &&
+                                continuation_state_data->continuation_state[3] == k_continuation_state_array[3] &&
+                                continuation_state_data->continuation_state[4] == k_continuation_state_array[4]) {
                             tid_request->data = (guint8 *) wmem_alloc(wmem_file_scope(), continuation_state_data->data_length + attribute_list_byte_count);
                             tid_request->data_length = continuation_state_data->data_length + attribute_list_byte_count;
                             memcpy(tid_request->data, continuation_state_data->data, continuation_state_data->data_length);
@@ -1443,16 +1440,16 @@ reassemble_continuation_state(tvbuff_t *tvb, packet_info *pinfo,
             }
         }
     } else {
-        guint8      *continuation_state;
+        guint8      *continuation_state_buffer;
         guint8       continuation_state_length;
         guint8      *packet_scope_string;
 
         continuation_state_length = tvb_get_guint8(tvb, offset);
         offset++;
 
-        continuation_state = (guint8 *) wmem_alloc(wmem_file_scope(), continuation_state_length);
+        continuation_state_buffer = (guint8 *) wmem_alloc(wmem_file_scope(), continuation_state_length);
         packet_scope_string = tvb_bytes_to_ep_str(tvb, offset, continuation_state_length);
-        memcpy(continuation_state, packet_scope_string, continuation_state_length);
+        memcpy(continuation_state_buffer, packet_scope_string, continuation_state_length);
 
         if (!pinfo->fd->flags.visited) {
             if (is_request) {
@@ -1479,7 +1476,7 @@ reassemble_continuation_state(tvbuff_t *tvb, packet_info *pinfo,
 
                 tid_request->pdu_type = pdu_type;
 
-                tid_request->continuation_state        = continuation_state;
+                tid_request->continuation_state        = continuation_state_buffer;
                 tid_request->continuation_state_length = continuation_state_length;
 
                 wmem_tree_insert32_array(tid_requests, key, tid_request);
@@ -1494,22 +1491,16 @@ reassemble_continuation_state(tvbuff_t *tvb, packet_info *pinfo,
 
                     if (tid_request->continuation_state_length > 0) {
                         /* fetch tid_request->continuation_state */
-
-                        k_continuation_state = (guint8 *) wmem_alloc0(wmem_packet_scope(), 20);
-                        k_continuation_state[0] = tid_request->continuation_state_length;
-                        memcpy(&k_continuation_state[1], tid_request->continuation_state, tid_request->continuation_state_length);
-                        continuation_state_array = (guint32 *) k_continuation_state;
-
-                        k_continuation_state = (guint8 *) wmem_alloc0(wmem_packet_scope(), 20);
-                        k_continuation_state[0] = tid_request->continuation_state_length;
-                        memcpy(&k_continuation_state[1], tid_request->continuation_state, tid_request->continuation_state_length);
+                        k_continuation_state_array =  (guint32 *) wmem_alloc0(wmem_packet_scope(), 20);
+                        continuation_state = (guint8 *) k_continuation_state_array;
+                        continuation_state[0] = tid_request->continuation_state_length;
+                        memcpy(&continuation_state[1], tid_request->continuation_state, tid_request->continuation_state_length);
 
                         k_interface_id       = interface_id;
                         k_adapter_id         = adapter_id;
                         k_chandle            = chandle;
                         k_psm                = psm;
                         k_pdu_type           = tid_request->pdu_type;
-                        k_frame_number       = frame_number;
 
                         key[0].length = 1;
                         key[0].key    = &k_interface_id;
@@ -1522,31 +1513,21 @@ reassemble_continuation_state(tvbuff_t *tvb, packet_info *pinfo,
                         key[4].length = 1;
                         key[4].key    = &k_pdu_type;
                         key[5].length = 1;
-                        key[5].key    = (guint32 *) &k_continuation_state[0];
+                        key[5].key    = &k_continuation_state_array[0];
                         key[6].length = 1;
-                        key[6].key    = (guint32 *) &k_continuation_state[4];
+                        key[6].key    = &k_continuation_state_array[1];
                         key[7].length = 1;
-                        key[7].key    = (guint32 *) &k_continuation_state[8];
+                        key[7].key    = &k_continuation_state_array[2];
                         key[8].length = 1;
-                        key[8].key    = (guint32 *) &k_continuation_state[12];
+                        key[8].key    = &k_continuation_state_array[3];
                         key[9].length = 1;
-                        key[9].key    = (guint32 *) &k_continuation_state[16];
-                        key[10].length = 1;
-                        key[10].key    = &k_frame_number;
-                        key[11].length = 0;
-                        key[11].key    = NULL;
+                        key[9].key     = &k_continuation_state_array[4];
+                        key[10].length = 0;
+                        key[10].key    = NULL;
 
-                        continuation_state_data = (continuation_state_data_t *) wmem_tree_lookup32_array_le(continuation_states, key);
-                        if (continuation_state_data && continuation_state_data->interface_id == interface_id &&
-                                continuation_state_data->adapter_id == adapter_id &&
-                                continuation_state_data->chandle == chandle &&
-                                continuation_state_data->psm == psm &&
-                                continuation_state_data->pdu_type == tid_request->pdu_type &&
-                                continuation_state_data->continuation_state[0] == continuation_state_array[0] &&
-                                continuation_state_data->continuation_state[1] == continuation_state_array[1] &&
-                                continuation_state_data->continuation_state[2] == continuation_state_array[2] &&
-                                continuation_state_data->continuation_state[3] == continuation_state_array[3] &&
-                                continuation_state_data->continuation_state[4] == continuation_state_array[4]) {
+                        subtree = (wmem_tree_t *) wmem_tree_lookup32_array(continuation_states, key);
+                        continuation_state_data = (subtree) ? (continuation_state_data_t *) wmem_tree_lookup32_le(subtree, frame_number) : NULL;
+                        if (continuation_state_data) {
                             tid_request->data = (guint8 *) wmem_alloc(wmem_file_scope(), continuation_state_data->data_length + attribute_list_byte_count);
                             tid_request->data_length = continuation_state_data->data_length + attribute_list_byte_count;
                             memcpy(tid_request->data, continuation_state_data->data, continuation_state_data->data_length);
@@ -1563,14 +1544,10 @@ reassemble_continuation_state(tvbuff_t *tvb, packet_info *pinfo,
                     if (record_handle) *record_handle = tid_request->record_handle;
 
                     /* save tid_request in continuation_state data */
-                    k_continuation_state = (guint8 *) wmem_alloc0(wmem_packet_scope(), 20);
-                    k_continuation_state[0] = continuation_state_length;
-                    memcpy(&k_continuation_state[1], continuation_state, continuation_state_length);
-                    continuation_state_array = (guint32 *) k_continuation_state;
-
-                    k_continuation_state = (guint8 *) wmem_alloc0(wmem_packet_scope(), 20);
-                    k_continuation_state[0] = continuation_state_length;
-                    memcpy(&k_continuation_state[1], continuation_state, continuation_state_length);
+                    k_continuation_state_array =  (guint32 *) wmem_alloc0(wmem_packet_scope(), 20);
+                    continuation_state = (guint8 *) k_continuation_state_array;
+                    continuation_state[0] = continuation_state_length;
+                    memcpy(&continuation_state[1], continuation_state_buffer, continuation_state_length);
 
                     k_interface_id       = interface_id;
                     k_adapter_id         = adapter_id;
@@ -1590,15 +1567,15 @@ reassemble_continuation_state(tvbuff_t *tvb, packet_info *pinfo,
                     key[4].length = 1;
                     key[4].key    = &k_pdu_type;
                     key[5].length = 1;
-                    key[5].key    = (guint32 *) &k_continuation_state[0];
+                    key[5].key    = &k_continuation_state_array[0];
                     key[6].length = 1;
-                    key[6].key    = (guint32 *) &k_continuation_state[4];
+                    key[6].key    = &k_continuation_state_array[1];
                     key[7].length = 1;
-                    key[7].key    = (guint32 *) &k_continuation_state[8];
+                    key[7].key    = &k_continuation_state_array[2];
                     key[8].length = 1;
-                    key[8].key    = (guint32 *) &k_continuation_state[12];
+                    key[8].key    = &k_continuation_state_array[3];
                     key[9].length = 1;
-                    key[9].key    = (guint32 *) &k_continuation_state[16];
+                    key[9].key    = &k_continuation_state_array[4];
                     key[10].length = 1;
                     key[10].key    = &k_frame_number;
                     key[11].length = 0;
@@ -1610,11 +1587,11 @@ reassemble_continuation_state(tvbuff_t *tvb, packet_info *pinfo,
                     continuation_state_data->chandle = chandle;
                     continuation_state_data->psm = psm;
                     continuation_state_data->pdu_type = pdu_type;
-                    continuation_state_data->continuation_state[0] = continuation_state_array[0];
-                    continuation_state_data->continuation_state[1] = continuation_state_array[1];
-                    continuation_state_data->continuation_state[2] = continuation_state_array[2];
-                    continuation_state_data->continuation_state[3] = continuation_state_array[3];
-                    continuation_state_data->continuation_state[4] = continuation_state_array[4];
+                    continuation_state_data->continuation_state[0] = k_continuation_state_array[0];
+                    continuation_state_data->continuation_state[1] = k_continuation_state_array[1];
+                    continuation_state_data->continuation_state[2] = k_continuation_state_array[2];
+                    continuation_state_data->continuation_state[3] = k_continuation_state_array[3];
+                    continuation_state_data->continuation_state[4] = k_continuation_state_array[4];
                     continuation_state_data->data = tid_request->data;
                     continuation_state_data->data_length = tid_request->data_length;
 

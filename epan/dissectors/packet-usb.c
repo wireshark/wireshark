@@ -1104,7 +1104,7 @@ get_usb_conv_info(conversation_t *conversation)
 /* usb_conv_info_t contains some components that are valid only for one specific packet
    clear_usb_conv_tmp_data() clears these components, it should be called
    before we dissect a new packet */
-void clear_usb_conv_tmp_data(usb_conv_info_t *usb_conv_info)
+static void clear_usb_conv_tmp_data(usb_conv_info_t *usb_conv_info)
 {
     /* caller must have checked that usb_conv_info!= NULL */
 
@@ -1597,7 +1597,7 @@ dissect_usb_string_descriptor(packet_info *pinfo _U_, proto_tree *parent_tree,
 
     if (!usb_trans_info->u.get_descriptor.index) {
         /* list of languanges */
-        while(len>(offset-old_offset)) {
+        while (offset >= old_offset && len > (offset - old_offset)) {
             /* wLANGID */
             proto_tree_add_item(tree, hf_usb_wLANGID, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset+=2;

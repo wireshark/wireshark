@@ -39,7 +39,7 @@ struct logger_entry {
     gint32  tid;    /* generating process's tid */
     gint32  sec;    /* seconds since Epoch */
     gint32  nsec;   /* nanoseconds */
-    char    msg[0]; /* the entry's payload */
+/*    char    msg[0]; *//* the entry's payload */
 };
 
 struct logger_entry_v2 {
@@ -53,8 +53,8 @@ struct logger_entry_v2 {
                         /* v1: not present */
         guint32 euid;   /* v2: effective UID of logger */
         guint32 lid;    /* v3: log id of the payload */
-    };
-    char    msg[0]; /* the entry's payload */
+    } id;
+/*    char    msg[0]; *//* the entry's payload */
 };
 
 int      logcat_open(wtap *wth, int *err, gchar **err_info);

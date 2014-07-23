@@ -490,7 +490,7 @@ dissect_usb_audio_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tre
 {
     usb_conv_info_t *usb_conv_info;
     proto_tree      *tree   = NULL;
-    guint            offset;
+    gint             offset;
     guint            length = tvb_length(tvb);
 
 
@@ -515,7 +515,7 @@ dissect_usb_audio_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tre
             offset = 0;
             col_set_str(pinfo->cinfo, COL_INFO, "USB-MIDI Event Packets");
 
-            while (offset < length)
+            while (offset > 0 && (guint) offset < length)
             {
                 dissect_usb_midi_event(tvb, pinfo, tree, parent_tree, offset);
                 offset += 4;

@@ -556,7 +556,6 @@ dissect_usb_com_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
             case 0x01: /* Network Transfer Block */
             case 0x02: /* Network Transfer Block (IP + DSS) */
                 return call_dissector_only(mbim_bulk_handle, tvb, pinfo, tree, NULL);
-                break;
             default:
                 break;
         }

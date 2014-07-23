@@ -1510,10 +1510,8 @@ init_file_types_subtypes(void)
 
 /* if subtype is WTAP_FILE_TYPE_SUBTYPE_UNKNOWN, then create a new subtype as well as register it, else replace the
    existing entry in that spot */
-int
-wtap_register_file_type_subtypes(const struct file_type_subtype_info* fi, const int subtype)
-{
-	struct file_type_subtype_info* finfo = NULL;
+int wtap_register_file_type_subtypes(const struct file_type_subtype_info* fi, const int subtype) {
+	struct file_type_subtype_info* finfo;
 	init_file_types_subtypes();
 
 	if (!fi || !fi->name || !fi->short_name || subtype > wtap_num_file_types_subtypes) {
@@ -1560,10 +1558,8 @@ wtap_register_file_type_subtypes(const struct file_type_subtype_info* fi, const 
 
 /* De-registers a file writer - they can never be removed from the GArray, but we can "clear" an entry.
  */
-void
-wtap_deregister_file_type_subtype(const int subtype)
-{
-	struct file_type_subtype_info* finfo = NULL;
+void wtap_deregister_file_type_subtype(const int subtype) {
+	struct file_type_subtype_info* finfo;
 
 	if (subtype < 0 || subtype >= wtap_num_file_types_subtypes) {
 		g_error("invalid file type to de-register");

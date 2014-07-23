@@ -1641,7 +1641,11 @@ gzwfile_write(GZWFILE_T state, const void *buf, guint len)
 
         /* directly compress user buffer to file */
         strm->avail_in = len;
+#if ZLIB_CONST
+        strm->next_in = (z_const Bytef *)buf;
+#else
         strm->next_in = (Bytef *)buf;
+#endif
         state->pos += len;
         if (gz_comp(state, Z_NO_FLUSH) == -1)
             return 0;
