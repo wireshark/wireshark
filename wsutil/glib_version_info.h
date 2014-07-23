@@ -23,6 +23,7 @@
 #ifndef __WSUTIL_GLIB_VERSION_INFO_H__
 #define __WSUTIL_GLIB_VERSION_INFO_H__
 
+#include <glib.h>
 #include "ws_symbol_export.h"
 
 #ifdef __cplusplus

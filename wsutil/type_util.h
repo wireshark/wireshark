@@ -23,6 +23,7 @@
 #ifndef __TYPE_UTIL_H__
 #define __TYPE_UTIL_H__
 
+#include <glib.h>
 #include "ws_symbol_export.h"
 
 /*
