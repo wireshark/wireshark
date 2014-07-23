@@ -158,7 +158,7 @@ dissect_redback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			guint32		flags;
 			flags = tvb_get_ntohl(tvb, 4);
 
-			if (flags & 0x00400000) {
+			if (flags & 0x04000000) {
 				next_tvb = tvb_new_subset_remaining(tvb, dataoff);
 			} else {
 				if (tree)
