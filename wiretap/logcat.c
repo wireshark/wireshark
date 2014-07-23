@@ -272,7 +272,7 @@ static gint buffered_detect_version(const guint8 *pd)
 
         /* if msg is '\0'-terminated, is it equal to the payload len? */
         ++msg_part;
-        msg_len = log_entry->len - (msg_part - msg_payload);
+        msg_len = (guint16)(log_entry->len - (msg_part - msg_payload));
         msg_end = (guint8 *) memchr(msg_part, '\0', msg_len);
         /* is the end of the buffer (-1) equal to the end of msg? */
         if (msg_end && (msg_payload + log_entry->len - 1 != msg_end))
