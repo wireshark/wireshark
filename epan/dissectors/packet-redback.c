@@ -3,8 +3,8 @@
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  *
- * Start of RedBack SmartEdge 400/800 tcpdump trace disassembly
- * Copyright 2005-2008 Florian Lohoff <flo@rfc822.org>
+ * Ericsson SmartEdge tcpdump trace disassembly
+ * Copyright 2005-2014 Florian Lohoff <f@zz.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
