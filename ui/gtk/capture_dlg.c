@@ -3229,95 +3229,95 @@ static void change_pipe_name_cb(gpointer dialog _U_, gint btn, gpointer data)
   case(ESD_BTN_OK):
     for (i = 0; i < global_capture_opts.all_ifaces->len; i++) {
       device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
-        if (strcmp((gchar *)data, device.name) == 0) {
-          simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK,
-                        "%sA pipe with this name already exists.%s",
-                        simple_dialog_primary_start(), simple_dialog_primary_end());
-          if_cb = GTK_TREE_VIEW(g_object_get_data(G_OBJECT(interface_management_w), E_CAP_PIPE_L_KEY));
-          pipe_te             = (GtkWidget *) g_object_get_data(G_OBJECT(interface_management_w), E_CAP_PIPE_TE_KEY);
-          model = gtk_tree_view_get_model(if_cb);
-          if (gtk_tree_model_get_iter_first (model, &iter)) {
-            do {
-              gtk_tree_model_get(model, &iter, 0, &optname, -1);
-              if (strcmp(optname, (gchar *) data) == 0) {
-                gtk_list_store_set (GTK_LIST_STORE(model), &iter, 0, pipe_name, -1);
-                gtk_entry_set_text(GTK_ENTRY(pipe_te), pipe_name);
-                break;
-              }
-            } while (gtk_tree_model_iter_next(model, &iter));
-            g_free(optname);
-          }
-          return;
+      if (strcmp((gchar *)data, device.name) == 0) {
+        simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK,
+                      "%sA pipe with this name already exists.%s",
+                      simple_dialog_primary_start(), simple_dialog_primary_end());
+        if_cb = GTK_TREE_VIEW(g_object_get_data(G_OBJECT(interface_management_w), E_CAP_PIPE_L_KEY));
+        pipe_te             = (GtkWidget *) g_object_get_data(G_OBJECT(interface_management_w), E_CAP_PIPE_TE_KEY);
+        model = gtk_tree_view_get_model(if_cb);
+        if (gtk_tree_model_get_iter_first (model, &iter)) {
+          do {
+            gtk_tree_model_get(model, &iter, 0, &optname, -1);
+            if (strcmp(optname, (gchar *) data) == 0) {
+              gtk_list_store_set (GTK_LIST_STORE(model), &iter, 0, pipe_name, -1);
+              gtk_entry_set_text(GTK_ENTRY(pipe_te), pipe_name);
+              break;
+            }
+          } while (gtk_tree_model_iter_next(model, &iter));
+          g_free(optname);
         }
+        return;
       }
-      for (i = 0; i < global_capture_opts.all_ifaces->len; i++) {
-        device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
-        if (strcmp(pipe_name, device.name) == 0) {
-          device.name = g_strdup((gchar *)data);
-          device.display_name = g_strdup_printf("%s", device.name);
-          g_array_remove_index(global_capture_opts.all_ifaces, i);
-          g_array_insert_val(global_capture_opts.all_ifaces, i, device);
-          temp = g_strdup_printf("<b>%s</b>", device.display_name);
-          snaplen_string = g_strdup_printf("%d", device.snaplen);
-          if_cb = (GtkTreeView *) g_object_get_data(G_OBJECT(cap_open_w), E_CAP_IFACE_KEY);
-          model = gtk_tree_view_get_model(if_cb);
-          if (gtk_tree_model_get_iter_first (model, &iter)) {
-            do {
-              gtk_tree_model_get(model, &iter, IFACE_HIDDEN_NAME, &optname, -1);
-              if (strcmp(optname, pipe_name) == 0) {
+    }
+    for (i = 0; i < global_capture_opts.all_ifaces->len; i++) {
+      device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
+      if (strcmp(pipe_name, device.name) == 0) {
+        device.name = g_strdup((gchar *)data);
+        device.display_name = g_strdup_printf("%s", device.name);
+        g_array_remove_index(global_capture_opts.all_ifaces, i);
+        g_array_insert_val(global_capture_opts.all_ifaces, i, device);
+        temp = g_strdup_printf("<b>%s</b>", device.display_name);
+        snaplen_string = g_strdup_printf("%d", device.snaplen);
+        if_cb = (GtkTreeView *) g_object_get_data(G_OBJECT(cap_open_w), E_CAP_IFACE_KEY);
+        model = gtk_tree_view_get_model(if_cb);
+        if (gtk_tree_model_get_iter_first (model, &iter)) {
+          do {
+            gtk_tree_model_get(model, &iter, IFACE_HIDDEN_NAME, &optname, -1);
+            if (strcmp(optname, pipe_name) == 0) {
 #if defined(HAVE_PCAP_CREATE)
-                gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, device.selected, IFACE_HIDDEN_NAME, device.name, INTERFACE, temp, LINK, "",  PMODE, device.pmode?"enabled":"disabled", SNAPLEN, snaplen_string, BUFFER, (guint) device.buffer, MONITOR, device.monitor_mode_supported?(device.monitor_mode_enabled?"enabled":"disabled"):"n/a", FILTER, device.cfilter, -1);
+              gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, device.selected, IFACE_HIDDEN_NAME, device.name, INTERFACE, temp, LINK, "",  PMODE, device.pmode?"enabled":"disabled", SNAPLEN, snaplen_string, BUFFER, (guint) device.buffer, MONITOR, device.monitor_mode_supported?(device.monitor_mode_enabled?"enabled":"disabled"):"n/a", FILTER, device.cfilter, -1);
 #elif defined(_WIN32) && !defined(HAVE_PCAP_CREATE)
-                gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, device.selected, IFACE_HIDDEN_NAME, device.name, INTERFACE, temp,LINK, "",  PMODE, device.pmode?"enabled":"disabled", SNAPLEN, snaplen_string, BUFFER, (guint) device.buffer, FILTER, device.cfilter, -1);
+              gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, device.selected, IFACE_HIDDEN_NAME, device.name, INTERFACE, temp,LINK, "",  PMODE, device.pmode?"enabled":"disabled", SNAPLEN, snaplen_string, BUFFER, (guint) device.buffer, FILTER, device.cfilter, -1);
 #else
-                gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, device.selected, IFACE_HIDDEN_NAME, device.name, INTERFACE, temp,LINK, "",  PMODE, device.pmode?"enabled":"disabled", SNAPLEN, snaplen_string, FILTER, device.cfilter, -1);
+              gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, device.selected, IFACE_HIDDEN_NAME, device.name, INTERFACE, temp,LINK, "",  PMODE, device.pmode?"enabled":"disabled", SNAPLEN, snaplen_string, FILTER, device.cfilter, -1);
 #endif
 #if 0
-                oldname = g_strdup(pipe_name);
+              oldname = g_strdup(pipe_name);
 #endif
-                pipe_name = g_strdup(device.name);
-                break;
-              }
-            } while (gtk_tree_model_iter_next(model, &iter));
+              pipe_name = g_strdup(device.name);
+              break;
+            }
+          } while (gtk_tree_model_iter_next(model, &iter));
 
-            g_free(optname);
-          }
-          if (global_capture_opts.num_selected > 0) {
-            gtk_widget_set_sensitive(ok_bt, TRUE);
+          g_free(optname);
+        }
+        if (global_capture_opts.num_selected > 0) {
+          gtk_widget_set_sensitive(ok_bt, TRUE);
 #if defined(HAVE_PCAP_OPEN_DEAD) && defined(HAVE_BPF_IMAGE)
-            gtk_widget_set_sensitive(all_compile_bt, TRUE);
+          gtk_widget_set_sensitive(all_compile_bt, TRUE);
 #endif
-          } else {
-            gtk_widget_set_sensitive(ok_bt, FALSE);
+        } else {
+          gtk_widget_set_sensitive(ok_bt, FALSE);
 #if defined(HAVE_PCAP_OPEN_DEAD) && defined(HAVE_BPF_IMAGE)
-            gtk_widget_set_sensitive(all_compile_bt, FALSE);
+          gtk_widget_set_sensitive(all_compile_bt, FALSE);
 #endif
-          }
-          refresh_non_local_interface_lists();
+        }
+        refresh_non_local_interface_lists();
+        break;
+      }
+    }
+    break;
+  case(ESD_BTN_CANCEL): {
+    if_cb = GTK_TREE_VIEW(g_object_get_data(G_OBJECT(interface_management_w), E_CAP_PIPE_L_KEY));
+    pipe_te = (GtkWidget *) g_object_get_data(G_OBJECT(interface_management_w), E_CAP_PIPE_TE_KEY);
+    model = gtk_tree_view_get_model(if_cb);
+
+    if (gtk_tree_model_get_iter_first (model, &iter)) {
+      do {
+        gtk_tree_model_get(model, &iter, 0, &optname, -1);
+        if (strcmp(optname, (gchar *) data) == 0) {
+          gtk_list_store_set (GTK_LIST_STORE(model), &iter, 0, pipe_name, -1);
+          gtk_entry_set_text(GTK_ENTRY(pipe_te), pipe_name);
           break;
         }
-      }
-      break;
-    case(ESD_BTN_CANCEL): {
-      if_cb = GTK_TREE_VIEW(g_object_get_data(G_OBJECT(interface_management_w), E_CAP_PIPE_L_KEY));
-      pipe_te = (GtkWidget *) g_object_get_data(G_OBJECT(interface_management_w), E_CAP_PIPE_TE_KEY);
-      model = gtk_tree_view_get_model(if_cb);
-
-      if (gtk_tree_model_get_iter_first (model, &iter)) {
-        do {
-          gtk_tree_model_get(model, &iter, 0, &optname, -1);
-          if (strcmp(optname, (gchar *) data) == 0) {
-            gtk_list_store_set (GTK_LIST_STORE(model), &iter, 0, pipe_name, -1);
-            gtk_entry_set_text(GTK_ENTRY(pipe_te), pipe_name);
-            break;
-          }
-        } while (gtk_tree_model_iter_next(model, &iter));
-        g_free(optname);
-      }
-      break;
+      } while (gtk_tree_model_iter_next(model, &iter));
+      g_free(optname);
     }
-    default:
-      g_assert_not_reached();
+    break;
+  }
+  default:
+    g_assert_not_reached();
   }
 }
 
