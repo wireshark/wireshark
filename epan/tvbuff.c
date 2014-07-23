@@ -1735,24 +1735,17 @@ tvb_find_guint8(tvbuff_t *tvb, const gint offset, const gint maxlength, const gu
 {
 	const guint8 *result;
 	guint	      abs_offset;
-	guint	      tvbufflen;
 	guint	      limit;
+	int           exception;
 
 	DISSECTOR_ASSERT(tvb && tvb->initialized);
 
-	check_offset_length(tvb, offset, -1, &abs_offset, &tvbufflen);
+	exception = compute_offset_and_remaining(tvb, offset, &abs_offset, &limit);
+	if (exception)
+		THROW(exception);
 
 	/* Only search to end of tvbuff, w/o throwing exception. */
-	if (maxlength == -1) {
-		/* No maximum length specified; search to end of tvbuff. */
-		limit = tvbufflen;
-	}
-	else if (tvbufflen < (guint) maxlength) {
-		/* Maximum length goes past end of tvbuff; search to end
-		   of tvbuff. */
-		limit = tvbufflen;
-	}
-	else {
+	if (limit > (guint) maxlength) {
 		/* Maximum length doesn't go past end of tvbuff; search
 		   to that value. */
 		limit = maxlength;
@@ -1802,24 +1795,17 @@ tvb_pbrk_guint8(tvbuff_t *tvb, const gint offset, const gint maxlength, const gu
 {
 	const guint8 *result;
 	guint	      abs_offset;
-	guint	      tvbufflen;
 	guint	      limit;
+	int           exception;
 
 	DISSECTOR_ASSERT(tvb && tvb->initialized);
 
-	check_offset_length(tvb, offset, -1, &abs_offset, &tvbufflen);
+	exception = compute_offset_and_remaining(tvb, offset, &abs_offset, &limit);
+	if (exception)
+		THROW(exception);
 
 	/* Only search to end of tvbuff, w/o throwing exception. */
-	if (maxlength == -1) {
-		/* No maximum length specified; search to end of tvbuff. */
-		limit = tvbufflen;
-	}
-	else if (tvbufflen < (guint) maxlength) {
-		/* Maximum length goes past end of tvbuff; search to end
-		   of tvbuff. */
-		limit = tvbufflen;
-	}
-	else {
+	if (limit > (guint) maxlength) {
 		/* Maximum length doesn't go past end of tvbuff; search
 		   to that value. */
 		limit = maxlength;
