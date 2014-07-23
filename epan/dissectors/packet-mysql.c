@@ -102,7 +102,7 @@ void proto_reg_handoff_mysql(void);
 #define MYSQL_CAPS_AL 0x0020 /* CLIENT_PLUGIN_AUTH_LENENC_CLIENT_DATA */
 #define MYSQL_CAPS_EP 0x0040 /* CLIENT_CAN_HANDLE_EXPIRED_PASSWORDS */
 #define MYSQL_CAPS_ST 0x0080 /* CLIENT_SESSION_TRACK */
-#define MYSQL_CAPS_UNUSED 0xFF40
+#define MYSQL_CAPS_UNUSED 0xFF00
 
 /* status bitfield */
 #define MYSQL_STAT_IT 0x0001
@@ -440,6 +440,7 @@ static int hf_mysql_cap_ps_multi_results = -1;
 static int hf_mysql_cap_plugin_auth = -1;
 static int hf_mysql_cap_connect_attrs = -1;
 static int hf_mysql_cap_plugin_auth_lenenc_client_data = -1;
+static int hf_mysql_cap_client_can_handle_expired_passwords = -1;
 static int hf_mysql_cap_session_track = -1;
 static int hf_mysql_cap_unused = -1;
 static int hf_mysql_server_language = -1;
@@ -1700,7 +1701,7 @@ mysql_dissect_ext_caps_client(tvbuff_t *tvb, int offset, proto_tree *tree, guint
 		proto_tree_add_item(extcap_tree, hf_mysql_cap_plugin_auth, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		proto_tree_add_item(extcap_tree, hf_mysql_cap_connect_attrs, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		proto_tree_add_item(extcap_tree, hf_mysql_cap_plugin_auth_lenenc_client_data, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-
+		proto_tree_add_item(extcap_tree, hf_mysql_cap_client_can_handle_expired_passwords, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		proto_tree_add_item(extcap_tree, hf_mysql_cap_session_track, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 
 		proto_tree_add_item(extcap_tree, hf_mysql_cap_unused, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -2347,6 +2348,11 @@ void proto_register_mysql(void)
 		{ &hf_mysql_cap_plugin_auth_lenenc_client_data,
 		{ "Plugin Auth LENENC Client Data","mysql.caps.pm",
 		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_CAPS_AL,
+		NULL, HFILL }},
+
+		{ &hf_mysql_cap_client_can_handle_expired_passwords,
+		{ "Client can handle expired passwords","mysql.caps.ep",
+		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_CAPS_EP,
 		NULL, HFILL }},
 
 		{ &hf_mysql_cap_session_track,
