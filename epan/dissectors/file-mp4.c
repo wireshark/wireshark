@@ -67,6 +67,7 @@ static int hf_mp4_tkhd_height = -1;
 static int hf_mp4_hdlr_type = -1;
 static int hf_mp4_hdlr_name = -1;
 static int hf_mp4_dref_entry_cnt = -1;
+static int hf_mp4_stsd_entry_cnt = -1;
 
 static expert_field ei_mp4_box_too_large = EI_INIT;
 
@@ -378,6 +379,45 @@ dissect_mp4_url_body(tvbuff_t *tvb, gint offset, gint len,
     return len;
 }
 
+
+static gint
+dissect_mp4_stsd_body(tvbuff_t *tvb, gint offset, gint len,
+        packet_info *pinfo _U_, proto_tree *tree)
+{
+    guint32  entry_cnt, i;
+    gint     ret;
+
+    proto_tree_add_item(tree, hf_mp4_full_box_ver,
+            tvb, offset, 1, ENC_BIG_ENDIAN);
+    /* XXX - put up an expert info if version!=0 */
+    offset += 1;
+    offset += 3;   /* flags in the full box header */
+
+    entry_cnt = tvb_get_ntohl(tvb, offset);
+    proto_tree_add_item(tree, hf_mp4_dref_entry_cnt,
+            tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    for(i=0; i<entry_cnt; i++) {
+        /* a sample entry has the same format as an mp4 box
+           we call dissect_mp4_box() to dissect it
+           alternatively, we could parse it ourselves, we'd then have to
+           handle the extended lengths etc */
+
+        /* XXX - dissect the content of each Sample Entry,
+           this depends on the handler_type, we could add an optional
+           void *data parameter to dissect_mp4_box() and handle sample
+           entry boxes based on parent box and data parameter */
+        ret = dissect_mp4_box(BOX_TYPE_STSD, tvb, offset, pinfo, tree);
+        if (ret<=0)
+            break;
+
+        offset += ret;
+    }
+
+    return len;
+}
+
  
 /* dissect a box, return its (standard or extended) length or 0 for error */
 static gint
@@ -462,6 +502,9 @@ dissect_mp4_box(guint32 parent_box_type _U_,
             break;
         case BOX_TYPE_URL_:
             dissect_mp4_url_body(tvb, offset, body_size, pinfo, box_tree);
+            break;
+        case BOX_TYPE_STSD:
+            dissect_mp4_stsd_body(tvb, offset, body_size, pinfo, box_tree);
             break;
         case BOX_TYPE_MOOV:
         case BOX_TYPE_MOOF:
@@ -583,6 +626,9 @@ proto_register_mp4(void)
                 BASE_NONE, NULL, 0, NULL, HFILL } },
         { &hf_mp4_dref_entry_cnt,
             { "Number of entries", "mp4.dref.entry_count", FT_UINT32,
+                BASE_DEC, NULL, 0, NULL, HFILL } },
+        { &hf_mp4_stsd_entry_cnt,
+            { "Number of entries", "mp4.stsd.entry_count", FT_UINT32,
                 BASE_DEC, NULL, 0, NULL, HFILL } }
     };
 
