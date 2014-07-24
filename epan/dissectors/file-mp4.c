@@ -41,6 +41,9 @@
 void proto_register_mp4(void);
 void proto_reg_handoff_mp4(void);
 
+static gint dissect_mp4_box(guint32 parent_box_type _U_,
+        tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree);
+
 static int proto_mp4 = -1;
 
 static gint ett_mp4 = -1;
@@ -62,6 +65,7 @@ static int hf_mp4_tkhd_width = -1;
 static int hf_mp4_tkhd_height = -1;
 static int hf_mp4_hdlr_type = -1;
 static int hf_mp4_hdlr_name = -1;
+static int hf_mp4_dref_entry_cnt = -1;
 
 static expert_field ei_mp4_box_too_large = EI_INIT;
 
@@ -308,6 +312,39 @@ dissect_mp4_hdlr_body(tvbuff_t *tvb, gint offset, gint len _U_,
 }
 
 
+static gint
+dissect_mp4_dref_body(tvbuff_t *tvb, gint offset, gint len _U_,
+        packet_info *pinfo, proto_tree *tree)
+{
+    gint     offset_start;
+    guint32  entry_cnt, i;
+    gint     ret;
+
+    offset_start = offset;
+
+    proto_tree_add_item(tree, hf_mp4_full_box_ver,
+            tvb, offset, 1, ENC_BIG_ENDIAN);
+    /* XXX - put up an expert info if version!=0 */
+    offset += 1;
+    offset += 3;   /* flags in the full box header */
+
+    entry_cnt = tvb_get_ntohl(tvb, offset);
+    proto_tree_add_item(tree, hf_mp4_dref_entry_cnt,
+            tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    for(i=0; i<entry_cnt; i++) {
+        ret = dissect_mp4_box(BOX_TYPE_DREF, tvb, offset, pinfo, tree);
+        if (ret<=0)
+            break;
+
+        offset += ret;
+    }
+
+    return offset-offset_start;
+}
+
+
 /* dissect a box, return its (standard or extended) length or 0 for error */
 static gint
 dissect_mp4_box(guint32 parent_box_type _U_,
@@ -385,6 +422,9 @@ dissect_mp4_box(guint32 parent_box_type _U_,
             break;
         case BOX_TYPE_HDLR:
             dissect_mp4_hdlr_body(tvb, offset, body_size, pinfo, box_tree);
+            break;
+        case BOX_TYPE_DREF:
+            dissect_mp4_dref_body(tvb, offset, body_size, pinfo, box_tree);
             break;
         case BOX_TYPE_MOOV:
         case BOX_TYPE_MOOF:
@@ -500,7 +540,10 @@ proto_register_mp4(void)
                 BASE_NONE, NULL, 0, NULL, HFILL } },
         { &hf_mp4_hdlr_name,
             { "Handler name", "mp4.hdlr.name", FT_STRINGZ,
-                BASE_NONE, NULL, 0, NULL, HFILL } }
+                BASE_NONE, NULL, 0, NULL, HFILL } },
+        { &hf_mp4_dref_entry_cnt,
+            { "Number of entries", "mp4.dref.entry_count", FT_UINT32,
+                BASE_DEC, NULL, 0, NULL, HFILL } }
     };
 
     static gint *ett[] = {
