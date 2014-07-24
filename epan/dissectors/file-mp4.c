@@ -60,6 +60,8 @@ static int hf_mp4_tkhd_track_id = -1;
 static int hf_mp4_tkhd_duration = -1;
 static int hf_mp4_tkhd_width = -1;
 static int hf_mp4_tkhd_height = -1;
+static int hf_mp4_hdlr_type = -1;
+static int hf_mp4_hdlr_name = -1;
 
 static expert_field ei_mp4_box_too_large = EI_INIT;
 
@@ -272,6 +274,40 @@ dissect_mp4_ftyp_body(tvbuff_t *tvb, gint offset, gint len,
     return offset - offset_start;
 }
 
+
+static gint
+dissect_mp4_hdlr_body(tvbuff_t *tvb, gint offset, gint len _U_,
+        packet_info *pinfo _U_, proto_tree *tree)
+{
+    gint   offset_start;
+    guint  hdlr_name_len;
+
+    offset_start = offset;
+
+    proto_tree_add_item(tree, hf_mp4_full_box_ver,
+            tvb, offset, 1, ENC_BIG_ENDIAN);
+    /* XXX - put up an expert info if version!=0 */
+    offset += 1;
+    offset += 3;   /* flags in the full box header */
+
+    offset += 4;   /* four reserved 0 bytes */
+
+    proto_tree_add_item(tree, hf_mp4_hdlr_type,
+            tvb, offset, 4, ENC_ASCII|ENC_NA);
+    offset += 4;
+
+    offset += 12;   /* 3x32bit reserved */
+
+    /* name is a 0-terminated UTF-8 string, len includes the final 0 */
+    hdlr_name_len = tvb_strsize(tvb, offset);
+    proto_tree_add_item(tree, hf_mp4_hdlr_name,
+            tvb, offset, hdlr_name_len, ENC_UTF_8|ENC_NA);
+    offset += hdlr_name_len;
+
+    return offset-offset_start;
+}
+
+
 /* dissect a box, return its (standard or extended) length or 0 for error */
 static gint
 dissect_mp4_box(guint32 parent_box_type _U_,
@@ -346,6 +382,9 @@ dissect_mp4_box(guint32 parent_box_type _U_,
             break;
         case BOX_TYPE_TKHD:
             dissect_mp4_tkhd_body(tvb, offset, body_size, pinfo, box_tree);
+            break;
+        case BOX_TYPE_HDLR:
+            dissect_mp4_hdlr_body(tvb, offset, body_size, pinfo, box_tree);
             break;
         case BOX_TYPE_MOOV:
         case BOX_TYPE_MOOF:
@@ -455,6 +494,12 @@ proto_register_mp4(void)
                 BASE_NONE, NULL, 0, NULL, HFILL } },
         { &hf_mp4_tkhd_height,
             { "Height", "mp4.tkhd.height", FT_DOUBLE,
+                BASE_NONE, NULL, 0, NULL, HFILL } },
+        { &hf_mp4_hdlr_type,
+            { "Handler type", "mp4.hdlr.type", FT_STRING,
+                BASE_NONE, NULL, 0, NULL, HFILL } },
+        { &hf_mp4_hdlr_name,
+            { "Handler name", "mp4.hdlr.name", FT_STRINGZ,
                 BASE_NONE, NULL, 0, NULL, HFILL } }
     };
 
