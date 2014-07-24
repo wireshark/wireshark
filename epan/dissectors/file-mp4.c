@@ -53,6 +53,7 @@ static int hf_mp4_box_size = -1;
 static int hf_mp4_box_type_str = -1;
 static int hf_mp4_box_largesize = -1;
 static int hf_mp4_full_box_ver = -1;
+static int hf_mp4_full_box_flags = -1;
 static int hf_mp4_ftyp_brand = -1;
 static int hf_mp4_ftyp_ver = -1;
 static int hf_mp4_ftyp_add_brand = -1;
@@ -110,7 +111,11 @@ static expert_field ei_mp4_box_too_large = EI_INIT;
 #define BOX_TYPE_TRUN  MAKE_TYPE_VAL('t', 'r', 'u', 'n')
 #define BOX_TYPE_MDAT  MAKE_TYPE_VAL('m', 'd', 'a', 't')
 #define BOX_TYPE_UDTA  MAKE_TYPE_VAL('u', 'd', 't', 'a')
+/* the box name is url + <space>, all names must be 4 characters long */
+#define BOX_TYPE_URL_  MAKE_TYPE_VAL('u', 'r', 'l', ' ')
 
+/* the location for this URL box is the same as in the upper-level movie box */
+#define ENTRY_FLAG_MOVIE 0x000001
 
 static const value_string box_types[] = {
     { BOX_TYPE_FTYP, "File Type Box" },
@@ -144,6 +149,7 @@ static const value_string box_types[] = {
     { BOX_TYPE_TRUN, "Track Fragment Run Box" },
     { BOX_TYPE_MDAT, "Media Data Box" },
     { BOX_TYPE_UDTA, "User Data Box" },
+    { BOX_TYPE_URL_, "URL Box" },
     { 0, NULL }
 };
 
@@ -345,6 +351,34 @@ dissect_mp4_dref_body(tvbuff_t *tvb, gint offset, gint len _U_,
 }
 
 
+static gint
+dissect_mp4_url_body(tvbuff_t *tvb, gint offset, gint len,
+        packet_info *pinfo _U_, proto_tree *tree)
+{
+    guint32  flags;
+
+    proto_tree_add_item(tree, hf_mp4_full_box_ver,
+            tvb, offset, 1, ENC_BIG_ENDIAN);
+    /* XXX - put up an expert info if version!=0 */
+    offset += 1;
+
+    flags = tvb_get_ntoh24(tvb, offset);
+    proto_tree_add_item(tree, hf_mp4_full_box_flags,
+            tvb, offset, 3, ENC_BIG_ENDIAN);
+    offset += 3;
+
+    if (flags&ENTRY_FLAG_MOVIE) {
+        proto_tree_add_text(tree, tvb, 0, 0,
+                "Media data location is defined in the movie box");
+    }
+    else {
+        /* XXX - dissect location string */
+    }
+
+    return len;
+}
+
+ 
 /* dissect a box, return its (standard or extended) length or 0 for error */
 static gint
 dissect_mp4_box(guint32 parent_box_type _U_,
@@ -426,6 +460,9 @@ dissect_mp4_box(guint32 parent_box_type _U_,
         case BOX_TYPE_DREF:
             dissect_mp4_dref_body(tvb, offset, body_size, pinfo, box_tree);
             break;
+        case BOX_TYPE_URL_:
+            dissect_mp4_url_body(tvb, offset, body_size, pinfo, box_tree);
+            break;
         case BOX_TYPE_MOOV:
         case BOX_TYPE_MOOF:
         case BOX_TYPE_STBL:
@@ -504,6 +541,9 @@ proto_register_mp4(void)
                 NULL, 0, NULL, HFILL } },
         { &hf_mp4_full_box_ver,
             { "Box version", "mp4.full_box.version", FT_UINT8, BASE_DEC,
+                NULL, 0, NULL, HFILL } },
+        { &hf_mp4_full_box_flags,
+            { "Flags", "mp4.full_box.flags", FT_UINT24, BASE_HEX,
                 NULL, 0, NULL, HFILL } },
         { &hf_mp4_ftyp_brand,
             { "Brand", "mp4.ftyp.brand", FT_STRING, BASE_NONE,
