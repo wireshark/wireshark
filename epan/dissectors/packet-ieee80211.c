@@ -7650,7 +7650,7 @@ add_ff_action_block_ack(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int
 }
 
 static guint
-add_ff_action_public_fields(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset, guint8 code, guint start)
+add_ff_action_public_fields(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset, guint8 code)
 {
   guint32  oui;
   guint8   subtype;
@@ -7658,6 +7658,8 @@ add_ff_action_public_fields(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
   guint8   dialog_token;
   guint8   frag;
   gboolean more;
+
+  guint start = offset;
 
   switch (code) {
   case PA_EXT_CHANNEL_SWITCH_ANNOUNCEMENT:
@@ -7736,7 +7738,7 @@ add_ff_action_public(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int of
   offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_CATEGORY_CODE);
   code    = tvb_get_guint8(tvb, offset);
   offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_PA_ACTION_CODE);
-  offset += add_ff_action_public_fields(tree, tvb, pinfo, offset, code, start);
+  offset += add_ff_action_public_fields(tree, tvb, pinfo, offset, code);
   return offset - start;
 }
 
@@ -7748,7 +7750,7 @@ add_ff_action_protected_public(proto_tree *tree, tvbuff_t *tvb, packet_info *pin
   offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_CATEGORY_CODE);
   code    = tvb_get_guint8(tvb, offset);
   offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_PPA_ACTION_CODE);
-  offset += add_ff_action_public_fields(tree, tvb, pinfo, offset, code, start);
+  offset += add_ff_action_public_fields(tree, tvb, pinfo, offset, code);
   return offset - start;
 }
 
