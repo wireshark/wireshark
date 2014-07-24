@@ -174,6 +174,8 @@ dissect_mp4_mvhd_body(tvbuff_t *tvb, gint offset, gint len _U_,
     proto_tree_add_item(tree, hf_mp4_full_box_ver,
             tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
+    proto_tree_add_item(tree, hf_mp4_full_box_flags,
+            tvb, offset, 3, ENC_BIG_ENDIAN);
     offset += 3;
 
     return offset-offset_start;
@@ -189,6 +191,8 @@ dissect_mp4_mfhd_body(tvbuff_t *tvb, gint offset, gint len _U_,
     proto_tree_add_item(tree, hf_mp4_full_box_ver,
             tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
+    proto_tree_add_item(tree, hf_mp4_full_box_flags,
+            tvb, offset, 3, ENC_BIG_ENDIAN);
     offset += 3;
 
     proto_tree_add_item(tree, hf_mp4_mfhd_seq_num,
@@ -215,8 +219,8 @@ dissect_mp4_tkhd_body(tvbuff_t *tvb, gint offset, gint len _U_,
     proto_tree_add_item(tree, hf_mp4_full_box_ver,
             tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
-    /* XXX dissect the flags */
-    proto_tree_add_text(tree, tvb, offset, 3, "Flags");
+    proto_tree_add_item(tree, hf_mp4_full_box_flags,
+            tvb, offset, 3, ENC_BIG_ENDIAN);
     offset += 3;
 
     time_len = (version==0) ? 4 : 8;
@@ -299,7 +303,9 @@ dissect_mp4_hdlr_body(tvbuff_t *tvb, gint offset, gint len _U_,
             tvb, offset, 1, ENC_BIG_ENDIAN);
     /* XXX - put up an expert info if version!=0 */
     offset += 1;
-    offset += 3;   /* flags in the full box header */
+    proto_tree_add_item(tree, hf_mp4_full_box_flags,
+            tvb, offset, 3, ENC_BIG_ENDIAN);
+    offset += 3;
 
     offset += 4;   /* four reserved 0 bytes */
 
@@ -333,7 +339,9 @@ dissect_mp4_dref_body(tvbuff_t *tvb, gint offset, gint len _U_,
             tvb, offset, 1, ENC_BIG_ENDIAN);
     /* XXX - put up an expert info if version!=0 */
     offset += 1;
-    offset += 3;   /* flags in the full box header */
+    proto_tree_add_item(tree, hf_mp4_full_box_flags,
+            tvb, offset, 3, ENC_BIG_ENDIAN);
+    offset += 3;
 
     entry_cnt = tvb_get_ntohl(tvb, offset);
     proto_tree_add_item(tree, hf_mp4_dref_entry_cnt,
@@ -391,7 +399,9 @@ dissect_mp4_stsd_body(tvbuff_t *tvb, gint offset, gint len,
             tvb, offset, 1, ENC_BIG_ENDIAN);
     /* XXX - put up an expert info if version!=0 */
     offset += 1;
-    offset += 3;   /* flags in the full box header */
+    proto_tree_add_item(tree, hf_mp4_full_box_flags,
+            tvb, offset, 3, ENC_BIG_ENDIAN);
+    offset += 3;
 
     entry_cnt = tvb_get_ntohl(tvb, offset);
     proto_tree_add_item(tree, hf_mp4_dref_entry_cnt,
