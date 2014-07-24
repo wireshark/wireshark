@@ -15,7 +15,7 @@
 <!-- use graphics for admons (note, tip, ...) -->
 <xsl:param name="admon.graphics" select="1"/>
 <xsl:param name="admon.graphics.path">wsug_graphics/</xsl:param>
-<xsl:param name="admon.graphics.extension" select="'.png'"/>
+<xsl:param name="admon.graphics.extension" select="'.svg'"/>
 
 <!-- use numbering for sections (not only for chapters) -->
 <xsl:param name="section.autolabel" select="1"/>

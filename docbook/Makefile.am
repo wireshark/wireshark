@@ -112,14 +112,11 @@ wsug_html/index.html: $(WSUG_SOURCE) wsluarm
 	@ echo --- WSUG - HTML SINGLE PAGE ---
 	mkdir -p wsug_html/wsug_graphics/toolbar
 	cp $(srcdir)/wsug_graphics/*.* wsug_html/wsug_graphics
+	cp $(srcdir)/common_graphics/*.* wsug_html/wsug_graphics
 	cp $(srcdir)/wsug_graphics/toolbar/* wsug_html/wsug_graphics/toolbar
 	cp $(srcdir)/ws.css wsug_html
-	$(XSLTPROC) --stringparam base.dir wsug_html/ --stringparam  use.id.as.filename 1 \
-		    --stringparam admon.graphics 1 --stringparam admon.graphics.path wsug_graphics/ \
-		    --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1 \
-		    --stringparam html.stylesheet ws.css \
-		    --path .:wsluarm_src \
-		    --nonet http://docbook.sourceforge.net/release/xsl/current/html/docbook.xsl $< > $@
+	$(XSLTPROC) --stringparam base.dir wsug_html/ $(COMMON_XSLTPROC_ARGS) \
+		--path .:wsluarm_src $(SINGLE_XSLTPROC_ARGS) $< > $@
 	-chmod -R og+rX wsug_html
 
 # create html chunked page files
@@ -129,14 +126,12 @@ wsug_html_chunked/index.html: $(WSUG_SOURCE) wsluarm
 	@ echo --- WSUG - HTML CHUNKED ---
 	mkdir -p wsug_html_chunked/wsug_graphics/toolbar
 	cp $(srcdir)/wsug_graphics/*.* wsug_html_chunked/wsug_graphics
+	cp $(srcdir)/common_graphics/*.* wsug_html_chunked/wsug_graphics
 	cp $(srcdir)/wsug_graphics/toolbar/* wsug_html_chunked/wsug_graphics/toolbar
 	cp $(srcdir)/ws.css wsug_html_chunked
-	$(XSLTPROC) --stringparam base.dir wsug_html_chunked/ --stringparam  use.id.as.filename 1 \
-		    --stringparam admon.graphics 1 --stringparam admon.graphics.path wsug_graphics/ \
-		    --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1 \
-		    --stringparam html.stylesheet ws.css \
+	$(XSLTPROC) --stringparam base.dir wsug_html_chunked/ $(COMMON_XSLTPROC_ARGS) \
 		    --path .:wsluarm_src \
-		    --nonet http://docbook.sourceforge.net/release/xsl/current/html/chunk.xsl $<
+		    $(CHUNKED_XSLTPROC_ARGS) $<
 	-chmod -R og+rX wsug_html_chunked
 
 # create pdf file (through XSL-FO), portrait pages on US letter paper
@@ -199,13 +194,11 @@ wsdg_html/index.html: $(WSDG_SOURCE)
 	@ echo --- WSDG - HTML SINGLE PAGE ---
 	mkdir -p wsdg_html/wsdg_graphics/toolbar
 	cp $(srcdir)/wsdg_graphics/*.* wsdg_html/wsdg_graphics
+	cp $(srcdir)/common_graphics/*.* wsdg_html/wsdg_graphics
 	cp $(srcdir)/wsdg_graphics/toolbar/* wsdg_html/wsdg_graphics/toolbar/
 	cp $(srcdir)/ws.css wsdg_html
-	$(XSLTPROC) --stringparam base.dir wsdg_html/ --stringparam  use.id.as.filename 1 \
-		    --stringparam admon.graphics 1 --stringparam admon.graphics.path wsdg_graphics/ \
-		    --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1 \
-		    --stringparam html.stylesheet ws.css \
-		    --nonet http://docbook.sourceforge.net/release/xsl/current/html/docbook.xsl $< > $@
+	$(XSLTPROC) --stringparam base.dir wsdg_html/ $(COMMON_XSLTPROC_ARGS) \
+		    $(SINGLE_XSLTPROC_ARGS) $< > $@
 	-chmod -R og+rX wsdg_html
 
 # create html chunked page files
@@ -215,13 +208,11 @@ wsdg_html_chunked/index.html: $(WSDG_SOURCE)
 	@ echo --- WSDG - HTML CHUNKED ---
 	mkdir -p wsdg_html_chunked/wsdg_graphics/toolbar
 	cp $(srcdir)/wsdg_graphics/*.* wsdg_html_chunked/wsdg_graphics
+	cp $(srcdir)/common_graphics/*.* wsdg_html_chunked/wsdg_graphics
 	cp $(srcdir)/wsdg_graphics/toolbar/* wsdg_html_chunked/wsdg_graphics/toolbar/
 	cp $(srcdir)/ws.css wsdg_html_chunked
-	$(XSLTPROC) --stringparam base.dir wsdg_html_chunked/ --stringparam  use.id.as.filename 1 \
-		    --stringparam admon.graphics 1 --stringparam admon.graphics.path wsdg_graphics/  \
-		    --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1 \
-		    --stringparam html.stylesheet ws.css \
-		    --nonet http://docbook.sourceforge.net/release/xsl/current/html/chunk.xsl $<
+	$(XSLTPROC) --stringparam base.dir wsdg_html_chunked/ $(COMMON_XSLTPROC_ARGS) \
+		    $(CHUNKED_XSLTPROC_ARGS) $<
 	-chmod -R og+rX wsdg_html_chunked
 
 # create pdf file (through XSL-FO), portrait pages on US letter paper

@@ -68,8 +68,8 @@ MACRO(XML2HTML _guide _mode _xmlsources _gfxsources)
            -E make_directory ${_outdir}/${_gfxdir}/toolbar
         COMMAND cp
            ${CMAKE_CURRENT_SOURCE_DIR}/${_gfxdir}/*.* ${_outdir}/${_gfxdir}/
-#        COMMAND cp
-#           ${CMAKE_CURRENT_SOURCE_DIR}/common_graphics/*.* ${_outdir}/${_gfxdir}/
+        COMMAND cp
+           ${CMAKE_CURRENT_SOURCE_DIR}/common_graphics/*.* ${_outdir}/${_gfxdir}/
         COMMAND cp
            ${CMAKE_CURRENT_SOURCE_DIR}/${_gfxdir}/toolbar/*.* ${_outdir}/${_gfxdir}/toolbar/
         COMMAND cmake
@@ -80,12 +80,11 @@ MACRO(XML2HTML _guide _mode _xmlsources _gfxsources)
             --stringparam use.id.as.filename 1
             --stringparam admon.graphics 1
             --stringparam admon.graphics.path ${_gfxdir}/
-#            --stringparam admon.graphics.extension .svg
+            --stringparam admon.graphics.extension .svg
             --stringparam section.autolabel 1
             --stringparam section.label.includes.component.label 1
             --stringparam html.stylesheet ws.css
             --nonet
-#            --output ${_output}
             ${_STYLESHEET}
             ${_source}
         COMMAND chmod
@@ -119,8 +118,8 @@ MACRO(XML2PDF _output _sources _stylesheet _paper)
             --stringparam img.src.path ${CMAKE_CURRENT_SOURCE_DIR}/
             --stringparam use.id.as.filename 1
             --stringparam admon.graphics 1
-#            --stringparam admon.graphics.path ${CMAKE_CURRENT_SOURCE_DIR}/common_graphics/
-#            --stringparam admon.graphics.extension .svg
+            --stringparam admon.graphics.path ${CMAKE_CURRENT_SOURCE_DIR}/common_graphics/
+            --stringparam admon.graphics.extension .svg
             --nonet
             --output ${_output}.fo
             ${_stylesheet}

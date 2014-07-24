@@ -1,4 +1,5 @@
 #
+
 WSUG_FILES =	\
 	wsug_src/WSUG_app_files.xml		\
 	wsug_src/WSUG_app_howitworks.xml	\
@@ -134,9 +135,6 @@ WSUG_GRAPHICS =	\
 	wsug_graphics/ws-tools-menu.png	\
 	wsug_graphics/ws-time-reference.png		\
 	wsug_graphics/ws-view-menu.png			\
-	wsug_graphics/note.png				\
-	wsug_graphics/tip.png				\
-	wsug_graphics/warning.png				\
 	wsug_graphics/toolbar/autoscroll_24.png			\
 	wsug_graphics/toolbar/capture_filter_24.png		\
 	wsug_graphics/toolbar/capture_interfaces_24.png 	\
@@ -196,10 +194,12 @@ WSDG_GRAPHICS =	\
 	wsdg_graphics/ws-function-blocks.dia	\
 	wsdg_graphics/ws-function-blocks.png	\
 	wsdg_graphics/ws-logo.png		\
-	wsdg_graphics/note.png			\
-	wsdg_graphics/tip.png			\
-	wsdg_graphics/warning.png		\
 	wsdg_graphics/toolbar/dummy.dummy
+
+COMMON_GRAPHICS = \
+	common_graphics/note.svg	\
+	common_graphics/tip.svg		\
+	common_graphics/warning.svg
 
 # user-guide.xml must be first in the list (to match $<)
 WSUG_DIST =	\
@@ -209,7 +209,8 @@ WSUG_DIST =	\
 	custom_layer_pdf.xsl	\
 	Makefile.common		\
 	$(WSUG_FILES)		\
-	$(WSUG_GRAPHICS)
+	$(WSUG_GRAPHICS)	\
+	$(COMMON_GRAPHICS)
 
 WSUG_SOURCE = $(WSUG_DIST) $(WSUG_GENERATED_SOURCE)
 
@@ -220,7 +221,8 @@ WSDG_DIST =	\
 	custom_layer_pdf.xsl	\
 	Makefile.common		\
 	$(WSDG_FILES)		\
-	$(WSDG_GRAPHICS)
+	$(WSDG_GRAPHICS)	\
+	$(COMMON_GRAPHICS)
 
 WSDG_SOURCE = $(WSDG_GENERATED_SOURCE) $(WSDG_DIST)
 
@@ -275,3 +277,21 @@ WSLUA_MODULES = \
 	$(top_srcdir)/epan/wslua/wslua_file.c \
 	$(top_srcdir)/epan/wslua/wslua_dir.c \
 	$(top_srcdir)/epan/wslua/wslua_util.c
+
+COMMON_XSLTPROC_ARGS = \
+	--stringparam use.id.as.filename 1 \
+	--stringparam admon.graphics 1 \
+	--stringparam admon.graphics.path common_graphics/ \
+	--stringparam admon.graphics.extension .svg \
+	--stringparam section.autolabel 1 \
+	--stringparam section.label.includes.component.label 1 \
+	--stringparam html.stylesheet ws.css
+
+SINGLE_XSLTPROC_ARGS = \
+	--nonet http://docbook.sourceforge.net/release/xsl/current/html/docbook.xsl
+
+CHUNKED_XSLTPROC_ARGS = \
+	--nonet http://docbook.sourceforge.net/release/xsl/current/html/chunk.xsl
+
+HTMLHELP_XSLTPROC_ARGS = \
+	--nonet http://docbook.sourceforge.net/release/xsl/current/htmlhelp/htmlhelp.xsl

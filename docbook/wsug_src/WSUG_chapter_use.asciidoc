@@ -325,10 +325,10 @@ Enabling colorization will slow down the display of new packets while capturing 
 Resizing may take a significant amount of time, especially if a large capture file is loaded.
 
 |menu:Displayed Columns[]                           |                   |This menu items folds out with a list of all configured columns. These columns can now be shown or hidden in the packet list.
-|menu:Expand Subtrees[]                             |kbd:[Shift+&#2192;]|This menu item expands the currently selected subtree in the packet details tree.
-|menu:Collapse Subtrees[]                           |kbd:[Shift+&#2190;]|This menu item collapses the currently selected subtree in the packet details tree.
-|menu:Expand All[]                                  |kbd:[Ctrl+&#2192;] |Wireshark keeps a list of all the protocol subtrees that are expanded, and uses it to ensure that the correct subtrees are expanded when you display a packet. This menu item expands all subtrees in all packets in the capture.
-|menu:Collapse All[]                                |kbd:[Ctrl+&#2190;] |This menu item collapses the tree view of all packets in the capture list.
+|menu:Expand Subtrees[]                             |kbd:[Shift+&#x2192;]|This menu item expands the currently selected subtree in the packet details tree.
+|menu:Collapse Subtrees[]                           |kbd:[Shift+&#x2190;]|This menu item collapses the currently selected subtree in the packet details tree.
+|menu:Expand All[]                                  |kbd:[Ctrl+&#x2192;] |Wireshark keeps a list of all the protocol subtrees that are expanded, and uses it to ensure that the correct subtrees are expanded when you display a packet. This menu item expands all subtrees in all packets in the capture.
+|menu:Collapse All[]                                |kbd:[Ctrl+&#x2190;] |This menu item collapses the tree view of all packets in the capture list.
 |menu:Colorize Conversation[]                       |                   |This menu item brings up a submenu that allows you to color packets in the packet list pane based on the addresses of the currently selected packet. This makes it easy to distinguish packets belonging to different conversations. <<ChCustColorizationSection>>.
 |menu:Colorize Conversation[Color 1-10]             |                   |These menu items enable one of the ten temporary color filters based on the currently selected conversation.
 |menu:Colorize Conversation[Reset coloring]         |                   |This menu item clears all temporary coloring rules.

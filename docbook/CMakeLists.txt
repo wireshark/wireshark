@@ -25,6 +25,12 @@ find_package( XSLTPROC )
 find_package( XMLLINT )
 find_package( ASCIIDOC )
 
+set(COMMON_GRAPHICS
+	common_graphics/note.svg
+	common_graphics/tip.svg
+	common_graphics/warning.svg
+)
+
 set(WSUG_FILES
 	wsug_src/WSUG_app_files.xml
 	wsug_src/WSUG_app_howitworks.xml
@@ -149,9 +155,6 @@ set(WSUG_GRAPHICS
 	wsug_graphics/ws-time-reference.png
 	wsug_graphics/ws-tools-menu.png
 	wsug_graphics/ws-view-menu.png
-	wsug_graphics/note.png
-	wsug_graphics/tip.png
-	wsug_graphics/warning.png
 	wsug_graphics/toolbar/autoscroll_24.png
 	wsug_graphics/toolbar/capture_filter_24.png
 	wsug_graphics/toolbar/capture_interfaces_24.png
@@ -185,6 +188,7 @@ set(WSUG_GRAPHICS
 	wsug_graphics/toolbar/stock_zoom_1_24.png
 	wsug_graphics/toolbar/stock_zoom_in_24.png
 	wsug_graphics/toolbar/stock_zoom_out_24.png
+	${COMMON_GRAPHICS}
 )
 
 set(WSDG_FILES
@@ -210,9 +214,7 @@ set(WSDG_GRAPHICS
 	wsdg_graphics/ws-function-blocks.dia
 	wsdg_graphics/ws-function-blocks.png
 	wsdg_graphics/ws-logo.png
-	wsdg_graphics/note.png
-	wsdg_graphics/tip.png
-	wsdg_graphics/warning.png
+	${COMMON_GRAPHICS}
 )
 
 # user-guide.xml must be first in the list
