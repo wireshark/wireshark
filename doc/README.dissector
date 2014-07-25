@@ -2703,9 +2703,9 @@ and to exchange data between dissectors across a single packet (packet scope).
 It is also used to provide packet data for Decode As dialog (packet scope).
 
 void
-p_add_proto_data(wmem_allocator_t *scope, frame_data *fd, int proto, void *proto_data)
+p_add_proto_data(wmem_allocator_t *scope, frame_data *fd, int proto, guint32 key, void *proto_data)
 void *
-p_get_proto_data(wmem_allocator_t *scope, frame_data *fd, int proto)
+p_get_proto_data(wmem_allocator_t *scope, frame_data *fd, int proto, guint32 key)
 
 Where:
     scope      - Lifetime of the data to be stored, typically wmem_file_scope()
@@ -2714,6 +2714,7 @@ Where:
     fd         - The fd pointer in the pinfo structure, pinfo->fd
     proto      - Protocol id returned by the proto_register_protocol call
                  during initialization
+    key        - key associated with 'proto_data'
     proto_data - pointer to the dissector data.
 
 
