@@ -164,17 +164,17 @@ str_to_val_idx(const gchar *val, const value_string *vs);
 
 /* EXTENDED VALUE TO STRING MATCHING */
 
-struct _value_string_ext;
-typedef const value_string *(*_value_string_match2_t)(const guint32, const struct _value_string_ext *);
+typedef struct _value_string_ext value_string_ext;
+typedef const value_string *(*_value_string_match2_t)(const guint32, value_string_ext*);
 
-typedef struct _value_string_ext {
+struct _value_string_ext {
     _value_string_match2_t _vs_match2;
     guint32                _vs_first_value; /* first value of the value_string array       */
     guint                  _vs_num_entries; /* number of entries in the value_string array */
                                             /*  (excluding final {0, NULL})                */
     const value_string    *_vs_p;           /* the value string array address              */
     const gchar           *_vs_name;        /* vse "Name" (for error messages)             */
-} value_string_ext;
+};
 
 #define VALUE_STRING_EXT_VS_P(x)           (x)->_vs_p
 #define VALUE_STRING_EXT_VS_NUM_ENTRIES(x) (x)->_vs_num_entries
@@ -182,11 +182,11 @@ typedef struct _value_string_ext {
 
 WS_DLL_PUBLIC
 const value_string *
-_try_val_to_str_ext_init(const guint32 val, const value_string_ext *vse);
+_try_val_to_str_ext_init(const guint32 val, value_string_ext *vse);
 #define VALUE_STRING_EXT_INIT(x) { _try_val_to_str_ext_init, 0, G_N_ELEMENTS(x)-1, x, #x }
 
 WS_DLL_PUBLIC
-const value_string_ext *
+value_string_ext *
 value_string_ext_new(const value_string *vs, guint vs_tot_num_entries, const gchar *vs_name);
 
 WS_DLL_PUBLIC
@@ -195,20 +195,20 @@ value_string_ext_free(const value_string_ext *vse);
 
 WS_DLL_PUBLIC
 const gchar *
-val_to_str_ext(const guint32 val, const value_string_ext *vs, const char *fmt)
+val_to_str_ext(const guint32 val, value_string_ext *vs, const char *fmt)
 G_GNUC_PRINTF(3, 0);
 
 WS_DLL_PUBLIC
 const gchar *
-val_to_str_ext_const(const guint32 val, const value_string_ext *vs, const char *unknown_str);
+val_to_str_ext_const(const guint32 val, value_string_ext *vs, const char *unknown_str);
 
 WS_DLL_PUBLIC
 const gchar *
-try_val_to_str_ext(const guint32 val, const value_string_ext *vse);
+try_val_to_str_ext(const guint32 val, value_string_ext *vse);
 
 WS_DLL_PUBLIC
 const gchar *
-try_val_to_str_idx_ext(const guint32 val, const value_string_ext *vse, gint *idx);
+try_val_to_str_idx_ext(const guint32 val, value_string_ext *vse, gint *idx);
 
 /* STRING TO STRING MATCHING */
 

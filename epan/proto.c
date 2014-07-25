@@ -6036,7 +6036,7 @@ hf_try_val_to_str(guint32 value, const header_field_info *hfinfo)
 		return try_rval_to_str(value, (const range_string *) hfinfo->strings);
 
 	if (hfinfo->display & BASE_EXT_STRING)
-		return try_val_to_str_ext(value, (const value_string_ext *) hfinfo->strings);
+		return try_val_to_str_ext(value, (value_string_ext *) hfinfo->strings);
 
 	if (hfinfo->display & BASE_VAL64_STRING)
 		return try_val64_to_str(value, (const val64_string *) hfinfo->strings);
@@ -6795,7 +6795,7 @@ proto_registrar_dump_values(void)
 					if (hfinfo->display & BASE_RANGE_STRING) {
 						range = (const range_string *)hfinfo->strings;
 					} else if (hfinfo->display & BASE_EXT_STRING) {
-						vals = VALUE_STRING_EXT_VS_P((const value_string_ext *)hfinfo->strings);
+						vals = VALUE_STRING_EXT_VS_P((value_string_ext *)hfinfo->strings);
 					} else if (hfinfo->display & BASE_VAL64_STRING) {
 						vals64 = (const val64_string *)hfinfo->strings;
 					} else {
@@ -6810,7 +6810,7 @@ proto_registrar_dump_values(void)
 			/* Print value strings? */
 			if (vals) {
 				if (hfinfo->display & BASE_EXT_STRING) {
-					const value_string_ext *vse_p = (const value_string_ext *)hfinfo->strings;
+					value_string_ext *vse_p = (value_string_ext *)hfinfo->strings;
 					if (!value_string_ext_validate(vse_p)) {
 						g_warning("Invalid value_string_ext ptr for: %s", hfinfo->abbrev);
 						continue;

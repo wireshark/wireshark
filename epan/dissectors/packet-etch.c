@@ -174,7 +174,7 @@ static int read_value(unsigned int *offset, tvbuff_t *tvb, proto_tree *etch_tree
  *  (Code based upon code in packet-diameter.c)
  */
 static GArray                 *gbl_symbols_array  = NULL;
-static const value_string_ext *gbl_symbols_vs_ext = NULL;
+static value_string_ext *gbl_symbols_vs_ext = NULL;
 
 static void
 gbl_symbols_new(void)

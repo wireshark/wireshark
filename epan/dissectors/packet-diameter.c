@@ -126,7 +126,7 @@ typedef const char *(*diam_avp_dissector_t)(diam_ctx_t *, diam_avp_t *, tvbuff_t
 typedef struct _diam_vnd_t {
 	guint32  code;
 	GArray *vs_avps;
-	const value_string_ext *vs_avps_ext;
+	value_string_ext *vs_avps_ext;
 	GArray *vs_cmds;
 } diam_vnd_t;
 
@@ -1324,7 +1324,7 @@ alnumerize(char *name)
 
 static guint
 reginfo(int *hf_ptr, const char *name, const char *abbr, const char *desc,
-	enum ftenum ft, field_display_e base, const value_string_ext *vs_ext,
+	enum ftenum ft, field_display_e base, value_string_ext *vs_ext,
 	guint32 mask)
 {
 	hf_register_info hf;
@@ -1350,7 +1350,7 @@ reginfo(int *hf_ptr, const char *name, const char *abbr, const char *desc,
 
 static void
 basic_avp_reginfo(diam_avp_t *a, const char *name, enum ftenum ft,
-		  field_display_e base, const value_string_ext *vs_ext)
+		  field_display_e base, value_string_ext *vs_ext)
 {
 	hf_register_info hf;
 	gint *ettp = &(a->ett);
@@ -1481,7 +1481,7 @@ build_simple_avp(const avp_type_t *type, guint32 code, diam_vnd_t *vendor,
 		 const char *name, const value_string *vs, void *data _U_)
 {
 	diam_avp_t *a;
-	const value_string_ext *vs_ext = NULL;
+	value_string_ext *vs_ext = NULL;
 	field_display_e base;
 	guint i = 0;
 

@@ -1582,12 +1582,12 @@ dissect_usb_vid_probe(proto_tree *parent_tree, tvbuff_t *tvb, int offset)
  *
  * @return Table describing control selectors for the specified entity (may be NULL)
  */
-static const value_string_ext*
+static value_string_ext*
 get_control_selector_values(guint8 entity_id, usb_conv_info_t *usb_conv_info)
 {
-    video_conv_info_t      *video_conv_info;
-    video_entity_t         *entity = NULL;
-    const value_string_ext *selectors = NULL;
+    video_conv_info_t *video_conv_info;
+    video_entity_t    *entity = NULL;
+    value_string_ext  *selectors = NULL;
 
     if (usb_conv_info == NULL)
         return NULL;
@@ -1652,8 +1652,8 @@ get_control_selector_values(guint8 entity_id, usb_conv_info_t *usb_conv_info)
 static const gchar*
 get_control_selector_name(guint8 entity_id, guint8 control_sel, usb_conv_info_t *usb_conv_info)
 {
-    const gchar            *control_name = NULL;
-    const value_string_ext *selectors    = NULL;
+    const gchar      *control_name = NULL;
+    value_string_ext *selectors = NULL;
 
     selectors = get_control_selector_values(entity_id, usb_conv_info);
 
