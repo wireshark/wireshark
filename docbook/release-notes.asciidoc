@@ -90,7 +90,7 @@ since version 1.10:
   other filters have been given the "_ws." prefix to note they are Wireshark
   application specific filters and not dissector filters.
 * The Kerberos dissector has been replaced with an auto generated one from ASN1
-  protocol description, changing a lot of filter names.  
+  protocol description, changing a lot of filter names.
 
 //=== Removed Dissectors
 
@@ -100,6 +100,7 @@ since version 1.10:
 --sort-and-group--
 Generic Network Virtualization Encapsulation (Geneve)
 iSER
+OptoMMP
 --sort-and-group--
 
 === Updated Protocol Support

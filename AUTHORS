@@ -3564,6 +3564,10 @@ Anish Bhatt		<anish[at]chelsio.com> {
 	Dissector for Congestion Notification (802.1Qau)
 }
 
+John Miner		<wiresharkdissectorcoder[AT]gmail.com> {
+	Dissector for OptoMMP
+}
+
 and by:
 
 Georgi Guninski		<guninski[AT]guninski.com>
