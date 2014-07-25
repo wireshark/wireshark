@@ -48,6 +48,7 @@ protected:
     void hideEvent(QHideEvent *evt);
     void showEvent(QShowEvent *evt);
     void resizeEvent(QResizeEvent *evt);
+    void display();
 
 private:
 #ifdef HAVE_LIBPCAP

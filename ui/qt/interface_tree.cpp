@@ -121,26 +121,23 @@ void InterfaceTree::resizeEvent(QResizeEvent *evt)
     setUpdatesEnabled(true);
 }
 
-void InterfaceTree::getInterfaceList()
+void InterfaceTree::display()
 {
 #ifdef HAVE_LIBPCAP
-    GList *if_list;
-    int err;
-    gchar *err_str = NULL;
+    interface_t device;
 
+    setDisabled(false);
     clear();
 
-    if_list = capture_interface_list(&err, &err_str,main_window_update);
-    if_list = g_list_sort(if_list, if_list_comparator_alph);
-
-    if (if_list == NULL) {
+    if (global_capture_opts.all_ifaces->len == 0) {
+        // Error,or just no interfaces?
         QTreeWidgetItem *ti = new QTreeWidgetItem();
         QLabel *err_label;
 
-        if (err == CANT_GET_INTERFACE_LIST || err == DONT_HAVE_PCAP) {
-            err_label = new QLabel(gchar_free_to_qstring(err_str));
-        } else {
+        if (global_capture_opts.ifaces_err == 0) {
             err_label = new QLabel("No interfaces found");
+        } else {
+            err_label = new QLabel(gchar_free_to_qstring(global_capture_opts.ifaces_err_info));
         }
         err_label->setWordWrap(true);
 
@@ -151,48 +148,33 @@ void InterfaceTree::getInterfaceList()
         return;
     }
 
-    // XXX Do we need to check for this? capture_interface_list returns an error if the length is 0.
-    if (g_list_length(if_list) > 0) {
-        interface_t device;
-        setDisabled(false);
+    for (guint i = 0; i < global_capture_opts.all_ifaces->len; i++) {
+        QList<int> *points;
 
-        for (guint i = 0; i < global_capture_opts.all_ifaces->len; i++) {
-            QList<int> *points;
+        device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
 
-            device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
-
-            /* Continue if capture device is hidden */
-            if (device.hidden) {
-                continue;
-            }
-
-            QTreeWidgetItem *ti = new QTreeWidgetItem();
-            ti->setText(0, QString().fromUtf8(device.display_name));
-            ti->setData(0, Qt::UserRole, QString(device.name));
-            points = new QList<int>();
-            ti->setData(1, Qt::UserRole, qVariantFromValue(points));
-            addTopLevelItem(ti);
-            // XXX Add other device information
-            resizeColumnToContents(1);
-            if (strstr(prefs.capture_device, device.name) != NULL) {
-                device.selected = TRUE;
-                global_capture_opts.num_selected++;
-                global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, i);
-                g_array_insert_val(global_capture_opts.all_ifaces, i, device);
-            }
-            if (device.selected) {
-                ti->setSelected(true);
-            }
+        /* Continue if capture device is hidden */
+        if (device.hidden) {
+            continue;
         }
-    }
-    free_interface_list(if_list);
-    resizeEvent(NULL);
 
-    if (!stat_timer_) {
-        updateStatistics();
-        stat_timer_ = new QTimer(this);
-        connect(stat_timer_, SIGNAL(timeout()), this, SLOT(updateStatistics()));
-        stat_timer_->start(stat_update_interval_);
+        QTreeWidgetItem *ti = new QTreeWidgetItem();
+        ti->setText(0, QString().fromUtf8(device.display_name));
+        ti->setData(0, Qt::UserRole, QString(device.name));
+        points = new QList<int>();
+        ti->setData(1, Qt::UserRole, qVariantFromValue(points));
+        addTopLevelItem(ti);
+        // XXX Add other device information
+        resizeColumnToContents(1);
+        if (strstr(prefs.capture_device, device.name) != NULL) {
+            device.selected = TRUE;
+            global_capture_opts.num_selected++;
+            global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, i);
+            g_array_insert_val(global_capture_opts.all_ifaces, i, device);
+        }
+        if (device.selected) {
+            ti->setSelected(true);
+        }
     }
 #else
     QTreeWidgetItem *ti = new QTreeWidgetItem();
@@ -203,6 +185,21 @@ void InterfaceTree::getInterfaceList()
     addTopLevelItem(ti);
     resizeColumnToContents(0);
 #endif // HAVE_LIBPCAP
+}
+
+void InterfaceTree::getInterfaceList()
+{
+    display();
+    resizeEvent(NULL);
+
+#ifdef HAVE_LIBPCAP
+    if (!stat_timer_) {
+        updateStatistics();
+        stat_timer_ = new QTimer(this);
+        connect(stat_timer_, SIGNAL(timeout()), this, SLOT(updateStatistics()));
+        stat_timer_->start(stat_update_interval_);
+    }
+#endif
 }
 
 void InterfaceTree::getPoints(int row, PointList *pts)
@@ -339,36 +336,7 @@ void InterfaceTree::setSelectedInterfaces()
 void InterfaceTree::interfaceListChanged()
 {
 #ifdef HAVE_LIBPCAP
-    interface_t device;
-    clear();
-    for (guint i = 0; i < global_capture_opts.all_ifaces->len; i++) {
-        QList<int> *points;
-
-        device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
-
-        /* Continue if capture device is hidden */
-        if (device.hidden) {
-            continue;
-        }
-
-        QTreeWidgetItem *ti = new QTreeWidgetItem();
-        ti->setText(0, QString().fromUtf8(device.display_name));
-        ti->setData(0, Qt::UserRole, QString(device.name));
-        points = new QList<int>();
-        ti->setData(1, Qt::UserRole, qVariantFromValue(points));
-        addTopLevelItem(ti);
-        // XXX Add other device information
-        resizeColumnToContents(1);
-        if (strstr(prefs.capture_device, device.name) != NULL) {
-            device.selected = TRUE;
-            global_capture_opts.num_selected++;
-            global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, i);
-            g_array_insert_val(global_capture_opts.all_ifaces, i, device);
-        }
-        if (device.selected) {
-            ti->setSelected(true);
-        }
-    }
+    display();
 #endif
 }
 

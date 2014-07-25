@@ -70,7 +70,7 @@ scan_local_interfaces(void (*update_cb)(void))
     gint              linktype_count;
     gboolean          monitor_mode;
     GSList            *curr_addr;
-    int               ips = 0, i, err;
+    int               ips = 0, i;
     guint             count = 0, j;
     if_addr_t         *addr, *temp_addr;
     link_row          *link = NULL;
@@ -110,7 +110,10 @@ scan_local_interfaces(void (*update_cb)(void))
     }
 
     /* Scan through the list and build a list of strings to display. */
-    if_list = capture_interface_list(&err, NULL, update_cb);
+    g_free(global_capture_opts.ifaces_err_info);
+    if_list = capture_interface_list(&global_capture_opts.ifaces_err,
+                                     &global_capture_opts.ifaces_err_info,
+                                     update_cb);
     count = 0;
     for (if_entry = if_list; if_entry != NULL; if_entry = g_list_next(if_entry)) {
         if_info = (if_info_t *)if_entry->data;

@@ -236,10 +236,14 @@ typedef struct interface_options_tag {
 /** Capture options coming from user interface */
 typedef struct capture_options_tag {
     /* general */
-    GArray   *ifaces;         /* the interfaces to use for the next capture,
-                                 entries are of type interface_options */
-    GArray   *all_ifaces;     /* all interfaces,
-                                 entries are of type interface_t */
+    GArray   *ifaces;               /**< the interfaces to use for the
+                                         next capture, entries are of
+                                         type interface_options */
+    GArray   *all_ifaces;           /**< all interfaces, entries are
+                                         of type interface_t */
+    int      ifaces_err;            /**< if all_ifaces is null, the error
+                                         when it was fetched, if any */
+    gchar    *ifaces_err_info;      /**< error string for that error */
     guint    num_selected;
 
     /*
