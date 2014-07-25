@@ -272,6 +272,7 @@ static dissector_handle_t  ssl_handle               = NULL;
 static StringInfo          ssl_compressed_data      = {NULL, 0};
 static StringInfo          ssl_decrypted_data       = {NULL, 0};
 static gint                ssl_decrypted_data_avail = 0;
+static FILE               *ssl_keylog_file          = NULL;
 
 static uat_t              *ssldecrypt_uat           = NULL;
 static const gchar        *ssl_keys_list            = NULL;
@@ -305,8 +306,8 @@ ssl_init(void)
     module_t *ssl_module = prefs_find_module("ssl");
     pref_t   *keys_list_pref;
 
-    ssl_common_init(&ssl_master_key_map, &ssl_decrypted_data,
-                    &ssl_compressed_data, &ssl_options);
+    ssl_common_init(&ssl_master_key_map, &ssl_keylog_file,
+                    &ssl_decrypted_data, &ssl_compressed_data);
     ssl_fragment_init();
     ssl_debug_flush();
 
@@ -1558,6 +1559,8 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
         dissect_ssl3_change_cipher_spec(tvb, ssl_record_tree,
                                         offset, session, content_type);
         if (ssl) {
+            ssl_load_keyfile(ssl_options.keylog_filename, &ssl_keylog_file,
+                             &ssl_master_key_map);
             ssl_finalize_decryption(ssl, &ssl_master_key_map);
             ssl_change_cipher(ssl, ssl_packet_from_server(ssl, ssl_associations, pinfo));
         }
@@ -1937,6 +1940,8 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
                 break;
 
             case SSL_HND_NEWSESSION_TICKET:
+                /* no need to load keylog file here as it only links a previous
+                 * master key with this Session Ticket */
                 ssl_dissect_hnd_new_ses_ticket(&dissect_ssl3_hf, tvb,
                                                ssl_hand_tree, offset, ssl,
                                                ssl_master_key_map.session);
@@ -1968,6 +1973,8 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
                 if (!ssl)
                     break;
 
+                ssl_load_keyfile(ssl_options.keylog_filename, &ssl_keylog_file,
+                                 &ssl_master_key_map);
                 /* try to find master key from pre-master key */
                 if (!ssl_generate_pre_master_secret(ssl, length, tvb, offset,
                                                     ssl_options.psk,

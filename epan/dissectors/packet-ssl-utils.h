@@ -575,9 +575,13 @@ ssl_get_data_info(int proto, packet_info *pinfo, gint key);
 
 /* initialize/reset per capture state data (ssl sessions cache) */
 extern void
-ssl_common_init(ssl_master_key_map_t *master_key_map,
-                StringInfo *decrypted_data, StringInfo *compressed_data,
-                const ssl_common_options_t *options);
+ssl_common_init(ssl_master_key_map_t *master_key_map, FILE **ssl_keylog_file,
+                StringInfo *decrypted_data, StringInfo *compressed_data);
+
+/* tries to update the secrets cache from the given filename */
+extern void
+ssl_load_keyfile(const gchar *ssl_keylog_filename, FILE **keylog_file,
+                 const ssl_master_key_map_t *mk_map);
 
 /* parse ssl related preferences (private keys and ports association strings) */
 extern void

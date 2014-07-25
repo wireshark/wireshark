@@ -4167,15 +4167,10 @@ ssl_get_data_info(int proto, packet_info *pinfo, gint key)
     return NULL;
 }
 
-static void
-ssl_load_keyfile(const gchar *ssl_keylog_filename,
-                 const ssl_master_key_map_t *mk_map);
-
 /* initialize/reset per capture state data (ssl sessions cache) */
 void
-ssl_common_init(ssl_master_key_map_t *mk_map,
-                StringInfo *decrypted_data, StringInfo *compressed_data,
-                const ssl_common_options_t *options)
+ssl_common_init(ssl_master_key_map_t *mk_map, FILE **ssl_keylog_file,
+                StringInfo *decrypted_data, StringInfo *compressed_data)
 {
     if (mk_map->session)
         g_hash_table_remove_all(mk_map->session);
@@ -4198,8 +4193,12 @@ ssl_common_init(ssl_master_key_map_t *mk_map,
     g_free(compressed_data->data);
     ssl_data_alloc(compressed_data, 32);
 
-    if (options->keylog_filename != NULL && *options->keylog_filename)
-        ssl_load_keyfile(options->keylog_filename, mk_map);
+    /* close the previous keylog file now that the cache are cleared, this
+     * allows the cache to be filled with the full keylog file contents. */
+    if (*ssl_keylog_file) {
+        fclose(*ssl_keylog_file);
+        *ssl_keylog_file = NULL;
+    }
 }
 
 /* parse ssl related preferences (private keys and ports association strings) */
@@ -4456,34 +4455,10 @@ ssl_is_valid_handshake_type(guint8 hs_type, gboolean is_dtls)
 
 /** keyfile handling */
 
-static gboolean
-ssl_compile_keyfile_regexes(const char **patterns, GRegex **regexes, size_t n)
+/* returns >0 on success and outputs regexes in regexes_out */
+static guint
+ssl_compile_keyfile_regexes(GRegex ***regexes_out)
 {
-    unsigned i;
-    GError *gerr = NULL;
-
-    for (i = 0; i < n; i++) {
-        regexes[i] = g_regex_new(patterns[i], G_REGEX_OPTIMIZE,
-                G_REGEX_MATCH_ANCHORED, &gerr);
-        if (gerr) {
-            ssl_debug_printf("%s failed to compile %s: %s\n", G_STRFUNC,
-                    patterns[i], gerr->message);
-            g_error_free(gerr);
-            /* failed to compile some regexes, free resources and fail */
-            while (i-- > 0)
-                g_regex_unref(regexes[i]);
-            return FALSE;
-        }
-    }
-    return TRUE;
-}
-
-static void
-ssl_load_keyfile(const gchar *ssl_keylog_filename,
-                 const ssl_master_key_map_t *mk_map)
-{
-    FILE *ssl_keylog;
-    unsigned i;
 #define OCTET "(?:[[:xdigit:]]{2})"
 #define SSL_REGEX_MK "(" OCTET "{" G_STRINGIFY(SSL_MASTER_SECRET_LENGTH) "})"
     const gchar *patterns[] = {
@@ -4491,20 +4466,71 @@ ssl_load_keyfile(const gchar *ssl_keylog_filename,
         "RSA Session-ID:(" OCTET "+) Master-Key:" SSL_REGEX_MK,
         "CLIENT_RANDOM (" OCTET "{32}) " SSL_REGEX_MK
     };
-    GRegex *regexes[array_length(patterns)];
+#undef SSL_REGEX_MK
+#undef OCTET
+    static GRegex **regexes = NULL;
+    unsigned i;
+    GError *gerr = NULL;
+
+    if (!regexes) {
+        regexes = (GRegex**) wmem_alloc(wmem_file_scope(),
+                array_length(patterns) * sizeof(GRegex *));
+        for (i = 0; i < array_length(patterns); i++) {
+            regexes[i] = g_regex_new(patterns[i], G_REGEX_OPTIMIZE,
+                    G_REGEX_MATCH_ANCHORED, &gerr);
+            if (gerr) {
+                ssl_debug_printf("%s failed to compile %s: %s\n", G_STRFUNC,
+                        patterns[i], gerr->message);
+                g_error_free(gerr);
+                /* failed to compile some regexes, free resources and fail */
+                while (i-- > 0)
+                    g_regex_unref(regexes[i]);
+                return 0;
+            }
+        }
+    }
+
+    *regexes_out = regexes;
+    return array_length(patterns);
+}
+
+static gboolean
+file_needs_reopen(FILE *fp, const char *filename)
+{
+    ws_statb64 open_stat, current_stat;
+
+    /* consider a file deleted when stat fails for either file,
+     * or when the residing device / inode has changed. */
+    if (0 != ws_fstat64(fileno(fp), &open_stat))
+        return TRUE;
+    if (0 != ws_stat64(filename, &current_stat))
+        return TRUE;
+
+    /* Note: on Windows, ino may be 0. Existing files cannot be deleted on
+     * Windows, but hopefully the size is a good indicator when a file got
+     * removed and recreated */
+    return  open_stat.st_dev != current_stat.st_dev ||
+            open_stat.st_ino != current_stat.st_ino ||
+            open_stat.st_size > current_stat.st_size;
+}
+
+void
+ssl_load_keyfile(const gchar *ssl_keylog_filename, FILE **keylog_file,
+                 const ssl_master_key_map_t *mk_map)
+{
+    unsigned i;
+    guint re_count;
+    GRegex **regexes = NULL;
     GHashTable *hts[] = {
         mk_map->pre_master,
         mk_map->session,
         mk_map->crandom
     };
-#undef SSL_REGEX_MK
-#undef OCTET
 
-    ssl_debug_printf("trying to use SSL keylog in %s\n", ssl_keylog_filename);
-
-    ssl_keylog = ws_fopen(ssl_keylog_filename, "r");
-    if (!ssl_keylog) {
-        ssl_debug_printf("failed to open SSL keylog\n");
+    /* no need to try if no key log file is configured. */
+    if (!ssl_keylog_filename) {
+        ssl_debug_printf("%s dtls/ssl.keylog_file is not configured!\n",
+                         G_STRFUNC);
         return;
     }
 
@@ -4527,14 +4553,32 @@ ssl_load_keyfile(const gchar *ssl_keylog_filename,
      *     (This format allows non-RSA SSL connections to be decrypted, i.e.
      *     ECDHE-RSA.)
      */
-    if (!ssl_compile_keyfile_regexes(patterns, regexes, array_length(regexes)))
+    re_count = ssl_compile_keyfile_regexes(&regexes);
+    if (re_count == 0)
         return;
+
+    ssl_debug_printf("trying to use SSL keylog in %s\n", ssl_keylog_filename);
+
+    /* if the keylog file was deleted, re-open it */
+    if (*keylog_file && file_needs_reopen(*keylog_file, ssl_keylog_filename)) {
+        ssl_debug_printf("%s file got deleted, trying to re-open\n", G_STRFUNC);
+        fclose(*keylog_file);
+        *keylog_file = NULL;
+    }
+
+    if (*keylog_file == NULL) {
+        *keylog_file = ws_fopen(ssl_keylog_filename, "r");
+        if (!*keylog_file) {
+            ssl_debug_printf("%s failed to open SSL keylog\n", G_STRFUNC);
+            return;
+        }
+    }
 
     for (;;) {
         char buf[512], *line;
         gsize bytes_read;
 
-        line = fgets(buf, sizeof(buf), ssl_keylog);
+        line = fgets(buf, sizeof(buf), *keylog_file);
         if (!line)
             break;
 
@@ -4550,7 +4594,7 @@ ssl_load_keyfile(const gchar *ssl_keylog_filename,
         }
 
         ssl_debug_printf("  checking keylog line: %s\n", line);
-        for (i = 0; i < array_length(regexes); i++) {
+        for (i = 0; i < re_count; i++) {
             gchar *hex_key, *hex_ms;
             StringInfo *ms, *key;
             GMatchInfo *mi;
@@ -4575,14 +4619,9 @@ ssl_load_keyfile(const gchar *ssl_keylog_filename,
             break; /* found a match, no need to continue */
         }
 
-        if (i == array_length(regexes))
+        if (i == re_count)
             ssl_debug_printf("    unrecognized line\n");
     }
-
-    for (i = 0; i < array_length(regexes); i++)
-        g_regex_unref(regexes[i]);
-
-    fclose(ssl_keylog);
 }
 
 #ifdef SSL_DECRYPT_DEBUG

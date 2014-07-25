@@ -149,6 +149,7 @@ static dissector_handle_t  dtls_handle               = NULL;
 static StringInfo          dtls_compressed_data      = {NULL, 0};
 static StringInfo          dtls_decrypted_data       = {NULL, 0};
 static gint                dtls_decrypted_data_avail = 0;
+static FILE               *dtls_keylog_file          = NULL;
 
 static uat_t *dtlsdecrypt_uat      = NULL;
 static const gchar *dtls_keys_list = NULL;
@@ -191,8 +192,8 @@ dtls_init(void)
   module_t *dtls_module = prefs_find_module("dtls");
   pref_t   *keys_list_pref;
 
-  ssl_common_init(&dtls_master_key_map, &dtls_decrypted_data,
-                  &dtls_compressed_data, &dtls_options);
+  ssl_common_init(&dtls_master_key_map, &dtls_keylog_file,
+                  &dtls_decrypted_data, &dtls_compressed_data);
   reassembly_table_init (&dtls_reassembly_table, &addresses_reassembly_table_functions);
 
   /* We should have loaded "keys_list" by now. Mark it obsolete */
@@ -815,6 +816,8 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
     dissect_dtls_change_cipher_spec(tvb, dtls_record_tree,
                                     offset, session, content_type);
     if (ssl) {
+        ssl_load_keyfile(dtls_options.keylog_filename, &dtls_keylog_file,
+                         &dtls_master_key_map);
         ssl_finalize_decryption(ssl, &dtls_master_key_map);
         ssl_change_cipher(ssl, ssl_packet_from_server(ssl, dtls_associations, pinfo));
     }
@@ -1336,6 +1339,8 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
             break;
 
           case SSL_HND_NEWSESSION_TICKET:
+            /* no need to load keylog file here as it only links a previous
+             * master key with this Session Ticket */
             ssl_dissect_hnd_new_ses_ticket(&dissect_dtls_hf, sub_tvb,
                                            ssl_hand_tree, 0, ssl,
                                            dtls_master_key_map.session);
@@ -1366,6 +1371,8 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
             if (!ssl)
                 break;
 
+            ssl_load_keyfile(dtls_options.keylog_filename, &dtls_keylog_file,
+                             &dtls_master_key_map);
             /* try to find master key from pre-master key */
             if (!ssl_generate_pre_master_secret(ssl, length, sub_tvb, 0,
                                                 dtls_options.psk,
