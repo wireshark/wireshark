@@ -3148,7 +3148,7 @@ read_asn1_type_table(const char *filename)
 	int ret;
 	guint size = 0;
 	guchar *data;
-	struct stat file_stat;
+	ws_statb64 file_stat;
 	static guint mylogh = 0;
 
 	if ((filename == 0) || (strlen(filename) == 0))
@@ -3170,7 +3170,7 @@ read_asn1_type_table(const char *filename)
 				report_open_failure(filename, errno, FALSE);
 		return;
 	}
-	ret = fstat(fileno(f), &file_stat);
+	ret = ws_fstat64(fileno(f), &file_stat);
 	if (ret!=-1)
 		size = (int)file_stat.st_size;
 	if (size == 0) {

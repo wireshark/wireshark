@@ -781,7 +781,7 @@ FILE_T
 file_fdopen(int fd)
 {
 #ifdef _STATBUF_ST_BLKSIZE	/* XXX, _STATBUF_ST_BLKSIZE portable? */
-	struct stat st;
+	ws_statb64 st;
 #endif
 	int want = GZBUFSIZE;
 	FILE_T state;
@@ -812,7 +812,7 @@ file_fdopen(int fd)
 	gz_reset(state);
 
 #ifdef _STATBUF_ST_BLKSIZE
-	if (fstat(fd, &st) >= 0) {
+	if (ws_fstat64(fd, &st) >= 0) {
 		/*
 		 * Yes, st_blksize can be bigger than an int; apparently,
 		 * it's a long on LP64 Linux, for example.

@@ -3417,9 +3417,9 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
      */
 #ifndef _WIN32
     if (print_packet_info) {
-      struct stat stat_stdout, stat_stderr;
+      ws_statb64 stat_stdout, stat_stderr;
 
-      if (fstat(1, &stat_stdout) == 0 && fstat(2, &stat_stderr) == 0) {
+      if (ws_fstat64(1, &stat_stdout) == 0 && ws_fstat64(2, &stat_stderr) == 0) {
         if (stat_stdout.st_dev == stat_stderr.st_dev &&
             stat_stdout.st_ino == stat_stderr.st_ino) {
           fflush(stdout);

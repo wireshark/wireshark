@@ -2191,11 +2191,11 @@ static gboolean wtap_dump_open_finish(wtap_dumper *wdh, int file_type_subtype, g
 		cant_seek = TRUE;
 	} else {
 		fd = fileno((FILE *)wdh->fh);
-		if (lseek(fd, 1, SEEK_CUR) == -1)
+		if (ws_lseek64(fd, 1, SEEK_CUR) == (off_t) -1)
 			cant_seek = TRUE;
 		else {
 			/* Undo the seek. */
-			lseek(fd, 0, SEEK_SET);
+			ws_lseek64(fd, 0, SEEK_SET);
 			cant_seek = FALSE;
 		}
 	}

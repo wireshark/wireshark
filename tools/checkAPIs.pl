@@ -119,6 +119,8 @@ my %APIs = (
                 'remove',
                 'fopen',
                 'freopen',
+                'fstat',
+                'lseek',
                 # Misc
                 'tmpnam',       # use mkstemp
                 '_snwprintf'    # use StringCchPrintf
