@@ -45,7 +45,6 @@
 #include "packet-scsi-sbc.h"
 
 void proto_register_scsi_sbc(void);
-void proto_reg_handoff_scsi_sbc(void);
 
 static int proto_scsi_sbc = -1;
 
@@ -2259,11 +2258,6 @@ proto_register_scsi_sbc(void)
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_scsi_sbc, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
-}
-
-void
-proto_reg_handoff_scsi_sbc(void)
-{
 }
 
 /*

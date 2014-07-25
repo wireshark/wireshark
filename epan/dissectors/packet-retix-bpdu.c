@@ -36,7 +36,6 @@
 #include <epan/addr_resolv.h>
 
 void proto_register_retix_bpdu(void);
-void proto_reg_handoff_retix_bpdu(void);
 
 static gint ett_retix_bpdu = -1;
 static int proto_retix_bpdu = -1;
@@ -115,9 +114,4 @@ proto_register_retix_bpdu(void)
   proto_register_field_array(proto_retix_bpdu, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
   register_dissector("rbpdu", dissect_retix_bpdu, proto_retix_bpdu);
-}
-
-void
-proto_reg_handoff_retix_bpdu(void)
-{
 }

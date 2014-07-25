@@ -30,7 +30,6 @@
 #include <epan/tfs.h>
 
 void proto_register_sysex(void);
-void proto_reg_handoff_sysex(void);
 
 /* protocols and header fields */
 static int proto_sysex = -1;
@@ -1421,11 +1420,6 @@ proto_register_sysex(void)
     expert_register_field_array(expert_sysex, ei, array_length(ei));
 
     register_dissector("sysex", dissect_sysex_command, proto_sysex);
-}
-
-void
-proto_reg_handoff_sysex(void)
-{
 }
 
 /*

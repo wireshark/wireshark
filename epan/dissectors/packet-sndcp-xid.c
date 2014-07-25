@@ -44,7 +44,6 @@
 #define ALGO_ROHC 2
 
 void proto_register_sndcp_xid(void);
-void proto_reg_handoff_sndcp_xid(void);
 
 static const value_string sndcp_xid_dcomp_algo_str[] = {
 	{0x0, "V.42 bis"},
@@ -867,13 +866,4 @@ proto_register_sndcp_xid(void)
   proto_register_field_array(proto_sndcp_xid, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
   register_dissector("sndcpxid", dissect_sndcp_xid, proto_sndcp_xid);
-}
-
-/* If this dissector uses sub-dissector registration add a registration routine.
-   This format is required because a script is used to find these routines and
-   create the code that calls these routines.
-*/
-void
-proto_reg_handoff_sndcp_xid(void)
-{
 }

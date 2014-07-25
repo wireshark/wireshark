@@ -36,7 +36,6 @@
 #include "packet-scsi-smc.h"
 
 void proto_register_scsi_smc(void);
-void proto_reg_handoff_scsi_smc(void);
 
 static int proto_scsi_smc			= -1;
 int hf_scsi_smc_opcode				= -1;
@@ -1149,12 +1148,6 @@ proto_register_scsi_smc(void)
 
     proto_register_subtree_array(ett, array_length(ett));
 }
-
-void
-proto_reg_handoff_scsi_smc(void)
-{
-}
-
 
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html

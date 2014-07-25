@@ -285,7 +285,3 @@ void proto_register_link16(void)
     proto_register_subtree_array(ett, array_length(ett));
     new_register_dissector("link16", dissect_link16, proto_link16);
 }
-
-void proto_reg_handoff_link16(void)
-{
-}

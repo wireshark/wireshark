@@ -436,7 +436,6 @@ dissect_nasdaq_itch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 /* Register the protocol with Wireshark */
 
-void proto_reg_handoff_nasdaq_itch(void);
 void proto_register_nasdaq_itch(void);
 
 void
@@ -591,12 +590,6 @@ proto_register_nasdaq_itch(void)
                                  &nasdaq_itch_chi_x);
 
   register_dissector("nasdaq-itch", dissect_nasdaq_itch, proto_nasdaq_itch);
-}
-
-
-void
-proto_reg_handoff_nasdaq_itch(void)
-{
 }
 
 /*

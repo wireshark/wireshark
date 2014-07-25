@@ -32,7 +32,6 @@
 #include "packet-x509if.h"
 
 void proto_register_gpef(void);
-void proto_reg_handoff_gpef(void);
 
 static int proto_gpef = -1;
 static int hf_gpef_keycount = -1;
@@ -184,9 +183,4 @@ proto_register_gpef(void)
 	proto_register_subtree_array(ett, array_length(ett));
 
 	new_register_dissector("efsblob", dissect_gpef_efsblob, proto_gpef);
-}
-
-void
-proto_reg_handoff_gpef(void)
-{
 }
