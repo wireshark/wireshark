@@ -1268,14 +1268,6 @@ FOP=fop-1.0\fop.bat
 # Additional options to fop.
 FOP_OPTS=-Xmx256m
 
-# html help compiler
-# Comment this out if you don't have hhc.exe or you don't want the docs in
-# .chm format.
-#
-# Beware: hhc.exe is NOT part of the MSVC packages in HHC_DIR mentioned above,
-# so you'll need to install the HTML Help Workshop for this.
-HHC_EXE="$(HHC_DIR)\hhc.exe"
-
 # html to text converter for text version of release notes, e.g. elinks.
 # This could also be "lynx", or "true" if neither elinks nor lynx is installed
 # (cygwin: lynx works, elinks not available, links and true doesn't produce output)
@@ -1641,6 +1633,8 @@ PORTAUDIO_CONFIG=
 !ENDIF
 
 !IFDEF HHC_DIR
+PATH=$(PATH);$(HHC_DIR)
+HHC_EXE=hhc.exe
 HHC_CFLAGS=-DHHC_DIR
 HHC_LIBS=htmlhelp.lib
 !ELSE
