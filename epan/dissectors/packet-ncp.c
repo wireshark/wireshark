@@ -321,6 +321,28 @@ ncp_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, 
     return 1;
 }
 
+static const char* ncp_host_get_filter_type(hostlist_talker_t* host _U_, conv_filter_type_e filter)
+{
+    return ncp_conv_get_filter_type(NULL, filter);
+}
+
+static hostlist_dissector_info_t ncp_host_dissector_info = {&ncp_host_get_filter_type};
+
+static int
+ncp_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip _U_)
+{
+    conv_hash_t *hash = (conv_hash_t*) pit;
+    /*const ncp_common_header *ncphdr=vip;*/
+
+    /* Take two "add" passes per packet, adding for each direction, ensures that all
+    packets are counted properly (even if address is sending to itself)
+    XXX - this could probably be done more efficiently inside hostlist_table */
+    add_hostlist_table_data(hash, &pinfo->src, 0, TRUE, 1, pinfo->fd->pkt_len, &ncp_host_dissector_info, PT_NCP);
+    add_hostlist_table_data(hash, &pinfo->dst, 0, FALSE, 1, pinfo->fd->pkt_len, &ncp_host_dissector_info, PT_NCP);
+
+    return 1;
+}
+
 /*
  * Burst packet system flags.
  */
@@ -1127,7 +1149,7 @@ proto_register_ncp(void)
     ncp_tap.hdr=register_tap("ncp");
     register_postseq_cleanup_routine(&mncp_postseq_cleanup);
 
-    register_conversation_table(proto_ncp, FALSE, ncp_conversation_packet);
+    register_conversation_table(proto_ncp, FALSE, ncp_conversation_packet, ncp_hostlist_packet, NULL);
 }
 
 void

@@ -501,6 +501,30 @@ ip_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, c
     return 1;
 }
 
+static const char* ip_host_get_filter_type(hostlist_talker_t* host, conv_filter_type_e filter)
+{
+    if ((filter == CONV_FT_ANY_ADDRESS) && (host->myaddress.type == AT_IPv4))
+        return "ip.addr";
+
+    return CONV_FILTER_INVALID;
+}
+
+static hostlist_dissector_info_t ip_host_dissector_info = {&ip_host_get_filter_type};
+
+static int
+ip_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
+{
+    conv_hash_t *hash = (conv_hash_t*) pit;
+    const ws_ip *iph=(const ws_ip *)vip;
+
+    /* Take two "add" passes per packet, adding for each direction, ensures that all
+    packets are counted properly (even if address is sending to itself)
+    XXX - this could probably be done more efficiently inside hostlist_table */
+    add_hostlist_table_data(hash, &iph->ip_src, 0, TRUE, 1, pinfo->fd->pkt_len, &ip_host_dissector_info, PT_NONE);
+    add_hostlist_table_data(hash, &iph->ip_dst, 0, FALSE, 1, pinfo->fd->pkt_len, &ip_host_dissector_info, PT_NONE);
+    return 1;
+}
+
 /*
  * defragmentation of IPv4
  */
@@ -3067,7 +3091,7 @@ proto_register_ip(void)
   ip_tap = register_tap("ip");
 
   register_decode_as(&ip_da);
-  register_conversation_table(proto_ip, TRUE, ip_conversation_packet);
+  register_conversation_table(proto_ip, TRUE, ip_conversation_packet, ip_hostlist_packet, NULL);
 }
 
 void

@@ -383,6 +383,34 @@ ipv6_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_,
     return 1;
 }
 
+static const char* ipv6_host_get_filter_type(hostlist_talker_t* host, conv_filter_type_e filter)
+{
+    if ((filter == CONV_FT_ANY_ADDRESS) && (host->myaddress.type == AT_IPv6))
+        return "ipv6.addr";
+
+    return CONV_FILTER_INVALID;
+}
+
+static hostlist_dissector_info_t ipv6_host_dissector_info = {&ipv6_host_get_filter_type};
+
+static int
+ipv6_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
+{
+    conv_hash_t *hash = (conv_hash_t*) pit;
+    const struct ip6_hdr *ip6h = (const struct ip6_hdr *)vip;
+    address src;
+    address dst;
+
+    /* Addresses aren't implemented as 'address' type in struct ip6_hdr */
+    SET_ADDRESS(&src, AT_IPv6, sizeof(struct e_in6_addr), &ip6h->ip6_src);
+    SET_ADDRESS(&dst, AT_IPv6, sizeof(struct e_in6_addr), &ip6h->ip6_dst);
+
+    add_hostlist_table_data(hash, &src, 0, TRUE, 1, pinfo->fd->pkt_len, &ipv6_host_dissector_info, PT_NONE);
+    add_hostlist_table_data(hash, &dst, 0, FALSE, 1, pinfo->fd->pkt_len, &ipv6_host_dissector_info, PT_NONE);
+
+    return 1;
+}
+
 static const fragment_items ipv6_frag_items = {
     &ett_ipv6_fragment,
     &ett_ipv6_fragments,
@@ -2944,7 +2972,7 @@ proto_register_ipv6(void)
     register_decode_as(&ipv6_da);
     register_decode_as(&ipv6_next_header_da);
 
-    register_conversation_table(proto_ipv6, TRUE, ipv6_conversation_packet);
+    register_conversation_table(proto_ipv6, TRUE, ipv6_conversation_packet, ipv6_hostlist_packet, NULL);
 }
 
 void

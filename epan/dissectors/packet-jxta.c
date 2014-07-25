@@ -223,6 +223,30 @@ jxta_conversation_packet(void *pct, packet_info *pinfo _U_, epan_dissect_t *edt 
     return 1;
 }
 
+static const char* jxta_host_get_filter_type(hostlist_talker_t* host, conv_filter_type_e filter)
+{
+    if ((filter == CONV_FT_ANY_ADDRESS) && (host->myaddress.type == AT_URI))
+        return "jxta.message.address";
+
+    return CONV_FILTER_INVALID;
+}
+
+static hostlist_dissector_info_t jxta_host_dissector_info = {&jxta_host_get_filter_type};
+
+static int
+jxta_hostlist_packet(void *pit, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *vip)
+{
+    conv_hash_t *hash = (conv_hash_t*) pit;
+    const jxta_tap_header *jxtahdr = (const jxta_tap_header *)vip;
+
+    /* Take two "add" passes per packet, adding for each direction, ensures that all
+    packets are counted properly (even if address is sending to itself)
+    XXX - this could probably be done more efficiently inside hostlist_table */
+    add_hostlist_table_data(hash, &jxtahdr->src_address, 0, TRUE, 1, jxtahdr->size, &jxta_host_dissector_info, PT_NONE);
+    add_hostlist_table_data(hash, &jxtahdr->dest_address, 0, FALSE, 1, jxtahdr->size, &jxta_host_dissector_info, PT_NONE);
+    return 1;
+}
+
 /**
 *   Prototypes
 **/
@@ -2352,7 +2376,7 @@ void proto_register_jxta(void)
     prefs_register_bool_preference(jxta_module, "sctp.heuristic", "Try to discover JXTA in SCTP connections",
                                    "Enable to inspect SCTP connections for JXTA conversations.", &gSCTP_HEUR);
 
-    register_conversation_table(proto_jxta, TRUE, jxta_conversation_packet);
+    register_conversation_table(proto_jxta, TRUE, jxta_conversation_packet, jxta_hostlist_packet, NULL);
 }
 
 

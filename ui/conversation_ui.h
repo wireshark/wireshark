@@ -49,7 +49,7 @@ typedef enum {
     CONV_COLUMN_BPS_BA,
     CONV_NUM_COLUMNS,
     CONV_INDEX_COLUMN = CONV_NUM_COLUMNS
-} column_type_e;
+} conversation_column_type_e;
 
 
 extern const char *column_titles[CONV_NUM_COLUMNS];

@@ -174,6 +174,31 @@ ipx_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, 
 	return 1;
 }
 
+static const char* ipx_host_get_filter_type(hostlist_talker_t* host, conv_filter_type_e filter)
+{
+	if ((filter == CONV_FT_ANY_ADDRESS) && (host->myaddress.type == AT_IPX))
+		return "ipx.addr";
+
+	return CONV_FILTER_INVALID;
+}
+
+static hostlist_dissector_info_t ipx_host_dissector_info = {&ipx_host_get_filter_type};
+
+static int
+ipx_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
+{
+	conv_hash_t *hash = (conv_hash_t*) pit;
+	const ipxhdr_t *ipxh=(const ipxhdr_t *)vip;
+
+	/* Take two "add" passes per packet, adding for each direction, ensures that all
+	packets are counted properly (even if address is sending to itself)
+	XXX - this could probably be done more efficiently inside hostlist_table */
+	add_hostlist_table_data(hash, &ipxh->ipx_src, 0, TRUE, 1, pinfo->fd->pkt_len, &ipx_host_dissector_info, PT_NONE);
+	add_hostlist_table_data(hash, &ipxh->ipx_dst, 0, FALSE, 1, pinfo->fd->pkt_len, &ipx_host_dissector_info, PT_NONE);
+
+	return 1;
+}
+
 /* ================================================================= */
 /* IPX                                                               */
 /* ================================================================= */
@@ -1568,7 +1593,7 @@ proto_register_ipx(void)
 	register_postseq_cleanup_routine(&spx_postseq_cleanup);
 	ipx_tap=register_tap("ipx");
 
-	register_conversation_table(proto_ipx, TRUE, ipx_conversation_packet);
+	register_conversation_table(proto_ipx, TRUE, ipx_conversation_packet, ipx_hostlist_packet, NULL);
 }
 
 void

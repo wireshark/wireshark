@@ -75,21 +75,33 @@ typedef struct _conversation_key_t {
     conv_id_t   conv_id;
 } conv_key_t;
 
+typedef struct {
+    address  myaddress;
+    guint32  port;
+} host_key_t;
+
 struct _conversation_item_t;
 typedef const char* (*conv_get_filter_type)(struct _conversation_item_t* item, conv_filter_type_e filter);
-typedef const char* (*conv_get_conversation_filter_type)(struct _conversation_item_t* item, conv_direction_e direction);
-
-
 
 typedef struct _ct_dissector_info {
     conv_get_filter_type get_filter_type;
 } ct_dissector_info_t;
+
+struct _hostlist_talker_t;
+typedef const char* (*host_get_filter_type)(struct _hostlist_talker_t* item, conv_filter_type_e filter_type);
+
+typedef struct _hostlist_dissector_info {
+    host_get_filter_type get_filter_type;
+} hostlist_dissector_info_t;
 
 #define CONV_FILTER_INVALID "INVALID"
 
 
 struct register_ct;
 typedef void (*conv_gui_init_cb)(struct register_ct* ct, const char *filter);
+
+typedef void (*host_gui_init_cb)(struct register_ct* host, const char *filter);
+typedef const char* (*host_tap_prefix)(void);
 
 /** Structure for information about a registered conversation */
 typedef struct register_ct register_ct_t;
@@ -116,14 +128,31 @@ typedef struct _conversation_item_t {
     gboolean            modified;       /**< new to redraw the row (only used in GTK+) */
 } conv_item_t;
 
+/** Hostlist information */
+typedef struct _hostlist_talker_t {
+    hostlist_dissector_info_t *dissector_info; /**< conversation information provided by dissector */
+	address myaddress;      /**< address */
+	port_type  ptype;       /**< port_type (e.g. PT_TCP) */
+	guint32 port;           /**< port */
+
+	guint64 rx_frames;      /**< number of received packets */
+	guint64 tx_frames;      /**< number of transmitted packets */
+	guint64 rx_bytes;       /**< number of received bytes */
+	guint64 tx_bytes;       /**< number of transmitted bytes */
+
+	gboolean modified;      /**< new to redraw the row */
+
+} hostlist_talker_t;
+
 /** Register the conversation table for the multiple conversation window.
  *
+ * @param proto_id is the protocol with conversation
  * @param hide_ports hide the port columns
- * @param table_name the table name to be displayed
- * @param tap_name the registered tap name
- * @param packet_func the function to be called for each incoming packet
+ * @param conv_packet_func the registered conversation tap name
+ * @param hostlist_func the registered hostlist tap name
+ * @param prefix_func the function if hostlist tap has diffent name than default ("host")
  */
-extern void register_conversation_table(const int proto_id, gboolean hide_ports, tap_packet_cb packet_func);
+extern void register_conversation_table(const int proto_id, gboolean hide_ports, tap_packet_cb conv_packet_func, tap_packet_cb hostlist_func, host_tap_prefix prefix_func);
 
 /** Should port columns be hidden?
  *
@@ -146,6 +175,20 @@ WS_DLL_PUBLIC int get_conversation_proto_id(register_ct_t* ct);
  */
 WS_DLL_PUBLIC tap_packet_cb get_conversation_packet_func(register_ct_t* ct);
 
+/** Get tap function handler from hostlist
+ *
+ * @param ct Registered conversation
+ * @return tap function handler of conversation
+ */
+WS_DLL_PUBLIC tap_packet_cb get_hostlist_packet_func(register_ct_t* ct);
+
+/** Get tap function handler from hostlist
+ *
+ * @param ct Registered conversation
+ * @return tap function handler of conversation
+ */
+WS_DLL_PUBLIC host_tap_prefix get_hostlist_prefix_func(register_ct_t* ct);
+
 /** get conversation from protocol ID
  *
  * @param proto_id protocol ID
@@ -160,6 +203,14 @@ WS_DLL_PUBLIC register_ct_t* get_conversation_by_proto_id(int proto_id);
  * is instantiated in GUI
  */
 WS_DLL_PUBLIC void conversation_table_set_gui_info(conv_gui_init_cb init_cb);
+
+/** Register "initialization function" used by the GUI to create hostlist
+ * table display in GUI
+ *
+ * @param init_cb callback function that will be called when hostlist "display"
+ * is instantiated in GUI
+ */
+WS_DLL_PUBLIC void hostlist_table_set_gui_info(host_gui_init_cb init_cb);
 
 /** Interator to walk converation tables and execute func
  * a GUI menu (only used in GTK)
@@ -187,12 +238,25 @@ WS_DLL_PUBLIC register_ct_t* get_conversation_table_by_num(guint table_num);
  */
 WS_DLL_PUBLIC void reset_conversation_table_data(conv_hash_t *ch);
 
-/** Initialize dissector converation for stats and (possibly) GUI.
+/** Remove all entries from the hostlist table.
+ *
+ * @param ch the table to reset
+ */
+WS_DLL_PUBLIC void reset_hostlist_table_data(conv_hash_t *ch);
+
+/** Initialize dissector conversation for stats and (possibly) GUI.
  *
  * @param opt_arg filter string to compare with dissector
  * @param userdata register_ct_t* for dissector conversation
  */
 WS_DLL_PUBLIC void dissector_conversation_init(const char *opt_arg, void* userdata);
+
+/** Initialize dissector hostlist for stats and (possibly) GUI.
+ *
+ * @param opt_arg filter string to compare with dissector
+ * @param userdata register_ct_t* for dissector conversation
+ */
+WS_DLL_PUBLIC void dissector_hostlist_init(const char *opt_arg, void* userdata);
 
 /** Get the string representation of an address.
  *
@@ -218,6 +282,14 @@ WS_DLL_PUBLIC const char *get_conversation_port(guint32 port, port_type ptype, g
  * @return An ep_allocated string representing the conversation.
  */
 WS_DLL_PUBLIC const char *get_conversation_filter(conv_item_t *conv_item, conv_direction_e direction);
+
+/** Get a display filter for the given hostlist and direction.
+ *
+ * @param host The hostlist.
+ * @param direction The desired direction.
+ * @return An ep_allocated string representing the conversation.
+ */
+WS_DLL_PUBLIC const char *get_hostlist_filter(hostlist_talker_t *host);
 
 /** Add some data to the conversation table.
  *
@@ -255,19 +327,23 @@ extern void add_conversation_table_data(conv_hash_t *ch, const address *src, con
  * @param conv_id a value to help differentiate the conversation in case the address and port quadruple is not sufficiently unique
  */
 extern void
-add_conversation_table_data_with_conv_id(
-    conv_hash_t *ch,
-    const address *src,
-    const address *dst,
-    guint32 src_port,
-    guint32 dst_port,
-    conv_id_t conv_id,
-    int num_frames,
-    int num_bytes,
-    nstime_t *ts,
-    nstime_t *abs_ts,
-    ct_dissector_info_t *ct_info,
-    port_type ptype);
+add_conversation_table_data_with_conv_id(conv_hash_t *ch, const address *src, const address *dst, guint32 src_port,
+    guint32 dst_port, conv_id_t conv_id, int num_frames, int num_bytes,
+    nstime_t *ts, nstime_t *abs_ts, ct_dissector_info_t *ct_info, port_type ptype);
+
+/** Add some data to the table.
+ *
+ * @param hl the table to add the data to
+ * @param addr address
+ * @param port port
+ * @param sender TRUE, if this is a sender
+ * @param num_frames number of packets
+ * @param num_bytes number of bytes
+ * @param sat address type
+ * @param port_type the port type (e.g. PT_TCP)
+ */
+void add_hostlist_table_data(conv_hash_t *ch, const address *addr,
+                             guint32 port, gboolean sender, int num_frames, int num_bytes, hostlist_dissector_info_t *host_info, port_type port_type_val);
 
 #ifdef __cplusplus
 }

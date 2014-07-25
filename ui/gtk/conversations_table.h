@@ -55,8 +55,8 @@ typedef struct _conversations_table {
 
 /** Init the conversation table for the single conversation window.
  *
+ * @param ct the registered conversation
  * @param filter the optional filter name or NULL
- * @param packet_func the function to be called for each incoming packet
  */
 extern void init_conversation_table(struct register_ct* ct, const char *filter);
 

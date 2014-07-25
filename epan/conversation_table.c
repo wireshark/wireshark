@@ -38,8 +38,11 @@ GList *cmd_string_list_ = NULL;
 struct register_ct {
     gboolean hide_ports;       /* hide TCP / UDP port columns */
     int proto_id;              /* protocol id (0-indexed) */
-    tap_packet_cb packet_func; /* function to be called for new incoming packets */
-    conv_gui_init_cb gui_init_cb; /* GUI specific function to initialize conversation */
+    tap_packet_cb conv_func;   /* function to be called for new incoming packets for conversation*/
+    tap_packet_cb host_func;   /* function to be called for new incoming packets for hostlist */
+    host_tap_prefix prefix_func;  /* function to provide prefix if different than default (host) */
+    conv_gui_init_cb conv_gui_init; /* GUI specific function to initialize conversation */
+    host_gui_init_cb host_gui_init; /* GUI specific function to initialize hostlist */
 };
 
 gboolean get_conversation_hide_ports(register_ct_t* ct)
@@ -57,8 +60,19 @@ int get_conversation_proto_id(register_ct_t* ct)
 
 tap_packet_cb get_conversation_packet_func(register_ct_t* ct)
 {
-    return ct->packet_func;
+    return ct->conv_func;
 }
+
+tap_packet_cb get_hostlist_packet_func(register_ct_t* ct)
+{
+    return ct->host_func;
+}
+
+host_tap_prefix get_hostlist_prefix_func(register_ct_t* ct)
+{
+    return ct->prefix_func;
+}
+
 
 static GSList *registered_ct_tables = NULL;
 
@@ -77,10 +91,29 @@ dissector_conversation_init(const char *opt_arg, void* userdata)
     }
     g_string_free(cmd_str, TRUE);
 
-    if (table->gui_init_cb)
-        table->gui_init_cb(table, filter);
+    if (table->conv_gui_init)
+        table->conv_gui_init(table, filter);
 }
 
+void
+dissector_hostlist_init(const char *opt_arg, void* userdata)
+{
+    register_ct_t *table = (register_ct_t*)userdata;
+    GString *cmd_str = g_string_new("");
+    const char *filter=NULL;
+
+    g_string_printf(cmd_str, "%s,%s,", (table->prefix_func != NULL) ? table->prefix_func() : "host", proto_get_protocol_filter_name(table->proto_id));
+    if(!strncmp(opt_arg, cmd_str->str, cmd_str->len)){
+        filter=opt_arg+cmd_str->len;
+    } else {
+        filter=NULL;
+    }
+
+    g_string_free(cmd_str, TRUE);
+
+    if (table->host_gui_init)
+        table->host_gui_init(table, filter);
+}
 /** get conversation from protocol ID
  *
  * @param proto_id protocol ID
@@ -110,37 +143,58 @@ insert_sorted_by_table_name(gconstpointer aparam, gconstpointer bparam)
 }
 
 void
-register_conversation_table(const int proto_id, gboolean hide_ports, tap_packet_cb packet_func)
+register_conversation_table(const int proto_id, gboolean hide_ports, tap_packet_cb conv_packet_func, tap_packet_cb hostlist_func, host_tap_prefix prefix_func)
 {
     register_ct_t *table;
-    GString *cmd_str = g_string_new("conv,");
+    GString *conv_cmd_str = g_string_new("conv,");
+    GString *host_cmd_str = g_string_new("");
 
     table = g_new(register_ct_t,1);
 
-    table->hide_ports   = hide_ports;
-    table->proto_id     = proto_id;
-    table->packet_func  = packet_func;
-    table->gui_init_cb  = NULL;
+    table->hide_ports    = hide_ports;
+    table->proto_id      = proto_id;
+    table->conv_func     = conv_packet_func;
+    table->host_func     = hostlist_func;
+    table->conv_gui_init = NULL;
+    table->host_gui_init = NULL;
+    table->prefix_func   = prefix_func;
 
     registered_ct_tables = g_slist_insert_sorted(registered_ct_tables, table, insert_sorted_by_table_name);
 
-    g_string_append(cmd_str, proto_get_protocol_filter_name(table->proto_id));
-    cmd_string_list_ = g_list_append(cmd_string_list_, cmd_str->str);
-    register_stat_cmd_arg(cmd_str->str, dissector_conversation_init, table);
-    g_string_free(cmd_str, FALSE);
+    g_string_append(conv_cmd_str, proto_get_protocol_filter_name(table->proto_id));
+    cmd_string_list_ = g_list_append(cmd_string_list_, conv_cmd_str->str);
+    register_stat_cmd_arg(conv_cmd_str->str, dissector_conversation_init, table);
+    g_string_free(conv_cmd_str, FALSE);
+
+    g_string_printf(host_cmd_str, "%s,%s", (get_hostlist_prefix_func(table) != NULL) ? get_hostlist_prefix_func(table)() : "host",
+                    proto_get_protocol_filter_name(table->proto_id));
+    register_stat_cmd_arg(host_cmd_str->str, dissector_hostlist_init, table);
+    g_string_free(host_cmd_str, FALSE);
 }
 
 /* Set GUI fields for register_ct list */
 static void
-set_gui_data(gpointer data, gpointer user_data)
+set_conv_gui_data(gpointer data, gpointer user_data)
 {
     register_ct_t *table = (register_ct_t*)data;
-    table->gui_init_cb = (conv_gui_init_cb)user_data;
+    table->conv_gui_init = (conv_gui_init_cb)user_data;
 }
 
 void conversation_table_set_gui_info(conv_gui_init_cb init_cb)
 {
-    g_slist_foreach(registered_ct_tables, set_gui_data, init_cb);
+    g_slist_foreach(registered_ct_tables, set_conv_gui_data, init_cb);
+}
+
+static void
+set_host_gui_data(gpointer data, gpointer user_data)
+{
+    register_ct_t *table = (register_ct_t*)data;
+    table->host_gui_init = (host_gui_init_cb)user_data;
+}
+
+void hostlist_table_set_gui_info(host_gui_init_cb init_cb)
+{
+    g_slist_foreach(registered_ct_tables, set_host_gui_data, init_cb);
 }
 
 void conversation_table_iterate_tables(GFunc func, gpointer user_data)
@@ -243,6 +297,30 @@ reset_conversation_table_data(conv_hash_t *ch)
     ch->hashtable=NULL;
 }
 
+void reset_hostlist_table_data(conv_hash_t *ch)
+{
+    if (!ch) {
+        return;
+    }
+
+    if (ch->conv_array != NULL) {
+        guint i;
+        for(i = 0; i < ch->conv_array->len; i++){
+            hostlist_talker_t *host = &g_array_index(ch->conv_array, hostlist_talker_t, i);
+            g_free((gpointer)host->myaddress.data);
+        }
+
+        g_array_free(ch->conv_array, TRUE);
+    }
+
+    if (ch->hashtable != NULL) {
+        g_hash_table_destroy(ch->hashtable);
+    }
+
+    ch->conv_array=NULL;
+    ch->hashtable=NULL;
+}
+
 const char *get_conversation_address(address *addr, gboolean resolve_names)
 {
     if (resolve_names) {
@@ -286,6 +364,17 @@ conversation_get_filter_name(conv_item_t *conv_item, conv_filter_type_e filter_t
     }
 
     return conv_item->dissector_info->get_filter_type(conv_item, filter_type);
+}
+
+static const char *
+hostlist_get_filter_name(hostlist_talker_t *host, conv_filter_type_e filter_type)
+{
+
+    if ((host == NULL) || (host->dissector_info == NULL) || (host->dissector_info->get_filter_type == NULL)) {
+        return CONV_FILTER_INVALID;
+    }
+
+    return host->dissector_info->get_filter_type(host, filter_type);
 }
 
 /* Convert a port number into a string or NULL */
@@ -438,6 +527,24 @@ const char *get_conversation_filter(conv_item_t *conv_item, conv_direction_e dir
     return str;
 }
 
+const char *get_hostlist_filter(hostlist_talker_t *host)
+{
+    char *sport;
+    const char *str;
+
+    sport=ct_port_to_str(host->ptype, host->port);
+
+    str = g_strdup_printf("%s==%s%s%s%s%s",
+                          hostlist_get_filter_name(host, CONV_FT_ANY_ADDRESS),
+                          ep_address_to_str(&host->myaddress),
+                          sport?" && ":"",
+                          sport?hostlist_get_filter_name(host, CONV_FT_ANY_PORT):"",
+                          sport?"==":"",
+                          sport?sport:"");
+
+    return str;
+}
+
 void
 add_conversation_table_data(conv_hash_t *ch, const address *src, const address *dst, guint32 src_port, guint32 dst_port, int num_frames, int num_bytes,
         nstime_t *ts, nstime_t *abs_ts, ct_dissector_info_t *ct_info, port_type ptype)
@@ -569,6 +676,109 @@ add_conversation_table_data_with_conv_id(
             memcpy(&conv_item->start_time, ts, sizeof(conv_item->start_time));
             memcpy(&conv_item->start_abs_time, abs_ts, sizeof(conv_item->start_abs_time));
         }
+    }
+}
+
+/*
+ * Compute the hash value for a given address/port pairs if the match
+ * is to be exact.
+ */
+static guint
+host_hash(gconstpointer v)
+{
+    const host_key_t *key = (const host_key_t *)v;
+    guint hash_val;
+
+    hash_val = 0;
+    ADD_ADDRESS_TO_HASH(hash_val, &key->myaddress);
+    hash_val += key->port;
+    return hash_val;
+}
+
+/*
+ * Compare two host keys for an exact match.
+ */
+static gint
+host_match(gconstpointer v, gconstpointer w)
+{
+    const host_key_t *v1 = (const host_key_t *)v;
+    const host_key_t *v2 = (const host_key_t *)w;
+
+    if (v1->port == v2->port &&
+        ADDRESSES_EQUAL(&v1->myaddress, &v2->myaddress)) {
+        return 1;
+    }
+    /*
+     * The addresses or the ports don't match.
+     */
+    return 0;
+}
+
+void
+add_hostlist_table_data(conv_hash_t *ch, const address *addr, guint32 port, gboolean sender, int num_frames, int num_bytes, hostlist_dissector_info_t *host_info, port_type port_type_val)
+{
+    hostlist_talker_t *talker=NULL;
+    int talker_idx=0;
+
+    /* XXX should be optimized to allocate n extra entries at a time
+       instead of just one */
+    /* if we dont have any entries at all yet */
+    if(ch->conv_array==NULL){
+        ch->conv_array=g_array_sized_new(FALSE, FALSE, sizeof(hostlist_talker_t), 10000);
+        ch->hashtable = g_hash_table_new_full(host_hash,
+                                              host_match, /* key_equal_func */
+                                              g_free,     /* key_destroy_func */
+                                              NULL);      /* value_destroy_func */
+    }
+    else {
+        /* try to find it among the existing known conversations */
+        host_key_t existing_key;
+
+        existing_key.myaddress = *addr;
+        existing_key.port = port;
+
+        if (g_hash_table_lookup_extended(ch->hashtable, &existing_key, NULL, (gpointer *) &talker_idx)) {
+            talker = &g_array_index(ch->conv_array, hostlist_talker_t, talker_idx);
+        }
+    }
+
+    /* if we still dont know what talker this is it has to be a new one
+       and we have to allocate it and append it to the end of the list */
+    if(talker==NULL){
+        host_key_t *new_key;
+        hostlist_talker_t host;
+
+        COPY_ADDRESS(&host.myaddress, addr);
+        host.dissector_info = host_info;
+        host.ptype=port_type_val;
+        host.port=port;
+        host.rx_frames=0;
+        host.tx_frames=0;
+        host.rx_bytes=0;
+        host.tx_bytes=0;
+        host.modified = TRUE;
+
+        g_array_append_val(ch->conv_array, host);
+        talker_idx= ch->conv_array->len - 1;
+        talker=&g_array_index(ch->conv_array, hostlist_talker_t, talker_idx);
+
+        /* hl->hosts address is not a constant but address.data is */
+        new_key = g_new(host_key_t,1);
+        SET_ADDRESS(&new_key->myaddress, talker->myaddress.type, talker->myaddress.len, talker->myaddress.data);
+        new_key->port = port;
+        g_hash_table_insert(ch->hashtable, new_key, GUINT_TO_POINTER(talker_idx));
+    }
+
+    /* if this is a new talker we need to initialize the struct */
+    talker->modified = TRUE;
+
+    /* update the talker struct */
+    if( sender ){
+        talker->tx_frames+=num_frames;
+        talker->tx_bytes+=num_bytes;
+    } else {
+        talker->rx_frames+=num_frames;
+        talker->rx_bytes+=num_bytes;
     }
 }
 

@@ -574,6 +574,34 @@ tcpip_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_
     return 1;
 }
 
+static const char* tcp_host_get_filter_type(hostlist_talker_t* host _U_, conv_filter_type_e filter)
+{
+    return tcp_conv_get_filter_type(NULL, filter);
+}
+
+static hostlist_dissector_info_t tcp_host_dissector_info = {&tcp_host_get_filter_type};
+
+static int
+tcpip_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
+{
+    conv_hash_t *hash = (conv_hash_t*) pit;
+    const struct tcpheader *tcphdr=(const struct tcpheader *)vip;
+
+    /* Take two "add" passes per packet, adding for each direction, ensures that all
+    packets are counted properly (even if address is sending to itself)
+    XXX - this could probably be done more efficiently inside hostlist_table */
+    add_hostlist_table_data(hash, &tcphdr->ip_src, tcphdr->th_sport, TRUE, 1, pinfo->fd->pkt_len, &tcp_host_dissector_info, PT_TCP);
+    add_hostlist_table_data(hash, &tcphdr->ip_dst, tcphdr->th_dport, FALSE, 1, pinfo->fd->pkt_len, &tcp_host_dissector_info, PT_TCP);
+
+    return 1;
+}
+
+static const char*
+tcpip_hostlist_prefix(void)
+{
+    return "endpoints";
+}
+
 /* TCP structs and definitions */
 
 /* **************************************************************************
@@ -5874,7 +5902,7 @@ proto_register_tcp(void)
 
     register_decode_as(&tcp_da);
 
-    register_conversation_table(proto_tcp, FALSE, tcpip_conversation_packet);
+    register_conversation_table(proto_tcp, FALSE, tcpip_conversation_packet, tcpip_hostlist_packet, tcpip_hostlist_prefix);
 }
 
 void

@@ -825,6 +825,28 @@ sctp_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_,
   return 1;
 }
 
+static const char* sctp_host_get_filter_type(hostlist_talker_t* host _U_, conv_filter_type_e filter)
+{
+  return sctp_conv_get_filter_type(NULL, filter);
+}
+
+static hostlist_dissector_info_t sctp_host_dissector_info = {&sctp_host_get_filter_type};
+
+static int
+sctp_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
+{
+  conv_hash_t *hash = (conv_hash_t*) pit;
+  const struct _sctp_info *sctphdr=(const struct _sctp_info *)vip;
+
+  /* Take two "add" passes per packet, adding for each direction, ensures that all
+  packets are counted properly (even if address is sending to itself)
+  XXX - this could probably be done more efficiently inside hostlist_table */
+  add_hostlist_table_data(hash, &sctphdr->ip_src, sctphdr->sport, TRUE, 1, pinfo->fd->pkt_len, &sctp_host_dissector_info, PT_SCTP);
+  add_hostlist_table_data(hash, &sctphdr->ip_dst, sctphdr->dport, FALSE, 1, pinfo->fd->pkt_len, &sctp_host_dissector_info, PT_SCTP);
+
+  return 1;
+}
+
 static unsigned int
 sctp_adler32(tvbuff_t *tvb, unsigned int len)
 {
@@ -4887,7 +4909,7 @@ proto_register_sctp(void)
   register_decode_as(&sctp_da_port);
   register_decode_as(&sctp_da_ppi);
 
-  register_conversation_table(proto_sctp, FALSE, sctp_conversation_packet);
+  register_conversation_table(proto_sctp, FALSE, sctp_conversation_packet, sctp_hostlist_packet, NULL);
 }
 
 void

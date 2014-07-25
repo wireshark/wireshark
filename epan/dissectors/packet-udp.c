@@ -321,12 +321,40 @@ static ct_dissector_info_t udp_ct_dissector_info = {&udp_conv_get_filter_type};
 static int
 udpip_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
 {
-  conv_hash_t *hash = (conv_hash_t*) pct;
-  const e_udphdr *udphdr=(const e_udphdr *)vip;
+    conv_hash_t *hash = (conv_hash_t*) pct;
+    const e_udphdr *udphdr=(const e_udphdr *)vip;
 
   add_conversation_table_data(hash, &udphdr->ip_src, &udphdr->ip_dst, udphdr->uh_sport, udphdr->uh_dport, 1, pinfo->fd->pkt_len, &pinfo->rel_ts, &pinfo->fd->abs_ts, &udp_ct_dissector_info, PT_UDP);
 
-  return 1;
+    return 1;
+}
+
+static const char* udp_host_get_filter_type(hostlist_talker_t* host _U_, conv_filter_type_e filter)
+{
+    return udp_conv_get_filter_type(NULL, filter);
+}
+
+static hostlist_dissector_info_t udp_host_dissector_info = {&udp_host_get_filter_type};
+
+static int
+udpip_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
+{
+    conv_hash_t *hash = (conv_hash_t*) pit;
+    const e_udphdr *udphdr=(const e_udphdr *)vip;
+
+    /* Take two "add" passes per packet, adding for each direction, ensures that all
+    packets are counted properly (even if address is sending to itself)
+    XXX - this could probably be done more efficiently inside hostlist_table */
+    add_hostlist_table_data(hash, &udphdr->ip_src, udphdr->uh_sport, TRUE, 1, pinfo->fd->pkt_len, &udp_host_dissector_info, PT_UDP);
+    add_hostlist_table_data(hash, &udphdr->ip_dst, udphdr->uh_dport, FALSE, 1, pinfo->fd->pkt_len, &udp_host_dissector_info, PT_UDP);
+
+    return 1;
+}
+
+static const char*
+udpip_hostlist_prefix(void)
+{
+    return "endpoints";
 }
 
 /* Attach process info to a flow */
@@ -936,7 +964,7 @@ proto_register_udp(void)
                                  &udplite_check_checksum);
 
   register_decode_as(&udp_da);
-  register_conversation_table(proto_udp, FALSE, udpip_conversation_packet);
+  register_conversation_table(proto_udp, FALSE, udpip_conversation_packet, udpip_hostlist_packet, udpip_hostlist_prefix);
 
   register_init_routine(udp_init);
 

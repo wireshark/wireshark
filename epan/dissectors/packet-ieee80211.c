@@ -5266,6 +5266,30 @@ wlan_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_,
   return 1;
 }
 
+static const char* wlan_host_get_filter_type(hostlist_talker_t* host, conv_filter_type_e filter)
+{
+  if ((filter == CONV_FT_ANY_ADDRESS) && (host->myaddress.type == AT_ETHER))
+    return "wlan.addr";
+
+  return CONV_FILTER_INVALID;
+}
+
+static hostlist_dissector_info_t wlan_host_dissector_info = {&wlan_host_get_filter_type};
+
+static int
+wlan_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
+{
+  conv_hash_t *hash = (conv_hash_t*) pit;
+  const wlan_hdr *whdr=(const wlan_hdr *)vip;
+
+  /* Take two "add" passes per packet, adding for each direction, ensures that all
+  packets are counted properly (even if address is sending to itself)
+  XXX - this could probably be done more efficiently inside hostlist_table */
+  add_hostlist_table_data(hash, &whdr->src, 0, TRUE, 1, pinfo->fd->pkt_len, &wlan_host_dissector_info, PT_NONE);
+  add_hostlist_table_data(hash, &whdr->dst, 0, FALSE, 1, pinfo->fd->pkt_len, &wlan_host_dissector_info, PT_NONE);
+
+  return 1;
+}
 static void
 beacon_interval_base_custom(gchar *result, guint32 beacon_interval)
 {
@@ -26211,7 +26235,7 @@ proto_register_ieee80211 (void)
   register_init_routine(ieee80211_gas_reassembly_init);
 
   wlan_tap = register_tap("wlan");
-  register_conversation_table(proto_wlan, TRUE, wlan_conversation_packet);
+  register_conversation_table(proto_wlan, TRUE, wlan_conversation_packet, wlan_hostlist_packet, NULL);
 
   /* Register configuration options */
   wlan_module = prefs_register_protocol(proto_wlan, init_wepkeys);

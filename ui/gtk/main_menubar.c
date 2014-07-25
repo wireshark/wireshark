@@ -1190,21 +1190,7 @@ static const char *ui_desc_menubar =
 "        <placeholder name='Conversations'/>\n"
 "      </menu>\n"
 "      <menu name= 'EndpointListMenu' action='/Statistics/EndpointList'>\n"
-"        <menuitem name='Ethernet' action='/Statistics/EndpointList/Ethernet'/>\n"
-"        <menuitem name='FibreChannel' action='/Statistics/EndpointList/FibreChannel'/>\n"
-"        <menuitem name='FDDI' action='/Statistics/EndpointList/FDDI'/>\n"
-"        <menuitem name='IP' action='/Statistics/EndpointList/IP'/>\n"
-"        <menuitem name='IPv6' action='/Statistics/EndpointList/IPv6'/>\n"
-"        <menuitem name='IPX' action='/Statistics/EndpointList/IPX'/>\n"
-"        <menuitem name='JXTA' action='/Statistics/EndpointList/JXTA'/>\n"
-"        <menuitem name='NCP' action='/Statistics/EndpointList/NCP'/>\n"
-"        <menuitem name='RSVP' action='/Statistics/EndpointList/RSVP'/>\n"
-"        <menuitem name='SCTP' action='/Statistics/EndpointList/SCTP'/>\n"
-"        <menuitem name='TCPIP' action='/Statistics/EndpointList/TCPIP'/>\n"
-"        <menuitem name='TR' action='/Statistics/EndpointList/TR'/>\n"
-"        <menuitem name='UDPIP' action='/Statistics/EndpointList/UDPIP'/>\n"
-"        <menuitem name='USB' action='/Statistics/EndpointList/USB'/>\n"
-"        <menuitem name='WLAN' action='/Statistics/EndpointList/WLAN'/>\n"
+"        <placeholder name='Endpoints'/>\n"
 "      </menu>\n"
 "      <menu name='ServiceResponseTimeMenu' action='/Statistics/ServiceResponseTime'>\n"
 "        <menuitem name='DCE-RPC' action='/Statistics/ServiceResponseTime/DCE-RPC'/>\n"
@@ -1642,21 +1628,6 @@ static const GtkActionEntry main_menu_bar_entries[] = {
    { "/Statistics/ConversationList",                           NULL,       "_Conversation List",                   NULL, NULL, NULL },
 
    { "/Statistics/EndpointList",                                NULL,               "_Endpoint List",               NULL, NULL, NULL },
-   { "/Statistics/EndpointList/Ethernet",           WIRESHARK_STOCK_ENDPOINTS,      "Ethernet",                     NULL, NULL, G_CALLBACK(gtk_eth_hostlist_cb) },
-   { "/Statistics/EndpointList/FibreChannel",       WIRESHARK_STOCK_ENDPOINTS,      "Fibre Channel",                NULL, NULL, G_CALLBACK(gtk_fc_hostlist_cb) },
-   { "/Statistics/EndpointList/FDDI",               WIRESHARK_STOCK_ENDPOINTS,      "FDDI",                         NULL, NULL, G_CALLBACK(gtk_fddi_hostlist_cb) },
-   { "/Statistics/EndpointList/IP",                 WIRESHARK_STOCK_ENDPOINTS,      "IPv4",                         NULL, NULL, G_CALLBACK(gtk_ip_hostlist_cb) },
-   { "/Statistics/EndpointList/IPv6",               WIRESHARK_STOCK_ENDPOINTS,      "IPv6",                         NULL, NULL, G_CALLBACK(gtk_ipv6_hostlist_cb) },
-   { "/Statistics/EndpointList/IPX",                WIRESHARK_STOCK_ENDPOINTS,      "IPX",                          NULL, NULL, G_CALLBACK(gtk_ipx_hostlist_cb) },
-   { "/Statistics/EndpointList/JXTA",               WIRESHARK_STOCK_ENDPOINTS,      "JXTA",                         NULL, NULL, G_CALLBACK(gtk_jxta_hostlist_cb) },
-   { "/Statistics/EndpointList/NCP",                WIRESHARK_STOCK_ENDPOINTS,      "NCP",                          NULL, NULL, G_CALLBACK(gtk_ncp_hostlist_cb) },
-   { "/Statistics/EndpointList/RSVP",               WIRESHARK_STOCK_ENDPOINTS,      "RSVP",                         NULL, NULL, G_CALLBACK(gtk_rsvp_hostlist_cb) },
-   { "/Statistics/EndpointList/SCTP",               WIRESHARK_STOCK_ENDPOINTS,      "SCTP",                         NULL, NULL, G_CALLBACK(gtk_sctp_hostlist_cb) },
-   { "/Statistics/EndpointList/TCPIP",              WIRESHARK_STOCK_ENDPOINTS,      "TCP (IPv4 & IPv6)",            NULL, NULL, G_CALLBACK(gtk_tcpip_hostlist_cb) },
-   { "/Statistics/EndpointList/TR",                 WIRESHARK_STOCK_ENDPOINTS,      "Token Ring",                   NULL, NULL, G_CALLBACK(gtk_tr_hostlist_cb) },
-   { "/Statistics/EndpointList/UDPIP",              WIRESHARK_STOCK_ENDPOINTS,      "UDP (IPv4 & IPv6)",            NULL, NULL, G_CALLBACK(gtk_udpip_hostlist_cb) },
-   { "/Statistics/EndpointList/USB",                WIRESHARK_STOCK_ENDPOINTS,      "USB",                          NULL, NULL, G_CALLBACK(gtk_usb_hostlist_cb) },
-   { "/Statistics/EndpointList/WLAN",               WIRESHARK_STOCK_ENDPOINTS,      "WLAN",                         NULL, NULL, G_CALLBACK(gtk_wlan_hostlist_cb) },
 
    { "/Statistics/ServiceResponseTime",             NULL,           "Service _Response Time",       NULL, NULL, NULL },
    { "/Statistics/ServiceResponseTime/DCE-RPC",     WIRESHARK_STOCK_TIME,           "DCE-RPC...",                   NULL, NULL, G_CALLBACK(gtk_dcerpcstat_cb) },
@@ -3406,6 +3377,70 @@ menu_conversation_list(capture_file *cf)
 }
 
 static void
+menu_hostlist_cb(GtkAction *action _U_, gpointer user_data)
+{
+    register_ct_t *table = (register_ct_t*)user_data;
+
+    hostlist_endpoint_cb(table);
+}
+
+static void
+add_hostlist_menuitem(gpointer data, gpointer user_data)
+{
+    register_ct_t *table = (register_ct_t*)data;
+    conv_menu_t *conv = (conv_menu_t*)user_data;
+    gchar *action_name;
+    GtkAction *action;
+
+    action_name = g_strdup_printf ("hostlist-%u", conv->counter);
+    /*g_warning("action_name %s, filter_entry->name %s",action_name,filter_entry->name);*/
+    action = (GtkAction *)g_object_new (GTK_TYPE_ACTION,
+                "name", action_name,
+                "label", proto_get_protocol_short_name(find_protocol_by_id(get_conversation_proto_id(table))),
+                "sensitive", TRUE,
+                NULL);
+    g_signal_connect (action, "activate",
+                    G_CALLBACK (menu_hostlist_cb), table);
+    gtk_action_group_add_action (conv->action_group, action);
+    g_object_unref (action);
+
+    gtk_ui_manager_add_ui (ui_manager_main_menubar, conv->merge_id,
+                "/Menubar/StatisticsMenu/EndpointListMenu/Endpoints",
+                action_name,
+                action_name,
+                GTK_UI_MANAGER_MENUITEM,
+                FALSE);
+    g_free(action_name);
+    conv->counter++;
+}
+
+static void
+menu_hostlist_list(capture_file *cf)
+{
+    GtkWidget *submenu_hostlist;
+    conv_menu_t conv_data;
+
+    conv_data.merge_id = gtk_ui_manager_new_merge_id (ui_manager_main_menubar);
+
+    conv_data.action_group = gtk_action_group_new ("endpoint-list-group");
+
+    submenu_hostlist = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/StatisticsMenu/EndpointListMenu");
+    if(!submenu_hostlist){
+        g_warning("add_recent_items: No submenu_conversation_list found, path= /Menubar/StatisticsMenu/EndpointListMenu");
+    }
+
+    gtk_ui_manager_insert_action_group (ui_manager_main_menubar, conv_data.action_group, 0);
+    g_object_set_data (G_OBJECT (ui_manager_main_menubar),
+                     "endpoint-list-merge-id", GUINT_TO_POINTER (conv_data.merge_id));
+
+    conv_data.cf = cf;
+    conv_data.counter = 0;
+    conversation_table_iterate_tables(add_hostlist_menuitem, &conv_data);
+}
+
+
+
+static void
 menus_init(void)
 {
     GtkActionGroup *packet_list_heading_action_group, *packet_list_action_group,
@@ -3669,6 +3704,7 @@ menus_init(void)
 
         menu_dissector_filter(&cfile);
         menu_conversation_list(&cfile);
+        menu_hostlist_list(&cfile);
         merge_menu_items(merge_menu_items_list);
 
         /* Add external menus and items */

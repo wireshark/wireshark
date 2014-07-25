@@ -142,21 +142,6 @@ set(WIRESHARK_TAP_SRC
 	gtp_stat.c
 	h225_counter.c
 	h225_ras_srt.c
-	hostlist_eth.c
-	hostlist_fc.c
-	hostlist_fddi.c
-	hostlist_ip.c
-	hostlist_ipv6.c
-	hostlist_ipx.c
-	hostlist_jxta.c
-	hostlist_ncp.c
-	hostlist_rsvp.c
-	hostlist_sctp.c
-	hostlist_tcpip.c
-	hostlist_tr.c
-	hostlist_udpip.c
-	hostlist_usb.c
-	hostlist_wlan.c
 	iax2_analysis.c
 	io_stat.c
 	lbm_stream_dlg.c

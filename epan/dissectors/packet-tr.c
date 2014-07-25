@@ -147,10 +147,35 @@ static ct_dissector_info_t tr_ct_dissector_info = {&tr_conv_get_filter_type};
 static int
 tr_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
 {
-    conv_hash_t *hash = (conv_hash_t*) pct;
+	conv_hash_t *hash = (conv_hash_t*) pct;
 	const tr_hdr *trhdr=(const tr_hdr *)vip;
 
 	add_conversation_table_data(hash, &trhdr->src, &trhdr->dst, 0, 0, 1, pinfo->fd->pkt_len, &pinfo->rel_ts, &pinfo->fd->abs_ts, &tr_ct_dissector_info, PT_NONE);
+
+	return 1;
+}
+
+static const char* tr_host_get_filter_type(hostlist_talker_t* host, conv_filter_type_e filter)
+{
+	if ((filter == CONV_FT_ANY_ADDRESS) && (host->myaddress.type == AT_ETHER))
+		return "tr.addr";
+
+	return CONV_FILTER_INVALID;
+}
+
+static hostlist_dissector_info_t tr_host_dissector_info = {&tr_host_get_filter_type};
+
+static int
+tr_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
+{
+	conv_hash_t *hash = (conv_hash_t*) pit;
+	const tr_hdr *trhdr=(const tr_hdr *)vip;
+
+	/* Take two "add" passes per packet, adding for each direction, ensures that all
+	packets are counted properly (even if address is sending to itself)
+	XXX - this could probably be done more efficiently inside hostlist_table */
+	add_hostlist_table_data(hash, &trhdr->src, 0, TRUE, 1, pinfo->fd->pkt_len, &tr_host_dissector_info, PT_NONE);
+	add_hostlist_table_data(hash, &trhdr->dst, 0, FALSE, 1, pinfo->fd->pkt_len, &tr_host_dissector_info, PT_NONE);
 
 	return 1;
 }
@@ -763,7 +788,7 @@ proto_register_tr(void)
 	register_dissector("tr", dissect_tr, proto_tr);
 	tr_tap=register_tap("tr");
 
-	register_conversation_table(proto_tr, TRUE, tr_conversation_packet);
+	register_conversation_table(proto_tr, TRUE, tr_conversation_packet, tr_hostlist_packet, NULL);
 }
 
 void

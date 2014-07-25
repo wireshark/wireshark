@@ -1135,6 +1135,30 @@ usb_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, 
     return 1;
 }
 
+static const char* usb_host_get_filter_type(hostlist_talker_t* host, conv_filter_type_e filter)
+{
+    if ((filter == CONV_FT_ANY_ADDRESS) && (host->myaddress.type == AT_USB))
+        return "usb.addr";
+
+    return CONV_FILTER_INVALID;
+}
+
+static hostlist_dissector_info_t usb_host_dissector_info = {&usb_host_get_filter_type};
+
+static int
+usb_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip _U_)
+{
+    conv_hash_t *hash = (conv_hash_t*) pit;
+
+    /* Take two "add" passes per packet, adding for each direction, ensures that all
+       packets are counted properly (even if address is sending to itself)
+       XXX - this could probably be done more efficiently inside hostlist_table */
+    add_hostlist_table_data(hash, &pinfo->src, 0, TRUE, 1, pinfo->fd->pkt_len, &usb_host_dissector_info, PT_NONE);
+    add_hostlist_table_data(hash, &pinfo->dst, 0, FALSE, 1, pinfo->fd->pkt_len, &usb_host_dissector_info, PT_NONE);
+
+    return 1;
+}
+
 /* SETUP dissectors */
 
 
@@ -4189,7 +4213,7 @@ proto_register_usb(void)
     register_decode_as(&usb_product_da);
     register_decode_as(&usb_device_da);
 
-    register_conversation_table(proto_usb, TRUE, usb_conversation_packet);
+    register_conversation_table(proto_usb, TRUE, usb_conversation_packet, usb_hostlist_packet, NULL);
 }
 
 void
