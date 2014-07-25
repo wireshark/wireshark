@@ -74,6 +74,7 @@ public:
     void emitAppSignal(AppSignal signal);
     void emitStatCommandSignal(const QString &menu_path, const char *arg, void *userdata);
     void allSystemsGo();
+    void refreshLocalInterfaces();
     e_prefs * readConfigurationFiles(char **gdp_path, char **dp_path);
     QList<recent_item_status *> recentItems() const;
     void addRecentItem(const QString &filename, qint64 size, bool accessible);

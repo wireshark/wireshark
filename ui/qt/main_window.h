@@ -286,6 +286,7 @@ private slots:
 
 #ifdef HAVE_LIBPCAP
     void on_actionCaptureOptions_triggered();
+    void on_actionCaptureRefreshInterfaces_triggered();
 #endif
 
     void matchFieldFilter(FilterAction::Action action, FilterAction::ActionType filter_type);

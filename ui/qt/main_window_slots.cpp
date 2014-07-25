@@ -2390,6 +2390,11 @@ void MainWindow::on_actionCaptureOptions_triggered()
     capture_interfaces_dialog_.raise();
     capture_interfaces_dialog_.activateWindow();
 }
+
+void MainWindow::on_actionCaptureRefreshInterfaces_triggered()
+{
+    wsApp->refreshLocalInterfaces();
+}
 #endif
 
 

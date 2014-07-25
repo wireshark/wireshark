@@ -706,6 +706,24 @@ void WiresharkApplication::ifChangeEventsAvailable()
 #endif
 }
 
+void WiresharkApplication::refreshLocalInterfaces()
+{
+#ifdef HAVE_LIBPCAP
+    /*
+     * Reload the local interface list.
+     */
+    scan_local_interfaces(main_window_update);
+
+    /*
+     * Now emit a signal to indicate that the list changed, so that all
+     * places displaying the list will get updated.
+     *
+     * XXX - only if it *did* change.
+     */
+    emit localInterfaceListChanged();
+#endif
+}
+
 void WiresharkApplication::allSystemsGo()
 {
     QString display_filter = NULL;
