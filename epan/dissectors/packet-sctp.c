@@ -798,7 +798,7 @@ sctp_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_,
   const struct _sctp_info *sctphdr=(const struct _sctp_info *)vip;
 
   add_conversation_table_data(hash, &sctphdr->ip_src, &sctphdr->ip_dst,
-        sctphdr->sport, sctphdr->dport, 1, pinfo->fd->pkt_len, &pinfo->rel_ts, &sctp_ct_dissector_info, PT_SCTP);
+        sctphdr->sport, sctphdr->dport, 1, pinfo->fd->pkt_len, &pinfo->rel_ts, &pinfo->fd->abs_ts, &sctp_ct_dissector_info, PT_SCTP);
 
 
   return 1;

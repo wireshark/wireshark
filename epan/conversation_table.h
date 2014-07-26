@@ -109,8 +109,9 @@ typedef struct _conversation_item_t {
     guint64             rx_bytes;       /**< number of received bytes */
     guint64             tx_bytes;       /**< number of transmitted bytes */
 
-    nstime_t            start_time;     /**< start time for the conversation */
-    nstime_t            stop_time;      /**< stop time for the conversation */
+    nstime_t            start_time;     /**< relative start time for the conversation */
+    nstime_t            stop_time;      /**< relative stop time for the conversation */
+	nstime_t            start_abs_time; /**< absolute start time for the conversation */
 
     gboolean            modified;       /**< new to redraw the row (only used in GTK+) */
 } conv_item_t;
@@ -228,11 +229,12 @@ WS_DLL_PUBLIC const char *get_conversation_filter(conv_item_t *conv_item, conv_d
  * @param num_frames number of packets
  * @param num_bytes number of bytes
  * @param ts timestamp
+ * @param abs_ts absolute timestamp
  * @param ct_info callback handlers from the dissector
  * @param ptype the port type (e.g. PT_TCP)
  */
 extern void add_conversation_table_data(conv_hash_t *ch, const address *src, const address *dst,
-            guint32 src_port, guint32 dst_port, int num_frames, int num_bytes, nstime_t *ts,
+            guint32 src_port, guint32 dst_port, int num_frames, int num_bytes, nstime_t *ts, nstime_t *abs_ts,
             ct_dissector_info_t *ct_info, port_type ptype);
 
 /** Add some data to the conversation table, passing a value to be used in
@@ -247,6 +249,7 @@ extern void add_conversation_table_data(conv_hash_t *ch, const address *src, con
  * @param num_frames number of packets
  * @param num_bytes number of bytes
  * @param ts timestamp
+ * @param abs_ts absolute timestamp
  * @param ct_info callback handlers from the dissector
  * @param ptype the port type (e.g. PT_TCP)
  * @param conv_id a value to help differentiate the conversation in case the address and port quadruple is not sufficiently unique
@@ -262,6 +265,7 @@ add_conversation_table_data_with_conv_id(
     int num_frames,
     int num_bytes,
     nstime_t *ts,
+    nstime_t *abs_ts,
     ct_dissector_info_t *ct_info,
     port_type ptype);
 

@@ -218,7 +218,7 @@ jxta_conversation_packet(void *pct, packet_info *pinfo _U_, epan_dissect_t *edt 
     const jxta_tap_header *jxtahdr = (const jxta_tap_header *) vip;
 
     add_conversation_table_data(hash, &jxtahdr->src_address, &jxtahdr->dest_address,
-        0, 0, 1, jxtahdr->size, NULL, &jxta_ct_dissector_info, PT_NONE);
+        0, 0, 1, jxtahdr->size, NULL, NULL, &jxta_ct_dissector_info, PT_NONE);
 
     return 1;
 }

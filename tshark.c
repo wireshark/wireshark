@@ -98,6 +98,7 @@
 #endif
 #include "ui/util.h"
 #include "ui/ui_util.h"
+#include "ui/cli/tshark-tap.h"
 #include "version_info.h"
 #include "register.h"
 #include <epan/epan_dissect.h>
@@ -1199,7 +1200,7 @@ main(int argc, char *argv[])
   register_all_plugin_tap_listeners();
 #endif
   register_all_tap_listeners();
-  conversation_table_set_gui_info(NULL); /* XXX - TODO: Provide "GUI" function for TShark */
+  conversation_table_set_gui_info(init_iousers);
 
   /* If invoked with the "-G" flag, we dump out information based on
      the argument to the "-G" flag; if no argument is specified,

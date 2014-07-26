@@ -228,7 +228,7 @@ fc_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, c
     conv_hash_t *hash = (conv_hash_t*) pct;
     const fc_hdr *fchdr=(const fc_hdr *)vip;
 
-    add_conversation_table_data(hash, &fchdr->s_id, &fchdr->d_id, 0, 0, 1, pinfo->fd->pkt_len, &pinfo->rel_ts, &fc_ct_dissector_info, PT_NONE);
+    add_conversation_table_data(hash, &fchdr->s_id, &fchdr->d_id, 0, 0, 1, pinfo->fd->pkt_len, &pinfo->rel_ts, &pinfo->fd->abs_ts, &fc_ct_dissector_info, PT_NONE);
 
     return 1;
 }

@@ -303,7 +303,7 @@ udpip_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_
   conv_hash_t *hash = (conv_hash_t*) pct;
   const e_udphdr *udphdr=(const e_udphdr *)vip;
 
-  add_conversation_table_data(hash, &udphdr->ip_src, &udphdr->ip_dst, udphdr->uh_sport, udphdr->uh_dport, 1, pinfo->fd->pkt_len, &pinfo->rel_ts, &udp_ct_dissector_info, PT_UDP);
+  add_conversation_table_data(hash, &udphdr->ip_src, &udphdr->ip_dst, udphdr->uh_sport, udphdr->uh_dport, 1, pinfo->fd->pkt_len, &pinfo->rel_ts, &pinfo->fd->abs_ts, &udp_ct_dissector_info, PT_UDP);
 
   return 1;
 }

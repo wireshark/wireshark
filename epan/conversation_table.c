@@ -439,9 +439,10 @@ const char *get_conversation_filter(conv_item_t *conv_item, conv_direction_e dir
 }
 
 void
-add_conversation_table_data(conv_hash_t *ch, const address *src, const address *dst, guint32 src_port, guint32 dst_port, int num_frames, int num_bytes, nstime_t *ts, ct_dissector_info_t *ct_info, port_type ptype)
+add_conversation_table_data(conv_hash_t *ch, const address *src, const address *dst, guint32 src_port, guint32 dst_port, int num_frames, int num_bytes,
+        nstime_t *ts, nstime_t *abs_ts, ct_dissector_info_t *ct_info, port_type ptype)
 {
-    add_conversation_table_data_with_conv_id(ch, src, dst, src_port, dst_port, CONV_ID_UNSET, num_frames, num_bytes, ts, ct_info, ptype);
+    add_conversation_table_data_with_conv_id(ch, src, dst, src_port, dst_port, CONV_ID_UNSET, num_frames, num_bytes, ts, abs_ts, ct_info, ptype);
 }
 
 void
@@ -455,6 +456,7 @@ add_conversation_table_data_with_conv_id(
     int num_frames,
     int num_bytes,
     nstime_t *ts,
+    nstime_t *abs_ts,
     ct_dissector_info_t *ct_info,
     port_type ptype)
 {
@@ -530,7 +532,9 @@ add_conversation_table_data_with_conv_id(
         if (ts) {
             memcpy(&new_conv_item.start_time, ts, sizeof(new_conv_item.start_time));
             memcpy(&new_conv_item.stop_time, ts, sizeof(new_conv_item.stop_time));
+            memcpy(&new_conv_item.start_abs_time, abs_ts, sizeof(new_conv_item.start_abs_time));
         } else {
+            nstime_set_unset(&new_conv_item.start_abs_time);
             nstime_set_unset(&new_conv_item.start_time);
             nstime_set_unset(&new_conv_item.stop_time);
         }
@@ -563,6 +567,7 @@ add_conversation_table_data_with_conv_id(
             memcpy(&conv_item->stop_time, ts, sizeof(conv_item->stop_time));
         } else if (nstime_cmp(ts, &conv_item->start_time) < 0) {
             memcpy(&conv_item->start_time, ts, sizeof(conv_item->start_time));
+            memcpy(&conv_item->start_abs_time, abs_ts, sizeof(conv_item->start_abs_time));
         }
     }
 }

@@ -547,7 +547,7 @@ tcpip_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_
     const struct tcpheader *tcphdr=(const struct tcpheader *)vip;
 
     add_conversation_table_data_with_conv_id(hash, &tcphdr->ip_src, &tcphdr->ip_dst, tcphdr->th_sport, tcphdr->th_dport, (conv_id_t) tcphdr->th_stream, 1, pinfo->fd->pkt_len,
-                                              &pinfo->rel_ts, &tcp_ct_dissector_info, PT_TCP);
+                                              &pinfo->rel_ts, &pinfo->fd->abs_ts, &tcp_ct_dissector_info, PT_TCP);
 
     return 1;
 }
