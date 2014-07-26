@@ -41,7 +41,7 @@ usage () {
 	echo "Usage:"
 	echo "	$0 --appverify <appname> [<appname>] ..."
 	echo "  $0 --libverify <destination> <subdirectory> <package>"
-	echo "	$0 --download  <destination> <subdirectory> <package> <tag>"
+	echo "	$0 --download  <destination> <subdirectory> <package> <tag> <platform>"
 	echo "	$0 --settag    <destination> <tag>"
 	echo "	$0 --checktag  <destination> <tag>"
 	echo ""
@@ -159,13 +159,14 @@ case "$1" in
 	fi
 	;;
 --download)
-	if [ -z "$2" -o -z "$3" -o -z "$4" -o -z "$5" ] ; then
+	if [ -z "$2" -o -z "$3" -o -z "$4" -o -z "$5" -o -z "$6" ] ; then
 		usage
 	fi
 	DEST_PATH=$(cygpath "$2")
 	DEST_SUBDIR=$3
 	PACKAGE_PATH=$4
 	DOWNLOAD_TAG=$5
+	WIRESHARK_TARGET_PLATFORM=$6
 
 	if [ -z "$WIRESHARK_TARGET_PLATFORM" ]; then
 		err_exit "WIRESHARK_TARGET_PLATFORM not defined"
