@@ -22,7 +22,8 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 #
-# To build cmake
+# To install cmake
+#
 CMAKE=1
 #
 # To build all libraries as 32-bit libraries uncomment the following three lines.
@@ -354,13 +355,22 @@ uninstall() {
             rm gettext-$installed_gettext_version-done
         fi
 
+        #
+        # XXX - really remove this?
+        # Or should we remember it as installed only if this script
+        # installed it?
+        #
         installed_cmake_version=`ls cmake-*-done 2>/dev/null | sed 's/cmake-\(.*\)-done/\1/'`
         if [ ! -z "$installed_cmake_version" ]; then
             echo "Uninstalling CMake:"
-            cd cmake-$installed_cmake_version
-            $DO_MAKE_UNINSTALL || exit 1
-            make distclean || exit 1
-            cd ..
+            sudo rm -rf "/Applications/CMake "`echo "$installed_cmake_version" | sed 's/\([0-9][0-9]*\)\.\([0-9][0-9]*\)\.\([0-9][0-9]*\).*/\1.\2-\3/'`.app
+            sudo rm /usr/bin/ccmake
+            sudo rm /usr/bin/cmake
+            sudo rm /usr/bin/cmake-gui
+            sudo rm /usr/bin/cmakexbuild
+            sudo rm /usr/bin/cpack
+            sudo rm /usr/bin/ctest
+            sudo pkgutil --forget com.Kitware.CMake
             rm cmake-$installed_cmake_version-done
         fi
 
@@ -775,15 +785,16 @@ if [ "$LIBTOOL_VERSION" -a ! -f libtool-$LIBTOOL_VERSION-done ] ; then
 fi
 
 if [ -n "$CMAKE" -a ! -f cmake-$CMAKE_VERSION-done ]; then
-  echo "Downloading, building, and installing CMAKE:"
+  echo "Downloading and installing CMake:"
   cmake_dir=`expr $CMAKE_VERSION : '\([0-9][0-9]*\.[0-9][0-9]*\).*'`
-  [ -f cmake-$CMAKE_VERSION.tar.gz ] || curl -O http://www.cmake.org/files/v$cmake_dir/cmake-$CMAKE_VERSION.tar.gz || exit 1
-  gzcat cmake-$CMAKE_VERSION.tar.gz | tar xf - || exit 1
-  cd cmake-$CMAKE_VERSION
-  ./bootstrap || exit 1
-  make $MAKE_BUILD_OPTS || exit 1
-  $DO_MAKE_INSTALL || exit 1
-  cd ..
+  #
+  # NOTE: the "64" in "Darwin64" doesn't mean "64-bit-only"; the
+  # package in question supports both 32-bit and 64-bit x86.
+  #
+  [ -f cmake-$CMAKE_VERSION-Darwin64-universal.dmg ] || curl -O http://www.cmake.org/files/v$cmake_dir/cmake-$CMAKE_VERSION-Darwin64-universal.dmg || exit 1
+  sudo hdiutil attach http://www.cmake.org/files/v2.8/cmake-$CMAKE_VERSION-Darwin64-universal.dmg || exit 1
+  sudo installer -target / -pkg /Volumes/cmake-$CMAKE_VERSION-Darwin64-universal/cmake-$CMAKE_VERSION-Darwin64-universal.pkg || exit 1
+  sudo hdiutil detach /Volumes/cmake-$CMAKE_VERSION-Darwin64-universal || exit 1
   touch cmake-$CMAKE_VERSION-done
 fi
 
@@ -865,7 +876,7 @@ if [ ! -f glib-$GLIB_VERSION-done ] ; then
     # that's safe but it wasn't told that.  See my comment #25 in
     # GNOME bug 691608:
     #
-    #	https://bugzilla.gnome.org/show_bug.cgi?id=691608#c25
+    #    https://bugzilla.gnome.org/show_bug.cgi?id=691608#c25
     #
     # First, determine where the system include files are.  (It's not
     # necessarily /usr/include.)  There's a bit of a greasy hack here;
