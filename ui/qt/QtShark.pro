@@ -481,7 +481,7 @@ win32 {
     # Use windeployqt to copy the required QT libs.
     # Currently the QT bin dir has to be on the path for windeployqt to work
     isEqual(QT_MAJOR_VERSION, 5):isEqual(QT_MINOR_VERSION, 3) {
-      QMAKE_POST_LINK +=$$quote(set PATH=%PATH%;$(QT5_BASE_DIR)\\bin$$escape_expand(\\n\\t))
+      QMAKE_POST_LINK +=$$quote(set PATH=%PATH%;$${QT5_BASE_DIR}\\bin$$escape_expand(\\n\\t))
       QMAKE_POST_LINK +=$$quote(windeployqt --release $(DESTDIR)qtshark.exe)$$escape_expand(\\n\\t))
     }
 }
