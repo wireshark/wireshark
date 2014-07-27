@@ -207,6 +207,10 @@ packaging/macosx/COPYING.txt
 packaging/macosx/Info.plist
 packaging/macosx/osx-dmg.sh
 packaging/macosx/Wireshark_package.pmdoc/index.xml
+packaging/portableapps/win32/Files/
+packaging/portableapps/win32/WiresharkPortable.ini
+packaging/portableapps/win32/appinfo.ini
+packaging/portableapps/win32/distribution.nmake
 packaging/rpm/SPECS/wireshark.spec
 packaging/svr4/checkinstall
 packaging/svr4/pkginfo
