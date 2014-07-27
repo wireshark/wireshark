@@ -242,7 +242,7 @@ PCAP_NG_DEFAULT=^#define PCAP_NG_DEFAULT 1
 WANT_PACKET_EDITOR=^#define WANT_PACKET_EDITOR 1
 
 !if "$(WIRESHARK_TARGET_PLATFORM)" == "win32"
-DOWNLOAD_TAG=2014-06-05
+DOWNLOAD_TAG=2014-07-26
 ##### Win32 Libraries #####
 #
 # Mandatory: GLib settings
@@ -439,7 +439,9 @@ KFW_DIR=$(WIRESHARK_LIB_DIR)\kfw-3-2-2-i386-ws-vc6
 # If you don't have LUA, comment this line out, so that LUA_DIR
 # isn't defined.
 #
-!IF "$(MSVC_VARIANT)" == "MSVC2012" ||  "$(MSVC_VARIANT)" == "MSVC2012EE"
+!IF "$(MSVC_VARIANT)" == "MSVC2013" ||  "$(MSVC_VARIANT)" == "MSVC2013EE"
+LUA_DIST=-5.2.3_Win32_dll12
+!ELSEIF "$(MSVC_VARIANT)" == "MSVC2012" ||  "$(MSVC_VARIANT)" == "MSVC2012EE"
 LUA_DIST=-5.2.3_Win32_dll11
 !ELSE
 LUA_DIST=-5.2.3_Win32_dll10
@@ -498,7 +500,7 @@ GEOIP_PKG=1.5.1-2
 WINSPARKLE_PKG=0.3-44-g2c8d9d3-win32ws
 
 !else
-DOWNLOAD_TAG=2014-06-05
+DOWNLOAD_TAG=2014-07-26
 ##### Win64 Libraries #####
 #
 # Mandatory: GLib settings
@@ -686,7 +688,9 @@ GCC_DLL=libgcc_s_seh-1.dll
 # If you don't have LUA, comment this line out, so that LUA_DIR
 # isn't defined.
 #
-!IF "$(MSVC_VARIANT)" == "MSVC2012" ||  "$(MSVC_VARIANT)" == "MSVC2012EE"
+!IF "$(MSVC_VARIANT)" == "MSVC2013" ||  "$(MSVC_VARIANT)" == "MSVC2013EE"
+LUA_DIST=-5.2.3_Win64_dll12
+!ELSEIF "$(MSVC_VARIANT)" == "MSVC2012" ||  "$(MSVC_VARIANT)" == "MSVC2012EE"
 LUA_DIST=-5.2.3_Win64_dll11
 !ELSE
 LUA_DIST=-5.2.3_Win64_dll10
