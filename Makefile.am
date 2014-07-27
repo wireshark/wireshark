@@ -963,6 +963,8 @@ EXTRA_DIST = \
 	macosx-support-lib-patches/gnutls-pkgconfig.patch \
 	macosx-support-lib-patches/portaudio-pa_mac_core.h.patch \
 	macosx-support-lib-patches/portaudio-pa_mac_core.c.patch \
+	macosx-support-lib-patches/qt-fix-pc-file \
+	macosx-support-lib-patches/qt-fix-pc-files \
 	make-version.pl		\
 	manuf			\
 	manuf.tmpl		\
