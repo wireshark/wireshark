@@ -2499,6 +2499,10 @@ dissect_openflow_instruction_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     inst_type = tvb_get_ntohs(tvb, offset);
     inst_length = tvb_get_ntohs(tvb, offset + 2);
 
+    if (inst_length < 8) {
+        inst_length = 8;
+    }
+
     ti = proto_tree_add_text(tree, tvb, offset, inst_length, "Instruction");
     inst_tree = proto_item_add_subtree(ti, ett_openflow_v4_instruction);
 
