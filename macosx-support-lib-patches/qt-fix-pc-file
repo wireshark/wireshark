@@ -10,7 +10,7 @@
 #
 ed - "$1" <<EOF
 H
-/^Cflags: /s;-I\${includedir}/\([A-Za-z0-9]*\);-I\${libdir}/\1.framework/Versions/5/Headers;p
-/^Cflags: /s;;Cflags: -F\${libdir} ;p
+/^Cflags: /s;-I\${includedir}/\([A-Za-z0-9]*\);-I\${libdir}/\1.framework/Versions/5/Headers;
+/^Cflags: /s;;Cflags: -F\${libdir} ;
 w
 q
