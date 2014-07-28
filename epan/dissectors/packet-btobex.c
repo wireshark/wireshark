@@ -1419,7 +1419,7 @@ dissect_btobex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
     save_fragmented = pinfo->fragmented;
 
-    is_obex_over_l2cap = (proto_btrfcomm == (gint) GPOINTER_TO_UINT(wmem_list_frame_data(
+    is_obex_over_l2cap = (proto_btl2cap == (gint) GPOINTER_TO_UINT(wmem_list_frame_data(
                 wmem_list_frame_prev(wmem_list_tail(pinfo->layers)))));
 
     if (is_obex_over_l2cap) {

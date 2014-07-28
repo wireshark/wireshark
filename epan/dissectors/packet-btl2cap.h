@@ -68,6 +68,8 @@ typedef struct _btl2cap_data_t {
     guint32   remote_bd_addr_id;
 } btl2cap_data_t;
 
+extern int proto_btl2cap;
+
 #endif
 
 /*

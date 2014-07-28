@@ -40,7 +40,8 @@
 #include "packet-btl2cap.h"
 
 /* Initialize the protocol and registered fields */
-static int proto_btl2cap = -1;
+int proto_btl2cap = -1;
+
 static int hf_btl2cap_length = -1;
 static int hf_btl2cap_cid = -1;
 static int hf_btl2cap_payload = -1;
