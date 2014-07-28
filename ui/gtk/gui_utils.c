@@ -1355,7 +1355,7 @@ float_data_func(GtkTreeViewColumn *column _U_,
     gtk_tree_model_get(model, iter, float_col, &float_val, -1);
 
     /* save the current locale */
-    savelocale = setlocale(LC_NUMERIC, NULL);
+    savelocale = g_strdup(setlocale(LC_NUMERIC, NULL));
     /* switch to "C" locale to avoid problems with localized decimal separators
      * in g_snprintf("%f") functions
      */
@@ -1364,6 +1364,7 @@ float_data_func(GtkTreeViewColumn *column _U_,
     g_snprintf(buf, sizeof(buf), "%.2f", float_val);
     /* restore previous locale setting */
     setlocale(LC_NUMERIC, savelocale);
+    g_free(savelocale);
 
     g_object_set(renderer, "text", buf, NULL);
 }

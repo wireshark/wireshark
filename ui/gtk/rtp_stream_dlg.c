@@ -681,7 +681,7 @@ add_to_list_store(rtp_stream_info_t* strinfo)
 	char *savelocale;
 
 	/* save the current locale */
-	savelocale = setlocale(LC_NUMERIC, NULL);
+	savelocale = g_strdup(setlocale(LC_NUMERIC, NULL));
 	/* switch to "C" locale to avoid problems with localized decimal separators
 		in g_snprintf("%f") functions */
 	setlocale(LC_NUMERIC, "C");
@@ -718,6 +718,7 @@ add_to_list_store(rtp_stream_info_t* strinfo)
 
 	/* restore previous locale setting */
 	setlocale(LC_NUMERIC, savelocale);
+	g_free(savelocale);
 
 	/* Acquire an iterator */
 	gtk_list_store_append(list_store, &list_iter);
@@ -1136,3 +1137,15 @@ register_tap_listener_rtp_stream_dlg(void)
 {
 }
 
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 noexpandtab:
+ * :indentSize=4:tabSize=8:noTabs=false:
+ */

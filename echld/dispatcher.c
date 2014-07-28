@@ -1062,4 +1062,15 @@ void echld_dispatcher_start(int* in_pipe_fds, int* out_pipe_fds, char* argv0, in
 	exit(dispatcher_loop());
 }
 
-
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 noexpandtab:
+ * :indentSize=4:tabSize=8:noTabs=false:
+ */
