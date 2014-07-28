@@ -889,7 +889,7 @@ copy_as_csv_cb(GtkWindow *copy_bt, gpointer data _U_)
     if (!csv.talkers)
         return;
 
-    savelocale = setlocale(LC_NUMERIC, NULL);
+    savelocale = g_strdup(setlocale(LC_NUMERIC, NULL));
     setlocale(LC_NUMERIC, "C");
     csv.CSV_str = g_string_new("");
 
@@ -917,6 +917,7 @@ copy_as_csv_cb(GtkWindow *copy_bt, gpointer data _U_)
     cb = gtk_clipboard_get(GDK_SELECTION_CLIPBOARD);      /* Get the default clipboard */
     gtk_clipboard_set_text(cb, csv.CSV_str->str, -1);    /* Copy the CSV data into the clipboard */
     setlocale(LC_NUMERIC, savelocale);
+    g_free(savelocale);
     g_string_free(csv.CSV_str, TRUE);                    /* Free the memory */
 }
 

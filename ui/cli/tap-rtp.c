@@ -71,7 +71,7 @@ rtp_streams_stat_draw(void *arg _U_)
     printf("%15s %5s %15s %5s %10s %16s %5s %12s %15s %15s %15s %s\n","Src IP addr", "Port",  "Dest IP addr", "Port", "SSRC", "Payload", "Pkts", "Lost", "Max Delta(ms)", "Max Jitter(ms)", "Mean Jitter(ms)", "Problems?");
 
     /* save the current locale */
-    savelocale = setlocale(LC_NUMERIC, NULL);
+    savelocale = g_strdup(setlocale(LC_NUMERIC, NULL));
     /* switch to "C" locale to avoid problems with localized decimal separators
        in g_snprintf("%f") functions */
     setlocale(LC_NUMERIC, "C");
@@ -129,6 +129,7 @@ rtp_streams_stat_draw(void *arg _U_)
     printf("==============================================================\n");
     /* restore previous locale setting */
     setlocale(LC_NUMERIC, savelocale);
+    g_free(savelocale);
 }
 
 
@@ -157,3 +158,16 @@ register_tap_listener_rtp_streams(void)
 {
     register_stat_cmd_arg("rtp,streams", rtp_streams_stat_init,NULL);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */
