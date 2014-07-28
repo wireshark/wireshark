@@ -6,37 +6,37 @@
     <message>
         <location filename="about_dialog.ui" line="14"/>
         <source>About Wireshark</source>
-        <translation>wireshark について</translation>
+        <translation>Wireshark について</translation>
     </message>
     <message>
         <location filename="about_dialog.ui" line="40"/>
         <source>Wireshark</source>
-        <translation type="unfinished"></translation>
+        <translation>Wireshark</translation>
     </message>
     <message>
         <location filename="about_dialog.ui" line="76"/>
         <source>&lt;span size=\&quot;x-large\&quot; weight=\&quot;bold\&quot;&gt;Network Protocol Analyzer&lt;/span&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>ネットワークプロトコルアナライザ</translation>
     </message>
     <message>
         <location filename="about_dialog.ui" line="157"/>
         <source>Authors</source>
-        <translation>著者</translation>
+        <translation>作者</translation>
     </message>
     <message>
         <location filename="about_dialog.ui" line="171"/>
         <source>Folders</source>
-        <translation type="unfinished"></translation>
+        <translation>フォルダ</translation>
     </message>
     <message>
         <location filename="about_dialog.ui" line="197"/>
         <source>Plugins</source>
-        <translation type="unfinished"></translation>
+        <translation>プラグイン</translation>
     </message>
     <message>
         <location filename="about_dialog.ui" line="223"/>
         <source>License</source>
-        <translation type="unfinished"></translation>
+        <translation>ライセンス</translation>
     </message>
 </context>
 <context>
@@ -44,7 +44,7 @@
     <message>
         <location filename="byte_view_tab.cpp" line="30"/>
         <source>Packet bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>パケット バイト</translation>
     </message>
 </context>
 <context>
@@ -53,153 +53,153 @@
         <location filename="capture_file_dialog.cpp" line="159"/>
         <location filename="capture_file_dialog.cpp" line="172"/>
         <source>This capture file contains comments.</source>
-        <translation type="unfinished"></translation>
+        <translation>このキャプチャファイルにはコメントが含まれています。</translation>
     </message>
     <message>
         <location filename="capture_file_dialog.cpp" line="160"/>
         <source>The file format you chose doesn&apos;t support comments. Do you want to save the capture in a format that supports comments or discard the comments and save in the format you chose?</source>
-        <translation type="unfinished"></translation>
+        <translation>あなたが選んだファイル形式はコメントに対応していません。コメントに対応した形式で保存しますか？もしくはコメントを破棄して選んだ形式で保存しますか？</translation>
     </message>
     <message>
         <location filename="capture_file_dialog.cpp" line="165"/>
         <location filename="capture_file_dialog.cpp" line="176"/>
         <source>Discard comments and save</source>
-        <translation type="unfinished"></translation>
+        <translation>コメントを破棄して保存</translation>
     </message>
     <message>
         <location filename="capture_file_dialog.cpp" line="166"/>
         <source>Save in another format</source>
-        <translation type="unfinished"></translation>
+        <translation>別の型式で保存</translation>
     </message>
     <message>
         <location filename="capture_file_dialog.cpp" line="173"/>
         <source>No file format in which it can be saved supports comments. Do you want to discard the comments and save in the format you chose?</source>
-        <translation type="unfinished"></translation>
+        <translation>コメントに対応したファイル形式ではありません。コメントを破棄して選んだ形式で保存しますか？</translation>
     </message>
     <message>
         <location filename="capture_file_dialog.cpp" line="393"/>
         <source>All Files (*.*)</source>
-        <translation type="unfinished"></translation>
+        <translation>すべてのファイル (*.*)</translation>
     </message>
     <message>
         <location filename="capture_file_dialog.cpp" line="435"/>
         <source>Format:</source>
-        <translation type="unfinished"></translation>
+        <translation>形式:</translation>
     </message>
     <message>
         <location filename="capture_file_dialog.cpp" line="440"/>
         <source>Size:</source>
-        <translation type="unfinished"></translation>
+        <translation>サイズ:</translation>
     </message>
     <message>
         <location filename="capture_file_dialog.cpp" line="445"/>
         <source>Packets:</source>
-        <translation type="unfinished"></translation>
+        <translation>パケット:</translation>
     </message>
     <message>
         <location filename="capture_file_dialog.cpp" line="450"/>
         <source>First Packet:</source>
-        <translation type="unfinished"></translation>
+        <translation>最初のパケット</translation>
     </message>
     <message>
         <location filename="capture_file_dialog.cpp" line="455"/>
         <source>Elapsed Time:</source>
-        <translation type="unfinished"></translation>
+        <translation>経過時間:</translation>
     </message>
     <message>
         <location filename="capture_file_dialog.cpp" line="467"/>
         <source>Prepend packets</source>
-        <translation type="unfinished"></translation>
+        <translation>前につけたパケット</translation>
     </message>
     <message>
         <location filename="capture_file_dialog.cpp" line="468"/>
         <source>Insert packets from the selected file before the current file. Packet timestamps will be ignored.</source>
-        <translation type="unfinished"></translation>
+        <translation>現在のファイルの前に選択したファイルからパケットを挿入します。パケットの時刻は無視されます。</translation>
     </message>
     <message>
         <location filename="capture_file_dialog.cpp" line="471"/>
         <source>Merge chronologically</source>
-        <translation type="unfinished"></translation>
+        <translation>時系列で結合します。</translation>
     </message>
     <message>
         <location filename="capture_file_dialog.cpp" line="472"/>
         <source>Insert packets in chronological order.</source>
-        <translation type="unfinished"></translation>
+        <translation>時系列の順番でパケットを挿入します。</translation>
     </message>
     <message>
         <location filename="capture_file_dialog.cpp" line="476"/>
         <source>Append packets</source>
-        <translation type="unfinished"></translation>
+        <translation>パケットを追加</translation>
     </message>
     <message>
         <location filename="capture_file_dialog.cpp" line="477"/>
         <source>Insert packets from the selected file after the current file. Packet timestamps will be ignored.</source>
-        <translation type="unfinished"></translation>
+        <translation>現在のファイルの後ろにパケットを挿入します。パケットの時刻は無視されます。</translation>
     </message>
     <message>
         <location filename="capture_file_dialog.cpp" line="492"/>
         <source>Display Filter:</source>
-        <translation type="unfinished"></translation>
+        <translation>表示フィルタ:</translation>
     </message>
     <message>
         <location filename="capture_file_dialog.cpp" line="501"/>
         <source>Automatic</source>
-        <translation type="unfinished"></translation>
+        <translation>自動</translation>
     </message>
     <message>
         <location filename="capture_file_dialog.cpp" line="510"/>
         <source>&amp;MAC name resolution</source>
-        <translation type="unfinished"></translation>
+        <translation>MACアドレスの解決</translation>
     </message>
     <message>
         <location filename="capture_file_dialog.cpp" line="514"/>
         <source>&amp;Transport name resolution</source>
-        <translation type="unfinished"></translation>
+        <translation>トランスポート層のサービス名の解決</translation>
     </message>
     <message>
         <location filename="capture_file_dialog.cpp" line="518"/>
         <source>&amp;Network name resolution</source>
-        <translation type="unfinished"></translation>
+        <translation>ネットワーク層の名前解決</translation>
     </message>
     <message>
         <location filename="capture_file_dialog.cpp" line="522"/>
         <source>&amp;External name resolver</source>
-        <translation type="unfinished"></translation>
+        <translation>外部の名前解決</translation>
     </message>
     <message>
         <location filename="capture_file_dialog.cpp" line="528"/>
         <source>Compress with g&amp;zip</source>
-        <translation type="unfinished"></translation>
+        <translation>g&amp;zip形式で圧縮</translation>
     </message>
     <message>
         <location filename="capture_file_dialog.cpp" line="559"/>
         <source>Wireshark: Open Capture File</source>
-        <translation type="unfinished"></translation>
+        <translation>Wireshark:キャプチャファイルを開く</translation>
     </message>
     <message>
         <location filename="capture_file_dialog.cpp" line="595"/>
         <source>Wireshark: Save Capture File As</source>
-        <translation type="unfinished"></translation>
+        <translation>Wireshark:名前をつけてキャプチャファイルを保存</translation>
     </message>
     <message>
         <location filename="capture_file_dialog.cpp" line="601"/>
         <source>Save as:</source>
-        <translation type="unfinished"></translation>
+        <translation>名前をつけて保存:</translation>
     </message>
     <message>
         <location filename="capture_file_dialog.cpp" line="623"/>
         <source>Wireshark: Export Specified Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Wireshark:選択したパケットを出力</translation>
     </message>
     <message>
         <location filename="capture_file_dialog.cpp" line="627"/>
         <source>Export as:</source>
-        <translation type="unfinished"></translation>
+        <translation>名前をつけてエクスポート:</translation>
     </message>
     <message>
         <location filename="capture_file_dialog.cpp" line="656"/>
         <source>Wireshark: Merge Capture File</source>
-        <translation type="unfinished"></translation>
+        <translation>Wireshark:キャプチャファイルをマージ</translation>
     </message>
     <message>
         <location filename="capture_file_dialog.cpp" line="758"/>
@@ -208,47 +208,47 @@
         <location filename="capture_file_dialog.cpp" line="761"/>
         <location filename="capture_file_dialog.cpp" line="762"/>
         <source>-</source>
-        <translation type="unfinished"></translation>
+        <translation>-</translation>
     </message>
     <message>
         <location filename="capture_file_dialog.cpp" line="769"/>
         <source>directory</source>
-        <translation type="unfinished"></translation>
+        <translation>ディレクトリ</translation>
     </message>
     <message>
         <location filename="capture_file_dialog.cpp" line="776"/>
         <source>unknown file format</source>
-        <translation type="unfinished"></translation>
+        <translation>不明なファイルフォーマット</translation>
     </message>
     <message>
         <location filename="capture_file_dialog.cpp" line="778"/>
         <source>error opening file</source>
-        <translation type="unfinished"></translation>
+        <translation>ファイルオープンエラー</translation>
     </message>
     <message>
         <location filename="capture_file_dialog.cpp" line="792"/>
         <source>%1 bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 バイト数</translation>
     </message>
     <message>
         <location filename="capture_file_dialog.cpp" line="821"/>
         <source>error after reading %1 packets</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 個のパケットを読み込んでからエラー</translation>
     </message>
     <message>
         <location filename="capture_file_dialog.cpp" line="827"/>
-        <source>more than %1 (preview timeout)</source>
+        <source>%1 以上(プレビュー タイムアウト)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="capture_file_dialog.cpp" line="846"/>
         <source>?</source>
-        <translation type="unfinished"></translation>
+        <translation>？</translation>
     </message>
     <message>
         <location filename="capture_file_dialog.cpp" line="852"/>
         <source>unknown</source>
-        <translation type="unfinished"></translation>
+        <translation>未知</translation>
     </message>
 </context>
 <context>
@@ -256,7 +256,7 @@
     <message>
         <location filename="capture_filter_combo.cpp" line="45"/>
         <source>Capture filter selector</source>
-        <translation type="unfinished"></translation>
+        <translation>キャプチャフィルタ選択</translation>
     </message>
 </context>
 <context>
@@ -264,12 +264,12 @@
     <message>
         <location filename="capture_filter_edit.cpp" line="84"/>
         <source>Capture filter entry</source>
-        <translation type="unfinished"></translation>
+        <translation>キャプチャフィルタ入力</translation>
     </message>
     <message>
         <location filename="capture_filter_edit.cpp" line="86"/>
         <source>Enter a capture filter %1</source>
-        <translation type="unfinished"></translation>
+        <translation>キャプチャフィルタを入力 %1</translation>
     </message>
 </context>
 <context>
@@ -277,270 +277,270 @@
     <message>
         <location filename="capture_interfaces_dialog.ui" line="14"/>
         <source>Wireshark: Capture interfaces</source>
-        <translation type="unfinished"></translation>
+        <translation>Wireshark: キャプチャインタフェース</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="24"/>
         <source>Input</source>
-        <translation type="unfinished"></translation>
+        <translation>入力</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="61"/>
         <source>Interface</source>
-        <translation type="unfinished"></translation>
+        <translation>インタフェース</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="66"/>
         <source>Traffic</source>
-        <translation type="unfinished"></translation>
+        <translation>トラフィック</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="71"/>
         <source>Link-layer header</source>
-        <translation type="unfinished"></translation>
+        <translation>データリンク層ヘッダ</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="76"/>
         <source>Prom. mode</source>
-        <translation type="unfinished"></translation>
+        <translation>プロミスキャスモード</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="81"/>
         <source>Snaplen [B]</source>
-        <translation type="unfinished"></translation>
+        <translation>キャプチャサイズ ［バイト］</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="86"/>
         <source>Buffer [MB]</source>
-        <translation type="unfinished"></translation>
+        <translation>バッファ [メガバイト]</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="91"/>
         <source>Mon. Mode</source>
-        <translation type="unfinished"></translation>
+        <translation>モニターモード</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="96"/>
         <source>Capture Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>キャプチャフィルタ</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="108"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You probably want to enable this. Usually a network card will only capture the traffic sent to its own network address. If you want to capture all traffic that the network card can &amp;quot;see&amp;quot;, mark this option. See the FAQ for some more details of capturing packets from a switched network.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>これを有効にした方がよいでしょう。通常ネットワークカードは自身のアドレスに送られたトラフィックのみキャプチャします。もし、ネットワークカードのすべてのトラフィックをキャプチャしたいのでしたら、このオプションをマークしてください。FAQにスイッチングハブのネットワークからパケットをキャプチャする詳細があります。</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="111"/>
         <source>Capture packets in promiscuous mode on all interfaces</source>
-        <translation type="unfinished"></translation>
+        <translation>すべてのインタフェースでプロミスキャスモードでパケットをキャプチャする</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="133"/>
         <source>Capture Filter for selected Interfaces:</source>
-        <translation type="unfinished"></translation>
+        <translation>選択したインタフェースのキャプチャフィルタ</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="159"/>
         <source>Add a </source>
-        <translation type="unfinished"></translation>
+        <translation>追加</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="162"/>
         <source>Manage Interfaces...</source>
-        <translation type="unfinished"></translation>
+        <translation>インタフェースの管理</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="169"/>
         <source>Compile BPFs</source>
-        <translation type="unfinished"></translation>
+        <translation>BPF形式を解析</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="181"/>
         <source>Output</source>
-        <translation type="unfinished"></translation>
+        <translation>出力</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="189"/>
         <source>Output format:</source>
-        <translation type="unfinished"></translation>
+        <translation>出力形式:</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="196"/>
         <source>pcap-ng</source>
-        <translation type="unfinished"></translation>
+        <translation>pcap-ng形式</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="203"/>
         <source>pcap</source>
-        <translation type="unfinished"></translation>
+        <translation>pcap形式</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="225"/>
         <source>Capture directly to file</source>
-        <translation type="unfinished"></translation>
+        <translation>ファイルに直接キャプチャ</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="237"/>
         <source>Browse...</source>
-        <translation type="unfinished"></translation>
+        <translation>参照...</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="244"/>
         <source>File:</source>
-        <translation type="unfinished"></translation>
+        <translation>ファイル:</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="257"/>
         <source>Create a new file automatically after...</source>
-        <translation type="unfinished"></translation>
+        <translation>...の後に自動的に新規にファイルを作成</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="290"/>
         <location filename="capture_interfaces_dialog.ui" line="577"/>
         <source>Megabytes</source>
-        <translation type="unfinished"></translation>
+        <translation>メガバイト</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="295"/>
         <location filename="capture_interfaces_dialog.ui" line="582"/>
         <source>Kilobytes</source>
-        <translation type="unfinished"></translation>
+        <translation>キロバイト</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="300"/>
         <location filename="capture_interfaces_dialog.ui" line="587"/>
         <source>Bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>バイト</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="309"/>
         <location filename="capture_interfaces_dialog.ui" line="551"/>
         <source>seconds</source>
-        <translation type="unfinished"></translation>
+        <translation>秒</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="314"/>
         <location filename="capture_interfaces_dialog.ui" line="556"/>
         <source>minutes</source>
-        <translation type="unfinished"></translation>
+        <translation>分</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="319"/>
         <location filename="capture_interfaces_dialog.ui" line="561"/>
         <source>hours</source>
-        <translation type="unfinished"></translation>
+        <translation>時</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="327"/>
         <location filename="capture_interfaces_dialog.ui" line="536"/>
         <source>packets</source>
-        <translation type="unfinished"></translation>
+        <translation>パケット</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="381"/>
         <source>Reuse old files</source>
-        <translation type="unfinished"></translation>
+        <translation>古いファイルを再利用</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="405"/>
         <source>Options</source>
-        <translation type="unfinished"></translation>
+        <translation>オプション</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="413"/>
         <source>Display Options</source>
-        <translation type="unfinished"></translation>
+        <translation>オプションを表示</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="425"/>
         <source>Update list of packets in real-time</source>
-        <translation type="unfinished"></translation>
+        <translation>実時間でパケット一覧を更新</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="432"/>
         <source>Automatically scroll during live capture</source>
-        <translation type="unfinished"></translation>
+        <translation>キャプチャ中に自動スクロール</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="439"/>
         <source>Show extra capture information dialog</source>
-        <translation type="unfinished"></translation>
+        <translation>追加のキャプチャ情報画面を表示</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="449"/>
         <source>Name Resolution</source>
-        <translation type="unfinished"></translation>
+        <translation>名前解決</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="458"/>
         <source>Resolve MAC Addresses</source>
-        <translation type="unfinished"></translation>
+        <translation>MACアドレス解決</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="465"/>
         <source>Resolve network names</source>
-        <translation type="unfinished"></translation>
+        <translation>ネットワーク名を解決</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="472"/>
         <source>Resolve transport names</source>
-        <translation type="unfinished"></translation>
+        <translation>トランスポート層の名前を解決</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="497"/>
         <source>Stop capture automatically after...</source>
-        <translation type="unfinished"></translation>
+        <translation>...の後に自動的にキャプチャ停止</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.cpp" line="66"/>
         <source>Start</source>
-        <translation type="unfinished"></translation>
+        <translation>開始</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.cpp" line="177"/>
         <location filename="capture_interfaces_dialog.cpp" line="362"/>
         <location filename="capture_interfaces_dialog.cpp" line="377"/>
         <source>enabled</source>
-        <translation type="unfinished"></translation>
+        <translation>有効</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.cpp" line="177"/>
         <location filename="capture_interfaces_dialog.cpp" line="362"/>
         <location filename="capture_interfaces_dialog.cpp" line="377"/>
         <source>disabled</source>
-        <translation type="unfinished"></translation>
+        <translation>無効</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.cpp" line="306"/>
         <source>Addresses:
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation>アドレス:</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.cpp" line="308"/>
         <source>no address</source>
-        <translation type="unfinished"></translation>
+        <translation>アドレスなし</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.cpp" line="377"/>
         <source>n/a</source>
-        <translation type="unfinished"></translation>
+        <translation>割当なし</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.cpp" line="452"/>
         <location filename="capture_interfaces_dialog.cpp" line="458"/>
         <source>Error</source>
-        <translation type="unfinished"></translation>
+        <translation>エラー</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.cpp" line="453"/>
         <source>Set a filter string to compile.</source>
-        <translation type="unfinished"></translation>
+        <translation>解析するフィルタ文字列を設定</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.cpp" line="459"/>
         <source>No interfaces selected.</source>
-        <translation type="unfinished"></translation>
+        <translation>インタフェースが選択されていません</translation>
     </message>
 </context>
 <context>
@@ -548,62 +548,62 @@
     <message>
         <location filename="capture_preferences_frame.ui" line="20"/>
         <source>Frame</source>
-        <translation type="unfinished"></translation>
+        <translation>フレーム</translation>
     </message>
     <message>
         <location filename="capture_preferences_frame.ui" line="29"/>
         <source>Default interface</source>
-        <translation type="unfinished"></translation>
+        <translation>デフォルトインタフェース</translation>
     </message>
     <message>
         <location filename="capture_preferences_frame.ui" line="63"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You probably want to enable this. Usually a network card will only capture the traffic sent to its own network address. If you want to capture all traffic that the network card can &amp;quot;see&amp;quot;, mark this option. See the FAQ for some more details of capturing packets from a switched network.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>これを有効にした方がよいでしょう。通常ネットワークカードは自身のアドレスに送られたトラフィックのみキャプチャします。もし、ネットワークカードのすべてのトラフィックをキャプチャしたいのでしたら、このオプションをマークしてください。FAQにスイッチングハブのネットワークからパケットをキャプチャする詳細があります。</translation>
     </message>
     <message>
         <location filename="capture_preferences_frame.ui" line="66"/>
         <source>Capture packets in promiscuous mode</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">プロミスキャスモードでパケットをキャプチャ</translation>
     </message>
     <message>
         <location filename="capture_preferences_frame.ui" line="73"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Capture packets in the next-generation capture file format.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>次世代のキャプチャファイル形式でパケットをキャプチャ</translation>
     </message>
     <message>
         <location filename="capture_preferences_frame.ui" line="76"/>
         <source>Capture packets in pcap-ng format</source>
-        <translation type="unfinished"></translation>
+        <translation>pcap-ng形式でキャプチャ</translation>
     </message>
     <message>
         <location filename="capture_preferences_frame.ui" line="83"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Update the list of packets while capture is in progress. This can result in dropped packets on high-speed networks.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>パケット一覧の更新が進行中です。こらにより高速ネットワークではパケットが落ちることがありえます</translation>
     </message>
     <message>
         <location filename="capture_preferences_frame.ui" line="86"/>
         <source>Update list of packets in real time</source>
-        <translation type="unfinished"></translation>
+        <translation>実時間でパケット一覧を更新</translation>
     </message>
     <message>
         <location filename="capture_preferences_frame.ui" line="93"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Keep the packet list scrolled to the bottom while capturing.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>キャプチャ中にパケット一覧を一番下へスクロールしたままにする</translation>
     </message>
     <message>
         <location filename="capture_preferences_frame.ui" line="96"/>
         <source>Automatic scrolling in live capture</source>
-        <translation type="unfinished"></translation>
+        <translation>キャプチャ中に自動スクロール</translation>
     </message>
     <message>
         <location filename="capture_preferences_frame.ui" line="103"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show the capture summary dialog while capturing.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>キャプチャ中にキャプチャ概要画面を表示</translation>
     </message>
     <message>
         <location filename="capture_preferences_frame.ui" line="106"/>
         <source>Show the capture summary dialog while capturing</source>
-        <translation type="unfinished"></translation>
+        <translation>キャプチャ中にキャプチャ概要画面を表示</translation>
     </message>
 </context>
 <context>
@@ -611,32 +611,32 @@
     <message>
         <location filename="column_preferences_frame.ui" line="20"/>
         <source>Frame</source>
-        <translation type="unfinished"></translation>
+        <translation>フレーム</translation>
     </message>
     <message>
         <location filename="column_preferences_frame.ui" line="30"/>
         <source>Displayed</source>
-        <translation type="unfinished"></translation>
+        <translation>表示</translation>
     </message>
     <message>
         <location filename="column_preferences_frame.ui" line="35"/>
         <source>Title</source>
-        <translation type="unfinished"></translation>
+        <translation>題名</translation>
     </message>
     <message>
         <location filename="column_preferences_frame.ui" line="40"/>
         <source>Type</source>
-        <translation type="unfinished"></translation>
+        <translation>種別</translation>
     </message>
     <message>
         <location filename="column_preferences_frame.ui" line="45"/>
         <source>Field name</source>
-        <translation type="unfinished"></translation>
+        <translation>フィールド名</translation>
     </message>
     <message>
         <location filename="column_preferences_frame.ui" line="50"/>
         <source>Field occurrence</source>
-        <translation type="unfinished"></translation>
+        <translation>起因するフィールド</translation>
     </message>
 </context>
 <context>
@@ -644,7 +644,7 @@
     <message>
         <location filename="compiled_filter_output.ui" line="14"/>
         <source>Compiled Filter Output</source>
-        <translation type="unfinished"></translation>
+        <translation>解析したフィルタ出力</translation>
     </message>
 </context>
 <context>
@@ -652,47 +652,47 @@
     <message>
         <location filename="decode_as_dialog.ui" line="14"/>
         <source>Wireshark: Decode As</source>
-        <translation type="unfinished"></translation>
+        <translation>Wireshark:...として解析</translation>
     </message>
     <message>
         <location filename="decode_as_dialog.ui" line="27"/>
         <source>Field</source>
-        <translation type="unfinished"></translation>
+        <translation>フィールド</translation>
     </message>
     <message>
         <location filename="decode_as_dialog.ui" line="30"/>
         <source>Match using this field</source>
-        <translation type="unfinished"></translation>
+        <translation>このフィールドを利用して照合</translation>
     </message>
     <message>
         <location filename="decode_as_dialog.ui" line="35"/>
         <source>Value</source>
-        <translation type="unfinished"></translation>
+        <translation>値</translation>
     </message>
     <message>
         <location filename="decode_as_dialog.ui" line="38"/>
         <source>Current &quot;Decode As&quot; behavior</source>
-        <translation type="unfinished"></translation>
+        <translation>現在;...として解析;振る舞い</translation>
     </message>
     <message>
         <location filename="decode_as_dialog.ui" line="43"/>
         <source>Type</source>
-        <translation type="unfinished"></translation>
+        <translation>種別</translation>
     </message>
     <message>
         <location filename="decode_as_dialog.ui" line="48"/>
         <source>Default</source>
-        <translation type="unfinished"></translation>
+        <translation>デフォルト</translation>
     </message>
     <message>
         <location filename="decode_as_dialog.ui" line="51"/>
         <source>Default &quot;Decode As&quot; behavior</source>
-        <translation type="unfinished"></translation>
+        <translation>デフォルト;...として解析;振る舞い</translation>
     </message>
     <message>
         <location filename="decode_as_dialog.ui" line="56"/>
         <source>Current</source>
-        <translation type="unfinished"></translation>
+        <translation>現在</translation>
     </message>
     <message>
         <location filename="decode_as_dialog.ui" line="59"/>
@@ -702,32 +702,32 @@
     <message>
         <location filename="decode_as_dialog.ui" line="69"/>
         <source>Change the dissection behavior for a protocol.</source>
-        <translation type="unfinished"></translation>
+        <translation>プロトコル解読の振る舞いを変更</translation>
     </message>
     <message>
         <location filename="decode_as_dialog.ui" line="83"/>
         <source>Remove this dissection behavior.</source>
-        <translation type="unfinished"></translation>
+        <translation>この解読の振る舞いを削除</translation>
     </message>
     <message>
         <location filename="decode_as_dialog.ui" line="94"/>
         <source>Copy this dissection behavior.</source>
-        <translation type="unfinished"></translation>
+        <translation>この解読の振る舞いをコピー</translation>
     </message>
     <message>
         <location filename="decode_as_dialog.cpp" line="347"/>
         <source>String</source>
-        <translation type="unfinished"></translation>
+        <translation>文字列</translation>
     </message>
     <message>
         <location filename="decode_as_dialog.cpp" line="349"/>
         <source>Integer, base </source>
-        <translation type="unfinished"></translation>
+        <translation>整数型, ベース</translation>
     </message>
     <message>
         <location filename="decode_as_dialog.cpp" line="361"/>
         <source>unknown</source>
-        <translation type="unfinished"></translation>
+        <translation>不明</translation>
     </message>
 </context>
 <context>
@@ -735,12 +735,12 @@
     <message>
         <location filename="display_filter_combo.cpp" line="45"/>
         <source>Display filter selector</source>
-        <translation type="unfinished"></translation>
+        <translation>表示フィルタの選択</translation>
     </message>
     <message>
         <location filename="display_filter_combo.cpp" line="78"/>
         <source>Select from previously used filters</source>
-        <translation type="unfinished"></translation>
+        <translation>以前利用したフィルタより選択</translation>
     </message>
 </context>
 <context>
@@ -748,42 +748,42 @@
     <message>
         <location filename="display_filter_edit.cpp" line="90"/>
         <source>Display filter entry</source>
-        <translation type="unfinished"></translation>
+        <translation>表示フィルタ入力</translation>
     </message>
     <message>
         <location filename="display_filter_edit.cpp" line="93"/>
         <source>Enter a display filter %1</source>
-        <translation type="unfinished"></translation>
+        <translation>表示フィルタを入力します %1</translation>
     </message>
     <message>
         <location filename="display_filter_edit.cpp" line="95"/>
         <source>Apply a display filter %1 &lt;%2/&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>表示フィルタを適用します %1 &lt;%2/&gt;</translation>
     </message>
     <message>
         <location filename="display_filter_edit.cpp" line="140"/>
         <source>Bookmark this filter string</source>
-        <translation type="unfinished"></translation>
+        <translation>このフィルタ文字列をブックマーク</translation>
     </message>
     <message>
         <location filename="display_filter_edit.cpp" line="160"/>
         <source>Clear the filter string and update the display</source>
-        <translation type="unfinished"></translation>
+        <translation>フィルタ文字列をクリアして表示を更新</translation>
     </message>
     <message>
         <location filename="display_filter_edit.cpp" line="190"/>
         <source>Apply this filter string to the display</source>
-        <translation type="unfinished"></translation>
+        <translation>このフィルタ文字列を表示に適用</translation>
     </message>
     <message>
         <location filename="display_filter_edit.cpp" line="279"/>
         <source>&quot;%1&quot; may have unexpected results (see the User&apos;s Guide)</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; は期待しない結果になったかもしれません。(ユーザーズガイドを参照ください)</translation>
     </message>
     <message>
         <location filename="display_filter_edit.cpp" line="286"/>
         <source>Invalid filter</source>
-        <translation type="unfinished"></translation>
+        <translation>無効なフィルタ</translation>
     </message>
 </context>
 <context>
@@ -791,37 +791,37 @@
     <message>
         <location filename="export_dissection_dialog.cpp" line="62"/>
         <source>Wireshark: Export Packet Dissections</source>
-        <translation type="unfinished"></translation>
+        <translation>Wireshark:パケット解析を出力</translation>
     </message>
     <message>
         <location filename="export_dissection_dialog.cpp" line="64"/>
         <source>Export as:</source>
-        <translation type="unfinished"></translation>
+        <translation>...として出力</translation>
     </message>
     <message>
         <location filename="export_dissection_dialog.cpp" line="68"/>
         <source>Plain text (*.txt)</source>
-        <translation type="unfinished"></translation>
+        <translation>プレインテキスト (*.txt)</translation>
     </message>
     <message>
         <location filename="export_dissection_dialog.cpp" line="69"/>
         <source>Comma Separated Values - summary (*.csv)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">カンマ区切りテキスト - 概要 (*.csv)</translation>
     </message>
     <message>
         <location filename="export_dissection_dialog.cpp" line="70"/>
         <source>PSML - summary (*.psml, *.xml)</source>
-        <translation type="unfinished"></translation>
+        <translation>PSML形式 - 概要 (*.psml, *.xml)</translation>
     </message>
     <message>
         <location filename="export_dissection_dialog.cpp" line="71"/>
         <source>PDML - details (*.pdml, *.xml)</source>
-        <translation type="unfinished"></translation>
+        <translation>PSML形式 - 詳細 (*.psml, *.xml)</translation>
     </message>
     <message>
         <location filename="export_dissection_dialog.cpp" line="72"/>
         <source>C Arrays - bytes (*.c, *.h)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">C言語配列 - バイト (*.c, *.h)</translation>
     </message>
 </context>
 <context>
@@ -829,77 +829,77 @@
     <message>
         <location filename="export_object_dialog.ui" line="14"/>
         <source>Dialog</source>
-        <translation type="unfinished"></translation>
+        <translation>ダイアログ</translation>
     </message>
     <message>
         <location filename="export_object_dialog.ui" line="36"/>
         <source>Packet</source>
-        <translation type="unfinished"></translation>
+        <translation>パケット</translation>
     </message>
     <message>
         <location filename="export_object_dialog.ui" line="41"/>
         <source>Hostname</source>
-        <translation type="unfinished"></translation>
+        <translation>ホスト名</translation>
     </message>
     <message>
         <location filename="export_object_dialog.ui" line="46"/>
         <source>Content Type</source>
-        <translation type="unfinished"></translation>
+        <translation>コンテントタイプ</translation>
     </message>
     <message>
         <location filename="export_object_dialog.ui" line="51"/>
         <source>Size</source>
-        <translation type="unfinished"></translation>
+        <translation>サイズ</translation>
     </message>
     <message>
         <location filename="export_object_dialog.ui" line="56"/>
         <source>Filename</source>
-        <translation type="unfinished"></translation>
+        <translation>ファイル名</translation>
     </message>
     <message>
         <location filename="export_object_dialog.ui" line="85"/>
         <source>Searching for objects</source>
-        <translation type="unfinished"></translation>
+        <translation>オブジェクトの探索中</translation>
     </message>
     <message>
         <location filename="export_object_dialog.cpp" line="113"/>
         <source>Wireshark: %1 object list</source>
-        <translation type="unfinished"></translation>
+        <translation>Wireshark: %1 オブジェクト一覧</translation>
     </message>
     <message>
         <location filename="export_object_dialog.cpp" line="189"/>
         <source>Tap registration error</source>
-        <translation type="unfinished"></translation>
+        <translation>タップ登録エラー</translation>
     </message>
     <message>
         <location filename="export_object_dialog.cpp" line="190"/>
         <source>Unable to register </source>
-        <translation type="unfinished"></translation>
+        <translation>登録することができません</translation>
     </message>
     <message>
         <location filename="export_object_dialog.cpp" line="190"/>
         <source> tap: </source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"> タップ: </translation>
     </message>
     <message>
         <location filename="export_object_dialog.cpp" line="265"/>
         <source>Wireshark: Save Object As...</source>
-        <translation type="unfinished"></translation>
+        <translation>...としてオブジェクトを保存</translation>
     </message>
     <message>
         <location filename="export_object_dialog.cpp" line="282"/>
         <source>Wireshark: Save All Objects In...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Wireshark: ...の中にすべてのオブジェクトを保存</translation>
     </message>
     <message>
         <location filename="export_object_dialog.cpp" line="321"/>
         <source>Object Export</source>
-        <translation type="unfinished"></translation>
+        <translation>オブジェクト出力</translation>
     </message>
     <message>
         <location filename="export_object_dialog.cpp" line="322"/>
         <source>Some files could not be saved.</source>
-        <translation type="unfinished"></translation>
+        <translation>いくつかのファイルは保存できませんでした。</translation>
     </message>
 </context>
 <context>
@@ -907,12 +907,12 @@
     <message>
         <location filename="export_pdu_dialog.ui" line="14"/>
         <source>Dialog</source>
-        <translation type="unfinished"></translation>
+        <translation>ダイアログ</translation>
     </message>
     <message>
         <location filename="export_pdu_dialog.ui" line="45"/>
         <source>Display filter:</source>
-        <translation type="unfinished"></translation>
+        <translation>表示フィルタ:</translation>
     </message>
 </context>
 <context>
@@ -920,52 +920,52 @@
     <message>
         <location filename="file_set_dialog.ui" line="14"/>
         <source>Dialog</source>
-        <translation type="unfinished"></translation>
+        <translation>ダイアログ</translation>
     </message>
     <message>
         <location filename="file_set_dialog.ui" line="30"/>
         <source>Directory:</source>
-        <translation type="unfinished"></translation>
+        <translation>ディレクトリ:</translation>
     </message>
     <message>
         <location filename="file_set_dialog.ui" line="93"/>
         <source>Filename</source>
-        <translation type="unfinished"></translation>
+        <translation>ファイル名</translation>
     </message>
     <message>
         <location filename="file_set_dialog.ui" line="98"/>
         <source>Created</source>
-        <translation type="unfinished"></translation>
+        <translation>作成日</translation>
     </message>
     <message>
         <location filename="file_set_dialog.ui" line="103"/>
         <source>Modified</source>
-        <translation type="unfinished"></translation>
+        <translation>修正日</translation>
     </message>
     <message>
         <location filename="file_set_dialog.ui" line="108"/>
         <source>Size</source>
-        <translation type="unfinished"></translation>
+        <translation>サイズ</translation>
     </message>
     <message>
         <location filename="file_set_dialog.cpp" line="95"/>
         <source>Wireshark: No files in Set</source>
-        <translation type="unfinished"></translation>
+        <translation>Wireshark: ファイルセットにファイルがありません</translation>
     </message>
     <message>
         <location filename="file_set_dialog.cpp" line="96"/>
         <source>No capture loaded</source>
-        <translation type="unfinished"></translation>
+        <translation>何もキャプチャが読み込まれていません</translation>
     </message>
     <message>
         <location filename="file_set_dialog.cpp" line="114"/>
         <source>Open this capture file</source>
-        <translation type="unfinished"></translation>
+        <translation>このキャプチャファイルを開く</translation>
     </message>
     <message>
         <location filename="file_set_dialog.cpp" line="125"/>
         <source>Wireshark: %1 File%2 in Set</source>
-        <translation type="unfinished"></translation>
+        <translation>Wireshark: %2 ファイルセット中 %1 ファイル</translation>
     </message>
 </context>
 <context>
@@ -973,22 +973,22 @@
     <message>
         <location filename="filter_expressions_preferences_frame.ui" line="14"/>
         <source>Frame</source>
-        <translation type="unfinished"></translation>
+        <translation>フレーム</translation>
     </message>
     <message>
         <location filename="filter_expressions_preferences_frame.ui" line="24"/>
         <source>Enabled</source>
-        <translation type="unfinished"></translation>
+        <translation>有効</translation>
     </message>
     <message>
         <location filename="filter_expressions_preferences_frame.ui" line="29"/>
         <source>Label</source>
-        <translation type="unfinished"></translation>
+        <translation>ラベル</translation>
     </message>
     <message>
         <location filename="filter_expressions_preferences_frame.ui" line="34"/>
         <source>Filter Expression</source>
-        <translation type="unfinished"></translation>
+        <translation>フィルタ式</translation>
     </message>
 </context>
 <context>
@@ -996,47 +996,47 @@
     <message>
         <location filename="follow_stream_dialog.ui" line="20"/>
         <source>Follow Stream</source>
-        <translation type="unfinished"></translation>
+        <translation>ストリーム表示</translation>
     </message>
     <message>
         <location filename="follow_stream_dialog.ui" line="36"/>
         <source>Hint.</source>
-        <translation type="unfinished"></translation>
+        <translation>ヒント</translation>
     </message>
     <message>
         <location filename="follow_stream_dialog.ui" line="61"/>
         <source>Show data as</source>
-        <translation type="unfinished"></translation>
+        <translation>...としてデータを表示</translation>
     </message>
     <message>
         <location filename="follow_stream_dialog.ui" line="88"/>
         <source>Stream</source>
-        <translation type="unfinished"></translation>
+        <translation>ストリーム</translation>
     </message>
     <message>
         <location filename="follow_stream_dialog.ui" line="102"/>
         <source>Find:</source>
-        <translation type="unfinished"></translation>
+        <translation>検索:</translation>
     </message>
     <message>
         <location filename="follow_stream_dialog.ui" line="112"/>
         <source>Find &amp;Next</source>
-        <translation type="unfinished"></translation>
+        <translation>次を検索</translation>
     </message>
     <message>
         <location filename="follow_stream_dialog.cpp" line="95"/>
         <source>Hide this stream</source>
-        <translation type="unfinished"></translation>
+        <translation>このストリームを隠す</translation>
     </message>
     <message>
         <location filename="follow_stream_dialog.cpp" line="98"/>
         <source>Print</source>
-        <translation type="unfinished"></translation>
+        <translation>印刷</translation>
     </message>
     <message>
         <location filename="follow_stream_dialog.cpp" line="101"/>
         <source>Save as...</source>
-        <translation type="unfinished"></translation>
+        <translation>...として保存</translation>
     </message>
     <message numerus="yes">
         <location filename="follow_stream_dialog.cpp" line="145"/>
