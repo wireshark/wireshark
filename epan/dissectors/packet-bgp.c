@@ -44,6 +44,7 @@
  * draft-nalawade-kapoor-tunnel-safi-05
  * draft-ietf-idr-add-paths-04 Additional-Path for BGP-4
  * draft-ietf-l2vpn-evpn-05 BGP MPLS Based Ethernet VPN
+ * draft-ietf-idr-aigp-18 for BGP
  * http://www.iana.org/assignments/bgp-parameters/ (last updated 2012-04-26)
 
  * TODO:
@@ -195,6 +196,7 @@ void proto_reg_handoff_bgp(void);
 #define BGPTYPE_SAFI_SPECIFIC_ATTR 19 /* draft-kapoor-nalawade-idr-bgp-ssa-00.txt */
 #define BGPTYPE_PMSI_TUNNEL_ATTR   22 /* RFC6514 */
 #define BGPTYPE_TUNNEL_ENCAPS_ATTR 23 /* RFC5512 */
+#define BGPTYPE_AIGP               26 /* draft-ietf-idr-aigp-18 */
 #define BGPTYPE_LINK_STATE_ATTR    99 /* FIXME: draft-ietf-idr-ls-distribution-03 temp. value no IANA assignee yet */
 
 /*EVPN Route Types */
@@ -452,6 +454,8 @@ void proto_reg_handoff_bgp(void);
 #define PMSI_MLDP_FEC_TYPE_EXT_TYPE     255
 #define PMSI_MLDP_FEC_ETYPE_RSVD        0
 
+/* draft-ietf-idr-aigp-18 AIGP types */
+#define AIGP_TLV_TYPE           1
 
 /* RFC 5512/5640 Sub-TLV Types */
 #define TUNNEL_SUBTLV_ENCAPSULATION 1
@@ -707,6 +711,7 @@ static const value_string bgpattr_type[] = {
     { BGPTYPE_SAFI_SPECIFIC_ATTR, "SAFI_SPECIFIC_ATTRIBUTE" },
     { BGPTYPE_TUNNEL_ENCAPS_ATTR, "TUNNEL_ENCAPSULATION_ATTRIBUTE" },
     { BGPTYPE_PMSI_TUNNEL_ATTR,   "PMSI_TUNNEL_ATTRIBUTE" },
+    { BGPTYPE_AIGP,               "AIGP"},
     { BGPTYPE_LINK_STATE_ATTR,    "LINK_STATE" },
     { 0, NULL }
 };
@@ -720,6 +725,11 @@ static const value_string pmsi_tunnel_type[] = {
     { PMSI_TUNNEL_BIDIR_PIM,      "BIDIR-PIM Tree" },
     { PMSI_TUNNEL_INGRESS,        "Ingress Replication" },
     { PMSI_TUNNEL_MLDP_MP2MP,     "mLDP MP2MP LSP" },
+    { 0, NULL }
+};
+
+static const value_string aigp_tlv_type[] = {
+    { AIGP_TLV_TYPE,            "Type AIGP TLV" },
     { 0, NULL }
 };
 
@@ -1218,6 +1228,7 @@ static int hf_bgp_update_path_attribute_multi_exit_disc = -1;
 static int hf_bgp_update_path_attribute_aggregator_as = -1;
 static int hf_bgp_update_path_attribute_aggregator_origin = -1;
 static int hf_bgp_update_path_attribute_link_state = -1;
+static int hf_bgp_update_path_attribute_aigp = -1;
 static int hf_bgp_evpn_nlri = -1;
 static int hf_bgp_evpn_nlri_rt = -1;
 static int hf_bgp_evpn_nlri_len = -1;
@@ -1265,6 +1276,12 @@ static int hf_bgp_pmsi_tunnel_pimssm_pmc_group = -1;
 static int hf_bgp_pmsi_tunnel_pimbidir_sender = -1;
 static int hf_bgp_pmsi_tunnel_pimbidir_pmc_group = -1;
 static int hf_bgp_pmsi_tunnel_ingress_rep_addr = -1;
+
+/* draft-ietf-idr-aigp-18 attribute */
+static int hf_bgp_aigp_type = -1;
+static int hf_bgp_aigp_tlv_length = -1;
+static int hf_bgp_aigp_accu_igp_metric = -1;
+
 
 /* MPLS labels decoding */
 static int hf_bgp_update_mpls_label = -1;
@@ -1596,6 +1613,7 @@ static gint ett_bgp_link_state = -1;
 static gint ett_bgp_evpn_nlri = -1;
 static gint ett_bgp_mpls_labels = -1;
 static gint ett_bgp_pmsi_tunnel_id = -1;
+static gint ett_bgp_aigp_attr = -1;
 
 static expert_field ei_bgp_cap_len_bad = EI_INIT;
 static expert_field ei_bgp_cap_gr_helper_mode_only = EI_INIT;
@@ -1608,6 +1626,7 @@ static expert_field ei_bgp_ext_com_len_bad = EI_INIT;
 static expert_field ei_bgp_attr_pmsi_opaque_type = EI_INIT;
 static expert_field ei_bgp_attr_pmsi_tunnel_type = EI_INIT;
 static expert_field ei_bgp_prefix_length_err = EI_INIT;
+static expert_field ei_bgp_attr_aigp_type = EI_INIT;
 
 static expert_field ei_bgp_evpn_nlri_rt4_len_err = EI_INIT;
 static expert_field ei_bgp_evpn_nlri_rt_type_err = EI_INIT;
@@ -5536,6 +5555,7 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
     proto_item      *ti_communities;            /* tree communities         */
     proto_item      *ti_community;              /* tree for each community  */
     proto_item      *attr_len_item;
+    proto_item      *aigp_type_item;
     proto_tree      *subtree;                   /* subtree for attributes   */
     proto_tree      *subtree2;                  /* subtree for attributes   */
     proto_tree      *subtree3;                  /* subtree for attributes   */
@@ -5559,6 +5579,7 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
     guint16         encaps_tunnel_len;          /* Encapsulation TLV Length */
     guint8          encaps_tunnel_subtype;      /* Encapsulation Tunnel Sub-TLV Type */
     guint8          encaps_tunnel_sublen;       /* Encapsulation TLV Sub-TLV Length */
+    guint8          aigp_type;                  /* AIGP TLV type from AIGP attribute */
 
     if (!tree)
         return;
@@ -6208,6 +6229,25 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
 
                     }
 
+                    break;
+                case BGPTYPE_AIGP:
+                    q = o + i + aoff;
+                    end = o + i + aoff + tlen;
+                    ti = proto_tree_add_item(subtree2, hf_bgp_update_path_attribute_aigp, tvb, q, tlen, ENC_NA);
+                    subtree3 = proto_item_add_subtree(ti, ett_bgp_aigp_attr);
+                    aigp_type_item =  proto_tree_add_item(subtree3, hf_bgp_aigp_type, tvb, q, 1, ENC_BIG_ENDIAN);
+                    aigp_type = tvb_get_guint8(tvb,q);
+                    switch (aigp_type) {
+                        case AIGP_TLV_TYPE :
+                            proto_tree_add_item(subtree3, hf_bgp_aigp_tlv_length, tvb, q+1, 2, ENC_BIG_ENDIAN);
+                            proto_tree_add_item(subtree3, hf_bgp_aigp_accu_igp_metric, tvb, q+3, 8, ENC_BIG_ENDIAN);
+                            proto_item_append_text(ti, ": %" G_GINT64_MODIFIER "u", tvb_get_ntoh64(tvb, q+3));
+                            proto_item_append_text(ti_pa, ": %" G_GINT64_MODIFIER "u", tvb_get_ntoh64(tvb, q+3));
+                            break;
+                        default :
+                            expert_add_info_format(pinfo, aigp_type_item, &ei_bgp_attr_aigp_type,
+                                            "AIGP type %u unknown", aigp_type);
+                    }
                     break;
                 case BGPTYPE_LINK_STATE_ATTR:
 
@@ -7120,6 +7160,20 @@ proto_register_bgp(void)
         {"Tunnel type ingress replication IP end point", "bgp.update.path_attribute.pmsi.ingress_rep_ip", FT_IPv4, BASE_NONE,
         NULL, 0x0, NULL, HFILL}},
 
+        /* draft-ietf-idr-aigp-18 */
+      { &hf_bgp_update_path_attribute_aigp,
+        { "AIGP Attribute", "bgp.update.path_attribute.aigp", FT_NONE, BASE_NONE,
+          NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_aigp_type,
+        {"AIGP attribute type", "bgp.update.attribute.aigp.type", FT_UINT8, BASE_DEC,
+        VALS(aigp_tlv_type), 0x0, NULL, HFILL }},
+      { &hf_bgp_aigp_tlv_length,
+        {"AIGP TLV length", "bgp.update.attribute.aigp.length", FT_UINT16, BASE_DEC,
+        NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_aigp_accu_igp_metric,
+        {"AIGP Accumulated IGP Metric", "bgp.update.attribute.aigp.accu_igp_metric", FT_UINT64, BASE_DEC,
+        NULL, 0x0, NULL, HFILL}},
+
         /* RFC4456 */
        { &hf_bgp_update_path_attribute_originator_id,
         { "Originator identifier", "bgp.update.path_attribute.originator_id", FT_IPv4, BASE_NONE,
@@ -7951,6 +8005,7 @@ proto_register_bgp(void)
       &ett_bgp_evpn_nlri,
       &ett_bgp_mpls_labels,
       &ett_bgp_pmsi_tunnel_id,
+      &ett_bgp_aigp_attr,
     };
     static ei_register_info ei[] = {
         { &ei_bgp_cap_len_bad, { "bgp.cap.length.bad", PI_MALFORMED, PI_ERROR, "Capability length is wrong", EXPFILL }},
@@ -7965,6 +8020,7 @@ proto_register_bgp(void)
         { &ei_bgp_evpn_nlri_rt_type_err, { "bgp.evpn.type", PI_MALFORMED, PI_ERROR, "EVPN Route Type is invalid", EXPFILL }},
         { &ei_bgp_attr_pmsi_tunnel_type, { "bgp.attr.pmsi.tunnel_type", PI_PROTOCOL, PI_ERROR, "Unknown Tunnel type", EXPFILL }},
         { &ei_bgp_attr_pmsi_opaque_type, { "bgp.attr.pmsi.opaque_type", PI_PROTOCOL, PI_ERROR, "Unvalid pmsi opaque type", EXPFILL }},
+        { &ei_bgp_attr_aigp_type, {"bgp.attr.aigp.type", PI_MALFORMED, PI_NOTE, "Unknown AIGP attribute type", EXPFILL}},
         { &ei_bgp_prefix_length_err, { "bgp.prefix.length", PI_MALFORMED, PI_ERROR, "Unvalid IPv6 prefix length", EXPFILL}}
     };
 
