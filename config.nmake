@@ -968,6 +968,8 @@ APPVER=5.02
 #                                   This definition prevents the complaint about the redefinition of inline by WinPCap
 #                                   in pcap-stdinc.h when compiling CPP files, e.g. the QT UI
 #
+# -GS                               Stack-Based Buffer Overrun Detection: On by default for MSVC 2003 and later
+#                                    (See # http://msdn.microsoft.com/en-us/magazine/cc337897.aspx)
 # -O2                               http://msdn.microsoft.com/en-us/library/8f8h5cxt.aspx
 #                                   Specifying the /O2 compiler option is the same as using the following options:
 #                                   /Ob (Inline Function Expansion), where the option parameter is 2 (/Ob2)
@@ -975,7 +977,7 @@ APPVER=5.02
 #                                   /Oi (Generate Intrinsic Functions)
 #                                   /Ot (Favor Fast Code)
 #                                   /Oy (Frame-Pointer Omission)
-#                                   /Gs (Buffer Security Check)
+#                                   /Gs (Control Stack Checking Calls))
 #                                   /GF (Eliminate Duplicate Strings)
 #                                   /Gy (Enable Function-Level Linking)
 
@@ -1051,6 +1053,8 @@ LOCAL_CFLAGS= $(LOCAL_CFLAGS) /MP
 LOCAL_CFLAGS= $(LOCAL_CFLAGS) /analyze:WX-
 !ENDIF
 
+## Do *not* redefine LOCAL_CFLAGS below this point !!
+
 #STANDARD_CFLAGS are flags used for *Wireshark* compiles (not stuff like lemon, etc)
 STANDARD_CFLAGS=/DWINPCAP_VERSION=$(WINPCAP_VERSION) $(LOCAL_CFLAGS) $(WARNINGS_CFLAGS)
 
@@ -1077,7 +1081,6 @@ DLL_LDFLAGS = /MANIFEST:no
 # Enable Safe Exception Handler.
 # http://msdn.microsoft.com/en-us/magazine/cc337897.aspx
 !IF $(MSC_VER_REQUIRED) >= 1300
-LOCAL_CFLAGS= $(LOCAL_CFLAGS) /GS
 !IF "$(WIRESHARK_TARGET_PLATFORM)" != "win64"
 LOCAL_LDFLAGS= $(LOCAL_LDFLAGS) /SafeSEH
 !ENDIF
@@ -1111,7 +1114,7 @@ ENABLE_LIBWIRESHARK=USE
 #
 # install (debug) directory for Wireshark (relative to your source dir)
 INSTALL_DIR=wireshark-gtk2
-INSTALL_DIR_QT=wireshark-qt-release 
+INSTALL_DIR_QT=wireshark-qt-release
 
 ##### C-Runtime Redistributable #####
 #
