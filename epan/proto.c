@@ -1142,7 +1142,7 @@ proto_tree_add_subtree_format(proto_tree *tree, tvbuff_t *tvb, gint start, gint 
 	va_list		ap;
 	header_field_info *hfinfo;
 
-    /* Make sure pi is initialized in case TRY_TO_FAKE_THIS_ITEM bails */
+	/* Make sure *tree_item is initialized in case TRY_TO_FAKE_THIS_ITEM bails */
 	if (tree_item != NULL)
 		*tree_item = NULL;
 
