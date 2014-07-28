@@ -3,7 +3,7 @@
 
 ##### Program name #####
 # Changing the name is experimental and may break the installer/unistaller and possibly other stuff.
-# Application data will still be under the same dir as Wireshark so perference files profiles etc
+# Application data will still be under the same dir as Wireshark so preference files, profiles, and etc
 # will be shared with a "normal" Wireshark installation.
 # Note that suport libararies needs to be in PROGRAM_NAME-libs...
 
