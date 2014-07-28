@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Radomly chosen application as it's needed to parse the xml-->
+<!-- Randomly chosen application as it's needed to parse the xml-->
 <application id="16777304"	name="Ericsson Sy"		uri="http://www.iana.org/assignments/aaa-parameters/aaa-parameters.xml">
 	<avp name="Dummy" code="0" mandatory="mustnot" protected="may" vendor-bit="must" vendor-id="SKT" may-encrypt="yes">
 		<type type-name="Unsigned32"/>

@@ -1686,6 +1686,10 @@ dictionary_load(void)
 			g_array_append_val(arr,item);
 		}
 
+		g_array_sort(arr, compare_avps);
+
+        /* TODO: Remove duplicates */
+
 		dictionary.applications = (value_string *)arr->data;
 		g_array_free(arr,FALSE);
 	}
