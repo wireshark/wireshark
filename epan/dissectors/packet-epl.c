@@ -2529,7 +2529,7 @@ gint
 dissect_epl_sdo_command_write_by_index(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gint offset, guint8 segmented, gboolean response)
 {
 	gint size, payload_length;
-	guint16 idx = 0x00, nosub = 0x00, sod_sub_index = 0x00, sod_index = 0x00, error = 0xFF, entries = 0x00, sub_val = 0x00;
+	guint16 idx = 0x00, nosub = 0x00, sod_index = 0x00, error = 0xFF, entries = 0x00, sub_val = 0x00;
 	guint8 subindex = 0x00;
 	guint32 fragmentId = 0;
 	guint32 frame = 0;
@@ -2571,7 +2571,6 @@ dissect_epl_sdo_command_write_by_index(proto_tree *epl_tree, tvbuff_t *tvb, pack
 				if(sod_index == EPL_SOD_PDO_RX_MAPP || sod_index == EPL_SOD_PDO_TX_MAPP)
 				{
 					proto_item_append_text(psf_item,"_AU64)");
-					sod_sub_index = 0x01;
 				}
 				else
 				{
@@ -2739,7 +2738,7 @@ dissect_epl_sdo_command_write_multiple_by_index(proto_tree *epl_tree, tvbuff_t *
 {
 	gint dataoffset;
 	guint8 subindex = 0x00,  padding = 0x00;
-	guint16 idx = 0x00, sod_index = 0x00, nosub = 0x00 ,sod_sub_index = 0x00, error = 0xFF, entries = 0x00, sub_val = 0x00;
+	guint16 idx = 0x00, sod_index = 0x00, nosub = 0x00 ,error = 0xFF, entries = 0x00, sub_val = 0x00;
 	guint32 size, offsetincrement, datalength, remlength;
 	gboolean lastentry = FALSE;
 	const gchar *index_str, *sub_str, *sub_index_str;
@@ -2836,7 +2835,6 @@ dissect_epl_sdo_command_write_multiple_by_index(proto_tree *epl_tree, tvbuff_t *
 					if(sod_index == EPL_SOD_PDO_RX_MAPP || sod_index == EPL_SOD_PDO_TX_MAPP)
 					{
 						proto_item_append_text(psf_item,"_AU64)");
-						sod_sub_index = 0x01;
 					}
 					else
 					{
