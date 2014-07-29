@@ -875,18 +875,7 @@ Section "${PROGRAM_NAME} 2 Preview" SecWiresharkQt
 ; by default, QtShark is installed but file is always associate with Wireshark GTK+
 SetOutPath $INSTDIR
 File "${QT_DIR}\${PROGRAM_NAME_PATH_QT}"
-!ifdef NEED_QT4_DLL
-File "${QT_DIR}\QtCore4.dll"
-File "${QT_DIR}\QtGui4.dll"
-!endif
-!ifdef NEED_QT5_DLL
-File "${QT_DIR}\Qt5Core.dll"
-File "${QT_DIR}\Qt5Gui.dll"
-File "${QT_DIR}\Qt5Widgets.dll"
-File "${QT_DIR}\Qt5PrintSupport.dll"
-SetOutPath $INSTDIR\platforms
-File "${QT_DIR}\platforms\qwindows.dll"
-!endif
+!include qt-dll-manifest.txt
 
 Push $0
 ;SectionGetFlags ${SecWiresharkQt} $0
@@ -1050,7 +1039,6 @@ IntFmt $0 "0x%08X" $0
 WriteRegDWORD HKEY_LOCAL_MACHINE "${UNINSTALL_PATH}" "EstimatedSize" "$0"
 
 SectionEnd
-
 
 ; ============================================================================
 ; PLEASE MAKE SURE, THAT THE DESCRIPTIVE TEXT FITS INTO THE DESCRIPTION FIELD!

@@ -229,11 +229,31 @@ NSIS_FLAGS=\
 !IF EXIST("..\..\wireshark-qt-release\qtshark.exe")
 	/DQT_DIR="..\..\wireshark-qt-release" \
 !ENDIF
-!IF EXIST("..\..\wireshark-qt-release\Qt5Core.dll")
-	/DNEED_QT5_DLL=USE \
-!ENDIF
-!IF EXIST("..\..\wireshark-qt-release\QtCore4.dll")
-	/DNEED_QT4_DLL=USE \
+
+wireshark.nsi: qt-dll-manifest.txt
+qt-dll-manifest.txt: _FORCE_
+!IF EXIST("$(QT5_BASE_DIR)\bin\windeployqt.exe")
+	"$(QT5_BASE_DIR)\bin\windeployqt.exe" \
+	    --release \
+	    --no-compiler-runtime \
+	    --list source ..\..\wireshark-qt-release\qtshark.exe \
+	    > $@
+	    sed -i -e 's/^/File "/' -e 's/$$/"/' $@
+!ELSE IF EXIST("..\..\wireshark-qt-release\Qt5Core.dll")
+	type << > $@
+File "..\..\wireshark-qt-release\Qt5Core.dll"
+File "..\..\wireshark-qt-release\Qt5Gui.dll"
+File "..\..\wireshark-qt-release\Qt5Widgets.dll"
+File "..\..\wireshark-qt-release\Qt5PrintSupport.dll"
+File "..\..\wireshark-qt-release\platforms\qwindows.dll"
+<<
+!ELSE IF EXIST("..\..\wireshark-qt-release\QtCore4.dll")
+	type << > $@
+File "..\..\wireshark-qt-release\QtCore4.dll"
+File "..\..\wireshark-qt-release\QtGui4.dll"
+<<
+!ELSE
+	copy nul $@ /y
 !ENDIF
 
 $(STAGING_DIR)\uninstall.exe : $(NSI)
@@ -252,6 +272,7 @@ clean:
 	rm -f $(UNINSTALL_INSTALLER)
 	rm -f NEWS.txt
 	rm -f user-guide.chm
+	rm -f qt-dll-manifest.txt
 
 distclean: clean
 	rm -f wireshark-$(WIRESHARK_TARGET_PLATFORM)-*.exe
