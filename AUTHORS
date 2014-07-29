@@ -3564,6 +3564,16 @@ Anish Bhatt		<anish[at]chelsio.com> {
 	Dissector for Congestion Notification (802.1Qau)
 }
 
+Dmitry Bazhenov		<dima_b@[AT]pigeonpoint.com> {
+	Dissector for IPMI Trace
+}
+
+Masatake Yamato		<yamato[AT]redhat.com> {
+	Dissector Distributed Lock Manager (dlm3)
+	Dissector for pulse
+	Dissectors for totemnet and totemsrp (Corosync)
+}
+
 John Miner		<wiresharkdissectorcoder[AT]gmail.com> {
 	Dissector for OptoMMP
 }
