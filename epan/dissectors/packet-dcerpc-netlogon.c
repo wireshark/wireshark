@@ -2474,13 +2474,10 @@ netlogon_dissect_netrserverreqchallenge_rqst(tvbuff_t *tvb, int offset,
     /*int oldoffset = offset;*/
     netlogon_auth_vars *vars;
     netlogon_auth_vars *existing_vars;
-    netlogon_auth_key *key = (netlogon_auth_key *)wmem_alloc(wmem_file_scope(), sizeof(netlogon_auth_key));
+    netlogon_auth_key *key;
     guint8 tab[8] = { 0,0,0,0,0,0,0,0};
     dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 
-    /* As we are not always keeping this it could be more intelligent to g_malloc it
-       and if we decide to keep it then transform it into wmem_alloc */
-    vars = (netlogon_auth_vars *)wmem_alloc(wmem_file_scope(), sizeof(netlogon_auth_vars));
     offset = netlogon_dissect_LOGONSRV_HANDLE(tvb, offset, pinfo, tree, di, drep);
     offset = dissect_ndr_pointer_cb(
         tvb, offset, pinfo, tree, di, drep,
@@ -2490,6 +2487,7 @@ netlogon_dissect_netrserverreqchallenge_rqst(tvbuff_t *tvb, int offset,
         GINT_TO_POINTER(CB_STR_COL_INFO |CB_STR_SAVE | 1));
 
     debugprintf("1)Len %d offset %d txt %s\n",(int) strlen(dcv->private_data),offset,(char*)dcv->private_data);
+    vars = wmem_new0(wmem_file_scope(), netlogon_auth_vars);
     vars->client_name = wmem_strdup(wmem_file_scope(), (const guint8 *)dcv->private_data);
     debugprintf("2)Len %d offset %d txt %s\n",(int) strlen(dcv->private_data),offset,vars->client_name);
 
@@ -2501,6 +2499,7 @@ netlogon_dissect_netrserverreqchallenge_rqst(tvbuff_t *tvb, int offset,
     vars->next_start = -1;
     vars->next = NULL;
 
+    key = wmem_new(wmem_file_scope(), netlogon_auth_key);
     generate_hash_key(pinfo,0,key,NULL);
     existing_vars = (netlogon_auth_vars *)g_hash_table_lookup(netlogon_auths, key);
     if (!existing_vars) {
@@ -2514,6 +2513,7 @@ netlogon_dissect_netrserverreqchallenge_rqst(tvbuff_t *tvb, int offset,
         }
         if(existing_vars->next != NULL || existing_vars->start == vars->start) {
             debugprintf("It seems that I already record this vars start packet = %d\n",vars->start);
+            /* is it worth wmem_free-ing vars ? */
         }
         else {
             debugprintf("Adding a new entry with this start packet = %d\n",vars->start);
