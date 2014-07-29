@@ -141,11 +141,15 @@ tftp_dissect_options(tvbuff_t *tvb, packet_info *pinfo, int offset,
   proto_tree *opt_tree;
 
   while (tvb_offset_exists(tvb, offset)) {
-    option_len = tvb_strsize(tvb, offset);      /* length of option */
+    /* option_len and value_len include the trailing 0 byte */
+    option_len = tvb_strsize(tvb, offset);
     value_offset = offset + option_len;
-    value_len = tvb_strsize(tvb, value_offset); /* length of value */
-    optionname = tvb_format_text(tvb, offset, option_len);
-    optionvalue = tvb_format_text(tvb, value_offset, value_len);
+    value_len = tvb_strsize(tvb, value_offset);
+    /* use xxx_len-1 to exclude the trailing 0 byte, it would be
+       displayed as nonprinting character
+       tvb_format_text() creates a temporary 0-terminated buffer */
+    optionname = tvb_format_text(tvb, offset, option_len-1);
+    optionvalue = tvb_format_text(tvb, value_offset, value_len-1);
     opt_tree = proto_tree_add_subtree_format(tree, tvb, offset, option_len+value_len,
                                    ett_tftp_option, NULL, "Option: %s = %s", optionname, optionvalue);
 
