@@ -6,12 +6,6 @@
 	<command name="Subscribe Change"	code="102" vendor-id="HP">
 	<command name="Notify Change"		code="103" vendor-id="HP">
 
-	<avp name="Auth-Application-Id" code="258" mandatory="must" protected="mustnot" may-encrypt="no" vendor-bit="mustnot">
-		<type type-name="AppId"/>
-		<enum name="HP Diameter Topology Discovery" code="16777305"/>
-		<enum name="3GPP S6a" code="16777251"/>
-		<enum name="3GPP S13" code="16777252"/>
-	</avp>
 	<avp name="Peer-State" code="200"  vendor-id="HP" mandatory="must" vendor-bit="must">
 		<type type-name="Enumerated"/>
 		<enum name="Down" code="0"/>

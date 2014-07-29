@@ -1729,9 +1729,9 @@
       <enum name="Ericsson Charging-DCIP" code="16777301"/>
       <enum name="3GPP Sy" code="16777302"/>
       <enum name="3GPP Sd" code="16777303"/>
-			<enum name="Ericsson Sy" code="16777304"/>
+      <enum name="Ericsson Sy" code="16777304"/>
+      <enum name="HP DTD" code="16777305"/>
       <!--
-			16777305 HP DTD [Chiranjeev_Agrawal][J_V_Kishore]
 			16777306 M9 interface between MLM-PE(P) and MLM-PE(C)[ITU-T Q5/Sg11][Jin_Seek_Choi]
 			16777307 ITU-T M13 [ITU-T Q.3230][Kwihoon_Kim]
 			-->
