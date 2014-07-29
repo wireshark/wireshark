@@ -27,6 +27,22 @@ The following bugs have been fixed:
 === New and Updated Features
 
 The following features are new (or have been significantly updated)
+since version 1.12.0:
+
+* The I/O Graph in the Gtk+ UI now supports an unlimited number of data points
+(up from 100k).
+* tshark now resets its state when changing files in ring-buffer mode.
+* Expert Info severities can now be configured.
+
+* Qt port:
+
+** A Polish translation has been added.
+** The Interfaces dialog has been added.
+** The interface list is now updated when interfaces appear or disappear.
+** The Conversations dialog has been added.
+** A Japanese translation has been added.
+
+The following features are new (or have been significantly updated)
 since version 1.11.3:
 
 * Transport name resolution is now disabled by default.
@@ -99,8 +115,11 @@ since version 1.10:
 
 --sort-and-group--
 Generic Network Virtualization Encapsulation (Geneve)
+IPMI Trace
 iSER
 OptoMMP
+corosync/totemnet
+corosync/totemsrp
 --sort-and-group--
 
 === Updated Protocol Support
@@ -115,6 +134,11 @@ Too many protocols have been updated to list here.
 === Major API Changes
 
 The libwireshark API has undergone some major changes:
+
+* Many of the ep_ and se_ memory allocation routines have been removed.
+* The (long-since-broken) Python bindings support has been removed from
+Wireshark.  If you want to write dissectors in something other than C,
+use Lua.
 
 
 == Getting Wireshark
