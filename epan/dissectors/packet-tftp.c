@@ -539,8 +539,6 @@ dissect_tftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 
   dissect_tftp_message(tftp_info, tvb, pinfo, tree);
-
-  return;
 }
 
 
