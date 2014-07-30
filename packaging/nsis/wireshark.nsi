@@ -358,7 +358,7 @@ File "..\..\ipmap.html"
 
 ; C-runtime redistributable
 !ifdef VCREDIST_EXE
-; vcredist_x86.exe (MSVC V8) - copy and execute the redistributable installer
+; vcredist_x64.exe - copy and execute the redistributable installer
 File "${VCREDIST_EXE}"
 ; If the user already has the redistributable installed they will see a
 ; Big Ugly Dialog by default, asking if they want to uninstall or repair.
@@ -367,13 +367,18 @@ File "${VCREDIST_EXE}"
 ; "silent" install otherwise.
 
 ; http://blogs.msdn.com/b/astebner/archive/2010/10/20/10078468.aspx
+; http://allthingsconfigmgr.wordpress.com/2013/12/17/visual-c-redistributables-made-simple/
 ; "!if ${MSVC_VER_REQUIRED} >= 1600" doesn't work.
-!searchparse /noerrors ${MSVC_VER_REQUIRED} "1400" VCREDIST_OLD_FLAGS "1500" VCREDIST_OLD_FLAGS
-!ifdef VCREDIST_OLD_FLAGS
+!searchparse /noerrors ${MSVC_VER_REQUIRED} "1400" VCREDIST_FLAGS_Q "1500" VCREDIST_FLAGS_Q "1600" VCREDIST_FLAGS_Q_NORESTART
+!ifdef VCREDIST_FLAGS_Q
 StrCpy $VCREDIST_FLAGS "/q"
-!else ; VCREDIST_OLD_FLAGS
+!else ; VCREDIST_FLAGS_Q
+!ifdef VCREDIST_FLAGS_Q_NORESTART
 StrCpy $VCREDIST_FLAGS "/q /norestart"
-!endif ; VCREDIST_OLD_FLAGS
+!else ; VCREDIST_FLAGS_Q_NORESTART
+StrCpy $VCREDIST_FLAGS "/quiet /norestart"
+!endif ; VCREDIST_FLAGS_Q_NORESTART
+!endif ; VCREDIST_FLAGS_Q
 
 ExecWait '"$INSTDIR\vcredist_${TARGET_MACHINE}.exe" $VCREDIST_FLAGS' $0
 DetailPrint "vcredist_${TARGET_MACHINE} returned $0"
