@@ -830,6 +830,23 @@ decode_rtp_stream(rtp_stream_info_t *rsi, gpointer ptr)
 	g_hash_table_destroy(decoders_hash);
 }
 
+#if !PORTAUDIO_API_1
+/* returns monotonically increasing clock in seconds */
+static PaTime
+getMonoTime(PaStream *stream _U_)
+{
+#if GLIB_CHECK_VERSION(2, 28, 0)
+	return g_get_monotonic_time() * 1e-6;
+#else
+	/* TODO: this is broken for sure, but maybe such old glibs do not even
+	 * use pulseaudio so we do not have to care? */
+	return Pa_GetStreamTime(stream);
+#endif
+}
+
+static PaTime (*getCurrentTime)(PaStream *stream);
+#endif
+
 /****************************************************************************/
 static gint
 h_scrollbar_changed(GtkWidget *widget _U_, gpointer user_data)
@@ -916,7 +933,14 @@ draw_channel_cursor(rtp_channel_info_t *rci, guint32 start_index)
 #if PORTAUDIO_API_1
 	idx = Pa_StreamTime( pa_stream ) - rtp_channels->pause_duration - rtp_channels->out_diff_time - start_index;
 #else  /* PORTAUDIO_API_1 */
-	idx = ((guint32)(sample_rate) * (Pa_GetStreamTime(pa_stream)-rtp_channels->pa_start_time))- rtp_channels->pause_duration - rtp_channels->out_diff_time - start_index;
+	/* frames since start button was pressed minus latency, from time */
+	idx = (guint32) sample_rate
+		* (getCurrentTime(pa_stream) - rtp_channels->pa_start_time
+		- rtp_channels->out_diff_time);
+	/* frames spent in pause state or seek correction */
+	idx -= rtp_channels->pause_duration;
+	/* frame where the bar starts getting drawn */
+	idx -= start_index;
 #endif  /* PORTAUDIO_API_1 */
 
 
@@ -1122,12 +1146,12 @@ init_rtp_channels_vals(void)
 
 static int paCallback(   void *inputBuffer _U_, void *outputBuffer,
 			 unsigned long framesPerBuffer,
-			 PaTimestamp outTime _U_, void *userData)
+			 PaTimestamp outTime, void *userData)
 {
 #else /* PORTAUDIO_API_1 */
 static int paCallback( const void *inputBuffer _U_, void *outputBuffer,
 		       unsigned long framesPerBuffer,
-		       const PaStreamCallbackTimeInfo* outTime _U_,
+		       const PaStreamCallbackTimeInfo* outTime,
 		       PaStreamCallbackFlags statusFlags _U_,
 		       void *userData)
 {
@@ -1151,9 +1175,9 @@ static int paCallback( const void *inputBuffer _U_, void *outputBuffer,
 	}
 
 #if PORTAUDIO_API_1
-	rpci->out_diff_time = outTime -  Pa_StreamTime(pa_stream) ;
+	rpci->out_diff_time = outTime -  Pa_StreamTime(pa_stream);
 #else /* PORTAUDIO_API_1 */
-	rpci->out_diff_time = (guint32)(sample_rate) * (outTime->outputBufferDacTime - Pa_GetStreamTime(pa_stream)) ;
+	rpci->out_diff_time = outTime->outputBufferDacTime - outTime->currentTime;
 #endif /* PORTAUDIO_API_1 */
 
 
@@ -2039,6 +2063,16 @@ play_channels(void)
 		}
 #if !PORTAUDIO_API_1
 		rtp_channels->pa_start_time = Pa_GetStreamTime(pa_stream);
+		if (rtp_channels->pa_start_time == 0) {
+			/* PortAudio has a broken Pa_GetStreamTime
+			 * implementation for ALSA on top of PulseAudio.
+			 * https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=10307
+			 */
+			getCurrentTime = getMonoTime;
+			rtp_channels->pa_start_time = getCurrentTime(pa_stream);
+		} else {
+			getCurrentTime = Pa_GetStreamTime;
+		}
 #endif /* PORTAUDIO_API_1 */
 
 		rtp_channels->stop = FALSE;
@@ -2528,3 +2562,16 @@ rtp_player_init(voip_calls_tapinfo_t *voip_calls_tap)
 }
 
 #endif /* HAVE_LIBPORTAUDIO */
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 noexpandtab:
+ * :indentSize=4:tabSize=8:noTabs=false:
+ */
