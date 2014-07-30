@@ -24,7 +24,7 @@ FIND_PATH(GCRYPT_INCLUDE_DIR gcrypt.h
 
 SET(GCRYPT_NAMES gcrypt libgcrypt-20)
 FIND_LIBRARY(GCRYPT_LIBRARY NAMES ${GCRYPT_NAMES} libgcc_s_sjlj-1 HINTS "${GCRYPT_HINTS}/bin")
-FIND_LIBRARY(GCRYPT_ERROR_LIBRARY NAMES gpg-error libgpg-error-0 HINTS "${GCRYPT_HINTS}/bin")
+FIND_LIBRARY(GCRYPT_ERROR_LIBRARY NAMES gpg-error libgpg-error-0 libgpg-error6-0 HINTS "${GCRYPT_HINTS}/bin")
 
 # handle the QUIETLY and REQUIRED arguments and set GCRYPT_FOUND to TRUE if 
 # all listed variables are TRUE
