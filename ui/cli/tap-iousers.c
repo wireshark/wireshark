@@ -96,7 +96,9 @@ iousers_draw(void *arg)
 			tot_frames = iui->rx_frames + iui->tx_frames;
 
 			if (tot_frames == last_frames){
-				printf("%-20s <-> %-20s  %6d %9" G_GINT64_MODIFIER "d  %6d %9" G_GINT64_MODIFIER "d  %6d %9" G_GINT64_MODIFIER "d  ",
+				printf("%-20s <-> %-20s  %6" G_GINT64_MODIFIER "u %9" G_GINT64_MODIFIER
+				       "u  %6" G_GINT64_MODIFIER "u %9" G_GINT64_MODIFIER "u  %6"
+				       G_GINT64_MODIFIER "u %9" G_GINT64_MODIFIER "u  ",
                     /* XXX - TODO: make name resolution configurable (through gbl_resolv_flags?) */
 					get_conversation_address(&iui->src_address, TRUE), get_conversation_address(&iui->dst_address, TRUE),
 					iui->tx_frames, iui->tx_bytes,
