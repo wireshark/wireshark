@@ -6,7 +6,7 @@ WSUG_FILES =	\
 	wsug_src/WSUG_app_protocols.xml		\
 	wsug_src/WSUG_app_tools.xml		\
 	wsug_src/WSUG_chapter_advanced.xml	\
-	wsug_src/WSUG_chapter_build_install.xml	\
+	wsug_src/WSUG_chapter_build_install.asciidoc	\
 	wsug_src/WSUG_chapter_capture.xml	\
 	wsug_src/WSUG_chapter_customize.xml	\
 	wsug_src/WSUG_chapter_introduction.asciidoc	\
@@ -22,6 +22,7 @@ WSUG_FILES =	\
 	ws.css
 
 WSUG_GENERATED_SOURCE = \
+	wsug_src/WSUG_chapter_build_install.xml	\
 	wsug_src/WSUG_chapter_introduction.xml	\
 	wsug_src/WSUG_preface.xml
 
