@@ -5,8 +5,6 @@
  *
  * Author: Lu Pan <lu.pan@intel.com>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1999 Gerald Combs
@@ -37,7 +35,6 @@
 #include <epan/address.h>
 #include <epan/emem.h>
 #include "wimax_tlv.h"
-#include "wimax_bits.h"
 
 /* WiMax dissector function prototypes */
 extern void proto_register_wimax_cdma(void);

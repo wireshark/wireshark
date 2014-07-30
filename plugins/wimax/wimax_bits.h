@@ -5,8 +5,6 @@
  *
  * Author: Mike Harvey <michael.harvey@intel.com>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1999 Gerald Combs
@@ -48,53 +46,41 @@
 #define NIBBLE_MASK 0x0F
 #define BYTE_MASK 0xFF
 
-/* extract the nibble at the given nibble address 'n' of buffer 'b' */
-#define NIB_NIBBLE(n,b) \
+/* extract the nibble at the given nibble address 'n' of tvbuff_t 't' */
+#define TVB_NIB_NIBBLE(n,t) \
     (((n) & 1) \
-    ?  (b)[(n)/2] & NIBBLE_MASK \
-    : ((b)[(n)/2] >> 4) & NIBBLE_MASK)
+    ?  tvb_get_guint8((t), (n)/2) & NIBBLE_MASK \
+    : (tvb_get_guint8((t), (n)/2) >> 4) & NIBBLE_MASK)
 
-/* extract the byte at the given nibble address 'n' of buffer 'b' */
-#define NIB_BYTE(n,b) \
+/* extract the byte at the given nibble address 'n' of tvbuff_t 't' */
+#define TVB_NIB_BYTE(n,t) \
     (n) & 1 \
-    ? (pntohs( (b)+(n)/2 ) >> 4) & BYTE_MASK \
-    : (b)[(n)/2]
-    /*
-    ? (pletohs((b)+(n)/2) >> 4) & BYTE_MASK \
-    */
+    ? (tvb_get_ntohs((t), (n)/2) >> 4) & BYTE_MASK \
+    : tvb_get_guint8((t), (n)/2)
 
 /* extract 12 bits at the given nibble address */
-#define NIB_BITS12(n,b) \
-      (NIB_NIBBLE(n,b+1) | (NIB_BYTE(n,b) << 4))
+#define TVB_NIB_BITS12(n,t) \
+      (TVB_NIB_NIBBLE(n+2,t) | (TVB_NIB_BYTE(n,t) << 4))
 
-/* extract the word at the given nibble address 'n' of buffer 'b' */
-#define NIB_WORD(n,b) \
+/* extract the word at the given nibble address 'n' of tvbuff_t 't' */
+#define TVB_NIB_WORD(n,t) \
     (n) & 1 \
-    ? (gint)((pntohl(((b) + (n)/2)) >> 12) & 0x0000FFFF) \
-    : pntohs((b) + (n)/2)
-    /*
-    : pletohs((b) + (n)/2)
-    ? (pletohl((b)+(n)/2) >> 12) & 0x0000FFFF \
-    */
+    ? (gint)((tvb_get_ntohl((t), (n)/2) >> 12) & 0x0000FFFF) \
+    : tvb_get_ntohs((t), (n)/2)
 
-/* extract the word at the given nibble address 'n' of buffer 'b' */
-#define NIB_LONG(n,b) \
+/* extract the word at the given nibble address 'n' of tvbuff_t 't' */
+#define TVB_NIB_LONG(n,t) \
     (n) & 1 \
-    ? (pntohl(((b) + (n)/2)) << 4) | (((b)[(n)/2 + 4] >> 4) & NIBBLE_MASK) \
-    : pntohl((b) + (n)/2)
-    /*
-    ? (pletohl((b) + (n)/2) << 4) | (((b)[(n)/2 + 4] >> 4) & NIBBLE_MASK) \
-    : pletohl((b) + (n)/2)
-    */
+    ? (tvb_get_ntohl((t), (n)/2) << 4) | ((tvb_get_guint8((t), (n)/2 + 4) >> 4) & NIBBLE_MASK) \
+    : tvb_get_ntohl((t), (n)/2)
 
 /* Only currently used with nib == 1 or 2 */
-#define NIB_NIBS(nib, buf, num) \
-    ((num) == 1 ? NIB_NIBBLE(nib,buf) : \
-    ((num) == 2 ? NIB_BYTE(nib,buf) : \
-    ((num) == 3 ? NIB_BITS12(nib,buf) : \
-    ((num) == 4 ? NIB_WORD(nib,buf) : \
+#define TVB_NIB_NIBS(nib, t, num) \
+    ((num) == 1 ? TVB_NIB_NIBBLE(nib,t) : \
+    ((num) == 2 ? TVB_NIB_BYTE(nib,t) : \
+    ((num) == 3 ? TVB_NIB_BITS12(nib,t) : \
+    ((num) == 4 ? TVB_NIB_WORD(nib,t) : \
     0))))
-
 
 /* to highlight nibfields correctly in wireshark
  * AddItem(..., WSADDR(buf,bit), WSLEN(bit), ...) */
@@ -139,50 +125,50 @@
 #define MASK64b(bit,num) (MASK32(num - (32 - OFFSET32(bit))))
 
 /* note that if you have a bitfield of length 2 or more, it may cross a
- * byte boundary so you should use BIT_BITS16 */
+ * byte boundary so you should use TVB_BIT_BITS16 */
 
 /* extract a single bit
  * bit ... bit address
- * buf ... buffer
+ * tvb ... tvbuff_t
  */
-#define BIT_BIT(bit, buf) \
-    (( (buf)[ADDR(bit)] >> SHIFT(bit,1) ) & 0x1)
+#define TVB_BIT_BIT(bit, tvb) \
+    (( tvb_get_guint8(tvb, ADDR(bit)) >> SHIFT(bit,1) ) & 0x1)
 
 /* extract bitfield up to 9 bits
  * bit ... bit address
- * buf ... buffer
+ * tvb ... tvbuff_t
  * num ... length of bitfield
  */
-#define BIT_BITS16(bit, buf, num) \
-    (( pntohs(buf+ADDR16(bit)) >> SHIFT16(bit,num) ) & MASK16(num))
+#define TVB_BIT_BITS16(bit, tvb, num) \
+    (( tvb_get_ntohs(tvb, ADDR16(bit)) >> SHIFT16(bit,num) ) & MASK16(num))
 
 /* extract bitfield up to 24 bits
  * bit ... bit address
- * buf ... buffer
+ * tvb ... tvbuff_t
  * num ... length of bitfield
  */
 
-#define BIT_BITS32(bit, buf, num) \
-      ((pntohl(buf+ADDR32(bit)) >> SHIFT32(bit,num) ) & MASK32(num))
+#define TVB_BIT_BITS32(bit, tvb, num) \
+      ((tvb_get_ntohl(tvb, ADDR32(bit)) >> SHIFT32(bit,num) ) & MASK32(num))
 
 /* bitfield up to 32 bits */
-#define BIT_BITS64a(bit, buf, num) \
-      ((pntohl(buf+ADDR32(bit)) & MASK64a(bit)) << SHIFT64a(bit,num))
+#define TVB_BIT_BITS64a(bit, tvb, num) \
+      ((tvb_get_ntohl(tvb, ADDR32(bit)) & MASK64a(bit)) << SHIFT64a(bit,num))
 
-#define BIT_BITS64b(bit, buf, num) \
-      ((pntohl(buf+ADDR32(bit)+4) >> SHIFT64b(bit,num) ) & MASK64b(bit,num))
+#define TVB_BIT_BITS64b(bit, tvb, num) \
+      ((tvb_get_ntohl(tvb, ADDR32(bit)+4) >> SHIFT64b(bit,num) ) & MASK64b(bit,num))
 
-#define BIT_BITS64(bit, buf, num) \
+#define TVB_BIT_BITS64(bit, tvb, num) \
       ( (OFFSET32(bit)+(num)) <= 32 \
-      ? BIT_BITS32(bit,buf,num) \
-      : BIT_BITS64a(bit,buf,num) \
-      | BIT_BITS64b(bit,buf,num) )
+      ? TVB_BIT_BITS32(bit,tvb,num) \
+      : TVB_BIT_BITS64a(bit,tvb,num) \
+      | TVB_BIT_BITS64b(bit,tvb,num) )
 
-#define BIT_BITS(bit, buf, num) \
-    ((num) ==  1 ? (gint)BIT_BIT(bit,buf) : \
-    ((num) <=  9 ? (gint)BIT_BITS16(bit,buf,num) : \
-    ((num) <= 24 ? (gint)BIT_BITS32(bit,buf,num) : \
-    ((num) <= 32 ? (gint)BIT_BITS64(bit,buf,num) : \
+#define TVB_BIT_BITS(bit, tvb, num) \
+    ((num) ==  1 ? (gint)TVB_BIT_BIT(bit,tvb) : \
+    ((num) <=  9 ? (gint)TVB_BIT_BITS16(bit,tvb,num) : \
+    ((num) <= 24 ? (gint)TVB_BIT_BITS32(bit,tvb,num) : \
+    ((num) <= 32 ? (gint)TVB_BIT_BITS64(bit,tvb,num) : \
                    (gint)0 ))))
 
 /* to highlight bitfields correctly in wireshark
@@ -194,14 +180,6 @@
 #define BIT_LEN(bit,len) (1 + ((OFFSET(bit) + len - 1) / 8))
 
 #define BITHI(bit,len)  BIT_ADDR(bit),BIT_LEN(bit,len)
-
-/* CONVENIENCE FUNCTIONS */
-
-#define BIT_NIBBLE(bit,buf) BIT_BITS16(bit,buf,4)
-#define BIT_BYTE(bit,buf) BIT_BITS16(bit,buf,8)
-#define BIT_WORD(bit,buf) BIT_BITS32(bit,buf,16)
-#define BIT_WORD24(bit,buf) BIT_BITS32(bit,buf,24)
-#define BIT_LONG(bit,buf) BIT_BITS64(bit,buf,32)
 
 /********************************************************************
  * padding functions - return number of nibbles/bits needed to
