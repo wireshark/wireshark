@@ -880,7 +880,8 @@ Section "${PROGRAM_NAME} 2 Preview" SecWiresharkQt
 ; by default, QtShark is installed but file is always associate with Wireshark GTK+
 SetOutPath $INSTDIR
 File "${QT_DIR}\${PROGRAM_NAME_PATH_QT}"
-!include qt-dll-manifest.txt
+!include qt-dll-manifest.nsh
+File "${QT_DIR}\*.qm"
 
 Push $0
 ;SectionGetFlags ${SecWiresharkQt} $0

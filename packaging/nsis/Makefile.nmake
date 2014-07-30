@@ -230,15 +230,13 @@ NSIS_FLAGS=\
 	/DQT_DIR="..\..\wireshark-qt-release" \
 !ENDIF
 
-wireshark.nsi: qt-dll-manifest.txt
-qt-dll-manifest.txt:
+wireshark.nsi: qt-dll-manifest.nsh
+qt-dll-manifest.nsh: windeployqt-to-nsis.ps1
 !IF EXIST("$(QT5_BASE_DIR)\bin\windeployqt.exe")
+	powershell -executionpolicy bypass -File windeployqt-to-nsis.ps1 \
 	"$(QT5_BASE_DIR)\bin\windeployqt.exe" \
-	    --release \
-	    --no-compiler-runtime \
-	    --list source ..\..\wireshark-qt-release\qtshark.exe \
+	    ..\..\wireshark-qt-release\qtshark.exe \
 	    > $@
-	    sed -i -e 's/^/File "/' -e 's/$$/"/' $@
 !ELSE IF EXIST("..\..\wireshark-qt-release\Qt5Core.dll")
 	type << > $@
 File "..\..\wireshark-qt-release\Qt5Core.dll"
@@ -272,7 +270,7 @@ clean:
 	rm -f $(UNINSTALL_INSTALLER)
 	rm -f NEWS.txt
 	rm -f user-guide.chm
-	rm -f qt-dll-manifest.txt
+	rm -f qt-dll-manifest.nsh
 
 distclean: clean
 	rm -f wireshark-$(WIRESHARK_TARGET_PLATFORM)-*.exe
