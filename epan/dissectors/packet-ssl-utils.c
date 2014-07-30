@@ -2265,7 +2265,8 @@ ssl3_generate_export_iv(StringInfo *r1, StringInfo *r2,
     ssl_md5_final(tmp,&md5);
     ssl_md5_cleanup(&md5);
 
-    memcpy(out->data, tmp, out_len);
+    DISSECTOR_ASSERT(out_len <= sizeof(tmp));
+    ssl_data_set(out, tmp, out_len);
     ssl_print_string("export iv", out);
 }
 
