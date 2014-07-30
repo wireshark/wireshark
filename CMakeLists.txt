@@ -921,11 +921,6 @@ set(SHARK_COMMON_SRC
 	version_info.c
 )
 
-# sources common for wireshark and tshark, but not rawshark;
-# these are for programs that capture traffic by running dumpcap
-set(SHARK_COMMON_CAPTURE_SRC
-)
-
 set(TSHARK_TAP_SRC
 	ui/cli/tap-afpstat.c
 	ui/cli/tap-ansi_astat.c
@@ -1038,7 +1033,6 @@ if( (BUILD_wireshark AND GTK_FOUND) OR (BUILD_qtshark AND QT_FOUND) )
 		file.c
 		fileset.c
 		summary.c
-		${SHARK_COMMON_CAPTURE_SRC}
 		${SHARK_COMMON_SRC}
 		${PLATFORM_UI_SRC}
 		image/wireshark.rc
@@ -1097,7 +1091,7 @@ if(BUILD_qtshark AND QT_FOUND)
 endif()
 
 register_tap_files(tshark-tap-register.c
-		tshark-taps
+	tshark-taps
 	${TSHARK_TAP_SRC}
 )
 
@@ -1115,7 +1109,6 @@ if(BUILD_tshark)
 		tshark-tap-register.c
 		tshark.c
 		${TSHARK_TAP_SRC}
-		${SHARK_COMMON_CAPTURE_SRC}
 		${SHARK_COMMON_SRC}
 		image/tshark.rc
 	)
