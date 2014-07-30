@@ -231,7 +231,7 @@ NSIS_FLAGS=\
 !ENDIF
 
 wireshark.nsi: qt-dll-manifest.txt
-qt-dll-manifest.txt: _FORCE_
+qt-dll-manifest.txt:
 !IF EXIST("$(QT5_BASE_DIR)\bin\windeployqt.exe")
 	"$(QT5_BASE_DIR)\bin\windeployqt.exe" \
 	    --release \
