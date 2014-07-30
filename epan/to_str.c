@@ -236,7 +236,7 @@ bytes_to_ep_str(const guint8 *bd, int bd_len) {
 	cur_ptr = bytes_to_hexstr(cur, bd, bd_len);	/* max MAX_BYTE_STR_LEN bytes */
 
 	if (truncated)
-		cur_ptr = g_stpcpy(cur_ptr, "...");		/* 3 bytes */
+		cur_ptr = g_stpcpy(cur_ptr, "...");	/* 3 bytes */
 
 	*cur_ptr = '\0';				/* 1 byte */
 	return cur;
@@ -265,7 +265,7 @@ bytes_to_ep_str_punct(const guint8 *bd, int bd_len, gchar punct) {
 	cur_ptr = bytes_to_hexstr_punct(cur, bd, bd_len, punct); /* max MAX_BYTE_STR_LEN-1 bytes */
 
 	if (truncated) {
-		*cur_ptr++ = punct;				/* 1 byte */
+		*cur_ptr++ = punct;			/* 1 byte */
 		cur_ptr    = g_stpcpy(cur_ptr, "...");	/* 3 bytes */
 	}
 
@@ -277,13 +277,13 @@ static int
 guint32_to_str_buf_len(const guint32 u) {
 	if (u >= 1000000000)return 10;
 	if (u >= 100000000) return 9;
-	if (u >= 10000000)	return 8;
-	if (u >= 1000000)	return 7;
-	if (u >= 100000)	return 6;
-	if (u >= 10000)	return 5;
-	if (u >= 1000)	return 4;
-	if (u >= 100)	return 3;
-	if (u >= 10)	return 2;
+	if (u >= 10000000)  return 8;
+	if (u >= 1000000)   return 7;
+	if (u >= 100000)    return 6;
+	if (u >= 10000)     return 5;
+	if (u >= 1000)      return 4;
+	if (u >= 100)       return 3;
+	if (u >= 10)        return 2;
 
 	return 1;
 }
@@ -1106,9 +1106,9 @@ gchar* guid_to_str_buf(const e_guid_t *guid, gchar *buf, int buf_len) {
 	/* 37 bytes */
 	tempptr    = dword_to_hex(tempptr, guid->data1);		/*  8 bytes */
 	*tempptr++ = '-';						/*  1 byte */
-	tempptr    = word_to_hex(tempptr, guid->data2);		/*  4 bytes */
+	tempptr    = word_to_hex(tempptr, guid->data2);			/*  4 bytes */
 	*tempptr++ = '-';						/*  1 byte */
-	tempptr    = word_to_hex(tempptr, guid->data3);		/*  4 bytes */
+	tempptr    = word_to_hex(tempptr, guid->data3);			/*  4 bytes */
 	*tempptr++ = '-';						/*  1 byte */
 	tempptr    = bytes_to_hexstr(tempptr, &guid->data4[0], 2);	/*  4 bytes */
 	*tempptr++ = '-';						/*  1 byte */
@@ -1136,7 +1136,7 @@ const gchar* port_type_to_str (port_type type) {
 		case PT_I2C:		return "I2C";
 		case PT_IBQP:		return "IBQP";
 		case PT_BLUETOOTH:	return "BLUETOOTH";
-		default:			return "[Unknown]";
+		default:		return "[Unknown]";
 	}
 }
 
