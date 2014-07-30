@@ -56,7 +56,7 @@ ASN_FILE_LIST = \
 	QSIG-MID.asn
 
 EXTRA_DIST = \
-	Makefile.nmake \
+	$(EXTRA_DIST_COMMON) \
 	$(ASN_FILE_LIST) \
 	packet-$(PROTOCOL_NAME)-template.c \
 	packet-$(PROTOCOL_NAME)-template.h \

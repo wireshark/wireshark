@@ -24,7 +24,7 @@ EXT_ASN_FILE_LIST =
 ASN_FILE_LIST = $(PROTOCOL_NAME).asn
 
 EXTRA_DIST = \
-	Makefile.nmake \
+	$(EXTRA_DIST_COMMON) \
 	$(ASN_FILE_LIST) \
 	packet-$(PROTOCOL_NAME)-template.c \
 	$(PROTOCOL_NAME).cnf

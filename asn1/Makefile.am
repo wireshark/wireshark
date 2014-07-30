@@ -36,18 +36,19 @@ SUBDIRS =		\
 	charging_ase	\
 	cmip		\
 	cmp		\
+	cms		\
 	credssp		\
 	crmf		\
-	cms		\
 	dap		\
-	dop		\
 	disp		\
+	dop		\
 	dsp		\
 	ess		\
 	ftam		\
+	gnm		\
 	goose		\
-	gsm_map		\
 	gprscdr		\
+	gsm_map		\
 	h225		\
 	h235		\
 	h245		\
@@ -89,9 +90,9 @@ SUBDIRS =		\
 	pkcs1		\
 	pkcs12		\
 	pkinit		\
-	pkixac		\
 	pkix1explicit	\
 	pkix1implicit	\
+	pkixac		\
 	pkixproxy	\
 	pkixqualified	\
 	pkixtsp		\
@@ -133,10 +134,12 @@ DONT_BUILD_SUBDIRS = \
 DIST_SUBDIRS = $(SUBDIRS) $(DONT_BUILD_SUBDIRS)
 
 EXTRA_DIST = \
+	CMakeLists.txt	\
+	Makefile.inc	\
 	Makefile.nmake	\
 	Makefile.inc.nmake	\
-	Makefile.preinc.nmake \
-	Custom.make
+	Makefile.preinc	\
+	Makefile.preinc.nmake
 
 MAINTAINERCLEANFILES = \
 	Makefile.in
