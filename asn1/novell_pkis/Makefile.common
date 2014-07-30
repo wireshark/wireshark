@@ -22,14 +22,13 @@ EXT_ASN_FILE_LIST =
 ASN_FILE_LIST = $(PROTOCOL_NAME).asn
 
 EXTRA_DIST = \
-	Makefile.nmake \
+	$(EXTRA_DIST_COMMON) \
 	$(ASN_FILE_LIST) \
 	packet-$(PROTOCOL_NAME)-template.c \
 	$(PROTOCOL_NAME).cnf
 
 SRC_FILES = \
 	$(EXTRA_DIST) \
-	$(EXT_ASN_FILE_LIST) \
-	$(ASN_FILE_LIST)
+	$(EXT_ASN_FILE_LIST)
 
 A2W_FLAGS = -b -u
