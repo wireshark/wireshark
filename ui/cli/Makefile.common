@@ -80,3 +80,6 @@ TSHARK_TAP_SRC = \
 	tap-stats_tree.c	\
 	tap-sv.c		\
 	tap-wspstat.c
+
+noinst_HEADERS = \
+	tshark-tap.h
