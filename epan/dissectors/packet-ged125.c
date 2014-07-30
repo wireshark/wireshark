@@ -1757,7 +1757,7 @@ proto_register_ged125 (void)
 	ged125_module = prefs_register_protocol(proto_ged125, NULL);
 
 	prefs_register_uint_preference(ged125_module, "tcp_port","GED125 TCP Port",
-							"Set up the TCP port for GED125 (default is 5000)",
+							"Set up the TCP port for GED125",
 							10, &global_tcp_port_ged125);
 
 	prefs_register_bool_preference(ged125_module, "desegment_body",
