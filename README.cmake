@@ -120,7 +120,7 @@ What needs to be done?
 - Guides are not installed.
 - Build source package (using CPack).
   This is obsolete if we decide to release VCS snapshots instead
-- Build rpm package (using CPack).
+- Build packages (RPM, SVR4) (using CPack).
 - Add back checkAPI target.
 - Test and add support for other platforms (BSDs, OSX,
   Solaris, Win32, Win64, ...)
