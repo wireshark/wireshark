@@ -552,7 +552,7 @@ if(ENABLE_ZLIB)
 	set(PACKAGELIST ${PACKAGELIST} ZLIB)
 endif()
 
-# Lua 5.1 dissectors
+# Embedded Lua interpreter
 if(ENABLE_LUA)
 	set(PACKAGELIST ${PACKAGELIST} LUA)
 endif()
