@@ -31,6 +31,7 @@
 
 #include <epan/packet.h>
 #include <epan/to_str.h>
+#include <epan/expert.h>
 
 #ifndef offsetof
 #define	offsetof(type, member)	((size_t)(&((type *)0)->member))
@@ -132,8 +133,8 @@ static int hf_aodv_flags_rreq_unknown = -1;
 static int hf_aodv_flags_rrep_repair = -1;
 static int hf_aodv_flags_rrep_ack = -1;
 static int hf_aodv_flags_rerr_nodelete = -1;
-/* static int hf_aodv_ext_type = -1; */
-/* static int hf_aodv_ext_length = -1; */
+static int hf_aodv_ext_type = -1;
+static int hf_aodv_ext_length = -1;
 static int hf_aodv_ext_interval = -1;
 static int hf_aodv_ext_timestamp = -1;
 
@@ -143,16 +144,17 @@ static gint ett_aodv_flags = -1;
 static gint ett_aodv_unreach_dest = -1;
 static gint ett_aodv_extensions = -1;
 
+static expert_field ei_aodv_ext_length = EI_INIT;
+static expert_field ei_aodv_type = EI_INIT;
+
 /* Code to actually dissect the packets */
 
 static void
-dissect_aodv_ext(tvbuff_t * tvb, int offset, proto_tree * tree)
+dissect_aodv_ext(tvbuff_t * tvb, packet_info *pinfo, int offset, proto_tree * tree)
 {
     proto_tree *ext_tree;
+    proto_item *len_item;
     guint8      type, len;
-
-    if (!tree)
-	return;
 
   again:
     if ((int) tvb_reported_length(tvb) <= offset)
@@ -163,17 +165,14 @@ dissect_aodv_ext(tvbuff_t * tvb, int offset, proto_tree * tree)
 
     ext_tree = proto_tree_add_subtree(tree, tvb, offset, 2 + len, ett_aodv_extensions, NULL, "Extensions");
 
-    proto_tree_add_text(ext_tree, tvb, offset, 1,
-			"Type: %u (%s)", type,
-			val_to_str_const(type, exttype_vals, "Unknown"));
+    proto_tree_add_item(ext_tree, hf_aodv_ext_type, tvb, offset, 1, ENC_NA);
 
+    len_item = proto_tree_add_uint_format_value(ext_tree, hf_aodv_ext_length, tvb, offset + 1, 1,
+						len, "%u bytes", len);
     if (len == 0) {
-        proto_tree_add_text(ext_tree, tvb, offset + 1, 1,
-                            "Invalid option length: %u", len);
+        expert_add_info(pinfo, len_item, &ei_aodv_ext_length);
         return;			/* we must not try to decode this */
     }
-    proto_tree_add_text(ext_tree, tvb, offset + 1, 1,
-			"Length: %u bytes", len);
 
     offset += 2;
 
@@ -320,7 +319,7 @@ dissect_aodv_rreq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *aodv_tree,
     if (aodv_tree) {
         extlen = tvb_reported_length_remaining(tvb, offset);
 	if (extlen > 0)
-	    dissect_aodv_ext(tvb, offset, aodv_tree);
+	    dissect_aodv_ext(tvb, pinfo, offset, aodv_tree);
     }
 }
 
@@ -439,7 +438,7 @@ dissect_aodv_rrep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *aodv_tree,
     if (aodv_tree) {
 	extlen = tvb_reported_length_remaining(tvb, offset);
 	if (extlen > 0)
-	    dissect_aodv_ext(tvb, offset, aodv_tree);
+	    dissect_aodv_ext(tvb, pinfo, offset, aodv_tree);
     }
 }
 
@@ -598,7 +597,7 @@ dissect_aodv_draft_01_v6_rreq(tvbuff_t *tvb, packet_info *pinfo,
     if (aodv_tree) {
 	extlen = tvb_reported_length_remaining(tvb, offset);
 	if (extlen > 0)
-	    dissect_aodv_ext(tvb, offset, aodv_tree);
+	    dissect_aodv_ext(tvb, pinfo, offset, aodv_tree);
     }
 }
 
@@ -690,7 +689,7 @@ dissect_aodv_draft_01_v6_rrep(tvbuff_t *tvb, packet_info *pinfo,
     if (aodv_tree) {
 	extlen = tvb_reported_length_remaining(tvb, offset);
 	if (extlen > 0)
-	    dissect_aodv_ext(tvb, offset, aodv_tree);
+	    dissect_aodv_ext(tvb, pinfo, offset, aodv_tree);
     }
 }
 
@@ -743,8 +742,8 @@ dissect_aodv_draft_01_v6_rerr(tvbuff_t *tvb, packet_info *pinfo,
 static int
 dissect_aodv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    proto_item *ti        = NULL;
-    proto_tree *aodv_tree = NULL;
+    proto_item *ti, *type_item;
+    proto_tree *aodv_tree;
     gboolean    is_ipv6;
     guint8      type;
 
@@ -769,14 +768,12 @@ dissect_aodv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     col_add_str(pinfo->cinfo, COL_INFO,
                 val_to_str(type, type_vals,
                            "Unknown AODV Packet Type (%u)"));
-    if (tree) {
 	ti = proto_tree_add_protocol_format(tree, proto_aodv, tvb, 0, -1,
 	    "Ad hoc On-demand Distance Vector Routing Protocol, %s",
 	    val_to_str(type, type_vals, "Unknown AODV Packet Type (%u)"));
 	aodv_tree = proto_item_add_subtree(ti, ett_aodv);
 
-	proto_tree_add_uint(aodv_tree, hf_aodv_type, tvb, 0, 1, type);
-    }
+	type_item = proto_tree_add_uint(aodv_tree, hf_aodv_type, tvb, 0, 1, type);
 
     switch (type) {
     case RREQ:
@@ -802,8 +799,7 @@ dissect_aodv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     case DRAFT_01_V6_RREP_ACK:
 	break;
     default:
-	proto_tree_add_text(aodv_tree, tvb, 0, -1,
-			    "Unknown AODV Packet Type (%u)", type);
+	expert_add_info(pinfo, type_item, &ei_aodv_type);
     }
 
     return tvb_length(tvb);
@@ -938,9 +934,10 @@ proto_register_aodv(void)
 	    FT_UINT32, BASE_DEC, NULL, 0x0,
 	    NULL, HFILL }
 	},
+#endif
 	{ &hf_aodv_ext_type,
 	  { "Extension Type", "aodv.ext_type",
-	    FT_UINT8, BASE_DEC, NULL, 0x0,
+	    FT_UINT8, BASE_DEC, VALS(exttype_vals), 0x0,
 	    "Extension Format Type", HFILL}
 	},
 	{ &hf_aodv_ext_length,
@@ -948,7 +945,6 @@ proto_register_aodv(void)
 	    FT_UINT8, BASE_DEC, NULL, 0x0,
 	    "Extension Data Length", HFILL}
 	},
-#endif
 	{ &hf_aodv_ext_interval,
 	  { "Hello Interval", "aodv.hello_interval",
 	    FT_UINT32, BASE_DEC, NULL, 0x0,
@@ -969,12 +965,21 @@ proto_register_aodv(void)
 	&ett_aodv_extensions,
     };
 
+    static ei_register_info ei[] = {
+        { &ei_aodv_ext_length, { "aodv.ext_length.invalid", PI_MALFORMED, PI_ERROR, "Invalid option length", EXPFILL }},
+        { &ei_aodv_type, { "aodv.ext_type.unknown", PI_PROTOCOL, PI_WARN, "Unknown AODV Packet Type", EXPFILL }},
+    };
+
+    expert_module_t* expert_aodv;
+
 /* Register the protocol name and description */
     proto_aodv = proto_register_protocol("Ad hoc On-demand Distance Vector Routing Protocol", "AODV", "aodv");
 
 /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_aodv, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_aodv = expert_register_protocol(proto_aodv);
+    expert_register_field_array(expert_aodv, ei, array_length(ei));
 }
 
 

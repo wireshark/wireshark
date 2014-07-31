@@ -43,6 +43,7 @@ static int hf_arcnet_protID = -1;
 static int hf_arcnet_exception_flag = -1;
 static int hf_arcnet_split_flag = -1;
 static int hf_arcnet_sequence = -1;
+static int hf_arcnet_padding = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_arcnet = -1;
@@ -213,7 +214,7 @@ dissect_arcnet_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
                            split_flag);
       offset++;
 
-      proto_tree_add_text (arcnet_tree, tvb, offset, 2, "Padding");
+      proto_tree_add_item(arcnet_tree, hf_arcnet_padding, tvb, offset, 2, ENC_BIG_ENDIAN);
       offset += 2;
 
       /* Another copy of the packet type appears after the padding. */
@@ -330,6 +331,11 @@ proto_register_arcnet (void)
      {"Sequence", "arcnet.sequence",
       FT_UINT16, BASE_DEC, NULL, 0,
       "Sequence number", HFILL}
+     },
+    {&hf_arcnet_padding,
+     {"Padding", "arcnet.padding",
+      FT_UINT16, BASE_HEX, NULL, 0,
+      NULL, HFILL}
      },
   };
 

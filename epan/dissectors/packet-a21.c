@@ -154,6 +154,14 @@ dissect_a21_correlation_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 
 }
 
+static const value_string a21_mn_id_type_of_identity_vals[] = {
+	{ 0,  "No Identity Code" },
+	{ 1,  "MEID" },
+	{ 5,  "ESN" },
+	{ 6,  "IMSI" },
+	{ 0,  NULL }
+};
+
 /* 5.2.4.8 Mobile Identity (MN ID) */
 static void
 dissect_a21_mobile_identity(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type _U_)
@@ -192,9 +200,6 @@ dissect_a21_mobile_identity(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 		proto_tree_add_string(tree, hf_a21_imsi, tvb, offset,  length, imsi_str);
 		proto_item_append_text(item, "%s", imsi_str);
 
-		break;
-	default:
-		proto_tree_add_text(tree, tvb, offset,  -1, "Type of Identity Reserved");
 		break;
 	}
 
@@ -246,10 +251,11 @@ dissect_a21_pilot_list(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 	}
 }
 
-static const value_string a21_random_number_type_vals[] = {
-	{0x01, "RAND"},
-	/* All other values reserved */
-	{0,    NULL}
+static const range_string a21_random_number_type_rvals[] = {
+	{0x00, 0x00, "Reserved"},
+	{0x01, 0x01, "RAND"},
+	{0x02, 0x0F, "Reserved"},
+	{0, 0,   NULL}
 };
 
 static void
@@ -267,9 +273,6 @@ dissect_a21_authentication_challenge_parameter(tvbuff_t *tvb, packet_info *pinfo
 	case 1:
 		proto_tree_add_item(tree, hf_a21_auth_chall_para_rand_value, tvb, offset, 4, ENC_BIG_ENDIAN);
 		/*offset +=4;*/
-		break;
-	default:
-		proto_tree_add_text(tree, tvb, offset,  -1, "Random Number Type Reserved");
 		break;
 	}
 
@@ -525,12 +528,6 @@ dissect_a21_ie_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gi
 	proto_tree *ie_tree;
 	proto_item *ti;
 
-/*
-	gint len;
-	len = tvb_reported_length_remaining(tvb, offset);
-	proto_tree_add_text(tree, tvb, offset,  -1, "offset = %d", offset);
-	proto_tree_add_text(tree, tvb, offset, -1,"tvb reported length remaining = %d",len);
-*/
 	while(offset < (gint)tvb_reported_length(tvb)){
 		ie_type = tvb_get_guint8(tvb, offset);
 		if(ie_type == A21_IEI_GCSNA_PDU){
@@ -711,7 +708,7 @@ void proto_register_a21(void)
 		  },
 		  { &hf_a21_mn_id_type_of_identity,
 			 {"Type of Identity", "a21.mn_id_type_of_identity",
-			  FT_UINT8, BASE_DEC, NULL, 0x07,
+			  FT_UINT8, BASE_DEC, VALS(a21_mn_id_type_of_identity_vals), 0x07,
 			  NULL, HFILL }
 		  },
 		  {&hf_a21_imsi,
@@ -868,7 +865,7 @@ void proto_register_a21(void)
 */
 		  { &hf_a21_auth_chall_para_rand_num_type,
 			 {"Random Number Type", "a21.auth_chall_para_rand_num_type",
-			  FT_UINT8, BASE_DEC, VALS(a21_random_number_type_vals), 0x0f,
+			  FT_UINT8, BASE_DEC|BASE_RANGE_STRING, RVALS(a21_random_number_type_rvals), 0x0f,
 			  NULL, HFILL }
 		  },
 		  { &hf_a21_auth_chall_para_rand_value,

@@ -35,6 +35,7 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include <epan/expert.h>
 
 /* This is not IANA assigned nor registered */
 #define UDP_PORT_PAPI 8211
@@ -66,6 +67,8 @@ static int hf_papi_debug_64bits = -1;
 static int hf_papi_debug_bytes = -1;
 static int hf_papi_debug_bytes_length = -1;
 
+static expert_field ei_papi_debug_unknown = EI_INIT;
+
 /* Global PAPI Debug Preference */
 static gboolean g_papi_debug = FALSE;
 
@@ -76,7 +79,7 @@ static gint ett_papi = -1;
 
 /* PAPI Debug loop ! */
 static int
-dissect_papi_debug(tvbuff_t *tvb, guint offset, proto_tree *tree)
+dissect_papi_debug(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree)
 {
     proto_item *ti;
     proto_tree *debug_tree, *debug_sub_tree;
@@ -128,7 +131,7 @@ dissect_papi_debug(tvbuff_t *tvb, guint offset, proto_tree *tree)
             offset += 9;
         break;
         default:
-            proto_tree_add_text(debug_tree, tvb, offset, 1, "Unknown (%d)", tvb_get_guint8(tvb, offset));
+            proto_tree_add_expert_format(debug_tree, pinfo, &ei_papi_debug_unknown, tvb, offset, 1, "Unknown (%d)", tvb_get_guint8(tvb, offset));
             offset +=1;
            }
     }
@@ -152,59 +155,55 @@ dissect_papi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "PAPI");
     col_set_str(pinfo->cinfo, COL_INFO, "PAPI - Aruba AP Control Protocol");
 
-    if (tree) {
+    ti = proto_tree_add_item(tree, proto_papi, tvb, 0, -1, ENC_NA);
+    papi_tree = proto_item_add_subtree(ti, ett_papi);
 
-        ti = proto_tree_add_item(tree, proto_papi, tvb, 0, -1, ENC_NA);
+    proto_tree_add_item(papi_tree, hf_papi_hdr_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
 
-        papi_tree = proto_item_add_subtree(ti, ett_papi);
+    proto_tree_add_item(papi_tree, hf_papi_hdr_version, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
 
-        proto_tree_add_item(papi_tree, hf_papi_hdr_id, tvb, offset, 2, ENC_BIG_ENDIAN);
-        offset += 2;
+    proto_tree_add_item(papi_tree, hf_papi_hdr_ip_destination, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
 
-        proto_tree_add_item(papi_tree, hf_papi_hdr_version, tvb, offset, 2, ENC_BIG_ENDIAN);
-        offset += 2;
+    proto_tree_add_item(papi_tree, hf_papi_hdr_ip_source, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
 
-        proto_tree_add_item(papi_tree, hf_papi_hdr_ip_destination, tvb, offset, 4, ENC_BIG_ENDIAN);
-        offset += 4;
+    proto_tree_add_item(papi_tree, hf_papi_hdr_unknown, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
 
-        proto_tree_add_item(papi_tree, hf_papi_hdr_ip_source, tvb, offset, 4, ENC_BIG_ENDIAN);
-        offset += 4;
+    proto_tree_add_item(papi_tree, hf_papi_hdr_unknown, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
 
-        proto_tree_add_item(papi_tree, hf_papi_hdr_unknown, tvb, offset, 2, ENC_BIG_ENDIAN);
-        offset += 2;
+    proto_tree_add_item(papi_tree, hf_papi_hdr_port_source, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
 
-        proto_tree_add_item(papi_tree, hf_papi_hdr_unknown, tvb, offset, 2, ENC_BIG_ENDIAN);
-        offset += 2;
+    proto_tree_add_item(papi_tree, hf_papi_hdr_port_destination, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
 
-        proto_tree_add_item(papi_tree, hf_papi_hdr_port_source, tvb, offset, 2, ENC_BIG_ENDIAN);
-        offset += 2;
+    proto_tree_add_item(papi_tree, hf_papi_hdr_unknown, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
 
-        proto_tree_add_item(papi_tree, hf_papi_hdr_port_destination, tvb, offset, 2, ENC_BIG_ENDIAN);
-        offset += 2;
+    proto_tree_add_item(papi_tree, hf_papi_hdr_unknown, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
 
-        proto_tree_add_item(papi_tree, hf_papi_hdr_unknown, tvb, offset, 2, ENC_BIG_ENDIAN);
-        offset += 2;
+    proto_tree_add_item(papi_tree, hf_papi_hdr_sequence, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
 
-        proto_tree_add_item(papi_tree, hf_papi_hdr_unknown, tvb, offset, 2, ENC_BIG_ENDIAN);
-        offset += 2;
+    proto_tree_add_item(papi_tree, hf_papi_hdr_unknown, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
 
-        proto_tree_add_item(papi_tree, hf_papi_hdr_sequence, tvb, offset, 2, ENC_BIG_ENDIAN);
-        offset += 2;
+    proto_tree_add_item(papi_tree, hf_papi_hdr_checksum, tvb, offset, 16, ENC_NA);
+    offset += 16;
 
-        proto_tree_add_item(papi_tree, hf_papi_hdr_unknown, tvb, offset, 2, ENC_BIG_ENDIAN);
-        offset += 2;
-
-        proto_tree_add_item(papi_tree, hf_papi_hdr_checksum, tvb, offset, 16, ENC_NA);
-        offset += 16;
-
-        if(g_papi_debug)
-        {
-            offset = dissect_papi_debug(tvb, offset, papi_tree);
-        }
-
-        next_tvb = tvb_new_subset_remaining(tvb, offset);
-        call_dissector(data_handle,next_tvb, pinfo, tree);
+    if(g_papi_debug)
+    {
+        offset = dissect_papi_debug(tvb, pinfo, offset, papi_tree);
     }
+
+    next_tvb = tvb_new_subset_remaining(tvb, offset);
+    call_dissector(data_handle,next_tvb, pinfo, tree);
 
     return(TRUE);
 }
@@ -323,10 +322,18 @@ proto_register_papi(void)
         &ett_papi
     };
 
+    static ei_register_info ei[] = {
+        { &ei_papi_debug_unknown, { "papi.debug.unknown", PI_PROTOCOL, PI_WARN, "Unknown", EXPFILL }},
+    };
+
+    expert_module_t* expert_papi;
+
     proto_papi = proto_register_protocol("Aruba PAPI", "PAPI", "papi");
 
     proto_register_field_array(proto_papi, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_papi = expert_register_protocol(proto_papi);
+    expert_register_field_array(expert_papi, ei, array_length(ei));
 
     papi_module = prefs_register_protocol(proto_papi, NULL);
 

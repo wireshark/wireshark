@@ -539,24 +539,21 @@ static void dissect_actrace_cas(tvbuff_t *tvb, packet_info *pinfo, proto_tree *a
 	switch (function)
 	{
 		case SEND_EVENT:
-			proto_tree_add_text(actrace_tree, tvb, offset, 4,
-				"Parameter 0: %s",  val_to_str_ext(par0,
-				&actrace_cas_pstn_event_vals_ext, "Unknown (%d)"));
+			proto_tree_add_int_format_value(actrace_tree, hf_actrace_cas_par0, tvb, offset, 4,
+				par0, "%s",  val_to_str_ext(par0, &actrace_cas_pstn_event_vals_ext, "Unknown (%d)"));
 			col_append_fstr(pinfo->cinfo, COL_INFO, "%s|",
 					val_to_str_ext(par0, &actrace_cas_pstn_event_vals_ext, "%d"));
 			break;
 		case CHANGE_COLLECT_TYPE:
-			proto_tree_add_text(actrace_tree, tvb, offset, 4,
-				"Parameter 0: %s", val_to_str(par0,
-				actrace_cas_collect_type_vals, "Unknown (%d)"));
+			proto_tree_add_int_format_value(actrace_tree, hf_actrace_cas_par0, tvb, offset, 4,
+				par0, "%s", val_to_str(par0, actrace_cas_collect_type_vals, "Unknown (%d)"));
 			col_append_fstr(pinfo->cinfo, COL_INFO, "%s|",
 					val_to_str(par0, actrace_cas_collect_type_vals, "%d"));
 			break;
 		case SEND_MF:
 		case SEND_DEST_NUM:
-			proto_tree_add_text(actrace_tree, tvb, offset, 4,
-				"Parameter 0: %s", val_to_str(par0,
-				actrace_cas_send_type_vals, "Unknown (%d)"));
+			proto_tree_add_int_format_value(actrace_tree, hf_actrace_cas_par0, tvb, offset, 4,
+				par0, "%s", val_to_str(par0, actrace_cas_send_type_vals, "Unknown (%d)"));
 			col_append_fstr(pinfo->cinfo, COL_INFO, "%s|",
 					val_to_str(par0, actrace_cas_send_type_vals, "%d"));
 			break;
@@ -568,8 +565,8 @@ static void dissect_actrace_cas(tvbuff_t *tvb, packet_info *pinfo, proto_tree *a
 
 	par1 = tvb_get_ntohl(tvb, offset);
 	if (function == SEND_EVENT) {
-		proto_tree_add_text(actrace_tree, tvb, offset, 4,
-			"Parameter 1: %s", val_to_str_ext(par1, &actrace_cas_cause_vals_ext, "Unknown (%d)"));
+		proto_tree_add_int_format_value(actrace_tree, hf_actrace_cas_par1, tvb, offset, 4,
+			par1, "%s", val_to_str_ext(par1, &actrace_cas_cause_vals_ext, "Unknown (%d)"));
 		col_append_fstr(pinfo->cinfo, COL_INFO, "%s|",
 				val_to_str_ext(par1, &actrace_cas_cause_vals_ext, "%d"));
 	} else {

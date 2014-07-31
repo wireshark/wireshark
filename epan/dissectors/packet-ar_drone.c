@@ -423,7 +423,7 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
                 expert_add_info(pinfo, sub_item, &ei_NO_CR);
                 return offset;
             }
-            proto_tree_add_text(sub_tree, tvb, master_offset, length, "(Sets the reference for the horizontal plane)");
+            proto_item_append_text(sub_item, " (Sets the reference for the horizontal plane)");
             proto_tree_add_item(sub_tree, hf_FTRIM_seq, tvb, offset, length, ENC_ASCII|ENC_NA);
             offset += (length + 1);
         } else if (!strncmp(command, "AT*CONFIG", 9))

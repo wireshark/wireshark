@@ -33,12 +33,11 @@
 #include <epan/packet.h>
 #include <epan/strutil.h>
 #include <epan/conversation.h>
+#include <epan/expert.h>
 
 #include <epan/wmem/wmem.h>
 
 #include "packet-tcp.h"
-
-#define FIRSTPASS(pinfo) (pinfo->fd->flags.visited == 0)
 
 /**
  * enum _9p_msg_t - 9P message types
@@ -870,7 +869,7 @@ static int hf_9P_uname = -1;
 static int hf_9P_aname = -1;
 static int hf_9P_ename = -1;
 static int hf_9P_enum = -1;
-static int hf_9P_name = -1;
+/* static int hf_9P_name = -1; */
 static int hf_9P_filename = -1;
 static int hf_9P_sdlen = -1;
 static int hf_9P_user = -1;
@@ -971,6 +970,9 @@ static gint ett_9P_qidtype = -1;
 static gint ett_9P_getattr_flags = -1;
 static gint ett_9P_setattr_flags = -1;
 static gint ett_9P_lflags = -1;
+
+static expert_field ei_9P_first_250 = EI_INIT;
+static expert_field ei_9P_msgtype = EI_INIT;
 
 static GHashTable *_9p_hashtable = NULL;
 
@@ -1124,7 +1126,7 @@ static void conv_set_fid_nocopy(packet_info *pinfo, guint32 fid, const char *pat
 {
 	struct _9p_hashval *val;
 
-	if (!FIRSTPASS(pinfo) || fid == _9P_NOFID)
+	if (pinfo->fd->flags.visited || fid == _9P_NOFID)
 		return;
 
 	/* get or create&insert fid tree */
@@ -1144,7 +1146,7 @@ static void conv_set_fid(packet_info *pinfo, guint32 fid, const gchar *path, gsi
 {
 	char *str;
 
-	if (!FIRSTPASS(pinfo) || fid == _9P_NOFID || len == 0)
+	if (pinfo->fd->flags.visited || fid == _9P_NOFID || len == 0)
 		return;
 
 	str = (char*)wmem_alloc(wmem_file_scope(), len);
@@ -1178,7 +1180,7 @@ static void conv_set_tag(packet_info *pinfo, guint16 tag, enum _9p_msg_t msgtype
 	struct _9p_hashval *val;
 	struct _9p_taginfo *taginfo;
 
-	if (!FIRSTPASS(pinfo) || tag == _9P_NOTAG)
+	if (pinfo->fd->flags.visited || tag == _9P_NOTAG)
 		return;
 
 	val = _9p_hash_new_val(sizeof(struct _9p_taginfo));
@@ -1201,7 +1203,7 @@ static inline struct _9p_taginfo *conv_get_tag(packet_info *pinfo, guint16 tag)
 	struct _9p_hashval *val;
 
 	/* get tag only makes sense on first pass, as tree isn't built like fid */
-	if (!FIRSTPASS(pinfo) || tag == _9P_NOTAG)
+	if (pinfo->fd->flags.visited || tag == _9P_NOTAG)
 		return NULL;
 
 	/* check that length matches? */
@@ -1212,7 +1214,7 @@ static inline struct _9p_taginfo *conv_get_tag(packet_info *pinfo, guint16 tag)
 
 static inline void conv_free_tag(packet_info *pinfo, guint16 tag)
 {
-	if (!FIRSTPASS(pinfo) || tag == _9P_NOTAG)
+	if (pinfo->fd->flags.visited || tag == _9P_NOTAG)
 		return;
 
 	_9p_hash_free(pinfo, tag, _9P_NOFID);
@@ -1247,12 +1249,11 @@ static int dissect_9P_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 	wmem_strbuf_t      *tmppath   = NULL;
 	gint                len, reportedlen;
 	tvbuff_t           *next_tvb;
-	proto_item         *ti;
-	proto_tree         *ninep_tree, *sub_tree;
+	proto_item         *ti, *msg_item;
+	proto_tree         *ninep_tree;
 	struct _9p_taginfo *taginfo;
 	nstime_t            tv;
 	int                 _9p_version;
-	const int           firstpass = FIRSTPASS(pinfo);
 
 	_9p_version = conv_get_version(pinfo);
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, val_to_str_ext_const(_9p_version, &ninep_version_ext, "9P"));
@@ -1277,7 +1278,7 @@ static int dissect_9P_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 	proto_tree_add_item(ninep_tree, hf_9P_msgsz, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset+= 4;
 
-	proto_tree_add_item(ninep_tree, hf_9P_msgtype, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+	msg_item = proto_tree_add_item(ninep_tree, hf_9P_msgtype, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	++offset;
 	proto_tree_add_item(ninep_tree, hf_9P_tag, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
@@ -1288,7 +1289,7 @@ static int dissect_9P_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 		proto_tree_add_item(ninep_tree, hf_9P_maxsize, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset += 4;
 
-		if (firstpass) {
+		if (!pinfo->fd->flags.visited) {
 			_9p_len = tvb_get_letohs(tvb, offset);
 			tvb_s = tvb_get_string_enc(NULL, tvb, offset+2, _9p_len, ENC_UTF_8|ENC_NA);
 
@@ -1330,7 +1331,7 @@ static int dissect_9P_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 			proto_item_append_text(ti, " (%s)", g_strerror(u32));
 			offset += 4;
 		} else {
-			offset += _9p_dissect_string(tvb, ninep_tree, offset, hf_9P_enum, ett_9P_ename);
+			offset += _9p_dissect_string(tvb, ninep_tree, offset, hf_9P_ename, ett_9P_ename);
 		}
 
 		/* conv_get_tag checks we're in first pass */
@@ -1359,7 +1360,7 @@ static int dissect_9P_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
 		offset += _9p_dissect_string(tvb, ninep_tree, offset, hf_9P_uname, ett_9P_uname);
 
-		if(firstpass) {
+		if(!pinfo->fd->flags.visited) {
 			_9p_len = tvb_get_letohs(tvb, offset);
 			tvb_s = tvb_get_string_enc(NULL, tvb, offset+2, _9p_len, ENC_UTF_8|ENC_NA);
 			conv_set_fid(pinfo, fid, tvb_s, _9p_len+1);
@@ -1380,7 +1381,7 @@ static int dissect_9P_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 		ti = proto_tree_add_item(ninep_tree, hf_9P_fid, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		fid_path = conv_get_fid(pinfo, fid);
 		proto_item_append_text(ti, " (%s)", fid_path);
-		if (firstpass) {
+		if (!pinfo->fd->flags.visited) {
 			tmppath = wmem_strbuf_sized_new(wmem_packet_scope(), 0, MAXPATHLEN);
 			wmem_strbuf_append(tmppath, fid_path);
 		}
@@ -1393,15 +1394,9 @@ static int dissect_9P_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 		u16 = tvb_get_letohs(tvb, offset);
 		proto_tree_add_item(ninep_tree, hf_9P_nwalk, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += 2;
-		/* I can't imagine anyone having a directory depth more than 25,
-		   Limit to 10 times that to be sure, 2^16 is too much */
-		if(u16 > 250) {
-			sub_tree = proto_tree_add_text(ninep_tree, tvb, 0, 0, "Only first 250 items shown");
-			PROTO_ITEM_SET_GENERATED(sub_tree);
-		}
 
 		for(i = 0 ; i < u16; i++) {
-			if (firstpass) {
+			if (!pinfo->fd->flags.visited) {
 				_9p_len = tvb_get_letohs(tvb, offset);
 				tvb_s = tvb_get_string_enc(NULL, tvb, offset+2, _9p_len, ENC_UTF_8|ENC_NA);
 				wmem_strbuf_append_c(tmppath, '/');
@@ -1414,7 +1409,13 @@ static int dissect_9P_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 			}
 		}
 
-		if (firstpass) {
+		/* I can't imagine anyone having a directory depth more than 25,
+		   Limit to 10 times that to be sure, 2^16 is too much */
+		if(u16 > 250) {
+			expert_add_info(pinfo, ti, &ei_9P_first_250);
+		}
+
+		if (!pinfo->fd->flags.visited) {
 			conv_set_fid(pinfo, fid, wmem_strbuf_get_str(tmppath), wmem_strbuf_get_len(tmppath)+1);
 		}
 
@@ -1423,19 +1424,21 @@ static int dissect_9P_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
 	case _9P_RWALK:
 		u16 = tvb_get_letohs(tvb, offset);
-		proto_tree_add_item(ninep_tree, hf_9P_nqid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		ti = proto_tree_add_item(ninep_tree, hf_9P_nqid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += 2;
 		/* I can't imagine anyone having a directory depth more than 25,
 		   Limit to 10 times that to be sure, 2^16 is too much */
 		if(u16 > 250) {
 			u16 = 250;
-			sub_tree = proto_tree_add_text(ninep_tree, tvb, 0, 0, "Only first 250 items shown");
-			PROTO_ITEM_SET_GENERATED(sub_tree);
 		}
 
 		for(i = 0; i < u16; i++) {
 			dissect_9P_qid(tvb, ninep_tree, offset);
 			offset += 13;
+		}
+
+		if (i >= 250) {
+			expert_add_info(pinfo, ti, &ei_9P_first_250);
 		}
 
 		conv_free_tag(pinfo, tag);
@@ -1472,7 +1475,7 @@ static int dissect_9P_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 		proto_item_append_text(ti, " (%s)", fid_path);
 		offset += 4;
 
-		if (firstpass) {
+		if (!pinfo->fd->flags.visited) {
 			_9p_len = tvb_get_letohs(tvb, offset);
 			tmppath = wmem_strbuf_sized_new(wmem_packet_scope(), 0, MAXPATHLEN);
 			wmem_strbuf_append(tmppath, fid_path);
@@ -1493,7 +1496,7 @@ static int dissect_9P_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
 		if (_9p_version == _9P2000_u) {
 			_9p_len = tvb_get_letohs(tvb, offset);
-			proto_tree_add_item(ninep_tree, hf_9P_extension, tvb, offset+2, 4, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(ninep_tree, hf_9P_extension, tvb, offset+2, 4, ENC_ASCII|ENC_NA);
 			offset += 2 + _9p_len;
 		}
 
@@ -1507,7 +1510,7 @@ static int dissect_9P_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 		proto_item_append_text(ti, " (%s)", fid_path);
 		offset += 4;
 
-		if (firstpass) {
+		if (!pinfo->fd->flags.visited) {
 			_9p_len = tvb_get_letohs(tvb, offset);
 			tmppath = wmem_strbuf_sized_new(wmem_packet_scope(), 0, MAXPATHLEN);
 			wmem_strbuf_append(tmppath, fid_path);
@@ -1873,7 +1876,7 @@ static int dissect_9P_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 		proto_item_append_text(ti, " (%s)", fid_path);
 		offset += 4;
 
-		if (firstpass) {
+		if (!pinfo->fd->flags.visited) {
 			_9p_len = tvb_get_letohs(tvb, offset);
 			tmppath = wmem_strbuf_sized_new(wmem_packet_scope(), 0, MAXPATHLEN);
 			wmem_strbuf_append(tmppath, conv_get_fid(pinfo, dfid));
@@ -2142,7 +2145,7 @@ static int dissect_9P_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 	case _9P_TLERROR:
 	case _9P_TERROR:
 	default:
-		proto_tree_add_text(ninep_tree, tvb, 0, 0, "This message type should not happen");
+		expert_add_info(pinfo, msg_item, &ei_9P_msgtype);
 		break;
 	}
 	DISSECTOR_ASSERT(tvb_captured_length(tvb) == offset);
@@ -2487,9 +2490,11 @@ void proto_register_9P(void)
 		{&hf_9P_enum,
 		 {"Enum", "9p.enum", FT_UINT32, BASE_DEC, NULL, 0x0,
 		  "Error", HFILL}},
+#if 0
 		{&hf_9P_name,
 		 {"Name", "9p.name", FT_STRING, BASE_NONE, NULL, 0x0,
 		  "Name of file", HFILL}},
+#endif
 		{&hf_9P_sdlen,
 		 {"Stat data length", "9p.sdlen", FT_UINT16, BASE_DEC, NULL, 0x0,
 		  NULL, HFILL}},
@@ -2747,11 +2752,19 @@ void proto_register_9P(void)
 		&ett_9P_lflags,
 	};
 
+	expert_module_t* expert_9P;
+
+	static ei_register_info ei[] = {
+		{ &ei_9P_first_250, { "9p.first_250", PI_PROTOCOL, PI_NOTE, "Only first 250 items shown", EXPFILL }},
+		{ &ei_9P_msgtype, { "9p.msgtype.unknown", PI_PROTOCOL, PI_WARN, "This message type should not happen", EXPFILL }},
+	};
+
 	proto_9P = proto_register_protocol("Plan 9", "9P", "9p");
 
 	proto_register_field_array(proto_9P, hf, array_length(hf));
-
 	proto_register_subtree_array(ett, array_length(ett));
+	expert_9P = expert_register_protocol(proto_9P);
+	expert_register_field_array(expert_9P, ei, array_length(ei));
 
 	register_init_routine(_9p_hash_init);
 }

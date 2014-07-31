@@ -43,6 +43,7 @@ void proto_reg_handoff_atm(void);
 
 static int proto_atm = -1;
 static int hf_atm_aal = -1;
+static int hf_atm_gfc = -1;
 static int hf_atm_vpi = -1;
 static int hf_atm_vci = -1;
 static int hf_atm_cid = -1;
@@ -116,6 +117,7 @@ static int hf_atm_aal_oamcell_type_ad = -1;
 static int hf_atm_aal_oamcell_type_ft = -1;
 static int hf_atm_aal_oamcell_func_spec = -1;
 static int hf_atm_aal_oamcell_crc = -1;
+static int hf_atm_padding = -1;
 
 static gint ett_atm = -1;
 static gint ett_atm_lane = -1;
@@ -1079,8 +1081,7 @@ dissect_reassembled_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             proto_item *ti;
 
             if (pad_length > 0) {
-              proto_tree_add_text(atm_tree, tvb, aal5_length, pad_length,
-                                  "Padding");
+              proto_tree_add_item(atm_tree, hf_atm_padding, tvb, aal5_length, pad_length, ENC_NA);
             }
 
             proto_tree_add_item(atm_tree, hf_atm_aal5_uu, tvb, length - 8, 1, ENC_BIG_ENDIAN);
@@ -1167,7 +1168,7 @@ dissect_reassembled_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             else if (pntoh16(octet) == 0x00)
             {
                 /* assume vc muxed bridged ethernet */
-                proto_tree_add_text(tree, tvb, 0, 2, "Pad: 0x0000");
+                proto_tree_add_item(tree, hf_atm_padding, tvb, 0, 2, ENC_NA);
                 next_tvb = tvb_new_subset_remaining(tvb, 2);
                 call_dissector(eth_handle, next_tvb, pinfo, tree);
             }
@@ -1622,7 +1623,7 @@ dissect_atm_cell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
        * +-+-+-+-+-+-+-+-+
        */
       octet = tvb_get_guint8(tvb, 0);
-      proto_tree_add_text(atm_tree, tvb, 0, 1, "GFC: 0x%x", octet >> 4);
+      proto_tree_add_item(atm_tree, hf_atm_gfc, tvb, 0, 1, ENC_NA);
       vpi = (octet & 0xF) << 4;
       octet = tvb_get_guint8(tvb, 1);
       vpi |= octet >> 4;
@@ -1934,7 +1935,9 @@ proto_register_atm(void)
     { &hf_atm_aal,
       { "AAL",          "atm.aal", FT_UINT8, BASE_DEC, VALS(aal_vals), 0x0,
         NULL, HFILL }},
-
+    { &hf_atm_gfc,
+      { "GFC",          "atm.GFC", FT_UINT8, BASE_DEC, NULL, 0xF0,
+        NULL, HFILL }},
     { &hf_atm_vpi,
       { "VPI",          "atm.vpi", FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL }},
@@ -2139,6 +2142,10 @@ proto_register_atm(void)
     { &hf_atm_aal_oamcell_crc,
       { "CRC-10", "atm.aal_oamcell.crc", FT_UINT16, BASE_HEX, NULL, 0x3FF,
         NULL, HFILL }},
+    { &hf_atm_padding,
+      { "Padding", "atm.padding", FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+
   };
 
   static gint *ett[] = {

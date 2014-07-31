@@ -1111,6 +1111,7 @@ static int proto_artnet = -1;
 /* general */
 static int hf_artnet_filler = -1;
 static int hf_artnet_spare = -1;
+static int hf_artnet_data = -1;
 static int hf_artnet_excess_bytes = -1;
 
 /* Header */
@@ -3114,16 +3115,15 @@ dissect_artnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
 
     default:
-      if (tree && tvb_reported_length_remaining(tvb, offset) > 0) {
-        proto_tree_add_text(artnet_tree, tvb, offset, -1,
-          "Data (%d bytes)", tvb_reported_length_remaining(tvb, offset));
+      if (tvb_reported_length_remaining(tvb, offset) > 0) {
+        proto_tree_add_item(artnet_tree, hf_artnet_data, tvb, offset, -1, ENC_NA);
       }
       return;
   }
 
-  if (tree && tvb_reported_length_remaining(tvb, offset) > 0) {
+  if (tvb_reported_length_remaining(tvb, offset) > 0) {
     proto_tree_add_item(artnet_tree, hf_artnet_excess_bytes, tvb,
-      offset, tvb_reported_length_remaining(tvb, offset), ENC_NA);
+      offset, -1, ENC_NA);
   }
 }
 
@@ -3156,6 +3156,12 @@ proto_register_artnet(void) {
     { &hf_artnet_excess_bytes,
       { "Excess Bytes",
         "artnet.excess_bytes",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_artnet_data,
+      { "Data",
+        "artnet.data",
         FT_BYTES, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
 

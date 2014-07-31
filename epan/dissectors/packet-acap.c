@@ -52,6 +52,25 @@ static header_field_info hfi_acap_request HFI_ACAP =
 		    FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 		    "TRUE if ACAP request", HFILL };
 
+static header_field_info hfi_acap_request_tag HFI_ACAP =
+		  { "Request Tag",            "acap.request_tag",
+		    FT_STRING, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL };
+
+static header_field_info hfi_acap_response_tag HFI_ACAP =
+		  { "Response Tag",            "acap.response_tag",
+		    FT_STRING, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL };
+
+static header_field_info hfi_acap_request_data HFI_ACAP =
+		  { "Request",            "acap.request_data",
+		    FT_STRING, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL };
+
+static header_field_info hfi_acap_response_data HFI_ACAP =
+		  { "Response",            "acap.response_data",
+		    FT_STRING, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL };
 
 static gint ett_acap = -1;
 static gint ett_acap_reqresp = -1;
@@ -128,13 +147,11 @@ dissect_acap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		tokenlen = get_token_len(line, line + linelen, &next_token);
 		if (tokenlen != 0) {
 			if (is_request) {
-				proto_tree_add_text(reqresp_tree, tvb, offset,
-				    tokenlen, "Request Tag: %s",
-				    format_text(line, tokenlen));
+				proto_tree_add_string(reqresp_tree, &hfi_acap_request_tag, tvb, offset,
+					tokenlen, format_text(line, tokenlen));
 			} else {
-				proto_tree_add_text(reqresp_tree, tvb, offset,
-				    tokenlen, "Response Tag: %s",
-				    format_text(line, tokenlen));
+				proto_tree_add_string(reqresp_tree, &hfi_acap_response_tag, tvb, offset,
+					tokenlen, format_text(line, tokenlen));
 			}
 			offset += (int)(next_token - line);
 			linelen -= (int)(next_token - line);
@@ -146,13 +163,11 @@ dissect_acap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 */
 		if (linelen != 0) {
 			if (is_request) {
-				proto_tree_add_text(reqresp_tree, tvb, offset,
-				    linelen, "Request: %s",
-				    format_text(line, linelen));
+				proto_tree_add_string(reqresp_tree, &hfi_acap_request_data, tvb, offset,
+					linelen, format_text(line, linelen));
 			} else {
-				proto_tree_add_text(reqresp_tree, tvb, offset,
-				    linelen, "Response: %s",
-				    format_text(line, linelen));
+				proto_tree_add_string(reqresp_tree, &hfi_acap_response_data, tvb, offset,
+					linelen, format_text(line, linelen));
 			}
 		}
 
@@ -174,6 +189,10 @@ proto_register_acap(void)
 	static header_field_info *hfi[] = {
 		&hfi_acap_response,
 		&hfi_acap_request,
+		&hfi_acap_request_tag,
+		&hfi_acap_response_tag,
+		&hfi_acap_request_data,
+		&hfi_acap_response_data,
 	};
 #endif
 

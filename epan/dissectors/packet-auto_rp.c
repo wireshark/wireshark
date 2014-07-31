@@ -47,6 +47,9 @@ static gint hf_auto_rp_rp_addr = -1;
 static gint hf_auto_rp_prefix_sgn = -1;
 static gint hf_auto_rp_mask_len = -1;
 static gint hf_auto_rp_group_prefix = -1;
+static gint hf_auto_rp_reserved = -1;
+static gint hf_auto_rp_trailing_junk = -1;
+static gint hf_auto_rp_group_num = -1;
 
 #define UDP_PORT_PIM_RP_DISC 496
 
@@ -149,14 +152,14 @@ static void dissect_auto_rp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                            "%u second%s", holdtime, plurality(holdtime, "", "s"));
                 offset+=2;
 
-                proto_tree_add_text(auto_rp_tree, tvb, offset, 4, "Reserved: 0x%x", tvb_get_ntohs(tvb, offset));
+                proto_tree_add_item(auto_rp_tree, hf_auto_rp_reserved, tvb, offset, 4, ENC_BIG_ENDIAN);
                 offset+=4;
 
                 for (i = 0; i < rp_count; i++)
                         offset = do_auto_rp_map(tvb, offset, auto_rp_tree);
 
-                if (tvb_offset_exists(tvb, offset))
-                        proto_tree_add_text(tree, tvb, offset, -1, "Trailing junk");
+                if (tvb_reported_length_remaining(tvb, offset) > 0)
+                        proto_tree_add_item(tree, hf_auto_rp_trailing_junk, tvb, offset, -1, ENC_NA);
         }
 
         return;
@@ -183,7 +186,7 @@ static int do_auto_rp_map(tvbuff_t *tvb, int offset, proto_tree *auto_rp_tree)
         offset += 4;
         proto_tree_add_item(map_tree, hf_auto_rp_pim_ver, tvb, offset, 1, ENC_NA);
         offset++;
-        proto_tree_add_text(map_tree, tvb, offset, 1, "Number of groups this RP maps to: %u", group_count);
+        proto_tree_add_uint(map_tree, hf_auto_rp_group_num, tvb, offset, 1, group_count);
         offset++;
 
         for (i = 0; i < group_count; i++) {
@@ -227,6 +230,11 @@ void proto_register_auto_rp(void)
                    FT_UINT8, BASE_DEC, NULL, 0,
                    "The number of RP addresses contained in this message", HFILL }},
 
+                { &hf_auto_rp_group_num,
+                  {"Number of groups this RP maps to", "auto_rp.group_num",
+                   FT_UINT8, BASE_DEC, NULL, 0,
+                   NULL, HFILL }},
+
                 { &hf_auto_rp_holdtime,
                   {"Holdtime", "auto_rp.holdtime",
                    FT_UINT16, BASE_DEC, NULL, 0,
@@ -255,7 +263,17 @@ void proto_register_auto_rp(void)
                 { &hf_auto_rp_group_prefix,
                   {"Prefix", "auto_rp.group_prefix",
                    FT_IPv4, BASE_NONE, NULL, 0,
-                   "Group prefix", HFILL }}
+                   "Group prefix", HFILL }},
+
+                { &hf_auto_rp_reserved,
+                  {"Reserved", "auto_rp.reserved",
+                   FT_UINT32, BASE_HEX, NULL, 0,
+                   NULL, HFILL }},
+
+                { &hf_auto_rp_trailing_junk,
+                  {"Trailing junk", "auto_rp.trailing_junk",
+                   FT_BYTES, BASE_NONE, NULL, 0,
+                   NULL, HFILL }},
         };
 
         static gint *ett[] = {

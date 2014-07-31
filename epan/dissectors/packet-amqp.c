@@ -1654,6 +1654,7 @@ static int hf_amqp_0_10_queue_method = -1;
 static int hf_amqp_0_10_file_method = -1;
 static int hf_amqp_0_10_stream_method = -1;
 static int hf_amqp_0_10_argument_packing_flags = -1;
+static int hf_amqp_0_10_session_header = -1;
 static int hf_amqp_0_10_session_header_sync = -1;
 static int hf_amqp_0_10_undissected_struct32 = -1;
 static int hf_amqp_0_10_message_body = -1;
@@ -3922,8 +3923,9 @@ dissect_amqp_0_10_execution(tvbuff_t *tvb,
      */
     flag1 = tvb_get_guint8(tvb, offset);
     flag2 = tvb_get_guint8(tvb, offset+1);
+    ti = proto_tree_add_item(tree, hf_amqp_0_10_session_header, tvb, offset, 2, ENC_BIG_ENDIAN);
     if ((flag1 != 1) || ((flag2 & 0xfe) != 0))
-        proto_tree_add_text(tree, tvb, offset, 2, "Invalid session header");
+        proto_item_append_text(ti, " (Invalid)");
     else
         proto_tree_add_item(tree, hf_amqp_0_10_session_header_sync,
                             tvb, offset + 1, 1, ENC_BIG_ENDIAN);
@@ -4108,8 +4110,9 @@ dissect_amqp_0_10_message(tvbuff_t *tvb,
      */
     flag1 = tvb_get_guint8(tvb, offset);
     flag2 = tvb_get_guint8(tvb, offset+1);
+    ti = proto_tree_add_item(tree, hf_amqp_0_10_session_header, tvb, offset, 2, ENC_BIG_ENDIAN);
     if ((flag1 != 1) || ((flag2 & 0xfe) != 0))
-        proto_tree_add_text(tree, tvb, offset, 2, "Invalid session header");
+        proto_item_append_text(ti, " (Invalid)");
     else
         proto_tree_add_item(tree, hf_amqp_0_10_session_header_sync,
                             tvb, offset + 1, 1, ENC_BIG_ENDIAN);
@@ -4440,6 +4443,7 @@ dissect_amqp_0_10_tx(tvbuff_t *tvb,
     guint8       method;
     guint8       flag1, flag2;
     const gchar *method_name;
+    proto_item *ti;
 
     method = tvb_get_guint8(tvb, offset+1);
     method_name = val_to_str_const(method, amqp_0_10_tx_methods,
@@ -4457,8 +4461,9 @@ dissect_amqp_0_10_tx(tvbuff_t *tvb,
      */
     flag1 = tvb_get_guint8(tvb, offset);
     flag2 = tvb_get_guint8(tvb, offset+1);
+    ti = proto_tree_add_item(tree, hf_amqp_0_10_session_header, tvb, offset, 2, ENC_BIG_ENDIAN);
     if ((flag1 != 1) || ((flag2 & 0xfe) != 0))
-        proto_tree_add_text(tree, tvb, offset, 2, "Invalid session header");
+        proto_item_append_text(ti, " (Invalid)");
     else
         proto_tree_add_item(tree, hf_amqp_0_10_session_header_sync,
                             tvb, offset + 1, 1, ENC_BIG_ENDIAN);
@@ -4498,8 +4503,9 @@ dissect_amqp_0_10_dtx(tvbuff_t *tvb,
      */
     flag1 = tvb_get_guint8(tvb, offset);
     flag2 = tvb_get_guint8(tvb, offset+1);
+    ti = proto_tree_add_item(tree, hf_amqp_0_10_session_header, tvb, offset, 2, ENC_BIG_ENDIAN);
     if ((flag1 != 1) || ((flag2 & 0xfe) != 0))
-        proto_tree_add_text(tree, tvb, offset, 2, "Invalid session header");
+        proto_item_append_text(ti, " (Invalid)");
     else
         proto_tree_add_item(tree, hf_amqp_0_10_session_header_sync,
                             tvb, offset + 1, 1, ENC_BIG_ENDIAN);
@@ -4696,8 +4702,9 @@ dissect_amqp_0_10_exchange(tvbuff_t *tvb,
      */
     flag1 = tvb_get_guint8(tvb, offset);
     flag2 = tvb_get_guint8(tvb, offset+1);
+    ti = proto_tree_add_item(tree, hf_amqp_0_10_session_header, tvb, offset, 2, ENC_BIG_ENDIAN);
     if ((flag1 != 1) || ((flag2 & 0xfe) != 0))
-        proto_tree_add_text(tree, tvb, offset, 2, "Invalid session header");
+        proto_item_append_text(ti, " (Invalid)");
     else
         proto_tree_add_item(tree, hf_amqp_0_10_session_header_sync,
                             tvb, offset + 1, 1, ENC_BIG_ENDIAN);
@@ -4962,8 +4969,9 @@ dissect_amqp_0_10_queue(tvbuff_t *tvb,
      */
     flag1 = tvb_get_guint8(tvb, offset);
     flag2 = tvb_get_guint8(tvb, offset+1);
+    ti = proto_tree_add_item(tree, hf_amqp_0_10_session_header, tvb, offset, 2, ENC_BIG_ENDIAN);
     if ((flag1 != 1) || ((flag2 & 0xfe) != 0))
-        proto_tree_add_text(tree, tvb, offset, 2, "Invalid session header");
+        proto_item_append_text(ti, " (Invalid)");
     else
         proto_tree_add_item(tree, hf_amqp_0_10_session_header_sync,
                             tvb, offset + 1, 1, ENC_BIG_ENDIAN);
@@ -5120,8 +5128,9 @@ dissect_amqp_0_10_file(tvbuff_t *tvb,
      */
     flag1 = tvb_get_guint8(tvb, offset);
     flag2 = tvb_get_guint8(tvb, offset+1);
+    ti = proto_tree_add_item(tree, hf_amqp_0_10_session_header, tvb, offset, 2, ENC_BIG_ENDIAN);
     if ((flag1 != 1) || ((flag2 & 0xfe) != 0))
-        proto_tree_add_text(tree, tvb, offset, 2, "Invalid session header");
+        proto_item_append_text(ti, " (Invalid)");
     else
         proto_tree_add_item(tree, hf_amqp_0_10_session_header_sync,
                             tvb, offset + 1, 1, ENC_BIG_ENDIAN);
@@ -5458,8 +5467,9 @@ dissect_amqp_0_10_stream(tvbuff_t *tvb,
      */
     flag1 = tvb_get_guint8(tvb, offset);
     flag2 = tvb_get_guint8(tvb, offset+1);
+    ti = proto_tree_add_item(tree, hf_amqp_0_10_session_header, tvb, offset, 2, ENC_BIG_ENDIAN);
     if ((flag1 != 1) || ((flag2 & 0xfe) != 0))
-        proto_tree_add_text(tree, tvb, offset, 2, "Invalid session header");
+        proto_item_append_text(ti, " (Invalid)");
     else
         proto_tree_add_item(tree, hf_amqp_0_10_session_header_sync,
                             tvb, offset + 1, 1, ENC_BIG_ENDIAN);
@@ -11967,6 +11977,10 @@ proto_register_amqp(void)
             "Packing Flags", "amqp.struct.packing",
             FT_UINT16, BASE_HEX, NULL, 0xffff,
             "Argument Struct Packing Flags", HFILL}},
+        {&hf_amqp_0_10_session_header, {
+            "Session header", "amqp.session.header",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL}},
         {&hf_amqp_0_10_session_header_sync, {
             "Sync", "amqp.session.header.sync",
             FT_BOOLEAN, 8, TFS(&amqp_0_10_session_header_sync), 0x01,
