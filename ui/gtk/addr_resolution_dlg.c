@@ -329,7 +329,7 @@ addr_resolution_dlg (GtkAction *action _U_, gpointer data _U_)
     gtk_box_pack_end (GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
 
     ok_bt = (GtkWidget *)g_object_get_data (G_OBJECT(bbox), GTK_STOCK_OK);
-    /*g_signal_connect (ok_bt, "clicked", G_CALLBACK(pkt_comment_text_buff_ok_cb), view);*/
+    g_signal_connect(ok_bt, "clicked", G_CALLBACK(window_cancel_button_cb), addr_resolution_dlg_w); /* act as cxl */
     gtk_widget_set_sensitive (ok_bt, TRUE);
 
     cancel_bt = (GtkWidget *)g_object_get_data (G_OBJECT(bbox), GTK_STOCK_CANCEL);
