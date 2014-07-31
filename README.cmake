@@ -124,6 +124,7 @@ What needs to be done?
 - Add back checkAPI target.
 - Test and add support for other platforms (BSDs, OS X,
   Solaris, Win32, Win64, ...)
+- Support building against an SDK for OS X.
 - Add support for cmake configurations.
 - Get plugins loading when running *shark from the build directory.
 - Automatically figure out if *shark is running from the build directory
