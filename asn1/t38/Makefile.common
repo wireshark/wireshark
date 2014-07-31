@@ -24,9 +24,13 @@ EXT_ASN_FILE_LIST =
 ASN_FILE_LIST = \
 	T38_2002.asn
 
+INCLUDED_ASN_FILE_LIST = \
+	T38_1998.asn
+
 EXTRA_DIST = \
 	$(EXTRA_DIST_COMMON) \
 	$(ASN_FILE_LIST) \
+	$(INCLUDED_ASN_FILE_LIST) \
 	packet-$(PROTOCOL_NAME)-template.c \
 	packet-$(PROTOCOL_NAME)-template.h \
 	$(PROTOCOL_NAME).cnf

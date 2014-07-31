@@ -36,11 +36,21 @@ ASN_FILE_LIST = \
 	User-To-User-Signalling-Operations.asn \
 	Freephone-Operations.asn
 
+INCLUDED_ASN_FILE_LIST = \
+	CCBS-Operations-and-Errors.asn \
+	CCBS-private-networks-Operations-and-Errors.asn \
+	Explicit-Call-Transfer-Operations-and-Errors.asn \
+	MWI-Operations-and-Errors.asn \
+	Outgoing-Call-Barring-Operations-and-Errors.asn \
+	Set-Operations-and-Errors.asn \
+	Three-Party-Operations.asn
+
 # The packet-$(PROTOCOL_NAME)-template.h and $(PROTOCOL_NAME).asn
 # files do not exist for all protocols: Please add/remove as required.
 EXTRA_DIST = \
 	$(EXTRA_DIST_COMMON) \
 	$(ASN_FILE_LIST) \
+	$(INCLUDED_ASN_FILE_LIST) \
 	packet-$(PROTOCOL_NAME)-template.c \
 	$(PROTOCOL_NAME).cnf
 

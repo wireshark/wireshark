@@ -30,6 +30,7 @@ ASN_FILE_LIST = \
 	RFC3244.asn
 
 EXTRA_DIST = \
+	$(EXTRA_DIST_COMMON) \
 	$(ASN_FILE_LIST) \
 	packet-$(PROTOCOL_NAME)-template.c \
 	packet-$(PROTOCOL_NAME)-template.h \
