@@ -133,7 +133,7 @@ ipv4_hash_table_to_texbuff(gpointer key, gpointer value, gpointer user_data)
 	gchar string_buff[ADDRESS_STR_MAX];
 	GtkTextBuffer *buffer = (GtkTextBuffer*)user_data;
 	hashipv4_t *ipv4_hash_table_entry = (hashipv4_t *)value;
-	int addr = *(int*)key;
+	int addr = GPOINTER_TO_UINT(key);
 
 	g_snprintf(string_buff, ADDRESS_STR_MAX, "Key:0x%x IP: %s, Name: %s\n",
 		  addr,
