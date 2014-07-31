@@ -993,16 +993,25 @@ EXTRA_DIST = \
 	wiretap/CMakeLists.txt	\
 	README.cmake		\
 	ConfigureChecks.cmake	\
+	cmake/TestFileOffsetBits.c	\
+	cmake/TestLargeFiles.c.cmakein	\
+	cmake/TestWindowsFSeek.c	\
 	cmake/modules/CMakeInstallDirs.cmake	\
 	cmake/modules/COPYING-CMAKE-SCRIPTS	\
+	cmake/modules/CheckCCompilerFlag.cmake	\
 	cmake/modules/CheckCLinkerFlag.cmake	\
 	cmake/modules/FeatureSummary.cmake	\
 	cmake/modules/FindADNS.cmake		\
+	cmake/modules/FindAIRPCAP.cmake		\
+	cmake/modules/FindASCIIDOC.cmake	\
 	cmake/modules/FindCAP.cmake		\
 	cmake/modules/FindCARES.cmake		\
 	cmake/modules/FindFOP.cmake		\
 	cmake/modules/FindGCRYPT.cmake		\
 	cmake/modules/FindGEOIP.cmake		\
+	cmake/modules/FindChocolatey.cmake	\
+	cmake/modules/FindDOXYGEN.cmake		\
+	cmake/modules/FindFreetype.cmake	\
 	cmake/modules/FindGLIB2.cmake		\
 	cmake/modules/FindGMODULE2.cmake	\
 	cmake/modules/FindGNUTLS.cmake		\
@@ -1019,18 +1028,26 @@ EXTRA_DIST = \
 	cmake/modules/FindPCAP.cmake		\
 	cmake/modules/FindPOD.cmake		\
 	cmake/modules/FindPORTAUDIO.cmake	\
+	cmake/modules/FindSBC.cmake		\
 	cmake/modules/FindSED.cmake		\
+	cmake/modules/FindSETCAP.cmake		\
 	cmake/modules/FindSH.cmake		\
 	cmake/modules/FindSMI.cmake		\
+	cmake/modules/FindWSWinLibs.cmake	\
 	cmake/modules/FindXMLLINT.cmake		\
 	cmake/modules/FindXSLTPROC.cmake	\
 	cmake/modules/FindYACC.cmake		\
 	cmake/modules/FindYAPP.cmake		\
 	cmake/modules/FindZLIB.cmake		\
 	cmake/modules/LICENSE.txt		\
+	cmake/modules/UseABICheck.cmake		\
+	cmake/modules/UseAsn2Wrs.cmake		\
+	cmake/modules/UseCheckAPI.cmake		\
 	cmake/modules/UseLemon.cmake		\
 	cmake/modules/UseMakeDissectorReg.cmake	\
 	cmake/modules/UseMakeTapReg.cmake	\
+	cmake/modules/UseWinLibs.cmake		\
+	cmake/modules/gmxTestLargeFiles.cmake	\
 	cmake/modules/readme.txt		\
 	ui/win32/Makefile.nmake			\
 	ui/win32/console_win32.c		\
