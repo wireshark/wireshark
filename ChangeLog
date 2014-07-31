@@ -1,0 +1,638 @@
+commit cdb8710
+Author: Peter Wu <peter@lekensteyn.nl>
+Date:   Thu Jul 3 11:25:21 2014 +0200
+
+    catapult,irda: Fix ASAN crashes due to buffer underrun
+    
+    The catapult dissector tripped on this random file I had. A quick look
+    at other dissectors which use a construct like "-1] *= '*\\[rn]" showed
+    packet-irda too, so fix that as well.
+    
+    Change-Id: I4b5fadcacd0b09d0fb29bdefc3dd1f28aef9b593
+    Reviewed-on: https://code.wireshark.org/review/2802
+    Reviewed-by: Evan Huus <eapache@gmail.com>
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    (cherry picked from commit 16f8ba1bed579344df373bf38fff552ab8baf380)
+    Reviewed-on: https://code.wireshark.org/review/2810
+
+commit a1785a9
+Author: Michael Mann <mmann78@netscape.net>
+Date:   Wed Jul 30 16:06:32 2014 -0400
+
+    Convert tvb_get_ptr buffer access macros to use much safer tvb access macros.
+    
+    (Manually merged from master-1.12 branch)
+    
+    bug:10281
+    Change-Id: Ie0818b3c21a802fe6d597197dae0075162d80ded
+    Reviewed-on: https://code.wireshark.org/review/3270
+    Petri-Dish: Michael Mann <mmann78@netscape.net>
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+
+commit 8596593
+Author: Hannes Mezger <hannes.mezger@ascolab.com>
+Date:   Wed Jul 30 12:34:58 2014 +0200
+
+    fix encodingmask of DiagnosticInfo
+    
+    In 2008, before the OpcUa specification was released, the EncodingMask was changed to include the Locale after the LocalizedText. This commit applies the changes necessary to display DiagnosticInfo correctly.
+    
+    Change-Id: Iad35ff0557eac62a259a63505ebce3e637095136
+    Reviewed-on: https://code.wireshark.org/review/3259
+    Reviewed-by: Alexis La Goutte <alexis.lagoutte@gmail.com>
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    (cherry picked from commit 5894b555a160cb329ab2d058ea85aea2c317087d)
+    Reviewed-on: https://code.wireshark.org/review/3265
+    Reviewed-by: Evan Huus <eapache@gmail.com>
+
+commit 6acb8d5
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jul 27 08:11:28 2014 -0700
+
+    [Automatic manuf, services and enterprise-numbers update for 2014-07-27]
+    
+    Change-Id: I49e7c438b82901cfe752fa425e88404e11824b1d
+    Reviewed-on: https://code.wireshark.org/review/3210
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit eed3850
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Tue Jul 22 11:51:15 2014 -0700
+
+    Don't return an error string for NO_INTERFACES_FOUND.
+    
+    Most callers of capture_interface_list() don't expect an error string
+    for NO_INTERFACES_FOUND, because that's not really an error, it's just a
+    statement of face (and perhaps an error of 0 should be returned), so
+    they don't bother freeing the error string, causing a leak.
+    
+    Instead, have the one place that *did* expect it to return an error
+    string just put "No interfaces found" itself.
+    
+    Also, have that place not check for an error string if interfaces *were*
+    found, as no error code or string is returned in that case.
+    
+    Change-Id: I95018d647bf2bcea6732bdf4ffb48615ba669b2c
+    Reviewed-on: https://code.wireshark.org/review/3168
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+
+commit 490cf7c
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jul 20 08:11:41 2014 -0700
+
+    [Automatic manuf, services and enterprise-numbers update for 2014-07-20]
+    
+    Change-Id: Iabfb0db01630894ad68027faa8c63467800d9a59
+    Reviewed-on: https://code.wireshark.org/review/3133
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 9cf8930
+Author: Fabian Raetz <fabian.raetz@gmail.com>
+Date:   Fri Jul 18 13:50:05 2014 -0700
+
+    Fix install_desktop_files non-portability and add out-of-tree support.
+    
+    Prepend $(srcdir)/ to the sources in install commands, and get rid of
+    the -T flag, as it's GNU coreutils install-specific; some versions of
+    install don't support -T at all, and FreeBSD's install has a -T flag
+    that takes an argument and has a completely different meaning.
+    
+    Fixes bug 10292; fix came from
+    
+        http://marc.info/?l=openbsd-ports&m=140571104528980&w=2
+    
+    Change-Id: I8e80d475a728a17848736be043f97d2b90a0be82
+    Reviewed-on: https://code.wireshark.org/review/3107
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 4b720691c45e1a803bdcc01567ac1ec52da62740)
+    Reviewed-on: https://code.wireshark.org/review/3109
+
+commit cb36560
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Fri Jul 18 00:02:27 2014 +0200
+
+    WebSocket: increase max unmask payload size to 256K and indicate that packet is truncated is going above the new limit
+    
+    Bug: 10283
+    Change-Id: Iea5401d02bcf50a3427dce5f2b817c3b73a7dc11
+    Reviewed-on: https://code.wireshark.org/review/3098
+    Reviewed-by: Alexis La Goutte <alexis.lagoutte@gmail.com>
+    Reviewed-by: Evan Huus <eapache@gmail.com>
+    Reviewed-on: https://code.wireshark.org/review/3106
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+
+commit a8686df
+Author: Michael Mann <mmann78@netscape.net>
+Date:   Fri Jun 20 02:47:03 2014 -0400
+
+    Allow expert info to show only items in the display filter.
+    
+    This was started by Chris Maynard before Qt was announced and I just polished it off for inclusion in GTK version of Wireshark.
+    
+    bug:1860
+    Change-Id: Icaada6e7900f22b0a3d97c2a5656edfd8d8c8b7f
+    Reviewed-on: https://code.wireshark.org/review/3035
+    Reviewed-by: Christopher Maynard <Christopher.Maynard@gtech.com>
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    (cherry picked from commit d8cff57ef342b909f128244f3ab5e5debcec4988)
+    Reviewed-on: https://code.wireshark.org/review/3077
+    Reviewed-on: https://code.wireshark.org/review/3084
+
+commit 0e5a975
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Tue Jul 15 17:14:11 2014 -0700
+
+    Squelch a warning.
+    
+    In at least some versions of GLib, g_array_free() warns if passed a null
+    pointer, rather than just silently returning.
+    
+    Change-Id: I1bfc0a81faa1eeebe288f6e0cc58ebfb64784958
+    Reviewed-on: https://code.wireshark.org/review/3068
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 28971b28518ba0c210690d97c29df984064f4cca)
+    Reviewed-on: https://code.wireshark.org/review/3070
+
+commit bf70fc5
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Mon Jul 14 16:48:10 2014 -0700
+
+    Add application/atom+xml as an XML document type.
+    
+    Change-Id: I9fcf438f3cafcb3ab3a5b6dc0f72ed2561e5a94f
+    Reviewed-on: https://code.wireshark.org/review/3049
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 52a4f3d121765ce758c16137b03e7b9d2e15908c)
+    Reviewed-on: https://code.wireshark.org/review/3051
+
+commit bc963b0
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Mon Jul 14 12:18:11 2014 -0700
+
+    Treat CR-LF at the end of a line like LF.
+    
+    That way, if we're reading a Windows-format file on UN*X, we handle it
+    the same way we'd handle a UN*X-format file.
+    
+    This handles bug 10272 for the cfilter and dfilter file; there are other
+    configuration files that may need code changes as well.
+    
+    While we're at it, don't hand non-ASCII characters to isspace().
+    
+    Change-Id: Ie4ecd2c9601545a60b4d3326c6782cfff093b156
+    Reviewed-on: https://code.wireshark.org/review/3046
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 967c209eb357ab7070db3b0665ba8521059ef26b)
+    Reviewed-on: https://code.wireshark.org/review/3047
+
+commit 2aaed97
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Mon Jul 14 11:30:29 2014 -0700
+
+    Treat CR-LF at the end of a line like LF.
+    
+    That way, if we're reading a Windows-format file on UN*X, we handle it
+    the same way we'd handle a UN*X-format file.
+    
+    This handles bug 10272 for the preference file and the "recent" files;
+    there are other configuration files that may need code changes as well.
+    
+    Change-Id: I94de26d8435ec7c082a12c26aed2076b5fd6fb24
+    Reviewed-on: https://code.wireshark.org/review/3044
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+
+commit 3bc742c
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jul 13 08:11:00 2014 -0700
+
+    [Automatic manuf, services and enterprise-numbers update for 2014-07-13]
+    
+    Change-Id: I7b442330a3ddfcff39ab741d10047db0e9fd57ca
+    Reviewed-on: https://code.wireshark.org/review/3033
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 7f4dbd4
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Fri Jul 11 19:49:46 2014 +0200
+
+    GTP: allow empty Data Record Packet IE
+    
+    Bug: 10277
+    Change-Id: I4edf330fa1c44a52d985d70555c7756954fb9364
+    Reviewed-on: https://code.wireshark.org/review/3008
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    (cherry picked from commit 826bca091874e04ce5aa72fa233df652bf8819fb)
+    Reviewed-on: https://code.wireshark.org/review/3010
+
+commit caef400
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Thu Jul 10 17:27:49 2014 -0700
+
+    Avoid sign-extending bytes before handing them to <ctype.h> macros.
+    
+    Pointed out by the Visual Studio code analyzer.
+    
+    Change-Id: Idd429b4d0fb3db11ce171c3a5b38bdc55cc53c15
+    Reviewed-on: https://code.wireshark.org/review/2988
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit b5d4128bee88b42cb32337a6343bb44574ff2f3a)
+    Reviewed-on: https://code.wireshark.org/review/2990
+
+commit 50f6f36
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jul 6 08:38:20 2014 -0700
+
+    [Automatic manuf, services and enterprise-numbers update for 2014-07-06]
+    
+    Change-Id: I4fd6e1e7cc8c3b16335af579388ab960517fd240
+    Reviewed-on: https://code.wireshark.org/review/2892
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit bf80c22
+Author: Malcolm Walters <malcolm.walters@acano.com>
+Date:   Tue Jul 1 13:38:47 2014 +0100
+
+    Fix for Bug 10240.
+    Include padding length in calculation of correct attribute length
+    
+    Change-Id: I569c6a9e1be39e3bb997e797a094b80cdcba6b07
+    Reviewed-on: https://code.wireshark.org/review/2747
+    Reviewed-by: Evan Huus <eapache@gmail.com>
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    Reviewed-on: https://code.wireshark.org/review/2761
+
+commit b4eeb6a
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Mon Jun 30 15:39:08 2014 -0700
+
+    Always set the crash information.
+    
+    There's no reason to do it only on Windows - and, in fact, the only
+    platform where we currently do anything with the information is OS X.
+    Every other program in the Wireshark suite that does it at all does it
+    on all platforms.
+    
+    Change-Id: Id1c8d09cac0f4376ba45e2ceb7d63acdfeb2fb57
+    Reviewed-on: https://code.wireshark.org/review/2732
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+
+commit f6609f6
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Sun Jun 29 15:13:43 2014 +0200
+
+    GSM MAP: ensure that p2p_dir is always initialized before calling GSM SMS dissector
+    
+    Bug: 10234
+    Change-Id: Ie340b849015febe46f91836440d44d4cfde005a4
+    Reviewed-on: https://code.wireshark.org/review/2695
+    Reviewed-by: Evan Huus <eapache@gmail.com>
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    (cherry picked from commit e39e44df246c89c31d708923a181f99810240731)
+    Reviewed-on: https://code.wireshark.org/review/2701
+
+commit 8a9573e
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jun 29 08:09:51 2014 -0700
+
+    [Automatic manuf, services and enterprise-numbers update for 2014-06-29]
+    
+    Change-Id: I13c692e6ac5d4c7a0a2ff01570b35b86c05746ce
+    Reviewed-on: https://code.wireshark.org/review/2698
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 8539d9e
+Author: Hadriel Kaplan <hadrielk@yahoo.com>
+Date:   Thu Mar 27 17:24:20 2014 -0400
+
+    Fix bug9931 'Encapsulated ethernet packets sometimes show invalid FCS'
+    
+    This fixes part-1 of bug9931: the uninitialized use of a wtap_pkthdr
+    struct. The second part of the bug deals with dissectors calling
+    the Ethernet dissector for ecnapsulated Ethernet packets but using
+    the wrong dissector handle to do so. That's unrelated to the issue this
+    commit addresses, so I'm splitting them up.
+    
+    Cherry-Picked-From: I87be7b736f82dd74d8c261062f88143372b5344c
+    Reviewed-on: https://code.wireshark.org/review/848
+    Reviewed-by: Hadriel Kaplan <hadrielk@yahoo.com>
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    
+    Conflicts:
+    	file.c
+    	frame_tvbuff.c
+    	reordercap.c
+    	ui/gtk/packet_list_store.c
+    	ui/qt/packet_list_model.cpp
+    	ui/tap_export_pdu.c
+    
+    Change-Id: Ibc39d67e8a8717e70ddb453da3a868f6efb16bcc
+    Bug:10052
+    Reviewed-on: https://code.wireshark.org/review/2674
+    Reviewed-by: Evan Huus <eapache@gmail.com>
+
+commit bf2d11f
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Jun 25 16:00:11 2014 -0700
+
+    Decrease TRAFFIC_CAPTURE_DURATION from 60s to 15s.
+    
+    Change-Id: Ie6d6ac0489f0fcb506360a3900d33c44cb3477e9
+    Reviewed-on: https://code.wireshark.org/review/2664
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+    (cherry picked from commit 81963e7f1a5c7b19b414a4de210cc65c62aee27c)
+    Reviewed-on: https://code.wireshark.org/review/2665
+
+commit b986160
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Wed Jun 25 14:05:36 2014 -0700
+
+    Update a comment.
+    
+    Also, make the block of code containing that comment intended
+    consistently with spaces.
+    
+    Change-Id: I8e8eb346833662f15c53ece5869b12cc430bad11
+    Reviewed-on: https://code.wireshark.org/review/2661
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 765405da3e7ee501935e04a818beda6fffa4ccf9)
+    Reviewed-on: https://code.wireshark.org/review/2663
+
+commit 0134e95
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Wed Jun 25 13:42:36 2014 -0700
+
+    Boost the maximum snapshot length to 262144, for USBPcap.
+    
+    Change-Id: I104bd9d1519298a0e4ff818f1cf821df594b3491
+    Reviewed-on: https://code.wireshark.org/review/2658
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 474b90e35898c8898695b43bb49305ec200fa6b0)
+    Reviewed-on: https://code.wireshark.org/review/2660
+
+commit b3bf922
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Wed Jun 25 13:26:39 2014 -0700
+
+    Boost the maximum packet size to 131072.
+    
+    Libpcap 1.6/tcpdump 4.6 will support up to 131072, as the MTU on the
+    Linux loopback device is 65536 on at least some versions of the kernel,
+    and that doesn't count the fake Ethernet header, so the maximum packet
+    size is 65549; they went to the next power of 2 up.
+    
+    Change-Id: Ibfc66d01ef8ef7387887a75c2b567159bb78ac0f
+    Reviewed-on: https://code.wireshark.org/review/2655
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 8cde7a72d6c2b8e5cac87aeec5b1f200185cbe4a)
+    Reviewed-on: https://code.wireshark.org/review/2657
+
+commit 1bda08e
+Author: Ben Burwell <bburwell@lutron.com>
+Date:   Tue Jun 24 11:34:40 2014 -0400
+
+    Add quotes around MAKEDIR.
+    
+    Bug: 7870
+    Change-Id: I6cea057c4953f5ecc0a146a24570d089e79f8352
+    Reviewed-on: https://code.wireshark.org/review/2620
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    (cherry picked from commit 830d1b1ce9905e287386c9e8bc638c26380d77cb)
+    Change-Id: I6cea057c4953f5ecc0a146a24570d089e79f8352
+    Reviewed-on: https://code.wireshark.org/review/2637
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+
+commit b82fbe7
+Author: Balint Reczey <balint@balintreczey.hu>
+Date:   Tue Jun 24 14:58:46 2014 +0200
+
+    GTK3: Fix changing filter expression's bg color based on validity
+    
+    Bug: 8598
+    Change-Id: Id5a52c05cab25df9e228b1b4d2caf07335c1f4c8
+    Reviewed-on: https://code.wireshark.org/review/2614
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    Reviewed-by: Evan Huus <eapache@gmail.com>
+    (cherry picked from commit 09b86bdb0ce6602f1c15a8fccd4057aeb1d2e823)
+    Reviewed-on: https://code.wireshark.org/review/2630
+    (cherry picked from commit 018fa44ca38c2dff387c521db450427c4a14bfb3)
+    Reviewed-on: https://code.wireshark.org/review/2631
+
+commit ed39971
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Tue Jun 24 13:48:40 2014 -0700
+
+    Support -w even if we're not built with pcap.
+    
+    You can, for example, do
+    
+    	tshark -r file1 -Y filter -w file2
+    
+    to read a file, apply a read filter, and write the packets that match
+    the filter to another file even if you can't capture traffic.
+    
+    Change-Id: Ifd5e1d5c0e745edef5e98ec4babc720bfbcee6d9
+    Reviewed-on: https://code.wireshark.org/review/2627
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 0fb9369a5ed3381c1c243c2f34a66f3061712c4b)
+    Reviewed-on: https://code.wireshark.org/review/2629
+
+commit abae269
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Mon Jun 23 22:06:05 2014 +0200
+
+    Initialize whole buffer in GPRS Mobility and Session Management dissector
+    
+    Bug: 10216
+    Change-Id: I572a7a6ce0f816063f02397b667dd46c990cf73e
+    Reviewed-on: https://code.wireshark.org/review/2583
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    (cherry picked from commit dd7134d907350ccc574cdec596f4162860912bb9)
+    Reviewed-on: https://code.wireshark.org/review/2585
+
+commit 975297b
+Author: Evan Huus <eapache@gmail.com>
+Date:   Sun Jun 22 16:53:35 2014 -0400
+
+    Initialize whole buffer in GTP dissector
+    
+    Bug:10216
+    Change-Id: Ib7de616d50937eb43b16daa4067ee0de9edc8ec7
+    Reviewed-on: https://code.wireshark.org/review/2562
+    Reviewed-by: Evan Huus <eapache@gmail.com>
+    (cherry picked from commit 3fc441e7a5008640c68ec985e669d5092414a519)
+    Reviewed-on: https://code.wireshark.org/review/2563
+    (cherry picked from commit a3e3db53050c26a4e45b2a31338ec0dd1a797329)
+    Reviewed-on: https://code.wireshark.org/review/2564
+
+commit 5402ae1
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jun 22 08:09:17 2014 -0700
+
+    [Automatic manuf, services and enterprise-numbers update for 2014-06-22]
+    
+    Change-Id: I53ec2c0a1bf11d46c403af8af5edda5794434150
+    Reviewed-on: https://code.wireshark.org/review/2545
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit f94ad09
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Wed Jun 18 13:54:33 2014 -0700
+
+    Get the handle for the pw_hdlc_nocw_hdlc_ppp dissector.
+    
+    Change-Id: If7bc620c19e9c6511a724847e38cf0776d26b444
+    Reviewed-on: https://code.wireshark.org/review/2410
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 6da6bf77b3da928aa6fc9ae9d6b67ecfd77d25e1)
+    Reviewed-on: https://code.wireshark.org/review/2412
+
+commit f608926
+Author: Evan Huus <evan.huus@jadedpixel.com>
+Date:   Tue Jun 17 21:43:49 2014 +0000
+
+    Set the rlc len field before we try to use it in an expert info.
+    
+    Bug:9795
+    Change-Id: I740a9fe36278995cf6e590206f600c037789f0eb
+    Reviewed-on: https://code.wireshark.org/review/2344
+    Reviewed-by: Evan Huus <eapache@gmail.com>
+    (cherry picked from commit ba6eb5c72ffe82ca0e51c7083240975a5b118ad2)
+    Reviewed-on: https://code.wireshark.org/review/2345
+    (cherry picked from commit 2c877e0c77be47f5ac78b8f307081b5e4f36b2be)
+    Reviewed-on: https://code.wireshark.org/review/2346
+
+commit 1eb9b9e
+Author: Evan Huus <evan.huus@jadedpixel.com>
+Date:   Tue Jun 17 18:13:51 2014 +0000
+
+    fix underflow in BER constrained bitstrings
+    
+    this can happen and cause invalid memory accesses with incorrectly-large padding
+    values
+    
+    Bug:10187
+    Change-Id: Ib9b2a2fa10766efb4d95d588f57354a56373c626
+    Reviewed-on: https://code.wireshark.org/review/2328
+    Reviewed-by: Evan Huus <eapache@gmail.com>
+
+commit 9615ddc
+Author: Alex Badea <abadea@ixiacom.com>
+Date:   Tue Jun 17 13:55:06 2014 +0300
+
+    isakmp: allow IKEv1 decryption with non-PSK authentication
+    
+    There is a check that disables decryption for non-PSK authentication. It
+    has been around ever since its introduction in commit acfe071e (svn
+    r17229). As suggested in bug 7951, remove this check to allow decryption
+    for e.g. certificates authentication.
+    
+    Bug: 7951
+    Change-Id: I5e98407d0f8dbabac2cdaf632cf0af403192872b
+    Signed-off-by: Alex Badea <abadea@ixiacom.com>
+    Reviewed-on: https://code.wireshark.org/review/2297
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit f9b05dc13213832dba10600bd0116505ed251fec)
+    Reviewed-on: https://code.wireshark.org/review/2306
+    Reviewed-by: Alexis La Goutte <alexis.lagoutte@gmail.com>
+
+commit c3d6a86
+Author: Hannes Mezger <hannes.mezger@ascolab.com>
+Date:   Tue Jun 10 13:09:24 2014 +0200
+
+    Fix display of CloseSecureChannel requests and responses
+    
+    Add the missing parsing code for CloseSecureChannel, some fields were missing
+    
+    Change-Id: I2a224891dadc2ce727a838138b132abdb2437265
+    Reviewed-on: https://code.wireshark.org/review/2195
+    Reviewed-by: Evan Huus <eapache@gmail.com>
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+
+commit 56ecf64
+Author: Hannes Mezger <hannes.mezger@ascolab.com>
+Date:   Tue Jun 10 12:27:34 2014 +0200
+
+    Move ServiceFault from ComplexType- to ServiceParser
+    
+    ServiceFaults are always sent as a service response and never as value, this moves the parsing code to the correct location.
+    
+    Change-Id: Ida9cb561aa40fcbfc3c0429aed732d108b295138
+    Reviewed-on: https://code.wireshark.org/review/2124
+    Reviewed-by: Alexis La Goutte <alexis.lagoutte@gmail.com>
+    (cherry picked from commit baa58887886c6bbe24f2894e40a4c0e1bccd5314)
+    Reviewed-on: https://code.wireshark.org/review/2165
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+
+commit 0741bba
+Author: Hannes Mezger <hannes.mezger@ascolab.com>
+Date:   Tue Jun 10 11:46:05 2014 +0200
+
+    Fix NodeId and ExpandedNodeId encoding masks
+    
+    There are no 'URI' NodeIds, removed this option and changed GUID/Opaque to their correct values as stated in the UA specification.
+    
+    Change-Id: Ia23598650c7a6f66cdb73a111fba08595997a933
+    Reviewed-on: https://code.wireshark.org/review/2194
+    Reviewed-by: Evan Huus <eapache@gmail.com>
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+
+commit 845886c
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jun 15 08:09:31 2014 -0700
+
+    [Automatic manuf, services and enterprise-numbers update for 2014-06-15]
+    
+    Change-Id: I7212e5fb4c87172f899349f95a346ec3d8d2c997
+    Reviewed-on: https://code.wireshark.org/review/2229
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit d814a23
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Fri Jun 13 12:51:29 2014 -0700
+
+    Fix package version stamping.
+    
+    Change-Id: I1615364071563c4f56b071d7d68e4660dd989296
+    Reviewed-on: https://code.wireshark.org/review/2198
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+    (cherry picked from commit fd017eeae358fbcbb3f51f2765bd31777aa513d1)
+    Reviewed-on: https://code.wireshark.org/review/2200
+
+commit a3a6e40
+Author: Bill Meier <wmeier@newsguy.com>
+Date:   Fri Jun 13 15:53:49 2014 -0400
+
+    Fix corruption when saving to a pcapng file if number of name resolution entries exceeds max NRB block size.
+    
+    Specifically: When saving to a pcapng file,
+    an incorrect name resolution block (NRB) length was written
+    if the number of name resolution entries to be written was larger than
+    the maximum number of entries which could fit into a single NRB block.
+    
+    Fixes Bug #10145.
+    
+    Change-Id: I0fab0f01f94045f85e8b471381dbe7b4d6c2c852
+    Reviewed-on: https://code.wireshark.org/review/2199
+    Reviewed-by: Bill Meier <wmeier@newsguy.com>
+
+commit bbdbde2
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Thu Jun 12 23:21:35 2014 +0000
+
+    Add back "Fix switch case on ExpandedNodeId encoding mask"
+    
+    This reverts commit 52a5244a0e3c072631b4d2a2b20940a19942313a.
+    
+    Change-Id: I48b004a5607c844282e10678a1f2fa51f008e71f
+    Reviewed-on: https://code.wireshark.org/review/2192
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit a4d5e0f
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Thu Jun 12 15:43:00 2014 -0700
+
+    1.10.8 → 1.10.9.
+    
+    Change-Id: I93aa4b1c67aa07439c95e2150f4b611acb6af136
+    Reviewed-on: https://code.wireshark.org/review/2191
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
