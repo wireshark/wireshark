@@ -1,8 +1,5 @@
 = Wireshark wireshark-version:[] Release Notes
 
-I'm proud to announce the release of Wireshark 1.12.0rc4. This is a
-public release candidate for Wireshark 1.12.0.
-
 == What is Wireshark?
 
 Wireshark is the world's most popular network protocol analyzer. It is
@@ -19,12 +16,39 @@ The following bugs have been fixed:
 //* cve-idlink:2013-2486[]
 //* Wireshark always manages to score tickets for Burning Man, Coachella, and SXSW while you end up working double shifts. (ws-buglink:0000[])
 
-* "On-the-wire" packet lengths are limited to 65535 bytes. (ws-buglink:8808[], ws-buglink:9390)
+* "On-the-wire" packet lengths are limited to 65535 bytes. (ws-buglink:8808[], ws-buglink:9390[])
 * "Follow TCP Stream" shows only the first HTTP request and response. (ws-buglink:9044[])
 * Files with pcap-ng Simple Packet Blocks can't be read. (ws-buglink:9200[])
 * MPLS-over-PPP isn't recognized. (ws-buglink:9492[])
 
 === New and Updated Features
+
+The following features are new or have been significantly updated since version
+1.10:
+
+* The Windows installer now uninstalls the previous version of Wireshark
+  silently.  You can still run the uninstaller manually beforehand if you wish
+  to run it interactively.
+* Expert information is now filterable when the new API is in use.
+* The "Number" column shows related packets and protocol conversation spans
+  (Qt only).
+* When manipulating packets with editcap using the -C <choplen> and/or
+  -s <snaplen> options, it is now possible to also adjust the original frame
+  length using the -L option.
+* You can now pass the -C <choplen> option to editcap multiple times, which
+  allows you to chop bytes from the beginning of a packet as well as at the end
+  of a packet in a single step.
+* You can now specify an optional offset to the -C option for editcap, which
+  allows you to start chopping from that offset instead of from the absolute
+  packet beginning or end.
+* "malformed" display filter has been renamed to "_ws.malformed".  A handful of
+  other filters have been given the "_ws." prefix to note they are Wireshark
+  application specific filters and not dissector filters.
+* The Kerberos dissector has been replaced with an auto generated one from ASN1
+  protocol description, changing a lot of filter names.  
+
+Additionally the Windows installers have an extra component: a preview of the
+upcoming user interface for Wireshark 2.0.
 
 The following features are new (or have been significantly updated)
 since version 1.11.3:
@@ -64,31 +88,6 @@ since version 1.11.0:
 ** The Follow Stream dialog now supports packet and TCP stream selection.
 ** A Flow Graph (sequence diagram) dialog has been added.
 ** The main window now respects geometry preferences.
-
-
-The following features are new (or have been significantly updated)
-since version 1.10:
-
-* The Windows installer now uninstalls the previous version of Wireshark
-  silently.  You can still run the uninstaller manually beforehand if you wish
-  to run it interactively.
-* Expert information is now filterable when the new API is in use.
-* The "Number" column shows related packets and protocol conversation spans
-  (Qt only).
-* When manipulating packets with editcap using the -C <choplen> and/or
-  -s <snaplen> options, it is now possible to also adjust the original frame
-  length using the -L option.
-* You can now pass the -C <choplen> option to editcap multiple times, which
-  allows you to chop bytes from the beginning of a packet as well as at the end
-  of a packet in a single step.
-* You can now specify an optional offset to the -C option for editcap, which
-  allows you to start chopping from that offset instead of from the absolute
-  packet beginning or end.
-* "malformed" display filter has been renamed to "_ws.malformed".  A handful of
-  other filters have been given the "_ws." prefix to note they are Wireshark
-  application specific filters and not dissector filters.
-* The Kerberos dissector has been replaced with an auto generated one from ASN1
-  protocol description, changing a lot of filter names.  
 
 === Removed Dissectors
 
