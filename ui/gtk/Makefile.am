@@ -175,7 +175,7 @@ wsiconcap.h:
 wssplash.h:
 	echo "/* This file was automatically generated. DO NOT EDIT. */" > $@
 	echo >> $@
-	gdk-pixbuf-csource --raw --name=wssplash_pb_data $(top_srcdir)/image/wssplash_dev.png >> $@
+	gdk-pixbuf-csource --raw --name=wssplash_pb_data $(top_srcdir)/image/wssplash.png >> $@
 
 clean-pixbufs:
 	rm expert_indicators.h capture_comment_icons.h network_icons.h remote_icons.h pipe_icon.h \
