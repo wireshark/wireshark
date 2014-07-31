@@ -134,7 +134,7 @@ typedef struct _usb_tap_data_t {
 #define URB_ERROR         'E'
 
 /*
- * transfer_type values
+ * URB transfer_type values
  */
 #define URB_ISOCHRONOUS   0x0
 #define URB_INTERRUPT     0x1
