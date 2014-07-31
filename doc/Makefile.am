@@ -248,19 +248,24 @@ EXTRA_DIST =				\
 	README.design			\
 	README.developer		\
 	README.display_filter		\
+	README.dissector		\
+	README.epan_child		\
 	README.heuristic		\
 	README.idl2wrs			\
 	README.malloc			\
 	README.packaging		\
 	README.plugins			\
+	README.qt			\
 	README.regression   		\
 	README.request_response_tracking\
 	README.stats_tree		\
 	README.tapping			\
 	README.wmem			\
+	README.wslua			\
 	README.xml-output		\
 	asn2deb.pod			\
 	capinfos.pod			\
+	captype.pod			\
 	dfilter2pod.pl			\
 	dftest.pod			\
 	dumpcap.pod			\

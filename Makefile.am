@@ -714,19 +714,77 @@ EXTRA_DIST = \
 	colorfilters		\
 	config.h.win32		\
 	config.nmake		\
+	debian/README.Debian	\
+	debian/README.Debian.security	\
 	debian/changelog	\
 	debian/compat		\
 	debian/control		\
 	debian/copyright	\
 	debian/dirs		\
+	debian/ethereal-common.NEWS	\
 	debian/headers-check.c	\
+	debian/libwireshark-data.install	\
+	debian/libwireshark-dev.install	\
+	debian/libwireshark0.install	\
+	debian/libwireshark0.symbols	\
+	debian/libwiretap-dev.install	\
+	debian/libwiretap0.docs	\
+	debian/libwiretap0.install	\
+	debian/libwiretap0.symbols	\
+	debian/libwsutil-dev.install	\
+	debian/libwsutil0.install	\
+	debian/libwsutil0.symbols	\
+	debian/license-text-about-dialog	\
+	debian/patches/01_Disable-building-documentation-in-PDF-and-release-no.patch	\
+	debian/patches/04_asn2wrs_ply.patch	\
+	debian/patches/05_note-README-when-running-as-root.patch	\
+	debian/patches/06_release-version.patch	\
+	debian/patches/08_wireshark-desktop-menu.patch	\
+	debian/patches/09_idl2wrs.patch	\
+	debian/patches/16_licence_about_location.patch	\
+	debian/patches/series	\
+	debian/po/POTFILES.in	\
+	debian/po/cs.po	\
+	debian/po/da.po	\
+	debian/po/de.po	\
+	debian/po/es.po	\
+	debian/po/eu.po	\
+	debian/po/fi.po	\
+	debian/po/fr.po	\
+	debian/po/hu.po	\
+	debian/po/id.po	\
+	debian/po/it.po	\
+	debian/po/ja.po	\
+	debian/po/ko.po	\
+	debian/po/nl.po	\
+	debian/po/pt.po	\
+	debian/po/pt_BR.po	\
+	debian/po/ru.po	\
+	debian/po/sk.po	\
+	debian/po/sv.po	\
+	debian/po/templates.pot	\
+	debian/po/vi.po	\
 	debian/postinst		\
 	debian/rules		\
+	debian/source/format	\
+	debian/templates	\
+	debian/tshark.docs	\
+	debian/tshark.install	\
 	debian/tshark.manpages	\
+	debian/wireshark-common.config	\
+	debian/wireshark-common.install	\
 	debian/wireshark-common.manpages \
+	debian/wireshark-common.postinst	\
+	debian/wireshark-common.postrm	\
 	debian/wireshark-dev.docs \
+	debian/wireshark-dev.install	\
 	debian/wireshark-dev.manpages \
 	debian/wireshark-dev.prerm \
+	debian/wireshark-doc.docs	\
+	debian/wireshark-qt.docs	\
+	debian/wireshark-qt.install	\
+	debian/wireshark.docs	\
+	debian/wireshark.install	\
 	debian/wireshark.manpages \
 	debian/wireshark.menu	\
 	dfilters		\
