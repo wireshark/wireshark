@@ -853,6 +853,11 @@ static guint16 dissect_mausb_mgmt_pkt_flds(struct mausb_header *header,
     case EPRestartResp:
     case EPClearTransferReq:
     case EPClearTransferResp:
+        proto_tree_add_item(mgmt_tree, hf_mausb_mgmt_type_spec_generic,
+                            tvb, offset, type_spec_len, ENC_NA);
+        offset += type_spec_len;
+        break;
+
     case EPHandleDeleteReq:
         offset = dissect_mausb_mgmt_pkt_ep_handle(mgmt_tree, tvb, pinfo,
                                                   offset, TRUE, TRUE);
