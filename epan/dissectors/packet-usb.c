@@ -555,11 +555,19 @@ static const value_string usb_feature_selector_vals[] = {
     {0, NULL}
 };
 
+
+/* the transfer type in the endpoint descriptor, i.e. the type of the endpoint
+   (this is not the same as the URB transfer type) */
+#define USB_EP_CONTROL     0x00
+#define USB_EP_ISOCHRONOUS 0x01
+#define USB_EP_BULK        0x02
+#define USB_EP_INTERRUPT   0x03
+
 static const value_string usb_bmAttributes_transfer_vals[] = {
-    {0x00,      "Control-Transfer"},
-    {0x01,      "Isochronous-Transfer"},
-    {0x02,      "Bulk-Transfer"},
-    {0x03,      "Interrupt-Transfer"},
+    {USB_EP_CONTROL,     "Control-Transfer"},
+    {USB_EP_ISOCHRONOUS, "Isochronous-Transfer"},
+    {USB_EP_BULK,        "Bulk-Transfer"},
+    {USB_EP_INTERRUPT,   "Interrupt-Transfer"},
     {0, NULL}
 };
 
