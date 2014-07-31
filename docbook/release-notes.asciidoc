@@ -9,70 +9,24 @@ used for troubleshooting, analysis, development and education.
 
 === Bug Fixes
 
+// Link templates: ws-buglink:5000[]  ws-buglink:6000[Wireshark bug]  cve-idlink:2013-2486[]
+
 The following vulnerabilities have been fixed.
 
-//* ws-buglink:5000[]
-//* ws-buglink:6000[Wireshark bug]
-//* ws-salink:2013-11[]
-//* cve-idlink:2013-2486[]
+* ws-salink:2014-12[]
++
+A dissector went awry.
+// Fixed in master: g1111111
+// Fixed in master-1.12: g2222222
+// Fixed in master-1.10: g3333333
+(ws-buglink:9999[])
 
-* ws-salink:2014-08[]
-+
-The Catapult DCT2000 and IrDA dissectors could underrun a buffer.
-// Fixed in master: g16f8ba1
-// Fixed in master-1.12: g71cb629 (prior to 1.12.0)
-// Fixed in master-1.10: gcdb8710
-//(ws-buglink:9999[], ws-buglink:10030[])
-+
-Versions affected: 1.10.0 to 1.10.8
-//+
-//cve-idlink:2014-0000[]
-
-* ws-salink:2014-09[]
-+
-The GSM Management dissector could crash.
-// Fixed in master: gdd7134d, g3fc441e
-// Fixed in master-1.12: gc7874f7, ga3e3db5 (prior to 1.12.0)
-// Fixed in master-1.10: gabae269, g975297b
-(ws-buglink:10216[])
-+
-Versions affected: 1.10.0 to 1.10.8
-//+
-//cve-idlink:2014-0000[]
-
-* ws-salink:2014-10[]
-+
-The RLC dissector could crash.
-// Fixed in master: gba6eb5c
-// Fixed in master-1.12: g2c877e0 (prior to 1.12.0)
-// Fixed in master-1.10: gf608926
-(ws-buglink:9795[])
-+
-Versions affected: 1.10.0 to 1.10.8
-//+
-//cve-idlink:2014-0000[]
-
-* ws-salink:2014-11[]
-+
-The ASN.1 BER dissector could crash.
-// Fixed in master: g17a5526
-// Fixed in master-1.12: gd0156c4 (prior to 1.12.0)
-// Fixed in master-1.10: g1eb9b9e
-(ws-buglink:10187[])
-+
-Versions affected: 1.10.0 to 1.10.8
-//+
-//cve-idlink:2014-0000[]
 
 The following bugs have been fixed:
 
 // Should be sorted numerically.
 //* Wireshark will practice the jazz flute for hours on end when you're trying
 //  to sleep. (ws-buglink:0000[])
-* GSM MAP: ensure that p2p_dir is always initialized before calling GSM SMS dissector (ws-buglink:10234[])
-* BFCP: include padding length in calculation of correct attribute length (ws-buglink:10240[])
-* GTP: allow empty Data Record Packet IE (ws-buglink:10277[])
-* WebSocket: increase max unmask payload size to 256K and indicate that packet is truncated is going above the new limit (ws-buglink:10283[])
 
 === New and Updated Features
 
