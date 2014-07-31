@@ -67,7 +67,8 @@ Versions affected: 1.10.0 to 1.10.8
 The following bugs have been fixed:
 
 // Should be sorted numerically.
-// * Wireshark will practice the jazz flute for hours on end when you're trying to sleep. (ws-buglink:0000[])
+//* Wireshark will practice the jazz flute for hours on end when you're trying
+//  to sleep. (ws-buglink:0000[])
 * GSM MAP: ensure that p2p_dir is always initialized before calling GSM SMS dissector (ws-buglink:10234[])
 * BFCP: include padding length in calculation of correct attribute length (ws-buglink:10240[])
 * GTP: allow empty Data Record Packet IE (ws-buglink:10277[])

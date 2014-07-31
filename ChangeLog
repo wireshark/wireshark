@@ -1,3 +1,21 @@
+commit 0bcd19b
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Thu Jul 31 11:54:44 2014 -0700
+
+    Build 1.10.9.
+    
+    Change-Id: I28dcc0b0afc9909c14e221237797577708bb0dca
+
+commit 015aa86
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Jul 30 17:41:00 2014 -0700
+
+    Update release notes and ChangeLog.
+    
+    Change-Id: I7d13855125b7b5b257495ec5cd5b19d47c27298e
+    Reviewed-on: https://code.wireshark.org/review/3274
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
 commit cdb8710
 Author: Peter Wu <peter@lekensteyn.nl>
 Date:   Thu Jul 3 11:25:21 2014 +0200

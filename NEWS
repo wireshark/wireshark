@@ -1,0 +1,157 @@
+                     Wireshark 1.10.9 Release Notes
+     __________________________________________________________
+
+What is Wireshark?
+
+   Wireshark is the world's most popular network protocol
+   analyzer. It is used for troubleshooting, analysis, development
+   and education.
+     __________________________________________________________
+
+What's New
+
+  Bug Fixes
+
+   The following vulnerabilities have been fixed.
+     * [1]wnpa-sec-2014-08
+       The Catapult DCT2000 and IrDA dissectors could underrun a
+       buffer.
+       Versions affected: 1.10.0 to 1.10.8
+     * [2]wnpa-sec-2014-09
+       The GSM Management dissector could crash. ([3]Bug 10216)
+       Versions affected: 1.10.0 to 1.10.8
+     * [4]wnpa-sec-2014-10
+       The RLC dissector could crash. ([5]Bug 9795)
+       Versions affected: 1.10.0 to 1.10.8
+     * [6]wnpa-sec-2014-11
+       The ASN.1 BER dissector could crash. ([7]Bug 10187)
+       Versions affected: 1.10.0 to 1.10.8
+
+   The following bugs have been fixed:
+     * GSM MAP: ensure that p2p_dir is always initialized before
+       calling GSM SMS dissector ([8]Bug 10234)
+     * BFCP: include padding length in calculation of correct
+       attribute length ([9]Bug 10240)
+     * GTP: allow empty Data Record Packet IE ([10]Bug 10277)
+     * WebSocket: increase max unmask payload size to 256K and
+       indicate that packet is truncated is going above the new
+       limit ([11]Bug 10283)
+
+  New and Updated Features
+
+   There are no new features in this release.
+
+  New Protocol Support
+
+   There are no new protocols in this release.
+
+  Updated Protocol Support
+
+  New and Updated Capture File Support
+     __________________________________________________________
+
+Getting Wireshark
+
+   Wireshark source code and installation packages are available
+   from [12]http://www.wireshark.org/download.html.
+
+  Vendor-supplied Packages
+
+   Most Linux and Unix vendors supply their own Wireshark
+   packages. You can usually install or upgrade Wireshark using
+   the package management system specific to that platform. A list
+   of third-party packages can be found on the [13]download page
+   on the Wireshark web site.
+     __________________________________________________________
+
+File Locations
+
+   Wireshark and TShark look in several different locations for
+   preference files, plugins, SNMP MIBS, and RADIUS dictionaries.
+   These locations vary from platform to platform. You can use
+   About->Folders to find the default locations on your system.
+     __________________________________________________________
+
+Known Problems
+
+   Dumpcap might not quit if Wireshark or TShark crashes. ([14]Bug
+   1419)
+
+   The BER dissector might infinitely loop. ([15]Bug 1516)
+
+   Capture filters aren't applied when capturing from named pipes.
+   ([16]Bug 1814)
+
+   Filtering tshark captures with read filters (-R) no longer
+   works. ([17]Bug 2234)
+
+   The 64-bit Windows installer does not support Kerberos
+   decryption. ([18]Win64 development page)
+
+   Resolving ([19]Bug 9044) reopens ([20]Bug 3528) so that
+   Wireshark no longer automatically decodes gzip data when
+   following a TCP stream.
+
+   Application crash when changing real-time option. ([21]Bug
+   4035)
+
+   Hex pane display issue after startup. ([22]Bug 4056)
+
+   Packet list rows are oversized. ([23]Bug 4357)
+
+   Summary pane selected frame highlighting not maintained.
+   ([24]Bug 4445)
+
+   Wireshark and TShark will display incorrect delta times in some
+   cases. ([25]Bug 4985)
+     __________________________________________________________
+
+Getting Help
+
+   Community support is available on [26]Wireshark's Q&A site and
+   on the wireshark-users mailing list. Subscription information
+   and archives for all of Wireshark's mailing lists can be found
+   on [27]the web site.
+
+   Official Wireshark training and certification are available
+   from [28]Wireshark University.
+     __________________________________________________________
+
+Frequently Asked Questions
+
+   A complete FAQ is available on the [29]Wireshark web site.
+     __________________________________________________________
+
+   Last updated 2014-07-31 11:55:38 PDT
+
+References
+
+   1. https://www.wireshark.org/security/wnpa-sec-2014-08.html
+   2. https://www.wireshark.org/security/wnpa-sec-2014-09.html
+   3. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=10216
+   4. https://www.wireshark.org/security/wnpa-sec-2014-10.html
+   5. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=9795
+   6. https://www.wireshark.org/security/wnpa-sec-2014-11.html
+   7. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=10187
+   8. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=10234
+   9. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=10240
+  10. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=10277
+  11. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=10283
+  12. http://www.wireshark.org/download.html
+  13. http://www.wireshark.org/download.html#thirdparty
+  14. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1419
+  15. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1516
+  16. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1814
+  17. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2234
+  18. https://wiki.wireshark.org/Development/Win64
+  19. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=9044
+  20. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3528
+  21. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4035
+  22. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4056
+  23. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4357
+  24. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4445
+  25. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4985
+  26. http://ask.wireshark.org/
+  27. http://www.wireshark.org/lists/
+  28. http://www.wiresharktraining.com/
+  29. http://www.wireshark.org/faq.html
