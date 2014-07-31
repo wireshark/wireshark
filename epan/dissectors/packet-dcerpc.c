@@ -953,23 +953,6 @@ static const fragment_items dcerpc_frag_items = {
 /* list of hooks to be called when init_protocols is done */
 GHookList dcerpc_hooks_init_protos;
 
-static dcerpc_info *
-get_next_di(void)
-{
-    static dcerpc_info di[20];
-    static int         di_counter = 0;
-
-    di_counter++;
-    if (di_counter >= 20) {
-        di_counter = 0;
-    }
-
-    memset(&di[di_counter], 0, sizeof(dcerpc_info));
-    di[di_counter].dcerpc_procedure_name = "";
-
-    return &di[di_counter];
-}
-
 /* try to desegment big DCE/RPC packets over TCP? */
 static gboolean dcerpc_cn_desegment = TRUE;
 
@@ -3947,8 +3930,9 @@ dissect_dcerpc_cn_rqst(tvbuff_t *tvb, gint offset, packet_info *pinfo,
         if (value) {
             dcerpc_info *di;
 
-            di = get_next_di();
+            di = wmem_new0(wmem_packet_scope(), dcerpc_info);
             /* handoff this call */
+            di->dcerpc_procedure_name = "";
             di->conv = conv;
             di->call_id = hdr->call_id;
             di->smb_fid = dcerpc_get_transport_salt(pinfo);
@@ -4064,8 +4048,9 @@ dissect_dcerpc_cn_resp(tvbuff_t *tvb, gint offset, packet_info *pinfo,
         if (value) {
             dcerpc_info *di;
 
-            di = get_next_di();
+            di = wmem_new0(wmem_packet_scope(), dcerpc_info);
             /* handoff this call */
+            di->dcerpc_procedure_name = "";
             di->conv = conv;
             di->call_id = hdr->call_id;
             di->smb_fid = dcerpc_get_transport_salt(pinfo);
@@ -4207,8 +4192,9 @@ dissect_dcerpc_cn_fault(tvbuff_t *tvb, gint offset, packet_info *pinfo,
             dcerpc_info *di;
             proto_item *parent_pi;
 
-            di = get_next_di();
+            di = wmem_new0(wmem_packet_scope(), dcerpc_info);
             /* handoff this call */
+            di->dcerpc_procedure_name = "";
             di->conv = conv;
             di->call_id = hdr->call_id;
             di->smb_fid = dcerpc_get_transport_salt(pinfo);
@@ -5384,7 +5370,6 @@ dissect_dcerpc_dg_rqst(tvbuff_t *tvb, int offset, packet_info *pinfo,
     proto_item         *pi;
     proto_item         *parent_pi;
 
-    di = get_next_di();
     if (!(pinfo->fd->flags.visited)) {
         dcerpc_call_value *call_value;
         dcerpc_dg_call_key *call_key;
@@ -5433,6 +5418,8 @@ dissect_dcerpc_dg_rqst(tvbuff_t *tvb, int offset, packet_info *pinfo,
         value->private_data = NULL;
     }
 
+    di = wmem_new0(wmem_packet_scope(), dcerpc_info);
+    di->dcerpc_procedure_name = "";
     di->conv = conv;
     di->call_id = hdr->seqnum;
     di->smb_fid = -1;
@@ -5462,7 +5449,6 @@ dissect_dcerpc_dg_resp(tvbuff_t *tvb, int offset, packet_info *pinfo,
     proto_item         *pi;
     proto_item         *parent_pi;
 
-    di = get_next_di();
     if (!(pinfo->fd->flags.visited)) {
         dcerpc_call_value *call_value;
         dcerpc_dg_call_key call_key;
@@ -5497,6 +5483,8 @@ dissect_dcerpc_dg_resp(tvbuff_t *tvb, int offset, packet_info *pinfo,
         value->private_data = NULL;
     }
 
+    di = wmem_new0(wmem_packet_scope(), dcerpc_info);
+    di->dcerpc_procedure_name = "";
     di->conv = conv;
     di->call_id = 0;
     di->smb_fid = -1;
