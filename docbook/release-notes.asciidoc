@@ -11,221 +11,44 @@ used for troubleshooting, analysis, development and education.
 
 The following bugs have been fixed:
 
-//* ws-buglink:5000[]
-//* ws-buglink:6000[Wireshark bug]
-//* cve-idlink:2013-2486[]
-//* Wireshark always manages to score tickets for Burning Man, Coachella, and SXSW while you end up working double shifts. (ws-buglink:0000[])
+// Link templates: ws-buglink:5000[]  ws-buglink:6000[Wireshark bug]  cve-idlink:2013-2486[]
 
-* "On-the-wire" packet lengths are limited to 65535 bytes. (ws-buglink:8808[], ws-buglink:9390[])
-* "Follow TCP Stream" shows only the first HTTP request and response. (ws-buglink:9044[])
-* Files with pcap-ng Simple Packet Blocks can't be read. (ws-buglink:9200[])
-* MPLS-over-PPP isn't recognized. (ws-buglink:9492[])
+The following vulnerabilities have been fixed.
+
+* ws-salink:2014-12[]
++
+A dissector went awry.
+// Fixed in master: g1111111
+// Fixed in master-1.12: g2222222
+// Fixed in master-1.10: g3333333
+(ws-buglink:9999[])
+
+
+The following bugs have been fixed:
+
+//* Wireshark always manages to score tickets for Burning Man, Coachella, and
+//  SXSW while you end up working double shifts. (ws-buglink:0000[])
+
 
 === New and Updated Features
 
-The following features are new or have been significantly updated since version
-1.10:
-
-* The Windows installer now uninstalls the previous version of Wireshark
-  silently.  You can still run the uninstaller manually beforehand if you wish
-  to run it interactively.
-* Expert information is now filterable when the new API is in use.
-* The "Number" column shows related packets and protocol conversation spans
-  (Qt only).
-* When manipulating packets with editcap using the -C <choplen> and/or
-  -s <snaplen> options, it is now possible to also adjust the original frame
-  length using the -L option.
-* You can now pass the -C <choplen> option to editcap multiple times, which
-  allows you to chop bytes from the beginning of a packet as well as at the end
-  of a packet in a single step.
-* You can now specify an optional offset to the -C option for editcap, which
-  allows you to start chopping from that offset instead of from the absolute
-  packet beginning or end.
-* "malformed" display filter has been renamed to "_ws.malformed".  A handful of
-  other filters have been given the "_ws." prefix to note they are Wireshark
-  application specific filters and not dissector filters.
-* The Kerberos dissector has been replaced with an auto generated one from ASN1
-  protocol description, changing a lot of filter names.  
-
-Additionally the Windows installers have an extra component: a preview of the
-upcoming user interface for Wireshark 2.0.
-
-The following features are new (or have been significantly updated)
-since version 1.11.3:
-
-* Transport name resolution is now disabled by default.
-* Support has been added for all versions of the DCBx protocol.
-* Cleanup of LLDP code, all dissected fields are now navigable.
-
-The following features are new (or have been significantly updated)
-since version 1.11.2:
-
-* Qt port:
-
-** The About dialog has been added
-** The Capture Interfaces dialog has been added.
-** The Decode As dialog has been added. It managed to swallow up the
-User Specified Decodes dialog as well.
-** The Export PDU dialog has been added.
-** Several SCTP dialogs have been added.
-** The statistics tree (the backend for many Statistics and Telephony menu
-items) dialog has been added.
-** The I/O Graph dialog has been added.
-** French translation has updated.
-
-The following features are new (or have been significantly updated)
-since version 1.11.1:
-
-* Mac OS X packaging has been improved.
-
-The following features are new (or have been significantly updated)
-since version 1.11.0:
-
-* Dissector output may be encoded as UTF-8. This includes TShark output.
-
-* Qt port:
-
-** The Follow Stream dialog now supports packet and TCP stream selection.
-** A Flow Graph (sequence diagram) dialog has been added.
-** The main window now respects geometry preferences.
-
-=== Removed Dissectors
-
-* The ASN1 plugin has been removed as it's deemed obsolete.
-* The GNM dissector has been removed as it was never used.
-* The Kerberos hand made dissector has been replaced by one generated from ASN1 code.
-
-=== Platform Support
-
-Support for Windows XP has been deprecated. We will make an effort to support it
-for as long as possible but our ability to do so depends on upstream packages
-and other factors beyond our control.
-
-U3 packages are no longer supported or provided.
-
-This is the last major release that will support 32-bit versions of Mac OS X.
+There are no new features in this release.
 
 === New Protocol Support
 
---sort-and-group--
-
-29West
-802.1AE Secure tag
-A21
-ACR122
-ADB Client-Server
-AllJoyn
-Apple PKTAP
-Aruba Instant AP
-ASTERIX
-ATN
-Bencode
-Bluetooth 3DS
-Bluetooth HSP
-Bluetooth Linux Monitor Transport
-Bluetooth Low Energy
-Bluetooth Low Energy RF Info
-CARP
-CFDP
-Cisco MetaData
-DCE/RPC MDSSVC
-DeviceNet
-Ethernet Local Management Interface (E-LMI)
-Ethernet Passive Optical Network (EPON)
-ELF file format
-EXPORTED PDU
-FINGER
-HDMI
-High-Speed LAN Instrument Protocol (HiSLIP)
-HTTP2
-IDRP
-IEEE 1722a
-ILP
-iWARP Direct Data Placement and Remote Direct Memory Access Protocol
-Kafka
-Kyoto Tycoon
-Landis & Gyr Telegyr 8979
-LBM
-LBMC
-LBMPDM
-LBMPDM-TCP
-LBMR
-LBT-RM
-LBT-RU
-LBT-TCP
-Lightweight Mesh (v1.1.1)
-Link16
-Linux netlink
-Linux netlink netfilter
-Linux rtnetlink (route netlink)
-Linux netlink sock diag
-Logcat
-MBIM
-Media Agnostic USB (MA USB)
-MiNT
-MP4 / ISOBMFF file format
-MQ Telemetry Transport Protocol
-MS NLB (Rewrite)
-Novell PKIS certificate extensions
-NXP PN532 HCI
-OpenFlow
-Open Sound Control
-PDC
-Pathport
-Picture Transfer Protocol Over IP
-PKTAP
-Private Data Channel
-QUIC (Quick UDP Internet Connections)
-SAE J1939
-SEL RTAC (Real Time Automation Controller) EIA-232 Serial-Line Dissection
-Sippy RTPproxy
-SMB-Direct
-SPDY
-STANAG 4607
-STANAG 5066 DTS
-STANAG 5066 SIS
-Tinkerforge
-Ubertooth
-UDT
-URL Encoded Form Data
-USB Communications and CDC Control
-USB Device Firmware Upgrade
-VP8
-WHOIS
-Wi-Fi Display
-ZigBee Green Power profile
-
---sort-and-group--
+There are no new protocols in this release.
 
 === Updated Protocol Support
 
-Too many protocols have been updated to list here.
+--sort-and-group--
+
+--sort-and-group--
 
 === New and Updated Capture File Support
 
 --sort-and-group--
 
-Netscaler 2.6
-STANAG 4607
-STANAG 5066 Data Transfer Sublayer
-
 --sort-and-group--
-
-=== Major API Changes
-
-The libwireshark API has undergone some major changes:
-
-* A more flexible, modular memory manager (wmem) has been added. It was
-  available experimentally in 1.10 but is now mature and has mostly
-  replaced the old emem API (which is deprecated).
-* A new API for expert information has been added, replacing the old one.
-* The tvbuff API has been cleaned up: tvb_length has been renamed to
-  tvb_captured_length for clarity, and tvb_get_string and tvb_get_stringz
-  have been deprecated in favour of tvb_get_string_enc and
-  tvb_get_stringz_enc.
-* dissector_try_heuristic() signature has been changed to return heur_dtbl_entry_t
-  to make it possible to save it and use it in subsequent calls to avoid the overhead
-  of going trough the heuristics list.
 
 == Getting Wireshark
 

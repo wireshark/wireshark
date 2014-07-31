@@ -76,7 +76,7 @@ my $set_release = 0;
 my %version_pref = (
 	"version_major" => 1,
 	"version_minor" => 12,
-	"version_micro" => 0,
+	"version_micro" => 1,
 	"version_build" => 0,
 
 	"enable"        => 1,
@@ -566,7 +566,7 @@ sub update_versioned_files
 	&update_config_nmake;
 	&update_release_notes;
 	&update_debian_changelog;
-	&update_debian_wcf;
+	#&update_debian_wcf;
 	&update_lib_releases;
 }
 
