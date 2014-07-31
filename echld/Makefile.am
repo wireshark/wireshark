@@ -63,7 +63,8 @@ libechld_la_LIBADD =			\
 
 EXTRA_DIST = \
 	CMakeLists.txt	\
-	Makefile.common
+	Makefile.common	\
+	Makefile.nmake
 
 CLEANFILES = \
 	libechld.a	\
