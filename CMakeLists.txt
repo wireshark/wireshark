@@ -1025,7 +1025,7 @@ set(LIBEPAN_LIBS
 )
 
 if( (BUILD_wireshark AND GTK_FOUND) OR (BUILD_qtshark AND QT_FOUND) )
-	set(wireshark_FILES
+	set(WIRESHARK_SRC
 		airpcap_loader.c
 		capture_info.c
 		capture_opts.c
@@ -1035,6 +1035,9 @@ if( (BUILD_wireshark AND GTK_FOUND) OR (BUILD_qtshark AND QT_FOUND) )
 		summary.c
 		${SHARK_COMMON_SRC}
 		${PLATFORM_UI_SRC}
+	)
+	set(wireshark_FILES
+		${WIRESHARK_SRC}
 		image/wireshark.rc
 	)
 endif()
@@ -1528,7 +1531,7 @@ install(
 include( UseCheckAPI )
 CHECKAPI(
 	${TSHARK_TAP_SRC}
-	${wireshark_FILES}
+	${WIRESHARK_SRC}
 )
 
 if(DOC_DIR)
