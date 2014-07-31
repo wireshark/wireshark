@@ -74,6 +74,17 @@ static int hf_mausb_mgmt_ep_des_pad = -1;
 static int hf_mausb_mgmt_type_spec = -1;
 static int hf_mausb_mgmt_type_spec_generic = -1;
 
+/* CapResp packet specific */
+static int hf_mausb_cap_resp_num_ep = -1;
+static int hf_mausb_cap_resp_num_dev = -1;
+static int hf_mausb_cap_resp_num_stream = -1;
+static int hf_mausb_cap_resp_dev_type = -1;
+static int hf_mausb_cap_resp_desc_count = -1;
+static int hf_mausb_cap_resp_desc_len = -1;
+static int hf_mausb_cap_resp_transfer_req = -1;
+static int hf_mausb_cap_resp_mgmt_req = -1;
+static int hf_mausb_cap_resp_rsvd = -1;
+
 /* EPHandleReq & Resp packet specific */
 static int hf_mausb_ep_handle_req_pad = -1;
 static int hf_mausb_ep_handle_resp_dir = -1;
@@ -106,7 +117,7 @@ static expert_field ei_len = EI_INIT;
 static expert_field ei_mgmt_type_undef = EI_INIT;
 static expert_field ei_mgmt_type_spec_len_long = EI_INIT;
 static expert_field ei_mgmt_type_spec_len_short = EI_INIT;
-
+static expert_field ei_cap_resp_desc_len = EI_INIT;
 /* MAUSB Version, per 6.2.1.1 */
 #define MAUSB_VERSION_1_0     0x0
 #define MAUSB_VERSION_MASK    0x0F
@@ -369,6 +380,20 @@ static const value_string mausb_status_string[] = {
 #define MAUSB_MGMT_SIZE_EP_DES_OFFSET 5
 #define MAUSB_MGMT_SIZE_EP_DES_MASK (0x003f << MAUSB_MGMT_SIZE_EP_DES_OFFSET)
 
+/* CapResp Bitfield Masks */
+#define MAUSB_CAP_RESP_NUM_STREAM_MASK 0x1f
+#define MAUSB_CAP_RESP_DEV_TYPE_OFFSET 5
+#define MAUSB_CAP_RESP_DEV_TYPE_MASK (0x07 << MAUSB_CAP_RESP_DEV_TYPE_OFFSET)
+#define MAUSB_CAP_RESP_MGMT_REQ_MASK 0x0fff
+#define MAUSB_CAP_RESP_RSVD_MASK 0xf000
+
+static const value_string mausb_cap_resp_dev_type[] = {
+    { 0, "Integrated Device" },
+    { 1, "MAUSB 2.0 hub" },
+    { 2, "MAUSB 3.1 hub" },
+    { 0, NULL}
+};
+
 #define DWORD_MASK 0xffffffff
 #define MAUSB_MGMT_NUM_EP_HANDLE_PAD_MASK \
             (DWORD_MASK & !(MAUSB_MGMT_NUM_EP_DES_MASK))
@@ -610,6 +635,62 @@ static gint ett_mgmt = -1;
 /* Size of EPHandleResp Descriptor */
 #define MAUSB_SIZE_EP_HANDLE 2
 
+/*Dissects a MAUSB capability response packet
+ * also dissects Capability Descriptors
+ */
+static guint16 dissect_mausb_mgmt_pkt_cap_resp(struct mausb_header *header,
+       proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint16 offset)
+{
+
+    proto_item *ti;
+    guint desc_len;
+
+    /* Fields present in all CapResp packets */
+    proto_tree_add_item(tree, hf_mausb_cap_resp_num_ep,
+        tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_mausb_cap_resp_num_dev,
+        tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_item(tree, hf_mausb_cap_resp_num_stream,
+        tvb, offset, 1, ENC_LITTLE_ENDIAN); /* really 5 bits */
+    proto_tree_add_item(tree, hf_mausb_cap_resp_dev_type,
+        tvb, offset, 1, ENC_LITTLE_ENDIAN); /* really 3 bits */
+    offset += 1;
+
+    proto_tree_add_item(tree, hf_mausb_cap_resp_desc_count,
+        tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    ti = proto_tree_add_item(tree, hf_mausb_cap_resp_desc_len,
+        tvb, offset, 3, ENC_LITTLE_ENDIAN);
+    desc_len = tvb_get_letoh24(tvb, offset);
+    offset += 3;
+
+    proto_tree_add_item(tree, hf_mausb_cap_resp_transfer_req,
+        tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_mausb_cap_resp_mgmt_req,
+        tvb, offset, 2, ENC_LITTLE_ENDIAN); /* really 12 bits */
+    proto_tree_add_item(tree, hf_mausb_cap_resp_rsvd,
+        tvb, offset, 2, ENC_LITTLE_ENDIAN); /* really 4 bits */
+    offset += 2;
+
+    if (offset + desc_len > header->length) {
+        expert_add_info(pinfo, ti, &ei_cap_resp_desc_len);
+        desc_len = header->length - offset; /* to avoid overflows */
+    }
+
+    /* TODO: Extended capabilities */
+    proto_tree_add_item(tree, hf_mausb_mgmt_type_spec_generic,
+                        tvb, offset, desc_len, ENC_NA);
+    offset += desc_len;
+
+    return offset;
+}
 
 /* Dissects a MAUSB endpoint handle */
 static gint dissect_ep_handle(proto_tree *tree, tvbuff_t *tvb, gint offset)
@@ -834,6 +915,9 @@ static guint16 dissect_mausb_mgmt_pkt_flds(struct mausb_header *header,
     switch (header->type) {
 
     /* subtypes with variable length additional data */
+    case CapResp:
+        offset = dissect_mausb_mgmt_pkt_cap_resp(header, mgmt_tree, tvb, pinfo, offset);
+        break;
     case EPHandleReq:
         offset = dissect_mausb_mgmt_pkt_ep_handle(mgmt_tree, tvb, pinfo,
                                                   offset, TRUE, FALSE);
@@ -877,7 +961,6 @@ static guint16 dissect_mausb_mgmt_pkt_flds(struct mausb_header *header,
 
     /* subtypes with constant length additional data */
     case CapReq:
-    case CapResp:
     case USBDevHandleReq:
     case USBDevHandleResp:
     case ModifyEP0Req:
@@ -1445,6 +1528,74 @@ proto_register_mausb(void)
     };
 
 
+    /* Register info for CapReq/Resp specific fields */
+    static hf_register_info hf_cap[] = {
+
+        { &hf_mausb_cap_resp_num_ep,
+            { "Number of Endpoints", "mausb.cap_resp.num_ep",
+              FT_UINT8, BASE_DEC, NULL, 0,
+              "the maximum number of endpoints for this device",
+              HFILL
+            }
+        },
+        { &hf_mausb_cap_resp_num_dev,
+            { "Number of Devices", "mausb.cap_resp.num_dev",
+              FT_UINT8, BASE_DEC, NULL, 0,
+              "the maximum number of USB devices the MA USB device can manage",
+              HFILL
+            }
+        },
+        { &hf_mausb_cap_resp_num_stream,
+            { "Number of Streams", "mausb.cap_resp.num_stream",
+              FT_UINT8, BASE_DEC, NULL, MAUSB_CAP_RESP_NUM_STREAM_MASK,
+              "2 to the power of this value is the max number of streams supported",
+              /* TODO: have dissector print the actual number of streams supported */
+              HFILL
+            }
+        },
+        { &hf_mausb_cap_resp_dev_type,
+            { "Device Type", "mausb.cap_resp.dev_type", FT_UINT8, BASE_HEX,
+              VALS(mausb_cap_resp_dev_type), MAUSB_CAP_RESP_DEV_TYPE_MASK,
+              NULL, HFILL
+            }
+        },
+        { &hf_mausb_cap_resp_desc_count,
+            { "Descriptors Count", "mausb.cap_resp.desc_count",
+              FT_UINT8, BASE_DEC,
+              NULL, 0, "The total number of MA Device Capabilities descriptors",
+              HFILL
+            }
+        },
+        { &hf_mausb_cap_resp_desc_len,
+            { "Descriptors Length", "mausb.cap_resp.desc_len",
+              FT_UINT24, BASE_DEC,
+              NULL, 0, "The total size of MA Device Capabilities descriptors",
+              HFILL
+            }
+        },
+        { &hf_mausb_cap_resp_transfer_req,
+            { "Number of Outstanding Transfer Requests",
+              "mausb.cap_resp.transfer_req",
+              FT_UINT16, BASE_DEC, NULL, 0,
+              "The maximum number of total outstanding transfer requests", HFILL
+            }
+        },
+        { &hf_mausb_cap_resp_mgmt_req,
+            { "Number of Outstanding Management Requests", "mausb.cap_resp.mgmt_req",
+              FT_UINT16, BASE_DEC, NULL,
+              MAUSB_CAP_RESP_MGMT_REQ_MASK,
+              "The maximum number of host initiated outstanding management requests",
+              HFILL
+            }
+        },
+        { &hf_mausb_cap_resp_rsvd,
+            { "Reserved", "mausb.cap_resp.rsvd", FT_UINT16, BASE_HEX,
+              NULL, MAUSB_CAP_RESP_RSVD_MASK, NULL, HFILL
+            }
+        },
+    };
+
+
     /* register info for ep_handle_* specific fields */
     static hf_register_info hf_ep_handle[] = {
         { &hf_mausb_mgmt_ep_handle_num,
@@ -1561,6 +1712,10 @@ proto_register_mausb(void)
             { "mausb.type_spec.len", PI_PROTOCOL, PI_WARN,
               "Expected type-specific managment packet data", EXPFILL }
         },
+        { &ei_cap_resp_desc_len,
+            { "mausb.cap_resp.desc_length", PI_PROTOCOL, PI_WARN,
+              "Value in Descriptors Length field exceeds actual space in packet", EXPFILL }
+        },
     };
 
     module_t *mausb_module;
@@ -1572,6 +1727,7 @@ proto_register_mausb(void)
 
     /* Required function calls to register the header fields and subtrees */
     proto_register_field_array(proto_mausb, hf, array_length(hf));
+    proto_register_field_array(proto_mausb, hf_cap, array_length(hf_cap));
     proto_register_field_array(proto_mausb, hf_ep_handle, array_length(hf_ep_handle));
     proto_register_subtree_array(ett, array_length(ett));
 
