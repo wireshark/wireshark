@@ -31,6 +31,7 @@ EXTRA_DIST = \
 	$(EXTRA_DIST_COMMON) \
 	$(ASN_FILE_LIST) \
 	packet-$(PROTOCOL_NAME)-template.c \
+	packet-$(PROTOCOL_NAME)-template.h \
 	$(PROTOCOL_NAME).cnf
 
 SRC_FILES = \

@@ -27,11 +27,22 @@ ASN_FILE_LIST = \
 	GPRSChargingDataTypesV641.asn \
 	GPRSChargingDataTypesV1171.asn
 
+INCLUDED_ASN_FILE_LIST = \
+	3GPPGenericChargingDataTypes.asn \
+	GPRSChargingDataTypes.asn \
+	GPRSChargingDataTypesV8e0.asn \
+	GPRSChargingDataTypesV9f0.asn \
+	GenericChargingDataTypes.asn \
+	GenericChargingDataTypesV641.asn \
+	GenericChargingDataTypesV8e0.asn \
+	GenericChargingDataTypesV9f0.asn
+
 # The packet-$(PROTOCOL_NAME)-template.h and $(PROTOCOL_NAME).asn
 # files do not exist for all protocols: Please add/remove as required.
 EXTRA_DIST = \
 	$(EXTRA_DIST_COMMON) \
 	$(ASN_FILE_LIST) \
+	$(INCLUDED_ASN_FILE_LIST) \
 	packet-$(PROTOCOL_NAME)-template.c \
 	packet-$(PROTOCOL_NAME)-template.h \
 	$(PROTOCOL_NAME).cnf
