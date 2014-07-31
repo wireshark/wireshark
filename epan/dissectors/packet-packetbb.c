@@ -27,6 +27,7 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include <epan/expert.h>
 #include <epan/uat.h>
 
 #include <string.h>
@@ -62,7 +63,6 @@ void proto_register_packetbb(void);
 static int proto_packetbb = -1;
 static guint global_packetbb_port = 269;
 
-static int hf_packetbb_error = -1;
 static int hf_packetbb_header = -1;
 static int hf_packetbb_version = -1;
 static int hf_packetbb_header_flags = -1;
@@ -131,7 +131,10 @@ static gint ett_packetbb_tlv[PACKETBB_MSG_TLV_LENGTH];
 static gint ett_packetbb_tlv_flags = -1;
 static gint ett_packetbb_tlv_value = -1;
 
-static int dissect_pbb_tlvblock(tvbuff_t *tvb, proto_tree *tree, guint offset,
+static expert_field ei_packetbb_error = EI_INIT;
+
+
+static int dissect_pbb_tlvblock(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset,
     guint maxoffset, gint8 addrCount) {
   guint16 tlvblockLength;
   guint tlvblockEnd;
@@ -150,8 +153,8 @@ static int dissect_pbb_tlvblock(tvbuff_t *tvb, proto_tree *tree, guint offset,
   int tlvCount = 0;
 
   if (maxoffset < offset + 2) {
-    proto_tree_add_bytes_format(tree, hf_packetbb_error, tvb, offset, maxoffset - offset,
-        NULL, "Not enough octets for minimal tlvblock");
+    proto_tree_add_expert_format(tree, pinfo, &ei_packetbb_error, tvb, offset, maxoffset - offset,
+        "Not enough octets for minimal tlvblock");
     return maxoffset;
   }
 
@@ -159,8 +162,8 @@ static int dissect_pbb_tlvblock(tvbuff_t *tvb, proto_tree *tree, guint offset,
 
   tlvblockEnd = offset + 2 + tlvblockLength;
   if (maxoffset < tlvblockEnd) {
-    proto_tree_add_bytes_format(tree, hf_packetbb_error, tvb, offset, maxoffset - offset,
-        NULL, "Not enough octets for tlvblock");
+    proto_tree_add_expert_format(tree, pinfo, &ei_packetbb_error, tvb, offset, maxoffset - offset,
+        "Not enough octets for tlvblock");
     return maxoffset;
   }
 
@@ -299,7 +302,7 @@ static int dissect_pbb_tlvblock(tvbuff_t *tvb, proto_tree *tree, guint offset,
   return offset;
 }
 
-static int dissect_pbb_addressblock(tvbuff_t *tvb, proto_tree *tree, guint offset, guint maxoffset,
+static int dissect_pbb_addressblock(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, guint maxoffset,
     guint8 addressType, guint8 addressSize) {
   guint8 addr[MAX_ADDR_SIZE];
 
@@ -320,8 +323,8 @@ static int dissect_pbb_addressblock(tvbuff_t *tvb, proto_tree *tree, guint offse
   int i = 0;
 
   if (maxoffset - offset < 2) {
-    proto_tree_add_bytes_format(tree, hf_packetbb_error, tvb, offset, maxoffset - offset,
-        NULL, "Not enough octets for minimal addressblock header");
+    proto_tree_add_expert_format(tree, pinfo, &ei_packetbb_error, tvb, offset, maxoffset - offset,
+        "Not enough octets for minimal addressblock header");
     return tvb_reported_length(tvb);
   }
 
@@ -340,20 +343,20 @@ static int dissect_pbb_addressblock(tvbuff_t *tvb, proto_tree *tree, guint offse
     head_index = offset;
 
     if (maxoffset - offset <= 0) {
-      proto_tree_add_bytes_format(tree, hf_packetbb_error, tvb, offset, maxoffset - offset,
-          NULL, "Not enough octets for addressblock head");
+      proto_tree_add_expert_format(tree, pinfo, &ei_packetbb_error, tvb, offset, maxoffset - offset,
+         "Not enough octets for addressblock head");
       return tvb_reported_length(tvb);
     }
     head_length = tvb_get_guint8(tvb, offset++);
 
     if (head_length > addressSize-1) {
-      proto_tree_add_bytes_format(tree, hf_packetbb_error, tvb, offset, maxoffset - offset,
-          NULL, "address head length is too long");
+      proto_tree_add_expert_format(tree, pinfo, &ei_packetbb_error, tvb, offset, maxoffset - offset,
+          "address head length is too long");
       return tvb_reported_length(tvb);
     }
     if (maxoffset - offset < head_length) {
-      proto_tree_add_bytes_format(tree, hf_packetbb_error, tvb, offset, maxoffset - offset,
-          NULL, "Not enough octets for addressblock head");
+      proto_tree_add_expert_format(tree, pinfo, &ei_packetbb_error, tvb, offset, maxoffset - offset,
+          "Not enough octets for addressblock head");
       return tvb_reported_length(tvb);
     }
     tvb_memcpy(tvb, addr, offset, head_length);
@@ -366,14 +369,14 @@ static int dissect_pbb_addressblock(tvbuff_t *tvb, proto_tree *tree, guint offse
     tail_index = offset;
 
     if (maxoffset - offset <= 0) {
-      proto_tree_add_bytes_format(tree, hf_packetbb_error, tvb, offset, maxoffset - offset,
-          NULL, "Not enough octets for addressblock tail");
+      proto_tree_add_expert_format(tree, pinfo, &ei_packetbb_error, tvb, offset, maxoffset - offset,
+          "Not enough octets for addressblock tail");
       return tvb_reported_length(tvb);
     }
     tail_length = tvb_get_guint8(tvb, offset++);
     if (tail_length > addressSize-1-head_length) {
-      proto_tree_add_bytes_format(tree, hf_packetbb_error, tvb, offset, maxoffset - offset,
-          NULL, "address tail length is too long");
+      proto_tree_add_expert_format(tree, pinfo, &ei_packetbb_error, tvb, offset, maxoffset - offset,
+          "address tail length is too long");
       return tvb_reported_length(tvb);
     }
     midSize -= tail_length;
@@ -383,20 +386,20 @@ static int dissect_pbb_addressblock(tvbuff_t *tvb, proto_tree *tree, guint offse
     tail_index = offset;
 
     if (maxoffset - offset <= 0) {
-      proto_tree_add_bytes_format(tree, hf_packetbb_error, tvb, offset, maxoffset - offset,
-          NULL, "Not enough octets for addressblock tail");
+      proto_tree_add_expert_format(tree, pinfo, &ei_packetbb_error, tvb, offset, maxoffset - offset,
+          "Not enough octets for addressblock tail");
       return tvb_reported_length(tvb);
     }
     tail_length = tvb_get_guint8(tvb, offset++);
     if (tail_length > addressSize-1-head_length) {
-      proto_tree_add_bytes_format(tree, hf_packetbb_error, tvb, offset, maxoffset - offset,
-          NULL, "address tail length is too long");
+      proto_tree_add_expert_format(tree, pinfo, &ei_packetbb_error, tvb, offset, maxoffset - offset,
+          "address tail length is too long");
       return tvb_reported_length(tvb);
     }
 
     if (maxoffset - offset < tail_length) {
-      proto_tree_add_bytes_format(tree, hf_packetbb_error, tvb, offset, maxoffset - offset,
-          NULL, "Not enough octets for addressblock tail");
+      proto_tree_add_expert_format(tree, pinfo, &ei_packetbb_error, tvb, offset, maxoffset - offset,
+          "Not enough octets for addressblock tail");
       return tvb_reported_length(tvb);
     }
     tvb_memcpy(tvb, &addr[addressSize - tail_length], offset, tail_length);
@@ -420,8 +423,8 @@ static int dissect_pbb_addressblock(tvbuff_t *tvb, proto_tree *tree, guint offse
   }
 
   if (maxoffset < block_index + block_length) {
-    proto_tree_add_bytes_format(tree, hf_packetbb_error, tvb, offset, maxoffset - offset,
-        NULL, "Not enough octets for address block");
+    proto_tree_add_expert_format(tree, pinfo, &ei_packetbb_error, tvb, offset, maxoffset - offset,
+        "Not enough octets for address block");
     return maxoffset;
   }
 
@@ -498,11 +501,11 @@ static int dissect_pbb_addressblock(tvbuff_t *tvb, proto_tree *tree, guint offse
     proto_item_append_text(addrValue_item, "/%d", prefix);
   }
 
-  offset = dissect_pbb_tlvblock(tvb, addr_tree, block_index + block_length, maxoffset, numAddr);
+  offset = dissect_pbb_tlvblock(tvb, pinfo, addr_tree, block_index + block_length, maxoffset, numAddr);
   return offset;
 }
 
-static int dissect_pbb_message(tvbuff_t *tvb, proto_tree *tree, guint offset) {
+static int dissect_pbb_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset) {
   proto_tree *message_tree = NULL;
   proto_tree *header_tree = NULL;
   proto_tree *headerFlags_tree = NULL;
@@ -517,8 +520,8 @@ static int dissect_pbb_message(tvbuff_t *tvb, proto_tree *tree, guint offset) {
   guint8 addressSize, addressType;
 
   if (tvb_reported_length(tvb) - offset < 6) {
-    proto_tree_add_bytes_format(tree, hf_packetbb_error, tvb, offset, -1,
-        NULL, "Not enough octets for minimal message header");
+    proto_tree_add_expert_format(tree, pinfo, &ei_packetbb_error, tvb, offset, -1,
+        "Not enough octets for minimal message header");
     return tvb_reported_length(tvb);
   }
 
@@ -562,8 +565,8 @@ static int dissect_pbb_message(tvbuff_t *tvb, proto_tree *tree, guint offset) {
 
   /* test length for message size */
   if (tvb_reported_length(tvb) - offset < messageLength) {
-    proto_tree_add_bytes_format(tree, hf_packetbb_error, tvb, offset, -1,
-        NULL, "Not enough octets for message");
+    proto_tree_add_expert_format(tree, pinfo, &ei_packetbb_error, tvb, offset, -1,
+        "Not enough octets for message");
     return tvb_reported_length(tvb);
   }
 
@@ -646,23 +649,56 @@ static int dissect_pbb_message(tvbuff_t *tvb, proto_tree *tree, guint offset) {
     /* this is an error, tlv block is mandatory */
     return tvb_reported_length(tvb);
   }
-  offset = dissect_pbb_tlvblock(tvb, message_tree, offset, messageEnd, 0);
+  offset = dissect_pbb_tlvblock(tvb, pinfo, message_tree, offset, messageEnd, 0);
   while (offset < messageEnd) {
-    offset = dissect_pbb_addressblock(tvb, message_tree, offset, messageEnd, addressType, addressSize);
+    offset = dissect_pbb_addressblock(tvb, pinfo, message_tree, offset, messageEnd, addressType, addressSize);
   }
   return offset;
 }
 
-static int dissect_pbb_header(tvbuff_t *tvb, proto_tree *tree) {
-  proto_tree *header_tree = NULL;
-  proto_tree *headerFlags_tree = NULL;
+static int dissect_pbb_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint headerLength, guint tlvIndex) {
+  proto_tree *header_tree;
+  proto_tree *headerFlags_tree;
 
-  proto_item *header_item = NULL;
-  proto_item *headerFlags_item = NULL;
+  proto_item *header_item;
+  proto_item *headerFlags_item;
 
+  guint8 packet_flags = tvb_get_guint8(tvb, 0);
+
+  header_item = proto_tree_add_item(tree, hf_packetbb_header, tvb, 0, headerLength, ENC_NA);
+  header_tree = proto_item_add_subtree(header_item, ett_packetbb_header);
+
+  /* version */
+  proto_tree_add_uint(header_tree, hf_packetbb_version, tvb, 0, 1, packet_flags >> 4);
+
+  /* flags */
+  headerFlags_item = proto_tree_add_item(header_tree, hf_packetbb_header_flags, tvb, 0, 1, ENC_NA);
+
+  headerFlags_tree = proto_item_add_subtree(headerFlags_item, ett_packetbb_header_flags);
+  proto_tree_add_item(headerFlags_tree, hf_packetbb_header_flags_phasseqnum, tvb, 0, 1, ENC_NA);
+  proto_tree_add_item(headerFlags_tree, hf_packetbb_header_flags_phastlv, tvb, 0, 1, ENC_NA);
+
+  /* sequence number */
+  if ((packet_flags & PACKET_HEADER_HASSEQNR) != 0) {
+    proto_tree_add_item(header_tree, hf_packetbb_seqnr, tvb, 1, 2, ENC_BIG_ENDIAN);
+  }
+
+  if ((packet_flags & PACKET_HEADER_HASTLV) != 0) {
+    return dissect_pbb_tlvblock(tvb, pinfo, tree, tlvIndex, tvb_reported_length(tvb), 0);
+  }
+  return headerLength;
+}
+
+static int dissect_packetbb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_) {
+
+  proto_item *ti;
+  proto_tree *packetbb_tree;
+  guint offset;
   guint8 packet_flags;
   guint headerLength = 1;
   guint tlvIndex = 0;
+
+  /* Make sure it's a PacketBB packet */
 
   /* calculate header length */
   packet_flags = tvb_get_guint8(tvb, 0);
@@ -675,64 +711,28 @@ static int dissect_pbb_header(tvbuff_t *tvb, proto_tree *tree) {
   }
 
   if (tvb_reported_length(tvb) < headerLength) {
-    proto_tree_add_bytes_format(tree, hf_packetbb_error, tvb, 0, -1,
-        NULL, "Not enough octets for packetbb header");
-    return tvb_reported_length(tvb);
+    return 0;
   }
   if ((packet_flags & PACKET_HEADER_HASTLV) != 0) {
     headerLength += tvb_get_ntohs(tvb, tlvIndex);
   }
   if (tvb_reported_length(tvb) < headerLength) {
-    proto_tree_add_bytes_format(tree, hf_packetbb_error, tvb, 0, -1,
-        NULL, "Not enough octets for packetbb tlvblock");
-    return tvb_reported_length(tvb);
+    return 0;
   }
 
-  header_item = proto_tree_add_item(tree, hf_packetbb_header, tvb, 0, headerLength, ENC_NA);
-  header_tree = proto_item_add_subtree(header_item, ett_packetbb_header);
-
-  /* version */
-  proto_tree_add_uint(header_tree, hf_packetbb_version, tvb, 0, 1, packet_flags >> 4);
-
-  /* flags */
-  headerFlags_item = proto_tree_add_uint(header_tree, hf_packetbb_header_flags,
-      tvb, 0, 1, packet_flags & 0x0f);
-
-  headerFlags_tree = proto_item_add_subtree(headerFlags_item, ett_packetbb_header_flags);
-  proto_tree_add_boolean(headerFlags_tree, hf_packetbb_header_flags_phasseqnum, tvb, 0, 1, packet_flags);
-  proto_tree_add_boolean(headerFlags_tree, hf_packetbb_header_flags_phastlv, tvb, 0, 1, packet_flags);
-
-  /* sequence number */
-  if ((packet_flags & PACKET_HEADER_HASSEQNR) != 0) {
-    proto_tree_add_item(header_tree, hf_packetbb_seqnr, tvb, 1, 2, ENC_BIG_ENDIAN);
-  }
-
-  if ((packet_flags & PACKET_HEADER_HASTLV) != 0) {
-    return dissect_pbb_tlvblock(tvb, tree, tlvIndex, tvb_reported_length(tvb), 0);
-  }
-  return headerLength;
-}
-
-static void dissect_packetbb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  /* Reasonably certain it's a PacketBB packet */
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "packetbb");
-
-  /* Clear out stuff in the info column */
   col_clear(pinfo->cinfo, COL_INFO);
 
-  /* we are being asked for details */
-  if (tree) {
-    proto_item *ti = NULL;
-    proto_tree *packetbb_tree = NULL;
-    guint offset;
+  ti = proto_tree_add_item(tree, proto_packetbb, tvb, 0, -1, ENC_NA);
+  packetbb_tree = proto_item_add_subtree(ti, ett_packetbb);
 
-    ti = proto_tree_add_item(tree, proto_packetbb, tvb, 0, -1, ENC_NA);
-    packetbb_tree = proto_item_add_subtree(ti, ett_packetbb);
-
-    offset = dissect_pbb_header(tvb, packetbb_tree);
-    while (offset < tvb_reported_length(tvb)) {
-      offset = dissect_pbb_message(tvb, packetbb_tree, offset);
-    }
+  offset = dissect_pbb_header(tvb, pinfo, packetbb_tree, headerLength, tlvIndex);
+  while (offset < tvb_reported_length(tvb)) {
+    offset = dissect_pbb_message(tvb, pinfo, packetbb_tree, offset);
   }
+
+  return tvb_captured_length(tvb);
 }
 
 void proto_reg_handoff_packetbb(void) {
@@ -741,7 +741,7 @@ void proto_reg_handoff_packetbb(void) {
   static guint packetbb_udp_port;
 
   if (!packetbb_prefs_initialized) {
-    packetbb_handle = create_dissector_handle(dissect_packetbb, proto_packetbb);
+    packetbb_handle = new_create_dissector_handle(dissect_packetbb, proto_packetbb);
     packetbb_prefs_initialized = TRUE;
   }
   else {
@@ -755,11 +755,6 @@ void proto_reg_handoff_packetbb(void) {
 void proto_register_packetbb(void) {
   /* Setup list of header fields  See Section 1.6.1 for details*/
   static hf_register_info hf[] = {
-    { &hf_packetbb_error,
-      { "ERROR !", "packetbb.error",
-        FT_BYTES, BASE_NONE, NULL, 0,
-        NULL, HFILL }
-    },
     { &hf_packetbb_header,
       { "Packet header", "packetbb.header",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -767,12 +762,12 @@ void proto_register_packetbb(void) {
     },
     { &hf_packetbb_version,
       { "Version", "packetbb.version",
-        FT_UINT8, BASE_DEC, NULL, 0x0,
+        FT_UINT8, BASE_DEC, NULL, 0xF0,
         NULL, HFILL }
     },
     { &hf_packetbb_header_flags,
       { "Flags", "packetbb.flags",
-        FT_UINT8, BASE_HEX, NULL, 0x0,
+        FT_UINT8, BASE_HEX, NULL, 0x0F,
         NULL, HFILL }
     },
     { &hf_packetbb_header_flags_phasseqnum,
@@ -1058,8 +1053,13 @@ void proto_register_packetbb(void) {
     &ett_packetbb_tlv_value
   };
 
+  static ei_register_info ei[] = {
+    { &ei_packetbb_error, { "packetbb.error", PI_PROTOCOL, PI_WARN, "ERROR!", EXPFILL }},
+  };
+
   static gint *ett[array_length(ett_base) + 2*PACKETBB_MSG_TLV_LENGTH];
   module_t *packetbb_module;
+  expert_module_t* expert_packetbb;
   int i,j;
 
   memcpy(ett, ett_base, sizeof(ett_base));
@@ -1079,6 +1079,8 @@ void proto_register_packetbb(void) {
   /* Required function calls to register the header fields and subtrees used */
   proto_register_field_array(proto_packetbb, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  expert_packetbb = expert_register_protocol(proto_packetbb);
+  expert_register_field_array(expert_packetbb, ei, array_length(ei));
 
   /* configurable packetbb port */
   packetbb_module = prefs_register_protocol(proto_packetbb, proto_reg_handoff_packetbb);
