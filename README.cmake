@@ -120,9 +120,9 @@ What needs to be done?
 - Guides are not installed.
 - Build source package (using CPack).
   This is obsolete if we decide to release VCS snapshots instead
-- Build packages (RPM, SVR4) (using CPack).
+- Build packages (RPM, SVR4, OS X installer dmg) (using CPack).
 - Add back checkAPI target.
-- Test and add support for other platforms (BSDs, OSX,
+- Test and add support for other platforms (BSDs, OS X,
   Solaris, Win32, Win64, ...)
 - Add support for cmake configurations.
 - Get plugins loading when running *shark from the build directory.
