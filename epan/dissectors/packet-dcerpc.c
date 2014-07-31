@@ -5379,7 +5379,7 @@ dissect_dcerpc_dg_rqst(tvbuff_t *tvb, int offset, packet_info *pinfo,
                        e_dce_dg_common_hdr_t *hdr, conversation_t *conv)
 {
     dcerpc_info        *di;
-    dcerpc_call_value  *value, v;
+    dcerpc_call_value  *value;
     dcerpc_matched_key  matched_key, *new_matched_key;
     proto_item         *pi;
     proto_item         *parent_pi;
@@ -5421,16 +5421,16 @@ dissect_dcerpc_dg_rqst(tvbuff_t *tvb, int offset, packet_info *pinfo,
     matched_key.call_id = hdr->seqnum;
     value = (dcerpc_call_value *)g_hash_table_lookup(dcerpc_matched, &matched_key);
     if (!value) {
-        v.uuid = hdr->if_id;
-        v.ver = hdr->if_ver;
-        v.object_uuid = hdr->obj_id;
-        v.opnum = hdr->opnum;
-        v.req_frame = pinfo->fd->num;
-        v.rep_frame = 0;
-        v.max_ptr = 0;
-        v.se_data = NULL;
-        v.private_data = NULL;
-        value = &v;
+        value = wmem_new(wmem_packet_scope(), dcerpc_call_value);
+        value->uuid = hdr->if_id;
+        value->ver = hdr->if_ver;
+        value->object_uuid = hdr->obj_id;
+        value->opnum = hdr->opnum;
+        value->req_frame = pinfo->fd->num;
+        value->rep_frame = 0;
+        value->max_ptr = 0;
+        value->se_data = NULL;
+        value->private_data = NULL;
     }
 
     di->conv = conv;
@@ -5457,7 +5457,7 @@ dissect_dcerpc_dg_resp(tvbuff_t *tvb, int offset, packet_info *pinfo,
                        e_dce_dg_common_hdr_t *hdr, conversation_t *conv)
 {
     dcerpc_info        *di;
-    dcerpc_call_value  *value, v;
+    dcerpc_call_value  *value;
     dcerpc_matched_key  matched_key, *new_matched_key;
     proto_item         *pi;
     proto_item         *parent_pi;
@@ -5486,15 +5486,15 @@ dissect_dcerpc_dg_resp(tvbuff_t *tvb, int offset, packet_info *pinfo,
     matched_key.call_id = hdr->seqnum;
     value = (dcerpc_call_value *)g_hash_table_lookup(dcerpc_matched, &matched_key);
     if (!value) {
-        v.uuid = hdr->if_id;
-        v.ver = hdr->if_ver;
-        v.object_uuid = hdr->obj_id;
-        v.opnum = hdr->opnum;
-        v.req_frame = 0;
-        v.rep_frame = pinfo->fd->num;
-        v.se_data = NULL;
-        v.private_data = NULL;
-        value = &v;
+        value = wmem_new(wmem_packet_scope(), dcerpc_call_value);
+        value->uuid = hdr->if_id;
+        value->ver = hdr->if_ver;
+        value->object_uuid = hdr->obj_id;
+        value->opnum = hdr->opnum;
+        value->req_frame = 0;
+        value->rep_frame = pinfo->fd->num;
+        value->se_data = NULL;
+        value->private_data = NULL;
     }
 
     di->conv = conv;
