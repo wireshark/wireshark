@@ -3167,8 +3167,10 @@ dissect_linux_usb_iso_transfer(packet_info *pinfo _U_, proto_tree *urb_tree,
         /* When the ISO status is OK and there is ISO data and this ISO data is
          * fully captured then show this data.
          */
-        if (!iso_status && iso_len && data_base + iso_off + iso_len <= tvb_captured_length(tvb))
+        if (!iso_status && iso_len && data_base + iso_off + iso_len <= tvb_captured_length(tvb)) {
             proto_tree_add_item(iso_desc_tree, hf_usb_iso_data, tvb, data_base + iso_off, iso_len, ENC_NA);
+            proto_tree_set_appendix(iso_desc_tree, tvb, (gint)(data_base+iso_off), (gint)iso_len);
+        }
 
         tvb_memcpy(tvb, (guint8 *)&iso_pad, offset, 4);
         proto_tree_add_uint(iso_desc_tree, hf_usb_iso_pad, tvb, offset, 4, iso_pad);
