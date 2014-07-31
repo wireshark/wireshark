@@ -127,10 +127,26 @@ What needs to be done?
   Solaris, Win32, Win64, ...)
 - Support building against an SDK for OS X.
 - Add support for cmake configurations.
-- Get plugins loading when running *shark from the build directory.
 - Automatically figure out if *shark is running from the build directory
   (making WIRESHARK_RUN_FROM_BUILD_DIRECTORY unnecessary like it is with
   autofoo).
+  Sadly:
+
+      $ file run/qtshark
+      run/qtshark: Mach-O 64-bit x86_64 executable
+
+  so what you're running from the build directory is the executable
+  itself.  autofoo includes libtool in our case, so what you're running
+  from the build directory is a script that then runs the executable,
+  and the executable is in a .libs directory; the code that checks for
+  "running from the build directory?" checks for that.
+
+  We could perhaps check for the pathname containing "run/", although
+  that wouldn't help if we ran it while *in* the "run" directory;
+  getting an absolute path for the executable would be necessary for
+  that.
+- Get plugins loading when running *shark from the build directory.
+  That might involve handling ".libs" and "run" differently.
 - Get cross-compilation working (or ensure it does). It works with autofoo.
 ...
 
