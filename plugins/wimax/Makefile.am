@@ -124,7 +124,8 @@ EXTRA_DIST = \
 	Makefile.nmake		\
 	moduleinfo.nmake	\
 	plugin.rc.in		\
-	CMakeLists.txt
+	CMakeLists.txt		\
+	README.wimax
 
 checkapi:
 	$(PERL) $(top_srcdir)/tools/checkAPIs.pl -g abort -g termoutput -build \

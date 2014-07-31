@@ -40,9 +40,13 @@ EXTRA_DIST = \
 	frstrans.cnf			\
 	frstrans.idl			\
 	idl_types.h			\
+	initshutdown.cnf		\
 	initshutdown.idl		\
 	lsa.cnf				\
 	lsa.idl				\
+	mdssvc.cnf			\
+	mdssvc.idl			\
+	misc.cnf			\
 	misc.idl			\
 	samr.cnf			\
 	samr.idl			\

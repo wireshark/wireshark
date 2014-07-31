@@ -140,7 +140,20 @@ EXTRA_DIST = \
 	Makefile.nmake		\
 	moduleinfo.nmake	\
 	plugin.rc.in		\
-	CMakeLists.txt
+	CMakeLists.txt		\
+	examples/call.mate	\
+	examples/mms.mate	\
+	examples/pasv_ftp.mate	\
+	examples/tcp.mate	\
+	examples/web.mate	\
+	matelib/dns.mate	\
+	matelib/h225_ras.mate	\
+	matelib/isup.mate	\
+	matelib/megaco.mate	\
+	matelib/q931.mate	\
+	matelib/radius.mate	\
+	matelib/rtsp.mate	\
+	matelib/sip.mate
 
 RUNLEX = $(top_srcdir)/tools/runlex.sh
 

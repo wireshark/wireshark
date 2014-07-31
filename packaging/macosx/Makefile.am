@@ -76,6 +76,7 @@ EXTRA_DIST = \
 	ScriptExec/ScriptExec_Prefix.pch	\
 	ScriptExec/version.plist	\
 	Scripts/chmodbpf-postinstall.sh	\
+	Scripts/cli-preinstall.sh	\
 	Scripts/cli-postinstall.sh	\
 	Scripts/wireshark-postinstall.sh	\
 	utility-launcher	\

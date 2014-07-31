@@ -799,6 +799,9 @@ EXTRA_DIST = \
 	fix/FIX42.xml		\
 	fix/FIX43.xml		\
 	fix/FIX44.xml		\
+	fix/FIX50.xml		\
+	fix/FIX50SP1.xml	\
+	fix/FIX50SP2.xml	\
 	fix/README		\
 	fix/Values.xsl		\
 	fix/hfDecl.xsl		\
