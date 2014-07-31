@@ -202,6 +202,7 @@ DIRTY_ASN1_DISSECTOR_SRC = \
 	packet-ansi_map.c	\
 	packet-coseventcomm.c	\
 	packet-cosnaming.c	\
+	packet-gnm.c	\
 	packet-gprscdr.c	\
 	packet-gsm_map.c	\
 	packet-ldap.c	\
@@ -1461,6 +1462,7 @@ DISSECTOR_INCLUDES =	\
 	packet-gluster.h	\
 	packet-gmr1_common.h	\
 	packet-gmr1_rr.h	\
+	packet-gnm.h	\
 	packet-gnutella.h	\
 	packet-gprscdr.h	\
 	packet-gre.h	\
