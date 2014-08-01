@@ -186,7 +186,6 @@ win32:INCLUDEPATH += \
 # We have to manually trigger relinking each time one of these is modified.
 # Is there any way to do this automatically?
 SOURCES_WS_C = \
-    ../../airpcap_loader.c \
     ../../capture_info.c  \
     ../../capture_opts.c \
     ../../cfile.c \

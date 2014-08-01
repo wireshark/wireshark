@@ -42,8 +42,8 @@
 
 #include "keys.h"
 
-#include <airpcap.h>
-#include "airpcap_loader.h"
+#include <caputils/airpcap.h>
+#include <caputils/airpcap_loader.h>
 #include "airpcap_dlg.h"
 #include "airpcap_gui_utils.h"
 

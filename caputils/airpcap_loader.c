@@ -49,8 +49,8 @@
 #include "ui/capture_ui_utils.h"
 #include "ui/simple_dialog.h"
 
-#include <airpcap.h>
-#include "airpcap_loader.h"
+#include <caputils/airpcap.h>
+#include <caputils/airpcap_loader.h>
 
 
 /*

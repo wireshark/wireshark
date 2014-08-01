@@ -42,8 +42,8 @@
 #include "ui/gtk/stock_icons.h"
 
 #ifdef HAVE_AIRPCAP
-#include <airpcap.h>
-#include "airpcap_loader.h"
+#include <caputils/airpcap.h>
+#include <caputils/airpcap_loader.h>
 #include "airpcap_gui_utils.h"
 #include "airpcap_dlg.h"
 #endif

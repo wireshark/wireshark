@@ -60,7 +60,6 @@ SHARK_COMMON_INCLUDES =	\
 # wireshark specifics
 WIRESHARK_COMMON_SRC =	\
 	$(SHARK_COMMON_SRC)	\
-	airpcap_loader.c \
 	capture_info.c	\
 	capture_opts.c	\
 	color_filters.c	\
@@ -70,8 +69,6 @@ WIRESHARK_COMMON_SRC =	\
 
 # corresponding headers
 WIRESHARK_COMMON_INCLUDES =	\
-	airpcap.h	\
-	airpcap_loader.h \
 	capture_info.h	\
 	capture_opts.h	\
 	color_filters.h	\

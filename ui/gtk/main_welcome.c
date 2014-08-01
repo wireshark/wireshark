@@ -72,8 +72,8 @@
 #endif
 
 #ifdef HAVE_AIRPCAP
-#include "airpcap.h"
-#include "airpcap_loader.h"
+#include <caputils/airpcap.h>
+#include <caputils/airpcap_loader.h>
 #include "airpcap_gui_utils.h"
 #endif
 #if defined(HAVE_PCAP_REMOTE)

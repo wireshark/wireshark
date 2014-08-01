@@ -48,8 +48,8 @@
 #include "ui/gtk/keys.h"
 #include "ui/gtk/old-gtk-compat.h"
 
-#include <airpcap.h>
-#include "airpcap_loader.h"
+#include <caputils/airpcap.h>
+#include <caputils/airpcap_loader.h>
 #include "airpcap_gui_utils.h"
 
 
