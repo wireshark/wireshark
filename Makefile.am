@@ -985,6 +985,7 @@ EXTRA_DIST = \
 	services		\
 	wireshark.desktop	\
 	wireshark-mime-package.xml \
+	wireshark.pc.in		\
 	wka.tmpl		\
 	CMakeLists.txt		\
 	cmakeconfig.h.in	\
