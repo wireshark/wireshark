@@ -1705,10 +1705,13 @@ get_persconffile_path(const char *filename, gboolean from_profile)
 char *
 get_datafile_path(const char *filename)
 {
-    if (running_in_build_directory_flag && !strcmp(filename, "AUTHORS-SHORT")) {
+    if (running_in_build_directory_flag &&
+        (!strcmp(filename, "AUTHORS-SHORT") ||
+	 !strcmp(filename, "hosts"))) {
         /* We're running in the build directory and the requested file is a
-         * generated file.  Return the file name in the build directory (not
-         * in the source/data directory).
+         * generated (or a test) file.  Return the file name in the build
+	 * directory (not in the source/data directory).
+	 * (Oh the things we do to keep the source directory pristine...)
          */
         return g_strdup_printf("%s" G_DIR_SEPARATOR_S "%s", get_progfile_dir(), filename);
     } else {
