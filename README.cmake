@@ -40,19 +40,15 @@ in step 5), you may override the defaults for features:
  will disable the capabilities check.
 
 Note 2:
- On OS X, you may want to run cmake like this:
- cmake -DENABLE_CAP=OFF -G "Unix Makefiles"
-
-Note 3:
   After running cmake, you can always run "make help" to see
   a list of all possible make targets.
 
-Note 4:
+Note 3:
   Cmake honors user umask for creating directories as of now:
   http://public.kitware.com/Bug/view.php?id=9620
   To get predictable results please set umask explicitly.
 
-How to do out of tree build (Win32/64):
+How to do an out of tree build using Visual C++ 2013:
 [This is advanced alpha and should build all executables except the GTK3
  Wireshark for 32-bit.]
 1) Follow http://www.wireshark.org/docs/wsdg_html_chunked/ChSetupWin32.html
@@ -60,9 +56,10 @@ How to do out of tree build (Win32/64):
 1a) Set WIRESHARK_BASE_DIR=c:\wireshark (the parent directory of the
    library directory).
 1b) set WIRESHARK_TARGET_PLATFORM=win32 (or win64)
-1c) set QT5_BASE_DIR=c:\Qt\Qt5.1.1\5.1.1\msvc2010 (or whatever)
-1d) In case you want to use Visual Studio, make sure that the paths
-    to python and cygwin are available to GUI applications.
+1c) set QT5_BASE_DIR=C:\Qt\5.3\msvc2013_opengl (must match the Qt component path
+    on your system)
+1d) If you want to use Visual Studio make sure that the paths to Python and
+    Cygwin are available to GUI applications. The Python path MUST come first.
 2) Install cmake
 2a) Build the zlib library, e.g.
     cd %WIRESHARK_BASE_DIR%\wireshark-%WIRESHARK_TARGET_PLATFORM%-libs\zlib125
@@ -70,34 +67,34 @@ How to do out of tree build (Win32/64):
     cmake --build .
 3) mkdir c:\wireshark\build
 4) cd c:\wireshark\build
-5) cmake -G "NMake Makefiles" path\to\sources
-  (i.e. in case your sources are located at c:\wireshark\trunk, use "..\trunk")
-5a) cmake path\to\sources (this will build for the latest Visual Studio version found)
-5b) cmake -G "Visual Studio xx" where xx = 10 for VS2010, 11 for VS2012 and 12 for VS2013
-    will build a solution for a specfic version of VS (it must still be installed).
-6) nmake /X- VERBOSE=1 (or cmake --build . -- VERBOSE=1 )
-6a) Wireshark.sln (this will run up Visual Studio with the cmake built solution
-   (or using msbuild: msbuild wireshark.sln /m /p:Configuration=RelWithDebInfo)
+5) Run one of the following to create the build environment:
+   cmake -G "NMake Makefiles" path\to\sources  (i.e. in case your sources are located at c:\wireshark\trunk, use "..\trunk")
+   cmake path\to\sources (this will build for the latest Visual Studio version found)
+   cmake -G "Visual Studio 12" ("12" builds for VS2103. Use "11" for VS2012 or "10" for VS2010.)
+   cmake -G "Visual Studio 12 Win64" (Win32 is the default)
+6) Run one of the following to build Wireshark:
+   nmake /X- VERBOSE=1 (or cmake --build . -- VERBOSE=1 )
+   Open Wireshark.sln in Windows Explorer to build in Visual Studio
+   msbuild wireshark.sln /m /p:Configuration=RelWithDebInfo
 7) In case you want to test the executable(s) inside the build tree:
    Run setpath.bat whenever it gets updated (there is a message in each cmake
    run whether it is necessary or not).
 
 Why cmake?
 ==========
-- Can create project files for some MS and Apple IDEs.
+- Can create project files for many IDEs including Qt Creator, Visual Studio,
+  and XCode.
 - Fast
 - Easier to understand/learn
-- Doesn't create any files in the source tree in case
-  of out of tree builds
-- One build infrastructure even including Windows
-...
+- Doesn't create any files in the source tree in case of out of tree builds
+- One build infrastructure for all of our tier 1 platforms (including Windows)
 
 Why not cmake?
 ==============
 - Lots of work to do
 - Everyone who wants to build from source needs cmake
 - Current state of documentation isn't really better than
-  autofoo documentation, in some respect it's even worse
+  Autotools documentation. In some respects it's even worse
   (you need to buy a book to get an explanation as to how
   cmake really works).
 ...
@@ -111,6 +108,7 @@ All the executables now build from clean source on:
 * 32bit Ubuntu 9.04
 * 32bit Ubuntu 10.04
 * 64bit Debian Wheezy
+* Mac OS X
 
 What needs to be done?
 ======================
