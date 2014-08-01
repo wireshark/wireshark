@@ -2914,6 +2914,7 @@ AC_OUTPUT(
   packaging/svr4/pkginfo
   plugins/Makefile
   plugins/docsis/Makefile
+  plugins/easy_codec/Makefile
   plugins/ethercat/Makefile
   plugins/gryphon/Makefile
   plugins/irda/Makefile
