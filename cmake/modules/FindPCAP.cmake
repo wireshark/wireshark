@@ -11,7 +11,7 @@ FindWSWinLibs( "WpdPack" "PCAP_HINTS" )
 
 # The 64-bit wpcap.lib is under /x64
 set ( _PLATFORM_SUBDIR "" )
-if( WIN32 AND $ENV{WIRESHARK_TARGET_PLATFORM} MATCHES "64" )
+if( WIN32 AND "$ENV{WIRESHARK_TARGET_PLATFORM}" MATCHES "64" )
   set ( _PLATFORM_SUBDIR "/x64" )
 endif()
 
