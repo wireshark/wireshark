@@ -862,7 +862,6 @@ set( IN_FILES
 	plugins/ethercat/plugin.rc.in
 	plugins/unistim/plugin.rc.in
 	plugins/opcua/plugin.rc.in
-	plugins/asn1/plugin.rc.in
 	plugins/wimax/plugin.rc.in
 	plugins/gryphon/plugin.rc.in
 	plugins/profinet/plugin.rc.in
