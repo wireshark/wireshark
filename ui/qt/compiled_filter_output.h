@@ -45,6 +45,7 @@ private:
     GMutex *pcap_compile_mtx;
     QHash<QString, QString> compile_results;
     QListWidget *interface_list_;
+    QPushButton *copy_bt_;
     void compileFilter();
 
 public:
@@ -53,7 +54,8 @@ public:
     ~CompiledFilterOutput();
 
 private slots:
-    void compile_clicked(QListWidgetItem* current, QListWidgetItem* previous);
+    void on_interfaceList_currentItemChanged(QListWidgetItem *current, QListWidgetItem *previous);
+    void copyFilterText();
 };
 
 #endif // COMPILEDFILTEROUTPUT_H

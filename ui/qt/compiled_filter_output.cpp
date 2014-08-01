@@ -28,6 +28,11 @@
 #include <pcap.h>
 #include "ui/capture_globals.h"
 
+#include "wireshark_application.h"
+
+#include <QClipboard>
+#include <QPushButton>
+
 CompiledFilterOutput::CompiledFilterOutput(QWidget *parent, QStringList *intList, QString &compile_filter) :
     QDialog(parent),
     intList_(intList),
@@ -35,6 +40,15 @@ CompiledFilterOutput::CompiledFilterOutput(QWidget *parent, QStringList *intList
     ui(new Ui::CompiledFilterOutput)
 {
     ui->setupUi(this);
+    setAttribute(Qt::WA_DeleteOnClose, true);
+    ui->filterList->setCurrentFont(wsApp->monospaceFont());
+
+    copy_bt_ = ui->buttonBox->addButton(tr("Copy"), QDialogButtonBox::ActionRole);
+    copy_bt_->setToolTip(tr("Copy filter text to the clipboard."));
+    connect(copy_bt_, SIGNAL(clicked()), this, SLOT(copyFilterText()));
+
+    QPushButton *close_bt = ui->buttonBox->button(QDialogButtonBox::Close);
+    close_bt->setDefault(true);
 
     interface_list_ = ui->interfaceList;
 #if GLIB_CHECK_VERSION(2,31,0)
@@ -44,14 +58,19 @@ CompiledFilterOutput::CompiledFilterOutput(QWidget *parent, QStringList *intList
     pcap_compile_mtx = g_mutex_new();
 #endif
     compileFilter();
-    connect(interface_list_, SIGNAL(currentItemChanged(QListWidgetItem*, QListWidgetItem*)), this, SLOT(compile_clicked(QListWidgetItem*, QListWidgetItem*)));
 }
 
 CompiledFilterOutput::~CompiledFilterOutput()
 {
+    // For some reason closing this dialog either lowers the Capture Interfaces dialog
+    // or raises the main window. Work around the problem for now by manually raising
+    // and activating our parent (presumably the Capture Interfaces dialog).
+    if (parentWidget()) {
+        parentWidget()->raise();
+        parentWidget()->activateWindow();
+    }
     delete ui;
 }
-
 
 void CompiledFilterOutput::compileFilter()
 {
@@ -82,7 +101,7 @@ void CompiledFilterOutput::compileFilter()
                     bpf_code_str = g_string_free(bpf_code_dump, FALSE);
                     g_mutex_unlock(pcap_compile_mtx);
                     compile_results.insert(interfaces, QString("%1").arg(g_strdup(bpf_code_str)));
-                    ui->interfaceList->addItem(new QListWidgetItem(QIcon(":expert/expert_ok.png"),interfaces));
+                    ui->interfaceList->addItem(new QListWidgetItem(interfaces));
                 }
                 break;
             }
@@ -90,15 +109,19 @@ void CompiledFilterOutput::compileFilter()
     }
 }
 
-
-void CompiledFilterOutput::compile_clicked(QListWidgetItem *current, QListWidgetItem *previous)
+void CompiledFilterOutput::on_interfaceList_currentItemChanged(QListWidgetItem *current, QListWidgetItem *previous)
 {
     Q_UNUSED(previous);
 
     QString interface = current->text();
     QHash<QString, QString>::const_iterator iter = compile_results.find(interface);
     ui->filterList->clear();
-    ui->filterList->setText(iter.value());
+    ui->filterList->setPlainText(iter.value());
+}
+
+void CompiledFilterOutput::copyFilterText()
+{
+    wsApp->clipboard()->setText(ui->filterList->toPlainText());
 }
 
 //
@@ -113,3 +136,4 @@ void CompiledFilterOutput::compile_clicked(QListWidgetItem *current, QListWidget
 // vi: set shiftwidth=4 tabstop=4 expandtab:
 // :indentSize=4:tabSize=4:noTabs=true:
 //
+

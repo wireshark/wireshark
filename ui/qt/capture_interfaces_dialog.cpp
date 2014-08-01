@@ -481,7 +481,6 @@ void CaptureInterfacesDialog::on_compileBPF_clicked()
     {
         QTableWidgetItem *it = ui->tbInterfaces->item(row, INTERFACE);
         if (selected.contains(it)) {
-            QString str = it->text();
             interfaces->append(it->text());
         }
     }
