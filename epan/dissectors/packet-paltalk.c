@@ -34,7 +34,7 @@
 void proto_register_paltalk(void);
 void proto_reg_handoff_paltalk(void);
 
-#define INET_IPV4_ADDRESS_FROM_BYTES(a,b,c,d) g_htonl(((a)<<24) | ((b)<<16) | ((c)<<8) | (d)) /* *network* order */
+#define INET_IPV4_ADDRESS_FROM_BYTES(a,b,c,d) g_htonl((((guint32)a)<<24) | ((b)<<16) | ((c)<<8) | (d)) /* *network* order */
 
 #define PALTALK_SERVERS_ADDRESS INET_IPV4_ADDRESS_FROM_BYTES(199,106,0,0)      /* 199.106.0.0 in *network* order */
 #define PALTALK_SERVERS_NETMASK INET_IPV4_ADDRESS_FROM_BYTES(0xFF, 0xFE, 0x00, 0x00)  /* /15  in *network* order */
@@ -75,7 +75,7 @@ dissect_paltalk_desegmented(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		proto_tree_add_item(pt_tree, hf_paltalk_content, tvb, 6, tvb_get_ntohs(tvb, 4), ENC_NA);
 	}
 
-    return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 static gboolean
@@ -135,3 +135,15 @@ proto_reg_handoff_paltalk(void)
 	heur_dissector_add("tcp", dissect_paltalk, proto_paltalk);
 }
 
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 4
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=4 noexpandtab:
+ * :indentSize=4:tabSize=4:noTabs=false:
+ */
