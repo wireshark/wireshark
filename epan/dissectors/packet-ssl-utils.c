@@ -5037,6 +5037,7 @@ ssl_dissect_hnd_hello_ext_session_ticket(ssl_common_dissect_t *hf, tvbuff_t *tvb
                                       proto_tree *tree, guint32 offset, guint32 ext_len, gboolean is_client, SslDecryptSession *ssl)
 {
     if (is_client && ssl && ext_len != 0) {
+        tvb_ensure_bytes_exist(tvb, offset, ext_len);
         /* Save the Session Ticket such that it can be used as identifier for
          * restoring a previous Master Secret (in ChangeCipherSpec) */
         ssl->session_ticket.data = (guchar*)wmem_realloc(wmem_file_scope(),
@@ -5380,6 +5381,7 @@ ssl_dissect_hnd_new_ses_ticket(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                         tvb, offset, ticket_len, ENC_NA);
     /* save the session ticket to cache for ssl_finalize_decryption */
     if (ssl) {
+        tvb_ensure_bytes_exist(tvb, offset, ticket_len);
         ssl->session_ticket.data = (guchar*)wmem_realloc(wmem_file_scope(),
                                     ssl->session_ticket.data, ticket_len);
         ssl->session_ticket.data_len = ticket_len;
