@@ -1767,7 +1767,7 @@ dissect_opp_cap_loop(guint8 cap_loop_len, const gchar *title,
         ti = proto_tree_add_text(tree, tvb, offset, cap_loop_len, "%s", title);
         loop_tree = proto_item_add_subtree(ti, ett_dvbci_opp_cap_loop);
     }
-    for (i=0; i<cap_loop_len; i+=item_len) {
+    for (i=0; i<item_len*cap_loop_len; i+=item_len) {
         proto_tree_add_item(loop_tree, item_hf,
                 tvb, offset+i, item_len, ENC_BIG_ENDIAN);
     }
