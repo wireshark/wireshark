@@ -243,6 +243,7 @@ static int hf_tcpip_snn_time = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_cip_safety                = -1;
+static gint ett_path                      = -1;
 static gint ett_cipsafety_mode_byte       = -1;
 static gint ett_cipsafety_ack_byte        = -1;
 static gint ett_cipsafety_mcast_byte      = -1;
@@ -900,7 +901,7 @@ static int dissect_s_supervisor_output_connection_point_owners(packet_info *pinf
 {
    guint16     i, num_entries;
    proto_item *entry_item, *app_path_item;
-   proto_tree *entry_tree;
+   proto_tree *entry_tree, *epath_tree;
    int         attr_len = 0, app_path_size;
 
    if (total_len < 2)
@@ -946,9 +947,9 @@ static int dissect_s_supervisor_output_connection_point_owners(packet_info *pinf
             return total_len;
          }
 
-         app_path_item = proto_tree_add_text(entry_tree,
-                         tvb, offset+attr_len, app_path_size, "Application Resource: ");
-         dissect_epath( tvb, pinfo, app_path_item, offset+attr_len, app_path_size, FALSE, TRUE, NULL, NULL);
+         epath_tree = proto_tree_add_subtree(entry_tree,
+                         tvb, offset+attr_len, app_path_size, ett_path, &app_path_item, "Application Resource: ");
+         dissect_epath( tvb, pinfo, epath_tree, app_path_item, offset+attr_len, app_path_size, FALSE, TRUE, NULL, NULL);
          attr_len += app_path_size;
       }
    }
@@ -1095,10 +1096,12 @@ static int dissect_s_validator_coordination_conn_inst(packet_info *pinfo, proto_
    return (size+1);
 }
 
-static int dissect_s_validator_app_data_path(packet_info *pinfo, proto_tree *tree _U_,
-                                             proto_item *item, tvbuff_t *tvb, int offset, int total_len)
+static int dissect_s_validator_app_data_path(packet_info *pinfo, proto_tree *tree,
+                                             proto_item *item _U_, tvbuff_t *tvb, int offset, int total_len)
 {
-   dissect_epath(tvb, pinfo, item, offset, total_len, FALSE, FALSE, NULL, NULL);
+   proto_item* pi;
+   proto_tree* epath_tree = proto_tree_add_subtree(tree, NULL, 0, 0, ett_path, &pi, "Application Data Path: ");
+   dissect_epath(tvb, pinfo, epath_tree, pi, offset, total_len, FALSE, FALSE, NULL, NULL);
    return total_len;
 }
 
@@ -2466,6 +2469,7 @@ proto_register_cipsafety(void)
 
    static gint *ett[] = {
       &ett_cip_safety,
+      &ett_path,
       &ett_cipsafety_mode_byte,
       &ett_cipsafety_ack_byte,
       &ett_cipsafety_mcast_byte

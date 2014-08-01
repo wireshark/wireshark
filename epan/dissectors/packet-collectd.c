@@ -376,13 +376,14 @@ dissect_collectd_string (tvbuff_t *tvb, packet_info *pinfo, gint type_hf,
 	type   = tvb_get_ntohs(tvb, offset);
 	length = tvb_get_ntohs(tvb, offset + 2);
 
+	pt = proto_tree_add_subtree_format(tree_root, tvb, offset, length,
+				  ett_collectd_string, &pi, "collectd %s segment: ",
+				  val_to_str_const (type, part_names, "UNKNOWN"));
+
 	if (length > size)
 	{
-		pi = proto_tree_add_text (tree_root, tvb, offset, length,
-					  "collectd %s segment: Length = %i <BAD>",
-					  val_to_str_const (type, part_names, "UNKNOWN"),
-					  length);
-		expert_add_info_format(pinfo, pi, &ei_collectd_invalid_length,
+		proto_item_append_text(pt, "Length = %i <BAD>", length);
+		expert_add_info_format(pinfo, pt, &ei_collectd_invalid_length,
 					"String part with invalid part length: "
 					"Part is longer than rest of package.");
 		return (-1);
@@ -392,11 +393,7 @@ dissect_collectd_string (tvbuff_t *tvb, packet_info *pinfo, gint type_hf,
 	*ret_length = length - 4;
 
 	*ret_string = tvb_get_string_enc(wmem_packet_scope(), tvb, *ret_offset, *ret_length, ENC_ASCII);
-
-	pt = proto_tree_add_subtree_format(tree_root, tvb, offset, length,
-				  ett_collectd_string, &pi, "collectd %s segment: \"%s\"",
-				  val_to_str_const (type, part_names, "UNKNOWN"),
-				  *ret_string);
+	proto_item_append_text(pt, "\"%s\"", *ret_string);
 
 	if (ret_item != NULL)
 		*ret_item = pi;

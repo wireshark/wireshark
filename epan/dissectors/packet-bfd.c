@@ -131,7 +131,7 @@ static gint proto_bfd = -1;
 static gint hf_bfd_version = -1;
 static gint hf_bfd_diag = -1;
 static gint hf_bfd_sta = -1;
-/* static gint hf_bfd_flags = -1; */
+static gint hf_bfd_flags = -1;
 static gint hf_bfd_flags_h = -1;
 static gint hf_bfd_flags_p = -1;
 static gint hf_bfd_flags_f = -1;
@@ -149,6 +149,7 @@ static gint hf_bfd_your_discriminator = -1;
 static gint hf_bfd_desired_min_tx_interval = -1;
 static gint hf_bfd_required_min_rx_interval = -1;
 static gint hf_bfd_required_min_echo_interval = -1;
+static gint hf_bfd_checksum = -1;
 
 static gint hf_bfd_auth_type = -1;
 static gint hf_bfd_auth_len = -1;
@@ -355,21 +356,17 @@ dissect_bfd_authentication(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         case BFD_AUTH_SHA1:
         case BFD_AUTH_MET_SHA1:
             if (auth_len != get_bfd_required_auth_len(auth_type)) {
-                if (tree) {
-                    ti = proto_tree_add_text(auth_tree, tvb, offset, auth_len,
-                                             "Length of authentication is invalid (%d)", auth_len);
-                    proto_item_append_text(auth_item, ": Invalid Authentication Section");
-                }
-                expert_add_info_format(pinfo, ti, &ei_bfd_auth_len_invalid,
-                        "Length of authentication section is invalid for Authentication Type: %s",
-                        val_to_str(auth_type, bfd_control_auth_type_values, "Unknown Authentication Type (%d)") );
+                proto_tree_add_expert_format(auth_tree, pinfo, &ei_bfd_auth_len_invalid, tvb, offset, auth_len,
+                        "Length of authentication section (%d) is invalid for Authentication Type: %s",
+                        auth_len, val_to_str(auth_type, bfd_control_auth_type_values, "Unknown Authentication Type (%d)") );
+
+                proto_item_append_text(auth_item, ": Invalid Authentication Section");
             }
 
             if (tree) {
                 proto_tree_add_item(auth_tree, hf_bfd_auth_seq_num, tvb, offset+4, 4, ENC_BIG_ENDIAN);
 
-                proto_tree_add_text(auth_tree, tvb, offset+8, get_bfd_checksum_len(auth_type), "Checksum: 0x%s",
-                                    tvb_bytes_to_ep_str(tvb, offset+8, get_bfd_checksum_len(auth_type)) );
+                proto_tree_add_item(auth_tree, hf_bfd_checksum, tvb, offset+8, get_bfd_checksum_len(auth_type), ENC_NA);
             }
             break;
         default:
@@ -457,7 +454,6 @@ dissect_bfd_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if (tree) {
         proto_item *ti;
-        proto_tree *bfd_flags_tree;
         const char *sep;
 
         ti = proto_tree_add_protocol_format(tree, proto_bfd, tvb, 0, bfd_length,
@@ -483,13 +479,15 @@ dissect_bfd_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
         switch (bfd_version) {
             case 0:
-                ti = proto_tree_add_text ( bfd_tree, tvb, 1, 1, "Message Flags: 0x%02x",
-                                           bfd_flags);
-                bfd_flags_tree = proto_item_add_subtree(ti, ett_bfd_flags);
-                proto_tree_add_boolean(bfd_flags_tree, hf_bfd_flags_h,    tvb, 1, 1, bfd_flags_h);
-                proto_tree_add_boolean(bfd_flags_tree, hf_bfd_flags_d_v0, tvb, 1, 1, bfd_flags_d_v0);
-                proto_tree_add_boolean(bfd_flags_tree, hf_bfd_flags_p_v0, tvb, 1, 1, bfd_flags_p_v0);
-                proto_tree_add_boolean(bfd_flags_tree, hf_bfd_flags_f_v0, tvb, 1, 1, bfd_flags_f_v0);
+                {
+                static const int * bfd_message_flags[] = {
+                    &hf_bfd_flags_h,
+                    &hf_bfd_flags_d_v0,
+                    &hf_bfd_flags_p_v0,
+                    &hf_bfd_flags_f_v0,
+                    NULL
+                };
+                proto_tree_add_bitmask(bfd_tree, tvb, 1, hf_bfd_flags, ett_bfd_flags, bfd_message_flags, ENC_NA);
 
                 sep = initial_sep;
                 APPEND_BOOLEAN_FLAG(bfd_flags_h,    ti, "%sH");
@@ -499,18 +497,21 @@ dissect_bfd_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 if (sep != initial_sep) {
                     proto_item_append_text (ti, ")");
                 }
+                }
                 break;
             case 1:
             default:
-                ti = proto_tree_add_text ( bfd_tree, tvb, 1, 1, "Message Flags: 0x%02x",
-                                           bfd_flags);
-                bfd_flags_tree = proto_item_add_subtree(ti, ett_bfd_flags);
-                proto_tree_add_boolean(bfd_flags_tree, hf_bfd_flags_p, tvb, 1, 1, bfd_flags_p);
-                proto_tree_add_boolean(bfd_flags_tree, hf_bfd_flags_f, tvb, 1, 1, bfd_flags_f);
-                proto_tree_add_boolean(bfd_flags_tree, hf_bfd_flags_c, tvb, 1, 1, bfd_flags_c);
-                proto_tree_add_boolean(bfd_flags_tree, hf_bfd_flags_a, tvb, 1, 1, bfd_flags_a);
-                proto_tree_add_boolean(bfd_flags_tree, hf_bfd_flags_d, tvb, 1, 1, bfd_flags_d);
-                proto_tree_add_boolean(bfd_flags_tree, hf_bfd_flags_m, tvb, 1, 1, bfd_flags_m);
+                {
+                static const int * bfd_message_flags[] = {
+                    &hf_bfd_flags_p,
+                    &hf_bfd_flags_f,
+                    &hf_bfd_flags_c,
+                    &hf_bfd_flags_a,
+                    &hf_bfd_flags_d,
+                    &hf_bfd_flags_m,
+                    NULL
+                };
+                proto_tree_add_bitmask(bfd_tree, tvb, 1, hf_bfd_flags, ett_bfd_flags, bfd_message_flags, ENC_NA);
 
                 sep = initial_sep;
                 APPEND_BOOLEAN_FLAG(bfd_flags_p, ti, "%sP");
@@ -521,6 +522,7 @@ dissect_bfd_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 APPEND_BOOLEAN_FLAG(bfd_flags_m, ti, "%sM");
                 if (sep != initial_sep) {
                     proto_item_append_text (ti, ")");
+                }
                 }
                 break;
         }
@@ -566,9 +568,8 @@ dissect_bfd_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         if (bfd_length >= 28) {
             dissect_bfd_authentication(tvb, pinfo, bfd_tree);
         } else {
-            proto_item *ti = proto_tree_add_text(bfd_tree, tvb, 24, bfd_length-24,
+            proto_tree_add_expert_format(bfd_tree, pinfo, &ei_bfd_auth_no_data, tvb, 24, bfd_length-24,
                                          "Authentication: Length of the BFD frame is invalid (%d)", bfd_length);
-            expert_add_info(pinfo, ti, &ei_bfd_auth_no_data);
         }
     }
 
@@ -701,13 +702,11 @@ proto_register_bfd(void)
             FT_UINT8, BASE_HEX, VALS(bfd_control_sta_values), 0xc0,
             "The BFD state as seen by the transmitting system", HFILL }
         },
-#if 0
         { &hf_bfd_flags,
           { "Message Flags", "bfd.flags",
-            FT_UINT8, BASE_HEX, NULL, 0xf0,
+            FT_UINT8, BASE_HEX, NULL, 0x00,
             NULL, HFILL }
         },
-#endif
         { &hf_bfd_flags_h,
           { "I hear you", "bfd.flags.h",
             FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x80,
@@ -794,6 +793,11 @@ proto_register_bfd(void)
           { "Required Min Echo Interval", "bfd.required_min_echo_interval",
             FT_UINT32, BASE_DEC, NULL, 0x0,
             "The minimum interval between received BFD Echo packets that this system can support", HFILL }
+        },
+        { &hf_bfd_checksum,
+          { "Checksum", "bfd.checksum",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
         },
         { &hf_bfd_auth_type,
           { "Authentication Type", "bfd.auth.type",

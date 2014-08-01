@@ -168,7 +168,7 @@ static const true_false_string cigi_valid_tfs = {
 static int hf_cigi_src_port = -1;
 static int hf_cigi_dest_port = -1;
 static int hf_cigi_port = -1;
-
+static int hf_cigi_data = -1;
 static int hf_cigi_packet_id = -1;
 static int hf_cigi_packet_size = -1;
 static int hf_cigi_version = -1;
@@ -483,6 +483,7 @@ static int hf_cigi2_special_effect_definition_x_scale = -1;
 static int hf_cigi2_special_effect_definition_y_scale = -1;
 static int hf_cigi2_special_effect_definition_z_scale = -1;
 static int hf_cigi2_special_effect_definition_time_scale = -1;
+static int hf_cigi2_special_effect_definition_spare = -1;
 static int hf_cigi2_special_effect_definition_effect_count = -1;
 static int hf_cigi2_special_effect_definition_separation = -1;
 static int hf_cigi2_special_effect_definition_burst_interval = -1;
@@ -2755,7 +2756,7 @@ cigi_add_tree(tvbuff_t *tvb, proto_tree *cigi_tree)
             data_size--;
         }
 
-        proto_tree_add_text(cigi_packet_tree, tvb, offset, data_size, "Data (%i bytes)", data_size );
+        proto_tree_add_item(cigi_packet_tree, hf_cigi_data, tvb, offset, data_size, ENC_NA);
         offset += data_size;
     }
 }
@@ -2775,7 +2776,7 @@ cigi_add_data(tvbuff_t *tvb, proto_tree *tree, gint offset)
         THROW(ReportedBoundsError);
     }
 
-    proto_tree_add_text(tree, tvb, offset, packet_size-2, "Data (%i bytes)", packet_size-2 );
+    proto_tree_add_item(tree, hf_cigi_data, tvb, offset, packet_size-2, ENC_NA);
     offset += packet_size-2;
 
     return offset;
@@ -2915,62 +2916,93 @@ cigi2_add_tree(tvbuff_t *tvb, proto_tree *cigi_tree)
         proto_tree_add_item(cigi_packet_tree, hf_cigi_packet_size, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
 
-        if ( packet_id == CIGI2_PACKET_ID_IG_CONTROL ) {
+        switch(packet_id)
+        {
+        case CIGI2_PACKET_ID_IG_CONTROL:
             offset = cigi2_add_ig_control(tvb, cigi_packet_tree, offset);
-        } else if ( packet_id == CIGI2_PACKET_ID_ENTITY_CONTROL ) {
+            break;
+        case CIGI2_PACKET_ID_ENTITY_CONTROL:
             offset = cigi2_add_entity_control(tvb, cigi_packet_tree, offset);
-        } else if ( packet_id == CIGI2_PACKET_ID_COMPONENT_CONTROL ) {
+            break;
+        case CIGI2_PACKET_ID_COMPONENT_CONTROL:
             offset = cigi2_add_component_control(tvb, cigi_packet_tree, offset);
-        } else if ( packet_id == CIGI2_PACKET_ID_ARTICULATED_PARTS_CONTROL ) {
+            break;
+        case CIGI2_PACKET_ID_ARTICULATED_PARTS_CONTROL:
             offset = cigi2_add_articulated_parts_control(tvb, cigi_packet_tree, offset);
-        } else if ( packet_id == CIGI2_PACKET_ID_RATE_CONTROL ) {
+            break;
+        case CIGI2_PACKET_ID_RATE_CONTROL:
             offset = cigi2_add_rate_control(tvb, cigi_packet_tree, offset);
-        } else if ( packet_id == CIGI2_PACKET_ID_ENVIRONMENT_CONTROL ) {
+            break;
+        case CIGI2_PACKET_ID_ENVIRONMENT_CONTROL:
             offset = cigi2_add_environment_control(tvb, cigi_packet_tree, offset);
-        } else if ( packet_id == CIGI2_PACKET_ID_WEATHER_CONTROL ) {
+            break;
+        case CIGI2_PACKET_ID_WEATHER_CONTROL:
             offset = cigi2_add_weather_control(tvb, cigi_packet_tree, offset);
-        } else if ( packet_id == CIGI2_PACKET_ID_VIEW_CONTROL ) {
+            break;
+        case CIGI2_PACKET_ID_VIEW_CONTROL:
             offset = cigi2_add_view_control(tvb, cigi_packet_tree, offset);
-        } else if ( packet_id == CIGI2_PACKET_ID_SENSOR_CONTROL ) {
+            break;
+        case CIGI2_PACKET_ID_SENSOR_CONTROL:
             offset = cigi2_add_sensor_control(tvb, cigi_packet_tree, offset);
-        } else if ( packet_id == CIGI2_PACKET_ID_TRAJECTORY_DEFINITION ) {
+            break;
+        case CIGI2_PACKET_ID_TRAJECTORY_DEFINITION:
             offset = cigi2_add_trajectory_definition(tvb, cigi_packet_tree, offset);
-        } else if ( packet_id == CIGI2_PACKET_ID_SPECIAL_EFFECT_DEFINITION ) {
+            break;
+        case CIGI2_PACKET_ID_SPECIAL_EFFECT_DEFINITION:
             offset = cigi2_add_special_effect_definition(tvb, cigi_packet_tree, offset);
-        } else if ( packet_id == CIGI2_PACKET_ID_VIEW_DEFINITION ) {
+            break;
+        case CIGI2_PACKET_ID_VIEW_DEFINITION:
             offset = cigi2_add_view_definition(tvb, cigi_packet_tree, offset);
-        } else if ( packet_id == CIGI2_PACKET_ID_COLLISION_DETECTION_SEGMENT_DEFINITION ) {
+            break;
+        case CIGI2_PACKET_ID_COLLISION_DETECTION_SEGMENT_DEFINITION:
             offset = cigi2_add_collision_detection_segment_definition(tvb, cigi_packet_tree, offset);
-        } else if ( packet_id == CIGI2_PACKET_ID_COLLISION_DETECTION_VOLUME_DEFINITION ) {
+            break;
+        case CIGI2_PACKET_ID_COLLISION_DETECTION_VOLUME_DEFINITION:
             offset = cigi2_add_collision_detection_volume_definition(tvb, cigi_packet_tree, offset);
-        } else if ( packet_id == CIGI2_PACKET_ID_HEIGHT_ABOVE_TERRAIN_REQUEST ) {
+            break;
+        case CIGI2_PACKET_ID_HEIGHT_ABOVE_TERRAIN_REQUEST:
             offset = cigi2_add_height_above_terrain_request(tvb, cigi_packet_tree, offset);
-        } else if ( packet_id == CIGI2_PACKET_ID_LINE_OF_SIGHT_OCCULT_REQUEST ) {
+            break;
+        case CIGI2_PACKET_ID_LINE_OF_SIGHT_OCCULT_REQUEST:
             offset = cigi2_add_line_of_sight_occult_request(tvb, cigi_packet_tree, offset);
-        } else if ( packet_id == CIGI2_PACKET_ID_LINE_OF_SIGHT_RANGE_REQUEST ) {
+            break;
+        case CIGI2_PACKET_ID_LINE_OF_SIGHT_RANGE_REQUEST:
             offset = cigi2_add_line_of_sight_range_request(tvb, cigi_packet_tree, offset);
-        } else if ( packet_id == CIGI2_PACKET_ID_HEIGHT_OF_TERRAIN_REQUEST ) {
+            break;
+        case CIGI2_PACKET_ID_HEIGHT_OF_TERRAIN_REQUEST:
             offset = cigi2_add_height_of_terrain_request(tvb, cigi_packet_tree, offset);
-        } else if ( packet_id == CIGI2_PACKET_ID_START_OF_FRAME ) {
+            break;
+        case CIGI2_PACKET_ID_START_OF_FRAME:
             offset = cigi2_add_start_of_frame(tvb, cigi_packet_tree, offset);
-        } else if ( packet_id == CIGI2_PACKET_ID_HEIGHT_ABOVE_TERRAIN_RESPONSE ) {
+            break;
+        case CIGI2_PACKET_ID_HEIGHT_ABOVE_TERRAIN_RESPONSE:
             offset = cigi2_add_height_above_terrain_response(tvb, cigi_packet_tree, offset);
-        } else if ( packet_id == CIGI2_PACKET_ID_LINE_OF_SIGHT_RESPONSE ) {
+            break;
+        case CIGI2_PACKET_ID_LINE_OF_SIGHT_RESPONSE:
             offset = cigi2_add_line_of_sight_response(tvb, cigi_packet_tree, offset);
-        } else if ( packet_id == CIGI2_PACKET_ID_COLLISION_DETECTION_SEGMENT_RESPONSE ) {
+            break;
+        case CIGI2_PACKET_ID_COLLISION_DETECTION_SEGMENT_RESPONSE:
             offset = cigi2_add_collision_detection_segment_response(tvb, cigi_packet_tree, offset);
-        } else if ( packet_id == CIGI2_PACKET_ID_SENSOR_RESPONSE ) {
+            break;
+        case CIGI2_PACKET_ID_SENSOR_RESPONSE:
             offset = cigi2_add_sensor_response(tvb, cigi_packet_tree, offset);
-        } else if ( packet_id == CIGI2_PACKET_ID_HEIGHT_OF_TERRAIN_RESPONSE ) {
+            break;
+        case CIGI2_PACKET_ID_HEIGHT_OF_TERRAIN_RESPONSE:
             offset = cigi2_add_height_of_terrain_response(tvb, cigi_packet_tree, offset);
-        } else if ( packet_id == CIGI2_PACKET_ID_COLLISION_DETECTION_VOLUME_RESPONSE ) {
+            break;
+        case CIGI2_PACKET_ID_COLLISION_DETECTION_VOLUME_RESPONSE:
             offset = cigi2_add_collision_detection_volume_response(tvb, cigi_packet_tree, offset);
-        } else if ( packet_id == CIGI2_PACKET_ID_IMAGE_GENERATOR_MESSAGE ) {
+            break;
+        case CIGI2_PACKET_ID_IMAGE_GENERATOR_MESSAGE:
             offset = cigi2_add_image_generator_message(tvb, cigi_packet_tree, offset);
-        } else if ( packet_id >= CIGI2_PACKET_ID_USER_DEFINABLE_MIN && packet_id <= CIGI2_PACKET_ID_USER_DEFINABLE_MAX ) {
-            offset = cigi_add_data(tvb, cigi_packet_tree, offset);
-        } else {
-            offset = cigi_add_data(tvb, cigi_packet_tree, offset);
+            break;
+        default:
+            if ( packet_id >= CIGI2_PACKET_ID_USER_DEFINABLE_MIN && packet_id <= CIGI2_PACKET_ID_USER_DEFINABLE_MAX ) {
+                offset = cigi_add_data(tvb, cigi_packet_tree, offset);
+            } else {
+                offset = cigi_add_data(tvb, cigi_packet_tree, offset);
+            }
+            break;
         }
 
         /* Does the packet offset match the supposed length of the packet? */
@@ -3749,7 +3781,7 @@ cigi2_add_special_effect_definition(tvbuff_t *tvb, proto_tree *tree, gint offset
     proto_tree_add_float(tree, hf_cigi2_special_effect_definition_time_scale, tvb, offset, 2, tvb_get_fixed_point(tvb, offset, ENC_BIG_ENDIAN));
     offset += 2;
 
-    proto_tree_add_text(tree, tvb, offset, 2, "Spare");
+    proto_tree_add_item(tree, hf_cigi2_special_effect_definition_spare, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
     proto_tree_add_item(tree, hf_cigi2_special_effect_definition_effect_count, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -6424,6 +6456,11 @@ proto_register_cigi(void)
                 FT_UINT16, BASE_DEC, NULL, 0x0,
                 NULL, HFILL }
         },
+        { &hf_cigi_data,
+            { "Data", "cigi.data",
+                FT_BYTES, BASE_NONE, NULL, 0x0,
+                NULL, HFILL }
+        },
 
         { &hf_cigi_frame_size,
             { "Frame Size (bytes)", "cigi.frame_size",
@@ -8627,6 +8664,11 @@ proto_register_cigi(void)
             { "Time Scale", "cigi.special_effect_def.time_scale",
                 FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies a scale factor to apply to the time period for the effect's animation sequence", HFILL }
+        },
+        { &hf_cigi2_special_effect_definition_spare,
+            { "Spare", "cigi.special_effect_def.spare",
+                FT_UINT16, BASE_HEX, NULL, 0x0,
+                NULL, HFILL }
         },
         { &hf_cigi2_special_effect_definition_effect_count,
             { "Effect Count", "cigi.special_effect_def.effect_count",

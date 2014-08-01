@@ -160,6 +160,7 @@ static int hf_bacnet_perf = -1;
 static int hf_bacnet_rejectreason = -1;
 static int hf_bacnet_rportnum = -1;
 static int hf_bacnet_portid = -1;
+static int hf_bacnet_pinfo = -1;
 static int hf_bacnet_pinfolen = -1;
 static int hf_bacnet_term_time_value = -1;
 
@@ -416,9 +417,8 @@ dissect_bacnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					proto_tree_add_uint(bacnet_tree, hf_bacnet_pinfolen,
 					tvb, offset, 1, bacnet_pinfolen);
 					offset ++;
-					proto_tree_add_text(bacnet_tree, tvb, offset,
-					bacnet_pinfolen, "Port Info: %s",
-					tvb_bytes_to_ep_str(tvb, offset, bacnet_pinfolen));
+					proto_tree_add_item(bacnet_tree, hf_bacnet_pinfo, tvb, offset,
+					bacnet_pinfolen, ENC_NA);
 					offset += bacnet_pinfolen;
 			}
 		}
@@ -597,6 +597,11 @@ proto_register_bacnet(void)
 		{ &hf_bacnet_pinfolen,
 			{ "Port Info Length", "bacnet.pinfolen",
 			FT_UINT8, BASE_DEC, NULL, 0,
+			NULL, HFILL }
+		},
+		{ &hf_bacnet_pinfo,
+			{ "Port Inf", "bacnet.pinfo",
+			FT_BYTES, BASE_NONE, NULL, 0,
 			NULL, HFILL }
 		},
 		{ &hf_bacnet_portid,

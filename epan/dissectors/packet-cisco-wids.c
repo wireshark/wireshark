@@ -66,6 +66,8 @@ static int hf_cwids_unknown3 = -1;
 
 static gint ett_cwids = -1;
 
+static expert_field ie_ieee80211_subpacket = EI_INIT;
+
 static dissector_handle_t ieee80211_handle;
 
 static void
@@ -116,16 +118,7 @@ dissect_cwids(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			 *  was unable to restore it).
 			 */
 			pinfo->private_data = pd_save;
-
-#if 0
-	wlan_tvb = tvb_new_subset_length(tvb, offset, capturelen);
-			/* FIXME: Why does this throw an exception? */
-			proto_tree_add_text(cwids_tree, wlan_tvb, offset, capturelen,
-				"[Malformed or short IEEE80211 subpacket]");
-#else
-			tvb_new_subset_length(tvb, offset, capturelen);
-#endif
-	;
+			expert_add_info(pinfo, ti, &ie_ieee80211_subpacket);
 		} ENDTRY;
 
 		offset += capturelen;
@@ -172,11 +165,18 @@ proto_register_cwids(void)
 		&ett_cwids,
 	};
 
+	static ei_register_info ei[] = {
+		{ &ie_ieee80211_subpacket, { "cwids.ieee80211_malformed", PI_MALFORMED, PI_ERROR, "Malformed or short IEEE80211 subpacket", EXPFILL }},
+	};
+
 	module_t *cwids_module;
+	expert_module_t* expert_cwids;
 
 	proto_cwids = proto_register_protocol("Cisco Wireless IDS Captures", "CWIDS", "cwids");
 	proto_register_field_array(proto_cwids, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	expert_cwids = expert_register_protocol(proto_cwids);
+	expert_register_field_array(expert_cwids, ei, array_length(ei));
 
 	cwids_module = prefs_register_protocol(proto_cwids, proto_reg_handoff_cwids);
 	prefs_register_uint_preference(cwids_module, "udp.port",

@@ -368,6 +368,8 @@ static int hf_batadv_batman_version = -1;
 static int hf_batadv_batman_flags = -1;
 static int hf_batadv_batman_ttl = -1;
 static int hf_batadv_batman_gwflags = -1;
+static int hf_batadv_batman_gwflags_dl_speed = -1;
+static int hf_batadv_batman_gwflags_ul_speed = -1;
 static int hf_batadv_batman_tq = -1;
 static int hf_batadv_batman_seqno = -1;
 static int hf_batadv_batman_seqno32 = -1;
@@ -392,6 +394,9 @@ static int hf_batadv_icmp_orig = -1;
 static int hf_batadv_icmp_ttl = -1;
 static int hf_batadv_icmp_uid = -1;
 static int hf_batadv_icmp_seqno = -1;
+
+static int hf_batadv_icmp_rr_pointer = -1;
+static int hf_batadv_icmp_rr_ether = -1;
 
 static int hf_batadv_unicast_version = -1;
 static int hf_batadv_unicast_dst = -1;
@@ -706,9 +711,8 @@ static void dissect_batadv_gwflags(tvbuff_t *tvb, guint8 gwflags, int offset, pr
 	}
 
 	gwflags_tree =  proto_item_add_subtree(tgw, ett_batadv_batman_gwflags);
-	proto_tree_add_text(gwflags_tree, tvb, offset, 1, "Download Speed: %dkbit", down);
-	proto_tree_add_text(gwflags_tree, tvb, offset, 1, "Upload Speed: %dkbit", up);
-
+	proto_tree_add_uint_format_value(gwflags_tree, hf_batadv_batman_gwflags_dl_speed, tvb, offset, 1, down, "%dkbit", down);
+	proto_tree_add_uint_format_value(gwflags_tree, hf_batadv_batman_gwflags_ul_speed, tvb, offset, 1, up, "%dkbit", up);
 }
 
 static int dissect_batadv_batman_v5(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
@@ -1753,13 +1757,13 @@ dissect_batadv_icmp_rr(proto_tree *batadv_icmp_tree, tvbuff_t *tvb, int offset)
 
 	field_tree = proto_tree_add_subtree(batadv_icmp_tree, tvb, offset, 1+ 6 * BAT_RR_LEN,
 										ett_batadv_icmp_rr, NULL, "ICMP RR");
-	proto_tree_add_text(field_tree, tvb, offset, 1, "Pointer: %d", ptr);
+	proto_tree_add_item(field_tree, hf_batadv_icmp_rr_pointer, tvb, offset, 1, ENC_NA);
 
 	ptr--;
 	offset++;
 	for (i = 0; i < BAT_RR_LEN; i++) {
-		proto_tree_add_text(field_tree, tvb, offset, 6, "%s%s",
-				    (i > ptr) ? "-" : tvb_ether_to_str(tvb, offset),
+		proto_tree_add_ether_format(field_tree, hf_batadv_icmp_rr_ether, tvb, offset, 6, tvb_get_ptr(tvb, offset, 6),
+				    "%s%s", (i > ptr) ? "-" : tvb_ether_to_str(tvb, offset),
 				    (i == ptr) ? " <- (current)" : "");
 
 		offset += 6;
@@ -3188,6 +3192,16 @@ void proto_register_batadv(void)
 		    FT_UINT8, BASE_HEX, NULL, 0x0,
 		    NULL, HFILL }
 		},
+		{ &hf_batadv_batman_gwflags_dl_speed,
+		  { "Download Speed", "batadv.batman.gwflags.dl_speed",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_batadv_batman_gwflags_ul_speed,
+		  { "Upload Speed", "batadv.batman.gwflags.ul_speed",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
 		{ &hf_batadv_batman_tq,
 		  { "Transmission Quality", "batadv.batman.tq",
 		    FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -3316,6 +3330,16 @@ void proto_register_batadv(void)
 		{ &hf_batadv_icmp_seqno,
 		  { "Sequence number", "batadv.icmp.seq",
 		    FT_UINT16, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL}
+		},
+		{ &hf_batadv_icmp_rr_pointer,
+		  { "Pointer", "batadv.icmp.rr_pointer",
+		    FT_UINT16, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL}
+		},
+		{ &hf_batadv_icmp_rr_ether,
+		  { "RR MAC", "batadv.icmp.rr_ether",
+		    FT_ETHER, BASE_NONE, NULL, 0x0,
 		    NULL, HFILL}
 		},
 		{ &hf_batadv_unicast_version,

@@ -54,6 +54,7 @@ void proto_reg_handoff_bofl(void);
 static int proto_bofl       = -1;
 static int hf_bofl_pdu      = -1;
 static int hf_bofl_sequence = -1;
+static int hf_bofl_padding  = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_bofl = -1;
@@ -86,10 +87,9 @@ dissect_bofl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     proto_tree_add_uint(bofl_tree, hf_bofl_sequence, tvb, 4, 4, sequence);
 
-    len = tvb_length_remaining(tvb, 8);
+    len = tvb_captured_length_remaining(tvb, 8);
     if (len > 0)
-        proto_tree_add_text(bofl_tree, tvb, 8, len,
-                            "Padding (%d byte)", len);
+        proto_tree_add_item(bofl_tree, hf_bofl_padding, tvb, 8, -1, ENC_NA);
 }
 
 
@@ -101,9 +101,14 @@ proto_register_bofl(void)
           { "PDU", "bofl.pdu",
             FT_UINT32, BASE_HEX, NULL, 0,
             "PDU; normally equals 0x01010000 or 0x01011111", HFILL }
-    },
+        },
         { &hf_bofl_sequence,
           { "Sequence", "bofl.sequence",
+            FT_UINT32, BASE_DEC, NULL, 0,
+            "incremental counter", HFILL }
+        },
+        { &hf_bofl_padding,
+          { "Padding", "bofl.padding",
             FT_UINT32, BASE_DEC, NULL, 0,
             "incremental counter", HFILL }
         }

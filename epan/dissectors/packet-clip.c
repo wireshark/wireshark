@@ -28,6 +28,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include <wiretap/wtap.h>
 
 #include "packet-clip.h"
@@ -36,7 +37,11 @@
 void proto_register_clip(void);
 void proto_reg_handoff_clip(void);
 
+static int proto_clip = -1;
+
 static gint ett_clip = -1;
+
+static expert_field ei_no_link_info = EI_INIT;
 
 static dissector_handle_t ip_handle;
 
@@ -49,7 +54,7 @@ capture_clip( const guchar *pd, int len, packet_counts *ld ) {
 static void
 dissect_clip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  proto_tree	*fh_tree;
+  proto_item	*fh_item;
 
   pinfo->current_proto = "CLIP";
 
@@ -83,10 +88,9 @@ dissect_clip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      A future version of libpcap, however, will probably use DLT_LINUX_SLL
      for both of those cases, to avoid the headache of having to
      generate capture-filter code to handle both of those cases. */
-  if(tree) {
-    fh_tree = proto_tree_add_subtree(tree, tvb, 0, 0, ett_clip, NULL, "Classical IP frame" );
-    proto_tree_add_text(fh_tree, tvb, 0, 0, "No link information available");
-  }
+  fh_item = proto_tree_add_item(tree, proto_clip, tvb, 0, 0, ENC_NA);
+  expert_add_info(pinfo, fh_item, &ei_no_link_info);
+
   call_dissector(ip_handle, tvb, pinfo, tree);
 }
 
@@ -97,7 +101,17 @@ proto_register_clip(void)
     &ett_clip,
   };
 
+  static ei_register_info ei[] = {
+    { &ei_no_link_info, { "clip.no_link_info", PI_PROTOCOL, PI_NOTE, "No link information available", EXPFILL }},
+  };
+
+  expert_module_t* expert_clip;
+
+  proto_clip = proto_register_protocol("Classical IP frame", "CLIP", "clip");
+
   proto_register_subtree_array(ett, array_length(ett));
+  expert_clip = expert_register_protocol(proto_clip);
+  expert_register_field_array(expert_clip, ei, array_length(ei));
 }
 
 void

@@ -114,6 +114,8 @@ static int hf_bat_batman_version = -1;
 static int hf_bat_batman_flags = -1;
 static int hf_bat_batman_ttl = -1;
 static int hf_bat_batman_gwflags = -1;
+static int hf_bat_batman_gwflags_dl_speed = -1;
+static int hf_bat_batman_gwflags_ul_speed = -1;
 static int hf_bat_batman_seqno = -1;
 static int hf_bat_batman_gwport = -1;
 static int hf_bat_batman_orig = -1;
@@ -223,8 +225,8 @@ static void dissect_bat_gwflags(tvbuff_t *tvb, guint8 gwflags, int offset, proto
 	up = ((upbits + 1) * down) / 8;
 
 	gwflags_tree =  proto_item_add_subtree(tgw, ett_bat_batman_gwflags);
-	proto_tree_add_text(gwflags_tree, tvb, offset, 1, "Download Speed: %dkbit", down);
-	proto_tree_add_text(gwflags_tree, tvb, offset, 1, "Upload Speed: %dkbit", up);
+	proto_tree_add_uint_format_value(gwflags_tree, hf_bat_batman_gwflags_dl_speed, tvb, offset, 1, down, "%dkbit", down);
+	proto_tree_add_uint_format_value(gwflags_tree, hf_bat_batman_gwflags_ul_speed, tvb, offset, 1, up, "%dkbit", up);
 
 }
 
@@ -744,6 +746,16 @@ void proto_register_bat(void)
 		{ &hf_bat_batman_gwflags,
 		  { "Gateway Flags", "bat.batman.gwflags",
 		    FT_UINT8, BASE_HEX, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_bat_batman_gwflags_dl_speed,
+		  { "Download Speed", "bat.batman.gwflags.dl_speed",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_bat_batman_gwflags_ul_speed,
+		  { "Upload Speed", "bat.batman.gwflags.ul_speed",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_bat_batman_seqno,

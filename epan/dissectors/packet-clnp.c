@@ -61,6 +61,9 @@ static int hf_clnp_cnf_more_segments        = -1;
 static int hf_clnp_cnf_report_error         = -1;
 static int hf_clnp_cnf_type    = -1;
 static int hf_clnp_pdu_length  = -1;
+static int hf_clnp_data_unit_identifier     = -1;
+static int hf_clnp_segment_offset           = -1;
+static int hf_clnp_total_length             = -1;
 static int hf_clnp_checksum    = -1;
 static int hf_clnp_dest_length = -1;
 static int hf_clnp_dest        = -1;
@@ -454,18 +457,13 @@ dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     FIXED_PART_LEN + 1 + dst_len + 1 + SEGMENTATION_PART_LEN);
             return;
         }
+
         du_id = tvb_get_ntohs(tvb, offset);
-        proto_tree_add_text(clnp_tree, tvb, offset, 2,
-                "Data unit identifier: %06u",
-                du_id);
+        proto_tree_add_item(clnp_tree, hf_clnp_data_unit_identifier, tvb, offset, 2, ENC_BIG_ENDIAN);
         segment_offset = tvb_get_ntohs(tvb, offset + 2);
-        proto_tree_add_text(clnp_tree, tvb, offset + 2 , 2,
-                "Segment offset      : %6u",
-                segment_offset);
+        proto_tree_add_item(clnp_tree, hf_clnp_segment_offset, tvb, offset + 2 , 2, ENC_BIG_ENDIAN);
         total_length = tvb_get_ntohs(tvb, offset + 4);
-        ti_tot_len = proto_tree_add_text(clnp_tree, tvb, offset + 4 , 2,
-                "Total length        : %6u",
-                total_length);
+        ti_tot_len = proto_tree_add_item(clnp_tree, hf_clnp_total_length, tvb, offset + 4 , 2, ENC_BIG_ENDIAN);
         if (total_length < segment_length) {
             /* Reassembled length is less than the length of this segment. */
             expert_add_info_format(pinfo, ti_tot_len, &ei_clnp_length,
@@ -650,6 +648,15 @@ proto_register_clnp(void)
 
         { &hf_clnp_pdu_length,
             { "PDU length", "clnp.pdu.len",  FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_clnp_data_unit_identifier,
+            { "Data unit identifier", "clnp.data_unit_identifier",  FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_clnp_segment_offset,
+            { "Segment offset", "clnp.segment_offset",  FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_clnp_total_length,
+            { "Total length", "clnp.total_length",  FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
         { &hf_clnp_checksum,
             { "Checksum", "clnp.checksum", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},

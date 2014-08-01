@@ -285,12 +285,11 @@ dissect_babel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
                                     tvb, message + 4, 2, ENC_BIG_ENDIAN);
                 proto_tree_add_item(message_tree, hf_babel_message_interval,
                                     tvb, message + 6, 2, ENC_BIG_ENDIAN);
-                ti = proto_tree_add_text(message_tree,
+                subtree = proto_tree_add_subtree_format(message_tree,
                                          tvb, message + 4, len - 2,
-                                         "Address: %s",
+                                         ett_subtree, NULL, "Address: %s",
                                          format_address(rc < 0 ?
                                                         NULL : addr_str));
-                subtree = proto_item_add_subtree(ti, ett_subtree);
                 proto_tree_add_item(subtree, hf_babel_message_ae,
                                     tvb, message + 2, 1, ENC_NA);
                 proto_tree_add_item(subtree, hf_babel_message_prefix,

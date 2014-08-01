@@ -685,17 +685,15 @@ static void dissect_cimd_ud(tvbuff_t *tvb, proto_tree *tree, gint pindex, gint s
 static void dissect_cimd_dcs(tvbuff_t *tvb, proto_tree *tree, gint pindex, gint startOffset, gint endOffset)
 {
   /* Set up structures needed to add the param subtree and manage it */
-  proto_item *param_item;
   proto_tree *param_tree;
   gint        offset;
   guint32     dcs;
   guint32     dcs_cg;           /* coding group */
 
-  param_item = proto_tree_add_text(tree, tvb,
+  param_tree = proto_tree_add_subtree(tree, tvb,
     startOffset + 1, endOffset - (startOffset + 1),
-    "%s", cimd_vals_PC[pindex].strptr
+    (*vals_hdr_PC[pindex].ett_p), NULL, cimd_vals_PC[pindex].strptr
   );
-  param_tree = proto_item_add_subtree(param_item, (*vals_hdr_PC[pindex].ett_p));
 
   proto_tree_add_item(param_tree, hf_cimd_pcode_indicator, tvb,
     startOffset + 1, CIMD_PC_LENGTH, ENC_ASCII|ENC_NA);

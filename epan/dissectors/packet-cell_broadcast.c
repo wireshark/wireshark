@@ -31,6 +31,7 @@
 #include <epan/asn1.h>
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include <epan/reassemble.h>
 
 #include "packet-gsm_map.h"
@@ -138,6 +139,8 @@ static gint ett_cbs_coding = -1;
 static gint ett_gsm_cbs_page           = -1;
 static gint ett_gsm_cbs_page_content         = -1;
 static gint ett_gsm_cbs_pages          = -1;
+
+static expert_field ei_gsm_cbs_unhandled_encoding = EI_INIT;
 
 /* reassembly of GSM multi-page messages */
 static reassembly_table	gsm_cbs_reassembly_table;
@@ -288,7 +291,8 @@ tvbuff_t * dissect_cbs_data(guint8 sms_encoding, tvbuff_t *tvb, proto_tree *tree
       break;
 
    default:
-      proto_tree_add_text(tree, tvb, offset, length, "Unhandled encoding %d of CBS String", sms_encoding);
+      proto_tree_add_expert_format(tree, pinfo, &ei_gsm_cbs_unhandled_encoding, tvb, offset, length,
+                                    "Unhandled encoding %d of CBS String", sms_encoding);
       break;
    }
    return tvb_out;
@@ -393,6 +397,7 @@ void dissect_umts_cell_broadcast_message(tvbuff_t *tvb, packet_info *pinfo, prot
    proto_item    *cbs_item;
    proto_tree    *cbs_tree, *cbs_subtree;
    guint         msg_len;
+   guint8        *msg;
    tvbuff_t * cbs_msg_tvb = NULL;
 
    len = tvb_length(tvb);
@@ -410,7 +415,8 @@ void dissect_umts_cell_broadcast_message(tvbuff_t *tvb, packet_info *pinfo, prot
    msg_len = tvb_length(cbs_msg_tvb);
    cbs_subtree = proto_tree_add_subtree_format(cbs_tree, tvb, offset, -1,
                     ett_cbs_msg, NULL, "Cell Broadcast Message Contents (length: %d)", msg_len);
-   proto_tree_add_text(cbs_subtree, cbs_msg_tvb , 0, tvb_length(cbs_msg_tvb), "%s", tvb_get_string_enc(wmem_packet_scope(), cbs_msg_tvb, 0, msg_len, ENC_ASCII));
+   msg = tvb_get_string_enc(wmem_packet_scope(), cbs_msg_tvb, 0, msg_len, ENC_ASCII);
+   proto_tree_add_string_format(cbs_subtree, hf_gsm_cbs_message_content, cbs_msg_tvb, 0, -1, msg, "%s", msg);
 }
 
 /* Register the protocol with Wireshark */
@@ -560,6 +566,11 @@ proto_register_cbs(void)
        &ett_gsm_cbs_pages,
     };
 
+    static ei_register_info ei[] = {
+        { &ei_gsm_cbs_unhandled_encoding, { "gsm_cbs.unhandled_encoding", PI_PROTOCOL, PI_WARN, "Unhandled encoding", EXPFILL }},
+    };
+    expert_module_t* expert_cell_broadcast;
+
     /* Register the protocol name and description */
     proto_cell_broadcast = proto_register_protocol("GSM Cell Broadcast Service", "GSM Cell Broadcast Service", "gsm_cbs");
 
@@ -572,4 +583,6 @@ proto_register_cbs(void)
 
     /* subtree array */
     proto_register_subtree_array(ett, array_length(ett));
+    expert_cell_broadcast = expert_register_protocol(proto_cell_broadcast);
+    expert_register_field_array(expert_cell_broadcast, ei, array_length(ei));
 }

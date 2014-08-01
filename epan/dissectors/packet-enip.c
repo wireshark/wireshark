@@ -284,6 +284,7 @@ static int hf_dlr_active_gateway_precedence = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_enip = -1;
+static gint ett_path = -1;
 static gint ett_count_tree = -1;
 static gint ett_type_tree = -1;
 static gint ett_command_tree = -1;
@@ -1343,6 +1344,7 @@ dissect_tcpip_physical_link(packet_info *pinfo, proto_tree *tree, proto_item *it
 
 {
    guint16     path_size;
+   proto_tree *epath_tree;
    proto_item *path_item;
 
    path_size = tvb_get_letohs( tvb, offset)*2;
@@ -1354,8 +1356,8 @@ dissect_tcpip_physical_link(packet_info *pinfo, proto_tree *tree, proto_item *it
       return total_len;
    }
 
-   path_item = proto_tree_add_text(tree, tvb, offset+2, path_size, "Path: ");
-   dissect_epath( tvb, pinfo, path_item, offset+2, path_size, FALSE, FALSE, NULL, NULL);
+   epath_tree = proto_tree_add_subtree(tree, tvb, offset+2, path_size, ett_path, &path_item, "Path: ");
+   dissect_epath( tvb, pinfo, epath_tree, path_item, offset+2, path_size, FALSE, FALSE, NULL, NULL);
 
    return path_size+2;
 }
@@ -3431,6 +3433,7 @@ proto_register_enip(void)
    /* Setup protocol subtree array */
    static gint *ett[] = {
       &ett_enip,
+      &ett_path,
       &ett_count_tree,
       &ett_type_tree,
       &ett_command_tree,
