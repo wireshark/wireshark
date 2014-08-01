@@ -6232,7 +6232,6 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
                     break;
                 case BGPTYPE_AIGP:
                     q = o + i + aoff;
-                    end = o + i + aoff + tlen;
                     ti = proto_tree_add_item(subtree2, hf_bgp_update_path_attribute_aigp, tvb, q, tlen, ENC_NA);
                     subtree3 = proto_item_add_subtree(ti, ett_bgp_aigp_attr);
                     aigp_type_item =  proto_tree_add_item(subtree3, hf_bgp_aigp_type, tvb, q, 1, ENC_BIG_ENDIAN);
