@@ -788,8 +788,9 @@ EXTRA_DIST = \
 	debian/wireshark.manpages \
 	debian/wireshark.menu	\
 	dfilters		\
+	doxygen_global.cfg	\
 	doxygen.cfg.in		\
-	dumpcap.c	\
+	dumpcap.c		\
 	editcap.c		\
 	epan/print.ps		\
 	filetap/CMakeLists.txt	\
