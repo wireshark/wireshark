@@ -736,15 +736,15 @@ EXTRA_DIST = \
 	debian/headers-check.c	\
 	debian/libwireshark-data.install	\
 	debian/libwireshark-dev.install	\
-	debian/libwireshark0.install	\
-	debian/libwireshark0.symbols	\
+	debian/libwireshark5.install	\
+	debian/libwireshark5.symbols	\
 	debian/libwiretap-dev.install	\
-	debian/libwiretap0.docs	\
-	debian/libwiretap0.install	\
-	debian/libwiretap0.symbols	\
+	debian/libwiretap4.docs	\
+	debian/libwiretap4.install	\
+	debian/libwiretap4.symbols	\
 	debian/libwsutil-dev.install	\
-	debian/libwsutil0.install	\
-	debian/libwsutil0.symbols	\
+	debian/libwsutil4.install	\
+	debian/libwsutil4.symbols	\
 	debian/license-text-about-dialog	\
 	debian/patches/01_Disable-building-documentation-in-PDF-and-release-no.patch	\
 	debian/patches/04_asn2wrs_ply.patch	\
