@@ -315,6 +315,7 @@ static expert_field ei_tcp_analysis_zero_window = EI_INIT;
 static expert_field ei_tcp_analysis_zero_window_probe_ack = EI_INIT;
 static expert_field ei_tcp_scps_capable = EI_INIT;
 static expert_field ei_tcp_option_snack_sequence = EI_INIT;
+static expert_field ei_tcp_option_wscale_shift_invalid = EI_INIT;
 static expert_field ei_tcp_short_segment = EI_INIT;
 static expert_field ei_tcp_ack_nonzero = EI_INIT;
 static expert_field ei_tcp_connection_sack = EI_INIT;
@@ -2484,7 +2485,7 @@ dissect_tcpopt_wscale(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
     int offset, guint optlen _U_, packet_info *pinfo, proto_tree *opt_tree, void *data _U_)
 {
     guint8 val, shift;
-    proto_item *wscale_pi, *gen_pi;
+    proto_item *wscale_pi, *shift_pi, *gen_pi;
     proto_tree *wscale_tree;
     struct tcp_analysis *tcpd=NULL;
 
@@ -2498,9 +2499,16 @@ dissect_tcpopt_wscale(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
     proto_tree_add_item(wscale_tree, hf_tcp_option_len, tvb, offset, 1, ENC_NA);
     offset += 1;
 
-    proto_tree_add_item(wscale_tree, hf_tcp_option_wscale_shift, tvb, offset, 1,
-                        ENC_NA);
+    shift_pi = proto_tree_add_item(wscale_tree, hf_tcp_option_wscale_shift, tvb,
+                                   offset, 1, ENC_NA);
     shift = tvb_get_guint8(tvb, offset);
+    if (shift > 14) {
+        /* RFC 1323: "If a Window Scale option is received with a shift.cnt
+         * value exceeding 14, the TCP should log the error but use 14 instead
+         * of the specified value." */
+        shift = 14;
+        expert_add_info(pinfo, shift_pi, &ei_tcp_option_wscale_shift_invalid);
+    }
 
     gen_pi = proto_tree_add_uint(wscale_tree, hf_tcp_option_wscale_multiplier, tvb,
                                  offset, 1, 1 << shift);
@@ -5746,6 +5754,7 @@ proto_register_tcp(void)
         { &ei_tcp_analysis_zero_window_probe_ack, { "tcp.analysis.zero_window_probe_ack", PI_SEQUENCE, PI_NOTE, "ACK to a TCP Zero Window Probe", EXPFILL }},
         { &ei_tcp_scps_capable, { "tcp.analysis.zero_window_probe_ack", PI_SEQUENCE, PI_NOTE, "Connection establish request (SYN-ACK): SCPS Capabilities Negotiated", EXPFILL }},
         { &ei_tcp_option_snack_sequence, { "tcp.options.snack.sequence", PI_SEQUENCE, PI_NOTE, "SNACK Sequence", EXPFILL }},
+        { &ei_tcp_option_wscale_shift_invalid, { "tcp.options.wscale.shift.invalid", PI_PROTOCOL, PI_WARN, "Window scale shift exceeds 14", EXPFILL }},
         { &ei_tcp_short_segment, { "tcp.short_segment", PI_MALFORMED, PI_WARN, "Short segment", EXPFILL }},
         { &ei_tcp_ack_nonzero, { "tcp.ack.nonzero", PI_PROTOCOL, PI_NOTE, "The acknowledgment number field is nonzero while the ACK flag is not set", EXPFILL }},
         { &ei_tcp_connection_sack, { "tcp.connection.sack", PI_SEQUENCE, PI_CHAT, "Connection establish acknowledge (SYN+ACK)", EXPFILL }},
