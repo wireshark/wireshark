@@ -3,17 +3,17 @@
 # Wireshark - Network traffic analyzer
 # By Gerald Combs <gerald@wireshark.org>
 # Copyright 1998 Gerald Combs
-# 
+#
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
 # as published by the Free Software Foundation; either version 2
 # of the License, or (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -104,11 +104,8 @@ taps_used = \
 	../dissectors/packet-h225.h \
 	../dissectors/packet-ieee80211.h
 
-taps: $(taps_used)
-	touch taps
-
-taps_wslua.c: make-taps.pl taps
-	$(PERL) $(srcdir)/make-taps.pl taps taps_wslua.c taps.txt
+taps_wslua.c: make-taps.pl $(srcdir)/taps $(taps_used)
+	$(PERL) $(srcdir)/make-taps.pl $(srcdir)/taps taps_wslua.c taps.txt $(srcdir)
 
 taps.txt: taps_wslua.c
 
@@ -118,9 +115,6 @@ register_wslua.c: declare_wslua.h
 
 declare_wslua.h: make-reg.pl $(wslua_modules) taps_wslua.c
 	$(PERL) $(srcdir)/make-reg.pl $(wslua_modules);
-
-dummy:
-	touch dummy
 
 init.lua: template-init.lua make-init-lua.pl ../ftypes/ftypes.h ../../wiretap/wtap.h  ../proto.h ../stat_groups.h
 	$(PERL) $(srcdir)/make-init-lua.pl $(top_srcdir) $(srcdir)/template-init.lua > init.lua

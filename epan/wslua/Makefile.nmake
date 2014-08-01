@@ -77,7 +77,7 @@ taps: $(TAPS_USED)
 	touch taps
 
 taps_wslua.c: make-taps.pl taps
-	$(PERL) make-taps.pl taps taps_wslua.c taps.txt
+	$(PERL) make-taps.pl taps taps_wslua.c taps.txt .
 
 taps.txt: taps_wslua.c
 
