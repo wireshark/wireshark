@@ -246,10 +246,16 @@ desktop-file-validate %{buildroot}/usr/share/applications/wireshark.desktop
 %clean
 rm -rf $RPM_BUILD_ROOT
 
-%if %{use_wireshark_group}
 %pre
+%if %{use_wireshark_group}
 getent group wireshark >/dev/null || groupadd -r wireshark
 %endif
+# If we have a pre-alternatives wireshark binary out there, get rid of it.
+# (With 'alternatives' %{_bindir}/wireshark should be a symlink.)
+if [ -f %{_bindir}/wireshark ]
+then
+	rm -f %{_bindir}/wireshark
+fi
 
 %post -p /sbin/ldconfig
 
