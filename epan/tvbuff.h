@@ -248,6 +248,12 @@ WS_DLL_PUBLIC guint tvb_ensure_captured_length_remaining(const tvbuff_t *tvb,
 WS_DLL_PUBLIC gboolean tvb_bytes_exist(const tvbuff_t *tvb, const gint offset,
     const gint length);
 
+/** Checks that the bytes referred to by 'offset'/'length', where 'length'
+ * is a 64-bit unsigned integer, actually exist in the buffer, and throws
+ * an exception if they aren't. */
+WS_DLL_PUBLIC void tvb_ensure_bytes_exist64(const tvbuff_t *tvb,
+    const gint offset, const guint64 length);
+
 /** Checks that the bytes referred to by 'offset'/'length' actually exist
  * in the buffer, and throws an exception if they aren't. */
 WS_DLL_PUBLIC void tvb_ensure_bytes_exist(const tvbuff_t *tvb,

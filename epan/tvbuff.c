@@ -502,6 +502,24 @@ tvb_bytes_exist(const tvbuff_t *tvb, const gint offset, const gint length)
 	return TRUE;
 }
 
+/* Validates that 'length' bytes, where 'length' is a 64-bit unsigned
+ * integer, are available starting from offset (pos/neg). Throws an
+ * exception if they aren't. */
+void
+tvb_ensure_bytes_exist64(const tvbuff_t *tvb, const gint offset, const guint64 length)
+{
+	/*
+	 * Make sure the value fits in a signed integer; if not, assume
+	 * that means that it's too big.
+	 */
+	if (length > G_MAXINT) {
+		THROW(ReportedBoundsError);
+	}
+
+	/* OK, now cast it and try it with tvb_ensure_bytes_exist(). */
+	tvb_ensure_bytes_exist(tvb, offset, (gint)length);
+}
+
 /* Validates that 'length' bytes are available starting from
  * offset (pos/neg). Throws an exception if they aren't. */
 void

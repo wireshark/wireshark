@@ -834,16 +834,18 @@ add_connattrs_entry_to_tree(tvbuff_t *tvb, packet_info *pinfo _U_, proto_item *t
 	proto_tree_add_uint64(connattrs_tree, hf_mysql_connattrs_name_length, tvb, offset, lenfle, lenstr);
 	offset += lenfle;
 
+	tvb_ensure_bytes_exist64(tvb, offset, lenstr);
 	proto_tree_add_item(connattrs_tree, hf_mysql_connattrs_name, tvb, offset, (gint)lenstr, ENC_ASCII|ENC_NA);
-	proto_item_append_text(ti, " - %s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset, lenstr, ENC_ASCII|ENC_NA));
+	proto_item_append_text(ti, " - %s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset, (int)lenstr, ENC_ASCII|ENC_NA));
 	offset += (int)lenstr;
 
 	lenfle = tvb_get_fle(tvb, offset, &lenstr, NULL);
 	proto_tree_add_uint64(connattrs_tree, hf_mysql_connattrs_value_length, tvb, offset, lenfle, lenstr);
 	offset += lenfle;
 
+	tvb_ensure_bytes_exist64(tvb, offset, lenstr);
 	proto_tree_add_item(connattrs_tree, hf_mysql_connattrs_value, tvb, offset, (gint)lenstr, ENC_ASCII|ENC_NA);
-	proto_item_append_text(ti, ": %s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset, lenstr, ENC_ASCII|ENC_NA));
+	proto_item_append_text(ti, ": %s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset, (int)lenstr, ENC_ASCII|ENC_NA));
 	offset += (int)lenstr;
 
 	proto_item_set_len(ti, offset - orig_offset);
@@ -933,7 +935,8 @@ mysql_dissect_login(tvbuff_t *tvb, packet_info *pinfo, int offset,
 	{
 		proto_tree *connattrs_tree;
 		int lenfle;
-		guint64 length, connattrs_length;
+		guint64 connattrs_length;
+		int length;
 
 		lenfle = tvb_get_fle(tvb, offset, &connattrs_length, NULL);
 		tf = proto_tree_add_item(login_tree, hf_mysql_connattrs, tvb, offset, (guint32)connattrs_length, ENC_ASCII|ENC_NA);
