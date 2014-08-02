@@ -3244,7 +3244,7 @@ static void tvb_raw_text_add(tvbuff_t *tvb, proto_tree *tree){
                             "%s", tvb_format_text_wsp(tvb,tvb_linebegin,
                                                       linelen));
         tvb_linebegin = tvb_lineend;
-    } while ( tvb_lineend < tvb_len );
+    } while ( tvb_lineend < tvb_len && linelen > 0);
 }
 
 /*
