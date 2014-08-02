@@ -634,22 +634,22 @@ static guint32
 crc32c (const guint8* buf, unsigned int len, guint32 crc32_init)
 {
     unsigned int i;
-    guint32 crc32;
+    guint32 crc;
 
-    crc32 = crc32_init;
+    crc = crc32_init;
     for (i = 0; i < len; i++)
-        CRC32C(crc32, buf[i]);
+        CRC32C(crc, buf[i]);
 
-    return crc32;
+    return crc;
 }
 
 static guint32
-finalize_crc32c (guint32 crc32)
+finalize_crc32c (guint32 crc)
 {
     guint32 result;
     guint8 byte0,byte1,byte2,byte3;
 
-    result = ~crc32;
+    result = ~crc;
     byte0 = result & 0xff;
     byte1 = (result>>8) & 0xff;
     byte2 = (result>>16) & 0xff;
