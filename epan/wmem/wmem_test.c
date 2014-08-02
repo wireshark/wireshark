@@ -346,63 +346,6 @@ wmem_test_allocator(wmem_allocator_type_t type, wmem_verify_func verify,
 }
 
 static void
-wmem_time_allocator(wmem_allocator_type_t type)
-{
-    int i, j;
-    wmem_allocator_t *allocator;
-
-    allocator = wmem_allocator_force_new(type);
-
-    for (j=0; j<2048; j++) {
-        for (i=0; i<MAX_SIMULTANEOUS_ALLOCS; i++) {
-            wmem_alloc(allocator, 8);
-        }
-        wmem_free_all(allocator);
-
-        for (i=0; i<MAX_SIMULTANEOUS_ALLOCS; i++) {
-            wmem_alloc(allocator, 32);
-        }
-        wmem_free_all(allocator);
-
-        for (i=0; i<MAX_SIMULTANEOUS_ALLOCS; i++) {
-            wmem_alloc(allocator, 256);
-        }
-        wmem_free_all(allocator);
-
-        for (i=0; i<MAX_SIMULTANEOUS_ALLOCS; i++) {
-            wmem_alloc(allocator, 1024);
-        }
-        wmem_free_all(allocator);
-    }
-
-    wmem_destroy_allocator(allocator);
-}
-
-static void
-wmem_time_allocators(void)
-{
-    double simple_time, block_time, fast_time;
-
-    g_test_timer_start();
-    wmem_time_allocator(WMEM_ALLOCATOR_SIMPLE);
-    simple_time = g_test_timer_elapsed();
-
-    g_test_timer_start();
-    wmem_time_allocator(WMEM_ALLOCATOR_BLOCK);
-    block_time = g_test_timer_elapsed();
-
-    g_test_timer_start();
-    wmem_time_allocator(WMEM_ALLOCATOR_BLOCK_FAST);
-    fast_time = g_test_timer_elapsed();
-
-    printf("(simple: %f; block: %f; fast: %f) ",
-            simple_time, block_time, fast_time);
-
-    g_assert(simple_time > block_time);
-    g_assert(block_time > fast_time);
-}
-
-static void
 wmem_test_allocator_block(void)
 {
     wmem_test_allocator(WMEM_ALLOCATOR_BLOCK, &wmem_block_verify,
@@ -1064,8 +1007,6 @@ main(int argc, char **argv)
     g_test_add_func("/wmem/datastruct/stack",  wmem_test_stack);
     g_test_add_func("/wmem/datastruct/strbuf", wmem_test_strbuf);
     g_test_add_func("/wmem/datastruct/tree",   wmem_test_tree);
-
-    g_test_add_func("/wmem/timing/allocators", wmem_time_allocators);
 
     ret = g_test_run();
 
