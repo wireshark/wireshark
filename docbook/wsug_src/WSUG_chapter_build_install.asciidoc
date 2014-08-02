@@ -66,7 +66,7 @@ Once you have downloaded the relevant files, you can go on to the next step.
 === Installing Wireshark under Windows
 
 Windows installers contain the platform and version, e.g.
-+Wireshark-win__xx__-wireshark-major-minor-version:[]._x_.exe+. The Wireshark
+Wireshark-win__xx__-wireshark-major-minor-version:[]._x_.exe. The Wireshark
 installer includes WinPcap which is required for packet capture.
 
 Simply download the Wireshark installer from: wireshark-download-page:[] and
