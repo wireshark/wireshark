@@ -1,0 +1,477 @@
+++++++++++++++++++++++++++++++++++++++
+<!-- WSUG Chapter Statistics -->
+++++++++++++++++++++++++++++++++++++++
+    
+[[ChStatistics]]
+
+== Statistics
+
+[[ChStatIntroduction]]
+
+=== Introduction
+
+Wireshark provides a wide range of network statistics which can be accessed via
+the _Statistics_ menu. 
+
+These statistics range from general information about the loaded capture file
+(like the number of captured packets), to statistics about specific protocols
+(e.g. statistics about the number of HTTP requests and responses captured). 
+
+* General statistics: 
+
+  - *Summary* about the capture file.
+    
+  - *Protocol Hierarchy* of the captured packets.
+    
+  - *Conversations* e.g. traffic between specific IP addresses.
+    
+  - *Endpoints* e.g. traffic to and from an IP addresses.
+    
+  - *IO Graphs* visualizing the number of packets (or similar) in time.
+        
+* Protocol specific statistics: 
+
+  - *Service Response Time* between request and response of some protocols.
+    
+  - Various other protocol specific statistics.
+    
+     
+[NOTE]
+.Note!
+====
+The protocol specific statistics require detailed knowledge about the specific
+protocol. Unless you are familiar with that protocol, statistics about it will
+be pretty hard to understand. 
+====
+
+[[ChStatSummary]]
+
+=== The _Summary_ window
+
+General statistics about the current capture file. 
+
+.The "Summary" window
+image::wsug_graphics/ws-stats-summary.png[]
+
+* __File__: general information about the capture file. 
+    
+* __Time__: the timestamps when the first and the last packet were captured (and the time between them).
+    
+* __Capture__: information from the time when the capture was done (only available if the packet data was captured from the network and not loaded from a file).
+    
+* __Display__: some display related information.
+    
+* __Traffic__: some statistics of the network traffic seen. If a display filter is set, you will see values in the Captured column, and if any packages are marked, you will see values in the Marked column. The values in the _Captured_ column will remain the same as before, while the values in the _Displayed_ column will reflect the values corresponding to the packets shown in the display. The values in the _Marked_ column will reflect the values corresponding to the marked packages. 
+
+[[ChStatHierarchy]]
+
+=== The "Protocol Hierarchy" window
+
+The protocol hierarchy of the captured packets.
+
+.The "Protocol Hierarchy" window
+image::wsug_graphics/ws-stats-hierarchy.png[]
+
+This is a tree of all the protocols in the capture. You can collapse or expand
+subtrees, by clicking on the plus / minus icons. By default, all trees are
+expanded.
+
+Each row contains the statistical values of one protocol. The _Display filter_
+will show the current display filter.
+
+The following columns containing the statistical values are available: 
+
+* __Protocol__: this protocol's name
+    
+* __% Packets__: the percentage of protocol packets, relative to all packets in
+  the capture
+    
+* __Packets__: the absolute number of packets of this protocol
+    
+* __Bytes__: the absolute number of bytes of this protocol
+    
+* __MBit/s__: the bandwidth of this protocol, relative to the capture time
+
+* __End Packets__: the absolute number of packets of this protocol (where this
+  protocol was the highest protocol to decode)
+
+* __End Bytes__: the absolute number of bytes of this protocol (where this
+  protocol was the highest protocol to decode)
+    
+* __End MBit/s__: the bandwidth of this protocol, relative to the capture time
+  (where this protocol was the highest protocol to decode) 
+
+
+[NOTE]
+.Note!
+====
+Packets will usually contain multiple protocols, so more than one protocol will
+be counted for each packet. Example: In the screenshot IP has 99,17% and TCP
+85,83% (which is together much more than 100%). 
+====
+
+[NOTE]
+.Note!
+====
+Protocol layers can consist of packets that won't contain any higher layer
+protocol, so the sum of all higher layer packets may not sum up to the protocols
+packet count. Example: In the screenshot TCP has 85,83% but the sum of the
+subprotocols (HTTP, ...) is much less. This may be caused by TCP protocol
+overhead, e.g. TCP ACK packets won't be counted as packets of the higher layer).     
+====
+
+[NOTE]
+.Note!
+====
+A single packet can contain the same protocol more than once. In this case, the
+protocol is counted more than once. For example: in some tunneling
+configurations the IP layer can appear twice. 
+====
+
+[[ChStatConversations]]
+
+=== Conversations
+
+Statistics of the captured conversations. 
+
+==== What is a Conversation?
+
+A network conversation is the traffic between two specific endpoints. For
+example, an IP conversation is all the traffic between two IP addresses. The
+description of the known endpoint types can be found in
+<<ChStatEndpointDefinition>>. 
+
+[[ChStatConversationsWindow]]
+
+==== The "Conversations" window
+
+The conversations window is similar to the endpoint Window; see
+<<ChStatEndpointsWindow>> for a description of their common features. Along with
+addresses, packet counters, and byte counters the conversation window adds four
+columns: the time in seconds between the start of the capture and the start of
+the conversation ("Rel Start"), the duration of the conversation in seconds, and
+the average bits (not bytes) per second in each direction.
+
+.The "Conversations" window
+image::wsug_graphics/ws-stats-conversations.png[]
+
+Each row in the list shows the statistical values for exactly one conversation. 
+
+_Name resolution_ will be done if selected in the window and if it is active for
+the specific protocol layer (MAC layer for the selected Ethernet endpoints
+page).
+
+_Limit to display filter_ will only show conversations matching the current
+display filter.
+
+The _copy_ button will copy the list values to the clipboard in CSV (Comma
+Separated Values) format. 
+
+[TIP]
+.Tip!
+====
+This window will be updated frequently, so it will be useful, even if you open
+it before (or while) you are doing a live capture. 
+====
+
+[[ChStatConversationListWindow]]
+
+==== The protocol specific "Conversation List" windows
+
+Before the combined window described above was available, each of its pages was
+shown as a separate window. Even though the combined window is much more
+convenient to use, these separate windows are still available. The main reason
+is that they might process faster for very large capture files. However, as the
+functionality is exactly the same as in the combined window, they won't be
+discussed in detail here. 
+
+[[ChStatEndpoints]]
+
+=== Endpoints
+
+Statistics of the endpoints captured. 
+
+[TIP]
+.Tip!
+====
+If you are looking for a feature other network tools call a _hostlist_, here is
+the right place to look. The list of Ethernet or IP endpoints is usually what
+you're looking for. 
+====
+
+[[ChStatEndpointDefinition]]
+
+==== What is an Endpoint?
+
+A network endpoint is the logical endpoint of separate protocol traffic of a specific protocol layer. The endpoint statistics of Wireshark will take the following endpoints into account: 
+
+* __Ethernet__: an Ethernet endpoint is identical to the Ethernet's MAC address. 
+
+* __Fibre Channel__: XXX - insert info here. 
+
+* __FDDI__: a FDDI endpoint is identical to the FDDI MAC address. 
+
+* __IPv4__: an IP endpoint is identical to its IP address. 
+
+* __IPX__: an IPX endpoint is concatenation of a 32 bit network number and 48 bit node address, be default the Ethernets' MAC address. 
+
+* __JXTA__: a JXTA endpoint is a 160 bit SHA-1 URN. 
+
+* __NCP__: XXX - insert info here. 
+
+* __RSVP__: XXX - insert info here. 
+
+* __SCTP__: a SCTP endpoint is a combination of the host IP addresses (plural) and the SCTP port used. So different SCTP ports on the same IP address are different SCTP endpoints, but the same SCTP port on different IP addresses of the same host are still the same endpoint. 
+
+* __TCP__: a TCP endpoint is a combination of the IP address and the TCP port used, so different TCP ports on the same IP address are different TCP endpoints. 
+
+* __Token Ring__: a Token Ring endpoint is identical to the Token Ring MAC address. 
+
+* __UDP__: a UDP endpoint is a combination of the IP address and the UDP port used, so different UDP ports on the same IP address are different UDP endpoints. 
+
+* __USB__: XXX - insert info here. 
+
+* __WLAN__: XXX - insert info here. 
+
+[NOTE]
+.Broadcast / multicast endpoints
+====
+Broadcast / multicast traffic will be shown separately as additional endpoints.
+Of course, as these endpoints are virtual endpoints, the real traffic will be
+received by all (multicast: some) of the listed unicast endpoints. 
+====
+
+[[ChStatEndpointsWindow]]
+
+==== The "Endpoints" window
+
+This window shows statistics about the endpoints captured. 
+
+.The "Endpoints" window
+image::wsug_graphics/ws-stats-endpoints.png[]
+
+For each supported protocol, a tab is shown in this window. Each tab label shows the number of endpoints captured (e.g. the tab label "Ethernet: 5" tells you that five ethernet endpoints have been captured). If no endpoints of a specific protocol were captured, the tab label will be greyed out (although the related page can still be selected). 
+
+Each row in the list shows the statistical values for exactly one endpoint. 
+
+_Name resolution_ will be done if selected in the window and if it is active for the specific protocol layer (MAC layer for the selected Ethernet endpoints page). As you might have noticed, the first row has a name resolution of the first three bytes "Netgear", the second row's address was resolved to an IP address (using ARP) and the third was resolved to a broadcast (unresolved this would still be: ff:ff:ff:ff:ff:ff); the last two Ethernet addresses remain unresolved. 
+
+_Limit to display filter_ will only show conversations matching the current display filter. 
+
+The _copy_ button will copy the list values to the clipboard in CSV (Comma Separated Values) format. 
+
+
+[TIP]
+.Tip!
+====
+This window will be updated frequently, so it will be useful, even if you open
+it before (or while) you are doing a live capture. 
+====
+
+[[ChStatEndpointListWindow]]
+
+==== The protocol specific "Endpoint List" windows
+
+Before the combined window described above was available, each of its pages was
+shown as a separate window. Even though the combined window is much more
+convenient to use, these separate windows are still available. The main reason
+is that they might process faster for very large capture files. However, as the
+functionality is exactly the same as in the combined window, they won't be
+discussed in detail here. 
+
+[[ChStatIOGraphs]]
+
+
+=== The "IO Graphs" window
+
+User configurable graph of the captured network packets. 
+
+You can define up to five differently colored graphs. 
+
+.The "IO Graphs" window
+image::wsug_graphics/ws-stats-iographs.png[]
+
+The user can configure the following things: 
+
+* _Graphs_ 
+
+  - __Graph 1-5__: enable the specific graph 1-5 (only graph 1 is enabled by default) 
+
+  - __Color__: the color of the graph (cannot be changed) 
+    
+  - __Filter__: a display filter for this graph (only the packets that pass this filter will be taken into account for this graph) 
+  
+  - __Style__: the style of the graph (Line/Impulse/FBar/Dot) 
+
+* _X Axis_ 
+
+  - __Tick interval__: an interval in x direction lasts (10/1 minutes or 10/1/0.1/0.01/0.001 seconds) 
+
+  - __Pixels per tick__: use 10/5/2/1 pixels per tick interval 
+  
+  - __View as time of day__: option to view x direction labels as time of day instead of seconds or minutes since beginning of capture 
+  
+* _Y Axis_ 
+
+  - __Unit__: the unit for the y direction (Packets/Tick, Bytes/Tick, Bits/Tick, Advanced...) [XXX - describe the Advanced feature.] 
+  
+  - __Scale__: the scale for the y unit (Logarithmic,Auto,10,20,50,100,200,500,...) 
+
+The _save_ button will save the currently displayed portion of the graph as one
+of various file formats. 
+
+The _copy_ button will copy values from selected graphs to the clipboard in CSV
+(Comma Separated Values) format. 
+
+
+[TIP]
+.Tip!
+====
+Click in the graph to select the first package in the selected interval. 
+====
+
+[[ChStatSRT]]
+
+=== Service Response Time
+
+The service response time is the time between a request and the corresponding
+response. This information is available for many protocols. 
+
+Service response time statistics are currently available for the following protocols: 
+
+* _DCE-RPC_
+  
+* _Fibre Channel_
+  
+* _H.225 RAS_
+  
+* _LDAP_
+  
+* _LTE MAC_
+  
+* _MGCP_
+  
+* _ONC-RPC_
+  
+* _SMB_
+
+As an example, the DCE-RPC service response time is described in more detail. 
+[NOTE]
+.Note!
+====
+The other Service Response Time windows will work the same way (or only slightly
+different) compared to the following description. 
+====
+
+[[ChStatSRTDceRpc]]
+
+==== The "Service Response Time DCE-RPC" window
+
+The service response time of DCE-RPC is the time between the request and the
+corresponding response. 
+
+First of all, you have to select the DCE-RPC interface: 
+
+.The "Compute DCE-RPC statistics" window
+image::wsug_graphics/ws-stats-srt-dcerpc-filter.png[]
+
+You can optionally set a display filter, to reduce the amount of packets. 
+
+.The "DCE-RPC Statistic for ..." window
+image::wsug_graphics/ws-stats-srt-dcerpc.png[]
+
+Each row corresponds to a method of the interface selected (so the EPM interface
+in version 3 has 7 methods). For each method the number of calls, and the
+statistics of the SRT time is calculated. 
+
+[[ChStatCompareCaptureFiles]]
+
+=== Compare two capture files
+
+Compare two capture files.
+
+This feature works best when you have merged two capture files chronologically,
+one from each side of a client/server connection.
+
+The merged capture data is checked for missing packets. If a matching connection
+is found it is checked for: 
+
+* IP header checksums 
+
+* Excessive delay (defined by the "Time variance" setting) 
+
+* Packet order 
+
+.The "Compare" window
+image::wsug_graphics/ws-stats-compare.png[]
+
+You can configure the following: 
+
+* _Start compare:_ Start comparing when this many IP IDs are matched. A zero value starts comparing immediately. 
+
+* _Stop compare:_ Stop comparing when we can no longer match this many IP IDs. Zero always compares. 
+
+* _Endpoint distinction:_ Use MAC addresses or IP time-to-live values to determine connection endpoints. 
+
+* _Check order:_ Check for the same IP ID in the previous packet at each end. 
+
+* _Time variance:_ Trigger an error if the packet arrives this many milliseconds after the average delay. 
+
+* _Filter:_ Limit comparison to packets that match this display filter. 
+
+The info column contains new numbering so the same packets are parallel. 
+
+The color filtering differentiate the two files from each other. A
+&ldquo;zebra&rdquo; effect is create if the Info column is sorted. 
+
+[TIP]
+.Tip!
+====
+If you click on an item in the error list its corresponding packet will be
+selected in the main window. 
+====
+
+[[ChStatWLANTraffic]]
+
+=== WLAN Traffic Statistics
+
+Statistics of the captured WLAN traffic. This window will summarize the wireless
+network traffic found in the capture. Probe requests will be merged into an
+existing network if the SSID matches. 
+
+.The "WLAN Traffic Statistics" window
+image::wsug_graphics/ws-stats-wlan-traffic.png[]
+
+Each row in the list shows the statistical values for exactly one wireless
+network.
+
+_Name resolution_ will be done if selected in the window and if it is active for
+the MAC layer.
+
+_Only show existing networks_ will exclude probe requests with a SSID not
+matching any network from the list.
+
+The _copy_ button will copy the list values to the clipboard in CSV (Comma
+Separated Values) format. 
+
+
+[TIP]
+.Tip!
+====
+This window will be updated frequently, so it will be useful, even if you open
+it before (or while) you are doing a live capture. 
+====
+
+[[ChStatXXX]]
+
+=== The protocol specific statistics windows
+
+The protocol specific statistics windows display detailed information of
+specific protocols and might be described in a later version of this document.
+
+Some of these statistics are described at
+wireshark-wiki-site:[]Statistics. 
+
+++++++++++++++++++++++++++++++++++++++
+<!-- End of WSUG Chapter Statistics -->
+++++++++++++++++++++++++++++++++++++++
