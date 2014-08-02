@@ -1253,6 +1253,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  tvb_composite_append@Base 1.9.1
  tvb_composite_finalize@Base 1.9.1
  tvb_ensure_bytes_exist@Base 1.9.1
+ tvb_ensure_bytes_exist64@Base 1.99.0
  tvb_ensure_captured_length_remaining@Base 1.12.0~rc1
  tvb_ether_to_str@Base 1.9.1
  tvb_eui64_to_str@Base 1.9.1
