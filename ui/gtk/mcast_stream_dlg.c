@@ -58,7 +58,7 @@ void register_tap_listener_mcast_stream_dlg(void);
 /* Capture callback data keys */
 #define E_MCAST_ENTRY_1     "burst_interval"
 #define E_MCAST_ENTRY_2     "burst_alarm"
-#define E_MCAST_ENTRY_3     "buffer_alarm"
+#define E_MCAST_ENTRY_3     "ws_buffer_alarm"
 #define E_MCAST_ENTRY_4     "stream_speed"
 #define E_MCAST_ENTRY_5     "total_speed"
 

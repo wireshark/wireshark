@@ -284,8 +284,8 @@ parse_dbs_etherwatch_packet(struct wtap_pkthdr *phdr, FILE_T fh, Buffer* buf,
 	int	count, line_count;
 
 	/* Make sure we have enough room for the packet */
-	buffer_assure_space(buf, DBS_ETHERWATCH_MAX_PACKET_LEN);
-	pd = buffer_start_ptr(buf);
+	ws_buffer_assure_space(buf, DBS_ETHERWATCH_MAX_PACKET_LEN);
+	pd = ws_buffer_start_ptr(buf);
 
 	eth_hdr_len = 0;
 	memset(&tm, 0, sizeof(tm));

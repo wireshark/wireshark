@@ -220,8 +220,8 @@ static gboolean dct3trace_get_packet(FILE_T fh, struct wtap_pkthdr *phdr,
 				*err = 0;
 
 				/* Make sure we have enough room for the packet */
-				buffer_assure_space(buf, phdr->caplen);
-				memcpy( buffer_start_ptr(buf), databuf, phdr->caplen );
+				ws_buffer_assure_space(buf, phdr->caplen);
+				memcpy( ws_buffer_start_ptr(buf), databuf, phdr->caplen );
 
 				return TRUE;
 			}

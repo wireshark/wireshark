@@ -331,8 +331,8 @@ static gboolean logcat_read_packet(struct logcat_phdr *logcat, FILE_T fh,
         return FALSE;
     }
 
-    buffer_assure_space(buf, packet_size);
-    pd = buffer_start_ptr(buf);
+    ws_buffer_assure_space(buf, packet_size);
+    pd = ws_buffer_start_ptr(buf);
     log_entry = (struct logger_entry *) pd;
 
     /* Copy the first two bytes of the packet. */

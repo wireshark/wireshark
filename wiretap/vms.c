@@ -408,8 +408,8 @@ parse_vms_packet(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf, int *err, gch
     phdr->len = pkt_len;
 
     /* Make sure we have enough room for the packet */
-    buffer_assure_space(buf, pkt_len);
-    pd = buffer_start_ptr(buf);
+    ws_buffer_assure_space(buf, pkt_len);
+    pd = ws_buffer_start_ptr(buf);
 
     /* Convert the ASCII hex dump to binary data */
     for (i = 0; i < pkt_len; i += 16) {

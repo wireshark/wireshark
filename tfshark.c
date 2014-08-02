@@ -1867,7 +1867,7 @@ load_cap_file(capture_file *cf, int max_packet_count, gint64 max_byte_count)
 
     prev_dis = NULL;
     prev_cap = NULL;
-    buffer_init(&buf, 1500);
+    ws_buffer_init(&buf, 1500);
 
     if (do_dissection) {
       gboolean create_proto_tree;
@@ -1902,7 +1902,7 @@ load_cap_file(capture_file *cf, int max_packet_count, gint64 max_byte_count)
       edt = NULL;
     }
 
-    buffer_free(&buf);
+    ws_buffer_free(&buf);
   }
   else {
     framenum = 0;

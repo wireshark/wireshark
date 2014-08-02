@@ -343,8 +343,8 @@ parse_toshiba_packet(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
 	}
 
 	/* Make sure we have enough room for the packet */
-	buffer_assure_space(buf, TOSHIBA_MAX_PACKET_LEN);
-	pd = buffer_start_ptr(buf);
+	ws_buffer_assure_space(buf, TOSHIBA_MAX_PACKET_LEN);
+	pd = ws_buffer_start_ptr(buf);
 
 	/* Calculate the number of hex dump lines, each
 	 * containing 16 bytes of data */

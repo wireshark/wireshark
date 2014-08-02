@@ -881,7 +881,7 @@ wtap_sequential_close(wtap *wth)
 	}
 
 	if (wth->frame_buffer) {
-		buffer_free(wth->frame_buffer);
+		ws_buffer_free(wth->frame_buffer);
 		g_free(wth->frame_buffer);
 		wth->frame_buffer = NULL;
 	}
@@ -1041,9 +1041,9 @@ wtap_read_packet_bytes(FILE_T fh, Buffer *buf, guint length, int *err,
 {
 	int	bytes_read;
 
-	buffer_assure_space(buf, length);
+	ws_buffer_assure_space(buf, length);
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(buffer_start_ptr(buf), length, fh);
+	bytes_read = file_read(ws_buffer_start_ptr(buf), length, fh);
 
 	if (bytes_read < 0 || (guint)bytes_read != length) {
 		*err = file_error(fh, err_info);
@@ -1073,7 +1073,7 @@ wtap_phdr(wtap *wth)
 guint8 *
 wtap_buf_ptr(wtap *wth)
 {
-	return buffer_start_ptr(wth->frame_buffer);
+	return ws_buffer_start_ptr(wth->frame_buffer);
 }
 
 gboolean

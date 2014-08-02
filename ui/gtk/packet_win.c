@@ -974,7 +974,7 @@ void new_packet_window(GtkWidget *w _U_, gboolean reference, gboolean editable _
 	DataPtr->frame = fd;
 	DataPtr->phdr  = cfile.phdr;
 	DataPtr->pd = (guint8 *)g_malloc(DataPtr->frame->cap_len);
-	memcpy(DataPtr->pd, buffer_start_ptr(&cfile.buf), DataPtr->frame->cap_len);
+	memcpy(DataPtr->pd, ws_buffer_start_ptr(&cfile.buf), DataPtr->frame->cap_len);
 
 	epan_dissect_init(&(DataPtr->edt), DataPtr->epan, TRUE, TRUE);
 	epan_dissect_run(&(DataPtr->edt), cfile.cd_t, &DataPtr->phdr,

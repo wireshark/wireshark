@@ -615,8 +615,8 @@ nettl_read_rec(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
     /*
      * Read the packet data.
      */
-    buffer_assure_space(buf, datalen);
-    pd = buffer_start_ptr(buf);
+    ws_buffer_assure_space(buf, datalen);
+    pd = ws_buffer_start_ptr(buf);
     errno = WTAP_ERR_CANT_READ;
     if (fddihack) {
         /* read in FC, dest, src, DSAP and SSAP */

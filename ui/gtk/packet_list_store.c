@@ -1116,7 +1116,7 @@ packet_list_dissect_and_cache_record(PacketList *packet_list, PacketListRecord *
 	} else
 		cinfo = NULL;
 
-	buffer_init(&buf, 1500);
+	ws_buffer_init(&buf, 1500);
 	if (!cf_read_record_r(&cfile, fdata, &phdr, &buf)) {
 		/*
 		 * Error reading the record.
@@ -1138,7 +1138,7 @@ packet_list_dissect_and_cache_record(PacketList *packet_list, PacketListRecord *
 			fdata->color_filter = NULL;
 			record->colorized = TRUE;
 		}
-		buffer_free(&buf);
+		ws_buffer_free(&buf);
 		return;	/* error reading the record */
 	}
 
@@ -1175,7 +1175,7 @@ packet_list_dissect_and_cache_record(PacketList *packet_list, PacketListRecord *
 		record->colorized = TRUE;
 
 	epan_dissect_cleanup(&edt);
-	buffer_free(&buf);
+	ws_buffer_free(&buf);
 }
 
 void

@@ -346,7 +346,7 @@ cf_open(capture_file *cf, const char *fname, unsigned int type, gboolean is_temp
 
   /* XXX - we really want to initialize this after we've read all
      the packets, so we know how much we'll ultimately need. */
-  buffer_init(&cf->buf, 1500);
+  ws_buffer_init(&cf->buf, 1500);
 
   /* Create new epan session for dissection.
    * (The old one was freed in cf_close().)
@@ -471,7 +471,7 @@ cf_close(capture_file *cf)
   cf->open_type = WTAP_TYPE_AUTO;
 
   /* Free up the packet buffer. */
-  buffer_free(&cf->buf);
+  ws_buffer_free(&cf->buf);
 
   dfilter_free(cf->rfcode);
   cf->rfcode = NULL;
@@ -1758,8 +1758,8 @@ cf_read_record_r(capture_file *cf, const frame_data *fdata,
     }
 
     *phdr = frame->phdr;
-    buffer_assure_space(buf, frame->phdr.caplen);
-    memcpy(buffer_start_ptr(buf), frame->pd, frame->phdr.caplen);
+    ws_buffer_assure_space(buf, frame->phdr.caplen);
+    memcpy(ws_buffer_start_ptr(buf), frame->pd, frame->phdr.caplen);
     return TRUE;
   }
 #endif
@@ -2004,7 +2004,7 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item, gb
 
     add_packet_to_packet_list(fdata, cf, &edt, dfcode,
                                     cinfo, &cf->phdr,
-                                    buffer_start_ptr(&cf->buf),
+                                    ws_buffer_start_ptr(&cf->buf),
                                     add_to_packet_list);
 
     /* If this frame is displayed, and this is the first frame we've
@@ -2239,7 +2239,7 @@ process_specified_records(capture_file *cf, packet_range_t *range,
   struct wtap_pkthdr phdr;
 
   memset(&phdr, 0, sizeof(struct wtap_pkthdr));
-  buffer_init(&buf, 1500);
+  ws_buffer_init(&buf, 1500);
 
   /* Update the progress bar when it gets to this value. */
   progbar_nextstep = 0;
@@ -2324,7 +2324,7 @@ process_specified_records(capture_file *cf, packet_range_t *range,
       break;
     }
     /* Process the packet */
-    if (!callback(cf, fdata, &phdr, buffer_start_ptr(&buf), callback_args)) {
+    if (!callback(cf, fdata, &phdr, ws_buffer_start_ptr(&buf), callback_args)) {
       /* Callback failed.  We assume it reported the error appropriately. */
       ret = PSP_FAILED;
       break;
@@ -2336,7 +2336,7 @@ process_specified_records(capture_file *cf, packet_range_t *range,
   if (progbar != NULL)
     destroy_progress_dlg(progbar);
 
-  buffer_free(&buf);
+  ws_buffer_free(&buf);
 
   return ret;
 }
@@ -3304,7 +3304,7 @@ match_narrow_and_wide(capture_file *cf, frame_data *fdata, void *criterion)
 
   result = MR_NOTMATCHED;
   buf_len = fdata->cap_len;
-  pd = buffer_start_ptr(&cf->buf);
+  pd = ws_buffer_start_ptr(&cf->buf);
   i = 0;
   while (i < buf_len) {
     c_char = pd[i];
@@ -3352,7 +3352,7 @@ match_narrow(capture_file *cf, frame_data *fdata, void *criterion)
 
   result = MR_NOTMATCHED;
   buf_len = fdata->cap_len;
-  pd = buffer_start_ptr(&cf->buf);
+  pd = ws_buffer_start_ptr(&cf->buf);
   i = 0;
   while (i < buf_len) {
     c_char = pd[i];
@@ -3399,7 +3399,7 @@ match_wide(capture_file *cf, frame_data *fdata, void *criterion)
 
   result = MR_NOTMATCHED;
   buf_len = fdata->cap_len;
-  pd = buffer_start_ptr(&cf->buf);
+  pd = ws_buffer_start_ptr(&cf->buf);
   i = 0;
   while (i < buf_len) {
     c_char = pd[i];
@@ -3445,7 +3445,7 @@ match_binary(capture_file *cf, frame_data *fdata, void *criterion)
 
   result = MR_NOTMATCHED;
   buf_len = fdata->cap_len;
-  pd = buffer_start_ptr(&cf->buf);
+  pd = ws_buffer_start_ptr(&cf->buf);
   i = 0;
   while (i < buf_len) {
     if (pd[i] == binary_data[c_match]) {
@@ -4013,11 +4013,11 @@ cf_get_comment(capture_file *cf, const frame_data *fd)
 
     memset(&phdr, 0, sizeof(struct wtap_pkthdr));
 
-    buffer_init(&buf, 1500);
+    ws_buffer_init(&buf, 1500);
     if (!cf_read_record_r(cf, fd, &phdr, &buf))
       { /* XXX, what we can do here? */ }
 
-    buffer_free(&buf);
+    ws_buffer_free(&buf);
     return phdr.opt_comment;
   }
   return NULL;

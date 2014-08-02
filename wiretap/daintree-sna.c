@@ -287,7 +287,7 @@ daintree_sna_process_hex_data(struct wtap_pkthdr *phdr, Buffer *buf,
 
 	phdr->caplen = bytes;
 
-	buffer_assure_space(buf, bytes);
-	memcpy(buffer_start_ptr(buf), readData, bytes);
+	ws_buffer_assure_space(buf, bytes);
+	memcpy(ws_buffer_start_ptr(buf), readData, bytes);
 	return TRUE;
 }

@@ -39,30 +39,30 @@ typedef struct Buffer {
 } Buffer;
 
 WS_DLL_PUBLIC
-void buffer_init(Buffer* buffer, gsize space);
+void ws_buffer_init(Buffer* buffer, gsize space);
 WS_DLL_PUBLIC
-void buffer_free(Buffer* buffer);
+void ws_buffer_free(Buffer* buffer);
 WS_DLL_PUBLIC
-void buffer_assure_space(Buffer* buffer, gsize space);
+void ws_buffer_assure_space(Buffer* buffer, gsize space);
 WS_DLL_PUBLIC
-void buffer_append(Buffer* buffer, guint8 *from, gsize bytes);
+void ws_buffer_append(Buffer* buffer, guint8 *from, gsize bytes);
 WS_DLL_PUBLIC
-void buffer_remove_start(Buffer* buffer, gsize bytes);
+void ws_buffer_remove_start(Buffer* buffer, gsize bytes);
 
 #ifdef SOME_FUNCTIONS_ARE_DEFINES
-# define buffer_clean(buffer) buffer_remove_start((buffer), buffer_length(buffer))
-# define buffer_increase_length(buffer,bytes) (buffer)->first_free += (bytes)
-# define buffer_length(buffer) ((buffer)->first_free - (buffer)->start)
-# define buffer_start_ptr(buffer) ((buffer)->data + (buffer)->start)
-# define buffer_end_ptr(buffer) ((buffer)->data + (buffer)->first_free)
-# define buffer_append_buffer(buffer,src_buffer) buffer_append((buffer), buffer_start_ptr(src_buffer), buffer_length(src_buffer))
+# define ws_buffer_clean(buffer) ws_buffer_remove_start((buffer), ws_buffer_length(buffer))
+# define ws_buffer_increase_length(buffer,bytes) (buffer)->first_free += (bytes)
+# define ws_buffer_length(buffer) ((buffer)->first_free - (buffer)->start)
+# define ws_buffer_start_ptr(buffer) ((buffer)->data + (buffer)->start)
+# define ws_buffer_end_ptr(buffer) ((buffer)->data + (buffer)->first_free)
+# define ws_buffer_append_buffer(buffer,src_buffer) ws_buffer_append((buffer), ws_buffer_start_ptr(src_buffer), ws_buffer_length(src_buffer))
 #else
- void buffer_clean(Buffer* buffer);
- void buffer_increase_length(Buffer* buffer, unsigned int bytes);
- unsigned int buffer_length(Buffer* buffer);
- guint8* buffer_start_ptr(Buffer* buffer);
- guint8* buffer_end_ptr(Buffer* buffer);
- void buffer_append_buffer(Buffer* buffer, Buffer* src_buffer);
+ void ws_buffer_clean(Buffer* buffer);
+ void ws_buffer_increase_length(Buffer* buffer, unsigned int bytes);
+ unsigned int ws_buffer_length(Buffer* buffer);
+ guint8* ws_buffer_start_ptr(Buffer* buffer);
+ guint8* ws_buffer_end_ptr(Buffer* buffer);
+ void ws_buffer_append_buffer(Buffer* buffer, Buffer* src_buffer);
 #endif
 
 #ifdef __cplusplus

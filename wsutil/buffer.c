@@ -29,7 +29,7 @@
 
 /* Initializes a buffer with a certain amount of allocated space */
 void
-buffer_init(Buffer* buffer, gsize space)
+ws_buffer_init(Buffer* buffer, gsize space)
 {
 	buffer->data = (guint8*)g_malloc(space);
 	buffer->allocated = space;
@@ -39,7 +39,7 @@ buffer_init(Buffer* buffer, gsize space)
 
 /* Frees the memory used by a buffer */
 void
-buffer_free(Buffer* buffer)
+ws_buffer_free(Buffer* buffer)
 {
 	g_free(buffer->data);
 	buffer->data = NULL;
@@ -48,9 +48,9 @@ buffer_free(Buffer* buffer)
 /* Assures that there are 'space' bytes at the end of the used space
 	so that another routine can copy directly into the buffer space. After
 	doing that, the routine will also want to run
-	buffer_increase_length(). */
+	ws_buffer_increase_length(). */
 void
-buffer_assure_space(Buffer* buffer, gsize space)
+ws_buffer_assure_space(Buffer* buffer, gsize space)
 {
 	gsize available_at_end = buffer->allocated - buffer->first_free;
 	gsize space_used;
@@ -64,7 +64,7 @@ buffer_assure_space(Buffer* buffer, gsize space)
 	/* Maybe we don't have the space available at the end, but we would
 		if we moved the used space back to the beginning of the
 		allocation. The buffer could have become fragmented through lots
-		of calls to buffer_remove_start(). I'm using buffer->start as the
+		of calls to ws_buffer_remove_start(). I'm using buffer->start as the
 		same as 'available_at_start' in this comparison. */
 
 	/* or maybe there's just no more room. */
@@ -88,18 +88,18 @@ buffer_assure_space(Buffer* buffer, gsize space)
 }
 
 void
-buffer_append(Buffer* buffer, guint8 *from, gsize bytes)
+ws_buffer_append(Buffer* buffer, guint8 *from, gsize bytes)
 {
-	buffer_assure_space(buffer, bytes);
+	ws_buffer_assure_space(buffer, bytes);
 	memcpy(buffer->data + buffer->first_free, from, bytes);
 	buffer->first_free += bytes;
 }
 
 void
-buffer_remove_start(Buffer* buffer, gsize bytes)
+ws_buffer_remove_start(Buffer* buffer, gsize bytes)
 {
 	if (buffer->start + bytes > buffer->first_free) {
-		g_error("buffer_remove_start trying to remove %" G_GINT64_MODIFIER "u bytes. s=%" G_GINT64_MODIFIER "u ff=%" G_GINT64_MODIFIER "u!\n",
+		g_error("ws_buffer_remove_start trying to remove %" G_GINT64_MODIFIER "u bytes. s=%" G_GINT64_MODIFIER "u ff=%" G_GINT64_MODIFIER "u!\n",
 			(guint64)bytes, (guint64)buffer->start,
 			(guint64)buffer->first_free);
 		/** g_error() does an abort() and thus never returns **/
@@ -115,15 +115,15 @@ buffer_remove_start(Buffer* buffer, gsize bytes)
 
 #ifndef SOME_FUNCTIONS_ARE_DEFINES
 void
-buffer_clean(Buffer* buffer)
+ws_buffer_clean(Buffer* buffer)
 {
-	buffer_remove_start(buffer, buffer_length(buffer));
+	ws_buffer_remove_start(buffer, ws_buffer_length(buffer));
 }
 #endif
 
 #ifndef SOME_FUNCTIONS_ARE_DEFINES
 void
-buffer_increase_length(Buffer* buffer, gsize bytes)
+ws_buffer_increase_length(Buffer* buffer, gsize bytes)
 {
 	buffer->first_free += bytes;
 }
@@ -131,7 +131,7 @@ buffer_increase_length(Buffer* buffer, gsize bytes)
 
 #ifndef SOME_FUNCTIONS_ARE_DEFINES
 gsize
-buffer_length(Buffer* buffer)
+ws_buffer_length(Buffer* buffer)
 {
 	return buffer->first_free - buffer->start;
 }
@@ -139,7 +139,7 @@ buffer_length(Buffer* buffer)
 
 #ifndef SOME_FUNCTIONS_ARE_DEFINES
 guint8 *
-buffer_start_ptr(Buffer* buffer)
+ws_buffer_start_ptr(Buffer* buffer)
 {
 	return buffer->data + buffer->start;
 }
@@ -147,7 +147,7 @@ buffer_start_ptr(Buffer* buffer)
 
 #ifndef SOME_FUNCTIONS_ARE_DEFINES
 guint8 *
-buffer_end_ptr(Buffer* buffer)
+ws_buffer_end_ptr(Buffer* buffer)
 {
 	return buffer->data + buffer->first_free;
 }
@@ -155,8 +155,8 @@ buffer_end_ptr(Buffer* buffer)
 
 #ifndef SOME_FUNCTIONS_ARE_DEFINES
 void
-buffer_append_buffer(Buffer* buffer, Buffer* src_buffer)
+ws_buffer_append_buffer(Buffer* buffer, Buffer* src_buffer)
 {
-	buffer_append(buffer, buffer_start_ptr(src_buffer), buffer_length(src_buffer));
+	ws_buffer_append(buffer, ws_buffer_start_ptr(src_buffer), ws_buffer_length(src_buffer));
 }
 #endif

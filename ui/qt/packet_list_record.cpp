@@ -98,7 +98,7 @@ void PacketListRecord::dissect(capture_file *cap_file, bool dissect_color)
         cinfo = &cap_file->cinfo;
     }
 
-    buffer_init(&buf, 1500);
+    ws_buffer_init(&buf, 1500);
     if (!cf_read_record_r(cap_file, fdata_, &phdr, &buf)) {
         /*
          * Error reading the record.
@@ -119,7 +119,7 @@ void PacketListRecord::dissect(capture_file *cap_file, bool dissect_color)
             fdata_->color_filter = NULL;
             colorized_ = TRUE;
         }
-        buffer_free(&buf);
+        ws_buffer_free(&buf);
         return;    /* error reading the record */
     }
 
@@ -155,7 +155,7 @@ void PacketListRecord::dissect(capture_file *cap_file, bool dissect_color)
     }
 
     epan_dissect_cleanup(&edt);
-    buffer_free(&buf);
+    ws_buffer_free(&buf);
 }
 
 //#define MINIMIZE_STRING_COPYING 1

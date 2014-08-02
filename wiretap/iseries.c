@@ -836,9 +836,9 @@ iseries_parse_packet (wtap * wth, FILE_T fh, struct wtap_pkthdr *phdr,
   phdr->caplen = ((guint32) strlen (ascii_buf))/2;
 
   /* Make sure we have enough room for the packet. */
-  buffer_assure_space (buf, ISERIES_MAX_PACKET_LEN);
+  ws_buffer_assure_space (buf, ISERIES_MAX_PACKET_LEN);
   /* Convert ascii data to binary and return in the frame buffer */
-  iseries_parse_hex_string (ascii_buf, buffer_start_ptr (buf), strlen (ascii_buf));
+  iseries_parse_hex_string (ascii_buf, ws_buffer_start_ptr (buf), strlen (ascii_buf));
 
   /* free buffer allocs and return */
   *err = 0;

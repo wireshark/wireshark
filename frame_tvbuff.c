@@ -80,13 +80,13 @@ frame_cache(struct tvb_frame *frame_tvb)
 		frame_tvb->buf = (struct Buffer *) g_malloc(sizeof(struct Buffer));
 
 		/* XXX, register frame_tvb to some list which frees from time to time not used buffers :] */
-		buffer_init(frame_tvb->buf, frame_tvb->tvb.length + frame_tvb->offset);
+		ws_buffer_init(frame_tvb->buf, frame_tvb->tvb.length + frame_tvb->offset);
 
 		if (!frame_read(frame_tvb, &phdr, frame_tvb->buf))
 			{ /* TODO: THROW(???); */ }
 	}
 
-	frame_tvb->tvb.real_data = buffer_start_ptr(frame_tvb->buf) + frame_tvb->offset;
+	frame_tvb->tvb.real_data = ws_buffer_start_ptr(frame_tvb->buf) + frame_tvb->offset;
 }
 
 static void
@@ -95,7 +95,7 @@ frame_free(tvbuff_t *tvb)
 	struct tvb_frame *frame_tvb = (struct tvb_frame *) tvb;
 
 	if (frame_tvb->buf) {
-		buffer_free(frame_tvb->buf);
+		ws_buffer_free(frame_tvb->buf);
 
 		g_free(frame_tvb->buf);
 	}
@@ -231,7 +231,7 @@ frame_tvbuff_new(const frame_data *fd, const guint8 *buf)
 tvbuff_t *
 frame_tvbuff_new_buffer(const frame_data *fd, Buffer *buf)
 {
-	return frame_tvbuff_new(fd, buffer_start_ptr(buf));
+	return frame_tvbuff_new(fd, ws_buffer_start_ptr(buf));
 }
 
 static tvbuff_t *
@@ -336,5 +336,5 @@ file_tvbuff_new(const frame_data *fd, const guint8 *buf)
 tvbuff_t *
 file_tvbuff_new_buffer(const frame_data *fd, Buffer *buf)
 {
-	return frame_tvbuff_new(fd, buffer_start_ptr(buf));
+	return frame_tvbuff_new(fd, ws_buffer_start_ptr(buf));
 }

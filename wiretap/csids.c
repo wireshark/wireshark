@@ -205,7 +205,7 @@ csids_read_packet(FILE_T fh, csids_t *csids, struct wtap_pkthdr *phdr,
   if( !wtap_read_packet_bytes( fh, buf, phdr->caplen, err, err_info ) )
     return FALSE;
 
-  pd = buffer_start_ptr( buf );
+  pd = ws_buffer_start_ptr( buf );
   if( csids->byteswapped ) {
     if( phdr->caplen >= 2 ) {
       PBSWAP16(pd);   /* the ip len */

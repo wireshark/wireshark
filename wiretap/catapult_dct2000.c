@@ -1298,7 +1298,7 @@ process_parsed_line(wtap *wth, dct2000_file_externals_t *file_externals,
 
     /*****************************/
     /* Get the data buffer ready */
-    buffer_assure_space(buf,
+    ws_buffer_assure_space(buf,
                         strlen(context_name)+1 +     /* Context name */
                         1 +                          /* port */
                         strlen(timestamp_string)+1 + /* timestamp */
@@ -1308,7 +1308,7 @@ process_parsed_line(wtap *wth, dct2000_file_externals_t *file_externals,
                         1 +                          /* direction */
                         1 +                          /* encap */
                         (is_comment ? data_chars : (data_chars/2)));
-    frame_buffer = buffer_start_ptr(buf);
+    frame_buffer = ws_buffer_start_ptr(buf);
 
     /******************************************/
     /* Write the stub info to the data buffer */

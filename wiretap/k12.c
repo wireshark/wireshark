@@ -567,15 +567,15 @@ process_packet_data(struct wtap_pkthdr *phdr, Buffer *target, guint8 *buffer,
     type = pntoh32(buffer + K12_RECORD_TYPE);
     buffer_offset = (type == K12_REC_D0020) ? K12_PACKET_FRAME_D0020 : K12_PACKET_FRAME;
 
-    buffer_assure_space(target, length);
-    memcpy(buffer_start_ptr(target), buffer + buffer_offset, length);
+    ws_buffer_assure_space(target, length);
+    memcpy(ws_buffer_start_ptr(target), buffer + buffer_offset, length);
 
     /* extra information need by some protocols */
     extra_len = len - buffer_offset - length;
-    buffer_assure_space(&(k12->extra_info), extra_len);
-    memcpy(buffer_start_ptr(&(k12->extra_info)),
+    ws_buffer_assure_space(&(k12->extra_info), extra_len);
+    memcpy(ws_buffer_start_ptr(&(k12->extra_info)),
            buffer + buffer_offset + length, extra_len);
-    phdr->pseudo_header.k12.extra_info = (guint8*)buffer_start_ptr(&(k12->extra_info));
+    phdr->pseudo_header.k12.extra_info = (guint8*)ws_buffer_start_ptr(&(k12->extra_info));
     phdr->pseudo_header.k12.extra_length = extra_len;
 
     src_id = pntoh32(buffer + K12_RECORD_SRC_ID);
@@ -731,7 +731,7 @@ static k12_t* new_k12_file_data(void) {
     fd->rand_read_buff = NULL;
     fd->rand_read_buff_len = 0;
 
-    buffer_init(&(fd->extra_info), 100);
+    ws_buffer_init(&(fd->extra_info), 100);
 
     return fd;
 }
@@ -750,7 +750,7 @@ static void destroy_k12_file_data(k12_t* fd) {
     g_hash_table_destroy(fd->src_by_id);
     g_hash_table_foreach_remove(fd->src_by_name,destroy_srcdsc,NULL);
     g_hash_table_destroy(fd->src_by_name);
-    buffer_free(&(fd->extra_info));
+    ws_buffer_free(&(fd->extra_info));
     g_free(fd->seq_read_buff);
     g_free(fd->rand_read_buff);
     g_free(fd);

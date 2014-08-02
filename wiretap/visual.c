@@ -573,7 +573,7 @@ visual_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
            be configured for auto-detect, in which case the encapsulation
            hint is 13, and the encapsulation must be guessed from the
            packet contents.  Auto-detect is the default. */
-        pd = buffer_start_ptr(buf);
+        pd = ws_buffer_start_ptr(buf);
 
         /* If PPP is specified in the encap hint, then use that */
         if (vpkt_hdr.encap_hint == 14)

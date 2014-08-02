@@ -143,7 +143,7 @@ frame_write(FrameRecord_t *frame, wtap *wth, wtap_dumper *pdh, Buffer *buf,
     phdr.ts = frame->time;
 
     /* Dump frame to outfile */
-    if (!wtap_dump(pdh, &phdr, buffer_start_ptr(buf), &err)) {
+    if (!wtap_dump(pdh, &phdr, ws_buffer_start_ptr(buf), &err)) {
         fprintf(stderr, "reordercap: Error (%s) writing frame to outfile\n",
                 wtap_strerror(err));
         exit(1);
@@ -361,7 +361,7 @@ main(int argc, char *argv[])
     }
 
     /* Write out each sorted frame in turn */
-    buffer_init(&buf, 1500);
+    ws_buffer_init(&buf, 1500);
     for (i = 0; i < frames->len; i++) {
         FrameRecord_t *frame = (FrameRecord_t *)frames->pdata[i];
 
@@ -371,7 +371,7 @@ main(int argc, char *argv[])
         }
         g_slice_free(FrameRecord_t, frame);
     }
-    buffer_free(&buf);
+    ws_buffer_free(&buf);
 
     if (!write_output_regardless && (wrong_order_count == 0)) {
         printf("Not writing output file because input file is already in order!\n");

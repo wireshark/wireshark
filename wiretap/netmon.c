@@ -421,7 +421,7 @@ netmon_set_pseudo_header_info(struct wtap_pkthdr *phdr, Buffer *buf)
 		 * Attempt to guess from the packet data, the VPI, and
 		 * the VCI information about the type of traffic.
 		 */
-		atm_guess_traffic_type(phdr, buffer_start_ptr(buf));
+		atm_guess_traffic_type(phdr, ws_buffer_start_ptr(buf));
 		break;
 
 	case WTAP_ENCAP_ETHERNET:

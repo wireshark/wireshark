@@ -321,10 +321,10 @@ read_eyesdn_rec(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf, int *err,
 	phdr->len = pkt_len;
 
 	/* Make sure we have enough room for the packet */
-	buffer_assure_space(buf, EYESDN_MAX_PACKET_LEN);
+	ws_buffer_assure_space(buf, EYESDN_MAX_PACKET_LEN);
 
 	errno = WTAP_ERR_CANT_READ;
-	pd = buffer_start_ptr(buf);
+	pd = ws_buffer_start_ptr(buf);
 	bytes_read = esc_read(pd, pkt_len, fh);
 	if (bytes_read != pkt_len) {
 		if (bytes_read == -2) {

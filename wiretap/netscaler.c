@@ -961,8 +961,8 @@ static gboolean nstrace_read_v10(wtap *wth, int *err, gchar **err_info, gint64 *
             (phdr)->ts.secs = nstrace->nspm_curtime + (guint32) (nsg_creltime / 1000000000);\
             (phdr)->ts.nsecs = (guint32) (nsg_creltime % 1000000000);\
             TRACE_FULL_V##type##_REC_LEN_OFF(phdr,v##type##_full,fp,pktracefull_v##type);\
-            buffer_assure_space(wth->frame_buffer, (phdr)->caplen);\
-            memcpy(buffer_start_ptr(wth->frame_buffer), fp, (phdr)->caplen);\
+            ws_buffer_assure_space(wth->frame_buffer, (phdr)->caplen);\
+            memcpy(ws_buffer_start_ptr(wth->frame_buffer), fp, (phdr)->caplen);\
             *data_offset = nstrace->xxx_offset + nstrace_buf_offset;\
             nstrace->nstrace_buf_offset = nstrace_buf_offset + (phdr)->len;\
             nstrace->nstrace_buflen = nstrace_buflen;\
@@ -985,8 +985,8 @@ static gboolean nstrace_read_v10(wtap *wth, int *err, gchar **err_info, gint64 *
             (phdr)->ts.secs = nstrace->nspm_curtime + (guint32) (nsg_creltime / 1000000000);\
             (phdr)->ts.nsecs = (guint32) (nsg_creltime % 1000000000);\
             TRACE_PART_V##type##_REC_LEN_OFF(phdr,v##type##_part,pp,pktracepart_v##type);\
-            buffer_assure_space(wth->frame_buffer, (phdr)->caplen);\
-            memcpy(buffer_start_ptr(wth->frame_buffer), pp, (phdr)->caplen);\
+            ws_buffer_assure_space(wth->frame_buffer, (phdr)->caplen);\
+            memcpy(ws_buffer_start_ptr(wth->frame_buffer), pp, (phdr)->caplen);\
             *data_offset = nstrace->xxx_offset + nstrace_buf_offset;\
             nstrace->nstrace_buf_offset = nstrace_buf_offset + (phdr)->caplen;\
             nstrace->nsg_creltime = nsg_creltime;\
@@ -1114,8 +1114,8 @@ static gboolean nstrace_read_v10(wtap *wth, int *err, gchar **err_info, gint64 *
         SIZEDEF##ver((phdr),fp,ver);\
         TRACE_V##ver##_REC_LEN_OFF((phdr),enumprefix,type,structname);\
         (phdr)->pseudo_header.nstr.rec_type = NSPR_HEADER_VERSION##TYPE;\
-        buffer_assure_space(wth->frame_buffer, (phdr)->caplen);\
-        memcpy(buffer_start_ptr(wth->frame_buffer), fp, (phdr)->caplen);\
+        ws_buffer_assure_space(wth->frame_buffer, (phdr)->caplen);\
+        memcpy(ws_buffer_start_ptr(wth->frame_buffer), fp, (phdr)->caplen);\
         *data_offset = nstrace->xxx_offset + nstrace_buf_offset;\
         nstrace->nstrace_buf_offset = nstrace_buf_offset + nspr_getv20recordsize((nspr_hd_v20_t *)fp);\
         nstrace->nstrace_buflen = nstrace_buflen;\
@@ -1239,7 +1239,7 @@ static gboolean nstrace_read_v20(wtap *wth, int *err, gchar **err_info, gint64 *
     SIZEDEF##ver((phdr),fp,ver);\
     TRACE_V##ver##_REC_LEN_OFF((phdr),enumprefix,type,structname);\
     (phdr)->pseudo_header.nstr.rec_type = NSPR_HEADER_VERSION##TYPE;\
-    buffer_assure_space(wth->frame_buffer, (phdr)->caplen);\
+    ws_buffer_assure_space(wth->frame_buffer, (phdr)->caplen);\
     *data_offset = nstrace->xxx_offset + nstrace_buf_offset;\
     while (nstrace_tmpbuff_off < nspr_##structname##_s) {\
         nstrace_tmpbuff[nstrace_tmpbuff_off++] = nstrace_buf[nstrace_buf_offset++];\
@@ -1267,7 +1267,7 @@ static gboolean nstrace_read_v20(wtap *wth, int *err, gchar **err_info, gint64 *
     while (nstrace_tmpbuff_off < nst_dataSize) {\
         nstrace_tmpbuff[nstrace_tmpbuff_off++] = nstrace_buf[nstrace_buf_offset++];\
     }\
-    memcpy(buffer_start_ptr(wth->frame_buffer), nstrace_tmpbuff, (phdr)->caplen);\
+    memcpy(ws_buffer_start_ptr(wth->frame_buffer), nstrace_tmpbuff, (phdr)->caplen);\
     nstrace->nstrace_buf_offset = nstrace_buf_offset;\
     nstrace->nstrace_buflen = nstrace_buflen = ((gint32)NSPR_PAGESIZE_TRACE);\
     nstrace->nsg_creltime = nsg_creltime;\
@@ -1372,8 +1372,8 @@ static gboolean nstrace_seek_read_v10(wtap *wth, gint64 seek_off,
     /*
     ** Copy the header to the buffer and read the rest of the record..
     */
-    buffer_assure_space(buf, record_length);
-    pd = buffer_start_ptr(buf);
+    ws_buffer_assure_space(buf, record_length);
+    pd = ws_buffer_start_ptr(buf);
     memcpy(pd, (void *)&hdr, sizeof hdr);
     if (record_length > sizeof hdr) {
     	bytes_to_read = (unsigned int)(record_length - sizeof hdr);
@@ -1477,8 +1477,8 @@ static gboolean nstrace_seek_read_v20(wtap *wth, gint64 seek_off,
     /*
     ** Copy the header to the buffer and read the rest of the record..
     */
-    buffer_assure_space(buf, record_length);
-    pd = buffer_start_ptr(buf);
+    ws_buffer_assure_space(buf, record_length);
+    pd = ws_buffer_start_ptr(buf);
     memcpy(pd, (void *)&hdr, hdrlen);
     if (record_length > hdrlen) {
     	bytes_to_read = (unsigned int)(record_length - hdrlen);
@@ -1592,8 +1592,8 @@ static gboolean nstrace_seek_read_v30(wtap *wth, gint64 seek_off,
     /*
     ** Copy the header to the buffer and read the rest of the record..
     */
-    buffer_assure_space(buf, record_length);
-    pd = buffer_start_ptr(buf);
+    ws_buffer_assure_space(buf, record_length);
+    pd = ws_buffer_start_ptr(buf);
     memcpy(pd, (void *)&hdr, hdrlen);
     if (record_length > hdrlen) {
         bytes_to_read = (unsigned int)(record_length - hdrlen);

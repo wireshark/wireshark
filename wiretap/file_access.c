@@ -1006,7 +1006,7 @@ fail:
 
 success:
 	wth->frame_buffer = (struct Buffer *)g_malloc(sizeof(struct Buffer));
-	buffer_init(wth->frame_buffer, 1500);
+	ws_buffer_init(wth->frame_buffer, 1500);
 
 	if(wth->file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_PCAP){
 

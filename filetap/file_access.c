@@ -730,7 +730,7 @@ ftap* ftap_open_offline(const char *filename, int *err, char **err_info,
 
 success:
 	fth->frame_buffer = (struct Buffer *)g_malloc(sizeof(struct Buffer));
-	buffer_init(fth->frame_buffer, 1500);
+	ws_buffer_init(fth->frame_buffer, 1500);
 
 	return fth;
 }

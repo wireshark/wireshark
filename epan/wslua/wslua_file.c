@@ -1284,8 +1284,8 @@ static int FrameInfo_set_data (lua_State* L) {
         const gchar* s = luaL_checklstring(L,2,&len);
         if (s) {
             /* Make sure we have enough room for the packet */
-            buffer_assure_space(fi->buf, len);
-            memcpy(buffer_start_ptr(fi->buf), s, len);
+            ws_buffer_assure_space(fi->buf, len);
+            memcpy(ws_buffer_start_ptr(fi->buf), s, len);
             fi->phdr->caplen = (guint32) len;
             fi->phdr->len = (guint32) len;
         } else {
@@ -1303,7 +1303,7 @@ static int FrameInfo_get_data (lua_State* L) {
 
     if (!fi->buf) return 0;
 
-    lua_pushlstring(L, buffer_start_ptr(fi->buf), buffer_length(fi->buf));
+    lua_pushlstring(L, ws_buffer_start_ptr(fi->buf), ws_buffer_length(fi->buf));
 
     WSLUA_RETURN(1); /* A Lua string of the frame buffer's data. */
 }
@@ -1801,7 +1801,7 @@ wslua_filehandler_seek_read(wtap *wth, gint64 seek_off,
                 size_t len = 0;
                 const gchar* fd = lua_tolstring(L, -1, &len);
                 if (len < WTAP_MAX_PACKET_SIZE)
-                    memcpy(buffer_start_ptr(buf), fd, len);
+                    memcpy(ws_buffer_start_ptr(buf), fd, len);
                 retval = 1;
                 break;
             }

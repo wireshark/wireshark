@@ -1355,8 +1355,8 @@ ngsniffer_process_record(wtap *wth, gboolean is_random, guint *padding,
 	/*
 	 * Read the packet data.
 	 */
-	buffer_assure_space(buf, size);
-	bytes_read = ng_file_read(buffer_start_ptr(buf), size, wth,
+	ws_buffer_assure_space(buf, size);
+	bytes_read = ng_file_read(ws_buffer_start_ptr(buf), size, wth,
 	    is_random, err, err_info);
 	if (bytes_read != (gint64) size) {
 		if (*err == 0)
@@ -1863,7 +1863,7 @@ fix_pseudo_header(int encap, Buffer *buf, int len,
 {
 	const guint8 *pd;
 
-	pd = buffer_start_ptr(buf);
+	pd = ws_buffer_start_ptr(buf);
 	switch (encap) {
 
 	case WTAP_ENCAP_PER_PACKET:

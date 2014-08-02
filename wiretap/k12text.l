@@ -283,8 +283,8 @@ k12text_read(wtap *wth, int *err, char ** err_info, gint64 *data_offset)
 
 	k12text_set_headers(&wth->phdr);
 
-	buffer_assure_space(wth->frame_buffer, wth->phdr.caplen);
-	memcpy(buffer_start_ptr(wth->frame_buffer), bb, wth->phdr.caplen);
+	ws_buffer_assure_space(wth->frame_buffer, wth->phdr.caplen);
+	memcpy(ws_buffer_start_ptr(wth->frame_buffer), bb, wth->phdr.caplen);
 
 	return TRUE;
 }
@@ -313,8 +313,8 @@ k12text_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr, Buffer *
 
 	k12text_set_headers(phdr);
 
-	buffer_assure_space(buf, phdr->caplen);
-	memcpy(buffer_start_ptr(buf), bb, phdr->caplen);
+	ws_buffer_assure_space(buf, phdr->caplen);
+	memcpy(ws_buffer_start_ptr(buf), bb, phdr->caplen);
 
 	return TRUE;
 }

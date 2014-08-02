@@ -330,8 +330,8 @@ parse_netscreen_hex_dump(FILE_T fh, int pkt_len, const char *cap_int,
 	gchar	dststr[13];
 
 	/* Make sure we have enough room for the packet */
-	buffer_assure_space(buf, NETSCREEN_MAX_PACKET_LEN);
-	pd = buffer_start_ptr(buf);
+	ws_buffer_assure_space(buf, NETSCREEN_MAX_PACKET_LEN);
+	pd = ws_buffer_start_ptr(buf);
 
 	while(1) {
 

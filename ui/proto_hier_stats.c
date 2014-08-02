@@ -146,7 +146,7 @@ process_record(frame_data *frame, column_info *cinfo, ph_stats_t* ps)
 	memset(&phdr, 0, sizeof(struct wtap_pkthdr));
 
 	/* Load the record from the capture file */
-	buffer_init(&buf, 1500);
+	ws_buffer_init(&buf, 1500);
 	if (!cf_read_record_r(&cfile, frame, &phdr, &buf))
 		return FALSE;	/* failure */
 
@@ -170,7 +170,7 @@ process_record(frame_data *frame, column_info *cinfo, ph_stats_t* ps)
 
 	/* Free our memory. */
 	epan_dissect_cleanup(&edt);
-	buffer_free(&buf);
+	ws_buffer_free(&buf);
 
 	return TRUE;	/* success */
 }

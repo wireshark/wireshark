@@ -504,8 +504,8 @@ parse_ascend(ascend_t *ascend, FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
 {
   int retval;
 
-  buffer_assure_space(buf, length);
-  retval = run_ascend_parser(fh, phdr, buffer_start_ptr(buf));
+  ws_buffer_assure_space(buf, length);
+  retval = run_ascend_parser(fh, phdr, ws_buffer_start_ptr(buf));
 
   /* did we see any data (hex bytes)? if so, tip off ascend_seek()
      as to where to look for the next packet, if any. If we didn't,

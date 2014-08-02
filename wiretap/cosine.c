@@ -447,8 +447,8 @@ parse_cosine_hex_dump(FILE_T fh, struct wtap_pkthdr *phdr, int pkt_len,
 	int	i, hex_lines, n, caplen = 0;
 
 	/* Make sure we have enough room for the packet */
-	buffer_assure_space(buf, COSINE_MAX_PACKET_LEN);
-	pd = buffer_start_ptr(buf);
+	ws_buffer_assure_space(buf, COSINE_MAX_PACKET_LEN);
+	pd = ws_buffer_start_ptr(buf);
 
 	/* Calculate the number of hex dump lines, each
 	 * containing 16 bytes of data */

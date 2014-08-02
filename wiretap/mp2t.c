@@ -67,9 +67,9 @@ mp2t_read_packet(mp2t_filetype_t *mp2t, FILE_T fh, gint64 offset,
     guint64 tmp;
     int bytes_read;
 
-    buffer_assure_space(buf, MP2T_SIZE);
+    ws_buffer_assure_space(buf, MP2T_SIZE);
     errno = WTAP_ERR_CANT_READ;
-    bytes_read = file_read(buffer_start_ptr(buf), MP2T_SIZE, fh);
+    bytes_read = file_read(ws_buffer_start_ptr(buf), MP2T_SIZE, fh);
     if (MP2T_SIZE != bytes_read) {
         *err = file_error(fh, err_info);
         /* bytes_read==0 is end of file, not a short read */

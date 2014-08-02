@@ -487,7 +487,7 @@ iptrace_read_rec_data(FILE_T fh, Buffer *buf, struct wtap_pkthdr *phdr,
 		 * Attempt to guess from the packet data, the VPI,
 		 * and the VCI information about the type of traffic.
 		 */
-		atm_guess_traffic_type(phdr, buffer_start_ptr(buf));
+		atm_guess_traffic_type(phdr, ws_buffer_start_ptr(buf));
 	}
 
 	return TRUE;

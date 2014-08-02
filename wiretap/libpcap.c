@@ -695,7 +695,7 @@ libpcap_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 
 	libpcap = (libpcap_t *)wth->priv;
 	pcap_read_post_process(wth->file_type_subtype, wth->file_encap,
-	    phdr, buffer_start_ptr(buf), libpcap->byte_swapped, -1);
+	    phdr, ws_buffer_start_ptr(buf), libpcap->byte_swapped, -1);
 	return TRUE;
 }
 

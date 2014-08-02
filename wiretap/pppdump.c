@@ -351,8 +351,8 @@ pppdump_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 	} else
 		pid = NULL;	/* sequential only */
 
-	buffer_assure_space(wth->frame_buffer, PPPD_BUF_SIZE);
-	buf = buffer_start_ptr(wth->frame_buffer);
+	ws_buffer_assure_space(wth->frame_buffer, PPPD_BUF_SIZE);
+	buf = ws_buffer_start_ptr(wth->frame_buffer);
 
 	if (!collate(state, wth->fh, err, err_info, buf, &num_bytes, &direction,
 	    pid, 0)) {
@@ -746,8 +746,8 @@ pppdump_seek_read(wtap *wth,
 	init_state(state->seek_state);
 	state->seek_state->offset = pid->offset;
 
-	buffer_assure_space(buf, PPPD_BUF_SIZE);
-	pd = buffer_start_ptr(buf);
+	ws_buffer_assure_space(buf, PPPD_BUF_SIZE);
+	pd = ws_buffer_start_ptr(buf);
 
 	/*
 	 * We'll start reading at the first record containing data from

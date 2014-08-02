@@ -3240,7 +3240,7 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
 
     prev_dis = NULL;
     prev_cap = NULL;
-    buffer_init(&buf, 1500);
+    ws_buffer_init(&buf, 1500);
 
     if (do_dissection) {
       gboolean create_proto_tree;
@@ -3268,7 +3268,7 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
              filter, so, if we're writing to a capture file, write
              this packet out. */
           if (pdh != NULL) {
-            if (!wtap_dump(pdh, &phdr, buffer_start_ptr(&buf), &err)) {
+            if (!wtap_dump(pdh, &phdr, ws_buffer_start_ptr(&buf), &err)) {
               /* Error writing to a capture file */
               switch (err) {
 
@@ -3320,7 +3320,7 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
       edt = NULL;
     }
 
-    buffer_free(&buf);
+    ws_buffer_free(&buf);
   }
   else {
     framenum = 0;
