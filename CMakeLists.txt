@@ -197,6 +197,7 @@ if( CMAKE_C_COMPILER_ID MATCHES "MSVC")
 	)
 else()
 	set(WIRESHARK_COMMON_FLAGS
+		# The following are for C and C++
 		# -O<X> and -g get set by the CMAKE_BUILD_TYPE
 		-Wall
 		-W
@@ -239,6 +240,7 @@ else()
 	)
 
 	set(WIRESHARK_EXTRA_COMPILER_COMMON_FLAGS
+		# The following are for C and C++
 		-pedantic
 		-Woverflow
 		#
