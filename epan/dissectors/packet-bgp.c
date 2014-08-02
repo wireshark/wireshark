@@ -2244,7 +2244,7 @@ decode_flowspec_nlri(proto_tree *tree, tvbuff_t *tvb, gint offset, guint16 afi, 
     guint     tot_flow_len;       /* total length of the flow spec NLRI */
     guint     offset_len;         /* offset of the flow spec NLRI itself could be 1 or 2 bytes */
     guint     cursor_fspec;       /* cursor to move into flow spec nlri */
-    gint      filter_len;
+    gint      filter_len = -1;
     guint16   len_16;
     proto_item *item;
     proto_item *filter_item;
