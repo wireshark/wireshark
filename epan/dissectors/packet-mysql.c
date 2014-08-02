@@ -612,6 +612,9 @@ static int hf_mysql_exec_field_time_length = -1;
 static int hf_mysql_exec_field_time_sign = -1;
 static int hf_mysql_exec_field_time_days = -1;
 
+
+static dissector_handle_t ssl_handle;
+
 static expert_field ei_mysql_eof = EI_INIT;
 static expert_field ei_mysql_dissector_incomplete = EI_INIT;
 static expert_field ei_mysql_streamed_param = EI_INIT;
@@ -696,6 +699,7 @@ typedef struct mysql_conn_data {
 	guint32 generation;
 #endif
 	guint8 major_version;
+	guint32 frame_start_ssl;
 } mysql_conn_data_t;
 
 struct mysql_frame_data {
@@ -902,6 +906,11 @@ mysql_dissect_login(tvbuff_t *tvb, packet_info *pinfo, int offset,
 
 	offset = mysql_dissect_caps_client(tvb, offset, login_tree, &conn_data->clnt_caps);
 
+	if (!(conn_data->frame_start_ssl) && conn_data->clnt_caps & MYSQL_CAPS_SL) /* Next packet will be use SSL */
+	{
+		col_set_str(pinfo->cinfo, COL_INFO, "Response: SSL Handshake");
+		conn_data->frame_start_ssl = pinfo->fd->num;
+	}
 	if (conn_data->clnt_caps & MYSQL_CAPS_CU) /* 4.1 protocol */
 	{
 		offset = mysql_dissect_ext_caps_client(tvb, offset, login_tree, &conn_data->clnt_caps_ext);
@@ -2113,6 +2122,7 @@ dissect_mysql_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 		conn_data->generation= 0;
 #endif
 		conn_data->major_version= 0;
+		conn_data->frame_start_ssl= 0;
 		conversation_add_proto_data(conversation, proto_mysql, conn_data);
 	}
 
@@ -2183,6 +2193,7 @@ dissect_mysql_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 		PROTO_ITEM_SET_GENERATED(pi);
 	}
 #endif
+
 	proto_get_frame_protocols(pinfo->layers, NULL, NULL, NULL, NULL, &is_ssl);
 
 	if (is_response) {
@@ -2225,8 +2236,29 @@ dissect_mysql_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 static int
 dissect_mysql(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
+	gboolean is_ssl = FALSE;
+	conversation_t  *conversation;
+	mysql_conn_data_t  *conn_data;
+
+	proto_get_frame_protocols(pinfo->layers, NULL, NULL, NULL, NULL, &is_ssl);
+
+	/* Check there is already a conversation */
+	conversation = find_or_create_conversation(pinfo);
+	conn_data = (mysql_conn_data_t *)conversation_get_proto_data(conversation, proto_mysql);
+
+	if(conn_data){
+		/* Check if flag (frame_start_ssl) is > to actual packet number and no already call SSL dissector */
+		if(conn_data->frame_start_ssl && conn_data->frame_start_ssl < pinfo->fd->num && !(is_ssl)) {
+			/* Call SSL dissector */
+			call_dissector(ssl_handle, tvb, pinfo, tree);
+			return tvb_reported_length(tvb);
+		}
+
+	}
+
 	tcp_dissect_pdus(tvb, pinfo, tree, mysql_desegment, 3,
 			 get_mysql_pdu_len, dissect_mysql_pdu, data);
+
 	return tvb_reported_length(tvb);
 }
 
@@ -3100,6 +3132,7 @@ void proto_register_mysql(void)
 void proto_reg_handoff_mysql(void)
 {
 	dissector_handle_t mysql_handle;
+	ssl_handle = find_dissector("ssl");
 	mysql_handle = new_create_dissector_handle(dissect_mysql, proto_mysql);
 	dissector_add_uint("tcp.port", TCP_PORT_MySQL, mysql_handle);
 }
