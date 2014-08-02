@@ -3074,3 +3074,12 @@ echo "     Use POSIX capabilities library : $libcap_message"
 echo "                  Use GeoIP library : $geoip_message"
 echo "                     Use nl library : $libnl_message"
 echo "              Use SBC codec library : $have_sbc"
+#
+# Debugging differences between autotools and CMake builds; dump
+# CC, CXX, CFLAGS, and CXXFLAGS.
+#
+echo "                                 CC : $CC"
+echo "                             CFLAGS : $CFLAGS"
+echo "                                CXX : $CXX"
+echo "                           CXXFLAGS : $CXXFLAGS"
+
