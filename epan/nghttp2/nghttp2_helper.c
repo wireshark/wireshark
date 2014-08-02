@@ -324,7 +324,7 @@ int nghttp2_check_header_name(const uint8_t *name, size_t len)
 }
 
 static int VALID_HD_VALUE_CHARS[] = {
-  1 /* NUL  */, 0 /* SOH  */, 0 /* STX  */, 0 /* ETX  */,
+  0 /* NUL  */, 0 /* SOH  */, 0 /* STX  */, 0 /* ETX  */,
   0 /* EOT  */, 0 /* ENQ  */, 0 /* ACK  */, 0 /* BEL  */,
   0 /* BS   */, 1 /* HT   */, 0 /* LF   */, 0 /* VT   */,
   0 /* FF   */, 0 /* CR   */, 0 /* SO   */, 0 /* SI   */,

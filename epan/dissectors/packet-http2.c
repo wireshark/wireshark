@@ -26,8 +26,8 @@
 
 /*
  * The information used comes from:
- * Hypertext Transfer Protocol version 2.0 draft-ietf-httpbis-http2-13
- * HTTP Header Compression draft-ietf-httpbis-header-compression-08
+ * Hypertext Transfer Protocol version 2 draft-ietf-httpbis-http2-14
+ * HTTP Header Compression draft-ietf-httpbis-header-compression-09
  *
  * TODO
 * Enhance display of Data
@@ -71,8 +71,10 @@ typedef struct {
 
 /* In-flight SETTINGS data. */
 typedef struct {
-    /* header table size */
-    uint32_t header_table_size;
+    /* header table size last seen in SETTINGS */
+    guint32 header_table_size;
+    /* minimum header table size in SETTINGS */
+    guint32 min_header_table_size;
     /* nonzero if header_table_size has effective value. */
     int has_header_table_size;
 } http2_settings_t;
@@ -106,7 +108,6 @@ static gboolean global_http2_heur = FALSE;
 static int proto_http2 = -1;
 static int hf_http2 = -1;
 static int hf_http2_length = -1;
-static int hf_http2_len_rsv = -1;
 static int hf_http2_type = -1;
 static int hf_http2_r = -1;
 static int hf_http2_streamid = -1;
@@ -115,7 +116,6 @@ static int hf_http2_unknown = -1;
 /* Flags */
 static int hf_http2_flags = -1;
 static int hf_http2_flags_end_stream = -1;
-static int hf_http2_flags_end_segment = -1;
 static int hf_http2_flags_end_headers = -1;
 static int hf_http2_flags_padded = -1;
 static int hf_http2_flags_priority = -1;
@@ -158,6 +158,8 @@ static int hf_http2_settings_header_table_size = -1;
 static int hf_http2_settings_enable_push = -1;
 static int hf_http2_settings_max_concurrent_streams = -1;
 static int hf_http2_settings_initial_window_size = -1;
+static int hf_http2_settings_max_frame_size = -1;
+static int hf_http2_settings_max_header_list_size = -1;
 static int hf_http2_settings_unknown = -1;
 /* Push Promise */
 static int hf_http2_push_promise_r = -1;
@@ -198,10 +200,8 @@ static gint ett_http2_settings = -1;
 static dissector_handle_t data_handle;
 static dissector_handle_t http2_handle;
 
-#define FRAME_HEADER_LENGTH     8
+#define FRAME_HEADER_LENGTH     9
 #define MAGIC_FRAME_LENGTH      24
-#define MASK_HTTP2_LENGTH       0X3FFF
-#define MASK_HTTP2_LEN_RSV      0XC000
 #define MASK_HTTP2_RESERVED     0x80000000
 #define MASK_HTTP2_STREAMID     0X7FFFFFFF
 #define MASK_HTTP2_PRIORITY     0X7FFFFFFF
@@ -240,10 +240,21 @@ static const value_string http2_type_vals[] = {
 #define HTTP2_FLAGS_ACK         0x01 /* for PING and SETTINGS */
 
 #define HTTP2_FLAGS_END_STREAM  0x01
-#define HTTP2_FLAGS_END_SEGMENT 0x02
 #define HTTP2_FLAGS_END_HEADERS 0x04
 #define HTTP2_FLAGS_PADDED      0x08
 #define HTTP2_FLAGS_PRIORITY    0x20
+
+#define HTTP2_FLAGS_UNUSED 0xFF
+#define HTTP2_FLAGS_UNUSED_SETTINGS (~HTTP2_FLAGS_ACK & 0xFF)
+#define HTTP2_FLAGS_UNUSED_PING (~HTTP2_FLAGS_ACK & 0xFF)
+#define HTTP2_FLAGS_UNUSED_CONTINUATION (~HTTP2_FLAGS_END_HEADERS & 0xFF)
+#define HTTP2_FLAGS_UNUSED_PUSH_PROMISE \
+    (~(HTTP2_FLAGS_END_HEADERS | HTTP2_FLAGS_PADDED) & 0xFF)
+#define HTTP2_FLAGS_UNUSED_DATA \
+    (~(HTTP2_FLAGS_END_STREAM | HTTP2_FLAGS_PADDED) & 0xFF)
+#define HTTP2_FLAGS_UNUSED_HEADERS \
+    (~(HTTP2_FLAGS_END_STREAM | HTTP2_FLAGS_END_HEADERS | \
+       HTTP2_FLAGS_PADDED | HTTP2_FLAGS_PRIORITY) & 0xFF)
 
 #define HTTP2_FLAGS_R           0xFF
 #define HTTP2_FLAGS_R1          0xFE
@@ -294,12 +305,16 @@ static const value_string http2_error_codes_vals[] = {
 #define HTTP2_SETTINGS_ENABLE_PUSH              2
 #define HTTP2_SETTINGS_MAX_CONCURRENT_STREAMS   3
 #define HTTP2_SETTINGS_INITIAL_WINDOW_SIZE      4
+#define HTTP2_SETTINGS_MAX_FRAME_SIZE           5
+#define HTTP2_SETTINGS_MAX_HEADER_LIST_SIZE     6
 
 static const value_string http2_settings_vals[] = {
     { HTTP2_SETTINGS_HEADER_TABLE_SIZE,      "Header table size" },
     { HTTP2_SETTINGS_ENABLE_PUSH,            "Enable PUSH" },
     { HTTP2_SETTINGS_MAX_CONCURRENT_STREAMS, "Max concurrent streams" },
     { HTTP2_SETTINGS_INITIAL_WINDOW_SIZE,    "Initial Windows size" },
+    { HTTP2_SETTINGS_MAX_FRAME_SIZE,         "Max frame size" },
+    { HTTP2_SETTINGS_MAX_HEADER_LIST_SIZE,   "Max header list size" },
     { 0, NULL }
 };
 
@@ -399,6 +414,11 @@ apply_and_pop_settings(packet_info *pinfo, http2_session_t *h2session)
     settings = (http2_settings_t*)wmem_queue_pop(queue);
 
     if(settings->has_header_table_size) {
+        if(settings->min_header_table_size < settings->header_table_size) {
+            nghttp2_hd_inflate_change_table_size
+                (inflater, settings->min_header_table_size);
+        }
+
         nghttp2_hd_inflate_change_table_size(inflater,
                                              settings->header_table_size);
     }
@@ -465,7 +485,7 @@ inflate_http2_header_block(tvbuff_t *tvb, packet_info *pinfo, guint offset,
 
             if(inflate_flags & NGHTTP2_HD_INFLATE_EMIT) {
                 char *str;
-                uint32_t len;
+                guint32 len;
                 http2_header_t *out;
 
                 out = wmem_new(wmem_file_scope(), http2_header_t);
@@ -482,12 +502,12 @@ inflate_http2_header_block(tvbuff_t *tvb, packet_info *pinfo, guint offset,
 
                 /* nv.namelen and nv.valuelen are of size_t.  In order
                    to get length in 4 bytes, we have to copy it to
-                   uint32_t. */
-                len = (uint32_t)nv.namelen;
+                   guint32. */
+                len = (guint32)nv.namelen;
                 memcpy(&str[0], (char *)&len, sizeof(len));
                 memcpy(&str[4], nv.name, nv.namelen);
 
-                len = (uint32_t)nv.valuelen;
+                len = (guint32)nv.valuelen;
                 memcpy(&str[4 + nv.namelen], (char *)&len, sizeof(len));
                 memcpy(&str[4 + nv.namelen + 4], nv.value, nv.valuelen);
 
@@ -594,13 +614,11 @@ dissect_http2_header_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ht
     switch(type){
         case HTTP2_DATA:
             proto_tree_add_item(flags_tree, hf_http2_flags_end_stream, tvb, offset, 1, ENC_NA);
-            proto_tree_add_item(flags_tree, hf_http2_flags_end_segment, tvb, offset, 1, ENC_NA);
             proto_tree_add_item(flags_tree, hf_http2_flags_padded, tvb, offset, 1, ENC_NA);
             proto_tree_add_item(flags_tree, hf_http2_flags_unused_data, tvb, offset, 1, ENC_NA);
             break;
         case HTTP2_HEADERS:
             proto_tree_add_item(flags_tree, hf_http2_flags_end_stream, tvb, offset, 1, ENC_NA);
-            proto_tree_add_item(flags_tree, hf_http2_flags_end_segment, tvb, offset, 1, ENC_NA);
             proto_tree_add_item(flags_tree, hf_http2_flags_end_headers, tvb, offset, 1, ENC_NA);
             proto_tree_add_item(flags_tree, hf_http2_flags_padded, tvb, offset, 1, ENC_NA);
             proto_tree_add_item(flags_tree, hf_http2_flags_priority, tvb, offset, 1, ENC_NA);
@@ -763,18 +781,20 @@ dissect_http2_settings(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *http2_
     guint32 settingsid;
     proto_item *ti_settings;
     proto_tree *settings_tree;
-    uint32_t header_table_size;
+    guint32 header_table_size;
+    guint32 min_header_table_size;
     int header_table_size_found;
     http2_session_t *h2session;
 
     header_table_size_found = 0;
     header_table_size = 0;
+    min_header_table_size = 0xFFFFFFFFu;
 
     while(tvb_reported_length_remaining(tvb, offset) > 0){
 
         ti_settings = proto_tree_add_item(http2_tree, hf_http2_settings, tvb, offset, 5, ENC_NA);
         settings_tree = proto_item_add_subtree(ti_settings, ett_http2_settings);
-        proto_tree_add_item(settings_tree, hf_http2_settings_identifier, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(settings_tree, hf_http2_settings_identifier, tvb, offset, 2, ENC_NA);
         settingsid = tvb_get_ntohs(tvb, offset);
         proto_item_append_text(ti_settings, " - %s",
                                val_to_str( settingsid, http2_settings_vals, "Unknown (%u)") );
@@ -788,6 +808,9 @@ dissect_http2_settings(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *http2_
                 /* We only care the last header table size in SETTINGS */
                 header_table_size_found = 1;
                 header_table_size = tvb_get_ntohl(tvb, offset);
+                if(min_header_table_size > header_table_size) {
+                    min_header_table_size = header_table_size;
+                }
             break;
             case HTTP2_SETTINGS_ENABLE_PUSH:
                 proto_tree_add_item(settings_tree, hf_http2_settings_enable_push, tvb, offset, 4, ENC_NA);
@@ -797,6 +820,12 @@ dissect_http2_settings(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *http2_
             break;
             case HTTP2_SETTINGS_INITIAL_WINDOW_SIZE:
                 proto_tree_add_item(settings_tree, hf_http2_settings_initial_window_size, tvb, offset, 4, ENC_NA);
+            break;
+            case HTTP2_SETTINGS_MAX_FRAME_SIZE:
+                proto_tree_add_item(settings_tree, hf_http2_settings_max_frame_size, tvb, offset, 4, ENC_NA);
+            break;
+            case HTTP2_SETTINGS_MAX_HEADER_LIST_SIZE:
+                proto_tree_add_item(settings_tree, hf_http2_settings_max_header_list_size, tvb, offset, 4, ENC_NA);
             break;
             default:
                 proto_tree_add_item(settings_tree, hf_http2_settings_unknown, tvb, offset, 4, ENC_NA);
@@ -817,6 +846,7 @@ dissect_http2_settings(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *http2_
 
             settings = wmem_new(wmem_file_scope(), http2_settings_t);
 
+            settings->min_header_table_size = min_header_table_size;
             settings->header_table_size = header_table_size;
             settings->has_header_table_size = header_table_size_found;
 
@@ -1001,10 +1031,12 @@ dissect_http2_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
          0                   1                   2                   3
          0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
         +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-        |         Length (16)           |   Type (8)    |   Flags (8)   |
-        +-+-------------+---------------+-------------------------------+
+        |                 Length (24)                   |
+        +---------------+---------------+---------------+
+        |   Type (8)    |   Flags (8)   |
+        +-+-+-----------+---------------+-------------------------------+
         |R|                 Stream Identifier (31)                      |
-        +-+-------------------------------------------------------------+
+        +=+=============================================================+
         |                   Frame Payload (0...)                      ...
         +---------------------------------------------------------------+
     */
@@ -1014,9 +1046,9 @@ dissect_http2_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 
     /* 3.5 Connection Header
        Upon establishment of a TCP connection and determination that
-       HTTP/2.0 will be used by both peers, each endpoint MUST send a
-       connection header as a final confirmation and to establish the
-       initial settings for the HTTP/2.0 connection.
+       HTTP/2 will be used by both peers, each endpoint MUST send a
+       connection preface as a final confirmation and to establish the
+       initial SETTINGS parameters for the HTTP/2 connection.
      */
     /* tvb_memeql makes certain there are enough bytes in the buffer.
      * returns -1 if there are not enough bytes or if there is not a
@@ -1034,10 +1066,9 @@ dissect_http2_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
         return MAGIC_FRAME_LENGTH;
     }
 
-    proto_tree_add_item(http2_tree, hf_http2_length, tvb, offset, 2, ENC_NA);
-    proto_tree_add_item(http2_tree, hf_http2_len_rsv, tvb, offset, 2, ENC_NA);
-    length = tvb_get_ntohs(tvb, offset) & MASK_HTTP2_LENGTH;
-    offset += 2;
+    proto_tree_add_item(http2_tree, hf_http2_length, tvb, offset, 3, ENC_NA);
+    length = tvb_get_ntoh24(tvb, offset);
+    offset += 3;
 
     proto_tree_add_item(http2_tree, hf_http2_type, tvb, offset, 1, ENC_NA);
     type = tvb_get_guint8(tvb, offset);
@@ -1116,7 +1147,7 @@ static guint get_http2_message_len( packet_info *pinfo _U_, tvbuff_t *tvb, int o
                 return MAGIC_FRAME_LENGTH;
         }
 
-        return (guint)tvb_get_ntohs(tvb, offset) + FRAME_HEADER_LENGTH;
+        return (guint)tvb_get_ntoh24(tvb, offset) + FRAME_HEADER_LENGTH;
 }
 
 
@@ -1135,7 +1166,7 @@ dissect_http2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     col_clear(pinfo->cinfo, COL_INFO);
 
     ti = proto_tree_add_item(tree, proto_http2, tvb, 0, -1, ENC_NA);
-    proto_item_append_text(ti, " (draft-13)");
+    proto_item_append_text(ti, " (draft-14)");
 
     http2_tree = proto_item_add_subtree(ti, ett_http2);
 
@@ -1183,13 +1214,8 @@ proto_register_http2(void)
         },
         { &hf_http2_length,
             { "Length", "http2.length",
-               FT_UINT16, BASE_DEC, NULL, MASK_HTTP2_LENGTH,
-              "The length (14 bits) of the frame payload (The 8 octets of the frame header are not included)", HFILL }
-        },
-        { &hf_http2_len_rsv,
-            { "Reserved", "http2.len.rsv",
-               FT_UINT16, BASE_DEC, NULL, MASK_HTTP2_LEN_RSV,
-              "Must be zero", HFILL }
+              FT_UINT24, BASE_DEC, NULL, 0x0,
+              "The length (24 bits) of the frame payload (The 9 octets of the frame header are not included)", HFILL }
         },
         { &hf_http2_type,
             { "Type", "http2.type",
@@ -1238,11 +1264,6 @@ proto_register_http2(void)
               FT_BOOLEAN, 8, NULL, HTTP2_FLAGS_END_STREAM,
               "Indicates that this frame is the last that the endpoint will send for the identified stream", HFILL }
         },
-        { &hf_http2_flags_end_segment,
-            { "End Segment", "http2.flags.end_segment",
-              FT_BOOLEAN, 8, NULL, HTTP2_FLAGS_END_SEGMENT,
-              "Indicates that this frame is the last for the current segment", HFILL }
-        },
         { &hf_http2_flags_end_headers,
             { "End Headers", "http2.flags.eh",
               FT_BOOLEAN, 8, NULL, HTTP2_FLAGS_END_HEADERS,
@@ -1266,37 +1287,37 @@ proto_register_http2(void)
         },
         { &hf_http2_flags_unused,
             { "Unused", "http2.flags.unused",
-               FT_UINT8, BASE_HEX, NULL, 0xFF,
+               FT_UINT8, BASE_HEX, NULL, HTTP2_FLAGS_UNUSED,
               "Must be zero", HFILL }
         },
         { &hf_http2_flags_unused_settings,
             { "Unused", "http2.flags.unused_settings",
-               FT_UINT8, BASE_HEX, NULL, 0xFE,
+               FT_UINT8, BASE_HEX, NULL, HTTP2_FLAGS_UNUSED_SETTINGS,
               "Must be zero", HFILL }
         },
         { &hf_http2_flags_unused_ping,
             { "Unused", "http2.flags.unused_ping",
-               FT_UINT8, BASE_HEX, NULL, 0xFE,
+               FT_UINT8, BASE_HEX, NULL, HTTP2_FLAGS_UNUSED_PING,
               "Must be zero", HFILL }
         },
         { &hf_http2_flags_unused_continuation,
             { "Unused", "http2.flags.unused_continuation",
-               FT_UINT8, BASE_HEX, NULL, 0xFB,
+               FT_UINT8, BASE_HEX, NULL, HTTP2_FLAGS_UNUSED_CONTINUATION,
               "Must be zero", HFILL }
         },
         { &hf_http2_flags_unused_push_promise,
             { "Unused", "http2.flags.unused_push_promise",
-               FT_UINT8, BASE_HEX, NULL, 0xF3,
+               FT_UINT8, BASE_HEX, NULL, HTTP2_FLAGS_UNUSED_PUSH_PROMISE,
               "Must be zero", HFILL }
         },
         { &hf_http2_flags_unused_data,
             { "Unused", "http2.flags.unused_data",
-               FT_UINT8, BASE_HEX, NULL, 0xF4,
+               FT_UINT8, BASE_HEX, NULL, HTTP2_FLAGS_UNUSED_DATA,
               "Must be zero", HFILL }
         },
         { &hf_http2_flags_unused_headers,
             { "Unused", "http2.flags.unused_headers",
-               FT_UINT8, BASE_HEX, NULL, 0xD0,
+               FT_UINT8, BASE_HEX, NULL, HTTP2_FLAGS_UNUSED_HEADERS,
               "Must be zero", HFILL }
         },
         { &hf_http2_flags_settings_ack,
@@ -1415,6 +1436,16 @@ proto_register_http2(void)
             { "Initial Windows Size", "http2.settings.initial_window_size",
                FT_UINT32, BASE_DEC, NULL, 0x0,
               "Indicates the sender's initial window size (in bytes) for stream level flow control", HFILL }
+        },
+        { &hf_http2_settings_max_frame_size,
+            { "Max frame size", "http2.settings.max_frame_size",
+              FT_UINT32, BASE_DEC, NULL, 0x0,
+              "Indicates the size of the largest frame payload that the sender will allow", HFILL }
+        },
+        { &hf_http2_settings_max_header_list_size,
+            { "Max header list size", "http2.settings.max_header_list_size",
+              FT_UINT32, BASE_DEC, NULL, 0x0,
+              "This advisory setting informs a peer of the maximum size of header list that the sender is prepared to accept.", HFILL }
         },
         { &hf_http2_settings_unknown,
             { "Unknown Settings", "http2.settings.unknown",

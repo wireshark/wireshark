@@ -47,10 +47,8 @@
    encoder only uses the memory up to this value. */
 #define NGHTTP2_HD_DEFAULT_MAX_DEFLATE_BUFFER_SIZE (1 << 12)
 
-typedef enum {
-  NGHTTP2_HD_ROLE_DEFLATE,
-  NGHTTP2_HD_ROLE_INFLATE
-} nghttp2_hd_role;
+/* Exported for unit test */
+extern const size_t NGHTTP2_STATIC_TABLE_LENGTH;
 
 typedef enum {
   NGHTTP2_HD_FLAG_NONE = 0,
@@ -58,18 +56,12 @@ typedef enum {
   NGHTTP2_HD_FLAG_NAME_ALLOC = 1,
   /* Indicates value was dynamically allocated and must be freed */
   NGHTTP2_HD_FLAG_VALUE_ALLOC = 1 << 1,
-  /* Indicates that the entry is in the reference set */
-  NGHTTP2_HD_FLAG_REFSET = 1 << 2,
-  /* Indicates that the entry is emitted in the current header
-     processing. */
-  NGHTTP2_HD_FLAG_EMIT = 1 << 3,
-  NGHTTP2_HD_FLAG_IMPLICIT_EMIT = 1 << 4,
   /* Indicates that the name was gifted to the entry and no copying
      necessary. */
-  NGHTTP2_HD_FLAG_NAME_GIFT = 1 << 5,
+  NGHTTP2_HD_FLAG_NAME_GIFT = 1 << 2,
   /* Indicates that the value was gifted to the entry and no copying
      necessary. */
-  NGHTTP2_HD_FLAG_VALUE_GIFT = 1 << 6
+  NGHTTP2_HD_FLAG_VALUE_GIFT = 1 << 3
 } nghttp2_hd_flags;
 
 typedef struct {
@@ -80,11 +72,6 @@ typedef struct {
   uint8_t ref;
   uint8_t flags;
 } nghttp2_hd_entry;
-
-typedef struct {
-  nghttp2_hd_entry ent;
-  size_t index;
-} nghttp2_hd_static_entry;
 
 typedef struct {
   nghttp2_hd_entry **buffer;
@@ -102,7 +89,6 @@ typedef enum {
 
 typedef enum {
   NGHTTP2_HD_STATE_OPCODE,
-  NGHTTP2_HD_STATE_CLEAR_REFSET,
   NGHTTP2_HD_STATE_READ_TABLE_SIZE,
   NGHTTP2_HD_STATE_READ_INDEX,
   NGHTTP2_HD_STATE_NEWNAME_CHECK_NAMELEN,
@@ -124,8 +110,6 @@ typedef struct {
   size_t hd_table_bufsize;
   /* The effective header table size. */
   size_t hd_table_bufsize_max;
-  /* Role of this context; deflate or infalte */
-  nghttp2_hd_role role;
   /* If inflate/deflate error occurred, this value is set to 1 and
      further invocation of inflate/deflate will fail with
      NGHTTP2_ERR_HEADER_COMP. */
@@ -136,9 +120,8 @@ struct nghttp2_hd_deflater {
   nghttp2_hd_context ctx;
   /* The upper limit of the header table size the deflater accepts. */
   size_t deflate_hd_table_bufsize_max;
-  /* Set to this nonzero to clear reference set on each deflation each
-     time. */
-  uint8_t no_refset;
+  /* Minimum header table size notified in the next context update */
+  size_t min_hd_table_bufsize_max;
   /* If nonzero, send header table size using encoding context update
      in the next deflate process */
   uint8_t notify_table_size_change;
@@ -157,22 +140,18 @@ struct nghttp2_hd_inflater {
   /* Pointer to the name/value pair buffer which is used in the
      current header emission. */
   uint8_t *nv_keep;
-  /* Pointers to the name/value pair which is referred as indexed
-     name. This entry must be in header table. */
-  nghttp2_hd_entry *ent_name;
   /* The number of bytes to read */
-  ssize_t left;
+  size_t left;
   /* The index in indexed repr or indexed name */
   size_t index;
-  /* The index of header table to toggle off the entry from reference
-     set at the end of decompression. */
-  size_t end_headers_index;
   /* The length of new name encoded in literal.  For huffman encoded
      string, this is the length after it is decoded. */
   size_t newnamelen;
   /* The maximum header table size the inflater supports. This is the
      same value transmitted in SETTINGS_HEADER_TABLE_SIZE */
   size_t settings_hd_table_bufsize_max;
+  /* The number of next shift to decode integer */
+  size_t shift;
   nghttp2_hd_opcode opcode;
   nghttp2_hd_inflate_state state;
   /* nonzero if string is huffman encoded */
@@ -294,6 +273,11 @@ int nghttp2_hd_emit_table_size(nghttp2_bufs *bufs, size_t table_size);
 /* For unittesting purpose */
 nghttp2_hd_entry* nghttp2_hd_table_get(nghttp2_hd_context *context,
                                        size_t index);
+
+/* For unittesting purpose */
+ssize_t nghttp2_hd_decode_length(uint32_t *res, size_t *shift_ptr, int *final,
+                                 uint32_t initial, size_t shift,
+                                 uint8_t *in, uint8_t *last, size_t prefix);
 
 /* Huffman encoding/decoding functions */
 
