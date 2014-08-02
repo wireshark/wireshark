@@ -512,8 +512,9 @@ void srtp_add_address(packet_info *pinfo,
 	/*
 	 * Update the conversation data.
 	 */
-	/* Free the hash if already exists */
-	rtp_free_hash_dyn_payload(p_conv_data->rtp_dyn_payload);
+	/* Free the hash if a different one already exists */
+	/* if (p_conv_data->rtp_dyn_payload != rtp_dyn_payload) */
+	/* 	rtp_free_hash_dyn_payload(p_conv_data->rtp_dyn_payload); */
 
 	g_strlcpy(p_conv_data->method, setup_method, MAX_RTP_SETUP_METHOD_SIZE+1);
 	p_conv_data->frame_number = setup_frame_number;
