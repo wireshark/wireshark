@@ -368,9 +368,6 @@ foreach(THIS_FLAG ${CPP_FLAG_TESTS})
 endforeach()
 set(CMAKE_CXX_FLAGS "${ADDED_CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS}")
 
-message(STATUS "C-Flags: ${CMAKE_C_FLAGS}")
-message(STATUS "CXX-Flags: ${CMAKE_CXX_FLAGS}")
-
 #
 # XXX - we're assuming MSVC supports the SSE 4.2 intrinsics and
 # that other C compilers support them iff they support the
@@ -701,6 +698,10 @@ elseif(QT_FOUND)
 	message(STATUS "QT includes: ${QT_INCLUDE_DIR}")
 	message(STATUS "QT libs: ${QT_LIBRARIES}")
 endif()
+
+message(STATUS "C-Flags: ${CMAKE_C_FLAGS}")
+message(STATUS "CXX-Flags: ${CMAKE_CXX_FLAGS}")
+
 include(ConfigureChecks.cmake)
 
 #Big or little endian ?
