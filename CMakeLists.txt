@@ -215,6 +215,9 @@ else()
 		-Wwrite-strings
 		-Wno-long-long
 		-Wheader-guard
+		-fwrapv
+		-fno-strict-overflow
+		-fno-delete-null-pointer-checks
 	)
 
 	set(WIRESHARK_C_ONLY_FLAGS
@@ -277,9 +280,6 @@ else()
 		# (about glib library not using Doxygen)
 		#
 		-Wdocumentation
-		-fwrapv
-		-fno-strict-overflow
-		-fno-delete-null-pointer-checks
 	)
 
 	set(WIRESHARK_EXTRA_COMPILER_C_ONLY_FLAGS
