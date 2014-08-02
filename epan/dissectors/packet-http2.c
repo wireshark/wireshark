@@ -97,6 +97,11 @@ typedef struct {
 void proto_register_http2(void);
 void proto_reg_handoff_http2(void);
 
+
+/* Heuristic dissection */
+static gboolean global_http2_heur = FALSE;
+
+
 /* Packet Header */
 static int proto_http2 = -1;
 static int hf_http2 = -1;
@@ -1143,6 +1148,16 @@ dissect_http2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 static gboolean
 dissect_http2_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
+
+    /* It is not easy to write a good http2 heuristic,
+       this heuristic is disabled by default
+     */
+
+    if (!global_http2_heur)
+    {
+        return FALSE;
+    }
+
     if (tvb_memeql(tvb, 0, kMagicHello, MAGIC_FRAME_LENGTH) != 0) {
         /* we couldn't find the Magic Hello (PRI * HTTP/2.0\r\n\r\nSM\r\n\r\n)
            see if there's a valid frame type (0-11 are defined at the moment) */
@@ -1537,10 +1552,19 @@ proto_register_http2(void)
         &ett_http2_settings
     };
 
+    module_t *http2_module;
+
     proto_http2 = proto_register_protocol("HyperText Transfer Protocol 2", "HTTP2", "http2");
 
     proto_register_field_array(proto_http2, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    http2_module = prefs_register_protocol(proto_http2, NULL);
+
+    prefs_register_bool_preference(http2_module, "heuristic_http2",
+        "Enable HTTP2 heuristic (disabled by default)",
+        "The HTTP2 heuristic is weak and there are some false positives",
+        &global_http2_heur);
 
     new_register_dissector("http2", dissect_http2, proto_http2);
 }
