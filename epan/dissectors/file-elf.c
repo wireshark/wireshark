@@ -1159,7 +1159,7 @@ dissect_elf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
     /* e_ident */
     proto_tree_add_item(header_tree, hf_elf_magic_bytes, tvb, offset, sizeof(magic), ENC_NA);
-    offset += sizeof(magic);
+    offset += (int)sizeof(magic);
 
     proto_tree_add_item(header_tree, hf_elf_file_class, tvb, offset, 1, ENC_NA);
     register_size *= tvb_get_guint8(tvb, offset);
