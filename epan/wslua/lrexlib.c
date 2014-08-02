@@ -128,7 +128,7 @@ void freelist_add (TFreeList *fl, TBuffer *buf) {
 
 void freelist_free (TFreeList *fl) {
   while (fl->top > 0)
-    buffer_free (fl->list[--fl->top]);
+    tagbuffer_free (fl->list[--fl->top]);
 }
 
 /*
@@ -137,15 +137,15 @@ void freelist_free (TFreeList *fl) {
  *  Auto-extensible array of characters for building long strings incrementally.
  *    * Differs from luaL_Buffer in that:
  *       *  its operations do not change Lua stack top position
- *       *  buffer_addvalue does not extract the value from Lua stack
- *       *  buffer_pushresult does not have to be the last operation
+ *       *  tagbuffer_addvalue does not extract the value from Lua stack
+ *       *  tagbuffer_pushresult does not have to be the last operation
  *    * Uses TFreeList class:
  *       *  for inserting itself into a TFreeList instance for future clean-up
  *       *  calls freelist_free prior to calling luaL_error.
  *    * Has specialized "Z-operations" for maintaining mixed string/integer
  *      array:  bufferZ_addlstring, bufferZ_addnum and bufferZ_next.
  *       *  if the array is intended to be "mixed", then the methods
- *          buffer_addlstring and buffer_addvalue must not be used
+ *          tagbuffer_addlstring and tagbuffer_addvalue must not be used
  *          (the application will crash on bufferZ_next).
  *       *  conversely, if the array is not intended to be "mixed",
  *          then the method bufferZ_next must not be used.
@@ -153,7 +153,7 @@ void freelist_free (TFreeList *fl) {
 
 enum { ID_NUMBER, ID_STRING };
 
-void buffer_init (TBuffer *buf, size_t sz, lua_State *L, TFreeList *fl) {
+void tagbuffer_init (TBuffer *buf, size_t sz, lua_State *L, TFreeList *fl) {
   buf->arr = (char *)Lmalloc(L, sz);
   if (!buf->arr) {
     freelist_free (fl);
@@ -167,23 +167,23 @@ void buffer_init (TBuffer *buf, size_t sz, lua_State *L, TFreeList *fl) {
   freelist_add (fl, buf);
 }
 
-void buffer_free (TBuffer *buf) {
+void tagbuffer_free (TBuffer *buf) {
   Lfree(buf->L, buf->arr, buf->size);
 }
 
-void buffer_clear (TBuffer *buf) {
+void tagbuffer_clear (TBuffer *buf) {
   buf->top = 0;
 }
 
-void buffer_pushresult (TBuffer *buf) {
+void tagbuffer_pushresult (TBuffer *buf) {
   lua_pushlstring (buf->L, buf->arr, buf->top);
 }
 
-void buffer_addbuffer (TBuffer *trg, TBuffer *src) {
-  buffer_addlstring (trg, src->arr, src->top);
+void tagbuffer_addbuffer (TBuffer *trg, TBuffer *src) {
+  tagbuffer_addlstring (trg, src->arr, src->top);
 }
 
-void buffer_addlstring (TBuffer *buf, const void *src, size_t sz) {
+void tagbuffer_addlstring (TBuffer *buf, const void *src, size_t sz) {
   size_t newtop = buf->top + sz;
   if (newtop > buf->size) {
     char *p = (char*) Lrealloc (buf->L, buf->arr, buf->size, 2 * newtop);   /* 2x expansion */
@@ -200,26 +200,26 @@ void buffer_addlstring (TBuffer *buf, const void *src, size_t sz) {
   buf->top = newtop;
 }
 
-void buffer_addvalue (TBuffer *buf, int stackpos) {
+void tagbuffer_addvalue (TBuffer *buf, int stackpos) {
   size_t len;
   const char *p = lua_tolstring (buf->L, stackpos, &len);
-  buffer_addlstring (buf, p, len);
+  tagbuffer_addlstring (buf, p, len);
 }
 
 void bufferZ_addlstring (TBuffer *buf, const void *src, size_t len) {
   int n;
   size_t header[2] = { ID_STRING };
   header[1] = len;
-  buffer_addlstring (buf, header, sizeof (header));
-  buffer_addlstring (buf, src, len);
+  tagbuffer_addlstring (buf, header, sizeof (header));
+  tagbuffer_addlstring (buf, src, len);
   n = (int)(len % N_ALIGN);
-  if (n) buffer_addlstring (buf, NULL, N_ALIGN - n);
+  if (n) tagbuffer_addlstring (buf, NULL, N_ALIGN - n);
 }
 
 void bufferZ_addnum (TBuffer *buf, size_t num) {
   size_t header[2] = { ID_NUMBER };
   header[1] = num;
-  buffer_addlstring (buf, header, sizeof (header));
+  tagbuffer_addlstring (buf, header, sizeof (header));
 }
 
 /* 1. When called repeatedly on the same TBuffer, its existing data

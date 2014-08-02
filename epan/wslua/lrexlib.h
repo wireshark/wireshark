@@ -116,13 +116,13 @@ void freelist_init (TFreeList *fl);
 void freelist_add (TFreeList *fl, TBuffer *buf);
 void freelist_free (TFreeList *fl);
 
-void buffer_init (TBuffer *buf, size_t sz, lua_State *L, TFreeList *fl);
-void buffer_free (TBuffer *buf);
-void buffer_clear (TBuffer *buf);
-void buffer_addbuffer (TBuffer *trg, TBuffer *src);
-void buffer_addlstring (TBuffer *buf, const void *src, size_t sz);
-void buffer_addvalue (TBuffer *buf, int stackpos);
-void buffer_pushresult (TBuffer *buf);
+void tagbuffer_init (TBuffer *buf, size_t sz, lua_State *L, TFreeList *fl);
+void tagbuffer_free (TBuffer *buf);
+void tagbuffer_clear (TBuffer *buf);
+void tagbuffer_addbuffer (TBuffer *trg, TBuffer *src);
+void tagbuffer_addlstring (TBuffer *buf, const void *src, size_t sz);
+void tagbuffer_addvalue (TBuffer *buf, int stackpos);
+void tagbuffer_pushresult (TBuffer *buf);
 
 void bufferZ_putrepstring (TBuffer *buf, int reppos, int nsub);
 int  bufferZ_next (TBuffer *buf, size_t *iter, size_t *len, const char **str);
