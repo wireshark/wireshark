@@ -914,6 +914,9 @@ get_esp_sa(gint protocol_typ, gchar *src,  gchar *dst,  gint spi,
 
   g_snprintf(spi_string, IPSEC_SPI_LEN_MAX,"0x%08x", spi);
 
+  *cipher_hd = NULL;
+  *cipher_hd_created = NULL;
+
   /* Check each known SA in turn */
   for (i = 0, j=0; (found == FALSE) && ((i < num_sa_uat) || (j < extra_esp_sa_records.num_records)); )
   {
