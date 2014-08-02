@@ -190,7 +190,7 @@ MSVC_VARIANT=MSVC2010EE
 NASM=$(WIRESHARK_LIB_DIR)\nasm-2.09.08\nasm.exe
 
 #
-# Optional: the Python interpreter is used as part of the buildsystem
+# The Python interpreter is used as part of the buildsystem
 #
 # This will override the automatic detection below.
 #PYTHON_VER=27
@@ -227,6 +227,11 @@ PYTHON_DIR=C:\Python$(PYTHON_VER)
 !IF DEFINED(PYTHON_DIR)
 PYTHON="$(PYTHON_DIR)\python.exe"
 PATH=$(PYTHON_DIR);$(PATH)
+!ENDIF
+
+# If all else fails, try to find it on the PATH
+!IF !DEFINED(PYTHON)
+PYTHON=python
 !ENDIF
 
 #### Save files as pcap-ng by default. Comment out to use pcap instead. ####
