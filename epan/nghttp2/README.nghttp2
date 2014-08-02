@@ -18,7 +18,7 @@ Change path to nghttp2.h
 find . -name "nghttp2*" -type f -exec sed -i 's/<nghttp2\/nghttp2.h>/<nghttp2.h>/g'  {} \;
 
 Change path to nghttp2ver.h
-find . -name "nghttp2*" -type f -exec sed -i 's/<nghttp2\/nghttp2ver.h>/<nghttp2ver.h>/g'  {} \;
+find . -name "nghttp2*" -type f -exec sed -i 's/<nghttp2\/nghttp2ver.h>/"nghttp2ver.h"/g'  {} \;
 
 Fix c++-compat error
 
