@@ -757,6 +757,9 @@ AC_ARG_ENABLE(extra-compiler-warnings,
 	wireshark_extra_flags=$enableval
 	if test $enableval != no
 	then
+		#
+		# The following are for C and C++
+		#
 		AC_WIRESHARK_COMPILER_FLAGS_CHECK(-pedantic)
 		#
 		# Various code blocks this one.
@@ -766,10 +769,9 @@ AC_ARG_ENABLE(extra-compiler-warnings,
 		#
 		# Due to various places where APIs we don't control
 		# require us to cast away constness, we can probably
-		# never enable these ones with -Werror.
+		# never enable this one with -Werror.
 		#
 		AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wcast-qual)
-		AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wbad-function-cast, C)
 		#
 		# Some generated ASN.1 dissectors block this one;
 		# multiple function declarations for the same
@@ -800,9 +802,21 @@ AC_ARG_ENABLE(extra-compiler-warnings,
 		# (about glib library not using Doxygen)
 		#
 		AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wdocumentation)
+
+		#
+		# The following are C only, not C++
+		#
+		# Due to various places where APIs we don't control
+		# require us to cast away constness, we can probably
+		# never enable this one with -Werror.
+		#
+		AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wbad-function-cast, C)
 	fi
 ],)
 
+#
+# The following are for C and C++
+#
 AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wall -W) # -W is now known as -Wextra
 AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wextra) # -W is now known as -Wextra
 AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wendif-labels)
@@ -823,6 +837,9 @@ AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wwrite-strings)
 AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wno-long-long)
 AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wheader-guard)
 
+#
+# The following are C only, not C++
+#
 AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wc++-compat, C)
 AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wdeclaration-after-statement, C)
 
@@ -885,20 +902,6 @@ AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wjump-misses-init, C)
 # The Qt headers generate a ton of shortening errors on 64-bit systems
 # so only enable this for C for now.
 AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wshorten-64-to-32, C)
-
-#
-# On OS X, suppress warnings about deprecated declarations, because
-# they apparently think everything on OS X is Shiny Happy Apple-
-# Framework-Based Apps and are deprecating some perfectly OK
-# multi-platform open-source libraries that we use in our multi-platform
-# open-source application in favor of various frameworks that are
-# OS X-only.
-#
-case "$host_os" in
-darwin*)
-#	AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wno-deprecated-declarations)
-	;;
-esac
 
 #
 # Use the faster pre gcc 4.5 floating point precision if available.
@@ -3076,11 +3079,3 @@ echo "     Use POSIX capabilities library : $libcap_message"
 echo "                  Use GeoIP library : $geoip_message"
 echo "                     Use nl library : $libnl_message"
 echo "              Use SBC codec library : $have_sbc"
-#
-# Debugging differences between autotools and CMake builds; dump
-# CC, CXX, CFLAGS, and CXXFLAGS.
-#
-echo "                                 CC : $CC"
-echo "                             CFLAGS : $CFLAGS"
-echo "                                CXX : $CXX"
-echo "                           CXXFLAGS : $CXXFLAGS"

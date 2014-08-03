@@ -23,6 +23,13 @@ project(Wireshark C CXX)
 
 cmake_minimum_required(VERSION 2.8.3)
 
+#
+# XXX - force verbose Makefiles, to try to debug some differences
+# in warnings generated on the 32-bit OS X buildbot for autotools
+# builds and CMake builds.
+#
+set(CMAKE_VERBOSE_MAKEFILE ON)
+
 # Needs to be set after cmake_minimum_required or cmake_policy(VERSION)
 # Policy since 2.6.1
 cmake_policy(SET CMP0008 NEW)
@@ -242,10 +249,10 @@ else()
 	set(WIRESHARK_EXTRA_COMPILER_COMMON_FLAGS
 		# The following are for C and C++
 		-pedantic
-		-Woverflow
 		#
 		# Various code blocks this one.
 		#
+		-Woverflow
 		-fstrict-overflow -Wstrict-overflow=4
 		#
 		# Due to various places where APIs we don't control
@@ -265,8 +272,9 @@ else()
 		#
 		-Wunsafe-loop-optimizations
 		#
-		# All the registration functions block this for now.
+		# All the registration functions block these for now.
 		#
+		-Wmissing-prototypes
 		-Wmissing-declarations
 		#
 		# A bunch of "that might not work on SPARC" code blocks
@@ -292,10 +300,6 @@ else()
 		# never enable this one with -Werror.
 		#
 		-Wbad-function-cast
-		#
-		# All the registration functions block this for now.
-		#
-		-Wmissing-prototypes
 	)
 
 	set(WIRESHARK_EXTRA_COMPILER_CPP_ONLY_FLAGS
@@ -701,9 +705,7 @@ elseif(QT_FOUND)
 	message(STATUS "QT libs: ${QT_LIBRARIES}")
 endif()
 
-message(STATUS "C compiler: ${CMAKE_C_COMPILER}")
 message(STATUS "C-Flags: ${CMAKE_C_FLAGS}")
-message(STATUS "C++ compiler: ${CMAKE_CXX_COMPILER}")
 message(STATUS "CXX-Flags: ${CMAKE_CXX_FLAGS}")
 
 include(ConfigureChecks.cmake)
