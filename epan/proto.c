@@ -1150,7 +1150,7 @@ proto_tree_add_subtree_format(proto_tree *tree, tvbuff_t *tvb, gint start, gint 
 	if (tree_item != NULL)
 		*tree_item = (proto_item *)tree;
 
-	TRY_TO_FAKE_THIS_ITEM(tree, hf_text_only, hfinfo);
+	TRY_TO_FAKE_THIS_ITEM(tree, hf_text_only, hfinfo, tvb);
 
 	pi = proto_tree_add_text_node(tree, tvb, start, length);
 
