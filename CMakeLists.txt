@@ -701,9 +701,9 @@ elseif(QT_FOUND)
 	message(STATUS "QT libs: ${QT_LIBRARIES}")
 endif()
 
-message(STATUS "C compiler: ${CMAKE_C_COMPILER_ID}")
+message(STATUS "C compiler: ${CMAKE_C_COMPILER}")
 message(STATUS "C-Flags: ${CMAKE_C_FLAGS}")
-message(STATUS "C++ compiler: ${CMAKE_CXX_COMPILER_ID}")
+message(STATUS "C++ compiler: ${CMAKE_CXX_COMPILER}")
 message(STATUS "CXX-Flags: ${CMAKE_CXX_FLAGS}")
 
 include(ConfigureChecks.cmake)
