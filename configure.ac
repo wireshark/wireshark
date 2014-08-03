@@ -805,21 +805,13 @@ AC_ARG_ENABLE(extra-compiler-warnings,
 
 AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wall -W) # -W is now known as -Wextra
 AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wextra) # -W is now known as -Wextra
-AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wdeclaration-after-statement, C)
 AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wendif-labels)
 AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wpointer-arith)
-AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wno-pointer-sign, C)
 AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Warray-bounds)
 AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wformat-security)
 AC_WIRESHARK_COMPILER_FLAGS_CHECK(-fwrapv)
 AC_WIRESHARK_COMPILER_FLAGS_CHECK(-fno-strict-overflow)
 AC_WIRESHARK_COMPILER_FLAGS_CHECK(-fno-delete-null-pointer-checks)
-AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wold-style-definition, C)
-# The Qt headers generate a ton of shortening errors on 64-bit systems
-# so only enable this for C for now.
-AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wshorten-64-to-32, C)
-AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wstrict-prototypes, C)
-AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wjump-misses-init, C)
 AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wvla)
 AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Waddress)
 AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wattributes)
@@ -829,8 +821,10 @@ AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wpragmas)
 AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wno-overlength-strings)
 AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wwrite-strings)
 AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wno-long-long)
-AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wc++-compat, C)
 AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wheader-guard)
+
+AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wc++-compat, C)
+AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wdeclaration-after-statement, C)
 
 #
 # XXX - OK for C++?
@@ -855,6 +849,10 @@ foo(int a)
 }
   ],
   [warns about variables in function declarations shadowing other variables])
+
+AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wno-pointer-sign, C)
+AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wold-style-definition, C)
+AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wstrict-prototypes, C)
 
 # Unfortunately some versions of gcc generate logical-op warnings when strchr()
 # is given a constant string.
@@ -883,6 +881,10 @@ bar(void)
   ],
   [generates warnings from strchr()])
 
+AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wjump-misses-init, C)
+# The Qt headers generate a ton of shortening errors on 64-bit systems
+# so only enable this for C for now.
+AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wshorten-64-to-32, C)
 
 #
 # On OS X, suppress warnings about deprecated declarations, because
@@ -894,7 +896,7 @@ bar(void)
 #
 case "$host_os" in
 darwin*)
-	AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wno-deprecated-declarations)
+#	AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wno-deprecated-declarations)
 	;;
 esac
 

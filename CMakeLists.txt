@@ -206,6 +206,9 @@ else()
 		-Wpointer-arith
 		-Warray-bounds
 		-Wformat-security
+		-fwrapv
+		-fno-strict-overflow
+		-fno-delete-null-pointer-checks
 		-Wvla
 		-Waddress
 		-Wattributes
@@ -216,9 +219,6 @@ else()
 		-Wwrite-strings
 		-Wno-long-long
 		-Wheader-guard
-		-fwrapv
-		-fno-strict-overflow
-		-fno-delete-null-pointer-checks
 	)
 
 	set(WIRESHARK_C_ONLY_FLAGS
