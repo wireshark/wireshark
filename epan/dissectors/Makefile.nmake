@@ -66,37 +66,19 @@ packet-rrc.obj : packet-rrc.c
 # reason.
 #
 # Therefore, we use a script to generate the register.c file.
-# There are two versions of the script, a shell and a Python version.
-# The Python script runs faster, since it uses caching to speed up
-# repeated runs and doesn't invoke external processes, so we prefer
-# that if Python is available.
-#
 # The first argument is the directory in which the source files live.
 # The second argument is "dissectors", to indicate that we should build
 # a register.c file for libwireshark.
 # All subsequent arguments are the files to scan.
 #
 
-register.c: $(ALL_DISSECTORS_SRC) Makefile.common ..\..\tools\make-dissector-reg.py ..\..\tools\make-dissector-reg
-!IFDEF PYTHON
-	@echo Making register.c (using python)
+register.c: $(ALL_DISSECTORS_SRC) Makefile.common ..\..\tools\make-dissector-reg.py
+	@echo Making register.c
 	@$(PYTHON) "../../tools/make-dissector-reg.py" . dissectors $(ALL_DISSECTORS_SRC)
-!ELSE
-	@echo Making register.c (using sh)
-	@$(SH) ../../tools/make-dissector-reg . dissectors $(ALL_DISSECTORS_SRC)
-!ENDIF
 
 packet-ncp2222.c: ..\..\tools/ncp2222.py
-!IFDEF PYTHON
 	@echo Making packet-ncp2222.c
 	$(PYTHON) "../../tools/ncp2222.py" -o packet-ncp2222.c
-!ELSE
-	@echo Faking packet-ncp2222.c...
-	@echo Python is required to build the NCP disector
-	@echo Hiding packet-ncp.c...
-	mv packet-ncp.c packet-ncp.c.save
-	touch packet-ncp.c $@
-!ENDIF
 
 packet-ncp2222.obj: packet-ncp2222.inc
 

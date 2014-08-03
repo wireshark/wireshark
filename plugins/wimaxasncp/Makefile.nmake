@@ -69,25 +69,14 @@ $(PLUGIN_NAME).dll $(PLUGIN_NAME).exp $(PLUGIN_NAME).lib : $(OBJECTS) $(LINK_PLU
 # reason.
 #
 # Therefore, we use a script to generate the register.c file.
-# There are two versions of the script, a shell and a Python version.
-# The Python script runs faster, since it uses caching to speed up
-# repeated runs and doesn't invoke external processes, so we prefer
-# that if Python is available.
-#
 # The first argument is the directory in which the source files live.
 # The second argument is "plugin", to indicate that we should build
 # a plugin.c file for a plugin.
 # All subsequent arguments are the files to scan.
 #
-!IFDEF PYTHON
 plugin.c: $(REGISTER_SRC_FILES) moduleinfo.h Makefile.common ../../tools/make-dissector-reg.py
-	@echo Making plugin.c (using python)
+	@echo Making plugin.c
 	@$(PYTHON) "../../tools/make-dissector-reg.py" . plugin $(REGISTER_SRC_FILES) $(NODIST_REGISTER_SRC_FILES)
-!ELSE
-plugin.c: $(REGISTER_SRC_FILES) moduleinfo.h Makefile.common ../../tools/make-dissector-reg
-	@echo Making plugin.c (using sh)
-	@$(SH) ../../tools/make-dissector-reg . plugin $(REGISTER_SRC_FILES) $(NODIST_REGISTER_SRC_FILES)
-!ENDIF
 
 !ENDIF
 
