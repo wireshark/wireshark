@@ -38,7 +38,6 @@ WSUG_GRAPHICS =	\
 	wsug_graphics/ws-capture-interfaces-win32.png	\
 	wsug_graphics/ws-capture-menu.png		\
 	wsug_graphics/ws-capture-options.png		\
-	wsug_graphics/captureOptions.png		\
 	wsug_graphics/ws-capture-options-compile-selected-bpfs.png	\
 	wsug_graphics/ws-capture-options-manage-interfaces-local.png	\
 	wsug_graphics/ws-capture-options-manage-interfaces-pipes.png	\
