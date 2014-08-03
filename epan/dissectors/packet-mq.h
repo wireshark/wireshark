@@ -65,6 +65,8 @@ typedef struct _mq_ccsid_t
 
 typedef struct _mq_parm_t
 {
+    guint32    mq_convID ;
+    guint32    mq_rqstID;
     guint32    mq_strucID ;
     guint32    mq_int_enc ;
     guint32    mq_str_enc ;

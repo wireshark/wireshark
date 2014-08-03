@@ -188,7 +188,7 @@ static void dissect_mqpcf_parm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mq
         guint32 xOfs = offset;
 
         uCnt = 0;
-        while (tvb_length_remaining(tvb, xOfs) >= 16)
+        while (tvb_reported_length_remaining(tvb, xOfs) >= 16)
         {
             uLen = tvb_get_guint32_endian(tvb, xOfs + 4, bLittleEndian);
             if (uLen < 16)
@@ -553,7 +553,7 @@ static void dissect_mqpcf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, m
 
     bLittleEndian = ((p_mq_parm->mq_cur_ccsid.encod & MQ_MQENC_INTEGER_MASK) == MQ_MQENC_INTEGER_REVERSED) ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN;
 
-    if (tvb_length(tvb) >= 36)
+    if (tvb_reported_length(tvb) >= 36)
     {
         gint iSizeMQCFH = 36;
         guint32 iCommand = tvb_get_guint32_endian(tvb, offset + 12, bLittleEndian);
@@ -618,7 +618,7 @@ static void dissect_mqpcf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, m
 
 static gboolean dissect_mqpcf_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    if (data && tvb_length(tvb) >= 36)
+    if (data && tvb_reported_length(tvb) >= 36)
     {
         mq_parm_t *p_mq_parm = (mq_parm_t *)data;
         if (strncmp((const char*)p_mq_parm->mq_format, MQ_MQFMT_ADMIN, 8) == 0
