@@ -170,6 +170,10 @@ yes
 #endif],
 				[v6type=$i; v6lib=v6;
 				v6libdir=/usr/local/v6/lib;
+				#
+				# XXX - this doesn't define INET6;
+				# is that a mistake?
+				#
 				CPPFLAGS="-I/usr/local/v6/include $CPPFLAGS"])
 			;;
 		toshiba)
@@ -180,7 +184,7 @@ yes
 #endif],
 				[v6type=$i; v6lib=inet6;
 				v6libdir=/usr/local/v6/lib;
-				CPPFLAGS="-DINET6 $CPPFLAGS"])
+				AC_DEFINE(INET6, 1, [Define if the platform supports IPv6])])
 			;;
 		kame)
 			AC_EGREP_CPP(yes, [
@@ -190,7 +194,7 @@ yes
 #endif],
 				[v6type=$i; v6lib=inet6;
 				v6libdir=/usr/local/v6/lib;
-				CPPFLAGS="-DINET6 $CPPFLAGS"])
+				AC_DEFINE(INET6, 1, [Define if the platform supports IPv6])])
 			;;
 		inria)
 			AC_EGREP_CPP(yes, [
@@ -198,7 +202,8 @@ yes
 #ifdef IPV6_INRIA_VERSION
 yes
 #endif],
-				[v6type=$i; CPPFLAGS="-DINET6 $CPPFLAGS"])
+				[v6type=$i;
+				AC_DEFINE(INET6, 1, [Define if the platform supports IPv6])])
 			;;
 		zeta)
 			AC_EGREP_CPP(yes, [
@@ -208,14 +213,14 @@ yes
 #endif],
 				[v6type=$i; v6lib=inet6;
 				v6libdir=/usr/local/v6/lib;
-				CPPFLAGS="-DINET6 $CPPFLAGS"])
+				AC_DEFINE(INET6, 1, [Define if the platform supports IPv6])])
 			;;
 		linux)
 			if test -d /usr/inet6; then
 				v6type=$i
 				v6lib=inet6
 				v6libdir=/usr/inet6
-				CPPFLAGS="-DINET6 $CPPFLAGS"
+				AC_DEFINE(INET6, 1, [Define if the platform supports IPv6])
 			fi
 			;;
 		linux-glibc)
@@ -226,13 +231,18 @@ yes
 yes
 #endif
 #endif],
-			[v6type=$i; v6lib=inet6; CPPFLAGS="-DINET6 $CPPFLAGS"])
+			[v6type=$i; v6lib=inet6;
+			AC_DEFINE(INET6, 1, [Define if the platform supports IPv6])])
 			;;
 		solaris)
+			#
+			# XXX - "SunOS" as opposed to what?  SunOS 5
+			# should always say "SunOS" here.
+			#
 			if test "`uname -s`" = "SunOS"; then
 				v6type=$i
 				v6lib=inet6
-				[CPPFLAGS="-DINET6 $CPPFLAGS"]
+				AC_DEFINE(INET6, 1, [Define if the platform supports IPv6])
 			fi
 			;;
 		esac
