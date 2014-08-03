@@ -1606,7 +1606,7 @@ draw_ct_table_addresses(conversations_table *ct)
                   CONV_COLUMN_SRC_ADDR, get_conversation_address(&conv_item->src_address, ct->resolve_names),
                   CONV_COLUMN_SRC_PORT, get_conversation_port(conv_item->src_port, conv_item->ptype, ct->resolve_names),
                   CONV_COLUMN_DST_ADDR, get_conversation_address(&conv_item->dst_address, ct->resolve_names),
-                  CONV_COLUMN_DST_PORT, get_conversation_port(conv_item->src_port, conv_item->ptype, ct->resolve_names),
+                  CONV_COLUMN_DST_PORT, get_conversation_port(conv_item->dst_port, conv_item->ptype, ct->resolve_names),
                     -1);
         iter_valid = gtk_tree_model_iter_next(GTK_TREE_MODEL(store), &iter);
     }
@@ -1715,7 +1715,7 @@ draw_ct_table_data(conversations_table *ct)
                     CONV_COLUMN_SRC_ADDR, get_conversation_address(&conv_item->src_address, ct->resolve_names),
                     CONV_COLUMN_SRC_PORT, get_conversation_port(conv_item->src_port, conv_item->ptype, ct->resolve_names),
                     CONV_COLUMN_DST_ADDR, get_conversation_address(&conv_item->dst_address, ct->resolve_names),
-                    CONV_COLUMN_DST_PORT, get_conversation_port(conv_item->src_port, conv_item->ptype, ct->resolve_names),
+                    CONV_COLUMN_DST_PORT, get_conversation_port(conv_item->dst_port, conv_item->ptype, ct->resolve_names),
                     CONV_COLUMN_PACKETS,  conv_item->tx_frames+conv_item->rx_frames,
                     CONV_COLUMN_BYTES,    conv_item->tx_bytes+conv_item->rx_bytes,
                     CONV_COLUMN_PKT_AB,   conv_item->tx_frames,
