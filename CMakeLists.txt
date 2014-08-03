@@ -23,13 +23,6 @@ project(Wireshark C CXX)
 
 cmake_minimum_required(VERSION 2.8.3)
 
-#
-# XXX - force verbose Makefiles, to try to debug some differences
-# in warnings generated on the 32-bit OS X buildbot for autotools
-# builds and CMake builds.
-#
-set(CMAKE_VERBOSE_MAKEFILE ON)
-
 # Needs to be set after cmake_minimum_required or cmake_policy(VERSION)
 # Policy since 2.6.1
 cmake_policy(SET CMP0008 NEW)
