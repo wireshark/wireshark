@@ -98,7 +98,7 @@ typedef guint16 lbm_uint16_t;
 typedef guint32 lbm_uint32_t;
 typedef guint64 lbm_uint64_t;
 #define SIZEOF(TYPE, MEMBER) (gint)(sizeof(((TYPE *)0)->MEMBER))
-#define OFFSETOF(TYPE, MEMBER) G_STRUCT_OFFSET(TYPE, MEMBER)
+#define OFFSETOF(TYPE, MEMBER) ((gint)G_STRUCT_OFFSET(TYPE, MEMBER))
 #define STRINGIZE(a) #a
 #define MAKESTRING(a) STRINGIZE(a)
 #define LBM_OTID_BLOCK_SZ 32
