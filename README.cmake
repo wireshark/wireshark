@@ -108,7 +108,7 @@ All the executables now build from clean source on:
 * 32bit Ubuntu 9.04
 * 32bit Ubuntu 10.04
 * 64bit Debian Wheezy
-* Mac OS X
+* OS X
 
 What needs to be done?
 ======================
@@ -122,9 +122,8 @@ What needs to be done?
   (using CPack).  This includes setting OS target version stuff
   appropriately for OS X.
 - Add back checkAPI target.
-- Test and add support for other platforms (BSDs, OS X,
-  Solaris, Win32, Win64, ...) - we're currently doing CMake builds on OS
-  X, and Solaris.
+- Test and add support for other platforms (BSDs, Solaris, Win32, Win64,
+  ...) - we're currently doing CMake builds on Solaris.
 - Add support for cmake configurations.
 - Automatically figure out if *shark is running from the build directory
   (making WIRESHARK_RUN_FROM_BUILD_DIRECTORY unnecessary like it is with
@@ -147,6 +146,10 @@ What needs to be done?
 - Get plugins loading when running *shark from the build directory.
   That might involve handling ".libs" and "run" differently.
 - Get cross-compilation working (or ensure it does). It works with autofoo.
+- Handle -DFORTIFY_SOURCE=2 appropriately.  (Do a Web search for
+  "cmake fortify" for some information.)
+- Define the GTK_DISABLE_ and GDK_DISABLE_ values as appropriate if we
+  care about supporting the GTK+ version.
 ...
 
 Links regarding cmake
