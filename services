@@ -2848,6 +2848,7 @@ h323gatestat     1719/tcp # H.323 Unicast Gatekeeper Signaling [ITU-T] [ITU-T_TS
 h323gatestat     1719/udp # H.323 Unicast Gatekeeper Signaling [ITU-T] [ITU-T_TSB] 2013-01-31
 h323hostcall     1720/tcp # H.323 Call Control Signalling [ITU-T] [ITU-T_TSB] 2013-01-31
 h323hostcall     1720/udp # H.323 Call Control Signalling [ITU-T] [ITU-T_TSB] 2013-01-31
+h323hostcall     1720/sctp # H.323 Call Control [ITU-T] 2014-07-30
 caicci           1721/tcp # caicci [Sylvia_Scheuren] [Sylvia_Scheuren]
 caicci           1721/udp # caicci [Sylvia_Scheuren] [Sylvia_Scheuren]
 hks-lm           1722/tcp # HKS License Manager [Michael_Wood] [Michael_Wood]
@@ -6297,8 +6298,8 @@ asam             3451/tcp # ASAM Services [Mike_Gossett] [Mike_Gossett] 2002-04
 asam             3451/udp # ASAM Services [Mike_Gossett] [Mike_Gossett] 2002-04
 sabp-signal      3452/tcp # SABP-Signalling Protocol [Brendan_McWilliams] [Brendan_McWilliams] 2002-04
 sabp-signal      3452/udp # SABP-Signalling Protocol [Brendan_McWilliams] [Brendan_McWilliams] 2002-04
-pscupd           3453/tcp # PSC Update Port [Reid_B_Ligon] [Reid_B_Ligon]
-pscupd           3453/udp # PSC Update Port [Reid_B_Ligon] [Reid_B_Ligon]
+pscupd           3453/tcp # PSC Update [Datalogic_ADC_Inc] [Reid_B_Ligon] 2001-11-10 2014-07-31
+pscupd           3453/udp # PSC Update [Datalogic_ADC_Inc] [Reid_B_Ligon] 2001-11-10 2014-07-31
 mira             3454/tcp # Apple Remote Access Protocol [Mike_Alexander] [Mike_Alexander]
 mira             3454/udp # Apple Remote Access Protocol [Mike_Alexander] [Mike_Alexander]
 prsvp            3455/tcp # RSVP Port [Bob_Braden] [Bob_Braden]
@@ -8880,6 +8881,7 @@ ncxcp            5681/udp # Net-coneX Control Protocol [Ryan_Werber] [Ryan_Werbe
 brightcore       5682/udp # BrightCore control & data transfer exchange [Marko_Bjelac] [Marko_Bjelac] 2010-06-10
 coap             5683/udp # Constrained Application Protocol [IESG] [IETF_Chair] 2011-06-13 2013-07-25 [RFC7252]
 coaps            5684/udp # DTLS-secured CoAP [IESG] [IETF_Chair] 2013-07-25 [RFC7252]
+gog-multiplayer  5687/udp # GOG RakNet Game protocol on Galaxy service [GOG.com] [Michal_Gruchala] 2014-07-31
 ggz              5688/tcp # GGZ Gaming Zone [Josef_Spillner] [Josef_Spillner] 2003-01
 ggz              5688/udp # GGZ Gaming Zone [Josef_Spillner] [Josef_Spillner] 2003-01
 qmvideo          5689/tcp # QM video network management protocol [Jamie_Lokier] [Jamie_Lokier] 2006-05
@@ -9452,6 +9454,7 @@ swispol          6966/tcp # swispol [Yutaka_Ono] [Yutaka_Ono]
 swispol          6966/udp # swispol [Yutaka_Ono] [Yutaka_Ono]
 acmsoda          6969/tcp # acmsoda [Daniel_Simms] [Daniel_Simms]
 acmsoda          6969/udp # acmsoda [Daniel_Simms] [Daniel_Simms]
+conductor-mpx    6970/sctp # conductor for multiplex [George_Neville-Neil] [George_Neville-Neil] 2014-07-29
 MobilitySrv      6997/tcp # Mobility XE Protocol [Joseph_T_Savarese] [Joseph_T_Savarese] 2007-06
 MobilitySrv      6997/udp # Mobility XE Protocol [Joseph_T_Savarese] [Joseph_T_Savarese] 2007-06
 iatp-highpri     6998/tcp # IATP-highPri [John_Murphy] [John_Murphy]
