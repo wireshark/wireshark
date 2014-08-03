@@ -196,6 +196,59 @@ if( CMAKE_C_COMPILER_ID MATCHES "MSVC")
 		${WARNINGS_CFLAGS}
 	)
 else()
+	if(OSX_DEPLOY_TARGET)
+		if(APPLE)
+			if(${OSX_DEPLOY_TARGET} STREQUAL "10.0")
+				message(FATAL_ERROR "We don't support building for OS X 10.0")
+			elseif(${OSX_DEPLOY_TARGET} STREQUAL "10.1")
+				message(FATAL_ERROR "We don't support building for OS X 10.1")
+			elseif(${OSX_DEPLOY_TARGET} STREQUAL "10.2")
+				message(FATAL_ERROR "We don't support building for OS X 10.2")
+			elseif(${OSX_DEPLOY_TARGET} STREQUAL "10.3")
+				# XXX - never tested.
+				set(SDKPATH "/Developer/SDKs/MacOSX10.3.9.sdk")
+			else()
+				find_file(SDKPATH
+				    MacOSX${OSX_DEPLOY_TARGET}.sdk
+				    PATHS
+					/Developer/SDKs
+					/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs
+					/Library/Developer/CommandLineTools/SDKs
+				    NO_DEFAULT_PATH
+				)
+				if(R{SDKPATH} STREQUAL "SDKPATH-NOTFOUND")
+					message(FATAL_ERROR "We couldn't find the SDK for OS X ${OSX_DEPLOY_TARGET}")
+				endif()
+			endif()
+			#
+			# Add a -mmacosx-version-min flag to force tests
+			# that use the compiler, as well as the build
+			# itself, not to, for example, use compiler or
+			# linker features not supported by the minimum
+			# targeted version of the OS.
+			#
+			# Add an -isysroot flag to use the SDK.
+			#
+			set(CMAKE_C_FLAGS "-mmacosx-version-min=${OSX_DEPLOY_TARGET} -isysroot ${SDKPATH} ${CMAKE_C_FLAGS}")
+			set(CMAKE_CXX_FLAGS "-mmacosx-version-min=${OSX_DEPLOY_TARGET} -isysroot ${SDKPATH} ${CMAKE_CXX_FLAGS}")
+			set(WS_LINK_FLAGS "-mmacosx-version-min=${OSX_DEPLOY_TARGET} -isysroot ${SDKPATH} ${WS_LINK_FLAGS}")
+			if(${OSX_DEPLOY_TARGET} STREQUAL "10.4" OR ${OSX_DEPLOY_TARGET} STREQUAL "10.5")
+				#
+				# Only 32-bit builds are supported.  10.5
+				# (and 10.4?) had a bug that causes some BPF
+				# functions not to work with 64-bit userland
+			        # code, so capturing won't work.
+				#
+				set(CMAKE_C_FLAGS "-m32 ${CMAKE_C_FLAGS}")
+				set(CMAKE_CXX_FLAGS "-m32 ${CMAKE_CXX_FLAGS}")
+				set(WS_LINK_FLAGS "-m32 ${WS_LINK_FLAGS}")
+			endif()
+			message(STATUS "Building for OS X ${OSX_DEPLOY_TARGET}")
+		else()
+			message(FATAL_ERROR "OSX_DEPLOY_TARGET only applies when building for OS X")
+		endif()
+	endif()
+
 	set(WIRESHARK_COMMON_FLAGS
 		# The following are for C and C++
 		# -O<X> and -g get set by the CMAKE_BUILD_TYPE

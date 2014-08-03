@@ -119,11 +119,12 @@ What needs to be done?
 - Build source package (using CPack).
   This is obsolete if we decide to release VCS snapshots instead
 - Build packages (Windows installer, RPM, SVR4, OS X installer dmg)
-  (using CPack).
+  (using CPack).  This includes setting OS target version stuff
+  appropriately for OS X.
 - Add back checkAPI target.
 - Test and add support for other platforms (BSDs, OS X,
-  Solaris, Win32, Win64, ...)
-- Support building against an SDK for OS X.
+  Solaris, Win32, Win64, ...) - we're currently doing CMake builds on OS
+  X, and Solaris.
 - Add support for cmake configurations.
 - Automatically figure out if *shark is running from the build directory
   (making WIRESHARK_RUN_FROM_BUILD_DIRECTORY unnecessary like it is with
