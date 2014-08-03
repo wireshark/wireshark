@@ -233,7 +233,7 @@ static gint buffered_detect_version(const guint8 *pd)
     struct logger_entry     *log_entry;
     struct logger_entry_v2  *log_entry_v2;
     gint                     version;
-    guint8                  *msg_payload;
+    guint8                  *msg_payload = NULL;
     guint8                  *msg_part;
     guint8                  *msg_end;
     guint16                  msg_len;
