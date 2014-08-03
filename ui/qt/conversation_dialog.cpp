@@ -40,6 +40,7 @@
 #include <QList>
 #include <QMap>
 #include <QMessageBox>
+#include <QPushButton>
 #include <QTabWidget>
 #include <QTextStream>
 #include <QToolButton>
@@ -179,7 +180,12 @@ void ConversationDialog::setCaptureFile(capture_file *cf)
 {
     if (!cf) { // We only want to know when the file closes.
         cap_file_ = NULL;
+        for (int i = 0; i < ui->conversationTabWidget->count(); i++) {
+            ConversationTreeWidget *cur_tree = qobject_cast<ConversationTreeWidget *>(ui->conversationTabWidget->widget(i));
+            remove_tap_listener(cur_tree->conversationHash());
+        }
         ui->displayFilterCheckBox->setEnabled(false);
+        ui->conversationTypePushButton->setEnabled(false);
     }
 }
 
