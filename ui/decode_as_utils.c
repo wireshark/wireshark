@@ -137,8 +137,8 @@ read_set_decode_as_entries(gchar *key, const gchar *value,
                     long long_value;
 
                     long_value = strtol(values[1], &p, 0);
-                    if (p == values[0] || *p != '\0' ||
-		        long_value < 0 || long_value > UINT_MAX) {
+                    if (p == values[0] || *p != '\0' || long_value < 0 ||
+                          (unsigned long)long_value > UINT_MAX) {
                         retval = PREFS_SET_SYNTAX_ERR;
                         is_valid = FALSE;
                     } else
