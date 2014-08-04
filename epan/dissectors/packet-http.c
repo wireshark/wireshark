@@ -1006,7 +1006,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			ti = proto_tree_add_item(tree, proto_http, tvb, orig_offset, -1, ENC_NA);
 			http_tree = proto_item_add_subtree(ti, ett_http);
 			if(leading_crlf){
-                proto_tree_add_expert(http_tree, pinfo, &ei_http_leading_crlf, tvb, orig_offset-2, 2);
+				proto_tree_add_expert(http_tree, pinfo, &ei_http_leading_crlf, tvb, orig_offset-2, 2);
 			}
 		}
 
