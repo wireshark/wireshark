@@ -263,7 +263,8 @@ release-notes.txt: $(RELEASE_NOTES_SOURCE)
 	mv $(srcdir)/release-notes.text $@
 
 news: release-notes.txt
-	cp $(srcdir)/release-notes.txt ../NEWS
+	cp release-notes.txt ../NEWS
+	-cp release-notes.txt $(top_srcdir)NEWS
 
 # Apparently we can only run one instance of a2x at a time.
 .NOTPARALLEL: release-notes-us.pdf release-notes-a4.pdf
