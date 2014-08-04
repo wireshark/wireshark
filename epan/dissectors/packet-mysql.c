@@ -2046,7 +2046,7 @@ dissect_mysql_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 	conversation_t  *conversation;
 	int             offset = 0;
 	guint           packet_number;
-	gboolean        is_response;
+	gboolean        is_response, is_ssl = FALSE;
 	mysql_conn_data_t  *conn_data;
 #ifdef CTDEBUG
 	mysql_state_t conn_state_in, conn_state_out, frame_state;
@@ -2141,9 +2141,10 @@ dissect_mysql_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 		PROTO_ITEM_SET_GENERATED(pi);
 	}
 #endif
+	proto_get_frame_protocols(pinfo->layers, NULL, NULL, NULL, NULL, &is_ssl);
 
 	if (is_response) {
-		if (packet_number == 0) {
+		if (packet_number == 0 ) {
 			col_set_str(pinfo->cinfo, COL_INFO, "Server Greeting");
 			offset = mysql_dissect_greeting(tvb, pinfo, offset, mysql_tree, conn_data);
 		} else {
@@ -2151,7 +2152,7 @@ dissect_mysql_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 			offset = mysql_dissect_response(tvb, pinfo, offset, mysql_tree, conn_data);
 		}
 	} else {
-		if (packet_number == 1) {
+		if (packet_number == 1 || (packet_number == 2 && is_ssl)) {
 			col_set_str(pinfo->cinfo, COL_INFO, "Login Request");
 			offset = mysql_dissect_login(tvb, pinfo, offset, mysql_tree, conn_data);
 		} else {
