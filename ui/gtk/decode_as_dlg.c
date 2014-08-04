@@ -152,20 +152,6 @@ typedef struct da_entry da_entry_t;
 GSList *da_entries = NULL;
 
 /*
- * Save entries into preferences.
- */
-static void
-write_da_entry(gpointer item, gpointer user_data)
-{
-  da_entry_t *entry = (da_entry_t *)item;
-  FILE *daf = (FILE *)user_data;
-  gchar *selector_str = g_strdup_printf("%d", entry->selector);
-
-  decode_as_write_entry(daf, entry->table, selector_str, entry->initial, entry->current);
-  g_free(selector_str);
-}
-
-/*
  * Free memory used by the da_entry
  */
 static void
@@ -454,13 +440,7 @@ decode_show_destroy_cb (GtkWidget *win _U_, gpointer user_data _U_)
 static void
 decode_show_save_cb (GtkWidget *win _U_, gpointer user_data _U_)
 {
-  FILE        *daf = decode_as_open();
-
-  if (!daf) return;
-
-  g_slist_foreach(da_entries, write_da_entry, daf);
-
-  fclose(daf);
+  save_decode_as_entries();
 }
 
 /* add a single binding to the Show list */

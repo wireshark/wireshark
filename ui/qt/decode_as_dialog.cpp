@@ -492,19 +492,7 @@ void DecodeAsDialog::curProtoDestroyed()
 
 void DecodeAsDialog::on_buttonBox_accepted()
 {
-    FILE *da_file = decode_as_open();
-    if (!da_file) return;
-
-    for (int i = 0; i < ui->decodeAsTreeWidget->topLevelItemCount(); i++) {
-        QTreeWidgetItem *item = ui->decodeAsTreeWidget->topLevelItem(i);
-
-        decode_as_write_entry(da_file,
-                ui_name_to_name_[item->text(table_col_)],
-                item->text(selector_col_).toUtf8().constData(),
-                item->text(default_col_).toUtf8().constData(),
-                item->text(proto_col_).toUtf8().constData());
-    }
-    fclose(da_file);
+    save_decode_as_entries();
 }
 
 void DecodeAsDialog::on_buttonBox_helpRequested()

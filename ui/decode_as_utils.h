@@ -39,6 +39,10 @@ extern "C" {
  */
 void load_decode_as_entries(void);
 
+/** Write out the "decode as" entries of the current profile.
+ */
+void save_decode_as_entries(void);
+
 /** This routine creates one entry in the list of protocol dissector
  * that need to be reset. It is called by the g_hash_table_foreach
  * routine once for each changed entry in a dissector table.
@@ -68,25 +72,6 @@ void decode_build_reset_list (const gchar *table_name, ftenum_t selector_type,
 /** Clear all "decode as" settings.
  */
 void decode_clear_all(void);
-
-/** Open the "decode_as_entries" configuration file and write its header.
- *
- * Entries should be written with decode_as_write_entry(). The file should
- * be closed with fclose().
- *
- * @return A valid FILE pointer on success, NULL on failure.
- */
-FILE *decode_as_open(void);
-
-/** Write an entry to the "decode_as_entries" file.
- *
- * @param[in] da_file FILE pointer returned by decode_as_open().
- * @param[in] table_name A short decode_as table name.
- * @param[in] selector Integer or string selector, e.g. 80 for TCP port 80.
- * @param[in] default_proto The default protocol for the selector, or "(none)".
- * @param[in] current_proto The desired protocol for the selector, or "(none)" to disable.
- */
-void decode_as_write_entry(FILE *da_file, const char *table_name, const char *selector, const char *default_proto, const char *current_proto);
 
 #ifdef __cplusplus
 }
