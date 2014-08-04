@@ -134,8 +134,8 @@ Requires:	xdg-utils
 Requires:	hicolor-icon-theme
 BuildRequires:	desktop-file-utils
 Requires(post):	desktop-file-utils
-Requires(post): %{_sbindir}/update-alternatives
-Requires(postun): %{_sbindir}/update-alternatives
+Requires(post): /usr/sbin/update-alternatives
+Requires(postun): /usr/sbin/update-alternatives
 %if 0%{?suse_version}
 # Need this for SuSE's suse_update_desktop_file macro
 BuildRequires:	update-desktop-files
@@ -171,8 +171,8 @@ Requires:	xdg-utils
 Requires:	hicolor-icon-theme
 BuildRequires:	desktop-file-utils
 Requires(post):	desktop-file-utils
-Requires(post): %{_sbindir}/update-alternatives
-Requires(postun): %{_sbindir}/update-alternatives
+Requires(post): /usr/sbin/update-alternatives
+Requires(postun): /usr/sbin/update-alternatives
 BuildRequires:	gcc-c++
 %if 0%{?suse_version}
 # Need this for SuSE's suse_update_desktop_file macro
@@ -266,7 +266,7 @@ fi
 update-desktop-database &> /dev/null ||:
 update-mime-database /usr/share/mime &> /dev/null || :
 touch --no-create /usr/share/icons/hicolor &>/dev/null || :
-%{_sbindir}/update-alternatives --install %{_bindir}/wireshark \
+/usr/sbin/update-alternatives --install %{_bindir}/wireshark \
   %{name} %{_bindir}/wireshark-gtk 50
 
 %postun gnome
@@ -275,7 +275,7 @@ update-mime-database /usr/share/mime &> /dev/null || :
 if [ $1 -eq 0 ] ; then
 	touch --no-create /usr/share/icons/hicolor &>/dev/null || :
 	gtk-update-icon-cache /usr/share/icons/hicolor &>/dev/null || :
-	%{_sbindir}/update-alternatives --remove %{name} %{_bindir}/wireshark-gtk
+	/usr/sbin/update-alternatives --remove %{name} %{_bindir}/wireshark-gtk
 fi
 %endif
 
@@ -284,7 +284,7 @@ fi
 update-desktop-database &> /dev/null ||:
 update-mime-database /usr/share/mime &> /dev/null || :
 touch --no-create /usr/share/icons/hicolor &>/dev/null || :
-%{_sbindir}/update-alternatives --install %{_bindir}/wireshark \
+/usr/sbin/update-alternatives --install %{_bindir}/wireshark \
   %{name} %{_bindir}/wireshark-qt 10
 
 %postun qt
@@ -293,7 +293,7 @@ update-mime-database /usr/share/mime &> /dev/null || :
 if [ $1 -eq 0 ] ; then
 	touch --no-create /usr/share/icons/hicolor &>/dev/null || :
 	gtk-update-icon-cache /usr/share/icons/hicolor &>/dev/null || :
-	%{_sbindir}/update-alternatives --remove %{name} %{_bindir}/wireshark-qt
+	/usr/sbin/update-alternatives --remove %{name} %{_bindir}/wireshark-qt
 fi
 %endif
 
