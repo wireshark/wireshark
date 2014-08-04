@@ -27,7 +27,6 @@
 #include "decode_as.h"
 #include "packet.h"
 
-/* XXX Should this be in ui/decode_as_util? */
 GList *decode_as_list = NULL;
 
 void register_decode_as(decode_as_t* reg)
