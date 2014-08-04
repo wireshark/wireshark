@@ -89,7 +89,7 @@ G_GNUC_MALLOC;
     ((type*)wmem_alloc((allocator), sizeof(type)))
 
 #define wmem_safe_mult(A, B) \
-    ((((B) > 0) && ((A) > (G_MAXSSIZE / (B)))) ? 0 : ((A) * (B)))
+    ((((A) <= 0) || ((B) <= 0) || ((gsize)(A) > (G_MAXSSIZE / (gsize)(B)))) ? 0 : ((A) * (B)))
 
 /** Allocate memory sufficient to hold n objects of the given type.
  *
