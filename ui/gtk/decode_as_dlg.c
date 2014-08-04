@@ -321,8 +321,16 @@ read_set_decode_as_entries(gchar *key, const gchar *value,
       lookup.handle = NULL;
       g_slist_foreach(sub_dissectors->dissector_handles, change_dissector_if_matched, &lookup);
       if (lookup.handle != NULL) {
-	dissector_change_uint(values[0], atoi(values[1]), lookup.handle);
-	decode_build_reset_list(g_strdup(values[0]), sub_dissectors->type, g_strdup(values[1]), NULL, NULL);
+        char *p;
+        long long_value;
+
+        long_value = strtol(values[1], &p, 0);
+        if (p == values[0] || *p != '\0' || long_value < 0 || long_value > UINT_MAX) {
+            retval = PREFS_SET_SYNTAX_ERR;
+        } else {
+            dissector_change_uint(values[0], (guint)long_value, lookup.handle);
+            decode_build_reset_list(g_strdup(values[0]), sub_dissectors->type, g_strdup(values[1]), NULL, NULL);
+        }
       }
     } else {
       retval = PREFS_SET_SYNTAX_ERR;
@@ -1886,7 +1894,7 @@ decode_add_bluetooth_page(const gchar *prompt, const gchar *table_name, const ch
     if (value == NULL)
         value = empty;
 
-	page = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5, FALSE);
+    page = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5, FALSE);
 
     g_object_set_data(G_OBJECT(page), E_PAGE_ACTION, decode_bluetooth);
     g_object_set_data(G_OBJECT(page), E_PAGE_TABLE,  (gchar *) table_name);
