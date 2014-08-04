@@ -60,6 +60,8 @@ NODIST_GENERATED_HEADER_FILES =	\
 	ui_preferences_dialog.h	\
 	ui_print_dialog.h	\
 	ui_profile_dialog.h	\
+	ui_remote_capture_dialog.h	\
+	ui_remote_settings_dialog.h	\
 	ui_sctp_all_assocs_dialog.h	\
 	ui_sctp_assoc_analyse_dialog.h	\
 	ui_sctp_chunk_statistics_dialog.h	\
@@ -167,6 +169,8 @@ MOC_HDRS =	\
 	qcustomplot.h	\
 	recent_file_status.h	\
 	related_packet_delegate.h	\
+	remote_capture_dialog.h	\
+	remote_settings_dialog.h	\
 	search_frame.h	\
 	sctp_all_assocs_dialog.h	\
 	sctp_assoc_analyse_dialog.h	\
@@ -223,6 +227,8 @@ UI_FILES =	\
 	preferences_dialog.ui	\
 	print_dialog.ui	\
 	profile_dialog.ui	\
+	remote_capture_dialog.ui	\
+	remote_settings_dialog.ui	\
 	sctp_all_assocs_dialog.ui	\
 	sctp_assoc_analyse_dialog.ui	\
 	sctp_chunk_statistics_dialog.ui	\
@@ -354,6 +360,8 @@ WIRESHARK_QT_SRC =	\
 	qt_ui_utils.cpp	\
 	recent_file_status.cpp	\
 	related_packet_delegate.cpp	\
+	remote_capture_dialog.cpp	\
+	remote_settings_dialog.cpp	\
 	sctp_all_assocs_dialog.cpp	\
 	sctp_assoc_analyse_dialog.cpp	\
 	sctp_chunk_statistics_dialog.cpp	\

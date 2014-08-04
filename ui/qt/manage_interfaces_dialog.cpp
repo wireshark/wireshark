@@ -24,12 +24,18 @@
 #include "manage_interfaces_dialog.h"
 #include "ui_manage_interfaces_dialog.h"
 #include "epan/prefs.h"
+#include "epan/to_str.h"
 #include "ui/last_open_dir.h"
 #include "capture_opts.h"
 #include "ui/capture_globals.h"
 #include "ui/qt/capture_interfaces_dialog.h"
+#ifdef HAVE_PCAP_REMOTE
+#include "ui/qt/remote_capture_dialog.h"
+#include "ui/qt/remote_settings_dialog.h"
+#endif
 #include "ui/iface_lists.h"
 #include "ui/preference_utils.h"
+#include "ui/ui_util.h"
 
 #ifdef HAVE_LIBPCAP
 #include <QFileDialog>
@@ -51,11 +57,21 @@ ManageInterfacesDialog::ManageInterfacesDialog(QWidget *parent) :
     new_pipe_item_delegate_.setTable(ui->pipeList);
     showPipes();
     connect(this, SIGNAL(ifsChanged()), parent, SIGNAL(ifsChanged()));
-
+#ifdef HAVE_PCAP_REMOTE
+    connect(this, SIGNAL(remoteAdded(GList*, remote_options*)), this, SLOT(addRemoteInterfaces(GList*, remote_options*)));
+    connect(this, SIGNAL(remoteSettingsChanged(interface_t *)), this, SLOT(setRemoteSettings(interface_t *)));
+#endif
     showLocalInterfaces();
 
 #if !defined(HAVE_PCAP_REMOTE)
     ui->tabWidget->removeTab(2);
+#else
+    ui->remoteList->setHeaderLabels(QStringList() << "Host" << "Hide" << "Name");
+    ui->remoteList->header()->setDefaultAlignment(Qt::AlignCenter);
+    ui->remoteList->setColumnWidth(HIDDEN, 50);
+    ui->remoteSettings->setEnabled(false);
+    showRemoteInterfaces();
+    connect(ui->remoteList, SIGNAL(itemClicked(QTreeWidgetItem*, int)), this, SLOT(remoteSelectionChanged(QTreeWidgetItem*, int)));
 #endif
 }
 
@@ -324,7 +340,7 @@ void ManageInterfacesDialog::checkBoxChanged(QTableWidgetItem* item)
 
 void ManageInterfacesDialog::on_localButtonBox_accepted()
 {
-    gchar *new_hide;
+    gchar *new_hide = g_strdup("");
     gchar *new_comment = NULL;
     QString name;
     gchar *tmp_descr = NULL;
@@ -371,6 +387,291 @@ void ManageInterfacesDialog::on_localButtonBox_accepted()
     emit ifsChanged();
 }
 
+#ifdef HAVE_PCAP_REMOTE
+void ManageInterfacesDialog::remoteSelectionChanged(QTreeWidgetItem* item, int col)
+{
+    Q_UNUSED(item);
+
+    if (col != 0 && item->isSelected()) {
+        ui->remoteSettings->setEnabled(true);
+    } else if (col == 0) {
+        ui->remoteSettings->setEnabled(false);
+    }
+}
+
+void ManageInterfacesDialog::addRemoteInterfaces(GList* rlist, remote_options *roptions)
+{
+    GList *if_entry, *lt_entry;
+    if_info_t *if_info;
+    char *if_string = NULL;
+    gchar *descr, *str = NULL, *link_type_name = NULL;;
+    if_capabilities_t *caps;
+    gint linktype_count;
+    bool monitor_mode, found = false;
+    GSList *curr_addr;
+    int ips = 0;
+    guint i;
+    if_addr_t *addr;
+    data_link_info_t *data_link_info;
+    GString *ip_str;
+    link_row *linkr = NULL;
+    interface_t device;
+
+    guint num_interfaces = global_capture_opts.all_ifaces->len;
+    for (if_entry = g_list_first(rlist); if_entry != NULL; if_entry = g_list_next(if_entry)) {
+        if_info = (if_info_t *)if_entry->data;
+        for (i = 0; i < num_interfaces; i++) {
+            device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
+            if (device.hidden)
+                continue;
+            if (strcmp(device.name, if_info->name) == 0) {
+                found = TRUE;
+                break;
+            }
+        }
+        if (found) {
+            found = FALSE;
+            continue;
+        }
+        ip_str = g_string_new("");
+        str = "";
+        ips = 0;
+        device.name = g_strdup(if_info->name);
+        /* Is this interface hidden and, if so, should we include it
+           anyway? */
+        descr = capture_dev_user_descr_find(if_info->name);
+        if (descr != NULL) {
+            /* Yes, we have a user-supplied description; use it. */
+            if_string = g_strdup_printf("%s: %s", descr, if_info->name);
+            g_free(descr);
+        } else {
+            /* No, we don't have a user-supplied description; did we get
+               one from the OS or libpcap? */
+            if (if_info->vendor_description != NULL) {
+                /* Yes - use it. */
+                if_string = g_strdup_printf("%s: %s", if_info->vendor_description, if_info->name);
+            } else {
+                /* No. */
+                if_string = g_strdup(if_info->name);
+            }
+        } /* else descr != NULL */
+        if (if_info->loopback) {
+            device.display_name = g_strdup_printf("%s (loopback)", if_string);
+        } else {
+            device.display_name = g_strdup(if_string);
+        }
+#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+        if ((device.buffer = capture_dev_user_buffersize_find(if_string)) == -1) {
+            device.buffer = global_capture_opts.default_options.buffer_size;
+        }
+#endif
+        if ((device.pmode = capture_dev_user_pmode_find(if_string)) == -1) {
+            device.pmode = global_capture_opts.default_options.promisc_mode;
+        }
+        device.has_snaplen = global_capture_opts.default_options.has_snaplen;
+        if ((device.snaplen = capture_dev_user_snaplen_find(if_string)) == -1) {
+            device.snaplen = global_capture_opts.default_options.snaplen;
+        }
+        device.cfilter = g_strdup(global_capture_opts.default_options.cfilter);
+        monitor_mode = prefs_capture_device_monitor_mode(if_string);
+        caps = capture_get_if_capabilities(if_string, monitor_mode, NULL, main_window_update);
+        for (; (curr_addr = g_slist_nth(if_info->addrs, ips)) != NULL; ips++) {
+            if (ips != 0) {
+                g_string_append(ip_str, "\n");
+            }
+            addr = (if_addr_t *)curr_addr->data;
+            switch (addr->ifat_type) {
+            case IF_AT_IPv4:
+                g_string_append(ip_str, ip_to_str((guint8 *)&addr->addr.ip4_addr));
+                break;
+            case IF_AT_IPv6:
+                g_string_append(ip_str,  ip6_to_str((struct e_in6_addr *)&addr->addr.ip6_addr));
+                break;
+            default:
+                /* In case we add non-IP addresses */
+                break;
+            }
+        } /* for curr_addr */
+        linktype_count = 0;
+        device.links = NULL;
+        if (caps != NULL) {
+#ifdef HAVE_PCAP_CREATE
+            device.monitor_mode_enabled = monitor_mode;
+            device.monitor_mode_supported = caps->can_set_rfmon;
+#endif
+            for (lt_entry = caps->data_link_types; lt_entry != NULL; lt_entry = g_list_next(lt_entry)) {
+                data_link_info = (data_link_info_t *)lt_entry->data;
+                linkr = (link_row *)g_malloc(sizeof(link_row));
+                /*
+                 * For link-layer types libpcap/WinPcap doesn't know about, the
+                 * name will be "DLT n", and the description will be null.
+                 * We mark those as unsupported, and don't allow them to be
+                 * used.
+                 */
+                if (data_link_info->description != NULL) {
+                    str = g_strdup_printf("%s", data_link_info->description);
+                    linkr->dlt = data_link_info->dlt;
+                } else {
+                    str = g_strdup_printf("%s (not supported)", data_link_info->name);
+                    linkr->dlt = -1;
+                }
+                if (linktype_count == 0) {
+                    link_type_name = g_strdup(str);
+                    device.active_dlt = data_link_info->dlt;
+                }
+                linkr->name = g_strdup(str);
+                g_free(str);
+                device.links = g_list_append(device.links, linkr);
+                linktype_count++;
+            } /* for link_types */
+        } else {
+#if defined(HAVE_PCAP_CREATE)
+            device.monitor_mode_enabled = FALSE;
+            device.monitor_mode_supported = FALSE;
+#endif
+            device.active_dlt = -1;
+            link_type_name = g_strdup("default");
+        }
+        device.addresses = g_strdup(ip_str->str);
+        device.no_addresses = ips;
+        device.remote_opts.src_type= roptions->src_type;
+        if (device.remote_opts.src_type == CAPTURE_IFREMOTE) {
+            device.local = FALSE;
+        }
+        device.remote_opts.remote_host_opts.remote_host = g_strdup(roptions->remote_host_opts.remote_host);
+        device.remote_opts.remote_host_opts.remote_port = g_strdup(roptions->remote_host_opts.remote_port);
+        device.remote_opts.remote_host_opts.auth_type = roptions->remote_host_opts.auth_type;
+        device.remote_opts.remote_host_opts.auth_username = g_strdup(roptions->remote_host_opts.auth_username);
+        device.remote_opts.remote_host_opts.auth_password = g_strdup(roptions->remote_host_opts.auth_password);
+        device.remote_opts.remote_host_opts.datatx_udp = roptions->remote_host_opts.datatx_udp;
+        device.remote_opts.remote_host_opts.nocap_rpcap = roptions->remote_host_opts.nocap_rpcap;
+        device.remote_opts.remote_host_opts.nocap_local = roptions->remote_host_opts.nocap_local;
+#ifdef HAVE_PCAP_SETSAMPLING
+        device.remote_opts.sampling_method = roptions->sampling_method;
+        device.remote_opts.sampling_param = roptions->sampling_param;
+#endif
+        device.selected = TRUE;
+        global_capture_opts.num_selected++;
+        g_array_append_val(global_capture_opts.all_ifaces, device);
+        g_string_free(ip_str, TRUE);
+    } /*for*/
+    showRemoteInterfaces();
+}
+
+void ManageInterfacesDialog::on_remoteButtonBox_accepted()
+{
+    QTreeWidgetItemIterator it(ui->remoteList);
+
+    while(*it) {
+        for (guint i = 0; i < global_capture_opts.all_ifaces->len; i++) {
+            interface_t device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
+            if ((*it)->text(2).compare(device.name))
+                continue;
+            device.hidden = ((*it)->checkState(1)==Qt::Checked?true:false);
+            global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, i);
+            g_array_insert_val(global_capture_opts.all_ifaces, i, device);
+        }
+        ++it;
+    }
+    emit ifsChanged();
+}
+
+void ManageInterfacesDialog::on_delRemote_clicked()
+{
+    QList<QTreeWidgetItem*> selected = ui->remoteList->selectedItems();
+    if (selected.length() == 0) {
+        QMessageBox::warning(this, tr("Error"),
+                             tr("No host selected. Select the host to be removed."));
+        return;
+    }
+    QString host = selected[0]->text(0);
+    int index = ui->remoteList->indexOfTopLevelItem(selected[0]);
+    QTreeWidgetItem *top = ui->remoteList->takeTopLevelItem(index);
+    int numChildren = top->childCount();
+    for (int i = 0; i < numChildren; i++) {
+        QTreeWidgetItem *child = top->child(i);
+        for (guint i = 0; i < global_capture_opts.all_ifaces->len; i++) {
+            interface_t device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
+            if (child->text(2).compare(device.name))
+                continue;
+            global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, i);
+        }
+    }
+    ui->remoteList->removeItemWidget(top, 0);
+    fflush(stdout);
+}
+
+void ManageInterfacesDialog::on_addRemote_clicked()
+{
+    RemoteCaptureDialog *dlg = new RemoteCaptureDialog(this);
+    dlg->show();
+}
+
+void ManageInterfacesDialog::showRemoteInterfaces()
+{
+    guint i;
+    interface_t device;
+    gchar *host = g_strdup("");
+    QTreeWidgetItem *child;
+
+    for (i = 0; i < global_capture_opts.all_ifaces->len; i++) {
+        device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
+        if (!device.local) {
+            QTreeWidgetItem *itm;
+            if (strcmp(host, device.remote_opts.remote_host_opts.remote_host)) {
+                host = g_strdup(device.remote_opts.remote_host_opts.remote_host);
+                itm = new QTreeWidgetItem(ui->remoteList);
+                itm->setText(HOST, host);
+                child = new QTreeWidgetItem(itm);
+                child->setCheckState(HIDDEN, device.hidden?Qt::Checked:Qt::Unchecked);
+                child->setText(REMOTE_NAME, QString(device.name));
+            } else {
+                child = new QTreeWidgetItem(itm);
+                child->setCheckState(HIDDEN, device.hidden?Qt::Checked:Qt::Unchecked);
+                child->setText(REMOTE_NAME, QString(device.name));
+            }
+        }
+    }
+}
+
+void ManageInterfacesDialog::on_remoteSettings_clicked()
+{
+    guint i = 0;
+    interface_t device;
+
+    QList<QTreeWidgetItem*> selected = ui->remoteList->selectedItems();
+    for (i = 0; i < global_capture_opts.all_ifaces->len; i++) {
+        device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
+        if (!device.local) {
+            if (selected[0]->text(2).compare(device.name)) {
+               continue;
+            } else {
+                RemoteSettingsDialog *dlg = new RemoteSettingsDialog(this, &device);
+                dlg->show();
+                break;
+            }
+        }
+    }
+}
+
+void ManageInterfacesDialog::setRemoteSettings(interface_t *iface)
+{
+    for (guint i = 0; i < global_capture_opts.all_ifaces->len; i++) {
+        interface_t device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
+        if (!device.local) {
+            if (strcmp(iface->name, device.name)) {
+                continue;
+            }
+            device.remote_opts.remote_host_opts.nocap_rpcap = iface->remote_opts.remote_host_opts.nocap_rpcap;
+            device.remote_opts.remote_host_opts.datatx_udp = iface->remote_opts.remote_host_opts.datatx_udp;
+            device.remote_opts.sampling_method = iface->remote_opts.sampling_method;
+            device.remote_opts.sampling_param = iface->remote_opts.sampling_param;
+            global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, i);
+            g_array_insert_val(global_capture_opts.all_ifaces, i, device);
+        }
+    }
+}
+#endif
 
 NewFileDelegate::NewFileDelegate(QObject *parent)
     : QStyledItemDelegate(parent)

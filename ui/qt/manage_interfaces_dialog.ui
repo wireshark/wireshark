@@ -1,327 +1,457 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>ManageInterfacesDialog</class>
- <widget class="QDialog" name="ManageInterfacesDialog">
-  <property name="windowModality">
-   <enum>Qt::ApplicationModal</enum>
-  </property>
-  <property name="geometry">
-   <rect>
-    <x>0</x>
-    <y>0</y>
-    <width>574</width>
-    <height>338</height>
-   </rect>
-  </property>
-  <property name="windowTitle">
-   <string>Manage Interfaces</string>
-  </property>
-  <property name="toolTip">
-   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-  </property>
-  <property name="modal">
-   <bool>false</bool>
-  </property>
-  <layout class="QHBoxLayout" name="horizontalLayout">
-   <property name="leftMargin">
-    <number>3</number>
-   </property>
-   <property name="topMargin">
-    <number>10</number>
-   </property>
-   <property name="rightMargin">
-    <number>3</number>
-   </property>
-   <property name="bottomMargin">
-    <number>3</number>
-   </property>
-   <item>
-    <widget class="QTabWidget" name="tabWidget">
-     <property name="currentIndex">
-      <number>1</number>
-     </property>
-     <widget class="QWidget" name="Pipes">
-      <property name="toolTip">
-       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add a pipe to capture from or remove an existing pipe from the list.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+  <class>ManageInterfacesDialog</class>
+  <widget class="QDialog" name="ManageInterfacesDialog">
+    <property name="windowModality">
+      <enum>Qt::ApplicationModal</enum>
+    </property>
+    <property name="geometry">
+      <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>574</width>
+        <height>338</height>
+      </rect>
+    </property>
+    <property name="windowTitle">
+      <string>Manage Interfaces</string>
+    </property>
+    <property name="toolTip">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="modal">
+      <bool>false</bool>
+    </property>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+      <property name="leftMargin">
+        <number>3</number>
       </property>
-      <attribute name="title">
-       <string>Pipes</string>
-      </attribute>
-      <layout class="QVBoxLayout" name="verticalLayout_2">
-       <property name="leftMargin">
-        <number>5</number>
-       </property>
-       <property name="topMargin">
-        <number>5</number>
-       </property>
-       <property name="rightMargin">
-        <number>5</number>
-       </property>
-       <property name="bottomMargin">
-        <number>5</number>
-       </property>
-       <item>
-        <widget class="QTableWidget" name="pipeList">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="baseSize">
-          <size>
-           <width>0</width>
-           <height>0</height>
-          </size>
-         </property>
-         <property name="verticalScrollBarPolicy">
-          <enum>Qt::ScrollBarAsNeeded</enum>
-         </property>
-         <property name="horizontalScrollBarPolicy">
-          <enum>Qt::ScrollBarAlwaysOff</enum>
-         </property>
-         <property name="alternatingRowColors">
-          <bool>true</bool>
-         </property>
-         <property name="selectionMode">
-          <enum>QAbstractItemView::SingleSelection</enum>
-         </property>
-         <property name="selectionBehavior">
-          <enum>QAbstractItemView::SelectRows</enum>
-         </property>
-         <property name="showGrid">
-          <bool>false</bool>
-         </property>
-         <property name="rowCount">
-          <number>1</number>
-         </property>
-         <property name="columnCount">
-          <number>1</number>
-         </property>
-         <attribute name="horizontalHeaderVisible">
-          <bool>false</bool>
-         </attribute>
-         <attribute name="horizontalHeaderStretchLastSection">
-          <bool>true</bool>
-         </attribute>
-         <attribute name="verticalHeaderVisible">
-          <bool>false</bool>
-         </attribute>
-         <row/>
-         <column>
-          <property name="text">
-           <string>Pipe</string>
-          </property>
-         </column>
-        </widget>
-       </item>
-       <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_2">
-         <item>
-          <widget class="QPushButton" name="addButton">
-           <property name="toolTip">
-            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add a new pipe using default settings.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-           <property name="icon">
-            <iconset resource="../../image/toolbar.qrc">
-             <normaloff>:/stock/plus-8.png</normaloff>:/stock/plus-8.png</iconset>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="delButton">
-           <property name="toolTip">
-            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Remove the selected pipe from the list.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-           <property name="icon">
-            <iconset resource="../../image/toolbar.qrc">
-             <normaloff>:/stock/minus-8.png</normaloff>:/stock/minus-8.png</iconset>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <spacer name="horizontalSpacer">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item>
-          <widget class="QDialogButtonBox" name="buttonBox">
-           <property name="standardButtons">
-            <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-      </layout>
-     </widget>
-     <widget class="QWidget" name="Local">
-      <property name="toolTip">
-       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Click the checkbox to hide or show a hidden interface.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <property name="topMargin">
+        <number>10</number>
       </property>
-      <attribute name="title">
-       <string>Local Interfaces</string>
-      </attribute>
-      <layout class="QVBoxLayout" name="verticalLayout">
-       <property name="leftMargin">
-        <number>5</number>
-       </property>
-       <property name="topMargin">
-        <number>5</number>
-       </property>
-       <property name="rightMargin">
-        <number>5</number>
-       </property>
-       <property name="bottomMargin">
-        <number>5</number>
-       </property>
-       <item>
-        <widget class="QTableWidget" name="localList">
-         <property name="focusPolicy">
-          <enum>Qt::NoFocus</enum>
-         </property>
-         <property name="editTriggers">
-          <set>QAbstractItemView::DoubleClicked</set>
-         </property>
-         <property name="alternatingRowColors">
-          <bool>true</bool>
-         </property>
-         <property name="selectionMode">
-          <enum>QAbstractItemView::SingleSelection</enum>
-         </property>
-         <property name="selectionBehavior">
-          <enum>QAbstractItemView::SelectRows</enum>
-         </property>
-         <attribute name="horizontalHeaderStretchLastSection">
-          <bool>true</bool>
-         </attribute>
-         <attribute name="verticalHeaderVisible">
-          <bool>false</bool>
-         </attribute>
-         <column>
-          <property name="text">
-           <string>Hide</string>
+      <property name="rightMargin">
+        <number>3</number>
+      </property>
+      <property name="bottomMargin">
+        <number>3</number>
+      </property>
+      <item>
+        <widget class="QTabWidget" name="tabWidget">
+          <property name="currentIndex">
+            <number>2</number>
           </property>
-          <property name="textAlignment">
-           <set>AlignHCenter|AlignVCenter|AlignCenter</set>
-          </property>
-         </column>
-         <column>
-          <property name="text">
-           <string>Friendly Name</string>
-          </property>
-         </column>
-         <column>
-          <property name="text">
-           <string>Interface Name</string>
-          </property>
-         </column>
-         <column>
-          <property name="text">
-           <string>Comment</string>
-          </property>
-         </column>
+          <widget class="QWidget" name="Pipes">
+            <property name="toolTip">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add a pipe to capture from or remove an existing pipe from the list.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+            <attribute name="title">
+              <string>Pipes</string>
+            </attribute>
+            <layout class="QVBoxLayout" name="verticalLayout_2">
+              <property name="leftMargin">
+                <number>5</number>
+              </property>
+              <property name="topMargin">
+                <number>5</number>
+              </property>
+              <property name="rightMargin">
+                <number>5</number>
+              </property>
+              <property name="bottomMargin">
+                <number>5</number>
+              </property>
+              <item>
+                <widget class="QTableWidget" name="pipeList">
+                  <property name="sizePolicy">
+                    <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                    </sizepolicy>
+                  </property>
+                  <property name="baseSize">
+                    <size>
+                      <width>0</width>
+                      <height>0</height>
+                    </size>
+                  </property>
+                  <property name="verticalScrollBarPolicy">
+                    <enum>Qt::ScrollBarAsNeeded</enum>
+                  </property>
+                  <property name="horizontalScrollBarPolicy">
+                    <enum>Qt::ScrollBarAlwaysOff</enum>
+                  </property>
+                  <property name="alternatingRowColors">
+                    <bool>true</bool>
+                  </property>
+                  <property name="selectionMode">
+                    <enum>QAbstractItemView::SingleSelection</enum>
+                  </property>
+                  <property name="selectionBehavior">
+                    <enum>QAbstractItemView::SelectRows</enum>
+                  </property>
+                  <property name="showGrid">
+                    <bool>false</bool>
+                  </property>
+                  <property name="rowCount">
+                    <number>1</number>
+                  </property>
+                  <property name="columnCount">
+                    <number>1</number>
+                  </property>
+                  <attribute name="horizontalHeaderVisible">
+                    <bool>false</bool>
+                  </attribute>
+                  <attribute name="horizontalHeaderStretchLastSection">
+                    <bool>true</bool>
+                  </attribute>
+                  <attribute name="verticalHeaderVisible">
+                    <bool>false</bool>
+                  </attribute>
+                  <row/>
+                  <column>
+                    <property name="text">
+                      <string>Pipe</string>
+                    </property>
+                  </column>
+                </widget>
+              </item>
+              <item>
+                <layout class="QHBoxLayout" name="horizontalLayout_2">
+                  <item>
+                    <widget class="QPushButton" name="addButton">
+                      <property name="toolTip">
+                        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add a new pipe using default settings.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      </property>
+                      <property name="text">
+                        <string/>
+                      </property>
+                      <property name="icon">
+                        <iconset resource="../../image/toolbar.qrc">
+                          <normaloff>:/stock/plus-8.png</normaloff>:/stock/plus-8.png
+                        </iconset>
+                      </property>
+                    </widget>
+                  </item>
+                  <item>
+                    <widget class="QPushButton" name="delButton">
+                      <property name="toolTip">
+                        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Remove the selected pipe from the list.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      </property>
+                      <property name="text">
+                        <string/>
+                      </property>
+                      <property name="icon">
+                        <iconset resource="../../image/toolbar.qrc">
+                          <normaloff>:/stock/minus-8.png</normaloff>:/stock/minus-8.png
+                        </iconset>
+                      </property>
+                    </widget>
+                  </item>
+                  <item>
+                    <spacer name="horizontalSpacer">
+                      <property name="orientation">
+                        <enum>Qt::Horizontal</enum>
+                      </property>
+                      <property name="sizeHint" stdset="0">
+                        <size>
+                          <width>40</width>
+                          <height>20</height>
+                        </size>
+                      </property>
+                    </spacer>
+                  </item>
+                  <item>
+                    <widget class="QDialogButtonBox" name="buttonBox">
+                      <property name="standardButtons">
+                        <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+                      </property>
+                    </widget>
+                  </item>
+                </layout>
+              </item>
+            </layout>
+          </widget>
+          <widget class="QWidget" name="Local">
+            <property name="toolTip">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Click the checkbox to hide or show a hidden interface.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+            <attribute name="title">
+              <string>Local Interfaces</string>
+            </attribute>
+            <layout class="QVBoxLayout" name="verticalLayout">
+              <property name="leftMargin">
+                <number>5</number>
+              </property>
+              <property name="topMargin">
+                <number>5</number>
+              </property>
+              <property name="rightMargin">
+                <number>5</number>
+              </property>
+              <property name="bottomMargin">
+                <number>5</number>
+              </property>
+              <item>
+                <widget class="QTableWidget" name="localList">
+                  <property name="focusPolicy">
+                    <enum>Qt::NoFocus</enum>
+                  </property>
+                  <property name="editTriggers">
+                    <set>QAbstractItemView::DoubleClicked</set>
+                  </property>
+                  <property name="alternatingRowColors">
+                    <bool>true</bool>
+                  </property>
+                  <property name="selectionMode">
+                    <enum>QAbstractItemView::SingleSelection</enum>
+                  </property>
+                  <property name="selectionBehavior">
+                    <enum>QAbstractItemView::SelectRows</enum>
+                  </property>
+                  <attribute name="horizontalHeaderStretchLastSection">
+                    <bool>true</bool>
+                  </attribute>
+                  <attribute name="verticalHeaderVisible">
+                    <bool>false</bool>
+                  </attribute>
+                  <column>
+                    <property name="text">
+                      <string>Hide</string>
+                    </property>
+                    <property name="textAlignment">
+                      <set>AlignHCenter|AlignVCenter|AlignCenter</set>
+                    </property>
+                  </column>
+                  <column>
+                    <property name="text">
+                      <string>Friendly Name</string>
+                    </property>
+                  </column>
+                  <column>
+                    <property name="text">
+                      <string>Interface Name</string>
+                    </property>
+                  </column>
+                  <column>
+                    <property name="text">
+                      <string>Comment</string>
+                    </property>
+                  </column>
+                </widget>
+              </item>
+              <item>
+                <widget class="QDialogButtonBox" name="localButtonBox">
+                  <property name="standardButtons">
+                    <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+                  </property>
+                </widget>
+              </item>
+            </layout>
+          </widget>
+          <widget class="QWidget" name="Remote">
+            <attribute name="title">
+              <string>Remote Interfaces</string>
+            </attribute>
+            <layout class="QVBoxLayout" name="verticalLayout_3">
+              <property name="leftMargin">
+                <number>5</number>
+              </property>
+              <property name="topMargin">
+                <number>5</number>
+              </property>
+              <property name="rightMargin">
+                <number>5</number>
+              </property>
+              <property name="bottomMargin">
+                <number>5</number>
+              </property>
+              <item>
+                <widget class="QTreeWidget" name="remoteList">
+                  <property name="editTriggers">
+                    <set>QAbstractItemView::DoubleClicked</set>
+                  </property>
+                  <property name="tabKeyNavigation">
+                    <bool>true</bool>
+                  </property>
+                  <property name="dragDropOverwriteMode">
+                    <bool>true</bool>
+                  </property>
+                  <property name="selectionBehavior">
+                    <enum>QAbstractItemView::SelectRows</enum>
+                  </property>
+                  <column>
+                    <property name="text">
+                      <string notr="true">1</string>
+                    </property>
+                  </column>
+                </widget>
+              </item>
+              <item>
+                <layout class="QHBoxLayout" name="horizontalLayout_3">
+                  <item>
+                    <widget class="QPushButton" name="addRemote">
+                      <property name="toolTip">
+                        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add a remote host and its interfaces&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      </property>
+                      <property name="text">
+                        <string/>
+                      </property>
+                      <property name="icon">
+                        <iconset resource="../../image/toolbar.qrc">
+                          <normaloff>:/stock/plus-8.png</normaloff>:/stock/plus-8.png
+                        </iconset>
+                      </property>
+                    </widget>
+                  </item>
+                  <item>
+                    <widget class="QPushButton" name="delRemote">
+                      <property name="toolTip">
+                        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Remove the selected host from the list.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      </property>
+                      <property name="text">
+                        <string/>
+                      </property>
+                      <property name="icon">
+                        <iconset resource="../../image/toolbar.qrc">
+                          <normaloff>:/stock/minus-8.png</normaloff>:/stock/minus-8.png
+                        </iconset>
+                      </property>
+                    </widget>
+                  </item>
+                  <item>
+                    <spacer name="horizontalSpacer_2">
+                      <property name="orientation">
+                        <enum>Qt::Horizontal</enum>
+                      </property>
+                      <property name="sizeHint" stdset="0">
+                        <size>
+                          <width>328</width>
+                          <height>20</height>
+                        </size>
+                      </property>
+                    </spacer>
+                  </item>
+                  <item>
+                    <widget class="QPushButton" name="remoteSettings">
+                      <property name="text">
+                        <string>Remote Settings</string>
+                      </property>
+                    </widget>
+                  </item>
+                  <item>
+                    <widget class="QDialogButtonBox" name="remoteButtonBox">
+                      <property name="standardButtons">
+                        <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+                      </property>
+                    </widget>
+                  </item>
+                </layout>
+              </item>
+            </layout>
+          </widget>
         </widget>
-       </item>
-       <item>
-        <widget class="QDialogButtonBox" name="localButtonBox">
-         <property name="standardButtons">
-          <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-     <widget class="QWidget" name="Remote">
-      <attribute name="title">
-       <string>Remote Interfaces</string>
-      </attribute>
-     </widget>
-    </widget>
-   </item>
-  </layout>
- </widget>
- <resources>
-  <include location="../../image/toolbar.qrc"/>
- </resources>
- <connections>
-  <connection>
-   <sender>buttonBox</sender>
-   <signal>accepted()</signal>
-   <receiver>ManageInterfacesDialog</receiver>
-   <slot>accept()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>469</x>
-     <y>303</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>286</x>
-     <y>164</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>buttonBox</sender>
-   <signal>rejected()</signal>
-   <receiver>ManageInterfacesDialog</receiver>
-   <slot>reject()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>469</x>
-     <y>303</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>286</x>
-     <y>164</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>localButtonBox</sender>
-   <signal>rejected()</signal>
-   <receiver>ManageInterfacesDialog</receiver>
-   <slot>close()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>469</x>
-     <y>303</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>286</x>
-     <y>164</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>localButtonBox</sender>
-   <signal>accepted()</signal>
-   <receiver>ManageInterfacesDialog</receiver>
-   <slot>accept()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>469</x>
-     <y>303</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>286</x>
-     <y>164</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+      </item>
+    </layout>
+  </widget>
+  <resources>
+    <include location="../../image/toolbar.qrc"/>
+  </resources>
+  <connections>
+    <connection>
+      <sender>buttonBox</sender>
+      <signal>accepted()</signal>
+      <receiver>ManageInterfacesDialog</receiver>
+      <slot>accept()</slot>
+      <hints>
+        <hint type="sourcelabel">
+          <x>469</x>
+          <y>303</y>
+        </hint>
+        <hint type="destinationlabel">
+          <x>286</x>
+          <y>164</y>
+        </hint>
+      </hints>
+    </connection>
+    <connection>
+      <sender>buttonBox</sender>
+      <signal>rejected()</signal>
+      <receiver>ManageInterfacesDialog</receiver>
+      <slot>reject()</slot>
+      <hints>
+        <hint type="sourcelabel">
+          <x>469</x>
+          <y>303</y>
+        </hint>
+        <hint type="destinationlabel">
+          <x>286</x>
+          <y>164</y>
+        </hint>
+      </hints>
+    </connection>
+    <connection>
+      <sender>localButtonBox</sender>
+      <signal>rejected()</signal>
+      <receiver>ManageInterfacesDialog</receiver>
+      <slot>close()</slot>
+      <hints>
+        <hint type="sourcelabel">
+          <x>469</x>
+          <y>303</y>
+        </hint>
+        <hint type="destinationlabel">
+          <x>286</x>
+          <y>164</y>
+        </hint>
+      </hints>
+    </connection>
+    <connection>
+      <sender>localButtonBox</sender>
+      <signal>accepted()</signal>
+      <receiver>ManageInterfacesDialog</receiver>
+      <slot>accept()</slot>
+      <hints>
+        <hint type="sourcelabel">
+          <x>469</x>
+          <y>303</y>
+        </hint>
+        <hint type="destinationlabel">
+          <x>286</x>
+          <y>164</y>
+        </hint>
+      </hints>
+    </connection>
+    <connection>
+      <sender>remoteButtonBox</sender>
+      <signal>rejected()</signal>
+      <receiver>ManageInterfacesDialog</receiver>
+      <slot>close()</slot>
+      <hints>
+        <hint type="sourcelabel">
+          <x>482</x>
+          <y>312</y>
+        </hint>
+        <hint type="destinationlabel">
+          <x>286</x>
+          <y>168</y>
+        </hint>
+      </hints>
+    </connection>
+    <connection>
+      <sender>remoteButtonBox</sender>
+      <signal>accepted()</signal>
+      <receiver>ManageInterfacesDialog</receiver>
+      <slot>accept()</slot>
+      <hints>
+        <hint type="sourcelabel">
+          <x>482</x>
+          <y>312</y>
+        </hint>
+        <hint type="destinationlabel">
+          <x>286</x>
+          <y>168</y>
+        </hint>
+      </hints>
+    </connection>
+  </connections>
 </ui>
