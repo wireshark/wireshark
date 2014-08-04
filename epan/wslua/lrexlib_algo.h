@@ -294,16 +294,16 @@ static int algf_gsub (lua_State *L) {
   freelist_init (&freelist);
   /*------------------------------------------------------------------*/
   if (argE.reptype == LUA_TSTRING) {
-    buffer_init (&BufRep, 256, L, &freelist);
+    tagbuffer_init (&BufRep, 256, L, &freelist);
     BUFFERZ_PUTREPSTRING (&BufRep, argE.funcpos, ALG_NSUB(ud));
   }
   /*------------------------------------------------------------------*/
   if (argE.maxmatch == GSUB_CONDITIONAL) {
-    buffer_init (&BufTemp, 1024, L, &freelist);
+    tagbuffer_init (&BufTemp, 1024, L, &freelist);
     pBuf = &BufTemp;
   }
   /*------------------------------------------------------------------*/
-  buffer_init (&BufOut, 1024, L, &freelist);
+  tagbuffer_init (&BufOut, 1024, L, &freelist);
   SET_RETRY (retry, 0);
   while ((argE.maxmatch < 0 || n_match < argE.maxmatch) && st <= (int)argE.textlen) {
     int from, to, res;
@@ -313,7 +313,7 @@ static int algf_gsub (lua_State *L) {
 #ifdef ALG_USERETRY
       if (retry) {
         if (st < (int)argE.textlen) {  /* advance by 1 char (not replaced) */
-          buffer_addlstring (&BufOut, argE.text + st, ALG_CHARSIZE);
+          tagbuffer_addlstring (&BufOut, argE.text + st, ALG_CHARSIZE);
           st += ALG_CHARSIZE;
           retry = 0;
           continue;
@@ -330,7 +330,7 @@ static int algf_gsub (lua_State *L) {
     from = ALG_BASE(st) + ALG_SUBBEG(ud,0);
     to = ALG_BASE(st) + ALG_SUBEND(ud,0);
     if (st < from) {
-      buffer_addlstring (&BufOut, argE.text + st, from - st);
+      tagbuffer_addlstring (&BufOut, argE.text + st, from - st);
 #ifdef ALG_PULL
       st = from;
 #endif
@@ -341,9 +341,9 @@ static int algf_gsub (lua_State *L) {
       const char *str;
       while (bufferZ_next (&BufRep, &iter, &num, &str)) {
         if (str)
-          buffer_addlstring (pBuf, str, num);
+          tagbuffer_addlstring (pBuf, str, num);
         else if (num == 0 || ALG_SUBVALID (ud,(int)num))
-          buffer_addlstring (pBuf, argE.text + ALG_BASE(st) + ALG_SUBBEG(ud,(int)num), ALG_SUBLEN(ud,(int)num));
+          tagbuffer_addlstring (pBuf, argE.text + ALG_BASE(st) + ALG_SUBBEG(ud,(int)num), ALG_SUBLEN(ud,(int)num));
       }
       curr_subst = 1;
     }
@@ -374,16 +374,16 @@ static int algf_gsub (lua_State *L) {
     }
     /*----------------------------------------------------------------*/
     else if (argE.reptype == LUA_TNIL || argE.reptype == LUA_TBOOLEAN) {
-      buffer_addlstring (pBuf, argE.text + from, to - from);
+      tagbuffer_addlstring (pBuf, argE.text + from, to - from);
     }
     /*----------------------------------------------------------------*/
     if (argE.reptype == LUA_TTABLE || argE.reptype == LUA_TFUNCTION) {
       if (lua_tostring (L, -1)) {
-        buffer_addvalue (pBuf, -1);
+        tagbuffer_addvalue (pBuf, -1);
         curr_subst = 1;
       }
       else if (!lua_toboolean (L, -1))
-        buffer_addlstring (pBuf, argE.text + from, to - from);
+        tagbuffer_addlstring (pBuf, argE.text + from, to - from);
       else {
         freelist_free (&freelist);
         luaL_error (L, "invalid replacement value (a %s)", luaL_typename (L, -1));
@@ -398,7 +398,7 @@ static int algf_gsub (lua_State *L) {
       lua_pushinteger (L, from/ALG_CHARSIZE + 1);
       lua_pushinteger (L, to/ALG_CHARSIZE);
       if (argE.reptype == LUA_TSTRING)
-        buffer_pushresult (&BufTemp);
+        tagbuffer_pushresult (&BufTemp);
       else {
         lua_pushvalue (L, -4);
         lua_remove (L, -5);
@@ -409,13 +409,13 @@ static int algf_gsub (lua_State *L) {
       }
       /* Handle the 1-st return value */
       if (lua_isstring (L, -2)) {               /* coercion is allowed here */
-        buffer_addvalue (&BufOut, -2);          /* rep2 */
+        tagbuffer_addvalue (&BufOut, -2);          /* rep2 */
         curr_subst = 1;
       }
       else if (lua_toboolean (L, -2))
-        buffer_addbuffer (&BufOut, &BufTemp);   /* rep1 */
+        tagbuffer_addbuffer (&BufOut, &BufTemp);   /* rep1 */
       else {
-        buffer_addlstring (&BufOut, argE.text + from, to - from); /* "no" */
+        tagbuffer_addlstring (&BufOut, argE.text + from, to - from); /* "no" */
         curr_subst = 0;
       }
       /* Handle the 2-nd return value */
@@ -428,7 +428,7 @@ static int algf_gsub (lua_State *L) {
       else if (lua_toboolean (L, -1))           /* "yes to all" */
         argE.maxmatch = GSUB_UNLIMITED;
       else
-        buffer_clear (&BufTemp);
+        tagbuffer_clear (&BufTemp);
 
       lua_pop (L, 2);
       if (argE.maxmatch != GSUB_CONDITIONAL)
@@ -445,15 +445,15 @@ static int algf_gsub (lua_State *L) {
       retry = 1;
 #else
       /* advance by 1 char (not replaced) */
-      buffer_addlstring (&BufOut, argE.text + st, ALG_CHARSIZE);
+      tagbuffer_addlstring (&BufOut, argE.text + st, ALG_CHARSIZE);
       st += ALG_CHARSIZE;
 #endif
     }
     else break;
   }
   /*------------------------------------------------------------------*/
-  buffer_addlstring (&BufOut, argE.text + st, argE.textlen - st);
-  buffer_pushresult (&BufOut);
+  tagbuffer_addlstring (&BufOut, argE.text + st, argE.textlen - st);
+  tagbuffer_pushresult (&BufOut);
   lua_pushinteger (L, n_match);
   lua_pushinteger (L, n_subst);
   freelist_free (&freelist);
