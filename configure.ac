@@ -2895,7 +2895,6 @@ AC_OUTPUT(
   epan/nghttp2/Makefile
   epan/wmem/Makefile
   epan/wslua/Makefile
-  filetap/Makefile
   codecs/Makefile
   ui/Makefile
   ui/doxygen.cfg

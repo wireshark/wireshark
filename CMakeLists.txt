@@ -121,7 +121,6 @@ include_directories(
 	${CMAKE_BINARY_DIR}
 	${CMAKE_SOURCE_DIR}
 	${CMAKE_SOURCE_DIR}/epan
-	${CMAKE_SOURCE_DIR}/filetap
 	${CMAKE_SOURCE_DIR}/tools/lemon
 	${CMAKE_SOURCE_DIR}/wiretap
 )
@@ -794,14 +793,13 @@ add_subdirectory( capchild )
 add_subdirectory( caputils )
 add_subdirectory( codecs )
 add_subdirectory( epan )
-add_subdirectory( filetap )
 add_subdirectory( tools/lemon )
 add_subdirectory( ui )
 add_subdirectory( wiretap )
 add_subdirectory( wsutil )
 
 if(NOT WIN32)
-	add_custom_target(dumpabi DEPENDS dumpabi-libwireshark dumpabi-libfiletap dumpabi-libwiretap dumpabi-libwsutil color.h)
+	add_custom_target(dumpabi DEPENDS dumpabi-libwireshark dumpabi-libwiretap dumpabi-libwsutil color.h)
 endif()
 
 if(ENABLE_ECHLD)
@@ -881,7 +879,6 @@ set( IN_FILES
 	image/editcap.rc.in
 	image/captype.rc.in
 	image/libwsutil.rc.in
-	image/filetap.rc.in
 	image/wiretap.rc.in
 	packaging/macosx/Info.plist.in
 	plugins/ethercat/plugin.rc.in
@@ -923,7 +920,6 @@ link_directories(
 	${CMAKE_BINARY_DIR}/caputils
 	${CMAKE_BINARY_DIR}/codecs
 	${CMAKE_BINARY_DIR}/epan
-	${CMAKE_BINARY_DIR}/filetap
 	${CMAKE_BINARY_DIR}/wiretap
 	${CMAKE_BINARY_DIR}/wsutil
 )
@@ -1147,7 +1143,6 @@ endif()
 
 if(BUILD_tfshark)
 	set(tfshark_LIBS
-		filetap
 		ui
 		${LIBEPAN_LIBS}
 		${APPLE_CORE_FOUNDATION_LIBRARY}

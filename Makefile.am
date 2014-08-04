@@ -354,7 +354,6 @@ wireshark_ldadd = \
 	ui/libui.a			\
 	ui/libui_dirty.a		\
 	codecs/libcodec.a		\
-	filetap/libfiletap.la		\
 	wiretap/libwiretap.la		\
 	epan/libwireshark.la		\
 	wsutil/libwsutil.la		\
@@ -452,7 +451,6 @@ endif
 tfshark_LDADD = \
 	ui/cli/libcliui.a		\
 	ui/libui.a			\
-	filetap/libfiletap.la		\
 	wiretap/libwiretap.la		\
 	epan/libwireshark.la		\
 	wsutil/libwsutil.la		\
@@ -793,7 +791,6 @@ EXTRA_DIST = \
 	dumpcap.c		\
 	editcap.c		\
 	epan/print.ps		\
-	filetap/CMakeLists.txt	\
 	fix/FIX.xml		\
 	fix/FIX40.xml		\
 	fix/FIX41.xml		\
@@ -878,7 +875,6 @@ EXTRA_DIST = \
 	image/expert_ok.png	\
 	image/expert_warn.png	\
 	image/file_dlg_win32.rc \
-	image/filetap.rc.in	\
 	image/hi16-app-wireshark.png	\
 	image/hi32-app-wireshark.png	\
 	image/hi48-app-wireshark.png	\
@@ -1137,7 +1133,6 @@ DIST_SUBDIRS = \
 	doc		\
 	epan		\
 	echld		\
-	filetap		\
 	ui		\
 	ui/cli		\
 	ui/gtk		\
@@ -1154,7 +1149,6 @@ SUBDIRS = \
 	tools			\
 	wsutil			\
 	wiretap			\
-	filetap			\
 	epan			\
 	capchild		\
 	caputils		\
@@ -1299,7 +1293,6 @@ clean-local:
 	rm -rf $(top_stagedir)
 
 dumpabi:
-	$(MAKE) -C filetap dumpabi-libfiletap
 	$(MAKE) -C wiretap dumpabi-libwiretap
 	$(MAKE) -C epan dumpabi-libwireshark
 	$(MAKE) -C wsutil dumpabi-libwsutil
@@ -1313,7 +1306,6 @@ checkapi_local:
 
 checkapi: checkapi_local
 	cd wiretap && $(MAKE) checkapi
-	cd filetap && $(MAKE) checkapi
 	cd codecs && $(MAKE) checkapi
 	cd capchild && $(MAKE) checkapi
 	cd caputils && $(MAKE) checkapi

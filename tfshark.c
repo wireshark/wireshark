@@ -95,7 +95,6 @@
 #include <epan/stat_cmd_args.h>
 #include <epan/timestamp.h>
 #include <epan/ex-opt.h>
-#include <filetap/ftap.h>
 #include <wiretap/wtap-int.h>
 #include <wiretap/file_wrappers.h>
 
@@ -947,14 +946,10 @@ main(int argc, char *argv[])
 #ifdef HAVE_PLUGINS
   /* Register all the plugin types we have. */
   epan_register_plugin_types(); /* Types known to libwireshark */
-  ftap_register_plugin_types(); /* Types known to libfiletap */
 
   /* Scan for plugins.  This does *not* call their registration routines;
      that's done later. */
   scan_plugins();
-
-  /* Register all libfiletap plugin modules. */
-  register_all_filetap_modules();
 
 #endif
 
@@ -1184,7 +1179,7 @@ main(int argc, char *argv[])
       rfilter = optarg;
       break;
     case 'S':        /* Set the line Separator to be printed between packets */
-      separator = strdup(optarg);
+      separator = g_strdup(optarg);
       break;
     case 't':        /* Time stamp type */
       if (strcmp(optarg, "r") == 0)
@@ -1716,14 +1711,15 @@ process_packet_second_pass(capture_file *cf, epan_dissect_t *edt, frame_data *fd
 }
 
 gboolean
-local_wtap_read(capture_file *cf, struct wtap_pkthdr* file_phdr, int *err, gchar **err_info, gint64 *data_offset _U_, guint8** data_buffer)
+local_wtap_read(capture_file *cf, struct wtap_pkthdr* file_phdr _U_, int *err, gchar **err_info _U_, gint64 *data_offset _U_, guint8** data_buffer)
 {
-    int bytes_read;
+    /* int bytes_read; */
     gint64 packet_size = wtap_file_size(cf->wth, err);
 
     *data_buffer = (guint8*)g_malloc((gsize)packet_size);
-    bytes_read = file_read(*data_buffer, (unsigned int)packet_size, cf->wth->fh);
+    /* bytes_read =*/ file_read(*data_buffer, (unsigned int)packet_size, cf->wth->fh);
 
+#if 0 /* no more filetap */
     if (bytes_read < 0) {
         *err = file_error(cf->wth->fh, err_info);
         if (*err == 0)
@@ -1739,7 +1735,6 @@ local_wtap_read(capture_file *cf, struct wtap_pkthdr* file_phdr, int *err, gchar
     file_phdr->caplen = (guint32)packet_size;
     file_phdr->len = (guint32)packet_size;
 
-#if 0
     /*
      * Set the packet encapsulation to the file's encapsulation
      * value; if that's not WTAP_ENCAP_PER_PACKET, it's the
@@ -1972,6 +1967,7 @@ load_cap_file(capture_file *cf, int max_packet_count, gint64 max_byte_count)
       }
     }
 #endif
+#if 0
     switch (err) {
 
     case FTAP_ERR_UNSUPPORTED:
@@ -2012,6 +2008,7 @@ load_cap_file(capture_file *cf, int max_packet_count, gint64 max_byte_count)
                  cf->filename, ftap_strerror(err));
       break;
     }
+#endif
   } else {
     if (print_packet_info) {
       if (!write_finale()) {
@@ -2537,35 +2534,16 @@ write_finale(void)
 cf_status_t
 cf_open(capture_file *cf, const char *fname, unsigned int type, gboolean is_tempfile, int *err)
 {
-#if USE_FTAP
-  ftap  *fth;
-#else
-  wtap  *wth;
-#endif
   gchar *err_info;
   char   err_msg[2048+1];
 
-#if USE_FTAP
-  fth = ftap_open_offline(fname, err, &err_info, perform_two_pass_analysis);
-  if (fth == NULL)
-    goto fail;
-#else
-  wth = wtap_open_offline(fname, type, err, &err_info, perform_two_pass_analysis);
-  if (wth == NULL)
-    goto fail;
-#endif
-
-  /* The open succeeded.  Fill in the information for this file. */
+  /* The open isn't implemented yet.  Fill in the information for this file. */
 
   /* Create new epan session for dissection. */
   epan_free(cf->epan);
   cf->epan = tfshark_epan_new(cf);
 
-#if USE_FTAP
-  cf->wth = (struct wtap*)fth; /**** XXX - DOESN'T WORK RIGHT NOW!!!! */
-#else
-  cf->wth = wth;
-#endif
+  cf->wth = NULL; /**** XXX - DOESN'T WORK RIGHT NOW!!!! */
   cf->f_datalen = 0; /* not used, but set it anyway */
 
   /* Set the file name because we need it to set the follow stream filter.
@@ -2579,16 +2557,16 @@ cf_open(capture_file *cf, const char *fname, unsigned int type, gboolean is_temp
   /* No user changes yet. */
   cf->unsaved_changes = FALSE;
 
-  cf->cd_t      = ftap_file_type_subtype((struct ftap*)cf->wth); /**** XXX - DOESN'T WORK RIGHT NOW!!!! */
+  cf->cd_t      = 0; /**** XXX - DOESN'T WORK RIGHT NOW!!!! */
   cf->open_type = type;
   cf->count     = 0;
   cf->drops_known = FALSE;
   cf->drops     = 0;
-  cf->snap      = ftap_snapshot_length((struct ftap*)cf->wth); /**** XXX - DOESN'T WORK RIGHT NOW!!!! */
+  cf->snap      = 0; /**** XXX - DOESN'T WORK RIGHT NOW!!!! */
   if (cf->snap == 0) {
     /* Snapshot length not known. */
     cf->has_snap = FALSE;
-    cf->snap = FTAP_MAX_RECORD_SIZE;
+    cf->snap = 0;
   } else
     cf->has_snap = TRUE;
   nstime_set_zero(&cf->elapsed_time);
@@ -2600,7 +2578,7 @@ cf_open(capture_file *cf, const char *fname, unsigned int type, gboolean is_temp
 
   return CF_OK;
 
-fail:
+/* fail: */
   g_snprintf(err_msg, sizeof err_msg,
              cf_open_error_message(*err, err_info, FALSE, cf->cd_t), fname);
   cmdarg_err("%s", err_msg);
@@ -2632,14 +2610,15 @@ show_print_file_io_error(int err)
 }
 
 static const char *
-cf_open_error_message(int err, gchar *err_info, gboolean for_writing,
-                      int file_type)
+cf_open_error_message(int err, gchar *err_info _U_, gboolean for_writing,
+                      int file_type _U_)
 {
   const char *errmsg;
-  static char errmsg_errno[1024+1];
+  /* static char errmsg_errno[1024+1]; */
 
   if (err < 0) {
     /* Wiretap error. */
+#if 0
     switch (err) {
 
     case FTAP_ERR_NOT_REGULAR_FILE:
@@ -2748,6 +2727,7 @@ cf_open_error_message(int err, gchar *err_info, gboolean for_writing,
       errmsg = errmsg_errno;
       break;
     }
+#endif
   } else
     errmsg = file_open_error_message(err, for_writing);
   return errmsg;
