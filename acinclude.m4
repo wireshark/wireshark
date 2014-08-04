@@ -236,8 +236,10 @@ yes
 			;;
 		solaris)
 			#
-			# XXX - "SunOS" as opposed to what?  SunOS 5
-			# should always say "SunOS" here.
+			# There's nothing we can check for in the header
+			# file, so we just check for SunOS (pre-SunOS 5
+			# versions didn't include IPv6 support, so we
+			# just check the OS, not the version).
 			#
 			if test "`uname -s`" = "SunOS"; then
 				v6type=$i
