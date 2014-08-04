@@ -728,6 +728,11 @@ dissect_options(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *t
     proto_tree *ti_option_subtree;
     guint8      option_type, option_length;
 
+    if (config_data) {
+        config_data->mode     = 0;
+        config_data->txwindow = 0;
+    }
+
     while (length > 0) {
         option_type   = tvb_get_guint8(tvb, offset);
         option_length = tvb_get_guint8(tvb, offset + 1);
