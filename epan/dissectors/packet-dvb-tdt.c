@@ -55,7 +55,7 @@ dissect_dvb_tdt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     offset += packet_mpeg_sect_header(tvb, offset, dvb_tdt_tree, NULL, NULL);
 
     if (packet_mpeg_sect_mjd_to_utc_time(tvb, offset, &utc_time) < 0) {
-        proto_tree_add_text(dvb_tdt_tree, tvb, offset, 5, "Unparseable time");
+        proto_tree_add_time_format(dvb_tdt_tree, hf_dvb_tdt_utc_time, tvb, offset, 5, &utc_time, "Unparseable time");
     } else {
         proto_tree_add_time(dvb_tdt_tree, hf_dvb_tdt_utc_time, tvb, offset, 5, &utc_time);
     }

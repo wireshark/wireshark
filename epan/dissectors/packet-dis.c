@@ -3637,6 +3637,8 @@ static int hf_dis_obj_count = -1;
 static int hf_dis_clock_rate = -1;
 static int hf_dis_sec_since_1970 = -1;
 static int hf_dis_str_data = -1;
+static int hf_dis_record_data = -1;
+static int hf_dis_alignment_padding = -1;
 static int hf_dis_vp_change_indicator = -1;
 static int hf_dis_vp_association_status = -1;
 static int hf_dis_vp_association_type = -1;
@@ -5124,9 +5126,8 @@ static int dissect_DIS_PARSER_SIGNAL_PDU(tvbuff_t *tvb, packet_info *pinfo, prot
     if (tdlType == DIS_TDL_TYPE_LINK16_STD) {
         offset = parse_DIS_FIELDS_SIGNAL_LINK16_NETWORK_HEADER(tvb, tree, offset, &messageType);
 
-        ti = proto_tree_add_text(tree, tvb, offset, -1, "Link 16 Message Data: %s",
-            val_to_str_const(messageType, DIS_PDU_Link16_MessageType_Strings, ""));
-        sub_tree = proto_item_add_subtree(ti, ett_dis_signal_link16_message_data);
+        sub_tree = proto_tree_add_subtree_format(tree, tvb, offset, -1, ett_dis_signal_link16_message_data, NULL,
+            "Link 16 Message Data: %s", val_to_str_const(messageType, DIS_PDU_Link16_MessageType_Strings, ""));
         offset = parse_Link16_Message_Data(sub_tree, tvb, offset, pinfo, encodingScheme, messageType);
         proto_item_set_end(ti, tvb, offset);
     } else {
@@ -5902,8 +5903,7 @@ static gint parseField_VariableRecord(tvbuff_t *tvb, proto_tree *tree, gint offs
 
         if (dataLength > 0)
         {
-            proto_tree_add_text(tree, tvb, offset, dataLength,
-                "Record Data (%d bytes)", dataLength);
+            proto_tree_add_item(tree, hf_dis_record_data, tvb, offset, dataLength, ENC_NA);
             offset += dataLength;
         }
         }
@@ -5915,8 +5915,7 @@ static gint parseField_VariableRecord(tvbuff_t *tvb, proto_tree *tree, gint offs
     {
         guint32 alignmentPadding = (8 - (record_length % 8));
 
-        proto_tree_add_text(tree, tvb, offset, alignmentPadding,
-            "Alignment Padding (%d bytes)", alignmentPadding);
+        proto_tree_add_item(tree, hf_dis_alignment_padding, tvb, offset, alignmentPadding, ENC_NA);
         offset += alignmentPadding;
     }
 
@@ -6109,17 +6108,16 @@ static gint dissect_dis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
             /* Add a node to contain the DIS PDU fields.
              */
-            dis_payload_node = proto_tree_add_text(dis_tree, tvb, offset, -1,
-                "%s PO PDU", pduString);
-
+            dis_payload_tree = proto_tree_add_subtree_format(dis_tree, tvb, offset, -1,
+                ett_dis_payload, &dis_payload_node, "%s PO PDU", pduString);
         }
         break;
     default:
 
         /* Add a node to contain the DIS PDU fields.
          */
-        dis_payload_node = proto_tree_add_text(dis_tree, tvb, offset, -1,
-            "%s PDU", pduString);
+        dis_payload_tree = proto_tree_add_subtree_format(dis_tree, tvb, offset, -1,
+            ett_dis_payload, &dis_payload_node, "%s PDU", pduString);
 
         switch (header.pduType)
         {
@@ -6248,7 +6246,6 @@ static gint dissect_dis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
      */
     if (pduFunc != NULL)
     {
-        dis_payload_tree = proto_item_add_subtree(dis_payload_node, ett_dis_payload);
         offset = (*pduFunc)(tvb, pinfo, dis_payload_tree, offset);
         proto_item_set_end(dis_payload_node, tvb, offset);
     }
@@ -7444,6 +7441,16 @@ void proto_register_dis(void)
             },
             { &hf_dis_str_data,
               { "Data",  "dis.str_data",
+                FT_BYTES, BASE_NONE, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_record_data,
+              { "Record data",  "dis.record_data",
+                FT_BYTES, BASE_NONE, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_alignment_padding,
+              { "Alignment padding",  "dis.alignment_padding",
                 FT_BYTES, BASE_NONE, NULL, 0x0,
                 NULL, HFILL }
             },

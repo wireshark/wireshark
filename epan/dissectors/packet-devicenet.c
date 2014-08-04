@@ -92,6 +92,7 @@ static int hf_devicenet_class8 = -1;
 static int hf_devicenet_class16 = -1;
 static int hf_devicenet_instance8 = -1;
 static int hf_devicenet_instance16 = -1;
+static int hf_devicenet_attribute = -1;
 static int hf_devicenet_fragment_type = -1;
 static int hf_devicenet_fragment_count = -1;
 
@@ -273,6 +274,7 @@ static gint body_type_8_over_8_dissection(guint8 data_length, proto_tree *device
     guint16 class_id, instance, attribute;
     attribute_info_t* att_info;
     gint start_offset = offset, length;
+    proto_item* ti;
 
     devicenet_tree = proto_tree_add_subtree(devicenet_tree, tvb, offset, -1, ett_devicenet_8_8, NULL, "DeviceNet 8/8");
 
@@ -287,10 +289,11 @@ static gint body_type_8_over_8_dissection(guint8 data_length, proto_tree *device
     if (data_length > 3)
     {
         attribute = tvb_get_guint8(tvb, offset);
+        ti = proto_tree_add_item(devicenet_tree, hf_devicenet_attribute,  tvb, offset, 1, ENC_LITTLE_ENDIAN);
         att_info = cip_get_attribute(class_id, instance, attribute);
 
         if (att_info != NULL)
-            proto_tree_add_text(devicenet_tree, tvb, offset, 1, "Instance Attribute: %s", att_info->text);
+            proto_item_append_text(ti, " (%s)", att_info->text);
 
         offset++;
     }
@@ -310,6 +313,7 @@ static gint body_type_8_over_16_dissection(guint8 data_length, proto_tree *devic
 {
     guint16 class_id, instance, attribute;
     attribute_info_t* att_info;
+    proto_item* ti;
 
     devicenet_tree = proto_tree_add_subtree(devicenet_tree, tvb, offset, -1, ett_devicenet_8_16, NULL, "DeviceNet 8/16");
 
@@ -323,10 +327,11 @@ static gint body_type_8_over_16_dissection(guint8 data_length, proto_tree *devic
     if (data_length > 4)
     {
         attribute = tvb_get_guint8(tvb, offset);
+        ti = proto_tree_add_item(devicenet_tree, hf_devicenet_attribute,  tvb, offset, 1, ENC_LITTLE_ENDIAN);
         att_info = cip_get_attribute(class_id, instance, attribute);
 
         if (att_info != NULL)
-            proto_tree_add_text(devicenet_tree, tvb, offset, 1, "Instance Attribute: %s", att_info->text);
+            proto_item_append_text(ti, " (%s)", att_info->text);
 
         offset++;
     }
@@ -339,6 +344,7 @@ static gint body_type_16_over_8_dissection(guint8 data_length, proto_tree *devic
 {
     guint16 class_id, instance, attribute;
     attribute_info_t* att_info;
+    proto_item* ti;
 
     devicenet_tree = proto_tree_add_subtree(devicenet_tree, tvb, offset, -1, ett_devicenet_16_8, NULL, "DeviceNet 16/8");
 
@@ -353,10 +359,11 @@ static gint body_type_16_over_8_dissection(guint8 data_length, proto_tree *devic
     if (data_length > 4)
     {
         attribute = tvb_get_guint8(tvb, offset);
+        ti = proto_tree_add_item(devicenet_tree, hf_devicenet_attribute,  tvb, offset, 1, ENC_LITTLE_ENDIAN);
         att_info = cip_get_attribute(class_id, instance, attribute);
 
         if (att_info != NULL)
-            proto_tree_add_text(devicenet_tree, tvb, offset, 1, "Instance Attribute: %s" ,att_info->text);
+            proto_item_append_text(ti, " (%s)", att_info->text);
 
         offset++;
     }
@@ -369,6 +376,7 @@ static gint body_type_16_over_16_dissection(guint8 data_length, proto_tree *devi
 {
     guint16 class_id, instance, attribute;
     attribute_info_t* att_info;
+    proto_item* ti;
 
     devicenet_tree = proto_tree_add_subtree(devicenet_tree, tvb, offset, 4, ett_devicenet_16_16, NULL, "DeviceNet 16/16");
 
@@ -383,10 +391,11 @@ static gint body_type_16_over_16_dissection(guint8 data_length, proto_tree *devi
     if (data_length > 5)
     {
         attribute = tvb_get_guint8(tvb, offset);
+        ti = proto_tree_add_item(devicenet_tree, hf_devicenet_attribute,  tvb, offset, 1, ENC_LITTLE_ENDIAN);
         att_info = cip_get_attribute(class_id, instance, attribute);
 
         if (att_info != NULL)
-            proto_tree_add_text(devicenet_tree, tvb, offset, 1, "Instance Attribute: %s" ,att_info->text);
+            proto_item_append_text(ti, " (%s)", att_info->text);
 
         offset++;
     }
@@ -913,6 +922,11 @@ void proto_register_devicenet(void)
         { &hf_devicenet_instance16,
             { "Instance", "devicenet.instance",
             FT_UINT16, BASE_HEX, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_devicenet_attribute,
+            { "Attribute", "devicenet.attribute",
+            FT_UINT8, BASE_HEX, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_devicenet_fragment_type,

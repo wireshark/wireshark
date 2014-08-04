@@ -46,6 +46,8 @@ void proto_reg_handoff_diameter_3gpp(void);
 /* Initialize the protocol and registered fields */
 static int proto_diameter_3gpp          = -1;
 
+static int hf_diameter_3gpp_timezone                = -1;
+static int hf_diameter_3gpp_timezone_adjustment     = -1;
 static int hf_diameter_3gpp_visited_nw_id           = -1;
 static int hf_diameter_3gpp_msisdn                  = -1;
 static int hf_diameter_3gpp_path                    = -1;
@@ -217,11 +219,11 @@ dissect_diameter_3gpp_ms_timezone(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
     hours =  oct / 4;
     minutes = oct % 4 * 15;
 
-    proto_tree_add_text(tree, tvb, offset, 1, "Timezone: GMT %c %d hours %d minutes", sign, hours, minutes);
+    proto_tree_add_uint_format_value(tree, hf_diameter_3gpp_timezone, tvb, offset, 1, oct, "GMT %c %d hours %d minutes", sign, hours, minutes);
     offset++;
 
     oct = tvb_get_guint8(tvb, offset) & 0x3;
-    proto_tree_add_text(tree, tvb, offset, 1, "%s", val_to_str_const(oct, daylight_saving_time_vals, "Unknown"));
+    proto_tree_add_item(tree, hf_diameter_3gpp_timezone_adjustment, tvb, offset, 1, ENC_NA);
     offset++;
 
     diam_sub_dis->avp_str = wmem_strdup_printf(wmem_packet_scope(), "Timezone: GMT %c %d hours %d minutes %s",
@@ -1101,6 +1103,16 @@ proto_register_diameter_3gpp(void)
 
 /* Setup list of header fields  See Section 1.6.1 for details*/
     static hf_register_info hf[] = {
+        { &hf_diameter_3gpp_timezone,
+            { "Timezone",           "diameter.3gpp.3gpp_timezone",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_timezone_adjustment,
+            { "Adjustment",           "diameter.3gpp.timezone_adjustment",
+            FT_UINT8, BASE_DEC, VALS(daylight_saving_time_vals), 0x03,
+            NULL, HFILL }
+        },
         { &hf_diameter_3gpp_path,
             { "Path",           "diameter.3gpp.path",
             FT_STRING, BASE_NONE, NULL, 0x0,

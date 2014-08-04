@@ -320,7 +320,7 @@ dissect_datarequest(proto_item *ti_arg, gint ett_arg, tvbuff_t *tvb, gint arg_of
 {
         gint        offset = arg_offset;
         guint8      gtype, oidlen;
-        proto_tree *tree, *tree2;
+        proto_tree *tree;
         proto_item *ti;
 
         tree = proto_item_add_subtree(ti_arg, ett_arg);
@@ -392,13 +392,7 @@ dissect_datarequest(proto_item *ti_arg, gint ett_arg, tvbuff_t *tvb, gint arg_of
                 return offset;
 
         /* show the rest */
-        tree2 = proto_tree_add_text(tree, tvb, offset, -1, "leftover =");
-        while (tvb_length_remaining(tvb, offset) > 0) {
-                proto_item_append_text(tree2, elcom_show_hex ? " %02x" : " %03o",
-                                       tvb_get_guint8(tvb, offset));
-                offset++;
-        }
-
+        proto_tree_add_item(tree, hf_elcom_strangeleftover, tvb, offset, -1, ENC_NA);
         return offset;
 }
 
@@ -558,16 +552,10 @@ dissect_elcom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 break;
         }
 
-
-        if (tvb_length_remaining(tvb, offset) <= 0)
-                return;
-
-        /* We should not get here, but if we do, show what is left over: */
-        ti = proto_tree_add_item(elcom_tree, hf_elcom_strangeleftover, tvb, offset, -1, ENC_NA);
-        while (tvb_length_remaining(tvb, offset) > 0) {
-                proto_item_append_text(ti, elcom_show_hex ? " %02x" : " %03o",
-                                       tvb_get_guint8(tvb, offset));
-                offset++;
+        if (tvb_length_remaining(tvb, offset) > 0)
+        {
+            /* We should not get here, but if we do, show what is left over: */
+            proto_tree_add_item(elcom_tree, hf_elcom_strangeleftover, tvb, offset, -1, ENC_NA);
         }
 }
 
@@ -737,7 +725,7 @@ proto_register_elcom(void)
                 },
                 { &hf_elcom_strangeleftover,
                   { "Strange Leftover",        "elcom.leftover",
-                    FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }
+                    FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }
                 }
         };
 

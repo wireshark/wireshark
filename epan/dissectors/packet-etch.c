@@ -117,7 +117,7 @@ static gint ett_etch_value = -1;
 static int hf_etch_sig = -1;
 static int hf_etch_length = -1;
 static int hf_etch_version = -1;
-/* static int hf_etch_typecode = -1; */
+static int hf_etch_typecode = -1;
 static int hf_etch_value = -1;
 static int hf_etch_bytes = -1;
 static int hf_etch_byte = -1;
@@ -379,11 +379,9 @@ read_type(unsigned int *offset, tvbuff_t *tvb, proto_tree *etch_tree)
 {
 
   guint32      type_code;
-  const gchar *type_as_string;
 
   type_code = tvb_get_guint8(tvb, *offset);
-  type_as_string = val_to_str(type_code, tc_lookup_table, "Etch TypeCode: 0x%02x");
-  proto_tree_add_text(etch_tree, tvb, *offset, 1, "%s", type_as_string);
+  proto_tree_add_item(etch_tree, hf_etch_typecode, tvb, *offset, 1, ENC_NA);
   (*offset)++;
   return type_code;
 }
@@ -835,14 +833,12 @@ void proto_register_etch(void)
       NULL, 0x0,
       NULL, HFILL}
     },
-#if 0
     {&hf_etch_typecode,
      {"Etch TypeCode", "etch.typecode",
-      FT_STRING, BASE_NONE,    /* FT_INT8 */
-      NULL, 0x0,
+      FT_UINT8, BASE_HEX,
+      VALS(tc_lookup_table), 0x0,
       NULL, HFILL}
     },
-#endif
     {&hf_etch_value,
      {"Etch Value", "etch.value",
       FT_UINT64, BASE_DEC,

@@ -50,6 +50,8 @@ static int hf_exec_stderr_port = -1;
 static int hf_exec_username    = -1;
 static int hf_exec_password    = -1;
 static int hf_exec_command     = -1;
+static int hf_exec_client_server_data = -1;
+static int hf_exec_server_client_data = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_exec = -1;
@@ -324,13 +326,13 @@ dissect_exec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if(pinfo->destport == EXEC_PORT){
 			/* Packet going to the server */
 			/* offset = 0 since the whole packet is data */
-			proto_tree_add_text(exec_tree, tvb, 0, -1, "Client -> Server Data");
+			proto_tree_add_item(exec_tree, hf_exec_client_server_data, tvb, 0, -1, ENC_NA);
 
 			col_append_str(pinfo->cinfo, COL_INFO, "Client -> Server data");
 		} else {
 			/* This packet must be going back to the client */
 			/* offset = 0 since the whole packet is data */
-			proto_tree_add_text(exec_tree, tvb, 0, -1, "Server -> Client Data");
+			proto_tree_add_item(exec_tree, hf_exec_server_client_data, tvb, 0, -1, ENC_NA);
 
 			col_append_str(pinfo->cinfo, COL_INFO, "Server -> Client Data");
 		}
@@ -361,7 +363,15 @@ proto_register_exec(void)
 
 	{ &hf_exec_command, { "Command to execute", "exec.command",
 		FT_STRINGZ, BASE_NONE, NULL, 0,
-		"Command client is requesting the server to run.", HFILL } }
+		"Command client is requesting the server to run.", HFILL } },
+
+	{ &hf_exec_client_server_data, { "Client -> Server Data", "exec.client_server_data",
+		FT_BYTES, BASE_NONE, NULL, 0,
+		NULL, HFILL } },
+
+	{ &hf_exec_server_client_data, { "Server -> Client Data", "exec.server_client_data",
+		FT_BYTES, BASE_NONE, NULL, 0,
+		NULL, HFILL } },
 
 	};
 

@@ -124,6 +124,7 @@ static const value_string erldp_ctlmsg_vals[] = {
 int proto_erldp = -1;
 static int hf_erldp_length_2 = -1;
 static int hf_erldp_length_4 = -1;
+static int hf_etf_version_magic = -1;
 static int hf_erldp_tag = -1;
 static int hf_erldp_type = -1;
 static int hf_erldp_version = -1;
@@ -358,7 +359,7 @@ static gint dissect_etf_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
   etf_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_etf, &ti, (label) ? label : "External Term Format");
 
-  proto_tree_add_text(etf_tree, tvb, offset, 1, "VERSION_MAGIC: %d", mag);
+  proto_tree_add_item(etf_tree, hf_etf_version_magic, tvb, offset, 1, ENC_NA);
   offset++;
 
   tag = tvb_get_guint8(tvb, offset);
@@ -554,6 +555,9 @@ void proto_register_erldp(void) {
     { &hf_erldp_length_2, { "Length", "erldp.len",
                         FT_UINT16, BASE_DEC, NULL, 0x0,
                         "Message Length", HFILL}},
+    { &hf_etf_version_magic, { "VERSION_MAGIC", "erldp.version_magic",
+                        FT_UINT8, BASE_DEC, NULL, 0x0,
+                        NULL, HFILL}},
     { &hf_erldp_tag,  { "Tag", "erldp.tag",
                         FT_STRING, BASE_NONE, NULL, 0x0,
                         NULL, HFILL}},

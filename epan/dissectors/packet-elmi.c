@@ -51,6 +51,7 @@ static int hf_elmi_report_type = -1;
 static int hf_elmi_snd_seq_num = -1;
 static int hf_elmi_rcv_seq_num = -1;
 static int hf_elmi_dat_inst = -1;
+static int hf_elmi_reserved = -1;
 
 static const value_string elmi_msg_type[] = {
     { 0x75, "Status enquiry" },
@@ -121,7 +122,7 @@ dissect_elmi_info_elem(
             offset++;
             break;
         case TAG_DATA_INST:
-            proto_tree_add_text(info_elem_tree, tvb, offset, 1, "Reserved");
+            proto_tree_add_item(info_elem_tree, hf_elmi_reserved, tvb, offset, 1, ENC_NA);
             offset++;
             proto_tree_add_item(info_elem_tree, hf_elmi_dat_inst,
                     tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -204,7 +205,10 @@ proto_register_elmi(void)
                 NULL, 0, NULL, HFILL } },
         { &hf_elmi_dat_inst,
             { "Data instance", "elmi.data_instance", FT_UINT32, BASE_HEX,
-                NULL, 0, NULL, HFILL } }
+                NULL, 0, NULL, HFILL } },
+        { &hf_elmi_reserved,
+            { "Reserved", "elmi.reserved", FT_UINT8, BASE_HEX,
+                NULL, 0, NULL, HFILL } },
     };
 
     static gint *ett[] = {

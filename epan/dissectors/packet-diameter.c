@@ -476,7 +476,7 @@ call_avp_subdissector(guint32 vendorid, guint32 code, tvbuff_t *subtvb, packet_i
 		}
 
 		/* Debug
-		proto_tree_add_text(avp_tree, subtvb, 0, -1, "AVP %u data, Vendor Id %u ",code,vendorid);
+		proto_tree_add_subtree(avp_tree, subtvb, 0, -1, "AVP %u data, Vendor Id %u ",code,vendorid);
 		*/
 	}
 	CATCH_NONFATAL_ERRORS {

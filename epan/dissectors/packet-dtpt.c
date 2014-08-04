@@ -115,6 +115,7 @@ static int hf_dtpt_blob_data_pointer = -1;
 static int hf_dtpt_blob_data_length = -1;
 static int hf_dtpt_blob_data = -1;
 static int hf_dtpt_connect_addr = -1;
+static int hf_dtpt_padding = -1;
 
 static gint ett_dtpt = -1;
 static gint ett_dtpt_flags = -1;
@@ -252,8 +253,8 @@ dissect_dtpt_wstring(tvbuff_t *tvb, guint offset, proto_tree *tree, int hfindex)
 				proto_tree_add_string(dtpt_wstring_tree, hf_dtpt_wstring_data,
 					tvb, offset+4, wstring_length, wstring_data);
 			if (wstring_padding)
-				proto_tree_add_text(dtpt_wstring_tree, tvb,
-					offset+4+wstring_length,wstring_padding, "Padding");
+				proto_tree_add_item(dtpt_wstring_tree, hf_dtpt_padding, tvb,
+					offset+4+wstring_length,wstring_padding, ENC_NA);
 		}
 	}
 	offset += 4+wstring_size;
@@ -361,8 +362,8 @@ dissect_dtpt_sockaddr(tvbuff_t *tvb, guint offset, proto_tree *tree, int hfindex
 						addr = tvb_get_ipv4(tvb,offset+4);
 						proto_tree_add_ipv4(sockaddr_tree, hf_dtpt_sockaddr_address,
 						tvb, offset+4,4,addr);
-						proto_tree_add_text(sockaddr_tree, tvb, offset+8, 8, "Padding");
-							proto_item_append_text(sockaddr_item, ": %s:%d", ip_to_str((guint8*)&addr), port);
+						proto_tree_add_item(sockaddr_tree, hf_dtpt_padding, tvb, offset+8, 8, ENC_NA);
+						proto_item_append_text(sockaddr_item, ": %s:%d", ip_to_str((guint8*)&addr), port);
 					}
 					break;
 				}
@@ -379,14 +380,14 @@ dissect_dtpt_sockaddr(tvbuff_t *tvb, guint offset, proto_tree *tree, int hfindex
 						guint16 port;
 						guint32	addr;
 
-						proto_tree_add_text(sockaddr_tree, tvb, offset+4, 4, "Padding");
+						proto_tree_add_item(sockaddr_tree, hf_dtpt_padding, tvb, offset+4, 4, ENC_NA);
 						port = tvb_get_ntohs(tvb,offset+8);
 						proto_tree_add_uint(sockaddr_tree, hf_dtpt_sockaddr_port,
 							tvb, offset+8,2,port);
 						addr = tvb_get_ipv4(tvb,offset+10);
 						proto_tree_add_ipv4(sockaddr_tree, hf_dtpt_sockaddr_address,
 							tvb, offset+10,4,addr);
-						proto_tree_add_text(sockaddr_tree, tvb, offset+14, 16, "Padding");
+						proto_tree_add_item(sockaddr_tree, hf_dtpt_padding, tvb, offset+14, 16, ENC_NA);
 						proto_item_append_text(sockaddr_item, ": %s:%d", ip_to_str((guint8*)&addr), port);
 					}
 					break;
@@ -1159,6 +1160,11 @@ proto_register_dtpt(void)
 		  { "Address", "dtpt.connect_addr",
 		    FT_UINT32, BASE_DEC, NULL, 0x0,
 		    "Connect to Address", HFILL }},
+
+		{ &hf_dtpt_padding,
+		  { "Padding", "dtpt.padding",
+		    FT_BYTES, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }},
 	};
 	static gint *ett[] = {
 		&ett_dtpt,

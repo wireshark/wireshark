@@ -441,15 +441,15 @@ dissect_daap_one_tag(proto_tree *tree, tvbuff_t *tvb)
    while ((offset >= 0) &&  (offset < reported_length)) {
       tagname = tvb_get_ntohl(tvb, offset);
       tagsize = tvb_get_ntohl(tvb, offset+4);
-      ti = proto_tree_add_text(tree, tvb, offset, 8,
+      new_tree = proto_tree_add_subtree_format(tree, tvb, offset, 8, ett_daap_sub, &ti,
                                "Tag: %-40s %3u byte%c",
                                val_to_str_ext(tagname, &vals_tag_code_ext, "Unknown tag (0x%0x)"),
                                tagsize,
                                plurality(tagsize, ' ', 's'));
 
-      ti2 = proto_tree_add_item(tree, hf_daap_name, tvb, offset, 4, ENC_ASCII|ENC_NA);
+      ti2 = proto_tree_add_item(new_tree, hf_daap_name, tvb, offset, 4, ENC_ASCII|ENC_NA);
       PROTO_ITEM_SET_HIDDEN(ti2);
-      ti2 = proto_tree_add_item(tree, hf_daap_size, tvb, offset+4, 4, ENC_BIG_ENDIAN);
+      ti2 = proto_tree_add_item(new_tree, hf_daap_size, tvb, offset+4, 4, ENC_BIG_ENDIAN);
       PROTO_ITEM_SET_HIDDEN(ti2);
 
       offset += 8;
@@ -459,10 +459,10 @@ dissect_daap_one_tag(proto_tree *tree, tvbuff_t *tvb)
       if (tagsize <= (unsigned)len) {
          len = tagsize;
       }
-      proto_item_set_len(ti, 8+len);              /* *Now* it's Ok to set the length.              */
-                                                  /*  (Done here so that the proto_tree_add_text   */
-                                                  /*   above will show tag and tagsize even if     */
-                                                  /*   tagsize is very large).                     */
+      proto_item_set_len(ti, 8+len);              /* *Now* it's Ok to set the length.               */
+                                                  /*  (Done here so that the proto_tree_add_subtree */
+                                                  /*   above will show tag and tagsize even if      */
+                                                  /*   tagsize is very large).                      */
       switch (tagname) {
       case daap_mcon:
       case daap_msrv:
@@ -490,7 +490,6 @@ dissect_daap_one_tag(proto_tree *tree, tvbuff_t *tvb)
       case dacp_cmgt:
       case dacp_cmst:
          /* Container tags */
-         new_tree = proto_item_add_subtree(ti, ett_daap_sub);
          new_tvb  = tvb_new_subset_length(tvb, offset, len);  /* Use a new tvb so bounds checking        */
                                                               /*  works Ok when dissecting container.    */
                                                               /* Note: len is within tvb; checked above. */

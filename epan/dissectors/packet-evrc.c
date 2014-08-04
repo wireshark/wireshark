@@ -176,6 +176,7 @@ static int hf_evrc_toc_frame_type_low = -1;
 static int hf_evrc_b_toc_frame_type_high = -1;
 static int hf_evrc_b_toc_frame_type_low = -1;
 static int hf_evrc_padding = -1;
+static int hf_evrc_speech_data = -1;
 static int hf_evrc_legacy_toc_fe_ind = -1;
 static int hf_evrc_legacy_toc_reduc_rate = -1;
 static int hf_evrc_legacy_toc_frame_type = -1;
@@ -396,7 +397,7 @@ dissect_evrc_aux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, evrc_varia
     while ((i < frame_count) &&
         ((len - offset) >= speech_data_len[i]))
     {
-        proto_tree_add_text(evrc_tree, tvb, offset, speech_data_len[i], "Speech Data [%u]", i+1);
+        proto_tree_add_bytes_format(evrc_tree, hf_evrc_speech_data, tvb, offset, speech_data_len[i], NULL, "Speech Data [%u]", i+1);
 
         offset += speech_data_len[i];
         i++;
@@ -529,6 +530,11 @@ proto_register_evrc(void)
             { "Padding",                "evrc.padding",
             FT_UINT8, BASE_DEC, NULL, 0x0f,
             "Padding bits", HFILL }
+        },
+        { &hf_evrc_speech_data,
+            { "Speech data",                "evrc.speech_data",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
         },
         { &hf_evrc_legacy_toc_fe_ind,
             { "ToC Further Entries Indicator",  "evrc.legacy.toc.further_entries_ind",

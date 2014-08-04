@@ -400,6 +400,8 @@ const value_string E164_International_Networks_883_vals[] = {
 static int proto_e164						= -1;
 static int hf_E164_calling_party_number		= -1;
 static int hf_E164_called_party_number		= -1;
+static int hf_E164_identification_code		= -1;
+static int hf_E164_country_code				= -1;
 
 
 
@@ -585,8 +587,7 @@ dissect_e164_cc(tvbuff_t *tvb, proto_tree *tree, int offset, gboolean bcd_coded)
 		break;
 	}/* end switch cc_length */
 
-	proto_tree_add_text(tree, tvb, cc_offset, length,"Country Code: %x %s (length %u)", cc,
-			    val_to_str_ext_const(cc,&E164_country_code_value_ext,"Unknown"), cc_length);
+	proto_tree_add_uint(tree, hf_E164_country_code, tvb, cc_offset, length, cc);
 
 	switch ( cc ) {
 	case 0x881 :
@@ -595,8 +596,8 @@ dissect_e164_cc(tvbuff_t *tvb, proto_tree *tree, int offset, gboolean bcd_coded)
 		} else {
 			id_code = (tvb_get_guint8(tvb, cc_offset + 1) & 0xf0) >> 4;
 		}
-		proto_tree_add_text(tree,tvb, (cc_offset + 1), 1,"Identification Code: %x %s ",id_code,
-				    val_to_str_const(id_code,E164_GMSS_vals,"Unknown"));
+		proto_tree_add_uint_format_value(tree, hf_E164_identification_code, tvb, (cc_offset + 1), 1,
+						id_code, "%x %s", id_code, val_to_str_const(id_code, E164_GMSS_vals, "Unknown"));
 		break;
 	case 0x882 :
 		if (!bcd_coded) {
@@ -606,8 +607,8 @@ dissect_e164_cc(tvbuff_t *tvb, proto_tree *tree, int offset, gboolean bcd_coded)
 			id_code  = tvb_get_guint8(tvb, cc_offset + 1) & 0xf0;
 			id_code |= tvb_get_guint8(tvb, cc_offset + 2) & 0x0f;
 		}
-		proto_tree_add_text(tree,tvb, (cc_offset + 1), 2,"Identification Code: %x %s ",id_code,
-				    val_to_str_ext_const(id_code,&E164_International_Networks_882_vals_ext,"Unknown"));
+		proto_tree_add_uint_format_value(tree, hf_E164_identification_code, tvb, (cc_offset + 1), 2,
+						id_code, "%x %s", id_code, val_to_str_ext_const(id_code, &E164_International_Networks_882_vals_ext, "Unknown"));
 		break;
 	case 0x883 :
 		if (!bcd_coded) {
@@ -624,11 +625,11 @@ dissect_e164_cc(tvbuff_t *tvb, proto_tree *tree, int offset, gboolean bcd_coded)
 			} else {
 				id_code = (id_code << 4) | (tvb_get_guint8(tvb, cc_offset + 3) & 0x0f);
 			}
-			proto_tree_add_text(tree,tvb, (cc_offset + 1), 3,"Identification Code: %x %s ",id_code,
-					    val_to_str_const(id_code,E164_International_Networks_883_vals,"Unknown"));
+			proto_tree_add_uint_format_value(tree, hf_E164_identification_code, tvb, (cc_offset + 1), 3,
+					id_code, "%x %s", id_code, val_to_str_const(id_code, E164_International_Networks_883_vals, "Unknown"));
 		} else {
-			proto_tree_add_text(tree,tvb, (cc_offset + 1), 2,"Identification Code: %x %s ",id_code,
-					    val_to_str_const(id_code,E164_International_Networks_883_vals,"Unknown"));
+			proto_tree_add_uint_format_value(tree, hf_E164_identification_code, tvb, (cc_offset + 1), 2,
+					id_code, "%x %s", id_code, val_to_str_const(id_code, E164_International_Networks_883_vals, "Unknown"));
 		}
 		break;
 	default:
@@ -658,7 +659,17 @@ proto_register_e164(void)
 		{ &hf_E164_called_party_number,
 		  { "E.164 Called party number digits", "e164.called_party_number.digits",
 		  FT_STRING, BASE_NONE, NULL, 0x0,
-			NULL, HFILL }}
+			NULL, HFILL }},
+
+		{ &hf_E164_identification_code,
+		  { "Identification Code", "e164.identification_code",
+		  FT_UINT32, BASE_HEX, NULL, 0x0,
+			NULL, HFILL }},
+
+		{ &hf_E164_country_code,
+		  { "Country Code", "e164.country_code",
+		  FT_UINT16, BASE_HEX|BASE_EXT_STRING, &E164_country_code_value_ext, 0x0,
+			NULL, HFILL }},
 	};
 
 	/*

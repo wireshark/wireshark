@@ -6273,67 +6273,60 @@ dissect_dcm_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
        Display the information we collected so far. Don't wait until the value is parsed,
        because that parsing might cause an exception. If that happens within a sequence,
        the sequence tag would not show up with the value
+
+       Use different ett_ for Sequences & Items, so that fold/unfold state makes sense
     */
 
     tag_summary = dcm_tag_summary(grp, elm, vl, tag_def->description, vr, tag_def->is_retired, is_implicit);
-
-    if (vl == 0xFFFFFFFF) {
-	/* 'Just' mark header as the length of the item */
-	tag_pitem = proto_tree_add_text(tree, tvb, offset_tag, offset - offset_tag, "%s", tag_summary);
-	vl_max = 0;	    /* We don't know who long this sequence/item is */
-    }
-    else if (offset + vl <= endpos) {
-	/* Show real length of item */
-	tag_pitem = proto_tree_add_text(tree, tvb, offset_tag, offset + vl - offset_tag, "%s", tag_summary);
-	vl_max = vl;
-    }
-    else {
-	/* Value is longer than what we have in the PDV, -> we do have a OPEN tag */
-	tag_pitem = proto_tree_add_text(tree, tvb, offset_tag, endpos - offset_tag, "%s", tag_summary);
-	vl_max = endpos - offset;
-    }
-
     is_sequence = (strcmp(vr, "SQ") == 0) || (vl == 0xFFFFFFFF);
     is_item = ((grp == 0xFFFE) && (elm == 0xE000));
 
+	if (vl == 0xFFFFFFFF) {
+		/* 'Just' mark header as the length of the item */
+		tag_ptree = proto_tree_add_subtree(tree, tvb, offset_tag, offset - offset_tag,
+				is_item ? ett_dcm_data_item : ett_dcm_data_seq, &tag_pitem, tag_summary);
+		vl_max = 0;	    /* We don't know who long this sequence/item is */
+	}
+	else if (offset + vl <= endpos) {
+		/* Show real length of item */
+		tag_ptree = proto_tree_add_subtree(tree, tvb, offset_tag, offset + vl - offset_tag,
+				is_item ? ett_dcm_data_item : ett_dcm_data_seq, &tag_pitem, tag_summary);
+		vl_max = vl;
+	}
+	else {
+		/* Value is longer than what we have in the PDV, -> we do have a OPEN tag */
+		tag_ptree = proto_tree_add_subtree(tree, tvb, offset_tag, endpos - offset_tag,
+				is_item ? ett_dcm_data_item : ett_dcm_data_seq, &tag_pitem, tag_summary);
+		vl_max = endpos - offset;
+	}
 
     /* If you are going to touch the following 25 lines, make sure you reserve a few hours to go
        through both display options and check for proper tree display :-)
     */
-    if (is_sequence | is_item) {
+	if (is_sequence | is_item) {
 
-	if (global_dcm_seq_subtree) {
-		/* Use different ett_ for Sequences & Items, so that fold/unfold state makes sense */
-		    seq_ptree = proto_item_add_subtree(tag_pitem, (is_sequence ? ett_dcm_data_seq : ett_dcm_data_item));
-		if (global_dcm_tag_subtree)
-			tag_ptree = seq_ptree;
-		else
-			tag_ptree = NULL;
+		if (global_dcm_seq_subtree) {
+			if (!global_dcm_tag_subtree)
+				tag_ptree = NULL;
+		}
+		else {
+			seq_ptree = tree;
+			if (!global_dcm_tag_subtree) {
+				tag_ptree = NULL;
+			}
+		}
 	}
 	else {
-	    seq_ptree = tree;
-	    if (global_dcm_tag_subtree) {
-			tag_ptree = proto_item_add_subtree(tag_pitem, ett_dcm_data_tag);
-	    }
-	    else {
+		/* For tags */
+		if (!global_dcm_tag_subtree) {
 			tag_ptree = NULL;
-	    }
+		}
 	}
-    }
-    else {
-	/* For tags */
-	if (global_dcm_tag_subtree) {
-	    tag_ptree = proto_item_add_subtree(tag_pitem, ett_dcm_data_tag);
-	}
-	else {
-	    tag_ptree = NULL;
-	}
-    }
 
-    /*  ---------------------------------------------------------------
+	/*  ---------------------------------------------------------------
 	Tag details as separate items
 	---------------------------------------------------------------
-    */
+	*/
 
     proto_tree_add_uint_format_value(tag_ptree, hf_dcm_tag, tvb, offset_tag, 4,
         (grp << 16) | elm, "%04x,%04x (%s)", grp, elm, tag_def->description);

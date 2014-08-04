@@ -55,7 +55,7 @@ static int hf_exported_pdu_ss7_opc = -1;
 static int hf_exported_pdu_ss7_dpc = -1;
 static int hf_exported_pdu_orig_fno = -1;
 static int hf_exported_pdu_dvbci_evt = -1;
-
+static int hf_exported_pdu_exported_pdu = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_exported_pdu = -1;
@@ -215,7 +215,7 @@ dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             break;
     }
 
-    proto_tree_add_text(exported_pdu_tree, payload_tvb, 0, -1,"Exported PDU");
+    proto_tree_add_item(exported_pdu_tree, hf_exported_pdu_exported_pdu, payload_tvb, 0, -1, ENC_NA);
 }
 
 /* Register the protocol with Wireshark.
@@ -308,7 +308,12 @@ proto_register_exported_pdu(void)
             { "DVB-CI event", "exported_pdu.dvb-ci.event",
                FT_UINT8, BASE_HEX, VALS(dvbci_event), 0,
               NULL, HFILL }
-        }
+        },
+        { &hf_exported_pdu_exported_pdu,
+            { "Exported PDU", "exported_pdu.exported_pdu",
+               FT_BYTES, BASE_NONE, NULL, 0,
+              NULL, HFILL }
+        },
     };
 
     /* Setup protocol subtree array */

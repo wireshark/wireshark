@@ -1460,7 +1460,7 @@ dissect_type_bitmap(proto_tree *rr_tree, tvbuff_t *tvb, int cur_offset, int rr_l
       mask = 1<<7;
       for (i = 0; i < 8; i++) {
         if (bits & mask) {
-          proto_tree_add_text(rr_tree, tvb, cur_offset, 1,
+          proto_tree_add_uint_format(rr_tree, hf_dns_rr_type, tvb, cur_offset, 1, rr_type,
             "RR type in bit map: %s",
             val_to_str_ext(rr_type, &dns_types_description_vals_ext, "Unknown (%d)"));
         }
