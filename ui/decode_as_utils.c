@@ -280,7 +280,7 @@ decode_as_open(void) {
     fputs("# \"Decode As\" entries file for Wireshark " VERSION ".\n"
         "#\n"
         "# This file is regenerated each time \"Decode As\" preferences\n"
-        "# are saved within Wireshark. Making manual changes should be safe,"
+        "# are saved within Wireshark. Making manual changes should be safe,\n"
         "# however.\n", da_file);
 
     return da_file;
