@@ -3582,6 +3582,10 @@ John Miner		<wiresharkdissectorcoder[AT]gmail.com> {
 	Japanese translation of the Qt User Interface
 }
 
+Remi Vichery		<remi.vichery[AT]gmail.com> {
+	Dissector for Stateless Transport Tunneling (STT)
+}
+
 Kevin Cox		<kevincox{AT]kevincox.ca> {
 	Dissector for Ceph
 }

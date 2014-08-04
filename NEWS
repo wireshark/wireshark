@@ -103,8 +103,9 @@ What's New
 
   New Protocol Support
 
-   corosync/totemnet, corosync/totemsrp, Generic Network Virtualization
-   Encapsulation (Geneve), IPMI Trace, iSER, and OptoMMP
+   ceph, corosync/totemnet, corosync/totemsrp, Generic Network
+   Virtualization Encapsulation (Geneve), IPMI Trace, iSER, OptoMMP, and
+   Stateless Transport Tunneling
 
   Updated Protocol Support
 
@@ -191,7 +192,7 @@ Frequently Asked Questions
    A complete FAQ is available on the [22]Wireshark web site.
      __________________________________________________________________
 
-   Last updated 2014-07-28 21:43:38 EDT
+   Last updated 2014-08-04 18:58:48 EDT
 
 References
 
