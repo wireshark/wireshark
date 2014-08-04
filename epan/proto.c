@@ -1138,31 +1138,18 @@ proto_tree_add_subtree(proto_tree *tree, tvbuff_t *tvb, gint start, gint length,
 proto_tree *
 proto_tree_add_subtree_format(proto_tree *tree, tvbuff_t *tvb, gint start, gint length, gint idx, proto_item **tree_item, const char *format, ...)
 {
-	proto_tree	*pt;
-	proto_item	*pi;
-	va_list		ap;
-	header_field_info *hfinfo;
-
-	/* Make sure *tree_item is initialized in case TRY_TO_FAKE_THIS_ITEM bails.
-	 * (We set it to 'tree' to match the behavior of TRY_TO_FAKE_THIS_ITEM
-	 * when 'tree' is set but the tree is not not visible.)
-	 */
-	if (tree_item != NULL)
-		*tree_item = (proto_item *)tree;
-
-	TRY_TO_FAKE_THIS_ITEM(tree, hf_text_only, hfinfo, tvb);
-
-	pi = proto_tree_add_text_node(tree, tvb, start, length);
-
-	TRY_TO_FAKE_THIS_REPR(pi);
+	proto_tree *pt;
+	proto_item *pi;
+	va_list	    ap;
 
 	va_start(ap, format);
-	proto_tree_set_representation(pi, format, ap);
+	pi = proto_tree_add_text_valist(tree, tvb, start, length, format, ap);
 	va_end(ap);
 
-	pt = proto_item_add_subtree(pi, idx);
 	if (tree_item != NULL)
 		*tree_item = pi;
+
+	pt = proto_item_add_subtree(pi, idx);
 
 	return pt;
 }
