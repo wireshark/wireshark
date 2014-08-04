@@ -133,8 +133,19 @@ read_set_decode_as_entries(gchar *key, const gchar *value,
                 if (IS_FT_STRING(selector_type)) {
                     dissector_change_string(values[0], values[1], lookup.handle);
                 } else {
-                    dissector_change_uint(values[0], atoi(values[1]), lookup.handle);
+                    char *p;
+                    long long_value;
+
+                    long_value = strtol(values[1], &p, 0);
+                    if (p == values[0] || *p != '\0' ||
+		        long_value < 0 || long_value > UINT_MAX) {
+                        retval = PREFS_SET_SYNTAX_ERR;
+                        is_valid = FALSE;
+                    } else
+                        dissector_change_uint(values[0], (guint)long_value, lookup.handle);
                 }
+            }
+            if (is_valid) {
                 decode_build_reset_list(g_strdup(values[0]), selector_type,
                         g_strdup(values[1]), NULL, NULL);
             }
