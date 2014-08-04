@@ -51,13 +51,52 @@
 
 #include "packet-tcp.h"
 
+#define http2_header_repr_type_VALUE_STRING_LIST(XXX)                   \
+    XXX(HTTP2_HD_NONE, 0x00, "")                                        \
+    XXX(HTTP2_HD_INDEXED, 0x01, "Indexed Header Field")                 \
+    XXX(HTTP2_HD_LITERAL_INDEXING_INDEXED_NAME, 0x02, "Literal Header Field with Incremental Indexing - Indexed Name") \
+    XXX(HTTP2_HD_LITERAL_INDEXING_NEW_NAME, 0x03, "Literal Header Field with Incremental Indexing - New Name") \
+    XXX(HTTP2_HD_LITERAL_INDEXED_NAME, 0x04, "Literal Header Field without Indexing - Indexed Name") \
+    XXX(HTTP2_HD_LITERAL_NEW_NAME, 0x05, "Literal Header Field without Indexing - New Name") \
+    XXX(HTTP2_HD_LITERAL_NEVER_INDEXING_INDEXED_NAME, 0x06, "Literal Header Field never Indexed - Indexed Name") \
+    XXX(HTTP2_HD_LITERAL_NEVER_INDEXING_NEW_NAME, 0x07, "Literal Header Field never Indexed - New Name") \
+    XXX(HTTP2_HD_HEADER_TABLE_SIZE_UPDATE, 0x08, "Maximum Header Table Size Change")
+
+VALUE_STRING_ENUM(http2_header_repr_type);
+VALUE_STRING_ARRAY(http2_header_repr_type);
+
 /* Decompressed header field */
 typedef struct {
-    /* header data */
-    char *data;
-    /* length of data */
-    guint datalen;
+    /* one of http2_header_repr_type */
+    gint type;
+    /* encoded (compressed) length */
+    gint length;
+    union {
+        struct {
+            /* header data */
+            char *data;
+            /* length of data */
+            guint datalen;
+            /* name index or name/value index if type is one of
+               HTTP2_HD_INDEXED and HTTP2_HD_*_INDEXED_NAMEs */
+            guint index;
+        };
+        /* header table size if type == HTTP2_HD_HEADER_TABLE_SIZE_UPDATE */
+        guint header_table_size;
+    };
 } http2_header_t;
+
+/* Context to decode header representation */
+typedef struct {
+    /* one of http2_header_repr_type */
+    gint type;
+    /* final or temporal result of decoding integer */
+    guint integer;
+    /* next bit shift to made when decoding integer */
+    guint next_shift;
+    /* TRUE if integer decoding was completed */
+    gboolean complete;
+} http2_header_repr_info_t;
 
 /* Cached decompressed header data in one packet_info */
 typedef struct {
@@ -93,6 +132,7 @@ typedef struct {
        hd_inflater[1]. */
     wmem_queue_t *settings_queue[2];
     nghttp2_hd_inflater *hd_inflater[2];
+    http2_header_repr_info_t header_repr_info[2];
     tcp_flow_t *fwd_flow;
 } http2_session_t;
 
@@ -149,6 +189,10 @@ static int hf_http2_header_name_length = -1;
 static int hf_http2_header_name = -1;
 static int hf_http2_header_value_length = -1;
 static int hf_http2_header_value = -1;
+static int hf_http2_header_repr = -1;
+static int hf_http2_header_index = -1;
+static int hf_http2_header_table_size_update = -1;
+static int hf_http2_header_table_size = -1;
 /* RST Stream */
 static int hf_http2_rst_stream_error = -1;
 /* Settings */
@@ -424,6 +468,141 @@ apply_and_pop_settings(packet_info *pinfo, http2_session_t *h2session)
     }
 }
 
+/* Decode integer from buf at position p, using prefix bits.  This
+   function can be called several times if buf does not contain whole
+   integer.  header_repr_info remembers the result of previous call.
+   Returns the number bytes processed. */
+static guint read_integer(http2_header_repr_info_t *header_repr_info,
+                          const guint8 *buf, guint len, guint p, guint prefix)
+{
+    guint k = (1 << prefix) - 1;
+    guint n = header_repr_info->integer;
+    guint shift = header_repr_info->next_shift;
+
+    if(n == 0) {
+        DISSECTOR_ASSERT(p < len);
+
+        if((buf[p] & k) != k) {
+            header_repr_info->integer = buf[p] & k;
+            header_repr_info->complete = TRUE;
+            return p + 1;
+        }
+
+        n = k;
+
+        ++p;
+    }
+
+    for(; p < len; ++p, shift += 7) {
+        DISSECTOR_ASSERT(p < len);
+
+        n += (buf[p] & 0x7F) << shift;
+
+        if((buf[p] & 0x80) == 0) {
+            header_repr_info->complete = TRUE;
+            ++p;
+            break;
+        }
+    }
+
+    header_repr_info->integer = n;
+    header_repr_info->next_shift = shift;
+    return p;
+}
+
+static void
+reset_http2_header_repr_info(http2_header_repr_info_t *header_repr_info)
+{
+    header_repr_info->type = HTTP2_HD_NONE;
+    header_repr_info->integer = 0;
+    header_repr_info->next_shift = 0;
+    header_repr_info->complete = FALSE;
+}
+
+/* Reads zero or more header table size update and optionally header
+   representation information.  This function returns when first
+   header representation is decoded or buf is processed completely.
+   This function returns the number bytes processed for header table
+   size update. */
+static guint
+process_http2_header_repr_info(wmem_array_t *headers,
+                               http2_header_repr_info_t *header_repr_info,
+                               const guint8 *buf, guint len)
+{
+    guint i;
+    guint start;
+
+    if(header_repr_info->type != HTTP2_HD_NONE &&
+       header_repr_info->type != HTTP2_HD_HEADER_TABLE_SIZE_UPDATE &&
+       header_repr_info->complete) {
+        return 0;
+    }
+
+    start = 0;
+
+    for(i = 0; i < len;) {
+        if(header_repr_info->type == HTTP2_HD_NONE) {
+            guchar c = buf[i];
+            if((c & 0xE0) == 0x20) {
+                header_repr_info->type = HTTP2_HD_HEADER_TABLE_SIZE_UPDATE;
+
+                i = read_integer(header_repr_info, buf, len, i, 5);
+            } else if(c & 0x80) {
+                header_repr_info->type = HTTP2_HD_INDEXED;
+                i = read_integer(header_repr_info, buf, len, i, 7);
+            } else if(c == 0x40 || c == 0 || c == 0x10) {
+                /* New name */
+                header_repr_info->complete = TRUE;
+                if(c & 0x40) {
+                    header_repr_info->type = HTTP2_HD_LITERAL_INDEXING_NEW_NAME;
+                } else if((c & 0xF0) == 0x10) {
+                    header_repr_info->type = HTTP2_HD_LITERAL_NEVER_INDEXING_NEW_NAME;
+                } else {
+                    header_repr_info->type = HTTP2_HD_LITERAL_NEW_NAME;
+                }
+            } else {
+                /* indexed name */
+                if(c & 0x40) {
+                    header_repr_info->type = HTTP2_HD_LITERAL_INDEXING_INDEXED_NAME;
+                    i = read_integer(header_repr_info, buf, len, i, 6);
+                } else if((c & 0xF0) == 0x10) {
+                    header_repr_info->type = HTTP2_HD_LITERAL_NEVER_INDEXING_INDEXED_NAME;
+                    i = read_integer(header_repr_info, buf, len, i, 4);
+                } else {
+                    header_repr_info->type = HTTP2_HD_LITERAL_INDEXED_NAME;
+                    i = read_integer(header_repr_info, buf, len, i, 4);
+                }
+            }
+        } else {
+            i = read_integer(header_repr_info, buf, len, i, 8);
+        }
+
+        if(header_repr_info->complete) {
+            if(header_repr_info->type == HTTP2_HD_HEADER_TABLE_SIZE_UPDATE) {
+                http2_header_t *out;
+
+                out = wmem_new(wmem_file_scope(), http2_header_t);
+
+                out->type = header_repr_info->type;
+                out->length = i - start;
+                out->header_table_size = header_repr_info->integer;
+
+                wmem_array_append(headers, out, 1);
+
+                reset_http2_header_repr_info(header_repr_info);
+                /* continue to decode header table size update or
+                   first header encoding is encountered. */
+                start = i;
+            } else {
+                /* Break on first header encoding */
+                break;
+            }
+        }
+    }
+
+    return start;
+}
+
 static void
 inflate_http2_header_block(tvbuff_t *tvb, packet_info *pinfo, guint offset,
                            proto_tree *tree, size_t headlen,
@@ -444,6 +623,7 @@ inflate_http2_header_block(tvbuff_t *tvb, packet_info *pinfo, guint offset,
     int final;
     int flow_index;
     http2_header_data_t *header_data;
+    http2_header_repr_info_t *header_repr_info;
     wmem_list_t *header_list;
     wmem_array_t *headers;
     guint i;
@@ -464,6 +644,7 @@ inflate_http2_header_block(tvbuff_t *tvb, packet_info *pinfo, guint offset,
 
         flow_index = select_http2_flow_index(pinfo, h2session);
         hd_inflater = h2session->hd_inflater[flow_index];
+        header_repr_info = &h2session->header_repr_info[flow_index];
 
         final = flags & HTTP2_FLAGS_END_HEADERS;
 
@@ -483,12 +664,18 @@ inflate_http2_header_block(tvbuff_t *tvb, packet_info *pinfo, guint offset,
             headbuf += rv;
             headlen -= rv;
 
+            rv -= process_http2_header_repr_info(headers, header_repr_info, headbuf - rv, rv);
+
             if(inflate_flags & NGHTTP2_HD_INFLATE_EMIT) {
                 char *str;
                 guint32 len;
                 http2_header_t *out;
 
                 out = wmem_new(wmem_file_scope(), http2_header_t);
+
+                out->type = header_repr_info->type;
+                out->length = rv;
+                out->index = header_repr_info->integer;
 
                 out->datalen = (guint)(4 + nv.namelen + 4 + nv.valuelen);
 
@@ -514,6 +701,8 @@ inflate_http2_header_block(tvbuff_t *tvb, packet_info *pinfo, guint offset,
                 out->data = str;
 
                 wmem_array_append(headers, out, 1);
+
+                reset_http2_header_repr_info(header_repr_info);
             }
             if(inflate_flags & NGHTTP2_HD_INFLATE_FINAL) {
                 nghttp2_hd_inflate_end_headers(hd_inflater);
@@ -552,6 +741,10 @@ inflate_http2_header_block(tvbuff_t *tvb, packet_info *pinfo, guint offset,
 
         in = (http2_header_t*)wmem_array_index(headers, i);
 
+        if(in->type == HTTP2_HD_HEADER_TABLE_SIZE_UPDATE) {
+            continue;
+        }
+
         str = (char *)g_malloc(in->datalen);
         memcpy(str, in->data, in->datalen);
 
@@ -569,34 +762,60 @@ inflate_http2_header_block(tvbuff_t *tvb, packet_info *pinfo, guint offset,
     ti = proto_tree_add_uint(tree, hf_http2_header_length, header_tvb, hoffset, 1, header_len);
     PROTO_ITEM_SET_GENERATED(ti);
 
-    while (tvb_reported_length_remaining(header_tvb, hoffset) > 0) {
+    for(i = 0; i < wmem_array_get_count(headers); ++i) {
+        http2_header_t *in = (http2_header_t*)wmem_array_index(headers, i);
+
+        if(in->type == HTTP2_HD_HEADER_TABLE_SIZE_UPDATE) {
+            header = proto_tree_add_item(tree, hf_http2_header_table_size_update, tvb, offset, in->length, ENC_NA);
+
+            header_tree = proto_item_add_subtree(header, ett_http2_headers);
+
+            proto_tree_add_uint(header_tree, hf_http2_header_table_size, tvb, offset, in->length, in->header_table_size);
+
+            offset += in->length;
+            continue;
+        }
+
         /* Populate tree with header name/value details. */
         /* Add 'Header' subtree with description. */
-        header = proto_tree_add_item(tree, hf_http2_header, header_tvb, hoffset, -1, ENC_NA);
+
+        header = proto_tree_add_item(tree, hf_http2_header, tvb, offset, in->length, ENC_NA);
+
         header_tree = proto_item_add_subtree(header, ett_http2_headers);
 
         /* header value length */
-        proto_tree_add_item(header_tree, hf_http2_header_name_length, header_tvb, hoffset, 4, ENC_LITTLE_ENDIAN);
         header_name_length = tvb_get_letohl(header_tvb, hoffset);
+        proto_tree_add_uint(header_tree, hf_http2_header_name_length, tvb, offset, in->length, header_name_length);
         hoffset += 4;
 
         /* Add header name. */
-        proto_tree_add_item(header_tree, hf_http2_header_name, header_tvb, hoffset, header_name_length, ENC_ASCII|ENC_NA);
         header_name = (gchar *)tvb_get_string_enc(wmem_packet_scope(), header_tvb, hoffset, header_name_length, ENC_ASCII|ENC_NA);
+        proto_tree_add_string(header_tree, hf_http2_header_name, tvb, offset, in->length, header_name);
         hoffset += header_name_length;
 
         /* header value length */
-        proto_tree_add_item(header_tree, hf_http2_header_value_length, header_tvb, hoffset, 4, ENC_LITTLE_ENDIAN);
         header_value_length = tvb_get_letohl(header_tvb, hoffset);
+        proto_tree_add_uint(header_tree, hf_http2_header_value_length, tvb, offset, in->length, header_value_length);
         hoffset += 4;
 
         /* Add header value. */
-        proto_tree_add_item(header_tree, hf_http2_header_value, header_tvb, hoffset, header_value_length, ENC_ASCII|ENC_NA);
         header_value = (gchar *)tvb_get_string_enc(wmem_packet_scope(),header_tvb, hoffset, header_value_length, ENC_ASCII|ENC_NA);
+        proto_tree_add_string(header_tree, hf_http2_header_value, tvb, offset, in->length, header_value);
         hoffset += header_value_length;
 
+        /* Add encoding representation */
+        proto_tree_add_string(header_tree, hf_http2_header_repr, tvb, offset, in->length, http2_header_repr_type[in->type].strptr);
+
+        if(in->type == HTTP2_HD_INDEXED ||
+           in->type == HTTP2_HD_LITERAL_INDEXING_INDEXED_NAME ||
+           in->type == HTTP2_HD_LITERAL_INDEXED_NAME ||
+           in->type == HTTP2_HD_LITERAL_NEVER_INDEXING_INDEXED_NAME) {
+            proto_tree_add_uint(header_tree, hf_http2_header_index, tvb, offset, in->length, in->index);
+        }
+
         proto_item_append_text(header, ": %s: %s", header_name, header_value);
-        proto_item_set_len(header, 4 + header_name_length + 4 + header_value_length);
+
+        offset += in->length;
     }
 }
 
@@ -1398,6 +1617,26 @@ proto_register_http2(void)
             { "Value", "http2.header.value",
               FT_STRING, BASE_NONE, NULL, 0x0,
               NULL, HFILL }
+        },
+        { &hf_http2_header_repr,
+            { "Representation", "http2.header.repr",
+              FT_STRING, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_http2_header_index,
+            { "Index", "http2.header.index",
+              FT_UINT32, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_http2_header_table_size_update,
+            { "Header table size update", "http2.header_table_size_update",
+               FT_NONE, BASE_NONE, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_http2_header_table_size,
+            { "Header table size", "http2.header_table_size_update.header_table_size",
+               FT_UINT32, BASE_DEC, NULL, 0x0,
+               NULL, HFILL }
         },
         /* RST Stream */
         { &hf_http2_rst_stream_error,
