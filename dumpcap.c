@@ -4153,7 +4153,7 @@ out:
 }
 
 static void
-    get_dumpcap_compiled_info(GString *str)
+get_dumpcap_compiled_info(GString *str)
 {
     /* Capture libraries */
     g_string_append(str, ", ");
