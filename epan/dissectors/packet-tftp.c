@@ -219,18 +219,21 @@ static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
               val_to_str(opcode, tftp_opcode_vals, "Unknown (0x%04x)"));
   offset += 2;
 
-  if (tftp_info->source_file) {
-    ti = proto_tree_add_string(tftp_tree, hf_tftp_source_file, tvb,
-        0, 0, tftp_info->source_file);
-    PROTO_ITEM_SET_GENERATED(ti);
-  }
+  /* read and write requests contain file names
+     for other messages, we add the filenames from the conversation */
+  if (opcode!=TFTP_RRQ && opcode!=TFTP_WRQ) {
+    if (tftp_info->source_file) {
+      ti = proto_tree_add_string(tftp_tree, hf_tftp_source_file, tvb,
+          0, 0, tftp_info->source_file);
+      PROTO_ITEM_SET_GENERATED(ti);
+    }
 
-  if (tftp_info->destination_file) {
-    ti = proto_tree_add_string(tftp_tree, hf_tftp_destination_file, tvb,
-        0, 0, tftp_info->destination_file);
-    PROTO_ITEM_SET_GENERATED(ti);
+    if (tftp_info->destination_file) {
+      ti = proto_tree_add_string(tftp_tree, hf_tftp_destination_file, tvb,
+          0, 0, tftp_info->destination_file);
+      PROTO_ITEM_SET_GENERATED(ti);
+    }
   }
-
 
   switch (opcode) {
 
