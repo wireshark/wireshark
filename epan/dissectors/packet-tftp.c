@@ -497,8 +497,9 @@ dissect_tftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    * came; all subsequent packets go between those two IP addresses
    * and ports.
    *
-   * If this packet went to the TFTP port, we check to see if
-   * there's already a conversation with one address/port pair
+   * If this packet went to the TFTP port (either to one of the ports
+   * set in the preferences or to a port set via Decode As), we check
+   * to see if there's already a conversation with one address/port pair
    * matching the source IP address and port of this packet,
    * the other address matching the destination IP address of this
    * packet, and any destination port.
@@ -508,7 +509,8 @@ dissect_tftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    * the destination address of this packet, and its port 2 being
    * wildcarded, and give it the TFTP dissector as a dissector.
    */
-  if (value_is_in_range(global_tftp_port_range, pinfo->destport)) {
+  if (value_is_in_range(global_tftp_port_range, pinfo->destport) ||
+      (pinfo->match_uint == pinfo->destport)) {
     conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, PT_UDP,
                                      pinfo->srcport, 0, NO_PORT_B);
     if( (conversation == NULL) || (conversation->dissector_handle != tftp_handle) ){
