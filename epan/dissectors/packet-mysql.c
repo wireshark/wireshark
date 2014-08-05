@@ -1232,13 +1232,23 @@ mysql_dissect_request(tvbuff_t *tvb,packet_info *pinfo, int offset,
 		proto_tree_add_item(req_tree, hf_mysql_user, tvb,  offset, lenstr, ENC_ASCII|ENC_NA);
 		offset += lenstr;
 
-		lenstr = tvb_strsize(tvb, offset);
+		if (conn_data->clnt_caps & MYSQL_CAPS_SC) {
+			lenstr = tvb_get_guint8(tvb, offset);
+			offset += 1;
+		} else {
+			lenstr = tvb_strsize(tvb, offset);
+		}
 		proto_tree_add_item(req_tree, hf_mysql_passwd, tvb, offset, lenstr, ENC_NA);
 		offset += lenstr;
 
 		lenstr = my_tvb_strsize(tvb, offset);
 		proto_tree_add_item(req_tree, hf_mysql_schema, tvb, offset, lenstr, ENC_ASCII|ENC_NA);
 		offset += lenstr;
+
+		if (tvb_reported_length_remaining(tvb, offset) > 0) {
+			proto_tree_add_item(req_tree, hf_mysql_charset, tvb, offset, 1, ENC_NA);
+			offset += 2; /* for charset */
+		}
 
 		conn_data->state= RESPONSE_OK;
 		break;
