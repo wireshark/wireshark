@@ -243,6 +243,10 @@ static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
                         tvb, offset, i1, ENC_ASCII|ENC_NA);
 
     tftp_info->source_file = tvb_get_string_enc(wmem_file_scope(), tvb, offset, i1, ENC_ASCII);
+    /* we either have a source file name (for read requests) or a
+       destination file name (for write requests) 
+       when we set one of the names, we clear the other */
+    tftp_info->destination_file = NULL;
 
     col_append_fstr(pinfo->cinfo, COL_INFO, ", File: %s",
                     tvb_format_stringzpad(tvb, offset, i1));
@@ -269,6 +273,7 @@ static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
 
     tftp_info->destination_file =
       tvb_get_string_enc(wmem_file_scope(), tvb, offset, i1, ENC_ASCII);
+    tftp_info->source_file = NULL; /* see above */
 
     col_append_fstr(pinfo->cinfo, COL_INFO, ", File: %s",
                     tvb_format_stringzpad(tvb, offset, i1));
