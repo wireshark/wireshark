@@ -68,7 +68,7 @@ dissect_aruba_iap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "IAP");
     col_clear(pinfo->cinfo, COL_INFO);
 
-    ti = proto_tree_add_item(tree, proto_aruba_iap, tvb, 0, 0, ENC_NA);
+    ti = proto_tree_add_item(tree, proto_aruba_iap, tvb, 0, -1, ENC_NA);
     aruba_iap_tree = proto_item_add_subtree(ti, ett_aruba_iap);
 
     proto_tree_add_item(aruba_iap_tree, hf_iap_magic, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -94,9 +94,7 @@ dissect_aruba_iap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
     offset += 4;
 
     proto_tree_add_item(aruba_iap_tree, hf_iap_unknown_bytes, tvb, offset, -1, ENC_NA);
-    offset += tvb_reported_length(tvb);
-
-    return offset;
+    return tvb_reported_length(tvb);
 }
 
 void

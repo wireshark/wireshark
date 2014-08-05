@@ -77,7 +77,7 @@ static gint detect_version(tvbuff_t *tvb, gint offset) {
     guint16         payload_length;
     guint16         try_header_size;
 
-    payload_length = tvb_get_letohs(tvb, offset);
+    payload_length  = tvb_get_letohs(tvb, offset);
     try_header_size = tvb_get_letohs(tvb, offset + 2);
 
     if (try_header_size == 0 || try_header_size != 24)
@@ -106,6 +106,7 @@ dissect_logcat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     tvbuff_t    *next_tvb;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "Logcat");
+    col_clear(pinfo->cinfo, COL_INFO);
 
     mainitem = proto_tree_add_item(tree, proto_logcat, tvb, offset, -1, ENC_NA);
     maintree = proto_item_add_subtree(mainitem, ett_logcat);
@@ -175,13 +176,12 @@ dissect_logcat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     next_tvb = tvb_new_subset_length(tvb, offset, string_length - 1);
     call_dissector(data_text_lines_handle, next_tvb, pinfo, subtree);
 
-    col_clear(pinfo->cinfo, COL_INFO);
     col_add_str(pinfo->cinfo, COL_INFO, log);
     offset += string_length;
     check_length += string_length;
 
     if (length != check_length)
-        proto_tree_add_expert(maintree, pinfo, &ei_invalid_payload_length, tvb, offset, tvb_length_remaining(tvb, offset));
+        proto_tree_add_expert(maintree, pinfo, &ei_invalid_payload_length, tvb, offset, tvb_reported_length_remaining(tvb, offset));
 
     if (have_tap_listener(exported_pdu_tap)) {
         exp_pdu_data_t *exp_pdu_data;

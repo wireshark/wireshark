@@ -455,13 +455,13 @@ dissect_data_payload(tvbuff_t *tvb, proto_item *tree, guint offset, guint len)
 static guint
 dissect_arp_reply(tvbuff_t *tvb, proto_tree *tree, guint offset, guint len)
 {
-    proto_tree_add_item(tree, hf_pp_arp_id, tvb, offset, 4, ENC_NA);
+    proto_tree_add_item(tree, hf_pp_arp_id,     tvb, offset,   4, ENC_NA);
     offset += 4;
-    proto_tree_add_item(tree, hf_pp_arp_ip, tvb, offset, 4, ENC_NA);
+    proto_tree_add_item(tree, hf_pp_arp_ip,     tvb, offset,   4, ENC_NA);
     offset += 4;
-    proto_tree_add_item(tree, hf_pp_arp_manuf, tvb, offset++, 1, ENC_NA);
-    proto_tree_add_item(tree, hf_pp_arp_class, tvb, offset++, 1, ENC_NA);
-    proto_tree_add_item(tree, hf_pp_arp_type, tvb, offset++, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_pp_arp_manuf,  tvb, offset++, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_pp_arp_class,  tvb, offset++, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_pp_arp_type,   tvb, offset++, 1, ENC_NA);
     proto_tree_add_item(tree, hf_pp_arp_numdmx, tvb, offset++, 1, ENC_NA);
     return len;
 }
@@ -546,7 +546,7 @@ dissect_header(tvbuff_t *tvb, proto_tree *parent, guint offset)
 static gboolean
 packet_is_pathport(tvbuff_t *tvb)
 {
-    if(tvb_length(tvb) < PATHPORT_MIN_LENGTH)
+    if(tvb_captured_length(tvb) < PATHPORT_MIN_LENGTH)
         return FALSE;
 
     if(tvb_get_ntohs(tvb, 0) != PATHPORT_PROTO_MAGIC)
@@ -583,7 +583,7 @@ static int dissect_pathport_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     /* Set the info column to reflect the first PDU in the packet */
     col_clear(pinfo->cinfo, COL_INFO);
     srcid = tvb_get_ntohl(tvb, PATHPORT_HEADER_SRCID_OFFSET);
-    type = tvb_get_ntohs(tvb, PATHPORT_HEADER_LENGTH);
+    type  = tvb_get_ntohs(tvb, PATHPORT_HEADER_LENGTH);
 
     if(type == PP_ARP_REQUEST)
     {
@@ -618,7 +618,7 @@ static int dissect_pathport_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
     pathport_tree = proto_item_add_subtree(ti, ett_pathport);
     offset = dissect_header(tvb, pathport_tree, PATHPORT_HEADER_OFFSET);
-    remaining_len = tvb_reported_length(tvb) - PATHPORT_HEADER_LENGTH;
+    remaining_len = tvb_reported_length_remaining(tvb, offset);
     offset = dissect_multiple_pdus(tvb, tree, offset, remaining_len);
 
     return offset;
@@ -644,9 +644,6 @@ dissect_pathport_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 }
 
 /* Register the protocol with Wireshark.
- *
- * This format is require because a script is used to build the C function that
- * calls all the protocol registration.
  */
 void
 proto_register_pathport(void)
