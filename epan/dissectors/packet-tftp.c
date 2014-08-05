@@ -640,7 +640,7 @@ proto_reg_handoff_tftp(void)
     heur_dissector_add("stun", dissect_embeddedtftp_heur, proto_tftp);
     tftp_initialized = TRUE;
   } else {
-    dissector_add_uint_range("udp.port", tftp_port_range, tftp_handle);
+    dissector_delete_uint_range("udp.port", tftp_port_range, tftp_handle);
     g_free(tftp_port_range);
   }
 
