@@ -198,7 +198,7 @@ static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
                                  tvbuff_t *tvb, packet_info *pinfo,
                                  proto_tree *tree)
 {
-  proto_tree *tftp_tree = NULL;
+  proto_tree *tftp_tree;
   proto_item *ti;
   gint        offset    = 0;
   guint16     opcode;
@@ -210,31 +210,27 @@ static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "TFTP");
 
-  opcode = tvb_get_ntohs(tvb, offset);
+  ti = proto_tree_add_item(tree, proto_tftp, tvb, offset, -1, ENC_NA);
+  tftp_tree = proto_item_add_subtree(ti, ett_tftp);
 
+  opcode = tvb_get_ntohs(tvb, offset);
+  proto_tree_add_uint(tftp_tree, hf_tftp_opcode, tvb, offset, 2, opcode);
   col_add_str(pinfo->cinfo, COL_INFO,
               val_to_str(opcode, tftp_opcode_vals, "Unknown (0x%04x)"));
-
-  if (tree) {
-    ti = proto_tree_add_item(tree, proto_tftp, tvb, offset, -1, ENC_NA);
-    tftp_tree = proto_item_add_subtree(ti, ett_tftp);
-
-    if (tftp_info->source_file) {
-      ti = proto_tree_add_string(tftp_tree, hf_tftp_source_file, tvb,
-                                 0, 0, tftp_info->source_file);
-      PROTO_ITEM_SET_GENERATED(ti);
-    }
-
-    if (tftp_info->destination_file) {
-      ti = proto_tree_add_string(tftp_tree, hf_tftp_destination_file, tvb,
-                                 0, 0, tftp_info->destination_file);
-      PROTO_ITEM_SET_GENERATED(ti);
-    }
-
-    proto_tree_add_uint(tftp_tree, hf_tftp_opcode, tvb,
-                        offset, 2, opcode);
-  }
   offset += 2;
+
+  if (tftp_info->source_file) {
+    ti = proto_tree_add_string(tftp_tree, hf_tftp_source_file, tvb,
+        0, 0, tftp_info->source_file);
+    PROTO_ITEM_SET_GENERATED(ti);
+  }
+
+  if (tftp_info->destination_file) {
+    ti = proto_tree_add_string(tftp_tree, hf_tftp_destination_file, tvb,
+        0, 0, tftp_info->destination_file);
+    PROTO_ITEM_SET_GENERATED(ti);
+  }
+
 
   switch (opcode) {
 
