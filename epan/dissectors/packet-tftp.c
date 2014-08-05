@@ -434,8 +434,6 @@ static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
     break;
 
   }
-
-  return;
 }
 
 static gboolean
