@@ -1744,7 +1744,7 @@ decrypt_payload(tvbuff_t *tvb, packet_info *pinfo, const guint8 *buf, guint buf_
   gcry_md_hd_t md_ctx;
   gcry_cipher_hd_t decr_ctx;
   tvbuff_t *encr_tvb;
-  iv_data_t *ivd;
+  iv_data_t *ivd = NULL;
   GList *ivl;
   guchar iv[MAX_DIGEST_SIZE];
   guint iv_len = 0;
