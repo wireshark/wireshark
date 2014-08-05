@@ -233,9 +233,9 @@ NSIS_FLAGS=\
 wireshark.nsi: qt-dll-manifest.nsh
 qt-dll-manifest.nsh: windeployqt-to-nsis.ps1
 !IF EXIST("$(QT5_BASE_DIR)\bin\windeployqt.exe")
+	set PATH=%PATH%;$(QT5_BASE_DIR)\bin
 	powershell -executionpolicy bypass -File windeployqt-to-nsis.ps1 \
-	"$(QT5_BASE_DIR)\bin\windeployqt.exe" \
-	    ..\..\wireshark-qt-release\qtshark.exe \
+	windeployqt.exe ..\..\wireshark-qt-release\qtshark.exe \
 	    > $@
 !ELSE IF EXIST("..\..\wireshark-qt-release\Qt5Core.dll")
 	type << > $@
