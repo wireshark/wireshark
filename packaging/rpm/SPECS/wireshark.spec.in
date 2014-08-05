@@ -373,6 +373,20 @@ gtk-update-icon-cache /usr/share/icons/hicolor &>/dev/null || :
 %endif
 
 %changelog
+* Mon Aug 4 2014 Jeff Morriss
+- Fix RPM builds with a prefix other than /usr: The location of
+  update-alternatives does not depend on Wireshark's installation prefix:
+  it's always in /usr/sbin/.
+
+* Fri Aug  1 2014 Jeff Morriss
+- Remove the old wireshark binary during RPM upgrades: this is needed because
+  we now declare wireshark to be %ghost so it doesn't get overwritten during an
+  upgrade (but in older RPMs it was the real program).
+
+* Tue Jul  1 2014 Jeff Morriss
+- Get rid of rpath when we're building RPMs: Fedora prohibits it, we don't
+  need it, and it gets in the way some times.
+
 * Tue Nov 26 2013 Jeff Morriss
 - Overhaul options handling to pull in the UI choice from ./configure.
 - Make it possible to not build the GNOME package.
@@ -392,14 +406,14 @@ gtk-update-icon-cache /usr/share/icons/hicolor &>/dev/null || :
 - Use SuSE's desktop-update macro.
 - Actually update MIME database when Wireshark's prefix is not /usr .
 
-* Thu Mar  6 2013 Jeff Morriss
+* Thu Mar  7 2013 Jeff Morriss
 - List more build dependencies.
 - Update to work on SuSE too: some of their package names are different.
 
-* Thu Mar  6 2013 Gerald Combs
+* Wed Mar  6 2013 Gerald Combs
 - Enable c-ares by default
 
-* Mon Feb  6 2013 Jeff Morriss
+* Thu Feb  7 2013 Jeff Morriss
 - Overhaul to make this file more useful/up to date.  Many changes are based
   on Fedora's .spec file.  Changes include:
   - Create a separate wireshark-gnome package (like Redhat).
@@ -437,7 +451,7 @@ gtk-update-icon-cache /usr/share/icons/hicolor &>/dev/null || :
 * Tue Aug 03 1999 Gilbert Ramirez <gram@xiexie.org>
 - updated to 0.7.0 and changed gtk+ requirement
 
-* Sun Jan 01 1999 Gerald Combs <gerald@zing.org>
+* Sun Jan 03 1999 Gerald Combs <gerald@zing.org>
 - updated to 0.5.1
 
 * Fri Nov 20 1998 FastJack <fastjack@i-s-o.net>
