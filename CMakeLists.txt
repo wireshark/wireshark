@@ -31,10 +31,6 @@ cmake_policy(SET CMP0008 NEW)
 cmake_policy(SET CMP0011 OLD)
 # Policy since 2.8.1
 cmake_policy(SET CMP0015 NEW)
-# Policy since 2.8.11
-if (POLICY CMP0020)
-	cmake_policy(SET CMP0020 OLD)
-endif()
 
 #Where to find local cmake scripts
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules)
@@ -1104,6 +1100,10 @@ if(BUILD_qtshark AND QT_FOUND)
 		${NL_LIBRARIES}
 	)
 	# qtshark and wireshark share wireshark_FILES
+
+	if (POLICY CMP0020)
+		cmake_policy(SET CMP0020 OLD)
+	endif()
 
 	add_executable(qtshark ${wireshark_FILES})
 	set_target_properties(qtshark PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
