@@ -211,9 +211,9 @@ dissect_vrrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
             PROTO_ITEM_SET_HIDDEN(hidden_item);
             if(hi_nibble(ver_type)==3){
                 proto_item_append_text(checksum_item, " [incorrect, should be 0x%04x(check preferences)]", in_cksum_shouldbe(cksum, computed_cksum));
-            }else{
+            } else {
                 proto_item_append_text(checksum_item, " [incorrect, should be 0x%04x]", in_cksum_shouldbe(cksum, computed_cksum));
-			}
+            }
             expert_add_info_format(pinfo, checksum_item, &ei_vrrp_checksum,
                                    "VRRP Checksum Incorrect, should be 0x%04x", in_cksum_shouldbe(cksum, computed_cksum));
         }
@@ -342,7 +342,7 @@ void proto_register_vrrp(void)
 
     vrrp_module = prefs_register_protocol(proto_vrrp, NULL);
 
-   prefs_register_bool_preference(vrrp_module, "v3_checksum_as_in_v2",
+    prefs_register_bool_preference(vrrp_module, "v3_checksum_as_in_v2",
         "Calculate V3 checksum as in V2 for IPv4 packets",
         "There is some ambigiousy on how to calculate V3 checksums"
         "As in V3 will use a pseudo header(which may only be implemented for IPv6 by some manufacturers)",

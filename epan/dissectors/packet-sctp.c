@@ -3103,19 +3103,19 @@ fragment_reassembly(tvbuff_t *tvb, sctp_fragment *fragment,
 static void
 export_sctp_data_chunk(packet_info *pinfo, tvbuff_t *tvb, const gchar *proto_name)
 {
-	exp_pdu_data_t *exp_pdu_data;
-	guint8 tags_bit_field;
+  exp_pdu_data_t *exp_pdu_data;
+  guint8 tags_bit_field;
 
-	tags_bit_field = EXP_PDU_TAG_IP_SRC_BIT + EXP_PDU_TAG_IP_DST_BIT + EXP_PDU_TAG_SRC_PORT_BIT+
-		EXP_PDU_TAG_DST_PORT_BIT + EXP_PDU_TAG_ORIG_FNO_BIT;
+  tags_bit_field = EXP_PDU_TAG_IP_SRC_BIT + EXP_PDU_TAG_IP_DST_BIT + EXP_PDU_TAG_SRC_PORT_BIT+
+    EXP_PDU_TAG_DST_PORT_BIT + EXP_PDU_TAG_ORIG_FNO_BIT;
 
-	exp_pdu_data = load_export_pdu_tags(pinfo, proto_name, -1, &tags_bit_field, 1);
+  exp_pdu_data = load_export_pdu_tags(pinfo, proto_name, -1, &tags_bit_field, 1);
 
-	exp_pdu_data->tvb_captured_length = tvb_captured_length(tvb);
-	exp_pdu_data->tvb_reported_length = tvb_reported_length(tvb);
-	exp_pdu_data->pdu_tvb = tvb;
+  exp_pdu_data->tvb_captured_length = tvb_captured_length(tvb);
+  exp_pdu_data->tvb_reported_length = tvb_reported_length(tvb);
+  exp_pdu_data->pdu_tvb = tvb;
 
-	tap_queue_packet(exported_pdu_tap, pinfo, exp_pdu_data);
+  tap_queue_packet(exported_pdu_tap, pinfo, exp_pdu_data);
 
 }
 
@@ -3147,7 +3147,7 @@ dissect_fragmented_payload(tvbuff_t *payload_tvb, packet_info *pinfo, proto_tree
     const gchar *proto_name;
     gboolean retval;
 
-	cur = wmem_list_tail(pinfo->layers);
+    cur = wmem_list_tail(pinfo->layers);
     retval = dissect_payload(new_tvb, pinfo, tree, ppi);
     cur = wmem_list_frame_next(cur);
     proto_id = GPOINTER_TO_UINT(wmem_list_frame_data(cur));
@@ -3303,7 +3303,7 @@ dissect_data_chunk(tvbuff_t *chunk_tvb,
       guint proto_id;
       const gchar *proto_name;
 
-	  cur = wmem_list_tail(pinfo->layers);
+      cur = wmem_list_tail(pinfo->layers);
       retval = dissect_payload(payload_tvb, pinfo, tree, payload_proto_id);
       cur = wmem_list_frame_next(cur);
       proto_id = GPOINTER_TO_UINT(wmem_list_frame_data(cur));

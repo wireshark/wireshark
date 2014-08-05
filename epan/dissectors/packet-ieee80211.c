@@ -130,7 +130,7 @@ static int add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
 /* bitmask for bits [l..h]
  * taken from kernel's include/linux/bitops.h
  */
-#define GENMASK(h, l)		(((1U << ((h) - (l) + 1)) - 1) << (l))
+#define GENMASK(h, l)  (((1U << ((h) - (l) + 1)) - 1) << (l))
 
 /* Defragment fragmented 802.11 datagrams */
 static gboolean wlan_defragment = TRUE;

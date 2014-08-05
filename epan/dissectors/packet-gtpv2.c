@@ -589,11 +589,11 @@ static const value_string gtpv2_message_type_vals[] = {
     {236, "MBMS Session Stop Response"},
     /* 237 to 239 For future use */
     {240, "SRVCC CS to PS Response"},               /* 5.2.9  3GPP TS 29.280 V11.5.0 (2013-09) */
-    {241, "SRVCC CS to PS Complete Notification"},	/* 5.2.10 3GPP TS 29.280 V11.5.0 (2013-09) */
-    {242, "SRVCC CS to PS Complete Acknowledge"},	/* 5.2.11 3GPP TS 29.280 V11.5.0 (2013-09) */
-    {243, "SRVCC CS to PS Cancel Notification"},	/* 5.2.12 3GPP TS 29.280 V11.5.0 (2013-09) */
-    {244, "SRVCC CS to PS Cancel Acknowledge"},	    /* 5.2.13 3GPP TS 29.280 V11.5.0 (2013-09) */
-    /* 245 to 247	For future Sv interface use*/
+    {241, "SRVCC CS to PS Complete Notification"},  /* 5.2.10 3GPP TS 29.280 V11.5.0 (2013-09) */
+    {242, "SRVCC CS to PS Complete Acknowledge"},   /* 5.2.11 3GPP TS 29.280 V11.5.0 (2013-09) */
+    {243, "SRVCC CS to PS Cancel Notification"},    /* 5.2.12 3GPP TS 29.280 V11.5.0 (2013-09) */
+    {244, "SRVCC CS to PS Cancel Acknowledge"},     /* 5.2.13 3GPP TS 29.280 V11.5.0 (2013-09) */
+    /* 245 to 247       For future Sv interface use*/
     /* 248 to 255 For future use */
     {0, NULL}
 };

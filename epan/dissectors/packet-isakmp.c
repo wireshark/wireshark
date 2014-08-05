@@ -120,7 +120,7 @@ static int hf_isakmp_id_type_v1      = -1;
 static int hf_isakmp_id_type_v2      = -1;
 static int hf_isakmp_id_protoid      = -1;
 static int hf_isakmp_id_port         = -1;
-static int hf_isakmp_id_data	     = -1;
+static int hf_isakmp_id_data         = -1;
 static int hf_isakmp_id_data_ipv4_addr = -1;
 static int hf_isakmp_id_data_fqdn    = -1;
 static int hf_isakmp_id_data_user_fqdn = -1;
@@ -415,27 +415,27 @@ static const fragment_items isakmp_frag_items = {
  *   RFC4306 for IKEv2
  *   RFC4595 for ID_FC_NAME
  */
-#define IKE_ID_IPV4_ADDR		1
-#define IKE_ID_FQDN			2
-#define IKE_ID_USER_FQDN		3
-#define IKE_ID_IPV4_ADDR_SUBNET		4
-#define IKE_ID_IPV6_ADDR		5
-#define IKE_ID_IPV6_ADDR_SUBNET		6
-#define IKE_ID_IPV4_ADDR_RANGE		7
-#define IKE_ID_IPV6_ADDR_RANGE		8
-#define IKE_ID_DER_ASN1_DN		9
-#define IKE_ID_DER_ASN1_GN		10
-#define IKE_ID_KEY_ID			11
-#define IKE_ID_LIST			12
-#define IKE_ID_FC_NAME			12
-#define IKE_ID_RFC822_ADDR		3
+#define IKE_ID_IPV4_ADDR                1
+#define IKE_ID_FQDN                     2
+#define IKE_ID_USER_FQDN                3
+#define IKE_ID_IPV4_ADDR_SUBNET         4
+#define IKE_ID_IPV6_ADDR                5
+#define IKE_ID_IPV6_ADDR_SUBNET         6
+#define IKE_ID_IPV4_ADDR_RANGE          7
+#define IKE_ID_IPV6_ADDR_RANGE          8
+#define IKE_ID_DER_ASN1_DN              9
+#define IKE_ID_DER_ASN1_GN              10
+#define IKE_ID_KEY_ID                   11
+#define IKE_ID_LIST                     12
+#define IKE_ID_FC_NAME                  12
+#define IKE_ID_RFC822_ADDR              3
 /*
  * Traffic Selector Type
  *   Not in use for IKEv1
  */
-#define IKEV2_TS_IPV4_ADDR_RANGE	7
-#define IKEV2_TS_IPV6_ADDR_RANGE	8
-#define IKEV2_TS_FC_ADDR_RANGE		9
+#define IKEV2_TS_IPV4_ADDR_RANGE        7
+#define IKEV2_TS_IPV6_ADDR_RANGE        8
+#define IKEV2_TS_FC_ADDR_RANGE          9
 /*
  * Configuration Payload Attribute Types
  *   draft-ietf-ipsec-isakmp-mode-cfg-05.txt for IKEv1
@@ -443,171 +443,171 @@ static const fragment_items isakmp_frag_items = {
  *   RFC4306 for IKEv2
  *   RFC5739 for INTERNAL_IP6_LINK and INTERNAL_IP6_PREFIX
  */
-#define INTERNAL_IP4_ADDRESS		1
-#define INTERNAL_IP4_NETMASK		2
-#define INTERNAL_IP4_DNS		3
-#define INTERNAL_IP4_NBNS		4
-#define INTERNAL_ADDRESS_EXPIRY		5
-#define INTERNAL_IP4_DHCP           	6
-#define APPLICATION_VERSION         	7
-#define INTERNAL_IP6_ADDRESS        	8
-#define INTERNAL_IP6_NETMASK 		9
-#define INTERNAL_IP6_DNS		10
-#define INTERNAL_IP6_NBNS		11
-#define INTERNAL_IP6_DHCP		12
-#define INTERNAL_IP4_SUBNET		13
-#define SUPPORTED_ATTRIBUTES		14
-#define INTERNAL_IP6_SUBNET		15
-#define MIP6_HOME_PREFIX		16
-#define INTERNAL_IP6_LINK		17
-#define INTERNAL_IP6_PREFIX		18
+#define INTERNAL_IP4_ADDRESS            1
+#define INTERNAL_IP4_NETMASK            2
+#define INTERNAL_IP4_DNS                3
+#define INTERNAL_IP4_NBNS               4
+#define INTERNAL_ADDRESS_EXPIRY         5
+#define INTERNAL_IP4_DHCP               6
+#define APPLICATION_VERSION             7
+#define INTERNAL_IP6_ADDRESS            8
+#define INTERNAL_IP6_NETMASK            9
+#define INTERNAL_IP6_DNS                10
+#define INTERNAL_IP6_NBNS               11
+#define INTERNAL_IP6_DHCP               12
+#define INTERNAL_IP4_SUBNET             13
+#define SUPPORTED_ATTRIBUTES            14
+#define INTERNAL_IP6_SUBNET             15
+#define MIP6_HOME_PREFIX                16
+#define INTERNAL_IP6_LINK               17
+#define INTERNAL_IP6_PREFIX             18
 /* checkpoint configuration attributes */
-#define CHKPT_DEF_DOMAIN		16387
-#define CHKPT_MAC_ADDRESS		16388
+#define CHKPT_DEF_DOMAIN                16387
+#define CHKPT_MAC_ADDRESS               16388
 #define CHKPT_MARCIPAN_REASON_CODE      16389
-#define CHKPT_UNKNOWN1			16400
-#define CHKPT_UNKNOWN2			16401
-#define CHKPT_UNKNOWN3			16402
+#define CHKPT_UNKNOWN1                  16400
+#define CHKPT_UNKNOWN2                  16401
+#define CHKPT_UNKNOWN3                  16402
 /* XAUTH configuration attributes */
-#define XAUTH_TYPE			16520
-#define XAUTH_USER_NAME			16521
-#define XAUTH_USER_PASSWORD		16522
-#define XAUTH_PASSCODE			16523
-#define XAUTH_MESSAGE			16524
-#define XAUTH_CHALLENGE			16525
-#define XAUTH_DOMAIN			16526
-#define XAUTH_STATUS			16527
-#define XAUTH_NEXT_PIN			16528
-#define XAUTH_ANSWER			16529
+#define XAUTH_TYPE                      16520
+#define XAUTH_USER_NAME                 16521
+#define XAUTH_USER_PASSWORD             16522
+#define XAUTH_PASSCODE                  16523
+#define XAUTH_MESSAGE                   16524
+#define XAUTH_CHALLENGE                 16525
+#define XAUTH_DOMAIN                    16526
+#define XAUTH_STATUS                    16527
+#define XAUTH_NEXT_PIN                  16528
+#define XAUTH_ANSWER                    16529
 /* unity (CISCO) configuration attributes */
-#define UNITY_BANNER			28672
-#define UNITY_SAVE_PASSWD		28673
-#define UNITY_DEF_DOMAIN		28674
-#define UNITY_SPLIT_DOMAIN		28675
-#define UNITY_SPLIT_INCLUDE		28676
-#define UNITY_NATT_PORT			28677
-#define UNITY_SPLIT_EXCLUDE		28678
-#define UNITY_PFS			28679
-#define UNITY_FW_TYPE			28680
-#define UNITY_BACKUP_SERVERS		28681
-#define UNITY_DDNS_HOSTNAME		28682
+#define UNITY_BANNER                    28672
+#define UNITY_SAVE_PASSWD               28673
+#define UNITY_DEF_DOMAIN                28674
+#define UNITY_SPLIT_DOMAIN              28675
+#define UNITY_SPLIT_INCLUDE             28676
+#define UNITY_NATT_PORT                 28677
+#define UNITY_SPLIT_EXCLUDE             28678
+#define UNITY_PFS                       28679
+#define UNITY_FW_TYPE                   28680
+#define UNITY_BACKUP_SERVERS            28681
+#define UNITY_DDNS_HOSTNAME             28682
 
 /* Payload Type
 * RFC2408 / RFC3547 for IKEv1
 * RFC4306 for IKEv2
 */
-#define PLOAD_IKE_NONE 			0
-#define PLOAD_IKE_SA			1
-#define PLOAD_IKE_P			2
-#define PLOAD_IKE_T			3
-#define PLOAD_IKE_KE 			4
-#define PLOAD_IKE_ID 			5
-#define PLOAD_IKE_CERT 			6
-#define PLOAD_IKE_CR 			7
-#define PLOAD_IKE_HASH 			8
-#define PLOAD_IKE_SIG			9
-#define PLOAD_IKE_NONCE			10
-#define PLOAD_IKE_N			11
-#define PLOAD_IKE_D			12
-#define PLOAD_IKE_VID			13
-#define PLOAD_IKE_A			14
-#define PLOAD_IKE_NAT_D48		15
-#define PLOAD_IKE_NAT_OA58		16
-#define PLOAD_IKE_NAT_D			20
-#define PLOAD_IKE_NAT_OA		21
-#define PLOAD_IKE_GAP			22
-#define PLOAD_IKE2_SA			33
-#define PLOAD_IKE2_KE			34
-#define PLOAD_IKE2_IDI			35
-#define PLOAD_IKE2_IDR			36
-#define PLOAD_IKE2_CERT			37
-#define PLOAD_IKE2_CERTREQ		38
-#define PLOAD_IKE2_AUTH			39
-#define PLOAD_IKE2_NONCE		40
-#define PLOAD_IKE2_N			41
-#define PLOAD_IKE2_D			42
-#define PLOAD_IKE2_V			43
-#define PLOAD_IKE2_TSI			44
-#define PLOAD_IKE2_TSR			45
-#define PLOAD_IKE2_SK			46
-#define PLOAD_IKE2_CP			47
-#define PLOAD_IKE2_EAP			48
-#define PLOAD_IKE2_GSPM			49
-#define PLOAD_IKE_NAT_D13		130
-#define PLOAD_IKE_NAT_OA14		131
-#define PLOAD_IKE_CISCO_FRAG		132
+#define PLOAD_IKE_NONE                  0
+#define PLOAD_IKE_SA                    1
+#define PLOAD_IKE_P                     2
+#define PLOAD_IKE_T                     3
+#define PLOAD_IKE_KE                    4
+#define PLOAD_IKE_ID                    5
+#define PLOAD_IKE_CERT                  6
+#define PLOAD_IKE_CR                    7
+#define PLOAD_IKE_HASH                  8
+#define PLOAD_IKE_SIG                   9
+#define PLOAD_IKE_NONCE                 10
+#define PLOAD_IKE_N                     11
+#define PLOAD_IKE_D                     12
+#define PLOAD_IKE_VID                   13
+#define PLOAD_IKE_A                     14
+#define PLOAD_IKE_NAT_D48               15
+#define PLOAD_IKE_NAT_OA58              16
+#define PLOAD_IKE_NAT_D                 20
+#define PLOAD_IKE_NAT_OA                21
+#define PLOAD_IKE_GAP                   22
+#define PLOAD_IKE2_SA                   33
+#define PLOAD_IKE2_KE                   34
+#define PLOAD_IKE2_IDI                  35
+#define PLOAD_IKE2_IDR                  36
+#define PLOAD_IKE2_CERT                 37
+#define PLOAD_IKE2_CERTREQ              38
+#define PLOAD_IKE2_AUTH                 39
+#define PLOAD_IKE2_NONCE                40
+#define PLOAD_IKE2_N                    41
+#define PLOAD_IKE2_D                    42
+#define PLOAD_IKE2_V                    43
+#define PLOAD_IKE2_TSI                  44
+#define PLOAD_IKE2_TSR                  45
+#define PLOAD_IKE2_SK                   46
+#define PLOAD_IKE2_CP                   47
+#define PLOAD_IKE2_EAP                  48
+#define PLOAD_IKE2_GSPM                 49
+#define PLOAD_IKE_NAT_D13               130
+#define PLOAD_IKE_NAT_OA14              131
+#define PLOAD_IKE_CISCO_FRAG            132
 /*
 * IPSEC Situation Definition (RFC2407)
 */
-#define SIT_IDENTITY_ONLY	0x01
-#define SIT_SECRECY	        0x02
-#define SIT_INTEGRITY	        0x04
+#define SIT_IDENTITY_ONLY       0x01
+#define SIT_SECRECY             0x02
+#define SIT_INTEGRITY           0x04
 
 
 static const value_string exchange_v1_type[] = {
-  { 0,	"NONE" },
-  { 1,	"Base" },
-  { 2,	"Identity Protection (Main Mode)" },
-  { 3,	"Authentication Only" },
-  { 4,	"Aggressive" },
-  { 5,	"Informational" },
-  { 6,	"Transaction (Config Mode)" },
-  { 32,	"Quick Mode" },
-  { 33,	"New Group Mode" },
-  { 0,	NULL },
+  { 0,  "NONE" },
+  { 1,  "Base" },
+  { 2,  "Identity Protection (Main Mode)" },
+  { 3,  "Authentication Only" },
+  { 4,  "Aggressive" },
+  { 5,  "Informational" },
+  { 6,  "Transaction (Config Mode)" },
+  { 32, "Quick Mode" },
+  { 33, "New Group Mode" },
+  { 0,  NULL },
 };
 
 static const value_string exchange_v2_type[] = {
-  { 34,	"IKE_SA_INIT" },
-  { 35,	"IKE_AUTH" },
-  { 36,	"CREATE_CHILD_SA" },
-  { 37,	"INFORMATIONAL" },
-  { 38,	"IKE_SESSION_RESUME" }, /* RFC5723 */
-  { 0,	NULL },
+  { 34, "IKE_SA_INIT" },
+  { 35, "IKE_AUTH" },
+  { 36, "CREATE_CHILD_SA" },
+  { 37, "INFORMATIONAL" },
+  { 38, "IKE_SESSION_RESUME" }, /* RFC5723 */
+  { 0,  NULL },
 };
 
 static const value_string frag_last_vals[] = {
-  { 0,	"More fragments" },
-  { 1,	"Last fragment" },
+  { 0,  "More fragments" },
+  { 1,  "Last fragment" },
   { 0,  NULL },
 };
 /* Ex vs_proto */
 static const value_string protoid_v1_type[] = {
-  { 0,	"RESERVED" },
-  { 1,	"ISAKMP" },
-  { 2,	"IPSEC_AH" },
-  { 3,	"IPSEC_ESP" },
-  { 4,	"IPCOMP" },
+  { 0,  "RESERVED" },
+  { 1,  "ISAKMP" },
+  { 2,  "IPSEC_AH" },
+  { 3,  "IPSEC_ESP" },
+  { 4,  "IPCOMP" },
   { 5,  "GIGABEAM_RADIO" }, /* RFC4705 */
-  { 0,	NULL },
+  { 0,  NULL },
 };
 
 static const value_string protoid_v2_type[] = {
-  { 0,	"RESERVED" },
-  { 1,	"IKE" },
-  { 2,	"AH" },
-  { 3,	"ESP" },
-  { 4,	"FC_ESP_HEADER" },
-  { 5,	"FC_CT_AUTHENTICATION" },
-  { 0,	NULL },
+  { 0,  "RESERVED" },
+  { 1,  "IKE" },
+  { 2,  "AH" },
+  { 3,  "ESP" },
+  { 4,  "FC_ESP_HEADER" },
+  { 5,  "FC_CT_AUTHENTICATION" },
+  { 0,  NULL },
 };
 
 static const range_string payload_type[] = {
-  { PLOAD_IKE_NONE,PLOAD_IKE_NONE,	"NONE / No Next Payload " },
-  { PLOAD_IKE_SA,PLOAD_IKE_SA,	"Security Association" },
-  { PLOAD_IKE_P,PLOAD_IKE_P,	"Proposal" },
-  { PLOAD_IKE_T,PLOAD_IKE_T,	"Transform" },
-  { PLOAD_IKE_KE,PLOAD_IKE_KE,	"Key Exchange" },
-  { PLOAD_IKE_ID,PLOAD_IKE_ID,	"Identification" },
-  { PLOAD_IKE_CERT,PLOAD_IKE_CERT,	"Certificate" },
-  { PLOAD_IKE_CR,PLOAD_IKE_CR,	"Certificate Request" },
-  { PLOAD_IKE_HASH,PLOAD_IKE_HASH,	"Hash" },
-  { PLOAD_IKE_SIG,PLOAD_IKE_SIG,	"Signature" },
-  { PLOAD_IKE_NONCE,PLOAD_IKE_NONCE,	"Nonce" },
-  { PLOAD_IKE_N,PLOAD_IKE_N,	"Notification" },
-  { PLOAD_IKE_D,PLOAD_IKE_D,	"Delete" },
-  { PLOAD_IKE_VID,PLOAD_IKE_VID,	"Vendor ID" },
-  { PLOAD_IKE_A,PLOAD_IKE_A,	"Attributes" }, /* draft-ietf-ipsec-isakmp-mode-cfg-05.txt */
+  { PLOAD_IKE_NONE,PLOAD_IKE_NONE,      "NONE / No Next Payload " },
+  { PLOAD_IKE_SA,PLOAD_IKE_SA,  "Security Association" },
+  { PLOAD_IKE_P,PLOAD_IKE_P,    "Proposal" },
+  { PLOAD_IKE_T,PLOAD_IKE_T,    "Transform" },
+  { PLOAD_IKE_KE,PLOAD_IKE_KE,  "Key Exchange" },
+  { PLOAD_IKE_ID,PLOAD_IKE_ID,  "Identification" },
+  { PLOAD_IKE_CERT,PLOAD_IKE_CERT,      "Certificate" },
+  { PLOAD_IKE_CR,PLOAD_IKE_CR,  "Certificate Request" },
+  { PLOAD_IKE_HASH,PLOAD_IKE_HASH,      "Hash" },
+  { PLOAD_IKE_SIG,PLOAD_IKE_SIG,        "Signature" },
+  { PLOAD_IKE_NONCE,PLOAD_IKE_NONCE,    "Nonce" },
+  { PLOAD_IKE_N,PLOAD_IKE_N,    "Notification" },
+  { PLOAD_IKE_D,PLOAD_IKE_D,    "Delete" },
+  { PLOAD_IKE_VID,PLOAD_IKE_VID,        "Vendor ID" },
+  { PLOAD_IKE_A,PLOAD_IKE_A,    "Attributes" }, /* draft-ietf-ipsec-isakmp-mode-cfg-05.txt */
   { PLOAD_IKE_NAT_D48,PLOAD_IKE_NAT_D48, "NAT-Discovery" }, /* draft-ietf-ipsec-nat-t-ike-04 to 08 */
   { PLOAD_IKE_NAT_OA58,PLOAD_IKE_NAT_OA58, "NAT-Original Address"}, /* draft-ietf-ipsec-nat-t-ike-05 to 08*/
   { PLOAD_IKE_NAT_D,PLOAD_IKE_NAT_D, "NAT-D (RFC 3947)" },
@@ -630,13 +630,13 @@ static const range_string payload_type[] = {
   { PLOAD_IKE2_CP,PLOAD_IKE2_CP, "Configuration"},
   { PLOAD_IKE2_EAP,PLOAD_IKE2_EAP, "Extensible Authentication"},
   { PLOAD_IKE2_GSPM,PLOAD_IKE2_GSPM, "Generic Secure Password Method"},
-  { 50,127,    "Unassigned"	},
-  { 128,129,    "Private Use"	},
+  { 50,127,    "Unassigned"     },
+  { 128,129,    "Private Use"   },
   { PLOAD_IKE_NAT_D13,PLOAD_IKE_NAT_D13, "NAT-D (draft-ietf-ipsec-nat-t-ike-01 to 03)"},
   { PLOAD_IKE_NAT_OA14,PLOAD_IKE_NAT_OA14, "NAT-OA (draft-ietf-ipsec-nat-t-ike-01 to 03)"},
   { PLOAD_IKE_CISCO_FRAG,PLOAD_IKE_CISCO_FRAG, "Cisco-Fragmentation"},
-  { 133,256,    "Private Use"	},
-  { 0,0,	NULL },
+  { 133,256,    "Private Use"   },
+  { 0,0,        NULL },
   };
 
 /*
@@ -646,247 +646,247 @@ static const range_string payload_type[] = {
  *   RFC3547 for GDOI
  */
 static const value_string doi_type[] = {
-  { 0,	"ISAKMP" },
-  { 1,	"IPSEC" },
-  { 2,	"GDOI" },
-  { 0,	NULL },
+  { 0,  "ISAKMP" },
+  { 1,  "IPSEC" },
+  { 2,  "GDOI" },
+  { 0,  NULL },
 };
 
 /* Transform Type */
 
-#define ISAKMP_ATTR_LIFE_TYPE			1
-#define ISAKMP_ATTR_LIFE_DURATION		2
-#define ISAKMP_ATTR_GROUP_DESC			3
-#define ISAKMP_ATTR_ENCAP_MODE			4
-#define ISAKMP_ATTR_AUTH_ALGORITHM		5
-#define ISAKMP_ATTR_KEY_LENGTH			6
-#define ISAKMP_ATTR_KEY_ROUNDS			7
-#define ISAKMP_ATTR_CMPR_DICT_SIZE		8
-#define ISAKMP_ATTR_CMPR_ALGORITHM		9
-#define ISAKMP_ATTR_ECN_TUNNEL			10      /* [RFC3168] */
-#define ISAKMP_ATTR_EXT_SEQ_NBR			11      /* [RFC4304] */
-#define ISAKMP_ATTR_AUTH_KEY_LENGTH		12      /* [RFC4359] */
+#define ISAKMP_ATTR_LIFE_TYPE                   1
+#define ISAKMP_ATTR_LIFE_DURATION               2
+#define ISAKMP_ATTR_GROUP_DESC                  3
+#define ISAKMP_ATTR_ENCAP_MODE                  4
+#define ISAKMP_ATTR_AUTH_ALGORITHM              5
+#define ISAKMP_ATTR_KEY_LENGTH                  6
+#define ISAKMP_ATTR_KEY_ROUNDS                  7
+#define ISAKMP_ATTR_CMPR_DICT_SIZE              8
+#define ISAKMP_ATTR_CMPR_ALGORITHM              9
+#define ISAKMP_ATTR_ECN_TUNNEL                  10      /* [RFC3168] */
+#define ISAKMP_ATTR_EXT_SEQ_NBR                 11      /* [RFC4304] */
+#define ISAKMP_ATTR_AUTH_KEY_LENGTH             12      /* [RFC4359] */
 #define ISAKMP_ATTR_SIG_ENCO_ALGORITHM          13      /* [RFC4359] */
 #define ISAKMP_ATTR_ADDR_PRESERVATION           14      /* [RFC6407] */
 #define ISAKMP_ATTR_SA_DIRECTION                15      /* [RFC6407] */
 
 static const value_string transform_isakmp_attr_type[] = {
-  { ISAKMP_ATTR_LIFE_TYPE,	"SA-Life-Type" },
-  { ISAKMP_ATTR_LIFE_DURATION,	"SA-Life-Duration" },
-  { ISAKMP_ATTR_GROUP_DESC,	"Group-Description" },
-  { ISAKMP_ATTR_ENCAP_MODE,	"Encapsulation-Mode" },
-  { ISAKMP_ATTR_AUTH_ALGORITHM,	"Authentication-Algorithm" },
-  { ISAKMP_ATTR_KEY_LENGTH,	"Key-Length" },
-  { ISAKMP_ATTR_KEY_ROUNDS,	"Key-Rounds" },
-  { ISAKMP_ATTR_CMPR_DICT_SIZE,	"Compress-Dictionary-Size" },
-  { ISAKMP_ATTR_CMPR_ALGORITHM,	"Compress-Private-Algorithm" },
-  { ISAKMP_ATTR_ECN_TUNNEL,	"ECN Tunnel" },
-  { ISAKMP_ATTR_EXT_SEQ_NBR,	"Extended (64-bit) Sequence Number" },
+  { ISAKMP_ATTR_LIFE_TYPE,      "SA-Life-Type" },
+  { ISAKMP_ATTR_LIFE_DURATION,  "SA-Life-Duration" },
+  { ISAKMP_ATTR_GROUP_DESC,     "Group-Description" },
+  { ISAKMP_ATTR_ENCAP_MODE,     "Encapsulation-Mode" },
+  { ISAKMP_ATTR_AUTH_ALGORITHM, "Authentication-Algorithm" },
+  { ISAKMP_ATTR_KEY_LENGTH,     "Key-Length" },
+  { ISAKMP_ATTR_KEY_ROUNDS,     "Key-Rounds" },
+  { ISAKMP_ATTR_CMPR_DICT_SIZE, "Compress-Dictionary-Size" },
+  { ISAKMP_ATTR_CMPR_ALGORITHM, "Compress-Private-Algorithm" },
+  { ISAKMP_ATTR_ECN_TUNNEL,     "ECN Tunnel" },
+  { ISAKMP_ATTR_EXT_SEQ_NBR,    "Extended (64-bit) Sequence Number" },
   { ISAKMP_ATTR_AUTH_KEY_LENGTH, "Authentication Key Length" },
   { ISAKMP_ATTR_SIG_ENCO_ALGORITHM, "Signature Encoding Algorithm" },
   { ISAKMP_ATTR_ADDR_PRESERVATION, "Address Preservation" },
   { ISAKMP_ATTR_SA_DIRECTION, "SA Direction" },
-  { 0,	NULL },
+  { 0,  NULL },
 };
 
 /* Transform IKE Type */
-#define IKE_ATTR_ENCRYPTION_ALGORITHM	1
-#define IKE_ATTR_HASH_ALGORITHM			2
-#define IKE_ATTR_AUTHENTICATION_METHOD	3
-#define IKE_ATTR_GROUP_DESCRIPTION		4
-#define IKE_ATTR_GROUP_TYPE				5
-#define IKE_ATTR_GROUP_PRIME			6
-#define IKE_ATTR_GROUP_GENERATOR_ONE	7
-#define IKE_ATTR_GROUP_GENERATOR_TWO	8
-#define IKE_ATTR_GROUP_CURVE_A			9
-#define IKE_ATTR_GROUP_CURVE_B			10
-#define IKE_ATTR_LIFE_TYPE				11
-#define IKE_ATTR_LIFE_DURATION			12
-#define IKE_ATTR_PRF					13
-#define IKE_ATTR_KEY_LENGTH				14
-#define IKE_ATTR_FIELD_SIZE				15
-#define IKE_ATTR_GROUP_ORDER			16
+#define IKE_ATTR_ENCRYPTION_ALGORITHM   1
+#define IKE_ATTR_HASH_ALGORITHM                 2
+#define IKE_ATTR_AUTHENTICATION_METHOD  3
+#define IKE_ATTR_GROUP_DESCRIPTION              4
+#define IKE_ATTR_GROUP_TYPE                             5
+#define IKE_ATTR_GROUP_PRIME                    6
+#define IKE_ATTR_GROUP_GENERATOR_ONE    7
+#define IKE_ATTR_GROUP_GENERATOR_TWO    8
+#define IKE_ATTR_GROUP_CURVE_A                  9
+#define IKE_ATTR_GROUP_CURVE_B                  10
+#define IKE_ATTR_LIFE_TYPE                              11
+#define IKE_ATTR_LIFE_DURATION                  12
+#define IKE_ATTR_PRF                                    13
+#define IKE_ATTR_KEY_LENGTH                             14
+#define IKE_ATTR_FIELD_SIZE                             15
+#define IKE_ATTR_GROUP_ORDER                    16
 
 
 
 static const value_string transform_ike_attr_type[] = {
   { IKE_ATTR_ENCRYPTION_ALGORITHM,"Encryption-Algorithm" },
-  { IKE_ATTR_HASH_ALGORITHM,	"Hash-Algorithm" },
+  { IKE_ATTR_HASH_ALGORITHM,    "Hash-Algorithm" },
   { IKE_ATTR_AUTHENTICATION_METHOD,"Authentication-Method" },
-  { IKE_ATTR_GROUP_DESCRIPTION,	"Group-Description" },
-  { IKE_ATTR_GROUP_TYPE,	"Group-Type" },
-  { IKE_ATTR_GROUP_PRIME,	"Group-Prime" },
+  { IKE_ATTR_GROUP_DESCRIPTION, "Group-Description" },
+  { IKE_ATTR_GROUP_TYPE,        "Group-Type" },
+  { IKE_ATTR_GROUP_PRIME,       "Group-Prime" },
   { IKE_ATTR_GROUP_GENERATOR_ONE,"Group-Generator-One" },
   { IKE_ATTR_GROUP_GENERATOR_TWO,"Group-Generator-Two" },
-  { IKE_ATTR_GROUP_CURVE_A,	"Group-Curve-A" },
-  { IKE_ATTR_GROUP_CURVE_B,	"Group-Curve-B" },
-  { IKE_ATTR_LIFE_TYPE,		"Life-Type" },
-  { IKE_ATTR_LIFE_DURATION,	"Life-Duration" },
-  { IKE_ATTR_PRF,		"PRF" },
-  { IKE_ATTR_KEY_LENGTH,	"Key-Length" },
-  { IKE_ATTR_FIELD_SIZE,	"Field-Size" },
-  { IKE_ATTR_GROUP_ORDER,	"Group-Order" },
-  { 0,	NULL },
+  { IKE_ATTR_GROUP_CURVE_A,     "Group-Curve-A" },
+  { IKE_ATTR_GROUP_CURVE_B,     "Group-Curve-B" },
+  { IKE_ATTR_LIFE_TYPE,         "Life-Type" },
+  { IKE_ATTR_LIFE_DURATION,     "Life-Duration" },
+  { IKE_ATTR_PRF,               "PRF" },
+  { IKE_ATTR_KEY_LENGTH,        "Key-Length" },
+  { IKE_ATTR_FIELD_SIZE,        "Field-Size" },
+  { IKE_ATTR_GROUP_ORDER,       "Group-Order" },
+  { 0,  NULL },
 };
 
 #if 0
 static const value_string vs_v2_sttr[] = {
-  { 1,	"SA-Life-Type" },
-  { 2,	"SA-Life-Duration" },
-  { 3,	"Group-Description" },
-  { 4,	"Encapsulation-Mode" },
-  { 5,	"Authentication-Algorithm" },
-  { 6,	"Key-Length" },
-  { 7,	"Key-Rounds" },
-  { 8,	"Compress-Dictionary-Size" },
-  { 9,	"Compress-Private-Algorithm" },
-  { 10,	"ECN Tunnel" },
-  { 0,	NULL },
+  { 1,  "SA-Life-Type" },
+  { 2,  "SA-Life-Duration" },
+  { 3,  "Group-Description" },
+  { 4,  "Encapsulation-Mode" },
+  { 5,  "Authentication-Algorithm" },
+  { 6,  "Key-Length" },
+  { 7,  "Key-Rounds" },
+  { 8,  "Compress-Dictionary-Size" },
+  { 9,  "Compress-Private-Algorithm" },
+  { 10, "ECN Tunnel" },
+  { 0,  NULL },
 };
 #endif
 
 static const value_string vs_v1_trans_isakmp[] = {
-  { 0,	"RESERVED" },
-  { 1,	"KEY_IKE" },
-  { 0,	NULL },
+  { 0,  "RESERVED" },
+  { 1,  "KEY_IKE" },
+  { 0,  NULL },
 };
 
 static const value_string vs_v1_trans_ah[] = {
-  { 0,	"RESERVED" },
-  { 1,	"RESERVED" },
-  { 2,	"MD5" },
-  { 3,	"SHA" },
-  { 4,	"DES" },
-  { 5,	"SHA2-256" },
-  { 6,	"SHA2-384" },
-  { 7,	"SHA2-512" },
-  { 0,	NULL },
+  { 0,  "RESERVED" },
+  { 1,  "RESERVED" },
+  { 2,  "MD5" },
+  { 3,  "SHA" },
+  { 4,  "DES" },
+  { 5,  "SHA2-256" },
+  { 6,  "SHA2-384" },
+  { 7,  "SHA2-512" },
+  { 0,  NULL },
 };
 
 static const value_string vs_v1_trans_esp[] = {
-  { 0,	"RESERVED" },
-  { 1,	"DES-IV64" },
-  { 2,	"DES" },
-  { 3,	"3DES" },
-  { 4,	"RC5" },
-  { 5,	"IDEA" },
-  { 6,	"CAST" },
-  { 7,	"BLOWFISH" },
-  { 8,	"3IDEA" },
-  { 9,	"DES-IV32" },
-  { 10,	"RC4" },
-  { 11,	"NULL" },
-  { 12,	"AES" },
-  { 0,	NULL },
+  { 0,  "RESERVED" },
+  { 1,  "DES-IV64" },
+  { 2,  "DES" },
+  { 3,  "3DES" },
+  { 4,  "RC5" },
+  { 5,  "IDEA" },
+  { 6,  "CAST" },
+  { 7,  "BLOWFISH" },
+  { 8,  "3IDEA" },
+  { 9,  "DES-IV32" },
+  { 10, "RC4" },
+  { 11, "NULL" },
+  { 12, "AES" },
+  { 0,  NULL },
 };
 
 static const value_string transform_id_ipcomp[] = {
-  { 0,	"RESERVED" },
-  { 1,	"OUI" },
-  { 2,	"DEFLATE" },
-  { 3,	"LZS" },
-  { 4,	"LZJH" },
-  { 0,	NULL },
+  { 0,  "RESERVED" },
+  { 1,  "OUI" },
+  { 2,  "DEFLATE" },
+  { 3,  "LZS" },
+  { 4,  "LZJH" },
+  { 0,  NULL },
 };
 static const value_string redirect_gateway_identity_type[] = {
-  { 1,	"IPv4 address" },
-  { 2,	"IPv6 address" },
-  { 3,	"FQDN" },
-  { 0,	NULL },
+  { 1,  "IPv4 address" },
+  { 2,  "IPv6 address" },
+  { 3,  "FQDN" },
+  { 0,  NULL },
 };
 static const value_string transform_attr_sa_life_type[] = {
-  { 0,	"RESERVED" },
-  { 1,	"Seconds" },
-  { 2,	"Kilobytes" },
-  { 0,	NULL },
+  { 0,  "RESERVED" },
+  { 1,  "Seconds" },
+  { 2,  "Kilobytes" },
+  { 0,  NULL },
 };
 
 static const value_string transform_attr_encap_type[] = {
-  { 0,	"RESERVED" },
-  { 1,	"Tunnel" },
-  { 2,	"Transport" },
-  { 3,	"UDP-Encapsulated-Tunnel" }, /* RFC3947 */
-  { 4,	"UDP-Encapsulated-Transport" }, /* RFC3947 */
-  { 61440,	"Check Point IPSec UDP Encapsulation" },
-  { 61443,	"UDP-Encapsulated-Tunnel (draft)" },
-  { 61444,	"UDP-Encapsulated-Transport (draft)" },
-  { 0,	NULL },
+  { 0,  "RESERVED" },
+  { 1,  "Tunnel" },
+  { 2,  "Transport" },
+  { 3,  "UDP-Encapsulated-Tunnel" }, /* RFC3947 */
+  { 4,  "UDP-Encapsulated-Transport" }, /* RFC3947 */
+  { 61440,      "Check Point IPSec UDP Encapsulation" },
+  { 61443,      "UDP-Encapsulated-Tunnel (draft)" },
+  { 61444,      "UDP-Encapsulated-Transport (draft)" },
+  { 0,  NULL },
 };
 
 static const value_string transform_attr_auth_type[] = {
-  { 0,	"RESERVED" },
-  { 1,	"HMAC-MD5" },
-  { 2,	"HMAC-SHA" },
-  { 3,	"DES-MAC" },
-  { 4,	"KPDK" },
-  { 5,	"HMAC-SHA2-256" },
-  { 6,	"HMAC-SHA2-384" },
-  { 7,	"HMAC-SHA2-512" },
-  { 8,	"HMAC-RIPEMD" },		/* [RFC2857] */
-  { 9,	"AES-XCBC-MAC" },		/* [RFC3566] */
-  { 10,	"SIG-RSA" },			/* [RFC4359] */
-  { 11, "AES-128-GMAC" },		/* [RFC4543][Errata1821] */
-  { 12, "AES-192-GMAC" },		/* [RFC4543][Errata1821] */
-  { 13, "AES-256-GMAC" },		/* [RFC4543][Errata1821] */
+  { 0,  "RESERVED" },
+  { 1,  "HMAC-MD5" },
+  { 2,  "HMAC-SHA" },
+  { 3,  "DES-MAC" },
+  { 4,  "KPDK" },
+  { 5,  "HMAC-SHA2-256" },
+  { 6,  "HMAC-SHA2-384" },
+  { 7,  "HMAC-SHA2-512" },
+  { 8,  "HMAC-RIPEMD" },                /* [RFC2857] */
+  { 9,  "AES-XCBC-MAC" },               /* [RFC3566] */
+  { 10, "SIG-RSA" },                    /* [RFC4359] */
+  { 11, "AES-128-GMAC" },               /* [RFC4543][Errata1821] */
+  { 12, "AES-192-GMAC" },               /* [RFC4543][Errata1821] */
+  { 13, "AES-256-GMAC" },               /* [RFC4543][Errata1821] */
 
 /*
-	Values 11-61439 are reserved to IANA.  Values 61440-65535 are
-	for private use.
+        Values 11-61439 are reserved to IANA.  Values 61440-65535 are
+        for private use.
 */
-  { 0,	NULL },
+  { 0,  NULL },
 };
 
-#define ENC_DES_CBC		1
-#define ENC_IDEA_CBC		2
-#define ENC_BLOWFISH_CBC	3
-#define ENC_RC5_R16_B64_CBC	4
-#define ENC_3DES_CBC		5
-#define ENC_CAST_CBC		6
-#define ENC_AES_CBC		7
-#define ENC_CAMELLIA_CBC	8
+#define ENC_DES_CBC             1
+#define ENC_IDEA_CBC            2
+#define ENC_BLOWFISH_CBC        3
+#define ENC_RC5_R16_B64_CBC     4
+#define ENC_3DES_CBC            5
+#define ENC_CAST_CBC            6
+#define ENC_AES_CBC             7
+#define ENC_CAMELLIA_CBC        8
 
 static const value_string transform_attr_enc_type[] = {
-  { 0,				"RESERVED" },
-  { ENC_DES_CBC,		"DES-CBC" },
-  { ENC_IDEA_CBC,		"IDEA-CBC" },
-  { ENC_BLOWFISH_CBC,		"BLOWFISH-CBC" },
-  { ENC_RC5_R16_B64_CBC,	"RC5-R16-B64-CBC" },
-  { ENC_3DES_CBC,		"3DES-CBC" },
-  { ENC_CAST_CBC,		"CAST-CBC" },
-  { ENC_AES_CBC,		"AES-CBC" },
-  { ENC_CAMELLIA_CBC,		"CAMELLIA-CBC" },
-  { 0,	NULL },
+  { 0,                          "RESERVED" },
+  { ENC_DES_CBC,                "DES-CBC" },
+  { ENC_IDEA_CBC,               "IDEA-CBC" },
+  { ENC_BLOWFISH_CBC,           "BLOWFISH-CBC" },
+  { ENC_RC5_R16_B64_CBC,        "RC5-R16-B64-CBC" },
+  { ENC_3DES_CBC,               "3DES-CBC" },
+  { ENC_CAST_CBC,               "CAST-CBC" },
+  { ENC_AES_CBC,                "AES-CBC" },
+  { ENC_CAMELLIA_CBC,           "CAMELLIA-CBC" },
+  { 0,  NULL },
 };
 
-#define HMAC_MD5	1
-#define HMAC_SHA	2
-#define HMAC_TIGER	3
-#define HMAC_SHA2_256	4
-#define HMAC_SHA2_384	5
-#define HMAC_SHA2_512	6
+#define HMAC_MD5        1
+#define HMAC_SHA        2
+#define HMAC_TIGER      3
+#define HMAC_SHA2_256   4
+#define HMAC_SHA2_384   5
+#define HMAC_SHA2_512   6
 
 static const value_string transform_attr_hash_type[] = {
-  { 0,			"RESERVED" },
-  { HMAC_MD5,		"MD5" },
-  { HMAC_SHA,		"SHA" },
-  { HMAC_TIGER,		"TIGER" },
-  { HMAC_SHA2_256,	"SHA2-256" },
-  { HMAC_SHA2_384,	"SHA2-384" },
-  { HMAC_SHA2_512,	"SHA2-512" },
-  { 0,	NULL },
+  { 0,                  "RESERVED" },
+  { HMAC_MD5,           "MD5" },
+  { HMAC_SHA,           "SHA" },
+  { HMAC_TIGER,         "TIGER" },
+  { HMAC_SHA2_256,      "SHA2-256" },
+  { HMAC_SHA2_384,      "SHA2-384" },
+  { HMAC_SHA2_512,      "SHA2-512" },
+  { 0,  NULL },
 };
 
 static const value_string transform_attr_ecn_type[] = {
   { 0, "RESERVED" },
   { 1, "Allowed" },
   { 2, "Forbidden" },
-  { 0,	NULL },
+  { 0,  NULL },
 };
 
 static const value_string transform_attr_ext_seq_nbr_type[] = {
   { 0, "RESERVED" },
   { 1, "64-bit Sequence Number" },
-  { 0,	NULL },
+  { 0,  NULL },
 };
 
 #if 0
@@ -894,7 +894,7 @@ static const value_string transform_attr_sig_enco_algo_type[] = {
   { 0, "RESERVED" },
   { 1, "RSASSA-PKCS1-v1_5" },
   { 2, "RSASSA-PSS" },
-  { 0,	NULL },
+  { 0,  NULL },
 };
 #endif
 
@@ -904,7 +904,7 @@ static const value_string transform_attr_addr_preservation_type[] = {
   { 2, "Source-Only" },
   { 3, "Destination-Only" },
   { 4, "Source-and-Destination" },
-  { 0,	NULL },
+  { 0,  NULL },
 };
 
 static const value_string transform_attr_sa_direction_type[] = {
@@ -912,58 +912,58 @@ static const value_string transform_attr_sa_direction_type[] = {
   { 1, "Sender-Only" },
   { 2, "Receiver-Only" },
   { 3, "Symmetric" },
-  { 0,	NULL },
+  { 0,  NULL },
 };
 
 static const value_string transform_attr_authmeth_type[] = {
-  { 0,	"RESERVED" },
-  { 1,	"PSK" },
-  { 2,	"DSS-SIG" },
-  { 3,	"RSA-SIG" },
-  { 4,	"RSA-ENC" },
-  { 5,	"RSA-Revised-ENC" },
-  { 6,	"Encryption with El-Gamal" },
-  { 7,	"Revised encryption with El-Gamal" },
-  { 8,	"ECDSA signatures" },
-  { 9,	"AES-XCBC-MAC" },
-  { 64221,	"HybridInitRSA" },
-  { 64222,	"HybridRespRSA" },
-  { 64223,	"HybridInitDSS" },
-  { 64224,	"HybridRespDSS" },
-  { 65001,	"XAUTHInitPreShared" },
-  { 65002,	"XAUTHRespPreShared" },
-  { 65003,	"XAUTHInitDSS" },
-  { 65004,	"XAUTHRespDSS" },
-  { 65005,	"XAUTHInitRSA" },
-  { 65006,	"XAUTHRespRSA" },
-  { 65007,	"XAUTHInitRSAEncryption" },
-  { 65008,	"XAUTHRespRSAEncryption" },
-  { 65009,	"XAUTHInitRSARevisedEncryption" },
-  { 65010,	"XAUTHRespRSARevisedEncryption" },
-  { 0,	NULL },
+  { 0,  "RESERVED" },
+  { 1,  "PSK" },
+  { 2,  "DSS-SIG" },
+  { 3,  "RSA-SIG" },
+  { 4,  "RSA-ENC" },
+  { 5,  "RSA-Revised-ENC" },
+  { 6,  "Encryption with El-Gamal" },
+  { 7,  "Revised encryption with El-Gamal" },
+  { 8,  "ECDSA signatures" },
+  { 9,  "AES-XCBC-MAC" },
+  { 64221,      "HybridInitRSA" },
+  { 64222,      "HybridRespRSA" },
+  { 64223,      "HybridInitDSS" },
+  { 64224,      "HybridRespDSS" },
+  { 65001,      "XAUTHInitPreShared" },
+  { 65002,      "XAUTHRespPreShared" },
+  { 65003,      "XAUTHInitDSS" },
+  { 65004,      "XAUTHRespDSS" },
+  { 65005,      "XAUTHInitRSA" },
+  { 65006,      "XAUTHRespRSA" },
+  { 65007,      "XAUTHInitRSAEncryption" },
+  { 65008,      "XAUTHRespRSAEncryption" },
+  { 65009,      "XAUTHInitRSARevisedEncryption" },
+  { 65010,      "XAUTHRespRSARevisedEncryption" },
+  { 0,  NULL },
 };
 
 
 static const value_string transform_dh_group_type[] = {
-  { 0,	"UNDEFINED - 0" },
-  { 1,	"Default 768-bit MODP group" },
-  { 2,	"Alternate 1024-bit MODP group" },
-  { 3,	"EC2N group on GP[2^155] group" },
-  { 4,	"EC2N group on GP[2^185] group" },
-  { 5,	"1536 bit MODP group" },
-  { 6,	"EC2N group over GF[2^163]" },
-  { 7,	"EC2N group over GF[2^163]" },
-  { 8,	"EC2N group over GF[2^283]" },
-  { 9,	"EC2N group over GF[2^283]" },
-  { 10,	"EC2N group over GF[2^409]" },
-  { 11,	"EC2N group over GF[2^409]" },
-  { 12,	"EC2N group over GF[2^571]" },
-  { 13,	"EC2N group over GF[2^571]" },
-  { 14,	"2048 bit MODP group" },
-  { 15,	"3072 bit MODP group" },
-  { 16,	"4096 bit MODP group" },
-  { 17,	"6144 bit MODP group" },
-  { 18,	"8192 bit MODP group" },
+  { 0,  "UNDEFINED - 0" },
+  { 1,  "Default 768-bit MODP group" },
+  { 2,  "Alternate 1024-bit MODP group" },
+  { 3,  "EC2N group on GP[2^155] group" },
+  { 4,  "EC2N group on GP[2^185] group" },
+  { 5,  "1536 bit MODP group" },
+  { 6,  "EC2N group over GF[2^163]" },
+  { 7,  "EC2N group over GF[2^163]" },
+  { 8,  "EC2N group over GF[2^283]" },
+  { 9,  "EC2N group over GF[2^283]" },
+  { 10, "EC2N group over GF[2^409]" },
+  { 11, "EC2N group over GF[2^409]" },
+  { 12, "EC2N group over GF[2^571]" },
+  { 13, "EC2N group over GF[2^571]" },
+  { 14, "2048 bit MODP group" },
+  { 15, "3072 bit MODP group" },
+  { 16, "4096 bit MODP group" },
+  { 17, "6144 bit MODP group" },
+  { 18, "8192 bit MODP group" },
   { 19, "256-bit random ECP group" },
   { 20, "384-bit random ECP group" },
   { 21, "521-bit random ECP group" },
@@ -972,211 +972,211 @@ static const value_string transform_dh_group_type[] = {
   { 24, "2048-bit MODP Group with 256-bit Prime Order Subgroup" },
   { 25, "192-bit Random ECP Group" },
   { 26, "224-bit Random ECP Group" },
-  { 0,	NULL }
+  { 0,  NULL }
 };
 
 static const value_string transform_attr_grp_type[] = {
-  { 0,	"UNDEFINED - 0" },
-  { 1,	"MODP" },
-  { 2,	"ECP" },
-  { 3,	"EC2N" },
-  { 0,	NULL },
+  { 0,  "UNDEFINED - 0" },
+  { 1,  "MODP" },
+  { 2,  "ECP" },
+  { 3,  "EC2N" },
+  { 0,  NULL },
 };
 
-#define TF_IKE2_ENCR	1
-#define TF_IKE2_PRF	2
-#define TF_IKE2_INTEG	3
-#define TF_IKE2_DH	4
-#define TF_IKE2_ESN	5
+#define TF_IKE2_ENCR    1
+#define TF_IKE2_PRF     2
+#define TF_IKE2_INTEG   3
+#define TF_IKE2_DH      4
+#define TF_IKE2_ESN     5
 static const range_string transform_ike2_type[] = {
-  { 0,0,	"RESERVED" },
-  { TF_IKE2_ENCR,TF_IKE2_ENCR,	"Encryption Algorithm (ENCR)" },
-  { TF_IKE2_PRF,TF_IKE2_PRF,	"Pseudo-random Function (PRF)"},
+  { 0,0,        "RESERVED" },
+  { TF_IKE2_ENCR,TF_IKE2_ENCR,  "Encryption Algorithm (ENCR)" },
+  { TF_IKE2_PRF,TF_IKE2_PRF,    "Pseudo-random Function (PRF)"},
   { TF_IKE2_INTEG,TF_IKE2_INTEG,"Integrity Algorithm (INTEG)"},
-  { TF_IKE2_DH,TF_IKE2_DH,	"Diffie-Hellman Group (D-H)"},
-  { TF_IKE2_ESN,TF_IKE2_ESN,	"Extended Sequence Numbers (ESN)"},
-  { 6,240,	"Reserved to IANA"},
-  { 241,255,	"Private Use"},
-  { 0,0,		NULL },
+  { TF_IKE2_DH,TF_IKE2_DH,      "Diffie-Hellman Group (D-H)"},
+  { TF_IKE2_ESN,TF_IKE2_ESN,    "Extended Sequence Numbers (ESN)"},
+  { 6,240,      "Reserved to IANA"},
+  { 241,255,    "Private Use"},
+  { 0,0,                NULL },
 };
 /* For Transform Type 1 (Encryption Algorithm), defined Transform IDs */
 static const value_string transform_ike2_encr_type[] = {
-  { 0,	"RESERVED" },
-  { 1,	"ENCR_DES_IV64" },
-  { 2,	"ENCR_DES" },
-  { 3,	"ENCR_3DES" },
-  { 4,	"ENCR_RC5" },
-  { 5,	"ENCR_IDEA" },
-  { 6,	"ENCR_CAST" },
-  { 7,	"ENCR_BLOWFISH" },
-  { 8,	"ENCR_3IDEA" },
-  { 9,	"ENCR_DES_IV32" },
-  { 10,	"RESERVED" },
-  { 11,	"ENCR_NULL" },
-  { 12,	"ENCR_AES_CBC" },
-  { 13,	"ENCR_AES_CTR" },		 		/* [RFC3686] */
-  { 14,	"ENCR_AES-CCM_8" },		 		/* [RFC4309] */
-  { 15,	"ENCR-AES-CCM_12" },		 		/* [RFC4309] */
-  { 16,	"ENCR-AES-CCM_16" },		 		/* [RFC4309] */
-  { 17,	"UNASSIGNED" },
-  { 18,	"AES-GCM with a 8 octet ICV" },	 		/* [RFC4106] */
-  { 19,	"AES-GCM with a 12 octet ICV" },		/* [RFC4106] */
-  { 20,	"AES-GCM with a 16 octet ICV" }, 		/* [RFC4106] */
-  { 21,	"ENCR_NULL_AUTH_AES_GMAC" },	 		/* [RFC4543] */
-  { 22,	"Reserved for IEEE P1619 XTS-AES" },	 	/* [Ball] */
-  { 23,	"ENCR_CAMELLIA_CBC" },	 			/* [RFC5529] */
-  { 24,	"ENCR_CAMELLIA_CTR" },	 			/* [RFC5529] */
-  { 25,	"ENCR_CAMELLIA_CCM with an 8-octet ICV" },	/* [RFC5529] */
-  { 26,	"ENCR_CAMELLIA_CCM with a 12-octet ICV" },	/* [RFC5529] */
-  { 27,	"ENCR_CAMELLIA_CCM with a 16-octet ICV" },	/* [RFC5529] */
+  { 0,  "RESERVED" },
+  { 1,  "ENCR_DES_IV64" },
+  { 2,  "ENCR_DES" },
+  { 3,  "ENCR_3DES" },
+  { 4,  "ENCR_RC5" },
+  { 5,  "ENCR_IDEA" },
+  { 6,  "ENCR_CAST" },
+  { 7,  "ENCR_BLOWFISH" },
+  { 8,  "ENCR_3IDEA" },
+  { 9,  "ENCR_DES_IV32" },
+  { 10, "RESERVED" },
+  { 11, "ENCR_NULL" },
+  { 12, "ENCR_AES_CBC" },
+  { 13, "ENCR_AES_CTR" },                               /* [RFC3686] */
+  { 14, "ENCR_AES-CCM_8" },                             /* [RFC4309] */
+  { 15, "ENCR-AES-CCM_12" },                            /* [RFC4309] */
+  { 16, "ENCR-AES-CCM_16" },                            /* [RFC4309] */
+  { 17, "UNASSIGNED" },
+  { 18, "AES-GCM with a 8 octet ICV" },                 /* [RFC4106] */
+  { 19, "AES-GCM with a 12 octet ICV" },                /* [RFC4106] */
+  { 20, "AES-GCM with a 16 octet ICV" },                /* [RFC4106] */
+  { 21, "ENCR_NULL_AUTH_AES_GMAC" },                    /* [RFC4543] */
+  { 22, "Reserved for IEEE P1619 XTS-AES" },            /* [Ball] */
+  { 23, "ENCR_CAMELLIA_CBC" },                          /* [RFC5529] */
+  { 24, "ENCR_CAMELLIA_CTR" },                          /* [RFC5529] */
+  { 25, "ENCR_CAMELLIA_CCM with an 8-octet ICV" },      /* [RFC5529] */
+  { 26, "ENCR_CAMELLIA_CCM with a 12-octet ICV" },      /* [RFC5529] */
+  { 27, "ENCR_CAMELLIA_CCM with a 16-octet ICV" },      /* [RFC5529] */
 /*
- *		28-1023    RESERVED TO IANA         [RFC4306]
- *		1024-65535    PRIVATE USE           [RFC4306]
+ *              28-1023    RESERVED TO IANA         [RFC4306]
+ *              1024-65535    PRIVATE USE           [RFC4306]
  */
-    { 0,	NULL },
+    { 0,        NULL },
   };
 
 /* For Transform Type 2 (Pseudo-random Function), defined Transform IDs */
 static const value_string transform_ike2_prf_type[] = {
-  { 0,	"RESERVED" },
-  { 1,	"PRF_HMAC_MD5" },
-  { 2,	"PRF_HMAC_SHA1" },
-  { 3,	"PRF_HMAC_TIGER" },
-  { 4,	"PRF_AES128_CBC" },
-  { 5,	"PRF_HMAC_SHA2_256" },		/* [RFC4868] */
-  { 6,	"PRF_HMAC_SHA2_384" },		/* [RFC4868] */
-  { 7,	"PRF_HMAC_SHA2_512" },		/* [RFC4868] */
-  { 8,	"PRF_AES128_CMAC6" },		/* [RFC4615] */
+  { 0,  "RESERVED" },
+  { 1,  "PRF_HMAC_MD5" },
+  { 2,  "PRF_HMAC_SHA1" },
+  { 3,  "PRF_HMAC_TIGER" },
+  { 4,  "PRF_AES128_CBC" },
+  { 5,  "PRF_HMAC_SHA2_256" },          /* [RFC4868] */
+  { 6,  "PRF_HMAC_SHA2_384" },          /* [RFC4868] */
+  { 7,  "PRF_HMAC_SHA2_512" },          /* [RFC4868] */
+  { 8,  "PRF_AES128_CMAC6" },           /* [RFC4615] */
 /*
-     9-1023    RESERVED TO IANA	   	   [RFC4306]
-     1024-65535    PRIVATE USE		   [RFC4306]
+     9-1023    RESERVED TO IANA            [RFC4306]
+     1024-65535    PRIVATE USE             [RFC4306]
 */
-  { 0,	NULL },
+  { 0,  NULL },
 };
 
 /* For Transform Type 3 (Integrity Algorithm), defined Transform IDs */
 static const value_string transform_ike2_integ_type[] = {
-  { 0,	"NONE" },
-  { 1,	"AUTH_HMAC_MD5_96" },
-  { 2,	"AUTH_HMAC_SHA1_96" },
-  { 3,	"AUTH_DES_MAC" },
-  { 4,	"AUTH_KPDK_MD5" },
-  { 5,	"AUTH_AES_XCBC_96" },
-  { 6,	"AUTH_HMAC_MD5_128" },		/* [RFC4595] */
-  { 7,	"AUTH_HMAC_SHA1_160" },		/* [RFC4595] */
-  { 8,	"AUTH_AES_CMAC_96" },		/* [RFC4494] */
-  { 9,	"AUTH_AES_128_GMAC" },		/* [RFC4543] */
-  { 10,	"AUTH_AES_192_GMAC" },		/* [RFC4543] */
-  { 11,	"AUTH_AES_256_GMAC" },		/* [RFC4543] */
-  { 12, "AUTH_HMAC_SHA2_256_128" },	/* [RFC4868] */
-  { 13, "AUTH_HMAC_SHA2_384_192" },	/* [RFC4868] */
-  { 14, "AUTH_HMAC_SHA2_512_256" },	/* [RFC4868] */
+  { 0,  "NONE" },
+  { 1,  "AUTH_HMAC_MD5_96" },
+  { 2,  "AUTH_HMAC_SHA1_96" },
+  { 3,  "AUTH_DES_MAC" },
+  { 4,  "AUTH_KPDK_MD5" },
+  { 5,  "AUTH_AES_XCBC_96" },
+  { 6,  "AUTH_HMAC_MD5_128" },          /* [RFC4595] */
+  { 7,  "AUTH_HMAC_SHA1_160" },         /* [RFC4595] */
+  { 8,  "AUTH_AES_CMAC_96" },           /* [RFC4494] */
+  { 9,  "AUTH_AES_128_GMAC" },          /* [RFC4543] */
+  { 10, "AUTH_AES_192_GMAC" },          /* [RFC4543] */
+  { 11, "AUTH_AES_256_GMAC" },          /* [RFC4543] */
+  { 12, "AUTH_HMAC_SHA2_256_128" },     /* [RFC4868] */
+  { 13, "AUTH_HMAC_SHA2_384_192" },     /* [RFC4868] */
+  { 14, "AUTH_HMAC_SHA2_512_256" },     /* [RFC4868] */
 /*
  15-1023    RESERVED TO IANA               [RFC4306]
  1024-65535    PRIVATE USE                 [RFC4306]
 */
-  { 0,	NULL },
+  { 0,  NULL },
 };
 /* For Transform Type 5 (Extended Sequence Numbers), defined Transform */
 static const value_string transform_ike2_esn_type[] = {
-  { 0,	"No Extended Sequence Numbers" },
-  { 1,	"Extended Sequence Numbers" },
-  { 0,	NULL },
+  { 0,  "No Extended Sequence Numbers" },
+  { 1,  "Extended Sequence Numbers" },
+  { 0,  NULL },
 };
 /* Transform IKE2 Type */
-#define IKE2_ATTR_KEY_LENGTH		14
+#define IKE2_ATTR_KEY_LENGTH            14
 
 static const value_string transform_ike2_attr_type[] = {
-  { IKE2_ATTR_KEY_LENGTH,		"Key-Length" },
-  { 0,	NULL },
+  { IKE2_ATTR_KEY_LENGTH,               "Key-Length" },
+  { 0,  NULL },
 };
 
 static const range_string cert_v1_type[] = {
-  { 0,0,	"NONE" },
-  { 1,1,	"PKCS #7 wrapped X.509 certificate" },
-  { 2,2,	"PGP Certificate" },
-  { 3,3,	"DNS Signed Key" },
-  { 4,4,	"X.509 Certificate - Signature" },
-  { 5,5,	"X.509 Certificate - Key Exchange" },
-  { 6,6,	"Kerberos Tokens" },
-  { 7,7,	"Certificate Revocation List (CRL)" },
-  { 8,8,	"Authority Revocation List (ARL)" },
-  { 9,9,	"SPKI Certificate" },
-  { 10,10,	"X.509 Certificate - Attribute" },
-  { 11,255,	"RESERVED" },
-  { 0,0,	NULL },
+  { 0,0,        "NONE" },
+  { 1,1,        "PKCS #7 wrapped X.509 certificate" },
+  { 2,2,        "PGP Certificate" },
+  { 3,3,        "DNS Signed Key" },
+  { 4,4,        "X.509 Certificate - Signature" },
+  { 5,5,        "X.509 Certificate - Key Exchange" },
+  { 6,6,        "Kerberos Tokens" },
+  { 7,7,        "Certificate Revocation List (CRL)" },
+  { 8,8,        "Authority Revocation List (ARL)" },
+  { 9,9,        "SPKI Certificate" },
+  { 10,10,      "X.509 Certificate - Attribute" },
+  { 11,255,     "RESERVED" },
+  { 0,0,        NULL },
 };
 
 static const range_string cert_v2_type[] = {
-  { 0,0,	"RESERVED" },
-  { 1,1,	"PKCS #7 wrapped X.509 certificate" },
-  { 2,2,	"PGP Certificate" },
-  { 3,3,	"DNS Signed Key" },
-  { 4,4,	"X.509 Certificate - Signature" },
-  { 5,5,	"*undefined by any document*" },
-  { 6,6,	"Kerberos Tokens" },
-  { 7,7,	"Certificate Revocation List (CRL)" },
-  { 8,8,	"Authority Revocation List (ARL)" },
-  { 9,9,	"SPKI Certificate" },
-  { 10,10,	"X.509 Certificate - Attribute" },
-  { 11,11,	"Raw RSA Key" },
-  { 12,12,	"Hash and URL of X.509 certificate" },
-  { 13,13,	"Hash and URL of X.509 bundle" },
-  { 14,14,      "OCSP Content" }, 			/* [RFC4806] */
-  { 15,200,	"RESERVED to IANA" },
-  { 201,255,	"PRIVATE USE" },
-  { 0,0,	NULL },
+  { 0,0,        "RESERVED" },
+  { 1,1,        "PKCS #7 wrapped X.509 certificate" },
+  { 2,2,        "PGP Certificate" },
+  { 3,3,        "DNS Signed Key" },
+  { 4,4,        "X.509 Certificate - Signature" },
+  { 5,5,        "*undefined by any document*" },
+  { 6,6,        "Kerberos Tokens" },
+  { 7,7,        "Certificate Revocation List (CRL)" },
+  { 8,8,        "Authority Revocation List (ARL)" },
+  { 9,9,        "SPKI Certificate" },
+  { 10,10,      "X.509 Certificate - Attribute" },
+  { 11,11,      "Raw RSA Key" },
+  { 12,12,      "Hash and URL of X.509 certificate" },
+  { 13,13,      "Hash and URL of X.509 bundle" },
+  { 14,14,      "OCSP Content" },                       /* [RFC4806] */
+  { 15,200,     "RESERVED to IANA" },
+  { 201,255,    "PRIVATE USE" },
+  { 0,0,        NULL },
 };
 
 static const range_string authmeth_v2_type[] = {
-  { 0,0,	"RESERVED TO IANA" },
-  { 1,1,	"RSA Digital Signature" },
-  { 2,2,	"Shared Key Message Integrity Code" },
-  { 3,3,	"DSS Digital Signature" },
-  { 4,8,	"RESERVED TO IANA" },
-  { 9,9,	"ECDSA with SHA-256 on the P-256 curve" }, /* RFC4754 */
-  { 10,10,	"ECDSA with SHA-256 on the P-256 curve" }, /* RFC4754 */
-  { 11,11,	"ECDSA with SHA-256 on the P-256 curve" }, /* RFC4754 */
-  { 12,12,	"Generic Secure Password Authentication Method" }, /* RFC6467 */
-  { 13,200,	"RESERVED TO IANA" },
-  { 201,255,	"PRIVATE USE" },
-  { 0,0,	NULL },
+  { 0,0,        "RESERVED TO IANA" },
+  { 1,1,        "RSA Digital Signature" },
+  { 2,2,        "Shared Key Message Integrity Code" },
+  { 3,3,        "DSS Digital Signature" },
+  { 4,8,        "RESERVED TO IANA" },
+  { 9,9,        "ECDSA with SHA-256 on the P-256 curve" }, /* RFC4754 */
+  { 10,10,      "ECDSA with SHA-256 on the P-256 curve" }, /* RFC4754 */
+  { 11,11,      "ECDSA with SHA-256 on the P-256 curve" }, /* RFC4754 */
+  { 12,12,      "Generic Secure Password Authentication Method" }, /* RFC6467 */
+  { 13,200,     "RESERVED TO IANA" },
+  { 201,255,    "PRIVATE USE" },
+  { 0,0,        NULL },
 };
 
 static const range_string notifmsg_v1_type[] = {
-  { 0,0,	"<UNKNOWN>" },
-  { 1,1,	"INVALID-PAYLOAD-TYPE" },
-  { 2,2,	"DOI-NOT-SUPPORTED" },
-  { 3,3,	"SITUATION-NOT-SUPPORTED" },
-  { 4,4,	"INVALID-COOKIE" },
-  { 5,5,	"INVALID-MAJOR-VERSION" },
-  { 6,6,	"INVALID-MINOR-VERSION" },
-  { 7,7,	"INVALID-EXCHANGE-TYPE" },
-  { 8,8,	"INVALID-FLAGS" },
-  { 9,9,	"INVALID-MESSAGE-ID" },
-  { 10,10,	"INVALID-PROTOCOL-ID" },
-  { 11,11,	"INVALID-SPI" },
-  { 12,12,	"INVALID-TRANSFORM-ID" },
-  { 13,13,	"ATTRIBUTES-NOT-SUPPORTED" },
-  { 14,14,	"NO-PROPOSAL-CHOSEN" },
-  { 15,15,	"BAD-PROPOSAL-SYNTAX" },
-  { 16,16,	"PAYLOAD-MALFORMED" },
-  { 17,17,	"INVALID-KEY-INFORMATION" },
-  { 18,18,	"INVALID-ID-INFORMATION" },
-  { 19,19,	"INVALID-CERT-ENCODING" },
-  { 20,20,	"INVALID-CERTIFICATE" },
-  { 21,21,	"CERT-TYPE-UNSUPPORTED" },
-  { 22,22,	"INVALID-CERT-AUTHORITY" },
-  { 23,23,	"INVALID-HASH-INFORMATION" },
-  { 24,24,	"AUTHENTICATION-FAILED" },
-  { 25,25,	"INVALID-SIGNATURE" },
-  { 26,26,	"ADDRESS-NOTIFICATION" },
-  { 27,27,	"NOTIFY-SA-LIFETIME" },
-  { 28,28,	"CERTIFICATE-UNAVAILABLE" },
-  { 29,29,	"UNSUPPORTED-EXCHANGE-TYPE" },
-  { 30,30,	"UNEQUAL-PAYLOAD-LENGTHS" },
-  { 31,8191,	"RESERVED (Future Use)" },
-  { 8192,16383,	"Private Use" },
+  { 0,0,        "<UNKNOWN>" },
+  { 1,1,        "INVALID-PAYLOAD-TYPE" },
+  { 2,2,        "DOI-NOT-SUPPORTED" },
+  { 3,3,        "SITUATION-NOT-SUPPORTED" },
+  { 4,4,        "INVALID-COOKIE" },
+  { 5,5,        "INVALID-MAJOR-VERSION" },
+  { 6,6,        "INVALID-MINOR-VERSION" },
+  { 7,7,        "INVALID-EXCHANGE-TYPE" },
+  { 8,8,        "INVALID-FLAGS" },
+  { 9,9,        "INVALID-MESSAGE-ID" },
+  { 10,10,      "INVALID-PROTOCOL-ID" },
+  { 11,11,      "INVALID-SPI" },
+  { 12,12,      "INVALID-TRANSFORM-ID" },
+  { 13,13,      "ATTRIBUTES-NOT-SUPPORTED" },
+  { 14,14,      "NO-PROPOSAL-CHOSEN" },
+  { 15,15,      "BAD-PROPOSAL-SYNTAX" },
+  { 16,16,      "PAYLOAD-MALFORMED" },
+  { 17,17,      "INVALID-KEY-INFORMATION" },
+  { 18,18,      "INVALID-ID-INFORMATION" },
+  { 19,19,      "INVALID-CERT-ENCODING" },
+  { 20,20,      "INVALID-CERTIFICATE" },
+  { 21,21,      "CERT-TYPE-UNSUPPORTED" },
+  { 22,22,      "INVALID-CERT-AUTHORITY" },
+  { 23,23,      "INVALID-HASH-INFORMATION" },
+  { 24,24,      "AUTHENTICATION-FAILED" },
+  { 25,25,      "INVALID-SIGNATURE" },
+  { 26,26,      "ADDRESS-NOTIFICATION" },
+  { 27,27,      "NOTIFY-SA-LIFETIME" },
+  { 28,28,      "CERTIFICATE-UNAVAILABLE" },
+  { 29,29,      "UNSUPPORTED-EXCHANGE-TYPE" },
+  { 30,30,      "UNEQUAL-PAYLOAD-LENGTHS" },
+  { 31,8191,    "RESERVED (Future Use)" },
+  { 8192,16383, "Private Use" },
   { 16384,16384,"CONNECTED" },
   { 16385,24575,"RESERVED (Future Use)" },
   { 24576,24576,"RESPONDER-LIFETIME" },
@@ -1192,76 +1192,76 @@ static const range_string notifmsg_v1_type[] = {
   { 40503,40503,"UNITY-GROUP-HASH" },
   { 40503,40959,"Private Use" },
   { 40960,65535,"RESERVED (Future Use)" },
-  { 0,0,	NULL },
+  { 0,0,        NULL },
 };
 
 static const range_string notifmsg_v2_type[] = {
-  { 0,0,	"RESERVED" },
-  { 1,1,	"UNSUPPORTED_CRITICAL_PAYLOAD" },
-  { 2,3,	"RESERVED" },
-  { 4,4,	"INVALID_IKE_SPI" },
-  { 5,5,	"INVALID_MAJOR_VERSION" },
-  { 6,6,	"RESERVED" },
-  { 7,7,	"INVALID_SYNTAX" },
-  { 8,8,	"RESERVED" },
-  { 9,9,	"INVALID_MESSAGE_ID" },
-  { 10,10,	"RESERVED" },
-  { 11,11,	"INVALID_SPI" },
-  { 12,13,	"RESERVED" },
-  { 14,14,	"NO_PROPOSAL_CHOSEN" },
-  { 15,16,	"RESERVED" },
-  { 17,17,	"INVALID_KE_PAYLOAD" },
-  { 15,16,	"RESERVED" },
-  { 24,24,	"AUTHENTICATION_FAILED" },
-  { 25,33,	"RESERVED" },
-  { 34,34,	"SINGLE_PAIR_REQUIRED" },
-  { 35,35,	"NO_ADDITIONAL_SAS" },
-  { 36,36,	"INTERNAL_ADDRESS_FAILURE" },
-  { 37,37,	"FAILED_CP_REQUIRED" },
-  { 38,38,	"TS_UNACCEPTABLE" },
-  { 39,39,	"INVALID_SELECTORS" },
-  { 40,40,	"UNACCEPTABLE_ADDRESSES" },			/* RFC4555 */
-  { 41,41,	"UNEXPECTED_NAT_DETECTED" },			/* RFC4555 */
-  { 42,42,	"USE_ASSIGNED_HoA" }, 				/* RFC5026 */
-  { 43,43,	"TEMPORARY_FAILURE" }, 				/* RFC5996 */
-  { 44,44,	"CHILD_SA_NOT_FOUND" }, 			/* RFC5996 */
-  { 45,8191,	"RESERVED TO IANA - Error types" },
-  { 8192,16383,	"Private Use - Errors" },
-  { 16384,16384,	"INITIAL_CONTACT" },
-  { 16385,16385,	"SET_WINDOW_SIZE" },
-  { 16386,16386,	"ADDITIONAL_TS_POSSIBLE" },
-  { 16387,16387,	"IPCOMP_SUPPORTED" },
-  { 16388,16388,	"NAT_DETECTION_SOURCE_IP" },
-  { 16389,16389,	"NAT_DETECTION_DESTINATION_IP" },
-  { 16390,16390,	"COOKIE" },
-  { 16391,16391,	"USE_TRANSPORT_MODE" },
-  { 16392,16392,	"HTTP_CERT_LOOKUP_SUPPORTED" },
-  { 16393,16393,	"REKEY_SA" },
-  { 16394,16394,	"ESP_TFC_PADDING_NOT_SUPPORTED" },
-  { 16395,16395,	"NON_FIRST_FRAGMENTS_ALSO" },
-  { 16396,16396,	"MOBIKE_SUPPORTED" },			/* RFC4555 */
-  { 16397,16397,	"ADDITIONAL_IP4_ADDRESS" },		/* RFC4555 */
-  { 16398,16398,	"ADDITIONAL_IP6_ADDRESS" },		/* RFC4555 */
-  { 16399,16399,	"NO_ADDITIONAL_ADDRESSES" }, 		/* RFC4555 */
-  { 16400,16400,	"UPDATE_SA_ADDRESSES" },  		/* RFC4555 */
-  { 16401,16401,	"COOKIE2" }, 				/* RFC4555 */
-  { 16402,16402,	"NO_NATS_ALLOWED" },  			/* RFC4555 */
-  { 16403,16403,        "AUTH_LIFETIME" },			/* RFC4478 */
-  { 16404,16404,        "MULTIPLE_AUTH_SUPPORTED" },		/* RFC4739 */
-  { 16405,16405,        "ANOTHER_AUTH_FOLLOWS" },		/* RFC4739 */
-  { 16406,16406,        "REDIRECT_SUPPORTED" },			/* RFC5685 */
-  { 16407,16407,        "REDIRECT" },				/* RFC5685 */
-  { 16408,16408,        "REDIRECTED_FROM" },			/* RFC5685 */
-  { 16409,16409,        "TICKET_LT_OPAQUE" },			/* RFC5723 */
-  { 16410,16410,        "TICKET_REQUEST" },			/* RFC5723 */
-  { 16411,16411,        "TICKET_ACK" },				/* RFC5723 */
-  { 16412,16412,        "TICKET_NACK" },			/* RFC5723 */
-  { 16413,16413,        "TICKET_OPAQUE" },			/* RFC5723 */
-  { 16414,16414,        "LINK_ID" },				/* RFC5739 */
-  { 16415,16415,        "USE_WESP_MODE" },			/* RFC5840 */
-  { 16416,16416,        "ROHC_SUPPORTED" },			/* RFC5857 */
-  { 16417,16417,        "EAP_ONLY_AUTHENTICATION" },		/* RFC5998 */
-  { 16418,16418,        "CHILDLESS_IKEV2_SUPPORTED" },		/* RFC6023 */
+  { 0,0,        "RESERVED" },
+  { 1,1,        "UNSUPPORTED_CRITICAL_PAYLOAD" },
+  { 2,3,        "RESERVED" },
+  { 4,4,        "INVALID_IKE_SPI" },
+  { 5,5,        "INVALID_MAJOR_VERSION" },
+  { 6,6,        "RESERVED" },
+  { 7,7,        "INVALID_SYNTAX" },
+  { 8,8,        "RESERVED" },
+  { 9,9,        "INVALID_MESSAGE_ID" },
+  { 10,10,      "RESERVED" },
+  { 11,11,      "INVALID_SPI" },
+  { 12,13,      "RESERVED" },
+  { 14,14,      "NO_PROPOSAL_CHOSEN" },
+  { 15,16,      "RESERVED" },
+  { 17,17,      "INVALID_KE_PAYLOAD" },
+  { 15,16,      "RESERVED" },
+  { 24,24,      "AUTHENTICATION_FAILED" },
+  { 25,33,      "RESERVED" },
+  { 34,34,      "SINGLE_PAIR_REQUIRED" },
+  { 35,35,      "NO_ADDITIONAL_SAS" },
+  { 36,36,      "INTERNAL_ADDRESS_FAILURE" },
+  { 37,37,      "FAILED_CP_REQUIRED" },
+  { 38,38,      "TS_UNACCEPTABLE" },
+  { 39,39,      "INVALID_SELECTORS" },
+  { 40,40,      "UNACCEPTABLE_ADDRESSES" },                     /* RFC4555 */
+  { 41,41,      "UNEXPECTED_NAT_DETECTED" },                    /* RFC4555 */
+  { 42,42,      "USE_ASSIGNED_HoA" },                           /* RFC5026 */
+  { 43,43,      "TEMPORARY_FAILURE" },                          /* RFC5996 */
+  { 44,44,      "CHILD_SA_NOT_FOUND" },                         /* RFC5996 */
+  { 45,8191,    "RESERVED TO IANA - Error types" },
+  { 8192,16383, "Private Use - Errors" },
+  { 16384,16384,        "INITIAL_CONTACT" },
+  { 16385,16385,        "SET_WINDOW_SIZE" },
+  { 16386,16386,        "ADDITIONAL_TS_POSSIBLE" },
+  { 16387,16387,        "IPCOMP_SUPPORTED" },
+  { 16388,16388,        "NAT_DETECTION_SOURCE_IP" },
+  { 16389,16389,        "NAT_DETECTION_DESTINATION_IP" },
+  { 16390,16390,        "COOKIE" },
+  { 16391,16391,        "USE_TRANSPORT_MODE" },
+  { 16392,16392,        "HTTP_CERT_LOOKUP_SUPPORTED" },
+  { 16393,16393,        "REKEY_SA" },
+  { 16394,16394,        "ESP_TFC_PADDING_NOT_SUPPORTED" },
+  { 16395,16395,        "NON_FIRST_FRAGMENTS_ALSO" },
+  { 16396,16396,        "MOBIKE_SUPPORTED" },                   /* RFC4555 */
+  { 16397,16397,        "ADDITIONAL_IP4_ADDRESS" },             /* RFC4555 */
+  { 16398,16398,        "ADDITIONAL_IP6_ADDRESS" },             /* RFC4555 */
+  { 16399,16399,        "NO_ADDITIONAL_ADDRESSES" },            /* RFC4555 */
+  { 16400,16400,        "UPDATE_SA_ADDRESSES" },                /* RFC4555 */
+  { 16401,16401,        "COOKIE2" },                            /* RFC4555 */
+  { 16402,16402,        "NO_NATS_ALLOWED" },                    /* RFC4555 */
+  { 16403,16403,        "AUTH_LIFETIME" },                      /* RFC4478 */
+  { 16404,16404,        "MULTIPLE_AUTH_SUPPORTED" },            /* RFC4739 */
+  { 16405,16405,        "ANOTHER_AUTH_FOLLOWS" },               /* RFC4739 */
+  { 16406,16406,        "REDIRECT_SUPPORTED" },                 /* RFC5685 */
+  { 16407,16407,        "REDIRECT" },                           /* RFC5685 */
+  { 16408,16408,        "REDIRECTED_FROM" },                    /* RFC5685 */
+  { 16409,16409,        "TICKET_LT_OPAQUE" },                   /* RFC5723 */
+  { 16410,16410,        "TICKET_REQUEST" },                     /* RFC5723 */
+  { 16411,16411,        "TICKET_ACK" },                         /* RFC5723 */
+  { 16412,16412,        "TICKET_NACK" },                        /* RFC5723 */
+  { 16413,16413,        "TICKET_OPAQUE" },                      /* RFC5723 */
+  { 16414,16414,        "LINK_ID" },                            /* RFC5739 */
+  { 16415,16415,        "USE_WESP_MODE" },                      /* RFC5840 */
+  { 16416,16416,        "ROHC_SUPPORTED" },                     /* RFC5857 */
+  { 16417,16417,        "EAP_ONLY_AUTHENTICATION" },            /* RFC5998 */
+  { 16418,16418,        "CHILDLESS_IKEV2_SUPPORTED" },          /* RFC6023 */
   { 16419,16419,        "QUICK_CRASH_DETECTION" },              /* RFC6290 */
   { 16420,16420,        "IKEV2_MESSAGE_ID_SYNC_SUPPORTED" },    /* RFC6311 */
   { 16421,16421,        "IPSEC_REPLAY_COUNTER_SYNC_SUPPORTED" },/* RFC6311 */
@@ -1270,48 +1270,48 @@ static const range_string notifmsg_v2_type[] = {
   { 16424,16424,        "SECURE_PASSWORD_METHODS" },            /* RFC6467 */
   { 16425,40959,        "RESERVED TO IANA - STATUS TYPES" },
   { 40960,65535,        "Private Use - STATUS TYPES" },
-  { 0,0,	NULL },
+  { 0,0,        NULL },
 };
 
 static const range_string vs_v1_cfgtype[] = {
-  { 0,0,	"Reserved" },
-  { 1,1,	"ISAKMP_CFG_REQUEST" },
-  { 2,2,	"ISAKMP_CFG_REPLY" },
-  { 3,3,	"ISAKMP_CFG_SET" },
-  { 4,4,	"ISAKMP_CFG_ACK" },
-  { 5,127,	"Future use"	},
-  { 128,256,    "Private Use"	},
-  { 0,0,	NULL },
+  { 0,0,        "Reserved" },
+  { 1,1,        "ISAKMP_CFG_REQUEST" },
+  { 2,2,        "ISAKMP_CFG_REPLY" },
+  { 3,3,        "ISAKMP_CFG_SET" },
+  { 4,4,        "ISAKMP_CFG_ACK" },
+  { 5,127,      "Future use"    },
+  { 128,256,    "Private Use"   },
+  { 0,0,        NULL },
   };
 
 
 static const range_string vs_v2_cfgtype[] = {
-  { 0,0,	"RESERVED" },
-  { 1,1,	"CFG_REQUEST" },
-  { 2,2,	"CFG_REPLY" },
-  { 3,3,	"CFG_SET" },
-  { 4,4,	"CFG_ACK" },
-  { 5,127,	"Future use"	},
-  { 128,256,    "Private Use"	},
-  { 0,0,	NULL },
+  { 0,0,        "RESERVED" },
+  { 1,1,        "CFG_REQUEST" },
+  { 2,2,        "CFG_REPLY" },
+  { 3,3,        "CFG_SET" },
+  { 4,4,        "CFG_ACK" },
+  { 5,127,      "Future use"    },
+  { 128,256,    "Private Use"   },
+  { 0,0,        NULL },
   };
 
 static const range_string vs_v1_cfgattr[] = {
-  { 0,0,	 "RESERVED" },
-  { 1,1,	 "INTERNAL_IP4_ADDRESS" },
-  { 2,2,	 "INTERNAL_IP4_NETMASK" },
-  { 3,3,	 "INTERNAL_IP4_DNS" },
-  { 4,4,	 "INTERNAL_IP4_NBNS" },
-  { 5,5,	 "INTERNAL_ADDRESS_EXPIREY" },
-  { 6,6,	 "INTERNAL_IP4_DHCP" },
-  { 7,7,	 "APPLICATION_VERSION" },
-  { 8,8,	 "INTERNAL_IP6_ADDRESS" },
-  { 9,9,	 "INTERNAL_IP6_NETMASK" },
-  { 10,10,	 "INTERNAL_IP6_DNS" },
-  { 11,11,	 "INTERNAL_IP6_NBNS" },
-  { 12,12,	 "INTERNAL_IP6_DHCP" },
-  { 13,13,	 "INTERNAL_IP4_SUBNET" },
-  { 14,14,	 "SUPPORTED_ATTRIBUTES" },
+  { 0,0,         "RESERVED" },
+  { 1,1,         "INTERNAL_IP4_ADDRESS" },
+  { 2,2,         "INTERNAL_IP4_NETMASK" },
+  { 3,3,         "INTERNAL_IP4_DNS" },
+  { 4,4,         "INTERNAL_IP4_NBNS" },
+  { 5,5,         "INTERNAL_ADDRESS_EXPIREY" },
+  { 6,6,         "INTERNAL_IP4_DHCP" },
+  { 7,7,         "APPLICATION_VERSION" },
+  { 8,8,         "INTERNAL_IP6_ADDRESS" },
+  { 9,9,         "INTERNAL_IP6_NETMASK" },
+  { 10,10,       "INTERNAL_IP6_DNS" },
+  { 11,11,       "INTERNAL_IP6_NBNS" },
+  { 12,12,       "INTERNAL_IP6_DHCP" },
+  { 13,13,       "INTERNAL_IP4_SUBNET" },
+  { 14,14,       "SUPPORTED_ATTRIBUTES" },
   { 15,16383,    "FUTURE USE"},
   { 16384,16386, "PRIVATE USE"},
   { 16387,16387, "CHKPT_DEF_DOMAIN" },
@@ -1344,56 +1344,56 @@ static const range_string vs_v1_cfgattr[] = {
   { 28681,28681, "UNITY_BACKUP_SERVERS" },
   { 28682,28682, "UNITY_DDNS_HOSTNAME" },
   { 28683,32767, "PRIVATE USE"},
-  { 0,0,	 NULL },
+  { 0,0,         NULL },
   };
 
 static const range_string vs_v2_cfgattr[] = {
-  { 0,0,	 "RESERVED" },
-  { 1,1,	 "INTERNAL_IP4_ADDRESS" },
-  { 2,2,	 "INTERNAL_IP4_NETMASK" },
-  { 3,3,	 "INTERNAL_IP4_DNS" },
-  { 4,4,	 "INTERNAL_IP4_NBNS" },
-  { 5,5,	 "INTERNAL_ADDRESS_EXPIREY" },	/* OBSO */
-  { 6,6,	 "INTERNAL_IP4_DHCP" },
-  { 7,7,	 "APPLICATION_VERSION" },
-  { 8,8,	 "INTERNAL_IP6_ADDRESS" },
-  { 9,9, 	 "RESERVED" },
-  { 10,10,	 "INTERNAL_IP6_DNS" },
-  { 11,11,	 "INTERNAL_IP6_NBNS" }, 	/* OBSO */
-  { 12,12,	 "INTERNAL_IP6_DHCP" },
-  { 13,13,	 "INTERNAL_IP4_SUBNET" },
-  { 14,14,	 "SUPPORTED_ATTRIBUTES" },
-  { 15,15, 	 "INTERNAL_IP6_SUBNET" },
+  { 0,0,         "RESERVED" },
+  { 1,1,         "INTERNAL_IP4_ADDRESS" },
+  { 2,2,         "INTERNAL_IP4_NETMASK" },
+  { 3,3,         "INTERNAL_IP4_DNS" },
+  { 4,4,         "INTERNAL_IP4_NBNS" },
+  { 5,5,         "INTERNAL_ADDRESS_EXPIREY" },  /* OBSO */
+  { 6,6,         "INTERNAL_IP4_DHCP" },
+  { 7,7,         "APPLICATION_VERSION" },
+  { 8,8,         "INTERNAL_IP6_ADDRESS" },
+  { 9,9,         "RESERVED" },
+  { 10,10,       "INTERNAL_IP6_DNS" },
+  { 11,11,       "INTERNAL_IP6_NBNS" },         /* OBSO */
+  { 12,12,       "INTERNAL_IP6_DHCP" },
+  { 13,13,       "INTERNAL_IP4_SUBNET" },
+  { 14,14,       "SUPPORTED_ATTRIBUTES" },
+  { 15,15,       "INTERNAL_IP6_SUBNET" },
   { 16,16,       "MIP6_HOME_PREFIX" },
   { 17,17,       "INTERNAL_IP6_LINK" },
   { 18,18,       "INTERNAL_IP6_PREFIX" },
-  { 19,19,       "HOME_AGENT_ADDRESS" },	/* 3GPP TS 24.302 http://www.3gpp.org/ftp/Specs/html-info/24302.htm */
+  { 19,19,       "HOME_AGENT_ADDRESS" },        /* 3GPP TS 24.302 http://www.3gpp.org/ftp/Specs/html-info/24302.htm */
   { 20,16383,    "RESERVED TO IANA"},
   { 16384,32767, "PRIVATE USE"},
-  { 0,0,   	  NULL },
+  { 0,0,          NULL },
   };
 
 static const range_string cfgattr_xauth_type[] = {
-  { 0,0,	 "Generic" },
-  { 1,1,	 "RADIUS-CHAP" },
-  { 2,2,	 "OTP" },
-  { 3,3,	 "S/KEY" },
-  { 4,32767,	 "Future use" },
+  { 0,0,         "Generic" },
+  { 1,1,         "RADIUS-CHAP" },
+  { 2,2,         "OTP" },
+  { 3,3,         "S/KEY" },
+  { 4,32767,     "Future use" },
   { 32768,65535, "Private use" },
-  { 0,0,   	  NULL },
+  { 0,0,          NULL },
   };
 
 
 static const value_string cfgattr_xauth_status[] = {
-  { 0,	"Fail" },
-  { 1,	"Success" },
-  { 0,	NULL },
+  { 0,  "Fail" },
+  { 1,  "Success" },
+  { 0,  NULL },
 };
 
 static const value_string cp_product[] = {
-  { 1,	"Firewall-1" },
-  { 2,	"SecuRemote/SecureClient" },
-  { 0,	NULL },
+  { 1,  "Firewall-1" },
+  { 2,  "SecuRemote/SecureClient" },
+  { 0,  NULL },
 };
 
 static const value_string cp_version[] = {
@@ -1407,16 +1407,16 @@ static const value_string cp_version[] = {
   { 5004,"NG with Application Intelligence" },
   { 5005,"NG with Application Intelligence R55" },
   { 5006,"NG with Application Intelligence R56" },
-  { 0,	NULL },
+  { 0,  NULL },
 };
 static const range_string traffic_selector_type[] = {
-  { 0,6,	"Reserved" },
-  { 7,7,	"TS_IPV4_ADDR_RANGE" },
-  { 8,8,	"TS_IPV6_ADDR_RANGE" },
-  { 9,9,	"TS_FC_ADDR_RANGE" },
-  { 10,240,	"Future use" },
-  { 241,255,	"Private use" },
-  { 0,0,   	  NULL },
+  { 0,6,        "Reserved" },
+  { 7,7,        "TS_IPV4_ADDR_RANGE" },
+  { 8,8,        "TS_IPV6_ADDR_RANGE" },
+  { 9,9,        "TS_FC_ADDR_RANGE" },
+  { 10,240,     "Future use" },
+  { 241,255,    "Private use" },
+  { 0,0,          NULL },
   };
 static const value_string ms_nt5_isakmpoakley_type[] = {
   { 2, "Windows 2000" },
@@ -1426,54 +1426,54 @@ static const value_string ms_nt5_isakmpoakley_type[] = {
   { 0, NULL }
 };
 static const range_string vs_v1_id_type[] = {
-  { 0,0,						"RESERVED" },
-  { IKE_ID_IPV4_ADDR,IKE_ID_IPV4_ADDR,			"IPV4_ADDR" },
-  { IKE_ID_FQDN,IKE_ID_FQDN,				"FQDN" },
-  { IKE_ID_USER_FQDN,IKE_ID_USER_FQDN,			"USER_FQDN" },
-  { IKE_ID_IPV4_ADDR_SUBNET,IKE_ID_IPV4_ADDR_SUBNET,	"IPV4_ADDR_SUBNET" },
-  { IKE_ID_IPV6_ADDR,IKE_ID_IPV6_ADDR,			"IPV6_ADDR" },
-  { IKE_ID_IPV6_ADDR_SUBNET,IKE_ID_IPV6_ADDR_SUBNET,	"IPV6_ADDR_SUBNET" },
-  { IKE_ID_IPV4_ADDR_RANGE,IKE_ID_IPV4_ADDR_RANGE,	"IPV4_ADDR_RANGE" },
-  { IKE_ID_IPV6_ADDR_RANGE,IKE_ID_IPV6_ADDR_RANGE,	"IPV6_ADDR_RANGE" },
-  { IKE_ID_DER_ASN1_DN,IKE_ID_DER_ASN1_DN,		"DER_ASN1_DN" },
-  { IKE_ID_DER_ASN1_GN,IKE_ID_DER_ASN1_GN,		"DER_ASN1_GN" },
-  { IKE_ID_KEY_ID,IKE_ID_KEY_ID,			"KEY_ID" },
-  { IKE_ID_LIST,IKE_ID_LIST,				"KEY_LIST" },
-  { 13,248,						"Future use" },
-  { 249,255,						"Private Use" },
-  { 0,0,   	  NULL },
+  { 0,0,                                                "RESERVED" },
+  { IKE_ID_IPV4_ADDR,IKE_ID_IPV4_ADDR,                  "IPV4_ADDR" },
+  { IKE_ID_FQDN,IKE_ID_FQDN,                            "FQDN" },
+  { IKE_ID_USER_FQDN,IKE_ID_USER_FQDN,                  "USER_FQDN" },
+  { IKE_ID_IPV4_ADDR_SUBNET,IKE_ID_IPV4_ADDR_SUBNET,    "IPV4_ADDR_SUBNET" },
+  { IKE_ID_IPV6_ADDR,IKE_ID_IPV6_ADDR,                  "IPV6_ADDR" },
+  { IKE_ID_IPV6_ADDR_SUBNET,IKE_ID_IPV6_ADDR_SUBNET,    "IPV6_ADDR_SUBNET" },
+  { IKE_ID_IPV4_ADDR_RANGE,IKE_ID_IPV4_ADDR_RANGE,      "IPV4_ADDR_RANGE" },
+  { IKE_ID_IPV6_ADDR_RANGE,IKE_ID_IPV6_ADDR_RANGE,      "IPV6_ADDR_RANGE" },
+  { IKE_ID_DER_ASN1_DN,IKE_ID_DER_ASN1_DN,              "DER_ASN1_DN" },
+  { IKE_ID_DER_ASN1_GN,IKE_ID_DER_ASN1_GN,              "DER_ASN1_GN" },
+  { IKE_ID_KEY_ID,IKE_ID_KEY_ID,                        "KEY_ID" },
+  { IKE_ID_LIST,IKE_ID_LIST,                            "KEY_LIST" },
+  { 13,248,                                             "Future use" },
+  { 249,255,                                            "Private Use" },
+  { 0,0,          NULL },
   };
 static const range_string vs_v2_id_type[] = {
-  { 0,0,						"RESERVED" },
-  { IKE_ID_IPV4_ADDR,IKE_ID_IPV4_ADDR,			"IPV4_ADDR" },
-  { IKE_ID_FQDN,IKE_ID_FQDN,				"FQDN" },
-  { IKE_ID_RFC822_ADDR,IKE_ID_RFC822_ADDR,		"ID_RFC822_ADDR" },
-  { 4,4,						"Unassigned" },
-  { IKE_ID_IPV6_ADDR,IKE_ID_IPV6_ADDR,			"IPV6_ADDR" },
-  { 6,8,						"Unassigned" },
-  { IKE_ID_DER_ASN1_DN,IKE_ID_DER_ASN1_DN,		"DER_ASN1_DN" },
-  { IKE_ID_DER_ASN1_GN,IKE_ID_DER_ASN1_GN,		"DER_ASN1_GN" },
-  { IKE_ID_KEY_ID,IKE_ID_KEY_ID,			"KEY_ID" },
-  { IKE_ID_FC_NAME,IKE_ID_FC_NAME,			"KEY_LIST" },
-  { 13,200,						"Future use" },
-  { 201,255,						"Private Use" },
-  { 0,0,   	  NULL },
+  { 0,0,                                                "RESERVED" },
+  { IKE_ID_IPV4_ADDR,IKE_ID_IPV4_ADDR,                  "IPV4_ADDR" },
+  { IKE_ID_FQDN,IKE_ID_FQDN,                            "FQDN" },
+  { IKE_ID_RFC822_ADDR,IKE_ID_RFC822_ADDR,              "ID_RFC822_ADDR" },
+  { 4,4,                                                "Unassigned" },
+  { IKE_ID_IPV6_ADDR,IKE_ID_IPV6_ADDR,                  "IPV6_ADDR" },
+  { 6,8,                                                "Unassigned" },
+  { IKE_ID_DER_ASN1_DN,IKE_ID_DER_ASN1_DN,              "DER_ASN1_DN" },
+  { IKE_ID_DER_ASN1_GN,IKE_ID_DER_ASN1_GN,              "DER_ASN1_GN" },
+  { IKE_ID_KEY_ID,IKE_ID_KEY_ID,                        "KEY_ID" },
+  { IKE_ID_FC_NAME,IKE_ID_FC_NAME,                      "KEY_LIST" },
+  { 13,200,                                             "Future use" },
+  { 201,255,                                            "Private Use" },
+  { 0,0,          NULL },
   };
 #define COOKIE_SIZE 8
 
 typedef struct isakmp_hdr {
-  guint8	next_payload;
-  guint8	version;
-  guint8	exch_type;
-  guint8	flags;
-#define E_FLAG		0x01
-#define C_FLAG		0x02
-#define A_FLAG		0x04
-#define I_FLAG		0x08
-#define V_FLAG		0x10
-#define R_FLAG		0x20
-  guint32	message_id;
-  guint32	length;
+  guint8        next_payload;
+  guint8        version;
+  guint8        exch_type;
+  guint8        flags;
+#define E_FLAG          0x01
+#define C_FLAG          0x02
+#define A_FLAG          0x04
+#define I_FLAG          0x08
+#define V_FLAG          0x10
+#define R_FLAG          0x20
+  guint32       message_id;
+  guint32       length;
 } isakmp_hdr_t;
 
 static const true_false_string criticalpayload = {
@@ -1511,19 +1511,19 @@ static const true_false_string flag_r = {
 
 /* ROHC Attribute Type RFC5857 */
 
-#define ROHC_MAX_CID		1
-#define ROHC_PROFILE		2
-#define ROHC_INTEG		3
-#define ROHC_ICV_LEN		4
-#define ROHC_MRRU		5
+#define ROHC_MAX_CID            1
+#define ROHC_PROFILE            2
+#define ROHC_INTEG              3
+#define ROHC_ICV_LEN            4
+#define ROHC_MRRU               5
 
 static const value_string rohc_attr_type[] = {
-  { ROHC_MAX_CID,	"Maximum Context Identifier (MAX_CID)" },
-  { ROHC_PROFILE,	"ROHC Profile (ROHC_PROFILE)" },
-  { ROHC_INTEG,		"ROHC Integrity Algorithm (ROHC_INTEG)" },
-  { ROHC_ICV_LEN,	"ROHC ICV Length in bytes (ROHC_ICV_LEN)" },
-  { ROHC_MRRU,		"Maximum Reconstructed Reception Unit (MRRU)" },
-  { 0,	NULL },
+  { ROHC_MAX_CID,       "Maximum Context Identifier (MAX_CID)" },
+  { ROHC_PROFILE,       "ROHC Profile (ROHC_PROFILE)" },
+  { ROHC_INTEG,         "ROHC Integrity Algorithm (ROHC_INTEG)" },
+  { ROHC_ICV_LEN,       "ROHC ICV Length in bytes (ROHC_ICV_LEN)" },
+  { ROHC_MRRU,          "Maximum Reconstructed Reception Unit (MRRU)" },
+  { 0,  NULL },
 };
 
 #define ISAKMP_HDR_SIZE ((int)sizeof(struct isakmp_hdr) + (2 * COOKIE_SIZE))
@@ -1550,7 +1550,7 @@ typedef struct iv_data {
 
 typedef struct decrypt_data {
   gboolean       is_psk;
-  address	 initiator;
+  address        initiator;
   guint          encr_alg;
   guint          hash_alg;
   guint          group;
@@ -1739,12 +1739,12 @@ static ikev2_auth_alg_spec_t* ikev2_decrypt_find_auth_spec(guint num) {
 
 static tvbuff_t *
 decrypt_payload(tvbuff_t *tvb, packet_info *pinfo, const guint8 *buf, guint buf_len, isakmp_hdr_t *hdr, decrypt_data_t *decr) {
-  guint8 *decrypted_data = NULL;
+  guint8 *decrypted_data;
   gint gcry_md_algo, gcry_cipher_algo;
   gcry_md_hd_t md_ctx;
   gcry_cipher_hd_t decr_ctx;
   tvbuff_t *encr_tvb;
-  iv_data_t *ivd = NULL;
+  iv_data_t *ivd;
   GList *ivl;
   guchar iv[MAX_DIGEST_SIZE];
   guint iv_len = 0;
@@ -1848,13 +1848,13 @@ decrypt_payload(tvbuff_t *tvb, packet_info *pinfo, const guint8 *buf, guint buf_
       ivd = (iv_data_t *)g_malloc(sizeof(iv_data_t));
       ivd->frame_num = pinfo->fd->num;
       if (hdr->message_id != decr->last_message_id) {
-	if (decr->last_p1_cbc_len == 0) {
-	  memcpy(decr->last_p1_cbc, decr->last_cbc, cbc_block_size);
-	  decr->last_p1_cbc_len = cbc_block_size;
+        if (decr->last_p1_cbc_len == 0) {
+          memcpy(decr->last_p1_cbc, decr->last_cbc, cbc_block_size);
+          decr->last_p1_cbc_len = cbc_block_size;
         }
         ivd->iv_len = digest_size;
-	decr->last_message_id = hdr->message_id;
-	message_id = g_htonl(decr->last_message_id);
+        decr->last_message_id = hdr->message_id;
+        message_id = g_htonl(decr->last_message_id);
         gcry_md_reset(md_ctx);
         gcry_md_write(md_ctx, decr->last_p1_cbc, cbc_block_size);
         gcry_md_write(md_ctx, &message_id, sizeof(message_id));
@@ -1935,511 +1935,511 @@ static void dissect_gspm(tvbuff_t *, int, int, proto_tree *);
 static void dissect_cisco_fragmentation(tvbuff_t *, int, int, proto_tree *, packet_info *);
 
 static const guint8 VID_SSH_IPSEC_EXPRESS_1_1_0[] = { /* Ssh Communications Security IPSEC Express version 1.1.0 */
-	0xfB, 0xF4, 0x76, 0x14, 0x98, 0x40, 0x31, 0xFA,
-	0x8E, 0x3B, 0xB6, 0x19, 0x80, 0x89, 0xB2, 0x23
+        0xfB, 0xF4, 0x76, 0x14, 0x98, 0x40, 0x31, 0xFA,
+        0x8E, 0x3B, 0xB6, 0x19, 0x80, 0x89, 0xB2, 0x23
 };
 
 static const guint8 VID_SSH_IPSEC_EXPRESS_1_1_1[] = { /* Ssh Communications Security IPSEC Express version 1.1.1 */
-	0x19, 0x52, 0xDC, 0x91, 0xAC, 0x20, 0xF6, 0x46,
-	0xFB, 0x01, 0xCF, 0x42, 0xA3, 0x3A, 0xEE, 0x30
+        0x19, 0x52, 0xDC, 0x91, 0xAC, 0x20, 0xF6, 0x46,
+        0xFB, 0x01, 0xCF, 0x42, 0xA3, 0x3A, 0xEE, 0x30
 };
 
 static const guint8 VID_SSH_IPSEC_EXPRESS_1_1_2[] = { /* Ssh Communications Security IPSEC Express version 1.1.2 */
-	0xE8, 0xBF, 0xFA, 0x64, 0x3E, 0x5C, 0x8F, 0x2C,
-	0xD1, 0x0F, 0xDA, 0x73, 0x70, 0xB6, 0xEB, 0xE5
+        0xE8, 0xBF, 0xFA, 0x64, 0x3E, 0x5C, 0x8F, 0x2C,
+        0xD1, 0x0F, 0xDA, 0x73, 0x70, 0xB6, 0xEB, 0xE5
 };
 
 static const guint8 VID_SSH_IPSEC_EXPRESS_1_2_1[] = { /* Ssh Communications Security IPSEC Express version 1.2.1 */
-	0xC1, 0x11, 0x1B, 0x2D, 0xEE, 0x8C, 0xBC, 0x3D,
-	0x62, 0x05, 0x73, 0xEC, 0x57, 0xAA, 0xB9, 0xCB
+        0xC1, 0x11, 0x1B, 0x2D, 0xEE, 0x8C, 0xBC, 0x3D,
+        0x62, 0x05, 0x73, 0xEC, 0x57, 0xAA, 0xB9, 0xCB
 };
 
 static const guint8 VID_SSH_IPSEC_EXPRESS_1_2_2[] = { /* Ssh Communications Security IPSEC Express version 1.2.2 */
-	0x09, 0xEC, 0x27, 0xBF, 0xBC, 0x09, 0xC7, 0x58,
-	0x23, 0xCF, 0xEC, 0xBF, 0xFE, 0x56, 0x5A, 0x2E
+        0x09, 0xEC, 0x27, 0xBF, 0xBC, 0x09, 0xC7, 0x58,
+        0x23, 0xCF, 0xEC, 0xBF, 0xFE, 0x56, 0x5A, 0x2E
 };
 
 static const guint8 VID_SSH_IPSEC_EXPRESS_2_0_0[] = { /* SSH Communications Security IPSEC Express version 2.0.0 */
-	0x7F, 0x21, 0xA5, 0x96, 0xE4, 0xE3, 0x18, 0xF0,
-	0xB2, 0xF4, 0x94, 0x4C, 0x23, 0x84, 0xCB, 0x84
+        0x7F, 0x21, 0xA5, 0x96, 0xE4, 0xE3, 0x18, 0xF0,
+        0xB2, 0xF4, 0x94, 0x4C, 0x23, 0x84, 0xCB, 0x84
 };
 
 static const guint8 VID_SSH_IPSEC_EXPRESS_2_1_0[] = { /* SSH Communications Security IPSEC Express version 2.1.0 */
-	0x28, 0x36, 0xD1, 0xFD, 0x28, 0x07, 0xBC, 0x9E,
-	0x5A, 0xE3, 0x07, 0x86, 0x32, 0x04, 0x51, 0xEC
+        0x28, 0x36, 0xD1, 0xFD, 0x28, 0x07, 0xBC, 0x9E,
+        0x5A, 0xE3, 0x07, 0x86, 0x32, 0x04, 0x51, 0xEC
 };
 
 static const guint8 VID_SSH_IPSEC_EXPRESS_2_1_1[] = { /* SSH Communications Security IPSEC Express version 2.1.1 */
-	0xA6, 0x8D, 0xE7, 0x56, 0xA9, 0xC5, 0x22, 0x9B,
-	0xAE, 0x66, 0x49, 0x80, 0x40, 0x95, 0x1A, 0xD5
+        0xA6, 0x8D, 0xE7, 0x56, 0xA9, 0xC5, 0x22, 0x9B,
+        0xAE, 0x66, 0x49, 0x80, 0x40, 0x95, 0x1A, 0xD5
 };
 
 static const guint8 VID_SSH_IPSEC_EXPRESS_2_1_2[] = { /* SSH Communications Security IPSEC Express version 2.1.2 */
-	0x3F, 0x23, 0x72, 0x86, 0x7E, 0x23, 0x7C, 0x1C,
-	0xD8, 0x25, 0x0A, 0x75, 0x55, 0x9C, 0xAE, 0x20
+        0x3F, 0x23, 0x72, 0x86, 0x7E, 0x23, 0x7C, 0x1C,
+        0xD8, 0x25, 0x0A, 0x75, 0x55, 0x9C, 0xAE, 0x20
 };
 
 static const guint8 VID_SSH_IPSEC_EXPRESS_3_0_0[] = { /* SSH Communications Security IPSEC Express version 3.0.0 */
-	0x0E, 0x58, 0xD5, 0x77, 0x4D, 0xF6, 0x02, 0x00,
-	0x7D, 0x0B, 0x02, 0x44, 0x36, 0x60, 0xF7, 0xEB
+        0x0E, 0x58, 0xD5, 0x77, 0x4D, 0xF6, 0x02, 0x00,
+        0x7D, 0x0B, 0x02, 0x44, 0x36, 0x60, 0xF7, 0xEB
 };
 
 static const guint8 VID_SSH_IPSEC_EXPRESS_3_0_1[] = { /* SSH Communications Security IPSEC Express version 3.0.1 */
-	0xF5, 0xCE, 0x31, 0xEB, 0xC2, 0x10, 0xF4, 0x43,
-	0x50, 0xCF, 0x71, 0x26, 0x5B, 0x57, 0x38, 0x0F
+        0xF5, 0xCE, 0x31, 0xEB, 0xC2, 0x10, 0xF4, 0x43,
+        0x50, 0xCF, 0x71, 0x26, 0x5B, 0x57, 0x38, 0x0F
 };
 
 static const guint8 VID_SSH_IPSEC_EXPRESS_4_0_0[] = { /* SSH Communications Security IPSEC Express version 4.0.0 */
-	0xF6, 0x42, 0x60, 0xAF, 0x2E, 0x27, 0x42, 0xDA,
-	0xDD, 0xD5, 0x69, 0x87, 0x06, 0x8A, 0x99, 0xA0
+        0xF6, 0x42, 0x60, 0xAF, 0x2E, 0x27, 0x42, 0xDA,
+        0xDD, 0xD5, 0x69, 0x87, 0x06, 0x8A, 0x99, 0xA0
 };
 
 static const guint8 VID_SSH_IPSEC_EXPRESS_4_0_1[] = { /* SSH Communications Security IPSEC Express version 4.0.1 */
-	0x7A, 0x54, 0xD3, 0xBD, 0xB3, 0xB1, 0xE6, 0xD9,
-	0x23, 0x89, 0x20, 0x64, 0xBE, 0x2D, 0x98, 0x1C
+        0x7A, 0x54, 0xD3, 0xBD, 0xB3, 0xB1, 0xE6, 0xD9,
+        0x23, 0x89, 0x20, 0x64, 0xBE, 0x2D, 0x98, 0x1C
 };
 
 static const guint8 VID_SSH_IPSEC_EXPRESS_4_1_0[] = { /* SSH Communications Security IPSEC Express version 4.1.0 */
-	0x9A, 0xA1, 0xF3, 0xB4, 0x34, 0x72, 0xA4, 0x5D,
-	0x5F, 0x50, 0x6A, 0xEB, 0x26, 0x0C, 0xF2, 0x14
+        0x9A, 0xA1, 0xF3, 0xB4, 0x34, 0x72, 0xA4, 0x5D,
+        0x5F, 0x50, 0x6A, 0xEB, 0x26, 0x0C, 0xF2, 0x14
 };
 
 static const guint8 VID_SSH_IPSEC_EXPRESS_4_1_1[] = { /* SSH Communications Security IPSEC Express version 4.1.1 */
-	0x89, 0xF7, 0xB7, 0x60, 0xD8, 0x6B, 0x01, 0x2A,
-	0xCF, 0x26, 0x33, 0x82, 0x39, 0x4D, 0x96, 0x2F
+        0x89, 0xF7, 0xB7, 0x60, 0xD8, 0x6B, 0x01, 0x2A,
+        0xCF, 0x26, 0x33, 0x82, 0x39, 0x4D, 0x96, 0x2F
 };
 
 static const guint8 VID_SSH_IPSEC_EXPRESS_4_2_0[] = { /* SSH Communications Security IPSEC Express version 4.2.0 */
-	0x68, 0x80, 0xC7, 0xD0, 0x26, 0x09, 0x91, 0x14,
-	0xE4, 0x86, 0xC5, 0x54, 0x30, 0xE7, 0xAB, 0xEE
+        0x68, 0x80, 0xC7, 0xD0, 0x26, 0x09, 0x91, 0x14,
+        0xE4, 0x86, 0xC5, 0x54, 0x30, 0xE7, 0xAB, 0xEE
 };
 
 static const guint8 VID_SSH_IPSEC_EXPRESS_5_0[] = { /* SSH Communications Security IPSEC Express version 5.0 */
-	0xB0, 0x37, 0xA2, 0x1A, 0xCE, 0xCC, 0xB5, 0x57,
-	0x0F, 0x60, 0x25, 0x46, 0xF9, 0x7B, 0xDE, 0x8C
+        0xB0, 0x37, 0xA2, 0x1A, 0xCE, 0xCC, 0xB5, 0x57,
+        0x0F, 0x60, 0x25, 0x46, 0xF9, 0x7B, 0xDE, 0x8C
 };
 
 static const guint8 VID_SSH_IPSEC_EXPRESS_5_0_0[] = { /* SSH Communications Security IPSEC Express version 5.0.0 */
-	0x2B, 0x2D, 0xAD, 0x97, 0xC4, 0xD1, 0x40, 0x93,
-	0x00, 0x53, 0x28, 0x7F, 0x99, 0x68, 0x50, 0xB0
+        0x2B, 0x2D, 0xAD, 0x97, 0xC4, 0xD1, 0x40, 0x93,
+        0x00, 0x53, 0x28, 0x7F, 0x99, 0x68, 0x50, 0xB0
 };
 
 static const guint8 VID_SSH_IPSEC_EXPRESS_5_1_0[] = { /* SSH Communications Security IPSEC Express version 5.1.0 */
-	0x45, 0xE1, 0x7F, 0x3A, 0xBE, 0x93, 0x94, 0x4C,
-	0xB2, 0x02, 0x91, 0x0C, 0x59, 0xEF, 0x80, 0x6B
+        0x45, 0xE1, 0x7F, 0x3A, 0xBE, 0x93, 0x94, 0x4C,
+        0xB2, 0x02, 0x91, 0x0C, 0x59, 0xEF, 0x80, 0x6B
 };
 
 static const guint8 VID_SSH_IPSEC_EXPRESS_5_1_1[] = { /* SSH Communications Security IPSEC Express version 5.1.1 */
-	0x59, 0x25, 0x85, 0x9F, 0x73, 0x77, 0xED, 0x78,
-	0x16, 0xD2, 0xFB, 0x81, 0xC0, 0x1F, 0xA5, 0x51
+        0x59, 0x25, 0x85, 0x9F, 0x73, 0x77, 0xED, 0x78,
+        0x16, 0xD2, 0xFB, 0x81, 0xC0, 0x1F, 0xA5, 0x51
 };
 
 static const guint8 VID_SSH_SENTINEL[] = { /* SSH Sentinel */
-	0x05, 0x41, 0x82, 0xA0, 0x7C, 0x7A, 0xE2, 0x06,
-	0xF9, 0xD2, 0xCF, 0x9D, 0x24, 0x32, 0xC4, 0x82
+        0x05, 0x41, 0x82, 0xA0, 0x7C, 0x7A, 0xE2, 0x06,
+        0xF9, 0xD2, 0xCF, 0x9D, 0x24, 0x32, 0xC4, 0x82
 };
 
 static const guint8 VID_SSH_SENTINEL_1_1[] = { /* SSH Sentinel 1.1 */
-	0xB9, 0x16, 0x23, 0xE6, 0x93, 0xCA, 0x18, 0xA5,
-	0x4C, 0x6A, 0x27, 0x78, 0x55, 0x23, 0x05, 0xE8
+        0xB9, 0x16, 0x23, 0xE6, 0x93, 0xCA, 0x18, 0xA5,
+        0x4C, 0x6A, 0x27, 0x78, 0x55, 0x23, 0x05, 0xE8
 };
 
 static const guint8 VID_SSH_SENTINEL_1_2[] = { /* SSH Sentinel 1.2 */
-	0x54, 0x30, 0x88, 0x8D, 0xE0, 0x1A, 0x31, 0xA6,
-	0xFA, 0x8F, 0x60, 0x22, 0x4E, 0x44, 0x99, 0x58
+        0x54, 0x30, 0x88, 0x8D, 0xE0, 0x1A, 0x31, 0xA6,
+        0xFA, 0x8F, 0x60, 0x22, 0x4E, 0x44, 0x99, 0x58
 };
 
 static const guint8 VID_SSH_SENTINEL_1_3[] = { /* SSH Sentinel 1.3 */
-	0x7E, 0xE5, 0xCB, 0x85, 0xF7, 0x1C, 0xE2, 0x59,
-	0xC9, 0x4A, 0x5C, 0x73, 0x1E, 0xE4, 0xE7, 0x52
+        0x7E, 0xE5, 0xCB, 0x85, 0xF7, 0x1C, 0xE2, 0x59,
+        0xC9, 0x4A, 0x5C, 0x73, 0x1E, 0xE4, 0xE7, 0x52
 };
 
 static const guint8 VID_SSH_SENTINEL_1_4[] = { /* SSH Sentinel 1.4 */
-	0x63, 0xD9, 0xA1, 0xA7, 0x00, 0x94, 0x91, 0xB5,
-	0xA0, 0xA6, 0xFD, 0xEB, 0x2A, 0x82, 0x84, 0xF0
+        0x63, 0xD9, 0xA1, 0xA7, 0x00, 0x94, 0x91, 0xB5,
+        0xA0, 0xA6, 0xFD, 0xEB, 0x2A, 0x82, 0x84, 0xF0
 };
 
 static const guint8 VID_SSH_SENTINEL_1_4_1[] = { /* SSH Sentinel 1.4.1 */
-	0xEB, 0x4B, 0x0D, 0x96, 0x27, 0x6B, 0x4E, 0x22,
-	0x0A, 0xD1, 0x62, 0x21, 0xA7, 0xB2, 0xA5, 0xE6
+        0xEB, 0x4B, 0x0D, 0x96, 0x27, 0x6B, 0x4E, 0x22,
+        0x0A, 0xD1, 0x62, 0x21, 0xA7, 0xB2, 0xA5, 0xE6
 };
 
 static const guint8 VID_SSH_QUICKSEC_0_9_0[] = { /* SSH Communications Security QuickSec 0.9.0 */
-	0x37, 0xEB, 0xA0, 0xC4, 0x13, 0x61, 0x84, 0xE7,
-	0xDA, 0xF8, 0x56, 0x2A, 0x77, 0x06, 0x0B, 0x4A
+        0x37, 0xEB, 0xA0, 0xC4, 0x13, 0x61, 0x84, 0xE7,
+        0xDA, 0xF8, 0x56, 0x2A, 0x77, 0x06, 0x0B, 0x4A
 };
 
 static const guint8 VID_SSH_QUICKSEC_1_1_0[] = { /* SSH Communications Security QuickSec 1.1.0 */
-	0x5D, 0x72, 0x92, 0x5E, 0x55, 0x94, 0x8A, 0x96,
-	0x61, 0xA7, 0xFC, 0x48, 0xFD, 0xEC, 0x7F, 0xF9
+        0x5D, 0x72, 0x92, 0x5E, 0x55, 0x94, 0x8A, 0x96,
+        0x61, 0xA7, 0xFC, 0x48, 0xFD, 0xEC, 0x7F, 0xF9
 };
 
 static const guint8 VID_SSH_QUICKSEC_1_1_1[] = { /* SSH Communications Security QuickSec 1.1.1 */
-	0x77, 0x7F, 0xBF, 0x4C, 0x5A, 0xF6, 0xD1, 0xCD,
-	0xD4, 0xB8, 0x95, 0xA0, 0x5B, 0xF8, 0x25, 0x94
+        0x77, 0x7F, 0xBF, 0x4C, 0x5A, 0xF6, 0xD1, 0xCD,
+        0xD4, 0xB8, 0x95, 0xA0, 0x5B, 0xF8, 0x25, 0x94
 };
 
 static const guint8 VID_SSH_QUICKSEC_1_1_2[] = { /* SSH Communications Security QuickSec 1.1.2 */
-	0x2C, 0xDF, 0x08, 0xE7, 0x12, 0xED, 0xE8, 0xA5,
-	0x97, 0x87, 0x61, 0x26, 0x7C, 0xD1, 0x9B, 0x91
+        0x2C, 0xDF, 0x08, 0xE7, 0x12, 0xED, 0xE8, 0xA5,
+        0x97, 0x87, 0x61, 0x26, 0x7C, 0xD1, 0x9B, 0x91
 };
 
 static const guint8 VID_SSH_QUICKSEC_1_1_3[] = { /* SSH Communications Security QuickSec 1.1.3 */
-	0x59, 0xE4, 0x54, 0xA8, 0xC2, 0xCF, 0x02, 0xA3,
-	0x49, 0x59, 0x12, 0x1F, 0x18, 0x90, 0xBC, 0x87
+        0x59, 0xE4, 0x54, 0xA8, 0xC2, 0xCF, 0x02, 0xA3,
+        0x49, 0x59, 0x12, 0x1F, 0x18, 0x90, 0xBC, 0x87
 };
 
 static const guint8 VID_draft_huttunen_ipsec_esp_in_udp_00[] = { /* draft-huttunen-ipsec-esp-in-udp-00.txt */
-	0x6A, 0x74, 0x34, 0xC1, 0x9D, 0x7E, 0x36, 0x34,
-	0x80, 0x90, 0xA0, 0x23, 0x34, 0xC9, 0xC8, 0x05
+        0x6A, 0x74, 0x34, 0xC1, 0x9D, 0x7E, 0x36, 0x34,
+        0x80, 0x90, 0xA0, 0x23, 0x34, 0xC9, 0xC8, 0x05
 };
 
 static const guint8 VID_draft_huttunen_ipsec_esp_in_udp_01[] = { /* draft-huttunen-ipsec-esp-in-udp-01.txt */
-	0x50, 0x76, 0x0F, 0x62, 0x4C, 0x63, 0xE5, 0xC5,
-	0x3E, 0xEA, 0x38, 0x6C, 0x68, 0x5C, 0xA0, 0x83
+        0x50, 0x76, 0x0F, 0x62, 0x4C, 0x63, 0xE5, 0xC5,
+        0x3E, 0xEA, 0x38, 0x6C, 0x68, 0x5C, 0xA0, 0x83
 };
 
 static const guint8 VID_draft_stenberg_ipsec_nat_traversal_01[] = { /* draft-stenberg-ipsec-nat-traversal-01 */
-	0x27, 0xBA, 0xB5, 0xDC, 0x01, 0xEA, 0x07, 0x60,
-	0xEA, 0x4E, 0x31, 0x90, 0xAC, 0x27, 0xC0, 0xD0
+        0x27, 0xBA, 0xB5, 0xDC, 0x01, 0xEA, 0x07, 0x60,
+        0xEA, 0x4E, 0x31, 0x90, 0xAC, 0x27, 0xC0, 0xD0
 };
 
 static const guint8 VID_draft_stenberg_ipsec_nat_traversal_02[]= { /* draft-stenberg-ipsec-nat-traversal-02 */
-	0x61, 0x05, 0xC4, 0x22, 0xE7, 0x68, 0x47, 0xE4,
-	0x3F, 0x96, 0x84, 0x80, 0x12, 0x92, 0xAE, 0xCD
+        0x61, 0x05, 0xC4, 0x22, 0xE7, 0x68, 0x47, 0xE4,
+        0x3F, 0x96, 0x84, 0x80, 0x12, 0x92, 0xAE, 0xCD
 };
 
 static const guint8 VID_draft_ietf_ipsec_nat_t_ike[]= { /* draft-ietf-ipsec-nat-t-ike */
-	0x4D, 0xF3, 0x79, 0x28, 0xE9, 0xFC, 0x4F, 0xD1,
-	0xB3, 0x26, 0x21, 0x70, 0xD5, 0x15, 0xC6, 0x62
+        0x4D, 0xF3, 0x79, 0x28, 0xE9, 0xFC, 0x4F, 0xD1,
+        0xB3, 0x26, 0x21, 0x70, 0xD5, 0x15, 0xC6, 0x62
 };
 
 static const guint8 VID_draft_ietf_ipsec_nat_t_ike_00[]= { /* draft-ietf-ipsec-nat-t-ike-00 */
-	0x44, 0x85, 0x15, 0x2D, 0x18, 0xB6, 0xBB, 0xCD,
-	0x0B, 0xE8, 0xA8, 0x46, 0x95, 0x79, 0xDD, 0xCC
+        0x44, 0x85, 0x15, 0x2D, 0x18, 0xB6, 0xBB, 0xCD,
+        0x0B, 0xE8, 0xA8, 0x46, 0x95, 0x79, 0xDD, 0xCC
 };
 
 static const guint8 VID_draft_ietf_ipsec_nat_t_ike_01[]= { /* "draft-ietf-ipsec-nat-t-ike-01" */
-	0x16, 0xF6, 0xCA, 0x16, 0xE4, 0xA4, 0x06, 0x6D,
-	0x83, 0x82, 0x1A, 0x0F, 0x0A, 0xEA, 0xA8, 0x62
+        0x16, 0xF6, 0xCA, 0x16, 0xE4, 0xA4, 0x06, 0x6D,
+        0x83, 0x82, 0x1A, 0x0F, 0x0A, 0xEA, 0xA8, 0x62
 };
 
 static const guint8 VID_draft_ietf_ipsec_nat_t_ike_02[]= { /* draft-ietf-ipsec-nat-t-ike-02 */
-	0xCD, 0x60, 0x46, 0x43, 0x35, 0xDF, 0x21, 0xF8,
-	0x7C, 0xFD, 0xB2, 0xFC, 0x68, 0xB6, 0xA4, 0x48
+        0xCD, 0x60, 0x46, 0x43, 0x35, 0xDF, 0x21, 0xF8,
+        0x7C, 0xFD, 0xB2, 0xFC, 0x68, 0xB6, 0xA4, 0x48
 };
 
 static const guint8 VID_draft_ietf_ipsec_nat_t_ike_02n[]= { /* draft-ietf-ipsec-nat-t-ike-02\n */
-	0x90, 0xCB, 0x80, 0x91, 0x3E, 0xBB, 0x69, 0x6E,
-	0x08, 0x63, 0x81, 0xB5, 0xEC, 0x42, 0x7B, 0x1F
+        0x90, 0xCB, 0x80, 0x91, 0x3E, 0xBB, 0x69, 0x6E,
+        0x08, 0x63, 0x81, 0xB5, 0xEC, 0x42, 0x7B, 0x1F
 };
 
 static const guint8 VID_draft_ietf_ipsec_nat_t_ike_03[] = { /* draft-ietf-ipsec-nat-t-ike-03 */
-	0x7D, 0x94, 0x19, 0xA6, 0x53, 0x10, 0xCA, 0x6F,
-	0x2C, 0x17, 0x9D, 0x92, 0x15, 0x52, 0x9d, 0x56
+        0x7D, 0x94, 0x19, 0xA6, 0x53, 0x10, 0xCA, 0x6F,
+        0x2C, 0x17, 0x9D, 0x92, 0x15, 0x52, 0x9d, 0x56
 };
 
 static const guint8 VID_draft_ietf_ipsec_nat_t_ike_04[] = { /* draft-ietf-ipsec-nat-t-ike-04 */
-	0x99, 0x09, 0xb6, 0x4e, 0xed, 0x93, 0x7c, 0x65,
-	0x73, 0xde, 0x52, 0xac, 0xe9, 0x52, 0xfa, 0x6b
+        0x99, 0x09, 0xb6, 0x4e, 0xed, 0x93, 0x7c, 0x65,
+        0x73, 0xde, 0x52, 0xac, 0xe9, 0x52, 0xfa, 0x6b
 };
 static const guint8 VID_draft_ietf_ipsec_nat_t_ike_05[] = { /* draft-ietf-ipsec-nat-t-ike-05 */
-	0x80, 0xd0, 0xbb, 0x3d, 0xef, 0x54, 0x56, 0x5e,
-	0xe8, 0x46, 0x45, 0xd4, 0xc8, 0x5c, 0xe3, 0xee
+        0x80, 0xd0, 0xbb, 0x3d, 0xef, 0x54, 0x56, 0x5e,
+        0xe8, 0x46, 0x45, 0xd4, 0xc8, 0x5c, 0xe3, 0xee
 };
 static const guint8 VID_draft_ietf_ipsec_nat_t_ike_06[] = { /* draft-ietf-ipsec-nat-t-ike-06 */
-	0x4d, 0x1e, 0x0e, 0x13, 0x6d, 0xea, 0xfa, 0x34,
-	0xc4, 0xf3, 0xea, 0x9f, 0x02, 0xec, 0x72, 0x85
+        0x4d, 0x1e, 0x0e, 0x13, 0x6d, 0xea, 0xfa, 0x34,
+        0xc4, 0xf3, 0xea, 0x9f, 0x02, 0xec, 0x72, 0x85
 };
 static const guint8 VID_draft_ietf_ipsec_nat_t_ike_07[] = { /* draft-ietf-ipsec-nat-t-ike-07 */
-	0x43, 0x9b, 0x59, 0xf8, 0xba, 0x67, 0x6c, 0x4c,
-	0x77, 0x37, 0xae, 0x22, 0xea, 0xb8, 0xf5, 0x82
+        0x43, 0x9b, 0x59, 0xf8, 0xba, 0x67, 0x6c, 0x4c,
+        0x77, 0x37, 0xae, 0x22, 0xea, 0xb8, 0xf5, 0x82
 };
 static const guint8 VID_draft_ietf_ipsec_nat_t_ike_08[] = { /* draft-ietf-ipsec-nat-t-ike-08 */
-	0x8f, 0x8d, 0x83, 0x82, 0x6d, 0x24, 0x6b, 0x6f,
-	0xc7, 0xa8, 0xa6, 0xa4, 0x28, 0xc1, 0x1d, 0xe8
+        0x8f, 0x8d, 0x83, 0x82, 0x6d, 0x24, 0x6b, 0x6f,
+        0xc7, 0xa8, 0xa6, 0xa4, 0x28, 0xc1, 0x1d, 0xe8
 };
 static const guint8 VID_draft_ietf_ipsec_nat_t_ike_09[] = { /* draft-ietf-ipsec-nat-t-ike-09 */
-	0x42, 0xea, 0x5b, 0x6f, 0x89, 0x8d, 0x97, 0x73,
-	0xa5, 0x75, 0xdf, 0x26, 0xe7, 0xdd, 0x19, 0xe1
+        0x42, 0xea, 0x5b, 0x6f, 0x89, 0x8d, 0x97, 0x73,
+        0xa5, 0x75, 0xdf, 0x26, 0xe7, 0xdd, 0x19, 0xe1
 };
 static const guint8 VID_testing_nat_t_rfc[] = { /* Testing NAT-T RFC */
-	0xc4, 0x0f, 0xee, 0x00, 0xd5, 0xd3, 0x9d, 0xdb,
-	0x1f, 0xc7, 0x62, 0xe0, 0x9b, 0x7c, 0xfe, 0xa7
+        0xc4, 0x0f, 0xee, 0x00, 0xd5, 0xd3, 0x9d, 0xdb,
+        0x1f, 0xc7, 0x62, 0xe0, 0x9b, 0x7c, 0xfe, 0xa7
 };
 
 static const guint8 VID_rfc3947_nat_t[] = { /* RFC 3947 Negotiation of NAT-Traversal in the IKE */
-	0x4a, 0x13, 0x1c, 0x81, 0x07, 0x03, 0x58, 0x45,
-	0x5c, 0x57, 0x28, 0xf2, 0x0e, 0x95, 0x45, 0x2f
+        0x4a, 0x13, 0x1c, 0x81, 0x07, 0x03, 0x58, 0x45,
+        0x5c, 0x57, 0x28, 0xf2, 0x0e, 0x95, 0x45, 0x2f
 };
 static const guint8 VID_draft_beaulieu_ike_xauth_02[]= { /* draft-beaulieu-ike-xauth-02.txt 02 or 06 ??*/
-	0x09, 0x00, 0x26, 0x89, 0xDF, 0xD6, 0xB7, 0x12,
-	0x80, 0xA2, 0x24, 0xDE, 0xC3, 0x3B, 0x81, 0xE5
+        0x09, 0x00, 0x26, 0x89, 0xDF, 0xD6, 0xB7, 0x12,
+        0x80, 0xA2, 0x24, 0xDE, 0xC3, 0x3B, 0x81, 0xE5
 };
 
 static const guint8 VID_xauth[]= { /* XAUTH (truncated MD5 hash of "draft-ietf-ipsra-isakmp-xauth-06.txt") */
-	0x09, 0x00, 0x26, 0x89, 0xDF, 0xD6, 0xB7, 0x12
+        0x09, 0x00, 0x26, 0x89, 0xDF, 0xD6, 0xB7, 0x12
 };
 
 static const guint8 VID_rfc3706_dpd[]= { /* RFC 3706 */
-	0xAF, 0xCA, 0xD7, 0x13, 0x68, 0xA1, 0xF1, 0xC9,
-	0x6B, 0x86, 0x96, 0xFC, 0x77, 0x57, 0x01, 0x00
+        0xAF, 0xCA, 0xD7, 0x13, 0x68, 0xA1, 0xF1, 0xC9,
+        0x6B, 0x86, 0x96, 0xFC, 0x77, 0x57, 0x01, 0x00
 };
 static const guint8 VID_draft_ietf_ipsec_antireplay_00[]= { /* draft-ietf-ipsec-antireplay-00.txt */
-	0x32, 0x5D, 0xF2, 0x9A, 0x23, 0x19, 0xF2, 0xDD
+        0x32, 0x5D, 0xF2, 0x9A, 0x23, 0x19, 0xF2, 0xDD
 };
 
 static const guint8 VID_draft_ietf_ipsec_heartbeats_00[]= { /* draft-ietf-ipsec-heartbeats-00.txt */
-	0x8D, 0xB7, 0xA4, 0x18, 0x11, 0x22, 0x16, 0x60
+        0x8D, 0xB7, 0xA4, 0x18, 0x11, 0x22, 0x16, 0x60
 };
 static const guint8 VID_IKE_CHALLENGE_RESPONSE_1[]= { /* IKE Challenge/Response for Authenticated Cryptographic Keys */
-	0xBA, 0x29, 0x04, 0x99, 0xC2, 0x4E, 0x84, 0xE5,
-	0x3A, 0x1D, 0x83, 0xA0, 0x5E, 0x5F, 0x00, 0xC9
+        0xBA, 0x29, 0x04, 0x99, 0xC2, 0x4E, 0x84, 0xE5,
+        0x3A, 0x1D, 0x83, 0xA0, 0x5E, 0x5F, 0x00, 0xC9
 };
 
 static const guint8 VID_IKE_CHALLENGE_RESPONSE_2[]= { /* IKE Challenge/Response for Authenticated Cryptographic Keys */
-	0x0D, 0x33, 0x61, 0x1A, 0x5D, 0x52, 0x1B, 0x5E,
-	0x3C, 0x9C, 0x03, 0xD2, 0xFC, 0x10, 0x7E, 0x12
+        0x0D, 0x33, 0x61, 0x1A, 0x5D, 0x52, 0x1B, 0x5E,
+        0x3C, 0x9C, 0x03, 0xD2, 0xFC, 0x10, 0x7E, 0x12
 };
 
 static const guint8 VID_IKE_CHALLENGE_RESPONSE_REV_1[]= { /* IKE Challenge/Response for Authenticated Cryptographic Keys (Revised) */
 
-	0xAD, 0x32, 0x51, 0x04, 0x2C, 0xDC, 0x46, 0x52,
-	0xC9, 0xE0, 0x73, 0x4C, 0xE5, 0xDE, 0x4C, 0x7D
+        0xAD, 0x32, 0x51, 0x04, 0x2C, 0xDC, 0x46, 0x52,
+        0xC9, 0xE0, 0x73, 0x4C, 0xE5, 0xDE, 0x4C, 0x7D
 };
 
 static const guint8 VID_IKE_CHALLENGE_RESPONSE_REV_2[]= { /* IKE Challenge/Response for Authenticated Cryptographic Keys (Revised) */
-	0x01, 0x3F, 0x11, 0x82, 0x3F, 0x96, 0x6F, 0xA9,
-	0x19, 0x00, 0xF0, 0x24, 0xBA, 0x66, 0xA8, 0x6B
+        0x01, 0x3F, 0x11, 0x82, 0x3F, 0x96, 0x6F, 0xA9,
+        0x19, 0x00, 0xF0, 0x24, 0xBA, 0x66, 0xA8, 0x6B
 };
 
 static const guint8 VID_MS_L2TP_IPSEC_VPN_CLIENT[]= { /* Microsoft L2TP/IPSec VPN Client */
-	0x40, 0x48, 0xB7, 0xD5, 0x6E, 0xBC, 0xE8, 0x85,
-	0x25, 0xE7, 0xDE, 0x7F, 0x00, 0xD6, 0xC2, 0xD3
+        0x40, 0x48, 0xB7, 0xD5, 0x6E, 0xBC, 0xE8, 0x85,
+        0x25, 0xE7, 0xDE, 0x7F, 0x00, 0xD6, 0xC2, 0xD3
 };
 
 static const guint8 VID_MS_VID_INITIAL_CONTACT[]= { /* Microsoft Vid-Initial-Contact */
-	0x26, 0x24, 0x4d, 0x38, 0xed, 0xdb, 0x61, 0xb3,
-	0x17, 0x2a, 0x36, 0xe3, 0xd0, 0xcf, 0xb8, 0x19
+        0x26, 0x24, 0x4d, 0x38, 0xed, 0xdb, 0x61, 0xb3,
+        0x17, 0x2a, 0x36, 0xe3, 0xd0, 0xcf, 0xb8, 0x19
 };
 
 static const guint8 VID_GSS_API_1[]= { /* A GSS-API Authentication Method for IKE */
-	0xB4, 0x6D, 0x89, 0x14, 0xF3, 0xAA, 0xA3, 0xF2,
-	0xFE, 0xDE, 0xB7, 0xC7, 0xDB, 0x29, 0x43, 0xCA
+        0xB4, 0x6D, 0x89, 0x14, 0xF3, 0xAA, 0xA3, 0xF2,
+        0xFE, 0xDE, 0xB7, 0xC7, 0xDB, 0x29, 0x43, 0xCA
 };
 
 static const guint8 VID_GSS_API_2[]= { /* A GSS-API Authentication Method for IKE */
-	0xAD, 0x2C, 0x0D, 0xD0, 0xB9, 0xC3, 0x20, 0x83,
-	0xCC, 0xBA, 0x25, 0xB8, 0x86, 0x1E, 0xC4, 0x55
+        0xAD, 0x2C, 0x0D, 0xD0, 0xB9, 0xC3, 0x20, 0x83,
+        0xCC, 0xBA, 0x25, 0xB8, 0x86, 0x1E, 0xC4, 0x55
 };
 
 static const guint8 VID_GSSAPI[]= { /* GSSAPI */
-	0x62, 0x1B, 0x04, 0xBB, 0x09, 0x88, 0x2A, 0xC1,
-	0xE1, 0x59, 0x35, 0xFE, 0xFA, 0x24, 0xAE, 0xEE
+        0x62, 0x1B, 0x04, 0xBB, 0x09, 0x88, 0x2A, 0xC1,
+        0xE1, 0x59, 0x35, 0xFE, 0xFA, 0x24, 0xAE, 0xEE
 };
 
 static const guint8 VID_MS_NT5_ISAKMPOAKLEY[]= { /* MS NT5 ISAKMPOAKLEY */
-	0x1E, 0x2B, 0x51, 0x69, 0x05, 0x99, 0x1C, 0x7D,
-	0x7C, 0x96, 0xFC, 0xBF, 0xB5, 0x87, 0xE4, 0x61
+        0x1E, 0x2B, 0x51, 0x69, 0x05, 0x99, 0x1C, 0x7D,
+        0x7C, 0x96, 0xFC, 0xBF, 0xB5, 0x87, 0xE4, 0x61
 };
 
 static const guint8 VID_CISCO_UNITY[]= { /* CISCO-UNITY */
-	0x12, 0xF5, 0xF2, 0x8C, 0x45, 0x71, 0x68, 0xA9,
-	0x70, 0x2D, 0x9F, 0xE2, 0x74, 0xCC
+        0x12, 0xF5, 0xF2, 0x8C, 0x45, 0x71, 0x68, 0xA9,
+        0x70, 0x2D, 0x9F, 0xE2, 0x74, 0xCC
 };
 
 
 static const guint8 VID_CISCO_CONCENTRATOR[]= { /* CISCO-CONCENTRATOR */
-	0x1F, 0x07, 0xF7, 0x0E, 0xAA, 0x65, 0x14, 0xD3,
-	0xB0, 0xFA, 0x96, 0x54, 0x2A, 0x50, 0x01, 0x00
+        0x1F, 0x07, 0xF7, 0x0E, 0xAA, 0x65, 0x14, 0xD3,
+        0xB0, 0xFA, 0x96, 0x54, 0x2A, 0x50, 0x01, 0x00
 };
 static const guint8 VID_CISCO_FRAG[] = { /* Cisco Fragmentation */
-	0x40, 0x48, 0xB7, 0xD5, 0x6E, 0xBC, 0xE8, 0x85,
-	0x25, 0xE7, 0xDE, 0x7F, 0x00, 0xD6, 0xC2, 0xD3,
-	0x80, 0x00, 0x00, 0x00
+        0x40, 0x48, 0xB7, 0xD5, 0x6E, 0xBC, 0xE8, 0x85,
+        0x25, 0xE7, 0xDE, 0x7F, 0x00, 0xD6, 0xC2, 0xD3,
+        0x80, 0x00, 0x00, 0x00
 };
 
 static const guint8 VID_CP_01_R65[] = { /* CryptoPro/GOST 0.1 / Check Point R65 */
-	0xF4, 0xED, 0x19, 0xE0, 0xC1, 0x14, 0xEB, 0x51,
-	0x6F, 0xAA, 0xAC, 0x0E, 0xE3, 0x7D, 0xAF, 0x28,
-	0x7, 0xB4, 0x38, 0x1F
+        0xF4, 0xED, 0x19, 0xE0, 0xC1, 0x14, 0xEB, 0x51,
+        0x6F, 0xAA, 0xAC, 0x0E, 0xE3, 0x7D, 0xAF, 0x28,
+        0x7, 0xB4, 0x38, 0x1F
 };
 
 static const guint8 VID_CP_10_R71[] = { /* CryptoPro/GOST 1.0 / Check Point R71 */
         0x03, 0x10, 0x17, 0xE0, 0x7F, 0x7A, 0x82, 0xE3,
-	0xAA, 0x69, 0x50, 0xC9, 0x99, 0x99, 0x01, 0x00
+        0xAA, 0x69, 0x50, 0xC9, 0x99, 0x99, 0x01, 0x00
 };
 
 static const guint8 VID_CP_11[] = { /* CryptoPro/GOST 1.1 */
         0x03, 0x10, 0x17, 0xE0, 0x7F, 0x7A, 0x82, 0xE3,
-	0xAA, 0x69, 0x50, 0xC9, 0x99, 0x99, 0x01, 0x01
+        0xAA, 0x69, 0x50, 0xC9, 0x99, 0x99, 0x01, 0x01
 };
 
 static const guint8 VID_CYBERGUARD[] = { /* CyberGuard */
-	0x9A, 0xA1, 0xF3, 0xB4, 0x34, 0x72, 0xA4, 0x5D,
-	0x5F, 0x50, 0x6A, 0xEB, 0x26, 0xC0, 0xF2, 0x14
+        0x9A, 0xA1, 0xF3, 0xB4, 0x34, 0x72, 0xA4, 0x5D,
+        0x5F, 0x50, 0x6A, 0xEB, 0x26, 0xC0, 0xF2, 0x14
 };
 
 static const guint8 VID_SHREWSOFT[] = { /* Shrew Soft */
-	0xf1, 0x4b, 0x94, 0xb7, 0xbf, 0xf1, 0xfe, 0xf0,
-	0x27, 0x73, 0xb8, 0xc4, 0x9f, 0xed, 0xed, 0x26
+        0xf1, 0x4b, 0x94, 0xb7, 0xbf, 0xf1, 0xfe, 0xf0,
+        0x27, 0x73, 0xb8, 0xc4, 0x9f, 0xed, 0xed, 0x26
 };
 static const guint8 VID_STRONGSWAN[] = { /* strongSwan */
-	0x88, 0x2f, 0xe5, 0x6d, 0x6f, 0xd2, 0x0d, 0xbc,
-	0x22, 0x51, 0x61, 0x3b, 0x2e, 0xbe, 0x5b, 0xeb
+        0x88, 0x2f, 0xe5, 0x6d, 0x6f, 0xd2, 0x0d, 0xbc,
+        0x22, 0x51, 0x61, 0x3b, 0x2e, 0xbe, 0x5b, 0xeb
 };
 static const guint8 VID_KAME_RACOON[] = { /* KAME/racoon */
-	0x70, 0x03, 0xcb, 0xc1, 0x09, 0x7d, 0xbe, 0x9c,
-	0x26, 0x00, 0xba, 0x69, 0x83, 0xbc, 0x8b, 0x35
+        0x70, 0x03, 0xcb, 0xc1, 0x09, 0x7d, 0xbe, 0x9c,
+        0x26, 0x00, 0xba, 0x69, 0x83, 0xbc, 0x8b, 0x35
 };
 
 static const guint8 VID_IPSEC_TOOLS[] = { /* IPsec-Tools */
-	0x20, 0xa3, 0x62, 0x2c, 0x1c, 0xea, 0x7c, 0xe3,
-	0x7b, 0xee, 0x3c, 0xa4, 0x84, 0x42, 0x52, 0x76
+        0x20, 0xa3, 0x62, 0x2c, 0x1c, 0xea, 0x7c, 0xe3,
+        0x7b, 0xee, 0x3c, 0xa4, 0x84, 0x42, 0x52, 0x76
 };
 
 static const guint8 VID_NETSCREEN_1[] = { /* Netscreen-1 */
-	0x29, 0x9e, 0xe8, 0x28, 0x9f, 0x40, 0xa8, 0x97,
-	0x3b, 0xc7, 0x86, 0x87, 0xe2, 0xe7, 0x22, 0x6b,
-	0x53, 0x2c, 0x3b, 0x76
+        0x29, 0x9e, 0xe8, 0x28, 0x9f, 0x40, 0xa8, 0x97,
+        0x3b, 0xc7, 0x86, 0x87, 0xe2, 0xe7, 0x22, 0x6b,
+        0x53, 0x2c, 0x3b, 0x76
 };
 
 static const guint8 VID_NETSCREEN_2[] = { /* Netscreen-2 */
-	0x3a, 0x15, 0xe1, 0xf3, 0xcf, 0x2a, 0x63, 0x58,
-	0x2e, 0x3a, 0xc8, 0x2d, 0x1c, 0x64, 0xcb, 0xe3,
-	0xb6, 0xd7, 0x79, 0xe7
+        0x3a, 0x15, 0xe1, 0xf3, 0xcf, 0x2a, 0x63, 0x58,
+        0x2e, 0x3a, 0xc8, 0x2d, 0x1c, 0x64, 0xcb, 0xe3,
+        0xb6, 0xd7, 0x79, 0xe7
 };
 
 static const guint8 VID_NETSCREEN_3[] = { /* Netscreen-3 */
-	0x47, 0xd2, 0xb1, 0x26, 0xbf, 0xcd, 0x83, 0x48,
-	0x97, 0x60, 0xe2, 0xcf, 0x8c, 0x5d, 0x4d, 0x5a,
-	0x03, 0x49, 0x7c, 0x15
+        0x47, 0xd2, 0xb1, 0x26, 0xbf, 0xcd, 0x83, 0x48,
+        0x97, 0x60, 0xe2, 0xcf, 0x8c, 0x5d, 0x4d, 0x5a,
+        0x03, 0x49, 0x7c, 0x15
 };
 
 static const guint8 VID_NETSCREEN_4[] = { /* Netscreen-4 */
-	0x4a, 0x43, 0x40, 0xb5, 0x43, 0xe0, 0x2b, 0x84,
-	0xc8, 0x8a, 0x8b, 0x96, 0xa8, 0xaf, 0x9e, 0xbe,
-	0x77, 0xd9, 0xac, 0xcc
+        0x4a, 0x43, 0x40, 0xb5, 0x43, 0xe0, 0x2b, 0x84,
+        0xc8, 0x8a, 0x8b, 0x96, 0xa8, 0xaf, 0x9e, 0xbe,
+        0x77, 0xd9, 0xac, 0xcc
 };
 
 static const guint8 VID_NETSCREEN_5[] = { /* Netscreen-5 */
-	0x64, 0x40, 0x5f, 0x46, 0xf0, 0x3b, 0x76, 0x60,
-	0xa2, 0x3b, 0xe1, 0x16, 0xa1, 0x97, 0x50, 0x58,
-	0xe6, 0x9e, 0x83, 0x87
+        0x64, 0x40, 0x5f, 0x46, 0xf0, 0x3b, 0x76, 0x60,
+        0xa2, 0x3b, 0xe1, 0x16, 0xa1, 0x97, 0x50, 0x58,
+        0xe6, 0x9e, 0x83, 0x87
 };
 
 static const guint8 VID_NETSCREEN_6[] = { /* Netscreen-6 */
-	0x69, 0x93, 0x69, 0x22, 0x87, 0x41, 0xc6, 0xd4,
-	0xca, 0x09, 0x4c, 0x93, 0xe2, 0x42, 0xc9, 0xde,
-	0x19, 0xe7, 0xb7, 0xc6
+        0x69, 0x93, 0x69, 0x22, 0x87, 0x41, 0xc6, 0xd4,
+        0xca, 0x09, 0x4c, 0x93, 0xe2, 0x42, 0xc9, 0xde,
+        0x19, 0xe7, 0xb7, 0xc6
 };
 
 static const guint8 VID_NETSCREEN_7[] = { /* Netscreen-7 */
-	0x8c, 0x0d, 0xc6, 0xcf, 0x62, 0xa0, 0xef, 0x1b,
-	0x5c, 0x6e, 0xab, 0xd1, 0xb6, 0x7b, 0xa6, 0x98,
-	0x66, 0xad, 0xf1, 0x6a
+        0x8c, 0x0d, 0xc6, 0xcf, 0x62, 0xa0, 0xef, 0x1b,
+        0x5c, 0x6e, 0xab, 0xd1, 0xb6, 0x7b, 0xa6, 0x98,
+        0x66, 0xad, 0xf1, 0x6a
 };
 
 static const guint8 VID_NETSCREEN_8[] = { /* Netscreen-8 */
-	0x92, 0xd2, 0x7a, 0x9e, 0xcb, 0x31, 0xd9, 0x92,
-	0x46, 0x98, 0x6d, 0x34, 0x53, 0xd0, 0xc3, 0xd5,
-	0x7a, 0x22, 0x2a, 0x61
+        0x92, 0xd2, 0x7a, 0x9e, 0xcb, 0x31, 0xd9, 0x92,
+        0x46, 0x98, 0x6d, 0x34, 0x53, 0xd0, 0xc3, 0xd5,
+        0x7a, 0x22, 0x2a, 0x61
 };
 
 static const guint8 VID_NETSCREEN_9[] = { /* Netscreen-9 */
-	0x9b, 0x09, 0x6d, 0x9a, 0xc3, 0x27, 0x5a, 0x7d,
-	0x6f, 0xe8, 0xb9, 0x1c, 0x58, 0x31, 0x11, 0xb0,
-	0x9e, 0xfe, 0xd1, 0xa0
+        0x9b, 0x09, 0x6d, 0x9a, 0xc3, 0x27, 0x5a, 0x7d,
+        0x6f, 0xe8, 0xb9, 0x1c, 0x58, 0x31, 0x11, 0xb0,
+        0x9e, 0xfe, 0xd1, 0xa0
 };
 
 static const guint8 VID_NETSCREEN_10[] = { /* Netscreen-10 */
-	0xbf, 0x03, 0x74, 0x61, 0x08, 0xd7, 0x46, 0xc9,
-	0x04, 0xf1, 0xf3, 0x54, 0x7d, 0xe2, 0x4f, 0x78,
-	0x47, 0x9f, 0xed, 0x12
+        0xbf, 0x03, 0x74, 0x61, 0x08, 0xd7, 0x46, 0xc9,
+        0x04, 0xf1, 0xf3, 0x54, 0x7d, 0xe2, 0x4f, 0x78,
+        0x47, 0x9f, 0xed, 0x12
 };
 
 static const guint8 VID_NETSCREEN_11[] = { /* Netscreen-11 */
-	0xc2, 0xe8, 0x05, 0x00, 0xf4, 0xcc, 0x5f, 0xbf,
-	0x5d, 0xaa, 0xee, 0xd3, 0xbb, 0x59, 0xab, 0xae,
-	0xee, 0x56, 0xc6, 0x52
+        0xc2, 0xe8, 0x05, 0x00, 0xf4, 0xcc, 0x5f, 0xbf,
+        0x5d, 0xaa, 0xee, 0xd3, 0xbb, 0x59, 0xab, 0xae,
+        0xee, 0x56, 0xc6, 0x52
 };
 
 static const guint8 VID_NETSCREEN_12[] = { /* Netscreen-12 */
-	0xc8, 0x66, 0x0a, 0x62, 0xb0, 0x3b, 0x1b, 0x61,
-	0x30, 0xbf, 0x78, 0x16, 0x08, 0xd3, 0x2a, 0x6a,
-	0x8d, 0x0f, 0xb8, 0x9f
+        0xc8, 0x66, 0x0a, 0x62, 0xb0, 0x3b, 0x1b, 0x61,
+        0x30, 0xbf, 0x78, 0x16, 0x08, 0xd3, 0x2a, 0x6a,
+        0x8d, 0x0f, 0xb8, 0x9f
 };
 
 static const guint8 VID_NETSCREEN_13[] = { /* Netscreen-13 */
-	0xf8, 0x85, 0xda, 0x40, 0xb1, 0xe7, 0xa9, 0xab,
-	0xd1, 0x76, 0x55, 0xec, 0x5b, 0xbe, 0xc0, 0xf2,
-	0x1f, 0x0e, 0xd5, 0x2e
+        0xf8, 0x85, 0xda, 0x40, 0xb1, 0xe7, 0xa9, 0xab,
+        0xd1, 0x76, 0x55, 0xec, 0x5b, 0xbe, 0xc0, 0xf2,
+        0x1f, 0x0e, 0xd5, 0x2e
 };
 
 static const guint8 VID_NETSCREEN_14[] = { /* Netscreen-14 */
-	0x2a, 0x2b, 0xca, 0xc1, 0x9b, 0x8e, 0x91, 0xb4,
-	0x26, 0x10, 0x78, 0x07, 0xe0, 0x2e, 0x72, 0x49,
-	0x56, 0x9d, 0x6f, 0xd3
+        0x2a, 0x2b, 0xca, 0xc1, 0x9b, 0x8e, 0x91, 0xb4,
+        0x26, 0x10, 0x78, 0x07, 0xe0, 0x2e, 0x72, 0x49,
+        0x56, 0x9d, 0x6f, 0xd3
 };
 static const guint8 VID_NETSCREEN_15[] = { /* Netscreen-15 */
-	0x16, 0x6f, 0x93, 0x2d, 0x55, 0xeb, 0x64, 0xd8,
-	0xe4, 0xdf, 0x4f, 0xd3, 0x7e, 0x23, 0x13, 0xf0,
-	0xd0, 0xfd, 0x84, 0x51
+        0x16, 0x6f, 0x93, 0x2d, 0x55, 0xeb, 0x64, 0xd8,
+        0xe4, 0xdf, 0x4f, 0xd3, 0x7e, 0x23, 0x13, 0xf0,
+        0xd0, 0xfd, 0x84, 0x51
 };
 
 static const guint8 VID_NETSCREEN_16[] = { /* Netscreen-16 */
-	0xa3, 0x5b, 0xfd, 0x05, 0xca, 0x1a, 0xc0, 0xb3,
-	0xd2, 0xf2, 0x4e, 0x9e, 0x82, 0xbf, 0xcb, 0xff,
-	0x9c, 0x9e, 0x52, 0xb5
+        0xa3, 0x5b, 0xfd, 0x05, 0xca, 0x1a, 0xc0, 0xb3,
+        0xd2, 0xf2, 0x4e, 0x9e, 0x82, 0xbf, 0xcb, 0xff,
+        0x9c, 0x9e, 0x52, 0xb5
 };
 
 static const guint8 VID_ZYWALL[] = { /* ZYWALL */
-	0x62, 0x50, 0x27, 0x74, 0x9d, 0x5a, 0xb9, 0x7f,
-	0x56, 0x16, 0xc1, 0x60, 0x27, 0x65, 0xcf, 0x48,
-	0x0a, 0x3b, 0x7d, 0x0b
+        0x62, 0x50, 0x27, 0x74, 0x9d, 0x5a, 0xb9, 0x7f,
+        0x56, 0x16, 0xc1, 0x60, 0x27, 0x65, 0xcf, 0x48,
+        0x0a, 0x3b, 0x7d, 0x0b
 };
 
 static const guint8 VID_SIDEWINDER[] = { /* SIDEWINDER */
-	0x84, 0x04, 0xad, 0xf9, 0xcd, 0xa0, 0x57, 0x60,
-	0xb2, 0xca, 0x29, 0x2e, 0x4b, 0xff, 0x53, 0x7b
+        0x84, 0x04, 0xad, 0xf9, 0xcd, 0xa0, 0x57, 0x60,
+        0xb2, 0xca, 0x29, 0x2e, 0x4b, 0xff, 0x53, 0x7b
 };
 
 static const guint8 VID_SONICWALL[] = { /* SonicWALL */
-	0x40, 0x4B, 0xF4, 0x39, 0x52, 0x2C, 0xA3, 0xF6
+        0x40, 0x4B, 0xF4, 0x39, 0x52, 0x2C, 0xA3, 0xF6
 };
 
 static const guint8 VID_HEARTBEAT_NOTIFY[] = { /* Heartbeat Notify */
-	0x48 ,0x65, 0x61, 0x72, 0x74, 0x42, 0x65, 0x61,
-	0x74, 0x5f, 0x4e, 0x6f, 0x74, 0x69, 0x66, 0x79
+        0x48 ,0x65, 0x61, 0x72, 0x74, 0x42, 0x65, 0x61,
+        0x74, 0x5f, 0x4e, 0x6f, 0x74, 0x69, 0x66, 0x79
 };
 
 static const guint8 VID_DWR[] = { /* DWR: Delete with reason */
-	0x2D, 0x79, 0x22, 0xC6, 0xB3, 0x01, 0xD9, 0xB0,
-	0xE1, 0x34, 0x27, 0x39, 0xE9, 0xCF, 0xBB, 0xD5
+        0x2D, 0x79, 0x22, 0xC6, 0xB3, 0x01, 0xD9, 0xB0,
+        0xE1, 0x34, 0x27, 0x39, 0xE9, 0xCF, 0xBB, 0xD5
 };
 
 static const guint8 VID_ARUBA_RAP[] = { /* Remote AP (Aruba Networks)  */
-	0xca, 0x3e, 0x2b, 0x85, 0x4b, 0xa8, 0x03, 0x00,
-	0x17, 0xdc, 0x10, 0x23, 0xa4, 0xfd, 0xe2, 0x04,
-	0x1f, 0x9f, 0x74, 0x63
+        0xca, 0x3e, 0x2b, 0x85, 0x4b, 0xa8, 0x03, 0x00,
+        0x17, 0xdc, 0x10, 0x23, 0xa4, 0xfd, 0xe2, 0x04,
+        0x1f, 0x9f, 0x74, 0x63
 };
 
 static const guint8 VID_ARUBA_CONTROLLER[] = { /* Controller (Aruba Networks)  */
-	0x3c, 0x8e, 0x70, 0xbd, 0xf9, 0xc7, 0xd7, 0x4a,
-	0xdd, 0x53, 0xe4, 0x10, 0x09, 0x15, 0xdc, 0x2e,
-	0x4b, 0xb5, 0x12, 0x74
+        0x3c, 0x8e, 0x70, 0xbd, 0xf9, 0xc7, 0xd7, 0x4a,
+        0xdd, 0x53, 0xe4, 0x10, 0x09, 0x15, 0xdc, 0x2e,
+        0x4b, 0xb5, 0x12, 0x74
 };
 
 static const guint8 VID_ARUBA_VIA_CLIENT[] = { /* VIA Client (Aruba Networks)  */
-	0x88, 0xf0, 0xe3, 0x14, 0x9b, 0x3f, 0xa4, 0x8b,
-	0x05, 0xaa, 0x7f, 0x68, 0x5f, 0x0b, 0x76, 0x6b,
-	0xe1, 0x86, 0xcc, 0xb8
+        0x88, 0xf0, 0xe3, 0x14, 0x9b, 0x3f, 0xa4, 0x8b,
+        0x05, 0xaa, 0x7f, 0x68, 0x5f, 0x0b, 0x76, 0x6b,
+        0xe1, 0x86, 0xcc, 0xb8
 };
 
 static const guint8 VID_ARUBA_VIA_AUTH_PROFILE[] = { /* VIA Auth Profile (Aruba Networks)  */
-	0x56, 0x49, 0x41, 0x20, 0x41, 0x75, 0x74, 0x68,
-	0x20, 0x50, 0x72, 0x6f, 0x66, 0x69, 0x6c, 0x65,
-	0x20, 0x3a, 0x20
+        0x56, 0x49, 0x41, 0x20, 0x41, 0x75, 0x74, 0x68,
+        0x20, 0x50, 0x72, 0x6f, 0x66, 0x69, 0x6c, 0x65,
+        0x20, 0x3a, 0x20
 };
 
 /*
@@ -2448,12 +2448,12 @@ static const guint8 VID_ARUBA_VIA_AUTH_PROFILE[] = { /* VIA Auth Profile (Aruba 
 */
 static const guint8 VID_MS_IKEE_20080212_CGA1[] = { /* IKE CGA Version 1 */
         0xe3, 0xa5, 0x96, 0x6a, 0x76, 0x37, 0x9f, 0xe7,
-	0x07, 0x22, 0x82, 0x31, 0xe5, 0xce, 0x86, 0x52
+        0x07, 0x22, 0x82, 0x31, 0xe5, 0xce, 0x86, 0x52
 };
 
 static const guint8 VID_MS_IKEE_20080212_MS_NDC[] = { /* MS-Negotiation Discovery Capable */
         0xfb, 0x1d, 0xe3, 0xcd, 0xf3, 0x41, 0xb7, 0xea,
-	0x16, 0xb7, 0xe5, 0xbe, 0x08, 0x55, 0xf1, 0x20
+        0x16, 0xb7, 0xe5, 0xbe, 0x08, 0x55, 0xf1, 0x20
 };
 
 /* Based from value_string.c/h */
@@ -2612,12 +2612,12 @@ byte_to_str(const guint8 *val,const gint val_len, const byte_string *vs, const c
 
 static void
 dissect_payloads(tvbuff_t *tvb, proto_tree *tree, proto_tree *parent_tree _U_,
-		int isakmp_version, guint8 initial_payload, int offset, int length,
-		packet_info *pinfo, void* decr_data)
+                int isakmp_version, guint8 initial_payload, int offset, int length,
+                packet_info *pinfo, void* decr_data)
 {
   guint8 payload, next_payload;
-  guint16		payload_length;
-  proto_tree *		ntree;
+  guint16               payload_length;
+  proto_tree *          ntree;
 
  for (payload = initial_payload; length > 0; payload = next_payload) {
     if (payload == PLOAD_IKE_NONE) {
@@ -2632,92 +2632,92 @@ dissect_payloads(tvbuff_t *tvb, proto_tree *tree, proto_tree *parent_tree _U_,
     ntree = dissect_payload_header(tvb, offset, length, isakmp_version, payload, &next_payload, &payload_length, tree);
     if (ntree == NULL)
       break;
-    if (payload_length >= 4) {	/* XXX = > 4? */
+    if (payload_length >= 4) {  /* XXX = > 4? */
       tvb_ensure_bytes_exist(tvb, offset + 4, payload_length - 4);
-	switch(payload){
-	   case PLOAD_IKE_SA:
-	   case PLOAD_IKE2_SA:
-	   dissect_sa(tvb, offset + 4, payload_length - 4, ntree, isakmp_version, pinfo, decr_data);
-	   break;
-	   case PLOAD_IKE_P:
-	   dissect_proposal(tvb, offset + 4, payload_length - 4, ntree, isakmp_version, decr_data );
-	   break;
-	   case PLOAD_IKE_KE:
-	   case PLOAD_IKE2_KE:
-	   dissect_key_exch(tvb, offset + 4, payload_length - 4, ntree, isakmp_version, pinfo, decr_data );
-	   break;
-	   case PLOAD_IKE_ID:
-	   case PLOAD_IKE2_IDI:
-	   case PLOAD_IKE2_IDR:
-	   dissect_id(tvb, offset + 4, payload_length - 4, ntree, isakmp_version, pinfo );
-	   break;
-	   case PLOAD_IKE_CERT:
-	   case PLOAD_IKE2_CERT:
-	   dissect_cert(tvb, offset + 4, payload_length - 4, ntree, isakmp_version, pinfo );
-	   break;
-	   case PLOAD_IKE_CR:
-	   case PLOAD_IKE2_CERTREQ:
-	   dissect_certreq(tvb, offset + 4, payload_length - 4, ntree, isakmp_version, pinfo );
-	   break;
-	   case PLOAD_IKE_HASH:
-	   dissect_hash(tvb, offset + 4, payload_length - 4, ntree);
-	   break;
-	   case PLOAD_IKE_SIG:
-	   dissect_sig(tvb, offset + 4, payload_length - 4, ntree);
-	   break;
-	   case PLOAD_IKE_NONCE:
-	   case PLOAD_IKE2_NONCE:
-	   dissect_nonce(tvb, offset + 4, payload_length - 4, ntree);
-	   break;
-	   case PLOAD_IKE_N:
-	   case PLOAD_IKE2_N:
-	   dissect_notif(tvb, offset + 4, payload_length - 4, ntree, isakmp_version);
-	   break;
-	   case PLOAD_IKE_D:
-	   case PLOAD_IKE2_D:
-	   dissect_delete(tvb, offset + 4, payload_length - 4, ntree, isakmp_version);
-	   break;
-	   case PLOAD_IKE_VID:
-	   case PLOAD_IKE2_V:
-	   dissect_vid(tvb, offset + 4, payload_length - 4, ntree);
-	   break;
-	   case PLOAD_IKE_A:
-	   case PLOAD_IKE2_CP:
-	   dissect_config(tvb, offset + 4, payload_length - 4, ntree, isakmp_version);
-	   break;
-	   case PLOAD_IKE2_AUTH:
-	   dissect_auth(tvb, offset + 4, payload_length - 4, ntree);
-	   break;
-	   case PLOAD_IKE2_TSI:
-	   case PLOAD_IKE2_TSR:
-	   dissect_ts(tvb, offset + 4, payload_length - 4, ntree);
-	   break;
-	   case PLOAD_IKE2_SK:
-	   if(isakmp_version == 2)
-	     dissect_enc(tvb, offset + 4, payload_length - 4, ntree, pinfo, next_payload, decr_data);
-	   break;
-	   case PLOAD_IKE2_EAP:
-	   dissect_eap(tvb, offset + 4, payload_length - 4, ntree, pinfo );
-	   break;
-	   case PLOAD_IKE2_GSPM:
-	   dissect_gspm(tvb, offset + 4, payload_length - 4, ntree);
-	   break;
-	   case PLOAD_IKE_NAT_D:
-	   case PLOAD_IKE_NAT_D13:
-	   case PLOAD_IKE_NAT_D48:
-	   dissect_nat_discovery(tvb, offset + 4, payload_length - 4, ntree );
-	   break;
-	   case PLOAD_IKE_NAT_OA:
-	   case PLOAD_IKE_NAT_OA14:
-	   case PLOAD_IKE_NAT_OA58:
-	   dissect_nat_original_address(tvb, offset + 4, payload_length - 4, ntree, isakmp_version );
-	   break;
-	   case PLOAD_IKE_CISCO_FRAG:
-	   dissect_cisco_fragmentation(tvb, offset + 4, payload_length - 4, ntree, pinfo );
-	   break;
-	   default:
-	   proto_tree_add_item(ntree, hf_isakmp_datapayload, tvb, offset + 4, payload_length-4, ENC_NA);
-	   break;
+        switch(payload){
+           case PLOAD_IKE_SA:
+           case PLOAD_IKE2_SA:
+           dissect_sa(tvb, offset + 4, payload_length - 4, ntree, isakmp_version, pinfo, decr_data);
+           break;
+           case PLOAD_IKE_P:
+           dissect_proposal(tvb, offset + 4, payload_length - 4, ntree, isakmp_version, decr_data );
+           break;
+           case PLOAD_IKE_KE:
+           case PLOAD_IKE2_KE:
+           dissect_key_exch(tvb, offset + 4, payload_length - 4, ntree, isakmp_version, pinfo, decr_data );
+           break;
+           case PLOAD_IKE_ID:
+           case PLOAD_IKE2_IDI:
+           case PLOAD_IKE2_IDR:
+           dissect_id(tvb, offset + 4, payload_length - 4, ntree, isakmp_version, pinfo );
+           break;
+           case PLOAD_IKE_CERT:
+           case PLOAD_IKE2_CERT:
+           dissect_cert(tvb, offset + 4, payload_length - 4, ntree, isakmp_version, pinfo );
+           break;
+           case PLOAD_IKE_CR:
+           case PLOAD_IKE2_CERTREQ:
+           dissect_certreq(tvb, offset + 4, payload_length - 4, ntree, isakmp_version, pinfo );
+           break;
+           case PLOAD_IKE_HASH:
+           dissect_hash(tvb, offset + 4, payload_length - 4, ntree);
+           break;
+           case PLOAD_IKE_SIG:
+           dissect_sig(tvb, offset + 4, payload_length - 4, ntree);
+           break;
+           case PLOAD_IKE_NONCE:
+           case PLOAD_IKE2_NONCE:
+           dissect_nonce(tvb, offset + 4, payload_length - 4, ntree);
+           break;
+           case PLOAD_IKE_N:
+           case PLOAD_IKE2_N:
+           dissect_notif(tvb, offset + 4, payload_length - 4, ntree, isakmp_version);
+           break;
+           case PLOAD_IKE_D:
+           case PLOAD_IKE2_D:
+           dissect_delete(tvb, offset + 4, payload_length - 4, ntree, isakmp_version);
+           break;
+           case PLOAD_IKE_VID:
+           case PLOAD_IKE2_V:
+           dissect_vid(tvb, offset + 4, payload_length - 4, ntree);
+           break;
+           case PLOAD_IKE_A:
+           case PLOAD_IKE2_CP:
+           dissect_config(tvb, offset + 4, payload_length - 4, ntree, isakmp_version);
+           break;
+           case PLOAD_IKE2_AUTH:
+           dissect_auth(tvb, offset + 4, payload_length - 4, ntree);
+           break;
+           case PLOAD_IKE2_TSI:
+           case PLOAD_IKE2_TSR:
+           dissect_ts(tvb, offset + 4, payload_length - 4, ntree);
+           break;
+           case PLOAD_IKE2_SK:
+           if(isakmp_version == 2)
+             dissect_enc(tvb, offset + 4, payload_length - 4, ntree, pinfo, next_payload, decr_data);
+           break;
+           case PLOAD_IKE2_EAP:
+           dissect_eap(tvb, offset + 4, payload_length - 4, ntree, pinfo );
+           break;
+           case PLOAD_IKE2_GSPM:
+           dissect_gspm(tvb, offset + 4, payload_length - 4, ntree);
+           break;
+           case PLOAD_IKE_NAT_D:
+           case PLOAD_IKE_NAT_D13:
+           case PLOAD_IKE_NAT_D48:
+           dissect_nat_discovery(tvb, offset + 4, payload_length - 4, ntree );
+           break;
+           case PLOAD_IKE_NAT_OA:
+           case PLOAD_IKE_NAT_OA14:
+           case PLOAD_IKE_NAT_OA58:
+           dissect_nat_original_address(tvb, offset + 4, payload_length - 4, ntree, isakmp_version );
+           break;
+           case PLOAD_IKE_CISCO_FRAG:
+           dissect_cisco_fragmentation(tvb, offset + 4, payload_length - 4, ntree, pinfo );
+           break;
+           default:
+           proto_tree_add_item(ntree, hf_isakmp_datapayload, tvb, offset + 4, payload_length-4, ENC_NA);
+           break;
        }
 
     }
@@ -2741,36 +2741,36 @@ dissect_payloads(tvbuff_t *tvb, proto_tree *tree, proto_tree *parent_tree _U_,
 
 void
 isakmp_dissect_payloads(tvbuff_t *tvb, proto_tree *tree, int isakmp_version,
-			guint8 initial_payload, int offset, int length,
-			packet_info *pinfo)
+                        guint8 initial_payload, int offset, int length,
+                        packet_info *pinfo)
 {
   dissect_payloads(tvb, tree, tree, isakmp_version, initial_payload, offset, length,
-		   pinfo, NULL);
+                   pinfo, NULL);
 }
 
 static int
 dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-  int			offset = 0, len;
-  isakmp_hdr_t	hdr;
-  proto_item *	ti, *vers_item;
-  proto_tree *	isakmp_tree = NULL, *vers_tree;
-  int			isakmp_version;
-  void*			decr_data = NULL;
-  guint8    flags;
+  int             offset      = 0, len;
+  isakmp_hdr_t    hdr;
+  proto_item     *ti, *vers_item;
+  proto_tree     *isakmp_tree = NULL, *vers_tree;
+  int             isakmp_version;
+  void*           decr_data   = NULL;
+  guint8          flags;
 #ifdef HAVE_LIBGCRYPT
-  guint8                i_cookie[COOKIE_SIZE], *ic_key;
-  decrypt_data_t       *decr = NULL;
-  tvbuff_t             *decr_tvb;
-  proto_tree           *decr_tree;
-  address               null_addr;
-#endif /* HAVE_LIBGCRYPT */
+  guint8          i_cookie[COOKIE_SIZE], *ic_key;
+  decrypt_data_t *decr        = NULL;
+  tvbuff_t       *decr_tvb;
+  proto_tree     *decr_tree;
+  address         null_addr;
+#endif                          /* HAVE_LIBGCRYPT */
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "ISAKMP");
   col_clear(pinfo->cinfo, COL_INFO);
 
   /* Some simple heuristics to catch non-isakmp packets */
-  if (tvb_reported_length(tvb)==1 && tvb_get_guint8(tvb, offset) !=0xff)
+  if (tvb_reported_length(tvb)== 1 && tvb_get_guint8(tvb, offset) !=0xff)
     return 0;
   else if (tvb_reported_length(tvb) < ISAKMP_HDR_SIZE)
     return 0;
@@ -2785,7 +2785,7 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
   /* RFC3948 2.3 NAT Keepalive packet:
    * 1 byte payload with the value 0xff.
    */
-  if ( (tvb_reported_length(tvb)==1) && (tvb_get_guint8(tvb, offset)==0xff) ){
+  if ( (tvb_reported_length(tvb)== 1) && (tvb_get_guint8(tvb, offset) == 0xff) ){
     col_set_str(pinfo->cinfo, COL_INFO, "NAT Keepalive");
     proto_tree_add_item(isakmp_tree, hf_isakmp_nat_keepalive, tvb, offset, 1, ENC_NA);
     return 1;
@@ -2794,7 +2794,7 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
   hdr.length = tvb_get_ntohl(tvb, offset + ISAKMP_HDR_SIZE - 4);
   hdr.exch_type = tvb_get_guint8(tvb, COOKIE_SIZE + COOKIE_SIZE + 1 + 1);
   hdr.version = tvb_get_guint8(tvb, COOKIE_SIZE + COOKIE_SIZE + 1);
-  isakmp_version = hi_nibble(hdr.version);	/* save the version */
+  isakmp_version = hi_nibble(hdr.version);      /* save the version */
   hdr.flags = tvb_get_guint8(tvb, COOKIE_SIZE + COOKIE_SIZE + 1 + 1 + 1);
 
 #ifdef HAVE_LIBGCRYPT
@@ -2823,7 +2823,7 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     decr_data = decr;
   } else if (isakmp_version == 2) {
     ikev2_uat_data_key_t hash_key;
-    ikev2_uat_data_t *ike_sa_data = NULL;
+    ikev2_uat_data_t *ike_sa_data;
     ikev2_decrypt_data_t *ikev2_dec_data;
     guchar spii[COOKIE_SIZE], spir[COOKIE_SIZE];
 
@@ -2879,8 +2879,8 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     offset += 1;
 
     {
-      proto_item *	fti;
-      proto_tree *	ftree;
+      proto_item *      fti;
+      proto_tree *      ftree;
 
       fti   = proto_tree_add_item(isakmp_tree, hf_isakmp_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
       ftree = proto_item_add_subtree(fti, ett_isakmp_flags);
@@ -2944,21 +2944,21 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
 #ifdef HAVE_LIBGCRYPT
 
-	if (decr) {
-	  decr_tvb = decrypt_payload(tvb, pinfo, tvb_get_ptr(tvb, offset, len), len, &hdr, decr);
-	  if (decr_tvb) {
+        if (decr) {
+          decr_tvb = decrypt_payload(tvb, pinfo, tvb_get_ptr(tvb, offset, len), len, &hdr, decr);
+          if (decr_tvb) {
             decr_tree = proto_item_add_subtree(ti, ett_isakmp);
             dissect_payloads(decr_tvb, decr_tree, tree, isakmp_version,
                              hdr.next_payload, 0, tvb_length(decr_tvb), pinfo, decr_data);
 
-	  }
-	}
+          }
+        }
 #endif /* HAVE_LIBGCRYPT */
       }
     } else {
       dissect_payloads(tvb, isakmp_tree, tree, isakmp_version, hdr.next_payload,
-		       offset, len, pinfo, decr_data);
-	}
+                       offset, len, pinfo, decr_data);
+        }
   }
 
   return tvb_captured_length(tvb);
@@ -2970,10 +2970,10 @@ dissect_payload_header(tvbuff_t *tvb, int offset, int length,
     int isakmp_version, guint8 payload _U_, guint8 *next_payload_p,
     guint16 *payload_length_p, proto_tree *tree)
 {
-  guint8		next_payload;
-  guint16		payload_length;
-  proto_item *		ti;
-  proto_tree *		ntree;
+  guint8                next_payload;
+  guint16               payload_length;
+  proto_item *          ti;
+  proto_tree *          ntree;
 
   if (length < 4) {
     proto_tree_add_text(tree, tvb, offset, length,
@@ -3002,9 +3002,9 @@ dissect_payload_header(tvbuff_t *tvb, int offset, int length,
 static void
 dissect_sa(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isakmp_version, packet_info *pinfo, void* decr_data)
 {
-  guint32		doi;
-  proto_item		*sti;
-  proto_tree		*stree;
+  guint32               doi;
+  proto_item            *sti;
+  proto_tree            *stree;
 
   if (isakmp_version == 1) {
     doi = tvb_get_ntohl(tvb, offset);
@@ -3034,27 +3034,27 @@ dissect_sa(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isakmp_v
       length -= 4;
 
       dissect_payloads(tvb, tree, tree, isakmp_version, PLOAD_IKE_P, offset,
-		       length, pinfo, decr_data);
+                       length, pinfo, decr_data);
     } else {
       /* Unknown */
       proto_tree_add_item(tree, hf_isakmp_sa_situation, tvb, offset, length, ENC_NA);
     }
   } else if (isakmp_version == 2) {
     dissect_payloads(tvb, tree, tree, isakmp_version, PLOAD_IKE_P, offset,
-		     length, pinfo, decr_data);
+                     length, pinfo, decr_data);
   }
 }
 
 static void
 dissect_proposal(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isakmp_version, void* decr_data)
 {
-  guint8		protocol_id;
-  guint8		spi_size;
-  guint8		num_transforms;
-  guint8		next_payload;
-  guint16		payload_length;
-  proto_tree *		ntree;
-  guint8		proposal_num;
+  guint8                protocol_id;
+  guint8                spi_size;
+  guint8                num_transforms;
+  guint8                next_payload;
+  guint16               payload_length;
+  proto_tree *          ntree;
+  guint8                proposal_num;
 
   proposal_num = tvb_get_guint8(tvb, offset);
 
@@ -3116,63 +3116,63 @@ dissect_proposal(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int is
 static int
 dissect_rohc_supported(tvbuff_t *tvb, proto_tree *rohc_tree, int offset )
 {
-	guint optlen, rohc, len = 0;
-	proto_item *rohc_item = NULL;
-	proto_tree *sub_rohc_tree = NULL;
+        guint optlen, rohc, len = 0;
+        proto_item *rohc_item;
+        proto_tree *sub_rohc_tree;
 
-	rohc = tvb_get_ntohs(tvb, offset);
-	optlen = tvb_get_ntohs(tvb, offset+2);
-	len = 2;
+        rohc = tvb_get_ntohs(tvb, offset);
+        optlen = tvb_get_ntohs(tvb, offset+2);
+        len = 2;
 
-	/* is TV ? (Type/Value) ? */
-   	if (rohc & 0x8000) {
-	      rohc = rohc & 0x7fff;
-	      len = 0;
-	      optlen = 2;
-   	}
+        /* is TV ? (Type/Value) ? */
+        if (rohc & 0x8000) {
+              rohc = rohc & 0x7fff;
+              len = 0;
+              optlen = 2;
+        }
 
 
-	rohc_item = proto_tree_add_item(rohc_tree, hf_isakmp_notify_data_rohc_attr, tvb, offset, 2+len+optlen, ENC_NA);
+        rohc_item = proto_tree_add_item(rohc_tree, hf_isakmp_notify_data_rohc_attr, tvb, offset, 2+len+optlen, ENC_NA);
         proto_item_append_text(rohc_item," (t=%d,l=%d) %s",rohc, optlen, val_to_str(rohc, rohc_attr_type, "Unknown Attribute Type (%02d)") );
-	sub_rohc_tree = proto_item_add_subtree(rohc_item, ett_isakmp_rohc_attr);
-	proto_tree_add_item(sub_rohc_tree, hf_isakmp_notify_data_rohc_attr_format, tvb, offset, 2, ENC_BIG_ENDIAN);
-	proto_tree_add_uint(sub_rohc_tree, hf_isakmp_notify_data_rohc_attr_type, tvb, offset, 2, rohc);
+        sub_rohc_tree = proto_item_add_subtree(rohc_item, ett_isakmp_rohc_attr);
+        proto_tree_add_item(sub_rohc_tree, hf_isakmp_notify_data_rohc_attr_format, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_uint(sub_rohc_tree, hf_isakmp_notify_data_rohc_attr_type, tvb, offset, 2, rohc);
 
-	offset += 2;
-	if (len)
-	{
-	   proto_tree_add_item(sub_rohc_tree, hf_isakmp_notify_data_rohc_attr_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
+        if (len)
+        {
+           proto_tree_add_item(sub_rohc_tree, hf_isakmp_notify_data_rohc_attr_length, tvb, offset, 2, ENC_BIG_ENDIAN);
            offset += 2;
-	}
-	if (optlen==0)
-	{
-		proto_tree_add_text(sub_rohc_tree, tvb, offset, 0,"Attribute value is empty");
-		return 2+len;
-	}
-	proto_tree_add_item(sub_rohc_tree, hf_isakmp_notify_data_rohc_attr_value, tvb, offset, optlen, ENC_NA);
-	switch(rohc) {
-		case ROHC_MAX_CID:
-		proto_tree_add_item(sub_rohc_tree, hf_isakmp_notify_data_rohc_attr_max_cid, tvb, offset, optlen, ENC_BIG_ENDIAN);
-		break;
-		case ROHC_PROFILE:
-		proto_tree_add_item(sub_rohc_tree, hf_isakmp_notify_data_rohc_attr_profile, tvb, offset, optlen, ENC_BIG_ENDIAN);
-		break;
-		case ROHC_INTEG:
-		proto_tree_add_item(sub_rohc_tree, hf_isakmp_notify_data_rohc_attr_integ, tvb, offset, optlen, ENC_BIG_ENDIAN);
-		break;
-		case ROHC_ICV_LEN:
-		proto_tree_add_item(sub_rohc_tree, hf_isakmp_notify_data_rohc_attr_icv_len, tvb, offset, optlen, ENC_BIG_ENDIAN);
-		break;
-		case ROHC_MRRU:
-		proto_tree_add_item(sub_rohc_tree, hf_isakmp_notify_data_rohc_attr_mrru, tvb, offset, optlen, ENC_BIG_ENDIAN);
-		break;
+        }
+        if (optlen == 0)
+        {
+                proto_tree_add_text(sub_rohc_tree, tvb, offset, 0,"Attribute value is empty");
+                return 2+len;
+        }
+        proto_tree_add_item(sub_rohc_tree, hf_isakmp_notify_data_rohc_attr_value, tvb, offset, optlen, ENC_NA);
+        switch(rohc) {
+                case ROHC_MAX_CID:
+                proto_tree_add_item(sub_rohc_tree, hf_isakmp_notify_data_rohc_attr_max_cid, tvb, offset, optlen, ENC_BIG_ENDIAN);
+                break;
+                case ROHC_PROFILE:
+                proto_tree_add_item(sub_rohc_tree, hf_isakmp_notify_data_rohc_attr_profile, tvb, offset, optlen, ENC_BIG_ENDIAN);
+                break;
+                case ROHC_INTEG:
+                proto_tree_add_item(sub_rohc_tree, hf_isakmp_notify_data_rohc_attr_integ, tvb, offset, optlen, ENC_BIG_ENDIAN);
+                break;
+                case ROHC_ICV_LEN:
+                proto_tree_add_item(sub_rohc_tree, hf_isakmp_notify_data_rohc_attr_icv_len, tvb, offset, optlen, ENC_BIG_ENDIAN);
+                break;
+                case ROHC_MRRU:
+                proto_tree_add_item(sub_rohc_tree, hf_isakmp_notify_data_rohc_attr_mrru, tvb, offset, optlen, ENC_BIG_ENDIAN);
+                break;
 
-		default:
-		/* No Default Action */
-		break;
-	}
+                default:
+                /* No Default Action */
+                break;
+        }
 
-	return 2+len+optlen;
+        return 2+len+optlen;
 }
 
 /* Dissect life duration, which is variable-length.  Note that this function
@@ -3183,351 +3183,351 @@ dissect_rohc_supported(tvbuff_t *tvb, proto_tree *rohc_tree, int offset )
 static void
 dissect_life_duration(tvbuff_t *tvb, proto_tree *tree, proto_item *ti, int hf_uint32, int hf_uint64, int hf_bytes, int offset, guint len)
 {
-	switch (len) {
-		case 0:
-			break;
-		case 1: {
-			guint8 val;
-			val = tvb_get_guint8(tvb, offset);
+        switch (len) {
+                case 0:
+                        break;
+                case 1: {
+                        guint8 val;
+                        val = tvb_get_guint8(tvb, offset);
 
-			proto_tree_add_uint_format_value(tree, hf_uint32, tvb, offset, len, val, "%u", val);
-			proto_item_append_text(ti, " : %u", val);
-			break;
-		}
-		case 2: {
-			guint16 val;
-			val = tvb_get_ntohs(tvb, offset);
+                        proto_tree_add_uint_format_value(tree, hf_uint32, tvb, offset, len, val, "%u", val);
+                        proto_item_append_text(ti, " : %u", val);
+                        break;
+                }
+                case 2: {
+                        guint16 val;
+                        val = tvb_get_ntohs(tvb, offset);
 
-			proto_tree_add_uint_format_value(tree, hf_uint32, tvb, offset, len, val, "%u", val);
-			proto_item_append_text(ti, " : %u", val);
-			break;
-		}
-		case 3: {
-			guint32 val;
-			val = tvb_get_ntoh24(tvb, offset);
+                        proto_tree_add_uint_format_value(tree, hf_uint32, tvb, offset, len, val, "%u", val);
+                        proto_item_append_text(ti, " : %u", val);
+                        break;
+                }
+                case 3: {
+                        guint32 val;
+                        val = tvb_get_ntoh24(tvb, offset);
 
-			proto_tree_add_uint_format_value(tree, hf_uint32, tvb, offset, len, val, "%u", val);
-			proto_item_append_text(ti, " : %u", val);
-			break;
-		}
-		case 4: {
-			guint32 val;
-			val = tvb_get_ntohl(tvb, offset);
+                        proto_tree_add_uint_format_value(tree, hf_uint32, tvb, offset, len, val, "%u", val);
+                        proto_item_append_text(ti, " : %u", val);
+                        break;
+                }
+                case 4: {
+                        guint32 val;
+                        val = tvb_get_ntohl(tvb, offset);
 
-			proto_tree_add_uint_format_value(tree, hf_uint32, tvb, offset, len, val, "%u", val);
-			proto_item_append_text(ti, " : %u", val);
-			break;
-		}
-		case 5: {
-			guint64 val;
-			val = tvb_get_ntoh40(tvb, offset);
+                        proto_tree_add_uint_format_value(tree, hf_uint32, tvb, offset, len, val, "%u", val);
+                        proto_item_append_text(ti, " : %u", val);
+                        break;
+                }
+                case 5: {
+                        guint64 val;
+                        val = tvb_get_ntoh40(tvb, offset);
 
-			proto_tree_add_uint64_format_value(tree, hf_uint64, tvb, offset, len, val, "%" G_GINT64_MODIFIER "u", val);
-			proto_item_append_text(ti, " : %" G_GINT64_MODIFIER "u", val);
-			break;
-		}
-		case 6: {
-			guint64 val;
-			val = tvb_get_ntoh48(tvb, offset);
+                        proto_tree_add_uint64_format_value(tree, hf_uint64, tvb, offset, len, val, "%" G_GINT64_MODIFIER "u", val);
+                        proto_item_append_text(ti, " : %" G_GINT64_MODIFIER "u", val);
+                        break;
+                }
+                case 6: {
+                        guint64 val;
+                        val = tvb_get_ntoh48(tvb, offset);
 
-			proto_tree_add_uint64_format_value(tree, hf_uint64, tvb, offset, len, val, "%" G_GINT64_MODIFIER "u", val);
-			proto_item_append_text(ti, " : %" G_GINT64_MODIFIER "u", val);
-			break;
-		}
-		case 7: {
-			guint64 val;
-			val = tvb_get_ntoh56(tvb, offset);
+                        proto_tree_add_uint64_format_value(tree, hf_uint64, tvb, offset, len, val, "%" G_GINT64_MODIFIER "u", val);
+                        proto_item_append_text(ti, " : %" G_GINT64_MODIFIER "u", val);
+                        break;
+                }
+                case 7: {
+                        guint64 val;
+                        val = tvb_get_ntoh56(tvb, offset);
 
-			proto_tree_add_uint64_format_value(tree, hf_uint64, tvb, offset, len, val, "%" G_GINT64_MODIFIER "u", val);
-			proto_item_append_text(ti, " : %" G_GINT64_MODIFIER "u", val);
-			break;
-		}
-		case 8: {
-			guint64 val;
-			val = tvb_get_ntoh64(tvb, offset);
+                        proto_tree_add_uint64_format_value(tree, hf_uint64, tvb, offset, len, val, "%" G_GINT64_MODIFIER "u", val);
+                        proto_item_append_text(ti, " : %" G_GINT64_MODIFIER "u", val);
+                        break;
+                }
+                case 8: {
+                        guint64 val;
+                        val = tvb_get_ntoh64(tvb, offset);
 
-			proto_tree_add_uint64_format_value(tree, hf_uint64, tvb, offset, len, val, "%" G_GINT64_MODIFIER "u", val);
-			proto_item_append_text(ti, " : %" G_GINT64_MODIFIER "u", val);
-			break;
-		}
-		default:
-			proto_tree_add_item(tree, hf_bytes, tvb, offset, len, ENC_NA);
-			proto_item_append_text(ti, " : %" G_GINT64_MODIFIER "x ...", tvb_get_ntoh64(tvb, offset));
-			break;
-	}
+                        proto_tree_add_uint64_format_value(tree, hf_uint64, tvb, offset, len, val, "%" G_GINT64_MODIFIER "u", val);
+                        proto_item_append_text(ti, " : %" G_GINT64_MODIFIER "u", val);
+                        break;
+                }
+                default:
+                        proto_tree_add_item(tree, hf_bytes, tvb, offset, len, ENC_NA);
+                        proto_item_append_text(ti, " : %" G_GINT64_MODIFIER "x ...", tvb_get_ntoh64(tvb, offset));
+                        break;
+        }
 }
 
 /* Returns the number of bytes consumed by this option. */
 static int
 dissect_transform_attribute(tvbuff_t *tvb, proto_tree *transform_attr_type_tree, int offset )
 {
-	guint optlen, transform_attr_type, len = 0;
-	proto_item *transform_attr_type_item = NULL;
-	proto_tree *sub_transform_attr_type_tree = NULL;
+        guint optlen, transform_attr_type, len = 0;
+        proto_item *transform_attr_type_item;
+        proto_tree *sub_transform_attr_type_tree;
 
-	transform_attr_type = tvb_get_ntohs(tvb, offset);
-	optlen = tvb_get_ntohs(tvb, offset+2);
-	len = 2;
+        transform_attr_type = tvb_get_ntohs(tvb, offset);
+        optlen = tvb_get_ntohs(tvb, offset+2);
+        len = 2;
 
-	/* is TV ? (Type/Value) ? */
-   	if (transform_attr_type & 0x8000) {
-	      transform_attr_type = transform_attr_type & 0x7fff;
-	      len = 0;
-	      optlen = 2;
-   	}
+        /* is TV ? (Type/Value) ? */
+        if (transform_attr_type & 0x8000) {
+              transform_attr_type = transform_attr_type & 0x7fff;
+              len = 0;
+              optlen = 2;
+        }
 
 
-	transform_attr_type_item = proto_tree_add_item(transform_attr_type_tree, hf_isakmp_tf_attr, tvb, offset, 2+len+optlen, ENC_NA);
+        transform_attr_type_item = proto_tree_add_item(transform_attr_type_tree, hf_isakmp_tf_attr, tvb, offset, 2+len+optlen, ENC_NA);
         proto_item_append_text(transform_attr_type_item, " (t=%d,l=%d) %s",transform_attr_type, optlen, val_to_str(transform_attr_type, transform_isakmp_attr_type, "Unknown Attribute Type (%02d)") );
-	sub_transform_attr_type_tree = proto_item_add_subtree(transform_attr_type_item, ett_isakmp_tf_attr);
-	proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_tf_attr_format, tvb, offset, 2, ENC_BIG_ENDIAN);
-	proto_tree_add_uint(sub_transform_attr_type_tree, hf_isakmp_tf_attr_type_v1, tvb, offset, 2, transform_attr_type);
+        sub_transform_attr_type_tree = proto_item_add_subtree(transform_attr_type_item, ett_isakmp_tf_attr);
+        proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_tf_attr_format, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_uint(sub_transform_attr_type_tree, hf_isakmp_tf_attr_type_v1, tvb, offset, 2, transform_attr_type);
 
-	offset += 2;
-	if (len)
-	{
-	   proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_tf_attr_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
+        if (len)
+        {
+           proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_tf_attr_length, tvb, offset, 2, ENC_BIG_ENDIAN);
            offset += 2;
-	}
-	if (optlen==0)
- 	{
-    	   proto_tree_add_text(sub_transform_attr_type_tree, tvb, offset, 0,"Attribute value is empty");
-	   return 2+len;
-	}
-	proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_tf_attr_value, tvb, offset, optlen, ENC_NA);
-	switch(transform_attr_type) {
-		case ISAKMP_ATTR_LIFE_TYPE:
-		proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_tf_attr_life_type, tvb, offset, optlen, ENC_BIG_ENDIAN);
+        }
+        if (optlen == 0)
+        {
+           proto_tree_add_text(sub_transform_attr_type_tree, tvb, offset, 0,"Attribute value is empty");
+           return 2+len;
+        }
+        proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_tf_attr_value, tvb, offset, optlen, ENC_NA);
+        switch(transform_attr_type) {
+                case ISAKMP_ATTR_LIFE_TYPE:
+                proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_tf_attr_life_type, tvb, offset, optlen, ENC_BIG_ENDIAN);
                 proto_item_append_text(transform_attr_type_item," : %s", val_to_str(tvb_get_ntohs(tvb, offset), transform_attr_sa_life_type, "Unknown %d"));
-		break;
-		case ISAKMP_ATTR_LIFE_DURATION:
-		dissect_life_duration(tvb, sub_transform_attr_type_tree, transform_attr_type_item, hf_isakmp_tf_attr_life_duration_uint32, hf_isakmp_tf_attr_life_duration_uint64, hf_isakmp_tf_attr_life_duration_bytes , offset, optlen);
-		break;
-		case ISAKMP_ATTR_GROUP_DESC:
-		proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_tf_attr_group_description, tvb, offset, optlen, ENC_BIG_ENDIAN);
+                break;
+                case ISAKMP_ATTR_LIFE_DURATION:
+                dissect_life_duration(tvb, sub_transform_attr_type_tree, transform_attr_type_item, hf_isakmp_tf_attr_life_duration_uint32, hf_isakmp_tf_attr_life_duration_uint64, hf_isakmp_tf_attr_life_duration_bytes , offset, optlen);
+                break;
+                case ISAKMP_ATTR_GROUP_DESC:
+                proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_tf_attr_group_description, tvb, offset, optlen, ENC_BIG_ENDIAN);
                 proto_item_append_text(transform_attr_type_item," : %s", val_to_str(tvb_get_ntohs(tvb, offset), transform_dh_group_type, "Unknown %d"));
-		break;
-		case ISAKMP_ATTR_ENCAP_MODE:
-		proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_tf_attr_encap_mode, tvb, offset, optlen, ENC_BIG_ENDIAN);
+                break;
+                case ISAKMP_ATTR_ENCAP_MODE:
+                proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_tf_attr_encap_mode, tvb, offset, optlen, ENC_BIG_ENDIAN);
                 proto_item_append_text(transform_attr_type_item," : %s", val_to_str(tvb_get_ntohs(tvb, offset), transform_attr_encap_type, "Unknown %d"));
-		break;
-		case ISAKMP_ATTR_AUTH_ALGORITHM:
-		proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_tf_attr_auth_algorithm, tvb, offset, optlen, ENC_BIG_ENDIAN);
+                break;
+                case ISAKMP_ATTR_AUTH_ALGORITHM:
+                proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_tf_attr_auth_algorithm, tvb, offset, optlen, ENC_BIG_ENDIAN);
                 proto_item_append_text(transform_attr_type_item," : %s", val_to_str(tvb_get_ntohs(tvb, offset), transform_attr_auth_type, "Unknown %d"));
-		break;
-		case ISAKMP_ATTR_KEY_LENGTH:
-		proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_tf_attr_key_length, tvb, offset, optlen, ENC_BIG_ENDIAN);
+                break;
+                case ISAKMP_ATTR_KEY_LENGTH:
+                proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_tf_attr_key_length, tvb, offset, optlen, ENC_BIG_ENDIAN);
                 proto_item_append_text(transform_attr_type_item," : %d", tvb_get_ntohs(tvb, offset));
-		break;
-		case ISAKMP_ATTR_KEY_ROUNDS:
-		proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_tf_attr_key_rounds, tvb, offset, optlen, ENC_BIG_ENDIAN);
+                break;
+                case ISAKMP_ATTR_KEY_ROUNDS:
+                proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_tf_attr_key_rounds, tvb, offset, optlen, ENC_BIG_ENDIAN);
                 proto_item_append_text(transform_attr_type_item," : %d", tvb_get_ntohs(tvb, offset));
-		break;
-		case ISAKMP_ATTR_CMPR_DICT_SIZE:
-		proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_tf_attr_cmpr_dict_size, tvb, offset, optlen, ENC_BIG_ENDIAN);
-		break;
-		case ISAKMP_ATTR_CMPR_ALGORITHM:
-		proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_tf_attr_cmpr_algorithm, tvb, offset, optlen, ENC_NA);
-		break;
-		case ISAKMP_ATTR_ECN_TUNNEL:
-		proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_tf_attr_ecn_tunnel, tvb, offset, optlen, ENC_BIG_ENDIAN);
+                break;
+                case ISAKMP_ATTR_CMPR_DICT_SIZE:
+                proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_tf_attr_cmpr_dict_size, tvb, offset, optlen, ENC_BIG_ENDIAN);
+                break;
+                case ISAKMP_ATTR_CMPR_ALGORITHM:
+                proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_tf_attr_cmpr_algorithm, tvb, offset, optlen, ENC_NA);
+                break;
+                case ISAKMP_ATTR_ECN_TUNNEL:
+                proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_tf_attr_ecn_tunnel, tvb, offset, optlen, ENC_BIG_ENDIAN);
                 proto_item_append_text(transform_attr_type_item," : %s", val_to_str(tvb_get_ntohs(tvb, offset), transform_attr_ecn_type, "Unknown %d"));
-		break;
-		case ISAKMP_ATTR_EXT_SEQ_NBR:
-		proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_tf_attr_ext_seq_nbr, tvb, offset, optlen, ENC_BIG_ENDIAN);
+                break;
+                case ISAKMP_ATTR_EXT_SEQ_NBR:
+                proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_tf_attr_ext_seq_nbr, tvb, offset, optlen, ENC_BIG_ENDIAN);
                 proto_item_append_text(transform_attr_type_item," : %s", val_to_str(tvb_get_ntohs(tvb, offset), transform_attr_ext_seq_nbr_type, "Unknown %d"));
-		case ISAKMP_ATTR_AUTH_KEY_LENGTH:
-		proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_tf_attr_auth_key_length, tvb, offset, optlen, ENC_BIG_ENDIAN);
+                case ISAKMP_ATTR_AUTH_KEY_LENGTH:
+                proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_tf_attr_auth_key_length, tvb, offset, optlen, ENC_BIG_ENDIAN);
                 proto_item_append_text(transform_attr_type_item," : %d", tvb_get_ntohs(tvb, offset));
-		break;
-		case ISAKMP_ATTR_SIG_ENCO_ALGORITHM:
-		proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_tf_attr_sig_enco_algorithm, tvb, offset, optlen, ENC_NA);
-		break;
+                break;
+                case ISAKMP_ATTR_SIG_ENCO_ALGORITHM:
+                proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_tf_attr_sig_enco_algorithm, tvb, offset, optlen, ENC_NA);
+                break;
 
-		case ISAKMP_ATTR_ADDR_PRESERVATION:
-		proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_tf_attr_addr_preservation, tvb, offset, optlen, ENC_BIG_ENDIAN);
-		proto_item_append_text(transform_attr_type_item," : %s", val_to_str(tvb_get_ntohs(tvb, offset), transform_attr_addr_preservation_type, "Unknown %d"));
-		break;
+                case ISAKMP_ATTR_ADDR_PRESERVATION:
+                proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_tf_attr_addr_preservation, tvb, offset, optlen, ENC_BIG_ENDIAN);
+                proto_item_append_text(transform_attr_type_item," : %s", val_to_str(tvb_get_ntohs(tvb, offset), transform_attr_addr_preservation_type, "Unknown %d"));
+                break;
 
-		case ISAKMP_ATTR_SA_DIRECTION:
-		proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_tf_attr_sa_direction, tvb, offset, optlen, ENC_BIG_ENDIAN);
+                case ISAKMP_ATTR_SA_DIRECTION:
+                proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_tf_attr_sa_direction, tvb, offset, optlen, ENC_BIG_ENDIAN);
                 proto_item_append_text(transform_attr_type_item," : %s", val_to_str(tvb_get_ntohs(tvb, offset), transform_attr_sa_direction_type, "Unknown %d"));
-		default:
-		/* No Default Action */
-		break;
-	}
+                default:
+                /* No Default Action */
+                break;
+        }
 
-	return 2+len+optlen;
+        return 2+len+optlen;
 }
 
 
 /* Returns the number of bytes consumed by this option. */
 static int
 dissect_transform_ike_attribute(tvbuff_t *tvb, proto_tree *transform_attr_type_tree, int offset
-												#ifdef HAVE_LIBGCRYPT
-												, decrypt_data_t *decr
-												#endif
+                                                                                                #ifdef HAVE_LIBGCRYPT
+                                                                                                , decrypt_data_t *decr
+                                                                                                #endif
 )
 {
-	guint optlen, transform_attr_type, len = 0;
-	proto_item *transform_attr_type_item = NULL;
-	proto_tree *sub_transform_attr_type_tree = NULL;
+        guint optlen, transform_attr_type, len = 0;
+        proto_item *transform_attr_type_item;
+        proto_tree *sub_transform_attr_type_tree;
 
-	transform_attr_type = tvb_get_ntohs(tvb, offset);
-	optlen = tvb_get_ntohs(tvb, offset+2);
-	len = 2;
+        transform_attr_type = tvb_get_ntohs(tvb, offset);
+        optlen = tvb_get_ntohs(tvb, offset+2);
+        len = 2;
 
-	/* is TV ? (Type/Value) ? */
-   	if (transform_attr_type & 0x8000) {
-	      transform_attr_type = transform_attr_type & 0x7fff;
-	      len = 0;
-	      optlen = 2;
-   	}
+        /* is TV ? (Type/Value) ? */
+        if (transform_attr_type & 0x8000) {
+              transform_attr_type = transform_attr_type & 0x7fff;
+              len = 0;
+              optlen = 2;
+        }
 
 
-	transform_attr_type_item = proto_tree_add_item(transform_attr_type_tree, hf_isakmp_ike_attr, tvb, offset, 2+len+optlen, ENC_NA);
+        transform_attr_type_item = proto_tree_add_item(transform_attr_type_tree, hf_isakmp_ike_attr, tvb, offset, 2+len+optlen, ENC_NA);
         proto_item_append_text(transform_attr_type_item," (t=%d,l=%d) %s",transform_attr_type, optlen, val_to_str(transform_attr_type,transform_ike_attr_type,"Unknown Attribute Type (%02d)") );
-	sub_transform_attr_type_tree = proto_item_add_subtree(transform_attr_type_item, ett_isakmp_tf_ike_attr);
-	proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_ike_attr_format, tvb, offset, 2, ENC_BIG_ENDIAN);
-	proto_tree_add_uint(sub_transform_attr_type_tree, hf_isakmp_ike_attr_type, tvb, offset, 2, transform_attr_type);
+        sub_transform_attr_type_tree = proto_item_add_subtree(transform_attr_type_item, ett_isakmp_tf_ike_attr);
+        proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_ike_attr_format, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_uint(sub_transform_attr_type_tree, hf_isakmp_ike_attr_type, tvb, offset, 2, transform_attr_type);
 
-	offset += 2;
-	if (len)
-	{
-	   proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_ike_attr_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
+        if (len)
+        {
+           proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_ike_attr_length, tvb, offset, 2, ENC_BIG_ENDIAN);
            offset += 2;
-	}
-	if (optlen==0)
- 	{
-    	   proto_tree_add_text(sub_transform_attr_type_tree, tvb, offset, 0,"Attribut value is empty");
-	   return 2+len;
-	}
-	proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_ike_attr_value, tvb, offset, optlen, ENC_NA);
-	switch(transform_attr_type) {
+        }
+        if (optlen == 0)
+        {
+           proto_tree_add_text(sub_transform_attr_type_tree, tvb, offset, 0,"Attribut value is empty");
+           return 2+len;
+        }
+        proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_ike_attr_value, tvb, offset, optlen, ENC_NA);
+        switch(transform_attr_type) {
 
-		case IKE_ATTR_ENCRYPTION_ALGORITHM:
-		proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_ike_attr_encryption_algorithm, tvb, offset, optlen, ENC_BIG_ENDIAN);
+                case IKE_ATTR_ENCRYPTION_ALGORITHM:
+                proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_ike_attr_encryption_algorithm, tvb, offset, optlen, ENC_BIG_ENDIAN);
                 proto_item_append_text(transform_attr_type_item," : %s", val_to_str(tvb_get_ntohs(tvb, offset), transform_attr_enc_type, "Unknown %d"));
-		#ifdef HAVE_LIBGCRYPT
-		decr->encr_alg = tvb_get_ntohs(tvb, offset);
-		#endif
-		break;
-		case IKE_ATTR_HASH_ALGORITHM:
-		proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_ike_attr_hash_algorithm, tvb, offset, optlen, ENC_BIG_ENDIAN);
+                #ifdef HAVE_LIBGCRYPT
+                decr->encr_alg = tvb_get_ntohs(tvb, offset);
+                #endif
+                break;
+                case IKE_ATTR_HASH_ALGORITHM:
+                proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_ike_attr_hash_algorithm, tvb, offset, optlen, ENC_BIG_ENDIAN);
                 proto_item_append_text(transform_attr_type_item," : %s", val_to_str(tvb_get_ntohs(tvb, offset), transform_attr_hash_type, "Unknown %d"));
-		#ifdef HAVE_LIBGCRYPT
-		decr->hash_alg = tvb_get_ntohs(tvb, offset);
-		#endif
-		break;
-		case IKE_ATTR_AUTHENTICATION_METHOD:
-		proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_ike_attr_authentication_method, tvb, offset, optlen, ENC_BIG_ENDIAN);
+                #ifdef HAVE_LIBGCRYPT
+                decr->hash_alg = tvb_get_ntohs(tvb, offset);
+                #endif
+                break;
+                case IKE_ATTR_AUTHENTICATION_METHOD:
+                proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_ike_attr_authentication_method, tvb, offset, optlen, ENC_BIG_ENDIAN);
                 proto_item_append_text(transform_attr_type_item," : %s", val_to_str(tvb_get_ntohs(tvb, offset), transform_attr_authmeth_type, "Unknown %d"));
-		#ifdef HAVE_LIBGCRYPT
-		decr->is_psk = tvb_get_ntohs(tvb, offset) == 0x01 ? TRUE : FALSE;
-		#endif
-		break;
-		case IKE_ATTR_GROUP_DESCRIPTION:
-		proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_ike_attr_group_description, tvb, offset, optlen, ENC_BIG_ENDIAN);
+                #ifdef HAVE_LIBGCRYPT
+                decr->is_psk = tvb_get_ntohs(tvb, offset) == 0x01 ? TRUE : FALSE;
+                #endif
+                break;
+                case IKE_ATTR_GROUP_DESCRIPTION:
+                proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_ike_attr_group_description, tvb, offset, optlen, ENC_BIG_ENDIAN);
                 proto_item_append_text(transform_attr_type_item," : %s", val_to_str(tvb_get_ntohs(tvb, offset), transform_dh_group_type, "Unknown %d"));
-		#ifdef HAVE_LIBGCRYPT
-		decr->group = tvb_get_ntohs(tvb, offset);
-		#endif
-		break;
-		case IKE_ATTR_GROUP_TYPE:
-		proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_ike_attr_group_type, tvb, offset, optlen, ENC_BIG_ENDIAN);
+                #ifdef HAVE_LIBGCRYPT
+                decr->group = tvb_get_ntohs(tvb, offset);
+                #endif
+                break;
+                case IKE_ATTR_GROUP_TYPE:
+                proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_ike_attr_group_type, tvb, offset, optlen, ENC_BIG_ENDIAN);
                 proto_item_append_text(transform_attr_type_item," : %s", val_to_str(tvb_get_ntohs(tvb, offset), transform_attr_grp_type, "Unknown %d"));
-		break;
-		case IKE_ATTR_GROUP_PRIME:
-		proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_ike_attr_group_prime, tvb, offset, optlen, ENC_NA);
-		break;
-		case IKE_ATTR_GROUP_GENERATOR_ONE:
-		proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_ike_attr_group_generator_one, tvb, offset, optlen, ENC_NA);
-		break;
-		case IKE_ATTR_GROUP_GENERATOR_TWO:
-		proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_ike_attr_group_generator_two, tvb, offset, optlen, ENC_NA);
-		break;
-		case IKE_ATTR_GROUP_CURVE_A:
-		proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_ike_attr_group_curve_a, tvb, offset, optlen, ENC_NA);
-		break;
-		case IKE_ATTR_GROUP_CURVE_B:
-		proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_ike_attr_group_curve_b, tvb, offset, optlen, ENC_NA);
-		break;
-		case IKE_ATTR_LIFE_TYPE:
-		proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_ike_attr_life_type, tvb, offset, optlen, ENC_BIG_ENDIAN);
+                break;
+                case IKE_ATTR_GROUP_PRIME:
+                proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_ike_attr_group_prime, tvb, offset, optlen, ENC_NA);
+                break;
+                case IKE_ATTR_GROUP_GENERATOR_ONE:
+                proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_ike_attr_group_generator_one, tvb, offset, optlen, ENC_NA);
+                break;
+                case IKE_ATTR_GROUP_GENERATOR_TWO:
+                proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_ike_attr_group_generator_two, tvb, offset, optlen, ENC_NA);
+                break;
+                case IKE_ATTR_GROUP_CURVE_A:
+                proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_ike_attr_group_curve_a, tvb, offset, optlen, ENC_NA);
+                break;
+                case IKE_ATTR_GROUP_CURVE_B:
+                proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_ike_attr_group_curve_b, tvb, offset, optlen, ENC_NA);
+                break;
+                case IKE_ATTR_LIFE_TYPE:
+                proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_ike_attr_life_type, tvb, offset, optlen, ENC_BIG_ENDIAN);
                 proto_item_append_text(transform_attr_type_item," : %s", val_to_str(tvb_get_ntohs(tvb, offset), transform_attr_sa_life_type, "Unknown %d"));
-		break;
-		case IKE_ATTR_LIFE_DURATION:
-		dissect_life_duration(tvb, sub_transform_attr_type_tree, transform_attr_type_item, hf_isakmp_ike_attr_life_duration_uint32, hf_isakmp_ike_attr_life_duration_uint64, hf_isakmp_ike_attr_life_duration_bytes, offset, optlen);
-		break;
-		case IKE_ATTR_PRF:
-		proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_ike_attr_prf, tvb, offset, optlen, ENC_NA);
-		break;
-		case IKE_ATTR_KEY_LENGTH:
-		proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_ike_attr_key_length, tvb, offset, optlen, ENC_BIG_ENDIAN);
+                break;
+                case IKE_ATTR_LIFE_DURATION:
+                dissect_life_duration(tvb, sub_transform_attr_type_tree, transform_attr_type_item, hf_isakmp_ike_attr_life_duration_uint32, hf_isakmp_ike_attr_life_duration_uint64, hf_isakmp_ike_attr_life_duration_bytes, offset, optlen);
+                break;
+                case IKE_ATTR_PRF:
+                proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_ike_attr_prf, tvb, offset, optlen, ENC_NA);
+                break;
+                case IKE_ATTR_KEY_LENGTH:
+                proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_ike_attr_key_length, tvb, offset, optlen, ENC_BIG_ENDIAN);
                 proto_item_append_text(transform_attr_type_item," : %d", tvb_get_ntohs(tvb, offset));
-		break;
-		case IKE_ATTR_FIELD_SIZE:
-		proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_ike_attr_field_size, tvb, offset, optlen, ENC_NA);
-		break;
-		case IKE_ATTR_GROUP_ORDER:
-		proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_ike_attr_group_order, tvb, offset, optlen, ENC_NA);
-		break;
-	default:
-		/* No Default Action */
-		break;
-	}
+                break;
+                case IKE_ATTR_FIELD_SIZE:
+                proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_ike_attr_field_size, tvb, offset, optlen, ENC_NA);
+                break;
+                case IKE_ATTR_GROUP_ORDER:
+                proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_ike_attr_group_order, tvb, offset, optlen, ENC_NA);
+                break;
+        default:
+                /* No Default Action */
+                break;
+        }
 
-	return 2+len+optlen;
+        return 2+len+optlen;
 }
 /* Returns the number of bytes consumed by this option. */
 static int
 dissect_transform_ike2_attribute(tvbuff_t *tvb, proto_tree *transform_attr_type_tree, int offset )
 {
-	guint optlen, transform_attr_type, len = 0;
-	proto_item *transform_attr_type_item = NULL;
-	proto_tree *sub_transform_attr_type_tree = NULL;
+        guint optlen, transform_attr_type, len = 0;
+        proto_item *transform_attr_type_item;
+        proto_tree *sub_transform_attr_type_tree;
 
-	transform_attr_type = tvb_get_ntohs(tvb, offset);
-	optlen = tvb_get_ntohs(tvb, offset+2);
-	len = 2;
+        transform_attr_type = tvb_get_ntohs(tvb, offset);
+        optlen = tvb_get_ntohs(tvb, offset+2);
+        len = 2;
 
-	/* is TV ? (Type/Value) ? */
-   	if (transform_attr_type & 0x8000) {
-	      transform_attr_type = transform_attr_type & 0x7fff;
-	      len = 0;
-	      optlen = 2;
-   	}
+        /* is TV ? (Type/Value) ? */
+        if (transform_attr_type & 0x8000) {
+              transform_attr_type = transform_attr_type & 0x7fff;
+              len = 0;
+              optlen = 2;
+        }
 
 
-	transform_attr_type_item = proto_tree_add_item(transform_attr_type_tree, hf_isakmp_ike2_attr, tvb, offset, 2+len+optlen, ENC_NA);
+        transform_attr_type_item = proto_tree_add_item(transform_attr_type_tree, hf_isakmp_ike2_attr, tvb, offset, 2+len+optlen, ENC_NA);
         proto_item_append_text(transform_attr_type_item," (t=%d,l=%d) %s",transform_attr_type, optlen, val_to_str(transform_attr_type,transform_ike2_attr_type,"Unknown Attribute Type (%02d)") );
-	sub_transform_attr_type_tree = proto_item_add_subtree(transform_attr_type_item, ett_isakmp_tf_ike2_attr);
-	proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_ike2_attr_format, tvb, offset, 2, ENC_BIG_ENDIAN);
-	proto_tree_add_uint(sub_transform_attr_type_tree, hf_isakmp_ike2_attr_type, tvb, offset, 2, transform_attr_type);
+        sub_transform_attr_type_tree = proto_item_add_subtree(transform_attr_type_item, ett_isakmp_tf_ike2_attr);
+        proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_ike2_attr_format, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_uint(sub_transform_attr_type_tree, hf_isakmp_ike2_attr_type, tvb, offset, 2, transform_attr_type);
 
-	offset += 2;
-	if (len)
-	{
-	   proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_ike2_attr_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
+        if (len)
+        {
+           proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_ike2_attr_length, tvb, offset, 2, ENC_BIG_ENDIAN);
            offset += 2;
-	}
-	if (optlen==0)
- 	{
-    	   proto_tree_add_text(sub_transform_attr_type_tree, tvb, offset, 0,"Attribut value is empty");
-	   return 2+len;
-	}
-	proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_ike2_attr_value, tvb, offset, optlen, ENC_NA);
-	switch(transform_attr_type) {
-		case IKE2_ATTR_KEY_LENGTH:
-		proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_ike2_attr_key_length, tvb, offset, optlen, ENC_BIG_ENDIAN);
+        }
+        if (optlen == 0)
+        {
+           proto_tree_add_text(sub_transform_attr_type_tree, tvb, offset, 0,"Attribut value is empty");
+           return 2+len;
+        }
+        proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_ike2_attr_value, tvb, offset, optlen, ENC_NA);
+        switch(transform_attr_type) {
+                case IKE2_ATTR_KEY_LENGTH:
+                proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_ike2_attr_key_length, tvb, offset, optlen, ENC_BIG_ENDIAN);
                 proto_item_append_text(transform_attr_type_item," : %d", tvb_get_ntohs(tvb, offset));
-		break;
-	default:
-		/* No Default Action */
-		break;
-	}
+                break;
+        default:
+                /* No Default Action */
+                break;
+        }
 
-	return 2+len+optlen;
+        return 2+len+optlen;
 }
 static void
 dissect_transform(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isakmp_version, int protocol_id, void* decr_data
@@ -3538,8 +3538,8 @@ dissect_transform(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int i
 {
   if (isakmp_version == 1)
   {
-    guint8		transform_id;
-    guint8		transform_num;
+    guint8              transform_id;
+    guint8              transform_num;
 #ifdef HAVE_LIBGCRYPT
     decrypt_data_t *decr = (decrypt_data_t *)decr_data;
 #endif /* HAVE_LIBGCRYPT */
@@ -3554,22 +3554,22 @@ dissect_transform(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int i
 
     transform_id = tvb_get_guint8(tvb, offset);
     switch (protocol_id) {
-    case 1:	/* ISAKMP */
+    case 1:     /* ISAKMP */
       proto_tree_add_uint_format_value(tree, hf_isakmp_trans_id, tvb, offset, 1,
                                  transform_id, "%s (%u)",
                                  val_to_str_const(transform_id, vs_v1_trans_isakmp, "UNKNOWN-TRANS-TYPE"), transform_id);
       break;
-    case 2:	/* AH */
+    case 2:     /* AH */
       proto_tree_add_uint_format_value(tree, hf_isakmp_trans_id, tvb, offset, 1,
                                  transform_id, "%s (%u)",
                                  val_to_str_const(transform_id, vs_v1_trans_ah, "UNKNOWN-AH-TRANS-TYPE"), transform_id);
       break;
-    case 3:	/* ESP */
+    case 3:     /* ESP */
       proto_tree_add_uint_format_value(tree, hf_isakmp_trans_id, tvb, offset, 1,
                                  transform_id, "%s (%u)",
                                  val_to_str_const(transform_id, vs_v1_trans_esp, "UNKNOWN-ESP-TRANS-TYPE"), transform_id);
       break;
-    case 4:	/* IPCOMP */
+    case 4:     /* IPCOMP */
       proto_tree_add_uint_format_value(tree, hf_isakmp_trans_id, tvb, offset, 1,
                                  transform_id, "%s (%u)",
                                  val_to_str_const(transform_id, transform_id_ipcomp, "UNKNOWN-IPCOMP-TRANS-TYPE"), transform_id);
@@ -3674,11 +3674,11 @@ dissect_key_exch(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int is
 static void
 dissect_id(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isakmp_version, packet_info *pinfo )
 {
-  guint8		id_type;
-  guint8		protocol_id;
-  guint16		port;
-  proto_item		*idit;
-  proto_tree		*idtree;
+  guint8                id_type;
+  guint8                protocol_id;
+  guint16               port;
+  proto_item            *idit;
+  proto_tree            *idtree;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
@@ -3791,7 +3791,7 @@ dissect_cert(tvbuff_t *tvb, int offset, int length _U_, proto_tree *tree, int is
 static void
 dissect_certreq(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isakmp_version, packet_info *pinfo )
 {
-  guint8		cert_type;
+  guint8                cert_type;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   cert_type = tvb_get_guint8(tvb, offset);
@@ -3865,7 +3865,7 @@ dissect_cisco_fragmentation(tvbuff_t *tvb, int offset, int length, proto_tree *t
 
   guint8 seq; /* Packet sequence number, starting from 1 */
   guint8 last;
-  proto_tree *ptree = NULL;
+  proto_tree *ptree;
   ptree = proto_tree_get_parent(tree);
   if (length < 4)
     return;
@@ -3883,8 +3883,8 @@ dissect_cisco_fragmentation(tvbuff_t *tvb, int offset, int length, proto_tree *t
   /* Start Reassembly stuff for Cisco IKE fragmentation */
   {
     gboolean save_fragmented;
-    tvbuff_t *defrag_isakmp_tvb = NULL;
-    fragment_head *frag_msg = NULL;
+    tvbuff_t *defrag_isakmp_tvb;
+    fragment_head *frag_msg;
 
     save_fragmented = pinfo->fragmented;
     pinfo->fragmented = TRUE;
@@ -3915,9 +3915,9 @@ static void
 dissect_notif(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isakmp_version)
 {
 
-  guint8		spi_size;
-  guint16		msgtype;
-  int 			offset_end = 0;
+  guint8                spi_size;
+  guint16               msgtype;
+  int                   offset_end = 0;
   offset_end = offset + length;
 
   if (isakmp_version == 1) {
@@ -4068,7 +4068,7 @@ dissect_notif(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isakm
 static void
 dissect_delete(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isakmp_version)
 {
-  guint8		spi_size;
+  guint8                spi_size;
 
   if (isakmp_version == 1) {
 
@@ -4170,281 +4170,281 @@ dissect_vid(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
 static int
 dissect_config_attribute(tvbuff_t *tvb, proto_tree *cfg_attr_type_tree, int offset, int isakmp_version)
 {
-	guint optlen, cfg_attr_type, len = 0;
+        guint optlen, cfg_attr_type, len = 0;
         int offset_end = 0;
-	proto_item *cfg_attr_type_item = NULL;
-	proto_tree *sub_cfg_attr_type_tree = NULL;
+        proto_item *cfg_attr_type_item = NULL;
+        proto_tree *sub_cfg_attr_type_tree = NULL;
 
-	cfg_attr_type = tvb_get_ntohs(tvb, offset);
-	optlen = tvb_get_ntohs(tvb, offset+2);
-	len = 2;
+        cfg_attr_type = tvb_get_ntohs(tvb, offset);
+        optlen = tvb_get_ntohs(tvb, offset+2);
+        len = 2;
 
-	/* No Length ? */
-   	if (cfg_attr_type & 0x8000) {
-	      cfg_attr_type = cfg_attr_type & 0x7fff;
-	      len = 0;
-	      optlen = 2;
-   	}
+        /* No Length ? */
+        if (cfg_attr_type & 0x8000) {
+              cfg_attr_type = cfg_attr_type & 0x7fff;
+              len = 0;
+              optlen = 2;
+        }
 
-  	if (isakmp_version == 1) {
+        if (isakmp_version == 1) {
 
-	   cfg_attr_type_item = proto_tree_add_none_format(cfg_attr_type_tree, hf_isakmp_cfg_attr, tvb, offset, 2+len+optlen, "Attribute Type: (t=%d,l=%d) %s", cfg_attr_type, optlen, rval_to_str(cfg_attr_type,vs_v1_cfgattr,"Unknown Attribute Type (%02d)") );
-	   sub_cfg_attr_type_tree = proto_item_add_subtree(cfg_attr_type_item, ett_isakmp_cfg_attr);
-	   proto_tree_add_uint(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_type_v1, tvb, offset, 2, cfg_attr_type);
-  	} else if (isakmp_version == 2) {
-	   cfg_attr_type_item = proto_tree_add_none_format(cfg_attr_type_tree, hf_isakmp_cfg_attr, tvb, offset, 2+len+optlen, "Attribute Type: (t=%d,l=%d) %s", cfg_attr_type, optlen, rval_to_str(cfg_attr_type,vs_v2_cfgattr,"Unknown Attribute Type (%02d)") );
-	   sub_cfg_attr_type_tree = proto_item_add_subtree(cfg_attr_type_item, ett_isakmp_cfg_attr);
-	   proto_tree_add_uint(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_type_v2, tvb, offset, 2, cfg_attr_type);
-	}
+           cfg_attr_type_item = proto_tree_add_none_format(cfg_attr_type_tree, hf_isakmp_cfg_attr, tvb, offset, 2+len+optlen, "Attribute Type: (t=%d,l=%d) %s", cfg_attr_type, optlen, rval_to_str(cfg_attr_type,vs_v1_cfgattr,"Unknown Attribute Type (%02d)") );
+           sub_cfg_attr_type_tree = proto_item_add_subtree(cfg_attr_type_item, ett_isakmp_cfg_attr);
+           proto_tree_add_uint(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_type_v1, tvb, offset, 2, cfg_attr_type);
+        } else if (isakmp_version == 2) {
+           cfg_attr_type_item = proto_tree_add_none_format(cfg_attr_type_tree, hf_isakmp_cfg_attr, tvb, offset, 2+len+optlen, "Attribute Type: (t=%d,l=%d) %s", cfg_attr_type, optlen, rval_to_str(cfg_attr_type,vs_v2_cfgattr,"Unknown Attribute Type (%02d)") );
+           sub_cfg_attr_type_tree = proto_item_add_subtree(cfg_attr_type_item, ett_isakmp_cfg_attr);
+           proto_tree_add_uint(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_type_v2, tvb, offset, 2, cfg_attr_type);
+        }
         proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_format, tvb, offset, 2, ENC_BIG_ENDIAN);
-	offset += 2;
-	if (len)
-	{
-	   proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
+        if (len)
+        {
+           proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_length, tvb, offset, 2, ENC_BIG_ENDIAN);
            offset += 2;
-	}
-	if (optlen==0)
- 	{
-    	   proto_tree_add_text(sub_cfg_attr_type_tree, tvb, offset, 0,"Attribut value is empty");
-	   return 2+len;
-	}
-	proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_value, tvb, offset, optlen, ENC_NA);
-	switch (cfg_attr_type) {
-	case INTERNAL_IP4_ADDRESS: /* 1 */
-		offset_end = offset + optlen;
+        }
+        if (optlen == 0)
+        {
+           proto_tree_add_text(sub_cfg_attr_type_tree, tvb, offset, 0,"Attribut value is empty");
+           return 2+len;
+        }
+        proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_value, tvb, offset, optlen, ENC_NA);
+        switch (cfg_attr_type) {
+        case INTERNAL_IP4_ADDRESS: /* 1 */
+                offset_end = offset + optlen;
 
-		if (optlen%4 == 0)
-		{
-			while (offset_end-offset > 0)
-			{
-				proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip4_address, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-			}
+                if (optlen%4 == 0)
+                {
+                        while (offset_end-offset > 0)
+                        {
+                                proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip4_address, tvb, offset, 4, ENC_BIG_ENDIAN);
+                                offset += 4;
+                        }
 
-		}
-		break;
-	case INTERNAL_IP4_NETMASK: /* 2 */
-		proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip4_netmask, tvb, offset, 4, ENC_BIG_ENDIAN);
-		break;
-	case INTERNAL_IP4_DNS: /* 3 */
-		offset_end = offset + optlen;
+                }
+                break;
+        case INTERNAL_IP4_NETMASK: /* 2 */
+                proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip4_netmask, tvb, offset, 4, ENC_BIG_ENDIAN);
+                break;
+        case INTERNAL_IP4_DNS: /* 3 */
+                offset_end = offset + optlen;
 
-		if (optlen%4 == 0)
-		{
-			while (offset_end-offset > 0)
-			{
-				proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip4_dns, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-			}
+                if (optlen%4 == 0)
+                {
+                        while (offset_end-offset > 0)
+                        {
+                                proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip4_dns, tvb, offset, 4, ENC_BIG_ENDIAN);
+                                offset += 4;
+                        }
 
-		}
-		break;
-	case INTERNAL_IP4_NBNS: /* 4 */
-		offset_end = offset + optlen;
+                }
+                break;
+        case INTERNAL_IP4_NBNS: /* 4 */
+                offset_end = offset + optlen;
 
-		if (optlen%4 == 0)
-		{
-			while (offset_end-offset > 0)
-			{
-				proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip4_nbns, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-			}
+                if (optlen%4 == 0)
+                {
+                        while (offset_end-offset > 0)
+                        {
+                                proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip4_nbns, tvb, offset, 4, ENC_BIG_ENDIAN);
+                                offset += 4;
+                        }
 
-		}
-		break;
-	case INTERNAL_ADDRESS_EXPIRY: /* 5 */
-		proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_address_expiry, tvb, offset, 4, ENC_BIG_ENDIAN);
-		break;
-	case INTERNAL_IP4_DHCP: /* 6 */
-		offset_end = offset + optlen;
+                }
+                break;
+        case INTERNAL_ADDRESS_EXPIRY: /* 5 */
+                proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_address_expiry, tvb, offset, 4, ENC_BIG_ENDIAN);
+                break;
+        case INTERNAL_IP4_DHCP: /* 6 */
+                offset_end = offset + optlen;
 
-		if (optlen%4 == 0)
-		{
-			while (offset_end-offset > 0)
-			{
-				proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip4_dhcp, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-			}
+                if (optlen%4 == 0)
+                {
+                        while (offset_end-offset > 0)
+                        {
+                                proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip4_dhcp, tvb, offset, 4, ENC_BIG_ENDIAN);
+                                offset += 4;
+                        }
 
-		}
-		break;
-	case APPLICATION_VERSION: /* 7 */
-		proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_application_version, tvb, offset, optlen, ENC_ASCII|ENC_NA);
-		proto_item_append_text(cfg_attr_type_item," : %s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset,optlen, ENC_ASCII));
-		break;
-	case INTERNAL_IP6_ADDRESS: /* 8 */
-		offset_end = offset + optlen;
+                }
+                break;
+        case APPLICATION_VERSION: /* 7 */
+                proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_application_version, tvb, offset, optlen, ENC_ASCII|ENC_NA);
+                proto_item_append_text(cfg_attr_type_item," : %s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset,optlen, ENC_ASCII));
+                break;
+        case INTERNAL_IP6_ADDRESS: /* 8 */
+                offset_end = offset + optlen;
 
-		if (optlen%16 == 0)
-		{
-			while (offset_end-offset > 0)
-			{
-				proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip6_address, tvb, offset, 16, ENC_BIG_ENDIAN);
-				offset += 16;
-			}
+                if (optlen%16 == 0)
+                {
+                        while (offset_end-offset > 0)
+                        {
+                                proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip6_address, tvb, offset, 16, ENC_BIG_ENDIAN);
+                                offset += 16;
+                        }
 
-		}
-		break;
-	case INTERNAL_IP6_NETMASK: /* 9 Only in IKEv1 */
-		proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip6_netmask, tvb, offset, 18, ENC_NA);
-		break;
-	case INTERNAL_IP6_DNS: /* 10 */
-		offset_end = offset + optlen;
+                }
+                break;
+        case INTERNAL_IP6_NETMASK: /* 9 Only in IKEv1 */
+                proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip6_netmask, tvb, offset, 18, ENC_NA);
+                break;
+        case INTERNAL_IP6_DNS: /* 10 */
+                offset_end = offset + optlen;
 
-		if (optlen%16 == 0)
-		{
-			while (offset_end-offset > 0)
-			{
-				proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip6_dns, tvb, offset, 16, ENC_NA);
-				offset += 16;
-			}
+                if (optlen%16 == 0)
+                {
+                        while (offset_end-offset > 0)
+                        {
+                                proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip6_dns, tvb, offset, 16, ENC_NA);
+                                offset += 16;
+                        }
 
-		}
-		break;
-	case INTERNAL_IP6_NBNS: /* 11 */
-		offset_end = offset + optlen;
+                }
+                break;
+        case INTERNAL_IP6_NBNS: /* 11 */
+                offset_end = offset + optlen;
 
-		if (optlen%16 == 0)
-		{
-			while (offset_end-offset > 0)
-			{
-				proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip6_nbns, tvb, offset, 16, ENC_NA);
-				offset += 16;
-			}
+                if (optlen%16 == 0)
+                {
+                        while (offset_end-offset > 0)
+                        {
+                                proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip6_nbns, tvb, offset, 16, ENC_NA);
+                                offset += 16;
+                        }
 
-		}
-		break;
-	case INTERNAL_IP6_DHCP: /* 12 */
-		offset_end = offset + optlen;
+                }
+                break;
+        case INTERNAL_IP6_DHCP: /* 12 */
+                offset_end = offset + optlen;
 
-		if (optlen%16 == 0)
-		{
-			while (offset_end-offset > 0)
-			{
-				proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip6_dhcp, tvb, offset, 16, ENC_NA);
-				offset += 16;
-			}
+                if (optlen%16 == 0)
+                {
+                        while (offset_end-offset > 0)
+                        {
+                                proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip6_dhcp, tvb, offset, 16, ENC_NA);
+                                offset += 16;
+                        }
 
-		}
-		break;
-	case INTERNAL_IP4_SUBNET: /* 13 */
-		offset_end = offset + optlen;
+                }
+                break;
+        case INTERNAL_IP4_SUBNET: /* 13 */
+                offset_end = offset + optlen;
 
-		if (optlen%8 == 0)
-		{
-			while (offset_end-offset > 0)
-			{
-				proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip4_subnet_ip, tvb, offset, 4, ENC_BIG_ENDIAN);
-				proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip4_subnet_netmask, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 8;
-			}
+                if (optlen%8 == 0)
+                {
+                        while (offset_end-offset > 0)
+                        {
+                                proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip4_subnet_ip, tvb, offset, 4, ENC_BIG_ENDIAN);
+                                proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip4_subnet_netmask, tvb, offset, 4, ENC_BIG_ENDIAN);
+                                offset += 8;
+                        }
 
-		}
-		break;
-	case SUPPORTED_ATTRIBUTES: /* 14 */
-		offset_end = offset + optlen;
+                }
+                break;
+        case SUPPORTED_ATTRIBUTES: /* 14 */
+                offset_end = offset + optlen;
 
-		if (optlen%2 == 0)
-		{
-			while (offset_end-offset > 0)
-			{
-				proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_supported_attributes, tvb, offset, 2, ENC_BIG_ENDIAN);
-				offset += 2;
-			}
+                if (optlen%2 == 0)
+                {
+                        while (offset_end-offset > 0)
+                        {
+                                proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_supported_attributes, tvb, offset, 2, ENC_BIG_ENDIAN);
+                                offset += 2;
+                        }
 
-		}
-		break;
-	case INTERNAL_IP6_SUBNET: /* 15 */
-		offset_end = offset + optlen;
+                }
+                break;
+        case INTERNAL_IP6_SUBNET: /* 15 */
+                offset_end = offset + optlen;
 
-		if (optlen%17 == 0)
-		{
-			while (offset_end-offset > 0)
-			{
-				proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip6_subnet_ip, tvb, offset, 16, ENC_NA);
-				offset += 16;
-				proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip6_subnet_prefix, tvb, offset, 1, ENC_BIG_ENDIAN);
-				offset += 1;
-			}
+                if (optlen%17 == 0)
+                {
+                        while (offset_end-offset > 0)
+                        {
+                                proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip6_subnet_ip, tvb, offset, 16, ENC_NA);
+                                offset += 16;
+                                proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip6_subnet_prefix, tvb, offset, 1, ENC_BIG_ENDIAN);
+                                offset += 1;
+                        }
 
-		}
-		break;
-	case INTERNAL_IP6_LINK: /* 17 */
-		proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip6_link_interface, tvb, offset, 8, ENC_BIG_ENDIAN);
-		offset += 8;
-		proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip6_link_id, tvb, offset, optlen-8, ENC_NA);
-		break;
-	case INTERNAL_IP6_PREFIX: /* 18 */
-		offset_end = offset + optlen;
+                }
+                break;
+        case INTERNAL_IP6_LINK: /* 17 */
+                proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip6_link_interface, tvb, offset, 8, ENC_BIG_ENDIAN);
+                offset += 8;
+                proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip6_link_id, tvb, offset, optlen-8, ENC_NA);
+                break;
+        case INTERNAL_IP6_PREFIX: /* 18 */
+                offset_end = offset + optlen;
 
-		if (optlen%17 == 0)
-		{
-			while (offset_end-offset > 0)
-			{
-				proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip6_prefix_ip, tvb, offset, 16, ENC_NA);
-				offset += 16;
-				proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip6_prefix_length, tvb, offset, 1, ENC_BIG_ENDIAN);
-				offset += 1;
-			}
+                if (optlen%17 == 0)
+                {
+                        while (offset_end-offset > 0)
+                        {
+                                proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip6_prefix_ip, tvb, offset, 16, ENC_NA);
+                                offset += 16;
+                                proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip6_prefix_length, tvb, offset, 1, ENC_BIG_ENDIAN);
+                                offset += 1;
+                        }
 
-		}
-		break;
-	case XAUTH_TYPE: /* 16520 */
-		proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_xauth_type, tvb, offset, optlen, ENC_BIG_ENDIAN);
-		proto_item_append_text(cfg_attr_type_item," : %s", rval_to_str(tvb_get_ntohs(tvb, offset), cfgattr_xauth_type, "Unknown %d"));
-		break;
-	case XAUTH_USER_NAME: /* 16521 */
-		proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_xauth_user_name, tvb, offset, optlen, ENC_ASCII|ENC_NA);
-		proto_item_append_text(cfg_attr_type_item," : %s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset,optlen, ENC_ASCII));
-		break;
-	case XAUTH_USER_PASSWORD: /* 16522 */
-		proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_xauth_user_password, tvb, offset, optlen, ENC_ASCII|ENC_NA);
-		proto_item_append_text(cfg_attr_type_item," : %s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset,optlen, ENC_ASCII));
-		break;
-	case XAUTH_PASSCODE: /* 16523 */
-		proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_xauth_passcode, tvb, offset, optlen, ENC_ASCII|ENC_NA);
-		proto_item_append_text(cfg_attr_type_item," : %s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset,optlen, ENC_ASCII));
-		break;
-	case XAUTH_MESSAGE: /* 16524 */
-		proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_xauth_message, tvb, offset, optlen, ENC_ASCII|ENC_NA);
-		proto_item_append_text(cfg_attr_type_item," : %s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset,optlen, ENC_ASCII));
-		break;
-	case XAUTH_CHALLENGE: /* 16525 */
-		proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_xauth_challenge, tvb, offset, optlen, ENC_ASCII|ENC_NA);
-		proto_item_append_text(cfg_attr_type_item," : %s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset,optlen, ENC_ASCII));
-		break;
-	case XAUTH_DOMAIN: /* 16526 */
-		proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_xauth_domain, tvb, offset, optlen, ENC_ASCII|ENC_NA);
-		proto_item_append_text(cfg_attr_type_item," : %s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset,optlen, ENC_ASCII));
-		break;
-	case XAUTH_STATUS: /* 16527 */
-		proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_xauth_status, tvb, offset, optlen, ENC_BIG_ENDIAN);
-		proto_item_append_text(cfg_attr_type_item," : %s", val_to_str(tvb_get_ntohs(tvb, offset), cfgattr_xauth_status, "Unknown %d"));
-		break;
-	case XAUTH_NEXT_PIN: /* 16528 */
-		proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_xauth_next_pin, tvb, offset, optlen, ENC_ASCII|ENC_NA);
-		proto_item_append_text(cfg_attr_type_item," : %s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset,optlen, ENC_ASCII));
-		break;
-	case XAUTH_ANSWER: /* 16527 */
-		proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_xauth_answer, tvb, offset, optlen, ENC_ASCII|ENC_NA);
-		proto_item_append_text(cfg_attr_type_item," : %s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset,optlen, ENC_ASCII));
-		break;
+                }
+                break;
+        case XAUTH_TYPE: /* 16520 */
+                proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_xauth_type, tvb, offset, optlen, ENC_BIG_ENDIAN);
+                proto_item_append_text(cfg_attr_type_item," : %s", rval_to_str(tvb_get_ntohs(tvb, offset), cfgattr_xauth_type, "Unknown %d"));
+                break;
+        case XAUTH_USER_NAME: /* 16521 */
+                proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_xauth_user_name, tvb, offset, optlen, ENC_ASCII|ENC_NA);
+                proto_item_append_text(cfg_attr_type_item," : %s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset,optlen, ENC_ASCII));
+                break;
+        case XAUTH_USER_PASSWORD: /* 16522 */
+                proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_xauth_user_password, tvb, offset, optlen, ENC_ASCII|ENC_NA);
+                proto_item_append_text(cfg_attr_type_item," : %s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset,optlen, ENC_ASCII));
+                break;
+        case XAUTH_PASSCODE: /* 16523 */
+                proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_xauth_passcode, tvb, offset, optlen, ENC_ASCII|ENC_NA);
+                proto_item_append_text(cfg_attr_type_item," : %s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset,optlen, ENC_ASCII));
+                break;
+        case XAUTH_MESSAGE: /* 16524 */
+                proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_xauth_message, tvb, offset, optlen, ENC_ASCII|ENC_NA);
+                proto_item_append_text(cfg_attr_type_item," : %s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset,optlen, ENC_ASCII));
+                break;
+        case XAUTH_CHALLENGE: /* 16525 */
+                proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_xauth_challenge, tvb, offset, optlen, ENC_ASCII|ENC_NA);
+                proto_item_append_text(cfg_attr_type_item," : %s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset,optlen, ENC_ASCII));
+                break;
+        case XAUTH_DOMAIN: /* 16526 */
+                proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_xauth_domain, tvb, offset, optlen, ENC_ASCII|ENC_NA);
+                proto_item_append_text(cfg_attr_type_item," : %s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset,optlen, ENC_ASCII));
+                break;
+        case XAUTH_STATUS: /* 16527 */
+                proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_xauth_status, tvb, offset, optlen, ENC_BIG_ENDIAN);
+                proto_item_append_text(cfg_attr_type_item," : %s", val_to_str(tvb_get_ntohs(tvb, offset), cfgattr_xauth_status, "Unknown %d"));
+                break;
+        case XAUTH_NEXT_PIN: /* 16528 */
+                proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_xauth_next_pin, tvb, offset, optlen, ENC_ASCII|ENC_NA);
+                proto_item_append_text(cfg_attr_type_item," : %s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset,optlen, ENC_ASCII));
+                break;
+        case XAUTH_ANSWER: /* 16527 */
+                proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_xauth_answer, tvb, offset, optlen, ENC_ASCII|ENC_NA);
+                proto_item_append_text(cfg_attr_type_item," : %s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset,optlen, ENC_ASCII));
+                break;
 
-	case UNITY_BANNER: /* 28672 */
-		proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_unity_banner, tvb, offset, optlen, ENC_ASCII|ENC_NA);
-		proto_item_append_text(cfg_attr_type_item," : %s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset,optlen, ENC_ASCII));
-		break;
-	case UNITY_DEF_DOMAIN: /* 28674 */
-		proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_unity_def_domain, tvb, offset, optlen, ENC_ASCII|ENC_NA);
-		proto_item_append_text(cfg_attr_type_item," : %s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset,optlen, ENC_ASCII));
-		break;
+        case UNITY_BANNER: /* 28672 */
+                proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_unity_banner, tvb, offset, optlen, ENC_ASCII|ENC_NA);
+                proto_item_append_text(cfg_attr_type_item," : %s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset,optlen, ENC_ASCII));
+                break;
+        case UNITY_DEF_DOMAIN: /* 28674 */
+                proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_unity_def_domain, tvb, offset, optlen, ENC_ASCII|ENC_NA);
+                proto_item_append_text(cfg_attr_type_item," : %s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset,optlen, ENC_ASCII));
+                break;
 /* TODO: Support other UNITY Attributes ! */
-	default:
-		/* No Default Action */
-		break;
-	}
+        default:
+                /* No Default Action */
+                break;
+        }
 
-	return 2+len+optlen;
+        return 2+len+optlen;
 }
 static void
 dissect_config(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isakmp_version)
@@ -4492,7 +4492,7 @@ dissect_nat_original_address(tvbuff_t *tvb, int offset, int length _U_, proto_tr
   }
   offset += 1;
 
-  offset += 3;		/* reserved */
+  offset += 3;          /* reserved */
 
   switch (id_type) {
 
@@ -4512,7 +4512,7 @@ dissect_nat_original_address(tvbuff_t *tvb, int offset, int length _U_, proto_tr
 static void
 dissect_ts(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
 {
-  guint8	num, tstype, protocol_id;
+  guint8        num, tstype, protocol_id;
 
   num = tvb_get_guint8(tvb, offset);
   proto_item_append_text(tree," # %d", num);
@@ -4532,107 +4532,107 @@ dissect_ts(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
     length -= 1;
     switch (tstype) {
     case IKEV2_TS_IPV4_ADDR_RANGE:
-	protocol_id = tvb_get_guint8(tvb, offset);
-	if (protocol_id == 0)
-	    proto_tree_add_uint_format_value(tree, hf_isakmp_ts_protoid, tvb, offset,1,
+        protocol_id = tvb_get_guint8(tvb, offset);
+        if (protocol_id == 0)
+            proto_tree_add_uint_format_value(tree, hf_isakmp_ts_protoid, tvb, offset,1,
                                protocol_id, "Unused");
         else
-	    proto_tree_add_item(tree, hf_isakmp_ts_protoid, tvb, offset, 1, ENC_BIG_ENDIAN);
-	offset += 1;
-	length -= 1;
+            proto_tree_add_item(tree, hf_isakmp_ts_protoid, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+        length -= 1;
 
-	proto_tree_add_item(tree, hf_isakmp_ts_selector_length, tvb, offset, 2, ENC_BIG_ENDIAN);
-	offset += 2;
-	length -= 2;
+        proto_tree_add_item(tree, hf_isakmp_ts_selector_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
+        length -= 2;
 
-	proto_tree_add_item(tree, hf_isakmp_ts_start_port, tvb, offset, 2, ENC_BIG_ENDIAN);
-	offset += 2;
-	length -= 2;
+        proto_tree_add_item(tree, hf_isakmp_ts_start_port, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
+        length -= 2;
 
-	proto_tree_add_item(tree, hf_isakmp_ts_end_port, tvb, offset, 2, ENC_BIG_ENDIAN);
-	offset += 2;
-	length -= 2;
+        proto_tree_add_item(tree, hf_isakmp_ts_end_port, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
+        length -= 2;
 
-	proto_tree_add_item(tree, hf_isakmp_ts_start_addr_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
-	offset += 4;
-	length -= 4;
-	proto_tree_add_item(tree, hf_isakmp_ts_end_addr_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
-	offset += 4;
-	length -= 4;
-	break;
+        proto_tree_add_item(tree, hf_isakmp_ts_start_addr_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
+        length -= 4;
+        proto_tree_add_item(tree, hf_isakmp_ts_end_addr_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
+        length -= 4;
+        break;
     case IKEV2_TS_IPV6_ADDR_RANGE:
-	protocol_id = tvb_get_guint8(tvb, offset);
-	if (protocol_id == 0)
-	    proto_tree_add_uint_format_value(tree, hf_isakmp_ts_protoid, tvb, offset,1,
+        protocol_id = tvb_get_guint8(tvb, offset);
+        if (protocol_id == 0)
+            proto_tree_add_uint_format_value(tree, hf_isakmp_ts_protoid, tvb, offset,1,
                                protocol_id, "Unused");
         else
-	    proto_tree_add_item(tree, hf_isakmp_ts_protoid, tvb, offset, 1, ENC_BIG_ENDIAN);
-	offset += 1;
-	length -= 1;
+            proto_tree_add_item(tree, hf_isakmp_ts_protoid, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+        length -= 1;
 
-	proto_tree_add_item(tree, hf_isakmp_ts_selector_length, tvb, offset, 2, ENC_BIG_ENDIAN);
-	offset += 2;
-	length -= 2;
+        proto_tree_add_item(tree, hf_isakmp_ts_selector_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
+        length -= 2;
 
-	proto_tree_add_item(tree, hf_isakmp_ts_start_port, tvb, offset, 2, ENC_BIG_ENDIAN);
-	offset += 2;
-	length -= 2;
+        proto_tree_add_item(tree, hf_isakmp_ts_start_port, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
+        length -= 2;
 
-	proto_tree_add_item(tree, hf_isakmp_ts_end_port, tvb, offset, 2, ENC_BIG_ENDIAN);
-	offset += 2;
-	length -= 2;
+        proto_tree_add_item(tree, hf_isakmp_ts_end_port, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
+        length -= 2;
 
-	proto_tree_add_item(tree, hf_isakmp_ts_start_addr_ipv6, tvb, offset, 16, ENC_NA);
-	offset += 16;
-	length -= 16;
+        proto_tree_add_item(tree, hf_isakmp_ts_start_addr_ipv6, tvb, offset, 16, ENC_NA);
+        offset += 16;
+        length -= 16;
 
-	proto_tree_add_item(tree, hf_isakmp_ts_end_addr_ipv6, tvb, offset, 16, ENC_NA);
-	offset += 16;
-	length -= 16;
-	break;
+        proto_tree_add_item(tree, hf_isakmp_ts_end_addr_ipv6, tvb, offset, 16, ENC_NA);
+        offset += 16;
+        length -= 16;
+        break;
     case IKEV2_TS_FC_ADDR_RANGE:
 
-	offset += 1; /* Reserved */
-	length -= 1;
+        offset += 1; /* Reserved */
+        length -= 1;
 
-	proto_tree_add_item(tree, hf_isakmp_ts_selector_length, tvb, offset, 2, ENC_BIG_ENDIAN);
-	offset += 2;
-	length -= 2;
+        proto_tree_add_item(tree, hf_isakmp_ts_selector_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
+        length -= 2;
 
-	offset += 1; /* Reserved */
-	length -= 1;
+        offset += 1; /* Reserved */
+        length -= 1;
 
-	proto_tree_add_item(tree, hf_isakmp_ts_start_addr_fc, tvb, offset, 3, ENC_BIG_ENDIAN);
-	offset += 3;
-	length -= 3;
+        proto_tree_add_item(tree, hf_isakmp_ts_start_addr_fc, tvb, offset, 3, ENC_BIG_ENDIAN);
+        offset += 3;
+        length -= 3;
 
-	offset += 1; /* Reserved */
-	length -= 1;
+        offset += 1; /* Reserved */
+        length -= 1;
 
-	proto_tree_add_item(tree, hf_isakmp_ts_end_addr_fc, tvb, offset, 3, ENC_BIG_ENDIAN);
-	offset += 3;
-	length -= 3;
+        proto_tree_add_item(tree, hf_isakmp_ts_end_addr_fc, tvb, offset, 3, ENC_BIG_ENDIAN);
+        offset += 3;
+        length -= 3;
 
-	proto_tree_add_item(tree, hf_isakmp_ts_start_r_ctl, tvb, offset, 1, ENC_BIG_ENDIAN);
-	offset += 1;
-	length -= 1;
+        proto_tree_add_item(tree, hf_isakmp_ts_start_r_ctl, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+        length -= 1;
 
-	proto_tree_add_item(tree, hf_isakmp_ts_end_r_ctl, tvb, offset, 1, ENC_BIG_ENDIAN);
-	offset += 1;
-	length -= 1;
+        proto_tree_add_item(tree, hf_isakmp_ts_end_r_ctl, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+        length -= 1;
 
-	proto_tree_add_item(tree, hf_isakmp_ts_start_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-	offset += 1;
-	length -= 1;
+        proto_tree_add_item(tree, hf_isakmp_ts_start_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+        length -= 1;
 
-	proto_tree_add_item(tree, hf_isakmp_ts_end_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-	offset += 1;
-	length -= 1;
-	break;
+        proto_tree_add_item(tree, hf_isakmp_ts_end_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+        length -= 1;
+        break;
     default:
-	proto_tree_add_item(tree, hf_isakmp_ts_data, tvb, offset, length, ENC_NA);
-    	offset += length;
-    	length -= length;
+        proto_tree_add_item(tree, hf_isakmp_ts_data, tvb, offset, length, ENC_NA);
+        offset += length;
+        length -= length;
       break;
 
     }
@@ -4855,13 +4855,13 @@ dissect_enc(tvbuff_t *tvb,
 static void
 dissect_eap(tvbuff_t *tvb, int offset, int length, proto_tree *tree, packet_info *pinfo)
 {
-  tvbuff_t *eap_tvb = NULL;
+  tvbuff_t *eap_tvb;
 
   eap_tvb = tvb_new_subset_length(tvb, offset, length);
   if ((eap_tvb != NULL)&& eap_handle != NULL){
-	  call_dissector(eap_handle, eap_tvb, pinfo, tree);
+          call_dissector(eap_handle, eap_tvb, pinfo, tree);
   }else{
-	  proto_tree_add_item(tree, hf_isakmp_eap_data, tvb, offset, length, ENC_NA);
+          proto_tree_add_item(tree, hf_isakmp_eap_data, tvb, offset, length, ENC_NA);
   }
 }
 
@@ -5408,47 +5408,47 @@ proto_register_isakmp(void)
         FT_BYTES, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
 
-	/* ROHC Attributes Type */
+        /* ROHC Attributes Type */
    { &hf_isakmp_notify_data_rohc_attr,
-      { "ROHC Attribute Type",	"isakmp.notify.data.rohc.attr",
-	FT_NONE, BASE_NONE, NULL, 0x00,
-	NULL, HFILL }},
+      { "ROHC Attribute Type",  "isakmp.notify.data.rohc.attr",
+        FT_NONE, BASE_NONE, NULL, 0x00,
+        NULL, HFILL }},
    { &hf_isakmp_notify_data_rohc_attr_type,
-      { "ROHC Attribute Type",	"isakmp.notify.data.rohc.attr.type",
-	FT_UINT16, BASE_DEC, VALS(rohc_attr_type), 0x00,
-	NULL, HFILL }},
+      { "ROHC Attribute Type",  "isakmp.notify.data.rohc.attr.type",
+        FT_UINT16, BASE_DEC, VALS(rohc_attr_type), 0x00,
+        NULL, HFILL }},
    { &hf_isakmp_notify_data_rohc_attr_format,
-      { "ROHC Format",	"isakmp.notify.data.rohc.attr.format",
-	FT_BOOLEAN, 16, TFS(&attribute_format), 0x8000,
-	NULL, HFILL }},
+      { "ROHC Format",  "isakmp.notify.data.rohc.attr.format",
+        FT_BOOLEAN, 16, TFS(&attribute_format), 0x8000,
+        NULL, HFILL }},
    { &hf_isakmp_notify_data_rohc_attr_length,
-      { "Length",	"isakmp.notify.data.rohc.attr.length",
-	FT_UINT16, BASE_DEC, NULL, 0x00,
-	NULL, HFILL }},
+      { "Length",       "isakmp.notify.data.rohc.attr.length",
+        FT_UINT16, BASE_DEC, NULL, 0x00,
+        NULL, HFILL }},
    { &hf_isakmp_notify_data_rohc_attr_value,
-      { "Value",	"isakmp.notify.data.rohc.attr.value",
-	FT_BYTES, BASE_NONE, NULL, 0x00,
-	NULL, HFILL }},
+      { "Value",        "isakmp.notify.data.rohc.attr.value",
+        FT_BYTES, BASE_NONE, NULL, 0x00,
+        NULL, HFILL }},
    { &hf_isakmp_notify_data_rohc_attr_max_cid,
-      { "Maximum Context Identifier",	"isakmp.notify.data.rohc.attr.max_cid",
-	FT_UINT16, BASE_DEC, NULL, 0x00,
-	NULL, HFILL }},
+      { "Maximum Context Identifier",   "isakmp.notify.data.rohc.attr.max_cid",
+        FT_UINT16, BASE_DEC, NULL, 0x00,
+        NULL, HFILL }},
    { &hf_isakmp_notify_data_rohc_attr_profile,
-      { "ROHC Profile",	"isakmp.notify.data.rohc.attr.profile",
-	FT_UINT16, BASE_DEC, NULL, 0x00,
-	NULL, HFILL }},
+      { "ROHC Profile", "isakmp.notify.data.rohc.attr.profile",
+        FT_UINT16, BASE_DEC, NULL, 0x00,
+        NULL, HFILL }},
    { &hf_isakmp_notify_data_rohc_attr_integ,
-      { "ROHC Integrity Algorithm",	"isakmp.notify.data.rohc.attr.integ",
-	FT_UINT16, BASE_DEC, VALS(transform_ike2_integ_type), 0x00,
-	NULL, HFILL }},
+      { "ROHC Integrity Algorithm",     "isakmp.notify.data.rohc.attr.integ",
+        FT_UINT16, BASE_DEC, VALS(transform_ike2_integ_type), 0x00,
+        NULL, HFILL }},
    { &hf_isakmp_notify_data_rohc_attr_icv_len,
-      { "ROHC ICV Length in bytes",	"isakmp.notify.data.rohc.attr.icv_len",
-	FT_UINT16, BASE_DEC, NULL, 0x00,
-	"In bytes", HFILL }},
+      { "ROHC ICV Length in bytes",     "isakmp.notify.data.rohc.attr.icv_len",
+        FT_UINT16, BASE_DEC, NULL, 0x00,
+        "In bytes", HFILL }},
    { &hf_isakmp_notify_data_rohc_attr_mrru,
-      { "MRRU",	"isakmp.notify.data.rohc.attr.mrru",
-	FT_UINT16, BASE_DEC, NULL, 0x00,
-	NULL, HFILL }},
+      { "MRRU", "isakmp.notify.data.rohc.attr.mrru",
+        FT_UINT16, BASE_DEC, NULL, 0x00,
+        NULL, HFILL }},
 
     { &hf_isakmp_notify_data_qcd_token_secret_data,
       { "Token Secret Data", "isakmp.notify.data.qcd.token_secret_data",
@@ -5686,99 +5686,99 @@ proto_register_isakmp(void)
       { "NAT Keepalive", "isakmp.ike.nat_keepalive",
        FT_NONE, BASE_NONE, NULL, 0x0, "NAT Keepalive packet", HFILL } },
    { &hf_isakmp_nat_hash,
-      { "HASH of the address and port",	"isakmp.ike.nat_hash",
-	FT_BYTES, BASE_NONE, NULL, 0x00,
-	NULL, HFILL }},
+      { "HASH of the address and port", "isakmp.ike.nat_hash",
+        FT_BYTES, BASE_NONE, NULL, 0x00,
+        NULL, HFILL }},
    { &hf_isakmp_nat_original_address_ipv4,
-      { "NAT Original IPv4 Address",	"isakmp.ike.nat_original_address_ipv4",
-	FT_IPv4, BASE_NONE, NULL, 0x00,
-	NULL, HFILL }},
+      { "NAT Original IPv4 Address",    "isakmp.ike.nat_original_address_ipv4",
+        FT_IPv4, BASE_NONE, NULL, 0x00,
+        NULL, HFILL }},
    { &hf_isakmp_nat_original_address_ipv6,
-      { "NAT Original IPv6 Address",	"isakmp.ike.nat_original_address_ipv6",
-	FT_IPv6, BASE_NONE, NULL, 0x00,
-	NULL, HFILL }},
+      { "NAT Original IPv6 Address",    "isakmp.ike.nat_original_address_ipv6",
+        FT_IPv6, BASE_NONE, NULL, 0x00,
+        NULL, HFILL }},
 
-	/* Transform Attributes Type */
+        /* Transform Attributes Type */
    { &hf_isakmp_tf_attr,
-      { "Transform Attribute Type",	"isakmp.tf.attr",
-	FT_NONE, BASE_NONE, NULL, 0x00,
-	"ISAKMP Transform Attribute", HFILL }},
+      { "Transform Attribute Type",     "isakmp.tf.attr",
+        FT_NONE, BASE_NONE, NULL, 0x00,
+        "ISAKMP Transform Attribute", HFILL }},
    { &hf_isakmp_tf_attr_type_v1,
-      { "Transform Attribute Type",	"isakmp.tf.attr.type_v1",
-	FT_UINT16, BASE_DEC, VALS(transform_isakmp_attr_type), 0x00,
-	"ISAKMP (v1) Transform Attribute type", HFILL }},
+      { "Transform Attribute Type",     "isakmp.tf.attr.type_v1",
+        FT_UINT16, BASE_DEC, VALS(transform_isakmp_attr_type), 0x00,
+        "ISAKMP (v1) Transform Attribute type", HFILL }},
    { &hf_isakmp_tf_attr_format,
-      { "Transform Format",	"isakmp.tf.attr.format",
-	FT_BOOLEAN, 16, TFS(&attribute_format), 0x8000,
-	"ISAKMP Transform Attribute Format", HFILL }},
+      { "Transform Format",     "isakmp.tf.attr.format",
+        FT_BOOLEAN, 16, TFS(&attribute_format), 0x8000,
+        "ISAKMP Transform Attribute Format", HFILL }},
    { &hf_isakmp_tf_attr_length,
-      { "Length",	"isakmp.tf.attr.length",
-	FT_UINT16, BASE_DEC, NULL, 0x00,
-	"ISAKMP Tranform Attribute length", HFILL }},
+      { "Length",       "isakmp.tf.attr.length",
+        FT_UINT16, BASE_DEC, NULL, 0x00,
+        "ISAKMP Tranform Attribute length", HFILL }},
    { &hf_isakmp_tf_attr_value,
-      { "Value",	"isakmp.tf.attr.value",
-	FT_BYTES, BASE_NONE, NULL, 0x00,
-	"ISAKMP Transform Attribute value", HFILL }},
+      { "Value",        "isakmp.tf.attr.value",
+        FT_BYTES, BASE_NONE, NULL, 0x00,
+        "ISAKMP Transform Attribute value", HFILL }},
    { &hf_isakmp_tf_attr_life_type,
-      { "Life Type",	"isakmp.tf.attr.life_type",
-	FT_UINT16, BASE_DEC, VALS(transform_attr_sa_life_type), 0x00,
-	NULL, HFILL }},
+      { "Life Type",    "isakmp.tf.attr.life_type",
+        FT_UINT16, BASE_DEC, VALS(transform_attr_sa_life_type), 0x00,
+        NULL, HFILL }},
    { &hf_isakmp_tf_attr_life_duration_uint32,
-      { "Life Duration",	"isakmp.tf.attr.life_duration",
-	FT_UINT32, BASE_DEC, NULL, 0x00,
-	NULL, HFILL }},
+      { "Life Duration",        "isakmp.tf.attr.life_duration",
+        FT_UINT32, BASE_DEC, NULL, 0x00,
+        NULL, HFILL }},
    { &hf_isakmp_tf_attr_life_duration_uint64,
-      { "Life Duration",	"isakmp.tf.attr.life_duration",
-	FT_UINT64, BASE_DEC, NULL, 0x00,
-	NULL, HFILL }},
+      { "Life Duration",        "isakmp.tf.attr.life_duration",
+        FT_UINT64, BASE_DEC, NULL, 0x00,
+        NULL, HFILL }},
    { &hf_isakmp_tf_attr_life_duration_bytes,
-      { "Life Duration",	"isakmp.tf.attr.life_duration",
-	FT_BYTES, BASE_NONE, NULL, 0x00,
-	NULL, HFILL }},
+      { "Life Duration",        "isakmp.tf.attr.life_duration",
+        FT_BYTES, BASE_NONE, NULL, 0x00,
+        NULL, HFILL }},
    { &hf_isakmp_tf_attr_group_description,
-      { "Group Description",	"isakmp.tf.attr.group_description",
-	FT_UINT16, BASE_DEC, VALS(transform_dh_group_type), 0x00,
-	NULL, HFILL }},
+      { "Group Description",    "isakmp.tf.attr.group_description",
+        FT_UINT16, BASE_DEC, VALS(transform_dh_group_type), 0x00,
+        NULL, HFILL }},
    { &hf_isakmp_tf_attr_encap_mode,
-      { "Encapsulation Mode",	"isakmp.tf.attr.encap_mode",
-	FT_UINT16, BASE_DEC, VALS(transform_attr_encap_type), 0x00,
-	NULL, HFILL }},
+      { "Encapsulation Mode",   "isakmp.tf.attr.encap_mode",
+        FT_UINT16, BASE_DEC, VALS(transform_attr_encap_type), 0x00,
+        NULL, HFILL }},
   { &hf_isakmp_tf_attr_auth_algorithm,
-      { "Authentication Algorithm",	"isakmp.tf.attr.auth_algorithm",
-	FT_UINT16, BASE_DEC, VALS(transform_attr_auth_type), 0x00,
-	NULL, HFILL }},
+      { "Authentication Algorithm",     "isakmp.tf.attr.auth_algorithm",
+        FT_UINT16, BASE_DEC, VALS(transform_attr_auth_type), 0x00,
+        NULL, HFILL }},
    { &hf_isakmp_tf_attr_key_length,
-      { "Key Length",	"isakmp.tf.attr.key_length",
-	FT_UINT16, BASE_DEC, NULL, 0x00,
-	NULL, HFILL }},
+      { "Key Length",   "isakmp.tf.attr.key_length",
+        FT_UINT16, BASE_DEC, NULL, 0x00,
+        NULL, HFILL }},
    { &hf_isakmp_tf_attr_key_rounds,
-      { "Key Rounds",	"isakmp.tf.attr.key_rounds",
-	FT_UINT16, BASE_DEC, NULL, 0x00,
-	NULL, HFILL }},
+      { "Key Rounds",   "isakmp.tf.attr.key_rounds",
+        FT_UINT16, BASE_DEC, NULL, 0x00,
+        NULL, HFILL }},
    { &hf_isakmp_tf_attr_cmpr_dict_size,
-      { "Compress Dictionary Size",	"isakmp.tf.attr.cmpr_dict_size",
-	FT_UINT16, BASE_DEC, NULL, 0x00,
-	NULL, HFILL }},
+      { "Compress Dictionary Size",     "isakmp.tf.attr.cmpr_dict_size",
+        FT_UINT16, BASE_DEC, NULL, 0x00,
+        NULL, HFILL }},
    { &hf_isakmp_tf_attr_cmpr_algorithm,
-      { "Compress Private Algorithm",	"isakmp.tf.attr.cmpr_algorithm",
-	FT_BYTES, BASE_NONE, NULL, 0x00,
-	NULL, HFILL }},
+      { "Compress Private Algorithm",   "isakmp.tf.attr.cmpr_algorithm",
+        FT_BYTES, BASE_NONE, NULL, 0x00,
+        NULL, HFILL }},
   { &hf_isakmp_tf_attr_ecn_tunnel,
-      { "ECN Tunnel",	"isakmp.tf.attr.ecn_tunnel",
-	FT_UINT16, BASE_DEC, VALS(transform_attr_ecn_type), 0x00,
-	NULL, HFILL }},
+      { "ECN Tunnel",   "isakmp.tf.attr.ecn_tunnel",
+        FT_UINT16, BASE_DEC, VALS(transform_attr_ecn_type), 0x00,
+        NULL, HFILL }},
   { &hf_isakmp_tf_attr_ext_seq_nbr,
-      { "Extended (64-bit) Sequence Number",	"isakmp.tf.attr.ext_seq_nbr",
-	FT_UINT16, BASE_DEC, VALS(transform_attr_ext_seq_nbr_type), 0x00,
-	NULL, HFILL }},
+      { "Extended (64-bit) Sequence Number",    "isakmp.tf.attr.ext_seq_nbr",
+        FT_UINT16, BASE_DEC, VALS(transform_attr_ext_seq_nbr_type), 0x00,
+        NULL, HFILL }},
    { &hf_isakmp_tf_attr_auth_key_length,
-      { "Authentication Key Length",	"isakmp.tf.attr.auth_key_length",
-	FT_UINT16, BASE_DEC, NULL, 0x00,
-	NULL, HFILL }},
+      { "Authentication Key Length",    "isakmp.tf.attr.auth_key_length",
+        FT_UINT16, BASE_DEC, NULL, 0x00,
+        NULL, HFILL }},
    { &hf_isakmp_tf_attr_sig_enco_algorithm,
-      { "Signature Encoding Algorithm",	"isakmp.tf.attr.sig_enco_algorithm",
-	FT_BYTES, BASE_NONE, NULL, 0x00,
-	NULL, HFILL }},
+      { "Signature Encoding Algorithm", "isakmp.tf.attr.sig_enco_algorithm",
+        FT_BYTES, BASE_NONE, NULL, 0x00,
+        NULL, HFILL }},
   { &hf_isakmp_tf_attr_addr_preservation,
       { "Address Preservation", "isakmp.tf.attr.addr_preservation",
         FT_UINT16, BASE_DEC, VALS(transform_attr_addr_preservation_type), 0x00,
@@ -5789,171 +5789,171 @@ proto_register_isakmp(void)
         NULL, HFILL }},
 
    { &hf_isakmp_ike_attr,
-      { "Transform IKE Attribute Type",	"isakmp.ike.attr",
-	FT_NONE, BASE_NONE, NULL, 0x00,
-	"IKE Transform Attribute", HFILL }},
+      { "Transform IKE Attribute Type", "isakmp.ike.attr",
+        FT_NONE, BASE_NONE, NULL, 0x00,
+        "IKE Transform Attribute", HFILL }},
    { &hf_isakmp_ike_attr_type,
-      { "Transform IKE Attribute Type",	"isakmp.ike.attr.type",
-	FT_UINT16, BASE_DEC, VALS(transform_ike_attr_type), 0x00,
-	"IKE Transform Attribute type", HFILL }},
+      { "Transform IKE Attribute Type", "isakmp.ike.attr.type",
+        FT_UINT16, BASE_DEC, VALS(transform_ike_attr_type), 0x00,
+        "IKE Transform Attribute type", HFILL }},
    { &hf_isakmp_ike_attr_format,
-      { "Transform IKE Format",	"isakmp.ike.attr.format",
-	FT_BOOLEAN, 16, TFS(&attribute_format), 0x8000,
-	"IKE Transform Attribute Format", HFILL }},
+      { "Transform IKE Format", "isakmp.ike.attr.format",
+        FT_BOOLEAN, 16, TFS(&attribute_format), 0x8000,
+        "IKE Transform Attribute Format", HFILL }},
    { &hf_isakmp_ike_attr_length,
-      { "Length",	"isakmp.ike.attr.length",
-	FT_UINT16, BASE_DEC, NULL, 0x00,
-	"IKE Tranform Attribute length", HFILL }},
+      { "Length",       "isakmp.ike.attr.length",
+        FT_UINT16, BASE_DEC, NULL, 0x00,
+        "IKE Tranform Attribute length", HFILL }},
    { &hf_isakmp_ike_attr_value,
-      { "Value",	"isakmp.ike.attr.value",
-	FT_BYTES, BASE_NONE, NULL, 0x00,
-	"IKE Transform Attribute value", HFILL }},
+      { "Value",        "isakmp.ike.attr.value",
+        FT_BYTES, BASE_NONE, NULL, 0x00,
+        "IKE Transform Attribute value", HFILL }},
 
    { &hf_isakmp_ike_attr_encryption_algorithm,
-      { "Encryption Algorithm",	"isakmp.ike.attr.encryption_algorithm",
-	FT_UINT16, BASE_DEC, VALS(transform_attr_enc_type), 0x00,
-	NULL, HFILL }},
+      { "Encryption Algorithm", "isakmp.ike.attr.encryption_algorithm",
+        FT_UINT16, BASE_DEC, VALS(transform_attr_enc_type), 0x00,
+        NULL, HFILL }},
    { &hf_isakmp_ike_attr_hash_algorithm,
-      { "HASH Algorithm",	"isakmp.ike.attr.hash_algorithm",
-	FT_UINT16, BASE_DEC, VALS(transform_attr_hash_type), 0x00,
-	NULL, HFILL }},
+      { "HASH Algorithm",       "isakmp.ike.attr.hash_algorithm",
+        FT_UINT16, BASE_DEC, VALS(transform_attr_hash_type), 0x00,
+        NULL, HFILL }},
    { &hf_isakmp_ike_attr_authentication_method,
-      { "Authentication Method",	"isakmp.ike.attr.authentication_method",
-	FT_UINT16, BASE_DEC, VALS(transform_attr_authmeth_type), 0x00,
-	NULL, HFILL }},
+      { "Authentication Method",        "isakmp.ike.attr.authentication_method",
+        FT_UINT16, BASE_DEC, VALS(transform_attr_authmeth_type), 0x00,
+        NULL, HFILL }},
    { &hf_isakmp_ike_attr_group_description,
-      { "Group Description",	"isakmp.ike.attr.group_description",
-	FT_UINT16, BASE_DEC, VALS(transform_dh_group_type), 0x00,
-	NULL, HFILL }},
+      { "Group Description",    "isakmp.ike.attr.group_description",
+        FT_UINT16, BASE_DEC, VALS(transform_dh_group_type), 0x00,
+        NULL, HFILL }},
    { &hf_isakmp_ike_attr_group_type,
-      { "Groupe Type",	"isakmp.ike.attr.group_type",
-	FT_UINT16, BASE_DEC, VALS(transform_attr_grp_type), 0x00,
-	NULL, HFILL }},
+      { "Groupe Type",  "isakmp.ike.attr.group_type",
+        FT_UINT16, BASE_DEC, VALS(transform_attr_grp_type), 0x00,
+        NULL, HFILL }},
    { &hf_isakmp_ike_attr_group_prime,
-      { "Groupe Prime",	"isakmp.ike.attr.group_prime",
-	FT_BYTES, BASE_NONE, NULL, 0x00,
-	NULL, HFILL }},
+      { "Groupe Prime", "isakmp.ike.attr.group_prime",
+        FT_BYTES, BASE_NONE, NULL, 0x00,
+        NULL, HFILL }},
    { &hf_isakmp_ike_attr_group_generator_one,
-      { "Groupe Generator One",	"isakmp.ike.attr.group_generator_one",
-	FT_BYTES, BASE_NONE, NULL, 0x00,
-	NULL, HFILL }},
+      { "Groupe Generator One", "isakmp.ike.attr.group_generator_one",
+        FT_BYTES, BASE_NONE, NULL, 0x00,
+        NULL, HFILL }},
    { &hf_isakmp_ike_attr_group_generator_two,
-      { "Groupe Generator Two",	"isakmp.ike.attr.group_generator_two",
-	FT_BYTES, BASE_NONE, NULL, 0x00,
-	NULL, HFILL }},
+      { "Groupe Generator Two", "isakmp.ike.attr.group_generator_two",
+        FT_BYTES, BASE_NONE, NULL, 0x00,
+        NULL, HFILL }},
    { &hf_isakmp_ike_attr_group_curve_a,
-      { "Groupe Curve A",	"isakmp.ike.attr.group_curve_a",
-	FT_BYTES, BASE_NONE, NULL, 0x00,
-	NULL, HFILL }},
+      { "Groupe Curve A",       "isakmp.ike.attr.group_curve_a",
+        FT_BYTES, BASE_NONE, NULL, 0x00,
+        NULL, HFILL }},
    { &hf_isakmp_ike_attr_group_curve_b,
-      { "Groupe Curve B",	"isakmp.ike.attr.group_curve_b",
-	FT_BYTES, BASE_NONE, NULL, 0x00,
-	NULL, HFILL }},
+      { "Groupe Curve B",       "isakmp.ike.attr.group_curve_b",
+        FT_BYTES, BASE_NONE, NULL, 0x00,
+        NULL, HFILL }},
    { &hf_isakmp_ike_attr_life_type,
-      { "Life Type",	"isakmp.ike.attr.life_type",
-	FT_UINT16, BASE_DEC, VALS(transform_attr_sa_life_type), 0x00,
-	NULL, HFILL }},
+      { "Life Type",    "isakmp.ike.attr.life_type",
+        FT_UINT16, BASE_DEC, VALS(transform_attr_sa_life_type), 0x00,
+        NULL, HFILL }},
    { &hf_isakmp_ike_attr_life_duration_uint32,
-      { "Life Duration",	"isakmp.ike.attr.life_duration",
-	FT_UINT32, BASE_DEC, NULL, 0x00,
-	NULL, HFILL }},
+      { "Life Duration",        "isakmp.ike.attr.life_duration",
+        FT_UINT32, BASE_DEC, NULL, 0x00,
+        NULL, HFILL }},
    { &hf_isakmp_ike_attr_life_duration_uint64,
-      { "Life Duration",	"isakmp.ike.attr.life_duration",
-	FT_UINT64, BASE_DEC, NULL, 0x00,
-	NULL, HFILL }},
+      { "Life Duration",        "isakmp.ike.attr.life_duration",
+        FT_UINT64, BASE_DEC, NULL, 0x00,
+        NULL, HFILL }},
    { &hf_isakmp_ike_attr_life_duration_bytes,
-      { "Life Duration",	"isakmp.ike.attr.life_duration",
-	FT_BYTES, BASE_NONE, NULL, 0x00,
-	NULL, HFILL }},
+      { "Life Duration",        "isakmp.ike.attr.life_duration",
+        FT_BYTES, BASE_NONE, NULL, 0x00,
+        NULL, HFILL }},
    { &hf_isakmp_ike_attr_prf,
-      { "PRF",	"isakmp.ike.attr.prf",
-	FT_BYTES, BASE_NONE, NULL, 0x00,
-	NULL, HFILL }},
+      { "PRF",  "isakmp.ike.attr.prf",
+        FT_BYTES, BASE_NONE, NULL, 0x00,
+        NULL, HFILL }},
    { &hf_isakmp_ike_attr_key_length,
-      { "Key Length",	"isakmp.ike.attr.key_length",
-	FT_UINT16, BASE_DEC, NULL, 0x00,
-	NULL, HFILL }},
+      { "Key Length",   "isakmp.ike.attr.key_length",
+        FT_UINT16, BASE_DEC, NULL, 0x00,
+        NULL, HFILL }},
    { &hf_isakmp_ike_attr_field_size,
-      { "Field Size",	"isakmp.ike.attr.field_size",
-	FT_BYTES, BASE_NONE, NULL, 0x00,
-	NULL, HFILL }},
+      { "Field Size",   "isakmp.ike.attr.field_size",
+        FT_BYTES, BASE_NONE, NULL, 0x00,
+        NULL, HFILL }},
    { &hf_isakmp_ike_attr_group_order,
-      { "Key Length",	"isakmp.ike.attr.group_order",
-	FT_BYTES, BASE_NONE, NULL, 0x00,
-	NULL, HFILL }},
+      { "Key Length",   "isakmp.ike.attr.group_order",
+        FT_BYTES, BASE_NONE, NULL, 0x00,
+        NULL, HFILL }},
 
    { &hf_isakmp_trans_type,
-      { "Transform Type",	"isakmp.tf.type",
-	FT_UINT8, BASE_RANGE_STRING | BASE_DEC, RVALS(transform_ike2_type), 0x00,
-	NULL, HFILL }},
+      { "Transform Type",       "isakmp.tf.type",
+        FT_UINT8, BASE_RANGE_STRING | BASE_DEC, RVALS(transform_ike2_type), 0x00,
+        NULL, HFILL }},
 
    { &hf_isakmp_trans_encr,
-      { "Transform ID (ENCR)",	"isakmp.tf.id.encr",
-	FT_UINT16, BASE_DEC, VALS(transform_ike2_encr_type), 0x00,
-	NULL, HFILL }},
+      { "Transform ID (ENCR)",  "isakmp.tf.id.encr",
+        FT_UINT16, BASE_DEC, VALS(transform_ike2_encr_type), 0x00,
+        NULL, HFILL }},
    { &hf_isakmp_trans_prf,
-      { "Transform ID (PRF)",	"isakmp.tf.id.prf",
-	FT_UINT16, BASE_DEC, VALS(transform_ike2_prf_type), 0x00,
-	NULL, HFILL }},
+      { "Transform ID (PRF)",   "isakmp.tf.id.prf",
+        FT_UINT16, BASE_DEC, VALS(transform_ike2_prf_type), 0x00,
+        NULL, HFILL }},
    { &hf_isakmp_trans_integ,
-      { "Transform ID (INTEG)",	"isakmp.tf.id.integ",
-	FT_UINT16, BASE_DEC, VALS(transform_ike2_integ_type), 0x00,
-	NULL, HFILL }},
+      { "Transform ID (INTEG)", "isakmp.tf.id.integ",
+        FT_UINT16, BASE_DEC, VALS(transform_ike2_integ_type), 0x00,
+        NULL, HFILL }},
    { &hf_isakmp_trans_dh,
-      { "Transform ID (D-H)",	"isakmp.tf.id.dh",
-	FT_UINT16, BASE_DEC, VALS(transform_dh_group_type), 0x00,
-	NULL, HFILL }},
+      { "Transform ID (D-H)",   "isakmp.tf.id.dh",
+        FT_UINT16, BASE_DEC, VALS(transform_dh_group_type), 0x00,
+        NULL, HFILL }},
    { &hf_isakmp_trans_esn,
-      { "Transform ID (ESN)",	"isakmp.tf.id.esn",
-	FT_UINT16, BASE_DEC, VALS(transform_ike2_esn_type), 0x00,
-	NULL, HFILL }},
+      { "Transform ID (ESN)",   "isakmp.tf.id.esn",
+        FT_UINT16, BASE_DEC, VALS(transform_ike2_esn_type), 0x00,
+        NULL, HFILL }},
    { &hf_isakmp_trans_id_v2,
-      { "Transform ID",	"isakmp.tf.id",
-	FT_UINT16, BASE_DEC, NULL, 0x00,
-	NULL, HFILL }},
+      { "Transform ID", "isakmp.tf.id",
+        FT_UINT16, BASE_DEC, NULL, 0x00,
+        NULL, HFILL }},
    { &hf_isakmp_ike2_attr,
-      { "Transform IKE2 Attribute Type",	"isakmp.ike2.attr",
-	FT_NONE, BASE_NONE, NULL, 0x00,
-	"IKE2 Transform Attribute", HFILL }},
+      { "Transform IKE2 Attribute Type",        "isakmp.ike2.attr",
+        FT_NONE, BASE_NONE, NULL, 0x00,
+        "IKE2 Transform Attribute", HFILL }},
    { &hf_isakmp_ike2_attr_type,
-      { "Transform IKE2 Attribute Type",	"isakmp.ike2.attr.type",
-	FT_UINT16, BASE_DEC, VALS(transform_ike2_attr_type), 0x00,
-	"IKE2 Transform Attribute type", HFILL }},
+      { "Transform IKE2 Attribute Type",        "isakmp.ike2.attr.type",
+        FT_UINT16, BASE_DEC, VALS(transform_ike2_attr_type), 0x00,
+        "IKE2 Transform Attribute type", HFILL }},
    { &hf_isakmp_ike2_attr_format,
-      { "Transform IKE2 Format",	"isakmp.ike2.attr.format",
-	FT_BOOLEAN, 16, TFS(&attribute_format), 0x8000,
-	"IKE2 Transform Attribute Format", HFILL }},
+      { "Transform IKE2 Format",        "isakmp.ike2.attr.format",
+        FT_BOOLEAN, 16, TFS(&attribute_format), 0x8000,
+        "IKE2 Transform Attribute Format", HFILL }},
    { &hf_isakmp_ike2_attr_length,
-      { "Length",	"isakmp.ike2.attr.length",
-	FT_UINT16, BASE_DEC, NULL, 0x00,
-	"IKE2 Tranform Attribute length", HFILL }},
+      { "Length",       "isakmp.ike2.attr.length",
+        FT_UINT16, BASE_DEC, NULL, 0x00,
+        "IKE2 Tranform Attribute length", HFILL }},
    { &hf_isakmp_ike2_attr_value,
-      { "Value",	"isakmp.ike2.attr.value",
-	FT_BYTES, BASE_NONE, NULL, 0x00,
-	"IKE2 Transform Attribute value", HFILL }},
+      { "Value",        "isakmp.ike2.attr.value",
+        FT_BYTES, BASE_NONE, NULL, 0x00,
+        "IKE2 Transform Attribute value", HFILL }},
    { &hf_isakmp_ike2_attr_key_length,
-      { "Key Length",	"isakmp.ike2.attr.key_length",
-	FT_UINT16, BASE_DEC, NULL, 0x00,
-	NULL, HFILL }},
+      { "Key Length",   "isakmp.ike2.attr.key_length",
+        FT_UINT16, BASE_DEC, NULL, 0x00,
+        NULL, HFILL }},
 
 
    { &hf_isakmp_key_exch_dh_group,
-      { "DH Group #",	"isakmp.key_exchange.dh_group",
-	FT_UINT16, BASE_DEC, VALS(transform_dh_group_type), 0x00,
-	NULL, HFILL }},
+      { "DH Group #",   "isakmp.key_exchange.dh_group",
+        FT_UINT16, BASE_DEC, VALS(transform_dh_group_type), 0x00,
+        NULL, HFILL }},
    { &hf_isakmp_key_exch_data,
-      { "Key Exchange Data",	"isakmp.key_exchange.data",
-	FT_BYTES, BASE_NONE, NULL, 0x00,
-	NULL, HFILL }},
+      { "Key Exchange Data",    "isakmp.key_exchange.data",
+        FT_BYTES, BASE_NONE, NULL, 0x00,
+        NULL, HFILL }},
    { &hf_isakmp_eap_data,
-      { "EAP Message",	"isakmp.eap.data",
-	FT_BYTES, BASE_NONE, NULL, 0x00,
-	NULL, HFILL }},
+      { "EAP Message",  "isakmp.eap.data",
+        FT_BYTES, BASE_NONE, NULL, 0x00,
+        NULL, HFILL }},
 
    { &hf_isakmp_gspm_data,
-      { "GSPM",	"isakmp.gspm.data",
-	FT_BYTES, BASE_NONE, NULL, 0x00,
-	"Generic Secure Password Method", HFILL }},
+      { "GSPM", "isakmp.gspm.data",
+        FT_BYTES, BASE_NONE, NULL, 0x00,
+        "Generic Secure Password Method", HFILL }},
 
     { &hf_isakmp_cfg_type_v1,
       { "Type", "isakmp.cfg.type",
@@ -5967,164 +5967,164 @@ proto_register_isakmp(void)
       { "Type", "isakmp.cfg.type",
          FT_UINT8, BASE_RANGE_STRING | BASE_DEC, RVALS(vs_v2_cfgtype), 0x0,
          "ISAKMP (v2) Config Type", HFILL }},
-	/* Config Attributes Type */
+        /* Config Attributes Type */
    { &hf_isakmp_cfg_attr,
-      { "Config Attribute Type",	"isakmp.cfg.attr",
-	FT_NONE, BASE_NONE, NULL, 0x00,
-	"ISAKMP Config Attribute", HFILL }},
+      { "Config Attribute Type",        "isakmp.cfg.attr",
+        FT_NONE, BASE_NONE, NULL, 0x00,
+        "ISAKMP Config Attribute", HFILL }},
    { &hf_isakmp_cfg_attr_type_v1,
-      { "Type",	"isakmp.cfg.attr.type",
-	FT_UINT16, BASE_RANGE_STRING | BASE_DEC, RVALS(vs_v1_cfgattr), 0x00,
-	"ISAKMP (v1) Config Attribute type", HFILL }},
+      { "Type", "isakmp.cfg.attr.type",
+        FT_UINT16, BASE_RANGE_STRING | BASE_DEC, RVALS(vs_v1_cfgattr), 0x00,
+        "ISAKMP (v1) Config Attribute type", HFILL }},
    { &hf_isakmp_cfg_attr_type_v2,
-      { "Type",	"isakmp.cfg.attr.type",
-	FT_UINT16, BASE_RANGE_STRING | BASE_DEC, RVALS(vs_v2_cfgattr), 0x00,
-	"ISAKMP (v2) Config Attribute type", HFILL }},
+      { "Type", "isakmp.cfg.attr.type",
+        FT_UINT16, BASE_RANGE_STRING | BASE_DEC, RVALS(vs_v2_cfgattr), 0x00,
+        "ISAKMP (v2) Config Attribute type", HFILL }},
    { &hf_isakmp_cfg_attr_format,
-      { "Config Attribute Format",	"isakmp.cfg.attr.format",
-	FT_BOOLEAN, 16, TFS(&attribute_format), 0x8000,
-	"ISAKMP Config Attribute Format", HFILL }},
+      { "Config Attribute Format",      "isakmp.cfg.attr.format",
+        FT_BOOLEAN, 16, TFS(&attribute_format), 0x8000,
+        "ISAKMP Config Attribute Format", HFILL }},
    { &hf_isakmp_cfg_attr_length,
-      { "Length",	"isakmp.cfg.attr.length",
-	FT_UINT16, BASE_DEC, NULL, 0x00,
-	"ISAKMP Config Attribute length", HFILL }},
+      { "Length",       "isakmp.cfg.attr.length",
+        FT_UINT16, BASE_DEC, NULL, 0x00,
+        "ISAKMP Config Attribute length", HFILL }},
    { &hf_isakmp_cfg_attr_value,
-      { "Value",	"isakmp.cfg.attr.value",
-	FT_BYTES, BASE_NONE, NULL, 0x00,
-	"ISAKMP Config Attribute value", HFILL }},
+      { "Value",        "isakmp.cfg.attr.value",
+        FT_BYTES, BASE_NONE, NULL, 0x00,
+        "ISAKMP Config Attribute value", HFILL }},
   { &hf_isakmp_cfg_attr_internal_ip4_address,
-      { "INTERNAL IP4 ADDRESS",	"isakmp.cfg.attr.internal_ip4_address",
-	FT_IPv4, BASE_NONE, NULL, 0x00,
-	"An IPv4 address on the internal network", HFILL }},
+      { "INTERNAL IP4 ADDRESS", "isakmp.cfg.attr.internal_ip4_address",
+        FT_IPv4, BASE_NONE, NULL, 0x00,
+        "An IPv4 address on the internal network", HFILL }},
  { &hf_isakmp_cfg_attr_internal_ip4_netmask,
-      { "INTERNAL IP4 NETMASK",	"isakmp.cfg.attr.internal_ip4_netmask",
-	FT_IPv4, BASE_NONE, NULL, 0x00,
-	"The internal network's netmask", HFILL }},
+      { "INTERNAL IP4 NETMASK", "isakmp.cfg.attr.internal_ip4_netmask",
+        FT_IPv4, BASE_NONE, NULL, 0x00,
+        "The internal network's netmask", HFILL }},
  { &hf_isakmp_cfg_attr_internal_ip4_dns,
-      { "INTERNAL IP4 DNS",	"isakmp.cfg.attr.internal_ip4_dns",
-	FT_IPv4, BASE_NONE, NULL, 0x00,
-	"An IPv4 address of a DNS server within the network", HFILL }},
+      { "INTERNAL IP4 DNS",     "isakmp.cfg.attr.internal_ip4_dns",
+        FT_IPv4, BASE_NONE, NULL, 0x00,
+        "An IPv4 address of a DNS server within the network", HFILL }},
  { &hf_isakmp_cfg_attr_internal_ip4_nbns,
-      { "INTERNAL IP4 NBNS",	"isakmp.cfg.attr.internal_ip4_nbns",
-	FT_IPv4, BASE_NONE, NULL, 0x00,
-	"An IPv4 address of a NetBios Name Server (WINS) within the network", HFILL }},
+      { "INTERNAL IP4 NBNS",    "isakmp.cfg.attr.internal_ip4_nbns",
+        FT_IPv4, BASE_NONE, NULL, 0x00,
+        "An IPv4 address of a NetBios Name Server (WINS) within the network", HFILL }},
  { &hf_isakmp_cfg_attr_internal_address_expiry,
-      { "INTERNAL ADDRESS EXPIRY (Secs)",	"isakmp.cfg.attr.internal_address_expiry",
-	FT_UINT32, BASE_DEC, NULL, 0x00,
-	"Specifies the number of seconds that the host can use the internal IP address", HFILL }},
+      { "INTERNAL ADDRESS EXPIRY (Secs)",       "isakmp.cfg.attr.internal_address_expiry",
+        FT_UINT32, BASE_DEC, NULL, 0x00,
+        "Specifies the number of seconds that the host can use the internal IP address", HFILL }},
  { &hf_isakmp_cfg_attr_internal_ip4_dhcp,
-      { "INTERNAL IP4 DHCP",	"isakmp.cfg.attr.internal_ip4_dhcp",
-	FT_IPv4, BASE_NONE, NULL, 0x00,
-	"the host to send any internal DHCP requests to the address", HFILL }},
+      { "INTERNAL IP4 DHCP",    "isakmp.cfg.attr.internal_ip4_dhcp",
+        FT_IPv4, BASE_NONE, NULL, 0x00,
+        "the host to send any internal DHCP requests to the address", HFILL }},
   { &hf_isakmp_cfg_attr_application_version,
-      { "APPLICATION VERSION",	"isakmp.cfg.attr.application_version",
-	FT_STRING, BASE_NONE, NULL, 0x00,
-	"The version or application information of the IPsec host", HFILL }},
+      { "APPLICATION VERSION",  "isakmp.cfg.attr.application_version",
+        FT_STRING, BASE_NONE, NULL, 0x00,
+        "The version or application information of the IPsec host", HFILL }},
   { &hf_isakmp_cfg_attr_internal_ip6_address,
-      { "INTERNAL IP6 ADDRESS",	"isakmp.cfg.attr.internal_ip6_address",
-	FT_IPv4, BASE_NONE, NULL, 0x00,
-	"An IPv6 address on the internal network", HFILL }},
+      { "INTERNAL IP6 ADDRESS", "isakmp.cfg.attr.internal_ip6_address",
+        FT_IPv4, BASE_NONE, NULL, 0x00,
+        "An IPv6 address on the internal network", HFILL }},
  { &hf_isakmp_cfg_attr_internal_ip6_netmask,
-      { "INTERNAL IP4 NETMASK",	"isakmp.cfg.attr.internal_ip6_netmask",
-	FT_IPv6, BASE_NONE, NULL, 0x00,
-	"The internal network's netmask", HFILL }},
+      { "INTERNAL IP4 NETMASK", "isakmp.cfg.attr.internal_ip6_netmask",
+        FT_IPv6, BASE_NONE, NULL, 0x00,
+        "The internal network's netmask", HFILL }},
  { &hf_isakmp_cfg_attr_internal_ip6_dns,
-      { "INTERNAL IP6 DNS",	"isakmp.cfg.attr.internal_ip6_dns",
-	FT_IPv6, BASE_NONE, NULL, 0x00,
-	"An IPv6 address of a DNS server within the network", HFILL }},
+      { "INTERNAL IP6 DNS",     "isakmp.cfg.attr.internal_ip6_dns",
+        FT_IPv6, BASE_NONE, NULL, 0x00,
+        "An IPv6 address of a DNS server within the network", HFILL }},
  { &hf_isakmp_cfg_attr_internal_ip6_nbns,
-      { "INTERNAL IP6 NBNS",	"isakmp.cfg.attr.internal_ip6_nbns",
-	FT_IPv6, BASE_NONE, NULL, 0x00,
-	"An IPv6 address of a NetBios Name Server (WINS) within the network", HFILL }},
+      { "INTERNAL IP6 NBNS",    "isakmp.cfg.attr.internal_ip6_nbns",
+        FT_IPv6, BASE_NONE, NULL, 0x00,
+        "An IPv6 address of a NetBios Name Server (WINS) within the network", HFILL }},
  { &hf_isakmp_cfg_attr_internal_ip6_dhcp,
-      { "INTERNAL IP6 DHCP",	"isakmp.cfg.attr.internal_ip6_dhcp",
-	FT_IPv6, BASE_NONE, NULL, 0x00,
-	"The host to send any internal DHCP requests to the address", HFILL }},
+      { "INTERNAL IP6 DHCP",    "isakmp.cfg.attr.internal_ip6_dhcp",
+        FT_IPv6, BASE_NONE, NULL, 0x00,
+        "The host to send any internal DHCP requests to the address", HFILL }},
  { &hf_isakmp_cfg_attr_internal_ip4_subnet_ip,
-      { "INTERNAL IP4 SUBNET (IP)",	"isakmp.cfg.attr.internal_ip4_subnet_ip",
-	FT_IPv4, BASE_NONE, NULL, 0x00,
-	"The protected sub-networks that this edge-device protects (IP)", HFILL }},
+      { "INTERNAL IP4 SUBNET (IP)",     "isakmp.cfg.attr.internal_ip4_subnet_ip",
+        FT_IPv4, BASE_NONE, NULL, 0x00,
+        "The protected sub-networks that this edge-device protects (IP)", HFILL }},
  { &hf_isakmp_cfg_attr_internal_ip4_subnet_netmask,
-      { "INTERNAL IP4 SUBNET (NETMASK)",	"isakmp.cfg.attr.internal_ip4_subnet_netmask",
-	FT_IPv4, BASE_NONE, NULL, 0x00,
-	"The protected sub-networks that this edge-device protects (IP)", HFILL }},
+      { "INTERNAL IP4 SUBNET (NETMASK)",        "isakmp.cfg.attr.internal_ip4_subnet_netmask",
+        FT_IPv4, BASE_NONE, NULL, 0x00,
+        "The protected sub-networks that this edge-device protects (IP)", HFILL }},
  { &hf_isakmp_cfg_attr_supported_attributes,
-      { "SUPPORTED ATTRIBUTES",	"isakmp.cfg.attr.supported_attributes",
-	FT_UINT16, BASE_DEC, NULL, 0x00,
-	NULL, HFILL }},
+      { "SUPPORTED ATTRIBUTES", "isakmp.cfg.attr.supported_attributes",
+        FT_UINT16, BASE_DEC, NULL, 0x00,
+        NULL, HFILL }},
  { &hf_isakmp_cfg_attr_internal_ip6_subnet_ip,
-      { "INTERNAL_IP6_SUBNET (IP)",	"isakmp.cfg.attr.internal_ip6_subnet_ip",
-	FT_IPv6, BASE_NONE, NULL, 0x00,
-	NULL, HFILL }},
+      { "INTERNAL_IP6_SUBNET (IP)",     "isakmp.cfg.attr.internal_ip6_subnet_ip",
+        FT_IPv6, BASE_NONE, NULL, 0x00,
+        NULL, HFILL }},
  { &hf_isakmp_cfg_attr_internal_ip6_subnet_prefix,
-      { "INTERNAL_IP6_SUBNET (PREFIX)",	"isakmp.cfg.attr.internal_ip6_subnet_prefix",
-	FT_UINT8, BASE_DEC, NULL, 0x00,
-	NULL, HFILL }},
+      { "INTERNAL_IP6_SUBNET (PREFIX)", "isakmp.cfg.attr.internal_ip6_subnet_prefix",
+        FT_UINT8, BASE_DEC, NULL, 0x00,
+        NULL, HFILL }},
  { &hf_isakmp_cfg_attr_internal_ip6_link_interface,
-      { "INTERNAL_IP6_LINK (Link-Local Interface ID)",	"isakmp.cfg.attr.internal_ip6_link_interface",
-	FT_UINT64, BASE_DEC, NULL, 0x00,
-	"The Interface ID used for link-local address (by the party that sent this attribute)", HFILL }},
+      { "INTERNAL_IP6_LINK (Link-Local Interface ID)",  "isakmp.cfg.attr.internal_ip6_link_interface",
+        FT_UINT64, BASE_DEC, NULL, 0x00,
+        "The Interface ID used for link-local address (by the party that sent this attribute)", HFILL }},
  { &hf_isakmp_cfg_attr_internal_ip6_link_id,
-      { "INTERNAL_IP6_LINK (IKEv2 Link ID)",	"isakmp.cfg.attr.internal_ip6_link_id",
-	FT_BYTES, BASE_NONE, NULL, 0x00,
-	"The Link ID is selected by the VPN gateway and is treated as an opaque octet string by the client.", HFILL }},
+      { "INTERNAL_IP6_LINK (IKEv2 Link ID)",    "isakmp.cfg.attr.internal_ip6_link_id",
+        FT_BYTES, BASE_NONE, NULL, 0x00,
+        "The Link ID is selected by the VPN gateway and is treated as an opaque octet string by the client.", HFILL }},
  { &hf_isakmp_cfg_attr_internal_ip6_prefix_ip,
-      { "INTERNAL_IP6_PREFIX (IP)",	"isakmp.cfg.attr.internal_ip6_prefix_ip",
-	FT_IPv6, BASE_NONE, NULL, 0x00,
-	"An IPv6 prefix assigned to the virtual link", HFILL }},
+      { "INTERNAL_IP6_PREFIX (IP)",     "isakmp.cfg.attr.internal_ip6_prefix_ip",
+        FT_IPv6, BASE_NONE, NULL, 0x00,
+        "An IPv6 prefix assigned to the virtual link", HFILL }},
  { &hf_isakmp_cfg_attr_internal_ip6_prefix_length,
-      { "INTERNAL_IP6_PREFIX (Length)",	"isakmp.cfg.attr.internal_ip6_prefix_length",
-	FT_UINT8, BASE_DEC, NULL, 0x00,
-	 "The length of the prefix in bits (usually 64)", HFILL }},
+      { "INTERNAL_IP6_PREFIX (Length)", "isakmp.cfg.attr.internal_ip6_prefix_length",
+        FT_UINT8, BASE_DEC, NULL, 0x00,
+         "The length of the prefix in bits (usually 64)", HFILL }},
 
   { &hf_isakmp_cfg_attr_xauth_type,
-      { "XAUTH TYPE",	"isakmp.cfg.attr.xauth.type",
-	FT_UINT16, BASE_RANGE_STRING | BASE_DEC, RVALS(cfgattr_xauth_type), 0x00,
-	"The type of extended authentication requested", HFILL }},
+      { "XAUTH TYPE",   "isakmp.cfg.attr.xauth.type",
+        FT_UINT16, BASE_RANGE_STRING | BASE_DEC, RVALS(cfgattr_xauth_type), 0x00,
+        "The type of extended authentication requested", HFILL }},
   { &hf_isakmp_cfg_attr_xauth_user_name,
-      { "XAUTH USER NAME",	"isakmp.cfg.attr.xauth.user_name",
-	FT_STRING, BASE_NONE, NULL, 0x00,
-	"The user name", HFILL }},
+      { "XAUTH USER NAME",      "isakmp.cfg.attr.xauth.user_name",
+        FT_STRING, BASE_NONE, NULL, 0x00,
+        "The user name", HFILL }},
   { &hf_isakmp_cfg_attr_xauth_user_password,
-      { "XAUTH USER PASSWORD",	"isakmp.cfg.attr.xauth.user_password",
-	FT_STRING, BASE_NONE, NULL, 0x00,
-	"The user's password", HFILL }},
+      { "XAUTH USER PASSWORD",  "isakmp.cfg.attr.xauth.user_password",
+        FT_STRING, BASE_NONE, NULL, 0x00,
+        "The user's password", HFILL }},
   { &hf_isakmp_cfg_attr_xauth_passcode,
-      { "XAUTH PASSCODE",	"isakmp.cfg.attr.xauth.passcode",
-	FT_STRING, BASE_NONE, NULL, 0x00,
-	"A token card's passcode", HFILL }},
+      { "XAUTH PASSCODE",       "isakmp.cfg.attr.xauth.passcode",
+        FT_STRING, BASE_NONE, NULL, 0x00,
+        "A token card's passcode", HFILL }},
   { &hf_isakmp_cfg_attr_xauth_message,
-      { "XAUTH MESSAGE",	"isakmp.cfg.attr.xauth.message",
-	FT_STRING, BASE_NONE, NULL, 0x00,
-	"A textual message from an edge device to an IPSec host", HFILL }},
+      { "XAUTH MESSAGE",        "isakmp.cfg.attr.xauth.message",
+        FT_STRING, BASE_NONE, NULL, 0x00,
+        "A textual message from an edge device to an IPSec host", HFILL }},
   { &hf_isakmp_cfg_attr_xauth_challenge,
-      { "XAUTH CHALLENGE",	"isakmp.cfg.attr.xauth.challenge",
-	FT_STRING, BASE_NONE, NULL, 0x00,
-	"A challenge string sent from the edge device to the IPSec host for it to include in its calculation of a password", HFILL }},
+      { "XAUTH CHALLENGE",      "isakmp.cfg.attr.xauth.challenge",
+        FT_STRING, BASE_NONE, NULL, 0x00,
+        "A challenge string sent from the edge device to the IPSec host for it to include in its calculation of a password", HFILL }},
   { &hf_isakmp_cfg_attr_xauth_domain,
-      { "XAUTH DOMAIN",	"isakmp.cfg.attr.xauth.domain",
-	FT_STRING, BASE_NONE, NULL, 0x00,
-	"The domain to be authenticated in", HFILL }},
+      { "XAUTH DOMAIN", "isakmp.cfg.attr.xauth.domain",
+        FT_STRING, BASE_NONE, NULL, 0x00,
+        "The domain to be authenticated in", HFILL }},
   { &hf_isakmp_cfg_attr_xauth_status,
-      { "XAUTH STATUS",	"isakmp.cfg.attr.xauth.status",
-	FT_UINT16, BASE_DEC, VALS(cfgattr_xauth_status), 0x00,
-	"A variable that is used to denote authentication success or failure", HFILL }},
+      { "XAUTH STATUS", "isakmp.cfg.attr.xauth.status",
+        FT_UINT16, BASE_DEC, VALS(cfgattr_xauth_status), 0x00,
+        "A variable that is used to denote authentication success or failure", HFILL }},
   { &hf_isakmp_cfg_attr_xauth_next_pin,
-      { "XAUTH TYPE",	"isakmp.cfg.attr.xauth.next_pin",
-	FT_STRING, BASE_NONE, NULL, 0x00,
-	"A variable which is used when the edge device is requesting that the user choose a new pin number", HFILL }},
+      { "XAUTH TYPE",   "isakmp.cfg.attr.xauth.next_pin",
+        FT_STRING, BASE_NONE, NULL, 0x00,
+        "A variable which is used when the edge device is requesting that the user choose a new pin number", HFILL }},
   { &hf_isakmp_cfg_attr_xauth_answer,
-      { "XAUTH ANSWER",	"isakmp.cfg.attr.xauth.answer",
-	FT_STRING, BASE_NONE, NULL, 0x00,
-	"A variable length ASCII string used to send input to the edge device", HFILL }},
+      { "XAUTH ANSWER", "isakmp.cfg.attr.xauth.answer",
+        FT_STRING, BASE_NONE, NULL, 0x00,
+        "A variable length ASCII string used to send input to the edge device", HFILL }},
   { &hf_isakmp_cfg_attr_unity_banner,
-      { "UNITY BANNER",	"isakmp.cfg.attr.unity.banner",
-	FT_STRING, BASE_NONE, NULL, 0x00,
-	"Banner", HFILL }},
+      { "UNITY BANNER", "isakmp.cfg.attr.unity.banner",
+        FT_STRING, BASE_NONE, NULL, 0x00,
+        "Banner", HFILL }},
   { &hf_isakmp_cfg_attr_unity_def_domain,
-      { "UNITY DEF DOMAIN",	"isakmp.cfg.attr.unity.def_domain",
-	FT_STRING, BASE_NONE, NULL, 0x00,
-	NULL, HFILL }},
+      { "UNITY DEF DOMAIN",     "isakmp.cfg.attr.unity.def_domain",
+        FT_STRING, BASE_NONE, NULL, 0x00,
+        NULL, HFILL }},
 
     { &hf_isakmp_enc_decrypted_data,
       { "Decrypted Data", "isakmp.enc.decrypted",
@@ -6206,7 +6206,7 @@ proto_register_isakmp(void)
   };
 #endif /* HAVE_LIBGCRYPT */
   proto_isakmp = proto_register_protocol("Internet Security Association and Key Management Protocol",
-					       "ISAKMP", "isakmp");
+                                               "ISAKMP", "isakmp");
   proto_register_field_array(proto_isakmp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
   expert_isakmp = expert_register_protocol(proto_isakmp);

@@ -962,7 +962,7 @@ body_dissected:
  * The returned buffer is automatically scoped to the lifetime of the capture
  * (via se_memdup()).
  */
-#define DECOMPRESS_BUFSIZE	16384
+#define DECOMPRESS_BUFSIZE   16384
 
 static guint8* spdy_decompress_header_block(tvbuff_t *tvb,
                                             z_streamp decomp,
