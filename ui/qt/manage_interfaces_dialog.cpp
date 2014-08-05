@@ -664,8 +664,10 @@ void ManageInterfacesDialog::setRemoteSettings(interface_t *iface)
             }
             device.remote_opts.remote_host_opts.nocap_rpcap = iface->remote_opts.remote_host_opts.nocap_rpcap;
             device.remote_opts.remote_host_opts.datatx_udp = iface->remote_opts.remote_host_opts.datatx_udp;
+#ifdef HAVE_PCAP_SETSAMPLING
             device.remote_opts.sampling_method = iface->remote_opts.sampling_method;
             device.remote_opts.sampling_param = iface->remote_opts.sampling_param;
+#endif //HAVE_PCAP_SETSAMPLING
             global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, i);
             g_array_insert_val(global_capture_opts.all_ifaces, i, device);
         }
