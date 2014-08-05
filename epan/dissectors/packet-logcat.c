@@ -103,6 +103,7 @@ dissect_logcat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     gchar       *c;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "Logcat");
+    col_clear(pinfo->cinfo, COL_INFO);
 
     mainitem = proto_tree_add_item(tree, proto_logcat, tvb, offset, -1, ENC_NA);
     maintree = proto_item_add_subtree(mainitem, ett_logcat);
@@ -168,7 +169,6 @@ dissect_logcat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
     proto_tree_add_item(maintree, hf_logcat_log, tvb, offset, string_length, ENC_ASCII | ENC_NA);
 
-    col_clear(pinfo->cinfo, COL_INFO);
     col_add_str(pinfo->cinfo, COL_INFO, log);
     offset += string_length;
     check_length += string_length;

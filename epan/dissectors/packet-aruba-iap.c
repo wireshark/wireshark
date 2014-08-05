@@ -69,7 +69,7 @@ dissect_aruba_iap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
     col_clear(pinfo->cinfo, COL_INFO);
 
     if (tree) {
-        ti = proto_tree_add_item(tree, proto_aruba_iap, tvb, 0, 0, ENC_NA);
+        ti = proto_tree_add_item(tree, proto_aruba_iap, tvb, 0, -1, ENC_NA);
         aruba_iap_tree = proto_item_add_subtree(ti, ett_aruba_iap);
     }
 
