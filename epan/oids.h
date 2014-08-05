@@ -145,7 +145,7 @@ WS_DLL_PUBLIC
 guint oid_encoded2subid(const guint8 *oid, gint len, guint32** subids_p);
 WS_DLL_PUBLIC
 guint oid_encoded2subid_sub(const guint8 *oid_bytes, gint oid_len, guint32** subids_pi,
-		gboolean is_first);
+                gboolean is_first);
 WS_DLL_PUBLIC
 guint oid_string2subid(wmem_allocator_t *scope, const gchar *oid_str, guint32** subids_p);
 

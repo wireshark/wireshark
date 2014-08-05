@@ -88,14 +88,14 @@ dissector_conversation_init(const char *opt_arg, void* userdata)
  */
 register_ct_t* get_conversation_by_proto_id(int proto_id)
 {
-	GSList *ct;
-	register_ct_t *table;
+    GSList *ct;
+    register_ct_t *table;
 
-	for(ct = registered_ct_tables; ct != NULL; ct = g_slist_next(ct)){
-		table = (register_ct_t*)ct->data;
-		if ((table) && (table->proto_id == proto_id))
+    for(ct = registered_ct_tables; ct != NULL; ct = g_slist_next(ct)){
+        table = (register_ct_t*)ct->data;
+        if ((table) && (table->proto_id == proto_id))
             return table;
-	}
+    }
 
     return NULL;
 }

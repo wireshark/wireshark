@@ -1251,11 +1251,11 @@ struct file_extension_info {
  *
  * The open routine should return:
  *
- *	-1 on an I/O error;
+ *      -1 on an I/O error;
  *
- *	1 if the file it's reading is one of the types it handles;
+ *      1 if the file it's reading is one of the types it handles;
  *
- *	0 if the file it's reading isn't the type it handles.
+ *      0 if the file it's reading isn't the type it handles.
  *
  * If the routine handles this type of file, it should set the "file_type"
  * field in the "struct wtap" to the type of the file.
@@ -1291,8 +1291,8 @@ typedef int (*wtap_open_routine_t)(struct wtap*, int *, char **);
  * might be recognized by the heuristics for a different file type.
  */
 /*struct heuristic_open_info {
-	wtap_open_routine_t open_routine;
-	const char *extensions;
+    wtap_open_routine_t open_routine;
+    const char *extensions;
 };
 */
 #define OPEN_INFO_MAGIC      0
@@ -1313,9 +1313,9 @@ WS_DLL_PUBLIC struct open_info *open_routines;
 /*
  * Types of comments.
  */
-#define WTAP_COMMENT_PER_SECTION	0x00000001	/* per-file/per-file-section */
-#define WTAP_COMMENT_PER_INTERFACE	0x00000002	/* per-interface */
-#define WTAP_COMMENT_PER_PACKET		0x00000004	/* per-packet */
+#define WTAP_COMMENT_PER_SECTION        0x00000001      /* per-file/per-file-section */
+#define WTAP_COMMENT_PER_INTERFACE      0x00000002      /* per-interface */
+#define WTAP_COMMENT_PER_PACKET         0x00000004      /* per-packet */
 
 struct file_type_subtype_info {
     /* the file type name */
@@ -1406,7 +1406,7 @@ gboolean wtap_read(wtap *wth, int *err, gchar **err_info,
 
 WS_DLL_PUBLIC
 gboolean wtap_seek_read (wtap *wth, gint64 seek_off,
-	struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info);
+        struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info);
 
 /*** get various information snippets about the current packet ***/
 WS_DLL_PUBLIC

@@ -88,11 +88,11 @@ get_ucs_4_string(wmem_allocator_t *scope, const guint8 *ptr, gint length, const 
 
 WS_DLL_PUBLIC guint8 *
 get_ts_23_038_7bits_string(wmem_allocator_t *scope, const guint8 *ptr,
-	const gint bit_offset, gint no_of_chars);
+        const gint bit_offset, gint no_of_chars);
 
 WS_DLL_PUBLIC guint8 *
 get_ascii_7bits_string(wmem_allocator_t *scope, const guint8 *ptr,
-	const gint bit_offset, gint no_of_chars);
+        const gint bit_offset, gint no_of_chars);
 
 WS_DLL_PUBLIC guint8 *
 get_ebcdic_string(wmem_allocator_t *scope, const guint8 *ptr, gint length);

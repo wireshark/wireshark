@@ -46,7 +46,7 @@
 #endif
 
 #ifdef HAVE_LIBZ
-#include <zlib.h>	/* to get the libz version number */
+#include <zlib.h>      /* to get the libz version number */
 #endif
 
 #ifdef _WIN32 /* Needed for console I/O */

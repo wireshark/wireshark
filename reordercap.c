@@ -37,7 +37,7 @@
 #endif
 
 #ifdef HAVE_LIBZ
-#include <zlib.h>	/* to get the libz version number */
+#include <zlib.h>      /* to get the libz version number */
 #endif
 
 #include "wtap.h"

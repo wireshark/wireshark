@@ -68,7 +68,7 @@
 #include <errno.h>
 
 #ifdef HAVE_LIBZ
-#include <zlib.h>	/* to get the libz version number */
+#include <zlib.h>      /* to get the libz version number */
 #endif
 
 #include <wsutil/cmdarg_err.h>
@@ -4153,23 +4153,23 @@ out:
 }
 
 static void
-get_dumpcap_compiled_info(GString *str)
+    get_dumpcap_compiled_info(GString *str)
 {
-	/* Capture libraries */
-	g_string_append(str, ", ");
-	get_compiled_caplibs_version(str);
+    /* Capture libraries */
+    g_string_append(str, ", ");
+    get_compiled_caplibs_version(str);
 
-	/* LIBZ */
-	g_string_append(str, ", ");
+    /* LIBZ */
+    g_string_append(str, ", ");
 #ifdef HAVE_LIBZ
-	g_string_append(str, "with libz ");
+    g_string_append(str, "with libz ");
 #ifdef ZLIB_VERSION
-	g_string_append(str, ZLIB_VERSION);
+    g_string_append(str, ZLIB_VERSION);
 #else /* ZLIB_VERSION */
-	g_string_append(str, "(version unknown)");
+    g_string_append(str, "(version unknown)");
 #endif /* ZLIB_VERSION */
 #else /* HAVE_LIBZ */
-	g_string_append(str, "without libz");
+    g_string_append(str, "without libz");
 #endif /* HAVE_LIBZ */
 }
 

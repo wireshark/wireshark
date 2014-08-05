@@ -111,7 +111,7 @@ static void text_page_insert(GtkWidget *page, const char *buffer, int nchars)
 static void text_page_set_text(GtkWidget *page, const char *absolute_path)
 {
     FILE *text_file;
-    char line[4096+1];	/* XXX - size? */
+    char line[4096+1];  /* XXX - size? */
 
     text_file = ws_fopen(absolute_path, "r");
     if (text_file != NULL) {

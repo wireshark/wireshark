@@ -1020,20 +1020,20 @@ color_clear_cb(GtkWidget *widget, gpointer data _U_) {
 static void
 overwrite_existing_colorfilters_cb(gpointer dialog _U_, gint btn, gpointer data _U_)
 {
-	switch (btn) {
-	case(ESD_BTN_SAVE):
-	    /* overwrite the file*/
-        if (!color_filters_write(color_filter_edit_list))
-            simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                "Could not open colorfilter file: %s", g_strerror(errno));
-        else
-            prefs.unknown_colorfilters = FALSE;
-	    break;
-	case(ESD_BTN_DONT_SAVE):
-	    break;
-	default:
-	    g_assert_not_reached();
-	}
+  switch (btn) {
+  case(ESD_BTN_SAVE):
+    /* overwrite the file*/
+    if (!color_filters_write(color_filter_edit_list))
+      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                    "Could not open colorfilter file: %s", g_strerror(errno));
+    else
+      prefs.unknown_colorfilters = FALSE;
+    break;
+  case(ESD_BTN_DONT_SAVE):
+    break;
+  default:
+    g_assert_not_reached();
+  }
 }
 
 static void

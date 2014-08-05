@@ -38,8 +38,8 @@
  * As frame numbers are 32 bits, and as 1024 is 2^10, that gives us
  * up to 4 levels of tree.
  */
-#define LOG2_NODES_PER_LEVEL	10
-#define NODES_PER_LEVEL		(1<<LOG2_NODES_PER_LEVEL)
+#define LOG2_NODES_PER_LEVEL    10
+#define NODES_PER_LEVEL         (1<<LOG2_NODES_PER_LEVEL)
 
 struct _frame_data_sequence {
   guint32      count;           /* Total number of frames */
@@ -51,23 +51,23 @@ struct _frame_data_sequence {
  * node, a level 2 node, a level 1 node, and a leaf node.
  */
 #define LEVEL_3_INDEX(framenum) \
-	((framenum) >> (3*LOG2_NODES_PER_LEVEL))
+        ((framenum) >> (3*LOG2_NODES_PER_LEVEL))
 #define LEVEL_2_INDEX(framenum) \
-	(((framenum) >> (2*LOG2_NODES_PER_LEVEL)) & (NODES_PER_LEVEL - 1))
+        (((framenum) >> (2*LOG2_NODES_PER_LEVEL)) & (NODES_PER_LEVEL - 1))
 #define LEVEL_1_INDEX(framenum) \
-	(((framenum) >> (1*LOG2_NODES_PER_LEVEL)) & (NODES_PER_LEVEL - 1))
+        (((framenum) >> (1*LOG2_NODES_PER_LEVEL)) & (NODES_PER_LEVEL - 1))
 #define LEAF_INDEX(framenum) \
-	(((framenum) >> (0*LOG2_NODES_PER_LEVEL)) & (NODES_PER_LEVEL - 1))
+        (((framenum) >> (0*LOG2_NODES_PER_LEVEL)) & (NODES_PER_LEVEL - 1))
 
 frame_data_sequence *
 new_frame_data_sequence(void)
 {
-	frame_data_sequence *fds;
+  frame_data_sequence *fds;
 
-	fds = (frame_data_sequence *)g_malloc(sizeof *fds);
-	fds->count = 0;
-	fds->ptree_root = NULL;
-	return fds;
+  fds = (frame_data_sequence *)g_malloc(sizeof *fds);
+  fds->count = 0;
+  fds->ptree_root = NULL;
+  return fds;
 }
 
 /*

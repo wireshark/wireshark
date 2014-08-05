@@ -132,7 +132,7 @@
 #include <assert.h>
 
 #ifdef HAVE_LIBZ
-#include <zlib.h>	/* to get the libz version number */
+#include <zlib.h>      /* to get the libz version number */
 #endif
 
 #ifndef HAVE_GETOPT

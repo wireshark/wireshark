@@ -425,69 +425,69 @@
 /* Per-capture file private data structure */
 
 typedef struct {
-        /* offsets in stats block; these are dependent on the frame type (Ethernet/WLAN) and */
-        /* version number of .vwr file, and are set up by setup_defaults() */
-        guint32      STATS_LEN;                      /* length of stats block trailer */
-        guint32      STATS_START_OFF;                /* STATS OFF AFTER HEADER */
-        guint32      VALID_OFF;                      /* bit 6 (0x40) is flow-is-valid flag */
-        guint32      MTYPE_OFF;                      /* offset of modulation type */
-        guint32      VCID_OFF;                       /* offset of VC ID */
-        guint32      FLOWSEQ_OFF;                    /* offset of signature sequence number */
-        guint32      FLOWID_OFF;                     /* offset of flow ID */
-        guint32      OCTET_OFF;                      /* offset of octets */
-        guint32      ERRORS_OFF;                     /* offset of error vector */
-        guint32      PATN_OFF;                       /* offset of pattern match vector */
-        guint32      RSSI_OFF;                       /* RSSI (NOTE: RSSI must be negated!) */
-        guint32      STARTT_OFF;                     /* offset of start time, 64 bits */
-        guint32      ENDT_OFF;                       /* offset of end time, 64 bits */
-        guint32      LATVAL_OFF;                     /* offset of latency, 32 bits */
-        guint32      INFO_OFF;                       /* offset of INFO field, 16 bits */
-        guint32      L1P_1_OFF;                      /* offset 1ST Byte of l1params */
-        guint32      L1P_2_OFF;                      /* offset 2nd Byte of l1params */
-        guint32      L4ID_OFF;                       /* LAYER 4 id offset*/
-        guint32      IPLEN_OFF;                      /* */
-        guint32      PLCP_LENGTH_OFF;                /* plcp length offset*/
-        guint32      FPGA_VERSION_OFF;               /* offset of fpga version field, 16 bits */
-        guint32      HEADER_VERSION_OFF;             /* offset of header version, 16 bits */
-        guint32      RXTX_OFF;                       /* offset of CMD bit, rx or tx */
-        guint32      FRAME_TYPE_OFF;
+    /* offsets in stats block; these are dependent on the frame type (Ethernet/WLAN) and */
+    /* version number of .vwr file, and are set up by setup_defaults() */
+    guint32      STATS_LEN;                      /* length of stats block trailer */
+    guint32      STATS_START_OFF;                /* STATS OFF AFTER HEADER */
+    guint32      VALID_OFF;                      /* bit 6 (0x40) is flow-is-valid flag */
+    guint32      MTYPE_OFF;                      /* offset of modulation type */
+    guint32      VCID_OFF;                       /* offset of VC ID */
+    guint32      FLOWSEQ_OFF;                    /* offset of signature sequence number */
+    guint32      FLOWID_OFF;                     /* offset of flow ID */
+    guint32      OCTET_OFF;                      /* offset of octets */
+    guint32      ERRORS_OFF;                     /* offset of error vector */
+    guint32      PATN_OFF;                       /* offset of pattern match vector */
+    guint32      RSSI_OFF;                       /* RSSI (NOTE: RSSI must be negated!) */
+    guint32      STARTT_OFF;                     /* offset of start time, 64 bits */
+    guint32      ENDT_OFF;                       /* offset of end time, 64 bits */
+    guint32      LATVAL_OFF;                     /* offset of latency, 32 bits */
+    guint32      INFO_OFF;                       /* offset of INFO field, 16 bits */
+    guint32      L1P_1_OFF;                      /* offset 1ST Byte of l1params */
+    guint32      L1P_2_OFF;                      /* offset 2nd Byte of l1params */
+    guint32      L4ID_OFF;                       /* LAYER 4 id offset*/
+    guint32      IPLEN_OFF;                      /* */
+    guint32      PLCP_LENGTH_OFF;                /* plcp length offset*/
+    guint32      FPGA_VERSION_OFF;               /* offset of fpga version field, 16 bits */
+    guint32      HEADER_VERSION_OFF;             /* offset of header version, 16 bits */
+    guint32      RXTX_OFF;                       /* offset of CMD bit, rx or tx */
+    guint32      FRAME_TYPE_OFF;
 
-        /* other information about the file in question */
-        guint32      MT_10_HALF;                     /* 10 Mb/s half-duplex */
-        guint32      MT_10_FULL;                     /* 10 Mb/s full-duplex */
-        guint32      MT_100_HALF;                    /* 100 Mb/s half-duplex */
-        guint32      MT_100_FULL;                    /* 100 Mb/s full-duplex */
-        guint32      MT_1G_HALF;                     /* 1 Gb/s half-duplex */
-        guint32      MT_1G_FULL;                     /* 1 Gb/s full-duplex */
-        guint32      FCS_ERROR;                      /* FCS error in frame */
-        guint32      CRYPTO_ERR;                     /* RX decrypt error flags */
-        guint32      PAYCHK_ERR;                     /* payload checksum failure */
-        guint32      RETRY_ERR;                      /* excessive retries on TX failure */
-        guint8       IS_RX;                          /* TX/RX bit in STATS block */
-        guint8       MT_MASK;                        /* modulation type mask */
-        guint16      VCID_MASK;                      /* VC ID is only 9 bits */
-        guint32      FLOW_VALID;                     /* flow-is-valid flag (else force to 0) */
-        guint16      QOS_VALID;
-        guint32      RX_DECRYPTS;                    /* RX-frame-was-decrypted bits */
-        guint32      TX_DECRYPTS;                    /* TX-frame-was-decrypted bits */
-        guint32      FC_PROT_BIT;                    /* Protected Frame bit in FC1 of frame */
-        guint32      MT_CCKL;                        /* CCK modulation, long preamble */
-        guint32      MT_CCKS;                        /* CCK modulation, short preamble */
-        guint32      MT_OFDM;                        /* OFDM modulation */
-        guint32      MCS_INDEX_MASK;                 /* mcs index type mask */
-        guint32      FPGA_VERSION;
-        guint32      HEADER_IS_RX;
-        guint32      HEADER_IS_TX;
-        guint32      WEPTYPE;                        /* frame is WEP */
-        guint32      TKIPTYPE;                       /* frame is TKIP */
-        guint32      CCMPTYPE;                       /* frame is CCMP */
-        guint32      IS_TCP;
-        guint32      IS_UDP;
-        guint32      IS_ICMP;
-        guint32      IS_IGMP;
-        guint16      IS_QOS;
-        guint32      IS_VLAN;
-        guint32      MPDU_OFF;
+    /* other information about the file in question */
+    guint32      MT_10_HALF;                     /* 10 Mb/s half-duplex */
+    guint32      MT_10_FULL;                     /* 10 Mb/s full-duplex */
+    guint32      MT_100_HALF;                    /* 100 Mb/s half-duplex */
+    guint32      MT_100_FULL;                    /* 100 Mb/s full-duplex */
+    guint32      MT_1G_HALF;                     /* 1 Gb/s half-duplex */
+    guint32      MT_1G_FULL;                     /* 1 Gb/s full-duplex */
+    guint32      FCS_ERROR;                      /* FCS error in frame */
+    guint32      CRYPTO_ERR;                     /* RX decrypt error flags */
+    guint32      PAYCHK_ERR;                     /* payload checksum failure */
+    guint32      RETRY_ERR;                      /* excessive retries on TX failure */
+    guint8       IS_RX;                          /* TX/RX bit in STATS block */
+    guint8       MT_MASK;                        /* modulation type mask */
+    guint16      VCID_MASK;                      /* VC ID is only 9 bits */
+    guint32      FLOW_VALID;                     /* flow-is-valid flag (else force to 0) */
+    guint16      QOS_VALID;
+    guint32      RX_DECRYPTS;                    /* RX-frame-was-decrypted bits */
+    guint32      TX_DECRYPTS;                    /* TX-frame-was-decrypted bits */
+    guint32      FC_PROT_BIT;                    /* Protected Frame bit in FC1 of frame */
+    guint32      MT_CCKL;                        /* CCK modulation, long preamble */
+    guint32      MT_CCKS;                        /* CCK modulation, short preamble */
+    guint32      MT_OFDM;                        /* OFDM modulation */
+    guint32      MCS_INDEX_MASK;                 /* mcs index type mask */
+    guint32      FPGA_VERSION;
+    guint32      HEADER_IS_RX;
+    guint32      HEADER_IS_TX;
+    guint32      WEPTYPE;                        /* frame is WEP */
+    guint32      TKIPTYPE;                       /* frame is TKIP */
+    guint32      CCMPTYPE;                       /* frame is CCMP */
+    guint32      IS_TCP;
+    guint32      IS_UDP;
+    guint32      IS_ICMP;
+    guint32      IS_IGMP;
+    guint16      IS_QOS;
+    guint32      IS_VLAN;
+    guint32      MPDU_OFF;
 } vwr_t;
 
 /* internal utility functions */
@@ -1151,20 +1151,20 @@ static gboolean vwr_read_s2_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
         /* we do the range checks at the end before copying the values
            into the wtap header */
         msdu_length = ((s_start_ptr[vVW510021_W_MSDU_LENGTH_OFF+1] & 0x1f) << 8)
-	                + s_start_ptr[vVW510021_W_MSDU_LENGTH_OFF];
+                        + s_start_ptr[vVW510021_W_MSDU_LENGTH_OFF];
 
         vc_id = pntoh16(&s_start_ptr[vVW510021_W_VCID_OFF]);
         if (IS_TX)
         {
             rssi[0] = (s_start_ptr[vVW510021_W_RSSI_TXPOWER_OFF] & 0x80) ?
-	               -1 * (s_start_ptr[vVW510021_W_RSSI_TXPOWER_OFF] & 0x7f) :
-		       s_start_ptr[vVW510021_W_RSSI_TXPOWER_OFF] & 0x7f;
+                       -1 * (s_start_ptr[vVW510021_W_RSSI_TXPOWER_OFF] & 0x7f) :
+                       s_start_ptr[vVW510021_W_RSSI_TXPOWER_OFF] & 0x7f;
         }
         else
         {
             rssi[0] = (s_start_ptr[vVW510021_W_RSSI_TXPOWER_OFF] & 0x80) ?
-	              (s_start_ptr[vVW510021_W_RSSI_TXPOWER_OFF]- 256) :
-		      s_start_ptr[vVW510021_W_RSSI_TXPOWER_OFF];
+                      (s_start_ptr[vVW510021_W_RSSI_TXPOWER_OFF]- 256) :
+                      s_start_ptr[vVW510021_W_RSSI_TXPOWER_OFF];
         }
         rssi[1] = 100;
         rssi[2] = 100;

@@ -95,7 +95,7 @@ reset_ct_table_data(conversations_table *ct)
     }
 
     if(ct->page_lb) {
-    	display_name = cf_get_display_name(&cfile);
+        display_name = cf_get_display_name(&cfile);
         g_snprintf(title, sizeof(title), "Conversations: %s", display_name);
         g_free(display_name);
         gtk_window_set_title(GTK_WINDOW(ct->win), title);
@@ -114,7 +114,7 @@ reset_ct_table_data(conversations_table *ct)
         }
         gtk_label_set_text(GTK_LABEL(ct->name_lb), title);
     } else {
-    	display_name = cf_get_display_name(&cfile);
+        display_name = cf_get_display_name(&cfile);
         g_snprintf(title, sizeof(title), "%s Conversations: %s", ct->name, display_name);
         g_free(display_name);
         gtk_window_set_title(GTK_WINDOW(ct->win), title);
