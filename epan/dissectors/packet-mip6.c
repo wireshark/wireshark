@@ -1034,6 +1034,8 @@ static int hf_mip6_vsm_vid = -1;
 static int hf_mip6_vsm_subtype = -1;
 static int hf_mip6_vsm_subtype_3gpp = -1;
 
+static int hf_mip6_opt_ss_identifier = -1;
+
 static int hf_mip6_opt_badff_spi = -1;
 static int hf_mip6_opt_badff_auth = -1;
 
@@ -2250,15 +2252,13 @@ dissect_mip6_opt_vsm(const mip6_opt *optp _U_, tvbuff_t *tvb, int offset,
 }
 
 /* 20 Service Selection Mobility Option [RFC5149]  */
-#define MAX_APN_LENGTH 100
 
 static void
 dissect_mip6_opt_ssm(const mip6_opt *optp _U_, tvbuff_t *tvb, int offset,
              guint optlen, packet_info *pinfo _U_, proto_tree *opt_tree, proto_item *hdr_item _U_ )
 {
     int    len;
-    guint8 str[MAX_APN_LENGTH+1];
-    int    curr_len;
+    guint8 *str;
 
     /* offset points to tag(opt) */
     offset++;
@@ -2281,20 +2281,9 @@ dissect_mip6_opt_ssm(const mip6_opt *optp _U_, tvbuff_t *tvb, int offset,
      */
 
     if (len > 0) {
-        /* init buffer and copy it */
-        memset(str, 0, MAX_APN_LENGTH);
-        tvb_memcpy(tvb, str, offset, len<MAX_APN_LENGTH?len:MAX_APN_LENGTH);
-
-        curr_len = 0;
-        while ((curr_len < len) && (curr_len < MAX_APN_LENGTH))
-        {
-            guint step    = str[curr_len];
-            str[curr_len] = '.';
-            curr_len     += step+1;
-        }
-        /* High light bytes including the first lenght byte, excluded from str(str+1) */
-        proto_tree_add_text(opt_tree, tvb, offset, len, "Identifier: %s", str+1);
-        proto_item_append_text(hdr_item, ": %s", str+1);
+        str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, len, ENC_UTF_8|ENC_NA);
+        proto_tree_add_string(opt_tree, hf_mip6_opt_ss_identifier, tvb, offset, len, str);
+        proto_item_append_text(hdr_item, ": %s", str);
     }
 }
 
@@ -4267,6 +4256,11 @@ proto_register_mip6(void)
     { &hf_mip6_vsm_subtype_3gpp,
       { "Subtype", "mip6.vsm.subtype",
         FT_UINT8, BASE_DEC | BASE_EXT_STRING, &mip6_vsm_subtype_3gpp_value_ext, 0,
+        NULL, HFILL }
+    },
+    { &hf_mip6_opt_ss_identifier,
+      { "Identifier", "mip6.ss.identifier",
+        FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL }
     },
     { &hf_mip6_opt_badff_spi,
