@@ -1344,5 +1344,6 @@ distcheck-hook:
 	mkdir _cmake_build && \
 	cd _cmake_build && \
 	cmake .. && \
+	$(MAKE) && \
 	cd .. && \
 	rm -rf _cmake_build
