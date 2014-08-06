@@ -864,7 +864,7 @@ conversation_lookup_hashtable(GHashTable *hashtable, const guint32 frame_num, co
  *
  *	otherwise, if "port_b" wasn't specified as a wildcard, we try to
  *	match any address 2 with the specified port 2 (addr_a/port_a and
- *	{any}/addr_b) and, if that succeeds, we return a pointer to the
+ *	{any}/port_b) and, if that succeeds, we return a pointer to the
  *	matched conversation;
  *
  *	otherwise, if "addr_b" wasn't specified as a wildcard, we try to
