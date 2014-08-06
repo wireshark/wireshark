@@ -59,16 +59,17 @@ static expert_field ei_isis_type = EI_INIT;
 static dissector_handle_t isis_handle;
 
 static const value_string isis_vals[] = {
-  { ISIS_TYPE_L1_HELLO,  "L1 HELLO"},
-  { ISIS_TYPE_L2_HELLO,  "L2 HELLO"},
-  { ISIS_TYPE_PTP_HELLO, "P2P HELLO"},
-  { ISIS_TYPE_L1_LSP,    "L1 LSP"},
-  { ISIS_TYPE_L2_LSP,    "L2 LSP"},
-  { ISIS_TYPE_L1_CSNP,   "L1 CSNP"},
-  { ISIS_TYPE_L2_CSNP,   "L2 CSNP"},
-  { ISIS_TYPE_L1_PSNP,   "L1 PSNP"},
-  { ISIS_TYPE_L2_PSNP,   "L2 PSNP"},
-  { 0,                   NULL}      };
+    { ISIS_TYPE_L1_HELLO,  "L1 HELLO"},
+    { ISIS_TYPE_L2_HELLO,  "L2 HELLO"},
+    { ISIS_TYPE_PTP_HELLO, "P2P HELLO"},
+    { ISIS_TYPE_L1_LSP,    "L1 LSP"},
+    { ISIS_TYPE_L2_LSP,    "L2 LSP"},
+    { ISIS_TYPE_L1_CSNP,   "L1 CSNP"},
+    { ISIS_TYPE_L2_CSNP,   "L2 CSNP"},
+    { ISIS_TYPE_L1_PSNP,   "L1 PSNP"},
+    { ISIS_TYPE_L2_PSNP,   "L2 PSNP"},
+    { 0,                   NULL}
+};
 
 static void
 dissect_isis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -221,3 +222,16 @@ proto_reg_handoff_isis(void)
     dissector_add_uint("osinl.incl", NLPID_ISO10589_ISIS, isis_handle);
     dissector_add_uint("ethertype", ETHERTYPE_L2ISIS, isis_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

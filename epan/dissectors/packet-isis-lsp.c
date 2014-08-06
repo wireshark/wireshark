@@ -3044,3 +3044,16 @@ proto_reg_handoff_isis_lsp(void)
     dissector_add_uint("isis.type", ISIS_TYPE_L1_LSP, new_create_dissector_handle(dissect_isis_l1_lsp, proto_isis_lsp));
     dissector_add_uint("isis.type", ISIS_TYPE_L2_LSP, new_create_dissector_handle(dissect_isis_l2_lsp, proto_isis_lsp));
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */
