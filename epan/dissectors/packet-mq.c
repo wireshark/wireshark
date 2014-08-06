@@ -3650,7 +3650,7 @@ static void dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                                 int iLenStr;
                                                 guint8 *sStr;
 
-                                                proto_tree *tree;
+                                                proto_tree *rfh_tree;
 
                                                 proto_tree_add_item(mq_tree, hf_mq_head_flags , tvb, offset + 28, 4, p_mq_parm->mq_int_enc);
                                                 iPos = offset + 32;
@@ -3674,10 +3674,10 @@ static void dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                                     if (*sStr)
                                                         format_text_chr(sStr, strlen((const char *)sStr), '.');
 
-                                                    tree = proto_tree_add_subtree_format(mq_tree, tvb, iPos, iLenStr+4, ett_mq_rfh_ValueName, NULL, "NameValue: %s",  sStr);
+                                                    rfh_tree = proto_tree_add_subtree_format(mq_tree, tvb, iPos, iLenStr+4, ett_mq_rfh_ValueName, NULL, "NameValue: %s",  sStr);
 
-                                                    proto_tree_add_item(tree, hf_mq_rfh_length, tvb, iPos, 4, p_mq_parm->mq_int_enc);
-                                                    proto_tree_add_item(tree, hf_mq_rfh_string, tvb, iPos + 4, iLenStr, p_mq_parm->mq_str_enc);
+                                                    proto_tree_add_item(rfh_tree, hf_mq_rfh_length, tvb, iPos, 4, p_mq_parm->mq_int_enc);
+                                                    proto_tree_add_item(rfh_tree, hf_mq_rfh_string, tvb, iPos + 4, iLenStr, p_mq_parm->mq_str_enc);
                                                     iPos += (iLenStr + 4);
                                                 }
                                             }
