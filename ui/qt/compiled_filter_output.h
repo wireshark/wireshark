@@ -39,7 +39,7 @@ class CompiledFilterOutput : public QDialog
     Q_OBJECT
 
 private:
-    QStringList *intList_;
+    QStringList intList_;
     QString &compile_filter_;
     Ui::CompiledFilterOutput *ui;
     GMutex *pcap_compile_mtx;
@@ -49,7 +49,7 @@ private:
     void compileFilter();
 
 public:
-    explicit CompiledFilterOutput(QWidget *parent = 0, QStringList *intList = new QStringList(), QString &filter = *new QString());
+    explicit CompiledFilterOutput(QWidget *parent = 0, QStringList &intList = *new QStringList(), QString &filter = *new QString());
 
     ~CompiledFilterOutput();
 

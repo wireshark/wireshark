@@ -62,7 +62,7 @@ public:
     ~NewFileDelegate();
 
     QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const;
-    void setTable(QTableWidget* tb) { table = tb; };
+    void setTable(QTableWidget* tb) { table = tb; }
 
 private slots:
     void browse_button_clicked();

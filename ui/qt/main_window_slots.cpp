@@ -2375,7 +2375,7 @@ void MainWindow::on_actionCaptureOptions_triggered()
 {
     connect(&capture_interfaces_dialog_, SIGNAL(setFilterValid(bool)), this, SLOT(startInterfaceCapture(bool)));
     capture_interfaces_dialog_.SetTab(0);
-    capture_interfaces_dialog_.UpdateInterfaces();
+    capture_interfaces_dialog_.updateInterfaces();
 
     if (capture_interfaces_dialog_.isMinimized() == true)
     {

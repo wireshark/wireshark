@@ -29,29 +29,11 @@
 
 #include <QDialog>
 #include <QPushButton>
-#include <QTableWidget>
 
 typedef struct if_stat_cache_s if_stat_cache_t;
 
 #include "interface_tree.h"
 #include "preferences_dialog.h"
-
-/*
- * Symbolic names for column indices.
- */
-enum
-{
-    INTERFACE = 0,
-    TRAFFIC,
-    LINK,
-    PMODE,
-    SNAPLEN,
-    BUFFER,
-    MONITOR,
-    FILTER,
-    NUM_COLUMNS
-};
-
 
 namespace Ui {
 class CaptureInterfacesDialog;
@@ -59,18 +41,18 @@ class CaptureInterfacesDialog;
 
 #include <QStyledItemDelegate>
 
-class TbInterfacesDelegate : public QStyledItemDelegate
+class InterfaceTreeDelegate : public QStyledItemDelegate
 {
     Q_OBJECT
 private:
-    QTableWidget* table;
+    QTreeWidget* tree_;
 
 public:
-    TbInterfacesDelegate(QObject *parent = 0);
-    ~TbInterfacesDelegate();
+    InterfaceTreeDelegate(QObject *parent = 0);
+    ~InterfaceTreeDelegate();
 
     QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const;
-    void setTable(QTableWidget* tb) { table = tb; };
+    void setTree(QTreeWidget* tree) { tree_ = tree; }
     bool eventFilter(QObject *object, QEvent *event);
 
 private slots:
@@ -92,7 +74,7 @@ public:
     ~CaptureInterfacesDialog();
 
     void SetTab(int index);
-    void UpdateInterfaces();
+    void updateInterfaces();
 
 private slots:
     void on_capturePromModeCheckBox_toggled(bool checked);
@@ -109,8 +91,8 @@ private slots:
     void start_button_clicked();
     void on_buttonBox_rejected();
     void on_buttonBox_helpRequested();
-    void tableItemClicked(QTableWidgetItem * item);
-    void tableSelected();
+    void interfaceClicked(QTreeWidgetItem *item, int column);
+    void interfaceSelected();
     void updateWidgets();
     void updateStatistics(void);
     void allFilterChanged();
@@ -135,7 +117,7 @@ private:
     QPushButton *stop_bt_;
     if_stat_cache_t *stat_cache_;
     QTimer *stat_timer_;
-    TbInterfacesDelegate combobox_item_delegate_;
+    InterfaceTreeDelegate interface_item_delegate_;
     QMap<int, int> deviceMap;
 
     void saveOptionsToPreferences();

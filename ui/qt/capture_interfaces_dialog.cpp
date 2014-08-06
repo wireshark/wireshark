@@ -50,7 +50,44 @@
 
 #include "sparkline_delegate.h"
 
+// To do:
+// - Set a size hint for item delegates.
+// - Make promiscuous a checkbox.
+// - Allow sorting by the traffic column? We'd have to subclass QTreeWidgetItem
+//   (see ConversationTreeWidget).
+
 const int stat_update_interval_ = 1000; // ms
+
+#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+#define SHOW_BUFFER_COLUMN 1
+#endif
+
+#if defined(HAVE_PCAP_CREATE)
+#define SHOW_MONITOR_COLUMN 1
+#endif
+
+/*
+ * Symbolic names for column indices.
+ */
+enum
+{
+    col_interface_ = 0,
+    col_traffic_,
+    col_link_,
+    col_pmode_,
+    col_snaplen_,
+    col_buffer_,
+    col_monitor_,
+    col_filter_,
+    col_num_columns_
+};
+
+class InterfaceTreeWidgetItem : public QTreeWidgetItem
+{
+public:
+    InterfaceTreeWidgetItem(QTreeWidget *tree) : QTreeWidgetItem(tree)  {}
+    bool operator< (const QTreeWidgetItem &other) const;
+};
 
 CaptureInterfacesDialog::CaptureInterfacesDialog(QWidget *parent) :
     QDialog(parent),
@@ -67,8 +104,26 @@ CaptureInterfacesDialog::CaptureInterfacesDialog(QWidget *parent) :
     start_bt_->setEnabled((global_capture_opts.num_selected > 0)? true: false);
     connect(start_bt_, SIGNAL(clicked(bool)), this, SLOT(start_button_clicked()));
 
-    connect(ui->tbInterfaces,SIGNAL(itemClicked(QTableWidgetItem *)),this,SLOT(tableItemClicked(QTableWidgetItem *)));
-    connect(ui->tbInterfaces, SIGNAL(itemSelectionChanged()), this, SLOT(tableSelected()));
+    ui->interfaceTree->sortByColumn(col_interface_, Qt::AscendingOrder);
+    ui->interfaceTree->setItemDelegateForColumn(col_interface_, &interface_item_delegate_);
+    ui->interfaceTree->setItemDelegateForColumn(col_traffic_, new SparkLineDelegate());
+    ui->interfaceTree->setItemDelegateForColumn(col_link_, &interface_item_delegate_);
+    ui->interfaceTree->setItemDelegateForColumn(col_pmode_, &interface_item_delegate_);
+    ui->interfaceTree->setItemDelegateForColumn(col_snaplen_, &interface_item_delegate_);
+#ifdef SHOW_BUFFER_COLUMN
+    ui->interfaceTree->setItemDelegateForColumn(col_buffer_, &interface_item_delegate_);
+#else
+    ui->interfaceTree->setColumnHidden(col_buffer_, true);
+#endif
+#ifdef SHOW_MONITOR_COLUMN
+    ui->interfaceTree->setItemDelegateForColumn(col_monitor_, &interface_item_delegate_);
+#else
+    ui->interfaceTree->setColumnHidden(col_monitor_, true);
+#endif
+    ui->interfaceTree->setItemDelegateForColumn(col_filter_, &interface_item_delegate_);
+
+    connect(ui->interfaceTree,SIGNAL(itemClicked(QTreeWidgetItem*,int)),this,SLOT(interfaceClicked(QTreeWidgetItem*,int)));
+    connect(ui->interfaceTree, SIGNAL(itemSelectionChanged()), this, SLOT(interfaceSelected()));
     connect(ui->allFilterComboBox, SIGNAL(captureFilterSyntaxChanged(bool)), this, SLOT(allFilterChanged()));
     connect(this, SIGNAL(interfacesChanged()), ui->allFilterComboBox, SIGNAL(interfacesChanged()));
     connect(this, SIGNAL(ifsChanged()), this, SLOT(refreshInterfaceList()));
@@ -77,23 +132,18 @@ CaptureInterfacesDialog::CaptureInterfacesDialog(QWidget *parent) :
 
 void CaptureInterfacesDialog::allFilterChanged()
 {
-    QList<QTableWidgetItem*> selected = ui->tbInterfaces->selectedItems();
-    for (int row = 0; row < ui->tbInterfaces->rowCount(); row++)
-    {
-        QTableWidgetItem *it = ui->tbInterfaces->item(row, FILTER);
-        if (selected.contains(it)) {
-            QString str = ui->allFilterComboBox->currentText();
-            it->setText(str);
-        }
+    foreach (QTreeWidgetItem *ti, ui->interfaceTree->selectedItems()) {
+        QString str = ui->allFilterComboBox->currentText();
+        ti->setText(col_filter_, str);
     }
     updateWidgets();
 }
 
-void CaptureInterfacesDialog::tableSelected()
+void CaptureInterfacesDialog::interfaceSelected()
 {
     interface_t device;
 
-    if (!ui->tbInterfaces->selectedItems().size()) {
+    if (!ui->interfaceTree->selectedItems().size()) {
         for (guint i = 0; i < global_capture_opts.all_ifaces->len; i++) {
             device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
             device.selected = false;
@@ -123,7 +173,7 @@ void CaptureInterfacesDialog::updateWidgets()
 
     bool can_capture = false;
 
-    if (ui->tbInterfaces->selectedItems().count() > 0 && sle->syntaxState() != SyntaxLineEdit::Invalid) {
+    if (ui->interfaceTree->selectedItems().count() > 0 && sle->syntaxState() != SyntaxLineEdit::Invalid) {
         can_capture = true;
     }
 
@@ -131,39 +181,35 @@ void CaptureInterfacesDialog::updateWidgets()
     start_bt_->setEnabled(can_capture);
 }
 
-void CaptureInterfacesDialog::tableItemClicked(QTableWidgetItem * item)
+void CaptureInterfacesDialog::interfaceClicked(QTreeWidgetItem *item, int column)
 {
     Q_UNUSED(item)
-
-    interface_t device;
+    Q_UNUSED(column)
     guint i;
-    global_capture_opts.num_selected = 0;
-
     QString filter = ui->allFilterComboBox->currentText();
-    QList<QTableWidgetItem*> selected = ui->tbInterfaces->selectedItems();
-    for (int row = 0; row < ui->tbInterfaces->rowCount(); row++)
+
+    global_capture_opts.num_selected = 0;
+    for (i = 0; i < global_capture_opts.all_ifaces->len; i++) {
+        interface_t *device = &g_array_index(global_capture_opts.all_ifaces, interface_t, i);
+        device->selected = FALSE;
+    }
+
+    foreach (QTreeWidgetItem *ti, ui->interfaceTree->selectedItems())
     {
-        QTableWidgetItem *it = ui->tbInterfaces->item(row, INTERFACE);
-        QString interface_name = it->text();
+        QString interface_name = ti->text(col_interface_);
 
         for (i = 0; i < global_capture_opts.all_ifaces->len; i++) {
-            device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
-            if (interface_name.compare(device.display_name)) {
+            interface_t *device = &g_array_index(global_capture_opts.all_ifaces, interface_t, i);
+            if (interface_name.compare(device->display_name)) {
                 continue;
             } else {
+                device->selected = TRUE;
+                global_capture_opts.num_selected++;
                 break;
             }
         }
-        if (selected.contains(it)) {
-            device.selected = true;
-            global_capture_opts.num_selected++;
-        } else {
-            device.selected = false;
-        }
-        global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, i);
-        g_array_insert_val(global_capture_opts.all_ifaces, i, device);
 
-        start_bt_->setEnabled((global_capture_opts.num_selected > 0)? true: false);
+        start_bt_->setEnabled((global_capture_opts.num_selected > 0) ? true: false);
 
         if (filter.compare(QString(""))) {
             emit interfacesChanged();
@@ -186,14 +232,14 @@ void CaptureInterfacesDialog::on_capturePromModeCheckBox_toggled(bool checked)
 {
     interface_t device;
     prefs.capture_prom_mode = checked;
-    for (int row = 0; row < ui->tbInterfaces->rowCount(); row++){
+    for (int row = 0; row < ui->interfaceTree->topLevelItemCount(); row++) {
         device = g_array_index(global_capture_opts.all_ifaces, interface_t, deviceMap[row]);
-        QString device_name = ui->tbInterfaces->item(row, INTERFACE)->text();
+//        QString device_name = ui->interfaceTree->topLevelItem(row)->text(col_interface_);
         device.pmode = checked;
         global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, deviceMap[row]);
         g_array_insert_val(global_capture_opts.all_ifaces, deviceMap[row], device);
-        QTableWidgetItem *it = ui->tbInterfaces->item(row, PMODE);
-        it->setText(checked? tr("enabled"):tr("disabled"));
+        QTreeWidgetItem *ti = ui->interfaceTree->topLevelItem(row);
+        ti->setText(col_pmode_, checked? tr("enabled"):tr("disabled"));
     }
 }
 
@@ -261,7 +307,7 @@ void CaptureInterfacesDialog::on_buttonBox_helpRequested()
     wsApp->helpTopicAction(HELP_CAPTURE_INTERFACES_DIALOG);
 }
 
-void CaptureInterfacesDialog::UpdateInterfaces()
+void CaptureInterfacesDialog::updateInterfaces()
 {
     if(prefs.capture_pcap_ng) {
         ui->rbPcapng->setChecked(true);
@@ -281,15 +327,13 @@ void CaptureInterfacesDialog::UpdateInterfaces()
     ui->cbResolveNetworkNames->setChecked(gbl_resolv_flags.network_name);
     ui->cbResolveTransportNames->setChecked(gbl_resolv_flags.transport_name);
 
-    ui->tbInterfaces->setRowCount(0);
-    ui->tbInterfaces->clearContents();
+    ui->interfaceTree->clear();
 
     GList        *list;
-    char         *snaplen_string, *linkname;
     link_row     *linkr = NULL;
-  #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+#ifdef SHOW_BUFFER_COLUMN
     gint          buffer;
-  #endif
+#endif
     gint          snaplen;
     gboolean      hassnap, pmode;
 
@@ -305,126 +349,100 @@ void CaptureInterfacesDialog::UpdateInterfaces()
             if (device.hidden) {
                 continue;
             }
-            deviceMap[ui->tbInterfaces->rowCount()] = i;
-            QString output;
+            deviceMap[ui->interfaceTree->topLevelItemCount()] = i;
 
-            ui->tbInterfaces->setRowCount(ui->tbInterfaces->rowCount() + 1);
-
-            // traffic lines
-            ui->tbInterfaces->setItemDelegateForColumn(TRAFFIC, new SparkLineDelegate());
+            // Traffic sparklines
             points = new QList<int>();
-            QTableWidgetItem *ti = new QTableWidgetItem();
-            ti->setFlags(Qt::NoItemFlags);
-            ti->setData(Qt::UserRole, qVariantFromValue(points));
-            ui->tbInterfaces->setItem(ui->tbInterfaces->rowCount()-1, TRAFFIC, ti);
+            InterfaceTreeWidgetItem *ti = new InterfaceTreeWidgetItem(ui->interfaceTree);
+            ti->setFlags(ti->flags() | Qt::ItemIsEditable);
+            ti->setData(col_traffic_, Qt::UserRole, qVariantFromValue(points));
 
-            ui->tbInterfaces->setItemDelegateForColumn(INTERFACE, &combobox_item_delegate_);
-            output = QString(device.display_name);
-            ui->tbInterfaces->setItem(ui->tbInterfaces->rowCount()-1, INTERFACE, new QTableWidgetItem(output));
-            if (strcmp(device.addresses,""))
-                ui->tbInterfaces->item(ui->tbInterfaces->rowCount()-1, INTERFACE)->setToolTip(tr("Addresses:\n%1").arg(device.addresses));
-            else
-                ui->tbInterfaces->item(ui->tbInterfaces->rowCount()-1, INTERFACE)->setToolTip(tr("no address"));
+            ti->setText(col_interface_, device.display_name);
+            if (device.no_addresses > 0) {
+                QString addr_str = tr("%1: %2").arg(device.no_addresses > 1 ? tr("Addresses") : tr("Address")).arg(device.addresses);
+                QTreeWidgetItem *addr_ti = new QTreeWidgetItem(ti);
 
-            linkname = NULL;
+                addr_str.replace('\n', ", ");
+                addr_ti->setText(0, addr_str);
+                addr_ti->setFlags(addr_ti->flags() ^ Qt::ItemIsSelectable);
+                addr_ti->setFirstColumnSpanned(true);
+                ti->setToolTip(col_interface_, QString("<span>%1</span>").arg(addr_str));
+            } else {
+                ti->setToolTip(col_interface_, tr("no addresses"));
+            }
+
+            QString linkname = "unknown";
             if(capture_dev_user_linktype_find(device.name) != -1) {
               device.active_dlt = capture_dev_user_linktype_find(device.name);
             }
             for (list = device.links; list != NULL; list = g_list_next(list)) {
-              linkr = (link_row*)(list->data);
-              if (linkr->dlt == device.active_dlt) {
-                linkname = g_strdup(linkr->name);
-                break;
-              }
+                linkr = (link_row*)(list->data);
+                if (linkr->dlt == device.active_dlt) {
+                    linkname = linkr->name;
+                    break;
+                }
             }
 
-            if (!linkname)
-                linkname = g_strdup("unknown");
             pmode = capture_dev_user_pmode_find(device.name);
             if (pmode != -1) {
-              device.pmode = pmode;
+                device.pmode = pmode;
             }
             hassnap = capture_dev_user_hassnap_find(device.name);
             snaplen = capture_dev_user_snaplen_find(device.name);
             if(snaplen != -1 && hassnap != -1) {
-              /* Default snap length set in preferences */
-              device.snaplen = snaplen;
-              device.has_snaplen = hassnap;
+                /* Default snap length set in preferences */
+                device.snaplen = snaplen;
+                device.has_snaplen = hassnap;
             } else {
-              /* No preferences set yet, use default values */
-              device.snaplen = WTAP_MAX_PACKET_SIZE;
-              device.has_snaplen = FALSE;
+                /* No preferences set yet, use default values */
+                device.snaplen = WTAP_MAX_PACKET_SIZE;
+                device.has_snaplen = FALSE;
             }
 
-            if (device.has_snaplen) {
-              snaplen_string = g_strdup_printf("%d", device.snaplen);
-            } else {
-              snaplen_string = g_strdup("default");
-            }
+            QString snaplen_string = device.has_snaplen ? QString::number(device.snaplen) : tr("default");
 
-      #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+#ifdef SHOW_BUFFER_COLUMN
             if (capture_dev_user_buffersize_find(device.name) != -1) {
-              buffer = capture_dev_user_buffersize_find(device.name);
-              device.buffer = buffer;
+                buffer = capture_dev_user_buffersize_find(device.name);
+                device.buffer = buffer;
             } else {
-              device.buffer = DEFAULT_CAPTURE_BUFFER_SIZE;
+                device.buffer = DEFAULT_CAPTURE_BUFFER_SIZE;
             }
-      #endif
-
-            combobox_item_delegate_.setTable(ui->tbInterfaces);
-            ui->tbInterfaces->setColumnWidth(LINK, 100);
-            ui->tbInterfaces->setItemDelegateForColumn(LINK, &combobox_item_delegate_);
-            output = QString(linkname);
-            ui->tbInterfaces->setItem(ui->tbInterfaces->rowCount()-1, LINK, new QTableWidgetItem(output));
-
-            ui->tbInterfaces->setItemDelegateForColumn(PMODE, &combobox_item_delegate_);
-            output = QString(device.pmode ? tr("enabled") : tr("disabled"));
-            ui->tbInterfaces->setItem(ui->tbInterfaces->rowCount()-1, PMODE, new QTableWidgetItem(output));
-
-            ui->tbInterfaces->setItemDelegateForColumn(SNAPLEN, &combobox_item_delegate_);
-            output = QString(snaplen_string);
-            ui->tbInterfaces->setItem(ui->tbInterfaces->rowCount()-1, SNAPLEN, new QTableWidgetItem(output));
-#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
-            ui->tbInterfaces->setItemDelegateForColumn(BUFFER, &combobox_item_delegate_);
-            output = QString().sprintf("%d", device.buffer);
-            ui->tbInterfaces->setItem(ui->tbInterfaces->rowCount()-1, BUFFER, new QTableWidgetItem(output));
-#else
-            ui->tbInterfaces->setColumnHidden(SNAPLEN+1, true);
 #endif
-#if defined (HAVE_PCAP_CREATE)
-            ui->tbInterfaces->setItemDelegateForColumn(MONITOR, &combobox_item_delegate_);
-            output = QString(device.monitor_mode_supported? (device.monitor_mode_enabled ? tr("enabled") : tr("disabled")) : tr("n/a"));
-            ui->tbInterfaces->setItem(ui->tbInterfaces->rowCount()-1, MONITOR, new QTableWidgetItem(output));
-#elif defined (_WIN32)
-            ui->tbInterfaces->setColumnHidden(BUFFER+1, true);
-#else
-            ui->tbInterfaces->setColumnHidden(SNAPLEN+2, true);
+
+            interface_item_delegate_.setTree(ui->interfaceTree);
+            ui->interfaceTree->setColumnWidth(col_link_, 100);
+            ti->setText(col_link_, linkname);
+
+            ti->setText(col_pmode_, device.pmode ? tr("enabled") : tr("disabled"));
+
+            ti->setText(col_snaplen_, snaplen_string);
+#ifdef SHOW_BUFFER_COLUMN
+            ti->setText(col_buffer_, QString::number(device.buffer));
 #endif
-            ui->tbInterfaces->setItemDelegateForColumn(FILTER, &combobox_item_delegate_);
+#ifdef SHOW_MONITOR_COLUMN
+            ti->setText(col_monitor_, QString(device.monitor_mode_supported? (device.monitor_mode_enabled ? tr("enabled") : tr("disabled")) : tr("n/a")));
+#endif
             gchar* prefFilter = capture_dev_user_cfilter_find(device.name);
             if (prefFilter) {
                 device.cfilter = g_strdup(prefFilter);
             }
-            output = QString(device.cfilter);
-            ui->tbInterfaces->setItem(ui->tbInterfaces->rowCount()-1, FILTER, new QTableWidgetItem(output));
+            ti->setText(col_filter_, device.cfilter);
 
             if (prefs.capture_device && strstr(prefs.capture_device, device.name) != NULL) {
                 device.selected = TRUE;
                 global_capture_opts.num_selected++;
             }
-            if (device.selected) {
-                for (int j = 0; j < NUM_COLUMNS; j++) {
-                    if (ui->tbInterfaces->isColumnHidden(j))
-                        continue;
-                    else
-                        ui->tbInterfaces->item(ui->tbInterfaces->rowCount()-1, j)->setSelected(true);
-                }
-            }
+            ti->setSelected(device.selected);
             global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, i);
             g_array_insert_val(global_capture_opts.all_ifaces, i, device);
         }
     }
-    resizeEvent(NULL);
+
+    for (int i = 0; i < ui->interfaceTree->topLevelItemCount(); i++) {
+        ui->interfaceTree->resizeColumnToContents(i);
+    }
+
     start_bt_->setEnabled((global_capture_opts.num_selected > 0)? true: false);
 
     if (!stat_timer_) {
@@ -437,52 +455,44 @@ void CaptureInterfacesDialog::UpdateInterfaces()
 
 void CaptureInterfacesDialog::refreshInterfaceList()
 {
-    UpdateInterfaces();
+    updateInterfaces();
     emit interfaceListChanged();
 }
 
 void CaptureInterfacesDialog::updateLocalInterfaces()
 {
-    UpdateInterfaces();
+    updateInterfaces();
 }
 
 void CaptureInterfacesDialog::updateStatistics(void)
 {
-    QList<int> *points = NULL;
     interface_t device;
 
-    for (int row = 0; row < ui->tbInterfaces->rowCount(); row++) {
+    for (int row = 0; row < ui->interfaceTree->topLevelItemCount(); row++) {
 
         for (guint if_idx = 0; if_idx < global_capture_opts.all_ifaces->len; if_idx++) {
-            QTableWidgetItem *ti;
+            QTreeWidgetItem *ti = ui->interfaceTree->topLevelItem(row);
+            if (!ti) {
+                continue;
+            }
             device = g_array_index(global_capture_opts.all_ifaces, interface_t, if_idx);
-            QString device_name = ui->tbInterfaces->item(row, INTERFACE)->text();
+            QString device_name = ti->text(col_interface_);
             if (device_name.compare(device.display_name) || device.hidden || device.type == IF_PIPE) {
                 continue;
             }
-            points = ui->tbInterfaces->item(row, TRAFFIC)->data(Qt::UserRole).value<QList<int> *>();
+            QList<int> *points = points = ti->data(col_traffic_, Qt::UserRole).value<QList<int> *>();
             points->append(device.packet_diff);
-            ti = ui->tbInterfaces->item(row, TRAFFIC);
-            ti->setData(Qt::UserRole, qVariantFromValue(points));
-            ui->tbInterfaces->viewport()->update();
+            ti->setData(col_traffic_, Qt::UserRole, qVariantFromValue(points));
         }
     }
+    ui->interfaceTree->viewport()->update();
 }
 
 void CaptureInterfacesDialog::on_compileBPF_clicked()
 {
-    QList<QTableWidgetItem*> selected = ui->tbInterfaces->selectedItems();
-    if (selected.length() < 1) {
-        return;
-    }
-
-    QStringList *interfaces = new QStringList();
-    for (int row = 0; row < ui->tbInterfaces->rowCount(); row++)
-    {
-        QTableWidgetItem *it = ui->tbInterfaces->item(row, INTERFACE);
-        if (selected.contains(it)) {
-            interfaces->append(it->text());
-        }
+    QStringList interfaces;
+    foreach (QTreeWidgetItem *ti, ui->interfaceTree->selectedItems()) {
+        interfaces.append(ti->text(col_interface_));
     }
 
     QString filter = ui->allFilterComboBox->currentText();
@@ -496,17 +506,17 @@ void CaptureInterfacesDialog::saveOptionsToPreferences()
     interface_t device;
     gchar *new_prefs, *tmp_prefs;
 
-    for (int col = LINK; col <= FILTER; col++){
-        if (ui->tbInterfaces->isColumnHidden(col)) {
+    for (int col = col_link_; col <= col_filter_; col++){
+        if (ui->interfaceTree->isColumnHidden(col)) {
             continue;
         }
         /* All entries are separated by comma. There is also one before the first interface to be able to identify
            word boundaries. As 'lo' is part of 'nflog' an exact match is necessary. */
         switch (col) {
-        case LINK:
+        case col_link_:
             new_prefs = (gchar *)g_malloc0(MAX_VAL_LEN);
 
-            for (int row = 0; row < ui->tbInterfaces->rowCount(); row++) {
+            for (int row = 0; row < ui->interfaceTree->topLevelItemCount(); row++) {
                 device = g_array_index(global_capture_opts.all_ifaces, interface_t, deviceMap[row]);
                 if (device.active_dlt == -1) {
                     continue;
@@ -519,11 +529,11 @@ void CaptureInterfacesDialog::saveOptionsToPreferences()
             g_free(prefs.capture_devices_linktypes);
             prefs.capture_devices_linktypes = new_prefs;
             break;
-#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
-        case BUFFER:
+#ifdef SHOW_BUFFER_COLUMN
+        case col_buffer_:
             new_prefs = (gchar *)g_malloc0(MAX_VAL_LEN);
 
-            for (int row = 0; row < ui->tbInterfaces->rowCount(); row++) {
+            for (int row = 0; row < ui->interfaceTree->topLevelItemCount(); row++) {
                 device = g_array_index(global_capture_opts.all_ifaces, interface_t, deviceMap[row]);
                 if (device.buffer == -1) {
                     continue;
@@ -536,11 +546,11 @@ void CaptureInterfacesDialog::saveOptionsToPreferences()
             g_free(prefs.capture_devices_buffersize);
             prefs.capture_devices_buffersize = new_prefs;
             break;
-#endif
-        case SNAPLEN:
+#endif // HAVE_BUFFER_SETTING
+        case col_snaplen_:
             new_prefs = (gchar *)g_malloc0(MAX_VAL_LEN);
 
-            for (int row = 0; row < ui->tbInterfaces->rowCount(); row++) {
+            for (int row = 0; row < ui->interfaceTree->topLevelItemCount(); row++) {
                 device = g_array_index(global_capture_opts.all_ifaces, interface_t, deviceMap[row]);
                 g_strlcat(new_prefs, ",", MAX_VAL_LEN);
                 tmp_prefs = g_strdup_printf("%s:%d(%d)", device.name, device.has_snaplen, (device.has_snaplen?device.snaplen:WTAP_MAX_PACKET_SIZE));
@@ -550,10 +560,10 @@ void CaptureInterfacesDialog::saveOptionsToPreferences()
             g_free(prefs.capture_devices_snaplen);
             prefs.capture_devices_snaplen = new_prefs;
             break;
-        case PMODE:
+        case col_pmode_:
             new_prefs = (gchar *)g_malloc0(MAX_VAL_LEN);
 
-            for (int row = 0; row < ui->tbInterfaces->rowCount(); row++) {
+            for (int row = 0; row < ui->interfaceTree->topLevelItemCount(); row++) {
                 device = g_array_index(global_capture_opts.all_ifaces, interface_t, deviceMap[row]);
                 if (device.pmode == -1) {
                     continue;
@@ -566,11 +576,11 @@ void CaptureInterfacesDialog::saveOptionsToPreferences()
             g_free(prefs.capture_devices_pmode);
             prefs.capture_devices_pmode = new_prefs;
             break;
-#ifdef HAVE_PCAP_CREATE
-        case MONITOR:
+#ifdef SHOW_MONITOR_COLUMN
+        case col_monitor_:
             new_prefs = (gchar *)g_malloc0(MAX_VAL_LEN);
 
-            for (int row = 0; row < ui->tbInterfaces->rowCount(); row++) {
+            for (int row = 0; row < ui->interfaceTree->topLevelItemCount(); row++) {
                 device = g_array_index(global_capture_opts.all_ifaces, interface_t, deviceMap[row]);
                 if (!device.monitor_mode_supported || (device.monitor_mode_supported && !device.monitor_mode_enabled)) {
                     continue;
@@ -583,11 +593,11 @@ void CaptureInterfacesDialog::saveOptionsToPreferences()
             g_free(prefs.capture_devices_monitor_mode);
             prefs.capture_devices_monitor_mode = new_prefs;
             break;
-#endif
-        case FILTER:
+#endif // HAVE_MONITOR_SETTING
+        case col_filter_:
             new_prefs = (gchar *)g_malloc0(MAX_VAL_LEN);
 
-            for (int row = 0; row < ui->tbInterfaces->rowCount(); row++) {
+            for (int row = 0; row < ui->interfaceTree->topLevelItemCount(); row++) {
                 device = g_array_index(global_capture_opts.all_ifaces, interface_t, deviceMap[row]);
                 if (!device.cfilter) {
                     continue;
@@ -615,24 +625,48 @@ void CaptureInterfacesDialog::on_manage_clicked()
     dlg->show();
 }
 
+//
+// InterfaceTreeItem
+//
+bool InterfaceTreeWidgetItem::operator< (const QTreeWidgetItem &other) const {
+    if (treeWidget()->sortColumn() == col_traffic_) {
+        QList<int> *points = data(col_traffic_, Qt::UserRole).value<QList<int> *>();
+        QList<int> *other_points = other.data(col_traffic_, Qt::UserRole).value<QList<int> *>();
+        double avg = 0, other_avg = 0;
+        foreach (int point, *points) {
+            avg += (double) point / points->length();
+        }
+        foreach (int point, *other_points) {
+            other_avg += (double) point / other_points->length();
+        }
+        return avg < other_avg;
+    }
+    return QTreeWidgetItem::operator<(other);
+}
+
+
+//
+// InterfaceTreeDelegate
+//
+
 #include <QComboBox>
 
-TbInterfacesDelegate::TbInterfacesDelegate(QObject *parent)
+InterfaceTreeDelegate::InterfaceTreeDelegate(QObject *parent)
     : QStyledItemDelegate(parent)
 {
 }
 
 
-TbInterfacesDelegate::~TbInterfacesDelegate()
+InterfaceTreeDelegate::~InterfaceTreeDelegate()
 {
 }
 
 
-QWidget* TbInterfacesDelegate::createEditor( QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index ) const
+QWidget* InterfaceTreeDelegate::createEditor( QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index ) const
 {
     Q_UNUSED(option);
     QWidget *w = NULL;
-#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+#ifdef SHOW_BUFFER_COLUMN
     gint buffer = DEFAULT_CAPTURE_BUFFER_SIZE;
 #endif
     guint snap = WTAP_MAX_PACKET_SIZE;
@@ -640,11 +674,11 @@ QWidget* TbInterfacesDelegate::createEditor( QWidget *parent, const QStyleOption
 
     if (index.column() > 1) {
         interface_t device;
-        QTableWidgetItem *it = table->item(index.row(), INTERFACE);
-        QString interface_name = it->text();
+        QTreeWidgetItem *ti = tree_->topLevelItem(index.row());
+        QString interface_name = ti->text(col_interface_);
         for (guint i = 0; i < global_capture_opts.all_ifaces->len; i++) {
             device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
-#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+#ifdef SHOW_BUFFER_COLUMN
             buffer = device.buffer;
 #endif
             snap = device.snaplen;
@@ -656,12 +690,17 @@ QWidget* TbInterfacesDelegate::createEditor( QWidget *parent, const QStyleOption
             }
         }
         switch (index.column()) {
-        case INTERFACE:
+        case col_interface_:
+        case col_traffic_:
             break;
-        case LINK:
+        case col_link_:
         {
             GList *list;
             link_row *temp;
+
+            if (g_list_length(links) < 2) {
+                break;
+            }
             QComboBox *cb = new QComboBox(parent);
             for (list=links; list!=NULL; list=g_list_next(list)) {
                 temp = (link_row*)(list->data);
@@ -671,7 +710,7 @@ QWidget* TbInterfacesDelegate::createEditor( QWidget *parent, const QStyleOption
             w = (QWidget*) cb;
             break;
         }
-        case PMODE:
+        case col_pmode_:
         {
         // Create the combobox and populate it
             QComboBox *cb = new QComboBox(parent);
@@ -681,8 +720,30 @@ QWidget* TbInterfacesDelegate::createEditor( QWidget *parent, const QStyleOption
             w = (QWidget*) cb;
             break;
         }
-#if defined (HAVE_PCAP_CREATE)
-        case MONITOR:
+        case col_snaplen_:
+        {
+            QSpinBox *sb = new QSpinBox(parent);
+            sb->setRange(1, 65535);
+            sb->setValue(snap);
+            sb->setWrapping(true);
+            connect(sb, SIGNAL(valueChanged(int)), this, SLOT(snaplen_changed(int)));
+            w = (QWidget*) sb;
+            break;
+        }
+#ifdef SHOW_BUFFER_COLUMN
+        case col_buffer_:
+        {
+            QSpinBox *sb = new QSpinBox(parent);
+            sb->setRange(1, 65535);
+            sb->setValue(buffer);
+            sb->setWrapping(true);
+            connect(sb, SIGNAL(valueChanged(int)), this, SLOT(buffer_changed(int)));
+            w = (QWidget*) sb;
+            break;
+        }
+#endif
+#ifdef SHOW_MONITOR_COLUMN
+        case col_monitor_:
         {
              if (index.data().toString().compare(QString("n/a"))) {
                 QComboBox *cb = new QComboBox(parent);
@@ -694,39 +755,22 @@ QWidget* TbInterfacesDelegate::createEditor( QWidget *parent, const QStyleOption
              break;
         }
 #endif
-        case SNAPLEN:
-        {
-            QSpinBox *sb = new QSpinBox(parent);
-            sb->setRange(1, 65535);
-            sb->setValue(snap);
-            sb->setWrapping(true);
-            connect(sb, SIGNAL(valueChanged(int)), this, SLOT(snaplen_changed(int)));
-            w = (QWidget*) sb;
-            break;
-        }
-#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
-        case BUFFER:
-        {
-            QSpinBox *sb = new QSpinBox(parent);
-            sb->setRange(1, 65535);
-            sb->setValue(buffer);
-            sb->setWrapping(true);
-            connect(sb, SIGNAL(valueChanged(int)), this, SLOT(buffer_changed(int)));
-            w = (QWidget*) sb;
-            break;
-        }
-#endif
-        case FILTER:
+        case col_filter_:
         {
             CaptureFilterCombo *cf = new CaptureFilterCombo(parent);
             w = (QWidget*) cf;
         }
+        default:
+            break;
         }
+//        if (w) {
+//            ti->setSizeHint(index.column(), w->sizeHint());
+//        }
     }
     return w;
 }
 
-bool TbInterfacesDelegate::eventFilter(QObject *object, QEvent *event)
+bool InterfaceTreeDelegate::eventFilter(QObject *object, QEvent *event)
 {
     QComboBox * comboBox = dynamic_cast<QComboBox*>(object);
     if (comboBox) {
@@ -740,12 +784,15 @@ bool TbInterfacesDelegate::eventFilter(QObject *object, QEvent *event)
     return false;
 }
 
-void TbInterfacesDelegate::pmode_changed(QString index)
+void InterfaceTreeDelegate::pmode_changed(QString index)
 {
     interface_t device;
     guint i;
-    QTableWidgetItem *it = table->item(table->currentRow(), INTERFACE);
-    QString interface_name = it->text();
+    QTreeWidgetItem *ti = tree_->currentItem();
+    if (!ti) {
+        return;
+    }
+    QString interface_name = ti->text(col_interface_);
     for (i = 0; i < global_capture_opts.all_ifaces->len; i++) {
         device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
         if (interface_name.compare(device.display_name) || device.hidden || device.type == IF_PIPE) {
@@ -764,13 +811,16 @@ void TbInterfacesDelegate::pmode_changed(QString index)
     g_array_insert_val(global_capture_opts.all_ifaces, i, device);
 }
 
-#if defined (HAVE_PCAP_CREATE)
-void TbInterfacesDelegate::monitor_changed(QString index)
+#ifdef SHOW_MONITOR_COLUMN
+void InterfaceTreeDelegate::monitor_changed(QString index)
 {
     interface_t device;
     guint i;
-    QTableWidgetItem *it = table->item(table->currentRow(), INTERFACE);
-    QString interface_name = it->text();
+    QTreeWidgetItem *ti = tree_->currentItem();
+    if (!ti) {
+        return;
+    }
+    QString interface_name = ti->text(col_interface_);
     for (i = 0; i < global_capture_opts.all_ifaces->len; i++) {
         device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
         if (interface_name.compare(device.display_name) || device.hidden || device.type == IF_PIPE) {
@@ -789,15 +839,18 @@ void TbInterfacesDelegate::monitor_changed(QString index)
 }
 #endif
 
-void TbInterfacesDelegate::link_changed(QString index)
+void InterfaceTreeDelegate::link_changed(QString index)
 {
     GList *list;
     link_row *temp;
     interface_t device;
     guint i;
 
-    QTableWidgetItem *it = table->item(table->currentRow(), INTERFACE);
-    QString interface_name = it->text();
+    QTreeWidgetItem *ti = tree_->currentItem();
+    if (!ti) {
+        return;
+    }
+    QString interface_name = ti->text(col_interface_);
     for (i = 0; i < global_capture_opts.all_ifaces->len; i++) {
         device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
         if (interface_name.compare(device.display_name) || device.hidden || device.type == IF_PIPE) {
@@ -816,12 +869,15 @@ void TbInterfacesDelegate::link_changed(QString index)
     g_array_insert_val(global_capture_opts.all_ifaces, i, device);
 }
 
-void TbInterfacesDelegate::snaplen_changed(int value)
+void InterfaceTreeDelegate::snaplen_changed(int value)
 {
     interface_t device;
     guint i;
-    QTableWidgetItem *it = table->item(table->currentRow(), INTERFACE);
-    QString interface_name = it->text();
+    QTreeWidgetItem *ti = tree_->currentItem();
+    if (!ti) {
+        return;
+    }
+    QString interface_name = ti->text(col_interface_);
     for (i = 0; i < global_capture_opts.all_ifaces->len; i++) {
         device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
         if (interface_name.compare(device.display_name) || device.hidden || device.type == IF_PIPE) {
@@ -841,13 +897,16 @@ void TbInterfacesDelegate::snaplen_changed(int value)
     g_array_insert_val(global_capture_opts.all_ifaces, i, device);
 }
 
-void TbInterfacesDelegate::buffer_changed(int value)
+void InterfaceTreeDelegate::buffer_changed(int value)
 {
-#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+#ifdef SHOW_BUFFER_COLUMN
     interface_t device;
     guint i;
-    QTableWidgetItem *it = table->item(table->currentRow(), INTERFACE);
-    QString interface_name = it->text();
+    QTreeWidgetItem *ti = tree_->currentItem();
+    if (!ti) {
+        return;
+    }
+    QString interface_name = ti->text(col_interface_);
     for (i = 0; i < global_capture_opts.all_ifaces->len; i++) {
         device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
         if (interface_name.compare(device.display_name) || device.hidden || device.type == IF_PIPE) {

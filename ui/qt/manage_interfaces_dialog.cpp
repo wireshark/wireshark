@@ -43,6 +43,10 @@
 #include <QMessageBox>
 #include <QCheckBox>
 
+enum {
+    col_p_pipe_
+};
+
 ManageInterfacesDialog::ManageInterfacesDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::ManageInterfacesDialog)
@@ -97,7 +101,7 @@ void ManageInterfacesDialog::showPipes()
             }
             ui->pipeList->setRowCount(ui->pipeList->rowCount()+1);
             QString output = QString(device.display_name);
-            ui->pipeList->setItem(ui->pipeList->rowCount()-1, INTERFACE, new QTableWidgetItem(output));
+            ui->pipeList->setItem(ui->pipeList->rowCount()-1, col_p_pipe_, new QTableWidgetItem(output));
         }
     }
 }
@@ -228,7 +232,7 @@ void ManageInterfacesDialog::showLocalInterfaces()
             output = QString(device.name);
             ui->localList->setItem(ui->localList->rowCount()-1, LOCAL_NAME, new QTableWidgetItem(output));
             output = QString("");
-            eFlags = ui->localList->item(ui->localList->rowCount()-1, FRIENDLY)->flags();
+            eFlags = ui->localList->item(ui->localList->rowCount()-1, LOCAL_NAME)->flags();
             eFlags &= Qt::NoItemFlags;
             eFlags |= Qt::ItemIsSelectable | Qt::ItemIsEnabled;
             ui->localList->item(ui->localList->rowCount()-1, LOCAL_NAME)->setFlags(eFlags);

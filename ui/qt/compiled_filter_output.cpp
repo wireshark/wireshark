@@ -33,7 +33,7 @@
 #include <QClipboard>
 #include <QPushButton>
 
-CompiledFilterOutput::CompiledFilterOutput(QWidget *parent, QStringList *intList, QString &compile_filter) :
+CompiledFilterOutput::CompiledFilterOutput(QWidget *parent, QStringList &intList, QString &compile_filter) :
     QDialog(parent),
     intList_(intList),
     compile_filter_(compile_filter),
@@ -76,7 +76,7 @@ void CompiledFilterOutput::compileFilter()
 {
     struct bpf_program fcode;
 
-    foreach (QString interfaces, *intList_) {
+    foreach (QString interfaces, intList_) {
         for (guint i = 0; i < global_capture_opts.all_ifaces->len; i++) {
             interface_t device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
 
