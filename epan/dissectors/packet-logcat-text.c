@@ -91,7 +91,7 @@ static int get_priority(const gchar *frame, const gchar *token, tvbuff_t *tvb,
         proto_tree *maintree, gint start_offset, packet_info *pinfo _U_) {
     int prio;
     gchar *p = g_strstr_len(frame + start_offset, -1, token);
-    int offset = p - frame;
+    int offset = (int)(p - frame);
 
     switch (*p) {
     case 'I':
@@ -123,9 +123,9 @@ static int get_priority(const gchar *frame, const gchar *token, tvbuff_t *tvb,
 static int get_tag(const gchar *frame, const gchar *token, tvbuff_t *tvb,
         proto_tree *maintree, gint start_offset, packet_info *pinfo) {
     gchar *p = g_strstr_len(frame + start_offset, -1, token);
-    int offset = p - frame;
+    int offset = (int)(p - frame);
     guint8 *src_addr = wmem_strdup(wmem_packet_scope(), token);
-    gint tok_len = strlen(token);
+    gint tok_len = (gint)strlen(token);
 
     proto_tree_add_string(maintree, hf_logcat_text_tag, tvb, offset, tok_len,
             token);
@@ -137,11 +137,11 @@ static int get_tag(const gchar *frame, const gchar *token, tvbuff_t *tvb,
 static int get_ptid(const gchar *frame, const gchar *token, tvbuff_t *tvb,
         proto_tree *maintree, gint header_field, gint start_offset) {
     gchar *p = g_strstr_len(frame + start_offset, -1, token);
-    int offset = p - frame;
+    int offset = (int)(p - frame);
 
-    proto_tree_add_uint(maintree, header_field, tvb, offset, strlen(token),
+    proto_tree_add_uint64(maintree, header_field, tvb, offset, (gint)strlen(token),
             g_ascii_strtoull(token, NULL, 10));
-    return offset + strlen(token);
+    return offset + (int)strlen(token);
 }
 
 static int get_pid(const gchar *frame, const gchar *token, tvbuff_t *tvb,
@@ -157,12 +157,12 @@ static int get_tid(const gchar *frame, const gchar *token, tvbuff_t *tvb,
 static int get_log(const gchar *frame, const gchar *token, tvbuff_t *tvb,
         proto_tree *maintree, gint start_offset, packet_info *pinfo) {
     gchar *p = g_strstr_len(frame + start_offset, -1, token);
-    int offset = p - frame;
+    int offset = (int)(p - frame);
 
     proto_tree_add_string(maintree, hf_logcat_text_log, tvb, offset,
-            strlen(token), token);
+            (int)strlen(token), token);
     col_add_str(pinfo->cinfo, COL_INFO, token);
-    return offset + strlen(token);
+    return offset + (int)strlen(token);
 }
 
 static int get_time(const gchar *frame, const gchar *token, tvbuff_t *tvb,
@@ -175,21 +175,21 @@ static int get_time(const gchar *frame, const gchar *token, tvbuff_t *tvb,
     nstime_t ts;
 
     p = g_strstr_len(frame + start_offset, -1, token);
-    offset = p - frame;
+    offset = (int)(p - frame);
 
     if (6 == sscanf(token, "%d-%d %d:%d:%d.%d", &month, &day, &hrs, &min, &sec, &ms)) {
         date = g_date_time_new_local(1970, month, day, hrs, min,
                 (gdouble) sec + ((gdouble) ms) * 0.001);
         seconds = g_date_time_to_unix(date);
         ts.secs = (time_t) seconds;
-        ts.nsecs = (int) ms * 1e6;
+        ts.nsecs = (int) (ms * 1e6);
         proto_tree_add_time(maintree, hf_logcat_text_timestamp, tvb, offset,
-                strlen(token), &ts);
+                (int)strlen(token), &ts);
         g_date_time_unref(date);
     } else {
         proto_tree_add_expert(maintree, pinfo, &ei_malformed_time, tvb, offset, -1);
     }
-    return offset + strlen(token);
+    return offset + (int)strlen(token);
 }
 
 static int dissect_logcat_text(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,

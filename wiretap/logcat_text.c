@@ -165,7 +165,7 @@ static void get_time(gchar *string, struct wtap_pkthdr *phdr) {
                 (gdouble) sec + ((gdouble) ms) * 0.001);
         seconds = g_date_time_to_unix(date);
         phdr->ts.secs = (time_t) seconds;
-        phdr->ts.nsecs = (int) ms * 1e6;
+        phdr->ts.nsecs = (int) (ms * 1e6);
         phdr->presence_flags = WTAP_HAS_TS;
         g_date_time_unref(date);
     } else {
@@ -212,7 +212,7 @@ static gboolean logcat_text_read_packet(FILE_T fh, struct wtap_pkthdr *phdr,
     }
 
     phdr->rec_type = REC_TYPE_PACKET;
-    phdr->caplen = strlen(cbuff);
+    phdr->caplen = (guint32)strlen(cbuff);
     phdr->len = phdr->caplen;
 
     ws_buffer_assure_space(buf, phdr->caplen + 1);
