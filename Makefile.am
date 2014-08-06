@@ -1336,14 +1336,3 @@ if HAVE_DOXYGEN
 	zip -rq wsar_html.zip wsar_html
 endif
 
-# Verify that our source distribution has enough files to do a cmake build.
-# Note that this means anyone doing a distcheck has to have cmake installed.
-distcheck-hook:
-	cd $(distdir) && \
-	chmod 755 . && \
-	mkdir _cmake_build && \
-	cd _cmake_build && \
-	cmake .. && \
-	$(MAKE) && \
-	cd .. && \
-	rm -rf _cmake_build
