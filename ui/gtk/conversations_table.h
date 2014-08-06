@@ -26,7 +26,7 @@
 
 #include <epan/conv_id.h>
 #include <epan/conversation_table.h>
-#include <ui/conversation_ui.h>
+#include <ui/traffic_table_ui.h>
 
 /** @file
  *  Conversation definitions.

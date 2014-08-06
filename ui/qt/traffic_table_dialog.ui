@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>ConversationDialog</class>
- <widget class="QDialog" name="ConversationDialog">
+ <class>TrafficTableDialog</class>
+ <widget class="QDialog" name="TrafficTableDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -10,12 +10,9 @@
     <height>475</height>
    </rect>
   </property>
-  <property name="windowTitle">
-   <string>Wireshark: Conversations</string>
-  </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QTabWidget" name="conversationTabWidget"/>
+    <widget class="QTabWidget" name="trafficTableTabWidget"/>
    </item>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0,1,0">
@@ -66,12 +63,9 @@
       </spacer>
      </item>
      <item>
-      <widget class="QPushButton" name="conversationTypePushButton">
+      <widget class="QPushButton" name="enabledTypesPushButton">
        <property name="toolTip">
         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add and remove conversation types.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-       </property>
-       <property name="text">
-        <string>Conversation Types</string>
        </property>
       </widget>
      </item>
@@ -94,7 +88,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>ConversationDialog</receiver>
+   <receiver>TrafficTableDialog</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -110,7 +104,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>ConversationDialog</receiver>
+   <receiver>TrafficTableDialog</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">

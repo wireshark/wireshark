@@ -34,7 +34,6 @@ NODIST_GENERATED_HEADER_FILES =	\
 	ui_capture_preferences_frame.h	\
 	ui_column_preferences_frame.h	\
 	ui_compiled_filter_output.h		\
-	ui_conversation_dialog.h	\
 	ui_decode_as_dialog.h	\
 	ui_export_object_dialog.h	\
 	ui_export_pdu_dialog.h	\
@@ -75,6 +74,7 @@ NODIST_GENERATED_HEADER_FILES =	\
 	ui_summary_dialog.h	\
 	ui_tcp_stream_dialog.h	\
 	ui_time_shift_dialog.h	\
+	ui_traffic_table_dialog.h	\
 	ui_uat_dialog.h
 
 # Generated C source files that we want in the distribution.
@@ -121,17 +121,17 @@ MOC_HDRS =	\
 	capture_filter_syntax_worker.h	\
 	capture_info_dialog.h	\
 	capture_interfaces_dialog.h	\
+	capture_preferences_frame.h	\
 	color_dialog.h	\
 	color_utils.h	\
-	capture_preferences_frame.h	\
 	column_preferences_frame.h	\
 	compiled_filter_output.h	\
 	conversation_dialog.h	\
-	conversation_tree_widget.h	\
 	decode_as_dialog.h	\
 	display_filter_combo.h	\
 	display_filter_edit.h	\
 	elided_label.h	\
+	endpoint_dialog.h	\
 	export_dissection_dialog.h	\
 	export_object_dialog.h	\
 	export_pdu_dialog.h	\
@@ -188,6 +188,7 @@ MOC_HDRS =	\
 	syntax_line_edit.h	\
 	tcp_stream_dialog.h	\
 	time_shift_dialog.h	\
+	traffic_table_dialog.h	\
 	uat_dialog.h	\
 	wireshark_application.h
 
@@ -201,7 +202,6 @@ UI_FILES =	\
 	capture_preferences_frame.ui	\
 	column_preferences_frame.ui	\
 	compiled_filter_output.ui \
-	conversation_dialog.ui	\
 	decode_as_dialog.ui	\
 	export_object_dialog.ui	\
 	export_pdu_dialog.ui	\
@@ -242,6 +242,7 @@ UI_FILES =	\
 	summary_dialog.ui 	\
 	tcp_stream_dialog.ui	\
 	time_shift_dialog.ui	\
+	traffic_table_dialog.ui	\
 	uat_dialog.ui
 
 #
@@ -308,17 +309,17 @@ WIRESHARK_QT_SRC =	\
 	capture_filter_syntax_worker.cpp	\
 	capture_info_dialog.cpp	\
 	capture_interfaces_dialog.cpp	\
+	capture_preferences_frame.cpp	\
 	color_dialog.cpp	\
 	color_utils.cpp	\
-	capture_preferences_frame.cpp	\
 	column_preferences_frame.cpp	\
 	compiled_filter_output.cpp \
 	conversation_dialog.cpp	\
-	conversation_tree_widget.cpp	\
 	decode_as_dialog.cpp	\
 	display_filter_combo.cpp	\
 	display_filter_edit.cpp	\
 	elided_label.cpp	\
+	endpoint_dialog.cpp	\
 	export_dissection_dialog.cpp	\
 	export_object_dialog.cpp	\
 	export_pdu_dialog.cpp	\
@@ -379,6 +380,7 @@ WIRESHARK_QT_SRC =	\
 	syntax_line_edit.cpp	\
 	tcp_stream_dialog.cpp	\
 	time_shift_dialog.cpp	\
+	traffic_table_dialog.cpp	\
 	uat_dialog.cpp	\
 	wireshark_application.cpp
 

@@ -38,11 +38,11 @@ set(WIRESHARK_QT_HEADERS
 	column_preferences_frame.h
 	compiled_filter_output.h
 	conversation_dialog.h
-	conversation_tree_widget.h
 	decode_as_dialog.h
 	display_filter_combo.h
 	display_filter_edit.h
 	elided_label.h
+	endpoint_dialog.h
 	export_dissection_dialog.h
 	export_object_dialog.h
 	export_pdu_dialog.h
@@ -97,6 +97,7 @@ set(WIRESHARK_QT_HEADERS
 	syntax_line_edit.h
 	tcp_stream_dialog.h
 	time_shift_dialog.h
+	traffic_table_dialog.h
 	uat_dialog.h
 	wireshark_application.h
 )
@@ -124,7 +125,6 @@ set(WIRESHARK_QT_SRC
 	capture_preferences_frame.cpp
 	column_preferences_frame.cpp
 	compiled_filter_output.cpp
-	conversation_tree_widget.cpp
 	decode_as_dialog.cpp
 	display_filter_combo.cpp
 	display_filter_edit.cpp
@@ -186,12 +186,14 @@ set(WIRESHARK_QT_SRC
 	syntax_line_edit.cpp
 	tcp_stream_dialog.cpp
 	time_shift_dialog.cpp
+	traffic_table_dialog.cpp
 	uat_dialog.cpp
 	wireshark_application.cpp
 )
 
 set(WIRESHARK_QT_TAP_SRC
 	conversation_dialog.cpp
+	endpoint_dialog.cpp
 	io_graph_dialog.cpp
 	stats_tree_dialog.cpp
 )
@@ -211,7 +213,6 @@ set(WIRESHARK_QT_UI
 	capture_interfaces_dialog.ui
 	column_preferences_frame.ui
 	compiled_filter_output.ui
-	conversation_dialog.ui
 	decode_as_dialog.ui
 	export_object_dialog.ui
 	export_pdu_dialog.ui
@@ -252,6 +253,7 @@ set(WIRESHARK_QT_UI
 	summary_dialog.ui
 	tcp_stream_dialog.ui
 	time_shift_dialog.ui
+	traffic_table_dialog.ui
 	uat_dialog.ui
 )
 

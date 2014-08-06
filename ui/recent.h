@@ -99,6 +99,7 @@ typedef struct recent_settings_tag {
     gboolean    privs_warn_if_no_npf;
     GList      *col_width_list;                     /* column widths */
     GList      *conversation_tabs;                  /* enabled conversation dialog tabs */
+    GList      *endpoint_tabs;                      /* enabled endpoint dialog tabs */
     gchar      *gui_fileopen_remembered_dir;        /* folder of last capture loaded in File Open dialog */
 } recent_settings_t;
 

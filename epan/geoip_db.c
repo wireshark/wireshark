@@ -282,24 +282,27 @@ geoip_db_lookup_latlon4(guint32 addr, float *lat, float *lon) {
     return -1;
 }
 
-#define VAL_STR_LEN 100
-
 /*
  * GeoIP 1.4.3 and later provide GeoIP_set_charset(), but in versions
  * 1.4.3 to 1.4.6 that only applies to the City databases. I.e., it's
  * possible to produce invalid UTF-8 sequences even if GeoIP_set_charset()
  * is used.
  */
-static void
-iso_8859_1_to_utf_8(char *val) {
-    char *utf8_val;
 
-    utf8_val = g_convert(val, VAL_STR_LEN, "UTF-8", "ISO-8859-1", NULL, NULL, NULL);
-    if (utf8_val) {
-        g_strlcpy(val, utf8_val, VAL_STR_LEN);
-        g_free(utf8_val);
+/* Ensure that a given db value is UTF-8 */
+static const char *
+db_val_to_utf_8(const char *val, GeoIP *gi) {
+
+    if (GeoIP_charset(gi) == GEOIP_CHARSET_ISO_8859_1) {
+        char *utf8_val;
+        utf8_val = g_convert(val, -1, "UTF-8", "ISO-8859-1", NULL, NULL, NULL);
+        if (utf8_val) {
+            char *ret_val = ep_strdup(utf8_val);
+            g_free(utf8_val);
+            return ret_val;
+        }
     }
-
+    return val;
 }
 
 const char *
@@ -307,7 +310,7 @@ geoip_db_lookup_ipv4(guint dbnum, guint32 addr, const char *not_found) {
     GeoIP *gi;
     GeoIPRecord *gir;
     const char *raw_val, *ret = not_found;
-    static char val[VAL_STR_LEN];
+    char *val;
 
     gi = g_array_index(geoip_dat_arr, GeoIP *, dbnum);
     if (gi) {
@@ -315,9 +318,7 @@ geoip_db_lookup_ipv4(guint dbnum, guint32 addr, const char *not_found) {
             case GEOIP_COUNTRY_EDITION:
                 raw_val = GeoIP_country_name_by_ipnum(gi, addr);
                 if (raw_val) {
-                    g_snprintf(val, VAL_STR_LEN, "%s", raw_val);
-                    iso_8859_1_to_utf_8(val);
-                    ret = val;
+                    ret = db_val_to_utf_8(raw_val, gi);
                 }
                 break;
 
@@ -325,13 +326,10 @@ geoip_db_lookup_ipv4(guint dbnum, guint32 addr, const char *not_found) {
             case GEOIP_CITY_EDITION_REV1:
                 gir = GeoIP_record_by_ipnum(gi, addr);
                 if (gir && gir->city && gir->region) {
-                    g_snprintf(val, VAL_STR_LEN, "%s, %s", gir->city, gir->region);
-                    iso_8859_1_to_utf_8(val);
-                    ret = val;
+                    val = ep_strdup_printf("%s, %s", gir->city, gir->region);
+                    ret = db_val_to_utf_8(val, gi);
                 } else if (gir && gir->city) {
-                    g_snprintf(val, VAL_STR_LEN, "%s", gir->city);
-                    iso_8859_1_to_utf_8(val);
-                    ret = val;
+                    ret = db_val_to_utf_8(gir->city, gi);
                 }
                 break;
 
@@ -340,9 +338,7 @@ geoip_db_lookup_ipv4(guint dbnum, guint32 addr, const char *not_found) {
             case GEOIP_ASNUM_EDITION:
                 raw_val = GeoIP_name_by_ipnum(gi, addr);
                 if (raw_val) {
-                    g_snprintf(val, VAL_STR_LEN, "%s", raw_val);
-                    iso_8859_1_to_utf_8(val);
-                    ret = val;
+                    ret = db_val_to_utf_8(raw_val, gi);
                 }
                 break;
 
@@ -352,7 +348,7 @@ geoip_db_lookup_ipv4(guint dbnum, guint32 addr, const char *not_found) {
                 float lon;
                 char *c;
                 if(geoip_db_lookup_latlon4(addr, &lat, &lon) == 0) {
-                    g_snprintf(val, VAL_STR_LEN, "%f", lat);
+                    val = ep_strdup_printf("%f", lat);
                     c = strchr(val, ',');
                     if (c != NULL) *c = '.';
                     ret = val;
@@ -366,7 +362,7 @@ geoip_db_lookup_ipv4(guint dbnum, guint32 addr, const char *not_found) {
                 float lon;
                 char *c;
                 if(geoip_db_lookup_latlon4(addr, &lat, &lon) == 0) {
-                    g_snprintf(val, VAL_STR_LEN, "%f", lon);
+                    val = ep_strdup_printf("%f", lat);
                     c = strchr(val, ',');
                     if (c != NULL) *c = '.';
                     ret = val;
@@ -423,7 +419,7 @@ geoip_db_lookup_ipv6(guint dbnum, struct e_in6_addr addr, const char *not_found)
     GeoIP *gi;
     geoipv6_t gaddr;
     const char *raw_val, *ret = not_found;
-    static char val[VAL_STR_LEN];
+    char *val;
 #if NUM_DB_TYPES > 31
     GeoIPRecord *gir;
 #endif
@@ -436,9 +432,7 @@ geoip_db_lookup_ipv6(guint dbnum, struct e_in6_addr addr, const char *not_found)
             case GEOIP_COUNTRY_EDITION_V6:
                 raw_val = GeoIP_country_name_by_ipnum_v6(gi, gaddr);
                 if (raw_val) {
-                    g_snprintf(val, VAL_STR_LEN, "%s", raw_val);
-                    iso_8859_1_to_utf_8(val);
-                    ret = val;
+                    ret = db_val_to_utf_8(raw_val, gi);
                 }
                 break;
 
@@ -447,13 +441,10 @@ geoip_db_lookup_ipv6(guint dbnum, struct e_in6_addr addr, const char *not_found)
             case GEOIP_CITY_EDITION_REV1_V6:
                 gir = GeoIP_record_by_ipnum_v6(gi, gaddr);
                 if (gir && gir->city && gir->region) {
-                    g_snprintf(val, VAL_STR_LEN, "%s, %s", gir->city, gir->region);
-                    iso_8859_1_to_utf_8(val);
-                    ret = val;
+                    val = ep_strdup_printf("%s, %s", gir->city, gir->region);
+                    ret = db_val_to_utf_8(val, gi);
                 } else if (gir && gir->city) {
-                    g_snprintf(val, VAL_STR_LEN, "%s", gir->city);
-                    iso_8859_1_to_utf_8(val);
-                    ret = val;
+                    ret = db_val_to_utf_8(gir->city, gi);
                 }
                 break;
 
@@ -462,9 +453,7 @@ geoip_db_lookup_ipv6(guint dbnum, struct e_in6_addr addr, const char *not_found)
             case GEOIP_ASNUM_EDITION_V6:
                 raw_val = GeoIP_name_by_ipnum_v6(gi, gaddr);
                 if (raw_val) {
-                    g_snprintf(val, VAL_STR_LEN, "%s", raw_val);
-                    iso_8859_1_to_utf_8(val);
-                    ret = val;
+                    ret = db_val_to_utf_8(raw_val, gi);
                 }
                 break;
 #endif /* NUM_DB_TYPES */
@@ -475,7 +464,7 @@ geoip_db_lookup_ipv6(guint dbnum, struct e_in6_addr addr, const char *not_found)
                 float lon;
                 char *c;
                 if(geoip_db_lookup_latlon6(gaddr, &lat, &lon) == 0) {
-                    g_snprintf(val, VAL_STR_LEN, "%f", lat);
+                    val = ep_strdup_printf("%f", lat);
                     c = strchr(val, ',');
                     if (c != NULL) *c = '.';
                     ret = val;
@@ -489,7 +478,7 @@ geoip_db_lookup_ipv6(guint dbnum, struct e_in6_addr addr, const char *not_found)
                 float lon;
                 char *c;
                 if(geoip_db_lookup_latlon6(gaddr, &lat, &lon) == 0) {
-                    g_snprintf(val, VAL_STR_LEN, "%f", lon);
+                    val = ep_strdup_printf("%f", lat);
                     c = strchr(val, ',');
                     if (c != NULL) *c = '.';
                     ret = val;

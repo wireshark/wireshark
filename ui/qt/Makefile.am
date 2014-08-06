@@ -130,8 +130,6 @@ column_preferences_frame.cpp column_preferences_frame.h: ui_column_preferences_f
 
 compiled_filter_output.cpp compiled_filter_output.h: ui_compiled_filter_output.h
 
-conversation_dialog.cpp conversation_dialog.h: ui_conversation_dialog.h
-
 decode_as_dialog.cpp decode_as_dialog.h: ui_decode_as_dialog.h
 
 export_object_dialog.cpp export_object_dialog.h: ui_export_object_dialog.h
@@ -211,6 +209,8 @@ summary_dialog.cpp summary_dialog.h: ui_summary_dialog.h
 tcp_stream_dialog.cpp: ui_tcp_stream_dialog.h
 
 time_shift_dialog.cpp time_shift_dialog.h: ui_time_shift_dialog.h
+
+traffic_table_dialog.cpp traffic_table_dialog.h: ui_traffic_table_dialog.h
 
 uat_dialog.cpp uat_dialog.h: ui_uat_dialog.h
 

@@ -24,7 +24,6 @@ set(COMMON_UI_SRC
 	alert_box.c
 	capture.c
 	capture_ui_utils.c
-	conversation_ui.c
 	decode_as_utils.c
 	export_object.c
 	export_object_dicom.c
@@ -52,6 +51,7 @@ set(COMMON_UI_SRC
 	tap-tcp-stream.c
 	text_import.c
 	time_shift.c
+	traffic_table_ui.c
 	util.c
 )
 

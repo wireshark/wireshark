@@ -143,6 +143,7 @@
 #include <qlocale.h>
 #include <qlibraryinfo.h>
 #include "conversation_dialog.h"
+#include "endpoint_dialog.h"
 
 #ifdef HAVE_LIBPCAP
 capture_options global_capture_opts;
@@ -911,7 +912,7 @@ int main(int argc, char *argv[])
 
     register_all_tap_listeners();
     conversation_table_set_gui_info(init_conversation_table);
-    hostlist_table_set_gui_info(NULL);  /* XXX - TODO: Provide "GUI" function for Qt */
+    hostlist_table_set_gui_info(init_endpoint_table);
 
     if (ex_opt_count("read_format") > 0) {
         in_file_type = open_info_name_to_type(ex_opt_get_next("read_format"));

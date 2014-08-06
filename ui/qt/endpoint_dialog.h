@@ -1,4 +1,4 @@
-/* conversation_dialog.h
+/* endpoint_dialog.h
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -19,74 +19,60 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef CONVERSATION_DIALOG_H
-#define CONVERSATION_DIALOG_H
+#ifndef ENDPOINT_DIALOG_H
+#define ENDPOINT_DIALOG_H
 
 #include "traffic_table_dialog.h"
 
-Q_DECLARE_METATYPE(conv_item_t *)
+Q_DECLARE_METATYPE(hostlist_talker_t *)
 
-class ConversationTreeWidget : public TrafficTableTreeWidget
+class EndpointTreeWidget : public TrafficTableTreeWidget
 {
     Q_OBJECT
 public:
-    explicit ConversationTreeWidget(QWidget *parent, register_ct_t* table);
-    ~ConversationTreeWidget();
+    explicit EndpointTreeWidget(QWidget *parent, register_ct_t* table);
+    ~EndpointTreeWidget();
 
     static void tapReset(void *conv_hash_ptr);
     static void tapDraw(void *conv_hash_ptr);
 
-private:
-    void initDirectionMap();
-
 private slots:
     void updateItems();
     void filterActionTriggered();
+
 };
 
-class ConversationDialog : public TrafficTableDialog
+class EndpointDialog : public TrafficTableDialog
 {
     Q_OBJECT
-
 public:
-    /** Create a new conversation window.
+    /** Create a new endpoint window.
      *
      * @param parent Parent widget.
      * @param cf Capture file. No statistics will be calculated if this is NULL.
      * @param proto_id If valid, add this protocol and bring it to the front.
      * @param filter Display filter to apply.
      */
-    explicit ConversationDialog(QWidget *parent = 0, capture_file *cf = NULL, int cli_proto_id = -1, const char *filter = NULL);
-    ~ConversationDialog();
+    explicit EndpointDialog(QWidget *parent = 0, capture_file *cf = NULL, int cli_proto_id = -1, const char *filter = NULL);
+    ~EndpointDialog();
+
+signals:
 
 public slots:
     void setCaptureFile(capture_file *cf);
 
-signals:
-    void filterAction(QString& filter, FilterAction::Action action, FilterAction::ActionType type);
-    void openFollowStreamDialog(follow_type_t type);
-    void openTcpStreamGraph(int graph_type);
-
 private:
-    QList<QAction> conv_actions_;
-    QPushButton *follow_bt_;
-    QPushButton *graph_bt_;
+    QList<QAction> endp_actions_;
 
     bool addTrafficTable(register_ct_t* table);
-    conv_item_t *currentConversation();
 
 private slots:
-    void itemSelectionChanged();
-    void on_nameResolutionCheckBox_toggled(bool checked);
-    void on_displayFilterCheckBox_toggled(bool checked);
-    void followStream();
-    void graphTcp();
     void on_buttonBox_helpRequested();
 };
 
-void init_conversation_table(struct register_ct* ct, const char *filter);
+void init_endpoint_table(struct register_ct* ct, const char *filter);
 
-#endif // CONVERSATION_DIALOG_H
+#endif // ENDPOINT_DIALOG_H
 
 /*
  * Editor modelines

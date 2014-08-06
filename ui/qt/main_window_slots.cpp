@@ -72,6 +72,7 @@
 #include "capture_file_dialog.h"
 #include "conversation_dialog.h"
 #include "decode_as_dialog.h"
+#include "endpoint_dialog.h"
 #include "export_object_dialog.h"
 #include "export_pdu_dialog.h"
 #include "io_graph_dialog.h"
@@ -2074,7 +2075,7 @@ void MainWindow::on_actionStatisticsCollectd_triggered()
     openStatisticsTreeDialog("collectd");
 }
 
-void MainWindow::statCommandConversation(const char *arg, void *userdata)
+void MainWindow::statCommandConversations(const char *arg, void *userdata)
 {
     ConversationDialog *conv_dialog = new ConversationDialog(this, cap_file_, GPOINTER_TO_INT(userdata), arg);
     connect(conv_dialog, SIGNAL(filterAction(QString&,FilterAction::Action,FilterAction::ActionType)),
@@ -2090,7 +2091,26 @@ void MainWindow::statCommandConversation(const char *arg, void *userdata)
 
 void MainWindow::on_actionStatisticsConversations_triggered()
 {
-    statCommandConversation(NULL, NULL);
+    statCommandConversations(NULL, NULL);
+}
+
+void MainWindow::statCommandEndpoints(const char *arg, void *userdata)
+{
+    EndpointDialog *endp_dialog = new EndpointDialog(this, cap_file_, GPOINTER_TO_INT(userdata), arg);
+    connect(endp_dialog, SIGNAL(filterAction(QString&,FilterAction::Action,FilterAction::ActionType)),
+            this, SLOT(filterAction(QString&,FilterAction::Action,FilterAction::ActionType)));
+    connect(endp_dialog, SIGNAL(openFollowStreamDialog(follow_type_t)),
+            this, SLOT(openFollowStreamDialog(follow_type_t)));
+    connect(endp_dialog, SIGNAL(openTcpStreamGraph(int)),
+            this, SLOT(openTcpStreamDialog(int)));
+    connect(this, SIGNAL(setCaptureFile(capture_file*)),
+            endp_dialog, SLOT(setCaptureFile(capture_file*)));
+    endp_dialog->show();
+}
+
+void MainWindow::on_actionStatisticsEndpoints_triggered()
+{
+    statCommandEndpoints(NULL, NULL);
 }
 
 void MainWindow::on_actionStatisticsHART_IP_triggered()

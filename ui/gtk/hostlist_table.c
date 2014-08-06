@@ -167,8 +167,8 @@ hostlist_sort_column(GtkTreeModel *model,
     hostlist_talker_t *host1 = NULL;
     hostlist_talker_t *host2 = NULL;
 
-    gtk_tree_model_get(model, a, HOST_INDEX_COLUMN, &idx1, -1);
-    gtk_tree_model_get(model, b, HOST_INDEX_COLUMN, &idx2, -1);
+    gtk_tree_model_get(model, a, ENDP_INDEX_COLUMN, &idx1, -1);
+    gtk_tree_model_get(model, b, ENDP_INDEX_COLUMN, &idx2, -1);
 
     if (!hl || idx1 >= hl->hash.conv_array->len || idx2 >= hl->hash.conv_array->len)
         return 0;
@@ -177,9 +177,9 @@ hostlist_sort_column(GtkTreeModel *model,
     host2 = &g_array_index(hl->hash.conv_array, hostlist_talker_t, idx2);
 
     switch(data_column){
-    case HOST_ADR_COLUMN: /* Address */
+    case ENDP_COLUMN_ADDR: /* Address */
         return(CMP_ADDRESS(&host1->myaddress, &host2->myaddress));
-    case HOST_PORT_COLUMN: /* (Port) */
+    case ENDP_COLUMN_PORT: /* (Port) */
         CMP_INT(host1->port, host2->port);
 #ifdef HAVE_GEOIP
     default:
@@ -224,7 +224,7 @@ hostlist_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint c
         return;
 
     gtk_tree_model_get (model, &iter,
-                            HOST_INDEX_COLUMN, &idx,
+                            ENDP_INDEX_COLUMN, &idx,
                             -1);
 
     if(idx>= hl->hash.conv_array->len){
@@ -486,12 +486,12 @@ draw_hostlist_table_addresses(hostlist_table *hl)
     while (iter_valid) {
         hostlist_talker_t *host;
 
-        gtk_tree_model_get(GTK_TREE_MODEL(store), &iter, HOST_INDEX_COLUMN, &idx, -1);
+        gtk_tree_model_get(GTK_TREE_MODEL(store), &iter, ENDP_INDEX_COLUMN, &idx, -1);
         host = &g_array_index(hl->hash.conv_array, hostlist_talker_t, idx);
 
         gtk_list_store_set (store, &iter,
-                  HOST_ADR_COLUMN, get_conversation_address(&host->myaddress, hl->resolve_names),
-                  HOST_PORT_COLUMN, get_conversation_port(host->port, host->ptype, hl->resolve_names),
+                  ENDP_COLUMN_ADDR, get_conversation_address(&host->myaddress, hl->resolve_names),
+                  ENDP_COLUMN_PORT, get_conversation_port(host->port, host->ptype, hl->resolve_names),
                     -1);
 
         iter_valid = gtk_tree_model_iter_next(GTK_TREE_MODEL(store), &iter);
@@ -536,7 +536,7 @@ draw_hostlist_table_data(hostlist_table *hl)
         hostlist_talker_t *host;
 
         if (iter_valid) {
-            gtk_tree_model_get(GTK_TREE_MODEL(store), &iter, HOST_INDEX_COLUMN, &idx, -1);
+            gtk_tree_model_get(GTK_TREE_MODEL(store), &iter, ENDP_INDEX_COLUMN, &idx, -1);
         } else {
             idx = new_idx;
             new_idx++;
@@ -557,7 +557,7 @@ draw_hostlist_table_data(hostlist_table *hl)
         host->modified = FALSE;
         if (!iter_valid) {
 #ifdef HAVE_GEOIP
-            char *geoip[NUM_GEOIP_COLS];
+            char *geoip[ENDP_NUM_GEOIP_COLUMNS];
             guint j;
 
             if ((host->myaddress.type == AT_IPv4 || host->myaddress.type == AT_IPv6) && !hl->geoip_visible) {
@@ -572,7 +572,7 @@ draw_hostlist_table_data(hostlist_table *hl)
                     column = (GtkTreeViewColumn *)columns->data;
                     title_p = gtk_tree_view_column_get_title(column);
                     id = gtk_tree_view_column_get_sort_column_id(column);
-                    if (title_p[0] != 0 && id >= HOST_GEOIP1_COLUMN) {
+                    if (title_p[0] != 0 && id >= ENDP_COLUMN_GEOIP1) {
                         gtk_tree_view_column_set_visible(column, TRUE);
                     }
                     columns = g_list_next(columns);
@@ -582,7 +582,7 @@ draw_hostlist_table_data(hostlist_table *hl)
             }
 
             /* Filled in from the GeoIP config, if any */
-            for (j = 0; j < NUM_GEOIP_COLS; j++) {
+            for (j = 0; j < ENDP_NUM_GEOIP_COLUMNS; j++) {
                 if (host->myaddress.type == AT_IPv4 && j < geoip_db_num_dbs()) {
                     const guchar *name = geoip_db_lookup_ipv4(j, pntoh32(host->myaddress.data), "-");
                     geoip[j] = g_strdup(name);
@@ -599,45 +599,45 @@ draw_hostlist_table_data(hostlist_table *hl)
 #endif /* HAVE_GEOIP */
 
             gtk_list_store_insert_with_values( store, &iter, G_MAXINT,
-                  HOST_ADR_COLUMN, get_conversation_address(&host->myaddress, hl->resolve_names),
-                  HOST_PORT_COLUMN, get_conversation_port(host->port, host->ptype, hl->resolve_names),
-                  HOST_PACKETS_COLUMN,  host->tx_frames+host->rx_frames,
-                  HOST_BYTES_COLUMN,    host->tx_bytes+host->rx_bytes,
-                  HOST_PKT_AB_COLUMN,   host->tx_frames,
-                  HOST_BYTES_AB_COLUMN, host->tx_bytes,
-                  HOST_PKT_BA_COLUMN,   host->rx_frames,
-                  HOST_BYTES_BA_COLUMN, host->rx_bytes,
+                  ENDP_COLUMN_ADDR, get_conversation_address(&host->myaddress, hl->resolve_names),
+                  ENDP_COLUMN_PORT, get_conversation_port(host->port, host->ptype, hl->resolve_names),
+                  ENDP_COLUMN_PACKETS,  host->tx_frames+host->rx_frames,
+                  ENDP_COLUMN_BYTES,    host->tx_bytes+host->rx_bytes,
+                  ENDP_COLUMN_PKT_AB,   host->tx_frames,
+                  ENDP_COLUMN_BYTES_AB, host->tx_bytes,
+                  ENDP_COLUMN_PKT_BA,   host->rx_frames,
+                  ENDP_COLUMN_BYTES_BA, host->rx_bytes,
 #ifdef HAVE_GEOIP
-                  HOST_GEOIP1_COLUMN,   geoip[0],
-                  HOST_GEOIP2_COLUMN,   geoip[1],
-                  HOST_GEOIP3_COLUMN,   geoip[2],
-                  HOST_GEOIP4_COLUMN,   geoip[3],
-                  HOST_GEOIP5_COLUMN,   geoip[4],
-                  HOST_GEOIP6_COLUMN,   geoip[5],
-                  HOST_GEOIP7_COLUMN,   geoip[6],
-                  HOST_GEOIP8_COLUMN,   geoip[7],
-                  HOST_GEOIP9_COLUMN,   geoip[8],
-                  HOST_GEOIP10_COLUMN,  geoip[9],
-                  HOST_GEOIP11_COLUMN,  geoip[10],
-                  HOST_GEOIP12_COLUMN,  geoip[11],
-                  HOST_GEOIP13_COLUMN,  geoip[12],
+                  ENDP_COLUMN_GEOIP1,   geoip[0],
+                  ENDP_COLUMN_GEOIP2,   geoip[1],
+                  ENDP_COLUMN_GEOIP3,   geoip[2],
+                  ENDP_COLUMN_GEOIP4,   geoip[3],
+                  ENDP_COLUMN_GEOIP5,   geoip[4],
+                  ENDP_COLUMN_GEOIP6,   geoip[5],
+                  ENDP_COLUMN_GEOIP7,   geoip[6],
+                  ENDP_COLUMN_GEOIP8,   geoip[7],
+                  ENDP_COLUMN_GEOIP9,   geoip[8],
+                  ENDP_COLUMN_GEOIP10,  geoip[9],
+                  ENDP_COLUMN_GEOIP11,  geoip[10],
+                  ENDP_COLUMN_GEOIP12,  geoip[11],
+                  ENDP_COLUMN_GEOIP13,  geoip[12],
 #endif
-                  HOST_INDEX_COLUMN,    idx,
+                  ENDP_INDEX_COLUMN,    idx,
                     -1);
 
 #ifdef HAVE_GEOIP
-            for (j = 0; j < NUM_GEOIP_COLS; j++)
+            for (j = 0; j < ENDP_NUM_GEOIP_COLUMNS; j++)
                 g_free(geoip[j]);
 #endif /* HAVE_GEOIP */
         }
         else {
             gtk_list_store_set (store, &iter,
-                  HOST_PACKETS_COLUMN,  host->tx_frames+host->rx_frames,
-                  HOST_BYTES_COLUMN,    host->tx_bytes+host->rx_bytes,
-                  HOST_PKT_AB_COLUMN,   host->tx_frames,
-                  HOST_BYTES_AB_COLUMN, host->tx_bytes,
-                  HOST_PKT_BA_COLUMN,   host->rx_frames,
-                  HOST_BYTES_BA_COLUMN, host->rx_bytes,
+                  ENDP_COLUMN_PACKETS,  host->tx_frames+host->rx_frames,
+                  ENDP_COLUMN_BYTES,    host->tx_bytes+host->rx_bytes,
+                  ENDP_COLUMN_PKT_AB,   host->tx_frames,
+                  ENDP_COLUMN_BYTES_AB, host->tx_bytes,
+                  ENDP_COLUMN_PKT_BA,   host->rx_frames,
+                  ENDP_COLUMN_BYTES_BA, host->rx_bytes,
                     -1);
         }
 
@@ -668,7 +668,7 @@ draw_hostlist_table_data_cb(void *arg)
 
 typedef struct {
     int             nb_cols;
-    gint            columns_order[HOST_NUM_COLUMNS];
+    gint            columns_order[ENDP_NUM_COLUMNS+ENDP_NUM_GEOIP_COLUMNS];
     GString        *CSV_str;
     hostlist_table *talkers;
 } csv_t;
@@ -684,27 +684,27 @@ csv_handle(GtkTreeModel *model, GtkTreePath *path _U_, GtkTreeIter *iter,
     guint idx;
     guint64  value;
 
-    gtk_tree_model_get(model, iter, HOST_INDEX_COLUMN, &idx, -1);
+    gtk_tree_model_get(model, iter, ENDP_INDEX_COLUMN, &idx, -1);
 
     for (i=0; i< csv->nb_cols; i++) {
         if (i)
             g_string_append(csv->CSV_str, ",");
 
         switch(csv->columns_order[i]) {
-        case HOST_ADR_COLUMN:
-        case HOST_PORT_COLUMN:
+        case ENDP_COLUMN_ADDR:
+        case ENDP_COLUMN_PORT:
             gtk_tree_model_get(model, iter, csv->columns_order[i], &table_text, -1);
             if (table_text) {
                 g_string_append_printf(csv->CSV_str, "\"%s\"", table_text);
                 g_free(table_text);
             }
             break;
-        case HOST_PACKETS_COLUMN:
-        case HOST_BYTES_COLUMN:
-        case HOST_PKT_AB_COLUMN:
-        case HOST_BYTES_AB_COLUMN:
-        case HOST_PKT_BA_COLUMN:
-        case HOST_BYTES_BA_COLUMN:
+        case ENDP_COLUMN_PACKETS:
+        case ENDP_COLUMN_BYTES:
+        case ENDP_COLUMN_PKT_AB:
+        case ENDP_COLUMN_BYTES_AB:
+        case ENDP_COLUMN_PKT_BA:
+        case ENDP_COLUMN_BYTES_BA:
             gtk_tree_model_get(model, iter, csv->columns_order[i], &value, -1);
             g_string_append_printf(csv->CSV_str, "\"%" G_GINT64_MODIFIER "u\"", value);
             break;
@@ -1023,34 +1023,34 @@ open_as_map_cb(GtkWindow *copy_bt, gpointer data _U_)
 }
 #endif /* HAVE_GEOIP */
 
-static gint default_col_size[HOST_NUM_COLUMNS];
+static gint default_col_size[ENDP_NUM_COLUMNS+ENDP_NUM_GEOIP_COLUMNS];
 
 static void
 init_default_col_size(GtkWidget *view)
 {
 
-    default_col_size[HOST_ADR_COLUMN] = get_default_col_size(view, "00000000.000000000000");
-    default_col_size[HOST_PORT_COLUMN] = get_default_col_size(view, "000000");
-    default_col_size[HOST_PACKETS_COLUMN] = get_default_col_size(view, "00 000 000");
-    default_col_size[HOST_BYTES_COLUMN] = get_default_col_size(view, "0 000 000 000");
-    default_col_size[HOST_PKT_AB_COLUMN] = default_col_size[HOST_PACKETS_COLUMN];
-    default_col_size[HOST_PKT_BA_COLUMN] = default_col_size[HOST_PACKETS_COLUMN];
-    default_col_size[HOST_BYTES_AB_COLUMN] = default_col_size[HOST_BYTES_COLUMN];
-    default_col_size[HOST_BYTES_BA_COLUMN] = default_col_size[HOST_BYTES_COLUMN];
+    default_col_size[ENDP_COLUMN_ADDR] = get_default_col_size(view, "00000000.000000000000");
+    default_col_size[ENDP_COLUMN_PORT] = get_default_col_size(view, "000000");
+    default_col_size[ENDP_COLUMN_PACKETS] = get_default_col_size(view, "00 000 000");
+    default_col_size[ENDP_COLUMN_BYTES] = get_default_col_size(view, "0 000 000 000");
+    default_col_size[ENDP_COLUMN_PKT_AB] = default_col_size[ENDP_COLUMN_PACKETS];
+    default_col_size[ENDP_COLUMN_PKT_BA] = default_col_size[ENDP_COLUMN_PACKETS];
+    default_col_size[ENDP_COLUMN_BYTES_AB] = default_col_size[ENDP_COLUMN_BYTES];
+    default_col_size[ENDP_COLUMN_BYTES_BA] = default_col_size[ENDP_COLUMN_BYTES];
 #ifdef HAVE_GEOIP
-    default_col_size[HOST_GEOIP1_COLUMN] = default_col_size[HOST_ADR_COLUMN];
-    default_col_size[HOST_GEOIP2_COLUMN] = default_col_size[HOST_GEOIP1_COLUMN];
-    default_col_size[HOST_GEOIP3_COLUMN] = default_col_size[HOST_GEOIP1_COLUMN];
-    default_col_size[HOST_GEOIP4_COLUMN] = default_col_size[HOST_GEOIP1_COLUMN];
-    default_col_size[HOST_GEOIP5_COLUMN] = default_col_size[HOST_GEOIP1_COLUMN];
-    default_col_size[HOST_GEOIP6_COLUMN] = default_col_size[HOST_GEOIP1_COLUMN];
-    default_col_size[HOST_GEOIP7_COLUMN] = default_col_size[HOST_GEOIP1_COLUMN];
-    default_col_size[HOST_GEOIP8_COLUMN] = default_col_size[HOST_GEOIP1_COLUMN];
-    default_col_size[HOST_GEOIP9_COLUMN] = default_col_size[HOST_GEOIP1_COLUMN];
-    default_col_size[HOST_GEOIP10_COLUMN] = default_col_size[HOST_GEOIP1_COLUMN];
-    default_col_size[HOST_GEOIP11_COLUMN] = default_col_size[HOST_GEOIP1_COLUMN];
-    default_col_size[HOST_GEOIP12_COLUMN] = default_col_size[HOST_GEOIP1_COLUMN];
-    default_col_size[HOST_GEOIP13_COLUMN] = default_col_size[HOST_GEOIP1_COLUMN];
+    default_col_size[ENDP_COLUMN_GEOIP1] = default_col_size[ENDP_COLUMN_ADDR];
+    default_col_size[ENDP_COLUMN_GEOIP2] = default_col_size[ENDP_COLUMN_GEOIP1];
+    default_col_size[ENDP_COLUMN_GEOIP3] = default_col_size[ENDP_COLUMN_GEOIP1];
+    default_col_size[ENDP_COLUMN_GEOIP4] = default_col_size[ENDP_COLUMN_GEOIP1];
+    default_col_size[ENDP_COLUMN_GEOIP5] = default_col_size[ENDP_COLUMN_GEOIP1];
+    default_col_size[ENDP_COLUMN_GEOIP6] = default_col_size[ENDP_COLUMN_GEOIP1];
+    default_col_size[ENDP_COLUMN_GEOIP7] = default_col_size[ENDP_COLUMN_GEOIP1];
+    default_col_size[ENDP_COLUMN_GEOIP8] = default_col_size[ENDP_COLUMN_GEOIP1];
+    default_col_size[ENDP_COLUMN_GEOIP9] = default_col_size[ENDP_COLUMN_GEOIP1];
+    default_col_size[ENDP_COLUMN_GEOIP10] = default_col_size[ENDP_COLUMN_GEOIP1];
+    default_col_size[ENDP_COLUMN_GEOIP11] = default_col_size[ENDP_COLUMN_GEOIP1];
+    default_col_size[ENDP_COLUMN_GEOIP12] = default_col_size[ENDP_COLUMN_GEOIP1];
+    default_col_size[ENDP_COLUMN_GEOIP13] = default_col_size[ENDP_COLUMN_GEOIP1];
 
 #endif
 }
@@ -1080,17 +1080,17 @@ init_hostlist_table_page(hostlist_table *hosttable, GtkWidget *vbox, gboolean hi
     hosttable->default_titles[7]  = "Rx Bytes";
 
 #ifdef HAVE_GEOIP
-    for (i = 0; i < NUM_GEOIP_COLS; i++) {
+    for (i = 0; i < ENDP_NUM_GEOIP_COLUMNS; i++) {
         if (i < geoip_db_num_dbs()) {
-            hosttable->default_titles[NUM_BUILTIN_COLS + i]  = geoip_db_name(i);
+            hosttable->default_titles[ENDP_NUM_COLUMNS + i]  = geoip_db_name(i);
         } else {
-            hosttable->default_titles[NUM_BUILTIN_COLS + i]  = "";
+            hosttable->default_titles[ENDP_NUM_COLUMNS + i]  = "";
         }
     }
 #endif /* HAVE_GEOIP */
 
     if (strcmp(table_name, "NCP")==0) {
-        hosttable->default_titles[1] = "Connection";
+        hosttable->default_titles[1] = endp_conn_title;
     }
 
     hosttable->has_ports=!hide_ports;
@@ -1104,7 +1104,8 @@ init_hostlist_table_page(hostlist_table *hosttable, GtkWidget *vbox, gboolean hi
     gtk_box_pack_start(GTK_BOX(vbox), hosttable->name_lb, FALSE, FALSE, 0);
 
     /* Create the store */
-    store = gtk_list_store_new (HOST_NUM_COLUMNS + 1,      /* Total number of columns */
+
+    store = gtk_list_store_new (ENDP_INDEX_COLUMN + 1,      /* Total number of columns */
                                G_TYPE_STRING,   /* Address  */
                                G_TYPE_STRING,   /* Port     */
                                G_TYPE_UINT64,   /* Packets   */
@@ -1146,26 +1147,26 @@ init_hostlist_table_page(hostlist_table *hosttable, GtkWidget *vbox, gboolean hi
     g_object_set_data(G_OBJECT(store), HOST_PTR_KEY, hosttable);
     g_object_set_data(G_OBJECT(hosttable->table), HOST_PTR_KEY, hosttable);
 
-    for (i = 0; i < HOST_NUM_COLUMNS; i++) {
+    for (i = 0; i < ENDP_NUM_COLUMNS+ENDP_NUM_GEOIP_COLUMNS; i++) {
         renderer = gtk_cell_renderer_text_new ();
         g_object_set(renderer, "ypad", 0, NULL);
         switch(i) {
-        case HOST_ADR_COLUMN: /* address and port */
-        case HOST_PORT_COLUMN:
+        case ENDP_COLUMN_ADDR: /* address and port */
+        case ENDP_COLUMN_PORT:
             column = gtk_tree_view_column_new_with_attributes (hosttable->default_titles[i], renderer, "text",
                                                                i, NULL);
-            if(hide_ports && i == HOST_PORT_COLUMN){
+            if(hide_ports && i == ENDP_COLUMN_PORT){
                 /* hide srcport and dstport if we don't use ports */
                 gtk_tree_view_column_set_visible(column, FALSE);
             }
             gtk_tree_sortable_set_sort_func(sortable, i, hostlist_sort_column, GINT_TO_POINTER(i), NULL);
             break;
-        case HOST_PACKETS_COLUMN: /* counts */
-        case HOST_BYTES_COLUMN:
-        case HOST_PKT_AB_COLUMN:
-        case HOST_BYTES_AB_COLUMN:
-        case HOST_PKT_BA_COLUMN:
-        case HOST_BYTES_BA_COLUMN: /* right align numbers */
+        case ENDP_COLUMN_PACKETS: /* counts */
+        case ENDP_COLUMN_BYTES:
+        case ENDP_COLUMN_PKT_AB:
+        case ENDP_COLUMN_BYTES_AB:
+        case ENDP_COLUMN_PKT_BA:
+        case ENDP_COLUMN_BYTES_BA: /* right align numbers */
             g_object_set(G_OBJECT(renderer), "xalign", 1.0, NULL);
             column = gtk_tree_view_column_new_with_attributes (hosttable->default_titles[i], renderer, NULL);
             gtk_tree_view_column_set_cell_data_func(column, renderer, u64_data_func,  GINT_TO_POINTER(i), NULL);
@@ -1175,8 +1176,8 @@ init_hostlist_table_page(hostlist_table *hosttable, GtkWidget *vbox, gboolean hi
                                                                i, NULL);
             gtk_tree_view_column_set_visible(column, FALSE);
 #ifdef HAVE_GEOIP
-            if (i >= NUM_BUILTIN_COLS && i - NUM_BUILTIN_COLS < geoip_db_num_dbs()) {
-                int goip_type = geoip_db_type(i - NUM_BUILTIN_COLS);
+            if (i >= ENDP_NUM_COLUMNS && i - ENDP_NUM_COLUMNS < geoip_db_num_dbs()) {
+                int goip_type = geoip_db_type(i - ENDP_NUM_COLUMNS);
                 if (goip_type == WS_LON_FAKE_EDITION || goip_type == WS_LAT_FAKE_EDITION) {
                     g_object_set(G_OBJECT(renderer), "xalign", 1.0, NULL);
                     gtk_tree_sortable_set_sort_func(sortable, i, hostlist_sort_column, GINT_TO_POINTER(i), NULL);

@@ -1926,12 +1926,12 @@ init_ct_table_page(conversations_table *conversations, GtkWidget *vbox, gboolean
     conversations->fixed_col = FALSE;
 
     for (i = 0; i < CONV_NUM_COLUMNS; i++) {
-        conversations->default_titles[i] = column_titles[i];
+        conversations->default_titles[i] = conv_column_titles[i];
     }
 
     if (strcmp(table_name, "NCP")==0) {
-        conversations->default_titles[CONV_COLUMN_SRC_PORT] = conn_a_title;
-        conversations->default_titles[CONV_COLUMN_DST_PORT] = conn_b_title;
+        conversations->default_titles[CONV_COLUMN_SRC_PORT] = conv_conn_a_title;
+        conversations->default_titles[CONV_COLUMN_DST_PORT] = conv_conn_b_title;
     }
 
     g_snprintf(title, sizeof(title), "%s Conversations", table_name);

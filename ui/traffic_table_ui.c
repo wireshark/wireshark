@@ -1,4 +1,4 @@
-/* conversation_ui.c
+/* traffic_table_ui.c
  * Copied from gtk/conversations_table.c   2003 Ronnie Sahlberg
  * Helper routines common to all conversations taps.
  *
@@ -22,10 +22,10 @@
  */
 #include "config.h"
 
-#include "conversation_ui.h"
+#include "traffic_table_ui.h"
 #include "utf8_entities.h"
 
-const char *column_titles[CONV_NUM_COLUMNS] = {
+const char *conv_column_titles[CONV_NUM_COLUMNS] = {
     "Address A",
     "Port A",
     "Address B",
@@ -42,10 +42,21 @@ const char *column_titles[CONV_NUM_COLUMNS] = {
     "bps B " UTF8_RIGHTWARDS_ARROW " A"
 };
 
-const char *conn_a_title = "Connection A";
-const char *conn_b_title = "Connection B";
+const char *conv_conn_a_title = "Connection A";
+const char *conv_conn_b_title = "Connection B";
 
+const char *endp_column_titles[ENDP_NUM_COLUMNS] = {
+    "Address",
+    "Port",
+    "Packets",
+    "Bytes",
+    "Packets A " UTF8_RIGHTWARDS_ARROW " B",
+    "Bytes A " UTF8_RIGHTWARDS_ARROW " B",
+    "Packets B " UTF8_RIGHTWARDS_ARROW " A",
+    "Bytes B " UTF8_RIGHTWARDS_ARROW " A"
+};
 
+const char *endp_conn_title = "Connection";
 
 /*
  * Editor modelines

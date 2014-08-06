@@ -1,4 +1,4 @@
-/* conversation_ui.h
+/* traffic_table_ui.h
  * Copied from gtk/conversations_table.h   2003 Ronnie Sahlberg
  * Helper routines common to all conversations taps.
  *
@@ -29,7 +29,7 @@ extern "C" {
 #endif /* __cplusplus */
 
 /** @file
- *  Conversation lists.
+ *  Conversation and endpoint lists.
  */
 
 typedef enum {
@@ -51,10 +51,26 @@ typedef enum {
     CONV_INDEX_COLUMN = CONV_NUM_COLUMNS
 } conversation_column_type_e;
 
+extern const char *conv_column_titles[CONV_NUM_COLUMNS];
+extern const char *conv_conn_a_title;
+extern const char *conv_conn_b_title;
 
-extern const char *column_titles[CONV_NUM_COLUMNS];
-extern const char *conn_a_title;
-extern const char *conn_b_title;
+typedef enum
+{
+    ENDP_COLUMN_ADDR,
+    ENDP_COLUMN_PORT,
+    ENDP_COLUMN_PACKETS,
+    ENDP_COLUMN_BYTES,
+    ENDP_COLUMN_PKT_AB,
+    ENDP_COLUMN_BYTES_AB,
+    ENDP_COLUMN_PKT_BA,
+    ENDP_COLUMN_BYTES_BA,
+    ENDP_NUM_COLUMNS,
+} endpoint_column_type_e;
+
+extern const char *endp_column_titles[ENDP_NUM_COLUMNS];
+
+extern const char *endp_conn_title;
 
 #ifdef __cplusplus
 }

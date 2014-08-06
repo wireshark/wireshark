@@ -21,13 +21,22 @@
 
 #include "filter_action.h"
 
-FilterAction::FilterAction(QObject *parent, Action action, ActionType type, ActionDirection direction) :
+FilterAction::FilterAction(QObject *parent, FilterAction::Action action, FilterAction::ActionType type, FilterAction::ActionDirection direction) :
     QAction(parent),
     action_(action),
     type_(type),
     direction_(direction)
 {
     setText(actionDirectionName(direction));
+}
+
+FilterAction::FilterAction(QObject *parent, FilterAction::Action action, FilterAction::ActionType type) :
+    QAction(parent),
+    action_(action),
+    type_(type),
+    direction_(ActionDirectionAToAny)
+{
+    setText(actionTypeName(type));
 }
 
 

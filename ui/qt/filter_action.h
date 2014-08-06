@@ -65,7 +65,8 @@ public:
         ActionDirectionAnyFromB
     };
 
-    explicit FilterAction(QObject *parent = 0, Action action = ActionApply, ActionType type = ActionTypePlain, ActionDirection direction = ActionDirectionAToFromB);
+    explicit FilterAction(QObject *parent, Action action, ActionType type, ActionDirection direction);
+    explicit FilterAction(QObject *parent, Action action, ActionType type);
 
     Action action() { return action_; }
     static const QList<Action> actions();

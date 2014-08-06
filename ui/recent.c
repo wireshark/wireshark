@@ -74,7 +74,8 @@
 #define RECENT_GUI_GEOMETRY_WLAN_STATS_PANE "gui.geometry_status_wlan_stats_pane"
 #define RECENT_LAST_USED_PROFILE            "gui.last_used_profile"
 #define RECENT_GUI_FILEOPEN_REMEMBERED_DIR  "gui.fileopen_remembered_dir"
-#define RECENT_GUI_CONVERSATION_TABS       "gui.conversation_tabs"
+#define RECENT_GUI_CONVERSATION_TABS        "gui.conversation_tabs"
+#define RECENT_GUI_ENDPOINT_TABS            "gui.endpoint_tabs"
 
 #define RECENT_GUI_GEOMETRY                 "gui.geom."
 
@@ -800,6 +801,12 @@ write_profile_recent(void)
   fprintf(rf, RECENT_GUI_CONVERSATION_TABS ": %s\n", string_list);
   g_free(string_list);
 
+  fprintf(rf, "\n# Open endpoint dialog tabs.\n");
+  fprintf(rf, "# List of endpoint names, e.g. \"TCP\", \"IPv6\".\n");
+  string_list = join_string_list(recent.endpoint_tabs);
+  fprintf(rf, RECENT_GUI_ENDPOINT_TABS ": %s\n", string_list);
+  g_free(string_list);
+
   if (get_last_open_dir() != NULL) {
     fprintf(rf, "\n# Last directory navigated to in File Open dialog.\n");
 
@@ -1036,6 +1043,8 @@ read_set_recent_pair_static(gchar *key, const gchar *value,
     recent.has_gui_geometry_main_lower_pane = TRUE;
   } else if (strcmp(key, RECENT_GUI_CONVERSATION_TABS) == 0) {
     recent.conversation_tabs = prefs_get_string_list(value);
+  } else if (strcmp(key, RECENT_GUI_ENDPOINT_TABS) == 0) {
+    recent.endpoint_tabs = prefs_get_string_list(value);
   } else if (strcmp(key, RECENT_KEY_COL_WIDTH) == 0) {
     col_l = prefs_get_string_list(value);
     if (col_l == NULL)

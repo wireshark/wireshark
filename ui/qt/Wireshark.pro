@@ -210,7 +210,6 @@ FORMS += \
     capture_interfaces_dialog.ui \
     column_preferences_frame.ui \
     compiled_filter_output.ui \
-    conversation_dialog.ui \
     decode_as_dialog.ui \
     export_object_dialog.ui \
     export_pdu_dialog.ui \
@@ -251,6 +250,7 @@ FORMS += \
     summary_dialog.ui \
     tcp_stream_dialog.ui \
     time_shift_dialog.ui \
+    traffic_table_dialog.ui \
     uat_dialog.ui
 
 
@@ -262,9 +262,9 @@ HEADERS += $$HEADERS_WS_C \
     column_preferences_frame.h \
     compiled_filter_output.h \
     conversation_dialog.h \
-    conversation_tree_widget.h \
     decode_as_dialog.h \
     elided_label.h \
+    endpoint_dialog.h \
     export_dissection_dialog.h \
     export_object_dialog.h \
     export_pdu_dialog.h \
@@ -300,6 +300,7 @@ HEADERS += $$HEADERS_WS_C \
     summary_dialog.h \
     tango_colors.h \
     tcp_stream_dialog.h \
+    traffic_table_dialog.h \
     uat_dialog.h
 
 win32 {
@@ -595,11 +596,11 @@ SOURCES += \
     column_preferences_frame.cpp \
     compiled_filter_output.cpp \
     conversation_dialog.cpp \
-    conversation_tree_widget.cpp \
     decode_as_dialog.cpp \
     display_filter_combo.cpp \
     display_filter_edit.cpp \
     elided_label.cpp \
+    endpoint_dialog.cpp \
     export_dissection_dialog.cpp \
     export_object_dialog.cpp \
     export_pdu_dialog.cpp \
@@ -660,5 +661,6 @@ SOURCES += \
     syntax_line_edit.cpp \
     tcp_stream_dialog.cpp \
     time_shift_dialog.cpp \
+    traffic_table_dialog.cpp \
     uat_dialog.cpp \
     wireshark_application.cpp

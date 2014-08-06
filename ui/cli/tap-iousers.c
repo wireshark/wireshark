@@ -31,7 +31,7 @@
 #include <epan/tap.h>
 #include <epan/timestamp.h>
 #include <epan/stat_cmd_args.h>
-#include <ui/conversation_ui.h>
+#include <ui/traffic_table_ui.h>
 #include <epan/conversation_table.h>
 #include <ui/cli/tshark-tap.h>
 

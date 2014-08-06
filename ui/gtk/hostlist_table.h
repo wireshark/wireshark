@@ -25,49 +25,33 @@
 #define __HOSTLIST_TABLE_H__
 
 #include <epan/conversation_table.h>
+#include <ui/traffic_table_ui.h>
 
 /** @file
  *  Hostlist definitions.
  */
 
-typedef enum
-{
-    HOST_ADR_COLUMN,
-    HOST_PORT_COLUMN,
-    HOST_PACKETS_COLUMN,
-    HOST_BYTES_COLUMN,
-    HOST_PKT_AB_COLUMN,
-    HOST_BYTES_AB_COLUMN,
-    HOST_PKT_BA_COLUMN,
-    HOST_BYTES_BA_COLUMN,
 #ifdef HAVE_GEOIP
-    HOST_GEOIP1_COLUMN,
-    HOST_GEOIP2_COLUMN,
-    HOST_GEOIP3_COLUMN,
-    HOST_GEOIP4_COLUMN,
-    HOST_GEOIP5_COLUMN,
-    HOST_GEOIP6_COLUMN,
-    HOST_GEOIP7_COLUMN,
-    HOST_GEOIP8_COLUMN,
-    HOST_GEOIP9_COLUMN,
-    HOST_GEOIP10_COLUMN,
-    HOST_GEOIP11_COLUMN,
-    HOST_GEOIP12_COLUMN,
-    HOST_GEOIP13_COLUMN,
-#endif
-    HOST_NUM_COLUMNS,
-    HOST_INDEX_COLUMN = HOST_NUM_COLUMNS
-} hostlist_column_type_e;
-
-
-
-#define NUM_BUILTIN_COLS 8
-#ifdef HAVE_GEOIP
-# define NUM_GEOIP_COLS 13
+typedef enum {
+    ENDP_COLUMN_GEOIP1 = ENDP_NUM_COLUMNS,
+    ENDP_COLUMN_GEOIP2,
+    ENDP_COLUMN_GEOIP3,
+    ENDP_COLUMN_GEOIP4,
+    ENDP_COLUMN_GEOIP5,
+    ENDP_COLUMN_GEOIP6,
+    ENDP_COLUMN_GEOIP7,
+    ENDP_COLUMN_GEOIP8,
+    ENDP_COLUMN_GEOIP9,
+    ENDP_COLUMN_GEOIP10,
+    ENDP_COLUMN_GEOIP11,
+    ENDP_COLUMN_GEOIP12,
+    ENDP_COLUMN_GEOIP13,
+} geoip_column_type_e;
+#define ENDP_NUM_GEOIP_COLUMNS 13
 #else
-# define NUM_GEOIP_COLS 0
+#define ENDP_NUM_GEOIP_COLUMNS 0
 #endif
-#define NUM_HOSTLIST_COLS (NUM_BUILTIN_COLS + NUM_GEOIP_COLS)
+#define ENDP_INDEX_COLUMN (ENDP_NUM_COLUMNS+ENDP_NUM_GEOIP_COLUMNS)
 
 /** Hostlist widget */
 typedef struct _hostlist_table {
@@ -79,7 +63,7 @@ typedef struct _hostlist_table {
 	GtkWidget           *name_lb;           /**< name label */
 	GtkWidget           *scrolled_window;   /**< the scrolled window */
 	GtkTreeView         *table;             /**< the GTK table */
-	const char          *default_titles[NUM_HOSTLIST_COLS]; /**< Column headers */
+    const char          *default_titles[ENDP_NUM_COLUMNS+ENDP_NUM_GEOIP_COLUMNS]; /**< Column headers */
 	GtkWidget           *menu;              /**< context menu */
 	gboolean            has_ports;          /**< table has ports */
     conv_hash_t         hash;               /**< hostlist hash table */

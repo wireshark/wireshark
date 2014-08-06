@@ -144,7 +144,7 @@ typedef struct _hostlist_talker_t {
 
 } hostlist_talker_t;
 
-/** Register the conversation table for the multiple conversation window.
+/** Register the conversation table for the conversation and endpoint windows.
  *
  * @param proto_id is the protocol with conversation
  * @param hide_ports hide the port columns
