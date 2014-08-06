@@ -82,6 +82,8 @@ static int hf_isis_hello_pdu_length = -1;
 static int hf_isis_hello_priority = -1;
 static int hf_isis_hello_priority_reserved = -1;
 static int hf_isis_hello_lan_id = -1;
+static int hf_isis_hello_clv_type = -1;
+static int hf_isis_hello_clv_length = -1;
 static int hf_isis_hello_local_circuit_id = -1;
 static int hf_isis_hello_clv_ipv4_int_addr = -1;
 static int hf_isis_hello_clv_ipv6_int_addr = -1;
@@ -998,7 +1000,7 @@ dissect_isis_hello(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offs
      */
     isis_dissect_clvs(tvb, pinfo, hello_tree, offset,
             opts, &ei_isis_hello_short_packet, pdu_length, id_length,
-            ett_isis_hello_clv_unknown);
+            ett_isis_hello_clv_unknown, hf_isis_hello_clv_type, hf_isis_hello_clv_length);
 }
 
 
@@ -1076,6 +1078,14 @@ proto_register_isis_hello(void)
         { &hf_isis_hello_lan_id,
         { "SystemID {Designated IS}", "isis.hello.lan_id",
             FT_SYSTEM_ID, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_isis_hello_clv_type,
+        { "Type", "isis.hello.clv.type",
+            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_isis_hello_clv_length,
+        { "Type", "isis.hello.clv.length",
+            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
         { &hf_isis_hello_local_circuit_id,
         { "Local circuit ID", "isis.hello.local_circuit_id",

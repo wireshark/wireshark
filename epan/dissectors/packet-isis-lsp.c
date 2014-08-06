@@ -126,6 +126,8 @@ static int hf_isis_lsp_p = -1;
 static int hf_isis_lsp_att = -1;
 static int hf_isis_lsp_hippity = -1;
 static int hf_isis_lsp_is_type = -1;
+static int hf_isis_lsp_clv_type = -1;
+static int hf_isis_lsp_clv_length = -1;
 static int hf_isis_lsp_root_id = -1;
 static int hf_isis_lsp_spb_link_metric = -1;
 static int hf_isis_lsp_spb_port_count = -1;
@@ -2663,7 +2665,7 @@ dissect_isis_lsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
      * our list of valid ones!
      */
     isis_dissect_clvs(tvb, pinfo, lsp_tree, offset,
-            opts, &ei_isis_lsp_short_packet, len, id_length, ett_isis_lsp_clv_unknown );
+            opts, &ei_isis_lsp_short_packet, len, id_length, ett_isis_lsp_clv_unknown, hf_isis_lsp_clv_type, hf_isis_lsp_clv_length );
 }
 
 static int
@@ -2758,6 +2760,16 @@ proto_register_isis_lsp(void)
         { &hf_isis_lsp_is_type,
         { "Type of Intermediate System",    "isis.lsp.is_type", FT_UINT8, BASE_DEC,
             VALS(isis_lsp_istype_vals), ISIS_LSP_IS_TYPE_MASK,
+            NULL, HFILL }},
+
+        { &hf_isis_lsp_clv_type,
+        { "Type", "isis.lsp.clv.type", FT_UINT8, BASE_DEC,
+            NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_isis_lsp_clv_length,
+        { "Length", "isis.lsp.clv.length", FT_UINT8, BASE_DEC,
+            NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_isis_lsp_spb_link_metric,

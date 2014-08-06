@@ -512,7 +512,7 @@ isis_dissect_nlpid_clv(tvbuff_t *tvb, proto_tree *tree, int offset, int length)
 void
 isis_dissect_clvs(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offset,
     const isis_clv_handle_t *opts, expert_field* expert_short_len, int len, int id_length,
-    int unknown_tree_id _U_)
+    int unknown_tree_id _U_, int tree_type, int tree_length)
 {
     guint8 code;
     guint8 length;
@@ -545,8 +545,11 @@ isis_dissect_clvs(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offse
         if ( opts[q].dissect ) {
             /* adjust by 2 for code/len octets */
             clv_tree = proto_tree_add_subtree_format(tree, tvb, offset - 2,
-                    length + 2, *opts[q].tree_id, NULL, "%s (%u)",
-                    opts[q].tree_text, length );
+                    length + 2, *opts[q].tree_id, NULL, "%s (t=%u, l=%u)",
+                    opts[q].tree_text, opts[q].optcode, length);
+
+            proto_tree_add_item(clv_tree, tree_type, tvb, offset - 2, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(clv_tree, tree_length, tvb, offset - 1, 1, ENC_BIG_ENDIAN);
             opts[q].dissect(tvb, pinfo, clv_tree, offset,
                 id_length, length);
         } else {

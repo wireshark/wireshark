@@ -53,6 +53,8 @@ static int hf_isis_csnp_lsp_seq_num = -1;
 static int hf_isis_csnp_lsp_remain_life = -1;
 static int hf_isis_csnp_lsp_checksum = -1;
 static int hf_isis_csnp_checksum = -1;
+static int hf_isis_csnp_clv_type = -1;
+static int hf_isis_csnp_clv_length = -1;
 static gint ett_isis_csnp = -1;
 static gint ett_isis_csnp_clv_lsp_entries = -1;
 static gint ett_isis_csnp_lsp_entry = -1;
@@ -68,6 +70,8 @@ static expert_field ei_isis_csnp_authentication = EI_INIT;
 /* psnp packets */
 static int hf_isis_psnp_pdu_length = -1;
 static int hf_isis_psnp_source_id = -1;
+static int hf_isis_psnp_clv_type = -1;
+static int hf_isis_psnp_clv_length = -1;
 static gint ett_isis_psnp = -1;
 static gint ett_isis_psnp_clv_lsp_entries = -1;
 static gint ett_isis_psnp_lsp_entry = -1;
@@ -342,7 +346,7 @@ dissect_isis_csnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offse
     }
 
     isis_dissect_clvs(tvb, pinfo, csnp_tree, offset,
-            opts, &ei_isis_csnp_short_packet, len, id_length, ett_isis_csnp_clv_unknown );
+            opts, &ei_isis_csnp_short_packet, len, id_length, ett_isis_csnp_clv_unknown, hf_isis_csnp_clv_type, hf_isis_csnp_clv_length );
 }
 
 
@@ -396,7 +400,7 @@ dissect_isis_psnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offse
     }
     /* Call into payload dissector */
     isis_dissect_clvs(tvb, pinfo, psnp_tree, offset,
-            opts, &ei_isis_psnp_short_packet, len, id_length, ett_isis_psnp_clv_unknown );
+            opts, &ei_isis_psnp_short_packet, len, id_length, ett_isis_psnp_clv_unknown, hf_isis_psnp_clv_type, hf_isis_psnp_clv_length);
 }
 
 static int
@@ -448,6 +452,12 @@ proto_register_isis_csnp(void)
         { &hf_isis_csnp_checksum,
         { "Checksum",        "isis.csnp.checksum", FT_UINT16,
           BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        { &hf_isis_csnp_clv_type,
+        { "Type",        "isis.csnp.clv.type", FT_UINT8,
+          BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_isis_csnp_clv_length,
+        { "Length",        "isis.csnp.clv.length", FT_UINT8,
+          BASE_DEC, NULL, 0x0, NULL, HFILL }},
     };
 
     static gint *ett[] = {
@@ -493,6 +503,12 @@ proto_register_isis_psnp(void)
         { &hf_isis_psnp_source_id,
         { "Source-ID", "isis.psnp.source_id",
             FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_isis_psnp_clv_type,
+        { "Type",        "isis.psnp.clv.type", FT_UINT8,
+          BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_isis_psnp_clv_length,
+        { "Length",        "isis.psnp.clv.length", FT_UINT8,
+          BASE_DEC, NULL, 0x0, NULL, HFILL }},
     };
 
     static gint *ett[] = {
