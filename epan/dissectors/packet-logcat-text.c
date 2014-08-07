@@ -169,23 +169,23 @@ static int get_time(const gchar *frame, const gchar *token, tvbuff_t *tvb,
         proto_tree *maintree, gint start_offset, packet_info *pinfo) {
     gint offset;
     gchar *p;
-    gint day, month, hrs, min, sec, ms;
-    GDateTime *date;
-    gint64 seconds;
+    gint ms;
+    struct tm date;
+    time_t seconds;
     nstime_t ts;
 
     p = g_strstr_len(frame + start_offset, -1, token);
     offset = (int)(p - frame);
 
-    if (6 == sscanf(token, "%d-%d %d:%d:%d.%d", &month, &day, &hrs, &min, &sec, &ms)) {
-        date = g_date_time_new_local(1970, month, day, hrs, min,
-                (gdouble) sec + ((gdouble) ms) * 0.001);
-        seconds = g_date_time_to_unix(date);
-        ts.secs = (time_t) seconds;
+    if (6 == sscanf(token, "%d-%d %d:%d:%d.%d", &date.tm_mon, &date.tm_mday,
+                    &date.tm_hour, &date.tm_min, &date.tm_sec, &ms)) {
+        date.tm_year = 70;
+        date.tm_mon -= 1;
+        seconds = mktime(&date);
+        ts.secs = seconds;
         ts.nsecs = (int) (ms * 1e6);
         proto_tree_add_time(maintree, hf_logcat_text_timestamp, tvb, offset,
                 (int)strlen(token), &ts);
-        g_date_time_unref(date);
     } else {
         proto_tree_add_expert(maintree, pinfo, &ei_malformed_time, tvb, offset, -1);
     }
