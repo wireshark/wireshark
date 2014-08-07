@@ -1,7 +1,7 @@
 # FindChocolatey
 # ----------
 #
-# this module looks for Chocolatey
+# This module looks for Chocolatey
 
 # This code was copied from
 # http://cmake.org/gitweb?p=cmake.git;a=blob_plain;f=Modules/FindCygwin.cmake;hb=HEAD
@@ -22,15 +22,15 @@
 #  License text for the above reference.)
 
 if (WIN32)
-  find_path(CHOCOLATEY_INSTALL_PATH
-    choco.bat
-    PATH "C:/Chocolatey" ENV ChocolateyInstall
+  find_path(CHOCOLATEY_BIN_PATH
+    choco.exe
+    PATHS "C:/ProgramData/chocolatey" "C:/Chocolatey" ENV ChocolateyInstall
     PATH_SUFFIXES bin
-    DOC "Chocolatey installation path"
+    DOC "Chocolatey binary path"
     NO_DEFAULT_PATH
   )
 
   mark_as_advanced(
-    CHOCOLATEY_INSTALL_PATH
+    CHOCOLATEY_BIN_PATH
   )
 endif ()

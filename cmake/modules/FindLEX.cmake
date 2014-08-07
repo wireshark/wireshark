@@ -1,14 +1,9 @@
 #
-# - Find lex executable
+# - Find flex/lex executable
 #
 
 INCLUDE(FindCygwin)
-#INCLUDE(FindChocolatey)
-
-# Chocolatey's C:\Chocolatey\bin\win_flex and -\win_bison are
-# currently unusable without some manual adjustments to the
-# win_flex and win_bison wrapper scripts. Calling the executables
-# directly should work.
+INCLUDE(FindChocolatey)
 
 FIND_PROGRAM(LEX_EXECUTABLE
   NAMES
@@ -16,9 +11,8 @@ FIND_PROGRAM(LEX_EXECUTABLE
     win_flex
     lex
   PATHS
+    ${CHOCOLATEY_BIN_PATH}/bin
     ${CYGWIN_INSTALL_PATH}/bin
-#    ${CHOCOLATEY_INSTALL_PATH}/bin
-#    ${CHOCOLATEY_INSTALL_PATH}/lib/winflexbison.2.4.1.20140103/tools
     /bin
     /usr/bin
     /usr/local/bin
