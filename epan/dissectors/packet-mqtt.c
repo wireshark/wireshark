@@ -311,7 +311,7 @@ static int dissect_mqtt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
         {
           mqtt_str_len = tvb_get_ntohs(tvb, offset);
           offset += 2;
-          mqtt_msg_len -= 2;
+          /*mqtt_msg_len -= 2;*/
 
           proto_tree_add_item(mqtt_msg_tree, hf_mqtt_passwd, tvb, offset, mqtt_str_len, ENC_UTF_8|ENC_NA);
           /* offset += mqtt_str_len; */
