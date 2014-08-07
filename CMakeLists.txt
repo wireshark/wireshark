@@ -1101,6 +1101,7 @@ if(BUILD_qtshark AND QT_FOUND)
 	)
 	# qtshark and wireshark share wireshark_FILES
 
+	# Policy since 2.8.11
 	if (POLICY CMP0020)
 		cmake_policy(SET CMP0020 OLD)
 	endif()
