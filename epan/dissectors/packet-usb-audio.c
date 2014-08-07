@@ -244,12 +244,17 @@ dissect_usb_midi_event(tvbuff_t *tvb, packet_info *pinfo,
 
 static gint
 dissect_usb_audio_descriptor(tvbuff_t *tvb, packet_info *pinfo _U_,
-        proto_tree *tree, void *data _U_)
+        proto_tree *tree, void *data)
 {
-    gint        offset = 0;
-    guint8      descriptor_len;
-    guint8      descriptor_type;
-    proto_tree *desc_tree;
+    gint             offset = 0;
+    usb_conv_info_t *usb_conv_info;
+    guint8           descriptor_len;
+    guint8           descriptor_type;
+    proto_tree       *desc_tree;
+
+    usb_conv_info = (usb_conv_info_t *)data;
+    if (!usb_conv_info || usb_conv_info->interfaceClass!=IF_CLASS_AUDIO)
+        return 0;
 
     descriptor_len  = tvb_get_guint8(tvb, offset);
     descriptor_type = tvb_get_guint8(tvb, offset+1);
