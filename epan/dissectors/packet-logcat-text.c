@@ -139,8 +139,8 @@ static int get_ptid(const gchar *frame, const gchar *token, tvbuff_t *tvb,
     gchar *p = g_strstr_len(frame + start_offset, -1, token);
     int offset = (int)(p - frame);
 
-    proto_tree_add_uint64(maintree, header_field, tvb, offset, (gint)strlen(token),
-            g_ascii_strtoull(token, NULL, 10));
+    proto_tree_add_uint(maintree, header_field, tvb, offset, (gint)strlen(token),
+            (guint32)g_ascii_strtoull(token, NULL, 10));
     return offset + (int)strlen(token);
 }
 
