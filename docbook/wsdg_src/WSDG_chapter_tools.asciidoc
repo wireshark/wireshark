@@ -1088,29 +1088,23 @@ A native Win32 sed package can be obtained from
 http://gnuwin32.sourceforge.net/[]. The
 installation should be straightforward.
 
-[[ChToolsYacc]]
+[[ChToolsBison]]
 
-=== yacc (bison)
+=== Bison
 
-Bison is a free implementation of yacc.
+Bison is a parser generator used for some of Wireshark's file format support.
 
-[[ChToolsUnixYacc]]
+[[ChToolsUnixBison]]
 
-==== UNIX or Win32 Cygwin: bison
+==== UNIX or Cygwin: bison
 
-// XXX Add win flex-bison. The Chocolatey version isn't
-// ready pending a Chocolatey bug.
+Bison is available for most UNIX-like platforms and as the bison package from
+<<ChToolsCygwin,Cygwin>>. See the next section for native Windows options.
 
-Bison is available for most of the UNIX-like platforms
-and as the bison package from the
-<<ChToolsCygwin,Cygwin setup>>.
+If GNU Bison isn't already installed or available as a package for your
+platform you can get it at: http://www.gnu.org/software/bison/bison.html[].
 
-If GNU Bison isn't already installed or
-available as a package for your platform, you can get it at:
-http://www.gnu.org/software/bison/bison.html[].
-
-After correct installation, typing at the
-bash command line prompt:
+After correct installation running the following
 
 ----
 $ bison --version
@@ -1127,36 +1121,38 @@ This is free software; see the source for copying conditions.  There is NO
 warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ----
 
-However, the version string may vary.
+Your version string may vary.
 
-[[ChToolsWin32Yacc]]
+[[ChToolsWindowsBison]]
 
-==== Win32 native: bison
+==== Windows Native: Win flex-bison and bison
 
-A native Win32 yacc/bison package can be obtained from
-http://gnuwin32.sourceforge.net/[]. The
-installation should be straightforward.
+A native Windows version of bison is available in the _winflexbison_
+https://chocolatey.org/[Chocolatey] package. Note that the executable is named
+`win_bison`.
 
-[[ChToolsLexx]]
+Native packages are available from other sources such as
+http://gnuwin32.sourceforge.net/packages/bison.htm[GnuWin]. They aren't
+officially supported but _should_ work.
 
-=== flex
+[[ChToolsFlex]]
 
-Flex is a free implementation of lexx.
+=== Flex
 
-[[ChToolsUnixLexx]]
+Flex is a lexical analyzer generator used for Wireshark's display filters, some
+file formats, and other features.
 
-==== UNIX or Win32 Cygwin: flex
+[[ChToolsUnixFlex]]
 
-Flex is available for most of the UNIX-like platforms
-and as the flex package from the
-<<ChToolsCygwin,Cygwin setup>>.
+==== UNIX or Cygwin: flex
 
-If GNU flex isn't already installed or
-available as a package for your platform, you can get it at
-http://www.gnu.org/software/flex/[].
+Flex is available for most UNIX-like platforms and as the flex package from
+<<ChToolsCygwin,Cygwin>>. See the next section for native Windows options.
 
-After correct installation, typing at the
-bash command line prompt:
+If GNU flex isn't already installed or available as a package for your platform
+you can get it at http://www.gnu.org/software/flex/[].
+
+After correct installation running the following
 
 ----
 $ flex --version
@@ -1168,15 +1164,19 @@ should result in something like:
 flex version 2.5.4
 ----
 
-However, the version string may vary.
+Your version string may vary.
 
-[[ChToolsWin32Lexx]]
+[[ChToolsWindowsFlex]]
 
-==== Win32 native: flex
+==== Windows Native: Win flex-bison and flex
 
-A native Win32 lexx/flex package can be obtained from
-http://gnuwin32.sourceforge.net/[]. The
-installation should be straightforward.
+A native Windows version of flex is available in the _winflexbison_
+https://chocolatey.org/[Chocolatey] package. Note that the executable is named
+`win_flex`.
+
+Native packages are available from other sources such as
+http://gnuwin32.sourceforge.net/packages/flex.htm[GnuWin]. They aren't
+officially supported but _should_ work.
 
 [[ChToolsGit]]
 

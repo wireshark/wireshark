@@ -129,7 +129,7 @@ QtShark project (ui/qt/QtShark.pro), however.
 The default (suggested) full-package Qt installer is built with the MinGW
 toolchain, which is not currently supported by Wireshark's build process on
 Windows and so will not work.  Instead, you will want to use the installer for
-the toolchain you are using (e.g. Qt <version> for Windows 32-bit (VS 2010,
+the toolchain you are using (e.g. Qt <version> for Windows 32-bit (VS 2013,
 OpenGL) if you are using the toolchain set up by these quick-start
 instructions).
 ====
@@ -145,7 +145,6 @@ you've added work in that version.
 
 [[ChSetupCygwin]]
 
-
 ==== Install Cygwin
 
 On 32-bit Windows, http://www.cygwin.com/setup-x86.exe[download the
@@ -159,11 +158,12 @@ Navigate to the required Category/Package row and, if the package
 has a "Skip" item in the "New" column, click on the "Skip" item
 so it shows a version number for:
 
+// Only used by win-setup.sh
 * Archive/unzip
 
-* Devel/bison
+* Devel/bison (or install Win flex-bison - see Chocolatey below)
 
-* Devel/flex
+* Devel/flex (or install Win flex-bison - see Chocolatey below)
 
 * Devel/git (recommended - see discussion about using Git below)
 
@@ -171,16 +171,19 @@ so it shows a version number for:
 
 * Utils/dos2unix
 
-* Utils/patch (optional) (may be Devel/patch instead)
+* Utils/patch (only if needed) (may be Devel/patch instead)
 
+// Only used by win-setup.sh
 * Web/wget
+
+// Also need: bash/sh, sed
 
 You might also have to install
 
 * Interpreters/m4
 
-if installing Devel/bison doesn't provide a working version of Bison; if
-m4 is missing, Bison will fail.
+if installing Devel/bison doesn't provide a working version of Bison. If
+m4 is missing bison will fail.
 
 After clicking the Next button several times, the setup
 will then download and install the selected packages (this
@@ -189,6 +192,20 @@ may take a while).
 Why is this recommended? Cygwin's bash version is required, as no native Win32
 version is available. As additional packages can easily be added, Perl and
 other packages are also used.
+
+[[ChSetupChocolatey]]
+
+==== Optional: Install Chocolatey
+
+As an alternative to Cygwin you install some packages using
+https://chocolatey.org/[Chocolatey], a native package manager for Windows.
+Wireshark's build environment currently supports the _winflexbison_ package but
+support for more packages should appear in the future.
+
+// ...such as:
+// - Active Perl and/or StrawberryPerl
+// - Devbox-UnZip and/or 7zip and/or peazip
+// - Wget
 
 [[ChSetupPython]]
 
@@ -214,7 +231,7 @@ source tree by hand. It also makes first-time setup easy and enables the
 Wireshark build process to determine your current source code revision.
 
 There are several ways in which Git can be installed. Most packages are
-available at the URLs below or via the http://chocolatey.org/[Chocolatey package manager].
+available at the URLs below or via https://chocolatey.org/[Chocolatey].
 Note that many of the GUI interfaces depend on the command line version.
 
 ===== The Official Windows Installer
