@@ -358,6 +358,7 @@ static int hf_giop_string_length = -1;
 static int hf_giop_sequence_length = -1;
 static int hf_giop_profile_id = -1;
 static int hf_giop_type_id = -1;
+static int hf_giop_type_id_match = -1;
 static int hf_giop_iiop_v_maj = -1;
 static int hf_giop_iiop_v_min = -1;
 static int hf_giop_endianness = -1; /* esp encapsulations */
@@ -838,6 +839,7 @@ static const value_string reply_status_types[] = {
   { 0, NULL }
 };
 
+const true_false_string tfs_matched_not_matched = { "Matched", "Not matched" };
 
 
 typedef enum LocateStatusType
@@ -4086,9 +4088,9 @@ dissect_reply_body (tvbuff_t *tvb, guint offset, packet_info *pinfo,
       exres = try_heuristic_giop_dissector(tvb, pinfo, clnp_tree, &offset, header, entry->operation);
     }
 
-    if (!exres && !strcmp(giop_op_is_a, entry->operation) && tree) {
-      proto_tree_add_text(tree, tvb, offset - 1, 1, "Type Id%s matched",
-                          get_CDR_boolean(tvb, &offset) ? "" : " not");
+    if (!exres && !strcmp(giop_op_is_a, entry->operation)) {
+      proto_tree_add_boolean(tree, hf_giop_type_id_match, tvb, offset - 1, 1,
+                          get_CDR_boolean(tvb, &offset));
     }
 
     if (! exres) {
@@ -4345,7 +4347,7 @@ dissect_giop_request_1_1 (tvbuff_t * tvb, packet_info * pinfo,
 
   if (miop[0] == 'M' && miop[1] == 'I' && miop[2] == 'O' && miop[3] == 'P')
   {
-    proto_tree_add_text (request_tree, tvb, offset - 4, 4, "Magic number: MIOP");
+    proto_tree_add_string(request_tree, hf_giop_message_magic, tvb, offset - 4, 4, "MIOP");
     decode_TaggedProfile (tvb, pinfo, request_tree, &offset, GIOP_HEADER_SIZE,
                           stream_is_big_endian, NULL);
   }
@@ -4746,11 +4748,7 @@ static int dissect_giop_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree 
         proto_item_append_text(ti, ", (Big Endian)");  /* hack to show "Big Endian" when endianness flag == 0 */
         break;
     case 0:
-      proto_tree_add_text (header_version_tree, tvb, 6, 1,
-                       "Byte ordering: %s-endian",
-                       (stream_is_big_endian) ? "big" : "little");
-      ti = proto_tree_add_boolean(header_tree, hf_giop_message_flags_little_endian, tvb, 6, 1, stream_is_big_endian ? 0 : 1);
-      PROTO_ITEM_SET_HIDDEN(ti);
+      proto_tree_add_boolean(header_tree, hf_giop_message_flags_little_endian, tvb, 6, 1, stream_is_big_endian ? 0 : 1);
       break;
   }
 
@@ -5023,10 +5021,14 @@ proto_register_giop (void)
         FT_UINT32, BASE_DEC, VALS(profile_id_vals), 0x0, NULL, HFILL }
     },
 
-
     { &hf_giop_type_id,
       { "IOR::type_id", "giop.typeid",
         FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
+    },
+
+    { &hf_giop_type_id_match,
+      { "Type Id", "giop.typeid.match",
+        FT_BOOLEAN, BASE_NONE, TFS(&tfs_matched_not_matched), 0x0, NULL, HFILL }
     },
 
     { &hf_giop_type_id_len,

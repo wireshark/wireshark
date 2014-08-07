@@ -105,6 +105,7 @@ static int hf_com_cm2_cm3_presence = -1;
 static int hf_com_cm2_spare4 = -1;
 static int hf_com_cm2_a5_3 = -1;
 static int hf_com_cm2_a5_2_gmr1 = -1;
+static int hf_com_spare_nibble = -1;
 
 /* [1] 11.5.1.6 - Mobile Earth Station Classmark 2 */
 static const value_string com_cm2_revision_vals[] = {
@@ -229,7 +230,7 @@ GMR1_IE_FUNC(gmr1_ie_com_cm2)
 /* [1] 11.5.1.8 - Spare Half Octet */
 GMR1_IE_FUNC(gmr1_ie_com_spare_nibble)
 {
-	proto_tree_add_text(tree, tvb, offset, 1, "Spare Half Octet");
+	proto_tree_add_item(tree, hf_com_spare_nibble, tvb, offset, 1, ENC_NA);
 
 	return 1;
 }
@@ -358,6 +359,11 @@ proto_register_gmr1_common(void)
 		{ &hf_com_cm2_a5_2_gmr1,
 		  { "A5/2 GMR-1", "gmr1.common.cm2.a5_2_gmr1",
 		    FT_UINT8, BASE_DEC, VALS(com_cm2_a5_2_gmr1_vals), 0x01,
+		    NULL, HFILL }
+		},
+		{ &hf_com_spare_nibble,
+		  { "Spare Half Octet", "gmr1.common.spare_nibble",
+		    FT_UINT8, BASE_HEX, NULL, 0x0,
 		    NULL, HFILL }
 		},
 	};

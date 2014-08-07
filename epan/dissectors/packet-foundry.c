@@ -27,6 +27,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include <epan/strutil.h>
 #include <epan/in_cksum.h>
 #include "packet-llc.h"
@@ -74,6 +75,8 @@ static gint ett_fdp_string = -1;
 static gint ett_fdp_net = -1;
 static gint ett_fdp_tag = -1;
 static gint ett_fdp_vlanmap = -1;
+
+static expert_field ei_fdp_tlv_length = EI_INIT;
 
 #define PROTO_SHORT_NAME "FDP"
 #define PROTO_LONG_NAME "Foundry Discovery Protocol"
@@ -292,16 +295,15 @@ dissect_fdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/* Decode the individual TLVs */
 		while (offset < data_length) {
 			if (data_length - offset < 4) {
-				proto_tree_add_text(fdp_tree, tvb, offset, 4,
-					"Too few bytes left for TLV: %u (< 4)",
-					data_length - offset);
+				proto_tree_add_expert_format(fdp_tree, pinfo, &ei_fdp_tlv_length, tvb, offset, 4,
+					"Too few bytes left for TLV: %u (< 4)", data_length - offset);
 				break;
 			}
 			tlv_type = tvb_get_ntohs(tvb, offset);
 			tlv_length = tvb_get_ntohs(tvb, offset + 2);
 
 			if ((tlv_length < 4) || (tlv_length > (data_length - offset))) {
-				proto_tree_add_text(fdp_tree, tvb, offset, 0,
+				proto_tree_add_expert_format(fdp_tree, pinfo, &ei_fdp_tlv_length, tvb, offset, 0,
 					"TLV with invalid length: %u", tlv_length);
 				break;
 			}
@@ -438,10 +440,18 @@ proto_register_fdp(void)
 		&ett_fdp_vlanmap,
 	};
 
-        proto_fdp = proto_register_protocol(PROTO_LONG_NAME,
-	    PROTO_SHORT_NAME, "fdp");
-        proto_register_field_array(proto_fdp, hf, array_length(hf));
+	static ei_register_info ei[] = {
+		{ &ei_fdp_tlv_length, { "fdp.tlv.length.invalid", PI_MALFORMED, PI_ERROR, "Invalid length", EXPFILL }},
+	};
+
+	expert_module_t* expert_fdp;
+
+	proto_fdp = proto_register_protocol(PROTO_LONG_NAME, PROTO_SHORT_NAME, "fdp");
+
+	proto_register_field_array(proto_fdp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	expert_fdp = expert_register_protocol(proto_fdp);
+	expert_register_field_array(expert_fdp, ei, array_length(ei));
 }
 
 void

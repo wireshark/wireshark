@@ -29,6 +29,7 @@
 #include <wiretap/wtap.h>
 #include <epan/wmem/wmem.h>
 #include <epan/conversation.h>
+#include <epan/expert.h>
 #include "packet-umts_fp.h"
 #include "packet-umts_mac.h"
 #include "packet-rlc.h"
@@ -67,6 +68,10 @@ static int hf_fph_ddi_value = -1;
 static int hf_fph_tf = -1;
 static int hf_fph_tf_n = -1;
 static int hf_fph_tf_size = -1;
+
+static expert_field ei_fph_radio_bearers = EI_INIT;
+static expert_field ei_fph_mac_frames = EI_INIT;
+static expert_field ei_fph_fp_channels = EI_INIT;
 
 static dissector_handle_t data_handle;
 static dissector_handle_t ethwithfcs_handle;
@@ -175,13 +180,13 @@ static guint16 assign_rb_info(tvbuff_t *tvb, packet_info *pinfo, guint16 offset,
 		deciphered = (next_byte >> 3) & 0x1;
 
 		if (i >= MAX_RLC_CHANS) {
-			proto_tree_add_text(tree, tvb, offset, -1,
+			proto_tree_add_expert_format(tree, pinfo, &ei_fph_radio_bearers, tvb, offset, -1,
 				"Frame contains more Radio Bearers than currently supported (%u present, %u supported)",
 				rbcnt, MAX_RLC_CHANS);
 			return -1;
 		}
 		if (i >= MAX_MAC_FRAMES) {
-			proto_tree_add_text(tree, tvb, offset, -1,
+			proto_tree_add_expert_format(tree, pinfo, &ei_fph_mac_frames, tvb, offset, -1,
 				"Frame contains more MAC Frames than currently supported (%u present, %u supported)",
 				rbcnt, MAX_MAC_FRAMES);
 			return -1;
@@ -325,7 +330,7 @@ static void assign_fph_dch(tvbuff_t *tvb, packet_info *pinfo, guint16 offset, fp
 		}
 		offset += 4;
 		if (i > MAX_FP_CHANS) {
-			proto_tree_add_text(tree, tvb, offset, -1,
+			proto_tree_add_expert_format(tree, pinfo, &ei_fph_fp_channels, tvb, offset, -1,
 				"Frame contains more FP channels than currently supported (%u supported)",
 				MAX_FP_CHANS);
 			return;
@@ -415,7 +420,7 @@ static void assign_fph_edch(tvbuff_t *tvb, packet_info *pinfo, guint16 offset, f
 		}
 		i++;
 		if (i >= MAX_EDCH_DDIS) {
-			proto_tree_add_text(tree, tvb, offset, -1,
+			proto_tree_add_expert_format(tree, pinfo, &ei_fph_fp_channels, tvb, offset, -1,
 				"Frame contains more FP channels than currently supported (%u supported)",
 				MAX_FP_CHANS);
 			return;
@@ -572,11 +577,21 @@ proto_register_fp_hint(void)
 		&ett_fph_tf
 	};
 
+	static ei_register_info ei[] = {
+		{ &ei_fph_radio_bearers, { "fp_hint.rb.invalid", PI_PROTOCOL, PI_WARN, "Frame contains more Radio Bearers than currently supported", EXPFILL }},
+		{ &ei_fph_mac_frames, { "cip.mac_frames.invalid", PI_PROTOCOL, PI_WARN, "Frame contains more MAC Frames than currently supported", EXPFILL }},
+		{ &ei_fph_fp_channels, { "fp_hint.fp_channels.invalid", PI_PROTOCOL, PI_WARN, "Frame contains more FP channels than currently supported", EXPFILL }},
+	};
+
+	expert_module_t* expert_fp_hint;
+
 	proto_fp_hint = proto_register_protocol("FP Hint", "FP Hint", "fp_hint");
 	register_dissector("fp_hint", dissect_fp_hint, proto_fp_hint);
 
 	proto_register_field_array(proto_fp_hint, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	expert_fp_hint = expert_register_protocol(proto_fp_hint);
+	expert_register_field_array(expert_fp_hint, ei, array_length(ei));
 }
 
 void

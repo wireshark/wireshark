@@ -216,6 +216,7 @@ static int hf_rr_bcch_carrier_spare = -1;
 static int hf_rr_reject_cause = -1;
 static int hf_rr_reject_cause_b = -1;
 static int hf_rr_gps_timestamp = -1;
+static int hf_rr_gps_power_control_params = -1;
 static int hf_rr_tmsi_avail_msk_tmsi[4] = { -1, -1, -1, -1 };
 static int hf_rr_gps_almanac_pn = -1;
 static int hf_rr_gps_almanac_wn = -1;
@@ -264,7 +265,8 @@ static int hf_rr_tlli = -1;
 static int hf_rr_pkt_pwr_ctrl_prm_par = -1;
 static int hf_rr_pkt_pwr_ctrl_prm_spare = -1;
 static int hf_rr_persistence_lvl[4] = { -1, -1, -1, -1 };
-
+static int hf_rr_protocol_discriminator = -1;
+static int hf_rr_message_elements = -1;
 
 /* Generic display vals/func */
 static const value_string rr_gen_ie_presence_vals[] = {
@@ -807,7 +809,7 @@ GMR1_IE_FUNC(gmr1_ie_rr_pwr_ctrl_prm)
 	/* It's CSN1 encoded and we have no real world sample. Until we do,
 	 * we don't pollute the code with a bunch of untested stuff ... */
 
-	proto_tree_add_text(tree, tvb, offset, 5, "Power Control Parameters");
+	proto_tree_add_item(tree, hf_rr_gps_power_control_params, tvb, offset, 5, ENC_NA);
 
 	return 5;
 }
@@ -1861,11 +1863,8 @@ dissect_gmr1_ccch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	offset += elem_v(tvb, ccch_tree, pinfo, GMR1_IE_RR, GMR1_IE_RR_L2_PSEUDO_LEN, offset, NULL);
 
 	/* Protocol discriminator item */
-	pd_item = proto_tree_add_text(
-		ccch_tree, tvb, 1, 1,
-		"Protocol Discriminator: %s",
-		val_to_str(pd, gmr1_pd_vals, "Unknown (%u)")
-	);
+	pd_item = proto_tree_add_uint(
+		ccch_tree, hf_rr_protocol_discriminator, tvb, 1, 1, pd);
 
 	pd_tree = proto_item_add_subtree(pd_item, ett_rr_pd);
 
@@ -1895,8 +1894,7 @@ dissect_gmr1_ccch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (msg_func) {
 		(*msg_func)(tvb, ccch_tree, pinfo, offset, len - offset);
 	} else {
-		proto_tree_add_text(ccch_tree, tvb, offset, len - offset,
-		                    "Message Elements");
+		proto_tree_add_item(ccch_tree, hf_rr_message_elements, tvb, offset, len - offset, ENC_NA);
 	}
 
 	/* Done ! */
@@ -2139,6 +2137,11 @@ proto_register_gmr1_rr(void)
 		{ &hf_rr_gps_timestamp,
 		  { "GPS timestamp", "gmr1.rr.gps_timestamp",
 		    FT_UINT16, BASE_CUSTOM, rr_gps_timestamp_fmt, 0xffff,
+		    NULL, HFILL }
+		},
+		{ &hf_rr_gps_power_control_params,
+		  { "Power Control Parameters", "gmr1.rr.power_control_params",
+		    FT_BYTES, BASE_NONE, NULL, 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_rr_tmsi_avail_msk_tmsi[0],
@@ -2410,6 +2413,16 @@ proto_register_gmr1_rr(void)
 		  { "for Radio priority 4", "gmr1.rr.persistence_lvl.p4",
 		    FT_UINT8, BASE_DEC, NULL, 0x0f,
 		    NULL, HFILL }
+		},
+		{ &hf_rr_protocol_discriminator,
+		  { "Protocol Discriminator", "gmr1.rr.protocol_discriminator",
+			FT_UINT8, BASE_DEC, VALS(gmr1_pd_vals), 0x0,
+			NULL, HFILL }
+		},
+		{ &hf_rr_message_elements,
+		  { "Message elements", "gmr1.rr.message_elements",
+			FT_BYTES, BASE_NONE, NULL, 0x0,
+			NULL, HFILL }
 		},
 	};
 

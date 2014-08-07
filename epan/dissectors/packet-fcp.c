@@ -54,6 +54,7 @@ static int hf_fcp_wrdata = -1;
 static int hf_fcp_dl = -1;
 static int hf_fcp_bidir_dl = -1;
 static int hf_fcp_data_ro = -1;
+static int hf_fcp_r_ctl = -1;
 static int hf_fcp_burstlen = -1;
 static int hf_fcp_rspflags = -1;
 static int hf_fcp_retry_delay_timer = -1;
@@ -81,10 +82,9 @@ static int hf_fcp_rsp_flags_res_vld = -1;
 static int hf_fcp_request_in = -1;
 static int hf_fcp_response_in = -1;
 static int hf_fcp_time = -1;
-/* static int hf_fcp_srr_op = -1; */
+static int hf_fcp_els_op = -1;
 static int hf_fcp_srr_ox_id = -1;
 static int hf_fcp_srr_rx_id = -1;
-/* static int hf_fcp_srr_r_ctl = -1; */
 
 /* Initialize the subtree pointers */
 static gint ett_fcp = -1;
@@ -671,9 +671,7 @@ dissect_fcp_srr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, fc_hdr 
         proto_tree_add_item(tree, hf_fcp_srr_ox_id, tvb, 4, 2, ENC_BIG_ENDIAN);
         proto_tree_add_item(tree, hf_fcp_srr_rx_id, tvb, 6, 2, ENC_BIG_ENDIAN);
         proto_tree_add_item(tree, hf_fcp_data_ro, tvb, 8, 4, ENC_BIG_ENDIAN);
-        r_ctl = tvb_get_guint8(tvb, 12);
-        proto_tree_add_text(tree, tvb, 12, 1, "R_CTL: %s",
-                            val_to_str(r_ctl, fcp_iu_val, "0x%02x"));
+        proto_tree_add_item(tree, hf_fcp_r_ctl, tvb, 12, 1, ENC_NA);
     }
 }
 
@@ -693,9 +691,7 @@ dissect_fcp_els(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, fc_hdr *fch
 
     op = tvb_get_guint8(tvb, 0);
     col_add_str(pinfo->cinfo, COL_INFO, val_to_str_ext(op, &fc_els_proto_val_ext, "0x%x"));
-    proto_tree_add_text(tree, tvb, 0, 1, "Opcode: %s",
-                                   val_to_str_ext(op, &fc_els_proto_val_ext,
-                                              "ELS 0x%02x"));
+    proto_tree_add_item(tree, hf_fcp_els_op, tvb, 0, 1, ENC_NA);
 
     switch (op) {   /* XXX should switch based on conv for LS_ACC */
     case FC_ELS_SRR:
@@ -885,7 +881,12 @@ proto_register_fcp(void)
 
         { &hf_fcp_data_ro,
           {"FCP_DATA_RO", "fcp.data_ro",
-           FT_UINT32, BASE_DEC, NULL, 0x0,
+           FT_UINT32, BASE_DEC, VALS(fcp_iu_val), 0x0,
+           NULL, HFILL}},
+
+        { &hf_fcp_r_ctl,
+          {"R_CTL", "fcp.r_ctl",
+           FT_UINT8, BASE_HEX, NULL, 0x0,
            NULL, HFILL}},
 
         { &hf_fcp_burstlen,
@@ -1023,12 +1024,10 @@ proto_register_fcp(void)
             FT_RELATIVE_TIME, BASE_NONE, NULL, 0,
             "Time since the FCP_CMND frame", HFILL }},
 
-#if 0
-        { &hf_fcp_srr_op,
+        { &hf_fcp_els_op,
           {"Opcode", "fcp.els.op",
-           FT_UINT8, BASE_HEX, NULL, 0x0,
+           FT_UINT8, BASE_HEX|BASE_EXT_STRING, &fc_els_proto_val_ext, 0x0,
            NULL, HFILL}},
-#endif
 
         { &hf_fcp_srr_ox_id,
           {"OX_ID", "fcp.els.srr.ox_id",
@@ -1039,13 +1038,6 @@ proto_register_fcp(void)
           {"RX_ID", "fcp.els.srr.rx_id",
            FT_UINT16, BASE_HEX, NULL, 0x0,
            NULL, HFILL}},
-
-#if 0
-        { &hf_fcp_srr_r_ctl,
-          {"R_CTL", "fcp.els.srr.r_ctl",
-           FT_UINT8, BASE_HEX, NULL, 0x0,
-           NULL, HFILL}},
-#endif
     };
 
     /* Setup protocol subtree array */

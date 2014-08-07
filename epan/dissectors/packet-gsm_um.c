@@ -39,6 +39,8 @@ static int hf_gsm_um_direction = -1;
 static int hf_gsm_um_channel = -1;
 static int hf_gsm_um_bsic = -1;
 static int hf_gsm_um_arfcn = -1;
+static int hf_gsm_um_band = -1;
+static int hf_gsm_um_frequency = -1;
 static int hf_gsm_um_frame = -1;
 static int hf_gsm_um_error = -1;
 static int hf_gsm_um_timeshift = -1;
@@ -173,9 +175,10 @@ dissect_gsm_um(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 			proto_tree_add_uint(gsm_um_tree, hf_gsm_um_arfcn, tvb, 0, 0,
 				pinfo->pseudo_header->gsm_um.arfcn);
-			proto_tree_add_text(gsm_um_tree, tvb, 0, 0,
-				"Band: %s, Frequency: %u.%03uMHz", band,
-				downlink / 1000, downlink % 1000);
+			proto_tree_add_string(gsm_um_tree, hf_gsm_um_band, tvb, 0, 0,
+				band);
+			proto_tree_add_uint_format_value(gsm_um_tree, hf_gsm_um_frequency, tvb, 0, 0,
+				downlink, "%u.%03uMHz", downlink / 1000, downlink % 1000);
 			proto_tree_add_uint(gsm_um_tree, hf_gsm_um_bsic, tvb, 0, 0,
 				pinfo->pseudo_header->gsm_um.bsic);
 			proto_tree_add_uint(gsm_um_tree, hf_gsm_um_frame, tvb, 0, 0,
@@ -248,6 +251,14 @@ proto_register_gsm_um(void)
 		{ &hf_gsm_um_arfcn,
 		{ "ARFCN",	"gsm_um.arfcn", FT_UINT16, BASE_DEC,
 		  NULL, 0x0, "Absolute radio frequency channel number", HFILL }},
+
+		{ &hf_gsm_um_band,
+		{ "Band",	"gsm_um.band", FT_STRING, BASE_NONE,
+		  NULL, 0x0, NULL, HFILL }},
+
+		{ &hf_gsm_um_frequency,
+		{ "Frequency",	"gsm_um.frequency", FT_UINT32, BASE_DEC,
+		  NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_gsm_um_frame,
 		{ "TDMA Frame",	"gsm_um.frame", FT_UINT32, BASE_DEC,

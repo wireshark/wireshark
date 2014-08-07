@@ -46,9 +46,11 @@ static int hf_fcgi_begin_request_flags = -1;
 static int hf_fcgi_begin_request_keep_conn = -1;
 static int hf_fcgi_end_request_app_status = -1;
 static int hf_fcgi_end_request_protocol_status = -1;
+static int hf_fcgi_nv_name = -1;
 
 static int ett_fcgi = -1;
 static int ett_fcgi_begin_request = -1;
+static int ett_fcgi_abort_request = -1;
 static int ett_fcgi_end_request = -1;
 static int ett_fcgi_params = -1;
 
@@ -133,9 +135,11 @@ dissect_nv_pairs(tvbuff_t *tvb, proto_tree *fcgi_tree, gint offset, guint16 len)
          value = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, valuelen, ENC_ASCII);
          offset += valuelen;
 
-         proto_tree_add_text(fcgi_tree, tvb, start_offset, offset - start_offset, "%s = %s", name, value);
+         proto_tree_add_string_format(fcgi_tree, hf_fcgi_nv_name, tvb, start_offset, offset - start_offset,
+                            name, "%s = %s", name, value);
       } else {
-         proto_tree_add_text(fcgi_tree, tvb, start_offset, offset - start_offset, "%s", name);
+         proto_tree_add_string_format(fcgi_tree, hf_fcgi_nv_name, tvb, start_offset, offset - start_offset,
+                            name, "%s", name);
       }
    }
 }
@@ -162,7 +166,7 @@ dissect_begin_request(tvbuff_t *tvb, proto_tree *fcgi_tree, gint offset, guint16
 static void
 dissect_abort_request(tvbuff_t *tvb, proto_tree *fcgi_tree, gint offset, guint16 len)
 {
-   proto_tree_add_text(fcgi_tree, tvb, offset, len, "Abort Request:");
+   proto_tree_add_subtree(fcgi_tree, tvb, offset, len, ett_fcgi_abort_request, NULL, "Abort Request:");
 
    return;
 }
@@ -366,11 +370,15 @@ proto_register_fcgi(void)
           FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
       { &hf_fcgi_end_request_protocol_status,
         { "Protocol Status", "fcgi.end_request.protocol_status",
-          FT_UINT32, BASE_DEC, VALS(protocol_statuses), 0x0, NULL, HFILL } }
+          FT_UINT32, BASE_DEC, VALS(protocol_statuses), 0x0, NULL, HFILL } },
+      { &hf_fcgi_nv_name,
+        { "NV Pair name", "fcgi.nv_name",
+          FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
    };
    static gint *ett[] = {
       &ett_fcgi,
       &ett_fcgi_begin_request,
+      &ett_fcgi_abort_request,
       &ett_fcgi_end_request,
       &ett_fcgi_params
    };

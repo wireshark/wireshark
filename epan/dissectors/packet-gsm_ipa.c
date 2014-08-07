@@ -97,6 +97,7 @@ static int hf_ipa_osmo_ctrl_data = -1;
 static int hf_ipaccess_msgtype = -1;
 static int hf_ipaccess_attr_tag = -1;
 static int hf_ipaccess_attr_string = -1;
+static int hf_ipaccess_attribute_unk = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_ipa = -1;
@@ -198,8 +199,7 @@ dissect_ipa_attr(tvbuff_t *tvb, int base_offs, proto_tree *tree)
 			break;
 		default:
 			len = 0;
-			proto_tree_add_text(tree, tvb, offset+1, 1,
-					    "unknown attribute type 0x%02x",
+			proto_tree_add_uint(tree, hf_ipaccess_attribute_unk, tvb, offset+1, 1,
 					    attr_type);
 			break;
 		};
@@ -420,6 +420,11 @@ void proto_register_ipa(void)
 		 {"String", "ipaccess.attr_string",
 		  FT_STRING, BASE_NONE, NULL, 0x0,
 		  "String attribute", HFILL}
+		 },
+		{&hf_ipaccess_attribute_unk,
+		 {"Unknown attribute type", "ipaccess.attr_unk",
+		  FT_UINT8, BASE_HEX, NULL, 0x0,
+		  NULL, HFILL}
 		 },
 	};
 

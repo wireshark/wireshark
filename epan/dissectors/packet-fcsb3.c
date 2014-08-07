@@ -105,6 +105,7 @@ static int hf_sbccs_dib_ctlparam_ro = -1;
 static int hf_sbccs_dib_linkctlinfo = -1;
 static int hf_sbccs_dib_linkctlinfo_ctcconn = -1;
 static int hf_sbccs_dib_linkctlinfo_ecrcg = -1;
+static int hf_sbccs_logical_path = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_fc_sbccs = -1;
@@ -800,8 +801,8 @@ static void dissect_fc_sbccs_dib_link_hdr (tvbuff_t *tvb, packet_info *pinfo,
             offset += 16;
 
             while (i < link_payload_len) {
-                proto_tree_add_text (tree, tvb, offset, 4,
-                                     "Logical Paths %d-%d: %s",
+                proto_tree_add_bytes_format(tree, hf_sbccs_logical_path, tvb, offset, 4,
+                                     NULL, "Logical Paths %d-%d: %s",
                                      i*8, ((i+4)*8) - 1,
                                      tvb_bytes_to_ep_str_punct (tvb, offset, 4, ':'));
                 i += 4;
@@ -1253,6 +1254,11 @@ proto_register_fcsbccs (void)
         { &hf_sbccs_dib_linkctlinfo_ecrcg,
           { "Enhanced CRC Generation", "fcsb3.linkctlinfo.ecrcg",
             FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x01,
+            NULL, HFILL}},
+
+        { &hf_sbccs_logical_path,
+          { "Logical Path", "fcsb3.logical_path",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL}},
     };
 

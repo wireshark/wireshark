@@ -27,6 +27,7 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include <epan/expert.h>
 #include <wiretap/wtap.h>
 
 void proto_register_llcgprs(void);
@@ -51,6 +52,7 @@ void proto_reg_handoff_llcgprs(void);
 /* Initialize the protocol and registered fields */
 static int proto_llcgprs       	  = -1;
 static int hf_llcgprs_pd       	  = -1;
+static int hf_llcgprs_fcs         = -1;
 static int hf_llcgprs_cr       	  = -1;
 static int hf_llcgprs_sapi     	  = -1;
 static int hf_llcgprs_sapib    	  = -1;
@@ -124,6 +126,8 @@ static gint ett_llcgprs_adf = -1;
 static gint ett_llcgprs_ctrlf = -1;
 static gint ett_ui = -1;
 static gint ett_llcgprs_sframe = -1;
+
+static expert_field ei_llcgprs_no_info_field = EI_INIT;
 
 static dissector_handle_t data_handle;
 static dissector_handle_t sndcp_xid_handle;
@@ -326,7 +330,6 @@ static void llc_gprs_dissect_xid(tvbuff_t *tvb,
 	guint8 xid_param_len = 0, byte1 = 0, byte2 = 0, item_len = 0, tmp = 0;
 	guint16 location = 0;
 	guint16 loop_counter = 0;
-	proto_item *uinfo_field = NULL;
 	proto_tree *uinfo_tree = NULL;
 	proto_tree *xid_tree = NULL;
 	guint16 info_len;
@@ -415,17 +418,16 @@ static void llc_gprs_dissect_xid(tvbuff_t *tvb,
 					value <<= 8;
 					value |= (guint32)tvb_get_guint8(tvb, location+i );
 				}
-				uinfo_field = proto_tree_add_text(xid_tree, tvb, location, item_len,
-					"XID Parameter Type: %s - Value: %u",
+				uinfo_tree = proto_tree_add_subtree_format(xid_tree, tvb, location, item_len,
+					ett_ui, NULL, "XID Parameter Type: %s - Value: %u",
 					val_to_str_ext_const(tmp, &xid_param_type_str_ext, "Reserved Type:%X"), value);
 			}
 			else
 			{
-				uinfo_field = proto_tree_add_text(xid_tree, tvb, location, item_len,
-					"XID Parameter Type: %s",
+				uinfo_tree = proto_tree_add_subtree_format(xid_tree, tvb, location, item_len,
+					ett_ui, NULL, "XID Parameter Type: %s",
 					val_to_str_ext_const(tmp, &xid_param_type_str_ext, "Reserved Type:%X"));
 			}
-			uinfo_tree = proto_item_add_subtree(uinfo_field, ett_ui);
 			proto_tree_add_uint(uinfo_tree, hf_llcgprs_xid_xl, tvb, location,
 				1, byte1);
 			proto_tree_add_uint(uinfo_tree, hf_llcgprs_xid_type, tvb, location,
@@ -465,7 +467,7 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint8 addr_fld=0, sapi=0, ctrl_fld_fb=0, frame_format, tmp=0;
 	guint16 offset=0 , epm = 0, nu=0, ctrl_fld_ui_s=0;
 	guint16 crc_length=0, llc_data_reported_length=0, llc_data_length = 0;
-	proto_item *ti, *addres_field_item, *ui_ti;
+	proto_item *ti, *addres_field_item;
 	proto_tree *llcgprs_tree=NULL , *ad_f_tree =NULL, *ctrl_f_tree=NULL, *ui_tree=NULL;
 	tvbuff_t *next_tvb;
 	guint length;
@@ -597,24 +599,23 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		switch (fcs_status) {
 
 		case FCS_VALID:
-			proto_tree_add_text (llcgprs_tree, tvb, llc_data_reported_length, CRC_LENGTH,
-				"FCS: 0x%06x (correct)", fcs_calc&0xffffff);
+			proto_tree_add_uint_format_value(llcgprs_tree, hf_llcgprs_fcs, tvb, llc_data_reported_length, CRC_LENGTH,
+				fcs_calc&0xffffff, "0x%06x (correct)", fcs_calc&0xffffff);
 			break;
 
 		case FCS_NOT_VALID:
-			proto_tree_add_text (llcgprs_tree, tvb, llc_data_reported_length, CRC_LENGTH,
-				"FCS: 0x%06x  (incorrect, should be 0x%06x)", fcs, fcs_calc );
+			proto_tree_add_uint_format_value(llcgprs_tree, hf_llcgprs_fcs, tvb, llc_data_reported_length, CRC_LENGTH,
+				fcs, "0x%06x  (incorrect, should be 0x%06x)", fcs, fcs_calc );
 			break;
 
 		case FCS_NOT_VALID_DUE_TO_CIPHERING:
-			proto_tree_add_text (llcgprs_tree, tvb, llc_data_reported_length, CRC_LENGTH,
-				"FCS: 0x%06x  (incorrect, maybe due to ciphering, calculated 0x%06x)", fcs, fcs_calc );
+			proto_tree_add_uint_format_value(llcgprs_tree, hf_llcgprs_fcs, tvb, llc_data_reported_length, CRC_LENGTH,
+				fcs, "0x%06x  (incorrect, maybe due to ciphering, calculated 0x%06x)", fcs, fcs_calc );
 			break;
 
 		case FCS_NOT_COMPUTED:
-			fcs_item = proto_tree_add_text (llcgprs_tree, tvb, 0, 0,
+			proto_tree_add_uint_format_value(llcgprs_tree, hf_llcgprs_fcs, tvb, 0, 0, 0,
 				"FCS: Not enough data to compute the FCS");
-			PROTO_ITEM_SET_GENERATED(fcs_item);
 			break;	/* FCS not present */
 		}
 
@@ -1024,17 +1025,13 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		col_append_str(pinfo->cinfo, COL_INFO,
 			       val_to_str(tmp, cr_formats_unnumb, "Unknown/invalid code:%X"));
 
-		if(tree){
-			ui_ti = proto_tree_add_text(llcgprs_tree, tvb, (offset-1), (llc_data_reported_length-1),
-						    "Unnumbered frame: %s",
+		ui_tree = proto_tree_add_subtree_format(llcgprs_tree, tvb, (offset-1), (llc_data_reported_length-1),
+						    ett_ui, NULL, "Unnumbered frame: %s",
 						    val_to_str(tmp, cr_formats_unnumb, "Unknown/invalid code:%X"));
 
-			ui_tree = proto_item_add_subtree(ui_ti, ett_ui);
-			proto_tree_add_uint(ui_tree, hf_llcgprs_Un, tvb, (offset-1), 1, ctrl_fld_fb);
-			proto_tree_add_boolean(ui_tree, hf_llcgprs_PF, tvb, (offset-1), 1, ctrl_fld_fb);
-			proto_tree_add_uint(ui_tree, hf_llcgprs_ucom, tvb, (offset-1), 1, ctrl_fld_fb);
-
-		}
+		proto_tree_add_uint(ui_tree, hf_llcgprs_Un, tvb, (offset-1), 1, ctrl_fld_fb);
+		proto_tree_add_boolean(ui_tree, hf_llcgprs_PF, tvb, (offset-1), 1, ctrl_fld_fb);
+		proto_tree_add_uint(ui_tree, hf_llcgprs_ucom, tvb, (offset-1), 1, ctrl_fld_fb);
 
 		/* MLT CHANGES - parse rest of the message based on type (M Bits) */
 		m_bits = ctrl_fld_fb & 0x0F;
@@ -1047,11 +1044,7 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		case U_DISC:
 		case U_NULL:
 			/* These frames SHOULD NOT have an info field */
-			if (tree)
-			{
-				proto_tree_add_text(llcgprs_tree, tvb, offset, (llc_data_reported_length-2),
-						    "No Information Field");
-			}
+			proto_tree_add_expert(llcgprs_tree, pinfo, &ei_llcgprs_no_info_field, tvb, offset, (llc_data_reported_length-2));
 			break;
 		case U_UA:
 			/* This frame MAY or MAY NOT have an info field */
@@ -1149,6 +1142,10 @@ proto_register_llcgprs(void)
 		{ &hf_llcgprs_pd,
 		  { "Protocol Discriminator_bit", "llcgprs.pd", FT_BOOLEAN, 8,
 		    TFS(&pd_bit), 0x80, "Protocol Discriminator bit (should be 0)", HFILL }},
+
+		{ &hf_llcgprs_fcs,
+		  { "FCS", "llcgprs.fcs", FT_UINT24, BASE_HEX,
+		    NULL, 0, NULL, HFILL }},
 
 		{&hf_llcgprs_sjsd,
 		 { "Supervisory function bits", "llcgprs.s1s2", FT_UINT16, BASE_HEX,
@@ -1336,7 +1333,12 @@ proto_register_llcgprs(void)
 		&ett_llcgprs_sframe,
 	};
 
+	static ei_register_info ei[] = {
+		{ &ei_llcgprs_no_info_field, { "llcgprs.no_info_field", PI_PROTOCOL, PI_WARN, "No Information Field", EXPFILL }},
+	};
+
 	module_t *llcgprs_module;
+	expert_module_t* expert_llcgprs;
 
 /* Register the protocol name and description */
 	proto_llcgprs = proto_register_protocol("Logical Link Control GPRS",
@@ -1346,6 +1348,8 @@ proto_register_llcgprs(void)
 /* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array(proto_llcgprs, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	expert_llcgprs = expert_register_protocol(proto_llcgprs);
+	expert_register_field_array(expert_llcgprs, ei, array_length(ei));
 	register_dissector("llcgprs", dissect_llcgprs, proto_llcgprs);
 
 	llcgprs_module = prefs_register_protocol ( proto_llcgprs, NULL );

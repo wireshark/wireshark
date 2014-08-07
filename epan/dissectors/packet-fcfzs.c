@@ -29,6 +29,7 @@
 #include <epan/to_str.h>
 #include <epan/wmem/wmem.h>
 #include <epan/conversation.h>
+#include <epan/expert.h>
 #include <epan/etypes.h>
 #include "packet-fc.h"
 #include "packet-fcct.h"
@@ -71,6 +72,8 @@ static int hf_fcfzs_hard_zone_set_enforced = -1;
 static gint ett_fcfzs = -1;
 static gint ett_fcfzs_gzc_flags = -1;
 static gint ett_fcfzs_zone_state = -1;
+
+static expert_field ei_fcfzs_no_exchange = EI_INIT;
 
 typedef struct _fcfzs_conv_key {
     guint32 conv_idx;
@@ -667,7 +670,7 @@ dissect_fcfzs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
                                 val_to_str(opcode, fc_fzs_opcode_val,
                                            "0x%x"));
                 /* No record of what this accept is for. Can't decode */
-                proto_tree_add_text(fcfzs_tree, tvb, 0, tvb_length(tvb),
+                proto_tree_add_expert_format(fcfzs_tree, pinfo, &ei_fcfzs_no_exchange, tvb, 0, -1,
                                     "No record of Exchg. Unable to decode MSG_ACC");
                 return 0;
             }
@@ -697,7 +700,7 @@ dissect_fcfzs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
             if ((cdata == NULL) && (opcode != FCCT_MSG_RJT)) {
                 /* No record of what this accept is for. Can't decode */
-                proto_tree_add_text(fcfzs_tree, tvb, 0, tvb_length(tvb),
+                proto_tree_add_expert_format(fcfzs_tree, pinfo, &ei_fcfzs_no_exchange, tvb, 0, -1,
                                     "No record of Exchg. Unable to decode MSG_ACC/RJT");
                 return 0;
             }
@@ -916,10 +919,18 @@ proto_register_fcfzs(void)
         &ett_fcfzs_zone_state,
     };
 
+    static ei_register_info ei[] = {
+        { &ei_fcfzs_no_exchange, { "fcfzs.no_exchange", PI_UNDECODED, PI_WARN, "No record of Exchg. Unable to decode", EXPFILL }},
+    };
+
+    expert_module_t* expert_fcfzs;
+
     proto_fcfzs = proto_register_protocol("Fibre Channel Fabric Zone Server", "FC FZS", "fcfzs");
 
     proto_register_field_array(proto_fcfzs, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_fcfzs = expert_register_protocol(proto_fcfzs);
+    expert_register_field_array(expert_fcfzs, ei, array_length(ei));
     register_init_routine(&fcfzs_init_protocol);
 
 }

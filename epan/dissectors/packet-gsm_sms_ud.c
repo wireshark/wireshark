@@ -83,6 +83,7 @@ static int hf_gsm_sms_ud_fragment_error = -1;
 static int hf_gsm_sms_ud_fragment_count = -1;
 static int hf_gsm_sms_ud_reassembled_in = -1;
 static int hf_gsm_sms_ud_reassembled_length = -1;
+static int hf_gsm_sms_ud_short_msg = -1;
 /*
  * User Data Header section
  */
@@ -406,8 +407,7 @@ parse_gsm_sms_ud_message(proto_tree *sm_tree, tvbuff_t *tvb, packet_info *pinfo,
                         if (! dissector_try_uint(gsm_sms_dissector_table, p_dst,
                                     sm_tvb, pinfo, top_tree)) {
                             if (sm_tree) { /* Only display if needed */
-                                proto_tree_add_text(sm_tree, sm_tvb, 0, -1,
-                                        "Short Message body");
+                                proto_tree_add_item(sm_tree, hf_gsm_sms_ud_short_msg, sm_tvb, 0, -1, ENC_NA);
                             }
                         }
                     }
@@ -416,14 +416,13 @@ parse_gsm_sms_ud_message(proto_tree *sm_tree, tvbuff_t *tvb, packet_info *pinfo,
                 if (disallow_write)
                     col_set_writable(pinfo->cinfo, TRUE);
             } else { /* No ports IE */
-                proto_tree_add_text(sm_tree, sm_tvb, 0, -1,
-                        "Short Message body");
+                proto_tree_add_item(sm_tree, hf_gsm_sms_ud_short_msg, sm_tvb, 0, -1, ENC_NA);
             }
         } else {
             /* The packet is not reassembled,
              * or it is reassembled in another packet */
-            proto_tree_add_text(sm_tree, sm_tvb, 0, -1,
-                    "Unreassembled Short Message fragment %u of %u",
+            proto_tree_add_bytes_format(sm_tree, hf_gsm_sms_ud_short_msg, sm_tvb, 0, -1,
+                    NULL, "Unreassembled Short Message fragment %u of %u",
                     frag, frags);
         }
     }
@@ -598,6 +597,12 @@ proto_register_gsm_sms_ud(void)
                 FT_UINT32, BASE_DEC, NULL, 0x00,
                 "The total length of the reassembled payload",
                 HFILL
+            }
+        },
+        {   &hf_gsm_sms_ud_short_msg,
+            {   "Short Message body",
+                "gsm_sms_ud.short_msg",
+                FT_BYTES, BASE_NONE, NULL, 0x00, NULL, HFILL
             }
         },
     };

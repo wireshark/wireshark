@@ -497,6 +497,10 @@ static header_field_info hfi_gadu_gadu_userlist_format GADU_GADU_HFI_INIT =
 static header_field_info hfi_gadu_gadu_userlist_reply_type GADU_GADU_HFI_INIT =
 	{ "Reply type", "gadu-gadu.userlist.reply_type", FT_UINT32, BASE_HEX, gadu_gadu_userlist_reply_type_vals, 0x00, NULL, HFILL };
 
+static header_field_info hfi_gadu_gadu_userlist GADU_GADU_HFI_INIT =
+	{ "Userlist XML data", "gadu-gadu.userlist", FT_BYTES, BASE_NONE, NULL, 0x00, NULL, HFILL };
+
+
 /* Public Directory (gadu-gadu.pubdir.*) */
 static header_field_info hfi_gadu_gadu_pubdir_request_type GADU_GADU_HFI_INIT =
 	{ "Request type", "gadu-gadu.pubdir.request_type", FT_UINT8, BASE_HEX, gadu_gadu_pubdir_type_vals, 0x00, NULL, HFILL };
@@ -1440,14 +1444,14 @@ dissect_gadu_gadu_userlist_xml_compressed(tvbuff_t *tvb, packet_info *pinfo, pro
 		return offset;
 
 	if ((uncomp_tvb = tvb_child_uncompress(tvb, tvb, offset, remain))) {
-		proto_tree_add_text(tree, tvb, offset, remain, "Userlist XML data: [Decompression succeeded]");
+		proto_tree_add_bytes_format_value(tree, hfi_gadu_gadu_userlist.id, tvb, offset, remain, NULL, "[Decompression succeeded]");
 
 		add_new_data_source(pinfo, uncomp_tvb, "Uncompressed userlist");
 
 		/* XXX add DTD (pinfo->match_string) */
 		call_dissector_only(xml_handle, uncomp_tvb, pinfo, tree, NULL);
 	} else
-		proto_tree_add_text(tree, tvb, offset, remain, "Userlist XML data: [Error: Decompression failed] (or no libz)");
+		proto_tree_add_bytes_format_value(tree, hfi_gadu_gadu_userlist.id, tvb, offset, remain, NULL, "[Error: Decompression failed] (or no libz)");
 
 	offset += remain;
 

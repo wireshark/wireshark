@@ -263,7 +263,7 @@ dissect_gmr1_rach_gps_pos(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, pro
 	/* Check for NULL */
 	lat = (tvb_get_ntohl(tvb, offset) >> 4) & 0x7ffff;
 	if (lat == 0x40000) {
-		proto_tree_add_text(tree, tvb, offset, 5, "NULL GPS Position");
+		proto_tree_add_uint_format(tree, hf_rach_gps_pos_lat, tvb, offset, 5, 0x40000, "NULL GPS Position");
 		return;
 	}
 

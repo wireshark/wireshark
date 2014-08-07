@@ -29,6 +29,7 @@
 #include <epan/packet.h>
 #include <epan/to_str.h>
 #include <epan/conversation.h>
+#include <epan/expert.h>
 #include <epan/etypes.h>
 #include "packet-fc.h"
 
@@ -94,6 +95,8 @@ static int hf_auth_dhchap_rsp_value = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_fcsp = -1;
+
+static expert_field ei_auth_fcap_undecoded = EI_INIT;
 
 static const value_string fcauth_msgcode_vals[] = {
     {FC_AUTH_MSG_AUTH_REJECT,    "AUTH_Reject"},
@@ -426,8 +429,7 @@ static void dissect_fcsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         case FC_AUTH_FCPAP_INIT:
         case FC_AUTH_FCPAP_ACCEPT:
         case FC_AUTH_FCPAP_COMPLETE:
-            proto_tree_add_text(fcsp_tree, tvb, offset+12, tvb_length(tvb),
-                                "FCAP Decoding Not Supported");
+            proto_tree_add_expert(fcsp_tree, pinfo, &ei_auth_fcap_undecoded, tvb, offset+12, -1);
             break;
         default:
             break;
@@ -601,13 +603,20 @@ proto_register_fcsp(void)
         &ett_fcsp,
     };
 
+    static ei_register_info ei[] = {
+        { &ei_auth_fcap_undecoded, { "fcsp.fcap_undecoded", PI_UNDECODED, PI_WARN, "FCAP Decoding Not Supported", EXPFILL }},
+    };
+
+    expert_module_t* expert_fcsp;
+
     /* Register the protocol name and description */
-    proto_fcsp = proto_register_protocol("Fibre Channel Security Protocol",
-                                           "FC-SP", "fcsp");
+    proto_fcsp = proto_register_protocol("Fibre Channel Security Protocol", "FC-SP", "fcsp");
 
     register_dissector("fcsp", dissect_fcsp, proto_fcsp);
 
     proto_register_field_array(proto_fcsp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_fcsp = expert_register_protocol(proto_fcsp);
+    expert_register_field_array(expert_fcsp, ei, array_length(ei));
 }
 

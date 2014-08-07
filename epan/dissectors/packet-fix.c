@@ -299,8 +299,7 @@ dissect_fix_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
                tree) and then gives up, it leaves crud behind that
                messes up other dissectors that might process the
                packet. */
-            ti = proto_tree_add_text(fix_tree, tvb, field_offset, tag->field_len, "%i: <missing value>", tag_value);
-            field_tree = proto_item_add_subtree(ti, ett_badfield);
+            field_tree = proto_tree_add_subtree_format(fix_tree, tvb, field_offset, tag->field_len, ett_badfield, NULL, "%i: <missing value>", tag_value);
             proto_tree_add_uint(field_tree, hf_fix_field_tag, tvb, field_offset, tag->tag_len, tag_value);
             field_offset =  tag->ctrla_offset + 1;
             continue;

@@ -811,10 +811,8 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             }
         }
         else {
-            proto_item *item;
-            item = proto_tree_add_text(reqresp_tree,
-                    tvb, offset - linelen - 1, linelen, "Invalid EPRT arguments");
-            expert_add_info(pinfo, item, &ei_ftp_eprt_args_invalid);
+            proto_tree_add_expert(reqresp_tree, pinfo, &ei_ftp_eprt_args_invalid,
+                    tvb, offset - linelen - 1, linelen);
         }
     }
 
@@ -861,10 +859,8 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 }
             }
             else {
-                proto_item *item;
-                item = proto_tree_add_text(reqresp_tree,
-                        tvb, offset - linelen - 1, linelen, "Invalid EPSV arguments");
-                expert_add_info(pinfo, item, &ei_ftp_epsv_args_invalid);
+                proto_tree_add_expert(reqresp_tree, pinfo, &ei_ftp_epsv_args_invalid,
+                        tvb, offset - linelen - 1, linelen);
             }
         }
     }

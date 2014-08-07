@@ -131,11 +131,10 @@ static void dissect_gnutella_query(tvbuff_t *tvb, guint offset, proto_tree *tree
 			ENC_ASCII|ENC_NA);
 	}
 	else {
-		proto_tree_add_text(tree,
-			tvb,
+		proto_tree_add_string_format(tree,
+			hf_gnutella_query_search, tvb,
 			offset + GNUTELLA_QUERY_SEARCH_OFFSET,
-			0,
-			"Missing data for Query Search.");
+			0, "", "Missing data for Query Search.");
 	}
 }
 
