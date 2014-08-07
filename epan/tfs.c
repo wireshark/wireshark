@@ -77,4 +77,6 @@ const true_false_string tfs_confirmed_unconfirmed = { "Confirmed", "Unconfirmed"
 const true_false_string tfs_enforced_not_enforced = { "Enforced", "Not enforced" };
 const true_false_string tfs_possible_not_possible = { "Possible", "Not possible" };
 const true_false_string tfs_required_not_required = { "Required", "Not required" };
+const true_false_string tfs_registered_not_registered = { "Registered", "Not registered" };
+const true_false_string tfs_provisioned_not_provisioned = { "Provisioned", "Not provisioned" };
 

@@ -88,4 +88,6 @@ WS_DLL_PUBLIC const true_false_string tfs_confirmed_unconfirmed;
 WS_DLL_PUBLIC const true_false_string tfs_enforced_not_enforced;
 WS_DLL_PUBLIC const true_false_string tfs_possible_not_possible;
 WS_DLL_PUBLIC const true_false_string tfs_required_not_required;
+WS_DLL_PUBLIC const true_false_string tfs_registered_not_registered;
+WS_DLL_PUBLIC const true_false_string tfs_provisioned_not_provisioned;
 #endif
