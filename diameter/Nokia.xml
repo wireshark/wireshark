@@ -2,7 +2,7 @@
 
 <!-- Nokia verndor-specific AVPs. Simple encoding, by old (oleksandr.darchuk[AT]gmail.com). 02.03.2009 -->
 
-<application id="4" name="Diameter Credit Control Application" uri="http://www.ietf.org/rfc/rfc4006.txt">
+<application id="16777246" name="NSN Unified Charging Trigger Function (UCTF)" uri="http://www.ietf.org/rfc/rfc4006.txt">
 
 	<avp name="Nokia-IMS-Media-Component-Id" code="5101" vendor-id="Nokia">
 		<type type-name="Unsigned32"/>

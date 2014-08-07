@@ -2,7 +2,7 @@
 
 <!-- Nokia Siemens Networks verndor-specific AVPs.  -->
 
-<application id="16777238" name="3GPP Gx" uri="http://www.3gpp.org/ftp/Specs/html-info/29212.htm">
+<application id="16777317" name="Nokia Siemens Networks (NSN) Hd Application" uri="http://www.3gpp.org/ftp/Specs/html-info/29212.htm">
 
 	<avp name="User-Agent-Type" code="2016" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="NokiaSiemensNetworks">
 		<type type-name="Enumerated"/>

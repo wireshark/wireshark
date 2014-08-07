@@ -6719,15 +6719,21 @@
 		</avp>
 	</base>
 
+  <!---
+  Duplicates should be avoided
+  16777216 is defined in imscxdx.xml
+  16777224 is defined in ChinaTelecom.xml
+  16777227 is defined in Ericsson.xml
+  16777228 is defined in starent.xml
+  16777234 is defined in Vodafone.xml
+  16777238 is Cisco.xml
+  16777304 is defined in SKT.xml
+  16777317 is defined in NokiaSiemensNetworks.xml
+  -->
 	<application id="0"		name="Diameter Common Messages"	uri="http://www.ietf.org/rfc/rfc3588.txt?number=3588"></application>
 	<application id="3"		name="Diameter Base Accounting"	uri="http://www.ietf.org/rfc/rfc3588.txt?number=3588"></application>
-	<application id="16777216"	name="3GPP Cx"			uri="http://www.ietf.org/rfc/rfc3588.txt?number=3588"></application>
-	<application id="16777224"	name="3GPP Gx"			uri="http://www.3gpp.org/ftp/Specs/html-info/29210.htm"></application>
-	<application id="16777227"	name="Ericsson MSI"		uri="http://www.iana.org/assignments/aaa-parameters/aaa-parameters.xml"></application>
-	<application id="16777228"	name="Ericsson Zx"		uri="http://www.3GPP.org/ftp/Specs/html-info/29229.htm"></application>
 	<application id="16777229"	name="3GPP RX"		 	uri="http://www.3GPP.org/ftp/Specs/html-info/29229.htm"></application>
 	<application id="16777232"	name="Ericsson Charging-CIP"	uri="http://www.3gpp.org/ftp/Specs/html-info/29210.htm"></application>
-	<application id="16777238"	name="3GPP Gx"			uri="http://www.3gpp.org/ftp/Specs/html-info/29212.htm"></application>
 	<application id="16777250"	name="3GPP STa"			uri="http://www.3gpp.org/ftp/Specs/html-info/29273.htm"></application>
 	<application id="16777251"	name="3GPP S6a/S6d"		uri="http://www.ietf.org/rfc/rfc5516.txt?number=5516"></application>
 	<application id="16777252"	name="3GPP S13/S13'"		uri="http://www.ietf.org/rfc/rfc5516.txt?number=5516"></application>
@@ -6740,7 +6746,6 @@
 	<application id="16777291"	name="3GPP SLh"			uri="http://www.ietf.org/rfc/rfc3588.txt?number=3588"></application>
 	<application id="16777292"	name="3GPP SGmb"		uri="http://www.3gpp.org/ftp/Specs/html-info/29061.htm"></application>
 	<application id="16777302"	name="3GPP Sy"			uri="http://www.3gpp.org/ftp/Specs/html-info/29219.htm"></application>
-	<application id="16777304"	name="Ericsson Sy"		uri="http://www.iana.org/assignments/aaa-parameters/aaa-parameters.xml"></application>
 	<application id="16777315"	name="Ericsson Diameter Signalling Controller Application (DSC)"	uri="http://www.iana.org/assignments/aaa-parameters/aaa-parameters.xml"></application>
   <application id="16777327"	name="Ericsson Sx"		uri="http://www.iana.org/assignments/aaa-parameters/aaa-parameters.xml"></application>
 	<application id="4294967295"	name="Relay"			uri="http://www.ietf.org/rfc/rfc6733.txt?number=6733"></application>

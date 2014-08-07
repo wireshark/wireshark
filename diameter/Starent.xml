@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--Cisco ASR 5x00 AAA Interface Administration and Reference, Version 14.0 -->
-
-<application id="16777238" name="3GPP Gx" uri="http://www.ietf.org/internet-drafts/draft-ietf-aaa-diameter-cc-06.txt">
+<!-- Dummy application Id picked from the list to avoid duplicates-->
+<application id="16777228" name="Ericsson Zx" uri="http://www.ietf.org/internet-drafts/draft-ietf-aaa-diameter-cc-06.txt">
 
     <avp name="Access-Network-Charging-Physical-Access-Id" code="1472" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
         <grouped>
