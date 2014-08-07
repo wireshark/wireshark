@@ -374,7 +374,7 @@ dissect_mp4_url_body(tvbuff_t *tvb, gint offset, gint len,
     flags = tvb_get_ntoh24(tvb, offset);
     proto_tree_add_item(tree, hf_mp4_full_box_flags,
             tvb, offset, 3, ENC_BIG_ENDIAN);
-    offset += 3;
+    /*offset += 3;*/
 
     if (flags&ENTRY_FLAG_MOVIE) {
         proto_tree_add_text(tree, tvb, 0, 0,
