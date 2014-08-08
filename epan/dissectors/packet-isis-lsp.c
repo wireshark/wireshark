@@ -1988,10 +1988,10 @@ dissect_lsp_ext_is_reachability_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tre
                     proto_tree_add_item(ntree, hf_isis_lsp_ext_is_reachability_link_remote_identifier, tvb, offset+17+i, 4, ENC_BIG_ENDIAN);
                     break;
                 case 6 :
-                    proto_tree_add_item(ntree, hf_isis_lsp_ext_is_reachability_ipv4_interface_address, tvb, offset+11+i, 6, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(ntree, hf_isis_lsp_ext_is_reachability_ipv4_interface_address, tvb, offset+11+i, 4, ENC_BIG_ENDIAN);
                     break;
                 case 8 :
-                    proto_tree_add_item(ntree, hf_isis_lsp_ext_is_reachability_ipv4_neighbor_address, tvb, offset+11+i, 6, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(ntree, hf_isis_lsp_ext_is_reachability_ipv4_neighbor_address, tvb, offset+11+i, 4, ENC_BIG_ENDIAN);
                     break;
                 case 9 :
                     dissect_subclv_max_bw (tvb, ntree, offset+13+i);
