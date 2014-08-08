@@ -826,8 +826,9 @@ sctp_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_,
 }
 
 static unsigned int
-sctp_adler32(const unsigned char *buf, unsigned int len)
+sctp_adler32(tvbuff_t *tvb, unsigned int len)
 {
+  const guint8 *buf = tvb_get_ptr(tvb, 0, len);
   guint32 result = 1;
 
   result = update_adler32(result, buf, SOURCE_PORT_LENGTH + DESTINATION_PORT_LENGTH + VERIFICATION_TAG_LENGTH);
@@ -839,8 +840,9 @@ sctp_adler32(const unsigned char *buf, unsigned int len)
 }
 
 static guint32
-sctp_crc32c(const unsigned char *buf, unsigned int len)
+sctp_crc32c(tvbuff_t *tvb, unsigned int len)
 {
+  const guint8 *buf = tvb_get_ptr(tvb, 0, len);
   guint32 crc32,
           zero = 0;
   guint32 result;
@@ -4391,21 +4393,21 @@ dissect_sctp_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
     case SCTP_CHECKSUM_NONE:
       break;
     case SCTP_CHECKSUM_ADLER32:
-      calculated_adler32           = sctp_adler32(tvb_get_ptr(tvb, 0, length), length);
+      calculated_adler32           = sctp_adler32(tvb, length);
       adler32_correct              = (checksum == calculated_adler32);
       sctp_info.adler32_calculated = TRUE;
       sctp_info.adler32_correct    = adler32_correct;
       break;
     case SCTP_CHECKSUM_CRC32C:
-      calculated_crc32c            = sctp_crc32c(tvb_get_ptr(tvb, 0, length), length);
+      calculated_crc32c            = sctp_crc32c(tvb, length);
       crc32c_correct               = (checksum == calculated_crc32c);
       sctp_info.crc32c_calculated  = TRUE;
       sctp_info.crc32c_correct     = crc32c_correct;
       break;
     case SCTP_CHECKSUM_AUTOMATIC:
-      calculated_adler32           = sctp_adler32(tvb_get_ptr(tvb, 0, length), length);
+      calculated_adler32           = sctp_adler32(tvb, length);
       adler32_correct              = (checksum == calculated_adler32);
-      calculated_crc32c            = sctp_crc32c(tvb_get_ptr(tvb, 0, length), length);
+      calculated_crc32c            = sctp_crc32c(tvb, length);
       crc32c_correct               = (checksum == calculated_crc32c);
       sctp_info.adler32_calculated = TRUE;
       sctp_info.adler32_correct    = adler32_correct;
