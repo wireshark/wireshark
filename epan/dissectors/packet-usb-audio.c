@@ -18,6 +18,10 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+/* the parsing of audio-specific descriptors is based on
+   USB Device Class Definition for Audio Devices, Release 2.0 and
+   USB Audio Device Class Specification for Basic Audio Devices, Release 1.0 */
+
 #include "config.h"
 
 #include <glib.h>
@@ -27,6 +31,10 @@
 #include <epan/reassemble.h>
 #include "packet-usb.h"
 
+/* XXX - we use the same macro for mpeg sections,
+         can we put this in a common include file? */
+#define USB_AUDIO_BCD44_TO_DEC(x)  ((((x)&0xf0) >> 4) * 10 + ((x)&0x0f))
+
 void proto_register_usb_audio(void);
 void proto_reg_handoff_usb_audio(void);
 
@@ -35,6 +43,13 @@ static int proto_usb_audio = -1;
 static int hf_midi_cable_number = -1;
 static int hf_midi_code_index = -1;
 static int hf_midi_event = -1;
+static int hf_ac_if_desc_subtype = -1;
+static int hf_ac_if_hdr_ver = -1;
+static int hf_ac_if_hdr_total_len = -1;
+static int hf_ac_if_hdr_bInCollection = -1;
+static int hf_ac_if_hdr_if_num = -1;
+static int hf_as_if_desc_subtype = -1;
+static int hf_as_ep_desc_subtype = -1;
 
 static reassembly_table midi_data_reassembly_table;
 
@@ -89,6 +104,39 @@ static const value_string aud_descriptor_type_vals[] = {
 };
 static value_string_ext aud_descriptor_type_vals_ext =
     VALUE_STRING_EXT_INIT(aud_descriptor_type_vals);
+
+#define AC_SUBTYPE_HEADER          0x01
+#define AC_SUBTYPE_INPUT_TERMINAL  0x02
+#define AC_SUBTYPE_OUTPUT_TERMINAL 0x03
+#define AC_SUBTYPE_MIXER_UNIT      0x04
+#define AC_SUBTYPE_SELECTOR_UNIT   0x05
+#define AC_SUBTYPE_FEATURE_UNIT    0x06
+
+static const value_string ac_subtype_vals[] = {
+    {AC_SUBTYPE_HEADER,          "Header Descriptor"},
+    {AC_SUBTYPE_INPUT_TERMINAL,  "Input terminal descriptor"},
+    {AC_SUBTYPE_OUTPUT_TERMINAL, "Output terminal descriptor"},
+    {AC_SUBTYPE_MIXER_UNIT,      "Mixer unit descriptor"},
+    {AC_SUBTYPE_SELECTOR_UNIT,   "Selector unit descriptor"},
+    {AC_SUBTYPE_FEATURE_UNIT,    "Feature unit descriptor"},
+    {0,NULL}
+};
+static value_string_ext ac_subtype_vals_ext =
+    VALUE_STRING_EXT_INIT(ac_subtype_vals);
+
+#define AS_SUBTYPE_GENERAL         0x01
+#define AS_SUBTYPE_FORMAT_TYPE     0x02
+#define AS_SUBTYPE_ENCODER         0x03
+
+static const value_string as_subtype_vals[] = {
+    {AS_SUBTYPE_GENERAL,     "General AS Descriptor"},
+    {AS_SUBTYPE_FORMAT_TYPE, "Format type descriptor"},
+    {AS_SUBTYPE_ENCODER,     "Encoder descriptor"},
+    {0,NULL}
+};
+static value_string_ext as_subtype_vals_ext =
+    VALUE_STRING_EXT_INIT(as_subtype_vals);
+
 
 static int hf_sysex_msg_fragments = -1;
 static int hf_sysex_msg_fragment = -1;
@@ -242,38 +290,151 @@ dissect_usb_midi_event(tvbuff_t *tvb, packet_info *pinfo,
 }
 
 
+/* dissect the body of an AC interface header descriptor
+   return the number of bytes dissected (which may be smaller than the
+   body's length) */
 static gint
-dissect_usb_audio_descriptor(tvbuff_t *tvb, packet_info *pinfo _U_,
+dissect_ac_if_hdr_body(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
+        proto_tree *tree, usb_conv_info_t *usb_conv_info _U_)
+{
+    gint     offset_start;
+    guint16  bcdADC;
+    guint8   ver_major;
+    double   ver;
+    guint8   if_in_collection, i;
+
+
+    offset_start = offset;
+
+    bcdADC = tvb_get_letohs(tvb, offset);
+    ver_major = USB_AUDIO_BCD44_TO_DEC(bcdADC>>8);
+    ver = ver_major + USB_AUDIO_BCD44_TO_DEC(bcdADC&0xFF) / 100.0;
+
+    proto_tree_add_double_format_value(tree, hf_ac_if_hdr_ver,
+            tvb, offset, 2, ver, "%2.2f", ver);
+    /* XXX - create an audio-specific conversation struct,
+             store the major version there */
+    offset += 2;
+
+    /* version 1 refers to the Basic Audio Device specification,
+       version 2 is the Audio Device class specification, see above */
+    if (ver_major==1) {
+        proto_tree_add_item(tree, hf_ac_if_hdr_total_len,
+                tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset += 2;
+        if_in_collection = tvb_get_guint8(tvb, offset);
+        proto_tree_add_item(tree, hf_ac_if_hdr_bInCollection,
+                tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+
+        for (i=0; i<if_in_collection; i++) {
+            proto_tree_add_item(tree, hf_ac_if_hdr_if_num,
+                    tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+        }
+    }
+
+    return offset-offset_start;
+}
+
+
+static gint
+dissect_usb_audio_descriptor(tvbuff_t *tvb, packet_info *pinfo,
         proto_tree *tree, void *data)
 {
     gint             offset = 0;
     usb_conv_info_t *usb_conv_info;
-    guint8           descriptor_len;
-    guint8           descriptor_type;
-    proto_tree       *desc_tree;
+    proto_tree       *desc_tree = NULL;
+    proto_item       *desc_tree_item;
+    guint8           desc_len;
+    guint8           desc_type;
+    guint8           desc_subtype;
+    const gchar     *subtype_str;
 
     usb_conv_info = (usb_conv_info_t *)data;
     if (!usb_conv_info || usb_conv_info->interfaceClass!=IF_CLASS_AUDIO)
         return 0;
 
-    descriptor_len  = tvb_get_guint8(tvb, offset);
-    descriptor_type = tvb_get_guint8(tvb, offset+1);
+    desc_len  = tvb_get_guint8(tvb, offset);
+    desc_type = tvb_get_guint8(tvb, offset+1);
 
-    if (descriptor_type == CS_INTERFACE) {
-        desc_tree = proto_tree_add_subtree(tree, tvb, offset, descriptor_len,
-                ett_usb_audio_desc, NULL, "AUDIO CONTROL INTERFACE DESCRIPTOR");
+    if (desc_type==CS_INTERFACE &&
+            usb_conv_info->interfaceSubclass==AUDIO_IF_SUBCLASS_AUDIOCONTROL) {
+
+        desc_tree = proto_tree_add_subtree(tree, tvb, offset, desc_len,
+                ett_usb_audio_desc, &desc_tree_item,
+                "Class-specific Audio Control Interface Descriptor");
+
+        dissect_usb_descriptor_header(desc_tree, tvb, offset,
+            &aud_descriptor_type_vals_ext);
+        offset += 2;
+
+        desc_subtype = tvb_get_guint8(tvb, offset);
+        proto_tree_add_item(desc_tree, hf_ac_if_desc_subtype,
+                tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        subtype_str = try_val_to_str_ext(desc_subtype, &ac_subtype_vals_ext);
+        if (subtype_str)
+            proto_item_append_text(desc_tree_item, ": %s", subtype_str);
+        offset++;
+
+        switch(desc_subtype) {
+            case AC_SUBTYPE_HEADER:
+                /* these subfunctions return the number of bytes dissected,
+                   this is not necessarily the length of the body
+                   as some components are not yet dissected
+                   we rely on the descriptor's length byte instead */
+                dissect_ac_if_hdr_body(tvb, offset, pinfo, desc_tree, usb_conv_info);
+                break;
+            default:
+                break;
+        }
+
     }
-    else if (descriptor_type == CS_ENDPOINT) {
-        desc_tree = proto_tree_add_subtree(tree, tvb, offset, descriptor_len,
-                ett_usb_audio_desc, NULL, "AUDIO CONTROL ENDPOINT DESCRIPTOR");
+    else if (desc_type==CS_INTERFACE &&
+            usb_conv_info->interfaceSubclass==AUDIO_IF_SUBCLASS_AUDIOSTREAMING) {
+
+        desc_tree = proto_tree_add_subtree(tree, tvb, offset, desc_len,
+                ett_usb_audio_desc, &desc_tree_item,
+                "Class-specific Audio Streaming Interface Descriptor");
+
+        dissect_usb_descriptor_header(desc_tree, tvb, offset,
+            &aud_descriptor_type_vals_ext);
+        offset += 2;
+
+        desc_subtype = tvb_get_guint8(tvb, offset);
+        proto_tree_add_item(desc_tree, hf_as_if_desc_subtype,
+                tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        subtype_str = try_val_to_str_ext(desc_subtype, &as_subtype_vals_ext);
+        if (subtype_str)
+            proto_item_append_text(desc_tree_item, ": %s", subtype_str);
+        offset++;
+
+        switch(desc_subtype) {
+            case AS_SUBTYPE_GENERAL:
+                break;
+            default:
+                break;
+        }
+    }
+    /* there are no class-specific endpoint descriptors for audio control */
+    else if (desc_type == CS_ENDPOINT &&
+            usb_conv_info->interfaceSubclass==AUDIO_IF_SUBCLASS_AUDIOSTREAMING) {
+
+        desc_tree = proto_tree_add_subtree(tree, tvb, offset, desc_len,
+                ett_usb_audio_desc, &desc_tree_item,
+                "Class-specific Audio Streaming Endpoint Descriptor");
+
+        dissect_usb_descriptor_header(desc_tree, tvb, offset,
+            &aud_descriptor_type_vals_ext);
+        offset += 2;
+
+        proto_tree_add_item(desc_tree, hf_as_ep_desc_subtype,
+                tvb, offset, 1, ENC_LITTLE_ENDIAN);
     }
     else
         return 0;
 
-    dissect_usb_descriptor_header(desc_tree, tvb, offset,
-            &aud_descriptor_type_vals_ext);
-
-    return descriptor_len;
+    return desc_len;
 }
 
 
@@ -343,6 +504,28 @@ proto_register_usb_audio(void)
             { "MIDI Event", "usbaudio.midi.event", FT_UINT24, BASE_HEX,
               NULL, 0, NULL, HFILL }},
 
+        { &hf_ac_if_desc_subtype,
+            { "Subtype", "usbaudio.ac_if_subtype", FT_UINT8, BASE_HEX|BASE_EXT_STRING,
+                &ac_subtype_vals_ext, 0x00, "bDescriptorSubtype", HFILL }},
+        { &hf_ac_if_hdr_ver,
+            { "Version", "usbaudio.ac_if_hdr.bcdADC",
+                FT_DOUBLE, BASE_NONE, NULL, 0, "bcdADC", HFILL }},
+        { &hf_ac_if_hdr_total_len,
+            { "Total length", "usbaudio.ac_if_hdr.wTotalLength",
+              FT_UINT16, BASE_DEC, NULL, 0x00, "wTotalLength", HFILL }},
+        { &hf_ac_if_hdr_bInCollection,
+            { "Total number of interfaces", "usbaudio.ac_if_hdr.bInCollection",
+              FT_UINT8, BASE_DEC, NULL, 0x00, "bInCollection", HFILL }},
+        { &hf_ac_if_hdr_if_num,
+            { "Interface number", "usbaudio.ac_if_hdr.baInterfaceNr",
+              FT_UINT8, BASE_DEC, NULL, 0x00, "baInterfaceNr", HFILL }},
+        { &hf_as_if_desc_subtype,
+            { "Subtype", "usbaudio.as_if_subtype", FT_UINT8, BASE_HEX|BASE_EXT_STRING,
+                &as_subtype_vals_ext, 0x00, "bDescriptorSubtype", HFILL }},
+        { &hf_as_ep_desc_subtype,
+            { "Subtype", "usbaudio.as_ep_subtype", FT_UINT8,
+                BASE_HEX, NULL, 0x00, "bDescriptorSubtype", HFILL }},
+
         { &hf_sysex_msg_fragments,
             { "Message fragments", "usbaudio.sysex.fragments",
               FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL }},
@@ -377,7 +560,7 @@ proto_register_usb_audio(void)
               FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }},
         { &hf_sysex_msg_reassembled_data,
             { "Reassembled data", "usbaudio.sysex.reassembled.data",
-              FT_BYTES, BASE_NONE, NULL, 0x00, NULL, HFILL }},
+              FT_BYTES, BASE_NONE, NULL, 0x00, NULL, HFILL }}
     };
 
     static gint *usb_audio_subtrees[] = {
