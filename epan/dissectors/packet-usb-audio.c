@@ -43,17 +43,17 @@ static gint ett_usb_audio_desc = -1;
 
 static dissector_handle_t sysex_handle;
 
-#define AUDIO_SUBCLASS_UNDEFINED        0x00
-#define AUDIO_SUBCLASS_AUDIOCONTROL     0x01
-#define AUDIO_SUBCLASS_AUDIOSTREAMING   0x02
-#define AUDIO_SUBCLASS_MIDISTREAMING    0x03
+#define AUDIO_IF_SUBCLASS_UNDEFINED        0x00
+#define AUDIO_IF_SUBCLASS_AUDIOCONTROL     0x01
+#define AUDIO_IF_SUBCLASS_AUDIOSTREAMING   0x02
+#define AUDIO_IF_SUBCLASS_MIDISTREAMING    0x03
 
 #if 0
 static const value_string usb_audio_subclass_vals[] = {
-    {AUDIO_SUBCLASS_UNDEFINED,          "SUBCLASS_UNDEFINED"},
-    {AUDIO_SUBCLASS_AUDIOCONTROL,       "AUDIOCONSTROL"},
-    {AUDIO_SUBCLASS_AUDIOSTREAMING,     "AUDIOSTREAMING"},
-    {AUDIO_SUBCLASS_MIDISTREAMING,      "MIDISTREAMING"},
+    {AUDIO_IF_SUBCLASS_UNDEFINED,          "SUBCLASS_UNDEFINED"},
+    {AUDIO_IF_SUBCLASS_AUDIOCONTROL,       "AUDIOCONSTROL"},
+    {AUDIO_IF_SUBCLASS_AUDIOSTREAMING,     "AUDIOSTREAMING"},
+    {AUDIO_IF_SUBCLASS_MIDISTREAMING,      "MIDISTREAMING"},
     {0, NULL}
 };
 #endif
@@ -299,7 +299,7 @@ dissect_usb_audio_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tre
 
     switch (usb_conv_info->interfaceSubclass)
     {
-        case AUDIO_SUBCLASS_MIDISTREAMING:
+        case AUDIO_IF_SUBCLASS_MIDISTREAMING:
             offset = 0;
             col_set_str(pinfo->cinfo, COL_INFO, "USB-MIDI Event Packets");
 
