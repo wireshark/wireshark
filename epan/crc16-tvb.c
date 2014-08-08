@@ -122,3 +122,13 @@ guint16 crc16_0x9949_tvb_offset_seed(tvbuff_t *tvb, guint offset, guint len, gui
 
     return crc16_0x9949_seed(buf, len, seed);
 }
+
+guint16 crc16_0x3D65_tvb_offset_seed(tvbuff_t *tvb, guint offset, guint len, guint16 seed)
+{
+    const guint8 *buf;
+
+    tvb_ensure_bytes_exist(tvb, offset, len);  /* len == -1 not allowed */
+    buf = tvb_get_ptr(tvb, offset, len);
+
+    return crc16_0x3D65_seed(buf, len, seed);
+}
