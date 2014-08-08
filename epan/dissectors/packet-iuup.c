@@ -36,6 +36,7 @@
 #include <epan/prefs.h>
 #include <epan/wmem/wmem.h>
 #include <epan/expert.h>
+#include <epan/crc10-tvb.h>
 #include <wsutil/crc10.h>
 #include <wsutil/crc6.h>
 
@@ -574,12 +575,26 @@ static void add_hdr_crc(tvbuff_t* tvb, packet_info* pinfo, proto_item* iuup_tree
     }
 }
 
+guint16
+update_crc10_by_bytes_iuup(tvbuff_t *tvb, int offset, int length)
+{
+    guint16 crc10;
+    guint16 extra_16bits;
+    guint8 extra_8bits[2];
+
+    crc10 = update_crc10_by_bytes_tvb(0, tvb, offset + 2, length - 4);
+    extra_16bits = tvb_get_ntohs(tvb, offset) & 0x3FF;
+    extra_8bits[0] = extra_16bits >> 2;
+    extra_8bits[1] = (extra_16bits << 6) & 0xFF;
+    crc10 = update_crc10_by_bytes(crc10, extra_8bits, 2);
+    return crc10;
+}
+
 static void add_payload_crc(tvbuff_t* tvb, packet_info* pinfo, proto_item* iuup_tree)
 {
     proto_item *crc_item;
     int length = tvb_length(tvb);
-    guint16 crc10 = tvb_get_ntohs(tvb, 2) & 0x3FF;
-    guint16 crccheck = update_crc10_by_bytes(crc10, tvb_get_ptr(tvb, 4, length - 4), length - 4);
+    guint16 crccheck = update_crc10_by_bytes_iuup(tvb, 2, length - 4);
 
     crc_item = proto_tree_add_item(iuup_tree,hf_iuup_payload_crc,tvb,2,2,ENC_BIG_ENDIAN);
     if (crccheck) {
@@ -789,7 +804,7 @@ static gboolean dissect_iuup_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     switch ( first_octet & 0xf0 ) {
         case 0x00: {
             if (len<7) return FALSE;
-            if (update_crc10_by_bytes((guint16)(tvb_get_ntohs(tvb, 4) & 0x3FF), tvb_get_ptr(tvb, 6, len-4), len-4) ) return FALSE;
+            if (update_crc10_by_bytes_iuup(tvb, 4, len-4) ) return FALSE;
             break;
         }
         case 0x10:

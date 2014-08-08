@@ -1531,6 +1531,7 @@ set(LIBWIRESHARK_FILES
 	column-utils.c
 	conversation.c
 	conversation_table.c
+	crc10-tvb.c
 	crc16-tvb.c
 	crc32-tvb.c
 	crc8-tvb.c

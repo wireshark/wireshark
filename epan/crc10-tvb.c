@@ -1,5 +1,5 @@
-/*
- *  crc10.h
+/* crc10-tvb.c
+ * CRC-10 tvb routines
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -17,16 +17,24 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
- *
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef __CRC10_H__
-#define __CRC10_H__
+#include "config.h"
 
-#include "ws_symbol_export.h"
+#include <glib.h>
+#include <epan/tvbuff.h>
+#include <wsutil/crc10.h>
+#include <epan/crc10-tvb.h>
 
-/* Update the data block's CRC-10 remainder one byte at a time */
-WS_DLL_PUBLIC guint16 update_crc10_by_bytes(guint16 crc10, const guint8 *data_blk_ptr, int data_blk_size);
+/* update the data block's CRC-10 remainder one byte at a time */
+guint16
+update_crc10_by_bytes_tvb(guint16 crc10, tvbuff_t *tvb, int offset, int len)
+{
+    const guint8 *buf;
 
-#endif /* __CRC10_H__ */
+    tvb_ensure_bytes_exist(tvb, offset, len);  /* len == -1 not allowed */
+    buf = tvb_get_ptr(tvb, offset, len);
+
+    return update_crc10_by_bytes(crc10, buf, len);
+}
