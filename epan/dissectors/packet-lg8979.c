@@ -377,7 +377,7 @@ classify_lg8979_packet(tvbuff_t *tvb)
 {
     guint8 func, len, data_len, flags;
 
-    len = tvb_length(tvb);
+    len = tvb_reported_length(tvb);
     /* If TVB length is equal to 5, this is classifed as a 'short response message' */
     /* and is guaranteed to be RTU->Master only */
     if (len == 5) {
@@ -496,23 +496,23 @@ static int
 dissect_lg8979(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 /* Set up structures needed to add the protocol subtree and manage it */
-    proto_item    *lg8979_item=NULL, *lg8979_flags_item=NULL, *lg8979_point_item=NULL, *lg8979_ts_item=NULL, *lg8979_slot_item=NULL, *lg8979_expparm_item=NULL;
-    proto_tree    *lg8979_tree=NULL, *lg8979_flags_tree=NULL, *lg8979_fc_tree=NULL, *lg8979_point_tree=NULL, *lg8979_ts_tree=NULL;
-    int           offset=0;
+    proto_item    *lg8979_item, *lg8979_flags_item = NULL, *lg8979_point_item = NULL;
+    proto_item    *lg8979_ts_item = NULL, *lg8979_slot_item = NULL, *lg8979_expparm_item = NULL;
+    proto_tree    *lg8979_tree, *lg8979_flags_tree = NULL, *lg8979_fc_tree = NULL;
+    proto_tree    *lg8979_point_tree = NULL, *lg8979_ts_tree = NULL;
+    int           offset = 0;
     guint8        rtu_addr, func, packet_type, data_len, ptnum8, tripclose, rl, exp_code, exp_parm;
     guint8        ts_mon, ts_day, ts_hr, ts_min, ts_sec;
-    guint16       len, ptnum, ptval, ana12_val;
+    guint16       ptnum, ptval, ana12_val;
     guint16       ts_ms;
-    gint          num_points=0, cnt=0;
-    gboolean      shr, con, frz, ind, sch, slg, ack, comma_needed=FALSE, new_status, change;
+    gint          num_points = 0, cnt = 0;
+    gboolean      shr, con, frz, ind, sch, slg, ack, comma_needed = FALSE, new_status, change;
 
     /* Make entries in Protocol column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "L&G 8979");
     col_clear(pinfo->cinfo, COL_INFO);
 
-    len = tvb_length(tvb);
-
-    lg8979_item = proto_tree_add_protocol_format(tree, proto_lg8979, tvb, 0, len, "Landis & Gyr Telegyr 8979");
+    lg8979_item = proto_tree_add_item(tree, proto_lg8979, tvb, 0, -1, ENC_NA);
     lg8979_tree = proto_item_add_subtree(lg8979_item, ett_lg8979);
 
     /* Add 0xFF Header to Protocol Tree */
@@ -525,8 +525,7 @@ dissect_lg8979(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
     /* This packet type is classified as a "Request" and is deemed in the direction of "master -> RTU" */
     if (packet_type == LG8979_DIR_MASTER_TO_RTU) {
 
-        col_clear(pinfo->cinfo, COL_INFO); /* clear out stuff in the info column */
-        col_add_fstr(pinfo->cinfo, COL_INFO, "Master -> RTU");
+        col_add_str(pinfo->cinfo, COL_INFO, "Master -> RTU");
 
         /* Add Flags to Protocol Tree */
         shr = tvb_get_guint8(tvb, offset) & 0x80;
@@ -557,10 +556,13 @@ dissect_lg8979(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
             /* Function code is 7 lower bits of byte , LMB is 8th bit*/
             func = tvb_get_guint8(tvb, offset) & 0x7f;
 
-            col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%s", val_to_str_const(func, lg8979_funccode_vals, "Unknown Function Code"));
+            col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%s",
+                                val_to_str_const(func, lg8979_funccode_vals, "Unknown Function Code"));
 
-            lg8979_fc_tree = proto_tree_add_subtree_format(lg8979_tree, tvb, offset, 1, ett_lg8979_funccode, NULL,
-                      "Function Code: %s (%d)", val_to_str_const(func, lg8979_funccode_vals, "Unknown Function Code"), func);
+            lg8979_fc_tree = proto_tree_add_subtree_format(
+                lg8979_tree, tvb, offset, 1, ett_lg8979_funccode, NULL,
+                "Function Code: %s (%d)",
+                val_to_str_const(func, lg8979_funccode_vals, "Unknown Function Code"), func);
 
             proto_tree_add_item(lg8979_fc_tree, hf_lg8979_lastblock, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             proto_tree_add_item(lg8979_fc_tree, hf_lg8979_funccode, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -577,8 +579,8 @@ dissect_lg8979(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                 case LG8979_FC_ANG_FRCRPT:
                 case LG8979_FC_IND_FRCRPT:
                 case LG8979_FC_SOE_FRCRPT:
-                    proto_tree_add_item(lg8979_tree, hf_lg8979_start_ptnum16, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-                    proto_tree_add_item(lg8979_tree, hf_lg8979_stop_ptnum16, tvb, offset+2, 2, ENC_LITTLE_ENDIAN);
+                    proto_tree_add_item(lg8979_tree, hf_lg8979_start_ptnum16, tvb, offset,   2, ENC_LITTLE_ENDIAN);
+                    proto_tree_add_item(lg8979_tree, hf_lg8979_stop_ptnum16,  tvb, offset+2, 2, ENC_LITTLE_ENDIAN);
                     offset += 4;
                     break;
 
@@ -586,14 +588,14 @@ dissect_lg8979(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                 /* Function Code 13 Accumulator Force Report */
                 case LG8979_FC_DIG_FRCRPT:
                 case LG8979_FC_ACC_FRCRPT:
-                    proto_tree_add_item(lg8979_tree, hf_lg8979_start_ptnum8, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-                    proto_tree_add_item(lg8979_tree, hf_lg8979_stop_ptnum8, tvb, offset+1, 1, ENC_LITTLE_ENDIAN);
+                    proto_tree_add_item(lg8979_tree, hf_lg8979_start_ptnum8, tvb, offset,   1, ENC_LITTLE_ENDIAN);
+                    proto_tree_add_item(lg8979_tree, hf_lg8979_stop_ptnum8,  tvb, offset+1, 1, ENC_LITTLE_ENDIAN);
                     offset += 2;
                     break;
 
                 /* Function Code 20 Analog Output */
                 case LG8979_FC_ANG_OUTPUT:
-                    proto_tree_add_item(lg8979_tree, hf_lg8979_start_ptnum8, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                    proto_tree_add_item(lg8979_tree, hf_lg8979_start_ptnum8,   tvb, offset,   1, ENC_LITTLE_ENDIAN);
                     proto_tree_add_item(lg8979_tree, hf_lg8979_ang_output_val, tvb, offset+1, 2, ENC_LITTLE_ENDIAN);
                     offset += 3;
                     break;
@@ -605,18 +607,21 @@ dissect_lg8979(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                     ptnum = tvb_get_guint8(tvb, offset);
                     tripclose = (tvb_get_guint8(tvb, offset+1) & 0x80) >> 7;
 
-                    lg8979_point_tree = proto_tree_add_subtree_format(lg8979_tree, tvb, offset, 2,
-                                            ett_lg8979_point, NULL, "SBO Command, Pt.Num: %u, Code: %s",
-                       ptnum, val_to_str_const(tripclose, lg8979_sbo_tripclose_vals, "Unknown Control Code"));
+                    lg8979_point_tree = proto_tree_add_subtree_format(
+                        lg8979_tree, tvb, offset, 2,
+                        ett_lg8979_point, NULL,
+                        "SBO Command, Pt.Num: %u, Code: %s",
+                        ptnum,
+                        val_to_str_const(tripclose, lg8979_sbo_tripclose_vals, "Unknown Control Code"));
 
                     /* Update the Information Column with Command Details */
                     col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Output: %u, Code: %s",
                            ptnum, val_to_str_const(tripclose, lg8979_sbo_tripclose_vals, "Unknown Control Code"));
 
                     /* Add SBO Select Details to tree */
-                    proto_tree_add_item(lg8979_point_tree, hf_lg8979_start_ptnum8, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                    proto_tree_add_item(lg8979_point_tree, hf_lg8979_start_ptnum8,  tvb, offset,   1, ENC_LITTLE_ENDIAN);
                     proto_tree_add_item(lg8979_point_tree, hf_lg8979_sbo_tripclose, tvb, offset+1, 1, ENC_LITTLE_ENDIAN);
-                    proto_tree_add_item(lg8979_point_tree, hf_lg8979_sbo_timercnt, tvb, offset+1, 1, ENC_LITTLE_ENDIAN);
+                    proto_tree_add_item(lg8979_point_tree, hf_lg8979_sbo_timercnt, tvb, offset+1,  1, ENC_LITTLE_ENDIAN);
                     offset += 2;
                     break;
 
@@ -638,8 +643,8 @@ dissect_lg8979(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                 case LG8979_FC_DIG_OUTPUT:
 
                     /* Add Digital Output Details to tree */
-                    proto_tree_add_item(lg8979_tree, hf_lg8979_start_ptnum8, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-                    proto_tree_add_item(lg8979_tree, hf_lg8979_digout_data, tvb, offset+1, 3, ENC_LITTLE_ENDIAN);
+                    proto_tree_add_item(lg8979_tree, hf_lg8979_start_ptnum8, tvb, offset,   1, ENC_LITTLE_ENDIAN);
+                    proto_tree_add_item(lg8979_tree, hf_lg8979_digout_data,  tvb, offset+1, 3, ENC_LITTLE_ENDIAN);
                     offset += 4;
                     break;
 
@@ -654,10 +659,10 @@ dissect_lg8979(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                        ptnum, val_to_str_const(rl, lg8979_pul_output_rl_vals, "Unknown Control Code"));
 
                     /* Add Pulse Output Details to tree */
-                    proto_tree_add_item(lg8979_point_tree, hf_lg8979_start_ptnum8, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                    proto_tree_add_item(lg8979_point_tree, hf_lg8979_start_ptnum8,    tvb, offset,   1, ENC_LITTLE_ENDIAN);
                     proto_tree_add_item(lg8979_point_tree, hf_lg8979_pul_output_base, tvb, offset+1, 1, ENC_LITTLE_ENDIAN);
-                    proto_tree_add_item(lg8979_point_tree, hf_lg8979_pul_output_dur, tvb, offset+1, 1, ENC_LITTLE_ENDIAN);
-                    proto_tree_add_item(lg8979_point_tree, hf_lg8979_pul_output_rl, tvb, offset+1, 1, ENC_LITTLE_ENDIAN);
+                    proto_tree_add_item(lg8979_point_tree, hf_lg8979_pul_output_dur,  tvb, offset+1, 1, ENC_LITTLE_ENDIAN);
+                    proto_tree_add_item(lg8979_point_tree, hf_lg8979_pul_output_rl,   tvb, offset+1, 1, ENC_LITTLE_ENDIAN);
                     offset += 2;
                     break;
 
@@ -667,19 +672,21 @@ dissect_lg8979(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                     /* Add 7-byte time-sync value to tree */
                     ts_mon = tvb_get_guint8(tvb, offset);
                     ts_day = tvb_get_guint8(tvb, offset+1);
-                    ts_hr = tvb_get_guint8(tvb, offset+2);
+                    ts_hr  = tvb_get_guint8(tvb, offset+2);
                     ts_min = tvb_get_guint8(tvb, offset+3);
                     ts_sec = tvb_get_guint8(tvb, offset+4);
-                    ts_ms = tvb_get_letohs(tvb, offset+5);
+                    ts_ms  = tvb_get_letohs(tvb, offset+5);
 
-                    lg8979_ts_item = proto_tree_add_text(lg8979_tree, tvb, offset, 7, "Time-Sync Value: %02d/%02d %02d:%02d:%02d.%03d", ts_mon, ts_day, ts_hr, ts_min, ts_sec, ts_ms);
+                    lg8979_ts_item = proto_tree_add_text(lg8979_tree, tvb, offset, 7,
+                                                         "Time-Sync Value: %02d/%02d %02d:%02d:%02d.%03d",
+                                                         ts_mon, ts_day, ts_hr, ts_min, ts_sec, ts_ms);
                     lg8979_ts_tree = proto_item_add_subtree(lg8979_ts_item, ett_lg8979_ts);
 
-                    proto_tree_add_item(lg8979_ts_tree, hf_lg8979_timesync_mon, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-                    proto_tree_add_item(lg8979_ts_tree, hf_lg8979_timesync_day, tvb, offset+1, 1, ENC_LITTLE_ENDIAN);
+                    proto_tree_add_item(lg8979_ts_tree, hf_lg8979_timesync_mon,  tvb, offset,   1, ENC_LITTLE_ENDIAN);
+                    proto_tree_add_item(lg8979_ts_tree, hf_lg8979_timesync_day,  tvb, offset+1, 1, ENC_LITTLE_ENDIAN);
                     proto_tree_add_item(lg8979_ts_tree, hf_lg8979_timesync_hour, tvb, offset+2, 1, ENC_LITTLE_ENDIAN);
-                    proto_tree_add_item(lg8979_ts_tree, hf_lg8979_timesync_min, tvb, offset+3, 1, ENC_LITTLE_ENDIAN);
-                    proto_tree_add_item(lg8979_ts_tree, hf_lg8979_timesync_sec, tvb, offset+4, 1, ENC_LITTLE_ENDIAN);
+                    proto_tree_add_item(lg8979_ts_tree, hf_lg8979_timesync_min,  tvb, offset+3, 1, ENC_LITTLE_ENDIAN);
+                    proto_tree_add_item(lg8979_ts_tree, hf_lg8979_timesync_sec,  tvb, offset+4, 1, ENC_LITTLE_ENDIAN);
                     proto_tree_add_item(lg8979_ts_tree, hf_lg8979_timesync_msec, tvb, offset+5, 2, ENC_LITTLE_ENDIAN);
                     offset += 7;
                     break;
@@ -703,8 +710,9 @@ dissect_lg8979(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                     for (cnt=0; cnt<num_points; cnt++) {
 
                         ptval = tvb_get_guint8(tvb, offset);
-                        proto_tree_add_uint_format(lg8979_tree, hf_lg8979_ang_deadband, tvb, offset, 1, ptnum, "Point Number %u: New Deadband: %u", ptnum, ptval);
-                        ptnum += 1;
+                        proto_tree_add_uint_format(lg8979_tree, hf_lg8979_ang_deadband, tvb, offset, 1,
+                                                   ptnum, "Point Number %u: New Deadband: %u", ptnum, ptval);
+                        ptnum  += 1;
                         offset += 1;
                     }
 
@@ -719,8 +727,9 @@ dissect_lg8979(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                     for (cnt=0; cnt<num_points; cnt++) {
 
                         ptnum8 = tvb_get_guint8(tvb, offset);
-                        ptval = tvb_get_letohs(tvb, offset+1);
-                        proto_tree_add_uint_format(lg8979_tree, hf_lg8979_acc_preset, tvb, offset, 3, ptnum8, "Acc Point Number %u: Preset: %u", ptnum8, ptval);
+                        ptval  = tvb_get_letohs(tvb, offset+1);
+                        proto_tree_add_uint_format(lg8979_tree, hf_lg8979_acc_preset, tvb, offset, 3,
+                                                   ptnum8, "Acc Point Number %u: Preset: %u", ptnum8, ptval);
                         offset += 3;
                     }
 
@@ -739,8 +748,7 @@ dissect_lg8979(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
     /* This packet type is classified as a "Response" and is deemed in the direction of "RTU -> master" */
     else if (packet_type == LG8979_DIR_RTU_TO_MASTER) {
 
-        col_clear(pinfo->cinfo, COL_INFO); /* clear out stuff in the info column */
-        col_add_fstr(pinfo->cinfo, COL_INFO, "RTU -> Master");
+        col_add_str(pinfo->cinfo, COL_INFO, "RTU -> Master");
 
         /* Retrieve and add Flags to Protocol Tree */
         shr = tvb_get_guint8(tvb, offset) & 0x80;
@@ -777,18 +785,20 @@ dissect_lg8979(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
         offset += 1;
 
         /* If this is not a short response, and there are at least 2 bytes remaining continue to process function codes */
-        while ((!shr) && (tvb_length_remaining(tvb, offset) > 2)){
+        while ((!shr) && (tvb_reported_length_remaining(tvb, offset) > 2)){
 
             /* Add Function Code & last Mark Block to Protocol Tree */
             /* Function code is 7 lower bits of byte , LMB is 8th bit*/
             func = tvb_get_guint8(tvb, offset) & 0x7f;
-            col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%s", val_to_str_const(func, lg8979_funccode_vals, "Unknown Function Code"));
+            col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%s",
+                                val_to_str_const(func, lg8979_funccode_vals, "Unknown Function Code"));
 
-            lg8979_fc_tree = proto_tree_add_subtree_format(lg8979_tree, tvb, offset, 1, ett_lg8979_funccode, NULL,
-                      "Function Code: %s (%d)", val_to_str_const(func, lg8979_funccode_vals, "Unknown Function Code"), func);
+            lg8979_fc_tree = proto_tree_add_subtree_format(
+                lg8979_tree, tvb, offset, 1, ett_lg8979_funccode, NULL,
+                "Function Code: %s (%d)", val_to_str_const(func, lg8979_funccode_vals, "Unknown Function Code"), func);
 
             proto_tree_add_item(lg8979_fc_tree, hf_lg8979_lastblock, tvb, offset, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(lg8979_fc_tree, hf_lg8979_funccode, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(lg8979_fc_tree, hf_lg8979_funccode,  tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
 
             data_len = tvb_get_guint8(tvb, offset);
@@ -805,7 +815,8 @@ dissect_lg8979(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 
                         ptnum = ( tvb_get_guint8(tvb, offset) | ((tvb_get_guint8(tvb, offset+1) & 0x0F) << 8) );
                         ptval = ( ((tvb_get_guint8(tvb, offset+1) & 0xF0) >> 4) | (tvb_get_guint8(tvb, offset+2) << 4) );
-                        proto_tree_add_uint_format(lg8979_tree, hf_lg8979_ang_point, tvb, offset, 3, ptnum, "Point Number %u: %u", ptnum, ptval);
+                        proto_tree_add_uint_format(lg8979_tree, hf_lg8979_ang_point, tvb, offset, 3, ptnum,
+                                                   "Point Number %u: %u", ptnum, ptval);
                         offset += 3;
                     }
                     break;
@@ -834,12 +845,14 @@ dissect_lg8979(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                         num_points = ((((data_len-2) / 3) * 2) + 1);
                     }
 
-                    /* loop through the data bytes decoding 12-bit analogs.  When on an even count, offset by 1 and on an odd, offset by 2. */
+                    /* loop through the data bytes decoding 12-bit analogs.
+                       When on an even count, offset by 1 and on an odd, offset by 2. */
                     for (cnt=0; cnt < num_points; cnt++) {
                         if (cnt%2 == 0) {
 
                             ana12_val = ( tvb_get_guint8(tvb, offset) | ((tvb_get_guint8(tvb, offset+1) & 0x0F) << 8) );
-                            proto_tree_add_uint_format(lg8979_tree, hf_lg8979_ang_point, tvb, offset, 2, ptnum, "Point Number %u: %u", ptnum, ana12_val);
+                            proto_tree_add_uint_format(lg8979_tree, hf_lg8979_ang_point, tvb, offset, 2, ptnum,
+                                                       "Point Number %u: %u", ptnum, ana12_val);
                             offset += 1;
 
                             /* If we are in the last run through the for loop, increment the offset by 1 more byte than normal */
@@ -850,7 +863,8 @@ dissect_lg8979(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                         else {
 
                             ana12_val = ( ((tvb_get_guint8(tvb, offset) & 0xF0) >> 4) | (tvb_get_guint8(tvb, offset+1) << 4) );
-                            proto_tree_add_uint_format(lg8979_tree, hf_lg8979_ang_point, tvb, offset, 2, ptnum, "Point Number %u: %u", ptnum, ana12_val);
+                            proto_tree_add_uint_format(lg8979_tree, hf_lg8979_ang_point, tvb, offset, 2, ptnum,
+                                                       "Point Number %u: %u", ptnum, ana12_val);
                             offset += 2;
                         }
                         ptnum += 1;
@@ -895,7 +909,7 @@ dissect_lg8979(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                         lg8979_point_tree = proto_tree_add_subtree_format(lg8979_tree, tvb, offset, 2, ett_lg8979_point, NULL,
                            "Indication Change Report, Point Number: %u, Status: %u, Change %u", ptnum, new_status, change);
 
-                        proto_tree_add_item(lg8979_point_tree, hf_lg8979_ind_chgrpt_ptnum, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                        proto_tree_add_item(lg8979_point_tree, hf_lg8979_ind_chgrpt_ptnum,  tvb, offset, 2, ENC_LITTLE_ENDIAN);
                         proto_tree_add_item(lg8979_point_tree, hf_lg8979_ind_chgrpt_status, tvb, offset, 2, ENC_LITTLE_ENDIAN);
                         proto_tree_add_item(lg8979_point_tree, hf_lg8979_ind_chgrpt_change, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 
@@ -1024,16 +1038,16 @@ dissect_lg8979(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                         lg8979_point_tree = proto_tree_add_subtree_format(lg8979_tree, tvb, offset, 2,
                                                 ett_lg8979_point, NULL, "Digital Input Block %d", ptnum8);
 
-                        proto_tree_add_item(lg8979_point_tree, hf_lg8979_digin_b0, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-                        proto_tree_add_item(lg8979_point_tree, hf_lg8979_digin_b1, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-                        proto_tree_add_item(lg8979_point_tree, hf_lg8979_digin_b2, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-                        proto_tree_add_item(lg8979_point_tree, hf_lg8979_digin_b3, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-                        proto_tree_add_item(lg8979_point_tree, hf_lg8979_digin_b4, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-                        proto_tree_add_item(lg8979_point_tree, hf_lg8979_digin_b5, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-                        proto_tree_add_item(lg8979_point_tree, hf_lg8979_digin_b6, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-                        proto_tree_add_item(lg8979_point_tree, hf_lg8979_digin_b7, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-                        proto_tree_add_item(lg8979_point_tree, hf_lg8979_digin_b8, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-                        proto_tree_add_item(lg8979_point_tree, hf_lg8979_digin_b9, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                        proto_tree_add_item(lg8979_point_tree, hf_lg8979_digin_b0,  tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                        proto_tree_add_item(lg8979_point_tree, hf_lg8979_digin_b1,  tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                        proto_tree_add_item(lg8979_point_tree, hf_lg8979_digin_b2,  tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                        proto_tree_add_item(lg8979_point_tree, hf_lg8979_digin_b3,  tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                        proto_tree_add_item(lg8979_point_tree, hf_lg8979_digin_b4,  tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                        proto_tree_add_item(lg8979_point_tree, hf_lg8979_digin_b5,  tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                        proto_tree_add_item(lg8979_point_tree, hf_lg8979_digin_b6,  tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                        proto_tree_add_item(lg8979_point_tree, hf_lg8979_digin_b7,  tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                        proto_tree_add_item(lg8979_point_tree, hf_lg8979_digin_b8,  tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                        proto_tree_add_item(lg8979_point_tree, hf_lg8979_digin_b9,  tvb, offset, 2, ENC_LITTLE_ENDIAN);
                         proto_tree_add_item(lg8979_point_tree, hf_lg8979_digin_b10, tvb, offset, 2, ENC_LITTLE_ENDIAN);
                         proto_tree_add_item(lg8979_point_tree, hf_lg8979_digin_b11, tvb, offset, 2, ENC_LITTLE_ENDIAN);
                         proto_tree_add_item(lg8979_point_tree, hf_lg8979_digin_b12, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -1100,14 +1114,16 @@ dissect_lg8979(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                         ts_sec = tvb_get_guint8(tvb, offset+4);
                         ts_ms = tvb_get_letohs(tvb, offset+5);
 
-                        lg8979_ts_item = proto_tree_add_text(lg8979_point_tree, tvb, offset, 7, "SOE Time Stamp: [%02d/%02d %02d:%02d:%02d.%03d]", ts_mon, ts_day, ts_hr, ts_min, ts_sec, ts_ms);
+                        lg8979_ts_item = proto_tree_add_text(lg8979_point_tree, tvb, offset, 7,
+                                                             "SOE Time Stamp: [%02d/%02d %02d:%02d:%02d.%03d]",
+                                                             ts_mon, ts_day, ts_hr, ts_min, ts_sec, ts_ms);
                         lg8979_ts_tree = proto_item_add_subtree(lg8979_ts_item, ett_lg8979_ts);
 
-                        proto_tree_add_item(lg8979_ts_tree, hf_lg8979_soe_logchg_mon, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-                        proto_tree_add_item(lg8979_ts_tree, hf_lg8979_soe_logchg_day, tvb, offset+1, 1, ENC_LITTLE_ENDIAN);
+                        proto_tree_add_item(lg8979_ts_tree, hf_lg8979_soe_logchg_mon,  tvb, offset,   1, ENC_LITTLE_ENDIAN);
+                        proto_tree_add_item(lg8979_ts_tree, hf_lg8979_soe_logchg_day,  tvb, offset+1, 1, ENC_LITTLE_ENDIAN);
                         proto_tree_add_item(lg8979_ts_tree, hf_lg8979_soe_logchg_hour, tvb, offset+2, 1, ENC_LITTLE_ENDIAN);
-                        proto_tree_add_item(lg8979_ts_tree, hf_lg8979_soe_logchg_min, tvb, offset+3, 1, ENC_LITTLE_ENDIAN);
-                        proto_tree_add_item(lg8979_ts_tree, hf_lg8979_soe_logchg_sec, tvb, offset+4, 1, ENC_LITTLE_ENDIAN);
+                        proto_tree_add_item(lg8979_ts_tree, hf_lg8979_soe_logchg_min,  tvb, offset+3, 1, ENC_LITTLE_ENDIAN);
+                        proto_tree_add_item(lg8979_ts_tree, hf_lg8979_soe_logchg_sec,  tvb, offset+4, 1, ENC_LITTLE_ENDIAN);
                         proto_tree_add_item(lg8979_ts_tree, hf_lg8979_soe_logchg_msec, tvb, offset+5, 2, ENC_LITTLE_ENDIAN);
                         offset += 7;
                     }
@@ -1186,7 +1202,7 @@ dissect_lg8979(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 
     } /* packet type */
 
-    return tvb_length(tvb);
+    return tvb_reported_length(tvb);
 
 }
 
@@ -1198,7 +1214,7 @@ get_lg8979_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset _U_)
 {
 
     guint len;
-    len = tvb_length(tvb);
+    len = tvb_reported_length(tvb);  /* XXX: should really be some minimum length ?? */
 
     return len;
 }
@@ -1210,18 +1226,18 @@ static int
 dissect_lg8979_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 
-    gint length = tvb_length(tvb);
+    gint length = tvb_reported_length(tvb);
 
     /* Check for a L&G8979 packet.  It should begin with 0xFF */
     if(length < 2 || tvb_get_guint8(tvb, 0) != 0xFF) {
         /* Not a L&G 8979 Protocol packet, just happened to use the same port */
-        return FALSE;
+        return 0;
     }
 
     tcp_dissect_pdus(tvb, pinfo, tree, lg8979_desegment, 1,
                    get_lg8979_len, dissect_lg8979, data);
 
-    return tvb_length(tvb);
+    return length;
 }
 
 
@@ -1231,17 +1247,17 @@ dissect_lg8979_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 static int
 dissect_lg8979_simple(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    gint length = tvb_length(tvb);
+    gint length = tvb_reported_length(tvb);
 
     /* Check for a L&G8979 packet.  It should begin with 0xFF */
     if(length < 2 || tvb_get_guint8(tvb, 0) != 0xFF) {
-        /* Not a L&G 8979 Protocol packet, just happened to use the same port */
-        return FALSE;
+        /* Not a L&G 8979 Protocol packet ... */
+        return 0;
     }
 
     dissect_lg8979(tvb, pinfo, tree, data);
 
-    return tvb_length(tvb);
+    return length;
 }
 
 /******************************************************************************************************/
@@ -1512,11 +1528,6 @@ proto_register_lg8979(void)
                                   10, &global_lg8979_tcp_port);
 }
 
-/******************************************************************************************************/
-/* If this dissector uses sub-dissector registration add a registration routine.
-   This format is required because a script is used to find these routines and
-   create the code that calls these routines.
- */
 /******************************************************************************************************/
 void
 proto_reg_handoff_lg8979(void)
