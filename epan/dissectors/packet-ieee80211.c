@@ -15756,7 +15756,7 @@ crc32_802_tvb_padded(tvbuff_t *tvb, guint hdr_len, guint hdr_size, guint len)
   guint32 c_crc;
 
   c_crc = crc32_ccitt_tvb(tvb, hdr_len);
-  c_crc = crc32_ccitt_seed(tvb_get_ptr(tvb, hdr_size, len), len, ~c_crc);
+  c_crc = crc32_ccitt_tvb_offset_seed(tvb, hdr_size, len, ~c_crc);
 
   /* Byte reverse. */
   c_crc = ((unsigned char)(c_crc>>0)<<24) |
