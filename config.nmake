@@ -804,21 +804,37 @@ POD2HTML=$(SH) pod2html
 # command for sed (cygwin's sed recommended)
 SED=sed
 
-# Command for lex/flexx. Cygwin's flex or Chocolatey's win_flex
+# Command for Flex. Cygwin's flex or Chocolatey's win_flex
 # recommended.
 # Absolute or relative paths must be Windows-style
 
-#LEX=win_flex
-#LEX=%ChocolateyInstall%\bin\win_flex
+#LEX=\custom\path\to\flex
+
+# Find flex automatically
+!IF !DEFINED(LEX)
+!IF DEFINED(CHOCOLATEYINSTALL) && EXIST("$(CHOCOLATEYINSTALL)\bin\win_flex.exe")
+LEX=$(CHOCOLATEYINSTALL)\bin\win_flex
+!ELSE IF EXIST("$(CYGWIN_PATH)\flex.exe")
+# We add Cygwin to PATH below.
 LEX=flex
+!ENDIF
+!ENDIF
 
-# Command for yacc/bison. Cygwin's bison or Chocolatey's win_bison
+# Command for Bison. Cygwin's bison or Chocolatey's win_bison
 # recommended.
 # Absolute or relative paths must be Windows-style
 
-#YACC=win_bison
-#YACC=%ChocolateyInstall%\bin\win_bison
+#YACC=\custom\path\to\bison
+
+# Find bison automatically
+!IF !DEFINED(YACC)
+!IF DEFINED(CHOCOLATEYINSTALL) && EXIST("$(CHOCOLATEYINSTALL)\bin\win_bison.exe")
+YACC=$(CHOCOLATEYINSTALL)\bin\win_bison
+!ELSE IF EXIST("$(CYGWIN_PATH)\bison.exe")
+# We add Cygwin to PATH below.
 YACC=bison
+!ENDIF
+!ENDIF
 
 # Commands to convert UNIX line endings to DOS/Windows
 UNIX2DOS=u2d
