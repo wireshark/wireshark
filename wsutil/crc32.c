@@ -362,8 +362,8 @@ crc32_0x0AA725CF_seed(const guint8 *buf, guint len, guint32 seed)
 	guint crc32;
 
 	crc32 = (guint)seed;
-		while( len-- != 0 )
-			crc32 = crc32_0AA725CF_reverse[(crc32 ^ *buf++) & 0xff] ^ (crc32 >> 8);
+	while( len-- != 0 )
+		crc32 = crc32_0AA725CF_reverse[(crc32 ^ *buf++) & 0xff] ^ (crc32 >> 8);
 
 	return (guint32)crc32;
 }
