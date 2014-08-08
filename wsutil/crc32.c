@@ -30,6 +30,8 @@
 #include <glib.h>
 #include <wsutil/crc32.h>
 
+#define CRC32_ACCUMULATE(c,d,table) (c=(c>>8)^(table)[(c^(d))&0xFF])
+
 /*****************************************************************/
 /*                                                               */
 /* CRC32C LOOKUP TABLE                                           */
@@ -49,7 +51,7 @@
 /* in the FTP archive "ftp.adelaide.edu.au/pub/rocksoft".        */
 /*                                                               */
 /*****************************************************************/
-#define CRC32C(c,d) (c=(c>>8)^crc32c_table[(c^(d))&0xFF])
+#define CRC32C(c,d) CRC32_ACCUMULATE(c,d,crc32c_table)
 
 static const guint32 crc32c_table[256] = {
 		0x00000000U, 0xF26B8303U, 0xE13B70F7U, 0x1350F3F4U, 0xC79A971FU,
@@ -337,7 +339,7 @@ crc32_ccitt_seed(const guint8 *buf, guint len, guint32 seed)
 	guint32 crc32 = seed;
 
 	for (i = 0; i < len; i++)
-		crc32 = crc32_ccitt_table[(crc32 ^ buf[i]) & 0xff] ^ (crc32 >> 8);
+		CRC32_ACCUMULATE(crc32, buf[i], crc32_ccitt_table);
 
 	return ( ~crc32 );
 }
@@ -363,7 +365,7 @@ crc32_0x0AA725CF_seed(const guint8 *buf, guint len, guint32 seed)
 
 	crc32 = (guint)seed;
 	while( len-- != 0 )
-		crc32 = crc32_0AA725CF_reverse[(crc32 ^ *buf++) & 0xff] ^ (crc32 >> 8);
+		CRC32_ACCUMULATE(crc32, *buf++, crc32_0AA725CF_reverse);
 
 	return (guint32)crc32;
 }
