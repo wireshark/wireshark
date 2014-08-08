@@ -31,6 +31,7 @@
 #include <epan/packet.h>
 #include <epan/strutil.h>
 #include <epan/wmem/wmem.h>
+#include <epan/crc32-tvb.h>
 #include <wsutil/crc32.h>
 #include "packet-rtp.h"
 #include "packet-rtcp.h"
@@ -420,7 +421,7 @@ dissect_zrtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 
   sent_crc = tvb_get_ntohl(tvb, msg_offset+checksum_offset);
-  calc_crc = ~crc32c_calculate(tvb_get_ptr(tvb, 0, msg_offset+checksum_offset), msg_offset+checksum_offset, CRC32C_PRELOAD);
+  calc_crc = ~crc32c_tvb_offset_calculate(tvb, 0, msg_offset+checksum_offset, CRC32C_PRELOAD);
 
   if (sent_crc == calc_crc) {
     ti = proto_tree_add_uint_format_value(zrtp_tree, hf_zrtp_checksum, tvb, msg_offset+checksum_offset, 4, sent_crc,

@@ -51,6 +51,17 @@ WS_DLL_PUBLIC guint32 crc32_ccitt_tvb_offset(tvbuff_t *tvb, guint offset, guint 
  @return The CRC32 CCITT checksum (using the given seed). */
 WS_DLL_PUBLIC guint32 crc32_ccitt_tvb_seed(tvbuff_t *tvb, guint len, guint32 seed);
 
+/** Compute CRC32C checksum of a tv buffer.  If computing the
+ *  checksum over multiple tv buffers and you want to feed the partial CRC32
+ *  back in, remember to take the 1's complement of the partial CRC32 first.
+ @param tvb The tv buffer containing the data.
+ @param offset The offset into the tv buffer.
+ @param len The number of bytes to include in the computation.
+ @param seed The seed to use.
+ @return The CRC32C checksum (using the given seed). */
+WS_DLL_PUBLIC guint32 crc32c_tvb_offset_calculate(tvbuff_t *tvb, guint offset,
+                                           guint len, guint32 seed);
+
 /** Compute CRC32 CCITT checksum of a tv buffer.  If computing the
  *  checksum over multiple tv buffers and you want to feed the partial CRC32
  *  back in, remember to take the 1's complement of the partial CRC32 first.

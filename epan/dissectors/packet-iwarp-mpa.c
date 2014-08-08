@@ -32,6 +32,7 @@
 #include <epan/conversation.h>
 #include <epan/dissectors/packet-tcp.h>
 #include <epan/expert.h>
+#include <epan/crc32-tvb.h>
 #include <wsutil/crc32.h>
 
 void proto_register_mpa(void);
@@ -581,8 +582,7 @@ dissect_fpdu_crc(tvbuff_t *tvb, proto_tree *tree, mpa_state_t *state,
 
 	if (state->crc) {
 
-		crc = ~crc32c_calculate(tvb_get_ptr(tvb, 0, length), length,
-				CRC32C_PRELOAD);
+		crc = ~crc32c_tvb_offset_calculate(tvb, 0, length, CRC32C_PRELOAD);
 
 		sent_crc = tvb_get_ntohl(tvb, offset); /* crc start offset */
 

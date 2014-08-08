@@ -44,6 +44,7 @@
 #include "packet-scsi.h"
 #include <epan/wmem/wmem.h>
 #include <epan/range.h>
+#include <epan/crc32-tvb.h>
 #include <wsutil/crc32.h>
 
 void proto_register_iscsi(void);
@@ -634,7 +635,7 @@ handleHeaderDigest(iscsi_session_t *iscsi_session, proto_item *ti, tvbuff_t *tvb
     switch(iscsi_session->header_digest){
     case ISCSI_DIGEST_CRC32:
         if(available_bytes >= (headerLen + 4)) {
-            guint32 crc = ~crc32c_calculate(tvb_get_ptr(tvb, offset, headerLen), headerLen, CRC32C_PRELOAD);
+            guint32 crc = ~crc32c_tvb_offset_calculate(tvb, offset, headerLen, CRC32C_PRELOAD);
             guint32 sent = tvb_get_ntohl(tvb, offset + headerLen);
             if(crc == sent) {
                 proto_tree_add_uint_format_value(ti, hf_iscsi_HeaderDigest32, tvb, offset + headerLen, 4, sent, "0x%08x (Good CRC32)", sent);
@@ -657,7 +658,7 @@ handleDataDigest(iscsi_session_t *iscsi_session, proto_item *ti, tvbuff_t *tvb, 
         switch (iscsi_session->data_digest){
         case ISCSI_DIGEST_CRC32:
             if(available_bytes >= (dataLen + 4)) {
-                guint32 crc = ~crc32c_calculate(tvb_get_ptr(tvb, offset, dataLen), dataLen, CRC32C_PRELOAD);
+                guint32 crc = ~crc32c_tvb_offset_calculate(tvb, offset, dataLen, CRC32C_PRELOAD);
                 guint32 sent = tvb_get_ntohl(tvb, offset + dataLen);
                 if(crc == sent) {
                     proto_tree_add_uint_format_value(ti, hf_iscsi_DataDigest32, tvb, offset + dataLen, 4, sent, "0x%08x (Good CRC32)", sent);
@@ -2357,7 +2358,7 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean chec
             (iscsi_session->header_digest == ISCSI_DIGEST_AUTO)) {
             guint32 crc;
             /* we have enough data to test if HeaderDigest is enabled */
-            crc= ~crc32c_calculate(tvb_get_ptr(tvb, offset, 48+ahsLen*4), 48+ahsLen*4, CRC32C_PRELOAD);
+            crc= ~crc32c_tvb_offset_calculate(tvb, offset, 48+ahsLen*4, CRC32C_PRELOAD);
             if(crc==tvb_get_ntohl(tvb,48+ahsLen*4)){
                 iscsi_session->header_digest = ISCSI_DIGEST_CRC32;
             } else {
@@ -2390,7 +2391,7 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean chec
             (iscsi_session->data_digest == ISCSI_DIGEST_AUTO)) {
             guint32 crc;
             /* we have enough data to test if DataDigest is enabled */
-            crc = ~crc32c_calculate(tvb_get_ptr(tvb, data_segment_offset, data_segment_len_padded), data_segment_len_padded, CRC32C_PRELOAD);
+            crc = ~crc32c_tvb_offset_calculate(tvb, data_segment_offset, data_segment_len_padded, CRC32C_PRELOAD);
             if (crc == tvb_get_ntohl(tvb, data_segment_offset + data_segment_len_padded)) {
                 iscsi_session->data_digest = ISCSI_DIGEST_CRC32;
             } else {
