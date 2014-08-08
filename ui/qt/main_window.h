@@ -375,6 +375,8 @@ private slots:
     void on_actionAnalyzePAFAndNotSelected_triggered();
     void on_actionAnalyzePAFOrNotSelected_triggered();
 
+    void applyConversationFilter();
+
     void on_actionAnalyzeDecodeAs_triggered();
 
     void openFollowStreamDialog(follow_type_t type);

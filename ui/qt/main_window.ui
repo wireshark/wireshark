@@ -340,12 +340,18 @@
      <addaction name="actionAnalyzeFollowUDPStream"/>
      <addaction name="actionAnalyzeFollowSSLStream"/>
     </widget>
+    <widget class="QMenu" name="menuConversationFilter">
+     <property name="title">
+      <string>Conversation Filter</string>
+     </property>
+    </widget>
     <addaction name="actionAnalyzeDisplayFilters"/>
     <addaction name="actionAnalyzeDisplayFilterMacros"/>
     <addaction name="separator"/>
     <addaction name="actionAnalyzeCreateAColumn"/>
     <addaction name="menuApplyAsFilter"/>
     <addaction name="menuPrepareAFilter"/>
+    <addaction name="menuConversationFilter"/>
     <addaction name="separator"/>
     <addaction name="actionAnalyzeDecodeAs"/>
     <addaction name="separator"/>

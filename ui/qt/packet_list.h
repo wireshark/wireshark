@@ -83,6 +83,7 @@ private:
     ByteViewTab *byte_view_tab_;
     capture_file *cap_file_;
     QMenu ctx_menu_;
+    QMenu conv_menu_;
     QAction *decode_as_;
     int ctx_column_;
     QByteArray column_state_;

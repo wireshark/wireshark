@@ -37,6 +37,7 @@ public:
         ActionApply,
         ActionPrepare,
         ActionFind,
+        ActionConversation,
         ActionColorize,
         ActionWebLookup,
         ActionCopy

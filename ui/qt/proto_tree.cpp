@@ -195,6 +195,10 @@ ProtoTree::ProtoTree(QWidget *parent) :
         submenu->addAction(window()->findChild<QAction *>("actionAnalyzePAFAndNotSelected"));
         submenu->addAction(window()->findChild<QAction *>("actionAnalyzePAFOrNotSelected"));
 
+        QMenu *main_conv_menu = window()->findChild<QMenu *>("menuConversationFilter");
+        conv_menu_.setTitle(main_conv_menu->title());
+        ctx_menu_.addMenu(&conv_menu_);
+
 //    action = window()->findChild<QAction *>("actionColorize_with_Filter");
 //    submenu = new QMenu();
 //    action->setMenu(submenu);
@@ -275,6 +279,12 @@ void ProtoTree::clear() {
 void ProtoTree::contextMenuEvent(QContextMenuEvent *event)
 {
     if (ctx_menu_.isEmpty()) return; // We're in a PacketDialog
+
+    QMenu *main_conv_menu = window()->findChild<QMenu *>("menuConversationFilter");
+    conv_menu_.clear();
+    foreach (QAction *action, main_conv_menu->actions()) {
+        conv_menu_.addAction(action);
+    }
 
     decode_as_->setData(qVariantFromValue(true));
     ctx_menu_.exec(event->globalPos());

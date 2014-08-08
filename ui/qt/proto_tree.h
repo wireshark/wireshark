@@ -46,6 +46,7 @@ protected:
 
 private:
     QMenu ctx_menu_;
+    QMenu conv_menu_;
     QAction *decode_as_;
     QFont mono_font_;
 

@@ -300,16 +300,17 @@ PacketList::PacketList(QWidget *parent) :
     submenu->addAction(window()->findChild<QAction *>("actionAnalyzePAFAndNotSelected"));
     submenu->addAction(window()->findChild<QAction *>("actionAnalyzePAFOrNotSelected"));
 
-//    action = window()->findChild<QAction *>("actionColorize_with_Filter");
-//    submenu = new QMenu();
-//    action->setMenu(submenu);
-//    ctx_menu_.addAction(action);
+    QMenu *main_conv_menu = window()->findChild<QMenu *>("menuConversationFilter");
+    conv_menu_.setTitle(main_conv_menu->title());
+    ctx_menu_.addMenu(&conv_menu_);
+
 //    "     <menu name= 'ConversationFilter' action='/Conversation Filter'>\n"
 //    "       <menuitem name='Ethernet' action='/Conversation Filter/Ethernet'/>\n"
 //    "       <menuitem name='IP' action='/Conversation Filter/IP'/>\n"
 //    "       <menuitem name='TCP' action='/Conversation Filter/TCP'/>\n"
 //    "       <menuitem name='UDP' action='/Conversation Filter/UDP'/>\n"
 //    "       <menuitem name='PN-CBA' action='/Conversation Filter/PN-CBA'/>\n"
+    //submenu = new QMenu(tr("Colorize with Filter"));
 //    "     <menu name= 'ColorizeConversation' action='/Colorize Conversation'>\n"
 //    "        <menu name= 'Ethernet' action='/Colorize Conversation/Ethernet'>\n"
 //    "          <menuitem name='Color1' action='/Colorize Conversation/Ethernet/Color 1'/>\n"
@@ -505,6 +506,12 @@ void PacketList::contextMenuEvent(QContextMenuEvent *event)
     /* walk the list of a available protocols in the packet to see what we have */
     if (cap_file_ != NULL && cap_file_->edt != NULL)
         proto_get_frame_protocols(cap_file_->edt->pi.layers, NULL, &is_tcp, &is_udp, &is_sctp, NULL);
+
+    QMenu *main_conv_menu = window()->findChild<QMenu *>("menuConversationFilter");
+    conv_menu_.clear();
+    foreach (action, main_conv_menu->actions()) {
+        conv_menu_.addAction(action);
+    }
 
     action = window()->findChild<QAction *>("actionSCTP");
     if (cap_file_ != NULL && cap_file_->edt != NULL && is_sctp)
