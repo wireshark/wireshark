@@ -28,7 +28,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
-#include <wsutil/crc6.h>
+#include <epan/crc6-tvb.h>
 
 #define TYPE_0_LEN 17
 #define TYPE_1_LEN 11
@@ -163,7 +163,7 @@ dissect_sync(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                 item = proto_tree_add_item(sync_tree, hf_sync_header_crc, tvb, offset, 1, ENC_BIG_ENDIAN);
                 proto_tree_add_item(sync_tree, hf_sync_payload_crc, tvb, offset, 2, ENC_BIG_ENDIAN);
                 proto_item_append_text(item, " [Calculated CRC 0x%x]",
-                                        crc6_compute(tvb_get_ptr(tvb, 0, offset),offset));
+                                        crc6_compute_tvb(tvb, offset));
                 offset += 2;
 
                 /* XXX - The payload may not always be present? */

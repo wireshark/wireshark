@@ -1534,6 +1534,7 @@ set(LIBWIRESHARK_FILES
 	crc10-tvb.c
 	crc16-tvb.c
 	crc32-tvb.c
+	crc6-tvb.c
 	crc8-tvb.c
 	decode_as.c
 	disabled_protos.c
