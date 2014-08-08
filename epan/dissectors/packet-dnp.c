@@ -1349,7 +1349,7 @@ enum QUALITY_TYPE {
 /* calculates crc given a buffer of characters and a length of buffer */
 static guint16
 calculateCRC(const void *buf, guint len) {
-  guint16 crc = crc16_0x3D65_seed(buf, len, 0);
+  guint16 crc = crc16_0x3D65_seed((const guint8 *)buf, len, 0);
   return ~crc;
 }
 
