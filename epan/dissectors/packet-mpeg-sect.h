@@ -65,7 +65,7 @@
 #define PACKET_MPEG_SECT_PI__SIZE	4
 
 /* convert a byte that contains two 4bit BCD digits into a decimal value */
-#define MPEG_SECT_BCD44_TO_DEC(x)  (((x&0xf0) >> 4) * 10 + (x&0x0f))
+#define MPEG_SECT_BCD44_TO_DEC(x)  ((((x)&0xf0) >> 4) * 10 + ((x)&0x0f))
 
 /*
  * Used to read a date provided in MJD format into a utc_time structure
