@@ -28,7 +28,7 @@
 
 #include <epan/packet.h>
 #include <epan/reassemble.h>
-#include <wsutil/crcdrm.h>
+#include <epan/crc16-tvb.h>
 #include <epan/reedsolomon.h>
 #include <epan/wmem/wmem.h>
 #include <string.h>
@@ -494,11 +494,10 @@ dissect_pft(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   if (tree) {
     proto_item *ci = NULL;
     guint header_len = offset+2;
-    const char *crc_buf = (const char *) tvb_get_ptr(tvb, 0, header_len);
-    unsigned long c = crc_drm(crc_buf, header_len, 16, 0x11021, 1);
+    guint16 c = crc16_x25_ccitt_tvb(tvb, header_len);
     ci = proto_tree_add_item (pft_tree, hf_edcp_hcrc, tvb, offset, 2, ENC_BIG_ENDIAN);
-    proto_item_append_text(ci, " (%s)", (c==0xe2f0)?"Ok":"bad");
-    proto_tree_add_boolean(pft_tree, hf_edcp_hcrc_ok, tvb, offset, 2, c==0xe2f0);
+    proto_item_append_text(ci, " (%s)", (c==0x1D0F)?"Ok":"bad");
+    proto_tree_add_boolean(pft_tree, hf_edcp_hcrc_ok, tvb, offset, 2, c==0x1D0F);
   }
   offset += 2;
   if (fcount > 1) {             /* fragmented*/
@@ -580,10 +579,9 @@ dissect_af (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   ci = proto_tree_add_item (af_tree, hf_edcp_crc, tvb, offset, 2, ENC_BIG_ENDIAN);
   if (ver & 0x80) { /* crc valid */
     guint len = offset+2;
-    const char *crc_buf = (const char *) tvb_get_ptr(tvb, 0, len);
-    unsigned long c = crc_drm(crc_buf, len, 16, 0x11021, 1);
-    proto_item_append_text(ci, " (%s)", (c==0xe2f0)?"Ok":"bad");
-    proto_tree_add_boolean(af_tree, hf_edcp_crc_ok, tvb, offset, 2, c==0xe2f0);
+    guint16 c = crc16_x25_ccitt_tvb(tvb, len);
+    proto_item_append_text(ci, " (%s)", (c==0x1D0F)?"Ok":"bad");
+    proto_tree_add_boolean(af_tree, hf_edcp_crc_ok, tvb, offset, 2, c==0x1D0F);
   }
   /*offset += 2;*/
 

@@ -48,7 +48,6 @@ LIBWSUTIL_SRC = 	\
 	crc16.c		\
 	crc16-plain.c	\
 	crc32.c		\
-	crcdrm.c	\
 	des.c		\
 	eax.c		\
 	filesystem.c	\
@@ -101,7 +100,6 @@ libwsutil_nonrepl_INCLUDES = \
 	crc16.h		\
 	crc16-plain.h	\
 	crc32.h		\
-	crcdrm.h	\
 	des.h		\
 	eax.h		\
 	filesystem.h	\

@@ -60,7 +60,6 @@ set(WSUTIL_FILES
 	crc7.c
 	crc8.c
 	crc11.c
-	crcdrm.c
 	des.c
 	eax.c
 	filesystem.c
