@@ -483,7 +483,6 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint8 info_len = 0;
 	proto_tree *uinfo_tree = NULL;
 	/* END MLT CHANGES */
-	proto_item* fcs_item = NULL;
 	gboolean ciphered_ui_frame = FALSE;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "GPRS-LLC");
