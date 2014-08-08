@@ -30,9 +30,8 @@
 #include "config.h"
 
 #include <glib.h>
-#include <epan/value_string.h>
-#include <epan/etypes.h>
 #include <epan/packet.h>
+#include <epan/etypes.h>
 
 
 static int proto_elmi = -1;
