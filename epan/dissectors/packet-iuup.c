@@ -582,7 +582,7 @@ update_crc10_by_bytes_iuup(tvbuff_t *tvb, int offset, int length)
     guint16 extra_16bits;
     guint8 extra_8bits[2];
 
-    crc10 = update_crc10_by_bytes_tvb(0, tvb, offset + 2, length - 4);
+    crc10 = update_crc10_by_bytes_tvb(0, tvb, offset + 2, length);
     extra_16bits = tvb_get_ntohs(tvb, offset) & 0x3FF;
     extra_8bits[0] = extra_16bits >> 2;
     extra_8bits[1] = (extra_16bits << 6) & 0xFF;
