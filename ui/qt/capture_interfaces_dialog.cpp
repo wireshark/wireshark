@@ -480,7 +480,7 @@ void CaptureInterfacesDialog::updateStatistics(void)
             if (device_name.compare(device.display_name) || device.hidden || device.type == IF_PIPE) {
                 continue;
             }
-            QList<int> *points = points = ti->data(col_traffic_, Qt::UserRole).value<QList<int> *>();
+            QList<int> *points = ti->data(col_traffic_, Qt::UserRole).value<QList<int> *>();
             points->append(device.packet_diff);
             ti->setData(col_traffic_, Qt::UserRole, qVariantFromValue(points));
         }
