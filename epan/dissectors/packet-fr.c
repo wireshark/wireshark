@@ -407,7 +407,6 @@ dissect_fr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   int         offset      = 0;
   proto_item *ti          = NULL;
   proto_tree *fr_tree     = NULL;
-  proto_item *octet_item  = NULL;
   proto_tree *octet_tree  = NULL;
   guint8      fr_octet;
   int         is_response = FALSE;
