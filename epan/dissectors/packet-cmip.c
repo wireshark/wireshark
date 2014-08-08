@@ -33,6 +33,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include <epan/oids.h>
 #include <epan/asn1.h>
 
@@ -343,7 +344,7 @@ static int hf_cmip_T_daysOfWeek_friday = -1;
 static int hf_cmip_T_daysOfWeek_saturday = -1;
 
 /*--- End of included file: packet-cmip-hf.c ---*/
-#line 58 "../../asn1/cmip/packet-cmip-template.c"
+#line 59 "../../asn1/cmip/packet-cmip-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_cmip = -1;
@@ -473,7 +474,9 @@ static gint ett_cmip_T_modificationList = -1;
 static gint ett_cmip_T_modificationList_item = -1;
 
 /*--- End of included file: packet-cmip-ett.c ---*/
-#line 62 "../../asn1/cmip/packet-cmip-template.c"
+#line 63 "../../asn1/cmip/packet-cmip-template.c"
+
+static expert_field ei_wrong_spdu_type = EI_INIT;
 
 static guint32 opcode;
 
@@ -532,7 +535,7 @@ static const value_string cmip_error_code_vals[] = {
 
 
 /*--- End of included file: packet-cmip-table.c ---*/
-#line 69 "../../asn1/cmip/packet-cmip-template.c"
+#line 72 "../../asn1/cmip/packet-cmip-template.c"
 
 static int opcode_type;
 #define OPCODE_INVOKE        1
@@ -644,7 +647,7 @@ static const char *objectclass_identifier_id;
 #define noInvokeId                     NULL
 
 /*--- End of included file: packet-cmip-val.h ---*/
-#line 92 "../../asn1/cmip/packet-cmip-template.c"
+#line 95 "../../asn1/cmip/packet-cmip-template.c"
 
 /*--- Included file: packet-cmip-fn.c ---*/
 #line 1 "../../asn1/cmip/packet-cmip-fn.c"
@@ -4366,7 +4369,7 @@ static void dissect_WeekMask_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, prot
 
 
 /*--- End of included file: packet-cmip-fn.c ---*/
-#line 93 "../../asn1/cmip/packet-cmip-template.c"
+#line 96 "../../asn1/cmip/packet-cmip-template.c"
 
 
 
@@ -4387,8 +4390,8 @@ dissect_cmip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 	session = (struct SESSION_DATA_STRUCTURE*)data;
 
 	if(session->spdu_type == 0 ) {
-		proto_tree_add_text(parent_tree, tvb, 0, -1,
-			"Internal error:wrong spdu type %x from session dissector.",session->spdu_type);
+		proto_tree_add_expert_format(parent_tree, pinfo, &ei_wrong_spdu_type, tvb, 0, -1,
+			"Internal error: wrong spdu type %x from session dissector.", session->spdu_type);
 		return 0;
 	}
 
@@ -5563,7 +5566,7 @@ void proto_register_cmip(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-cmip-hfarr.c ---*/
-#line 185 "../../asn1/cmip/packet-cmip-template.c"
+#line 188 "../../asn1/cmip/packet-cmip-template.c"
   };
 
   /* List of subtrees */
@@ -5695,8 +5698,14 @@ void proto_register_cmip(void) {
     &ett_cmip_T_modificationList_item,
 
 /*--- End of included file: packet-cmip-ettarr.c ---*/
-#line 191 "../../asn1/cmip/packet-cmip-template.c"
+#line 194 "../../asn1/cmip/packet-cmip-template.c"
   };
+
+  static ei_register_info ei[] = {
+     { &ei_wrong_spdu_type, { "cmip.wrong_spdu_type", PI_PROTOCOL, PI_ERROR, "Internal error: wrong spdu type", EXPFILL }},
+  };
+
+  expert_module_t* expert_cmip;
 
   /* Register protocol */
   proto_cmip = proto_register_protocol(PNAME, PSNAME, PFNAME);
@@ -5705,6 +5714,9 @@ void proto_register_cmip(void) {
   /* Register fields and subtrees */
   proto_register_field_array(proto_cmip, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  expert_cmip = expert_register_protocol(proto_cmip);
+  expert_register_field_array(expert_cmip, ei, array_length(ei));
+
 
 /*--- Included file: packet-cmip-dis-tab.c ---*/
 #line 1 "../../asn1/cmip/packet-cmip-dis-tab.c"
@@ -5781,7 +5793,7 @@ void proto_register_cmip(void) {
 
 
 /*--- End of included file: packet-cmip-dis-tab.c ---*/
-#line 201 "../../asn1/cmip/packet-cmip-template.c"
+#line 213 "../../asn1/cmip/packet-cmip-template.c"
     oid_add_from_string("discriminatorId(1)","2.9.3.2.7.1");
 
   attribute_id_dissector_table = register_dissector_table("cmip.attribute_id", "CMIP Attribute Id", FT_UINT32, BASE_DEC);

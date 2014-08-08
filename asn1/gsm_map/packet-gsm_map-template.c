@@ -150,6 +150,7 @@ static int hf_gsm_map_ericsson_locationInformation_rat = -1;
 static int hf_gsm_map_ericsson_locationInformation_lac = -1;
 static int hf_gsm_map_ericsson_locationInformation_ci = -1;
 static int hf_gsm_map_ericsson_locationInformation_sac = -1;
+static int hf_gsm_map_ussd_string = -1;
 
 #include "packet-gsm_map-hf.c"
 
@@ -179,6 +180,7 @@ static gint ett_gsm_map_GeographicalInformation = -1;
 static gint ett_gsm_map_apn_str = -1;
 static gint ett_gsm_map_LocationNumber = -1;
 static gint ett_gsm_map_ericsson_locationInformation = -1;
+static gint ett_gsm_map_extention_data = -1;
 
 #include "packet-gsm_map-ett.c"
 
@@ -186,6 +188,7 @@ static expert_field ei_gsm_map_unknown_sequence3 = EI_INIT;
 static expert_field ei_gsm_map_unknown_sequence = EI_INIT;
 static expert_field ei_gsm_map_unknown_parameter = EI_INIT;
 static expert_field ei_gsm_map_unknown_invokeData = EI_INIT;
+static expert_field ei_gsm_map_undecoded = EI_INIT;
 
 static dissector_handle_t       gsm_sms_handle; /* SMS TPDU */
 static dissector_handle_t       data_handle;
@@ -411,7 +414,7 @@ dissect_gsm_map_ext_qos_subscribed(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
   octet = tvb_get_guint8(tvb,offset);
   switch (octet){
   case 0:
-    proto_tree_add_text(subtree, tvb, offset, 1, "Subscribed Maximum SDU size/Reserved");
+    proto_tree_add_uint_format_value(subtree, hf_gsm_map_qos_max_sdu, tvb, offset, 1, octet, "Reserved");
     break;
   case 0x93:
     value = 1502;
@@ -430,7 +433,7 @@ dissect_gsm_map_ext_qos_subscribed(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
       value = octet * 10;
       proto_tree_add_uint(subtree, hf_gsm_map_qos_max_sdu, tvb, offset, 1, value);
     }else{
-      proto_tree_add_text(subtree, tvb, offset, 1, "Maximum SDU size value 0x%x not defined in TS 24.008",octet);
+      proto_tree_add_uint_format_value(subtree, hf_gsm_map_qos_max_sdu, tvb, offset, 1, octet, "0x%x not defined in TS 24.008", octet);
     }
   }
   offset++;
@@ -438,7 +441,7 @@ dissect_gsm_map_ext_qos_subscribed(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
   /* Maximum bit rate for uplink, octet 8 */
   octet = tvb_get_guint8(tvb,offset);
   if (octet == 0 ){
-    proto_tree_add_text(subtree, tvb, offset, 1, "Subscribed Maximum bit rate for uplink/Reserved"  );
+    proto_tree_add_uint_format_value(subtree, hf_gsm_map_max_brate_ulink, tvb, offset, 1, octet, "Reserved"  );
   }else{
     proto_tree_add_uint(subtree, hf_gsm_map_max_brate_ulink, tvb, offset, 1, gsm_map_calc_bitrate(octet));
   }
@@ -446,7 +449,7 @@ dissect_gsm_map_ext_qos_subscribed(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
   /* Maximum bit rate for downlink, octet 9 (see 3GPP TS 23.107) */
   octet = tvb_get_guint8(tvb,offset);
   if (octet == 0 ){
-    proto_tree_add_text(subtree, tvb, offset, 1, "Subscribed Maximum bit rate for downlink/Reserved"  );
+    proto_tree_add_uint_format_value(subtree, hf_gsm_map_max_brate_dlink, tvb, offset, 1, octet, "Reserved"  );
   }else{
     proto_tree_add_uint(subtree, hf_gsm_map_max_brate_dlink, tvb, offset, 1, gsm_map_calc_bitrate(octet));
   }
@@ -468,7 +471,7 @@ dissect_gsm_map_ext_qos_subscribed(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
   */
   octet = tvb_get_guint8(tvb,offset);
   if (octet == 0 ){
-    proto_tree_add_text(subtree, tvb, offset, 1, "Subscribed Guaranteed bit rate for uplink/Reserved"  );
+    proto_tree_add_uint_format_value(subtree, hf_gsm_map_guaranteed_max_brate_ulink, tvb, offset, 1, octet, "Reserved"  );
   }else{
     proto_tree_add_uint(subtree, hf_gsm_map_guaranteed_max_brate_ulink, tvb, offset, 1, gsm_map_calc_bitrate(octet));
   }
@@ -479,7 +482,7 @@ dissect_gsm_map_ext_qos_subscribed(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
   */
   octet = tvb_get_guint8(tvb,offset);
   if (octet == 0 ){
-    proto_tree_add_text(subtree, tvb, offset, 1, "Subscribed Guaranteed bit rate for downlink/Reserved"  );
+    proto_tree_add_uint_format_value(subtree, hf_gsm_map_guaranteed_max_brate_dlink, tvb, offset, 1, octet, "Reserved"  );
   }else{
     proto_tree_add_uint(subtree, hf_gsm_map_guaranteed_max_brate_dlink, tvb, offset, 1, gsm_map_calc_bitrate(octet));
   }
@@ -1550,7 +1553,7 @@ static int dissect_returnResultData(proto_tree *tree, tvbuff_t *tvb, int offset,
     break;
   case 61: /*unstructuredSS-Notify*/
     /* TRUE ? */
-    proto_tree_add_text(tree, tvb, offset, -1, "Unknown returnResultData blob");
+    proto_tree_add_expert_format(tree, actx->pinfo, &ei_gsm_map_unknown_invokeData, tvb, offset, -1, "Unknown returnResultData blob");
     break;
   case 62: /*AnyTimeSubscriptionInterrogation*/
     offset=dissect_gsm_map_ms_AnyTimeSubscriptionInterrogationRes(FALSE, tvb, offset, actx, tree, -1);
@@ -2888,6 +2891,11 @@ void proto_register_gsm_map(void) {
         { "SAC", "gsm_map.ericsson.locationInformation.sac",
           FT_UINT16, BASE_DEC_HEX, NULL, 0,
           "Service Area Code", HFILL }},
+      { &hf_gsm_map_ussd_string,
+        { "USSD String", "gsm_map.ussd_string",
+          FT_STRING, BASE_NONE, NULL, 0,
+          NULL, HFILL }},
+
 
 #include "packet-gsm_map-hfarr.c"
   };
@@ -2919,6 +2927,7 @@ void proto_register_gsm_map(void) {
     &ett_gsm_map_apn_str,
     &ett_gsm_map_LocationNumber,
     &ett_gsm_map_ericsson_locationInformation,
+    &ett_gsm_map_extention_data,
 
 #include "packet-gsm_map-ettarr.c"
   };
@@ -2928,6 +2937,7 @@ void proto_register_gsm_map(void) {
      { &ei_gsm_map_unknown_sequence, { "gsm_map.unknown.sequence", PI_UNDECODED, PI_ERROR, "Unknown or not implemented sequence", EXPFILL }},
      { &ei_gsm_map_unknown_parameter, { "gsm_map.unknown.parameter", PI_UNDECODED, PI_ERROR, "Unknown or not implemented parameter", EXPFILL }},
      { &ei_gsm_map_unknown_invokeData, { "gsm_map.unknown.invokeData", PI_MALFORMED, PI_WARN, "Unknown invokeData", EXPFILL }},
+     { &ei_gsm_map_undecoded, { "gsm_map.undecoded", PI_UNDECODED, PI_WARN, "If you want this decoded send the packet to Wireshark-dev", EXPFILL }},
   };
 
   static const enum_val_t application_context_modes[] = {

@@ -50,6 +50,7 @@ static int hf_tcap_tag = -1;
 static int hf_tcap_length = -1;
 static int hf_tcap_data = -1;
 static int hf_tcap_tid = -1;
+static int hf_tcap_constructor_eoc=-1;
 
 int hf_tcapsrt_SessionId=-1;
 int hf_tcapsrt_Duplicate=-1;
@@ -2091,10 +2092,16 @@ proto_register_tcap(void)
 		{ "Data", "tcap.data",
 		FT_BYTES, BASE_NONE, NULL, 0,
 		NULL, HFILL }
+
 	},
 		{ &hf_tcap_tid,
 		{ "Transaction Id", "tcap.tid",
 		FT_BYTES, BASE_NONE, NULL, 0,
+		NULL, HFILL }
+	},
+	{ &hf_tcap_constructor_eoc,
+		{ "CONSTRUCTOR EOC", "tcap.constructor_eoc",
+		FT_UINT16, BASE_HEX, NULL, 0,
 		NULL, HFILL }
 	},
 	/* Tcap Service Response Time */
@@ -2287,7 +2294,7 @@ dissect_tcap_param(asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset
             }
 
             if (ind_field)
-                proto_tree_add_text(subtree, tvb, offset+len-2, 2, "CONSTRUCTOR EOC");
+                proto_tree_add_item(subtree, hf_tcap_constructor_eoc, tvb, offset+len-2, 2, ENC_BIG_ENDIAN);
 
             offset += len;
         }

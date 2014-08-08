@@ -382,6 +382,8 @@ static gint ett_kerberos_ChangePasswdData = -1;
 #line 148 "../../asn1/kerberos/packet-kerberos-template.c"
 
 static expert_field ei_kerberos_decrypted_keytype = EI_INIT;
+static expert_field ei_kerberos_address = EI_INIT;
+static expert_field ei_krb_gssapi_dlglen = EI_INIT;
 
 static dissector_handle_t krb4_handle=NULL;
 
@@ -406,7 +408,7 @@ static gboolean gbl_do_col_info;
 #define KERBEROS_ADDR_TYPE_IPV6  24
 
 /*--- End of included file: packet-kerberos-val.h ---*/
-#line 159 "../../asn1/kerberos/packet-kerberos-template.c"
+#line 161 "../../asn1/kerberos/packet-kerberos-template.c"
 
 static void
 call_kerberos_callbacks(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int tag, kerberos_callbacks *cb)
@@ -599,7 +601,7 @@ read_keytab_file(const char *filename)
 
 
 guint8 *
-decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
+decrypt_krb5_data(proto_tree *tree _U_, packet_info *pinfo,
 					int usage,
 					tvbuff_t *cryptotvb,
 					int keytype,
@@ -649,7 +651,6 @@ decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
 								   "Decrypted keytype %d in frame %u using %s",
 								   ek->keytype, pinfo->fd->num, ek->key_origin);
 
-			proto_tree_add_text(tree, NULL, 0, 0, "[Decrypted using: %s]", ek->key_origin);
 			/* return a private g_malloced blob to the caller */
 			user_data=data.data;
 			if (datalen) {
@@ -795,8 +796,10 @@ decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
 		if((ret == 0) && (length>0)){
 			char *user_data;
 
-printf("woohoo decrypted keytype:%d in frame:%u\n", ek->keytype, pinfo->fd->num);
-			proto_tree_add_text(tree, NULL, 0, 0, "[Decrypted using: %s]", ek->key_origin);
+			expert_add_info_format(pinfo, NULL, &ei_kerberos_decrypted_keytype,
+								   "Decrypted keytype %d in frame %u using %s",
+								   ek->keytype, pinfo->fd->num, ek->key_origin);
+
 			krb5_crypto_destroy(krb5_ctx, crypto);
 			/* return a private g_malloced blob to the caller */
 			user_data=g_memdup(data.data, data.length);
@@ -1842,7 +1845,8 @@ dissect_krb5_rfc1964_checksum(asn1_ctx_t *actx _U_, proto_tree *tree, tvbuff_t *
 	offset += 2;
 
 	if(dlglen!=tvb_reported_length_remaining(tvb, offset)){
-		proto_tree_add_text(tree, tvb, 0, 0, "Error: DlgLen:%d is not the same as number of bytes remaining:%d", dlglen, tvb_captured_length_remaining(tvb, offset));
+		proto_tree_add_expert_format(tree, actx->pinfo, &ei_krb_gssapi_dlglen, tvb, 0, 0,
+				"Error: DlgLen:%d is not the same as number of bytes remaining:%d", dlglen, tvb_captured_length_remaining(tvb, offset));
 		return offset;
 	}
 
@@ -2476,7 +2480,7 @@ dissect_kerberos_T_address(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 		address_str = tvb_ip6_to_str(tvb, offset);
 		break;
 	default:
-		proto_tree_add_text(tree, tvb, offset, len, "KRB Address: I dont know how to parse this type of address yet");
+		proto_tree_add_expert(tree, actx->pinfo, &ei_kerberos_address, tvb, offset, len);
 		address_str = NULL;
 	}
 
@@ -3905,7 +3909,7 @@ dissect_kerberos_ChangePasswdData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
 
 /*--- End of included file: packet-kerberos-fn.c ---*/
-#line 1648 "../../asn1/kerberos/packet-kerberos-template.c"
+#line 1652 "../../asn1/kerberos/packet-kerberos-template.c"
 
 /* Make wrappers around exported functions for now */
 int
@@ -4039,16 +4043,14 @@ void
 show_krb_recordmark(proto_tree *tree, tvbuff_t *tvb, gint start, guint32 krb_rm)
 {
 	gint rec_len;
-	proto_item *rm_item;
 	proto_tree *rm_tree;
 
 	if (tree == NULL)
 		return;
 
 	rec_len = kerberos_rm_to_reclen(krb_rm);
-	rm_item = proto_tree_add_text(tree, tvb, start, 4,
-	"Record Mark: %u %s", rec_len, plurality(rec_len, "byte", "bytes"));
-	rm_tree = proto_item_add_subtree(rm_item, ett_krb_recordmark);
+	rm_tree = proto_tree_add_subtree_format(tree, tvb, start, 4, ett_krb_recordmark, NULL,
+		"Record Mark: %u %s", rec_len, plurality(rec_len, "byte", "bytes"));
 	proto_tree_add_boolean(rm_tree, hf_krb_rm_reserved, tvb, start, 4, krb_rm);
 	proto_tree_add_uint(rm_tree, hf_krb_rm_reclen, tvb, start, 4, krb_rm);
 }
@@ -4861,7 +4863,7 @@ void proto_register_kerberos(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-kerberos-hfarr.c ---*/
-#line 1947 "../../asn1/kerberos/packet-kerberos-template.c"
+#line 1949 "../../asn1/kerberos/packet-kerberos-template.c"
   };
 
   /* List of subtrees */
@@ -4926,11 +4928,13 @@ void proto_register_kerberos(void) {
     &ett_kerberos_ChangePasswdData,
 
 /*--- End of included file: packet-kerberos-ettarr.c ---*/
-#line 1954 "../../asn1/kerberos/packet-kerberos-template.c"
+#line 1956 "../../asn1/kerberos/packet-kerberos-template.c"
   };
 
   static ei_register_info ei[] = {
      { &ei_kerberos_decrypted_keytype, { "kerberos.decrypted_keytype", PI_SECURITY, PI_CHAT, "Decryted keytype", EXPFILL }},
+     { &ei_kerberos_address, { "kerberos.address.unknown", PI_UNDECODED, PI_WARN, "KRB Address: I dont know how to parse this type of address yet", EXPFILL }},
+     { &ei_krb_gssapi_dlglen, { "kerberos.gssapi.dlglen.error", PI_MALFORMED, PI_ERROR, "DlgLen is not the same as number of bytes remaining", EXPFILL }},
   };
 
 	expert_module_t* expert_krb;

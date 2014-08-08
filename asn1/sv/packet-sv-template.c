@@ -108,6 +108,7 @@ static int ett_phsmeas_q = -1;
 #include "packet-sv-ett.c"
 
 static expert_field ei_sv_mal_utctime = EI_INIT;
+static expert_field ei_sv_zero_pdu = EI_INIT;
 
 #if 0
 static const value_string sv_q_validity_vals[] = {
@@ -228,7 +229,7 @@ dissect_sv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		old_offset = offset;
 		offset = dissect_sv_SampledValues(FALSE, tvb, offset, &asn1_ctx , tree, -1);
 		if (offset == old_offset) {
-			proto_tree_add_text(tree, tvb, offset, -1, "Internal error, zero-byte SV PDU");
+			proto_tree_add_expert(tree, pinfo, &ei_sv_zero_pdu, tvb, offset, -1);
 			break;
 		}
 	}
@@ -314,6 +315,7 @@ void proto_register_sv(void) {
 
 	static ei_register_info ei[] = {
 		{ &ei_sv_mal_utctime, { "sv.malformed.utctime", PI_MALFORMED, PI_WARN, "BER Error: malformed UTCTime encoding", EXPFILL }},
+		{ &ei_sv_zero_pdu, { "sv.zero_pdu", PI_PROTOCOL, PI_ERROR, "Internal error, zero-byte SV PDU", EXPFILL }},
 	};
 
 	expert_module_t* expert_sv;

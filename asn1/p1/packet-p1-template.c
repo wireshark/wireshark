@@ -78,6 +78,8 @@ static expert_field ei_p1_unknown_extension_attribute_type = EI_INIT;
 static expert_field ei_p1_unknown_standard_extension = EI_INIT;
 static expert_field ei_p1_unknown_built_in_content_type = EI_INIT;
 static expert_field ei_p1_unknown_tokendata_type = EI_INIT;
+static expert_field ei_p1_unsupported_pdu = EI_INIT;
+static expert_field ei_p1_zero_pdu = EI_INIT;
 
 /* Dissector tables */
 static dissector_table_t p1_extension_dissector_table;
@@ -271,7 +273,7 @@ dissect_p1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* dat
 	  hf_p1_index = hf_p1_MTS_APDU_PDU;
 	  break;
 	default:
-	  proto_tree_add_text(tree, tvb, offset, -1,"Unsupported P1 PDU");
+	  proto_tree_add_expert(tree, pinfo, &ei_p1_unsupported_pdu, tvb, offset, -1);
 	  return tvb_captured_length(tvb);
 	}
 
@@ -281,7 +283,7 @@ dissect_p1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* dat
 		old_offset=offset;
 		offset=(*p1_dissector)(FALSE, tvb, offset, &asn1_ctx , tree, hf_p1_index);
 		if(offset == old_offset){
-			proto_tree_add_text(tree, tvb, offset, -1,"Internal error, zero-byte P1 PDU");
+			proto_tree_add_expert(tree, pinfo, &ei_p1_zero_pdu, tvb, offset, -1);
 			break;
 		}
 	}
@@ -335,6 +337,8 @@ void proto_register_p1(void) {
      { &ei_p1_unknown_standard_extension, { "p1.unknown.standard_extension", PI_UNDECODED, PI_WARN, "Unknown standard-extension", EXPFILL }},
      { &ei_p1_unknown_built_in_content_type, { "p1.unknown.built_in_content_type", PI_UNDECODED, PI_WARN, "P1 Unknown Content (unknown built-in content-type)", EXPFILL }},
      { &ei_p1_unknown_tokendata_type, { "p1.unknown.tokendata_type", PI_UNDECODED, PI_WARN, "Unknown tokendata-type", EXPFILL }},
+     { &ei_p1_unsupported_pdu, { "p1.unsupported_pdu", PI_UNDECODED, PI_WARN, "Unsupported P1 PDU", EXPFILL }},
+     { &ei_p1_zero_pdu, { "p1.zero_pdu", PI_PROTOCOL, PI_ERROR, "Internal error, zero-byte P1 PDU", EXPFILL }},
   };
 
   expert_module_t* expert_p1;

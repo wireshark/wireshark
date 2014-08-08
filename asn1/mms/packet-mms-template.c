@@ -51,6 +51,7 @@ static gint ett_mms = -1;
 
 static expert_field ei_mms_mal_timeofday_encoding = EI_INIT;
 static expert_field ei_mms_mal_utctime_encoding = EI_INIT;
+static expert_field ei_mms_zero_pdu = EI_INIT;
 
 #include "packet-mms-fn.c"
 
@@ -78,7 +79,7 @@ dissect_mms(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		old_offset=offset;
 		offset=dissect_mms_MMSpdu(FALSE, tvb, offset, &asn1_ctx , tree, -1);
 		if(offset == old_offset){
-			proto_tree_add_text(tree, tvb, offset, -1,"Internal error, zero-byte MMS PDU");
+			proto_tree_add_expert(tree, pinfo, &ei_mms_zero_pdu, tvb, offset, -1);
 			break;
 		}
 	}
@@ -103,6 +104,7 @@ void proto_register_mms(void) {
   static ei_register_info ei[] = {
      { &ei_mms_mal_timeofday_encoding, { "mms.malformed.timeofday_encoding", PI_MALFORMED, PI_WARN, "BER Error: malformed TimeOfDay encoding", EXPFILL }},
      { &ei_mms_mal_utctime_encoding, { "mms.malformed.utctime", PI_MALFORMED, PI_WARN, "BER Error: malformed IEC61850 UTCTime encoding", EXPFILL }},
+     { &ei_mms_zero_pdu, { "mms.zero_pdu", PI_PROTOCOL, PI_ERROR, "Internal error, zero-byte MMS PDU", EXPFILL }},
   };
 
   expert_module_t* expert_mms;

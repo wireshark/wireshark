@@ -794,19 +794,19 @@ offset = dissect_ber_boolean(implicit_tag, actx, tree, tvb, offset, hf_index, &v
 					ett_ldap_DirSyncFlagsSubEntry, NULL, "%s: 0x%08x", hfinfo->name, val);
 
 		if (val & 0x1) {
-			proto_tree_add_text(subtree, tvb, otheroffset+1, len, "Flag Object_Security");
+			proto_tree_add_boolean(subtree, hf_ldap_object_security_flag, tvb, otheroffset+1, len, TRUE);
 		}
 		if (val & 0x800) {
-			proto_tree_add_text(subtree, tvb, otheroffset+1, len, "Flag Ancestor_First");
+			proto_tree_add_boolean(subtree, hf_ldap_ancestor_first_flag, tvb, otheroffset+1, len, TRUE);
 		}
 		if (val & 0x2000) {
-			proto_tree_add_text(subtree, tvb, otheroffset+1, len, "Flag Public_Data_Only");
+			proto_tree_add_boolean(subtree, hf_ldap_public_data_only_flag, tvb, otheroffset+1, len, TRUE);
 		}
 		if (val & 0x80000000) {
-			proto_tree_add_text(subtree, tvb, otheroffset+1, len, "Flag Incremental_Value");
+			proto_tree_add_boolean(subtree, hf_ldap_incremental_value_flag, tvb, otheroffset+1, len, TRUE);
 		}
 	} else {
-		proto_tree_add_text(tree, tvb, otheroffset+len, len, "%s: 0", hfinfo->name);
+		proto_tree_add_uint(tree, hf_index, tvb, otheroffset+len, len, 0);
 	}
 
 #.FN_BODY SearchResultReference

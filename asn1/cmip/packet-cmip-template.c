@@ -25,6 +25,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include <epan/oids.h>
 #include <epan/asn1.h>
 
@@ -59,6 +60,8 @@ static int hf_ObjectClass = -1;
 /* Initialize the subtree pointers */
 static gint ett_cmip = -1;
 #include "packet-cmip-ett.c"
+
+static expert_field ei_wrong_spdu_type = EI_INIT;
 
 static guint32 opcode;
 
@@ -110,8 +113,8 @@ dissect_cmip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 	session = (struct SESSION_DATA_STRUCTURE*)data;
 
 	if(session->spdu_type == 0 ) {
-		proto_tree_add_text(parent_tree, tvb, 0, -1,
-			"Internal error:wrong spdu type %x from session dissector.",session->spdu_type);
+		proto_tree_add_expert_format(parent_tree, pinfo, &ei_wrong_spdu_type, tvb, 0, -1,
+			"Internal error: wrong spdu type %x from session dissector.", session->spdu_type);
 		return 0;
 	}
 
@@ -190,6 +193,12 @@ void proto_register_cmip(void) {
 #include "packet-cmip-ettarr.c"
   };
 
+  static ei_register_info ei[] = {
+     { &ei_wrong_spdu_type, { "cmip.wrong_spdu_type", PI_PROTOCOL, PI_ERROR, "Internal error: wrong spdu type", EXPFILL }},
+  };
+
+  expert_module_t* expert_cmip;
+
   /* Register protocol */
   proto_cmip = proto_register_protocol(PNAME, PSNAME, PFNAME);
   new_register_dissector("cmip", dissect_cmip, proto_cmip);
@@ -197,6 +206,9 @@ void proto_register_cmip(void) {
   /* Register fields and subtrees */
   proto_register_field_array(proto_cmip, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  expert_cmip = expert_register_protocol(proto_cmip);
+  expert_register_field_array(expert_cmip, ei, array_length(ei));
+
 #include "packet-cmip-dis-tab.c"
     oid_add_from_string("discriminatorId(1)","2.9.3.2.7.1");
 

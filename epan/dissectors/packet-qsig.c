@@ -32,6 +32,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include <epan/strutil.h>
 #include <epan/asn1.h>
 
@@ -488,7 +489,7 @@ static const value_string qsig_str_operation[] = {
   { 120, "mIDMailboxID" },
 
 /*--- End of included file: packet-qsig-table10.c ---*/
-#line 271 "../../asn1/qsig/packet-qsig-template.c"
+#line 272 "../../asn1/qsig/packet-qsig-template.c"
   {   0, NULL}
 };
 
@@ -681,7 +682,7 @@ static const value_string qsig_str_error[] = {
   { 1008, "unspecified" },
 
 /*--- End of included file: packet-qsig-table20.c ---*/
-#line 276 "../../asn1/qsig/packet-qsig-template.c"
+#line 277 "../../asn1/qsig/packet-qsig-template.c"
   {   0, NULL}
 };
 
@@ -1576,7 +1577,7 @@ static int hf_qsig_mid_multipleExtension = -1;    /* SEQUENCE_OF_Extension */
 static int hf_qsig_mid_multipleExtension_item = -1;  /* Extension */
 
 /*--- End of included file: packet-qsig-hf.c ---*/
-#line 292 "../../asn1/qsig/packet-qsig-template.c"
+#line 293 "../../asn1/qsig/packet-qsig-template.c"
 
 static int *hf_qsig_ie_type_arr[] = {
   NULL,
@@ -2036,8 +2037,12 @@ static gint ett_qsig_mid_MIDExtensions = -1;
 static gint ett_qsig_mid_SEQUENCE_OF_Extension = -1;
 
 /*--- End of included file: packet-qsig-ett.c ---*/
-#line 309 "../../asn1/qsig/packet-qsig-template.c"
+#line 310 "../../asn1/qsig/packet-qsig-template.c"
 static gint ett_cnq_PSS1InformationElement = -1;
+
+static expert_field ei_qsig_unsupported_arg_type = EI_INIT;
+static expert_field ei_qsig_unsupported_result_type = EI_INIT;
+static expert_field ei_qsig_unsupported_error_type = EI_INIT;
 
 /* Preferences */
 
@@ -11926,7 +11931,7 @@ static int dissect_qsig_mid_Extension_PDU(tvbuff_t *tvb _U_, packet_info *pinfo 
 
 
 /*--- End of included file: packet-qsig-fn.c ---*/
-#line 325 "../../asn1/qsig/packet-qsig-template.c"
+#line 330 "../../asn1/qsig/packet-qsig-template.c"
 
 typedef struct _qsig_op_t {
   gint32 opcode;
@@ -12148,7 +12153,7 @@ static const qsig_op_t qsig_op_tab[] = {
   /* mIDMailboxID             */ { 120, dissect_qsig_mid_MIDMailboxIDArg_PDU, dissect_qsig_mid_MIDDummyRes_PDU },
 
 /*--- End of included file: packet-qsig-table11.c ---*/
-#line 334 "../../asn1/qsig/packet-qsig-template.c"
+#line 339 "../../asn1/qsig/packet-qsig-template.c"
 };
 
 typedef struct _qsig_err_t {
@@ -12345,7 +12350,7 @@ static const qsig_err_t qsig_err_tab[] = {
   /* unspecified              */ { 1008, dissect_qsig_mid_Extension_PDU },
 
 /*--- End of included file: packet-qsig-table21.c ---*/
-#line 343 "../../asn1/qsig/packet-qsig-template.c"
+#line 348 "../../asn1/qsig/packet-qsig-template.c"
 };
 
 static const qsig_op_t *get_op(gint32 opcode) {
@@ -12426,7 +12431,7 @@ dissect_qsig_arg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     offset = op_ptr->arg_pdu(tvb, pinfo, qsig_tree, NULL);
   else
     if (tvb_reported_length_remaining(tvb, offset) > 0) {
-      proto_tree_add_text(qsig_tree, tvb, offset, -1, "UNSUPPORTED ARGUMENT TYPE (QSIG)");
+      proto_tree_add_expert(tree, pinfo, &ei_qsig_unsupported_error_type, tvb, offset, -1);
       offset += tvb_captured_length_remaining(tvb, offset);
     }
 
@@ -12480,7 +12485,7 @@ dissect_qsig_res(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     offset = op_ptr->res_pdu(tvb, pinfo, qsig_tree, NULL);
   else
     if (tvb_reported_length_remaining(tvb, offset) > 0) {
-      proto_tree_add_text(qsig_tree, tvb, offset, -1, "UNSUPPORTED RESULT TYPE (QSIG)");
+      proto_tree_add_expert(tree, pinfo, &ei_qsig_unsupported_result_type, tvb, offset, -1);
       offset += tvb_captured_length_remaining(tvb, offset);
     }
 
@@ -12529,7 +12534,7 @@ dissect_qsig_err(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     offset = err_ptr->err_pdu(tvb, pinfo, qsig_tree, NULL);
   else
     if (tvb_reported_length_remaining(tvb, offset) > 0) {
-      proto_tree_add_text(qsig_tree, tvb, offset, -1, "UNSUPPORTED ERROR TYPE (QSIG)");
+      proto_tree_add_expert(tree, pinfo, &ei_qsig_unsupported_error_type, tvb, offset, -1);
       offset += tvb_captured_length_remaining(tvb, offset);
     }
 
@@ -15900,7 +15905,7 @@ void proto_register_qsig(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-qsig-hfarr.c ---*/
-#line 660 "../../asn1/qsig/packet-qsig-template.c"
+#line 665 "../../asn1/qsig/packet-qsig-template.c"
   };
 
   /* List of subtrees */
@@ -16351,9 +16356,17 @@ void proto_register_qsig(void) {
     &ett_qsig_mid_SEQUENCE_OF_Extension,
 
 /*--- End of included file: packet-qsig-ettarr.c ---*/
-#line 668 "../../asn1/qsig/packet-qsig-template.c"
+#line 673 "../../asn1/qsig/packet-qsig-template.c"
     &ett_cnq_PSS1InformationElement,
   };
+
+  static ei_register_info ei[] = {
+    { &ei_qsig_unsupported_arg_type, { "qsig.unsupported.arg_type", PI_UNDECODED, PI_WARN, "UNSUPPORTED ARGUMENT TYPE (QSIG)", EXPFILL }},
+    { &ei_qsig_unsupported_result_type, { "qsig.unsupported.result_type", PI_UNDECODED, PI_WARN, "UNSUPPORTED RESULT TYPE (QSIG)", EXPFILL }},
+    { &ei_qsig_unsupported_error_type, { "qsig.unsupported.error_type", PI_UNDECODED, PI_WARN, "UNSUPPORTED ERROR TYPE (QSIG)", EXPFILL }},
+  };
+
+  expert_module_t* expert_qsig;
 
   /* Register protocol and dissector */
   proto_qsig = proto_register_protocol(PNAME, PSNAME, PFNAME);
@@ -16361,6 +16374,8 @@ void proto_register_qsig(void) {
   /* Register fields and subtrees */
   proto_register_field_array(proto_qsig, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  expert_qsig = expert_register_protocol(proto_qsig);
+  expert_register_field_array(expert_qsig, ei, array_length(ei));
 
   /* Register dissector tables */
   extension_dissector_table = register_dissector_table("qsig.ext", "QSIG Extension", FT_STRING, BASE_NONE);

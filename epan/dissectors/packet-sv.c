@@ -143,6 +143,7 @@ static gint ett_sv_ASDU = -1;
 #line 109 "../../asn1/sv/packet-sv-template.c"
 
 static expert_field ei_sv_mal_utctime = EI_INIT;
+static expert_field ei_sv_zero_pdu = EI_INIT;
 
 #if 0
 static const value_string sv_q_validity_vals[] = {
@@ -435,7 +436,7 @@ dissect_sv_SampledValues(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
 
 /*--- End of included file: packet-sv-fn.c ---*/
-#line 189 "../../asn1/sv/packet-sv-template.c"
+#line 190 "../../asn1/sv/packet-sv-template.c"
 
 /*
 * Dissect SV PDUs inside a PPDU.
@@ -478,7 +479,7 @@ dissect_sv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		old_offset = offset;
 		offset = dissect_sv_SampledValues(FALSE, tvb, offset, &asn1_ctx , tree, -1);
 		if (offset == old_offset) {
-			proto_tree_add_text(tree, tvb, offset, -1, "Internal error, zero-byte SV PDU");
+			proto_tree_add_expert(tree, pinfo, &ei_sv_zero_pdu, tvb, offset, -1);
 			break;
 		}
 	}
@@ -608,7 +609,7 @@ void proto_register_sv(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-sv-hfarr.c ---*/
-#line 305 "../../asn1/sv/packet-sv-template.c"
+#line 306 "../../asn1/sv/packet-sv-template.c"
 	};
 
 	/* List of subtrees */
@@ -625,11 +626,12 @@ void proto_register_sv(void) {
     &ett_sv_ASDU,
 
 /*--- End of included file: packet-sv-ettarr.c ---*/
-#line 313 "../../asn1/sv/packet-sv-template.c"
+#line 314 "../../asn1/sv/packet-sv-template.c"
 	};
 
 	static ei_register_info ei[] = {
 		{ &ei_sv_mal_utctime, { "sv.malformed.utctime", PI_MALFORMED, PI_WARN, "BER Error: malformed UTCTime encoding", EXPFILL }},
+		{ &ei_sv_zero_pdu, { "sv.zero_pdu", PI_PROTOCOL, PI_ERROR, "Internal error, zero-byte SV PDU", EXPFILL }},
 	};
 
 	expert_module_t* expert_sv;

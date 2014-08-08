@@ -79,6 +79,8 @@ static int hf_h245Manufacturer = -1;
 static int hf_h245_subMessageIdentifier_standard = -1;
 static int h245_tap = -1;
 static int h245dg_tap = -1;
+static int hf_h245_debug_dissector_try_string = -1;
+
 h245_packet_info *h245_pi=NULL;
 
 static gboolean h245_reassembly = TRUE;
@@ -476,6 +478,9 @@ void proto_register_h245(void) {
       { "subMessageIdentifier", "h245.subMessageIdentifier.standard",
         FT_UINT32, BASE_DEC, VALS(h245_h239subMessageIdentifier_vals), 0,
         NULL, HFILL }},
+  	{ &hf_h245_debug_dissector_try_string,
+      { "*** DEBUG dissector_try_string", "h245.debug.dissector_try_string", FT_STRING, BASE_NONE,
+        NULL, 0, NULL, HFILL }},
 
 #include "packet-h245-hfarr.c"
   };

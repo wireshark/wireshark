@@ -229,6 +229,7 @@ static int hf_snmp_objectname = -1;
 static int hf_snmp_scalar_instance_index = -1;
 
 static int hf_snmp_var_bind_str = -1;
+static int hf_snmp_agentid_trailer = -1;
 
 #include "packet-snmp-hf.c"
 
@@ -278,6 +279,9 @@ static expert_field ei_snmp_integral_value0 = EI_INIT;
 static expert_field ei_snmp_missing_mib = EI_INIT;
 static expert_field ei_snmp_varbind_wrong_length_value = EI_INIT;
 static expert_field ei_snmp_varbind_wrong_class_tag = EI_INIT;
+static expert_field ei_snmp_rfc1910_non_conformant = EI_INIT;
+static expert_field ei_snmp_rfc3411_non_conformant = EI_INIT;
+static expert_field ei_snmp_version_unknown = EI_INIT;
 
 static const true_false_string auth_flags = {
 	"OK",
@@ -681,14 +685,12 @@ dissect_snmp_VarBind(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,
 					pi_value = proto_tree_add_item(pt_varbind,hf_snmp_unSpecified,tvb,value_offset,value_len,ENC_NA);
 					goto set_label;
 				} else {
-					proto_item* pi = proto_tree_add_text(pt_name,tvb,0,0,"A scalar should have one instance sub-id this one has none");
-					expert_add_info(actx->pinfo, pi, &ei_snmp_no_instance_subid);
+					proto_tree_add_expert(pt_name,actx->pinfo,&ei_snmp_no_instance_subid,tvb,0,0);
 					oid_info_is_ok = FALSE;
 					goto indexing_done;
 				}
 			} else {
-				proto_item* pi = proto_tree_add_text(pt_name,tvb,0,0,"A scalar should have only one instance sub-id this has: %d",oid_left);
-				expert_add_info(actx->pinfo, pi, &ei_snmp_wrong_num_of_subids);
+				proto_tree_add_expert_format(pt_name,actx->pinfo,&ei_snmp_wrong_num_of_subids,tvb,0,0,"A scalar should have only one instance sub-id this has: %d",oid_left);
 				oid_info_is_ok = FALSE;
 				goto indexing_done;
 			}
@@ -711,16 +713,14 @@ dissect_snmp_VarBind(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,
 						guint suboid_len;
 
 						if (key_start >= oid_matched+oid_left) {
-							proto_item* pi = proto_tree_add_text(pt_name,tvb,0,0,"index sub-oid shorter than expected");
-							expert_add_info(actx->pinfo, pi, &ei_snmp_index_suboid_too_short);
+							proto_tree_add_expert(pt_name,actx->pinfo,&ei_snmp_index_suboid_too_short,tvb,0,0);
 							oid_info_is_ok = FALSE;
 							goto indexing_done;
 						}
 
 						switch(k->key_type) {
 							case OID_KEY_TYPE_WRONG: {
-								proto_item* pi = proto_tree_add_text(pt_name,tvb,0,0,"OID instaces not handled, if you want this implemented please contact the wireshark developers");
-								expert_add_info(actx->pinfo, pi, &ei_snmp_unimplemented_instance_index);
+								proto_tree_add_expert(pt_name,actx->pinfo,&ei_snmp_unimplemented_instance_index,tvb,0,0);
 								oid_info_is_ok = FALSE;
 								goto indexing_done;
 							}
@@ -751,15 +751,13 @@ show_oid_index:
 								suboid = &(subids[key_start]);
 
 								if( suboid_len == 0 ) {
-									proto_item* pi = proto_tree_add_text(pt_name,tvb,0,0,"an index sub-oid OID cannot be 0 bytes long!");
-									expert_add_info(actx->pinfo, pi, &ei_snmp_index_suboid_len0);
+									proto_tree_add_expert(pt_name,actx->pinfo,&ei_snmp_index_suboid_len0,tvb,0,0);
 									oid_info_is_ok = FALSE;
 									goto indexing_done;
 								}
 
 								if( key_len < suboid_len ) {
-									proto_item* pi = proto_tree_add_text(pt_name,tvb,0,0,"index sub-oid should not be longer than remaining oid size");
-									expert_add_info(actx->pinfo, pi, &ei_snmp_index_suboid_too_long);
+									proto_tree_add_expert(pt_name,actx->pinfo,&ei_snmp_index_suboid_too_long,tvb,0,0);
 									oid_info_is_ok = FALSE;
 									goto indexing_done;
 								}
@@ -805,8 +803,7 @@ show_oid_index:
 								}
 
 								if( key_len < buf_len ) {
-									proto_item* pi = proto_tree_add_text(pt_name,tvb,0,0,"index string should not be longer than remaining oid size");
-									expert_add_info(actx->pinfo, pi, &ei_snmp_index_string_too_long);
+									proto_tree_add_expert(pt_name,actx->pinfo,&ei_snmp_index_string_too_long,tvb,0,0);
 									oid_info_is_ok = FALSE;
 									goto indexing_done;
 								}
@@ -847,20 +844,17 @@ show_oid_index:
 					}
 					goto indexing_done;
 				} else {
-					proto_item* pi = proto_tree_add_text(pt_name,tvb,0,0,"We do not know how to handle this OID, if you want this implemented please contact the wireshark developers");
-					expert_add_info(actx->pinfo, pi, &ei_snmp_unimplemented_instance_index);
+					proto_tree_add_expert(pt_name,actx->pinfo,&ei_snmp_unimplemented_instance_index,tvb,0,0);
 					oid_info_is_ok = FALSE;
 					goto indexing_done;
 				}
 			} else {
-				proto_item* pi = proto_tree_add_text(pt_name,tvb,0,0,"The COLUMS's parent is not a ROW. This is a BUG! please contact the wireshark developers.");
-				expert_add_info(actx->pinfo, pi, &ei_snmp_column_parent_not_row);
+				proto_tree_add_expert(pt_name,actx->pinfo,&ei_snmp_column_parent_not_row,tvb,0,0);
 				oid_info_is_ok = FALSE;
 				goto indexing_done;
 			}
 		default: {
-/*			proto_item* pi = proto_tree_add_text(pt_name,tvb,0,0,"This kind OID should have no value");
-			expert_add_info_format(actx->pinfo, pi, PI_MALFORMED, PI_WARN, "This kind OID should have no value"); */
+/*			proto_tree_add_expert (pt_name,actx->pinfo,PI_MALFORMED, PI_WARN,tvb,0,0,"This kind OID should have no value"); */
 			oid_info_is_ok = FALSE;
 			goto indexing_done;
 		}
@@ -981,8 +975,7 @@ indexing_done:
 				 */
 				if (value_len > 9 || tvb_get_guint8(tvb, value_offset) != 0) {
 					/* It is.  Fail. */
-					pi_value = proto_tree_add_text(pt_varbind,tvb,value_offset,value_len,"Integral value too large");
-					expert_add_info(actx->pinfo, pi_value, &ei_snmp_uint_too_large);
+					proto_tree_add_expert_format(pt_varbind,actx->pinfo,&ei_snmp_uint_too_large,tvb,value_offset,value_len,"Integral value too large");
 					goto already_added;
 				}
 				/* Cheat and skip the leading 0 byte */
@@ -992,8 +985,7 @@ indexing_done:
 				/*
 				 * For now, just reject these.
 				 */
-				pi_value = proto_tree_add_text(pt_varbind,tvb,value_offset,value_len,"Integral value too large or too small");
-				expert_add_info(actx->pinfo, pi_value, &ei_snmp_int_too_large);
+				proto_tree_add_expert_format(pt_varbind,actx->pinfo,&ei_snmp_int_too_large,tvb,value_offset,value_len,"Integral value too large or too small");
 				goto already_added;
 			}
 		} else if (value_len == 0) {
@@ -1007,8 +999,7 @@ indexing_done:
 			 */
 			header_field_info *hfinfo = proto_registrar_get_nth(hfid);
 			if (hfinfo->type == FT_UINT64 || hfinfo->type == FT_INT64) {
-				pi_value = proto_tree_add_text(pt_varbind,tvb,value_offset,value_len,"Integral value is zero-length");
-				expert_add_info(actx->pinfo, pi_value, &ei_snmp_integral_value0);
+				proto_tree_add_expert_format(pt_varbind,actx->pinfo,&ei_snmp_integral_value0,tvb,value_offset,value_len,"Integral value is zero-length");
 				goto already_added;
 			}
 		}
@@ -1132,7 +1123,7 @@ static const value_string snmp_engineid_cisco_type_vals[] = {
  * or historic RFC 1910 (AgentID)
  */
 int
-dissect_snmp_engineid(proto_tree *tree, tvbuff_t *tvb, int offset, int len)
+dissect_snmp_engineid(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset, int len)
 {
     proto_item *item = NULL;
     guint8 conformance, format;
@@ -1159,13 +1150,12 @@ dissect_snmp_engineid(proto_tree *tree, tvbuff_t *tvb, int offset, int len)
     case SNMP_ENGINEID_RFC1910:
       /* 12-byte AgentID w/ 8-byte trailer */
       if (len_remain==8) {
-	proto_tree_add_text(tree, tvb, offset, 8, "AgentID Trailer: 0x%s",
-			    tvb_bytes_to_ep_str(tvb, offset, 8));
-	offset+=8;
-	len_remain-=8;
+        proto_tree_add_item(tree, hf_snmp_agentid_trailer, tvb, offset, 8, ENC_NA);
+        offset+=8;
+        len_remain-=8;
       } else {
-	proto_tree_add_text(tree, tvb, offset, len_remain, "<Data not conforming to RFC1910>");
-	return offset;
+        proto_tree_add_expert(tree, pinfo, &ei_snmp_rfc1910_non_conformant, tvb, offset, len_remain);
+        return offset;
       }
       break;
 
@@ -1250,7 +1240,7 @@ dissect_snmp_engineid(proto_tree *tree, tvbuff_t *tvb, int offset, int len)
     }
 
     if (len_remain>0) {
-      proto_tree_add_text(tree, tvb, offset, len_remain, "<Data not conforming to RFC3411>");
+      proto_tree_add_expert(tree, pinfo, &ei_snmp_rfc3411_non_conformant, tvb, offset, len_remain);
       offset+=len_remain;
     }
     return offset;
@@ -2018,11 +2008,9 @@ dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	col_set_str(pinfo->cinfo, COL_PROTOCOL,
 	    proto_get_protocol_short_name(find_protocol_by_id(proto)));
 
-	if (tree) {
-		item = proto_tree_add_item(tree, proto, tvb, start_offset,
+	item = proto_tree_add_item(tree, proto, tvb, start_offset,
 				           message_length, ENC_BIG_ENDIAN);
-		snmp_tree = proto_item_add_subtree(item, ett);
-	}
+	snmp_tree = proto_item_add_subtree(item, ett);
 
 	switch (version) {
 	case 0: /* v1 */
@@ -2042,7 +2030,7 @@ dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		 * if this is SNMP-over-TCP, our caller thinks there's
 		 * nothing left to dissect.
 		 */
-		proto_tree_add_text(snmp_tree, tvb, offset, -1,"Unknown version");
+		expert_add_info(pinfo, item, &ei_snmp_version_unknown);
 		return length_remaining;
 		break;
 	}
@@ -2442,6 +2430,9 @@ void proto_register_snmp(void) {
 		{ &hf_snmp_var_bind_str, {
 		    "Variable-binding-string", "snmp.var-bind_str", FT_STRING, BASE_NONE,
 		    NULL, 0, NULL, HFILL }},
+		{ &hf_snmp_agentid_trailer, {
+		    "AgentID Trailer", "snmp.agentid_trailer", FT_BYTES, BASE_NONE,
+		    NULL, 0, NULL, HFILL }},
 
 
 #include "packet-snmp-hfarr.c"
@@ -2464,7 +2455,7 @@ void proto_register_snmp(void) {
   };
   static ei_register_info ei[] = {
      { &ei_snmp_failed_decrypted_data_pdu, { "snmp.failed_decrypted_data_pdu", PI_MALFORMED, PI_WARN, "Failed to decrypt encryptedPDU", EXPFILL }},
-     { &ei_snmp_decrypted_data_bad_formatted, { "snmp.decrypted_data_bad_formatted", PI_MALFORMED, PI_WARN, "Decrypted data not formatted as expected", EXPFILL }},
+     { &ei_snmp_decrypted_data_bad_formatted, { "snmp.decrypted_data_bad_formatted", PI_MALFORMED, PI_WARN, "Decrypted data not formatted as expected, wrong key?", EXPFILL }},
      { &ei_snmp_verify_authentication_error, { "snmp.verify_authentication_error", PI_MALFORMED, PI_ERROR, "Error while verifying Message authenticity", EXPFILL }},
      { &ei_snmp_authentication_ok, { "snmp.authentication_ok", PI_CHECKSUM, PI_CHAT, "SNMP Authentication OK", EXPFILL }},
      { &ei_snmp_authentication_error, { "snmp.authentication_error", PI_CHECKSUM, PI_WARN, "SNMP Authentication Error", EXPFILL }},
@@ -2479,10 +2470,10 @@ void proto_register_snmp(void) {
      { &ei_snmp_no_instance_subid, { "snmp.no_instance_subid", PI_MALFORMED, PI_WARN, "No instance sub-id in scalar value", EXPFILL }},
      { &ei_snmp_wrong_num_of_subids, { "snmp.wrong_num_of_subids", PI_MALFORMED, PI_WARN, "Wrong number of instance sub-ids in scalar value", EXPFILL }},
      { &ei_snmp_index_suboid_too_short, { "snmp.index_suboid_too_short", PI_MALFORMED, PI_WARN, "index sub-oid shorter than expected", EXPFILL }},
-     { &ei_snmp_unimplemented_instance_index, { "snmp.unimplemented_instance_index", PI_UNDECODED, PI_WARN, "Unimplemented instance index", EXPFILL }},
-     { &ei_snmp_index_suboid_len0, { "snmp.ndex_suboid_len0", PI_MALFORMED, PI_WARN, "index sub-oid OID with len=0", EXPFILL }},
-     { &ei_snmp_index_suboid_too_long, { "snmp.index_suboid_too_long", PI_MALFORMED, PI_WARN, "index sub-oid longer than remaining oid size", EXPFILL }},
-     { &ei_snmp_index_string_too_long, { "snmp.index_string_too_long", PI_MALFORMED, PI_WARN, "index string longer than remaining oid size", EXPFILL }},
+     { &ei_snmp_unimplemented_instance_index, { "snmp.unimplemented_instance_index", PI_UNDECODED, PI_WARN, "OID instaces not handled, if you want this implemented please contact the wireshark developers", EXPFILL }},
+     { &ei_snmp_index_suboid_len0, { "snmp.ndex_suboid_len0", PI_MALFORMED, PI_WARN, "an index sub-oid OID cannot be 0 bytes long!", EXPFILL }},
+     { &ei_snmp_index_suboid_too_long, { "snmp.index_suboid_too_long", PI_MALFORMED, PI_WARN, "index sub-oid should not be longer than remaining oid size", EXPFILL }},
+     { &ei_snmp_index_string_too_long, { "snmp.index_string_too_long", PI_MALFORMED, PI_WARN, "index string should not be longer than remaining oid size", EXPFILL }},
      { &ei_snmp_column_parent_not_row, { "snmp.column_parent_not_row", PI_MALFORMED, PI_ERROR, "COLUMS's parent is not a ROW", EXPFILL }},
      { &ei_snmp_uint_too_large, { "snmp.uint_too_large", PI_UNDECODED, PI_NOTE, "Unsigned integer value > 2^64 - 1", EXPFILL }},
      { &ei_snmp_int_too_large, { "snmp.int_too_large", PI_UNDECODED, PI_NOTE, "Signed integer value > 2^63 - 1 or <= -2^63", EXPFILL }},
@@ -2490,6 +2481,9 @@ void proto_register_snmp(void) {
      { &ei_snmp_missing_mib, { "snmp.missing_mib", PI_UNDECODED, PI_NOTE, "Unresolved value, Missing MIB", EXPFILL }},
      { &ei_snmp_varbind_wrong_length_value, { "snmp.varbind.wrong_length_value", PI_MALFORMED, PI_WARN, "Wrong length for SNMP VarBind/value", EXPFILL }},
      { &ei_snmp_varbind_wrong_class_tag, { "snmp.varbind.wrong_class_tag", PI_MALFORMED, PI_WARN, "Wrong class/tag for SNMP VarBind/value", EXPFILL }},
+     { &ei_snmp_rfc1910_non_conformant, { "snmp.rfc1910_non_conformant", PI_PROTOCOL, PI_WARN, "Data not conforming to RFC1910", EXPFILL }},
+     { &ei_snmp_rfc3411_non_conformant, { "snmp.rfc3411_non_conformant", PI_PROTOCOL, PI_WARN, "Data not conforming to RFC3411", EXPFILL }},
+     { &ei_snmp_version_unknown, { "snmp.version.unknown", PI_PROTOCOL, PI_WARN, "Unknown version", EXPFILL }},
 
   };
 

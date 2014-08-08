@@ -264,7 +264,7 @@ OPERATION.&ResultType
 
 	if(len == 0) {
 		/* its an empty set - i.e anonymous  (assuming version is DEFAULTed) */
-		proto_tree_add_text(tree, tvb, offset, -1,"Anonymous");
+		proto_tree_add_expert(tree, actx->pinfo, &ei_dap_anonymous, tvb, offset, -1);
 
 		col_append_str(actx->pinfo->cinfo, COL_INFO, " anonymous");
 

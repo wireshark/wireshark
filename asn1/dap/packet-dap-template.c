@@ -26,6 +26,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include <epan/expert.h>
 #include <epan/oids.h>
 #include <epan/asn1.h>
 
@@ -68,6 +69,8 @@ static int proto_dap = -1;
 static gint ett_dap = -1;
 #include "packet-dap-ett.c"
 
+static expert_field ei_dap_anonymous = EI_INIT;
+
 #include "packet-dap-val.h"
 
 #include "packet-dap-table.c"   /* operation and error codes */
@@ -102,7 +105,13 @@ void proto_register_dap(void) {
     &ett_dap,
 #include "packet-dap-ettarr.c"
   };
+
+  static ei_register_info ei[] = {
+    { &ei_dap_anonymous, { "dap.anonymous", PI_PROTOCOL, PI_NOTE, "Anonymous", EXPFILL }},
+  };
+
   module_t *dap_module;
+  expert_module_t* expert_dap;
 
   /* Register protocol */
   proto_dap = proto_register_protocol(PNAME, PSNAME, PFNAME);
@@ -110,6 +119,8 @@ void proto_register_dap(void) {
   /* Register fields and subtrees */
   proto_register_field_array(proto_dap, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  expert_dap = expert_register_protocol(proto_dap);
+  expert_register_field_array(expert_dap, ei, array_length(ei));
 
   /* Register our configuration options for DAP, particularly our port */
 

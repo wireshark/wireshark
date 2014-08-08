@@ -38,6 +38,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include <epan/oids.h>
 #include <epan/asn1.h>
 
@@ -481,7 +482,7 @@ static int hf_ftam_Attribute_Names_read_l8gal_qualifiCatiOnS = -1;
 static int hf_ftam_Attribute_Names_read_private_use = -1;
 
 /*--- End of included file: packet-ftam-hf.c ---*/
-#line 57 "../../asn1/ftam/packet-ftam-template.c"
+#line 58 "../../asn1/ftam/packet-ftam-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_ftam = -1;
@@ -652,7 +653,9 @@ static gint ett_ftam_Attribute_Names = -1;
 static gint ett_ftam_AE_title = -1;
 
 /*--- End of included file: packet-ftam-ett.c ---*/
-#line 61 "../../asn1/ftam/packet-ftam-template.c"
+#line 62 "../../asn1/ftam/packet-ftam-template.c"
+
+static expert_field ei_ftam_zero_pdu = EI_INIT;
 
 
 /*--- Included file: packet-ftam-fn.c ---*/
@@ -4736,7 +4739,7 @@ dissect_ftam_PDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, a
 
 
 /*--- End of included file: packet-ftam-fn.c ---*/
-#line 63 "../../asn1/ftam/packet-ftam-template.c"
+#line 66 "../../asn1/ftam/packet-ftam-template.c"
 
 /*
 * Dissect FTAM unstructured text
@@ -4781,7 +4784,7 @@ dissect_ftam(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		old_offset=offset;
 		offset=dissect_ftam_PDU(FALSE, tvb, offset, &asn1_ctx, tree, -1);
 		if(offset == old_offset){
-			proto_tree_add_text(tree, tvb, offset, -1,"Internal error, zero-byte FTAM PDU");
+			proto_tree_add_expert(tree, pinfo, &ei_ftam_zero_pdu, tvb, offset, -1);
 			break;
 		}
 	}
@@ -6461,7 +6464,7 @@ void proto_register_ftam(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-ftam-hfarr.c ---*/
-#line 127 "../../asn1/ftam/packet-ftam-template.c"
+#line 130 "../../asn1/ftam/packet-ftam-template.c"
   };
 
   /* List of subtrees */
@@ -6634,8 +6637,13 @@ void proto_register_ftam(void) {
     &ett_ftam_AE_title,
 
 /*--- End of included file: packet-ftam-ettarr.c ---*/
-#line 133 "../../asn1/ftam/packet-ftam-template.c"
+#line 136 "../../asn1/ftam/packet-ftam-template.c"
   };
+  static ei_register_info ei[] = {
+    { &ei_ftam_zero_pdu, { "ftam.zero_pdu", PI_PROTOCOL, PI_ERROR, "Internal error, zero-byte FTAM PDU", EXPFILL }},
+  };
+
+  expert_module_t* expert_ftam;
 
   /* Register protocol */
   proto_ftam = proto_register_protocol(PNAME, PSNAME, PFNAME);
@@ -6643,6 +6651,8 @@ void proto_register_ftam(void) {
   /* Register fields and subtrees */
   proto_register_field_array(proto_ftam, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  expert_ftam = expert_register_protocol(proto_ftam);
+  expert_register_field_array(expert_ftam, ei, array_length(ei));
 
 }
 

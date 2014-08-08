@@ -666,12 +666,13 @@ H221NonStandard/manufacturerCode  VAL_PTR = &manufacturerCode
 
 #.FN_HDR GenericIdentifier
   gef_ctx_t *gefx;
+  proto_item* ti;
 #.FN_FTR
   gef_ctx_update_key(gef_ctx_get(actx->private_data));
-  /* DEBUG */ /*proto_tree_add_text(tree, tvb, offset>>3, 0, "*** DEBUG GenericIdentifier: %s", gef_ctx_get(actx->private_data)->key);*/
   gefx = gef_ctx_get(actx->private_data);
   if (gefx) {
-    /* DEBUG */ /*proto_tree_add_text(tree, tvb, offset>>3, 0, "*** DEBUG dissector_try_string: %s", gefx->key);*/
+    ti = proto_tree_add_string(tree, hf_h225_debug_dissector_try_string, tvb, offset>>3, 0, gefx->key);
+	PROTO_ITEM_SET_HIDDEN(ti);
     dissector_try_string(gef_name_dissector_table, gefx->key, tvb_new_subset(tvb, offset>>3, 0, 0), actx->pinfo, tree, actx);
   }
   actx->private_data = gefx;  /* subdissector could overwrite it */
@@ -699,11 +700,13 @@ H221NonStandard/manufacturerCode  VAL_PTR = &manufacturerCode
 #.FN_BODY Content/raw  VAL_PTR = &value_tvb
   tvbuff_t *value_tvb;
   gef_ctx_t *gefx;
+  proto_item* ti;
 
 %(DEFAULT_BODY)s
   gefx = gef_ctx_get(actx->private_data);
   if (gefx) {
-    /* DEBUG */ /*proto_tree_add_text(tree, tvb, offset>>3, 0, "*** DEBUG dissector_try_string: %%s", gefx->key);*/
+    ti = proto_tree_add_string(tree, hf_h225_debug_dissector_try_string, tvb, offset>>3, 0, gefx->key);
+	PROTO_ITEM_SET_HIDDEN(ti);
     dissector_try_string(gef_content_dissector_table, gefx->key, value_tvb, %(ACTX)s->pinfo, %(TREE)s, %(ACTX)s);
   }
 #.END

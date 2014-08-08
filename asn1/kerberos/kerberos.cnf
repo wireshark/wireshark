@@ -202,7 +202,7 @@ guint32 msgtype;
 		address_str = tvb_ip6_to_str(tvb, offset);
 		break;
 	default:
-		proto_tree_add_text(tree, tvb, offset, len, "KRB Address: I dont know how to parse this type of address yet");
+		proto_tree_add_expert(tree, actx->pinfo, &ei_kerberos_address, tvb, offset, len);
 		address_str = NULL;
 	}
 

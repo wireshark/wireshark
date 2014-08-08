@@ -95,6 +95,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include <epan/expert.h>
 #include <epan/tap.h>
 #include <epan/asn1.h>
 #include <epan/wmem/wmem.h>
@@ -327,6 +328,10 @@ static int hf_ansi_map_winoperationscapability_ccdir = -1;
 static int hf_ansi_map_winoperationscapability_pos = -1;
 static int hf_ansi_map_PACA_Level = -1;
 static int hf_ansi_map_pacaindicator_pa = -1;
+
+static int hf_ansi_map_point_code = -1;
+static int hf_ansi_map_SSN = -1;
+static int hf_ansi_map_win_trigger_list = -1;
 
 
 /*--- Included file: packet-ansi_map-hf.c ---*/
@@ -880,7 +885,7 @@ static int hf_ansi_map_interSystemSMSDeliveryPointToPointRes = -1;  /* InterSyst
 static int hf_ansi_map_qualificationRequest2Res = -1;  /* QualificationRequest2Res */
 
 /*--- End of included file: packet-ansi_map-hf.c ---*/
-#line 324 "../../asn1/ansi_map/packet-ansi_map-template.c"
+#line 329 "../../asn1/ansi_map/packet-ansi_map-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_ansi_map = -1;
@@ -1140,7 +1145,11 @@ static gint ett_ansi_map_InvokeData = -1;
 static gint ett_ansi_map_ReturnData = -1;
 
 /*--- End of included file: packet-ansi_map-ett.c ---*/
-#line 356 "../../asn1/ansi_map/packet-ansi_map-template.c"
+#line 361 "../../asn1/ansi_map/packet-ansi_map-template.c"
+
+static expert_field ei_ansi_map_nr_not_used = EI_INIT;
+static expert_field ei_ansi_map_unknown_invokeData_blob = EI_INIT;
+static expert_field ei_ansi_map_no_data = EI_INIT;
 
 /* Global variables */
 static dissector_table_t is637_tele_id_dissector_table; /* IS-637 Teleservice ID */
@@ -1437,7 +1446,7 @@ dissect_ansi_map_min_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 }
 
 static void
-dissect_ansi_map_digits_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_, asn1_ctx_t *actx _U_){
+dissect_ansi_map_digits_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, asn1_ctx_t *actx _U_){
 
     guint8 octet , octet_len;
     guint8 b1,b2,b3,b4;
@@ -1501,7 +1510,7 @@ dissect_ansi_map_digits_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
     case 3:/* Data Numbering (ITU-T Rec. X.121) (not used in this Standard). */
     case 4:/* Telex Numbering (ITU-T Rec. F.69) (not used in this Standard). */
     case 5:/* Maritime Mobile Numbering (not used in this Standard). */
-        proto_tree_add_text(subtree, tvb, offset, -1, "This Number plan should not have been used");
+        proto_tree_add_expert(subtree, pinfo, &ei_ansi_map_nr_not_used, tvb, offset, -1);
         break;
     case 2:/* Telephony Numbering (ITU-T Rec. E.164,E.163). */
     case 6:/* Land Mobile Numbering (ITU-T Rec. E.212) */
@@ -1543,10 +1552,10 @@ dissect_ansi_map_digits_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
             /* Point Code Network Number octet 4 */
             b3 = tvb_get_guint8(tvb,offset);
             offset++;
+            proto_tree_add_bytes_format_value(subtree, hf_ansi_map_point_code, tvb, offset-3, 3, NULL, "%u-%u-%u", b3, b2, b1);
             /* Subsystem Number (SSN) octet 5 */
             b4 = tvb_get_guint8(tvb,offset);
-            proto_tree_add_text(subtree, tvb, offset-3, 4 , "Point Code %u-%u-%u  SSN %u",
-                                b3, b2, b1, b4);
+            proto_tree_add_item(subtree, hf_ansi_map_SSN, tvb, offset, 1, ENC_NA);
             proto_item_append_text(actx->created_item, " - Point Code %u-%u-%u  SSN %u", b3, b2, b1, b4);
             break;
         default:
@@ -1556,7 +1565,7 @@ dissect_ansi_map_digits_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
     case 14:/* Internet Protocol (IP) Address. */
         break;
     default:
-        proto_tree_add_text(subtree, tvb, offset, -1, "This Number plan should not have been used");
+        proto_tree_add_expert(subtree, pinfo, &ei_ansi_map_nr_not_used, tvb, offset, -1);
         break;
     }
 
@@ -3031,7 +3040,7 @@ dissect_ansi_map_pc_ssn(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree 
 
     int offset = 0;
     proto_tree *subtree;
-    guint8 b1,b2,b3,b4;
+    guint8 b1,b2,b3;
 
 
     subtree = proto_item_add_subtree(actx->created_item, ett_billingid);
@@ -3047,11 +3056,8 @@ dissect_ansi_map_pc_ssn(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree 
     /* Point Code Network Number octet 4 */
     b3 = tvb_get_guint8(tvb,offset);
     offset++;
-    /* Subsystem Number (SSN) octet 5 */
-    b4 = tvb_get_guint8(tvb,offset);
-    proto_tree_add_text(subtree, tvb, offset-3, 4 , "Point Code %u-%u-%u  SSN %u",
-                        b3, b2, b1, b4);
-
+    proto_tree_add_bytes_format_value(subtree, hf_ansi_map_point_code, tvb, offset-3, 3, NULL, "%u-%u-%u", b3, b2, b1);
+    proto_tree_add_item(subtree, hf_ansi_map_SSN, tvb, offset, 1, ENC_NA);
 }
 /* 6.5.2.94 PilotBillingID */
 static void
@@ -15466,7 +15472,7 @@ dissect_ansi_map_ReturnData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 
 /*--- End of included file: packet-ansi_map-fn.c ---*/
-#line 3630 "../../asn1/ansi_map/packet-ansi_map-template.c"
+#line 3636 "../../asn1/ansi_map/packet-ansi_map-template.c"
 
 /*
  * 6.5.2.dk N.S0013-0 v 1.0,X.S0004-550-E v1.0 2.301
@@ -15487,23 +15493,23 @@ dissect_ansi_map_win_trigger_list(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
         octet = tvb_get_guint8(tvb,offset);
         switch (octet){
         case 0xdc:
-            proto_tree_add_text(subtree, tvb, offset, 1, "TDP-R's armed");
+            proto_tree_add_uint_format(subtree, hf_ansi_map_win_trigger_list, tvb, offset, 1, octet, "TDP-R's armed");
             j=0;
             break;
         case 0xdd:
-            proto_tree_add_text(subtree, tvb, offset, 1, "TDP-N's armed");
+            proto_tree_add_uint_format(subtree, hf_ansi_map_win_trigger_list, tvb, offset, 1, octet, "TDP-N's armed");
             j=0;
             break;
         case 0xde:
-            proto_tree_add_text(subtree, tvb, offset, 1, "EDP-R's armed");
+            proto_tree_add_uint_format(subtree, hf_ansi_map_win_trigger_list, tvb, offset, 1, octet, "EDP-R's armed");
             j=0;
             break;
         case 0xdf:
-            proto_tree_add_text(subtree, tvb, offset, 1, "EDP-N's armed");
+            proto_tree_add_uint_format(subtree, hf_ansi_map_win_trigger_list, tvb, offset, 1, octet, "EDP-N's armed");
             j=0;
             break;
         default:
-            proto_tree_add_text(subtree, tvb, offset, 1, "[%u] (%u) %s",j,octet,val_to_str_ext(octet, &ansi_map_TriggerType_vals_ext, "Unknown TriggerType (%u)"));
+            proto_tree_add_uint_format(subtree, hf_ansi_map_win_trigger_list, tvb, offset, 1, octet, "[%u] (%u) %s",j,octet,val_to_str_ext(octet, &ansi_map_TriggerType_vals_ext, "Unknown TriggerType (%u)"));
             j++;
             break;
         }
@@ -15536,7 +15542,7 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
         offset = dissect_ansi_map_FacilitiesDirective(TRUE, tvb, offset, actx, tree, hf_ansi_map_facilitiesDirective);
         break;
     case 3: /*Mobile On Channel*/
-        proto_tree_add_text(tree, tvb, offset, -1, "[Carries no data]");
+        proto_tree_add_expert(tree, actx->pinfo, &ei_ansi_map_no_data, tvb, offset, -1);
         break;
     case 4: /*Handoff Back*/
         offset = dissect_ansi_map_HandoffBack(TRUE, tvb, offset, actx, tree, hf_ansi_map_handoffBack);
@@ -15581,16 +15587,16 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
         offset = dissect_ansi_map_FeatureRequest(TRUE, tvb, offset, actx, tree, hf_ansi_map_featureRequest);
         break;
     case  18: /*Reserved 18 (Service Profile Request, IS-41-C)*/
-        proto_tree_add_text(tree, tvb, offset, -1, "Unknown invokeData blob(18 (Service Profile Request, IS-41-C)");
+        proto_tree_add_expert_format(tree, actx->pinfo, &ei_ansi_map_unknown_invokeData_blob, tvb, offset, -1, "Unknown invokeData blob(18 (Service Profile Request, IS-41-C)");
         break;
     case  19: /*Reserved 19 (Service Profile Directive, IS-41-C)*/
-        proto_tree_add_text(tree, tvb, offset, -1, "Unknown invokeData blob(19 Service Profile Directive, IS-41-C)");
+        proto_tree_add_expert_format(tree, actx->pinfo, &ei_ansi_map_unknown_invokeData_blob, tvb, offset, -1, "Unknown invokeData blob(19 Service Profile Directive, IS-41-C)");
         break;
     case  20: /*Unreliable Roamer Data Directive*/
         offset = dissect_ansi_map_UnreliableRoamerDataDirective(TRUE, tvb, offset, actx, tree, hf_ansi_map_unreliableRoamerDataDirective);
         break;
     case  21: /*Reserved 21 (Call Data Request, IS-41-C)*/
-        proto_tree_add_text(tree, tvb, offset, -1, "Unknown invokeData blob(Reserved 21 (Call Data Request, IS-41-C)");
+        proto_tree_add_expert_format(tree, actx->pinfo, &ei_ansi_map_unknown_invokeData_blob, tvb, offset, -1, "Unknown invokeData blob(Reserved 21 (Call Data Request, IS-41-C)");
         break;
     case  22: /*MS Inactive*/
         offset = dissect_ansi_map_MSInactive(TRUE, tvb, offset, actx, tree, hf_ansi_map_mSInactive);
@@ -15650,7 +15656,7 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
         offset = dissect_ansi_map_AuthenticationStatusReport(TRUE, tvb, offset, actx, tree, hf_ansi_map_authenticationStatusReport);
         break;
     case  41: /*Reserved 41*/
-        proto_tree_add_text(tree, tvb, offset, -1, "Reserved 41, Unknown invokeData blob");
+        proto_tree_add_expert_format(tree, actx->pinfo, &ei_ansi_map_unknown_invokeData_blob, tvb, offset, -1, "Reserved 41, Unknown invokeData blob");
         break;
     case  42: /*Information Directive*/
         offset = dissect_ansi_map_InformationDirective(TRUE, tvb, offset, actx, tree, hf_ansi_map_informationDirective);
@@ -15875,7 +15881,7 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
         offset = dissect_ansi_map_QualificationRequest2(TRUE, tvb, offset, actx, tree, hf_ansi_map_qualificationRequest2);
         break;
     default:
-        proto_tree_add_text(tree, tvb, offset, -1, "Unknown invokeData blob");
+        proto_tree_add_expert(tree, actx->pinfo, &ei_ansi_map_unknown_invokeData_blob, tvb, offset, -1);
         opCodeKnown = FALSE;
         break;
     }
@@ -15952,7 +15958,7 @@ static int dissect_returnData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
         break;
     case  26: /*Flash Request*/
         /* No data */
-        proto_tree_add_text(tree, tvb, offset, -1, "No Data");
+        proto_tree_add_expert(tree, actx->pinfo, &ei_ansi_map_no_data, tvb, offset, -1);
         break;
     case  27: /*Authentication Directive*/
         offset = dissect_ansi_map_AuthenticationDirectiveRes(TRUE, tvb, offset, actx, tree, hf_ansi_map_authenticationDirectiveRes);
@@ -16146,7 +16152,7 @@ static int dissect_returnData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
         offset = dissect_ansi_map_QualificationRequest2Res(TRUE, tvb, offset, actx, tree, hf_ansi_map_qualificationRequest2Res);
         break;
     default:
-        proto_tree_add_text(tree, tvb, offset, -1, "Unknown invokeData blob");
+        proto_tree_add_expert(tree, actx->pinfo, &ei_ansi_map_unknown_invokeData_blob, tvb, offset, -1);
         opCodeKnown = FALSE;
         break;
     }
@@ -17109,6 +17115,18 @@ void proto_register_ansi_map(void) {
         { &hf_ansi_map_PACA_Level,
           { "PACA Level", "ansi_map.PACA_Level",
             FT_UINT8, BASE_DEC, VALS(ansi_map_PACA_Level_vals), 0x1e,
+            NULL, HFILL }},
+        { &hf_ansi_map_point_code,
+          { "Point Code", "ansi_map.point_code",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+        { &hf_ansi_map_SSN,
+          { "SSN", "ansi_map.SSN",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+        { &hf_ansi_map_win_trigger_list,
+          { "WIN trigger list", "ansi_map.win_trigger_list",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
 
@@ -19304,7 +19322,7 @@ void proto_register_ansi_map(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-ansi_map-hfarr.c ---*/
-#line 5275 "../../asn1/ansi_map/packet-ansi_map-template.c"
+#line 5293 "../../asn1/ansi_map/packet-ansi_map-template.c"
     };
 
     /* List of subtrees */
@@ -19565,8 +19583,16 @@ void proto_register_ansi_map(void) {
     &ett_ansi_map_ReturnData,
 
 /*--- End of included file: packet-ansi_map-ettarr.c ---*/
-#line 5308 "../../asn1/ansi_map/packet-ansi_map-template.c"
+#line 5326 "../../asn1/ansi_map/packet-ansi_map-template.c"
     };
+
+    static ei_register_info ei[] = {
+        { &ei_ansi_map_nr_not_used, { "ansi_map.nr_not_used", PI_PROTOCOL, PI_WARN, "This Number plan should not have been used", EXPFILL }},
+        { &ei_ansi_map_unknown_invokeData_blob, { "ansi_map.unknown_invokeData_blob", PI_PROTOCOL, PI_WARN, "Unknown invokeData blob", EXPFILL }},
+        { &ei_ansi_map_no_data, { "ansi_map.no_data", PI_PROTOCOL, PI_NOTE, "Carries no data", EXPFILL }},
+    };
+
+    expert_module_t* expert_ansi_map;
 
     static const enum_val_t ansi_map_response_matching_type_values[] = {
         {"Only Transaction ID will be used in Invoke/response matching",                    "Transaction ID only", 0},
@@ -19580,6 +19606,8 @@ void proto_register_ansi_map(void) {
     /* Register fields and subtrees */
     proto_register_field_array(proto_ansi_map, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_ansi_map = expert_register_protocol(proto_ansi_map);
+    expert_register_field_array(expert_ansi_map, ei, array_length(ei));
 
     new_register_dissector("ansi_map", dissect_ansi_map, proto_ansi_map);
 

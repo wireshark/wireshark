@@ -25,6 +25,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include <epan/asn1.h>
 
 #include "packet-ber.h"
@@ -44,6 +45,8 @@ static int proto_charging_ase = -1;
 
 static int ett_charging_ase = -1;
 #include "packet-charging_ase-ett.c"
+
+static expert_field ei_charging_ase_extensions_not_dissected = EI_INIT;
 
 static dissector_handle_t charging_ase_handle;
 
@@ -79,10 +82,18 @@ proto_register_charging_ase(void)
 #include "packet-charging_ase-ettarr.c"
         };
 
+  static ei_register_info ei[] = {
+      { &ei_charging_ase_extensions_not_dissected, { "charging_ase.extensions_not_dissected", PI_UNDECODED, PI_WARN, "Extensions not dissected", EXPFILL }},
+  };
+
+  expert_module_t* expert_charging_ase;
+
   proto_charging_ase = proto_register_protocol(PNAME, PSNAME, PFNAME);
 
   proto_register_field_array(proto_charging_ase, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  expert_charging_ase = expert_register_protocol(proto_charging_ase);
+  expert_register_field_array(expert_charging_ase, ei, array_length(ei));
 }
 
 /* The registration hand-off routine */

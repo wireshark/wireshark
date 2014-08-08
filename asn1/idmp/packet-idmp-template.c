@@ -81,6 +81,7 @@ static int hf_idmp_fragment_error = -1;
 static int hf_idmp_fragment_count = -1;
 static int hf_idmp_reassembled_in = -1;
 static int hf_idmp_reassembled_length = -1;
+static int hf_idmp_segment_data = -1;
 
 static gint ett_idmp_fragment = -1;
 static gint ett_idmp_fragments = -1;
@@ -197,9 +198,7 @@ static int dissect_idmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
                                         idmp_length, !idmp_final);
 
         if(fd_head && fd_head->next) {
-            proto_tree_add_text(tree, tvb, offset, (idmp_length) ? -1 : 0,
-                                "IDMP segment data (%u byte%s)", idmp_length,
-                                plurality(idmp_length, "", "s"));
+            proto_tree_add_item(tree, hf_idmp_segment_data, tvb, offset, (idmp_length) ? -1 : 0, ENC_NA);
 
             if (idmp_final) {
                 /* This is the last segment */
@@ -219,9 +218,8 @@ static int dissect_idmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
             col_append_fstr(pinfo->cinfo, COL_INFO, " [IDMP fragment, %u byte%s, IDMP reassembly not enabled]",
                                 idmp_length, plurality(idmp_length, "", "s"));
 
-            proto_tree_add_text(tree, tvb, offset, (idmp_length) ? -1 : 0,
-                                "IDMP segment data (%u byte%s) (IDMP reassembly not enabled)", idmp_length,
-                                plurality(idmp_length, "", "s"));
+            proto_tree_add_bytes_format_value(tree, hf_idmp_segment_data, tvb, offset, (idmp_length) ? -1 : 0,
+                                NULL, "(IDMP reassembly not enabled)");
         }
     }
     /* not reassembling - just dissect */
@@ -310,6 +308,9 @@ void proto_register_idmp(void)
         { &hf_idmp_reassembled_length,
           { "Reassembled IDMP length", "idmp.reassembled.length", FT_UINT32, BASE_DEC,
             NULL, 0x00, "The total length of the reassembled payload", HFILL } },
+        { &hf_idmp_segment_data,
+          { "IDMP segment data", "idmp.segment_data", FT_BYTES, BASE_NONE,
+            NULL, 0x00, NULL, HFILL } },
 
 #include "packet-idmp-hfarr.c"
     };

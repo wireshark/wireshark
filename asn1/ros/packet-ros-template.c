@@ -75,6 +75,15 @@ static int hf_ros_time = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_ros = -1;
+static gint ett_ros_unknown = -1;
+static gint ett_ros_invoke_argument = -1;
+static gint ett_ros_return_result = -1;
+static gint ett_ros_bind_invoke = -1;
+static gint ett_ros_bind_result = -1;
+static gint ett_ros_bind_error = -1;
+static gint ett_ros_unbind_invoke = -1;
+static gint ett_ros_unbind_result = -1;
+static gint ett_ros_unbind_error = -1;
 #include "packet-ros-ett.c"
 
 static expert_field ei_ros_dissector_oid_not_implemented = EI_INIT;
@@ -84,7 +93,6 @@ static dissector_table_t ros_oid_dissector_table=NULL;
 
 static GHashTable *oid_table=NULL;
 static GHashTable *protocol_table=NULL;
-static gint ett_ros_unknown = -1;
 
 void
 register_ros_oid_dissector_handle(const char *oid, dissector_handle_t dissector, int proto _U_, const char *name, gboolean uses_rtse)
@@ -483,6 +491,15 @@ void proto_register_ros(void) {
   static gint *ett[] = {
     &ett_ros,
     &ett_ros_unknown,
+    &ett_ros_invoke_argument,
+    &ett_ros_return_result,
+    &ett_ros_bind_invoke,
+    &ett_ros_bind_result,
+    &ett_ros_bind_error,
+    &ett_ros_unbind_invoke,
+    &ett_ros_unbind_result,
+    &ett_ros_unbind_error,
+
 #include "packet-ros-ettarr.c"
   };
 

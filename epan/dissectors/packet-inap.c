@@ -1050,6 +1050,7 @@ static int inap_opcode_type;
 static gint ett_inap = -1;
 static gint ett_inapisup_parameter = -1;
 static gint ett_inap_HighLayerCompatibility = -1;
+static gint ett_inap_extention_data = -1;
 
 /*--- Included file: packet-inap-ett.c ---*/
 #line 1 "../../asn1/inap/packet-inap-ett.c"
@@ -1291,7 +1292,7 @@ static gint ett_inap_T_problem_01 = -1;
 static gint ett_inap_InvokeId = -1;
 
 /*--- End of included file: packet-inap-ett.c ---*/
-#line 83 "../../asn1/inap/packet-inap-template.c"
+#line 84 "../../asn1/inap/packet-inap-template.c"
 
 static expert_field ei_inap_unknown_invokeData = EI_INIT;
 static expert_field ei_inap_unknown_returnResultData = EI_INIT;
@@ -1421,7 +1422,7 @@ static const value_string inap_err_code_string_vals[] = {
 
 
 /*--- End of included file: packet-inap-table.c ---*/
-#line 89 "../../asn1/inap/packet-inap-template.c"
+#line 90 "../../asn1/inap/packet-inap-template.c"
 
 const value_string inap_general_problem_strings[] = {
 {0,"General Problem Unrecognized Component"},
@@ -1516,11 +1517,12 @@ dissect_inap_Code(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, 
 static int
 dissect_inap_T_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 215 "../../asn1/inap/inap.cnf"
-  proto_tree_add_text(tree, tvb, offset, -1, "Extension Data");
+  proto_tree *ext_tree;
+  ext_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_inap_extention_data, NULL, "Extension Data");
   if (obj_id){
-	 offset=call_ber_oid_callback(obj_id, tvb, offset, actx->pinfo, tree, NULL);
+	 offset=call_ber_oid_callback(obj_id, tvb, offset, actx->pinfo, ext_tree, NULL);
   }else{
-	 call_dissector(data_handle, tvb, actx->pinfo, tree);
+	 call_dissector(data_handle, tvb, actx->pinfo, ext_tree);
 	 offset = tvb_length_remaining(tvb,offset);
   }
 
@@ -2195,7 +2197,7 @@ dissect_inap_BCSMEvent(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 static int
 dissect_inap_T_bearerCap(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 247 "../../asn1/inap/inap.cnf"
+#line 248 "../../asn1/inap/inap.cnf"
 
  tvbuff_t	*parameter_tvb;
 
@@ -2350,7 +2352,7 @@ dissect_inap_CalledPartyBusinessGroupID(gboolean implicit_tag _U_, tvbuff_t *tvb
 
 static int
 dissect_inap_CalledPartyNumber(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 226 "../../asn1/inap/inap.cnf"
+#line 227 "../../asn1/inap/inap.cnf"
   tvbuff_t *parameter_tvb;
 
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
@@ -2401,7 +2403,7 @@ dissect_inap_CallingPartyBusinessGroupID(gboolean implicit_tag _U_, tvbuff_t *tv
 
 static int
 dissect_inap_CallingPartyNumber(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 236 "../../asn1/inap/inap.cnf"
+#line 237 "../../asn1/inap/inap.cnf"
   tvbuff_t *parameter_tvb;
 
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
@@ -4539,7 +4541,7 @@ dissect_inap_GlobalCallReference(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
 int
 dissect_inap_HighLayerCompatibility(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 289 "../../asn1/inap/inap.cnf"
+#line 290 "../../asn1/inap/inap.cnf"
 /*
  * -- Indicates the teleservice. For encoding, DSS1 (Q.931) is used.
  */
@@ -4713,7 +4715,7 @@ dissect_inap_NumberingPlan(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
 static int
 dissect_inap_OriginalCalledPartyID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 269 "../../asn1/inap/inap.cnf"
+#line 270 "../../asn1/inap/inap.cnf"
 
  tvbuff_t	*parameter_tvb;
 
@@ -4776,7 +4778,7 @@ dissect_inap_Reason(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 
 static int
 dissect_inap_RedirectingPartyID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 279 "../../asn1/inap/inap.cnf"
+#line 280 "../../asn1/inap/inap.cnf"
 
  tvbuff_t	*parameter_tvb;
 
@@ -4797,7 +4799,7 @@ dissect_inap_RedirectingPartyID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
 int
 dissect_inap_RedirectionInformation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 258 "../../asn1/inap/inap.cnf"
+#line 259 "../../asn1/inap/inap.cnf"
 
  tvbuff_t	*parameter_tvb;
 
@@ -8981,7 +8983,7 @@ static int dissect_PAR_taskRefused_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_
 
 
 /*--- End of included file: packet-inap-fn.c ---*/
-#line 103 "../../asn1/inap/packet-inap-template.c"
+#line 104 "../../asn1/inap/packet-inap-template.c"
 /*
 TC-Invokable OPERATION ::=
   {activateServiceFiltering | activityTest | analysedInformation |
@@ -9331,7 +9333,7 @@ static int dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, int offset,a
 
 
 /*--- End of included file: packet-inap-table2.c ---*/
-#line 124 "../../asn1/inap/packet-inap-template.c"
+#line 125 "../../asn1/inap/packet-inap-template.c"
 
 
 static guint8 inap_pdu_type = 0;
@@ -11657,7 +11659,7 @@ void proto_register_inap(void) {
         "InvokeId_present", HFILL }},
 
 /*--- End of included file: packet-inap-hfarr.c ---*/
-#line 205 "../../asn1/inap/packet-inap-template.c"
+#line 206 "../../asn1/inap/packet-inap-template.c"
   };
 
 
@@ -11670,6 +11672,7 @@ void proto_register_inap(void) {
     &ett_inap,
 	&ett_inapisup_parameter,
 	&ett_inap_HighLayerCompatibility,
+    &ett_inap_extention_data,
 
 /*--- Included file: packet-inap-ettarr.c ---*/
 #line 1 "../../asn1/inap/packet-inap-ettarr.c"
@@ -11911,7 +11914,7 @@ void proto_register_inap(void) {
     &ett_inap_InvokeId,
 
 /*--- End of included file: packet-inap-ettarr.c ---*/
-#line 218 "../../asn1/inap/packet-inap-template.c"
+#line 220 "../../asn1/inap/packet-inap-template.c"
   };
 
   static ei_register_info ei[] = {

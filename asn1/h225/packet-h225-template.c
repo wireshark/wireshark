@@ -101,6 +101,7 @@ static int hf_h225_ras_req_frame = -1;
 static int hf_h225_ras_rsp_frame = -1;
 static int hf_h225_ras_dup = -1;
 static int hf_h225_ras_deltatime = -1;
+static int hf_h225_debug_dissector_try_string = -1;
 
 #include "packet-h225-hf.c"
 
@@ -226,6 +227,9 @@ void proto_register_h225(void) {
   	{ &hf_h225_ras_deltatime,
       		{ "RAS Service Response Time", "h225.ras.timedelta", FT_RELATIVE_TIME, BASE_NONE,
       		NULL, 0, "Timedelta between RAS-Request and RAS-Response", HFILL }},
+  	{ &hf_h225_debug_dissector_try_string,
+      		{ "*** DEBUG dissector_try_string", "h225.debug.dissector_try_string", FT_STRING, BASE_NONE,
+      		NULL, 0, NULL, HFILL }},
 
 #include "packet-h225-hfarr.c"
   };

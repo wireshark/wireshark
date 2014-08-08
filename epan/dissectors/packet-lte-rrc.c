@@ -2465,6 +2465,10 @@ static int hf_lte_rrc_interBandTDD_CA_WithDifferentConfig_bit1 = -1;
 static int hf_lte_rrc_interBandTDD_CA_WithDifferentConfig_bit2 = -1;
 static int hf_lte_rrc_sr_config_periodicity = -1;
 static int hf_lte_rrc_sr_config_subframe_offset = -1;
+static int hf_lte_rrc_cdma_time = -1;
+static int hf_lte_rrc_utc_time = -1;
+static int hf_lte_rrc_local_time = -1;
+static int hf_lte_rrc_absolute_time = -1;
 
 /* Initialize the subtree pointers */
 static int ett_lte_rrc = -1;
@@ -3574,7 +3578,7 @@ static gint ett_lte_rrc_CandidateCellInfoList_r10 = -1;
 static gint ett_lte_rrc_CandidateCellInfo_r10 = -1;
 
 /*--- End of included file: packet-lte-rrc-ett.c ---*/
-#line 197 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 201 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
 static gint ett_lte_rrc_featureGroupIndicators = -1;
 static gint ett_lte_rrc_featureGroupIndRel9Add = -1;
@@ -8583,8 +8587,8 @@ dissect_lte_rrc_T_synchronousSystemTime(tvbuff_t *tvb _U_, int offset _U_, asn1_
     bits = tvb_get_bits64(sync_system_time_tvb, 0, 39, ENC_BIG_ENDIAN);
     ts.secs = (time_t)(bits/100) + 315964800; /* CDMA2000 epoch is 00:00:00 (midnight) UTC on 1980-01-06 */
     ts.nsecs = (int)(bits%100)*10000000;
-    proto_tree_add_text(subtree, sync_system_time_tvb, 0, -1, "CDMA  time: %s", abs_time_to_str(wmem_packet_scope(), &ts, ABSOLUTE_TIME_UTC, FALSE));
-    proto_tree_add_text(subtree, sync_system_time_tvb, 0, -1, "Local time: %s", abs_time_to_str(wmem_packet_scope(), &ts, ABSOLUTE_TIME_LOCAL, TRUE));
+    proto_tree_add_time(subtree, hf_lte_rrc_cdma_time, sync_system_time_tvb, 0, -1, &ts);
+    proto_tree_add_time(subtree, hf_lte_rrc_local_time, sync_system_time_tvb, 0, -1, &ts);
   }
 
   return offset;
@@ -8608,8 +8612,8 @@ dissect_lte_rrc_T_asynchronousSystemTime(tvbuff_t *tvb _U_, int offset _U_, asn1
     bits = tvb_get_bits64(async_system_time_tvb, 0, 49, ENC_BIG_ENDIAN);
     ts.secs = (time_t)((bits*8)/1228800) + 315964800; /* CDMA2000 epoch is 00:00:00 (midnight) UTC on 1980-01-06 */
     ts.nsecs = (int)(((bits%153600)*8*1000000000)/1228800);
-    proto_tree_add_text(subtree, async_system_time_tvb, 0, -1, "CDMA  time: %s", abs_time_to_str(wmem_packet_scope(), &ts, ABSOLUTE_TIME_UTC, FALSE));
-    proto_tree_add_text(subtree, async_system_time_tvb, 0, -1, "Local time: %s", abs_time_to_str(wmem_packet_scope(), &ts, ABSOLUTE_TIME_LOCAL, TRUE));
+    proto_tree_add_time(subtree, hf_lte_rrc_cdma_time, async_system_time_tvb, 0, -1, &ts);
+    proto_tree_add_time(subtree, hf_lte_rrc_local_time, async_system_time_tvb, 0, -1,&ts);
   }
 
   return offset;
@@ -10285,10 +10289,8 @@ dissect_lte_rrc_T_timeInfoUTC_r11(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
   subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_timeInfo);
   ts.secs = (time_t)(timeInfo/100)-2208988800U; /* epoch is 00:00:00 (midnight) UTC on 1900-01-01 */
   ts.nsecs = (int)(timeInfo%100)*10000000;
-  proto_tree_add_text(subtree, tvb, old_offset>>3, (old_offset&0x07) ? 6 : 5,
-                      "UTC   time: %s", abs_time_to_str(wmem_packet_scope(), &ts, ABSOLUTE_TIME_UTC, FALSE));
-  proto_tree_add_text(subtree, tvb, old_offset>>3, (old_offset&0x07) ? 6 : 5,
-                      "Local time: %s", abs_time_to_str(wmem_packet_scope(), &ts, ABSOLUTE_TIME_LOCAL, TRUE));
+  proto_tree_add_time(subtree, hf_lte_rrc_utc_time, tvb, old_offset>>3, (old_offset&0x07) ? 6 : 5, &ts);
+  proto_tree_add_time(subtree, hf_lte_rrc_local_time, tvb, old_offset>>3, (old_offset&0x07) ? 6 : 5, &ts);
 
   return offset;
 }
@@ -25031,12 +25033,13 @@ dissect_lte_rrc_AbsoluteTimeInfo_r10(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 
 
   if (abs_time_info_tvb) {
-    const gchar *str;
+    const gchar *str, *hf_str;
     proto_tree *subtree;
     subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_absTimeInfo);
     str = tvb_bcd_dig_to_wmem_packet_str(abs_time_info_tvb, 0, 6, NULL, FALSE);
-    proto_tree_add_text(subtree, abs_time_info_tvb, 0, 6, "%c%c-%c%c-%c%c %c%c:%c%c:%c%c", str[0], str[1],
+	hf_str = wmem_strdup_printf(wmem_packet_scope(), "%c%c-%c%c-%c%c %c%c:%c%c:%c%c", str[0], str[1],
                         str[2], str[3], str[4], str[5], str[6], str[7], str[8], str[9], str[10], str[11]);
+    proto_tree_add_string(subtree, hf_lte_rrc_absolute_time, abs_time_info_tvb, 0, 6, hf_str);
   }
 
   return offset;
@@ -35344,7 +35347,7 @@ static int dissect_UEAssistanceInformation_r11_PDU(tvbuff_t *tvb _U_, packet_inf
 
 
 /*--- End of included file: packet-lte-rrc-fn.c ---*/
-#line 2255 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 2259 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
 static void
 dissect_lte_rrc_DL_CCCH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -44152,7 +44155,7 @@ void proto_register_lte_rrc(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-lte-rrc-hfarr.c ---*/
-#line 2402 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 2406 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
     { &hf_lte_rrc_eutra_cap_feat_group_ind_1,
       { "Indicator 1", "lte-rrc.eutra_cap_feat_group_ind_1",
@@ -44585,6 +44588,22 @@ void proto_register_lte_rrc(void) {
     { &hf_lte_rrc_sr_config_subframe_offset,
       { "Subframe Offset", "lte-rrc.sr_SubframeOffset",
         FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_cdma_time,
+      { "CDMA time", "lte-rrc.cdma_time",
+        FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_utc_time,
+      { "UTC time", "lte-rrc.utc_time",
+        FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_local_time,
+      { "Local time", "lte-rrc.local_time",
+        FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_absolute_time,
+      { "Absolute time", "lte-rrc.absolute_time",
+        FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
   };
 
@@ -45696,7 +45715,7 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_CandidateCellInfo_r10,
 
 /*--- End of included file: packet-lte-rrc-ettarr.c ---*/
-#line 2841 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 2861 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
     &ett_lte_rrc_featureGroupIndicators,
     &ett_lte_rrc_featureGroupIndRel9Add,
@@ -45765,7 +45784,7 @@ void proto_register_lte_rrc(void) {
 
 
 /*--- End of included file: packet-lte-rrc-dis-reg.c ---*/
-#line 2894 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 2914 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
   register_init_routine(&lte_rrc_init_protocol);
 }

@@ -109,6 +109,7 @@ static int hf_h225_ras_req_frame = -1;
 static int hf_h225_ras_rsp_frame = -1;
 static int hf_h225_ras_dup = -1;
 static int hf_h225_ras_deltatime = -1;
+static int hf_h225_debug_dissector_try_string = -1;
 
 
 /*--- Included file: packet-h225-hf.c ---*/
@@ -885,7 +886,7 @@ static int hf_h225_stopped = -1;                  /* NULL */
 static int hf_h225_notAvailable = -1;             /* NULL */
 
 /*--- End of included file: packet-h225-hf.c ---*/
-#line 106 "../../asn1/h225/packet-h225-template.c"
+#line 107 "../../asn1/h225/packet-h225-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_h225 = -1;
@@ -1133,7 +1134,7 @@ static gint ett_h225_ServiceControlResponse = -1;
 static gint ett_h225_T_result = -1;
 
 /*--- End of included file: packet-h225-ett.c ---*/
-#line 110 "../../asn1/h225/packet-h225-template.c"
+#line 111 "../../asn1/h225/packet-h225-template.c"
 
 /* Preferences */
 static guint h225_tls_port = TLS_PORT_CS;
@@ -1891,7 +1892,7 @@ dissect_h225_PartyNumber(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 
 static int
 dissect_h225_TBCD_STRING(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 717 "../../asn1/h225/h225.cnf"
+#line 720 "../../asn1/h225/h225.cnf"
   int min_len, max_len;
   gboolean has_extension;
 
@@ -3677,7 +3678,7 @@ dissect_h225_CircuitIdentifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
 static int
 dissect_h225_T_standard(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 681 "../../asn1/h225/h225.cnf"
+#line 682 "../../asn1/h225/h225.cnf"
   guint32 value_int = (guint32)-1;
   gef_ctx_t *gefx;
 
@@ -3695,7 +3696,7 @@ dissect_h225_T_standard(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
 
 static int
 dissect_h225_T_oid(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 690 "../../asn1/h225/h225.cnf"
+#line 691 "../../asn1/h225/h225.cnf"
   const gchar *oid_str = NULL;
   gef_ctx_t *gefx;
 
@@ -3727,17 +3728,18 @@ int
 dissect_h225_GenericIdentifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 668 "../../asn1/h225/h225.cnf"
   gef_ctx_t *gefx;
+  proto_item* ti;
 
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_h225_GenericIdentifier, GenericIdentifier_choice,
                                  NULL);
 
-#line 670 "../../asn1/h225/h225.cnf"
+#line 671 "../../asn1/h225/h225.cnf"
   gef_ctx_update_key(gef_ctx_get(actx->private_data));
-  /* DEBUG */ /*proto_tree_add_text(tree, tvb, offset>>3, 0, "*** DEBUG GenericIdentifier: %s", gef_ctx_get(actx->private_data)->key);*/
   gefx = gef_ctx_get(actx->private_data);
   if (gefx) {
-    /* DEBUG */ /*proto_tree_add_text(tree, tvb, offset>>3, 0, "*** DEBUG dissector_try_string: %s", gefx->key);*/
+    ti = proto_tree_add_string(tree, hf_h225_debug_dissector_try_string, tvb, offset>>3, 0, gefx->key);
+	PROTO_ITEM_SET_HIDDEN(ti);
     dissector_try_string(gef_name_dissector_table, gefx->key, tvb_new_subset(tvb, offset>>3, 0, 0), actx->pinfo, tree, actx);
   }
   actx->private_data = gefx;  /* subdissector could overwrite it */
@@ -3749,16 +3751,18 @@ dissect_h225_GenericIdentifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
 static int
 dissect_h225_T_raw(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 700 "../../asn1/h225/h225.cnf"
+#line 701 "../../asn1/h225/h225.cnf"
   tvbuff_t *value_tvb;
   gef_ctx_t *gefx;
+  proto_item* ti;
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, FALSE, &value_tvb);
 
   gefx = gef_ctx_get(actx->private_data);
   if (gefx) {
-    /* DEBUG */ /*proto_tree_add_text(tree, tvb, offset>>3, 0, "*** DEBUG dissector_try_string: %s", gefx->key);*/
+    ti = proto_tree_add_string(tree, hf_h225_debug_dissector_try_string, tvb, offset>>3, 0, gefx->key);
+	PROTO_ITEM_SET_HIDDEN(ti);
     dissector_try_string(gef_content_dissector_table, gefx->key, value_tvb, actx->pinfo, tree, actx);
   }
 
@@ -7510,7 +7514,7 @@ static int dissect_RasMessage_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
 
 
 /*--- End of included file: packet-h225-fn.c ---*/
-#line 134 "../../asn1/h225/packet-h225-template.c"
+#line 135 "../../asn1/h225/packet-h225-template.c"
 
 
 /* Forward declaration we need below */
@@ -7606,6 +7610,9 @@ void proto_register_h225(void) {
   	{ &hf_h225_ras_deltatime,
       		{ "RAS Service Response Time", "h225.ras.timedelta", FT_RELATIVE_TIME, BASE_NONE,
       		NULL, 0, "Timedelta between RAS-Request and RAS-Response", HFILL }},
+  	{ &hf_h225_debug_dissector_try_string,
+      		{ "*** DEBUG dissector_try_string", "h225.debug.dissector_try_string", FT_STRING, BASE_NONE,
+      		NULL, 0, NULL, HFILL }},
 
 
 /*--- Included file: packet-h225-hfarr.c ---*/
@@ -10692,7 +10699,7 @@ void proto_register_h225(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-h225-hfarr.c ---*/
-#line 231 "../../asn1/h225/packet-h225-template.c"
+#line 235 "../../asn1/h225/packet-h225-template.c"
   };
 
   /* List of subtrees */
@@ -10942,7 +10949,7 @@ void proto_register_h225(void) {
     &ett_h225_T_result,
 
 /*--- End of included file: packet-h225-ettarr.c ---*/
-#line 237 "../../asn1/h225/packet-h225-template.c"
+#line 241 "../../asn1/h225/packet-h225-template.c"
   };
   module_t *h225_module;
 

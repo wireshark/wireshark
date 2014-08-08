@@ -228,11 +228,12 @@ MAP-DialoguePDU				B "0.4.0.0.1.1.1.1" "map-DialogueAS"
 #.FN_PARS PrivateExtension/extId  FN_VARIANT = _str  VAL_PTR = &obj_id
 
 #.FN_BODY PrivateExtension/extType
-  proto_tree_add_text(tree, tvb, offset, -1, "Extension Data");
+  proto_tree *ext_tree;
+  ext_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_gsm_map_extention_data, NULL, "Extension Data");
   if (obj_id){
-	 offset=call_ber_oid_callback(obj_id, tvb, offset, actx->pinfo, tree, NULL);
+	 offset=call_ber_oid_callback(obj_id, tvb, offset, actx->pinfo, ext_tree, NULL);
   }else{
-	 call_dissector(data_handle, tvb, actx->pinfo, tree);
+	 call_dissector(data_handle, tvb, actx->pinfo, ext_tree);
 	 offset = tvb_length_remaining(tvb,offset);
   }
 
@@ -535,15 +536,15 @@ actx->pinfo->p2p_dir = P2P_DIR_RECV;
   switch(sms_encoding){
     case SMS_ENCODING_7BIT:
     case SMS_ENCODING_7BIT_LANG:
-	proto_tree_add_text(tree, parameter_tvb , 0, length, "USSD String: %%s", tvb_get_string_enc(wmem_packet_scope(), parameter_tvb, 0, length, ENC_3GPP_TS_23_038_7BITS|ENC_NA));
+	proto_tree_add_string(tree, hf_gsm_map_ussd_string, parameter_tvb, 0, length, tvb_get_string_enc(wmem_packet_scope(), parameter_tvb, 0, length, ENC_3GPP_TS_23_038_7BITS|ENC_NA));
 	break;
     case SMS_ENCODING_8BIT:
         /* XXX - ASCII, or some extended ASCII? */
-	proto_tree_add_text(tree, parameter_tvb , 0, length, "USSD String: %%s", tvb_get_string_enc(wmem_packet_scope(), parameter_tvb, 0, length, ENC_ASCII|ENC_NA));
+	proto_tree_add_string(tree, hf_gsm_map_ussd_string, parameter_tvb, 0, length, tvb_get_string_enc(wmem_packet_scope(), parameter_tvb, 0, length, ENC_ASCII|ENC_NA));
 	break;
     case SMS_ENCODING_UCS2:
     case SMS_ENCODING_UCS2_LANG:
-	proto_tree_add_text(tree, parameter_tvb , 0, length, "USSD String: %%s", tvb_get_string_enc(wmem_packet_scope(), parameter_tvb, 0, length, ENC_UCS_2|ENC_BIG_ENDIAN));
+	proto_tree_add_string(tree, hf_gsm_map_ussd_string, parameter_tvb, 0, length, tvb_get_string_enc(wmem_packet_scope(), parameter_tvb, 0, length, ENC_UCS_2|ENC_BIG_ENDIAN));
 	break;
     default:
 	break;
@@ -741,7 +742,7 @@ if (!actx->value_ptr)
 			/* TODO: There may be more than one IE */
 			break;
 		 default:
-			proto_tree_add_text(subtree, (tvbuff_t*)actx->value_ptr, 0, length, "If you want this decoded send the packet to Wireshark-dev");
+			proto_tree_add_expert(subtree, actx->pinfo, &ei_gsm_map_undecoded, (tvbuff_t*)actx->value_ptr, 0, length);
 			break;
 		}/* switch(octet) */
 		break;
@@ -821,7 +822,7 @@ if (!actx->value_ptr)
 			/* TODO: There may be more than one IE */
 			break;
 		 default:
-			proto_tree_add_text(subtree, (tvbuff_t*)actx->value_ptr, 0, length, "If you want this decoded send the packet to Wireshark-dev");
+			proto_tree_add_expert(subtree, actx->pinfo, &ei_gsm_map_undecoded, (tvbuff_t*)actx->value_ptr, 0, length);
 			break;
 		}/* switch(octet) */
 		break;

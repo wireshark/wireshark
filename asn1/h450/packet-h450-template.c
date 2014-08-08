@@ -30,6 +30,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/expert.h>
 
 #include <epan/asn1.h>
 
@@ -54,6 +55,10 @@ static int hf_h450_error = -1;
 
 /* Initialize the subtree pointers */
 #include "packet-h450-ett.c"
+
+static expert_field ei_h450_unsupported_arg_type = EI_INIT;
+static expert_field ei_h450_unsupported_result_type = EI_INIT;
+static expert_field ei_h450_unsupported_error_type = EI_INIT;
 
 static const value_string h450_str_operation[] = {
 #include "packet-h450-table10.c"
@@ -149,7 +154,7 @@ dissect_h450_arg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     offset = op_ptr->arg_pdu(tvb, pinfo, tree, NULL);
   else
     if (tvb_length_remaining(tvb, offset) > 0) {
-      proto_tree_add_text(tree, tvb, offset, -1, "UNSUPPORTED ARGUMENT TYPE (H.450)");
+      proto_tree_add_expert(tree, pinfo, &ei_h450_unsupported_arg_type, tvb, offset, -1);
       offset += tvb_length_remaining(tvb, offset);
     }
 
@@ -194,7 +199,7 @@ dissect_h450_res(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     offset = op_ptr->res_pdu(tvb, pinfo, tree, NULL);
   else
     if (tvb_length_remaining(tvb, offset) > 0) {
-      proto_tree_add_text(tree, tvb, offset, -1, "UNSUPPORTED RESULT TYPE (H.450)");
+      proto_tree_add_expert(tree, pinfo, &ei_h450_unsupported_result_type, tvb, offset, -1);
       offset += tvb_length_remaining(tvb, offset);
     }
 
@@ -239,7 +244,7 @@ dissect_h450_err(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     offset = err_ptr->err_pdu(tvb, pinfo, tree, NULL);
   else
     if (tvb_length_remaining(tvb, offset) > 0) {
-      proto_tree_add_text(tree, tvb, offset, -1, "UNSUPPORTED ERROR TYPE (H.450)");
+      proto_tree_add_expert(tree, pinfo, &ei_h450_unsupported_error_type, tvb, offset, -1);
       offset += tvb_length_remaining(tvb, offset);
     }
 
@@ -265,6 +270,13 @@ void proto_register_h450(void) {
 #include "packet-h450-ettarr.c"
   };
 
+  static ei_register_info ei[] = {
+    { &ei_h450_unsupported_arg_type, { "h450.unsupported.arg_type", PI_UNDECODED, PI_WARN, "UNSUPPORTED ARGUMENT TYPE (H.450)", EXPFILL }},
+    { &ei_h450_unsupported_result_type, { "h450.unsupported.result_type", PI_UNDECODED, PI_WARN, "UNSUPPORTED RESULT TYPE (H.450)", EXPFILL }},
+    { &ei_h450_unsupported_error_type, { "h450.unsupported.error_type", PI_UNDECODED, PI_WARN, "UNSUPPORTED ERROR TYPE (H.450)", EXPFILL }},
+  };
+
+  expert_module_t* expert_h450;
 
   /* Register protocol */
   proto_h450 = proto_register_protocol(PNAME, PSNAME, PFNAME);
@@ -272,6 +284,8 @@ void proto_register_h450(void) {
   /* Register fields and subtrees */
   proto_register_field_array(proto_h450, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  expert_h450 = expert_register_protocol(proto_h450);
+  expert_register_field_array(expert_h450, ei, array_length(ei));
 
   rose_ctx_init(&h450_rose_ctx);
 

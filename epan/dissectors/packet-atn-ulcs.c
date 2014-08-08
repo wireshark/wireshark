@@ -1690,6 +1690,7 @@ const value_string atn_ses_type[] =
 #define ATN_PRES_PROTO "ICAO Doc9705 ULCS Presentation (ISO 8822/8823-1:1994)"
 
 static int hf_atn_pres_err	 = -1;
+static int hf_atn_pres_pdu_type = -1;
 static gint ett_atn_pres		= -1;
 
 #define ATN_SES_PRES_MASK 0xf803
@@ -2073,13 +2074,11 @@ dissect_atn_ulcs(
 
 				/* need session context to identify PPDU type */
 				/* note: */
-				/* it is *unfeasible* to use proto_tree_add_item here: */
-				/* presentation type is always the same constant but its type */
-				/* is implicitly determined by preceding session context */
-				proto_tree_add_text(atn_ulcs_tree,
+				proto_tree_add_uint_format(atn_ulcs_tree, hf_atn_pres_pdu_type,
 						tvb,
 						offset,
 						1,
+                        value_ses_pres,
 						"%s (0x%02x)",
 						val_to_str( value_ses_pres & ATN_SES_PRES_MASK , atn_pres_vals, "?"),
 						value_pres);
@@ -2482,7 +2481,7 @@ void proto_register_atn_ulcs (void)
         NULL, HFILL }},
 
 /*--- End of included file: packet-atn-ulcs-hfarr.c ---*/
-#line 796 "../../asn1/atn-ulcs/packet-atn-ulcs-template.c"
+#line 795 "../../asn1/atn-ulcs/packet-atn-ulcs-template.c"
 				{&hf_atn_ses_type,
 				{ "SPDU Type",
 					"atn-ulcs.ses.type",
@@ -2529,6 +2528,14 @@ void proto_register_atn_ulcs (void)
 					PRES_CPR_ER_MASK,
 					NULL,
 					HFILL}},
+			{ &hf_atn_pres_pdu_type,
+				{ "PDU type", "atn-ulcs.pres.pdu_type",
+					FT_UINT8,
+					BASE_HEX,
+					NULL,
+					ATN_SES_PRES_MASK,
+					NULL,
+					HFILL}},
 		};
 
 		static gint *ett[] = {
@@ -2562,7 +2569,7 @@ void proto_register_atn_ulcs (void)
     &ett_atn_ulcs_AttributeTypeAndValue,
 
 /*--- End of included file: packet-atn-ulcs-ettarr.c ---*/
-#line 846 "../../asn1/atn-ulcs/packet-atn-ulcs-template.c"
+#line 853 "../../asn1/atn-ulcs/packet-atn-ulcs-template.c"
 				&ett_atn_ses,
 				&ett_atn_pres,
 				&ett_atn_acse,

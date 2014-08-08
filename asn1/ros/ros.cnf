@@ -28,12 +28,13 @@ Reject/problem/returnResult	rejectResult
 
 #.FN_BODY Invoke/argument
   char *oid;
+  proto_tree* subtree;
   struct SESSION_DATA_STRUCTURE* session = (struct SESSION_DATA_STRUCTURE *)actx->private_data;
 
   /* not sure what the length should be - -1 for now */
-  proto_tree_add_text(tree, tvb, offset,-1, "invoke argument");
+  subtree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_ros_invoke_argument, NULL, "invoke argument");
 
-  ros_match_call_response(tvb, actx->pinfo, tree, invokeid, TRUE);
+  ros_match_call_response(tvb, actx->pinfo, subtree, invokeid, TRUE);
 
   if(session && session->pres_ctx_id && (oid = find_oid_by_pres_ctx_id(actx->pinfo, session->pres_ctx_id))) {
 	/* this should be ROS! */
@@ -45,12 +46,13 @@ Reject/problem/returnResult	rejectResult
 
 #.FN_BODY ReturnResult/result/result
   char *oid;
+  proto_tree* subtree;
   struct SESSION_DATA_STRUCTURE* session = (struct SESSION_DATA_STRUCTURE *)actx->private_data;
 
   /* not sure what the length should be - -1 for now */
-  proto_tree_add_text(tree, tvb, offset,-1, "return result");
+  subtree = proto_tree_add_subtree(tree, tvb, offset,-1, ett_ros_return_result, NULL, "return result");
 
-  ros_match_call_response(tvb, actx->pinfo, tree, invokeid, FALSE);
+  ros_match_call_response(tvb, actx->pinfo, subtree, invokeid, FALSE);
 
   if(session && session->pres_ctx_id && (oid = find_oid_by_pres_ctx_id(actx->pinfo, session->pres_ctx_id))) {
 	/* this should be ROS! */
@@ -62,12 +64,13 @@ Reject/problem/returnResult	rejectResult
 
 #.FN_BODY ReturnError/parameter
   char *oid;
+  proto_tree* subtree;
   struct SESSION_DATA_STRUCTURE* session = (struct SESSION_DATA_STRUCTURE *)actx->private_data;
 
   /* not sure what the length should be - -1 for now */
-  proto_tree_add_text(tree, tvb, offset,-1, "return result");
+  subtree = proto_tree_add_subtree(tree, tvb, offset,-1, ett_ros_return_result, NULL, "return result");
 
-  ros_match_call_response(tvb, actx->pinfo, tree, invokeid, FALSE);
+  ros_match_call_response(tvb, actx->pinfo, subtree, invokeid, FALSE);
 
   if(session && session->pres_ctx_id && (oid = find_oid_by_pres_ctx_id(actx->pinfo, session->pres_ctx_id))) {
 	/* this should be ROS! */
@@ -82,7 +85,7 @@ Reject/problem/returnResult	rejectResult
   struct SESSION_DATA_STRUCTURE* session = (struct SESSION_DATA_STRUCTURE *)actx->private_data;
 
   /* not sure what the length should be - -1 for now */
-  proto_tree_add_text(tree, tvb, offset,-1, "bind-invoke");
+  proto_tree_add_subtree(tree, tvb, offset,-1, ett_ros_bind_result, NULL, "bind-invoke");
 
   if(session && session->pres_ctx_id && (oid = find_oid_by_pres_ctx_id(actx->pinfo, session->pres_ctx_id))) {
     /* this should be ROS! */
@@ -95,7 +98,7 @@ Reject/problem/returnResult	rejectResult
   struct SESSION_DATA_STRUCTURE* session = (struct SESSION_DATA_STRUCTURE *)actx->private_data;
 
   /* not sure what the length should be - -1 for now */
-  proto_tree_add_text(tree, tvb, offset,-1, "bind-result");
+  proto_tree_add_subtree(tree, tvb, offset,-1, ett_ros_bind_result, NULL, "bind-result");
 
   if(session && session->pres_ctx_id && (oid = find_oid_by_pres_ctx_id(actx->pinfo, session->pres_ctx_id))) {
     /* this should be ROS! */
@@ -108,7 +111,7 @@ Reject/problem/returnResult	rejectResult
   struct SESSION_DATA_STRUCTURE* session = (struct SESSION_DATA_STRUCTURE *)actx->private_data;
 
   /* not sure what the length should be - -1 for now */
-  proto_tree_add_text(tree, tvb, offset,-1, "bind-error");
+  proto_tree_add_subtree(tree, tvb, offset,-1, ett_ros_bind_error, NULL, "bind-error");
 
   if(session && session->pres_ctx_id && (oid = find_oid_by_pres_ctx_id(actx->pinfo, session->pres_ctx_id))) {
     /* this should be ROS! */
@@ -122,7 +125,7 @@ Reject/problem/returnResult	rejectResult
   struct SESSION_DATA_STRUCTURE* session = (struct SESSION_DATA_STRUCTURE *)actx->private_data;
 
   /* not sure what the length should be - -1 for now */
-  proto_tree_add_text(tree, tvb, offset,-1, "unbind-invoke");
+  proto_tree_add_subtree(tree, tvb, offset,-1, ett_ros_unbind_invoke, NULL, "unbind-invoke");
 
   if(session && session->pres_ctx_id && (oid = find_oid_by_pres_ctx_id(actx->pinfo, session->pres_ctx_id))) {
     /* this should be ROS! */
@@ -136,7 +139,7 @@ Reject/problem/returnResult	rejectResult
   struct SESSION_DATA_STRUCTURE* session = (struct SESSION_DATA_STRUCTURE *)actx->private_data;
 
   /* not sure what the length should be - -1 for now */
-  proto_tree_add_text(tree, tvb, offset,-1, "unbind-result");
+  proto_tree_add_subtree(tree, tvb, offset,-1, ett_ros_unbind_result, NULL, "unbind-result");
 
   if(session && session->pres_ctx_id && (oid = find_oid_by_pres_ctx_id(actx->pinfo, session->pres_ctx_id))) {
     /* this should be ROS! */
@@ -149,7 +152,7 @@ Reject/problem/returnResult	rejectResult
   struct SESSION_DATA_STRUCTURE* session = (struct SESSION_DATA_STRUCTURE *)actx->private_data;
 
   /* not sure what the length should be - -1 for now */
-  proto_tree_add_text(tree, tvb, offset,-1, "unbind-error");
+  proto_tree_add_subtree(tree, tvb, offset,-1, ett_ros_unbind_error, NULL, "unbind-error");
 
   if(session && session->pres_ctx_id && (oid = find_oid_by_pres_ctx_id(actx->pinfo, session->pres_ctx_id))) {
     /* this should be ROS! */

@@ -172,7 +172,7 @@ static const value_string pktc_mtafqdn_msgtype_vals[] = {
 };
 
 static int
-dissect_pktc_app_specific_data(packet_info *pinfo _U_, proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint8 doi, guint8 kmmid)
+dissect_pktc_app_specific_data(packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint8 doi, guint8 kmmid)
 {
     int old_offset=offset;
     proto_tree *tree;
@@ -200,7 +200,7 @@ dissect_pktc_app_specific_data(packet_info *pinfo _U_, proto_tree *parent_tree, 
             /* snmpEngineID */
             engineid_item = proto_tree_add_item(tree, hf_pktc_snmpEngineID, tvb, offset, len, ENC_NA);
             engineid_tree = proto_item_add_subtree(engineid_item, ett_pktc_engineid);
-            dissect_snmp_engineid(engineid_tree, tvb, offset, len);
+            dissect_snmp_engineid(engineid_tree, pinfo, tvb, offset, len);
             offset+=len;
 
             /* boots */

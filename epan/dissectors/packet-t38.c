@@ -189,6 +189,8 @@ static gint ett_t38_setup = -1;
 static gint ett_data_fragment = -1;
 static gint ett_data_fragments = -1;
 
+static expert_field ei_t38_malformed = EI_INIT;
+
 static gboolean primary_part = TRUE;
 static guint32 seq_number = 0;
 
@@ -647,10 +649,8 @@ dissect_t38_T_field_type(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
                     if (new_tvb) call_dissector_with_data((t30_hdlc_handle) ? t30_hdlc_handle : data_handle, new_tvb, actx->pinfo, tree, t38_info);
                 }
             } else {
-                if(tree){
-                    proto_tree_add_text(tree, tvb, offset, tvb_reported_length_remaining(tvb, offset),
+                proto_tree_add_expert_format(tree, actx->pinfo, &ei_t38_malformed, tvb, offset, tvb_reported_length_remaining(tvb, offset),
                         "[RECEIVED END OF FRAGMENT W/OUT ANY FRAGMENT DATA]");
-                }
                 col_append_str(actx->pinfo->cinfo, COL_INFO, " [Malformed?]");
                 actx->pinfo->fragmented = save_fragmented;
             }
@@ -673,7 +673,7 @@ dissect_t38_T_field_type(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 
 static int
 dissect_t38_T_field_data(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 153 "../../asn1/t38/t38.cnf"
+#line 151 "../../asn1/t38/t38.cnf"
     tvbuff_t *value_tvb = NULL;
     guint32 value_len;
 
@@ -684,7 +684,7 @@ dissect_t38_T_field_data(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 
 
 
-#line 160 "../../asn1/t38/t38.cnf"
+#line 158 "../../asn1/t38/t38.cnf"
     if (primary_part){
         if(value_len < 8){
             col_append_fstr(actx->pinfo->cinfo, COL_INFO, "[%s]",
@@ -812,7 +812,7 @@ dissect_t38_T_seq_number(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 65535U, &seq_number, FALSE);
 
-#line 240 "../../asn1/t38/t38.cnf"
+#line 238 "../../asn1/t38/t38.cnf"
     /* info for tap */
     if (primary_part)
         t38_info->seq_num = seq_number;
@@ -826,12 +826,12 @@ dissect_t38_T_seq_number(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 
 static int
 dissect_t38_T_primary_ifp_packet(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 248 "../../asn1/t38/t38.cnf"
+#line 246 "../../asn1/t38/t38.cnf"
     primary_part = TRUE;
 
   offset = dissect_per_open_type(tvb, offset, actx, tree, hf_index, dissect_t38_IFPPacket);
 
-#line 250 "../../asn1/t38/t38.cnf"
+#line 248 "../../asn1/t38/t38.cnf"
     /* if is a valid t38 packet, add to tap */
     if (p_t38_packet_conv && (!actx->pinfo->flags.in_error_pkt) && ((gint32) seq_number != p_t38_packet_conv_info->last_seqnum))
         tap_queue_packet(t38_tap, actx->pinfo, t38_info);
@@ -925,14 +925,14 @@ static const per_choice_t T_error_recovery_choice[] = {
 
 static int
 dissect_t38_T_error_recovery(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 258 "../../asn1/t38/t38.cnf"
+#line 256 "../../asn1/t38/t38.cnf"
     primary_part = FALSE;
 
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_t38_T_error_recovery, T_error_recovery_choice,
                                  NULL);
 
-#line 260 "../../asn1/t38/t38.cnf"
+#line 258 "../../asn1/t38/t38.cnf"
     primary_part = TRUE;
 
   return offset;
@@ -948,7 +948,7 @@ static const per_sequence_t UDPTLPacket_sequence[] = {
 
 static int
 dissect_t38_UDPTLPacket(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 234 "../../asn1/t38/t38.cnf"
+#line 232 "../../asn1/t38/t38.cnf"
     /* Initialize to something else than data type */
     Data_Field_field_type_value = 1;
 
@@ -979,7 +979,7 @@ static int dissect_UDPTLPacket_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pr
 
 
 /*--- End of included file: packet-t38-fn.c ---*/
-#line 394 "../../asn1/t38/packet-t38-template.c"
+#line 396 "../../asn1/t38/packet-t38-template.c"
 
 /* initialize the tap t38_info and the conversation */
 static void
@@ -1130,10 +1130,8 @@ dissect_t38_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	offset = dissect_UDPTLPacket_PDU(tvb, pinfo, tr, NULL);
 
 	if (tvb_length_remaining(tvb,offset)>0){
-		if (tr){
-			proto_tree_add_text(tr, tvb, offset, tvb_reported_length_remaining(tvb, offset),
+		proto_tree_add_expert_format(tr, pinfo, &ei_t38_malformed, tvb, offset, tvb_reported_length_remaining(tvb, offset),
 				"[MALFORMED PACKET or wrong preference settings]");
-		}
 		col_append_str(pinfo->cinfo, COL_INFO, " [Malformed?]");
 	}
 }
@@ -1176,10 +1174,8 @@ dissect_t38_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		if(tvb_length_remaining(tvb,offset)>0){
 			if(t38_tpkt_usage == T38_TPKT_ALWAYS){
-				if(tr){
-					proto_tree_add_text(tr, tvb, offset, tvb_reported_length_remaining(tvb, offset),
+				proto_tree_add_expert_format(tr, pinfo, &ei_t38_malformed, tvb, offset, tvb_reported_length_remaining(tvb, offset),
 						"[MALFORMED PACKET or wrong preference settings]");
-				}
 				col_append_str(pinfo->cinfo, COL_INFO, " [Malformed?]");
 				break;
 			}else {
@@ -1335,7 +1331,7 @@ proto_register_t38(void)
         "OCTET_STRING", HFILL }},
 
 /*--- End of included file: packet-t38-hfarr.c ---*/
-#line 673 "../../asn1/t38/packet-t38-template.c"
+#line 671 "../../asn1/t38/packet-t38-template.c"
 		{   &hf_t38_setup,
 		    { "Stream setup", "t38.setup", FT_STRING, BASE_NONE,
 		    NULL, 0x0, "Stream setup, method and frame number", HFILL }},
@@ -1396,17 +1392,24 @@ proto_register_t38(void)
     &ett_t38_T_fec_data,
 
 /*--- End of included file: packet-t38-ettarr.c ---*/
-#line 720 "../../asn1/t38/packet-t38-template.c"
+#line 718 "../../asn1/t38/packet-t38-template.c"
 		&ett_t38_setup,
 		&ett_data_fragment,
 		&ett_data_fragments
 	};
 
+	static ei_register_info ei[] = {
+		{ &ei_t38_malformed, { "t38.malformed", PI_MALFORMED, PI_ERROR, "Malformed packet", EXPFILL }},
+	};
+
 	module_t *t38_module;
+	expert_module_t* expert_t38;
 
 	proto_t38 = proto_register_protocol("T.38", "T.38", "t38");
 	proto_register_field_array(proto_t38, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	expert_t38 = expert_register_protocol(proto_t38);
+	expert_register_field_array(expert_t38, ei, array_length(ei));
 	register_dissector("t38", dissect_t38, proto_t38);
 
 	/* Init reassemble tables for HDLC */

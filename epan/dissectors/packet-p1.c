@@ -842,6 +842,8 @@ static expert_field ei_p1_unknown_extension_attribute_type = EI_INIT;
 static expert_field ei_p1_unknown_standard_extension = EI_INIT;
 static expert_field ei_p1_unknown_built_in_content_type = EI_INIT;
 static expert_field ei_p1_unknown_tokendata_type = EI_INIT;
+static expert_field ei_p1_unsupported_pdu = EI_INIT;
+static expert_field ei_p1_zero_pdu = EI_INIT;
 
 /* Dissector tables */
 static dissector_table_t p1_extension_dissector_table;
@@ -892,7 +894,7 @@ static const value_string p3_err_code_string_vals[] = {
 
 
 /*--- End of included file: packet-p1-table.c ---*/
-#line 88 "../../asn1/p1/packet-p1-template.c"
+#line 90 "../../asn1/p1/packet-p1-template.c"
 
 typedef struct p1_address_ctx {
 	gboolean do_address;
@@ -8188,7 +8190,7 @@ static void dissect_SecurityClassification_PDU(tvbuff_t *tvb _U_, packet_info *p
 
 
 /*--- End of included file: packet-p1-fn.c ---*/
-#line 149 "../../asn1/p1/packet-p1-template.c"
+#line 151 "../../asn1/p1/packet-p1-template.c"
 
 
 /*--- Included file: packet-p1-table11.c ---*/
@@ -8220,7 +8222,7 @@ static const ros_opr_t p3_opr_tab[] = {
 
 
 /*--- End of included file: packet-p1-table11.c ---*/
-#line 151 "../../asn1/p1/packet-p1-template.c"
+#line 153 "../../asn1/p1/packet-p1-template.c"
 
 /*--- Included file: packet-p1-table21.c ---*/
 #line 1 "../../asn1/p1/packet-p1-table21.c"
@@ -8265,7 +8267,7 @@ static const ros_err_t p3_err_tab[] = {
 
 
 /*--- End of included file: packet-p1-table21.c ---*/
-#line 152 "../../asn1/p1/packet-p1-template.c"
+#line 154 "../../asn1/p1/packet-p1-template.c"
 
 static const ros_info_t p3_ros_info = {
   "P3",
@@ -8388,7 +8390,7 @@ dissect_p1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* dat
 	  hf_p1_index = hf_p1_MTS_APDU_PDU;
 	  break;
 	default:
-	  proto_tree_add_text(tree, tvb, offset, -1,"Unsupported P1 PDU");
+	  proto_tree_add_expert(tree, pinfo, &ei_p1_unsupported_pdu, tvb, offset, -1);
 	  return tvb_captured_length(tvb);
 	}
 
@@ -8398,7 +8400,7 @@ dissect_p1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* dat
 		old_offset=offset;
 		offset=(*p1_dissector)(FALSE, tvb, offset, &asn1_ctx , tree, hf_p1_index);
 		if(offset == old_offset){
-			proto_tree_add_text(tree, tvb, offset, -1,"Internal error, zero-byte P1 PDU");
+			proto_tree_add_expert(tree, pinfo, &ei_p1_zero_pdu, tvb, offset, -1);
 			break;
 		}
 	}
@@ -10692,7 +10694,7 @@ void proto_register_p1(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-p1-hfarr.c ---*/
-#line 318 "../../asn1/p1/packet-p1-template.c"
+#line 320 "../../asn1/p1/packet-p1-template.c"
   };
 
   /* List of subtrees */
@@ -10891,7 +10893,7 @@ void proto_register_p1(void) {
     &ett_p1_SEQUENCE_SIZE_1_ub_recipients_OF_PerRecipientProbeSubmissionFields,
 
 /*--- End of included file: packet-p1-ettarr.c ---*/
-#line 331 "../../asn1/p1/packet-p1-template.c"
+#line 333 "../../asn1/p1/packet-p1-template.c"
   };
 
   static ei_register_info ei[] = {
@@ -10899,6 +10901,8 @@ void proto_register_p1(void) {
      { &ei_p1_unknown_standard_extension, { "p1.unknown.standard_extension", PI_UNDECODED, PI_WARN, "Unknown standard-extension", EXPFILL }},
      { &ei_p1_unknown_built_in_content_type, { "p1.unknown.built_in_content_type", PI_UNDECODED, PI_WARN, "P1 Unknown Content (unknown built-in content-type)", EXPFILL }},
      { &ei_p1_unknown_tokendata_type, { "p1.unknown.tokendata_type", PI_UNDECODED, PI_WARN, "Unknown tokendata-type", EXPFILL }},
+     { &ei_p1_unsupported_pdu, { "p1.unsupported_pdu", PI_UNDECODED, PI_WARN, "Unsupported P1 PDU", EXPFILL }},
+     { &ei_p1_zero_pdu, { "p1.zero_pdu", PI_PROTOCOL, PI_ERROR, "Internal error, zero-byte P1 PDU", EXPFILL }},
   };
 
   expert_module_t* expert_p1;
@@ -11095,7 +11099,7 @@ void proto_reg_handoff_p1(void) {
 
 
 /*--- End of included file: packet-p1-dis-tab.c ---*/
-#line 377 "../../asn1/p1/packet-p1-template.c"
+#line 381 "../../asn1/p1/packet-p1-template.c"
 
   /* APPLICATION CONTEXT */
 

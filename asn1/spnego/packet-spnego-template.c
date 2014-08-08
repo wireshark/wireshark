@@ -36,6 +36,7 @@
 #include <wsutil/rc4.h>
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include <epan/asn1.h>
 #include "packet-dcerpc.h"
 #include "packet-gssapi.h"
@@ -94,6 +95,9 @@ static gint ett_spnego_krb5 = -1;
 static gint ett_spnego_krb5_cfx_flags = -1;
 
 #include "packet-spnego-ett.c"
+
+static expert_field ei_spnego_decrypted_keytype = EI_INIT;
+static expert_field ei_spnego_unknown_header = EI_INIT;
 
 /*
  * Unfortunately, we have to have forward declarations of thess,
@@ -262,7 +266,7 @@ dissect_spnego_krb5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		return;
 
 	    default:
-		proto_tree_add_text(subtree, tvb, offset, 0,
+		proto_tree_add_expert_format(subtree, pinfo, &ei_spnego_unknown_header, tvb, offset, 0,
 			"Unknown header (class=%d, pc=%d, tag=%d)",
 			ber_class, pc, tag);
 		goto done;
@@ -567,7 +571,7 @@ decrypt_arcfour(packet_info *pinfo,
 #if defined(HAVE_HEIMDAL_KERBEROS) || defined(HAVE_MIT_KERBEROS)
 
 static void
-decrypt_gssapi_krb_arcfour_wrap(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int keytype)
+decrypt_gssapi_krb_arcfour_wrap(proto_tree *tree _U_, packet_info *pinfo, tvbuff_t *tvb, int keytype)
 {
 	int ret;
 	enc_key_t *ek;
@@ -613,7 +617,10 @@ decrypt_gssapi_krb_arcfour_wrap(proto_tree *tree, packet_info *pinfo, tvbuff_t *
 				ek->keytype
 					    );
 		if (ret >= 0) {
-			proto_tree_add_text(tree, NULL, 0, 0, "[Decrypted using: %s]", ek->key_origin);
+			expert_add_info_format(pinfo, NULL, &ei_spnego_decrypted_keytype,
+								   "Decrypted keytype %d in frame %u using %s",
+								   ek->keytype, pinfo->fd->num, ek->key_origin);
+
 			pinfo->gssapi_decrypted_tvb=tvb_new_child_real_data(tvb,
 				output_message_buffer,
 				ret, ret);
@@ -1414,6 +1421,13 @@ void proto_register_spnego(void) {
 #include "packet-spnego-ettarr.c"
 	};
 
+	static ei_register_info ei[] = {
+		{ &ei_spnego_decrypted_keytype, { "spnego.decrypted_keytype", PI_SECURITY, PI_CHAT, "Decryted keytype", EXPFILL }},
+		{ &ei_spnego_unknown_header, { "spnego.unknown_header", PI_PROTOCOL, PI_WARN, "Unknown header", EXPFILL }},
+	};
+
+	expert_module_t* expert_spnego;
+
 	/* Register protocol */
 	proto_spnego = proto_register_protocol(PNAME, PSNAME, PFNAME);
 
@@ -1429,6 +1443,8 @@ void proto_register_spnego(void) {
 	/* Register fields and subtrees */
 	proto_register_field_array(proto_spnego, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	expert_spnego = expert_register_protocol(proto_spnego);
+	expert_register_field_array(expert_spnego, ei, array_length(ei));
 }
 
 

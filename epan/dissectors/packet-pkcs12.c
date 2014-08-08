@@ -37,6 +37,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include <epan/oids.h>
 #include <epan/asn1.h>
 #include <epan/prefs.h>
@@ -72,6 +73,9 @@ static int proto_pkcs12 = -1;
 
 static int hf_pkcs12_X509Certificate_PDU = -1;
 static gint ett_decrypted_pbe = -1;
+
+static expert_field ei_pkcs12_octet_string_expected = EI_INIT;
+
 
 static const char *object_identifier_id = NULL;
 static int iteration_count = 0;
@@ -142,7 +146,7 @@ static int hf_pkcs12_encryptionScheme = -1;       /* AlgorithmIdentifier */
 static int hf_pkcs12_messageAuthScheme = -1;      /* AlgorithmIdentifier */
 
 /*--- End of included file: packet-pkcs12-hf.c ---*/
-#line 79 "../../asn1/pkcs12/packet-pkcs12-template.c"
+#line 83 "../../asn1/pkcs12/packet-pkcs12-template.c"
 
 /* Initialize the subtree pointers */
 
@@ -170,7 +174,7 @@ static gint ett_pkcs12_PBES2Params = -1;
 static gint ett_pkcs12_PBMAC1Params = -1;
 
 /*--- End of included file: packet-pkcs12-ett.c ---*/
-#line 82 "../../asn1/pkcs12/packet-pkcs12-template.c"
+#line 86 "../../asn1/pkcs12/packet-pkcs12-template.c"
 
 static void append_oid(proto_tree *tree, const char *oid)
 {
@@ -1133,7 +1137,7 @@ static void dissect_PBMAC1Params_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
 
 
 /*--- End of included file: packet-pkcs12-fn.c ---*/
-#line 390 "../../asn1/pkcs12/packet-pkcs12-template.c"
+#line 394 "../../asn1/pkcs12/packet-pkcs12-template.c"
 
 static int strip_octet_string(tvbuff_t *tvb)
 {
@@ -1165,7 +1169,7 @@ static void dissect_AuthenticatedSafe_OCTETSTRING_PDU(tvbuff_t *tvb, packet_info
   if((offset = strip_octet_string(tvb)) > 0)
     dissect_pkcs12_AuthenticatedSafe(FALSE, tvb, offset, &asn1_ctx, tree, hf_pkcs12_AuthenticatedSafe_PDU);
   else
-    proto_tree_add_text(tree, tvb, 0, 1, "BER Error: OCTET STRING expected");
+    proto_tree_add_expert(tree, pinfo, &ei_pkcs12_octet_string_expected, tvb, 0, 1);
 }
 
 static void dissect_SafeContents_OCTETSTRING_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -1188,7 +1192,7 @@ static void dissect_X509Certificate_OCTETSTRING_PDU(tvbuff_t *tvb, packet_info *
   if((offset = strip_octet_string(tvb)) > 0)
 	dissect_x509af_Certificate(FALSE, tvb, offset, &asn1_ctx, tree, hf_pkcs12_X509Certificate_PDU);
   else
-	proto_tree_add_text(tree, tvb, 0, 1, "BER Error: OCTET STRING expected");
+	proto_tree_add_expert(tree, pinfo, &ei_pkcs12_octet_string_expected, tvb, 0, 1);
 }
 
 /*--- proto_register_pkcs12 ----------------------------------------------*/
@@ -1421,7 +1425,7 @@ void proto_register_pkcs12(void) {
         "AlgorithmIdentifier", HFILL }},
 
 /*--- End of included file: packet-pkcs12-hfarr.c ---*/
-#line 457 "../../asn1/pkcs12/packet-pkcs12-template.c"
+#line 461 "../../asn1/pkcs12/packet-pkcs12-template.c"
   };
 
   /* List of subtrees */
@@ -1452,9 +1456,14 @@ void proto_register_pkcs12(void) {
     &ett_pkcs12_PBMAC1Params,
 
 /*--- End of included file: packet-pkcs12-ettarr.c ---*/
-#line 463 "../../asn1/pkcs12/packet-pkcs12-template.c"
+#line 467 "../../asn1/pkcs12/packet-pkcs12-template.c"
   };
+  static ei_register_info ei[] = {
+      { &ei_pkcs12_octet_string_expected, { "pkcs12.octet_string_expected", PI_PROTOCOL, PI_WARN, "BER Error: OCTET STRING expected", EXPFILL }},
+  };
+
   module_t *pkcs12_module;
+  expert_module_t* expert_pkcs12;
 
   /* Register protocol */
   proto_pkcs12 = proto_register_protocol(PNAME, PSNAME, PFNAME);
@@ -1462,6 +1471,8 @@ void proto_register_pkcs12(void) {
   /* Register fields and subtrees */
   proto_register_field_array(proto_pkcs12, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  expert_pkcs12 = expert_register_protocol(proto_pkcs12);
+  expert_register_field_array(expert_pkcs12, ei, array_length(ei));
 
   /* Register preferences */
   pkcs12_module = prefs_register_protocol(proto_pkcs12, NULL);
@@ -1513,7 +1524,7 @@ void proto_reg_handoff_pkcs12(void) {
 
 
 /*--- End of included file: packet-pkcs12-dis-tab.c ---*/
-#line 495 "../../asn1/pkcs12/packet-pkcs12-template.c"
+#line 506 "../../asn1/pkcs12/packet-pkcs12-template.c"
 
 	register_ber_oid_dissector("1.2.840.113549.1.9.22.1", dissect_X509Certificate_OCTETSTRING_PDU, proto_pkcs12, "x509Certificate");
 

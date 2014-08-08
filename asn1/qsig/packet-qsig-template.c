@@ -24,6 +24,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include <epan/strutil.h>
 #include <epan/asn1.h>
 
@@ -308,6 +309,10 @@ static gint ett_qsig_unknown_extension = -1;
 #include "packet-qsig-ett.c"
 static gint ett_cnq_PSS1InformationElement = -1;
 
+static expert_field ei_qsig_unsupported_arg_type = EI_INIT;
+static expert_field ei_qsig_unsupported_result_type = EI_INIT;
+static expert_field ei_qsig_unsupported_error_type = EI_INIT;
+
 /* Preferences */
 
 /* Subdissectors */
@@ -420,7 +425,7 @@ dissect_qsig_arg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     offset = op_ptr->arg_pdu(tvb, pinfo, qsig_tree, NULL);
   else
     if (tvb_reported_length_remaining(tvb, offset) > 0) {
-      proto_tree_add_text(qsig_tree, tvb, offset, -1, "UNSUPPORTED ARGUMENT TYPE (QSIG)");
+      proto_tree_add_expert(tree, pinfo, &ei_qsig_unsupported_error_type, tvb, offset, -1);
       offset += tvb_captured_length_remaining(tvb, offset);
     }
 
@@ -474,7 +479,7 @@ dissect_qsig_res(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     offset = op_ptr->res_pdu(tvb, pinfo, qsig_tree, NULL);
   else
     if (tvb_reported_length_remaining(tvb, offset) > 0) {
-      proto_tree_add_text(qsig_tree, tvb, offset, -1, "UNSUPPORTED RESULT TYPE (QSIG)");
+      proto_tree_add_expert(tree, pinfo, &ei_qsig_unsupported_result_type, tvb, offset, -1);
       offset += tvb_captured_length_remaining(tvb, offset);
     }
 
@@ -523,7 +528,7 @@ dissect_qsig_err(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     offset = err_ptr->err_pdu(tvb, pinfo, qsig_tree, NULL);
   else
     if (tvb_reported_length_remaining(tvb, offset) > 0) {
-      proto_tree_add_text(qsig_tree, tvb, offset, -1, "UNSUPPORTED ERROR TYPE (QSIG)");
+      proto_tree_add_expert(tree, pinfo, &ei_qsig_unsupported_error_type, tvb, offset, -1);
       offset += tvb_captured_length_remaining(tvb, offset);
     }
 
@@ -668,12 +673,22 @@ void proto_register_qsig(void) {
     &ett_cnq_PSS1InformationElement,
   };
 
+  static ei_register_info ei[] = {
+    { &ei_qsig_unsupported_arg_type, { "qsig.unsupported.arg_type", PI_UNDECODED, PI_WARN, "UNSUPPORTED ARGUMENT TYPE (QSIG)", EXPFILL }},
+    { &ei_qsig_unsupported_result_type, { "qsig.unsupported.result_type", PI_UNDECODED, PI_WARN, "UNSUPPORTED RESULT TYPE (QSIG)", EXPFILL }},
+    { &ei_qsig_unsupported_error_type, { "qsig.unsupported.error_type", PI_UNDECODED, PI_WARN, "UNSUPPORTED ERROR TYPE (QSIG)", EXPFILL }},
+  };
+
+  expert_module_t* expert_qsig;
+
   /* Register protocol and dissector */
   proto_qsig = proto_register_protocol(PNAME, PSNAME, PFNAME);
 
   /* Register fields and subtrees */
   proto_register_field_array(proto_qsig, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  expert_qsig = expert_register_protocol(proto_qsig);
+  expert_register_field_array(expert_qsig, ei, array_length(ei));
 
   /* Register dissector tables */
   extension_dissector_table = register_dissector_table("qsig.ext", "QSIG Extension", FT_STRING, BASE_NONE);

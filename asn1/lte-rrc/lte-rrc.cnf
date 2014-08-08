@@ -359,8 +359,8 @@ if(ue_cap_tvb){
     bits = tvb_get_bits64(async_system_time_tvb, 0, 49, ENC_BIG_ENDIAN);
     ts.secs = (time_t)((bits*8)/1228800) + 315964800; /* CDMA2000 epoch is 00:00:00 (midnight) UTC on 1980-01-06 */
     ts.nsecs = (int)(((bits%153600)*8*1000000000)/1228800);
-    proto_tree_add_text(subtree, async_system_time_tvb, 0, -1, "CDMA  time: %s", abs_time_to_str(wmem_packet_scope(), &ts, ABSOLUTE_TIME_UTC, FALSE));
-    proto_tree_add_text(subtree, async_system_time_tvb, 0, -1, "Local time: %s", abs_time_to_str(wmem_packet_scope(), &ts, ABSOLUTE_TIME_LOCAL, TRUE));
+    proto_tree_add_time(subtree, hf_lte_rrc_cdma_time, async_system_time_tvb, 0, -1, &ts);
+    proto_tree_add_time(subtree, hf_lte_rrc_local_time, async_system_time_tvb, 0, -1,&ts);
   }
 
 #.FN_BODY SystemTimeInfoCDMA2000/cdma-SystemTime/synchronousSystemTime VAL_PTR=&sync_system_time_tvb
@@ -376,8 +376,8 @@ if(ue_cap_tvb){
     bits = tvb_get_bits64(sync_system_time_tvb, 0, 39, ENC_BIG_ENDIAN);
     ts.secs = (time_t)(bits/100) + 315964800; /* CDMA2000 epoch is 00:00:00 (midnight) UTC on 1980-01-06 */
     ts.nsecs = (int)(bits%100)*10000000;
-    proto_tree_add_text(subtree, sync_system_time_tvb, 0, -1, "CDMA  time: %s", abs_time_to_str(wmem_packet_scope(), &ts, ABSOLUTE_TIME_UTC, FALSE));
-    proto_tree_add_text(subtree, sync_system_time_tvb, 0, -1, "Local time: %s", abs_time_to_str(wmem_packet_scope(), &ts, ABSOLUTE_TIME_LOCAL, TRUE));
+    proto_tree_add_time(subtree, hf_lte_rrc_cdma_time, sync_system_time_tvb, 0, -1, &ts);
+    proto_tree_add_time(subtree, hf_lte_rrc_local_time, sync_system_time_tvb, 0, -1, &ts);
   }
 
 #.FN_BODY CellInfoUTRA-FDD-r9/utra-BCCH-Container-r9 VAL_PTR = &utra_bcch_cont_tvb
@@ -489,12 +489,13 @@ NeighCellConfig TYPE=FT_UINT8 DISPLAY=BASE_DEC STRINGS=VALS(lte_rrc_neighCellCon
 %(DEFAULT_BODY)s
 #.FN_FTR AbsoluteTimeInfo-r10
   if (abs_time_info_tvb) {
-    const gchar *str;
+    const gchar *str, *hf_str;
     proto_tree *subtree;
     subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_absTimeInfo);
     str = tvb_bcd_dig_to_wmem_packet_str(abs_time_info_tvb, 0, 6, NULL, FALSE);
-    proto_tree_add_text(subtree, abs_time_info_tvb, 0, 6, "%c%c-%c%c-%c%c %c%c:%c%c:%c%c", str[0], str[1],
+	hf_str = wmem_strdup_printf(wmem_packet_scope(), "%c%c-%c%c-%c%c %c%c:%c%c:%c%c", str[0], str[1],
                         str[2], str[3], str[4], str[5], str[6], str[7], str[8], str[9], str[10], str[11]);
+    proto_tree_add_string(subtree, hf_lte_rrc_absolute_time, abs_time_info_tvb, 0, 6, hf_str);
   }
 
 #.TYPE_ATTR
@@ -687,10 +688,8 @@ SystemInformationBlockType16-r11/timeInfo-r11/timeInfoUTC-r11 TYPE = FT_UINT64
   subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_timeInfo);
   ts.secs = (time_t)(timeInfo/100)-2208988800U; /* epoch is 00:00:00 (midnight) UTC on 1900-01-01 */
   ts.nsecs = (int)(timeInfo%100)*10000000;
-  proto_tree_add_text(subtree, tvb, old_offset>>3, (old_offset&0x07) ? 6 : 5,
-                      "UTC   time: %s", abs_time_to_str(wmem_packet_scope(), &ts, ABSOLUTE_TIME_UTC, FALSE));
-  proto_tree_add_text(subtree, tvb, old_offset>>3, (old_offset&0x07) ? 6 : 5,
-                      "Local time: %s", abs_time_to_str(wmem_packet_scope(), &ts, ABSOLUTE_TIME_LOCAL, TRUE));
+  proto_tree_add_time(subtree, hf_lte_rrc_utc_time, tvb, old_offset>>3, (old_offset&0x07) ? 6 : 5, &ts);
+  proto_tree_add_time(subtree, hf_lte_rrc_local_time, tvb, old_offset>>3, (old_offset&0x07) ? 6 : 5, &ts);
 
 #.FN_BODY RRCConnectionReject-r8-IEs/waitTime
 %(DEFAULT_BODY)s

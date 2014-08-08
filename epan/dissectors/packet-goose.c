@@ -55,6 +55,7 @@ static int hf_goose_reserve1 = -1;
 static int hf_goose_reserve2 = -1;
 
 static expert_field ei_goose_mal_utctime = EI_INIT;
+static expert_field ei_goose_zero_pdu = EI_INIT;
 
 
 /*--- Included file: packet-goose-hf.c ---*/
@@ -120,7 +121,7 @@ static int hf_goose_mMSString = -1;               /* MMSString */
 static int hf_goose_utc_time = -1;                /* UtcTime */
 
 /*--- End of included file: packet-goose-hf.c ---*/
-#line 52 "../../asn1/goose/packet-goose-template.c"
+#line 53 "../../asn1/goose/packet-goose-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_goose = -1;
@@ -147,7 +148,7 @@ static gint ett_goose_SEQUENCE_OF_Data = -1;
 static gint ett_goose_Data = -1;
 
 /*--- End of included file: packet-goose-ett.c ---*/
-#line 57 "../../asn1/goose/packet-goose-template.c"
+#line 58 "../../asn1/goose/packet-goose-template.c"
 
 
 /*--- Included file: packet-goose-fn.c ---*/
@@ -704,7 +705,7 @@ dissect_goose_GOOSEpdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 
 /*--- End of included file: packet-goose-fn.c ---*/
-#line 59 "../../asn1/goose/packet-goose-template.c"
+#line 60 "../../asn1/goose/packet-goose-template.c"
 
 /*
 * Dissect GOOSE PDUs inside a PPDU.
@@ -746,7 +747,7 @@ dissect_goose(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			old_offset = offset;
 			offset = dissect_goose_GOOSEpdu(FALSE, tvb, offset, &asn1_ctx , tree, -1);
 			if (offset == old_offset) {
-				proto_tree_add_text(tree, tvb, offset, -1, "Internal error, zero-byte GOOSE PDU");
+				proto_tree_add_expert(tree, pinfo, &ei_goose_zero_pdu, tvb, offset, -1);
 				return;
 			}
 		}
@@ -1013,7 +1014,7 @@ void proto_register_goose(void) {
         "UtcTime", HFILL }},
 
 /*--- End of included file: packet-goose-hfarr.c ---*/
-#line 127 "../../asn1/goose/packet-goose-template.c"
+#line 128 "../../asn1/goose/packet-goose-template.c"
   };
 
   /* List of subtrees */
@@ -1041,11 +1042,12 @@ void proto_register_goose(void) {
     &ett_goose_Data,
 
 /*--- End of included file: packet-goose-ettarr.c ---*/
-#line 133 "../../asn1/goose/packet-goose-template.c"
+#line 134 "../../asn1/goose/packet-goose-template.c"
   };
 
   static ei_register_info ei[] = {
      { &ei_goose_mal_utctime, { "goose.malformed.utctime", PI_MALFORMED, PI_WARN, "BER Error: malformed UTCTime encoding", EXPFILL }},
+    { &ei_goose_zero_pdu, { "goose.zero_pdu", PI_PROTOCOL, PI_ERROR, "Internal error, zero-byte GOOSE PDU", EXPFILL }},
   };
 
   expert_module_t* expert_goose;

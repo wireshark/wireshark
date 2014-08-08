@@ -33,6 +33,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include <epan/prefs.h>
 #include <epan/oids.h>
 #include <epan/asn1.h>
@@ -206,7 +207,7 @@ static int hf_dsp_signed = -1;                    /* BOOLEAN */
 static int hf_dsp_other = -1;                     /* EXTERNAL */
 
 /*--- End of included file: packet-dsp-hf.c ---*/
-#line 60 "../../asn1/dsp/packet-dsp-template.c"
+#line 61 "../../asn1/dsp/packet-dsp-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_dsp = -1;
@@ -286,7 +287,12 @@ static gint ett_dsp_AuthenticationLevel = -1;
 static gint ett_dsp_T_basicLevels = -1;
 
 /*--- End of included file: packet-dsp-ett.c ---*/
-#line 64 "../../asn1/dsp/packet-dsp-template.c"
+#line 65 "../../asn1/dsp/packet-dsp-template.c"
+
+static expert_field ei_dsp_unsupported_opcode = EI_INIT;
+static expert_field ei_dsp_unsupported_errcode = EI_INIT;
+static expert_field ei_dsp_unsupported_pdu = EI_INIT;
+static expert_field ei_dsp_zero_pdu = EI_INIT;
 
 
 /*--- Included file: packet-dsp-fn.c ---*/
@@ -1682,7 +1688,7 @@ static void dissect_DitBridgeKnowledge_PDU(tvbuff_t *tvb _U_, packet_info *pinfo
 
 
 /*--- End of included file: packet-dsp-fn.c ---*/
-#line 66 "../../asn1/dsp/packet-dsp-template.c"
+#line 72 "../../asn1/dsp/packet-dsp-template.c"
 
 /*
 * Dissect X518 PDUs inside a ROS PDUs
@@ -1766,8 +1772,8 @@ dissect_dsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* da
 	    dsp_op_name = "ChainedModify-DN-Argument";
 	    break;
 	  default:
-	    proto_tree_add_text(tree, tvb, offset, -1,"Unsupported DSP opcode (%d)",
-				session->ros_op & ROS_OP_OPCODE_MASK);
+	    proto_tree_add_expert_format(tree, pinfo, &ei_dsp_unsupported_opcode, tvb, offset, -1,
+	        "Unsupported DSP opcode (%d)", session->ros_op & ROS_OP_OPCODE_MASK);
 	    break;
 	  }
 	  break;
@@ -1810,7 +1816,7 @@ dissect_dsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* da
 	    dsp_op_name = "ChainedModify-DN-Result";
 	    break;
 	  default:
-	    proto_tree_add_text(tree, tvb, offset, -1,"Unsupported DSP opcode");
+	    proto_tree_add_expert(tree, pinfo, &ei_dsp_unsupported_opcode, tvb, offset, -1);
 	    break;
 	  }
 	  break;
@@ -1853,12 +1859,12 @@ dissect_dsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* da
 	    dsp_op_name = "DSA-Referral";
 	    break;
 	  default:
-	    proto_tree_add_text(tree, tvb, offset, -1,"Unsupported DSP errcode");
+	    proto_tree_add_expert(tree, pinfo, &ei_dsp_unsupported_errcode, tvb, offset, -1);
 	    break;
 	  }
 	  break;
 	default:
-	  proto_tree_add_text(tree, tvb, offset, -1,"Unsupported DSP PDU");
+	  proto_tree_add_expert(tree, pinfo, &ei_dsp_unsupported_pdu, tvb, offset, -1);
 	  return tvb_captured_length(tvb);
 	}
 
@@ -1869,7 +1875,7 @@ dissect_dsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* da
 	    old_offset=offset;
 	    offset=(*dsp_dissector)(FALSE, tvb, offset, &asn1_ctx, tree, -1);
 	    if(offset == old_offset){
-	      proto_tree_add_text(tree, tvb, offset, -1,"Internal error, zero-byte DSP PDU");
+	      proto_tree_add_expert(tree, pinfo, &ei_dsp_zero_pdu, tvb, offset, -1);
 	      break;
 	    }
 	  }
@@ -2438,7 +2444,7 @@ void proto_register_dsp(void) {
         "EXTERNAL", HFILL }},
 
 /*--- End of included file: packet-dsp-hfarr.c ---*/
-#line 269 "../../asn1/dsp/packet-dsp-template.c"
+#line 275 "../../asn1/dsp/packet-dsp-template.c"
   };
 
   /* List of subtrees */
@@ -2520,9 +2526,17 @@ void proto_register_dsp(void) {
     &ett_dsp_T_basicLevels,
 
 /*--- End of included file: packet-dsp-ettarr.c ---*/
-#line 275 "../../asn1/dsp/packet-dsp-template.c"
+#line 281 "../../asn1/dsp/packet-dsp-template.c"
   };
+  static ei_register_info ei[] = {
+    { &ei_dsp_unsupported_opcode, { "dsp.unsupported_opcode", PI_UNDECODED, PI_WARN, "Unsupported DSP opcode", EXPFILL }},
+    { &ei_dsp_unsupported_errcode, { "dsp.unsupported_errcode", PI_UNDECODED, PI_WARN, "Unsupported DSP errcode", EXPFILL }},
+    { &ei_dsp_unsupported_pdu, { "dsp.unsupported_pdu", PI_UNDECODED, PI_WARN, "Unsupported DSP PDU", EXPFILL }},
+    { &ei_dsp_zero_pdu, { "dsp.zero_pdu", PI_PROTOCOL, PI_ERROR, "Internal error, zero-byte DSP PDU", EXPFILL }},
+  };
+
   module_t *dsp_module;
+  expert_module_t* expert_dsp;
 
   /* Register protocol */
   proto_dsp = proto_register_protocol(PNAME, PSNAME, PFNAME);
@@ -2532,6 +2546,8 @@ void proto_register_dsp(void) {
   /* Register fields and subtrees */
   proto_register_field_array(proto_dsp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  expert_dsp = expert_register_protocol(proto_dsp);
+  expert_register_field_array(expert_dsp, ei, array_length(ei));
 
   /* Register our configuration options for DSP, particularly our port */
 
@@ -2561,7 +2577,7 @@ void proto_reg_handoff_dsp(void) {
 
 
 /*--- End of included file: packet-dsp-dis-tab.c ---*/
-#line 305 "../../asn1/dsp/packet-dsp-template.c"
+#line 321 "../../asn1/dsp/packet-dsp-template.c"
 
   /* APPLICATION CONTEXT */
 

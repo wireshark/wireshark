@@ -35,7 +35,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
-
+#include <epan/expert.h>
 
 #include "packet-ber.h"
 
@@ -404,6 +404,9 @@ static gint ett_isdn_sup_Call_T_FPHArg = -1;
 /*--- End of included file: packet-isdn-sup-ett.c ---*/
 #line 93 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
 
+static expert_field ei_isdn_sup_unsupported_arg_type = EI_INIT;
+static expert_field ei_isdn_sup_unsupported_result_type = EI_INIT;
+static expert_field ei_isdn_sup_unsupported_error_type = EI_INIT;
 
 /* Preference settings default */
 
@@ -2498,7 +2501,7 @@ static int dissect_Call_T_FPHArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
 
 
 /*--- End of included file: packet-isdn-sup-fn.c ---*/
-#line 100 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
+#line 103 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
 
 static const isdn_sup_op_t isdn_sup_op_tab[] = {
 
@@ -2535,7 +2538,7 @@ static const isdn_sup_op_t isdn_sup_op_tab[] = {
   /* userUserService          */ {   1, dissect_UserUserServiceArg_PDU, NULL },
 
 /*--- End of included file: packet-isdn-sup-table11.c ---*/
-#line 103 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
+#line 106 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
 };
 
 
@@ -2550,7 +2553,7 @@ static const isdn_sup_global_op_t isdn_sup_global_op_tab[] = {
   /* call-T-FPH               */ { fPHOID".4", dissect_Call_T_FPHArg_PDU, NULL },
 
 /*--- End of included file: packet-isdn-sup-table31.c ---*/
-#line 109 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
+#line 112 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
 };
 
 static const isdn_sup_err_t isdn_sup_err_tab[] = {
@@ -2589,7 +2592,7 @@ static const isdn_sup_err_t isdn_sup_err_tab[] = {
   /* rejectedByTheUser        */ {    2, NULL },
 
 /*--- End of included file: packet-isdn-sup-table21.c ---*/
-#line 113 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
+#line 116 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
 };
 
 
@@ -2657,7 +2660,7 @@ dissect_isdn_sup_arg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
     offset = op_ptr->arg_pdu(tvb, pinfo, isdn_sup_tree, NULL);
   else
     if (tvb_reported_length_remaining(tvb, offset) > 0) {
-      proto_tree_add_text(isdn_sup_tree, tvb, offset, -1, "UNSUPPORTED ARGUMENT TYPE (ETSI Sup)");
+      proto_tree_add_expert(tree, pinfo, &ei_isdn_sup_unsupported_error_type, tvb, offset, -1);
       offset += tvb_reported_length_remaining(tvb, offset);
     }
 
@@ -2706,7 +2709,7 @@ dissect_isdn_sup_res(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
     offset = op_ptr->res_pdu(tvb, pinfo, isdn_sup_tree, NULL);
   else
     if (tvb_reported_length_remaining(tvb, offset) > 0) {
-      proto_tree_add_text(isdn_sup_tree, tvb, offset, -1, "UNSUPPORTED RESULT TYPE (ETSI sup)");
+      proto_tree_add_expert(tree, pinfo, &ei_isdn_sup_unsupported_result_type, tvb, offset, -1);
       offset += tvb_reported_length_remaining(tvb, offset);
     }
 
@@ -2756,7 +2759,7 @@ dissect_isdn_sup_err(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
     offset = err_ptr->err_pdu(tvb, pinfo, isdn_sup_tree, NULL);
   else
     if (tvb_reported_length_remaining(tvb, offset) > 0) {
-      proto_tree_add_text(isdn_sup_tree, tvb, offset, -1, "UNSUPPORTED ERROR TYPE (ETSI sup)");
+      proto_tree_add_expert(tree, pinfo, &ei_isdn_sup_unsupported_error_type, tvb, offset, -1);
       offset += tvb_reported_length_remaining(tvb, offset);
     }
 
@@ -3451,7 +3454,7 @@ void proto_register_isdn_sup(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-isdn-sup-hfarr.c ---*/
-#line 346 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
+#line 349 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
   };
 
   /* List of subtrees */
@@ -3527,14 +3530,23 @@ void proto_register_isdn_sup(void) {
     &ett_isdn_sup_Call_T_FPHArg,
 
 /*--- End of included file: packet-isdn-sup-ettarr.c ---*/
-#line 353 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
+#line 356 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
   };
 
-  /* Register fields and subtrees */
-  proto_register_field_array(proto_isdn_sup, hf, array_length(hf));
-  proto_register_subtree_array(ett, array_length(ett));
+  static ei_register_info ei[] = {
+    { &ei_isdn_sup_unsupported_arg_type, { "isdn_sup.unsupported.arg_type", PI_UNDECODED, PI_WARN, "UNSUPPORTED ARGUMENT TYPE (ETSI sup)", EXPFILL }},
+    { &ei_isdn_sup_unsupported_result_type, { "isdn_sup.unsupported.result_type", PI_UNDECODED, PI_WARN, "UNSUPPORTED RESULT TYPE (ETSI sup)", EXPFILL }},
+    { &ei_isdn_sup_unsupported_error_type, { "isdn_sup.unsupported.error_type", PI_UNDECODED, PI_WARN, "UNSUPPORTED ERROR TYPE (ETSI sup)", EXPFILL }},
+  };
+
+  expert_module_t* expert_isdn_sup;
 
   /* Register protocol */
   proto_isdn_sup = proto_register_protocol(PNAME, PSNAME, PFNAME);
 
+  /* Register fields and subtrees */
+  proto_register_field_array(proto_isdn_sup, hf, array_length(hf));
+  proto_register_subtree_array(ett, array_length(ett));
+  expert_isdn_sup = expert_register_protocol(proto_isdn_sup);
+  expert_register_field_array(expert_isdn_sup, ei, array_length(ei));
 }

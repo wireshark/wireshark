@@ -25,6 +25,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include <epan/prefs.h>
 #include <epan/oids.h>
 #include <epan/asn1.h>
@@ -67,6 +68,11 @@ static int proto_disp = -1;
 /* Initialize the subtree pointers */
 static gint ett_disp = -1;
 #include "packet-disp-ett.c"
+
+static expert_field ei_disp_unsupported_opcode = EI_INIT;
+static expert_field ei_disp_unsupported_errcode = EI_INIT;
+static expert_field ei_disp_unsupported_pdu = EI_INIT;
+static expert_field ei_disp_zero_pdu = EI_INIT;
 
 #include "packet-disp-fn.c"
 
@@ -128,8 +134,8 @@ dissect_disp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 	    disp_op_name = "Coordinate-Shadow-Update-Argument";
 	    break;
 	  default:
-	    proto_tree_add_text(tree, tvb, offset, -1,"Unsupported DISP opcode (%d)",
-				session->ros_op & ROS_OP_OPCODE_MASK);
+	    proto_tree_add_expert_format(tree, pinfo, &ei_disp_unsupported_opcode, tvb, offset, -1,
+	        "Unsupported DISP opcode (%d)", session->ros_op & ROS_OP_OPCODE_MASK);
 	    break;
 	  }
 	  break;
@@ -148,8 +154,8 @@ dissect_disp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 	    disp_op_name = "Coordinate-Shadow-Update-Result";
 	    break;
 	  default:
-	    proto_tree_add_text(tree, tvb, offset, -1,"Unsupported DISP opcode (%d)",
-				session->ros_op & ROS_OP_OPCODE_MASK);
+	    proto_tree_add_expert_format(tree, pinfo, &ei_disp_unsupported_opcode, tvb, offset, -1,
+	        "Unsupported DISP opcode (%d)", session->ros_op & ROS_OP_OPCODE_MASK);
 	    break;
 	  }
 	  break;
@@ -160,13 +166,13 @@ dissect_disp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 	    disp_op_name = "Shadow-Error";
 	    break;
 	  default:
-	    proto_tree_add_text(tree, tvb, offset, -1,"Unsupported DISP errcode (%d)",
-				session->ros_op & ROS_OP_OPCODE_MASK);
+	    proto_tree_add_expert_format(tree, pinfo, &ei_disp_unsupported_errcode, tvb, offset, -1,
+	            "Unsupported DISP errcode (%d)", session->ros_op & ROS_OP_OPCODE_MASK);
 	    break;
 	  }
 	  break;
 	default:
-	  proto_tree_add_text(tree, tvb, offset, -1,"Unsupported DISP PDU");
+	  proto_tree_add_expert(tree, pinfo, &ei_disp_unsupported_pdu, tvb, offset, -1);
 	  return tvb_captured_length(tvb);
 	}
 
@@ -177,7 +183,7 @@ dissect_disp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 	    old_offset=offset;
 	    offset=(*disp_dissector)(FALSE, tvb, offset, &asn1_ctx, tree, -1);
 	    if(offset == old_offset){
-	      proto_tree_add_text(tree, tvb, offset, -1,"Internal error, zero-byte DISP PDU");
+	      proto_tree_add_expert(tree, pinfo, &ei_disp_zero_pdu, tvb, offset, -1);
 	      break;
 	    }
 	  }
@@ -201,7 +207,16 @@ void proto_register_disp(void) {
     &ett_disp,
 #include "packet-disp-ettarr.c"
   };
+
+  static ei_register_info ei[] = {
+    { &ei_disp_unsupported_opcode, { "disp.unsupported_opcode", PI_UNDECODED, PI_WARN, "Unsupported DISP opcode", EXPFILL }},
+    { &ei_disp_unsupported_errcode, { "disp.unsupported_errcode", PI_UNDECODED, PI_WARN, "Unsupported DISP errcode", EXPFILL }},
+    { &ei_disp_unsupported_pdu, { "disp.unsupported_pdu", PI_UNDECODED, PI_WARN, "Unsupported DISP PDU", EXPFILL }},
+    { &ei_disp_zero_pdu, { "disp.zero_pdu", PI_PROTOCOL, PI_ERROR, "Internal error, zero-byte DISP PDU", EXPFILL }},
+  };
+
   module_t *disp_module;
+  expert_module_t* expert_disp;
 
   /* Register protocol */
   proto_disp = proto_register_protocol(PNAME, PSNAME, PFNAME);
@@ -210,6 +225,8 @@ void proto_register_disp(void) {
   /* Register fields and subtrees */
   proto_register_field_array(proto_disp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  expert_disp = expert_register_protocol(proto_disp);
+  expert_register_field_array(expert_disp, ei, array_length(ei));
 
   /* Register our configuration options for DISP, particularly our port */
 

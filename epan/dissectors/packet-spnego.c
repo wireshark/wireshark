@@ -44,6 +44,7 @@
 #include <wsutil/rc4.h>
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include <epan/asn1.h>
 #include "packet-dcerpc.h"
 #include "packet-gssapi.h"
@@ -116,7 +117,7 @@ static int hf_spnego_ContextFlags_confFlag = -1;
 static int hf_spnego_ContextFlags_integFlag = -1;
 
 /*--- End of included file: packet-spnego-hf.c ---*/
-#line 83 "../../asn1/spnego/packet-spnego-template.c"
+#line 84 "../../asn1/spnego/packet-spnego-template.c"
 
 /* Global variables */
 static const char *MechType_oid;
@@ -143,7 +144,10 @@ static gint ett_spnego_NegTokenTarg = -1;
 static gint ett_spnego_InitialContextToken_U = -1;
 
 /*--- End of included file: packet-spnego-ett.c ---*/
-#line 97 "../../asn1/spnego/packet-spnego-template.c"
+#line 98 "../../asn1/spnego/packet-spnego-template.c"
+
+static expert_field ei_spnego_decrypted_keytype = EI_INIT;
+static expert_field ei_spnego_unknown_header = EI_INIT;
 
 /*
  * Unfortunately, we have to have forward declarations of thess,
@@ -559,7 +563,7 @@ dissect_spnego_InitialContextToken(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
 
 /*--- End of included file: packet-spnego-fn.c ---*/
-#line 111 "../../asn1/spnego/packet-spnego-template.c"
+#line 115 "../../asn1/spnego/packet-spnego-template.c"
 /*
  * This is the SPNEGO KRB5 dissector. It is not true KRB5, but some ASN.1
  * wrapped blob with an OID, USHORT token ID, and a Ticket, that is also
@@ -714,7 +718,7 @@ dissect_spnego_krb5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		return;
 
 	    default:
-		proto_tree_add_text(subtree, tvb, offset, 0,
+		proto_tree_add_expert_format(subtree, pinfo, &ei_spnego_unknown_header, tvb, offset, 0,
 			"Unknown header (class=%d, pc=%d, tag=%d)",
 			ber_class, pc, tag);
 		goto done;
@@ -1019,7 +1023,7 @@ decrypt_arcfour(packet_info *pinfo,
 #if defined(HAVE_HEIMDAL_KERBEROS) || defined(HAVE_MIT_KERBEROS)
 
 static void
-decrypt_gssapi_krb_arcfour_wrap(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int keytype)
+decrypt_gssapi_krb_arcfour_wrap(proto_tree *tree _U_, packet_info *pinfo, tvbuff_t *tvb, int keytype)
 {
 	int ret;
 	enc_key_t *ek;
@@ -1065,7 +1069,10 @@ decrypt_gssapi_krb_arcfour_wrap(proto_tree *tree, packet_info *pinfo, tvbuff_t *
 				ek->keytype
 					    );
 		if (ret >= 0) {
-			proto_tree_add_text(tree, NULL, 0, 0, "[Decrypted using: %s]", ek->key_origin);
+			expert_add_info_format(pinfo, NULL, &ei_spnego_decrypted_keytype,
+								   "Decrypted keytype %d in frame %u using %s",
+								   ek->keytype, pinfo->fd->num, ek->key_origin);
+
 			pinfo->gssapi_decrypted_tvb=tvb_new_child_real_data(tvb,
 				output_message_buffer,
 				ret, ret);
@@ -1950,7 +1957,7 @@ void proto_register_spnego(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-spnego-hfarr.c ---*/
-#line 1405 "../../asn1/spnego/packet-spnego-template.c"
+#line 1412 "../../asn1/spnego/packet-spnego-template.c"
 	};
 
 	/* List of subtrees */
@@ -1973,8 +1980,15 @@ void proto_register_spnego(void) {
     &ett_spnego_InitialContextToken_U,
 
 /*--- End of included file: packet-spnego-ettarr.c ---*/
-#line 1415 "../../asn1/spnego/packet-spnego-template.c"
+#line 1422 "../../asn1/spnego/packet-spnego-template.c"
 	};
+
+	static ei_register_info ei[] = {
+		{ &ei_spnego_decrypted_keytype, { "spnego.decrypted_keytype", PI_SECURITY, PI_CHAT, "Decryted keytype", EXPFILL }},
+		{ &ei_spnego_unknown_header, { "spnego.unknown_header", PI_PROTOCOL, PI_WARN, "Unknown header", EXPFILL }},
+	};
+
+	expert_module_t* expert_spnego;
 
 	/* Register protocol */
 	proto_spnego = proto_register_protocol(PNAME, PSNAME, PFNAME);
@@ -1991,6 +2005,8 @@ void proto_register_spnego(void) {
 	/* Register fields and subtrees */
 	proto_register_field_array(proto_spnego, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	expert_spnego = expert_register_protocol(proto_spnego);
+	expert_register_field_array(expert_spnego, ei, array_length(ei));
 }
 
 

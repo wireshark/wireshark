@@ -33,6 +33,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include <epan/asn1.h>
 
 #include "packet-ber.h"
@@ -335,7 +336,7 @@ static int hf_gprscdr_ServiceConditionChange_tAIChange = -1;
 static int hf_gprscdr_ServiceConditionChange_userLocationChange = -1;
 
 /*--- End of included file: packet-gprscdr-hf.c ---*/
-#line 45 "../../asn1/gprscdr/packet-gprscdr-template.c"
+#line 46 "../../asn1/gprscdr/packet-gprscdr-template.c"
 
 static int ett_gprscdr = -1;
 static int ett_gprscdr_timestamp = -1;
@@ -400,7 +401,9 @@ static gint ett_gprscdr_TWANUserLocationInfo = -1;
 static gint ett_gprscdr_UserCSGInformation = -1;
 
 /*--- End of included file: packet-gprscdr-ett.c ---*/
-#line 50 "../../asn1/gprscdr/packet-gprscdr-template.c"
+#line 51 "../../asn1/gprscdr/packet-gprscdr-template.c"
+
+static expert_field ei_gprscdr_not_dissected = EI_INIT;
 
 static const value_string gprscdr_daylight_saving_time_vals[] = {
     {0, "No adjustment"},
@@ -597,7 +600,7 @@ static int
 dissect_gprscdr_T_information(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 53 "../../asn1/gprscdr/gprscdr.cnf"
 
-   proto_tree_add_text(tree, tvb, offset, -1, "Not dissected");
+   proto_tree_add_expert(tree, actx->pinfo, &ei_gprscdr_not_dissected, tvb, offset, -1);
 
 
 
@@ -2936,7 +2939,7 @@ int dissect_gprscdr_GPRSRecord_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pr
 
 
 /*--- End of included file: packet-gprscdr-fn.c ---*/
-#line 60 "../../asn1/gprscdr/packet-gprscdr-template.c"
+#line 63 "../../asn1/gprscdr/packet-gprscdr-template.c"
 
 
 
@@ -4071,7 +4074,7 @@ proto_register_gprscdr(void)
         NULL, HFILL }},
 
 /*--- End of included file: packet-gprscdr-hfarr.c ---*/
-#line 70 "../../asn1/gprscdr/packet-gprscdr-template.c"
+#line 73 "../../asn1/gprscdr/packet-gprscdr-template.c"
   };
 
   /* List of subtrees */
@@ -4139,13 +4142,21 @@ proto_register_gprscdr(void)
     &ett_gprscdr_UserCSGInformation,
 
 /*--- End of included file: packet-gprscdr-ettarr.c ---*/
-#line 78 "../../asn1/gprscdr/packet-gprscdr-template.c"
+#line 81 "../../asn1/gprscdr/packet-gprscdr-template.c"
         };
+
+  static ei_register_info ei[] = {
+    { &ei_gprscdr_not_dissected, { "gprscdr.not_dissected", PI_UNDECODED, PI_WARN, "Not dissected", EXPFILL }},
+  };
+
+  expert_module_t* expert_gprscdr;
 
   proto_gprscdr = proto_register_protocol(PNAME, PSNAME, PFNAME);
 
   proto_register_field_array(proto_gprscdr, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  expert_gprscdr = expert_register_protocol(proto_gprscdr);
+  expert_register_field_array(expert_gprscdr, ei, array_length(ei));
 }
 
 /* The registration hand-off routine */

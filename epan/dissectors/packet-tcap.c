@@ -58,6 +58,7 @@ static int hf_tcap_tag = -1;
 static int hf_tcap_length = -1;
 static int hf_tcap_data = -1;
 static int hf_tcap_tid = -1;
+static int hf_tcap_constructor_eoc=-1;
 
 int hf_tcapsrt_SessionId=-1;
 int hf_tcapsrt_Duplicate=-1;
@@ -137,7 +138,7 @@ static int hf_tcap_AARQ_protocol_version_version1 = -1;
 static int hf_tcap_AARE_protocol_version_version1 = -1;
 
 /*--- End of included file: packet-tcap-hf.c ---*/
-#line 61 "../../asn1/tcap/packet-tcap-template.c"
+#line 62 "../../asn1/tcap/packet-tcap-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_tcap = -1;
@@ -192,7 +193,7 @@ static gint ett_tcap_ABRT_user_information = -1;
 static gint ett_tcap_Associate_source_diagnostic = -1;
 
 /*--- End of included file: packet-tcap-ett.c ---*/
-#line 77 "../../asn1/tcap/packet-tcap-template.c"
+#line 78 "../../asn1/tcap/packet-tcap-template.c"
 
 /* When several Tcap components are received in a single TCAP message,
    we have to use several buffers for the stored parameters
@@ -1420,7 +1421,7 @@ static void dissect_DialoguePDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
 
 
 /*--- End of included file: packet-tcap-fn.c ---*/
-#line 157 "../../asn1/tcap/packet-tcap-template.c"
+#line 158 "../../asn1/tcap/packet-tcap-template.c"
 
 /*
  * DEBUG functions
@@ -3341,7 +3342,7 @@ proto_reg_handoff_tcap(void)
 
 
 /*--- End of included file: packet-tcap-dis-tab.c ---*/
-#line 2070 "../../asn1/tcap/packet-tcap-template.c"
+#line 2071 "../../asn1/tcap/packet-tcap-template.c"
 }
 
 static void init_tcap(void);
@@ -3366,10 +3367,16 @@ proto_register_tcap(void)
 		{ "Data", "tcap.data",
 		FT_BYTES, BASE_NONE, NULL, 0,
 		NULL, HFILL }
+
 	},
 		{ &hf_tcap_tid,
 		{ "Transaction Id", "tcap.tid",
 		FT_BYTES, BASE_NONE, NULL, 0,
+		NULL, HFILL }
+	},
+	{ &hf_tcap_constructor_eoc,
+		{ "CONSTRUCTOR EOC", "tcap.constructor_eoc",
+		FT_UINT16, BASE_HEX, NULL, 0,
 		NULL, HFILL }
 	},
 	/* Tcap Service Response Time */
@@ -3672,7 +3679,7 @@ proto_register_tcap(void)
         NULL, HFILL }},
 
 /*--- End of included file: packet-tcap-hfarr.c ---*/
-#line 2132 "../../asn1/tcap/packet-tcap-template.c"
+#line 2139 "../../asn1/tcap/packet-tcap-template.c"
     };
 
 /* Setup protocol subtree array */
@@ -3721,7 +3728,7 @@ proto_register_tcap(void)
     &ett_tcap_Associate_source_diagnostic,
 
 /*--- End of included file: packet-tcap-ettarr.c ---*/
-#line 2142 "../../asn1/tcap/packet-tcap-template.c"
+#line 2149 "../../asn1/tcap/packet-tcap-template.c"
     };
 
     /*static enum_val_t tcap_options[] = {
@@ -3870,7 +3877,7 @@ dissect_tcap_param(asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset
             }
 
             if (ind_field)
-                proto_tree_add_text(subtree, tvb, offset+len-2, 2, "CONSTRUCTOR EOC");
+                proto_tree_add_item(subtree, hf_tcap_constructor_eoc, tvb, offset+len-2, 2, ENC_BIG_ENDIAN);
 
             offset += len;
         }

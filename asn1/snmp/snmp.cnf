@@ -90,7 +90,7 @@ gint pdu_type=-1;
                                        &usm_p.engine_tvb);
 	 if (usm_p.engine_tvb) {
 		proto_tree* engine_tree = proto_item_add_subtree(%(ACTX)s->created_item,ett_engineid);
-		dissect_snmp_engineid(engine_tree, usm_p.engine_tvb, 0, tvb_length_remaining(usm_p.engine_tvb,0));
+		dissect_snmp_engineid(engine_tree, actx->pinfo, usm_p.engine_tvb, 0, tvb_length_remaining(usm_p.engine_tvb,0));
 	}
 
 #.FN_BODY SnmpEngineID
@@ -100,7 +100,7 @@ gint pdu_type=-1;
                                        &param_tvb);
 	 if (param_tvb) {
 		proto_tree* engine_tree = proto_item_add_subtree(%(ACTX)s->created_item,ett_engineid);
-		dissect_snmp_engineid(engine_tree, param_tvb, 0, tvb_length_remaining(param_tvb,0));
+		dissect_snmp_engineid(engine_tree, actx->pinfo, param_tvb, 0, tvb_length_remaining(param_tvb,0));
 	}
 
 #.FN_PARS UsmSecurityParameters/msgUserName
@@ -139,10 +139,7 @@ gint pdu_type=-1;
 			proto_tree* decrypted_tree;
 
 			if (! check_ScopedPdu(cleartext_tvb)) {
-				proto_item* cause = proto_tree_add_text(encryptedpdu_tree, cleartext_tvb, 0, -1,
-											"Decrypted data not formatted as expected, wrong key?");
-
-				expert_add_info(actx->pinfo, cause, &ei_snmp_decrypted_data_bad_formatted);
+				proto_tree_add_expert(encryptedpdu_tree, actx->pinfo, &ei_snmp_decrypted_data_bad_formatted, cleartext_tvb, 0, -1);
 
 				col_set_str(actx->pinfo->cinfo, COL_INFO, "encryptedPDU: Decrypted data not formatted as expected");
 

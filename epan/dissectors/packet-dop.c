@@ -347,6 +347,10 @@ static gint ett_dop_GrantsAndDenials = -1;
 #line 72 "../../asn1/dop/packet-dop-template.c"
 
 static expert_field ei_dop_unknown_binding_parameter = EI_INIT;
+static expert_field ei_dop_unsupported_opcode = EI_INIT;
+static expert_field ei_dop_unsupported_errcode = EI_INIT;
+static expert_field ei_dop_unsupported_pdu = EI_INIT;
+static expert_field ei_dop_zero_pdu = EI_INIT;
 
 /* Dissector table */
 static dissector_table_t dop_dissector_table;
@@ -2015,7 +2019,7 @@ static void dissect_ACIItem_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 
 
 /*--- End of included file: packet-dop-fn.c ---*/
-#line 87 "../../asn1/dop/packet-dop-template.c"
+#line 91 "../../asn1/dop/packet-dop-template.c"
 
 static int
 call_dop_oid_callback(const char *base_string, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, const char *col_info, void* data)
@@ -2101,8 +2105,8 @@ dissect_dop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* da
 	    dop_op_name = "Modify-Operational-Binding-Argument";
 	    break;
 	  default:
-	    proto_tree_add_text(tree, tvb, offset, -1,"Unsupported DOP Argument opcode (%d)",
-				session->ros_op & ROS_OP_OPCODE_MASK);
+	    proto_tree_add_expert_format(tree, pinfo, &ei_dop_unsupported_opcode, tvb, offset, -1,
+	        "Unsupported DOP Argument opcode (%d)", session->ros_op & ROS_OP_OPCODE_MASK);
 	    break;
 	  }
 	  break;
@@ -2121,8 +2125,8 @@ dissect_dop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* da
 	    dop_op_name = "Modify-Operational-Binding-Result";
 	    break;
 	  default:
-	    proto_tree_add_text(tree, tvb, offset, -1,"Unsupported DOP Result opcode (%d)",
-				session->ros_op & ROS_OP_OPCODE_MASK);
+	    proto_tree_add_expert_format(tree, pinfo, &ei_dop_unsupported_opcode, tvb, offset, -1,
+	            "Unsupported DOP Result opcode (%d)", session->ros_op & ROS_OP_OPCODE_MASK);
 	    break;
 	  }
 	  break;
@@ -2133,13 +2137,13 @@ dissect_dop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* da
 	    dop_op_name = "Operational-Binding-Error";
 	    break;
 	  default:
-	    proto_tree_add_text(tree, tvb, offset, -1,"Unsupported DOP Error opcode (%d)",
-				session->ros_op & ROS_OP_OPCODE_MASK);
+	    proto_tree_add_expert_format(tree, pinfo, &ei_dop_unsupported_errcode, tvb, offset, -1,
+	        "Unsupported DOP Error opcode (%d)", session->ros_op & ROS_OP_OPCODE_MASK);
 	    break;
 	  }
 	  break;
 	default:
-	  proto_tree_add_text(tree, tvb, offset, -1,"Unsupported DOP PDU");
+	  proto_tree_add_expert(tree, pinfo, &ei_dop_unsupported_pdu, tvb, offset, -1);
 	  return tvb_captured_length(tvb);
 	}
 
@@ -2150,7 +2154,7 @@ dissect_dop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* da
 	    old_offset=offset;
 	    offset=(*dop_dissector)(FALSE, tvb, offset, &asn1_ctx, tree, -1);
 	    if(offset == old_offset){
-	      proto_tree_add_text(tree, tvb, offset, -1,"Internal error, zero-byte DOP PDU");
+	      proto_tree_add_expert(tree, pinfo, &ei_dop_zero_pdu, tvb, offset, -1);
 	      break;
 	    }
 	  }
@@ -2932,7 +2936,7 @@ void proto_register_dop(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-dop-hfarr.c ---*/
-#line 239 "../../asn1/dop/packet-dop-template.c"
+#line 243 "../../asn1/dop/packet-dop-template.c"
   };
 
   /* List of subtrees */
@@ -3011,11 +3015,15 @@ void proto_register_dop(void) {
     &ett_dop_GrantsAndDenials,
 
 /*--- End of included file: packet-dop-ettarr.c ---*/
-#line 246 "../../asn1/dop/packet-dop-template.c"
+#line 250 "../../asn1/dop/packet-dop-template.c"
   };
 
   static ei_register_info ei[] = {
      { &ei_dop_unknown_binding_parameter, { "dop.unknown_binding_parameter", PI_UNDECODED, PI_WARN, "Unknown binding-parameter", EXPFILL }},
+     { &ei_dop_unsupported_opcode, { "dop.unsupported_opcode", PI_UNDECODED, PI_WARN, "Unsupported DOP opcode", EXPFILL }},
+     { &ei_dop_unsupported_errcode, { "dop.unsupported_errcode", PI_UNDECODED, PI_WARN, "Unsupported DOP errcode", EXPFILL }},
+     { &ei_dop_unsupported_pdu, { "dop.unsupported_pdu", PI_UNDECODED, PI_WARN, "Unsupported DOP PDU", EXPFILL }},
+     { &ei_dop_zero_pdu, { "dop.zero_pdu", PI_PROTOCOL, PI_ERROR, "Internal error, zero-byte DOP PDU", EXPFILL }},
   };
 
   expert_module_t* expert_dop;
@@ -3074,7 +3082,7 @@ void proto_reg_handoff_dop(void) {
 
 
 /*--- End of included file: packet-dop-dis-tab.c ---*/
-#line 286 "../../asn1/dop/packet-dop-template.c"
+#line 294 "../../asn1/dop/packet-dop-template.c"
   /* APPLICATION CONTEXT */
 
   oid_add_from_string("id-ac-directory-operational-binding-management","2.5.3.3");

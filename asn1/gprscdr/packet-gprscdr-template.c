@@ -25,6 +25,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include <epan/asn1.h>
 
 #include "packet-ber.h"
@@ -47,6 +48,8 @@ static int ett_gprscdr = -1;
 static int ett_gprscdr_timestamp = -1;
 static int ett_gprscdr_plmn_id = -1;
 #include "packet-gprscdr-ett.c"
+
+static expert_field ei_gprscdr_not_dissected = EI_INIT;
 
 static const value_string gprscdr_daylight_saving_time_vals[] = {
     {0, "No adjustment"},
@@ -77,10 +80,18 @@ proto_register_gprscdr(void)
 #include "packet-gprscdr-ettarr.c"
         };
 
+  static ei_register_info ei[] = {
+    { &ei_gprscdr_not_dissected, { "gprscdr.not_dissected", PI_UNDECODED, PI_WARN, "Not dissected", EXPFILL }},
+  };
+
+  expert_module_t* expert_gprscdr;
+
   proto_gprscdr = proto_register_protocol(PNAME, PSNAME, PFNAME);
 
   proto_register_field_array(proto_gprscdr, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  expert_gprscdr = expert_register_protocol(proto_gprscdr);
+  expert_register_field_array(expert_gprscdr, ei, array_length(ei));
 }
 
 /* The registration hand-off routine */

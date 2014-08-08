@@ -212,11 +212,12 @@ static const inap_err_t inap_err_tab[] = {
 #.FN_PARS Code/global FN_VARIANT = _str  VAL_PTR = &obj_id
 
 #.FN_BODY ExtensionField/value
-  proto_tree_add_text(tree, tvb, offset, -1, "Extension Data");
+  proto_tree *ext_tree;
+  ext_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_inap_extention_data, NULL, "Extension Data");
   if (obj_id){
-	 offset=call_ber_oid_callback(obj_id, tvb, offset, actx->pinfo, tree, NULL);
+	 offset=call_ber_oid_callback(obj_id, tvb, offset, actx->pinfo, ext_tree, NULL);
   }else{
-	 call_dissector(data_handle, tvb, actx->pinfo, tree);
+	 call_dissector(data_handle, tvb, actx->pinfo, ext_tree);
 	 offset = tvb_length_remaining(tvb,offset);
   }
 

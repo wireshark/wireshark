@@ -194,6 +194,12 @@ static int hf_ldap_AccessMask_ADS_DELETE_TREE = -1;
 static int hf_ldap_AccessMask_ADS_LIST_OBJECT = -1;
 static int hf_ldap_AccessMask_ADS_CONTROL_ACCESS = -1;
 static int hf_ldap_LDAPMessage_PDU = -1;
+static int hf_ldap_object_security_flag = -1;
+static int hf_ldap_ancestor_first_flag = -1;
+static int hf_ldap_public_data_only_flag = -1;
+static int hf_ldap_incremental_value_flag = -1;
+static int hf_ldap_oid = -1;
+static int hf_ldap_gssapi_encrypted_payload = -1;
 
 
 /*--- Included file: packet-ldap-hf.c ---*/
@@ -341,7 +347,7 @@ static int hf_ldap_graceAuthNsRemaining = -1;     /* INTEGER_0_maxInt */
 static int hf_ldap_error = -1;                    /* T_error */
 
 /*--- End of included file: packet-ldap-hf.c ---*/
-#line 191 "../../asn1/ldap/packet-ldap-template.c"
+#line 197 "../../asn1/ldap/packet-ldap-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_ldap = -1;
@@ -413,7 +419,7 @@ static gint ett_ldap_PasswordPolicyResponseValue = -1;
 static gint ett_ldap_T_warning = -1;
 
 /*--- End of included file: packet-ldap-ett.c ---*/
-#line 203 "../../asn1/ldap/packet-ldap-template.c"
+#line 209 "../../asn1/ldap/packet-ldap-template.c"
 
 static expert_field ei_ldap_exceeded_filter_length = EI_INIT;
 static expert_field ei_ldap_too_many_filter_elements = EI_INIT;
@@ -3435,19 +3441,19 @@ dissect_ldap_DirSyncFlags(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 					ett_ldap_DirSyncFlagsSubEntry, NULL, "%s: 0x%08x", hfinfo->name, val);
 
 		if (val & 0x1) {
-			proto_tree_add_text(subtree, tvb, otheroffset+1, len, "Flag Object_Security");
+			proto_tree_add_boolean(subtree, hf_ldap_object_security_flag, tvb, otheroffset+1, len, TRUE);
 		}
 		if (val & 0x800) {
-			proto_tree_add_text(subtree, tvb, otheroffset+1, len, "Flag Ancestor_First");
+			proto_tree_add_boolean(subtree, hf_ldap_ancestor_first_flag, tvb, otheroffset+1, len, TRUE);
 		}
 		if (val & 0x2000) {
-			proto_tree_add_text(subtree, tvb, otheroffset+1, len, "Flag Public_Data_Only");
+			proto_tree_add_boolean(subtree, hf_ldap_public_data_only_flag, tvb, otheroffset+1, len, TRUE);
 		}
 		if (val & 0x80000000) {
-			proto_tree_add_text(subtree, tvb, otheroffset+1, len, "Flag Incremental_Value");
+			proto_tree_add_boolean(subtree, hf_ldap_incremental_value_flag, tvb, otheroffset+1, len, TRUE);
 		}
 	} else {
-		proto_tree_add_text(tree, tvb, otheroffset+len, len, "%s: 0", hfinfo->name);
+		proto_tree_add_uint(tree, hf_index, tvb, otheroffset+len, len, 0);
 	}
 
 
@@ -3797,7 +3803,7 @@ static void dissect_PasswordPolicyResponseValue_PDU(tvbuff_t *tvb _U_, packet_in
 
 
 /*--- End of included file: packet-ldap-fn.c ---*/
-#line 885 "../../asn1/ldap/packet-ldap-template.c"
+#line 891 "../../asn1/ldap/packet-ldap-template.c"
 static int dissect_LDAPMessage_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ldap_conv_info_t *ldap_info) {
 
   int offset = 0;
@@ -4185,12 +4191,7 @@ static void
 						sasl_len - ver_len,
 						plurality(sasl_len - ver_len, "", "s"));
 
-					if (sasl_tree) {
-						proto_tree_add_text(sasl_tree, gssapi_tvb, ver_len, -1,
-							"GSS-API Encrypted payload (%d byte%s)",
-							sasl_len - ver_len,
-							plurality(sasl_len - ver_len, "", "s"));
-					}
+					proto_tree_add_item(sasl_tree, hf_ldap_gssapi_encrypted_payload, gssapi_tvb, ver_len, -1, ENC_NA);
 				}
 		}
 	} else {
@@ -4592,58 +4593,21 @@ dissect_ldap_oid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	oidname=oid_resolved_from_string(oid);
 
 	if(oidname){
-		proto_tree_add_text(tree, tvb, 0, tvb_captured_length(tvb), "OID: %s (%s)",oid,oidname);
+		proto_tree_add_string_format_value(tree, hf_ldap_oid, tvb, 0, tvb_captured_length(tvb), oid, "%s (%s)",oid,oidname);
 	} else {
-		proto_tree_add_text(tree, tvb, 0, tvb_captured_length(tvb), "OID: %s",oid);
+		proto_tree_add_string(tree, hf_ldap_oid, tvb, 0, tvb_captured_length(tvb), oid);
 	}
 }
 
 #define LDAP_ACCESSMASK_ADS_CREATE_CHILD	0x00000001
-static const true_false_string ldap_AccessMask_ADS_CREATE_CHILD_tfs = {
-   "ADS CREATE CHILD is SET",
-   "Ads create child is NOT set",
-};
-
 #define LDAP_ACCESSMASK_ADS_DELETE_CHILD	0x00000002
-static const true_false_string ldap_AccessMask_ADS_DELETE_CHILD_tfs = {
-   "ADS DELETE CHILD is SET",
-   "Ads delete child is NOT set",
-};
 #define LDAP_ACCESSMASK_ADS_LIST		0x00000004
-static const true_false_string ldap_AccessMask_ADS_LIST_tfs = {
-   "ADS LIST is SET",
-   "Ads list is NOT set",
-};
 #define LDAP_ACCESSMASK_ADS_SELF_WRITE		0x00000008
-static const true_false_string ldap_AccessMask_ADS_SELF_WRITE_tfs = {
-   "ADS SELF WRITE is SET",
-   "Ads self write is NOT set",
-};
 #define LDAP_ACCESSMASK_ADS_READ_PROP		0x00000010
-static const true_false_string ldap_AccessMask_ADS_READ_PROP_tfs = {
-   "ADS READ PROP is SET",
-   "Ads read prop is NOT set",
-};
 #define LDAP_ACCESSMASK_ADS_WRITE_PROP		0x00000020
-static const true_false_string ldap_AccessMask_ADS_WRITE_PROP_tfs = {
-   "ADS WRITE PROP is SET",
-   "Ads write prop is NOT set",
-};
 #define LDAP_ACCESSMASK_ADS_DELETE_TREE		0x00000040
-static const true_false_string ldap_AccessMask_ADS_DELETE_TREE_tfs = {
-   "ADS DELETE TREE is SET",
-   "Ads delete tree is NOT set",
-};
 #define LDAP_ACCESSMASK_ADS_LIST_OBJECT		0x00000080
-static const true_false_string ldap_AccessMask_ADS_LIST_OBJECT_tfs = {
-   "ADS LIST OBJECT is SET",
-   "Ads list object is NOT set",
-};
 #define LDAP_ACCESSMASK_ADS_CONTROL_ACCESS	0x00000100
-static const true_false_string ldap_AccessMask_ADS_CONTROL_ACCESS_tfs = {
-   "ADS CONTROL ACCESS is SET",
-   "Ads control access is NOT set",
-};
 
 static void
 ldap_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree, guint32 access)
@@ -5124,34 +5088,54 @@ void proto_register_ldap(void) {
         NULL, 0, NULL, HFILL }},
 
     { &hf_ldap_AccessMask_ADS_CREATE_CHILD,
-      { "Create Child", "ldap.AccessMask.ADS_CREATE_CHILD", FT_BOOLEAN, 32, TFS(&ldap_AccessMask_ADS_CREATE_CHILD_tfs), LDAP_ACCESSMASK_ADS_CREATE_CHILD, NULL, HFILL }},
+      { "Ads Create Child", "ldap.AccessMask.ADS_CREATE_CHILD", FT_BOOLEAN, 32, TFS(&tfs_set_notset), LDAP_ACCESSMASK_ADS_CREATE_CHILD, NULL, HFILL }},
 
     { &hf_ldap_AccessMask_ADS_DELETE_CHILD,
-      { "Delete Child", "ldap.AccessMask.ADS_DELETE_CHILD", FT_BOOLEAN, 32, TFS(&ldap_AccessMask_ADS_DELETE_CHILD_tfs), LDAP_ACCESSMASK_ADS_DELETE_CHILD, NULL, HFILL }},
+      { "Ads Delete Child", "ldap.AccessMask.ADS_DELETE_CHILD", FT_BOOLEAN, 32, TFS(&tfs_set_notset), LDAP_ACCESSMASK_ADS_DELETE_CHILD, NULL, HFILL }},
 
     { &hf_ldap_AccessMask_ADS_LIST,
-      { "List", "ldap.AccessMask.ADS_LIST", FT_BOOLEAN, 32, TFS(&ldap_AccessMask_ADS_LIST_tfs), LDAP_ACCESSMASK_ADS_LIST, NULL, HFILL }},
+      { "Ads List", "ldap.AccessMask.ADS_LIST", FT_BOOLEAN, 32, TFS(&tfs_set_notset), LDAP_ACCESSMASK_ADS_LIST, NULL, HFILL }},
 
     { &hf_ldap_AccessMask_ADS_SELF_WRITE,
-      { "Self Write", "ldap.AccessMask.ADS_SELF_WRITE", FT_BOOLEAN, 32, TFS(&ldap_AccessMask_ADS_SELF_WRITE_tfs), LDAP_ACCESSMASK_ADS_SELF_WRITE, NULL, HFILL }},
+      { "Ads Self Write", "ldap.AccessMask.ADS_SELF_WRITE", FT_BOOLEAN, 32, TFS(&tfs_set_notset), LDAP_ACCESSMASK_ADS_SELF_WRITE, NULL, HFILL }},
 
     { &hf_ldap_AccessMask_ADS_READ_PROP,
-      { "Read Prop", "ldap.AccessMask.ADS_READ_PROP", FT_BOOLEAN, 32, TFS(&ldap_AccessMask_ADS_READ_PROP_tfs), LDAP_ACCESSMASK_ADS_READ_PROP, NULL, HFILL }},
+      { "Ads Read Prop", "ldap.AccessMask.ADS_READ_PROP", FT_BOOLEAN, 32, TFS(&tfs_set_notset), LDAP_ACCESSMASK_ADS_READ_PROP, NULL, HFILL }},
 
     { &hf_ldap_AccessMask_ADS_WRITE_PROP,
-      { "Write Prop", "ldap.AccessMask.ADS_WRITE_PROP", FT_BOOLEAN, 32, TFS(&ldap_AccessMask_ADS_WRITE_PROP_tfs), LDAP_ACCESSMASK_ADS_WRITE_PROP, NULL, HFILL }},
+      { "Ads Write Prop", "ldap.AccessMask.ADS_WRITE_PROP", FT_BOOLEAN, 32, TFS(&tfs_set_notset), LDAP_ACCESSMASK_ADS_WRITE_PROP, NULL, HFILL }},
 
     { &hf_ldap_AccessMask_ADS_DELETE_TREE,
-      { "Delete Tree", "ldap.AccessMask.ADS_DELETE_TREE", FT_BOOLEAN, 32, TFS(&ldap_AccessMask_ADS_DELETE_TREE_tfs), LDAP_ACCESSMASK_ADS_DELETE_TREE, NULL, HFILL }},
+      { "Ads Delete Tree", "ldap.AccessMask.ADS_DELETE_TREE", FT_BOOLEAN, 32, TFS(&tfs_set_notset), LDAP_ACCESSMASK_ADS_DELETE_TREE, NULL, HFILL }},
 
     { &hf_ldap_AccessMask_ADS_LIST_OBJECT,
-      { "List Object", "ldap.AccessMask.ADS_LIST_OBJECT", FT_BOOLEAN, 32, TFS(&ldap_AccessMask_ADS_LIST_OBJECT_tfs), LDAP_ACCESSMASK_ADS_LIST_OBJECT, NULL, HFILL }},
+      { "Ads List Object", "ldap.AccessMask.ADS_LIST_OBJECT", FT_BOOLEAN, 32, TFS(&tfs_set_notset), LDAP_ACCESSMASK_ADS_LIST_OBJECT, NULL, HFILL }},
 
     { &hf_ldap_AccessMask_ADS_CONTROL_ACCESS,
-      { "Control Access", "ldap.AccessMask.ADS_CONTROL_ACCESS", FT_BOOLEAN, 32, TFS(&ldap_AccessMask_ADS_CONTROL_ACCESS_tfs), LDAP_ACCESSMASK_ADS_CONTROL_ACCESS, NULL, HFILL }},
+      { "Ads Control Access", "ldap.AccessMask.ADS_CONTROL_ACCESS", FT_BOOLEAN, 32, TFS(&tfs_set_notset), LDAP_ACCESSMASK_ADS_CONTROL_ACCESS, NULL, HFILL }},
 
     { &hf_ldap_LDAPMessage_PDU,
       { "LDAPMessage", "ldap.LDAPMessage_element", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+    { &hf_ldap_object_security_flag,
+      { "Flag Object_Security", "ldap.object_security_flag", FT_BOOLEAN, 32, NULL, 0x00000001, NULL, HFILL }},
+
+    { &hf_ldap_ancestor_first_flag,
+      { "Flag Ancestor_First", "ldap.ancestor_first_flag", FT_BOOLEAN, 32, NULL, 0x00000800, NULL, HFILL }},
+
+    { &hf_ldap_public_data_only_flag,
+      { "Flag Public_Data_Only", "ldap.public_data_only_flag", FT_BOOLEAN, 32, NULL, 0x00002000, NULL, HFILL }},
+
+    { &hf_ldap_incremental_value_flag,
+      { "Flag Incremental_Value", "ldap.incremental_value_flag", FT_BOOLEAN, 32, NULL, 0x80000000, NULL, HFILL }},
+
+    { &hf_ldap_oid,
+      { "OID", "ldap.oid", FT_STRING, BASE_NONE,
+        NULL, 0, NULL, HFILL }},
+
+    { &hf_ldap_gssapi_encrypted_payload,
+      { "GSS-API Encrypted payload", "ldap.gssapi_encrypted_payload", FT_BYTES, BASE_NONE,
+        NULL, 0, NULL, HFILL }},
 
 
 /*--- Included file: packet-ldap-hfarr.c ---*/
@@ -5722,7 +5706,7 @@ void proto_register_ldap(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-ldap-hfarr.c ---*/
-#line 2241 "../../asn1/ldap/packet-ldap-template.c"
+#line 2225 "../../asn1/ldap/packet-ldap-template.c"
   };
 
   /* List of subtrees */
@@ -5796,7 +5780,7 @@ void proto_register_ldap(void) {
     &ett_ldap_T_warning,
 
 /*--- End of included file: packet-ldap-ettarr.c ---*/
-#line 2255 "../../asn1/ldap/packet-ldap-template.c"
+#line 2239 "../../asn1/ldap/packet-ldap-template.c"
   };
   /* UAT for header fields */
   static uat_field_t custom_attribute_types_uat_fields[] = {
@@ -5962,7 +5946,7 @@ proto_reg_handoff_ldap(void)
 
 
 /*--- End of included file: packet-ldap-dis-tab.c ---*/
-#line 2404 "../../asn1/ldap/packet-ldap-template.c"
+#line 2388 "../../asn1/ldap/packet-ldap-template.c"
 
 
 }

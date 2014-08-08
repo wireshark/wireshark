@@ -189,6 +189,10 @@ static int hf_lte_rrc_interBandTDD_CA_WithDifferentConfig_bit1 = -1;
 static int hf_lte_rrc_interBandTDD_CA_WithDifferentConfig_bit2 = -1;
 static int hf_lte_rrc_sr_config_periodicity = -1;
 static int hf_lte_rrc_sr_config_subframe_offset = -1;
+static int hf_lte_rrc_cdma_time = -1;
+static int hf_lte_rrc_utc_time = -1;
+static int hf_lte_rrc_local_time = -1;
+static int hf_lte_rrc_absolute_time = -1;
 
 /* Initialize the subtree pointers */
 static int ett_lte_rrc = -1;
@@ -2831,6 +2835,22 @@ void proto_register_lte_rrc(void) {
     { &hf_lte_rrc_sr_config_subframe_offset,
       { "Subframe Offset", "lte-rrc.sr_SubframeOffset",
         FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_cdma_time,
+      { "CDMA time", "lte-rrc.cdma_time",
+        FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_utc_time,
+      { "UTC time", "lte-rrc.utc_time",
+        FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_local_time,
+      { "Local time", "lte-rrc.local_time",
+        FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_absolute_time,
+      { "Absolute time", "lte-rrc.absolute_time",
+        FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
   };
 

@@ -944,6 +944,7 @@ static gint ett_mms_FileAttributes = -1;
 
 static expert_field ei_mms_mal_timeofday_encoding = EI_INIT;
 static expert_field ei_mms_mal_utctime_encoding = EI_INIT;
+static expert_field ei_mms_zero_pdu = EI_INIT;
 
 
 /*--- Included file: packet-mms-fn.c ---*/
@@ -7047,7 +7048,7 @@ dissect_mms_MMSpdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 
 
 /*--- End of included file: packet-mms-fn.c ---*/
-#line 56 "../../asn1/mms/packet-mms-template.c"
+#line 57 "../../asn1/mms/packet-mms-template.c"
 
 /*
 * Dissect MMS PDUs inside a PPDU.
@@ -7073,7 +7074,7 @@ dissect_mms(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		old_offset=offset;
 		offset=dissect_mms_MMSpdu(FALSE, tvb, offset, &asn1_ctx , tree, -1);
 		if(offset == old_offset){
-			proto_tree_add_text(tree, tvb, offset, -1,"Internal error, zero-byte MMS PDU");
+			proto_tree_add_expert(tree, pinfo, &ei_mms_zero_pdu, tvb, offset, -1);
 			break;
 		}
 	}
@@ -9755,7 +9756,7 @@ void proto_register_mms(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-mms-hfarr.c ---*/
-#line 95 "../../asn1/mms/packet-mms-template.c"
+#line 96 "../../asn1/mms/packet-mms-template.c"
   };
 
   /* List of subtrees */
@@ -9974,12 +9975,13 @@ void proto_register_mms(void) {
     &ett_mms_FileAttributes,
 
 /*--- End of included file: packet-mms-ettarr.c ---*/
-#line 101 "../../asn1/mms/packet-mms-template.c"
+#line 102 "../../asn1/mms/packet-mms-template.c"
   };
 
   static ei_register_info ei[] = {
      { &ei_mms_mal_timeofday_encoding, { "mms.malformed.timeofday_encoding", PI_MALFORMED, PI_WARN, "BER Error: malformed TimeOfDay encoding", EXPFILL }},
      { &ei_mms_mal_utctime_encoding, { "mms.malformed.utctime", PI_MALFORMED, PI_WARN, "BER Error: malformed IEC61850 UTCTime encoding", EXPFILL }},
+     { &ei_mms_zero_pdu, { "mms.zero_pdu", PI_PROTOCOL, PI_ERROR, "Internal error, zero-byte MMS PDU", EXPFILL }},
   };
 
   expert_module_t* expert_mms;

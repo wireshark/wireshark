@@ -32,6 +32,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include <epan/strutil.h>
 #include <epan/asn1.h>
 #include <epan/prefs.h>
@@ -94,7 +95,7 @@ static int hf_q932_destinationEntity = -1;        /* EntityType */
 static int hf_q932_destinationEntityAddress = -1;  /* AddressInformation */
 
 /*--- End of included file: packet-q932-hf.c ---*/
-#line 48 "../../asn1/q932/packet-q932-template.c"
+#line 49 "../../asn1/q932/packet-q932-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_q932 = -1;
@@ -117,7 +118,13 @@ static gint ett_q932_UserSpecifiedSubaddress = -1;
 static gint ett_q932_NetworkFacilityExtension_U = -1;
 
 /*--- End of included file: packet-q932-ett.c ---*/
-#line 53 "../../asn1/q932/packet-q932-template.c"
+#line 54 "../../asn1/q932/packet-q932-template.c"
+
+static expert_field ei_q932_dse_not_supported = EI_INIT;
+static expert_field ei_q932_acse_not_supported = EI_INIT;
+static expert_field ei_q932_unknown_component = EI_INIT;
+static expert_field ei_q932_asn1_encoded = EI_INIT;
+
 
 /* Preferences */
 
@@ -644,7 +651,7 @@ static void dissect_InterpretationComponent_PDU(tvbuff_t *tvb _U_, packet_info *
 
 
 /*--- End of included file: packet-q932-fn.c ---*/
-#line 134 "../../asn1/q932/packet-q932-template.c"
+#line 141 "../../asn1/q932/packet-q932-template.c"
 
 /*--- dissect_q932_facility_ie -------------------------------------------------------*/
 static void
@@ -693,12 +700,12 @@ dissect_q932_facility_ie(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
           case 17 :  /* abort */
             offset = dissect_ber_identifier(pinfo, tree, tvb, hoffset, NULL, NULL, NULL);
             offset = dissect_ber_length(pinfo, tree, tvb, offset, NULL, NULL);
-            proto_tree_add_text(tree, tvb, offset, len, "DSE APDU (not supported)");
+            proto_tree_add_expert(tree, pinfo, &ei_q932_dse_not_supported, tvb, offset, len);
             break;
           default:
             offset = dissect_ber_identifier(pinfo, tree, tvb, hoffset, NULL, NULL, NULL);
             offset = dissect_ber_length(pinfo, tree, tvb, offset, NULL, NULL);
-            proto_tree_add_text(tree, tvb, offset, len, "Unknown Component");
+            proto_tree_add_expert(tree, pinfo, &ei_q932_unknown_component, tvb, offset, len);
         }
         break;
       case BER_CLASS_APP:
@@ -711,18 +718,18 @@ dissect_q932_facility_ie(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
           case  4 :  /* abrt */
             offset = dissect_ber_identifier(pinfo, tree, tvb, hoffset, NULL, NULL, NULL);
             offset = dissect_ber_length(pinfo, tree, tvb, offset, NULL, NULL);
-            proto_tree_add_text(tree, tvb, offset, len, "ACSE APDU (not supported)");
+            proto_tree_add_expert(tree, pinfo, &ei_q932_acse_not_supported, tvb, offset, len);
             break;
           default:
             offset = dissect_ber_identifier(pinfo, tree, tvb, hoffset, NULL, NULL, NULL);
             offset = dissect_ber_length(pinfo, tree, tvb, offset, NULL, NULL);
-            proto_tree_add_text(tree, tvb, offset, len, "Unknown Component");
+            proto_tree_add_expert(tree, pinfo, &ei_q932_unknown_component, tvb, offset, len);
         }
         break;
       default:
         offset = dissect_ber_identifier(pinfo, tree, tvb, hoffset, NULL, NULL, NULL);
         offset = dissect_ber_length(pinfo, tree, tvb, offset, NULL, NULL);
-        proto_tree_add_text(tree, tvb, offset, len, "Unknown Component");
+        proto_tree_add_expert(tree, pinfo, &ei_q932_unknown_component, tvb, offset, len);
     }
     offset = eoffset;
   }
@@ -730,10 +737,11 @@ dissect_q932_facility_ie(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 
 /*--- dissect_q932_ni_ie -------------------------------------------------------*/
 static void
-dissect_q932_ni_ie(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int length) {
+dissect_q932_ni_ie(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int length) {
   int remain = length;
   guint8 octet = 0;
   guint32 value = 0;
+  proto_item* ti;
 
   while ((remain > 0) && !(octet & 0x80)) {
     octet = tvb_get_guint8(tvb, offset++);
@@ -741,10 +749,10 @@ dissect_q932_ni_ie(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree
     value <<= 7;
     value |= octet & 0x7F;
   }
-  proto_tree_add_uint(tree, hf_q932_nd, tvb, offset - (length - remain), length - remain, value);
+  ti = proto_tree_add_uint(tree, hf_q932_nd, tvb, offset - (length - remain), length - remain, value);
 
   if (remain > 0) {
-    proto_tree_add_text(tree, tvb, offset - remain, remain, "ASN.1 Encoded Data Structure(NOT IMPLEMENTED): %s", tvb_bytes_to_ep_str(tvb, offset - remain, remain));
+    expert_add_info(pinfo, ti, &ei_q932_asn1_encoded);
   }
 }
 
@@ -965,7 +973,7 @@ void proto_register_q932(void) {
         "AddressInformation", HFILL }},
 
 /*--- End of included file: packet-q932-hfarr.c ---*/
-#line 302 "../../asn1/q932/packet-q932-template.c"
+#line 310 "../../asn1/q932/packet-q932-template.c"
   };
 
   /* List of subtrees */
@@ -990,10 +998,18 @@ void proto_register_q932(void) {
     &ett_q932_NetworkFacilityExtension_U,
 
 /*--- End of included file: packet-q932-ettarr.c ---*/
-#line 309 "../../asn1/q932/packet-q932-template.c"
+#line 317 "../../asn1/q932/packet-q932-template.c"
   };
 
-   module_t *q932_module;
+  static ei_register_info ei[] = {
+    { &ei_q932_dse_not_supported, { "q932.dse_not_supported", PI_UNDECODED, PI_WARN, "DSE APDU (not supported)", EXPFILL }},
+    { &ei_q932_acse_not_supported, { "q932.acse_not_supported", PI_UNDECODED, PI_WARN, "ACSE APDU (not supported)", EXPFILL }},
+    { &ei_q932_unknown_component, { "q932.unknown_component", PI_UNDECODED, PI_WARN, "Unknown Component", EXPFILL }},
+    { &ei_q932_asn1_encoded, { "q932.asn1_encoded", PI_UNDECODED, PI_WARN, "ASN.1 Encoded Data Structure(NOT IMPLEMENTED)", EXPFILL }},
+  };
+
+  module_t *q932_module;
+  expert_module_t* expert_q932;
 
   static const enum_val_t facility_encoding[] = {
     {"Facility as QSIG", "Dissect facility as QSIG", 0},
@@ -1008,6 +1024,8 @@ void proto_register_q932(void) {
   /* Register fields and subtrees */
   proto_register_field_array(proto_q932, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  expert_q932 = expert_register_protocol(proto_q932);
+  expert_register_field_array(expert_q932, ei, array_length(ei));
 
   rose_ctx_init(&q932_rose_ctx);
 

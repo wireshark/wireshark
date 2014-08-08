@@ -33,6 +33,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include <epan/asn1.h>
 
 #include "packet-ber.h"
@@ -115,7 +116,7 @@ static int hf_charging_ase_T_tariffControlIndicators_non_cyclicTariff = -1;
 static int hf_charging_ase_T_tariffControlIndicators_01_non_cyclicTariff = -1;
 
 /*--- End of included file: packet-charging_ase-hf.c ---*/
-#line 44 "../../asn1/charging_ase/packet-charging_ase-template.c"
+#line 45 "../../asn1/charging_ase/packet-charging_ase-template.c"
 
 static int ett_charging_ase = -1;
 
@@ -153,7 +154,9 @@ static gint ett_charging_ase_T_tariffControlIndicators_01 = -1;
 static gint ett_charging_ase_ChargingReferenceIdentification = -1;
 
 /*--- End of included file: packet-charging_ase-ett.c ---*/
-#line 47 "../../asn1/charging_ase/packet-charging_ase-template.c"
+#line 48 "../../asn1/charging_ase/packet-charging_ase-template.c"
+
+static expert_field ei_charging_ase_extensions_not_dissected = EI_INIT;
 
 static dissector_handle_t charging_ase_handle;
 
@@ -534,7 +537,7 @@ static int
 dissect_charging_ase_T_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 13 "../../asn1/charging_ase/charging_ase.cnf"
 
-	proto_tree_add_text(tree, tvb, offset, -1, "Extensions not dissected");
+	proto_tree_add_expert(tree, actx->pinfo, &ei_charging_ase_extensions_not_dissected, tvb, offset, -1);
 	return tvb_length(tvb);
 
 
@@ -839,7 +842,7 @@ int dissect_charging_ase_ChargingMessageType_PDU(tvbuff_t *tvb _U_, packet_info 
 
 
 /*--- End of included file: packet-charging_ase-fn.c ---*/
-#line 51 "../../asn1/charging_ase/packet-charging_ase-template.c"
+#line 54 "../../asn1/charging_ase/packet-charging_ase-template.c"
 
 static void
 dissect_charging_ase(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -1111,7 +1114,7 @@ proto_register_charging_ase(void)
         NULL, HFILL }},
 
 /*--- End of included file: packet-charging_ase-hfarr.c ---*/
-#line 74 "../../asn1/charging_ase/packet-charging_ase-template.c"
+#line 77 "../../asn1/charging_ase/packet-charging_ase-template.c"
   };
 
   /* List of subtrees */
@@ -1152,13 +1155,21 @@ proto_register_charging_ase(void)
     &ett_charging_ase_ChargingReferenceIdentification,
 
 /*--- End of included file: packet-charging_ase-ettarr.c ---*/
-#line 80 "../../asn1/charging_ase/packet-charging_ase-template.c"
+#line 83 "../../asn1/charging_ase/packet-charging_ase-template.c"
         };
+
+  static ei_register_info ei[] = {
+      { &ei_charging_ase_extensions_not_dissected, { "charging_ase.extensions_not_dissected", PI_UNDECODED, PI_WARN, "Extensions not dissected", EXPFILL }},
+  };
+
+  expert_module_t* expert_charging_ase;
 
   proto_charging_ase = proto_register_protocol(PNAME, PSNAME, PFNAME);
 
   proto_register_field_array(proto_charging_ase, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  expert_charging_ase = expert_register_protocol(proto_charging_ase);
+  expert_register_field_array(expert_charging_ase, ei, array_length(ei));
 }
 
 /* The registration hand-off routine */

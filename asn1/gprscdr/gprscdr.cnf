@@ -51,7 +51,7 @@ GPRSRecord
 
 #.FN_BODY ManagementExtension/information
 
-   proto_tree_add_text(tree, tvb, offset, -1, "Not dissected");
+   proto_tree_add_expert(tree, actx->pinfo, &ei_gprscdr_not_dissected, tvb, offset, -1);
 
 #.FN_BODY TimeStamp VAL_PTR = &parameter_tvb
 /*

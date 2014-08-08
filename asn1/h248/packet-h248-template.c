@@ -93,6 +93,7 @@ static gcp_hf_ett_t h248_arrel = {{-1,-1,-1,-1,-1,-1},{-1,-1,-1,-1}};
 static expert_field ei_h248_errored_command = EI_INIT;
 static expert_field ei_h248_transactionId64 = EI_INIT;
 static expert_field ei_h248_context_id64 = EI_INIT;
+static expert_field ei_h248_octet_string_expected = EI_INIT;
 
 static dissector_table_t subdissector_table;
 
@@ -1199,7 +1200,8 @@ static int dissect_h248_PropertyID(gboolean implicit_tag _U_, tvbuff_t *tvb, int
 
     if( (ber_class!=BER_CLASS_UNI)
       ||(tag!=BER_UNI_TAG_OCTETSTRING) ){
-        proto_tree_add_text(tree, tvb, offset-2, 2, "H.248 BER Error: OctetString expected but Class:%d PC:%d Tag:%d was unexpected", ber_class, pc, tag);
+        proto_tree_add_expert_format(tree, actx->pinfo, &ei_h248_octet_string_expected, tvb, offset-2, 2,
+            "H.248 BER Error: OctetString expected but Class:%d PC:%d Tag:%d was unexpected", ber_class, pc, tag);
         return end_offset;
     }
 
@@ -1281,7 +1283,8 @@ static int dissect_h248_SigParamValue(gboolean implicit_tag _U_, tvbuff_t *tvb, 
 
     if( (ber_class!=BER_CLASS_UNI)
         ||(tag!=BER_UNI_TAG_OCTETSTRING) ){
-        proto_tree_add_text(tree, tvb, offset-2, 2, "H.248 BER Error: OctetString expected but Class:%d PC:%d Tag:%d was unexpected", ber_class, pc, tag);
+        proto_tree_add_expert_format(tree, actx->pinfo, &ei_h248_octet_string_expected, tvb, offset-2, 2,
+            "H.248 BER Error: OctetString expected but Class:%d PC:%d Tag:%d was unexpected", ber_class, pc, tag);
         return end_offset;
     }
 
@@ -1359,7 +1362,8 @@ static int dissect_h248_EventParamValue(gboolean implicit_tag _U_, tvbuff_t *tvb
 
     if( (ber_class!=BER_CLASS_UNI)
         ||(tag!=BER_UNI_TAG_OCTETSTRING) ){
-        proto_tree_add_text(tree, tvb, offset-2, 2, "H.248 BER Error: OctetString expected but Class:%d PC:%d Tag:%d was unexpected", ber_class, pc, tag);
+        proto_tree_add_expert_format(tree, actx->pinfo, &ei_h248_octet_string_expected, tvb, offset-2, 2,
+            "H.248 BER Error: OctetString expected but Class:%d PC:%d Tag:%d was unexpected", ber_class, pc, tag);
         return end_offset;
     }
 
@@ -1598,6 +1602,7 @@ void proto_register_h248(void) {
         { &ei_h248_errored_command, { "h248.errored_command", PI_RESPONSE_CODE, PI_WARN, "Errored Command", EXPFILL }},
         { &ei_h248_transactionId64, { "h248.transactionId.error", PI_MALFORMED, PI_WARN, "Transaction ID invalid", EXPFILL }},
         { &ei_h248_context_id64, { "h248.contextId.error", PI_MALFORMED, PI_WARN, "Context ID invalid", EXPFILL }},
+        { &ei_h248_octet_string_expected, { "h248.octet_string_expected", PI_PROTOCOL, PI_WARN, "H.248 BER Error: OctetString expected", EXPFILL }},
     };
 
     expert_module_t* expert_h248;
