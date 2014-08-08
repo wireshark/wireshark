@@ -179,6 +179,8 @@ static const guint32 crc32_ccitt_table[256] = {
  *      x^7 + x^5 + x^4 + x^2 + x + 1
  *
  * (which is the same polynomial as the one above us).
+ *
+ * NOTE: this is also used for ATM AAL5.
  */
 static const guint32 crc32_mpeg2_table[256] = {
 		0x00000000, 0x04c11db7, 0x09823b6e, 0x0d4326d9, 0x130476dc, 0x17c56b6b,
