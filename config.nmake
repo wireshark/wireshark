@@ -792,6 +792,8 @@ SH_FLAGS=-o igncr
 
 SH=$(SH_PROG) $(SH_FLAGS)
 
+# PowerShell
+POWERSHELL=powershell -executionpolicy bypass -File
 
 # command for perl (cygwin's perl package recommended)
 PERL=perl
@@ -836,9 +838,8 @@ YACC=bison
 !ENDIF
 !ENDIF
 
-# Commands to convert UNIX line endings to DOS/Windows
-UNIX2DOS=u2d
-TEXTIFY=$(SH) $(TOOLS_DIR)/textify.sh
+# Make our text files Windows-native
+TEXTIFY=$(POWERSHELL) $(TOOLS_DIR)/textify.ps1
 
 #
 # Optional: Build the NSIS installer.

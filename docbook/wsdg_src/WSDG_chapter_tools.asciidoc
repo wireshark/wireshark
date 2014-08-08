@@ -1,7 +1,7 @@
 ++++++++++++++++++++++++++++++++++++++
 <!-- WSDG Chapter Tools -->
 ++++++++++++++++++++++++++++++++++++++
-    
+
 [[ChapterTools]]
 
 == Tool Reference
@@ -17,14 +17,14 @@ None of the tools mentioned in this chapter are needed to
 run Wireshark; they are only needed to build it.
 
 Most of these tools have their roots on UNIX like
-platforms, but Win32 ports are also available. Therefore the
+platforms, but Windows ports are also available. Therefore the
 tools are available in different "flavours":
 
-* UNIX (or Win32 Cygwin): the tools should be commonly available on the
-  supported UNIX platforms, and for Win32 platforms by using the Cygwin UNIX
+* UNIX (or Windows Cygwin): the tools should be commonly available on the
+  supported UNIX platforms, and for Windows platforms by using the Cygwin UNIX
   emulation
 
-* Win32 native: some tools are available as native Win32 tools, no special
+* Windows native: some tools are available as native Windows tools, no special
   emulation is required
 
 [WARNING]
@@ -49,10 +49,10 @@ development tasks in <<ChapterSources>>.
 
 [[ChToolsCygwin]]
 
-=== Win32: Cygwin
+=== Windows: Cygwin
 
-Cygwin provides a lot of UNIX based tools on the Win32 platform. It uses a UNIX
-emulation layer which might be a bit slower compared to the native Win32 tools,
+Cygwin provides a lot of UNIX based tools on the Windows platform. It uses a UNIX
+emulation layer which might be a bit slower compared to the native Windows tools,
 but at an acceptable level. The installation and update is pretty easy and done
 through a single utility, 'setup-x86.exe' for 32-bit Windows and
 'setup-x86_64.exe' for 64-bit Windows.
@@ -65,7 +65,7 @@ install and configure them them individually.
 [NOTE]
 .You must have Cygwin installed
 ====
-As there's no Win32 native bash version available, at least a basic installation
+As there's no Windows native bash version available, at least a basic installation
 of Cygwin is required in any case. This may change in the future as packaging
 systems such as NuGet and Chocolatey mature.
 ====
@@ -128,19 +128,11 @@ between:
 
 [[ChToolsGNUChain]]
 
-=== GNU compiler toolchain (UNIX or Win32 Cygwin)
+=== GNU compiler toolchain (UNIX only)
 
 [[ChToolsGCC]]
 
 ==== gcc (GNU compiler collection)
-
-[WARNING]
-.Compiling with gcc on Windows is discouraged
-====
-Using Cygwin gcc to compile Wireshark is unsupported and recommended. If you
-really want to try it anyway see:
-http://wiki.wireshark.org/Development/CygwinGCC[] for details.
-====
 
 The GCC C compiler is available for most of the
 UNIX-like platforms and as the Devel/gcc package from the
@@ -260,7 +252,7 @@ Your version string may vary, of course.
 
 [[ChToolsMSChain]]
 
-=== Microsoft compiler toolchain (Win32 native)
+=== Microsoft compiler toolchain (Windows native)
 
 To compile Wireshark on Windows using the Microsoft C/$$C++$$
 compiler, you'll need:
@@ -277,15 +269,17 @@ compiler, you'll need:
 
 . Windows platform headers and libraries (e.g.
 'windows.h', 'WSock32.lib')
-
++
 // Can we drop support for CHM?
 . HTML help headers and libraries ('htmlhelp.h', 'htmlhelp.lib')
 
 ==== Toolchain Package Alternatives
 
-The official Wireshark 1.8.x and 1.10.x releases are compiled using
+The official Wireshark 1.12.x and 1.10.x releases are compiled using
 Microsoft Visual $$C++$$ 2010 SP1.
-The official 1.2, 1.4, and 1.6 releases were compiled using
+The official 1.8 releases were compiled using
+Microsoft Visual $$C++$$ 2010 SP1 as well.
+The official 1.6, 1.4, and 1.2 releases were compiled using
 Microsoft Visual $$C++$$ 2008 SP1.
 Other past releases, including the 1.0 branch,
 were compiled using Microsoft Visual $$C++$$ 6.0. Using the release
@@ -463,7 +457,7 @@ should result in something like:
 Microsoft (R) 32-bit C/C++ Optimizing Compiler Version 15.00.30729.01 for 80x86
 Copyright (C) Microsoft Corp. All rights reserved.
 
-usage: cl [ option... ] filename... [ /link linkoption... 
+usage: cl [ option... ] filename... [ /link linkoption...
 ----
 
 However, the version string may vary.
@@ -833,7 +827,7 @@ otherwise the debugger will simply fail or you will only see a lot of garbage.
 ===== Visual Studio integrated debugger
 
 You can use the integrated debugger of Visual Studio if your toolchain includes
-it. However, setting up the environment is a bit tricky, as the Win32 build
+it. However, setting up the environment is a bit tricky, as the Windows build
 process uses makefiles instead of the .dsp/.dsw files usually used.
 
 ****
@@ -864,7 +858,7 @@ The bash shell is needed to run several shell scripts.
 
 [[ChToolsGNUBash]]
 
-==== UNIX or Win32 Cygwin: GNU bash
+==== UNIX and Cygwin: GNU bash
 
 The bash shell is available for most of the UNIX-like
 platforms and as the bash package from the
@@ -889,9 +883,9 @@ Copyright (C) 2005 Free Software Foundation, Inc.
 
 However, the version string may vary.
 
-[[ChToolsWin32Bash]]
+[[ChToolsWindowsBash]]
 
-==== Win32 native:
+==== Windows native:
 
 // MinGW? PowerShell?
 ****
@@ -907,60 +901,31 @@ project is http://python.org/[]. It is used to generate some source files.
 Python 2.5 or later (including Python 3) should work fine but Python 2.7 is
 recommended.
 
-[[ChToolsUnixPython]]
+Python is either included or available as a package on most UNIX-like platforms.
+Windows packages and source are available at http://python.org/download/[].
+The Cygwin Python package is *not* recommended since `/usr/bin/python` is
+a symbolic link, which causes confusion outside Cygwin.
 
-==== UNIX or Win32 Cygwin: Python
-
-// XXX - This seems to contradict other parts of the documentation.
-// Do we recommend Cygwin Python or not?
-
-Python is available for most UNIX-like platforms
-and as the python package from the
-<<ChToolsCygwin,Cygwin setup>>
-
-If Python isn't already installed or
-available as a package for your platform, you can get it at
-http://www.python.org/[].
-
-After correct installation, typing at the
-bash command line prompt:
+You can verify your Python version by running
 
 ----
 $ python --version
 ----
 
-should result in something like:
-
-Python 2.7.3
-
-However, the version string may vary.
-
-[[ChToolsWin32Python]]
-
-==== Win32 native: python
-
-Get Python (2.7 is recommended) from
-http://python.org/download/[].
-You can download an installation package there, which
-will install the Python system in the top level of your
-'C:' drive by default, e.g.
-'C:\Python27'.
-
-You can check for a successful installation from a command prompt (cmd.exe):
+on UNIX and Linux and
 
 ----
 C:\> cd python27
-
 C:\Python27> python --version
 ----
 
-The output should look something like:
+on Windows. You should see something like
 
 ----
-Python 2.7.5
+Python 2.7.3
 ----
 
-However, the version string may vary.
+Your version string may vary of course.
 
 [[ChToolsPerl]]
 
@@ -974,7 +939,7 @@ and above should work fine.
 
 [[ChToolsUnixPerl]]
 
-==== UNIX or Win32 Cygwin: Perl
+==== UNIX and Cygwin: Perl
 
 Perl is available for most of the UNIX-like platforms
 and as the perl package from the
@@ -1009,12 +974,12 @@ Internet, point your browser at http://www.perl.com/, the Perl Home Page.
 
 However, the version string may vary.
 
-[[ChToolsWin32Perl]]
+[[ChToolsWindowsPerl]]
 
-==== Win32 native: Perl
+==== Windows native: Perl
 
 // XXX - Straberry?
-A native Win32 Perl package can be obtained from
+A native Windows Perl package can be obtained from
 http://www.ActiveState.com[]. The installation
 should be straightforward.
 
@@ -1051,7 +1016,7 @@ in various places.
 
 [[ChToolsUnixSed]]
 
-==== UNIX or Win32 Cygwin: sed
+==== UNIX and Cygwin: sed
 
 Sed is available for most of the UNIX-like platforms
 and as the sed package from the
@@ -1080,11 +1045,11 @@ to the extent permitted by law.
 
 However, the version string may vary.
 
-[[ChToolsWin32Sed]]
+[[ChToolsWindowsSed]]
 
-==== Win32 native: sed
+==== Windows native: sed
 
-A native Win32 sed package can be obtained from
+A native Windows sed package can be obtained from
 http://gnuwin32.sourceforge.net/[]. The
 installation should be straightforward.
 
@@ -1201,7 +1166,7 @@ client.
 
 [[ChToolsUnixGit]]
 
-==== UNIX or Win32 Cygwin: git
+==== UNIX or Cygwin: git
 
 Git is available for most of the UNIX-like platforms
 and as the Git package from the
@@ -1224,11 +1189,11 @@ git version 1.8.3.4
 
 Your version will likely be different.
 
-[[ChToolsWin32SVN]]
+[[ChToolsWindowsGit]]
 
-==== Win32 native: git
+==== Windows native: git
 
-The Git command line tools for Win32 can be found at
+The Git command line tools for Windows can be found at
 http://git-scm.com/download/win[].
 
 After correct installation, typing at the command
@@ -1274,7 +1239,7 @@ tool.
 
 [[ChToolsUnixPatch]]
 
-==== UNIX or Win32 Cygwin: patch
+==== UNIX and Cygwin: patch
 
 Patch is available for most of the UNIX-like platforms
 and as the patch package from the
@@ -1308,28 +1273,35 @@ written by Larry Wall and Paul Eggert
 
 However, the version string may vary.
 
-[[ChToolsWin32Patch]]
+[[ChToolsWindowsPatch]]
 
-==== Win32 native: patch
+==== Windows native: patch
 
-A native Win32 patch package can be obtained from
+A native Windows patch package can be obtained from
 http://gnuwin32.sourceforge.net/[]. The
 installation should be straightforward.
 
+[[ChToolsWindowsPowerShell]]
+
+=== Windows PowerShell
+
+If you are running Windows Vista you may need to install Windows Powershell 2.0.
+You can download it from https://www.microsoft.com/powershell[]
+
 [[ChToolsWget]]
 
-=== Win32: GNU wget (optional)
+=== Windows: GNU wget (optional)
 
 GNU wget is used to download files from the internet using the command line.
 
 GNU wget is available for most of the UNIX-like platforms and as the wget
 package from the <<ChToolsCygwin,Cygwin setup>>.
 
-You will only need wget, if you want to use the Win32 automated library
+You will only need wget, if you want to use the Windows automated library
 download, see <<ChLibsSetup>>for details.
 
 If GNU wget isn't already installed or available as a package for your platform
-(well, for Win32 it is available as a Cygwin package), you can get it at
+(well, for Windows it is available as a Cygwin package), you can get it at
 http://www.gnu.org/software/wget/wget.html[].
 
 If wget is trying to download files but fails to do so, your Internet connection
@@ -1348,23 +1320,23 @@ If you are unsure about the settings, you might ask your system administrator.
 
 [[ChToolsUnzip]]
 
-=== Win32: GNU unzip (optional)
+=== Windows: GNU unzip (optional)
 
 GNU unzip is used to, well, unzip the zip files downloaded using the wget tool.
 
 GNU unzip is available for most of the UNIX-like platforms and as the unzip
 package from the <<ChToolsCygwin,Cygwin setup>>.
 
-You will only need unzip, if you want to use the Win32 automated library
+You will only need unzip, if you want to use the Windows automated library
 download, see <<ChLibsSetup>>for details.
 
 If GNU unzip isn't already installed or available as a package for your platform
-(well, for Win32 it is available as a Cygwin package), you can get it at
+(well, for Windows it is available as a Cygwin package), you can get it at
 http://gnuwin32.sourceforge.net/packages/unzip.htm[].
 
 [[ChToolsNSIS]]
 
-=== Win32: NSIS (optional)
+=== Windows: NSIS (optional)
 
 The NSIS (Nullsoft Scriptable Install System) is used to generate
 'wireshark-win32-wireshark-major-minor-version:[].x.exe' from all the files

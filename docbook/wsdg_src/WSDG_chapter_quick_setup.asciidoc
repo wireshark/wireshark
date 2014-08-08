@@ -169,8 +169,6 @@ so it shows a version number for:
 
 * Interpreters/perl
 
-* Utils/dos2unix
-
 * Utils/patch (only if needed) (may be Devel/patch instead)
 
 // Only used by win-setup.sh
@@ -192,6 +190,13 @@ may take a while).
 Why is this recommended? Cygwin's bash version is required, as no native Win32
 version is available. As additional packages can easily be added, Perl and
 other packages are also used.
+
+[[ChSetupPowerShell]]
+
+==== Install PowerShell
+
+If you are running Windows Vista you may need to install Windows Powershell 2.0.
+You can download it from https://www.microsoft.com/powershell[]
 
 [[ChSetupChocolatey]]
 

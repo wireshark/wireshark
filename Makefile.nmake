@@ -1224,10 +1224,11 @@ install-generated-files: doc
 	xcopy ".\manuf" $(INSTALL_DIR) /d
 	xcopy ".\services" $(INSTALL_DIR) /d
 	xcopy ".\pdml2html.xsl" $(INSTALL_DIR) /d
-	$(TEXTIFY) "./COPYING" $(INSTALL_DIR)
-	$(TEXTIFY) "./NEWS" $(INSTALL_DIR)
-	$(TEXTIFY) "./README" $(INSTALL_DIR)
-	$(TEXTIFY) "./README.windows" $(INSTALL_DIR)
+	$(TEXTIFY) -Destination $(INSTALL_DIR) \
+		./COPYING \
+		./NEWS \
+		./README \
+		./README.windows
 	xcopy ".\cfilters" $(INSTALL_DIR) /d
 	xcopy ".\colorfilters" $(INSTALL_DIR) /d
 	xcopy ".\dfilters" $(INSTALL_DIR) /d
@@ -1239,10 +1240,8 @@ install-generated-files: doc
 	xcopy ipmap.html $(INSTALL_DIR) /d
 	xcopy doc\*.html $(INSTALL_DIR) /d
 	if not exist $(INSTALL_DIR)\help mkdir $(INSTALL_DIR)\help
-	xcopy ".\help\*.*" $(INSTALL_DIR)\help /d
-# you can't reliably use xcopy to rename files "on the fly" (so copy first, then rename)
-	xcopy ".\help\faq.txt" $(INSTALL_DIR) /d
-	$(UNIX2DOS) $(INSTALL_DIR)/help/*.txt
+	xcopy ".\help\toc" $(INSTALL_DIR)\help /d
+	$(TEXTIFY) -Destination $(INSTALL_DIR)\help help\*.txt
 	if not exist $(INSTALL_DIR)\dtds mkdir $(INSTALL_DIR)\dtds
 	xcopy ".\dtds\*.*" $(INSTALL_DIR)\dtds /d
 	if not exist $(INSTALL_DIR)\asn1 mkdir $(INSTALL_DIR)\asn1
