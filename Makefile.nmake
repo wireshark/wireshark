@@ -390,12 +390,13 @@ editcap.exe	: $(LIBS_CHECK) config.h $(editcap_OBJECTS) wsutil\libwsutil.lib wir
 mergecap.exe	: $(LIBS_CHECK)  config.h $(mergecap_OBJECTS) wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib image\mergecap.res
 	@echo Linking $@
 	$(LINK) @<<
-		/OUT:mergecap.exe $(conflags) $(conlibsdll) $(LDFLAGS) $(mergecap_OBJECTS) $(mergecap_LIBS) image\mergecap.res
+		/OUT:mergecap.exe $(conflags) $(conlibsdll) $(LDFLAGS) $(mergecap_OBJECTS) $(mergecap_LIBS) setargv.obj image\mergecap.res
 <<
 !IFDEF MANIFEST_INFO_REQUIRED
 	mt.exe -nologo -manifest "mergecap.exe.manifest" -outputresource:mergecap.exe;1
 !ENDIF
 
+# Linking with setargv.obj enables "wildcard expansion" of command-line arguments
 reordercap.exe	: $(LIBS_CHECK)  config.h reordercap.obj wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib image\reordercap.res
 	@echo Linking $@
 	$(LINK) @<<
