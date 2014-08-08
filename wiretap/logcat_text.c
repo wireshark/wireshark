@@ -34,7 +34,7 @@
 #define SPECIAL_STRING "[-]+ beginning of \\/"
 #define BRIEF_STRING "[IVDWEF]/.*\\( *\\d*\\): .*"
 #define TAG_STRING "[IVDWEF]/.*: .*"
-#define TIME_STRING "\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}\\.\\d{3} [IVDWE]/.*\\( *\\d*\\): .*"
+#define TIME_STRING "\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}\\.\\d{3} [IVDWEF]/.*\\( *\\d*\\): .*"
 #define THREAD_STRING "[IVDWEF]\\( *\\d+: *\\d+\\) .*"
 #define PROCESS_STRING "[IVDWEF]\\( *\\d+\\) .*"
 #define THREADTIME_STRING "\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}\\.\\d{3} *\\d+ *\\d+ [IVDWEF] .+: +"
@@ -156,18 +156,18 @@ static gchar *logcat_log(const struct dumper_t *dumper, guint32 seconds,
 }
 
 static void get_time(gchar *string, struct wtap_pkthdr *phdr) {
-    gint day, month, hrs, min, sec, ms;
-    GDateTime *date = NULL;
-    gint64 seconds;
+    gint ms;
+    struct tm date;
+    time_t seconds;
 
-    if (6 == sscanf(string, "%d-%d %d:%d:%d.%d", &month, &day, &hrs, &min, &sec, &ms)) {
-        date = g_date_time_new_local(1970, month, day, hrs, min,
-                (gdouble) sec + ((gdouble) ms) * 0.001);
-        seconds = g_date_time_to_unix(date);
+    if (6 == sscanf(string, "%d-%d %d:%d:%d.%d", &date.tm_mon, &date.tm_mday, &date.tm_hour,
+                    &date.tm_min, &date.tm_sec, &ms)) {
+        date.tm_year = 70;
+        date.tm_mon -= 1;
+        seconds = mktime(&date);
         phdr->ts.secs = (time_t) seconds;
         phdr->ts.nsecs = (int) (ms * 1e6);
         phdr->presence_flags = WTAP_HAS_TS;
-        g_date_time_unref(date);
     } else {
         phdr->presence_flags = 0;
         phdr->ts.secs = (time_t) 0;

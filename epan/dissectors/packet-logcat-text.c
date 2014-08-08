@@ -220,7 +220,7 @@ static int dissect_logcat_text(tvbuff_t *tvb, proto_tree *tree, packet_info *pin
     } else {
         tokens = g_regex_split(special_regex, frame, G_REGEX_MATCH_NOTEMPTY);
         if (NULL == tokens) return 0;
-        get_log(frame, tokens[1], tvb, maintree, 0, pinfo);
+        offset = get_log(frame, tokens[1], tvb, maintree, 0, pinfo);
     }
     g_strfreev(tokens);
     return offset;
