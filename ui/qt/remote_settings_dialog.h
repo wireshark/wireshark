@@ -22,6 +22,8 @@
 #ifndef REMOTE_SETTINGS_DIALOG_H
 #define REMOTE_SETTINGS_DIALOG_H
 
+#include "config.h"
+
 #ifdef HAVE_PCAP_REMOTE
 #include <QDialog>
 #include "capture_opts.h"
