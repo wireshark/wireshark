@@ -602,7 +602,7 @@ void MainWindow::startCapture() {
 
     /* did the user ever select a capture interface before? */
     if(global_capture_opts.num_selected == 0) {
-        QString msg = QString("No interface selected");
+        QString msg = QString(tr("No interface selected"));
         main_ui_->statusBar->pushTemporaryStatus(msg);
         return;
     }
@@ -611,7 +611,7 @@ void MainWindow::startCapture() {
     // toolbar buttons and menu items. This may not be the
     // case, e.g. with QtMacExtras.
     if(!capture_filter_valid_) {
-        QString msg = QString("Invalid capture filter");
+        QString msg = QString(tr("Invalid capture filter"));
         main_ui_->statusBar->pushTemporaryStatus(msg);
         return;
     }
