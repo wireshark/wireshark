@@ -697,6 +697,7 @@ dissect_hislip_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,void 
     hislip_conv_info_t *hislip_info;
     hislip_transaction_t *hislip_trans;
     proto_tree *hislip_tree;
+    proto_item *it = NULL;
     hislipinfo hislip_data;
     guint8 oldcontrolvalue = 0;
     guint32 frame_number;
@@ -747,97 +748,87 @@ dissect_hislip_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,void 
     if (!hislip_info)
     {
         hislip_info = (hislip_conv_info_t *) wmem_alloc(wmem_file_scope(),(sizeof(hislip_conv_info_t)));
-        hislip_info->connectiontype = 255;
+        hislip_info->connectiontype = is_connection_syn_or_asyn(hislip_data.messagetype);
         hislip_info->pdus = wmem_tree_new(wmem_file_scope());
-        conversation = conversation_new( pinfo->fd->num, &pinfo->src, &pinfo->dst,
-                                        pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
         conversation_add_proto_data( conversation, proto_hislip, (void *) hislip_info);
     }
 
-
-    if(hislip_info->connectiontype == 255)
+    /*synchronous or asynchronous channel*/
+    if(hislip_info->connectiontype == HISLIP_INITIALIZE)
     {
-        hislip_info->connectiontype = is_connection_syn_or_asyn(hislip_data.messagetype);
-        proto_item_append_text(hislip_data.hislip_item," (Unknown)");
+        proto_item_append_text(hislip_data.hislip_item," (Synchron)");
+        it = proto_tree_add_item( hislip_tree, hf_hislip_syn, tvb, 0, 0, ENC_NA);
     }
     else
     {
-        /*synchronous or asynchronous channel*/
-        if(hislip_info->connectiontype == HISLIP_INITIALIZE)
-        {
-            proto_item_append_text(hislip_data.hislip_item," (Synchron)");
-            proto_tree_add_item( hislip_tree, hf_hislip_syn, tvb, 0, 0, ENC_NA);
-        }
-        else
-        {
-            proto_item_append_text(hislip_data.hislip_item," (Asynchron)");
-            proto_tree_add_item( hislip_tree, hf_hislip_asyn, tvb, 0, 0, ENC_NA);
-        }
+        proto_item_append_text(hislip_data.hislip_item," (Asynchron)");
+        it = proto_tree_add_item( hislip_tree, hf_hislip_asyn, tvb, 0, 0, ENC_NA);
     }
+    PROTO_ITEM_SET_GENERATED(it);
 
-    if(pinfo->fd->flags.visited)
+    switch(hislip_data.messagetype)
     {
-        proto_item *it;
-        switch(hislip_data.messagetype)
+    case HISLIP_ASYNCLOCK:
+    case HISLIP_ASYNCINITIALIZE:
+    case HISLIP_ASYNCMAXIMUMMESSAGESIZE:
+    case HISLIP_INITIALIZE:
+    case HISLIP_ASYNCSTATUSQUERY:
+    case HISLIP_ASYNCLOCKINFO:
+
+        /*Request*/
+        hislip_trans = (hislip_transaction_t *)wmem_tree_lookup32( hislip_info->pdus, pinfo->fd->num);
+
+        if(!hislip_trans)
         {
-        case HISLIP_ASYNCLOCK:
-        case HISLIP_ASYNCINITIALIZE:
-        case HISLIP_ASYNCMAXIMUMMESSAGESIZE:
-        case HISLIP_INITIALIZE:
-        case HISLIP_ASYNCSTATUSQUERY:
-        case HISLIP_ASYNCLOCKINFO:
+            DISSECTOR_ASSERT_HINT(!pinfo->fd->flags.visited, "Missing 'Request' Info");
 
-            /*Retransmisson*/
-            if((frame_number = search_for_retransmission(hislip_info->pdus, &hislip_data , pinfo->fd->num))!=0)
-            {
-                it = proto_tree_add_uint( hislip_tree, hf_hislip_retransmission, tvb, 0, 0, frame_number);
-                PROTO_ITEM_SET_GENERATED(it);
-            }
-
-            /*Request*/
-            hislip_trans = (hislip_transaction_t *)wmem_tree_lookup32( hislip_info->pdus, pinfo->fd->num);
-
-
-            if(!hislip_trans)
-            {
             /* This is a new request */
-                hislip_trans = (hislip_transaction_t *)wmem_alloc(wmem_file_scope(),sizeof( hislip_transaction_t));
-                hislip_trans->req_frame = pinfo->fd->num;
-                hislip_trans->rep_frame = 0;
-                hislip_trans->messagetype=hislip_data.messagetype;
-                hislip_trans->controltype=hislip_data.controlcode;
-                wmem_tree_insert32(hislip_info->pdus, pinfo->fd->num , (void *)hislip_trans);
+            hislip_trans = (hislip_transaction_t *)wmem_alloc(wmem_file_scope(),sizeof( hislip_transaction_t));
+            hislip_trans->req_frame = pinfo->fd->num;
+            hislip_trans->rep_frame = 0;
+            hislip_trans->messagetype=hislip_data.messagetype;
+            hislip_trans->controltype=hislip_data.controlcode;
+            wmem_tree_insert32(hislip_info->pdus, pinfo->fd->num , (void *)hislip_trans);
 
-            }
+        }
+        if(hislip_trans->rep_frame != 0)
+        {
             it = proto_tree_add_uint( hislip_tree, hf_hislip_response, tvb, 0, 0, hislip_trans->rep_frame);
             PROTO_ITEM_SET_GENERATED(it);
-            break;
-
-
-        case HISLIP_ASYNCLOCK_RESPONSE:
-        case HISLIP_ASYNCINITIALIZERESPONSE:
-        case HISLIP_ASYNCMAXIMUMMESSAGESIZERESPONSE:
-        case HISLIP_INITIALIZERESPONSE:
-        case HISLIP_ASYNCSTATUSRESPONSE:
-        case HISLIP_ASYNCLOCKINFORESPONSE:
-
-            /*Response*/
-            hislip_trans = (hislip_transaction_t *) wmem_tree_lookup32_le( hislip_info->pdus, pinfo->fd->num);
-            if (hislip_trans)
-            {
-
-                hislip_trans->rep_frame = pinfo->fd->num;
-                oldcontrolvalue = hislip_trans->controltype;
-                it = proto_tree_add_uint( hislip_tree, hf_hislip_request,tvb, 0, 0, hislip_trans->req_frame);
-                PROTO_ITEM_SET_GENERATED(it);
-            }
-            break;
-
-
-        default:
-            ;
-
         }
+
+        /*Retransmisson*/
+        if((frame_number = search_for_retransmission(hislip_info->pdus, &hislip_data , pinfo->fd->num))!=0)
+        {
+            it = proto_tree_add_uint( hislip_tree, hf_hislip_retransmission, tvb, 0, 0, frame_number);
+            PROTO_ITEM_SET_GENERATED(it);
+        }
+
+        break;
+
+
+    case HISLIP_ASYNCLOCK_RESPONSE:
+    case HISLIP_ASYNCINITIALIZERESPONSE:
+    case HISLIP_ASYNCMAXIMUMMESSAGESIZERESPONSE:
+    case HISLIP_INITIALIZERESPONSE:
+    case HISLIP_ASYNCSTATUSRESPONSE:
+    case HISLIP_ASYNCLOCKINFORESPONSE:
+
+        /*Response*/
+        hislip_trans = (hislip_transaction_t *) wmem_tree_lookup32_le( hislip_info->pdus, pinfo->fd->num);
+        if (hislip_trans)
+        {
+            hislip_trans->rep_frame = pinfo->fd->num;
+            oldcontrolvalue = hislip_trans->controltype;
+            it = proto_tree_add_uint( hislip_tree, hf_hislip_request,tvb, 0, 0, hislip_trans->req_frame);
+            PROTO_ITEM_SET_GENERATED(it);
+        }
+        break;
+
+
+    default:
+        ;
+
     }
 
 
@@ -850,8 +841,7 @@ dissect_hislip_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,void 
 
     decode_controlcode( tvb , pinfo , hislip_tree , &hislip_data, oldcontrolvalue );
 
-    if(tree)
-        decode_messagepara( tvb , pinfo , hislip_tree , &hislip_data);
+    decode_messagepara( tvb , pinfo , hislip_tree , &hislip_data);
 
     proto_tree_add_item(hislip_tree,hf_hislip_payloadlength, tvb, hislip_data.offset, 8, ENC_BIG_ENDIAN);
     hislip_data.offset += 8;
