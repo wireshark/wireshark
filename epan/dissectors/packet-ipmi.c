@@ -544,6 +544,7 @@ dissect_ipmi_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		/* add parent node */
 		if (!data->curr_level) {
 			ti = proto_tree_add_item(tree, hf_parent_item, tvb, 0, -1, ENC_NA);
+			cmd_tree = proto_item_add_subtree(ti, ett_tree);
 		} else {
 			char str[ITEM_LABEL_LENGTH];
 
@@ -553,14 +554,13 @@ dissect_ipmi_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			} else {
 				g_snprintf(str, ITEM_LABEL_LENGTH, "Req, %s", cmd->desc);
 			}
-			if (proto_registrar_get_ftype(hf_parent_item) == FT_STRING)
+			if (proto_registrar_get_ftype(hf_parent_item) == FT_STRING) {
 				ti = proto_tree_add_string(tree, hf_parent_item, tvb, 0, -1, str);
+				cmd_tree = proto_item_add_subtree(ti, ett_tree);
+			}
 			else
-				ti = proto_tree_add_text(tree, tvb, 0, -1, "%s", str);
+				cmd_tree = proto_tree_add_subtree(tree, tvb, 0, -1, ett_tree, NULL, str);
 		}
-
-		/* add message sub-tree */
-		cmd_tree = proto_item_add_subtree(ti, ett_tree);
 
 		if (data->curr_level < MAX_NEST_LEVEL) {
 			/* check if response */
@@ -1007,7 +1007,7 @@ static struct ipmi_parse_typelen ptl_unicode = {
 };
 
 void
-ipmi_add_typelen(proto_tree *tree, const char *desc, tvbuff_t *tvb,
+ipmi_add_typelen(proto_tree *tree, int hf_string, int hf_type, int hf_length, tvbuff_t *tvb,
 		guint offs, gboolean is_fru)
 {
 	static struct ipmi_parse_typelen *fru_eng[4] = {
@@ -1046,14 +1046,14 @@ ipmi_add_typelen(proto_tree *tree, const char *desc, tvbuff_t *tvb,
 	str[clen] = '\0';
 
 	s_tree = proto_tree_add_subtree_format(tree, tvb, offs, 1, ett_typelen, NULL,
-			"%s Type/Length byte: %s, %d %s", desc, ptr->desc, len, unit);
-	proto_tree_add_text(s_tree, tvb, offs, 1, "%sType: %s (0x%02x)",
-			ipmi_dcd8(typelen, 0xc0), ptr->desc, type);
-	proto_tree_add_text(s_tree, tvb, offs, 1, "%sLength: %d %s",
-			ipmi_dcd8(typelen, msk), len, unit);
+			"%s Type/Length byte: %s, %d %s", (proto_registrar_get_nth(hf_string))->name, ptr->desc, len, unit);
+	proto_tree_add_uint_format_value(s_tree, hf_type, tvb, offs, 1, type, "%s (0x%02x)",
+			ptr->desc, type);
+	proto_tree_add_uint_format_value(s_tree, hf_length, tvb, offs, 1, len, "%d %s",
+			len, unit);
 
-	proto_tree_add_text(tree, tvb, offs + 1, blen, "%s: [%s] '%s'",
-			desc, ptr->desc, str);
+	proto_tree_add_string_format_value(tree, hf_string, tvb, offs + 1, blen, str,
+			"[%s] '%s'", ptr->desc, str);
 }
 
 /* ----------------------------------------------------------------
@@ -1213,15 +1213,6 @@ void
 ipmi_notimpl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	proto_tree_add_expert(tree, pinfo, &ei_impi_parser_not_implemented, tvb, 0, -1);
-}
-
-char *
-ipmi_dcd8(guint32 val, guint32 mask)
-{
-	static char buf[64];
-
-	decode_bitfield_value(buf, val, mask, 8);
-	return buf;
 }
 
 void

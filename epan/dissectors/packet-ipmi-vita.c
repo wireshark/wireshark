@@ -57,6 +57,9 @@ static gint hf_vita_site_type = -1;
 static gint hf_vita_site_num = -1;
 static gint hf_vita_ipmbl_addr = -1;
 
+static gint hf_vita_chassis_identifier = -1;
+static gint hf_vita_chassis_identifier_type = -1;
+static gint hf_vita_chassis_identifier_length = -1;
 static gint hf_vita_ipmc = -1;
 static gint hf_vita_tier = -1;
 static gint hf_vita_layer = -1;
@@ -481,6 +484,15 @@ static hf_register_info hf_ipmi_vita[] = {
 	{ &hf_vita_ipmbl_addr,
 		{ "Address on IPMI Channel 7", "ipmi.vita.ipmbl.addr",
 			FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+	{ &hf_vita_chassis_identifier,
+		{ "Chassis Identifier",
+			"ipmi.vita.chassis_identifier", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+	{ &hf_vita_chassis_identifier_type,
+		{ "Type",
+			"ipmi.vita.chassis_identifier_type", FT_UINT8, BASE_DEC, NULL, 0xc0, NULL, HFILL }},
+	{ &hf_vita_chassis_identifier_length,
+		{ "Length",
+			"ipmi.vita.chassis_identifier_length", FT_UINT8, BASE_DEC, NULL, 0x3f, NULL, HFILL }},
 	{ &hf_vita_reserved,
 		{ "Reserved", "ipmi.vita.reserved",
 			FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
@@ -840,7 +852,7 @@ cmd01_rs(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 static void
 cmd02_rs(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	ipmi_add_typelen(tree, "Chassis Identifier", tvb, 0, TRUE);
+	ipmi_add_typelen(tree, hf_vita_chassis_identifier, hf_vita_chassis_identifier_type, hf_vita_chassis_identifier_length, tvb, 0, TRUE);
 }
 
 /* FRU Control (request)

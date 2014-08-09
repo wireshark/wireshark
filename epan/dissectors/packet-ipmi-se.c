@@ -97,6 +97,9 @@ static gint ett_ipmi_se_2d_byte2 = -1;
 static gint ett_ipmi_se_2d_b1 = -1;
 static gint ett_ipmi_se_2d_b2 = -1;
 
+static expert_field ei_ipmi_se_13_request_param_rev = EI_INIT;
+static expert_field ei_ipmi_se_13_request_param_data = EI_INIT;
+
 static gint hf_ipmi_se_evt_rev = -1;
 static gint hf_ipmi_se_evt_sensor_type = -1;
 static gint hf_ipmi_se_evt_sensor_num = -1;
@@ -2290,7 +2293,7 @@ rq13(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	s_tree = proto_item_add_subtree(ti, ett_ipmi_se_13_byte1);
 	proto_tree_add_item(s_tree, hf_ipmi_se_13_getrev, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_uint_format_value(s_tree, hf_ipmi_se_13_param, tvb, 0, 1,
-			pno, "Parameter selector: %s (0x%02x)", desc, pno);
+			pno, "%s (0x%02x)", desc, pno);
 
 	proto_tree_add_item(tree, hf_ipmi_se_13_set, tvb, 1, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, hf_ipmi_se_13_block, tvb, 2, 1, ENC_LITTLE_ENDIAN);
@@ -2305,7 +2308,7 @@ rs13(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint32 pno;
 	const char *desc;
 
-	proto_tree_add_bitmask_text(tree, tvb, 0, 1, "Parameter revision", NULL,
+	ti = proto_tree_add_bitmask_text(tree, tvb, 0, 1, "Parameter revision", NULL,
 			ett_ipmi_se_13_rev, byte1, ENC_LITTLE_ENDIAN, 0);
 
 	if (!ipmi_get_data(pinfo, 0, &pno)) {
@@ -2317,11 +2320,9 @@ rs13(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	if ((pno & 0x80) && tvb_captured_length(tvb) > 1) {
-		ti = proto_tree_add_text(tree, tvb, 0, 0, "Requested parameter revision; parameter data returned");
-		PROTO_ITEM_SET_GENERATED(ti);
+		expert_add_info(pinfo, ti, &ei_ipmi_se_13_request_param_rev);
 	} else if (!(pno & 0x80) && tvb_captured_length(tvb) == 1) {
-		ti = proto_tree_add_text(tree, tvb, 0, 0, "Requested parameter data; only parameter version returned");
-		PROTO_ITEM_SET_GENERATED(ti);
+		expert_add_info(pinfo, ti, &ei_ipmi_se_13_request_param_data);
 	}
 
 	pno &= 0x7f;
@@ -3651,8 +3652,17 @@ proto_register_ipmi_se(void)
 		&ett_ipmi_se_2d_b2,
 	};
 
+	static ei_register_info ei[] = {
+		{ &ei_ipmi_se_13_request_param_rev, { "ipmi.se13.request_param_rev", PI_PROTOCOL, PI_NOTE, "Requested parameter revision; parameter data returned", EXPFILL }},
+		{ &ei_ipmi_se_13_request_param_data, { "ipmi.se13.mrequest_param_data", PI_PROTOCOL, PI_NOTE, "Requested parameter data; only parameter version returned", EXPFILL }},
+	};
+
+	expert_module_t* expert_ipmi_se;
+
 	proto_register_field_array(proto_ipmi, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	expert_ipmi_se = expert_register_protocol(proto_ipmi);
+	expert_register_field_array(expert_ipmi_se, ei, array_length(ei));
 	ipmi_register_netfn_cmdtab(IPMI_SE_REQ, IPMI_OEM_NONE, NULL, 0, NULL,
 			cmd_se, array_length(cmd_se));
 

@@ -120,6 +120,14 @@ static gint hf_ipmi_picmg_01_rs_fruid = -1;
 static gint hf_ipmi_picmg_01_rs_site_num = -1;
 static gint hf_ipmi_picmg_01_rs_site_type = -1;
 
+static gint hf_ipmi_picmg_02_shelf_address = -1;
+static gint hf_ipmi_picmg_02_shelf_type = -1;
+static gint hf_ipmi_picmg_02_shelf_length = -1;
+
+static gint hf_ipmi_picmg_03_shelf_address = -1;
+static gint hf_ipmi_picmg_03_shelf_type = -1;
+static gint hf_ipmi_picmg_03_shelf_length = -1;
+
 static gint hf_ipmi_picmg_04_fruid = -1;
 static gint hf_ipmi_picmg_04_cmd = -1;
 
@@ -152,7 +160,11 @@ static gint hf_ipmi_picmg_08_state_local = -1;
 static gint hf_ipmi_picmg_08_lamptest_duration = -1;
 
 static gint hf_ipmi_picmg_09_ipmba = -1;
+static gint hf_ipmi_picmg_09_ipmba_link = -1;
+static gint hf_ipmi_picmg_09_ipmba_state = -1;
 static gint hf_ipmi_picmg_09_ipmbb = -1;
+static gint hf_ipmi_picmg_09_ipmbb_link = -1;
+static gint hf_ipmi_picmg_09_ipmbb_state = -1;
 
 static gint hf_ipmi_picmg_0a_fruid = -1;
 static gint hf_ipmi_picmg_0a_msk_d_locked = -1;
@@ -733,7 +745,7 @@ rs01(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 static void
 rs02(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	ipmi_add_typelen(tree, "Shelf Address", tvb, 0, TRUE);
+	ipmi_add_typelen(tree, hf_ipmi_picmg_02_shelf_address, hf_ipmi_picmg_02_shelf_type, hf_ipmi_picmg_02_shelf_length, tvb, 0, TRUE);
 }
 
 /* Set Shelf Address Info
@@ -741,7 +753,7 @@ rs02(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 static void
 rq03(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	ipmi_add_typelen(tree, "Shelf Address", tvb, 0, TRUE);
+	ipmi_add_typelen(tree, hf_ipmi_picmg_03_shelf_address, hf_ipmi_picmg_03_shelf_type, hf_ipmi_picmg_03_shelf_length, tvb, 0, TRUE);
 }
 
 /* FRU Control.
@@ -866,8 +878,10 @@ rs08(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 
 /* Set IPMB State
  */
+static const true_false_string tfs_local_control_override = { "Local Control State", "Override State (Isolate)" };
+
 static void
-parse_ipmb_state(proto_tree *tree, tvbuff_t *tvb, guint offs, int hf, int ett)
+parse_ipmb_state(proto_tree *tree, tvbuff_t *tvb, guint offs, int hf, int hf_link, int hf_state, int ett)
 {
 	char buf[32];
 	const char *desc;
@@ -892,18 +906,17 @@ parse_ipmb_state(proto_tree *tree, tvbuff_t *tvb, guint offs, int hf, int ett)
 		ti = proto_tree_add_uint_format_value(tree, hf, tvb, 0, 1,
 				v, "%s, %s", desc, (v & 1) ? "Local Control" : "Override");
 		s_tree = proto_item_add_subtree(ti, ett);
-		proto_tree_add_text(s_tree, tvb, 0, 1, "%sLink: %s (0x%02x)",
-				ipmi_dcd8(v, 0xfe), desc, num);
-		proto_tree_add_text(s_tree, tvb, 0, 1, "%sState: %s",
-				ipmi_dcd8(v, 0x01), (v & 1) ? "Local Control State" : "Override State (Isolate)");
+		proto_tree_add_uint_format_value(s_tree, hf_link, tvb, 0, 1, v, "%s (0x%02x)",
+				desc, num);
+		proto_tree_add_item(s_tree, hf_state, tvb, 0, 1, ENC_NA);
 	}
 }
 
 static void
 rq09(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	parse_ipmb_state(tree, tvb, 0, hf_ipmi_picmg_09_ipmba, ett_ipmi_picmg_09_ipmba);
-	parse_ipmb_state(tree, tvb, 1, hf_ipmi_picmg_09_ipmbb, ett_ipmi_picmg_09_ipmbb);
+	parse_ipmb_state(tree, tvb, 0, hf_ipmi_picmg_09_ipmba, hf_ipmi_picmg_09_ipmba_link, hf_ipmi_picmg_09_ipmba_state, ett_ipmi_picmg_09_ipmba);
+	parse_ipmb_state(tree, tvb, 1, hf_ipmi_picmg_09_ipmbb, hf_ipmi_picmg_09_ipmbb_link, hf_ipmi_picmg_09_ipmbb_state, ett_ipmi_picmg_09_ipmbb);
 }
 
 /* Set FRU Activation Policy
@@ -2016,7 +2029,7 @@ rs2f(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 		desc = "Reserved";
 	}
 
-	ti = proto_tree_add_text(tree, tvb, 0, 0, "Property selector: %s (0x%02x)", desc, pno);
+	ti = proto_tree_add_uint_format_value(tree, hf_ipmi_picmg_2f_comp_prop, tvb, 0, 0, pno, "%s (0x%02x)", desc, pno);
 	PROTO_ITEM_SET_GENERATED(ti);
 	if (pno < array_length(compprops)) {
 		compprops[pno].intrp(tvb, tree);
@@ -2814,6 +2827,26 @@ proto_register_ipmi_picmg(void)
 			{ "Site Type",
 				"ipmi.picmg01.rs_site_type", FT_UINT8, BASE_HEX, VALS(site_type_vals), 0, NULL, HFILL }},
 
+		{ &hf_ipmi_picmg_02_shelf_address,
+			{ "Shelf Address",
+				"ipmi.picmg02.shelf_address", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		{ &hf_ipmi_picmg_02_shelf_type,
+			{ "Type",
+				"ipmi.picmg02.shelf_type", FT_UINT8, BASE_DEC, NULL, 0xc0, NULL, HFILL }},
+		{ &hf_ipmi_picmg_02_shelf_length,
+			{ "Length",
+				"ipmi.picmg02.shelf_length", FT_UINT8, BASE_DEC, NULL, 0x3f, NULL, HFILL }},
+
+		{ &hf_ipmi_picmg_03_shelf_address,
+			{ "Shelf Address",
+				"ipmi.picmg03.shelf_address", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		{ &hf_ipmi_picmg_03_shelf_type,
+			{ "Type",
+				"ipmi.picmg03.shelf_type", FT_UINT8, BASE_DEC, NULL, 0xc0, NULL, HFILL }},
+		{ &hf_ipmi_picmg_03_shelf_length,
+			{ "Length",
+				"ipmi.picmg03.shelf_length", FT_UINT8, BASE_DEC, NULL, 0x3f, NULL, HFILL }},
+
 		{ &hf_ipmi_picmg_04_fruid,
 			{ "FRU ID",
 				"ipmi.picmg04.fruid", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
@@ -2900,9 +2933,21 @@ proto_register_ipmi_picmg(void)
 		{ &hf_ipmi_picmg_09_ipmba,
 			{ "IPMB-A State",
 				"ipmi.picmg09.ipmba", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_picmg_09_ipmba_link,
+			{ "Link",
+				"ipmi.picmg09.ipmba_link", FT_UINT8, BASE_HEX, NULL, 0xFE, NULL, HFILL }},
+		{ &hf_ipmi_picmg_09_ipmba_state,
+			{ "State",
+				"ipmi.picmg09.ipmba_state", FT_BOOLEAN, 8, TFS(&tfs_local_control_override), 0x01, NULL, HFILL }},
 		{ &hf_ipmi_picmg_09_ipmbb,
 			{ "IPMB-B State",
 				"ipmi.picmg09.ipmbb", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_picmg_09_ipmbb_link,
+			{ "Link",
+				"ipmi.picmg09.ipmbb_link", FT_UINT8, BASE_HEX, NULL, 0xFE, NULL, HFILL }},
+		{ &hf_ipmi_picmg_09_ipmbb_state,
+			{ "State",
+				"ipmi.picmg09.ipmbb_state", FT_BOOLEAN, 8, TFS(&tfs_local_control_override), 0x01, NULL, HFILL }},
 
 		{ &hf_ipmi_picmg_0a_fruid,
 			{ "FRU ID",

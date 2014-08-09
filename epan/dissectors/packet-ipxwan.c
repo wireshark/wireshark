@@ -176,12 +176,10 @@ dissect_ipxwan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		while (num_options != 0) {
 			option_number = tvb_get_guint8(tvb, offset);
-			ti = proto_tree_add_text(ipxwan_tree, tvb, offset, -1,
-			    "Option: %s",
+			option_tree = proto_tree_add_subtree_format(ipxwan_tree, tvb, offset, -1,
+			    ett_ipxwan_option, &ti, "Option: %s",
 			    val_to_str(option_number, ipxwan_option_num_vals,
 			        "Unknown (%u)"));
-			option_tree = proto_item_add_subtree(ti,
-			    ett_ipxwan_option);
 
 			proto_tree_add_uint(option_tree, hf_ipxwan_option_num,
 			    tvb, offset, 1, option_number);

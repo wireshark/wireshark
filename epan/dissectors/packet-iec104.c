@@ -594,6 +594,7 @@ static int hf_bcr_sq = -1;
 static int hf_bcr_cy = -1;
 static int hf_bcr_ca = -1;
 static int hf_bcr_iv = -1;
+static int hf_start = -1;
 
 static int hf_asdu_bitstring = -1;
 static int hf_asdu_float = -1;
@@ -1402,7 +1403,7 @@ static int dissect_iec104apci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
 			proto_item_set_len(it104, Off + APCI_LEN);
 
-			proto_tree_add_text(it104tree, tvb, Off, 1, "START");
+			proto_tree_add_uint_format(it104tree, hf_start, tvb, Off, 1, Start, "START");
 			ti = proto_tree_add_item(it104tree, hf_apdulen, tvb, Off + 1, 1, ENC_LITTLE_ENDIAN);
 
 			len = tvb_get_guint8(tvb, Off + 1);
@@ -1786,6 +1787,10 @@ proto_register_iec104asdu(void)
 		{ &hf_bcr_iv,
 		  { "IV", "104asdu.bcr.iv", FT_BOOLEAN, 8, TFS(&tfs_invalid_valid), 0x80,
 		    "Counter Validity", HFILL }},
+
+		{ &hf_start,
+		  { "START", "104asdu.start", FT_UINT8, BASE_HEX, NULL, 0x0,
+		    NULL, HFILL }},
 
 		{ &hf_asdu_bitstring,
 		  { "Value", "104asdu.bitstring", FT_UINT32, BASE_HEX, NULL, 0x0,

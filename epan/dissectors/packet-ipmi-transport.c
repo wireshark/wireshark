@@ -131,6 +131,7 @@ static gint ett_ipmi_trn_1a_byte1 = -1;
 static gint ett_ipmi_trn_1a_byte2 = -1;
 static gint ett_ipmi_trn_1b_byte1 = -1;
 static gint ett_ipmi_trn_1b_byte2 = -1;
+static gint ett_ipmi_trn_parameter = -1;
 
 static gint hf_ipmi_trn_lan00_sip = -1;
 
@@ -196,7 +197,8 @@ static gint hf_ipmi_trn_lan22_num_cs_entries = -1;
 
 static gint hf_ipmi_trn_lan23_cs_entry = -1;
 
-static gint hf_ipmi_trn_lan24_priv = -1;
+static gint hf_ipmi_trn_lan24_priv1 = -1;
+static gint hf_ipmi_trn_lan24_priv2 = -1;
 
 static gint hf_ipmi_trn_lan25_dst_selector = -1;
 static gint hf_ipmi_trn_lan25_addr_format = -1;
@@ -475,6 +477,11 @@ static gint hf_ipmi_trn_1a_chan = -1;
 
 static gint hf_ipmi_trn_1b_user = -1;
 static gint hf_ipmi_trn_1b_chan = -1;
+
+static expert_field ei_ipmi_trn_02_request_param_rev = EI_INIT;
+static expert_field ei_ipmi_trn_02_request_param_data = EI_INIT;
+static expert_field ei_ipmi_trn_11_request_param_rev = EI_INIT;
+static expert_field ei_ipmi_trn_11_request_param_data = EI_INIT;
 
 static const value_string lan00_sip_vals[] = {
 	{ 0x00, "Set complete" },
@@ -926,12 +933,10 @@ lan_24(tvbuff_t *tvb, proto_tree *tree)
 				*ett[i], NULL, "Cipher Suite #%d: %s (0x%02x), Cipher Suite #%d: %s (0x%02x)",
 				i * 2 + 1, val_to_str_const(v1, lan24_priv_vals, "Reserved"), v1,
 				i * 2 + 2, val_to_str_const(v2, lan24_priv_vals, "Reserved"), v2);
-		proto_tree_add_uint_format(s_tree, hf_ipmi_trn_lan24_priv, tvb, i + 1, 1,
-				v2 << 4, "%sMaximum Privilege Level for Cipher Suite #%d: %s (0x%02x)",
-				ipmi_dcd8(v, 0xf0), i * 2 + 2, val_to_str_const(v2, lan24_priv_vals, "Reserved"), v2);
-		proto_tree_add_uint_format(s_tree, hf_ipmi_trn_lan24_priv, tvb, i + 1, 1,
-				v1, "%sMaximum Privilege Level for Cipher Suite #%d: %s (0x%02x)",
-				ipmi_dcd8(v, 0x0f), i * 2 + 1, val_to_str_const(v1, lan24_priv_vals, "Reserved"), v1);
+		proto_tree_add_uint_format_value(s_tree, hf_ipmi_trn_lan24_priv1, tvb, i + 1, 1,
+				v2 << 4, " #%d: %s (0x%02x)", i * 2 + 2, val_to_str_const(v2, lan24_priv_vals, "Reserved"), v2);
+		proto_tree_add_uint_format_value(s_tree, hf_ipmi_trn_lan24_priv2, tvb, i + 1, 1,
+				v1, " #%d: %s (0x%02x)", i * 2 + 1, val_to_str_const(v1, lan24_priv_vals, "Reserved"), v1);
 	}
 }
 
@@ -1069,11 +1074,12 @@ rs02(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	static const int *byte1[] = { &hf_ipmi_trn_02_rev_present, &hf_ipmi_trn_02_rev_compat, NULL };
 	proto_item *ti;
+	proto_tree *subtree;
 	tvbuff_t *next;
 	const char *desc;
 	guint32 pno, req;
 
-	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL,
+	ti = proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL,
 			ett_ipmi_trn_02_rev, byte1, ENC_LITTLE_ENDIAN, 0);
 
 	if (!ipmi_get_data(pinfo, 0, &pno) || !ipmi_get_data(pinfo, 1, &req)) {
@@ -1085,11 +1091,9 @@ rs02(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	}
 
 	if ((req & 0x80) && tvb_captured_length(tvb) > 1) {
-		ti = proto_tree_add_text(tree, tvb, 0, 0, "Requested parameter revision; parameter data returned");
-		PROTO_ITEM_SET_GENERATED(ti);
+		expert_add_info(pinfo, ti, &ei_ipmi_trn_02_request_param_rev);
 	} else if (!(req & 0x80) && tvb_captured_length(tvb) == 1) {
-		ti = proto_tree_add_text(tree, tvb, 0, 0, "Requested parameter data; only parameter version returned");
-		PROTO_ITEM_SET_GENERATED(ti);
+		expert_add_info(pinfo, ti, &ei_ipmi_trn_02_request_param_data);
 	}
 
 	if (pno < array_length(lan_options)) {
@@ -1100,15 +1104,14 @@ rs02(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 		desc = "Reserved";
 	}
 
-	ti = proto_tree_add_text(tree, tvb, 0, 0, "Parameter: %s", desc);
-	PROTO_ITEM_SET_GENERATED(ti);
+	subtree = proto_tree_add_subtree_format(tree, tvb, 0, 0, ett_ipmi_trn_parameter, NULL, "Parameter: %s", desc);
 
 	if (tvb_captured_length(tvb) > 1) {
 		if (pno < array_length(lan_options)) {
 			next = tvb_new_subset_remaining(tvb, 1);
-			lan_options[pno].intrp(next, tree);
+			lan_options[pno].intrp(next, subtree);
 		} else {
-			proto_tree_add_item(tree, hf_ipmi_trn_02_param_data, tvb, 1, -1, ENC_NA);
+			proto_tree_add_item(subtree, hf_ipmi_trn_02_param_data, tvb, 1, -1, ENC_NA);
 		}
 	}
 }
@@ -1835,11 +1838,12 @@ rs11(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	static const int *byte1[] = { &hf_ipmi_trn_11_rev_present, &hf_ipmi_trn_11_rev_compat, NULL };
 	proto_item *ti;
+	proto_tree *subtree;
 	tvbuff_t *next;
 	const char *desc;
 	guint32 pno, req;
 
-	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL,
+	ti = proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL,
 			ett_ipmi_trn_11_rev, byte1, ENC_LITTLE_ENDIAN, 0);
 
 	if (!ipmi_get_data(pinfo, 0, &pno) || !ipmi_get_data(pinfo, 1, &req)) {
@@ -1859,22 +1863,19 @@ rs11(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	}
 
 	if ((req & 0x80) && tvb_captured_length(tvb) > 1) {
-		ti = proto_tree_add_text(tree, tvb, 0, 0, "Requested parameter revision; parameter data returned");
-		PROTO_ITEM_SET_GENERATED(ti);
+		expert_add_info(pinfo, ti, &ei_ipmi_trn_11_request_param_rev);
 	} else if (!(req & 0x80) && tvb_captured_length(tvb) == 1) {
-		ti = proto_tree_add_text(tree, tvb, 0, 0, "Requested parameter data; only parameter version returned");
-		PROTO_ITEM_SET_GENERATED(ti);
+		expert_add_info(pinfo, ti, &ei_ipmi_trn_11_request_param_data);
 	}
 
-	ti = proto_tree_add_text(tree, tvb, 0, 0, "Parameter: %s", desc);
-	PROTO_ITEM_SET_GENERATED(ti);
+	subtree = proto_tree_add_subtree_format(tree, tvb, 0, 0, ett_ipmi_trn_parameter, NULL, "Parameter: %s", desc);
 
 	if (tvb_captured_length(tvb) > 1) {
 		if (pno < array_length(serial_options)) {
 			next = tvb_new_subset_remaining(tvb, 1);
-			serial_options[pno].intrp(next, tree);
+			serial_options[pno].intrp(next, subtree);
 		} else {
-			proto_tree_add_item(tree, hf_ipmi_trn_11_param_data, tvb, 1, -1, ENC_NA);
+			proto_tree_add_item(subtree, hf_ipmi_trn_11_param_data, tvb, 1, -1, ENC_NA);
 		}
 	}
 }
@@ -2317,9 +2318,13 @@ proto_register_ipmi_transport(void)
 			{ "Cipher Suite ID",
 				"ipmi.lan23.cs_entry", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
 
-		{ &hf_ipmi_trn_lan24_priv,
-			{ "Maximum Privilege Level",
-				"ipmi.lan24.priv", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_trn_lan24_priv1,
+			{ "Maximum Privilege Level for Cipher Suite",
+				"ipmi.lan24.priv", FT_UINT8, BASE_HEX, NULL, 0xF0, NULL, HFILL }},
+
+		{ &hf_ipmi_trn_lan24_priv2,
+			{ "Maximum Privilege Level for Cipher Suite",
+				"ipmi.lan24.priv", FT_UINT8, BASE_HEX, NULL, 0x0F, NULL, HFILL }},
 
 		{ &hf_ipmi_trn_lan25_dst_selector,
 			{ "Destination Selector",
@@ -3174,10 +3179,22 @@ proto_register_ipmi_transport(void)
 		&ett_ipmi_trn_1a_byte2,
 		&ett_ipmi_trn_1b_byte1,
 		&ett_ipmi_trn_1b_byte2,
+		&ett_ipmi_trn_parameter
 	};
+
+	static ei_register_info ei[] = {
+		{ &ei_ipmi_trn_02_request_param_rev, { "ipmi.tr02.request_param_rev", PI_PROTOCOL, PI_NOTE, "Requested parameter revision; parameter data returned", EXPFILL }},
+		{ &ei_ipmi_trn_02_request_param_data, { "ipmi.tr02.mrequest_param_data", PI_PROTOCOL, PI_NOTE, "Requested parameter data; only parameter version returned", EXPFILL }},
+		{ &ei_ipmi_trn_11_request_param_rev, { "ipmi.tr11.request_param_rev", PI_PROTOCOL, PI_NOTE, "Requested parameter revision; parameter data returned", EXPFILL }},
+		{ &ei_ipmi_trn_11_request_param_data, { "ipmi.tr11.mrequest_param_data", PI_PROTOCOL, PI_NOTE, "Requested parameter data; only parameter version returned", EXPFILL }},
+	};
+
+	expert_module_t* expert_ipmi_trn;
 
 	proto_register_field_array(proto_ipmi, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	expert_ipmi_trn = expert_register_protocol(proto_ipmi);
+	expert_register_field_array(expert_ipmi_trn, ei, array_length(ei));
 	ipmi_register_netfn_cmdtab(IPMI_TRANSPORT_REQ, IPMI_OEM_NONE, NULL, 0, NULL,
 			cmd_transport, array_length(cmd_transport));
 }

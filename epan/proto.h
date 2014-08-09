@@ -956,6 +956,10 @@ proto_tree_add_subtree_format(proto_tree *tree, tvbuff_t *tvb, gint start, gint 
 proto_item *
 proto_tree_add_format_text(proto_tree *tree, tvbuff_t *tvb, gint start, gint length);
 
+/** Add a text-only node to a proto_tree with tvb_format_text_wsp() string. */
+proto_item *
+proto_tree_add_format_wsp_text(proto_tree *tree, tvbuff_t *tvb, gint start, gint length);
+
 /** Add a FT_NONE field to a proto_tree.
  @param tree the tree to append this item to
  @param hfindex field index

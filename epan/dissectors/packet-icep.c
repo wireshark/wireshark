@@ -83,6 +83,7 @@ static int hf_icep_encoding_minor = -1;
 static int hf_icep_message_type = -1;
 static int hf_icep_compression_status = -1;
 static int hf_icep_message_size = -1;
+static int hf_icep_magic_number = -1;
 
 /* [Batch] Request Message Body */
 static int hf_icep_request_id = -1;
@@ -106,6 +107,7 @@ static int hf_icep_reply_status = -1;
 /* Initialize the subtree pointers */
 static gint ett_icep = -1;
 static gint ett_icep_msg = -1;
+static gint ett_icep_invocation_context = -1;
 
 static expert_field ei_icep_params_size = EI_INIT;
 static expert_field ei_icep_context_missing = EI_INIT;
@@ -119,6 +121,7 @@ static expert_field ei_icep_mode_missing = EI_INIT;
 static expert_field ei_icep_params_encapsulated = EI_INIT;
 static expert_field ei_icep_params_missing = EI_INIT;
 static expert_field ei_icep_batch_requests = EI_INIT;
+static expert_field ei_icep_empty_batch = EI_INIT;
 static expert_field ei_icep_facet_missing = EI_INIT;
 static expert_field ei_icep_context_too_long = EI_INIT;
 
@@ -418,12 +421,13 @@ static void dissect_ice_context(packet_info *pinfo, proto_tree *tree, proto_item
         /* value */
         gint32 consumed_value = 0;
         char *str_value = NULL;
-        proto_item *ti = NULL;
+        proto_item *ti;
+        proto_tree *context_tree;
 
         DBG1("looping through context dictionary, loop #%d\n", i);
-        ti = proto_tree_add_text(tree, tvb, offset, -1, "Invocation Context");
+        context_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_icep_invocation_context, &ti, "Invocation Context");
 
-        dissect_ice_string(pinfo, tree, ti, hf_icep_invocation_key, tvb, offset, &consumed_key, &str_key);
+        dissect_ice_string(pinfo, context_tree, ti, hf_icep_invocation_key, tvb, offset, &consumed_key, &str_key);
 
         if ( consumed_key == -1 ) {
             (*consumed) = -1;
@@ -433,7 +437,7 @@ static void dissect_ice_context(packet_info *pinfo, proto_tree *tree, proto_item
         offset += consumed_key;
         (*consumed) += consumed_key;
 
-        dissect_ice_string(pinfo, tree, ti, hf_icep_invocation_value, tvb, offset, &consumed_value, &str_value);
+        dissect_ice_string(pinfo, context_tree, ti, hf_icep_invocation_value, tvb, offset, &consumed_value, &str_value);
 
         if ( consumed_value == -1 ) {
             (*consumed) = -1;
@@ -792,8 +796,7 @@ static void dissect_icep_batch_request(tvbuff_t *tvb, guint32 offset,
 
     if ( num_reqs == 0 ) {
 
-        proto_tree_add_text(icep_tree, tvb, offset, -1,
-                        "empty batch requests sequence");
+        proto_tree_add_expert(icep_tree, pinfo, &ei_icep_empty_batch, tvb, offset, -1);
         col_append_str(pinfo->cinfo, COL_INFO, " (empty batch requests sequence)");
 
         return;
@@ -959,8 +962,7 @@ static int dissect_icep_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         /* message header */
 
-        proto_tree_add_text(icep_tree, tvb, offset, 4,
-                    "Magic Number: 'I','c','e','P'");
+        proto_tree_add_item(icep_tree, hf_icep_magic_number, tvb, offset, 4, ENC_ASCII|ENC_NA);
         offset += 4;
 
         proto_tree_add_item(icep_tree, hf_icep_protocol_major,
@@ -1101,6 +1103,14 @@ void proto_register_icep(void)
               "Message Type", "icep.message_type",
               FT_INT8, BASE_DEC, VALS(icep_msgtype_vals), 0x0,
               "The message type", HFILL
+          }
+        },
+
+        { &hf_icep_magic_number,
+          {
+              "Magic Number", "icep.magic_number",
+              FT_STRING, BASE_NONE, NULL, 0x0,
+              NULL, HFILL
           }
         },
 
@@ -1255,6 +1265,7 @@ void proto_register_icep(void)
     static gint *ett[] = {
         &ett_icep,
         &ett_icep_msg,
+        &ett_icep_invocation_context,
     };
 
     static ei_register_info ei[] = {
@@ -1270,6 +1281,7 @@ void proto_register_icep(void)
         { &ei_icep_length, { "icep.length_invalid", PI_MALFORMED, PI_ERROR, "Invalid length", EXPFILL }},
         { &ei_icep_mode_missing, { "icep.mode.missing", PI_MALFORMED, PI_ERROR, "mode field missing", EXPFILL }},
         { &ei_icep_batch_requests, { "icep.batch_requests.invalid", PI_PROTOCOL, PI_WARN, "too many batch requests", EXPFILL }},
+        { &ei_icep_empty_batch, { "icep.batch_requests.empty", PI_PROTOCOL, PI_WARN, "empty batch requests sequence", EXPFILL }},
         { &ei_icep_reply_data, { "icep.params.reply_data.missing", PI_MALFORMED, PI_ERROR, "Reply Data missing", EXPFILL }},
         { &ei_icep_message_type, { "icep.message_type.unknown", PI_PROTOCOL, PI_WARN, "Unknown Message Type", EXPFILL }},
     };

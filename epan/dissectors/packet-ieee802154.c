@@ -204,6 +204,7 @@ static int proto_ieee802154_nonask_phy = -1;
 static int hf_ieee802154_nonask_phy_preamble = -1;
 static int hf_ieee802154_nonask_phy_sfd = -1;
 static int hf_ieee802154_nonask_phy_length = -1;
+static int hf_ieee802154_nonask_phr = -1;
 
 static int proto_ieee802154 = -1;
 static int hf_ieee802154_frame_length = -1;
@@ -258,10 +259,12 @@ static int hf_ieee802154_assoc_permit = -1;
 static int hf_ieee802154_gts_count = -1;
 static int hf_ieee802154_gts_permit = -1;
 static int hf_ieee802154_gts_direction = -1;
+static int hf_ieee802154_gts_address = -1;
 static int hf_ieee802154_pending16 = -1;
 static int hf_ieee802154_pending64 = -1;
 
 /*  Registered fields for Auxiliary Security Header */
+static int hf_ieee802154_security_control_field = -1;
 static int hf_ieee802154_security_level = -1;
 static int hf_ieee802154_key_id_mode = -1;
 static int hf_ieee802154_aux_sec_reserved = -1;
@@ -489,19 +492,19 @@ dissect_ieee802154_nonask_phy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     phr=tvb_get_guint8(tvb,offset+4+1);
 
     if(tree) {
-        proto_tree *phr_tree;
-        proto_item *pi;
         guint loffset=offset;
+        static const int * phr_fields[] = {
+                    &hf_ieee802154_nonask_phy_length,
+                    NULL
+                };
 
         proto_tree_add_item(ieee802154_tree, hf_ieee802154_nonask_phy_preamble, tvb, loffset, 4, ENC_LITTLE_ENDIAN);
         loffset+=4;
         proto_tree_add_item(ieee802154_tree, hf_ieee802154_nonask_phy_sfd, tvb, loffset, 1, ENC_LITTLE_ENDIAN);
         loffset+=1;
 
-        pi = proto_tree_add_text(ieee802154_tree, tvb, loffset, 1, "PHR: 0x%02x", phr);
-        phr_tree = proto_item_add_subtree(pi, ett_ieee802154_nonask_phy_phr);
-
-        proto_tree_add_uint(phr_tree, hf_ieee802154_nonask_phy_length, tvb, loffset, 1, phr);
+        proto_tree_add_bitmask(ieee802154_tree, tvb, loffset, hf_ieee802154_nonask_phr, ett_ieee802154_nonask_phy_phr,
+            phr_fields, ENC_NA);
     }
 
     offset+=4+2*1;
@@ -830,7 +833,8 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
                         ieee_hints->map_rec->start_fnum);
                 }
                 else {
-                    ti = proto_tree_add_text(ieee802154_tree, tvb, 0, 0, "Origin: Pre-configured");
+                    ti = proto_tree_add_uint_format_value(ieee802154_tree, hf_ieee802154_src64_origin, tvb, 0, 0,
+                        ieee_hints->map_rec->start_fnum, "Pre-configured");
                 }
                 PROTO_ITEM_SET_GENERATED(ti);
             }
@@ -900,6 +904,12 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
       proto_tree *header_tree, *field_tree;
       guint8                    security_control;
       guint                     aux_length = 5; /* Minimum length of the auxiliary header. */
+      static const int * security_fields[] = {
+                    &hf_ieee802154_security_level,
+                    &hf_ieee802154_key_id_mode,
+                    &hf_ieee802154_aux_sec_reserved,
+                    NULL
+                };
 
       /* Parse the security control field. */
       security_control = tvb_get_guint8(tvb, offset);
@@ -914,11 +924,7 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
                     ett_ieee802154_auxiliary_security, NULL, "Auxiliary Security Header");
 
       /* Security Control Field */
-      ti = proto_tree_add_text(header_tree, tvb, offset, 1, "Security Control Field (0x%02x)", security_control);
-      field_tree = proto_item_add_subtree(ti, ett_ieee802154_aux_sec_control);
-      proto_tree_add_item(field_tree, hf_ieee802154_security_level, tvb, offset, 1, ENC_NA);
-      proto_tree_add_item(field_tree, hf_ieee802154_key_id_mode, tvb, offset, 1, ENC_NA);
-      proto_tree_add_item(field_tree, hf_ieee802154_aux_sec_reserved, tvb, offset, 1, ENC_NA);
+      proto_tree_add_bitmask(header_tree, tvb, offset, hf_ieee802154_security_control_field, ett_ieee802154_aux_sec_control, security_fields, ENC_NA);
       offset++;
 
       /* Frame Counter Field */
@@ -1297,9 +1303,9 @@ dissect_ieee802154_gtsinfo(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 
             if (tree) {
                 /* Add address, slot, and time length fields. */
-                ti = proto_tree_add_text(subtree, tvb, (*offset), 3, "{Address: 0x%04x", gts_addr);
+                ti = proto_tree_add_uint(subtree, hf_ieee802154_gts_address, tvb, (*offset), 3, gts_addr);
                 proto_item_append_text(ti, ", Slot: %i", gts_slot);
-                proto_item_append_text(ti, ", Length: %i}", gts_length);
+                proto_item_append_text(ti, ", Length: %i", gts_length);
             }
             (*offset) += 3;
         } /* for */
@@ -2430,6 +2436,10 @@ void proto_register_ieee802154(void)
         { &hf_ieee802154_nonask_phy_length,
         { "Frame Length",                   "wpan-nonask-phy.frame_length", FT_UINT8, BASE_HEX, NULL,
             IEEE802154_PHY_LENGTH_MASK, NULL, HFILL }},
+
+        { &hf_ieee802154_nonask_phr,
+        { "PHR",                   "wpan-nonask-phy.phr", FT_UINT8, BASE_HEX, NULL,
+            0x0, NULL, HFILL }},
     };
 
     static hf_register_info hf[] = {
@@ -2635,6 +2645,10 @@ void proto_register_ieee802154(void)
         { "Direction",                  "wpan.gts.direction", FT_BOOLEAN, BASE_NONE, TFS(&ieee802154_gts_direction_tfs), 0x0,
             "A flag defining the direction of the GTS Slot.", HFILL }},
 
+        { &hf_ieee802154_gts_address,
+        { "Address",                  "wpan.gts.address", FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }},
+
         { &hf_ieee802154_pending16,
         { "Address",                    "wpan.pending16", FT_UINT16, BASE_HEX, NULL, 0x0,
             "Device with pending data to receive.", HFILL }},
@@ -2648,6 +2662,10 @@ void proto_register_ieee802154(void)
         { &hf_ieee802154_security_level,
         { "Security Level", "wpan.aux_sec.sec_level", FT_UINT8, BASE_HEX, VALS(ieee802154_sec_level_names),
             IEEE802154_AUX_SEC_LEVEL_MASK, "The Security Level of the frame", HFILL }},
+
+        { &hf_ieee802154_security_control_field,
+        { "Security Control Field", "wpan.aux_sec.security_control_field", FT_UINT8, BASE_HEX, NULL,
+            0x0, NULL, HFILL }},
 
         { &hf_ieee802154_key_id_mode,
         { "Key Identifier Mode", "wpan.aux_sec.key_id_mode", FT_UINT8, BASE_HEX, VALS(ieee802154_key_id_mode_names),

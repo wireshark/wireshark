@@ -116,6 +116,8 @@ static int hf_iax2_trunk_call_scallno = -1;
 static int hf_iax2_trunk_call_ts = -1;
 static int hf_iax2_trunk_call_data = -1;
 
+static int hf_iax2_ie_id = -1;
+static int hf_iax2_length = -1;
 static int hf_iax2_cap_g723_1 = -1;
 static int hf_iax2_cap_gsm = -1;
 static int hf_iax2_cap_ulaw = -1;
@@ -140,6 +142,8 @@ static int hf_iax2_cap_h263_plus = -1;
 static int hf_iax2_cap_h264 = -1;
 static int hf_iax2_cap_mpeg4 = -1;
 
+static int hf_iax2_fragment_unfinished = -1;
+static int hf_iax2_payload_data = -1;
 static int hf_iax2_fragments = -1;
 static int hf_iax2_fragment = -1;
 static int hf_iax2_fragment_overlap = -1;
@@ -1323,11 +1327,8 @@ static guint32 dissect_ies(tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
 
       ies_tree = proto_tree_add_subtree(iax_tree, tvb, offset, ies_len+2, ett_iax2_ie, &ti, " ");
 
-      proto_tree_add_text(ies_tree, tvb, offset, 1, "IE id: %s (0x%02X)",
-                          val_to_str_ext_const(ies_type, &iax_ies_type_ext, "Unknown"),
-                          ies_type);
-
-      proto_tree_add_text(ies_tree, tvb, offset + 1, 1, "Length: %u", ies_len);
+      proto_tree_add_uint(ies_tree, hf_iax2_ie_id, tvb, offset, 1, ies_type);
+      proto_tree_add_uint(ies_tree, hf_iax2_length, tvb, offset + 1, 1, ies_len);
 
 
       /* hf_iax2_ies[] is an array, indexed by IE number, of header-fields, one
@@ -2362,8 +2363,7 @@ static void desegment_iax(tvbuff_t *tvb, packet_info *pinfo, proto_tree *iax2_tr
       PROTO_ITEM_SET_GENERATED(iax_tree_item);
     } else {
       /* this fragment is never reassembled */
-      proto_tree_add_text(tree, tvb, deseg_offset, -1,
-                          "IAX2 fragment, unfinished");
+      proto_tree_add_item(tree, hf_iax2_fragment_unfinished, tvb, deseg_offset, -1, ENC_NA);
     }
 
     if (pinfo->desegment_offset == 0) {
@@ -2413,9 +2413,7 @@ static void dissect_payload(tvbuff_t *tvb, guint32 offset,
   }
 
   nbytes = tvb_reported_length(sub_tvb);
-  proto_tree_add_text(iax2_tree, sub_tvb, 0, -1,
-                      "IAX2 payload (%u byte%s)", nbytes,
-                      plurality(nbytes, "", "s"));
+  proto_tree_add_item(iax2_tree, hf_iax2_payload_data, sub_tvb, 0, -1, ENC_NA);
 
   iax2_info->payload_len = nbytes;
   iax2_info->payload_data = tvb_get_ptr(sub_tvb, 0, -1);
@@ -2978,6 +2976,16 @@ proto_register_iax2(void)
       FT_STRING, BASE_NONE, NULL, 0x0,
       "Raw data for unknown IEs", HFILL}},
 
+    {&hf_iax2_ie_id,
+     {"IE id", "iax2.ie_id",
+      FT_UINT8, BASE_DEC|BASE_EXT_STRING, &iax_ies_type_ext, 0x0,
+      NULL, HFILL}},
+
+    {&hf_iax2_length,
+     {"Length", "iax2.length",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      NULL, HFILL}},
+
     /* capabilities */
     {&hf_iax2_cap_g723_1,
      {"G.723.1 compression", "iax2.cap.g723_1",
@@ -3092,6 +3100,16 @@ proto_register_iax2(void)
     {&hf_iax2_cap_mpeg4,
      {"MPEG4 video", "iax2.cap.mpeg4",
       FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), AST_FORMAT_MP4_VIDEO,
+      NULL, HFILL }},
+
+    {&hf_iax2_fragment_unfinished,
+     {"IAX2 fragment, unfinished", "iax2.fragment_unfinished",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      NULL, HFILL }},
+
+    {&hf_iax2_payload_data,
+     {"IAX2 payload", "iax2.payload_data",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
       NULL, HFILL }},
 
     /* reassembly stuff */

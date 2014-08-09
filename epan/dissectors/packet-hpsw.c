@@ -54,6 +54,7 @@ static int hf_hpsw_config_name = -1;
 static int hf_hpsw_root_mac_addr = -1;
 static int hf_hpsw_device_id = -1;
 static int hf_hpsw_device_id_data = -1;
+static int hf_hpsw_data = -1;
 
 
 static gint ett_hpsw = -1;
@@ -220,7 +221,7 @@ dissect_hpsw_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length,
         break;
 
     default:
-        proto_tree_add_text(tree, tvb, offset, length, "Data");
+        proto_tree_add_item(tree, hf_hpsw_data, tvb, offset, length, ENC_NA);
         break;
     }
 }
@@ -336,6 +337,9 @@ proto_register_hpsw(void)
             NULL, 0x0, NULL, HFILL }},
         { &hf_hpsw_device_id_data,
           { "Data", "hpsw.device_id_data", FT_BYTES, BASE_NONE,
+            NULL, 0x0, NULL, HFILL }},
+        { &hf_hpsw_data,
+          { "Data", "hpsw.data", FT_BYTES, BASE_NONE,
             NULL, 0x0, NULL, HFILL }},
     };
 

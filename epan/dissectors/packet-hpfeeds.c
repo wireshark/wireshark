@@ -127,15 +127,13 @@ static void
 dissect_hpfeeds_info_pdu(tvbuff_t *tvb, proto_tree *tree, guint offset)
 {
     guint8 len = 0;
-    proto_item *ti = NULL;
-    proto_tree *data_subtree = NULL;
+    proto_tree *data_subtree;
     guint8 *strptr = NULL;
 
     len = tvb_get_guint8(tvb, offset);
     /* don't move the offset yet as we need to get data after this operation */
     strptr = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 1, len, ENC_ASCII);
-    ti = proto_tree_add_text(tree, tvb, offset, -1, "Broker: %s", strptr);
-    data_subtree = proto_item_add_subtree(ti, ett_hpfeeds);
+    data_subtree = proto_tree_add_subtree_format(tree, tvb, offset, -1, ett_hpfeeds, NULL, "Broker: %s", strptr);
 
     proto_tree_add_item(data_subtree, hf_hpfeeds_server_len, tvb, offset, 1,
         ENC_BIG_ENDIAN);

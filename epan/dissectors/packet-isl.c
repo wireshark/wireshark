@@ -56,6 +56,9 @@ static int hf_isl_src = -1;
 static int hf_isl_addr = -1;
 static int hf_isl_len = -1;
 static int hf_isl_hsa = -1;
+static int hf_isl_dsap = -1;
+static int hf_isl_ssap = -1;
+static int hf_isl_control = -1;
 static int hf_isl_vlan_id = -1;
 static int hf_isl_bpdu = -1;
 static int hf_isl_index = -1;
@@ -229,11 +232,10 @@ dissect_isl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int fcs_len)
   }
 
   if (tree) {
-    tvb_ensure_bytes_exist(payload_tvb, 0, 6);
     /* This part looks sort of like a SNAP-encapsulated LLC header... */
-    proto_tree_add_text(fh_tree, payload_tvb, 0, 1, "DSAP: 0x%X", tvb_get_guint8(tvb, 14));
-    proto_tree_add_text(fh_tree, payload_tvb, 1, 1, "SSAP: 0x%X", tvb_get_guint8(tvb, 15));
-    proto_tree_add_text(fh_tree, payload_tvb, 2, 1, "Control: 0x%X", tvb_get_guint8(tvb, 16));
+    proto_tree_add_item(fh_tree, hf_isl_dsap, payload_tvb, 0, 1, ENC_NA);
+    proto_tree_add_item(fh_tree, hf_isl_ssap, payload_tvb, 1, 1, ENC_NA);
+    proto_tree_add_item(fh_tree, hf_isl_control, payload_tvb, 2, 1, ENC_NA);
 
     /* ...but this is the manufacturer's ID portion of the source address
        field (which is, admittedly, an OUI). */
@@ -353,6 +355,15 @@ proto_register_isl(void)
 	{ &hf_isl_hsa,
 	{ "HSA",		"isl.hsa", FT_UINT24, BASE_HEX, NULL, 0x0,
 		"High bits of source address", HFILL }},
+	{ &hf_isl_dsap,
+	{ "DSAP",		"isl.dsap", FT_UINT8, BASE_HEX, NULL, 0x0,
+		NULL, HFILL }},
+	{ &hf_isl_ssap,
+	{ "SSAP",		"isl.ssap", FT_UINT8, BASE_HEX, NULL, 0x0,
+		NULL, HFILL }},
+	{ &hf_isl_control,
+	{ "Control",		"isl.control", FT_UINT8, BASE_HEX, NULL, 0x0,
+		NULL, HFILL }},
 	{ &hf_isl_vlan_id,
 	{ "VLAN ID",		"isl.vlan_id", FT_UINT16, BASE_DEC, NULL,
 		0xFFFE, "Virtual LAN ID (Color)", HFILL }},

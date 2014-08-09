@@ -52,6 +52,7 @@ static int hf_hdmi_edid_manf_serial = -1;
 static int hf_hdmi_edid_manf_week = -1;
 static int hf_hdmi_edid_mod_year = -1;
 static int hf_hdmi_edid_manf_year = -1;
+static int hf_hdmi_edid_version = -1;
 
 
 /* also called Source and Sink in the HDMI spec */
@@ -107,8 +108,6 @@ dissect_hdmi_edid(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tr
     gchar       manf_id_str[4]; /* 3 letters + 0-termination */
     guint8      week, year;
     int         year_hf;
-    guint8      edid_ver, edid_rev;
-
 
     edid_tree = proto_tree_add_subtree(tree, tvb,
             offset, -1, ett_hdmi_edid, NULL,
@@ -155,12 +154,7 @@ dissect_hdmi_edid(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tr
     proto_item_append_text(yi, " (year %d)", 1990+year);
     offset += 1;
 
-    edid_ver = tvb_get_guint8(tvb, offset);
-    edid_rev = tvb_get_guint8(tvb, offset+1);
-
-    /* XXX make this filterable */
-    proto_tree_add_text(edid_tree, tvb, offset, 2,
-            "EDID Version %d.%d", edid_ver, edid_rev);
+    proto_tree_add_item(edid_tree, hf_hdmi_edid_version, tvb, offset, 2, ENC_NA);
 
     /* XXX dissect the parts following the EDID header */
 
@@ -226,6 +220,11 @@ dissect_hdmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     return dissect_hdmi_edid(tvb, offset, pinfo, hdmi_tree);
 }
 
+static void
+hdmi_fmt_edid_version( gchar *result, guint32 revision )
+{
+   g_snprintf( result, ITEM_LABEL_LENGTH, "%d.%02d", (guint8)(( revision & 0xFF00 ) >> 8), (guint8)(revision & 0xFF) );
+}
 
 void
 proto_register_hdmi(void)
@@ -257,7 +256,11 @@ proto_register_hdmi(void)
                 FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
         { &hf_hdmi_edid_manf_year,
             { "Year of manufacture", "hdmi.edid.manf_year",
-                FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } }
+                FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
+        { &hf_hdmi_edid_version,
+            { "EDID Version", "hdmi.edid.version",
+                FT_UINT16, BASE_CUSTOM, hdmi_fmt_edid_version, 0, NULL, HFILL } }
+
     };
 
     static gint *ett[] = {

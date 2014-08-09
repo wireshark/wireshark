@@ -63,6 +63,7 @@ static int hf_hdcp2_r_n = -1;
 static int hf_hdcp2_l_prime = -1;
 static int hf_hdcp2_e_dkey_ks = -1;
 static int hf_hdcp2_r_iv = -1;
+static int hf_hdcp2_reserved = -1;
 
 static expert_field ei_hdcp2_reserved_0 = EI_INIT;
 
@@ -171,8 +172,8 @@ dissect_hdcp2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
             ptvcursor_add(cursor, hf_hdcp2_cert_n, N_LEN, ENC_NA);
             ptvcursor_add(cursor, hf_hdcp2_cert_e, E_LEN, ENC_BIG_ENDIAN);
             reserved = tvb_get_ntohs(tvb, ptvcursor_current_offset(cursor));
-            pi = proto_tree_add_text(cert_tree, tvb,
-                        ptvcursor_current_offset(cursor), 2, "reserved bytes");
+            pi = proto_tree_add_item(cert_tree, hf_hdcp2_reserved, tvb,
+                        ptvcursor_current_offset(cursor), 2, ENC_BIG_ENDIAN);
             if (reserved != 0) {
                 expert_add_info(pinfo, pi, &ei_hdcp2_reserved_0);
             }
@@ -269,7 +270,11 @@ proto_register_hdcp2(void)
                 NULL, 0, NULL, HFILL } },
         { &hf_hdcp2_r_iv,
             { "r_iv", "hdcp2.r_iv", FT_UINT64, BASE_HEX,
+                NULL, 0, NULL, HFILL } },
+        { &hf_hdcp2_reserved,
+            { "Reserved", "hdcp2.reserved", FT_UINT16, BASE_HEX,
                 NULL, 0, NULL, HFILL } }
+
 };
 
     static gint *ett[] = {

@@ -32,6 +32,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include <epan/exceptions.h>
 #include <epan/conversation.h>
 #include <epan/prefs.h>
@@ -178,7 +179,8 @@ static int hf_isns_pg_portal_port = -1;
 static int hf_isns_pg_index = -1;
 static int hf_isns_pg_next_index = -1;
 
-
+static expert_field ei_isns_portal_ip_addr = EI_INIT;
+static expert_field ei_isns_not_first_pdu = EI_INIT;
 
 /* Desegment iSNS over TCP messages */
 static gboolean isns_desegment = TRUE;
@@ -555,9 +557,17 @@ dissect_isns_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     proto_item *ti;
     proto_tree *isns_tree;
 	guint16     flags;
-	proto_tree *tt;
-	proto_item *tflags;
+	proto_tree *tt = NULL;
 	proto_item *tpayload;
+	static const int * isns_flags[] = {
+					&hf_isns_client,
+					&hf_isns_server,
+					&hf_isns_auth,
+					&hf_isns_replace,
+					&hf_isns_last_pdu,
+					&hf_isns_first_pdu,
+					NULL
+				};
 
     /* Make entries in Protocol column and Info column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "iSNS");
@@ -571,9 +581,6 @@ dissect_isns_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 	            val_to_str_ext(function_id, &isns_function_ids_ext,
 	                       "Unknown function ID 0x%04x"));
 
-    if (tree == NULL)
-        return tvb_length(tvb);
-
 	/* create display subtree for the protocol */
 	ti = proto_tree_add_item(tree, proto_isns, tvb, 0, -1, ENC_NA);
 	isns_tree = proto_item_add_subtree(ti, ett_isns);
@@ -583,20 +590,9 @@ dissect_isns_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 	proto_tree_add_item(isns_tree, hf_isns_function_id, tvb, offset+2, 2, ENC_BIG_ENDIAN);
 	proto_tree_add_item(isns_tree, hf_isns_pdu_length,  tvb, offset+4, 2, ENC_BIG_ENDIAN);
 
-	/*FLAGS*/
 	flags  = tvb_get_ntohs(tvb, offset + 6);
-	tflags = proto_tree_add_item(isns_tree, hf_isns_flags, tvb, offset+6, 2, ENC_BIG_ENDIAN);
-	tt     = proto_item_add_subtree(tflags, ett_isns_flags);
-
-	proto_tree_add_boolean(tt, hf_isns_client,    tvb, offset+6, 2, flags);
-	proto_tree_add_boolean(tt, hf_isns_server,    tvb, offset+6, 2, flags);
-	proto_tree_add_boolean(tt, hf_isns_auth,      tvb, offset+6, 2, flags);
-	proto_tree_add_boolean(tt, hf_isns_replace,   tvb, offset+6, 2, flags);
-	proto_tree_add_boolean(tt, hf_isns_last_pdu,  tvb, offset+6, 2, flags);
-	proto_tree_add_boolean(tt, hf_isns_first_pdu, tvb, offset+6, 2, flags);
-
+	proto_tree_add_bitmask(isns_tree, tvb, offset+6, hf_isns_flags, ett_isns_flags, isns_flags, ENC_BIG_ENDIAN);
 	proto_tree_add_item(isns_tree, hf_isns_transaction_id, tvb, offset+8,  2, ENC_BIG_ENDIAN);
-
 	proto_tree_add_item(isns_tree, hf_isns_sequence_id,    tvb, offset+10, 2, ENC_BIG_ENDIAN);
 
 	tpayload = proto_tree_add_item(isns_tree, hf_isns_payload, tvb, offset+12, -1, ENC_NA);
@@ -674,7 +670,7 @@ dissect_isns_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 	default:
 	    /* we can only look at the attributes for the first PDU */
 	    if(!(flags&ISNS_FLAGS_FIRST_PDU)){
-			proto_tree_add_text(tt, tvb, offset, -1, "This is not the first PDU. The attributes are not decoded");
+			proto_tree_add_expert(tt, pinfo, &ei_isns_not_first_pdu, tvb, offset, -1);
 			return tvb_length(tvb);
 	    }
 
@@ -819,8 +815,7 @@ dissect_isns_attr_integer(tvbuff_t *tvb, guint offset, proto_tree *parent_tree, 
             item = proto_tree_add_uint_format_value(parent_tree, hf_isns_portal_group_tag, tvb, offset, 8, 0, "<NULL>");
             tree = proto_item_add_subtree(item, ett_isns_attribute);
         } else {
-            item = proto_tree_add_text(parent_tree, tvb, offset, 8, "Oops, you surprised me here. a 0 byte integer.");
-            tree = proto_item_add_subtree(item, ett_isns_attribute);
+            tree = proto_tree_add_subtree(parent_tree, tvb, offset, 8, ett_isns_attribute, NULL, "Oops, you surprised me here. a 0 byte integer.");
         }
 
         proto_tree_add_uint(tree, hf_isns_attr_tag, tvb, offset,   4, tag);
@@ -1075,7 +1070,7 @@ AddAttribute(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree, guint offset,
     case ISNS_ATTR_TAG_PORTAL_IP_ADDRESS:
 	switch(len){
 	case 64:
-            proto_tree_add_text(tree, tvb, offset, -1, "Broken iSNS implementation. The PORTAL_IP_ADDRESS tag should be 16 bytes in length");
+            proto_tree_add_expert(tree, pinfo, &ei_isns_portal_ip_addr, tvb, offset, -1);
 	case 16:
             dissect_isns_attr_ip_address(tvb, offset, tree, hf_isns_portal_ip_addr, tag, 16);
             break;
@@ -1084,34 +1079,27 @@ AddAttribute(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree, guint offset,
 	}
 	break;
     case ISNS_ATTR_TAG_PORTAL_PORT:
-        if(len != 4) THROW(ReportedBoundsError);
 	dissect_isns_attr_port(tvb, offset, tree, hf_isns_portal_port, tag, len, ISNS_OTHER_PORT, pinfo);
 	break;
     case ISNS_ATTR_TAG_PORTAL_SYMBOLIC_NAME:
 	dissect_isns_attr_string(tvb, offset, tree, hf_isns_portal_symbolic_name, tag, len);
 	break;
     case ISNS_ATTR_TAG_ESI_INTERVAL:
-        if(len != 4) THROW(ReportedBoundsError);
 	dissect_isns_attr_integer(tvb, offset, tree, hf_isns_esi_interval, tag, len, function_id);
 	break;
     case ISNS_ATTR_TAG_ESI_PORT:
-        if(len != 4) THROW(ReportedBoundsError);
 	dissect_isns_attr_port(tvb, offset, tree, hf_isns_esi_port, tag, len, ISNS_ESI_PORT, pinfo);
 	break;
     case ISNS_ATTR_TAG_PORTAL_INDEX:
-        if(len != 4) THROW(ReportedBoundsError);
 	dissect_isns_attr_integer(tvb, offset, tree, hf_isns_portal_index, tag, len, function_id);
 	break;
     case ISNS_ATTR_TAG_SCN_PORT:
-        if(len != 4) THROW(ReportedBoundsError);
 	dissect_isns_attr_port(tvb, offset, tree, hf_isns_scn_port, tag, len, ISNS_SCN_PORT, pinfo);
 	break;
     case ISNS_ATTR_TAG_PORTAL_NEXT_INDEX:
-        if(len != 4) THROW(ReportedBoundsError);
 	dissect_isns_attr_integer(tvb, offset, tree, hf_isns_portal_next_index, tag, len, function_id);
 	break;
     case ISNS_ATTR_TAG_PORTAL_SECURITY_BITMAP:
-        if(len != 4) THROW(ReportedBoundsError);
 	dissect_isns_attr_portal_security_bitmap(tvb, offset, tree, hf_isns_psb, tag, len);
 	break;
     case ISNS_ATTR_TAG_PORTAL_ISAKMP_PHASE_1:
@@ -1158,7 +1146,8 @@ AddAttribute(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree, guint offset,
     case ISNS_ATTR_TAG_PG_PORTAL_IP_ADDR:
 	switch(len){
 	case 64:
-            proto_tree_add_text(tree, tvb, offset, -1, "Broken iSNS implementation. The PG_PORTAL_IP_ADDRESS tag should be 16 bytes in length");
+            proto_tree_add_expert_format(tree, pinfo, &ei_isns_portal_ip_addr, tvb, offset, -1,
+                "Broken iSNS implementation. The PG_PORTAL_IP_ADDRESS tag should be 16 bytes in length");
 	case 16:
             dissect_isns_attr_ip_address(tvb, offset, tree, hf_isns_pg_portal_ip_addr, tag, 16);
             break;
@@ -1918,13 +1907,22 @@ void proto_register_isns(void)
 	&ett_isns_port,
 	&ett_isns_isnt
     };
+
+    static ei_register_info ei[] = {
+        { &ei_isns_portal_ip_addr, { "isns.portal.ip_address.malformed", PI_MALFORMED, PI_ERROR, "Broken iSNS implementation. The PORTAL_IP_ADDRESS tag should be 16 bytes in length", EXPFILL }},
+        { &ei_isns_not_first_pdu, { "isns.not_first_pdu", PI_PROTOCOL, PI_WARN, "This is not the first PDU. The attributes are not decoded", EXPFILL }},
+    };
+
     module_t *isns_module;
+    expert_module_t* expert_isns;
 
 /* Register the protocol name and description */
     proto_isns = proto_register_protocol("iSNS",
 					 "iSNS", "isns");
     proto_register_field_array(proto_isns, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_isns = expert_register_protocol(proto_isns);
+    expert_register_field_array(expert_isns, ei, array_length(ei));
 
     /* Register preferences */
     isns_module = prefs_register_protocol(proto_isns, NULL);

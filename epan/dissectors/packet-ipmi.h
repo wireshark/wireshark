@@ -123,16 +123,13 @@ typedef struct ipmi_netfn_handler {
 	guint32 cmdtablen;
 } ipmi_netfn_t;
 
-/* Handy wrapper around decode_bitfield_value() */
-char *ipmi_dcd8(guint32 val, guint32 mask);
-
 /* Stub parser. Use this to substitute for not-yet-written subparsers;
    NULL in command table means 'no custom data in this request/response' */
 void ipmi_notimpl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 #define IPMI_TBD  ipmi_notimpl, ipmi_notimpl
 
 /* Add a Type/Length field to tree */
-void ipmi_add_typelen(proto_tree *tree, const char *desc, tvbuff_t *tvb,
+void ipmi_add_typelen(proto_tree *tree, int hf_string, int hf_type, int hf_length, tvbuff_t *tvb,
 		guint offs, gboolean is_fru);
 
 /* Add Timestamp in IPMI format */

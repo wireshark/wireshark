@@ -32,6 +32,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include <epan/nlpid.h>
 
 #include <math.h>
@@ -121,6 +122,8 @@ static int hf_idrp_rib_refresh_rib_attr_locally_defined_qos_value = -1;
 static int hf_idrp_rib_refresh_rib_attr_locally_defined_qos_metric = -1;
 static int hf_idrp_rib_refresh_rib_attr_security_reg_id = -1;
 static int hf_idrp_rib_refresh_rib_attr_security_info = -1;
+
+static expert_field ei_idrp_no_path_attributes = EI_INIT;
 
 /* flags */
 #define IDRP_UPDATE_PATH_FLAG_OPTIONAL                    0x80
@@ -1003,9 +1006,10 @@ static int dissect_BISPDU_ERROR(tvbuff_t * tvb, int offset, proto_tree * tree)
     return offset;
 }
 
-static int dissect_BISPDU_RIB_REFRESH(tvbuff_t * tvb, int offset, proto_tree * tree)
+static int dissect_BISPDU_RIB_REFRESH(tvbuff_t * tvb, packet_info *pinfo, int offset, proto_tree * tree)
 {
     proto_tree *sub_tree;
+    proto_item *sub_item;
     guint8      number_of_non_empty_rib_attributes;
     guint8      number_of_distinguishing_attributes;
     guint8      rib_attribute_type;
@@ -1019,14 +1023,14 @@ static int dissect_BISPDU_RIB_REFRESH(tvbuff_t * tvb, int offset, proto_tree * t
     offset += 1;
 
     /* Path Attributes subtree */
-    sub_tree = proto_tree_add_subtree(tree, tvb, offset, 0, ett_idrp_sub, NULL, "Path Attributes");
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, 0, ett_idrp_sub, &sub_item, "Path Attributes");
 
     /* Number of Non-empty RIB-Atts */
     number_of_non_empty_rib_attributes = tvb_get_guint8(tvb, offset);
     offset += 1;
 
     if (!number_of_non_empty_rib_attributes)
-        proto_tree_add_text(sub_tree, tvb, offset, 0, "none");
+        expert_add_info(pinfo, sub_item, &ei_idrp_no_path_attributes);
 
     /* process Nth RIB-Atts */
     for (i = number_of_non_empty_rib_attributes; i > 0; i--) {
@@ -1213,7 +1217,7 @@ dissect_idrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
             offset += 30;
             break;
         case IDRP_TYPE_RIB_REFRESH:
-            offset = dissect_BISPDU_RIB_REFRESH(tvb, offset, idrp_tree);
+            offset = dissect_BISPDU_RIB_REFRESH(tvb, pinfo, offset, idrp_tree);
             break;
         default:
             break;
@@ -1582,9 +1586,17 @@ void proto_register_idrp(void)
         &ett_idrp_sub
     };
 
+    static ei_register_info ei[] = {
+        { &ei_idrp_no_path_attributes, { "idrp.no_path_attributes", PI_PROTOCOL, PI_NOTE, "No path attributes", EXPFILL }},
+    };
+
+    expert_module_t* expert_idrp;
+
     proto_idrp = proto_register_protocol(IDRP_PROTO, "IDRP", "idrp");
     proto_register_field_array(proto_idrp, hf_idrp, array_length(hf_idrp));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_idrp = expert_register_protocol(proto_idrp);
+    expert_register_field_array(expert_idrp, ei, array_length(ei));
     new_register_dissector("idrp", dissect_idrp, proto_idrp);
 
 }

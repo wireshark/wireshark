@@ -149,6 +149,7 @@ static int hf_record_type = -1;
 static int hf_aux_data_len = -1;
 static int hf_maddr = -1;
 static int hf_aux_data = -1;
+static int hf_data = -1;
 static int hf_mtrace_max_hops = -1;
 static int hf_mtrace_saddr = -1;
 static int hf_mtrace_raddr = -1;
@@ -383,7 +384,7 @@ dissect_igmp_unknown(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int ty
 
 	/* Just call the rest of it "data" */
 	len = tvb_length_remaining(tvb, offset);
-	proto_tree_add_text(tree, tvb, offset, len, "Data");
+	proto_tree_add_item(tree, hf_data, tvb, offset, -1, ENC_NA);
 	offset += len;
 
 	return offset;
@@ -1085,6 +1086,10 @@ proto_register_igmp(void)
 		{ &hf_aux_data,
 			{ "Aux Data", "igmp.aux_data", FT_BYTES, BASE_NONE,
 			  NULL, 0, "IGMP V3 Auxiliary Data", HFILL }},
+
+		{ &hf_data,
+			{ "Data", "igmp.data", FT_BYTES, BASE_NONE,
+			  NULL, 0, NULL, HFILL }},
 
 		{ &hf_max_resp_exp,
 			{ "Exponent", "igmp.max_resp.exp", FT_UINT8, BASE_HEX,

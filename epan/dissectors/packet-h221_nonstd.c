@@ -31,6 +31,9 @@ void proto_reg_handoff_nonstd(void);
 /* Define the nonstd proto */
 static int proto_nonstd = -1;
 
+static int hf_h221_nonstd_netmeeting_codec = -1;
+static int hf_h221_nonstd_netmeeting_non_standard = -1;
+
 /*
  * Define the trees for nonstd
  * We need one for nonstd itself and one for the nonstd paramters
@@ -56,13 +59,13 @@ dissect_ms_nonstd(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
     proto_tree *tr;
     guint32 offset=0;
     gint tvb_len;
-    guint16 codec_value, codec_extra;
+    guint16 codec_extra;
 
     it=proto_tree_add_protocol_format(tree, proto_nonstd, tvb, 0, tvb_length(tvb), "Microsoft NonStd");
     tr=proto_item_add_subtree(it, ett_nonstd);
 
 
-    tvb_len = tvb_length(tvb);
+    tvb_len = tvb_reported_length(tvb);
 
     /*
      * XXX - why do this test?  Are there any cases where throwing
@@ -79,20 +82,18 @@ dissect_ms_nonstd(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
     if(tvb_len >= 23)
     {
 
-        codec_value = tvb_get_ntohs(tvb,offset+20);
         codec_extra = tvb_get_ntohs(tvb,offset+22);
 
         if(codec_extra == 0x0100)
         {
 
-            proto_tree_add_text(tr, tvb, offset+20, 2, "Microsoft NetMeeting Codec=0x%04X %s",
-                                codec_value,val_to_str(codec_value, ms_codec_vals,"Unknown (%u)"));
+            proto_tree_add_item(tr, hf_h221_nonstd_netmeeting_codec, tvb, offset+20, 2, ENC_BIG_ENDIAN);
 
         }
         else
         {
 
-            proto_tree_add_text(tr, tvb, offset, -1, "Microsoft NetMeeting Non Standard");
+            proto_tree_add_item(tr, hf_h221_nonstd_netmeeting_non_standard, tvb, offset, -1, ENC_NA);
 
         }
     }
@@ -103,6 +104,17 @@ dissect_ms_nonstd(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 void
 proto_register_nonstd(void)
 {
+    static hf_register_info hf[] = {
+        { &hf_h221_nonstd_netmeeting_codec,
+            { "Microsoft NetMeeting Codec", "h221nonstd.netmeeting.codec", FT_UINT32, BASE_HEX,
+                VALS(ms_codec_vals), 0, NULL, HFILL }
+        },
+        { &hf_h221_nonstd_netmeeting_non_standard,
+            { "Microsoft NetMeeting Non Standard", "netmeeting.non_standard", FT_BYTES, BASE_NONE,
+                NULL, 0, NULL, HFILL }
+        },
+    };
+
     static gint *ett[] = {
         &ett_nonstd,
     };
@@ -110,6 +122,7 @@ proto_register_nonstd(void)
     proto_nonstd = proto_register_protocol("H221NonStandard","h221nonstd", "h221nonstd");
 
     proto_register_subtree_array(ett, array_length(ett));
+    proto_register_field_array(proto_nonstd, hf, array_length(hf));
 }
 
 /* The registration hand-off routine */
