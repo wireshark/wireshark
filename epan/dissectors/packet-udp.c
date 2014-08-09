@@ -655,11 +655,8 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
     if (((ip_proto == IP_PROTO_UDP) && udp_check_checksum) ||
         ((ip_proto == IP_PROTO_UDPLITE) && udplite_check_checksum)) {
       /* Set up the fields of the pseudo-header. */
-      cksum_vec[0].ptr = (const guint8 *)pinfo->src.data;
-      cksum_vec[0].len = pinfo->src.len;
-      cksum_vec[1].ptr = (const guint8 *)pinfo->dst.data;
-      cksum_vec[1].len = pinfo->dst.len;
-      cksum_vec[2].ptr = (const guint8 *)&phdr;
+      SET_CKSUM_VEC_PTR(cksum_vec[0], (const guint8 *)pinfo->src.data, pinfo->src.len);
+      SET_CKSUM_VEC_PTR(cksum_vec[1], (const guint8 *)pinfo->dst.data, pinfo->dst.len);
       switch (pinfo->src.type) {
 
       case AT_IPv4:
@@ -667,7 +664,7 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
           phdr[0] = g_htonl((ip_proto<<16) | udph->uh_ulen);
         else
           phdr[0] = g_htonl((ip_proto<<16) | reported_len);
-        cksum_vec[2].len = 4;
+        SET_CKSUM_VEC_PTR(cksum_vec[2], (const guint8 *)&phdr, 4);
         break;
 
       case AT_IPv6:
@@ -676,7 +673,7 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
         else
           phdr[0] = g_htonl(reported_len);
         phdr[1] = g_htonl(ip_proto);
-        cksum_vec[2].len = 8;
+        SET_CKSUM_VEC_PTR(cksum_vec[2], (const guint8 *)&phdr, 8);
         break;
 
       default:
@@ -684,8 +681,7 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
         DISSECTOR_ASSERT_NOT_REACHED();
         break;
       }
-      cksum_vec[3].ptr = tvb_get_ptr(tvb, offset, udph->uh_sum_cov);
-      cksum_vec[3].len = udph->uh_sum_cov;
+      SET_CKSUM_VEC_TVB(cksum_vec[3], tvb, offset, udph->uh_sum_cov);
       computed_cksum = in_cksum(&cksum_vec[0], 4);
       if (computed_cksum == 0) {
         item = proto_tree_add_uint_format_value(udp_tree, hfi_udp_checksum.id, tvb,

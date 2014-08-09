@@ -181,23 +181,18 @@ dissect_vrrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
             case 3:
                 if((g_vrrp_v3_checksum_as_in_v2 == FALSE)||(pinfo->src.type == AT_IPv6)){
                     /* Set up the fields of the pseudo-header. */
-                    cksum_vec[0].ptr = (const guint8 *)pinfo->src.data;
-                    cksum_vec[0].len = pinfo->src.len;
-                    cksum_vec[1].ptr = (const guint8 *)pinfo->dst.data;
-                    cksum_vec[1].len = pinfo->dst.len;
-                    cksum_vec[2].ptr = (const guint8 *)&phdr;
+                    SET_CKSUM_VEC_PTR(cksum_vec[0], (const guint8 *)pinfo->src.data, pinfo->src.len);
+                    SET_CKSUM_VEC_PTR(cksum_vec[1], (const guint8 *)pinfo->dst.data, pinfo->dst.len);
                     phdr[0] = g_htonl(vrrp_len);
                     phdr[1] = g_htonl(IP_PROTO_VRRP);
-                    cksum_vec[2].len = 8;
-                    cksum_vec[3].ptr = tvb_get_ptr(tvb, 0, vrrp_len);
-                    cksum_vec[3].len = vrrp_len;
+                    SET_CKSUM_VEC_PTR(cksum_vec[2], (const guint8 *)&phdr, 8);
+                    SET_CKSUM_VEC_TVB(cksum_vec[3], tvb, 0, vrrp_len);
                     computed_cksum = in_cksum(cksum_vec, 4);
                     break;
                 }
             case 2:
             default:
-                cksum_vec[0].ptr = tvb_get_ptr(tvb, 0, vrrp_len);
-                cksum_vec[0].len = vrrp_len;
+                SET_CKSUM_VEC_TVB(cksum_vec[0], tvb, 0, vrrp_len);
                 computed_cksum = in_cksum(&cksum_vec[0], 1);
                 break;
         }

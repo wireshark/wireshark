@@ -2041,12 +2041,9 @@ dissect_6lowpan_iphc_nhc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
             cksum_phdr.proto = IP_PROTO_UDP;
 
             /* Compute the checksum. */
-            cksum_vec[0].ptr = (const guint8 *)&cksum_phdr;
-            cksum_vec[0].len = sizeof(cksum_phdr);
-            cksum_vec[1].ptr = (const guint8 *)&udp;
-            cksum_vec[1].len = sizeof(struct udp_hdr);
-            cksum_vec[2].ptr = tvb_get_ptr(tvb, offset, length);
-            cksum_vec[2].len = length;
+            SET_CKSUM_VEC_PTR(cksum_vec[0], (const guint8 *)&cksum_phdr, sizeof(cksum_phdr));
+            SET_CKSUM_VEC_PTR(cksum_vec[1], (const guint8 *)&udp, sizeof(struct udp_hdr));
+            SET_CKSUM_VEC_TVB(cksum_vec[2], tvb, offset, length);
             udp.checksum = in_cksum(cksum_vec, 3);
             if (udp.checksum == 0) udp.checksum = 0xffff;
         }

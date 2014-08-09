@@ -368,8 +368,8 @@ dissect_gmtrailer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void 
   /* Verify the checksum; if not valid, it means that the trailer is not valid */
   {
     vec_t vec;
-    vec.len = length + 3;
-    vec.ptr = tvb_get_ptr(tvb, offset, vec.len);
+
+    SET_CKSUM_VEC_TVB(vec, tvb, offset, length + 3);
 
     comp_cksum = in_cksum(&vec, 1);
     if (pntoh16(&comp_cksum) != cksum) {

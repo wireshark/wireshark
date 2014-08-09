@@ -275,12 +275,11 @@ typedef struct _e_nhrp {
     guint8  ar_sstl;
 } e_nhrp_hdr;
 
-static guint16 nhrp_checksum(const guint8 *ptr, int len)
+static guint16 nhrp_checksum(tvbuff_t *tvb, int len)
 {
     vec_t cksum_vec[1];
 
-    cksum_vec[0].ptr = ptr;
-    cksum_vec[0].len = len;
+    SET_CKSUM_VEC_TVB(cksum_vec[0], tvb, 0, len);
     return in_cksum(&cksum_vec[0], 1);
 }
 
@@ -377,8 +376,7 @@ static void dissect_nhrp_hdr(tvbuff_t     *tvb,
 
     rx_chksum = tvb_get_ntohs(tvb, offset);
     if (tvb_bytes_exist(tvb, 0, total_len)) {
-        ipcsum = nhrp_checksum(tvb_get_ptr(tvb, 0, total_len),
-            total_len);
+        ipcsum = nhrp_checksum(tvb, total_len);
         if (ipcsum == 0) {
             proto_tree_add_uint_format_value(nhrp_tree, hf_nhrp_hdr_chksum, tvb, offset, 2, rx_chksum,
                 "0x%04x [correct]", rx_chksum);

@@ -282,12 +282,10 @@ dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           padded_buffer[data_length-1]--;
         }
         /* Setup checksum routine data buffer */
-        cksum_vec[0].ptr = padded_buffer;
-        cksum_vec[0].len = data_length+1;
+        SET_CKSUM_VEC_PTR(cksum_vec[0], padded_buffer, data_length+1);
     } else {
         /* Setup checksum routine data buffer */
-        cksum_vec[0].ptr = tvb_get_ptr(tvb, 0, data_length);
-        cksum_vec[0].len = data_length;
+        SET_CKSUM_VEC_TVB(cksum_vec[0], tvb, 0, data_length);
     }
 
     computed_checksum = in_cksum(cksum_vec, 1);

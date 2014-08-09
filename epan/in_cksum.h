@@ -39,6 +39,22 @@ typedef struct {
 	int	len;
 } vec_t;
 
+#define SET_CKSUM_VEC_PTR(vecelem, data, length) \
+	G_STMT_START { \
+		vecelem.ptr = (data); \
+		vecelem.len = (length); \
+	} G_STMT_END
+
+#define SET_CKSUM_VEC_TVB(vecelem, tvb, offset, length) \
+	G_STMT_START { \
+		vecelem.len = (length); \
+		vecelem.ptr = tvb_get_ptr((tvb), (offset), vecelem.len); \
+	} G_STMT_END
+
+WS_DLL_PUBLIC guint16 ip_checksum(const guint8 *ptr, int len);
+
+WS_DLL_PUBLIC guint16 ip_checksum_tvb(tvbuff_t *tvb, int offset, int len);
+
 WS_DLL_PUBLIC int in_cksum(const vec_t *vec, int veclen);
 
 guint16 in_cksum_shouldbe(guint16 sum, guint16 computed_sum);

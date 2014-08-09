@@ -85,7 +85,7 @@ static int
 dissect_carp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     int offset = 0;
-    gint carp_len;
+    guint carp_len;
     guint8  vhid;
     vec_t cksum_vec[4];
     proto_item *ti, *tv;
@@ -136,12 +136,11 @@ dissect_carp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
     cksum = tvb_get_ntohs(tvb, offset);
     ti = proto_tree_add_item(carp_tree, hf_carp_checksum, tvb, offset, 2, ENC_BIG_ENDIAN);
-    carp_len = (gint)tvb_reported_length(tvb);
-    if (!pinfo->fragmented && (gint)tvb_length(tvb) >= carp_len) {
+    carp_len = tvb_reported_length(tvb);
+    if (!pinfo->fragmented && tvb_length(tvb) >= carp_len) {
         /* The packet isn't part of a fragmented datagram
            and isn't truncated, so we can checksum it. */
-        cksum_vec[0].ptr = tvb_get_ptr(tvb, 0, carp_len);
-        cksum_vec[0].len = carp_len;
+        SET_CKSUM_VEC_TVB(cksum_vec[0], tvb, 0, carp_len);
         computed_cksum = in_cksum(&cksum_vec[0], 1);
         if (computed_cksum == 0) {
             proto_item_append_text(ti, " [correct]");

@@ -246,8 +246,7 @@ dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
          * The packet isn't part of a fragmented datagram and isn't
          * truncated, so we can checksum it.
          */
-        cksum_vec[0].ptr = tvb_get_ptr(tvb, 0, pim_length);
-        cksum_vec[0].len = pim_length;
+        SET_CKSUM_VEC_TVB(cksum_vec[0], tvb, 0, pim_length);
         computed_cksum = in_cksum(&cksum_vec[0], 1);
         if (computed_cksum == 0) {
             proto_tree_add_uint_format_value(pim_tree, hf_pim_cksum, tvb,
@@ -754,22 +753,17 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
         switch (pinfo->src.type) {
         case AT_IPv4:
-            cksum_vec[0].ptr = tvb_get_ptr(tvb, 0, pim_length);
-            cksum_vec[0].len = pim_length;
+            SET_CKSUM_VEC_TVB(cksum_vec[0], tvb, 0, pim_length);
             computed_cksum = in_cksum(&cksum_vec[0], 1);
             break;
         case AT_IPv6:
             /* Set up the fields of the pseudo-header. */
-            cksum_vec[0].ptr = (const guint8 *)pinfo->src.data;
-            cksum_vec[0].len = pinfo->src.len;
-            cksum_vec[1].ptr = (const guint8 *)pinfo->dst.data;
-            cksum_vec[1].len = pinfo->dst.len;
-            cksum_vec[2].ptr = (const guint8 *)&phdr;
+            SET_CKSUM_VEC_PTR(cksum_vec[0], (const guint8 *)pinfo->src.data, pinfo->src.len);
+            SET_CKSUM_VEC_PTR(cksum_vec[1], (const guint8 *)pinfo->dst.data, pinfo->dst.len);
             phdr[0] = g_htonl(pim_length);
             phdr[1] = g_htonl(IP_PROTO_PIM);
-            cksum_vec[2].len = 8;
-            cksum_vec[3].ptr = tvb_get_ptr(tvb, 0, pim_length);
-            cksum_vec[3].len = pim_length;
+            SET_CKSUM_VEC_PTR(cksum_vec[2], (const guint8 *)&phdr, 8);
+            SET_CKSUM_VEC_TVB(cksum_vec[0], tvb, 0, pim_length);
             computed_cksum = in_cksum(&cksum_vec[0], 4);
             break;
         default:

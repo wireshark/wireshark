@@ -346,8 +346,7 @@ void igmp_checksum(proto_tree *tree, tvbuff_t *tvb, int hf_index,
 		 * The packet isn't part of a fragmented datagram and isn't
 		 * truncated, so we can checksum it.
 		 */
-		cksum_vec[0].ptr = tvb_get_ptr(tvb, 0, len);
-		cksum_vec[0].len = len;
+		SET_CKSUM_VEC_TVB(cksum_vec[0], tvb, 0, len);
 
 		cksum = in_cksum(&cksum_vec[0],1);
 

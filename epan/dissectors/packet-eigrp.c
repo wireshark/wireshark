@@ -2395,14 +2395,6 @@ dissect_eigrp_multi_protocol_tlv (proto_item *ti, proto_tree *tree, tvbuff_t *tv
  */
 #include <epan/in_cksum.h>
 
-static guint16 ip_checksum(const guint8 *ptr, int len)
-{
-    vec_t cksum_vec[1];
-
-    cksum_vec[0].ptr = ptr;
-    cksum_vec[0].len = len;
-    return in_cksum(&cksum_vec[0], 1);
-}
 static int
 dissect_eigrp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -2455,7 +2447,7 @@ dissect_eigrp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
     size          = tvb_length(tvb);
     checksum      = tvb_get_ntohs(tvb, 2);
-    cacl_checksum = ip_checksum(tvb_get_ptr(tvb, 0, size), size);
+    cacl_checksum = ip_checksum_tvb(tvb, 0, size);
 
     if (cacl_checksum == checksum) {
         proto_tree_add_text(eigrp_tree, tvb, 2, 2,

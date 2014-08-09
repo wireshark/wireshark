@@ -522,11 +522,9 @@ dissect_flip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
             {
                 vec_t   vec[2];
 
-                vec[0].ptr = tvb_get_ptr(flip_tvb, 0, bytes_dissected + 2);
-                vec[0].len = bytes_dissected + 2;
-                vec[1].ptr = tvb_get_ptr(flip_tvb, bytes_dissected + 4,
-                                         flip_len - (bytes_dissected + 4));
-                vec[1].len = flip_len - (bytes_dissected + 4);
+                SET_CKSUM_VEC_TVB(vec[0], flip_tvb, 0, bytes_dissected + 2);
+                SET_CKSUM_VEC_TVB(vec[1], flip_tvb, bytes_dissected + 4,
+                                  flip_len - (bytes_dissected + 4));
                 computed_chksum = in_cksum(&vec[0], 2);
 
                 /* Checksums handled in network order. */

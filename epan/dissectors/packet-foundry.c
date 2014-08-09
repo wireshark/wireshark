@@ -29,7 +29,6 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/strutil.h>
-#include <epan/in_cksum.h>
 #include "packet-llc.h"
 #include <epan/oui.h>
 

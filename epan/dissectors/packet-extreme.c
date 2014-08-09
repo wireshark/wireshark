@@ -1002,8 +1002,7 @@ dissect_edp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 */
 		if (tvb_length(tvb) >= data_length) {
 			/* Checksum from version to null tlv */
-			cksum_vec[0].ptr = tvb_get_ptr(tvb, 0, data_length);
-			cksum_vec[0].len = data_length;
+			SET_CKSUM_VEC_TVB(cksum_vec[0], tvb, 0, data_length);
 			computed_checksum = in_cksum(&cksum_vec[0], 1);
 			checksum_good = (computed_checksum == 0);
 			checksum_bad = !checksum_good;

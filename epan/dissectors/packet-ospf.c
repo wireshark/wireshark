@@ -1096,14 +1096,12 @@ dissect_ospf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         case OSPF_VERSION_2:
             /* Header, not including the authentication data (the OSPFv2
                checksum excludes the 64-bit authentication field). */
-            cksum_vec[0].ptr = tvb_get_ptr(tvb, 0, 16);
-            cksum_vec[0].len = 16;
+            SET_CKSUM_VEC_TVB(cksum_vec[0], tvb, 0, 16);
             if (length > ospf_header_length) {
                 /* Rest of the packet, again not including the
                    authentication data. */
                 reported_length -= ospf_header_length;
-                cksum_vec[1].ptr = tvb_get_ptr(tvb, ospf_header_length, reported_length);
-                cksum_vec[1].len = reported_length;
+                SET_CKSUM_VEC_TVB(cksum_vec[1], tvb, ospf_header_length, reported_length);
                 cksum_vec_len = 2;
             } else {
                 /* There's nothing but a header. */
@@ -1116,17 +1114,12 @@ dissect_ospf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                and a prepended IPv6 pseudo-header. */
 
             /* Set up the fields of the pseudo-header. */
-            cksum_vec[0].ptr = (const guint8 *)pinfo->src.data;
-            cksum_vec[0].len = pinfo->src.len;
-            cksum_vec[1].ptr = (const guint8 *)pinfo->dst.data;
-            cksum_vec[1].len = pinfo->dst.len;
-            cksum_vec[2].ptr = (const guint8 *)&phdr;
+            SET_CKSUM_VEC_PTR(cksum_vec[0], (const guint8 *)pinfo->src.data, pinfo->src.len);
+            SET_CKSUM_VEC_PTR(cksum_vec[1], (const guint8 *)pinfo->dst.data, pinfo->dst.len);
             phdr[0] = g_htonl(ospflen);
             phdr[1] = g_htonl(IP_PROTO_OSPF);
-            cksum_vec[2].len = 8;
-
-            cksum_vec[3].ptr = tvb_get_ptr(tvb, 0, reported_length);
-            cksum_vec[3].len = reported_length;
+            SET_CKSUM_VEC_PTR(cksum_vec[2], (const guint8 *)&phdr, 8);
+            SET_CKSUM_VEC_TVB(cksum_vec[3], tvb, 0, reported_length);
             cksum_vec_len = 4;
             break;
 

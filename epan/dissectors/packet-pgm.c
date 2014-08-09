@@ -926,8 +926,7 @@ dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				vec_t cksum_vec[1];
 				guint16 computed_cksum;
 
-				cksum_vec[0].ptr = tvb_get_ptr(tvb, 0, pgmlen);
-				cksum_vec[0].len = pgmlen;
+				SET_CKSUM_VEC_TVB(cksum_vec[0], tvb, 0, pgmlen);
 				computed_cksum = in_cksum(&cksum_vec[0], 1);
 				if (computed_cksum == 0) {
 					proto_tree_add_uint_format_value(pgm_tree, hf_pgm_main_cksum, tvb,

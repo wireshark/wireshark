@@ -112,8 +112,7 @@ dissect_ixiatrailer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, voi
     cksum = tvb_get_ntohs(tvb, tvblen-2);
 
     /* Verify the checksum; if not valid, it means that the trailer is not valid */
-    vec.len = trailer_length + 3;
-    vec.ptr = tvb_get_ptr(tvb, offset, vec.len);
+    SET_CKSUM_VEC_TVB(vec, tvb, offset, trailer_length + 3);
     comp_cksum = in_cksum(&vec, 1);
     if (pntoh16(&comp_cksum) != cksum) {
         return 0;

@@ -37,6 +37,7 @@
 
 #include <glib.h>
 
+#include <epan/tvbuff.h>
 #include <epan/in_cksum.h>
 
 /*
@@ -141,6 +142,24 @@ in_cksum(const vec_t *vec, int veclen)
 	}
 	REDUCE;
 	return (~sum & 0xffff);
+}
+
+guint16
+ip_checksum(const guint8 *ptr, int len)
+{
+	vec_t cksum_vec[1];
+
+	SET_CKSUM_VEC_PTR(cksum_vec[0], ptr, len);
+	return in_cksum(&cksum_vec[0], 1);
+}
+
+guint16
+ip_checksum_tvb(tvbuff_t *tvb, int offset, int len)
+{
+	vec_t cksum_vec[1];
+
+	SET_CKSUM_VEC_TVB(cksum_vec[0], tvb, offset, len);
+	return in_cksum(&cksum_vec[0], 1);
 }
 
 /*

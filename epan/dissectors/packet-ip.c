@@ -1945,16 +1945,6 @@ static const true_false_string flags_sf_set_evil = {
   "Not evil"
 };
 
-guint16
-ip_checksum(const guint8 *ptr, int len)
-{
-  vec_t cksum_vec[1];
-
-  cksum_vec[0].ptr = ptr;
-  cksum_vec[0].len = len;
-  return in_cksum(&cksum_vec[0], 1);
-}
-
 static void
 dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
@@ -2161,7 +2151,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
    * checksum.
    */
   if (ip_check_checksum && tvb_bytes_exist(tvb, offset, hlen)&&(!pinfo->flags.in_error_pkt)) {
-    ipsum = ip_checksum(tvb_get_ptr(tvb, offset, hlen), hlen);
+    ipsum = ip_checksum_tvb(tvb, offset, hlen);
     if (tree) {
       if (ipsum == 0) {
         item = proto_tree_add_uint_format_value(ip_tree, hf_ip_checksum, tvb,

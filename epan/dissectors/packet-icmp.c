@@ -835,9 +835,7 @@ dissect_extensions(tvbuff_t * tvb, gint offset, proto_tree * tree)
 	/* Checksum */
 	cksum = tvb_get_ntohs(tvb, offset + 2);
 
-	computed_cksum =
-	    ip_checksum(tvb_get_ptr(tvb, offset, reported_length),
-			reported_length);
+	computed_cksum = ip_checksum_tvb(tvb, offset, reported_length);
 
 	if (computed_cksum == 0) {
 		proto_tree_add_uint_format_value(ext_tree, hf_icmp_ext_checksum,
@@ -1328,9 +1326,7 @@ dissect_icmp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data)
 		   truncated, and isn't the payload of an error packet, so we can checksum
 		   it. */
 
-		computed_cksum =
-		    ip_checksum(tvb_get_ptr(tvb, 0, reported_length),
-				reported_length);
+		computed_cksum = ip_checksum_tvb(tvb, 0, reported_length);
 		if (computed_cksum == 0) {
 			proto_tree_add_uint_format_value(icmp_tree,
 						   hf_icmp_checksum, tvb,

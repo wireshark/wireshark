@@ -413,8 +413,7 @@ dissect_gre(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             /* The Checksum Present bit is set, and the packet isn't part of a
                fragmented datagram and isn't truncated, so we can checksum it. */
             if ((flags_and_ver & GRE_CHECKSUM) && !pinfo->fragmented && length >= reported_length) {
-                cksum_vec[0].ptr = tvb_get_ptr(tvb, 0, reported_length);
-                cksum_vec[0].len = reported_length;
+                SET_CKSUM_VEC_TVB(cksum_vec[0], tvb, 0, reported_length);
                 computed_cksum = in_cksum(cksum_vec, 1);
                 if (computed_cksum == 0) {
                     proto_item_append_text(it_checksum," [correct]");

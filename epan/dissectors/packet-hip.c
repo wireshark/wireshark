@@ -416,6 +416,8 @@ dissect_hip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
         int length, offset = 0, newoffset = 0;
         guint16 control_h, checksum_h, computed_checksum;
         guint16 tlv_type_h, tlv_length_h; /* For storing in host order */
+        guint len;
+        guint reported_len;
         vec_t cksum_vec[4];
         guint32 phdr[2];
 
@@ -482,29 +484,26 @@ dissect_hip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
                                           ((hiph_shim6_fixed_bit_s) ? "HIP" : "SHIM6"));
 
                 /* Checksum - this is the same algorithm from UDP, ICMPv6 */
-                if (!pinfo->fragmented) {
+                reported_len = tvb_reported_length(tvb);
+                len = tvb_captured_length(tvb);
+                if (!pinfo->fragmented && len >= reported_len) {
                         /* IPv4 or IPv6 addresses */
-                        cksum_vec[0].ptr = (const guint8 *)pinfo->src.data;
-                        cksum_vec[0].len = pinfo->src.len;
-                        cksum_vec[1].ptr = (const guint8 *)pinfo->dst.data;
-                        cksum_vec[1].len = pinfo->dst.len;
+                        SET_CKSUM_VEC_PTR(cksum_vec[0], (const guint8 *)pinfo->src.data, pinfo->src.len);
+                        SET_CKSUM_VEC_PTR(cksum_vec[1], (const guint8 *)pinfo->dst.data, pinfo->dst.len);
 
                         /* the rest of the pseudo-header */
                         if (pinfo->src.type == AT_IPv6) {
-                                cksum_vec[2].ptr = (const guint8 *)&phdr;
-                                phdr[0] = tvb_reported_length(tvb);
+                                phdr[0] = reported_len;
                                 phdr[0] = g_htonl(phdr[0]);   /* Note: g_htonl() macro may eval arg multiple times */
                                 phdr[1] = g_htonl(IP_PROTO_HIP);
-                                cksum_vec[2].len = 8;
+                                SET_CKSUM_VEC_PTR(cksum_vec[2], (const guint8 *)&phdr, 8);
                         } else {
-                                cksum_vec[2].ptr = (const guint8 *)&phdr;
-                                phdr[0] = (IP_PROTO_HIP<<16)+tvb_reported_length(tvb);
+                                phdr[0] = (IP_PROTO_HIP<<16)+reported_len;
                                 phdr[0] = g_htonl(phdr[0]);  /* Note: g_htonl() macro may eval arg multiple times */
-                                cksum_vec[2].len = 4;
+                                SET_CKSUM_VEC_PTR(cksum_vec[2], (const guint8 *)&phdr, 4);
                         }
                         /* pointer to the HIP header (packet data) */
-                        cksum_vec[3].len = tvb_reported_length(tvb);
-                        cksum_vec[3].ptr = tvb_get_ptr(tvb, 0, cksum_vec[3].len);
+                        SET_CKSUM_VEC_TVB(cksum_vec[3], tvb, 0, reported_len);
                         computed_checksum = in_cksum(cksum_vec, 4);
                         if (computed_checksum == 0) {
                                 proto_tree_add_uint_format_value(hip_tree, hf_hip_checksum, tvb,

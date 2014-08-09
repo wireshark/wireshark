@@ -25,7 +25,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <glib.h>
-#include <epan/in_cksum.h>
 
 #include <epan/packet.h>
 #include <epan/exceptions.h>
@@ -42,6 +41,7 @@
 #include <epan/reassemble.h>
 #include <epan/tap.h>
 #include <epan/decode_as.h>
+#include <epan/in_cksum.h>
 
 #include "packet-tcp.h"
 #include "packet-ip.h"
@@ -4602,22 +4602,19 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             /* We haven't turned checksum checking off; checksum it. */
 
             /* Set up the fields of the pseudo-header. */
-            cksum_vec[0].ptr = (const guint8 *)pinfo->src.data;
-            cksum_vec[0].len = pinfo->src.len;
-            cksum_vec[1].ptr = (const guint8 *)pinfo->dst.data;
-            cksum_vec[1].len = pinfo->dst.len;
-            cksum_vec[2].ptr = (const guint8 *)phdr;
+            SET_CKSUM_VEC_PTR(cksum_vec[0], (const guint8 *)pinfo->src.data, pinfo->src.len);
+            SET_CKSUM_VEC_PTR(cksum_vec[1], (const guint8 *)pinfo->dst.data, pinfo->dst.len);
             switch (pinfo->src.type) {
 
             case AT_IPv4:
                 phdr[0] = g_htonl((IP_PROTO_TCP<<16) + reported_len);
-                cksum_vec[2].len = 4;
+                SET_CKSUM_VEC_PTR(cksum_vec[2], (const guint8 *)phdr, 4);
                 break;
 
             case AT_IPv6:
                 phdr[0] = g_htonl(reported_len);
                 phdr[1] = g_htonl(IP_PROTO_TCP);
-                cksum_vec[2].len = 8;
+                SET_CKSUM_VEC_PTR(cksum_vec[2], (const guint8 *)phdr, 8);
                 break;
 
             default:
@@ -4625,8 +4622,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 DISSECTOR_ASSERT_NOT_REACHED();
                 break;
             }
-            cksum_vec[3].ptr = tvb_get_ptr(tvb, offset, reported_len);
-            cksum_vec[3].len = reported_len;
+            SET_CKSUM_VEC_TVB(cksum_vec[3], tvb, offset, reported_len);
             computed_cksum = in_cksum(cksum_vec, 4);
             if (computed_cksum == 0 && th_sum == 0xffff) {
                 item = proto_tree_add_uint_format_value(tcp_tree, hf_tcp_checksum, tvb,

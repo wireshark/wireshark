@@ -1054,8 +1054,7 @@ dissect_xtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 			guint32 check_len = XTP_HEADER_LEN;
 			if (!(xtph->cmd_options & XTP_CMD_OPTIONS_NOCHECK))
 				check_len += xtph->dlen;
-			cksum_vec[0].ptr = tvb_get_ptr(tvb, 0, check_len);
-			cksum_vec[0].len = check_len;
+			SET_CKSUM_VEC_TVB(cksum_vec[0], tvb, 0, check_len);
 			computed_cksum = in_cksum(cksum_vec, 1);
 			if (computed_cksum == 0) {
 				proto_tree_add_text(xtp_tree, tvb, offset, 2,

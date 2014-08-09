@@ -1242,12 +1242,11 @@ dissect_dstopts(tvbuff_t *tvb, packet_info * pinfo, proto_tree *tree, void *data
 }
 
 /* START SHIM6 PART */
-static guint16 shim_checksum(const guint8 *ptr, int len)
+static guint16 shim_checksum(tvbuff_t *tvb, int offset, int len)
 {
     vec_t cksum_vec[1];
 
-    cksum_vec[0].ptr = ptr;
-    cksum_vec[0].len = len;
+    SET_CKSUM_VEC_TVB(cksum_vec[0], tvb, offset, len);
     return in_cksum(&cksum_vec[0], 1);
 }
 
@@ -1762,7 +1761,7 @@ dissect_shim6(tvbuff_t *tvb, packet_info * pinfo, proto_tree *tree, void* data _
             p++;
 
             /* Checksum */
-            csum = shim_checksum(tvb_get_ptr(tvb, offset, len), len);
+            csum = shim_checksum(tvb, offset, len);
 
             if (csum == 0) {
                 ti = proto_tree_add_uint_format_value(shim_tree, hf_ipv6_shim6_checksum, tvb, p, 2,

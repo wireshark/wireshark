@@ -3288,16 +3288,12 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                truncated, so we can checksum it. */
 
             /* Set up the fields of the pseudo-header. */
-            cksum_vec[0].ptr = (const guint8 *)pinfo->src.data;
-            cksum_vec[0].len = pinfo->src.len;
-            cksum_vec[1].ptr = (const guint8 *)pinfo->dst.data;
-            cksum_vec[1].len = pinfo->dst.len;
-            cksum_vec[2].ptr = (const guint8 *)&phdr;
+            SET_CKSUM_VEC_PTR(cksum_vec[0], (const guint8 *)pinfo->src.data, pinfo->src.len);
+            SET_CKSUM_VEC_PTR(cksum_vec[1], (const guint8 *)pinfo->dst.data, pinfo->dst.len);
             phdr[0] = g_htonl(reported_length);
             phdr[1] = g_htonl(IP_PROTO_ICMPV6);
-            cksum_vec[2].len = 8;
-            cksum_vec[3].len = reported_length;
-            cksum_vec[3].ptr = tvb_get_ptr(tvb, 0, cksum_vec[3].len);
+            SET_CKSUM_VEC_PTR(cksum_vec[2], (const guint8 *)&phdr, 8);
+            SET_CKSUM_VEC_TVB(cksum_vec[3], tvb, 0, reported_length);
             computed_cksum = in_cksum(cksum_vec, 4);
 
             if (computed_cksum == 0) {
@@ -3363,8 +3359,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
                     tmp[0] = ~cksum;
                     tmp[1] = ~0x0100; /* The difference between echo request & reply */
-                    cksum_vec[0].len = sizeof(tmp);
-                    cksum_vec[0].ptr = (guint8 *)tmp;
+                    SET_CKSUM_VEC_PTR(cksum_vec[0], (guint8 *)tmp, sizeof(tmp));
                     conv_key[0] = in_cksum(cksum_vec, 1);
                     if (conv_key[0] == 0)
                         conv_key[0] = 0xffff;

@@ -631,6 +631,7 @@ dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     guint      offset                     = 0;
     guint      len                        = 0;
     guint      reported_len               = 0;
+    guint      csum_coverage_len;
     guint      advertised_dccp_header_len = 0;
     guint      options_len                = 0;
     e_dccphdr *dccph;
@@ -716,61 +717,52 @@ dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
      */
     reported_len = tvb_reported_length(tvb);
     len = tvb_length(tvb);
+    csum_coverage_len = dccp_csum_coverage(dccph, reported_len);
 
-    if (!pinfo->fragmented && len >= reported_len) {
-        /* The packet isn't part of a fragmented datagram and isn't
-            * truncated, so we can checksum it.
-            * XXX - make a bigger scatter-gather list once we do fragment
-            * reassembly? */
-        if (dccp_check_checksum) {
-            /* Set up the fields of the pseudo-header. */
-            cksum_vec[0].ptr = (const guint8 *)pinfo->src.data;
-            cksum_vec[0].len = pinfo->src.len;
-            cksum_vec[1].ptr = (const guint8 *)pinfo->dst.data;
-            cksum_vec[1].len = pinfo->dst.len;
-            cksum_vec[2].ptr = (const guint8 *) &phdr;
-            switch (pinfo->src.type) {
-            case AT_IPv4:
-                phdr[0] = g_htonl((IP_PROTO_DCCP << 16) + reported_len);
-                cksum_vec[2].len = 4;
-                break;
-            case AT_IPv6:
-                phdr[0] = g_htonl(reported_len);
-                phdr[1] = g_htonl(IP_PROTO_DCCP);
-                cksum_vec[2].len = 8;
-                break;
+    if (dccp_check_checksum && !pinfo->fragmented && len >= csum_coverage_len) {
+        /* We're supposed to check the checksum, and the packet isn't part
+         * of a fragmented datagram and isn't truncated, so we can checksum it.
+         * XXX - make a bigger scatter-gather list once we do fragment
+         * reassembly? */
+        /* Set up the fields of the pseudo-header. */
+        SET_CKSUM_VEC_PTR(cksum_vec[0], (const guint8 *)pinfo->src.data, pinfo->src.len);
+        SET_CKSUM_VEC_PTR(cksum_vec[1], (const guint8 *)pinfo->dst.data, pinfo->dst.len);
+        switch (pinfo->src.type) {
+        case AT_IPv4:
+            phdr[0] = g_htonl((IP_PROTO_DCCP << 16) + reported_len);
+            SET_CKSUM_VEC_PTR(cksum_vec[2], (const guint8 *) &phdr, 4);
+            break;
+        case AT_IPv6:
+            phdr[0] = g_htonl(reported_len);
+            phdr[1] = g_htonl(IP_PROTO_DCCP);
+            SET_CKSUM_VEC_PTR(cksum_vec[2], (const guint8 *) &phdr, 8);
+            break;
 
-            default:
-                /* DCCP runs only atop IPv4 and IPv6... */
-                break;
-            }
-            cksum_vec[3].ptr = tvb_get_ptr(tvb, 0, len);
-            cksum_vec[3].len = dccp_csum_coverage(dccph, reported_len);
-            computed_cksum = in_cksum(&cksum_vec[0], 4);
-            if (computed_cksum == 0) {
-                proto_tree_add_uint_format_value(dccp_tree,
-                                                 hf_dccp_checksum, tvb,
-                                                 offset, 2,
-                                                 dccph->checksum,
-                                                 "0x%04x [correct]",
-                                                 dccph->checksum);
-            } else {
-                hidden_item =
-                    proto_tree_add_boolean(dccp_tree, hf_dccp_checksum_bad,
-                                           tvb, offset, 2, TRUE);
-                PROTO_ITEM_SET_HIDDEN(hidden_item);
-                proto_tree_add_uint_format_value(
-                    dccp_tree, hf_dccp_checksum, tvb, offset, 2,
-                    dccph->checksum,
-                    "0x%04x [incorrect, should be 0x%04x]",
-                    dccph->checksum,
-                    in_cksum_shouldbe(dccph->checksum, computed_cksum));
-            }
+        default:
+            /* DCCP runs only atop IPv4 and IPv6... */
+            DISSECTOR_ASSERT_NOT_REACHED();
+            break;
+        }
+        SET_CKSUM_VEC_TVB(cksum_vec[3], tvb, 0, csum_coverage_len);
+        computed_cksum = in_cksum(&cksum_vec[0], 4);
+        if (computed_cksum == 0) {
+            proto_tree_add_uint_format_value(dccp_tree,
+                                             hf_dccp_checksum, tvb,
+                                             offset, 2,
+                                             dccph->checksum,
+                                             "0x%04x [correct]",
+                                             dccph->checksum);
         } else {
-            proto_tree_add_uint_format_value(dccp_tree, hf_dccp_checksum,
-                                             tvb,
-                                             offset, 2, dccph->checksum,
-                                             "0x%04x", dccph->checksum);
+            hidden_item =
+                proto_tree_add_boolean(dccp_tree, hf_dccp_checksum_bad,
+                                       tvb, offset, 2, TRUE);
+            PROTO_ITEM_SET_HIDDEN(hidden_item);
+            proto_tree_add_uint_format_value(
+                dccp_tree, hf_dccp_checksum, tvb, offset, 2,
+                dccph->checksum,
+                "0x%04x [incorrect, should be 0x%04x]",
+                dccph->checksum,
+                in_cksum_shouldbe(dccph->checksum, computed_cksum));
         }
     } else {
         proto_tree_add_uint_format_value(dccp_tree, hf_dccp_checksum, tvb,
