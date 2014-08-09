@@ -1283,7 +1283,7 @@ add_manuf_name(const guint8 *addr, unsigned int mask, gchar *name)
 
         /* manuf needs only the 3 most significant octets of the ethernet address */
         manuf_key = (int *)g_new(int, 1);
-        *manuf_key = (int)((addr[2] << 16) + (addr[1] << 8) + addr[0]);
+        *manuf_key = (int)((addr[0] << 16) + (addr[1] << 8) + addr[2]);
 
         g_hash_table_insert(manuf_hashtable, manuf_key, g_strdup(name));
         return;
