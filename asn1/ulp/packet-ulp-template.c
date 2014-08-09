@@ -20,7 +20,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
- * ref OMA-TS-ULP-V2_0_1-20121205-A
+ * ref OMA-TS-ULP-V2_0_2-20140708-A
  * http://www.openmobilealliance.org
  */
 
