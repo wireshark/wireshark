@@ -13467,7 +13467,7 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
                   if (bmap & (G_GINT64_CONSTANT(1) << f))
                     continue;
                   proto_tree_add_uint_format_value(ba_bitmap_tree, hf_ieee80211_block_ack_bitmap_missing_frame,
-                                                   tvb, offset + (f/8), 1, ssn + f, "%u", ssn + f);
+                                                   tvb, offset + (f/8), 1, ssn + f, "%u", (ssn + f) & 0x0fff);
                 }
                 /*offset += 8;*/
                 break;
