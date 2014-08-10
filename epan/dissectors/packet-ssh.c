@@ -1251,7 +1251,7 @@ proto_register_ssh(void)
 		    "SSH DH GEX Minimum", HFILL }},
 
 		{ &hf_ssh_dh_gex_nbits,
-		  { "DH GEX Numbers of Bits",  "ssh.dh_gex.nbits",
+		  { "DH GEX Number of Bits",  "ssh.dh_gex.nbits",
 		    FT_UINT32, BASE_DEC, NULL, 0x0,
 		    "SSH DH GEX Number of Bits", HFILL }},
 
