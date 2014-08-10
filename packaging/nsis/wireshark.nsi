@@ -204,6 +204,44 @@ Function .onInit
     ${EndIf}
   !endif
 
+    ; Get the Windows version
+    Call GetWindowsVersion
+    Pop $R0 ; Windows Version
+
+    ; Check if we're able to run with this version
+    StrCmp $R0 '95' lbl_winversion_unsupported
+    StrCmp $R0 '98' lbl_winversion_unsupported
+    StrCmp $R0 'ME' lbl_winversion_unsupported
+    StrCmp $R0 'NT 4.0' lbl_winversion_unsupported_nt4
+    StrCmp $R0 '2000' lbl_winversion_unsupported_2000
+    StrCmp $R0 'XP' lbl_winversion_warn_xp
+    Goto lbl_winversion_supported
+
+lbl_winversion_unsupported:
+    MessageBox MB_OK \
+        "Windows $R0 is no longer supported.$\nPlease install Ethereal 0.99.0 instead." \
+        /SD IDOK
+    Quit
+
+lbl_winversion_unsupported_nt4:
+    MessageBox MB_OK \
+            "Windows $R0 is no longer supported.$\nPlease install Wireshark 0.99.4 instead." \
+            /SD IDOK
+    Quit
+
+lbl_winversion_unsupported_2000:
+    MessageBox MB_OK \
+        "Windows $R0 is no longer supported.$\nPlease install Wireshark 1.2 or 1.0 instead." \
+        /SD IDOK
+    Quit
+
+lbl_winversion_warn_xp:
+    MessageBox MB_YESNO|MB_ICONINFORMATION \
+        "This version of ${PROGRAM_NAME} may not work on Windows $R0.$\nWe recommend ${PROGRAM_NAME} 1.10 instead.$\nDo you want to continue?" \
+        /SD IDYES IDYES lbl_winversion_supported
+    Quit
+
+lbl_winversion_supported:
 !insertmacro IsWiresharkRunning
 
   ; Copied from http://nsis.sourceforge.net/Auto-uninstall_old_before_installing_new
@@ -1199,44 +1237,6 @@ Function myShowCallback
     WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 10" "Flags" ""
 !endif
 
-    ; Get the Windows version
-    Call GetWindowsVersion
-    Pop $R0 ; Windows Version
-
-    ; Check if we're able to run with this version
-    StrCmp $R0 '95' lbl_winversion_unsupported
-    StrCmp $R0 '98' lbl_winversion_unsupported
-    StrCmp $R0 'ME' lbl_winversion_unsupported
-    StrCmp $R0 'NT 4.0' lbl_winversion_unsupported_nt4
-    StrCmp $R0 '2000' lbl_winversion_unsupported_2000
-    StrCmp $R0 'XP' lbl_winversion_warn_xp
-    Goto lbl_winversion_supported
-
-lbl_winversion_unsupported:
-    MessageBox MB_OK \
-        "Windows $R0 is no longer supported.$\nPlease install Ethereal 0.99.0 instead." \
-        /SD IDOK
-    Quit
-
-lbl_winversion_unsupported_nt4:
-    MessageBox MB_OK \
-            "Windows $R0 is no longer supported.$\nPlease install Wireshark 0.99.4 instead." \
-            /SD IDOK
-    Quit
-
-lbl_winversion_unsupported_2000:
-    MessageBox MB_OK \
-        "Windows $R0 is no longer supported.$\nPlease install Wireshark 1.2 or 1.0 instead." \
-        /SD IDOK
-    Quit
-
-lbl_winversion_warn_xp:
-    MessageBox MB_OK \
-        "This version of ${PROGRAM_NAME} may not work on Windows $R0.$\nWe recommend Wireshark 1.10 instead." \
-        /SD IDOK
-    ; Don't quit.
-
-lbl_winversion_supported:
     ; detect if WinPcap should be installed
     WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 4" "Text" "Install WinPcap ${PCAP_DISPLAY_VERSION}"
     ReadRegStr $WINPCAP_NAME HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\WinPcapInst" "DisplayName"
