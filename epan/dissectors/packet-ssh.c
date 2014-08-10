@@ -752,7 +752,9 @@ ssh_dissect_key_exchange(tvbuff_t *tvb, packet_info *pinfo,
 	}
 
 	len = plen+4-padding_length-(offset-last_offset);
-	proto_tree_add_item(key_ex_tree, hf_ssh_payload, tvb, offset, len, ENC_NA);
+	if (len > 0) {
+		proto_tree_add_item(key_ex_tree, hf_ssh_payload, tvb, offset, len, ENC_NA);
+	}
 	offset +=len;
 
 	/* padding */
