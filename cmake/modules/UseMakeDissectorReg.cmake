@@ -24,7 +24,6 @@ MACRO(REGISTER_DISSECTOR_FILES _outputfile _registertype )
 	      ${_sources}
 	    DEPENDS
 	      ${_depends}
-	      ${CMAKE_SOURCE_DIR}/tools/make-dissector-reg
 	      ${CMAKE_SOURCE_DIR}/tools/make-dissector-reg.py
 	)
 ENDMACRO(REGISTER_DISSECTOR_FILES)
