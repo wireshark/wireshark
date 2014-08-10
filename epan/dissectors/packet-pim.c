@@ -763,7 +763,7 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
             phdr[0] = g_htonl(pim_length);
             phdr[1] = g_htonl(IP_PROTO_PIM);
             SET_CKSUM_VEC_PTR(cksum_vec[2], (const guint8 *)&phdr, 8);
-            SET_CKSUM_VEC_TVB(cksum_vec[0], tvb, 0, pim_length);
+            SET_CKSUM_VEC_TVB(cksum_vec[3], tvb, 0, pim_length);
             computed_cksum = in_cksum(&cksum_vec[0], 4);
             break;
         default:
