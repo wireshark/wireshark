@@ -512,7 +512,7 @@ void proto_register_credssp(void) {
         "OCTET_STRING", HFILL }},
 
 /*--- End of included file: packet-credssp-hfarr.c ---*/
-#line 152 "../../asn1/credssp/packet-credssp-template.c"
+#line 154 "../../asn1/credssp/packet-credssp-template.c"
   };
 
   /* List of subtrees */
@@ -530,7 +530,7 @@ void proto_register_credssp(void) {
     &ett_credssp_TSRequest,
 
 /*--- End of included file: packet-credssp-ettarr.c ---*/
-#line 158 "../../asn1/credssp/packet-credssp-template.c"
+#line 160 "../../asn1/credssp/packet-credssp-template.c"
   };
 
 
