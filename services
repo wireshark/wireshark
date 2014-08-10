@@ -9374,7 +9374,7 @@ clever-tcpip     6688/tcp # CleverView for TCP/IP Message Service [David_Cheng] 
 tsa              6689/tcp # Tofino Security Appliance [Scott_Howard] [Scott_Howard] 2009-10-13
 tsa              6689/udp # Tofino Security Appliance [Scott_Howard] [Scott_Howard] 2009-10-13
 babel            6696/udp # Babel Routing Protocol 2011-08-15 [RFC6126]
-ircs-u           6697/tcp # Internet Relay Chat via TLS/SSL 2014-02-11 [RFC-hartmann-default-port-for-irc-via-tls-ssl-09]
+ircs-u           6697/tcp # Internet Relay Chat via TLS/SSL 2014-02-11 [RFC7194]
 kti-icad-srvr    6701/tcp # KTI/ICAD Nameserver [Stanley_Knutson] [Stanley_Knutson]
 kti-icad-srvr    6701/udp # KTI/ICAD Nameserver [Stanley_Knutson] [Stanley_Knutson]
 e-design-net     6702/tcp # e-Design network [Janos_Lerch] [Janos_Lerch] 2006-02
@@ -10465,6 +10465,7 @@ documentum-s    10003/udp # EMC-Documentum Content Server ProductIANA assigned t
 documentum_s    10003/udp # EMC-Documentum Content Server Product [Reza_Bagherian] [Reza_Bagherian] 2007-07-19 This entry is an alias to "documentum-s".This entry is now historic, not usable for use with manycommon service discovery mechanisms.
 emcrmirccd      10004/tcp # EMC Replication Manager Client [Robert_Boudrie] [Robert_Boudrie] 2008-06-09
 emcrmird        10005/tcp # EMC Replication Manager Server [Robert_Boudrie] [Robert_Boudrie] 2008-06-09
+netapp-sync     10006/tcp # Sync replication protocol among different NetApp platforms [NetApp_2] [Paul_Mu] 2014-08-07
 mvs-capacity    10007/tcp # MVS Capacity [Donna_Dillenberger] [Donna_Dillenberger]
 mvs-capacity    10007/udp # MVS Capacity [Donna_Dillenberger] [Donna_Dillenberger]
 octopus         10008/tcp # Octopus Multiplexer [Chris_Koeritz_2] [Chris_Koeritz_2] 2002-10
