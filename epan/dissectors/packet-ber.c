@@ -1610,8 +1610,43 @@ printf("OCTET STRING dissect_ber_octet_string(%s) entered\n", name);
         }
         if (hf_id >= 0) {
             /*
-             * Strings are special.  See X.690 section 8.20 "Encoding for
-             * values of the restricted character string types".
+             * Strings are special.  See X.680 section 41 "Definition of
+             * restricted character string types" and X.690 section 8.20
+             * "Encoding for values of the restricted character string
+             * types".
+             *
+             * Some restricted character string types are defined in X.680
+             * "by reference to a registration number in the ISO International
+             * Register of Character Sets" - or, in Table 8, by multiple
+             * registration numbers, or one or more registration numbers
+             * plus some characters such as SPACE and/or DELETE, or a
+             * reference to "all G sets" or "all G sets and all C sets".
+             * Presumably this indicates which characters are allowed
+             * in strings of those character types, with "all {G,C} sets"
+             * meaning the only restriction is to character sets registered
+             * in said registry.
+             *
+             * The encodings of those types are specified in X.690 as
+             * containing "the octets specified in ISO/IEC 2022 for
+             * encodings in an 8-bit environment, using the escape sequence
+             * and character codings registered in accordance with ISO/IEC
+             * 2375".
+             *
+             * ISO/IEC 2022 is also ECMA-35:
+             *
+             *    http://www.ecma-international.org/publications/files/ECMA-ST/Ecma-035.pdf
+             *
+             * ISO/IEC 2375 is the procedure for registering character
+             * codings in the ISO International Register of Character Sets.
+             * See
+             *
+             *     http://kikaku.itscj.ipsj.or.jp/ISO-IR/
+             *
+             * and
+             *
+             *     http://kikaku.itscj.ipsj.or.jp/ISO-IR/overview.htm
+             *
+             * for that registry.
              */
             switch (tag) {
 
@@ -1628,26 +1663,25 @@ printf("OCTET STRING dissect_ber_octet_string(%s) entered\n", name);
             case BER_UNI_TAG_IA5String:
                 /*
                  * (Subsets of) Boring Old ASCII, with no(?) ISO 2022
-		 * escape sequences.
+                 * escape sequences.
                  */
                 encoding = ENC_ASCII|ENC_NA;
                 break;
 
             case BER_UNI_TAG_TeletexString:
                 /*
-                 * Teletex character set, with ISO 8022 escape sequences.
-                 * XXX - treat as ASCII for now. Need to handle the
-                 * extensions and the escape sequences.
+                 * XXX - the G0 part of this starts out as T.61, not ASCII.
+                 *
+                 * XXX - treat as ASCII for now.
                  */
                 encoding = ENC_ASCII|ENC_NA;
                 break;
 
             case BER_UNI_TAG_VideotexString:
                 /*
-                 * Based on International Reference Version of ISO 646,
-                 * with ISO 8022 escape sequences?
-                 * XXX - treat as ASCII for now. Need to handle the
-                 * C0/C1 characters and the escape sequences?
+                 * XXX - the G0 part of this starts out as T.61, not ASCII.
+                 *
+                 * XXX - treat as ASCII for now.
                  */
                 encoding = ENC_ASCII|ENC_NA;
                 break;
@@ -1655,8 +1689,11 @@ printf("OCTET STRING dissect_ber_octet_string(%s) entered\n", name);
             case BER_UNI_TAG_GraphicString:
             case BER_UNI_TAG_GeneralString:
                 /*
-                 * Boring Old ASCII, *with* ISO 2022 escape sequences.
-                 * XXX - need to handle the escape sequences.
+                 * One of the types defined in terms of character sets
+                 * in the ISO International Register of Character Sets,
+                 * with the BER encoding being ISO 2022-based.
+                 *
+                 * XXX - treat as ASCII for now.
                  */
                 encoding = ENC_ASCII|ENC_NA;
                 break;
@@ -2120,7 +2157,7 @@ printf("SEQUENCE dissect_ber_sequence(%s) entered\n", name);
             }
         }
     }
-	if(offset == end_offset){
+    if(offset == end_offset){
         proto_item_append_text(item, " [0 length]");
     }
     /* loop over all entries until we reach the end of the sequence */
