@@ -15,7 +15,7 @@ decoding to subsequent dissectors for an encapsulated protocol.
 
 Every dissection starts with the Frame dissector which dissects the packet
 details of the capture file itself (e.g. timestamps). From there it passes the
-data on to the the lowest-level data dissector, e.g. the Ethernet dissector for
+data on to the lowest-level data dissector, e.g. the Ethernet dissector for
 the Ethernet header. The payload is then passed on to the next dissector (e.g.
 IP) and so on. At each stage, details of the packet will be decoded and
 displayed.

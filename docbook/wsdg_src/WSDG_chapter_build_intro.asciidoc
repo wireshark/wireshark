@@ -16,7 +16,7 @@ Wireshark consists of the following major parts:
 
 * File I/O - using Wireshark's own wiretap library
 
-* Capture - using the libpcap/winpcap library, in /wiretap
+* Capture - using the libpcap/winpcap library, in '/wiretap'
 
 * User interface - using the Qt or $$GTK+$$ and associated libraries
 
