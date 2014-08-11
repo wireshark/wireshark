@@ -95,9 +95,9 @@ void RemoteCaptureDialog::fillComboBox()
 
 void RemoteCaptureDialog::apply_remote()
 {
-	int err;
+    int err;
     gchar *err_str;
-	remote_options global_remote_opts;
+    remote_options global_remote_opts;
 
     QString host = ui->hostCombo->currentText();
     global_remote_opts.src_type = CAPTURE_IFREMOTE;
@@ -166,15 +166,16 @@ void RemoteCaptureDialog::on_nullAuth_toggled(bool checked)
     }
 }
 #endif /* HAVE_PCAP_REMOTE */
-//
-// Editor modelines  -  http://www.wireshark.org/tools/modelines.html
-//
-// Local variables:
-// c-basic-offset: 4
-// tab-width: 4
-// indent-tabs-mode: nil
-// End:
-//
-// vi: set shiftwidth=4 tabstop=4 expandtab:
-// :indentSize=4:tabSize=4:noTabs=true:
-//
+
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */
