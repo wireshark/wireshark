@@ -1972,7 +1972,7 @@ dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	message_length = len + offset;
 
 	/*Get the SNMP version data*/
-	offset = dissect_ber_integer(FALSE, &asn1_ctx, 0, tvb, offset, -1, &version);
+	/*offset =*/ dissect_ber_integer(FALSE, &asn1_ctx, 0, tvb, offset, -1, &version);
 
 
 	/*
