@@ -1769,10 +1769,6 @@ dissect_rdp_ServerData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     {&hf_rdp_encryptionLevel,          4, &encryptionLevel,  0, 0, NULL },
     FI_TERMINATOR
   };
-  rdp_field_info_t ss_encryption_len_unused_fields[] = {
-    {&hf_rdp_unused,                   4, NULL,  0, 0, NULL },
-    {&hf_rdp_unused,                   4, NULL,  0, 0, NULL },
-  };
   rdp_field_info_t encryption_fields[] = {
     {&hf_rdp_serverRandomLen,          4, &serverRandomLen,  0, 0, NULL },
     {&hf_rdp_serverCertLen,            4, &serverCertLen,    0, 0, NULL },
@@ -1842,8 +1838,6 @@ dissect_rdp_ServerData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
       if ((encryptionLevel != 0) || (encryptionMethod != 0)) {
         /*lcl_offset =*/ dissect_rdp_fields(tvb, lcl_offset, pinfo, next_tree, encryption_fields, 0);
-      } else {
-        /*lcl_offset =*/ dissect_rdp_fields(tvb, lcl_offset, pinfo, next_tree, ss_encryption_len_unused_fields, 0);
       }
 
       rdp_info->encryptionMethod = encryptionMethod;
