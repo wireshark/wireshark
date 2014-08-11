@@ -49,6 +49,9 @@ static int hf_ac_if_hdr_total_len = -1;
 static int hf_ac_if_hdr_bInCollection = -1;
 static int hf_ac_if_hdr_if_num = -1;
 static int hf_as_if_desc_subtype = -1;
+static int hf_as_if_gen_term_id = -1;
+static int hf_as_if_gen_delay = -1;
+static int hf_as_if_gen_format = -1;
 static int hf_as_ep_desc_subtype = -1;
 
 static reassembly_table midi_data_reassembly_table;
@@ -351,6 +354,36 @@ dissect_ac_if_hdr_body(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
 
 
 static gint
+dissect_as_if_general_body(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
+        proto_tree *tree, usb_conv_info_t *usb_conv_info)
+{
+    audio_conv_info_t *audio_conv_info;
+    gint               offset_start;
+
+    /* the caller has already checked that usb_conv_info!=NULL */ 
+    audio_conv_info = (audio_conv_info_t *)usb_conv_info->class_data;
+    if (!audio_conv_info)
+        return 0;
+
+    offset_start = offset;
+
+    if (audio_conv_info->ver_major==1) {
+        proto_tree_add_item(tree, hf_as_if_gen_term_id,
+                tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        proto_tree_add_item(tree, hf_as_if_gen_delay,
+                tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        proto_tree_add_item(tree, hf_as_if_gen_format,
+                tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset += 2;
+    }
+
+    return offset-offset_start;
+}
+
+ 
+static gint
 dissect_usb_audio_descriptor(tvbuff_t *tvb, packet_info *pinfo,
         proto_tree *tree, void *data)
 {
@@ -423,6 +456,8 @@ dissect_usb_audio_descriptor(tvbuff_t *tvb, packet_info *pinfo,
 
         switch(desc_subtype) {
             case AS_SUBTYPE_GENERAL:
+                dissect_as_if_general_body(tvb, offset, pinfo,
+                        desc_tree, usb_conv_info);
                 break;
             default:
                 break;
@@ -534,6 +569,15 @@ proto_register_usb_audio(void)
         { &hf_as_if_desc_subtype,
             { "Subtype", "usbaudio.as_if_subtype", FT_UINT8, BASE_HEX|BASE_EXT_STRING,
                 &as_subtype_vals_ext, 0x00, "bDescriptorSubtype", HFILL }},
+        { &hf_as_if_gen_term_id,
+            { "Terminal ID", "usbaudio.as_if_gen.bTerminalLink",
+              FT_UINT8, BASE_DEC, NULL, 0x00, "bTerminalLink", HFILL }},
+        { &hf_as_if_gen_delay,
+            { "Interface delay in frames", "usbaudio.as_if_gen.bDelay",
+              FT_UINT8, BASE_DEC, NULL, 0x00, "bDelay", HFILL }},
+        { &hf_as_if_gen_format,
+            { "Format", "usbaudio.as_if_gen.wFormatTag",
+              FT_UINT16, BASE_HEX, NULL, 0x00, "wFormatTag", HFILL }},
         { &hf_as_ep_desc_subtype,
             { "Subtype", "usbaudio.as_ep_subtype", FT_UINT8,
                 BASE_HEX, NULL, 0x00, "bDescriptorSubtype", HFILL }},
