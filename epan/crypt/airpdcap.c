@@ -350,7 +350,8 @@ AirPDcapDecryptWPABroadcastKey(const EAPOL_RSN_KEY *pEAPKey, guint8  *decryption
     guint8  new_key[32];
     guint8 key_version;
     guint8  *szEncryptedKey;
-    guint16 key_len = 0;
+    guint16 key_bytes_len = 0; /* Length of the total key data field */
+    guint16 key_len = 0;       /* Actual group key length */
     static AIRPDCAP_KEY_ITEM dummy_key; /* needed in case AirPDcapRsnaMng() wants the key structure */
 
     /* We skip verifying the MIC of the key. If we were implementing a WPA supplicant we'd want to verify, but for a sniffer it's not needed. */
@@ -360,20 +361,20 @@ AirPDcapDecryptWPABroadcastKey(const EAPOL_RSN_KEY *pEAPKey, guint8  *decryption
     key_version = AIRPDCAP_EAP_KEY_DESCR_VER(pEAPKey->key_information[1]);
     if (key_version == AIRPDCAP_WPA_KEY_VER_NOT_CCMP){
         /* TKIP */
-        key_len = pntoh16(pEAPKey->key_length);
+        key_bytes_len = pntoh16(pEAPKey->key_length);
     }else if (key_version == AIRPDCAP_WPA_KEY_VER_AES_CCMP){
         /* AES */
-        key_len = pntoh16(pEAPKey->key_data_len);
+        key_bytes_len = pntoh16(pEAPKey->key_data_len);
     }
 
-    if (key_len > TKIP_GROUP_KEYBYTES_LEN_MAX || key_len == 0) { /* Don't read past the end of pEAPKey->ie */
+    if (key_bytes_len > TKIP_GROUP_KEYBYTES_LEN_MAX || key_bytes_len == 0) { /* Don't read past the end of pEAPKey->ie */
         return;
     }
 
     /* Encrypted key is in the information element field of the EAPOL key packet */
-    szEncryptedKey = (guint8 *)g_memdup(pEAPKey->ie, key_len);
+    szEncryptedKey = (guint8 *)g_memdup(pEAPKey->ie, key_bytes_len);
 
-    DEBUG_DUMP("Encrypted Broadcast key:", szEncryptedKey, key_len);
+    DEBUG_DUMP("Encrypted Broadcast key:", szEncryptedKey, key_bytes_len);
     DEBUG_DUMP("KeyIV:", pEAPKey->key_iv, 16);
     DEBUG_DUMP("decryption_key:", decryption_key, 16);
 
@@ -399,13 +400,13 @@ AirPDcapDecryptWPABroadcastKey(const EAPOL_RSN_KEY *pEAPKey, guint8  *decryption
 
         /* The WPA group key just contains the GTK bytes so deducing the type is straightforward   */
         /* Note - WPA M3 doesn't contain a group key so we'll only be here for the group handshake */
-        sa->wpa.key_ver = (key_len >=TKIP_GROUP_KEY_LEN)?AIRPDCAP_WPA_KEY_VER_NOT_CCMP:AIRPDCAP_WPA_KEY_VER_AES_CCMP;
+        sa->wpa.key_ver = (key_bytes_len >=TKIP_GROUP_KEY_LEN)?AIRPDCAP_WPA_KEY_VER_NOT_CCMP:AIRPDCAP_WPA_KEY_VER_AES_CCMP;
 
         crypt_rc4_init(&rc4_state, new_key, sizeof(new_key));
 
         /* Do dummy 256 iterations of the RC4 algorithm (per 802.11i, Draft 3.0, p. 97 line 6) */
         crypt_rc4(&rc4_state, dummy, 256);
-        crypt_rc4(&rc4_state, szEncryptedKey, key_len);
+        crypt_rc4(&rc4_state, szEncryptedKey, key_bytes_len);
 
     } else if (key_version == AIRPDCAP_WPA_KEY_VER_AES_CCMP){
         /* AES CCMP key */
@@ -417,14 +418,14 @@ AirPDcapDecryptWPABroadcastKey(const EAPOL_RSN_KEY *pEAPKey, guint8  *decryption
         /* If this EAPOL frame is part of a separate group key handshake then this contains no    */
         /* RSN IE, so we can deduct that from the calculation.                                    */
         if (group_hshake)
-            sa->wpa.key_ver = (key_len >= (TKIP_GROUP_KEYBYTES_LEN_GKEY))?AIRPDCAP_WPA_KEY_VER_NOT_CCMP:AIRPDCAP_WPA_KEY_VER_AES_CCMP;
+            sa->wpa.key_ver = (key_bytes_len >= (TKIP_GROUP_KEYBYTES_LEN_GKEY))?AIRPDCAP_WPA_KEY_VER_NOT_CCMP:AIRPDCAP_WPA_KEY_VER_AES_CCMP;
         else
-            sa->wpa.key_ver = (key_len >= (TKIP_GROUP_KEYBYTES_LEN))?AIRPDCAP_WPA_KEY_VER_NOT_CCMP:AIRPDCAP_WPA_KEY_VER_AES_CCMP;
+            sa->wpa.key_ver = (key_bytes_len >= (TKIP_GROUP_KEYBYTES_LEN))?AIRPDCAP_WPA_KEY_VER_NOT_CCMP:AIRPDCAP_WPA_KEY_VER_AES_CCMP;
 
         /* This storage is needed for the AES_unwrap function */
-        decrypted_data = (guint8 *) g_malloc(key_len);
+        decrypted_data = (guint8 *) g_malloc(key_bytes_len);
 
-        AES_unwrap(decryption_key, 16, szEncryptedKey,  key_len, decrypted_data);
+        AES_unwrap(decryption_key, 16, szEncryptedKey,  key_bytes_len, decrypted_data);
 
         /* With WPA2 what we get after Broadcast Key decryption is an actual RSN structure.
            The key itself is stored as a GTK KDE
@@ -433,7 +434,7 @@ AirPDcapDecryptWPABroadcastKey(const EAPOL_RSN_KEY *pEAPKey, guint8  *decryption
 
         key_found = FALSE;
         key_index = 0;
-        while(key_index < key_len && !key_found){
+        while(key_index < key_bytes_len && !key_found){
             guint8 rsn_id;
 
             /* Get RSN ID */
@@ -448,11 +449,13 @@ AirPDcapDecryptWPABroadcastKey(const EAPOL_RSN_KEY *pEAPKey, guint8  *decryption
 
         if (key_found){
             /* Skip over the GTK header info, and don't copy past the end of the encrypted data */
-            memcpy(szEncryptedKey, decrypted_data+key_index+8, key_len-key_index-8);
+            memcpy(szEncryptedKey, decrypted_data+key_index+8, key_bytes_len-key_index-8);
         }
 
         g_free(decrypted_data);
     }
+
+    key_len = (sa->wpa.key_ver==AIRPDCAP_WPA_KEY_VER_NOT_CCMP)?TKIP_GROUP_KEY_LEN:CCMP_GROUP_KEY_LEN;
 
     /* Decrypted key is now in szEncryptedKey with len of key_len */
     DEBUG_DUMP("Broadcast key:", szEncryptedKey, key_len);
