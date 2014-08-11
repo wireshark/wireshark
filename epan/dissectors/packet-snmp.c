@@ -1115,10 +1115,8 @@ indexing_done:
 			expert_add_info(actx->pinfo, pi_value, &ei_snmp_missing_mib);
 		}
 
-already_added:
-		oid_info_is_ok = FALSE;
 	}
-
+already_added:
 	pt_value = proto_item_add_subtree(pi_value,ett_value);
 
 	if (value_len > 0 && oid_string) {
@@ -3084,7 +3082,7 @@ static void dissect_SMUX_PDUs_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
 
 
 /*--- End of included file: packet-snmp-fn.c ---*/
-#line 1876 "../../asn1/snmp/packet-snmp-template.c"
+#line 1874 "../../asn1/snmp/packet-snmp-template.c"
 
 
 guint
@@ -3912,7 +3910,7 @@ void proto_register_snmp(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-snmp-hfarr.c ---*/
-#line 2439 "../../asn1/snmp/packet-snmp-template.c"
+#line 2437 "../../asn1/snmp/packet-snmp-template.c"
   };
 
   /* List of subtrees */
@@ -3952,7 +3950,7 @@ void proto_register_snmp(void) {
     &ett_snmp_RReqPDU_U,
 
 /*--- End of included file: packet-snmp-ettarr.c ---*/
-#line 2455 "../../asn1/snmp/packet-snmp-template.c"
+#line 2453 "../../asn1/snmp/packet-snmp-template.c"
   };
   static ei_register_info ei[] = {
      { &ei_snmp_failed_decrypted_data_pdu, { "snmp.failed_decrypted_data_pdu", PI_MALFORMED, PI_WARN, "Failed to decrypt encryptedPDU", EXPFILL }},

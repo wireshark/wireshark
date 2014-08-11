@@ -1013,10 +1013,8 @@ indexing_done:
 			expert_add_info(actx->pinfo, pi_value, &ei_snmp_missing_mib);
 		}
 
-already_added:
-		oid_info_is_ok = FALSE;
 	}
-
+already_added:
 	pt_value = proto_item_add_subtree(pi_value,ett_value);
 
 	if (value_len > 0 && oid_string) {
