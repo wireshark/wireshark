@@ -205,9 +205,21 @@ Contains the Gnome (GTK+) Wireshark GUI and desktop integration files.
 %if %{with_portaudio}
   --with-portaudio \
 %endif
-  %{?_with_qt} \
-  %{?_with_gtk2} \
-  %{?_with_gtk3} \
+%if %{with qt}
+  --with-qt \
+%else
+  --without-qt \
+%endif
+%if %{with gtk2}
+  --with-gtk2 \
+%else
+  --without-gtk2 \
+%endif
+%if %{with gtk3}
+  --with-gtk3 \
+%else
+  --without-gtk3 \
+%endif
   --disable-warnings-as-errors
 
 # Remove rpath.  It's prohibited in Fedora[1] and anyway we don't need it (and

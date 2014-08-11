@@ -2747,43 +2747,6 @@ case $host_cpu in
 		;;
 esac
 
-# Gather only the "--with*" arguments and also a list of --with arguments for rpmbuild
-for f in $CONFIG_ARGS
-do
-	case $f in
-	--with-gtk2*)
-		CONFIG_WITH_ARGS="$CONFIG_WITH_ARGS $f"
-		RPMBUILD_WITH_ARGS="$RPMBUILD_WITH_ARGS --with gtk2"
-		;;
-	--without-gtk2*)
-		CONFIG_WITH_ARGS="$CONFIG_WITH_ARGS $f"
-		RPMBUILD_WITH_ARGS="$RPMBUILD_WITH_ARGS --without gtk2"
-		;;
-	--with-gtk3*)
-		CONFIG_WITH_ARGS="$CONFIG_WITH_ARGS $f"
-		RPMBUILD_WITH_ARGS="$RPMBUILD_WITH_ARGS --with gtk3"
-		;;
-	--without-gtk3*)
-		CONFIG_WITH_ARGS="$CONFIG_WITH_ARGS $f"
-		RPMBUILD_WITH_ARGS="$RPMBUILD_WITH_ARGS --without gtk3"
-		;;
-	--with-qt*)
-		CONFIG_WITH_ARGS="$CONFIG_WITH_ARGS $f"
-		RPMBUILD_WITH_ARGS="$RPMBUILD_WITH_ARGS --with qt"
-		;;
-	--without-qt*)
-		CONFIG_WITH_ARGS="$CONFIG_WITH_ARGS $f"
-		RPMBUILD_WITH_ARGS="$RPMBUILD_WITH_ARGS --without qt"
-		;;
-	--with*)
-		CONFIG_WITH_ARGS="$CONFIG_WITH_ARGS $f"
-		;;
-	esac
-
-done
-AC_SUBST(CONFIG_WITH_ARGS)
-AC_SUBST(RPMBUILD_WITH_ARGS)
-
 dnl libtool defs
 #
 # Yes, AM_PROG_LIBTOOL is redundant with newer version(s) of some tool(s)
@@ -2802,6 +2765,23 @@ then
   AC_DEFINE(ENABLE_STATIC, 1, [Link plugins statically into Wireshark])
 fi
 AC_SUBST(ENABLE_STATIC)
+
+# Gather which GUI we're building for rpmbuild
+if test "x$have_gtk" = "xyes"; then
+	if test "x$with_gtk3" = "xyes"; then
+		RPMBUILD_WITH_ARGS="--with gtk3 --without gtk2"
+	else
+		RPMBUILD_WITH_ARGS="--without gtk3 --with gtk2"
+	fi
+else
+	RPMBUILD_WITH_ARGS="--without gtk2 --without gtk3"
+fi
+if test "x$have_qt" = "xyes" ; then
+	RPMBUILD_WITH_ARGS="$RPMBUILD_WITH_ARGS --with qt"
+else
+	RPMBUILD_WITH_ARGS="$RPMBUILD_WITH_ARGS --without qt"
+fi
+AC_SUBST(RPMBUILD_WITH_ARGS)
 
 dnl Save the cacheable configure results to config.cache before recursing
 AC_CACHE_SAVE
