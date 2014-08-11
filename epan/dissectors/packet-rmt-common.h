@@ -25,6 +25,8 @@
 #ifndef __PACKET_RMT_COMMON__
 #define __PACKET_RMT_COMMON__
 
+#include <epan/params.h>
+
 /* LCT preferences */
 
 #define LCT_PREFS_EXT_192_NONE 0
@@ -72,3 +74,16 @@ extern void fec_decode_ext_fti(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 extern double rmt_decode_send_rate(guint16 send_rate );
 
 #endif
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */
