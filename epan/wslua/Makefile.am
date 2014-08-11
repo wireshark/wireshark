@@ -98,11 +98,11 @@ EXTRA_DIST = \
 	CMakeLists.txt
 
 taps_used = \
-	../dissectors/packet-http.h \
-	../dissectors/packet-ip.h \
-	../dissectors/packet-udp.h \
-	../dissectors/packet-h225.h \
-	../dissectors/packet-ieee80211.h
+	$(top_srcdir)/epan/dissectors/packet-http.h \
+	$(top_srcdir)/epan/dissectors/packet-ip.h \
+	$(top_srcdir)/epan/dissectors/packet-udp.h \
+	$(top_srcdir)/epan/dissectors/packet-h225.h \
+	$(top_srcdir)/epan/dissectors/packet-ieee80211.h
 
 taps_wslua.c: make-taps.pl $(srcdir)/taps $(taps_used)
 	$(PERL) $(srcdir)/make-taps.pl $(srcdir)/taps taps_wslua.c taps.txt $(srcdir)
@@ -116,7 +116,7 @@ register_wslua.c: declare_wslua.h
 declare_wslua.h: make-reg.pl $(wslua_modules) taps_wslua.c
 	$(PERL) $(srcdir)/make-reg.pl $(wslua_modules);
 
-init.lua: template-init.lua make-init-lua.pl ../ftypes/ftypes.h ../../wiretap/wtap.h  ../proto.h ../stat_groups.h
+init.lua: template-init.lua make-init-lua.pl $(top_srcdir)/epan/ftypes/ftypes.h $(top_srcdir)/wiretap/wtap.h  $(top_srcdir)/epan/proto.h $(top_srcdir)/epan/stat_groups.h
 	$(PERL) $(srcdir)/make-init-lua.pl $(top_srcdir) $(srcdir)/template-init.lua > init.lua
 
 checkapi:

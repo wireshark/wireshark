@@ -166,8 +166,7 @@ while (<TAPSFILE>) {
 	s@#.*@@;
 	next if /^\s*$/;
 	my ($tname,$fname,$sname,@enums) = split /\s+/;
-	$fname=$srcdir . "/" . $fname;
-	my ($c,$doc) = dotap($tname,$fname,$sname,@enums);
+	my ($c,$doc) = dotap($tname,$srcdir . "/" . $fname,$sname,@enums);
 	print CFILE "#include \"$fname\"\n";
 	print CFILE $c;
 	print DOCFILE $doc;
