@@ -3482,17 +3482,26 @@ Tobias Rutz		<tobias.rutz[AT]work-microwave.de> {
 	DVB-S2 Baseband Frame and GSE support
 }
 
-Michal Labedzki		<michal.labedzki[AT]tieto.com> {
+Michał Łabędzki		<michal.labedzki[AT]tieto.com> {
 	Bluetooth BNEP dissector
 	Bluetooth HID dissector
 	Bluetooth SAP dissector
 	Bluetooth AVCTP dissector
 	Bluetooth AVRCP dissector
 	Bluetooth HCI USB transport dissector
+	Bluetooth HCI Linux Monitor transport dissector
 	Bluetooth MCAP dissector
 	Bluetooth HCRP dissector
 	Bluetooth AVDTP/A2DP/VDP/SBC dissectors
-	Android Logcat logs support
+	Bluetooth SDP significant improvements
+	Ubertooth USB firmware dissector
+	ELF file dissector
+	Android ADB Client-Server dissector
+	Android Logcat binary logs support
+}
+
+Michał Orynicz		<michal.orynicz[AT]tieto.com> {
+	Android Logcat text logs support
 }
 
 Wido Kelling		<kellingwido[AT]aol.com> {
