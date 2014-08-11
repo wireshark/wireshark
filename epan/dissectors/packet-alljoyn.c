@@ -279,11 +279,59 @@ static const value_string header_field_encoding_vals[] = {
     { 0, NULL }
 };
 
+/* This is used to round up offsets into a packet to an even two byte
+ * boundary from starting_offset.
+ * @param current_offset is the current offset into the packet.
+ * @param starting_offset is offset into the packet from the begining of
+ *        the message.
+ * @returns the offset rounded up to the next even two byte boundary from
+            start of the message.
+ */
+static gint round_to_2byte(gint current_offset,
+                           gint starting_offset)
+{
+    gint length = current_offset - starting_offset;
+
+    return starting_offset + ROUND_TO_2BYTE(length);
+}
+
+/* This is used to round up offsets into a packet to an even four byte
+ * boundary from starting_offset.
+ * @param current_offset is the current offset into the packet.
+ * @param starting_offset is offset into the packet from the begining of
+ *        the message.
+ * @returns the offset rounded up to the next even four byte boundary from
+            start of the message.
+ */
+static gint round_to_4byte(gint current_offset,
+                           gint starting_offset)
+{
+    gint length = current_offset - starting_offset;
+
+    return starting_offset + ROUND_TO_4BYTE(length);
+}
+
+/* This is used to round up offsets into a packet to an even eight byte
+ * boundary from starting_offset.
+ * @param current_offset is the current offset into the packet.
+ * @param starting_offset is offset into the packet from the begining of
+ *        the message.
+ * @returns the offset rounded up to the next even eight byte boundary from
+            start of the message.
+ */
+static gint round_to_8byte(gint current_offset,
+                           gint starting_offset)
+{
+    gint length = current_offset - starting_offset;
+
+    return starting_offset + ROUND_TO_8BYTE(length);
+}
+
 /* Gets a 32-bit unsigned integer from the packet buffer with
  * the proper byte-swap.
  * @param tvb is the incoming network data buffer.
- * @param offset is the incoming network data buffer.
- * @param encoding is the incoming network data buffer.
+ * @param offset is the offset into the buffer.
+ * @param encoding is ENC_BIG_ENDIAN or ENC_LITTLE_ENDIAN.
  * @return The 32-bit unsigned int interpretation of the bits
  *         in the buffer.
  */
@@ -389,6 +437,8 @@ find_sasl_command(tvbuff_t *tvb,
  *         we update as we dissect the packet.
  * @param offset is the offset into the packet to start processing.
  * @param message_tree is the subtree that any connect data items should be added to.
+ * @returns the offset into the packet that has successfully been handled or
+ *         the input offset value if it was not a sasl message.
  */
 static gint
 handle_message_sasl(tvbuff_t    *tvb,
@@ -402,38 +452,43 @@ handle_message_sasl(tvbuff_t    *tvb,
     command = find_sasl_command(tvb, offset);
 
     if(command) {
-        /* This gives us the offset into the buffer of the terminating
-           character of the command, the '\n'. + 1 to get the number of bytes
-           used for the command in the buffer. */
-        return_value = tvb_find_guint8(tvb, offset + command->length, -1, '\n') + 1;
+        /* This gives us the offset into the buffer of the terminating character of
+         * the command, the '\n'. + 1 to get the number of bytes used for the
+         * command in the buffer. tvb_find_guint8() returns -1 if not found so the + 1
+         * will result in a newline_offset of 0 if not found.
+         */
+        gint newline_offset = tvb_find_guint8(tvb, offset + command->length, -1, '\n') + 1;
 
         /* If not found see if we should request another segment. */
-        if(0 == return_value) {
+        if(0 == newline_offset) {
             if((guint)tvb_captured_length_remaining(tvb, offset) < MAX_SASL_PACKET_LENGTH && pinfo->can_desegment) {
                 pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
-                /* pinfo->desegment_offset is set by the caller. */
+                pinfo->desegment_offset = offset;
+                /* Return the length of the buffer we need for this command. */
+                return_value = offset + command->length;
+            } else {
+                /* If we can't desegment then return 0. */
+                return_value = 0;
             }
 
-            /*
-             * Return 0, which means "I didn't dissect anything because I don't have enough data
-             * - we need to desegment". Or if no desegmentation available we can't handle this.
-             */
+            return return_value;
         }
 
-        if(return_value > 0) {
-            gint length;
+        if(newline_offset > 0) {
+            gint length = command->length;
 
             col_add_fstr(pinfo->cinfo, COL_INFO, "SASL-%s", command->text);
 
-            length = command->length;
-
             /* Add a subtree/row for the command. */
-            proto_tree_add_item(message_tree, hf_alljoyn_sasl_command, tvb, 0, length, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(message_tree, hf_alljoyn_sasl_command, tvb, offset, length, ENC_ASCII|ENC_NA);
 
-            length = return_value - command->length;
+            offset += length;
+            length = newline_offset - offset;
 
             /* Add a subtree for the parameter. */
-            proto_tree_add_item(message_tree, hf_alljoyn_sasl_parameter, tvb, command->length, length, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(message_tree, hf_alljoyn_sasl_parameter, tvb, offset, length, ENC_ASCII|ENC_NA);
+
+            return_value = newline_offset;
         }
     }
 
@@ -526,7 +581,7 @@ handle_message_header_expected_byte(tvbuff_t   *tvb,
 #define ARG_DICT_ENTRY        '{'    /* AllJoyn dictionary or map container type - an array of key-value pairs */
 
 static gint
-pad_according_to_type(gint offset, gint max_offset, guint8 type)
+pad_according_to_type(gint offset, gint field_starting_offset, gint max_offset, guint8 type)
 {
     switch(type)
     {
@@ -538,7 +593,7 @@ pad_according_to_type(gint offset, gint max_offset, guint8 type)
     case ARG_INT64:
     case ARG_STRUCT:
     case ARG_DICT_ENTRY:
-        offset = ROUND_TO_8BYTE(offset);
+        offset = round_to_8byte(offset, field_starting_offset);
         break;
 
     case ARG_SIGNATURE:
@@ -550,12 +605,12 @@ pad_according_to_type(gint offset, gint max_offset, guint8 type)
     case ARG_INT32:
     case ARG_UINT32:
     case ARG_BOOLEAN:
-        offset = ROUND_TO_4BYTE(offset);
+        offset = round_to_4byte(offset, field_starting_offset);
         break;
 
     case ARG_INT16:
     case ARG_UINT16:
-        offset = ROUND_TO_2BYTE(offset);
+        offset = round_to_2byte(offset, field_starting_offset);
         break;
 
     case ARG_STRING:
@@ -615,6 +670,75 @@ append_struct_signature(proto_item   *item,
     }
 }
 
+/* This is called to advance the signature pointer to the end of the signature
+ * it is currently pointing at. signature_length is decreased by the appropriate
+ * amount before returning.
+ * @param signature is a pointer to the signature. It could be simple data type
+ * such as 'i', 'b', etc. In these cases *signature is advanced by 1 and
+ * *signature_length is decreased by 1. Or it could be an array, structure, dictionary,
+ * array of arrays or even more complex things. In these cases the advancement could
+ * be much larger. For example with the signature "a(bdas)i" *signature will be advanced
+ * to the 'i' and *signature_length will be set to '1'.
+ * @param signature_length is a pointer to the length of the signature.
+ */
+static void
+advance_to_end_of_signature(guint8 **signature,
+                            guint8  *signature_length)
+{
+    gboolean done = FALSE;
+    gint8 current_type;
+    gint8 end_type = ARG_INVALID;
+
+    while(*(++(*signature)) && --(*signature_length) > 0 && !done) {
+        current_type = **signature;
+
+        /* Were we looking for the end of a structure or dictionary? If so, did we find it? */
+        if(end_type != ARG_INVALID) {
+            if(end_type == current_type) {
+                done = TRUE; /* Found the end of the structure or dictionary. All done. */
+            }
+
+            continue;
+        }
+
+        switch(current_type)
+        {
+        case ARG_ARRAY:
+            advance_to_end_of_signature(signature, signature_length);
+            break;
+        case ARG_STRUCT:
+            end_type = ')';
+            advance_to_end_of_signature(signature, signature_length);
+            break;
+        case ARG_DICT_ENTRY:
+            end_type = '}';
+            advance_to_end_of_signature(signature, signature_length);
+            break;
+
+        case ARG_BYTE:
+        case ARG_DOUBLE:
+        case ARG_UINT64:
+        case ARG_INT64:
+        case ARG_SIGNATURE:
+        case ARG_HANDLE:
+        case ARG_INT32:
+        case ARG_UINT32:
+        case ARG_BOOLEAN:
+        case ARG_INT16:
+        case ARG_UINT16:
+        case ARG_STRING:
+        case ARG_VARIANT:
+        case ARG_OBJ_PATH:
+            done = TRUE;
+            break;
+
+        default:    /* Unrecognized signature. Bail out. */
+            done = TRUE;
+            break;
+        }
+    }
+}
+
 /* This is called to handle a single typed argument. Recursion is used
  * to handle arrays and structures.
  * @param tvb is the incoming network data buffer.
@@ -637,6 +761,8 @@ append_struct_signature(proto_item   *item,
  * @param signature_length is a pointer to the length of the signature and if type_id is
  *         ARG_SIGNATURE this is a return value for the caller to pass to the function
  *         that parses the parameters.
+ * @param field_starting_offset is the offset at the beginning of the field that contains
+ *         this arg. When rounding this starting_offset is used rather than the absolute offset.
  * @return The new offset into the buffer after removing the field code and value.
  *         the message or the packet length to stop further processing if "really bad"
  *         parameters come in.
@@ -652,7 +778,8 @@ parse_arg(tvbuff_t     *tvb,
           guint8        type_id,
           guint8        field_code,
           guint8      **signature,
-          guint8       *signature_length)
+          guint8       *signature_length,
+          gint          field_starting_offset)
 {
     gint length;
     const gchar *header_type_name = NULL;
@@ -661,7 +788,7 @@ parse_arg(tvbuff_t     *tvb,
     {
     case ARG_INVALID:
         header_type_name = "invalid";
-        offset = ROUND_TO_8BYTE(offset + 1);
+        offset = round_to_8byte(offset + 1, field_starting_offset);
         break;
 
     case ARG_ARRAY:      /* AllJoyn array container type */
@@ -684,12 +811,12 @@ parse_arg(tvbuff_t     *tvb,
 
             /* *sig_saved will now be the element type after the 'a'. */
             sig_saved = (*signature) + 1;
-            offset = ROUND_TO_4BYTE(offset);
+            offset = round_to_4byte(offset, field_starting_offset);
 
-            /* This is the length of the entire array in bytes but does not include the length value. */
+            /* This is the length of the entire array in bytes but does not include the length field. */
             length = (gint)get_uint32(tvb, offset, encoding);
 
-            starting_offset = pad_according_to_type(offset + 4, packet_length, *sig_saved); /* Advance to the data elements. */
+            starting_offset = pad_according_to_type(offset + 4, field_starting_offset, packet_length, *sig_saved); /* Advance to the data elements. */
 
             if(length < 0 || length > MAX_ARRAY_LEN || starting_offset + length > packet_length) {
                 col_add_fstr(pinfo->cinfo, COL_INFO, bad_array_format, length, tvb_reported_length_remaining(tvb, starting_offset));
@@ -702,27 +829,32 @@ parse_arg(tvbuff_t     *tvb,
 
             offset = starting_offset;
 
-            while((offset - starting_offset) < length) {
-                guint8 *sig_pointer;
+            if(0 == length) {
+                advance_to_end_of_signature(signature, &remaining_sig_length);
+            } else {
+                while((offset - starting_offset) < length) {
+                    guint8 *sig_pointer;
 
-                number_of_items++;
-                sig_pointer = sig_saved;
-                remaining_sig_length = *signature_length - 1;
+                    number_of_items++;
+                    sig_pointer = sig_saved;
+                    remaining_sig_length = *signature_length - 1;
 
-                offset = parse_arg(tvb,
-                                   pinfo,
-                                   header_item,
-                                   encoding,
-                                   offset,
-                                   tree,
-                                   is_reply_to,
-                                   *sig_pointer,
-                                   field_code,
-                                   &sig_pointer,
-                                   &remaining_sig_length);
+                    offset = parse_arg(tvb,
+                                       pinfo,
+                                       header_item,
+                                       encoding,
+                                       offset,
+                                       tree,
+                                       is_reply_to,
+                                       *sig_pointer,
+                                       field_code,
+                                       &sig_pointer,
+                                       &remaining_sig_length,
+                                       field_starting_offset);
 
-                /* Set the signature pointer to be just past the type just handled. */
-                *signature = sig_pointer;
+                    /* Set the signature pointer to be just past the type just handled. */
+                    *signature = sig_pointer;
+                }
             }
 
             *signature_length = remaining_sig_length;
@@ -735,7 +867,7 @@ parse_arg(tvbuff_t     *tvb,
 
     case ARG_BOOLEAN:    /* AllJoyn boolean basic type */
         header_type_name = "boolean";
-        offset = ROUND_TO_4BYTE(offset);
+        offset = round_to_4byte(offset, field_starting_offset);
 
         proto_tree_add_item(field_tree, hf_alljoyn_boolean, tvb, offset, 4, encoding);
         offset += 4;
@@ -743,7 +875,7 @@ parse_arg(tvbuff_t     *tvb,
 
     case ARG_DOUBLE:     /* AllJoyn IEEE 754 double basic type */
         header_type_name = "IEEE 754 double";
-        offset = ROUND_TO_8BYTE(offset);
+        offset = round_to_8byte(offset, field_starting_offset);
 
         proto_tree_add_item(field_tree, hf_alljoyn_double, tvb, offset, 8, encoding);
         offset += 8;
@@ -780,7 +912,7 @@ parse_arg(tvbuff_t     *tvb,
 
     case ARG_HANDLE:     /* AllJoyn socket handle basic type. */
         header_type_name = "socket handle";
-        offset = ROUND_TO_4BYTE(offset);
+        offset = round_to_4byte(offset, field_starting_offset);
 
         proto_tree_add_item(field_tree, hf_alljoyn_handle, tvb, offset, 4, encoding);
         offset += 4;
@@ -788,7 +920,7 @@ parse_arg(tvbuff_t     *tvb,
 
     case ARG_INT32:      /* AllJoyn 32-bit signed integer basic type. */
         header_type_name = "int32";
-        offset = ROUND_TO_4BYTE(offset);
+        offset = round_to_4byte(offset, field_starting_offset);
 
         proto_tree_add_item(field_tree, hf_alljoyn_int32, tvb, offset, 4, encoding);
         offset += 4;
@@ -796,7 +928,7 @@ parse_arg(tvbuff_t     *tvb,
 
     case ARG_INT16:      /* AllJoyn 16-bit signed integer basic type. */
         header_type_name = "int16";
-        offset = ROUND_TO_2BYTE(offset);
+        offset = round_to_2byte(offset, field_starting_offset);
 
         proto_tree_add_item(field_tree, hf_alljoyn_int16, tvb, offset, 2, encoding);
         offset += 2;
@@ -823,7 +955,7 @@ parse_arg(tvbuff_t     *tvb,
 
     case ARG_UINT16:     /* AllJoyn 16-bit unsigned integer basic type */
         header_type_name = "uint16";
-        offset = ROUND_TO_2BYTE(offset);
+        offset = round_to_2byte(offset, field_starting_offset);
 
         proto_tree_add_item(field_tree, hf_alljoyn_uint16, tvb, offset, 2, encoding);
         offset += 2;
@@ -831,7 +963,7 @@ parse_arg(tvbuff_t     *tvb,
 
     case ARG_STRING:     /* AllJoyn UTF-8 NULL terminated string basic type */
         header_type_name = "string";
-        offset = ROUND_TO_4BYTE(offset);
+        offset = round_to_4byte(offset, field_starting_offset);
 
         proto_tree_add_item(field_tree, hf_alljoyn_string_size_32bit, tvb, offset, 4, encoding);
 
@@ -861,7 +993,7 @@ parse_arg(tvbuff_t     *tvb,
 
     case ARG_UINT64:     /* AllJoyn 64-bit unsigned integer basic type */
         header_type_name = "uint64";
-        offset = ROUND_TO_8BYTE(offset);
+        offset = round_to_8byte(offset, field_starting_offset);
 
         proto_tree_add_item(field_tree, hf_alljoyn_uint64, tvb, offset, 8, encoding);
         offset += 8;
@@ -869,7 +1001,7 @@ parse_arg(tvbuff_t     *tvb,
 
     case ARG_UINT32:     /* AllJoyn 32-bit unsigned integer basic type */
         header_type_name = "uint32";
-        offset = ROUND_TO_4BYTE(offset);
+        offset = round_to_4byte(offset, field_starting_offset);
 
         if(is_reply_to) {
             static const gchar format[] = " Replies to: %09u";
@@ -935,7 +1067,7 @@ parse_arg(tvbuff_t     *tvb,
                 proto_item_append_text(item, "%c", *sig_pointer);
 
                 offset = parse_arg(tvb, pinfo, header_item, encoding, offset, tree, is_reply_to,
-                                   *sig_pointer, field_code, &sig_pointer, &variant_sig_length);
+                                   *sig_pointer, field_code, &sig_pointer, &variant_sig_length, field_starting_offset);
             }
 
             proto_item_append_text(item, "'");
@@ -945,7 +1077,7 @@ parse_arg(tvbuff_t     *tvb,
 
     case ARG_INT64:      /* AllJoyn 64-bit signed integer basic type */
         header_type_name = "int64";
-        offset = ROUND_TO_8BYTE(offset);
+        offset = round_to_8byte(offset, field_starting_offset);
 
         proto_tree_add_item(field_tree, hf_alljoyn_int64, tvb, offset, 8, encoding);
         offset += 8;
@@ -986,7 +1118,7 @@ parse_arg(tvbuff_t     *tvb,
             append_struct_signature(item, *signature, *signature_length, type_stop);
             tree = proto_item_add_subtree(item, ett_alljoyn_mess_body_parameters);
 
-            offset = pad_according_to_type(offset, tvb_reported_length(tvb), type_id);
+            offset = pad_according_to_type(offset, field_starting_offset, tvb_reported_length(tvb), type_id);
 
             (*signature)++; /* Advance past the '(' or '{'. */
 
@@ -1002,7 +1134,8 @@ parse_arg(tvbuff_t     *tvb,
                                    **signature,
                                    field_code,
                                    signature,
-                                   signature_length);
+                                   signature_length,
+                                   field_starting_offset);
             }
 
             proto_item_set_end(item, tvb, offset);
@@ -1071,6 +1204,7 @@ handle_message_field(tvbuff_t     *tvb,
     guint8      field_code;
     guint8      type_id;
     gboolean    is_reply_to = FALSE;
+    gint        starting_offset = offset;
 
     field_code = tvb_get_guint8(tvb, offset);
 
@@ -1106,9 +1240,10 @@ handle_message_field(tvbuff_t     *tvb,
                        type_id,
                        field_code,
                        signature,
-                       signature_length);
+                       signature_length,
+                       starting_offset);
 
-    offset = ROUND_TO_8BYTE(offset);
+    offset = round_to_8byte(offset, starting_offset);
 
     if(offset < 0 || offset > (gint)tvb_reported_length(tvb)) {
         offset = (gint)tvb_reported_length(tvb);
@@ -1177,6 +1312,7 @@ handle_message_body_parameters(tvbuff_t    *tvb,
     gint        packet_length, end_of_body;
     proto_tree *tree;
     proto_item *item;
+    const gint  starting_offset = offset;
 
     packet_length = tvb_reported_length(tvb);
 
@@ -1201,7 +1337,8 @@ handle_message_body_parameters(tvbuff_t    *tvb,
                            *signature,
                            HDR_INVALID,
                            &signature,
-                           &signature_length);
+                           &signature_length,
+                           starting_offset);
     }
 
     return offset;
@@ -1223,7 +1360,7 @@ handle_message_body_parameters(tvbuff_t    *tvb,
  * @param offset is the offset into the packet to start processing.
  * @param message_tree is the subtree that any connect data items should be added to.
  * @returns the offset into the packet that has successfully been handled or
- *         the input offset value if it was not a message header body..
+ *         the input offset value if it was not a message header body.
  */
 static gint
 handle_message_header_body(tvbuff_t    *tvb,
@@ -1231,42 +1368,52 @@ handle_message_header_body(tvbuff_t    *tvb,
                            gint         offset,
                            proto_item  *message_tree)
 {
-    gint        return_value;
     gint        remaining_packet_length;
     guint8     *signature;
     guint8      signature_length = 0;
     proto_tree *header_tree, *flag_tree;
     proto_item *header_item, *flag_item;
     guint       encoding;
+    gint        packet_length_needed;
     gint        header_length = 0, body_length = 0;
 
-    return_value = offset;
+    remaining_packet_length = tvb_reported_length_remaining(tvb, offset);
     encoding = get_message_header_endianness(tvb, offset);
 
-    remaining_packet_length = tvb_reported_length_remaining(tvb, offset);
+    if(ENC_ALLJOYN_BAD_ENCODING == encoding) {
+        col_add_fstr(pinfo->cinfo, COL_INFO, "BAD DATA: Endian encoding '0x%0x'. Expected 'l' or 'B'",
+            tvb_get_guint8(tvb, offset + ENDIANNESS_OFFSET));
 
-    if(remaining_packet_length < MESSAGE_HEADER_LENGTH || remaining_packet_length > MAX_PACKET_LEN) {
-        col_add_fstr(pinfo->cinfo, COL_INFO, "BAD DATA: Remaining packet length is %u. Expected >= %d && <= %d",
+        /* We are done with everything in this packet don't try anymore. */
+        return offset + remaining_packet_length;
+    }
+
+    if(remaining_packet_length < MESSAGE_HEADER_LENGTH) {
+        if(pinfo->can_desegment) {
+            pinfo->desegment_offset = offset;
+            pinfo->desegment_len = MESSAGE_HEADER_LENGTH - remaining_packet_length;
+        } else {
+            col_add_fstr(pinfo->cinfo, COL_INFO, "BAD DATA: Remaining packet length is %d. Expected >= %d && <= %d",
             remaining_packet_length, MESSAGE_HEADER_LENGTH, MAX_PACKET_LEN);
-        return tvb_reported_length(tvb); /* We are done with everything in this packet don't try anymore. */
+        }
+
+        return offset + remaining_packet_length;
     }
 
     header_length = get_uint32(tvb, offset + HEADER_LENGTH_OFFSET, encoding);
     body_length = get_uint32(tvb, offset + BODY_LENGTH_OFFSET, encoding);
+    packet_length_needed = ROUND_TO_8BYTE(header_length) + body_length + MESSAGE_HEADER_LENGTH;
 
-    if(ROUND_TO_8BYTE(header_length) + body_length + MESSAGE_HEADER_LENGTH > remaining_packet_length) {
+    if(packet_length_needed > remaining_packet_length) {
         if(pinfo->can_desegment) {
-            /* pinfo->desegment_offset is set by the caller. */
-            pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
-
-            /*
-             * Return 0, which means "I didn't dissect anything because I don't have enough
-             * data - we need to desegment".
-             */
-            return_value = 0;
+            pinfo->desegment_offset = offset;
+            pinfo->desegment_len = packet_length_needed - remaining_packet_length;
+        } else {
+            col_add_fstr(pinfo->cinfo, COL_INFO, "BAD DATA: Remaining packet length is %d. Expected %d",
+                remaining_packet_length, packet_length_needed);
         }
 
-        return return_value;
+        return offset + remaining_packet_length;
     }
 
     /* Add a subtree/row for the header. */
@@ -1297,48 +1444,51 @@ handle_message_header_body(tvbuff_t    *tvb,
             val_to_str_const(tvb_get_guint8(tvb, offset + TYPE_OFFSET), message_header_encoding_vals, "Unexpected message type"));
 
     proto_tree_add_item(header_tree, hf_alljoyn_mess_header_header_length, tvb, offset + HEADER_LENGTH_OFFSET, 4, encoding);
-
-    offset = ROUND_TO_8BYTE(offset + MESSAGE_HEADER_LENGTH);
+    offset += MESSAGE_HEADER_LENGTH;
 
     signature = handle_message_header_fields(tvb, pinfo, message_tree, encoding,
                                              offset, header_length, &signature_length);
     offset += ROUND_TO_8BYTE(header_length);
 
     if(body_length > 0 && signature != NULL && signature_length > 0) {
-        return_value = handle_message_body_parameters(tvb,
-                                                      pinfo,
-                                                      message_tree,
-                                                      encoding,
-                                                      offset,
-                                                      body_length,
-                                                      signature,
-                                                      signature_length);
-    } else {
-        return_value = offset;
+        offset = handle_message_body_parameters(tvb,
+                                                pinfo,
+                                                message_tree,
+                                                encoding,
+                                                offset,
+                                                body_length,
+                                                signature,
+                                                signature_length);
     }
 
-    return return_value;
+    return offset;
 }
 
+/* Test to see if this buffer contains something that might be an AllJoyn message.
+ * @param tvb is the incoming network data buffer.
+ * @param offset where to start parsing the buffer.
+ * @returns TRUE if probably an AllJoyn message.
+ *          FALSE if probably not an AllJoyn message.
+ */
 static gboolean
-protocol_is_ours(tvbuff_t *tvb)
+protocol_is_alljoyn_message(tvbuff_t *tvb, gint offset)
 {
-    int length = tvb_captured_length(tvb);
+    gint length = tvb_captured_length(tvb);
 
-    if(length < 1)
+    if(length < offset + 1)
         return FALSE;
 
     /* initial byte for a connect message. */
-    if(tvb_get_guint8(tvb, 0) == 0)
+    if(tvb_get_guint8(tvb, offset) == 0)
         return TRUE;
 
-    if(find_sasl_command(tvb, 0) != NULL)
+    if(find_sasl_command(tvb, offset) != NULL)
         return TRUE;
 
-    if(get_message_header_endianness(tvb, 0) == ENC_ALLJOYN_BAD_ENCODING)
+    if(get_message_header_endianness(tvb, offset) == ENC_ALLJOYN_BAD_ENCODING)
         return FALSE;
 
-    if((length < 2) || (try_val_to_str(tvb_get_guint8(tvb, 1), message_header_encoding_vals) == NULL))
+    if((length < offset + 2) || (try_val_to_str(tvb_get_guint8(tvb, offset + 1), message_header_encoding_vals) == NULL))
         return FALSE;
 
     return TRUE;
@@ -1351,16 +1501,21 @@ protocol_is_ours(tvbuff_t *tvb)
  * @param pinfo contains information about the incoming packet which
  *         we update as we dissect the packet.
  * @param tree is the tree data items should be added to.
- * @return The offset into the buffer we have dissected (which should normally
- *         be the packet length), 0 if not AllJoyn message protocol, or 0 (with
- *         pinfo->desegment_len == DESEGMENT_ONE_MORE_SEGMENT set) if another segment
- *         is needed, or the packet length if "really bad" parameters come in.
+ * @return 0 if not AllJoyn message protocol, or
+ *         the offset into the buffer we have successfully dissected (which
+ *         should normally be the packet length), or
+ *         the offset into the buffer we have dissected with
+ *         pinfo->desegment_len == additional bytes needed from the next packet
+ *         before we can dissect, or
+ *         0 with pinfo->desegment_len == DESEGMENT_ONE_MORE_SEGMENT if another
+ *         segment is needed, or
+ *         packet_length if "really bad" parameters come in.
  */
 static gint
 dissect_AllJoyn_message(tvbuff_t    *tvb,
                         packet_info *pinfo,
                         proto_tree  *tree,
-                        void *data   _U_)
+                        void        *data _U_)
 {
     gint        offset      = 0;
     proto_item *message_item;
@@ -1368,17 +1523,18 @@ dissect_AllJoyn_message(tvbuff_t    *tvb,
     gint        last_offset = -1;
     gint        packet_length;
 
-    if(!protocol_is_ours(tvb)) {
+    if(!protocol_is_alljoyn_message(tvb, offset)) {
         return 0;
     }
 
+    pinfo->desegment_len = 0;
     packet_length = tvb_reported_length(tvb);
 
     col_clear(pinfo->cinfo, COL_INFO);
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "ALLJOYN");
 
     /* Add a subtree covering the remainder of the packet */
-    message_item = proto_tree_add_item(tree, proto_AllJoyn_mess, tvb, 0, -1, ENC_NA);
+    message_item = proto_tree_add_item(tree, proto_AllJoyn_mess, tvb, offset, -1, ENC_NA);
     message_tree = proto_item_add_subtree(message_item, ett_alljoyn_mess);
 
     /* Continue as long as we are making progress and we haven't finished with the packet. */
@@ -1397,14 +1553,6 @@ dissect_AllJoyn_message(tvbuff_t    *tvb,
         }
 
         offset = handle_message_header_body(tvb, pinfo, offset, message_tree);
-    }
-
-    if(0 == offset && pinfo->desegment_len == DESEGMENT_ONE_MORE_SEGMENT) {
-        if(last_offset > 0) {
-            pinfo->desegment_offset = last_offset;
-        } else {
-            pinfo->desegment_offset = 0;
-        }
     }
 
     return offset;
