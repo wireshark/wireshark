@@ -137,6 +137,11 @@ static const value_string as_subtype_vals[] = {
 static value_string_ext as_subtype_vals_ext =
     VALUE_STRING_EXT_INIT(as_subtype_vals);
 
+typedef struct _audio_conv_info_t {
+    /* the major version of the USB audio class specification,
+       taken from the AC header descriptor */
+    guint8 ver_major;
+} audio_conv_info_t;
 
 static int hf_sysex_msg_fragments = -1;
 static int hf_sysex_msg_fragment = -1;
@@ -295,13 +300,14 @@ dissect_usb_midi_event(tvbuff_t *tvb, packet_info *pinfo,
    body's length) */
 static gint
 dissect_ac_if_hdr_body(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
-        proto_tree *tree, usb_conv_info_t *usb_conv_info _U_)
+        proto_tree *tree, usb_conv_info_t *usb_conv_info)
 {
     gint     offset_start;
     guint16  bcdADC;
     guint8   ver_major;
     double   ver;
     guint8   if_in_collection, i;
+    audio_conv_info_t *audio_conv_info;
 
 
     offset_start = offset;
@@ -312,8 +318,14 @@ dissect_ac_if_hdr_body(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
 
     proto_tree_add_double_format_value(tree, hf_ac_if_hdr_ver,
             tvb, offset, 2, ver, "%2.2f", ver);
-    /* XXX - create an audio-specific conversation struct,
-             store the major version there */
+    audio_conv_info = (audio_conv_info_t *)usb_conv_info->class_data;
+    if(!audio_conv_info) {
+        audio_conv_info = wmem_new(wmem_file_scope(), audio_conv_info_t);
+        usb_conv_info->class_data = audio_conv_info;
+        /* XXX - set reasonable default values for all components
+           that are not filled in by this function */
+    }
+    audio_conv_info->ver_major = ver_major;
     offset += 2;
 
     /* version 1 refers to the Basic Audio Device specification,
