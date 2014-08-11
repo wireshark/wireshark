@@ -50,15 +50,15 @@ Source code can be found in 'plugins'.
 * Display Filters - The display filter engine at 
 'epan/dfilter'.
 
-Wiretap:: The wiretap library is used to read andwrite capture files in libpcap,
+Wiretap:: The wiretap library is used to read and write capture files in libpcap,
 pcapng, and many other file formats. Source code is in the
 'wiretap' directory.
 
-Capture:: The interface with the capture engine. Source code in the
+Capture:: The interface with the capture engine. Source code is in the
 root directory.
 
 Dumpcap:: The capture engine itself. This is the only part that is to execute
-with elevated privileges. Source code in the root directory.
+with elevated privileges. Source code is in the root directory.
 
 WinPcap and libpcap:: These are separate libraries that provide packet capture
 and filtering support on different platforms. The filtering WinPcap and libpcap
@@ -80,7 +80,7 @@ privileges, allowing the main part of the code (dissectors, user interface,
 etc) to run with normal user privileges.
 
 To hide all the low-level machine dependent details from Wireshark, the libpcap
-and WinPcap (see <<ChLibsPcap>>) libraries is used. These libraries provide a
+and WinPcap (see <<ChLibsPcap>>) libraries are used. These libraries provide a
 general purpose interface to capture packets and are used by a wide variety of
 applications.
 
