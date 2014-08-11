@@ -139,12 +139,6 @@ static const value_string iapp_pdu_type_vals[] = {
     {0, NULL}
 };
 
-static const value_string iapp_cap_vals[] = {
-    {IAPP_CAP_FORWARDING, "Forwarding"},
-    {IAPP_CAP_WEP, "WEP"},
-    {0, NULL}
-};
-
 static const value_string iapp_phy_vals[] = {
     {IAPP_PHY_PROP, "Proprietary"},
     {IAPP_PHY_FHSS, "FHSS"},
