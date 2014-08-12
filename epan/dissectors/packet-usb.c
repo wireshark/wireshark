@@ -1693,6 +1693,7 @@ dissect_usb_endpoint_descriptor(packet_info *pinfo, proto_tree *parent_tree,
             /* Create a new address structure that points to the same device
              * but the new endpoint.
              */
+            usb_addr.bus_id = ((const usb_address_t *)(pinfo->src.data))->bus_id;
             usb_addr.device = ((const usb_address_t *)(pinfo->src.data))->device;
             usb_addr.endpoint = GUINT32_TO_LE(endpoint);
             SET_ADDRESS(&tmp_addr, AT_USB, USB_ADDR_LEN, (char *)&usb_addr);
@@ -1704,6 +1705,7 @@ dissect_usb_endpoint_descriptor(packet_info *pinfo, proto_tree *parent_tree,
             /* Create a new address structure that points to the same device
              * but the new endpoint.
              */
+            usb_addr.bus_id = ((const usb_address_t *)(pinfo->dst.data))->bus_id;
             usb_addr.device = ((const usb_address_t *)(pinfo->dst.data))->device;
             usb_addr.endpoint = GUINT32_TO_LE(endpoint);
             SET_ADDRESS(&tmp_addr, AT_USB, USB_ADDR_LEN, (char *)&usb_addr);
