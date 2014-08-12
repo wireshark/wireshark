@@ -348,6 +348,13 @@
       </widget>
      </item>
      <item>
+      <widget class="QLabel" name="label_8">
+       <property name="text">
+        <string>You need to restart Wireshark for this change to take effect</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <spacer name="horizontalSpacer_6">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
