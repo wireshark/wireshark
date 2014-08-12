@@ -666,6 +666,7 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
         guint32               k_frame_number;
         guint32               k_chandle;
         guint32               k_channel;
+        guint32               k_dlci;
         service_direction_t  *service_direction;
         wmem_tree_t          *subtree;
 
@@ -675,6 +676,7 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
         k_psm             = l2cap_data->psm;
         k_channel         = dlci >> 1;
         k_frame_number    = pinfo->fd->num;
+        k_dlci            = dlci;
 
         key[0].length = 1;
         key[0].key = &k_interface_id;
@@ -685,7 +687,7 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
         key[3].length = 1;
         key[3].key = &k_psm;
         key[4].length = 1;
-        key[4].key = &k_channel;
+        key[4].key = &k_dlci;
 
         if (!pinfo->fd->flags.visited && frame_type == FRAME_TYPE_SABM) {
             key[5].length = 0;
@@ -708,7 +710,7 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 
             wmem_tree_insert32_array(service_directions, key, service_direction);
         }
-
+        key[4].key = &k_channel;
         key[5].length = 0;
         key[5].key = NULL;
 
@@ -717,7 +719,10 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
         if (service_direction && service_direction->end_in > k_frame_number) {
             k_direction = service_direction->direction;
         } else {
-            k_direction = (l2cap_data->is_local_psm) ? P2P_DIR_SENT : P2P_DIR_RECV;
+            if (dlci & 0x01)
+                k_direction = (l2cap_data->is_local_psm) ? P2P_DIR_RECV : P2P_DIR_SENT;
+            else
+                k_direction = (l2cap_data->is_local_psm) ? P2P_DIR_SENT : P2P_DIR_RECV;
         }
 
         k_psm = SDP_PSM_DEFAULT;
