@@ -97,17 +97,11 @@ x11-dissector: $(top_srcdir)/tools/process-x11-fields.pl x11-fields $(top_srcdir
 # a register.c file for libwireshark.
 # All subsequent arguments are the files to scan.
 #
-register.c: $(plugin_src) $(ALL_DISSECTORS_SRC) Makefile.common Custom.common $(top_srcdir)/tools/make-dissector-reg \
-    $(top_srcdir)/tools/make-dissector-reg.py
-	@if test -n "$(PYTHON)"; then \
-		echo Making register.c with python ; \
-		$(PYTHON) $(top_srcdir)/tools/make-dissector-reg.py $(srcdir) \
-		    dissectors $(ALL_DISSECTORS_SRC) ; \
-	else \
-		echo Making register.c with shell script ; \
-		$(top_srcdir)/tools/make-dissector-reg $(srcdir) \
-		   dissectors $(plugin_src) $(ALL_DISSECTORS_SRC) ; \
-	fi
+register.c: $(plugin_src) $(ALL_DISSECTORS_SRC) Makefile.common Custom.common \
+	$(top_srcdir)/tools/make-dissector-reg.py
+	echo Making register.c ; \
+	$(PYTHON) $(top_srcdir)/tools/make-dissector-reg.py $(srcdir) \
+		dissectors $(ALL_DISSECTORS_SRC) ;
 #
 # Currently register.c can be included in the distribution because
 # we always build all protocol dissectors. We used to have to check

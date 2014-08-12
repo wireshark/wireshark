@@ -146,7 +146,6 @@ EXTRA_DIST = \
 	lex.py						\
 	list_protos_in_cap.sh				\
 	Makefile.nmake					\
-	make-dissector-reg				\
 	make-dissector-reg.py				\
 	make-manuf					\
 	make-sminmpec.pl				\

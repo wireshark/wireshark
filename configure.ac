@@ -119,6 +119,8 @@ if test ! -z "$PYTHON"; then
 	else
 		AC_MSG_RESULT(yes)
 	fi
+else
+	AC_MSG_ERROR(I couldn't find python; make sure it's installed and in your path)
 fi
 
 #
