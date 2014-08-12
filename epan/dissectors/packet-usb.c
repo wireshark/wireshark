@@ -2587,11 +2587,15 @@ try_dissect_next_protocol(proto_tree *tree, proto_tree *parent, tvbuff_t *next_t
                             endpoint = usb_trans_info->setup.wIndex & 0x0f;
 
                             if (is_request) {
+                                dst_addr.bus_id = usb_conv_info->bus_id;
+                                dst_addr.device = usb_conv_info->device_address;
                                 dst_addr.endpoint = dst_endpoint = GUINT32_TO_LE(endpoint);
                                 SET_ADDRESS(&endpoint_addr, AT_USB, USB_ADDR_LEN, (char *)&dst_addr);
 
                                 conversation = get_usb_conversation(pinfo, &pinfo->src, &endpoint_addr, pinfo->srcport, dst_endpoint);
                             } else {
+                                src_addr.bus_id = usb_conv_info->bus_id;
+                                src_addr.device = usb_conv_info->device_address;
                                 src_addr.endpoint = src_endpoint = GUINT32_TO_LE(endpoint);
                                 SET_ADDRESS(&endpoint_addr, AT_USB, USB_ADDR_LEN, (char *)&src_addr);
 
