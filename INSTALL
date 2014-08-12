@@ -40,7 +40,7 @@ README.windows for those instructions.
    GLib 2.x; you need to configure with --disable-gtk2 to use GTK+
    1.2[.x].
 
-   Please also note that GTK+ 1.2[.x] is only supported up to 
+   Please also note that GTK+ 1.2[.x] is only supported up to
    Wireshark 1.0.x. From Wireshark 1.1.x onwards only GTK+ 2.x
    is supported.
 
@@ -71,7 +71,9 @@ README.windows for those instructions.
 4. Building Wireshark requires Perl (specifically the pod2man program)
    so that the documentation can be built.
 
-5. Run './configure' in the Wireshark distribution directory.
+5. Building Wireshark requires Python.
+
+6. Run './configure' in the Wireshark distribution directory.
    Running './configure --help' displays a complete list of options.
    The file 'INSTALL.configure' contains general instructions for
    using 'configure' and 'make'. Some of the Wireshark non-generic
@@ -208,16 +210,16 @@ README.windows for those instructions.
         Use this switch to change the location where plugins
         are installed.
 
-6. After running './configure', you will see a summary of some
+7. After running './configure', you will see a summary of some
    of the options you chose. Ensure that the summary reflects
    what you want. If it doesn't, re-run './configure' with new options.
 
-7. Run 'make'.  Hopefully, you won't run into any problems.
+8. Run 'make'.  Hopefully, you won't run into any problems.
 
-8. Run './wireshark' or './tshark' or ./dumpcap, and make sure things are
+9. Run './wireshark' or './tshark' or ./dumpcap, and make sure things are
    working. You must have root privileges in order to capture live data.
 
-9./a. Run 'make install'.  If you're running a system that supports
+10./a. Run 'make install'.  If you're running a system that supports
    the RPM, OSX, or System V Release 4 packaging systems, you can
    run one of
 
@@ -229,7 +231,7 @@ README.windows for those instructions.
 
    to make an installable package for your system.
 
-9/b. If you 're running a system that supports APT (Debian/Ubuntu/etc.)
+10/b. If you 're running a system that supports APT (Debian/Ubuntu/etc.)
    run
 
         dpkg-buildpackage -us -uc -rfakeroot
