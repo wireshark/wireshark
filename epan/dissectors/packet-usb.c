@@ -2510,123 +2510,155 @@ try_dissect_next_protocol(proto_tree *tree, proto_tree *parent, tvbuff_t *next_t
         usb_conv_info_t *usb_conv_info, gint type_2, guint8 urb_type,
         device_product_data_t *device_product_data, device_protocol_data_t *device_protocol_data)
 {
+    gboolean                 ret;
     wmem_tree_key_t          key[4];
     guint32                  k_frame_number;
     guint32                  k_device_address;
     guint32                  k_bus_id;
+    usb_trans_info_t        *usb_trans_info;
+    gboolean                 is_request;
     heur_dtbl_entry_t       *hdtbl_entry;
+    heur_dissector_list_t    heur_subdissector_list;
+    dissector_table_t        usb_dissector_table;
+    gboolean                 class_specific_ctrl_msg;
+    proto_item              *sub_item;
+
+    if (tvb_captured_length(next_tvb) == 0)
+        return 0;
 
     /* try dissect by "usb.device" */
-    if (tvb_captured_length(next_tvb) > 0 &&
-            !dissector_try_uint_new(device_to_dissector, (guint32) (usb_conv_info->bus_id << 16 | usb_conv_info->device_address), next_tvb, pinfo, parent, FALSE, usb_conv_info)) {
-        k_frame_number = pinfo->fd->num;
-        k_device_address = usb_conv_info->device_address;
-        k_bus_id = usb_conv_info->bus_id;
+    ret = dissector_try_uint_new(device_to_dissector,
+            (guint32)(usb_conv_info->bus_id<<16 | usb_conv_info->device_address),
+            next_tvb, pinfo, parent, FALSE, usb_conv_info);
+    if (ret)
+        return offset+tvb_captured_length(next_tvb); /* XXX - check for overflow */
 
-        key[0].length = 1;
-        key[0].key    = &k_device_address;
-        key[1].length = 1;
-        key[1].key    = &k_bus_id;
-        key[2].length = 1;
-        key[2].key    = &k_frame_number;
-        key[3].length = 0;
-        key[3].key    = NULL;
+    k_frame_number = pinfo->fd->num;
+    k_device_address = usb_conv_info->device_address;
+    k_bus_id = usb_conv_info->bus_id;
 
-        /* try dissect by "usb.protocol" */
-        if (!device_protocol_data)
-            device_protocol_data = (device_protocol_data_t *)wmem_tree_lookup32_array_le(device_to_protocol_table, key);
-        if (device_protocol_data && device_protocol_data->bus_id == usb_conv_info->bus_id &&
-                device_protocol_data->device_address == usb_conv_info->device_address &&
-                dissector_try_uint_new(protocol_to_dissector, (guint32) device_protocol_data->protocol, next_tvb, pinfo, parent, FALSE, usb_conv_info)) {
-            offset += tvb_captured_length(next_tvb);
-        } else { /* try dissect by "usb.product" */
-            if (!device_product_data)
-                device_product_data = (device_product_data_t *)wmem_tree_lookup32_array_le(device_to_product_table, key);
-            if (device_product_data && device_product_data->bus_id == usb_conv_info->bus_id &&
-                    device_product_data->device_address == usb_conv_info->device_address &&
-                    dissector_try_uint_new(product_to_dissector, (guint32) (device_product_data->vendor << 16 | device_product_data->product),
-                                           next_tvb, pinfo, parent, FALSE, usb_conv_info)) {
-                offset += tvb_captured_length(next_tvb);
-            } else { /* try dissect by "usb.[control | bulk | interrupt] "*/
-                heur_dissector_list_t  heur_subdissector_list;
-                dissector_table_t      usb_dissector_table;
+    key[0].length = 1;
+    key[0].key    = &k_device_address;
+    key[1].length = 1;
+    key[1].key    = &k_bus_id;
+    key[2].length = 1;
+    key[2].key    = &k_frame_number;
+    key[3].length = 0;
+    key[3].key    = NULL;
 
-                switch(usb_conv_info->transfer_type) {
-                case URB_BULK:
-                    heur_subdissector_list = heur_bulk_subdissector_list;
-                    usb_dissector_table = usb_bulk_dissector_table;
-                    break;
-                case URB_INTERRUPT:
-                    heur_subdissector_list = heur_interrupt_subdissector_list;
-                    usb_dissector_table = usb_interrupt_dissector_table;
-                    break;
-                case URB_CONTROL: {
-                    usb_trans_info_t  *usb_trans_info = usb_conv_info->usb_trans_info;
-                    gboolean           is_request = usb_conv_info->is_request;
+    /* try dissect by "usb.protocol" */
+    if (!device_protocol_data)
+        device_protocol_data = (device_protocol_data_t *)wmem_tree_lookup32_array_le(device_to_protocol_table, key);
 
-                    heur_subdissector_list = heur_control_subdissector_list;
-                    usb_dissector_table = usb_control_dissector_table;
+    if (device_protocol_data &&
+            device_protocol_data->bus_id == usb_conv_info->bus_id &&
+            device_protocol_data->device_address == usb_conv_info->device_address) {
+                ret = dissector_try_uint_new(protocol_to_dissector,
+                        (guint32)device_protocol_data->protocol,
+                        next_tvb, pinfo, parent, FALSE, usb_conv_info);
+                if (ret)
+                    return offset+tvb_captured_length(next_tvb);
+    }
 
-                    /* Make sure we have the proper conversation */
-                    if (usb_trans_info && ((is_request && usb_conv_info->is_setup && type_2 == RQT_SETUP_TYPE_CLASS) ||
-                            (!is_request && USB_TYPE(usb_trans_info->setup.requesttype) == RQT_SETUP_TYPE_CLASS))) {
-                        proto_item      *sub_item;
+    if (!device_product_data)
+        device_product_data = (device_product_data_t *)wmem_tree_lookup32_array_le(device_to_product_table, key);
 
-                        if (USB_RECIPIENT(usb_trans_info->setup.requesttype) == RQT_SETUP_RECIPIENT_INTERFACE) {
-                            guint8 interface_num = usb_trans_info->setup.wIndex & 0xff;
+    if (device_product_data && device_product_data->bus_id == usb_conv_info->bus_id &&
+            device_product_data->device_address == usb_conv_info->device_address) {
+                ret = dissector_try_uint_new(product_to_dissector,
+                        (guint32)(device_product_data->vendor<<16 | device_product_data->product),
+                        next_tvb, pinfo, parent, FALSE, usb_conv_info);
+                if (ret)
+                    return offset+tvb_captured_length(next_tvb);
+    }
 
-                            usb_conv_info = get_usb_iface_conv_info(pinfo, interface_num);
-                            usb_conv_info->usb_trans_info = usb_trans_info;
-                        } else if (USB_RECIPIENT(usb_trans_info->setup.requesttype) == RQT_SETUP_RECIPIENT_ENDPOINT) {
-                            static address        endpoint_addr;
-                            gint                  endpoint;
-                            static usb_address_t  src_addr, dst_addr; /* has to be static due to SET_ADDRESS */
-                            guint32               src_endpoint, dst_endpoint;
-                            conversation_t       *conversation;
+    switch(usb_conv_info->transfer_type) {
+        case URB_BULK:
+            heur_subdissector_list = heur_bulk_subdissector_list;
+            usb_dissector_table = usb_bulk_dissector_table;
+            break;
 
-                            endpoint = usb_trans_info->setup.wIndex & 0x0f;
+        case URB_INTERRUPT:
+            heur_subdissector_list = heur_interrupt_subdissector_list;
+            usb_dissector_table = usb_interrupt_dissector_table;
+            break;
 
-                            if (is_request) {
-                                dst_addr.bus_id = usb_conv_info->bus_id;
-                                dst_addr.device = usb_conv_info->device_address;
-                                dst_addr.endpoint = dst_endpoint = GUINT32_TO_LE(endpoint);
-                                SET_ADDRESS(&endpoint_addr, AT_USB, USB_ADDR_LEN, (char *)&dst_addr);
+        case URB_CONTROL:
+            heur_subdissector_list = heur_control_subdissector_list;
+            usb_dissector_table = usb_control_dissector_table;
 
-                                conversation = get_usb_conversation(pinfo, &pinfo->src, &endpoint_addr, pinfo->srcport, dst_endpoint);
-                            } else {
-                                src_addr.bus_id = usb_conv_info->bus_id;
-                                src_addr.device = usb_conv_info->device_address;
-                                src_addr.endpoint = src_endpoint = GUINT32_TO_LE(endpoint);
-                                SET_ADDRESS(&endpoint_addr, AT_USB, USB_ADDR_LEN, (char *)&src_addr);
+            usb_trans_info = usb_conv_info->usb_trans_info;
+            if (!usb_trans_info)
+                break;
 
-                                conversation  = get_usb_conversation(pinfo, &endpoint_addr, &pinfo->dst, src_endpoint, pinfo->destport);
-                            }
+            is_request = usb_conv_info->is_request;
+            if (is_request)
+                class_specific_ctrl_msg = (usb_conv_info->is_setup && type_2==RQT_SETUP_TYPE_CLASS);
+            else
+                class_specific_ctrl_msg = (USB_TYPE(usb_trans_info->setup.requesttype)==RQT_SETUP_TYPE_CLASS);
 
-                            usb_conv_info = get_usb_conv_info(conversation);
-                            usb_conv_info->usb_trans_info = usb_trans_info;
-                        }
+            if (!class_specific_ctrl_msg)
+                break;
 
-                        usb_tap_queue_packet(pinfo, urb_type, usb_conv_info);
-                        sub_item = proto_tree_add_uint(tree, hf_usb_bInterfaceClass, next_tvb, 0, 0, usb_conv_info->interfaceClass);
-                        PROTO_ITEM_SET_GENERATED(sub_item);
-                    }
-                    }
-                    break;
-                default:
-                    heur_subdissector_list = NULL;
-                    usb_dissector_table = NULL;
+            /* we have a class-specific control message */
+
+            if (USB_RECIPIENT(usb_trans_info->setup.requesttype) == RQT_SETUP_RECIPIENT_INTERFACE) {
+                guint8 interface_num = usb_trans_info->setup.wIndex & 0xff;
+
+                usb_conv_info = get_usb_iface_conv_info(pinfo, interface_num);
+                usb_conv_info->usb_trans_info = usb_trans_info;
+            } else if (USB_RECIPIENT(usb_trans_info->setup.requesttype) == RQT_SETUP_RECIPIENT_ENDPOINT) {
+                static address        endpoint_addr;
+                gint                  endpoint;
+                static usb_address_t  src_addr, dst_addr; /* has to be static due to SET_ADDRESS */
+                guint32               src_endpoint, dst_endpoint;
+                conversation_t       *conversation;
+
+                endpoint = usb_trans_info->setup.wIndex & 0x0f;
+
+                if (is_request) {
+                    dst_addr.bus_id = usb_conv_info->bus_id;
+                    dst_addr.device = usb_conv_info->device_address;
+                    dst_addr.endpoint = dst_endpoint = GUINT32_TO_LE(endpoint);
+                    SET_ADDRESS(&endpoint_addr, AT_USB, USB_ADDR_LEN, (char *)&dst_addr);
+
+                    conversation = get_usb_conversation(pinfo, &pinfo->src, &endpoint_addr, pinfo->srcport, dst_endpoint);
+                }
+                else {
+                    src_addr.bus_id = usb_conv_info->bus_id;
+                    src_addr.device = usb_conv_info->device_address;
+                    src_addr.endpoint = src_endpoint = GUINT32_TO_LE(endpoint);
+                    SET_ADDRESS(&endpoint_addr, AT_USB, USB_ADDR_LEN, (char *)&src_addr);
+
+                    conversation  = get_usb_conversation(pinfo, &endpoint_addr, &pinfo->dst, src_endpoint, pinfo->destport);
                 }
 
-                if (try_heuristics && dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, parent, &hdtbl_entry, usb_conv_info)) {
-                    offset += tvb_captured_length(next_tvb);
-                } else if (usb_dissector_table &&
-                        dissector_try_uint_new(usb_dissector_table, usb_conv_info->interfaceClass, next_tvb, pinfo, parent, TRUE, usb_conv_info)) {
-                    offset += tvb_captured_length(next_tvb);
-                }
+                usb_conv_info = get_usb_conv_info(conversation);
+                usb_conv_info->usb_trans_info = usb_trans_info;
             }
-        }
-    } else {
-        offset += tvb_captured_length(next_tvb);
+
+            usb_tap_queue_packet(pinfo, urb_type, usb_conv_info);
+            sub_item = proto_tree_add_uint(tree, hf_usb_bInterfaceClass, next_tvb, 0, 0, usb_conv_info->interfaceClass);
+            PROTO_ITEM_SET_GENERATED(sub_item);
+            break;
+
+        default:
+            heur_subdissector_list = NULL;
+            usb_dissector_table = NULL;
+    }
+
+    if (try_heuristics) {
+        ret = dissector_try_heuristic(heur_subdissector_list,
+                next_tvb, pinfo, parent, &hdtbl_entry, usb_conv_info);
+        if (ret)
+            return offset+tvb_captured_length(next_tvb);
+    }
+
+    if (usb_dissector_table) {
+        ret = dissector_try_uint_new(usb_dissector_table, usb_conv_info->interfaceClass,
+                next_tvb, pinfo, parent, TRUE, usb_conv_info);
+        if (ret)
+            return offset+tvb_captured_length(next_tvb);
     }
 
     return offset;
