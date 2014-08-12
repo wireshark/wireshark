@@ -335,7 +335,7 @@ export_diameter_pdu(packet_info *pinfo, tvbuff_t *tvb)
 	exp_pdu_data_t *exp_pdu_data;
 	guint8 tags_bit_field;
 
-	tags_bit_field = EXP_PDU_TAG_IP_SRC_BIT + EXP_PDU_TAG_IP_DST_BIT + EXP_PDU_TAG_SRC_PORT_BIT+
+	tags_bit_field = EXP_PDU_TAG_IP_SRC_BIT + EXP_PDU_TAG_IP_DST_BIT + EXP_PDU_TAG_SRC_PORT_BIT +
 		EXP_PDU_TAG_DST_PORT_BIT + EXP_PDU_TAG_ORIG_FNO_BIT;
 
 	exp_pdu_data = load_export_pdu_tags(pinfo, "diameter", -1, &tags_bit_field, 1);
@@ -1085,16 +1085,16 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 	cmd_str = val_to_str_const(cmd, cmd_vs, "Unknown");
 
 	col_add_fstr(pinfo->cinfo, COL_INFO,
-			 "cmd=%s%s(%d) flags=%s %s=%s(%d) h2h=%x e2e=%x",
-			 cmd_str,
-			 ((flags_bits>>4)&0x08) ? " Request" : " Answer",
-			 cmd,
-			 msgflags_str[((flags_bits>>4)&0x0f)],
-			 c->version_rfc ? "appl" : "vend",
-			 val_to_str_const(diam_sub_dis_inf->application_id, c->version_rfc ? dictionary.applications : vnd_short_vs, "Unknown"),
-			 diam_sub_dis_inf->application_id,
-			 tvb_get_ntohl(tvb,12),
-			 tvb_get_ntohl(tvb,16));
+		     "cmd=%s%s(%d) flags=%s %s=%s(%d) h2h=%x e2e=%x",
+		     cmd_str,
+		     ((flags_bits>>4)&0x08) ? " Request" : " Answer",
+		     cmd,
+		     msgflags_str[((flags_bits>>4)&0x0f)],
+		     c->version_rfc ? "appl" : "vend",
+		     val_to_str_const(diam_sub_dis_inf->application_id, c->version_rfc ? dictionary.applications : vnd_short_vs, "Unknown"),
+		     diam_sub_dis_inf->application_id,
+		     tvb_get_ntohl(tvb,12),
+		     tvb_get_ntohl(tvb,16));
 
 	col_append_str(pinfo->cinfo, COL_INFO, " | ");
 	col_set_fence(pinfo->cinfo, COL_INFO);
@@ -1183,7 +1183,7 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 		diameter_pair->ans_frame = 0;
 		diameter_pair->req_time = pinfo->fd->abs_ts;
 	}
-	diameter_pair->processing_request=(flags_bits & DIAM_FLAGS_R)!=0;
+	diameter_pair->processing_request=(flags_bits & DIAM_FLAGS_R)!= 0;
 
 	if (tree){
 		/* print state tracking info in the tree */
@@ -1261,6 +1261,23 @@ check_diameter(tvbuff_t *tvb)
 	if (diam_len > 65534)
 		return FALSE;
 
+	/* Diameter minimum message length:
+	 *
+	 * Version+Length - 4 bytes
+	 * Flags+CC - 4 bytes
+	 * AppID - 4 bytes
+	 * HbH - 4 bytes
+	 * E2E - 4 bytes
+	 * 2 AVPs (Orig-Host, Orig-Realm), each including:
+	 *  * AVP code - 4 bytes
+	 *  * AVP flags + length - 4 bytes
+	 *  * (no data - what would a reasonable minimum be?)
+	 *
+	 * --> 36 bytes
+	 */
+	if (diam_len < 36)
+		return FALSE;
+
 	flags = tvb_get_guint8(tvb, 4);
 
 	/* Check if any of the Reserved flag bits are set */
@@ -1329,7 +1346,7 @@ reginfo(int *hf_ptr, const char *name, const char *abbr, const char *desc,
 {
 	hf_register_info hf;
 
-	hf.p_id						= hf_ptr;
+	hf.p_id					= hf_ptr;
 	hf.hfinfo.name				= name;
 	hf.hfinfo.abbrev			= abbr;
 	hf.hfinfo.type				= ft;
@@ -1355,7 +1372,7 @@ basic_avp_reginfo(diam_avp_t *a, const char *name, enum ftenum ft,
 	hf_register_info hf;
 	gint *ettp = &(a->ett);
 
-	hf.p_id						= &(a->hf_value);
+	hf.p_id					= &(a->hf_value);
 	hf.hfinfo.name				= NULL;
 	hf.hfinfo.abbrev			= NULL;
 	hf.hfinfo.type				= ft;
@@ -1363,8 +1380,8 @@ basic_avp_reginfo(diam_avp_t *a, const char *name, enum ftenum ft,
 	hf.hfinfo.strings			= NULL;
 	hf.hfinfo.bitmask			= 0x0;
 	hf.hfinfo.blurb				= a->vendor->code ?
-									wmem_strdup_printf(wmem_epan_scope(), "vendor=%d code=%d", a->vendor->code, a->code)
-									: wmem_strdup_printf(wmem_epan_scope(), "code=%d", a->code);
+						    wmem_strdup_printf(wmem_epan_scope(), "vendor=%d code=%d", a->vendor->code, a->code)
+						  : wmem_strdup_printf(wmem_epan_scope(), "code=%d", a->code);
 	/* HFILL */
 	HFILL_INIT(hf);
 
