@@ -25,7 +25,6 @@
 #ifndef LBM_UIMFLOW_DLG_H_INCLUDED
 #define LBM_UIMFLOW_DLG_H_INCLUDED
 
-#include "config.h"
 #include <glib.h>
 
 void lbmc_uim_flow_menu_cb(gpointer arg);

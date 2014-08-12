@@ -25,7 +25,6 @@
 #ifndef LBM_STREAM_DLG_H_INCLUDED
 #define LBM_STREAM_DLG_H_INCLUDED
 
-#include "config.h"
 #include <glib.h>
 
 void lbmc_stream_dlg_stream_menu_cb(gpointer arg);
