@@ -233,9 +233,6 @@ static int hf_snmp_agentid_trailer = -1;
 
 #include "packet-snmp-hf.c"
 
-static int hf_smux_version = -1;
-static int hf_smux_pdutype = -1;
-
 /* Initialize the subtree pointers */
 static gint ett_smux = -1;
 static gint ett_snmp = -1;
@@ -2627,21 +2624,13 @@ void proto_reg_handoff_snmp(void) {
 void
 proto_register_smux(void)
 {
-	static hf_register_info hf[] = {
-		{ &hf_smux_version,
-		{ "Version", "smux.version", FT_UINT8, BASE_DEC, NULL,
-		    0x0, NULL, HFILL }},
-		{ &hf_smux_pdutype,
-		{ "PDU type", "smux.pdutype", FT_UINT8, BASE_DEC, VALS(smux_types),
-		    0x0, NULL, HFILL }},
-	};
 	static gint *ett[] = {
 		&ett_smux,
 	};
 
 	proto_smux = proto_register_protocol("SNMP Multiplex Protocol",
 	    "SMUX", "smux");
-	proto_register_field_array(proto_smux, hf, array_length(hf));
+
 	proto_register_subtree_array(ett, array_length(ett));
 
 }
