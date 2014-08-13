@@ -662,7 +662,7 @@ dissect_hip_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_item *ti, i
                                 newoffset += (1 + tvb_get_guint8(tvb, newoffset + 2));
                                 tlv_len -= (1 + tvb_get_guint8(tvb, newoffset + 2));
                         }
-                        if (ti_loc) {
+                        if (locator_type <= 2) {
                                 ti_loc = proto_item_add_subtree(ti_loc, ett_hip_locator_data);
                                 /* Traffic type */
                                 proto_tree_add_item(ti_loc, hf_hip_tlv_locator_traffic_type, tvb,
