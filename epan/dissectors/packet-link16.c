@@ -30,7 +30,7 @@ void proto_register_link16(void);
 enum {
     WORDFORMAT_INITIAL = 0,
     WORDFORMAT_CONTINUATION,
-    WORDFORMAT_EXTENSION,
+    WORDFORMAT_EXTENSION
 };
 
 static const value_string WordFormat_Strings[] = {
