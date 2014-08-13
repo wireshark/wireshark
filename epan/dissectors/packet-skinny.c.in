@@ -1,0 +1,559 @@
+/* Do not modify this file. Changes will be overwritten */
+/* Generated Automatically                              */
+/* packet-skinny.c                                      */
+
+/* packet-skinny.c
+ * Dissector for the Skinny Client Control Protocol
+ *   (The "D-Channel"-Protocol for Cisco Systems' IP-Phones)
+ *
+ * Author: Diederik de Groot <ddegroot@user.sf.net>, Copyright 2014
+ * Rewritten to support newer skinny protocolversions (V0-V22)
+ * Based on previous versions/contributions:
+ *  - Joerg Mayer <jmayer@loplof.de>, Copyright 2001
+ *  - Paul E. Erkkila (pee@erkkila.org) - fleshed out the decode
+ *    skeleton to report values for most message/message fields.
+ *    Much help from Guy Harris on figuring out the wireshark api.
+ *  - packet-aim.c by Ralf Hoelzer <ralf@well.com>, Copyright 2000
+ *  - Wireshark - Network traffic analyzer, 
+ *    By Gerald Combs <gerald@wireshark.org>, Copyright 1998
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+
+/* [[[cog
+#
+# Using Cog.py Inplace Code Generator
+#
+# Dependencies:
+# - python
+# - cog.py: http://nedbatchelder.com/code/cog/
+# - python.xml
+# - python.xml.sax
+#
+cog.out('/*\n')
+cog.out(' * Generated Automatically Using:\n')
+cog.out(' *   cog.py -D xmlfile=SkinnyProtocolOptimized.xml -d -c -o packet-skinny.c packet-skinny.c.in\n')
+cog.out(' */\n')
+]]]*/
+/*[[[end]]]*/
+
+/* c-basic-offset: 2; tab-width: 2; indent-tabs-mode: nil
+ * vi: set shiftwidth=2 tabstop=2 expandtab:
+ * :indentSize=2:tabSize=2:noTabs=true:
+ */
+
+#include "config.h"
+
+#include <epan/packet.h>
+#include <epan/prefs.h>
+#include <epan/tap.h>
+#include <epan/ptvcursor.h>
+
+#include "packet-rtp.h"
+#include "packet-tcp.h"
+#include "packet-ssl.h"
+#include "packet-skinny.h"
+
+void proto_register_skinny(void);
+void proto_reg_handoff_skinny(void);
+
+
+#define TCP_PORT_SKINNY 2000
+#define SSL_PORT_SKINNY 2443 /* IANA assigned to PowerClient Central Storage Facility */
+
+#define BASIC_MSG_TYPE 0x00
+#define V10_MSG_TYPE 0x0A
+#define V11_MSG_TYPE 0x0B
+#define V15_MSG_TYPE 0x0F
+#define V16_MSG_TYPE 0x10
+#define V17_MSG_TYPE 0x11
+#define V18_MSG_TYPE 0x12
+#define V19_MSG_TYPE 0x13
+#define V20_MSG_TYPE 0x14
+#define V21_MSG_TYPE 0x15
+#define V22_MSG_TYPE 0x16
+
+static const value_string header_version[] = {
+  { BASIC_MSG_TYPE, "Basic" },
+  { V10_MSG_TYPE,   "V10" },
+  { V11_MSG_TYPE,   "V11" },
+  { V15_MSG_TYPE,   "V15" },
+  { V16_MSG_TYPE,   "V16" },
+  { V17_MSG_TYPE,   "V17" },
+  { V18_MSG_TYPE,   "V18" },
+  { V19_MSG_TYPE,   "V19" },
+  { V20_MSG_TYPE,   "V20" },
+  { V21_MSG_TYPE,   "V21" },
+  { V22_MSG_TYPE,   "V22" },
+  { 0             , NULL }
+};
+
+/* Declare MessageId */
+/* [[[cog
+import parse_xml2skinny_dissector as xml2skinny
+global skinny
+global message_dissector_functions
+
+message_dissector_functions = ''
+skinny = xml2skinny.xml2obj(xmlfile)
+
+cog.out('static const value_string  message_id[] = {\n')
+for message in skinny.message:
+    message_dissector_functions += '%s' %message.dissect()
+    cog.out('  { %s, "%s" },\n' %(message.opcode, message.name.replace('Message','')))
+cog.out('  {0     , NULL}\n')
+cog.out('};\n')
+cog.out('static value_string_ext message_id_ext = VALUE_STRING_EXT_INIT(message_id);\n')
+]]]*/
+/*[[[end]]]*/
+
+
+/* Declare Enums and Defines */
+/* [[[cog
+for enum in skinny.enum:
+    name = enum.name[0].upper() + enum.name[1:]
+    if enum.define == "yes":
+        for entries in enum.entries:
+            for entry in sorted(entries.entry, key=lambda x: int(x['value'],0)):
+                if entries.type is not None:
+                    cog.out('#define {0:38} 0x{1:05x} /* {2} */\n' .format(entry.name.upper(), int(entry.value,0), entries.type))
+                else:
+                    cog.out('#define {0:38} 0x{1:05x}\n' .format(entry.name.upper(), int(entry.value,0)))
+        cog.out('\n')
+    cog.out('static const value_string %s[] = {\n' %(name))
+    for entries in enum.entries:
+        for entry in sorted(entries.entry, key=lambda x: int(x['value'],0)):
+            if enum.define == "yes":
+                cog.out('  { %s, "%s" },\n' %(entry.name.upper(), entry.text))
+            else:
+                cog.out('  { 0x%05x, "%s" },\n' %(int(entry.value,0), entry.text))
+    cog.out('  { 0x00000, NULL }\n')
+    cog.out('};\n')
+    cog.out('static value_string_ext %s_ext = VALUE_STRING_EXT_INIT(%s);\n\n' %(name, name))
+]]]*/
+/*[[[end]]]*/
+
+/* Staticly Declared Variables */
+static int proto_skinny                 = -1;
+static int hf_skinny_messageId          = -1;
+static int hf_skinny_data_length        = -1;
+static int hf_skinny_hdr_version        = -1;
+static int hf_skinny_xmlData            = -1;
+static int hf_skinny_ipv4or6            = -1;
+
+/* [[[cog
+for key in sorted(xml2skinny.fieldsArray.keys()):
+    cog.out('static int hf_skinny_%s = -1;\n' %key)
+]]]*/
+/*[[[end]]]*/
+
+static dissector_table_t media_type_dissector_table;
+
+/* Initialize the subtree pointers */
+static gint ett_skinny          = -1;
+static gint ett_skinny_tree     = -1;
+
+/* desegmentation of SCCP */
+static gboolean skinny_desegment = TRUE;
+
+/* tap register id */
+static int skinny_tap = -1;
+
+/* skinny protocol tap info */
+#define MAX_SKINNY_MESSAGES_IN_PACKET 10
+static skinny_info_t pi_arr[MAX_SKINNY_MESSAGES_IN_PACKET];
+static int pi_current = 0;
+static skinny_info_t *si;
+
+dissector_handle_t skinny_handle;
+
+/* Get the length of a single SCCP PDU */
+static guint
+get_skinny_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+{
+  guint32 hdr_data_length;
+
+  /* Get the length of the SCCP packet. */
+  hdr_data_length = tvb_get_letohl(tvb, offset);
+
+  /* That length doesn't include the length of the header itself. */
+  return hdr_data_length + 8;
+}
+
+static void
+dissect_skinny_xml(ptvcursor_t *cursor, int hfindex, packet_info *pinfo, guint32 length, guint32 maxlength)
+{
+  proto_item         *item       = NULL;
+  proto_tree         *subtree    = NULL;
+  dissector_handle_t handle      = NULL;
+  proto_tree         *tree       = ptvcursor_tree(cursor);
+  guint32            offset      = ptvcursor_current_offset(cursor);
+  tvbuff_t           *tvb        = ptvcursor_tvbuff(cursor);
+  tvbuff_t           *next_tvb;
+
+  if (length == 0) {
+    length = tvb_strnlen(tvb, offset, -1);
+  }
+  if (length >= maxlength) {
+    length = maxlength;
+  }
+
+  ptvcursor_add_no_advance(cursor, hfindex, length, ENC_ASCII|ENC_NA);
+
+  item = proto_tree_add_item(tree, hf_skinny_xmlData, tvb, offset, length, ENC_ASCII|ENC_NA);
+  subtree = proto_item_add_subtree(item, 0);
+  next_tvb = tvb_new_subset(tvb, offset, length, -1);
+  handle = dissector_get_string_handle(media_type_dissector_table, "text/xml");
+  if (handle != NULL) {
+    call_dissector(handle, next_tvb, pinfo, subtree);
+  }
+  ptvcursor_advance(cursor, maxlength);
+}
+
+static void
+dissect_skinny_ipv4or6(ptvcursor_t *cursor, int hfindex_ipv4, int hfindex_ipv6, packet_info *pinfo)
+{
+  address            src_addr;
+  guint32            ipversion   = 0;
+  guint32            offset      = ptvcursor_current_offset(cursor);
+  tvbuff_t           *tvb        = ptvcursor_tvbuff(cursor);
+  guint32            hdr_version = tvb_get_letohl(tvb, 4);
+  gboolean           is_video    = 0;
+
+  /* ProtocolVersion > 18 include and extra field to declare IPv4 (0) / IPv6 (1) */
+  if (hdr_version >= V18_MSG_TYPE) {
+    ipversion = tvb_get_letohl(tvb, offset);
+    ptvcursor_add(cursor, hf_skinny_ipv4or6, 4, ENC_LITTLE_ENDIAN);
+  }
+  if (ipversion == IPADDRTYPE_IPV4) {
+    guint32 ip_address;
+    src_addr.type = AT_IPv4;
+    src_addr.len = 4;
+    src_addr.data = (guint8 *)&ip_address;
+    ip_address = tvb_get_ipv4(tvb, offset);
+    rtp_add_address(pinfo, &src_addr, tvb_get_letohl(tvb, offset), 0, "Skinny", pinfo->fd->num, is_video, NULL);
+    ptvcursor_add(cursor, hfindex_ipv4, 4, ENC_BIG_ENDIAN);
+    if (hdr_version >= V18_MSG_TYPE) {
+      /* skip over the extra room for ipv6 addresses */
+      ptvcursor_advance(cursor, 12);
+    }
+  } else if (ipversion == IPADDRTYPE_IPV6 || ipversion == IPADDRTYPE_IPV4_V6) {
+    struct e_in6_addr IPv6;
+    src_addr.type = AT_IPv6;
+    src_addr.len = 16;
+    src_addr.data = (guint16 *)&IPv6;
+    tvb_get_ipv6(tvb, offset, &IPv6);
+    rtp_add_address(pinfo, &src_addr, tvb_get_letohl(tvb, offset), 0, "Skinny", pinfo->fd->num, is_video, NULL);
+    ptvcursor_add(cursor, hfindex_ipv6, 16, ENC_BIG_ENDIAN);
+  } else {
+    /* Invalid : skip over ipv6 space completely */
+    ptvcursor_advance(cursor, 16);
+  }
+}
+
+static void
+dissect_skinny_displayLabel(ptvcursor_t *cursor, int hfindex, guint32 length, guint32 maxlength)
+{
+  proto_item         *item        = NULL;
+  proto_tree         *tree        = ptvcursor_tree(cursor);
+  guint32            offset       = ptvcursor_current_offset(cursor);
+  tvbuff_t           *tvb         = ptvcursor_tvbuff(cursor);
+
+  const gchar        *disp_string = NULL;
+  wmem_strbuf_t         *wmem_new = NULL;
+  const gchar         *replacestr = NULL;
+  guint                         x = 0;
+  guint       append_replaced_str = 0;
+
+  if (length == 0) {
+    length = tvb_strnlen(tvb, offset, -1) + 1;
+  }
+  if (length >= maxlength) {
+    length = maxlength;
+  }
+
+  disp_string = (const gchar *) tvb_memdup(wmem_packet_scope(), tvb, offset, length);
+  item = proto_tree_add_item(tree, hfindex, tvb, offset, length, ENC_ASCII | ENC_NA);
+
+  wmem_new = wmem_strbuf_sized_new(wmem_packet_scope(), strlen(disp_string), maxlength);
+
+  while (*disp_string) {
+    replacestr = '\0';
+    if (strlen(disp_string) > x+1) {
+      if (*disp_string == '\36') {
+        replacestr = try_val_to_str_ext(disp_string[x + 1], &DisplayLabels_36_ext);
+      } else if (*disp_string == '\200') {
+        replacestr = try_val_to_str_ext(disp_string[x + 1], &DisplayLabels_200_ext);
+      }
+    }
+    if (replacestr) {
+      disp_string++; x++; /* swallow replaced characters */
+      wmem_strbuf_append(wmem_new, replacestr);
+      append_replaced_str = 1;
+    } else {
+      wmem_strbuf_append_c(wmem_new, *disp_string);
+    }
+    x++;
+    disp_string++;
+  }
+
+  if (append_replaced_str) {
+    proto_item_append_text(item, " => \"%s\"" , wmem_strbuf_get_str(wmem_new));
+  }
+  ptvcursor_advance(cursor, length);
+}
+
+/*** Messages Handlers ***/
+
+/* [[[cog
+cog.out(message_dissector_functions)
+]]]*/
+/*[[[end]]]*/
+
+/* Messages Handler Array */
+/* [[[cog
+cog.out('typedef void (*message_handler) (ptvcursor_t * cursor, packet_info *pinfo);\n')
+cog.out('static const struct opcode2handler {\n')
+cog.out('  guint16 opcode;\n');
+cog.out('  message_handler handler;\n');
+cog.out('  const char *name;\n');
+cog.out('} skinny_opcode2handler[] = {\n')
+for message in skinny.message:
+    cog.out('  {%-6s, %-47s, "%s"},\n' %(message.opcode, message.gen_handler(), message.name))
+cog.out('};\n')
+]]]*/
+/*[[[end]]]*/
+
+/* Dissect a single SCCP PDU */
+static int dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+  guint    offset   = 0;
+  /*gboolean is_video = FALSE;*/    /* FIX ME: need to indicate video or not */
+  ptvcursor_t* cursor;
+
+  /* Header fields */
+  guint32  hdr_data_length;
+  guint32  hdr_version;
+  guint32  data_messageid;
+  guint16  i;
+
+  /* Set up structures we will need to add the protocol subtree and manage it */
+  proto_tree *skinny_tree = NULL;
+  proto_item *ti = NULL;
+
+  /* Initialization */
+  /*
+  hdr_data_length = tvb_get_letohl(tvb, offset);
+  hdr_version     = tvb_get_letohl(tvb, offset+4);
+  data_messageid  = tvb_get_letohl(tvb, offset+8);
+  */
+  hdr_data_length = tvb_get_letohl(tvb, 0);
+  hdr_version     = tvb_get_letohl(tvb, 4);
+  data_messageid  = tvb_get_letohl(tvb, 8);
+
+  /* Initialise stat info for passing to tap */
+  pi_current++;
+  if (pi_current == MAX_SKINNY_MESSAGES_IN_PACKET)
+  {
+    /* Overwrite info in first struct if run out of space... */
+    pi_current = 0;
+  }
+  si = &pi_arr[pi_current];
+  si->messId = data_messageid;
+  si->messageName = val_to_str_ext(data_messageid, &message_id_ext, "0x%08X (Unknown)");
+  si->callId = 0;
+  si->lineId = 0;
+  si->passThruId = 0;
+  si->callState = 0;
+  g_free(si->callingParty);
+  si->callingParty = NULL;
+  g_free(si->calledParty);
+  si->calledParty = NULL;
+  si->openreceiveStatus = 0;
+  si->startmediatransmisionStatus = 0;
+
+  /* In the interest of speed, if "tree" is NULL, don't do any work not
+   * necessary to generate protocol tree items.
+   */
+  if (tree) {
+    ti = proto_tree_add_item(tree, proto_skinny, tvb, offset, hdr_data_length+8, ENC_NA);
+    skinny_tree = proto_item_add_subtree(ti, ett_skinny);
+    proto_tree_add_uint(skinny_tree, hf_skinny_data_length, tvb, offset, 4, hdr_data_length);
+    proto_tree_add_uint(skinny_tree, hf_skinny_hdr_version, tvb, offset+4, 4, hdr_version);
+  }
+
+  col_add_fstr(pinfo->cinfo, COL_INFO,"%s ", si->messageName);
+  col_set_fence(pinfo->cinfo, COL_INFO);
+
+  /*offset += 8;*/
+  /*cursor = ptvcursor_new(skinny_tree, tvb, offset);*/
+
+  proto_tree_add_uint(skinny_tree, hf_skinny_messageId, tvb,offset+8, 4, data_messageid );
+  /*ptvcursor_add(cursor, hf_skinny_messageId, 4, data_messageid);*/
+
+  offset += 12;
+  cursor = ptvcursor_new(skinny_tree, tvb, offset);
+
+  for (i = 0; i < sizeof(skinny_opcode2handler)/sizeof(struct opcode2handler) ; i++) {
+    if (skinny_opcode2handler[i].opcode == data_messageid && skinny_opcode2handler[i].handler) {
+      skinny_opcode2handler[i].handler(cursor, pinfo);
+    }
+  }
+  ptvcursor_free(cursor);
+
+  tap_queue_packet(skinny_tap, pinfo, si);
+  return tvb_captured_length(tvb);
+}
+
+/* Code to actually dissect the packets */
+static int
+dissect_skinny(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+  /* The general structure of a packet: {IP-Header|TCP-Header|n*SKINNY}
+   * SKINNY-Packet: {Header(Size, Reserved)|Data(MessageID, Message-Data)}
+   */
+  /* Header fields */
+  guint32 hdr_data_length;
+  guint32 hdr_version;
+
+  /* check, if this is really an SKINNY packet, they start with a length + 0 */
+
+  if (tvb_captured_length(tvb) < 8)
+  {
+    return 0;
+  }
+  /* get relevant header information */
+  hdr_data_length = tvb_get_letohl(tvb, 0);
+  hdr_version     = tvb_get_letohl(tvb, 4);
+
+  /*  data_size       = MIN(8+hdr_data_length, tvb_length(tvb)) - 0xC; */
+
+  if (
+      (hdr_data_length < 4) ||
+      ((hdr_version != BASIC_MSG_TYPE) &&
+       (hdr_version != V10_MSG_TYPE) &&
+       (hdr_version != V11_MSG_TYPE) &&
+       (hdr_version != V15_MSG_TYPE) &&
+       (hdr_version != V16_MSG_TYPE) &&
+       (hdr_version != V17_MSG_TYPE) &&
+       (hdr_version != V18_MSG_TYPE) &&
+       (hdr_version != V19_MSG_TYPE) &&
+       (hdr_version != V20_MSG_TYPE) &&
+       (hdr_version != V21_MSG_TYPE) &&
+       (hdr_version != V22_MSG_TYPE))
+     )
+  {
+      /* Not an SKINNY packet, just happened to use the same port */
+      return 0;
+  }
+
+  /* Make entries in Protocol column and Info column on summary display */
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "SKINNY");
+
+  col_set_str(pinfo->cinfo, COL_INFO, "Skinny Client Control Protocol");
+
+  tcp_dissect_pdus(tvb, pinfo, tree, skinny_desegment, 4, get_skinny_pdu_len, dissect_skinny_pdu, data);
+
+  return tvb_captured_length(tvb);
+}
+
+/* Register the protocol with Wireshark */
+void
+proto_register_skinny(void)
+{
+  /* Setup list of header fields */
+  static hf_register_info hf[] = {
+    { &hf_skinny_data_length,
+      {
+        "Data length", "skinny.data_length", FT_UINT32, BASE_DEC, NULL, 0x0,
+        "Number of bytes in the data portion.", HFILL }},
+    { &hf_skinny_hdr_version,
+      {
+        "Header version", "skinny.hdr_version", FT_UINT32, BASE_HEX, VALS(header_version), 0x0,
+        NULL, HFILL }},
+    { &hf_skinny_messageId,
+      {
+        "Message ID", "skinny.messageId", FT_UINT32, BASE_DEC|BASE_EXT_STRING, &message_id_ext, 0x0,
+        NULL, HFILL }},
+    { &hf_skinny_xmlData,
+      {
+        "XML data", "skinny.xmlData", FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL,  HFILL }},
+    { &hf_skinny_ipv4or6,
+      {
+        "IPv4or6", "skinny.ipv4or6", FT_UINT32, BASE_DEC|BASE_EXT_STRING, &IpAddrType_ext, 0x0,
+        NULL, HFILL }},
+    /* [[[cog
+    for valuestr in sorted(xml2skinny.fieldsArray.values()):
+      cog.out('%s' %valuestr)
+    ]]]*/
+    /*[[[end]]]*/
+  };
+
+  /* Setup protocol subtree array */
+  static gint *ett[] = {
+    &ett_skinny,
+    &ett_skinny_tree,
+  };
+
+  module_t *skinny_module;
+
+  /* Register the protocol name and description */
+  proto_skinny = proto_register_protocol("Skinny Client Control Protocol",
+                                         "SKINNY", "skinny");
+
+  /* Required function calls to register the header fields and subtrees used */
+  proto_register_field_array(proto_skinny, hf, array_length(hf));
+  proto_register_subtree_array(ett, array_length(ett));
+
+  skinny_module = prefs_register_protocol(proto_skinny, NULL);
+  prefs_register_bool_preference(skinny_module, "desegment",
+    "Reassemble SCCP messages spanning multiple TCP segments",
+    "Whether the SCCP dissector should reassemble messages spanning multiple TCP segments."
+    " To use this option, you must also enable"
+    " \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
+    &skinny_desegment);
+
+  skinny_tap = register_tap("skinny");
+}
+
+void
+proto_reg_handoff_skinny(void)
+{
+  static gboolean    skinny_prefs_initialized = FALSE;
+
+  if (!skinny_prefs_initialized) {
+    /* Skinny content type and internet media type used by other dissectors are the same */
+    media_type_dissector_table = find_dissector_table("media_type");
+    skinny_handle = new_create_dissector_handle(dissect_skinny, proto_skinny);
+    dissector_add_uint("tcp.port", TCP_PORT_SKINNY, skinny_handle);
+
+    ssl_dissector_add(SSL_PORT_SKINNY, "skinny", TRUE);
+    skinny_prefs_initialized = TRUE;
+  }
+}
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 2
+ * tab-width: 2
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=2 tabstop=2 expandtab:
+ * :indentSize=2:tabSize=2:noTabs=true:
+ */
