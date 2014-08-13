@@ -646,7 +646,7 @@ static const guint8 *C_BANNER = (const guint8*)"ceph";
 enum c_banner {
 	C_BANNER_SIZE     = 9,
 	C_BANNER_SIZE_MIN = 4,
-	C_BANNER_SIZE_MAX = 30,
+	C_BANNER_SIZE_MAX = 30
 };
 
 /** Feature Flags */
@@ -702,13 +702,13 @@ typedef enum _c_features {
 
 /** Connect Message Flags */
 typedef enum _c_flags {
-	C_FLAG_LOSSY = 1 << 0,
+	C_FLAG_LOSSY = 1 << 0
 } c_flags;
 
 typedef enum _c_pgpool_flags {
 	C_PGPOOL_FLAG_HASHPSPOOL = 1 << 0, /* hash pg seed and pool together (instead of adding) */
 	C_PGPOOL_FLAG_FULL       = 1 << 1, /* pool is full */
-	C_PGPOOL_FLAG_FAKE_EC_POOL = 1 << 2, /* require ReplicatedPG to act like an EC pg */
+	C_PGPOOL_FLAG_FAKE_EC_POOL = 1 << 2 /* require ReplicatedPG to act like an EC pg */
 } c_pgpool_flags;
 
 /** Macros to create value_stings.
@@ -1446,7 +1446,7 @@ char *c_format_uuid(tvbuff_t *tvb, guint off)
 
 enum c_ressembly {
 	C_NEEDMORE = G_MAXUINT,
-	C_INVALID  = 0,
+	C_INVALID  = 0
 };
 
 /*** Expert info warning functions. ***/
