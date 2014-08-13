@@ -1745,36 +1745,27 @@ dissect_usb_endpoint_descriptor(packet_info *pinfo, proto_tree *parent_tree,
      * usb_conv_info structure.
      */
     if ((!pinfo->fd->flags.visited)&&usb_trans_info->interface_info) {
-        conversation_t *conversation;
+        conversation_t *conversation = NULL;
 
         if (pinfo->destport == NO_ENDPOINT) {
             static address tmp_addr;
             static usb_address_t usb_addr;
 
-            /* Create a new address structure that points to the same device
-             * but the new endpoint.
+            /* packet is sent from a USB device's endpoint 0 to the host
+             * replace endpoint 0 with the endpoint of this descriptor
+             * and find the corresponding conversation
              */
             usb_addr.bus_id = ((const usb_address_t *)(pinfo->src.data))->bus_id;
             usb_addr.device = ((const usb_address_t *)(pinfo->src.data))->device;
             usb_addr.endpoint = GUINT32_TO_LE(endpoint);
             SET_ADDRESS(&tmp_addr, AT_USB, USB_ADDR_LEN, (char *)&usb_addr);
             conversation = get_usb_conversation(pinfo, &tmp_addr, &pinfo->dst, usb_addr.endpoint, pinfo->destport);
-        } else {
-            static address tmp_addr;
-            static usb_address_t usb_addr;
-
-            /* Create a new address structure that points to the same device
-             * but the new endpoint.
-             */
-            usb_addr.bus_id = ((const usb_address_t *)(pinfo->dst.data))->bus_id;
-            usb_addr.device = ((const usb_address_t *)(pinfo->dst.data))->device;
-            usb_addr.endpoint = GUINT32_TO_LE(endpoint);
-            SET_ADDRESS(&tmp_addr, AT_USB, USB_ADDR_LEN, (char *)&usb_addr);
-            conversation = get_usb_conversation(pinfo, &pinfo->src, &tmp_addr, pinfo->srcport, usb_addr.endpoint);
         }
 
-        usb_trans_info->interface_info->endpoint = endpoint;
-        conversation_add_proto_data(conversation, proto_usb, usb_trans_info->interface_info);
+        if (conversation) {
+            usb_trans_info->interface_info->endpoint = endpoint;
+            conversation_add_proto_data(conversation, proto_usb, usb_trans_info->interface_info);
+        }
     }
 
     /* bmAttributes */
