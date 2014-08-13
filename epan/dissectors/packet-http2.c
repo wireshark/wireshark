@@ -80,10 +80,10 @@ typedef struct {
             /* name index or name/value index if type is one of
                HTTP2_HD_INDEXED and HTTP2_HD_*_INDEXED_NAMEs */
             guint index;
-        };
+        } data;
         /* header table size if type == HTTP2_HD_HEADER_TABLE_SIZE_UPDATE */
         guint header_table_size;
-    };
+    } table;
 } http2_header_t;
 
 /* Context to decode header representation */
@@ -585,7 +585,7 @@ process_http2_header_repr_info(wmem_array_t *headers,
 
                 out->type = header_repr_info->type;
                 out->length = i - start;
-                out->header_table_size = header_repr_info->integer;
+                out->table.header_table_size = header_repr_info->integer;
 
                 wmem_array_append(headers, out, 1);
 
@@ -675,9 +675,9 @@ inflate_http2_header_block(tvbuff_t *tvb, packet_info *pinfo, guint offset,
 
                 out->type = header_repr_info->type;
                 out->length = rv;
-                out->index = header_repr_info->integer;
+                out->table.data.index = header_repr_info->integer;
 
-                out->datalen = (guint)(4 + nv.namelen + 4 + nv.valuelen);
+                out->table.data.datalen = (guint)(4 + nv.namelen + 4 + nv.valuelen);
 
                 /* Prepare buffer... with the following format
                    name length (uint32)
@@ -685,7 +685,7 @@ inflate_http2_header_block(tvbuff_t *tvb, packet_info *pinfo, guint offset,
                    value length (uint32)
                    value (string)
                 */
-                str = wmem_alloc_array(wmem_file_scope(), char, out->datalen);
+                str = wmem_alloc_array(wmem_file_scope(), char, out->table.data.datalen);
 
                 /* nv.namelen and nv.valuelen are of size_t.  In order
                    to get length in 4 bytes, we have to copy it to
@@ -698,7 +698,7 @@ inflate_http2_header_block(tvbuff_t *tvb, packet_info *pinfo, guint offset,
                 memcpy(&str[4 + nv.namelen], (char *)&len, sizeof(len));
                 memcpy(&str[4 + nv.namelen + 4], nv.value, nv.valuelen);
 
-                out->data = str;
+                out->table.data.data = str;
 
                 wmem_array_append(headers, out, 1);
 
@@ -745,13 +745,13 @@ inflate_http2_header_block(tvbuff_t *tvb, packet_info *pinfo, guint offset,
             continue;
         }
 
-        str = (char *)g_malloc(in->datalen);
-        memcpy(str, in->data, in->datalen);
+        str = (char *)g_malloc(in->table.data.datalen);
+        memcpy(str, in->table.data.data, in->table.data.datalen);
 
-        header_len += in->datalen;
+        header_len += in->table.data.datalen;
 
         /* Now setup the tvb buffer to have the new data */
-        next_tvb = tvb_new_child_real_data(tvb, str, in->datalen, in->datalen);
+        next_tvb = tvb_new_child_real_data(tvb, str, in->table.data.datalen, in->table.data.datalen);
         tvb_set_free_cb(next_tvb, g_free);
         tvb_composite_append(header_tvb, next_tvb);
     }
@@ -770,7 +770,7 @@ inflate_http2_header_block(tvbuff_t *tvb, packet_info *pinfo, guint offset,
 
             header_tree = proto_item_add_subtree(header, ett_http2_headers);
 
-            proto_tree_add_uint(header_tree, hf_http2_header_table_size, tvb, offset, in->length, in->header_table_size);
+            proto_tree_add_uint(header_tree, hf_http2_header_table_size, tvb, offset, in->length, in->table.header_table_size);
 
             offset += in->length;
             continue;
@@ -810,7 +810,7 @@ inflate_http2_header_block(tvbuff_t *tvb, packet_info *pinfo, guint offset,
            in->type == HTTP2_HD_LITERAL_INDEXING_INDEXED_NAME ||
            in->type == HTTP2_HD_LITERAL_INDEXED_NAME ||
            in->type == HTTP2_HD_LITERAL_NEVER_INDEXING_INDEXED_NAME) {
-            proto_tree_add_uint(header_tree, hf_http2_header_index, tvb, offset, in->length, in->index);
+            proto_tree_add_uint(header_tree, hf_http2_header_index, tvb, offset, in->length, in->table.data.index);
         }
 
         proto_item_append_text(header, ": %s: %s", header_name, header_value);
