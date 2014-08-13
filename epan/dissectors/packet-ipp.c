@@ -554,7 +554,7 @@ add_integer_value(const gchar *tag_desc, proto_tree *tree, tvbuff_t *tvb,
                   int offset, int name_length, int value_length, guint8 tag)
 {
     guint8 bool_val;
-    char *name_val;
+    char *name_val = NULL;
 
     offset = add_value_head(tag_desc, tree, tvb, offset, name_length,
                             value_length, &name_val);
