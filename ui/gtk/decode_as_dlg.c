@@ -1303,7 +1303,6 @@ decode_add_notebook (GtkWidget *format_hb)
     const char*        proto_name;
     GList             *list_entry;
     decode_as_t       *entry;
-    dissector_table_t  sub_dissectors;
 
     /* Start a nootbook for flipping between sets of changes */
     notebook = gtk_notebook_new();
@@ -1320,8 +1319,8 @@ decode_add_notebook (GtkWidget *format_hb)
             entry = (decode_as_t *)list_entry->data;
             if (!strcmp(proto_name, entry->name))
             {
-                sub_dissectors = find_dissector_table(entry->table_name);
-                if (sub_dissectors != NULL)
+                if ((find_dissector_table(entry->table_name) != NULL) ||
+                    (!strcmp(proto_name, "dcerpc")))
                 {
                     page = decode_add_simple_page(entry);
                     label = gtk_label_new(entry->title);
