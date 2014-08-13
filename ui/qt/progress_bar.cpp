@@ -30,9 +30,8 @@
 #include <QGraphicsOpacityEffect>
 #include <QPropertyAnimation>
 
-// XXX We should probably call ITaskbarList3::SetProgressState and
-// ::SetProgressState on Windows and add an NSProgressIndicator to the
-// dock icon on OS X.
+// XXX We should probably add an NSProgressIndicator to the dock icon
+// on OS X.
 
 static progdlg_t *
 common_create_progress_dlg(bool animate, const gpointer top_level_window,
@@ -116,6 +115,9 @@ destroy_progress_dlg(progdlg_t *dlg)
 //       into our sibling status message?
 ProgressBar::ProgressBar(QWidget *parent) :
     QProgressBar(parent), terminate_is_stop_(false), stop_flag_(NULL)
+#ifdef QWINTASKBARPROGRESS_H
+    , taskbar_progress_(NULL)
+#endif
 {
     progress_dialog_.progress_bar = this;
     progress_dialog_.top_level_window = window();
@@ -161,9 +163,37 @@ progdlg_t * ProgressBar::show(bool animate, bool terminate_is_stop, gboolean *st
     Q_UNUSED(animate);
 #endif
 
+#ifdef QWINTASKBARPROGRESS_H
+    // windowHandle() is picky about returning a non-NULL value so we check it
+    // each time.
+    if (!taskbar_progress_ && window()->windowHandle()) {
+        QWinTaskbarButton *taskbar_button = new QWinTaskbarButton(this);
+        if (taskbar_button) {
+            taskbar_button->setWindow(window()->windowHandle());
+            taskbar_progress_ = taskbar_button->progress();
+            connect(this, SIGNAL(valueChanged(int)), taskbar_progress_, SLOT(setValue(int)));
+        }
+    }
+    if (taskbar_progress_) {
+        taskbar_progress_->show();
+    }
+    taskbar_progress_->resume();
+#endif
+
     QProgressBar::show();
     return &progress_dialog_;
 }
+
+#ifdef QWINTASKBARPROGRESS_H
+void ProgressBar::hide()
+{
+    if (taskbar_progress_) {
+        taskbar_progress_->reset();
+        taskbar_progress_->hide();
+    }
+    QProgressBar::hide();
+}
+#endif
 
 /*
  * Editor modelines

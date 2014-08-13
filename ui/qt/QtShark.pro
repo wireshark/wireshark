@@ -27,9 +27,11 @@ isEqual(QT_MAJOR_VERSION, 4) {
     QT += core gui
 } else {
     QT += core widgets printsupport
-    win: QT += gui-private
 }
 
+isEqual(QT_MAJOR_VERSION, 5): greaterThan(QT_MINOR_VERSION, 1): win32 {
+    QT += winextras
+}
 
 macx {
     TARGET = Wireshark

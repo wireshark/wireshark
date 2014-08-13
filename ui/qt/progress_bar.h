@@ -28,6 +28,11 @@
 
 #include <QProgressBar>
 
+#if defined(Q_OS_WIN) && QT_VERSION >= QT_VERSION_CHECK(5, 2, 0)
+#include <QWinTaskbarButton>
+#include <QWinTaskbarProgress>
+#endif
+
 class ProgressBar;
 
 // Define the structure describing a progress dialog.
@@ -43,6 +48,9 @@ class ProgressBar : public QProgressBar
 public:
     explicit ProgressBar(QWidget *parent = 0);
     progdlg_t *show(bool animate, bool terminate_is_stop, gboolean *stop_flag, int value);
+#ifdef QWINTASKBARPROGRESS_H
+    void hide();
+#endif
 
 private:
     progdlg_t progress_dialog_;
@@ -50,6 +58,9 @@ private:
     QString status_;
     bool terminate_is_stop_;
     gboolean *stop_flag_;
+#ifdef QWINTASKBARPROGRESS_H
+    QWinTaskbarProgress *taskbar_progress_;
+#endif
 
 public slots:
 
