@@ -1046,7 +1046,7 @@ C_MAKE_STRINGS_EXT(c_mon_probe_type, 8)
 	V(C_SESSION_FLUSHMSG,          0x00000008, "Flush Message")      \
 	V(C_SESSION_FLUSHMSG_ACK,      0x00000009, "Flush Message Ack")  \
 
-C_MAKE_STRINGS_EXT(c_session_op_type, 8);
+C_MAKE_STRINGS_EXT(c_session_op_type, 8)
 
 #define c_mds_op_type_strings_VALUE_STRING_LIST(V) \
 	V(C_MDS_OP_LOOKUP,       0x00000100, "MDS_OP_LOOKUP")       \
@@ -1080,7 +1080,7 @@ C_MAKE_STRINGS_EXT(c_session_op_type, 8);
 	V(C_MDS_OP_FRAGMENTDIR,  0x00001500, "MDS_OP_FRAGMENTDIR")  \
 	V(C_MDS_OP_EXPORTDIR,    0x00001501, "MDS_OP_EXPORTDIR")
 
-C_MAKE_STRINGS_EXT(c_mds_op_type, 8);
+C_MAKE_STRINGS_EXT(c_mds_op_type, 8)
 
 #define c_cap_op_type_strings_VALUE_STRING_LIST(V) \
 	V(C_CAP_OP_GRANT,         0x00000000, "mds->client grant")                    \
