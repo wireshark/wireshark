@@ -131,9 +131,9 @@ static const value_string auth_types[] = {
 static snmp_usm_auth_model_t* auth_models[] = {&model_md5,&model_sha1};
 
 #define PRIV_DES	0
-#define PRIV_AES128     1
-#define PRIV_AES192     2
-#define PRIV_AES256     3
+#define PRIV_AES128	1
+#define PRIV_AES192	2
+#define PRIV_AES256	3
 
 static const value_string priv_types[] = {
 	{ PRIV_DES,    "DES" },
@@ -589,7 +589,7 @@ dissect_snmp_VarBind(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,
 	offset += name_len;
 	value_start = offset;
 
-	/* then we have the  value's header */
+	/* then we have the value's header */
 	offset = get_ber_identifier(tvb, offset, &ber_class, &pc, &tag);
 	value_offset = get_ber_length(tvb, offset, &value_len, &ind);
 
@@ -671,12 +671,12 @@ dissect_snmp_VarBind(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,
 	/* now we'll try to figure out which are the indexing sub-oids and whether the oid we know about is the one oid we have to use */
 	switch (oid_info->kind) {
 		case OID_KIND_SCALAR:
-			if (oid_left  == 1) {
+			if (oid_left == 1) {
 				/* OK: we got the instance sub-id */
 				proto_tree_add_uint64(pt_name,hf_snmp_scalar_instance_index,tvb,name_offset,name_len,subids[oid_matched]);
 				oid_info_is_ok = TRUE;
 				goto indexing_done;
-			} else if (oid_left  == 0) {
+			} else if (oid_left == 0) {
 				if (ber_class == BER_CLASS_UNI && tag == BER_UNI_TAG_NULL) {
 					/* unSpecified  does not require an instance sub-id add the new value and get off the way! */
 					pi_value = proto_tree_add_item(pt_varbind,hf_snmp_unSpecified,tvb,value_offset,value_len,ENC_NA);
@@ -873,7 +873,7 @@ indexing_done:
 				format_error = BER_WRONG_TAG;
 			else {
 				max_len = oid_info->value_type->max_len == -1 ? 0xffffff : oid_info->value_type->max_len;
-				min_len  = oid_info->value_type->min_len;
+				min_len = oid_info->value_type->min_len;
 
 				if ((int)value_len < min_len || (int)value_len > max_len)
 					format_error = BER_WRONG_LENGTH;
@@ -1026,21 +1026,21 @@ set_label:
 
 	if (oid_info && oid_info->name) {
 		if (oid_left >= 1) {
-			repr  = wmem_strdup_printf(wmem_packet_scope(), "%s.%s (%s)", oid_info->name,
+			repr = wmem_strdup_printf(wmem_packet_scope(), "%s.%s (%s)", oid_info->name,
 						 oid_subid2string(&(subids[oid_matched]),oid_left),
 						 oid_subid2string(subids,oid_matched+oid_left));
 			info_oid = wmem_strdup_printf(wmem_packet_scope(), "%s.%s", oid_info->name,
 						    oid_subid2string(&(subids[oid_matched]),oid_left));
 		} else {
-			repr  = wmem_strdup_printf(wmem_packet_scope(), "%s (%s)", oid_info->name,
+			repr = wmem_strdup_printf(wmem_packet_scope(), "%s (%s)", oid_info->name,
 						 oid_subid2string(subids,oid_matched));
 			info_oid = oid_info->name;
 		}
 	} else if (oid_string) {
-		repr  = wmem_strdup(wmem_packet_scope(), oid_string);
+		repr = wmem_strdup(wmem_packet_scope(), oid_string);
 		info_oid = oid_string;
 	} else {
-		repr  = wmem_strdup(wmem_packet_scope(), "[Bad OID]");
+		repr = wmem_strdup(wmem_packet_scope(), "[Bad OID]");
 	}
 
 	valstr = strstr(label,": ");
@@ -1049,7 +1049,7 @@ set_label:
 	proto_item_set_text(pi_varbind,"%s: %s",repr,valstr);
 
 	if (display_oid && info_oid) {
-	  col_append_fstr (actx->pinfo->cinfo, COL_INFO, " %s", info_oid);
+		col_append_fstr (actx->pinfo->cinfo, COL_INFO, " %s", info_oid);
 	}
 
 	switch (format_error) {
@@ -1085,8 +1085,8 @@ set_label:
 #define SNMP_ENGINEID_RFC3411 0x01
 
 static const true_false_string tfs_snmp_engineid_conform = {
-  "RFC3411 (SNMPv3)",
-  "RFC1910 (Non-SNMPv3)"
+	"RFC3411 (SNMPv3)",
+	"RFC1910 (Non-SNMPv3)"
 };
 
 #define SNMP_ENGINEID_FORMAT_IPV4 0x01
@@ -1101,7 +1101,7 @@ static const value_string snmp_engineid_format_vals[] = {
 	{ SNMP_ENGINEID_FORMAT_MACADDRESS,	"MAC address" },
 	{ SNMP_ENGINEID_FORMAT_TEXT,	"Text, administratively assigned" },
 	{ SNMP_ENGINEID_FORMAT_OCTETS,	"Octets, administratively assigned" },
-	{ 0,   	NULL }
+	{ 0,	NULL }
 };
 
 #define SNMP_ENGINEID_CISCO_AGENT 0x00
@@ -1403,7 +1403,7 @@ snmp_users_update_cb(void* p _U_, const char** err)
 		if ( u->user.userName.len == ue->user.userName.len
 			&& u->engine.len == ue->engine.len && (u != ue)) {
 
-			if (u->engine.len > 0 && memcmp( u->engine.data,   ue->engine.data,  u->engine.len ) == 0) {
+			if (u->engine.len > 0 && memcmp( u->engine.data, ue->engine.data, u->engine.len ) == 0) {
 				if ( memcmp( u->user.userName.data, ue->user.userName.data, ue->user.userName.len ) == 0 ) {
 					/* XXX: make a string for the engineId */
 					g_string_append_printf(es,"Duplicate key (userName='%s')\n",ue->user.userName.data);
@@ -1590,7 +1590,7 @@ snmp_usm_auth_md5(snmp_usm_params_t* p, guint8** calc_auth_p, guint* calc_auth_l
 
 
 static gboolean
-snmp_usm_auth_sha1(snmp_usm_params_t* p _U_, guint8** calc_auth_p, guint* calc_auth_len_p,  gchar const** error _U_)
+snmp_usm_auth_sha1(snmp_usm_params_t* p _U_, guint8** calc_auth_p, guint* calc_auth_len_p, gchar const** error _U_)
 {
 	gint msg_len;
 	guint8* msg;
@@ -1673,7 +1673,7 @@ snmp_usm_priv_des(snmp_usm_params_t* p _U_, tvbuff_t* encryptedData _U_, gchar c
 
 	salt_len = tvb_captured_length(p->priv_tvb);
 
-	if (salt_len != 8)  {
+	if (salt_len != 8) {
 		*error = "decryptionError: msgPrivacyParameters length != 8";
 		return NULL;
 	}
@@ -1746,7 +1746,7 @@ snmp_usm_priv_aes_common(snmp_usm_params_t* p, tvbuff_t* encryptedData, gchar co
 
 	priv_len = tvb_captured_length(p->priv_tvb);
 
-	if (priv_len != 8)  {
+	if (priv_len != 8) {
 		*error = "decryptionError: msgPrivacyParameters length != 8";
 		return NULL;
 	}
@@ -2044,7 +2044,7 @@ dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 static gint
 dissect_snmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-	conversation_t  *conversation;
+	conversation_t *conversation;
 	int offset;
 	gint8 tmp_class;
 	gboolean tmp_pc;
@@ -2165,7 +2165,7 @@ dissect_smux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 */
 static void
 snmp_usm_password_to_key_md5(const guint8 *password, guint passwordlen,
-			     const guint8 *engineID, guint   engineLength,
+			     const guint8 *engineID, guint engineLength,
 			     guint8 *key)
 {
 	md5_state_t	MD;
@@ -2229,7 +2229,7 @@ snmp_usm_password_to_key_sha1(const guint8 *password, guint passwordlen,
 	guint32		password_index = 0;
 	guint32		count = 0, i;
 
-	sha1_starts(&SH);   /* initialize SHA */
+	sha1_starts(&SH); /* initialize SHA */
 
 	/**********************************************/
 	/* Use while loop until we've done 1 Megabyte */
@@ -2353,7 +2353,7 @@ void proto_register_snmp(void) {
 		    "Authentication", "snmp.v3.auth", FT_BOOLEAN, BASE_NONE,
 		    TFS(&auth_flags), 0, NULL, HFILL }},
 		{ &hf_snmp_decryptedPDU, {
-	  	    "Decrypted ScopedPDU", "snmp.decrypted_pdu", FT_BYTES, BASE_NONE,
+		    "Decrypted ScopedPDU", "snmp.decrypted_pdu", FT_BYTES, BASE_NONE,
 		    NULL, 0, "Decrypted PDU", HFILL }},
 		{ &hf_snmp_noSuchObject, {
 		    "noSuchObject", "snmp.noSuchObject", FT_NONE, BASE_NONE,
