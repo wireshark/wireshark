@@ -260,10 +260,12 @@ static int compile_regex (lua_State *L, const TArgComp *argC, TGrgx **pud) {
 
   ud->pr = g_regex_new (argC->pattern,
         (GRegexCompileFlags)(argC->cflags | G_REGEX_RAW), (GRegexMatchFlags)0, &ud->error);
+
+  if (pud) *pud = ud;
+
   if (!ud->pr)
     return luaL_error (L, "%s (code: %d)", ud->error->message, ud->error->code);
 
-  if (pud) *pud = ud;
   return 1;
 }
 
