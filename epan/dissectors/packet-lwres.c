@@ -137,11 +137,12 @@ static int hf_realnamelen = -1;
 static int hf_realname = -1;
 
 
-/* static int hf_a_record = -1; */
+static int hf_a_record = -1;
 static int hf_a_rec_len = -1;
 static int hf_srv_prio = -1;
 static int hf_srv_weight = -1;
 static int hf_srv_port = -1;
+static int hf_srv_dname = -1;
 
 static int hf_adn_flags = -1;
 static int hf_adn_addrtype = -1;
@@ -157,6 +158,7 @@ static int hf_adn_family = -1;
 static int hf_adn_addr_len = -1;
 static int hf_adn_addr_addr = -1;
 
+static int hf_ns_dname = -1;
 
 static int ett_lwres = -1;
 static int ett_rdata_req = -1;
@@ -470,9 +472,7 @@ static void dissect_a_records(tvbuff_t* tvb, proto_tree* tree,guint32 nrec,int o
         proto_tree_add_item(addr_tree, hf_a_rec_len, tvb, curr,
                     sizeof(guint16), ENC_BIG_ENDIAN);
 
-        proto_tree_add_text(addr_tree, tvb, curr + 2, 4, "Addr: %s",
-                    addrs);
-
+        proto_tree_add_item(addr_tree, hf_a_record, tvb, curr + 2, 4, ENC_BIG_ENDIAN);
     }
 
 }
@@ -529,11 +529,12 @@ static void dissect_srv_records(tvbuff_t* tvb, proto_tree* tree,guint32 nrec,int
                         port);
 
 
-        proto_tree_add_text(rec_tree,
+        proto_tree_add_string(rec_tree,
+                            hf_srv_dname,
                             tvb,
                             curr + 8,
                             dlen,
-                            "DNAME: %s", dname);
+                            dname);
 
         curr+=(int)((sizeof(short)*4) + dlen);
 
@@ -576,11 +577,12 @@ static void dissect_mx_records(tvbuff_t* tvb, proto_tree* tree, guint32 nrec, in
                             2,
                             ENC_BIG_ENDIAN);
 
-        proto_tree_add_text(rec_tree,
+        proto_tree_add_string(rec_tree,
+                            hf_srv_dname,
                             tvb,
                             curr + 4,
                             dlen,
-                            "name: %s", dname);
+                            dname);
 
         curr+=(int)((sizeof(short)*2) + dlen);
 
@@ -613,11 +615,12 @@ static void dissect_ns_records(tvbuff_t* tvb, proto_tree* tree, guint32 nrec, in
 
         rec_tree = proto_tree_add_subtree_format(ns_rec_tree, tvb, curr,4, ett_ns_rec_item, NULL, "NS record: dname=%s",dname);
 
-        proto_tree_add_text(rec_tree,
+        proto_tree_add_string(rec_tree,
+                            hf_ns_dname,
                             tvb,
                             curr + 2,
                             dlen,
-                            "Name: %s", dname);
+                            dname);
         curr+=(int)(sizeof(short) + dlen);
 
     }
@@ -1032,11 +1035,9 @@ proto_register_lwres(void)
           { "Real doname name", "lwres.realname", FT_STRING, BASE_NONE, NULL, 0x0,
             "lwres realname", HFILL }},
 
-#if 0
         { &hf_a_record,
           { "IPv4 Address", "lwres.arecord", FT_UINT32, BASE_DEC, NULL, 0x0,
             "lwres arecord", HFILL }},
-#endif
 
         { &hf_a_rec_len,
           { "Length", "lwres.areclen", FT_UINT16, BASE_DEC, NULL, 0x0,
@@ -1053,6 +1054,10 @@ proto_register_lwres(void)
         { &hf_srv_port,
           { "Port" , "lwres.srv.port", FT_UINT16, BASE_DEC, NULL, 0x0,
             "lwres srv port", HFILL }},
+
+        { &hf_srv_dname,
+          { "DNAME" , "lwres.srv.dname", FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
 
         { &hf_adn_flags,
           { "Flags", "lwres.adn.flags", FT_UINT32, BASE_HEX, NULL, 0x0,
@@ -1097,6 +1102,10 @@ proto_register_lwres(void)
         { &hf_adn_addr_addr,
           { "IP Address", "lwres.adn.addr.addr", FT_STRING, BASE_NONE, NULL, 0x0,
             "lwres adn addr addr", HFILL }},
+
+        { &hf_ns_dname,
+          { "Name" , "lwres.ns.dname", FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
 
         /* Add more fields here */
     };

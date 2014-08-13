@@ -140,6 +140,7 @@ static int hf_lg8979_timebias_proctime     = -1;
 static int hf_lg8979_firmware_ver          = -1;
 static int hf_lg8979_exprpt_code           = -1;
 static int hf_lg8979_exprpt_parm           = -1;
+static int hf_lg8979_disallowed_func       = -1;
 static int hf_lg8979_crc16                 = -1;
 
 /* Initialize the subtree pointers */
@@ -497,11 +498,11 @@ dissect_lg8979(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 {
 /* Set up structures needed to add the protocol subtree and manage it */
     proto_item    *lg8979_item, *lg8979_flags_item = NULL, *lg8979_point_item = NULL;
-    proto_item    *lg8979_ts_item = NULL, *lg8979_slot_item = NULL, *lg8979_expparm_item = NULL;
+    proto_item    *lg8979_slot_item = NULL;
     proto_tree    *lg8979_tree, *lg8979_flags_tree = NULL, *lg8979_fc_tree = NULL;
     proto_tree    *lg8979_point_tree = NULL, *lg8979_ts_tree = NULL;
     int           offset = 0;
-    guint8        rtu_addr, func, packet_type, data_len, ptnum8, tripclose, rl, exp_code, exp_parm;
+    guint8        rtu_addr, func, packet_type, data_len, ptnum8, tripclose, rl, exp_code;
     guint8        ts_mon, ts_day, ts_hr, ts_min, ts_sec;
     guint16       ptnum, ptval, ana12_val;
     guint16       ts_ms;
@@ -677,10 +678,9 @@ dissect_lg8979(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                     ts_sec = tvb_get_guint8(tvb, offset+4);
                     ts_ms  = tvb_get_letohs(tvb, offset+5);
 
-                    lg8979_ts_item = proto_tree_add_text(lg8979_tree, tvb, offset, 7,
-                                                         "Time-Sync Value: %02d/%02d %02d:%02d:%02d.%03d",
-                                                         ts_mon, ts_day, ts_hr, ts_min, ts_sec, ts_ms);
-                    lg8979_ts_tree = proto_item_add_subtree(lg8979_ts_item, ett_lg8979_ts);
+                    lg8979_ts_tree = proto_tree_add_subtree_format(lg8979_tree, tvb, offset, 7, ett_lg8979_ts, NULL,
+                            "Time-Sync Value: %02d/%02d %02d:%02d:%02d.%03d",
+                            ts_mon, ts_day, ts_hr, ts_min, ts_sec, ts_ms);
 
                     proto_tree_add_item(lg8979_ts_tree, hf_lg8979_timesync_mon,  tvb, offset,   1, ENC_LITTLE_ENDIAN);
                     proto_tree_add_item(lg8979_ts_tree, hf_lg8979_timesync_day,  tvb, offset+1, 1, ENC_LITTLE_ENDIAN);
@@ -1114,10 +1114,8 @@ dissect_lg8979(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                         ts_sec = tvb_get_guint8(tvb, offset+4);
                         ts_ms = tvb_get_letohs(tvb, offset+5);
 
-                        lg8979_ts_item = proto_tree_add_text(lg8979_point_tree, tvb, offset, 7,
-                                                             "SOE Time Stamp: [%02d/%02d %02d:%02d:%02d.%03d]",
-                                                             ts_mon, ts_day, ts_hr, ts_min, ts_sec, ts_ms);
-                        lg8979_ts_tree = proto_item_add_subtree(lg8979_ts_item, ett_lg8979_ts);
+                        lg8979_ts_tree = proto_tree_add_subtree_format(lg8979_point_tree, tvb, offset, 7, ett_lg8979_ts, NULL,
+                                "SOE Time Stamp: [%02d/%02d %02d:%02d:%02d.%03d]", ts_mon, ts_day, ts_hr, ts_min, ts_sec, ts_ms);
 
                         proto_tree_add_item(lg8979_ts_tree, hf_lg8979_soe_logchg_mon,  tvb, offset,   1, ENC_LITTLE_ENDIAN);
                         proto_tree_add_item(lg8979_ts_tree, hf_lg8979_soe_logchg_day,  tvb, offset+1, 1, ENC_LITTLE_ENDIAN);
@@ -1170,17 +1168,13 @@ dissect_lg8979(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                 case LG8979_FC_EXP_RPT:
 
                     exp_code = tvb_get_guint8(tvb, offset);
-                    exp_parm = tvb_get_guint8(tvb, offset+1);
 
                     proto_tree_add_item(lg8979_tree, hf_lg8979_exprpt_code, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-                    lg8979_expparm_item = proto_tree_add_item(lg8979_tree, hf_lg8979_exprpt_parm, tvb, offset+1, 1, ENC_LITTLE_ENDIAN);
-                    proto_item_prepend_text(lg8979_expparm_item, "Parameter: %s, ",
-                                            val_to_str_const(exp_code, lg8979_exprpt_parm_vals, "Unknown Parameters"));
+                    proto_tree_add_item(lg8979_tree, hf_lg8979_exprpt_parm, tvb, offset+1, 1, ENC_LITTLE_ENDIAN);
                     /* Function code lookup, if required */
                     if (exp_code == 14) {
-                        proto_item *lg8979_dfc_item=NULL;
-                        lg8979_dfc_item = proto_tree_add_text(lg8979_tree, tvb, offset+1, 1, "Disallowed Function Code: %s",
-                        val_to_str_const(exp_parm, lg8979_funccode_vals, "Unknown Function Code"));
+                        proto_item *lg8979_dfc_item;
+                        lg8979_dfc_item = proto_tree_add_item(lg8979_tree, hf_lg8979_disallowed_func, tvb, offset+1, 1, ENC_NA);
                         PROTO_ITEM_SET_GENERATED(lg8979_dfc_item);
                     }
 
@@ -1483,7 +1477,9 @@ proto_register_lg8979(void)
         { &hf_lg8979_exprpt_code,
         { "Exception Report Code", "lg8979.exprpt_code", FT_UINT8, BASE_DEC, VALS(lg8979_exprpt_code_vals), 0x0, NULL, HFILL }},
         { &hf_lg8979_exprpt_parm,
-        { "Value", "lg8979.exprpt_parm", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { "Value", "lg8979.exprpt_parm", FT_UINT8, BASE_DEC, VALS(lg8979_exprpt_parm_vals), 0x0, NULL, HFILL }},
+        { &hf_lg8979_disallowed_func,
+        { "Disallowed Function Code", "lg8979.disallowed_func", FT_UINT8, BASE_DEC|BASE_EXT_STRING, &lg8979_funccode_vals_ext, 0x0, NULL, HFILL }},
         { &hf_lg8979_crc16,
         { "CRC-16", "lg8979.crc16", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 

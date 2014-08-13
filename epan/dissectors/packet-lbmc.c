@@ -11546,19 +11546,17 @@ int lbmc_dissect_lbmc_packet(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
                 }
                 else
                 {
-                    proto_item * pi = NULL;
+                    proto_item * pi;
 
                     if (msg->reassembled_frame == 0)
                     {
-                        expert_add_info(pinfo, NULL, &ei_lbmc_analysis_missing_reassembly_frame);
-                        pi = proto_tree_add_text(subtree, data_tvb, 0, tvb_reported_length_remaining(data_tvb, 0),
-                            "Message not reassembled - reassembly data missing from capture");
+                        proto_tree_add_expert(subtree, pinfo, &ei_lbmc_analysis_missing_reassembly_frame, data_tvb, 0, -1);
                     }
                     else
                     {
                         pi = proto_tree_add_uint(subtree, hf_reassembly_frame, data_tvb, 0, tvb_reported_length_remaining(data_tvb, 0), msg->reassembled_frame);
+                        PROTO_ITEM_SET_GENERATED(pi);
                     }
-                    PROTO_ITEM_SET_GENERATED(pi);
                 }
             }
 
@@ -14316,7 +14314,7 @@ void proto_register_lbmc(void)
         { &ei_lbmc_analysis_invalid_value, { "lbmc.analysis.invalid_value", PI_MALFORMED, PI_ERROR, "Invalid value", EXPFILL } },
         { &ei_lbmc_analysis_no_reassembly, { "lbmc.analysis.no_reassembly", PI_PROTOCOL, PI_ERROR, "Reassembly not in progress but fragment_offset not zero", EXPFILL } },
         { &ei_lbmc_analysis_invalid_offset, { "lbmc.analysis.invalid_offset", PI_MALFORMED, PI_ERROR, "Message property offset exceeds data length", EXPFILL } },
-        { &ei_lbmc_analysis_missing_reassembly_frame, { "lbmc.analysis.missing_reassembly_frame", PI_UNDECODED, PI_WARN, "Reassembly frame not found - perhaps missing packets?", EXPFILL } },
+        { &ei_lbmc_analysis_missing_reassembly_frame, { "lbmc.analysis.missing_reassembly_frame", PI_UNDECODED, PI_WARN, "Message not reassembled - reassembly data missing from capture", EXPFILL } },
         { &ei_lbmc_analysis_invalid_fragment, { "lbmc.analysis.invalid_fragment", PI_MALFORMED, PI_ERROR, "Invalid fragment", EXPFILL } },
     };
     module_t * lbmc_module = NULL;

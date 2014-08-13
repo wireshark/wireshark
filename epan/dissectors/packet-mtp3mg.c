@@ -40,6 +40,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 
 #include <packet-mtp3.h>
 
@@ -416,6 +417,7 @@ static int hf_mtp3mg_japan_test = -1;
 static int hf_mtp3mg_japan_test_spare = -1;
 static int hf_mtp3mg_japan_test_pattern = -1;
 static int hf_mtp3mg_japan_spare = -1;
+static int hf_mtp3mg_test_pattern = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_mtp3mg = -1;
@@ -424,13 +426,15 @@ static gint ett_mtp3mg_tfm_apc = -1;
 static gint ett_mtp3mg_rsm_apc = -1;
 static gint ett_mtp3mg_upu_apc = -1;
 
+static expert_field ei_mtp3mg_unknown_message = EI_INIT;
+
 static void
-dissect_mtp3mg_unknown_message(tvbuff_t *tvb, proto_tree *tree)
+dissect_mtp3mg_unknown_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     guint8 message_length;
 
     message_length = tvb_length(tvb);
-    proto_tree_add_text(tree, tvb, 0, message_length,
+    proto_tree_add_expert_format(tree, pinfo, &ei_mtp3mg_unknown_message, tvb, 0, message_length,
 			"Unknown message (%u byte%s)", message_length,
 			plurality(message_length, "", "s"));
 }
@@ -490,7 +494,7 @@ dissect_mtp3mg_chm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	break;
 
     default:
-	dissect_mtp3mg_unknown_message(tvb, tree);
+	dissect_mtp3mg_unknown_message(tvb, pinfo, tree);
   }
 }
 
@@ -515,7 +519,7 @@ dissect_mtp3mg_ecm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	break;
 
     default:
-	dissect_mtp3mg_unknown_message(tvb, tree);
+	dissect_mtp3mg_unknown_message(tvb, pinfo, tree);
     }
 }
 
@@ -603,7 +607,7 @@ dissect_mtp3mg_fcm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	break;
 
     default:
-	dissect_mtp3mg_unknown_message(tvb, tree);
+	dissect_mtp3mg_unknown_message(tvb, pinfo, tree);
     }
 }
 
@@ -637,7 +641,7 @@ dissect_mtp3mg_tfm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	    if (h1 == TFM_H1_TCP || h1 == TFM_H1_TCR || h1 == TFM_H1_TCA
 		|| h1 == TFM_H1_TFR)
-		dissect_mtp3mg_unknown_message(tvb, tree);
+		dissect_mtp3mg_unknown_message(tvb, pinfo, tree);
 
 	    proto_tree_add_item(tree, hf_mtp3mg_tfm_japan_count, tvb,
 				JAPAN_TFM_COUNT_OFFSET,
@@ -665,7 +669,7 @@ dissect_mtp3mg_tfm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	} else /* ITU_STANDARD and CHINESE_ITU_STANDARD */ {
 
 	    if (h1 == TFM_H1_TCP || h1 == TFM_H1_TCR || h1 == TFM_H1_TCA)
-		dissect_mtp3mg_unknown_message(tvb, tree);
+		dissect_mtp3mg_unknown_message(tvb, pinfo, tree);
 	    else if (mtp3_standard == ITU_STANDARD)
 	    {
 		apc_item = proto_tree_add_item(tree, hf_mtp3mg_itu_apc,
@@ -688,7 +692,7 @@ dissect_mtp3mg_tfm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	break;
 
     default:
-	dissect_mtp3mg_unknown_message(tvb, tree);
+	dissect_mtp3mg_unknown_message(tvb, pinfo, tree);
     }
 }
 
@@ -745,7 +749,7 @@ dissect_mtp3mg_rsm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		    offset += JAPAN_PC_LENGTH;
 		}
 	    } else
-		dissect_mtp3mg_unknown_message(tvb, tree);
+		dissect_mtp3mg_unknown_message(tvb, pinfo, tree);
 
 	} else /* ITU_STANDARD and CHINESE_ITU_STANDARD */ {
 
@@ -768,12 +772,12 @@ dissect_mtp3mg_rsm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 					  hf_mtp3mg_apc_cluster,
 					  hf_mtp3mg_apc_member, 0, 0);
 	    } else
-		dissect_mtp3mg_unknown_message(tvb, tree);
+		dissect_mtp3mg_unknown_message(tvb, pinfo, tree);
 	}
 	break;
 
     default:
-	dissect_mtp3mg_unknown_message(tvb, tree);
+	dissect_mtp3mg_unknown_message(tvb, pinfo, tree);
     }
 }
 
@@ -803,7 +807,7 @@ dissect_mtp3mg_mim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	break;
 
     default:
-	dissect_mtp3mg_unknown_message(tvb, tree);
+	dissect_mtp3mg_unknown_message(tvb, pinfo, tree);
     }
 }
 
@@ -821,12 +825,12 @@ dissect_mtp3mg_trm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	break;
     case TRM_H1_TRW:
 	if (mtp3_standard != ANSI_STANDARD)
-	    dissect_mtp3mg_unknown_message(tvb, tree);
+	    dissect_mtp3mg_unknown_message(tvb, pinfo, tree);
 	/* else: nothing to dissect */
 	break;
 
     default:
-	dissect_mtp3mg_unknown_message(tvb, tree);
+	dissect_mtp3mg_unknown_message(tvb, pinfo, tree);
     }
 }
 
@@ -858,7 +862,7 @@ dissect_mtp3mg_dlm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	break;
 
     default:
-	dissect_mtp3mg_unknown_message(tvb, tree);
+	dissect_mtp3mg_unknown_message(tvb, pinfo, tree);
     }
 }
 
@@ -927,7 +931,7 @@ dissect_mtp3mg_ufc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	break;
 
     default:
-	dissect_mtp3mg_unknown_message(tvb, tree);
+	dissect_mtp3mg_unknown_message(tvb, pinfo, tree);
     }
 }
 
@@ -954,13 +958,11 @@ dissect_mtp3mg_test(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			    ENC_NA);
 
 	length = tvb_get_guint8(tvb, 0) >> TEST_LENGTH_SHIFT;
-	proto_tree_add_text(tree, tvb, TEST_PATTERN_OFFSET, length,
-			    "Test pattern (%u byte%s)", length,
-			    plurality(length, "", "s"));
+	proto_tree_add_item(tree, hf_mtp3mg_test_pattern, tvb, TEST_PATTERN_OFFSET, length, ENC_NA);
 	break;
 
     default:
-	dissect_mtp3mg_unknown_message(tvb, tree);
+	dissect_mtp3mg_unknown_message(tvb, pinfo, tree);
     }
 }
 
@@ -1040,7 +1042,7 @@ dissect_mtp3mg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		break;
 
 	    default:
-		dissect_mtp3mg_unknown_message(tvb, mtp3mg_tree);
+		dissect_mtp3mg_unknown_message(tvb, pinfo, mtp3mg_tree);
 	    }
 
 	} else { /* not JAPAN */
@@ -1063,7 +1065,7 @@ dissect_mtp3mg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    default:
 		col_set_str(pinfo->cinfo, COL_INFO, "Unknown ");
 
-		dissect_mtp3mg_unknown_message(tvb, mtp3mg_tree);
+		dissect_mtp3mg_unknown_message(tvb, pinfo, mtp3mg_tree);
 	    } /* switch */
 
 	}
@@ -1123,7 +1125,7 @@ dissect_mtp3mg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				    H0H1_LENGTH, ENC_NA);
 		dissect_mtp3mg_mim(payload_tvb, pinfo, mtp3mg_tree, h1);
 	    } else
-		dissect_mtp3mg_unknown_message(tvb, mtp3mg_tree);
+		dissect_mtp3mg_unknown_message(tvb, pinfo, mtp3mg_tree);
 	    break;
 	case H0_TRM:
 	    if (mtp3_standard != JAPAN_STANDARD)
@@ -1132,7 +1134,7 @@ dissect_mtp3mg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				    H0H1_LENGTH, ENC_NA);
 		dissect_mtp3mg_trm(payload_tvb, pinfo, mtp3mg_tree, h1);
 	    } else
-		dissect_mtp3mg_unknown_message(tvb, mtp3mg_tree);
+		dissect_mtp3mg_unknown_message(tvb, pinfo, mtp3mg_tree);
 	    break;
 	case H0_DLM:
 	    if (mtp3_standard != JAPAN_STANDARD)
@@ -1141,7 +1143,7 @@ dissect_mtp3mg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				    H0H1_LENGTH, ENC_NA);
 		dissect_mtp3mg_dlm(payload_tvb, pinfo, mtp3mg_tree, h1);
 	    } else
-		dissect_mtp3mg_unknown_message(tvb, mtp3mg_tree);
+		dissect_mtp3mg_unknown_message(tvb, pinfo, mtp3mg_tree);
 	    break;
 	case H0_UFC:
 	    if (mtp3_standard != JAPAN_STANDARD)
@@ -1150,13 +1152,13 @@ dissect_mtp3mg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				    H0H1_LENGTH, ENC_NA);
 		dissect_mtp3mg_ufc(payload_tvb, pinfo, mtp3mg_tree, h1);
 	    } else
-		dissect_mtp3mg_unknown_message(tvb, mtp3mg_tree);
+		dissect_mtp3mg_unknown_message(tvb, pinfo, mtp3mg_tree);
 	    break;
 
 	default:
 	    col_set_str(pinfo->cinfo, COL_INFO, "Unknown ");
 
-	    dissect_mtp3mg_unknown_message(tvb, mtp3mg_tree);
+	    dissect_mtp3mg_unknown_message(tvb, pinfo, mtp3mg_tree);
 	} /* switch */
     } /* else */
 
@@ -1371,7 +1373,11 @@ proto_register_mtp3mg(void)
 	{ &hf_mtp3mg_test_ansi_slc,
 	    { "Signalling Link Code", "mtp3mg.slc",
 	      FT_UINT8, BASE_DEC, NULL, ANSI_TEST_SLC_MASK,
-	      "SLC of affected link", HFILL }}
+	      "SLC of affected link", HFILL }},
+	{ &hf_mtp3mg_test_pattern,
+	    { "Test pattern", "mtp3mg.test_pattern",
+	      FT_BYTES, BASE_NONE, NULL, 0x0,
+	      NULL, HFILL }},
   };
 
     /* Setup protocol subtree array */
@@ -1383,6 +1389,12 @@ proto_register_mtp3mg(void)
 	&ett_mtp3mg_upu_apc
     };
 
+    static ei_register_info ei[] = {
+        { &ei_mtp3mg_unknown_message, { "mtp3mg.unknown_message", PI_PROTOCOL, PI_WARN, "Unknown message", EXPFILL }},
+    };
+
+    expert_module_t* expert_mtp3mg;
+
     /* Register the protocol name and description */
     proto_mtp3mg = proto_register_protocol("Message Transfer Part Level 3 Management",
 					   "MTP3MG", "mtp3mg");
@@ -1391,6 +1403,8 @@ proto_register_mtp3mg(void)
     /* Required calls to register the header fields and subtrees used */
     proto_register_field_array(proto_mtp3mg, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_mtp3mg = expert_register_protocol(proto_mtp3mg);
+    expert_register_field_array(expert_mtp3mg, ei, array_length(ei));
 
 }
 

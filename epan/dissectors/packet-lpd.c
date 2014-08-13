@@ -34,6 +34,9 @@ void proto_reg_handoff_lpd(void);
 static int proto_lpd = -1;
 static int hf_lpd_response = -1;
 static int hf_lpd_request = -1;
+static int hf_lpd_client_code = -1;
+static int hf_lpd_printer_option = -1;
+static int hf_lpd_response_code = -1;
 
 static gint ett_lpd = -1;
 
@@ -43,6 +46,28 @@ static gint find_printer_string(tvbuff_t *tvb, int offset);
 
 static dissector_handle_t data_handle;
 
+/* This information comes from the LPRng HOWTO, which also describes
+	RFC 1179. http://www.astart.com/lprng/LPRng-HOWTO.html */
+static const value_string lpd_client_code[] = {
+	{ 1, "LPC: start print / jobcmd: abort" },
+	{ 2, "LPR: transfer a printer job / jobcmd: receive control file" },
+	{ 3, "LPQ: print short form of queue status / jobcmd: receive data file" },
+	{ 4, "LPQ: print long form of queue status" },
+	{ 5, "LPRM: remove jobs" },
+	{ 6, "LPRng lpc: do control operation" },
+	{ 7, "LPRng lpr: transfer a block format print job" },
+	{ 8, "LPRng lpc: secure command transfer" },
+	{ 9, "LPRng lpq: verbose status information" },
+	{ 0, NULL }
+};
+static const value_string lpd_server_code[] = {
+	{ 0, "Success: accepted, proceed" },
+	{ 1, "Queue not accepting jobs" },
+	{ 2, "Queue temporarily full, retry later" },
+	{ 3, "Bad job format, do not retry" },
+	{ 0, NULL }
+};
+
 static void
 dissect_lpd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -51,28 +76,6 @@ dissect_lpd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	enum lpr_type	lpr_packet_type;
 	guint8		code;
 	gint		printer_len;
-
-	/* This information comes from the LPRng HOWTO, which also describes
-		RFC 1179. http://www.astart.com/lprng/LPRng-HOWTO.html */
-	static const value_string lpd_client_code[] = {
-		{ 1, "LPC: start print / jobcmd: abort" },
-		{ 2, "LPR: transfer a printer job / jobcmd: receive control file" },
-		{ 3, "LPQ: print short form of queue status / jobcmd: receive data file" },
-		{ 4, "LPQ: print long form of queue status" },
-		{ 5, "LPRM: remove jobs" },
-		{ 6, "LPRng lpc: do control operation" },
-		{ 7, "LPRng lpr: transfer a block format print job" },
-		{ 8, "LPRng lpc: secure command transfer" },
-		{ 9, "LPRng lpq: verbose status information" },
-		{ 0, NULL }
-	};
-	static const value_string lpd_server_code[] = {
-		{ 0, "Success: accepted, proceed" },
-		{ 1, "Queue not accepting jobs" },
-		{ 2, "Queue temporarily full, retry later" },
-		{ 3, "Bad job format, do not retry" },
-		{ 0, NULL }
-	};
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "LPD");
 	col_clear(pinfo->cinfo, COL_INFO);
@@ -99,7 +102,6 @@ dissect_lpd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		col_set_str(pinfo->cinfo, COL_INFO, "LPD continuation");
 	}
 
-	if (tree) {
 		ti = proto_tree_add_item(tree, proto_lpd, tvb, 0, -1, ENC_NA);
 		lpd_tree = proto_item_add_subtree(ti, ett_lpd);
 
@@ -116,11 +118,9 @@ dissect_lpd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			printer_len = find_printer_string(tvb, 1);
 
 			if (code <= 9 && printer_len != -1) {
-				proto_tree_add_text(lpd_tree, tvb, 0, 1, "%s",
-					val_to_str(code, lpd_client_code, "Unknown client code: %u"));
-				proto_tree_add_text(lpd_tree, tvb, 1, printer_len,
-					 "Printer/options: %s",
-					 tvb_format_text(tvb, 1, printer_len));
+				proto_tree_add_uint_format(lpd_tree, hf_lpd_client_code, tvb, 0, 1, code,
+					"%s", val_to_str(code, lpd_client_code, "Unknown client code: %u"));
+				proto_tree_add_item(lpd_tree, hf_lpd_printer_option, tvb, 1, printer_len, ENC_ASCII|ENC_NA);
 			}
 			else {
 				call_dissector(data_handle,tvb, pinfo, lpd_tree);
@@ -128,8 +128,7 @@ dissect_lpd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 		else if (lpr_packet_type == response) {
 			if (code <= 3) {
-				proto_tree_add_text(lpd_tree, tvb, 0, 1,
-					"Response: %s", val_to_str(code, lpd_server_code, "Unknown server code: %u"));
+				proto_tree_add_item(lpd_tree, hf_lpd_response_code, tvb, 0, 1, ENC_NA);
 			}
 			else {
 				call_dissector(data_handle,tvb, pinfo, lpd_tree);
@@ -138,7 +137,6 @@ dissect_lpd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		else {
 			call_dissector(data_handle,tvb, pinfo, lpd_tree);
 		}
-	}
 }
 
 
@@ -163,13 +161,28 @@ proto_register_lpd(void)
   static hf_register_info hf[] = {
     { &hf_lpd_response,
       { "Response",           "lpd.response",
-	FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-      	"TRUE if LPD response", HFILL }},
+    FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+      "TRUE if LPD response", HFILL }},
 
     { &hf_lpd_request,
       { "Request",            "lpd.request",
-	FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-      	"TRUE if LPD request", HFILL }}
+    FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+      "TRUE if LPD request", HFILL }},
+
+    { &hf_lpd_client_code,
+      { "Client code",            "lpd.client_code",
+    FT_UINT8, BASE_DEC, VALS(lpd_client_code), 0x0,
+      NULL, HFILL }},
+
+    { &hf_lpd_printer_option,
+      { "Printer/options",            "lpd.printer_option",
+    FT_STRING, BASE_NONE, NULL, 0x0,
+      NULL, HFILL }},
+
+    { &hf_lpd_response_code,
+      { "Response",            "lpd.response_code",
+    FT_UINT8, BASE_DEC, VALS(lpd_server_code), 0x0,
+      NULL, HFILL }},
   };
   static gint *ett[] = {
     &ett_lpd,

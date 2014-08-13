@@ -58,6 +58,7 @@ static int hf_mtp2_spare     = -1;
 static int hf_mtp2_ext_spare = -1;
 static int hf_mtp2_sf        = -1;
 static int hf_mtp2_sf_extra  = -1;
+static int hf_mtp2_fcs_16    = -1;
 
 static expert_field ei_mtp2_checksum_error = EI_INIT;
 
@@ -196,15 +197,12 @@ mtp2_decode_crc16(tvbuff_t *tvb, proto_tree *fh_tree, packet_info *pinfo)
     rx_fcs_offset = proto_offset + len;
     rx_fcs_exp = mtp2_fcs16(tvb);
     rx_fcs_got = tvb_get_letohs(tvb, rx_fcs_offset);
+    cause=proto_tree_add_item(fh_tree, hf_mtp2_fcs_16, tvb, rx_fcs_offset, 2, ENC_LITTLE_ENDIAN);
     if (rx_fcs_got != rx_fcs_exp) {
-      cause=proto_tree_add_text(fh_tree, tvb, rx_fcs_offset, 2,
-				"FCS 16: 0x%04x [incorrect, should be 0x%04x]",
-				rx_fcs_got, rx_fcs_exp);
+      proto_item_append_text(cause, " [incorrect, should be 0x%04x]", rx_fcs_exp);
       expert_add_info(pinfo, cause, &ei_mtp2_checksum_error);
     } else {
-      proto_tree_add_text(fh_tree, tvb, rx_fcs_offset, 2,
-			  "FCS 16: 0x%04x [correct]",
-			  rx_fcs_got);
+      proto_item_append_text(cause, " [correct]");
     }
   }
   return next_tvb;
@@ -385,7 +383,8 @@ proto_register_mtp2(void)
     { &hf_mtp2_spare,     { "Spare",                    "mtp2.spare",    FT_UINT8,  BASE_DEC, NULL,                    SPARE_MASK,          NULL, HFILL } },
     { &hf_mtp2_ext_spare, { "Spare",                    "mtp2.spare",    FT_UINT16, BASE_DEC, NULL,                    EXTENDED_SPARE_MASK, NULL, HFILL } },
     { &hf_mtp2_sf,        { "Status field",             "mtp2.sf",       FT_UINT8,  BASE_DEC, VALS(status_field_vals), 0x0,                 NULL, HFILL } },
-    { &hf_mtp2_sf_extra,  { "Status field extra octet", "mtp2.sf_extra", FT_UINT8,  BASE_HEX, NULL,                    0x0,                 NULL, HFILL } }
+    { &hf_mtp2_sf_extra,  { "Status field extra octet", "mtp2.sf_extra", FT_UINT8,  BASE_HEX, NULL,                    0x0,                 NULL, HFILL } },
+    { &hf_mtp2_fcs_16,    { "FCS 16",                   "mtp2.fcs_16",   FT_UINT16, BASE_HEX, NULL,                    0x0,                 NULL, HFILL } },
   };
 
   static gint *ett[] = {

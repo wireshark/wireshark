@@ -101,6 +101,7 @@ static int hf_dcbx_feature_flag_enabled = -1;
 static int hf_dcbx_feature_flag_error = -1;
 static int hf_dcbx_feature_flag_willing = -1;
 static int hf_dcbx_feature_subtype = -1;
+static int hf_dcbx_feature_pgid_reserved = -1;
 static int hf_dcbx_feature_pgid_prio_0 = -1;
 static int hf_dcbx_feature_pgid_prio_1 = -1;
 static int hf_dcbx_feature_pgid_prio_2 = -1;
@@ -172,6 +173,7 @@ static int hf_ieee_8021az_tsa_class6 = -1;
 static int hf_ieee_8021az_tsa_class7 = -1;
 static int hf_ieee_8021az_feature_flag_mbc = -1;
 static int hf_ieee_8021az_pfc_numtcs = -1;
+static int hf_ieee_8021az_app_reserved = -1;
 static int hf_ieee_8021az_app_prio = -1;
 static int hf_ieee_8021az_app_selector = -1;
 static int hf_ieee_802_3_subtype = -1;
@@ -1544,7 +1546,6 @@ dissect_dcbx_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint3
 
 	proto_tree	*subtlv_tree = NULL;
 	proto_tree	*apptlv_tree = NULL;
-	proto_item	*tf = NULL;
 
 	proto_tree_add_item(tree, hf_dcbx_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 
@@ -1560,25 +1561,27 @@ dissect_dcbx_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint3
 		dataLen = TLV_INFO_LEN(tempShort);
 
 		/* Write out common header fields first */
-		tf = proto_tree_add_text(tree, tvb, offset, dataLen + 2, "%s TLV",
-					val_to_str_const(subType, dcbx_subtypes, "Unknown"));
-
 		switch (subType)
 		{
 		case 0x1: /* Control */
-			subtlv_tree = proto_item_add_subtree(tf, ett_org_spc_dcbx_cee_1);
+			subtlv_tree = proto_tree_add_subtree_format(tree, tvb, offset, dataLen + 2,
+					ett_org_spc_dcbx_cee_1, NULL, "%s TLV", val_to_str_const(subType, dcbx_subtypes, "Unknown"));
 			break;
 		case 0x2: /* Priority Groups */
-			subtlv_tree = proto_item_add_subtree(tf, ett_org_spc_dcbx_cee_2);
+			subtlv_tree = proto_tree_add_subtree_format(tree, tvb, offset, dataLen + 2,
+					ett_org_spc_dcbx_cee_2, NULL, "%s TLV", val_to_str_const(subType, dcbx_subtypes, "Unknown"));
 			break;
 		case 0x3: /* PFC */
-			subtlv_tree = proto_item_add_subtree(tf, ett_org_spc_dcbx_cee_3);
+			subtlv_tree = proto_tree_add_subtree_format(tree, tvb, offset, dataLen + 2,
+					ett_org_spc_dcbx_cee_3, NULL, "%s TLV", val_to_str_const(subType, dcbx_subtypes, "Unknown"));
 			break;
 		case 0x4: /* Application */
-			subtlv_tree = proto_item_add_subtree(tf, ett_org_spc_dcbx_cee_4);
+			subtlv_tree = proto_tree_add_subtree_format(tree, tvb, offset, dataLen + 2,
+					ett_org_spc_dcbx_cee_4, NULL, "%s TLV", val_to_str_const(subType, dcbx_subtypes, "Unknown"));
 			break;
 		case 0x6: /* Logical Link Down */
-			subtlv_tree = proto_item_add_subtree(tf, ett_org_spc_dcbx_cin_6);
+			subtlv_tree = proto_tree_add_subtree_format(tree, tvb, offset, dataLen + 2,
+					ett_org_spc_dcbx_cin_6, NULL, "%s TLV", val_to_str_const(subType, dcbx_subtypes, "Unknown"));
 			break;
 		}
 		proto_tree_add_item(subtlv_tree, hf_dcbx_tlv_type, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -1948,9 +1951,7 @@ dissect_ieee_802_1_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 	}
 	case 0xA:	/* ETS Recommendation */
 	{
-		tempByte = tvb_get_guint8(tvb, offset);
-
-		proto_tree_add_text(tree, tvb, offset, 1, "Reserved 0x%X", tempByte);
+		proto_tree_add_item(tree, hf_dcbx_feature_pgid_reserved, tvb, offset, 1, ENC_NA);
 
 		offset++;
 
@@ -2060,9 +2061,7 @@ dissect_ieee_802_1_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 	}
 	case 0xC:	/* Application Priority */
 	{
-		tempByte = tvb_get_guint8(tvb, offset);
-
-		proto_tree_add_text(tree, tvb, offset, 1, "Reserved 0x%X", tempByte);
+		proto_tree_add_item(tree, hf_ieee_8021az_app_reserved, tvb, offset, 1, ENC_NA);
 
 		offset++;
 
@@ -3491,6 +3490,10 @@ proto_register_lldp(void)
 			{ "Subtype", "lldp.dcbx.feature.subtype", FT_UINT8, BASE_HEX,
 			NULL, 0, NULL, HFILL }
 		},
+		{ &hf_dcbx_feature_pgid_reserved,
+			{ "Reserved", "lldp.dcbx.feature.pg.reserved", FT_UINT8, BASE_HEX,
+			NULL, 0xF000, 0, HFILL }
+		},
 		{ &hf_dcbx_feature_pgid_prio_0,
 			{ "PGID for Prio 0", "lldp.dcbx.feature.pg.pgid_prio0", FT_UINT16, BASE_DEC,
 			NULL, 0xF000, 0, HFILL }
@@ -3774,6 +3777,10 @@ proto_register_lldp(void)
 		{ &hf_ieee_8021az_pfc_numtcs,
 			{ "Max PFC Enabled Traffic Classes", "lldp.dcbx.ieee.pfc.numtcs", FT_UINT8, BASE_DEC,
 			NULL, 0xF, NULL, HFILL }
+		},
+		{ &hf_ieee_8021az_app_reserved,
+			{ "Reserved", "lldp.dcbx.ieee.app.reserved", FT_UINT8, BASE_HEX,
+			NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_ieee_8021az_app_prio,
 			{ "Application Priority", "lldp.dcbx.ieee.app.prio", FT_UINT8, BASE_DEC,

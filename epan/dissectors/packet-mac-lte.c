@@ -312,6 +312,7 @@ static expert_field ei_mac_lte_rar_timing_advance_not_zero_warn = EI_INIT;
 static expert_field ei_mac_lte_dlsch_lcid = EI_INIT;
 static expert_field ei_mac_lte_padding_data_before_control_subheader = EI_INIT;
 static expert_field ei_mac_lte_rach_preamble_sent_warn = EI_INIT;
+static expert_field ei_mac_lte_no_per_frame_data = EI_INIT;
 
 
 /* Constants and value strings */
@@ -5266,10 +5267,7 @@ int dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 
     /* Can't dissect anything without it... */
     if (p_mac_lte_info == NULL) {
-        proto_item *tii =
-            proto_tree_add_text(mac_lte_tree, tvb, offset, -1,
-                                "Can't dissect LTE MAC frame because no per-frame info was attached!");
-        PROTO_ITEM_SET_GENERATED(tii);
+        proto_tree_add_expert(mac_lte_tree, pinfo, &ei_mac_lte_no_per_frame_data, tvb, offset, -1);
         return 0;
     }
 
@@ -7138,6 +7136,7 @@ void proto_register_mac_lte(void)
         { &ei_mac_lte_context_rnti_type, { "mac-lte.rnti-type.invalid", PI_MALFORMED, PI_ERROR, "RNTI indicated, but value is not correct", EXPFILL }},
         { &ei_mac_lte_ul_mac_frame_retx, { "mac-lte.ul-mac-frame-retx", PI_SEQUENCE, PI_WARN, "UL MAC frame ReTX", EXPFILL }},
         { &ei_mac_lte_context_crc_status, { "mac-lte.crc-status.error", PI_MALFORMED, PI_ERROR, "Frame has CRC error problem", EXPFILL }},
+        { &ei_mac_lte_no_per_frame_data, { "mac-lte.no_per_frame_data", PI_UNDECODED, PI_WARN, "Can't dissect LTE MAC frame because no per-frame info was attached!", EXPFILL }},
     };
 
     static const enum_val_t show_info_col_vals[] = {

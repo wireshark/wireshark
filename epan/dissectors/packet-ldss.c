@@ -47,6 +47,7 @@
 #include <epan/addr_resolv.h>
 #include <epan/ipproto.h>
 #include <epan/prefs.h>
+#include <epan/expert.h>
 #include <epan/strutil.h>
 #include <epan/wmem/wmem.h>
 #include <epan/dissectors/packet-tcp.h>
@@ -203,6 +204,9 @@ static int	hf_ldss_transfer_completed_in	= -1;
 static int ett_ldss_broadcast	 = -1;
 static int ett_ldss_transfer     = -1;
 static int ett_ldss_transfer_req = -1;
+
+static expert_field ei_ldss_unrecognized_line = EI_INIT;
+
 
 static dissector_handle_t	ldss_udp_handle;
 static dissector_handle_t	ldss_tcp_handle;
@@ -458,7 +462,7 @@ dissect_ldss_transfer (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 	conversation_t *transfer_conv;
 	ldss_transfer_info_t *transfer_info;
 	struct tcpinfo *transfer_tcpinfo;
-	proto_tree	*ti, *line_tree = NULL, *ldss_tree = NULL;
+	proto_tree *ti, *line_tree = NULL, *ldss_tree = NULL;
 	nstime_t broadcast_response_time;
 
 	/* Reject the packet if data is NULL */
@@ -587,11 +591,7 @@ dissect_ldss_transfer (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 				}
 			}
 			else {
-				if (tree) {
-					ti = proto_tree_add_text(line_tree, tvb, offset, linelen,
-								 "Unrecognized line ignored");
-					PROTO_ITEM_SET_GENERATED(ti);
-				}
+				proto_tree_add_expert(line_tree, pinfo, &ei_ldss_unrecognized_line, tvb, offset, linelen);
 			}
 
 			if (is_digest_line) {
@@ -970,11 +970,18 @@ proto_register_ldss (void) {
 
 	static gint  *ett[] = { &ett_ldss_broadcast, &ett_ldss_transfer, &ett_ldss_transfer_req };
 
+	static ei_register_info ei[] = {
+		{ &ei_ldss_unrecognized_line, { "ldss.unrecognized_line", PI_PROTOCOL, PI_WARN, "Unrecognized line ignored", EXPFILL }},
+	};
+
 	module_t     *ldss_module;
+	expert_module_t* expert_ldss;
 
 	proto_ldss = proto_register_protocol("Local Download Sharing Service", "LDSS", "ldss");
 	proto_register_field_array(proto_ldss, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	expert_ldss = expert_register_protocol(proto_ldss);
+	expert_register_field_array(expert_ldss, ei, array_length(ei));
 
 	ldss_module = prefs_register_protocol(	proto_ldss, proto_reg_handoff_ldss);
 	prefs_register_uint_preference(		ldss_module, "udp_port",

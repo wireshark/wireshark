@@ -32,6 +32,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include <epan/asn1.h>
 
 #include <epan/prefs.h>
@@ -59,10 +60,15 @@ static int hf_mp4ves_is_object_layer_identifier = -1;
 static int hf_mp4ves_aspect_ratio_info = -1;
 static int hf_mp4ves_vol_control_parameters = -1;
 static int hf_mp4ves_video_object_layer_shape = -1;
+static int hf_mp4ves_user_data = -1;
+static int hf_mp4ves_data = -1;
 
 /* Initialize the subtree pointers */
 static int ett_mp4ves = -1;
 static int ett_mp4ves_config = -1;
+
+static expert_field ei_mp4ves_config_too_short = EI_INIT;
+static expert_field ei_mp4ves_not_dissected_bits = EI_INIT;
 
 /* The dynamic payload type which will be dissected as MP4V-ES */
 
@@ -272,7 +278,7 @@ dissect_mp4ves_user_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 		bit_offset+=8;
 		/* user_data 8 bits */
 	}
-	proto_tree_add_text(tree, tvb, start_bit_offset>>3, (bit_offset - start_bit_offset)>>2, "User data");
+	proto_tree_add_item(tree, hf_mp4ves_user_data, tvb, start_bit_offset>>3, (bit_offset - start_bit_offset)>>2, ENC_NA);
 
 	return bit_offset;
 }
@@ -481,7 +487,7 @@ dissect_mp4ves_VideoObjectLayer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 		}
 	}
 	if(bit_offset-current_bit_offset > 0)
-		proto_tree_add_text(tree, tvb, current_bit_offset>>3, (bit_offset+7)>>3, "Not dissected bits");
+		proto_tree_add_expert(tree, pinfo, &ei_mp4ves_not_dissected_bits, tvb, current_bit_offset>>3, (bit_offset+7)>>3);
 	/* video_object_layer_shape 2 uimsbf */
 	video_object_layer_shape = tvb_get_bits8(tvb,bit_offset, 2);
 	proto_tree_add_bits_item(tree, hf_mp4ves_video_object_layer_shape, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
@@ -542,7 +548,6 @@ VisualObject() {
 static int
 dissect_mp4ves_VisualObject(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int bit_offset)
 {
-	proto_item *item;
 	guint8 is_visual_object_identifier, visual_object_type;
 	guint32 dword;
 	guint8 octet;
@@ -595,8 +600,7 @@ dissect_mp4ves_VisualObject(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		proto_tree_add_bits_item(tree, hf_mp4ves_start_code, tvb, bit_offset, 8, ENC_BIG_ENDIAN);
 		bit_offset+= 8;
 		if(tvb_length_remaining(tvb,(bit_offset>>3))<=0){
-			item = proto_tree_add_text(tree, tvb, 0, -1, "Config string too short");
-			PROTO_ITEM_SET_GENERATED(item);
+			proto_tree_add_expert(tree, pinfo, &ei_mp4ves_config_too_short, tvb, 0, -1);
 			return -1;
 		}
 		/*
@@ -744,13 +748,13 @@ dissect_mp4ves(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	*/
 		if (tvb_length(tvb)< 4){
 			/* To short to be a start code */
-			proto_tree_add_text(mp4ves_tree, tvb, bit_offset>>3, -1, "Data");
+			proto_tree_add_item(mp4ves_tree, hf_mp4ves_data, tvb, bit_offset>>3, -1, ENC_NA);
 			return;
 		}
 		dword = tvb_get_bits32(tvb,bit_offset, 24, ENC_BIG_ENDIAN);
 		if (dword != 1){
 			/* if it's not 23 zeros followed by 1 it isn't a start code */
-			proto_tree_add_text(mp4ves_tree, tvb, bit_offset>>3, -1, "Data");
+			proto_tree_add_item(mp4ves_tree, hf_mp4ves_data, tvb, bit_offset>>3, -1, ENC_NA);
 			return;
 		}
 		dword = tvb_get_bits8(tvb,24, 8);
@@ -978,6 +982,16 @@ proto_register_mp4ves(void)
 		    FT_UINT8, BASE_DEC, VALS(mp4ves_video_object_layer_shape_vals), 0x0,
 		    NULL, HFILL }
 		},
+		{ &hf_mp4ves_user_data,
+		  { "User data",        "mp4ves.user_data",
+		    FT_BYTES, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_mp4ves_data,
+		  { "Data",        "mp4ves.data",
+		    FT_BYTES, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }
+		},
 	};
 
 /* Setup protocol subtree array */
@@ -986,7 +1000,13 @@ proto_register_mp4ves(void)
 		&ett_mp4ves_config,
 	};
 
+	static ei_register_info ei[] = {
+		{ &ei_mp4ves_config_too_short, { "mp4ves.config_too_short", PI_MALFORMED, PI_ERROR, "Config string too short", EXPFILL }},
+		{ &ei_mp4ves_not_dissected_bits, { "mp4ves.not_dissected_bits", PI_UNDECODED, PI_WARN, "Not dissected bits", EXPFILL }},
+	};
+
 	module_t *mp4ves_module;
+	expert_module_t* expert_mp4ves;
 
 /* Register the protocol name and description */
 	proto_mp4ves = proto_register_protocol("MP4V-ES","MP4V-ES", "mp4v-es");
@@ -994,6 +1014,8 @@ proto_register_mp4ves(void)
 /* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array(proto_mp4ves, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	expert_mp4ves = expert_register_protocol(proto_mp4ves);
+	expert_register_field_array(expert_mp4ves, ei, array_length(ei));
 	/* Register a configuration option for port */
 
 	register_dissector("mp4ves", dissect_mp4ves, proto_mp4ves);

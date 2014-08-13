@@ -36,6 +36,7 @@ void proto_reg_handoff_loop(void);
 static int proto_loop = -1;
 static int hf_loop_skipcount = -1;
 static int hf_loop_function = -1;
+static int hf_loop_relevant_function = -1;
 static int hf_loop_receipt_number = -1;
 static int hf_loop_forwarding_address = -1;
 
@@ -82,25 +83,22 @@ dissect_loop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       col_add_str(pinfo->cinfo, COL_INFO,
                     val_to_str(function, function_vals, "Unknown function (%u)"));
 
-      proto_tree_add_text(loop_tree, tvb, offset, 2, "Relevant function:");
+      proto_tree_add_uint(loop_tree, hf_loop_relevant_function, tvb, offset, 2, function);
       set_info = FALSE;
     }
-    if (tree)
-      proto_tree_add_uint(loop_tree, hf_loop_function, tvb, offset, 2, function);
+    proto_tree_add_uint(loop_tree, hf_loop_function, tvb, offset, 2, function);
     offset += 2;
     switch (function) {
 
     case FUNC_REPLY:
-      if (tree)
-        proto_tree_add_item(loop_tree, hf_loop_receipt_number, tvb, offset, 2,
+      proto_tree_add_item(loop_tree, hf_loop_receipt_number, tvb, offset, 2,
                             ENC_LITTLE_ENDIAN);
       offset += 2;
       more_function = FALSE;
       break;
 
     case FUNC_FORWARD_DATA:
-      if (tree)
-        proto_tree_add_item(loop_tree, hf_loop_forwarding_address, tvb, offset,
+      proto_tree_add_item(loop_tree, hf_loop_forwarding_address, tvb, offset,
                             6, ENC_NA);
       offset += 6;
       more_function = TRUE;
@@ -129,23 +127,28 @@ proto_register_loop(void)
   static hf_register_info hf[] = {
     { &hf_loop_skipcount,
       { "skipCount",		"loop.skipcount",
-	FT_UINT16,	BASE_DEC,	NULL,	0x0,
-      	NULL, HFILL }},
+    FT_UINT16,	BASE_DEC,	NULL,	0x0,
+      NULL, HFILL }},
 
     { &hf_loop_function,
       { "Function",		"loop.function",
-	FT_UINT16,	BASE_DEC,	VALS(function_vals),	0x0,
-      	NULL, HFILL }},
+    FT_UINT16,	BASE_DEC,	VALS(function_vals),	0x0,
+      NULL, HFILL }},
+
+    { &hf_loop_relevant_function,
+      { "Relevant function",		"loop.relevant_function",
+    FT_UINT16,	BASE_DEC,	VALS(function_vals),	0x0,
+      NULL, HFILL }},
 
     { &hf_loop_receipt_number,
       { "Receipt number",	"loop.receipt_number",
-	FT_UINT16,	BASE_DEC,	NULL,	0x0,
-      	NULL, HFILL }},
+    FT_UINT16,	BASE_DEC,	NULL,	0x0,
+      NULL, HFILL }},
 
     { &hf_loop_forwarding_address,
       { "Forwarding address",	"loop.forwarding_address",
-	FT_ETHER,	BASE_NONE,	NULL,	0x0,
-      	NULL, HFILL }},
+    FT_ETHER,	BASE_NONE,	NULL,	0x0,
+      NULL, HFILL }},
   };
   static gint *ett[] = {
     &ett_loop,

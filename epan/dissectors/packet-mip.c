@@ -29,6 +29,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include <epan/to_str.h>
 #include <epan/sminmpec.h>
 
@@ -131,6 +132,8 @@ static gint ett_mip_flags = -1;
 static gint ett_mip_ext = -1;
 static gint ett_mip_exts = -1;
 static gint ett_mip_pmipv4_ext = -1;
+
+static expert_field ei_mip_data_not_dissected = EI_INIT;
 
 /* Port used for Mobile IP */
 #define UDP_PORT_MIP    434
@@ -487,7 +490,7 @@ dissect_mip_priv_ext_3gpp2(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
     proto_tree_add_item(tree, hf_mip_nvse_3gpp2_type17_sec_dns, tvb, offset, 4, ENC_BIG_ENDIAN);
     break;
   default:
-    proto_tree_add_text(tree, tvb, offset, -1, " Data not dissected yet");
+    proto_tree_add_expert(tree, pinfo, &ei_mip_data_not_dissected, tvb, offset, -1);
     break;
   }
 
@@ -1444,6 +1447,12 @@ void proto_register_mip(void)
     &ett_mip_pmipv4_ext,
   };
 
+  static ei_register_info ei[] = {
+    { &ei_mip_data_not_dissected, { "mip.data_not_dissected", PI_UNDECODED, PI_WARN, "Data not dissected yet", EXPFILL }},
+  };
+
+  expert_module_t* expert_mip;
+
   /* Register the protocol name and description */
   proto_mip = proto_register_protocol("Mobile IP", "Mobile IP", "mip");
 
@@ -1453,6 +1462,8 @@ void proto_register_mip(void)
   /* Required function calls to register the header fields and subtrees used */
   proto_register_field_array(proto_mip, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  expert_mip = expert_register_protocol(proto_mip);
+  expert_register_field_array(expert_mip, ei, array_length(ei));
 
   mip_nvse_ext_dissector_table = register_dissector_table("mip.nvse_ext",
     "MIP Normal Vendor/Organization Specific Extension", FT_UINT32, BASE_DEC);

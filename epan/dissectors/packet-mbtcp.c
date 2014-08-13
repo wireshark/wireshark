@@ -95,6 +95,7 @@ static int hf_mbtcp_len = -1;
 static int hf_mbtcp_unitid = -1;
 static int hf_mbtcp_functioncode = -1;
 static int hf_modbus_reference = -1;
+static int hf_modbus_padding = -1;
 static int hf_modbus_lreference = -1;
 static int hf_modbus_reftype = -1;
 static int hf_modbus_readref = -1;
@@ -121,6 +122,7 @@ static int hf_modbus_diag_return_slave_nak_count = -1;
 static int hf_modbus_diag_return_slave_busy_count = -1;
 static int hf_modbus_diag_return_bus_char_overrun_count = -1;
 static int hf_modbus_status = -1;
+static int hf_modbus_event = -1;
 static int hf_modbus_event_count = -1;
 static int hf_modbus_message_count = -1;
 static int hf_modbus_event_recv_comm_err = -1;
@@ -145,6 +147,7 @@ static int hf_modbus_conformity_level = -1;
 static int hf_modbus_more_follows = -1;
 static int hf_modbus_next_object_id = -1;
 static int hf_modbus_object_str_value = -1;
+static int hf_modbus_object_value = -1;
 static int hf_modbus_reg_uint16 = -1;
 static int hf_modbus_reg_uint32 = -1;
 static int hf_modbus_reg_ieee_float = -1;
@@ -936,12 +939,12 @@ dissect_modbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
                 if (packet_type == QUERY_PACKET) {
                     proto_tree_add_item(modbus_tree, hf_modbus_reference, tvb, payload_start, 2, ENC_BIG_ENDIAN);
                     dissect_modbus_data(tvb, pinfo, modbus_tree, function_code, payload_start + 2, 1, register_format);
-                    proto_tree_add_text(modbus_tree, tvb, payload_start + 3, 1, "Padding");
+                    proto_tree_add_item(modbus_tree, hf_modbus_padding, tvb, payload_start + 3, 1, ENC_NA);
                 }
                 else if (packet_type == RESPONSE_PACKET) {
                     proto_tree_add_item(modbus_tree, hf_modbus_reference, tvb, payload_start, 2, ENC_BIG_ENDIAN);
                     dissect_modbus_data(tvb, pinfo, modbus_tree, function_code, payload_start + 2, 1, register_format);
-                    proto_tree_add_text(modbus_tree, tvb, payload_start + 3, 1, "Padding");
+                    proto_tree_add_item(modbus_tree, hf_modbus_padding, tvb, payload_start + 3, 1, ENC_NA);
                 }
                 break;
 
@@ -1096,13 +1099,14 @@ dissect_modbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
                         while (byte_cnt > 0) {
                             event_code = tvb_get_guint8(tvb, payload_start+7+event_index);
                             if (event_code == 0) {
-                                proto_tree_add_text(event_tree, tvb, payload_start+7+event_index, 1, "Initiated Communication Restart");
+                                proto_tree_add_uint_format(event_tree, hf_modbus_event, tvb, payload_start+7+event_index, 1, event_code, "Initiated Communication Restart");
                             }
                             else if (event_code == 4) {
-                                proto_tree_add_text(event_tree, tvb, payload_start+7+event_index, 1, "Entered Listen Only Mode");
+                                proto_tree_add_uint_format(event_tree, hf_modbus_event, tvb, payload_start+7+event_index, 1, event_code, "Entered Listen Only Mode");
                             }
                             else if (event_code & REMOTE_DEVICE_RECV_EVENT_MASK) {
-                                mei = proto_tree_add_text(event_tree, tvb, payload_start+7+event_index, 1, "Receive Event: 0x%02X", event_code);
+                                mei = proto_tree_add_uint_format(event_tree, hf_modbus_event, tvb, payload_start+7+event_index, 1,
+                                            event_code, "Receive Event: 0x%02X", event_code);
                                 event_item_tree = proto_item_add_subtree(mei, ett_events_recv);
 
                                 /* add subtrees to describe each event bit */
@@ -1116,7 +1120,8 @@ dissect_modbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
                                   tvb, payload_start+7+event_index, 1, ENC_LITTLE_ENDIAN );
                             }
                             else if ((event_code & REMOTE_DEVICE_SEND_EVENT_MASK) == REMOTE_DEVICE_SEND_EVENT_VALUE) {
-                                mei = proto_tree_add_text(event_tree, tvb, payload_start+7+event_index, 1, "Send Event: 0x%02X", event_code);
+                                mei = proto_tree_add_uint_format(event_tree, hf_modbus_event, tvb, payload_start+7+event_index, 1,
+                                            event_code, "Send Event: 0x%02X", event_code);
                                 event_item_tree = proto_item_add_subtree(mei, ett_events_send);
 
                                 /* add subtrees to describe each event bit */
@@ -1134,7 +1139,7 @@ dissect_modbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
                                   tvb, payload_start+7+event_index, 1, ENC_LITTLE_ENDIAN );
                             }
                             else {
-                                proto_tree_add_text(event_tree, tvb, payload_start+7+event_index, 1, "Unknown Event");
+                                proto_tree_add_uint_format(event_tree, hf_modbus_event, tvb, payload_start+7+event_index, 1, event_code, "Unknown Event");
                             }
 
                             byte_cnt--;
@@ -1338,7 +1343,7 @@ dissect_modbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
                                 else
                                 {
                                     if (object_len > 0)
-                                        proto_tree_add_text(device_objects_item_tree, tvb, payload_start+6+object_index, object_len, "Object Value");
+                                        proto_tree_add_item(device_objects_item_tree, hf_modbus_object_value, tvb, payload_start+6+object_index, object_len, ENC_NA);
                                 }
                                 object_index += object_len;
                             }
@@ -1422,6 +1427,11 @@ proto_register_modbus(void)
         { &hf_modbus_reference,
             { "Reference Number",              "modbus.reference_num",
             FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_modbus_padding,
+            { "Padding",              "modbus.padding",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_modbus_lreference,
@@ -1554,8 +1564,13 @@ proto_register_modbus(void)
             FT_UINT16, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
+        { &hf_modbus_event,
+            { "Event",                   "modbus.event",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
         { &hf_modbus_event_count,
-            { "Event Vount",                   "modbus.ev_count",
+            { "Event Count",                   "modbus.ev_count",
             FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
@@ -1671,6 +1686,11 @@ proto_register_modbus(void)
         { &hf_modbus_object_str_value,
             { "Object String Value",           "modbus.object_str_value",
             FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_modbus_object_value,
+            { "Object Value",           "modbus.object_value",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_modbus_reg_uint16,

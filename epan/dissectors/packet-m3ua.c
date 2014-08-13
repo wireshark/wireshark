@@ -300,7 +300,7 @@ static int hf_registration_result_context = -1;
 static int hf_v6_deregistration_result_status = -1;
 static int hf_v6_deregistration_result_context = -1;
 static int hf_li = -1;
-
+static int hf_heuristic_standard = -1;
 
 static int m3ua_tap = -1;
 
@@ -1177,9 +1177,11 @@ dissect_protocol_data_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, pro
   if (mtp3_heuristic_standard) {
       heuristic_standard = m3ua_heur_mtp3_standard(payload_tvb, pinfo, opc, dpc, si);
       if (heuristic_standard == HEURISTIC_FAILED_STANDARD) {
-	  gen_item = proto_tree_add_text(tree, parameter_tvb, 0, 0, "Could not determine Heuristic using %s", val_to_str_const(mtp3_standard, mtp3_standard_vals, "unknown"));
+	  gen_item = proto_tree_add_uint_format(tree, hf_heuristic_standard, parameter_tvb, 0, 0, heuristic_standard,
+	    "Could not determine Heuristic using %s", val_to_str_const(mtp3_standard, mtp3_standard_vals, "unknown"));
       } else {
-	  gen_item = proto_tree_add_text(tree, parameter_tvb, 0, 0, "%s", val_to_str_const(heuristic_standard, mtp3_standard_vals, "unknown"));
+	  gen_item = proto_tree_add_uint_format(tree, hf_heuristic_standard, parameter_tvb, 0, 0, heuristic_standard,
+	    "%s", val_to_str_const(heuristic_standard, mtp3_standard_vals, "unknown"));
 
 	  mtp3_standard = heuristic_standard;
 
@@ -2109,6 +2111,7 @@ proto_register_m3ua(void)
     { &hf_registration_result_context,      { "Routing context",              "m3ua.registration_result_routing_context",   FT_UINT32, BASE_DEC,  NULL,                                         0x0, NULL,				HFILL } },
     { &hf_v6_deregistration_result_status,  { "De-Registration status",       "m3ua.deregistration_results_status",         FT_UINT32, BASE_DEC,  VALS(v6_deregistration_result_status_values), 0x0, NULL,				HFILL } },
     { &hf_v6_deregistration_result_context, { "Routing context",              "m3ua.deregistration_result_routing_context", FT_UINT32, BASE_DEC,  NULL,                                         0x0, NULL,				HFILL } },
+    { &hf_heuristic_standard,               { "Heuristic standard",           "m3ua.heuristic_standard",                    FT_UINT32, BASE_DEC,  NULL,                                         0x0, NULL,				HFILL } },
   };
 
   /* Setup protocol subtree array */

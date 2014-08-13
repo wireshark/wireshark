@@ -86,6 +86,7 @@ static int hf_lapdm_len = -1;
 /*
  * LAPDm fragment handling
  */
+static int hf_lapdm_fragment_data = -1;
 static int hf_lapdm_fragments = -1;
 static int hf_lapdm_fragment = -1;
 static int hf_lapdm_fragment_overlap = -1;
@@ -322,9 +323,7 @@ dissect_lapdm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             }
             else {
                 col_append_str(pinfo->cinfo, COL_INFO, " (Fragment)");
-                if (tree) {
-                    proto_tree_add_text(lapdm_tree, payload, 0, -1, "Fragment Data");
-                }
+                proto_tree_add_item(lapdm_tree, hf_lapdm_fragment_data, payload, 0, -1, ENC_NA);
             }
 
             /* Now reset fragmentation information in pinfo
@@ -425,6 +424,10 @@ proto_register_lapdm(void)
 
 	/* Fragment reassembly
 	 */
+        { &hf_lapdm_fragment_data,
+        { "Fragment Data", "lapdm.fragment_data", FT_NONE, BASE_NONE,
+        NULL, 0x00, NULL, HFILL }},
+
         { &hf_lapdm_fragments,
         { "Message fragments", "lapdm.fragments", FT_NONE, BASE_NONE,
         NULL, 0x00, "LAPDm Message fragments", HFILL }},

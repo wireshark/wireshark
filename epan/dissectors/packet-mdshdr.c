@@ -90,6 +90,7 @@ static int hf_mdshdr_dstidx = -1;
 static int hf_mdshdr_srcidx = -1;
 static int hf_mdshdr_vsan = -1;
 static int hf_mdshdr_eof = -1;
+static int hf_mdshdr_no_trailer = -1;
 static int hf_mdshdr_span = -1;
 static int hf_mdshdr_fccrc = -1;
 
@@ -224,7 +225,7 @@ dissect_mdshdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                 trailer_start+2, MDSHDR_SIZE_INT32, ENC_BIG_ENDIAN);
         }
         else {
-            proto_tree_add_text(mdshdr_tree_main, tvb, 0, 0, "MDS Trailer: Not Found");
+            proto_tree_add_item(mdshdr_tree_main, hf_mdshdr_no_trailer, tvb, 0, 0, ENC_NA);
         }
     }
 
@@ -270,6 +271,9 @@ proto_register_mdshdr(void)
 
         { &hf_mdshdr_eof,
           {"EOF", "mdshdr.eof", FT_UINT8, BASE_DEC, VALS(eof_vals), 0x0, NULL, HFILL}},
+
+        { &hf_mdshdr_no_trailer,
+          {"MDS Trailer: Not Found", "mdshdr.no_trailer", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}},
 
         { &hf_mdshdr_span,
           {"SPAN Frame", "mdshdr.span", FT_UINT16, BASE_DEC, NULL, 0xF000, NULL, HFILL}},

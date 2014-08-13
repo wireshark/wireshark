@@ -75,6 +75,7 @@ static gint ett_m2pa       = -1;
 static gint ett_m2pa_li    = -1;
 
 static expert_field ei_undecode_data = EI_INIT;
+static expert_field ei_length = EI_INIT;
 
 static dissector_handle_t mtp3_handle;
 
@@ -386,9 +387,10 @@ dissect_v2_message_data(tvbuff_t *message_tvb, packet_info *pinfo, proto_item *m
 
   message_data_length = (gint) tvb_get_ntohl(message_tvb, V2_LENGTH_OFFSET);
   if ((gint) message_data_length < 1) {
-    if (m2pa_tree)
-      proto_tree_add_text(m2pa_tree, message_tvb, V2_LENGTH_OFFSET, 4,
+    proto_tree_add_expert_format(m2pa_tree, pinfo, &ei_length, message_tvb, V2_LENGTH_OFFSET, 4,
         "Invalid message data length: %u", message_data_length);
+    /* XXX - is this really necessary?  Can we just return since the expert info can
+       still find the "malformed" packet? */
     THROW(ReportedBoundsError);
   }
 
@@ -418,9 +420,10 @@ dissect_v8_message_data(tvbuff_t *message_tvb, packet_info *pinfo, proto_item *m
 
   message_data_length = tvb_get_ntohl(message_tvb, V8_LENGTH_OFFSET) - V8_HEADER_LENGTH;
   if ((gint) message_data_length < 1) {
-    if (m2pa_tree)
-      proto_tree_add_text(m2pa_tree, message_tvb, V8_LENGTH_OFFSET, 4,
+    proto_tree_add_expert_format(m2pa_tree, pinfo, &ei_length, message_tvb, V8_LENGTH_OFFSET, 4,
         "Invalid message data length: %u", message_data_length);
+    /* XXX - is this really necessary?  Can we just return since the expert info can
+       still find the "malformed" packet? */
     THROW(ReportedBoundsError);
   }
   message_data_tvb    = tvb_new_subset_length(message_tvb, V8_MESSAGE_DATA_OFFSET, message_data_length);
@@ -575,6 +578,7 @@ proto_register_m2pa(void)
 
   static ei_register_info ei[] = {
      { &ei_undecode_data, { "m2pa.undecoded_data.expert", PI_MALFORMED, PI_WARN, "There are bytes of data which is greater than M2PA's length parameter", EXPFILL }},
+     { &ei_length, { "m2pa.length.invalid", PI_MALFORMED, PI_ERROR, "Invalid message data length", EXPFILL }},
   };
 
   expert_module_t* expert_m2pa;

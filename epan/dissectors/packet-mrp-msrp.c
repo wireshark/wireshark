@@ -33,6 +33,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include <epan/etypes.h>
 
 void proto_register_mrp_msrp(void);
@@ -273,7 +274,7 @@ static gint ett_attr_list = -1;
 static gint ett_vect_attr = -1;
 static gint ett_first_value = -1;
 
-
+static expert_field ei_msrp_attribute_type = EI_INIT;
 
 /**********************************************************/
 /* Dissector starts here                                  */
@@ -616,7 +617,7 @@ dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                                                  number_of_values);
                         break;
                     default:
-                        proto_tree_add_text(first_value_tree, tvb, msg_offset + vect_offset, vect_attr_len, "Unknown Attribute");
+                        proto_tree_add_expert(first_value_tree, pinfo, &ei_msrp_attribute_type, tvb, msg_offset + vect_offset, vect_attr_len);
                         break;
                     }
                 }
@@ -766,6 +767,12 @@ proto_register_mrp_msrp(void)
         &ett_priority_and_rank
     };
 
+    static ei_register_info ei[] = {
+        { &ei_msrp_attribute_type, { "mrp-msrp.attribute_type.unknown", PI_PROTOCOL, PI_WARN, "Malformed TCP/IP Status", EXPFILL }},
+    };
+
+    expert_module_t* expert_msrp;
+
     /* Register the protocol name and description */
     proto_msrp = proto_register_protocol("Multiple Stream Reservation Protocol",
                                          "MRP-MSRP", "mrp-msrp");
@@ -773,6 +780,8 @@ proto_register_mrp_msrp(void)
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_msrp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_msrp = expert_register_protocol(proto_msrp);
+    expert_register_field_array(expert_msrp, ei, array_length(ei));
 }
 
 void

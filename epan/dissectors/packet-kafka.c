@@ -30,6 +30,7 @@
 #include <epan/dissectors/packet-tcp.h>
 #include <epan/conversation.h>
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include <epan/prefs.h>
 #include <epan/wmem/wmem.h>
 
@@ -87,6 +88,8 @@ static gint ett_kafka_request_topic      = -1;
 static gint ett_kafka_request_partition  = -1;
 static gint ett_kafka_response_topic     = -1;
 static gint ett_kafka_response_partition = -1;
+
+static expert_field ei_kafka_message_decompress = EI_INIT;
 
 static guint kafka_port = 0;
 
@@ -245,7 +248,7 @@ kafka_get_bytes(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int off
 static int
 dissect_kafka_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int start_offset)
 {
-    proto_item *ti;
+    proto_item *ti, *decrypt_item;
     proto_tree *subtree;
     tvbuff_t   *raw, *payload;
     int         offset = start_offset;
@@ -277,9 +280,8 @@ dissect_kafka_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int s
                     add_new_data_source(pinfo, payload, "Uncompressed Message");
                     dissect_kafka_message_set(payload, pinfo, subtree, 0, FALSE);
                 } else {
-                    /* TODO make this an expert item */
-                    proto_tree_add_text(subtree, tvb, 0, tvb_length(raw), "[Failed to decompress message!]");
-                    proto_tree_add_item(subtree, hf_kafka_message_value, raw, 0, -1, ENC_NA);
+                    decrypt_item = proto_tree_add_item(subtree, hf_kafka_message_value, raw, 0, -1, ENC_NA);
+                    expert_add_info(pinfo, decrypt_item, &ei_kafka_message_decompress);
                 }
                 offset += tvb_length(raw);
             }
@@ -1228,11 +1230,19 @@ proto_register_kafka(void)
         &ett_kafka_response_partition
     };
 
+    static ei_register_info ei[] = {
+        { &ei_kafka_message_decompress, { "kafka.decompress_failed", PI_UNDECODED, PI_WARN, "Failed to decompress message", EXPFILL }},
+    };
+
+    expert_module_t* expert_kafka;
+
     proto_kafka = proto_register_protocol("Kafka",
             "Kafka", "kafka");
 
     proto_register_field_array(proto_kafka, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_kafka = expert_register_protocol(proto_kafka);
+    expert_register_field_array(expert_kafka, ei, array_length(ei));
 
     kafka_module = prefs_register_protocol(proto_kafka,
             proto_reg_handoff_kafka);

@@ -298,7 +298,7 @@ dissect_lon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 	switch(dom_len)
 	{
 	case 0: /* Domain-wide */
-		proto_tree_add_text(lon_tree, tvb, offset, 0, "Domain wide addressing");
+		proto_tree_add_bytes_format(lon_tree, hf_lon_domain, tvb, offset, 0, NULL, "Domain wide addressing");
 		break;
 	case 1:
 		proto_tree_add_item(lon_tree, hf_lon_domain, tvb, offset, 1, ENC_NA);

@@ -225,6 +225,8 @@ static int hf_msg_fragment_count = -1;
 static int hf_msg_reassembled_in = -1;
 static int hf_msg_reassembled_length = -1;
 
+static int hf_msg_ts_packet_reassembled = -1;
+
 static expert_field ei_mp2t_pointer = EI_INIT;
 static expert_field ei_mp2t_cc_drop = EI_INIT;
 
@@ -546,7 +548,7 @@ mp2t_fragment_handle(tvbuff_t *tvb, guint offset, packet_info *pinfo,
             NULL, tree);
 
     if (new_tvb) {
-        /* ti = */ proto_tree_add_text(tree, tvb, 0, 0, "MPEG TS Packet (reassembled)");
+        /* ti = */ proto_tree_add_item(tree, hf_msg_ts_packet_reassembled, tvb, 0, 0, ENC_NA);
         mp2t_dissect_packet(new_tvb, pload_type, pinfo, tree);
     }
 
@@ -1501,7 +1503,11 @@ proto_register_mp2t(void)
         {  &hf_msg_reassembled_length, {
             "Reassembled MP2T length", "mp2t.msg.reassembled.length",
             FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL
-        } }
+        } },
+        {  &hf_msg_ts_packet_reassembled, {
+            "MPEG TS Packet (reassembled)", "mp2t.ts_packet_reassembled",
+            FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL
+        } },
     };
 
     static gint *ett[] =

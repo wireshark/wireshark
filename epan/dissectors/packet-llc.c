@@ -60,7 +60,9 @@ void proto_reg_handoff_llc(void);
 static int proto_llc = -1;
 static int hf_llc_dsap = -1;
 static int hf_llc_ssap = -1;
+static int hf_llc_dsap_sap = -1;
 static int hf_llc_dsap_ig = -1;
+static int hf_llc_ssap_sap = -1;
 static int hf_llc_ssap_cr = -1;
 static int hf_llc_ctrl = -1;
 static int hf_llc_n_r = -1;
@@ -216,25 +218,15 @@ static GHashTable *oui_info_table = NULL;
  * proto_tree_add_... function to display the topmost 7 bits of the SAP
  * value as a bitfield produces incorrect results (while the bitfield is
  * displayed correctly, Wireshark uses the bitshifted value to display the
- * associated name and for filtering purposes). This function calls the
- * Wireshark routine to decode the SAP value as a bitfield into a given
- * string without performing any bitshift of the original value.
- *
- * The string passed to this function must be of ITEM_LABEL_LENGTH size.
- * The SAP value passed to this function must be complete (not masked).
- *
+ * associated name and for filtering purposes). This function calls a
+ * BASE_CUSTOM routine to decode the SAP value as a bitfield
+ * counter-balancing the bitshift of the original value.
  */
-static gchar *
-decode_sap_value_as_bitfield(gchar *buffer, guint32 sap)
+
+static void
+llc_sap_value( gchar *result, guint32 sap )
 {
-	char *p;
-
-	memset (buffer, '\0', ITEM_LABEL_LENGTH);
-	p = decode_bitfield_value (buffer, sap, SAP_MASK, 8);
-	g_snprintf(p, (gulong)(ITEM_LABEL_LENGTH-strlen(buffer)-1), "SAP: %s",
-		val_to_str_const(sap, sap_vals, "Unknown"));
-
-	return buffer;
+	g_snprintf( result, ITEM_LABEL_LENGTH, "%s", val_to_str_const(sap<<1, sap_vals, "Unknown"));
 }
 
 /*
@@ -440,9 +432,9 @@ dissect_basicxid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 dissect_llc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	proto_tree	*llc_tree = NULL;
-	proto_tree	*field_tree = NULL;
-	proto_item	*ti = NULL;
+	proto_tree	*llc_tree;
+	proto_tree	*field_tree;
+	proto_item	*ti, *sap_item;
 	int		is_snap;
 	guint16		control;
 	int		llc_header_len;
@@ -453,32 +445,19 @@ dissect_llc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_clear(pinfo->cinfo, COL_INFO);
 
 	dsap = tvb_get_guint8(tvb, 0);
-	if (tree) {
-		proto_item *dsap_item;
-		gchar label[ITEM_LABEL_LENGTH];
 
-		ti = proto_tree_add_item(tree, proto_llc, tvb, 0, -1, ENC_NA);
-		llc_tree = proto_item_add_subtree(ti, ett_llc);
-		dsap_item = proto_tree_add_item(llc_tree, hf_llc_dsap, tvb, 0, 1, ENC_NA);
-		field_tree = proto_item_add_subtree(dsap_item, ett_llc_dsap);
-		proto_tree_add_text(field_tree, tvb, 0, 1, "%s",
-			decode_sap_value_as_bitfield(label, dsap));
-		proto_tree_add_item(field_tree, hf_llc_dsap_ig, tvb, 0, 1, ENC_NA);
-	} else
-		llc_tree = NULL;
+	ti = proto_tree_add_item(tree, proto_llc, tvb, 0, -1, ENC_NA);
+	llc_tree = proto_item_add_subtree(ti, ett_llc);
+	sap_item = proto_tree_add_item(llc_tree, hf_llc_dsap, tvb, 0, 1, ENC_NA);
+	field_tree = proto_item_add_subtree(sap_item, ett_llc_dsap);
+	proto_tree_add_item(field_tree, hf_llc_dsap_sap, tvb, 0, 1, ENC_NA);
+	proto_tree_add_item(field_tree, hf_llc_dsap_ig, tvb, 0, 1, ENC_NA);
 
 	ssap = tvb_get_guint8(tvb, 1);
-	if (tree) {
-		proto_item *ssap_item;
-		gchar label[ITEM_LABEL_LENGTH];
-
-		ssap_item = proto_tree_add_item(llc_tree, hf_llc_ssap, tvb, 1, 1, ENC_NA);
-		field_tree = proto_item_add_subtree(ssap_item, ett_llc_ssap);
-		proto_tree_add_text(field_tree, tvb, 1, 1, "%s",
-			decode_sap_value_as_bitfield(label, ssap));
-		proto_tree_add_item(field_tree, hf_llc_ssap_cr, tvb, 1, 1, ENC_NA);
-	} else
-		llc_tree = NULL;
+	sap_item = proto_tree_add_item(llc_tree, hf_llc_ssap, tvb, 1, 1, ENC_NA);
+	field_tree = proto_item_add_subtree(sap_item, ett_llc_ssap);
+	proto_tree_add_item(field_tree, hf_llc_ssap_sap, tvb, 1, 1, ENC_NA);
+	proto_tree_add_item(field_tree, hf_llc_ssap_cr, tvb, 1, 1, ENC_NA);
 
 	is_snap = (dsap == SAP_SNAP) && (ssap == SAP_SNAP);
 	llc_header_len = 2;	/* DSAP + SSAP */
@@ -783,6 +762,10 @@ proto_register_llc(void)
 		{ "DSAP",	"llc.dsap", FT_UINT8, BASE_HEX,
 			VALS(sap_vals), 0x0, "Destination Service Access Point", HFILL }},
 
+		{ &hf_llc_dsap_sap,
+		{ "SAP",	"llc.dsap.sap", FT_UINT8, BASE_CUSTOM,
+			llc_sap_value, 0xFE, "Service Access Point", HFILL }},
+
 		{ &hf_llc_dsap_ig,
 		{ "IG Bit",	"llc.dsap.ig", FT_BOOLEAN, 8,
 			TFS(&ig_bit), DSAP_GI_BIT, "Individual/Group", HFILL }},
@@ -790,6 +773,10 @@ proto_register_llc(void)
 		{ &hf_llc_ssap,
 		{ "SSAP", "llc.ssap", FT_UINT8, BASE_HEX,
 			VALS(sap_vals), 0x0, "Source Service Access Point", HFILL }},
+
+		{ &hf_llc_ssap_sap,
+		{ "SAP",	"llc.ssap.sap", FT_UINT8, BASE_CUSTOM,
+			llc_sap_value, 0xFE, "Service Access Point", HFILL }},
 
 		{ &hf_llc_ssap_cr,
 		{ "CR Bit", "llc.ssap.cr", FT_BOOLEAN, 8,

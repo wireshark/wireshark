@@ -438,7 +438,7 @@ dissect_payload(tvbuff_t *buffer, int offset, int messageid, proto_tree *tree, i
         break;
         case DISCONNECT:    /*No payload*/
         case DISCONNECTACK: /*No payload*/
-            proto_tree_add_text(payload_tree, buffer, offset, 0, "No Payload");
+            proto_tree_add_bytes_format(payload_tree, hf_knet_payload, buffer, offset, 0, NULL, "No Payload");
         break;
         case CONNECTSYN:    /*TODO: Not yet implemented, implement when available*/
         case CONNECTSYNACK: /*TODO: Not yet implemented, implement when available*/

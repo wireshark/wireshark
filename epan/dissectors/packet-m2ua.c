@@ -899,8 +899,8 @@ dissect_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tree,
      PROTO_ITEM_SET_HIDDEN(hidden_item);
 
      /* add tag and length to the m2ua tree */
-     proto_tree_add_text(parameter_tree, parameter_tvb, PARAMETER_TAG_OFFSET, PARAMETER_TAG_LENGTH,
-		      "Parameter Tag: Protocol data 1 (0x000e)");
+     proto_tree_add_uint_format_value(parameter_tree, hf_parameter_tag, parameter_tvb, PARAMETER_TAG_OFFSET, PARAMETER_TAG_LENGTH,
+		      tag, "Protocol data 1 (0x000e)");
 
      proto_tree_add_item(parameter_tree, hf_parameter_length, parameter_tvb, PARAMETER_LENGTH_OFFSET, PARAMETER_LENGTH_LENGTH, ENC_BIG_ENDIAN);
      tag = PROTOCOL_DATA_1_PARAMETER_TAG;

@@ -51,6 +51,7 @@ static int hf_kingfisher_via = -1;
 static int hf_kingfisher_message = -1;
 static int hf_kingfisher_function = -1;
 static int hf_kingfisher_checksum = -1;
+static int hf_kingfisher_message_data = -1;
 
 static dissector_handle_t kingfisher_conv_handle;
 
@@ -183,7 +184,7 @@ static gboolean
 dissect_kingfisher(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean is_conv_dissector)
 {
     kingfisher_packet_t kfp;
-    proto_tree *kingfisher_tree=NULL;
+    proto_tree *kingfisher_tree;
     proto_item *item=NULL;
     const char *func_string = NULL;
     unsigned short checksum;
@@ -269,10 +270,8 @@ dissect_kingfisher(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
 
     message = (kfp.message & 0x0f) | ((kfp.message & 0xf0) >> 4);
 
-    if(tree){
-        item = proto_tree_add_protocol_format(tree, proto_kingfisher, tvb, 0, -1, "Kingfisher Protocol, From RTU: %d, Target RTU: %d", kfp.from, kfp.target );
-        kingfisher_tree = proto_item_add_subtree( item, ett_kingfisher );
-    }
+    item = proto_tree_add_protocol_format(tree, proto_kingfisher, tvb, 0, -1, "Kingfisher Protocol, From RTU: %d, Target RTU: %d", kfp.from, kfp.target );
+    kingfisher_tree = proto_item_add_subtree( item, ett_kingfisher );
 
     /* version */
     proto_tree_add_uint(kingfisher_tree, hf_kingfisher_version, tvb, 6, 1, kfp.version);
@@ -300,7 +299,7 @@ dissect_kingfisher(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
 
     /* message data */
     if(kfp.length > ((kfp.version==3)?11:8)){
-        proto_tree_add_text(kingfisher_tree, tvb, ((kfp.version==3)?10:7), kfp.length - ((kfp.version==3)?11:8), "Message Data");
+        proto_tree_add_item(kingfisher_tree, hf_kingfisher_message_data, tvb, ((kfp.version==3)?10:7), kfp.length - ((kfp.version==3)?11:8), ENC_NA);
     }
 
     /* checksum */
@@ -355,6 +354,7 @@ proto_register_kingfisher( void )
             { &hf_kingfisher_message,       { "Message Number", "kingfisher.message", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
             { &hf_kingfisher_function,      { "Function Code", "kingfisher.function", FT_UINT8, BASE_DEC, VALS( function_code_vals ), 0x0, NULL, HFILL } },
             { &hf_kingfisher_checksum,      { "Checksum", "kingfisher.checksum", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+            { &hf_kingfisher_message_data,  { "Message Data", "kingfisher.message_data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
     };
 
     static gint *ett[] = {

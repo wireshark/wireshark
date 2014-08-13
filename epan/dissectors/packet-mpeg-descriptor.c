@@ -1750,7 +1750,7 @@ proto_mpeg_descriptor_dissect_local_time_offset(tvbuff_t *tvb, guint offset, gui
 
 
         if (packet_mpeg_sect_mjd_to_utc_time(tvb, offset, &time_of_change) < 0) {
-            proto_tree_add_text(tree, tvb, offset, 5, "Time of Change : Unparseable time");
+            proto_tree_add_time_format_value(tree, hf_mpeg_descr_local_time_offset_time_of_change, tvb, offset, 5, &time_of_change, "Unparseable time");
         } else {
             proto_tree_add_time(tree, hf_mpeg_descr_local_time_offset_time_of_change, tvb, offset, 5, &time_of_change);
         }
@@ -2309,6 +2309,8 @@ static int hf_mpeg_descr_extension_supp_audio_ed_cla = -1;
 static int hf_mpeg_descr_extension_supp_audio_lang_code_present = -1;
 static int hf_mpeg_descr_extension_supp_audio_lang_code = -1;
 
+static int hf_mpeg_descr_private_data = -1;
+
 #define EXT_TAG_IMG_ICON      0x00
 #define EXT_TAG_CPCM_DLV      0x01
 #define EXT_TAG_CP            0x02
@@ -2383,7 +2385,7 @@ proto_mpeg_descriptor_dissect_extension(tvbuff_t *tvb, guint offset, guint len, 
             }
             already_dissected = offset-offset_start;
             if (already_dissected<len)
-                proto_tree_add_text(tree, tvb, offset, len-already_dissected, "Private data");
+                proto_tree_add_item(tree, hf_mpeg_descr_private_data, tvb, offset, len-already_dissected, ENC_NA);
             break;
         default:
             already_dissected = offset-offset_start;
@@ -2675,7 +2677,7 @@ proto_mpeg_descriptor_dissect_private_ciplus(tvbuff_t *tvb, guint offset, proto_
 
         remaining = offset_start+2+len - offset;
         if (remaining > 0) {
-            proto_tree_add_text(descriptor_tree, tvb, offset, remaining, "Private data bytes");
+            proto_tree_add_item(descriptor_tree, hf_mpeg_descr_private_data, tvb, offset, remaining, ENC_NA);
             offset += remaining;
         }
     }
@@ -4078,6 +4080,11 @@ proto_register_mpeg_descriptor(void)
         { &hf_mpeg_descr_extension_supp_audio_lang_code, {
             "ISO 639 language code", "mpeg_descr.ext.supp_audio.lang_code",
             FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL
+        } },
+
+        { &hf_mpeg_descr_private_data, {
+            "Private data", "mpeg_descr.private_data",
+            FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL
         } },
 
         /* 0xA2 Logon Initialize Descriptor */
