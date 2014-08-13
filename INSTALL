@@ -19,14 +19,13 @@ README.windows for those instructions.
 
 1. If you wish to build Wireshark, make sure you have GTK+ and GLib
    installed. Try running 'pkg-config glib-2.0 --modversion' to see if
-   you have GLib 2.x installed and, if that fails, try running
-   'glib-config --version' to see if you have GLib 1.2[.x] installed.
-   Then try running 'pkg-config gtk+-2.0 --modversion' to see if you
-   have GTK+ 2.x installed and, if that fails, try running
-   'gtk-config --version' to see if you have GTK+ 1.2[.x] installed.
-   Wireshark needs versions 1.2.0 or above of both these packages.
-   If you need to install or re-install GTK+ or GLIB, you can find
-   the packages at:
+   you have GLib 2.x installed.  Then try running
+   'pkg-config gtk+-3.0 --modversion' to see if you
+   have GTK+ 3.x installed and, if that fails, try running
+   'pkg-config gtk+-2.0 --modversion' to see if you have GTK+ 2.x installed.
+   Wireshark needs version 3.0.0 or above of gtk+-3.0 or 2.12.0 or above of
+   gtk+-2.0 and version 2.16.0 or above of glib-2.0.  If you need to install
+   or re-install GTK+ or GLIB, you can find the packages at:
 
         http://www.gtk.org
 
@@ -36,13 +35,8 @@ README.windows for those instructions.
    header files and the like.  For example, Red Hat users will
    need to install a "gtk-devel" .rpm.
 
-   Note also that Wireshark configuration defaults to using GTK+ and
-   GLib 2.x; you need to configure with --disable-gtk2 to use GTK+
-   1.2[.x].
-
-   Please also note that GTK+ 1.2[.x] is only supported up to
-   Wireshark 1.0.x. From Wireshark 1.1.x onwards only GTK+ 2.x
-   is supported.
+   Note also that Wireshark configuration defaults to using GTK+ 3.x;
+   you need to configure with --disable-gtk3 to use GTK+ 2.x.
 
 2. If you wish to build TShark, the line-mode version of Wireshark,
    make sure you have GLIB installed.  See note #1 above for instructions
@@ -54,18 +48,13 @@ README.windows for those instructions.
 
         http://www.tcpdump.org .
 
-   If you've downloaded the 0.5.2 version, make sure you install
-   the headers ('make install-incl') when you install the library.
-   The CVS snapshots will install the headers if you do 'make
-   install', and have no 'install-incl' target.
-
    If you installed libpcap from a binary package, you may have to
    install a "development" package; for example, there's
    apparently a "libpcap0" Debian package, but it just includes a
    shared library, a copyright notice, changelog files, and a
    README file - you also need to install a "libpcap-dev" package
    to get header files, a non-shared library, and the man page.
-   Similarly, Red Hat 5.x users will need to install a "libpcap-devel"
+   Similarly, Red Hat users will need to install a "libpcap-devel"
    .rpm to go along with the "libpcap" .rpm.
 
 4. Building Wireshark requires Perl (specifically the pod2man program)
@@ -79,26 +68,28 @@ README.windows for those instructions.
    using 'configure' and 'make'. Some of the Wireshark non-generic
    configure options are as follows:
 
-    --sysconfdir=DIR
-        Wireshark installs a support file (manuf) in ${PREFIX}/etc by
-        default, where ${PREFIX} comes from --prefix=DIR. If you do not
-        specify any --prefix option, ${PREFIX} is "/usr/local".
-        You can change the location of the manuf file with the --sysconfdir
-        option.
-
     --disable-usr-local
         By default 'configure' will look in /usr/local/{include,lib} for
         additional header files and libraries. Using this switch keeps
         'configure' from looking there
 
     --disable-wireshark
-        By default, if 'configure' finds the GTK+ libraries, the Makefile
-        builds Wireshark, the GUI packet analyzer. You can disable the
-        build of the GUI version of Wireshark with this switch.
+        By default 'configure' tries to find the GTK+ libraries so Wireshark,
+        the GUI packet analyzer, can be built.  You can disable the build of
+        the GUI version of Wireshark with this switch.
 
-    --disable-gtk2
-        Build Glib/Gtk+ 1.2[.x]-based wireshark.
-        Note: not supported from Wireshark 1.1.x onwards
+    --without-gtk3
+        Don't try to build a Gtk+ 3.x-based Wireshark.  If given in
+        conjunction with --disable-gtk2 then the Gtk+ GUI is disabled (and
+        only the Qt GUI is built).
+
+    --without-gtk2
+        Don't try to build a Gtk+ 2.x-based Wireshark.  If given in
+        conjunction with --disable-gtk3 then the Gtk+ GUI is disabled (and
+        only the Qt GUI is built).
+
+    --without-qt
+        Don't try to build a Qt-based Wireshark.
 
     --disable-tshark
         By default the line-mode packet analyzer, TShark, is built.
@@ -112,8 +103,16 @@ README.windows for those instructions.
         By default the capture-file statistics reporting pogram
         is built. Use this switch to avoid building it.
 
+     --disable-captype
+        By default the capture-type reporting pogram is built. Use this
+        switch to avoid building it.
+
     --disable-mergecap
         By default the capture-file merging program is built.
+        Use this switch to avoid building it.
+
+    --disable-reordercap
+        By default the capture-file reordering program is built.
         Use this switch to avoid building it.
 
     --disable-text2pcap
@@ -130,10 +129,6 @@ README.windows for those instructions.
 
     --disable-dumpcap
         By default the network traffic capture program is built.
-        Use this switch to avoid building it.
-
-    --disable-reordercap
-        By default the capture-file reordering program is built.
         Use this switch to avoid building it.
 
     --disable-rawshark
@@ -224,7 +219,6 @@ README.windows for those instructions.
    run one of
 
         make rpm-package	# Builds a binary package using rpm
-        make srpm-package	# Builds a source package using rpm
         make svr4-package	# Builds a binary package using pkgmk
         make solaris-package	# Same as "make svr4-package"
         make osx-package	# Builds a binary package for OSX
@@ -242,5 +236,6 @@ README.windows for those instructions.
 
 
 If you have trouble with the build or installation process, you can
-find assistance on the wireshark-users and wireshark-dev mailing lists.
-See http://www.wireshark.org/lists/ for details.
+find assistance on the wireshark-users and wireshark-dev mailing lists (see
+http://www.wireshark.org/lists/ for details) or the Wireshark Q&A site:
+https://ask.wireshark.org .
