@@ -1357,12 +1357,6 @@ proto_register_scsi_ssc(void)
 
 }
 
-void
-proto_reg_handoff_scsi_ssc(void)
-{
-}
-
-
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
  *
