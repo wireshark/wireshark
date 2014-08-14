@@ -5165,7 +5165,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
                                         offset_e[i], 4, &ts_end[i]);
                 } else {
                     proto_tree_add_time(pdutree, hf_cflow_abstimeend, tvb,
-                                        offset_s[i], 4, &ts_start[i]);
+                                        offset_e[i], 4, &ts_end[i]);
                 }
             }
         }
