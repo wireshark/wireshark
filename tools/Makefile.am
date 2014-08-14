@@ -173,7 +173,7 @@ EXTRA_DIST = \
 	setuid-root.pl.in				\
 	test-common.sh					\
 	test-captures.sh				\
-	textify.sh					\
+	textify.ps1					\
 	tpg/Makefile.am					\
 	tpg/Makefile.nmake				\
 	tpg/V2P.pm					\
