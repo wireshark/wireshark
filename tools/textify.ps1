@@ -1,4 +1,3 @@
-#!/bin/bash
 #
 # Textify - Copy text files and make them useful for Windows users.
 #
