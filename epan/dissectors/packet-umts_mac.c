@@ -100,9 +100,9 @@ static guint16 mac_tsn_size = 6;
 static gint global_mac_tsn_size = MAC_TSN_6BITS;
 gint get_mac_tsn_size(void) { return global_mac_tsn_size; }
 static const enum_val_t tsn_size_enumvals[] = {
-	{"6 bits", "6 bits", MAC_TSN_6BITS},
-	{"14 bits", "14 bits", MAC_TSN_14BITS},
-	{NULL, NULL, -1}};
+    {"6 bits",  "6 bits",  MAC_TSN_6BITS},
+    {"14 bits", "14 bits", MAC_TSN_14BITS},
+    {NULL, NULL, -1}};
 enum mac_is_fragment_type {
     MAC_IS_HEAD,
     MAC_IS_MIDDLE,
@@ -136,8 +136,8 @@ static GHashTable * mac_is_sdus = NULL; /* channel -> (frag -> sdu) */
 static GHashTable * mac_is_fragments = NULL; /* channel -> body_parts[] */
 static gboolean mac_is_channel_equal(gconstpointer a, gconstpointer b)
 {
-	const mac_is_channel *x = (const mac_is_channel *)a, *y = (const mac_is_channel *)b;
-	return x->lchid == y->lchid && x->ueid == y->ueid;
+    const mac_is_channel *x = (const mac_is_channel *)a, *y = (const mac_is_channel *)b;
+    return x->lchid == y->lchid && x->ueid == y->ueid;
 }
 static guint mac_is_channel_hash(gconstpointer key)
 {
@@ -285,7 +285,7 @@ static void dissect_mac_fdd_rach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     fp_info       *fpinf;
     rlc_info      *rlcinf;
     proto_item    *ti        = NULL;
-	guint8			c_t;
+    guint8         c_t;
     /* RACH TCTF is always 2 bit */
     tctf = tvb_get_bits8(tvb, 0, 2);
     bitoffs += 2;
@@ -509,13 +509,8 @@ static void dissect_mac_fdd_dch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     macinf = (umts_mac_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_umts_mac, 0);
     fpinf  = (fp_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_fp, 0);
     rlcinf = (rlc_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_rlc, 0);
+
     if (!macinf || !fpinf) {
-    if(!macinf){
-        g_warning("MACinf == NULL");
-    }
-    if(!fpinf){
-        g_warning("fpinf == NULL");
-    }
         proto_tree_add_expert(dch_tree, pinfo, &ei_mac_per_frame_info_missing, tvb, 0, -1);
         return;
     }
@@ -1078,7 +1073,7 @@ static void dissect_mac_fdd_edch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 #if 0
 static void dissect_mac_fdd_hsdsch_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	proto_tree    *hsdsch_tree = NULL;
+    proto_tree    *hsdsch_tree = NULL;
     /*proto_item    *channel_type;
     */
     fp_info       *fpinf;
@@ -1094,35 +1089,35 @@ static void dissect_mac_fdd_hsdsch_common(tvbuff_t *tvb, packet_info *pinfo, pro
     ti = proto_tree_add_item(tree, proto_umts_mac, tvb, 0, -1, ENC_NA);
     hsdsch_tree = proto_item_add_subtree(ti, ett_mac_hsdsch);
 
-	fpinf  = (fp_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_fp, 0);
-	macinf = (umts_mac_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_umts_mac);
+    fpinf  = (fp_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_fp, 0);
+    macinf = (umts_mac_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_umts_mac);
 
-	 if (!macinf) {
+    if (!macinf) {
         proto_tree_add_expert(hsdsch_tree, pinfo, &ei_mac_per_frame_info_missing, tvb, 0, -1);
         return;
     }
     pos = fpinf->cur_tb;
     switch(macinf->content[pos]){
-		/*In this case we don't have a MAC-c header 9.2.1.4*/
+        /*In this case we don't have a MAC-c header 9.2.1.4*/
 
-		/*
-		case MAC_CONTENT_CCCH:
+#if 0
+        case MAC_CONTENT_CCCH:
 
-		break;
-		case MAC_CONTENT_PCCH:
+            break;
+        case MAC_CONTENT_PCCH:
 
-		break;
+            break;
 
-		case MAC_CONTENT_BCCH:
+        case MAC_CONTENT_BCCH:
 
-		break;
-*/
-		default:
+            break;
+#endif
+        default:
 
-			proto_item_append_text(ti, " (Unknown HSDSCH-Common Content)");
-			expert_add_info_format(pinfo, NULL, &ei_mac_unknown_content, "Unknown HSDSCH-Common Content");
-		break;
-	}
+            proto_item_append_text(ti, " (Unknown HSDSCH-Common Content)");
+            expert_add_info_format(pinfo, NULL, &ei_mac_unknown_content, "Unknown HSDSCH-Common Content");
+            break;
+    }
 
 }
 #endif
@@ -1144,7 +1139,7 @@ static void dissect_mac_fdd_hsdsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     proto_item    *ti          = NULL;
     rlc_info * rlcinf;
 
-    /*struct rrc_info	*rrcinf = NULL;
+    /*struct rrc_info  *rrcinf = NULL;
     */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "MAC");
 
@@ -1155,23 +1150,23 @@ static void dissect_mac_fdd_hsdsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     macinf = (umts_mac_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_umts_mac, 0);
 
     pos = fpinf->cur_tb;
-    bitoffs = fpinf->hsdsch_entity == ehs ? 0 : 4;	/*No MAC-d header for type 2*/
+    bitoffs = fpinf->hsdsch_entity == ehs ? 0 : 4;   /*No MAC-d header for type 2*/
 
     if (!macinf) {
         proto_tree_add_expert(hsdsch_tree, pinfo, &ei_mac_per_frame_info_missing, tvb, 0, -1);
         return;
     }
-    if (macinf->ctmux[pos]) {	/*The 4'st bits are padding*/
+    if (macinf->ctmux[pos]) {   /*The 4'st bits are padding*/
         proto_tree_add_bits_item(hsdsch_tree, hf_mac_ct, tvb, bitoffs, 4, ENC_BIG_ENDIAN);
 
         /*Sets the proper lchid, for later layers.*/
         macinf->lchid[pos] = tvb_get_bits8(tvb,bitoffs,4)+1;
         macinf->fake_chid[pos] = FALSE;
-        macinf->content[pos] = lchId_type_table[macinf->lchid[pos]];	/*Lookup MAC content*/
+        macinf->content[pos] = lchId_type_table[macinf->lchid[pos]];    /*Lookup MAC content*/
 
         rlcinf = (rlc_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_rlc, 0);
         rlcinf->rbid[pos] = macinf->lchid[pos];
-        rlcinf->mode[pos] =  lchId_rlc_map[macinf->lchid[pos]];	/*Look up RLC mode*/
+        rlcinf->mode[pos] =  lchId_rlc_map[macinf->lchid[pos]]; /*Look up RLC mode*/
         bitoffs += 4;
     }
 
@@ -1483,3 +1478,16 @@ proto_reg_handoff_umts_mac(void)
 
     rrc_handle = find_dissector("rrc");
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */
