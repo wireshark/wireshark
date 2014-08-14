@@ -1796,7 +1796,7 @@ AC_SUBST(OSX_DMG_FLAGS)
 # Enable/disable tshark
 AC_ARG_ENABLE(tshark,
   AC_HELP_STRING( [--enable-tshark],
-                  [build TShark @<:@default=yes@:>@]),
+                  [build tshark @<:@default=yes@:>@]),
     tshark=$enableval,enable_tshark=yes)
 
 if test "x$enable_tshark" = "xyes" ; then
@@ -1809,23 +1809,6 @@ else
 fi
 AC_SUBST(tshark_bin)
 AC_SUBST(tshark_man)
-
-# Enable/disable tfshark
-AC_ARG_ENABLE(tfshark,
-  AC_HELP_STRING( [--enable-tfshark],
-                  [build TFShark @<:@default=no@:>@]),
-    tfshark=$enableval,enable_tfshark=no)
-
-if test "x$enable_tfshark" = "xyes" ; then
-	tfshark_bin="tfshark\$(EXEEXT)"
-	tfshark_man="tfshark.1"
-	wiresharkfilter_man="wireshark-filter.4"
-else
-	tfshark_bin=""
-	tfshark_man=""
-fi
-AC_SUBST(tfshark_bin)
-AC_SUBST(tfshark_man)
 
 # Enable/disable editcap
 
@@ -1844,26 +1827,6 @@ fi
 AC_SUBST(editcap_bin)
 AC_SUBST(editcap_man)
 
-# Enable/disable echld
-
-AC_ARG_ENABLE(echld,
-  AC_HELP_STRING( [--enable-echld],
-                  [support echld]),
-    have_echld=$enableval,have_echld=no)
-
-AM_CONDITIONAL(HAVE_ECHLD, test "x$have_echld" = "xyes")
-if test "x$have_echld" = "xyes"
-then
-  AC_DEFINE(HAVE_ECHLD, 1, [Define if echld is enabled])
-  echld_test_bin="echld_test\$(EXEEXT)"
-  echld_dir="echld"
-else
-  have_echld="no"
-  echld_test_bin=""
-  echld_dir=""
-fi
-AC_SUBST(echld_test_bin)
-AC_SUBST(echld_dir)
 
 # Enabling/disabling of dumpcap is done later (after we know if we have PCAP
 # or not)
@@ -2105,6 +2068,45 @@ else
 fi
 AC_SUBST(rawshark_bin)
 AC_SUBST(rawshark_man)
+
+
+# Enable/disable echld
+AC_ARG_ENABLE(echld,
+  AC_HELP_STRING( [--enable-echld],
+                  [support echld (Experimental) @<:@default=no@:>@]),
+    have_echld=$enableval,have_echld=no)
+
+AM_CONDITIONAL(HAVE_ECHLD, test "x$have_echld" = "xyes")
+if test "x$have_echld" = "xyes"
+then
+  AC_DEFINE(HAVE_ECHLD, 1, [Define if echld is enabled])
+  echld_test_bin="echld_test\$(EXEEXT)"
+  echld_dir="echld"
+else
+  have_echld="no"
+  echld_test_bin=""
+  echld_dir=""
+fi
+AC_SUBST(echld_test_bin)
+AC_SUBST(echld_dir)
+
+# Enable/disable tfshark
+AC_ARG_ENABLE(tfshark,
+  AC_HELP_STRING( [--enable-tfshark],
+                  [build tfshark (Experimental) @<:@default=no@:>@]),
+    tfshark=$enableval,enable_tfshark=no)
+
+if test "x$enable_tfshark" = "xyes" ; then
+	tfshark_bin="tfshark\$(EXEEXT)"
+	tfshark_man="tfshark.1"
+	wiresharkfilter_man="wireshark-filter.4"
+else
+	tfshark_bin=""
+	tfshark_man=""
+fi
+AC_SUBST(tfshark_bin)
+AC_SUBST(tfshark_man)
+
 
 dnl Use pcap-ng by default
 AC_ARG_ENABLE(pcap-ng-default,
