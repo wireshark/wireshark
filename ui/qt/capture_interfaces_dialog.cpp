@@ -54,6 +54,7 @@
 #include <epan/addr_resolv.h>
 #include <wsutil/filesystem.h>
 
+#include "qt_ui_utils.h"
 #include "sparkline_delegate.h"
 
 // To do:
@@ -127,6 +128,9 @@ CaptureInterfacesDialog::CaptureInterfacesDialog(QWidget *parent) :
     ui->interfaceTree->setColumnHidden(col_monitor_, true);
 #endif
     ui->interfaceTree->setItemDelegateForColumn(col_filter_, &interface_item_delegate_);
+
+    interface_item_delegate_.setTree(ui->interfaceTree);
+    ui->interfaceTree->setColumnWidth(col_link_, 100);
 
     connect(ui->interfaceTree,SIGNAL(itemClicked(QTreeWidgetItem*,int)),this,SLOT(interfaceClicked(QTreeWidgetItem*,int)));
     connect(ui->interfaceTree, SIGNAL(itemSelectionChanged()), this, SLOT(interfaceSelected()));
@@ -469,6 +473,7 @@ void CaptureInterfacesDialog::updateInterfaces()
                 addr_ti->setText(0, addr_str);
                 addr_ti->setFlags(addr_ti->flags() ^ Qt::ItemIsSelectable);
                 addr_ti->setFirstColumnSpanned(true);
+                addr_ti->setToolTip(col_interface_, QString("<span>%1</span>").arg(addr_str));
                 ti->setToolTip(col_interface_, QString("<span>%1</span>").arg(addr_str));
             } else {
                 ti->setToolTip(col_interface_, tr("no addresses"));
@@ -513,8 +518,6 @@ void CaptureInterfacesDialog::updateInterfaces()
             }
 #endif
 
-            interface_item_delegate_.setTree(ui->interfaceTree);
-            ui->interfaceTree->setColumnWidth(col_link_, 100);
             ti->setText(col_link_, linkname);
 
             ti->setText(col_pmode_, device.pmode ? tr("enabled") : tr("disabled"));
@@ -607,7 +610,6 @@ void CaptureInterfacesDialog::on_compileBPF_clicked()
 bool CaptureInterfacesDialog::saveOptionsToPreferences()
 {
     interface_t device;
-    gchar *new_prefs, *tmp_prefs;
 
     if (ui->rbPcapng->isChecked()) {
         global_capture_opts.use_pcapng = true;
@@ -621,10 +623,10 @@ bool CaptureInterfacesDialog::saveOptionsToPreferences()
     if (filename.length() > 0) {
         /* User specified a file to which the capture should be written. */
         global_capture_opts.saving_to_file = true;
-        global_capture_opts.save_file = g_strdup(filename.toUtf8().constData());
-        global_capture_opts.orig_save_file = g_strdup(filename.toUtf8().constData());
+        global_capture_opts.save_file = qstring_strdup(filename);
+        global_capture_opts.orig_save_file = qstring_strdup(filename);
         /* Save the directory name for future file dialogs. */
-        set_last_open_dir(get_dirname(g_strdup(filename.toUtf8().constData())));
+        set_last_open_dir(get_dirname(filename.toUtf8().data()));
     } else {
         /* User didn't specify a file; save to a temporary file. */
         global_capture_opts.save_file = NULL;
@@ -740,102 +742,99 @@ bool CaptureInterfacesDialog::saveOptionsToPreferences()
            word boundaries. As 'lo' is part of 'nflog' an exact match is necessary. */
         switch (col) {
         case col_link_:
-            new_prefs = (gchar *)g_malloc0(MAX_VAL_LEN);
+        {
+            QStringList link_list;
 
             for (int row = 0; row < ui->interfaceTree->topLevelItemCount(); row++) {
                 device = g_array_index(global_capture_opts.all_ifaces, interface_t, deviceMap[row]);
                 if (device.active_dlt == -1) {
                     continue;
                 }
-                g_strlcat(new_prefs, ",", MAX_VAL_LEN);
-                tmp_prefs = g_strdup_printf("%s(%d)", device.name, device.active_dlt);
-                g_strlcat(new_prefs, tmp_prefs, MAX_VAL_LEN);
-                g_free(tmp_prefs);
+                link_list << QString("%1(%2)").arg(device.name).arg(device.active_dlt);
             }
             g_free(prefs.capture_devices_linktypes);
-            prefs.capture_devices_linktypes = new_prefs;
+            prefs.capture_devices_linktypes = qstring_strdup(link_list.join(","));
             break;
+        }
 #ifdef SHOW_BUFFER_COLUMN
         case col_buffer_:
-            new_prefs = (gchar *)g_malloc0(MAX_VAL_LEN);
+        {
+            QStringList buffer_size_list;
 
             for (int row = 0; row < ui->interfaceTree->topLevelItemCount(); row++) {
                 device = g_array_index(global_capture_opts.all_ifaces, interface_t, deviceMap[row]);
                 if (device.buffer == -1) {
                     continue;
                 }
-                g_strlcat(new_prefs, ",", MAX_VAL_LEN);
-                tmp_prefs = g_strdup_printf("%s(%d)", device.name, device.buffer);
-                g_strlcat(new_prefs, tmp_prefs, MAX_VAL_LEN);
-                g_free(tmp_prefs);
+                buffer_size_list << QString("%1(%2)").arg(device.name).arg(device.buffer);
             }
             g_free(prefs.capture_devices_buffersize);
-            prefs.capture_devices_buffersize = new_prefs;
+            prefs.capture_devices_buffersize = qstring_strdup(buffer_size_list.join(","));
             break;
+        }
 #endif // HAVE_BUFFER_SETTING
         case col_snaplen_:
-            new_prefs = (gchar *)g_malloc0(MAX_VAL_LEN);
+        {
+            QStringList snaplen_list;
 
             for (int row = 0; row < ui->interfaceTree->topLevelItemCount(); row++) {
                 device = g_array_index(global_capture_opts.all_ifaces, interface_t, deviceMap[row]);
-                g_strlcat(new_prefs, ",", MAX_VAL_LEN);
-                tmp_prefs = g_strdup_printf("%s:%d(%d)", device.name, device.has_snaplen, (device.has_snaplen?device.snaplen:WTAP_MAX_PACKET_SIZE));
-                g_strlcat(new_prefs, tmp_prefs, MAX_VAL_LEN);
-                g_free(tmp_prefs);
+                snaplen_list << QString("%1:%2(%3)")
+                                .arg(device.name)
+                                .arg(device.has_snaplen)
+                                .arg(device.has_snaplen ? device.snaplen : WTAP_MAX_PACKET_SIZE);
             }
             g_free(prefs.capture_devices_snaplen);
-            prefs.capture_devices_snaplen = new_prefs;
+            prefs.capture_devices_snaplen = qstring_strdup(snaplen_list.join(","));
             break;
+        }
         case col_pmode_:
-            new_prefs = (gchar *)g_malloc0(MAX_VAL_LEN);
+        {
+            QStringList pmode_list;
 
             for (int row = 0; row < ui->interfaceTree->topLevelItemCount(); row++) {
                 device = g_array_index(global_capture_opts.all_ifaces, interface_t, deviceMap[row]);
                 if (device.pmode == -1) {
                     continue;
                 }
-                g_strlcat(new_prefs, ",", MAX_VAL_LEN);
-                tmp_prefs = g_strdup_printf("%s(%d)", device.name, device.pmode);
-                g_strlcat(new_prefs, tmp_prefs, MAX_VAL_LEN);
-                g_free(tmp_prefs);
+                pmode_list << QString("%1(%2)").arg(device.name).arg(device.pmode);
             }
             g_free(prefs.capture_devices_pmode);
-            prefs.capture_devices_pmode = new_prefs;
+            prefs.capture_devices_pmode = qstring_strdup(pmode_list.join(","));
             break;
+        }
 #ifdef SHOW_MONITOR_COLUMN
         case col_monitor_:
-            new_prefs = (gchar *)g_malloc0(MAX_VAL_LEN);
+        {
+            QStringList monitor_list;
 
             for (int row = 0; row < ui->interfaceTree->topLevelItemCount(); row++) {
                 device = g_array_index(global_capture_opts.all_ifaces, interface_t, deviceMap[row]);
                 if (!device.monitor_mode_supported || (device.monitor_mode_supported && !device.monitor_mode_enabled)) {
                     continue;
                 }
-                g_strlcat(new_prefs, ",", MAX_VAL_LEN);
-                tmp_prefs = g_strdup_printf("%s", device.name);
-                g_strlcat(new_prefs, tmp_prefs, MAX_VAL_LEN);
-                g_free(tmp_prefs);
+                monitor_list << device.name;
             }
             g_free(prefs.capture_devices_monitor_mode);
-            prefs.capture_devices_monitor_mode = new_prefs;
+            prefs.capture_devices_monitor_mode = qstring_strdup(monitor_list.join(","));
             break;
+        }
 #endif // HAVE_MONITOR_SETTING
         case col_filter_:
-            new_prefs = (gchar *)g_malloc0(MAX_VAL_LEN);
+        {
+            QStringList filter_list;
 
             for (int row = 0; row < ui->interfaceTree->topLevelItemCount(); row++) {
                 device = g_array_index(global_capture_opts.all_ifaces, interface_t, deviceMap[row]);
                 if (!device.cfilter) {
                     continue;
                 }
-                g_strlcat(new_prefs, ",", MAX_VAL_LEN);
-                tmp_prefs = g_strdup_printf("%s(%s)", device.name, device.cfilter);
-                g_strlcat(new_prefs, tmp_prefs, MAX_VAL_LEN);
-                g_free(tmp_prefs);
+                filter_list << QString("%1(%2)").arg(device.name).arg(device.cfilter);
             }
             g_free(prefs.capture_devices_filter);
-            prefs.capture_devices_filter = new_prefs;
+            prefs.capture_devices_filter = qstring_strdup(filter_list.join(","));
             break;
+        }
         }
     }
     if (!prefs.gui_use_pref_save) {
@@ -843,7 +842,6 @@ bool CaptureInterfacesDialog::saveOptionsToPreferences()
     }
     return true;
 }
-
 
 void CaptureInterfacesDialog::on_manage_clicked()
 {

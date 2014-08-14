@@ -44,63 +44,37 @@
 char *
 capture_dev_user_descr_find(const gchar *if_name)
 {
-  char *p, *str;
-  char *p2 = NULL;
-  char *descr = NULL;
-  int lp = 0;
-  int ct = 0;
+  gchar **if_tokens;
+  gchar *descr = NULL;
+  int i;
 
-  if ((prefs.capture_devices_descr == NULL) ||
-      (*prefs.capture_devices_descr == '\0')) {
+  if (if_name == NULL || strlen(if_name) < 1) {
+    return NULL;
+  }
+
+  if (prefs.capture_devices_descr == NULL ||
+      strlen(prefs.capture_devices_descr) < 1) {
     /* There are no descriptions. */
     return NULL;
   }
 
-  /* There might be names like 'lo' and 'nflog' in Ubuntu which can lead to wrong results.
-     Therefore, the search must be more exact. */
-  str = g_strdup_printf(",%s(", if_name);
-  if ((p = strstr(prefs.capture_devices_descr, str)) == NULL) {
-    /* There are, but there isn't one for this interface. */
-    return NULL;
-  }
 
-  p++;
-  while (*p != '\0') {
-    /* error: ran into next interface description */
-    if (*p == ',')
-      return NULL;
-    /* found left parenthesis, start of description */
-    else if (*p == '(') {
-      ct = 0;
-      lp++;
-      /* skip over left parenthesis */
-      p++;
-      /* save pointer to beginning of description */
-      p2 = p;
-      continue;
+  if_tokens = g_strsplit(prefs.capture_devices_descr, ",", -1);
+  for (i = 0; if_tokens[i] != NULL; i++) {
+    gchar **descr_tokens;
+    descr_tokens = g_strsplit_set(if_tokens[i], "()", -1);
+    if (g_strv_length(descr_tokens) == 3) { /* interface + description + empty */
+      if (strcmp(descr_tokens[0], if_name) == 0 && strlen(descr_tokens[1]) > 0) {
+        descr = g_strdup(descr_tokens[1]);
+        g_strfreev(descr_tokens);
+        break;
+      }
     }
-    else if (*p == ')') {
-      /* end of description */
-      break;
-    }
-    else {
-        p++;
-        ct++;
-    }
+    g_strfreev(descr_tokens);
   }
+  g_strfreev(if_tokens);
 
-  g_free(str);
-  if ((lp == 1) && (ct > 0) && (p2 != NULL)) {
-    /* Allocate enough space to return the string,
-       which runs from p2 to p, plus a terminating
-       '\0'. */
-    descr = (char *)g_malloc(p - p2 + 1);
-    memcpy(descr, p2, p - p2);
-    descr[p - p2] = '\0';
-    return descr;
-  }
-  else
-    return NULL;
+  return descr;
 }
 
 gint

@@ -242,6 +242,9 @@ topic_action_url(topic_action_e action)
     case(HELP_CAPTURE_INFO_DIALOG):
         url = user_guide_url("ChCapRunningSection.html");
         break;
+    case(HELP_CAPTURE_MANAGE_INTERFACES_DIALOG):
+        url = user_guide_url("ChCapManageInterfacesSection.html");
+        break;
     case(HELP_ENABLED_PROTOCOLS_DIALOG):
         url = user_guide_url("ChCustProtocolDissectionSection.html");
         break;

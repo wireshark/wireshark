@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+// XXX This shouldn't exist. These controls should be in ManageInterfacesDialog instead.
+
 #include "config.h"
 #ifdef HAVE_PCAP_REMOTE
 #include "remote_settings_dialog.h"

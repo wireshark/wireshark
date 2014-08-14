@@ -19,7 +19,6 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "config.h"
 #include <glib.h>
 #include "manage_interfaces_dialog.h"
 #include "ui_manage_interfaces_dialog.h"
@@ -37,14 +36,48 @@
 #include "ui/preference_utils.h"
 #include "ui/ui_util.h"
 
+#include "qt_ui_utils.h"
+
+#include "wireshark_application.h"
+
+#include <QDebug>
+
 #ifdef HAVE_LIBPCAP
+#include <QCheckBox>
 #include <QFileDialog>
 #include <QHBoxLayout>
-#include <QMessageBox>
-#include <QCheckBox>
+#include <QTreeWidgetItemIterator>
+
+// To do:
+// - Check the validity of pipes and remote interfaces and provide feedback
+//   via hintLabel.
+// - We might want to move PathChooserDelegate to its own module and use it in
+//   other parts of the application such as the general preferences and UATs.
+//   Qt Creator has a much more elaborate version from which we might want
+//   to draw inspiration.
 
 enum {
     col_p_pipe_
+};
+
+enum
+{
+    col_l_show_,
+    col_l_friendly_name_,
+    col_l_local_name_,
+    col_l_comment_,
+};
+
+enum
+{
+    col_r_show_,
+    col_r_host_dev_,
+};
+
+enum {
+    tab_local_,
+    tab_pipe_,
+    tab_remote_
 };
 
 ManageInterfacesDialog::ManageInterfacesDialog(QWidget *parent) :
@@ -54,29 +87,47 @@ ManageInterfacesDialog::ManageInterfacesDialog(QWidget *parent) :
     ui->setupUi(this);
 
 #ifdef Q_OS_MAC
-    ui->addButton->setAttribute(Qt::WA_MacSmallSize, true);
-    ui->delButton->setAttribute(Qt::WA_MacSmallSize, true);
+    ui->addPipe->setAttribute(Qt::WA_MacSmallSize, true);
+    ui->addPipe->setAttribute(Qt::WA_MacSmallSize, true);
+    ui->addRemote->setAttribute(Qt::WA_MacSmallSize, true);
+    ui->delRemote->setAttribute(Qt::WA_MacSmallSize, true);
 #endif
-    ui->pipeList->setItemDelegateForColumn(0, &new_pipe_item_delegate_);
-    new_pipe_item_delegate_.setTable(ui->pipeList);
+
+    int one_em = fontMetrics().height();
+
+    ui->localList->setColumnWidth(col_l_show_, one_em * 3);
+#ifndef Q_OS_WIN
+    ui->localList->setColumnHidden(col_l_friendly_name_, true);
+#endif
+
+    ui->pipeList->setItemDelegateForColumn(col_p_pipe_, &new_pipe_item_delegate_);
+    new_pipe_item_delegate_.setTree(ui->pipeList);
+
     showPipes();
+    showLocalInterfaces();
+
+#if defined(HAVE_PCAP_REMOTE)
+    // The default indentation (20) means our checkboxes are shifted too far on Windows.
+    // Assume that our disclosure and checkbox controls are square, or at least fit within an em.
+    ui->remoteList->setIndentation(one_em);
+    ui->remoteList->setColumnWidth(col_r_show_, one_em * 4);
+    ui->remoteSettings->setEnabled(false);
+    showRemoteInterfaces();
+#else
+    ui->remoteTab->setEnabled(false);
+#endif
+
+    connect(ui->tabWidget, SIGNAL(currentChanged(int)), this, SLOT(updateWidgets()));
     connect(this, SIGNAL(ifsChanged()), parent, SIGNAL(ifsChanged()));
+
 #ifdef HAVE_PCAP_REMOTE
     connect(this, SIGNAL(remoteAdded(GList*, remote_options*)), this, SLOT(addRemoteInterfaces(GList*, remote_options*)));
     connect(this, SIGNAL(remoteSettingsChanged(interface_t *)), this, SLOT(setRemoteSettings(interface_t *)));
-#endif
-    showLocalInterfaces();
-
-#if !defined(HAVE_PCAP_REMOTE)
-    ui->tabWidget->removeTab(2);
-#else
-    ui->remoteList->setHeaderLabels(QStringList() << "Host" << "Hide" << "Name");
-    ui->remoteList->header()->setDefaultAlignment(Qt::AlignCenter);
-    ui->remoteList->setColumnWidth(HIDDEN, 50);
-    ui->remoteSettings->setEnabled(false);
-    showRemoteInterfaces();
     connect(ui->remoteList, SIGNAL(itemClicked(QTreeWidgetItem*, int)), this, SLOT(remoteSelectionChanged(QTreeWidgetItem*, int)));
 #endif
+
+    ui->tabWidget->setCurrentIndex(tab_local_);
+    updateWidgets();
 }
 
 ManageInterfacesDialog::~ManageInterfacesDialog()
@@ -84,10 +135,55 @@ ManageInterfacesDialog::~ManageInterfacesDialog()
     delete ui;
 }
 
+void ManageInterfacesDialog::updateWidgets()
+{
+    QString hint;
+
+    if (ui->pipeList->selectedItems().length() > 0) {
+        ui->delPipe->setEnabled(true);
+    } else {
+        ui->delPipe->setEnabled(false);
+    }
+
+#ifdef HAVE_PCAP_REMOTE
+    bool enable_del_remote = false;
+    bool enable_remote_settings = false;
+    QTreeWidgetItem *item = ui->remoteList->currentItem();
+
+    if (item) {
+        if (item->childCount() < 1) { // Leaf
+            enable_remote_settings = true;
+        } else {
+            enable_del_remote = true;
+        }
+    }
+    ui->delRemote->setEnabled(enable_del_remote);
+    ui->remoteSettings->setEnabled(enable_remote_settings);
+#endif
+
+    switch (ui->tabWidget->currentIndex()) {
+    case tab_pipe_:
+        hint = tr("This version of Wireshark does not save pipe settings.");
+        break;
+    case tab_remote_:
+#ifdef HAVE_PCAP_REMOTE
+        hint = tr("This version of Wireshark does not save remote settings.");
+#else
+        hint = tr("This version of Wireshark does not support remote interfaces.");
+#endif
+        break;
+    default:
+        break;
+    }
+
+    hint.prepend("<small><i>");
+    hint.append("</i></small>");
+    ui->hintLabel->setText(hint);
+}
 
 void ManageInterfacesDialog::showPipes()
 {
-    ui->pipeList->setRowCount(0);
+    ui->pipeList->clear();
 
     if (global_capture_opts.all_ifaces->len > 0) {
         interface_t device;
@@ -99,41 +195,69 @@ void ManageInterfacesDialog::showPipes()
             if (device.hidden || device.type != IF_PIPE) {
                 continue;
             }
-            ui->pipeList->setRowCount(ui->pipeList->rowCount()+1);
-            QString output = QString(device.display_name);
-            ui->pipeList->setItem(ui->pipeList->rowCount()-1, col_p_pipe_, new QTableWidgetItem(output));
+            QTreeWidgetItem *item = new QTreeWidgetItem(ui->pipeList);
+            item->setFlags(item->flags() | Qt::ItemIsEditable);
+            item->setText(col_p_pipe_, device.display_name);
         }
     }
 }
 
-void ManageInterfacesDialog::on_addButton_clicked()
-{
-    ui->pipeList->setRowCount(ui->pipeList->rowCount() + 1);
-    QTableWidgetItem *widget = new QTableWidgetItem(QString(tr("New Pipe")));
-    ui->pipeList->setItem(ui->pipeList->rowCount() - 1 , 0, widget);
-}
-
-
 void ManageInterfacesDialog::on_buttonBox_accepted()
 {
-    interface_t device;
-    gchar *pipe_name;
+    pipeAccepted();
+    localAccepted();
+#ifdef HAVE_PCAP_REMOTE
+    remoteAccepted();
+#endif
+    prefs_main_write();
+    emit ifsChanged();
+}
 
-    for (int row = 0; row < ui->pipeList->rowCount(); row++) {
-        pipe_name = g_strdup(ui->pipeList->item(row,0)->text().toUtf8().constData());
-        if (!strcmp(pipe_name, "New pipe") || !strcmp(pipe_name, "")) {
-            g_free(pipe_name);
-            return;
+const QString new_pipe_default_ = QObject::tr("New Pipe");
+void ManageInterfacesDialog::on_addPipe_clicked()
+{
+    QTreeWidgetItem *item = new QTreeWidgetItem(ui->pipeList);
+    item->setText(col_p_pipe_, new_pipe_default_);
+    item->setFlags(item->flags() | Qt::ItemIsEditable);
+    ui->pipeList->setCurrentItem(item);
+    ui->pipeList->editItem(item, col_p_pipe_);
+}
+
+void ManageInterfacesDialog::pipeAccepted()
+{
+    interface_t device;
+
+    // First clear the current pipes
+    for (guint i = 0; i < global_capture_opts.all_ifaces->len; i++) {
+        device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
+        /* Continue if capture device is hidden or not a pipe */
+        if (device.hidden || device.type != IF_PIPE) {
+            continue;
         }
+        global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, i);
+    }
+
+    // Next rebuild a fresh list
+    QTreeWidgetItemIterator it(ui->pipeList);
+    while (*it) {
+        QString pipe_name = (*it)->text(col_p_pipe_);
+        if (pipe_name.isEmpty() || pipe_name == new_pipe_default_) {
+            ++it;
+            continue;
+        }
+
         for (guint i = 0; i < global_capture_opts.all_ifaces->len; i++) {
-          device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
-          if (strcmp(pipe_name, device.name) == 0) {
-            g_free(pipe_name);
-            return;
-          }
+            // Instead of just deleting the device we might want to add a hint label
+            // and let the user know what's going to happen.
+            device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
+            if (pipe_name.compare(device.name) == 0) { // Duplicate
+                ++it;
+                continue;
+            }
         }
-        device.name         = g_strdup(pipe_name);
-        device.display_name = g_strdup_printf("%s", device.name);
+
+        device.name         = qstring_strdup(pipe_name);
+        device.display_name = g_strdup(device.name);
         device.hidden       = FALSE;
         device.selected     = TRUE;
         device.type         = IF_PIPE;
@@ -141,106 +265,74 @@ void ManageInterfacesDialog::on_buttonBox_accepted()
         device.has_snaplen  = global_capture_opts.default_options.has_snaplen;
         device.snaplen      = global_capture_opts.default_options.snaplen;
         device.cfilter      = g_strdup(global_capture_opts.default_options.cfilter);
-        device.addresses    = g_strdup("");
+        device.addresses    = NULL;
         device.no_addresses = 0;
         device.last_packets = 0;
         device.links        = NULL;
-    #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
         device.buffer       = DEFAULT_CAPTURE_BUFFER_SIZE;
-    #endif
+#endif
         device.active_dlt = -1;
         device.locked = FALSE;
-        device.if_info.name = g_strdup(pipe_name);
+        device.if_info.name = g_strdup(device.name);
         device.if_info.friendly_name = NULL;
         device.if_info.vendor_description = NULL;
         device.if_info.addrs = NULL;
         device.if_info.loopback = FALSE;
         device.if_info.type = IF_PIPE;
-    #if defined(HAVE_PCAP_CREATE)
+#if defined(HAVE_PCAP_CREATE)
         device.monitor_mode_enabled = FALSE;
         device.monitor_mode_supported = FALSE;
-    #endif
+#endif
         global_capture_opts.num_selected++;
         g_array_append_val(global_capture_opts.all_ifaces, device);
-
-        g_free(pipe_name);
+        ++it;
     }
-    emit ifsChanged();
 }
 
-
-
-void ManageInterfacesDialog::on_delButton_clicked()
+void ManageInterfacesDialog::on_delPipe_clicked()
 {
-    interface_t device;
-    bool found = false;
-    QList<QTableWidgetItem*> selected = ui->pipeList->selectedItems();
-    if (selected.length() == 0) {
-        QMessageBox::warning(this, tr("Error"),
-                             tr("No interface selected."));
-        return;
-    }
-    QString pipename = selected[0]->text();
-    for (guint i = 0; i < global_capture_opts.all_ifaces->len; i++) {
-        device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
-        /* Continue if capture device is hidden or not a pipe*/
-        if (device.hidden || device.type != IF_PIPE) {
-            continue;
-        }
-        if (pipename.compare(device.name)) {
-            continue;
-        }
-        global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, i);
-        ui->pipeList->removeRow(selected[0]->row());
-        found = true;
-        break;
-    }
-    if (found)
-        emit ifsChanged();
-    else  /* pipe has not been saved yet */
-        ui->pipeList->removeRow(selected[0]->row());
+    // We're just managing a list of strings at this point.
+    delete ui->pipeList->currentItem();
+}
+
+void ManageInterfacesDialog::on_pipeList_currentItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous)
+{
+    Q_UNUSED(current)
+    Q_UNUSED(previous)
+    updateWidgets();
 }
 
 void ManageInterfacesDialog::showLocalInterfaces()
 {
     guint i;
     interface_t device;
-    QString output;
-    Qt::ItemFlags eFlags;
     gchar *pr_descr = g_strdup("");
     char *comment = NULL;
 
-    ui->localList->setRowCount(0);
+    ui->localList->clear();
     for (i = 0; i < global_capture_opts.all_ifaces->len; i++) {
         device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
         if (device.local && device.type != IF_PIPE && device.type != IF_STDIN) {
-            ui->localList->setRowCount(ui->localList->rowCount()+1);
-            QTableWidgetItem *item = new QTableWidgetItem("");
-            item->setCheckState(device.hidden?Qt::Checked:Qt::Unchecked);
-            ui->localList->setItem(ui->localList->rowCount()-1, HIDE, item);
-            ui->localList->setColumnWidth(HIDE, 40);
+            QTreeWidgetItem *item = new QTreeWidgetItem(ui->localList);
+            item->setFlags(item->flags() | Qt::ItemIsEditable);
+            if (prefs.capture_device && strstr(prefs.capture_device, device.name)) {
+                // Force the default device to be checked.
+                item->setFlags(item->flags() ^ Qt::ItemIsUserCheckable);
+                item->setCheckState(col_l_show_, Qt::Checked);
+            } else {
+                item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
+                item->setCheckState(col_l_show_, device.hidden ? Qt::Unchecked : Qt::Checked);
+            }
 #ifdef _WIN32
-            output = QString(device.friendly_name);
-            ui->localList->setItem(ui->localList->rowCount()-1, FRIENDLY, new QTableWidgetItem(output));
-            eFlags = ui->localList->item(ui->localList->rowCount()-1, FRIENDLY)->flags();
-            eFlags &= Qt::NoItemFlags;
-            eFlags |= Qt::ItemIsSelectable | Qt::ItemIsEnabled;
-            ui->localList->item(ui->localList->rowCount()-1, FRIENDLY)->setFlags(eFlags);
-#else
-            ui->localList->setColumnHidden(FRIENDLY, true);
+            item->setText(col_l_friendly_name_, device.friendly_name);
 #endif
-            output = QString(device.name);
-            ui->localList->setItem(ui->localList->rowCount()-1, LOCAL_NAME, new QTableWidgetItem(output));
-            output = QString("");
-            eFlags = ui->localList->item(ui->localList->rowCount()-1, LOCAL_NAME)->flags();
-            eFlags &= Qt::NoItemFlags;
-            eFlags |= Qt::ItemIsSelectable | Qt::ItemIsEnabled;
-            ui->localList->item(ui->localList->rowCount()-1, LOCAL_NAME)->setFlags(eFlags);
+            item->setText(col_l_local_name_, device.name);
 
             comment = capture_dev_user_descr_find(device.name);
-            if (comment)
-                output = QString(comment);
-            ui->localList->setItem(ui->localList->rowCount()-1, COMMENT, new QTableWidgetItem(output));
+            if (comment) {
+                item->setText(col_l_comment_, comment);
+            }
         } else {
           continue;
         }
@@ -248,21 +340,16 @@ void ManageInterfacesDialog::showLocalInterfaces()
     g_free(pr_descr);
 }
 
-void ManageInterfacesDialog::saveLocalHideChanges(QTableWidgetItem* item)
+void ManageInterfacesDialog::saveLocalHideChanges(QTreeWidgetItem *item)
 {
     guint i;
     interface_t device;
 
-    if (item->column() != HIDE) {
-        return;
-    }
-    QTableWidgetItem* nameItem = ui->localList->item(item->row(), LOCAL_NAME);
-
-    if (!nameItem) {
+    if (!item) {
         return;
     }
 
-    QString name = nameItem->text();
+    QString name = item->text(col_l_local_name_);
     /* See if this is the currently selected capturing device */
 
     for (i = 0; i < global_capture_opts.all_ifaces->len; i++) {
@@ -270,28 +357,23 @@ void ManageInterfacesDialog::saveLocalHideChanges(QTableWidgetItem* item)
         if (name.compare(device.name)) {
             continue;
         }
-        device.hidden = (item->checkState()==Qt::Checked?true:false);
+        device.hidden = (item->checkState(col_l_show_) == Qt::Checked ? false : true);
         global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, i);
         g_array_insert_val(global_capture_opts.all_ifaces, i, device);
     }
 }
 
-void ManageInterfacesDialog::saveLocalCommentChanges(QTableWidgetItem* item)
+void ManageInterfacesDialog::saveLocalCommentChanges(QTreeWidgetItem* item)
 {
     guint i;
     interface_t device;
 
-    if (item->column() != COMMENT) {
-        return;
-    }
-    QTableWidgetItem* nameItem = ui->localList->item(item->row(), LOCAL_NAME);
-
-    if (!nameItem) {
+    if (!item) {
         return;
     }
 
-    QString name = nameItem->text();
-    QString comment = ui->localList->item(item->row(), COMMENT)->text();
+    QString name = item->text(col_l_local_name_);
+    QString comment = item->text(col_l_comment_);
     /* See if this is the currently selected capturing device */
 
     for (i = 0; i < global_capture_opts.all_ifaces->len; i++) {
@@ -299,32 +381,32 @@ void ManageInterfacesDialog::saveLocalCommentChanges(QTableWidgetItem* item)
         if (name.compare(device.name)) {
             continue;
         }
-        if (!comment.compare("")) {
-            device.display_name = g_strdup_printf("%s", name.toUtf8().constData());
+
+        g_free(device.display_name);
+        // XXX The GTK+ UI uses the raw device name instead of the friendly name.
+        // This seems to make more sense.
+        gchar *if_string = device.friendly_name ? device.friendly_name : device.name;
+        if (comment.isEmpty()) {
+            device.display_name = g_strdup(if_string);
         } else {
-            device.display_name = g_strdup_printf("%s: %s", comment.toUtf8().constData(), name.toUtf8().constData());
+            device.display_name = qstring_strdup(QString("%1: %2").arg(comment).arg(if_string));
         }
         global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, i);
         g_array_insert_val(global_capture_opts.all_ifaces, i, device);
     }
 }
 
-
-void ManageInterfacesDialog::checkBoxChanged(QTableWidgetItem* item)
+#if 0 // Not needed?
+void ManageInterfacesDialog::checkBoxChanged(QTreeWidgetItem* item)
 {
     guint i;
     interface_t device;
 
-    if (item->column() != HIDE) {
-        return;
-    }
-    QTableWidgetItem* nameItem = ui->localList->item(item->row(), LOCAL_NAME);
-
-    if (!nameItem) {
+    if (!item) {
         return;
     }
 
-    QString name = nameItem->text();
+    QString name = item->text(col_l_local_name_);
     /* See if this is the currently selected capturing device */
 
     for (i = 0; i < global_capture_opts.all_ifaces->len; i++) {
@@ -341,66 +423,52 @@ void ManageInterfacesDialog::checkBoxChanged(QTableWidgetItem* item)
         }
     }
 }
+#endif // checkBoxChanged not needed?
 
-void ManageInterfacesDialog::on_localButtonBox_accepted()
+void ManageInterfacesDialog::localAccepted()
 {
-    gchar *new_hide = g_strdup("");
-    gchar *new_comment = NULL;
-    QString name;
-    gchar *tmp_descr = NULL;
 
     if (global_capture_opts.all_ifaces->len > 0) {
-        new_hide = (gchar*)g_malloc0(MAX_VAL_LEN);
-        for (int row = 0; row < ui->localList->rowCount(); row++) {
-            QTableWidgetItem* hitem = ui->localList->item(row, HIDE);
-            checkBoxChanged(hitem);
-            if (hitem->checkState() == Qt::Checked) {
-                name = ui->localList->item(row, LOCAL_NAME)->text();
-                g_strlcat (new_hide, ",", MAX_VAL_LEN);
-                g_strlcat (new_hide, name.toUtf8().constData(), MAX_VAL_LEN);
+        QStringList hide_list;
+        QStringList comment_list;
+        QTreeWidgetItemIterator it(ui->localList);
+        while (*it) {
+            if ((*it)->checkState(col_l_show_) != Qt::Checked) {
+                hide_list << (*it)->text(col_l_local_name_);
             }
-            saveLocalHideChanges(hitem);
+
+            if (!(*it)->text(col_l_local_name_).isEmpty()) {
+                comment_list << QString("%1(%2)").arg((*it)->text(col_l_local_name_)).arg((*it)->text(col_l_comment_));
+            }
+
+            saveLocalHideChanges(*it);
+            saveLocalCommentChanges(*it);
+            ++it;
         }
         /* write new "hidden" string to preferences */
         g_free(prefs.capture_devices_hide);
+        gchar *new_hide = qstring_strdup(hide_list.join(","));
         prefs.capture_devices_hide = new_hide;
         hide_interface(g_strdup(new_hide));
 
-        new_comment = (gchar*)g_malloc0(MAX_VAL_LEN);
-        for (int row = 0; row < ui->localList->rowCount(); row++) {
-            name = ui->localList->item(row, LOCAL_NAME)->text();
-            QTableWidgetItem* citem = ui->localList->item(row, COMMENT);
-            if (citem->text().compare("")) {
-                g_strlcat (new_comment, ",", MAX_VAL_LEN);
-                tmp_descr = g_strdup_printf("%s(%s)", name.toUtf8().constData(), citem->text().toUtf8().constData());
-                g_strlcat (new_comment, tmp_descr, MAX_VAL_LEN);
-                g_free(tmp_descr);
-            }
-            saveLocalCommentChanges(citem);
-        }
         /* write new description string to preferences */
         if (prefs.capture_devices_descr)
             g_free(prefs.capture_devices_descr);
-        prefs.capture_devices_descr = new_comment;
+        prefs.capture_devices_descr = qstring_strdup(comment_list.join(","));;
     }
+}
 
-    /* save changes to the preferences file */
-    if (!prefs.gui_use_pref_save) {
-        prefs_main_write();
-    }
-    emit ifsChanged();
+void ManageInterfacesDialog::on_buttonBox_helpRequested()
+{
+    wsApp->helpTopicAction(HELP_CAPTURE_MANAGE_INTERFACES_DIALOG);
 }
 
 #ifdef HAVE_PCAP_REMOTE
 void ManageInterfacesDialog::remoteSelectionChanged(QTreeWidgetItem* item, int col)
 {
-    Q_UNUSED(item);
-
-    if (col != 0 && item->isSelected()) {
-        ui->remoteSettings->setEnabled(true);
-    } else if (col == 0) {
-        ui->remoteSettings->setEnabled(false);
-    }
+    Q_UNUSED(item)
+    Q_UNUSED(col)
+    updateWidgets();
 }
 
 void ManageInterfacesDialog::addRemoteInterfaces(GList* rlist, remote_options *roptions)
@@ -562,47 +630,63 @@ void ManageInterfacesDialog::addRemoteInterfaces(GList* rlist, remote_options *r
     showRemoteInterfaces();
 }
 
-void ManageInterfacesDialog::on_remoteButtonBox_accepted()
+// We don't actually store these. When we do we should make sure they're stored
+// securely using CryptProtectData, the OS X Keychain, GNOME Keyring, KWallet, etc.
+void ManageInterfacesDialog::remoteAccepted()
 {
     QTreeWidgetItemIterator it(ui->remoteList);
 
     while(*it) {
         for (guint i = 0; i < global_capture_opts.all_ifaces->len; i++) {
             interface_t device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
-            if ((*it)->text(2).compare(device.name))
+            if ((*it)->text(col_r_host_dev_).compare(device.name))
                 continue;
-            device.hidden = ((*it)->checkState(1)==Qt::Checked?true:false);
+            device.hidden = ((*it)->checkState(col_r_show_) == Qt::Checked ? false : true);
             global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, i);
             g_array_insert_val(global_capture_opts.all_ifaces, i, device);
         }
         ++it;
     }
-    emit ifsChanged();
+}
+
+void ManageInterfacesDialog::on_remoteList_currentItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous)
+{
+    Q_UNUSED(current)
+    Q_UNUSED(previous)
+    updateWidgets();
+}
+
+void ManageInterfacesDialog::on_remoteList_itemClicked(QTreeWidgetItem *item, int column)
+{
+    if (!item || column != col_r_show_) {
+        return;
+    }
+
+    for (guint i = 0; i < global_capture_opts.all_ifaces->len; i++) {
+        interface_t device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
+        if (!device.local) {
+            if (item->text(col_r_host_dev_).compare(device.name))
+                continue;
+            device.hidden = (item->checkState(col_r_show_) == Qt::Checked ? false : true);
+        }
+    }
 }
 
 void ManageInterfacesDialog::on_delRemote_clicked()
 {
-    QList<QTreeWidgetItem*> selected = ui->remoteList->selectedItems();
-    if (selected.length() == 0) {
-        QMessageBox::warning(this, tr("Error"),
-                             tr("No host selected. Select the host to be removed."));
+    QTreeWidgetItem* item = ui->remoteList->currentItem();
+    if (!item) {
         return;
     }
-    QString host = selected[0]->text(0);
-    int index = ui->remoteList->indexOfTopLevelItem(selected[0]);
-    QTreeWidgetItem *top = ui->remoteList->takeTopLevelItem(index);
-    int numChildren = top->childCount();
-    for (int i = 0; i < numChildren; i++) {
-        QTreeWidgetItem *child = top->child(i);
-        for (guint i = 0; i < global_capture_opts.all_ifaces->len; i++) {
-            interface_t device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
-            if (child->text(2).compare(device.name))
-                continue;
-            global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, i);
-        }
+
+    for (guint i = 0; i < global_capture_opts.all_ifaces->len; i++) {
+        interface_t device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
+        if (item->text(col_r_host_dev_).compare(device.remote_opts.remote_host_opts.remote_host))
+            continue;
+        global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, i);
     }
-    ui->remoteList->removeItemWidget(top, 0);
-    fflush(stdout);
+    delete item;
+    fflush(stdout); // ???
 }
 
 void ManageInterfacesDialog::on_addRemote_clicked()
@@ -615,25 +699,21 @@ void ManageInterfacesDialog::showRemoteInterfaces()
 {
     guint i;
     interface_t device;
-    gchar *host = g_strdup("");
-    QTreeWidgetItem *child;
+    QTreeWidgetItem *item = NULL;
 
+    // We assume that remote interfaces are grouped by host.
     for (i = 0; i < global_capture_opts.all_ifaces->len; i++) {
+        QTreeWidgetItem *child;
         device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
         if (!device.local) {
-            QTreeWidgetItem *itm;
-            if (strcmp(host, device.remote_opts.remote_host_opts.remote_host)) {
-                host = g_strdup(device.remote_opts.remote_host_opts.remote_host);
-                itm = new QTreeWidgetItem(ui->remoteList);
-                itm->setText(HOST, host);
-                child = new QTreeWidgetItem(itm);
-                child->setCheckState(HIDDEN, device.hidden?Qt::Checked:Qt::Unchecked);
-                child->setText(REMOTE_NAME, QString(device.name));
-            } else {
-                child = new QTreeWidgetItem(itm);
-                child->setCheckState(HIDDEN, device.hidden?Qt::Checked:Qt::Unchecked);
-                child->setText(REMOTE_NAME, QString(device.name));
+            if (!item || item->text(col_r_host_dev_).compare(device.remote_opts.remote_host_opts.remote_host) != 0) {
+                item = new QTreeWidgetItem(ui->remoteList);
+                item->setText(col_r_host_dev_, device.remote_opts.remote_host_opts.remote_host);
+                item->setExpanded(true);
             }
+            child = new QTreeWidgetItem(item);
+            child->setCheckState(col_r_show_, device.hidden ? Qt::Unchecked : Qt::Checked);
+            child->setText(col_r_host_dev_, QString(device.name));
         }
     }
 }
@@ -642,12 +722,15 @@ void ManageInterfacesDialog::on_remoteSettings_clicked()
 {
     guint i = 0;
     interface_t device;
+    QTreeWidgetItem* item = ui->remoteList->currentItem();
+    if (!item) {
+        return;
+    }
 
-    QList<QTreeWidgetItem*> selected = ui->remoteList->selectedItems();
     for (i = 0; i < global_capture_opts.all_ifaces->len; i++) {
         device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
         if (!device.local) {
-            if (selected[0]->text(2).compare(device.name)) {
+            if (item->text(col_r_host_dev_).compare(device.name)) {
                continue;
             } else {
                 RemoteSettingsDialog *dlg = new RemoteSettingsDialog(this, &device);
@@ -677,52 +760,74 @@ void ManageInterfacesDialog::setRemoteSettings(interface_t *iface)
         }
     }
 }
-#endif
+#endif // HAVE_PCAP_REMOTE
 
-NewFileDelegate::NewFileDelegate(QObject *parent)
+PathChooserDelegate::PathChooserDelegate(QObject *parent)
     : QStyledItemDelegate(parent)
 {
 }
 
-
-NewFileDelegate::~NewFileDelegate()
+PathChooserDelegate::~PathChooserDelegate()
 {
 }
 
-
-QWidget* NewFileDelegate::createEditor( QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index ) const
+QWidget* PathChooserDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
-    Q_UNUSED(option);
-    Q_UNUSED(index);
+    Q_UNUSED(index)
 
-    QWidget * widg = new QWidget(parent);
-    QHBoxLayout *hbox = new QHBoxLayout(widg);
-    widg->setLayout(hbox);
-    QLineEdit *le = new QLineEdit(widg);
-    QPushButton *pb = new QPushButton(widg);
+    QTreeWidgetItem *item = tree_->currentItem();
+    if (!item) {
+        return NULL;
+    }
+    path_item_ = item;
+
+    path_editor_ = new QWidget(parent);
+    QHBoxLayout *hbox = new QHBoxLayout(path_editor_);
+    path_editor_->setLayout(hbox);
+    path_le_ = new QLineEdit(path_editor_);
+    QPushButton *pb = new QPushButton(path_editor_);
+
+    path_le_->setText(item->text(col_p_pipe_));
     pb->setText(QString(tr("Browse...")));
-    le->setText(table->currentItem()->text());
-    hbox->addWidget(le);
+
+    hbox->setContentsMargins(0, 0, 0, 0);
+    hbox->addWidget(path_le_);
     hbox->addWidget(pb);
-    hbox->setMargin(0);
+    hbox->setSizeConstraint(QLayout::SetMinimumSize);
 
-    connect(le, SIGNAL(textEdited(const QString &)), this, SLOT(setTextField(const QString &)));
-    connect(le, SIGNAL(editingFinished()), this, SLOT(stopEditor()));
+    // Grow the item to match the editor. According to the QAbstractItemDelegate
+    // documenation we're supposed to reimplement sizeHint but this seems to work.
+    QSize size = option.rect.size();
+    size.setHeight(qMax(option.rect.height(), hbox->sizeHint().height()));
+    item->setData(col_p_pipe_, Qt::SizeHintRole, size);
+
+    path_le_->selectAll();
+    path_editor_->setFocusProxy(path_le_);
+    path_editor_->setFocusPolicy(path_le_->focusPolicy());
+
+    connect(path_le_, SIGNAL(destroyed()), this, SLOT(stopEditor()));
     connect(pb, SIGNAL(pressed()), this, SLOT(browse_button_clicked()));
-    return widg;
+    return path_editor_;
 }
 
-void NewFileDelegate::setTextField(const QString &text)
+void PathChooserDelegate::updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
-    table->currentItem()->setText(text);
+    Q_UNUSED(index)
+    QRect rect = option.rect;
+
+    // Make sure the editor doesn't get squashed.
+    editor->adjustSize();
+    rect.setHeight(qMax(option.rect.height(), editor->height()));
+    editor->setGeometry(rect);
 }
 
-void NewFileDelegate::stopEditor()
+void PathChooserDelegate::stopEditor()
 {
-   closeEditor(table->cellWidget(table->currentRow(), 0));
+    path_item_->setData(col_p_pipe_, Qt::SizeHintRole, QVariant());
+    path_item_->setText(col_p_pipe_, path_le_->text());
 }
 
-void NewFileDelegate::browse_button_clicked()
+void PathChooserDelegate::browse_button_clicked()
 {
     char *open_dir = NULL;
 
@@ -737,9 +842,10 @@ void NewFileDelegate::browse_button_clicked()
             open_dir = prefs.gui_fileopen_dir;
         break;
     }
-    QString file_name = QFileDialog::getOpenFileName(table, tr("Open Pipe"), open_dir);
-    closeEditor(table->cellWidget(table->currentRow(), 0));
-    table->currentItem()->setText(file_name);
+    QString file_name = QFileDialog::getOpenFileName(tree_, tr("Open Pipe"), open_dir);
+    if (!file_name.isEmpty()) {
+        path_le_->setText(file_name);
+    }
 }
 
 #endif /* HAVE_LIBPCAP */

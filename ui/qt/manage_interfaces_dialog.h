@@ -22,6 +22,11 @@
 #ifndef MANAGE_INTERFACES_DIALOG_H
 #define MANAGE_INTERFACES_DIALOG_H
 
+#include "config.h"
+
+#include <glib.h>
+#include "capture_opts.h"
+
 #include <QDialog>
 #include <QLineEdit>
 #include <QTableWidget>
@@ -29,45 +34,29 @@
 #include <QTreeWidgetItem>
 #include <QStandardItemModel>
 
-#include <glib.h>
-#include "capture_opts.h"
-
-enum
-{
-    HIDE = 0,
-    FRIENDLY,
-    LOCAL_NAME,
-    COMMENT,
-    NUM_LOCAL_COLUMNS
-};
-
-enum
-{
-    HOST = 0,
-    HIDDEN,
-    REMOTE_NAME,
-    NUM_REMOTE_COLUMNS
-};
-
-
-class NewFileDelegate : public QStyledItemDelegate
+class PathChooserDelegate : public QStyledItemDelegate
 {
     Q_OBJECT
 
 private:
-    QTableWidget* table;
+    QTreeWidget* tree_;
+    mutable QTreeWidgetItem *path_item_;
+    mutable QWidget *path_editor_;
+    mutable QLineEdit *path_le_;
 
 public:
-    NewFileDelegate(QObject *parent = 0);
-    ~NewFileDelegate();
+    PathChooserDelegate(QObject *parent = 0);
+    ~PathChooserDelegate();
 
+    void setTree(QTreeWidget* tree) { tree_ = tree; }
+
+protected:
     QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const;
-    void setTable(QTableWidget* tb) { table = tb; }
+    void updateEditorGeometry ( QWidget * editor, const QStyleOptionViewItem & option, const QModelIndex & index ) const;
 
 private slots:
-    void browse_button_clicked();
-    void setTextField(const QString &text);
     void stopEditor();
+    void browse_button_clicked();
 };
 
 
@@ -85,15 +74,17 @@ public:
 
 private:
     Ui::ManageInterfacesDialog *ui;
-    NewFileDelegate new_pipe_item_delegate_;
+    PathChooserDelegate new_pipe_item_delegate_;
     QStandardItemModel *remoteModel;
 
     void showPipes();
     void showLocalInterfaces();
     void showRemoteInterfaces();
-    void saveLocalHideChanges(QTableWidgetItem *item);
-    void saveLocalCommentChanges(QTableWidgetItem *item);
-    void checkBoxChanged(QTableWidgetItem *item);    
+    void saveLocalHideChanges(QTreeWidgetItem *item);
+    void saveLocalCommentChanges(QTreeWidgetItem *item);
+#if 0 // Not needed?
+    void checkBoxChanged(QTreeWidgetItem *item);
+#endif
 
 signals:
     void ifsChanged();
@@ -103,19 +94,28 @@ signals:
 #endif
 
 private slots:
-    void on_addButton_clicked();
+    void updateWidgets();
+
     void on_buttonBox_accepted();
-    void on_delButton_clicked();
-    void on_localButtonBox_accepted();
+
+    void on_addPipe_clicked();
+    void on_delPipe_clicked();
+    void pipeAccepted();
+    void on_pipeList_currentItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous);
+
+    void localAccepted();
 #ifdef HAVE_PCAP_REMOTE
     void on_addRemote_clicked();
-    void on_remoteButtonBox_accepted();
+    void on_delRemote_clicked();
+    void remoteAccepted();
+    void on_remoteList_currentItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous);
+    void on_remoteList_itemClicked(QTreeWidgetItem *item, int column);
     void addRemoteInterfaces(GList *rlist, remote_options *roptions);
     void setRemoteSettings(interface_t *iface);
-    void on_delRemote_clicked();
     void remoteSelectionChanged(QTreeWidgetItem* item, int col);
     void on_remoteSettings_clicked();
 #endif
+    void on_buttonBox_helpRequested();
 };
 
 #endif // MANAGE_INTERFACES_DIALOG_H

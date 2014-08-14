@@ -31,7 +31,6 @@
 #include <QTreeWidget>
 #include <QMenu>
 
-// It might make more sense to subclass QTableView here.
 class PacketList : public QTreeView
 {
     Q_OBJECT
