@@ -241,6 +241,7 @@ static const value_string rlc_rbid_vals[] = {
     { 25,    "MTCH"},
     { 0,     NULL}
 };
+static value_string_ext rlc_rbid_vals_ext = VALUE_STRING_EXT_INIT(rlc_rbid_vals);
 
 static const value_string ueid_type_vals[] = {
     { 0,     "URNTI"},
@@ -3216,7 +3217,7 @@ void proto_register_catapult_dct2000(void)
         },
         { &hf_catapult_dct2000_rbid,
             { "Channel",
-              "dct2000.rbid", FT_UINT8, BASE_DEC, VALS(rlc_rbid_vals), 0x0,
+              "dct2000.rbid", FT_UINT8, BASE_DEC | BASE_EXT_STRING, &rlc_rbid_vals_ext, 0x0,
               "Channel (rbid)", HFILL
             }
         },
@@ -3377,3 +3378,15 @@ void proto_register_catapult_dct2000(void)
                                    &catapult_dct2000_dissect_mac_lte_oob_messages);
 }
 
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */
