@@ -3738,11 +3738,7 @@ static int hf_ieee80211_ext_bss_observable_sec_80mhz_utilization = -1;
 static int hf_ieee80211_wide_bw_new_channel_width = -1;
 static int hf_ieee80211_wide_bw_new_channel_center_freq_segment0 = -1;
 static int hf_ieee80211_wide_bw_new_channel_center_freq_segment1 = -1;
-#if 0
-static int hf_ieee80211_ctl_switch_country = -1;
-static int hf_ieee80211_ctl_switch_bw_ch_switch = -1;
-static int hf_ieee80211_ctl_switch_vht_transmit_power_envelope = -1;
-#endif
+
 static int hf_ieee80211_operat_notification_mode = -1;
 static int hf_ieee80211_operat_mode_field_channel_width = -1;
 static int hf_ieee80211_operat_mode_field_reserved = -1;
@@ -11358,6 +11354,26 @@ dissect_wide_bw_channel_switch(proto_tree *tree, tvbuff_t *tvb, int offset)
 
   return offset;
 }
+static int
+dissect_channel_switch_wrapper(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset,
+                         guint32 tag_len)
+{
+  int tmp_sublen;
+
+  /*
+  Decode three subelement in IE-196(Channel Switch Wrapper element):
+        (1) New Country subelement
+        (2) Wide Bandwidth Channel Switch subelement
+        (3) New VHT Transmit Power Envelope subelement
+  */
+  while (tag_len > 0){
+        tmp_sublen = tvb_get_guint8(tvb, offset + 1);
+        add_tagged_field(pinfo, tree, tvb, offset, 0);
+        tag_len -= (tmp_sublen + 2);
+        offset += (tmp_sublen + 2);
+  }
+  return offset;
+}
 
 static int
 dissect_operating_mode_notification(proto_tree *tree, tvbuff_t *tvb, int offset)
@@ -14558,6 +14574,10 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
 
     case TAG_VHT_TX_PWR_ENVELOPE:
       dissect_vht_tx_pwr_envelope(tvb, pinfo, tree, offset+2, tag_len, ti_len);
+      break;
+
+    case TAG_CHANNEL_SWITCH_WRAPPER:
+      dissect_channel_switch_wrapper(pinfo, tree, tvb, offset + 2, tag_len);
       break;
 
     case TAG_OPERATING_MODE_NOTIFICATION:
@@ -22337,20 +22357,6 @@ proto_register_ieee80211 (void)
      {"New Channel Center Frequency Segment 1", "wlan_mgt.wide_bw.new_channel_center_freq_segment1",
       FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
       NULL, HFILL }},
-
-#if 0
-    {&hf_ieee80211_ctl_switch_country,
-     {"New Country subelement", "wlan_mgt.ctl_switch.country",
-      FT_UINT8, BASE_HEX, NULL, 0xFF, NULL, HFILL }},
-
-    {&hf_ieee80211_ctl_switch_bw_ch_switch,
-     {"Wide Bandwidth Channel Switch subelement", "wlan_mgt.ctl_switch.bw_ch",
-      FT_UINT8, BASE_HEX, NULL, 0xFF, NULL, HFILL }},
-
-    {&hf_ieee80211_ctl_switch_vht_transmit_power_envelope,
-     {"New VHT Transmit Power Envelope subelement", "wlan_mgt.ctl_switch.vht_transmit_pwr",
-      FT_UINT8, BASE_HEX, NULL, 0xFF, NULL, HFILL }},
-#endif
 
     {&hf_ieee80211_operat_notification_mode,
      {"Operating Mode Notification", "wlan_mgt.operat_notification_mode",
