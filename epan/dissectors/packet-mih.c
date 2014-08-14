@@ -34,7 +34,6 @@
 
 #include <epan/packet.h>
 #include <epan/exceptions.h>
-#include <epan/prefs.h>
 #include <epan/reassemble.h>
 #include <epan/proto.h>
 #include <epan/etypes.h>
@@ -4755,3 +4754,17 @@ void proto_reg_handoff_mih(void)
         /*Layer 2 handle*/
         dissector_add_uint("ethertype", ETHERTYPE_MIH, mih_handle);
 }
+
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 expandtab:
+ * :indentSize=8:tabSize=8:noTabs=true:
+ */

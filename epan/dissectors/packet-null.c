@@ -30,7 +30,6 @@
 #include <epan/packet.h>
 #include "packet-null.h"
 #include <epan/atalk-utils.h>
-#include <epan/prefs.h>
 #include "packet-ip.h"
 #include "packet-ipv6.h"
 #include "packet-ipx.h"
@@ -57,14 +56,14 @@ static gint ett_null = -1;
 
 /* Family values. */
 static const value_string family_vals[] = {
-    {BSD_AF_INET,          "IP"             },
-    {BSD_AF_ISO,           "OSI"            },
-    {BSD_AF_APPLETALK,     "Appletalk"      },
-    {BSD_AF_IPX,           "Netware IPX/SPX"},
-    {BSD_AF_INET6_BSD,     "IPv6"           },
-    {BSD_AF_INET6_FREEBSD, "IPv6"           },
-    {BSD_AF_INET6_DARWIN,  "IPv6"           },
-    {0,                    NULL             }
+  {BSD_AF_INET,          "IP"             },
+  {BSD_AF_ISO,           "OSI"            },
+  {BSD_AF_APPLETALK,     "Appletalk"      },
+  {BSD_AF_IPX,           "Netware IPX/SPX"},
+  {BSD_AF_INET6_BSD,     "IPv6"           },
+  {BSD_AF_INET6_FREEBSD, "IPv6"           },
+  {BSD_AF_INET6_DARWIN,  "IPv6"           },
+  {0,                    NULL             }
 };
 
 static dissector_handle_t ppp_hdlc_handle;
@@ -86,11 +85,11 @@ capture_null( const guchar *pd, int len, packet_counts *ld )
    * on loopback devices, a 4-byte header that has a 2 byte (big-endian)
    * AF_ value and 2 bytes of 0, so it's
    *
-   *	0000AAAA
+   *    0000AAAA
    *
    * when read on a little-endian machine and
    *
-   *	AAAA0000
+   *    AAAA0000
    *
    * when read on a big-endian machine.  The current CVS version of libpcap
    * compensates for this by converting it to standard 4-byte format before
@@ -103,35 +102,35 @@ capture_null( const guchar *pd, int len, packet_counts *ld )
    * This means that, in practice, if you look at the header as a 32-bit
    * integer in host byte order:
    *
-   *	on a little-endian machine:
+   *    on a little-endian machine:
    *
-   *		a little-endian DLT_NULL header looks like
+   *            a little-endian DLT_NULL header looks like
    *
-   *			000000AA
+   *                    000000AA
    *
-   *		a big-endian DLT_NULL header, or a DLT_LOOP header, looks
-   *		like
+   *            a big-endian DLT_NULL header, or a DLT_LOOP header, looks
+   *            like
    *
-   *			AA000000
+   *                    AA000000
    *
-   *		an IRIX or UNICOS/mp DLT_NULL header looks like
+   *            an IRIX or UNICOS/mp DLT_NULL header looks like
    *
-   *			0000AA00
+   *                    0000AA00
    *
-   *	on a big-endian machine:
+   *    on a big-endian machine:
    *
-   *		a big-endian DLT_NULL header, or a DLT_LOOP header, looks
-   *		like
+   *            a big-endian DLT_NULL header, or a DLT_LOOP header, looks
+   *            like
    *
-   *			000000AA
+   *                    000000AA
    *
-   *		a little-endian DLT_NULL header looks like
+   *            a little-endian DLT_NULL header looks like
    *
-   *			AA000000
+   *                    AA000000
    *
-   *		an IRIX or UNICOS/mp DLT_NULL header looks like
+   *            an IRIX or UNICOS/mp DLT_NULL header looks like
    *
-   *			00AA0000
+   *                    00AA0000
    *
    * However, according to Gerald Combs, a FreeBSD ISDN PPP dump that
    * Andreas Klemm sent to wireshark-dev has a packet type of DLT_NULL,
@@ -141,19 +140,19 @@ capture_null( const guchar *pd, int len, packet_counts *ld )
    * RFC 1549, wherein the first two octets of the frame are 0xFF
    * (address) and 0x03 (control), so the header bytes are, in order:
    *
-   *	0xFF
-   *	0x03
-   *	high-order byte of a PPP protocol field
-   *	low-order byte of a PPP protocol field
+   *    0xFF
+   *    0x03
+   *    high-order byte of a PPP protocol field
+   *    low-order byte of a PPP protocol field
    *
    * If we treat that as a 32-bit host-byte-order value, it looks like
    *
-   *	PPPP03FF
+   *    PPPP03FF
    *
    * where PPPP is a byte-swapped PPP protocol type if we read it on
    * a little-endian machine and
    *
-   *	FF03PPPP
+   *    FF03PPPP
    *
    * where PPPP is a PPP protocol type if we read it on a big-endian
    * machine.  0x0000 does not appear to be a valid PPP protocol type
@@ -170,41 +169,41 @@ capture_null( const guchar *pd, int len, packet_counts *ld )
    * This means that if we're reading the capture on a little-endian
    * machine, the header, treated as a 32-bit integer, looks like
    *
-   *	EEEE0000
+   *    EEEE0000
    *
    * where EEEE is a byte-swapped Ethernet type, and if we're reading it
    * on a big-endian machine, it looks like
    *
-   *	0000EEEE
+   *    0000EEEE
    *
    * where EEEE is an Ethernet type.
    *
    * If the first 2 bytes of the header are FF 03:
    *
-   *	it can't be a big-endian BSD DLT_NULL header, or a DLT_LOOP
-   *	header, as AF_ values are small so the first 2 bytes of the
-   *	header would be 0;
+   *    it can't be a big-endian BSD DLT_NULL header, or a DLT_LOOP
+   *    header, as AF_ values are small so the first 2 bytes of the
+   *    header would be 0;
    *
-   *	it can't be a little-endian BSD DLT_NULL header, as the
-   *	resulting AF_ value would be >= 0x03FF, which is too big
-   *	for an AF_ value;
+   *    it can't be a little-endian BSD DLT_NULL header, as the
+   *    resulting AF_ value would be >= 0x03FF, which is too big
+   *    for an AF_ value;
    *
-   *	it can't be an IRIX or UNICOS/mp DLT_NULL header, as the
-   *	resulting AF_ value with be 0x03FF.
+   *    it can't be an IRIX or UNICOS/mp DLT_NULL header, as the
+   *    resulting AF_ value with be 0x03FF.
    *
    * So the first thing we do is check the first two bytes of the
    * header; if it's FF 03, we treat the packet as a PPP frame.
    *
    * Otherwise, if the upper 16 bits are non-zero, either:
    *
-   *	it's a BSD DLT_NULL or DLT_LOOP header whose AF_ value
-   *	is not in our byte order;
+   *    it's a BSD DLT_NULL or DLT_LOOP header whose AF_ value
+   *    is not in our byte order;
    *
-   *	it's an IRIX or UNICOS/mp DLT_NULL header being read on
-   *	a big-endian machine;
+   *    it's an IRIX or UNICOS/mp DLT_NULL header being read on
+   *    a big-endian machine;
    *
-   *	it's a Linux DLT_NULL header being read on a little-endian
-   *	machine.
+   *    it's a Linux DLT_NULL header being read on a little-endian
+   *    machine.
    *
    * In all those cases except for the IRIX or UNICOS/mp DLT_NULL header,
    * we should byte-swap it (if it's a Linux DLT_NULL header, that'll
@@ -230,22 +229,22 @@ capture_null( const guchar *pd, int len, packet_counts *ld )
    *
    * So, if the upper 16 bits are non-zero:
    *
-   *	if the upper 2 hex digits are 0 and the next 2 hex digits are
-   *	in the range 0x00-0x5F, we treat it as a big-endian IRIX or
-   *	UNICOS/mp DLT_NULL header;
+   *    if the upper 2 hex digits are 0 and the next 2 hex digits are
+   *    in the range 0x00-0x5F, we treat it as a big-endian IRIX or
+   *    UNICOS/mp DLT_NULL header;
    *
-   *	otherwise, we byte-swap it and do the next stage.
+   *    otherwise, we byte-swap it and do the next stage.
    *
    * If the upper 16 bits are zero, either:
    *
-   *	it's a BSD DLT_NULLor DLT_LOOP header whose AF_ value is in
-   *	our byte order;
+   *    it's a BSD DLT_NULLor DLT_LOOP header whose AF_ value is in
+   *    our byte order;
    *
-   *	it's an IRIX or UNICOS/mp DLT_NULL header being read on
-   *	a little-endian machine;
+   *    it's an IRIX or UNICOS/mp DLT_NULL header being read on
+   *    a little-endian machine;
    *
-   *	it's a Linux DLT_NULL header being read on a big-endian
-   *	machine.
+   *    it's a Linux DLT_NULL header being read on a big-endian
+   *    machine.
    *
    * In all of those cases except for the IRIX or UNICOS/mp DLT_NULL header,
    * we should *not* byte-swap it.  In the case of the IRIX or UNICOS/mp
@@ -349,10 +348,10 @@ capture_null( const guchar *pd, int len, packet_counts *ld )
 static void
 dissect_null(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  guint32	null_header;
-  proto_tree	*fh_tree;
-  proto_item	*ti;
-  tvbuff_t	*next_tvb;
+  guint32       null_header;
+  proto_tree    *fh_tree;
+  proto_item    *ti;
+  tvbuff_t      *next_tvb;
 
   /*
    * See comment in "capture_null()" for an explanation of what we're
@@ -432,7 +431,7 @@ dissect_null(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       next_tvb = tvb_new_subset_remaining(tvb, 4);
       if (!dissector_try_uint(ethertype_dissector_table,
             (guint16) null_header, next_tvb, pinfo, tree))
-	call_dissector(data_handle, next_tvb, pinfo, tree);
+        call_dissector(data_handle, next_tvb, pinfo, tree);
     } else {
       /* populate a tree in the second pane with the status of the link
          layer (ie none) */
@@ -444,7 +443,7 @@ dissect_null(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
       next_tvb = tvb_new_subset_remaining(tvb, 4);
       if (!dissector_try_uint(null_dissector_table, null_header,
-	    next_tvb, pinfo, tree)) {
+            next_tvb, pinfo, tree)) {
         /* No sub-dissector found.  Label rest of packet as "Data" */
         call_dissector(data_handle,next_tvb, pinfo, tree);
       }
@@ -455,44 +454,57 @@ dissect_null(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 void
 proto_register_null(void)
 {
-	static hf_register_info hf[] = {
+  static hf_register_info hf[] = {
 
-		/* registered here but handled in ethertype.c */
-		{ &hf_null_etype,
-		{ "Type",		"null.type", FT_UINT16, BASE_HEX, VALS(etype_vals), 0x0,
-			NULL, HFILL }},
+    /* registered here but handled in ethertype.c */
+    { &hf_null_etype,
+      { "Type",		"null.type", FT_UINT16, BASE_HEX, VALS(etype_vals), 0x0,
+        NULL, HFILL }},
 
-		{ &hf_null_family,
-		{ "Family",		"null.family",	FT_UINT32, BASE_DEC, VALS(family_vals), 0x0,
-			NULL, HFILL }}
-	};
-	static gint *ett[] = {
-		&ett_null,
-	};
+    { &hf_null_family,
+      { "Family",	"null.family",	FT_UINT32, BASE_DEC, VALS(family_vals), 0x0,
+        NULL, HFILL }}
+  };
+  static gint *ett[] = {
+    &ett_null,
+  };
 
-	proto_null = proto_register_protocol("Null/Loopback", "Null", "null");
-	proto_register_field_array(proto_null, hf, array_length(hf));
-	proto_register_subtree_array(ett, array_length(ett));
+  proto_null = proto_register_protocol("Null/Loopback", "Null", "null");
+  proto_register_field_array(proto_null, hf, array_length(hf));
+  proto_register_subtree_array(ett, array_length(ett));
 
-	/* subdissector code */
-	null_dissector_table = register_dissector_table("null.type",
-	   "Null type", FT_UINT32, BASE_DEC);
+  /* subdissector code */
+  null_dissector_table = register_dissector_table("null.type",
+                                                  "Null type", FT_UINT32, BASE_DEC);
 }
 
 void
 proto_reg_handoff_null(void)
 {
-	dissector_handle_t null_handle;
+  dissector_handle_t null_handle;
 
-	/*
-	 * Get a handle for the PPP-in-HDLC-like-framing dissector and
-	 * the "I don't know what this is" dissector.
-	 */
-	ppp_hdlc_handle = find_dissector("ppp_hdlc");
-	data_handle = find_dissector("data");
+  /*
+   * Get a handle for the PPP-in-HDLC-like-framing dissector and
+   * the "I don't know what this is" dissector.
+   */
+  ppp_hdlc_handle = find_dissector("ppp_hdlc");
+  data_handle = find_dissector("data");
 
-	ethertype_dissector_table = find_dissector_table("ethertype");
+  ethertype_dissector_table = find_dissector_table("ethertype");
 
-	null_handle = create_dissector_handle(dissect_null, proto_null);
-	dissector_add_uint("wtap_encap", WTAP_ENCAP_NULL, null_handle);
+  null_handle = create_dissector_handle(dissect_null, proto_null);
+  dissector_add_uint("wtap_encap", WTAP_ENCAP_NULL, null_handle);
 }
+
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */

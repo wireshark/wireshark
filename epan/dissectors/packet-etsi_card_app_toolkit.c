@@ -31,7 +31,6 @@
 #include <epan/packet.h>
 #include <epan/emem.h>
 #include <epan/lapd_sapi.h>
-#include <epan/prefs.h>
 
 #include "packet-e212.h"
 #include "packet-gsm_a_common.h"
@@ -1883,8 +1882,6 @@ proto_register_card_app_toolkit(void)
 	new_register_dissector("etsi_cat", dissect_cat, proto_cat);
 }
 
-/* This function is called once at startup and every time the user hits
- * 'apply' in the preferences dialogue */
 void
 proto_reg_handoff_card_app_toolkit(void)
 {

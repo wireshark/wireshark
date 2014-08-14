@@ -31,7 +31,6 @@
 #include <epan/packet.h>
 #include <epan/emem.h>
 #include <epan/lapd_sapi.h>
-#include <epan/prefs.h>
 
 void proto_register_gsm_sim(void);
 void proto_reg_handoff_gsm_sim(void);
@@ -2861,20 +2860,25 @@ proto_register_gsm_sim(void)
 	register_dissector("gsm_sim.bertlv", dissect_bertlv, proto_gsm_sim);
 }
 
-/* This function is called once at startup and every time the user hits
- * 'apply' in the preferences dialogue */
 void
 proto_reg_handoff_gsm_sim(void)
 {
-	static gboolean initialized = FALSE;
+	dissector_handle_t sim_handle;
+	sim_handle = find_dissector("gsm_sim");
+	dissector_add_uint("gsmtap.type", 4, sim_handle);
 
-	if (!initialized) {
-		dissector_handle_t sim_handle;
-		sim_handle = find_dissector("gsm_sim");
-		dissector_add_uint("gsmtap.type", 4, sim_handle);
-
-		sub_handle_cap = find_dissector("etsi_cat");
-	} else {
-		/* preferences have been changed */
-	}
+	sub_handle_cap = find_dissector("etsi_cat");
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

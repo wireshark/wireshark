@@ -42,7 +42,6 @@
 
 #include <glib.h>
 #include <epan/packet.h>
-#include <epan/prefs.h>
 
 #include "packet-tetra.h"
 #include "packet-rrc.h"

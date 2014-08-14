@@ -45,7 +45,6 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/prefs.h>
 #include <epan/tap.h>
 #include <epan/asn1.h>
 #include <epan/expert.h>
@@ -1083,86 +1082,86 @@ gint f_k(gint k, gint *w, gint range)
 
 static void dissect_channel_list_n_range(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gint range)
 {
-  gint        curr_offset = offset, bit_offset, f0, arfcn_orig, w[64], wsize, i;
-  gint        octet, nwi  = 1, jwi=0, imax, iused, arfcn;
-  guint8      list[1024];
-  proto_tree *subtree;
+    gint        curr_offset = offset, bit_offset, f0, arfcn_orig, w[64], wsize, i;
+    gint        octet, nwi  = 1, jwi=0, imax, iused, arfcn;
+    guint8      list[1024];
+    proto_tree *subtree;
 
-  memset((void*)list,0,sizeof(list));
+    memset((void*)list,0,sizeof(list));
 
-  subtree = proto_tree_add_subtree_format(tree,tvb, curr_offset, len,
-                        ett_gsm_rr_elem[DE_RR_NEIGH_CELL_DESC], NULL, "Range %d format", range);
+    subtree = proto_tree_add_subtree_format(tree,tvb, curr_offset, len,
+                                            ett_gsm_rr_elem[DE_RR_NEIGH_CELL_DESC], NULL, "Range %d format", range);
 
-  octet = tvb_get_guint8(tvb, curr_offset);
-  if (range == 1024) {
-    f0 = (octet>>2)&1;
-    if (f0)
-      list[0] = 1;
-    arfcn_orig = 0;
-    wsize = 10;
-    imax = 16;
-    bit_offset = curr_offset*8 + 6;
-  }
-  else {
-    bit_offset = curr_offset*8 + 7;
-    arfcn_orig = (gint) tvb_get_bits(tvb, bit_offset, 10, FALSE);
-    proto_tree_add_bits_item(subtree, hf_n_range_orig_arfcn, tvb, bit_offset, 10, ENC_BIG_ENDIAN);
-    bit_offset+=10;
-
-    list[arfcn_orig] = 1;
-
-    switch (range) {
-    case 512:
-      wsize=9;
-      imax = 17;
-      break;
-    case 256:
-      wsize=8;
-      imax = 21;
-      break;
-    case 128:
-      wsize=7;
-      imax = 28;
-      break;
-    default:
-      DISSECTOR_ASSERT_NOT_REACHED();
+    octet = tvb_get_guint8(tvb, curr_offset);
+    if (range == 1024) {
+        f0 = (octet>>2)&1;
+        if (f0)
+            list[0] = 1;
+        arfcn_orig = 0;
+        wsize = 10;
+        imax = 16;
+        bit_offset = curr_offset*8 + 6;
     }
-  }
-  iused = imax;   /* in case the list is actually full */
+    else {
+        bit_offset = curr_offset*8 + 7;
+        arfcn_orig = (gint) tvb_get_bits(tvb, bit_offset, 10, FALSE);
+        proto_tree_add_bits_item(subtree, hf_n_range_orig_arfcn, tvb, bit_offset, 10, ENC_BIG_ENDIAN);
+        bit_offset+=10;
 
-  /* extract the variable size w[] elements */
-  for (i=1; i<=imax; i++) {
-    w[i] = (gint) tvb_get_bits(tvb, bit_offset, wsize, FALSE);
-    proto_tree_add_text(subtree, tvb, bit_offset>>3, ((bit_offset+wsize-1)>>3) - (bit_offset>>3) + 1 , "%s %s(%d): %d",
-                        decode_bits_in_field(bit_offset, wsize, w[i]),
-                        "W",
-                        i,
-                        w[i]);
-    bit_offset += wsize;
-    curr_offset = bit_offset>>3;
+        list[arfcn_orig] = 1;
 
-    if ((iused == imax) && (w[i] == 0) ) {
-      iused = i - 1;
+        switch (range) {
+        case 512:
+            wsize=9;
+            imax = 17;
+            break;
+        case 256:
+            wsize=8;
+            imax = 21;
+            break;
+        case 128:
+            wsize=7;
+            imax = 28;
+            break;
+        default:
+            DISSECTOR_ASSERT_NOT_REACHED();
+        }
     }
-    if ((curr_offset-offset)>len) {
-      iused = i - 1;
-      break;
+    iused = imax;   /* in case the list is actually full */
+
+    /* extract the variable size w[] elements */
+    for (i=1; i<=imax; i++) {
+        w[i] = (gint) tvb_get_bits(tvb, bit_offset, wsize, FALSE);
+        proto_tree_add_text(subtree, tvb, bit_offset>>3, ((bit_offset+wsize-1)>>3) - (bit_offset>>3) + 1 , "%s %s(%d): %d",
+                            decode_bits_in_field(bit_offset, wsize, w[i]),
+                            "W",
+                            i,
+                            w[i]);
+        bit_offset += wsize;
+        curr_offset = bit_offset>>3;
+
+        if ((iused == imax) && (w[i] == 0) ) {
+            iused = i - 1;
+        }
+        if ((curr_offset-offset)>len) {
+            iused = i - 1;
+            break;
+        }
+        if (++jwi == nwi) {       /* check if the number of wi at this wsize has been extracted */
+            jwi = 0;            /* reset the count of wi at this size */
+            nwi <<= 1;          /* get twice as many of the next size */
+            wsize--;            /* make the next size 1 bit smaller */
+        }
     }
-    if (++jwi == nwi) {       /* check if the number of wi at this wsize has been extracted */
-      jwi = 0;            /* reset the count of wi at this size */
-      nwi <<= 1;          /* get twice as many of the next size */
-      wsize--;            /* make the next size 1 bit smaller */
+
+    for (i=1; i<=iused; i++) {
+        arfcn = (f_k(i, w, range) + arfcn_orig)%1024;
+        list[arfcn] = 1;
     }
-  }
 
-  for (i=1; i<=iused; i++) {
-    arfcn = (f_k(i, w, range) + arfcn_orig)%1024;
-    list[arfcn] = 1;
-  }
+    display_channel_list(list, tvb, tree, offset, curr_offset-offset);
 
-  display_channel_list(list, tvb, tree, offset, curr_offset-offset);
-
-  return;
+    return;
 }
 
 static guint16
@@ -12696,3 +12695,17 @@ proto_reg_handoff_gsm_a_rr(void)
     rrc_irat_ho_to_utran_cmd_handle = find_dissector("rrc.irat.ho_to_utran_cmd");
     rrlp_dissector = find_dissector("rrlp");
 }
+
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

@@ -25,9 +25,9 @@
 #include "config.h"
 
 #include <glib.h>
-#include <epan/arptypes.h>
-#include <epan/prefs.h>
+
 #include <epan/packet.h>
+#include <epan/arptypes.h>
 #include <wsutil/pint.h>
 #include "packet-sll.h"
 #include "packet-ipx.h"
@@ -329,7 +329,7 @@ proto_register_sll(void)
 		&hfi_sll_gretype,
 		/* registered here but handled in ethertype.c */
 		&hfi_sll_etype,
-                &hfi_sll_trailer,
+		&hfi_sll_trailer,
 	};
 #endif
 
@@ -368,3 +368,16 @@ proto_reg_handoff_sll(void)
 
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_SLL, sll_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

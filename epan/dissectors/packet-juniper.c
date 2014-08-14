@@ -26,7 +26,6 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/etypes.h>
-#include <epan/prefs.h>
 #include <epan/addr_resolv.h>
 #include <epan/ppptypes.h>
 #include "packet-ppp.h"
@@ -670,10 +669,10 @@ dissect_juniper_payload_proto(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     call_dissector(chdlc_handle, next_tvb, pinfo, tree);
     break;
   case 0xa248:
-	  proto_tree_add_text (juniper_subtree, tvb, offset, 4,"[Unknown data]");
-	  next_tvb = tvb_new_subset_remaining(tvb, offset+4);
-	  call_dissector(ipv4_handle, next_tvb, pinfo, tree);
-	  break;
+    proto_tree_add_text (juniper_subtree, tvb, offset, 4,"[Unknown data]");
+    next_tvb = tvb_new_subset_remaining(tvb, offset+4);
+    call_dissector(ipv4_handle, next_tvb, pinfo, tree);
+    break;
   case PROTO_OAM: /* FIXME call OAM disector without leading HEC byte */
   default:
     call_dissector(data_handle, next_tvb, pinfo, tree);
@@ -1517,3 +1516,16 @@ proto_reg_handoff_juniper(void)
 
 }
 
+
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */
