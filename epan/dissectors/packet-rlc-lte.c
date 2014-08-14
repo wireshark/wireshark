@@ -2583,9 +2583,11 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
     /* Data                              */
 
     if (!first_includes_start) {
-    	    reassembly_info = (rlc_channel_reassembly_info *)g_hash_table_lookup(reassembly_report_hash,
-                                                                                 get_report_hash_key((guint16)sn, pinfo->fd->num,
-                                                                                                     p_rlc_lte_info, FALSE));
+        reassembly_info = (rlc_channel_reassembly_info *)g_hash_table_lookup(reassembly_report_hash,
+                                                                             get_report_hash_key((guint16)sn,
+                                                                                                 pinfo->fd->num,
+                                                                                                 p_rlc_lte_info,
+                                                                                                 FALSE));
     }
 
     if (s_number_of_extensions > 0) {
@@ -2923,8 +2925,7 @@ static void dissect_rlc_lte_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
 /* Initializes the hash tables each time a new
  * file is loaded or re-loaded in wireshark */
-static void
-rlc_lte_init_protocol(void)
+static void rlc_lte_init_protocol(void)
 {
     /* Destroy any existing hashes. */
     if (sequence_analysis_channel_hash) {
@@ -3496,8 +3497,7 @@ void proto_register_rlc_lte(void)
     register_init_routine(&rlc_lte_init_protocol);
 }
 
-void
-proto_reg_handoff_rlc_lte(void)
+void proto_reg_handoff_rlc_lte(void)
 {
     /* Add as a heuristic UDP dissector */
     heur_dissector_add("udp", dissect_rlc_lte_heur, proto_rlc_lte);
@@ -3505,3 +3505,16 @@ proto_reg_handoff_rlc_lte(void)
     pdcp_lte_handle = find_dissector("pdcp-lte");
     ip_handle       = find_dissector("ip");
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

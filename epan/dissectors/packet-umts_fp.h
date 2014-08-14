@@ -103,24 +103,24 @@ typedef struct fp_info
     guint8 edch_ddi[MAX_EDCH_DDIS];
     guint  edch_macd_pdu_size[MAX_EDCH_DDIS];
 
-    guint  edch_lchId[MAX_EDCH_DDIS];	/* Logical Channel Id for E-DCH*/
+    guint  edch_lchId[MAX_EDCH_DDIS];   /* Logical Channel Id for E-DCH*/
 
-    guint8 edch_type;  /* 1 means T2 */
+    guint8 edch_type;       /* 1 means T2 */
 
-    gint cur_tb;    /* current transport block (required for dissecting of single TBs */
-    gint cur_chan;  /* current channel, required to retrieve the correct channel configuration for UMTS MAC */
-	gint com_context_id;	/*Identifies a single UE in the network*/
+    gint cur_tb;            /* current transport block (required for dissecting of single TBs */
+    gint cur_chan;          /* current channel, required to retrieve the correct channel configuration for UMTS MAC */
+    gint com_context_id;    /* Identifies a single UE in the network */
     guint16 srcport, destport;
 
     /* HSDSCH Related data */
     enum   fp_hsdsch_entity hsdsch_entity;
-    gint	hsdsch_macflowd_id;
-#define MAX_NUM_HSDHSCH_MACDFLOW	8
+    gint        hsdsch_macflowd_id;
+#define MAX_NUM_HSDHSCH_MACDFLOW        8
     gboolean hsdhsch_macfdlow_is_mux[MAX_NUM_HSDHSCH_MACDFLOW];
     enum   fp_link_type link_type;
-    guint urnti;	/*Used for tracking a "sequence" over diffrent transport channels*/
+    guint urnti;         /*Used for tracking a "sequence" over diffrent transport channels*/
 
-    gboolean reset_frag; 	/*Used to indicate that a stream has been reconfigured, hence we need to reset the fragtable*/
+    gboolean reset_frag; /*Used to indicate that a stream has been reconfigured, hence we need to reset the fragtable*/
 } fp_info;
 
 /* From NBAC-Constants.asn */
@@ -142,12 +142,12 @@ typedef struct
 {
     enum fp_interface_type iface_type;
     enum division_type     division;
-    gint channel;                       /* see Channel types definitions above */
-    guint32 dl_frame_number;            /* the frame where this conversation is started from CRNC */
-    guint32 ul_frame_number;            /* the frame where this conversation is started from Node B */
+    gint channel;               /* see Channel types definitions above */
+    guint32 dl_frame_number;    /* the frame where this conversation is started from CRNC */
+    guint32 ul_frame_number;    /* the frame where this conversation is started from Node B */
     address crnc_address;
     guint16 crnc_port;
-	gint com_context_id;	/*Identifies a single UE in the network*/
+        gint com_context_id;    /*Identifies a single UE in the network*/
 
     /* For PCH channel */
     gint paging_indications;
@@ -156,7 +156,7 @@ typedef struct
     gint num_dch_in_flow;
     gint dchs_in_flow_list[FP_maxNrOfTFs];
 
-    guint8  dch_crc_present;            /* 0=No, 1=Yes, 2=Unknown */
+    guint8  dch_crc_present;    /* 0=No, 1=Yes, 2=Unknown */
     enum fp_rlc_mode rlc_mode;
 
     /* DCH type channel data */
@@ -166,7 +166,7 @@ typedef struct
     gint   no_ddi_entries;
     guint8 edch_ddi[MAX_EDCH_DDIS];
     guint  edch_macd_pdu_size[MAX_EDCH_DDIS];
-    guint8  edch_lchId[MAX_EDCH_DDIS];
+    guint8 edch_lchId[MAX_EDCH_DDIS];
     guint8 edch_type;  /* 1 means T2 */
 
     /* HSDSCH Related data */
@@ -175,15 +175,27 @@ typedef struct
 
     guint8 hsdsch_num_chans_per_flow[MAX_NUM_HSDHSCH_MACDFLOW];
 
-	/*HSDSCH Common related data*/
-	guint8 common_macdflow_id;
+    /*HSDSCH Common related data*/
+    guint8 common_macdflow_id;
 
-	guint urnti;	/*Used for tracking a "sequence" over diffrent transport channels*/
-	guint hrnti;	/*Used for tracking a HS-DSCH flow*/
-	gboolean reset_frag; 	/*Used to indicate that a stream has been reconfigured, hence we need to reset the fragtable*/
-	guint32 cfn;
-	guint32 cfn_index;
+    guint urnti;          /*Used for tracking a "sequence" over diffrent transport channels*/
+    guint hrnti;          /*Used for tracking a HS-DSCH flow*/
+    gboolean reset_frag;  /*Used to indicate that a stream has been reconfigured, hence we need to reset the fragtable*/
+    guint32 cfn;
+    guint32 cfn_index;
 } umts_fp_conversation_info_t;
 
 void set_umts_fp_conv_data(conversation_t *conversation, umts_fp_conversation_info_t *umts_fp_conversation_info);
 
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */
