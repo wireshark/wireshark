@@ -99,7 +99,7 @@ x11-dissector: $(top_srcdir)/tools/process-x11-fields.pl x11-fields $(top_srcdir
 #
 register.c: $(plugin_src) $(ALL_DISSECTORS_SRC) Makefile.common Custom.common \
 	$(top_srcdir)/tools/make-dissector-reg.py
-	echo Making register.c ; \
+	@echo Making register.c ; \
 	$(PYTHON) $(top_srcdir)/tools/make-dissector-reg.py $(srcdir) \
 		dissectors $(ALL_DISSECTORS_SRC) ;
 #
