@@ -713,6 +713,10 @@ if (Qt5Widgets_FOUND)
 		# That's the name autofoo uses
 		set(QT_MACEXTRAS_LIB 1)
 	endif()
+	if(Qt5WinExtras_FOUND)
+		set (QT_LIBRARIES ${QT_LIBRARIES} ${Qt5WinExtras_LIBRARIES})
+		# set(QT_WINEXTRAS_LIB 1) # Not needed?
+	endif()
 # If Qt4: QT_LIBRARIES and QT_INCLUDES are not set above. They require extra magic
 elseif(QT_FOUND)
 	include(${QT_USE_FILE})
