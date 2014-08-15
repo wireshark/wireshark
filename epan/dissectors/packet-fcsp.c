@@ -28,7 +28,6 @@
 
 #include <epan/packet.h>
 #include <epan/to_str.h>
-#include <epan/conversation.h>
 #include <epan/expert.h>
 #include <epan/etypes.h>
 #include "packet-fc.h"
@@ -620,3 +619,15 @@ proto_register_fcsp(void)
     expert_register_field_array(expert_fcsp, ei, array_length(ei));
 }
 
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

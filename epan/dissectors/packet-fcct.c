@@ -28,7 +28,6 @@
 #include <epan/packet.h>
 #include <epan/to_str.h>
 #include <epan/etypes.h>
-#include <epan/conversation.h>
 #include "packet-fc.h"
 #include "packet-fcct.h"
 
@@ -221,10 +220,6 @@ dissect_fcct (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
 /* Register the protocol with Wireshark */
 
-/* this format is require because a script is used to build the C function
-   that calls all the protocol registration.
-*/
-
 void
 proto_register_fcct(void)
 {
@@ -285,10 +280,6 @@ proto_register_fcct(void)
                                                    FT_UINT8, BASE_HEX);
 }
 
-/* If this dissector uses sub-dissector registration add a registration routine.
-   This format is required because a script is used to find these routines and
-   create the code that calls these routines.
-*/
 void
 proto_reg_handoff_fcct (void)
 {
@@ -300,4 +291,15 @@ proto_reg_handoff_fcct (void)
     data_handle = find_dissector ("data");
 }
 
-
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

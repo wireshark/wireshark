@@ -24,7 +24,6 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/wmem/wmem.h>
-#include <epan/conversation.h>
 #include "packet-usb.h"
 #include "packet-scsi.h"
 
@@ -53,15 +52,15 @@ static gint ett_usb_ms = -1;
 
 /* there is one such structure for each masstorage conversation */
 typedef struct _usb_ms_conv_info_t {
-    wmem_tree_t *itl;		/* indexed by LUN */
-    wmem_tree_t *itlq;		/* pinfo->fd->num */
+    wmem_tree_t *itl;           /* indexed by LUN */
+    wmem_tree_t *itlq;          /* pinfo->fd->num */
 } usb_ms_conv_info_t;
 
 
 static const value_string status_vals[] = {
-    {0x00,	"Command Passed"},
-    {0x01,	"Command Failed"},
-    {0x02,	"Phase Error"},
+    {0x00,      "Command Passed"},
+    {0x01,      "Command Failed"},
+    {0x02,      "Phase Error"},
     {0, NULL}
 };
 
@@ -468,3 +467,16 @@ proto_reg_handoff_usb_ms(void)
 
     heur_dissector_add("usb.bulk", dissect_usb_ms_bulk_heur, proto_usb_ms);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */
