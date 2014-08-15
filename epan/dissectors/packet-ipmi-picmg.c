@@ -27,6 +27,8 @@
 
 #include "packet-ipmi.h"
 
+void proto_register_ipmi_picmg(void);
+
 static gint ett_ipmi_picmg_led_color = -1;
 static gint ett_ipmi_picmg_05_byte1 = -1;
 static gint ett_ipmi_picmg_06_byte1 = -1;

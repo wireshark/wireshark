@@ -27,6 +27,8 @@
 
 #include "packet-ipmi.h"
 
+void proto_register_ipmi_update(void);
+
 static ipmi_cmd_t cmd_update[] = {
 	{ 0x00, IPMI_TBD,   NULL, NULL, "[PPS OEM] Upgrade Status", 0 },
 	{ 0x01, IPMI_TBD,   NULL, NULL, "[PPS OEM] Upgrade Start", 0 },

@@ -27,6 +27,8 @@
 
 #include "packet-ipmi.h"
 
+void proto_register_ipmi_storage(void);
+
 static gint ett_ipmi_stor_10_flags = -1;
 static gint ett_ipmi_stor_20_ops = -1;
 static gint ett_ipmi_stor_25_byte6 = -1;

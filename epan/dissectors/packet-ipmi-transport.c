@@ -27,6 +27,8 @@
 
 #include "packet-ipmi.h"
 
+void proto_register_ipmi_transport(void);
+
 static gint ett_ipmi_trn_lan00_byte1 = -1;
 static gint ett_ipmi_trn_lan01_byte1 = -1;
 static gint ett_ipmi_trn_lan02_byte1 = -1;

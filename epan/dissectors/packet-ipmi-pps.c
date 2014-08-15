@@ -27,6 +27,8 @@
 
 #include "packet-ipmi.h"
 
+void proto_register_ipmi_pps(void);
+
 static ipmi_cmd_t cmd_pps[] = {
 	{ 0x00, IPMI_TBD,   NULL, NULL, "[PPS OEM] Get Status", 0 },
 	{ 0x01, IPMI_TBD,   NULL, NULL, "[PPS OEM] Get Serial Interface Properties", 0 },

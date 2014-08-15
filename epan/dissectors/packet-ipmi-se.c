@@ -27,6 +27,8 @@
 
 #include "packet-ipmi.h"
 
+void proto_register_ipmi_se(void);
+
 /* Data types for sensor-specific info */
 struct sensor_info;
 typedef gboolean (*intrp_t)(proto_tree *, tvbuff_t *, const struct sensor_info *,

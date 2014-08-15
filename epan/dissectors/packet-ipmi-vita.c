@@ -27,6 +27,8 @@
 
 #include "packet-ipmi.h"
 
+void proto_register_ipmi_vita(void);
+
 /* Tree type identifiers.
 */
 static gint ett_vita_ipmc = -1;
