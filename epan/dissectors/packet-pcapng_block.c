@@ -71,3 +71,16 @@ proto_reg_handoff_pcapng_block(void)
 	dissector_add_uint("wtap_fts_rec", WTAP_FILE_TYPE_SUBTYPE_PCAPNG,
 	    pcapng_block_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */
