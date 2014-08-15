@@ -29,6 +29,9 @@
 #include <epan/etypes.h>
 #include <epan/expert.h>
 
+void proto_register_lltd(void);
+void proto_reg_handoff_lltd(void);
+
 static int proto_lltd = -1;
 
 static int hf_lltd_version                  = -1;
