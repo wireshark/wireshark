@@ -1508,7 +1508,7 @@ static int dissect_spdy_window_update_payload(
 /*
  * Performs SPDY frame dissection.
  */
-int dissect_spdy_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+static int dissect_spdy_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   guint8              control_bit;
   spdy_control_frame_info_t frame;

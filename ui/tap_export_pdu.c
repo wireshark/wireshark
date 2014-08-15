@@ -39,7 +39,7 @@
 #include "tap_export_pdu.h"
 
 /* Main entry point to the tap */
-int
+static int
 export_pdu_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const void *data)
 {
     const exp_pdu_data_t *exp_pdu_data = (const exp_pdu_data_t *)data;
