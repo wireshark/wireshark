@@ -88,7 +88,7 @@ static const value_string  k12_port_types[] = {
 };
 
 static void
-fill_fp_info(fp_info *p_fp_info, guchar *extra_info, guint32 length)
+fill_fp_info(fp_info* p_fp_info, guchar* extra_info, guint32 length)
 {
 	guint adj = 0;
 			/* 0x11=control frame 0x30=data frame */
@@ -186,7 +186,7 @@ fill_fp_info(fp_info *p_fp_info, guchar *extra_info, guint32 length)
 static void
 dissect_k12(tvbuff_t* tvb,packet_info* pinfo,proto_tree* tree)
 {
-	static dissector_handle_t data_handles[] = {NULL,NULL};
+	static dissector_handle_t data_handles[] = {NULL, NULL};
 	proto_item* k12_item;
 	proto_tree* k12_tree;
 	proto_item* stack_item;
@@ -272,11 +272,11 @@ dissect_k12(tvbuff_t* tvb,packet_info* pinfo,proto_tree* tree)
 
 	for (i = 0; handles[i] && handles[i+1]; ++i) {
 		if (handles[i] == sscop_handle) {
-			sscop_payload_info *p_sscop_info = (sscop_payload_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_sscop, 0);
+			sscop_payload_info* p_sscop_info = (sscop_payload_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_sscop, 0);
 			if (!p_sscop_info) {
 				p_sscop_info = wmem_new0(wmem_file_scope(), sscop_payload_info);
-                p_add_proto_data(wmem_file_scope(), pinfo, proto_sscop, 0, p_sscop_info);
-                p_sscop_info->subdissector = handles[i+1];
+				p_add_proto_data(wmem_file_scope(), pinfo, proto_sscop, 0, p_sscop_info);
+				p_sscop_info->subdissector = handles[i+1];
 			}
 		}
 		/* Add more protocols here */
@@ -286,14 +286,14 @@ dissect_k12(tvbuff_t* tvb,packet_info* pinfo,proto_tree* tree)
 
 	/* Setup information required by certain protocols */
 	if (sub_handle == fp_handle) {
-		fp_info *p_fp_info = (fp_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_fp, 0);
+		fp_info* p_fp_info = (fp_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_fp, 0);
 		if (!p_fp_info) {
 			p_fp_info = wmem_new0(wmem_file_scope(), fp_info);
-            p_add_proto_data(wmem_file_scope(), pinfo, proto_fp, 0, p_fp_info);
+			p_add_proto_data(wmem_file_scope(), pinfo, proto_fp, 0, p_fp_info);
 
-            fill_fp_info(p_fp_info,
-                         pinfo->pseudo_header->k12.extra_info,
-                         pinfo->pseudo_header->k12.extra_length);
+			fill_fp_info(p_fp_info,
+				     pinfo->pseudo_header->k12.extra_info,
+				     pinfo->pseudo_header->k12.extra_length);
 		}
 	}
 
@@ -339,8 +339,8 @@ k12_copy_cb(void* dest, const void* orig, size_t len _U_)
 	for (num_protos = 0; protos[num_protos]; num_protos++)
 		g_strstrip(protos[num_protos]);
 
-	d->match = g_strdup(o->match);
-	d->protos = g_strdup(o->protos);
+	d->match   = g_strdup(o->match);
+	d->protos  = g_strdup(o->protos);
 	d->handles = (dissector_handle_t *)g_memdup(o->handles,(guint)(sizeof(dissector_handle_t)*(num_protos+1)));
 
 	return dest;
@@ -390,93 +390,134 @@ protos_chk_cb(void* r _U_, const char* p, guint len, const void* u1 _U_, const v
 UAT_CSTRING_CB_DEF(k12,match,k12_handles_t)
 UAT_CSTRING_CB_DEF(k12,protos,k12_handles_t)
 
-/* Make sure handles for various protocols are initialized */
-static void
-initialize_handles_once(void)
-{
-	static gboolean initialized = FALSE;
-	if (!initialized) {
-		k12_handle = find_dissector("k12");
-		data_handle = find_dissector("data");
-		sscop_handle = find_dissector("sscop");
-		fp_handle = find_dissector("fp");
-		initialized = TRUE;
-	}
-}
-
-void proto_reg_handoff_k12(void)
-{
-	initialize_handles_once();
-	dissector_add_uint("wtap_encap", WTAP_ENCAP_K12, k12_handle);
-}
 
 void
 proto_register_k12(void)
 {
-    static hf_register_info hf[] = {
-	{ &hf_k12_port_id, { "Port Id", "k12.port_id", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-	{ &hf_k12_port_name, { "Port Name", "k12.port_name", FT_STRING, BASE_NONE, NULL, 0x0,NULL, HFILL }},
-	{ &hf_k12_stack_file, { "Stack file used", "k12.stack_file", FT_STRING, BASE_NONE, NULL, 0x0,NULL, HFILL }},
-	{ &hf_k12_port_type, { "Port type", "k12.input_type", FT_UINT32, BASE_HEX, VALS(k12_port_types), 0x0,NULL, HFILL }},
-	{ &hf_k12_ts, { "Timeslot mask", "k12.ds0.ts", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-	{ &hf_k12_atm_vp, { "ATM VPI", "atm.vpi", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-        { &hf_k12_atm_vc, { "ATM VCI", "atm.vci", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-        { &hf_k12_atm_cid, { "AAL2 CID", "aal2.cid", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }}
+	static hf_register_info hf[] = {
+		{ &hf_k12_port_id,
+		  { "Port Id", "k12.port_id",
+		    FT_UINT32, BASE_HEX, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_k12_port_name,
+		  { "Port Name", "k12.port_name",
+		    FT_STRING, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_k12_stack_file,
+		  { "Stack file used", "k12.stack_file",
+		    FT_STRING, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_k12_port_type,
+		  { "Port type", "k12.input_type",
+		    FT_UINT32, BASE_HEX, VALS(k12_port_types), 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_k12_ts,
+		  { "Timeslot mask", "k12.ds0.ts",
+		    FT_UINT32, BASE_HEX, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_k12_atm_vp,
+		  { "ATM VPI", "atm.vpi",
+		    FT_UINT16, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_k12_atm_vc,
+		  { "ATM VCI", "atm.vci",
+		    FT_UINT16, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_k12_atm_cid,
+		  { "AAL2 CID", "aal2.cid",
+		    FT_UINT16, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		}
 	};
 
-  static gint *ett[] = {
-	  &ett_k12,
-	  &ett_port
-  };
+	static gint* ett[] = {
+		&ett_k12,
+		&ett_port
+	};
 
-  static ei_register_info ei[] = {
-     { &ei_k12_unmatched_stk_file, { "k12.unmatched_stk_file", PI_UNDECODED, PI_WARN, "Warning: stk file not matched in the 'K12 Protocols' table", EXPFILL }},
-     { &ei_k12_unmatched_info, { "k12.unmatched_info", PI_PROTOCOL, PI_NOTE, "You can edit the 'K12 Protocols' table from Preferences->Protocols->k12xx", EXPFILL }},
-  };
+	static ei_register_info ei[] = {
+		{ &ei_k12_unmatched_stk_file,
+		  { "k12.unmatched_stk_file", PI_UNDECODED, PI_WARN,
+		    "Warning: stk file not matched in the 'K12 Protocols' table", EXPFILL }},
 
-  static uat_field_t uat_k12_flds[] = {
-      UAT_FLD_CSTRING_ISPRINT(k12,match,"Match string",
-			      "A string that will be matched (a=A) against an .stk filename or the name of a port.\n"
-			      "The first match wins, the order of entries in the table is important!."),
-      UAT_FLD_CSTRING_OTHER(k12,protos,"Protocol",protos_chk_cb,
-			    "The lowest layer protocol described by this .stk file (eg: mtp2).\n"
-			    "Use (sscop:sscf-nni) for sscf-nni (MTP3b) with sscop"),
-      UAT_END_FIELDS
-  };
+		{ &ei_k12_unmatched_info,
+		  { "k12.unmatched_info", PI_PROTOCOL, PI_NOTE,
+		    "You can edit the 'K12 Protocols' table from Preferences->Protocols->k12xx", EXPFILL }},
+	};
 
-  module_t *k12_module;
-  expert_module_t* expert_k12;
+	static uat_field_t uat_k12_flds[] = {
+		UAT_FLD_CSTRING_ISPRINT(k12,match,"Match string",
+					"A string that will be matched (a=A) against an .stk filename or the name of a port.\n"
+					"The first match wins, the order of entries in the table is important!."),
+		UAT_FLD_CSTRING_OTHER(k12,protos,"Protocol",protos_chk_cb,
+				      "The lowest layer protocol described by this .stk file (eg: mtp2).\n"
+				      "Use (sscop:sscf-nni) for sscf-nni (MTP3b) with sscop"),
+		UAT_END_FIELDS
+	};
 
-  proto_k12 = proto_register_protocol("K12xx", "K12xx", "k12");
-  proto_register_field_array(proto_k12, hf, array_length(hf));
-  proto_register_subtree_array(ett, array_length(ett));
-  expert_k12 = expert_register_protocol(proto_k12);
-  expert_register_field_array(expert_k12, ei, array_length(ei));
-  register_dissector("k12", dissect_k12, proto_k12);
+	module_t* k12_module;
+	expert_module_t* expert_k12;
 
-  k12_uat = uat_new("K12 Protocols",
-		    sizeof(k12_handles_t),
-		    "k12_protos",             /* filename */
-		    TRUE,                     /* from_profile */
-		    &k12_handles,             /* data_ptr */
-		    &nk12_handles,            /* numitems_ptr */
-		    UAT_AFFECTS_DISSECTION,   /* affects dissection of packets, but not set of named fields */
-		    "ChK12ProtocolsSection",  /* help */
-		    k12_copy_cb,
-		    k12_update_cb,
-		    k12_free_cb,
-                    NULL,
-		    uat_k12_flds);
+	proto_k12 = proto_register_protocol("K12xx", "K12xx", "k12");
+	proto_register_field_array(proto_k12, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
+	expert_k12 = expert_register_protocol(proto_k12);
+	expert_register_field_array(expert_k12, ei, array_length(ei));
+	register_dissector("k12", dissect_k12, proto_k12);
 
-  k12_module = prefs_register_protocol(proto_k12, NULL);
+	k12_uat = uat_new("K12 Protocols",
+			  sizeof(k12_handles_t),
+			  "k12_protos",             /* filename */
+			  TRUE,                     /* from_profile */
+			  &k12_handles,             /* data_ptr */
+			  &nk12_handles,            /* numitems_ptr */
+			  UAT_AFFECTS_DISSECTION,   /* affects dissection of packets, but not set of named fields */
+			  "ChK12ProtocolsSection",  /* help */
+			  k12_copy_cb,
+			  k12_update_cb,
+			  k12_free_cb,
+			  NULL,
+			  uat_k12_flds);
 
-  prefs_register_obsolete_preference(k12_module, "config");
+	k12_module = prefs_register_protocol(proto_k12, NULL);
 
-  prefs_register_uat_preference(k12_module, "cfg",
-				"K12 Protocols",
-				"A table of matches vs stack filenames and relative protocols",
-				k12_uat);
+	prefs_register_obsolete_preference(k12_module, "config");
 
-  port_handles = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
+	prefs_register_uat_preference(k12_module, "cfg",
+				      "K12 Protocols",
+				      "A table of matches vs stack filenames and relative protocols",
+				      k12_uat);
+
+	port_handles = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 
 }
+
+void proto_reg_handoff_k12(void)
+{
+	k12_handle   = find_dissector("k12");
+	data_handle  = find_dissector("data");
+	sscop_handle = find_dissector("sscop");
+	fp_handle    = find_dissector("fp");
+
+	dissector_add_uint("wtap_encap", WTAP_ENCAP_K12, k12_handle);
+}
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */
