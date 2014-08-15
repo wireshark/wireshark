@@ -41,6 +41,8 @@ since version 1.12.0:
 ** The interface list is now updated when interfaces appear or disappear.
 ** The Conversations dialog has been added.
 ** A Japanese translation has been added.
+** It is now possible to manage remote capture interfaces.
+** Windows: taskbar progress support has been added.
 
 The following features are new (or have been significantly updated)
 since version 1.11.3:
@@ -130,8 +132,9 @@ Too many protocols have been updated to list here.
 
 === New and Updated Capture File Support
 
---sort-and-group--
---sort-and-group--
+//--sort-and-group--
+Android logcat text files
+//--sort-and-group--
 
 === Major API Changes
 

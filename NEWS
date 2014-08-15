@@ -1,4 +1,3 @@
-
                          Wireshark 1.99.0 Release Notes
 
    This is an experimental release intended to test new features for the
@@ -40,6 +39,8 @@ What's New
             disappear.
           + The Conversations dialog has been added.
           + A Japanese translation has been added.
+          + It is now possible to manage remote capture interfaces.
+          + Windows: taskbar progress support has been added.
 
    The following features are new (or have been significantly updated)
    since version 1.11.3:
@@ -113,6 +114,8 @@ What's New
    Too many protocols have been updated to list here.
 
   New and Updated Capture File Support
+
+   Android logcat text files
 
   Major API Changes
 
@@ -193,7 +196,7 @@ Frequently Asked Questions
    A complete FAQ is available on the [22]Wireshark web site.
      __________________________________________________________________
 
-   Last updated 2014-08-05 22:12:55 CEST
+   Last updated 2014-08-15 15:04:05 EDT
 
 References
 
