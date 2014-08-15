@@ -778,47 +778,47 @@ g_warning("woohoo decrypted keytype:%d in frame:%u\n", keytype, pinfo->fd->num);
 #define KRB5_MSG_TICKET			1	/* Ticket */
 #define KRB5_MSG_AUTHENTICATOR		2	/* Authenticator */
 #define KRB5_MSG_ENC_TICKET_PART	3	/* EncTicketPart */
-#define KRB5_MSG_AS_REQ   		10	/* AS-REQ type */
-#define KRB5_MSG_AS_REP   		11	/* AS-REP type */
-#define KRB5_MSG_TGS_REQ  		12	/* TGS-REQ type */
-#define KRB5_MSG_TGS_REP  		13	/* TGS-REP type */
-#define KRB5_MSG_AP_REQ   		14	/* AP-REQ type */
-#define KRB5_MSG_AP_REP   		15	/* AP-REP type */
+#define KRB5_MSG_AS_REQ			10	/* AS-REQ type */
+#define KRB5_MSG_AS_REP			11	/* AS-REP type */
+#define KRB5_MSG_TGS_REQ		12	/* TGS-REQ type */
+#define KRB5_MSG_TGS_REP		13	/* TGS-REP type */
+#define KRB5_MSG_AP_REQ			14	/* AP-REQ type */
+#define KRB5_MSG_AP_REP			15	/* AP-REP type */
 
-#define KRB5_MSG_SAFE     		20	/* KRB-SAFE type */
-#define KRB5_MSG_PRIV     		21	/* KRB-PRIV type */
-#define KRB5_MSG_CRED     		22	/* KRB-CRED type */
+#define KRB5_MSG_SAFE			20	/* KRB-SAFE type */
+#define KRB5_MSG_PRIV			21	/* KRB-PRIV type */
+#define KRB5_MSG_CRED			22	/* KRB-CRED type */
 #define KRB5_MSG_ENC_AS_REP_PART	25	/* EncASRepPart */
 #define KRB5_MSG_ENC_TGS_REP_PART	26	/* EncTGSRepPart */
-#define KRB5_MSG_ENC_AP_REP_PART     	27	/* EncAPRepPart */
-#define KRB5_MSG_ENC_KRB_PRIV_PART     	28	/* EncKrbPrivPart */
-#define KRB5_MSG_ENC_KRB_CRED_PART     	29	/* EncKrbCredPart */
-#define KRB5_MSG_ERROR    		30	/* KRB-ERROR type */
+#define KRB5_MSG_ENC_AP_REP_PART	27	/* EncAPRepPart */
+#define KRB5_MSG_ENC_KRB_PRIV_PART	28	/* EncKrbPrivPart */
+#define KRB5_MSG_ENC_KRB_CRED_PART	29	/* EncKrbCredPart */
+#define KRB5_MSG_ERROR			30	/* KRB-ERROR type */
 
 /* encryption type constants */
-#define KRB5_ENCTYPE_NULL                0
-#define KRB5_ENCTYPE_DES_CBC_CRC         1
-#define KRB5_ENCTYPE_DES_CBC_MD4         2
-#define KRB5_ENCTYPE_DES_CBC_MD5         3
-#define KRB5_ENCTYPE_DES_CBC_RAW         4
-#define KRB5_ENCTYPE_DES3_CBC_SHA        5
-#define KRB5_ENCTYPE_DES3_CBC_RAW        6
-#define KRB5_ENCTYPE_DES_HMAC_SHA1       8
-#define KRB5_ENCTYPE_DSA_SHA1_CMS        9
-#define KRB5_ENCTYPE_RSA_MD5_CMS         10
-#define KRB5_ENCTYPE_RSA_SHA1_CMS        11
-#define KRB5_ENCTYPE_RC2_CBC_ENV         12
-#define KRB5_ENCTYPE_RSA_ENV             13
-#define KRB5_ENCTYPE_RSA_ES_OEAP_ENV     14
-#define KRB5_ENCTYPE_DES_EDE3_CBC_ENV    15
-#define KRB5_ENCTYPE_DES3_CBC_SHA1       16
+#define KRB5_ENCTYPE_NULL		0
+#define KRB5_ENCTYPE_DES_CBC_CRC	1
+#define KRB5_ENCTYPE_DES_CBC_MD4	2
+#define KRB5_ENCTYPE_DES_CBC_MD5	3
+#define KRB5_ENCTYPE_DES_CBC_RAW	4
+#define KRB5_ENCTYPE_DES3_CBC_SHA	5
+#define KRB5_ENCTYPE_DES3_CBC_RAW	6
+#define KRB5_ENCTYPE_DES_HMAC_SHA1	8
+#define KRB5_ENCTYPE_DSA_SHA1_CMS	9
+#define KRB5_ENCTYPE_RSA_MD5_CMS	10
+#define KRB5_ENCTYPE_RSA_SHA1_CMS	11
+#define KRB5_ENCTYPE_RC2_CBC_ENV	12
+#define KRB5_ENCTYPE_RSA_ENV		13
+#define KRB5_ENCTYPE_RSA_ES_OEAP_ENV	14
+#define KRB5_ENCTYPE_DES_EDE3_CBC_ENV	15
+#define KRB5_ENCTYPE_DES3_CBC_SHA1	16
 #define KRB5_ENCTYPE_AES128_CTS_HMAC_SHA1_96 17
 #define KRB5_ENCTYPE_AES256_CTS_HMAC_SHA1_96 18
-#define KRB5_ENCTYPE_DES_CBC_MD5_NT      20
-#define KERB_ENCTYPE_RC4_HMAC            23
-#define KERB_ENCTYPE_RC4_HMAC_EXP        24
-#define KRB5_ENCTYPE_UNKNOWN                0x1ff
-#define KRB5_ENCTYPE_LOCAL_DES3_HMAC_SHA1   0x7007
+#define KRB5_ENCTYPE_DES_CBC_MD5_NT	20
+#define KERB_ENCTYPE_RC4_HMAC		23
+#define KERB_ENCTYPE_RC4_HMAC_EXP	24
+#define KRB5_ENCTYPE_UNKNOWN		0x1ff
+#define KRB5_ENCTYPE_LOCAL_DES3_HMAC_SHA1	0x7007
 #define KRB5_ENCTYPE_RC4_PLAIN_EXP	0xffffff73
 #define KRB5_ENCTYPE_RC4_PLAIN		0xffffff74
 #define KRB5_ENCTYPE_RC4_PLAIN_OLD_EXP	0xffffff78
@@ -832,27 +832,27 @@ g_warning("woohoo decrypted keytype:%d in frame:%u\n", keytype, pinfo->fd->num);
 #define KRB5_ENCTYPE_RC4_MD4		0xffffff80
 
 /* checksum types */
-#define KRB5_CHKSUM_NONE                0
-#define KRB5_CHKSUM_CRC32               1
-#define KRB5_CHKSUM_MD4                 2
-#define KRB5_CHKSUM_KRB_DES_MAC         4
-#define KRB5_CHKSUM_KRB_DES_MAC_K       5
-#define KRB5_CHKSUM_MD5                 7
-#define KRB5_CHKSUM_MD5_DES             8
+#define KRB5_CHKSUM_NONE		0
+#define KRB5_CHKSUM_CRC32		1
+#define KRB5_CHKSUM_MD4			2
+#define KRB5_CHKSUM_KRB_DES_MAC		4
+#define KRB5_CHKSUM_KRB_DES_MAC_K	5
+#define KRB5_CHKSUM_MD5			7
+#define KRB5_CHKSUM_MD5_DES		8
 /* the following four come from packetcable */
-#define KRB5_CHKSUM_MD5_DES3            9
-#define KRB5_CHKSUM_HMAC_SHA1_DES3_KD   12
-#define KRB5_CHKSUM_HMAC_SHA1_DES3      13
-#define KRB5_CHKSUM_SHA1_UNKEYED        14
-#define KRB5_CHKSUM_HMAC_MD5            0xffffff76
-#define KRB5_CHKSUM_MD5_HMAC            0xffffff77
-#define KRB5_CHKSUM_RC4_MD5             0xffffff78
-#define KRB5_CHKSUM_MD25                0xffffff79
-#define KRB5_CHKSUM_DES_MAC_MD5         0xffffff7a
-#define KRB5_CHKSUM_DES_MAC             0xffffff7b
-#define KRB5_CHKSUM_REAL_CRC32          0xffffff7c
-#define KRB5_CHKSUM_SHA1                0xffffff7d
-#define KRB5_CHKSUM_LM                  0xffffff7e
+#define KRB5_CHKSUM_MD5_DES3		9
+#define KRB5_CHKSUM_HMAC_SHA1_DES3_KD	12
+#define KRB5_CHKSUM_HMAC_SHA1_DES3	13
+#define KRB5_CHKSUM_SHA1_UNKEYED	14
+#define KRB5_CHKSUM_HMAC_MD5		0xffffff76
+#define KRB5_CHKSUM_MD5_HMAC		0xffffff77
+#define KRB5_CHKSUM_RC4_MD5		0xffffff78
+#define KRB5_CHKSUM_MD25		0xffffff79
+#define KRB5_CHKSUM_DES_MAC_MD5		0xffffff7a
+#define KRB5_CHKSUM_DES_MAC		0xffffff7b
+#define KRB5_CHKSUM_REAL_CRC32		0xffffff7c
+#define KRB5_CHKSUM_SHA1		0xffffff7d
+#define KRB5_CHKSUM_LM			0xffffff7e
 #define KRB5_CHKSUM_GSSAPI		0x8003
 
 /*
@@ -864,57 +864,57 @@ g_warning("woohoo decrypted keytype:%d in frame:%u\n", keytype, pinfo->fd->num);
  */
 
 /* pre-authentication type constants */
-#define KRB5_PA_TGS_REQ                1
-#define KRB5_PA_ENC_TIMESTAMP          2
-#define KRB5_PA_PW_SALT                3
-#define KRB5_PA_ENC_ENCKEY             4
-#define KRB5_PA_ENC_UNIX_TIME          5
-#define KRB5_PA_ENC_SANDIA_SECURID     6
-#define KRB5_PA_SESAME                 7
-#define KRB5_PA_OSF_DCE                8
-#define KRB5_PA_CYBERSAFE_SECUREID     9
-#define KRB5_PA_AFS3_SALT              10
-#define KRB5_PA_ENCTYPE_INFO           11
-#define KRB5_PA_SAM_CHALLENGE          12
-#define KRB5_PA_SAM_RESPONSE           13
-#define KRB5_PA_PK_AS_REQ              14
-#define KRB5_PA_PK_AS_REP              15
-#define KRB5_PA_DASS                   16
-#define KRB5_PA_ENCTYPE_INFO2          19
-#define KRB5_PA_USE_SPECIFIED_KVNO     20
-#define KRB5_PA_SAM_REDIRECT           21
-#define KRB5_PA_GET_FROM_TYPED_DATA    22
-#define KRB5_PA_SAM_ETYPE_INFO         23
-#define KRB5_PA_ALT_PRINC              24
-#define KRB5_PA_SAM_CHALLENGE2         30
-#define KRB5_PA_SAM_RESPONSE2          31
-#define KRB5_TD_PKINIT_CMS_CERTIFICATES 101
-#define KRB5_TD_KRB_PRINCIPAL          102
-#define KRB5_TD_KRB_REALM              103
-#define KRB5_TD_TRUSTED_CERTIFIERS     104
-#define KRB5_TD_CERTIFICATE_INDEX      105
-#define KRB5_TD_APP_DEFINED_ERROR      106
-#define KRB5_TD_REQ_NONCE              107
-#define KRB5_TD_REQ_SEQ                108
+#define KRB5_PA_TGS_REQ			1
+#define KRB5_PA_ENC_TIMESTAMP		2
+#define KRB5_PA_PW_SALT			3
+#define KRB5_PA_ENC_ENCKEY		4
+#define KRB5_PA_ENC_UNIX_TIME		5
+#define KRB5_PA_ENC_SANDIA_SECURID	6
+#define KRB5_PA_SESAME			7
+#define KRB5_PA_OSF_DCE			8
+#define KRB5_PA_CYBERSAFE_SECUREID	9
+#define KRB5_PA_AFS3_SALT		10
+#define KRB5_PA_ENCTYPE_INFO		11
+#define KRB5_PA_SAM_CHALLENGE		12
+#define KRB5_PA_SAM_RESPONSE		13
+#define KRB5_PA_PK_AS_REQ		14
+#define KRB5_PA_PK_AS_REP		15
+#define KRB5_PA_DASS			16
+#define KRB5_PA_ENCTYPE_INFO2		19
+#define KRB5_PA_USE_SPECIFIED_KVNO	20
+#define KRB5_PA_SAM_REDIRECT		21
+#define KRB5_PA_GET_FROM_TYPED_DATA	22
+#define KRB5_PA_SAM_ETYPE_INFO		23
+#define KRB5_PA_ALT_PRINC		24
+#define KRB5_PA_SAM_CHALLENGE2		30
+#define KRB5_PA_SAM_RESPONSE2		31
+#define KRB5_TD_PKINIT_CMS_CERTIFICATES	101
+#define KRB5_TD_KRB_PRINCIPAL		102
+#define KRB5_TD_KRB_REALM		103
+#define KRB5_TD_TRUSTED_CERTIFIERS	104
+#define KRB5_TD_CERTIFICATE_INDEX	105
+#define KRB5_TD_APP_DEFINED_ERROR	106
+#define KRB5_TD_REQ_NONCE		107
+#define KRB5_TD_REQ_SEQ			108
 /* preauthentication types >127 (i.e. negative ones) are app specific.
    however since Microsoft is the dominant(only?) user of types in this range
    we also treat the type as unsigned.
 */
-#define KRB5_PA_PAC_REQUEST              128    /* (Microsoft extension) */
-#define KRB5_PA_FOR_USER                 129    /* Impersonation (Microsoft extension) See [MS-SFU]. XXX - replaced by KRB5_PA_S4U2SELF */
-#define KRB5_PA_S4U2SELF                 129
+#define KRB5_PA_PAC_REQUEST		128    /* (Microsoft extension) */
+#define KRB5_PA_FOR_USER		129    /* Impersonation (Microsoft extension) See [MS-SFU]. XXX - replaced by KRB5_PA_S4U2SELF */
+#define KRB5_PA_S4U2SELF		129
 
 #define KRB5_PA_PROV_SRV_LOCATION 0xffffffff    /* (gint32)0xFF) packetcable stuff */
 /* Principal name-type */
-#define KRB5_NT_UNKNOWN        0
-#define KRB5_NT_PRINCIPAL      1
-#define KRB5_NT_SRV_INST       2
-#define KRB5_NT_SRV_HST        3
-#define KRB5_NT_SRV_XHST       4
-#define KRB5_NT_UID            5
-#define KRB5_NT_X500_PRINCIPAL 6
-#define KRB5_NT_SMTP_NAME      7
-#define KRB5_NT_ENTERPRISE    10
+#define KRB5_NT_UNKNOWN		0
+#define KRB5_NT_PRINCIPAL	1
+#define KRB5_NT_SRV_INST	2
+#define KRB5_NT_SRV_HST		3
+#define KRB5_NT_SRV_XHST	4
+#define KRB5_NT_UID		5
+#define KRB5_NT_X500_PRINCIPAL	6
+#define KRB5_NT_SMTP_NAME	7
+#define KRB5_NT_ENTERPRISE	10
 
 /*
  * MS specific name types, from
@@ -929,75 +929,75 @@ g_warning("woohoo decrypted keytype:%d in frame:%u\n", keytype, pinfo->fd->num);
 
 /* error table constants */
 /* I prefixed the krb5_err.et constant names with KRB5_ET_ for these */
-#define KRB5_ET_KRB5KDC_ERR_NONE                         0
-#define KRB5_ET_KRB5KDC_ERR_NAME_EXP                     1
-#define KRB5_ET_KRB5KDC_ERR_SERVICE_EXP                  2
-#define KRB5_ET_KRB5KDC_ERR_BAD_PVNO                     3
-#define KRB5_ET_KRB5KDC_ERR_C_OLD_MAST_KVNO              4
-#define KRB5_ET_KRB5KDC_ERR_S_OLD_MAST_KVNO              5
-#define KRB5_ET_KRB5KDC_ERR_C_PRINCIPAL_UNKNOWN          6
-#define KRB5_ET_KRB5KDC_ERR_S_PRINCIPAL_UNKNOWN          7
-#define KRB5_ET_KRB5KDC_ERR_PRINCIPAL_NOT_UNIQUE         8
-#define KRB5_ET_KRB5KDC_ERR_NULL_KEY                     9
-#define KRB5_ET_KRB5KDC_ERR_CANNOT_POSTDATE              10
-#define KRB5_ET_KRB5KDC_ERR_NEVER_VALID                  11
-#define KRB5_ET_KRB5KDC_ERR_POLICY                       12
-#define KRB5_ET_KRB5KDC_ERR_BADOPTION                    13
-#define KRB5_ET_KRB5KDC_ERR_ETYPE_NOSUPP                 14
-#define KRB5_ET_KRB5KDC_ERR_SUMTYPE_NOSUPP               15
-#define KRB5_ET_KRB5KDC_ERR_PADATA_TYPE_NOSUPP           16
-#define KRB5_ET_KRB5KDC_ERR_TRTYPE_NOSUPP                17
-#define KRB5_ET_KRB5KDC_ERR_CLIENT_REVOKED               18
-#define KRB5_ET_KRB5KDC_ERR_SERVICE_REVOKED              19
-#define KRB5_ET_KRB5KDC_ERR_TGT_REVOKED                  20
-#define KRB5_ET_KRB5KDC_ERR_CLIENT_NOTYET                21
-#define KRB5_ET_KRB5KDC_ERR_SERVICE_NOTYET               22
-#define KRB5_ET_KRB5KDC_ERR_KEY_EXP                      23
-#define KRB5_ET_KRB5KDC_ERR_PREAUTH_FAILED               24
-#define KRB5_ET_KRB5KDC_ERR_PREAUTH_REQUIRED             25
-#define KRB5_ET_KRB5KDC_ERR_SERVER_NOMATCH               26
-#define KRB5_ET_KRB5KDC_ERR_MUST_USE_USER2USER           27
-#define KRB5_ET_KRB5KDC_ERR_PATH_NOT_ACCEPTED            28
-#define KRB5_ET_KRB5KDC_ERR_SVC_UNAVAILABLE              29
-#define KRB5_ET_KRB5KRB_AP_ERR_BAD_INTEGRITY             31
-#define KRB5_ET_KRB5KRB_AP_ERR_TKT_EXPIRED               32
-#define KRB5_ET_KRB5KRB_AP_ERR_TKT_NYV                   33
-#define KRB5_ET_KRB5KRB_AP_ERR_REPEAT                    34
-#define KRB5_ET_KRB5KRB_AP_ERR_NOT_US                    35
-#define KRB5_ET_KRB5KRB_AP_ERR_BADMATCH                  36
-#define KRB5_ET_KRB5KRB_AP_ERR_SKEW                      37
-#define KRB5_ET_KRB5KRB_AP_ERR_BADADDR                   38
-#define KRB5_ET_KRB5KRB_AP_ERR_BADVERSION                39
-#define KRB5_ET_KRB5KRB_AP_ERR_MSG_TYPE                  40
-#define KRB5_ET_KRB5KRB_AP_ERR_MODIFIED                  41
-#define KRB5_ET_KRB5KRB_AP_ERR_BADORDER                  42
-#define KRB5_ET_KRB5KRB_AP_ERR_ILL_CR_TKT                43
-#define KRB5_ET_KRB5KRB_AP_ERR_BADKEYVER                 44
-#define KRB5_ET_KRB5KRB_AP_ERR_NOKEY                     45
-#define KRB5_ET_KRB5KRB_AP_ERR_MUT_FAIL                  46
-#define KRB5_ET_KRB5KRB_AP_ERR_BADDIRECTION              47
-#define KRB5_ET_KRB5KRB_AP_ERR_METHOD                    48
-#define KRB5_ET_KRB5KRB_AP_ERR_BADSEQ                    49
-#define KRB5_ET_KRB5KRB_AP_ERR_INAPP_CKSUM               50
-#define KRB5_ET_KRB5KDC_AP_PATH_NOT_ACCEPTED             51
-#define KRB5_ET_KRB5KRB_ERR_RESPONSE_TOO_BIG             52
-#define KRB5_ET_KRB5KRB_ERR_GENERIC                      60
-#define KRB5_ET_KRB5KRB_ERR_FIELD_TOOLONG                61
-#define KRB5_ET_KDC_ERROR_CLIENT_NOT_TRUSTED             62
-#define KRB5_ET_KDC_ERROR_KDC_NOT_TRUSTED                63
-#define KRB5_ET_KDC_ERROR_INVALID_SIG                    64
-#define KRB5_ET_KDC_ERR_KEY_TOO_WEAK                     65
-#define KRB5_ET_KDC_ERR_CERTIFICATE_MISMATCH             66
-#define KRB5_ET_KRB_AP_ERR_NO_TGT                        67
-#define KRB5_ET_KDC_ERR_WRONG_REALM                      68
-#define KRB5_ET_KRB_AP_ERR_USER_TO_USER_REQUIRED         69
-#define KRB5_ET_KDC_ERR_CANT_VERIFY_CERTIFICATE          70
-#define KRB5_ET_KDC_ERR_INVALID_CERTIFICATE              71
-#define KRB5_ET_KDC_ERR_REVOKED_CERTIFICATE              72
-#define KRB5_ET_KDC_ERR_REVOCATION_STATUS_UNKNOWN        73
-#define KRB5_ET_KDC_ERR_REVOCATION_STATUS_UNAVAILABLE    74
-#define KRB5_ET_KDC_ERR_CLIENT_NAME_MISMATCH             75
-#define KRB5_ET_KDC_ERR_KDC_NAME_MISMATCH                76
+#define KRB5_ET_KRB5KDC_ERR_NONE			0
+#define KRB5_ET_KRB5KDC_ERR_NAME_EXP			1
+#define KRB5_ET_KRB5KDC_ERR_SERVICE_EXP			2
+#define KRB5_ET_KRB5KDC_ERR_BAD_PVNO			3
+#define KRB5_ET_KRB5KDC_ERR_C_OLD_MAST_KVNO		4
+#define KRB5_ET_KRB5KDC_ERR_S_OLD_MAST_KVNO		5
+#define KRB5_ET_KRB5KDC_ERR_C_PRINCIPAL_UNKNOWN		6
+#define KRB5_ET_KRB5KDC_ERR_S_PRINCIPAL_UNKNOWN		7
+#define KRB5_ET_KRB5KDC_ERR_PRINCIPAL_NOT_UNIQUE	8
+#define KRB5_ET_KRB5KDC_ERR_NULL_KEY			9
+#define KRB5_ET_KRB5KDC_ERR_CANNOT_POSTDATE		10
+#define KRB5_ET_KRB5KDC_ERR_NEVER_VALID			11
+#define KRB5_ET_KRB5KDC_ERR_POLICY			12
+#define KRB5_ET_KRB5KDC_ERR_BADOPTION			13
+#define KRB5_ET_KRB5KDC_ERR_ETYPE_NOSUPP		14
+#define KRB5_ET_KRB5KDC_ERR_SUMTYPE_NOSUPP		15
+#define KRB5_ET_KRB5KDC_ERR_PADATA_TYPE_NOSUPP		16
+#define KRB5_ET_KRB5KDC_ERR_TRTYPE_NOSUPP		17
+#define KRB5_ET_KRB5KDC_ERR_CLIENT_REVOKED		18
+#define KRB5_ET_KRB5KDC_ERR_SERVICE_REVOKED		19
+#define KRB5_ET_KRB5KDC_ERR_TGT_REVOKED			20
+#define KRB5_ET_KRB5KDC_ERR_CLIENT_NOTYET		21
+#define KRB5_ET_KRB5KDC_ERR_SERVICE_NOTYET		22
+#define KRB5_ET_KRB5KDC_ERR_KEY_EXP			23
+#define KRB5_ET_KRB5KDC_ERR_PREAUTH_FAILED		24
+#define KRB5_ET_KRB5KDC_ERR_PREAUTH_REQUIRED		25
+#define KRB5_ET_KRB5KDC_ERR_SERVER_NOMATCH		26
+#define KRB5_ET_KRB5KDC_ERR_MUST_USE_USER2USER		27
+#define KRB5_ET_KRB5KDC_ERR_PATH_NOT_ACCEPTED		28
+#define KRB5_ET_KRB5KDC_ERR_SVC_UNAVAILABLE		29
+#define KRB5_ET_KRB5KRB_AP_ERR_BAD_INTEGRITY		31
+#define KRB5_ET_KRB5KRB_AP_ERR_TKT_EXPIRED		32
+#define KRB5_ET_KRB5KRB_AP_ERR_TKT_NYV			33
+#define KRB5_ET_KRB5KRB_AP_ERR_REPEAT			34
+#define KRB5_ET_KRB5KRB_AP_ERR_NOT_US			35
+#define KRB5_ET_KRB5KRB_AP_ERR_BADMATCH			36
+#define KRB5_ET_KRB5KRB_AP_ERR_SKEW			37
+#define KRB5_ET_KRB5KRB_AP_ERR_BADADDR			38
+#define KRB5_ET_KRB5KRB_AP_ERR_BADVERSION		39
+#define KRB5_ET_KRB5KRB_AP_ERR_MSG_TYPE			40
+#define KRB5_ET_KRB5KRB_AP_ERR_MODIFIED			41
+#define KRB5_ET_KRB5KRB_AP_ERR_BADORDER			42
+#define KRB5_ET_KRB5KRB_AP_ERR_ILL_CR_TKT		43
+#define KRB5_ET_KRB5KRB_AP_ERR_BADKEYVER		44
+#define KRB5_ET_KRB5KRB_AP_ERR_NOKEY			45
+#define KRB5_ET_KRB5KRB_AP_ERR_MUT_FAIL			46
+#define KRB5_ET_KRB5KRB_AP_ERR_BADDIRECTION		47
+#define KRB5_ET_KRB5KRB_AP_ERR_METHOD			48
+#define KRB5_ET_KRB5KRB_AP_ERR_BADSEQ			49
+#define KRB5_ET_KRB5KRB_AP_ERR_INAPP_CKSUM		50
+#define KRB5_ET_KRB5KDC_AP_PATH_NOT_ACCEPTED		51
+#define KRB5_ET_KRB5KRB_ERR_RESPONSE_TOO_BIG		52
+#define KRB5_ET_KRB5KRB_ERR_GENERIC			60
+#define KRB5_ET_KRB5KRB_ERR_FIELD_TOOLONG		61
+#define KRB5_ET_KDC_ERROR_CLIENT_NOT_TRUSTED		62
+#define KRB5_ET_KDC_ERROR_KDC_NOT_TRUSTED		63
+#define KRB5_ET_KDC_ERROR_INVALID_SIG			64
+#define KRB5_ET_KDC_ERR_KEY_TOO_WEAK			65
+#define KRB5_ET_KDC_ERR_CERTIFICATE_MISMATCH		66
+#define KRB5_ET_KRB_AP_ERR_NO_TGT			67
+#define KRB5_ET_KDC_ERR_WRONG_REALM			68
+#define KRB5_ET_KRB_AP_ERR_USER_TO_USER_REQUIRED	69
+#define KRB5_ET_KDC_ERR_CANT_VERIFY_CERTIFICATE		70
+#define KRB5_ET_KDC_ERR_INVALID_CERTIFICATE		71
+#define KRB5_ET_KDC_ERR_REVOKED_CERTIFICATE		72
+#define KRB5_ET_KDC_ERR_REVOCATION_STATUS_UNKNOWN	73
+#define KRB5_ET_KDC_ERR_REVOCATION_STATUS_UNAVAILABLE	74
+#define KRB5_ET_KDC_ERR_CLIENT_NAME_MISMATCH		75
+#define KRB5_ET_KDC_ERR_KDC_NAME_MISMATCH		76
 
 static const value_string krb5_error_codes[] = {
 	{ KRB5_ET_KRB5KDC_ERR_NONE, "KRB5KDC_ERR_NONE" },
@@ -1082,137 +1082,137 @@ static const value_string krb5_error_codes[] = {
 #define PAC_S4U_DELEGATION_INFO	11
 #define PAC_UPN_DNS_INFO		12
 static const value_string w2k_pac_types[] = {
-    { PAC_LOGON_INFO		, "Logon Info" },
-    { PAC_CREDENTIAL_TYPE	, "Credential Type" },
-    { PAC_SERVER_CHECKSUM	, "Server Checksum" },
-    { PAC_PRIVSVR_CHECKSUM	, "Privsvr Checksum" },
-    { PAC_CLIENT_INFO_TYPE	, "Client Info Type" },
-    { PAC_S4U_DELEGATION_INFO, "S4U Delegation Info" },
-    { PAC_UPN_DNS_INFO		, "UPN DNS Info" },
-    { 0, NULL },
+	{ PAC_LOGON_INFO		, "Logon Info" },
+	{ PAC_CREDENTIAL_TYPE	, "Credential Type" },
+	{ PAC_SERVER_CHECKSUM	, "Server Checksum" },
+	{ PAC_PRIVSVR_CHECKSUM	, "Privsvr Checksum" },
+	{ PAC_CLIENT_INFO_TYPE	, "Client Info Type" },
+	{ PAC_S4U_DELEGATION_INFO, "S4U Delegation Info" },
+	{ PAC_UPN_DNS_INFO		, "UPN DNS Info" },
+	{ 0, NULL },
 };
 
 
 static const value_string krb5_princ_types[] = {
-    { KRB5_NT_UNKNOWN              , "Unknown" },
-    { KRB5_NT_PRINCIPAL            , "Principal" },
-    { KRB5_NT_SRV_INST             , "Service and Instance" },
-    { KRB5_NT_SRV_HST              , "Service and Host" },
-    { KRB5_NT_SRV_XHST             , "Service and Host Components" },
-    { KRB5_NT_UID                  , "Unique ID" },
-    { KRB5_NT_X500_PRINCIPAL       , "Encoded X.509 Distinguished Name" },
-    { KRB5_NT_SMTP_NAME            , "SMTP Name" },
-    { KRB5_NT_ENTERPRISE           , "Enterprise Name" },
-    { KRB5_NT_MS_PRINCIPAL         , "NT 4.0 style name (MS specific)" },
-    { KRB5_NT_MS_PRINCIPAL_AND_SID , "NT 4.0 style name with SID (MS specific)"},
-    { KRB5_NT_ENT_PRINCIPAL_AND_SID, "UPN and SID (MS specific)"},
-    { KRB5_NT_PRINCIPAL_AND_SID    , "Principal name and SID (MS specific)"},
-    { KRB5_NT_SRV_INST_AND_SID     , "SPN and SID (MS specific)"},
-    { 0                            , NULL },
+	{ KRB5_NT_UNKNOWN              , "Unknown" },
+	{ KRB5_NT_PRINCIPAL            , "Principal" },
+	{ KRB5_NT_SRV_INST             , "Service and Instance" },
+	{ KRB5_NT_SRV_HST              , "Service and Host" },
+	{ KRB5_NT_SRV_XHST             , "Service and Host Components" },
+	{ KRB5_NT_UID                  , "Unique ID" },
+	{ KRB5_NT_X500_PRINCIPAL       , "Encoded X.509 Distinguished Name" },
+	{ KRB5_NT_SMTP_NAME            , "SMTP Name" },
+	{ KRB5_NT_ENTERPRISE           , "Enterprise Name" },
+	{ KRB5_NT_MS_PRINCIPAL         , "NT 4.0 style name (MS specific)" },
+	{ KRB5_NT_MS_PRINCIPAL_AND_SID , "NT 4.0 style name with SID (MS specific)"},
+	{ KRB5_NT_ENT_PRINCIPAL_AND_SID, "UPN and SID (MS specific)"},
+	{ KRB5_NT_PRINCIPAL_AND_SID    , "Principal name and SID (MS specific)"},
+	{ KRB5_NT_SRV_INST_AND_SID     , "SPN and SID (MS specific)"},
+	{ 0                            , NULL },
 };
 #endif
 
 static const value_string krb5_preauthentication_types[] = {
-    { KRB5_PA_TGS_REQ              , "PA-TGS-REQ" },
-    { KRB5_PA_ENC_TIMESTAMP        , "PA-ENC-TIMESTAMP" },
-    { KRB5_PA_PW_SALT              , "PA-PW-SALT" },
-    { KRB5_PA_ENC_ENCKEY           , "PA-ENC-ENCKEY" },
-    { KRB5_PA_ENC_UNIX_TIME        , "PA-ENC-UNIX-TIME" },
-    { KRB5_PA_ENC_SANDIA_SECURID   , "PA-PW-SALT" },
-    { KRB5_PA_SESAME               , "PA-SESAME" },
-    { KRB5_PA_OSF_DCE              , "PA-OSF-DCE" },
-    { KRB5_PA_CYBERSAFE_SECUREID   , "PA-CYBERSAFE-SECURID" },
-    { KRB5_PA_AFS3_SALT            , "PA-AFS3-SALT" },
-    { KRB5_PA_ENCTYPE_INFO         , "PA-ENCTYPE-INFO" },
-    { KRB5_PA_ENCTYPE_INFO2         , "PA-ENCTYPE-INFO2" },
-    { KRB5_PA_SAM_CHALLENGE        , "PA-SAM-CHALLENGE" },
-    { KRB5_PA_SAM_RESPONSE         , "PA-SAM-RESPONSE" },
-    { KRB5_PA_PK_AS_REQ            , "PA-PK-AS-REQ" },
-    { KRB5_PA_PK_AS_REP            , "PA-PK-AS-REP" },
-    { KRB5_PA_DASS                 , "PA-DASS" },
-    { KRB5_PA_USE_SPECIFIED_KVNO   , "PA-USE-SPECIFIED-KVNO" },
-    { KRB5_PA_SAM_REDIRECT         , "PA-SAM-REDIRECT" },
-    { KRB5_PA_GET_FROM_TYPED_DATA  , "PA-GET-FROM-TYPED-DATA" },
-    { KRB5_PA_SAM_ETYPE_INFO       , "PA-SAM-ETYPE-INFO" },
-    { KRB5_PA_ALT_PRINC            , "PA-ALT-PRINC" },
-    { KRB5_PA_SAM_CHALLENGE2       , "PA-SAM-CHALLENGE2" },
-    { KRB5_PA_SAM_RESPONSE2        , "PA-SAM-RESPONSE2" },
-    { KRB5_TD_PKINIT_CMS_CERTIFICATES, "TD-PKINIT-CMS-CERTIFICATES" },
-    { KRB5_TD_KRB_PRINCIPAL        , "TD-KRB-PRINCIPAL" },
-    { KRB5_TD_KRB_REALM , "TD-KRB-REALM" },
-    { KRB5_TD_TRUSTED_CERTIFIERS   , "TD-TRUSTED-CERTIFIERS" },
-    { KRB5_TD_CERTIFICATE_INDEX    , "TD-CERTIFICATE-INDEX" },
-    { KRB5_TD_APP_DEFINED_ERROR    , "TD-APP-DEFINED-ERROR" },
-    { KRB5_TD_REQ_NONCE            , "TD-REQ-NONCE" },
-    { KRB5_TD_REQ_SEQ              , "TD-REQ-SEQ" },
-    { KRB5_PA_PAC_REQUEST          , "PA-PAC-REQUEST" },
-    { KRB5_PA_FOR_USER             , "PA-FOR-USER" },
-    { KRB5_PA_PROV_SRV_LOCATION    , "PA-PROV-SRV-LOCATION" },
-    { 0                            , NULL },
+	{ KRB5_PA_TGS_REQ              , "PA-TGS-REQ" },
+	{ KRB5_PA_ENC_TIMESTAMP        , "PA-ENC-TIMESTAMP" },
+	{ KRB5_PA_PW_SALT              , "PA-PW-SALT" },
+	{ KRB5_PA_ENC_ENCKEY           , "PA-ENC-ENCKEY" },
+	{ KRB5_PA_ENC_UNIX_TIME        , "PA-ENC-UNIX-TIME" },
+	{ KRB5_PA_ENC_SANDIA_SECURID   , "PA-PW-SALT" },
+	{ KRB5_PA_SESAME               , "PA-SESAME" },
+	{ KRB5_PA_OSF_DCE              , "PA-OSF-DCE" },
+	{ KRB5_PA_CYBERSAFE_SECUREID   , "PA-CYBERSAFE-SECURID" },
+	{ KRB5_PA_AFS3_SALT            , "PA-AFS3-SALT" },
+	{ KRB5_PA_ENCTYPE_INFO         , "PA-ENCTYPE-INFO" },
+	{ KRB5_PA_ENCTYPE_INFO2         , "PA-ENCTYPE-INFO2" },
+	{ KRB5_PA_SAM_CHALLENGE        , "PA-SAM-CHALLENGE" },
+	{ KRB5_PA_SAM_RESPONSE         , "PA-SAM-RESPONSE" },
+	{ KRB5_PA_PK_AS_REQ            , "PA-PK-AS-REQ" },
+	{ KRB5_PA_PK_AS_REP            , "PA-PK-AS-REP" },
+	{ KRB5_PA_DASS                 , "PA-DASS" },
+	{ KRB5_PA_USE_SPECIFIED_KVNO   , "PA-USE-SPECIFIED-KVNO" },
+	{ KRB5_PA_SAM_REDIRECT         , "PA-SAM-REDIRECT" },
+	{ KRB5_PA_GET_FROM_TYPED_DATA  , "PA-GET-FROM-TYPED-DATA" },
+	{ KRB5_PA_SAM_ETYPE_INFO       , "PA-SAM-ETYPE-INFO" },
+	{ KRB5_PA_ALT_PRINC            , "PA-ALT-PRINC" },
+	{ KRB5_PA_SAM_CHALLENGE2       , "PA-SAM-CHALLENGE2" },
+	{ KRB5_PA_SAM_RESPONSE2        , "PA-SAM-RESPONSE2" },
+	{ KRB5_TD_PKINIT_CMS_CERTIFICATES, "TD-PKINIT-CMS-CERTIFICATES" },
+	{ KRB5_TD_KRB_PRINCIPAL        , "TD-KRB-PRINCIPAL" },
+	{ KRB5_TD_KRB_REALM , "TD-KRB-REALM" },
+	{ KRB5_TD_TRUSTED_CERTIFIERS   , "TD-TRUSTED-CERTIFIERS" },
+	{ KRB5_TD_CERTIFICATE_INDEX    , "TD-CERTIFICATE-INDEX" },
+	{ KRB5_TD_APP_DEFINED_ERROR    , "TD-APP-DEFINED-ERROR" },
+	{ KRB5_TD_REQ_NONCE            , "TD-REQ-NONCE" },
+	{ KRB5_TD_REQ_SEQ              , "TD-REQ-SEQ" },
+	{ KRB5_PA_PAC_REQUEST          , "PA-PAC-REQUEST" },
+	{ KRB5_PA_FOR_USER             , "PA-FOR-USER" },
+	{ KRB5_PA_PROV_SRV_LOCATION    , "PA-PROV-SRV-LOCATION" },
+	{ 0                            , NULL },
 };
 
 #if 0
 static const value_string krb5_encryption_types[] = {
-    { KRB5_ENCTYPE_NULL           , "NULL" },
-    { KRB5_ENCTYPE_DES_CBC_CRC    , "des-cbc-crc" },
-    { KRB5_ENCTYPE_DES_CBC_MD4    , "des-cbc-md4" },
-    { KRB5_ENCTYPE_DES_CBC_MD5    , "des-cbc-md5" },
-    { KRB5_ENCTYPE_DES_CBC_RAW    , "des-cbc-raw" },
-    { KRB5_ENCTYPE_DES3_CBC_SHA   , "des3-cbc-sha" },
-    { KRB5_ENCTYPE_DES3_CBC_RAW   , "des3-cbc-raw" },
-    { KRB5_ENCTYPE_DES_HMAC_SHA1  , "des-hmac-sha1" },
-    { KRB5_ENCTYPE_DSA_SHA1_CMS   , "dsa-sha1-cms" },
-    { KRB5_ENCTYPE_RSA_MD5_CMS    , "rsa-md5-cms" },
-    { KRB5_ENCTYPE_RSA_SHA1_CMS   , "rsa-sha1-cms" },
-    { KRB5_ENCTYPE_RC2_CBC_ENV    , "rc2-cbc-env" },
-    { KRB5_ENCTYPE_RSA_ENV        , "rsa-env" },
-    { KRB5_ENCTYPE_RSA_ES_OEAP_ENV, "rsa-es-oeap-env" },
-    { KRB5_ENCTYPE_DES_EDE3_CBC_ENV, "des-ede3-cbc-env" },
-    { KRB5_ENCTYPE_DES3_CBC_SHA1  , "des3-cbc-sha1" },
-    { KRB5_ENCTYPE_AES128_CTS_HMAC_SHA1_96  , "aes128-cts-hmac-sha1-96" },
-    { KRB5_ENCTYPE_AES256_CTS_HMAC_SHA1_96  , "aes256-cts-hmac-sha1-96" },
-    { KRB5_ENCTYPE_DES_CBC_MD5_NT  , "des-cbc-md5-nt" },
-    { KERB_ENCTYPE_RC4_HMAC       , "rc4-hmac" },
-    { KERB_ENCTYPE_RC4_HMAC_EXP   , "rc4-hmac-exp" },
-    { KRB5_ENCTYPE_UNKNOWN        , "unknown" },
-    { KRB5_ENCTYPE_LOCAL_DES3_HMAC_SHA1    , "local-des3-hmac-sha1" },
-    { KRB5_ENCTYPE_RC4_PLAIN_EXP  , "rc4-plain-exp" },
-    { KRB5_ENCTYPE_RC4_PLAIN      , "rc4-plain" },
-    { KRB5_ENCTYPE_RC4_PLAIN_OLD_EXP, "rc4-plain-old-exp" },
-    { KRB5_ENCTYPE_RC4_HMAC_OLD_EXP, "rc4-hmac-old-exp" },
-    { KRB5_ENCTYPE_RC4_PLAIN_OLD  , "rc4-plain-old" },
-    { KRB5_ENCTYPE_RC4_HMAC_OLD   , "rc4-hmac-old" },
-    { KRB5_ENCTYPE_DES_PLAIN      , "des-plain" },
-    { KRB5_ENCTYPE_RC4_SHA        , "rc4-sha" },
-    { KRB5_ENCTYPE_RC4_LM         , "rc4-lm" },
-    { KRB5_ENCTYPE_RC4_PLAIN2     , "rc4-plain2" },
-    { KRB5_ENCTYPE_RC4_MD4        , "rc4-md4" },
-    { 0                           , NULL },
+	{ KRB5_ENCTYPE_NULL           , "NULL" },
+	{ KRB5_ENCTYPE_DES_CBC_CRC    , "des-cbc-crc" },
+	{ KRB5_ENCTYPE_DES_CBC_MD4    , "des-cbc-md4" },
+	{ KRB5_ENCTYPE_DES_CBC_MD5    , "des-cbc-md5" },
+	{ KRB5_ENCTYPE_DES_CBC_RAW    , "des-cbc-raw" },
+	{ KRB5_ENCTYPE_DES3_CBC_SHA   , "des3-cbc-sha" },
+	{ KRB5_ENCTYPE_DES3_CBC_RAW   , "des3-cbc-raw" },
+	{ KRB5_ENCTYPE_DES_HMAC_SHA1  , "des-hmac-sha1" },
+	{ KRB5_ENCTYPE_DSA_SHA1_CMS   , "dsa-sha1-cms" },
+	{ KRB5_ENCTYPE_RSA_MD5_CMS    , "rsa-md5-cms" },
+	{ KRB5_ENCTYPE_RSA_SHA1_CMS   , "rsa-sha1-cms" },
+	{ KRB5_ENCTYPE_RC2_CBC_ENV    , "rc2-cbc-env" },
+	{ KRB5_ENCTYPE_RSA_ENV        , "rsa-env" },
+	{ KRB5_ENCTYPE_RSA_ES_OEAP_ENV, "rsa-es-oeap-env" },
+	{ KRB5_ENCTYPE_DES_EDE3_CBC_ENV, "des-ede3-cbc-env" },
+	{ KRB5_ENCTYPE_DES3_CBC_SHA1  , "des3-cbc-sha1" },
+	{ KRB5_ENCTYPE_AES128_CTS_HMAC_SHA1_96  , "aes128-cts-hmac-sha1-96" },
+	{ KRB5_ENCTYPE_AES256_CTS_HMAC_SHA1_96  , "aes256-cts-hmac-sha1-96" },
+	{ KRB5_ENCTYPE_DES_CBC_MD5_NT  , "des-cbc-md5-nt" },
+	{ KERB_ENCTYPE_RC4_HMAC       , "rc4-hmac" },
+	{ KERB_ENCTYPE_RC4_HMAC_EXP   , "rc4-hmac-exp" },
+	{ KRB5_ENCTYPE_UNKNOWN        , "unknown" },
+	{ KRB5_ENCTYPE_LOCAL_DES3_HMAC_SHA1    , "local-des3-hmac-sha1" },
+	{ KRB5_ENCTYPE_RC4_PLAIN_EXP  , "rc4-plain-exp" },
+	{ KRB5_ENCTYPE_RC4_PLAIN      , "rc4-plain" },
+	{ KRB5_ENCTYPE_RC4_PLAIN_OLD_EXP, "rc4-plain-old-exp" },
+	{ KRB5_ENCTYPE_RC4_HMAC_OLD_EXP, "rc4-hmac-old-exp" },
+	{ KRB5_ENCTYPE_RC4_PLAIN_OLD  , "rc4-plain-old" },
+	{ KRB5_ENCTYPE_RC4_HMAC_OLD   , "rc4-hmac-old" },
+	{ KRB5_ENCTYPE_DES_PLAIN      , "des-plain" },
+	{ KRB5_ENCTYPE_RC4_SHA        , "rc4-sha" },
+	{ KRB5_ENCTYPE_RC4_LM         , "rc4-lm" },
+	{ KRB5_ENCTYPE_RC4_PLAIN2     , "rc4-plain2" },
+	{ KRB5_ENCTYPE_RC4_MD4        , "rc4-md4" },
+	{ 0                           , NULL },
 };
 
 static const value_string krb5_checksum_types[] = {
-    { KRB5_CHKSUM_NONE            , "none" },
-    { KRB5_CHKSUM_CRC32           , "crc32" },
-    { KRB5_CHKSUM_MD4             , "md4" },
-    { KRB5_CHKSUM_KRB_DES_MAC     , "krb-des-mac" },
-    { KRB5_CHKSUM_KRB_DES_MAC_K   , "krb-des-mac-k" },
-    { KRB5_CHKSUM_MD5             , "md5" },
-    { KRB5_CHKSUM_MD5_DES         , "md5-des" },
-    { KRB5_CHKSUM_MD5_DES3        , "md5-des3" },
-    { KRB5_CHKSUM_HMAC_SHA1_DES3_KD, "hmac-sha1-des3-kd" },
-    { KRB5_CHKSUM_HMAC_SHA1_DES3  , "hmac-sha1-des3" },
-    { KRB5_CHKSUM_SHA1_UNKEYED    , "sha1 (unkeyed)" },
-    { KRB5_CHKSUM_HMAC_MD5        , "hmac-md5" },
-    { KRB5_CHKSUM_MD5_HMAC        , "md5-hmac" },
-    { KRB5_CHKSUM_RC4_MD5         , "rc5-md5" },
-    { KRB5_CHKSUM_MD25            , "md25" },
-    { KRB5_CHKSUM_DES_MAC_MD5     , "des-mac-md5" },
-    { KRB5_CHKSUM_DES_MAC         , "des-mac" },
-    { KRB5_CHKSUM_REAL_CRC32      , "real-crc32" },
-    { KRB5_CHKSUM_SHA1            , "sha1" },
-    { KRB5_CHKSUM_LM              , "lm" },
-    { KRB5_CHKSUM_GSSAPI	  , "gssapi-8003" },
-    { 0                           , NULL },
+	{ KRB5_CHKSUM_NONE            , "none" },
+	{ KRB5_CHKSUM_CRC32           , "crc32" },
+	{ KRB5_CHKSUM_MD4             , "md4" },
+	{ KRB5_CHKSUM_KRB_DES_MAC     , "krb-des-mac" },
+	{ KRB5_CHKSUM_KRB_DES_MAC_K   , "krb-des-mac-k" },
+	{ KRB5_CHKSUM_MD5             , "md5" },
+	{ KRB5_CHKSUM_MD5_DES         , "md5-des" },
+	{ KRB5_CHKSUM_MD5_DES3        , "md5-des3" },
+	{ KRB5_CHKSUM_HMAC_SHA1_DES3_KD, "hmac-sha1-des3-kd" },
+	{ KRB5_CHKSUM_HMAC_SHA1_DES3  , "hmac-sha1-des3" },
+	{ KRB5_CHKSUM_SHA1_UNKEYED    , "sha1 (unkeyed)" },
+	{ KRB5_CHKSUM_HMAC_MD5        , "hmac-md5" },
+	{ KRB5_CHKSUM_MD5_HMAC        , "md5-hmac" },
+	{ KRB5_CHKSUM_RC4_MD5         , "rc5-md5" },
+	{ KRB5_CHKSUM_MD25            , "md25" },
+	{ KRB5_CHKSUM_DES_MAC_MD5     , "des-mac-md5" },
+	{ KRB5_CHKSUM_DES_MAC         , "des-mac" },
+	{ KRB5_CHKSUM_REAL_CRC32      , "real-crc32" },
+	{ KRB5_CHKSUM_SHA1            , "sha1" },
+	{ KRB5_CHKSUM_LM              , "lm" },
+	{ KRB5_CHKSUM_GSSAPI	  , "gssapi-8003" },
+	{ 0                           , NULL },
 };
 #endif
 
@@ -1231,25 +1231,25 @@ static const value_string krb5_checksum_types[] = {
 #define KRB5_AD_SIGNTICKET			0xffffffef
 #if 0
 static const value_string krb5_ad_types[] = {
-    { KRB5_AD_IF_RELEVANT	  		, "AD-IF-RELEVANT" },
-    { KRB5_AD_INTENDED_FOR_SERVER		, "AD-Intended-For-Server" },
-    { KRB5_AD_INTENDED_FOR_APPLICATION_CLASS	, "AD-Intended-For-Application-Class" },
-    { KRB5_AD_KDC_ISSUED			, "AD-KDCIssued" },
-    { KRB5_AD_OR 				, "AD-AND-OR" },
-    { KRB5_AD_MANDATORY_TICKET_EXTENSIONS	, "AD-Mandatory-Ticket-Extensions" },
-    { KRB5_AD_IN_TICKET_EXTENSIONS		, "AD-IN-Ticket-Extensions" },
-    { KRB5_AD_MANDATORY_FOR_KDC			, "AD-MANDATORY-FOR-KDC" },
-    { KRB5_AD_OSF_DCE				, "AD-OSF-DCE" },
-    { KRB5_AD_SESAME				, "AD-SESAME" },
-    { KRB5_AD_OSF_DCE_PKI_CERTID		, "AD-OSF-DCE-PKI-CertID" },
-    { KRB5_AD_WIN2K_PAC				, "AD-Win2k-PAC" },
-    { KRB5_AD_SIGNTICKET			, "AD-SignTicket" },
-    { 0	, NULL },
+	{ KRB5_AD_IF_RELEVANT	  		, "AD-IF-RELEVANT" },
+	{ KRB5_AD_INTENDED_FOR_SERVER		, "AD-Intended-For-Server" },
+	{ KRB5_AD_INTENDED_FOR_APPLICATION_CLASS	, "AD-Intended-For-Application-Class" },
+	{ KRB5_AD_KDC_ISSUED			, "AD-KDCIssued" },
+	{ KRB5_AD_OR 				, "AD-AND-OR" },
+	{ KRB5_AD_MANDATORY_TICKET_EXTENSIONS	, "AD-Mandatory-Ticket-Extensions" },
+	{ KRB5_AD_IN_TICKET_EXTENSIONS		, "AD-IN-Ticket-Extensions" },
+	{ KRB5_AD_MANDATORY_FOR_KDC			, "AD-MANDATORY-FOR-KDC" },
+	{ KRB5_AD_OSF_DCE				, "AD-OSF-DCE" },
+	{ KRB5_AD_SESAME				, "AD-SESAME" },
+	{ KRB5_AD_OSF_DCE_PKI_CERTID		, "AD-OSF-DCE-PKI-CertID" },
+	{ KRB5_AD_WIN2K_PAC				, "AD-Win2k-PAC" },
+	{ KRB5_AD_SIGNTICKET			, "AD-SignTicket" },
+	{ 0	, NULL },
 };
 
 static const value_string krb5_transited_types[] = {
-    { 1                           , "DOMAIN-X500-COMPRESS" },
-    { 0                           , NULL }
+	{ 1                           , "DOMAIN-X500-COMPRESS" },
+	{ 0                           , NULL }
 };
 #endif
 
@@ -1272,7 +1272,7 @@ static const value_string krb5_msg_types[] = {
 	{ KRB5_MSG_ENC_KRB_PRIV_PART,	"EncKrbPrivPart" },
 	{ KRB5_MSG_ENC_KRB_CRED_PART,	"EncKrbCredPart" },
 	{ KRB5_MSG_ERROR,		"KRB-ERROR" },
-        { 0, NULL },
+	{ 0, NULL },
 };
 
 #define KRB5_GSS_C_DELEG_FLAG             0x01
@@ -1949,20 +1949,20 @@ void proto_register_kerberos(void) {
 		NULL, 0, "GSSAPI DlgLen", HFILL }},
 
 #include "packet-kerberos-hfarr.c"
-  };
+	};
 
-  /* List of subtrees */
-  static gint *ett[] = {
-	  &ett_kerberos,
-	  &ett_krb_recordmark,
+	/* List of subtrees */
+	static gint *ett[] = {
+		&ett_kerberos,
+		&ett_krb_recordmark,
 #include "packet-kerberos-ettarr.c"
-  };
+	};
 
-  static ei_register_info ei[] = {
-     { &ei_kerberos_decrypted_keytype, { "kerberos.decrypted_keytype", PI_SECURITY, PI_CHAT, "Decryted keytype", EXPFILL }},
-     { &ei_kerberos_address, { "kerberos.address.unknown", PI_UNDECODED, PI_WARN, "KRB Address: I dont know how to parse this type of address yet", EXPFILL }},
-     { &ei_krb_gssapi_dlglen, { "kerberos.gssapi.dlglen.error", PI_MALFORMED, PI_ERROR, "DlgLen is not the same as number of bytes remaining", EXPFILL }},
-  };
+	static ei_register_info ei[] = {
+		{ &ei_kerberos_decrypted_keytype, { "kerberos.decrypted_keytype", PI_SECURITY, PI_CHAT, "Decryted keytype", EXPFILL }},
+		{ &ei_kerberos_address, { "kerberos.address.unknown", PI_UNDECODED, PI_WARN, "KRB Address: I dont know how to parse this type of address yet", EXPFILL }},
+		{ &ei_krb_gssapi_dlglen, { "kerberos.gssapi.dlglen.error", PI_MALFORMED, PI_ERROR, "DlgLen is not the same as number of bytes remaining", EXPFILL }},
+	};
 
 	expert_module_t* expert_krb;
 	module_t *krb_module;
@@ -2068,4 +2068,15 @@ proto_reg_handoff_kerberos(void)
 									  &gss_kerb_auth_seal_fns);
 }
 
-
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */
