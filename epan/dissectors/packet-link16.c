@@ -287,3 +287,16 @@ void proto_register_link16(void)
     proto_register_subtree_array(ett, array_length(ett));
     new_register_dissector("link16", dissect_link16, proto_link16);
 }
+
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */
