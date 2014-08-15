@@ -254,6 +254,7 @@ Link configurations
 #define GEV_LINKCONFIG_DYNAMICLAG (0x03)
 
 
+void proto_register_gvcp(void);
 void proto_reg_handoff_gvcp(void);
 
 /* Define the gvcp proto */
