@@ -26,6 +26,9 @@
 
 #include <wiretap/wtap.h>
 
+void proto_register_pcapng_block(void);
+void proto_reg_handoff_pcapng_block(void);
+
 static int proto_pcapng_block = -1;
 
 static dissector_table_t pcapng_block_type_dissector_table;
