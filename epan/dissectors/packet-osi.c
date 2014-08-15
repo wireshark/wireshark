@@ -440,6 +440,7 @@ const value_string nlpid_vals[] = {
   { NLPID_ISO11577,        "ISO 11577" },
   { NLPID_COMPRESSED,      "Data compression protocol" },
   { NLPID_IP,              "IP" },
+  { NLPID_TRILL,           "TRILL" },
   { NLPID_SNDCF,           "SubNetwork Dependent Convergence Function"},
   { NLPID_IP6,             "IPv6" },
   { NLPID_PPP,             "PPP" },
