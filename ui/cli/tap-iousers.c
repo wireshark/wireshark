@@ -33,6 +33,7 @@
 #include <epan/stat_cmd_args.h>
 #include <ui/conversation_ui.h>
 #include <epan/conversation_table.h>
+#include <ui/cli/tshark-tap.h>
 
 typedef struct _io_users_t {
 	const char *type;
