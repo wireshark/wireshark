@@ -169,7 +169,7 @@ ProtoTree::ProtoTree(QWidget *parent) :
     ctx_menu_.addAction(window()->findChild<QAction *>("actionViewExpandAll"));
     ctx_menu_.addAction(window()->findChild<QAction *>("actionViewCollapseAll"));
     ctx_menu_.addSeparator();
-//    "     <menuitem name='ApplyasColumn' action='/Apply as Column'/>\n"
+//    "     <menuitem name='CreateAColumn' action='/Create a Column'/>\n"
     ctx_menu_.addSeparator();
     submenu = new QMenu(tr("Apply as Filter"));
     ctx_menu_.addMenu(submenu);

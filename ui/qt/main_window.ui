@@ -28,7 +28,16 @@
     </sizepolicy>
    </property>
    <layout class="QGridLayout" name="gridLayout">
-    <property name="margin">
+    <property name="leftMargin">
+     <number>0</number>
+    </property>
+    <property name="topMargin">
+     <number>0</number>
+    </property>
+    <property name="rightMargin">
+     <number>0</number>
+    </property>
+    <property name="bottomMargin">
      <number>0</number>
     </property>
     <property name="spacing">
@@ -59,7 +68,7 @@
        <item>
         <widget class="QLineEdit" name="goToLineEdit">
          <property name="inputMask">
-          <string>900000000; </string>
+          <string>900000000</string>
          </property>
         </widget>
        </item>
@@ -85,6 +94,9 @@
     </item>
     <item row="2" column="0">
      <widget class="QStackedWidget" name="mainStack">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
       <widget class="MainWelcome" name="welcomePage"/>
       <widget class="QWidget" name="packetPage"/>
      </widget>
@@ -97,7 +109,7 @@
      <x>0</x>
      <y>0</y>
      <width>960</width>
-     <height>27</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -269,10 +281,10 @@
      <addaction name="actionSCTPAnalyseThisAssociation"/>
      <addaction name="actionSCTPShowAllAssociations"/>
     </widget>
-    <addaction name="actionDisplayFilters"/>
-    <addaction name="actionDisplayFilterMacros"/>
+    <addaction name="actionAnalyzeDisplayFilters"/>
+    <addaction name="actionAnalyzeDisplayFilterMacros"/>
     <addaction name="separator"/>
-    <addaction name="actionApplyAsColumn"/>
+    <addaction name="actionAnalyzeCreateAColumn"/>
     <addaction name="menuApplyAsFilter"/>
     <addaction name="menuPrepareAFilter"/>
     <addaction name="separator"/>
@@ -905,6 +917,9 @@
    </property>
   </action>
   <action name="actionCaptureCaptureFilters">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>Capture &amp;Filters...</string>
    </property>
@@ -1093,19 +1108,31 @@
     <string>... or not Selected</string>
    </property>
   </action>
-  <action name="actionDisplayFilters">
+  <action name="actionAnalyzeDisplayFilters">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>Display Filters...</string>
    </property>
   </action>
-  <action name="actionDisplayFilterMacros">
+  <action name="actionAnalyzeDisplayFilterMacros">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>Display Filter &amp;Macros...</string>
    </property>
   </action>
-  <action name="actionApplyAsColumn">
+  <action name="actionAnalyzeCreateAColumn">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
-    <string>Apply as Column</string>
+    <string>Create a Column</string>
+   </property>
+   <property name="toolTip">
+    <string>Create a packet list column from the selected field.</string>
    </property>
   </action>
   <action name="actionEditFindPacket">
