@@ -68,7 +68,7 @@ Param(
 
 $no_bom_encoding = New-Object System.Text.UTF8Encoding($False)
 
-foreach ($src_file in Get-ChildItem -File $SourceFiles) {
+foreach ($src_file in Get-ChildItem $SourceFiles) {
     if ($Destination) {
         $base = Split-Path -Leaf $src_file
         $dst_file = Join-Path $Destination $base

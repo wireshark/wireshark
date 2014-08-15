@@ -793,6 +793,9 @@ SH_FLAGS=-o igncr
 SH=$(SH_PROG) $(SH_FLAGS)
 
 # PowerShell
+# Compatibility testing (...or should we always force version 2?)
+#POWERSHELL=powershell -Version 2.0 -executionpolicy bypass -File
+# Normal
 POWERSHELL=powershell -executionpolicy bypass -File
 
 # command for perl (cygwin's perl package recommended)
