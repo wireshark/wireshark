@@ -175,146 +175,146 @@ static expert_field ei_lltd_qos_diag_func = EI_INIT;
 #define LLTD_QUERY_RESP_NUM_DESCS_MASK          0x3FFF
 
 static const value_string lltd_tos_vals[] = {
-   { 0,     "Topology discovery" },
-   { 1,     "Quick discovery" },
-   { 2,     "QoS Diagnostics" },
+    { 0,     "Topology discovery" },
+    { 1,     "Quick discovery" },
+    { 2,     "QoS Diagnostics" },
 
-   { 0,                    NULL }
+    { 0,                    NULL }
 };
 
 static const value_string lltd_discovery_vals[] = {
-   { 0x00,     "Discover" },
-   { 0x01,     "Hello" },
-   { 0x02,     "Emit" },
-   { 0x03,     "Train" },
-   { 0x04,     "Probe" },
-   { 0x05,     "Ack" },
-   { 0x06,     "Query" },
-   { 0x07,     "QueryResp" },
-   { 0x08,     "Reset" },
-   { 0x09,     "Charge" },
-   { 0x0A,     "Flat" },
-   { 0x0B,     "QueryLargeTlv" },
-   { 0x0C,     "QueryLargeTlvResp" },
+    { 0x00,     "Discover" },
+    { 0x01,     "Hello" },
+    { 0x02,     "Emit" },
+    { 0x03,     "Train" },
+    { 0x04,     "Probe" },
+    { 0x05,     "Ack" },
+    { 0x06,     "Query" },
+    { 0x07,     "QueryResp" },
+    { 0x08,     "Reset" },
+    { 0x09,     "Charge" },
+    { 0x0A,     "Flat" },
+    { 0x0B,     "QueryLargeTlv" },
+    { 0x0C,     "QueryLargeTlvResp" },
 
-   { 0,                    NULL }
+    { 0,                    NULL }
 };
 
 static const value_string lltd_qos_diag_vals[] = {
-   { 0x00,     "QosInitializeSink" },
-   { 0x01,     "QosReady" },
-   { 0x02,     "QosProbe" },
-   { 0x03,     "QosQuery" },
-   { 0x04,     "QosQueryResp" },
-   { 0x05,     "QosReset" },
-   { 0x06,     "QosError" },
-   { 0x07,     "QosAck" },
-   { 0x08,     "QosCounterSnapshot" },
-   { 0x09,     "QosCounterResult" },
-   { 0x0A,     "QosCounterLease" },
+    { 0x00,     "QosInitializeSink" },
+    { 0x01,     "QosReady" },
+    { 0x02,     "QosProbe" },
+    { 0x03,     "QosQuery" },
+    { 0x04,     "QosQueryResp" },
+    { 0x05,     "QosReset" },
+    { 0x06,     "QosError" },
+    { 0x07,     "QosAck" },
+    { 0x08,     "QosCounterSnapshot" },
+    { 0x09,     "QosCounterResult" },
+    { 0x0A,     "QosCounterLease" },
 
-   { 0,                    NULL }
+    { 0,                    NULL }
 };
 
 static const value_string lltd_tlv_type_vals[] = {
-   { 0x00,     "End of Property List" },
-   { 0x01,     "Host ID" },
-   { 0x02,     "Characteristics" },
-   { 0x03,     "Physical Medium" },
-   { 0x04,     "Wireless Mode" },
-   { 0x05,     "802.11 BSSID" },
-   { 0x06,     "802.11 SSID" },
-   { 0x07,     "IPv4 Address" },
-   { 0x08,     "IPv6 Address" },
-   { 0x09,     "802.11 Maximum Operation Rate" },
-   { 0x0A,     "Performance Counter Frequency" },
-   { 0x0C,     "Link Speed" },
-   { 0x0D,     "802.11 RSSI" },
-   { 0x0E,     "Icon Image" },
-   { 0x0F,     "Machine Name" },
-   { 0x10,     "Support Information" },
-   { 0x11,     "Friendly Name" },
-   { 0x12,     "Device UUID" },
-   { 0x13,     "Hardware ID" },
-   { 0x14,     "QoS Characteristics" },
-   { 0x15,     "802.11 Phyiscal Medium" },
-   { 0x16,     "AP Association Table" },
-   { 0x18,     "Detailed Icon Image" },
-   { 0x19,     "Sees-List Working Set" },
-   { 0x1A,     "Component Table" },
-   { 0x1B,     "Repeater AP Lineage" },
-   { 0x1C,     "Repeater AP Table" },
+    { 0x00,     "End of Property List" },
+    { 0x01,     "Host ID" },
+    { 0x02,     "Characteristics" },
+    { 0x03,     "Physical Medium" },
+    { 0x04,     "Wireless Mode" },
+    { 0x05,     "802.11 BSSID" },
+    { 0x06,     "802.11 SSID" },
+    { 0x07,     "IPv4 Address" },
+    { 0x08,     "IPv6 Address" },
+    { 0x09,     "802.11 Maximum Operation Rate" },
+    { 0x0A,     "Performance Counter Frequency" },
+    { 0x0C,     "Link Speed" },
+    { 0x0D,     "802.11 RSSI" },
+    { 0x0E,     "Icon Image" },
+    { 0x0F,     "Machine Name" },
+    { 0x10,     "Support Information" },
+    { 0x11,     "Friendly Name" },
+    { 0x12,     "Device UUID" },
+    { 0x13,     "Hardware ID" },
+    { 0x14,     "QoS Characteristics" },
+    { 0x15,     "802.11 Phyiscal Medium" },
+    { 0x16,     "AP Association Table" },
+    { 0x18,     "Detailed Icon Image" },
+    { 0x19,     "Sees-List Working Set" },
+    { 0x1A,     "Component Table" },
+    { 0x1B,     "Repeater AP Lineage" },
+    { 0x1C,     "Repeater AP Table" },
 
-   { 0,                    NULL }
+    { 0,                    NULL }
 };
 
 static const value_string lltd_wireless_mode_vals[] = {
-   { 0x00,     "802.11 IBSS or ad-hoc mode" },
-   { 0x01,     "802.11 infrastructure mode" },
+    { 0x00,     "802.11 IBSS or ad-hoc mode" },
+    { 0x01,     "802.11 infrastructure mode" },
 
-   { 0,                    NULL }
+    { 0,                    NULL }
 };
 
 static const value_string lltd_80211_physical_medium_vals[] = {
-   { 0x00,     "Unknown" },
-   { 0x01,     "FHSS 2.4 GHz" },
-   { 0x02,     "DSSS 2.4 GHz" },
-   { 0x03,     "IR Baseband" },
-   { 0x04,     "OFDM 5 GHz" },
-   { 0x05,     "HRDSSS" },
-   { 0x06,     "ERP" },
+    { 0x00,     "Unknown" },
+    { 0x01,     "FHSS 2.4 GHz" },
+    { 0x02,     "DSSS 2.4 GHz" },
+    { 0x03,     "IR Baseband" },
+    { 0x04,     "OFDM 5 GHz" },
+    { 0x05,     "HRDSSS" },
+    { 0x06,     "ERP" },
 
-   { 0,                    NULL }
+    { 0,                    NULL }
 };
 
 static const value_string lltd_emit_type_vals[] = {
-   { 0x00,     "Train" },
-   { 0x01,     "Probe" },
+    { 0x00,     "Train" },
+    { 0x01,     "Probe" },
 
-   { 0,                    NULL }
+    { 0,                    NULL }
 };
 
 static const value_string lltd_queryresp_type_vals[] = {
-   { 0x00,     "Probe" },
-   { 0x01,     "ARP" },
+    { 0x00,     "Probe" },
+    { 0x01,     "ARP" },
 
-   { 0,                    NULL }
+    { 0,                    NULL }
 };
 
 static const value_string lltd_query_large_tlv_type_vals[] = {
-   { 0x0E,     "Icon Image" },
-   { 0x11,     "Friendly Name" },
-   { 0x13,     "Hardware ID" },
-   { 0x16,     "AP Association Table" },
-   { 0x18,     "Detailed Icon Image" },
-   { 0x1A,     "Component Table" },
-   { 0x1C,     "Repeater AP Table" },
+    { 0x0E,     "Icon Image" },
+    { 0x11,     "Friendly Name" },
+    { 0x13,     "Hardware ID" },
+    { 0x16,     "AP Association Table" },
+    { 0x18,     "Detailed Icon Image" },
+    { 0x1A,     "Component Table" },
+    { 0x1C,     "Repeater AP Table" },
 
-   { 0,                    NULL }
+    { 0,                    NULL }
 };
 
 static const value_string lltd_interrupt_mod_vals[] = {
-   { 0x00,     "Disable interrupt moderation" },
-   { 0x01,     "Enable interrupt moderation" },
-   { 0xFF,     "Use existing interrupt moderation setting" },
+    { 0x00,     "Disable interrupt moderation" },
+    { 0x01,     "Enable interrupt moderation" },
+    { 0xFF,     "Use existing interrupt moderation setting" },
 
-   { 0,                    NULL }
+    { 0,                    NULL }
 };
 
 static const value_string lltd_qos_probe_test_type_vals[] = {
-   { 0x00,     "Timed Probe" },
-   { 0x01,     "Probegap originating from the controller" },
-   { 0x02,     "Probegap originating from the sink" },
+    { 0x00,     "Timed Probe" },
+    { 0x01,     "Probegap originating from the controller" },
+    { 0x02,     "Probegap originating from the sink" },
 
-   { 0,                    NULL }
+    { 0,                    NULL }
 };
 
 static const value_string lltd_qos_error_vals[] = {
-   { 0x00,     "Insufficient Resources" },
-   { 0x01,     "Busy. Try again later" },
-   { 0x02,     "Interrupt moderation not available" },
+    { 0x00,     "Insufficient Resources" },
+    { 0x01,     "Busy. Try again later" },
+    { 0x02,     "Interrupt moderation not available" },
 
-   { 0,                    NULL }
+    { 0,                    NULL }
 };
 
 
