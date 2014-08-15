@@ -25,9 +25,8 @@
 #include "config.h"
 
 #include <glib.h>
-#include <epan/conversation.h>
-#include <epan/expert.h>
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include <epan/reassemble.h>
 #include "packet-usb.h"
 
@@ -360,7 +359,7 @@ dissect_as_if_general_body(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
     audio_conv_info_t *audio_conv_info;
     gint               offset_start;
 
-    /* the caller has already checked that usb_conv_info!=NULL */ 
+    /* the caller has already checked that usb_conv_info!=NULL */
     audio_conv_info = (audio_conv_info_t *)usb_conv_info->class_data;
     if (!audio_conv_info)
         return 0;
@@ -382,7 +381,7 @@ dissect_as_if_general_body(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
     return offset-offset_start;
 }
 
- 
+
 static gint
 dissect_usb_audio_descriptor(tvbuff_t *tvb, packet_info *pinfo,
         proto_tree *tree, void *data)
@@ -630,7 +629,7 @@ proto_register_usb_audio(void)
         { &ei_usb_audio_undecoded, { "usbaudio.undecoded", PI_UNDECODED, PI_WARN, "Not dissected yet (report to wireshark.org)", EXPFILL }},
     };
 
-    expert_module_t* expert_usb_audio;
+    expert_module_t *expert_usb_audio;
 
     proto_usb_audio = proto_register_protocol("USB Audio", "USBAUDIO", "usbaudio");
     proto_register_field_array(proto_usb_audio, hf, array_length(hf));
