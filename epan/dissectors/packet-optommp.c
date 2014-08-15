@@ -267,7 +267,10 @@ static void dissect_optommp_data_block_byte(proto_item **ti, proto_tree *tree,
 static void dissect_optommp_data_block_quadlet(proto_item **ti, proto_tree
     *tree, tvbuff_t *tvb, guint *poffset);
 static gint optommp_has_destination_offset(guint8 tcode);
+
+void proto_register_optommp(void);
 void proto_reg_handoff_optommp(void);
+
 
 /****************************************************************************
 function:       get_optommp_message_len()
