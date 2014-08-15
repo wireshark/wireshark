@@ -1595,7 +1595,7 @@ static const value_string picmg_24_controls[] = {
 	{ 0, NULL }
 };
 
-void
+static void
 fmt_power_amps(gchar *s, guint32 v)
 {
 	g_snprintf(s, ITEM_LABEL_LENGTH, "%d.%dA", v / 10, v % 10);
@@ -1703,7 +1703,7 @@ static const value_string cc28[] = {
 	{ 0, NULL }
 };
 
-void
+static void
 fmt_100ms(gchar *s, guint32 v)
 {
 	g_snprintf(s, ITEM_LABEL_LENGTH, "%d.%dS", v / 10, v % 10);
