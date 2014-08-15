@@ -81,6 +81,9 @@
 #include <epan/dissectors/packet-gssapi.h>
 #include <epan/dissectors/packet-smb-common.h>
 
+void proto_register_kerberos(void);
+void proto_reg_handoff_kerberos(void);
+
 #define UDP_PORT_KERBEROS		88
 #define TCP_PORT_KERBEROS		88
 
