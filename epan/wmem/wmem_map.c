@@ -25,6 +25,7 @@
 
 #include "wmem_core.h"
 #include "wmem_map.h"
+#include "wmem_map_int.h"
 
 static guint32 x; /* Used for universal integer hashing (see the HASH macro) */
 
