@@ -56,6 +56,7 @@ struct corosync_totemsrp_info {
 };
 
 /* Forward declaration we need below */
+void proto_register_corosync_totemsrp(void);
 void proto_reg_handoff_corosync_totemsrp(void);
 
 /* Initialize the protocol and registered fields */

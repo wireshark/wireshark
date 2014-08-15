@@ -43,6 +43,7 @@ static dissector_handle_t corosync_totemsrp_handle;
 #define PORT_COROSYNC_TOTEMNET 5405
 
 /* Forward declaration we need below */
+void proto_register_corosync_totemnet(void);
 void proto_reg_handoff_corosync_totemnet(void);
 
 /* Initialize the protocol and registered fields */
