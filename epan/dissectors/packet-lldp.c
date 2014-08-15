@@ -1291,7 +1291,7 @@ dissect_lldp_time_to_live(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
 }
 
 /* Dissect End of LLDPDU TLV (Mandatory) */
-gint32
+static gint32
 dissect_lldp_end_of_lldpdu(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset)
 {
 	guint16 dataLen;
