@@ -394,7 +394,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 (tvb_get_guint8(tvb, offset) & 0x10) ? "true" : "false");
         offset += 1;
 
-        col_append_str(pinfo->cinfo, COL_INFO, val_to_str_ext_const(pdu_type, &pdu_type_vals_ext, "Unknown"));
+        col_set_str(pinfo->cinfo, COL_INFO, val_to_str_ext_const(pdu_type, &pdu_type_vals_ext, "Unknown"));
 
         proto_tree_add_item(advertising_header_tree, hf_advertising_header_rfu_2, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(advertising_header_tree, hf_advertising_header_length, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -791,7 +791,7 @@ proto_register_btle(void)
         },
         { &hf_advertising_header_reserved,
             { "Reserved",                        "btle.advertising_header.reserved",
-            FT_BOOLEAN, 8, NULL, 0x10,
+            FT_BOOLEAN, 8, NULL, 0x80,
             NULL, HFILL }
         },
         { &hf_advertising_header_length,
@@ -1117,17 +1117,20 @@ proto_register_btle(void)
     };
 
     static ei_register_info ei[] = {
-        { &ei_unknown_data, { "btle.unknown_data", PI_PROTOCOL, PI_NOTE, "Unknown data", EXPFILL }},
-        { &ei_access_address_matched, { "btle.access_address.matched", PI_PROTOCOL, PI_NOTE,
-                                        "matched at capture", EXPFILL }},
-        { &ei_access_address_bit_errors, { "btle.access_address.bit_errors", PI_PROTOCOL, PI_WARN,
-                                           "but errors present at capture", EXPFILL }},
-        { &ei_access_address_illegal, { "btle.access_address.illegal", PI_PROTOCOL, PI_ERROR,
-                                        "illegal value", EXPFILL }},
-        { &ei_crc_cannot_be_determined, { "btle.crc.indeterminate", PI_PROTOCOL, PI_NOTE,
-                                          "unchecked, not all data available", EXPFILL }},
-        { &ei_crc_correct, { "btle.crc.correct", PI_PROTOCOL, PI_CHAT, "correct", EXPFILL }},
-        { &ei_crc_incorrect, { "btle.crc.incorrect", PI_PROTOCOL, PI_WARN,  "incorrect", EXPFILL }},
+        { &ei_unknown_data,
+            { "btle.unknown_data",              PI_PROTOCOL, PI_NOTE,  "Unknown data", EXPFILL }},
+        { &ei_access_address_matched,
+            { "btle.access_address.matched",    PI_PROTOCOL, PI_NOTE,  "AccessAddress matched at capture", EXPFILL }},
+        { &ei_access_address_bit_errors,
+            { "btle.access_address.bit_errors", PI_PROTOCOL, PI_WARN,  "AccessAddress has errors present at capture", EXPFILL }},
+        { &ei_access_address_illegal,
+            { "btle.access_address.illegal",    PI_PROTOCOL, PI_ERROR, "AccessAddress has illegal value", EXPFILL }},
+        { &ei_crc_cannot_be_determined,
+            { "btle.crc.indeterminate",         PI_CHECKSUM, PI_NOTE,  "CRC unchecked, not all data available", EXPFILL }},
+        { &ei_crc_correct,
+            { "btle.crc.correct",               PI_CHECKSUM, PI_CHAT,  "Correct CRC", EXPFILL }},
+        { &ei_crc_incorrect,
+            { "btle.crc.incorrect",             PI_CHECKSUM, PI_WARN,  "Incorrect CRC", EXPFILL }},
     };
 
     static gint *ett[] = {
