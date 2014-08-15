@@ -776,17 +776,17 @@ proto_register_btle(void)
         },
         { &hf_advertising_header_rfu_1,
             { "RFU",                             "btle.advertising_header.rfu.1",
-            FT_UINT8, BASE_DEC, NULL, 0xC0,
+            FT_UINT8, BASE_DEC, NULL, 0x30,
             NULL, HFILL }
         },
         { &hf_advertising_header_randomized_tx,
             { "Randomized Tx Address",           "btle.advertising_header.randomized_tx",
-            FT_BOOLEAN, 8, NULL, 0x20,
+            FT_BOOLEAN, 8, NULL, 0x40,
             NULL, HFILL }
         },
         { &hf_advertising_header_randomized_rx,
             { "Randomized Rx Address",           "btle.advertising_header.randomized_rx",
-            FT_BOOLEAN, 8, NULL, 0x10,
+            FT_BOOLEAN, 8, NULL, 0x80,
             NULL, HFILL }
         },
         { &hf_advertising_header_reserved,
