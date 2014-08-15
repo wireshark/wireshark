@@ -57,6 +57,7 @@ static const value_string gdb_ack[] = {
 
 
 void proto_register_gdb(void);
+void proto_reg_handoff_gdb(void);
 
 static int proto_gdb = -1;
 
