@@ -2586,7 +2586,7 @@ static const value_string pn_io_profidrive_format_vals[] = {
 };
 
 
-int
+static int
 dissect_profidrive_value(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                          proto_tree *tree, guint8 *drep, guint8 format_val)
 {
