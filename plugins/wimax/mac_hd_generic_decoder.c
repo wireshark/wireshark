@@ -2271,5 +2271,18 @@ void
 proto_reg_handoff_mac_header_generic(void)
 {
 	mac_mgmt_msg_decoder_handle = find_dissector("wmx_mac_mgmt_msg_decoder");
-    mac_ip_handle = find_dissector("ip");
+	mac_ip_handle = find_dissector("ip");
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

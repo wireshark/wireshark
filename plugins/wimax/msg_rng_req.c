@@ -86,8 +86,8 @@ static gint hf_rng_req_requested_rep_coding_level            = -1;
 /* STRING RESOURCES */
 
 static const true_false_string tfs_rng_req_aas_broadcast = {
-    "SS cannot receive broadcast messages",
-    "SS can receive broadcast messages"
+	"SS cannot receive broadcast messages",
+	"SS can receive broadcast messages"
 };
 
 static const value_string vals_rng_req_ranging_purpose_location_update_request[] = {
@@ -104,23 +104,23 @@ static const value_string vals_rng_req_repetition_coding_level[] = {
 };
 
 static const true_false_string tfs_rng_activate = {
-    "Activate",
-    "Deactivate"
+	"Activate",
+	"Deactivate"
 };
 
 static const true_false_string tfs_rng_max_power = {
-    "SS is already at maximum power",
-    "SS is not at maximum power"
+	"SS is already at maximum power",
+	"SS is not at maximum power"
 };
 
 static const true_false_string tfs_rng_min_power = {
-    "SS is already at minimum power",
-    "SS is not at minimum power"
+	"SS is already at minimum power",
+	"SS is not at minimum power"
 };
 
 static const true_false_string tfs_rng_timing_adj = {
-    "Sum of commanded timing adjustments is too large",
-    "Sum of commanded timing adjustments is within bounds"
+	"Sum of commanded timing adjustments is too large",
+	"Sum of commanded timing adjustments is within bounds"
 };
 
 /* Decode RNG Power Saving Class parameters (Sub TLV's). */
@@ -629,3 +629,16 @@ void proto_reg_handoff_mac_mgmt_msg_rng_req(void)
 	dissector_add_uint("wmx.mgmtmsg", MAC_MGMT_MSG_RNG_REQ, rng_req_handle);
 }
 
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

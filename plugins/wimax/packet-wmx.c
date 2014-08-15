@@ -39,10 +39,10 @@
 void proto_register_wimax(void);
 
 /* Global variables */
-gint    proto_wimax = -1;
-gint8   arq_enabled = 0;
-gint    scheduling_service_type = 0;
-gint    mac_sdu_length = 49; /* default SDU size is 49 bytes (11.13.16) */
+gint	proto_wimax = -1;
+gint8	arq_enabled = 0;
+gint	scheduling_service_type = 0;
+gint	mac_sdu_length = 49; /* default SDU size is 49 bytes (11.13.16) */
 extern	guint global_cid_max_basic;
 extern	gboolean include_cor2_changes;
 
@@ -53,7 +53,7 @@ static int hf_tlv_type = -1;
 static int hf_tlv_length = -1;
 static int hf_tlv_length_size = -1;
 
-#define MAX_NUM_TLVS        256
+#define MAX_NUM_TLVS	256
 /* Global TLV array to retrieve unique subtree identifiers */
 static gint ett_tlv[MAX_NUM_TLVS];
 
@@ -330,3 +330,16 @@ void proto_register_wimax(void)
 	prefs_register_obsolete_preference(wimax_module, "wimax.basic_cid_max");
 	prefs_register_obsolete_preference(wimax_module, "wimax.corrigendum_2_version");
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

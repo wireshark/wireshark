@@ -161,62 +161,62 @@ static gint hf_reg_req_bs_switching_timer                          = -1;
 /* STRING RESOURCES */
 
 static const true_false_string tfs_reg_ip_mgmt_mode = {
-    "IP-managed mode",
-    "Unmanaged mode"
+	"IP-managed mode",
+	"Unmanaged mode"
 };
 
 static const true_false_string tfs_reg_ss_mgmt_support = {
-    "secondary management connection",
-    "no secondary management connection"
+	"secondary management connection",
+	"no secondary management connection"
 };
 
 #if 0
 static const true_false_string tfs_arq_enable = {
-	    "ARQ Requested/Accepted",
-	        "ARQ Not Requested/Accepted"
+	"ARQ Requested/Accepted",
+	"ARQ Not Requested/Accepted"
 };
 #endif
 
 #if 0
 static const true_false_string tfs_arq_deliver_in_order = {
-	    "Order of delivery is preserved",
-	        "Order of delivery is not preserved"
+	"Order of delivery is preserved",
+	"Order of delivery is not preserved"
 };
 #endif
 
 static const true_false_string tfs_reg_fbss_mdho_ho_disable = {
-    "Disable",
-    "Enable"
+	"Disable",
+	"Enable"
 };
 
 static const value_string vals_reg_ip_version[] = {
-    {0x1,                               "IPv4"},
-    {0x2,				"IPV6"},
-    {0,					NULL}
+	{0x1, "IPv4"},
+	{0x2, "IPV6"},
+	{0, NULL}
 };
 
 static const value_string vals_reg_phs_support[] = {
-    {0,                                 "no PHS support"},
-    {1,                                 "ATM PHS"},
-    {2,                                 "Packet PHS"},
-    {3,					"ATM and Packet PHS"},
-    {0,					NULL}
+	{0, "no PHS support"},
+	{1, "ATM PHS"},
+	{2, "Packet PHS"},
+	{3, "ATM and Packet PHS"},
+	{0, NULL}
 };
 
 static const true_false_string tfs_supported = {
-    "supported",
-    "unsupported"
+	"supported",
+	"unsupported"
 };
 
 static const true_false_string tfs_mac_crc_support = {
-    "MAC CRC Support (Default)",
-    "No MAC CRC Support"
+	"MAC CRC Support (Default)",
+	"No MAC CRC Support"
 };
 
 static const value_string tfs_support[] = {
-    {0,					"not supported"},
-    {1,					"supported"},
-    {0,					NULL}
+	{0, "not supported"},
+	{1, "supported"},
+	{0, NULL}
 };
 
 /* Decode REG-REQ sub-TLV's. */
@@ -1439,3 +1439,16 @@ void proto_reg_handoff_mac_mgmt_msg_reg_req(void)
 	reg_req_handle = create_dissector_handle(dissect_mac_mgmt_msg_reg_req_decoder, proto_mac_mgmt_msg_reg_req_decoder);
 	dissector_add_uint("wmx.mgmtmsg", MAC_MGMT_MSG_REG_REQ, reg_req_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

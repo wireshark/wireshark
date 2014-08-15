@@ -1209,7 +1209,7 @@ static gint UL_sounding_command_IE(proto_tree *uiuc_tree, gint offset, gint leng
         XBIT(nssym, 3, "Num_Sounding_Symbols");
         XBIT(data, 1, "Reserved");
         for (i = 0; i < nssym; i++) {
-	    XBIT(sept, 1, "Separability Type");
+            XBIT(sept, 1, "Separability Type");
             if (sept == 0) {
                 XBIT(data, 3, "Max Cyclic Shift Index P");
                 XBIT(data, 1, "Reserved");
@@ -2323,10 +2323,10 @@ void proto_register_mac_mgmt_msg_ulmap(void)
 		};
 
 	proto_mac_mgmt_msg_ulmap_decoder = proto_register_protocol (
-                "WiMax ULMAP Messages", /* name       */
-                "WiMax ULMAP",    /* short name */
-                "wmx.ulmap"       /* abbrev     */
-                );
+		"WiMax ULMAP Messages", /* name       */
+		"WiMax ULMAP",    /* short name */
+		"wmx.ulmap"       /* abbrev     */
+		);
 
 	proto_register_field_array(proto_mac_mgmt_msg_ulmap_decoder, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
@@ -2339,3 +2339,16 @@ void proto_reg_handoff_mac_mgmt_msg_ulmap(void)
 	ulmap_handle = create_dissector_handle(dissect_mac_mgmt_msg_ulmap_decoder, proto_mac_mgmt_msg_ulmap_decoder);
 	dissector_add_uint("wmx.mgmtmsg", MAC_MGMT_MSG_UL_MAP, ulmap_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */
