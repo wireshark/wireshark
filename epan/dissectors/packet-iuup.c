@@ -575,7 +575,7 @@ static void add_hdr_crc(tvbuff_t* tvb, packet_info* pinfo, proto_item* iuup_tree
     }
 }
 
-guint16
+static guint16
 update_crc10_by_bytes_iuup(tvbuff_t *tvb, int offset, int length)
 {
     guint16 crc10;
