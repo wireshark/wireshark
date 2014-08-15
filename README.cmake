@@ -30,14 +30,30 @@ How to do out of tree build (Unix/Linux):
    cd ..
 3) mkdir build
 4) cd build
-5) cmake ../<Name_of_WS_source_dir>
+5) cmake [options] ../<Name_of_WS_source_dir>
 6) make (or cmake --build .)
 7) (as root) umask 0022 && make install
 
 Note 1:
-in step 5), you may override the defaults for features:
- cmake -DENABLE_CAP=OFF ../<Name_of_WS_source_dir>
- will disable the capabilities check.
+  In step 5) you may need to override the defaults for features. Common
+  options include:
+
+  # Disable the POSIX capbabilities check
+  -DENABLE_CAP=OFF
+
+  # Enable debugging symbols
+  -DCMAKE_BUILD_TYPE=Debug
+
+  # Disable GTK+ 3
+  -DENABLE_GTK3=OFF
+
+  # Make ccache and clang work together
+  -DCMAKE_C_FLAGS='-Qunused-arguments'
+
+  # Force Python path on Windows. May be needed if Cygwin's
+  # /usr/bin/python is present and is a symlink
+  # http://public.kitware.com/Bug/view.php?id=13818
+  -DPYTHON_EXECUTABLE=c:/Python27/python
 
 Note 2:
   After running cmake, you can always run "make help" to see
