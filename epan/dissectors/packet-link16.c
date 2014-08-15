@@ -24,6 +24,8 @@
 #include <epan/packet.h>
 #include "packet-link16.h"
 
+void proto_register_link16(void);
+
 /* Elmasry, G., (2012), Tactical Wireless Communications and Networks: Design Concepts and Challenges, Wiley, ISBN 9781119951766. */
 enum {
     WORDFORMAT_INITIAL = 0,
