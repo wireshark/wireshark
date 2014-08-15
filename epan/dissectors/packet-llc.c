@@ -36,7 +36,6 @@
 #include <epan/bridged_pids.h>
 #include <epan/ppptypes.h>
 #include <epan/arcnet_pids.h>
-#include <epan/conversation.h>
 #include "packet-fc.h"
 #include "packet-ip.h"
 #include "packet-ipx.h"
@@ -494,7 +493,7 @@ dissect_llc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			      "Response" : "Command"
 			);
 
-		if (tvb_length_remaining(tvb, llc_header_len) > 0) {
+		if (tvb_reported_length_remaining(tvb, llc_header_len) > 0) {
 			next_tvb = tvb_new_subset_remaining(tvb, llc_header_len);
 			if (XDLC_IS_INFORMATION(control)) {
 				/*
@@ -953,3 +952,16 @@ proto_reg_handoff_llc(void)
 	if (oui_info_table != NULL)
 		g_hash_table_foreach(oui_info_table, register_hf, NULL);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */
