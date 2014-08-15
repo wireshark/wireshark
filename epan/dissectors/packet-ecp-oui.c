@@ -280,7 +280,7 @@ dissect_vdp_org_specific_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 }
 
 /* Dissect End of VDP TLV (Mandatory) */
-gint32
+static gint32
 dissect_vdp_end_of_vdpdu_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset)
 {
 	guint16 tempLen;
