@@ -92,15 +92,15 @@ dissect_corosync_totemnet_security_header(tvbuff_t *tvb,
   if (parent_tree)
     {
       item = proto_tree_add_item(parent_tree, proto_corosync_totemnet, tvb, 0,
-                                 -1, FALSE);
+                                 -1, ENC_NA);
       tree = proto_item_add_subtree(item, ett_corosync_totemnet_security_header);
 
       proto_tree_add_item(tree,
                           hf_corosync_totemnet_security_header_hash_digest,
-                          tvb, 0, HMAC_HASH_SIZE, FALSE);
+                          tvb, 0, HMAC_HASH_SIZE, ENC_NA);
       proto_tree_add_item(tree,
                           hf_corosync_totemnet_security_header_salt,
-                          tvb, HMAC_HASH_SIZE, SALT_SIZE, FALSE);
+                          tvb, HMAC_HASH_SIZE, SALT_SIZE, ENC_NA);
 
       if (check_crypt_type)
         {
@@ -109,7 +109,7 @@ dissect_corosync_totemnet_security_header(tvbuff_t *tvb,
 
           proto_tree_add_item(tree,
                               hf_corosync_totemnet_security_crypto_type,
-                              tvb, io_len - 1, 1, FALSE);
+                              tvb, io_len - 1, 1, ENC_NA);
           key_item = proto_tree_add_string(tree,
                                            hf_corosync_totemnet_security_crypto_key,
                                            tvb, 0, 0, key);
