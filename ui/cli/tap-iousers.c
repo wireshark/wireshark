@@ -43,12 +43,12 @@ typedef struct _io_users_t {
 static void
 iousers_draw(void *arg)
 {
-    conv_hash_t *hash = (conv_hash_t*)arg;
+	conv_hash_t *hash = (conv_hash_t*)arg;
 	io_users_t *iu = (io_users_t *)hash->user_data;
 	conv_item_t *iui;
 	guint64 last_frames, max_frames;
 	struct tm * tm_time;
-    guint i;
+	guint i;
 
 	printf("================================================================================\n");
 	printf("%s Conversations\n",iu->type);
@@ -99,7 +99,7 @@ iousers_draw(void *arg)
 				printf("%-20s <-> %-20s  %6" G_GINT64_MODIFIER "u %9" G_GINT64_MODIFIER
 				       "u  %6" G_GINT64_MODIFIER "u %9" G_GINT64_MODIFIER "u  %6"
 				       G_GINT64_MODIFIER "u %9" G_GINT64_MODIFIER "u  ",
-                    /* XXX - TODO: make name resolution configurable (through gbl_resolv_flags?) */
+					/* XXX - TODO: make name resolution configurable (through gbl_resolv_flags?) */
 					get_conversation_address(&iui->src_address, TRUE), get_conversation_address(&iui->dst_address, TRUE),
 					iui->tx_frames, iui->tx_bytes,
 					iui->rx_frames, iui->rx_bytes,
@@ -190,7 +190,7 @@ void init_iousers(struct register_ct* ct, const char *filter)
 	iu = g_new0(io_users_t,1);
 	iu->type = proto_get_protocol_short_name(find_protocol_by_id(get_conversation_proto_id(ct)));
 	iu->filter = g_strdup(filter);
-    iu->hash.user_data = iu;
+	iu->hash.user_data = iu;
 
 	error_string=register_tap_listener(proto_get_protocol_filter_name(get_conversation_proto_id(ct)), &iu->hash, filter, 0, NULL, get_conversation_packet_func(ct), iousers_draw);
 	if(error_string){
@@ -202,3 +202,16 @@ void init_iousers(struct register_ct* ct, const char *filter)
 	}
 
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */
