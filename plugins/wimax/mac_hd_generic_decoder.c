@@ -48,6 +48,7 @@
 
 void proto_register_mac_header_generic(void);
 void proto_reg_handoff_mac_header_generic(void);
+void wimax_defragment_init(void);
 
 extern gint proto_wimax;
 

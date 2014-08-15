@@ -207,7 +207,7 @@ static const value_string last_msgs[] =
 	{ 0,				NULL}
 };
 
-void dissect_mac_header_type_1_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static void dissect_mac_header_type_1_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	gint tvb_len, offset = 0;
 	guint first_byte, sub_type;
