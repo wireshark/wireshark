@@ -5099,7 +5099,7 @@ static int dissect_lbmr_options(tvbuff_t * tvb, int offset, packet_info * pinfo,
     return (len);
 }
 
-void lbmr_tap_queue_packet(packet_info * pinfo, const lbmr_contents_t * contents)
+static void lbmr_tap_queue_packet(packet_info * pinfo, const lbmr_contents_t * contents)
 {
     const lbmr_topic_contents_t * topic;
     const lbmr_queue_contents_t * queue;
