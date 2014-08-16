@@ -49,36 +49,36 @@
 #define ISIS_LSP_PARTITION_SHIFT    7
 #define ISIS_LSP_PARTITION(info)    (((info) & ISIS_LSP_PARTITION_MASK) >> ISIS_LSP_PARTITION_SHIFT)
 
-#define ISIS_LSP_ATT_MASK     0x78
-#define ISIS_LSP_ATT_SHIFT    3
-#define ISIS_LSP_ATT(info)    (((info) & ISIS_LSP_ATT_MASK) >> ISIS_LSP_ATT_SHIFT)
+#define ISIS_LSP_ATT_MASK           0x78
+#define ISIS_LSP_ATT_SHIFT          3
+#define ISIS_LSP_ATT(info)          (((info) & ISIS_LSP_ATT_MASK) >> ISIS_LSP_ATT_SHIFT)
 
-#define ISIS_LSP_ATT_ERROR(info)   ((info) >> 3)
-#define ISIS_LSP_ATT_EXPENSE(info) (((info) >> 2) & 1)
-#define ISIS_LSP_ATT_DELAY(info)   (((info) >> 1) & 1)
-#define ISIS_LSP_ATT_DEFAULT(info) ((info) & 1)
+#define ISIS_LSP_ATT_ERROR(info)    ((info) >> 3)
+#define ISIS_LSP_ATT_EXPENSE(info)  (((info) >> 2) & 1)
+#define ISIS_LSP_ATT_DELAY(info)    (((info) >> 1) & 1)
+#define ISIS_LSP_ATT_DEFAULT(info)  ((info) & 1)
 
-#define ISIS_LSP_HIPPITY_MASK     0x04
-#define ISIS_LSP_HIPPITY_SHIFT    2
-#define ISIS_LSP_HIPPITY(info)    (((info) & ISIS_LSP_HIPPITY_MASK) >> ISIS_LSP_HIPPITY_SHIFT)
+#define ISIS_LSP_HIPPITY_MASK       0x04
+#define ISIS_LSP_HIPPITY_SHIFT      2
+#define ISIS_LSP_HIPPITY(info)      (((info) & ISIS_LSP_HIPPITY_MASK) >> ISIS_LSP_HIPPITY_SHIFT)
 
-#define ISIS_LSP_IS_TYPE_MASK     0x03
-#define ISIS_LSP_IS_TYPE(info)    ((info) & ISIS_LSP_IS_TYPE_MASK)
+#define ISIS_LSP_IS_TYPE_MASK       0x03
+#define ISIS_LSP_IS_TYPE(info)      ((info) & ISIS_LSP_IS_TYPE_MASK)
 
-#define ISIS_LSP_MT_MSHIP_RES_MASK   	0xF000
-#define ISIS_LSP_MT_MSHIP_ID_MASK   	0x0FFF
+#define ISIS_LSP_MT_MSHIP_RES_MASK  0xF000
+#define ISIS_LSP_MT_MSHIP_ID_MASK   0x0FFF
 
 
-#define ISIS_LSP_TYPE_UNUSED0        0
-#define ISIS_LSP_TYPE_LEVEL_1        1
-#define ISIS_LSP_TYPE_UNUSED2        2
-#define ISIS_LSP_TYPE_LEVEL_2        3
+#define ISIS_LSP_TYPE_UNUSED0       0
+#define ISIS_LSP_TYPE_LEVEL_1       1
+#define ISIS_LSP_TYPE_UNUSED2       2
+#define ISIS_LSP_TYPE_LEVEL_2       3
 
-#define ISIS_LSP_ATTACHED_NONE    0
-#define ISIS_LSP_ATTACHED_DEFAULT 1
-#define ISIS_LSP_ATTACHED_DELAY   2
-#define ISIS_LSP_ATTACHED_EXPENSE 4
-#define ISIS_LSP_ATTACHED_ERROR   8
+#define ISIS_LSP_ATTACHED_NONE      0
+#define ISIS_LSP_ATTACHED_DEFAULT   1
+#define ISIS_LSP_ATTACHED_DELAY     2
+#define ISIS_LSP_ATTACHED_EXPENSE   4
+#define ISIS_LSP_ATTACHED_ERROR     8
 
 
 #define ISIS_LSP_CLV_METRIC_SUPPORTED(x)    ((x)&0x80)
@@ -2691,304 +2691,640 @@ proto_register_isis_lsp(void)
 {
     static hf_register_info hf[] = {
         { &hf_isis_lsp_pdu_length,
-        { "PDU length",        "isis.lsp.pdu_length", FT_UINT16,
-          BASE_DEC, NULL, 0x0, NULL, HFILL }},
+            { "PDU length", "isis.lsp.pdu_length",
+              FT_UINT16, BASE_DEC,
+              NULL, 0x0, NULL, HFILL }
+        },
 
         { &hf_isis_lsp_remaining_life,
-        { "Remaining lifetime",    "isis.lsp.remaining_life", FT_UINT16,
-          BASE_DEC, NULL, 0x0, NULL, HFILL }},
+            { "Remaining lifetime", "isis.lsp.remaining_life",
+              FT_UINT16, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
 
         { &hf_isis_lsp_lsp_id,
-        { "LSP-ID", "isis.lsp.lsp_id", FT_SYSTEM_ID,
-          BASE_NONE, NULL, 0x0, NULL, HFILL }},
+            { "LSP-ID", "isis.lsp.lsp_id",
+              FT_SYSTEM_ID, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
 
         { &hf_isis_lsp_hostname,
-        { "Hostname", "isis.lsp.hostname", FT_STRING,
-          BASE_NONE, NULL, 0x0, NULL, HFILL }},
+            { "Hostname", "isis.lsp.hostname",
+              FT_STRING, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
 
         { &hf_isis_lsp_sequence_number,
-        { "Sequence number",           "isis.lsp.sequence_number",
-          FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+            { "Sequence number", "isis.lsp.sequence_number",
+              FT_UINT32, BASE_HEX, NULL, 0x0,
+              NULL, HFILL }
+        },
 
         { &hf_isis_lsp_checksum,
-        { "Checksum",        "isis.lsp.checksum",FT_UINT16,
-          BASE_HEX, NULL, 0x0, NULL, HFILL }},
+            { "Checksum", "isis.lsp.checksum",
+              FT_UINT16, BASE_HEX, NULL, 0x0,
+              NULL, HFILL }
+        },
 
         { &hf_isis_lsp_checksum_good,
-        { "Good Checksum", "isis.lsp.checksum_good", FT_BOOLEAN, BASE_NONE,
-            NULL, 0x0, "Good IS-IS LSP Checksum", HFILL }},
+            { "Good Checksum", "isis.lsp.checksum_good",
+              FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+              "Good IS-IS LSP Checksum", HFILL }
+        },
 
         { &hf_isis_lsp_checksum_bad,
-        { "Bad Checksum", "isis.lsp.checksum_bad", FT_BOOLEAN, BASE_NONE,
-            NULL, 0x0, "Bad IS-IS LSP Checksum", HFILL }},
+            { "Bad Checksum", "isis.lsp.checksum_bad",
+              FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+              "Bad IS-IS LSP Checksum", HFILL }
+        },
 
         { &hf_isis_lsp_clv_ipv4_int_addr,
-        { "IPv4 interface address", "isis.lsp.clv_ipv4_int_addr", FT_IPv4,
-           BASE_NONE, NULL, 0x0, NULL, HFILL }},
+            { "IPv4 interface address", "isis.lsp.clv_ipv4_int_addr",
+              FT_IPv4, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
 
         { &hf_isis_lsp_clv_ipv6_int_addr,
-        { "IPv6 interface address", "isis.lsp.clv_ipv6_int_addr", FT_IPv6,
-           BASE_NONE, NULL, 0x0, NULL, HFILL }},
+            { "IPv6 interface address", "isis.lsp.clv_ipv6_int_addr",
+              FT_IPv6, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
 
         { &hf_isis_lsp_clv_te_router_id,
-        { "Traffic Engineering Router ID", "isis.lsp.clv_te_router_id", FT_IPv4,
-           BASE_NONE, NULL, 0x0, NULL, HFILL }},
+            { "Traffic Engineering Router ID", "isis.lsp.clv_te_router_id",
+              FT_IPv4, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
 
         { &hf_isis_lsp_clv_mt,
-        { "MT-ID", "isis.lsp.clv_mt",
-            FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+            { "MT-ID", "isis.lsp.clv_mt",
+              FT_UINT16, BASE_HEX, NULL, 0x0,
+              NULL, HFILL }
+        },
 
         { &hf_isis_lsp_p,
-        { "Partition Repair",    "isis.lsp.partition_repair", FT_BOOLEAN, 8,
-            TFS(&tfs_supported_not_supported), ISIS_LSP_PARTITION_MASK,
-            "If set, this router supports the optional Partition Repair function", HFILL }},
+            { "Partition Repair", "isis.lsp.partition_repair",
+              FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), ISIS_LSP_PARTITION_MASK,
+              "If set, this router supports the optional Partition Repair function", HFILL }
+        },
 
         { &hf_isis_lsp_att,
-        { "Attachment",    "isis.lsp.att", FT_UINT8, BASE_DEC,
-            NULL, ISIS_LSP_ATT_MASK,
-            NULL, HFILL }},
+            { "Attachment", "isis.lsp.att",
+              FT_UINT8, BASE_DEC, NULL, ISIS_LSP_ATT_MASK,
+              NULL, HFILL }
+        },
 
         { &hf_isis_lsp_hippity,
-        { "Overload bit",    "isis.lsp.overload", FT_BOOLEAN, 8,
-            TFS(&tfs_set_notset), ISIS_LSP_HIPPITY_MASK,
-            "If set, this router will not be used by any decision process to calculate routes", HFILL }},
+            { "Overload bit", "isis.lsp.overload",
+              FT_BOOLEAN, 8, TFS(&tfs_set_notset), ISIS_LSP_HIPPITY_MASK,
+              "If set, this router will not be used by any decision process to calculate routes", HFILL }
+        },
 
         { &hf_isis_lsp_root_id,
-        { "Root Bridge ID",    "isis.lsp.root.id", FT_UINT64, BASE_HEX,
-            NULL, 0x0, NULL, HFILL }},
+            { "Root Bridge ID", "isis.lsp.root.id",
+              FT_UINT64, BASE_HEX, NULL, 0x0,
+              NULL, HFILL }
+        },
 
         { &hf_isis_lsp_is_type,
-        { "Type of Intermediate System",    "isis.lsp.is_type", FT_UINT8, BASE_DEC,
-            VALS(isis_lsp_istype_vals), ISIS_LSP_IS_TYPE_MASK,
-            NULL, HFILL }},
+            { "Type of Intermediate System", "isis.lsp.is_type",
+              FT_UINT8, BASE_DEC, VALS(isis_lsp_istype_vals), ISIS_LSP_IS_TYPE_MASK,
+              NULL, HFILL }
+        },
 
         { &hf_isis_lsp_clv_type,
-        { "Type", "isis.lsp.clv.type", FT_UINT8, BASE_DEC,
-            NULL, 0x0,
-            NULL, HFILL }},
+            { "Type", "isis.lsp.clv.type",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
 
         { &hf_isis_lsp_clv_length,
-        { "Length", "isis.lsp.clv.length", FT_UINT8, BASE_DEC,
-            NULL, 0x0,
-            NULL, HFILL }},
+            { "Length", "isis.lsp.clv.length",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
 
         { &hf_isis_lsp_spb_link_metric,
-        { "SPB Link Metric", "isis.lsp.spb.link_metric",
-            FT_UINT24, BASE_HEX_DEC, NULL, 0, NULL, HFILL }},
+            { "SPB Link Metric", "isis.lsp.spb.link_metric",
+              FT_UINT24, BASE_HEX_DEC, NULL, 0,
+              NULL, HFILL }
+        },
 
         { &hf_isis_lsp_spb_port_count,
-        { "Number of Ports", "isis.lsp.spb.port_count",
-            FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+            { "Number of Ports", "isis.lsp.spb.port_count",
+              FT_UINT8, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
 
         { &hf_isis_lsp_spb_port_id,
-        { "Port Id", "isis.lsp.spb.port_id",
-            FT_UINT16, BASE_HEX_DEC, NULL, 0, NULL, HFILL }},
+            { "Port Id", "isis.lsp.spb.port_id",
+              FT_UINT16, BASE_HEX_DEC, NULL, 0,
+              NULL, HFILL }
+        },
 
         { &hf_isis_lsp_spb_sr_bit,
-        { "SR Bit", "isis.lsp.spb.sr_bit",
-            FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+            { "SR Bit", "isis.lsp.spb.sr_bit",
+              FT_UINT8, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
 
         { &hf_isis_lsp_spb_spvid,
-        { "SPVID", "isis.lsp.spb.spvid",
-            FT_UINT16, BASE_HEX_DEC, NULL, 0, NULL, HFILL }},
+            { "SPVID", "isis.lsp.spb.spvid",
+              FT_UINT16, BASE_HEX_DEC, NULL, 0,
+              NULL, HFILL }
+        },
 
       /* Generated from convert_proto_tree_add_text.pl */
-      { &hf_isis_lsp_mt_id_reserved,
-      	{ "Reserved", "isis.lsp.reserved", FT_UINT16, BASE_HEX, NULL, ISIS_LSP_MT_MSHIP_RES_MASK, NULL, HFILL }},
-      { &hf_isis_lsp_mt_id,
-      	{ "MT ID", "isis.lsp.mt_id", FT_UINT16, BASE_DEC, NULL, ISIS_LSP_MT_MSHIP_ID_MASK, NULL, HFILL }},
-      { &hf_isis_lsp_ip_reachability_ipv4_prefix,
-      	{ "IPv4 prefix", "isis.lsp.ip_reachability.ipv4_prefix", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_isis_lsp_ip_reachability_default_metric,
-      	{ "Default Metric", "isis.lsp.ip_reachability.default_metric", FT_UINT8, BASE_DEC, NULL, 0x3F, NULL, HFILL }},
-      { &hf_isis_lsp_ip_reachability_delay_metric,
-      	{ "Delay Metric", "isis.lsp.ip_reachability.delay_metric", FT_UINT8, BASE_DEC, NULL, 0x3F, NULL, HFILL }},
-      { &hf_isis_lsp_ip_reachability_expense_metric,
-      	{ "Expense Metric", "isis.lsp.ip_reachability.expense_metric", FT_UINT8, BASE_DEC, NULL, 0x3F, NULL, HFILL }},
-      { &hf_isis_lsp_ip_reachability_error_metric,
-      	{ "Error Metric", "isis.lsp.ip_reachability.error_metric", FT_UINT8, BASE_DEC, NULL, 0x3F, NULL, HFILL }},
-      { &hf_isis_lsp_32_bit_administrative_tag,
-      	{ "32-Bit Administrative tag", "isis.lsp.32_bit_administrative_tag", FT_UINT32, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_isis_lsp_64_bit_administrative_tag,
-      	{ "64-Bit Administrative tag", "isis.lsp.64_bit_administrative_tag", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-      { &hf_isis_lsp_ext_ip_reachability_ipv4_prefix,
-      	{ "IPv4 prefix", "isis.lsp.ext_ip_reachability.ipv4_prefix", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_isis_lsp_ext_ip_reachability_metric,
-      	{ "Metric", "isis.lsp.ext_ip_reachability.metric", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_isis_lsp_ext_ip_reachability_distribution,
-      	{ "Distribution", "isis.lsp.ext_ip_reachability.distribution", FT_BOOLEAN, 8, TFS(&tfs_up_down), 0x80, NULL, HFILL }},
-      { &hf_isis_lsp_grp_address_length,
-      	{ "Length", "isis.lsp.grp_address.length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_isis_lsp_grp_address_topology_id,
-      	{ "Topology ID", "isis.lsp.grp_address.topology_id", FT_UINT16, BASE_DEC, NULL, 0x0fff, NULL, HFILL }},
-      { &hf_isis_lsp_grp_address_vlan_id,
-      	{ "VLAN ID", "isis.lsp.grp_address.vlan_id", FT_UINT16, BASE_DEC, NULL, 0x0fff, NULL, HFILL }},
-      { &hf_isis_lsp_grp_address_number_of_records,
-      	{ "Number of records", "isis.lsp.grp_address.number_of_records", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_isis_lsp_grp_address_number_of_sources,
-      	{ "Number of sources", "isis.lsp.grp_address.number_of_sources", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_isis_lsp_grp_address_group_address,
-      	{ "Group Address", "isis.lsp.grp_address.group_address", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_isis_lsp_grp_address_source_address,
-      	{ "Source Address", "isis.lsp.grp_address.source_address", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_isis_lsp_rt_capable_trill_length,
-      	{ "Length", "isis.lsp.rt_capable.trill.length", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_isis_lsp_rt_capable_trill_maximum_version,
-      	{ "Maximum version", "isis.lsp.rt_capable.trill.maximum_version", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_isis_lsp_rt_capable_trees_length,
-      	{ "Length", "isis.lsp.rt_capable.trees.length", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_isis_lsp_rt_capable_trees_nof_trees_to_compute,
-      	{ "Nof. trees to compute", "isis.lsp.rt_capable.trees.nof_trees_to_compute", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_isis_lsp_rt_capable_trees_maximum_nof_trees_to_compute,
-      	{ "Maximum nof. trees to compute", "isis.lsp.rt_capable.trees.maximum_nof_trees_to_compute", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_isis_lsp_rt_capable_trees_nof_trees_to_use,
-      	{ "Nof. trees to use", "isis.lsp.rt_capable.trees.nof_trees_to_use", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_isis_lsp_rt_capable_tree_root_id_length,
-      	{ "Length", "isis.lsp.rt_capable.tree_root_id.length", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_isis_lsp_rt_capable_tree_root_id_starting_tree_no,
-      	{ "Starting tree no", "isis.lsp.rt_capable.tree_root_id.starting_tree_no", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_isis_lsp_rt_capable_tree_root_id_nickname,
-      	{ "Nickname", "isis.lsp.rt_capable.tree_root_id.nickname", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_isis_lsp_rt_capable_nickname_length,
-      	{ "Length", "isis.lsp.rt_capable.nickname.length", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_isis_lsp_rt_capable_nickname_nickname_priority,
-      	{ "Nickname priority", "isis.lsp.rt_capable.nickname.nickname_priority", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_isis_lsp_rt_capable_nickname_tree_root_priority,
-      	{ "Tree root priority", "isis.lsp.rt_capable.nickname.tree_root_priority", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_isis_lsp_rt_capable_nickname_nickname,
-      	{ "Nickname", "isis.lsp.rt_capable.nickname.nickname", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-      { &hf_isis_lsp_rt_capable_interested_vlans_length,
-      	{ "Length", "isis.lsp.rt_capable.interested_vlans.length", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_isis_lsp_rt_capable_interested_vlans_nickname,
-      	{ "Nickname", "isis.lsp.rt_capable.interested_vlans.nickname", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-      { &hf_isis_lsp_rt_capable_interested_vlans_multicast_ipv4,
-      	{ "IPv4 multicast router", "isis.lsp.rt_capable.interested_vlans.multicast_ipv4", FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x8000, NULL, HFILL }},
-      { &hf_isis_lsp_rt_capable_interested_vlans_multicast_ipv6,
-      	{ "IPv6 multicast router", "isis.lsp.rt_capable.interested_vlans.multicast_ipv6", FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x4000, NULL, HFILL }},
-      { &hf_isis_lsp_rt_capable_interested_vlans_vlan_start_id,
-      	{ "Vlan start id", "isis.lsp.rt_capable.interested_vlans.vlan_start_id", FT_UINT16, BASE_HEX, NULL, 0x0fff, NULL, HFILL }},
-      { &hf_isis_lsp_rt_capable_interested_vlans_vlan_end_id,
-      	{ "Vlan end id", "isis.lsp.rt_capable.interested_vlans.vlan_end_id", FT_UINT16, BASE_HEX, NULL, 0x0fff, NULL, HFILL }},
-      { &hf_isis_lsp_rt_capable_interested_vlans_afs_lost_counter,
-      	{ "Appointed forward state lost counter", "isis.lsp.rt_capable.interested_vlans.afs_lost_counter", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_isis_lsp_rt_capable_tree_used_id_length,
-      	{ "Length", "isis.lsp.rt_capable.tree_used_id.length", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_isis_lsp_rt_capable_tree_used_id_starting_tree_no,
-		{ "Starting tree no", "isis.lsp.rt_capable.tree_used_id.starting_tree_no", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_isis_lsp_rt_capable_tree_used_id_nickname,
-      	{ "Nickname", "isis.lsp.rt_capable.tree_used_id.nickname", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_isis_lsp_rt_capable_vlan_group_length,
-      	{ "Length", "isis.lsp.rt_capable.vlan_group.length", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_isis_lsp_rt_capable_vlan_group_primary_vlan_id,
-      	{ "Primary vlan id", "isis.lsp.rt_capable.vlan_group.primary_vlan_id", FT_UINT16, BASE_DEC, NULL, 0x0fff, NULL, HFILL }},
-      { &hf_isis_lsp_rt_capable_vlan_group_secondary_vlan_id,
-      	{ "Secondary vlan id", "isis.lsp.rt_capable.vlan_group.secondary_vlan_id", FT_UINT16, BASE_DEC, NULL, 0x0fff, NULL, HFILL }},
-      { &hf_isis_lsp_rt_capable_vlan_group_nth_secondary_vlan_id,
-      	{ "%dth secondary vlan id", "isis.lsp.rt_capable.vlan_group.nth_secondary_vlan_id", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-      { &hf_isis_lsp_ipv6_reachability_ipv6_prefix,
-      	{ "IPv6 prefix", "isis.lsp.ipv6_reachability.ipv6_prefix", FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_isis_lsp_ipv6_reachability_metric,
-      	{ "Metric", "isis.lsp.ipv6_reachability.metric", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_isis_lsp_ipv6_reachability_distribution,
-      	{ "Distribution", "isis.lsp.ipv6_reachability.distribution", FT_BOOLEAN, 8, TFS(&tfs_up_down), 0x80, NULL, HFILL }},
-      { &hf_isis_lsp_ipv6_reachability_distribution_internal,
-      	{ "Distribution", "isis.lsp.ipv6_reachability.distribution_internal", FT_BOOLEAN, 8, TFS(&tfs_internal_external), 0x40, NULL, HFILL }},
-      { &hf_isis_lsp_ipv6_reachability_reserved_bits,
-      	{ "Reserved bits", "isis.lsp.ipv6_reachability.reserved_bits", FT_UINT8, BASE_HEX, NULL, 0x1F, NULL, HFILL }},
-      { &hf_isis_lsp_mt_cap_spb_instance_cist_root_identifier,
-      	{ "CIST Root Identifier", "isis.lsp.mt_cap_spb_instance.cist_root_identifier", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_isis_lsp_mt_cap_spb_instance_cist_external_root_path_cost,
-      	{ "CIST External Root Path Cost", "isis.lsp.mt_cap_spb_instance.cist_external_root_path_cost", FT_UINT32, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_isis_lsp_mt_cap_spb_instance_bridge_priority,
-      	{ "Bridge Priority", "isis.lsp.mt_cap_spb_instance.bridge_priority", FT_UINT16, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_isis_lsp_mt_cap_spb_instance_v,
-      	{ "V", "isis.lsp.mt_cap_spb_instance.v", FT_BOOLEAN, 32, NULL, 0x00100000, NULL, HFILL }},
-      { &hf_isis_lsp_mt_cap_spb_instance_number_of_trees,
-      	{ "Number of Trees", "isis.lsp.mt_cap_spb_instance.number_of_trees", FT_UINT16, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_isis_lsp_mt_cap_spbm_service_identifier_b_mac,
-      	{ "B-MAC", "isis.lsp.mt_cap_spbm_service_identifier.b_mac", FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_isis_lsp_mt_cap_spbm_service_identifier_base_vid,
-      	{ "Base-VID", "isis.lsp.mt_cap_spbm_service_identifier.base_vid", FT_UINT16, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_isis_lsp_mt_cap_mtid,
-      	{ "MTID", "isis.lsp.mt_cap.mtid", FT_UINT16, BASE_HEX, NULL, 0xfff, NULL, HFILL }},
-      { &hf_isis_lsp_eis_neighbors_reserved,
-      	{ "Reserved", "isis.lsp.eis_neighbors_clv_inner.reserved", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-      { &hf_isis_lsp_eis_neighbors_es_neighbor_id,
-      	{ "ES Neighbor ID", "isis.lsp.eis_neighbors.es_neighbor_id", FT_SYSTEM_ID, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_isis_lsp_eis_neighbors_is_neighbor_id,
-      	{ "IS Neighbor", "isis.lsp.eis_neighbors.is_neighbor", FT_SYSTEM_ID, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_isis_lsp_eis_neighbors_default_metric,
-      	{ "Default Metric", "isis.lsp.eis_neighbors.default_metric", FT_UINT8, BASE_DEC, NULL, 0x3F, NULL, HFILL }},
-      { &hf_isis_lsp_eis_neighbors_delay_metric,
-      	{ "Delay Metric", "isis.lsp.eis_neighbors.delay_metric", FT_UINT8, BASE_DEC, NULL, 0x3F, NULL, HFILL }},
-      { &hf_isis_lsp_eis_neighbors_expense_metric,
-      	{ "Expense Metric", "isis.lsp.eis_neighbors.expense_metric", FT_UINT8, BASE_DEC, NULL, 0x3F, NULL, HFILL }},
-      { &hf_isis_lsp_eis_neighbors_error_metric,
-      	{ "Error Metric", "isis.lsp.eis_neighbors.error_metric", FT_UINT8, BASE_DEC, NULL, 0x3F, NULL, HFILL }},
-      { &hf_isis_lsp_maximum_link_bandwidth,
-      	{ "Maximum link bandwidth", "isis.lsp.maximum_link_bandwidth", FT_FLOAT, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_isis_lsp_reservable_link_bandwidth,
-      	{ "Reservable link bandwidth", "isis.lsp.reservable_link_bandwidth", FT_FLOAT, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_isis_lsp_ext_is_reachability_is_neighbor_id,
-      	{ "IS neighbor ID", "isis.lsp.ext_is_reachability.is_neighbor_id", FT_SYSTEM_ID, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_isis_lsp_ext_is_reachability_metric,
-      	{ "Metric", "isis.lsp.ext_is_reachability.metric", FT_UINT24, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_isis_lsp_ext_is_reachability_link_local_identifier,
-      	{ "Link Local Identifier", "isis.lsp.ext_is_reachability.link_local_identifier", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_isis_lsp_ext_is_reachability_link_remote_identifier,
-      	{ "Link Remote Identifier", "isis.lsp.ext_is_reachability.link_remote_identifier", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_isis_lsp_ext_is_reachability_ipv4_interface_address,
-      	{ "IPv4 interface address", "isis.lsp.ext_is_reachability.ipv4_interface_address", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_isis_lsp_ext_is_reachability_ipv4_neighbor_address,
-      	{ "IPv4 neighbor address", "isis.lsp.ext_is_reachability.ipv4_neighbor_address", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_isis_lsp_ext_is_reachability_traffic_engineering_default_metric,
-      	{ "Traffic engineering default metric", "isis.lsp.ext_is_reachability.traffic_engineering_default_metric", FT_UINT24, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_isis_lsp_partition_designated_l2_is,
-      	{ "Partition designated L2 IS", "isis.lsp.partition_designated_l2_is", FT_SYSTEM_ID, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_isis_lsp_error_metric,
-      	{ "Error metric", "isis.lsp.error_metric", FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x08, NULL, HFILL }},
-      { &hf_isis_lsp_expense_metric,
-      	{ "Expense metric", "isis.lsp.expense_metric", FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x04, NULL, HFILL }},
-      { &hf_isis_lsp_delay_metric,
-      	{ "Delay metric", "isis.lsp.delay_metric", FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x02, NULL, HFILL }},
-      { &hf_isis_lsp_default_metric,
-      	{ "Default metric", "isis.lsp.default_metric", FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x01, NULL, HFILL }},
-      { &hf_isis_lsp_ip_reachability_default_metric_ie,
-      	{ "Default Metric IE", "isis.lsp.ip_reachability.default_metric_ie", FT_BOOLEAN, 8, TFS(&tfs_external_internal), 0x40, NULL, HFILL }},
-      { &hf_isis_lsp_ip_reachability_delay_metric_support,
-      	{ "Delay Metric", "isis.lsp.ip_reachability.delay_metric_support", FT_BOOLEAN, 8, TFS(&tfs_notsupported_supported), 0x80, NULL, HFILL }},
-      { &hf_isis_lsp_ip_reachability_expense_metric_support,
-      	{ "Expense Metric", "isis.lsp.ip_reachability.expense_metric_support", FT_BOOLEAN, 8, TFS(&tfs_notsupported_supported), 0x80, NULL, HFILL }},
-      { &hf_isis_lsp_ip_reachability_error_metric_support,
-      	{ "Error Metric", "isis.lsp.ip_reachability.error_metric_support", FT_BOOLEAN, 8, TFS(&tfs_notsupported_supported), 0x80, NULL, HFILL }},
-      { &hf_isis_lsp_mt_cap_spsourceid,
-      	{ "SPSourceId", "isis.lsp.mt_cap.spsourceid", FT_UINT32, BASE_HEX_DEC, NULL, 0xfffff, NULL, HFILL }},
-      { &hf_isis_lsp_mt_cap_overload,
-      	{ "Overload", "isis.lsp.overload", FT_BOOLEAN, 16, NULL, 0x8000, NULL, HFILL }},
-      { &hf_isis_lsp_eis_neighbors_default_metric_ie,
-      	{ "Default Metric", "isis.lsp.eis_neighbors.default_metric_ie", FT_BOOLEAN, 8, TFS(&tfs_external_internal), 0x40, NULL, HFILL }},
-      { &hf_isis_lsp_eis_neighbors_delay_metric_supported,
-      	{ "Delay Metric", "isis.lsp.eis_neighbors_delay_metric.supported", FT_BOOLEAN, 8, TFS(&tfs_notsupported_supported), 0x80, NULL, HFILL }},
-      { &hf_isis_lsp_eis_neighbors_expense_metric_supported,
-      	{ "Expense Metric", "isis.lsp.eis_neighbors.expense_metric_supported", FT_BOOLEAN, 8, TFS(&tfs_notsupported_supported), 0x80, NULL, HFILL }},
-      { &hf_isis_lsp_eis_neighbors_error_metric_supported,
-      	{ "Error Metric", "isis.lsp.eis_neighbors.error_metric_supported", FT_BOOLEAN, 8, TFS(&tfs_notsupported_supported), 0x80, NULL, HFILL }},
-      { &hf_isis_lsp_unrsv_bw_priority_level,
-      	{ "priority level", "isis.lsp.unrsv_bw.priority_level", FT_FLOAT, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_isis_lsp_ip_reachability_distribution,
-      	{ "Distribution", "isis.lsp.ip_reachability.distribution", FT_BOOLEAN, 8, TFS(&tfs_up_down), 0x80, NULL, HFILL }},
-      { &hf_isis_lsp_ip_reachability_delay_metric_ie,
-      	{ "Delay Metric", "isis.lsp.ip_reachability.delay_metric_ie", FT_BOOLEAN, 8, TFS(&tfs_external_internal), 0x40, NULL, HFILL }},
-      { &hf_isis_lsp_ip_reachability_expense_metric_ie,
-      	{ "Expense Metric", "isis.lsp.ip_reachability.expense_metric_ie", FT_BOOLEAN, 8, TFS(&tfs_external_internal), 0x40, NULL, HFILL }},
-      { &hf_isis_lsp_ip_reachability_error_metric_ie,
-      	{ "Error Metric", "isis.lsp.ip_reachability.error_metric_ie", FT_BOOLEAN, 8, TFS(&tfs_external_internal), 0x40, NULL, HFILL }},
-      { &hf_isis_lsp_eis_neighbors_delay_metric_ie,
-      	{ "Delay Metric", "isis.lsp.eis_neighbors.delay_metric_ie", FT_BOOLEAN, 8, TFS(&tfs_external_internal), 0x40, NULL, HFILL }},
-      { &hf_isis_lsp_eis_neighbors_expense_metric_ie,
-      	{ "Expense Metric", "isis.lsp.eis_neighbors.expense_metric_ie", FT_BOOLEAN, 8, TFS(&tfs_external_internal), 0x40, NULL, HFILL }},
-      { &hf_isis_lsp_eis_neighbors_error_metric_ie,
-      	{ "Error Metric", "isis.lsp.eis_neighbors.error_metric_ie", FT_BOOLEAN, 8, TFS(&tfs_external_internal), 0x40, NULL, HFILL }},
+        { &hf_isis_lsp_mt_id_reserved,
+            { "Reserved", "isis.lsp.reserved",
+              FT_UINT16, BASE_HEX, NULL, ISIS_LSP_MT_MSHIP_RES_MASK,
+            NULL, HFILL }
+        },
+        { &hf_isis_lsp_mt_id,
+            { "MT ID", "isis.lsp.mt_id",
+              FT_UINT16, BASE_DEC, NULL, ISIS_LSP_MT_MSHIP_ID_MASK,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_ip_reachability_ipv4_prefix,
+            { "IPv4 prefix", "isis.lsp.ip_reachability.ipv4_prefix",
+              FT_IPv4, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_ip_reachability_default_metric,
+            { "Default Metric", "isis.lsp.ip_reachability.default_metric",
+              FT_UINT8, BASE_DEC, NULL, 0x3F,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_ip_reachability_delay_metric,
+            { "Delay Metric", "isis.lsp.ip_reachability.delay_metric",
+              FT_UINT8, BASE_DEC, NULL, 0x3F,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_ip_reachability_expense_metric,
+            { "Expense Metric", "isis.lsp.ip_reachability.expense_metric",
+              FT_UINT8, BASE_DEC, NULL, 0x3F,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_ip_reachability_error_metric,
+            { "Error Metric", "isis.lsp.ip_reachability.error_metric",
+              FT_UINT8, BASE_DEC, NULL, 0x3F,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_32_bit_administrative_tag,
+            { "32-Bit Administrative tag", "isis.lsp.32_bit_administrative_tag",
+              FT_UINT32, BASE_HEX_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_64_bit_administrative_tag,
+            { "64-Bit Administrative tag", "isis.lsp.64_bit_administrative_tag",
+              FT_UINT64, BASE_HEX, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_ext_ip_reachability_ipv4_prefix,
+            { "IPv4 prefix", "isis.lsp.ext_ip_reachability.ipv4_prefix",
+              FT_IPv4, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_ext_ip_reachability_metric,
+            { "Metric", "isis.lsp.ext_ip_reachability.metric",
+              FT_UINT32, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_ext_ip_reachability_distribution,
+            { "Distribution", "isis.lsp.ext_ip_reachability.distribution",
+              FT_BOOLEAN, 8, TFS(&tfs_up_down), 0x80,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_grp_address_length,
+            { "Length", "isis.lsp.grp_address.length",
+              FT_UINT16, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_grp_address_topology_id,
+            { "Topology ID", "isis.lsp.grp_address.topology_id",
+              FT_UINT16, BASE_DEC, NULL, 0x0fff,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_grp_address_vlan_id,
+            { "VLAN ID", "isis.lsp.grp_address.vlan_id",
+              FT_UINT16, BASE_DEC, NULL, 0x0fff,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_grp_address_number_of_records,
+            { "Number of records", "isis.lsp.grp_address.number_of_records",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_grp_address_number_of_sources,
+            { "Number of sources", "isis.lsp.grp_address.number_of_sources",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_grp_address_group_address,
+            { "Group Address", "isis.lsp.grp_address.group_address",
+              FT_BYTES, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_grp_address_source_address,
+            { "Source Address", "isis.lsp.grp_address.source_address",
+              FT_BYTES, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_rt_capable_trill_length,
+            { "Length", "isis.lsp.rt_capable.trill.length",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_rt_capable_trill_maximum_version,
+            { "Maximum version", "isis.lsp.rt_capable.trill.maximum_version",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_rt_capable_trees_length,
+            { "Length", "isis.lsp.rt_capable.trees.length",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_rt_capable_trees_nof_trees_to_compute,
+            { "Nof. trees to compute", "isis.lsp.rt_capable.trees.nof_trees_to_compute",
+              FT_UINT16, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_rt_capable_trees_maximum_nof_trees_to_compute,
+            { "Maximum nof. trees to compute", "isis.lsp.rt_capable.trees.maximum_nof_trees_to_compute",
+              FT_UINT16, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_rt_capable_trees_nof_trees_to_use,
+            { "Nof. trees to use", "isis.lsp.rt_capable.trees.nof_trees_to_use",
+              FT_UINT16, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_rt_capable_tree_root_id_length,
+            { "Length", "isis.lsp.rt_capable.tree_root_id.length",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_rt_capable_tree_root_id_starting_tree_no,
+            { "Starting tree no", "isis.lsp.rt_capable.tree_root_id.starting_tree_no",
+              FT_UINT16, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_rt_capable_tree_root_id_nickname,
+            { "Nickname", "isis.lsp.rt_capable.tree_root_id.nickname",
+              FT_UINT16, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_rt_capable_nickname_length,
+            { "Length", "isis.lsp.rt_capable.nickname.length",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_rt_capable_nickname_nickname_priority,
+            { "Nickname priority", "isis.lsp.rt_capable.nickname.nickname_priority",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_rt_capable_nickname_tree_root_priority,
+            { "Tree root priority", "isis.lsp.rt_capable.nickname.tree_root_priority",
+              FT_UINT16, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_rt_capable_nickname_nickname,
+            { "Nickname", "isis.lsp.rt_capable.nickname.nickname",
+              FT_UINT16, BASE_HEX, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_rt_capable_interested_vlans_length,
+            { "Length", "isis.lsp.rt_capable.interested_vlans.length",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_rt_capable_interested_vlans_nickname,
+            { "Nickname", "isis.lsp.rt_capable.interested_vlans.nickname",
+              FT_UINT16, BASE_HEX, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_rt_capable_interested_vlans_multicast_ipv4,
+            { "IPv4 multicast router", "isis.lsp.rt_capable.interested_vlans.multicast_ipv4",
+              FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x8000,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_rt_capable_interested_vlans_multicast_ipv6,
+            { "IPv6 multicast router", "isis.lsp.rt_capable.interested_vlans.multicast_ipv6",
+              FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x4000,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_rt_capable_interested_vlans_vlan_start_id,
+            { "Vlan start id", "isis.lsp.rt_capable.interested_vlans.vlan_start_id",
+              FT_UINT16, BASE_HEX, NULL, 0x0fff,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_rt_capable_interested_vlans_vlan_end_id,
+            { "Vlan end id", "isis.lsp.rt_capable.interested_vlans.vlan_end_id",
+              FT_UINT16, BASE_HEX, NULL, 0x0fff,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_rt_capable_interested_vlans_afs_lost_counter,
+            { "Appointed forward state lost counter", "isis.lsp.rt_capable.interested_vlans.afs_lost_counter",
+              FT_UINT32, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_rt_capable_tree_used_id_length,
+            { "Length", "isis.lsp.rt_capable.tree_used_id.length",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_rt_capable_tree_used_id_starting_tree_no,
+            { "Starting tree no", "isis.lsp.rt_capable.tree_used_id.starting_tree_no",
+              FT_UINT16, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_rt_capable_tree_used_id_nickname,
+            { "Nickname", "isis.lsp.rt_capable.tree_used_id.nickname",
+              FT_UINT16, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_rt_capable_vlan_group_length,
+            { "Length", "isis.lsp.rt_capable.vlan_group.length",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_rt_capable_vlan_group_primary_vlan_id,
+            { "Primary vlan id", "isis.lsp.rt_capable.vlan_group.primary_vlan_id",
+              FT_UINT16, BASE_DEC, NULL, 0x0fff,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_rt_capable_vlan_group_secondary_vlan_id,
+            { "Secondary vlan id", "isis.lsp.rt_capable.vlan_group.secondary_vlan_id",
+              FT_UINT16, BASE_DEC, NULL, 0x0fff,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_rt_capable_vlan_group_nth_secondary_vlan_id,
+            { "%dth secondary vlan id", "isis.lsp.rt_capable.vlan_group.nth_secondary_vlan_id",
+              FT_UINT16, BASE_HEX, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_ipv6_reachability_ipv6_prefix,
+            { "IPv6 prefix", "isis.lsp.ipv6_reachability.ipv6_prefix",
+              FT_IPv6, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_ipv6_reachability_metric,
+            { "Metric", "isis.lsp.ipv6_reachability.metric",
+              FT_UINT32, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_ipv6_reachability_distribution,
+            { "Distribution", "isis.lsp.ipv6_reachability.distribution",
+              FT_BOOLEAN, 8, TFS(&tfs_up_down), 0x80,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_ipv6_reachability_distribution_internal,
+            { "Distribution", "isis.lsp.ipv6_reachability.distribution_internal",
+              FT_BOOLEAN, 8, TFS(&tfs_internal_external), 0x40,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_ipv6_reachability_reserved_bits,
+            { "Reserved bits", "isis.lsp.ipv6_reachability.reserved_bits",
+              FT_UINT8, BASE_HEX, NULL, 0x1F,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_mt_cap_spb_instance_cist_root_identifier,
+            { "CIST Root Identifier", "isis.lsp.mt_cap_spb_instance.cist_root_identifier",
+              FT_BYTES, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_mt_cap_spb_instance_cist_external_root_path_cost,
+            { "CIST External Root Path Cost", "isis.lsp.mt_cap_spb_instance.cist_external_root_path_cost",
+              FT_UINT32, BASE_HEX_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_mt_cap_spb_instance_bridge_priority,
+            { "Bridge Priority", "isis.lsp.mt_cap_spb_instance.bridge_priority",
+              FT_UINT16, BASE_HEX_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_mt_cap_spb_instance_v,
+            { "V", "isis.lsp.mt_cap_spb_instance.v",
+              FT_BOOLEAN, 32, NULL, 0x00100000,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_mt_cap_spb_instance_number_of_trees,
+            { "Number of Trees", "isis.lsp.mt_cap_spb_instance.number_of_trees",
+              FT_UINT16, BASE_HEX_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_mt_cap_spbm_service_identifier_b_mac,
+            { "B-MAC", "isis.lsp.mt_cap_spbm_service_identifier.b_mac",
+              FT_ETHER, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_mt_cap_spbm_service_identifier_base_vid,
+            { "Base-VID", "isis.lsp.mt_cap_spbm_service_identifier.base_vid",
+              FT_UINT16, BASE_HEX_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_mt_cap_mtid,
+            { "MTID", "isis.lsp.mt_cap.mtid",
+              FT_UINT16, BASE_HEX, NULL, 0xfff,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_eis_neighbors_reserved,
+            { "Reserved", "isis.lsp.eis_neighbors_clv_inner.reserved",
+              FT_UINT8, BASE_HEX, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_eis_neighbors_es_neighbor_id,
+            { "ES Neighbor ID", "isis.lsp.eis_neighbors.es_neighbor_id",
+              FT_SYSTEM_ID, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_eis_neighbors_is_neighbor_id,
+            { "IS Neighbor", "isis.lsp.eis_neighbors.is_neighbor",
+              FT_SYSTEM_ID, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_eis_neighbors_default_metric,
+            { "Default Metric", "isis.lsp.eis_neighbors.default_metric",
+              FT_UINT8, BASE_DEC, NULL, 0x3F,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_eis_neighbors_delay_metric,
+            { "Delay Metric", "isis.lsp.eis_neighbors.delay_metric",
+              FT_UINT8, BASE_DEC, NULL, 0x3F,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_eis_neighbors_expense_metric,
+            { "Expense Metric", "isis.lsp.eis_neighbors.expense_metric",
+              FT_UINT8, BASE_DEC, NULL, 0x3F,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_eis_neighbors_error_metric,
+            { "Error Metric", "isis.lsp.eis_neighbors.error_metric",
+              FT_UINT8, BASE_DEC, NULL, 0x3F,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_maximum_link_bandwidth,
+            { "Maximum link bandwidth", "isis.lsp.maximum_link_bandwidth",
+              FT_FLOAT, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_reservable_link_bandwidth,
+            { "Reservable link bandwidth", "isis.lsp.reservable_link_bandwidth",
+              FT_FLOAT, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_ext_is_reachability_is_neighbor_id,
+            { "IS neighbor ID", "isis.lsp.ext_is_reachability.is_neighbor_id",
+              FT_SYSTEM_ID, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_ext_is_reachability_metric,
+            { "Metric", "isis.lsp.ext_is_reachability.metric",
+              FT_UINT24, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_ext_is_reachability_link_local_identifier,
+            { "Link Local Identifier", "isis.lsp.ext_is_reachability.link_local_identifier",
+              FT_UINT32, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_ext_is_reachability_link_remote_identifier,
+            { "Link Remote Identifier", "isis.lsp.ext_is_reachability.link_remote_identifier",
+              FT_UINT32, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_ext_is_reachability_ipv4_interface_address,
+            { "IPv4 interface address", "isis.lsp.ext_is_reachability.ipv4_interface_address",
+              FT_IPv4, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_ext_is_reachability_ipv4_neighbor_address,
+            { "IPv4 neighbor address", "isis.lsp.ext_is_reachability.ipv4_neighbor_address",
+              FT_IPv4, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_ext_is_reachability_traffic_engineering_default_metric,
+            { "Traffic engineering default metric", "isis.lsp.ext_is_reachability.traffic_engineering_default_metric",
+              FT_UINT24, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_partition_designated_l2_is,
+            { "Partition designated L2 IS", "isis.lsp.partition_designated_l2_is",
+              FT_SYSTEM_ID, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_error_metric,
+            { "Error metric", "isis.lsp.error_metric",
+              FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x08,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_expense_metric,
+            { "Expense metric", "isis.lsp.expense_metric",
+              FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x04,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_delay_metric,
+            { "Delay metric", "isis.lsp.delay_metric",
+              FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x02,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_default_metric,
+            { "Default metric", "isis.lsp.default_metric",
+              FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x01,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_ip_reachability_default_metric_ie,
+            { "Default Metric IE", "isis.lsp.ip_reachability.default_metric_ie",
+              FT_BOOLEAN, 8, TFS(&tfs_external_internal), 0x40,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_ip_reachability_delay_metric_support,
+            { "Delay Metric", "isis.lsp.ip_reachability.delay_metric_support",
+              FT_BOOLEAN, 8, TFS(&tfs_notsupported_supported), 0x80,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_ip_reachability_expense_metric_support,
+            { "Expense Metric", "isis.lsp.ip_reachability.expense_metric_support",
+              FT_BOOLEAN, 8, TFS(&tfs_notsupported_supported), 0x80,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_ip_reachability_error_metric_support,
+            { "Error Metric", "isis.lsp.ip_reachability.error_metric_support",
+              FT_BOOLEAN, 8, TFS(&tfs_notsupported_supported), 0x80,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_mt_cap_spsourceid,
+            { "SPSourceId", "isis.lsp.mt_cap.spsourceid",
+              FT_UINT32, BASE_HEX_DEC, NULL, 0xfffff,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_mt_cap_overload,
+            { "Overload", "isis.lsp.overload",
+              FT_BOOLEAN, 16, NULL, 0x8000,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_eis_neighbors_default_metric_ie,
+            { "Default Metric", "isis.lsp.eis_neighbors.default_metric_ie",
+              FT_BOOLEAN, 8, TFS(&tfs_external_internal), 0x40,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_eis_neighbors_delay_metric_supported,
+            { "Delay Metric", "isis.lsp.eis_neighbors_delay_metric.supported",
+              FT_BOOLEAN, 8, TFS(&tfs_notsupported_supported), 0x80,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_eis_neighbors_expense_metric_supported,
+            { "Expense Metric", "isis.lsp.eis_neighbors.expense_metric_supported",
+              FT_BOOLEAN, 8, TFS(&tfs_notsupported_supported), 0x80,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_eis_neighbors_error_metric_supported,
+            { "Error Metric", "isis.lsp.eis_neighbors.error_metric_supported",
+              FT_BOOLEAN, 8, TFS(&tfs_notsupported_supported), 0x80,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_unrsv_bw_priority_level,
+            { "priority level", "isis.lsp.unrsv_bw.priority_level",
+              FT_FLOAT, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_ip_reachability_distribution,
+            { "Distribution", "isis.lsp.ip_reachability.distribution",
+              FT_BOOLEAN, 8, TFS(&tfs_up_down), 0x80,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_ip_reachability_delay_metric_ie,
+            { "Delay Metric", "isis.lsp.ip_reachability.delay_metric_ie",
+              FT_BOOLEAN, 8, TFS(&tfs_external_internal), 0x40,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_ip_reachability_expense_metric_ie,
+            { "Expense Metric", "isis.lsp.ip_reachability.expense_metric_ie",
+              FT_BOOLEAN, 8, TFS(&tfs_external_internal), 0x40,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_ip_reachability_error_metric_ie,
+            { "Error Metric", "isis.lsp.ip_reachability.error_metric_ie",
+              FT_BOOLEAN, 8, TFS(&tfs_external_internal), 0x40,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_eis_neighbors_delay_metric_ie,
+            { "Delay Metric", "isis.lsp.eis_neighbors.delay_metric_ie",
+              FT_BOOLEAN, 8, TFS(&tfs_external_internal), 0x40,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_eis_neighbors_expense_metric_ie,
+            { "Expense Metric", "isis.lsp.eis_neighbors.expense_metric_ie",
+              FT_BOOLEAN, 8, TFS(&tfs_external_internal), 0x40,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_eis_neighbors_error_metric_ie,
+            { "Error Metric", "isis.lsp.eis_neighbors.error_metric_ie",
+              FT_BOOLEAN, 8, TFS(&tfs_external_internal), 0x40,
+              NULL, HFILL }
+        },
     };
     static gint *ett[] = {
         &ett_isis_lsp,
@@ -3025,7 +3361,7 @@ proto_register_isis_lsp(void)
         &ett_isis_lsp_clv_mt_is,
         &ett_isis_lsp_part_of_clv_mt_is,
         &ett_isis_lsp_clv_rt_capable_IPv4_prefx,
-        &ett_isis_lsp_clv_grp_address_IPv4_prefx,    /*CLV 142*/
+        &ett_isis_lsp_clv_grp_address_IPv4_prefx, /*CLV 142*/
         &ett_isis_lsp_clv_mt_reachable_IPv4_prefx,
         &ett_isis_lsp_clv_mt_reachable_IPv6_prefx,
         &ett_isis_lsp_clv_mt_cap_spbv_mac_address
