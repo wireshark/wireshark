@@ -88,14 +88,14 @@
 #define ISIS_LSP_CLV_METRIC_VALUE(x)        ((x)&0x3f)
 
 /* Sub-TLVs under Router Capability TLV
-   As per RFC 6326 section 2.3 */
-#define TRILL_VERSION            12
+   As per RFC 7176 section 2.3 */
+#define TRILL_VERSION            13
 #define NICKNAME                  6
 #define TREES                     7
 #define TREE_IDENTIFIER           8
 #define TREES_USED_IDENTIFIER     9
 #define INTERESTED_VLANS         10
-#define VLAN_GROUP               13
+#define VLAN_GROUP               14
 
 
 /*Sub-TLVs under Group Address TLV*/
@@ -792,14 +792,13 @@ dissect_isis_rt_capable_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
             rt_tree = proto_tree_add_subtree(tree, tvb, offset, (rt_block&0x00ff)+2,
                         ett_isis_lsp_clv_rt_capable_IPv4_prefx, NULL, "TRILL version sub tlv");
 
-            length--;
-            offset++;
+            proto_tree_add_item(rt_tree, hf_isis_lsp_rt_capable_trill_length, tvb, offset+1, 1, ENC_NA);
+            proto_tree_add_item(rt_tree, hf_isis_lsp_rt_capable_trill_maximum_version, tvb, offset+2, 1, ENC_NA);
 
-            proto_tree_add_item(rt_tree, hf_isis_lsp_rt_capable_trill_length, tvb, offset, 1, ENC_NA);
-            proto_tree_add_item(rt_tree, hf_isis_lsp_rt_capable_trill_maximum_version, tvb, offset+1, 1, ENC_NA);
+            /* TODO: print flags if SubTLV length == 5 according to RFC7176 sec. 2.3.1 */
 
-            length -= 2;
-            offset += 2;
+            length -= (rt_block&0x00ff)+2;
+            offset += (rt_block&0x00ff)+2;
 
             break;
 
