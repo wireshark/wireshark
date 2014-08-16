@@ -716,6 +716,8 @@ dissect_isis_grp_address_clv(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *
                     offset += 6;
                     len -= 6;
 
+                    k=1;
+
                     while((len > 0) && (source_num > 0)) {
                         hmac_src = tvb_get_ntoh48 (tvb, offset);
                         fp_get_hmac_addr (hmac_src, &swid, &sswid, &lid);
@@ -3016,12 +3018,12 @@ proto_register_isis_lsp(void)
         },
         { &hf_isis_lsp_rt_capable_interested_vlans_vlan_start_id,
             { "Vlan start id", "isis.lsp.rt_capable.interested_vlans.vlan_start_id",
-              FT_UINT16, BASE_HEX, NULL, 0x0fff,
+              FT_UINT16, BASE_DEC, NULL, 0x0fff,
               NULL, HFILL }
         },
         { &hf_isis_lsp_rt_capable_interested_vlans_vlan_end_id,
             { "Vlan end id", "isis.lsp.rt_capable.interested_vlans.vlan_end_id",
-              FT_UINT16, BASE_HEX, NULL, 0x0fff,
+              FT_UINT16, BASE_DEC, NULL, 0x0fff,
               NULL, HFILL }
         },
         { &hf_isis_lsp_rt_capable_interested_vlans_afs_lost_counter,
