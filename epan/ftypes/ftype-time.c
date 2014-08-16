@@ -324,21 +324,27 @@ value_get(fvalue_t *fv)
 }
 
 static int
-absolute_val_repr_len(fvalue_t *fv, ftrepr_t rtype _U_)
+absolute_val_repr_len(fvalue_t *fv, ftrepr_t rtype)
 {
 	gchar *rep;
 
 	rep = abs_time_to_ep_str(&fv->value.time, ABSOLUTE_TIME_LOCAL,
-	    rtype == FTREPR_DISPLAY);
-	return (int)strlen(rep) + 2;	/* 2 for opening and closing quotes */
+		rtype == FTREPR_DISPLAY);
+	return (int)strlen(rep) + ((rtype == FTREPR_DFILTER) ? 2 : 0);	/* 2 for opening and closing quotes */
 }
 
 static void
-absolute_val_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, char *buf)
+absolute_val_to_repr(fvalue_t *fv, ftrepr_t rtype, char *buf)
 {
-	sprintf(buf, "\"%s\"",
-	    abs_time_to_ep_str(&fv->value.time, ABSOLUTE_TIME_LOCAL,
-	        rtype == FTREPR_DISPLAY));
+	gchar *rep;
+
+	rep = abs_time_to_ep_str(&fv->value.time, ABSOLUTE_TIME_LOCAL,
+		rtype == FTREPR_DISPLAY);
+	if (rtype == FTREPR_DFILTER) {
+		sprintf(buf, "\"%s\"", rep);
+	} else {
+		strcpy(buf, rep);
+	}
 }
 
 static int
