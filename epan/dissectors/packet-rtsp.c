@@ -435,7 +435,7 @@ static gboolean
 is_rtsp_request_or_reply(const guchar *line, size_t linelen, rtsp_type_t *type)
 {
     guint         ii;
-    const guchar *next_token;
+    const guchar *token, *next_token;
     int           tokenlen;
     gchar         response_chars[4];
 
@@ -446,12 +446,12 @@ is_rtsp_request_or_reply(const guchar *line, size_t linelen, rtsp_type_t *type)
          */
         *type = RTSP_REPLY;
         /* The first token is the version. */
-        tokenlen = get_token_len(line, line+5, &next_token);
+        tokenlen = get_token_len(line, line+5, &token);
         if (tokenlen != 0) {
             /* The next token is the status code. */
-            tokenlen = get_token_len(next_token, line+linelen, &next_token);
+            tokenlen = get_token_len(token, line+linelen, &next_token);
             if (tokenlen >= 3) {
-                memcpy(response_chars, next_token, 3);
+                memcpy(response_chars, token, 3);
                 response_chars[3] = '\0';
                 rtsp_stat_info->response_code = (guint)strtoul(response_chars, NULL, 10);
             }
