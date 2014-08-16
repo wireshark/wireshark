@@ -761,6 +761,12 @@ static const isis_clv_handle_t clv_l1_hello_opts[] = {
         dissect_hello_ip_authentication_clv
     },
     {
+        ISIS_CLV_MT_PORT_CAP,
+        "MT Port Capability",
+        &ett_isis_hello_clv_mt_port_cap,
+        dissect_hello_mt_port_cap_clv
+    },
+    {
         ISIS_CLV_MT_SUPPORTED,
         "Multi Topology",
         &ett_isis_hello_clv_mt,
@@ -906,7 +912,7 @@ static const isis_clv_handle_t clv_ptp_hello_opts[] = {
     },
     {
         ISIS_CLV_RESTART,
-        "Restart Option",
+        "Restart Signaling",
         &ett_isis_hello_clv_restart,
         dissect_hello_restart_clv
     },
