@@ -214,6 +214,7 @@ static int hf_isis_lsp_rt_capable_trees_nof_trees_to_compute = -1;
 static int hf_isis_lsp_eis_neighbors_expense_metric = -1;
 static int hf_isis_lsp_rt_capable_vlan_group_length = -1;
 static int hf_isis_lsp_partition_designated_l2_is = -1;
+static int hf_isis_lsp_originating_lsp_buffer_size = -1;
 static int hf_isis_lsp_ip_reachability_default_metric_ie = -1;
 static int hf_isis_lsp_eis_neighbors_default_metric_ie = -1;
 static int hf_isis_lsp_eis_neighbors_error_metric_supported = -1;
@@ -271,6 +272,7 @@ static gint ett_isis_lsp_clv_mt_reachable_IPv6_prefx = -1;  /* CLV 237 */
 static gint ett_isis_lsp_clv_rt_capable_IPv4_prefx = -1;   /* CLV 242 */
 static gint ett_isis_lsp_clv_grp_address_IPv4_prefx = -1;  /* CLV 142 */
 static gint ett_isis_lsp_clv_mt_cap_spbv_mac_address = -1;
+static gint ett_isis_lsp_clv_originating_buff_size = -1; /* CLV 14 */
 
 static expert_field ie_isis_lsp_checksum_bad = EI_INIT;
 static expert_field ei_isis_lsp_short_packet = EI_INIT;
@@ -2127,6 +2129,39 @@ dissect_lsp_mt_is_reachability_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree
     dissect_lsp_ext_is_reachability_clv(tvb, pinfo, tree, offset+2, 0, length-2);
 }
 
+
+/*
+ * Name: dissect_lsp_ori_buffersize_clv()
+ *
+ * Description:
+ *    This CLV is used give neighbor buffer size
+ *
+ * Input:
+ *    tvbuff_t * : tvbuffer for packet data
+ *    proto_tree * : protocol display tree to fill out.  May be NULL
+ *    int : offset into packet data where we are.
+ *    int : length of IDs in packet.
+ *    int : length of clv we are decoding
+ *
+ * Output:
+ *      void, but we will add to proto tree if !NULL.
+ */
+static void
+dissect_lsp_ori_buffersize_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offset,
+    int id_length, int length)
+{
+    if ( length != 2 ) {
+        proto_tree_add_expert_format(tree, pinfo, &ei_isis_lsp_short_packet, tvb, offset, -1,
+                "short lsp partition DIS(%d vs %d)", length, id_length );
+        return;
+    }
+    /*
+     * Gotta build a sub-tree for all our pieces
+     */
+    proto_tree_add_item(tree, hf_isis_lsp_originating_lsp_buffer_size, tvb, offset, length, ENC_BIG_ENDIAN);
+}
+
+
 /*
  * Name: dissect_lsp_partition_dis_clv()
  *
@@ -2276,6 +2311,12 @@ static const isis_clv_handle_t clv_l1_lsp_opts[] = {
         "ES Neighbor(s)",
         &ett_isis_lsp_clv_is_neighbors,
         dissect_lsp_l1_es_neighbors_clv
+    },
+    {
+        ISIS_CLV_LSP_BUFFERSIZE,
+        "Originating neighbor buffer size",
+        &ett_isis_lsp_clv_originating_buff_size,
+        dissect_lsp_ori_buffersize_clv
     },
     {
         ISIS_CLV_EXTD_IS_REACH,
@@ -2429,6 +2470,12 @@ static const isis_clv_handle_t clv_l2_lsp_opts[] = {
         "Prefix neighbors",
         &ett_isis_lsp_clv_prefix_neighbors,
         dissect_lsp_prefix_neighbors_clv
+    },
+    {
+        ISIS_CLV_LSP_BUFFERSIZE,
+        "Originating neighbor buffer size",
+        &ett_isis_lsp_clv_originating_buff_size,
+        dissect_lsp_ori_buffersize_clv
     },
     {
         ISIS_CLV_INT_IP_REACH,
@@ -3205,6 +3252,11 @@ proto_register_isis_lsp(void)
               FT_SYSTEM_ID, BASE_NONE, NULL, 0x0,
               NULL, HFILL }
         },
+        { &hf_isis_lsp_originating_lsp_buffer_size,
+            { "Neighbor originating buffer size", "isis.lsp.originating_lsp_buffer_size",
+              FT_UINT16, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
         { &hf_isis_lsp_error_metric,
             { "Error metric", "isis.lsp.error_metric",
               FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x08,
@@ -3354,7 +3406,8 @@ proto_register_isis_lsp(void)
         &ett_isis_lsp_clv_grp_address_IPv4_prefx, /*CLV 142*/
         &ett_isis_lsp_clv_mt_reachable_IPv4_prefx,
         &ett_isis_lsp_clv_mt_reachable_IPv6_prefx,
-        &ett_isis_lsp_clv_mt_cap_spbv_mac_address
+        &ett_isis_lsp_clv_mt_cap_spbv_mac_address,
+        &ett_isis_lsp_clv_originating_buff_size /* CLV 14 */
     };
 
     static ei_register_info ei[] = {
