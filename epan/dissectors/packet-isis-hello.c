@@ -114,6 +114,26 @@ static int hf_isis_hello_trill_neighbor_reserved = -1;
 static int hf_isis_hello_trill_neighbor_mtu = -1;
 static int hf_isis_hello_trill_neighbor_snpa = -1;
 static int hf_isis_hello_neighbor_extended_local_circuit_id = -1;
+static int hf_isis_hello_vlan_flags_port_id = -1;
+static int hf_isis_hello_vlan_flags_nickname = -1;
+static int hf_isis_hello_vlan_flags_af = -1;
+static int hf_isis_hello_vlan_flags_ac = -1;
+static int hf_isis_hello_vlan_flags_vm = -1;
+static int hf_isis_hello_vlan_flags_by = -1;
+static int hf_isis_hello_vlan_flags_outer_vlan = -1;
+static int hf_isis_hello_vlan_flags_tr = -1;
+static int hf_isis_hello_vlan_flags_reserved = -1;
+static int hf_isis_hello_vlan_flags_designated_vlan = -1;
+static int hf_isis_hello_enabled_vlans = -1;
+static int hf_isis_hello_appointed_vlans = -1;
+static int hf_isis_hello_af_nickname = -1;
+static int hf_isis_hello_af_start_vlan = -1;
+static int hf_isis_hello_af_end_vlan = -1;
+static int hf_isis_hello_trill_version = -1;
+static int hf_isis_hello_trill_hello_reduction = -1;
+static int hf_isis_hello_trill_unassigned_1 = -1;
+static int hf_isis_hello_trill_hop_by_hop_flags = -1;
+static int hf_isis_hello_trill_unassigned_2 = -1;
 
 static gint ett_isis_hello = -1;
 static gint ett_isis_hello_clv_area_addr = -1;
@@ -131,9 +151,13 @@ static gint ett_isis_hello_clv_restart = -1;
 static gint ett_isis_hello_clv_restart_flags = -1;
 static gint ett_isis_hello_clv_mt_port_cap = -1;
 static gint ett_isis_hello_clv_mt_port_cap_spb_mcid = -1;
-static gint ett_isis_hello_clv_mt_port_cap_spb_aux_mcid = -1;
 static gint ett_isis_hello_clv_mt_port_cap_spb_digest = -1;
 static gint ett_isis_hello_clv_mt_port_cap_spb_bvid_tuples = -1;
+static gint ett_isis_hello_clv_mt_port_cap_vlan_flags = -1;
+static gint ett_isis_hello_clv_mt_port_cap_enabled_vlans = -1;
+static gint ett_isis_hello_clv_mt_port_cap_appointedfwrdrs = -1;
+static gint ett_isis_hello_clv_mt_port_cap_port_trill_ver = -1;
+static gint ett_isis_hello_clv_mt_port_cap_vlans_appointed = -1;
 static gint ett_isis_hello_clv_trill_neighbor = -1;
 static gint ett_isis_hello_clv_checksum = -1;
 
@@ -248,6 +272,156 @@ dissect_hello_mt_port_cap_spb_bvid_tuples_clv(tvbuff_t *tvb, packet_info* pinfo,
 }
 
 static void
+dissect_hello_mt_port_cap_vlan_flags_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
+        proto_tree *tree, int offset, int subtype, int sublen)
+{
+    proto_tree *subtree;
+
+    subtree = proto_tree_add_subtree_format( tree, tvb, offset-2, sublen+2, ett_isis_hello_clv_mt_port_cap_vlan_flags, NULL,
+                                "Special VLANs and Flags (t=%u, l=%u)", subtype, sublen);
+
+    proto_tree_add_item(subtree, hf_isis_hello_vlan_flags_port_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+    sublen -=2;
+
+    proto_tree_add_item(subtree, hf_isis_hello_vlan_flags_nickname, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+    sublen -=2;
+
+    proto_tree_add_item(subtree, hf_isis_hello_vlan_flags_af, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(subtree, hf_isis_hello_vlan_flags_ac, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(subtree, hf_isis_hello_vlan_flags_vm, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(subtree, hf_isis_hello_vlan_flags_by, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(subtree, hf_isis_hello_vlan_flags_outer_vlan, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+    sublen -=2;
+
+    proto_tree_add_item(subtree, hf_isis_hello_vlan_flags_tr, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(subtree, hf_isis_hello_vlan_flags_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(subtree, hf_isis_hello_vlan_flags_designated_vlan, tvb, offset, 2, ENC_BIG_ENDIAN);
+
+}
+
+static void
+parse_vlan_bitmap(proto_item *item, tvbuff_t *tvb, guint vlan, int offset, int sublen)
+{
+    gint range=0, next=0;
+    guint8 mask, bitmap, i;
+
+    while (sublen>0) {
+
+        bitmap = tvb_get_guint8(tvb, offset);
+        mask = 0x80;
+
+        for (i=0; i<8; i++) {
+
+           if (bitmap & mask) {
+
+               if (range==0) {
+                   proto_item_append_text(item, "%s%u", next++ ? ", " : "", vlan);
+               }
+               range++;
+
+           } else {
+
+               if (range>1) {
+                   proto_item_append_text(item, "-%u", vlan-1);
+               }
+               range=0;
+
+           }
+           vlan++;
+           mask>>=1;
+        }
+        offset++;
+        sublen--;
+    }
+
+    if (range>1) {
+        proto_item_append_text(item, "-%u", vlan-1);
+    }
+}
+
+
+static void
+dissect_hello_mt_port_cap_enabled_vlans_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
+        proto_tree *tree, int offset, int subtype, int sublen)
+{
+    proto_tree *subtree;
+    proto_item *item;
+    guint vlan;
+
+    subtree = proto_tree_add_subtree_format( tree, tvb, offset-2, sublen+2, ett_isis_hello_clv_mt_port_cap_enabled_vlans, NULL,
+                                "Enabled-VLANs (t=%u, l=%u)", subtype, sublen);
+
+    vlan = tvb_get_ntohs(tvb, offset) & 0xfff;
+    offset+=2;
+    sublen-=2;
+
+    item = proto_tree_add_string(subtree, hf_isis_hello_enabled_vlans, tvb, offset, sublen, "");
+
+    parse_vlan_bitmap(item, tvb, vlan, offset, sublen);
+}
+
+static void
+dissect_hello_mt_port_cap_appointedfwrdrs_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
+        proto_tree *tree, int offset, int subtype, int sublen)
+{
+    proto_tree *subtree;
+
+    subtree = proto_tree_add_subtree_format( tree, tvb, offset-2, sublen+2, ett_isis_hello_clv_mt_port_cap_appointedfwrdrs, NULL,
+                                "Appointed Forwarders (t=%u, l=%u)", subtype, sublen);
+
+    while (sublen>=6) {
+        proto_tree_add_item(subtree, hf_isis_hello_af_nickname, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(subtree, hf_isis_hello_af_start_vlan, tvb, offset+2, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(subtree, hf_isis_hello_af_end_vlan, tvb, offset+4, 2, ENC_BIG_ENDIAN);
+
+        offset += 6;
+        sublen -=6;
+    }
+}
+
+static void
+dissect_hello_mt_port_cap_port_trill_ver_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
+        proto_tree *tree, int offset, int subtype, int sublen)
+{
+    proto_tree *subtree;
+
+    subtree = proto_tree_add_subtree_format( tree, tvb, offset-2, sublen+2, ett_isis_hello_clv_mt_port_cap_port_trill_ver, NULL,
+                                "Port TRILL Version (t=%u, l=%u)", subtype, sublen);
+
+    proto_tree_add_item(subtree, hf_isis_hello_trill_version, tvb, offset, 1, ENC_NA);
+
+    offset++;
+
+    proto_tree_add_item(subtree, hf_isis_hello_trill_hello_reduction, tvb, offset, 4, ENC_NA);
+    proto_tree_add_item(subtree, hf_isis_hello_trill_unassigned_1, tvb, offset, 4, ENC_NA);
+    proto_tree_add_item(subtree, hf_isis_hello_trill_hop_by_hop_flags, tvb, offset, 4, ENC_NA);
+    proto_tree_add_item(subtree, hf_isis_hello_trill_unassigned_2, tvb, offset, 4, ENC_NA);
+}
+
+static void
+dissect_hello_mt_port_cap_vlans_appointed_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
+        proto_tree *tree, int offset, int subtype, int sublen)
+{
+    proto_tree *subtree;
+    proto_item *item;
+    guint vlan;
+
+    subtree = proto_tree_add_subtree_format( tree, tvb, offset-2, sublen+2, ett_isis_hello_clv_mt_port_cap_vlans_appointed, NULL,
+                                "Appointed VLANs (t=%u, l=%u)", subtype, sublen);
+
+    vlan = tvb_get_ntohs(tvb, offset) & 0xfff;
+    offset+=2;
+    sublen-=2;
+
+    item = proto_tree_add_string(subtree, hf_isis_hello_appointed_vlans, tvb, offset, sublen, "");
+
+    parse_vlan_bitmap(item, tvb, vlan, offset, sublen);
+}
+
+static void
 dissect_hello_mt_port_cap_clv(tvbuff_t *tvb, packet_info* pinfo,
         proto_tree *tree, int offset, int id_length _U_, int length)
 {
@@ -263,21 +437,38 @@ dissect_hello_mt_port_cap_clv(tvbuff_t *tvb, packet_info* pinfo,
             offset += 2;
             if (subtlvlen > length) {
                 proto_tree_add_expert_format(tree, pinfo, &ei_isis_hello_short_packet, tvb, offset, -1,
-                                      "Short type 0x%02x TLV (%d vs %d)", subtype, subtlvlen, length);
+                                      "Short type %d TLV (%d vs %d)", subtype, subtlvlen, length);
                 return;
             }
-            if (subtype == 0x04) { /* SPB MCID */
+            switch(subtype)
+            {
+            case 1:  /* TRILL Special VLANs and Flags */
+                dissect_hello_mt_port_cap_vlan_flags_clv(tvb, pinfo, tree, offset, subtype, subtlvlen);
+                break;
+            case 2:  /* TRILL Enabled VLANs */
+                dissect_hello_mt_port_cap_enabled_vlans_clv(tvb, pinfo, tree, offset, subtype, subtlvlen);
+                break;
+            case 3:  /* TRILL Appointed Forwarders */
+                dissect_hello_mt_port_cap_appointedfwrdrs_clv(tvb, pinfo, tree, offset, subtype, subtlvlen);
+                break;
+            case 4:  /* SPB MCID */
                 dissect_hello_mt_port_cap_spb_mcid_clv(tvb, pinfo, tree, offset, subtype, subtlvlen);
-            }
-            else if (subtype == 0x05) { /* SPB Digest */
+                break;
+            case 5:  /* SPB Digest */
                 dissect_hello_mt_port_cap_spb_digest_clv(tvb, pinfo, tree, offset, subtype, subtlvlen);
-            }
-            else if (subtype == 0x06) { /* SPB BVID Tuples */
+                break;
+            case 6:  /* SPB BVID Tuples */
                 dissect_hello_mt_port_cap_spb_bvid_tuples_clv(tvb, pinfo, tree, offset, subtype, subtlvlen);
-            }
-            else {
-                proto_tree_add_expert_format(tree, pinfo, &ei_isis_hello_subtlv, tvb, offset, -1,
-                         "Unknown SubTlv: Type: 0x%02x, Length: %d", subtype, subtlvlen );
+                break;
+            case 7:  /* Port TRILL Version */
+                dissect_hello_mt_port_cap_port_trill_ver_clv(tvb, pinfo, tree, offset, subtype, subtlvlen);
+                break;
+            case 8:  /* TRILL VLANs Appointed */
+                dissect_hello_mt_port_cap_vlans_appointed_clv(tvb, pinfo, tree, offset, subtype, subtlvlen);
+                break;
+            default:
+                proto_tree_add_expert_format(tree, pinfo, &ei_isis_hello_subtlv, tvb, offset-2, subtlvlen+2,
+                         "Unknown Sub-TLV: Type: %d, Length: %d", subtype, subtlvlen );
             }
             length -= subtlvlen;
             offset += subtlvlen;
@@ -1145,7 +1336,7 @@ proto_register_isis_hello(void)
             FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
         { &hf_isis_hello_clv_length,
-        { "Type", "isis.hello.clv.length",
+        { "Length", "isis.hello.clv.length",
             FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
         { &hf_isis_hello_local_circuit_id,
@@ -1217,6 +1408,26 @@ proto_register_isis_hello(void)
       { &hf_isis_hello_extended_local_circuit_id, { "Extended Local circuit ID", "isis.hello.extended_local_circuit_id", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
       { &hf_isis_hello_neighbor_systemid, { "Neighbor SystemID", "isis.hello.neighbor_systemid", FT_SYSTEM_ID, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_isis_hello_neighbor_extended_local_circuit_id, { "Neighbor Extended Local circuit ID", "isis.hello.neighbor_extended_local_circuit_id", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { &hf_isis_hello_vlan_flags_port_id, { "Port ID", "isis.hello.vlan_flags.port_id", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_isis_hello_vlan_flags_nickname, { "Nickname", "isis.hello.vlan_flags.nickname", FT_UINT16, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_isis_hello_vlan_flags_af, { "Appointed Forwarder", "isis.hello.vlan_flags.af", FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x8000, NULL, HFILL }},
+      { &hf_isis_hello_vlan_flags_ac, { "Access Port", "isis.hello.vlan_flags.ac", FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x4000, NULL, HFILL }},
+      { &hf_isis_hello_vlan_flags_vm, { "VLAN Mapping Detected", "isis.hello.vlan_flags.vm", FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x2000, NULL, HFILL }},
+      { &hf_isis_hello_vlan_flags_by, { "Bypass Pseudonode", "isis.hello.vlan_flags.by", FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x1000, NULL, HFILL }},
+      { &hf_isis_hello_vlan_flags_outer_vlan, { "Outer VLAN", "isis.hello.vlan_flags.outer_vlan", FT_UINT16, BASE_DEC, NULL, 0xfff, NULL, HFILL }},
+      { &hf_isis_hello_vlan_flags_tr, { "Trunk Port", "isis.hello.vlan_flags.tr", FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x8000, NULL, HFILL }},
+      { &hf_isis_hello_vlan_flags_reserved, { "Reserved", "isis.hello.vlan_flags.reserved", FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x7000, NULL, HFILL }},
+      { &hf_isis_hello_vlan_flags_designated_vlan, { "Designated VLAN", "isis.hello.vlan_flags.designated_vlan", FT_UINT16, BASE_DEC, NULL, 0xfff, NULL, HFILL }},
+      { &hf_isis_hello_enabled_vlans, { "Enabled VLANs", "isis.hello.enabled_vlans", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_isis_hello_appointed_vlans, { "Appointed VLANs", "isis.hello.appointed_vlans", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_isis_hello_af_nickname, { "Nickname", "isis.hello.af.nickname", FT_UINT16, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_isis_hello_af_start_vlan, { "Start VLAN", "isis.hello.af.start_vlan", FT_UINT16, BASE_DEC, NULL, 0xfff, NULL, HFILL }},
+      { &hf_isis_hello_af_end_vlan, { "End VLAN", "isis.hello.af.end_vlan", FT_UINT16, BASE_DEC, NULL, 0xfff, NULL, HFILL }},
+      { &hf_isis_hello_trill_version, { "Maximum version", "isis.hello.trill.maximum_version", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_isis_hello_trill_hello_reduction, { "Hello Reduction", "isis.hello.trill.hello_reduction", FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), 0x80000000, NULL, HFILL }},
+      { &hf_isis_hello_trill_unassigned_1, { "Unassigned", "isis.hello.trill.unassigned_1", FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x60000000, NULL, HFILL }},
+      { &hf_isis_hello_trill_hop_by_hop_flags, { "Hop-by-hop Extended Header Flags", "isis.hello.trill.hop_by_hop_flags", FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), 0x1ffc0000, NULL, HFILL }},
+      { &hf_isis_hello_trill_unassigned_2, { "Unassigned", "isis.hello.trill.unassigned_2",FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x0003ffff, NULL, HFILL }},
       { &hf_isis_hello_is_neighbor, { "IS Neighbor", "isis.hello.is_neighbor", FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     };
 
@@ -1237,9 +1448,13 @@ proto_register_isis_hello(void)
         &ett_isis_hello_clv_restart_flags,
         &ett_isis_hello_clv_mt_port_cap,
         &ett_isis_hello_clv_mt_port_cap_spb_mcid,
-        &ett_isis_hello_clv_mt_port_cap_spb_aux_mcid,
         &ett_isis_hello_clv_mt_port_cap_spb_digest,
         &ett_isis_hello_clv_mt_port_cap_spb_bvid_tuples,
+        &ett_isis_hello_clv_mt_port_cap_vlan_flags,
+        &ett_isis_hello_clv_mt_port_cap_enabled_vlans,
+        &ett_isis_hello_clv_mt_port_cap_appointedfwrdrs,
+        &ett_isis_hello_clv_mt_port_cap_port_trill_ver,
+        &ett_isis_hello_clv_mt_port_cap_vlans_appointed,
         &ett_isis_hello_clv_trill_neighbor,
         &ett_isis_hello_clv_checksum
     };
@@ -1247,7 +1462,7 @@ proto_register_isis_hello(void)
     static ei_register_info ei[] = {
         { &ei_isis_hello_short_packet, { "isis.hello.short_packet", PI_MALFORMED, PI_ERROR, "Short packet", EXPFILL }},
         { &ei_isis_hello_long_packet, { "isis.hello.long_packet", PI_MALFORMED, PI_ERROR, "Long packet", EXPFILL }},
-        { &ei_isis_hello_subtlv, { "isis.hello.subtlv.unknown", PI_PROTOCOL, PI_WARN, "Unknown SubTLV", EXPFILL }},
+        { &ei_isis_hello_subtlv, { "isis.hello.subtlv.unknown", PI_PROTOCOL, PI_WARN, "Unknown Sub-TLV", EXPFILL }},
         { &ei_isis_hello_authentication, { "isis.hello.authentication.unknown", PI_PROTOCOL, PI_WARN, "Unknown authentication type", EXPFILL }},
     };
 
