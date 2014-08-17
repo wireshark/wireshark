@@ -163,7 +163,6 @@ static int hf_isis_lsp_rt_capable_nickname_length = -1;
 static int hf_isis_lsp_ip_reachability_ipv4_prefix = -1;
 static int hf_isis_lsp_grp_address_topology_id = -1;
 static int hf_isis_lsp_ext_is_reachability_ipv4_neighbor_address = -1;
-static int hf_isis_lsp_rt_capable_vlan_group_nth_secondary_vlan_id = -1;
 static int hf_isis_lsp_ipv6_reachability_reserved_bits = -1;
 static int hf_isis_lsp_eis_neighbors_default_metric = -1;
 static int hf_isis_lsp_mt_cap_spb_instance_cist_root_identifier = -1;
@@ -779,7 +778,6 @@ dissect_isis_rt_capable_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
     proto_tree *rt_tree;
 
     gint root_id = 1;       /* To display the root id */
-    gint sec_vlan_id = 1;   /* To display the seconadary VLAN id */
     length = length - 5;    /* Ignoring the 5 reserved bytes */
     offset = offset + 5;
 
@@ -842,11 +840,15 @@ dissect_isis_rt_capable_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
             len = tvb_get_guint8(tvb, offset);
             proto_tree_add_item(rt_tree, hf_isis_lsp_rt_capable_tree_root_id_length, tvb, offset, 1, ENC_NA);
 
-            proto_tree_add_item(rt_tree, hf_isis_lsp_rt_capable_tree_root_id_starting_tree_no, tvb, offset+1, 2, ENC_BIG_ENDIAN);
+            length--;
+            offset++;
+
+            proto_tree_add_item(rt_tree, hf_isis_lsp_rt_capable_tree_root_id_starting_tree_no, tvb, offset, 2, ENC_BIG_ENDIAN);
 
             len -= 2;
             length -= 2;
             offset += 2;
+            root_id = 1;
 
             while (len>1) {
                 rt_block = tvb_get_ntohs(tvb, offset);
@@ -865,9 +867,10 @@ dissect_isis_rt_capable_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
 
             length--;
             offset++;
-            len = tvb_get_guint8(tvb, offset);
 
+            len = tvb_get_guint8(tvb, offset);
             proto_tree_add_item(rt_tree, hf_isis_lsp_rt_capable_nickname_length, tvb, offset, 1, ENC_NA);
+
             length--;
             offset++;
 
@@ -900,7 +903,6 @@ dissect_isis_rt_capable_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
             proto_tree_add_item(rt_tree, hf_isis_lsp_rt_capable_interested_vlans_length, tvb, offset, 1, ENC_NA);
             length--;
             offset++;
-            len--;
 
             proto_tree_add_item(rt_tree, hf_isis_lsp_rt_capable_interested_vlans_nickname, tvb, offset, 2, ENC_BIG_ENDIAN);
             len -= 2;
@@ -943,18 +945,21 @@ dissect_isis_rt_capable_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
             len = tvb_get_guint8(tvb, offset);
             proto_tree_add_item(rt_tree, hf_isis_lsp_rt_capable_tree_used_id_length, tvb, offset, 1, ENC_NA);
 
-            proto_tree_add_item(rt_tree, hf_isis_lsp_rt_capable_tree_used_id_starting_tree_no, tvb, offset+1, 2, ENC_BIG_ENDIAN);
+            length--;
+            offset++;
+
+            proto_tree_add_item(rt_tree, hf_isis_lsp_rt_capable_tree_used_id_starting_tree_no, tvb, offset, 2, ENC_BIG_ENDIAN);
+
             len -= 2;
-            length += 2;
-            offset += 3;
+            length -= 2;
+            offset += 2;
             root_id = 1;
 
-            while (len>0) {
+            while (len>1) {
                 rt_block = tvb_get_ntohs(tvb, offset);
                 proto_tree_add_uint_format(rt_tree, hf_isis_lsp_rt_capable_tree_used_id_nickname, tvb, offset,2,
                                 rt_block, "Nickname(%dth root): %d", root_id, rt_block);
                 root_id++;
-
                 len -= 2;
                 offset += 2;
                 length -= 2;
@@ -971,7 +976,6 @@ dissect_isis_rt_capable_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
             len = tvb_get_guint8(tvb, offset);
             proto_tree_add_item(rt_tree, hf_isis_lsp_rt_capable_vlan_group_length, tvb, offset, 1, ENC_NA);
 
-            len--;
             length--;
             offset++;
 
@@ -981,22 +985,12 @@ dissect_isis_rt_capable_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
             offset += 2;
             length -= 2;
 
-            proto_tree_add_item(rt_tree, hf_isis_lsp_rt_capable_vlan_group_secondary_vlan_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+            while (len>1) {
 
-            len -= 2;
-            offset += 2;
-            length -= 2;
-            sec_vlan_id = 1;
-
-            while (len>0) {
-                rt_block = tvb_get_ntohs(tvb, offset);
-
-                proto_tree_add_uint_format(rt_tree, hf_isis_lsp_rt_capable_vlan_group_nth_secondary_vlan_id, tvb, offset, 2,
-                                           rt_block, "%dth secondary vlan id: %x", sec_vlan_id, rt_block);
+                proto_tree_add_item(rt_tree, hf_isis_lsp_rt_capable_vlan_group_secondary_vlan_id, tvb, offset, 2, ENC_BIG_ENDIAN);
 
                 length -= 2;
                 offset += 2;
-                sec_vlan_id++;
                 len -= 2;
             }
             break;
@@ -3059,11 +3053,6 @@ proto_register_isis_lsp(void)
         { &hf_isis_lsp_rt_capable_vlan_group_secondary_vlan_id,
             { "Secondary vlan id", "isis.lsp.rt_capable.vlan_group.secondary_vlan_id",
               FT_UINT16, BASE_DEC, NULL, 0x0fff,
-              NULL, HFILL }
-        },
-        { &hf_isis_lsp_rt_capable_vlan_group_nth_secondary_vlan_id,
-            { "%dth secondary vlan id", "isis.lsp.rt_capable.vlan_group.nth_secondary_vlan_id",
-              FT_UINT16, BASE_HEX, NULL, 0x0,
               NULL, HFILL }
         },
         { &hf_isis_lsp_ipv6_reachability_ipv6_prefix,
