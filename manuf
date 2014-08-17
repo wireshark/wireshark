@@ -18307,6 +18307,7 @@
 2C:44:01	SamsungE               # Samsung Electronics Co.,Ltd
 2C:44:1B	Spectrum               # Spectrum Medical Limited
 2C:44:FD	HewlettP               # Hewlett Packard
+2C:50:89	Shenzhen               # Shenzhen Kaixuan Visual Technology Co.,Limited
 2C:53:4A	Shenzhen               # Shenzhen Winyao Electronic Limited
 2C:54:2D	Cisco                  # CISCO SYSTEMS, INC.
 2C:54:CF	LgElectr               # LG Electronics
@@ -18612,8 +18613,10 @@
 38:26:2B	UtranTec               # UTran Technology
 38:26:CD	Andtek
 38:28:EA	FujianNe               # Fujian Netcom Technology Co., LTD
+38:2C:4A	AsustekC               # ASUSTek COMPUTER INC.
 38:2D:D1	SamsungE               # Samsung Electronics Co.,Ltd
 38:31:AC	Weg
+38:3B:C8	2wire
 38:3F:10	DblTechn               # DBL Technology Ltd.
 38:42:33	Wildeboe               # Wildeboer Bauteile GmbH
 38:42:A6	Ingenieu               # Ingenieurbuero Stahlkopf
@@ -20058,6 +20061,7 @@
 5C:8F:E0	ArrisGro               # ARRIS Group, Inc.
 5C:93:A2	LiteonTe               # Liteon Technology Corporation
 5C:95:AE	Apple
+5C:96:6A	Rtnet
 5C:96:9D	Apple
 5C:97:F3	Apple
 5C:9A:D8	Fujitsu                # Fujitsu Limited
@@ -20678,6 +20682,7 @@
 70:B3:D5:09:20:00/36	InomedMe               # inomed Medizintechnik GmbH
 70:B3:D5:09:70:00/36	AvantTec               # Avant Technologies
 70:B3:D5:09:90:00/36	Schwer+K               # Schwer+Kopka GmbH
+70:B3:D5:0A:40:00/36	Communic               # Communication Technology Ltd.
 70:B3:D5:0A:90:00/36	Proconne               # ProConnections, Inc.
 70:B3:D5:0A:A0:00/36	Wanco                  # Wanco Inc
 70:B3:D5:0A:B0:00/36	KstTechn               # KST technology
@@ -20883,6 +20888,7 @@
 70:B3:D5:B8:A0:00/36	NexusTec               # Nexus Tech. VN
 70:B3:D5:B8:C0:00/36	EpointEm               # ePOINT Embedded Computing Limited
 70:B3:D5:B8:D0:00/36	Jungwooe               # JungwooEng Co., Ltd
+70:B3:D5:B8:F0:00/36	Assembly               # Assembly Contracts Ltd
 70:B3:D5:B9:B0:00/36	Elektron               # Elektronik Art
 70:B3:D5:BA:40:00/36	EiwaGike               # EIWA GIKEN INC.
 70:B3:D5:BB:20:00/36	Mettler-               # Mettler-Toledo Hi-Speed
@@ -21030,6 +21036,7 @@
 74:4B:E9	Explorer               # EXPLORER HYPERTECH CO.,LTD
 74:4D:79	Arrive                 # Arrive Systems Inc.
 74:53:27	Commsen                # COMMSEN CO., LIMITED
+74:54:7D	CiscoSpv               # Cisco SPVTG
 74:56:12	ArrisGro               # ARRIS Group, Inc.
 74:57:98	TrumpfLa               # TRUMPF Laser GmbH + Co. KG
 74:5C:9F	TctMobil               # TCT mobile ltd.
@@ -23788,6 +23795,7 @@ D8:2D:E1	Tricasca               # Tricascade Inc.
 D8:30:62	Apple
 D8:31:CF	SamsungE               # Samsung Electronics Co.,Ltd
 D8:33:7F	OfficeFa               # Office FA.com Co.,Ltd.
+D8:3C:69	TinnoMob               # Tinno Mobile Technology Corp
 D8:42:AC	Shanghai               # Shanghai Feixun Communication Co.,Ltd.
 D8:46:06	SiliconV               # Silicon Valley Global Marketing
 D8:49:0B	HuaweiTe               # HUAWEI TECHNOLOGIES CO.,LTD
