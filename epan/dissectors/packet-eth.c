@@ -41,6 +41,7 @@
 #include "packet-usb.h"
 #include <epan/crc32-tvb.h>
 #include <epan/tap.h>
+#include <wiretap/erf.h>
 
 void proto_register_eth(void);
 void proto_reg_handoff_eth(void);
@@ -1021,6 +1022,7 @@ proto_reg_handoff_eth(void)
 
     eth_withoutfcs_handle = find_dissector("eth_withoutfcs");
     dissector_add_uint("ethertype", ETHERTYPE_ETHBRIDGE, eth_withoutfcs_handle);
+    dissector_add_uint("erf.types.type", ERF_TYPE_ETH, eth_withoutfcs_handle);
     dissector_add_uint("chdlc.protocol", ETHERTYPE_ETHBRIDGE, eth_withoutfcs_handle);
     dissector_add_uint("gre.proto", ETHERTYPE_ETHBRIDGE, eth_withoutfcs_handle);
 

@@ -38,6 +38,7 @@
 #include <epan/etypes.h>
 #include <epan/show_exception.h>
 #include <epan/to_str.h>
+#include <wiretap/erf.h>
 
 #include "packet-infiniband.h"
 
@@ -107,6 +108,7 @@ static gint ett_link = -1;
 
 /* Dissector Declaration */
 static dissector_handle_t ib_handle;
+static dissector_handle_t ib_link_handle;
 
 /* Subdissectors Declarations */
 static dissector_handle_t ipv6_handle;
@@ -7366,7 +7368,7 @@ void proto_register_infiniband(void)
                                    &pref_dissect_eoib);
 
     proto_infiniband_link = proto_register_protocol("InfiniBand Link", "InfiniBand Link", "infiniband_link");
-    register_dissector("infiniband_link", dissect_infiniband_link, proto_infiniband_link);
+    ib_link_handle = register_dissector("infiniband_link", dissect_infiniband_link, proto_infiniband_link);
 
     proto_register_field_array(proto_infiniband_link, hf_link, array_length(hf_link));
     proto_register_subtree_array(ett_link_array, array_length(ett_link_array));
@@ -7385,6 +7387,12 @@ void proto_reg_handoff_infiniband(void)
     data_handle               = find_dissector("data");
     eth_handle                = find_dissector("eth");
     ethertype_dissector_table = find_dissector_table("ethertype");
+
+    /* announce an anonymous Infiniband dissector */
+    dissector_add_uint("erf.types.type", ERF_TYPE_INFINIBAND, ib_handle);
+
+    /* announce an anonymous Infiniband dissector */
+    dissector_add_uint("erf.types.type", ERF_TYPE_INFINIBAND_LINK, ib_link_handle);
 
     /* create and announce an anonymous RoCE dissector */
     roce_handle = create_dissector_handle(dissect_roce, proto_infiniband);

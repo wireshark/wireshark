@@ -50,6 +50,7 @@
 #include <epan/tap.h>
 #include <epan/wmem/wmem.h>
 #include <epan/decode_as.h>
+#include <wiretap/erf.h>
 
 #include "packet-ip.h"
 
@@ -3104,6 +3105,7 @@ proto_reg_handoff_ip(void)
   data_handle = find_dissector("data");
 
   dissector_add_uint("ethertype", ETHERTYPE_IP, ip_handle);
+  dissector_add_uint("erf.types.type", ERF_TYPE_IPV4, ip_handle);
   dissector_add_uint("ppp.protocol", PPP_IP, ip_handle);
   dissector_add_uint("ppp.protocol", ETHERTYPE_IP, ip_handle);
   dissector_add_uint("gre.proto", ETHERTYPE_IP, ip_handle);

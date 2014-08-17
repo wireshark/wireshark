@@ -108,6 +108,7 @@ typedef struct sdh_g707_format_s
 } sdh_g707_format_t;
 
 static dissector_handle_t erf_handle;
+static dissector_table_t erf_dissector_table;
 
 /* Initialize the protocol and registered fields */
 static int proto_erf = -1;
@@ -284,13 +285,6 @@ static expert_field ei_erf_checksum_error = EI_INIT;
 /* Default subdissector, display raw hex data */
 static dissector_handle_t data_handle;
 
-/* IPv4 and IPv6 subdissectors */
-static dissector_handle_t ipv4_handle;
-static dissector_handle_t ipv6_handle;
-
-static dissector_handle_t infiniband_handle;
-static dissector_handle_t infiniband_link_handle;
-
 typedef enum {
   ERF_HDLC_CHDLC  = 0,
   ERF_HDLC_PPP    = 1,
@@ -315,7 +309,6 @@ static gint erf_aal5_type = ERF_AAL5_GUESS;
 static dissector_handle_t atm_untruncated_handle;
 
 static gboolean erf_ethfcs = TRUE;
-static dissector_handle_t ethwithfcs_handle, ethwithoutfcs_handle;
 
 static dissector_handle_t sdh_handle;
 
@@ -1241,7 +1234,7 @@ dissect_erf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   switch (erf_type) {
 
   case ERF_TYPE_RAW_LINK:
-    if(sdh_handle){
+    if(sdh_handle) {
       call_dissector(sdh_handle, tvb, pinfo, tree);
     }
     else{
@@ -1249,32 +1242,18 @@ dissect_erf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
     break;
 
+  case ERF_TYPE_ETH:
+  case ERF_TYPE_COLOR_ETH:
+  case ERF_TYPE_DSM_COLOR_ETH:
+    dissect_eth_header(tvb, pinfo, erf_tree);
+    /* fall through */
   case ERF_TYPE_IPV4:
-    if (ipv4_handle)
-      call_dissector(ipv4_handle, tvb, pinfo, tree);
-    else
-      call_dissector(data_handle, tvb, pinfo, tree);
-    break;
-
   case ERF_TYPE_IPV6:
-    if (ipv6_handle)
-      call_dissector(ipv6_handle, tvb, pinfo, tree);
-    else
-      call_dissector(data_handle, tvb, pinfo, tree);
-    break;
-
   case ERF_TYPE_INFINIBAND:
-    if (infiniband_handle)
-      call_dissector(infiniband_handle, tvb, pinfo, tree);
-    else
-      call_dissector(data_handle, tvb, pinfo, tree);
-    break;
-
   case ERF_TYPE_INFINIBAND_LINK:
-    if (infiniband_link_handle)
-      call_dissector(infiniband_link_handle, tvb, pinfo, tree);
-    else
+    if (!dissector_try_uint(erf_dissector_table, erf_type, tvb, pinfo, tree)) {
       call_dissector(data_handle, tvb, pinfo, tree);
+    }
     break;
 
   case ERF_TYPE_LEGACY:
@@ -1443,16 +1422,6 @@ dissect_erf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* remove ATM cell header from tvb */
     new_tvb = tvb_new_subset_remaining(tvb, ATM_HDR_LENGTH);
     call_dissector(atm_untruncated_handle, new_tvb, pinfo, tree);
-    break;
-
-  case ERF_TYPE_ETH:
-  case ERF_TYPE_COLOR_ETH:
-  case ERF_TYPE_DSM_COLOR_ETH:
-    dissect_eth_header(tvb, pinfo, erf_tree);
-    if (erf_ethfcs)
-      call_dissector(ethwithfcs_handle, tvb, pinfo, tree);
-    else
-      call_dissector(ethwithoutfcs_handle, tvb, pinfo, tree);
     break;
 
   case ERF_TYPE_MC_HDLC:
@@ -1963,6 +1932,8 @@ proto_register_erf(void)
                                  "Ethernet packets have FCS",
                                  "Whether the FCS is present in Ethernet packets",
                                  &erf_ethfcs);
+
+  erf_dissector_table = register_dissector_table("erf.types.type", "Type",  FT_UINT8, BASE_DEC);
 }
 
 void
@@ -1973,14 +1944,6 @@ proto_reg_handoff_erf(void)
   /* Dissector called to dump raw data, or unknown protocol */
   data_handle = find_dissector("data");
 
-  /* Get handle for IP dissectors) */
-  ipv4_handle   = find_dissector("ip");
-  ipv6_handle   = find_dissector("ipv6");
-
-  /* Get handle for Infiniband dissector */
-  infiniband_handle      = find_dissector("infiniband");
-  infiniband_link_handle = find_dissector("infiniband_link");
-
   /* Get handles for serial line protocols */
   chdlc_handle  = find_dissector("chdlc");
   ppp_handle    = find_dissector("ppp_hdlc");
@@ -1989,10 +1952,6 @@ proto_reg_handoff_erf(void)
 
   /* Get handle for ATM dissector */
   atm_untruncated_handle = find_dissector("atm_untruncated");
-
-  /* Get handles for Ethernet dissectors */
-  ethwithfcs_handle    = find_dissector("eth_withfcs");
-  ethwithoutfcs_handle = find_dissector("eth_withoutfcs");
 
   sdh_handle = find_dissector("sdh");
 }

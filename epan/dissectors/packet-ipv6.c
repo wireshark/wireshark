@@ -47,6 +47,7 @@
 #include <epan/wmem/wmem.h>
 #include <epan/decode_as.h>
 #include <epan/tap.h>
+#include <wiretap/erf.h>
 #include "packet-ipv6.h"
 #include "packet-ip.h"
 
@@ -2985,6 +2986,7 @@ proto_reg_handoff_ipv6(void)
     data_handle = find_dissector("data");
     ipv6_handle = find_dissector("ipv6");
     dissector_add_uint("ethertype", ETHERTYPE_IPv6, ipv6_handle);
+    dissector_add_uint("erf.types.type", ERF_TYPE_IPV6, ipv6_handle);
     dissector_add_uint("ppp.protocol", PPP_IPV6, ipv6_handle);
     dissector_add_uint("ppp.protocol", ETHERTYPE_IPv6, ipv6_handle);
     dissector_add_uint("gre.proto", ETHERTYPE_IPv6, ipv6_handle);
