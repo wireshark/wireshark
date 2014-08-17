@@ -126,6 +126,7 @@ static gint ett_isis_hello_clv_mt_port_cap_spb_mcid = -1;
 static gint ett_isis_hello_clv_mt_port_cap_spb_aux_mcid = -1;
 static gint ett_isis_hello_clv_mt_port_cap_spb_digest = -1;
 static gint ett_isis_hello_clv_mt_port_cap_spb_bvid_tuples = -1;
+static gint ett_isis_hello_clv_trill_neighbor = -1;
 static gint ett_isis_hello_clv_checksum = -1;
 
 static expert_field ei_isis_hello_short_packet = EI_INIT;
@@ -518,6 +519,17 @@ dissect_hello_ip_authentication_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
 }
 
 /*
+ * Name: dissect_hello_trill_neighbor_clv
+ */
+static void
+dissect_hello_trill_neighbor_clv(tvbuff_t *tvb, packet_info* pinfo,
+        proto_tree *tree, int offset, int id_length _U_, int length) {
+
+    /* TODO Implement dissector according to RFC7176 section 2.5 */
+
+}
+
+/*
  * Name: dissect_hello_checksum_clv()
  *
  * Description:
@@ -771,6 +783,12 @@ static const isis_clv_handle_t clv_l1_hello_opts[] = {
         "Multi Topology",
         &ett_isis_hello_clv_mt,
         dissect_hello_mt_clv
+    },
+    {
+        ISIS_CLV_TRILL_NEIGHBOR,
+        "TRILL Neighbor",
+        &ett_isis_hello_clv_trill_neighbor,
+        dissect_hello_trill_neighbor_clv
     },
     {
         ISIS_CLV_CHECKSUM,
@@ -1177,6 +1195,7 @@ proto_register_isis_hello(void)
         &ett_isis_hello_clv_mt_port_cap_spb_aux_mcid,
         &ett_isis_hello_clv_mt_port_cap_spb_digest,
         &ett_isis_hello_clv_mt_port_cap_spb_bvid_tuples,
+        &ett_isis_hello_clv_trill_neighbor,
         &ett_isis_hello_clv_checksum
     };
 

@@ -58,13 +58,10 @@
 #define ISIS_CLV_EXTD_IP_REACH       135 /* draft-ietf-isis-traffic-05 */
 #define ISIS_CLV_HOSTNAME            137 /* rfc2763 */
 #define ISIS_CLV_SHARED_RISK_GROUP   138 /* draft-ietf-isis-gmpls-extensions */
-#define ISIS_GRP_ADDR                142 /* draft-ieft-trill-isis-05*//* Our sub-packet dismantle structure for CLV's */
-#define ISIS_CLV_MT_PORT_CAP         143 /* MT port capability (draft-ietf-isis-layer2-11) */
-#define ISIS_CLV_MT_CAP              144 /* MT capability (draft-ietf-isis-ieee-aq-05)
-                                          *   also: IEEE P802.1aq/D3.6,
-                                          *         http://www.ietf.org/mail-archive/web/spb-isis/current/msg00007.html
-                                          *         http://www.iana.org/assignments/isis-tlv-codepoints/isis-tlv-codepoints.xml#tlv-143,
-                                          */
+#define ISIS_GRP_ADDR                142 /* rfc7176 */
+#define ISIS_CLV_MT_PORT_CAP         143 /* rfc6165, rfc7176 */
+#define ISIS_CLV_MT_CAP              144 /* rfc6329, rfc7176 */
+#define ISIS_CLV_TRILL_NEIGHBOR      145 /* rfc7176 */
 #define ISIS_CLV_RESTART             211 /* draft-ietf-isis-restart-01 */
 #define ISIS_CLV_MT_IS_REACH         222 /* draft-ietf-isis-wg-multi-topology-05 */
 #define ISIS_CLV_MT_SUPPORTED        229 /* draft-ietf-isis-wg-multi-topology-05 */
@@ -74,7 +71,7 @@
 #define ISIS_CLV_MT_IP6_REACH        237 /* draft-ietf-isis-wg-multi-topology-05 */
 #define ISIS_CLV_PTP_ADJ_STATE       240 /* rfc3373 */
 #define ISIS_CLV_IIH_SEQNR           241 /* draft-shen-isis-iih-sequence-00 */
-#define ISIS_CLV_RT_CAPABLE          242 /* TRILL use of IS-IS RFC 6326 */
+#define ISIS_CLV_RT_CAPABLE          242 /* rfc4971, rfc7176 */
 #define ISIS_CLV_VENDOR_PRIVATE      250 /* draft-ietf-isis-proprietary-tlv-00 */
 
 /*
