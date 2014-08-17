@@ -35,6 +35,7 @@
 
 #include <epan/packet.h>
 #include <epan/conversation.h>
+#include <epan/expert.h>
 #include <epan/wmem/wmem.h>
 #include "packet-rpc.h"
 #include "packet-ndmp.h"
@@ -79,6 +80,7 @@ static int hf_ndmp_auth_password = -1;
 static int hf_ndmp_butype_info = -1;
 static int hf_ndmp_butype_name = -1;
 static int hf_ndmp_butype_default_env = -1;
+static int hf_ndmp_butype_attr = -1;
 static int hf_ndmp_butype_attr_backup_file_history = -1;
 static int hf_ndmp_butype_attr_backup_filelist = -1;
 static int hf_ndmp_butype_attr_recover_filelist = -1;
@@ -95,6 +97,7 @@ static int hf_ndmp_tcp_env_value = -1;
 static int hf_ndmp_tcp_default_env = -1;
 static int hf_ndmp_tcp_addr_list = -1;
 static int hf_ndmp_fs_info = -1;
+static int hf_ndmp_fs_invalid = -1;
 static int hf_ndmp_fs_invalid_total_size = -1;
 static int hf_ndmp_fs_invalid_used_size = -1;
 static int hf_ndmp_fs_invalid_avail_size = -1;
@@ -117,6 +120,7 @@ static int hf_ndmp_tape_model = -1;
 static int hf_ndmp_tape_dev_cap = -1;
 static int hf_ndmp_tape_device = -1;
 static int hf_ndmp_tape_open_mode = -1;
+static int hf_ndmp_tape_attr = -1;
 static int hf_ndmp_tape_attr_rewind = -1;
 static int hf_ndmp_tape_attr_unload = -1;
 static int hf_ndmp_tape_capability = -1;
@@ -131,6 +135,7 @@ static int hf_ndmp_scsi_device = -1;
 static int hf_ndmp_scsi_controller = -1;
 static int hf_ndmp_scsi_id = -1;
 static int hf_ndmp_scsi_lun = -1;
+static int hf_ndmp_execute_cdb_flags = -1;
 static int hf_ndmp_execute_cdb_flags_data_in = -1;
 static int hf_ndmp_execute_cdb_flags_data_out = -1;
 static int hf_ndmp_execute_cdb_timeout = -1;
@@ -141,6 +146,7 @@ static int hf_ndmp_execute_cdb_status = -1;
 static int hf_ndmp_execute_cdb_dataout_len = -1;
 /* static int hf_ndmp_execute_cdb_datain = -1; */
 static int hf_ndmp_execute_cdb_sns_len = -1;
+static int hf_ndmp_tape_invalid = -1;
 static int hf_ndmp_tape_invalid_file_num = -1;
 static int hf_ndmp_tape_invalid_soft_errors = -1;
 static int hf_ndmp_tape_invalid_block_size = -1;
@@ -148,6 +154,7 @@ static int hf_ndmp_tape_invalid_block_no = -1;
 static int hf_ndmp_tape_invalid_total_space = -1;
 static int hf_ndmp_tape_invalid_space_remain = -1;
 static int hf_ndmp_tape_invalid_partition = -1;
+static int hf_ndmp_tape_flags = -1;
 static int hf_ndmp_tape_flags_no_rewind = -1;
 static int hf_ndmp_tape_flags_write_protect = -1;
 static int hf_ndmp_tape_flags_error = -1;
@@ -194,6 +201,7 @@ static int hf_ndmp_file_stats = -1;
 static int hf_ndmp_file_node = -1;
 static int hf_ndmp_file_parent = -1;
 static int hf_ndmp_file_fh_info = -1;
+static int hf_ndmp_file_invalid = -1;
 static int hf_ndmp_file_invalid_atime = -1;
 static int hf_ndmp_file_invalid_ctime = -1;
 static int hf_ndmp_file_invalid_group = -1;
@@ -213,6 +221,7 @@ static int hf_ndmp_bu_original_path = -1;
 static int hf_ndmp_bu_destination_dir = -1;
 static int hf_ndmp_bu_new_name = -1;
 static int hf_ndmp_bu_other_name = -1;
+static int hf_ndmp_state_invalid = -1;
 static int hf_ndmp_state_invalid_ebr = -1;
 static int hf_ndmp_state_invalid_etr = -1;
 static int hf_ndmp_bu_operation = -1;
@@ -228,6 +237,7 @@ static int hf_ndmp_ext_version_list = -1;
 static int hf_ndmp_class_version = -1;
 static int hf_ndmp_ex_class_version = -1;
 
+static int hf_ndmp_fragment_data = -1;
 static int hf_ndmp_fragments = -1;
 static int hf_ndmp_fragment = -1;
 static int hf_ndmp_fragment_overlap = -1;
@@ -259,6 +269,8 @@ static gint ett_ndmp_file_invalids = -1;
 static gint ett_ndmp_state_invalids = -1;
 static gint ett_ndmp_fragment = -1;
 static gint ett_ndmp_fragments = -1;
+
+static expert_field ei_ndmp_msg = EI_INIT;
 
 static const fragment_items ndmp_frag_items = {
        /* Fragment subtrees */
@@ -865,35 +877,20 @@ static int
 dissect_butype_attrs(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
     proto_tree *parent_tree)
 {
-	proto_item* item = NULL;
-	proto_tree* tree = NULL;
-	guint32 flags;
+	static const int * attribute_flags[] = {
+		&hf_ndmp_butype_attr_recover_utf8,
+		&hf_ndmp_butype_attr_backup_utf8,
+		&hf_ndmp_butype_attr_recover_incremental,
+		&hf_ndmp_butype_attr_backup_incremental,
+		&hf_ndmp_butype_attr_recover_direct,
+		&hf_ndmp_butype_attr_backup_direct,
+		&hf_ndmp_butype_attr_recover_filelist,
+		&hf_ndmp_butype_attr_backup_filelist,
+		&hf_ndmp_butype_attr_backup_file_history,
+		NULL
+		};
 
-	flags=tvb_get_ntohl(tvb, offset);
-	if (parent_tree) {
-		item = proto_tree_add_text(parent_tree, tvb, offset, 4,
-				"Attributes: 0x%08x", flags);
-		tree = proto_item_add_subtree(item, ett_ndmp_butype_attrs);
-	}
-
-	proto_tree_add_boolean(tree, hf_ndmp_butype_attr_recover_utf8,
-				tvb, offset, 4, flags);
-	proto_tree_add_boolean(tree, hf_ndmp_butype_attr_backup_utf8,
-				tvb, offset, 4, flags);
-	proto_tree_add_boolean(tree, hf_ndmp_butype_attr_recover_incremental,
-				tvb, offset, 4, flags);
-	proto_tree_add_boolean(tree, hf_ndmp_butype_attr_backup_incremental,
-				tvb, offset, 4, flags);
-	proto_tree_add_boolean(tree, hf_ndmp_butype_attr_recover_direct,
-				tvb, offset, 4, flags);
-	proto_tree_add_boolean(tree, hf_ndmp_butype_attr_backup_direct,
-				tvb, offset, 4, flags);
-	proto_tree_add_boolean(tree, hf_ndmp_butype_attr_recover_filelist,
-				tvb, offset, 4, flags);
-	proto_tree_add_boolean(tree, hf_ndmp_butype_attr_backup_filelist,
-				tvb, offset, 4, flags);
-	proto_tree_add_boolean(tree, hf_ndmp_butype_attr_backup_file_history,
-				tvb, offset, 4, flags);
+	proto_tree_add_bitmask(parent_tree, tvb, offset, hf_ndmp_butype_attr, ett_ndmp_butype_attrs, attribute_flags, ENC_NA);
 
 	offset += 4;
 	return offset;
@@ -954,27 +951,16 @@ static int
 dissect_fs_invalid(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
     proto_tree *parent_tree)
 {
-	proto_item* item = NULL;
-	proto_tree* tree = NULL;
-	guint32 flags;
+	static const int * invalid_flags[] = {
+		&hf_ndmp_fs_invalid_used_inodes,
+		&hf_ndmp_fs_invalid_total_inodes,
+		&hf_ndmp_fs_invalid_avail_size,
+		&hf_ndmp_fs_invalid_used_size,
+		&hf_ndmp_fs_invalid_total_size,
+		NULL
+		};
 
-	flags=tvb_get_ntohl(tvb, offset);
-	if (parent_tree) {
-		item = proto_tree_add_text(parent_tree, tvb, offset, 4,
-				"Invalids: 0x%08x", flags);
-		tree = proto_item_add_subtree(item, ett_ndmp_fs_invalid);
-	}
-
-	proto_tree_add_boolean(tree, hf_ndmp_fs_invalid_used_inodes,
-				tvb, offset, 4, flags);
-	proto_tree_add_boolean(tree, hf_ndmp_fs_invalid_total_inodes,
-				tvb, offset, 4, flags);
-	proto_tree_add_boolean(tree, hf_ndmp_fs_invalid_avail_size,
-				tvb, offset, 4, flags);
-	proto_tree_add_boolean(tree, hf_ndmp_fs_invalid_used_size,
-				tvb, offset, 4, flags);
-	proto_tree_add_boolean(tree, hf_ndmp_fs_invalid_total_size,
-				tvb, offset, 4, flags);
+	proto_tree_add_bitmask(parent_tree, tvb, offset, hf_ndmp_fs_invalid, ett_ndmp_fs_invalid, invalid_flags, ENC_NA);
 
 	offset+=4;
 	return offset;
@@ -1070,21 +1056,13 @@ static int
 dissect_tape_attr(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
     proto_tree *parent_tree)
 {
-	proto_item* item = NULL;
-	proto_tree* tree = NULL;
-	guint32 flags;
+	static const int * attribute_flags[] = {
+		&hf_ndmp_tape_attr_unload,
+		&hf_ndmp_tape_attr_rewind,
+		NULL
+		};
 
-	flags=tvb_get_ntohl(tvb, offset);
-	if (parent_tree) {
-		item = proto_tree_add_text(parent_tree, tvb, offset, 4,
-				"Attributes: 0x%08x", flags);
-		tree = proto_item_add_subtree(item, ett_ndmp_tape_attr);
-	}
-
-	proto_tree_add_boolean(tree, hf_ndmp_tape_attr_unload,
-				tvb, offset, 4, flags);
-	proto_tree_add_boolean(tree, hf_ndmp_tape_attr_rewind,
-				tvb, offset, 4, flags);
+	proto_tree_add_bitmask(parent_tree, tvb, offset, hf_ndmp_tape_attr, ett_ndmp_tape_attr, attribute_flags, ENC_NA);
 
 	offset+=4;
 	return offset;
@@ -1350,21 +1328,14 @@ static int
 dissect_execute_cdb_flags(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
     proto_tree *parent_tree)
 {
-	proto_item* item = NULL;
-	proto_tree* tree = NULL;
-	guint32 flags;
+	static const int * cdb_flags[] = {
+		&hf_ndmp_execute_cdb_flags_data_in,
+		&hf_ndmp_execute_cdb_flags_data_out,
+		NULL
+		};
 
-	flags = tvb_get_ntohl(tvb, offset);
-	if (parent_tree) {
-		item = proto_tree_add_text(parent_tree, tvb, offset, 4,
-				"Flags: 0x%08x", flags);
-		tree = proto_item_add_subtree(item, ett_ndmp_execute_cdb_flags);
-	}
+	proto_tree_add_bitmask(parent_tree, tvb, offset, hf_ndmp_execute_cdb_flags, ett_ndmp_execute_cdb_flags, cdb_flags, ENC_NA);
 
-	proto_tree_add_boolean(tree, hf_ndmp_execute_cdb_flags_data_in,
-				tvb, offset, 4, flags);
-	proto_tree_add_boolean(tree, hf_ndmp_execute_cdb_flags_data_out,
-				tvb, offset, 4, flags);
 	offset += 4;
 	return offset;
 }
@@ -1646,31 +1617,18 @@ static int
 dissect_tape_invalid(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
     proto_tree *parent_tree)
 {
-	proto_item* item = NULL;
-	proto_tree* tree = NULL;
-	guint32 flags;
+	static const int * invalid_tapes[] = {
+		&hf_ndmp_tape_invalid_partition,
+		&hf_ndmp_tape_invalid_space_remain,
+		&hf_ndmp_tape_invalid_total_space,
+		&hf_ndmp_tape_invalid_block_no,
+		&hf_ndmp_tape_invalid_block_size,
+		&hf_ndmp_tape_invalid_soft_errors,
+		&hf_ndmp_tape_invalid_file_num,
+		NULL
+		};
 
-	flags=tvb_get_ntohl(tvb, offset);
-	if (parent_tree) {
-		item = proto_tree_add_text(parent_tree, tvb, offset, 4,
-				"Invalids: 0x%08x", flags);
-		tree = proto_item_add_subtree(item, ett_ndmp_tape_invalid);
-	}
-
-	proto_tree_add_boolean(tree, hf_ndmp_tape_invalid_partition,
-				tvb, offset, 4, flags);
-	proto_tree_add_boolean(tree, hf_ndmp_tape_invalid_space_remain,
-				tvb, offset, 4, flags);
-	proto_tree_add_boolean(tree, hf_ndmp_tape_invalid_total_space,
-				tvb, offset, 4, flags);
-	proto_tree_add_boolean(tree, hf_ndmp_tape_invalid_block_no,
-				tvb, offset, 4, flags);
-	proto_tree_add_boolean(tree, hf_ndmp_tape_invalid_block_size,
-				tvb, offset, 4, flags);
-	proto_tree_add_boolean(tree, hf_ndmp_tape_invalid_soft_errors,
-				tvb, offset, 4, flags);
-	proto_tree_add_boolean(tree, hf_ndmp_tape_invalid_file_num,
-				tvb, offset, 4, flags);
+	proto_tree_add_bitmask(parent_tree, tvb, offset, hf_ndmp_tape_invalid, ett_ndmp_tape_invalid, invalid_tapes, ENC_NA);
 
 	offset+=4;
 	return offset;
@@ -1696,26 +1654,15 @@ static int
 dissect_tape_flags(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
     proto_tree *parent_tree)
 {
-	proto_item* item = NULL;
-	proto_tree* tree = NULL;
-	guint32 flags;
+	static const int * tape_flags[] = {
+		&hf_ndmp_tape_flags_unload,
+		&hf_ndmp_tape_flags_error,
+		&hf_ndmp_tape_flags_write_protect,
+		&hf_ndmp_tape_flags_no_rewind,
+		NULL
+		};
 
-	flags=tvb_get_ntohl(tvb, offset);
-	if (parent_tree) {
-		item = proto_tree_add_text(parent_tree, tvb, offset, 4,
-				"Flags: 0x%08x", flags);
-		tree = proto_item_add_subtree(item, ett_ndmp_tape_flags);
-	}
-
-
-	proto_tree_add_boolean(tree, hf_ndmp_tape_flags_unload,
-				tvb, offset, 4, flags);
-	proto_tree_add_boolean(tree, hf_ndmp_tape_flags_error,
-				tvb, offset, 4, flags);
-	proto_tree_add_boolean(tree, hf_ndmp_tape_flags_write_protect,
-				tvb, offset, 4, flags);
-	proto_tree_add_boolean(tree, hf_ndmp_tape_flags_no_rewind,
-				tvb, offset, 4, flags);
+	proto_tree_add_bitmask(parent_tree, tvb, offset, hf_ndmp_tape_flags, ett_ndmp_tape_flags, tape_flags, ENC_NA);
 
 	offset+=4;
 	return offset;
@@ -2410,23 +2357,14 @@ static int
 dissect_file_invalids(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
     proto_tree *parent_tree)
 {
-	proto_item* item = NULL;
-	proto_tree* tree = NULL;
-	guint32 flags;
+	static const int * invalid_files[] = {
+		&hf_ndmp_file_invalid_group,
+		&hf_ndmp_file_invalid_ctime,
+		&hf_ndmp_file_invalid_atime,
+		NULL
+		};
 
-	flags=tvb_get_ntohl(tvb, offset);
-	if (parent_tree) {
-		item = proto_tree_add_text(parent_tree, tvb, offset, 4,
-				"Invalids: 0x%08x", flags);
-		tree = proto_item_add_subtree(item, ett_ndmp_file_invalids);
-	}
-
-	proto_tree_add_boolean(tree, hf_ndmp_file_invalid_group,
-			tvb, offset, 4, flags);
-	proto_tree_add_boolean(tree, hf_ndmp_file_invalid_ctime,
-			tvb, offset, 4, flags);
-	proto_tree_add_boolean(tree, hf_ndmp_file_invalid_atime,
-			tvb, offset, 4, flags);
+	proto_tree_add_bitmask(parent_tree, tvb, offset, hf_ndmp_file_invalid, ett_ndmp_file_invalids, invalid_files, ENC_NA);
 
 	offset+=4;
 	return offset;
@@ -2724,21 +2662,13 @@ static int
 dissect_state_invalids(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
     proto_tree *parent_tree)
 {
-	proto_item* item = NULL;
-	proto_tree* tree = NULL;
-	guint32 flags;
+	static const int * invalid_states[] = {
+		&hf_ndmp_state_invalid_etr,
+		&hf_ndmp_state_invalid_ebr,
+		NULL
+		};
 
-	flags=tvb_get_ntohl(tvb, offset);
-	if (parent_tree) {
-		item = proto_tree_add_text(parent_tree, tvb, offset, 4,
-				"Invalids: 0x%08x", flags);
-		tree = proto_item_add_subtree(item, ett_ndmp_state_invalids);
-	}
-
-	proto_tree_add_boolean(tree, hf_ndmp_state_invalid_etr,
-				tvb, offset, 4, flags);
-	proto_tree_add_boolean(tree, hf_ndmp_state_invalid_ebr,
-				tvb, offset, 4, flags);
+	proto_tree_add_bitmask(parent_tree, tvb, offset, hf_ndmp_state_invalid, ett_ndmp_state_invalids, invalid_states, ENC_NA);
 
 	offset+=4;
 	return offset;
@@ -2960,17 +2890,15 @@ static const ndmp_command ndmp_commands[] = {
 
 
 static int
-dissect_ndmp_header(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, struct ndmp_header *nh)
+dissect_ndmp_header(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, struct ndmp_header *nh, proto_item** msg_item)
 {
-	proto_item* item = NULL;
-	proto_tree* tree = NULL;
+	proto_item* item;
+	proto_tree* tree;
 	nstime_t ns;
 
-	if (parent_tree) {
-		item = proto_tree_add_item(parent_tree, hf_ndmp_header, tvb,
+	item = proto_tree_add_item(parent_tree, hf_ndmp_header, tvb,
 				offset, 24, ENC_NA);
-		tree = proto_item_add_subtree(item, ett_ndmp_header);
-	}
+	tree = proto_item_add_subtree(item, ett_ndmp_header);
 
 	/* sequence number */
 	proto_tree_add_uint(tree, hf_ndmp_sequence, tvb, offset, 4, nh->seq);
@@ -2987,7 +2915,7 @@ dissect_ndmp_header(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *p
 	offset += 4;
 
 	/* Message */
-	proto_tree_add_uint(tree, hf_ndmp_msg, tvb, offset, 4, nh->msg);
+	*msg_item = proto_tree_add_uint(tree, hf_ndmp_msg, tvb, offset, 4, nh->msg);
 	offset += 4;
 
 	/* Reply sequence number */
@@ -3011,8 +2939,9 @@ dissect_ndmp_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree
 {
 	int i;
 	proto_tree *cmd_tree=NULL;
+	proto_item *msg_item=NULL;
 
-	offset=dissect_ndmp_header(tvb, offset, pinfo, tree, nh);
+	offset=dissect_ndmp_header(tvb, offset, pinfo, tree, nh, &msg_item);
 
 	for(i=0;ndmp_commands[i].cmd!=0;i++){
 		if(ndmp_commands[i].cmd==nh->msg){
@@ -3023,7 +2952,7 @@ dissect_ndmp_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree
 
 	if(ndmp_commands[i].cmd==0){
 		/* we do not know this message */
-		proto_tree_add_text(tree, tvb, offset, -1, "Unknown type of NDMP message: 0x%02x", nh->msg);
+		expert_add_info(pinfo, msg_item, &ei_ndmp_msg);
 		offset+=tvb_length_remaining(tvb, offset);
 		return offset;
 	}
@@ -3057,7 +2986,6 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 	struct ndmp_header nh;
 	guint32 size;
 	guint32 seq, len, nxt, frag_num;
-	gint nbytes;
 	int direction;
 	struct tcpinfo *tcpinfo;
 	ndmp_frag_info* nfi;
@@ -3247,8 +3175,7 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 			/*
 			 * Decode the remaining bytes as generic NDMP fragment data
 			 */
-			nbytes = tvb_reported_length_remaining(tvb, 4);
-			proto_tree_add_text(ndmp_tree, tvb, 4, nbytes, "NDMP fragment data (%u byte%s)", nbytes, plurality(nbytes, "", "s"));
+			proto_tree_add_item(ndmp_tree, hf_ndmp_fragment_data, tvb, 4, -1, ENC_NA);
 
 			pinfo->fragmented = save_fragmented;
 			return tvb_length(tvb);
@@ -3603,6 +3530,10 @@ proto_register_ndmp(void)
 		"Default Env", "ndmp.tcp.default_env", FT_NONE, BASE_NONE,
 		NULL, 0, "Default Env's for this Butype Info", HFILL }},
 
+	{ &hf_ndmp_butype_attr, {
+		"Attributes", "ndmp.butype.attr", FT_UINT32, BASE_HEX,
+		NULL, 0, NULL, HFILL }},
+
 	{ &hf_ndmp_butype_attr_backup_file_history, {
 		"Backup file history", "ndmp.butype.attr.backup_file_history", FT_BOOLEAN, 32,
 		TFS(&tfs_butype_attr_backup_file_history), 0x00000001, "backup_file_history", HFILL }},
@@ -3657,6 +3588,10 @@ proto_register_ndmp(void)
 
 	{ &hf_ndmp_fs_info, {
 		"FS Info", "ndmp.fs.info", FT_NONE, BASE_NONE,
+		NULL, 0, NULL, HFILL }},
+
+	{ &hf_ndmp_fs_invalid, {
+		"Invalids", "ndmp.fs.invalid", FT_UINT32, BASE_HEX,
 		NULL, 0, NULL, HFILL }},
 
 	{ &hf_ndmp_fs_invalid_total_size, {
@@ -3743,6 +3678,10 @@ proto_register_ndmp(void)
 		"Device", "ndmp.tape.device", FT_STRING, BASE_NONE,
 		NULL, 0, "Name of TAPE Device", HFILL }},
 
+	{ &hf_ndmp_tape_attr, {
+		"Attributes", "ndmp.tape.attr", FT_UINT32, BASE_HEX,
+		NULL, 0, NULL, HFILL }},
+
 	{ &hf_ndmp_tape_attr_rewind, {
 		"Device supports rewind", "ndmp.tape.attr.rewind", FT_BOOLEAN, 32,
 		TFS(&tfs_tape_attr_rewind), 0x00000001, "If this device supports rewind", HFILL }},
@@ -3803,6 +3742,10 @@ proto_register_ndmp(void)
 		"LUN", "ndmp.scsi.lun", FT_UINT32, BASE_DEC,
 		NULL, 0, "Target LUN", HFILL }},
 
+	{ &hf_ndmp_execute_cdb_flags, {
+		"Flags", "ndmp.execute_cdb.flags", FT_UINT32, BASE_HEX,
+		NULL, 0, NULL, HFILL }},
+
 	{ &hf_ndmp_execute_cdb_flags_data_in, {
 		"DATA_IN", "ndmp.execute_cdb.flags.data_in", FT_BOOLEAN, 32,
 		NULL, 0x00000001, NULL, HFILL }},
@@ -3851,6 +3794,10 @@ proto_register_ndmp(void)
 		"Mode", "ndmp.tape.open_mode", FT_UINT32, BASE_DEC,
 		VALS(tape_open_mode_vals), 0, "Mode to open tape in", HFILL }},
 
+	{ &hf_ndmp_tape_invalid, {
+		"Invalids", "ndmp.tape.invalid", FT_UINT32, BASE_HEX,
+		NULL, 0, NULL, HFILL }},
+
 	{ &hf_ndmp_tape_invalid_file_num, {
 		"Invalid file num", "ndmp.tape.invalid.file_num", FT_BOOLEAN, 32,
 		TFS(&tfs_ndmp_tape_invalid_file_num), 0x00000001, "invalid_file_num", HFILL }},
@@ -3878,6 +3825,10 @@ proto_register_ndmp(void)
 	{ &hf_ndmp_tape_invalid_partition, {
 		"Invalid partition", "ndmp.tape.invalid.partition", FT_BOOLEAN, 32,
 		TFS(&tfs_ndmp_tape_invalid_partition), 0x00000040, "partition", HFILL }},
+
+	{ &hf_ndmp_tape_flags, {
+		"Flags", "ndmp.tape.flags", FT_UINT32, BASE_HEX,
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_ndmp_tape_flags_no_rewind, {
 		"No rewind", "ndmp.tape.flags.no_rewind", FT_BOOLEAN, 32,
@@ -4075,17 +4026,21 @@ proto_register_ndmp(void)
 		"FH Info", "ndmp.file.fh_info", FT_UINT64, BASE_DEC,
 		NULL, 0, "FH Info used for direct access", HFILL }},
 
+	{ &hf_ndmp_file_invalid, {
+		"Invalids", "ndmp.file.invalid", FT_UINT32, BASE_HEX,
+		VALS(file_type_vals), 0, NULL, HFILL }},
+
 	{ &hf_ndmp_file_invalid_atime, {
-		"Invalid atime", "ndmp.file.invalid_atime", FT_BOOLEAN, 32,
-		TFS(&tfs_ndmp_file_invalid_atime), 0x00000001, "invalid_atime", HFILL, }},
+		"Invalid atime", "ndmp.file.invalid.atime", FT_BOOLEAN, 32,
+		TFS(&tfs_ndmp_file_invalid_atime), 0x00000001, NULL, HFILL, }},
 
 	{ &hf_ndmp_file_invalid_ctime, {
-		"Invalid ctime", "ndmp.file.invalid_ctime", FT_BOOLEAN, 32,
-		TFS(&tfs_ndmp_file_invalid_ctime), 0x00000002, "invalid_ctime", HFILL, }},
+		"Invalid ctime", "ndmp.file.invalid.ctime", FT_BOOLEAN, 32,
+		TFS(&tfs_ndmp_file_invalid_ctime), 0x00000002, NULL, HFILL, }},
 
 	{ &hf_ndmp_file_invalid_group, {
-		"Invalid group", "ndmp.file.invalid_group", FT_BOOLEAN, 32,
-		TFS(&tfs_ndmp_file_invalid_group), 0x00000004, "invalid_group", HFILL, }},
+		"Invalid group", "ndmp.file.invalid.group", FT_BOOLEAN, 32,
+		TFS(&tfs_ndmp_file_invalid_group), 0x00000004, NULL, HFILL, }},
 
 	{ &hf_ndmp_file_mtime, {
 		"mtime", "ndmp.file.mtime", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
@@ -4147,12 +4102,16 @@ proto_register_ndmp(void)
 		"Other Name", "ndmp.bu.other_name", FT_STRING, BASE_NONE,
 		NULL, 0, NULL, HFILL }},
 
+	{ &hf_ndmp_state_invalid, {
+		"Invalids", "ndmp.bu.state.invalid", FT_UINT32, BASE_HEX,
+		VALS(file_type_vals), 0, NULL, HFILL }},
+
 	{ &hf_ndmp_state_invalid_ebr, {
-		"EstimatedBytesLeft valid", "ndmp.bu.state.invalid_ebr", FT_BOOLEAN, 32,
+		"EstimatedBytesLeft valid", "ndmp.bu.state.invalid.ebr", FT_BOOLEAN, 32,
 		TFS(&tfs_ndmp_state_invalid_ebr), 0x00000001, "Whether EstimatedBytesLeft is valid or not", HFILL, }},
 
 	{ &hf_ndmp_state_invalid_etr, {
-		"EstimatedTimeLeft valid", "ndmp.bu.state.invalid_etr", FT_BOOLEAN, 32,
+		"EstimatedTimeLeft valid", "ndmp.bu.state.invalid.etr", FT_BOOLEAN, 32,
 		TFS(&tfs_ndmp_state_invalid_etr), 0x00000002, "Whether EstimatedTimeLeft is valid or not", HFILL, }},
 
 	{ &hf_ndmp_bu_operation, {
@@ -4201,6 +4160,9 @@ proto_register_ndmp(void)
 		NULL, 0, NULL, HFILL }},
 	{ &hf_ndmp_ex_class_version, {
 		"Class Version", "ndmp.class.version", FT_UINT32, BASE_HEX,
+		NULL, 0, NULL, HFILL }},
+	{ &hf_ndmp_fragment_data, {
+		"NDMP fragment data", "ndmp.fragment_data", FT_BYTES, BASE_NONE,
 		NULL, 0, NULL, HFILL }},
 	{&hf_ndmp_fragments, {
 		"NDMP fragments", "ndmp.fragments", FT_NONE, BASE_NONE,
@@ -4259,12 +4221,19 @@ proto_register_ndmp(void)
 	  &ett_ndmp_fragments,
   };
 
+  static ei_register_info ei[] = {
+   { &ei_ndmp_msg, { "ndmp.msg.unknown", PI_PROTOCOL, PI_WARN, "Unknown type of NDMP message", EXPFILL }},
+  };
+
   module_t *ndmp_module;
+  expert_module_t* expert_ndmp;
 
   proto_ndmp = proto_register_protocol("Network Data Management Protocol", "NDMP", "ndmp");
   proto_register_field_array(proto_ndmp, hf_ndmp, array_length(hf_ndmp));
 
   proto_register_subtree_array(ett, array_length(ett));
+  expert_ndmp = expert_register_protocol(proto_ndmp);
+  expert_register_field_array(expert_ndmp, ei, array_length(ei));
 
   /* desegmentation */
   ndmp_module = prefs_register_protocol(proto_ndmp, NULL);

@@ -1,4 +1,4 @@
-/* packet-tpcp.c
+/* packet-nt-tpcp.c
 * Routines for Transparent Proxy Cache Protocol packet disassembly
 * (c) Copyright Giles Scott <giles.scott1 [AT] btinternet.com>
 *
@@ -83,6 +83,7 @@ static const value_string type_vals[] = {
 /* things we can do filters on */
 static int hf_tpcp_version = -1;
 static int hf_tpcp_type = -1;
+static int hf_tpcp_flags = -1;
 static int hf_tpcp_flags_tcp = -1;
 static int hf_tpcp_flags_redir = -1;
 static int hf_tpcp_flags_xon = -1;
@@ -93,6 +94,7 @@ static int hf_tpcp_caddr = -1;
 static int hf_tpcp_saddr = -1;
 static int hf_tpcp_vaddr = -1;
 static int hf_tpcp_rasaddr = -1;
+static int hf_tpcp_signature = -1;
 
 static int proto_tpcp = -1;
 
@@ -100,78 +102,74 @@ static gint ett_tpcp = -1;
 static gint ett_tpcp_flags = -1;
 
 
-static void
-dissect_tpcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_tpcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	tpcpdu_t    tpcph;
-	proto_tree *tpcp_tree = NULL, *field_tree = NULL;
-	proto_item *ti, *tf;
-	guint8      length    = TPCP_VER_1_LENGTH;
+	proto_tree *tpcp_tree = NULL;
+	proto_item *ti;
+	guint8	version, type;
+	guint16	id, cport;
+	guint32	caddr, saddr;
+
+	static const int * tpcp_flags[] = {
+		&hf_tpcp_flags_tcp,
+		&hf_tpcp_flags_redir,
+		&hf_tpcp_flags_xon,
+		&hf_tpcp_flags_xoff,
+		NULL
+		};
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "TPCP");
 	col_clear(pinfo->cinfo, COL_INFO);
 
 	/* need to find out which version!! */
-	tpcph.version = tvb_get_guint8(tvb, 0);
-	/* as version 1 and 2 are so similar use the same structure, just don't use as much for version 1*/
-	/* XXX: Doing a memcpy into a struct is *not* kosher */
-	if (tpcph.version == TPCP_VER_1) {
-		length = TPCP_VER_1_LENGTH;
-		tvb_memcpy(tvb, (guint8 *) &tpcph, 0, length);
-	} else if (tpcph.version == TPCP_VER_2){
-		length = TPCP_VER_2_LENGTH;
-		tvb_memcpy(tvb, (guint8 *) &tpcph, 0, length);
-	} else {
-		memset (&tpcph, 0, sizeof (tpcph));
+	version = tvb_get_guint8(tvb, 0);
+	if ((version != TPCP_VER_1) && (version != TPCP_VER_2)) {
+		/* Not us */
+		return 0;
 	}
 
-
-	tpcph.id        = g_ntohs(tpcph.id);
-	tpcph.flags     = g_ntohs(tpcph.flags);
-	tpcph.cport     = g_ntohs(tpcph.cport);
-	tpcph.signature = g_ntohl(tpcph.signature);
-
-	col_add_fstr(pinfo->cinfo, COL_INFO,"%s id %d CPort %s CIP %s SIP %s",
-		val_to_str_const(tpcph.type, type_vals, "Unknown"),
-		tpcph.id,
-		ep_udp_port_to_display(tpcph.cport),
-		ip_to_str((guint8 *)&tpcph.caddr),
-		ip_to_str((guint8 *)&tpcph.saddr));
-
-	if (tree) {
-		ti = proto_tree_add_protocol_format(tree, proto_tpcp, tvb, 0, length,
+		ti = proto_tree_add_protocol_format(tree, proto_tpcp, tvb, 0, -1,
 			"Alteon WebSystems - Transparent Proxy Cache Protocol");
 
 		tpcp_tree = proto_item_add_subtree(ti, ett_tpcp);
 
-		proto_tree_add_uint(tpcp_tree, hf_tpcp_version, tvb, 0, 1, tpcph.version);
-		proto_tree_add_uint(tpcp_tree, hf_tpcp_type, tvb, 1, 1, tpcph.type);
+		proto_tree_add_item(tpcp_tree, hf_tpcp_version, tvb, 0, 1, ENC_NA);
+        type = tvb_get_guint8(tvb, 1);
+		proto_tree_add_item(tpcp_tree, hf_tpcp_type, tvb, 1, 1, ENC_NA);
 
-		/* flags next , i'll do that when I can work out how to do it :-(   */
-		tf = proto_tree_add_text(tpcp_tree, tvb, 2, 2, "Flags: 0x%04x",tpcph.flags);
+        proto_tree_add_bitmask(tpcp_tree, tvb, 2, hf_tpcp_flags, ett_tpcp_flags, tpcp_flags, ENC_NA);
 
-		field_tree = proto_item_add_subtree(tf, ett_tpcp_flags);
-		proto_tree_add_boolean(field_tree, hf_tpcp_flags_tcp, tvb, 2, 2, tpcph.flags);
-		proto_tree_add_boolean(field_tree, hf_tpcp_flags_redir, tvb, 2,2, tpcph.flags);
-		proto_tree_add_boolean(field_tree, hf_tpcp_flags_xon, tvb, 2, 2, tpcph.flags);
-		proto_tree_add_boolean(field_tree, hf_tpcp_flags_xoff, tvb, 2, 2, tpcph.flags);
+		id = tvb_get_ntohs(tvb, 4);
+		proto_tree_add_item(tpcp_tree, hf_tpcp_id, tvb, 4, 2, ENC_BIG_ENDIAN);
 
-		proto_tree_add_uint(tpcp_tree, hf_tpcp_id, tvb, 4, 2, tpcph.id);
+		cport = tvb_get_ntohs(tvb, 6);
+		proto_tree_add_uint_format_value(tpcp_tree, hf_tpcp_cport, tvb, 6, 2, cport,
+			"%s", ep_udp_port_to_display(cport));
 
-		proto_tree_add_uint_format_value(tpcp_tree, hf_tpcp_cport, tvb, 6, 2, tpcph.cport,
-			"%s", ep_udp_port_to_display(tpcph.cport));
+		caddr = tvb_get_ntohl(tvb, 8);
+		proto_tree_add_item(tpcp_tree, hf_tpcp_caddr, tvb, 8, 4, ENC_BIG_ENDIAN);
 
-		proto_tree_add_ipv4(tpcp_tree, hf_tpcp_caddr, tvb, 8, 4, tpcph.caddr);
+		saddr = tvb_get_ntohl(tvb, 12);
+		proto_tree_add_item(tpcp_tree, hf_tpcp_saddr, tvb, 12, 4, ENC_BIG_ENDIAN);
 
-		proto_tree_add_ipv4(tpcp_tree, hf_tpcp_saddr, tvb, 12, 4, tpcph.saddr);
-
-		if (tpcph.version == TPCP_VER_2) {
-			proto_tree_add_ipv4(tpcp_tree, hf_tpcp_vaddr, tvb, 16, 4, tpcph.vaddr);
-			proto_tree_add_ipv4(tpcp_tree, hf_tpcp_rasaddr, tvb, 20, 4, tpcph.rasaddr);
-			proto_tree_add_text(tpcp_tree, tvb, 24, 4, "Signature: %u", tpcph.signature);
+		if (version == TPCP_VER_2) {
+			proto_tree_add_item(tpcp_tree, hf_tpcp_vaddr, tvb, 16, 4, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tpcp_tree, hf_tpcp_rasaddr, tvb, 20, 4, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tpcp_tree, hf_tpcp_signature, tvb, 24, 4, ENC_BIG_ENDIAN);
 		}
 
-	}
+	col_add_fstr(pinfo->cinfo, COL_INFO,"%s id %d CPort %s CIP %s SIP %s",
+			val_to_str_const(type, type_vals, "Unknown"),
+			id,
+			ep_udp_port_to_display(cport),
+			ip_to_str((guint8 *)&caddr),
+			ip_to_str((guint8 *)&saddr));
+
+	if (version == TPCP_VER_1)
+		return TPCP_VER_1_LENGTH;
+
+	return TPCP_VER_2_LENGTH;
 }
 
 void
@@ -185,6 +183,10 @@ proto_register_tpcp(void)
 		{ &hf_tpcp_type,
 		{ "Type",		"tpcp.type", FT_UINT8, BASE_DEC, VALS(type_vals), 0x0,
 		"PDU type", HFILL }},
+
+		{ &hf_tpcp_flags,
+		{ "Flags",		"tpcp.flags", FT_UINT16, BASE_HEX, NULL, 0x0,
+		NULL, HFILL }},
 
 		{ &hf_tpcp_flags_tcp,
 		{ "UDP/TCP",		"tpcp.flags.tcp", FT_BOOLEAN, 8, TFS(&tfs_set_notset), TF_TPCP_UDPTCP,
@@ -226,6 +228,9 @@ proto_register_tpcp(void)
 		{ "RAS server IP address", "tpcp.rasaddr", FT_IPv4, BASE_NONE, NULL, 0x0,
 		NULL, HFILL }},
 
+		{ &hf_tpcp_signature,
+		{ "Signature",	"tpcp.signature", FT_UINT32, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }},
 	};
 
 
@@ -245,6 +250,6 @@ proto_reg_handoff_tpcp(void)
 {
 	dissector_handle_t tpcp_handle;
 
-	tpcp_handle = create_dissector_handle(dissect_tpcp, proto_tpcp);
+	tpcp_handle = new_create_dissector_handle(dissect_tpcp, proto_tpcp);
 	dissector_add_uint("udp.port", UDP_PORT_TPCP, tpcp_handle);
 }

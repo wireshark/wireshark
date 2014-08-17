@@ -53,7 +53,7 @@ static int
 dissect_nb_rtpmux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     /* Set up structures needed to add the protocol subtree and manage it */
-    proto_item *ti, *cmp_rtp_item;
+    proto_item *ti;
     proto_tree *nb_rtpmux_tree, *nb_rtpmux_cmp_rtp_tree;
     unsigned int offset = 0;
 
@@ -117,8 +117,7 @@ dissect_nb_rtpmux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
             proto_tree_add_item(nb_rtpmux_tree, hf_nb_r_bit, tvb, offset+3, 2, ENC_BIG_ENDIAN);
 			srcport = (tvb_get_ntohs(tvb, offset+3) & 0x7fff) << 1;
 			proto_tree_add_uint(nb_rtpmux_tree, hf_nb_rtpmux_srcport, tvb, offset+3, 2, srcport );
-			cmp_rtp_item = proto_tree_add_text( nb_rtpmux_tree, tvb, offset+5, 3, "Compressed RTP header" );
-			nb_rtpmux_cmp_rtp_tree = proto_item_add_subtree(cmp_rtp_item, ett_nb_rtpmux_cmp_rtp_hdr);
+			nb_rtpmux_cmp_rtp_tree = proto_tree_add_subtree( nb_rtpmux_tree, tvb, offset+5, 3, ett_nb_rtpmux_cmp_rtp_hdr, NULL, "Compressed RTP header" );
 			/* Sequence Number (SN) */
 			proto_tree_add_item(nb_rtpmux_cmp_rtp_tree, hf_nb_rtpmux_cmp_rtp_sequence_no, tvb, offset+5, 1, ENC_BIG_ENDIAN);
 			/* Timestamp (TS) */

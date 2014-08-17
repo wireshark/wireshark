@@ -375,7 +375,6 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     guint16               missing_fraglist_count = 0;
     mncp_rhash_value      *request_value = NULL;
     conversation_t        *conversation;
-    proto_item            *expert_item;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "NCP");
     col_clear(pinfo->cinfo, COL_INFO);
@@ -737,8 +736,7 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         if (length_remaining > 4) {
             testvar = tvb_get_ntohl(tvb, commhdr+4);
             if (testvar == 0x4c495020) {
-                proto_tree_add_text(ncp_tree, tvb, commhdr, -1,
-                    "Lip Echo Packet");
+                proto_tree_add_item(ncp_tree, hf_lip_echo, tvb, commhdr, -1, ENC_ASCII|ENC_NA);
                 /*break;*/
             }
         }
@@ -862,18 +860,14 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         break;
 
     case NCP_LIP_ECHO:        /* LIP Echo Packet */
-        proto_tree_add_text(ncp_tree, tvb, commhdr, -1,
-            "Lip Echo Packet");
+        proto_tree_add_item(ncp_tree, hf_lip_echo, tvb, commhdr, -1, ENC_ASCII|ENC_NA);
         break;
 
     default:
-        expert_item = proto_tree_add_text(ncp_tree, tvb, commhdr + 6, -1,
+        proto_tree_add_expert_format(ncp_tree, pinfo, &ei_ncp_type, tvb, commhdr + 6, -1,
             "%s packets not supported yet",
             val_to_str(header.type, ncp_type_vals,
                 "Unknown type (0x%04x)"));
-        if (ncp_echo_err) {
-            expert_add_info_format(pinfo, expert_item, &ei_ncp_type, "%s packets not supported yet", val_to_str(header.type, ncp_type_vals, "Unknown type (0x%04x)"));
-        }
         break;
     }
 }

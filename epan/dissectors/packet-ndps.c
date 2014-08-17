@@ -2110,113 +2110,103 @@ objectidentifier(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
         label = try_val_to_str(label_value, object_ids_7);
         if (label==NULL)
         {
-            aitem = proto_tree_add_text(ndps_tree, tvb, foffset, length, "Unknown ID");
+            label = wmem_strdup(wmem_packet_scope(), "Unknown ID");
             found=FALSE;
-            break;
         }
-        aitem = proto_tree_add_none_format(ndps_tree, hf_ndps_object_ids_7, tvb, foffset, length, "%s", label);
+        aitem = proto_tree_add_uint_format(ndps_tree, hf_ndps_object_ids_7, tvb, foffset, length, label_value, "%s", label);
         break;
     case 10:
         label_value = tvb_get_ntohl(tvb, foffset+6);
         label = try_val_to_str(label_value, object_ids_8);
         if (label==NULL)
         {
-            aitem = proto_tree_add_text(ndps_tree, tvb, foffset, length, "Unknown ID");
+            label = wmem_strdup(wmem_packet_scope(), "Unknown ID");
             found=FALSE;
-            break;
         }
-        aitem = proto_tree_add_none_format(ndps_tree, hf_ndps_object_ids_8, tvb, foffset, length, "%s", label);
+        aitem = proto_tree_add_uint_format(ndps_tree, hf_ndps_object_ids_8, tvb, foffset, length, label_value, "%s", label);
         break;
     case 11:
         label_value = tvb_get_ntohl(tvb, foffset+7);
         label = try_val_to_str(label_value, object_ids_9);
         if (label==NULL)
         {
-            aitem = proto_tree_add_text(ndps_tree, tvb, foffset, length, "Unknown ID");
+            label = wmem_strdup(wmem_packet_scope(), "Unknown ID");
             found=FALSE;
-            break;
         }
-        aitem = proto_tree_add_none_format(ndps_tree, hf_ndps_object_ids_9, tvb, foffset, length, "%s", label);
+        aitem = proto_tree_add_uint_format(ndps_tree, hf_ndps_object_ids_9, tvb, foffset, length, label_value, "%s", label);
         break;
     case 12:
         label_value = tvb_get_ntohl(tvb, foffset+8);
         label = try_val_to_str(label_value, object_ids_10);
         if (label==NULL)
         {
-            aitem = proto_tree_add_text(ndps_tree, tvb, foffset, length, "Unknown ID");
+            label = wmem_strdup(wmem_packet_scope(), "Unknown ID");
             found=FALSE;
-            break;
         }
-        aitem = proto_tree_add_none_format(ndps_tree, hf_ndps_object_ids_10, tvb, foffset, length, "%s", label);
+        aitem = proto_tree_add_uint_format(ndps_tree, hf_ndps_object_ids_10, tvb, foffset, length, label_value, "%s", label);
         break;
     case 13:
         label_value = tvb_get_ntohl(tvb, foffset+9);
         label = try_val_to_str(label_value, object_ids_11);
         if (label==NULL)
         {
-            aitem = proto_tree_add_text(ndps_tree, tvb, foffset, length, "Unknown ID");
+            label = wmem_strdup(wmem_packet_scope(), "Unknown ID");
             found=FALSE;
-            break;
         }
-        aitem = proto_tree_add_none_format(ndps_tree, hf_ndps_object_ids_11, tvb, foffset, length, "%s", label);
+        aitem = proto_tree_add_uint_format(ndps_tree, hf_ndps_object_ids_11, tvb, foffset, length, label_value, "%s", label);
         break;
     case 14:
         label_value = tvb_get_ntohl(tvb, foffset+10);
         label = try_val_to_str(label_value, object_ids_12);
         if (label==NULL)
         {
-            aitem = proto_tree_add_text(ndps_tree, tvb, foffset, length, "Unknown ID");
+            label = wmem_strdup(wmem_packet_scope(), "Unknown ID");
             found=FALSE;
-            break;
         }
-        aitem = proto_tree_add_none_format(ndps_tree, hf_ndps_object_ids_12, tvb, foffset, length, "%s", label);
+        aitem = proto_tree_add_uint_format(ndps_tree, hf_ndps_object_ids_12, tvb, foffset, length, label_value, "%s", label);
         break;
     case 15:
         label_value = tvb_get_ntohl(tvb, foffset+11);
         label = try_val_to_str(label_value, object_ids_13);
         if (label==NULL)
         {
-            aitem = proto_tree_add_text(ndps_tree, tvb, foffset, length, "Unknown ID");
+            label = wmem_strdup(wmem_packet_scope(), "Unknown ID");
             found=FALSE;
-            break;
         }
-        aitem = proto_tree_add_none_format(ndps_tree, hf_ndps_object_ids_13, tvb, foffset, length, "%s", label);
+        aitem = proto_tree_add_uint_format(ndps_tree, hf_ndps_object_ids_13, tvb, foffset, length, label_value, "%s", label);
         break;
     case 16:
         label_value = tvb_get_ntohl(tvb, foffset+12);
         label = try_val_to_str(label_value, object_ids_14);
         if (label==NULL)
         {
-            aitem = proto_tree_add_text(ndps_tree, tvb, foffset, length, "Unknown ID");
+            label = wmem_strdup(wmem_packet_scope(), "Unknown ID");
             found=FALSE;
-            break;
         }
-        aitem = proto_tree_add_none_format(ndps_tree, hf_ndps_object_ids_14, tvb, foffset, length, "%s", label);
+        aitem = proto_tree_add_uint_format(ndps_tree, hf_ndps_object_ids_14, tvb, foffset, length, label_value, "%s", label);
         break;
     case 17:
         label_value = tvb_get_ntohl(tvb, foffset+13);
         label = try_val_to_str(label_value, object_ids_15);
         if (label==NULL)
         {
-            aitem = proto_tree_add_text(ndps_tree, tvb, foffset, length, "Unknown ID");
+            label = wmem_strdup(wmem_packet_scope(), "Unknown ID");
             found=FALSE;
-            break;
         }
-        aitem = proto_tree_add_none_format(ndps_tree, hf_ndps_object_ids_15, tvb, foffset, length, "%s", label);
+        aitem = proto_tree_add_uint_format(ndps_tree, hf_ndps_object_ids_15, tvb, foffset, length, label_value, "%s", label);
         break;
     case 18:
         label_value = tvb_get_ntohl(tvb, foffset+14);
         label = try_val_to_str(label_value, object_ids_16);
         if (label==NULL)
         {
-            aitem = proto_tree_add_text(ndps_tree, tvb, foffset, length, "Unknown ID");
+            label = wmem_strdup(wmem_packet_scope(), "Unknown ID");
             found=FALSE;
-            break;
         }
-        aitem = proto_tree_add_none_format(ndps_tree, hf_ndps_object_ids_16, tvb, foffset, length, "%s", label);
+        aitem = proto_tree_add_uint_format(ndps_tree, hf_ndps_object_ids_16, tvb, foffset, length, label_value, "%s", label);
         break;
     default:
-        aitem = proto_tree_add_text(ndps_tree, tvb, foffset, length, "Unknown ID");
+        aitem = proto_tree_add_uint_format(ndps_tree, hf_ndps_object_ids_7, tvb, foffset, length, 1, "Unknown ID");
         found=FALSE;
         break;
     }
@@ -4182,7 +4172,7 @@ dissect_ndps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree)
     ndps_packet_type = tvb_get_ntohl(tvb, 8);
     if (ndps_packet_type != 0 && ndps_packet_type != 1) {     /* Packet Type */
         col_set_str(pinfo->cinfo, COL_INFO, "(Continuation Data)");
-        proto_tree_add_text(ndps_tree, tvb, 0, tvb_length(tvb), "Data - (%d Bytes)", tvb_length(tvb));
+        proto_tree_add_bytes_format(ndps_tree, hf_ndps_data, tvb, 0, -1, NULL, "Data - (%d Bytes)", tvb_reported_length(tvb));
         return;
     }
     foffset = 0;
@@ -9151,7 +9141,7 @@ proto_register_ndps(void)
             NULL, 0x0, NULL, HFILL }},
 
         { &hf_ndps_data,
-          { "[Data]",   "ndps.data", FT_NONE, BASE_NONE,
+          { "Data",   "ndps.data", FT_BYTES, BASE_NONE,
             NULL, 0x0, NULL, HFILL }},
 
         { &hf_get_status_flag,
@@ -9429,52 +9419,52 @@ proto_register_ndps(void)
 
         { &hf_ndps_object_ids_7,
           { "Object ID Definition",    "ndps.objectid_def7",
-            FT_NONE,    BASE_NONE,   NULL,
+            FT_UINT32,    BASE_DEC,   NULL,
             0x0, NULL, HFILL }},
 
         { &hf_ndps_object_ids_8,
           { "Object ID Definition",    "ndps.objectid_def8",
-            FT_NONE,    BASE_NONE,   NULL,
+            FT_UINT32,    BASE_DEC,   NULL,
             0x0, NULL, HFILL }},
 
         { &hf_ndps_object_ids_9,
           { "Object ID Definition",    "ndps.objectid_def9",
-            FT_NONE,    BASE_NONE,   NULL,
+            FT_UINT32,    BASE_DEC,   NULL,
             0x0, NULL, HFILL }},
 
         { &hf_ndps_object_ids_10,
           { "Object ID Definition",    "ndps.objectid_def10",
-            FT_NONE,    BASE_NONE,   NULL,
+            FT_UINT32,    BASE_DEC,   NULL,
             0x0, NULL, HFILL }},
 
         { &hf_ndps_object_ids_11,
           { "Object ID Definition",    "ndps.objectid_def11",
-            FT_NONE,    BASE_NONE,   NULL,
+            FT_UINT32,    BASE_DEC,   NULL,
             0x0, NULL, HFILL }},
 
         { &hf_ndps_object_ids_12,
           { "Object ID Definition",    "ndps.objectid_def12",
-            FT_NONE,    BASE_NONE,   NULL,
+            FT_UINT32,    BASE_DEC,   NULL,
             0x0, NULL, HFILL }},
 
         { &hf_ndps_object_ids_13,
           { "Object ID Definition",    "ndps.objectid_def13",
-            FT_NONE,    BASE_NONE,   NULL,
+            FT_UINT32,    BASE_DEC,   NULL,
             0x0, NULL, HFILL }},
 
         { &hf_ndps_object_ids_14,
           { "Object ID Definition",    "ndps.objectid_def14",
-            FT_NONE,    BASE_NONE,   NULL,
+            FT_UINT32,    BASE_DEC,   NULL,
             0x0, NULL, HFILL }},
 
         { &hf_ndps_object_ids_15,
           { "Object ID Definition",    "ndps.objectid_def15",
-            FT_NONE,    BASE_NONE,   NULL,
+            FT_UINT32,    BASE_DEC,   NULL,
             0x0, NULL, HFILL }},
 
         { &hf_ndps_object_ids_16,
           { "Object ID Definition",    "ndps.objectid_def16",
-            FT_NONE,    BASE_NONE,   NULL,
+            FT_UINT32,    BASE_DEC,   NULL,
             0x0, NULL, HFILL }},
 
 #if 0

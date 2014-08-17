@@ -271,6 +271,7 @@ static gint ett_ntlmssp_ntlmv2_response_item = -1;
 static expert_field ei_ntlmssp_v2_key_too_long = EI_INIT;
 static expert_field ei_ntlmssp_blob_len_too_long = EI_INIT;
 static expert_field ei_ntlmssp_target_info_attr = EI_INIT;
+static expert_field ei_ntlmssp_message_type = EI_INIT;
 
 /* Configuration variables */
 const char *gbl_nt_password = NULL;
@@ -961,9 +962,7 @@ dissect_ntlmssp_blob (tvbuff_t *tvb, packet_info *pinfo,
 
   if (0 == blob_length) {
     *end                  = (blob_offset > ((guint)offset)+8 ? blob_offset : ((guint)offset)+8);
-    if (ntlmssp_tree)
-      proto_tree_add_text(ntlmssp_tree, tvb, offset, 8, "%s: Empty",
-                          proto_registrar_get_name(blob_hf));
+    proto_tree_add_bytes_format_value(ntlmssp_tree, blob_hf, tvb, offset, 8, NULL, "Empty");
     result->length = 0;
     result->contents = NULL;
     return offset+8;
@@ -1450,8 +1449,7 @@ dissect_ntlmssp_challenge_target_info_blob (packet_info *pinfo, tvbuff_t *tvb, i
   /* the target info list is just a blob */
   if (0 == challenge_target_info_length) {
     *end = (challenge_target_info_offset > ((guint)offset)+8 ? challenge_target_info_offset : ((guint)offset)+8);
-    if (ntlmssp_tree)
-      proto_tree_add_text(ntlmssp_tree, tvb, offset, 8,
+    proto_tree_add_none_format(ntlmssp_tree, hf_ntlmssp_challenge_target_info, tvb, offset, 8,
                           "Target Info List: Empty");
     return offset+8;
   }
@@ -2138,7 +2136,7 @@ dissect_ntlmssp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   volatile int          offset       = 0;
   proto_tree *volatile  ntlmssp_tree = NULL;
-  proto_item           *tf           = NULL;
+  proto_item           *tf, *type_item;
   ntlmssp_header_t     *ntlmssph;
   void                 *pd_save;
 
@@ -2150,14 +2148,11 @@ dissect_ntlmssp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   memset(ntlmssph->session_key, 0, NTLMSSP_KEY_LEN);
 
   /* Setup a new tree for the NTLMSSP payload */
-  if (tree) {
-    tf = proto_tree_add_item (tree,
+  tf = proto_tree_add_item (tree,
                               proto_ntlmssp,
                               tvb, offset, -1, ENC_NA);
 
-    ntlmssp_tree = proto_item_add_subtree (tf,
-                                           ett_ntlmssp);
-  }
+  ntlmssp_tree = proto_item_add_subtree (tf, ett_ntlmssp);
 
   /*
    * Catch the ReportedBoundsError exception; the stuff we've been
@@ -2179,7 +2174,7 @@ dissect_ntlmssp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     offset += 8;
 
     /* NTLMSSP Message Type */
-    proto_tree_add_item (ntlmssp_tree, hf_ntlmssp_message_type,
+    type_item = proto_tree_add_item (ntlmssp_tree, hf_ntlmssp_message_type,
                          tvb, offset, 4, ENC_LITTLE_ENDIAN);
     ntlmssph->type = tvb_get_letohl (tvb, offset);
     offset += 4;
@@ -2206,8 +2201,7 @@ dissect_ntlmssp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     default:
       /* Unrecognized message type */
-      proto_tree_add_text (ntlmssp_tree, tvb, offset, -1,
-                           "Unrecognized NTLMSSP Message");
+      expert_add_info(pinfo, type_item, &ei_ntlmssp_message_type);
       break;
     }
   } CATCH_NONFATAL_ERRORS {
@@ -3325,6 +3319,7 @@ proto_register_ntlmssp(void)
      { &ei_ntlmssp_v2_key_too_long, { "ntlmssp.v2_key_too_long", PI_UNDECODED, PI_WARN, "NTLM v2 key is too long", EXPFILL }},
      { &ei_ntlmssp_blob_len_too_long, { "ntlmssp.blob.length.too_long", PI_UNDECODED, PI_WARN, "Session blob length too long", EXPFILL }},
      { &ei_ntlmssp_target_info_attr, { "ntlmssp.target_info_attr.unknown", PI_UNDECODED, PI_WARN, "unknown NTLMSSP Target Info Attribute", EXPFILL }},
+     { &ei_ntlmssp_message_type, { "ntlmssp.messagetype.unknown", PI_PROTOCOL, PI_WARN, "Unrecognized NTLMSSP Message", EXPFILL }},
   };
   module_t *ntlmssp_module;
   expert_module_t* expert_ntlmssp;

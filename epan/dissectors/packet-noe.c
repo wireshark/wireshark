@@ -609,6 +609,8 @@ static int  hf_noe_aindx                = -1;
 static int  hf_noe_errcode              = -1;
 static int  hf_noe_value                = -1;
 static int  hf_noe_message              = -1;
+static int  hf_noe_key_name             = -1;
+static int  hf_noe_bonded               = -1;
 static int  hf_noe_property_item_u8     = -1;
 static int  hf_noe_property_item_u16    = -1;
 static int  hf_noe_property_item_u24    = -1;
@@ -1122,11 +1124,11 @@ static void decode_evt(proto_tree  *tree,
             proto_item_append_text(tree, ", %s",
                 key_name);
 
-            proto_tree_add_text(tree,
+            proto_tree_add_string_format_value(tree, hf_noe_key_name,
                 tvb,
                 offset,
-                length,
-                "Key Name: %s (UTF-8 Value: %s, Unicode Value: 0x%" G_GINT64_MODIFIER "x)",
+                length, key_name,
+                "%s (UTF-8 Value: %s, Unicode Value: 0x%" G_GINT64_MODIFIER "x)",
                 key_name,
                 tvb_bytes_to_ep_str(tvb, offset, length),
                 unicode_value);
@@ -1160,21 +1162,15 @@ static void decode_evt(proto_tree  *tree,
             offset += 2;
             /*length -= 2;*/
 
-            /* XXX - should a 16-bit value be gotten if the size is only 8-bit? */
-            proto_tree_add_text(tree,
-                tvb,
-                offset,
-                1,
-                "Bonded: %d",
-                tvb_get_ntohs(tvb, offset));
+            proto_tree_add_item(tree, hf_noe_bonded, tvb, offset, 1, ENC_NA);
             offset += 1;
             /*length -= 1;*/
 
-            proto_tree_add_text(tree,
+            proto_tree_add_uint_format_value(tree, hf_noe_value,
                 tvb,
                 offset,
-                1,
-                "Value: %d",
+                1, tvb_get_ntohs(tvb, offset),
+                "%d",
                 tvb_get_ntohs(tvb, offset));
             break;
         }
@@ -1614,6 +1610,30 @@ void proto_register_noe(void)
                   "noe.event_widget_gc",
                   FT_UINT32,
                   BASE_DEC,
+                  NULL,
+                  0x0,
+                  NULL,
+                  HFILL
+              }
+            },
+            { &hf_noe_bonded,
+              {
+                  "Bonded",
+                  "noe.bonded",
+                  FT_UINT8,
+                  BASE_DEC,
+                  NULL,
+                  0x0,
+                  NULL,
+                  HFILL
+              }
+            },
+            { &hf_noe_key_name,
+              {
+                  "Key name",
+                  "noe.keyname",
+                  FT_STRING,
+                  BASE_NONE,
                   NULL,
                   0x0,
                   NULL,

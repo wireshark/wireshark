@@ -138,6 +138,8 @@ static gint  ett_netanalyzer_transparent             = -1;
 static expert_field ei_netanalyzer_header_version_wrong = EI_INIT;
 static expert_field ei_netanalyzer_gpio_def_none = EI_INIT;
 static expert_field ei_netanalyzer_header_version_none = EI_INIT;
+static expert_field ei_netanalyzer_transparent_frame = EI_INIT;
+static expert_field ei_netanalyzer_alignment_error = EI_INIT;
 
 /* common routine for Ethernet and transparent mode */
 static int
@@ -193,8 +195,8 @@ dissect_netanalyzer_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       packet_status = tvb_get_guint8(tvb, 0);
       if (packet_status == 0)
       {
-        ti_status = proto_tree_add_uint_format(netanalyzer_header_tree, hf_netanalyzer_status, tvb, 0, 1,
-                                               packet_status, "Status: No Error");
+        ti_status = proto_tree_add_uint_format_value(netanalyzer_header_tree, hf_netanalyzer_status, tvb, 0, 1,
+                                               packet_status, "No Error");
         proto_item_append_text(ti, "No Error)");
       }
       else
@@ -202,8 +204,8 @@ dissect_netanalyzer_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         wmem_strbuf_t      *strbuf;
         gboolean            first = TRUE;
 
-        ti_status = proto_tree_add_uint_format(netanalyzer_header_tree, hf_netanalyzer_status, tvb, 0, 1,
-                                               packet_status, "Status: Error present (expand tree for details)");
+        ti_status = proto_tree_add_uint_format_value(netanalyzer_header_tree, hf_netanalyzer_status, tvb, 0, 1,
+                                               packet_status, "Error present (expand tree for details)");
         strbuf = wmem_strbuf_new_label(wmem_epan_scope());
         for (idx = 0; idx < 8; idx++)
         {
@@ -236,12 +238,12 @@ dissect_netanalyzer_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       /* decode transparent mode */
       if (tvb_get_guint8(tvb, 1) & MSK_TRANSPARENT_MODE)
       {
-        proto_tree_add_text(netanalyzer_header_tree, tvb, 0, 4, "This frame was captured in transparent mode");
+        proto_tree_add_expert(netanalyzer_header_tree, pinfo, &ei_netanalyzer_transparent_frame, tvb, 0, 4);
         proto_item_append_text(ti, ", Transparent Mode");
 
         if (packet_status & MSK_ALIGN_ERR)
         {
-          proto_tree_add_text(netanalyzer_header_tree, tvb, tvb_length(tvb)-1, 1, "Displayed frame data contains additional nibble due to alignment error (upper nibble is not valid)");
+          proto_tree_add_expert(netanalyzer_header_tree, pinfo, &ei_netanalyzer_alignment_error, tvb, tvb_length(tvb)-1, 1);
         }
       }
     }
@@ -302,7 +304,6 @@ static void
 dissect_netanalyzer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   tvbuff_t                *next_tvb;
-  proto_item              *ti = NULL;
 
   if (tvb_length(tvb) >= 4)
   {
@@ -317,8 +318,8 @@ dissect_netanalyzer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   else
   {
     /* something is wrong */
-    ti = proto_tree_add_text(tree, tvb, 4, tvb_length(tvb)-4, "netANALYZER");
-    expert_add_info(pinfo, ti, &ei_netanalyzer_header_version_none);
+    proto_tree_add_expert_format(tree, pinfo, &ei_netanalyzer_header_version_none, tvb, 4, -1,
+        "netANALYZER - No netANALYZER header found");
   }
 }
 
@@ -327,7 +328,6 @@ dissect_netanalyzer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 dissect_netanalyzer_transparent(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  proto_item              *ti = NULL;
   proto_tree              *transparent_payload_tree = NULL;
   tvbuff_t                *next_tvb;
 
@@ -352,8 +352,8 @@ dissect_netanalyzer_transparent(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
   else
   {
     /* something is wrong */
-    ti = proto_tree_add_text(tree, tvb, 4, tvb_length(tvb)-4, "netANALYZER transparent mode");
-    expert_add_info(pinfo, ti, &ei_netanalyzer_header_version_none);
+    proto_tree_add_expert_format(tree, pinfo, &ei_netanalyzer_header_version_none, tvb, 4, -1,
+        "netANALYZER transparent mode - No netANALYZER header found");
   }
 }
 
@@ -382,7 +382,7 @@ void proto_register_netanalyzer(void)
             "Actual Ethernet frame length", HFILL }
         },
         { &hf_netanalyzer_status,
-          { "Frame Status", "netanalyzer.packetstatus",
+          { "Status", "netanalyzer.packetstatus",
             FT_UINT8, BASE_HEX, NULL, MSK_PACKET_STATUS,
             "Status of Ethernet frame", HFILL }
         },
@@ -438,6 +438,8 @@ void proto_register_netanalyzer(void)
         { &ei_netanalyzer_header_version_wrong, { "netanalyzer.header_version.wrong", PI_PROTOCOL, PI_ERROR, "Wrong netANALYZER header version", EXPFILL }},
         { &ei_netanalyzer_gpio_def_none, { "netanalyzer.gpio_def_none", PI_MALFORMED, PI_ERROR, "No valid netANALYZER GPIO definition found", EXPFILL }},
         { &ei_netanalyzer_header_version_none, { "netanalyzer.header_version.none", PI_MALFORMED, PI_ERROR, "No netANALYZER header found", EXPFILL }},
+        { &ei_netanalyzer_transparent_frame, { "netanalyzer.transparent_frame", PI_PROTOCOL, PI_NOTE, "This frame was captured in transparent mode", EXPFILL }},
+        { &ei_netanalyzer_alignment_error, { "netanalyzer.alignment_error", PI_PROTOCOL, PI_WARN, "Displayed frame data contains additional nibble due to alignment error (upper nibble is not valid)", EXPFILL }},
     };
 
     expert_module_t* expert_netanalyzer;

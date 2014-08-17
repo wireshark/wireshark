@@ -47,6 +47,7 @@ static int hf_user = -1;
 static int hf_nmas_version = -1;
 static int hf_msg_version = -1;
 static int hf_session_ident = -1;
+static int hf_verb = -1;
 static int hf_msg_verb = -1;
 /* static int hf_attribute = -1; */
 static int hf_clearance = -1;
@@ -276,7 +277,6 @@ dissect_nmas_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, nc
     guint32             attribute=0;
     guint8              msgverb=0;
     proto_tree          *atree;
-    proto_item          *aitem;
 
     foffset = 6;
     /*func = tvb_get_guint8(tvb, foffset);*/
@@ -289,9 +289,8 @@ dissect_nmas_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, nc
     col_add_fstr(pinfo->cinfo, COL_INFO, "C NMAS - %s",
         val_to_str(subfunc, nmas_func_enum, "Unknown (0x%02x)"));
 
-    aitem = proto_tree_add_text(ncp_tree, tvb, foffset, -1, "Packet Type: %s",
+    atree = proto_tree_add_subtree_format(ncp_tree, tvb, foffset, -1, ett_nmas, NULL, "Packet Type: %s",
         val_to_str(subfunc, nmas_func_enum, "Unknown (0x%02x)"));
-    atree = proto_item_add_subtree(aitem, ett_nmas);
     switch (subfunc) {
     case 1:
         proto_tree_add_item(atree, hf_ping_version, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
@@ -461,7 +460,6 @@ dissect_nmas_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, guin
     guint32             msg_length=0;
     guint32             return_code=0, encrypt_error=0;
     proto_tree          *atree;
-    proto_item          *aitem;
     proto_item          *expert_item;
     const gchar         *str;
 
@@ -476,9 +474,8 @@ dissect_nmas_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, guin
         return;
     }
 
-    aitem = proto_tree_add_text(ncp_tree, tvb, foffset, -1, "Packet Type: %s",
+    atree = proto_tree_add_subtree_format(ncp_tree, tvb, foffset, -1, ett_nmas, NULL, "Packet Type: %s",
         val_to_str(subfunc, nmas_func_enum, "Unknown (0x%02x)"));
-    atree = proto_item_add_subtree(aitem, ett_nmas);
     switch (subfunc) {
     case 1:
         proto_tree_add_item(atree, hf_ping_flags, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
@@ -487,8 +484,7 @@ dissect_nmas_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, guin
         /*foffset += 4;*/
         break;
     case 2:
-        proto_tree_add_text(atree, tvb, foffset, -1, "Verb: %s",
-            val_to_str(subverb, nmas_subverb_enum, "Unknown (%u)"));
+        proto_tree_add_uint(atree, hf_verb, tvb, foffset, -1, subverb);
         proto_tree_add_item(atree, hf_length, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
         msg_length = tvb_get_letohl(tvb, foffset);
         foffset +=4;
@@ -532,8 +528,8 @@ dissect_nmas_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, guin
                 /*foffset += msg_length;*/
                 break;
             case 8:             /* Login Store Management */
-                proto_tree_add_text(atree, tvb, foffset, -1, "Subverb: %s",
-                    val_to_str(msgverb, nmas_lsmverb_enum, "Unknown (%u)"));
+                proto_tree_add_uint_format(atree, hf_lsm_verb, tvb, foffset, -1, msgverb,
+                    "Subverb: %s", val_to_str(msgverb, nmas_lsmverb_enum, "Unknown (%u)"));
                 switch(msgverb) {
                     /* The data within these structures is all encrypted. */
                 case 1:
@@ -553,8 +549,8 @@ dissect_nmas_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, guin
                 /*foffset += 4;*/
                 break;
             case 1242:          /* Message Handler */
-                proto_tree_add_text(atree, tvb, foffset, -1, "Subverb: %s",
-                                    val_to_str(msgverb, nmas_msgverb_enum, "Unknown (%u)"));
+                proto_tree_add_uint_format(atree, hf_msg_verb, tvb, foffset, 1, msgverb,
+                                "Subverb: %s", val_to_str(msgverb, nmas_msgverb_enum, "Unknown (%u)"));
                 switch(msgverb) {
                 case 1:
                     msg_length = tvb_get_ntohl(tvb, foffset);
@@ -607,7 +603,7 @@ dissect_nmas_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, guin
         }
 
         if (return_code == 0) {
-            proto_tree_add_text(atree, tvb, roffset, 4, "Return Code: Success (0x00000000)");
+            proto_tree_add_uint_format_value(atree, hf_return_code, tvb, roffset, 4, return_code, "Success (0x00000000)");
         }
         break;
     case 3:
@@ -672,6 +668,10 @@ proto_register_nmas(void)
         { &hf_session_ident,
         { "Session Identifier", "nmas.session_ident",
             FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_verb,
+        { "Verb", "nmas.verb",
+            FT_UINT8, BASE_HEX, VALS(nmas_subverb_enum), 0x0, NULL, HFILL }},
 
         { &hf_msg_verb,
         { "Message Verb", "nmas.msg_verb",

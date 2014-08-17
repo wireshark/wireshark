@@ -112,6 +112,10 @@ static header_field_info hfi_netlink_hdr_pid NETLINK_HFI_INIT =
 	{ "Port ID", "netlink.hdr_pid", FT_UINT32, BASE_HEX,
 	  NULL, 0x00, NULL, HFILL };
 
+static header_field_info hfi_netlink_len NETLINK_HFI_INIT =
+	{ "Len", "netlink.len", FT_UINT16, BASE_DEC,
+	  NULL, 0x00, NULL, HFILL };
+
 static gint ett_netlink_cooked = -1;
 static gint ett_netlink_msghdr = -1;
 static gint ett_netlink_msg = -1;
@@ -142,7 +146,7 @@ dissect_netlink_attributes(tvbuff_t *tvb, header_field_info *hfi_type, int ett, 
 
 		attr_tree = proto_tree_add_subtree(tree, tvb, offset, end_offset - offset, ett, &ti, "Attribute");
 
-		proto_tree_add_text(attr_tree, tvb, offset, 2, "Len: %d", rta_len);
+		proto_tree_add_item(attr_tree, &hfi_netlink_len, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += 2;
 
 		rta_type = tvb_get_letohs(tvb, offset);

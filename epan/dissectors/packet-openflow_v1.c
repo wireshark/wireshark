@@ -29,6 +29,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 
 void proto_register_openflow_v1(void);
 void proto_reg_handoff_openflow_v1(void);
@@ -148,6 +149,10 @@ static gint ett_openflow_port = -1;
 static gint ett_openflow_port_cnf = -1;
 static gint ett_openflow_port_state = -1;
 static gint ett_openflow_port_cf = -1;
+
+static expert_field ei_openflow_undecoded_data = EI_INIT;
+static expert_field ei_openflow_action_type = EI_INIT;
+static expert_field ei_openflow_1_0_type = EI_INIT;
 
 static const value_string openflow_version_values[] = {
     { 0x01, "1.0" },
@@ -288,7 +293,7 @@ static const value_string openflow_1_0_type_values[] = {
 #define OFPAT_VENDOR         0xffff
 
 static int
-dissect_openflow_ofp_match_v1(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
+dissect_openflow_ofp_match_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
 
     /* uint32_t wildcards; Wildcard fields. */
@@ -323,7 +328,7 @@ dissect_openflow_ofp_match_v1(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
     /* uint32_t nw_dst; IP destination address. */
     /* uint16_t tp_src; TCP/UDP source port. */
     /* uint16_t tp_dst; TCP/UDP destination port. */
-    proto_tree_add_text(tree, tvb, offset, 18, "Data not dissected yet");
+    proto_tree_add_expert(tree, pinfo, &ei_openflow_undecoded_data, tvb, offset, 18);
     offset +=18;
 
     return offset;
@@ -349,10 +354,11 @@ static int
 dissect_openflow_action_header(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
 {
     guint16 action_type, action_len;
+    proto_item* ti;
 
     /* uint16_t type;  One of OFPAT_*. */
     action_type = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_item(tree, hf_openflow_action_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+    ti = proto_tree_add_item(tree, hf_openflow_action_type, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset+=2;
     /* Length of action, including this
      * header. This is the length of action,
@@ -373,7 +379,7 @@ dissect_openflow_action_header(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
         offset+=2;
         break;
     default:
-        proto_tree_add_text(tree, tvb, offset, action_len-4, "Action not dissected yet");
+        expert_add_info(pinfo, ti, &ei_openflow_action_type);
         offset+=(action_len-4);
         break;
     }
@@ -603,7 +609,6 @@ dissect_openflow_pkt_in(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     proto_tree_add_item(tree, hf_openflow_padd8, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset+=1;
 
-    /*proto_tree_add_text(tree, tvb, offset, length-offset, "Offset=%u, remaining %u", offset, length-offset);*/
     next_tvb = tvb_new_subset_length(tvb, offset, length-offset);
     call_dissector(eth_withoutfcs_handle, next_tvb, pinfo, tree);
 
@@ -635,7 +640,6 @@ dissect_openflow_pkt_out(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
        (Only meaningful if buffer_id == -1.)
      */
     if(buffer_id == -1){
-        /* proto_tree_add_text(tree, tvb, offset, -1, "Packet data"); */
         next_tvb = tvb_new_subset_length(tvb, offset, length-offset);
         call_dissector(eth_withoutfcs_handle, next_tvb, pinfo, tree);
     }
@@ -700,7 +704,7 @@ dissect_openflow_flow_mod(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 static int
 dissect_openflow_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    proto_item *ti;
+    proto_item *ti, *type_item;
     proto_tree *openflow_tree;
     guint offset = 0;
     guint8 type;
@@ -726,7 +730,7 @@ dissect_openflow_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
     offset++;
 
     /* One of the OFPT_ constants. */
-    proto_tree_add_item(openflow_tree, hf_openflow_1_0_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+    type_item = proto_tree_add_item(openflow_tree, hf_openflow_1_0_type, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
     /* Length including this ofp_header. */
@@ -774,7 +778,7 @@ dissect_openflow_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
         break;
     default:
         if(length>8){
-            proto_tree_add_text(tree, tvb, offset, -1, "Message data not dissected yet");
+            expert_add_info(pinfo, type_item, &ei_openflow_1_0_type);
         }
         break;
     }
@@ -1275,6 +1279,14 @@ proto_register_openflow_v1(void)
         &ett_openflow_port_cf
     };
 
+    static ei_register_info ei[] = {
+        { &ei_openflow_undecoded_data, { "openflow.undecoded_data", PI_UNDECODED, PI_WARN, "Data not dissected yet", EXPFILL }},
+        { &ei_openflow_action_type, { "openflow.action_typ.undecoded", PI_UNDECODED, PI_WARN, "Action not dissected yet", EXPFILL }},
+        { &ei_openflow_1_0_type, { "openflow_1_0.type.undecoded", PI_UNDECODED, PI_WARN, "Message data not dissected yet", EXPFILL }},
+    };
+
+    expert_module_t* expert_openflow_v1;
+
     /* Register the protocol name and description */
     proto_openflow_v1 = proto_register_protocol("OpenFlow 1.0",
             "openflow_v1", "openflow_v1");
@@ -1286,6 +1298,8 @@ proto_register_openflow_v1(void)
     /* Required function calls to register the header fields and subtrees */
     proto_register_field_array(proto_openflow_v1, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_openflow_v1 = expert_register_protocol(proto_openflow_v1);
+    expert_register_field_array(expert_openflow_v1, ei, array_length(ei));
 }
 
 /*

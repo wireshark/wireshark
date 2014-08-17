@@ -29,6 +29,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include <epan/prefs.h>
 
 #include "packet-tcp.h"
@@ -50,6 +51,8 @@ static dissector_handle_t openflow_v5_handle;
 /* Initialize the protocol and registered fields */
 static int proto_openflow = -1;
 static int hf_openflow_version = -1;
+
+static expert_field ei_openflow_version = EI_INIT;
 
 static gboolean openflow_desegment = TRUE;
 
@@ -79,6 +82,7 @@ dissect_openflow_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 {
     guint offset = 0;
     guint8 version;
+    proto_item* ti;
 
     version = tvb_get_guint8(tvb, 0);
     /* Set the Protocol column to the constant string of openflow */
@@ -96,8 +100,8 @@ dissect_openflow_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
         call_dissector(openflow_v5_handle, tvb, pinfo, tree);
         break;
     default:
-        proto_tree_add_item(tree, hf_openflow_version, tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_text(tree, tvb, offset, -1, "Unsuported version not dissected");
+        ti = proto_tree_add_item(tree, hf_openflow_version, tvb, offset, 1, ENC_BIG_ENDIAN);
+        expert_add_info(pinfo, ti, &ei_openflow_version);
         break;
     }
     return tvb_reported_length(tvb);
@@ -150,7 +154,12 @@ proto_register_openflow(void)
         }
     };
 
+    static ei_register_info ei[] = {
+        { &ei_openflow_version, { "openflow.version.unknown", PI_UNDECODED, PI_WARN, "Unsupported version not dissected", EXPFILL }},
+    };
+
     module_t *openflow_module;
+    expert_module_t* expert_openflow;
 
     /* Register the protocol name and description */
     proto_openflow = proto_register_protocol("OpenFlow",
@@ -160,6 +169,8 @@ proto_register_openflow(void)
 
     /* Required function calls to register the header fields and subtrees */
     proto_register_field_array(proto_openflow, hf, array_length(hf));
+    expert_openflow = expert_register_protocol(proto_openflow);
+    expert_register_field_array(expert_openflow, ei, array_length(ei));
 
     openflow_module = prefs_register_protocol(proto_openflow, proto_reg_handoff_openflow);
 

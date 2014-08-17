@@ -64,6 +64,7 @@ static int hf_negoex_checksum_vector_count = -1;
 static int hf_negoex_checksum_vector_pad = -1;
 static int hf_negoex_checksum = -1;
 static int hf_negoex_errorcode = -1;
+static int hf_negoex_data = -1;
 
 static gint ett_negoex = -1;
 static gint ett_negoex_msg = -1;
@@ -134,7 +135,7 @@ dissect_negoex_alert_message(tvbuff_t *tvb,
   offset += 4;
 
   /* The rest */
-  proto_tree_add_text(tree, tvb, offset, tvb_length(tvb) - offset,
+  proto_tree_add_bytes_format(tree, hf_negoex_data, tvb, offset, -1, NULL,
                       "The rest of the alert message");
 
 }
@@ -485,7 +486,7 @@ dissect_negoex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         break;
 
       default:
-        proto_tree_add_text(negoex_msg_tree, tvb, offset, message_len - 40,
+        proto_tree_add_bytes_format(negoex_msg_tree, hf_negoex_data, tvb, offset, message_len - 40, NULL,
                             "The rest of the message");
       }
 
@@ -588,6 +589,9 @@ proto_register_negoex(void)
         NULL, 0x0, NULL, HFILL}},
     { &hf_negoex_errorcode,
       { "ErrorCode", "negoex.errorcode", FT_UINT32, BASE_HEX,
+        NULL, 0x0, NULL, HFILL}},
+    { &hf_negoex_data,
+      { "Data", "negoex.data", FT_BYTES, BASE_NONE,
         NULL, 0x0, NULL, HFILL}},
   };
 
