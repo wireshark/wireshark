@@ -69,7 +69,7 @@ MACRO(XML2HTML _validated _output _mode _xmlsources _gfxsources)
             -E copy ${CMAKE_CURRENT_SOURCE_DIR}/ws.css ${_OUTDIR}
         COMMAND ${XSLTPROC_EXECUTABLE}
             --path "${CMAKE_CURRENT_SOURCE_DIR}:${CMAKE_CURRENT_BINARY_DIR}:${CMAKE_CURRENT_BINARY_DIR}/wsluarm_src"
-            --stringparam img.src.path ${CMAKE_CURRENT_SOURCE_DIR}
+            --stringparam img.src.path ${CMAKE_CURRENT_SOURCE_DIR}/
             --stringparam base.dir ${_OUTDIR}/
             --stringparam use.id.as.filename 1
             --stringparam admon.graphics 1
@@ -109,7 +109,7 @@ MACRO(XML2PDF _output _sources _stylesheet _paper)
         COMMAND ${XSLTPROC_EXECUTABLE}
             --path "${CMAKE_CURRENT_SOURCE_DIR}:${CMAKE_CURRENT_BINARY_DIR}:${CMAKE_CURRENT_BINARY_DIR}/wsluarm_src"
             --stringparam paper.type ${_paper}
-            --stringparam img.src.path ${CMAKE_CURRENT_SOURCE_DIR}
+            --stringparam img.src.path ${CMAKE_CURRENT_SOURCE_DIR}/
             --stringparam base.dir ${_OUTDIR}/
             --stringparam use.id.as.filename 1
             --stringparam admon.graphics 1
@@ -126,4 +126,3 @@ MACRO(XML2PDF _output _sources _stylesheet _paper)
             ${_stylesheet}
     )
 ENDMACRO(XML2PDF)
-

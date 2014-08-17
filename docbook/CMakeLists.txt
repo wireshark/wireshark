@@ -40,7 +40,7 @@ set(WSUG_FILES
 	WSUG_chapter_statistics.xml
 	wsug_src/WSUG_chapter_telephony.xml
 	wsug_src/WSUG_chapter_troubleshoot.xml
-	wsug_src/WSUG_chapter_use.xml
+	WSUG_chapter_use.xml
 	wsug_src/WSUG_chapter_work.xml
 	wsug_src/WSUG_meta_info.xml
 	WSUG_preface.xml
@@ -52,6 +52,7 @@ set(WSDG_ASCIIDOC_FILES
 	wsug_src/WSUG_chapter_build_install.asciidoc
 	wsug_src/WSUG_chapter_introduction.asciidoc
 	wsug_src/WSUG_chapter_statistics.asciidoc
+	wsug_src/WSUG_chapter_use.asciidoc
 	wsug_src/WSUG_preface.asciidoc
 )
 
@@ -223,11 +224,23 @@ set(WSUG_SOURCE
 	${WSUG_GRAPHICS}
 )
 
-MACRO( ASCIIDOC2DOCBOOK _asciidocsource _conffile )
+set( ASCIIDOC_CONF_FILES asciidoc.conf asciidoctor-asciidoc.conf )
+
+MACRO( ASCIIDOC2DOCBOOK _asciidocsource _conf_files )
 	GET_FILENAME_COMPONENT( _source_base_name ${_asciidocsource} NAME_WE )
 	set( A2X_HTML_OPTS --stylesheet=ws.css )
 	set( _output_xml ${_source_base_name}.xml )
 	set( _output_dbk ${_source_base_name}.dbk )
+
+	foreach(_conf_file ${_conf_files})
+		set( _conf_opts_list ${_conf_opts_list} --conf_file=${CMAKE_CURRENT_SOURCE_DIR}/${_conf_file})
+	endforeach()
+	string(REPLACE ";" " _conf_opts "${_conf_opts_list})
+
+	foreach(_conf_file ${_conf_files})
+		set( _conf_deps ${_conf_deps} ${CMAKE_CURRENT_SOURCE_DIR}/${_conf_file})
+	endforeach()
+
 	ADD_CUSTOM_COMMAND(
 		OUTPUT
 			${_output_xml}
@@ -237,7 +250,7 @@ MACRO( ASCIIDOC2DOCBOOK _asciidocsource _conffile )
 			--verbose
 			--attribute=docinfo
 			--destination-dir=${CMAKE_CURRENT_BINARY_DIR}
-			--asciidoc-opts="--conf-file=${CMAKE_CURRENT_SOURCE_DIR}/${_conffile}"
+			--asciidoc-opts=${_conf_opts}
 			--no-xmllint
 			--format=docbook
 			--fop
@@ -245,23 +258,33 @@ MACRO( ASCIIDOC2DOCBOOK _asciidocsource _conffile )
 			${CMAKE_CURRENT_SOURCE_DIR}/${_asciidocsource}
 		DEPENDS
 			${CMAKE_CURRENT_SOURCE_DIR}/${_asciidocsource}
-			${CMAKE_CURRENT_SOURCE_DIR}/${_conffile}
+			${_conf_deps}
 			${WSDG_GENERATED_FILES}
 	)
 ENDMACRO()
 
-ASCIIDOC2DOCBOOK( developer-guide.asciidoc asciidoc.conf )
+ASCIIDOC2DOCBOOK( developer-guide.asciidoc "${ASCIIDOC_CONF_FILES}" )
 
 SET( WSDG_GENERATED_FILES )
 # Convert an AsciiDoc document to a DocBook chapter
 # Used for chapter-by-chapter conversion from DocBook to AsciiDoc.
 # Can be removed after the User's Guide is converted.
 # .asciidoc -> whole book (.dbk) -> chapter (.xml)
-MACRO( ASCIIDOC2CHAPTER _asciidocsource _conffile )
+MACRO( ASCIIDOC2CHAPTER _asciidocsource _conf_files )
 	GET_FILENAME_COMPONENT( _source_base_name ${_asciidocsource} NAME_WE )
 	set( A2X_HTML_OPTS --stylesheet=ws.css )
 	set( _output_xml ${_source_base_name}.xml )
 	set( _output_dbk ${_source_base_name}.dbk )
+
+	foreach(_conf_file ${_conf_files})
+		set( _conf_opts_list ${_conf_opts_list} --conf_file=${CMAKE_CURRENT_SOURCE_DIR}/${_conf_file})
+	endforeach()
+	string(REPLACE ";" " _conf_opts "${_conf_opts_list})
+
+	foreach(_conf_file ${_conf_files})
+		set( _conf_deps ${_conf_deps} ${CMAKE_CURRENT_SOURCE_DIR}/${_conf_file})
+	endforeach()
+
 	ADD_CUSTOM_COMMAND(
 		OUTPUT
 			${_output_xml} ${_output_dbk}
@@ -270,7 +293,7 @@ MACRO( ASCIIDOC2CHAPTER _asciidocsource _conffile )
 		COMMAND ${A2X_EXECUTABLE}
 			--verbose
 			--destination-dir=${CMAKE_CURRENT_BINARY_DIR}
-			--asciidoc-opts="--conf-file=${CMAKE_CURRENT_SOURCE_DIR}/${_conffile}"
+			--asciidoc-opts=${_conf_opts}
 			--no-xmllint
 			--fop
 			--format=docbook --doctype=book
@@ -285,8 +308,8 @@ MACRO( ASCIIDOC2CHAPTER _asciidocsource _conffile )
 			> ${_output_xml}
 		DEPENDS
 			${_outptudir}
-	${CMAKE_CURRENT_SOURCE_DIR}/${_asciidocsource}
-	${CMAKE_CURRENT_SOURCE_DIR}/${_conffile}
+			${CMAKE_CURRENT_SOURCE_DIR}/${_asciidocsource}
+			${_conf_deps}
 	)
 	LIST( APPEND WSDG_GENERATED_FILES ${CMAKE_CURRENT_BINARY_DIR}/${_output_xml} )
 ENDMACRO()
@@ -294,7 +317,7 @@ ENDMACRO()
 FOREACH(ASCIIDOCFILE ${WSDG_ASCIIDOC_FILES})
 	ASCIIDOC2CHAPTER(
 		${ASCIIDOCFILE}
-		asciidoc.conf
+		"${ASCIIDOC_CONF_FILES}"
 	)
 ENDFOREACH()
 
@@ -452,26 +475,26 @@ ADD_CUSTOM_COMMAND(
 ASCIIDOC2HTML(
 	release-notes.html
 	release-notes.asciidoc
-	asciidoc.conf
+	"${ASCIIDOC_CONF_FILES}"
 )
 
 ASCIIDOC2TXT(
 	release-notes.txt
 	release-notes.asciidoc
-	asciidoc.conf
+	"${ASCIIDOC_CONF_FILES}"
 )
 
 ASCIIDOC2PDF(
 	release-notes-a4.pdf
 	release-notes.asciidoc
-	asciidoc.conf
+	"${ASCIIDOC_CONF_FILES}"
 	A4
 )
 
 ASCIIDOC2PDF(
 	release-notes-us.pdf
 	release-notes.asciidoc
-	asciidoc.conf
+	"${ASCIIDOC_CONF_FILES}"
 	letter
 )
 
@@ -489,4 +512,3 @@ ADD_CUSTOM_COMMAND(
 		${CMAKE_CURRENT_SOURCE_DIR}/make-wsluarm.pl
 		${WSLUA_MODULES}
 )
-

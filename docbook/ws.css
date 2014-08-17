@@ -123,6 +123,10 @@ tt.literal, code.literal {
   padding: 0.5em 1em;
 }
 
+.guibutton, .guimenu, .guimenuitem {
+  font-weight: bold;
+}
+
 div.sidebar {
   background: #ffffee;
   margin: 1.0em 10% 0.5em 0;

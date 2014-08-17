@@ -39,7 +39,7 @@ A2X_TEXT_OPTS=$(A2X_TEXT_OPTS) --lynx
 	$(SH) <<
 	PATH=/usr/bin
 	$(A2X) --verbose \
-		--asciidoc-opts="--conf-file=asciidoc.conf" \
+		--asciidoc-opts="--conf-file=asciidoc.conf --conf-file=asciidoctor-asciidoc.conf" \
 		--no-xmllint \
 		--format=docbook --doctype=book \
 		$<
@@ -164,7 +164,7 @@ developer-guide.xml: developer-guide.asciidoc  $(WSDG_FILES)
 	PATH=/usr/bin
 	$(A2X) --verbose \
 		--attribute=docinfo \
-		--asciidoc-opts=\"--conf-file=asciidoc.conf\" \
+		--asciidoc-opts="--conf-file=asciidoc.conf --conf-file=asciidoctor-asciidoc.conf" \
 		--no-xmllint \
 		--format=docbook \
 		developer-guide.asciidoc
@@ -284,4 +284,3 @@ release-notes-a4.pdf: $(RELEASE_NOTES_SOURCE) custom_layer_pdf.xsl
 	mv release-notes.pdf $@
 
 _FORCE_:  ## Assumption: no file named _FORCE_ exists in the current directory
-
