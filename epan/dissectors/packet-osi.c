@@ -37,8 +37,6 @@
 #include <epan/chdlctypes.h>
 #include <epan/ipproto.h>
 #include "packet-osi.h"
-#include "packet-isis.h"
-#include "packet-esis.h"
 #include "packet-tpkt.h"
 
 void proto_reg_handoff_osi(void);

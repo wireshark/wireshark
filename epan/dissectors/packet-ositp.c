@@ -37,8 +37,6 @@
 #include "packet-frame.h"
 #include "packet-osi.h"
 #include "packet-osi-options.h"
-#include "packet-isis.h"
-#include "packet-esis.h"
 #include <epan/nlpid.h>
 #include <epan/ipproto.h>
 #include <epan/expert.h>

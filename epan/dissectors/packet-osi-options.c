@@ -33,9 +33,6 @@
 #include <epan/expert.h>
 #include <epan/nlpid.h>
 #include "packet-osi.h"
-#include "packet-isis.h"
-#include "packet-isis-clv.h"
-#include "packet-esis.h"
 #include "packet-osi-options.h"
 
 

@@ -36,8 +36,6 @@
 
 #include "packet-osi.h"
 #include "packet-osi-options.h"
-#include "packet-isis.h"
-#include "packet-esis.h"
 
 void proto_register_clnp(void);
 void proto_reg_handoff_clnp(void);
