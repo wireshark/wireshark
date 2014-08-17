@@ -300,7 +300,7 @@ int logcat_text_open(wtap *wth, int *err, gchar **err_info _U_) {
         wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_LOGCAT_LONG;
         wth->file_encap = WTAP_ENCAP_LOGCAT_LONG;
     } else {
-        return -1;
+        return 0;
     }
 
     if (file_seek(wth->fh, 0, SEEK_SET, err) == -1)
