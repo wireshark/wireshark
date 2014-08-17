@@ -8544,6 +8544,9 @@ hp-status        5226/udp # HP Status [Brett_Green_2] [Brett_Green_2]
 perfd            5227/tcp # HP System Performance Metric Service [Chris_Bertin] [Chris_Bertin] 2009-05-19
 perfd            5227/udp # HP System Performance Metric Service [Chris_Bertin] [Chris_Bertin] 2009-05-19
 hpvroom          5228/tcp # HP Virtual Room Service [Scott_Levin] [Scott_Levin] 2009-03-19
+jaxflow          5229/tcp # Netflow/IPFIX/sFlow Collector and Forwarder Management [JaxMP] [Stephen_Hull] 2014-08-15
+jaxflow-data     5230/tcp # JaxMP RealFlow application and protocol data [JaxMP] [Stephen_Hull] 2014-08-15
+crusecontrol     5231/tcp # Remote Control of Scan Software for Cruse Scanners [Cruse_Spezialmaschinen_GmbH] [Christof_J._Reetz_2] 2014-08-15
 csedaemon        5232/tcp # Cruse Scanning System Service [Christof_J_Reetz] [Christof_J_Reetz] 2011-03-09
 enfs             5233/tcp # Etinnae Network File Service [Chris_Peel] [Chris_Peel] 2011-03-09
 eenet            5234/tcp # EEnet communications [Helmut_Giritzer] [Helmut_Giritzer] 2005-11
@@ -11039,6 +11042,8 @@ tonidods        24465/tcp # Tonido Domain Server [Madhan_Kanagavel] [Madhan_Kana
 tonidods        24465/udp # Tonido Domain Server [Madhan_Kanagavel] [Madhan_Kanagavel] 2008-07-18
 binkp           24554/tcp # BINKP [Max_Masyutin] [Max_Masyutin]
 binkp           24554/udp # BINKP [Max_Masyutin] [Max_Masyutin]
+bilobit         24577/tcp # bilobit Service [bilobit_GmbH] [Martin_Schmuker] 2014-08-15
+bilobit-update  24577/udp # bilobit Service Update [bilobit_GmbH] [Martin_Schmuker] 2014-08-15
 canditv         24676/tcp # Canditv Message Service [Gary_Aston] [Gary_Aston] 2009-03-10
 canditv         24676/udp # Canditv Message Service [Gary_Aston] [Gary_Aston] 2009-03-10
 flashfiler      24677/tcp # FlashFiler [Ben_Oram] [Ben_Oram]
