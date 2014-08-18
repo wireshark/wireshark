@@ -522,8 +522,8 @@ dissect_hello_ip_authentication_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
  * Name: dissect_hello_trill_neighbor_clv
  */
 static void
-dissect_hello_trill_neighbor_clv(tvbuff_t *tvb, packet_info* pinfo,
-        proto_tree *tree, int offset, int id_length _U_, int length) {
+dissect_hello_trill_neighbor_clv(tvbuff_t *tvb _U_, packet_info* pinfo _U_,
+        proto_tree *tree _U_, int offset _U_, int id_length _U_, int length _U_) {
 
     /* TODO Implement dissector according to RFC7176 section 2.5 */
 
