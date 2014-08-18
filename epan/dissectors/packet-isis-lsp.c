@@ -779,7 +779,7 @@ dissect_isis_rt_capable_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
     guint16 rt_block;
     proto_tree *rt_tree;
 
-    gint root_id = 1;       /* To display the root id */
+    guint16 root_id;       /* To display the root id */
     length = length - 5;    /* Ignoring the 5 reserved bytes */
     offset = offset + 5;
 
@@ -845,17 +845,17 @@ dissect_isis_rt_capable_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
             length--;
             offset++;
 
+            root_id = tvb_get_ntohs(tvb, offset);
             proto_tree_add_item(rt_tree, hf_isis_lsp_rt_capable_tree_root_id_starting_tree_no, tvb, offset, 2, ENC_BIG_ENDIAN);
 
             len -= 2;
             length -= 2;
             offset += 2;
-            root_id = 1;
 
             while (len>1) {
                 rt_block = tvb_get_ntohs(tvb, offset);
                 proto_tree_add_uint_format(rt_tree, hf_isis_lsp_rt_capable_tree_root_id_nickname, tvb, offset, 2,
-                                           rt_block, "Nickname(%dth root): %d", root_id, rt_block);
+                                           rt_block, "Nickname(%dth root): 0x%04x (%d)", root_id, rt_block, rt_block);
                 root_id++;
                 len -= 2;
                 length -= 2;
@@ -950,17 +950,17 @@ dissect_isis_rt_capable_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
             length--;
             offset++;
 
+            root_id = tvb_get_ntohs(tvb, offset);
             proto_tree_add_item(rt_tree, hf_isis_lsp_rt_capable_tree_used_id_starting_tree_no, tvb, offset, 2, ENC_BIG_ENDIAN);
 
             len -= 2;
             length -= 2;
             offset += 2;
-            root_id = 1;
 
             while (len>1) {
                 rt_block = tvb_get_ntohs(tvb, offset);
                 proto_tree_add_uint_format(rt_tree, hf_isis_lsp_rt_capable_tree_used_id_nickname, tvb, offset,2,
-                                rt_block, "Nickname(%dth root): %d", root_id, rt_block);
+                                           rt_block, "Nickname(%dth root): 0x%04x (%d)", root_id, rt_block, rt_block);
                 root_id++;
                 len -= 2;
                 offset += 2;
