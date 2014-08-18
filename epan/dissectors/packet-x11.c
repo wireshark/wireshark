@@ -2136,11 +2136,8 @@ static void listOfString8(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
       }
 }
 
-#define STRING16_MAX_DISPLAYED_LENGTH 150
-
 static int stringIsActuallyAn8BitString(tvbuff_t *tvb, int offset, guint length)
 {
-      if (length > STRING16_MAX_DISPLAYED_LENGTH) length = STRING16_MAX_DISPLAYED_LENGTH;
       for(; length > 0; offset += 2, length--) {
             if (tvb_get_guint8(tvb, offset))
                   return FALSE;
@@ -2148,48 +2145,28 @@ static int stringIsActuallyAn8BitString(tvbuff_t *tvb, int offset, guint length)
       return TRUE;
 }
 
-/* length is the length of the _byte_zone_ (that is, twice the length of the string) */
+#define UNREPL 0x00FFFD
 
-static void string16_with_buffer_preallocated(tvbuff_t *tvb, proto_tree *t,
-                                              int hf, int hf_bytes,
-                                              int offset, guint length,
-                                              char **s, guint byte_order)
+/* XXX - assumes that the string encoding is ASCII; even if 0x00 through
+   0x7F are ASCII, 0x80 through 0xFF might not be, and even 0x00 through
+   0x7F aren't necessarily ASCII. */
+static char *tvb_get_ascii_string16(tvbuff_t *tvb, int offset, guint length)
 {
-      int truncated = FALSE;
-      guint l = length / 2;
+      wmem_strbuf_t *str;
+      guint8 ch;
 
-      if (stringIsActuallyAn8BitString(tvb, offset, l)) {
-            char *dp;
-            int soffset = offset;
+      str = wmem_strbuf_sized_new(wmem_packet_scope(), length + 1, 0);
 
-            if (l > STRING16_MAX_DISPLAYED_LENGTH) {
-                  truncated = TRUE;
-                  l = STRING16_MAX_DISPLAYED_LENGTH;
-            }
-
-            *s = (char *)wmem_alloc(wmem_packet_scope(), l + 3);
-            dp = *s;
-            *dp++ = '"';
-            if (truncated) l -= 3;
-
-            while(l--) {
-                  soffset++;
-                  *dp++ = tvb_get_guint8(tvb, soffset);
-                  soffset++;
-            }
-            *dp++ = '"';
-
-            /* If truncated, add an ellipsis */
-            if (truncated) { *dp++ = '.'; *dp++ = '.'; *dp++ = '.'; }
-
-            *dp++ = '\0';
-            proto_tree_add_string_format_value(t, hf, tvb, offset, length,
-                                         (const gchar *)tvb_get_ptr(tvb, offset, length),
-                                         "%s",
-                                         *s);
-      } else
-            proto_tree_add_item(t, hf_bytes, tvb, offset, length, byte_order);
-
+      while(length--) {
+            offset++;
+            ch = tvb_get_guint8(tvb, offset);
+            if (ch < 0x80)
+                  wmem_strbuf_append_c(str, ch);
+            else
+                  wmem_strbuf_append_unichar(str, UNREPL);
+            offset++;
+      }
+      return wmem_strbuf_finalize(str);
 }
 
 static void listOfTextItem(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
@@ -2227,22 +2204,37 @@ static void listOfTextItem(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
                   proto_item *tti;
                   proto_tree *ttt;
                   gint8 delta = VALUE8(tvb, *offsetp + 1);
-                  if (sizeIs16) l += l;
-                  s = tvb_get_string_enc(wmem_packet_scope(), tvb, *offsetp + 2, l, ENC_ASCII);
-                  tti = proto_tree_add_none_format(tt, hf_x11_textitem_string, tvb, *offsetp, l + 2,
-                                                       "textitem (string): delta = %d, \"%s\"",
-                                                       delta, s);
-                  ttt = proto_item_add_subtree(tti, ett_x11_text_item);
-                  proto_tree_add_item(ttt, hf_x11_textitem_string_delta, tvb, *offsetp + 1, 1, byte_order);
-                  if (sizeIs16)
-                        string16_with_buffer_preallocated(tvb, ttt, hf_x11_textitem_string_string16,
-                                                          hf_x11_textitem_string_string16_bytes,
-                                                          *offsetp + 2, l,
-                                                          &s, byte_order);
-                  else
+                  if (sizeIs16) {
+                        if (stringIsActuallyAn8BitString(tvb, *offsetp + 2, l)) {
+                              s = tvb_get_ascii_string16(tvb, *offsetp + 2, l);
+                              tti = proto_tree_add_none_format(tt, hf_x11_textitem_string, tvb, *offsetp, l*2 + 2,
+                                                               "textitem (string): delta = %d, \"%s\"",
+                                                               delta, s);
+                              ttt = proto_item_add_subtree(tti, ett_x11_text_item);
+                              proto_tree_add_item(ttt, hf_x11_textitem_string_delta, tvb, *offsetp + 1, 1, byte_order);
+                              proto_tree_add_string_format_value(ttt, hf_x11_textitem_string_string16, tvb,
+                                                                 *offsetp + 2, l, s, "\"%s\"", s);
+                        } else {
+                              tti = proto_tree_add_none_format(tt, hf_x11_textitem_string, tvb, *offsetp, l*2 + 2,
+                                                               "textitem (string): delta = %d, %s",
+                                                               delta,
+                                                               tvb_bytes_to_ep_str(tvb, *offsetp + 2, l*2));
+                              ttt = proto_item_add_subtree(tti, ett_x11_text_item);
+                              proto_tree_add_item(ttt, hf_x11_textitem_string_delta, tvb, *offsetp + 1, 1, byte_order);
+                              proto_tree_add_item(ttt, hf_x11_textitem_string_string16_bytes, tvb, *offsetp + 2, l*2, byte_order);
+                        }
+                        *offsetp += l*2 + 2;
+                  } else {
+                        s = tvb_get_string_enc(wmem_packet_scope(), tvb, *offsetp + 2, l, ENC_ASCII);
+                        tti = proto_tree_add_none_format(tt, hf_x11_textitem_string, tvb, *offsetp, l + 2,
+                                                         "textitem (string): delta = %d, \"%s\"",
+                                                         delta, s);
+                        ttt = proto_item_add_subtree(tti, ett_x11_text_item);
+                        proto_tree_add_item(ttt, hf_x11_textitem_string_delta, tvb, *offsetp + 1, 1, byte_order);
                         proto_tree_add_string_format(ttt, hf_x11_textitem_string_string8, tvb,
                                                      *offsetp + 2, l, s, "\"%s\"", s);
-                  *offsetp += l + 2;
+                        *offsetp += l + 2;
+                  }
             }
       }
 }
@@ -2502,18 +2494,21 @@ static void string8(tvbuff_t *tvb, int *offsetp, proto_tree *t,
       *offsetp += length;
 }
 
-/* The length is the length of the _byte_zone_ (twice the length of the string) */
+/* The length supplied is the length of the string in CHAR2Bs (half the number of bytes) */
 
 static void string16(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
     int hf_bytes, guint length, guint byte_order)
 {
-      char *s = NULL;
+      guint l = length*2; /* byte count */
+      char *s;
 
-      length += length;
-      string16_with_buffer_preallocated(tvb, t, hf, hf_bytes, *offsetp, length,
-                                        &s, byte_order);
+      if (stringIsActuallyAn8BitString(tvb, *offsetp, length)) {
+            s = tvb_get_ascii_string16(tvb, *offsetp, length);
+            proto_tree_add_string_format_value(t, hf, tvb, *offsetp, l, s, "\"%s\"", s);
+      } else
+            proto_tree_add_item(t, hf_bytes, tvb, *offsetp, l, byte_order);
 
-      *offsetp += length;
+      *offsetp += l;
 }
 
 static void timestamp(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
