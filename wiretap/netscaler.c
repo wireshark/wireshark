@@ -701,8 +701,7 @@ int nstrace_open(wtap *wth, int *err, gchar **err_info)
         break;
 
     default:
-        *err = WTAP_ERR_UNSUPPORTED;
-        *err_info = g_strdup_printf("nstrace: file type %d unsupported", wth->file_type_subtype);
+        /* No known signature found, assume it's not NetScaler */
         g_free(nstrace_buf);
         return 0;
     }
@@ -801,10 +800,12 @@ nspm_signature_func(20)
 nspm_signature_func(30)
 
 /*
-** Check signature and return the version number of the signature.
-** If not found, it returns 0. At the time of return from this function
-** we might not be at the first page. So after a call to this function, there
-** has to be a file seek to return to the start of the first page.
+** Check signature and return the file type and subtype for files with
+** that signature.  If it finds no signature that it recognizes, it
+** returns WTAP_FILE_TYPE_SUBTYPE_UNKNOWN. At the time of return from
+** this function we might not be at the first page. So after a call to
+** this function, there has to be a file seek to return to the start
+** of the first page.
 */
 static guint32
 nspm_signature_version(wtap *wth, gchar *nstrace_buf, gint32 len)
@@ -839,7 +840,7 @@ nspm_signature_version(wtap *wth, gchar *nstrace_buf, gint32 len)
         }
     }
 
-    return 0;    /* no version found */
+    return WTAP_FILE_TYPE_SUBTYPE_UNKNOWN;    /* no version found */
 }
 
 #define nspr_getv10recordtype(hdp) (pletoh16(&(hdp)->nsprRecordType))

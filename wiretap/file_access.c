@@ -360,7 +360,7 @@ static struct open_info open_info_base[] = {
     { "Cosine",                      OPEN_INFO_HEURISTIC, cosine_open,              "txt",      NULL, NULL },
     { "Hcidump",                     OPEN_INFO_HEURISTIC, hcidump_open,             NULL,       NULL, NULL },
     { "Commview",                    OPEN_INFO_HEURISTIC, commview_open,            "ncf",      NULL, NULL },
-    { "Nstrace",                     OPEN_INFO_HEURISTIC, nstrace_open,             "txt",      NULL, NULL },
+    { "Nstrace",                     OPEN_INFO_HEURISTIC, nstrace_open,             "cap",      NULL, NULL },
     { "Logcat ",                     OPEN_INFO_HEURISTIC, logcat_open,              "logcat",   NULL, NULL },
     /* ASCII trace files from Telnet sessions. */
     { "Ascend",                      OPEN_INFO_HEURISTIC, ascend_open,              "txt",      NULL, NULL },
