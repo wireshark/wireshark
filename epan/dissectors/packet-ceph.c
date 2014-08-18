@@ -1400,7 +1400,7 @@ gboolean c_from_server(c_pkt_data *d)
 static
 void c_set_type(c_pkt_data *data, const char *type)
 {
-	col_set_str(data->pinfo->cinfo, COL_INFO, type);
+	col_add_str(data->pinfo->cinfo, COL_INFO, type);
 	proto_item_append_text(data->item_root, " %s", type);
 }
 
