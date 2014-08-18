@@ -100,9 +100,8 @@
 
 /*Sub-TLVs under Group Address TLV*/
 #define GRP_MAC_ADDRESS 1
-#define FP_HMAC_SWID_MASK  G_GINT64_CONSTANT(0xFFFF00000000)
-#define FP_HMAC_SSWID_MASK G_GINT64_CONSTANT(0x0000FFFF0000)
-#define FP_HMAC_LID_MASK   G_GINT64_CONSTANT(0x00000000FFFF)
+#define GRP_IPV4_ADDRESS 2
+#define GRP_IPV6_ADDRESS 3
 
 void proto_register_isis_lsp(void);
 void proto_reg_handoff_isis_lsp(void);
@@ -135,7 +134,9 @@ static int hf_isis_lsp_spb_port_id = -1;
 static int hf_isis_lsp_spb_sr_bit = -1;
 static int hf_isis_lsp_spb_spvid = -1;
 /* Generated from convert_proto_tree_add_text.pl */
-static int hf_isis_lsp_grp_address_length = -1;
+static int hf_isis_lsp_grp_macaddr_length = -1;
+static int hf_isis_lsp_grp_ipv4addr_length = -1;
+static int hf_isis_lsp_grp_ipv6addr_length = -1;
 static int hf_isis_lsp_mt_cap_spb_instance_v = -1;
 static int hf_isis_lsp_mt_cap_spb_instance_cist_external_root_path_cost = -1;
 static int hf_isis_lsp_rt_capable_tree_used_id_starting_tree_no = -1;
@@ -143,9 +144,13 @@ static int hf_isis_lsp_mt_cap_spb_instance_bridge_priority = -1;
 static int hf_isis_lsp_rt_capable_trees_length = -1;
 static int hf_isis_lsp_mt_cap_spbm_service_identifier_base_vid = -1;
 static int hf_isis_lsp_64_bit_administrative_tag = -1;
-static int hf_isis_lsp_grp_address_number_of_sources = -1;
+static int hf_isis_lsp_grp_macaddr_number_of_sources = -1;
+static int hf_isis_lsp_grp_ipv4addr_number_of_sources = -1;
+static int hf_isis_lsp_grp_ipv6addr_number_of_sources = -1;
 static int hf_isis_lsp_ext_is_reachability_traffic_engineering_default_metric = -1;
-static int hf_isis_lsp_grp_address_group_address = -1;
+static int hf_isis_lsp_grp_macaddr_group_address = -1;
+static int hf_isis_lsp_grp_ipv4addr_group_address = -1;
+static int hf_isis_lsp_grp_ipv6addr_group_address = -1;
 static int hf_isis_lsp_rt_capable_tree_root_id_nickname = -1;
 static int hf_isis_lsp_ext_is_reachability_ipv4_interface_address = -1;
 static int hf_isis_lsp_ext_ip_reachability_metric = -1;
@@ -155,19 +160,25 @@ static int hf_isis_lsp_rt_capable_interested_vlans_length = -1;
 static int hf_isis_lsp_expense_metric = -1;
 static int hf_isis_lsp_ext_is_reachability_link_remote_identifier = -1;
 static int hf_isis_lsp_rt_capable_vlan_group_secondary_vlan_id = -1;
-static int hf_isis_lsp_grp_address_vlan_id = -1;
+static int hf_isis_lsp_grp_macaddr_vlan_id = -1;
+static int hf_isis_lsp_grp_ipv4addr_vlan_id = -1;
+static int hf_isis_lsp_grp_ipv6addr_vlan_id = -1;
 static int hf_isis_lsp_rt_capable_trill_length = -1;
 static int hf_isis_lsp_rt_capable_tree_root_id_starting_tree_no = -1;
 static int hf_isis_lsp_rt_capable_interested_vlans_nickname = -1;
 static int hf_isis_lsp_rt_capable_nickname_length = -1;
 static int hf_isis_lsp_ip_reachability_ipv4_prefix = -1;
-static int hf_isis_lsp_grp_address_topology_id = -1;
+static int hf_isis_lsp_grp_macaddr_topology_id = -1;
+static int hf_isis_lsp_grp_ipv4addr_topology_id = -1;
+static int hf_isis_lsp_grp_ipv6addr_topology_id = -1;
 static int hf_isis_lsp_ext_is_reachability_ipv4_neighbor_address = -1;
 static int hf_isis_lsp_ipv6_reachability_reserved_bits = -1;
 static int hf_isis_lsp_eis_neighbors_default_metric = -1;
 static int hf_isis_lsp_mt_cap_spb_instance_cist_root_identifier = -1;
 static int hf_isis_lsp_rt_capable_tree_used_id_nickname = -1;
-static int hf_isis_lsp_grp_address_source_address = -1;
+static int hf_isis_lsp_grp_macaddr_source_address = -1;
+static int hf_isis_lsp_grp_ipv4addr_source_address = -1;
+static int hf_isis_lsp_grp_ipv6addr_source_address = -1;
 static int hf_isis_lsp_delay_metric = -1;
 static int hf_isis_lsp_ext_is_reachability_link_local_identifier = -1;
 static int hf_isis_lsp_mt_cap_mtid = -1;
@@ -198,7 +209,9 @@ static int hf_isis_lsp_ipv6_reachability_ipv6_prefix = -1;
 static int hf_isis_lsp_eis_neighbors_error_metric = -1;
 static int hf_isis_lsp_rt_capable_interested_vlans_vlan_end_id = -1;
 static int hf_isis_lsp_error_metric = -1;
-static int hf_isis_lsp_grp_address_number_of_records = -1;
+static int hf_isis_lsp_grp_macaddr_number_of_records = -1;
+static int hf_isis_lsp_grp_ipv4addr_number_of_records = -1;
+static int hf_isis_lsp_grp_ipv6addr_number_of_records = -1;
 static int hf_isis_lsp_rt_capable_tree_used_id_length = -1;
 static int hf_isis_lsp_rt_capable_nickname_nickname = -1;
 static int hf_isis_lsp_mt_id_reserved = -1;
@@ -258,6 +271,7 @@ static gint ett_isis_lsp_clv_ipv6_int_addr = -1; /* CLV 232 */
 static gint ett_isis_lsp_clv_mt_cap = -1;
 static gint ett_isis_lsp_clv_mt_cap_spb_instance = -1;
 static gint ett_isis_lsp_clv_mt_cap_spbm_service_identifier = -1;
+static gint ett_isis_lsp_clv_mt_cap_spbv_mac_address = -1;
 static gint ett_isis_lsp_clv_ip_reachability = -1;
 static gint ett_isis_lsp_clv_ip_reach_subclv = -1;
 static gint ett_isis_lsp_clv_ext_ip_reachability = -1; /* CLV 135 */
@@ -270,8 +284,10 @@ static gint ett_isis_lsp_part_of_clv_mt_is = -1;
 static gint ett_isis_lsp_clv_mt_reachable_IPv4_prefx = -1;  /* CLV 235 */
 static gint ett_isis_lsp_clv_mt_reachable_IPv6_prefx = -1;  /* CLV 237 */
 static gint ett_isis_lsp_clv_rt_capable_IPv4_prefx = -1;   /* CLV 242 */
-static gint ett_isis_lsp_clv_grp_address_IPv4_prefx = -1;  /* CLV 142 */
-static gint ett_isis_lsp_clv_mt_cap_spbv_mac_address = -1;
+static gint ett_isis_lsp_clv_grp_address = -1;  /* CLV 142 */
+static gint ett_isis_lsp_clv_grp_macaddr = -1;
+static gint ett_isis_lsp_clv_grp_ipv4addr = -1;
+static gint ett_isis_lsp_clv_grp_ipv6addr = -1;
 static gint ett_isis_lsp_clv_originating_buff_size = -1; /* CLV 14 */
 
 static expert_field ie_isis_lsp_checksum_bad = EI_INIT;
@@ -292,17 +308,6 @@ static const true_false_string tfs_notsupported_supported = { "Not Supported", "
 static const true_false_string tfs_internal_external = { "Internal", "External" };
 static const true_false_string tfs_external_internal = { "External", "Internal" };
 
-static void
-fp_get_hmac_addr (guint64 hmac, guint16 *swid, guint16 *sswid, guint16 *lid) {
-
-    if (!swid || !sswid || !lid) {
-        return;
-    }
-
-    *swid  = (guint16) ((hmac & FP_HMAC_SWID_MASK) >> 32);
-    *sswid = (guint16) ((hmac & FP_HMAC_SSWID_MASK) >> 16);
-    *lid   = (guint16)  (hmac & FP_HMAC_LID_MASK);
-}
 /*
  * Name: dissect_lsp_mt_id()
  *
@@ -522,7 +527,7 @@ dissect_ipreach_subclv(tvbuff_t *tvb, proto_tree *tree, int offset, int clv_code
 
         default :
             proto_tree_add_text (tree, tvb, offset, clv_len+2,
-                                 "Unknown sub-TLV: code %u, length %u",
+                                 "Unknown Sub-TLV: code %u, length %u",
                                  clv_code, clv_len );
             break;
     }
@@ -645,12 +650,7 @@ dissect_isis_grp_address_clv(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *
 {
     gint len;
     gint source_num;
-    gint k=1;
     guint16 mt_block;
-    guint64 hmac_src;
-    guint16 swid = 0;
-    guint16 sswid = 0;
-    guint16 lid = 0;
 
     proto_tree *rt_tree=NULL;
 
@@ -663,13 +663,13 @@ dissect_isis_grp_address_clv(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *
 
             case GRP_MAC_ADDRESS:
                 rt_tree = proto_tree_add_subtree(tree, tvb, offset, (mt_block&0x00ff)+2,
-                    ett_isis_lsp_clv_grp_address_IPv4_prefx, NULL, "GROUP MAC ADDRESS SUB TLV");
+                    ett_isis_lsp_clv_grp_macaddr, NULL, "Group MAC Address Sub-TLV");
 
                 length--;
                 offset++;
 
                 len=tvb_get_guint8(tvb, offset);/* 1 byte fetched displays the length*/
-                proto_tree_add_item(rt_tree, hf_isis_lsp_grp_address_length, tvb, offset, 1, ENC_NA);
+                proto_tree_add_item(rt_tree, hf_isis_lsp_grp_macaddr_length, tvb, offset, 1, ENC_NA);
 
                 if(len < 5) {
                     length -= len;
@@ -680,19 +680,19 @@ dissect_isis_grp_address_clv(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *
                 length--;
                 offset++;
 
-                proto_tree_add_item(rt_tree, hf_isis_lsp_grp_address_topology_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item(rt_tree, hf_isis_lsp_grp_macaddr_topology_id, tvb, offset, 2, ENC_BIG_ENDIAN);
 
                 length -= 2;
                 offset += 2;
                 len -= 2;
 
-                proto_tree_add_item(rt_tree, hf_isis_lsp_grp_address_vlan_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item(rt_tree, hf_isis_lsp_grp_macaddr_vlan_id, tvb, offset, 2, ENC_BIG_ENDIAN);
 
                 length -= 2;
                 offset += 2;
                 len -= 2;
 
-                proto_tree_add_item(rt_tree, hf_isis_lsp_grp_address_number_of_records, tvb, offset, 1, ENC_NA);
+                proto_tree_add_item(rt_tree, hf_isis_lsp_grp_macaddr_number_of_records, tvb, offset, 1, ENC_NA);
 
                 length--;
                 offset++;
@@ -701,32 +701,22 @@ dissect_isis_grp_address_clv(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *
                 while(len > 0) {
 
                     source_num=tvb_get_guint8(tvb, offset);
-                    proto_tree_add_item(rt_tree, hf_isis_lsp_grp_address_number_of_sources, tvb, offset, 1, ENC_NA);
+                    proto_tree_add_item(rt_tree, hf_isis_lsp_grp_macaddr_number_of_sources, tvb, offset, 1, ENC_NA);
 
                     length--;
                     offset++;
                     len--;
 
-                    hmac_src=tvb_get_ntoh48(tvb, offset);/* Fetch the data in the next two bytes for display*/
-
-                    fp_get_hmac_addr (hmac_src, &swid, &sswid, &lid);
-                    proto_tree_add_bytes_format_value(rt_tree, hf_isis_lsp_grp_address_group_address, tvb, offset, 6,
-                                                tvb_get_ptr(tvb, offset, 6), "%04x.%04x.%04x", swid, sswid, lid );
+                    proto_tree_add_item(rt_tree, hf_isis_lsp_grp_macaddr_group_address, tvb, offset, 6, ENC_NA);
 
                     length -= 6;
                     offset += 6;
                     len -= 6;
 
-                    k=1;
 
                     while((len > 0) && (source_num > 0)) {
-                        hmac_src = tvb_get_ntoh48 (tvb, offset);
-                        fp_get_hmac_addr (hmac_src, &swid, &sswid, &lid);
-                        proto_tree_add_bytes_format(rt_tree, hf_isis_lsp_grp_address_source_address, tvb, offset, 6,
-                                                tvb_get_ptr(tvb, offset, 6), "Source Address (%d):%04x.%04x.%04x",
-                                                k, swid, sswid, lid);
+                        proto_tree_add_item(rt_tree, hf_isis_lsp_grp_macaddr_source_address, tvb, offset, 6, ENC_NA);
 
-                        k++;
                         length -= 6;
                         offset += 6;
                         len -= 6;
@@ -736,6 +726,135 @@ dissect_isis_grp_address_clv(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *
 
                 break;
 
+            case GRP_IPV4_ADDRESS:
+                rt_tree = proto_tree_add_subtree(tree, tvb, offset, (mt_block&0x00ff)+2,
+                    ett_isis_lsp_clv_grp_ipv4addr, NULL, "Group IPv4 Address Sub-TLV");
+
+                length--;
+                offset++;
+
+                len=tvb_get_guint8(tvb, offset);/* 1 byte fetched displays the length*/
+                proto_tree_add_item(rt_tree, hf_isis_lsp_grp_ipv4addr_length, tvb, offset, 1, ENC_NA);
+
+                if(len < 5) {
+                    length -= len;
+                    offset += len;
+                    break;
+                }
+
+                length--;
+                offset++;
+
+                proto_tree_add_item(rt_tree, hf_isis_lsp_grp_ipv4addr_topology_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+
+                length -= 2;
+                offset += 2;
+                len -= 2;
+
+                proto_tree_add_item(rt_tree, hf_isis_lsp_grp_ipv4addr_vlan_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+
+                length -= 2;
+                offset += 2;
+                len -= 2;
+
+                proto_tree_add_item(rt_tree, hf_isis_lsp_grp_ipv4addr_number_of_records, tvb, offset, 1, ENC_NA);
+
+                length--;
+                offset++;
+                len--;
+
+                while(len > 0) {
+
+                    source_num=tvb_get_guint8(tvb, offset);
+                    proto_tree_add_item(rt_tree, hf_isis_lsp_grp_ipv4addr_number_of_sources, tvb, offset, 1, ENC_NA);
+
+                    length--;
+                    offset++;
+                    len--;
+
+                    proto_tree_add_item(rt_tree, hf_isis_lsp_grp_ipv4addr_group_address, tvb, offset, 4, ENC_BIG_ENDIAN);
+
+                    length -= 4;
+                    offset += 4;
+                    len -= 4;
+
+
+                    while((len > 0) && (source_num > 0)) {
+                        proto_tree_add_item(rt_tree, hf_isis_lsp_grp_ipv4addr_source_address, tvb, offset, 4, ENC_BIG_ENDIAN);
+
+                        length -= 4;
+                        offset += 4;
+                        len -= 4;
+                        source_num--;
+                    }
+                }
+
+                break;
+
+            case GRP_IPV6_ADDRESS:
+                rt_tree = proto_tree_add_subtree(tree, tvb, offset, (mt_block&0x00ff)+2,
+                    ett_isis_lsp_clv_grp_ipv6addr, NULL, "Group IPv6 Address Sub-TLV");
+
+                length--;
+                offset++;
+
+                len=tvb_get_guint8(tvb, offset);/* 1 byte fetched displays the length*/
+                proto_tree_add_item(rt_tree, hf_isis_lsp_grp_ipv6addr_length, tvb, offset, 1, ENC_NA);
+
+                if(len < 5) {
+                    length -= len;
+                    offset += len;
+                    break;
+                }
+
+                length--;
+                offset++;
+
+                proto_tree_add_item(rt_tree, hf_isis_lsp_grp_ipv6addr_topology_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+
+                length -= 2;
+                offset += 2;
+                len -= 2;
+
+                proto_tree_add_item(rt_tree, hf_isis_lsp_grp_ipv6addr_vlan_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+
+                length -= 2;
+                offset += 2;
+                len -= 2;
+
+                proto_tree_add_item(rt_tree, hf_isis_lsp_grp_ipv6addr_number_of_records, tvb, offset, 1, ENC_NA);
+
+                length--;
+                offset++;
+                len--;
+
+                while(len > 0) {
+
+                    source_num=tvb_get_guint8(tvb, offset);
+                    proto_tree_add_item(rt_tree, hf_isis_lsp_grp_ipv6addr_number_of_sources, tvb, offset, 1, ENC_NA);
+
+                    length--;
+                    offset++;
+                    len--;
+
+                    proto_tree_add_item(rt_tree, hf_isis_lsp_grp_ipv6addr_group_address, tvb, offset, 16, ENC_BIG_ENDIAN);
+
+                    length -= 16;
+                    offset += 16;
+                    len -= 16;
+
+
+                    while((len > 0) && (source_num > 0)) {
+                        proto_tree_add_item(rt_tree, hf_isis_lsp_grp_ipv6addr_source_address, tvb, offset, 16, ENC_BIG_ENDIAN);
+
+                        length -= 16;
+                        offset += 16;
+                        len -= 16;
+                        source_num--;
+                    }
+                }
+
+                break;
 
             default:
                 proto_tree_add_uint_format ( tree, tree_id, tvb, offset,(mt_block&0x00ff)+2,
@@ -2428,8 +2547,8 @@ static const isis_clv_handle_t clv_l1_lsp_opts[] = {
     },
     {
         ISIS_GRP_ADDR,
-        "GROUP ADDRESS TLV",
-        &ett_isis_lsp_clv_grp_address_IPv4_prefx,
+        "Group Address",
+        &ett_isis_lsp_clv_grp_address,
         dissect_isis_grp_address_clv
     },
     {
@@ -2937,39 +3056,109 @@ proto_register_isis_lsp(void)
               FT_BOOLEAN, 8, TFS(&tfs_up_down), 0x80,
               NULL, HFILL }
         },
-        { &hf_isis_lsp_grp_address_length,
-            { "Length", "isis.lsp.grp_address.length",
-              FT_UINT16, BASE_DEC, NULL, 0x0,
-              NULL, HFILL }
-        },
-        { &hf_isis_lsp_grp_address_topology_id,
-            { "Topology ID", "isis.lsp.grp_address.topology_id",
-              FT_UINT16, BASE_DEC, NULL, 0x0fff,
-              NULL, HFILL }
-        },
-        { &hf_isis_lsp_grp_address_vlan_id,
-            { "VLAN ID", "isis.lsp.grp_address.vlan_id",
-              FT_UINT16, BASE_DEC, NULL, 0x0fff,
-              NULL, HFILL }
-        },
-        { &hf_isis_lsp_grp_address_number_of_records,
-            { "Number of records", "isis.lsp.grp_address.number_of_records",
+        { &hf_isis_lsp_grp_macaddr_length,
+            { "Length", "isis.lsp.grp_macaddr.length",
               FT_UINT8, BASE_DEC, NULL, 0x0,
               NULL, HFILL }
         },
-        { &hf_isis_lsp_grp_address_number_of_sources,
-            { "Number of sources", "isis.lsp.grp_address.number_of_sources",
+        { &hf_isis_lsp_grp_macaddr_topology_id,
+            { "Topology ID", "isis.lsp.grp_macaddr.topology_id",
+              FT_UINT16, BASE_DEC, NULL, 0x0fff,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_grp_macaddr_vlan_id,
+            { "VLAN ID", "isis.lsp.grp_macaddr.vlan_id",
+              FT_UINT16, BASE_DEC, NULL, 0x0fff,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_grp_macaddr_number_of_records,
+            { "Number of records", "isis.lsp.grp_macaddr.number_of_records",
               FT_UINT8, BASE_DEC, NULL, 0x0,
               NULL, HFILL }
         },
-        { &hf_isis_lsp_grp_address_group_address,
-            { "Group Address", "isis.lsp.grp_address.group_address",
-              FT_BYTES, BASE_NONE, NULL, 0x0,
+        { &hf_isis_lsp_grp_macaddr_number_of_sources,
+            { "Number of sources", "isis.lsp.grp_macaddr.number_of_sources",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
               NULL, HFILL }
         },
-        { &hf_isis_lsp_grp_address_source_address,
-            { "Source Address", "isis.lsp.grp_address.source_address",
-              FT_BYTES, BASE_NONE, NULL, 0x0,
+        { &hf_isis_lsp_grp_macaddr_group_address,
+            { "Group Address", "isis.lsp.grp_macaddr.group_address",
+              FT_SYSTEM_ID, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_grp_macaddr_source_address,
+            { "Source Address", "isis.lsp.grp_macaddr.source_address",
+              FT_SYSTEM_ID, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_grp_ipv4addr_length,
+            { "Length", "isis.lsp.grp_ipv4addr.length",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_grp_ipv4addr_topology_id,
+            { "Topology ID", "isis.lsp.grp_ipv4addr.topology_id",
+              FT_UINT16, BASE_DEC, NULL, 0x0fff,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_grp_ipv4addr_vlan_id,
+            { "VLAN ID", "isis.lsp.grp_ipv4addr.vlan_id",
+              FT_UINT16, BASE_DEC, NULL, 0x0fff,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_grp_ipv4addr_number_of_records,
+            { "Number of records", "isis.lsp.grp_ipv4addr.number_of_records",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_grp_ipv4addr_number_of_sources,
+            { "Number of sources", "isis.lsp.grp_ipv4addr.number_of_sources",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_grp_ipv4addr_group_address,
+            { "Group Address", "isis.lsp.grp_ipv4addr.group_address",
+              FT_IPv4, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_grp_ipv4addr_source_address,
+            { "Source Address", "isis.lsp.grp_ipv4addr.source_address",
+              FT_IPv4, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_grp_ipv6addr_length,
+            { "Length", "isis.lsp.grp_ipv6addr.length",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_grp_ipv6addr_topology_id,
+            { "Topology ID", "isis.lsp.grp_ipv6addr.topology_id",
+              FT_UINT16, BASE_DEC, NULL, 0x0fff,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_grp_ipv6addr_vlan_id,
+            { "VLAN ID", "isis.lsp.grp_ipv6addr.vlan_id",
+              FT_UINT16, BASE_DEC, NULL, 0x0fff,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_grp_ipv6addr_number_of_records,
+            { "Number of records", "isis.lsp.grp_ipv6addr.number_of_records",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_grp_ipv6addr_number_of_sources,
+            { "Number of sources", "isis.lsp.grp_ipv6addr.number_of_sources",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_grp_ipv6addr_group_address,
+            { "Group Address", "isis.lsp.grp_ipv6addr.group_address",
+              FT_IPv6, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_grp_ipv6addr_source_address,
+            { "Source Address", "isis.lsp.grp_ipv6addr.source_address",
+              FT_IPv6, BASE_NONE, NULL, 0x0,
               NULL, HFILL }
         },
         { &hf_isis_lsp_rt_capable_trill_length,
@@ -3392,6 +3581,7 @@ proto_register_isis_lsp(void)
         &ett_isis_lsp_clv_mt_cap,
         &ett_isis_lsp_clv_mt_cap_spb_instance,
         &ett_isis_lsp_clv_mt_cap_spbm_service_identifier,
+        &ett_isis_lsp_clv_mt_cap_spbv_mac_address,
         &ett_isis_lsp_clv_te_router_id,
         &ett_isis_lsp_clv_ip_reachability,
         &ett_isis_lsp_clv_ip_reach_subclv,
@@ -3403,10 +3593,12 @@ proto_register_isis_lsp(void)
         &ett_isis_lsp_clv_mt_is,
         &ett_isis_lsp_part_of_clv_mt_is,
         &ett_isis_lsp_clv_rt_capable_IPv4_prefx,
-        &ett_isis_lsp_clv_grp_address_IPv4_prefx, /*CLV 142*/
+        &ett_isis_lsp_clv_grp_address, /*CLV 142*/
+        &ett_isis_lsp_clv_grp_macaddr,
+        &ett_isis_lsp_clv_grp_ipv4addr,
+        &ett_isis_lsp_clv_grp_ipv6addr,
         &ett_isis_lsp_clv_mt_reachable_IPv4_prefx,
         &ett_isis_lsp_clv_mt_reachable_IPv6_prefx,
-        &ett_isis_lsp_clv_mt_cap_spbv_mac_address,
         &ett_isis_lsp_clv_originating_buff_size /* CLV 14 */
     };
 
