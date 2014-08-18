@@ -4936,7 +4936,6 @@ static gint ett_block_ack = -1;
 static gint ett_block_ack_bitmap = -1;
 static gint ett_ath_cap_tree = -1;
 
-
 static gint ett_80211_mgt = -1;
 static gint ett_fixed_parameters = -1;
 static gint ett_tagged_parameters = -1;
@@ -4989,9 +4988,8 @@ static gint ett_vht_mcsset_tree = -1;
 static gint ett_vht_rx_mcsbit_tree = -1;
 static gint ett_vht_tx_mcsbit_tree = -1;
 static gint ett_vht_basic_mcsbit_tree = -1;
-static gint ett_vht_tpe_info_tree = -1;
-
 static gint ett_vht_op_tree = -1;
+static gint ett_vht_tpe_info_tree = -1;
 
 static gint ett_vht_ndp_annc_token_tree = -1;
 static gint ett_vht_ndp_annc_sta_info_tree = -1;
@@ -25962,12 +25960,17 @@ proto_register_ieee80211 (void)
 
   static gint *tree_array[] = {
     &ett_80211,
-    &ett_fc_tree,
     &ett_proto_flags,
+    &ett_cap_tree,
+    &ett_fc_tree,
+    &ett_cntrl_wrapper_fc,
+    &ett_cntrl_wrapper_payload,
     &ett_fragments,
     &ett_fragment,
     &ett_block_ack,
     &ett_block_ack_bitmap,
+    &ett_ath_cap_tree,
+
     &ett_80211_mgt,
     &ett_fixed_parameters,
     &ett_tagged_parameters,
@@ -25983,7 +25986,7 @@ proto_register_ieee80211 (void)
     &ett_mesh_chswitch_flag_tree,
     &ett_mesh_config_cap_tree,
     &ett_mesh_formation_info_tree,
-    &ett_cap_tree,
+
     &ett_rsn_gcs_tree,
     &ett_rsn_pcs_tree,
     &ett_rsn_sub_pcs_tree,
@@ -25992,6 +25995,7 @@ proto_register_ieee80211 (void)
     &ett_rsn_cap_tree,
     &ett_rsn_pmkid_tree,
     &ett_rsn_gmcs_tree,
+
     &ett_wpa_mcs_tree,
     &ett_wpa_ucs_tree,
     &ett_wpa_sub_ucs_tree,
@@ -26001,23 +26005,19 @@ proto_register_ieee80211 (void)
     &ett_wme_aci_aifsn,
     &ett_wme_ecw,
     &ett_wme_qos_info,
+
     &ett_ht_cap_tree,
-    &ett_tpc,
-    &ett_ath_cap_tree,
-    &ett_ff_ba_param_tree,
-    &ett_ff_qos_info,
-    &ett_ff_sm_pwr_save,
-    &ett_ff_psmp_param_set,
-    &ett_ff_mimo_cntrl,
-    &ett_ff_ant_sel,
-    &ett_ff_chan_switch_announce,
-    &ett_ff_ht_info,
-    &ett_ff_psmp_sta_info,
-    &ett_ff_delba_param_tree,
-    &ett_ff_ba_ssc_tree,
-    &ett_mimo_report,
-    &ett_cntrl_wrapper_fc,
-    &ett_cntrl_wrapper_payload,
+    &ett_ampduparam_tree,
+    &ett_mcsset_tree,
+    &ett_mcsbit_tree,
+    &ett_htex_cap_tree,
+    &ett_txbf_tree,
+    &ett_antsel_tree,
+    &ett_hta_cap_tree,
+    &ett_hta_cap1_tree,
+    &ett_hta_cap2_tree,
+    &ett_htc_tree,
+
     &ett_vht_cap_tree,
     &ett_vht_mcsset_tree,
     &ett_vht_rx_mcsbit_tree,
@@ -26025,13 +26025,14 @@ proto_register_ieee80211 (void)
     &ett_vht_basic_mcsbit_tree,
     &ett_vht_op_tree,
     &ett_vht_tpe_info_tree,
+
     &ett_vht_ndp_annc_token_tree,
     &ett_vht_ndp_annc_sta_info_tree,
+
     &ett_ht_info_delimiter1_tree,
     &ett_ht_info_delimiter2_tree,
     &ett_ht_info_delimiter3_tree,
-    &ett_msdu_aggregation_parent_tree,
-    &ett_msdu_aggregation_subframe_tree,
+
     &ett_tag_measure_request_mode_tree,
     &ett_tag_measure_request_type_tree,
     &ett_tag_measure_report_mode_tree,
@@ -26039,6 +26040,7 @@ proto_register_ieee80211 (void)
     &ett_tag_measure_report_basic_map_tree,
     &ett_tag_measure_report_rpi_tree,
     &ett_tag_measure_report_frame_tree,
+    &ett_tag_bss_bitmask_tree,
     &ett_tag_dfs_map_tree,
     &ett_tag_erp_info_tree,
     &ett_tag_ex_cap1,
@@ -26049,51 +26051,71 @@ proto_register_ieee80211 (void)
     &ett_tag_ex_cap6,
     &ett_tag_ex_cap7,
     &ett_tag_ex_cap8,
+    &ett_tag_ex_cap9,
+
     &ett_tag_rm_cap1,
     &ett_tag_rm_cap2,
     &ett_tag_rm_cap3,
     &ett_tag_rm_cap4,
     &ett_tag_rm_cap5,
     &ett_tag_tclas_mask_tree,
+
     &ett_tag_supported_channels,
+
     &ett_tag_neighbor_report_bssid_info_tree,
     &ett_tag_neighbor_report_bssid_info_capability_tree,
     &ett_tag_neighbor_report_sub_tag_tree,
-    &ett_tag_bss_bitmask_tree,
-    &ett_ampduparam_tree,
-    &ett_mcsset_tree,
-    &ett_mcsbit_tree,
-    &ett_htex_cap_tree,
-    &ett_txbf_tree,
-    &ett_hta_cap_tree,
-    &ett_hta_cap1_tree,
-    &ett_hta_cap2_tree,
-    &ett_htc_tree,
-    &ett_antsel_tree,
-    &ett_80211_mgt_ie,
-    &ett_tsinfo_tree,
-    &ett_sched_tree,
-    &ett_fcs,
+
     &ett_tag_wapi_param_set_akm_tree,
     &ett_tag_wapi_param_set_ucast_tree,
     &ett_tag_wapi_param_set_mcast_tree,
     &ett_tag_wapi_param_set_preauth_tree,
+
     &ett_tag_time_adv_tree,
+
+    &ett_ff_ba_param_tree,
+    &ett_ff_ba_ssc_tree,
+    &ett_ff_delba_param_tree,
+    &ett_ff_qos_info,
+    &ett_ff_psmp_param_set,
+    &ett_ff_mimo_cntrl,
+    &ett_ff_ant_sel,
+    &ett_mimo_report,
+    &ett_ff_sm_pwr_save,
+    &ett_ff_chan_switch_announce,
+    &ett_ff_ht_info,
+    &ett_ff_psmp_sta_info,
+
+    &ett_tpc,
+
+    &ett_msdu_aggregation_parent_tree,
+    &ett_msdu_aggregation_subframe_tree,
+
+    &ett_80211_mgt_ie,
+    &ett_tsinfo_tree,
+    &ett_sched_tree,
+
+    &ett_fcs,
+
     &ett_adv_proto,
     &ett_adv_proto_tuple,
     &ett_gas_query,
-    &ett_gas_resp_fragment,
-    &ett_gas_resp_fragments,
     &ett_gas_anqp,
     &ett_nai_realm,
     &ett_nai_realm_eap,
     &ett_tag_ric_data_desc_ie,
     &ett_anqp_vendor_capab,
+
     &ett_hs20_cc_proto_port_tuple,
+
     &ett_ssid_list,
+
     &ett_nintendo,
+
     &ett_qos_map_set_exception,
     &ett_qos_map_set_range,
+
+    /* 802.11ad trees */
     &ett_dynamic_alloc_tree,
     &ett_ssw_tree,
     &ett_bf_tree,
@@ -26106,7 +26128,10 @@ proto_register_ieee80211 (void)
     &ett_rcsi_tree,
     &ett_80211_ext,
     &ett_allocation_tree,
-    &ett_sta_info
+    &ett_sta_info,
+
+    &ett_gas_resp_fragment,
+    &ett_gas_resp_fragments
   };
 
   static ei_register_info ei[] = {
