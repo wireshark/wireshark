@@ -28,6 +28,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include <epan/emem.h>
 #include <epan/lapd_sapi.h>
 #include <epan/prefs.h>
@@ -729,6 +730,8 @@ static int hf_attr_ipa_rac = -1;
 static int ett_oml = -1;
 static int ett_oml_fom = -1;
 static int ett_oml_fom_att = -1;
+
+static expert_field ei_unknown_type = EI_INIT;
 
 enum {
 	OML_DIALECT_ETSI,
@@ -1531,6 +1534,10 @@ dissect_oml_attrs(tvbuff_t *tvb, int base_offs, packet_info *pinfo,
 		tvbuff_t *sub_tvb;
 
 		tag = tvb_get_guint8(tvb, offset);
+		ti = proto_tree_add_item(tree, hf_oml_fom_attr_tag, tvb,
+					 offset, 1, ENC_BIG_ENDIAN);
+		att_tree = proto_item_add_subtree(ti, ett_oml_fom_att);
+
 		tdef = find_tlv_tag(tag);
 
 		switch (tdef->type) {
@@ -1567,13 +1574,10 @@ dissect_oml_attrs(tvbuff_t *tvb, int base_offs, packet_info *pinfo,
 			break;
 		case TLV_TYPE_UNKNOWN: /* fall through */
 		default:
-			DISSECTOR_ASSERT_NOT_REACHED();
-			break;
+			expert_add_info(pinfo, ti, &ei_unknown_type);
+			return tvb_captured_length(tvb);
 		}
 
-		ti = proto_tree_add_item(tree, hf_oml_fom_attr_tag, tvb,
-					 offset, 1, ENC_BIG_ENDIAN);
-		att_tree = proto_item_add_subtree(ti, ett_oml_fom_att);
 		proto_tree_add_uint(att_tree, hf_oml_fom_attr_len, tvb,
 				    offset+1, len_len, len);
 		offset += hlen;
@@ -2192,7 +2196,13 @@ proto_register_abis_oml(void)
 		&ett_oml_fom_att,
 	};
 
+	static ei_register_info ei[] = {
+		{ &ei_unknown_type, { "gsm_abis_oml.expert.unknown_type", PI_PROTOCOL, PI_NOTE, "Unknown TLV type", EXPFILL }},
+	};
+
 	module_t *oml_module;
+
+	expert_module_t  *expert_module;
 
 #define NM_ATT_TLVDEF_BASE(_attr, _type, _fixed_len)			\
 	nm_att_tlvdef_base.def[_attr].type = _type;			\
@@ -2364,6 +2374,9 @@ proto_register_abis_oml(void)
 	proto_register_field_array(proto_abis_oml, hf, array_length(hf));
 
 	proto_register_subtree_array(ett, array_length(ett));
+
+	expert_module = expert_register_protocol(proto_abis_oml);
+	expert_register_field_array(expert_module, ei, array_length(ei));
 
 	new_register_dissector("gsm_abis_oml", dissect_abis_oml, proto_abis_oml);
 
