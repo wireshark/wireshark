@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>750</width>
-    <height>475</height>
+    <height>350</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -181,6 +181,19 @@
           </widget>
          </item>
          <item>
+          <spacer name="verticalSpacer">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>40</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
           <widget class="QRadioButton" name="rbPcapng">
            <property name="text">
             <string>pcap-ng</string>
@@ -210,19 +223,44 @@
         </layout>
        </item>
        <item>
+        <spacer name="verticalSpacer_4">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
         <widget class="QGroupBox" name="gbCaptureToFile">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="toolTip">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Enter the file name to which captured data will be written. If you don't enter something here, a temporary file will be used.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="autoFillBackground">
+          <bool>false</bool>
+         </property>
          <property name="title">
           <string>Capture directly to file</string>
          </property>
          <property name="flat">
-          <bool>true</bool>
+          <bool>false</bool>
          </property>
          <property name="checkable">
           <bool>true</bool>
          </property>
+         <property name="checked">
+          <bool>false</bool>
+         </property>
          <layout class="QGridLayout" name="gridLayout_3">
           <item row="0" column="2">
-           <widget class="QPushButton" name="pushButton">
+           <widget class="QPushButton" name="browseButton">
             <property name="text">
              <string>Browse...</string>
             </property>
@@ -242,44 +280,64 @@
         </widget>
        </item>
        <item>
+        <spacer name="verticalSpacer_5">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
         <widget class="QGroupBox" name="gbNewFileAuto">
+         <property name="toolTip">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Instead of using a single capture file, multiple files will be created.&lt;/p&gt;&lt;p&gt;The generated file names will contain an incrementing number and the start time of the capture.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
          <property name="title">
           <string>Create a new file automatically after...</string>
          </property>
          <property name="flat">
-          <bool>true</bool>
+          <bool>false</bool>
          </property>
          <property name="checkable">
           <bool>true</bool>
          </property>
+         <property name="checked">
+          <bool>false</bool>
+         </property>
          <layout class="QGridLayout" name="gridLayout">
-          <item row="0" column="1">
-           <widget class="QSpinBox" name="spinBox">
-            <property name="buttonSymbols">
-             <enum>QAbstractSpinBox::PlusMinus</enum>
-            </property>
-            <property name="maximum">
-             <number>1000</number>
-            </property>
-           </widget>
-          </item>
           <item row="1" column="1">
-           <widget class="QSpinBox" name="spinBox_2">
+           <widget class="QSpinBox" name="MBSpinBox">
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If the selected file size is exceeded, capturing switches to the next file.&lt;/p&gt;&lt;p&gt;PLEASE NOTE: One option MUST be selected.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+            <property name="wrapping">
+             <bool>true</bool>
+            </property>
             <property name="buttonSymbols">
              <enum>QAbstractSpinBox::PlusMinus</enum>
             </property>
+            <property name="minimum">
+             <number>1</number>
+            </property>
             <property name="maximum">
-             <number>1000</number>
+             <number>1000000</number>
+            </property>
+            <property name="value">
+             <number>1</number>
             </property>
            </widget>
           </item>
           <item row="1" column="2">
-           <widget class="QComboBox" name="comboBox_2">
-            <item>
-             <property name="text">
-              <string>Megabytes</string>
-             </property>
-            </item>
+           <widget class="QComboBox" name="MBComboBox">
+            <property name="toolTip">
+             <string>If the selected file size is exceeded, capturing switches to the next file.
+PLEASE NOTE: One option MUST be selected.</string>
+            </property>
             <item>
              <property name="text">
               <string>Kilobytes</string>
@@ -287,13 +345,22 @@
             </item>
             <item>
              <property name="text">
-              <string>Bytes</string>
+              <string>Megabytes</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Gigabytes</string>
              </property>
             </item>
            </widget>
           </item>
           <item row="2" column="2">
-           <widget class="QComboBox" name="comboBox_3">
+           <widget class="QComboBox" name="SecsComboBox">
+            <property name="toolTip">
+             <string>If the selected file size is exceeded, capturing switches to the next file.
+PLEASE NOTE: One option MUST be selecteds.</string>
+            </property>
             <item>
              <property name="text">
               <string>seconds</string>
@@ -311,41 +378,26 @@
             </item>
            </widget>
           </item>
-          <item row="0" column="2">
-           <widget class="QLabel" name="label_3">
-            <property name="text">
-             <string>packets</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="0">
-           <widget class="QCheckBox" name="checkBox_3">
-            <property name="text">
-             <string/>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="0">
-           <widget class="QCheckBox" name="checkBox_5">
-            <property name="text">
-             <string/>
-            </property>
-           </widget>
-          </item>
           <item row="2" column="1">
-           <widget class="QSpinBox" name="spinBox_3">
+           <widget class="QSpinBox" name="SecsSpinBox">
+            <property name="toolTip">
+             <string>If the selected file size is exceeded, capturing switches to the next file.
+PLEASE NOTE: One option MUST be selected.</string>
+            </property>
+            <property name="wrapping">
+             <bool>true</bool>
+            </property>
             <property name="buttonSymbols">
              <enum>QAbstractSpinBox::PlusMinus</enum>
             </property>
-            <property name="maximum">
-             <number>1000</number>
+            <property name="minimum">
+             <number>1</number>
             </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QCheckBox" name="checkBox_4">
-            <property name="text">
-             <string/>
+            <property name="maximum">
+             <number>1000000</number>
+            </property>
+            <property name="value">
+             <number>1</number>
             </property>
            </widget>
           </item>
@@ -362,18 +414,25 @@
             </property>
            </spacer>
           </item>
+          <item row="1" column="0">
+           <widget class="QRadioButton" name="MBRadioButton">
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QRadioButton" name="SecsRadioButton">
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
          </layout>
         </widget>
        </item>
        <item>
-        <widget class="QCheckBox" name="checkBox_6">
-         <property name="text">
-          <string>Reuse old files</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <spacer name="verticalSpacer_4">
+        <spacer name="verticalSpacer_6">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
          </property>
@@ -385,89 +444,37 @@
          </property>
         </spacer>
        </item>
-      </layout>
-      <zorder>checkBox_6</zorder>
-      <zorder>gbNewFileAuto</zorder>
-      <zorder>gbCaptureToFile</zorder>
-     </widget>
-     <widget class="QWidget" name="optionsTab">
-      <attribute name="title">
-       <string>Options</string>
-      </attribute>
-      <layout class="QVBoxLayout" name="verticalLayout_11">
        <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_8">
+        <layout class="QHBoxLayout" name="horizontalLayout_4">
          <item>
-          <widget class="QGroupBox" name="groupBox">
-           <property name="title">
-            <string>Display Options</string>
+          <widget class="QCheckBox" name="RbCheckBox">
+           <property name="toolTip">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;After capturing has switched to the next file and the given number of files has exceeded, the oldest file will be removed.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
-           <property name="flat">
-            <bool>true</bool>
+           <property name="text">
+            <string>Use a ring buffer with </string>
            </property>
-           <property name="checkable">
-            <bool>false</bool>
-           </property>
-           <layout class="QVBoxLayout" name="verticalLayout">
-            <item>
-             <widget class="QCheckBox" name="cbUpdatePacketsRT">
-              <property name="text">
-               <string>Update list of packets in real-time</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QCheckBox" name="cbAutoScroll">
-              <property name="text">
-               <string>Automatically scroll during live capture</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QCheckBox" name="cbExtraCaptureInfo">
-              <property name="text">
-               <string>Show extra capture information dialog</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
           </widget>
          </item>
          <item>
-          <widget class="QGroupBox" name="groupBox_2">
-           <property name="title">
-            <string>Name Resolution</string>
-           </property>
-           <property name="flat">
+          <widget class="QSpinBox" name="RbSpinBox">
+           <property name="wrapping">
             <bool>true</bool>
            </property>
-           <layout class="QVBoxLayout" name="verticalLayout_3">
-            <item>
-             <widget class="QCheckBox" name="cbResolveMacAddresses">
-              <property name="text">
-               <string>Resolve MAC Addresses</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QCheckBox" name="cbResolveNetworkNames">
-              <property name="text">
-               <string>Resolve network names</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QCheckBox" name="cbResolveTransportNames">
-              <property name="text">
-               <string>Resolve transport names</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
+           <property name="maximum">
+            <number>1000</number>
+           </property>
           </widget>
          </item>
          <item>
-          <spacer name="horizontalSpacer_3">
+          <widget class="QLabel" name="label_3">
+           <property name="text">
+            <string>files</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_4">
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
            </property>
@@ -482,39 +489,206 @@
         </layout>
        </item>
        <item>
+        <spacer name="verticalSpacer_2">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+      <zorder>gbNewFileAuto</zorder>
+      <zorder>gbCaptureToFile</zorder>
+      <zorder>verticalSpacer_2</zorder>
+      <zorder>verticalSpacer_4</zorder>
+      <zorder>verticalSpacer_5</zorder>
+      <zorder>verticalSpacer_6</zorder>
+     </widget>
+     <widget class="QWidget" name="optionsTab">
+      <attribute name="title">
+       <string>Options</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_11">
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_8">
+         <item>
+          <widget class="QGroupBox" name="groupBox">
+           <property name="title">
+            <string>Display Options</string>
+           </property>
+           <property name="flat">
+            <bool>false</bool>
+           </property>
+           <property name="checkable">
+            <bool>false</bool>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout">
+            <item>
+             <widget class="QCheckBox" name="cbUpdatePacketsRT">
+              <property name="toolTip">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Using this option will show the captured packets immediately on the main screen. Please note: this will slow down capturing, so increased packet drops might appear.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
+              <property name="text">
+               <string>Update list of packets in real-time</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="cbAutoScroll">
+              <property name="toolTip">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This will scroll the &amp;quot;Packet List&amp;quot; automatically to the latest captured packet, when the &amp;quot;Update list of packets in real-time&amp;quot; option is used.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
+              <property name="text">
+               <string>Automatically scroll during live capture</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="cbExtraCaptureInfo">
+              <property name="toolTip">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show the capture info dialog while capturing.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
+              <property name="text">
+               <string>Show extra capture information dialog</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_3">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="QGroupBox" name="groupBox_2">
+           <property name="title">
+            <string>Name Resolution</string>
+           </property>
+           <property name="flat">
+            <bool>false</bool>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_3">
+            <item>
+             <widget class="QCheckBox" name="cbResolveMacAddresses">
+              <property name="toolTip">
+               <string>Perform MAC layer name resolution while capturing.</string>
+              </property>
+              <property name="text">
+               <string>Resolve MAC Addresses</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="cbResolveNetworkNames">
+              <property name="toolTip">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Perform network layer name resolution while capturing.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
+              <property name="text">
+               <string>Resolve network names</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="cbResolveTransportNames">
+              <property name="toolTip">
+               <string>Perform transport layer name resolution while capturing.</string>
+              </property>
+              <property name="text">
+               <string>Resolve transport names</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_5">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
         <widget class="QGroupBox" name="gbStopCaptureAuto">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
          <property name="title">
           <string>Stop capture automatically after...</string>
          </property>
          <property name="flat">
-          <bool>true</bool>
+          <bool>false</bool>
          </property>
          <property name="checkable">
-          <bool>true</bool>
+          <bool>false</bool>
          </property>
          <layout class="QGridLayout" name="gridLayout_2">
           <item row="0" column="1">
-           <widget class="QSpinBox" name="spinBox_7">
+           <widget class="QSpinBox" name="stopPktSpinBox">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="toolTip">
+             <string>Stop capturing after the specified number of packets have been captured.</string>
+            </property>
             <property name="buttonSymbols">
              <enum>QAbstractSpinBox::PlusMinus</enum>
             </property>
             <property name="maximum">
              <number>1000</number>
+            </property>
+            <property name="value">
+             <number>1</number>
             </property>
            </widget>
           </item>
           <item row="1" column="1">
-           <widget class="QSpinBox" name="spinBox_9">
+           <widget class="QSpinBox" name="stopMBSpinBox">
+            <property name="toolTip">
+             <string>Stop capturing after the specified amount of data has been captured.</string>
+            </property>
             <property name="buttonSymbols">
              <enum>QAbstractSpinBox::PlusMinus</enum>
             </property>
             <property name="maximum">
              <number>1000</number>
             </property>
+            <property name="value">
+             <number>1</number>
+            </property>
            </widget>
           </item>
           <item row="1" column="0">
-           <widget class="QCheckBox" name="checkBox_14">
+           <widget class="QCheckBox" name="stopMBCheckBox">
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stop capturing after the specified amount of data has been captured.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
             <property name="text">
              <string/>
             </property>
@@ -528,14 +702,20 @@
            </widget>
           </item>
           <item row="2" column="0">
-           <widget class="QCheckBox" name="checkBox_15">
+           <widget class="QCheckBox" name="stopSecsCheckBox">
+            <property name="toolTip">
+             <string>Stop capturing after the specified amount of time has passed.</string>
+            </property>
             <property name="text">
              <string/>
             </property>
            </widget>
           </item>
           <item row="2" column="2">
-           <widget class="QComboBox" name="comboBox_7">
+           <widget class="QComboBox" name="stopSecsComboBox">
+            <property name="toolTip">
+             <string>Stop capturing after the specified amount of time has passed.</string>
+            </property>
             <item>
              <property name="text">
               <string>seconds</string>
@@ -554,19 +734,20 @@
            </widget>
           </item>
           <item row="0" column="0">
-           <widget class="QCheckBox" name="checkBox_16">
+           <widget class="QCheckBox" name="stopPktCheckBox">
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stop capturing after the specified number of packets have been captured.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
             <property name="text">
              <string/>
             </property>
            </widget>
           </item>
           <item row="1" column="2">
-           <widget class="QComboBox" name="comboBox_8">
-            <item>
-             <property name="text">
-              <string>Megabytes</string>
-             </property>
-            </item>
+           <widget class="QComboBox" name="stopMBComboBox">
+            <property name="toolTip">
+             <string>Stop capturing after the specified amount of data has been captured.</string>
+            </property>
             <item>
              <property name="text">
               <string>Kilobytes</string>
@@ -574,18 +755,29 @@
             </item>
             <item>
              <property name="text">
-              <string>Bytes</string>
+              <string>Megabytes</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Gigabytes</string>
              </property>
             </item>
            </widget>
           </item>
           <item row="2" column="1">
-           <widget class="QSpinBox" name="spinBox_8">
+           <widget class="QSpinBox" name="stopSecsSpinBox">
+            <property name="toolTip">
+             <string>Stop capturing after the specified amount of time has passed.</string>
+            </property>
             <property name="buttonSymbols">
              <enum>QAbstractSpinBox::PlusMinus</enum>
             </property>
             <property name="maximum">
              <number>1000</number>
+            </property>
+            <property name="value">
+             <number>1</number>
             </property>
            </widget>
           </item>

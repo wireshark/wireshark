@@ -34,12 +34,17 @@
 #ifdef HAVE_LIBPCAP
 
 #include <QTimer>
+#include <QFileDialog>
+#include <QMessageBox>
 
+#include "ringbuffer.h"
 #include "ui/capture_ui_utils.h"
 #include "ui/capture_globals.h"
 #include "ui/iface_lists.h"
+#include "ui/last_open_dir.h"
 
 #include "ui/ui_util.h"
+#include "ui/util.h"
 #include "ui/utf8_entities.h"
 #include "ui/preference_utils.h"
 
@@ -47,6 +52,7 @@
 #include <epan/prefs.h>
 #include <epan/prefs-int.h>
 #include <epan/addr_resolv.h>
+#include <wsutil/filesystem.h>
 
 #include "sparkline_delegate.h"
 
@@ -128,6 +134,7 @@ CaptureInterfacesDialog::CaptureInterfacesDialog(QWidget *parent) :
     connect(this, SIGNAL(interfacesChanged()), ui->allFilterComboBox, SIGNAL(interfacesChanged()));
     connect(this, SIGNAL(ifsChanged()), this, SLOT(refreshInterfaceList()));
     connect(wsApp, SIGNAL(localInterfaceListChanged()), this, SLOT(updateLocalInterfaces()));
+    connect(ui->browseButton, SIGNAL(clicked()), this, SLOT(on_browseButton_clicked()));
 }
 
 void CaptureInterfacesDialog::allFilterChanged()
@@ -243,6 +250,25 @@ void CaptureInterfacesDialog::on_capturePromModeCheckBox_toggled(bool checked)
     }
 }
 
+void CaptureInterfacesDialog::on_browseButton_clicked()
+{
+    char *open_dir = NULL;
+
+    switch (prefs.gui_fileopen_style) {
+
+    case FO_STYLE_LAST_OPENED:
+        open_dir = get_last_open_dir();
+        break;
+
+    case FO_STYLE_SPECIFIED:
+        if (prefs.gui_fileopen_dir[0] != '\0')
+            open_dir = prefs.gui_fileopen_dir;
+        break;
+    }
+    QString file_name = QFileDialog::getOpenFileName(this, tr("Specify a Capture File"), open_dir);
+    ui->lineEdit->setText(file_name);
+}
+
 void CaptureInterfacesDialog::on_gbStopCaptureAuto_toggled(bool checked)
 {
     global_capture_opts.has_file_duration = checked;
@@ -251,6 +277,9 @@ void CaptureInterfacesDialog::on_gbStopCaptureAuto_toggled(bool checked)
 void CaptureInterfacesDialog::on_gbNewFileAuto_toggled(bool checked)
 {
     global_capture_opts.multi_files_on = checked;
+    ui->stopMBCheckBox->setEnabled(checked?false:true);
+    ui->stopMBSpinBox->setEnabled(checked?false:true);
+    ui->stopMBComboBox->setEnabled(checked?false:true);
 }
 
 void CaptureInterfacesDialog::on_cbUpdatePacketsRT_toggled(bool checked)
@@ -260,8 +289,7 @@ void CaptureInterfacesDialog::on_cbUpdatePacketsRT_toggled(bool checked)
 
 void CaptureInterfacesDialog::on_cbAutoScroll_toggled(bool checked)
 {
-    Q_UNUSED(checked)
-    //global_capture_opts.has_file_duration = checked;
+    auto_scroll_live = checked;
 }
 
 void CaptureInterfacesDialog::on_cbExtraCaptureInfo_toggled(bool checked)
@@ -288,17 +316,18 @@ void CaptureInterfacesDialog::start_button_clicked()
 {
     qDebug("Starting capture");
 
-    saveOptionsToPreferences();
-    emit setFilterValid(true);
-
-    accept();
+    if (saveOptionsToPreferences()) {
+        emit setFilterValid(true);
+        accept();
+    }
 }
 
 // Not sure why we have to do this manually.
 void CaptureInterfacesDialog::on_buttonBox_rejected()
 {
-    saveOptionsToPreferences();
-    reject();
+    if (saveOptionsToPreferences()) {
+        reject();
+    }
 }
 
 void CaptureInterfacesDialog::on_buttonBox_helpRequested()
@@ -316,8 +345,82 @@ void CaptureInterfacesDialog::updateInterfaces()
     }
     ui->capturePromModeCheckBox->setChecked(prefs.capture_prom_mode);
 
-    ui->gbStopCaptureAuto->setChecked(global_capture_opts.has_file_duration);
+    if (global_capture_opts.saving_to_file) {
+        ui->lineEdit->setText(QString(global_capture_opts.orig_save_file));
+    }
+
     ui->gbNewFileAuto->setChecked(global_capture_opts.multi_files_on);
+    ui->MBRadioButton->setChecked(global_capture_opts.has_autostop_filesize);
+    ui->SecsRadioButton->setChecked(global_capture_opts.has_file_duration);
+    if (global_capture_opts.has_autostop_filesize) {
+        int value = global_capture_opts.autostop_filesize;
+        if (value > 1000000) {
+            if (global_capture_opts.multi_files_on) {
+                ui->MBSpinBox->setValue(value / 1000000);
+                ui->MBComboBox->setCurrentIndex(2);
+            } else {
+                ui->stopMBCheckBox->setChecked(true);
+                ui->stopMBSpinBox->setValue(value / 1000000);
+                ui->stopMBComboBox->setCurrentIndex(2);
+            }
+        } else if (value > 1000 && value % 1000 == 0) {
+            if (global_capture_opts.multi_files_on) {
+                ui->MBSpinBox->setValue(value / 1000);
+                ui->MBComboBox->setCurrentIndex(1);
+            } else {
+                ui->stopMBCheckBox->setChecked(true);
+                ui->stopMBSpinBox->setValue(value / 1000);
+                ui->stopMBComboBox->setCurrentIndex(1);
+            }
+        } else {
+            if (global_capture_opts.multi_files_on) {
+                ui->MBSpinBox->setValue(value);
+                ui->MBComboBox->setCurrentIndex(0);
+            } else {
+                ui->stopMBCheckBox->setChecked(true);
+                ui->stopMBSpinBox->setValue(value);
+                ui->stopMBComboBox->setCurrentIndex(0);
+            }
+        }
+    }
+    if (global_capture_opts.has_file_duration) {
+        int value = global_capture_opts.file_duration;
+        if (value > 3600 && value % 3600 == 0) {
+            ui->SecsSpinBox->setValue(value / 3600);
+            ui->SecsComboBox->setCurrentIndex(2);
+        } else if (value > 60 && value % 60 == 0) {
+            ui->SecsSpinBox->setValue(value / 60);
+            ui->SecsComboBox->setCurrentIndex(1);
+        } else {
+            ui->SecsSpinBox->setValue(value);
+            ui->SecsComboBox->setCurrentIndex(0);
+        }
+    }
+
+    if (global_capture_opts.has_ring_num_files) {
+        ui->RbSpinBox->setValue(global_capture_opts.ring_num_files);
+        ui->RbCheckBox->setCheckState(Qt::Checked);
+    }
+
+    if (global_capture_opts.has_autostop_duration) {
+        ui->stopSecsCheckBox->setChecked(true);
+        int value = global_capture_opts.file_duration;
+        if (value > 3600 && value % 3600 == 0) {
+            ui->stopSecsSpinBox->setValue(value / 3600);
+            ui->stopSecsComboBox->setCurrentIndex(2);
+        } else if (value > 60 && value % 60 == 0) {
+            ui->stopSecsSpinBox->setValue(value / 60);
+            ui->stopSecsComboBox->setCurrentIndex(1);
+        } else {
+            ui->stopSecsSpinBox->setValue(value);
+            ui->stopSecsComboBox->setCurrentIndex(0);
+        }
+    }
+
+    if (global_capture_opts.has_autostop_packets) {
+        ui->stopPktCheckBox->setChecked(true);
+        ui->stopPktSpinBox->setValue(global_capture_opts.autostop_packets);
+    }
 
     ui->cbUpdatePacketsRT->setChecked(global_capture_opts.real_time_mode);
     ui->cbAutoScroll->setChecked(true);
@@ -501,10 +604,133 @@ void CaptureInterfacesDialog::on_compileBPF_clicked()
     cfo->show();
 }
 
-void CaptureInterfacesDialog::saveOptionsToPreferences()
+bool CaptureInterfacesDialog::saveOptionsToPreferences()
 {
     interface_t device;
     gchar *new_prefs, *tmp_prefs;
+
+    if (ui->rbPcapng->isChecked()) {
+        global_capture_opts.use_pcapng = true;
+        prefs.capture_pcap_ng = true;
+    } else {
+        global_capture_opts.use_pcapng = false;
+        prefs.capture_pcap_ng = false;
+    }
+
+    QString filename = ui->lineEdit->text();
+    if (filename.length() > 0) {
+        /* User specified a file to which the capture should be written. */
+        global_capture_opts.saving_to_file = true;
+        global_capture_opts.save_file = g_strdup(filename.toUtf8().constData());
+        global_capture_opts.orig_save_file = g_strdup(filename.toUtf8().constData());
+        /* Save the directory name for future file dialogs. */
+        set_last_open_dir(get_dirname(g_strdup(filename.toUtf8().constData())));
+    } else {
+        /* User didn't specify a file; save to a temporary file. */
+        global_capture_opts.save_file = NULL;
+    }
+
+    global_capture_opts.has_ring_num_files = ui->RbCheckBox->isChecked();
+
+    if (global_capture_opts.has_ring_num_files) {
+        global_capture_opts.ring_num_files = ui->RbSpinBox->value();
+        if (global_capture_opts.ring_num_files > RINGBUFFER_MAX_NUM_FILES)
+            global_capture_opts.ring_num_files = RINGBUFFER_MAX_NUM_FILES;
+#if RINGBUFFER_MIN_NUM_FILES > 0
+        else if (global_capture_opts.ring_num_files < RINGBUFFER_MIN_NUM_FILES)
+            global_capture_opts.ring_num_files = RINGBUFFER_MIN_NUM_FILES;
+#endif
+    }
+    global_capture_opts.multi_files_on = ui->gbNewFileAuto->isChecked();
+    if (global_capture_opts.multi_files_on) {
+        global_capture_opts.has_file_duration = ui->SecsRadioButton->isChecked();
+        if (global_capture_opts.has_file_duration) {
+            global_capture_opts.file_duration = ui->SecsSpinBox->value();
+            int index = ui->SecsComboBox->currentIndex();
+            switch (index) {
+            case 1: global_capture_opts.file_duration *= 60;
+                break;
+            case 2: global_capture_opts.file_duration *= 3600;
+                break;
+            }
+         }
+         global_capture_opts.has_autostop_filesize = ui->MBRadioButton->isChecked();
+         if (global_capture_opts.has_autostop_filesize) {
+             global_capture_opts.autostop_filesize = ui->MBSpinBox->value();
+             int index = ui->MBComboBox->currentIndex();
+             switch (index) {
+             case 1: if (global_capture_opts.autostop_filesize > 2000) {
+                 QMessageBox::warning(this, tr("Error"),
+                                          tr("Multiple files: Requested filesize too large! The filesize cannot be greater than 2 GiB."));
+                 return false;
+                 } else {
+                     global_capture_opts.autostop_filesize *= 1000;
+                 }
+                 break;
+             case 2: if (global_capture_opts.autostop_filesize > 2) {
+                     QMessageBox::warning(this, tr("Error"),
+                                              tr("Multiple files: Requested filesize too large! The filesize cannot be greater than 2 GiB."));
+                     return false;
+                     } else {
+                         global_capture_opts.autostop_filesize *= 1000000;
+                     }
+                 break;
+             }
+         }
+         /* test if the settings are ok for a ringbuffer */
+         if (global_capture_opts.save_file == NULL) {
+             QMessageBox::warning(this, tr("Error"),
+                                      tr("Multiple files: No capture file name given! You must specify a filename if you want to use multiple files."));
+             return false;
+         } else if (!global_capture_opts.has_autostop_filesize && !global_capture_opts.has_file_duration) {
+             QMessageBox::warning(this, tr("Error"),
+                                      tr("Multiple files: No file limit given! You must specify a file size or duration at which is switched to the next capture file\n if you want to use multiple files."));
+             g_free(global_capture_opts.save_file);
+             global_capture_opts.save_file = NULL;
+             return false;
+         }
+    } else {
+        global_capture_opts.has_autostop_filesize = ui->stopMBCheckBox->isChecked();
+        if (global_capture_opts.has_autostop_filesize) {
+            global_capture_opts.autostop_filesize = ui->stopMBSpinBox->value();
+            int index = ui->stopMBComboBox->currentIndex();
+            switch (index) {
+            case 1: if (global_capture_opts.autostop_filesize > 2000) {
+                QMessageBox::warning(this, tr("Error"),
+                                         tr("Multiple files: Requested filesize too large! The filesize cannot be greater than 2 GiB."));
+                return false;
+                } else {
+                    global_capture_opts.autostop_filesize *= 1000;
+                }
+                break;
+            case 2: if (global_capture_opts.autostop_filesize > 2) {
+                    QMessageBox::warning(this, tr("Error"),
+                                             tr("Multiple files: Requested filesize too large! The filesize cannot be greater than 2 GiB."));
+                    return false;
+                    } else {
+                        global_capture_opts.autostop_filesize *= 1000000;
+                    }
+                break;
+            }
+        }
+    }
+
+    global_capture_opts.has_autostop_duration = ui->stopSecsCheckBox->isChecked();
+    if (global_capture_opts.has_autostop_duration) {
+        global_capture_opts.autostop_duration = ui->stopSecsSpinBox->value();
+        int index = ui->stopSecsComboBox->currentIndex();
+        switch (index) {
+        case 1: global_capture_opts.autostop_duration *= 60;
+            break;
+        case 2: global_capture_opts.autostop_duration *= 3600;
+            break;
+        }
+    }
+
+    global_capture_opts.has_autostop_packets = ui->stopPktCheckBox->isChecked();
+    if (global_capture_opts.has_autostop_packets) {
+        global_capture_opts.autostop_packets = ui->stopPktSpinBox->value();
+    }
 
     for (int col = col_link_; col <= col_filter_; col++){
         if (ui->interfaceTree->isColumnHidden(col)) {
@@ -615,14 +841,16 @@ void CaptureInterfacesDialog::saveOptionsToPreferences()
     if (!prefs.gui_use_pref_save) {
         prefs_main_write();
     }
+    return true;
 }
 
 
 void CaptureInterfacesDialog::on_manage_clicked()
 {
-    saveOptionsToPreferences();
-    ManageInterfacesDialog *dlg = new ManageInterfacesDialog(this);
-    dlg->show();
+    if (saveOptionsToPreferences()) {
+        ManageInterfacesDialog *dlg = new ManageInterfacesDialog(this);
+        dlg->show();
+    }
 }
 
 //

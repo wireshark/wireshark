@@ -98,6 +98,7 @@ private slots:
     void allFilterChanged();
     void refreshInterfaceList();
     void updateLocalInterfaces();
+    void on_browseButton_clicked();
 
 signals:
     void startCapture();
@@ -120,7 +121,7 @@ private:
     InterfaceTreeDelegate interface_item_delegate_;
     QMap<int, int> deviceMap;
 
-    void saveOptionsToPreferences();
+    bool saveOptionsToPreferences();
 };
 
 #endif /* HAVE_LIBPCAP */
