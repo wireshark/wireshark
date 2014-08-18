@@ -276,10 +276,6 @@ div.table thead > tr > th, div.informaltable thead > tr > th {
   vertical-align: bottom;
 }
 
-div.mediaobject img {
-    border: 1px solid silver;
-    margin-bottom: 0.8em;
-}
 div.figure p.title,
 div.table p.title
 {

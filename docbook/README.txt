@@ -94,11 +94,40 @@ rename it to jimi-1.0.jar.
 
 AsciiDoc
 --------
-Text documentation format and conversion suite:
-http://asciidoc.org/.  AsciiDoc can use either w3m (default) or Lynx
-for plain text output.  We use AsciiDoc for the Developer's Guide and
-for the release notes; Lynx as well is used for the official plaintext
-release announcments.
+Text documentation format and conversion suite: http://asciidoc.org/. AsciiDoc
+can use either w3m (default) or Lynx for plain text output. We use AsciiDoc for
+the Developer's Guide, User's Guide, and for the release notes. Lynx is used to
+render the official plaintext release announcments.
+
+The AsciiDoc files have been converted from DocBook. In a lot of cases the
+markup is wrong, inconsistent, or both. Use the following markup conventions
+for any new or revised text:
+
+- Window and dialog box names should be in ``curly quotes''.
+
+- Use Asciidoctor compatibility macros for buttons, keys, and menus:
+
+  The button:[Start] button
+  Press kbd:[Shift+Ctrl+P] to open the preferences dialog.
+  Select menu:File[Open] from the main menu.
+
+  This ensures that UI elemnents are shown consistently and lets us apply styles
+  to each type of element.
+
+- Command line examples should reflect the OS:
+
+----
+$ echo Linux and UNIX
+----
+
+----
+C:\> echo Windows
+----
+
+Admonitions ([NOTE], [TIP], and [WARNING]) can be used to highlight important
+information. Keep in mind that they interrupt the flow of text by design. Too
+many (especially in a row) are distracting and annoying.
+
 
 Lynx
 ----
@@ -305,4 +334,3 @@ http://www.codeproject.com/KB/winhelp/docbook_howto.aspx
 FO Parameter Reference
 by Norman Walsh
 http://docbook.sourceforge.net/release/xsl/current/doc/fo/
-
