@@ -111,6 +111,7 @@ proto_register_hpext(void)
 {
 #ifndef HAVE_HFI_SECTION_INIT
 	static header_field_info *hfi[] = {
+		&hfi_hpext_reserved,
 		&hfi_hpext_dxsap,
 		&hfi_hpext_sxsap,
 	};
