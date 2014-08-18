@@ -35,9 +35,6 @@
 #include "wimax_bits.h"
 
 extern	gboolean include_cor2_changes;
-extern void init_wimax_globals(void);
-extern gint wimax_decode_ulmapc(proto_tree *base_tree, gint offset, gint length, tvbuff_t *tvb);
-extern gint wimax_decode_ulmap_reduced_aas(proto_tree *ie_tree, gint offset, gint length, tvbuff_t *tvb);
 
 void proto_register_mac_mgmt_msg_ulmap(void);
 void proto_reg_handoff_mac_mgmt_msg_ulmap(void);
@@ -1519,7 +1516,7 @@ static gint Feedback_Polling_IE(proto_tree *uiuc_tree, gint offset, gint length,
  * UL-MAP Miscellany
  *******************************************************************/
 
-static gint dissect_ulmap_ie( proto_tree *ie_tree, gint offset, gint length _U_, tvbuff_t *tvb)
+gint dissect_ulmap_ie( proto_tree *ie_tree, gint offset, gint length _U_, tvbuff_t *tvb)
 {
     /* decode a single UL-MAP IE and return the
      * length of the IE in nibbles

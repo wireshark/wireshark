@@ -124,7 +124,7 @@ static const true_false_string tfs_rng_timing_adj = {
 };
 
 /* Decode RNG Power Saving Class parameters (Sub TLV's). */
-static void dissect_power_saving_class(proto_tree *rng_req_tree, gint tlv_type, tvbuff_t *tvb, guint compound_tlv_len, packet_info *pinfo, guint offset)
+void dissect_power_saving_class(proto_tree *rng_req_tree, gint tlv_type, tvbuff_t *tvb, guint compound_tlv_len, packet_info *pinfo, guint offset)
 {
 	proto_item *tlv_item;
 	proto_tree *tlv_tree;

@@ -380,7 +380,7 @@ static const value_string ai_msgs[] =
 };
 
 
-static void dissect_mac_header_type_2_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+void dissect_mac_header_type_2_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	gint tvb_len, offset = 0;
 	guint cii_bit, first_byte, fb_type, mimo_type;

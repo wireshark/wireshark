@@ -36,10 +36,6 @@
 
 extern	gboolean include_cor2_changes;
 
-extern gboolean is_down_link(packet_info *pinfo);
-extern gint wimax_decode_dlmap_reduced_aas(tvbuff_t *tvb, packet_info *pinfo, proto_tree *base_tree);
-extern gint wimax_decode_dlmapc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdu_tree);
-
 void proto_register_mac_mgmt_msg_dlmap(void);
 void proto_reg_handoff_mac_mgmt_msg_dlmap(void);
 
@@ -321,7 +317,7 @@ static gint hf_mac_header_compress_dlmap_crc = -1;
  * DL-MAP Miscellaneous IEs and TLVs
  *******************************************************************/
 
-static gint RCID_IE(proto_tree *diuc_tree, gint offset, gint length, tvbuff_t *tvb, gint RCID_Type_lcl)
+gint RCID_IE(proto_tree *diuc_tree, gint offset, gint length, tvbuff_t *tvb, gint RCID_Type_lcl)
 {
 	/* RCID_IE 8.4.5.3 and 8.4.5.3.20.1 */
 	/* offset of IE in bits, length is variable  */
@@ -2170,8 +2166,7 @@ gint wimax_decode_dlmapc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *base_tre
 extern gint dissect_ulmap_ie(proto_tree *ie_tree, gint offset, gint length, tvbuff_t *tvb);
 extern gint wimax_decode_ulmap_reduced_aas(proto_tree *ie_tree, gint offset, gint length, tvbuff_t *tvb);
 
-#if 0
-static gint wimax_decode_sub_dl_ul_map(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *base_tree)
+gint wimax_decode_sub_dl_ul_map(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *base_tree)
 {
 	/* decode a SUB-DL-UL-MAP message 6.3.2.3.60 and return the length in bytes */
 	/* first three bits are 0x7, which following a compressed DL map indicates this message */
@@ -2252,7 +2247,6 @@ static gint wimax_decode_sub_dl_ul_map(tvbuff_t *tvb, packet_info *pinfo _U_, pr
 	/* return length */
 	return length;
 }
-#endif
 
 gint wimax_decode_dlmap_reduced_aas(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *base_tree)
 {

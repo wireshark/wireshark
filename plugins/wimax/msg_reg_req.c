@@ -220,7 +220,7 @@ static const value_string tfs_support[] = {
 };
 
 /* Decode REG-REQ sub-TLV's. */
-static void dissect_extended_tlv(proto_tree *reg_req_tree, gint tlv_type, tvbuff_t *tvb, guint tlv_offset, guint tlv_len, packet_info *pinfo, guint offset, gint proto_registry)
+void dissect_extended_tlv(proto_tree *reg_req_tree, gint tlv_type, tvbuff_t *tvb, guint tlv_offset, guint tlv_len, packet_info *pinfo, guint offset, gint proto_registry)
 {
 	proto_item *tlv_item;
 	proto_tree *tlv_tree;

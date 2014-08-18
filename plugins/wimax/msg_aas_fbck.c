@@ -95,7 +95,7 @@ static int hf_aas_fbck_rssi_value = -1;
 static int hf_aas_fbck_cinr_value = -1;
 
 
-static void dissect_mac_mgmt_msg_aas_fbck_req_decoder(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+void dissect_mac_mgmt_msg_aas_fbck_req_decoder(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	guint offset = 0;
 	guint data_type;
@@ -135,7 +135,7 @@ static void dissect_mac_mgmt_msg_aas_fbck_req_decoder(tvbuff_t *tvb, packet_info
 	}
 }
 
-static void dissect_mac_mgmt_msg_aas_fbck_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+void dissect_mac_mgmt_msg_aas_fbck_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	guint offset = 0;
 	guint tvb_len, data_type;
