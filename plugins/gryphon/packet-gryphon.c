@@ -779,7 +779,7 @@ static int
 dissect_gryphon_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     dissect_gryphon_message(tvb, pinfo, tree, FALSE);
-    return tvb_length(tvb);
+    return tvb_reported_length(tvb);
 }
 
 static int
@@ -787,7 +787,7 @@ dissect_gryphon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     tcp_dissect_pdus(tvb, pinfo, tree, gryphon_desegment, FRAME_HEADER_LEN,
                      get_gryphon_pdu_len, dissect_gryphon_pdu, data);
-    return tvb_length(tvb);
+    return tvb_reported_length(tvb);
 }
 
 static void
@@ -1925,7 +1925,7 @@ cmd_options(tvbuff_t *tvb, int offset, proto_tree *pt)
             break;
         }
         proto_tree_add_uint_format_value(tree, hf_gryphon_option, tvb, offset, 1, option, "%s", string);
-        proto_tree_add_bytes_format_value(tree, hf_gryphon_option_data, tvb, offset+2, option_length, "%s", string1);
+        proto_tree_add_bytes_format_value(tree, hf_gryphon_option_data, tvb, offset+2, option_length, NULL, "%s", string1);
         if (padding)
             proto_tree_add_item(tree, hf_gryphon_padding, tvb, offset+option_length+2, padding, ENC_NA);
         offset += size + padding;
