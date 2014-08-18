@@ -1687,8 +1687,9 @@ dissect_sflow_5_flow_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         /* unknown enterprise format, what to do?? */
         flow_data_tree = proto_tree_add_subtree(tree, tvb, offset, -1,
             ett_sflow_5_flow_record, &ti, "Unknown enterprise format");
-        proto_tree_add_uint_format_value(flow_data_tree, hf_sflow_enterprise, tvb, offset, -1,
+        proto_tree_add_uint_format_value(flow_data_tree, hf_sflow_enterprise, tvb, offset, 4,
                                     enterprise, "Non-standard sFlow (%u)", enterprise);
+        offset = tvb_captured_length(tvb);
     }
     proto_item_set_end(ti, tvb, offset);
 
@@ -2012,8 +2013,9 @@ dissect_sflow_5_counters_record(tvbuff_t *tvb, proto_tree *tree, gint offset) {
     } else { /* unknown enterprise format, what to do?? */
         counter_data_tree = proto_tree_add_subtree(tree, tvb, offset, -1,
             ett_sflow_5_counters_record, &ti, "Unknown enterprise format");
-        proto_tree_add_uint_format_value(counter_data_tree, hf_sflow_enterprise, tvb, offset, -1,
+        proto_tree_add_uint_format_value(counter_data_tree, hf_sflow_enterprise, tvb, offset, 4,
                         enterprise, "Non-standard sFlow (%u)", enterprise);
+        offset = tvb_captured_length(tvb);
     }
     proto_item_set_end(ti, tvb, offset);
 
@@ -2302,8 +2304,9 @@ dissect_sflow_245_samples(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
         } else { /* unknown enterprise format, what to do?? */
             sflow_245_sample_tree = proto_tree_add_subtree(tree, tvb, offset, -1,
                         ett_sflow_245_sample, &ti, "Unknown enterprise format");
-            proto_tree_add_uint_format_value(sflow_245_sample_tree, hf_sflow_enterprise, tvb, offset, -1,
+            proto_tree_add_uint_format_value(sflow_245_sample_tree, hf_sflow_enterprise, tvb, offset, 4,
                             enterprise, "Non-standard sFlow (%u)", enterprise);
+            offset = tvb_captured_length(tvb);
         }
 
     } else { /* version 2 or 4 */
