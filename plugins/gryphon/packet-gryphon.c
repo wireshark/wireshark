@@ -56,6 +56,7 @@ static int hf_gryphon_reserved4 = -1;
 static int hf_gryphon_reserved_bytes = -1;
 static int hf_gryphon_padding = -1;
 static int hf_gryphon_ignored = -1;
+static int hf_gryphon_wait_flags = -1;
 static int hf_gryphon_wait_resp = -1;
 static int hf_gryphon_wait_prev_resp = -1;
 static int hf_gryphon_status = -1;
@@ -167,6 +168,7 @@ static int hf_gryphon_addresp_handle = -1;
 static int hf_gryphon_modresp_handle = -1;
 static int hf_gryphon_modresp_action = -1;
 static int hf_gryphon_num_resphan = -1;
+static int hf_gryphon_handle = -1;
 static int hf_gryphon_transmit_sched_id = -1;
 static int hf_gryphon_desc_program_size = -1;
 static int hf_gryphon_desc_program_name = -1;
@@ -223,6 +225,22 @@ static int hf_gryphon_filter_block_filter_value_bytes = -1;
 static int hf_gryphon_blm_mode = -1;
 static int hf_gryphon_blm_mode_avg_period = -1;
 static int hf_gryphon_blm_mode_avg_frames = -1;
+static int hf_gryphon_command = -1;
+static int hf_gryphon_cmd_mode = -1;
+static int hf_gryphon_option = -1;
+static int hf_gryphon_option_data = -1;
+static int hf_gryphon_cmd_file = -1;
+static int hf_gryphon_bit_in_digital_data = -1;
+static int hf_gryphon_bit_out_digital_data = -1;
+static int hf_gryphon_filter_block_pattern = -1;
+static int hf_gryphon_filter_block_mask = -1;
+static int hf_gryphon_usdt_request = -1;
+static int hf_gryphon_usdt_response = -1;
+static int hf_gryphon_uudt_response = -1;
+static int hf_gryphon_more_filenames = -1;
+static int hf_gryphon_filenames = -1;
+static int hf_gryphon_program_channel_number = -1;
+static int hf_gryphon_valid_header_length = -1;
 
 static gint ett_gryphon = -1;
 static gint ett_gryphon_header = -1;
@@ -779,8 +797,7 @@ dissect_gryphon_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     int             offset = 0;
     proto_tree      *gryphon_tree;
     proto_item      *ti;
-    proto_tree      *header_tree, *body_tree, *local_tree;
-    proto_item      *local_item;
+    proto_tree      *header_tree, *body_tree;
     int             msgend;
     int             msglen, msgpad;
     unsigned int    src, dest, i, frmtyp;
@@ -839,10 +856,13 @@ dissect_gryphon_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_tree_add_item(header_tree, hf_gryphon_type, tvb, offset+6, 1, ENC_BIG_ENDIAN);
 
     if (is_msgresp_add) {
-        local_item = proto_tree_add_text(header_tree, tvb, offset+6, 1, "Flags");
-        local_tree = proto_item_add_subtree (local_item, ett_gryphon_flags);
-        proto_tree_add_item(local_tree, hf_gryphon_wait_resp, tvb, offset+6, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(local_tree, hf_gryphon_wait_prev_resp, tvb, offset+6, 1, ENC_BIG_ENDIAN);
+        static const int * wait_flags[] = {
+            &hf_gryphon_wait_resp,
+            &hf_gryphon_wait_prev_resp,
+            NULL
+        };
+
+        proto_tree_add_bitmask(header_tree, tvb, offset+6, hf_gryphon_wait_flags, ett_gryphon_flags, wait_flags, ENC_NA);
     }
     proto_tree_add_item(header_tree, hf_gryphon_reserved1, tvb, offset+7, 1, ENC_BIG_ENDIAN);
 
@@ -914,7 +934,7 @@ decode_command(tvbuff_t *tvb, int offset, int dst, proto_tree *pt)
     if (i >= SIZEOF(cmds))
         i = SIZEOF(cmds) - 1;
 
-    proto_tree_add_text (pt, tvb, offset, 4, "Command: %s", cmds[i].strptr);
+    proto_tree_add_string(pt, hf_gryphon_command, tvb, offset, 4, cmds[i].strptr);
     offset += 4;
     msglen -= 4;
 
@@ -951,7 +971,7 @@ decode_response(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
     }
     if (i >= SIZEOF(cmds))
         i = SIZEOF(cmds) - 1;
-    proto_tree_add_text (pt, tvb, offset, 4, "Command: %s", cmds[i].strptr);
+    proto_tree_add_string(pt, hf_gryphon_command, tvb, offset, 4, cmds[i].strptr);
     offset += 4;
     msglen -= 4;
 
@@ -1082,13 +1102,12 @@ decode_misc (tvbuff_t *tvb, int offset, proto_tree *pt)
 static int
 cmd_init(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
-    const char          *ptr;
+    guint8 mode = tvb_get_guint8(tvb, offset);
 
-    if (tvb_get_guint8(tvb, offset) == 0)
-        ptr = "Always initialize";
+    if (mode == 0)
+        proto_tree_add_uint_format_value(pt, hf_gryphon_cmd_mode, tvb, offset, 1, mode,  "Always initialize");
     else
-        ptr = "Initialize if not previously initialized";
-    proto_tree_add_text(pt, tvb, offset, 1, "Mode: %s", ptr);
+        proto_tree_add_uint_format_value(pt, hf_gryphon_cmd_mode, tvb, offset, 1, mode,  "Initialize if not previously initialized");
     proto_tree_add_item(pt, hf_gryphon_reserved3, tvb, offset+1, 3, ENC_BIG_ENDIAN);
     offset += 4;
     return offset;
@@ -1103,7 +1122,7 @@ eventnum(tvbuff_t *tvb, int offset, proto_tree *pt)
         proto_tree_add_item(pt, hf_gryphon_eventnum, tvb, offset, 1, ENC_BIG_ENDIAN);
     else
         proto_tree_add_uint_format_value(pt, hf_gryphon_eventnum, tvb, offset, 1,
-	        0, "Event numbers: All");
+	        0, "All");
     proto_tree_add_item(pt, hf_gryphon_reserved3, tvb, offset+1, 3, ENC_BIG_ENDIAN);
     offset += 4;
     return offset;
@@ -1371,7 +1390,7 @@ resp_config(tvbuff_t *tvb, int offset, proto_tree *pt)
             tree = proto_tree_add_subtree(ft, tvb, offset, 4, ett_gryphon_valid_headers, NULL, "Valid Header lengths");
             for (j = 0; ; j++) {
                 if (x & 1) {
-                    proto_tree_add_text(tree, tvb, offset, 4, "%d byte%s", j,
+                    proto_tree_add_uint_format(tree, hf_gryphon_valid_header_length, tvb, offset, 4, j, "%d byte%s", j,
                     j == 1 ? "" : "s");
                 }
                 if ((x >>= 1) == 0)
@@ -1659,12 +1678,13 @@ static int
 resp_resphan(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
     int         handles = tvb_get_guint8(tvb, offset);
-    int         i, padding;
+    int         i, padding, handle;
 
     proto_tree_add_item(pt, hf_gryphon_num_resphan, tvb, offset, 1, ENC_BIG_ENDIAN);
     for (i = 1; i <= handles; i++){
-        proto_tree_add_text(pt, tvb, offset+i, 1, "Handle %d: %u", i,
-            tvb_get_guint8(tvb, offset+i));
+        handle = tvb_get_guint8(tvb, offset+i);
+        proto_tree_add_uint_format(pt, hf_gryphon_handle, tvb, offset+i, 1, handle, "Handle %d: %u", i,
+            handle);
     }
     padding = 3 - (handles + 1 + 3) % 4;
     if (padding)
@@ -1788,7 +1808,7 @@ cmd_start(tvbuff_t *tvb, int offset, proto_tree *pt)
     msglen = tvb_reported_length_remaining(tvb, offset);
     offset = cmd_delete(tvb, offset, pt);       /* decode the name */
     if (offset < msglen + hdr_stuff) {
-        string = tvb_get_stringz(wmem_packet_scope(), tvb, offset, &length);
+        string = tvb_get_stringz_enc(wmem_packet_scope(), tvb, offset, &length, ENC_ASCII);
         if (length > 1) {
             proto_tree_add_string(pt, hf_gryphon_start_arguments, tvb, offset,
                 length, string);
@@ -1823,7 +1843,7 @@ resp_status(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
     proto_item  *item;
     proto_tree  *tree;
-    unsigned int    i, copies, length;
+    unsigned int   i, copies, length, channel;
 
     copies = tvb_get_guint8(tvb, offset);
     item = proto_tree_add_item(pt, hf_gryphon_status_num_running_copies, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1831,8 +1851,9 @@ resp_status(tvbuff_t *tvb, int offset, proto_tree *pt)
     offset += 1;
     if (copies) {
         for (i = 1; i <= copies; i++) {
-            proto_tree_add_text(tree, tvb, offset, 1, "Program %u channel (client) number %u",
-                i, tvb_get_guint8(tvb, offset));
+            channel = tvb_get_guint8(tvb, offset);
+            proto_tree_add_uint_format(tree, hf_gryphon_program_channel_number, tvb, offset, 1, channel,
+                    "Program %u channel (client) number %u", i, channel);
             offset += 1;
         }
     }
@@ -1903,8 +1924,8 @@ cmd_options(tvbuff_t *tvb, int offset, proto_tree *pt)
             }
             break;
         }
-        proto_tree_add_text(tree, tvb, offset, 1, "%s", string);
-        proto_tree_add_text(tree, tvb, offset+2, option_length, "%s", string1);
+        proto_tree_add_uint_format_value(tree, hf_gryphon_option, tvb, offset, 1, option, "%s", string);
+        proto_tree_add_bytes_format_value(tree, hf_gryphon_option_data, tvb, offset+2, option_length, "%s", string1);
         if (padding)
             proto_tree_add_item(tree, hf_gryphon_padding, tvb, offset+option_length+2, padding, ENC_NA);
         offset += size + padding;
@@ -1917,15 +1938,15 @@ static int
 cmd_files(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
     int          msglen;
-    const gchar  *which;
+    guint8 file;
 
     msglen = tvb_reported_length_remaining(tvb, offset);
-    if (tvb_get_guint8(tvb, offset) == 0)
-        which = "First group of names";
+    file = tvb_get_guint8(tvb, offset);
+    if (file == 0)
+        proto_tree_add_uint_format(pt, hf_gryphon_cmd_file, tvb, offset, 1, file, "First group of names");
     else
-        which = "Subsequent group of names";
+        proto_tree_add_uint_format(pt, hf_gryphon_cmd_file, tvb, offset, 1, file, "Subsequent group of names");
 
-    proto_tree_add_text(pt, tvb, offset, 1, "%s", which);
     proto_tree_add_item(pt, hf_gryphon_files, tvb, offset+1, msglen-1, ENC_NA|ENC_ASCII);
     offset += msglen;
     return offset;
@@ -1934,13 +1955,13 @@ cmd_files(tvbuff_t *tvb, int offset, proto_tree *pt)
 static int
 resp_files(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
-    int                 msglen;
-    const gchar         *flag;
+    int            msglen;
+    guint8         flag;
 
     msglen = tvb_reported_length_remaining(tvb, offset);
-    flag = tvb_get_guint8(tvb, offset) ? "Yes": "No";
-    proto_tree_add_text(pt, tvb, offset, 1, "More filenames to return: %s", flag);
-    proto_tree_add_text(pt, tvb, offset+1, msglen-1, "File and directory names");
+    flag = tvb_get_guint8(tvb, offset);
+    proto_tree_add_uint_format_value(pt, hf_gryphon_more_filenames, tvb, offset, 1, flag, "%s", flag ? "Yes": "No");
+    proto_tree_add_item(pt, hf_gryphon_filenames, tvb, offset+1, msglen-1, ENC_ASCII|ENC_NA);
     offset += msglen;
     return offset;
 }
@@ -1948,34 +1969,38 @@ resp_files(tvbuff_t *tvb, int offset, proto_tree *pt)
 static int
 cmd_usdt(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
-    int         ids, id, remain, size, i, j, bytes;
+    int         ids, id, remain, size, i, bytes;
     guint8      flags;
     proto_tree  *localTree;
     proto_item  *localItem;
-
-    static const gchar *block_desc[] = {"USDT request", "USDT response", "UUDT response"};
 
     flags = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(pt, hf_gryphon_usdt_flags_register, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     if (flags & 1) {
-        localItem = proto_tree_add_item(pt, hf_gryphon_usdt_action_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
-        localTree = proto_item_add_subtree (localItem, ett_gryphon_flags);
+        static const int * action_flags[] = {
+            &hf_gryphon_usdt_action_flags_register,
+            &hf_gryphon_usdt_action_flags_action,
+            NULL
+        };
 
-        proto_tree_add_item(localTree, hf_gryphon_usdt_action_flags_register, tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(localTree, hf_gryphon_usdt_action_flags_action, tvb, offset, 1, ENC_BIG_ENDIAN);
+        static const int * transmit_option_flags[] = {
+            &hf_gryphon_usdt_transmit_options_flags_echo,
+            &hf_gryphon_usdt_transmit_options_action,
+            &hf_gryphon_usdt_transmit_options_send_done,
+            NULL
+        };
 
-        localItem = proto_tree_add_item(pt, hf_gryphon_usdt_transmit_options_flags, tvb, offset+1, 1, ENC_BIG_ENDIAN);
-        localTree = proto_item_add_subtree (localItem, ett_gryphon_flags);
-        proto_tree_add_item(localTree, hf_gryphon_usdt_transmit_options_flags_echo, tvb, offset+1, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(localTree, hf_gryphon_usdt_transmit_options_action, tvb, offset+1, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(localTree, hf_gryphon_usdt_transmit_options_send_done, tvb, offset+1, 1, ENC_BIG_ENDIAN);
+        static const int * receive_option_flags[] = {
+            &hf_gryphon_usdt_receive_options_action,
+            &hf_gryphon_usdt_receive_options_firstframe,
+            &hf_gryphon_usdt_receive_options_lastframe,
+            NULL
+        };
 
-        localItem = proto_tree_add_item(pt, hf_gryphon_usdt_receive_options_flags, tvb, offset+2, 1, ENC_BIG_ENDIAN);
-        localTree = proto_item_add_subtree (localItem, ett_gryphon_flags);
-        proto_tree_add_item(localTree, hf_gryphon_usdt_receive_options_action, tvb, offset+2, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(localTree, hf_gryphon_usdt_receive_options_firstframe, tvb, offset+2, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(localTree, hf_gryphon_usdt_receive_options_lastframe, tvb, offset+2, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_bitmask(pt, tvb, offset, hf_gryphon_usdt_action_flags, ett_gryphon_flags, action_flags, ENC_BIG_ENDIAN);
+        proto_tree_add_bitmask(pt, tvb, offset+1, hf_gryphon_usdt_transmit_options_flags, ett_gryphon_flags, transmit_option_flags, ENC_BIG_ENDIAN);
+        proto_tree_add_bitmask(pt, tvb, offset+2, hf_gryphon_usdt_receive_options_flags, ett_gryphon_flags, receive_option_flags, ENC_BIG_ENDIAN);
 
         if ((ids = tvb_get_guint8(tvb, offset+3))) {
             localItem = proto_tree_add_item(pt, hf_gryphon_usdt_ext_address, tvb, offset+3, 1, ENC_BIG_ENDIAN);
@@ -2005,12 +2030,17 @@ cmd_usdt(tvbuff_t *tvb, int offset, proto_tree *pt)
                 proto_item_set_len(localItem, 16);
             } else {
                 offset += 4;
-                for (j = 0; j < 3; j++){
-                    id = tvb_get_ntohl (tvb, offset);
-                    proto_tree_add_text (localTree, tvb, offset, 4,
-                            "%s IDs from %04X through %04X", block_desc[j], id, id+size-1);
-                    offset += 4;
-                }
+                id = tvb_get_ntohl (tvb, offset);
+                proto_tree_add_uint_format_value(localTree, hf_gryphon_usdt_request, tvb, offset, 4, id, "%04X through %04X", id, id+size-1);
+                offset += 4;
+
+                id = tvb_get_ntohl (tvb, offset);
+                proto_tree_add_uint_format_value(localTree, hf_gryphon_usdt_response, tvb, offset, 4, id, "%04X through %04X", id, id+size-1);
+                offset += 4;
+
+                id = tvb_get_ntohl (tvb, offset);
+                proto_tree_add_uint_format_value(localTree, hf_gryphon_uudt_response, tvb, offset, 4, id, "%04X through %04X", id, id+size-1);
+                offset += 4;
             }
         }
     } else {
@@ -2029,20 +2059,21 @@ cmd_usdt(tvbuff_t *tvb, int offset, proto_tree *pt)
 static int
 cmd_bits_in (tvbuff_t *tvb, int offset, proto_tree *pt)
 {
-    proto_tree   *tree;
     int          msglen, value;
 
     msglen = tvb_reported_length_remaining(tvb, offset);
     value = tvb_get_guint8(tvb, offset);
     if (value) {
-        tree = proto_tree_add_subtree(pt, tvb, offset, 1, ett_gryphon_digital_data, NULL, "Digital values set");
-
-        proto_tree_add_item(tree, hf_gryphon_bits_in_input1, tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(tree, hf_gryphon_bits_in_input2, tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(tree, hf_gryphon_bits_in_input3, tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(tree, hf_gryphon_bits_in_pushbutton, tvb, offset, 1, ENC_BIG_ENDIAN);
+        static const int * digital_values[] = {
+            &hf_gryphon_bits_in_input1,
+            &hf_gryphon_bits_in_input2,
+            &hf_gryphon_bits_in_input3,
+            &hf_gryphon_bits_in_pushbutton,
+            NULL
+        };
+        proto_tree_add_bitmask(pt, tvb, 1, hf_gryphon_bit_in_digital_data, ett_gryphon_digital_data, digital_values, ENC_NA);
     } else {
-        proto_tree_add_text(pt, tvb, offset, 1, "No digital values are set");
+        proto_tree_add_uint_format(pt, hf_gryphon_bit_in_digital_data, tvb, offset, 1, value, "No digital values are set");
     }
 
     offset++;
@@ -2053,18 +2084,19 @@ cmd_bits_in (tvbuff_t *tvb, int offset, proto_tree *pt)
 static int
 cmd_bits_out (tvbuff_t *tvb, int offset, proto_tree *pt)
 {
-    proto_tree   *tree;
     int          msglen, value;
 
     msglen = tvb_reported_length_remaining(tvb, offset);
     value = tvb_get_guint8(tvb, offset);
     if (value) {
-        tree = proto_tree_add_subtree(pt, tvb, offset, 1, ett_gryphon_digital_data, NULL, "Digital values set");
-
-        proto_tree_add_item(tree, hf_gryphon_bits_out_output1, tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(tree, hf_gryphon_bits_out_output2, tvb, offset, 1, ENC_BIG_ENDIAN);
+        static const int * digital_values[] = {
+            &hf_gryphon_bits_out_output1,
+            &hf_gryphon_bits_out_output2,
+            NULL
+        };
+        proto_tree_add_bitmask(pt, tvb, 1, hf_gryphon_bit_out_digital_data, ett_gryphon_digital_data, digital_values, ENC_NA);
     } else {
-        proto_tree_add_text(pt, tvb, offset, 1, "No digital values are set");
+        proto_tree_add_uint_format(pt, hf_gryphon_bit_out_digital_data, tvb, offset, 1, value, "No digital values are set");
     }
 
     offset++;
@@ -2124,8 +2156,8 @@ filter_block(tvbuff_t *tvb, int offset, proto_tree *pt)
     offset += 8;
 
     if (op == BIT_FIELD_CHECK) {
-        proto_tree_add_text(pt, tvb, offset, length, "Pattern");
-        proto_tree_add_text(pt, tvb, offset+length, length, "Mask");
+        proto_tree_add_item(pt, hf_gryphon_filter_block_pattern, tvb, offset, length, ENC_NA);
+        proto_tree_add_item(pt, hf_gryphon_filter_block_mask, tvb, offset+length, length, ENC_NA);
     } else {
         switch (length) {
         case 1:
@@ -2173,7 +2205,7 @@ blm_mode(tvbuff_t *tvb, int offset, proto_tree *pt)
         proto_tree_add_item(tree, hf_gryphon_blm_mode_avg_frames, tvb, offset, 4, ENC_BIG_ENDIAN);
         break;
     default:
-        proto_tree_add_text(pt, tvb, offset, 4, "Reserved");
+        proto_tree_add_item(pt, hf_gryphon_reserved4, tvb, offset, 4, ENC_BIG_ENDIAN);
         break;
     }
 
@@ -2229,6 +2261,9 @@ proto_register_gryphon(void)
                 NULL, HFILL }},
         { &hf_gryphon_reserved_bytes,
           { "Reserved",          "gryphon.reserved", FT_BYTES, BASE_NONE, NULL, 0x0,
+                NULL, HFILL }},
+        { &hf_gryphon_wait_flags,
+          { "Flags",          "gryphon.wait_flags", FT_UINT8, BASE_HEX, NULL, 0x0,
                 NULL, HFILL }},
         { &hf_gryphon_wait_resp,
           { "Wait for response", "gryphon.wait_resp", FT_BOOLEAN, 8, TFS(&tfs_wait_response), DONT_WAIT_FOR_RESP,
@@ -2563,6 +2598,9 @@ proto_register_gryphon(void)
         { &hf_gryphon_num_resphan,
           { "Number of response handles", "gryphon.num_resphan", FT_UINT8, BASE_DEC, NULL, 0x0,
                 NULL, HFILL }},
+        { &hf_gryphon_handle,
+          { "Handle", "gryphon.handle", FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }},
         { &hf_gryphon_transmit_sched_id,
           { "Transmit schedule ID", "gryphon.transmit_sched_id", FT_UINT32, BASE_DEC, NULL, 0x0,
                 NULL, HFILL }},
@@ -2612,7 +2650,7 @@ proto_register_gryphon(void)
           { "Description",    "gryphon.list.description", FT_STRING, BASE_NONE, NULL, 0x0,
                 NULL, HFILL }},
         { &hf_gryphon_start_arguments,
-          { "Arguments",    "gryphon.start.arguments", FT_STRING, BASE_NONE, NULL, 0x0,
+          { "Arguments",    "gryphon.start.arguments", FT_STRINGZ, BASE_NONE, NULL, 0x0,
                 NULL, HFILL }},
         { &hf_gryphon_start_channel,
           { "Channel (Client) number", "gryphon.start.channel", FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -2730,6 +2768,54 @@ proto_register_gryphon(void)
                 NULL, HFILL }},
         { &hf_gryphon_blm_mode_avg_frames,
           { "Averaging period (frames)", "gryphon.blm_mode.avg_frames", FT_UINT32, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }},
+        { &hf_gryphon_command,
+          { "Command", "gryphon.command", FT_STRING, BASE_NONE, NULL, 0x0,
+                NULL, HFILL }},
+        { &hf_gryphon_cmd_mode,
+          { "Mode", "gryphon.command.mode", FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }},
+        { &hf_gryphon_option,
+          { "Option", "gryphon.option", FT_UINT32, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }},
+        { &hf_gryphon_option_data,
+          { "Option data", "gryphon.option_data", FT_BYTES, BASE_NONE, NULL, 0x0,
+                NULL, HFILL }},
+        { &hf_gryphon_cmd_file,
+          { "File", "gryphon.command.file", FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }},
+        { &hf_gryphon_bit_in_digital_data,
+          { "Digital values set", "gryphon.bit_in_digital_data", FT_UINT8, BASE_HEX, NULL, 0x0,
+                NULL, HFILL }},
+        { &hf_gryphon_bit_out_digital_data,
+          { "Digital values set", "gryphon.bit_out_digital_data", FT_UINT8, BASE_HEX, NULL, 0x0,
+                NULL, HFILL }},
+        { &hf_gryphon_filter_block_pattern,
+          { "Pattern", "gryphon.filter_block.pattern", FT_BYTES, BASE_NONE, NULL, 0x0,
+                NULL, HFILL }},
+        { &hf_gryphon_filter_block_mask,
+          { "Mask", "gryphon.filter_block.mask", FT_BYTES, BASE_NONE, NULL, 0x0,
+                NULL, HFILL }},
+        { &hf_gryphon_usdt_request,
+          { "USDT request IDs", "gryphon.usdt_request", FT_UINT32, BASE_HEX, NULL, 0x0,
+                NULL, HFILL }},
+        { &hf_gryphon_usdt_response,
+          { "USDT response IDs", "gryphon.usdt_response", FT_UINT32, BASE_HEX, NULL, 0x0,
+                NULL, HFILL }},
+        { &hf_gryphon_uudt_response,
+          { "UUDT response IDs", "gryphon.uudt_response", FT_UINT32, BASE_HEX, NULL, 0x0,
+                NULL, HFILL }},
+        { &hf_gryphon_more_filenames,
+          { "More filenames to return", "gryphon.more_filenames", FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }},
+        { &hf_gryphon_filenames,
+          { "File and directory names", "gryphon.filenames", FT_STRING, BASE_NONE, NULL, 0x0,
+                NULL, HFILL }},
+        { &hf_gryphon_program_channel_number,
+          { "Program channel number", "gryphon.program_channel_number", FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }},
+        { &hf_gryphon_valid_header_length,
+          { "Valid Header length", "gryphon.valid_header_length", FT_UINT32, BASE_HEX, NULL, 0x0,
                 NULL, HFILL }},
     };
 
