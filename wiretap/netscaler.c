@@ -577,8 +577,6 @@ int nstrace_open(wtap *wth, int *err, gchar **err_info)
         break;
 
     default:
-        *err = WTAP_ERR_UNSUPPORTED;
-        *err_info = g_strdup_printf("nstrace: file type %d unsupported", wth->file_type);
         g_free(nstrace_buf);
         return 0;
     }
