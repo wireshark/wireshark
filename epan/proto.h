@@ -900,7 +900,7 @@ WS_DLL_PUBLIC proto_item *
 proto_tree_add_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 		    const gint start, gint length, const guint encoding);
 
-/** Add a text-only node to a proto_tree.
+/** (DEPRECATED) Add a text-only node to a proto_tree.
  @param tree the tree to append this item to
  @param tvb the tv buffer of the current data
  @param start start of data in tvb
@@ -912,7 +912,7 @@ WS_DLL_PUBLIC proto_item *
 proto_tree_add_text(proto_tree *tree, tvbuff_t *tvb, gint start, gint length, const char *format,
 	...) G_GNUC_PRINTF(5,6);
 
-/** Add a text-only node to a proto_tree using a variable argument list.
+/** (DEPRECATED) Add a text-only node to a proto_tree using a variable argument list.
  @param tree the tree to append this item to
  @param tvb the tv buffer of the current data
  @param start start of data in tvb

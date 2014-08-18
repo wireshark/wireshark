@@ -1082,7 +1082,7 @@ proto_tree_add_text_node(proto_tree *tree, tvbuff_t *tvb, gint start, gint lengt
 	return pi;
 }
 
-/* Add a text-only node to the proto_tree */
+/* (DEPRECATED) Add a text-only node to the proto_tree */
 proto_item *
 proto_tree_add_text(proto_tree *tree, tvbuff_t *tvb, gint start, gint length,
 		    const char *format, ...)
@@ -1104,7 +1104,7 @@ proto_tree_add_text(proto_tree *tree, tvbuff_t *tvb, gint start, gint length,
 	return pi;
 }
 
-/* Add a text-only node to the proto_tree (va_list version) */
+/* (DEPRECATED) Add a text-only node to the proto_tree (va_list version) */
 proto_item *
 proto_tree_add_text_valist(proto_tree *tree, tvbuff_t *tvb, gint start,
 			   gint length, const char *format, va_list ap)

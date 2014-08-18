@@ -1092,10 +1092,10 @@ protocol or field labels to the proto_tree:
     proto_tree_add_item(tree, id, tvb, start, length, encoding);
 
     proto_item*
-    proto_tree_add_text(tree, tvb, start, length, format, ...);
+    proto_tree_add_subtree(tree, tvb, start, length, label);
 
     proto_item*
-    proto_tree_add_text_valist(tree, tvb, start, length, format, ap);
+    proto_tree_add_subtree_format(tree, tvb, start, length, format, ...);
 
     proto_item*
     proto_tree_add_none_format(tree, id, tvb, start, length, format, ...);
@@ -1688,16 +1688,14 @@ With these routines, unlike the proto_tree_add_XXX_format() routines,
 the name of the field is added automatically as in the
 proto_tree_add_XXX() functions; only the value is added with the format.
 
-proto_tree_add_text()
+proto_tree_add_subtree()
 ---------------------
-proto_tree_add_text() is used to add a label to the GUI tree.  It will
-contain no value, so it is not searchable in the display filter process.
+proto_tree_add_subtree() is used to add a label to the GUI tree and create
+a subtree for other fields.  It will contain no value, so it is not searchable
+in the display filter process.
 
-This can (and should only) be used for items with subtrees, which may not
+This should only be used for items with subtrees, which may not
 have values themselves - the items in the subtree are the ones with values.
-In other words, if you're using proto_tree_add_text() and not using the
-return value to build a new tree, you probably shouldn't be using this
-function: you probably should be using proto_tree_add_item() instead.
 
 For a subtree, the label on the subtree might reflect some of the items
 in the subtree.  This means the label can't be set until at least some
@@ -1710,10 +1708,10 @@ of the items in the subtree have been dissected.  To do this, use
     void
     proto_item_append_text(proto_item *ti, ...);
 
-'proto_item_set_text()' takes as an argument the value returned by
-'proto_tree_add_text()', a 'printf'-style format string, and a set of
-arguments corresponding to '%' format items in that string, and replaces
-the text for the item created by 'proto_tree_add_text()' with the result
+'proto_item_set_text()' takes as an argument the proto_item value returned by
+one of the parameters in 'proto_tree_add_subtree()', a 'printf'-style format
+string, and a set of arguments corresponding to '%' format items in that string,
+and replaces the text for the item created by 'proto_tree_add_subtree()' with the result
 of applying the arguments to the format string.
 
 'proto_item_append_text()' is similar, but it appends to the text for
@@ -1721,7 +1719,7 @@ the item the result of applying the arguments to the format string.
 
 For example, early in the dissection, one might do:
 
-    ti = proto_tree_add_text(tree, tvb, offset, length, <label>);
+    subtree = proto_tree_add_subtree(tree, tvb, offset, length, ett, &ti, <label>);
 
 and later do
 
@@ -1737,10 +1735,10 @@ available.  Thus, one should create the item with text that is as
 meaningful as possible, and set it or append additional information to
 it as the values needed to supply that information are extracted.
 
-proto_tree_add_text_valist()
+proto_tree_add_subtree_format()
 ----------------------------
-This is like proto_tree_add_text(), but takes, as the last argument, a
-'va_list'; it is used to allow routines that take a printf-like
+This is like proto_tree_add_subtree(), but uses printf-style arguments to
+create the label; it is used to allow routines that take a printf-like
 variable-length list of arguments to add a text item to the protocol
 tree.
 

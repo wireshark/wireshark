@@ -135,6 +135,8 @@ my %APIs = (
                 'tvb_ensure_length_remaining', # replaced with tvb_ensure_captured_length_remaining
                 'tvb_get_string', # replaced with tvb_get_string_enc
                 'tvb_get_stringz', # replaced with tvb_get_stringz_enc
+                'proto_tree_add_text', # replaced with proto_tree_add_subtree[_format], expert_add_info[_format], or proto_tree_add_expert[_format]
+                'proto_tree_add_text_valist', # replaced with proto_tree_add_subtree_format, expert_add_info_format, or proto_tree_add_expert_format
 
                 # wmem calls should replace all emem calls (see doc/README.wmem)
                 'ep_alloc',
@@ -1386,7 +1388,7 @@ sub checkAddTextCalls($$)
         my $okay_add_text_count = 0;
         my $add_xxx_count = 0;
         my $total_count = 0;
-        my $aggressive = 0;
+        my $aggressive = 1;
         my $percentage = 100;
 
         # The 3 loops here are slow, but trying a single loop with capturing
