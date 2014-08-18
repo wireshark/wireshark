@@ -320,7 +320,7 @@ dissect_acr122(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         sub_item = proto_tree_add_uint(main_tree, hf_command, tvb, offset, 4 + length, command);
         PROTO_ITEM_SET_GENERATED(sub_item);
         if (command == CMD_UNKNOWN)
-            proto_tree_add_expert(sub_item, pinfo, &ei_unknown_command_or_invalid_parameters, tvb, offset, 4 + length);
+            expert_add_info(pinfo, sub_item, &ei_unknown_command_or_invalid_parameters);
 
         col_add_fstr(pinfo->cinfo, COL_INFO, "Command: %s", val_to_str_ext_const(command, &command_vals_ext, "Unknown"));
 
