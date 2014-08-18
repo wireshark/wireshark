@@ -739,7 +739,7 @@ dissect_isis_grp_address_clv(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *
 
             default:
                 proto_tree_add_uint_format ( tree, tree_id, tvb, offset,(mt_block&0x00ff)+2,
-                        mt_block, "INVALID SUB TLV");
+                        mt_block, "Unknown Sub-TLV");
                 offset++;
                 length -= (2+tvb_get_guint8(tvb, offset));
                 offset += (1+tvb_get_guint8(tvb, offset));
@@ -929,7 +929,7 @@ dissect_isis_rt_capable_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
             len -= 4;
 
             while (len>0) {
-                proto_tree_add_item(rt_tree, hf_isis_lsp_root_id, tvb, offset, 6, ENC_BIG_ENDIAN);
+                proto_tree_add_item(rt_tree, hf_isis_lsp_root_id, tvb, offset, 6, ENC_NA);
 
                 length -= 6;
                 offset += 6;
@@ -998,7 +998,7 @@ dissect_isis_rt_capable_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
             break;
 
         default:
-            proto_tree_add_text(tree, tvb, offset, (rt_block&0x00ff)+2, "INVALID sub tlv");
+            proto_tree_add_text(tree, tvb, offset, (rt_block&0x00ff)+2, "Unknown Sub-TLV");
 
             offset++;
             length -= (2+tvb_get_guint8(tvb, offset));
@@ -2824,7 +2824,7 @@ proto_register_isis_lsp(void)
 
         { &hf_isis_lsp_root_id,
             { "Root Bridge ID", "isis.lsp.root.id",
-              FT_UINT64, BASE_HEX, NULL, 0x0,
+              FT_SYSTEM_ID, BASE_NONE, NULL, 0x0,
               NULL, HFILL }
         },
 
@@ -3014,7 +3014,7 @@ proto_register_isis_lsp(void)
         },
         { &hf_isis_lsp_rt_capable_tree_root_id_nickname,
             { "Nickname", "isis.lsp.rt_capable.tree_root_id.nickname",
-              FT_UINT16, BASE_DEC, NULL, 0x0,
+              FT_UINT16, BASE_HEX_DEC, NULL, 0x0,
               NULL, HFILL }
         },
         { &hf_isis_lsp_rt_capable_nickname_length,
@@ -3034,7 +3034,7 @@ proto_register_isis_lsp(void)
         },
         { &hf_isis_lsp_rt_capable_nickname_nickname,
             { "Nickname", "isis.lsp.rt_capable.nickname.nickname",
-              FT_UINT16, BASE_HEX, NULL, 0x0,
+              FT_UINT16, BASE_HEX_DEC, NULL, 0x0,
               NULL, HFILL }
         },
         { &hf_isis_lsp_rt_capable_interested_vlans_length,
@@ -3044,7 +3044,7 @@ proto_register_isis_lsp(void)
         },
         { &hf_isis_lsp_rt_capable_interested_vlans_nickname,
             { "Nickname", "isis.lsp.rt_capable.interested_vlans.nickname",
-              FT_UINT16, BASE_HEX, NULL, 0x0,
+              FT_UINT16, BASE_HEX_DEC, NULL, 0x0,
               NULL, HFILL }
         },
         { &hf_isis_lsp_rt_capable_interested_vlans_multicast_ipv4,
@@ -3084,7 +3084,7 @@ proto_register_isis_lsp(void)
         },
         { &hf_isis_lsp_rt_capable_tree_used_id_nickname,
             { "Nickname", "isis.lsp.rt_capable.tree_used_id.nickname",
-              FT_UINT16, BASE_DEC, NULL, 0x0,
+              FT_UINT16, BASE_HEX_DEC, NULL, 0x0,
               NULL, HFILL }
         },
         { &hf_isis_lsp_rt_capable_vlan_group_length,
