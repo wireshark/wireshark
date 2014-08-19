@@ -2004,18 +2004,6 @@ dissect_usb_configuration_descriptor(packet_info *pinfo _U_, proto_tree *parent_
 
     proto_item_set_len(item, offset-old_offset);
 
-    /* Clear any class association from the Control endpoint.
-     * We need the association temporarily, to establish
-     * context for class-specific descriptor dissectors,
-     * but the association must not persist beyond this function.
-     * If it did, all traffic on the Control endpoint would be labeled
-     * as belonging to the class of the last INTERFACE descriptor,
-     * which would be especially inappropriate for composite devices.
-     */
-    usb_conv_info->interfaceClass    = IF_CLASS_UNKNOWN;
-    usb_conv_info->interfaceSubclass = IF_SUBCLASS_UNKNOWN;
-    usb_conv_info->interfaceProtocol = IF_PROTOCOL_UNKNOWN;
-
     return offset;
 }
 
