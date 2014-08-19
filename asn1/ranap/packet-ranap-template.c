@@ -69,7 +69,6 @@ static dissector_handle_t rrc_s_to_trnc_handle = NULL;
 static dissector_handle_t rrc_t_to_srnc_handle = NULL;
 static dissector_handle_t rrc_ho_to_utran_cmd = NULL;
 
-static int hf_ranap_imsi_digits = -1;
 static int hf_ranap_transportLayerAddress_ipv4 = -1;
 static int hf_ranap_transportLayerAddress_ipv6 = -1;
 static int hf_ranap_transportLayerAddress_nsap = -1;
@@ -303,10 +302,6 @@ void proto_register_ranap(void) {
   /* List of fields */
 
   static hf_register_info hf[] = {
-	{ &hf_ranap_imsi_digits,
-      { "IMSI digits", "ranap.imsi_digits",
-        FT_STRING, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
     { &hf_ranap_transportLayerAddress_ipv4,
       { "transportLayerAddress IPv4", "ranap.transportLayerAddress_ipv4",
         FT_IPv4, BASE_NONE, NULL, 0,

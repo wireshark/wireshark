@@ -222,7 +222,7 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
 
 %(DEFAULT_BODY)s
 
-	if ((rrc_message_tvb)&&(tvb_length(rrc_message_tvb)!=0)&&(glbl_dissect_container)){
+	if ((rrc_message_tvb)&&(tvb_reported_length(rrc_message_tvb)!=0)&&(glbl_dissect_container)){
 		switch(ProtocolIE_ID){
 			case id_Source_ToTarget_TransparentContainer: /* INTEGER ::= 61 */
 				/* 9.2.1.30a Source to Target Transparent Container
@@ -310,7 +310,7 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
 # TransportLayerAddress ::= BIT STRING (SIZE (1..160, ...))
 # Asume 4 bytes used in case of IPv4
 	/* Get the length */
-	tvb_len = tvb_length(parameter_tvb);
+	tvb_len = tvb_reported_length(parameter_tvb);
 	subtree = proto_item_add_subtree(actx->created_item, ett_ranap_TransportLayerAddress);
 	if (tvb_len==4){
 		/* IPv4 */

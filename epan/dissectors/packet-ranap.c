@@ -422,7 +422,6 @@ static dissector_handle_t rrc_s_to_trnc_handle = NULL;
 static dissector_handle_t rrc_t_to_srnc_handle = NULL;
 static dissector_handle_t rrc_ho_to_utran_cmd = NULL;
 
-static int hf_ranap_imsi_digits = -1;
 static int hf_ranap_transportLayerAddress_ipv4 = -1;
 static int hf_ranap_transportLayerAddress_ipv6 = -1;
 static int hf_ranap_transportLayerAddress_nsap = -1;
@@ -1148,7 +1147,7 @@ static int hf_ranap_unsuccessfulOutcome_value = -1;  /* UnsuccessfulOutcome_valu
 static int hf_ranap_value = -1;                   /* T_value */
 
 /*--- End of included file: packet-ranap-hf.c ---*/
-#line 78 "../../asn1/ranap/packet-ranap-template.c"
+#line 77 "../../asn1/ranap/packet-ranap-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_ranap = -1;
@@ -1484,7 +1483,7 @@ static gint ett_ranap_UnsuccessfulOutcome = -1;
 static gint ett_ranap_Outcome = -1;
 
 /*--- End of included file: packet-ranap-ett.c ---*/
-#line 85 "../../asn1/ranap/packet-ranap-template.c"
+#line 84 "../../asn1/ranap/packet-ranap-template.c"
 
 /* Global variables */
 static guint32 ProcedureCode;
@@ -7331,7 +7330,7 @@ dissect_ranap_RRC_Container(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
                                        NO_BOUND, NO_BOUND, FALSE, &rrc_message_tvb);
 
 
-	if ((rrc_message_tvb)&&(tvb_length(rrc_message_tvb)!=0)&&(glbl_dissect_container)){
+	if ((rrc_message_tvb)&&(tvb_reported_length(rrc_message_tvb)!=0)&&(glbl_dissect_container)){
 		switch(ProtocolIE_ID){
 			case id_Source_ToTarget_TransparentContainer: /* INTEGER ::= 61 */
 				/* 9.2.1.30a Source to Target Transparent Container
@@ -7895,7 +7894,7 @@ dissect_ranap_TransportLayerAddress(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
   if (!parameter_tvb)
     return offset;
 	/* Get the length */
-	tvb_len = tvb_length(parameter_tvb);
+	tvb_len = tvb_reported_length(parameter_tvb);
 	subtree = proto_item_add_subtree(actx->created_item, ett_ranap_TransportLayerAddress);
 	if (tvb_len==4){
 		/* IPv4 */
@@ -13069,7 +13068,7 @@ static int dissect_RANAP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, prot
 
 
 /*--- End of included file: packet-ranap-fn.c ---*/
-#line 144 "../../asn1/ranap/packet-ranap-template.c"
+#line 143 "../../asn1/ranap/packet-ranap-template.c"
 
 static int
 dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
@@ -13232,10 +13231,6 @@ void proto_register_ranap(void) {
   /* List of fields */
 
   static hf_register_info hf[] = {
-	{ &hf_ranap_imsi_digits,
-      { "IMSI digits", "ranap.imsi_digits",
-        FT_STRING, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
     { &hf_ranap_transportLayerAddress_ipv4,
       { "transportLayerAddress IPv4", "ranap.transportLayerAddress_ipv4",
         FT_IPv4, BASE_NONE, NULL, 0,
@@ -16119,7 +16114,7 @@ void proto_register_ranap(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-ranap-hfarr.c ---*/
-#line 325 "../../asn1/ranap/packet-ranap-template.c"
+#line 320 "../../asn1/ranap/packet-ranap-template.c"
   };
 
   /* List of subtrees */
@@ -16456,7 +16451,7 @@ void proto_register_ranap(void) {
     &ett_ranap_Outcome,
 
 /*--- End of included file: packet-ranap-ettarr.c ---*/
-#line 333 "../../asn1/ranap/packet-ranap-template.c"
+#line 328 "../../asn1/ranap/packet-ranap-template.c"
   };
 
 
@@ -16839,7 +16834,7 @@ proto_reg_handoff_ranap(void)
 
 
 /*--- End of included file: packet-ranap-dis-tab.c ---*/
-#line 383 "../../asn1/ranap/packet-ranap-template.c"
+#line 378 "../../asn1/ranap/packet-ranap-template.c"
 	} else {
 		dissector_delete_uint("sccp.ssn", local_ranap_sccp_ssn, ranap_handle);
 	}
