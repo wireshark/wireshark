@@ -103,6 +103,18 @@
 #define GRP_IPV4_ADDRESS 2
 #define GRP_IPV6_ADDRESS 3
 
+const range_string mtid_strings[] = {
+  {    0,    0, "Standard topology" },
+  {    1,    1, "IPv4 In-Band Management" },
+  {    2,    2, "IPv6 routing topology" },
+  {    3,    3, "IPv4 multicast routing topology" },
+  {    4,    4, "IPv6 multicast routing topology" },
+  {    5,    5, "IPv6 in-band management" },
+  {    6, 3995, "Reserved for IETF Consensus" },
+  { 3996, 4095, "Development, Experimental and Proprietary features" },
+  {    0,    0, NULL }
+} ;
+
 void proto_register_isis_lsp(void);
 void proto_reg_handoff_isis_lsp(void);
 
@@ -325,38 +337,10 @@ static const true_false_string tfs_external_internal = { "External", "Internal" 
 static void
 dissect_lsp_mt_id(tvbuff_t *tvb, proto_tree *tree, int offset)
 {
-    int  mt_block, mt_id;
-    const char *mt_desc="";
-
-    /* fetch two bytes */
-    mt_block = tvb_get_ntohs(tvb, offset);
 
     proto_tree_add_item(tree, hf_isis_lsp_mt_id_reserved, tvb, offset, 2, ENC_NA);
 
-    mt_id = mt_block & ISIS_LSP_MT_MSHIP_ID_MASK;
-    /*mask out the lower 12 bits */
-    switch(mt_id) {
-    case 0:
-        mt_desc="'standard' topology";
-        break;
-    case 1:
-        mt_desc="IPv4 In-Band Management purposes";
-        break;
-    case 2:
-        mt_desc="IPv6 routing topology";
-        break;
-    case 3:
-        mt_desc="IPv4 multicast routing topology";
-        break;
-    case 4:
-        mt_desc="IPv6 multicast routing topology";
-        break;
-    default:
-        mt_desc=((mt_block & 0x0fff) < 3996) ? "Reserved for IETF Consensus" : "Development, Experimental and Proprietary features";
-    }
-
-    proto_tree_add_uint_format( tree, hf_isis_lsp_mt_id, tvb, offset, 2,
-                         mt_id, "%s (%d)", mt_desc, mt_id);
+    proto_tree_add_item(tree, hf_isis_lsp_mt_id, tvb, offset, 2, ENC_BIG_ENDIAN);
 
 }
 
@@ -3002,8 +2986,8 @@ proto_register_isis_lsp(void)
             NULL, HFILL }
         },
         { &hf_isis_lsp_mt_id,
-            { "MT ID", "isis.lsp.mt_id",
-              FT_UINT16, BASE_DEC, NULL, ISIS_LSP_MT_MSHIP_ID_MASK,
+            { "Topology ID", "isis.lsp.mt_id",
+              FT_UINT16, BASE_DEC|BASE_RANGE_STRING, RVALS(mtid_strings), 0x0fff,
               NULL, HFILL }
         },
         { &hf_isis_lsp_ip_reachability_ipv4_prefix,
@@ -3063,7 +3047,7 @@ proto_register_isis_lsp(void)
         },
         { &hf_isis_lsp_grp_macaddr_topology_id,
             { "Topology ID", "isis.lsp.grp_macaddr.topology_id",
-              FT_UINT16, BASE_DEC, NULL, 0x0fff,
+              FT_UINT16, BASE_DEC|BASE_RANGE_STRING, RVALS(mtid_strings), 0x0fff,
               NULL, HFILL }
         },
         { &hf_isis_lsp_grp_macaddr_vlan_id,
@@ -3098,7 +3082,7 @@ proto_register_isis_lsp(void)
         },
         { &hf_isis_lsp_grp_ipv4addr_topology_id,
             { "Topology ID", "isis.lsp.grp_ipv4addr.topology_id",
-              FT_UINT16, BASE_DEC, NULL, 0x0fff,
+              FT_UINT16, BASE_DEC|BASE_RANGE_STRING, RVALS(mtid_strings), 0x0fff,
               NULL, HFILL }
         },
         { &hf_isis_lsp_grp_ipv4addr_vlan_id,
@@ -3133,7 +3117,7 @@ proto_register_isis_lsp(void)
         },
         { &hf_isis_lsp_grp_ipv6addr_topology_id,
             { "Topology ID", "isis.lsp.grp_ipv6addr.topology_id",
-              FT_UINT16, BASE_DEC, NULL, 0x0fff,
+              FT_UINT16, BASE_DEC|BASE_RANGE_STRING, RVALS(mtid_strings), 0x0fff,
               NULL, HFILL }
         },
         { &hf_isis_lsp_grp_ipv6addr_vlan_id,
@@ -3352,8 +3336,8 @@ proto_register_isis_lsp(void)
               NULL, HFILL }
         },
         { &hf_isis_lsp_mt_cap_mtid,
-            { "MTID", "isis.lsp.mt_cap.mtid",
-              FT_UINT16, BASE_HEX, NULL, 0xfff,
+            { "Topology ID", "isis.lsp.mt_cap.mtid",
+              FT_UINT16, BASE_DEC|BASE_RANGE_STRING, RVALS(mtid_strings), 0x0fff,
               NULL, HFILL }
         },
         { &hf_isis_lsp_eis_neighbors_reserved,
