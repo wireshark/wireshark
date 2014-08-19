@@ -420,11 +420,10 @@ dissect_diameter_3gpp2_exp_res(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 
 /* From RFC 3162 section 2.3 */
 static int
-dissect_diameter_base_framed_ipv6_prefix(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+dissect_diameter_base_framed_ipv6_prefix(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data)
 {
 	diam_sub_dis_t *diam_sub_dis = (diam_sub_dis_t*)data;
 	guint8 prefix_len, prefix_len_bytes;
-	/*diam_sub_dis_t *diam_sub_dis_inf = (diam_sub_dis_t*)data;*/
 
 	proto_tree_add_item(tree, hf_framed_ipv6_prefix_reserved, tvb, 0, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_item(tree, hf_framed_ipv6_prefix_length, tvb, 1, 1, ENC_BIG_ENDIAN);
@@ -437,16 +436,16 @@ dissect_diameter_base_framed_ipv6_prefix(tvbuff_t *tvb, packet_info *pinfo _U_, 
 	proto_tree_add_item(tree, hf_framed_ipv6_prefix_bytes, tvb, 2, prefix_len_bytes, ENC_NA);
 
 	/* If we have a fully IPv6 address, display it as such */
-	if (prefix_len_bytes == 16){
+	if (prefix_len_bytes == 16) {
 		proto_tree_add_item(tree, hf_framed_ipv6_prefix_ipv6, tvb, 2, prefix_len_bytes, ENC_NA);
-	}else{
+	} else {
 		struct e_in6_addr value;
 
 		memset(&value.bytes, 0, sizeof(value));
 		tvb_memcpy(tvb, (guint8 *)&value.bytes, 2, prefix_len_bytes);
 		value.bytes[prefix_len_bytes] = value.bytes[prefix_len_bytes] & (0xff<<(prefix_len % 8));
 		proto_tree_add_ipv6(tree, hf_framed_ipv6_prefix_ipv6, tvb, 2, prefix_len_bytes, value.bytes);
-		diam_sub_dis->avp_str = wmem_strdup_printf(wmem_packet_scope(), "%s/%u", ip6_to_str((const struct e_in6_addr *)&value),prefix_len);
+		diam_sub_dis->avp_str = wmem_strdup_printf(wmem_packet_scope(), "%s/%u", ip6_to_str((const struct e_in6_addr *)&value), prefix_len);
 	}
 
 	return(prefix_len_bytes+2);
@@ -1693,8 +1692,8 @@ dictionary_load(void)
 
 	/* populate the applications */
 	if ((p = d->applications)) {
-        wmem_array_t *arr = wmem_array_new(wmem_epan_scope(), sizeof(value_string));
-        value_string term[1];
+		wmem_array_t *arr = wmem_array_new(wmem_epan_scope(), sizeof(value_string));
+		value_string term[1];
 
 		term[0].value =  0;
 		term[0].strptr = NULL;
@@ -1710,7 +1709,7 @@ dictionary_load(void)
 		wmem_array_sort(arr, compare_avps);
 		wmem_array_append_one(arr,term);
 
-        /* TODO: Remove duplicates */
+		/* TODO: Remove duplicates */
 
 		dictionary.applications = (value_string *)wmem_array_get_raw(arr);
 	}
