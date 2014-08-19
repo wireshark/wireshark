@@ -558,12 +558,16 @@ dissect_usb_hid_report_item(packet_info *pinfo _U_, proto_tree *parent_tree, tvb
 
 /* Dissector for HID "GET DESCRIPTOR" subtype. */
 int
-dissect_usb_hid_get_report_descriptor(packet_info *pinfo _U_, proto_tree *parent_tree, tvbuff_t *tvb, int offset, usb_trans_info_t *usb_trans_info _U_, usb_conv_info_t *usb_conv_info _U_)
+dissect_usb_hid_get_report_descriptor(packet_info *pinfo _U_, proto_tree *parent_tree, tvbuff_t *tvb, int offset, usb_conv_info_t *usb_conv_info)
 {
     proto_item *item=NULL;
     proto_tree *tree=NULL;
     int old_offset=offset;
     struct usb_hid_global_state initial_global;
+    usb_trans_info_t *usb_trans_info;
+
+    usb_trans_info = usb_conv_info->usb_trans_info;
+
     memset(&initial_global, 0, sizeof(struct usb_hid_global_state));
 
     if (parent_tree) {
