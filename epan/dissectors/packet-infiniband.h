@@ -113,6 +113,7 @@ typedef struct {
  */
 struct infinibandinfo {
     guint8 opCode;              /* OpCode from BTH header. */
+    gboolean dctConnect;        /* indicator for DCT connect/disconnect */
 };
 
 #endif

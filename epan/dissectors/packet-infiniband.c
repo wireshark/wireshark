@@ -137,7 +137,7 @@ static void dissect_roce(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static void dissect_infiniband(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static void dissect_infiniband_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean starts_with_grh);
 static void dissect_infiniband_link(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-static gint32 find_next_header_sequence(guint32 OpCode);
+static gint32 find_next_header_sequence(struct infinibandinfo* ibInfo);
 static gboolean contains(guint32 value, guint32* arr, int length);
 static void dissect_general_info(tvbuff_t *tvb, gint offset, packet_info *pinfo, gboolean starts_with_grh);
 
@@ -155,6 +155,7 @@ static void parse_DETH(proto_tree *, packet_info *, tvbuff_t *, gint *offset);
 static void parse_RDETH(proto_tree *, tvbuff_t *, gint *offset);
 static void parse_IPvSix(proto_tree *, tvbuff_t *, gint *offset, packet_info *);
 static void parse_RWH(proto_tree *, tvbuff_t *, gint *offset, packet_info *, proto_tree *);
+static void parse_DCCETH(proto_tree *parentTree, tvbuff_t *tvb, gint *offset);
 static gboolean parse_EoIB(proto_tree *, tvbuff_t *, gint offset, packet_info *, proto_tree *);
 
 static void parse_SUBN_LID_ROUTED(proto_tree *, packet_info *, tvbuff_t *, gint *offset);
@@ -1248,7 +1249,33 @@ static const value_string OpCodeMap[] =
 
 };
 
-
+/* Mellanox DCT has the same opcodes as RD so will use the same RD macros */
+static const value_string DctOpCodeMap[] =
+{
+    { RD_SEND_FIRST,                "DC Send First "},
+    { RD_SEND_MIDDLE,               "DC Send Middle " },
+    { RD_SEND_LAST,                 "DC Send Last "},
+    { RD_SEND_LAST_IMM,             "DC Last Immediate " },
+    { RD_SEND_ONLY,                 "DC Send Only "},
+    { RD_SEND_ONLY_IMM,             "DC Send Only Immediate "},
+    { RD_RDMA_WRITE_FIRST,          "DC RDMA Write First "},
+    { RD_RDMA_WRITE_MIDDLE,         "DC RDMA Write Middle "},
+    { RD_RDMA_WRITE_LAST,           "DC RDMA Write Last "},
+    { RD_RDMA_WRITE_LAST_IMM,       "DC RDMA Write Last Immediate "},
+    { RD_RDMA_WRITE_ONLY,           "DC RDMA Write Only "},
+    { RD_RDMA_WRITE_ONLY_IMM,       "DC RDMA Write Only Immediate "},
+    { RD_RDMA_READ_REQUEST,         "DC RDMA Read Request "},
+    { RD_RDMA_READ_RESPONSE_FIRST,  "DC RDMA Read Response First "},
+    { RD_RDMA_READ_RESPONSE_MIDDLE, "DC RDMA Read Response Middle "},
+    { RD_RDMA_READ_RESPONSE_LAST,   "DC RDMA Read Response Last "},
+    { RD_RDMA_READ_RESPONSE_ONLY,   "DC RDMA Read Response Only "},
+    { RD_ACKNOWLEDGE,               "DC Acknowledge "},
+    { RD_ATOMIC_ACKNOWLEDGE,        "DC Atomic Acknowledge "},
+    { RD_CMP_SWAP,                  "DC Compare Swap "},
+    { RD_FETCH_ADD,                 "DC Fetch Add "},
+    { RD_RESYNC,                    "DC Unknown Opcode "},
+    { 0, NULL}
+};
 
 /* Header Ordering Based on OPCODES
 * These are simply an enumeration of the possible header combinations defined by the IB Spec.
@@ -1300,6 +1327,8 @@ static const value_string OpCodeMap[] =
 #define ATOMICETH                   21
 /* ___________________________________ */
 #define IETH_PAYLD                  22
+/* ___________________________________ */
+#define DCCETH                      23
 /* ___________________________________ */
 
 
@@ -1515,6 +1544,10 @@ dissect_infiniband_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
     /* The Headers Subtree */
     proto_tree *all_headers_tree;
 
+    /* BTH - Base Trasport Header */
+    gboolean dctBthHeader = FALSE;
+    gint bthSize = 12;
+
     /* LRH - Local Route Header */
     proto_item *local_route_header_item;
     proto_tree *local_route_header_tree;
@@ -1526,7 +1559,7 @@ dissect_infiniband_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
 
     /* General Variables */
     gboolean bthFollows = FALSE;    /* Tracks if we are parsing a BTH.  This is a significant decision point */
-    struct infinibandinfo info = { 0, };
+    struct infinibandinfo info = { 0, FALSE};
     gint32 nextHeaderSequence = -1; /* defined by this dissector. #define which indicates the upcoming header sequence from OpCode */
     guint8 nxtHdr = 0;              /* Keyed off for header dissection order */
     guint16 packetLength = 0;       /* Packet Length.  We track this as tvb_length - offset.   */
@@ -1667,14 +1700,27 @@ skip_lrh:
             proto_item *base_transport_header_item;
             proto_tree *base_transport_header_tree;
             bthFollows = TRUE;
-            base_transport_header_item = proto_tree_add_item(all_headers_tree, hf_infiniband_BTH, tvb, offset, 12, ENC_NA);
+            /* Get the OpCode - this tells us what headers are following */
+            info.opCode = tvb_get_guint8(tvb, offset);
+
+            if ((info.opCode >> 5) == 0x2) {
+                info.dctConnect = !(tvb_get_guint8(tvb, offset + 1) & 0x80);
+                dctBthHeader = TRUE;
+                bthSize += 8;
+            }
+
+            base_transport_header_item = proto_tree_add_item(all_headers_tree, hf_infiniband_BTH, tvb, offset, bthSize, ENC_NA);
             proto_item_set_text(base_transport_header_item, "%s", "Base Transport Header");
             base_transport_header_tree = proto_item_add_subtree(base_transport_header_item, ett_bth);
             proto_tree_add_item(base_transport_header_tree, hf_infiniband_opcode,                       tvb, offset, 1, ENC_BIG_ENDIAN);
 
-            /* Get the OpCode - this tells us what headers are following */
-            info.opCode = tvb_get_guint8(tvb, offset);
-            col_append_str(pinfo->cinfo, COL_INFO, val_to_str_const((guint32)info.opCode, OpCodeMap, "Unknown OpCode"));
+            if (dctBthHeader) {
+                /* since DCT uses the same opcodes as RD we will use another name mapping */
+                col_append_str(pinfo->cinfo, COL_INFO, val_to_str_const((guint32)info.opCode, DctOpCodeMap, "Unknown OpCode"));
+            }
+            else {
+                col_append_str(pinfo->cinfo, COL_INFO, val_to_str_const((guint32)info.opCode, OpCodeMap, "Unknown OpCode"));
+            }
             offset += 1;
 
             proto_tree_add_item(base_transport_header_tree, hf_infiniband_solicited_event,              tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1688,9 +1734,8 @@ skip_lrh:
             proto_tree_add_item(base_transport_header_tree, hf_infiniband_acknowledge_request,          tvb, offset, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(base_transport_header_tree, hf_infiniband_reserved7,                    tvb, offset, 1, ENC_BIG_ENDIAN); offset += 1;
             proto_tree_add_item(base_transport_header_tree, hf_infiniband_packet_sequence_number,       tvb, offset, 3, ENC_BIG_ENDIAN); offset += 3;
-
-
-            packetLength -= 12; /* Shave 12 for Base Transport Header */
+            offset += bthSize - 12;
+            packetLength -= bthSize; /* Shave bthSize for Base Transport Header */
         }
             break;
         case IP_NON_IBA:
@@ -1719,7 +1764,7 @@ skip_lrh:
         * The find_next_header_sequence method could be used to automate this.
         * We need to keep track of this so we know much data to mark as payload/ICRC/VCRC values. */
 
-        nextHeaderSequence = find_next_header_sequence((guint32) info.opCode);
+        nextHeaderSequence = find_next_header_sequence(&info);
 
         /* find_next_header_sequence gives us the DEFINE value corresponding to the header order following */
         /* Enumerations are named intuitively, e.g. RDETH DETH PAYLOAD means there is an RDETH Header, DETH Header, and a packet payload */
@@ -1915,6 +1960,13 @@ skip_lrh:
 
                 parse_PAYLOAD(all_headers_tree, pinfo, &info, tvb, &offset, packetLength, tree);
                 break;
+            case DCCETH:
+                parse_DCCETH(all_headers_tree, tvb, &offset);
+                packetLength -= 16; /* DCCETH */
+
+                parse_PAYLOAD(all_headers_tree, pinfo, &info, tvb, &offset, packetLength, tree);
+                break;
+
             default:
                 parse_VENDOR(all_headers_tree, tvb, &offset);
                 break;
@@ -1999,75 +2051,78 @@ dissect_infiniband_link(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 * IN: OpCode: The OpCode from the Base Transport Header.
 * OUT: The Header Sequence enumeration.  See Declarations for #defines from (0-22) */
 static gint32
-find_next_header_sequence(guint32 OpCode)
+find_next_header_sequence(struct infinibandinfo* ibInfo)
 {
-    if (contains(OpCode, &opCode_PAYLD[0], (gint32)array_length(opCode_PAYLD)))
+    if (ibInfo->opCode == 0x55)
+        return ibInfo->dctConnect ? DCCETH : PAYLD;
+
+    if (contains(ibInfo->opCode, &opCode_PAYLD[0], (gint32)array_length(opCode_PAYLD)))
         return PAYLD;
 
-    if (contains(OpCode, &opCode_IMMDT_PAYLD[0], (gint32)array_length(opCode_IMMDT_PAYLD)))
+    if (contains(ibInfo->opCode, &opCode_IMMDT_PAYLD[0], (gint32)array_length(opCode_IMMDT_PAYLD)))
         return IMMDT_PAYLD;
 
-    if (contains(OpCode, &opCode_RDETH_DETH_PAYLD[0], (gint32)array_length(opCode_RDETH_DETH_PAYLD)))
+    if (contains(ibInfo->opCode, &opCode_RDETH_DETH_PAYLD[0], (gint32)array_length(opCode_RDETH_DETH_PAYLD)))
         return RDETH_DETH_PAYLD;
 
-    if (contains(OpCode, &opCode_RETH_PAYLD[0], (gint32)array_length(opCode_RETH_PAYLD)))
+    if (contains(ibInfo->opCode, &opCode_RETH_PAYLD[0], (gint32)array_length(opCode_RETH_PAYLD)))
         return RETH_PAYLD;
 
-    if (contains(OpCode, &opCode_RDETH_AETH_PAYLD[0], (gint32)array_length(opCode_RDETH_AETH_PAYLD)))
+    if (contains(ibInfo->opCode, &opCode_RDETH_AETH_PAYLD[0], (gint32)array_length(opCode_RDETH_AETH_PAYLD)))
         return RDETH_AETH_PAYLD;
 
-    if (contains(OpCode, &opCode_AETH_PAYLD[0], (gint32)array_length(opCode_AETH_PAYLD)))
+    if (contains(ibInfo->opCode, &opCode_AETH_PAYLD[0], (gint32)array_length(opCode_AETH_PAYLD)))
         return AETH_PAYLD;
 
-    if (contains(OpCode, &opCode_RDETH_DETH_IMMDT_PAYLD[0], (gint32)array_length(opCode_RDETH_DETH_IMMDT_PAYLD)))
+    if (contains(ibInfo->opCode, &opCode_RDETH_DETH_IMMDT_PAYLD[0], (gint32)array_length(opCode_RDETH_DETH_IMMDT_PAYLD)))
         return RDETH_DETH_IMMDT_PAYLD;
 
-    if (contains(OpCode, &opCode_RETH_IMMDT_PAYLD[0], (gint32)array_length(opCode_RETH_IMMDT_PAYLD)))
+    if (contains(ibInfo->opCode, &opCode_RETH_IMMDT_PAYLD[0], (gint32)array_length(opCode_RETH_IMMDT_PAYLD)))
         return RETH_IMMDT_PAYLD;
 
-    if (contains(OpCode, &opCode_RDETH_DETH_RETH_PAYLD[0], (gint32)array_length(opCode_RDETH_DETH_RETH_PAYLD)))
+    if (contains(ibInfo->opCode, &opCode_RDETH_DETH_RETH_PAYLD[0], (gint32)array_length(opCode_RDETH_DETH_RETH_PAYLD)))
         return RDETH_DETH_RETH_PAYLD;
 
-    if (contains(OpCode, &opCode_ATOMICETH[0], (gint32)array_length(opCode_ATOMICETH)))
+    if (contains(ibInfo->opCode, &opCode_ATOMICETH[0], (gint32)array_length(opCode_ATOMICETH)))
         return ATOMICETH;
 
-    if (contains(OpCode, &opCode_IETH_PAYLD[0], (gint32)array_length(opCode_IETH_PAYLD)))
+    if (contains(ibInfo->opCode, &opCode_IETH_PAYLD[0], (gint32)array_length(opCode_IETH_PAYLD)))
         return IETH_PAYLD;
 
-    if (contains(OpCode, &opCode_RDETH_DETH_ATOMICETH[0], (gint32)array_length(opCode_RDETH_DETH_ATOMICETH)))
+    if (contains(ibInfo->opCode, &opCode_RDETH_DETH_ATOMICETH[0], (gint32)array_length(opCode_RDETH_DETH_ATOMICETH)))
         return RDETH_DETH_ATOMICETH;
 
-    if ((OpCode ^ RC_ACKNOWLEDGE) == 0)
+    if ((ibInfo->opCode ^ RC_ACKNOWLEDGE) == 0)
         return AETH;
 
-    if ((OpCode ^ RC_RDMA_READ_REQUEST) == 0)
+    if ((ibInfo->opCode ^ RC_RDMA_READ_REQUEST) == 0)
         return RETH;
 
-    if ((OpCode ^ RC_ATOMIC_ACKNOWLEDGE) == 0)
+    if ((ibInfo->opCode ^ RC_ATOMIC_ACKNOWLEDGE) == 0)
         return AETH_ATOMICACKETH;
 
-    if ((OpCode ^ RD_RDMA_READ_RESPONSE_MIDDLE) == 0)
+    if ((ibInfo->opCode ^ RD_RDMA_READ_RESPONSE_MIDDLE) == 0)
         return RDETH_PAYLD;
 
-    if ((OpCode ^ RD_ACKNOWLEDGE) == 0)
+    if ((ibInfo->opCode ^ RD_ACKNOWLEDGE) == 0)
         return RDETH_AETH;
 
-    if ((OpCode ^ RD_ATOMIC_ACKNOWLEDGE) == 0)
+    if ((ibInfo->opCode ^ RD_ATOMIC_ACKNOWLEDGE) == 0)
         return RDETH_AETH_ATOMICACKETH;
 
-    if ((OpCode ^ RD_RDMA_WRITE_ONLY_IMM) == 0)
+    if ((ibInfo->opCode ^ RD_RDMA_WRITE_ONLY_IMM) == 0)
         return RDETH_DETH_RETH_IMMDT_PAYLD;
 
-    if ((OpCode ^ RD_RDMA_READ_REQUEST) == 0)
+    if ((ibInfo->opCode ^ RD_RDMA_READ_REQUEST) == 0)
         return RDETH_DETH_RETH;
 
-    if ((OpCode ^ RD_RESYNC) == 0)
+    if ((ibInfo->opCode ^ RD_RESYNC) == 0)
         return RDETH_DETH;
 
-    if ((OpCode ^ UD_SEND_ONLY) == 0)
+    if ((ibInfo->opCode ^ UD_SEND_ONLY) == 0)
         return DETH_PAYLD;
 
-    if ((OpCode ^ UD_SEND_ONLY_IMM) == 0)
+    if ((ibInfo->opCode ^ UD_SEND_ONLY_IMM) == 0)
         return DETH_IMMDT_PAYLD;
 
     return -1;
@@ -2134,6 +2189,18 @@ parse_DETH(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *tvb, gint *offs
     pinfo->srcport = tvb_get_ntoh24(tvb, local_offset); local_offset += 3;
 
     *offset = local_offset;
+}
+
+/* Parse DETH - DC Connected Extended Transport Header
+* IN: parentTree to add the dissection to - in this code the all_headers_tree
+* IN: dctConnect - True if this is a DCT-Connect packet.
+* IN: tvb - the data buffer from wireshark
+* IN/OUT: The current and updated offset  */
+static void
+parse_DCCETH(proto_tree *parentTree _U_, tvbuff_t *tvb _U_, gint *offset)
+{
+    /* Do nothing just skip the header size */
+    *offset += 16;
 }
 
 /* Parse RETH - RDMA Extended Transport Header
@@ -4848,7 +4915,6 @@ static void dissect_general_info(tvbuff_t *tvb, gint offset, packet_info *pinfo,
     guint8            lnh_val            = 0; /* The Link Next Header Value.  Tells us which headers are coming */
     gboolean          bthFollows         = FALSE; /* Tracks if we are parsing a BTH.  This is a significant decision point */
     guint8            virtualLane        = 0; /* The Virtual Lane of the current Packet */
-    guint8            opCode             = 0; /* OpCode from BTH header. */
     gint32            nextHeaderSequence = -1; /* defined by this dissector. #define which indicates the upcoming header sequence from OpCode */
     guint8            nxtHdr             = 0; /* that must be available for that header. */
     struct e_in6_addr SRCgid;   /* Struct to display ipv6 Address */
@@ -4856,6 +4922,9 @@ static void dissect_general_info(tvbuff_t *tvb, gint offset, packet_info *pinfo,
     guint8            management_class   = 0;
     MAD_Data          MadData;
 
+    /* BTH - Base Trasport Header */
+    struct infinibandinfo info = { 0, FALSE};
+    gint bthSize = 12;
     void *src_addr,                 /* the address to be displayed in the source/destination columns */
          *dst_addr;                 /* (lid/gid number) will be stored here */
 
@@ -4929,9 +4998,13 @@ skip_lrh:
             bthFollows = TRUE;
 
             /* Get the OpCode - this tells us what headers are following */
-            opCode = tvb_get_guint8(tvb, offset);
-            col_append_str(pinfo->cinfo, COL_INFO, val_to_str_const((guint32)opCode, OpCodeMap, "Unknown OpCode"));
-            offset += 12;
+            info.opCode = tvb_get_guint8(tvb, offset);
+            if ((info.opCode >> 5) == 0x2) {
+                info.dctConnect = !(tvb_get_guint8(tvb, offset + 1) & 0x80);
+                bthSize += 8;
+            }
+            col_append_str(pinfo->cinfo, COL_INFO, val_to_str_const(info.opCode, OpCodeMap, "Unknown OpCode"));
+            offset += bthSize;
             break;
         case IP_NON_IBA:
             /* Raw IPv6 Packet */
@@ -4949,7 +5022,7 @@ skip_lrh:
         /* Find our next header sequence based on the Opcode
          * Since we're not doing dissection here, we just need the proper offsets to get our labels in packet view */
 
-        nextHeaderSequence = find_next_header_sequence((guint32) opCode);
+        nextHeaderSequence = find_next_header_sequence(&info);
         switch (nextHeaderSequence)
         {
             case RDETH_DETH_PAYLD:
@@ -5039,6 +5112,9 @@ skip_lrh:
             case DETH_IMMDT_PAYLD:
                 offset += 8; /* DETH */
                 offset += 4; /* IMMDT */
+                break;
+            case DCCETH:
+                offset += 16; //* DCCETH */
                 break;
             default:
                 break;
