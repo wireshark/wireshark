@@ -2055,35 +2055,37 @@ dissect_usb_setup_get_descriptor_response(packet_info *pinfo, proto_tree *tree,
         val_to_str_ext(usb_trans_info->u.get_descriptor.type, &std_descriptor_type_vals_ext, "Unknown type %u"));
 
     switch(usb_trans_info->u.get_descriptor.type) {
-    case USB_DT_INTERFACE:
-    case USB_DT_ENDPOINT:
-        /* an interface or an endpoint descriptor can only be accessed
-           as part of a configuration descriptor */
-        break;
-    case USB_DT_DEVICE:
-        offset = dissect_usb_device_descriptor(pinfo, tree, tvb, offset, usb_conv_info);
-        break;
-    case USB_DT_CONFIG:
-        offset = dissect_usb_configuration_descriptor(pinfo, tree, tvb, offset, usb_conv_info);
-        break;
-    case USB_DT_STRING:
-        offset = dissect_usb_string_descriptor(pinfo, tree, tvb, offset, usb_conv_info);
-        break;
-    case USB_DT_DEVICE_QUALIFIER:
-        offset = dissect_usb_device_qualifier_descriptor(pinfo, tree, tvb, offset, usb_conv_info);
-        break;
-    case USB_DT_RPIPE:
-        if (usb_conv_info->interfaceClass == IF_CLASS_HID ||
-            usb_conv_info->interfaceClass == IF_CLASS_UNKNOWN) {
+        case USB_DT_INTERFACE:
+        case USB_DT_ENDPOINT:
+            /* an interface or an endpoint descriptor can only be accessed
+               as part of a configuration descriptor */
+            break;
+        case USB_DT_DEVICE:
+            offset = dissect_usb_device_descriptor(pinfo, tree, tvb, offset, usb_conv_info);
+            break;
+        case USB_DT_CONFIG:
+            offset = dissect_usb_configuration_descriptor(pinfo, tree, tvb, offset, usb_conv_info);
+            break;
+        case USB_DT_STRING:
+            offset = dissect_usb_string_descriptor(pinfo, tree, tvb, offset, usb_conv_info);
+            break;
+        case USB_DT_DEVICE_QUALIFIER:
+            offset = dissect_usb_device_qualifier_descriptor(pinfo, tree, tvb, offset, usb_conv_info);
+            break;
+        case USB_DT_RPIPE:
+            if (usb_conv_info->interfaceClass == IF_CLASS_HID ||
+                    usb_conv_info->interfaceClass == IF_CLASS_UNKNOWN) {
                 offset = dissect_usb_hid_get_report_descriptor(pinfo, tree, tvb, offset, usb_conv_info);
                 break;
-        }
-        /* else fall through as default/unknown */
-    default:
-        /* XXX dissect the descriptor coming back from the device */
-        proto_tree_add_text(tree, tvb, offset, -1, "GET DESCRIPTOR data (unknown descriptor type %u)", usb_trans_info->u.get_descriptor.type);
-        offset = tvb_reported_length(tvb);
-        break;
+            }
+            /* else fall through as default/unknown */
+        default:
+            /* XXX dissect the descriptor coming back from the device */
+            proto_tree_add_text(tree, tvb, offset, -1,
+                    "GET DESCRIPTOR data (unknown descriptor type %u)",
+                    usb_trans_info->u.get_descriptor.type);
+            offset = tvb_reported_length(tvb);
+            break;
     }
 
     return offset;
