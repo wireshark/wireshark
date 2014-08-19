@@ -2053,6 +2053,11 @@ dissect_usb_setup_get_descriptor_response(packet_info *pinfo, proto_tree *tree,
         val_to_str_ext(usb_trans_info->u.get_descriptor.type, &std_descriptor_type_vals_ext, "Unknown type %u"));
 
     switch(usb_trans_info->u.get_descriptor.type) {
+    case USB_DT_INTERFACE:
+    case USB_DT_ENDPOINT:
+        /* an interface or an endpoint descriptor can only be accessed
+           as part of a configuration descriptor */
+        break;
     case USB_DT_DEVICE:
         offset = dissect_usb_device_descriptor(pinfo, tree, tvb, offset, usb_trans_info, usb_conv_info);
         break;
@@ -2061,12 +2066,6 @@ dissect_usb_setup_get_descriptor_response(packet_info *pinfo, proto_tree *tree,
         break;
     case USB_DT_STRING:
         offset = dissect_usb_string_descriptor(pinfo, tree, tvb, offset, usb_trans_info, usb_conv_info);
-        break;
-    case USB_DT_INTERFACE:
-        offset = dissect_usb_interface_descriptor(pinfo, tree, tvb, offset, usb_trans_info, usb_conv_info);
-        break;
-    case USB_DT_ENDPOINT:
-        offset = dissect_usb_endpoint_descriptor(pinfo, tree, tvb, offset, usb_trans_info, usb_conv_info);
         break;
     case USB_DT_DEVICE_QUALIFIER:
         offset = dissect_usb_device_qualifier_descriptor(pinfo, tree, tvb, offset, usb_trans_info, usb_conv_info);
