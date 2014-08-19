@@ -52,7 +52,6 @@ static int hf_trmac_errors_freq = -1;
 static int hf_trmac_errors_token = -1;
 static int hf_trmac_naun = -1;
 static int hf_trmac_beacon_type = -1;
-/* Generated from convert_proto_tree_add_text.pl */
 static int hf_trmac_assign_physical_drop_number = -1;
 static int hf_trmac_error_code = -1;
 static int hf_trmac_group_address32 = -1;
@@ -192,8 +191,7 @@ sv_text(tvbuff_t *tvb, int svoff, packet_info *pinfo, proto_tree *tree)
 				break;
 			}
 			beacon_type = tvb_get_ntohs(tvb, svoff+2);
-			proto_tree_add_uint_format_value(sv_tree, hf_trmac_beacon_type, tvb, svoff+2, sv_length-2,
-					beacon_type, "%s", val_to_str(beacon_type, beacon_vs, "Illegal value: %d"));
+			proto_tree_add_item(sv_tree, hf_trmac_beacon_type, tvb, svoff+2, sv_length-2, ENC_BIG_ENDIAN);
 			proto_item_append_text(sv_item,
 					": %s", val_to_str(beacon_type, beacon_vs, "Illegal value: %d"));
 			break;
@@ -241,9 +239,9 @@ sv_text(tvbuff_t *tvb, int svoff, packet_info *pinfo, proto_tree *tree)
 
 			error_report_timer_value = 10 * tvb_get_ntohs(tvb, svoff+2);
 			proto_tree_add_uint_format_value(sv_tree, hf_trmac_error_report_timer_value, tvb, svoff+2, sv_length-2,
-											error_report_timer_value, "%d ms", error_report_timer_value );
+											error_report_timer_value, "%u ms", error_report_timer_value );
 			proto_item_append_text(sv_item,
-				": %d ms", error_report_timer_value );
+				": %u ms", error_report_timer_value );
 			break;
 
 		case 0x06: /* Authorized Function Classes */
@@ -604,24 +602,66 @@ proto_register_trmac(void)
 		{ "Beacon Type",			"trmac.beacon_type", FT_UINT16, BASE_DEC, VALS(beacon_vs), 0x0,
 			NULL, HFILL }},
 
-		/* Generated from convert_proto_tree_add_text.pl */
-		{ &hf_trmac_local_ring_number, { "Local Ring Number", "trmac.local_ring_number", FT_UINT16, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL }},
-		{ &hf_trmac_assign_physical_drop_number, { "Assign Physical Drop Number", "trmac.assign_physical_drop_number", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-		{ &hf_trmac_error_report_timer_value, { "Error Report Timer Value", "trmac.error_report_timer_value", FT_INT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-		{ &hf_trmac_authorized_function_classes, { "Authorized Function Classes", "trmac.authorized_function_classes", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-		{ &hf_trmac_authorized_access_priority, { "Authorized Access Priority", "trmac.authorized_access_priority", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-		{ &hf_trmac_correlator, { "Correlator", "trmac.correlator", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-		{ &hf_trmac_sa_of_last_amp_or_smp_frame, { "SA of Last AMP or SMP Frame", "trmac.sa_of_last_amp_or_smp_frame", FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-		{ &hf_trmac_physical_drop_number, { "Physical Drop Number", "trmac.physical_drop_number", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-		{ &hf_trmac_individual_address_count, { "Individual Address Count", "trmac.individual_address_count", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-		{ &hf_trmac_station_identifier, { "Station Identifier", "trmac.station_identifier", FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-		{ &hf_trmac_transmit_status_code, { "Transmit Status Code", "trmac.transmit_status_code", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-		{ &hf_trmac_group_address32, { "Group Address", "trmac.group_address", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-		{ &hf_trmac_group_address_ether, { "Group Address", "trmac.group_address", FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-		{ &hf_trmac_functional_addresses, { "Functional Addresses", "trmac.functional_addresses", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-		{ &hf_trmac_error_code, { "Error Code", "trmac.error_code", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+		{ &hf_trmac_local_ring_number,
+		{ "Local Ring Number",			"trmac.local_ring_number", FT_UINT16, BASE_HEX_DEC, NULL, 0x0,
+			NULL, HFILL }},
 
-		};
+		{ &hf_trmac_assign_physical_drop_number,
+		{ "Assign Physical Drop Number",	"trmac.assign_physical_drop_number", FT_UINT32, BASE_HEX, NULL, 0x0,
+			NULL, HFILL }},
+
+		{ &hf_trmac_error_report_timer_value,
+		{ "Error Report Timer Value",		"trmac.error_report_timer_value", FT_UINT16, BASE_DEC, NULL, 0x0,
+			NULL, HFILL }},
+
+		{ &hf_trmac_authorized_function_classes,
+		{ "Authorized Function Classes",	"trmac.authorized_function_classes", FT_UINT16, BASE_HEX, NULL, 0x0,
+			NULL, HFILL }},
+
+		{ &hf_trmac_authorized_access_priority,
+		{ "Authorized Access Priority",		"trmac.authorized_access_priority", FT_UINT16, BASE_HEX, NULL, 0x0,
+			NULL, HFILL }},
+
+		{ &hf_trmac_correlator,
+		{ "Correlator",				"trmac.correlator", FT_UINT16, BASE_HEX, NULL, 0x0,
+			NULL, HFILL }},
+
+		{ &hf_trmac_sa_of_last_amp_or_smp_frame,
+		{ "SA of Last AMP or SMP Frame",	"trmac.sa_of_last_amp_or_smp_frame", FT_ETHER, BASE_NONE, NULL, 0x0,
+			NULL, HFILL }},
+
+		{ &hf_trmac_physical_drop_number,
+		{ "Physical Drop Number",		"trmac.physical_drop_number", FT_UINT32, BASE_HEX, NULL, 0x0,
+			NULL, HFILL }},
+
+		{ &hf_trmac_individual_address_count,
+		{ "Individual Address Count",		"trmac.individual_address_count", FT_UINT16, BASE_DEC, NULL, 0x0,
+			NULL, HFILL }},
+
+		{ &hf_trmac_station_identifier,
+		{ "Station Identifier",			"trmac.station_identifier", FT_ETHER, BASE_NONE, NULL, 0x0,
+			NULL, HFILL }},
+
+		{ &hf_trmac_transmit_status_code,
+		{ "Transmit Status Code",		"trmac.transmit_status_code", FT_UINT16, BASE_HEX, NULL, 0x0,
+			NULL, HFILL }},
+
+		{ &hf_trmac_group_address32,
+		{ "Group Address",			"trmac.group_address", FT_UINT32, BASE_HEX, NULL, 0x0,
+			NULL, HFILL }},
+
+		{ &hf_trmac_group_address_ether,
+		{ "Group Address",			"trmac.group_address", FT_ETHER, BASE_NONE, NULL, 0x0,
+			NULL, HFILL }},
+
+		{ &hf_trmac_functional_addresses,
+		{ "Functional Addresses",		"trmac.functional_addresses", FT_UINT32, BASE_HEX, NULL, 0x0,
+			NULL, HFILL }},
+
+		{ &hf_trmac_error_code,
+		{ "Error Code",				"trmac.error_code", FT_UINT16, BASE_HEX, NULL, 0x0,
+			NULL, HFILL }},
+	};
 	static gint *ett[] = {
 		&ett_tr_mac,
 		&ett_tr_sv,
