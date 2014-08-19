@@ -105,6 +105,14 @@ static int hf_isis_hello_mcid = -1;
 static int hf_isis_hello_is_neighbor = -1;
 static int hf_isis_hello_mtid = -1;
 static int hf_isis_hello_checksum = -1;
+static int hf_isis_hello_trill_neighbor_sf = -1;
+static int hf_isis_hello_trill_neighbor_lf = -1;
+static int hf_isis_hello_trill_neighbor_ff = -1;
+static int hf_isis_hello_trill_neighbor_of = -1;
+static int hf_isis_hello_trill_neighbor_size = -1;
+static int hf_isis_hello_trill_neighbor_reserved = -1;
+static int hf_isis_hello_trill_neighbor_mtu = -1;
+static int hf_isis_hello_trill_neighbor_snpa = -1;
 static int hf_isis_hello_neighbor_extended_local_circuit_id = -1;
 
 static gint ett_isis_hello = -1;
@@ -523,11 +531,39 @@ dissect_hello_ip_authentication_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
  * Name: dissect_hello_trill_neighbor_clv
  */
 static void
-dissect_hello_trill_neighbor_clv(tvbuff_t *tvb _U_, packet_info* pinfo _U_,
-        proto_tree *tree _U_, int offset _U_, int id_length _U_, int length _U_) {
+dissect_hello_trill_neighbor_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
+        proto_tree *tree, int offset, int id_length _U_, int length) {
 
-    /* TODO Implement dissector according to RFC7176 section 2.5 */
+    guint8 size = (tvb_get_guint8(tvb, offset)) & 0x1f;
 
+    if(size==0)
+        size=6;
+
+    proto_tree_add_item(tree, hf_isis_hello_trill_neighbor_sf, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_isis_hello_trill_neighbor_lf, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_isis_hello_trill_neighbor_size, tvb, offset, 1, ENC_NA);
+
+    offset++;
+    length--;
+
+    while(length>=(size+3)) {
+        proto_tree_add_item(tree, hf_isis_hello_trill_neighbor_ff, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(tree, hf_isis_hello_trill_neighbor_of, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(tree, hf_isis_hello_trill_neighbor_reserved, tvb, offset, 1, ENC_NA);
+
+        offset++;
+        length--;
+
+        proto_tree_add_item(tree, hf_isis_hello_trill_neighbor_mtu, tvb, offset, 2, ENC_BIG_ENDIAN);
+
+        offset += 2;
+        length -= 2;
+
+        proto_tree_add_item(tree, hf_isis_hello_trill_neighbor_snpa, tvb, offset, 6, ENC_NA);
+
+        offset += 6;
+        length -= 6;
+    }
 }
 
 /*
@@ -1168,6 +1204,14 @@ proto_register_isis_hello(void)
       { &hf_isis_hello_aux_mcid, { "Aux MCID", "isis.hello.aux_mcid", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_isis_hello_digest, { "Digest", "isis.hello.digest", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_isis_hello_mtid, { "Topology ID", "isis.hello.mtid", FT_UINT16, BASE_DEC|BASE_RANGE_STRING, RVALS(mtid_strings), 0xfff, NULL, HFILL }},
+      { &hf_isis_hello_trill_neighbor_sf, { "Smallest flag", "isis.hello.trill_neighbor.sf", FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x80, NULL, HFILL }},
+      { &hf_isis_hello_trill_neighbor_lf, { "Largest flag", "isis.hello.trill_neighbor.lf", FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x40, NULL, HFILL }},
+      { &hf_isis_hello_trill_neighbor_size, { "SNPA Size", "isis.hello.trill_neighbor.size", FT_UINT8, BASE_DEC, NULL, 0x1f, NULL, HFILL }},
+      { &hf_isis_hello_trill_neighbor_ff, { "Failed flag", "isis.hello.trill_neighbor.ff", FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x80, NULL, HFILL }},
+      { &hf_isis_hello_trill_neighbor_of, { "OOMF flag", "isis.hello.trill_neighbor.of", FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x40, NULL, HFILL }},
+      { &hf_isis_hello_trill_neighbor_reserved, { "Reserved", "isis.hello.trill_neighbor.reserved", FT_UINT8, BASE_DEC, NULL, 0x3f, NULL, HFILL }},
+      { &hf_isis_hello_trill_neighbor_mtu, { "Tested MTU", "isis.hello.trill_neighbor.mtu", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_isis_hello_trill_neighbor_snpa, { "SNPA", "isis.hello.trill_neighbor.snpa", FT_SYSTEM_ID, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_isis_hello_checksum, { "Checksum", "isis.hello.checksum", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
       { &hf_isis_hello_adjacency_state, { "Adjacency State", "isis.hello.adjacency_state", FT_UINT8, BASE_DEC, VALS(adj_state_vals), 0x0, NULL, HFILL }},
       { &hf_isis_hello_extended_local_circuit_id, { "Extended Local circuit ID", "isis.hello.extended_local_circuit_id", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
