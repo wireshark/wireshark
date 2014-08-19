@@ -1285,7 +1285,6 @@ proto_item * dissect_usb_descriptor_header(proto_tree *tree,
 static int
 dissect_usb_device_qualifier_descriptor(packet_info *pinfo _U_, proto_tree *parent_tree,
                                         tvbuff_t *tvb, int offset,
-                                        usb_trans_info_t *usb_trans_info _U_,
                                         usb_conv_info_t  *usb_conv_info)
 {
     proto_item *item;
@@ -1368,7 +1367,6 @@ dissect_usb_device_qualifier_descriptor(packet_info *pinfo _U_, proto_tree *pare
 static int
 dissect_usb_device_descriptor(packet_info *pinfo, proto_tree *parent_tree,
                               tvbuff_t *tvb, int offset,
-                              usb_trans_info_t *usb_trans_info _U_,
                               usb_conv_info_t *usb_conv_info)
 {
     proto_item        *item;
@@ -1502,14 +1500,16 @@ dissect_usb_device_descriptor(packet_info *pinfo, proto_tree *parent_tree,
 static int
 dissect_usb_string_descriptor(packet_info *pinfo _U_, proto_tree *parent_tree,
                               tvbuff_t *tvb, int offset,
-                              usb_trans_info_t *usb_trans_info,
-                              usb_conv_info_t  *usb_conv_info _U_)
+                              usb_conv_info_t  *usb_conv_info)
 {
     proto_item *item;
     proto_tree *tree;
     int         old_offset = offset;
     guint8      len;
     proto_item *len_item;
+    usb_trans_info_t *usb_trans_info;
+
+    usb_trans_info = usb_conv_info->usb_trans_info;
 
     tree = proto_tree_add_subtree(parent_tree, tvb, offset, -1, ett_descriptor_device, &item, "STRING DESCRIPTOR");
 
@@ -1889,7 +1889,6 @@ static const true_false_string tfs_remotewakeup = {
 static int
 dissect_usb_configuration_descriptor(packet_info *pinfo _U_, proto_tree *parent_tree,
                                      tvbuff_t *tvb, int offset,
-                                     usb_trans_info_t *usb_trans_info,
                                      usb_conv_info_t  *usb_conv_info)
 {
     proto_item *item;
@@ -1902,6 +1901,9 @@ dissect_usb_configuration_descriptor(packet_info *pinfo _U_, proto_tree *parent_
     proto_item *power_item;
     guint8      power;
     gboolean    truncation_expected;
+    usb_trans_info_t *usb_trans_info;
+
+    usb_trans_info = usb_conv_info->usb_trans_info;
 
     usb_conv_info->interfaceClass    = IF_CLASS_UNKNOWN;
     usb_conv_info->interfaceSubclass = IF_SUBCLASS_UNKNOWN;
@@ -2059,16 +2061,16 @@ dissect_usb_setup_get_descriptor_response(packet_info *pinfo, proto_tree *tree,
            as part of a configuration descriptor */
         break;
     case USB_DT_DEVICE:
-        offset = dissect_usb_device_descriptor(pinfo, tree, tvb, offset, usb_trans_info, usb_conv_info);
+        offset = dissect_usb_device_descriptor(pinfo, tree, tvb, offset, usb_conv_info);
         break;
     case USB_DT_CONFIG:
-        offset = dissect_usb_configuration_descriptor(pinfo, tree, tvb, offset, usb_trans_info, usb_conv_info);
+        offset = dissect_usb_configuration_descriptor(pinfo, tree, tvb, offset, usb_conv_info);
         break;
     case USB_DT_STRING:
-        offset = dissect_usb_string_descriptor(pinfo, tree, tvb, offset, usb_trans_info, usb_conv_info);
+        offset = dissect_usb_string_descriptor(pinfo, tree, tvb, offset, usb_conv_info);
         break;
     case USB_DT_DEVICE_QUALIFIER:
-        offset = dissect_usb_device_qualifier_descriptor(pinfo, tree, tvb, offset, usb_trans_info, usb_conv_info);
+        offset = dissect_usb_device_qualifier_descriptor(pinfo, tree, tvb, offset, usb_conv_info);
         break;
     case USB_DT_RPIPE:
         if (usb_conv_info->interfaceClass == IF_CLASS_HID ||
