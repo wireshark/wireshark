@@ -80,9 +80,9 @@ foreach ($src_file in Get-ChildItem $SourceFiles) {
         $dst_file += ".txt"
     }
 
-    $src_modtime = (Get-ItemProperty -Path $src_file).LastWriteTime
+    $src_modtime = (Get-Item $src_file).LastWriteTime
 
-    if (-not (Test-Path $dst_file) -or (Test-Path $dst_file -OlderThan $src_modtime)) {
+    if (-not (Test-Path $dst_file) -or ((Get-Item $dst_file).LastWriteTime -lt $src_modtime)) {
         $contents = Get-Content $src_file
         [System.IO.File]::WriteAllLines($dst_file, $contents, $no_bom_encoding)
         Write-Host "Textified $src_file to $dst_file"
