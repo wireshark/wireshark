@@ -2563,11 +2563,12 @@ try_dissect_next_protocol(proto_tree *tree, proto_tree *parent, tvbuff_t *next_t
     guint32                  k_bus_id;
     usb_trans_info_t        *usb_trans_info;
     heur_dtbl_entry_t       *hdtbl_entry;
-    heur_dissector_list_t    heur_subdissector_list;
-    dissector_table_t        usb_dissector_table;
+    heur_dissector_list_t    heur_subdissector_list = NULL;
+    dissector_table_t        usb_dissector_table = NULL;
     proto_item              *sub_item;
     device_product_data_t   *device_product_data;
     device_protocol_data_t  *device_protocol_data;
+    guint8                   ctrl_recip;
 
     if (tvb_captured_length(next_tvb) == 0)
         return 0;
@@ -2628,29 +2629,41 @@ try_dissect_next_protocol(proto_tree *tree, proto_tree *parent, tvbuff_t *next_t
             break;
 
         case URB_CONTROL:
-            heur_subdissector_list = heur_control_subdissector_list;
-            usb_dissector_table = usb_control_dissector_table;
-
             usb_trans_info = usb_conv_info->usb_trans_info;
             if (!usb_trans_info)
                 break;
 
-            if (USB_TYPE(usb_trans_info->setup.requesttype) != RQT_SETUP_TYPE_CLASS)
+            /* for standard control requests and responses, there's no
+               need to query dissector tables */
+            if (USB_TYPE(usb_trans_info->setup.requesttype) == RQT_SETUP_TYPE_STANDARD)
                 break;
 
-            /* we have a class-specific control message */
+            ctrl_recip = USB_RECIPIENT(usb_trans_info->setup.requesttype);
 
-            if (USB_RECIPIENT(usb_trans_info->setup.requesttype) == RQT_SETUP_RECIPIENT_INTERFACE) {
+            if (ctrl_recip == RQT_SETUP_RECIPIENT_DEVICE) {
+                /* a non-standard control message addressed to a device
+                   this is not supported (I don't think it's used
+                   anywhere) */
+                break;
+            }
+            else if (ctrl_recip == RQT_SETUP_RECIPIENT_INTERFACE) {
                 guint8 interface_num = usb_trans_info->setup.wIndex & 0xff;
+
+                heur_subdissector_list = heur_control_subdissector_list;
+                usb_dissector_table = usb_control_dissector_table;
 
                 usb_conv_info = get_usb_iface_conv_info(pinfo, interface_num);
                 usb_conv_info->usb_trans_info = usb_trans_info;
-            } else if (USB_RECIPIENT(usb_trans_info->setup.requesttype) == RQT_SETUP_RECIPIENT_ENDPOINT) {
+            }
+            else if (ctrl_recip == RQT_SETUP_RECIPIENT_ENDPOINT) {
                 static address        endpoint_addr;
                 gint                  endpoint;
                 static usb_address_t  src_addr, dst_addr; /* has to be static due to SET_ADDRESS */
                 guint32               src_endpoint, dst_endpoint;
                 conversation_t       *conversation;
+
+                heur_subdissector_list = heur_control_subdissector_list;
+                usb_dissector_table = usb_control_dissector_table;
 
                 endpoint = usb_trans_info->setup.wIndex & 0x0f;
 
@@ -2673,6 +2686,13 @@ try_dissect_next_protocol(proto_tree *tree, proto_tree *parent, tvbuff_t *next_t
 
                 usb_conv_info = get_usb_conv_info(conversation);
                 usb_conv_info->usb_trans_info = usb_trans_info;
+                
+            }
+            else {
+                /* the recipient is "other" or "reserved"
+                   it makes no sense to set usb_dissector_table since there's no way for
+                   us to link this message to a device class */
+                heur_subdissector_list = heur_control_subdissector_list;
             }
 
             usb_tap_queue_packet(pinfo, urb_type, usb_conv_info);
@@ -2681,8 +2701,7 @@ try_dissect_next_protocol(proto_tree *tree, proto_tree *parent, tvbuff_t *next_t
             break;
 
         default:
-            heur_subdissector_list = NULL;
-            usb_dissector_table = NULL;
+            break;
     }
 
     if (try_heuristics) {
