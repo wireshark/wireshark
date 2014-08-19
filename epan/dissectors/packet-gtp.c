@@ -3207,10 +3207,10 @@ decode_gtp_cause(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree
 static int
 decode_gtp_imsi(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree)
 {
-    const gchar *imsi_str;
+    /* const gchar *imsi_str; */
 
     /* Octets 2 - 9 IMSI */
-    imsi_str =  dissect_e212_imsi(tvb, pinfo, tree,  offset+1, 8, FALSE);
+    /* imsi_str = */ dissect_e212_imsi(tvb, pinfo, tree,  offset+1, 8, FALSE);
 
     return 9;
 }
