@@ -140,6 +140,7 @@ typedef struct _usb_tap_data_t {
 #define URB_INTERRUPT     0x1
 #define URB_CONTROL       0x2
 #define URB_BULK          0x3
+#define URB_UNKNOWN       0xFF
 
 #define URB_TRANSFER_IN   0x80		/* to host */
 

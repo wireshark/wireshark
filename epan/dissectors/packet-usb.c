@@ -1066,6 +1066,38 @@ get_usb_conv_info(conversation_t *conversation)
     return usb_conv_info;
 }
 
+
+/* usb_conv_info_t contains some components that are valid only for one specific packet
+   clear_usb_conv_tmp_data() clears these components, it should be called
+   before we dissect a new packet */
+void clear_usb_conv_tmp_data(usb_conv_info_t *usb_conv_info)
+{
+    /* caller must have checked that usb_conv_info!= NULL */
+
+    usb_conv_info->direction = P2P_DIR_UNKNOWN;
+    usb_conv_info->transfer_type = URB_UNKNOWN;
+    usb_conv_info->is_request = FALSE;
+    usb_conv_info->is_setup = FALSE;
+    usb_conv_info->setup_requesttype = 0;
+
+    /* when we parse the configuration, interface and endpoint
+       descriptors, we store the current interface class in endpoint 0's
+       conversation
+
+       this must be cleared since endpoint 0 does not belong to any
+       interface class
+
+       we used to clear these info in dissect_usb_configuration_descriptor()
+       this doesn't work when the descriptor parsing throws an exception */
+
+    if (usb_conv_info->endpoint==0) {
+        usb_conv_info->interfaceClass    = IF_CLASS_UNKNOWN;
+        usb_conv_info->interfaceSubclass = IF_SUBCLASS_UNKNOWN;
+        usb_conv_info->interfaceProtocol = IF_PROTOCOL_UNKNOWN;
+    }
+}
+
+ 
 conversation_t *
 get_usb_conversation(packet_info *pinfo,
                      address *src_addr, address *dst_addr,
@@ -3289,6 +3321,8 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
 
     conversation = get_usb_conversation(pinfo, &pinfo->src, &pinfo->dst, pinfo->srcport, pinfo->destport);
     usb_conv_info = get_usb_conv_info(conversation);
+    clear_usb_conv_tmp_data(usb_conv_info);
+
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "USB");
     urb_tree_ti = proto_tree_add_protocol_format(parent, proto_usb, tvb, 0, -1, "USB URB");
