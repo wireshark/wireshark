@@ -3267,7 +3267,6 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
 {
     gint                  offset = 0;
     int                   endpoint;
-    gint                  type_2 = 0;
     guint8                urb_type;
     guint32               win32_data_len = 0;
     proto_item           *urb_tree_ti;
@@ -3285,6 +3284,7 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
     guint32                  k_frame_number;
     guint32                  k_device_address;
     guint32                  k_bus_id;
+    guint8                   usbpcap_control_stage = 0;
 
 
     /* the goal is to get the conversation struct as early as possible
@@ -3352,10 +3352,6 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
             break;
 
     case URB_CONTROL:
-        {
-        proto_tree *setup_tree = NULL;
-        guint8      usbpcap_control_stage = 0;
-
         if (header_info & USB_HEADER_IS_USBPCAP) {
             proto_tree_add_item(tree, hf_usb_control_stage, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             usbpcap_control_stage = tvb_get_guint8(tvb, offset);
@@ -3366,22 +3362,22 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
         }
 
         if (usb_conv_info->is_request) {
-            /* this is a request */
-
-            tvbuff_t *setup_tvb = NULL;
+            proto_tree *setup_tree = NULL;
+            tvbuff_t   *setup_tvb = NULL;
+            gint        req_type = 0;
 
             if (usb_conv_info->is_setup) {
 
-                type_2 = USB_TYPE(tvb_get_guint8(tvb, offset));
+                req_type = USB_TYPE(tvb_get_guint8(tvb, offset));
 
                 /* Dissect the setup header - it's applicable */
                 offset = dissect_usb_setup_request(pinfo, parent, tvb, offset, usb_conv_info, &setup_tree);
 
-                if (type_2 != RQT_SETUP_TYPE_CLASS) {
+                if (req_type != RQT_SETUP_TYPE_CLASS) {
                     usb_tap_queue_packet(pinfo, urb_type, usb_conv_info);
                 }
 
-                if ((type_2 != RQT_SETUP_TYPE_STANDARD) &&
+                if ((req_type != RQT_SETUP_TYPE_STANDARD) &&
                     (header_info & (USB_HEADER_IS_LINUX | USB_HEADER_IS_64_BYTES))) {
 
                     setup_tvb = tvb_new_composite();
@@ -3406,7 +3402,7 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
                 offset = dissect_linux_usb_pseudo_header_ext(tvb, offset, pinfo, tree);
             }
 
-            if (type_2 != RQT_SETUP_TYPE_STANDARD) {
+            if (req_type != RQT_SETUP_TYPE_STANDARD) {
                 if (setup_tvb) {
                     if (tvb_captured_length_remaining(tvb, offset) != 0) {
                         next_tvb = tvb_new_subset_remaining(tvb, offset);
@@ -3459,7 +3455,6 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
 
             offset = dissect_usb_setup_response(pinfo, tree, parent, tvb, offset,
                                                 urb_type, usb_conv_info);
-        }
         }
         break;
     case URB_ISOCHRONOUS:
