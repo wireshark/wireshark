@@ -1768,6 +1768,7 @@ dissect_usb_endpoint_descriptor(packet_info *pinfo, proto_tree *parent_tree,
             conversation = get_usb_conversation(pinfo, &pinfo->src, &tmp_addr, pinfo->srcport, usb_addr.endpoint);
         }
 
+        usb_trans_info->interface_info->endpoint = endpoint;
         conversation_add_proto_data(conversation, proto_usb, usb_trans_info->interface_info);
     }
 
