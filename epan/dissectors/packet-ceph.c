@@ -642,11 +642,10 @@ static gint ett_connect                    = -1;
 static gint ett_connect_reply              = -1;
 static gint ett_filter_data                = -1;
 
-static const guint8 *C_BANNER = (const guint8*)"ceph";
+static const guint8 *C_BANNER = (const guint8*)"ceph v";
 enum c_banner {
 	C_BANNER_SIZE     = 9,
-	C_BANNER_SIZE_MIN = 4,
-	C_BANNER_SIZE_MAX = 30
+	C_BANNER_SIZE_MIN = 6
 };
 
 /** Feature Flags */
@@ -5330,6 +5329,7 @@ guint c_dissect_msg(proto_tree *tree,
 enum c_sizes_connect {
 	C_SIZE_CONNECT = 33,
 	C_SIZE_CONNECT_REPLY = 25,
+	C_CONNECT_REPLY_OFF_OFFLEN = 20,
 	C_SIZE_HELLO_S = 2*C_SIZE_ENTITY_ADDR,
 	C_SIZE_HELLO_C = C_SIZE_ENTITY_ADDR + C_SIZE_CONNECT,
 	C_HELLO_OFF_AUTHLEN = C_SIZE_ENTITY_ADDR + 28
@@ -5414,7 +5414,7 @@ guint c_dissect_connect_reply(proto_tree *root,
 	proto_tree *tree;
 	guint32 authsize;
 
-	authsize = tvb_get_letohl(tvb, off+20);
+	authsize = tvb_get_letohl(tvb, off+C_CONNECT_REPLY_OFF_OFFLEN);
 
 	c_set_type(data, "Connect Reply");
 
@@ -5462,15 +5462,15 @@ guint c_dissect_new(proto_tree *tree,
 		all in safely.
 	*/
 #ifdef G_STATIC_ASSERT
-	G_STATIC_ASSERT(C_BANNER_SIZE_MAX+1 <= C_BANNER_SIZE_MIN+C_SIZE_HELLO_C);
-	G_STATIC_ASSERT(C_BANNER_SIZE_MAX+1 <= C_BANNER_SIZE_MIN+C_SIZE_HELLO_S);
+	G_STATIC_ASSERT(C_BANNER_SIZE+1 <= C_BANNER_SIZE_MIN+C_SIZE_HELLO_C);
+	G_STATIC_ASSERT(C_BANNER_SIZE+1 <= C_BANNER_SIZE_MIN+C_SIZE_HELLO_S);
 #endif
 
 	if (tvb_memeql(tvb, off, C_BANNER, C_BANNER_SIZE_MIN) != 0)
 		return C_INVALID;
 
-	bansize = tvb_strnlen(tvb, off, C_BANNER_SIZE_MAX+1);
-	if (bansize == -1)
+	bansize = tvb_strnlen(tvb, off, C_BANNER_SIZE+1);
+	if (bansize != C_BANNER_SIZE) /* Note -1 != C_BANNER_SIZE */
 		return C_INVALID;
 
 	proto_tree_add_item(tree, hf_banner, tvb, off, bansize, ENC_ASCII|ENC_NA);
@@ -5667,7 +5667,7 @@ guint c_pdu_end(tvbuff_t *tvb, guint off, c_pkt_data *data)
 	case C_STATE_NEW:
 		if (c_from_client(data))
 		{
-			if (!tvb_bytes_exist(tvb, off, C_BANNER_SIZE+C_HELLO_OFF_AUTHLEN))
+			if (!tvb_bytes_exist(tvb, off+C_BANNER_SIZE+C_HELLO_OFF_AUTHLEN, 4))
 				return C_NEEDMORE;
 			return off + C_BANNER_SIZE + C_SIZE_HELLO_C
 			           + tvb_get_letohl(tvb, off+C_BANNER_SIZE+C_HELLO_OFF_AUTHLEN);
@@ -5687,9 +5687,15 @@ guint c_pdu_end(tvbuff_t *tvb, guint off, c_pkt_data *data)
 		case C_TAG_BADPROTOVER:
 		case C_TAG_BADAUTHORIZER:
 		case C_TAG_FEATURES:
-			return off + C_SIZE_CONNECT_REPLY;
+			if (!tvb_bytes_exist(tvb, off+C_CONNECT_REPLY_OFF_OFFLEN, 4))
+				return C_NEEDMORE;
+			return off + C_SIZE_CONNECT_REPLY
+			           + tvb_get_letohl(tvb, off+C_CONNECT_REPLY_OFF_OFFLEN);
 		case C_TAG_SEQ:
-			return off + C_SIZE_CONNECT_REPLY + 8;
+			if (!tvb_bytes_exist(tvb, off+C_CONNECT_REPLY_OFF_OFFLEN, 4))
+				return C_NEEDMORE;
+			return off + C_SIZE_CONNECT_REPLY + 8
+			           + tvb_get_letohl(tvb, off+C_CONNECT_REPLY_OFF_OFFLEN);
 		case C_TAG_CLOSE:
 			return off;
 			break;
@@ -5697,7 +5703,7 @@ guint c_pdu_end(tvbuff_t *tvb, guint off, c_pkt_data *data)
 		{
 			guint32 front_len, middle_len, data_len;
 
-			if (!tvb_bytes_exist(tvb, off, C_OFF_HEAD1 + C_SIZE_HEAD1))
+			if (!tvb_bytes_exist(tvb, off+C_OFF_HEAD1, C_SIZE_HEAD1))
 				return C_NEEDMORE;
 
 			front_len  = tvb_get_letohl(tvb, off + C_OFF_HEAD1 + 0);
