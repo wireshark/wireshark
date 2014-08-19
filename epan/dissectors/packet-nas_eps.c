@@ -94,7 +94,6 @@ static int hf_nas_eps_tsc = -1;
 static int hf_nas_eps_emm_odd_even = -1;
 static int hf_nas_eps_emm_type_of_id = -1;
 static int hf_nas_eps_emm_mme_grp_id = -1;
-static int hf_nas_eps_emm_imsi = -1;
 static int hf_nas_eps_emm_imei = -1;
 static int hf_nas_eps_emm_mme_code = -1;
 static int hf_nas_eps_emm_m_tmsi = -1;
@@ -1041,7 +1040,7 @@ de_emm_eps_mid(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
         case 1:
             /* IMSI */
             new_tvb = tvb_new_subset_length(tvb, curr_offset, len);
-			dissect_e212_imsi(new_tvb, pinfo, tree,  0, len, TRUE);
+            dissect_e212_imsi(new_tvb, pinfo, tree,  0, len, TRUE);
             break;
         case 3:
             /* IMEI */
@@ -5172,11 +5171,6 @@ proto_register_nas_eps(void)
         { "MME Group ID","nas_eps.emm.mme_grp_id",
         FT_UINT16, BASE_DEC, NULL, 0x0,
         NULL, HFILL }
-    },
-    { &hf_nas_eps_emm_imsi,
-        { "IMSI", "nas_eps.emm.imsi",
-          FT_STRING, BASE_NONE, NULL, 0,
-          NULL, HFILL }
     },
     { &hf_nas_eps_emm_imei,
         { "IMEI", "nas_eps.emm.imei",
