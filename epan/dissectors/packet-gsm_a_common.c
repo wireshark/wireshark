@@ -557,7 +557,6 @@ int gsm_a_tap = -1;
 
 int hf_gsm_a_common_elem_id = -1;
 static int hf_gsm_a_l_ext = -1;
-static int hf_gsm_a_imsi = -1;
 int hf_gsm_a_tmsi = -1;
 static int hf_gsm_a_imei = -1;
 static int hf_gsm_a_imeisv = -1;
@@ -585,6 +584,7 @@ static int hf_gsm_a_A5_3_algorithm_sup = -1;
 static int hf_gsm_a_A5_2_algorithm_sup = -1;
 
 static int hf_gsm_a_odd_even_ind = -1;
+static int hf_gsm_a_id_dig_1 = -1;
 static int hf_gsm_a_unused = -1;
 static int hf_gsm_a_mobile_identity_type = -1;
 static int hf_gsm_a_tmgi_mcc_mnc_ind = -1;
@@ -2217,27 +2217,23 @@ de_mid(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guin
         /* FALLTHRU */
 
     case 1: /* IMSI */
-        other_decode_bitfield_value(a_bigbuf, oct, 0xf0, 8);
-        proto_tree_add_text(tree,
-            tvb, curr_offset, 1,
-            "%s = Identity Digit 1: %c",
-            a_bigbuf,
-            Dgt1_9_bcd.out[(oct & 0xf0) >> 4]);
-
         odd = oct & 0x08;
-
+        proto_tree_add_item(tree, hf_gsm_a_id_dig_1, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(tree, hf_gsm_a_odd_even_ind, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-
         proto_tree_add_item(tree, hf_gsm_a_mobile_identity_type, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
-        digit_str = tvb_bcd_dig_to_wmem_packet_str(tvb ,curr_offset , len - (curr_offset - offset), NULL, TRUE);
-
-        proto_tree_add_string_format(tree,
-            ((oct & 0x07) == 3) ? hf_gsm_a_imeisv : hf_gsm_a_imsi,
-            tvb, curr_offset, len - (curr_offset - offset),
-            digit_str,
-            "BCD Digits: %s",
-            digit_str);
+        if((oct & 0x07) == 3){
+            /* imeisv */
+            digit_str = tvb_bcd_dig_to_wmem_packet_str(tvb ,curr_offset , len - (curr_offset - offset), NULL, TRUE);
+            proto_tree_add_string_format(tree,
+                hf_gsm_a_imeisv,
+                tvb, curr_offset, len - (curr_offset - offset),
+                digit_str,
+                "BCD Digits: %s",
+                digit_str);
+        }else{
+            digit_str = dissect_e212_imsi(tvb, pinfo, tree,  curr_offset, len - (curr_offset - offset), TRUE);
+        }
 
         if (sccp_assoc && ! sccp_assoc->calling_party) {
             sccp_assoc->calling_party = wmem_strdup_printf(wmem_file_scope(),
@@ -3603,11 +3599,6 @@ proto_register_gsm_a_common(void)
         FT_UINT8, BASE_DEC, NULL, 0x80,
         NULL, HFILL }
     },
-    { &hf_gsm_a_imsi,
-        { "IMSI",   "gsm_a.imsi",
-        FT_STRING, BASE_NONE, 0, 0,
-        NULL, HFILL }
-    },
     { &hf_gsm_a_tmsi,
         { "TMSI/P-TMSI",    "gsm_a.tmsi",
         FT_UINT32, BASE_HEX, 0, 0x0,
@@ -3731,6 +3722,11 @@ proto_register_gsm_a_common(void)
     { &hf_gsm_a_mobile_identity_type,
         { "Mobile Identity Type", "gsm_a.ie.mobileid.type",
         FT_UINT8, BASE_DEC, VALS(mobile_identity_type_vals), 0x07,
+        NULL, HFILL }
+    },
+    { &hf_gsm_a_id_dig_1,
+        { "Identity Digit 1", "gsm_a.id_dig_1",
+        FT_UINT8, BASE_DEC, NULL, 0xf0,
         NULL, HFILL }
     },
     { &hf_gsm_a_odd_even_ind,

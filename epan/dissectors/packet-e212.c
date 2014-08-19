@@ -2799,7 +2799,7 @@ dissect_e212_imsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offse
 
     subtree = proto_item_add_subtree(item, ett_e212_imsi);
 
-    dissect_e212_mcc_mnc_in_address(tvb, pinfo, subtree, 0);
+    dissect_e212_mcc_mnc_in_address(tvb, pinfo, subtree, offset);
 
     return imsi_str;
 }
