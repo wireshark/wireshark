@@ -2729,22 +2729,17 @@ dissect_usb_setup_response(packet_info *pinfo, proto_tree *tree,
                            proto_tree *parent, tvbuff_t *tvb, int offset,
                            guint8 urb_type, usb_conv_info_t *usb_conv_info)
 {
-
     tvbuff_t *next_tvb = NULL;
-    gint length_remaining;
-    gint new_offset;
+    gint      length_remaining;
+    gint      new_offset;
 
-    if (usb_conv_info->usb_trans_info) {
-        switch (USB_TYPE(usb_conv_info->usb_trans_info->setup.requesttype)) {
-
-        case RQT_SETUP_TYPE_STANDARD:
-            /* This is a standard response */
-            offset = dissect_usb_standard_setup_response(pinfo, parent, tvb,
-                                                         offset, usb_conv_info);
-            break;
-        default:
+    if (usb_conv_info && usb_conv_info->usb_trans_info) {
+        if (USB_TYPE(usb_conv_info->usb_trans_info->setup.requesttype) == RQT_SETUP_TYPE_STANDARD) {
+            offset = dissect_usb_standard_setup_response(pinfo, parent, tvb, offset, usb_conv_info);
+        }
+        else {
             /* Try to find a non-standard specific dissector */
-            if (tvb_reported_length_remaining(tvb, offset) != 0) {
+            if (tvb_reported_length_remaining(tvb, offset) > 0) {
                 next_tvb = tvb_new_subset_remaining(tvb, offset);
                 new_offset = try_dissect_next_protocol(tree, parent, next_tvb, offset, pinfo, usb_conv_info, urb_type);
                 if (new_offset > offset)
@@ -2752,24 +2747,22 @@ dissect_usb_setup_response(packet_info *pinfo, proto_tree *tree,
             }
 
             length_remaining = tvb_reported_length_remaining(tvb, offset);
-            if (length_remaining != 0) {
+            if (length_remaining > 0) {
                 proto_tree_add_item(parent, hf_usb_control_response_generic,
-                                    tvb, offset, length_remaining, ENC_NA);
+                        tvb, offset, length_remaining, ENC_NA);
                 offset += length_remaining;
             }
-            break;
         }
-
-    } else {
+    }
+    else {
         /* no matching request available */
         length_remaining = tvb_reported_length_remaining(tvb, offset);
-        if (length_remaining != 0) {
+        if (length_remaining > 0) {
             proto_tree_add_item(parent, hf_usb_control_response_generic, tvb,
-                                offset, length_remaining, ENC_NA);
+                    offset, length_remaining, ENC_NA);
             offset += length_remaining;
         }
-     }
-
+    }
 
     return offset;
 }
