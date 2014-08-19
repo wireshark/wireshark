@@ -2818,7 +2818,7 @@ proto_register_e212(void)
 /* Setup list of header fields  See Section 1.6.1 for details */
     static hf_register_info hf[] = {
     { &hf_E212_imsi,
-        { "IMSI","e212.mcc",
+        { "IMSI","e212.imsi",
         FT_STRING, BASE_NONE, NULL, 0x0,
         "International mobile subscriber identity(IMSI)", HFILL }
     },
