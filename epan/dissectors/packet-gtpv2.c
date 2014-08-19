@@ -164,7 +164,6 @@ static int hf_gtpv2_gre_key = -1;
 static int hf_gtpv2_sgw_addr_ipv4 = -1;
 static int hf_gtpv2_sgw_addr_ipv6 = -1;
 static int hf_gtpv2_sgw_s1u_teid = -1;
-static int hf_gtpv2_imsi= -1;
 static int hf_gtpv2_ipv4_addr = -1;
 
 
@@ -878,12 +877,10 @@ dissect_gtpv2_imsi(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, prot
     const gchar *imsi_str;
 
     /* Fetch the BCD encoded digits from tvb low half byte, formating the digits according to
-     * a default digit set of 0-9 returning "?" for overdecadic digits a pointer to the EP
+     * a default digit set of 0-9 returning "?" for overdecadic digits a pointer to the wmem
      * allocated string will be returned.
      */
-    imsi_str = tvb_bcd_dig_to_wmem_packet_str( tvb, offset, length, NULL, FALSE);
-
-    proto_tree_add_string(tree, hf_gtpv2_imsi, tvb, offset, length, imsi_str);
+    imsi_str =  dissect_e212_imsi(tvb, pinfo, tree,  offset, length, FALSE);
     proto_item_append_text(item, "%s", imsi_str);
 
 }
@@ -2070,7 +2067,7 @@ dissect_diameter_3gpp_uli(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     guint length;
     guint flags;
     guint flags_3gpp;
-    length       = tvb_length(tvb);
+    length       = tvb_reported_length(tvb);
     flags_3gpp   = tvb_get_guint8(tvb, offset);
 
     proto_tree_add_item(tree, hf_gtpv2_glt, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -5399,11 +5396,6 @@ void proto_register_gtpv2(void)
           {"Instance", "gtpv2.instance",
            FT_UINT8, BASE_DEC, NULL, 0x0f,
            NULL, HFILL}
-        },
-        {&hf_gtpv2_imsi,
-         {"IMSI(International Mobile Subscriber Identity number)", "gtpv2.imsi",
-          FT_STRING, BASE_NONE, NULL, 0,
-          NULL, HFILL}
         },
         { &hf_gtpv2_ipv4_addr,
           {"IPv4 Address", "gtpv2.ipv4_addr",
