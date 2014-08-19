@@ -85,9 +85,7 @@ static int hf_gsm_map_currentPassword = -1;
 static int hf_gsm_map_extension = -1;
 static int hf_gsm_map_nature_of_number = -1;
 static int hf_gsm_map_number_plan = -1;
-static int hf_gsm_map_isdn_address_digits = -1;
 static int hf_gsm_map_address_digits = -1;
-static int hf_gsm_map_servicecentreaddress_digits = -1;
 static int hf_gsm_map_TBCD_digits = -1;
 static int hf_gsm_map_Ss_Status_unused = -1;
 static int hf_gsm_map_Ss_Status_q_bit = -1;
@@ -116,11 +114,9 @@ static int hf_gsm_map_qos_transfer_delay = -1;
 static int hf_gsm_map_guaranteed_max_brate_ulink = -1;
 static int hf_gsm_map_guaranteed_max_brate_dlink = -1;
 static int hf_gsm_map_GSNAddress_IPv4 = -1;
-static int hf_gsm_map_GSNAddress_IPv6 = -1;
 static int hf_gsm_map_ranap_service_Handover = -1;
 static int hf_gsm_map_IntegrityProtectionInformation = -1;
 static int hf_gsm_map_EncryptionInformation = -1;
-static int hf_gsm_map_PlmnContainer_PDU = -1;
 static int hf_gsm_map_ss_SS_UserData = -1;
 static int hf_gsm_map_cbs_coding_grp = -1;
 static int hf_gsm_map_cbs_coding_grp0_lang = -1;
@@ -1372,7 +1368,7 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
         proto_tree_add_expert_format(tree, actx->pinfo, &ei_gsm_map_unknown_invokeData,
                                      tvb, offset, -1, "Unknown invokeData %d", opcode);
     }
-    offset+= tvb_length_remaining(tvb,offset);
+    offset+= tvb_reported_length_remaining(tvb,offset);
     break;
   }
   return offset;
@@ -1682,7 +1678,7 @@ static int dissect_returnResultData(proto_tree *tree, tvbuff_t *tvb, int offset,
         proto_tree_add_expert_format(tree, actx->pinfo, &ei_gsm_map_unknown_invokeData,
                                      tvb, offset, -1, "Unknown returnResultData %d", opcode);
    }
-   offset+= tvb_length_remaining(tvb,offset);
+   offset+= tvb_reported_length_remaining(tvb,offset);
    break;
   }
   return offset;
@@ -1845,7 +1841,7 @@ static int dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, int offset, 
         proto_tree_add_expert_format(tree, actx->pinfo, &ei_gsm_map_unknown_invokeData,
                                      tvb, offset, -1, "Unknown returnErrorData %d", opcode);
     }
-    offset+= tvb_length_remaining(tvb,offset);
+    offset+= tvb_reported_length_remaining(tvb,offset);
     break;
   }
   return offset;
@@ -2622,16 +2618,8 @@ void proto_register_gsm_map(void) {
         { "Number plan", "gsm_map.number_plan",
           FT_UINT8, BASE_HEX|BASE_EXT_STRING, &gsm_map_number_plan_values_ext, 0x0f,
           NULL, HFILL }},
-      { &hf_gsm_map_isdn_address_digits,
-        { "ISDN Address digits", "gsm_map.isdn.address.digits",
-          FT_STRING, BASE_NONE, NULL, 0,
-          NULL, HFILL }},
       { &hf_gsm_map_address_digits,
         { "Address digits", "gsm_map.address.digits",
-          FT_STRING, BASE_NONE, NULL, 0,
-          NULL, HFILL }},
-      { &hf_gsm_map_servicecentreaddress_digits,
-        { "ServiceCentreAddress digits", "gsm_map.servicecentreaddress_digits",
           FT_STRING, BASE_NONE, NULL, 0,
           NULL, HFILL }},
       { &hf_gsm_map_TBCD_digits,
@@ -2743,10 +2731,6 @@ void proto_register_gsm_map(void) {
         { "GSN-Address IPv4",  "gsm_map.gsnaddress_ipv4",
           FT_IPv4, BASE_NONE, NULL, 0,
           "IPAddress IPv4", HFILL }},
-      { &hf_gsm_map_GSNAddress_IPv6,
-        { "GSN Address IPv6",  "gsm_map.gsnaddress_ipv6",
-          FT_IPv4, BASE_NONE, NULL, 0,
-          "IPAddress IPv6", HFILL }},
       { &hf_gsm_map_ranap_service_Handover,
         { "service-Handover", "gsm_map.ranap.service_Handover",
           FT_UINT32, BASE_DEC, VALS(ranap_Service_Handover_vals), 0,
@@ -2759,10 +2743,6 @@ void proto_register_gsm_map(void) {
         { "EncryptionInformation", "gsm_map.ranap.EncryptionInformation",
           FT_NONE, BASE_NONE, NULL, 0,
           "gsm_map.ranap.EncryptionInformation", HFILL }},
-      { &hf_gsm_map_PlmnContainer_PDU,
-        { "PlmnContainer", "gsm_map.PlmnContainer",
-          FT_NONE, BASE_NONE, NULL, 0,
-          "gsm_map.PlmnContainer", HFILL }},
       { &hf_gsm_map_ss_SS_UserData,
         { "SS-UserData", "gsm_ss.SS_UserData",
           FT_STRING, BASE_NONE, NULL, 0,

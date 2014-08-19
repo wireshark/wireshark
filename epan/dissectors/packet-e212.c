@@ -2532,8 +2532,11 @@ static value_string_ext mcc_mnc_codes_ext = VALUE_STRING_EXT_INIT(mcc_mnc_codes)
 
 
 static int proto_e212   = -1;
+static int hf_E212_imsi = -1;
 static int hf_E212_mcc  = -1;
 static int hf_E212_mnc  = -1;
+
+static int ett_e212_imsi = -1;
 
 static expert_field ei_E212_mcc_non_decimal = EI_INIT;
 static expert_field ei_E212_mnc_non_decimal = EI_INIT;
@@ -2780,6 +2783,26 @@ dissect_e212_mcc_mnc_in_address(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
         return 5;
 }
 
+const gchar *
+dissect_e212_imsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int length, gboolean skip_first)
+{
+    proto_item *item;
+    proto_tree *subtree;
+    const gchar *imsi_str;
+
+    /* Fetch the BCD encoded digits from tvb indicated half byte, formating the digits according to
+     * a default digit set of 0-9 returning "?" for overdecadic digits a pointer to the wmem
+     * allocated string will be returned.
+     */
+    imsi_str = tvb_bcd_dig_to_wmem_packet_str( tvb, offset, length, NULL, skip_first);
+    item = proto_tree_add_string(tree, hf_E212_imsi, tvb, offset, length, imsi_str);
+
+    subtree = proto_item_add_subtree(item, ett_e212_imsi);
+
+    dissect_e212_mcc_mnc_in_address(tvb, pinfo, subtree, 0);
+
+    return imsi_str;
+}
 /*
  * Register the protocol with Wireshark.
  *
@@ -2794,6 +2817,11 @@ proto_register_e212(void)
 
 /* Setup list of header fields  See Section 1.6.1 for details */
     static hf_register_info hf[] = {
+    { &hf_E212_imsi,
+        { "IMSI","e212.mcc",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        "International mobile subscriber identity(IMSI)", HFILL }
+    },
     { &hf_E212_mcc,
         { "Mobile Country Code (MCC)","e212.mcc",
         FT_UINT16, BASE_DEC|BASE_EXT_STRING, &E212_codes_ext, 0x0,
@@ -2810,6 +2838,11 @@ proto_register_e212(void)
         FT_STRING, BASE_NONE, NULL, 0,
         "Mobile Subscriber Identification Number(MSIN)", HFILL }},
 #endif
+    };
+
+
+    static gint *ett_e212_array[] = {
+        &ett_e212_imsi,
     };
 
     static ei_register_info ei[] = {
@@ -2832,6 +2865,7 @@ proto_register_e212(void)
      * the header fields and subtrees used.
      */
     proto_register_field_array(proto_e212, hf, array_length(hf));
+    proto_register_subtree_array(ett_e212_array, array_length(ett_e212_array));
     expert_e212 = expert_register_protocol(proto_e212);
     expert_register_field_array(expert_e212, ei, array_length(ei));
 
