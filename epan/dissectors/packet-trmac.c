@@ -240,7 +240,7 @@ sv_text(tvbuff_t *tvb, int svoff, packet_info *pinfo, proto_tree *tree)
 
 			error_report_timer_value = 10 * tvb_get_ntohs(tvb, svoff+2);
 			proto_tree_add_uint_format_value(sv_tree, hf_trmac_error_report_timer_value, tvb, svoff+2, sv_length-2,
-											error_report_timer_value, "%d ms", error_report_timer_value );
+											error_report_timer_value, "%u ms", error_report_timer_value );
 			proto_item_append_text(sv_item,
 				": %d ms", error_report_timer_value );
 			break;
@@ -606,7 +606,7 @@ proto_register_trmac(void)
 		/* Generated from convert_proto_tree_add_text.pl */
 		{ &hf_trmac_local_ring_number, { "Local Ring Number", "trmac.local_ring_number", FT_UINT16, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL }},
 		{ &hf_trmac_assign_physical_drop_number, { "Assign Physical Drop Number", "trmac.assign_physical_drop_number", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-		{ &hf_trmac_error_report_timer_value, { "Error Report Timer Value", "trmac.error_report_timer_value", FT_INT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_trmac_error_report_timer_value, { "Error Report Timer Value", "trmac.error_report_timer_value", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 		{ &hf_trmac_authorized_function_classes, { "Authorized Function Classes", "trmac.authorized_function_classes", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 		{ &hf_trmac_authorized_access_priority, { "Authorized Access Priority", "trmac.authorized_access_priority", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 		{ &hf_trmac_correlator, { "Correlator", "trmac.correlator", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
