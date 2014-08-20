@@ -552,17 +552,12 @@ isis_dissect_clvs(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offse
             opts[q].dissect(tvb, pinfo, clv_tree, offset,
                 id_length, length);
         } else {
-#if 0 /* XXX: Left as commented out in case info about "unknown code" is ever to be displayed under a sub-tree */
             clv_tree = proto_tree_add_subtree_format(tree, tvb, offset - 2,
-                    length + 2, unknown_tree_id, NULL, "Unknown code %u (%u)",
+                    length + 2, unknown_tree_id, NULL, "Unknown code (t=%u, l=%u)",
                     code, length);
-#else
-            if (tree) {
-                proto_tree_add_text(tree, tvb, offset - 2,
-                    length + 2, "Unknown code %u (%u)",
-                    code, length);
-            }
-#endif
+            proto_tree_add_item(clv_tree, tree_type, tvb, offset - 2, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(clv_tree, tree_length, tvb, offset - 1, 1, ENC_BIG_ENDIAN);
+            /* Add value with data display ? */
         }
         offset += length;
         len -= length;
