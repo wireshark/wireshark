@@ -948,6 +948,7 @@ static int hf_9P_lock_start = -1;
 static int hf_9P_lock_length = -1;
 static int hf_9P_lock_procid = -1;
 static int hf_9P_lock_status = -1;
+static int hf_9P_unknown_message = -1;
 
 /*handle for dissecting data in 9P msgs*/
 static dissector_handle_t data_handle;
@@ -1368,7 +1369,7 @@ static int dissect_9P_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 		}
 		offset += _9p_dissect_string(tvb, ninep_tree, offset, hf_9P_aname, ett_9P_aname);
 
-		if (_9p_version == _9P2000_u) {
+		if (_9p_version == _9P2000_u || _9p_version == _9P2000_L) {
 			proto_tree_add_item(ninep_tree, hf_9P_uid, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 			offset += 4;
 		}
@@ -2148,7 +2149,11 @@ static int dissect_9P_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 		expert_add_info(pinfo, msg_item, &ei_9P_msgtype);
 		break;
 	}
-	DISSECTOR_ASSERT(tvb_captured_length(tvb) == offset);
+
+	/* Show any extra data at the end of the message (but only
+	   if it was captured) */
+	if (offset != tvb_captured_length(tvb))
+		proto_tree_add_item(ninep_tree, hf_9P_unknown_message, tvb, offset, -1, ENC_NA);
 	return tvb_captured_length(tvb);
 }
 
@@ -2729,7 +2734,10 @@ void proto_register_9P(void)
 		  "Lock procid", HFILL}},
 		{&hf_9P_lock_status,
 		 {"lock_status", "9p.lock.status", FT_UINT8, BASE_HEX | BASE_EXT_STRING, &ninep_lock_status_ext, 0x0,
-		  "Lock status", HFILL}}
+		  "Lock status", HFILL}},
+		{&hf_9P_unknown_message,
+		 {"Message data", "9p.message_data", FT_BYTES, BASE_NONE, NULL, 0x0,
+		  NULL, HFILL}}
 	};
 
 	static gint *ett[] = {
