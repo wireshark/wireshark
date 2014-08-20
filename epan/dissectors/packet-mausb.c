@@ -832,7 +832,6 @@ static guint8 mausb_get_size_ep_des(tvbuff_t *tvb, gint offset)
 static guint16 dissect_mausb_mgmt_pkt_ep_handle( proto_tree *tree, tvbuff_t *tvb,
             packet_info *pinfo, gint16 start, gboolean req, gboolean del)
 {
-    usb_trans_info_t usb_trans_info;
     usb_conv_info_t usb_conv_info;
     proto_item *size_field = NULL;
     guint16 offset = start;
@@ -841,7 +840,6 @@ static guint16 dissect_mausb_mgmt_pkt_ep_handle( proto_tree *tree, tvbuff_t *tvb
     guint8 size_ep_des;
     int i;
 
-    memset(&usb_trans_info, 0, sizeof(usb_trans_info_t));
     memset(&usb_conv_info,  0, sizeof(usb_conv_info_t));
 
     num_ep = tvb_get_guint8(tvb, offset) & MAUSB_MGMT_NUM_EP_DES_MASK;
@@ -901,13 +899,13 @@ static guint16 dissect_mausb_mgmt_pkt_ep_handle( proto_tree *tree, tvbuff_t *tvb
             if (MAUSB_EP_DES_SIZE < size_ep_des) {
                 /* TODO: Dissector for SS EP Companion Descriptors */
                 dissect_usb_unknown_descriptor(pinfo, tree,
-                        tvb, loop_offset, &usb_trans_info, &usb_conv_info);
+                        tvb, loop_offset, &usb_conv_info);
                 loop_offset += USB_DT_SS_EP_COMP_SIZE;
 
                 if (MAUSB_SS_EP_DES_SIZE < size_ep_des) {
                     /* TODO: Dissector for SSP ISO EP Companion Descriptors */
                     loop_offset += dissect_usb_unknown_descriptor(pinfo, tree,
-                            tvb, loop_offset, &usb_trans_info, &usb_conv_info);
+                            tvb, loop_offset, &usb_conv_info);
 
                     /* Pad to a DWORD */
                     proto_tree_add_item(tree, hf_mausb_ep_handle_req_pad, tvb,
