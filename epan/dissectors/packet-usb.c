@@ -1558,16 +1558,18 @@ dissect_usb_string_descriptor(packet_info *pinfo _U_, proto_tree *parent_tree,
 static int
 dissect_usb_interface_descriptor(packet_info *pinfo, proto_tree *parent_tree,
                                  tvbuff_t *tvb, int offset,
-                                 usb_trans_info_t *usb_trans_info,
                                  usb_conv_info_t  *usb_conv_info)
 {
-    proto_item *item;
-    proto_tree *tree;
-    const char *class_str  = NULL;
-    int         old_offset = offset;
-    guint8      len;
-    guint8      interface_num;
-    guint8      alt_setting;
+    proto_item       *item;
+    proto_tree       *tree;
+    const char       *class_str  = NULL;
+    int               old_offset = offset;
+    guint8            len;
+    guint8            interface_num;
+    guint8            alt_setting;
+    usb_trans_info_t *usb_trans_info;
+
+    usb_trans_info = usb_conv_info->usb_trans_info;
 
     tree = proto_tree_add_subtree(parent_tree, tvb, offset, -1, ett_descriptor_device, &item, "INTERFACE DESCRIPTOR");
 
@@ -1988,7 +1990,7 @@ dissect_usb_configuration_descriptor(packet_info *pinfo _U_, proto_tree *parent_
         next_type = tvb_get_guint8(tvb, offset+1);
         switch(next_type) {
         case USB_DT_INTERFACE:
-            offset = dissect_usb_interface_descriptor(pinfo, parent_tree, tvb, offset, usb_trans_info, usb_conv_info);
+            offset = dissect_usb_interface_descriptor(pinfo, parent_tree, tvb, offset, usb_conv_info);
             break;
         case USB_DT_ENDPOINT:
             offset = dissect_usb_endpoint_descriptor(pinfo, parent_tree, tvb, offset, usb_trans_info, usb_conv_info);
