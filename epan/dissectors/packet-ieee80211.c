@@ -107,6 +107,7 @@
 #include <epan/eapol_keydes_types.h>
 
 #include "packet-wps.h"
+#include "packet-e212.h"
 
 /*     Davide Schiera (2006-11-22): including AirPDcap project                */
 #include <epan/crypt/airpdcap_ws.h>
@@ -3279,9 +3280,7 @@ static int hf_ieee80211_ff_anqp_nai_realm_auth_param_value = -1;
 static int hf_ieee80211_3gpp_gc_gud = -1;
 static int hf_ieee80211_3gpp_gc_udhl = -1;
 static int hf_ieee80211_3gpp_gc_iei = -1;
-static int hf_ieee80211_3gpp_gc_plmn_len = -1;
 static int hf_ieee80211_3gpp_gc_num_plmns = -1;
-static int hf_ieee80211_3gpp_gc_plmn = -1;
 static int hf_ieee80211_ff_anqp_domain_name_len = -1;
 static int hf_ieee80211_ff_anqp_domain_name = -1;
 static int hf_ieee80211_ff_tdls_action_code = -1;
@@ -6381,7 +6380,7 @@ dissect_nai_realm_list(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int 
 }
 
 static void
-dissect_3gpp_cellular_network_info(proto_tree *tree, tvbuff_t *tvb, int offset)
+dissect_3gpp_cellular_network_info(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
 {
   guint8      iei, num;
   proto_item *item;
@@ -6404,19 +6403,10 @@ dissect_3gpp_cellular_network_info(proto_tree *tree, tvbuff_t *tvb, int offset)
   proto_tree_add_item(tree, hf_ieee80211_3gpp_gc_num_plmns, tvb, offset, 1, ENC_BIG_ENDIAN);
   offset += 1;
   while (num > 0) {
-    guint8 o1, o2, o3;
     if (tvb_reported_length_remaining(tvb, offset) < 3)
       break;
+    dissect_e212_mcc_mnc_wmem_packet_str(tvb, pinfo, tree, offset, FALSE);
     num--;
-    o1 = tvb_get_guint8(tvb, offset);
-    o2 = tvb_get_guint8(tvb, offset + 1);
-    o3 = tvb_get_guint8(tvb, offset + 2);
-    proto_tree_add_string_format_value(tree, hf_ieee80211_3gpp_gc_plmn, tvb, offset, 3,
-                                       "", "MCC %d%d%d MNC %d%d%c",
-                                       o1 & 0x0f, (o1 & 0xf0) >> 4, o2 & 0x0f,
-                                       o3 & 0x0f, (o3 & 0xf0) >> 4,
-                                       ((o2 & 0xf0) == 0xf0) ? ' ' :
-                                       ('0' + ((o2 & 0xf0) >> 4)));
     offset += 3;
   }
 }
@@ -6718,7 +6708,7 @@ dissect_anqp_info(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offse
     dissect_nai_realm_list(tree, tvb, pinfo, offset, offset + len);
     break;
   case ANQP_INFO_3GPP_CELLULAR_NETWORK_INFO:
-    dissect_3gpp_cellular_network_info(tree, tvb, offset);
+    dissect_3gpp_cellular_network_info(tree, tvb, pinfo, offset);
     break;
   case ANQP_INFO_DOMAIN_NAME_LIST:
     dissect_domain_name_list(tree, tvb, offset, offset + len);
@@ -9912,7 +9902,7 @@ static void dissect_hs20_indication(proto_tree *tree, tvbuff_t *tvb,
 static void
 dissect_vendor_ie_wfa(packet_info *pinfo, proto_item *item, tvbuff_t *tag_tvb)
 {
-  gint tag_len = tvb_length(tag_tvb);
+  gint tag_len = tvb_reported_length(tag_tvb);
 
   if (tag_len < 4)
     return;
@@ -16057,7 +16047,7 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
       DATA_FRAME_IS_QOS(frame_type_subtype)) {
         qosoff = hdr_len - htc_len - 2;
         qos_control = tvb_get_letohs(tvb, qosoff);
-        if (tvb_length(tvb) > hdr_len) {
+        if (tvb_reported_length(tvb) > hdr_len) {
             meshoff = hdr_len;
             mesh_flags = tvb_get_guint8 (tvb, hdr_len);
             if (has_mesh_control(fcf, qos_control, mesh_flags)) {
@@ -16336,7 +16326,7 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
                                 tvb, offset, 1, ENC_NA);
             offset++;
 
-            while (tvb_length_remaining(tvb, offset) > 0) {
+            while (tvb_reported_length_remaining(tvb, offset) > 0) {
               sta_info_item = proto_tree_add_item(hdr_tree, hf_ieee80211_vht_ndp_annc_sta_info,
                                                   tvb, offset, 2, ENC_NA);
               sta_info_tree = proto_item_add_subtree(sta_info_item, ett_vht_ndp_annc_sta_info_tree);
@@ -16954,7 +16944,7 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
     }
   }
 
-  len = tvb_length_remaining(tvb, hdr_len);
+  len = tvb_captured_length_remaining(tvb, hdr_len);
   reported_len = tvb_reported_length_remaining(tvb, hdr_len);
 
   switch (fcs_len)
@@ -21575,11 +21565,6 @@ proto_register_ieee80211 (void)
      {"Number of PLMNs", "wlan_mgt.fixed.anqp.3gpp_cellular_info.num_plmns",
       FT_UINT8, BASE_DEC, NULL, 0,
       NULL, HFILL }},
-
-    {&hf_ieee80211_3gpp_gc_plmn,
-     {"PLMN", "wlan_mgt.fixed.anqp.3gpp_cellular_info.plmn",
-      FT_STRING, BASE_NONE, NULL, 0,
-      "PLMN information", HFILL }},
 
     {&hf_ieee80211_ff_anqp_domain_name_len,
      {"Domain Name Length", "wlan_mgt.fixed.anqp.domain_name_list.len",
