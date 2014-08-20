@@ -622,7 +622,7 @@ sub reference_elements($$)
                 }
             }
 
-	    my @elements = $e->children('bitcase');
+	    my @elements = $e->children(qr/(bit)?case/);
 	    for my $case (@elements) {
 		my @sub_elements = $case->children(qr/list|switch/);
 
@@ -871,28 +871,33 @@ sub dissect_element($$$$$;$$)
 	    my $switchtype = $e->first_child() or die("Switch element not defined");
 
 	    my $switchon = get_ref($switchtype, {});
-	    my @elements = $e->children('bitcase');
+	    my @elements = $e->children(qr/(bit)?case/);
 	    for my $case (@elements) {
                 my @refs = $case->children('enumref');
-                my @bits;
+                my @test;
                 my $fieldname;
                 foreach my $ref (@refs) {
                     my $enum_ref = $ref->att('ref');
                     my $field = $ref->text();
                     $fieldname //= $field; # Use first named field
-                    my $bit = $enum{$enum_name{$enum_ref}}{rbit}{$field};
-                    if (! defined($bit)) {
-                        for my $foo (keys %{$enum{$enum_name{$enum_ref}}{rbit}}) { say "'$foo'"; }
-                        die ("Field '$field' not found in '$enum_ref'");
+                    if ($case->name() eq 'bitcase') {
+                        my $bit = $enum{$enum_name{$enum_ref}}{rbit}{$field};
+                        if (! defined($bit)) {
+                            for my $foo (keys %{$enum{$enum_name{$enum_ref}}{rbit}}) { say "'$foo'"; }
+                            die ("Field '$field' not found in '$enum_ref'");
+                        }
+                        push @test , "($switchon & (1 << $bit))";
+                    } else {
+                        my $val = $enum{$enum_name{$enum_ref}}{rvalue}{$field};
+                        if (! defined($val)) {
+                            for my $foo (keys %{$enum{$enum_name{$enum_ref}}{rvalue}}) { say "'$foo'"; }
+                            die ("Field '$field' not found in '$enum_ref'");
+                        }
+                        push @test , "($switchon == $val)";
                     }
-                    push @bits , "(1 << $bit)";
                 }
-                if (scalar @bits == 1) {
-                    say $impl $indent."if (($switchon & $bits[0]) != 0) {";
-                } else {
-                    my $list = join '|', @bits;
-                    say $impl $indent."if (($switchon & ($list)) != 0) {";
-                }
+                my $list = join ' || ', @test;
+                say $impl $indent."if ($list) {";
 
 		my $vp = $varpat;
 		my $hp = $humanpat;
@@ -1220,8 +1225,9 @@ sub enum {
 
     my $value = {};
     my $bit = {};
+    my $rvalue = {};
     my $rbit = {};
-    $enum{$fullname} = { value => $value, bit => $bit, rbit => $rbit };
+    $enum{$fullname} = { value => $value, bit => $bit, rbit => $rbit, rvalue => $rvalue };
 
     my $nextvalue = 0;
 
@@ -1233,6 +1239,7 @@ sub enum {
 	    given ($valtype->name()) {
 		when ('value') {
 		    $$value{$val} = $n;
+		    $$rvalue{$n} = $val;
 		    $nextvalue = $val + 1;
 
                     # Ugly hack to support (temporary, hopefully) ugly
