@@ -595,6 +595,11 @@ if(ENABLE_CAP)
 	set(PACKAGELIST ${PACKAGELIST} CAP SETCAP)
 endif()
 
+# Windows version updates
+if(ENABLE_WINSPARKLE)
+	set(PACKAGELIST ${PACKAGELIST} WINSPARKLE)
+endif()
+
 set(PACKAGELIST ${PACKAGELIST} YAPP)
 
 set(PACKAGELIST ${PACKAGELIST} POD)
@@ -694,6 +699,11 @@ endif()
 if(HAVE_LIBSBC)
 	set(HAVE_SBC 1)
 endif()
+
+if (HAVE_LIBWINSPARKLE)
+	set(HAVE_SOFTWARE_UPDATE 1)
+endif()
+
 # No matter which version of GTK is present
 if(GTK2_FOUND OR GTK3_FOUND)
 	set(GTK_FOUND ON)
@@ -1063,6 +1073,7 @@ set(LIBEPAN_LIBS
 		${ZLIB_LIBRARIES}
 		${M_LIBRARIES}
 		${SBC_LIBRARIES}
+		${WINSPARKLE_LIBRARIES}
 )
 
 if( (BUILD_wireshark AND GTK_FOUND) OR (BUILD_qtshark AND QT_FOUND) )
