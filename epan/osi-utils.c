@@ -214,3 +214,15 @@ print_area_buf(const guint8 *ad, int length, gchar *buf, int buf_len)
   }
 } /* print_area_buf */
 
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */
