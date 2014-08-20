@@ -292,6 +292,10 @@ static const char* udp_conv_get_filter_type(conv_item_t* conv _U_, conv_filter_t
     if (filter == CONV_FT_ANY_PORT)
         return "udp.port";
 
+    if(!conv) {
+        return CONV_FILTER_INVALID;
+    }
+
     if (filter == CONV_FT_SRC_ADDRESS) {
         if (conv->src_address.type == AT_IPv4)
             return "ip.src";

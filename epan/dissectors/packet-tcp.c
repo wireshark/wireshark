@@ -527,6 +527,7 @@ tcp_both_prompt(packet_info *pinfo, gchar *result)
 
 static const char* tcp_conv_get_filter_type(conv_item_t* conv _U_, conv_filter_type_e filter)
 {
+
     if (filter == CONV_FT_SRC_PORT)
         return "tcp.srcport";
 
@@ -535,6 +536,10 @@ static const char* tcp_conv_get_filter_type(conv_item_t* conv _U_, conv_filter_t
 
     if (filter == CONV_FT_ANY_PORT)
         return "tcp.port";
+
+    if(!conv) {
+        return CONV_FILTER_INVALID;
+    }
 
     if (filter == CONV_FT_SRC_ADDRESS) {
         if (conv->src_address.type == AT_IPv4)
