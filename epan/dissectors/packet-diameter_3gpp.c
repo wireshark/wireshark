@@ -185,6 +185,10 @@ static gint diameter_3gpp_idr_flags_ett = -1;
 /* Dissector handles */
 static dissector_handle_t xml_handle;
 
+#define DIAM_APPID_3GPP_S6A_S6D 16777251
+#define DIAM_APPID_3GPP_CX      16777216
+#define DIAM_APPID_3GPP_GX      16777238
+
 /* AVP Code: 23 3GPP-MS-TimeZone
  * 3GPP TS 29.061
  */
@@ -357,8 +361,7 @@ dissect_diameter_3gpp_feature_list(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
         feature_list_id = diam_sub_dis_inf->feature_list_id;
     }
     bit_offset = 0;
-    if(application_id == 16777216) {
-        /* ApplicationId: 3GPP Cx (16777216) */
+    if(application_id == DIAM_APPID_3GPP_CX) {
         proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_spare_bits, tvb, bit_offset, 29, ENC_BIG_ENDIAN);
         bit_offset+=29;
         proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_feature_list_flags_bit2, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
@@ -369,8 +372,7 @@ dissect_diameter_3gpp_feature_list(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
         bit_offset++;
 
         /*offset = bit_offset>>3;*/
-    } else if(application_id == 16777251) {
-        /* ApplicationId: 3GPP S6a/S6d */
+    } else if(application_id == DIAM_APPID_3GPP_S6A_S6D) {
         if(feature_list_id == 1) {
             /* 3GPP TS 29.272 Table 7.3.10/1: Features of Feature-List-ID 1 used in S6a/S6d */
             proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_feature_list1_s6a_flags_bit31, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
@@ -443,8 +445,7 @@ dissect_diameter_3gpp_feature_list(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
             bit_offset++;
             proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_feature_list2_s6a_flags_bit0, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
         }
-    } else if(application_id == 16777238) {
-        /* ApplicationId: 3GPP Gx */
+    } else if(application_id == DIAM_APPID_3GPP_GX) {
         proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_spare_bits, tvb, bit_offset, 19, ENC_BIG_ENDIAN);
         bit_offset+=19;
         proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_feature_list_gx_flags_bit12, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
@@ -991,27 +992,6 @@ dissect_diameter_3gpp_idr_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 
 }
 
-/* AVP Code: 1 User-Name */
-/* User-Name is a Diameter Base AVP but in certain interfaces the IMSI is placed in it. */
-static int
-dissect_diameter_3gpp_user_name(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
-{
-    diam_sub_dis_t *diam_sub_dis = (diam_sub_dis_t*)data;
-    guint32 application_id = 0, str_len;
-
-    if (diam_sub_dis) {
-        application_id = diam_sub_dis->application_id;
-    }
-
-    if (application_id == 16777251) { /* S6a/S6d */
-        str_len = tvb_reported_length(tvb);
-        dissect_e212_utf8_imsi(tvb, pinfo, tree, 0, str_len);
-        return str_len;
-    }
-
-    return 0;
-}
-
 void
 proto_reg_handoff_diameter_3gpp(void)
 {
@@ -1114,9 +1094,6 @@ proto_reg_handoff_diameter_3gpp(void)
 
     /* AVP Code: 1490 IDR-Flags */
     dissector_add_uint("diameter.3gpp", 1490, new_create_dissector_handle(dissect_diameter_3gpp_idr_flags, proto_diameter_3gpp));
-
-    /* AVP Code: 1 User-Name */
-    dissector_add_uint("diameter.base", 1, new_create_dissector_handle(dissect_diameter_3gpp_user_name, proto_diameter_3gpp));
 
     xml_handle = find_dissector("xml");
 }

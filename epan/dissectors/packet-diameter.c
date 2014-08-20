@@ -64,6 +64,7 @@
 #include <epan/to_str.h>
 #include "packet-tcp.h"
 #include "packet-diameter.h"
+#include "packet-e212.h"
 
 void proto_register_diameter(void);
 void proto_reg_handoff_diameter(void);
@@ -329,6 +330,16 @@ static const char *avpflags_str[] = {
 	"VMP",
 };
 
+#define DIAM_APPID_3GPP_S6A_S6D 16777251
+
+#define SUBSCRIPTION_ID_TYPE_E164	0
+#define SUBSCRIPTION_ID_TYPE_IMSI	1
+#define SUBSCRIPTION_ID_TYPE_SIP_URI	2
+#define SUBSCRIPTION_ID_TYPE_NAI	3
+#define SUBSCRIPTION_ID_TYPE_PRIVATE	4
+#define SUBSCRIPTION_ID_TYPE_UNKNOWN (guint32)-1;
+static guint32 subscription_id_type;
+
 static void
 export_diameter_pdu(packet_info *pinfo, tvbuff_t *tvb)
 {
@@ -417,7 +428,6 @@ dissect_diameter_3gpp2_exp_res(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 	return 4;
 }
 
-
 /* From RFC 3162 section 2.3 */
 static int
 dissect_diameter_base_framed_ipv6_prefix(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data)
@@ -449,6 +459,68 @@ dissect_diameter_base_framed_ipv6_prefix(tvbuff_t *tvb, packet_info *pinfo _U_, 
 	}
 
 	return(prefix_len_bytes+2);
+}
+
+/* AVP Code: 1 User-Name */
+/* Do special decoding of the User-Name depending on the interface */
+static int
+dissect_diameter_user_name(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+    diam_sub_dis_t *diam_sub_dis = (diam_sub_dis_t*)data;
+    guint32 application_id = 0, str_len;
+
+    if (diam_sub_dis) {
+        application_id = diam_sub_dis->application_id;
+    }
+
+    if (application_id == DIAM_APPID_3GPP_S6A_S6D) {
+        str_len = tvb_reported_length(tvb);
+        dissect_e212_utf8_imsi(tvb, pinfo, tree, 0, str_len);
+        return str_len;
+    }
+
+    return 0;
+}
+
+/* AVP Code: 443 Subscription-Id */
+static int
+dissect_diameter_subscription_id(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_)
+{
+    /* Just reset our global subscription-id-type variable */
+    subscription_id_type = SUBSCRIPTION_ID_TYPE_UNKNOWN;
+
+    return 0;
+}
+
+/* AVP Code: 450 Subscription-Id-Type */
+static int
+dissect_diameter_subscription_id_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_)
+{
+    /* Store the Type for use when we dissect Subscription-Id-Data */
+    subscription_id_type = tvb_get_ntohl(tvb, 0);
+
+    return 0;
+}
+
+/* AVP Code: 444 Subscription-Id-Data */
+static int
+dissect_diameter_subscription_id_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+    guint32 str_len;
+
+    switch (subscription_id_type) {
+	case SUBSCRIPTION_ID_TYPE_IMSI:
+	    str_len = tvb_reported_length(tvb);
+	    dissect_e212_utf8_imsi(tvb, pinfo, tree, 0, str_len);
+	    return str_len;
+	case SUBSCRIPTION_ID_TYPE_E164:
+	    /* TODO:
+	     * dissect_e164_utf8_number()
+	     */
+	    break;
+    }
+
+    return 0;
 }
 
 /* Call subdissectors for AVPs.
@@ -2117,22 +2189,32 @@ proto_reg_handoff_diameter(void)
 		dissector_add_uint("sctp.ppi", DIAMETER_PROTOCOL_ID, diameter_sctp_handle);
 
 		/* Register special decoding for some AVPs */
-		/* AVP Code: 97 Framed-IPv6-Address */
-		dissector_add_uint("diameter.base", 97,
-			new_create_dissector_handle(dissect_diameter_base_framed_ipv6_prefix, proto_diameter));
-		/* AVP Code: 266 Vendor-Id */
-		dissector_add_uint("diameter.base", 266,
-			new_create_dissector_handle(dissect_diameter_vendor_id, proto_diameter));
-		/* AVP Code: 462 EAP-Payload */
-		dissector_add_uint("diameter.base", 462,
-			new_create_dissector_handle(dissect_diameter_eap_payload, proto_diameter));
-		/* AVP Code: 463 EAP-Reissued-Payload */
-		dissector_add_uint("diameter.base", 463,
-			new_create_dissector_handle(dissect_diameter_eap_payload, proto_diameter));
 
-		/* Register dissector for Experimental result code, with 3GPP2:s vendor Id */
-		dissector_add_uint("diameter.vnd_exp_res", VENDOR_THE3GPP2,
-			new_create_dissector_handle(dissect_diameter_3gpp2_exp_res, proto_diameter));
+		/* AVP Code: 1 User-Name */
+		dissector_add_uint("diameter.base", 1, new_create_dissector_handle(dissect_diameter_user_name, proto_diameter));
+
+		/* AVP Code: 97 Framed-IPv6-Address */
+		dissector_add_uint("diameter.base", 97, new_create_dissector_handle(dissect_diameter_base_framed_ipv6_prefix, proto_diameter));
+
+		/* AVP Code: 266 Vendor-Id */
+		dissector_add_uint("diameter.base", 266, new_create_dissector_handle(dissect_diameter_vendor_id, proto_diameter));
+
+		/* AVP Code: 443 Subscription-Id */
+		dissector_add_uint("diameter.base", 443, new_create_dissector_handle(dissect_diameter_subscription_id, proto_diameter));
+
+		/* AVP Code: 450 Subscription-Id-Type */
+		dissector_add_uint("diameter.base", 450, new_create_dissector_handle(dissect_diameter_subscription_id_type, proto_diameter));
+
+		/* AVP Code: 444 Subscription-Id-Data */
+		dissector_add_uint("diameter.base", 444, new_create_dissector_handle(dissect_diameter_subscription_id_data, proto_diameter));
+
+		/* AVP Code: 462 EAP-Payload */
+		dissector_add_uint("diameter.base", 462, new_create_dissector_handle(dissect_diameter_eap_payload, proto_diameter));
+		/* AVP Code: 463 EAP-Reissued-Payload */
+		dissector_add_uint("diameter.base", 463, new_create_dissector_handle(dissect_diameter_eap_payload, proto_diameter));
+
+		/* Register dissector for Experimental result code, with 3GPP2's vendor Id */
+		dissector_add_uint("diameter.vnd_exp_res", VENDOR_THE3GPP2, new_create_dissector_handle(dissect_diameter_3gpp2_exp_res, proto_diameter));
 
 		Initialized=TRUE;
 	} else {
