@@ -1031,7 +1031,8 @@ LOCAL_CFLAGS=$(LOCAL_CFLAGS) /D_BIND_TO_CURRENT_CRT_VERSION=1
 # Additional compiler warnings to be treated as "Level 3"
 #  when compiling Wireshark sources. (Selected from "level 4" warnings).
 ## 4295: array is too small to include a terminating null character
-WARNINGS_CFLAGS=/w34295
+## 4189: local variable is initialized but not referenced
+WARNINGS_CFLAGS=/w34295 /w34189
 
 !ELSE
 !ERROR MSVC_VARIANT unknown

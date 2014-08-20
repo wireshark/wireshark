@@ -181,7 +181,8 @@ if( CMAKE_C_COMPILER_ID MATCHES "MSVC")
 	# Additional compiler warnings to be treated as "Level 3"
 	#  when compiling Wireshark sources. (Selected from "level 4" warnings).
 	## 4295: array is too small to include a terminating null character
-	set(WARNINGS_CFLAGS "/w34295")
+	## 4189: local variable is initialized but not referenced
+	set(WARNINGS_CFLAGS "/w34295 /w34189")
 
 	# FIXME: WINPCAP_VERSION cannot be determined from source or executable.
 	set(WINPCAP_VERSION "unknown")

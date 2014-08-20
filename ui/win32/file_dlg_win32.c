@@ -355,7 +355,6 @@ win32_save_as_file(HWND h_wnd, capture_file *cf, GString *file_name, int *file_t
     TCHAR  file_name16[MAX_PATH] = _T("");
     int    ofnsize;
     gboolean gsfn_ok;
-    gboolean discard_comments = FALSE;
 
     if (!file_name || !file_type || !compressed)
         return FALSE;
@@ -1113,7 +1112,6 @@ static gboolean
 preview_set_file_info(HWND of_hwnd, gchar *preview_file) {
     HWND        cur_ctrl;
     int         i;
-    gboolean    enable = FALSE;
     wtap       *wth;
     const struct wtap_pkthdr *phdr;
     int         err = 0;

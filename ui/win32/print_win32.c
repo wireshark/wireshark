@@ -62,8 +62,6 @@ void print_mswin(const char *file_name)
     DOCINFO di;
     short int width, height;
 
-    HWND hWndParent = HWND_DESKTOP; /* would be better to be a real window */
-
     /* Need a printer DC to print to. */
     hDC = get_printer_dc(&width, &height);
 
