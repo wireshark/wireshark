@@ -273,11 +273,11 @@ dissect_diameter_3gpp_sgsn_ipv6_address(tvbuff_t *tvb, packet_info *pinfo, proto
  */
 
 static int
-dissect_diameter_3gpp_visited_nw_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_) {
-
-    proto_item* item;
+dissect_diameter_3gpp_visited_nw_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    proto_item *item;
     int offset = 0, i;
-    int length = tvb_length(tvb);
+    int length = tvb_reported_length(tvb);
 
     for(i = 0; i < length; i++)
         if(!g_ascii_isprint(tvb_get_guint8(tvb, i)))
@@ -300,7 +300,7 @@ dissect_diameter_3gpp_feature_list_id(tvbuff_t *tvb, packet_info *pinfo _U_, pro
 {
     diam_sub_dis_t *diam_sub_dis_inf = (diam_sub_dis_t*)data;
 
-    if(diam_sub_dis_inf){
+    if(diam_sub_dis_inf) {
         diam_sub_dis_inf->feature_list_id = tvb_get_ntohl(tvb,0);
     }
 
@@ -313,9 +313,9 @@ dissect_diameter_3gpp_feature_list_id(tvbuff_t *tvb, packet_info *pinfo _U_, pro
  */
 
 static int
-dissect_diameter_3gpp_uar_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_) {
-
-    proto_item* item;
+dissect_diameter_3gpp_uar_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    proto_item *item;
     proto_tree *sub_tree;
     int offset = 0;
     guint32 bit_offset;
@@ -341,9 +341,9 @@ dissect_diameter_3gpp_uar_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
  */
 
 static int
-dissect_diameter_3gpp_feature_list(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data) {
-
-    proto_item* item;
+dissect_diameter_3gpp_feature_list(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data)
+{
+    proto_item *item;
     proto_tree *sub_tree;
     int offset = 0;
     guint32 bit_offset, application_id = 0, feature_list_id = 0;
@@ -352,12 +352,12 @@ dissect_diameter_3gpp_feature_list(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
     item       = proto_tree_add_item(tree, hf_diameter_3gpp_feature_list_flags, tvb, offset, 4, ENC_BIG_ENDIAN);
     sub_tree   = proto_item_add_subtree(item, diameter_3gpp_feature_list_ett);
 
-    if(diam_sub_dis_inf){
+    if(diam_sub_dis_inf) {
         application_id = diam_sub_dis_inf->application_id;
         feature_list_id = diam_sub_dis_inf->feature_list_id;
     }
     bit_offset = 0;
-    if(application_id == 16777216){
+    if(application_id == 16777216) {
         /* ApplicationId: 3GPP Cx (16777216) */
         proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_spare_bits, tvb, bit_offset, 29, ENC_BIG_ENDIAN);
         bit_offset+=29;
@@ -369,9 +369,9 @@ dissect_diameter_3gpp_feature_list(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
         bit_offset++;
 
         /*offset = bit_offset>>3;*/
-    }else if(application_id == 16777251){
+    } else if(application_id == 16777251) {
         /* ApplicationId: 3GPP S6a/S6d */
-        if(feature_list_id == 1){
+        if(feature_list_id == 1) {
             /* 3GPP TS 29.272 Table 7.3.10/1: Features of Feature-List-ID 1 used in S6a/S6d */
             proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_feature_list1_s6a_flags_bit31, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
             bit_offset++;
@@ -436,14 +436,14 @@ dissect_diameter_3gpp_feature_list(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
             proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_feature_list1_s6a_flags_bit1, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
             bit_offset++;
             proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_feature_list1_s6a_flags_bit0, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
-        }else if(feature_list_id == 2){
+        } else if(feature_list_id == 2) {
             proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_spare_bits, tvb, bit_offset, 30, ENC_BIG_ENDIAN);
             bit_offset+=30;
             proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_feature_list2_s6a_flags_bit1, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
             bit_offset++;
             proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_feature_list2_s6a_flags_bit0, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
         }
-    }else if(application_id == 16777238){
+    } else if(application_id == 16777238) {
         /* ApplicationId: 3GPP Gx */
         proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_spare_bits, tvb, bit_offset, 19, ENC_BIG_ENDIAN);
         bit_offset+=19;
@@ -486,17 +486,17 @@ dissect_diameter_3gpp_feature_list(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
  * in IETF RFC 3327 [17].
  */
 static int
-dissect_diameter_3gpp_path(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_) {
-
+dissect_diameter_3gpp_path(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
     proto_tree *sub_tree;
     int offset = 0, comma_offset;
-    int end_offset = tvb_length(tvb) - 1;
+    int end_offset = tvb_reported_length(tvb) - 1;
 
     sub_tree = proto_tree_add_subtree(tree, tvb, offset, -1, diameter_3gpp_path_ett, NULL, "Paths");
 
-    while (offset < end_offset){
+    while (offset < end_offset) {
         comma_offset = tvb_find_guint8(tvb, offset, -1, ',');
-        if(comma_offset == -1){
+        if(comma_offset == -1) {
             proto_tree_add_item(sub_tree, hf_diameter_3gpp_path, tvb, offset, comma_offset, ENC_ASCII|ENC_NA);
             return end_offset;
         }
@@ -505,7 +505,7 @@ dissect_diameter_3gpp_path(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
     }
 
 
-    return tvb_length(tvb);
+    return tvb_reported_length(tvb);
 }
 
 /* AVP Code: 641 Contact
@@ -516,26 +516,26 @@ dissect_diameter_3gpp_path(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
  * defined in IETF RFC 3261.
  */
 static int
-dissect_diameter_3gpp_contact(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_) {
-
-    proto_item* item;
+dissect_diameter_3gpp_contact(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    proto_item *item;
     int offset = 0;
 
     item = proto_tree_add_item(tree, hf_diameter_3gpp_contact, tvb, offset, -1, ENC_ASCII|ENC_NA);
     PROTO_ITEM_SET_GENERATED(item);
 
-    return tvb_length(tvb);
+    return tvb_reported_length(tvb);
 }
 
 /* AVP Code: 701 MSISDN */
 static int
-dissect_diameter_3gpp_msisdn(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_) {
-
-    proto_item* item;
+dissect_diameter_3gpp_msisdn(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    proto_item *item;
     proto_tree *sub_tree;
     int offset = 0;
     const char     *digit_str;
-    int length = tvb_length(tvb);
+    int length = tvb_reported_length(tvb);
 
     item = proto_tree_add_item(tree, hf_diameter_3gpp_msisdn, tvb, offset, length, ENC_NA);
     sub_tree = proto_item_add_subtree(item,diameter_3gpp_msisdn_ett);
@@ -545,7 +545,7 @@ dissect_diameter_3gpp_msisdn(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
     digit_str = unpack_digits(tvb, 1);
     proto_tree_add_string(sub_tree, hf_diameter_address_digits, tvb, 1, -1, digit_str);
 
-    return tvb_length(tvb);
+    return tvb_reported_length(tvb);
 
 }
 
@@ -558,9 +558,9 @@ dissect_diameter_3gpp_msisdn(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
  * IMS Cx Dx AVPS 3GPP TS 29.229
  */
 static int
-dissect_diameter_3gpp_user_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_) {
-
-    int length = tvb_length(tvb);
+dissect_diameter_3gpp_user_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    int length = tvb_reported_length(tvb);
 
     /* If there is less than 38 characters this is not XML
      * <?xml version="1.0" encoding="UTF-8"?>
@@ -568,7 +568,7 @@ dissect_diameter_3gpp_user_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     if(length < 38)
         return length;
 
-    if (tvb_strncaseeql(tvb, 0, "<?xml", 5) == 0){
+    if (tvb_strncaseeql(tvb, 0, "<?xml", 5) == 0) {
         call_dissector(xml_handle, tvb, pinfo, tree);
     }
 
@@ -580,11 +580,11 @@ dissect_diameter_3gpp_user_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
  * AVP Code: 704 Service-Indication
  */
 static int
-dissect_diameter_3gpp_service_ind(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_) {
-
-    proto_item* item;
+dissect_diameter_3gpp_service_ind(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    proto_item *item;
     int offset = 0, i;
-    int length = tvb_length(tvb);
+    int length = tvb_reported_length(tvb);
 
     for(i = 0; i < length; i++)
         if(!g_ascii_isprint(tvb_get_guint8(tvb, i)))
@@ -598,9 +598,9 @@ dissect_diameter_3gpp_service_ind(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 
 /* AVP Code: 900 TMGI */
 static int
-dissect_diameter_3gpp_tmgi(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_) {
-
-    proto_item* item;
+dissect_diameter_3gpp_tmgi(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    proto_item *item;
     proto_tree *sub_tree;
     int offset = 0;
 
@@ -624,8 +624,8 @@ dissect_diameter_3gpp_tmgi(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 
 /* AVP Code: 918 MBMS-BMSC-SSM-IP-Address */
 static int
-dissect_diameter_3gpp_ipaddr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_) {
-
+dissect_diameter_3gpp_ipaddr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
     int offset = 0;
 
     proto_tree_add_item(tree, hf_diameter_3gpp_ipaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -654,22 +654,22 @@ dissect_diameter_3gpp_ipaddr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
  */
 
 static int
-dissect_diameter_3gpp_rai(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_, void *data) {
-
+dissect_diameter_3gpp_rai(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_, void *data)
+{
     diam_sub_dis_t *diam_sub_dis = (diam_sub_dis_t*)data;
     int offset = 0;
     guint length;
 
-    length = tvb_length(tvb);
+    length = tvb_reported_length(tvb);
 
-    if(length==12){
+    if(length==12) {
         diam_sub_dis->avp_str = wmem_strdup_printf(wmem_packet_scope(), "MNC %s, MCC %s, LAC 0x%s, RAC 0x%s",
             tvb_get_string_enc(wmem_packet_scope(), tvb,  0, 3, ENC_UTF_8|ENC_NA), /* MNC 3 digits */
             tvb_get_string_enc(wmem_packet_scope(), tvb,  3, 3, ENC_UTF_8|ENC_NA), /* MCC 3 digits */
             tvb_get_string_enc(wmem_packet_scope(), tvb,  6, 4, ENC_UTF_8|ENC_NA), /* LCC 4 digits */
             tvb_get_string_enc(wmem_packet_scope(), tvb, 10, 2, ENC_UTF_8|ENC_NA)  /* RAC 2 digits */
             );
-    }else{
+    } else {
         diam_sub_dis->avp_str = wmem_strdup_printf(wmem_packet_scope(), "MNC %s, MCC %s, LAC 0x%s, RAC 0x%s",
             tvb_get_string_enc(wmem_packet_scope(), tvb,  0, 3, ENC_UTF_8|ENC_NA), /* MNC 3 digits */
             tvb_get_string_enc(wmem_packet_scope(), tvb,  3, 2, ENC_UTF_8|ENC_NA), /* MCC 2 digits */
@@ -683,8 +683,8 @@ dissect_diameter_3gpp_rai(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 }
 /* AVP Code: 913 MBMS-Required-QoS */
 static int
-dissect_diameter_3gpp_mbms_required_qos(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
-
+dissect_diameter_3gpp_mbms_required_qos(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
     int offset = 0;
     guint length;
 
@@ -700,7 +700,7 @@ dissect_diameter_3gpp_mbms_required_qos(tvbuff_t *tvb, packet_info *pinfo, proto
      */
     proto_tree_add_item(tree, hf_diameter_3gpp_mbms_required_qos_prio, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
-    length = tvb_length(tvb) - 1;
+    length = tvb_reported_length(tvb) - 1;
     de_sm_qos(tvb, tree,  pinfo, offset,length, NULL, 0);
     return offset+length;
 
@@ -740,9 +740,9 @@ dissect_diameter_3gpp_mbms_abs_time_ofmbms_data_tfer(tvbuff_t *tvb, packet_info 
  * AVP Code: 1405 ULR-Flags
  */
 static int
-dissect_diameter_3gpp_ulr_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_) {
-
-    proto_item* item;
+dissect_diameter_3gpp_ulr_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    proto_item *item;
     proto_tree *sub_tree;
     int offset = 0;
     guint32 bit_offset;
@@ -776,9 +776,9 @@ dissect_diameter_3gpp_ulr_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 
 /* AVP Code: 1406 ULA-Flags */
 static int
-dissect_diameter_3gpp_ula_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_) {
-
-    proto_item* item;
+dissect_diameter_3gpp_ula_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    proto_item *item;
     proto_tree *sub_tree;
     int offset = 0;
     guint32 bit_offset;
@@ -802,9 +802,9 @@ dissect_diameter_3gpp_ula_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
  * AVP Code: 1421 DSR-Flags
  */
 static int
-dissect_diameter_3gpp_dsr_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_) {
-
-    proto_item* item;
+dissect_diameter_3gpp_dsr_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    proto_item *item;
     proto_tree *sub_tree;
     int offset = 0;
     guint32 bit_offset;
@@ -856,9 +856,9 @@ dissect_diameter_3gpp_dsr_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 
 /* AVP Code: 1422 DSA-Flags */
 static int
-dissect_diameter_3gpp_dsa_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_) {
-
-    proto_item* item;
+dissect_diameter_3gpp_dsa_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    proto_item *item;
     proto_tree *sub_tree;
     int offset = 0;
     guint32 bit_offset;
@@ -878,9 +878,9 @@ dissect_diameter_3gpp_dsa_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 
 /* AVP Code: 1441 IDA-Flags */
 static int
-dissect_diameter_3gpp_ida_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_) {
-
-    proto_item* item;
+dissect_diameter_3gpp_ida_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    proto_item *item;
     proto_tree *sub_tree;
     int offset = 0;
     guint32 bit_offset;
@@ -900,9 +900,9 @@ dissect_diameter_3gpp_ida_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 
 /* AVP Code: 1442 PUA-Flags */
 static int
-dissect_diameter_3gpp_pua_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_) {
-
-    proto_item* item;
+dissect_diameter_3gpp_pua_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    proto_item *item;
     proto_tree *sub_tree;
     int offset = 0;
     guint32 bit_offset;
@@ -925,9 +925,9 @@ dissect_diameter_3gpp_pua_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 
 /* AVP Code: 1443 NOR-Flags */
 static int
-dissect_diameter_3gpp_nor_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_) {
-
-    proto_item* item;
+dissect_diameter_3gpp_nor_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    proto_item *item;
     proto_tree *sub_tree;
     int offset = 0;
     guint32 bit_offset;
@@ -959,9 +959,9 @@ dissect_diameter_3gpp_nor_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 
 /* AVP Code: 1490 IDR-Flags */
 static int
-dissect_diameter_3gpp_idr_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_) {
-
-    proto_item* item;
+dissect_diameter_3gpp_idr_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    proto_item *item;
     proto_tree *sub_tree;
     int offset = 0;
     guint32 bit_offset;
@@ -989,6 +989,27 @@ dissect_diameter_3gpp_idr_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     offset = bit_offset>>3;
     return offset;
 
+}
+
+/* AVP Code: 1 User-Name */
+/* User-Name is a Diameter Base AVP but in certain interfaces the IMSI is placed in it. */
+static int
+dissect_diameter_3gpp_user_name(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+    diam_sub_dis_t *diam_sub_dis = (diam_sub_dis_t*)data;
+    guint32 application_id = 0, str_len;
+
+    if (diam_sub_dis) {
+        application_id = diam_sub_dis->application_id;
+    }
+
+    if (application_id == 16777251) { /* S6a/S6d */
+        str_len = tvb_reported_length(tvb);
+        dissect_e212_utf8_imsi(tvb, pinfo, tree, 0, str_len);
+        return str_len;
+    }
+
+    return 0;
 }
 
 void
@@ -1093,6 +1114,9 @@ proto_reg_handoff_diameter_3gpp(void)
 
     /* AVP Code: 1490 IDR-Flags */
     dissector_add_uint("diameter.3gpp", 1490, new_create_dissector_handle(dissect_diameter_3gpp_idr_flags, proto_diameter_3gpp));
+
+    /* AVP Code: 1 User-Name */
+    dissector_add_uint("diameter.base", 1, new_create_dissector_handle(dissect_diameter_3gpp_user_name, proto_diameter_3gpp));
 
     xml_handle = find_dissector("xml");
 }

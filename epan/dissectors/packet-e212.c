@@ -32,6 +32,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/wmem/wmem.h>
+#include <stdlib.h>
 
 #include "packet-e212.h"
 #include "expert.h"
@@ -2868,7 +2869,40 @@ dissect_e212_mcc_mnc_high_nibble(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
         return 7;
     else
         return 5;
+}
 
+static int
+dissect_e212_mcc_mnc_in_utf8_address(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
+{
+    guint16 mcc, mnc;
+    gboolean    long_mnc = FALSE;
+
+    mcc = atoi(tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 3, ENC_UTF_8));
+    mnc = atoi(tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 3, 2, ENC_UTF_8));
+
+    /* Try to match the MCC and 2 digits MNC with an entry in our list of operators */
+    if (!try_val_to_str_ext(mcc * 1000 + 10 * mnc, &mcc_mnc_codes_ext)) {
+            mnc = atoi(tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 3, 3, ENC_UTF_8));
+            long_mnc = TRUE;
+    }
+
+    proto_tree_add_uint(tree, hf_E212_mcc, tvb, offset, 3, mcc );
+
+    if (long_mnc)
+        proto_tree_add_uint_format_value(tree, hf_E212_mnc, tvb, offset + 3, 3, mnc,
+                   "%s (%03u)",
+                   val_to_str_ext_const(mcc * 1000 + mnc, &mcc_mnc_codes_ext, "Unknown1"),
+                   mnc);
+    else
+        proto_tree_add_uint_format_value(tree, hf_E212_mnc, tvb, offset + 3, 2, mnc,
+                   "%s (%02u)",
+                   val_to_str_ext_const(mcc * 1000 + 10 * mnc, &mcc_mnc_codes_ext, "Unknown2"),
+                   mnc);
+
+    if (long_mnc)
+        return 6;
+    else
+        return 5;
 }
 
 const gchar *
@@ -2895,6 +2929,25 @@ dissect_e212_imsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offse
 
     return imsi_str;
 }
+
+const gchar *
+dissect_e212_utf8_imsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int length)
+{
+    proto_item *item;
+    proto_tree *subtree;
+    const gchar *imsi_str;
+
+    /* Fetch the UTF8-encoded IMSI */
+    imsi_str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, length, ENC_UTF_8);
+    item = proto_tree_add_string(tree, hf_E212_imsi, tvb, offset, length, imsi_str);
+
+    subtree = proto_item_add_subtree(item, ett_e212_imsi);
+
+    dissect_e212_mcc_mnc_in_utf8_address(tvb, pinfo, subtree, offset);
+
+    return imsi_str;
+}
+
 /*
  * Register the protocol with Wireshark.
  *

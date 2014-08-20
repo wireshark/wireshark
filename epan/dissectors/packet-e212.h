@@ -42,14 +42,26 @@ int dissect_e212_mcc_mnc_in_address(tvbuff_t *tvb, packet_info *pinfo, proto_tre
  * Given a tvbuff, an offset into the tvbuff, and a length that starts
  * at that offset, fetch BCD encoded digits from a tvbuff starting from either
  * the low or high half byte, formatting the digits according to a digit
- * set of 0-9 returning "?" for overdecadic digits create a string in the tree and a corresponding filter
+ * set of 0-9 returning "?" for overdecadic digits and then
+ * create a string in the tree and a corresponding filter
  *
  * Note a tvbuff content of 0xf is considered a 'filler' and will end the
  * conversion.
- * the wmem  allocated string will be returned.
+ * A wmem allocated string will be returned.
  */
 WS_DLL_PUBLIC
 const gchar * dissect_e212_imsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int length, gboolean skip_first);
+
+/**
+ *
+ * Given a tvbuff, an offset into the tvbuff, and a length that starts
+ * at that offset, fetch UTF8-encoded digits from the tvbuff and then
+ * create a string in the tree and a corresponding filter.
+ *
+ * The wmem allocated string will be returned.
+ */
+WS_DLL_PUBLIC
+const gchar * dissect_e212_utf8_imsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int length);
 
 #endif /* __PACKET_E212_H__ */
 
