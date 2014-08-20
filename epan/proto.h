@@ -194,7 +194,7 @@ WS_DLL_PUBLIC WS_MSVC_NORETURN void proto_report_dissector_bug(const char *messa
 #define DISSECTOR_ASSERT_CMPINT(a, op, b)  \
   ((void) ((a op b) ? (void)0 : \
    __DISSECTOR_ASSERT_CMPINT (a, op, b, gint64, "%"G_GINT64_MODIFIER"d"))) \
-   __DISSECTOR_ASSERT_STATIC_ANALYSIS_HINT(expression)
+   __DISSECTOR_ASSERT_STATIC_ANALYSIS_HINT(a op b)
 
 /** Like DISSECTOR_ASSERT_CMPINT() except the arguments are treated as
  * unsigned values.
@@ -204,7 +204,7 @@ WS_DLL_PUBLIC WS_MSVC_NORETURN void proto_report_dissector_bug(const char *messa
 #define DISSECTOR_ASSERT_CMPUINT(a, op, b)  \
   ((void) ((a op b) ? (void)0 : \
    __DISSECTOR_ASSERT_CMPINT (a, op, b, guint64, "%"G_GINT64_MODIFIER"u"))) \
-   __DISSECTOR_ASSERT_STATIC_ANALYSIS_HINT(expression)
+   __DISSECTOR_ASSERT_STATIC_ANALYSIS_HINT(a op b)
 
 /** Like DISSECTOR_ASSERT_CMPUINT() except the values are displayed in
  * hexadecimal upon assertion failure.
@@ -212,7 +212,7 @@ WS_DLL_PUBLIC WS_MSVC_NORETURN void proto_report_dissector_bug(const char *messa
 #define DISSECTOR_ASSERT_CMPUINTHEX(a, op, b)  \
   ((void) ((a op b) ? (void)0 : \
    __DISSECTOR_ASSERT_CMPINT (a, op, b, guint64, "0x%"G_GINT64_MODIFIER"X"))) \
-   __DISSECTOR_ASSERT_STATIC_ANALYSIS_HINT(expression)
+  __DISSECTOR_ASSERT_STATIC_ANALYSIS_HINT(a op b)
 
 #define __DISSECTOR_ASSERT_CMPINT(a, op, b, type, fmt) \
   (REPORT_DISSECTOR_BUG( \
