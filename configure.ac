@@ -499,10 +499,12 @@ AC_ARG_WITH([gtk3],
 # version 4.2.2, the switched to LGPLv3+ / GPLv2+ in version 6.0.0.
 
 tls_message="no"
+want_gnutls="if_available"
 AC_ARG_WITH([gnutls],
   AC_HELP_STRING( [--with-gnutls=@<:@yes/no@:>@],
-		  [use GnuTLS library @<:@default=yes@:>@]),
-  with_gnutls="$withval", with_gnutls="yes")
+		  [use GnuTLS library @<:@default=yes, if available@:>@]),
+  [ with_gnutls="$withval"; want_gnutls="yes" ], with_gnutls="yes")
+
 if test "x$with_gnutls" = "xyes"; then
   have_license_compatible_gnutls="no"
   PKG_CHECK_MODULES([LIBGNUTLS], [gnutls >= 3.1.10 ],
@@ -522,15 +524,22 @@ if test "x$with_gnutls" = "xyes"; then
   else
     echo "GnuTLS with compatible license not found, disabling SSL decryption"
     tls_message="no"
+
+    # Error out if the user explicitly requested gnutls
+    if test "x$want_gnutls" = "xyes"; then
+	AC_MSG_ERROR([GnuTLS crypto library was requested, but is not available])
+    fi
   fi
 fi
 
 # libgrypt
 gcrypt_message="no"
+want_gcrypt="if_available"
 AC_ARG_WITH([gcrypt],
   AC_HELP_STRING( [--with-gcrypt=@<:@yes/no@:>@],
-		  [use gcrypt library @<:@default=yes@:>@]),
-  with_gcrypt="$withval", with_gcrypt="yes")
+		  [use gcrypt library @<:@default=yes, if available@:>@]),
+  [ with_gcrypt="$withval"; want_gcrypt="yes" ], with_gcrypt="yes")
+
 if test "x$with_gcrypt" = "xyes"; then
   AM_PATH_LIBGCRYPT(1.1.92,
         [
@@ -545,6 +554,11 @@ if test "x$with_gcrypt" = "xyes"; then
                         echo "libgcrypt not found, disabling ipsec decryption"
                         gcrypt_message="no"
                 fi
+
+		# Error out if the user explicitly requested gcrypt
+		if test "x$want_gcrypt" = "xyes"; then
+		    AC_MSG_ERROR([libgcrypt library was requested, but is not available])
+		fi
         ]
   )
 fi
