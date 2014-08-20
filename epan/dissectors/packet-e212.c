@@ -2809,14 +2809,13 @@ dissect_e212_mcc_mnc_in_address(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
  *   +---------------+---------------+
  */
 static int
-dissect_e212_mcc_mnc_high_nibble(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
+dissect_e212_mcc_mnc_high_nibble(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
 {
 
     guint32     start_offset;
     guint8      octet;
     guint16     mcc, mnc;
     guint8      mcc1, mcc2, mcc3, mnc1, mnc2, mnc3;
-    proto_item *item;
     gboolean    long_mnc;
 
     long_mnc = FALSE;
@@ -2833,7 +2832,7 @@ dissect_e212_mcc_mnc_high_nibble(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     mcc3  = octet >> 4;
     offset++;
 
-	/* MNC digit 1 and MNC digit 2 */
+    /* MNC digit 1 and MNC digit 2 */
     octet = tvb_get_guint8(tvb,offset);
     mnc1  = octet & 0x0f;
     mnc2  = octet >> 4;
@@ -2852,15 +2851,15 @@ dissect_e212_mcc_mnc_high_nibble(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
         long_mnc = TRUE;
     }
 
-    item = proto_tree_add_uint(tree, hf_E212_mcc , tvb, start_offset, 2, mcc );
+    proto_tree_add_uint(tree, hf_E212_mcc , tvb, start_offset, 2, mcc );
 
     if (long_mnc)
-        item = proto_tree_add_uint_format_value(tree, hf_E212_mnc , tvb, start_offset + 1, 2, mnc,
+        proto_tree_add_uint_format_value(tree, hf_E212_mnc , tvb, start_offset + 1, 2, mnc,
                    "%s (%03u)",
                    val_to_str_ext_const(mcc * 1000 + mnc, &mcc_mnc_codes_ext, "Unknown"),
                    mnc);
     else
-        item = proto_tree_add_uint_format_value(tree, hf_E212_mnc , tvb, start_offset + 1, 2, mnc,
+        proto_tree_add_uint_format_value(tree, hf_E212_mnc , tvb, start_offset + 1, 2, mnc,
                    "%s (%02u)",
                    val_to_str_ext_const(mcc * 1000 + 10 * mnc, &mcc_mnc_codes_ext, "Unknown"),
                    mnc);
@@ -2871,6 +2870,7 @@ dissect_e212_mcc_mnc_high_nibble(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
         return 5;
 
 }
+
 const gchar *
 dissect_e212_imsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int length, gboolean skip_first)
 {
@@ -2887,11 +2887,11 @@ dissect_e212_imsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offse
 
     subtree = proto_item_add_subtree(item, ett_e212_imsi);
 
-	if(skip_first){
-	    dissect_e212_mcc_mnc_high_nibble(tvb, pinfo, subtree, offset);
-	}else{
-	    dissect_e212_mcc_mnc_in_address(tvb, pinfo, subtree, offset);
-	}
+    if(skip_first) {
+        dissect_e212_mcc_mnc_high_nibble(tvb, pinfo, subtree, offset);
+    } else {
+        dissect_e212_mcc_mnc_in_address(tvb, pinfo, subtree, offset);
+    }
 
     return imsi_str;
 }
