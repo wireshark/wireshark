@@ -72,8 +72,8 @@ static const value_string fc_lctl_rjt_acode_val[] = {
 };
 
 static const value_string fc_lctl_rjt_val[] = {
-    {FC_LCTL_RJT_INVSID             , "Invalid S_ID"},
     {FC_LCTL_RJT_INVDID             , "Invalid D_ID"},
+    {FC_LCTL_RJT_INVSID             , "Invalid S_ID"},
     {FC_LCTL_RJT_NPORT_NOTAVAIL_T   , "N_Port Not Avail (Temporary)"},
     {FC_LCTL_RJT_NPORT_NOTAVAIL_P   , "N_Port Not Avail (Permanent)"},
     {FC_LCTL_RJT_CLASS_NOTSUPP      , "Class Not Supported"},
