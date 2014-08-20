@@ -298,7 +298,26 @@ static dissector_handle_t ieee80211_bsfc_handle;
 static dissector_handle_t data_handle;
 
 static gint ett_capwap = -1;
-static gint ett_capwap_element_ieee80211_add_wlan_capability = -1;
+static gint ett_capwap_control = -1;
+static gint ett_capwap_data = -1;
+static gint ett_capwap_preamble = -1;
+static gint ett_capwap_header = -1;
+static gint ett_capwap_header_flags = -1;
+static gint ett_capwap_control_header = -1;
+static gint ett_capwap_control_header_msg = -1;
+static gint ett_capwap_data_keep_alive = -1;
+static gint ett_capwap_message_element = -1;
+static gint ett_capwap_data_message_bindings_ieee80211 = -1;
+static gint ett_capwap_encryption_capabilities = -1;
+static gint ett_capwap_encryption_capability = -1;
+static gint ett_capwap_ac_information = -1;
+static gint ett_capwap_wtp_descriptor = -1;
+static gint ett_capwap_board_data = -1;
+static gint ett_capwap_message_element_type = -1;
+static gint ett_capwap_ac_descriptor_security_flags = -1;
+static gint ett_capwap_ac_descriptor_dtls_flags = -1;
+static gint ett_capwap_wtp_frame_tunnel_mode = -1;
+static gint ett_capwap_ieee80211_add_wlan_capability = -1;
 
 static gint ett_msg_fragment = -1;
 static gint ett_msg_fragments = -1;
@@ -815,7 +834,7 @@ dissect_capwap_data_message_bindings_ieee80211(tvbuff_t *tvb, proto_tree *data_m
         guint16 data_rate;
         /* (WTP -> AC) IEEE 802.11 Frame Info */
         data_message_binding_item = proto_tree_add_item(data_message_binding_tree, hf_capwap_header_wireless_data_ieee80211_fi, tvb, offset, 4, ENC_NA);
-        sub_data_message_binding_tree = proto_item_add_subtree(data_message_binding_item, ett_capwap);
+        sub_data_message_binding_tree = proto_item_add_subtree(data_message_binding_item, ett_capwap_data_message_bindings_ieee80211);
 
         proto_tree_add_item(sub_data_message_binding_tree, hf_capwap_header_wireless_data_ieee80211_fi_rssi, tvb, offset, 1, ENC_BIG_ENDIAN);
 
@@ -829,7 +848,7 @@ dissect_capwap_data_message_bindings_ieee80211(tvbuff_t *tvb, proto_tree *data_m
     {
         /* (AC -> WTP) IEEE 802.11 Destination Wlans */
         data_message_binding_item = proto_tree_add_item(data_message_binding_tree, hf_capwap_header_wireless_data_ieee80211_dest_wlan,tvb, offset, 4, ENC_NA);
-        sub_data_message_binding_tree = proto_item_add_subtree(data_message_binding_item, ett_capwap);
+        sub_data_message_binding_tree = proto_item_add_subtree(data_message_binding_item, ett_capwap_data_message_bindings_ieee80211);
 
         proto_tree_add_item(sub_data_message_binding_tree, hf_capwap_header_wireless_data_ieee80211_dw_wlan_id_bitmap, tvb, offset, 2, ENC_BIG_ENDIAN);
 
@@ -844,7 +863,7 @@ dissect_capwap_encryption_capabilities(tvbuff_t *tvb, proto_tree *encryption_cap
     proto_tree *sub_encryption_capabilities_tree;
 
     encryption_capabilities_item = proto_tree_add_item(encryption_capabilities_tree, hf_capwap_msg_element_type_wtp_descriptor_encrypt, tvb, offset, 3, ENC_NA);
-    sub_encryption_capabilities_tree = proto_item_add_subtree(encryption_capabilities_item, ett_capwap);
+    sub_encryption_capabilities_tree = proto_item_add_subtree(encryption_capabilities_item, ett_capwap_encryption_capability);
 
     proto_tree_add_item(sub_encryption_capabilities_tree, hf_capwap_msg_element_type_wtp_descriptor_encrypt_reserved, tvb, offset, 1, ENC_NA);
 
@@ -871,7 +890,7 @@ dissect_capwap_ac_information(tvbuff_t *tvb, proto_tree *ac_information_type_tre
 
     proto_item_append_text(ac_information_type_item,": (t=%d,l=%d) %s", ac_information_type, optlen, val_to_str(ac_information_type,ac_information_type_vals,"Unknown AC Information Type (%02d)") );
 
-    sub_ac_information_type_tree = proto_item_add_subtree(ac_information_type_item, ett_capwap);
+    sub_ac_information_type_tree = proto_item_add_subtree(ac_information_type_item, ett_capwap_ac_information);
 
     proto_tree_add_item(sub_ac_information_type_tree, hf_capwap_msg_element_type_ac_information_vendor, tvb, offset, 4, ENC_BIG_ENDIAN);
 
@@ -911,7 +930,7 @@ dissect_capwap_wtp_descriptor(tvbuff_t *tvb, proto_tree *wtp_descriptor_type_tre
 
     proto_item_append_text(wtp_descriptor_type_item, ": (t=%d,l=%d) %s", wtp_descriptor_type, optlen, val_to_str(wtp_descriptor_type,wtp_descriptor_type_vals,"Unknown WTP Descriptor Type (%02d)") );
 
-    sub_wtp_descriptor_type_tree = proto_item_add_subtree(wtp_descriptor_type_item, ett_capwap);
+    sub_wtp_descriptor_type_tree = proto_item_add_subtree(wtp_descriptor_type_item, ett_capwap_wtp_descriptor);
 
     proto_tree_add_item(sub_wtp_descriptor_type_tree, hf_capwap_msg_element_type_wtp_descriptor_vendor, tvb, offset, 4, ENC_BIG_ENDIAN);
 
@@ -960,7 +979,7 @@ dissect_capwap_board_data(tvbuff_t *tvb, proto_tree *board_data_type_tree, guint
 
     proto_item_append_text(board_data_type_item, ": (t=%d,l=%d) %s", board_data_type, optlen, val_to_str(board_data_type,board_data_type_vals,"Unknown Board Data Type (%02d)") );
 
-    sub_board_data_type_tree = proto_item_add_subtree(board_data_type_item, ett_capwap);
+    sub_board_data_type_tree = proto_item_add_subtree(board_data_type_item, ett_capwap_board_data);
 
     proto_tree_add_item(sub_board_data_type_tree, hf_capwap_msg_element_type_wtp_board_data_type, tvb, offset, 2, ENC_BIG_ENDIAN);
 
@@ -1010,7 +1029,7 @@ dissect_capwap_message_element_type(tvbuff_t *tvb, proto_tree *msg_element_type_
 
     proto_item_append_text(msg_element_type_item, ": (t=%d,l=%d) %s", msg_element_type, optlen, val_to_str(msg_element_type,message_element_type_vals,"Unknown Message Element Type (%02d)") );
 
-    sub_msg_element_type_tree = proto_item_add_subtree(msg_element_type_item, ett_capwap);
+    sub_msg_element_type_tree = proto_item_add_subtree(msg_element_type_item, ett_capwap_message_element_type);
 
     proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type, tvb, offset, 2, ENC_BIG_ENDIAN);
 
@@ -1027,7 +1046,7 @@ dissect_capwap_message_element_type(tvbuff_t *tvb, proto_tree *msg_element_type_
 
         /* AC Descriptor Security Flags... */
         msg_element_type_item_flag = proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ac_descriptor_security, tvb, offset+12, 1, ENC_NA);
-        sub_msg_element_type_flag_tree = proto_item_add_subtree(msg_element_type_item_flag, ett_capwap);
+        sub_msg_element_type_flag_tree = proto_item_add_subtree(msg_element_type_item_flag, ett_capwap_ac_descriptor_security_flags);
 
         proto_tree_add_item(sub_msg_element_type_flag_tree, hf_capwap_msg_element_type_ac_descriptor_security_r, tvb, offset+12, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(sub_msg_element_type_flag_tree, hf_capwap_msg_element_type_ac_descriptor_security_s, tvb, offset+12, 1, ENC_BIG_ENDIAN);
@@ -1038,7 +1057,7 @@ dissect_capwap_message_element_type(tvbuff_t *tvb, proto_tree *msg_element_type_
 
         /* AC Descriptor DTLS Flags... */
         msg_element_type_item_flag = proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ac_descriptor_dtls_policy, tvb, offset+15, 1, ENC_NA);
-        sub_msg_element_type_flag_tree = proto_item_add_subtree(msg_element_type_item_flag, ett_capwap);
+        sub_msg_element_type_flag_tree = proto_item_add_subtree(msg_element_type_item_flag, ett_capwap_ac_descriptor_dtls_flags);
 
         proto_tree_add_item(sub_msg_element_type_flag_tree, hf_capwap_msg_element_type_ac_descriptor_dtls_policy_r, tvb, offset+15, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(sub_msg_element_type_flag_tree, hf_capwap_msg_element_type_ac_descriptor_dtls_policy_d, tvb, offset+15, 1, ENC_BIG_ENDIAN);
@@ -1170,7 +1189,7 @@ dissect_capwap_message_element_type(tvbuff_t *tvb, proto_tree *msg_element_type_
         {
             number_encrypt = tvb_get_guint8(tvb,offset+6);
             msg_element_type_item_flag = proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_wtp_descriptor_number_encrypt, tvb, offset+6, 1, ENC_BIG_ENDIAN);
-            sub_msg_element_type_flag_tree = proto_item_add_subtree(msg_element_type_item_flag, ett_capwap);
+            sub_msg_element_type_flag_tree = proto_item_add_subtree(msg_element_type_item_flag, ett_capwap_encryption_capabilities);
             for (i=0; i < number_encrypt; i++) {
                 dissect_capwap_encryption_capabilities(tvb, sub_msg_element_type_flag_tree, offset+4+3+i*3);
             }
@@ -1195,7 +1214,7 @@ dissect_capwap_message_element_type(tvbuff_t *tvb, proto_tree *msg_element_type_
 
     case TYPE_WTP_FRAME_TUNNEL_MODE: /* WTP Frame Tunnel Mode (41) */
         msg_element_type_item_flag = proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_wtp_frame_tunnel_mode, tvb, offset+4, 1, ENC_NA);
-        sub_msg_element_type_flag_tree = proto_item_add_subtree(msg_element_type_item_flag, ett_capwap);
+        sub_msg_element_type_flag_tree = proto_item_add_subtree(msg_element_type_item_flag, ett_capwap_wtp_frame_tunnel_mode);
 
         proto_tree_add_item(sub_msg_element_type_flag_tree, hf_capwap_msg_element_type_wtp_frame_tunnel_mode_n, tvb, offset+4, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(sub_msg_element_type_flag_tree, hf_capwap_msg_element_type_wtp_frame_tunnel_mode_e, tvb, offset+4, 1, ENC_BIG_ENDIAN);
@@ -1227,7 +1246,7 @@ dissect_capwap_message_element_type(tvbuff_t *tvb, proto_tree *msg_element_type_
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_add_wlan_radio_id, tvb, offset+4, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_add_wlan_wlan_id, tvb, offset+5, 1, ENC_BIG_ENDIAN);
         msg_element_type_item_flag =  proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_add_wlan_capability, tvb, offset+6, 2, ENC_BIG_ENDIAN);
-        sub_msg_element_type_flag_tree = proto_item_add_subtree(msg_element_type_item_flag, ett_capwap_element_ieee80211_add_wlan_capability);
+        sub_msg_element_type_flag_tree = proto_item_add_subtree(msg_element_type_item_flag, ett_capwap_ieee80211_add_wlan_capability);
         proto_tree_add_item(sub_msg_element_type_flag_tree, hf_capwap_msg_element_type_ieee80211_add_wlan_capability_e, tvb, offset+6, 2, ENC_BIG_ENDIAN);
         proto_tree_add_item(sub_msg_element_type_flag_tree, hf_capwap_msg_element_type_ieee80211_add_wlan_capability_i, tvb, offset+6, 2, ENC_BIG_ENDIAN);
         proto_tree_add_item(sub_msg_element_type_flag_tree, hf_capwap_msg_element_type_ieee80211_add_wlan_capability_c, tvb, offset+6, 2, ENC_BIG_ENDIAN);
@@ -1311,7 +1330,7 @@ dissect_capwap_message_element(tvbuff_t *tvb, proto_tree *capwap_control_tree, g
     proto_tree *capwap_message_element_tree;
 
     ti = proto_tree_add_item(capwap_control_tree, hf_capwap_message_element, tvb, offset, tvb_reported_length(tvb) - offset, ENC_NA);
-    capwap_message_element_tree = proto_item_add_subtree(ti, ett_capwap);
+    capwap_message_element_tree = proto_item_add_subtree(ti, ett_capwap_message_element);
 
     offset_end = tvb_reported_length(tvb);
 
@@ -1332,7 +1351,7 @@ dissect_capwap_data_keep_alive(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ca
     proto_tree *capwap_data_keep_alive_tree;
 
     ti = proto_tree_add_item(capwap_data_tree, hf_capwap_data_keep_alive, tvb, offset, tvb_reported_length(tvb), ENC_NA);
-    capwap_data_keep_alive_tree = proto_item_add_subtree(ti, ett_capwap);
+    capwap_data_keep_alive_tree = proto_item_add_subtree(ti, ett_capwap_data_keep_alive);
 
     ti = proto_tree_add_item(capwap_data_keep_alive_tree, hf_capwap_data_keep_alive_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     len = tvb_get_ntohs(tvb, offset);
@@ -1360,11 +1379,11 @@ dissect_capwap_control_header(tvbuff_t *tvb, proto_tree *capwap_control_tree, gu
     proto_tree *capwap_control_msg_type_tree;
 
     ti = proto_tree_add_item(capwap_control_tree, hf_capwap_control_header, tvb, offset, 8, ENC_NA);
-    capwap_control_header_tree = proto_item_add_subtree(ti, ett_capwap);
+    capwap_control_header_tree = proto_item_add_subtree(ti, ett_capwap_control_header);
 
     /* Message Type 32 bits */
     ti_flag = proto_tree_add_item(capwap_control_header_tree, hf_capwap_control_header_msg_type, tvb, offset, 4, ENC_BIG_ENDIAN);
-    capwap_control_msg_type_tree = proto_item_add_subtree(ti_flag, ett_capwap);
+    capwap_control_msg_type_tree = proto_item_add_subtree(ti_flag, ett_capwap_control_header_msg);
 
     proto_tree_add_item(capwap_control_msg_type_tree, hf_capwap_control_header_msg_type_enterprise_nbr, tvb, offset, 3, ENC_BIG_ENDIAN);
     proto_tree_add_item(capwap_control_msg_type_tree, hf_capwap_control_header_msg_type_enterprise_specific, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -1401,7 +1420,7 @@ dissect_capwap_header(tvbuff_t *tvb, proto_tree *capwap_control_tree, guint offs
     /* As we display the preamble separately reduce the length by 1 */
     hlen = tvb_get_bits8(tvb, (offset+plen)*8, 5)*4-1;
     ti = proto_tree_add_item(capwap_control_tree, hf_capwap_header, tvb, offset+plen, hlen, ENC_NA);
-    capwap_header_tree = proto_item_add_subtree(ti, ett_capwap);
+    capwap_header_tree = proto_item_add_subtree(ti, ett_capwap_header);
 
     /* Header Length : 5 Bits */
     ti_len = proto_tree_add_item(capwap_header_tree, hf_capwap_header_hlen, tvb, offset+plen, 1, ENC_BIG_ENDIAN);
@@ -1418,7 +1437,7 @@ dissect_capwap_header(tvbuff_t *tvb, proto_tree *capwap_control_tree, guint offs
     /* Flags : 9 Bits */
     flags = tvb_get_bits16(tvb, (offset+plen)*8+15, 9, ENC_BIG_ENDIAN);
     ti_flag = proto_tree_add_item(capwap_header_tree, hf_capwap_header_flags, tvb, offset+plen, 3, ENC_BIG_ENDIAN);
-    capwap_header_flags_tree = proto_item_add_subtree(ti_flag, ett_capwap);
+    capwap_header_flags_tree = proto_item_add_subtree(ti_flag, ett_capwap_header_flags);
 
     proto_tree_add_item(capwap_header_flags_tree, hf_capwap_header_flags_t, tvb, offset+plen, 3, ENC_BIG_ENDIAN);
     proto_tree_add_item(capwap_header_flags_tree, hf_capwap_header_flags_f, tvb, offset+plen, 3, ENC_BIG_ENDIAN);
@@ -1519,7 +1538,7 @@ dissect_capwap_preamble(tvbuff_t *tvb, proto_tree *capwap_control_tree, guint of
     proto_tree *capwap_preamble_tree;
 
     ti = proto_tree_add_item(capwap_control_tree, hf_capwap_preamble, tvb, offset+plen, -1, ENC_NA);
-    capwap_preamble_tree = proto_item_add_subtree(ti, ett_capwap);
+    capwap_preamble_tree = proto_item_add_subtree(ti, ett_capwap_preamble);
 
     proto_tree_add_item(capwap_preamble_tree, hf_capwap_preamble_version, tvb, offset+plen, 1, ENC_NA);
     proto_tree_add_item(capwap_preamble_tree, hf_capwap_preamble_type, tvb, offset+plen, 1, ENC_NA);
@@ -1556,7 +1575,7 @@ dissect_capwap_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     col_set_str(pinfo->cinfo, COL_INFO, "CAPWAP-Control");
 
     ti = proto_tree_add_item(tree, proto_capwap_control, tvb, 0, -1, ENC_NA);
-    capwap_control_tree = proto_item_add_subtree(ti, ett_capwap);
+    capwap_control_tree = proto_item_add_subtree(ti, ett_capwap_control);
 
     /* CAPWAP Preamble */
     offset += dissect_capwap_preamble(tvb, capwap_control_tree, offset, &type_header);
@@ -1641,7 +1660,7 @@ dissect_capwap_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_set_str(pinfo->cinfo, COL_INFO, "CAPWAP-Data");
 
     ti = proto_tree_add_item(tree, proto_capwap_data, tvb, 0, -1, ENC_NA);
-    capwap_data_tree = proto_item_add_subtree(ti, ett_capwap);
+    capwap_data_tree = proto_item_add_subtree(ti, ett_capwap_data);
 
     /* CAPWAP Preamble */
     offset += dissect_capwap_preamble(tvb, capwap_data_tree, offset, &type_header);
@@ -2749,7 +2768,26 @@ proto_register_capwap_control(void)
     /* Setup protocol subtree array */
     static gint *ett[] = {
         &ett_capwap,
-        &ett_capwap_element_ieee80211_add_wlan_capability,
+        &ett_capwap_control,
+        &ett_capwap_data,
+        &ett_capwap_preamble,
+        &ett_capwap_header,
+        &ett_capwap_header_flags,
+        &ett_capwap_control_header,
+        &ett_capwap_control_header_msg,
+        &ett_capwap_data_keep_alive,
+        &ett_capwap_message_element,
+        &ett_capwap_data_message_bindings_ieee80211,
+        &ett_capwap_encryption_capabilities,
+        &ett_capwap_encryption_capability,
+        &ett_capwap_ac_information,
+        &ett_capwap_wtp_descriptor,
+        &ett_capwap_board_data,
+        &ett_capwap_message_element_type,
+        &ett_capwap_ac_descriptor_security_flags,
+        &ett_capwap_ac_descriptor_dtls_flags,
+        &ett_capwap_wtp_frame_tunnel_mode,
+        &ett_capwap_ieee80211_add_wlan_capability,
         &ett_msg_fragment,
         &ett_msg_fragments
     };
