@@ -2028,6 +2028,7 @@ proto_register_gadu_gadu(void)
 		&hfi_gadu_gadu_userdata_attr_name,
 		&hfi_gadu_gadu_userdata_attr_type,
 		&hfi_gadu_gadu_userdata_attr_value,
+	/* Typing notify */
 		&hfi_gadu_gadu_typing_notify_type,
 		&hfi_gadu_gadu_typing_notify_uin,
 	/* Message common */
@@ -2041,10 +2042,10 @@ proto_register_gadu_gadu(void)
 	/* GG_RECV_MSG80, GG_SEND_MSG80 */
 		&hfi_gadu_gadu_msg80_offset_plain,
 		&hfi_gadu_gadu_msg80_offset_attr,
-	/* Contact (notify) common */
-		&hfi_gadu_gadu_contact_uin,
-		&hfi_gadu_gadu_contact_uin_str,
-		&hfi_gadu_gadu_contact_type,
+	/* GG_SEND_MSG_ACK */
+		&hfi_gadu_gadu_msg_ack_status,
+		&hfi_gadu_gadu_msg_ack_recipient,
+		&hfi_gadu_gadu_msg_ack_seq,
 	/* Status common */
 		&hfi_gadu_gadu_status_uin,
 		&hfi_gadu_gadu_status_status,
@@ -2053,6 +2054,12 @@ proto_register_gadu_gadu(void)
 		&hfi_gadu_gadu_status_version,
 		&hfi_gadu_gadu_status_img_size,
 		&hfi_gadu_gadu_status_descr,
+	/* Direct Connection */
+		&hfi_dcc_type,
+		&hfi_dcc_id,
+		&hfi_dcc_uin_to,
+		&hfi_dcc_uin_from,
+		&hfi_dcc_filename,
 	/* New status (setting status) common */
 		&hfi_gadu_gadu_new_status_status,
 		&hfi_gadu_gadu_new_status_desc,
@@ -2061,12 +2068,7 @@ proto_register_gadu_gadu(void)
 		&hfi_gadu_gadu_userlist_version,
 		&hfi_gadu_gadu_userlist_format,
 		&hfi_gadu_gadu_userlist_reply_type,
-	/* Direct Connection */
-		&hfi_dcc_type,
-		&hfi_dcc_id,
-		&hfi_dcc_uin_to,
-		&hfi_dcc_uin_from,
-		&hfi_dcc_filename,
+		&hfi_gadu_gadu_userlist,
 	/* Public Directory */
 		&hfi_gadu_gadu_pubdir_request_type,
 		&hfi_gadu_gadu_pubdir_request_seq,
@@ -2074,12 +2076,12 @@ proto_register_gadu_gadu(void)
 		&hfi_gadu_gadu_pubdir_reply_type,
 		&hfi_gadu_gadu_pubdir_reply_seq,
 		&hfi_gadu_gadu_pubdir_reply_str,
+	/* Contact (notify) common */
+		&hfi_gadu_gadu_contact_uin,
+		&hfi_gadu_gadu_contact_uin_str,
+		&hfi_gadu_gadu_contact_type,
 	/* GG_WELCOME */
 		&hfi_gadu_gadu_welcome_seed,
-	/* GG_SEND_MSG_ACK */
-		&hfi_gadu_gadu_msg_ack_status,
-		&hfi_gadu_gadu_msg_ack_recipient,
-		&hfi_gadu_gadu_msg_ack_seq,
 	/* Not dissected data */
 		&hfi_gadu_gadu_data,
 	};
