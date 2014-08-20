@@ -295,7 +295,14 @@ static gint ett_isis_lsp_clv_mt_is = -1;
 static gint ett_isis_lsp_part_of_clv_mt_is = -1;
 static gint ett_isis_lsp_clv_mt_reachable_IPv4_prefx = -1;  /* CLV 235 */
 static gint ett_isis_lsp_clv_mt_reachable_IPv6_prefx = -1;  /* CLV 237 */
-static gint ett_isis_lsp_clv_rt_capable_IPv4_prefx = -1;   /* CLV 242 */
+static gint ett_isis_lsp_clv_rt_capable = -1;   /* CLV 242 */
+static gint ett_isis_lsp_clv_trill_version = -1;
+static gint ett_isis_lsp_clv_trees = -1;
+static gint ett_isis_lsp_clv_root_id = -1;
+static gint ett_isis_lsp_clv_nickname = -1;
+static gint ett_isis_lsp_clv_interested_vlans = -1;
+static gint ett_isis_lsp_clv_tree_used = -1;
+static gint ett_isis_lsp_clv_vlan_group = -1;
 static gint ett_isis_lsp_clv_grp_address = -1;  /* CLV 142 */
 static gint ett_isis_lsp_clv_grp_macaddr = -1;
 static gint ett_isis_lsp_clv_grp_ipv4addr = -1;
@@ -895,7 +902,7 @@ dissect_isis_rt_capable_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
 
         case TRILL_VERSION:
             rt_tree = proto_tree_add_subtree(tree, tvb, offset, (rt_block&0x00ff)+2,
-                        ett_isis_lsp_clv_rt_capable_IPv4_prefx, NULL, "TRILL version sub tlv");
+                        ett_isis_lsp_clv_trill_version, NULL, "TRILL version sub tlv");
 
             proto_tree_add_item(rt_tree, hf_isis_lsp_rt_capable_trill_length, tvb, offset+1, 1, ENC_NA);
             proto_tree_add_item(rt_tree, hf_isis_lsp_rt_capable_trill_maximum_version, tvb, offset+2, 1, ENC_NA);
@@ -909,7 +916,7 @@ dissect_isis_rt_capable_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
 
         case TREES:
             rt_tree = proto_tree_add_subtree(tree, tvb, offset, (rt_block&0x00ff)+2,
-                                ett_isis_lsp_clv_rt_capable_IPv4_prefx, NULL, "Trees sub tlv");
+                                ett_isis_lsp_clv_trees, NULL, "Trees sub tlv");
 
             length--;
             offset++;
@@ -937,7 +944,7 @@ dissect_isis_rt_capable_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
 
         case TREE_IDENTIFIER:
             rt_tree=proto_tree_add_subtree(tree, tvb, offset, (rt_block&0x00ff)+2,
-                                ett_isis_lsp_clv_rt_capable_IPv4_prefx, NULL, "Tree root identifier sub tlv");
+                                ett_isis_lsp_clv_root_id, NULL, "Tree root identifier sub tlv");
 
             length--;
             offset++;
@@ -968,7 +975,7 @@ dissect_isis_rt_capable_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
 
         case NICKNAME:
             rt_tree = proto_tree_add_subtree(tree, tvb, offset, (rt_block&0x00ff)+2,
-                                ett_isis_lsp_clv_rt_capable_IPv4_prefx, NULL, "The nickname sub tlv");
+                                ett_isis_lsp_clv_nickname, NULL, "The nickname sub tlv");
 
             length--;
             offset++;
@@ -999,7 +1006,7 @@ dissect_isis_rt_capable_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
 
         case INTERESTED_VLANS:
             rt_tree = proto_tree_add_subtree(tree, tvb, offset, (rt_block&0x00ff)+2,
-                            ett_isis_lsp_clv_rt_capable_IPv4_prefx, NULL, "Interested VLAN and spanning tree root sub tlv");
+                            ett_isis_lsp_clv_interested_vlans, NULL, "Interested VLAN and spanning tree root sub tlv");
 
             length--;
             offset++;
@@ -1042,7 +1049,7 @@ dissect_isis_rt_capable_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
 
         case TREES_USED_IDENTIFIER:
             rt_tree = proto_tree_add_subtree(tree, tvb, offset, (rt_block&0x00ff)+2,
-                        ett_isis_lsp_clv_rt_capable_IPv4_prefx, NULL, "Trees used identifier sub tlv");
+                        ett_isis_lsp_clv_tree_used, NULL, "Trees used identifier sub tlv");
 
             length--;
             offset++;
@@ -1073,7 +1080,7 @@ dissect_isis_rt_capable_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
 
         case VLAN_GROUP:
             rt_tree = proto_tree_add_subtree(tree, tvb, offset, (rt_block&0x00ff)+2,
-                            ett_isis_lsp_clv_rt_capable_IPv4_prefx, NULL, "The VLAN group sub tlv");
+                            ett_isis_lsp_clv_vlan_group, NULL, "The VLAN group sub tlv");
 
             length--;
             offset++;
@@ -2526,7 +2533,7 @@ static const isis_clv_handle_t clv_l1_lsp_opts[] = {
     {
         ISIS_CLV_RT_CAPABLE,
         "Router Capability",
-        &ett_isis_lsp_clv_rt_capable_IPv4_prefx,
+        &ett_isis_lsp_clv_rt_capable,
         dissect_isis_rt_capable_clv
     },
     {
@@ -3576,7 +3583,14 @@ proto_register_isis_lsp(void)
         &ett_isis_lsp_clv_mt,
         &ett_isis_lsp_clv_mt_is,
         &ett_isis_lsp_part_of_clv_mt_is,
-        &ett_isis_lsp_clv_rt_capable_IPv4_prefx,
+        &ett_isis_lsp_clv_rt_capable, /*CLV 242*/
+        &ett_isis_lsp_clv_trill_version,
+        &ett_isis_lsp_clv_trees,
+        &ett_isis_lsp_clv_root_id,
+        &ett_isis_lsp_clv_nickname,
+        &ett_isis_lsp_clv_interested_vlans,
+        &ett_isis_lsp_clv_tree_used,
+        &ett_isis_lsp_clv_vlan_group,
         &ett_isis_lsp_clv_grp_address, /*CLV 142*/
         &ett_isis_lsp_clv_grp_macaddr,
         &ett_isis_lsp_clv_grp_ipv4addr,
