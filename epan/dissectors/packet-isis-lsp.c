@@ -176,6 +176,10 @@ static int hf_isis_lsp_grp_macaddr_vlan_id = -1;
 static int hf_isis_lsp_grp_ipv4addr_vlan_id = -1;
 static int hf_isis_lsp_grp_ipv6addr_vlan_id = -1;
 static int hf_isis_lsp_rt_capable_trill_length = -1;
+static int hf_isis_lsp_rt_capable_trill_affinity_tlv = -1;
+static int hf_isis_lsp_rt_capable_trill_fgl_safe = -1;
+static int hf_isis_lsp_rt_capable_trill_caps = -1;
+static int hf_isis_lsp_rt_capable_trill_flags = -1;
 static int hf_isis_lsp_rt_capable_tree_root_id_starting_tree_no = -1;
 static int hf_isis_lsp_rt_capable_interested_vlans_nickname = -1;
 static int hf_isis_lsp_rt_capable_nickname_length = -1;
@@ -907,7 +911,12 @@ dissect_isis_rt_capable_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
             proto_tree_add_item(rt_tree, hf_isis_lsp_rt_capable_trill_length, tvb, offset+1, 1, ENC_NA);
             proto_tree_add_item(rt_tree, hf_isis_lsp_rt_capable_trill_maximum_version, tvb, offset+2, 1, ENC_NA);
 
-            /* TODO: print flags if SubTLV length == 5 according to RFC7176 sec. 2.3.1 */
+            if ( (rt_block&0x00ff) == 5 ) {
+                proto_tree_add_item(rt_tree, hf_isis_lsp_rt_capable_trill_affinity_tlv, tvb, offset+3, 4, ENC_NA);
+                proto_tree_add_item(rt_tree, hf_isis_lsp_rt_capable_trill_fgl_safe, tvb, offset+3, 4, ENC_NA);
+                proto_tree_add_item(rt_tree, hf_isis_lsp_rt_capable_trill_caps, tvb, offset+3, 4, ENC_NA);
+                proto_tree_add_item(rt_tree, hf_isis_lsp_rt_capable_trill_flags, tvb, offset+3, 4, ENC_NA);
+            }
 
             length -= (rt_block&0x00ff)+2;
             offset += (rt_block&0x00ff)+2;
@@ -3155,6 +3164,26 @@ proto_register_isis_lsp(void)
         { &hf_isis_lsp_rt_capable_trill_length,
             { "Length", "isis.lsp.rt_capable.trill.length",
               FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_rt_capable_trill_affinity_tlv,
+            { "Affinity Sub-TLV", "isis.lsp.rt_capable.trill.affinity_tlv",
+              FT_BOOLEAN, 32 , TFS(&tfs_supported_not_supported), 0x80000000,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_rt_capable_trill_fgl_safe,
+            { "FGL-safe", "isis.lsp.rt_capable.trill.fgl_safe",
+              FT_BOOLEAN, 32 , TFS(&tfs_yes_no), 0x40000000,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_rt_capable_trill_caps,
+            { "Other Capabilities", "isis.lsp.rt_capable.trill.caps",
+              FT_BOOLEAN, 32 , TFS(&tfs_supported_not_supported), 0x3ffc0000,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_rt_capable_trill_flags,
+            { "Extended Header Flags", "isis.lsp.rt_capable.trill.flags",
+              FT_BOOLEAN, 32 , TFS(&tfs_supported_not_supported), 0x0003ffff,
               NULL, HFILL }
         },
         { &hf_isis_lsp_rt_capable_trill_maximum_version,
