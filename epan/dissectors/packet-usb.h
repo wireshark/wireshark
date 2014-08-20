@@ -116,11 +116,11 @@ typedef struct _usb_tap_data_t {
 } usb_tap_data_t;
 
 
-/* This is the endpoint number used for "no endpoint" or the fake endpoint
- * for the host side since we need two endpoints to manage conversations
- * properly.
- */
-#define NO_ENDPOINT 0xffffffff
+/* the value for "no endpoint" that's used usb_addr_t, e.g. for the address of the host */
+#define NO_ENDPOINT  0xffffffff
+/* the 8bit version of NO_ENDPOINT, it's used in usb_conv_info_t
+   0xff would be an invalid endpoint number (reserved bits are 1) */
+#define NO_ENDPOINT8 ((guint8)(NO_ENDPOINT& G_MAXUINT8))
 
 /*
  * Values from the Linux USB pseudo-header.

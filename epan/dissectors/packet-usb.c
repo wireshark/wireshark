@@ -1601,8 +1601,11 @@ dissect_usb_interface_descriptor(packet_info *pinfo, proto_tree *parent_tree,
     if (!pinfo->fd->flags.visited && (alt_setting == 0)) {
         /* Register conversation for this interface in case CONTROL messages are sent to it */
         usb_trans_info->interface_info = get_usb_iface_conv_info(pinfo, interface_num);
+
+        /* in interface conversations, endpoint has no meaning */
+        usb_trans_info->interface_info->endpoint = NO_ENDPOINT8;
+
         usb_trans_info->interface_info->interfaceClass = tvb_get_guint8(tvb, offset);
-        /* save information useful to class-specific dissectors */
         usb_trans_info->interface_info->interfaceSubclass = tvb_get_guint8(tvb, offset+1);
         usb_trans_info->interface_info->interfaceProtocol = tvb_get_guint8(tvb, offset+2);
         usb_trans_info->interface_info->deviceVendor      = usb_conv_info->deviceVendor;
