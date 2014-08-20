@@ -1026,7 +1026,7 @@ dissect_bssap_imesiv(tvbuff_t *tvb, proto_tree *tree, int offset)
 
 
 static int
-dissect_bssap_imsi(tvbuff_t *tvb, proto_tree *tree, int offset)
+dissect_bssap_imsi(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int offset)
 {
     proto_item *item;
     proto_tree *ie_tree;
@@ -1045,6 +1045,7 @@ dissect_bssap_imsi(tvbuff_t *tvb, proto_tree *tree, int offset)
     ie_tvb = tvb_new_subset_length(tvb, offset, ie_len);
     digit_str = unpack_digits(ie_tvb, 0, &Dgt1_9_bcd, TRUE);
     proto_tree_add_string(ie_tree, hf_bssap_imsi, ie_tvb, 0, -1, digit_str);
+    dissect_e212_imsi(ie_tvb, pinfo, tree,  0, ie_len, TRUE);
 
     return offset + ie_len;
 
@@ -1653,7 +1654,7 @@ static void dissect_bssap_plus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     case BSSAP_PAGING_REQUEST:
         /* IMSI IMSI 18.4.10 M TLV 6-10 */
         if (check_ie(tvb, tree, &offset, BSSAP_IMSI))
-            offset = dissect_bssap_imsi(tvb, bssap_tree, offset);
+            offset = dissect_bssap_imsi(tvb, bssap_tree, pinfo, offset);
 
         /* VLR number VLR number 18.4.26 M TLV 5-11 */
         if (check_ie(tvb, tree, &offset, BSSAP_VLR_NUMBER))
@@ -1698,7 +1699,7 @@ static void dissect_bssap_plus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     case BSSAP_PAGING_REJECT:                   /*  17.1.18 */
         /* IMSI IMSI 18.4.10 M TLV 6-10 */
         if (check_ie(tvb, tree, &offset, BSSAP_IMSI))
-            offset = dissect_bssap_imsi(tvb, bssap_tree, offset);
+            offset = dissect_bssap_imsi(tvb, bssap_tree, pinfo, offset);
         /* Gs Cause Gs Cause 18.4.7 M TLV 3 */
         if (check_ie(tvb, tree, &offset, BSSAP_GS_CAUSE))
             offset = dissect_bssap_Gs_cause(tvb, bssap_tree, offset);
@@ -1710,7 +1711,7 @@ static void dissect_bssap_plus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     case BSSAP_DOWNLINK_TUNNEL_REQUEST:         /*  17.1.4  */
         /* IMSI IMSI 18.4.10 M TLV 6-10 */
         if (check_ie(tvb, tree, &offset, BSSAP_IMSI))
-            offset = dissect_bssap_imsi(tvb, bssap_tree, offset);
+            offset = dissect_bssap_imsi(tvb, bssap_tree, pinfo, offset);
 
         /* VLR number VLR number 18.4.26 M TLV 5-11 */
         if (check_ie(tvb, tree, &offset, BSSAP_VLR_NUMBER))
@@ -1740,7 +1741,7 @@ static void dissect_bssap_plus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     case BSSAP_LOCATION_UPDATE_REQUEST:         /*  17.1.11 BSSAP+-LOCATION-UPDATE-REQUEST */
         /* IMSI IMSI 18.4.10 M TLV 6-10 */
         if (check_ie(tvb, tree, &offset, BSSAP_IMSI))
-            offset = dissect_bssap_imsi(tvb, bssap_tree, offset);
+            offset = dissect_bssap_imsi(tvb, bssap_tree, pinfo, offset);
 
         /* SGSN number SGSN number 18.4.22 M TLV 5-11 */
         if (check_ie(tvb, tree, &offset, BSSAP_SGSN_NUMBER))
@@ -1788,7 +1789,7 @@ static void dissect_bssap_plus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     case BSSAP_LOCATION_UPDATE_ACCEPT:          /*  17.1.9  */
         /* IMSI 18.4.10 M TLV 6-10 */
         if (check_ie(tvb, tree, &offset, BSSAP_IMSI))
-            offset = dissect_bssap_imsi(tvb, bssap_tree, offset);
+            offset = dissect_bssap_imsi(tvb, bssap_tree, pinfo, offset);
 
         /* Location area identifier Location area identifier 18.4.14 M TLV 7 */
         if (check_ie(tvb, tree, &offset, BSSAP_LOC_AREA_ID))
@@ -1807,7 +1808,7 @@ static void dissect_bssap_plus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     case BSSAP_LOCATION_UPDATE_REJECT:          /*  17.1.10 */
         /* IMSI IMSI 18.4.10 M TLV 6-10 */
         if (check_ie(tvb, tree, &offset, BSSAP_IMSI))
-            offset = dissect_bssap_imsi(tvb, bssap_tree, offset);
+            offset = dissect_bssap_imsi(tvb, bssap_tree, pinfo, offset);
         /* Reject cause Reject cause 18.4.21 M TLV 3 */
         if (check_ie(tvb, tree, &offset, BSSAP_REJECT_CAUSE))
             offset = dissect_bssap_reject_cause(tvb, bssap_tree, pinfo, offset);
@@ -1818,7 +1819,7 @@ static void dissect_bssap_plus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     case BSSAP_TMSI_REALLOCATION_COMPLETE:      /*  17.1.22 */
         /* IMSI IMSI 18.4.10 M TLV 6-10 */
         if (check_ie(tvb, tree, &offset, BSSAP_IMSI))
-            offset = dissect_bssap_imsi(tvb, bssap_tree, offset);
+            offset = dissect_bssap_imsi(tvb, bssap_tree, pinfo, offset);
 
         if (tvb_length_remaining(tvb, offset) <= 0)
             return;
@@ -1840,7 +1841,7 @@ static void dissect_bssap_plus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     case BSSAP_ALERT_REQUEST:                   /*  17.1.3  */
         /* IMSI IMSI 18.4.10 M TLV 6-10 */
         if (check_ie(tvb, tree, &offset, BSSAP_IMSI))
-            offset = dissect_bssap_imsi(tvb, bssap_tree, offset);
+            offset = dissect_bssap_imsi(tvb, bssap_tree, pinfo, offset);
 
         if (tvb_length_remaining(tvb, offset) <= 0)
             return;
@@ -1849,7 +1850,7 @@ static void dissect_bssap_plus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     case BSSAP_ALERT_ACK:                       /*  17.1.1  */
         /* IMSI IMSI 18.4.10 M TLV 6-10 */
         if (check_ie(tvb, tree, &offset, BSSAP_IMSI))
-            offset = dissect_bssap_imsi(tvb, bssap_tree, offset);
+            offset = dissect_bssap_imsi(tvb, bssap_tree, pinfo, offset);
 
         if (tvb_length_remaining(tvb, offset) <= 0)
             return;
@@ -1858,7 +1859,7 @@ static void dissect_bssap_plus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     case BSSAP_ALERT_REJECT:                    /*  17.1.2  */
         /* IMSI IMSI 18.4.10 M TLV 6-10 */
         if (check_ie(tvb, tree, &offset, BSSAP_IMSI))
-            offset = dissect_bssap_imsi(tvb, bssap_tree, offset);
+            offset = dissect_bssap_imsi(tvb, bssap_tree, pinfo, offset);
 
         /* Gs Cause Gs Cause 18.4.7 M TLV 3 */
         if (check_ie(tvb, tree, &offset, BSSAP_GS_CAUSE))
@@ -1871,7 +1872,7 @@ static void dissect_bssap_plus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     case BSSAP_MS_ACTIVITY_INDICATION:          /*  17.1.14 */
         /* IMSI IMSI 18.4.10 M TLV 6-10 */
         if (check_ie(tvb, tree, &offset, BSSAP_IMSI))
-            offset = dissect_bssap_imsi(tvb, bssap_tree, offset);
+            offset = dissect_bssap_imsi(tvb, bssap_tree, pinfo, offset);
 
         if (tvb_length_remaining(tvb, offset) <= 0)
             return;
@@ -1893,7 +1894,7 @@ static void dissect_bssap_plus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     case BSSAP_GPRS_DETACH_INDICATION:          /*  17.1.6  */
         /* IMSI IMSI 18.4.10 M TLV 6-10 */
         if (check_ie(tvb, tree, &offset, BSSAP_IMSI))
-            offset = dissect_bssap_imsi(tvb, bssap_tree, offset);
+            offset = dissect_bssap_imsi(tvb, bssap_tree, pinfo, offset);
 
         /* SGSN number SGSN number 18.4.22 M TLV 5-11 */
         if (check_ie(tvb, tree, &offset, BSSAP_SGSN_NUMBER))
@@ -1923,7 +1924,7 @@ static void dissect_bssap_plus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     case BSSAP_GPRS_DETACH_ACK:                 /*  17.1.5  */
         /* IMSI IMSI 18.4.10 M TLV 6-10 */
         if (check_ie(tvb, tree, &offset, BSSAP_IMSI))
-            offset = dissect_bssap_imsi(tvb, bssap_tree, offset);
+            offset = dissect_bssap_imsi(tvb, bssap_tree, pinfo, offset);
 
         if (tvb_length_remaining(tvb, offset) <= 0)
             return;
@@ -1932,7 +1933,7 @@ static void dissect_bssap_plus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     case BSSAP_IMSI_DETACH_INDICATION:          /*  17.1.8  */
         /* IMSI IMSI 18.4.10 M TLV 6-10 */
         if (check_ie(tvb, tree, &offset, BSSAP_IMSI))
-            offset = dissect_bssap_imsi(tvb, bssap_tree, offset);
+            offset = dissect_bssap_imsi(tvb, bssap_tree, pinfo, offset);
 
         /* SGSN number SGSN number 18.4.22 M TLV 5-11 */
         if (check_ie(tvb, tree, &offset, BSSAP_SGSN_NUMBER))
@@ -1969,7 +1970,7 @@ static void dissect_bssap_plus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     case BSSAP_IMSI_DETACH_ACK:                 /*  17.1.7  */
         /* IMSI IMSI 18.4.10 M TLV 6-10 */
         if (check_ie(tvb, tree, &offset, BSSAP_IMSI))
-            offset = dissect_bssap_imsi(tvb, bssap_tree, offset);
+            offset = dissect_bssap_imsi(tvb, bssap_tree, pinfo, offset);
 
         if (tvb_length_remaining(tvb, offset) <= 0)
             return;
@@ -2016,7 +2017,7 @@ static void dissect_bssap_plus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     case BSSAP_MS_INFORMATION_REQUEST:          /*  17.1.15 */
         /* IMSI IMSI 18.4.10 M TLV 6-10 */
         if (check_ie(tvb, tree, &offset, BSSAP_IMSI))
-            offset = dissect_bssap_imsi(tvb, bssap_tree, offset);
+            offset = dissect_bssap_imsi(tvb, bssap_tree, pinfo, offset);
 
         /* Information requested Information requested 18.4.13 M TLV 3 */
         if (check_ie(tvb, tree, &offset, BSSAP_INFO_REQ))
@@ -2030,7 +2031,7 @@ static void dissect_bssap_plus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     case BSSAP_MS_INFORMATION_RESPONSE:         /*  17.1.16 */
         /* IMSI IMSI 18.4.10 M TLV 6-10 */
         if (check_ie(tvb, tree, &offset, BSSAP_IMSI))
-            offset = dissect_bssap_imsi(tvb, bssap_tree, offset);
+            offset = dissect_bssap_imsi(tvb, bssap_tree, pinfo, offset);
         if (tvb_length_remaining(tvb, offset) <= 0)
             return;
 
@@ -2087,7 +2088,7 @@ static void dissect_bssap_plus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     case BSSAP_MM_INFORMATION_REQUEST:          /*  17.1.12 */
         /* IMSI IMSI 18.4.10 M TLV 6-10 */
         if (check_ie(tvb, tree, &offset, BSSAP_IMSI))
-            offset = dissect_bssap_imsi(tvb, bssap_tree, offset);
+            offset = dissect_bssap_imsi(tvb, bssap_tree, pinfo, offset);
 
         if (tvb_length_remaining(tvb, offset) <= 0)
             return;
@@ -2101,7 +2102,7 @@ static void dissect_bssap_plus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     case BSSAP_MOBILE_STATUS:                   /*  17.1.13 */
         /* IMSI IMSI 18.4.10 O TLV 6-10 */
         if (check_optional_ie(tvb, offset, BSSAP_IMSI))
-                offset = dissect_bssap_imsi(tvb, bssap_tree, offset);
+                offset = dissect_bssap_imsi(tvb, bssap_tree, pinfo, offset);
         /* Gs Cause Gs Cause 18.4.7 M TLV 3 */
         if (check_ie(tvb, tree, &offset, BSSAP_GS_CAUSE))
             offset = dissect_bssap_Gs_cause(tvb, bssap_tree, offset);
@@ -2117,7 +2118,7 @@ static void dissect_bssap_plus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     case BSSAP_MS_UNREACHABLE:                  /*  17.1.17 */
         /* IMSI IMSI 18.4.10 M TLV 6-10 */
         if (check_ie(tvb, tree, &offset, BSSAP_IMSI))
-            offset = dissect_bssap_imsi(tvb, bssap_tree, offset);
+            offset = dissect_bssap_imsi(tvb, bssap_tree, pinfo, offset);
 
         /* Gs Cause Gs Cause 18.4.7 M TLV 3 */
         if (check_ie(tvb, tree, &offset, BSSAP_GS_CAUSE))
