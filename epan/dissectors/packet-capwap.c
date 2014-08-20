@@ -51,7 +51,8 @@ static reassembly_table capwap_reassembly_table;
 * add support of all Messages Element Type
 */
 
-static int proto_capwap = -1;
+static int proto_capwap_control = -1;
+static int proto_capwap_data = -1;
 
 static int hf_capwap_preamble = -1;
 static int hf_capwap_preamble_version = -1;
@@ -1551,10 +1552,10 @@ dissect_capwap_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     fragment_head *frag_msg = NULL;
     gboolean save_fragmented;
 
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "CAPWAP");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "CAPWAP-Control");
     col_set_str(pinfo->cinfo, COL_INFO, "CAPWAP-Control");
 
-    ti = proto_tree_add_item(tree, proto_capwap, tvb, 0, -1, ENC_NA);
+    ti = proto_tree_add_item(tree, proto_capwap_control, tvb, 0, -1, ENC_NA);
     capwap_control_tree = proto_item_add_subtree(ti, ett_capwap);
 
     /* CAPWAP Preamble */
@@ -1636,10 +1637,10 @@ dissect_capwap_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     gboolean save_fragmented;
 
 
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "CAPWAP");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "CAPWAP-Data");
     col_set_str(pinfo->cinfo, COL_INFO, "CAPWAP-Data");
 
-    ti = proto_tree_add_item(tree, proto_capwap, tvb, 0, -1, ENC_NA);
+    ti = proto_tree_add_item(tree, proto_capwap_data, tvb, 0, -1, ENC_NA);
     capwap_data_tree = proto_item_add_subtree(ti, ett_capwap);
 
     /* CAPWAP Preamble */
@@ -2760,18 +2761,19 @@ proto_register_capwap_control(void)
 
     expert_module_t* expert_capwap;
 
-    proto_capwap = proto_register_protocol("Control And Provisioning of Wireless Access Points", "CAPWAP", "capwap");
+    proto_capwap_control = proto_register_protocol("Control And Provisioning of Wireless Access Points - Control", "CAPWAP-CONTROL", "capwap");
+    proto_capwap_data = proto_register_protocol("Control And Provisioning of Wireless Access Points - Data", "CAPWAP-DATA", "capwap.data");
 
-    proto_register_field_array(proto_capwap, hf, array_length(hf));
+    proto_register_field_array(proto_capwap_control, hf, array_length(hf));
 
     proto_register_subtree_array(ett, array_length(ett));
 
-    expert_capwap = expert_register_protocol(proto_capwap);
+    expert_capwap = expert_register_protocol(proto_capwap_control);
     expert_register_field_array(expert_capwap, ei, array_length(ei));
 
     register_init_routine(&capwap_reassemble_init);
 
-    capwap_module = prefs_register_protocol(proto_capwap, proto_reg_handoff_capwap);
+    capwap_module = prefs_register_protocol(proto_capwap_control, proto_reg_handoff_capwap);
 
     prefs_register_uint_preference(capwap_module, "udp.port.control", "CAPWAP Control UDP Port",
         "Set the port for CAPWAP Control messages (if other than the default of 5246)",
@@ -2803,8 +2805,8 @@ proto_reg_handoff_capwap(void)
     static guint capwap_control_udp_port, capwap_data_udp_port;
 
     if (!inited) {
-        capwap_control_handle = new_create_dissector_handle(dissect_capwap_control, proto_capwap);
-        capwap_data_handle    = create_dissector_handle(dissect_capwap_data, proto_capwap);
+        capwap_control_handle = new_create_dissector_handle(dissect_capwap_control, proto_capwap_control);
+        capwap_data_handle    = create_dissector_handle(dissect_capwap_data, proto_capwap_data);
         dtls_handle           = find_dissector("dtls");
         ieee8023_handle       = find_dissector("eth_withoutfcs");
         ieee80211_handle      = find_dissector("wlan_withoutfcs");
