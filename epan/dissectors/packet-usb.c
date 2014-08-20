@@ -2018,7 +2018,7 @@ dissect_usb_configuration_descriptor(packet_info *pinfo _U_, proto_tree *parent_
 static int
 dissect_usb_setup_get_descriptor_request(packet_info *pinfo, proto_tree *tree,
                                          tvbuff_t *tvb, int offset,
-                                         usb_conv_info_t  *usb_conv_info _U_)
+                                         usb_conv_info_t  *usb_conv_info)
 {
     usb_trans_info_t *usb_trans_info;
 
