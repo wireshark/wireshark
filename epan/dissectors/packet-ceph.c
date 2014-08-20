@@ -1693,7 +1693,7 @@ gboolean c_warn_unused(proto_tree *tree,
 {
 	guint diff;
 
-	DISSECTOR_ASSERT_CMPUINT(start, <=, end);
+/*	DISSECTOR_ASSERT_CMPUINT(start, <=, end); */
 
 	diff = end - start;
 	if (!diff) return FALSE; /* no unused space. */
@@ -1722,7 +1722,7 @@ gboolean c_warn_overrun(proto_tree *tree,
 {
 	guint diff;
 
-	DISSECTOR_ASSERT_CMPUINT(start, <=, end);
+/*	DISSECTOR_ASSERT_CMPUINT(start, <=, end); */
 
 	diff = end - start;
 	if (!diff) return FALSE; /* no unused space. */
@@ -1769,7 +1769,7 @@ static
 gshort c_warn_ver(proto_item *ti,
                   gint act, gint min, gint max, c_pkt_data *data)
 {
-	DISSECTOR_ASSERT_CMPINT(min, <=, max);
+/*	DISSECTOR_ASSERT_CMPINT(min, <=, max); */
 
 	if (act < min)
 	{
@@ -7069,7 +7069,7 @@ int dissect_ceph(tvbuff_t *tvb, packet_info *pinfo,
 
 		offt2 = c_dissect_pdu(tree, tvb, off, &data);
 		if (!offt2) return 0;
-		DISSECTOR_ASSERT_CMPINT(offt2, ==, offt);
+/*		DISSECTOR_ASSERT_CMPINT(offt2, ==, offt); */
 
 		off = offt;
 	}
