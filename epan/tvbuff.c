@@ -795,9 +795,17 @@ tvb_memcpy(tvbuff_t *tvb, void *target, const gint offset, size_t length)
 	if (tvb->ops->tvb_memcpy)
 		return tvb->ops->tvb_memcpy(tvb, target, abs_offset, abs_length);
 
-	/* XXX, fallback to slower method */
-
-	DISSECTOR_ASSERT_NOT_REACHED();
+	/*
+	 * If the length is 0, there's nothing to do.
+	 * (tvb->real_data could be null if it's allocated with
+	 * a size of length.)
+	 */
+	if (length != 0) {
+		/*
+		 * XXX, fallback to slower method
+		 */
+		DISSECTOR_ASSERT_NOT_REACHED();
+	}
 	return NULL;
 }
 
