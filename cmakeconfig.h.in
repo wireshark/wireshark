@@ -217,6 +217,9 @@
 /* Define to 1 if you have the `pcap_list_datalinks' function. */
 #cmakedefine HAVE_PCAP_LIST_DATALINKS 1
 
+/* Define to 1 if you have the `pcap_open' function. */
+#cmakedefine HAVE_PCAP_OPEN 1
+
 /* Define to 1 if you have the `pcap_open_dead' function. */
 #cmakedefine HAVE_PCAP_OPEN_DEAD 1
 
@@ -226,6 +229,9 @@
 
 /* Define to 1 if you have the `pcap_set_datalink' function. */
 #cmakedefine HAVE_PCAP_SET_DATALINK 1
+
+/* Define to 1 if you have the `pcap_setsampling" function. */
+#cmakedefine HAVE_PCAP_SETSAMPLING 1
 
 /* Define to 1 if you have the <portaudio.h> header file. */
 #cmakedefine HAVE_PORTAUDIO_H 1
