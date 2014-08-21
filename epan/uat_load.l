@@ -278,7 +278,7 @@ comment #[^\n]*\n
 <ERRORED>{newline} { linenum++; BEGIN START_OF_LINE; }
 <ERRORED>. ;
 
-{newline} { linenum++; ERROR(("incomplete record")); BEGIN START_OF_LINE; }
+{newline} { linenum++; ERROR(("incomplete record")); }
 . { ERROR(("unexpected input")); }
 
 %%
