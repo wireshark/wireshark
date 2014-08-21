@@ -3359,6 +3359,7 @@ dissect_bthci_evt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     guint8      param_length, evt_code;
     guint8      bd_addr[6];
     gint        offset = 0;
+    gint        previous_offset = 0;
     hci_data_t *hci_data;
 
     /* Reject the packet if data is NULL */
@@ -3554,10 +3555,11 @@ dissect_bthci_evt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
             break;
 
         case 0x2f: /* Extended Inquiry Result */
+            previous_offset = offset;
             offset = dissect_bthci_evt_inq_result_with_rssi(tvb, offset, pinfo, bthci_evt_tree, bd_addr);
 
             call_dissector(btcommon_eir_handle, tvb_new_subset_length(tvb, offset, 240), pinfo, bthci_evt_tree);
-            save_remote_device_name(tvb, offset, pinfo, 240, bd_addr, hci_data);
+            save_remote_device_name(tvb, offset, pinfo, 240, (offset - previous_offset <= 1) ? NULL : bd_addr, hci_data);
             offset += 240;
 
             break;
