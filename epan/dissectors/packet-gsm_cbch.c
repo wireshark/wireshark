@@ -127,19 +127,19 @@ cbch_defragment_init(void)
 static void
 dissect_schedule_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree)
 {
-    guint       len, offset     = 0;
-    guint8      octet1, i, j, k = 0;
+    guint       len, offset  = 0;
+    guint8      octet1, i, k = 0;
     guint8      sched_begin, sched_end, new_slots[48];
     gboolean    valid_message   = TRUE;
     guint16     other_slots[48];
     proto_item *item            = NULL, *schedule_item = NULL;
     proto_tree *sched_tree      = NULL, *sched_subtree = NULL;
 
-    len = tvb_length(tvb);
+    len = tvb_reported_length(tvb);
 
     col_append_str(pinfo->cinfo, COL_INFO, " CBCH Schedule Message ");
 
-    schedule_item = proto_tree_add_protocol_format(top_tree, proto_cbch, tvb, 0, len,
+    schedule_item = proto_tree_add_protocol_format(top_tree, proto_cbch, tvb, 0, -1,
                                                    "GSM CBCH Schedule Message");
 
     sched_tree = proto_item_add_subtree(schedule_item, ett_schedule_msg);
@@ -181,6 +181,7 @@ dissect_schedule_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree
             /* iterate over the octets */
             for (i=0; i<6; i++)
             {
+                guint8 j;
                 octet1 = tvb_get_guint8(tvb, offset++);
 
                 /* iterate over the bits */
@@ -263,7 +264,7 @@ dissect_schedule_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree
             /* print schedule of other messages */
             sched_subtree = proto_tree_add_subtree(sched_tree, tvb, offset, 0,
                                 ett_schedule_new_msg, &item, "Other message slots in this schedule");
-            for (k=0; offset < len; j++)
+            for (k=0; offset < len; )
             {
                 /* XXX I don't know if a message can validly contain more than
                  * 48 slots, but that's the size of the array we create so cap
@@ -360,19 +361,17 @@ dissect_cbch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     fragment_head *frag_data = NULL;
     guint8         octet, lb, lpd, seq_num;
     guint32        offset;
-    guint32        len;
-    proto_item    *cbch_item = NULL;
-    proto_tree    *cbch_tree = NULL;
+    proto_item    *cbch_item;
+    proto_tree    *cbch_tree;
     tvbuff_t      *reass_tvb = NULL, *msg_tvb = NULL;
 
-    len    = tvb_length(tvb);
     offset = 0;
     octet  = tvb_get_guint8(tvb, offset);
 
     /*
      * create the protocol tree
      */
-    cbch_item = proto_tree_add_protocol_format(tree, proto_cbch, tvb, 0, len,
+    cbch_item = proto_tree_add_protocol_format(tree, proto_cbch, tvb, 0, -1,
                                                "GSM CBCH - Block (0x%02x)", octet&3);
 
     col_append_str(pinfo->cinfo, COL_PROTOCOL, " CBCH");
@@ -622,3 +621,16 @@ proto_reg_handoff_gsm_cbch(void)
     data_handle = find_dissector("data");
     cbs_handle  = find_dissector("gsm_cbs");
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */
