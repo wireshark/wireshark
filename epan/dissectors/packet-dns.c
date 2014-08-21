@@ -460,7 +460,8 @@ typedef struct _dns_conv_info_t {
 #define T_NINFO         56              /* NINFO */
 #define T_RKEY          57              /* RKEY */
 #define T_TALINK        58              /* Trust Anchor LINK */
-#define T_CDS           59              /* Child DS */
+#define T_CDS           59              /* Child DS (draft-ietf-dnsop-delegation-trust-maintainance)*/
+#define T_CDNSKEY       60              /* DNSKEY(s) the Child wants reflected in DS (draft-ietf-dnsop-delegation-trust-maintainance)*/
 #define T_SPF           99              /* SPF RR (RFC 4408) section 3 */
 #define T_UINFO        100              /* [IANA-Reserved] */
 #define T_UID          101              /* [IANA-Reserved] */
@@ -800,7 +801,8 @@ static const value_string dns_types_vals[] = {
   { T_HIP,        "HIP"        }, /* RFC 5205 */
   { T_RKEY,       "RKEY"       },
   { T_TALINK,     "TALINK"     },
-  { T_CDS,        "CDS"        },
+  { T_CDS,        "CDS"        }, /* draft-ietf-dnsop-delegation-trust-maintainance-14 */
+  { T_CDNSKEY,    "CDNSKEY"    }, /* draft-ietf-dnsop-delegation-trust-maintainance-14 */
   { T_SPF,        "SPF"        }, /* RFC 4408 */
   { T_UINFO,      "UINFO"      }, /* IANA reserved */
   { T_UID,        "UID"        }, /* IANA reserved */
@@ -890,7 +892,8 @@ static const value_string dns_types_description_vals[] = {
   { T_HIP,        "HIP (Host Identity Protocol)" }, /* RFC 5205 */
   { T_RKEY,       "RKEY" },
   { T_TALINK,     "TALINK (Trust Anchor LINK)" },
-  { T_CDS,        "CDS (Child DS)" },
+  { T_CDS,        "CDS (Child DS)" }, /* draft-ietf-dnsop-delegation-trust-maintainance-14 */
+  { T_CDNSKEY,    "CDNSKEY (DNSKEY(s) the Child wants reflected in DS)" }, /* draft-ietf-dnsop-delegation-trust-maintainance-14 */
   { T_SPF,        "SPF" }, /* RFC 4408 */
   { T_UINFO,      "UINFO" }, /* IANA reserved */
   { T_UID,        "UID" }, /* IANA reserved */
@@ -2749,6 +2752,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 
 
     case T_DS: /* Delegation Signature (43) */
+    case T_CDS: /* Child DS (59) */
     case T_DLV:
     {
       int     rr_len = data_len;
@@ -2921,6 +2925,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 
 
     case T_DNSKEY: /* DNSKEY (48) */
+    case T_CDNSKEY: /* CDNSKEY (60) */
     {
       int         rr_len = data_len;
       proto_item *tf, *ti_gen;
