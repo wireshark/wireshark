@@ -106,7 +106,6 @@ add_plugin_type(const char *type, plugin_callback callback)
  * add a new plugin to the list
  * returns :
  * - 0 : OK
- * - ENOMEM : memory allocation problem
  * - EEXIST : the same plugin (i.e. name/version) was already registered.
  */
 static int
@@ -230,16 +229,13 @@ plugins_scan_dir(const char *dirname)
             /*
              * OK, attempt to add it to the list of plugins.
              */
-            if ((cr = add_plugin(new_plug)))
+            cr = add_plugin(new_plug);
+            if (cr != 0)
             {
-                if (cr == EEXIST)
-                    fprintf(stderr, "The plugin %s, version %s\n"
-                            "was found in multiple directories\n",
-                            new_plug->name, new_plug->version);
-                else
-                    fprintf(stderr, "Memory allocation problem\n"
-                            "when processing plugin %s, version %s\n",
-                            new_plug->name, new_plug->version);
+                g_assert(cr == EEXIST);
+                fprintf(stderr, "The plugin %s, version %s\n"
+                        "was found in multiple directories\n",
+                        new_plug->name, new_plug->version);
                 g_module_close(handle);
                 g_free(new_plug->name);
                 g_free(new_plug);
