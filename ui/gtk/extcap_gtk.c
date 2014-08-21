@@ -434,7 +434,7 @@ GtkWidget *extcap_create_gtk_rangewidget(extcap_arg *argument,
 	GtkWidget *spinButton;
 	GtkAdjustment *adjustment;
 
-	gfloat def = 0.0, min = 0.0, max = 0.0;
+	gfloat def = 0.0f, min = 0.0f, max = 0.0f;
 
 	switch (argument->arg_type) {
 	case EXTCAP_ARG_INTEGER:
