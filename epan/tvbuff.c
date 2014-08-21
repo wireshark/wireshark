@@ -1126,7 +1126,15 @@ tvb_memcpy(tvbuff_t *tvb, void *target, const gint offset, size_t length)
 
 	switch(tvb->type) {
 		case TVBUFF_REAL_DATA:
-			DISSECTOR_ASSERT_NOT_REACHED();
+			/*
+			 * If the length is 0, there's nothing to do.
+			 * (tvb->real_data could be null if it's allocated with
+			 * a size of length.)
+			 */
+			if (length != 0) {
+				DISSECTOR_ASSERT_NOT_REACHED();
+			}
+			return NULL;
 
 		case TVBUFF_SUBSET:
 			return tvb_memcpy(tvb->tvbuffs.subset.tvb, target,
@@ -1137,7 +1145,17 @@ tvb_memcpy(tvbuff_t *tvb, void *target, const gint offset, size_t length)
 			return composite_memcpy(tvb, (guint8 *)target, offset, length);
 	}
 
-	DISSECTOR_ASSERT_NOT_REACHED();
+	/*
+	 * If the length is 0, there's nothing to do.
+	 * (tvb->real_data could be null if it's allocated with
+	 * a size of length.)
+	 */
+	if (length != 0) {
+		/*
+		 * XXX, fallback to slower method
+		 */
+		DISSECTOR_ASSERT_NOT_REACHED();
+	}
 	return NULL;
 }
 
