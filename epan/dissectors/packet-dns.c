@@ -144,6 +144,7 @@ static int hf_dns_mx_preference = -1;
 static int hf_dns_mx_mail_exchange = -1;
 static int hf_dns_txt_length = -1;
 static int hf_dns_txt = -1;
+static int hf_dns_openpgpkey = -1;
 static int hf_dns_spf_length = -1;
 static int hf_dns_spf = -1;
 static int hf_dns_ilnp_nodeid_preference = -1;
@@ -462,6 +463,7 @@ typedef struct _dns_conv_info_t {
 #define T_TALINK        58              /* Trust Anchor LINK */
 #define T_CDS           59              /* Child DS (draft-ietf-dnsop-delegation-trust-maintainance)*/
 #define T_CDNSKEY       60              /* DNSKEY(s) the Child wants reflected in DS (draft-ietf-dnsop-delegation-trust-maintainance)*/
+#define T_OPENPGPKEY    61              /* OPENPGPKEY draft-ietf-dane-openpgpkey-00 */
 #define T_SPF           99              /* SPF RR (RFC 4408) section 3 */
 #define T_UINFO        100              /* [IANA-Reserved] */
 #define T_UID          101              /* [IANA-Reserved] */
@@ -742,7 +744,7 @@ http://www.windows.com/windows2000/en/server/help/sag_DNS_imp_UsingWinsLookup.ht
 http://www.microsoft.com/windows2000/library/resources/reskit/samplechapters/cncf/cncf_imp_wwaw.asp
 
    which discuss them to some extent. */
-/* http://www.iana.org/assignments/dns-parameters (last updated 2013-07-24)*/
+/* http://www.iana.org/assignments/dns-parameters (last updated 2014-08-12)*/
 
 static const value_string dns_types_vals[] = {
   { 0,            "Unused"     },
@@ -803,6 +805,7 @@ static const value_string dns_types_vals[] = {
   { T_TALINK,     "TALINK"     },
   { T_CDS,        "CDS"        }, /* draft-ietf-dnsop-delegation-trust-maintainance-14 */
   { T_CDNSKEY,    "CDNSKEY"    }, /* draft-ietf-dnsop-delegation-trust-maintainance-14 */
+  { T_OPENPGPKEY, "OPENPGPKEY" }, /* draft-ietf-dane-openpgpkey-00 */
   { T_SPF,        "SPF"        }, /* RFC 4408 */
   { T_UINFO,      "UINFO"      }, /* IANA reserved */
   { T_UID,        "UID"        }, /* IANA reserved */
@@ -894,6 +897,7 @@ static const value_string dns_types_description_vals[] = {
   { T_TALINK,     "TALINK (Trust Anchor LINK)" },
   { T_CDS,        "CDS (Child DS)" }, /* draft-ietf-dnsop-delegation-trust-maintainance-14 */
   { T_CDNSKEY,    "CDNSKEY (DNSKEY(s) the Child wants reflected in DS)" }, /* draft-ietf-dnsop-delegation-trust-maintainance-14 */
+  { T_OPENPGPKEY, "OPENPGPKEY ( OpenPGP Key)" }, /* draft-ietf-dane-openpgpkey-00 */
   { T_SPF,        "SPF" }, /* RFC 4408 */
   { T_UINFO,      "UINFO" }, /* IANA reserved */
   { T_UID,        "UID" }, /* IANA reserved */
@@ -3112,13 +3116,18 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
     }
     break;
 
+    case T_OPENPGPKEY: /* OpenPGP Key (61) */
+    {
+
+      proto_tree_add_item(rr_tree, hf_dns_openpgpkey, tvb, cur_offset, data_len, ENC_ASCII|ENC_NA);
+
+    }
 
     case T_SPF: /* Sender Policy Framework (99) */
     {
       int rr_len = data_len;
       int spf_offset;
       int spf_len;
-
 
       spf_offset = cur_offset;
       while (rr_len != 0) {
@@ -4327,6 +4336,11 @@ proto_register_dns(void)
 
     { &hf_dns_txt,
       { "TXT", "dns.txt",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_openpgpkey,
+      { "OpenPGP Key", "dns.openpgpkey",
         FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
 
