@@ -1342,6 +1342,7 @@ static const value_string mpeg_descr_component_stream_content_vals[] = {
     { 0x05, "Video (H.264/AVC)" },
     { 0x06, "Audio (HE-AAC)" },
     { 0x07, "Audio (DTS)" },
+    { 0x09, "HEVC" },
 
     { 0x0, NULL }
 };
@@ -1415,6 +1416,11 @@ static const value_string mpeg_descr_component_content_type_vals[] = {
     { 0x0649, "HE-AAC v2 receiver mix audio description for the visually impaired" },
     { 0x064A, "HE-AAC v2 broadcaster mix audio description for the visually impaired" },
     { 0x0801, "DVB SRM data" },
+    { 0x0900, "HEVC Main Profile high definition video, 50 Hz" },
+    { 0x0901, "HEVC Main 10 Profile high definition video, 50 Hz" },
+    { 0x0902, "HEVC Main Profile high definition video, 60 Hz" },
+    { 0x0903, "HEVC Main 10 Profile high definition video, 60 Hz" },
+    { 0x0904, "HEVC ultra high definition video" },
 
     { 0x0, NULL }
 };
