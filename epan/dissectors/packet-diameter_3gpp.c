@@ -541,7 +541,7 @@ dissect_diameter_3gpp_msisdn(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
     item = proto_tree_add_item(tree, hf_diameter_3gpp_msisdn, tvb, offset, length, ENC_NA);
     sub_tree = proto_item_add_subtree(item,diameter_3gpp_msisdn_ett);
 
-    dissect_e164_cc(tvb, sub_tree, offset, TRUE);
+    dissect_e164_cc(tvb, sub_tree, offset, E164_ENC_BCD);
 
     digit_str = unpack_digits(tvb, 1);
     proto_tree_add_string(sub_tree, hf_diameter_address_digits, tvb, 1, -1, digit_str);

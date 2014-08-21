@@ -1805,7 +1805,7 @@ dissect_mip6_opt_vsm_3gpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
         break;
     /* 12, MSISDN */
     case 12:
-        dissect_e164_cc(tvb, tree, offset, TRUE);
+        dissect_e164_cc(tvb, tree, offset, E164_ENC_BCD);
         digit_str = tvb_bcd_dig_to_wmem_packet_str( tvb, offset, len, NULL, FALSE);
         proto_tree_add_string(tree, hf_mip6_opt_3gpp_msisdn, tvb, offset, len, digit_str);
         proto_item_append_text(hdr_item, " %s", digit_str);

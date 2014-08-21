@@ -3258,7 +3258,7 @@ dissect_gsm_map_msisdn(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
   na = (octet & 0x70)>>4;
   np = octet & 0x0f;
   if ((na == 1) && (np==1))/*International Number & E164*/
-    dissect_e164_cc(tvb, tree, 1, TRUE);
+    dissect_e164_cc(tvb, tree, 1, E164_ENC_BCD);
   else if(np==6)
     dissect_e212_mcc_mnc_in_address(tvb, pinfo, tree, 1);
 
@@ -3858,8 +3858,8 @@ dissect_gsm_map_IMSI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
  if(tvb_reported_length(parameter_tvb)==0)
      return offset;
 
-  /* Hide the octet string dfault printout */
-  PROTO_ITEM_SET_HIDDEN(actx->created_item);
+ /* Hide the octet string default printout */
+ PROTO_ITEM_SET_HIDDEN(actx->created_item);
  dissect_e212_imsi(parameter_tvb, actx->pinfo, tree,  0, tvb_reported_length(parameter_tvb), FALSE);
 
 
@@ -4943,7 +4943,7 @@ dissect_gsm_map_ss_USSD_String(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
   if (!parameter_tvb)
      return offset;
 
-  length = tvb_ensure_length_remaining(parameter_tvb,0);
+  length = tvb_ensure_captured_length_remaining(parameter_tvb,0);
   switch(sms_encoding){
     case SMS_ENCODING_7BIT:
     case SMS_ENCODING_7BIT_LANG:
@@ -8189,7 +8189,7 @@ dissect_gsm_map_ms_LocationNumber(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
  proto_tree_add_string(tree, hf_gsm_map_locationnumber_digits, tvb, 1, -1, digit_str);
 
  if ((na == 3) && (np==1))/*International Number & E164*/
-	dissect_e164_cc(tvb, tree, 1, TRUE);
+	dissect_e164_cc(tvb, tree, 1, E164_ENC_BCD);
 
 
 

@@ -836,7 +836,7 @@ dissect_gsm_map_msisdn(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
   na = (octet & 0x70)>>4;
   np = octet & 0x0f;
   if ((na == 1) && (np==1))/*International Number & E164*/
-    dissect_e164_cc(tvb, tree, 1, TRUE);
+    dissect_e164_cc(tvb, tree, 1, E164_ENC_BCD);
   else if(np==6)
     dissect_e212_mcc_mnc_in_address(tvb, pinfo, tree, 1);
 

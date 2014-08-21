@@ -34,7 +34,7 @@ typedef enum {
 	NONE,
 	CALLING_PARTY_NUMBER,
 	CALLED_PARTY_NUMBER
-	} e164_number_type_t;
+} e164_number_type_t;
 
 typedef struct {
 	e164_number_type_t e164_number_type;
@@ -43,8 +43,13 @@ typedef struct {
 	guint E164_number_length;	/* Length of the E164_number string */
 } e164_info_t;
 
+typedef enum {
+	E164_ENC_BINARY,
+	E164_ENC_BCD,
+	E164_ENC_UTF8
+} e164_encoding_t;
 
-extern void dissect_e164_number(tvbuff_t *tvb, proto_tree *tree, int offset, int length,
-											  e164_info_t e164_info);
-WS_DLL_PUBLIC void dissect_e164_cc(tvbuff_t *tvb, proto_tree *tree, int offset, gboolean bcd_coded);
+extern void dissect_e164_number(tvbuff_t *tvb, proto_tree *tree, int offset, int length, e164_info_t e164_info);
+WS_DLL_PUBLIC void dissect_e164_cc(tvbuff_t *tvb, proto_tree *tree, int offset, e164_encoding_t encoding);
+WS_DLL_PUBLIC const gchar * dissect_e164_utf8_number(tvbuff_t *tvb, proto_tree *tree, int offset, int length);
 #endif

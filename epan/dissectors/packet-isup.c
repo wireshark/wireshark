@@ -4121,7 +4121,7 @@ dissect_nsap(tvbuff_t *parameter_tvb, gint offset, gint len, proto_tree *paramet
       offset = offset +1;
       /* Dissect country code */
       cc_offset = offset;
-      dissect_e164_cc(parameter_tvb, parameter_tree, 3, TRUE);
+      dissect_e164_cc(parameter_tvb, parameter_tree, 3, E164_ENC_BCD);
 
       proto_tree_add_text(parameter_tree, parameter_tvb, cc_offset, length, "DSP length %u(len %u -9)", (len-9), len);
 
@@ -6870,7 +6870,7 @@ dissect_isup_generic_number_parameter(tvbuff_t *parameter_tvb, proto_tree *param
   indicators1 = indicators1 & 0x7f;
   indicators2 = (indicators2 & 0x70)>>4;
   if ((indicators1 == ISUP_CALLED_PARTY_NATURE_INTERNATNL_NR) && (indicators2 == ISDN_NUMBERING_PLAN))
-    dissect_e164_cc(parameter_tvb, address_digits_tree, 3, TRUE);
+    dissect_e164_cc(parameter_tvb, address_digits_tree, 3, E164_ENC_BCD);
 
   proto_item_append_text(address_digits_item, ": %s", calling_number);
   proto_item_set_text(parameter_item, "Generic number: %s", calling_number);

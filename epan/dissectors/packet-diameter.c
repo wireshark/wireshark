@@ -65,6 +65,7 @@
 #include "packet-tcp.h"
 #include "packet-diameter.h"
 #include "packet-e212.h"
+#include "packet-e164.h"
 
 void proto_register_diameter(void);
 void proto_reg_handoff_diameter(void);
@@ -514,9 +515,9 @@ dissect_diameter_subscription_id_data(tvbuff_t *tvb, packet_info *pinfo, proto_t
 	    dissect_e212_utf8_imsi(tvb, pinfo, tree, 0, str_len);
 	    return str_len;
 	case SUBSCRIPTION_ID_TYPE_E164:
-	    /* TODO:
-	     * dissect_e164_utf8_number()
-	     */
+	    str_len = tvb_reported_length(tvb);
+	    dissect_e164_utf8_number(tvb, tree, 0, str_len);
+	    return str_len;
 	    break;
     }
 

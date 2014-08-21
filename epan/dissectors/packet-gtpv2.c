@@ -1573,7 +1573,7 @@ dissect_gtpv2_msisdn(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, pr
      * When there is an odd number of digits, bits 8 to 5 of the last octet are encoded with
      * the filler "1111".
      */
-    dissect_e164_cc(tvb, tree, 0, TRUE);
+    dissect_e164_cc(tvb, tree, 0, E164_ENC_BCD);
     /* Fetch the BCD encoded digits from tvb low half byte, formating the digits according to
      * a default digit set of 0-9 returning "?" for overdecadic digits a pointer to the EP
      * allocated string will be returned.

@@ -965,7 +965,7 @@ if (!actx->value_ptr)
  proto_tree_add_string(tree, hf_gsm_map_locationnumber_digits, tvb, 1, -1, digit_str);
 
  if ((na == 3) && (np==1))/*International Number & E164*/
-	dissect_e164_cc(tvb, tree, 1, TRUE);
+	dissect_e164_cc(tvb, tree, 1, E164_ENC_BCD);
 
 #.FN_BODY EnhancedCheckIMEI-Arg/locationInformation VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb;
