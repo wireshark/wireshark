@@ -986,6 +986,7 @@ static const value_string mpeg_descr_service_type_vals[] = {
     { 0x18, "advanced codec SD NVOD reference service" },
     { 0x19, "advanced codec HD digital television service" },
     { 0x1A, "advanced codec HD NVOD time-shifted service" },
+    { 0x1F, "HEVC digital television service" },
 
     { 0x00, NULL }
 };
