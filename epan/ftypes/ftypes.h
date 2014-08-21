@@ -95,6 +95,7 @@ typedef struct _ftype_t ftype_t;
 /* String representation types. */
 enum ftrepr {
 	FTREPR_DISPLAY,
+	FTREPR_DISPLAY_HEX,
 	FTREPR_DFILTER
 };
 

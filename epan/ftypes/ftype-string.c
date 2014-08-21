@@ -57,6 +57,7 @@ string_repr_len(fvalue_t *fv, ftrepr_t rtype)
 {
 	switch (rtype) {
 		case FTREPR_DISPLAY:
+		case FTREPR_DISPLAY_HEX:
 			return (int)strlen(fv->value.string);
 
 		case FTREPR_DFILTER:
@@ -71,6 +72,7 @@ string_to_repr(fvalue_t *fv, ftrepr_t rtype, char *buf)
 {
 	switch (rtype) {
 		case FTREPR_DISPLAY:
+		case FTREPR_DISPLAY_HEX:
 			strcpy(buf, fv->value.string);
 			return;
 
