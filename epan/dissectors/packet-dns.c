@@ -470,8 +470,8 @@ typedef struct _dns_conv_info_t {
 #define T_L32          105              /* ILNP [RFC6742] */
 #define T_L64          106              /* ILNP [RFC6742] */
 #define T_LP           107              /* ILNP [RFC6742] */
-#define T_EUI48        108              /*[draft-jabley-dnsext-eui48-eui64-rrtypes] */
-#define T_EUI64        109              /*[draft-jabley-dnsext-eui48-eui64-rrtypes] */
+#define T_EUI48        108              /* EUI 48 Address (RFC7043) */
+#define T_EUI64        109              /* EUI 64 Address (RFC7043) */
 #define T_TKEY         249              /* Transaction Key (RFC 2930) */
 #define T_TSIG         250              /* Transaction Signature (RFC 2845) */
 #define T_IXFR         251              /* incremental transfer (RFC 1995) */
@@ -810,8 +810,8 @@ static const value_string dns_types_vals[] = {
   { T_L32,        "L32"        }, /* RFC6742 */
   { T_L64,        "L64"        }, /* RFC6742 */
   { T_LP,         "LP"         }, /* RFC6742 */
-  { T_EUI48,      "EUI48"      }, /* draft-jabley-dnsext-eui48-eui64-rrtypes6742 */
-  { T_EUI64,      "EUI64"      }, /* draft-jabley-dnsext-eui48-eui64-rrtypes6742 */
+  { T_EUI48,      "EUI48"      }, /* RFC7043 */
+  { T_EUI64,      "EUI64"      }, /* RFC7043 */
   { T_TKEY,       "TKEY"       },
   { T_TSIG,       "TSIG"       },
   { T_IXFR,       "IXFR"       },
