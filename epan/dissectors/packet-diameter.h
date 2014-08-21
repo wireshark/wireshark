@@ -44,3 +44,10 @@ typedef struct _diam_sub_dis_t {
 	guint32 vendor_id;
 	char *avp_str;
 } diam_sub_dis_t;
+
+#define DIAM_APPID_3GPP_CX      16777216
+#define DIAM_APPID_3GPP_GX      16777238
+#define DIAM_APPID_3GPP_S6A_S6D 16777251
+#define DIAM_APPID_3GPP_S13	16777252
+#define DIAM_APPID_3GPP_SLH	16777291
+#define DIAM_APPID_3GPP_S7A	16777308

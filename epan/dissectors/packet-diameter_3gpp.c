@@ -185,10 +185,6 @@ static gint diameter_3gpp_idr_flags_ett = -1;
 /* Dissector handles */
 static dissector_handle_t xml_handle;
 
-#define DIAM_APPID_3GPP_S6A_S6D 16777251
-#define DIAM_APPID_3GPP_CX      16777216
-#define DIAM_APPID_3GPP_GX      16777238
-
 /* AVP Code: 23 3GPP-MS-TimeZone
  * 3GPP TS 29.061
  */

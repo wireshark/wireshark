@@ -331,14 +331,12 @@ static const char *avpflags_str[] = {
 	"VMP",
 };
 
-#define DIAM_APPID_3GPP_S6A_S6D 16777251
-
 #define SUBSCRIPTION_ID_TYPE_E164	0
 #define SUBSCRIPTION_ID_TYPE_IMSI	1
 #define SUBSCRIPTION_ID_TYPE_SIP_URI	2
 #define SUBSCRIPTION_ID_TYPE_NAI	3
 #define SUBSCRIPTION_ID_TYPE_PRIVATE	4
-#define SUBSCRIPTION_ID_TYPE_UNKNOWN (guint32)-1;
+#define SUBSCRIPTION_ID_TYPE_UNKNOWN (guint32)-1
 static guint32 subscription_id_type;
 
 static void
@@ -474,7 +472,10 @@ dissect_diameter_user_name(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         application_id = diam_sub_dis->application_id;
     }
 
-    if (application_id == DIAM_APPID_3GPP_S6A_S6D) {
+    switch (application_id) {
+    case DIAM_APPID_3GPP_S6A_S6D:
+    case DIAM_APPID_3GPP_SLH:
+    case DIAM_APPID_3GPP_S7A:
         str_len = tvb_reported_length(tvb);
         dissect_e212_utf8_imsi(tvb, pinfo, tree, 0, str_len);
         return str_len;
