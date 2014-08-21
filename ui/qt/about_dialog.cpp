@@ -125,8 +125,10 @@ AboutDialog::AboutDialog(QWidget *parent) :
     QFile f_license;
     const char *constpath;
     QString message;
-#if defined (HAVE_LIBSMI) || defined (HAVE_GEOIP)
+#if defined(HAVE_LIBSMI) || defined(HAVE_GEOIP) || defined(HAVE_EXTCAP)
+#if defined(HAVE_LIBSMI) || defined(HAVE_GEOIP)
     char *path = NULL;
+#endif
     gint i;
     gchar **resultArray;
 #endif
