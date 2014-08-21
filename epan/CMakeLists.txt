@@ -1184,6 +1184,8 @@ set(DISSECTOR_SRC
 	dissectors/packet-rx.c
 	dissectors/packet-s5066sis.c
 	dissectors/packet-s5066dts.c
+	dissectors/packet-s7comm.c
+	dissectors/packet-s7comm_szl_ids.c
 	dissectors/packet-sadmind.c
 	dissectors/packet-sametime.c
 	dissectors/packet-sap.c
