@@ -37,6 +37,7 @@
 #include <epan/wmem/wmem.h>
 #include <epan/expert.h>
 #include <epan/prefs.h>
+#include <epan/decode_as.h>
 
 #include "packet-bluetooth-hci.h"
 #include "packet-sdp.h"
@@ -349,6 +350,8 @@ static int hf_usable_packet_types = -1;
 
 static expert_field ei_event_undecoded = EI_INIT;
 static expert_field ei_event_unknown   = EI_INIT;
+
+static dissector_table_t vendor_dissector_table;
 
 /* Initialize the subtree pointers */
 static gint ett_bthci_evt = -1;
@@ -905,6 +908,16 @@ dissect_bthci_evt_bd_addr(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
     offset += 6;
 
     return offset;
+}
+
+static void bthci_evt_vendor_prompt(packet_info *pinfo _U_, gchar* result)
+{
+    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Vendor as");
+}
+
+static gpointer bthci_evt_vendor_value(packet_info *pinfo _U_)
+{
+    return NULL;
 }
 
 static void
@@ -1562,7 +1575,7 @@ dissect_bthci_evt_conn_packet_type_changed(tvbuff_t *tvb, int offset, packet_inf
 }
 
 static int
-dissect_bthci_evt_command_status(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+dissect_bthci_evt_command_status(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *main_tree, proto_tree *tree, hci_data_t *hci_data)
 {
     proto_item  *ti_opcode;
     proto_tree  *opcode_tree;
@@ -1612,8 +1625,16 @@ dissect_bthci_evt_command_status(tvbuff_t *tvb, int offset, packet_info *pinfo, 
     proto_tree_add_item(opcode_tree, hfx, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)",
-                        val_to_str_ext(opcode, &bthci_cmd_opcode_vals_ext, "Unknown 0x%08x"));
+    if (ogf == HCI_OGF_VENDOR_SPECIFIC) {
+        col_append_fstr(pinfo->cinfo, COL_INFO, " (Vendor Command 0x%04X [(opcode 0x%04X])", opcode & 0x03ff, opcode);
+
+        dissector_try_uint_new(vendor_dissector_table, HCI_VENDOR_DEFAULT, tvb, pinfo, main_tree, TRUE, hci_data);
+
+        return tvb_captured_length(tvb);
+    } else {
+        col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)",
+                val_to_str_ext(opcode, &bthci_cmd_opcode_vals_ext, "Unknown 0x%04x"));
+    }
 
     return offset;
 }
@@ -2024,7 +2045,7 @@ dissect_bthci_evt_amp_status_change(tvbuff_t *tvb, int offset, packet_info *pinf
 
 static int
 dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset,
-        packet_info *pinfo, proto_tree *tree, hci_data_t *hci_data)
+        packet_info *pinfo,  proto_tree *main_tree, proto_tree *tree, hci_data_t *hci_data)
 {
     proto_item  *ti_opcode;
     proto_tree  *opcode_tree;
@@ -2070,8 +2091,18 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset,
     proto_tree_add_item(opcode_tree, hfx, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)",
-                        val_to_str_ext(opcode, &bthci_cmd_opcode_vals_ext, "Unknown 0x%08x"));
+    if (ogf == HCI_OGF_VENDOR_SPECIFIC) {
+        col_append_fstr(pinfo->cinfo, COL_INFO, " (Vendor Command 0x%04X [opcode 0x%04X])", opcode & 0x03ff, opcode);
+
+        dissector_try_uint_new(vendor_dissector_table, HCI_VENDOR_DEFAULT, tvb, pinfo, main_tree, TRUE, hci_data);
+
+        proto_tree_add_item(tree, hf_bthci_evt_ret_params, tvb, offset, tvb_captured_length_remaining(tvb, offset), ENC_NA);
+
+        return tvb_captured_length(tvb);
+    } else {
+        col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)",
+                val_to_str_ext(opcode, &bthci_cmd_opcode_vals_ext, "Unknown 0x%04x"));
+    }
 
     switch(opcode) {
         /* This is a list of Commands that all return just the status */
@@ -3458,11 +3489,11 @@ dissect_bthci_evt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
             break;
 
         case 0x0e: /* Command Complete */
-            offset = dissect_bthci_evt_command_complete(tvb, offset, pinfo, bthci_evt_tree, hci_data);
+            offset = dissect_bthci_evt_command_complete(tvb, offset, pinfo, tree, bthci_evt_tree, hci_data);
             break;
 
         case 0x0f: /* Command Status */
-            offset = dissect_bthci_evt_command_status(tvb, offset, pinfo, bthci_evt_tree);
+            offset = dissect_bthci_evt_command_status(tvb, offset, pinfo, tree, bthci_evt_tree, hci_data);
             break;
 
         case 0x10: /* Hardware Error */
@@ -3679,14 +3710,20 @@ dissect_bthci_evt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         case 0x55: /* Connectionless Slave Broadcast Channel Map Change */
         case 0x56: /* Inquiry Response Notification */
         case 0xfe: /* Bluetooth Logo Testing */
-        case 0xff: /* Vendor-Specific */
 /* TODO: Implement above cases */
-            proto_tree_add_expert(bthci_evt_tree, pinfo, &ei_event_undecoded, tvb, offset, -1);
+            proto_tree_add_expert(bthci_evt_tree, pinfo, &ei_event_undecoded, tvb, offset, tvb_captured_length_remaining(tvb, offset));
             offset += tvb_length_remaining(tvb, offset);
             break;
 
+        case 0xff: /* Vendor-Specific */
+            dissector_try_uint_new(vendor_dissector_table, HCI_VENDOR_DEFAULT, tvb, pinfo, tree, TRUE, hci_data);
+
+            proto_tree_add_expert(bthci_evt_tree, pinfo, &ei_event_undecoded, tvb, offset, tvb_captured_length_remaining(tvb, offset));
+
+            return tvb_captured_length(tvb);
+
         default:
-            proto_tree_add_expert(bthci_evt_tree, pinfo, &ei_event_unknown, tvb, offset, -1);
+            proto_tree_add_expert(bthci_evt_tree, pinfo, &ei_event_unknown, tvb, offset, tvb_captured_length_remaining(tvb, offset));
             offset += tvb_length_remaining(tvb, offset);
             break;
         }
@@ -5206,6 +5243,13 @@ proto_register_bthci_evt(void)
         &ett_le_channel_map
     };
 
+    /* Decode As handling */
+    static build_valid_func bthci_evt_vendor_da_build_value[1] = {bthci_evt_vendor_value};
+    static decode_as_value_t bthci_evt_vendor_da_values = {bthci_evt_vendor_prompt, 1, bthci_evt_vendor_da_build_value};
+    static decode_as_t bthci_evt_vendor_da = {"bthci_cmd", "Vendor", "bthci_cmd.vendor", 1, 0, &bthci_evt_vendor_da_values, NULL, NULL,
+            decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
+
+
     /* Register the protocol name and description */
     proto_bthci_evt = proto_register_protocol("Bluetooth HCI Event",
             "HCI_EVT", "bthci_evt");
@@ -5222,12 +5266,16 @@ proto_register_bthci_evt(void)
     prefs_register_static_text_preference(module, "hci_evt.version",
             "Bluetooth HCI version: 4.0 (Core)",
             "Version of protocol supported by this dissector.");
+
+    register_decode_as(&bthci_evt_vendor_da);
 }
 
 
 void
 proto_reg_handoff_bthci_evt(void)
 {
+    vendor_dissector_table = find_dissector_table("bthci_cmd.vendor");
+
     dissector_add_uint("hci_h4.type", HCI_H4_TYPE_EVT, bthci_evt_handle);
     dissector_add_uint("hci_h1.type", BTHCI_CHANNEL_EVENT, bthci_evt_handle);
 
