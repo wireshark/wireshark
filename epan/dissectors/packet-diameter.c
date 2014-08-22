@@ -517,7 +517,7 @@ dissect_diameter_subscription_id_data(tvbuff_t *tvb, packet_info *pinfo, proto_t
 	    return str_len;
 	case SUBSCRIPTION_ID_TYPE_E164:
 	    str_len = tvb_reported_length(tvb);
-	    dissect_e164_utf8_number(tvb, tree, 0, str_len);
+	    dissect_e164_msisdn(tvb, tree, 0, str_len, E164_ENC_UTF8);
 	    return str_len;
 	    break;
     }

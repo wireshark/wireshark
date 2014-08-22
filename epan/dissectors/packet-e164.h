@@ -51,5 +51,5 @@ typedef enum {
 
 extern void dissect_e164_number(tvbuff_t *tvb, proto_tree *tree, int offset, int length, e164_info_t e164_info);
 WS_DLL_PUBLIC void dissect_e164_cc(tvbuff_t *tvb, proto_tree *tree, int offset, e164_encoding_t encoding);
-WS_DLL_PUBLIC const gchar * dissect_e164_utf8_number(tvbuff_t *tvb, proto_tree *tree, int offset, int length);
+WS_DLL_PUBLIC const gchar * dissect_e164_msisdn(tvbuff_t *tvb, proto_tree *tree, int offset, int length, e164_encoding_t encoding);
 #endif

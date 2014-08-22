@@ -684,18 +684,29 @@ dissect_e164_cc(tvbuff_t *tvb, proto_tree *tree, int offset, e164_encoding_t enc
 }
 
 const gchar *
-dissect_e164_utf8_number(tvbuff_t *tvb, proto_tree *tree, int offset, int length)
+dissect_e164_msisdn(tvbuff_t *tvb, proto_tree *tree, int offset, int length, e164_encoding_t encoding)
 {
 	proto_item *pi;
 	proto_tree *subtree;
-	gchar *msisdn_str;
+	const gchar *msisdn_str;
 
-	msisdn_str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, length, ENC_UTF_8);
+	switch (encoding) {
+	    case E164_ENC_UTF8:
+		msisdn_str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, length, ENC_UTF_8);
+		break;
+	    case E164_ENC_BCD:
+		msisdn_str = tvb_bcd_dig_to_wmem_packet_str(tvb, offset, length, NULL, FALSE);
+		break;
+	    case E164_ENC_BINARY:
+	    default:
+		DISSECTOR_ASSERT_NOT_REACHED();
+	}
+
 	pi = proto_tree_add_string(tree, hf_E164_number, tvb, offset, length, msisdn_str);
 
 	subtree = proto_item_add_subtree(pi, ett_e164_msisdn);
 
-	dissect_e164_cc(tvb, subtree, offset, E164_ENC_UTF8);
+	dissect_e164_cc(tvb, subtree, offset, encoding);
 
 	return msisdn_str;
 }

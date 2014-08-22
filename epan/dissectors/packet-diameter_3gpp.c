@@ -34,7 +34,6 @@
 #include <epan/asn1.h>
 
 #include "packet-diameter.h"
-#include "packet-gsm_map.h"
 #include "packet-gsm_a_common.h"
 #include "packet-e164.h"
 #include "packet-e212.h"
@@ -49,7 +48,6 @@ static int proto_diameter_3gpp          = -1;
 static int hf_diameter_3gpp_timezone                = -1;
 static int hf_diameter_3gpp_timezone_adjustment     = -1;
 static int hf_diameter_3gpp_visited_nw_id           = -1;
-static int hf_diameter_3gpp_msisdn                  = -1;
 static int hf_diameter_3gpp_path                    = -1;
 static int hf_diameter_3gpp_contact                 = -1;
 /* static int hf_diameter_3gpp_user_data               = -1; */
@@ -58,7 +56,6 @@ static int hf_diameter_3gpp_mbms_required_qos_prio  = -1;
 static int hf_diameter_3gpp_tmgi                    = -1;
 static int hf_diameter_3gpp_service_ind             = -1;
 static int hf_diameter_mbms_service_id              = -1;
-static int hf_diameter_address_digits = -1;
 static int hf_diameter_3gpp_spare_bits = -1;
 static int hf_diameter_3gpp_uar_flags_flags = -1;
 static int hf_diameter_3gpp_uar_flags_flags_bit0 = -1;
@@ -168,8 +165,8 @@ static int hf_diameter_3gpp_idr_flags_bit6 = -1;
 static int hf_diameter_3gpp_ipv6addr = -1;
 static int hf_diameter_3gpp_mbms_abs_time_ofmbms_data_tfer = -1;
 static int hf_diameter_3gpp_udp_port = -1;
+
 static gint diameter_3gpp_path_ett = -1;
-static gint diameter_3gpp_msisdn_ett = -1;
 static gint diameter_3gpp_feature_list_ett = -1;
 static gint diameter_3gpp_uar_flags_ett = -1;
 static gint diameter_3gpp_tmgi_ett  = -1;
@@ -528,22 +525,12 @@ dissect_diameter_3gpp_contact(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
 static int
 dissect_diameter_3gpp_msisdn(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-    proto_item *item;
-    proto_tree *sub_tree;
     int offset = 0;
-    const char     *digit_str;
     int length = tvb_reported_length(tvb);
 
-    item = proto_tree_add_item(tree, hf_diameter_3gpp_msisdn, tvb, offset, length, ENC_NA);
-    sub_tree = proto_item_add_subtree(item,diameter_3gpp_msisdn_ett);
+    dissect_e164_msisdn(tvb, tree, offset, length, E164_ENC_BCD);
 
-    dissect_e164_cc(tvb, sub_tree, offset, E164_ENC_BCD);
-
-    digit_str = unpack_digits(tvb, 1);
-    proto_tree_add_string(sub_tree, hf_diameter_address_digits, tvb, 1, -1, digit_str);
-
-    return tvb_reported_length(tvb);
-
+    return length;
 }
 
 /* AVP Code: 702 User-Data
@@ -1125,11 +1112,6 @@ proto_register_diameter_3gpp(void)
             FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
-        { &hf_diameter_3gpp_msisdn,
-            { "MSISDN",           "diameter.3gpp.msisdn",
-            FT_BYTES, BASE_NONE, NULL, 0x0,
-            NULL, HFILL }
-        },
 #if 0
         { &hf_diameter_3gpp_user_data,
             { "User data",           "diameter.3gpp.user_data",
@@ -1160,11 +1142,6 @@ proto_register_diameter_3gpp(void)
         { &hf_diameter_mbms_service_id,
             { "MBMS Service ID",           "diameter.3gpp.mbms_service_id",
             FT_UINT24, BASE_HEX, NULL, 0x0,
-            NULL, HFILL }
-        },
-        { &hf_diameter_address_digits,
-            { "Address digits", "diameter.3gpp.address_digits",
-            FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_diameter_3gpp_spare_bits,
@@ -1721,7 +1698,6 @@ proto_register_diameter_3gpp(void)
     /* Setup protocol subtree array */
     static gint *ett[] = {
         &diameter_3gpp_path_ett,
-        &diameter_3gpp_msisdn_ett,
         &diameter_3gpp_uar_flags_ett,
         &diameter_3gpp_feature_list_ett,
         &diameter_3gpp_tmgi_ett,
