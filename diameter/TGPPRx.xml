@@ -44,8 +44,12 @@ Is defined in gqpolicy.xml
       <avp name="MPS-Identifier" code="528" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
         <type type-name="OctetString" />
       </avp>
+      <avp name="AF-Signalling-Protocol" code="529" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+        <type type-name="Enumerated" />
+        <enum name="NO_INFORMATION" code="0" />
+        <enum name="SIP" code="1" />
+      </avp>
       <!--
-529 AF-Signalling-Protocol Enumerated
 530 Sponsored-Connectivity-Data Grouped
 -->
       <avp name="Sponsor-Identity" code="531" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
