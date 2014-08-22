@@ -479,7 +479,7 @@ static int hf_nfs4_layout_return_type = -1;
 static int hf_nfs4_iomode = -1;
 /* static int hf_nfs4_stripetype = -1; */
 /* static int hf_nfs4_mdscommit = -1; */
-/* static int hf_nfs4_stripeunit = -1; */
+static int hf_nfs4_stripeunit = -1;
 static int hf_nfs4_newtime = -1;
 static int hf_nfs4_newoffset = -1;
 static int hf_nfs4_layout_avail = -1;
@@ -548,6 +548,8 @@ static int hf_nfs4_lrs_present = -1;
 static int hf_nfs4_nfl_mirrors = -1;
 static int hf_nfs4_nfl_util = -1;
 static int hf_nfs4_nfl_fhs = -1;
+static int hf_nfs4_mirror_index = -1;
+static int hf_nfs4_mirror_eff = -1;
 static int hf_nfs4_nfl_first_stripe_index = -1;
 static int hf_nfs4_lrf_body_content = -1;
 static int hf_nfs4_reclaim_one_fs = -1;
@@ -581,7 +583,8 @@ static int hf_nfs4_getdevinfo = -1;
 static int hf_nfs4_ffda_version = -1;
 static int hf_nfs4_ffda_minorversion = -1;
 static int hf_nfs4_ffda_tightly_coupled = -1;
-
+static int hf_nfs4_ffda_rsize = -1;
+static int hf_nfs4_ffda_wsize = -1;
 static gint ett_nfs = -1;
 static gint ett_nfs_fh_encoding = -1;
 static gint ett_nfs_fh_mount = -1;
@@ -8158,6 +8161,10 @@ dissect_nfs4_devices_flexfile(tvbuff_t *tvb, int offset, proto_tree *tree)
 	offset = dissect_rpc_uint32(tvb, tree, hf_nfs4_ffda_version, offset);
 	offset = dissect_rpc_uint32(tvb, tree, hf_nfs4_ffda_minorversion,
 				    offset);
+	offset = dissect_rpc_uint32(tvb, tree, hf_nfs4_ffda_rsize,
+				    offset);
+	offset = dissect_rpc_uint32(tvb, tree, hf_nfs4_ffda_wsize,
+				    offset);
 	offset = dissect_rpc_bool(tvb, tree, hf_nfs4_ffda_tightly_coupled,
 				  offset);
 	return offset;
@@ -8327,7 +8334,7 @@ dissect_nfs4_layout(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 	guint	    layout_type;
 	guint	    sub_num;
 	guint	    lo_seg_count;
-	guint	    i, lo_seg;
+	guint	    i, j, lo_seg;
 	proto_tree *newtree;
 	proto_item *sub_fitem;
 	proto_tree *subtree;
@@ -8374,8 +8381,15 @@ dissect_nfs4_layout(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 						subtree, "lo_filehandle", NULL,
 						civ);
 		} else if (layout_type == LAYOUT4_FLEX_FILES) {
+			guint	ds_count;
+			proto_tree *ds_tree;
+			proto_item *ds_fitem;
+
 			/* NFS Flex Files */
 			offset += 4; /* Skip past opaque count */
+
+			/* stripe unit */
+			offset = dissect_rpc_uint64(tvb, newtree, hf_nfs4_stripeunit, offset);
 
 			/* Len of mirror list */
 			sub_num = tvb_get_ntohl(tvb, offset);
@@ -8385,16 +8399,33 @@ dissect_nfs4_layout(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 				sub_fitem = proto_tree_add_item(newtree,
 						hf_nfs4_nfl_mirrors, tvb,
 						offset, 4, i);
+
+				/* data server count */
+				ds_count = tvb_get_ntohl(tvb, offset);
+				offset += 4;
+
 				subtree = proto_item_add_subtree(sub_fitem,
 						ett_nfs4_layoutseg_sub);
-				offset = dissect_nfs4_deviceid(tvb, offset,
-						subtree);
-				offset = dissect_nfs4_fh(tvb, offset, pinfo,
-						subtree, "fh", NULL, civ);
-				offset = dissect_nfs4_stateid(tvb, offset,
-						subtree, NULL);
-				offset = dissect_rpc_opaque_auth(tvb, subtree,
-						offset, pinfo);
+
+				for (j = 0; j < ds_count; j++) {
+					ds_fitem = proto_tree_add_item(subtree,
+							hf_nfs4_mirror_index, tvb,
+							offset, 4, j);
+
+					ds_tree = proto_item_add_subtree(ds_fitem,
+							ett_nfs4_layoutseg_sub);
+
+					offset = dissect_nfs4_deviceid(tvb, offset,
+							ds_tree);
+					offset = dissect_rpc_uint32(tvb, ds_tree,
+							hf_nfs4_mirror_eff, offset);
+					offset = dissect_nfs4_stateid(tvb, offset,
+							ds_tree, NULL);
+					offset = dissect_nfs4_fh(tvb, offset, pinfo,
+							ds_tree, "fh", NULL, civ);
+					offset = dissect_rpc_opaque_auth(tvb, ds_tree,
+							offset, pinfo);
+				}
 			}
 		} else {
 			offset = dissect_nfsdata(tvb, offset, newtree, hf_nfs4_layout);
@@ -11663,11 +11694,9 @@ proto_register_nfs(void)
 			VALS(stripetype_names), 0, NULL, HFILL }},
 #endif
 
-#if 0
 		{ &hf_nfs4_stripeunit, {
 			"stripe unit", "nfs.stripeunit", FT_UINT64, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
-#endif
 
 #if 0
 		{ &hf_nfs4_util, {
@@ -11766,6 +11795,14 @@ proto_register_nfs(void)
 
 		{ &hf_nfs4_nfl_fhs, {
 			"file handles", "nfs.nfl_fhs", FT_UINT32, BASE_HEX,
+			NULL, 0, NULL, HFILL }},
+
+		{ &hf_nfs4_mirror_index, {
+			"Data Server", "nfs.nff_mirror_index", FT_UINT32, BASE_DEC,
+			NULL, 0, NULL, HFILL }},
+
+		{ &hf_nfs4_mirror_eff, {
+			"mirror efficiency", "nfs.nff_mirror_eff", FT_UINT32, BASE_HEX,
 			NULL, 0, NULL, HFILL }},
 
 		{ &hf_nfs4_nfl_first_stripe_index, {
@@ -12278,6 +12315,14 @@ proto_register_nfs(void)
 
 		{ &hf_nfs4_ffda_minorversion, {
 			"minorversion", "nfs.ffda_minorversion", FT_UINT32,
+			BASE_DEC, NULL, 0, NULL, HFILL }},
+
+		{ &hf_nfs4_ffda_rsize, {
+			"max_rsize", "nfs.ffda_rsize", FT_UINT32,
+			BASE_DEC, NULL, 0, NULL, HFILL }},
+
+		{ &hf_nfs4_ffda_wsize, {
+			"max_wsize", "nfs.ffda_wsize", FT_UINT32,
 			BASE_DEC, NULL, 0, NULL, HFILL }},
 
 		{ &hf_nfs4_ffda_tightly_coupled, {

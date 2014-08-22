@@ -172,10 +172,10 @@
 #define NFS_ACCESS_MASK_EXECUTE     0x20
 
 /* pNFS layout types */
-#define LAYOUT4_NFSV4_1_FILES  1
-#define LAYOUT4_OSD2_OBJECTS   2
-#define LAYOUT4_BLOCK_VOLUME   3
-#define LAYOUT4_FLEX_FILES     4
+#define LAYOUT4_NFSV4_1_FILES             1
+#define LAYOUT4_OSD2_OBJECTS              2
+#define LAYOUT4_BLOCK_VOLUME              3
+#define LAYOUT4_FLEX_FILES                4
 
 extern gboolean nfs_file_name_snooping;
 extern void nfs_name_snoop_add_name(int xid, tvbuff_t *tvb, int name_offset, int name_len,
