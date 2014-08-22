@@ -3376,13 +3376,11 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
         }
 
         if (usb_conv_info->is_request) {
-            proto_tree *setup_tree = NULL;
-            tvbuff_t   *setup_tvb = NULL;
-            gint        req_type = 0;
-
             if (usb_conv_info->is_setup) {
 
-                req_type = USB_TYPE(tvb_get_guint8(tvb, offset));
+                proto_tree *setup_tree = NULL;
+                tvbuff_t   *setup_tvb = NULL;
+                gint req_type = USB_TYPE(tvb_get_guint8(tvb, offset));
 
                 /* Dissect the setup header - it's applicable */
                 offset = dissect_usb_setup_request(pinfo, parent, tvb, offset, usb_conv_info, &setup_tree);
@@ -3399,42 +3397,52 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
                     tvb_composite_append(setup_tvb, next_tvb);
                 }
 
+                /*
+                 * If this has a 64-byte header, process the extra 16 bytes of
+                 * pseudo-header information.
+                 */
+                if ((header_info & USB_HEADER_IS_LINUX) &&
+                    (header_info & USB_HEADER_IS_64_BYTES)) {
+                    offset = dissect_linux_usb_pseudo_header_ext(tvb, offset, pinfo, tree);
+                }
+
+                if (req_type != RQT_SETUP_TYPE_STANDARD) {
+                    if (header_info & (USB_HEADER_IS_LINUX | USB_HEADER_IS_64_BYTES)) {
+                        if (tvb_captured_length_remaining(tvb, offset) != 0) {
+                            next_tvb = tvb_new_subset_remaining(tvb, offset);
+                            tvb_composite_append(setup_tvb, next_tvb);
+                            tvb_composite_finalize(setup_tvb);
+
+                            next_tvb = tvb_new_child_real_data(tvb, (const guint8 *) tvb_memdup(pinfo->pool, setup_tvb, 0, tvb_captured_length(setup_tvb)), tvb_captured_length(setup_tvb), tvb_captured_length(setup_tvb));
+                            add_new_data_source(pinfo, next_tvb, "Linux USB Control");
+
+                            proto_tree_add_item(setup_tree, hf_usb_data_fragment, tvb, offset, -1, ENC_NA);
+                        }
+                        else
+                            tvb_composite_finalize(setup_tvb);
+                    }
+                    else
+                        next_tvb = tvb_new_subset_remaining(tvb, offset - 7);
+
+                    offset = try_dissect_next_protocol(tree, parent, next_tvb, offset, pinfo, usb_conv_info, urb_type);
+
+                }
+
             } else {
                 if (header_info & USB_HEADER_IS_LINUX) {
                     /* Skip setup/isochronous header - it's not applicable */
                     proto_tree_add_item(tree, hf_usb_urb_unused_setup_header, tvb, offset, 8, ENC_NA);
                     offset += 8;
+
+                        /*
+                         * If this has a 64-byte header, process the extra 16 bytes of
+                         * pseudo-header information.
+                         */
+                        if (header_info & USB_HEADER_IS_64_BYTES) {
+                            offset = dissect_linux_usb_pseudo_header_ext(tvb, offset, pinfo, tree);
+                        }
                 }
-            }
 
-            /*
-             * If this has a 64-byte header, process the extra 16 bytes of
-             * pseudo-header information.
-             */
-            if ((header_info & USB_HEADER_IS_LINUX) &&
-                (header_info & USB_HEADER_IS_64_BYTES)) {
-                offset = dissect_linux_usb_pseudo_header_ext(tvb, offset, pinfo, tree);
-            }
-
-            if (req_type != RQT_SETUP_TYPE_STANDARD) {
-                if (setup_tvb) {
-                    if (tvb_captured_length_remaining(tvb, offset) != 0) {
-                        next_tvb = tvb_new_subset_remaining(tvb, offset);
-                        tvb_composite_append(setup_tvb, next_tvb);
-                        tvb_composite_finalize(setup_tvb);
-
-                        next_tvb = tvb_new_child_real_data(tvb, (const guint8 *) tvb_memdup(pinfo->pool, setup_tvb, 0, tvb_captured_length(setup_tvb)), tvb_captured_length(setup_tvb), tvb_captured_length(setup_tvb));
-                        add_new_data_source(pinfo, next_tvb, "Linux USB Control");
-
-                        proto_tree_add_item(setup_tree, hf_usb_data_fragment, tvb, offset, -1, ENC_NA);
-                    }
-                    else
-                        tvb_composite_finalize(setup_tvb);
-                }
-                else
-                    next_tvb = tvb_new_subset_remaining(tvb, offset - 7);
-
-                offset = try_dissect_next_protocol(tree, parent, next_tvb, offset, pinfo, usb_conv_info, urb_type);
             }
         } else {
             /* this is a response */
