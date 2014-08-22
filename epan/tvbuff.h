@@ -846,9 +846,9 @@ WS_DLL_PUBLIC gchar *tvb_bytes_to_ep_str(tvbuff_t *tvb, const gint offset,
  * tvbuff"), fetch BCD encoded digits from a tvbuff starting from either
  * the low or high half byte, formatting the digits according to an input digit
  * set, if NUL a default digit set of 0-9 returning "?" for overdecadic digits
- * will be used.  A pointer to the EP allocated string will be returned.
- * Note a tvbuff content of 0xf is considered a 'filler' and will end the
- * conversion.
+ * will be used.  A pointer to the packet-scope (WMEM-allocated) string will
+ * be returned. Note a tvbuff content of 0xf is considered a 'filler' and will
+ * end the conversion.
  */
 typedef struct dgt_set_t
 {
