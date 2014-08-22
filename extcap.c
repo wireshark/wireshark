@@ -22,7 +22,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "config.h"
+#include <config.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -178,7 +178,7 @@ static void extcap_foreach(gint argc, gchar **args, extcap_cb_t cb,
 			argv[argc+1] = NULL;
 
 			status = g_spawn_sync(dirname, argv, NULL,
-				(GSpawnFlags) 0, NULL, NULL, 
+				(GSpawnFlags) 0, NULL, NULL,
 					&command_output, NULL, &exit_status, &error);
 
 			if (status && exit_status == 0)

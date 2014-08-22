@@ -23,7 +23,7 @@
 #ifndef __UNICODEUTIL_H__
 #define __UNICODEUTIL_H__
 
-#include "config.h"
+#include <config.h>
 
 #include "ws_symbol_export.h"
 

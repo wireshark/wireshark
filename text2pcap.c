@@ -75,7 +75,7 @@
  * snaplength is automatically set to 64KiB-1.
  */
 
-#include "config.h"
+#include <config.h>
 
 /*
  * Just make sure we include the prototype for strptime as well

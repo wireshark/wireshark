@@ -24,7 +24,7 @@
 #ifndef __EXTCAP_H__
 #define __EXTCAP_H__
 
-#include "config.h"
+#include <config.h>
 
 #include <glib.h>
 

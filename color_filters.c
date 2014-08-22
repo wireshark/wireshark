@@ -23,7 +23,7 @@
  * Updated 1 Dec 10 jjm
  */
 
-#include "config.h"
+#include <config.h>
 
 #include <glib.h>
 

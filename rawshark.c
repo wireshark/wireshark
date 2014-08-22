@@ -32,7 +32,7 @@
  * - Prints a status line, followed by fields from a specified list.
  */
 
-#include "config.h"
+#include <config.h>
 
 #include <stdlib.h>
 #include <stdio.h>
