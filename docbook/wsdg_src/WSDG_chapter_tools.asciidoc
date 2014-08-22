@@ -25,7 +25,9 @@ tools are available in different "flavours":
   emulation
 
 * Windows native: some tools are available as native Windows tools, no special
-  emulation is required
+  emulation is required.  Many of these tools can be installed (and updated)
+  using http://chocolatey.org[Chocolatey], a Windows package manager similar
+  to the linux package managers apt-get or yum.
 
 [WARNING]
 .Follow the directions
@@ -46,6 +48,30 @@ toolname`.
 
 You will find explanations of the tool usage for some of the specific
 development tasks in <<ChapterSources>>.
+
+[[ChToolsWindowsPowerShell]]
+
+=== Windows PowerShell
+
+If you are running Windows Vista you may need to install at least Windows Powershell
+2.0, although later versions will also work.
+You can download it from https://www.microsoft.com/powershell[]
+
+=== Chocolatey
+
+Chocolatey is a Windows package manager that can be used to install (and update)
+many of the packages required for Wireshark development.  Chocolatey can be
+obtained from the http://chocolatey.org[website] or from a DOS command prompt:
+
+----
+C:\>@powershell -NoProfile -ExecutionPolicy unrestricted -Command "iex ((new-object net.webclient).DownloadString('https://chocolatey.org/install.ps1'))" && SET PATH=%PATH%;%ALLUSERSPROFILE%\chocolatey\bin
+----
+
+or a Powershell prompt:
+
+----
+PS:\>iex ((new-object net.webclient).DownloadString('https://chocolatey.org/install.ps1'))
+----
 
 [[ChToolsCygwin]]
 
@@ -100,7 +126,7 @@ After clicking the Next button several times the setup
 will then download and install the selected packages (this may
 take a while, depending on the package size).
 
-Under: 'Start→Programs→Cygwin→Cygwin Bash Shell' you should now be able to start
+Under: 'Start->Programs->Cygwin->Cygwin Bash Shell' you should now be able to start
 a new Cygwin bash shell, which is similar to the standard Windows command line
 interpreters (command.com / cmd.exe) but much more powerful.
 
@@ -217,16 +243,10 @@ http://www.gnu.org/software/ddd/[].
 ==== make (GNU Make)
 
 [NOTE]
-.GNU make isn't supported either
-====
-Although some effort is made to use make from the
-Cygwin environment, the mainline is still using Microsoft
-Visual Studio's nmake.
-====
+.GNU make isn't supported either for Windows
 
 GNU Make is available for most of the UNIX-like
-platforms and also as the Devel/make package from the
-<<ChToolsCygwin,Cygwin setup>>.
+platforms.
 
 If GNU Make isn't already installed or
 available as a package for your platform, you can get it at:
@@ -275,6 +295,7 @@ compiler, you'll need:
 
 ==== Toolchain Package Alternatives
 
+The Wireshark 1.99.x releases are compiled using Microsoft Visual $$C++$$ 2013.
 The official Wireshark 1.12.x and 1.10.x releases are compiled using
 Microsoft Visual $$C++$$ 2010 SP1.
 The official 1.8 releases were compiled using
@@ -282,8 +303,12 @@ Microsoft Visual $$C++$$ 2010 SP1 as well.
 The official 1.6, 1.4, and 1.2 releases were compiled using
 Microsoft Visual $$C++$$ 2008 SP1.
 Other past releases, including the 1.0 branch,
-were compiled using Microsoft Visual $$C++$$ 6.0. Using the release
-compilers is recommended for Wireshark development work. "Express
+were compiled using Microsoft Visual $$C++$$ 6.0.
+
+Using the release
+compilers is recommended for Wireshark development work.
+
+The older "Express
 Edition" compilers such as Visual $$C++$$ 2010 Express Edition SP1 can be
 used but any PortableApps packages you create with them
 will require the installation of a separate Visual $$C++$$
@@ -294,8 +319,17 @@ package is to be used. See
 However, you might already have a different Microsoft $$C++$$ compiler
 installed. It should be possible to use any of the following with the considerations listed:
 
+.Visual C++ 2013 Community Edition
 
-.Visual C++ 2010 Express Edition (recommended)
+IDE + Debugger?:: Yes
+
+Purchase required?:: http://www.visualstudio.com/en-us/downloads/download-visual-studio-vs#d-community[Free Download]
+
+SDK required for 64-bit builds?:: No
+
+config.nmake MSVC_VARIANT:: MSVC2013
+
+.Visual C++ 2010 Express Edition
 
 IDE + Debugger?:: Yes
 
@@ -305,20 +339,14 @@ SDK required for 64-bit builds?:: Yes.
 
 config.nmake MSVC_VARIANT:: MSVC2010EE
 
-32-bit environment setup:: `%PROGRAMFILES%\Microsoft Visual Studio 10.0\VC\vcvarsall.bat x86`
-
-64-bit environment setup:: `%PROGRAMFILES%\Microsoft Visual Studio 10.0\VC\vcvarsall.bat x64`
-
 Remarks:: Installers created using express editions require a $$C++$$ redistributable
-('$$vcredist_x86.exe$$' or
-'$$vcredist_x86.exe$$').footnoteref[vcredist,'$$vcredist_x86.exe$$' (3MB free
+'$$vcredist_x86.exe$$' (3MB free
 download) is required to build
 Wireshark-win32-wireshark-major-minor-version:[].x.exe, and
 '$$vcredist_x64.exe$$' is required to build
 Wireshark-win64-wireshark-major-minor-version:[].x.exe. The version of
 '$$vcredist_x86.exe$$' or '$$vcredist_x64.exe$$' _must_ match the version for your
 compiler including any service packs installed for the compiler.]
-
 
 .Visual Studio 2010
 
@@ -330,100 +358,15 @@ SDK required for 64-bit builds?:: No
 
 config.nmake MSVC_VARIANT:: MSVC2010
 
-32-bit environment setup:: `%PROGRAMFILES%\Microsoft Visual Studio 10.0\VC\vcvarsall.bat x86`
-
-64-bit environment setup:: `%PROGRAMFILES%\Microsoft Visual Studio 10.0\VC\vcvarsall.bat x64_`
-
-Remarks:: Default compiler in 'config.nmake'. Building a 64-bit installer
+Remarks:: Building a 64-bit installer
 requires a a $$C++$$ redistributable
 ('$$vcredist_x86.exe$$').footnoteref[vcredist]
 
+You can use Chocolatey to install Visual Studio, e.g:
 
-.Visual C++ 2008 Express Edition SP1
-
-IDE + Debugger?:: Yes
-
-Purchase required?:: http://www.microsoft.com/download/details.aspx?id=14597[Free Download]
-
-SDK required for 64-bit builds?:: 64-bit build not supported
-
-config.nmake MSVC_VARIANT:: MSVC2008EE
-
-32-bit environment setup:: `%PROGRAMFILES%\Microsoft Visual Studio 9.0\VC\bin\vcvars32.bat`
-
-Remarks:: Installers created using express editions require a $$C++$$ redistributable
-('$$vcredist_x86.exe$$').footnoteref[vcredist]
-
-
-.Visual Studio 2008
-
-IDE + Debugger?:: Yes
-
-Purchase required?:: Yes
-
-SDK required for 64-bit builds?:: 64-bit build not supported
-
-config.nmake MSVC_VARIANT:: MSVC2008
-
-32-bit environment setup:: `%PROGRAMFILES%\Microsoft Visual Studio 9.0\VC\bin\vcvars32.bat`
-
-
-.Visual C++ 2005 Express Edition
-
-IDE + Debugger?:: Yes
-
-Purchase required?:: Free Download (link disappeared)
-
-SDK required for 64-bit builds?:: 64-bit build not supported
-
-config.nmake MSVC_VARIANT:: MSVC2005EE
-
-32-bit environment setup:: `%PROGRAMFILES%\Microsoft Visual Studio 8\VC\bin\vcvars32.bat`
-
-Remarks:: Installers created using express editions require a $$C++$$ redistributable
-('$$vcredist_x86.exe$$').footnoteref[vcredist]
-
-
-.Visual Studio 2005
-
-IDE + Debugger?:: Yes
-
-Purchase required?:: Yes
-
-SDK required for 64-bit builds?:: 64-bit build not supported
-
-config.nmake MSVC_VARIANT:: MSVC2005
-
-32-bit environment setup:: `%PROGRAMFILES%\Microsoft Visual Studio 8\VC\bin\vcvars32.bat`
-
-==== Legal issues with MSVC > V6?
-
-Please note: The following is not legal advice - ask your preferred lawyer
-instead. It's the author's view, but this view might be wrong.
-
-The myriad of http://anonsvn.wireshark.org/wireshark-win32-libs/tags/[Win32
-support lib] port projects all seem to believe there are legal issues involved
-in using newer versions of Visual Studio. This FUD essentially stems from two
-misconceptions:
-
-. Unfortunately, it is believed by many that the Microsoft Visual Studio 2003
-EULA explicitly forbids linking with GPL'ed programs. This belief is probably
-due to an improper interpretation of the
-http://msdn.microsoft.com/visualc/vctoolkit2003/eula.aspx[Visual Studio 2003
-Toolkit EULA], which places redistribution restrictions only on SOURCE CODE
-SAMPLES which accompany the toolkit.
-
-. Other maintainers believe that the GPL itself forbids using Visual Studio 2003
-since one of the required support libraries (MSVCR71.DLL) does not ship with the
-Windows operating system. This is also a wrongful interpretation, and the
-http://www.gnu.org/licenses/gpl-faq.html#WindowsRuntimeAndGPL[GPL FAQ]
-explicitly addresses this issue.
-
-The situation is similar for Visual Studio 2005 and later.
-
-It should be perfectly legal to compile
-Wireshark, distribute, run it if it was compiled with any
-MSVC version > V6.
+----
+PS:\> cinst VisualStudioCommunity2013
+----
 
 ==== cl.exe (C Compiler)
 
@@ -433,19 +376,13 @@ versions ordered by release date.
 
 |===============
 |Compiler Package|cl.exe|_MSC_VER|CRT DLL
-|Visual Studio 2005|8.0|1400|msvcr80.dll
-|Visual $$C++$$ 2005 Express Edition
-|.NET Framework 2.0 SDK
-|Windows SDK for Windows Vista and
-.NET Framework 3.0 Runtime Components
-|Visual Studio 2008|9.0|1500|msvcr90.dll
-|Visual Studio 2008 Express Edition
+|Visual Studio 2013|12.0|1800|msvcr120.dll
 |Visual Studio 2010|10.0|1600|msvcr100.dll
 |Visual Studio 2010 Express Edition
 |===============
 
 After correct installation of the toolchain, typing
-at the command line prompt (cmd.exe):
+at the Visual Studio Command line prompt (cmd.exe):
 
 ----
 > cl
@@ -454,13 +391,16 @@ at the command line prompt (cmd.exe):
 should result in something like:
 
 ----
-Microsoft (R) 32-bit C/C++ Optimizing Compiler Version 15.00.30729.01 for 80x86
-Copyright (C) Microsoft Corp. All rights reserved.
+Microsoft (R) C/C++ Optimizing Compiler Version 18.00.31101 for x86
+Copyright (C) Microsoft Corporation.  All rights reserved.
 
 usage: cl [ option... ] filename... [ /link linkoption...
 ----
 
 However, the version string may vary.
+
+Documentation on the compiler can be found at
+http://msdn.microsoft.com/en-us/library/wk21sfcf.aspx[Microsoft MSDN]
 
 [[ChToolsNMake]]
 
@@ -476,7 +416,7 @@ file formats are similar. However, as no Visual Studio workspace/project files
 are available, this makes it hard to use the Visual Studio IDE e.g. for using
 the integrated debugging feature.
 
-After correct installation, typing at the command line prompt (cmd.exe):
+After correct installation, typing at the Visual Studio Command line prompt (cmd.exe):
 
 ----
 > nmake
@@ -485,8 +425,8 @@ After correct installation, typing at the command line prompt (cmd.exe):
 should result in something like:
 
 ----
-Microsoft (R) Program Maintenance Utility   Version 6.00.9782.0
-Copyright (C) Microsoft Corp 1988-1998. All rights reserved.
+Microsoft (R) Program Maintenance Utility Version 12.00.21005.1
+Copyright (C) Microsoft Corporation.  All rights reserved.
 
 NMAKE : fatal error U1064: MAKEFILE not found and no target specified
 Stop.
@@ -495,13 +435,30 @@ Stop.
 However, the version string may vary.
 
 Documentation on nmake can be found at
-http://msdn2.microsoft.com/library/dd9y37ha(VS.71).aspx[Microsoft MSDN]
+http://msdn.microsoft.com/en-us/library/dd9y37ha.aspx[Microsoft MSDN]
 
 ==== link.exe (Linker)
 
-****
-This section not yet written
-****
+After correct installation, typing at the Visual Studio Command line prompt (cmd.exe):
+
+----
+> link
+----
+
+should result in something like:
+
+----
+Microsoft (R) Incremental Linker Version 12.00.31101.0
+Copyright (C) Microsoft Corporation.  All rights reserved.
+
+ usage: LINK [options] [files] [@commandfile]
+ ...
+----
+
+However, the version string may vary.
+
+Documentation on the linker can be found at
+http://msdn.microsoft.com/en-us/library/t2fck18t.aspx[Microsoft MSDN]
 
 [[msvc-runtime-redistributable]]
 
@@ -536,175 +493,30 @@ can't be legally redistributed by third parties like
 us.
 ====
 
-The following MSDN links are recommended for the
+The following MSDN link is recommended for the
 interested reader:
 
-* http://msdn2.microsoft.com/library/ms235299(VS.80).aspx[Redistributing Visual C++ Files]
-
-* http://msdn2.microsoft.com/library/ms235291(VS.80).aspx[How to: Deploy using XCopy]
-
-* http://support.microsoft.com/?scid=kb%3Ben-us%3B326922&amp;x=10&amp;y=13[Redistribution
-  of the shared C runtime component in Visual $$C++$$ 2005 and in Visual $$C++$$
-  .NET]
+* http://msdn.microsoft.com/en-us/library/ms235299.aspx[Redistributing Visual C++ Files]
 
 In all cases where '$$vcredist_x86.exe$$' or '$$vcredist_x64.exe$$' is
 downloaded it should be downloaded to the directory into which the support
 libraries for Wireshark have been downloaded and installed. This directory is
 specified by the WIRESHARK_LIB_DIR setting in the 'config.nmake'. By default it
-is 'C:\wireshark-win32-libs'. It need not, and should not, be run after being
+is 'C:\Development\wireshark-win32-libs'. It need not, and should not, be run after being
 downloaded.
 
-===== msvcr80.dll / vcredist_x86.exe - Version 8.0 (2005)
+===== msvcr120.dll / vcredist_x86.exe / vcredist_x64.exe - Version 12.0 (2013)
 
 There are three redistribution methods that MSDN
-mentions for MSVC 8 (see
-http://msdn.microsoft.com/library/ms235316(VS.80).aspx["Choosing a Deployment Method"]):
-
-. 'Using Visual $$C++$$ Redistributable Merge Modules'.
-(Loadable modules for building msi installers.
-Not suitable for Wireshark's NSIS based installer)
-
-. 'Using Visual $$C++$$ Redistributable Package'. The Microsoft libraries are
-installed by copying '$$vcredist_x86.exe$$', '$$vcredist_x64.exe$$', or
-'$$vcredist_ia64.exe$$' to the target machine and executing it on that machine
-(MSDN recommends this for applications built with Visual Studio 2005 Express
-Edition).
-
-. 'Install a particular Visual $$C++$$ assembly as a private assembly for the
-application'. The Microsoft libraries are installed by copying the folder
-content of 'Microsoft.VC80.CRT' to the target directory (e.g. 'C:\Program
-Files\Wireshark')
-
-To save installer size, and to make a portable
-version of Wireshark (which must be completely self-contained,
-on a medium such as a flash drive, and not require that an
-installer be run to install anything on the target machine)
-possible, when building 32-bit Wireshark with MSVC2005, method
-3 (copying the content of 'Microsoft.VC80.CRT')
-is used (this produces the smallest package).
-
-As MSVC2005EE and DOTNET20 don't provide the folder
-'Microsoft.VC80.CRT', when 32-bit Wireshark
-is built with either of them method 2 is used.
-You'll have to download the appropriate version of
-'$$vcredist_x86.exe$$' from Microsoft for your
-compiler version.
-
-A portable version of 64-bit Wireshark is not built, so method 3 is used for all
-64-bit builds. You'll have to download the appropriate version of
-'$$vcredist_x64.exe$$' or '$$vcredist_ia64.exe$$' from Microsoft for your target
-processor and compiler version.
-
-* For 32-bit builds using Microsoft Visual $$C++$$ 2005
-Express Edition without Service Pack 1, you need
-'8.0.50608.0',
-from: "Microsoft Visual $$C++$$ 2005 Redistributable Package (x86)":
-http://www.microsoft.com/download/details.aspx?id=3387[].
-
-* For 64-bit x86 (x64) builds using Microsoft Visual $$C++$$
-2005, any edition, without Service Pack 1, you need
-'{fill this in}',
-from: "Microsoft Visual $$C++$$ 2005 Redistributable Package (x64)":
-http://www.microsoft.com/download/details.aspx?id=21254[].
-
-* For IA-64 builds using Microsoft Visual $$C++$$ 2005, any
-edition, without Service Pack 1, you need
-'{fill this in}',
-from: "Microsoft Visual $$C++$$ 2005 Redistributable Package (IA64)":
-http://www.microsoft.com/download/details.aspx?id=16326[].
-
-* For 32-bit builds using Microsoft Visual $$C++$$ 2005
-Express Edition with Service Pack 1, you need
-'8.0.50727.762', from: "Microsoft
-Visual $$C++$$ 2005 SP1 Redistributable Package (x86)":
-http://www.microsoft.com/download/details.aspx?id=5638[].
-
-* For 64-bit x86 builds using Microsoft Visual $$C++$$ 2005,
-any edition, with Service Pack 1, you need
-'{fill this in}', from: "Microsoft
-Visual $$C++$$ 2005 SP1 Redistributable Package (x64)":
-http://www.microsoft.com/download/details.aspx?id=18471[].
-
-Please send a message to the wireshark-dev mailing list if you
-find a different version number.
-
-===== msvcr90.dll / vcredist_x86.exe / vcredist_x64.exe - Version 9.0 (2008)
-
-There are three redistribution methods that MSDN
-mentions for MSVC 9 (see:
-http://msdn.microsoft.com/en-US/library/ms235316(v=vs.90).aspx["Choosing a Deployment Method"]):
-
-. 'Using Visual $$C++$$ Redistributable Merge Modules'.
-(Loadable modules for building msi installers.
-Not suitable for Wireshark's NSIS based installer)
-
-. 'Using Visual $$C++$$ Redistributable Package'. The Microsoft
-libraries are installed by copying '$$vcredist_x64.exe$$' or
-'$$vcredist_x86.exe$$' to the target machine and executing it on that machine
-(MSDN recommends this for applications built with Visual Studio 2008 Express
-Edition)
-
-. 'Install a particular Visual $$C++$$ assembly as a private assembly for the
-application'. The Microsoft libraries are installed by copying the folder
-content of _Microsoft.VC90.CRT_to the target directory (e.g. 'C:\Program
-Files\Wireshark')
-
-To save installer size and to make a portable version of Wireshark (which must
-be completely self-contained, on a medium such as a flash drive, and not require
-that an installer be run to install anything on the target machine) possible,
-when building 32-bit Wireshark with MSVC2008, method 3 (copying the content of
-'Microsoft.VC90.CRT') is used (this produces the smallest package).
-
-As MSVC2008EE doesn't provide the folder 'Microsoft.VC90.CRT', when 32-bit
-Wireshark is built with it method 2 is used. You'll have to download the
-appropriate version of '$$vcredist_x64.exe$$' from Microsoft for your compiler
-version.
-
-A portable version of 64-bit Wireshark is not built, so method 2 is used for all
-64-bit builds. You'll have to download the appropriate version of
-'$$vcredist_x86.exe$$' from Microsoft for your compiler version.
-
-
-* For 32-bit builds using Microsoft Visual $$C++$$ 2008
-Express Edition without Service Pack 1, you need
-'9.0.21022.8', from:
-"Microsoft Visual $$C++$$ 2008 Redistributable Package (x86)":
-http://www.microsoft.com/download/details.aspx?id=29[].
-
-* For 64-bit builds using Microsoft Visual $$C++$$ 2008,
-any edition, without Service Pack 1, you need
-'9.0.21022.8', from:
-"Microsoft Visual $$C++$$ 2008 Redistributable Package (x64)":
-http://www.microsoft.com/download/details.aspx?id=15336[].
-
-* For 32-bit builds with Microsoft Visual $$C++$$ 2008
-Express Edition with Service Pack 1, you need
-'9.0.30729.17', from:
-"Microsoft Visual $$C++$$ 2008 SP1 Redistributable Package (x86)":
-http://www.microsoft.com/download/details.aspx?id=5582[].
-
-* For 64-bit builds with Microsoft Visual $$C++$$ 2008,
-any edition, with Service Pack 1, you need
-'9.0.30729.17', from:
-"Microsoft Visual $$C++$$ 2008 SP1 Redistributable Package (x64)":
-http://www.microsoft.com/download/details.aspx?id=2092[].
-
-Please send a message to the wireshark-dev mailing list if you
-find a different version number.
-
-===== msvcr100.dll / vcredist_x86.exe / vcredist_x64.exe - Version 10.0 (2010)
-
-There are three redistribution methods that MSDN
-mentions for MSVC 10 (see:
-http://msdn.microsoft.com/en-US/library/ms235316(v=vs.100).aspx["Choosing a Deployment Method"]):
+mentions for MSVC 2013 (see:
+http://msdn.microsoft.com/en-us/library/vstudio/ms235316(v=vs.120).aspx["Choosing a Deployment Method"]):
 
 . 'Using Visual $$C++$$ Redistributable Package'.
 The Microsoft libraries are installed by copying
 '$$vcredist_x64.exe$$' or
 '$$vcredist_x86.exe$$' to the target
 machine and executing it on that machine (MSDN recommends
-this for applications built with Visual Studio 2010,
-both Express Edition and non-Express editions)
+this for applications built with Visual Studio 2013)
 
 . 'Using Visual $$C++$$ Redistributable Merge Modules'.
 (Loadable modules for building msi installers.
@@ -713,52 +525,16 @@ Not suitable for Wireshark's NSIS based installer)
 . 'Install a particular Visual $$C++$$ assembly as a
 private assembly for the application'. The
 Microsoft libraries are installed by copying the folder
-content of 'Microsoft.VC100.CRT' to
+content of 'Microsoft.VC120.CRT' to
 the target directory (e.g. 'C:\Program Files\Wireshark')
 
 To save installer size, and to make a portable
 version of Wireshark (which must be completely self-contained,
 on a medium such as a flash drive, and not require that an
 installer be run to install anything on the target machine)
-possible, when building 32-bit Wireshark with MSVC2010, method
-3 (copying the content of 'Microsoft.VC100.CRT')
+possible, when building 32-bit Wireshark with MSVC2013, method
+3 (copying the content of 'Microsoft.VC120.CRT')
 is used (this produces the smallest package).
-
-As MSVC20010EE doesn't provide the folder 'Microsoft.VC100.CRT', when 32-bit
-Wireshark is built with it method 1 is used. You'll have to download the
-appropriate version of '$$vcredist_x64.exe$$' from Microsoft that corresponds to
-your compiler version.
-
-A portable version of 64-bit Wireshark is not built, so method
-1 is used for all 64-bit builds.  You'll have to download the
-appropriate version of '$$vcredist_x86.exe$$' from Microsoft for your compiler version.
-
-* For 32-bit builds using Microsoft Visual $$C++$$ 2010
-Express Edition without Service Pack 1, you need
-'10.0.30319.1', from: "Microsoft Visual
-$$C++$$ 2010 Redistributable Package (x86)":
-http://www.microsoft.com/download/en/details.aspx?id=5555[].
-
-* For 64-bit builds using Microsoft Visual $$C++$$ 2010,
-any edition, without Service Pack 1, you need
-'10.0.30319.1', from: "Microsoft Visual
-$$C++$$ 2010 Redistributable Package (x64)":
-http://www.microsoft.com/download/details.aspx?id=14632[].
-
-* For 32-bit builds using Microsoft Visual $$C++$$ 2010
-Express Edition with Service Pack 1, you need
-'10.0.40219.1', from: "Microsoft Visual
-$$C++$$ 2010 SP1 Redistributable Package (x86)":
-http://www.microsoft.com/download/en/details.aspx?id=8328[].
-
-* For 64-bit builds using Microsoft Visual $$C++$$ 2010,
-any edition, with Service Pack 1, you need
-'10.0.40219.1', from: "Microsoft Visual
-$$C++$$ 2010 SP1 Redistributable Package (x64)":
-http://www.microsoft.com/download/details.aspx?id=13523[].
-
-Please report to the developer mailing list, if you
-find a different version number!
 
 ==== Windows (Platform) SDK
 
@@ -768,8 +544,8 @@ libraries (e.g. 'windows.h', 'WSock32.lib', etc.). As new Windows
 features evolve in time, updated SDK's become available that
 include new and updated APIs.
 
-When you purchase a commercial Visual Studio, it will
-include an SDK. The free (as in beer) downloadable C compiler
+When you purchase a commercial Visual Studio or use the Community Edition, it will
+include an SDK. The free Express (as in beer) downloadable C compiler
 versions (V$$C++$$ 2012 Express, V$$C++$$ 2012 Express, etc.) do not
 contain an SDK -- you'll need to download a PSDK in order to
 have the required C header files and libraries.
@@ -777,15 +553,6 @@ have the required C header files and libraries.
 Older versions of the SDK should also work. However, the
 command to set the environment settings will be different, try
 search for SetEnv.* in the SDK directory.
-
-Prior to Windows Vista, the name "Platform SDK" was used;
-starting with Vista, the name was changed just to "Windows
-Software Development Kit" or "Windows SDK".  The full names of the
-SDKs can be misleading; for example, the SDK for Vista was called
-the "Microsoft Windows Software Development Kit for Windows Vista
-and .NET Framework 3.0 Runtime Components", which really means the
-Windows SDK for Windows Vista and Platforms (like WinXP) that have
-the .NET 3.0 runtime installed.
 
 ==== HTML Help
 
@@ -843,14 +610,15 @@ standalone GUI debugger. Although it's not that comfortable compared to
 debugging with the Visual Studio integrated debugger it can be helpful if you
 have to debug on a machine where an integrated debugger is not available.
 
-You can get it free of charge at:
-http://www.microsoft.com/whdc/devtools/debugging/default.mspx[] (as
-links to Microsoft pages change from time to time, search
-for "Debugging Tools" at their page if this link happens to be
-outdated).
+You can get it free of charge from Microsoft in several ways, see the http://msdn.microsoft.com/en-us/library/windows/hardware/ff551063%28v=vs.85%29.aspx)[Debugging tools for Windows] page.
+
+You can also use Chocolatey to install WinDbg:
+
+----
+PS:\> cinst windbg
+----
 
 [[ChToolsBash]]
-
 
 === bash
 
@@ -906,6 +674,12 @@ Windows packages and source are available at http://python.org/download/[].
 The Cygwin Python package is *not* recommended since `/usr/bin/python` is
 a symbolic link, which causes confusion outside Cygwin.
 
+You can also use Chocolatey to install Python:
+
+----
+PS:\> cinst Python2
+----
+
 You can verify your Python version by running
 
 ----
@@ -915,8 +689,8 @@ $ python --version
 on UNIX and Linux and
 
 ----
-C:\> cd python27
-C:\Python27> python --version
+C:> cd python27
+C:Python27> python --version
 ----
 
 on Windows. You should see something like
@@ -978,10 +752,21 @@ However, the version string may vary.
 
 ==== Windows native: Perl
 
-// XXX - Straberry?
 A native Windows Perl package can be obtained from
-http://www.ActiveState.com[]. The installation
+http://www.ActiveState.com[Active State] or http://strawberryperl.com/[Strawberry Perl]. The installation
 should be straightforward.
+
+You may also use Chocolatey to install either package:
+
+----
+PS:\> cinst ActivePerl
+----
+
+or
+
+----
+PS:\> cinst StrawberryPerl
+----
 
 After correct installation, typing at the command
 line prompt (cmd.exe):
@@ -1139,6 +924,10 @@ A native Windows version of flex is available in the _winflexbison_
 https://chocolatey.org/[Chocolatey] package. Note that the executable is named
 `win_flex`.
 
+----
+PS:\>cinst winflexbison
+----
+
 Native packages are available from other sources such as
 http://gnuwin32.sourceforge.net/packages/flex.htm[GnuWin]. They aren't
 officially supported but _should_ work.
@@ -1194,7 +983,11 @@ Your version will likely be different.
 ==== Windows native: git
 
 The Git command line tools for Windows can be found at
-http://git-scm.com/download/win[].
+http://git-scm.com/download/win[] and can also be installed using Chocolatey:
+
+----
+PS:\> cinst git
+----
 
 After correct installation, typing at the command
 line prompt (cmd.exe):
@@ -1210,6 +1003,18 @@ git version 1.8.3.4
 ----
 
 However, the version string may vary.
+
+[[ChToolsGitPowerShellExtensions]]
+
+=== Git Powershell Extensions (optional)
+
+A useful tool for command line git on Windows is https://github.com/dahlbyk/posh-git[PoshGit].
+Poshgit provides git command completion and alters the prompt to indicate the local working
+copy status.  You can install it using Chocolatey:
+
+----
+PS:\>cinst poshgit
+----
 
 [[ChToolsGitGUI]]
 
@@ -1277,16 +1082,9 @@ However, the version string may vary.
 
 ==== Windows native: patch
 
-A native Windows patch package can be obtained from
+The Windows native Git tools provide patch.  A native Windows patch package can be obtained from
 http://gnuwin32.sourceforge.net/[]. The
 installation should be straightforward.
-
-[[ChToolsWindowsPowerShell]]
-
-=== Windows PowerShell
-
-If you are running Windows Vista you may need to install Windows Powershell 2.0.
-You can download it from https://www.microsoft.com/powershell[]
 
 [[ChToolsWget]]
 
@@ -1295,7 +1093,11 @@ You can download it from https://www.microsoft.com/powershell[]
 GNU wget is used to download files from the internet using the command line.
 
 GNU wget is available for most of the UNIX-like platforms and as the wget
-package from the <<ChToolsCygwin,Cygwin setup>>.
+package from the <<ChToolsCygwin,Cygwin setup>> and also using Chocolatey:
+
+----
+PS$> cinst Wget
+----
 
 You will only need wget, if you want to use the Windows automated library
 download, see <<ChLibsSetup>>for details.
@@ -1360,7 +1162,7 @@ To install it, do the following:
 
 * Download the latest PortableApps.com Platform release from
   http://portableapps.com/[]. `config.nmake` uses the ``Local
-  All Users'' install location (`C:\`) by default.
+  All Users'' install location (`C:`) by default.
 
 * Install the following applications in the PortableApps.com environment:
 

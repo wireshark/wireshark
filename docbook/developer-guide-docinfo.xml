@@ -16,6 +16,11 @@
     <email>luis[AT]ontanon.org</email>
   </author>
 
+  <author><firstname>Graham</firstname><surname>Bloice</surname>
+    <!-- <affiliation><orgname></orgname></affiliation> -->
+    <email>graham.bloice[AT]trihedral.com</email>
+  </author>
+
 </authorgroup>
 
 <!--<edition>&DocumentEdition;</edition>
@@ -23,9 +28,17 @@
 <copyright><year>2004-2014</year>
   <holder>Ulf Lamping</holder>
   <holder>Luis E. Garcia Ontanon</holder>
+  <holder>Graham Bloice</holder>
 </copyright>
 
 <revhistory>
+
+<revision>
+  <revnumber>1.1</revnumber>
+  <date>28 Dec 2014</date>
+  <authorinitials>gb</authorinitials>
+  <revremark>Updated for 1.99.x and 2.0, move to VS2013.</revremark>
+</revision>
 
 <revision>
   <revnumber>1.0</revnumber>

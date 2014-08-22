@@ -104,7 +104,7 @@ Then run the command
 This will first check for all the various tools needed to build Wireshark
 as described in <<ChToolsWin32Verify>>.
 
-Then it will download the zipped libraries (together around 30MB!) from the
+Then it will download the zipped libraries (together around 45MB for x86 and 52MB for x64) from the
 server location at
 http://anonsvn.wireshark.org/wireshark-win32-libs/trunk/packages/[] into the
 directory specified by WIRESHARK_LIB_DIR and install (unzip) all required

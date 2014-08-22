@@ -313,9 +313,9 @@ console logfile, to get additional information.
 The Buildbot runs on a platform collection that represents the different
 "platform specialties" quite well:
 
-* Windows XP x86 (Win32, little endian, Visual Studion 2010)
+* Windows 8.1 x86 (Win32, little endian, Visual Studion 2013)
 
-* Windows 7 x86-64 (Win64, little endian, VS 2010)
+* Windows 7 x86-64 (Win64, little endian, VS 2013)
 
 * Ubuntu x86-64 (Linux, little endian, gcc)
 
@@ -326,6 +326,12 @@ The Buildbot runs on a platform collection that represents the different
 * Mac OS-X x86 (BSD, little endian, Clang)
 
 * Mac OS-X x86-64 (BSD, little endian, Clang)
+
+and two buildslaves that run static code analysis to help spot coding issues:
+
+* Visual Studio Code Analysis (Win64, little endian, VS 2013)
+
+* Clang Code Analysis (Linux, little endian, Clang)
 
 Each platform is represented at the status page by a single column, the
 most recent entries are at the top.

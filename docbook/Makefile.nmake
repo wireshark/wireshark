@@ -72,7 +72,7 @@ git_version.xml: git_version_check
 
 wsug_x: wsug_html_chunked wsug_html user-guide-a4.pdf user-guide-us.pdf user-guide.chm
 
-user-guide.xml: user-guide.asciidoc $(WSUG_FILES)
+user-guide.xml: user-guide.asciidoc $(WSUG_FILES) user-guide-docinfo.xml
 	@ echo --- WSUG - XML ---
 	$(SH) <<
 	PATH=/usr/bin
@@ -158,7 +158,7 @@ wsluarm: make-wsluarm.pl $(WSLUA_MODULES)
 
 wsdg_x: wsdg_html_chunked wsdg_html developer-guide-a4.pdf developer-guide-us.pdf developer-guide.chm
 
-developer-guide.xml: developer-guide.asciidoc $(WSDG_FILES)  wsluarm
+developer-guide.xml: developer-guide.asciidoc $(WSDG_FILES) wsluarm developer-guide-docinfo.xml
 	@ echo --- WSDG - XML ---
 	$(SH) <<
 	PATH=/usr/bin

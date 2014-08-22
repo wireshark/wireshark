@@ -65,7 +65,8 @@ Wireshark development community!
 === About this document
 
 // XXX - Convert to document attribute
-This book was developed by mailto:wsdg-author-email:[][Ulf Lamping].
+This book was developed by mailto:wsdg-author-email:[][Ulf Lamping]
+and updated for VS2013 by mailto:wsdg-author-email2:[][Graham Bloice]
 
 It is written in AsciiDoc.
 
