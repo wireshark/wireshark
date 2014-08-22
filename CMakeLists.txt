@@ -666,6 +666,9 @@ WSExtendPath( "${WS_ALL_LIBS}" "${CMAKE_BINARY_DIR}/setpath.bat" )
 #packaging
 include(CPackConfig.txt)
 
+if(HAVE_LIBAIRPCAP)
+	set(HAVE_AIRPCAP 1)
+endif()
 if(HAVE_LIBLUA)
 	set(HAVE_LUA_H 1)
 	set(HAVE_LUA 1)
