@@ -619,53 +619,6 @@ static dgt_set_t Dgt_tbcd = {
 };
 #endif
 
-static dgt_set_t Dgt1_9_bcd = {
-    {
-  /*  0   1   2   3   4   5   6   7   8   9   a   b   c   d   e */
-     '0','1','2','3','4','5','6','7','8','9','?','?','?','?','?','?'
-    }
-};
-/* Assumes the rest of the tvb contains the digits to be turned into a string
- */
-static const char*
-unpack_digits(tvbuff_t *tvb, int offset, dgt_set_t *dgt, gboolean skip_first)
-{
-    int     length;
-    guint8  octet;
-    int     i = 0;
-    char   *digit_str;
-
-    length = tvb_reported_length(tvb);
-    if (length < offset)
-        return "";
-    digit_str = (char *)wmem_alloc(wmem_packet_scope(), (length - offset)*2+1);
-
-    while (offset < length) {
-
-        octet = tvb_get_guint8(tvb, offset);
-        if (!skip_first) {
-            digit_str[i] = dgt->out[octet & 0x0f];
-            i++;
-        }
-        skip_first = FALSE;
-
-        /*
-         * unpack second value in byte
-         */
-        octet = octet >> 4;
-
-        if (octet == 0x0f)  /* odd number bytes - hit filler */
-            break;
-
-        digit_str[i] = dgt->out[octet & 0x0f];
-        i++;
-        offset++;
-
-    }
-    digit_str[i]= '\0';
-    return digit_str;
-}
-
 static gboolean
 check_ie(tvbuff_t *tvb, proto_tree *tree, int *offset, guint8 expected_ie)
 {
@@ -983,7 +936,7 @@ dissect_bssap_imei(tvbuff_t *tvb, proto_tree *tree, int offset)
      * The IMEI consists of 15 digits (see 3GPP TS 23.003).
      */
     ie_tvb = tvb_new_subset_length(tvb, offset, ie_len);
-    digit_str = unpack_digits(ie_tvb, 0, &Dgt1_9_bcd, FALSE);
+    digit_str = tvb_bcd_dig_to_wmem_packet_str(ie_tvb, 0, -1, NULL, FALSE);
     proto_tree_add_string(ie_tree, hf_bssap_imei, ie_tvb, 0, -1, digit_str);
 
     return offset + ie_len;
@@ -1011,7 +964,7 @@ dissect_bssap_imesiv(tvbuff_t *tvb, proto_tree *tree, int offset)
      *  The IMEISV consists of 16 digits (see 3GPP TS 23.003).
      */
     ie_tvb = tvb_new_subset_length(tvb, offset, ie_len);
-    digit_str = unpack_digits(ie_tvb, 0, &Dgt1_9_bcd, FALSE);
+    digit_str = tvb_bcd_dig_to_wmem_packet_str(ie_tvb, 0, -1, NULL, FALSE);
     proto_tree_add_string(ie_tree, hf_bssap_imeisv, ie_tvb, 0, -1, digit_str);
 
     return offset + ie_len;
@@ -1418,7 +1371,7 @@ dissect_bssap_sgsn_number(tvbuff_t *tvb, proto_tree *tree, int offset)
     proto_tree_add_item(ie_tree, hf_bssap_numbering_plan_id, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
     number_tvb = tvb_new_subset_length(tvb, offset, ie_len-1);
-    digit_str = unpack_digits(number_tvb, 0, &Dgt1_9_bcd, FALSE);
+    digit_str = tvb_bcd_dig_to_wmem_packet_str(number_tvb, 0, -1, NULL, FALSE);
     proto_tree_add_string(ie_tree, hf_bssap_sgsn_number, number_tvb, 0, -1, digit_str);
 
 
@@ -1570,7 +1523,7 @@ dissect_bssap_vlr_number(tvbuff_t *tvb, proto_tree *tree, int offset)
     proto_tree_add_item(ie_tree, hf_bssap_numbering_plan_id, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
     number_tvb = tvb_new_subset_length(tvb, offset, ie_len - 1);
-    digit_str = unpack_digits(number_tvb, 0, &Dgt1_9_bcd, FALSE);
+    digit_str = tvb_bcd_dig_to_wmem_packet_str(number_tvb, 0, -1, NULL, FALSE);
     proto_tree_add_string(ie_tree, hf_bssap_sgsn_number, number_tvb, 0, -1, digit_str);
 
     return offset + ie_len - 1;

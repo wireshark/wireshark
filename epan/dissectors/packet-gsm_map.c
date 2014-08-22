@@ -2735,42 +2735,6 @@ static const value_string gsm_map_screening_ind_vals[] = {
   { 0, NULL }
 };
 
-const char *
-unpack_digits(tvbuff_t *tvb, int offset) {
-
-  int length;
-  guint8 octet;
-  int i=0;
-  char *digit_str;
-
-  length = tvb_reported_length(tvb);
-  if (length < offset)
-    return "";
-  digit_str = (char *)wmem_alloc(wmem_packet_scope(), (length - offset)*2+1);
-
-  while ( offset < length ){
-
-    octet = tvb_get_guint8(tvb,offset);
-    digit_str[i] = ((octet & 0x0f) + '0');
-    i++;
-
-    /*
-     * unpack second value in byte
-     */
-    octet = octet >> 4;
-
-    if (octet == 0x0f) /* odd number bytes - hit filler */
-      break;
-
-    digit_str[i] = ((octet & 0x0f) + '0');
-    i++;
-    offset++;
-
-  }
-  digit_str[i]= '\0';
-  return digit_str;
-}
-
 /* returns value in kb/s */
 static guint
 gsm_map_calc_bitrate(guint8 value){
@@ -3250,7 +3214,7 @@ dissect_gsm_map_msisdn(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
   if(tvb_reported_length(tvb)==1)
     return;
 
-  digit_str = unpack_digits(tvb, 1);
+  digit_str = tvb_bcd_dig_to_wmem_packet_str(tvb, 1, -1, NULL, FALSE);
 
   proto_tree_add_string(tree, hf_gsm_map_address_digits, tvb, 1, -1, digit_str);
 
@@ -3471,7 +3435,7 @@ dissect_gsm_map_TBCD_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
  if(tvb_reported_length(parameter_tvb)==0)
      return offset;
 
- digit_str = unpack_digits(parameter_tvb, 0);
+ digit_str = tvb_bcd_dig_to_wmem_packet_str(parameter_tvb, 0, -1, NULL, FALSE);
  proto_tree_add_string(tree, hf_gsm_map_TBCD_digits, parameter_tvb, 0, -1, digit_str);
 
 
@@ -8184,7 +8148,7 @@ dissect_gsm_map_ms_LocationNumber(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
   proto_tree_add_item(subtree, hf_gsm_map_locationnumber_apri, tvb, 1, 1, ENC_BIG_ENDIAN);
   proto_tree_add_item(subtree, hf_gsm_map_locationnumber_screening_ind, tvb, 1, 1, ENC_BIG_ENDIAN);
 
- digit_str = unpack_digits(tvb, 1);
+ digit_str = tvb_bcd_dig_to_wmem_packet_str(tvb, 1, -1, NULL, FALSE);
 
  proto_tree_add_string(tree, hf_gsm_map_locationnumber_digits, tvb, 1, -1, digit_str);
 
@@ -20281,7 +20245,7 @@ dissect_NokiaMAP_Extensions_AllowedServiceData(gboolean implicit_tag _U_, tvbuff
 
 
 /*--- End of included file: packet-gsm_map-fn.c ---*/
-#line 846 "../../asn1/gsm_map/packet-gsm_map-template.c"
+#line 810 "../../asn1/gsm_map/packet-gsm_map-template.c"
 
 /* Specific translation for MAP V3 */
 const value_string gsm_map_V1V2_opr_code_strings[] = {
@@ -20503,7 +20467,7 @@ const value_string gsm_map_opr_code_strings[] = {
 /* Unknown or empty loop list OPERATION */
 
 /*--- End of included file: packet-gsm_map-table.c ---*/
-#line 857 "../../asn1/gsm_map/packet-gsm_map-template.c"
+#line 821 "../../asn1/gsm_map/packet-gsm_map-template.c"
   { 0, NULL }
 };
 
@@ -20720,7 +20684,7 @@ static const value_string gsm_map_err_code_string_vals[] = {
 /* Unknown or empty loop list OPERATION */
 
 /*--- End of included file: packet-gsm_map-table.c ---*/
-#line 863 "../../asn1/gsm_map/packet-gsm_map-template.c"
+#line 827 "../../asn1/gsm_map/packet-gsm_map-template.c"
     { 0, NULL }
 };
 #endif
@@ -29508,7 +29472,7 @@ void proto_register_gsm_map(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-gsm_map-hfarr.c ---*/
-#line 2881 "../../asn1/gsm_map/packet-gsm_map-template.c"
+#line 2845 "../../asn1/gsm_map/packet-gsm_map-template.c"
   };
 
   /* List of subtrees */
@@ -30217,7 +30181,7 @@ void proto_register_gsm_map(void) {
     &ett_NokiaMAP_Extensions_AllowedServiceData,
 
 /*--- End of included file: packet-gsm_map-ettarr.c ---*/
-#line 2913 "../../asn1/gsm_map/packet-gsm_map-template.c"
+#line 2877 "../../asn1/gsm_map/packet-gsm_map-template.c"
   };
 
   static ei_register_info ei[] = {
@@ -30320,7 +30284,7 @@ void proto_register_gsm_map(void) {
 
 
 /*--- End of included file: packet-gsm_map-dis-tab.c ---*/
-#line 2950 "../../asn1/gsm_map/packet-gsm_map-template.c"
+#line 2914 "../../asn1/gsm_map/packet-gsm_map-template.c"
   oid_add_from_string("ericsson-gsm-Map-Ext","1.2.826.0.1249.58.1.0" );
   oid_add_from_string("accessTypeNotAllowed-id","1.3.12.2.1107.3.66.1.2");
   /*oid_add_from_string("map-ac networkLocUp(1) version3(3)","0.4.0.0.1.0.1.3" );

@@ -313,42 +313,6 @@ static const value_string gsm_map_screening_ind_vals[] = {
   { 0, NULL }
 };
 
-const char *
-unpack_digits(tvbuff_t *tvb, int offset) {
-
-  int length;
-  guint8 octet;
-  int i=0;
-  char *digit_str;
-
-  length = tvb_reported_length(tvb);
-  if (length < offset)
-    return "";
-  digit_str = (char *)wmem_alloc(wmem_packet_scope(), (length - offset)*2+1);
-
-  while ( offset < length ){
-
-    octet = tvb_get_guint8(tvb,offset);
-    digit_str[i] = ((octet & 0x0f) + '0');
-    i++;
-
-    /*
-     * unpack second value in byte
-     */
-    octet = octet >> 4;
-
-    if (octet == 0x0f) /* odd number bytes - hit filler */
-      break;
-
-    digit_str[i] = ((octet & 0x0f) + '0');
-    i++;
-    offset++;
-
-  }
-  digit_str[i]= '\0';
-  return digit_str;
-}
-
 /* returns value in kb/s */
 static guint
 gsm_map_calc_bitrate(guint8 value){
@@ -828,7 +792,7 @@ dissect_gsm_map_msisdn(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
   if(tvb_reported_length(tvb)==1)
     return;
 
-  digit_str = unpack_digits(tvb, 1);
+  digit_str = tvb_bcd_dig_to_wmem_packet_str(tvb, 1, -1, NULL, FALSE);
 
   proto_tree_add_string(tree, hf_gsm_map_address_digits, tvb, 1, -1, digit_str);
 
