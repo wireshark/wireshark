@@ -3396,7 +3396,6 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
             if (usb_conv_info->is_setup) {
 
                 proto_tree *setup_tree = NULL;
-                tvbuff_t   *setup_tvb = NULL;
                 gint req_type = USB_TYPE(tvb_get_guint8(tvb, offset));
 
                 /* Dissect the setup header - it's applicable */
@@ -3406,18 +3405,15 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
                     usb_tap_queue_packet(pinfo, urb_type, usb_conv_info);
                 }
 
-                if ((req_type != RQT_SETUP_TYPE_STANDARD) &&
-                    (header_info & (USB_HEADER_IS_LINUX | USB_HEADER_IS_64_BYTES))) {
-
-                    setup_tvb = tvb_new_composite();
-                    next_tvb = tvb_new_subset_length(tvb, offset - 7, 7);
-                    tvb_composite_append(setup_tvb, next_tvb);
-                }
-
-                offset = try_dissect_linux_usb_pseudo_header_ext(tvb, offset, pinfo, tree, header_info);
-
                 if (req_type != RQT_SETUP_TYPE_STANDARD) {
                     if (header_info & (USB_HEADER_IS_LINUX | USB_HEADER_IS_64_BYTES)) {
+
+                        tvbuff_t   *setup_tvb = tvb_new_composite();
+                        next_tvb = tvb_new_subset_length(tvb, offset - 7, 7);
+                        tvb_composite_append(setup_tvb, next_tvb);
+
+                        offset = try_dissect_linux_usb_pseudo_header_ext(tvb, offset, pinfo, tree, header_info);
+
                         if (tvb_captured_length_remaining(tvb, offset) != 0) {
                             next_tvb = tvb_new_subset_remaining(tvb, offset);
                             tvb_composite_append(setup_tvb, next_tvb);
@@ -3430,13 +3426,17 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
                         }
                         else
                             tvb_composite_finalize(setup_tvb);
-                    }
-                    else
+
+                    } else {
                         next_tvb = tvb_new_subset_remaining(tvb, offset - 7);
+                        offset = try_dissect_linux_usb_pseudo_header_ext(tvb, offset, pinfo, tree, header_info);
+                    }
+
 
                     offset = try_dissect_next_protocol(tree, parent, next_tvb, offset, pinfo, usb_conv_info, urb_type);
 
-                }
+                } else
+                    offset = try_dissect_linux_usb_pseudo_header_ext(tvb, offset, pinfo, tree, header_info);
 
             } else {
                 if (header_info & USB_HEADER_IS_LINUX) {
