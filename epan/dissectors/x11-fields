@@ -192,6 +192,10 @@ data-length	UINT32	DEC
 delete		BOOLEAN	NONE		Delete this property after reading
 delta		INT16	DEC
 depth		UINT8	DEC
+depth-detail    NONE    NONE
+	depth  			UINT8   DEC
+	visualtypes-numbers 	UINT16 	DEC
+
 destination	UINT8	DEC	VALS
 direction	UINT8	DEC	VALS
 drawable	UINT32	HEX
@@ -365,6 +369,11 @@ pixel		UINT32	HEX
 pixels		NONE	NONE
 pixels_item	UINT32	HEX
 pixmap		UINT32	HEX
+pixmap-format   NONE    NONE	Pixmap Formats
+	depth 		UINT8  DEC
+	bits-per-pixel  UINT8  DEC
+	scanline-pad    UINT8  DEC
+
 place		UINT8   DEC     VALS
 plane-mask	UINT32	HEX	VALS
 planes		UINT16	DEC
@@ -434,6 +443,24 @@ same-screen-focus-mask	UINT8	HEX
 success		UINT8	DEC
 save-set-mode	UINT8	DEC	VALS(insert_delete)
 save-under	BOOLEAN	NONE
+screen		NONE	NONE
+	root			UINT32  HEX
+	default_colormap 	UINT32 	HEX
+	white_pixel             UINT32 	HEX
+	black_pixel             UINT32  HEX
+	current_input_masks     UINT32  HEX
+	width_in_pixels         UINT16  DEC
+	height_in_pixels        UINT16  DEC
+	width_in_millimeters    UINT16  DEC
+	height_in_millimeters   UINT16  DEC
+	min_installed_maps      UINT16  DEC
+	max_installed_maps      UINT16  DEC
+	root_visual		UINT32  HEX
+	backing_stores          UINT8   HEX
+	save_unders             BOOLEAN NONE
+	root_depth              UINT8   DEC
+	allowed_depths_len      UINT8   DEC
+
 screen-saver-mode	UINT8	DEC	VALS
 segment		NONE	NONE
 segments	NONE	NONE
@@ -494,6 +521,15 @@ visual-blue	UINT16	DEC
 visual-green	UINT16	DEC
 visual-red	UINT16	DEC
 visualid	UINT32	HEX
+visualtype     NONE    NONE
+	visualid 		UINT32 	HEX
+	class                   UINT8   DEC
+	bits-per-rgb-value      UINT8   DEC
+	colormap-entries  	UINT16  DEC
+	red-mask 		UINT32  HEX
+	green-mask 		UINT32  HEX
+	blue-mask 		UINT32  HEX
+
 warp-pointer-dst-window	UINT32	HEX	VALS(zero_is_none)
 warp-pointer-src-window	UINT32	HEX	VALS(zero_is_none)
 wid		UINT32	HEX		Window id

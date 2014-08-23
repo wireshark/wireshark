@@ -204,6 +204,14 @@ static gint ett_x11_configure_window_mask = -1; /* XXX - unused */
 static gint ett_x11_keyboard_value_mask = -1;   /* XXX - unused */
 static gint ett_x11_same_screen_focus = -1;
 static gint ett_x11_event = -1;
+static gint ett_x11_list_of_pixmap_format = -1;
+static gint ett_x11_pixmap_format = -1;
+static gint ett_x11_list_of_screen = -1;
+static gint ett_x11_screen = -1;
+static gint ett_x11_list_of_depth_detail = -1;
+static gint ett_x11_depth_detail = -1;
+static gint ett_x11_list_of_visualtype= -1;
+static gint ett_x11_visualtype= -1;
 
 static expert_field ei_x11_invalid_format = EI_INIT;
 static expert_field ei_x11_request_length = EI_INIT;
@@ -1186,6 +1194,8 @@ static const value_string zero_is_none_vals[] = {
       listOfKeysyms(tvb, pinfo, offsetp, t, hf_x11_##name, hf_x11_##name##_item, map, (keycode_first), (keycode_count), (keysyms_per_keycode), byte_order); }
 #define LISTofPOINT(name, length) { listOfPoint(tvb, offsetp, t, hf_x11_##name, (length) / 4, byte_order); }
 #define LISTofRECTANGLE(name) { listOfRectangle(tvb, offsetp, t, hf_x11_##name, (next_offset - *offsetp) / 8, byte_order); }
+#define LISTofPIXMAPFORMAT(name, length) { listOfPixmapFormat(tvb, offsetp, t, hf_x11_##name, (length), byte_order); }
+#define LISTofSCREEN(name, length) { listOfScreen(tvb, offsetp, t, hf_x11_##name, (length), byte_order); }
 #define LISTofSEGMENT(name) { listOfSegment(tvb, offsetp, t, hf_x11_##name, (next_offset - *offsetp) / 8, byte_order); }
 #define LISTofSTRING8(name, length) { listOfString8(tvb, offsetp, t, hf_x11_##name, hf_x11_##name##_string, (length), byte_order); }
 #define LISTofTEXTITEM8(name) { listOfTextItem(tvb, offsetp, t, hf_x11_##name, FALSE, next_offset, byte_order); }
@@ -2107,6 +2117,145 @@ static void listOfSegment(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
       }
 }
 
+static void listOfVisualTypes(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
+                              int length, guint byte_order)
+{
+      proto_item *ti = proto_tree_add_item(t, hf, tvb, *offsetp, length * 24, byte_order);
+      proto_tree *tt = proto_item_add_subtree(ti, ett_x11_list_of_visualtype);
+      while(length--) {
+            proto_item *tti;
+            proto_tree *ttt;
+
+            tti = proto_tree_add_none_format(tt, hf_x11_visualtype, tvb, *offsetp, 24,
+                                             "visualtype");
+            ttt = proto_item_add_subtree(tti, ett_x11_visualtype);
+            proto_tree_add_item(ttt, hf_x11_visualtype_visualid, tvb, *offsetp, 4, byte_order);
+            *offsetp += 4;
+            proto_tree_add_item(ttt, hf_x11_visualtype_class, tvb, *offsetp, 1, byte_order);
+            *offsetp += 1;
+            proto_tree_add_item(ttt, hf_x11_visualtype_bits_per_rgb_value, tvb, *offsetp, 1, byte_order);
+            *offsetp += 1;
+            proto_tree_add_item(ttt, hf_x11_visualtype_colormap_entries, tvb, *offsetp, 2, byte_order);
+            *offsetp += 2;
+            proto_tree_add_item(ttt, hf_x11_visualtype_red_mask, tvb, *offsetp, 4, byte_order);
+            *offsetp += 4;
+            proto_tree_add_item(ttt, hf_x11_visualtype_green_mask, tvb, *offsetp, 4, byte_order);
+            *offsetp += 4;
+            proto_tree_add_item(ttt, hf_x11_visualtype_blue_mask, tvb, *offsetp, 4, byte_order);
+            *offsetp += 4;
+            proto_tree_add_item(ttt, hf_x11_unused, tvb, *offsetp, 4, byte_order);
+            *offsetp += 4;
+      }
+}
+static void listOfDepth(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
+                        int length, guint byte_order)
+{
+      guint8 number_of_visualtypes;
+      proto_item *ti;
+      proto_tree *tt;
+
+      ti = proto_tree_add_item(t, hf, tvb, *offsetp, -1, byte_order);
+      tt = proto_item_add_subtree(ti, ett_x11_list_of_depth_detail);
+      while(length--) {
+            proto_item *tti;
+            proto_tree *ttt;
+            number_of_visualtypes = VALUE16(tvb, *offsetp + 2);
+
+            tti = proto_tree_add_none_format(tt, hf_x11_depth_detail, tvb, *offsetp, 8 + 24 * number_of_visualtypes,
+                                             "depth-detail");
+            ttt = proto_item_add_subtree(tti, ett_x11_screen);
+            proto_tree_add_item(ttt, hf_x11_depth_detail_depth, tvb, *offsetp, 1, byte_order);
+            *offsetp += 1;
+            proto_tree_add_item(ttt, hf_x11_unused, tvb, *offsetp, 1, byte_order);
+            *offsetp += 1;
+            proto_tree_add_item(ttt, hf_x11_depth_detail_visualtypes_numbers, tvb, *offsetp, 2, byte_order);
+            *offsetp += 2;
+            proto_tree_add_item(ttt, hf_x11_unused, tvb, *offsetp, 4, byte_order);
+            *offsetp += 4;
+            if (number_of_visualtypes > 0)
+                    listOfVisualTypes(tvb, offsetp, ttt, hf_x11_visualtype, number_of_visualtypes, byte_order);
+      }
+}
+
+static void listOfScreen(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
+                         int length, guint byte_order)
+{
+      proto_item *ti = proto_tree_add_item(t, hf, tvb, *offsetp, -1, byte_order);
+      proto_tree *tt = proto_item_add_subtree(ti, ett_x11_list_of_screen);
+      while(length--) {
+            guint8 number_of_depths, root_depth;
+            guint16 width_in_pixels, height_in_pixels;
+            guint32 screen_root;
+            proto_item *tti;
+            proto_tree *ttt;
+
+            screen_root = VALUE32(tvb, *offsetp);
+            width_in_pixels = VALUE16(tvb, *offsetp + 20);
+            height_in_pixels = VALUE16(tvb, *offsetp + 22);
+            root_depth = VALUE8(tvb, *offsetp + 38);
+            tti = proto_tree_add_none_format(tt, hf_x11_screen, tvb, *offsetp, 0,
+                                                 "screen (%08x: %d x %d x %d)", screen_root,
+                                                 width_in_pixels, height_in_pixels, root_depth);
+            ttt = proto_item_add_subtree(tti, ett_x11_screen);
+            proto_tree_add_item(ttt, hf_x11_screen_root, tvb, *offsetp, 4, byte_order);
+            *offsetp += 4;
+            proto_tree_add_item(ttt, hf_x11_screen_default_colormap, tvb, *offsetp, 4, byte_order);
+            *offsetp += 4;
+            proto_tree_add_item(ttt, hf_x11_screen_white_pixel, tvb, *offsetp, 4, byte_order);
+            *offsetp += 4;
+            proto_tree_add_item(ttt, hf_x11_screen_black_pixel, tvb, *offsetp, 4, byte_order);
+            *offsetp += 4;
+            proto_tree_add_item(ttt, hf_x11_screen_current_input_masks, tvb, *offsetp, 4, byte_order);
+            *offsetp += 4;
+            proto_tree_add_item(ttt, hf_x11_screen_width_in_pixels, tvb, *offsetp, 2, byte_order);
+            *offsetp += 2;
+            proto_tree_add_item(ttt, hf_x11_screen_height_in_pixels, tvb, *offsetp, 2, byte_order);
+            *offsetp += 2;
+            proto_tree_add_item(ttt, hf_x11_screen_width_in_millimeters, tvb, *offsetp, 2, byte_order);
+            *offsetp += 2;
+            proto_tree_add_item(ttt, hf_x11_screen_height_in_millimeters, tvb, *offsetp, 2, byte_order);
+            *offsetp += 2;
+            proto_tree_add_item(ttt, hf_x11_screen_min_installed_maps, tvb, *offsetp, 2, byte_order);
+            *offsetp += 2;
+            proto_tree_add_item(ttt, hf_x11_screen_max_installed_maps, tvb, *offsetp, 2, byte_order);
+            *offsetp += 2;
+            proto_tree_add_item(ttt, hf_x11_screen_root_visual, tvb, *offsetp, 4, byte_order);
+            *offsetp += 4;
+            proto_tree_add_item(ttt, hf_x11_screen_backing_stores, tvb, *offsetp, 1, byte_order);
+            *offsetp += 1;
+            proto_tree_add_item(ttt, hf_x11_screen_save_unders, tvb, *offsetp, 1, byte_order);
+            *offsetp += 1;
+            proto_tree_add_item(ttt, hf_x11_screen_root_depth, tvb, *offsetp, 1, byte_order);
+            *offsetp += 1;
+            number_of_depths = VALUE8(tvb, *offsetp);
+            proto_tree_add_item(ttt, hf_x11_screen_allowed_depths_len, tvb, *offsetp, 1, byte_order);
+            *offsetp += 1;
+            listOfDepth(tvb, offsetp, ttt, hf_x11_depth_detail, number_of_depths, byte_order);
+      }
+}
+static void listOfPixmapFormat(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
+                               int length, guint byte_order)
+{
+      proto_item *ti = proto_tree_add_item(t, hf, tvb, *offsetp, length * 8, byte_order);
+      proto_tree *tt = proto_item_add_subtree(ti, ett_x11_list_of_pixmap_format);
+      while(length--) {
+            proto_item *tti;
+            proto_tree *ttt;
+
+            tti = proto_tree_add_none_format(tt, hf_x11_pixmap_format, tvb, *offsetp, 8,
+                                                 "pixmap-format");
+            ttt = proto_item_add_subtree(tti, ett_x11_pixmap_format);
+            proto_tree_add_item(ttt, hf_x11_pixmap_format_depth, tvb, *offsetp, 1, byte_order);
+            *offsetp += 1;
+            proto_tree_add_item(ttt, hf_x11_pixmap_format_bits_per_pixel, tvb, *offsetp, 1, byte_order);
+            *offsetp += 1;
+            proto_tree_add_item(ttt, hf_x11_pixmap_format_scanline_pad, tvb, *offsetp, 1, byte_order);
+            *offsetp += 1;
+            proto_tree_add_item(ttt, hf_x11_unused, tvb, *offsetp, 5, byte_order);
+            *offsetp += 5;
+      }
+}
+
 static void listOfString8(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
                           int hf_item, int length, guint byte_order)
 {
@@ -2976,6 +3125,9 @@ static void dissect_x11_initial_reply(tvbuff_t *tvb, packet_info *pinfo,
       unsigned char success;
       int length_of_vendor;
       int length_of_reason;
+      int number_of_formats_in_pixmap_formats;
+      int number_of_screens_in_roots;
+      int unused;
       proto_item *ti;
       proto_tree *t;
 
@@ -3003,8 +3155,8 @@ static void dissect_x11_initial_reply(tvbuff_t *tvb, packet_info *pinfo,
             INT32(motion_buffer_size);
             length_of_vendor = INT16(length_of_vendor);
             INT16(maximum_request_length);
-            INT8(number_of_screens_in_roots);
-            INT8(number_of_formats_in_pixmap_formats);
+            number_of_screens_in_roots = INT8(number_of_screens_in_roots);
+            number_of_formats_in_pixmap_formats = INT8(number_of_formats_in_pixmap_formats);
             INT8(image_byte_order);
             INT8(bitmap_format_bit_order);
             INT8(bitmap_format_scanline_unit);
@@ -3013,6 +3165,11 @@ static void dissect_x11_initial_reply(tvbuff_t *tvb, packet_info *pinfo,
             INT8(max_keycode);
             UNUSED(4);
             STRING8(vendor, length_of_vendor);
+            unused = (4 - (length_of_vendor % 4)) % 4;
+            if (unused > 0)
+                UNUSED(unused);
+            LISTofPIXMAPFORMAT(pixmap_format, number_of_formats_in_pixmap_formats);
+            LISTofSCREEN(screen, number_of_screens_in_roots);
       } else {
             STRING8(reason, length_of_reason);
       }
@@ -5676,6 +5833,14 @@ void proto_register_x11(void)
             &ett_x11_keyboard_value_mask,
             &ett_x11_same_screen_focus,
             &ett_x11_event,
+            &ett_x11_list_of_pixmap_format,
+            &ett_x11_pixmap_format,
+            &ett_x11_list_of_screen,
+            &ett_x11_screen,
+            &ett_x11_list_of_depth_detail,
+            &ett_x11_depth_detail,
+            &ett_x11_list_of_visualtype,
+            &ett_x11_visualtype,
       };
 
       static ei_register_info ei[] = {
