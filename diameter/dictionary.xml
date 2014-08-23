@@ -1725,25 +1725,25 @@
 			16777298 Pi*3GPP2 Diameter Application [3GPP2 publication X.S0057A E-UTRAN eHRPD][Avi_Lior]
 			16777299 Sandvine Rf+ [Yoni_Eitan]
 			-->
-      <enum name="Subscription Information Application" code="16777300"/>
-      <enum name="Ericsson Charging-DCIP" code="16777301"/>
-      <enum name="3GPP Sy" code="16777302"/>
-      <enum name="3GPP Sd" code="16777303"/>
-      <enum name="Ericsson Sy" code="16777304"/>
-      <enum name="HP DTD" code="16777305"/>
-      <!--
+			<enum name="Subscription Information Application" code="16777300"/>
+			<enum name="Ericsson Charging-DCIP" code="16777301"/>
+			<enum name="3GPP Sy" code="16777302"/>
+			<enum name="3GPP Sd" code="16777303"/>
+			<enum name="Ericsson Sy" code="16777304"/>
+			<enum name="HP DTD" code="16777305"/>
+			<!--
 			16777306 M9 interface between MLM-PE(P) and MLM-PE(C)[ITU-T Q5/Sg11][Jin_Seek_Choi]
 			16777307 ITU-T M13 [ITU-T Q.3230][Kwihoon_Kim]
 			-->
-      <enum name="3GPP S7a" code="16777308"/>
-      <enum name="3GPP Tsp" code="16777309"/>
-      <enum name="3GPP S6m" code="16777310"/>
-      <enum name="3GPP T4" code="16777311"/>
-      <enum name="3GPP S6c" code="16777312"/>
-      <enum name="3GPP SGd" code="16777313"/>
-      <enum name="Intrado-SLg" code="16777314"/>
-      <enum name="Ericsson Diameter Signalling Controller Application (DSC)" code="16777315"/>
-      <!--
+			<enum name="3GPP S7a" code="16777308"/>
+			<enum name="3GPP Tsp" code="16777309"/>
+			<enum name="3GPP S6m" code="16777310"/>
+			<enum name="3GPP T4" code="16777311"/>
+			<enum name="3GPP S6c" code="16777312"/>
+			<enum name="3GPP SGd" code="16777313"/>
+			<enum name="Intrado-SLg" code="16777314"/>
+			<enum name="Ericsson Diameter Signalling Controller Application (DSC)" code="16777315"/>
+			<!--
 			16777316 Verizon-Femto-Loc [Niranjan_Avula]
 			16777317 Nokia Siemens Networks (NSN) Hd Application [Hannes_Tschofenig]
 			16777318 3GPP S15 [3GPP TS 29.212][Kimmo_Kymalainen]
@@ -1755,10 +1755,10 @@
 			16777324 MAGIC Client Interface Protocol (CIP) [ARINC 839][Paul_Prisaznuk][Manfred_Benten]
 			16777325 ITU-T Nc [ITU-T Rec. Q.nacp.Nc][Kwihoon_Kim]
 			-->
-      <enum name="ITU-T Nc" code="16777325"/>
-      <enum name="ITU-T Ne" code="16777326"/>
-      <enum name="Ericsson Sx" code="16777327"/>
-      <enum name="Relay" code="4294967295"/>
+			<enum name="ITU-T Nc" code="16777325"/>
+			<enum name="ITU-T Ne" code="16777326"/>
+			<enum name="Ericsson Sx" code="16777327"/>
+			<enum name="Relay" code="4294967295"/>
 		</avp>
 		<avp name="Acct-Application-Id" code="259" mandatory="must" protected="mustnot" may-encrypt="no" vendor-bit="mustnot">
 			<type type-name="AppId"/>
@@ -6619,6 +6619,124 @@
 		<!--- TGPP2 AVP's X.S0013-014-0
 		http://www.3gcn.org/TGPP2/TSGX/Projects/X.P0013-B%20IP%20Network%20-%20MMD/X.S0013-014%20v0.3.0%20SBBC%20Ty%20Stage-3.doc
 		-->
+		<avp name="Flow-Operation" code="800" vendor-bit="must" vendor-id="TGPP2">
+			<type type-name="Enumerated"/>
+			<enum name="TERMINATION" code="0"/>
+			<enum name="ESTABLISHMENT" code="1"/>
+			<enum name="MODIFICATION" code="2"/>
+		</avp>
+		<avp name="Charging-Rule-Install" code="801" vendor-bit="must" vendor-id="TGPP2">
+			<grouped>
+				<gavp name="Charging-Rule-Definition"/>
+				<gavp name="Charging-Rule-Name"/>
+				<gavp name="Charging-Rule-Base-Name"/>
+			</grouped>
+		</avp>
+		<avp name="Charging-Rule-Definition" code="802" vendor-bit="must" vendor-id="TGPP2">
+			<grouped>
+				<gavp name="Charging-Rule-Name"/>
+				<gavp name="Service-Identifier"/>
+				<gavp name="Rating-Group"/>
+				<gavp name="Flow-Identifier"/>
+				<gavp name="Flow-Description"/>
+				<gavp name="Flow-Status"/>
+				<gavp name="QoS-Information"/>
+				<gavp name="Reporting-Level"/>
+				<gavp name="Online"/>
+				<gavp name="Offline"/>
+				<gavp name="Metering-Method"/>
+				<gavp name="Precedence"/>
+				<gavp name="AF-Charging-Identifier"/>
+				<gavp name="Flows"/>
+			</grouped>
+		</avp>
+		<avp name="Event-Trigger" code="803" vendor-bit="must" vendor-id="TGPP2">
+			<type type-name="Enumerated"/>
+			<enum name="PCF_CHANGE" code="0"/>
+			<enum name="QOS_CHANGE" code="1"/>
+			<enum name="RAT_CHANGE" code="2"/>
+			<enum name="TFT_CHANGE" code="3"/>
+			<enum name="PLMN_CHANGE" code="4"/>
+			<enum name="LOSS_OF_FLOW" code="5"/>
+			<enum name="RECOVERY_OF_FLOW" code="6"/>
+			<enum name="IP-CAN_CHANGE" code="7"/>
+			<enum name="PCC_RULE_FAILURE" code="8"/>
+			<enum name="ACCESS_NETWORK_PHYSICAL_ACCESS_ID_CHANGE" code="9"/>
+		</avp>
+		<avp name="QoS-Information" code="804" vendor-bit="must" vendor-id="TGPP2">
+			<grouped>
+				<gavp name="QoS-Class-Identifier"/>
+				<gavp name="Max-Requested-Bandwidth-UL"/>
+				<gavp name="Max-Requested-Bandwidth-DL"/>
+				<gavp name="Guaranteed-Bitrate-UL"/>
+				<gavp name="Guaranteed-Bitrate-DL"/>
+			</grouped>
+		</avp>
+		<avp name="Charging-Rule-Report" code="805" vendor-bit="must" vendor-id="TGPP2">
+			<grouped>
+				<gavp name="Charging-Rule-Name"/>
+				<gavp name="Charging-Rule-Base-Name"/>
+				<gavp name="PCC-Rule-Status"/>
+				<gavp name="Rule-Reason-Code"/>
+			</grouped>
+		</avp>
+		<avp name="AGW-IP-Address" code="806" vendor-bit="must" vendor-id="TGPP2">
+			<type type-name="IPAddress"/>
+		</avp>
+		<avp name="AGW-IPv6-Address" code="807" vendor-bit="must" vendor-id="TGPP2">
+			<type type-name="IPAddress"/>
+		</avp>
+		<avp name="RAT-Type" code="808" vendor-bit="must" vendor-id="TGPP2">
+			<type type-name="Enumerated"/>
+			<enum name="CDMA2000-1X" code="0"/>
+			<enum name="HRPD" code="1"/>
+			<enum name="WLAN" code="2"/>
+			<enum name="UMB" code="3"/>
+		</avp>
+		<avp name="Flow-Info" code="809" vendor-bit="must" vendor-id="TGPP2">
+			<grouped>
+				<gavp name="Flow-Identifier"/>
+				<gavp name="Flow-Description-Info"/>
+				<gavp name="Requested-QoS"/>
+				<gavp name="Granted-QoS"/>
+				<gavp name="Flow-Status"/>
+			</grouped>
+		</avp>
+		<avp name="Flow-Identifier" code="810" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must" vendor-id="TGPP2">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="Granted-QoS" code="811" vendor-bit="must" vendor-id="TGPP2">
+			<grouped>
+				<gavp name="QoS-Class-Identifier"/>
+				<gavp name="Guaranteed-Bitrate-UL"/>
+				<gavp name="Guaranteed-Bitrate-DL"/>
+			</grouped>
+		</avp>
+		<avp name="Requested-QoS" code="812" vendor-bit="must" vendor-id="TGPP2">
+			<grouped>
+				<gavp name="QoS-Class-Identifier"/>
+				<gavp name="Guaranteed-Bitrate-UL"/>
+				<gavp name="Guaranteed-Bitrate-DL"/>
+			</grouped>
+		</avp>
+		<avp name="Flow-Description-Info" code="813" vendor-bit="must" vendor-id="TGPP2">
+			<grouped>
+				<gavp name="Flow-Description"/>
+				<gavp name="Precedence"/>
+			</grouped>
+		</avp>
+		<avp name="Rule-Reason-Code" code="814" vendor-bit="must" vendor-id="TGPP2">
+			<type type-name="Enumerated"/>
+			<enum name="UNKNOWN_FLOW_IDENTIFIER" code="0"/>
+			<enum name="UNKNOWN_RULE_NAME" code="0"/>
+			<enum name="RATING_GROUP_ERROR" code="0"/>
+			<enum name="SERVICE_IDENTIFIER_ERROR" code="0"/>
+			<enum name="AGW_MALFUNCTION" code="0"/>
+			<enum name="RESOURCES_LIMITATION" code="0"/>
+		</avp>
+		<avp name="AGW-MCC-MNC" code="815" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must" vendor-id="TGPP2">
+			<type type-name="UTF8String"/>
+		</avp>
 		<avp name="Bearer-Usage" code="1000" vendor-bit="must" vendor-id="TGPP2">
 			<type type-name="Enumerated"/>
 			<enum name="GENERAL" code="0"/>
@@ -6714,26 +6832,52 @@
 		<avp name="ToS-Traffic-Class" code="1019" vendor-bit="must" vendor-id="TGPP2">
 			<type type-name="OctetString"/>
 		</avp>
+		<avp name="Access-Network-Charging-Identifier-Ty" code="1022" vendor-bit="must" vendor-id="TGPP2">
+			<grouped>
+				<gavp name="Access-Network-Charging-Identifier-Value"/>
+				<gavp name="Charging-Rule-Base-Name"/>
+				<gavp name="Charging-Rule-Name"/>
+			</grouped>
+		</avp>
+		<avp name="Guaranteed-Bitrate-DL" code="1025" vendor-bit="must" vendor-id="TGPP2">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Guaranteed-Bitrate-UL" code="1026" vendor-bit="must" vendor-id="TGPP2">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="QoS-Class-Identifier AVP" code="1028 vendor-bit="must" vendor-id="TGPP2">
+			<type type-name="Enumerated"/>
+			<enum name="Conversational1" code="0"/>
+			<enum name="Conversational2" code="1"/>
+			<enum name="Streaming1" code="2"/>
+			<enum name="Streaming2" code="3"/>
+			<enum name="Interactive1" code="4"/>
+			<enum name="Interactive2" code="5"/>
+			<enum name="Interactive3" code="6"/>
+			<enum name="Interactive4" code="7"/>
+			<enum name="Background" code="8"/>
+		</avp>
 		<avp name="3GPP2-BSID" code="9010" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must" vendor-id="TGPP2">
 			<type type-name="UTF8String"/>
 		</avp>
 	</base>
 
-  <!---
-  Duplicates should be avoided
-  16777216 is defined in imscxdx.xml
-  16777224 is defined in ChinaTelecom.xml
-  16777227 is defined in Ericsson.xml
-  16777228 is defined in starent.xml
-  16777234 is defined in Vodafone.xml
-  16777238 is Cisco.xml
-  16777304 is defined in SKT.xml
-  16777317 is defined in NokiaSiemensNetworks.xml
-  -->
+	<!---
+	Duplicates should be avoided
+	16777216 is defined in imscxdx.xml
+	16777224 is defined in ChinaTelecom.xml
+	16777227 is defined in Ericsson.xml
+	16777228 is defined in starent.xml
+	16777234 is defined in Vodafone.xml
+	16777238 is Cisco.xml
+	16777304 is defined in SKT.xml
+	16777317 is defined in NokiaSiemensNetworks.xml
+	-->
 	<application id="0"		name="Diameter Common Messages"	uri="http://www.ietf.org/rfc/rfc3588.txt?number=3588"></application>
 	<application id="3"		name="Diameter Base Accounting"	uri="http://www.ietf.org/rfc/rfc3588.txt?number=3588"></application>
 	<application id="16777229"	name="3GPP RX"		 	uri="http://www.3GPP.org/ftp/Specs/html-info/29229.htm"></application>
 	<application id="16777232"	name="Ericsson Charging-CIP"	uri="http://www.3gpp.org/ftp/Specs/html-info/29210.htm"></application>
+	<application id="16777237"	name="3GPP2 Ty"			uri="http://www.3gpp2.org/public_html/specs/x.s0013-014-0_v1.0_080224.pdf"></application>
 	<application id="16777250"	name="3GPP STa"			uri="http://www.3gpp.org/ftp/Specs/html-info/29273.htm"></application>
 	<application id="16777251"	name="3GPP S6a/S6d"		uri="http://www.ietf.org/rfc/rfc5516.txt?number=5516"></application>
 	<application id="16777252"	name="3GPP S13/S13'"		uri="http://www.ietf.org/rfc/rfc5516.txt?number=5516"></application>
@@ -6747,7 +6891,7 @@
 	<application id="16777292"	name="3GPP SGmb"		uri="http://www.3gpp.org/ftp/Specs/html-info/29061.htm"></application>
 	<application id="16777302"	name="3GPP Sy"			uri="http://www.3gpp.org/ftp/Specs/html-info/29219.htm"></application>
 	<application id="16777315"	name="Ericsson Diameter Signalling Controller Application (DSC)"	uri="http://www.iana.org/assignments/aaa-parameters/aaa-parameters.xml"></application>
-  <application id="16777327"	name="Ericsson Sx"		uri="http://www.iana.org/assignments/aaa-parameters/aaa-parameters.xml"></application>
+	<application id="16777327"	name="Ericsson Sx"		uri="http://www.iana.org/assignments/aaa-parameters/aaa-parameters.xml"></application>
 	<application id="4294967295"	name="Relay"			uri="http://www.ietf.org/rfc/rfc6733.txt?number=6733"></application>
 
 	&nasreq;
