@@ -233,9 +233,9 @@ MACRO( ASCIIDOC2DOCBOOK _asciidocsource _conf_files )
 	set( _output_dbk ${_source_base_name}.dbk )
 
 	foreach(_conf_file ${_conf_files})
-		set( _conf_opts_list ${_conf_opts_list} --conf_file=${CMAKE_CURRENT_SOURCE_DIR}/${_conf_file})
+		set( _conf_opts_list ${_conf_opts_list} --conf-file=${CMAKE_CURRENT_SOURCE_DIR}/${_conf_file})
 	endforeach()
-	string(REPLACE ";" " _conf_opts "${_conf_opts_list})
+	string( REPLACE ";" " " _conf_opts "${_conf_opts_list}")
 
 	foreach(_conf_file ${_conf_files})
 		set( _conf_deps ${_conf_deps} ${CMAKE_CURRENT_SOURCE_DIR}/${_conf_file})
@@ -276,11 +276,13 @@ MACRO( ASCIIDOC2CHAPTER _asciidocsource _conf_files )
 	set( _output_xml ${_source_base_name}.xml )
 	set( _output_dbk ${_source_base_name}.dbk )
 
+	set(_conf_opts_list)
 	foreach(_conf_file ${_conf_files})
-		set( _conf_opts_list ${_conf_opts_list} --conf_file=${CMAKE_CURRENT_SOURCE_DIR}/${_conf_file})
+		set( _conf_opts_list ${_conf_opts_list} --conf-file=${CMAKE_CURRENT_SOURCE_DIR}/${_conf_file})
 	endforeach()
-	string(REPLACE ";" " _conf_opts "${_conf_opts_list})
+	string(REPLACE ";" " " _conf_opts "${_conf_opts_list}")
 
+	set(_conf_deps)
 	foreach(_conf_file ${_conf_files})
 		set( _conf_deps ${_conf_deps} ${CMAKE_CURRENT_SOURCE_DIR}/${_conf_file})
 	endforeach()
@@ -372,16 +374,14 @@ VALIDATE_XML(
 )
 
 XML2HTML(
-	wsug.validated
-	wsug_html/index.html
+	wsug
 	single-page
 	WSUG_SOURCE
 	WSUG_GRAPHICS
 )
 
 XML2HTML(
-	wsug.validated
-	wsug_html_chunked/index.html
+	wsug
 	chunked
 	WSUG_SOURCE
 	WSUG_GRAPHICS
@@ -421,16 +421,14 @@ VALIDATE_XML(
 )
 
 XML2HTML(
-	wsdg.validated
-	wsdg_html/index.html
+	wsdg
 	single-page
 	WSDG_SOURCE
 	WSDG_GRAPHICS
 )
 
 XML2HTML(
-	wsdg.validated
-	wsdg_html_chunked/index.html
+	wsdg
 	chunked
 	WSDG_SOURCE
 	WSDG_GRAPHICS
