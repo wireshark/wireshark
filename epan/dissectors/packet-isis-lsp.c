@@ -87,14 +87,14 @@
 #define ISIS_LSP_CLV_METRIC_UPDOWN(x)           ((x)&0x80)
 #define ISIS_LSP_CLV_METRIC_VALUE(x)        ((x)&0x3f)
 
-/* Sub-TLVs under Router Capability TLV
+/* Sub-TLVs under Router Capability and MT Capability TLVs
    As per RFC 7176 section 2.3 */
-#define TRILL_VERSION            13
 #define NICKNAME                  6
 #define TREES                     7
 #define TREE_IDENTIFIER           8
 #define TREES_USED_IDENTIFIER     9
 #define INTERESTED_VLANS         10
+#define TRILL_VERSION            13
 #define VLAN_GROUP               14
 
 
@@ -153,7 +153,6 @@ static int hf_isis_lsp_mt_cap_spb_instance_v = -1;
 static int hf_isis_lsp_mt_cap_spb_instance_cist_external_root_path_cost = -1;
 static int hf_isis_lsp_rt_capable_tree_used_id_starting_tree_no = -1;
 static int hf_isis_lsp_mt_cap_spb_instance_bridge_priority = -1;
-static int hf_isis_lsp_rt_capable_trees_length = -1;
 static int hf_isis_lsp_mt_cap_spbm_service_identifier_base_vid = -1;
 static int hf_isis_lsp_64_bit_administrative_tag = -1;
 static int hf_isis_lsp_grp_macaddr_number_of_sources = -1;
@@ -168,21 +167,18 @@ static int hf_isis_lsp_ext_is_reachability_ipv4_interface_address = -1;
 static int hf_isis_lsp_ext_ip_reachability_metric = -1;
 static int hf_isis_lsp_ext_ip_reachability_ipv4_prefix = -1;
 static int hf_isis_lsp_eis_neighbors_es_neighbor_id = -1;
-static int hf_isis_lsp_rt_capable_interested_vlans_length = -1;
 static int hf_isis_lsp_expense_metric = -1;
 static int hf_isis_lsp_ext_is_reachability_link_remote_identifier = -1;
 static int hf_isis_lsp_rt_capable_vlan_group_secondary_vlan_id = -1;
 static int hf_isis_lsp_grp_macaddr_vlan_id = -1;
 static int hf_isis_lsp_grp_ipv4addr_vlan_id = -1;
 static int hf_isis_lsp_grp_ipv6addr_vlan_id = -1;
-static int hf_isis_lsp_rt_capable_trill_length = -1;
 static int hf_isis_lsp_rt_capable_trill_affinity_tlv = -1;
 static int hf_isis_lsp_rt_capable_trill_fgl_safe = -1;
 static int hf_isis_lsp_rt_capable_trill_caps = -1;
 static int hf_isis_lsp_rt_capable_trill_flags = -1;
 static int hf_isis_lsp_rt_capable_tree_root_id_starting_tree_no = -1;
 static int hf_isis_lsp_rt_capable_interested_vlans_nickname = -1;
-static int hf_isis_lsp_rt_capable_nickname_length = -1;
 static int hf_isis_lsp_ip_reachability_ipv4_prefix = -1;
 static int hf_isis_lsp_grp_macaddr_topology_id = -1;
 static int hf_isis_lsp_grp_ipv4addr_topology_id = -1;
@@ -216,7 +212,6 @@ static int hf_isis_lsp_ext_is_reachability_metric = -1;
 static int hf_isis_lsp_default_metric = -1;
 static int hf_isis_lsp_ext_ip_reachability_distribution = -1;
 static int hf_isis_lsp_maximum_link_bandwidth = -1;
-static int hf_isis_lsp_rt_capable_tree_root_id_length = -1;
 static int hf_isis_lsp_rt_capable_nickname_tree_root_priority = -1;
 static int hf_isis_lsp_eis_neighbors_delay_metric = -1;
 static int hf_isis_lsp_rt_capable_trill_maximum_version = -1;
@@ -228,7 +223,6 @@ static int hf_isis_lsp_error_metric = -1;
 static int hf_isis_lsp_grp_macaddr_number_of_records = -1;
 static int hf_isis_lsp_grp_ipv4addr_number_of_records = -1;
 static int hf_isis_lsp_grp_ipv6addr_number_of_records = -1;
-static int hf_isis_lsp_rt_capable_tree_used_id_length = -1;
 static int hf_isis_lsp_rt_capable_nickname_nickname = -1;
 static int hf_isis_lsp_mt_id_reserved = -1;
 static int hf_isis_lsp_eis_neighbors_is_neighbor_id = -1;
@@ -241,7 +235,6 @@ static int hf_isis_lsp_rt_capable_trees_nof_trees_to_use = -1;
 static int hf_isis_lsp_ip_reachability_default_metric = -1;
 static int hf_isis_lsp_rt_capable_trees_nof_trees_to_compute = -1;
 static int hf_isis_lsp_eis_neighbors_expense_metric = -1;
-static int hf_isis_lsp_rt_capable_vlan_group_length = -1;
 static int hf_isis_lsp_partition_designated_l2_is = -1;
 static int hf_isis_lsp_originating_lsp_buffer_size = -1;
 static int hf_isis_lsp_ip_reachability_default_metric_ie = -1;
@@ -862,6 +855,152 @@ dissect_isis_grp_address_clv(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *
     }
 }
 
+static int
+dissect_isis_trill_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
+        proto_tree *tree, int offset, int subtype, int sublen)
+{
+    guint16 rt_block;
+    proto_tree *rt_tree;
+
+    guint16 root_id;
+
+    switch (subtype) {
+
+    case TRILL_VERSION:
+        rt_tree = proto_tree_add_subtree_format(tree, tvb, offset-2, sublen+2,
+                    ett_isis_lsp_clv_trill_version, NULL, "TRILL version (t=%u, l=%u)", subtype, sublen);
+
+        proto_tree_add_item(rt_tree, hf_isis_lsp_rt_capable_trill_maximum_version, tvb, offset, 1, ENC_NA);
+
+        if ( sublen == 5 ) {
+            offset++;
+            proto_tree_add_item(rt_tree, hf_isis_lsp_rt_capable_trill_affinity_tlv, tvb, offset, 4, ENC_NA);
+            proto_tree_add_item(rt_tree, hf_isis_lsp_rt_capable_trill_fgl_safe, tvb, offset, 4, ENC_NA);
+            proto_tree_add_item(rt_tree, hf_isis_lsp_rt_capable_trill_caps, tvb, offset, 4, ENC_NA);
+            proto_tree_add_item(rt_tree, hf_isis_lsp_rt_capable_trill_flags, tvb, offset, 4, ENC_NA);
+        }
+
+        return(0);
+
+    case TREES:
+        rt_tree = proto_tree_add_subtree_format(tree, tvb, offset-2, sublen+2,
+                            ett_isis_lsp_clv_trees, NULL, "Trees (t=%u, l=%u)", subtype, sublen);
+
+        proto_tree_add_item(rt_tree, hf_isis_lsp_rt_capable_trees_nof_trees_to_compute, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(rt_tree, hf_isis_lsp_rt_capable_trees_maximum_nof_trees_to_compute, tvb, offset+2, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(rt_tree, hf_isis_lsp_rt_capable_trees_nof_trees_to_use, tvb, offset+4, 2, ENC_BIG_ENDIAN);
+
+        return(0);
+
+    case TREE_IDENTIFIER:
+        rt_tree = proto_tree_add_subtree_format(tree, tvb, offset-2, sublen+2,
+                            ett_isis_lsp_clv_root_id, NULL, "Tree root identifiers (t=%u, l=%u)", subtype, sublen);
+
+        root_id = tvb_get_ntohs(tvb, offset);
+        proto_tree_add_item(rt_tree, hf_isis_lsp_rt_capable_tree_root_id_starting_tree_no, tvb, offset, 2, ENC_BIG_ENDIAN);
+
+        sublen -= 2;
+        offset += 2;
+
+        while (sublen>=2) {
+            rt_block = tvb_get_ntohs(tvb, offset);
+            proto_tree_add_uint_format(rt_tree, hf_isis_lsp_rt_capable_tree_root_id_nickname, tvb, offset, 2,
+                                       rt_block, "Nickname(%dth root): 0x%04x (%d)", root_id, rt_block, rt_block);
+            root_id++;
+            sublen -= 2;
+            offset += 2;
+        }
+
+        return(0);
+
+    case NICKNAME:
+        rt_tree = proto_tree_add_subtree_format(tree, tvb, offset-2, sublen+2,
+                            ett_isis_lsp_clv_nickname, NULL, "Nickname (t=%u, l=%u)", subtype, sublen);
+
+        while (sublen>=5) {
+            proto_tree_add_item(rt_tree, hf_isis_lsp_rt_capable_nickname_nickname_priority, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(rt_tree, hf_isis_lsp_rt_capable_nickname_tree_root_priority, tvb, offset+1, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(rt_tree, hf_isis_lsp_rt_capable_nickname_nickname, tvb, offset+3, 2, ENC_BIG_ENDIAN);
+            sublen -= 5;
+            offset += 5;
+        }
+
+        return(0);
+
+    case INTERESTED_VLANS:
+        rt_tree = proto_tree_add_subtree_format(tree, tvb, offset-2, sublen+2,
+                        ett_isis_lsp_clv_interested_vlans, NULL, "Interested VLANs and spanning tree roots (t=%u, l=%u)", subtype, sublen);
+
+        proto_tree_add_item(rt_tree, hf_isis_lsp_rt_capable_interested_vlans_nickname, tvb, offset, 2, ENC_BIG_ENDIAN);
+        sublen -= 2;
+        offset += 2;
+
+        proto_tree_add_item(rt_tree, hf_isis_lsp_rt_capable_interested_vlans_multicast_ipv4, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(rt_tree, hf_isis_lsp_rt_capable_interested_vlans_multicast_ipv6, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(rt_tree, hf_isis_lsp_rt_capable_interested_vlans_vlan_start_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+        sublen -= 2;
+        offset += 2;
+
+        proto_tree_add_item(rt_tree, hf_isis_lsp_rt_capable_interested_vlans_vlan_end_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+        sublen -= 2;
+        offset += 2;
+
+        proto_tree_add_item(rt_tree, hf_isis_lsp_rt_capable_interested_vlans_afs_lost_counter, tvb, offset, 4, ENC_BIG_ENDIAN);
+        sublen -= 4;
+        offset += 4;
+
+        while (sublen>=6) {
+            proto_tree_add_item(rt_tree, hf_isis_lsp_root_id, tvb, offset, 6, ENC_NA);
+            sublen -= 6;
+            offset += 6;
+        }
+
+        return(0);
+
+    case TREES_USED_IDENTIFIER:
+        rt_tree = proto_tree_add_subtree_format(tree, tvb, offset-2, sublen+2,
+                    ett_isis_lsp_clv_tree_used, NULL, "Trees used identifiers (t=%u, l=%u)", subtype, sublen);
+
+        root_id = tvb_get_ntohs(tvb, offset);
+        proto_tree_add_item(rt_tree, hf_isis_lsp_rt_capable_tree_used_id_starting_tree_no, tvb, offset, 2, ENC_BIG_ENDIAN);
+
+        sublen -= 2;
+        offset += 2;
+
+        while (sublen>=2) {
+            rt_block = tvb_get_ntohs(tvb, offset);
+            proto_tree_add_uint_format(rt_tree, hf_isis_lsp_rt_capable_tree_used_id_nickname, tvb, offset,2,
+                                       rt_block, "Nickname(%dth root): 0x%04x (%d)", root_id, rt_block, rt_block);
+            root_id++;
+            offset += 2;
+            sublen -= 2;
+        }
+
+        return(0);
+
+    case VLAN_GROUP:
+        rt_tree = proto_tree_add_subtree_format(tree, tvb, offset-2, sublen+2,
+                        ett_isis_lsp_clv_vlan_group, NULL, "VLAN group (t=%u, l=%u)", subtype, sublen);
+
+        proto_tree_add_item(rt_tree, hf_isis_lsp_rt_capable_vlan_group_primary_vlan_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+
+        offset += 2;
+        sublen -= 2;
+
+        while (sublen>=2) {
+
+            proto_tree_add_item(rt_tree, hf_isis_lsp_rt_capable_vlan_group_secondary_vlan_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+            sublen -= 2;
+            offset += 2;
+        }
+
+        return(0);
+
+    default:
+        return(-1);
+    }
+}
+
 /*
  * Name: dissect_isis_rt_capable_clv()
  *
@@ -884,246 +1023,35 @@ dissect_isis_grp_address_clv(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *
  *   void, will modify proto_tree if not null.
  */
 
-/* As per RFC 6326 section 2.3 */
+/* As per RFC 7176 section 2.3 */
 static void
 dissect_isis_rt_capable_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
         proto_tree *tree, int offset, int id_length _U_, int length)
 {
-    gint len;
-    guint16 rt_block;
-    proto_tree *rt_tree;
+    guint8 subtype, subtlvlen;
 
-    guint16 root_id;       /* To display the root id */
-    length = length - 5;    /* Ignoring the 5 reserved bytes */
-    offset = offset + 5;
+    length -= 5;    /* Ignoring the 5 reserved bytes */
+    offset += 5;
 
-    while (length>1) {
-        /* fetch two bytes */
-        rt_block = tvb_get_ntohs(tvb, offset);
+    while (length>=2) {
+        subtype   = tvb_get_guint8(tvb, offset);
+        subtlvlen = tvb_get_guint8(tvb, offset+1);
+        length -= 2;
+        offset += 2;
 
-        /* Mask out the lower 8 bits */
-        switch ((rt_block&0xff00)>>8) {
-
-        case TRILL_VERSION:
-            rt_tree = proto_tree_add_subtree(tree, tvb, offset, (rt_block&0x00ff)+2,
-                        ett_isis_lsp_clv_trill_version, NULL, "TRILL version sub tlv");
-
-            proto_tree_add_item(rt_tree, hf_isis_lsp_rt_capable_trill_length, tvb, offset+1, 1, ENC_NA);
-            proto_tree_add_item(rt_tree, hf_isis_lsp_rt_capable_trill_maximum_version, tvb, offset+2, 1, ENC_NA);
-
-            if ( (rt_block&0x00ff) == 5 ) {
-                proto_tree_add_item(rt_tree, hf_isis_lsp_rt_capable_trill_affinity_tlv, tvb, offset+3, 4, ENC_NA);
-                proto_tree_add_item(rt_tree, hf_isis_lsp_rt_capable_trill_fgl_safe, tvb, offset+3, 4, ENC_NA);
-                proto_tree_add_item(rt_tree, hf_isis_lsp_rt_capable_trill_caps, tvb, offset+3, 4, ENC_NA);
-                proto_tree_add_item(rt_tree, hf_isis_lsp_rt_capable_trill_flags, tvb, offset+3, 4, ENC_NA);
-            }
-
-            length -= (rt_block&0x00ff)+2;
-            offset += (rt_block&0x00ff)+2;
-
-            break;
-
-        case TREES:
-            rt_tree = proto_tree_add_subtree(tree, tvb, offset, (rt_block&0x00ff)+2,
-                                ett_isis_lsp_clv_trees, NULL, "Trees sub tlv");
-
-            length--;
-            offset++;
-
-            proto_tree_add_item(rt_tree, hf_isis_lsp_rt_capable_trees_length, tvb, offset, 1, ENC_NA);
-
-            length--;
-            offset++;
-
-            proto_tree_add_item(rt_tree, hf_isis_lsp_rt_capable_trees_nof_trees_to_compute, tvb, offset, 2, ENC_BIG_ENDIAN);
-
-            length -= 2;
-            offset += 2;
-
-            proto_tree_add_item(rt_tree, hf_isis_lsp_rt_capable_trees_maximum_nof_trees_to_compute, tvb, offset, 2, ENC_BIG_ENDIAN);
-
-            length -= 2;
-            offset += 2;
-
-            proto_tree_add_item(rt_tree, hf_isis_lsp_rt_capable_trees_nof_trees_to_use, tvb, offset, 2, ENC_BIG_ENDIAN);
-
-            length -= 2;
-            offset += 2;
-            break;
-
-        case TREE_IDENTIFIER:
-            rt_tree=proto_tree_add_subtree(tree, tvb, offset, (rt_block&0x00ff)+2,
-                                ett_isis_lsp_clv_root_id, NULL, "Tree root identifier sub tlv");
-
-            length--;
-            offset++;
-
-            len = tvb_get_guint8(tvb, offset);
-            proto_tree_add_item(rt_tree, hf_isis_lsp_rt_capable_tree_root_id_length, tvb, offset, 1, ENC_NA);
-
-            length--;
-            offset++;
-
-            root_id = tvb_get_ntohs(tvb, offset);
-            proto_tree_add_item(rt_tree, hf_isis_lsp_rt_capable_tree_root_id_starting_tree_no, tvb, offset, 2, ENC_BIG_ENDIAN);
-
-            len -= 2;
-            length -= 2;
-            offset += 2;
-
-            while (len>1) {
-                rt_block = tvb_get_ntohs(tvb, offset);
-                proto_tree_add_uint_format(rt_tree, hf_isis_lsp_rt_capable_tree_root_id_nickname, tvb, offset, 2,
-                                           rt_block, "Nickname(%dth root): 0x%04x (%d)", root_id, rt_block, rt_block);
-                root_id++;
-                len -= 2;
-                length -= 2;
-                offset += 2;
-            }
-            break;
-
-        case NICKNAME:
-            rt_tree = proto_tree_add_subtree(tree, tvb, offset, (rt_block&0x00ff)+2,
-                                ett_isis_lsp_clv_nickname, NULL, "The nickname sub tlv");
-
-            length--;
-            offset++;
-
-            len = tvb_get_guint8(tvb, offset);
-            proto_tree_add_item(rt_tree, hf_isis_lsp_rt_capable_nickname_length, tvb, offset, 1, ENC_NA);
-
-            length--;
-            offset++;
-
-            while (len>0) {
-                proto_tree_add_item(rt_tree, hf_isis_lsp_rt_capable_nickname_nickname_priority, tvb, offset, 1, ENC_NA);
-                length--;
-                offset++;
-                len--;
-
-                proto_tree_add_item(rt_tree, hf_isis_lsp_rt_capable_nickname_tree_root_priority, tvb, offset, 2, ENC_BIG_ENDIAN);
-                len -= 2;
-                length -= 2;
-                offset += 2;
-
-                proto_tree_add_item(rt_tree, hf_isis_lsp_rt_capable_nickname_nickname, tvb, offset, 2, ENC_BIG_ENDIAN);
-                length = length-2;
-                offset = offset+2;
-                len = len-2;
-            }
-            break;
-
-        case INTERESTED_VLANS:
-            rt_tree = proto_tree_add_subtree(tree, tvb, offset, (rt_block&0x00ff)+2,
-                            ett_isis_lsp_clv_interested_vlans, NULL, "Interested VLAN and spanning tree root sub tlv");
-
-            length--;
-            offset++;
-
-            len = tvb_get_guint8(tvb, offset);
-            proto_tree_add_item(rt_tree, hf_isis_lsp_rt_capable_interested_vlans_length, tvb, offset, 1, ENC_NA);
-            length--;
-            offset++;
-
-            proto_tree_add_item(rt_tree, hf_isis_lsp_rt_capable_interested_vlans_nickname, tvb, offset, 2, ENC_BIG_ENDIAN);
-            len -= 2;
-            length -= 2;
-            offset += 2;
-
-            proto_tree_add_item(rt_tree, hf_isis_lsp_rt_capable_interested_vlans_multicast_ipv4, tvb, offset, 2, ENC_BIG_ENDIAN);
-            proto_tree_add_item(rt_tree, hf_isis_lsp_rt_capable_interested_vlans_multicast_ipv6, tvb, offset, 2, ENC_BIG_ENDIAN);
-            proto_tree_add_item(rt_tree, hf_isis_lsp_rt_capable_interested_vlans_vlan_start_id, tvb, offset, 2, ENC_BIG_ENDIAN);
-            len -= 2;
-            length -= 2;
-            offset += 2;
-
-            proto_tree_add_item(rt_tree, hf_isis_lsp_rt_capable_interested_vlans_vlan_end_id, tvb, offset, 2, ENC_BIG_ENDIAN);
-            len -= 2;
-            length -= 2;
-            offset += 2;
-
-            proto_tree_add_item(rt_tree, hf_isis_lsp_rt_capable_interested_vlans_afs_lost_counter, tvb, offset, 4, ENC_BIG_ENDIAN);
-            length -= 4;
-            offset += 4;
-            len -= 4;
-
-            while (len>0) {
-                proto_tree_add_item(rt_tree, hf_isis_lsp_root_id, tvb, offset, 6, ENC_NA);
-
-                length -= 6;
-                offset += 6;
-                len -= 6;
-            }
-            break;
-
-        case TREES_USED_IDENTIFIER:
-            rt_tree = proto_tree_add_subtree(tree, tvb, offset, (rt_block&0x00ff)+2,
-                        ett_isis_lsp_clv_tree_used, NULL, "Trees used identifier sub tlv");
-
-            length--;
-            offset++;
-
-            len = tvb_get_guint8(tvb, offset);
-            proto_tree_add_item(rt_tree, hf_isis_lsp_rt_capable_tree_used_id_length, tvb, offset, 1, ENC_NA);
-
-            length--;
-            offset++;
-
-            root_id = tvb_get_ntohs(tvb, offset);
-            proto_tree_add_item(rt_tree, hf_isis_lsp_rt_capable_tree_used_id_starting_tree_no, tvb, offset, 2, ENC_BIG_ENDIAN);
-
-            len -= 2;
-            length -= 2;
-            offset += 2;
-
-            while (len>1) {
-                rt_block = tvb_get_ntohs(tvb, offset);
-                proto_tree_add_uint_format(rt_tree, hf_isis_lsp_rt_capable_tree_used_id_nickname, tvb, offset,2,
-                                           rt_block, "Nickname(%dth root): 0x%04x (%d)", root_id, rt_block, rt_block);
-                root_id++;
-                len -= 2;
-                offset += 2;
-                length -= 2;
-            }
-            break;
-
-        case VLAN_GROUP:
-            rt_tree = proto_tree_add_subtree(tree, tvb, offset, (rt_block&0x00ff)+2,
-                            ett_isis_lsp_clv_vlan_group, NULL, "The VLAN group sub tlv");
-
-            length--;
-            offset++;
-
-            len = tvb_get_guint8(tvb, offset);
-            proto_tree_add_item(rt_tree, hf_isis_lsp_rt_capable_vlan_group_length, tvb, offset, 1, ENC_NA);
-
-            length--;
-            offset++;
-
-            proto_tree_add_item(rt_tree, hf_isis_lsp_rt_capable_vlan_group_primary_vlan_id, tvb, offset, 2, ENC_BIG_ENDIAN);
-
-            len -= 2;
-            offset += 2;
-            length -= 2;
-
-            while (len>1) {
-
-                proto_tree_add_item(rt_tree, hf_isis_lsp_rt_capable_vlan_group_secondary_vlan_id, tvb, offset, 2, ENC_BIG_ENDIAN);
-
-                length -= 2;
-                offset += 2;
-                len -= 2;
-            }
-            break;
-
-        default:
-            proto_tree_add_text(tree, tvb, offset, (rt_block&0x00ff)+2, "Unknown Sub-TLV");
-
-            offset++;
-            length -= (2+tvb_get_guint8(tvb, offset));
-            offset += (1+tvb_get_guint8(tvb, offset));
-            break;
+        if (subtlvlen > length) {
+            proto_tree_add_expert_format(tree, pinfo, &ei_isis_lsp_short_packet, tvb, offset-2, -1,
+                                  "Short type %d TLV (%d vs %d)", subtype, subtlvlen, length);
+            return;
         }
+
+        if (dissect_isis_trill_clv(tvb, pinfo, tree, offset, subtype, subtlvlen)==-1) {
+
+            proto_tree_add_expert_format( tree, pinfo, &ei_isis_lsp_subtlv, tvb, offset-2, subtlvlen+2,
+                                      "Unknown SubTlv: Type: %d, Length: %d", subtype, subtlvlen);
+        }
+        length -= subtlvlen;
+        offset += subtlvlen;
     }
 }
 
@@ -1583,6 +1511,10 @@ dissect_isis_lsp_clv_mt_cap_spbv_mac_address(tvbuff_t *tvb, packet_info *pinfo,
         }
     }
 }
+
+
+
+
 /*
  * Name: dissect_lsp_clv_mt_cap()
  *
@@ -1614,8 +1546,8 @@ dissect_isis_lsp_clv_mt_cap(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree,
             length -= 2;
             offset += 2;
             if (subtlvlen > length) {
-                proto_tree_add_expert_format(tree, pinfo, &ei_isis_lsp_short_packet, tvb, offset, -1,
-                                      "Short type 0x%02x TLV (%d vs %d)", subtype, subtlvlen, length);
+                proto_tree_add_expert_format(tree, pinfo, &ei_isis_lsp_short_packet, tvb, offset-2, -1,
+                                      "Short type %d TLV (%d vs %d)", subtype, subtlvlen, length);
                 return;
             }
             if (subtype == 0x01) { /* SPB Instance */
@@ -1630,9 +1562,9 @@ dissect_isis_lsp_clv_mt_cap(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree,
             else if (subtype == 0x04) { /* SPBV Mac Address */
                 dissect_isis_lsp_clv_mt_cap_spbv_mac_address(tvb, pinfo, tree, offset, subtype, subtlvlen);
             }
-            else {
-                proto_tree_add_expert_format( tree, pinfo, &ei_isis_lsp_subtlv, tvb, offset, -1,
-                                      "Unknown SubTlv: Type: 0x%02x, Length: %d", subtype, subtlvlen);
+            else if (dissect_isis_trill_clv(tvb, pinfo, tree, offset, subtype, subtlvlen)==-1) {
+                proto_tree_add_expert_format( tree, pinfo, &ei_isis_lsp_subtlv, tvb, offset-2, subtlvlen+2,
+                                      "Unknown SubTlv: Type: %d, Length: %d", subtype, subtlvlen);
             }
             length -= subtlvlen;
             offset += subtlvlen;
@@ -3002,7 +2934,7 @@ proto_register_isis_lsp(void)
             NULL, HFILL }
         },
         { &hf_isis_lsp_mt_id,
-            { "Topology ID", "isis.lsp.mt_id",
+            { "Topology ID", "isis.lsp.mtid",
               FT_UINT16, BASE_DEC|BASE_RANGE_STRING, RVALS(mtid_strings), 0x0fff,
               NULL, HFILL }
         },
@@ -3062,7 +2994,7 @@ proto_register_isis_lsp(void)
               NULL, HFILL }
         },
         { &hf_isis_lsp_grp_macaddr_topology_id,
-            { "Topology ID", "isis.lsp.grp_macaddr.topology_id",
+            { "Topology ID", "isis.lsp.grp_macaddr.mtid",
               FT_UINT16, BASE_DEC|BASE_RANGE_STRING, RVALS(mtid_strings), 0x0fff,
               NULL, HFILL }
         },
@@ -3097,7 +3029,7 @@ proto_register_isis_lsp(void)
               NULL, HFILL }
         },
         { &hf_isis_lsp_grp_ipv4addr_topology_id,
-            { "Topology ID", "isis.lsp.grp_ipv4addr.topology_id",
+            { "Topology ID", "isis.lsp.grp_ipv4addr.mtid",
               FT_UINT16, BASE_DEC|BASE_RANGE_STRING, RVALS(mtid_strings), 0x0fff,
               NULL, HFILL }
         },
@@ -3132,7 +3064,7 @@ proto_register_isis_lsp(void)
               NULL, HFILL }
         },
         { &hf_isis_lsp_grp_ipv6addr_topology_id,
-            { "Topology ID", "isis.lsp.grp_ipv6addr.topology_id",
+            { "Topology ID", "isis.lsp.grp_ipv6addr.mtid",
               FT_UINT16, BASE_DEC|BASE_RANGE_STRING, RVALS(mtid_strings), 0x0fff,
               NULL, HFILL }
         },
@@ -3161,11 +3093,6 @@ proto_register_isis_lsp(void)
               FT_IPv6, BASE_NONE, NULL, 0x0,
               NULL, HFILL }
         },
-        { &hf_isis_lsp_rt_capable_trill_length,
-            { "Length", "isis.lsp.rt_capable.trill.length",
-              FT_UINT8, BASE_DEC, NULL, 0x0,
-              NULL, HFILL }
-        },
         { &hf_isis_lsp_rt_capable_trill_affinity_tlv,
             { "Affinity Sub-TLV", "isis.lsp.rt_capable.trill.affinity_tlv",
               FT_BOOLEAN, 32 , TFS(&tfs_supported_not_supported), 0x80000000,
@@ -3191,11 +3118,6 @@ proto_register_isis_lsp(void)
               FT_UINT8, BASE_DEC, NULL, 0x0,
               NULL, HFILL }
         },
-        { &hf_isis_lsp_rt_capable_trees_length,
-            { "Length", "isis.lsp.rt_capable.trees.length",
-              FT_UINT8, BASE_DEC, NULL, 0x0,
-              NULL, HFILL }
-        },
         { &hf_isis_lsp_rt_capable_trees_nof_trees_to_compute,
             { "Nof. trees to compute", "isis.lsp.rt_capable.trees.nof_trees_to_compute",
               FT_UINT16, BASE_DEC, NULL, 0x0,
@@ -3211,11 +3133,6 @@ proto_register_isis_lsp(void)
               FT_UINT16, BASE_DEC, NULL, 0x0,
               NULL, HFILL }
         },
-        { &hf_isis_lsp_rt_capable_tree_root_id_length,
-            { "Length", "isis.lsp.rt_capable.tree_root_id.length",
-              FT_UINT8, BASE_DEC, NULL, 0x0,
-              NULL, HFILL }
-        },
         { &hf_isis_lsp_rt_capable_tree_root_id_starting_tree_no,
             { "Starting tree no", "isis.lsp.rt_capable.tree_root_id.starting_tree_no",
               FT_UINT16, BASE_DEC, NULL, 0x0,
@@ -3224,11 +3141,6 @@ proto_register_isis_lsp(void)
         { &hf_isis_lsp_rt_capable_tree_root_id_nickname,
             { "Nickname", "isis.lsp.rt_capable.tree_root_id.nickname",
               FT_UINT16, BASE_HEX_DEC, NULL, 0x0,
-              NULL, HFILL }
-        },
-        { &hf_isis_lsp_rt_capable_nickname_length,
-            { "Length", "isis.lsp.rt_capable.nickname.length",
-              FT_UINT8, BASE_DEC, NULL, 0x0,
               NULL, HFILL }
         },
         { &hf_isis_lsp_rt_capable_nickname_nickname_priority,
@@ -3244,11 +3156,6 @@ proto_register_isis_lsp(void)
         { &hf_isis_lsp_rt_capable_nickname_nickname,
             { "Nickname", "isis.lsp.rt_capable.nickname.nickname",
               FT_UINT16, BASE_HEX_DEC, NULL, 0x0,
-              NULL, HFILL }
-        },
-        { &hf_isis_lsp_rt_capable_interested_vlans_length,
-            { "Length", "isis.lsp.rt_capable.interested_vlans.length",
-              FT_UINT8, BASE_DEC, NULL, 0x0,
               NULL, HFILL }
         },
         { &hf_isis_lsp_rt_capable_interested_vlans_nickname,
@@ -3281,11 +3188,6 @@ proto_register_isis_lsp(void)
               FT_UINT32, BASE_DEC, NULL, 0x0,
               NULL, HFILL }
         },
-        { &hf_isis_lsp_rt_capable_tree_used_id_length,
-            { "Length", "isis.lsp.rt_capable.tree_used_id.length",
-              FT_UINT8, BASE_DEC, NULL, 0x0,
-              NULL, HFILL }
-        },
         { &hf_isis_lsp_rt_capable_tree_used_id_starting_tree_no,
             { "Starting tree no", "isis.lsp.rt_capable.tree_used_id.starting_tree_no",
               FT_UINT16, BASE_DEC, NULL, 0x0,
@@ -3294,11 +3196,6 @@ proto_register_isis_lsp(void)
         { &hf_isis_lsp_rt_capable_tree_used_id_nickname,
             { "Nickname", "isis.lsp.rt_capable.tree_used_id.nickname",
               FT_UINT16, BASE_HEX_DEC, NULL, 0x0,
-              NULL, HFILL }
-        },
-        { &hf_isis_lsp_rt_capable_vlan_group_length,
-            { "Length", "isis.lsp.rt_capable.vlan_group.length",
-              FT_UINT8, BASE_DEC, NULL, 0x0,
               NULL, HFILL }
         },
         { &hf_isis_lsp_rt_capable_vlan_group_primary_vlan_id,
