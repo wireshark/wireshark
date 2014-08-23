@@ -2928,6 +2928,23 @@ dissect_linux_usb_pseudo_header_ext(tvbuff_t *tvb, int offset,
     return offset;
 }
 
+static int
+try_dissect_linux_usb_pseudo_header_ext(tvbuff_t *tvb, int offset,
+                                    packet_info *pinfo _U_,
+                                    proto_tree *tree, guint8 header_info)
+{
+    /*
+     * If this has a 64-byte header, process the extra 16 bytes of
+     * pseudo-header information.
+     */
+    if ((header_info & USB_HEADER_IS_LINUX) &&
+        (header_info & USB_HEADER_IS_64_BYTES)) {
+        offset = dissect_linux_usb_pseudo_header_ext(tvb, offset, pinfo, tree);
+    }
+    return offset;
+}
+
+
 /* dissect the usbpcap_buffer_packet_header and fill the conversation struct
    this function does not handle the transfer-specific headers
    return the number of bytes processed */
@@ -3397,14 +3414,7 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
                     tvb_composite_append(setup_tvb, next_tvb);
                 }
 
-                /*
-                 * If this has a 64-byte header, process the extra 16 bytes of
-                 * pseudo-header information.
-                 */
-                if ((header_info & USB_HEADER_IS_LINUX) &&
-                    (header_info & USB_HEADER_IS_64_BYTES)) {
-                    offset = dissect_linux_usb_pseudo_header_ext(tvb, offset, pinfo, tree);
-                }
+                offset = try_dissect_linux_usb_pseudo_header_ext(tvb, offset, pinfo, tree, header_info);
 
                 if (req_type != RQT_SETUP_TYPE_STANDARD) {
                     if (header_info & (USB_HEADER_IS_LINUX | USB_HEADER_IS_64_BYTES)) {
@@ -3433,15 +3443,9 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
                     /* Skip setup/isochronous header - it's not applicable */
                     proto_tree_add_item(tree, hf_usb_urb_unused_setup_header, tvb, offset, 8, ENC_NA);
                     offset += 8;
-
-                        /*
-                         * If this has a 64-byte header, process the extra 16 bytes of
-                         * pseudo-header information.
-                         */
-                        if (header_info & USB_HEADER_IS_64_BYTES) {
-                            offset = dissect_linux_usb_pseudo_header_ext(tvb, offset, pinfo, tree);
-                        }
                 }
+
+                offset = try_dissect_linux_usb_pseudo_header_ext(tvb, offset, pinfo, tree, header_info);
 
             }
         } else {
@@ -3453,15 +3457,7 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
                 offset += 8;
             }
 
-            /*
-             * If this has a 64-byte header, process the extra 16 bytes of
-             * pseudo-header information.
-             */
-            if ((header_info & USB_HEADER_IS_LINUX) &&
-                (header_info & USB_HEADER_IS_64_BYTES)) {
-                offset = dissect_linux_usb_pseudo_header_ext(tvb, offset, pinfo, tree);
-            }
-
+            offset = try_dissect_linux_usb_pseudo_header_ext(tvb, offset, pinfo, tree, header_info);
 
             /* Check if this is status stage */
             if ((usb_conv_info->usb_trans_info) &&
