@@ -411,11 +411,14 @@ static const value_string sctp_payload_proto_id_values[] = {
   { DIAMETER_PROTOCOL_ID,                           "DIAMETER" },
   { DIAMETER_DTLS_PROTOCOL_ID,                      "DIAMETER OVER DTLS" },
   { R14P_BER_PROTOCOL_ID,                           "R14P" },
-  { WEBRTC_CONTROL_PAYLOAD_PROTOCOL_ID,             "WebRTC Control" },
-  { WEBRTC_DOMSTRING_LAST_PAYLOAD_PROTOCOL_ID,      "WebRTC DOMString Last" },
-  { WEBRTC_BINARY_DATA_PARTIAL_PAYLOAD_PROTOCOL_ID, "WebRTC Binary Data Partial" },
-  { WEBRTC_BINARY_DATA_LAST_PAYLOAD_PROTOCOL_ID,    "WebRTC Binary Data Last" },
-  { WEBRTC_DOMSTRING_PARTIAL_PAYLOAD_PROTOCOL_ID,   "WebRTC DOMString Partial" },
+  { WEBRTC_DCEP_PROTOCOL_ID,                        "WebRTC Control" },
+  { WEBRTC_STRING_PAYLOAD_PROTOCOL_ID,              "WebRTC String" },
+  { WEBRTC_BINARY_PARTIAL_PAYLOAD_PROTOCOL_ID,      "WebRTC Binary Partial (Deprecated)" },
+  { WEBRTC_BINARY_PAYLOAD_PROTOCOL_ID,              "WebRTC Binary" },
+  { WEBRTC_STRING_PARTIAL_PAYLOAD_PROTOCOL_ID,      "WebRTC String Partial (Deprecated)" },
+  { PROTO_3GPP_PUA_PAYLOAD_PROTOCOL_ID,             "3GPP PUA" },
+  { WEBRTC_STRING_EMPTY_PAYLOAD_PROTOCOL_ID,        "WebRTC String Empty" },
+  { WEBRTC_BINARY_EMPTY_PAYLOAD_PROTOCOL_ID,        "WebRTC Binary Empty" },
   { 0,                                              NULL } };
 
 

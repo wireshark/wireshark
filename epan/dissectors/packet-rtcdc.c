@@ -42,7 +42,7 @@ void proto_register_rtcdc(void);
 void proto_reg_handoff_rtcdc(void);
 
 /* PPID used for this protocol */
-static guint32 rtcdc_ppid = WEBRTC_CONTROL_PAYLOAD_PROTOCOL_ID;
+static guint32 rtcdc_ppid = WEBRTC_DCEP_PROTOCOL_ID;
 
 /* Initialize the protocol and registered fields */
 static int proto_rtcdc = -1;
