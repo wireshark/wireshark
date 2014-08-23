@@ -2693,8 +2693,12 @@ try_dissect_next_protocol(proto_tree *tree, proto_tree *parent, tvbuff_t *next_t
                 usb_conv_info->usb_trans_info = usb_trans_info;
                 
             }
+            else if (ctrl_recip == RQT_SETUP_RECIPIENT_OTHER) {
+                heur_subdissector_list = heur_control_subdissector_list;
+                usb_dissector_table = usb_control_dissector_table;
+            }
             else {
-                /* the recipient is "other" or "reserved"
+                /* the recipient is "reserved"
                    it makes no sense to set usb_dissector_table since there's no way for
                    us to link this message to a device class */
                 heur_subdissector_list = heur_control_subdissector_list;
