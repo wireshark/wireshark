@@ -375,7 +375,7 @@ int libpcap_open(wtap *wth, int *err, gchar **err_info)
 			/*
 			 * We have nanosecond-format libpcap's magic
 			 * number.  Try the subtypes for that.
-			 */ 
+			 */
 			subtypes = subtypes_nsec;
 			n_subtypes = N_SUBTYPES_NSEC;
 		} else {
