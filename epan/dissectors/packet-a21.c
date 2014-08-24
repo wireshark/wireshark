@@ -141,6 +141,8 @@ dissect_a21_correlation_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 	proto_item *tc;
 	proto_tree *corr_tree;
 
+	if(tree == NULL)
+		return;
 	tc = proto_tree_add_item(tree, hf_a21_corr_id, tvb, offset,  6, ENC_BIG_ENDIAN);
 	corr_tree = proto_item_add_subtree(tc,ett_a21_corr_id);
 
@@ -167,10 +169,13 @@ static void
 dissect_a21_mobile_identity(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type _U_)
 {
 	int offset =0;
-	int identity_type;
+	guint identity_type;
 	const gchar *imsi_str;
 
-	identity_type = (gint)tvb_get_guint8(tvb, offset) & 0x07;
+	if(tree == NULL)
+		return;
+
+	identity_type = tvb_get_guint8(tvb, offset) & 0x07;
 	proto_tree_add_item(tree, hf_a21_mn_id_type_of_identity, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 	switch(identity_type){
@@ -210,6 +215,8 @@ static void
 dissect_a21_1x_message_transmission_control(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_)
 {
 	int offset=0;
+	if(tree == NULL)
+		return;
 	proto_tree_add_item(tree, hf_a21_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_item(tree, hf_a21_msg_tran_ctrl_paging_msg, tvb, offset, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_item(tree, hf_a21_msg_tran_ctrl_simul_xmit_with_next, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -262,9 +269,11 @@ static void
 dissect_a21_authentication_challenge_parameter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_)
 {
 	int offset=0;
-	int type;
+	guint type;
 
-	type=(gint)tvb_get_guint8(tvb, offset) & 0x0f;
+	if(tree == NULL)
+		return;
+	type=tvb_get_guint8(tvb, offset) & 0x0f;
 	proto_tree_add_item(tree, hf_a21_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_item(tree, hf_a21_auth_chall_para_rand_num_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
@@ -295,6 +304,8 @@ dissect_a21_mobile_subscription_information(tvbuff_t *tvb, packet_info *pinfo _U
 	guint16 record_len=0;
 	proto_tree *record_tree;
 
+	if(tree == NULL)
+		return;
 	while(offset<length){
 		record_id=tvb_get_guint8(tvb, offset);
 		record_len=tvb_get_guint8(tvb, offset+1);
@@ -338,6 +349,8 @@ dissect_a21_gcsna_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 	int offset=0;
 	guint8 priority_incl, status_incl;
 
+	if(tree == NULL)
+		return;
 	status_incl = tvb_get_guint8(tvb, offset) & 0x01;
 	priority_incl = tvb_get_guint8(tvb, offset) & 0x04;
 
@@ -363,12 +376,12 @@ static void
 dissect_a21_gcsna_pdu(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_)
 {
 	int offset=0;
-	tvbuff_t* new_tvb = NULL;
 	proto_tree *a21_tree = tree->parent;
 
 	/* only dissect it to octetstring */
 	proto_tree_add_item(tree, hf_a21_gcsna_content, tvb, offset, length, ENC_NA);
 	if(gcsna_handle){
+		tvbuff_t *new_tvb;
 		new_tvb	= tvb_new_subset_length(tvb, offset, length);
 		/* call the dissector with the parent (top)tree */
 		call_dissector(gcsna_handle, new_tvb, pinfo, a21_tree->parent);
@@ -382,6 +395,8 @@ dissect_a21_reference_cell_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
 {
 	int offset=0;
 
+	if(tree == NULL)
+		return;
 	proto_tree_add_item(tree, hf_a21_mscid_market_id, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset+=2;
 	proto_tree_add_item(tree, hf_a21_mscid_switch_number, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -458,6 +473,8 @@ dissect_a21_event(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto
 	int offset=0;
 	guint8 event_id;
 
+	if(tree == NULL)
+		return;
 	event_id = tvb_get_guint8(tvb, offset);
 	proto_tree_add_item(tree, hf_a21_event, tvb, offset,  1, ENC_BIG_ENDIAN);
 	proto_item_append_text(item, "%s", val_to_str_const(event_id, a21_event_vals, "Unknown"));
@@ -520,7 +537,7 @@ static const value_string a21_element_type_vals[] = {
 
 
 static void
-dissect_a21_ie_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gint offset,  guint8 message_type)
+dissect_a21_ie_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset,  guint8 message_type)
 {
 	guint8 ie_type, length_len;
 	guint16 length=0;
@@ -533,7 +550,7 @@ dissect_a21_ie_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gi
 		if(ie_type == A21_IEI_GCSNA_PDU){
 			/* length of GCSNA PDU is 2 octets long */
 			length_len = 2;
-			length = (gint)tvb_get_ntohs(tvb, offset+1);
+			length = tvb_get_ntohs(tvb, offset+1);
 		}else{
 			/* Octet 2-length */
 			length_len = 1;
@@ -622,7 +639,7 @@ dissect_a21(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	guint8 message_type;
 	int offset = 0;
-	proto_item *tc;
+	proto_item *ti, *tc;
 	proto_tree *a21_tree, *corr_tree;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "A21");
@@ -634,32 +651,30 @@ dissect_a21(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	*/
 
 	message_type = tvb_get_guint8(tvb, offset);
-	col_add_str(pinfo->cinfo, COL_INFO, val_to_str_const(message_type, a21_message_type_vals, "Unknown"));
+	col_set_str(pinfo->cinfo, COL_INFO, val_to_str_const(message_type, a21_message_type_vals, "Unknown"));
 
-	proto_tree_add_item(tree, proto_a21, tvb, offset,  0, ENC_NA);
+	ti = proto_tree_add_protocol_format(tree, proto_a21, tvb, 0, -1,
+				      "A21 Protocol: %s",
+				      val_to_str_const(message_type, a21_message_type_vals, "Unknown"));
+	a21_tree = proto_item_add_subtree(ti, ett_a21);
 
-	if(tree){
-		a21_tree = proto_tree_add_subtree(tree, tvb, offset, 1, ett_a21, NULL,
-				            val_to_str_const(message_type, a21_message_type_vals, "Unknown"));
+	/* message type in Octet 1 */
+	proto_tree_add_item(a21_tree, hf_a21_message_type, tvb, offset,  1, ENC_BIG_ENDIAN);
+	offset++;
+	/* Correlation Identifier in Octets 2-7 */
+	tc = proto_tree_add_item(a21_tree, hf_a21_corr_id, tvb, offset,  6, ENC_BIG_ENDIAN);
+	corr_tree = proto_item_add_subtree(tc,ett_a21_corr_id);
 
-		/* message type in Octet 1 */
-		proto_tree_add_item(a21_tree, hf_a21_message_type, tvb, offset,  1, ENC_BIG_ENDIAN);
-		offset++;
-		/* Correlation Identifier in Octets 2-7 */
-		tc = proto_tree_add_item(a21_tree, hf_a21_corr_id, tvb, offset,  6, ENC_BIG_ENDIAN);
-		corr_tree = proto_item_add_subtree(tc,ett_a21_corr_id);
+	proto_tree_add_item(corr_tree, hf_a21_element_identifier, tvb, offset,  1, ENC_BIG_ENDIAN);
+	offset++;
+	proto_tree_add_item(corr_tree, hf_a21_element_length, tvb, offset,  1, ENC_BIG_ENDIAN);
+	offset++;
 
-		proto_tree_add_item(corr_tree, hf_a21_element_identifier, tvb, offset,  1, ENC_BIG_ENDIAN);
-		offset++;
-		proto_tree_add_item(corr_tree, hf_a21_element_length, tvb, offset,  1, ENC_BIG_ENDIAN);
-		offset++;
+	proto_tree_add_item(corr_tree, hf_a21_corr_id_corr_value, tvb, offset,  4, ENC_BIG_ENDIAN);
+	offset +=4;
 
-		proto_tree_add_item(corr_tree, hf_a21_corr_id_corr_value, tvb, offset,  4, ENC_BIG_ENDIAN);
-		offset +=4;
+	dissect_a21_ie_common(tvb, pinfo, a21_tree, offset,  message_type);
 
-		dissect_a21_ie_common(tvb, pinfo, a21_tree, offset,  message_type);
-
-	}
 
 }
 
@@ -856,13 +871,13 @@ void proto_register_a21(void)
 			  FT_UINT8, BASE_DEC, NULL, 0x0f,
 			  NULL, HFILL }
 		  },
-/*
+#if 0
 		  { &hf_a21_mob_sub_info_re_con_band_class,
 			 {"Band Class", "a21.mob_sub_info_re_con_band_class",
 			  FT_UINT8, BASE_DEC, NULL, 0x0,
 			  NULL, HFILL }
 		  },
-*/
+#endif
 		  { &hf_a21_auth_chall_para_rand_num_type,
 			 {"Random Number Type", "a21.auth_chall_para_rand_num_type",
 			  FT_UINT8, BASE_DEC|BASE_RANGE_STRING, RVALS(a21_random_number_type_rvals), 0x0f,
@@ -924,10 +939,12 @@ void proto_register_a21(void)
 	};
 
 	module_t *a21_module;
-	expert_module_t* expert_a21;
+	expert_module_t *expert_a21;
 
 	static ei_register_info ei[] = {
-		{ &ei_a21_ie_data_not_dissected_yet, { "a21.ie_data_not_dissected_yet", PI_PROTOCOL, PI_NOTE, "IE data not dissected yet", EXPFILL }},
+		{ &ei_a21_ie_data_not_dissected_yet,
+		  { "a21.ie_data_not_dissected_yet",
+		    PI_PROTOCOL, PI_NOTE, "IE data not dissected yet", EXPFILL }},
 	};
 
 	proto_a21 = proto_register_protocol("A21 Protocol", "A21", "a21");
