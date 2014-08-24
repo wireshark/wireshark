@@ -43,10 +43,11 @@
 # - python.xml.sax
 #
 cog.out('/*\n')
-cog.out(' * Generated Automatically Using:\n')
-cog.out(' *   cog.py -D xmlfile=SkinnyProtocolOptimized.xml -d -c -o packet-skinny.c packet-skinny.c.in\n')
+cog.out(' * Generated Automatically Using (from wireshark base directory):\n')
+cog.out(' *   cog.py -D xmlfile=tools/SkinnyProtocolOptimized.xml -d -c -o epan/dissectors/packet-skinny.c epan/dissectors/packet-skinny.c.in\n')
 cog.out(' */\n')
 ]]]*/
+
 /*[[[end]]]*/
 
 /* c-basic-offset: 2; tab-width: 2; indent-tabs-mode: nil
@@ -102,6 +103,9 @@ static const value_string header_version[] = {
 
 /* Declare MessageId */
 /* [[[cog
+import sys
+sys.path.append('tools/')
+
 import parse_xml2skinny_dissector as xml2skinny
 global skinny
 global message_dissector_functions
