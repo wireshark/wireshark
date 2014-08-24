@@ -1285,8 +1285,18 @@ MSVCR_DLL=$(PROGRAM_FILES)\Microsoft Visual Studio 12.0\VC\redist\$(TARGET_MACHI
 # You may want to install the FOP hyphenation patterns from
 # http://offo.sourceforge.net/hyphenation/
 !IFNDEF FOP
+
+!IF EXIST(docbook\fop-1.1\fop.bat)
+FOP=fop-1.1\fop.bat
+!ELSE IF EXIST($(WIRESHARK_LIB_DIR)\fop-1.1\fop.bat)
+FOP=$(WIRESHARK_LIB_DIR)\fop-1.1\fop.bat
+!ELSE IF EXIST(docbook\fop-1.0\fop.bat)
 FOP=fop-1.0\fop.bat
+!ELSE IF EXIST($(WIRESHARK_LIB_DIR)\fop-1.0\fop.bat)
+FOP=$(WIRESHARK_LIB_DIR)\fop-1.0\fop.bat
 !ENDIF
+
+!ENDIF FOP
 
 # Additional options to fop.
 FOP_OPTS=-Xmx256m

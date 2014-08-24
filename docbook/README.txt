@@ -116,23 +116,25 @@ http://www.microsoft.com/en-us/download/details.aspx?id=21138
 
 Packages for Win32
 ------------------
-See ..\config.nmake for Win32 settings. You may need to run
-"build-docbook-catalog" in order to register your catalog properly.
+See ..\config.nmake for Win32 settings.
+Installing the asciidoc package will pull in almost all the other required Cygwin packages.
+You may need to run "build-docbook-catalog" from a Cygwin bash prompt in order to register your catalog properly.
 
 Tool/File           Cygwin Package          Opt./Mand.  Comments
 ---------           --------------          ----------  --------
-xsltproc:           Doc/libxslt             M
-xmllint:            Doc/libxml2             M
-xsl stylesheets:    Doc/docbook-xsl         M           docbook.xsl, chunk.xsl and htmlhelp.xsl
-docbookx.dtd:       Doc/docbook-xml42       M           a later version may be required (e.g. Doc/docbook-xml45), depending on your asciidoc installation
+asciidoc            Doc/asciidoc            M           cygwin python is a dependency and will also be installed (if not installed)
+xsltproc:           Libs/libxslt            M
+xmllint:            Libs/libxml2            M
+xsl stylesheets:    Text/docbook-xsl        M           docbook.xsl, chunk.xsl and htmlhelp.xsl
+docbookx.dtd:       Text/docbook-xml42      M           a later version may be required (e.g. Doc/docbook-xml45), depending on your asciidoc installation
+docbookx.dtd:       Text/docbook-xml45      M           current asciidoc installations require this
 lynx:               Web/lynx                M
-asciidoc            Python/asciidoc         M           cygwin python is a dependency and will also be installed (if not installed)
 dblatex             Text/dblatex            O           A number of dependencies will also be installed
-fop:                -                       O           URL: http://xml.apache.org/fop/ - install it into docbook\fop-1.0 to keep defaults from config.nmake
+fop:                -                       O           URL: http://xml.apache.org/fop/ - install it into docbok\fop-1.x or wireshark_lib_dir\fop-1.x to use defaults from config.nmake
 jimi:               -                       O           URL: http://java.sun.com/products/jimi/ - see above
 hhc:                -                       O           URL: http://msdn.microsoft.com/library/default.asp?url=/library/en-us/htmlhelp/html/hwMicrosoftHTMLHelpDownloads.asp
 zip:                Archive/zip             O
-getopt:             Utils/util-linux        O           Required to run "build-docbook-catalog"
+getopt:             Base/util-linux         O           Required to run "build-docbook-catalog"
 
 
 Packages for Suse 9.3

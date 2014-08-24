@@ -38,6 +38,7 @@ A2X_TEXT_OPTS=$(A2X_TEXT_OPTS) --lynx
 .asciidoc.xml:
 	$(SH) <<
 	PATH=/usr/bin
+	PYTHONHOME=/
 	$(A2X) --verbose \
 		--asciidoc-opts="--conf-file=asciidoc.conf --conf-file=asciidoctor-asciidoc.conf" \
 		--no-xmllint \
@@ -166,8 +167,10 @@ wsluarm: make-wsluarm.pl $(WSLUA_MODULES)
 wsdg_x: wsdg_html_chunked wsdg_html developer-guide-a4.pdf developer-guide-us.pdf developer-guide.chm
 
 developer-guide.xml: developer-guide.asciidoc  $(WSDG_FILES)
+	@ echo --- WSDG - XML ---
 	$(SH) <<
 	PATH=/usr/bin
+	PYTHONHOME=/
 	$(A2X) --verbose \
 		--attribute=docinfo \
 		--asciidoc-opts="--conf-file=asciidoc.conf --conf-file=asciidoctor-asciidoc.conf" \
@@ -253,6 +256,7 @@ release-notes.html: $(RELEASE_NOTES_SOURCE)
 	@ echo --- RELEASE NOTES - HTML ---
 	$(SH) <<
 	PATH=/usr/bin
+	PYTHONHOME=/
 	$(A2X) -v --format=xhtml $(A2X_HTML_OPTS) release-notes.asciidoc
 <<
 
@@ -261,6 +265,7 @@ release-notes.txt: $(RELEASE_NOTES_SOURCE)
 	@ echo --- RELEASE NOTES - TXT ---
 	$(SH) <<
 	PATH=/usr/bin
+	PYTHONHOME=/
 	$(A2X) -v --format=text $(A2X_TEXT_OPTS) \
 		--xsltproc-opts "--stringparam generate.toc \"article nop\"" \
 		release-notes.asciidoc
@@ -275,6 +280,7 @@ release-notes-us.pdf: $(RELEASE_NOTES_SOURCE) custom_layer_pdf.xsl
 	@ echo --- RELEASE NOTES - PDF US LETTER PAPER ---
 	$(SH) <<
 	PATH=/usr/bin
+	PYTHONHOME=/
 	$(A2X) --format=pdf $(A2X_HTML_OPTS) \
 		--xsltproc-opts "--stringparam paper.type letter --nonet" \
 		--xsl-file=custom_layer_pdf.xsl \
@@ -287,6 +293,7 @@ release-notes-a4.pdf: $(RELEASE_NOTES_SOURCE) custom_layer_pdf.xsl
 	@ echo --- RELEASE NOTES - PDF A4 PAPER ---
 	$(SH) <<
 	PATH=/usr/bin
+	PYTHONHOME=/
 	$(A2X) --format=pdf $(A2X_HTML_OPTS) \
 		--xsltproc-opts "--stringparam paper.type A4 --nonet" \
 		--xsl-file=custom_layer_pdf.xsl \
