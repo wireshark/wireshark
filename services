@@ -7069,8 +7069,7 @@ amx-rms          3839/tcp # AMX Resource Management Suite [Ron_Barber] [Ron_Barb
 amx-rms          3839/udp # AMX Resource Management Suite [Ron_Barber] [Ron_Barber] 2003-11
 flirtmitmir      3840/tcp # www.FlirtMitMir.de [Carsten_Falticska] [Carsten_Falticska] 2003-11
 flirtmitmir      3840/udp # www.FlirtMitMir.de [Carsten_Falticska] [Carsten_Falticska] 2003-11
-zfirm-shiprush3  3841/tcp # Z-Firm ShipRush v3 [Rafael_Zimberoff] [Rafael_Zimberoff] 2003-11
-zfirm-shiprush3  3841/udp # Z-Firm ShipRush v3 [Rafael_Zimberoff] [Rafael_Zimberoff] 2003-11
+shiprush-db-svr  3841/tcp # ShipRush Database Server [Z-Firm_LLC] [Rafael_Zimberoff] 2003-11 2014-08-22
 nhci             3842/tcp # NHCI status port [Eric_Welch_2] [Eric_Welch_2] 2003-11
 nhci             3842/udp # NHCI status port [Eric_Welch_2] [Eric_Welch_2] 2003-11
 quest-agent      3843/tcp # Quest Common Agent [Peter_Maher] [Peter_Maher] 2003-11
@@ -8814,6 +8813,7 @@ bis-web          5584/tcp # BeInSync-Web [Adi_Ruppin] [Adi_Ruppin] 2005-08
 bis-web          5584/udp # BeInSync-Web [Adi_Ruppin] [Adi_Ruppin] 2005-08
 bis-sync         5585/tcp # BeInSync-sync [Adi_Ruppin] [Adi_Ruppin] 2005-08
 bis-sync         5585/udp # BeInSync-sync [Adi_Ruppin] [Adi_Ruppin] 2005-08
+att-mt-sms       5586/tcp # Planning to send mobile terminated SMS to the specific port so that the SMS is not visible to the client [ATT] [Dhillesh_Sigilipelli] 2014-08-21
 ininmessaging    5597/tcp # inin secure messaging [Mike_Gagle_2] [Mike_Gagle_2] 2006-05
 ininmessaging    5597/udp # inin secure messaging [Mike_Gagle_2] [Mike_Gagle_2] 2006-05
 mctfeed          5598/tcp # MCT Market Data Feed [Stephane_Touizer] [Stephane_Touizer] 2006-05
@@ -8979,6 +8979,7 @@ icmpd            5813/tcp # ICMPD [Shane_O_Donnell] [Shane_O_Donnell]
 icmpd            5813/udp # ICMPD [Shane_O_Donnell] [Shane_O_Donnell]
 spt-automation   5814/tcp # Support Automation [Joshua_Hawkins] [Joshua_Hawkins] 2003-11
 spt-automation   5814/udp # Support Automation [Joshua_Hawkins] [Joshua_Hawkins] 2003-11
+shiprush-d-ch    5841/tcp # Z-firm ShipRush interface for web access and bidirectional data [Z-Firm_LLC] [Rafael_Zimberoff] 2014-08-22
 reversion        5842/tcp # Reversion Backup/Restore [Cameo_Systems_Inc] [Craig_Nelson] 2011-09-26
 wherehoo         5859/tcp # WHEREHOO [Jim_Youll] [Jim_Youll]
 wherehoo         5859/udp # WHEREHOO [Jim_Youll] [Jim_Youll]
