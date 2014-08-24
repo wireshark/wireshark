@@ -59,7 +59,7 @@ endif
 # .asciidoc -> whole book (.dbk) -> chapter (.xml)
 wsug_src/%.xml : wsug_src/%.asciidoc
 	$(A2X) --verbose \
-		--asciidoc-opts="--conf-file=$(srcdir)/asciidoc.conf" \
+		--asciidoc-opts="--conf-file=$(srcdir)/asciidoc.conf --conf-file=$(srcdir)/asciidoctor-asciidoc.conf" \
 		--no-xmllint \
 		--format=docbook --doctype=book \
 		$<
@@ -173,7 +173,7 @@ wsdg: $(WSDG_TARGETS)
 developer-guide.xml: developer-guide.asciidoc $(WSDG_FILES)
 	$(A2X) --verbose \
 		--attribute=docinfo \
-		--asciidoc-opts="--conf-file=$(srcdir)/asciidoc.conf" \
+		--asciidoc-opts="--conf-file=$(srcdir)/asciidoc.conf --conf-file=$(srcdir)/asciidoc.conf" \
 		--no-xmllint \
 		--format=docbook \
 		$<

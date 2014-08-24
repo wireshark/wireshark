@@ -123,8 +123,18 @@ tt.literal, code.literal {
   padding: 0.5em 1em;
 }
 
-.guibutton, .guimenu, .guimenuitem {
+.guibutton, .guimenu, .guisubmenu, .guimenuitem {
   font-weight: bold;
+}
+
+.keycap, .guimenu, .guisubmenu, .guimenuitem {
+  border: 0.5px solid silver;
+  padding-left: 0.25em;
+  padding-right: 0.25em;
+}
+
+.keycap {
+  border-radius: 0.25em;
 }
 
 div.sidebar {
