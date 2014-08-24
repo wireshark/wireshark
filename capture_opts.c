@@ -1095,7 +1095,8 @@ collect_ifaces(capture_options *capture_opts)
       interface_opts.extcap_fifo = NULL;
       interface_opts.extcap_args = device.external_cap_args_settings;
       interface_opts.extcap_pid = (GPid)-1;
-      g_hash_table_ref(interface_opts.extcap_args);
+      if (interface_opts.extcap_args)
+         g_hash_table_ref(interface_opts.extcap_args);
 #endif
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
       interface_opts.buffer_size =  device.buffer;
