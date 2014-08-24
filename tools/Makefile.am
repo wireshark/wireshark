@@ -151,7 +151,6 @@ EXTRA_DIST = \
 	make-sminmpec.pl				\
 	make-services.pl				\
 	make-services.py				\
-	make-tapreg-dotc				\
 	make-tap-reg.py					\
 	make-usb.py					\
 	make_charset_table.c				\

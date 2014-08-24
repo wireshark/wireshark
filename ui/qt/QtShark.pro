@@ -165,11 +165,7 @@ tap_register.input = SOURCES_TAP
 tap_register.output = wireshark-tap-register.c
 tap_register.variable_out = SOURCES
 win32 {
-    isEmpty(PYTHON) {
-        tap_register.commands = $${SH} ../../tools/make-tapreg-dotc wireshark-tap-register.c . $$SOURCES_TAP
-    } else {
-        tap_register.commands = $${PYTHON} "../../tools/make-tap-reg.py" . taps $$SOURCES_TAP
-    }
+    tap_register.commands = $${PYTHON} "../../tools/make-tap-reg.py" . taps $$SOURCES_TAP
 } else {
     tap_register.commands = python ../../tools/make-tap-reg.py . taps $$SOURCES_TAP
 }
