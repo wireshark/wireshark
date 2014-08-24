@@ -14,7 +14,7 @@
 
 <!-- use graphics for admons (note, tip, ...) -->
 <xsl:param name="admon.graphics" select="1"/>
-<xsl:param name="admon.graphics.path">wsug_graphics/</xsl:param>
+<xsl:param name="admon.graphics.path">common_graphics/</xsl:param>
 <xsl:param name="admon.graphics.extension" select="'.svg'"/>
 
 <!-- use numbering for sections (not only for chapters) -->
@@ -40,7 +40,7 @@
   <xsl:attribute name="hyphenate">false</xsl:attribute>
 </xsl:attribute-set>
 
-<!-- put a page break after each section 
+<!-- put a page break after each section
 <xsl:attribute-set name="section.level1.properties">
   <xsl:attribute name="break-after">page</xsl:attribute>
 </xsl:attribute-set>

@@ -116,7 +116,8 @@ wsug_html/index.html: $(WSUG_SOURCE) wsluarm
 	cp $(srcdir)/wsug_graphics/toolbar/* wsug_html/wsug_graphics/toolbar
 	cp $(srcdir)/ws.css wsug_html
 	$(XSLTPROC) --stringparam base.dir wsug_html/ $(COMMON_XSLTPROC_ARGS) \
-		--path .:wsluarm_src $(SINGLE_XSLTPROC_ARGS) $< > $@
+		--path .:wsluarm_src \
+		$(WSUG_XSLTPROC_ARGS) $(SINGLE_XSLTPROC_ARGS) $< > $@
 	-chmod -R og+rX wsug_html
 
 # create html chunked page files
@@ -131,7 +132,7 @@ wsug_html_chunked/index.html: $(WSUG_SOURCE) wsluarm
 	cp $(srcdir)/ws.css wsug_html_chunked
 	$(XSLTPROC) --stringparam base.dir wsug_html_chunked/ $(COMMON_XSLTPROC_ARGS) \
 		    --path .:wsluarm_src \
-		    $(CHUNKED_XSLTPROC_ARGS) $<
+		    $(WSUG_XSLTPROC_ARGS) $(CHUNKED_XSLTPROC_ARGS) $<
 	-chmod -R og+rX wsug_html_chunked
 
 # create pdf file (through XSL-FO), portrait pages on US letter paper
@@ -198,7 +199,7 @@ wsdg_html/index.html: $(WSDG_SOURCE)
 	cp $(srcdir)/wsdg_graphics/toolbar/* wsdg_html/wsdg_graphics/toolbar/
 	cp $(srcdir)/ws.css wsdg_html
 	$(XSLTPROC) --stringparam base.dir wsdg_html/ $(COMMON_XSLTPROC_ARGS) \
-		    $(SINGLE_XSLTPROC_ARGS) $< > $@
+		$(WSDG_XSLTPROC_ARGS) $(SINGLE_XSLTPROC_ARGS) $< > $@
 	-chmod -R og+rX wsdg_html
 
 # create html chunked page files
@@ -212,7 +213,7 @@ wsdg_html_chunked/index.html: $(WSDG_SOURCE)
 	cp $(srcdir)/wsdg_graphics/toolbar/* wsdg_html_chunked/wsdg_graphics/toolbar/
 	cp $(srcdir)/ws.css wsdg_html_chunked
 	$(XSLTPROC) --stringparam base.dir wsdg_html_chunked/ $(COMMON_XSLTPROC_ARGS) \
-		    $(CHUNKED_XSLTPROC_ARGS) $<
+		$(WSDG_XSLTPROC_ARGS) $(CHUNKED_XSLTPROC_ARGS) $<
 	-chmod -R og+rX wsdg_html_chunked
 
 # create pdf file (through XSL-FO), portrait pages on US letter paper
