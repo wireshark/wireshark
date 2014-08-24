@@ -79,9 +79,10 @@ LIBS =
 # All subsequent arguments are the files to scan.
 #
 plugin.c: $(REGISTER_SRC_FILES) Makefile.common $(top_srcdir)/tools/make-dissector-reg.py
-	echo Making plugin.c with python ; \
-	$(PYTHON) $(top_srcdir)/tools/make-dissector-reg.py $(srcdir) \
-		plugin $(REGISTER_SRC_FILES) ;
+	@echo Making plugin.c
+	@$(PYTHON) $(top_srcdir)/tools/make-dissector-reg.py $(srcdir) \
+		plugin $(REGISTER_SRC_FILES)
+
 #
 # Currently plugin.c can be included in the distribution because
 # we always build all protocol dissectors. We used to have to check
