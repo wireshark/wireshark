@@ -504,13 +504,14 @@ void extcap_free_arg(extcap_arg *a) {
 	g_list_foreach(a->values, (GFunc) extcap_free_valuelist, NULL);
 }
 
-static void extcap_free_arg_list_cb(gpointer listentry) {
+static void extcap_free_arg_list_cb(gpointer listentry, gpointer data _U_) {
 	if (listentry != NULL)
 		extcap_free_arg((extcap_arg *) listentry);
 }
 
 void extcap_free_arg_list(GList *a) {
-	g_list_free_full(a, extcap_free_arg_list_cb);
+	g_list_foreach(a, extcap_free_arg_list_cb, NULL);
+	g_list_free(a);
 }
 
 static gint glist_find_numbered_arg(gconstpointer listelem, gconstpointer needle) {

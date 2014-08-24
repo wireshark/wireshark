@@ -131,7 +131,7 @@ extcap_if_cleanup(void)
 static void
 extcap_if_add(gchar *ifname, gchar *extcap)
 {
-	if ( !g_hash_table_contains(ifaces, ifname) )
+	if ( g_hash_table_lookup(ifaces, ifname) == NULL )
 		g_hash_table_insert(ifaces, ifname, extcap);
 }
 
@@ -473,7 +473,7 @@ extcaps_init_initerfaces(capture_options *capture_opts)
 			return FALSE;
 
 		/* Create extcap call */
-		args = g_ptr_array_new_with_free_func(g_free);
+		args = g_ptr_array_new();
 #define add_arg(X) g_ptr_array_add(args, g_strdup(X))
 
 		add_arg(interface_opts.extcap);
@@ -487,15 +487,17 @@ extcaps_init_initerfaces(capture_options *capture_opts)
 		add_arg(NULL);
 #undef add_arg
 
-	/* Wireshark for windows crashes here sometimes *
-	 * Access violation reading location 0x...      */
-	g_spawn_async(NULL, (gchar **)args->pdata, NULL,
-				(GSpawnFlags) 0, NULL, NULL,
-				&pid,NULL);
+		/* Wireshark for windows crashes here sometimes *
+		 * Access violation reading location 0x...      */
+		g_spawn_async(NULL, (gchar **)args->pdata, NULL,
+					(GSpawnFlags) 0, NULL, NULL,
+					&pid,NULL);
 
-	interface_opts.extcap_pid = pid;
-	capture_opts->ifaces = g_array_remove_index(capture_opts->ifaces, i);
-	g_array_insert_val(capture_opts->ifaces, i, interface_opts);
+		g_ptr_array_foreach(args, (GFunc)g_free, NULL);
+		g_ptr_array_free(args, TRUE);
+		interface_opts.extcap_pid = pid;
+		capture_opts->ifaces = g_array_remove_index(capture_opts->ifaces, i);
+		g_array_insert_val(capture_opts->ifaces, i, interface_opts);
 	}
 
 	return TRUE;
