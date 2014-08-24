@@ -153,16 +153,22 @@ gchar *format_size(gint64 size, format_size_flags_e flags) {
 		case format_size_unit_none:
 			break;
 		case format_size_unit_bytes:
-			g_string_append(human_str, is_small ? "bytes" : "B");
+			g_string_append(human_str, is_small ? " bytes" : "B");
 			break;
 		case format_size_unit_bits:
-			g_string_append(human_str, is_small ? "bits" : "b");
+			g_string_append(human_str, is_small ? " bits" : "b");
 			break;
 		case format_size_unit_bits_s:
-			g_string_append(human_str, is_small ? "bits/s" : "bps");
+			g_string_append(human_str, is_small ? " bits/s" : "bps");
 			break;
 		case format_size_unit_bytes_s:
-			g_string_append(human_str, is_small ? "bytes/s" : "Bps");
+			g_string_append(human_str, is_small ? " bytes/s" : "Bps");
+			break;
+		case format_size_unit_packets:
+			g_string_append(human_str, is_small ? " packets" : "packets");
+			break;
+		case format_size_unit_packets_s:
+			g_string_append(human_str, is_small ? " packets/s" : "packets/s");
 			break;
 		default:
 			g_assert_not_reached();

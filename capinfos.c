@@ -549,8 +549,8 @@ print_stats(const gchar *filename, capture_info *cf_info)
       if (machine_readable) {
         print_value("", 2, " packets/sec", cf_info->packet_rate);
       } else {
-        size_string = format_size((gint64)cf_info->packet_rate, format_size_unit_none);
-        printf ("%spackets/sec\n", size_string);
+        size_string = format_size((gint64)cf_info->packet_rate, format_size_unit_packets_s);
+        printf ("%s\n", size_string);
         g_free(size_string);
       }
     }
