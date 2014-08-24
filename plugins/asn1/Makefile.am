@@ -71,11 +71,6 @@ LIBS =
 # reason.
 #
 # Therefore, we use a script to generate the register.c file.
-# There are two versions of the script, a shell and a Python version.
-# The Python script runs faster, since it uses caching to speed up
-# repeated runs and doesn't invoke external processes, so we prefer
-# that if Python is available.
-#
 # The first argument is the directory in which the source files live.
 # The second argument is "plugin", to indicate that we should build
 # a plugin.c file for a plugin.
