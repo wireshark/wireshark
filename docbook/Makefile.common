@@ -206,6 +206,7 @@ WSUG_DIST =	\
 	user-guide.xml		\
 	git_version.xml		\
 	GPL_appendix.xml	\
+	custom_layer_chm.xsl	\
 	custom_layer_pdf.xsl	\
 	Makefile.common		\
 	$(WSUG_FILES)		\
@@ -218,6 +219,7 @@ WSUG_SOURCE = $(WSUG_DIST) $(WSUG_GENERATED_SOURCE)
 WSDG_DIST =	\
 	developer-guide.asciidoc	\
 	GPL_appendix.asciidoc	\
+	custom_layer_chm.xsl	\
 	custom_layer_pdf.xsl	\
 	Makefile.common		\
 	$(WSDG_FILES)		\
@@ -299,4 +301,5 @@ CHUNKED_XSLTPROC_ARGS = \
 	--nonet http://docbook.sourceforge.net/release/xsl/current/html/chunk.xsl
 
 HTMLHELP_XSLTPROC_ARGS = \
-	--nonet http://docbook.sourceforge.net/release/xsl/current/htmlhelp/htmlhelp.xsl
+	--nonet custom_layer_chm.xsl
+#	--nonet http://docbook.sourceforge.net/release/xsl/current/htmlhelp/htmlhelp.xsl

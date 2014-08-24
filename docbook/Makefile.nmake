@@ -233,9 +233,9 @@ developer-guide.chm: $(WSDG_SOURCE)
 	@ echo --- WSDG - MICROSOFT HTML HELP ---
 	if not exist wsdg_chm\wsdg_graphics md wsdg_chm\wsdg_graphics
 	if not exist wsdg_chm\wsdg_graphics\toolbar md wsdg_chm\wsdg_graphics\toolbar
-	cp wsdg_graphics/*.* wsdg_chm/wsdg_graphics
-	cp common_graphics/*.* wsdg_chm/wsdg_graphics
-	cp wsdg_graphics/toolbar/* wsdg_chm/wsdg_graphics/toolbar
+	-cp wsdg_graphics/*.* wsdg_chm/wsdg_graphics
+	-cp common_graphics/*.* wsdg_chm/wsdg_graphics
+	-cp wsdg_graphics/toolbar/* wsdg_chm/wsdg_graphics/toolbar
 	$(XSLTPROC) --stringparam base.dir wsdg_chm/ $(COMMON_XSLTPROC_ARGS) \
 		$(WSDG_XSLTPROC_ARGS) $(HTMLHELP_XSLTPROC_ARGS) developer-guide.xml
 	-$(HHC_EXE) htmlhelp.hhp
