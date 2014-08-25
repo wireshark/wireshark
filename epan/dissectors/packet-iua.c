@@ -453,7 +453,7 @@ dissect_protocol_data_parameter(tvbuff_t *parameter_tvb, proto_item *parameter_i
 #define RELEASE_MGMT_REASON   0
 #define RELEASE_PHYS_REASON   1
 #define RELEASE_DM_REASON     2
-#define RELEASE_OTHER_REASON  4
+#define RELEASE_OTHER_REASON  3
 
 static const value_string release_reason_values[] = {
   { RELEASE_MGMT_REASON,  "Management layer generated release" },
