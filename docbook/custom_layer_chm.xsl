@@ -23,6 +23,20 @@
   <meta http-equiv="X-UA-Compatible" content="IE=9" />
 </xsl:template>
 
+<xsl:template name="user.head.content">
+  <style type="text/css">
+  html body, h1, h2, h3, h4, h5, h6,
+  div.toc p b,
+  div.list-of-figures p b,
+  div.list-of-tables p b,
+  div.abstract p.title
+  {
+    font-family: 'Segoe UI', 'Lucida Grande', Verdana, Arial, Helvetica, sans-serif;
+    font-size: 14px;
+  }
+  </style>
+</xsl:template>
+
 <!-- reduce the size of programlisting to make them fit the page -->
 <xsl:attribute-set name="monospace.verbatim.properties">
   <xsl:attribute name="font-size">80%</xsl:attribute>
