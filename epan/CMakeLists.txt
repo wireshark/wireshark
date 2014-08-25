@@ -876,6 +876,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-kismet.c
 	dissectors/packet-klm.c
 	dissectors/packet-knet.c
+	dissectors/packet-knxnetip.c
 	dissectors/packet-kpasswd.c
 	dissectors/packet-kt.c
 	dissectors/packet-l1-events.c

@@ -798,6 +798,7 @@ DISSECTOR_SRC = \
 	packet-kismet.c		\
 	packet-klm.c		\
 	packet-knet.c		\
+	packet-knxnetip.c	\
 	packet-kpasswd.c	\
 	packet-kt.c		\
 	packet-l1-events.c	\
