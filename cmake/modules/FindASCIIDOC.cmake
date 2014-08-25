@@ -90,7 +90,7 @@ MACRO( ASCIIDOC2TXT _output _asciidocsource _conf_files )
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
         OUTPUT
             ${_output}
-        COMMAND ${A2X_EXECUTABLE}
+        COMMAND TZ=UTC ${A2X_EXECUTABLE}
             --format=text
             --destination-dir=${CMAKE_CURRENT_BINARY_DIR}
             --asciidoc-opts=${_conf_opts}

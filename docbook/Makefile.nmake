@@ -266,6 +266,7 @@ release-notes.txt: $(RELEASE_NOTES_SOURCE)
 	$(SH) <<
 	PATH=/usr/bin
 	PYTHONHOME=/
+	TZ=UTC
 	$(A2X) -v --format=text $(A2X_TEXT_OPTS) \
 		--xsltproc-opts "--stringparam generate.toc \"article nop\"" \
 		release-notes.asciidoc

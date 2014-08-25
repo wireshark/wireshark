@@ -249,7 +249,7 @@ release-notes.html: $(RELEASE_NOTES_SOURCE)
 # create txt single page file (through HTML)
 release-notes.txt: $(RELEASE_NOTES_SOURCE)
 	@ echo --- RELEASE NOTES - TXT ---
-	$(A2X) --format=text $(A2X_TEXT_OPTS) \
+	TZ=UTC $(A2X) --format=text $(A2X_TEXT_OPTS) \
 		--xsltproc-opts "--stringparam generate.toc \"article nop\"" \
 		$(srcdir)/release-notes.asciidoc
 	mv $(srcdir)/release-notes.text $@
