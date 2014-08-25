@@ -29,6 +29,7 @@
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
 #include <epan/expert.h>
+#include <epan/decode_as.h>
 #include "packet-bluetooth.h"
 #include "packet-btrfcomm.h"
 #include "packet-btl2cap.h"
@@ -329,6 +330,10 @@ static const int *hfx_ctn_application_parameter_data_parameter_mask[] = {
 };
 
 static expert_field ei_unexpected_data = EI_INIT;
+static expert_field ei_application_parameter_length_bad = EI_INIT;
+static expert_field ei_decoded_as_profile = EI_INIT;
+
+static dissector_table_t btobex_profile;
 
 
 /* ************************************************************************* */
@@ -348,9 +353,14 @@ static int hf_btobex_reassembled_length = -1;
 static gint ett_btobex_fragment = -1;
 static gint ett_btobex_fragments = -1;
 
-static expert_field ei_application_parameter_length_bad = EI_INIT;
-
 static dissector_handle_t btobex_handle;
+static dissector_handle_t raw_application_parameters_handle;
+static dissector_handle_t bpp_application_parameters_handle;
+static dissector_handle_t bip_application_parameters_handle;
+static dissector_handle_t gpp_application_parameters_handle;
+static dissector_handle_t ctn_application_parameters_handle;
+static dissector_handle_t map_application_parameters_handle;
+static dissector_handle_t pbap_application_parameters_handle;
 
 static reassembly_table btobex_reassembly_table;
 
@@ -425,6 +435,8 @@ typedef struct _obex_last_opcode_data_t {
 #define PROFILE_SYNC     8
 #define PROFILE_CTN      9
 #define PROFILE_GPP     10
+
+#define PROTO_DATA_BTOBEX_PROFILE   0x00
 
 static const value_string profile_vals[] = {
     { PROFILE_UNKNOWN, "Unknown" },
@@ -887,6 +899,29 @@ static value_string_ext bip_application_parameters_vals_ext = VALUE_STRING_EXT_I
 void proto_register_btobex(void);
 void proto_reg_handoff_btobex(void);
 
+static void btobex_profile_prompt(packet_info *pinfo _U_, gchar* result)
+{
+    gulong *value_data;
+
+    value_data = (gulong *) p_get_proto_data(pinfo->pool, pinfo, proto_btobex, PROTO_DATA_BTOBEX_PROFILE);
+    if (value_data)
+        g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "OBEX Profile 0x%04x as", (guint) *value_data);
+    else
+        g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Unknown OBEX Profile");
+}
+
+static gpointer btobex_profile_value(packet_info *pinfo _U_)
+{
+    gulong *value_data;
+
+    value_data = (gulong *) p_get_proto_data(pinfo->pool, pinfo, proto_btobex, PROTO_DATA_BTOBEX_PROFILE);
+
+    if (value_data)
+        return (gpointer) *value_data;
+
+    return NULL;
+}
+
 static void
 defragment_init(void)
 {
@@ -914,13 +949,16 @@ is_ascii_str(const guint8 *str, int length)
 }
 
 static gint
-dissect_raw_application_parameters(tvbuff_t *tvb, proto_tree *tree, gint offset,
-        gint parameters_length)
+dissect_btobex_application_parameter_raw(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
     proto_item  *parameter_item;
     proto_tree  *parameter_tree;
     guint8       parameter_id;
-    gint parameter_length;
+    gint         offset = 0;
+    gint         parameters_length;
+    gint         parameter_length;
+
+    parameters_length = tvb_reported_length(tvb);
 
     while (parameters_length > 0) {
         parameter_id = tvb_get_guint8(tvb, offset);
@@ -949,14 +987,17 @@ dissect_raw_application_parameters(tvbuff_t *tvb, proto_tree *tree, gint offset,
 }
 
 static gint
-dissect_bpp_application_parameters(tvbuff_t *tvb, packet_info *pinfo,
-        proto_tree *tree, gint offset, gint parameters_length)
+dissect_btobex_application_parameter_bpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     proto_item  *item;
     proto_item  *parameter_item;
     proto_tree  *parameter_tree;
     guint8       parameter_id;
+    gint         offset = 0;
+    gint         parameters_length;
     gint         parameter_length;
+
+    parameters_length = tvb_reported_length(tvb);
 
     while (parameters_length > 0) {
         parameter_id = tvb_get_guint8(tvb, offset);
@@ -1002,15 +1043,18 @@ dissect_bpp_application_parameters(tvbuff_t *tvb, packet_info *pinfo,
 }
 
 static gint
-dissect_bip_application_parameters(tvbuff_t *tvb, packet_info *pinfo,
-        proto_tree *tree, gint offset, gint parameters_length)
+dissect_btobex_application_parameter_bip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     proto_item  *item;
     proto_item  *parameter_item;
     proto_tree  *parameter_tree;
-    gint         parameter_length;
     guint8       parameter_id;
+    gint         offset = 0;
+    gint         parameters_length;
+    gint         parameter_length;
     static gint  required_length_map[] = {0, 2, 2, 1, 4, 4, 4, 1, 1, 16, 1};
+
+    parameters_length = tvb_reported_length(tvb);
 
     while (parameters_length > 0) {
         parameter_id = tvb_get_guint8(tvb, offset);
@@ -1076,15 +1120,18 @@ dissect_bip_application_parameters(tvbuff_t *tvb, packet_info *pinfo,
 }
 
 static gint
-dissect_pbap_application_parameters(tvbuff_t *tvb, packet_info *pinfo,
-        proto_tree *tree, gint offset, gint parameters_length)
+dissect_btobex_application_parameter_pbap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     proto_item  *item;
     proto_item  *parameter_item;
     proto_tree  *parameter_tree;
-    gint         parameter_length;
     guint8       parameter_id;
+    gint         offset = 0;
+    gint         parameters_length;
+    gint         parameter_length;
     static gint  required_length_map[] = {0, 1, -1, 1, 2, 2, 8, 1, 2, 1, 16, 16, 8, 16, 1, 1};
+
+    parameters_length = tvb_reported_length(tvb);
 
     while (parameters_length > 0) {
         parameter_id = tvb_get_guint8(tvb, offset);
@@ -1170,16 +1217,19 @@ dissect_pbap_application_parameters(tvbuff_t *tvb, packet_info *pinfo,
     return offset;
 }
 
-static int
-dissect_map_application_parameters(tvbuff_t *tvb, packet_info *pinfo,
-        proto_tree *tree, gint offset, gint parameters_length)
+static gint
+dissect_btobex_application_parameter_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     proto_item  *item;
     proto_item  *parameter_item;
     proto_tree  *parameter_tree;
-    gint         parameter_length;
     guint8       parameter_id;
+    gint         offset = 0;
+    gint         parameters_length;
+    gint         parameter_length;
     static gint  required_length_map[] = {0, 2, 2, 1, -1, -1, 1, -1, -1, 1, 1, 1, 1, 1, 1, 1, 4, 2, 2, 1, 1, 1, 1, 1, 1, -1};
+
+    parameters_length = tvb_reported_length(tvb);
 
     while (parameters_length > 0) {
         parameter_id = tvb_get_guint8(tvb, offset);
@@ -1326,15 +1376,18 @@ dissect_map_application_parameters(tvbuff_t *tvb, packet_info *pinfo,
 }
 
 static gint
-dissect_gpp_application_parameters(tvbuff_t *tvb, packet_info *pinfo,
-        proto_tree *tree, gint offset, gint parameters_length)
+dissect_btobex_application_parameter_gpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     proto_item  *item;
     proto_item  *parameter_item;
     proto_tree  *parameter_tree;
-    gint         parameter_length;
     guint8       parameter_id;
+    gint         offset = 0;
+    gint         parameters_length;
+    gint         parameter_length;
     static gint  required_length_map[] = {2, 2, 1, 1, 0, 2};
+
+    parameters_length = tvb_reported_length(tvb);
 
     while (parameters_length > 0) {
         parameter_id = tvb_get_guint8(tvb, offset);
@@ -1387,16 +1440,19 @@ dissect_gpp_application_parameters(tvbuff_t *tvb, packet_info *pinfo,
 }
 
 static gint
-dissect_ctn_application_parameters(tvbuff_t *tvb, packet_info *pinfo,
-        proto_tree *tree, gint offset, gint parameters_length)
+dissect_btobex_application_parameter_ctn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     proto_item  *item;
     proto_item  *parameter_item;
     proto_tree  *parameter_tree;
-    gint         parameter_length;
     guint8       parameter_id;
+    gint         offset = 0;
+    gint         parameters_length;
+    gint         parameter_length;
     static gint  required_length_map[] = {0, 1, 1, 1, -1, -1, 4, 1, 1, 4, -1, -1, 1, 1, -1};
     static gint  required_length_map_gpp[] = {2, 2, 1, 1, -1, 2};
+
+    parameters_length = tvb_reported_length(tvb);
 
     while (parameters_length > 0) {
         parameter_id = tvb_get_guint8(tvb, offset);
@@ -1505,6 +1561,8 @@ dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo,
     proto_tree *hdr_tree    = NULL;
     proto_item *hdr         = NULL;
     proto_item *handle_item;
+    tvbuff_t   *next_tvb;
+    gint        new_offset;
     gint        item_length = 0;
     gint        value_length = 0;
     guint8      hdr_id, i;
@@ -1578,29 +1636,12 @@ dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo,
 
                 switch (hdr_id) {
                 case 0x4c: /* Application Parameters */
-                    switch (profile) {
-                        case PROFILE_BPP:
-                            offset = dissect_bpp_application_parameters(tvb, pinfo, hdr_tree, offset, value_length);
-                            break;
-                        case PROFILE_BIP:
-                            offset = dissect_bip_application_parameters(tvb, pinfo, hdr_tree, offset, value_length);
-                            break;
-                        case PROFILE_PBAP:
-                            offset = dissect_pbap_application_parameters(tvb, pinfo, hdr_tree, offset, value_length);
-                            break;
-                        case PROFILE_MAP:
-                            offset = dissect_map_application_parameters(tvb, pinfo, hdr_tree, offset, value_length);
-                            break;
-                        case PROFILE_CTN:
-                            offset = dissect_ctn_application_parameters(tvb, pinfo, hdr_tree, offset, value_length);
-                            break;
-                        case PROFILE_GPP:
-                            offset = dissect_gpp_application_parameters(tvb, pinfo, hdr_tree, offset, value_length);
-                            break;
-                        default:
-                            offset = dissect_raw_application_parameters(tvb, hdr_tree, offset, value_length);
-                            break;
+                    next_tvb = tvb_new_subset_length(tvb, offset, value_length);
+                    if (!(new_offset = dissector_try_uint_new(btobex_profile, profile, next_tvb, pinfo, hdr_tree, TRUE, data))) {
+                        new_offset = call_dissector(raw_application_parameters_handle, next_tvb, pinfo, hdr_tree);
                     }
+                    offset += new_offset;
+
                     break;
                 case 0x4d: /* Authentication Challenge */
                     while (value_length) {
@@ -1715,7 +1756,7 @@ dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo,
 
                     if (!tvb_strneql(tvb, offset, "<?xml", 5))
                     {
-                        tvbuff_t* next_tvb = tvb_new_subset_remaining(tvb, offset);
+                        next_tvb = tvb_new_subset_remaining(tvb, offset);
 
                         call_dissector(xml_handle, next_tvb, pinfo, tree);
                     } else if (is_ascii_str(tvb_get_ptr(tvb, offset, value_length), value_length)) {
@@ -1801,7 +1842,7 @@ dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo,
 
                     break;
                 case 0x47: /* HTTP */ {
-                    tvbuff_t* next_tvb = tvb_new_subset_remaining(tvb, offset);
+                    next_tvb = tvb_new_subset_remaining(tvb, offset);
 
                     call_dissector(http_handle, next_tvb, pinfo, hdr_tree);
 
@@ -2023,7 +2064,9 @@ dissect_btobex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     guint32               k_channel;
     obex_last_opcode_data_t  *obex_last_opcode_data;
     guint32                   length;
-
+    guint8                   *profile_data;
+    dissector_handle_t        current_handle;
+    dissector_handle_t        default_handle;
 
     /* Reject the packet if data is NULL */
     if (data == NULL)
@@ -2078,16 +2121,30 @@ dissect_btobex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     key[5].length = 0;
     key[5].key = NULL;
 
-    obex_profile_data = (obex_profile_data_t *)wmem_tree_lookup32_array_le(obex_profile, key);
-    if (obex_profile_data && obex_profile_data->interface_id == interface_id &&
-            obex_profile_data->adapter_id == adapter_id &&
-            obex_profile_data->chandle == chandle &&
-            obex_profile_data->channel == channel) {
-        profile = obex_profile_data->profile;
+    profile_data = (guint8 *) p_get_proto_data(pinfo->pool, pinfo, proto_btobex, PROTO_DATA_BTOBEX_PROFILE);
+    if (profile_data == NULL) {
+        obex_profile_data = (obex_profile_data_t *)wmem_tree_lookup32_array_le(obex_profile, key);
+        if (obex_profile_data && obex_profile_data->interface_id == interface_id &&
+                obex_profile_data->adapter_id == adapter_id &&
+                obex_profile_data->chandle == chandle &&
+                obex_profile_data->channel == channel) {
+            profile = obex_profile_data->profile;
+        }
+
+        profile_data = wmem_new(wmem_file_scope(), guint8);
+        *profile_data = profile;
+
+        p_add_proto_data(pinfo->pool, pinfo, proto_btobex, PROTO_DATA_BTOBEX_PROFILE, profile_data);
     }
 
     sub_item = proto_tree_add_uint(main_tree, hf_profile, tvb, 0, 0, profile);
     PROTO_ITEM_SET_GENERATED(sub_item);
+
+    current_handle = dissector_get_uint_handle(btobex_profile, profile);
+    default_handle = dissector_get_default_uint_handle("btobex.profile", profile);
+    if (current_handle != default_handle) {
+        expert_add_info_format(pinfo, main_item, &ei_decoded_as_profile, "Decoded As %s", dissector_handle_get_long_name(current_handle));
+    }
 
     complete = FALSE;
 
@@ -2383,6 +2440,13 @@ proto_register_btobex(void)
 {
     module_t        *module;
     expert_module_t *expert_btobex;
+    int              proto_raw;
+    int              proto_bpp;
+    int              proto_bip;
+    int              proto_map;
+    int              proto_gpp;
+    int              proto_ctn;
+    int              proto_pbap;
 
     static hf_register_info hf[] = {
         { &hf_opcode,
@@ -3542,7 +3606,15 @@ proto_register_btobex(void)
     static ei_register_info ei[] = {
         { &ei_application_parameter_length_bad, { "btobex.parameter.length.bad", PI_PROTOCOL, PI_WARN, "Parameter length bad", EXPFILL }},
         { &ei_unexpected_data, { "btobex.expert.unexpected_data", PI_PROTOCOL, PI_WARN, "Unexpected data", EXPFILL }},
+        { &ei_decoded_as_profile, { "btobex.expert.decoded_as.profile", PI_PROTOCOL, PI_NOTE, "Decoded As", EXPFILL }},
     };
+
+    /* Decode As handling */
+    static build_valid_func btobex_profile_da_build_value[1] = {btobex_profile_value};
+    static decode_as_value_t btobex_profile_da_values = {btobex_profile_prompt, 1, btobex_profile_da_build_value};
+    static decode_as_t btobex_profile_da = {"btobex", "OBEX Profile", "btobex.profile", 1, 0, &btobex_profile_da_values, NULL, NULL,
+            decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
+
 
     obex_profile     = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
     obex_last_opcode = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
@@ -3551,6 +3623,8 @@ proto_register_btobex(void)
 
     btobex_handle = new_register_dissector("btobex", dissect_btobex, proto_btobex);
 
+    btobex_profile = register_dissector_table("btobex.profile", "BTOBEX Profile", FT_UINT8, BASE_DEC);
+
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_btobex, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
@@ -3558,6 +3632,29 @@ proto_register_btobex(void)
     expert_register_field_array(expert_btobex, ei, array_length(ei));
 
     register_init_routine(&defragment_init);
+
+    register_decode_as(&btobex_profile_da);
+
+    proto_raw = proto_register_protocol("BT OBEX Raw Application Parameters", "Raw Application Parameters", "btobex.parameter.raw");
+    raw_application_parameters_handle  = new_register_dissector("btobex.parameter.raw",  dissect_btobex_application_parameter_raw, proto_raw);
+
+    proto_bpp = proto_register_protocol("BT OBEX BPP Application Parameters", "BPP Application Parameters", "btobex.parameter.bpp");
+    bpp_application_parameters_handle  = new_register_dissector("btobex.parameter.bpp",  dissect_btobex_application_parameter_bpp, proto_bpp);
+
+    proto_bip = proto_register_protocol("BT OBEX BIP Application Parameters", "BIP Application Parameters", "btobex.parameter.bip");
+    bip_application_parameters_handle  = new_register_dissector("btobex.parameter.bip",  dissect_btobex_application_parameter_bip, proto_bip);
+
+    proto_map = proto_register_protocol("BT OBEX MAP Application Parameters", "MAP Application Parameters", "btobex.parameter.map");
+    map_application_parameters_handle  = new_register_dissector("btobex.parameter.map",  dissect_btobex_application_parameter_map, proto_map);
+
+    proto_gpp = proto_register_protocol("BT OBEX GPP Application Parameters", "GPP Application Parameters", "btobex.parameter.gpp");
+    gpp_application_parameters_handle  = new_register_dissector("btobex.parameter.gpp",  dissect_btobex_application_parameter_gpp, proto_gpp);
+
+    proto_ctn = proto_register_protocol("BT OBEX CTN Application Parameters", "CTN Application Parameters", "btobex.parameter.ctn");
+    ctn_application_parameters_handle  = new_register_dissector("btobex.parameter.ctn",  dissect_btobex_application_parameter_ctn, proto_ctn);
+
+    proto_pbap = proto_register_protocol("BT OBEX PBAP Application Parameters", "PBAP Application Parameters", "btobex.parameter.pbap");
+    pbap_application_parameters_handle = new_register_dissector("btobex.parameter.pbap", dissect_btobex_application_parameter_pbap, proto_pbap);
 
     module = prefs_register_protocol(proto_btobex, NULL);
     prefs_register_static_text_preference(module, "obex.version",
@@ -3614,6 +3711,20 @@ proto_reg_handoff_btobex(void)
     http_handle = find_dissector("http");
     xml_handle  = find_dissector("xml");
     data_handle = find_dissector("data");
+
+    dissector_add_uint("btobex.profile", PROFILE_UNKNOWN,  raw_application_parameters_handle);
+    dissector_add_uint("btobex.profile", PROFILE_BPP,      bpp_application_parameters_handle);
+    dissector_add_uint("btobex.profile", PROFILE_BIP,      bip_application_parameters_handle);
+    dissector_add_uint("btobex.profile", PROFILE_CTN,      ctn_application_parameters_handle);
+    dissector_add_uint("btobex.profile", PROFILE_GPP,      gpp_application_parameters_handle);
+    dissector_add_uint("btobex.profile", PROFILE_MAP,      map_application_parameters_handle);
+    dissector_add_uint("btobex.profile", PROFILE_PBAP,    pbap_application_parameters_handle);
+
+    dissector_add_uint("btobex.profile", PROFILE_OPP,      raw_application_parameters_handle);
+    dissector_add_uint("btobex.profile", PROFILE_FTP,      raw_application_parameters_handle);
+    dissector_add_uint("btobex.profile", PROFILE_SYNCML,   raw_application_parameters_handle);
+    dissector_add_uint("btobex.profile", PROFILE_SYNC,     raw_application_parameters_handle);
+
 
     dissector_add_for_decode_as("btrfcomm.channel", btobex_handle);
     dissector_add_for_decode_as("btl2cap.psm", btobex_handle);
