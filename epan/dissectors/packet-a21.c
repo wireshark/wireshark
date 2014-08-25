@@ -182,12 +182,12 @@ dissect_a21_mobile_identity(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 	case 0:
 		/* No Identity Code */
 		proto_tree_add_item(tree, hf_a21_mn_id_msid_value, tvb, offset, 1, ENC_BIG_ENDIAN);
-		offset++;
+		/* offset++; */
 		break;
 	case 1:
 		/* MEID */
 		proto_tree_add_item(tree, hf_a21_mn_id_odd_even_indicator, tvb, offset, 1, ENC_BIG_ENDIAN);
-		offset++;
+		/* offset++; */
 		break;
 	case 5:
 		/* ESN */
@@ -195,7 +195,7 @@ dissect_a21_mobile_identity(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 		proto_tree_add_item(tree, hf_a21_mn_id_identity_digit_1, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset++;
 		proto_tree_add_item(tree, hf_a21_mn_id_esn, tvb, offset, 1, ENC_BIG_ENDIAN);
-		offset++;
+		/* offset++; */
 		break;
 	case 6:
 		/* IMSI */
@@ -971,6 +971,7 @@ void proto_reg_handoff_a21(void)
 
 	if (!a21_prefs_initialized) {
 		a21_handle = create_dissector_handle(dissect_a21, proto_a21);
+		gcsna_handle = find_dissector("gcsna");
 		dissector_add_uint("udp.port", a21_udp_port, a21_handle);
 	}else{
 		dissector_delete_uint("udp.port", saved_a21_udp_port, a21_handle);
@@ -981,7 +982,6 @@ void proto_reg_handoff_a21(void)
 		dissector_add_uint("udp.port", a21_udp_port, a21_handle);
 	}
 
-	gcsna_handle = find_dissector("gcsna");
 }
 
 /*
