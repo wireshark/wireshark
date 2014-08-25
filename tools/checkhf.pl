@@ -75,7 +75,7 @@
 #             (which may include strings which are not actually valid
 #              hf_... variable references).
 # 4. Checks:
-#            If entries in hf_defs not in hf_usage then "unused" (or static hf_defs only)
+#            If entries in hf_defs not in hf_usage then "unused" (for static hf_defs only)
 #            If entries in hf_defs not in hf_array_entries then "ERROR: NO ARRAY";
 
 use strict;
@@ -129,7 +129,7 @@ while (my $filename = $ARGV[0]) {
     print_list("Unused entry: $filename, ", $unused_href);
 
 # 2. Are all the hf_defs entries (static and global) in hf_array_entries ?
-#    (Note: if a static hfDef is "unused", don't check for same in hf_array_entries)
+#    (Note: if a static hf_def is "unused", don't check for same in hf_array_entries)
 #    if not: "ERROR: NO ARRAY"
 
 ##    Checking for missing global defs currently gives false positives
