@@ -643,28 +643,26 @@ dissect_a21(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	proto_tree_add_item(tree, proto_a21, tvb, offset,  0, ENC_NA);
 
-	if(tree){
-		ti = proto_tree_add_text(tree, tvb, offset,  1, "%s",
-									val_to_str_const(message_type, a21_message_type_vals, "Unknown"));
-		a21_tree = proto_item_add_subtree(ti, ett_a21);
-		/* message type in Octet 1 */
-		proto_tree_add_item(a21_tree, hf_a21_message_type, tvb, offset,  1, ENC_BIG_ENDIAN);
-		offset++;
-		/* Correlation Identifier in Octets 2-7 */
-		tc = proto_tree_add_item(a21_tree, hf_a21_corr_id, tvb, offset,  6, ENC_BIG_ENDIAN);
-		corr_tree = proto_item_add_subtree(tc,ett_a21_corr_id);
+	ti = proto_tree_add_text(tree, tvb, offset,  1, "%s",
+				 val_to_str_const(message_type, a21_message_type_vals, "Unknown"));
+	a21_tree = proto_item_add_subtree(ti, ett_a21);
+	/* message type in Octet 1 */
+	proto_tree_add_item(a21_tree, hf_a21_message_type, tvb, offset,  1, ENC_BIG_ENDIAN);
+	offset++;
+	/* Correlation Identifier in Octets 2-7 */
+	tc = proto_tree_add_item(a21_tree, hf_a21_corr_id, tvb, offset,  6, ENC_BIG_ENDIAN);
+	corr_tree = proto_item_add_subtree(tc,ett_a21_corr_id);
 
-		proto_tree_add_item(corr_tree, hf_a21_element_identifier, tvb, offset,  1, ENC_BIG_ENDIAN);
-		offset++;
-		proto_tree_add_item(corr_tree, hf_a21_element_length, tvb, offset,  1, ENC_BIG_ENDIAN);
-		offset++;
+	proto_tree_add_item(corr_tree, hf_a21_element_identifier, tvb, offset,  1, ENC_BIG_ENDIAN);
+	offset++;
+	proto_tree_add_item(corr_tree, hf_a21_element_length, tvb, offset,  1, ENC_BIG_ENDIAN);
+	offset++;
 
-		proto_tree_add_item(corr_tree, hf_a21_corr_id_corr_value, tvb, offset,  4, ENC_BIG_ENDIAN);
-		offset +=4;
+	proto_tree_add_item(corr_tree, hf_a21_corr_id_corr_value, tvb, offset,  4, ENC_BIG_ENDIAN);
+	offset +=4;
 
-		dissect_a21_ie_common(tvb, pinfo, a21_tree, offset,  message_type);
+	dissect_a21_ie_common(tvb, pinfo, a21_tree, offset,  message_type);
 
-	}
 
 }
 
