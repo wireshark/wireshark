@@ -119,12 +119,19 @@ What works?
 ===========
 
 All the executables now build from clean source on:
-* 32bit openSUSE 11.3: (gnu)make and gcc
-* 64bit FedoraXXX
-* 32bit Ubuntu 9.04
-* 32bit Ubuntu 10.04
-* 64bit Debian Wheezy
-* OS X
+* 32 bit openSUSE 11.3: (gnu)make and gcc
+* 64 bit FedoraXXX
+* 32 bit Ubuntu 9.04
+* 32 bit Ubuntu 10.04
+* 64 bit Ubuntu 14.04
+* 64 bit Debian Wheezy
+* 32 bit OS X
+* 64 bit OS X
+* 32 bit Windows using Visual C++ 2013
+* 64 bit Windows using Visual C++ 2013
+* 64 bit Solaris 10
+
+The Buildbot runs CMake steps on Ubuntu, Win32, Win64, OS X, and Solaris.
 
 What needs to be done?
 ======================
@@ -134,12 +141,11 @@ What needs to be done?
 - Guides are not installed.
 - Build source package (using CPack).
   This is obsolete if we decide to release VCS snapshots instead
-- Build packages (Windows installer, RPM, SVR4, OS X installer dmg)
-  (using CPack).  This includes setting OS target version stuff
-  appropriately for OS X.
+- Build packages using CPack: tarball, Windows installer + PortableApps, OS X
+  installer dmg, RPM, SVR4. This includes setting OS target version stuff
+  appropriately for OS X. We currently use NSIS for the Windows installer but
+  should probably use WiX instead.
 - Add back checkAPI target.
-- Test and add support for other platforms (BSDs, Solaris, Win32, Win64,
-  ...) - we're currently doing CMake builds on Solaris.
 - Add support for cmake configurations.
 - Automatically figure out if *shark is running from the build directory
   (making WIRESHARK_RUN_FROM_BUILD_DIRECTORY unnecessary like it is with
@@ -164,6 +170,8 @@ What needs to be done?
 - Get cross-compilation working (or ensure it does). It works with autofoo.
 - Handle -DFORTIFY_SOURCE=2 appropriately.  (Do a Web search for
   "cmake fortify" for some information.)
+- Add support for Visual Studio code anlaysis similar to ENABLE_CODE_ANALYSIS in
+  config.nmake.
 - Define the GTK_DISABLE_ and GDK_DISABLE_ values as appropriate if we
   care about supporting the GTK+ version.
 ...
