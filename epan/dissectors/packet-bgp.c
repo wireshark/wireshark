@@ -1603,6 +1603,7 @@ static expert_field ei_bgp_ls_error = EI_INIT;
 static expert_field ei_bgp_ext_com_len_bad = EI_INIT;
 static expert_field ei_bgp_attr_pmsi_opaque_type = EI_INIT;
 static expert_field ei_bgp_attr_pmsi_tunnel_type = EI_INIT;
+static expert_field ei_bgp_attr_as_path_as_len_err = EI_INIT;
 
 static expert_field ei_bgp_evpn_nlri_rt4_len_err = EI_INIT;
 static expert_field ei_bgp_evpn_nlri_rt_type_err = EI_INIT;
@@ -5045,7 +5046,7 @@ heuristic_as2_or_4_from_as_path(tvbuff_t *tvb, gint as_path_offset, gint end_att
     else if (next_type == AS_SET ||
             next_type == AS_SEQUENCE ||
             next_type == AS_CONFED_SEQUENCE ||
-            next_type == AS_CONFED_SEQUENCE) {
+            next_type == AS_CONFED_SET) {
         /* that's a good sign to assume ASN 2 bytes let's check that 2 first bytes of each ASN doesn't eq 0 to confirm */
             for (j=0; j < length && !asn_is_null; j++) {
                 if(tvb_get_ntohs(tvb, k+(2*j)) == 0) {
@@ -5056,22 +5057,22 @@ heuristic_as2_or_4_from_as_path(tvbuff_t *tvb, gint as_path_offset, gint end_att
                 assumed_as_len = 2;
             else
                 assumed_as_len = 4;
-
         }
     else
     /* we didn't find a valid AS segment type in the next coming segment assuming 2 bytes ASN */
         assumed_as_len = 4;
     /* now that we have our assumed as length let's check we can calculate the attribute length properly */
     k = k_save;
-    k++;
     while (k < end_attr_offset)
     {
+        /* we skip the AS type */
+        k++;
+        /* we get the length of the AS segment */
         length = tvb_get_guint8(tvb, k);
+        /* let's point to the fist byte of the AS segment */
+        k++;
         /* we move to the next segment */
         k = k + (length*assumed_as_len);
-        /* if I am not facing the last segment k need to point to next length */
-        if(k < end_attr_offset)
-            k++;
         counter_as_segment++;
     }
     if (k == end_attr_offset) {
@@ -5600,7 +5601,8 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
 
             proto_tree_add_item(subtree2, hf_bgp_update_path_attribute_type_code, tvb, o + i + 1, 1, ENC_BIG_ENDIAN);
 
-            attr_len_item = proto_tree_add_item(subtree2, hf_bgp_update_path_attribute_length, tvb, o + i + BGP_SIZE_OF_PATH_ATTRIBUTE, aoff - BGP_SIZE_OF_PATH_ATTRIBUTE, ENC_BIG_ENDIAN);
+            attr_len_item = proto_tree_add_item(subtree2, hf_bgp_update_path_attribute_length, tvb, o + i + BGP_SIZE_OF_PATH_ATTRIBUTE,
+                                                aoff - BGP_SIZE_OF_PATH_ATTRIBUTE, ENC_BIG_ENDIAN);
 
             /* Path Attribute Type */
             switch (bgpa_type) {
@@ -5623,6 +5625,12 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
                     heuristic also tell us how many AS segments we have */
                     asn_len = heuristic_as2_or_4_from_as_path(tvb, o+i+aoff, o+i+aoff+tlen,
                                                             bgpa_type, &number_as_segment);
+                    if (asn_len == 255)
+                    {
+                        expert_add_info_format(pinfo, ti_pa, &ei_bgp_attr_as_path_as_len_err,
+                            "ASN length uncalculated by heuristic : %u", asn_len);
+                        break;
+                    }
                     proto_item_append_text(ti_pa,": ");
                     if(tlen == 0) {
                         proto_item_append_text(ti_pa,"empty");
@@ -7903,7 +7911,8 @@ proto_register_bgp(void)
         { &ei_bgp_evpn_nlri_rt4_len_err, { "bgp.evpn.len", PI_MALFORMED, PI_ERROR, "Length is invalid", EXPFILL }},
         { &ei_bgp_evpn_nlri_rt_type_err, { "bgp.evpn.type", PI_MALFORMED, PI_ERROR, "EVPN Route Type is invalid", EXPFILL }},
         { &ei_bgp_attr_pmsi_tunnel_type, { "bgp.attr.pmsi.tunnel_type", PI_PROTOCOL, PI_ERROR, "Unknown Tunnel type", EXPFILL }},
-        { &ei_bgp_attr_pmsi_opaque_type, { "bgp.attr.pmsi.opaque_type", PI_PROTOCOL, PI_ERROR, "Unvalid pmsi opaque type", EXPFILL }}
+        { &ei_bgp_attr_pmsi_opaque_type, { "bgp.attr.pmsi.opaque_type", PI_PROTOCOL, PI_ERROR, "Unvalid pmsi opaque type", EXPFILL }},
+        { &ei_bgp_attr_as_path_as_len_err, {"bgp.attr.as_path.as_len", PI_UNDECODED, PI_ERROR, "unable to determine 4 or 2 bytes ASN", EXPFILL}}
     };
 
     module_t *bgp_module;
