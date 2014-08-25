@@ -149,6 +149,7 @@ static int dissect_rpkirtr_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
         switch (pdu_type) {
             case RPKI_RTR_SERIAL_NOTIFY_PDU: /* Serial Notify (0) */
             case RPKI_RTR_SERIAL_QUERY_PDU:  /* Serial Query (1)  */
+            case RPKI_RTR_END_OF_DATA_PDU: /* End Of Data (7) */
                 proto_tree_add_item(rpkirtr_tree, hf_rpkirtr_session_id,       tvb, offset, 2, ENC_BIG_ENDIAN);
                 offset += 2;
                 proto_tree_add_item(rpkirtr_tree, hf_rpkirtr_length,           tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -166,7 +167,6 @@ static int dissect_rpkirtr_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
                 offset += 4;
                 break;
             case RPKI_RTR_CACHE_RESPONSE_PDU:  /* Cache Response (3) */
-            case RPKI_RTR_END_OF_DATA_PDU: /* End Of Data (7) */
                 proto_tree_add_item(rpkirtr_tree, hf_rpkirtr_session_id,       tvb, offset, 2, ENC_BIG_ENDIAN);
                 offset += 2;
                 proto_tree_add_item(rpkirtr_tree, hf_rpkirtr_length,           tvb, offset, 4, ENC_BIG_ENDIAN);
