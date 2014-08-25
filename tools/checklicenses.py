@@ -137,6 +137,9 @@ PATH_SPECIFIC_WHITELISTED_LICENSES = {
     'docbook/custom_layer_pdf.xsl': [
         'UNKNOWN',
     ],
+    'docbook/custom_layer_chm.xsl': [
+        'UNKNOWN',
+    ],
     'fix': [
         'UNKNOWN',
     ],
