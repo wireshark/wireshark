@@ -3,9 +3,9 @@
  *
  * Routines for Real-Time Publish-Subscribe Protocol (RTPS) dissection
  *
- * Copyright 2005, Fabrizio Bertocci <fabrizio@rti.com>
+ * (c) 2005-2014 Copyright, Real-Time Innovations, Inc.
  * Real-Time Innovations, Inc.
- * 385 Moffett Park Drive, Suite 115
+ * 232 East Java Drive
  * Sunnyvale, CA 94089
  *
  * Copyright 2003, LUKAS POKORNY <maskis@seznam.cz>
@@ -80,8 +80,35 @@ typedef enum {
     RTI_CDR_TK_WCHAR,
     RTI_CDR_TK_WSTRING,
     RTI_CDR_TK_VALUE,
-    RTI_CDR_TK_VALUE_PARARM
+    RTI_CDR_TK_VALUE_PARAM
 } RTICdrTCKind;
+
+typedef enum {
+    RTI_CDR_TYPE_OBJECT_TYPE_KIND_NO_TYPE=0,
+    RTI_CDR_TYPE_OBJECT_TYPE_KIND_BOOLEAN_TYPE=1,
+    RTI_CDR_TYPE_OBJECT_TYPE_KIND_BYTE_TYPE=2,
+    RTI_CDR_TYPE_OBJECT_TYPE_KIND_INT_16_TYPE=3,
+    RTI_CDR_TYPE_OBJECT_TYPE_KIND_UINT_16_TYPE=4,
+    RTI_CDR_TYPE_OBJECT_TYPE_KIND_INT_32_TYPE=5,
+    RTI_CDR_TYPE_OBJECT_TYPE_KIND_UINT_32_TYPE=6,
+    RTI_CDR_TYPE_OBJECT_TYPE_KIND_INT_64_TYPE=7,
+    RTI_CDR_TYPE_OBJECT_TYPE_KIND_UINT_64_TYPE=8,
+    RTI_CDR_TYPE_OBJECT_TYPE_KIND_FLOAT_32_TYPE=9,
+    RTI_CDR_TYPE_OBJECT_TYPE_KIND_FLOAT_64_TYPE=10,
+    RTI_CDR_TYPE_OBJECT_TYPE_KIND_FLOAT_128_TYPE=11,
+    RTI_CDR_TYPE_OBJECT_TYPE_KIND_CHAR_8_TYPE=12,
+    RTI_CDR_TYPE_OBJECT_TYPE_KIND_CHAR_32_TYPE=13,
+    RTI_CDR_TYPE_OBJECT_TYPE_KIND_ENUMERATION_TYPE=14,
+    RTI_CDR_TYPE_OBJECT_TYPE_KIND_BITSET_TYPE=15,
+    RTI_CDR_TYPE_OBJECT_TYPE_KIND_ALIAS_TYPE=16,
+    RTI_CDR_TYPE_OBJECT_TYPE_KIND_ARRAY_TYPE=17,
+    RTI_CDR_TYPE_OBJECT_TYPE_KIND_SEQUENCE_TYPE=18,
+    RTI_CDR_TYPE_OBJECT_TYPE_KIND_STRING_TYPE=19,
+    RTI_CDR_TYPE_OBJECT_TYPE_KIND_MAP_TYPE=20,
+    RTI_CDR_TYPE_OBJECT_TYPE_KIND_UNION_TYPE=21,
+    RTI_CDR_TYPE_OBJECT_TYPE_KIND_STRUCTURE_TYPE=22,
+    RTI_CDR_TYPE_OBJECT_TYPE_KIND_ANNOTATION_TYPE=23
+} RTICdrTypeObjectTypeKind;
 
 #define RTPS_MAGIC_NUMBER   0x52545053 /* RTPS */
 
@@ -125,6 +152,9 @@ typedef enum {
 #define FLAG_SAMPLE_INFO_I      (0x10)
 #define FLAG_SAMPLE_INFO_K      (0x20)
 
+#define FLAG_VIRTUAL_HEARTBEAT_V (0x02)
+#define FLAG_VIRTUAL_HEARTBEAT_W (0x04)
+#define FLAG_VIRTUAL_HEARTBEAT_N (0x08)
 
 /* The following PIDs are defined since RTPS 1.0 */
 #define PID_PAD                                 (0x00)
@@ -211,6 +241,8 @@ typedef enum {
 #define PID_ENTITY_NAME                         (0x0062)
 #define PID_KEY_HASH                            (0x0070)
 #define PID_STATUS_INFO                         (0x0071)
+#define PID_TYPE_OBJECT                         (0x0072)
+#define PID_TYPE_CONSISTENCY                    (0x0074)
 
 /* Vendor-specific: RTI */
 #define PID_PRODUCT_VERSION                     (0x8000)
@@ -220,12 +252,20 @@ typedef enum {
 #define PID_TYPECODE_RTPS2                      (0x8004)        /* Was: 0x47 in RTPS 1.2 */
 #define PID_DISABLE_POSITIVE_ACKS               (0x8005)
 #define PID_LOCATOR_FILTER_LIST                 (0x8006)
+#define PID_EXPECTS_VIRTUAL_HB                  (0x8009)
+#define PID_ROLE_NAME                           (0x800a)
+#define PID_ACK_KIND                            (0x800b)
+#define PID_PEER_HOST_EPOCH                     (0x800e)
+#define PID_DOMAIN_ID                           (0x800f)
+#define PID_TRANSPORT_INFO_LIST                 (0x8010)
+#define PID_DIRECT_COMMUNICATION                (0x8011)
+#define PID_EXTENDED                            (0x3f01)
+#define PID_LIST_END                            (0x3f02)
 
 /* appId.appKind possible values */
 #define APPKIND_UNKNOWN                         (0x00)
 #define APPKIND_MANAGED_APPLICATION             (0x01)
 #define APPKIND_MANAGER                         (0x02)
-
 
 
 /* Predefined EntityId */
@@ -295,6 +335,9 @@ typedef enum {
 #define SUBMESSAGE_HEARTBEAT_BATCH                      (0x19)  /* RTPS 2.1 only */
 #define SUBMESSAGE_ACKNACK_SESSION                      (0x1a)  /* RTPS 2.1 only */
 #define SUBMESSAGE_HEARTBEAT_SESSION                    (0x1b)  /* RTPS 2.1 only */
+#define SUBMESSAGE_APP_ACK                              (0x1c)
+#define SUBMESSAGE_APP_ACK_CONF                         (0x1d)
+#define SUBMESSAGE_HEARTBEAT_VIRTUAL                    (0x1e)
 
 
 /* An invalid IP Address:
@@ -389,6 +432,32 @@ typedef enum {
 #define PARTICIPANT_MESSAGE_DATA_KIND_UNKNOWN (0x00000000)
 #define PARTICIPANT_MESSAGE_DATA_KIND_AUTOMATIC_LIVELINESS_UPDATE (0x00000001)
 #define PARTICIPANT_MESSAGE_DATA_KIND_MANUAL_LIVELINESS_UPDATE (0x00000002)
+
+/* Type Consistency Kinds */
+#define DISALLOW_TYPE_COERCION  (0)
+#define ALLOW_TYPE_COERCION     (1)
+
+/* Ack kind */
+#define PROTOCOL_ACKNOWLEDGMENT              (0)
+#define APPLICATION_AUTO_ACKNOWLEDGMENT      (1)
+#define APPLICATION_ORDERED_ACKNOWLEDGMENT   (2)
+#define APPLICATION_EXPLICIT_ACKNOWLEDGMENT  (3)
+
+/* NDDS_TRANSPORT_CLASSID */
+#define NDDS_TRANSPORT_CLASSID_ANY          (0)
+#define NDDS_TRANSPORT_CLASSID_UDPv4        (1)
+#define NDDS_TRANSPORT_CLASSID_SHMEM        (2)
+#define NDDS_TRANSPORT_CLASSID_INTRA        (3)
+#define NDDS_TRANSPORT_CLASSID_UDPv6        (5)
+#define NDDS_TRANSPORT_CLASSID_DTLS         (6)
+#define NDDS_TRANSPORT_CLASSID_WAN          (7)
+#define NDDS_TRANSPORT_CLASSID_TCPV4_LAN    (8)
+#define NDDS_TRANSPORT_CLASSID_TCPV4_WAN    (9)
+#define NDDS_TRANSPORT_CLASSID_TLSV4_LAN    (10)
+#define NDDS_TRANSPORT_CLASSID_TLSV4_WAN    (11)
+#define NDDS_TRANSPORT_CLASSID_PCIE         (12)
+#define NDDS_TRANSPORT_CLASSID_ITP          (13)
+
 
 /* Utilities to add elements to the protocol tree for packet-rtps.h and packet-rtps2.h */
 extern guint16 rtps_util_add_protocol_version(proto_tree *tree, tvbuff_t* tvb, gint offset);
