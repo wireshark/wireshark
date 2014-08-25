@@ -2288,7 +2288,7 @@ dissect_skinny_displayLabel(ptvcursor_t *cursor, int hfindex, guint32 length, gu
   wmem_new = wmem_strbuf_sized_new(wmem_packet_scope(), strlen(disp_string), maxlength);
 
   while (*disp_string) {
-    replacestr = '\0';
+    replacestr = NULL;
     if (strlen(disp_string) > x+1) {
       if (*disp_string == '\36') {
         replacestr = try_val_to_str_ext(disp_string[x + 1], &DisplayLabels_36_ext);

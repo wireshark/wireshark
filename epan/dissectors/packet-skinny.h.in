@@ -14,7 +14,7 @@
  *    skeleton to report values for most message/message fields.
  *    Much help from Guy Harris on figuring out the wireshark api.
  *  - packet-aim.c by Ralf Hoelzer <ralf@well.com>, Copyright 2000
- *  - Wireshark - Network traffic analyzer, 
+ *  - Wireshark - Network traffic analyzer,
  *    By Gerald Combs <gerald@wireshark.org>, Copyright 1998
  *
  * This program is free software; you can redistribute it and/or
@@ -47,6 +47,8 @@ cog.out(' * Generated Automatically Using (from wireshark base directory):\n')
 cog.out(' *   cog.py -D xmlfile=tools/SkinnyProtocolOptimized.xml -d -c -o epan/dissectors/packet-skinny.c epan/dissectors/packet-skinny.c.in\n')
 cog.out(' */\n')
 ]]]*/
+
+/*[[[end]]]*/
 
 /* Container for tapping relevant data */
 typedef struct _skinny_info_t
