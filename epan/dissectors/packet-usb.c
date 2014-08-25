@@ -2785,6 +2785,52 @@ dissect_usb_bmrequesttype(proto_tree *parent_tree, tvbuff_t *tvb, int offset, in
     return ++offset;
 }
 
+static int
+try_dissect_linux_usb_pseudo_header_ext(tvbuff_t *tvb, int offset,
+                                    packet_info *pinfo _U_,
+                                    proto_tree *tree, guint8 header_info);
+
+static int
+dissect_nonstandard_usb_setup_request(packet_info *pinfo, proto_tree *tree, proto_tree *parent,
+                                      proto_tree **setup_tree, tvbuff_t *tvb, int offset,
+                                      usb_conv_info_t *usb_conv_info, guint8 urb_type,
+                                      guint8 header_info)
+{
+    tvbuff_t *setup_tvb = tvb_new_composite();
+    tvbuff_t *next_tvb = tvb_new_subset_length(tvb, offset - 7, 7);
+
+
+    if (header_info & (USB_HEADER_IS_LINUX | USB_HEADER_IS_64_BYTES)) {
+
+        tvb_composite_append(setup_tvb, next_tvb);
+
+        offset = try_dissect_linux_usb_pseudo_header_ext(tvb, offset, pinfo, tree, header_info);
+
+        if (tvb_captured_length_remaining(tvb, offset) != 0) {
+            next_tvb = tvb_new_subset_remaining(tvb, offset);
+            tvb_composite_append(setup_tvb, next_tvb);
+            tvb_composite_finalize(setup_tvb);
+
+            next_tvb = tvb_new_child_real_data(tvb, (const guint8 *) tvb_memdup(pinfo->pool, setup_tvb, 0, tvb_captured_length(setup_tvb)), tvb_captured_length(setup_tvb), tvb_captured_length(setup_tvb));
+            add_new_data_source(pinfo, next_tvb, "Linux USB Control");
+
+            proto_tree_add_item(*setup_tree, hf_usb_data_fragment, tvb, offset, -1, ENC_NA);
+        }
+        else
+            tvb_composite_finalize(setup_tvb);
+
+    } else {
+        next_tvb = tvb_new_subset_remaining(tvb, offset - 7);
+        offset = try_dissect_linux_usb_pseudo_header_ext(tvb, offset, pinfo, tree, header_info);
+    }
+
+    offset = try_dissect_next_protocol(tree, parent, next_tvb, offset, pinfo, usb_conv_info, urb_type);
+
+    return offset;
+}
+
+
+
 /* Dissector used for usb setup requests */
 int
 dissect_usb_setup_request(packet_info *pinfo, proto_tree *parent, tvbuff_t *tvb,
@@ -3406,35 +3452,8 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
                 }
 
                 if (req_type != RQT_SETUP_TYPE_STANDARD) {
-                    if (header_info & (USB_HEADER_IS_LINUX | USB_HEADER_IS_64_BYTES)) {
-
-                        tvbuff_t   *setup_tvb = tvb_new_composite();
-                        next_tvb = tvb_new_subset_length(tvb, offset - 7, 7);
-                        tvb_composite_append(setup_tvb, next_tvb);
-
-                        offset = try_dissect_linux_usb_pseudo_header_ext(tvb, offset, pinfo, tree, header_info);
-
-                        if (tvb_captured_length_remaining(tvb, offset) != 0) {
-                            next_tvb = tvb_new_subset_remaining(tvb, offset);
-                            tvb_composite_append(setup_tvb, next_tvb);
-                            tvb_composite_finalize(setup_tvb);
-
-                            next_tvb = tvb_new_child_real_data(tvb, (const guint8 *) tvb_memdup(pinfo->pool, setup_tvb, 0, tvb_captured_length(setup_tvb)), tvb_captured_length(setup_tvb), tvb_captured_length(setup_tvb));
-                            add_new_data_source(pinfo, next_tvb, "Linux USB Control");
-
-                            proto_tree_add_item(setup_tree, hf_usb_data_fragment, tvb, offset, -1, ENC_NA);
-                        }
-                        else
-                            tvb_composite_finalize(setup_tvb);
-
-                    } else {
-                        next_tvb = tvb_new_subset_remaining(tvb, offset - 7);
-                        offset = try_dissect_linux_usb_pseudo_header_ext(tvb, offset, pinfo, tree, header_info);
-                    }
-
-
-                    offset = try_dissect_next_protocol(tree, parent, next_tvb, offset, pinfo, usb_conv_info, urb_type);
-
+                    dissect_nonstandard_usb_setup_request(pinfo, tree, parent, &setup_tree, tvb, offset,
+                                                          usb_conv_info, urb_type, header_info);
                 } else
                     offset = try_dissect_linux_usb_pseudo_header_ext(tvb, offset, pinfo, tree, header_info);
 
