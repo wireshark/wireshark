@@ -14,7 +14,7 @@
  *    skeleton to report values for most message/message fields.
  *    Much help from Guy Harris on figuring out the wireshark api.
  *  - packet-aim.c by Ralf Hoelzer <ralf@well.com>, Copyright 2000
- *  - Wireshark - Network traffic analyzer, 
+ *  - Wireshark - Network traffic analyzer,
  *    By Gerald Combs <gerald@wireshark.org>, Copyright 1998
  *
  * This program is free software; you can redistribute it and/or
@@ -290,6 +290,11 @@ dissect_skinny_displayLabel(ptvcursor_t *cursor, int hfindex, guint32 length, gu
 
   disp_string = (const gchar *) tvb_memdup(wmem_packet_scope(), tvb, offset, length);
   item = proto_tree_add_item(tree, hfindex, tvb, offset, length, ENC_ASCII | ENC_NA);
+  if (!disp_string) {
+    /* ERR: tvb_memdup failed */
+    tvcursor_advance(cursor, length);
+    return;
+  }
 
   wmem_new = wmem_strbuf_sized_new(wmem_packet_scope(), strlen(disp_string), maxlength);
 

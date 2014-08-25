@@ -14,7 +14,7 @@
  *    skeleton to report values for most message/message fields.
  *    Much help from Guy Harris on figuring out the wireshark api.
  *  - packet-aim.c by Ralf Hoelzer <ralf@well.com>, Copyright 2000
- *  - Wireshark - Network traffic analyzer, 
+ *  - Wireshark - Network traffic analyzer,
  *    By Gerald Combs <gerald@wireshark.org>, Copyright 1998
  *
  * This program is free software; you can redistribute it and/or
@@ -1810,7 +1810,6 @@ static int hf_skinny_SoftKeyMask_SoftKey6 = -1;
 static int hf_skinny_SoftKeyMask_SoftKey7 = -1;
 static int hf_skinny_SoftKeyMask_SoftKey8 = -1;
 static int hf_skinny_SoftKeyMask_SoftKey9 = -1;
-static int hf_skinny_Unknown = -1;
 static int hf_skinny_active = -1;
 static int hf_skinny_activeConferenceOnRegistration = -1;
 static int hf_skinny_activeConferences = -1;
@@ -1957,6 +1956,7 @@ static int hf_skinny_lineFullyQualifiedDisplayName = -1;
 static int hf_skinny_lineInstance = -1;
 static int hf_skinny_lineNumber = -1;
 static int hf_skinny_lineTextLabel = -1;
+static int hf_skinny_lineType = -1;
 static int hf_skinny_locale = -1;
 static int hf_skinny_longTermPictureIndex = -1;
 static int hf_skinny_macAddress = -1;
@@ -2139,6 +2139,7 @@ static int hf_skinny_transmitIpAddr_ipv6 = -1;
 static int hf_skinny_transmitPort = -1;
 static int hf_skinny_transmitPreference = -1;
 static int hf_skinny_unRegReasonCode = -1;
+static int hf_skinny_unknown = -1;
 static int hf_skinny_unknown2 = -1;
 static int hf_skinny_userName = -1;
 static int hf_skinny_v150sprt = -1;
@@ -2284,6 +2285,11 @@ dissect_skinny_displayLabel(ptvcursor_t *cursor, int hfindex, guint32 length, gu
 
   disp_string = (const gchar *) tvb_memdup(wmem_packet_scope(), tvb, offset, length);
   item = proto_tree_add_item(tree, hfindex, tvb, offset, length, ENC_ASCII | ENC_NA);
+  if (!disp_string) {
+    /* ERR: tvb_memdup failed */
+    tvcursor_advance(cursor, length);
+    return;
+  }
 
   wmem_new = wmem_strbuf_sized_new(wmem_packet_scope(), strlen(disp_string), maxlength);
 
@@ -2341,7 +2347,8 @@ handle_RegisterMessage(ptvcursor_t *cursor, packet_info * pinfo _U_)
   ptvcursor_add(cursor, hf_skinny_maxStreams, 4, ENC_LITTLE_ENDIAN);
   if (hdr_data_length > 52) {
     ptvcursor_add(cursor, hf_skinny_activeStreams, 4, ENC_LITTLE_ENDIAN);
-    ptvcursor_add(cursor, hf_skinny_protocolVer, 2, ENC_LITTLE_ENDIAN);
+    ptvcursor_add(cursor, hf_skinny_protocolVer, 1, ENC_LITTLE_ENDIAN);
+    ptvcursor_add(cursor, hf_skinny_unknown, 1, ENC_LITTLE_ENDIAN);
     ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "PhoneFeatures");
     ptvcursor_add_no_advance(cursor, hf_skinny_PhoneFeatures_Bit1, 2, ENC_LITTLE_ENDIAN);
     ptvcursor_add_no_advance(cursor, hf_skinny_PhoneFeatures_Bit2, 2, ENC_LITTLE_ENDIAN);
@@ -4282,7 +4289,27 @@ handle_RegisterAckMessage(ptvcursor_t *cursor, packet_info * pinfo _U_)
   ptvcursor_add(cursor, hf_skinny_dateTemplate, 6, ENC_ASCII|ENC_NA);
   ptvcursor_add(cursor, hf_skinny_alignmentPadding, 2, ENC_LITTLE_ENDIAN);
   ptvcursor_add(cursor, hf_skinny_secondaryKeepAliveInterval, 4, ENC_LITTLE_ENDIAN);
-  ptvcursor_add(cursor, hf_skinny_maxProtocolVer, 4, ENC_LITTLE_ENDIAN);
+  ptvcursor_add(cursor, hf_skinny_maxProtocolVer, 1, ENC_LITTLE_ENDIAN);
+  ptvcursor_add(cursor, hf_skinny_unknown, 1, ENC_LITTLE_ENDIAN);
+  ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "PhoneFeatures");
+  ptvcursor_add_no_advance(cursor, hf_skinny_PhoneFeatures_Bit1, 2, ENC_LITTLE_ENDIAN);
+  ptvcursor_add_no_advance(cursor, hf_skinny_PhoneFeatures_Bit2, 2, ENC_LITTLE_ENDIAN);
+  ptvcursor_add_no_advance(cursor, hf_skinny_PhoneFeatures_Bit3, 2, ENC_LITTLE_ENDIAN);
+  ptvcursor_add_no_advance(cursor, hf_skinny_PhoneFeatures_Bit4, 2, ENC_LITTLE_ENDIAN);
+  ptvcursor_add_no_advance(cursor, hf_skinny_PhoneFeatures_UTF8, 2, ENC_LITTLE_ENDIAN);
+  ptvcursor_add_no_advance(cursor, hf_skinny_PhoneFeatures_Bit6, 2, ENC_LITTLE_ENDIAN);
+  ptvcursor_add_no_advance(cursor, hf_skinny_PhoneFeatures_Bit7, 2, ENC_LITTLE_ENDIAN);
+  ptvcursor_add_no_advance(cursor, hf_skinny_PhoneFeatures_DynamicMessages, 2, ENC_LITTLE_ENDIAN);
+  ptvcursor_add_no_advance(cursor, hf_skinny_PhoneFeatures_Bit9, 2, ENC_LITTLE_ENDIAN);
+  ptvcursor_add_no_advance(cursor, hf_skinny_PhoneFeatures_RFC2833, 2, ENC_LITTLE_ENDIAN);
+  ptvcursor_add_no_advance(cursor, hf_skinny_PhoneFeatures_Bit11, 2, ENC_LITTLE_ENDIAN);
+  ptvcursor_add_no_advance(cursor, hf_skinny_PhoneFeatures_Bit12, 2, ENC_LITTLE_ENDIAN);
+  ptvcursor_add_no_advance(cursor, hf_skinny_PhoneFeatures_Bit13, 2, ENC_LITTLE_ENDIAN);
+  ptvcursor_add_no_advance(cursor, hf_skinny_PhoneFeatures_Bit14, 2, ENC_LITTLE_ENDIAN);
+  ptvcursor_add_no_advance(cursor, hf_skinny_PhoneFeatures_Bit15, 2, ENC_LITTLE_ENDIAN);
+  ptvcursor_add_no_advance(cursor, hf_skinny_PhoneFeatures_Abbreviated_Dial, 2, ENC_LITTLE_ENDIAN);
+  ptvcursor_advance(cursor, 2);
+  ptvcursor_pop_subtree(cursor); /* end bitfield: PhoneFeatures */
 }
 
 /*
@@ -6870,7 +6897,7 @@ handle_LineStatV2Message(ptvcursor_t *cursor, packet_info * pinfo _U_)
   guint32 lineFullyQualifiedDisplayName_len = 0;
   guint32 lineTextLabel_len = 0;
   ptvcursor_add(cursor, hf_skinny_lineNumber, 4, ENC_LITTLE_ENDIAN);
-  ptvcursor_add(cursor, hf_skinny_Unknown, 4, ENC_LITTLE_ENDIAN);
+  ptvcursor_add(cursor, hf_skinny_lineType, 4, ENC_LITTLE_ENDIAN);
   lineDirNumber_len = tvb_strnlen(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor), -1)+1;
   if (lineDirNumber_len > 1) {
     ptvcursor_add(cursor, hf_skinny_lineDirNumber, lineDirNumber_len, ENC_ASCII|ENC_NA);
@@ -8153,10 +8180,6 @@ proto_register_skinny(void)
       {
         "SoftKey9", "skinny.SoftKeyMask.SoftKey9", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x0100,
         NULL, HFILL }},
-    { &hf_skinny_Unknown,
-      {
-        "Unknown", "skinny.Unknown", FT_UINT32, BASE_DEC, NULL, 0x0,
-        NULL, HFILL }},
     { &hf_skinny_active,
       {
         "active", "skinny.active", FT_UINT32, BASE_DEC, NULL, 0x0,
@@ -8513,6 +8536,10 @@ proto_register_skinny(void)
       {
         "lineNumber", "skinny.lineNumber", FT_UINT32, BASE_DEC, NULL, 0x0,
         NULL, HFILL }},
+    { &hf_skinny_lineType,
+      {
+        "lineType", "skinny.lineType", FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
     { &hf_skinny_locale,
       {
         "locale", "skinny.locale", FT_UINT32, BASE_DEC, NULL, 0x0,
@@ -8559,7 +8586,7 @@ proto_register_skinny(void)
         "Maximum number of lines", HFILL }},
     { &hf_skinny_maxProtocolVer,
       {
-        "maxProtocolVer", "skinny.maxProtocolVer", FT_UINT32, BASE_DEC, NULL, 0x0,
+        "maxProtocolVer", "skinny.maxProtocolVer", FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL }},
     { &hf_skinny_maxRetryNumber,
       {
@@ -8783,7 +8810,7 @@ proto_register_skinny(void)
         NULL, HFILL }},
     { &hf_skinny_protocolVer,
       {
-        "Protocol Version", "skinny.protocolVer", FT_UINT16, BASE_DEC, NULL, 0x0,
+        "Protocol Version", "skinny.protocolVer", FT_UINT8, BASE_DEC, NULL, 0x0,
         "Maximum Supported Protocol Version", HFILL }},
     { &hf_skinny_recoveryReferencePictureCount,
       {
@@ -9005,6 +9032,10 @@ proto_register_skinny(void)
       {
         "transmitPreference", "skinny.transmitPreference", FT_UINT32, BASE_DEC, NULL, 0x0,
         NULL, HFILL }},
+    { &hf_skinny_unknown,
+      {
+        "unknown", "skinny.unknown", FT_UINT8, BASE_DEC, NULL, 0x0,
+        "unknown (Part of ProtocolVer)", HFILL }},
     { &hf_skinny_unknown2,
       {
         "unknown2", "skinny.unknown2", FT_UINT32, BASE_DEC, NULL, 0x0,
