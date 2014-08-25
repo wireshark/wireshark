@@ -1150,7 +1150,6 @@ dissect_mausb_pkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_tree *mausb_tree;
     proto_tree *flags_tree;
     proto_tree *tflags_tree;
-    proto_tree *setup_tree;
     /* Other misc. local variables. */
     struct mausb_header header;
     gint offset = 0;
@@ -1240,7 +1239,8 @@ dissect_mausb_pkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         /* TODO: set all the usb_conv_info values */
         usb_conv_info->is_request = mausb_is_transfer_req(&header);
 
-        usb_trans_info = usb_get_trans_info(tvb, pinfo, tree, 0, usb_conv_info);
+        usb_trans_info = usb_get_trans_info(tvb, pinfo, tree,
+                                            USB_HEADER_IS_MAUSB, usb_conv_info);
         usb_conv_info->usb_trans_info = usb_trans_info;
     }
 
@@ -1364,8 +1364,9 @@ dissect_mausb_pkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         /* If this packet contains USB Setup Data */
         if (mausb_has_setup_data(&header)) {
-            offset = dissect_usb_setup_request(pinfo, mausb_tree, tvb, offset,
-                                               usb_conv_info, &setup_tree);
+            offset = dissect_usb_setup_request(pinfo, mausb_tree, mausb_tree, tvb,
+                                               offset, URB_SUBMIT, usb_conv_info,
+                                               USB_HEADER_IS_MAUSB);
         }
 
         if (mausb_is_setup_response(&header)) {

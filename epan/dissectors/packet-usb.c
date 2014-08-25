@@ -2833,19 +2833,26 @@ dissect_nonstandard_usb_setup_request(packet_info *pinfo, proto_tree *tree, prot
 
 /* Dissector used for usb setup requests */
 int
-dissect_usb_setup_request(packet_info *pinfo, proto_tree *parent, tvbuff_t *tvb,
-                          int offset, usb_conv_info_t *usb_conv_info, proto_tree **setup_tree)
+dissect_usb_setup_request(packet_info *pinfo, proto_tree *tree,
+                          proto_tree *parent, tvbuff_t *tvb, int offset,
+                          guint8 urb_type, usb_conv_info_t *usb_conv_info,
+                          guint8 header_info)
 {
+
+
     int type;
-    proto_item *ti = NULL;
+    proto_item *ti;
+    proto_tree *setup_tree;
+
     usb_trans_info_t *usb_trans_info = usb_conv_info->usb_trans_info;
+    gint req_type = USB_TYPE(tvb_get_guint8(tvb, offset));
 
 
     ti = proto_tree_add_protocol_format(parent, proto_usb, tvb, offset, 8, "URB setup");
-    *setup_tree = proto_item_add_subtree(ti, usb_setup_hdr);
+    setup_tree = proto_item_add_subtree(ti, usb_setup_hdr);
     usb_trans_info->setup.requesttype = tvb_get_guint8(tvb, offset);
     usb_conv_info->setup_requesttype = tvb_get_guint8(tvb, offset);
-    offset = dissect_usb_bmrequesttype(*setup_tree, tvb, offset, &type);
+    offset = dissect_usb_bmrequesttype(setup_tree, tvb, offset, &type);
 
 
     /* read the request code and spawn off to a class specific
@@ -2860,17 +2867,28 @@ dissect_usb_setup_request(packet_info *pinfo, proto_tree *parent, tvbuff_t *tvb,
     switch (type) {
         case RQT_SETUP_TYPE_STANDARD:
             /* This is a standard request */
-            offset = dissect_usb_standard_setup_request(pinfo, *setup_tree, tvb, offset,
+            offset = dissect_usb_standard_setup_request(pinfo, setup_tree, tvb, offset,
                                                         usb_conv_info, usb_trans_info);
 
             break;
         default:
             /* no dissector found - display generic fields */
-            proto_tree_add_item(*setup_tree, hf_usb_request_unknown_class, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(setup_tree, hf_usb_request_unknown_class, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset += 1;
-            offset = dissect_usb_setup_generic(pinfo, *setup_tree, tvb, offset, usb_conv_info);
+            offset = dissect_usb_setup_generic(pinfo, setup_tree, tvb, offset, usb_conv_info);
 
     }
+
+    if (req_type != RQT_SETUP_TYPE_CLASS) {
+        usb_tap_queue_packet(pinfo, urb_type, usb_conv_info);
+    }
+
+    if (req_type != RQT_SETUP_TYPE_STANDARD) {
+        dissect_nonstandard_usb_setup_request(pinfo, tree, parent, &setup_tree, tvb, offset,
+                                              usb_conv_info, urb_type, header_info);
+    } else
+        offset = try_dissect_linux_usb_pseudo_header_ext(tvb, offset, pinfo, tree, header_info);
+
 
     return offset;
 }
@@ -3440,22 +3458,9 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
 
         if (usb_conv_info->is_request) {
             if (usb_conv_info->is_setup) {
-
-                proto_tree *setup_tree = NULL;
-                gint req_type = USB_TYPE(tvb_get_guint8(tvb, offset));
-
                 /* Dissect the setup header - it's applicable */
-                offset = dissect_usb_setup_request(pinfo, parent, tvb, offset, usb_conv_info, &setup_tree);
-
-                if (req_type != RQT_SETUP_TYPE_CLASS) {
-                    usb_tap_queue_packet(pinfo, urb_type, usb_conv_info);
-                }
-
-                if (req_type != RQT_SETUP_TYPE_STANDARD) {
-                    dissect_nonstandard_usb_setup_request(pinfo, tree, parent, &setup_tree, tvb, offset,
-                                                          usb_conv_info, urb_type, header_info);
-                } else
-                    offset = try_dissect_linux_usb_pseudo_header_ext(tvb, offset, pinfo, tree, header_info);
+                offset = dissect_usb_setup_request(pinfo, tree, parent, tvb, offset,
+                                                   urb_type, usb_conv_info, header_info);
 
             } else {
                 if (header_info & USB_HEADER_IS_LINUX) {

@@ -45,6 +45,7 @@ typedef struct _usb_conv_info_t usb_conv_info_t;
 #define USB_HEADER_IS_LINUX    (1 << 0)
 #define USB_HEADER_IS_64_BYTES (1 << 1)
 #define USB_HEADER_IS_USBPCAP  (1 << 2)
+#define USB_HEADER_IS_MAUSB    (1 << 3)
 
 /* there is one such structure for each request/response */
 typedef struct _usb_trans_info_t {
@@ -228,8 +229,10 @@ dissect_usb_setup_response(packet_info *pinfo, proto_tree *tree,
                            guint8 urb_type, usb_conv_info_t *usb_conv_info);
 
 int
-dissect_usb_setup_request(packet_info *pinfo, proto_tree *parent, tvbuff_t *tvb,
-                          int offset, usb_conv_info_t *usb_conv_info, proto_tree **setup_tree);
+dissect_usb_setup_request(packet_info *pinfo, proto_tree *tree,
+                          proto_tree *parent, tvbuff_t *tvb, int offset,
+                          guint8 urb_type, usb_conv_info_t *usb_conv_info,
+                          guint8 header_info);
 
 
 void
