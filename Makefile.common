@@ -44,7 +44,7 @@ SHARK_COMMON_SRC =	\
 	cfile.c			\
 	frame_tvbuff.c		\
 	sync_pipe_write.c	\
-	version_info.c 		\
+	version_info.c		\
 	extcap.c		\
 	extcap_parser.c
 
