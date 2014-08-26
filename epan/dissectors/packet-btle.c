@@ -510,11 +510,11 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         case 0x01: /* Continuation fragment of an L2CAP message, or an Empty PDU */
 /* TODO: Try reassemble cases 0x01 and 0x02 */
             if (length > 0) {
-                col_append_str(pinfo->cinfo, COL_INFO, "L2CAP Fragment");
+                col_set_str(pinfo->cinfo, COL_INFO, "L2CAP Fragment");
                 proto_tree_add_item(btle_tree, hf_l2cap_fragment, tvb, offset, length, ENC_NA);
                 offset += length;
             } else {
-                col_append_str(pinfo->cinfo, COL_INFO, "Empty PDU");
+                col_set_str(pinfo->cinfo, COL_INFO, "Empty PDU");
             }
 
             break;
@@ -522,13 +522,13 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             if (length > 0) {
                 if (tvb_get_letohs(tvb, offset) > length) {
 /* TODO: Try reassemble cases 0x01 and 0x02 */
-                    col_append_str(pinfo->cinfo, COL_INFO, "L2CAP Fragment");
+                    col_set_str(pinfo->cinfo, COL_INFO, "L2CAP Fragment");
                     proto_tree_add_item(btle_tree, hf_l2cap_fragment, tvb, offset, length, ENC_NA);
                     offset += length;
                 } else {
                     bthci_acl_data_t  *acl_data;
 
-                    col_append_str(pinfo->cinfo, COL_INFO, "L2CAP Data");
+                    col_set_str(pinfo->cinfo, COL_INFO, "L2CAP Data");
 /* TODO: Temporary solution while chandle source/bd_addrs is unknown  */
                     acl_data = wmem_new(wmem_packet_scope(), bthci_acl_data_t);
                     acl_data->interface_id = interface_id;
@@ -548,7 +548,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             control_opcode = tvb_get_guint8(tvb, offset);
             offset += 1;
 
-            col_append_fstr(pinfo->cinfo, COL_INFO, "Control Opcode: %s",
+            col_add_fstr(pinfo->cinfo, COL_INFO, "Control Opcode: %s",
                     val_to_str_ext_const(control_opcode, &control_opcode_vals_ext, "Unknown"));
 
             switch (control_opcode) {
