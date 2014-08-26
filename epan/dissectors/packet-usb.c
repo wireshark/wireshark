@@ -2878,15 +2878,14 @@ dissect_usb_setup_request(packet_info *pinfo, proto_tree *tree,
 
 
     int type;
-    proto_item *ti;
     proto_tree *setup_tree;
 
     usb_trans_info_t *usb_trans_info = usb_conv_info->usb_trans_info;
     gint req_type = USB_TYPE(tvb_get_guint8(tvb, offset));
 
 
-    ti = proto_tree_add_protocol_format(parent, proto_usb, tvb, offset, 8, "URB setup");
-    setup_tree = proto_item_add_subtree(ti, usb_setup_hdr);
+    setup_tree = proto_tree_add_subtree(parent, tvb, offset, 8, usb_setup_hdr, NULL, "URB setup");
+
     usb_trans_info->setup.requesttype = tvb_get_guint8(tvb, offset);
     usb_conv_info->setup_requesttype = tvb_get_guint8(tvb, offset);
     offset = dissect_usb_bmrequesttype(setup_tree, tvb, offset, &type);
