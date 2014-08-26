@@ -31,6 +31,9 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include "packet-tcp.h"
+#include <epan/expert.h>
+#include <epan/asn1.h>
+#include <epan/dissectors/packet-x509af.h>
 
 void proto_register_rpkirtr(void);
 void proto_reg_handoff_rpkirtr(void);
@@ -44,6 +47,7 @@ static int hf_rpkirtr_length = -1;
 static int hf_rpkirtr_serial_number = -1;
 static int hf_rpkirtr_flags = -1;
 static int hf_rpkirtr_flags_aw = -1;
+static int hf_rpkirtr_flags_rk = -1;
 static int hf_rpkirtr_prefix_length = -1;
 static int hf_rpkirtr_max_length = -1;
 static int hf_rpkirtr_ipv4_prefix = -1;
@@ -54,12 +58,20 @@ static int hf_rpkirtr_length_pdu = -1;
 static int hf_rpkirtr_error_pdu = -1;
 static int hf_rpkirtr_length_text = -1;
 static int hf_rpkirtr_error_text = -1;
+static int hf_rpkirtr_refresh_interval = -1;
+static int hf_rpkirtr_retry_interval = -1;
+static int hf_rpkirtr_expire_interval = -1;
+static int hf_rpkirtr_subject_key_identifier = -1;
+static int hf_rpkirtr_subject_public_key_info = -1;
 
 static guint g_port_rpkirtr     = 323;
 static guint g_port_rpkirtr_tls = 324;
 
 static gint ett_rpkirtr = -1;
 static gint ett_flags   = -1;
+static gint ett_flags_nd = -1;
+
+static expert_field ei_rpkirtr_wrong_version_router_key = EI_INIT;
 
 
 /* http://www.iana.org/assignments/rpki/rpki.xml#rpki-rtr-pdu */
@@ -71,6 +83,7 @@ static gint ett_flags   = -1;
 #define RPKI_RTR_IPV6_PREFIX_PDU     6
 #define RPKI_RTR_END_OF_DATA_PDU     7
 #define RPKI_RTR_CACHE_RESET_PDU     8
+#define RPKI_RTR_ROUTER_KEY          9
 #define RPKI_RTR_ERROR_REPORT_PDU   10
 
 static const value_string rtr_pdu_type_vals[] = {
@@ -82,6 +95,7 @@ static const value_string rtr_pdu_type_vals[] = {
     { RPKI_RTR_IPV6_PREFIX_PDU,    "IPv6 Prefix" },
     { RPKI_RTR_END_OF_DATA_PDU,    "End of Data" },
     { RPKI_RTR_CACHE_RESET_PDU,    "Cache Reset" },
+    { RPKI_RTR_ROUTER_KEY,         "Router Key" },
     { RPKI_RTR_ERROR_REPORT_PDU,   "Error Report" },
     { 0, NULL }
 };
@@ -104,6 +118,11 @@ static const true_false_string tfs_flag_type_aw = {
     "Withdrawal"
 };
 
+static const true_false_string tfs_flag_type_rk = {
+    "New Router Key",
+    "Delete Router Key"
+};
+
 static guint
 get_rpkirtr_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
@@ -121,10 +140,10 @@ get_rpkirtr_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 static int dissect_rpkirtr_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 
-    proto_item *ti = NULL, *ti_flags;
+    proto_item *ti = NULL, *ti_flags, *ti_type;
     proto_tree *rpkirtr_tree = NULL, *flags_tree = NULL;
     int offset = 0;
-    guint8 pdu_type;
+    guint8 pdu_type, version;
     guint length;
 
     while (tvb_reported_length_remaining(tvb, offset) != 0) {
@@ -134,9 +153,10 @@ static int dissect_rpkirtr_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
         rpkirtr_tree = proto_item_add_subtree(ti, ett_rpkirtr);
 
         proto_tree_add_item(rpkirtr_tree, hf_rpkirtr_version, tvb, offset, 1, ENC_BIG_ENDIAN);
+        version = tvb_get_guint8(tvb, offset);
         offset += 1;
 
-        proto_tree_add_item(rpkirtr_tree, hf_rpkirtr_pdu_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+        ti_type = proto_tree_add_item(rpkirtr_tree, hf_rpkirtr_pdu_type, tvb, offset, 1, ENC_BIG_ENDIAN);
         pdu_type = tvb_get_guint8(tvb, offset);
         col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, val_to_str(pdu_type, rtr_pdu_type_vals, "Unknown (%d)"));
         proto_item_append_text(ti, " (%s)", val_to_str(pdu_type, rtr_pdu_type_vals, "Unknown %d"));
@@ -147,7 +167,6 @@ static int dissect_rpkirtr_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
         switch (pdu_type) {
             case RPKI_RTR_SERIAL_NOTIFY_PDU: /* Serial Notify (0) */
             case RPKI_RTR_SERIAL_QUERY_PDU:  /* Serial Query (1)  */
-            case RPKI_RTR_END_OF_DATA_PDU: /* End Of Data (7) */
                 proto_tree_add_item(rpkirtr_tree, hf_rpkirtr_session_id,       tvb, offset, 2, ENC_BIG_ENDIAN);
                 offset += 2;
                 proto_tree_add_item(rpkirtr_tree, hf_rpkirtr_length,           tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -177,7 +196,7 @@ static int dissect_rpkirtr_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
                 proto_tree_add_item(rpkirtr_tree, hf_rpkirtr_length,           tvb, offset, 4, ENC_BIG_ENDIAN);
                 /* TODO: Add check length ? */
                 offset += 4;
-                ti_flags = proto_tree_add_item(rpkirtr_tree, hf_rpkirtr_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
+                ti_flags = proto_tree_add_item(rpkirtr_tree, hf_rpkirtr_flags, tvb, offset, 1, ENC_NA);
                 flags_tree = proto_item_add_subtree(ti_flags, ett_flags);
                 proto_tree_add_item(flags_tree, hf_rpkirtr_flags_aw,           tvb, offset, 1, ENC_BIG_ENDIAN);
                 offset += 1;
@@ -198,7 +217,7 @@ static int dissect_rpkirtr_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
                 proto_tree_add_item(rpkirtr_tree, hf_rpkirtr_length,           tvb, offset, 4, ENC_BIG_ENDIAN);
                 /* TODO: Add check length ? */
                 offset += 4;
-                ti_flags = proto_tree_add_item(rpkirtr_tree, hf_rpkirtr_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
+                ti_flags = proto_tree_add_item(rpkirtr_tree, hf_rpkirtr_flags, tvb, offset, 1, ENC_NA);
                 flags_tree = proto_item_add_subtree(ti_flags, ett_flags);
                 proto_tree_add_item(flags_tree, hf_rpkirtr_flags_aw,           tvb, offset, 1, ENC_BIG_ENDIAN);
                 offset += 1;
@@ -212,6 +231,53 @@ static int dissect_rpkirtr_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
                 offset += 16;
                 proto_tree_add_item(rpkirtr_tree, hf_rpkirtr_as_number,        tvb, offset, 4, ENC_BIG_ENDIAN);
                 offset += 4;
+                break;
+            case RPKI_RTR_END_OF_DATA_PDU: /* End Of Data (7) */
+                proto_tree_add_item(rpkirtr_tree, hf_rpkirtr_session_id,       tvb, offset, 2, ENC_BIG_ENDIAN);
+                offset += 2;
+                proto_tree_add_item(rpkirtr_tree, hf_rpkirtr_length,           tvb, offset, 4, ENC_BIG_ENDIAN);
+                /* TODO: Add check length ? */
+                offset += 4;
+                proto_tree_add_item(rpkirtr_tree, hf_rpkirtr_serial_number,    tvb, offset, 4, ENC_BIG_ENDIAN);
+                offset += 4;
+
+                if (version >= 1){
+                proto_tree_add_item(rpkirtr_tree, hf_rpkirtr_refresh_interval, tvb, offset, 4, ENC_BIG_ENDIAN);
+                offset += 4;
+
+                proto_tree_add_item(rpkirtr_tree, hf_rpkirtr_retry_interval,   tvb, offset, 4, ENC_BIG_ENDIAN);
+                offset += 4;
+
+                proto_tree_add_item(rpkirtr_tree, hf_rpkirtr_expire_interval,  tvb, offset, 4, ENC_BIG_ENDIAN);
+                offset += 4;
+                }
+                break;
+
+            case RPKI_RTR_ROUTER_KEY: /* Router Key (9) */
+                if(version < 1){
+                    /* Error about wrong version... */
+                    expert_add_info(pinfo, ti_type, &ei_rpkirtr_wrong_version_router_key);
+                } else {
+                    asn1_ctx_t asn1_ctx;
+
+                    ti_flags = proto_tree_add_item(rpkirtr_tree, hf_rpkirtr_flags, tvb, offset, 1, ENC_NA);
+                    flags_tree = proto_item_add_subtree(ti_flags, ett_flags_nd);
+                    proto_tree_add_item(flags_tree, hf_rpkirtr_flags_rk,           tvb, offset, 1, ENC_BIG_ENDIAN);
+                    offset += 1;
+                    proto_tree_add_item(rpkirtr_tree, hf_rpkirtr_reserved,         tvb, offset, 2, ENC_NA);
+                    offset += 1;
+                    proto_tree_add_item(rpkirtr_tree, hf_rpkirtr_length,           tvb, offset, 4, ENC_BIG_ENDIAN);
+                    /* TODO: Add check length ? */
+                    offset += 4;
+                    proto_tree_add_item(rpkirtr_tree, hf_rpkirtr_subject_key_identifier, tvb, offset, 20, ENC_ASCII|ENC_NA);
+                    offset += 20;
+
+                    proto_tree_add_item(rpkirtr_tree, hf_rpkirtr_as_number, tvb, offset, 4, ENC_BIG_ENDIAN);
+                    offset += 4;
+                    asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+                    offset = dissect_x509af_SubjectPublicKeyInfo(FALSE, tvb, offset, &asn1_ctx, rpkirtr_tree, hf_rpkirtr_subject_public_key_info);
+
+                }
                 break;
             case RPKI_RTR_ERROR_REPORT_PDU: /* Error Report (10) */
             {
@@ -298,6 +364,11 @@ proto_register_rpkirtr(void)
             FT_BOOLEAN, 8, TFS(&tfs_flag_type_aw), 0x01,
             NULL, HFILL }
         },
+        { &hf_rpkirtr_flags_rk,
+            { "Flag Router Key", "rpki-rtr.flags.rk",
+            FT_BOOLEAN, 8, TFS(&tfs_flag_type_rk), 0x01,
+            NULL, HFILL }
+        },
         { &hf_rpkirtr_prefix_length,
             { "Prefix Length", "rpki-rtr.prefix_length",
             FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -347,13 +418,45 @@ proto_register_rpkirtr(void)
             { "Erroneous Text", "rpki-rtr.error_text",
             FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
+        },
+        { &hf_rpkirtr_refresh_interval,
+            { "Refresh Interval", "rpki-rtr.refresh_interval",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_rpkirtr_retry_interval,
+            { "Retry Interval", "rpki-rtr.retry_interval",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_rpkirtr_expire_interval,
+            { "Expire Interval", "rpki-rtr.expire_interval",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_rpkirtr_subject_key_identifier,
+            { "Subject Key Identifier", "rpki-rtr.subject_key_identifier",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_rpkirtr_subject_public_key_info,
+            { "Subject Public Key Info", "rpki-rtr.subject_public_key_info",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
         }
     };
 
     static gint *ett[] = {
         &ett_rpkirtr,
-        &ett_flags
+        &ett_flags,
+        &ett_flags_nd
     };
+
+    static ei_register_info ei[] = {
+        { &ei_rpkirtr_wrong_version_router_key, { "rpkirtr.router_key.wrong_version", PI_MALFORMED, PI_WARN, "Wrong version for Router Key type", EXPFILL }},
+    };
+
+    expert_module_t *expert_rpkirtr;
 
     proto_rpkirtr = proto_register_protocol("RPKI-Router Protocol",
         "RPKI-Router Protocol", "rpkirtr");
@@ -370,6 +473,9 @@ proto_register_rpkirtr(void)
     prefs_register_uint_preference(rpkirtr_module, "tcp.rpkirtr_tls.port", "RPKI-RTR TCP TLS Port",
          "RPKI-Router Protocol TCP TLS port if other than the default",
          10, &g_port_rpkirtr_tls);
+
+    expert_rpkirtr = expert_register_protocol(proto_rpkirtr);
+    expert_register_field_array(expert_rpkirtr, ei, array_length(ei));
 }
 
 
