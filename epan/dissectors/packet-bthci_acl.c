@@ -31,6 +31,7 @@
 #include <epan/prefs.h>
 #include <epan/addr_resolv.h>
 #include <epan/wmem/wmem.h>
+#include <epan/expert.h>
 
 #include "packet-bluetooth-hci.h"
 #include "packet-bthci_acl.h"
@@ -53,6 +54,8 @@ static int hf_bthci_acl_dst_name = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_bthci_acl = -1;
+
+static expert_field ei_invalid_session = EI_INIT;
 
 static dissector_handle_t bthci_acl_handle;
 static dissector_handle_t btl2cap_handle = NULL;
@@ -87,7 +90,7 @@ static const value_string bc_flag_vals[] = {
     { 0, NULL }
 };
 
-static guint32 max_disconnect_in_frame = G_MAXUINT32;
+static guint32 invalid_session = 0;
 
 
 void proto_register_bthci_acl(void);
@@ -97,7 +100,7 @@ void proto_reg_handoff_bthci_acl(void);
 static gint
 dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    proto_item               *ti;
+    proto_item               *bthci_acl_itam;
     proto_tree               *bthci_acl_tree;
     proto_item               *sub_item;
     guint16                   flags;
@@ -138,8 +141,8 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         return 0;
     hci_data = (hci_data_t *) data;
 
-    ti = proto_tree_add_item(tree, proto_bthci_acl, tvb, offset, -1, ENC_NA);
-    bthci_acl_tree = proto_item_add_subtree(ti, ett_bthci_acl);
+    bthci_acl_itam = proto_tree_add_item(tree, proto_bthci_acl, tvb, offset, -1, ENC_NA);
+    bthci_acl_tree = proto_item_add_subtree(bthci_acl_itam, ett_bthci_acl);
 
     switch (pinfo->p2p_dir) {
         case P2P_DIR_SENT:
@@ -191,7 +194,8 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
             chandle_session->disconnect_in_frame > pinfo->fd->num) {
         acl_data->disconnect_in_frame = &chandle_session->disconnect_in_frame;
     } else {
-        acl_data->disconnect_in_frame = &max_disconnect_in_frame;
+        acl_data->disconnect_in_frame = &invalid_session;
+        chandle_session = NULL;
     }
 
     acl_data->remote_bd_addr_oui         = 0;
@@ -429,6 +433,10 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         }
     }
 
+    if (acl_data->disconnect_in_frame == &invalid_session) {
+        expert_add_info(pinfo, bthci_acl_itam, &ei_invalid_session);
+    }
+
     SET_ADDRESS(&pinfo->net_src, AT_STRINGZ, (int)strlen(src_name) + 1, src_name);
     SET_ADDRESS(&pinfo->dl_src, AT_ETHER, 6, src_bd_addr);
     SET_ADDRESS(&pinfo->src, AT_STRINGZ, (int)strlen(src_addr_name) + 1, src_addr_name);
@@ -456,7 +464,8 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 void
 proto_register_bthci_acl(void)
 {
-
+    module_t         *bthci_acl_module;
+    expert_module_t  *bthci_acl_expert_module;
     /* Setup list of header fields  See Section 1.6.1 for details*/
     static hf_register_info hf[] = {
         { &hf_bthci_acl_chandle,
@@ -530,7 +539,10 @@ proto_register_bthci_acl(void)
     static gint *ett[] = {
         &ett_bthci_acl,
     };
-    module_t *bthci_acl_module;
+
+    static ei_register_info ei[] = {
+        { &ei_invalid_session, { "bthci_acl.invalid_session", PI_PROTOCOL, PI_ERROR, "Frame is out of any \"connection handle\" session", EXPFILL }},
+    };
 
     /* Register the protocol name and description */
     proto_bthci_acl = proto_register_protocol("Bluetooth HCI ACL Packet", "HCI_ACL", "bthci_acl");
@@ -539,6 +551,9 @@ proto_register_bthci_acl(void)
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_bthci_acl, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    bthci_acl_expert_module = expert_register_protocol(proto_bthci_acl);
+    expert_register_field_array(bthci_acl_expert_module, ei, array_length(ei));
 
     /* Register configuration preferences */
     bthci_acl_module = prefs_register_protocol(proto_bthci_acl, NULL);

@@ -1303,10 +1303,14 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     subtree = (wmem_tree_t *) wmem_tree_lookup32_array(channels, key);
     channels_info = (subtree) ? (channels_info_t *) wmem_tree_lookup32_le(subtree, frame_number) : NULL;
     if (!(channels_info &&
-            *channels_info->adapter_disconnect_in_frame >= pinfo->fd->num &&
+            ((*channels_info->adapter_disconnect_in_frame >= pinfo->fd->num &&
             *channels_info->hci_disconnect_in_frame >= pinfo->fd->num &&
             *channels_info->l2cap_disconnect_in_frame >= pinfo->fd->num &&
-            channels_info->disconnect_in_frame >= pinfo->fd->num)) {
+            channels_info->disconnect_in_frame >= pinfo->fd->num) ||
+            (*channels_info->adapter_disconnect_in_frame == 0 ||
+            *channels_info->hci_disconnect_in_frame == 0 ||
+            *channels_info->l2cap_disconnect_in_frame == 0 ||
+            channels_info->disconnect_in_frame == 0)))) {
 
         channels_info = (channels_info_t *) wmem_new (wmem_file_scope(), channels_info_t);
         channels_info->control_local_cid = l2cap_data->local_cid;
@@ -1319,14 +1323,24 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         channels_info->adapter_disconnect_in_frame = l2cap_data->adapter_disconnect_in_frame;
         channels_info->sep = NULL;
 
-        if (!pinfo->fd->flags.visited) {
+        if (!pinfo->fd->flags.visited || (
+                *channels_info->adapter_disconnect_in_frame == 0 ||
+                *channels_info->hci_disconnect_in_frame == 0 ||
+                *channels_info->l2cap_disconnect_in_frame == 0 ||
+                channels_info->disconnect_in_frame == 0)) {
             key[4].length = 1;
             key[4].key    = &frame_number;
             key[5].length = 0;
             key[5].key    = NULL;
 
             channels_info->stream_numbers = wmem_tree_new(wmem_file_scope());
-            wmem_tree_insert32_array(channels, key, channels_info);
+
+            if (*channels_info->adapter_disconnect_in_frame > 0 &&
+                    *channels_info->hci_disconnect_in_frame > 0 &&
+                    *channels_info->l2cap_disconnect_in_frame > 0 &&
+                    channels_info->disconnect_in_frame > 0) {
+                wmem_tree_insert32_array(channels, key, channels_info);
+            }
         } else {
             channels_info->stream_numbers = NULL;
         }
