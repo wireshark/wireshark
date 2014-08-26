@@ -5752,13 +5752,16 @@ static gint
 ssl_dissect_hnd_hello_ext_status_request_v2(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree,
                                             guint32 offset)
 {
-    guint   list_len;
+    gint32   list_len;
 
-    list_len = tvb_get_ntoh24(tvb, offset);
-    offset += 3;
+    list_len = tvb_get_ntohs(tvb, offset);
+    offset += 2;
 
-    while (list_len-- > 0)
+    while (list_len > 0) {
+        guint32 prev_offset = offset;
         offset = ssl_dissect_hnd_hello_ext_status_request(hf, tvb, tree, offset, TRUE);
+        list_len -= (offset - prev_offset);
+    }
 
     return offset;
 }
