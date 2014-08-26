@@ -113,6 +113,7 @@ static int hf_usb_bmRequestType_direction = -1;
 static int hf_usb_bmRequestType_type = -1;
 static int hf_usb_bmRequestType_recipient = -1;
 static int hf_usb_bDescriptorType = -1;
+static int hf_usb_get_descriptor_resp_generic = -1;
 static int hf_usb_descriptor_index = -1;
 static int hf_usb_language_id = -1;
 static int hf_usb_bLength = -1;
@@ -2079,10 +2080,14 @@ dissect_usb_setup_get_descriptor_response(packet_info *pinfo, proto_tree *tree,
             /* else fall through as default/unknown */
         default:
             /* XXX dissect the descriptor coming back from the device */
-            proto_tree_add_text(tree, tvb, offset, -1,
-                    "GET DESCRIPTOR data (unknown descriptor type %u)",
-                    usb_trans_info->u.get_descriptor.type);
-            offset = tvb_reported_length(tvb);
+            {
+                guint len = tvb_reported_length_remaining(tvb, offset);
+                proto_tree_add_bytes_format(tree, hf_usb_get_descriptor_resp_generic, tvb, offset, len, NULL,
+                                            "GET DESCRIPTOR Response data (unknown descriptor type %u): %s",
+                                            usb_trans_info->u.get_descriptor.type,
+                                            tvb_bytes_to_ep_str(tvb, offset, len));
+                offset = offset + len;
+            }
             break;
     }
 
@@ -2524,9 +2529,11 @@ dissect_usb_standard_setup_response(packet_info *pinfo, proto_tree *tree,
     if (dissector) {
         offset = dissector(pinfo, tree, tvb, offset, usb_conv_info);
     } else {
-        if (tvb_reported_length_remaining(tvb, offset) != 0) {
-            proto_tree_add_text(tree, tvb, offset, -1, "CONTROL response data");
-            offset += tvb_reported_length_remaining(tvb, offset);
+        gint length_remaining = tvb_reported_length_remaining(tvb, offset);
+        if (length_remaining > 0) {
+            proto_tree_add_item(tree, hf_usb_control_response_generic,
+                                tvb, offset, length_remaining, ENC_NA);
+            offset += length_remaining;
         }
     }
 
@@ -3891,6 +3898,12 @@ proto_register_usb(void)
         { &hf_usb_bDescriptorType,
           { "bDescriptorType", "usb.bDescriptorType",
             FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }},
+
+        /* Only used when descriptor type cannot be determined */
+        { &hf_usb_get_descriptor_resp_generic,
+          { "GET DESCRIPTOR Response data", "usb.getDescriptor.Response",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_usb_descriptor_index,
