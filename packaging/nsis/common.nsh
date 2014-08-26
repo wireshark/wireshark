@@ -13,7 +13,7 @@
 Name "${DISPLAY_NAME}"
 
 !define PROGRAM_NAME_QT "${PROGRAM_NAME}"
-!define PROGRAM_NAME_GTK "${PROGRAM_NAME} 1"
+!define PROGRAM_NAME_GTK "${PROGRAM_NAME} Legacy"
 !define PROGRAM_FULL_NAME_QT "The ${PROGRAM_NAME} Network Protocol Analyzer"
 !define PROGRAM_FULL_NAME_GTK "The ${PROGRAM_NAME} Network Protocol Analyzer (classic UI)"
 !define PROGRAM_NAME_PATH_QT "${PROGRAM_NAME}.exe"
