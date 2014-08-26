@@ -474,11 +474,11 @@ def xml2obj(src):
 
             if self.subtype == "DisplayLabel":
                 if self.basemessage.dynamic == "yes":
-                    ret += self.indent_out('dissect_skinny_displayLabel(cursor, hf_skinny_%s, 0, %d);\n' %(self.name, self.intsize))
+                    ret += self.indent_out('dissect_skinny_displayLabel(cursor, hf_skinny_%s, 0);\n' %(self.name))
                 elif self.size_fieldname:
-                    ret += self.indent_out('dissect_skinny_displayLabel(cursor, hf_skinny_%s, %s, %d);\n' %(self.name, self.size_fieldname, self.intsize))
+                    ret += self.indent_out('dissect_skinny_displayLabel(cursor, hf_skinny_%s, %s);\n' %(self.name, self.size_fieldname))
                 else:
-                    ret += self.indent_out('dissect_skinny_displayLabel(cursor, hf_skinny_%s, %s, %d);\n' %(self.name, self.size, self.intsize))
+                    ret += self.indent_out('dissect_skinny_displayLabel(cursor, hf_skinny_%s, %s);\n' %(self.name, self.size))
 
             elif self.basemessage.dynamic == "yes":
                 ret += self.indent_out('%s_len = tvb_strnlen(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor), -1)+1;\n' %self.name)

@@ -2263,7 +2263,7 @@ dissect_skinny_ipv4or6(ptvcursor_t *cursor, int hfindex_ipv4, int hfindex_ipv6, 
 }
 
 static void
-dissect_skinny_displayLabel(ptvcursor_t *cursor, int hfindex, guint32 length, guint32 maxlength)
+dissect_skinny_displayLabel(ptvcursor_t *cursor, int hfindex, guint32 length)
 {
   proto_item         *item        = NULL;
   proto_tree         *tree        = ptvcursor_tree(cursor);
@@ -2279,9 +2279,6 @@ dissect_skinny_displayLabel(ptvcursor_t *cursor, int hfindex, guint32 length, gu
   if (length == 0) {
     length = tvb_strnlen(tvb, offset, -1) + 1;
   }
-  if (length >= maxlength) {
-    length = maxlength;
-  }
 
   disp_string = (const gchar *) tvb_memdup(wmem_packet_scope(), tvb, offset, length);
   item = proto_tree_add_item(tree, hfindex, tvb, offset, length, ENC_ASCII | ENC_NA);
@@ -2291,7 +2288,7 @@ dissect_skinny_displayLabel(ptvcursor_t *cursor, int hfindex, guint32 length, gu
     return;
   }
 
-  wmem_new = wmem_strbuf_sized_new(wmem_packet_scope(), 0, maxlength);
+  wmem_new = wmem_strbuf_sized_new(wmem_packet_scope(), length, 0);
 
   while (*disp_string) {
     replacestr = NULL;
@@ -5265,7 +5262,7 @@ handle_SoftKeyTemplateResMessage(ptvcursor_t *cursor, packet_info * pinfo _U_)
       for (counter_2 = 0; counter_2 < 32; counter_2++) {
         if (counter_2 < totalSoftKeyCount) {
           ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "definition [%d / %d]", counter_2 + 1, totalSoftKeyCount);
-          dissect_skinny_displayLabel(cursor, hf_skinny_softKeyLabel, 16, 16);
+          dissect_skinny_displayLabel(cursor, hf_skinny_softKeyLabel, 16);
           ptvcursor_add(cursor, hf_skinny_softKeyEvent, 4, ENC_LITTLE_ENDIAN);
         } else {
           ptvcursor_advance(cursor, 20);
@@ -5410,7 +5407,7 @@ static void
 handle_DisplayPromptStatusMessage(ptvcursor_t *cursor, packet_info * pinfo _U_)
 {
   ptvcursor_add(cursor, hf_skinny_timeOutValue, 4, ENC_LITTLE_ENDIAN);
-  dissect_skinny_displayLabel(cursor, hf_skinny_promptStatus, 32, 32);
+  dissect_skinny_displayLabel(cursor, hf_skinny_promptStatus, 32);
   si->lineId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_lineInstance, 4, ENC_LITTLE_ENDIAN);
   si->callId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
@@ -5444,7 +5441,7 @@ static void
 handle_DisplayNotifyMessage(ptvcursor_t *cursor, packet_info * pinfo _U_)
 {
   ptvcursor_add(cursor, hf_skinny_timeOutValue, 4, ENC_LITTLE_ENDIAN);
-  dissect_skinny_displayLabel(cursor, hf_skinny_notify, 32, 32);
+  dissect_skinny_displayLabel(cursor, hf_skinny_notify, 32);
 }
 
 /*
@@ -5631,7 +5628,7 @@ handle_DisplayPriNotifyMessage(ptvcursor_t *cursor, packet_info * pinfo _U_)
 {
   ptvcursor_add(cursor, hf_skinny_timeOutValue, 4, ENC_LITTLE_ENDIAN);
   ptvcursor_add(cursor, hf_skinny_priority, 4, ENC_LITTLE_ENDIAN);
-  dissect_skinny_displayLabel(cursor, hf_skinny_notify, 32, 32);
+  dissect_skinny_displayLabel(cursor, hf_skinny_notify, 32);
 }
 
 /*
@@ -6825,7 +6822,7 @@ static void
 handle_DisplayNotifyV2Message(ptvcursor_t *cursor, packet_info * pinfo _U_)
 {
   ptvcursor_add(cursor, hf_skinny_timeOutValue, 4, ENC_LITTLE_ENDIAN);
-  dissect_skinny_displayLabel(cursor, hf_skinny_notify, 0, 32);
+  dissect_skinny_displayLabel(cursor, hf_skinny_notify, 0);
 }
 
 /*
@@ -6840,7 +6837,7 @@ handle_DisplayPriNotifyV2Message(ptvcursor_t *cursor, packet_info * pinfo _U_)
 {
   ptvcursor_add(cursor, hf_skinny_timeOutValue, 4, ENC_LITTLE_ENDIAN);
   ptvcursor_add(cursor, hf_skinny_priority, 4, ENC_LITTLE_ENDIAN);
-  dissect_skinny_displayLabel(cursor, hf_skinny_notify, 0, 97);
+  dissect_skinny_displayLabel(cursor, hf_skinny_notify, 0);
 }
 
 /*
@@ -6858,7 +6855,7 @@ handle_DisplayPromptStatusV2Message(ptvcursor_t *cursor, packet_info * pinfo _U_
   ptvcursor_add(cursor, hf_skinny_lineInstance, 4, ENC_LITTLE_ENDIAN);
   si->callId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_callReference, 4, ENC_LITTLE_ENDIAN);
-  dissect_skinny_displayLabel(cursor, hf_skinny_promptStatus, 0, 97);
+  dissect_skinny_displayLabel(cursor, hf_skinny_promptStatus, 0);
 }
 
 /*
