@@ -2776,7 +2776,7 @@ dissect_usb_setup_response(packet_info *pinfo, proto_tree *tree,
 
 
 static int
-dissect_usb_bmrequesttype(proto_tree *parent_tree, tvbuff_t *tvb, int offset, int *type)
+dissect_usb_bmrequesttype(proto_tree *parent_tree, tvbuff_t *tvb, int offset)
 {
     proto_item *item;
     proto_tree *tree;
@@ -2784,7 +2784,6 @@ dissect_usb_bmrequesttype(proto_tree *parent_tree, tvbuff_t *tvb, int offset, in
     item = proto_tree_add_item(parent_tree, hf_usb_bmRequestType, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     tree = proto_item_add_subtree(item, ett_usb_setup_bmrequesttype);
 
-    *type = USB_TYPE(tvb_get_guint8(tvb, offset));
     proto_tree_add_item(tree, hf_usb_bmRequestType_direction, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(tree, hf_usb_bmRequestType_type,      tvb, offset, 1, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(tree, hf_usb_bmRequestType_recipient, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -2875,20 +2874,18 @@ dissect_usb_setup_request(packet_info *pinfo, proto_tree *tree,
                           guint8 urb_type, usb_conv_info_t *usb_conv_info,
                           guint8 header_info)
 {
-
-
-    int type;
+    gint req_type;
     proto_tree *setup_tree;
 
     usb_trans_info_t *usb_trans_info = usb_conv_info->usb_trans_info;
-    gint req_type = USB_TYPE(tvb_get_guint8(tvb, offset));
 
 
     setup_tree = proto_tree_add_subtree(parent, tvb, offset, 8, usb_setup_hdr, NULL, "URB setup");
 
+    req_type = USB_TYPE(tvb_get_guint8(tvb, offset));
     usb_trans_info->setup.requesttype = tvb_get_guint8(tvb, offset);
     usb_conv_info->setup_requesttype = tvb_get_guint8(tvb, offset);
-    offset = dissect_usb_bmrequesttype(setup_tree, tvb, offset, &type);
+    offset = dissect_usb_bmrequesttype(setup_tree, tvb, offset);
 
 
     /* read the request code and spawn off to a class specific
@@ -2899,31 +2896,20 @@ dissect_usb_setup_request(packet_info *pinfo, proto_tree *tree,
     usb_trans_info->setup.wIndex  = tvb_get_letohs(tvb, offset+3);
     usb_trans_info->setup.wLength = tvb_get_letohs(tvb, offset+5);
 
+    if (req_type != RQT_SETUP_TYPE_CLASS)
+        usb_tap_queue_packet(pinfo, urb_type, usb_conv_info);
 
-    switch (type) {
-        case RQT_SETUP_TYPE_STANDARD:
-            /* This is a standard request */
+    if (req_type == RQT_SETUP_TYPE_STANDARD) {
             offset = dissect_usb_standard_setup_request(pinfo, setup_tree, tvb, offset,
                                                         usb_conv_info, usb_trans_info);
-
-            break;
-        default:
-            /* no dissector found - display generic fields */
+            offset = try_dissect_linux_usb_pseudo_header_ext(tvb, offset, pinfo, tree, header_info);
+    }
+    else {
             proto_tree_add_item(setup_tree, hf_usb_request_unknown_class, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset += 1;
             offset = dissect_usb_setup_generic(pinfo, setup_tree, tvb, offset, usb_conv_info);
-
-    }
-
-    if (req_type != RQT_SETUP_TYPE_CLASS) {
-        usb_tap_queue_packet(pinfo, urb_type, usb_conv_info);
-    }
-
-    if (req_type != RQT_SETUP_TYPE_STANDARD) {
-        offset = dissect_nonstandard_usb_setup_request(pinfo, tree, parent, &setup_tree, tvb, offset,
-                                                       usb_conv_info, urb_type, header_info);
-    } else {
-        offset = try_dissect_linux_usb_pseudo_header_ext(tvb, offset, pinfo, tree, header_info);
+            offset = dissect_nonstandard_usb_setup_request(pinfo, tree, parent, &setup_tree, tvb, offset,
+                                              usb_conv_info, urb_type, header_info);
     }
 
     return offset;
