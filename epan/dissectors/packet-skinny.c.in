@@ -260,7 +260,7 @@ dissect_skinny_ipv4or6(ptvcursor_t *cursor, int hfindex_ipv4, int hfindex_ipv6, 
     src_addr.data = (guint16 *)&IPv6;
     tvb_get_ipv6(tvb, offset, &IPv6);
     rtp_add_address(pinfo, &src_addr, tvb_get_letohl(tvb, offset), 0, "Skinny", pinfo->fd->num, is_video, NULL);
-    ptvcursor_add(cursor, hfindex_ipv6, 16, ENC_BIG_ENDIAN);
+    ptvcursor_add(cursor, hfindex_ipv6, 16, ENC_NA);
   } else {
     /* Invalid : skip over ipv6 space completely */
     ptvcursor_advance(cursor, 16);
@@ -296,7 +296,7 @@ dissect_skinny_displayLabel(ptvcursor_t *cursor, int hfindex, guint32 length, gu
     return;
   }
 
-  wmem_new = wmem_strbuf_sized_new(wmem_packet_scope(), strlen(disp_string), maxlength);
+  wmem_new = wmem_strbuf_sized_new(wmem_packet_scope(), 0, maxlength);
 
   while (*disp_string) {
     replacestr = NULL;

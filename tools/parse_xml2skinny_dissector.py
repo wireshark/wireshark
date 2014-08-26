@@ -606,7 +606,7 @@ def xml2obj(src):
             if self.type == "ipv4":
                 return self.indent_out('ptvcursor_add(cursor, hf_skinny_%s, 4, ENC_BIG_ENDIAN);\n' %self.name)
             else:
-                return self.indent_out('ptvcursor_add(cursor, hf_skinny_%s, 16, ENC_BIG_ENDIAN);\n' %self.name)
+                return self.indent_out('ptvcursor_add(cursor, hf_skinny_%s, 16, ENC_NA);\n' %self.name)
 
     class Ipv4or6(DataNode):
         def __init__(self):

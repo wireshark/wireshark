@@ -479,7 +479,7 @@
       <ether comment="Mac Address" longcomment="Ethernet/Mac Address" name="macAddress" size="12" type="ether"/>
       <integer comment="IPv4 Address Scope" name="ipV4AddressScope" type="uint32"/>
       <integer comment="Maximum number of lines" name="maxNumberOfLines" type="uint32"/>
-      <ip comment="IPv5 Address" endianness="big" name="stationIpV6Addr" type="ipv6"/>
+      <ip comment="IPv6 Address" endianness="big" name="stationIpV6Addr" type="ipv6"/>
       <integer comment="IPv6 Address Scope" name="ipV6AddressScope" type="uint32"/>
       <string comment="Firmware Load Name" name="firmwareLoadName" size="32" type="char"/>
     </fields>

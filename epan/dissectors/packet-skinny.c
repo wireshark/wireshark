@@ -2255,7 +2255,7 @@ dissect_skinny_ipv4or6(ptvcursor_t *cursor, int hfindex_ipv4, int hfindex_ipv6, 
     src_addr.data = (guint16 *)&IPv6;
     tvb_get_ipv6(tvb, offset, &IPv6);
     rtp_add_address(pinfo, &src_addr, tvb_get_letohl(tvb, offset), 0, "Skinny", pinfo->fd->num, is_video, NULL);
-    ptvcursor_add(cursor, hfindex_ipv6, 16, ENC_BIG_ENDIAN);
+    ptvcursor_add(cursor, hfindex_ipv6, 16, ENC_NA);
   } else {
     /* Invalid : skip over ipv6 space completely */
     ptvcursor_advance(cursor, 16);
@@ -2291,7 +2291,7 @@ dissect_skinny_displayLabel(ptvcursor_t *cursor, int hfindex, guint32 length, gu
     return;
   }
 
-  wmem_new = wmem_strbuf_sized_new(wmem_packet_scope(), strlen(disp_string), maxlength);
+  wmem_new = wmem_strbuf_sized_new(wmem_packet_scope(), 0, maxlength);
 
   while (*disp_string) {
     replacestr = NULL;
@@ -2376,7 +2376,7 @@ handle_RegisterMessage(ptvcursor_t *cursor, packet_info * pinfo _U_)
     ptvcursor_advance(cursor, 12 - 6);
     ptvcursor_add(cursor, hf_skinny_ipV4AddressScope, 4, ENC_LITTLE_ENDIAN);
     ptvcursor_add(cursor, hf_skinny_maxNumberOfLines, 4, ENC_LITTLE_ENDIAN);
-    ptvcursor_add(cursor, hf_skinny_stationIpV6Addr, 16, ENC_BIG_ENDIAN);
+    ptvcursor_add(cursor, hf_skinny_stationIpV6Addr, 16, ENC_NA);
     ptvcursor_add(cursor, hf_skinny_ipV6AddressScope, 4, ENC_LITTLE_ENDIAN);
     ptvcursor_add(cursor, hf_skinny_firmwareLoadName, 32, ENC_ASCII|ENC_NA);
   }
@@ -8951,7 +8951,7 @@ proto_register_skinny(void)
     { &hf_skinny_stationIpV6Addr,
       {
         "stationIpV6Addr", "skinny.stationIpV6Addr", FT_IPv6, BASE_NONE, NULL, 0x0,
-        "IPv5 Address", HFILL }},
+        "IPv6 Address", HFILL }},
     { &hf_skinny_stationIpV6Addr_ipv4,
      {
         "stationIpV6Addr IPv4 Address", "skinny.stationIpV6Addr.ipv4", FT_IPv4, BASE_NONE, NULL, 0x0,
