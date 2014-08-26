@@ -202,6 +202,9 @@
         <gavp name="Framed-IPv6-Prefix"/>
         <gavp name="Framed-Interface-Id"/>
         <gavp name="Line-Identifier"/>
+        <gavp name="Authentication-Method"/>
+        <gavp name="Authentication-Information-SIM"/>
+        <gavp name="Authorization -Information-SIM"/>
       </grouped>
     </avp>
     <avp name="SIP-Item-Number" code="613" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">

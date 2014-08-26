@@ -2727,9 +2727,19 @@
 		Note: The AVP codes from 1 to 255 are reserved for backwards compatibility with 3GPP RADIUS Vendor
 		Specific Attributes (See TS 29.061 [13])
 		Note: The AVP codes from 256 to 299 are reserved for future use.
-		300 Authentication-Method Enumerated
-		301 Authentication-Information-SIM OctetString
-		302 Authorization -Information-SIM OctetString
+    -->
+    <avp name="Authentication-Method" code="300" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+      <type type-name="Enumerated"/>
+      <enum name="WLAN_EAP_SIM" code="0"/>
+      <enum name="WLAN_EAP_AKA" code="1"/>
+    </avp>
+    <avp name="Authentication-Information-SIM" code="301" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+      <type type-name="OctetString"/>
+    </avp>
+    <avp name="Authorization-Information-SIM" code="302" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+      <type type-name="OctetString"/>
+    </avp>
+    <!--
 		303 WLAN-User-Data Grouped
 		304 Charging-Data Grouped
 		305 WLAN-Access Enumerated
@@ -2746,6 +2756,7 @@
 		316 Primary-OCS-Charging-Function-Name DiameterIdentity
 		317 Secondary-OCS-Charging-Function-Name DiameterIdentity
 		-->
+
 
 		<avp name="3GPP-AAA-Server-Name" code="318" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
 			<type type-name="OctetString"/>
