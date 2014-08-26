@@ -778,7 +778,7 @@ dissect_cbs_data_coding_scheme(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
   return sms_encoding;
 }
 void
-dissect_gsm_map_msisdn(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+dissect_gsm_map_msisdn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   const char  *digit_str;
   guint8      octet;
@@ -792,17 +792,34 @@ dissect_gsm_map_msisdn(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
   if(tvb_reported_length(tvb)==1)
     return;
 
-  digit_str = tvb_bcd_dig_to_wmem_packet_str(tvb, 1, -1, NULL, FALSE);
-
-  proto_tree_add_string(tree, hf_gsm_map_address_digits, tvb, 1, -1, digit_str);
-
   octet = tvb_get_guint8(tvb,0);
+  /* nature of address indicator */
   na = (octet & 0x70)>>4;
+  /* numbering plan indicator */
   np = octet & 0x0f;
-  if ((na == 1) && (np==1))/*International Number & E164*/
-    dissect_e164_cc(tvb, tree, 1, E164_ENC_BCD);
-  else if(np==6)
-    dissect_e212_mcc_mnc_in_address(tvb, pinfo, tree, 1);
+  switch(np){
+  case 1:
+      /* ISDN/Telephony Numbering Plan (Rec ITU-T E.164) */
+      switch(na){
+      case 1:
+          /* international number */
+          dissect_e164_msisdn(tvb, tree, 1, tvb_reported_length(tvb)-1, E164_ENC_BCD);
+      break;
+      default:
+          digit_str = tvb_bcd_dig_to_wmem_packet_str(tvb, 1, -1, NULL, FALSE);
+          proto_tree_add_string(tree, hf_gsm_map_address_digits, tvb, 1, -1, digit_str);
+          break;
+      }
+      break;
+  case 6:
+      /* land mobile numbering plan (ITU-T Rec E.212) */
+      dissect_e212_imsi(tvb, pinfo, tree,  1, tvb_reported_length(tvb)-1, FALSE);
+      break;
+  default:
+      digit_str = tvb_bcd_dig_to_wmem_packet_str(tvb, 1, -1, NULL, FALSE);
+      proto_tree_add_string(tree, hf_gsm_map_address_digits, tvb, 1, -1, digit_str);
+      break;
+  }
 
 }
 

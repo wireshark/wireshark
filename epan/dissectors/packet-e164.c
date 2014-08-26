@@ -415,8 +415,10 @@ static int hf_E164_country_code			= -1;
 static int ett_e164_msisdn = -1;
 
 void
-dissect_e164_number(tvbuff_t *tvb, proto_tree *tree, int offset, int length,e164_info_t e164_info)
+dissect_e164_number(tvbuff_t *tvb, proto_tree *tree, int offset, int length, e164_info_t e164_info)
 {
+    proto_item *pi;
+
 	switch (e164_info.e164_number_type) {
 	case CALLING_PARTY_NUMBER:
 		proto_tree_add_string(tree, hf_E164_calling_party_number, tvb, offset,
@@ -432,6 +434,10 @@ dissect_e164_number(tvbuff_t *tvb, proto_tree *tree, int offset, int length,e164
 		break;
 	}
 
+    if(e164_info.nature_of_address == E164_NA_INTERNATIONAL_NUMBER){
+        pi = proto_tree_add_string(tree, hf_E164_number, tvb, offset, length, e164_info.E164_number_str);
+        PROTO_ITEM_SET_HIDDEN(pi);
+    }
 }
 
 void

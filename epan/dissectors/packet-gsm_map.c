@@ -3200,7 +3200,7 @@ dissect_cbs_data_coding_scheme(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
   return sms_encoding;
 }
 void
-dissect_gsm_map_msisdn(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+dissect_gsm_map_msisdn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   const char  *digit_str;
   guint8      octet;
@@ -3214,17 +3214,34 @@ dissect_gsm_map_msisdn(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
   if(tvb_reported_length(tvb)==1)
     return;
 
-  digit_str = tvb_bcd_dig_to_wmem_packet_str(tvb, 1, -1, NULL, FALSE);
-
-  proto_tree_add_string(tree, hf_gsm_map_address_digits, tvb, 1, -1, digit_str);
-
   octet = tvb_get_guint8(tvb,0);
+  /* nature of address indicator */
   na = (octet & 0x70)>>4;
+  /* numbering plan indicator */
   np = octet & 0x0f;
-  if ((na == 1) && (np==1))/*International Number & E164*/
-    dissect_e164_cc(tvb, tree, 1, E164_ENC_BCD);
-  else if(np==6)
-    dissect_e212_mcc_mnc_in_address(tvb, pinfo, tree, 1);
+  switch(np){
+  case 1:
+      /* ISDN/Telephony Numbering Plan (Rec ITU-T E.164) */
+      switch(na){
+      case 1:
+          /* international number */
+          dissect_e164_msisdn(tvb, tree, 1, tvb_reported_length(tvb)-1, E164_ENC_BCD);
+      break;
+      default:
+          digit_str = tvb_bcd_dig_to_wmem_packet_str(tvb, 1, -1, NULL, FALSE);
+          proto_tree_add_string(tree, hf_gsm_map_address_digits, tvb, 1, -1, digit_str);
+          break;
+      }
+      break;
+  case 6:
+      /* land mobile numbering plan (ITU-T Rec E.212) */
+      dissect_e212_imsi(tvb, pinfo, tree,  1, tvb_reported_length(tvb)-1, FALSE);
+      break;
+  default:
+      digit_str = tvb_bcd_dig_to_wmem_packet_str(tvb, 1, -1, NULL, FALSE);
+      proto_tree_add_string(tree, hf_gsm_map_address_digits, tvb, 1, -1, digit_str);
+      break;
+  }
 
 }
 
@@ -20245,7 +20262,7 @@ dissect_NokiaMAP_Extensions_AllowedServiceData(gboolean implicit_tag _U_, tvbuff
 
 
 /*--- End of included file: packet-gsm_map-fn.c ---*/
-#line 810 "../../asn1/gsm_map/packet-gsm_map-template.c"
+#line 827 "../../asn1/gsm_map/packet-gsm_map-template.c"
 
 /* Specific translation for MAP V3 */
 const value_string gsm_map_V1V2_opr_code_strings[] = {
@@ -20467,7 +20484,7 @@ const value_string gsm_map_opr_code_strings[] = {
 /* Unknown or empty loop list OPERATION */
 
 /*--- End of included file: packet-gsm_map-table.c ---*/
-#line 821 "../../asn1/gsm_map/packet-gsm_map-template.c"
+#line 838 "../../asn1/gsm_map/packet-gsm_map-template.c"
   { 0, NULL }
 };
 
@@ -20684,7 +20701,7 @@ static const value_string gsm_map_err_code_string_vals[] = {
 /* Unknown or empty loop list OPERATION */
 
 /*--- End of included file: packet-gsm_map-table.c ---*/
-#line 827 "../../asn1/gsm_map/packet-gsm_map-template.c"
+#line 844 "../../asn1/gsm_map/packet-gsm_map-template.c"
     { 0, NULL }
 };
 #endif
@@ -29472,7 +29489,7 @@ void proto_register_gsm_map(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-gsm_map-hfarr.c ---*/
-#line 2845 "../../asn1/gsm_map/packet-gsm_map-template.c"
+#line 2862 "../../asn1/gsm_map/packet-gsm_map-template.c"
   };
 
   /* List of subtrees */
@@ -30181,7 +30198,7 @@ void proto_register_gsm_map(void) {
     &ett_NokiaMAP_Extensions_AllowedServiceData,
 
 /*--- End of included file: packet-gsm_map-ettarr.c ---*/
-#line 2877 "../../asn1/gsm_map/packet-gsm_map-template.c"
+#line 2894 "../../asn1/gsm_map/packet-gsm_map-template.c"
   };
 
   static ei_register_info ei[] = {
@@ -30284,7 +30301,7 @@ void proto_register_gsm_map(void) {
 
 
 /*--- End of included file: packet-gsm_map-dis-tab.c ---*/
-#line 2914 "../../asn1/gsm_map/packet-gsm_map-template.c"
+#line 2931 "../../asn1/gsm_map/packet-gsm_map-template.c"
   oid_add_from_string("ericsson-gsm-Map-Ext","1.2.826.0.1249.58.1.0" );
   oid_add_from_string("accessTypeNotAllowed-id","1.3.12.2.1107.3.66.1.2");
   /*oid_add_from_string("map-ac networkLocUp(1) version3(3)","0.4.0.0.1.0.1.3" );

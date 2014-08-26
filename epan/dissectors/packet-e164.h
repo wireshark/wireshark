@@ -30,6 +30,8 @@
 extern const value_string E164_country_code_value[];
 extern const value_string E164_International_Networks_vals[];
 
+#define E164_NA_INTERNATIONAL_NUMBER 4
+
 typedef enum {
 	NONE,
 	CALLING_PARTY_NUMBER,
