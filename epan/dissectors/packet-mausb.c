@@ -575,6 +575,11 @@ static gboolean mausb_is_transfer_req(struct mausb_header *header)
     return TransferReq == header->type;
 }
 
+static gboolean mausb_is_transfer_ack(struct mausb_header *header)
+{
+    return TransferAck == header->type;
+}
+
 static gint8 mausb_tx_type(struct mausb_header *header)
 {
     return (header->u.s.eps_tflags >> MAUSB_TFLAG_OFFSET) & MAUSB_TFLAG_TRANSFER_TYPE;
@@ -1232,7 +1237,7 @@ dissect_mausb_pkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                           mausb_is_from_host(&header));
 
     /* If there is a usb conversation, find it */
-    if (mausb_is_data_pkt(&header)) {
+    if (mausb_is_data_pkt(&header) & !(mausb_is_transfer_ack(&header))) {
 
         usb_conv_info = get_usb_conv_info(conversation);
 
