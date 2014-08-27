@@ -6,8 +6,8 @@ my $debug = 0;
 # 2: full debug
 
 #
-# verify that display filter names correspond with the PROTABBREV of 
-# of the dissector.  Enforces the dissector to have a source 
+# verify that display filter names correspond with the PROTABBREV of
+# of the dissector.  Enforces the dissector to have a source
 # filename of format packet-PROTABBREV.c
 #
 # Usage: checkfiltername.pl <file or files>
@@ -116,7 +116,7 @@ sub checkprotoabbrev {
 	my $modprotabbrev = "";
 	my $errorline = 0;
 	my $prefix;
-	
+
 	if (($automated == 0) || ($showall == 1)) {
 		$abbrevpos = index($_[0], ".");
 		if ($abbrevpos == -1) {
@@ -131,14 +131,14 @@ sub checkprotoabbrev {
 
 		if ($abbrev ne $protabbrev) {
 			$errorline = 1;
-						
+
 			#check if there is a supported protocol that matches the abbrev.
 			#This may be a case of filename != PROTOABBREV
 			foreach (@protocols) {
 				if ($abbrev eq $_) {
 					$errorline = 0;
 				} elsif (index($_, ".") != -1) {
-				
+
 					#compare from start of string for each period found
 					$proto_abbrevpos1 = 0;
 					while ((($proto_abbrevpos2 = index($_, ".", $proto_abbrevpos1)) != -1) &&
@@ -150,7 +150,7 @@ sub checkprotoabbrev {
 						$proto_abbrevpos1 = $proto_abbrevpos2+1;
 					}
 				}
-			}			
+			}
 		}
 
 		# find any underscores that preface or follow a period
@@ -163,10 +163,10 @@ sub checkprotoabbrev {
 				push(@elements, "$_[0] contains an unnecessary \'_\'\n");
 			}
 		}
-		
+
 		if (($errorline == 1) && ($showall == 0)) {
 			#try some "accepted" variations of PROTOABBREV
-			
+
 			#replace '-' with '_'
 			$modprotabbrev = $protabbrev;
 			$modprotabbrev =~ s/-/_/g;
@@ -174,7 +174,7 @@ sub checkprotoabbrev {
 				$errorline = 0;
 			}
 
-			#remove '-'		
+			#remove '-'
 			if ($errorline == 1) {
 				$modprotabbrev = $protabbrev;
 				$modprotabbrev =~ s/-//g;
@@ -183,7 +183,7 @@ sub checkprotoabbrev {
 				}
 			}
 
-			#remove '_'		
+			#remove '_'
 			if ($errorline == 1) {
 				$modprotabbrev = $protabbrev;
 				$modprotabbrev =~ s/_//g;
@@ -191,7 +191,7 @@ sub checkprotoabbrev {
 					$errorline = 0;
 				}
 			}
-			
+
 			if ($errorline == 1) {
 				#remove any "accepted" prefix to see if there is still a problem
 				foreach (@acceptedprefixes) {
@@ -222,7 +222,7 @@ sub checkprotoabbrev {
 				}
 			}
 		}
-		
+
 		if ($errorline == 1) {
 			$debug>1 && print "$_[1] $_[0] doesn't match PROTOABBREV of $protabbrev\n";
 			if ($showlinenoFlag) {
@@ -244,7 +244,7 @@ sub checkprotoabbrev {
 				}
 			}
 		}
-	}	
+	}
 }
 
 sub printprevfile {
@@ -260,7 +260,7 @@ sub printprevfile {
 	foreach (sort keys %expert_filters) {
 		checkprotoabbrev ($expert_filters{$_}, $_);
 	}
-	
+
 	$count_ele = @elements;
 	$count_dup = @elements_dup;
 	$total_count = $count_ele+$count_dup;
@@ -270,12 +270,12 @@ sub printprevfile {
 		if ($currfile ne "") {
 			push(@noregprotocolfilelist, "$currfile\n");
 		}
-		
+
 		if ($count_dup > 0) {
 			$errorfilecount++;
 			$totalerrorcount += $count_dup;
 		}
-			
+
 		if (($showall == 1) || ($count_dup > 0))  {
 			print "\n\n$currfile  - NO PROTOCOL REGISTERED\n";
 			if ($showall == 1) {
@@ -284,7 +284,7 @@ sub printprevfile {
 				if (($count_ele > 0) && ($count_dup == 0)) {
 					$errorfilecount++;
 				}
-			
+
 				foreach (@elements) {
 					print $_;
 				}
@@ -292,13 +292,13 @@ sub printprevfile {
 			foreach (@elements_dup) {
 				print $_;
 			}
-		}	
+		}
 	} else {
 		if ($total_count > 0) {
 			$errorfilecount++;
 			$totalerrorcount += $total_count;
 		}
-	
+
 		if (($automated == 0) || ($showall == 1)) {
 			if ($total_count > 0) {
 				if ($automated == 1) {
@@ -308,7 +308,7 @@ sub printprevfile {
 				} else {
 					print "\n\n$currfile ($total_count (of $totalfields) fields)\n";
 				}
-				
+
 				foreach (@elements) {
 					print $_;
 				}
@@ -316,7 +316,7 @@ sub printprevfile {
 					print $_;
 				}
 			}
-			
+
 			if ((($nofields) || ($totalfields == 0)) && ($currfile ne "")) {
 				if ($showall == 1) {
 					print "\n\n$currfile  - NO FIELDS\n";
@@ -324,7 +324,7 @@ sub printprevfile {
 				push(@nofieldfilelist, "$currfile\n");
 			}
 		}
-	}	
+	}
 }
 
 #--------------------------------------------------------------------
@@ -459,21 +459,21 @@ while (<>) {
 		# New file - reset array and state
 		$filecount++;
 		$currfile = $ARGV;
-		
+
 		#determine PROTABBREV for dissector based on file name format of (dirs)/packet-PROTABBREV.c
 		$protabbrev_index = rindex($currfile, "packet-");
 		if ($protabbrev_index == -1) {
 			print "$currfile doesn't fit format of packet-PROTABBREV.c\n";
 			next;
 		}
-				
+
 		$protabbrev = substr($currfile, $protabbrev_index+length("packet-"));
 		$protabbrev_index = rindex($protabbrev, ".");
 		if ($protabbrev_index == -1) {
 			print "$currfile doesn't fit format of packet-PROTABBREV.c\n";
 			next;
 		}
-		$protabbrev = substr($protabbrev, 0, $protabbrev_index);		
+		$protabbrev = substr($protabbrev, 0, $protabbrev_index);
 
 		$PFNAME_value = "";
 		$noregprotocol = 1;
@@ -489,7 +489,7 @@ while (<>) {
 		@elements_dup = ( );
 		$state = "s_unknown";
 	}
-	
+
 	if (($automated == 0) && ($showautomatedFlag eq "")) {
 		#DCERPC automated files
 		if ($_ =~ "DO NOT EDIT") {
@@ -497,7 +497,7 @@ while (<>) {
 			$automated = 1;
 			next;
 		}
-		#ASN.1 automated files 
+		#ASN.1 automated files
 		elsif ($_ =~ "Generated automatically by the ASN.1 to Wireshark dissector compiler") {
 			push(@asn1automatedfilelist, "$currfile\n");
 			$automated = 1;
@@ -510,7 +510,7 @@ while (<>) {
 			next;
 		}
 	}
-		
+
 	# opening then closing comment
 	if (/(.*?)\/\*.*\*\/(.*)/) {
 		$comment = 0;
@@ -532,19 +532,19 @@ while (<>) {
 		next;
 	}
 	# unhandled: more than one complete comment per line
-	
+
 	chomp;
 
 	#proto_register_protocol state machine
 	$restofline = $_;
 	$more_tokens = 1;
-	
-	#PFNAME is a popular #define for the proto filter name, so use it for testing	
+
+	#PFNAME is a popular #define for the proto filter name, so use it for testing
 	if ($restofline =~ /#define\s*PFNAME\s*\"([^\"]*)\"/) {
 		$PFNAME_value = $1;
 		$debug>1 && print "PFNAME: '$1'\n";
 	}
-	
+
 	until ($more_tokens == 0) {
 		if ($restofline =~ /proto_register_protocol\s*\((.*)/) {
 			$noregprotocol = 0;
@@ -565,7 +565,7 @@ while (<>) {
 		} elsif (($state eq "s_proto_long_name") && ($restofline =~ /^(\s*(([\w\d])+)\s*,)\s*(.*)/)) {
 			$restofline = $4;
 			$state = "s_proto_short_name";
-			$debug>1 && print "proto short name: '$2'\n";			
+			$debug>1 && print "proto short name: '$2'\n";
 		} elsif (($state eq "s_proto_short_name") && ($restofline =~ /\s*PFNAME\s*(.*)/)) {
 			$more_tokens = 0;
 			$state = "s_proto_filter_name";
@@ -592,7 +592,7 @@ while (<>) {
 			$more_tokens = 0;
 		}
 	}
-	
+
 	#retrieving display filters state machine
 	$restofline = $_;
 	$more_tokens = 1;
@@ -609,7 +609,7 @@ while (<>) {
 			$restofline = $1;
 			$state = "s_in_hf_register_info";
 			$debug>1 && print "$linenumber $state\n";
-		} elsif (($state eq "s_in_hf_register_info") && ($restofline =~ /\W+{(.*)/)) {	
+		} elsif (($state eq "s_in_hf_register_info") && ($restofline =~ /\W+{(.*)/)) {
 			$restofline = $1;
 			$state = "s_hf_register_info_entry";
 			$debug>1 && print "$linenumber $state\n";
@@ -653,7 +653,7 @@ while (<>) {
 			$restofline = $1;
 			$state = "s_in_ei_register_info";
 			$debug>1 && print "$linenumber $state\n";
-		} elsif (($state eq "s_in_ei_register_info") && ($restofline =~ /\W+{(.*)/)) {	
+		} elsif (($state eq "s_in_ei_register_info") && ($restofline =~ /\W+{(.*)/)) {
 			$restofline = $1;
 			$state = "s_ei_register_info_entry";
 			$debug>1 && print "$linenumber $state\n";
@@ -677,8 +677,8 @@ while (<>) {
 			$more_tokens = 0;
 		}
 	}
-		
-	$linenumber++;	
+
+	$linenumber++;
 }
 
 &printprevfile();
