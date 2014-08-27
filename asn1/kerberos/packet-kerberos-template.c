@@ -81,6 +81,8 @@
 #include <epan/dissectors/packet-gssapi.h>
 #include <epan/dissectors/packet-smb-common.h>
 
+#include <wsutil/ws_diag_control.h>
+
 void proto_register_kerberos(void);
 void proto_reg_handoff_kerberos(void);
 
@@ -280,6 +282,8 @@ read_keytab_file(const char *filename _U_)
 
 static krb5_context krb5_ctx;
 
+USES_APPLE_DEPRECATED_API
+
 void
 read_keytab_file(const char *filename)
 {
@@ -415,6 +419,8 @@ decrypt_krb5_data(proto_tree *tree _U_, packet_info *pinfo,
 
 	return NULL;
 }
+
+USES_APPLE_RST
 
 #elif defined(HAVE_HEIMDAL_KERBEROS)
 static krb5_context krb5_ctx;
