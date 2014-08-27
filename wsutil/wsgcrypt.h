@@ -29,49 +29,13 @@
 
 #ifdef HAVE_LIBGCRYPT
 
-#ifdef __CLANG__
+#include <wsutil/ws_diag_control.h>
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-#include <gcrypt.h>
-#pragma clang diagnostic pop
+DIAG_OFF(deprecated-declarations)
 
-#else
-
-#if defined(__GNUC__) && defined(__GNUC_MINOR__)
-#define _GCC_VERSION (__GNUC__*100 + __GNUC_MINOR__*10)
-#else
-#define _GCC_VERSION 0
-#endif
-
-/* check the gcc version
-   pragma GCC diagnostic error/warning was introduced in gcc 4.2.0
-   pragma GCC diagnostic push/pop was introduced in gcc 4.6.0 */
-
-#if _GCC_VERSION<420
-
-/* no gcc or gcc version<4.2.0: we can't do anything */
 #include <gcrypt.h>
 
-#elif _GCC_VERSION<460
-
-/* gcc version is between 4.2.0 and 4.6.0:
-   diagnostic warning/error is supported, diagnostic push/pop is not supported */
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-#include <gcrypt.h>
-#pragma GCC diagnostic error "-Wdeprecated-declarations"
-
-#else
-
-/* gcc version is >= 4.6.0: we can use push/pop */
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-#include <gcrypt.h>
-#pragma GCC diagnostic pop
-
-#endif /* _GCC_VERSION */
-
-#endif /* __CLANG__ */
+DIAG_ON(deprecated-declarations)
 
 #endif /* HAVE_LIBGCRYPT */
 
