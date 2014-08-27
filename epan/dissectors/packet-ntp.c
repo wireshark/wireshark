@@ -1261,22 +1261,25 @@ init_parser(void)
 	tvbparse_wanted_t *want_identifier = tvbparse_chars(-1, 1, 0,
 		"abcdefghijklmnopqrstuvwxyz-_ABCDEFGHIJKLMNOPQRSTUVWXYZ.0123456789", NULL, NULL, NULL);
 	/* this is the equal sign used in assignments */
-	tvbparse_wanted_t *want_equalsign = tvbparse_chars(-1, 1, 0, "=", NULL, NULL, NULL);
+	tvbparse_wanted_t *want_equalsign = tvbparse_char(-1, "=", NULL, NULL, NULL);
 	/* possible characters allowed for values */
 	tvbparse_wanted_t *want_value = tvbparse_set_oneof(0, NULL, NULL, NULL,
 		tvbparse_quoted(-1, NULL, NULL, tvbparse_shrink_token_cb, '\"', '\\'),
 		tvbparse_quoted(-1, NULL, NULL, tvbparse_shrink_token_cb, '\'', '\\'),
 		tvbparse_chars(-1, 1, 0, "abcdefghijklmnopqrstuvwxyz-_ABCDEFGHIJKLMNOPQRSTUVWXYZ.0123456789 ", NULL, NULL, NULL),
 		NULL);
+	tvbparse_wanted_t *want_comma = tvbparse_until(-1, NULL, NULL, NULL,
+		tvbparse_char(-1, ",", NULL, NULL, NULL), TP_UNTIL_SPEND);
 	/* the following specifies an assignment of the form identifier=value */
 	tvbparse_wanted_t *want_assignment = tvbparse_set_seq(-1, NULL, NULL, NULL,
 		want_identifier,
 		want_equalsign,
-		want_value,
+		tvbparse_some(-1, 0, 1, NULL, NULL, NULL, want_value),
+		tvbparse_some(-1, 0, 1, NULL, NULL, NULL, want_comma),
 		NULL);
 
 	/* we ignore white space characters */
-	want_ignore = tvbparse_chars(-1, 1, 0, ", \t\r\n", NULL, NULL, NULL);
+	want_ignore = tvbparse_chars(-1, 1, 0, " \t\r\n", NULL, NULL, NULL);
 	/* data part of control messages consists of either identifiers or assignments */
 	want = tvbparse_set_oneof(-1, NULL, NULL, NULL,
 		want_assignment,
