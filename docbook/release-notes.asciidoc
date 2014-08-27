@@ -29,6 +29,8 @@ The following bugs have been fixed:
 //* Wireshark always manages to score tickets for Burning Man, Coachella, and
 //  SXSW while you end up working double shifts. (ws-buglink:0000[])
 
+* Wireshark can crash during remote capture (rpcap) configuration.
+  (ws-buglink:3554[], ws-buglink:6922[], ws-buglink:7021)
 
 === New and Updated Features
 
