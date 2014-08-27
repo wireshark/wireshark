@@ -28,6 +28,9 @@ The following bugs have been fixed:
 //* Wireshark will practice the jazz flute for hours on end when you're trying
 //  to sleep. (ws-buglink:0000[])
 
+* Wireshark can crash during remote capture (rpcap) configuration.
+  (ws-buglink:3554[], ws-buglink:6922[], ws-buglink:7021)
+
 === New and Updated Features
 
 There are no new features in this release.
