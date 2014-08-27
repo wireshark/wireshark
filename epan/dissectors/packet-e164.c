@@ -23,7 +23,9 @@
  *
  * Ref ITU-T E.164 05/97
  *     Annex to ITU Operational Bulletin No. 991 - 1.XI.2011
- *     Amendment No. 6 ITU Operational Bulletin No. 1038 - 15.X.2013
+ *     Amendment No. 10 ITU Operational Bulletin No. 1057 - 1.VIII.2014
+ * Find the bulletins here:
+ * http://www.itu.int/pub/T-SP-OB
  */
 
 #include "config.h"
@@ -393,10 +395,13 @@ const value_string E164_International_Networks_883_vals[] = {
 	{ 0x120, "Telenor Connexion AB"},
 	{ 0x130, "France Telecom Orange"},
 	{ 0x140, "Multiregional TransitTelecom (MTT)"},
+	{ 0x150, "BodyTrace Netherlands B.V"},
 	{ 0x5100, "Voxbone SA"},
 	{ 0x5110, "Bandwith.com Inc"},
 	{ 0x5120, "MTX Connect Ltd"},
 	{ 0x5130, "SIMPE Ltd"},
+	{ 0x5140, "Ellipsat Inc"},
+	{ 0x5150, "Wins Limited"},
 	{ 0,	NULL }
 };
 
