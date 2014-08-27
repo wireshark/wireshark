@@ -2814,35 +2814,25 @@ try_dissect_linux_usb_pseudo_header_ext(tvbuff_t *tvb, int offset,
 
 static int
 dissect_nonstandard_usb_setup_request(packet_info *pinfo, proto_tree *tree, proto_tree *parent,
-                                      proto_tree **setup_tree, tvbuff_t *tvb, int offset,
-                                      usb_conv_info_t *usb_conv_info, guint8 urb_type,
-                                      guint8 header_info)
+                                      proto_tree **setup_tree, tvbuff_t *setup_tvb,
+                                      tvbuff_t *tvb, int offset,
+                                      usb_conv_info_t *usb_conv_info,
+                                      guint8 urb_type)
 {
-    tvbuff_t *next_tvb;
+    tvbuff_t *next_tvb = NULL, *data_tvb = NULL;
 
-    if (header_info & (USB_HEADER_IS_LINUX | USB_HEADER_IS_64_BYTES)) {
+    next_tvb = tvb_new_composite();
+    tvb_composite_append(next_tvb, tvb_new_subset_remaining(setup_tvb, 1));
 
-        tvbuff_t *setup_tvb = tvb_new_composite();
-        next_tvb = tvb_new_subset_length(tvb, offset - 7, 7);
-        tvb_composite_append(setup_tvb, next_tvb);
+    if (tvb_captured_length_remaining(tvb, offset) > 0) {
+        proto_tree_add_item(*setup_tree, hf_usb_data_fragment, tvb, offset, -1, ENC_NA);
 
-        offset = try_dissect_linux_usb_pseudo_header_ext(tvb, offset, pinfo, tree, header_info);
-
-        if (tvb_captured_length_remaining(tvb, offset) != 0) {
-            next_tvb = tvb_new_subset_remaining(tvb, offset);
-            tvb_composite_append(setup_tvb, next_tvb);
-            tvb_composite_finalize(setup_tvb);
-
-            next_tvb = tvb_new_child_real_data(tvb, (const guint8 *) tvb_memdup(pinfo->pool, setup_tvb, 0, tvb_captured_length(setup_tvb)), tvb_captured_length(setup_tvb), tvb_captured_length(setup_tvb));
-            add_new_data_source(pinfo, next_tvb, "Linux USB Control");
-
-            proto_tree_add_item(*setup_tree, hf_usb_data_fragment, tvb, offset, -1, ENC_NA);
-        } else {
-            tvb_composite_finalize(setup_tvb);
-        }
-    } else {
-        next_tvb = tvb_new_subset_remaining(tvb, offset - 7);
+        data_tvb = tvb_new_subset_remaining(tvb, offset);
+        tvb_composite_append(next_tvb, data_tvb);
+        add_new_data_source(pinfo, next_tvb, "Linux USB Control");
     }
+
+    tvb_composite_finalize(next_tvb);
 
     offset = try_dissect_next_protocol(tree, parent, next_tvb, offset, pinfo, usb_conv_info, urb_type);
 
@@ -2860,6 +2850,7 @@ dissect_usb_setup_request(packet_info *pinfo, proto_tree *tree,
 {
     gint              req_type;
     proto_tree       *setup_tree;
+    tvbuff_t         *setup_tvb;
     usb_trans_info_t *usb_trans_info;
 
     /* we should do the NULL check in all non-static functions */
@@ -2869,6 +2860,7 @@ dissect_usb_setup_request(packet_info *pinfo, proto_tree *tree,
     usb_trans_info = usb_conv_info->usb_trans_info;
 
     setup_tree = proto_tree_add_subtree(parent, tvb, offset, 8, usb_setup_hdr, NULL, "URB setup");
+    setup_tvb = tvb_new_subset_length(tvb, offset, 8);
 
     req_type = USB_TYPE(tvb_get_guint8(tvb, offset));
     usb_trans_info->setup.requesttype = tvb_get_guint8(tvb, offset);
@@ -2896,8 +2888,9 @@ dissect_usb_setup_request(packet_info *pinfo, proto_tree *tree,
             proto_tree_add_item(setup_tree, hf_usb_request_unknown_class, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset += 1;
             offset = dissect_usb_setup_generic(pinfo, setup_tree, tvb, offset, usb_conv_info);
-            offset = dissect_nonstandard_usb_setup_request(pinfo, tree, parent, &setup_tree, tvb, offset,
-                                              usb_conv_info, urb_type, header_info);
+            offset = try_dissect_linux_usb_pseudo_header_ext(tvb, offset, pinfo, tree, header_info);
+            offset = dissect_nonstandard_usb_setup_request(pinfo, tree, parent, &setup_tree, setup_tvb,
+                    tvb, offset, usb_conv_info, urb_type);
     }
 
     return offset;
