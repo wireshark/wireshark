@@ -282,8 +282,6 @@ read_keytab_file(const char *filename _U_)
 
 static krb5_context krb5_ctx;
 
-USES_APPLE_DEPRECATED_API
-
 void
 read_keytab_file(const char *filename)
 {
@@ -300,21 +298,27 @@ read_keytab_file(const char *filename)
 
 	if(first_time){
 		first_time=FALSE;
+USES_APPLE_DEPRECATED_API
 		ret = krb5_init_context(&krb5_ctx);
+USES_APPLE_RST
 		if(ret && ret != KRB5_CONFIG_CANTOPEN){
 			return;
 		}
 	}
 
 	/* should use a file in the wireshark users dir */
+USES_APPLE_DEPRECATED_API
 	ret = krb5_kt_resolve(krb5_ctx, filename, &keytab);
+USES_APPLE_RST
 	if(ret){
 		fprintf(stderr, "KERBEROS ERROR: Badly formatted keytab filename :%s\n",filename);
 
 		return;
 	}
 
+USES_APPLE_DEPRECATED_API
 	ret = krb5_kt_start_seq_get(krb5_ctx, keytab, &cursor);
+USES_APPLE_RST
 	if(ret){
 		fprintf(stderr, "KERBEROS ERROR: Could not open or could not read from keytab file :%s\n",filename);
 		return;
@@ -324,7 +328,9 @@ read_keytab_file(const char *filename)
 		new_key=(enc_key_t *)g_malloc(sizeof(enc_key_t));
 		new_key->fd_num = -1;
 		new_key->next=enc_key_list;
+USES_APPLE_DEPRECATED_API
 		ret = krb5_kt_next_entry(krb5_ctx, keytab, &key, &cursor);
+USES_APPLE_RST
 		if(ret==0){
 			int i;
 			char *pos;
@@ -348,11 +354,12 @@ read_keytab_file(const char *filename)
 		}
 	}while(ret==0);
 
+USES_APPLE_DEPRECATED_API
 	ret = krb5_kt_end_seq_get(krb5_ctx, keytab, &cursor);
 	if(ret){
 		krb5_kt_close(krb5_ctx, keytab);
 	}
-
+USES_APPLE_RST
 }
 
 
@@ -399,7 +406,9 @@ decrypt_krb5_data(proto_tree *tree _U_, packet_info *pinfo,
 		key.key.enctype=ek->keytype;
 		key.key.length=ek->keylength;
 		key.key.contents=ek->keyvalue;
+USES_APPLE_DEPRECATED_API
 		ret = krb5_c_decrypt(krb5_ctx, &(key.key), usage, 0, &input, &data);
+USES_APPLE_RST
 		if(ret == 0){
 			char *user_data;
 
@@ -419,8 +428,6 @@ decrypt_krb5_data(proto_tree *tree _U_, packet_info *pinfo,
 
 	return NULL;
 }
-
-USES_APPLE_RST
 
 #elif defined(HAVE_HEIMDAL_KERBEROS)
 static krb5_context krb5_ctx;
@@ -448,14 +455,18 @@ read_keytab_file(const char *filename)
 	}
 
 	/* should use a file in the wireshark users dir */
+USES_APPLE_DEPRECATED_API
 	ret = krb5_kt_resolve(krb5_ctx, filename, &keytab);
+USES_APPLE_RST
 	if(ret){
 		fprintf(stderr, "KERBEROS ERROR: Could not open keytab file :%s\n",filename);
 
 		return;
 	}
 
+USES_APPLE_DEPRECATED_API
 	ret = krb5_kt_start_seq_get(krb5_ctx, keytab, &cursor);
+USES_APPLE_RST
 	if(ret){
 		fprintf(stderr, "KERBEROS ERROR: Could not read from keytab file :%s\n",filename);
 		return;
@@ -465,7 +476,9 @@ read_keytab_file(const char *filename)
 		new_key=g_malloc(sizeof(enc_key_t));
 		new_key->fd_num = -1;
 		new_key->next=enc_key_list;
+USES_APPLE_DEPRECATED_API
 		ret = krb5_kt_next_entry(krb5_ctx, keytab, &key, &cursor);
+USES_APPLE_RST
 		if(ret==0){
 			unsigned int i;
 			char *pos;
@@ -488,10 +501,12 @@ read_keytab_file(const char *filename)
 		}
 	}while(ret==0);
 
+USES_APPLE_DEPRECATED_API
 	ret = krb5_kt_end_seq_get(krb5_ctx, keytab, &cursor);
 	if(ret){
 		krb5_kt_close(krb5_ctx, keytab);
 	}
+USES_APPLE_RST
 
 }
 
