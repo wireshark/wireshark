@@ -3447,13 +3447,11 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
 
         if (usb_conv_info->is_request) {
             if (usb_conv_info->is_setup) {
-                /* Dissect the setup header - it's applicable */
                 offset = dissect_usb_setup_request(pinfo, tree, parent, tvb, offset,
                                                    urb_type, usb_conv_info, header_info);
 
             } else {
                 if (header_info & USB_HEADER_IS_LINUX) {
-                    /* Skip setup/isochronous header - it's not applicable */
                     proto_tree_add_item(tree, hf_usb_urb_unused_setup_header, tvb, offset, 8, ENC_NA);
                     offset += 8;
                 }
