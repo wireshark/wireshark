@@ -2840,7 +2840,6 @@ dissect_nonstandard_usb_setup_request(packet_info *pinfo, proto_tree *tree, prot
             tvb_composite_finalize(setup_tvb);
         }
     } else {
-        offset = try_dissect_linux_usb_pseudo_header_ext(tvb, offset, pinfo, tree, header_info);
         next_tvb = tvb_new_subset_remaining(tvb, offset - 7);
     }
 
