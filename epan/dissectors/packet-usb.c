@@ -2874,11 +2874,15 @@ dissect_usb_setup_request(packet_info *pinfo, proto_tree *tree,
                           guint8 urb_type, usb_conv_info_t *usb_conv_info,
                           guint8 header_info)
 {
-    gint req_type;
-    proto_tree *setup_tree;
+    gint              req_type;
+    proto_tree       *setup_tree;
+    usb_trans_info_t *usb_trans_info;
 
-    usb_trans_info_t *usb_trans_info = usb_conv_info->usb_trans_info;
+    /* we should do the NULL check in all non-static functions */
+    if (!usb_conv_info)
+        return offset;
 
+    usb_trans_info = usb_conv_info->usb_trans_info;
 
     setup_tree = proto_tree_add_subtree(parent, tvb, offset, 8, usb_setup_hdr, NULL, "URB setup");
 
