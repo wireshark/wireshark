@@ -222,8 +222,8 @@ extern const value_string tls_hello_ext_server_name_type_vs[];
 
 /* XXX Should we use GByteArray instead? */
 typedef struct _StringInfo {
-    guchar  *data;      /*< Backing storage which may be larger than data_len */
-    guint    data_len;  /*< Length of the meaningful part of data */
+    guchar  *data;      /* Backing storage which may be larger than data_len */
+    guint    data_len;  /* Length of the meaningful part of data */
 } StringInfo;
 
 #define SSL_WRITE_KEY           1
@@ -426,12 +426,12 @@ typedef struct ssl_common_options {
 
 /** Map from something to a (pre-)master secret */
 typedef struct {
-    GHashTable *session;    /*< Session ID/Ticket to master secret. It uses the
-                                observation that Session IDs are 1-32 bytes and
-                                tickets are much longer */
-    GHashTable *crandom;    /*< Client Random to master secret */
-    GHashTable *pre_master; /*< First 8 bytes of encrypted pre-master secret to
-                                pre-master secret */
+    GHashTable *session;    /* Session ID/Ticket to master secret. It uses the
+                               observation that Session IDs are 1-32 bytes and
+                               tickets are much longer */
+    GHashTable *crandom;    /* Client Random to master secret */
+    GHashTable *pre_master; /* First 8 bytes of encrypted pre-master secret to
+                               pre-master secret */
 } ssl_master_key_map_t;
 
 gint ssl_get_keyex_alg(gint cipher);
