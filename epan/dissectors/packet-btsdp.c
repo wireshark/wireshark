@@ -1436,7 +1436,7 @@ reassemble_continuation_state(tvbuff_t *tvb, packet_info *pinfo,
                         tid_request->data_length, tid_request->data_length);
 
                 if (new_tvb) *new_tvb = next_tvb;
-                if (tid_request->continuation_state_length) *is_first = FALSE;
+                if (tid_request->continuation_state_length && is_first) *is_first = FALSE;
 
                 if (uuid_array) *uuid_array = tid_request->uuid_array;
                 if (record_handle) *record_handle = tid_request->record_handle;
@@ -1659,7 +1659,7 @@ reassemble_continuation_state(tvbuff_t *tvb, packet_info *pinfo,
                         tid_request->data_length, tid_request->data_length);
 
                 if (new_tvb) *new_tvb = next_tvb;
-                if (tid_request->continuation_state_length) *is_first = FALSE;
+                if (tid_request->continuation_state_length && is_first) *is_first = FALSE;
 
                 if (uuid_array) *uuid_array = tid_request->uuid_array;
                 if (record_handle) *record_handle = tid_request->record_handle;
@@ -3666,7 +3666,7 @@ dissect_sdp_service_attribute_list(proto_tree *tree, tvbuff_t *tvb, gint offset,
                 uuid, service_offset, service_info, number_of_attributes, FALSE);
     }
 
-    if (!pinfo->fd->flags.visited) {
+    if (!pinfo->fd->flags.visited && service_info) {
         k_interface_id    = l2cap_data->interface_id;
         k_adapter_id      = l2cap_data->adapter_id;
         k_sdp_psm         = l2cap_data->psm;

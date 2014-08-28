@@ -330,6 +330,8 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         chandle_data->start_fragments = wmem_tree_new(wmem_file_scope());
 
         wmem_tree_insert32_array(chandle_tree, key, chandle_data);
+    } else if (pinfo->fd->flags.visited && !chandle_data) {
+        DISSECTOR_ASSERT_HINT(0, "Impossible: no previously session saved");
     }
 
     length = tvb_get_letohs(tvb, offset);
