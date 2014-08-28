@@ -583,7 +583,8 @@ static int cond_seq(tvbparse_t* tt, int offset, const tvbparse_wanted_t * wanted
 
         if (len >= 0) {
             if (ret_tok) {
-                ret_tok->len = (new_elem->offset - ret_tok->offset) + new_elem->len;
+                if (new_elem->len)
+                    ret_tok->len = (new_elem->offset - ret_tok->offset) + new_elem->len;
                 ret_tok->sub->last->next = new_elem;
                 ret_tok->sub->last = new_elem;
             } else {
@@ -661,7 +662,8 @@ static int cond_some(tvbparse_t* tt, int offset, const tvbparse_wanted_t * wante
 
         if(consumed >= 0) {
             if (ret_tok) {
-                ret_tok->len = (new_elem->offset - ret_tok->offset) + new_elem->len;
+                if (new_elem->len)
+                    ret_tok->len = (new_elem->offset - ret_tok->offset) + new_elem->len;
 
                 if (ret_tok->sub) {
                     ret_tok->sub->last->next = new_elem;
