@@ -283,10 +283,9 @@ WS_DLL_PUBLIC const char *get_conversation_port(guint32 port, port_type ptype, g
  */
 WS_DLL_PUBLIC const char *get_conversation_filter(conv_item_t *conv_item, conv_direction_e direction);
 
-/** Get a display filter for the given hostlist and direction.
+/** Get a display filter for the given hostlist.
  *
  * @param host The hostlist.
- * @param direction The desired direction.
  * @return An ep_allocated string representing the conversation.
  */
 WS_DLL_PUBLIC const char *get_hostlist_filter(hostlist_talker_t *host);
@@ -333,14 +332,12 @@ add_conversation_table_data_with_conv_id(conv_hash_t *ch, const address *src, co
 
 /** Add some data to the table.
  *
- * @param hl the table to add the data to
+ * @param ch the table hash to add the data to
  * @param addr address
  * @param port port
  * @param sender TRUE, if this is a sender
  * @param num_frames number of packets
  * @param num_bytes number of bytes
- * @param sat address type
- * @param port_type the port type (e.g. PT_TCP)
  */
 void add_hostlist_table_data(conv_hash_t *ch, const address *addr,
                              guint32 port, gboolean sender, int num_frames, int num_bytes, hostlist_dissector_info_t *host_info, port_type port_type_val);
