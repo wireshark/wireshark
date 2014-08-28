@@ -863,6 +863,11 @@ proto_tree_prime_hfid(proto_tree *tree, const int hfid);
  @return parent item */
 WS_DLL_PUBLIC proto_item* proto_tree_get_parent(proto_tree *tree);
 
+/** Get the parent tree of a subtree.
+ @param tree the tree to get the parent from
+ @return parent tree */
+WS_DLL_PUBLIC proto_tree *proto_tree_get_parent_tree(proto_tree *tree);
+
 /** Get the root tree from any subtree.
  @param tree the tree to get the root from
  @return root tree */
