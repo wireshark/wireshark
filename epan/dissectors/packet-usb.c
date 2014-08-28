@@ -2693,15 +2693,14 @@ try_dissect_next_protocol(proto_tree *tree, proto_tree *parent, tvbuff_t *next_t
                 usb_conv_info->usb_trans_info = usb_trans_info;
                 
             }
-            else if (ctrl_recip == RQT_SETUP_RECIPIENT_OTHER) {
+            else {
+                /* the recipient is "other" or "reserved"
+                   there's no way for us to determine the interfaceClass
+                   we set the usb_dissector_table anyhow as some
+                   dissectors register for control messages to
+                   IF_CLASS_UNKNOWN (this should be fixed) */
                 heur_subdissector_list = heur_control_subdissector_list;
                 usb_dissector_table = usb_control_dissector_table;
-            }
-            else {
-                /* the recipient is "reserved"
-                   it makes no sense to set usb_dissector_table since there's no way for
-                   us to link this message to a device class */
-                heur_subdissector_list = heur_control_subdissector_list;
             }
 
             usb_tap_queue_packet(pinfo, urb_type, usb_conv_info);
