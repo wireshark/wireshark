@@ -267,27 +267,27 @@ QRC_FILES =	\
 
 #
 # .ts files.
-# qtshark_en should be pluralonly.
+# wireshark_en should be pluralonly.
 #
 TS_FILES =	\
-	qtshark_de.ts	\
-	qtshark_en.ts	\
-	qtshark_fr.ts	\
-	qtshark_ja_JP.ts	\
-	qtshark_pl.ts	\
-	qtshark_zh_CN.ts
+	wireshark_de.ts	\
+	wireshark_en.ts	\
+	wireshark_fr.ts	\
+	wireshark_ja_JP.ts	\
+	wireshark_pl.ts	\
+	wireshark_zh_CN.ts
 
 #
 # .qm files.
 #
 # Should be auto-generated ?
 QM_FILES =	\
-	qtshark_de.qm		\
-	qtshark_en.qm		\
-	qtshark_fr.qm		\
-	qtshark_ja_JP.qm	\
-	qtshark_pl.qm		\
-	qtshark_zh_CN.qm
+	wireshark_de.qm		\
+	wireshark_en.qm		\
+	wireshark_fr.qm		\
+	wireshark_ja_JP.qm	\
+	wireshark_pl.qm		\
+	wireshark_zh_CN.qm
 
 #
 # The .rcc.cpp files generated from them.

@@ -28,7 +28,7 @@ There are several ways of building qtshark:
 
 2) CMake:
 
-   Qt (BUILD_qtshark) is enabled by default. Use the "cmake" command to
+   Qt (BUILD_wireshark) is enabled by default. Use the "cmake" command to
    configure a normal out-of-tree or in-tree build, e.g.
 
     mkdir cmakebuild

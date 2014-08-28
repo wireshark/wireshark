@@ -33,10 +33,10 @@ isEqual(QT_MAJOR_VERSION, 5): greaterThan(QT_MINOR_VERSION, 1): win32 {
     QT += winextras
 }
 
-macx {
+win32|macx {
     TARGET = Wireshark
 } else {
-    TARGET = qtshark
+    TARGET = wireshark
 }
 
 TEMPLATE = app
@@ -133,7 +133,7 @@ win32 {
     #  of the Qt libraries themselves requires that Wireshark first be built with /MDd.
     #  Presumably doing source-level Qt library debugging shoyuld rarely be needed.
 
-    # We want to build only the QtShark linked with the QT "release" libraries
+    # We want to build only the Wireshark linked with the Qt "release" libraries
     #  so disable debug & etc.
 ##    CONFIG -= release
     CONFIG -= debug
@@ -487,7 +487,7 @@ win32 {
     # Currently the QT bin dir has to be on the path for windeployqt to work
     isEqual(QT_MAJOR_VERSION, 5):isEqual(QT_MINOR_VERSION, 3) {
       QMAKE_POST_LINK +=$$quote(set PATH=%PATH%;$${QT5_BASE_DIR}\\bin$$escape_expand(\\n\\t))
-      QMAKE_POST_LINK +=$$quote(windeployqt --release $(DESTDIR)qtshark.exe)$$escape_expand(\\n\\t))
+      QMAKE_POST_LINK +=$$quote(windeployqt --release $(DESTDIR)wireshark.exe)$$escape_expand(\\n\\t))
     }
 }
 
@@ -501,14 +501,14 @@ RESOURCES += \
     welcome.qrc \
 
 
-# qtshark_en should be pluralonly.
+# wireshark_en should be pluralonly.
 TRANSLATIONS = \
-        qtshark_de.ts \
-        qtshark_en.ts \
-        qtshark_fr.ts \
-        qtshark_ja_JP.ts \
-        qtshark_pl.ts \
-        qtshark_zh_CN.ts
+        wireshark_de.ts \
+        wireshark_en.ts \
+        wireshark_fr.ts \
+        wireshark_ja_JP.ts \
+        wireshark_pl.ts \
+        wireshark_zh_CN.ts
 
 ICON = ../../packaging/macosx/Resources/Wireshark.icns
 

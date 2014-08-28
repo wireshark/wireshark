@@ -168,7 +168,7 @@ if( CMAKE_C_COMPILER_ID MATCHES "MSVC")
 		# -D_ALLOW_KEYWORD_MACROS           For VS2012 onwards the, C++ STL does not permit macro redefinitions of keywords
 		#                                   (see http://msdn.microsoft.com/en-us/library/bb531344(v=vs.110).aspx)
 		#                                   This definition prevents the complaint about the redefinition of inline by WinPCap
-		#                                   in pcap-stdinc.h when compiling CPP files, e.g. the QT UI
+		#                                   in pcap-stdinc.h when compiling CPP files, e.g. the Qt UI
 		/DPSAPI_VERSION=1
 		/DBUILD_WINDOWS
 		/D_ALLOW_KEYWORD_MACROS
@@ -496,7 +496,7 @@ if(ENABLE_AIRPCAP)
 endif()
 
 # Build the GTK-GUI?
-if(BUILD_wireshark)
+if(BUILD_wireshark_gtk)
 	if(ENABLE_GTK3)
 		set(PACKAGELIST ${PACKAGELIST} GTK3)
 	else()
@@ -508,7 +508,7 @@ if(BUILD_wireshark)
 endif()
 
 # Build the Qt GUI?
-if(BUILD_qtshark)
+if(BUILD_wireshark)
 	if(ENABLE_QT5)
 		# Untested, may not work if CMAKE_PREFIX_PATH gets overwritten
 		# somewhere. The if WIN32 in this place is annoying as well.
@@ -555,7 +555,7 @@ if(ENABLE_KERBEROS)
 endif()
 
 # Portable audio
-if(ENABLE_PORTAUDIO AND BUILD_wireshark)
+if(ENABLE_PORTAUDIO AND BUILD_wireshark_gtk)
 	set(PACKAGELIST ${PACKAGELIST} PORTAUDIO)
 endif()
 
@@ -829,11 +829,11 @@ if(ENABLE_ECHLD)
 	add_subdirectory( echld )
 endif()
 
-if(BUILD_wireshark AND GTK_FOUND)
+if(BUILD_wireshark_gtk AND GTK_FOUND)
 	add_subdirectory( ui/gtk )
 endif()
 
-if(BUILD_qtshark AND QT_FOUND)
+if(BUILD_wireshark AND QT_FOUND)
 	add_subdirectory( ui/qt )
 endif()
 
@@ -1077,7 +1077,7 @@ set(LIBEPAN_LIBS
 		${WINSPARKLE_LIBRARIES}
 )
 
-if( (BUILD_wireshark AND GTK_FOUND) OR (BUILD_qtshark AND QT_FOUND) )
+if( (BUILD_wireshark_gtk AND GTK_FOUND) OR (BUILD_wireshark AND QT_FOUND) )
 	set(WIRESHARK_SRC
 		capture_info.c
 		capture_opts.c
@@ -1094,8 +1094,8 @@ if( (BUILD_wireshark AND GTK_FOUND) OR (BUILD_qtshark AND QT_FOUND) )
 	)
 endif()
 
-if(BUILD_wireshark AND GTK_FOUND)
-	set(wireshark_LIBS
+if(BUILD_wireshark_gtk AND GTK_FOUND)
+	set(wireshark_gtk_LIBS
 		gtkui
 		ui
 		capchild
@@ -1112,17 +1112,17 @@ if(BUILD_wireshark AND GTK_FOUND)
 		${NL_LIBRARIES}
 		${WIN_COMCTL32_LIBRARY}
 	)
-	# qtshark and wireshark share wireshark_FILES
+	# wireshark and wireshark-gtk share wireshark_FILES
 
-	add_executable(wireshark ${wireshark_FILES})
-	set_target_properties(wireshark PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
-	set_target_properties(wireshark PROPERTIES FOLDER "Executables")
-	target_link_libraries(wireshark ${wireshark_LIBS})
-	install(TARGETS wireshark RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+	add_executable(wireshark-gtk ${wireshark_FILES})
+	set_target_properties(wireshark-gtk PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
+	set_target_properties(wireshark-gtk PROPERTIES FOLDER "Executables")
+	target_link_libraries(wireshark-gtk ${wireshark_gtk_LIBS})
+	install(TARGETS wireshark-gtk RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()
 
-if(BUILD_qtshark AND QT_FOUND)
-	set(qtshark_LIBS
+if(BUILD_wireshark AND QT_FOUND)
+	set(wireshark_LIBS
 		qtui
 		ui
 		capchild
@@ -1136,18 +1136,18 @@ if(BUILD_qtshark AND QT_FOUND)
 		${APPLE_SYSTEM_CONFIGURATION_LIBRARY}
 		${NL_LIBRARIES}
 	)
-	# qtshark and wireshark share wireshark_FILES
+	# wireshark and wireshark-gtk share wireshark_FILES
 
 	# Policy since 2.8.11
 	if (POLICY CMP0020)
 		cmake_policy(SET CMP0020 OLD)
 	endif()
 
-	add_executable(qtshark ${wireshark_FILES})
-	set_target_properties(qtshark PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
-	set_target_properties(qtshark PROPERTIES FOLDER "Executables")
-	target_link_libraries(qtshark ${qtshark_LIBS})
-	install(TARGETS qtshark RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+	add_executable(wireshark ${wireshark_FILES})
+	set_target_properties(wireshark PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
+	set_target_properties(wireshark PROPERTIES FOLDER "Executables")
+	target_link_libraries(wireshark ${wireshark_LIBS})
+	install(TARGETS wireshark RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()
 
 register_tap_files(tshark-tap-register.c

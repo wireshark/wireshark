@@ -7,6 +7,7 @@ include ..\config.nmake
 ALL_RC=wireshark.rc libwireshark.rc tshark.rc tfshark.rc rawshark.rc capinfos.rc captype.rc editcap.rc text2pcap.rc mergecap.rc reordercap.rc wiretap.rc dumpcap.rc libwsutil.rc wireshark.exe.manifest
 all : $(ALL_RC)
 
+# wireshark.exe.manifest and wireshark.rc are used for both Qt and GTK+ executables.
 wireshark.exe.manifest: wireshark.exe.manifest.in ..\config.nmake
 	sed -e s/@VERSION_MAJOR@/$(VERSION_MAJOR)/ \
 		-e s/@VERSION_MINOR@/$(VERSION_MINOR)/ \

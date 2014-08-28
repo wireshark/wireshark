@@ -1367,6 +1367,7 @@ GLIB_LIBS=$(GTK_DIR)\lib\glib-$(GLIB_VERSION).lib \
 	$(GTK_DIR)\lib\gobject-$(GLIB_VERSION).lib
 GTHREAD_LIBS=$(GTK_DIR)\lib\gthread-$(GLIB_VERSION).lib
 
+PROGRAM_NAME_GTK=$(PROGRAM_NAME)-gtk
 
 # 2.18 was no good(Theming problem)
 !IF "$(GTK_INST_VERSION)" == "2.24" || "$(GTK_INST_VERSION)" == "2.22" || "$(GTK_INST_VERSION)" == "2.16" || "$(GTK_INST_VERSION)" == "2.14"

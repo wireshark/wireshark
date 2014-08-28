@@ -42,15 +42,15 @@ Description: network traffic analyzer - common files
 
 Package: wireshark
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, wireshark-common (= ${binary:Version}), xdg-utils
+Depends: wireshark-qt
 Replaces: ethereal (<< 1.0.0-3)
 Conflicts: ethereal (<< 1.0.0-3)
-Description: network traffic analyzer - GTK+ version
+Description: network traffic analyzer - meta-package
  Wireshark is a network "sniffer" - a tool that captures and analyzes
  packets off the wire. Wireshark can decode too many protocols to list
  here.
  .
- This package provides the GTK+ version of wireshark.
+ This is a meta-package for Wireshark.
 
 Package: wireshark-qt
 Architecture: any
@@ -62,7 +62,19 @@ Description: network traffic analyzer - Qt version
  packets off the wire. Wireshark can decode too many protocols to list
  here.
  .
- This package provides the Qt version of wireshark.
+ This package provides the Qt version of Wireshark.
+
+Package: wireshark-gtk
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, wireshark-common (= ${binary:Version}), xdg-utils
+Replaces: ethereal (<< 1.0.0-3)
+Conflicts: ethereal (<< 1.0.0-3)
+Description: network traffic analyzer - GTK+ version
+ Wireshark is a network "sniffer" - a tool that captures and analyzes
+ packets off the wire. Wireshark can decode too many protocols to list
+ here.
+ .
+ This package provides the GTK+ version of Wireshark.
 
 Package: tshark
 Architecture: any

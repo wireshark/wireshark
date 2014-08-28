@@ -57,7 +57,7 @@ fi
 WS_BIN_PATH=${WS_BIN_PATH:-$SOURCE_DIR}
 
 # Tweak the following to your liking.
-WIRESHARK=$WS_BIN_PATH/wireshark
+WIRESHARK_GTK=$WS_BIN_PATH/wireshark-gtk
 TSHARK=$WS_BIN_PATH/tshark
 RAWSHARK=$WS_BIN_PATH/rawshark
 CAPINFOS=$WS_BIN_PATH/capinfos

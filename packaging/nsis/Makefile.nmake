@@ -14,7 +14,7 @@ STAGING_DIR=..\..\$(INSTALL_DIR)
 
 EXE=../../tshark.exe ../../editcap.exe \
 !IFDEF GTK_DIR
-	../../wireshark.exe \
+	../../wireshark-gtk.exe \
 !ENDIF
 	../../text2pcap.exe ../../mergecap.exe ../../capinfos.exe $(WIRESHARK_LIB_DIR)\WinPcap_$(WINPCAP_VERSION).exe
 DLL=../../wiretap/wiretap-$(WTAP_VERSION).dll ../../wsutil/libwsutil.dll
@@ -226,7 +226,7 @@ NSIS_FLAGS=\
 !IFDEF HHC_DIR
 	/DHHC_DIR="$(HHC_DIR)" \
 !ENDIF
-!IF EXIST("..\..\wireshark-qt-release\qtshark.exe")
+!IF EXIST("..\..\wireshark-qt-release\wireshark.exe")
 	/DQT_DIR="..\..\wireshark-qt-release" \
 !ENDIF
 
@@ -236,7 +236,7 @@ qt-dll-manifest.nsh: windeployqt-to-nsis.ps1 Makefile.nmake
 	set PATH=%PATH%;$(QT5_BASE_DIR)\bin
 !ENDIF
 	$(POWERSHELL) windeployqt-to-nsis.ps1 \
-		-Executable ..\..\wireshark-qt-release\qtshark.exe \
+		-Executable ..\..\wireshark-qt-release\wireshark.exe \
 		-FilePath $@
 
 $(STAGING_DIR)\uninstall.exe : $(NSI)

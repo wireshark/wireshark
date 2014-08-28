@@ -1521,23 +1521,23 @@ AC_SUBST(GLIB_MIN_VERSION)
 use_glib_cflags="true"
 if test "$have_gtk" = "yes" -a "$have_qt" = "yes" ; then
 	# We have both GTK and Qt and thus will be building both wireshark
-	# and wireshark-qt.
+	# and wireshark-gtk.
 
-	wireshark_bin="wireshark\$(EXEEXT) wireshark-qt\$(EXEEXT)"
+	wireshark_bin="wireshark\$(EXEEXT) wireshark-gtk\$(EXEEXT)"
 	wireshark_man="wireshark.1"
 	wireshark_SUBDIRS="codecs ui/qt ui/gtk"
 fi
 if test "$have_gtk" = "no" -a "$have_qt" = "yes" ; then
 	# We don't have GTK+ but we have Qt.
 
-	wireshark_bin="wireshark-qt\$(EXEEXT)"
+	wireshark_bin="wireshark\$(EXEEXT)"
 	wireshark_man="wireshark.1"
 	wireshark_SUBDIRS="codecs ui/qt"
 fi
 if test "$have_gtk" = "yes" -a "$have_qt" = "no" ; then
 	# We have GTK+ but not Qt.
 
-	wireshark_bin="wireshark\$(EXEEXT)"
+	wireshark_bin="wireshark-gtk\$(EXEEXT)"
 	wireshark_man="wireshark.1"
 	wireshark_SUBDIRS="codecs ui/gtk"
 	use_glib_cflags="false"
@@ -3001,9 +3001,9 @@ if test "x$have_gtk" = "xyes"; then
 fi
 
 if test "x$have_qt" = "xyes" ; then
-	enable_qtshark="yes"
+	enable_wireshark_qt="yes"
 else
-	enable_qtshark="no"
+	enable_wireshark_qt="no"
 fi
 
 if test "x$enable_setcap_install" = "xyes" ; then
@@ -3084,8 +3084,8 @@ fi
 
 echo ""
 echo "The Wireshark package has been configured with the following options."
-echo "             Build wireshark (Gtk+) : $have_gtk""$gtk_lib_message"
-echo "                 Build wireshark-qt : $enable_qtshark"
+echo "                    Build wireshark : $enable_wireshark_qt"
+echo "                Build wireshark-gtk : $have_gtk""$gtk_lib_message"
 echo "                       Build tshark : $enable_tshark"
 echo "                      Build tfshark : $enable_tfshark"
 echo "                     Build capinfos : $enable_capinfos"

@@ -42,7 +42,7 @@ bin_PROGRAMS = \
 	@rawshark_bin@		\
 	@echld_test_bin@
 
-EXTRA_PROGRAMS = wireshark wireshark-qt tshark tfshark capinfos captype editcap \
+EXTRA_PROGRAMS = wireshark-gtk wireshark tshark tfshark capinfos captype editcap \
 	mergecap dftest randpkt text2pcap dumpcap reordercap rawshark \
 	wireshark_cxx echld_test
 
@@ -308,17 +308,17 @@ include Makefile.common
 
 if ENABLE_STATIC
 if HAVE_GTK
-wireshark_LDFLAGS = -Wl,-static -all-static
+wireshark_gtk_LDFLAGS = -Wl,-static -all-static
 endif
 if HAVE_Qt
-wireshark_qt_LDFLAGS = -Wl,-static -all-static
+wireshark_LDFLAGS = -Wl,-static -all-static
 endif
 else
 if HAVE_GTK
-wireshark_LDFLAGS = -export-dynamic
+wireshark_gtk_LDFLAGS = -export-dynamic
 endif
 if HAVE_Qt
-wireshark_qt_LDFLAGS = -export-dynamic
+wireshark_LDFLAGS = -export-dynamic
 endif
 endif
 
@@ -344,7 +344,7 @@ endif
 # although it's also possible that -lgmodule is in GTK_LIBS but not
 # GLIB_LIBS (that's the case on my machine right now, for example).
 #
-wireshark_ldadd = \
+wireshark_common_ldadd = \
 	capchild/libcapchild.a		\
 	caputils/libcaputils.a		\
 	ui/libui.a			\
@@ -365,35 +365,35 @@ wireshark_ldadd = \
 	@LIBGCRYPT_LIBS@		\
 	@LIBGNUTLS_LIBS@		\
 	@LIBSMI_LDFLAGS@		\
-	@PORTAUDIO_LIBS@		\
 	@GLIB_LIBS@			\
 	-lm
 
 if HAVE_Qt
-wireshark_qt_SOURCES = $(WIRESHARK_COMMON_SRC)
-wireshark_qt_INCLUDES = $(WIRESHARK_COMMON_INCLUDES)
-wireshark_qt_CFLAGS = $(AM_CLEAN_CFLAGS)
-wireshark_qt_LDADD = \
-	ui/qt/libqtui.a \
-	$(wireshark_ldadd) \
-	@Qt_LIBS@
-
-#
-# XXX - this makes wireshark_qt_LDFLAGS not work; we should figure out
-# another way to get wireshark-qt linked as a C++ program, perhaps by
-# having a top-level wireshark-qt.cpp file that contains main() and
-# hthat calls the UI code from ui/qt.
-#
-wireshark_qt_LINK = $(CXXLINK)
-endif
-
-if HAVE_GTK
 wireshark_SOURCES = $(WIRESHARK_COMMON_SRC)
 wireshark_INCLUDES = $(WIRESHARK_COMMON_INCLUDES)
 wireshark_CFLAGS = $(AM_CLEAN_CFLAGS)
 wireshark_LDADD = \
+	ui/qt/libqtui.a \
+	$(wireshark_common_ldadd) \
+	@Qt_LIBS@
+
+#
+# XXX - this makes wireshark_LDFLAGS not work; we should figure out
+# another way to get wireshark linked as a C++ program, perhaps by
+# having a top-level wireshark-qt.cpp file that contains main() and
+# that calls the UI code from ui/qt.
+#
+wireshark_LINK = $(CXXLINK)
+endif
+
+if HAVE_GTK
+wireshark_gtk_SOURCES = $(WIRESHARK_COMMON_SRC)
+wireshark_gtk_INCLUDES = $(WIRESHARK_COMMON_INCLUDES)
+wireshark_gtk_CFLAGS = $(AM_CLEAN_CFLAGS)
+wireshark_gtk_LDADD = \
 	ui/gtk/libgtkui.a \
-	$(wireshark_ldadd) \
+	$(wireshark_common_ldadd) \
+	@PORTAUDIO_LIBS@		\
 	@GTK_LIBS@
 endif
 
@@ -775,12 +775,12 @@ EXTRA_DIST = \
 	debian/wireshark-dev.manpages \
 	debian/wireshark-dev.prerm \
 	debian/wireshark-doc.docs	\
-	debian/wireshark-qt.docs	\
-	debian/wireshark-qt.install	\
-	debian/wireshark.docs	\
-	debian/wireshark.install	\
+	debian/wireshark-gtk.docs	\
+	debian/wireshark-gtk.install	\
 	debian/wireshark.manpages \
 	debian/wireshark.menu	\
+	debian/wireshark-qt.docs	\
+	debian/wireshark-qt.install	\
 	dfilters		\
 	doxygen_global.cfg	\
 	doxygen.cfg.in		\
@@ -1297,8 +1297,8 @@ checkapi_local:
 	$(PERL) $(top_srcdir)/tools/checkAPIs.pl -build \
 	-sourcedir=$(srcdir) \
 	$(TSHARK_TAP_SRC) \
-	$(wireshark_SOURCES)
-#	$(EXTRA_wireshark_SOURCES)
+	$(wireshark_gtk_SOURCES)
+#	$(EXTRA_wireshark_gtk_SOURCES)
 
 checkapi: checkapi_local
 	cd wiretap && $(MAKE) checkapi
@@ -1331,4 +1331,3 @@ if HAVE_DOXYGEN
 	rm -f wsar_html.zip
 	zip -rq wsar_html.zip wsar_html
 endif
-

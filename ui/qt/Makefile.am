@@ -269,6 +269,6 @@ EXTRA_DIST = \
 	main.cpp			\
 	Makefile.common			\
 	Makefile_custom.common		\
-	QtShark.pro			\
+	Wireshark.pro			\
 	display_filter_16.svg		\
 	gpl-template.txt

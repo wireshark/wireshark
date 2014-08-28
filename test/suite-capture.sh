@@ -27,7 +27,7 @@ EXIT_OK=0
 EXIT_COMMAND_LINE=1
 EXIT_ERROR=2
 
-WIRESHARK_CMD="$WIRESHARK -o gui.update.enabled:FALSE -k"
+WIRESHARK_GTK_CMD="$WIRESHARK_GTK -o gui.update.enabled:FALSE -k"
 
 capture_test_output_print() {
 	wait
@@ -202,7 +202,7 @@ capture_step_fifo() {
 # capture packets via a fifo
 capture_step_stdin() {
 	CONSOLE_LOG_ARGS=""
-	if [ "$DUT" == "$WIRESHARK_CMD" -a "$WS_SYSTEM" == "Windows" ] ; then
+	if [ "$DUT" == "$WIRESHARK_GTK_CMD" -a "$WS_SYSTEM" == "Windows" ] ; then
 		CONSOLE_LOG_ARGS="-o console.log.level:127"
 	fi
 
@@ -428,7 +428,7 @@ wireshark_capture_suite() {
 		return
 	fi
 
-	DUT="$WIRESHARK_CMD"
+	DUT="$WIRESHARK_GTK_CMD"
 	test_step_add "Capture 10 packets" capture_step_10packets
 	# piping to stdout doesn't work with Wireshark and capturing!
 	#test_step_add "Capture 10 packets using stdout: -w -" capture_step_10packets_stdout

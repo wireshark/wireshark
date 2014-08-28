@@ -266,12 +266,12 @@ set(WIRESHARK_QT_QRC
 )
 
 set(WIRESHARK_QT_TS
-	qtshark_de.ts
-	qtshark_en.ts # lupdate -pluralonly
-	qtshark_fr.ts
-	qtshark_ja_JP.ts
-	qtshark_pl.ts
-	qtshark_zh_CN.ts
+	wireshark_de.ts
+	wireshark_en.ts # lupdate -pluralonly
+	wireshark_fr.ts
+	wireshark_ja_JP.ts
+	wireshark_pl.ts
+	wireshark_zh_CN.ts
 )
 
 include_directories(
@@ -336,4 +336,3 @@ add_library(qtui STATIC
 )
 set_target_properties(qtui PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
 set_target_properties(qtui PROPERTIES FOLDER "UI")
-

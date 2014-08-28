@@ -16,8 +16,8 @@ Name "${DISPLAY_NAME}"
 !define PROGRAM_NAME_GTK "${PROGRAM_NAME} 1"
 !define PROGRAM_FULL_NAME_QT "The ${PROGRAM_NAME} Network Protocol Analyzer"
 !define PROGRAM_FULL_NAME_GTK "The ${PROGRAM_NAME} Network Protocol Analyzer (classic UI)"
-!define PROGRAM_NAME_PATH_QT "qtshark.exe"
-!define PROGRAM_NAME_PATH_GTK "${PROGRAM_NAME}.exe"
+!define PROGRAM_NAME_PATH_QT "${PROGRAM_NAME}.exe"
+!define PROGRAM_NAME_PATH_GTK "${PROGRAM_NAME}-gtk.exe"
 
 !define UNINSTALLER_NAME "uninstall.exe"
 
@@ -48,9 +48,9 @@ XPStyle on
     Push $R0
     Push $R1
     Push $R2
-    
+
     !define UPDATEICONS_UNIQUE ${__LINE__}
-    
+
     IfFileExists "$SYSDIR\shell32.dll" UpdateIcons.ok_shell32_${UPDATEICONS_UNIQUE} UpdateIcons.error_shell32_${UPDATEICONS_UNIQUE}
 UpdateIcons.ok_shell32_${UPDATEICONS_UNIQUE}:
     System::Call 'shell32.dll::SHChangeNotify(i, i, i, i) v (${SHCNE_ASSOCCHANGED}, ${SHCNF_IDLIST}, 0, 0)'

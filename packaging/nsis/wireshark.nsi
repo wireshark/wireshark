@@ -819,7 +819,7 @@ SectionEnd ; "Required"
 !ifdef QT_DIR
 Section "${PROGRAM_NAME}" SecWiresharkQt
 ;-------------------------------------------
-; by default, QtShark is installed but file is always associate with Wireshark GTK+
+; by default, Wireshark is installed but file is always associate with Wireshark GTK+
 SetOutPath $INSTDIR
 File "${QT_DIR}\${PROGRAM_NAME_PATH_QT}"
 !include qt-dll-manifest.nsh
