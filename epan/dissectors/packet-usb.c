@@ -2797,7 +2797,8 @@ try_dissect_linux_usb_pseudo_header_ext(tvbuff_t *tvb, int offset,
                                         packet_info *pinfo _U_,
                                         proto_tree *tree, guint8 header_info)
 {
-    if (header_info & (USB_HEADER_IS_LINUX|USB_HEADER_IS_64_BYTES)) {
+    if ((header_info & USB_HEADER_IS_LINUX) &&
+            (header_info & USB_HEADER_IS_64_BYTES)) {
         proto_tree_add_item(tree, hf_usb_urb_interval, tvb, offset, 4, ENC_HOST_ENDIAN);
         offset += 4;
         proto_tree_add_item(tree, hf_usb_urb_start_frame, tvb, offset, 4, ENC_HOST_ENDIAN);
