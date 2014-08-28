@@ -78,8 +78,8 @@ static const value_string rtr_pdu_type_vals[] = {
     { RPKI_RTR_SERIAL_QUERY_PDU,   "Serial Query" },
     { RPKI_RTR_RESET_QUERY_PDU,    "Reset Query" },
     { RPKI_RTR_CACHE_RESPONSE_PDU, "Cache Response" },
-    { RPKI_RTR_IPV4_PREFIX_PDU,    "IPV4 Prefix" },
-    { RPKI_RTR_IPV6_PREFIX_PDU,    "IPV6 Prefix" },
+    { RPKI_RTR_IPV4_PREFIX_PDU,    "IPv4 Prefix" },
+    { RPKI_RTR_IPV6_PREFIX_PDU,    "IPv6 Prefix" },
     { RPKI_RTR_END_OF_DATA_PDU,    "End of Data" },
     { RPKI_RTR_CACHE_RESET_PDU,    "Cache Reset" },
     { RPKI_RTR_ERROR_REPORT_PDU,   "Error Report" },
@@ -125,26 +125,24 @@ static int dissect_rpkirtr_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     proto_tree *rpkirtr_tree = NULL, *flags_tree = NULL;
     int offset = 0;
     guint8 pdu_type;
-
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "RPKI-RTR");
-    col_clear(pinfo->cinfo, COL_INFO);
+    guint length;
 
     while (tvb_reported_length_remaining(tvb, offset) != 0) {
-        if (tree) {
 
-            ti = proto_tree_add_item(tree, proto_rpkirtr, tvb, 0, -1, ENC_NA);
+        ti = proto_tree_add_item(tree, proto_rpkirtr, tvb, 0, -1, ENC_NA);
 
-            rpkirtr_tree = proto_item_add_subtree(ti, ett_rpkirtr);
-        }
+        rpkirtr_tree = proto_item_add_subtree(ti, ett_rpkirtr);
 
         proto_tree_add_item(rpkirtr_tree, hf_rpkirtr_version, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
         proto_tree_add_item(rpkirtr_tree, hf_rpkirtr_pdu_type, tvb, offset, 1, ENC_BIG_ENDIAN);
         pdu_type = tvb_get_guint8(tvb, offset);
-        col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, val_to_str(pdu_type, rtr_pdu_type_vals, "Unknown %d"));
+        col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, val_to_str(pdu_type, rtr_pdu_type_vals, "Unknown (%d)"));
         proto_item_append_text(ti, " (%s)", val_to_str(pdu_type, rtr_pdu_type_vals, "Unknown %d"));
         offset += 1;
+
+        length = tvb_get_ntohl(tvb, offset);
 
         switch (pdu_type) {
             case RPKI_RTR_SERIAL_NOTIFY_PDU: /* Serial Notify (0) */
@@ -194,7 +192,7 @@ static int dissect_rpkirtr_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
                 proto_tree_add_item(rpkirtr_tree, hf_rpkirtr_as_number,        tvb, offset, 4, ENC_BIG_ENDIAN);
                 offset += 4;
                 break;
-            case RPKI_RTR_IPV6_PREFIX_PDU: /* IPv4 Prefix (6) */
+            case RPKI_RTR_IPV6_PREFIX_PDU: /* IPv6 Prefix (6) */
                 proto_tree_add_item(rpkirtr_tree, hf_rpkirtr_reserved,         tvb, offset, 2, ENC_NA);
                 offset += 2;
                 proto_tree_add_item(rpkirtr_tree, hf_rpkirtr_length,           tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -231,23 +229,27 @@ static int dissect_rpkirtr_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
                 proto_tree_add_item(rpkirtr_tree, hf_rpkirtr_length_text,      tvb, offset, 4, ENC_BIG_ENDIAN);
                 len_text =                                                     tvb_get_ntohl(tvb, offset);
                 offset += 4,
-                    proto_tree_add_item(rpkirtr_tree, hf_rpkirtr_error_text,   tvb, offset, len_text, ENC_ASCII|ENC_NA);
+                proto_tree_add_item(rpkirtr_tree, hf_rpkirtr_error_text,   tvb, offset, len_text, ENC_ASCII|ENC_NA);
                 offset += len_text;
             }
             default:
                 /* No default ? */
+                offset += length;
                 break;
         }
     }
 
-    return tvb_length(tvb);
+    return tvb_reported_length(tvb);
 }
 
 static int
 dissect_rpkirtr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "RPKI-RTR");
+    col_clear(pinfo->cinfo, COL_INFO);
+
     tcp_dissect_pdus(tvb, pinfo, tree, 1, 8, get_rpkirtr_pdu_len, dissect_rpkirtr_pdu, data);
-    return tvb_length(tvb);
+    return tvb_reported_length(tvb);
 }
 
 void
