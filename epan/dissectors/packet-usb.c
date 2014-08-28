@@ -2636,7 +2636,7 @@ usb_tap_queue_packet(packet_info *pinfo, guint8 urb_type,
 
 
 static gint
-try_dissect_next_protocol(proto_tree *tree, proto_tree *parent, tvbuff_t *next_tvb, packet_info *pinfo,
+try_dissect_next_protocol(proto_tree *tree, tvbuff_t *next_tvb, packet_info *pinfo,
         usb_conv_info_t *usb_conv_info, guint8 urb_type)
 {
     gboolean                 ret;
@@ -2652,9 +2652,12 @@ try_dissect_next_protocol(proto_tree *tree, proto_tree *parent, tvbuff_t *next_t
     device_product_data_t   *device_product_data;
     device_protocol_data_t  *device_protocol_data;
     guint8                   ctrl_recip;
+    proto_tree              *parent;
 
     if (tvb_captured_length(next_tvb) == 0)
         return 0;
+
+    parent = proto_tree_get_parent_tree(tree);
 
     /* try dissect by "usb.device" */
     ret = dissector_try_uint_new(device_to_dissector,
@@ -2824,7 +2827,7 @@ dissect_usb_setup_response(packet_info *pinfo, proto_tree *tree,
             /* Try to find a non-standard specific dissector */
             if (tvb_reported_length_remaining(tvb, offset) > 0) {
                 next_tvb = tvb_new_subset_remaining(tvb, offset);
-                offset += try_dissect_next_protocol(tree, parent, next_tvb, pinfo, usb_conv_info, urb_type);
+                offset += try_dissect_next_protocol(tree, next_tvb, pinfo, usb_conv_info, urb_type);
             }
 
             length_remaining = tvb_reported_length_remaining(tvb, offset);
@@ -2947,7 +2950,7 @@ dissect_usb_setup_request(packet_info *pinfo, proto_tree *tree,
 
     tvb_composite_finalize(next_tvb);
 
-    offset += try_dissect_next_protocol(tree, parent, next_tvb, pinfo, usb_conv_info, urb_type);
+    offset += try_dissect_next_protocol(tree, next_tvb, pinfo, usb_conv_info, urb_type);
 
     return offset;
 }
@@ -3572,7 +3575,7 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
     if (tvb_captured_length_remaining(tvb, offset) > 0) {
         next_tvb = tvb_new_subset_remaining(tvb, offset);
 
-        offset += try_dissect_next_protocol(tree, parent, next_tvb, pinfo, usb_conv_info, urb_type);
+        offset += try_dissect_next_protocol(tree, next_tvb, pinfo, usb_conv_info, urb_type);
     }
 
     if (tvb_captured_length_remaining(tvb, offset) > 0) {
