@@ -86,6 +86,7 @@ dist_diameter_DATA = $(_CUSTOM_diameter_xml_files_) \
 	diameter/sunping.xml \
 	diameter/TGPPGmb.xml \
 	diameter/TGPPRx.xml \
+	diameter/TGPP2.xml \
 	diameter/TGPPS9.xml \
 	diameter/TGPPSh.xml \
 	diameter/Vodafone.xml \
