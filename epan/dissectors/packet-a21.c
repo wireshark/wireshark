@@ -31,6 +31,8 @@
 #include <epan/prefs.h>
 #include <epan/expert.h>
 
+#include "packet-e212.h"
+
 void proto_register_a21(void);
 void proto_reg_handoff_a21(void);
 
@@ -39,7 +41,7 @@ void proto_reg_handoff_a21(void);
 /* Default the port to zero */
 static guint a21_udp_port = 0;
 
-static dissector_handle_t gcsna_handle;
+static dissector_handle_t gcsna_handle = NULL;
 
 static int proto_a21 = -1;
 
@@ -52,7 +54,6 @@ static int hf_a21_mn_id_msid_value = -1;
 static int hf_a21_mn_id_odd_even_indicator = -1;
 static int hf_a21_mn_id_type_of_identity = -1;
 static int hf_a21_mn_id_esn = -1;
-static int hf_a21_imsi = -1;
 static int hf_a21_mn_id_identity_digit_1 = -1;
 static int hf_a21_gcsna_pdu_length = -1;
 static int hf_a21_gcsna_content = -1;
@@ -201,8 +202,7 @@ dissect_a21_mobile_identity(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 		/* IMSI */
 		proto_tree_add_item(tree, hf_a21_mn_id_odd_even_indicator, tvb, offset, 1, ENC_BIG_ENDIAN);
 
-		imsi_str = tvb_bcd_dig_to_wmem_packet_str(tvb, offset,  length, NULL, TRUE);
-		proto_tree_add_string(tree, hf_a21_imsi, tvb, offset,  length, imsi_str);
+        imsi_str = dissect_e212_imsi(tvb, pinfo, tree,  offset, length, TRUE);
 		proto_item_append_text(item, "%s", imsi_str);
 
 		break;
@@ -373,18 +373,16 @@ dissect_a21_gcsna_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 
 /* 5.2.4.16 GCSNA PDU */
 static void
-dissect_a21_gcsna_pdu(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_)
+dissect_a21_gcsna_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_)
 {
 	int offset=0;
-	proto_tree *a21_tree = tree->parent;
 
-	/* only dissect it to octetstring */
 	proto_tree_add_item(tree, hf_a21_gcsna_content, tvb, offset, length, ENC_NA);
 	if(gcsna_handle){
 		tvbuff_t *new_tvb;
 		new_tvb	= tvb_new_subset_length(tvb, offset, length);
 		/* call the dissector with the parent (top)tree */
-		call_dissector(gcsna_handle, new_tvb, pinfo, a21_tree->parent);
+		call_dissector(gcsna_handle, new_tvb, pinfo, top_tree);
 	}
 
 }
@@ -537,7 +535,7 @@ static const value_string a21_element_type_vals[] = {
 
 
 static void
-dissect_a21_ie_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset,  guint8 message_type)
+dissect_a21_ie_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree, proto_tree *tree, gint offset,  guint8 message_type)
 {
 	guint8 ie_type, length_len;
 	guint16 length=0;
@@ -619,7 +617,7 @@ dissect_a21_ie_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint 
 			break;
 		case A21_IEI_GCSNA_PDU:
 			/* 5.2.4.16 GCSNA PDU */
-			dissect_a21_gcsna_pdu(ie_tvb,pinfo, ie_tree, ti, length, message_type);
+			dissect_a21_gcsna_pdu(ie_tvb,pinfo, top_tree, ie_tree, ti, length, message_type);
 			break;
 		case A21_IEI_REFERENCE_CELL_ID:
 			/* 5.2.4.17 Reference Cell ID */
@@ -673,7 +671,7 @@ dissect_a21(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree_add_item(corr_tree, hf_a21_corr_id_corr_value, tvb, offset,  4, ENC_BIG_ENDIAN);
 	offset +=4;
 
-	dissect_a21_ie_common(tvb, pinfo, a21_tree, offset,  message_type);
+	dissect_a21_ie_common(tvb, pinfo, tree, a21_tree, offset,  message_type);
 
 
 }
@@ -725,11 +723,6 @@ void proto_register_a21(void)
 			 {"Type of Identity", "a21.mn_id_type_of_identity",
 			  FT_UINT8, BASE_DEC, VALS(a21_mn_id_type_of_identity_vals), 0x07,
 			  NULL, HFILL }
-		  },
-		  {&hf_a21_imsi,
-			 {"IMSI(International Mobile Subscriber Identity number)", "a21.imsi",
-			  FT_STRING, BASE_NONE, NULL, 0,
-			  NULL, HFILL}
 		  },
 		  { &hf_a21_mn_id_esn,
 			 {"ESN", "a21.mn_id_esn",
@@ -818,7 +811,7 @@ void proto_register_a21(void)
 		  },
 		  { &hf_a21_gcsna_content,
 			 {"GCSNA Content", "a21.gcsna_content",
-			  FT_BYTES, BASE_NONE, NULL, 0x0,
+			  FT_NONE, BASE_NONE, NULL, 0x0,
 			  NULL, HFILL }
 		  },
 		  { &hf_a21_reference_cell_id_cell,
@@ -973,6 +966,7 @@ void proto_reg_handoff_a21(void)
 		a21_handle = create_dissector_handle(dissect_a21, proto_a21);
 		gcsna_handle = find_dissector("gcsna");
 		dissector_add_uint("udp.port", a21_udp_port, a21_handle);
+        a21_prefs_initialized = TRUE;
 	}else{
 		dissector_delete_uint("udp.port", saved_a21_udp_port, a21_handle);
 	}
