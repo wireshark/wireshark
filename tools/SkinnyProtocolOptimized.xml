@@ -3520,6 +3520,12 @@
       <enum comment="" declare="yes" name="command" subtype="MiscCommandType" type="uint32"/>
       <union comment="" lookup_guide="command" name="u" subtype="MiscellaneousCommandMessageUnion" type="union">
         <fields>
+          <struct comment="" lookup_eq="MiscCommandType_videoFastUpdatePicture" name="videoFastUpdatePicture" subtype="VideoFastUpdateGOB" type="struct">
+            <fields>
+              <integer comment="" name="firstGOB" type="uint32"/>
+              <integer comment="" name="numberOfGOBs" type="uint32"/>
+            </fields>
+          </struct>
           <struct comment="" lookup_eq="MiscCommandType_videoFastUpdateGOB" name="videoFastUpdateGOB" subtype="VideoFastUpdateGOB" type="struct">
             <fields>
               <integer comment="" name="firstGOB" type="uint32"/>

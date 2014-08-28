@@ -2262,55 +2262,55 @@ dissect_skinny_ipv4or6(ptvcursor_t *cursor, int hfindex_ipv4, int hfindex_ipv6, 
   }
 }
 
+/**
+ * Parse a displayLabel string and check if it is using any embedded labels, if so lookup the label and add a user readable translation to the item_tree
+ */
 static void
-dissect_skinny_displayLabel(ptvcursor_t *cursor, int hfindex, guint32 length)
+dissect_skinny_displayLabel(ptvcursor_t *cursor, int hfindex, gint length)
 {
-  proto_item         *item        = NULL;
-  proto_tree         *tree        = ptvcursor_tree(cursor);
-  guint32            offset       = ptvcursor_current_offset(cursor);
-  tvbuff_t           *tvb         = ptvcursor_tvbuff(cursor);
-
-  const gchar        *disp_string = NULL;
-  wmem_strbuf_t         *wmem_new = NULL;
-  const gchar         *replacestr = NULL;
-  guint                         x = 0;
-  guint       append_replaced_str = 0;
+  proto_item    *item             = NULL;
+  proto_tree    *tree             = ptvcursor_tree(cursor);
+  guint32       offset            = ptvcursor_current_offset(cursor);
+  tvbuff_t      *tvb              = ptvcursor_tvbuff(cursor);
+  wmem_strbuf_t *wmem_new         = NULL;
+  gchar         *disp_string      = NULL;
+  const gchar   *replacestr       = NULL;
+  gboolean      show_replaced_str = FALSE;
+  gint          x                 = 0;
 
   if (length == 0) {
-    length = tvb_strnlen(tvb, offset, -1) + 1;
+    length = tvb_strnlen(tvb, offset, -1);
+    if (length == -1) {
+      /* did not find end of string */
+      length = tvb_captured_length_remaining(tvb, offset);
+    }
   }
 
-  disp_string = (const gchar *) tvb_memdup(wmem_packet_scope(), tvb, offset, length);
   item = proto_tree_add_item(tree, hfindex, tvb, offset, length, ENC_ASCII | ENC_NA);
-  if (!disp_string) {
-    /* ERR: tvb_memdup failed */
-    ptvcursor_advance(cursor, length);
-    return;
-  }
 
-  wmem_new = wmem_strbuf_sized_new(wmem_packet_scope(), length, 0);
+  wmem_new = wmem_strbuf_sized_new(wmem_packet_scope(), length + 1, 0);
+  disp_string = (gchar*) wmem_alloc(wmem_packet_scope(), length + 1);
+  disp_string[length] = '\0';
+  tvb_memcpy(tvb, (void*)disp_string, offset, length);
 
-  while (*disp_string) {
+  for (x = 0; x < length && disp_string[x] != '\0'; x++) {
     replacestr = NULL;
-    if (strlen(disp_string) > x+1) {
-      if (*disp_string == '\36') {
+    if (x + 1 < length) {
+      if (disp_string[x] == '\36') {
         replacestr = try_val_to_str_ext(disp_string[x + 1], &DisplayLabels_36_ext);
-      } else if (*disp_string == '\200') {
+      } else if (disp_string[x] == '\200') {
         replacestr = try_val_to_str_ext(disp_string[x + 1], &DisplayLabels_200_ext);
       }
     }
     if (replacestr) {
-      disp_string++; x++; /* swallow replaced characters */
+      x++;        /* swallow replaced characters */
       wmem_strbuf_append(wmem_new, replacestr);
-      append_replaced_str = 1;
+      show_replaced_str = TRUE;
     } else {
-      wmem_strbuf_append_c(wmem_new, *disp_string);
+      wmem_strbuf_append_c(wmem_new, disp_string[x]);
     }
-    x++;
-    disp_string++;
   }
-
-  if (append_replaced_str) {
+  if (show_replaced_str) {
     proto_item_append_text(item, " => \"%s\"" , wmem_strbuf_get_str(wmem_new));
   }
   ptvcursor_advance(cursor, length);
@@ -6417,7 +6417,20 @@ handle_MiscellaneousCommandMessage(ptvcursor_t *cursor, packet_info * pinfo _U_)
   ptvcursor_add(cursor, hf_skinny_callReference, 4, ENC_LITTLE_ENDIAN);
   command = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_command, 4, ENC_LITTLE_ENDIAN);
-  if (command == MISCCOMMANDTYPE_VIDEOFASTUPDATEGOB)   {
+  if (command == MISCCOMMANDTYPE_VIDEOFASTUPDATEPICTURE)   {
+    /* start union : u / maxsize: 16 */
+    ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "command is MiscCommandType_videoFastUpdatePicture");
+    {
+      /* start struct : videoFastUpdatePicture / size: 8 */
+      ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "videoFastUpdatePicture");
+      ptvcursor_add(cursor, hf_skinny_firstGOB, 4, ENC_LITTLE_ENDIAN);
+      ptvcursor_add(cursor, hf_skinny_numberOfGOBs, 4, ENC_LITTLE_ENDIAN);
+      ptvcursor_pop_subtree(cursor);
+      /* end struct: videoFastUpdatePicture */
+    }
+    ptvcursor_pop_subtree(cursor);
+    ptvcursor_advance(cursor, 8);
+  } else if (command == MISCCOMMANDTYPE_VIDEOFASTUPDATEGOB)   {
     /* start union : u / maxsize: 16 */
     ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "command is MiscCommandType_videoFastUpdateGOB");
     {
