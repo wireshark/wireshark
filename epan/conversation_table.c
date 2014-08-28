@@ -216,7 +216,7 @@ register_ct_t *get_conversation_table_by_num(guint table_num)
 /** Compute the hash value for two given address/port pairs.
  * (Parameter type is gconstpointer for GHashTable compatibility.)
  *
- * @param key Conversation. MUST point to a conv_key_t struct.
+ * @param v Conversation Key. MUST point to a conv_key_t struct.
  * @return Computed key hash.
  */
 static guint
