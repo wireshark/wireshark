@@ -18,6 +18,8 @@ Trap-PDU/_untag/specific-trap   SpecificTrap
 Messagev2u/datav2u/plaintext v2u_plaintext
 BulkPDU/request-id bulkPDU_request-id
 
+#.FN_PARS Version    VAL_PTR = &snmp_version
+
 #.FN_PARS PDUs
 
 	VAL_PTR = &pdu_type
@@ -39,6 +41,10 @@ gint pdu_type=-1;
 	enterprise_oid = NULL;
 
 %(DEFAULT_BODY)s
+
+  if (snmp_version != 0) {
+    expert_add_info(actx->pinfo, tree, &ei_snmp_trap_pdu_obsolete);
+  }
 
 #.FN_PARS Trap-PDU/_untag/generic-trap    VAL_PTR = &generic_trap
 

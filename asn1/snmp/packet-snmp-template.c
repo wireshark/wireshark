@@ -165,7 +165,7 @@ static guint num_specific_traps = 0;
 static snmp_st_assoc_t *specific_traps = NULL;
 static const char *enterprise_oid = NULL;
 static guint generic_trap = 0;
-
+static guint32 snmp_version = 0;
 
 static snmp_usm_params_t usm_p = {FALSE,FALSE,0,0,0,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL,FALSE};
 
@@ -279,6 +279,7 @@ static expert_field ei_snmp_varbind_wrong_class_tag = EI_INIT;
 static expert_field ei_snmp_rfc1910_non_conformant = EI_INIT;
 static expert_field ei_snmp_rfc3411_non_conformant = EI_INIT;
 static expert_field ei_snmp_version_unknown = EI_INIT;
+static expert_field ei_snmp_trap_pdu_obsolete = EI_INIT;
 
 static const true_false_string auth_flags = {
 	"OK",
@@ -2476,6 +2477,7 @@ void proto_register_snmp(void) {
 		{ &ei_snmp_rfc1910_non_conformant, { "snmp.rfc1910_non_conformant", PI_PROTOCOL, PI_WARN, "Data not conforming to RFC1910", EXPFILL }},
 		{ &ei_snmp_rfc3411_non_conformant, { "snmp.rfc3411_non_conformant", PI_PROTOCOL, PI_WARN, "Data not conforming to RFC3411", EXPFILL }},
 		{ &ei_snmp_version_unknown, { "snmp.version.unknown", PI_PROTOCOL, PI_WARN, "Unknown version", EXPFILL }},
+		{ &ei_snmp_trap_pdu_obsolete, { "snmp.trap_pdu_obsolete", PI_PROTOCOL, PI_WARN, "Trap-PDU is obsolete in this SNMP version", EXPFILL }},
 
 	};
 
