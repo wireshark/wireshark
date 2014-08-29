@@ -1493,50 +1493,53 @@ dissect_bthci_evt_qos_violation(tvbuff_t *tvb, int offset, packet_info *pinfo _U
 static int
 dissect_bthci_evt_conn_packet_type_changed(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
-    guint16     flags;
+    guint16     packet_types;
     proto_tree *handle_tree;
     proto_item *ti_ptype_subtree;
 
     proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
 
-    flags = tvb_get_letohs(tvb, offset);
     proto_tree_add_item(tree, hf_bthci_evt_connection_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
 
     handle_tree = proto_tree_add_item(tree, hf_usable_packet_types, tvb, offset, 2, ENC_NA);
+    packet_types = tvb_get_letohs(tvb, offset);
     ti_ptype_subtree = proto_item_add_subtree(handle_tree, ett_ptype_subtree);
 
-    if (flags & 0x0008)
+    proto_item_append_text(handle_tree, ": ");
+    if (packet_types & 0x0008)
         proto_item_append_text(handle_tree, "DM1 ");
-    if (flags & 0x0010)
+    if (packet_types & 0x0010)
         proto_item_append_text(handle_tree, "DH1 ");
-    if (flags & 0x0400)
+    if (packet_types & 0x0400)
         proto_item_append_text(handle_tree, "DM3 ");
-    if (flags & 0x0800)
+    if (packet_types & 0x0800)
         proto_item_append_text(handle_tree, "DH3 ");
-    if (flags & 0x4000)
+    if (packet_types & 0x4000)
         proto_item_append_text(handle_tree, "DM5 ");
-    if (flags & 0x8000)
+    if (packet_types & 0x8000)
         proto_item_append_text(handle_tree, "DH5 ");
-    if (flags & 0x0020)
+    if (packet_types & 0x0020)
         proto_item_append_text(handle_tree, "HV1 ");
-    if (flags & 0x0040)
+    if (packet_types & 0x0040)
         proto_item_append_text(handle_tree, "HV2 ");
-    if (flags & 0x0080)
+    if (packet_types & 0x0080)
         proto_item_append_text(handle_tree, "HV3 ");
-    if (flags & 0x0002)
+    if (packet_types & 0x0002)
         proto_item_append_text(handle_tree, "2-DH1 ");
-    if (flags & 0x0004)
+    if (packet_types & 0x0004)
         proto_item_append_text(handle_tree, "3-DH1 ");
-    if (flags & 0x0100)
+    if (packet_types & 0x0100)
         proto_item_append_text(handle_tree, "2-DH3 ");
-    if (flags & 0x0200)
+    if (packet_types & 0x0200)
         proto_item_append_text(handle_tree, "3-DH3 ");
-    if (flags & 0x1000)
+    if (packet_types & 0x1000)
         proto_item_append_text(handle_tree, "2-DH5 ");
-    if (flags & 0x2000)
+    if (packet_types & 0x2000)
         proto_item_append_text(handle_tree, "3-DH5 ");
+    if (packet_types == 0)
+        proto_item_append_text(handle_tree, "does not support any packets");
 
     proto_tree_add_item(ti_ptype_subtree, hf_bthci_evt_link_type_2dh1, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(ti_ptype_subtree, hf_bthci_evt_link_type_3dh1, tvb, offset, 2, ENC_LITTLE_ENDIAN);
