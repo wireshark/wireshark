@@ -18221,9 +18221,9 @@ proto_register_ieee80211 (void)
       "Type and subtype combined (first byte: type, second byte: subtype)", HFILL }},
 
     {&hf_ieee80211_fc_frame_extension,
-     {"Extension", "wlan.fc.extension",
+     {"Control Frame Extension", "wlan.fc.extension",
       FT_UINT8, BASE_DEC, NULL, 0,
-      "Frame extension", HFILL }},
+      NULL, HFILL }},
 
     {&hf_ieee80211_fc_flags,
      {"Flags", "wlan.flags",
