@@ -752,7 +752,7 @@ static guint8 findSafetyFrame ( tvbuff_t *message_tvb, guint u_Offset, gboolean 
 {
     guint     ctr, rem_length;
     guint16   crc, f2crc, calcCrc;
-    guint8    b_Length, crcOffset;
+    guint8    b_Length, b_CTl, crcOffset;
     guint8   *bytes;
     guint     b_ID;
     gboolean  found;
@@ -803,57 +803,74 @@ static guint8 findSafetyFrame ( tvbuff_t *message_tvb, guint u_Offset, gboolean 
                                  *  as they remain the only values left, which are not valid */
                                 if ( ( ( b_ID >> 4 ) != 0x09 ) && ( ( b_ID >> 4 ) != 0x0F ) )
                                 {
-                                    /* Find CRC position and calculate checksum */
+                                    /* Read CRC from position */
                                     crc = tvb_get_guint8(message_tvb, ctr + 3 + b_Length );
 
-                                    bytes = (guint8 *)tvb_memdup(wmem_packet_scope(), message_tvb, ctr - 1, b_Length + 5 );
-                                    if ( b_Length > 8 ) {
-                                        crc = tvb_get_letohs ( message_tvb, ctr + 3 + b_Length );
-                                        crcOffset = 1;
+                                    /* There exists some false positives, where the only possible
+                                     * data information in the frame is the ID and the ADDR fields.
+                                     * The rest of the fields in frame 1 are zeroed out. The packet
+                                     * must be filtered out and may not be used. To detect it, we
+                                     * check for the CT value, which, if zero indicates strongly
+                                     * that this is false-positive. */
+                                    b_CTl = tvb_get_guint8(message_tvb, ctr + 2 );
 
-                                        calcCrc = crc16_0x755B( bytes, b_Length + 4, 0 );
-                                        if ( ( crc ^ calcCrc ) != 0 )
-                                            calcCrc = crc16_0x5935( bytes, b_Length + 4, 0 );
-                                    } else {
-                                        calcCrc = crc8_0x2F ( bytes, b_Length + 4, 0 );
-                                    }
-
-                                    if ( ( crc ^ calcCrc ) == 0 )
+                                    /* If either length, crc or CTl is not zero, this may be a
+                                     * correct package. If all three are 0, this is most certainly
+                                     * an incorrect package, because the possibility of a valid
+                                     * package with all three values being zero is next to impossible */
+                                    if ( b_Length != 0x00 || crc != 0x00 || b_CTl != 0x00 )
                                     {
-                                        /* Check if this is a Slim SSDO message */
-                                        if ( ( b_ID >> 3 ) == ( OPENSAFETY_SLIM_SSDO_MESSAGE_TYPE >> 3 ) )
+                                        /* calculate checksum */
+                                        bytes = (guint8 *)tvb_memdup(wmem_packet_scope(), message_tvb, ctr - 1, b_Length + 5 );
+                                        if ( b_Length > 8 )
                                         {
-                                            /* Slim SSDO messages must have a length != 0, as the first byte
-                                             * in the payload contains the SOD access command */
-                                            if ( b_Length > 0 )
-                                            {
-                                                *u_frameOffset = ( ctr - 1 );
-                                                *u_frameLength = b_Length + 2 * crcOffset + 11;
+                                            crc = tvb_get_letohs ( message_tvb, ctr + 3 + b_Length );
+                                            crcOffset = 1;
 
-                                                /* It is highly unlikely, that both frame 1 and frame 2 generate
-                                                 * a crc == 0 or equal crc's. Therefore we check, if both crc's are
-                                                 * equal. If so, it is a falsely detected frame. */
-                                                f2crc = tvb_get_guint8 ( message_tvb, ctr + 3 + 5 + b_Length );
-                                                if ( b_Length > 8 )
-                                                    f2crc = tvb_get_letohs ( message_tvb, ctr + 3 + 5 + b_Length );
-                                                if ( crc != f2crc )
+                                            calcCrc = crc16_0x755B( bytes, b_Length + 4, 0 );
+                                            if ( ( crc ^ calcCrc ) != 0 )
+                                                calcCrc = crc16_0x5935( bytes, b_Length + 4, 0 );
+                                        } else {
+                                            calcCrc = crc8_0x2F ( bytes, b_Length + 4, 0 );
+                                        }
+
+                                        if ( ( crc ^ calcCrc ) == 0 )
+                                        {
+                                            /* Check if this is a Slim SSDO message */
+                                            if ( ( b_ID >> 3 ) == ( OPENSAFETY_SLIM_SSDO_MESSAGE_TYPE >> 3 ) )
+                                            {
+                                                /* Slim SSDO messages must have a length != 0, as the first byte
+                                                 * in the payload contains the SOD access command */
+                                                if ( b_Length > 0 )
                                                 {
-                                                    found = 1;
-                                                    break;
+                                                    *u_frameOffset = ( ctr - 1 );
+                                                    *u_frameLength = b_Length + 2 * crcOffset + 11;
+
+                                                    /* It is highly unlikely, that both frame 1 and frame 2 generate
+                                                     * a crc == 0 or equal crc's. Therefore we check, if both crc's are
+                                                     * equal. If so, it is a falsely detected frame. */
+                                                    f2crc = tvb_get_guint8 ( message_tvb, ctr + 3 + 5 + b_Length );
+                                                    if ( b_Length > 8 )
+                                                        f2crc = tvb_get_letohs ( message_tvb, ctr + 3 + 5 + b_Length );
+                                                    if ( crc != f2crc )
+                                                    {
+                                                        found = 1;
+                                                        break;
+                                                    }
                                                 }
                                             }
-                                        }
-                                        else
-                                        {
-                                            *u_frameLength = 2 * b_Length + 2 * crcOffset + 11;
-                                            *u_frameOffset = ( ctr - 1 );
+                                            else
+                                            {
+                                                *u_frameLength = 2 * b_Length + 2 * crcOffset + 11;
+                                                *u_frameOffset = ( ctr - 1 );
 
-                                            /* At this point frames had been checked for SoC and SoA types of
-                                             * EPL. This is no longer necessary and leads to false-negatives.
-                                             * SoC and SoA frames get filtered out at the EPL entry point, cause
-                                             * EPL only provides payload, no longer complete frames. */
-                                            found = 1;
-                                            break;
+                                                /* At this point frames had been checked for SoC and SoA types of
+                                                 * EPL. This is no longer necessary and leads to false-negatives.
+                                                 * SoC and SoA frames get filtered out at the EPL entry point, cause
+                                                 * EPL only provides payload, no longer complete frames. */
+                                                found = 1;
+                                                break;
+                                            }
                                         }
                                     }
                                 }
@@ -1003,7 +1020,7 @@ dissect_opensafety_spdo_message(tvbuff_t *message_tvb, packet_info *pinfo, proto
 
 static void dissect_ssdo_payload ( packet_info *pinfo, tvbuff_t *new_tvb, proto_tree *ssdo_payload, guint8 sacmd )
 {
-    guint       dataLength   = 0, ctr = 0, n = 0;
+    guint       dataLength   = 0, ctr = 0, n = 0, nCRCs = 0;
     guint8      ssdoSubIndex = 0;
     guint16     ssdoIndex    = 0, dispSSDOIndex = 0;
     guint32     sodLength    = 0, entry = 0;
@@ -1066,11 +1083,14 @@ static void dissect_ssdo_payload ( packet_info *pinfo, tvbuff_t *new_tvb, proto_
             entry = tvb_get_letohl ( new_tvb, 0 );
             proto_tree_add_uint_format_value ( sod_tree, hf_oss_sod_par_timestamp, new_tvb, 0,
                         4, entry, "0x%08X", entry );
-            for ( n = 4; n < dataLength; n+=4 )
+
+            /* This is to avoid a compiler loop optimization warning */
+            nCRCs = dataLength / 4;
+            for ( ctr = 1; ctr < nCRCs; ctr++ )
             {
-                entry = tvb_get_letohl ( new_tvb, n );
-                proto_tree_add_uint_format_value ( sod_tree, hf_oss_sod_par_checksum, new_tvb, (n ),
-                        4, entry, "[#%d] 0x%08X", ( n / 4 ), entry );
+                entry = tvb_get_letohl ( new_tvb, ctr * 4 );
+                proto_tree_add_uint_format_value ( sod_tree, hf_oss_sod_par_checksum, new_tvb, ctr * 4,
+                        4, entry, "[#%d] 0x%08X", ctr, entry );
             }
         }
         /* If != upload, it is most likely a 101A download */
@@ -1130,11 +1150,14 @@ static void dissect_ssdo_payload ( packet_info *pinfo, tvbuff_t *new_tvb, proto_
                     entry = tvb_get_letohl ( new_tvb, ctr + 5 );
                     proto_tree_add_uint_format_value ( sod_tree, hf_oss_sod_par_timestamp, new_tvb, ctr + 5,
                                 4, entry, "0x%08X", entry );
-                    for ( n = 4; n < sodLength; n+=4 )
+
+                    /* This is to avoid a compiler loop optimization warning */
+                    nCRCs = sodLength / 4;
+                    for ( n = 1; n < nCRCs; n++ )
                     {
-                        entry = tvb_get_letohl ( new_tvb, ctr + 5 + n );
-                        proto_tree_add_uint_format_value ( sod_tree, hf_oss_sod_par_checksum, new_tvb, (ctr + 5 + n ),
-                                4, entry, "[#%d] 0x%08X", ( n / 4 ), entry );
+                        entry = tvb_get_letohl ( new_tvb, ctr + 5 + ( n * 4 ) );
+                        proto_tree_add_uint_format_value ( sod_tree, hf_oss_sod_par_checksum, new_tvb,
+                                (ctr + 5 + ( n * 4 ) ), 4, entry, "[#%d] 0x%08X", n, entry );
                     }
                 } else if ( ssdoIndex == OPENSAFETY_SOD_DVI && ssdoSubIndex == 0x07 ) {
                     entry = tvb_get_letohl ( new_tvb, ctr + 5 );
