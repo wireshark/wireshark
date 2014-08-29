@@ -76,19 +76,14 @@ dist_diameter_DATA = $(_CUSTOM_diameter_xml_files_) \
 	diameter/eap.xml \
 	diameter/Ericsson.xml \
 	diameter/etsie2e4.xml \
-	diameter/gqpolicy.xml \
-	diameter/imscxdx.xml \
 	diameter/mobileipv4.xml \
 	diameter/mobileipv6.xml \
 	diameter/nasreq.xml \
 	diameter/sip.xml \
 	diameter/Starent.xml \
 	diameter/sunping.xml \
-	diameter/TGPPGmb.xml \
-	diameter/TGPPRx.xml \
+	diameter/TGPP.xml \
 	diameter/TGPP2.xml \
-	diameter/TGPPS9.xml \
-	diameter/TGPPSh.xml \
 	diameter/Vodafone.xml \
 	diameter/AlcatelLucent.xml \
 	diameter/Nokia.xml \

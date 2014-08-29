@@ -1,0 +1,1177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<application id="16777223" name="3GPP Gmb" uri="http://www.3gpp.org/DynaReport/29061.htm">
+	<!--
+		This secion/application contains AVPs whose codes collide with other 3GPP AVPs.
+		The modern (non-conflicting) Gmb AVPs are in the SGmb application/section below.
+
+		If you want to use the Cx/Dx AVPs comment the below AVPs (1-27) out and uncomment
+		the Cx/Dx AVPs.
+	-->
+
+	<avp name="3GPP-IMSI" code="1" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		<type type-name="UTF8String"/>
+	</avp>
+	<avp name="3GPP-Charging-Id" code="2" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		<type type-name="OctetString"/>
+	</avp>
+	<avp name="3GPP-PDP-Type" code="3" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		<type type-name="Enumerated"/>
+		<enum name="IPv4" code="0"/>
+		<enum name="PPP" code="1"/>
+		<enum name="IPv6" code="2"/>
+		<enum name="IPv4v6" code="3"/>
+	</avp>
+	<avp name="3GPP-CG-Address" code="4" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		<type type-name="IPAddress"/>
+	</avp>
+	<avp name="3GPP-GPRS-Negotiated-QoS-profile" code="5" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		<type type-name="UTF8String"/>
+	</avp>
+	<avp name="3GPP-SGSN-Address" code="6" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		<type type-name="IPAddress"/>
+	</avp>
+	<avp name="3GPP-GGSN-Address" code="7" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		<type type-name="IPAddress"/>
+	</avp>
+	<avp name="3GPP-IMSI-MCC-MNC" code="8" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		<type type-name="UTF8String"/>
+	</avp>
+	<avp name="3GPP-GGSN-MCC-MNC" code="9" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		<type type-name="UTF8String"/>
+	</avp>
+	<avp name="3GPP-NSAPI" code="10" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		<type type-name="UTF8String"/>
+	</avp>
+	<avp name="3GPP-Session-Stop-Indicator" code="11" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		<type type-name="UTF8String"/>
+	</avp>
+	<avp name="3GPP-Selection-Mode" code="12" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		<type type-name="UTF8String"/>
+	</avp>
+	<avp name="3GPP-Charging-Characteristics" code="13" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		<type type-name="UTF8String"/>
+	</avp>
+	<avp name="3GPP-CG-IPv6-Address" code="14" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		<type type-name="OctetString"/>
+	</avp>
+	<avp name="3GPP-SGSN-IPv6-Address" code="15" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		<type type-name="OctetString"/>
+	</avp>
+	<avp name="3GPP-GGSN-IPv6-Address" code="16" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		<type type-name="OctetString"/>
+	</avp>
+	<avp name="3GPP-IPv6-DNS-Server" code="17" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		<type type-name="OctetString"/>
+	</avp>
+	<avp name="3GPP-SGSN-MCC-MNC" code="18" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		<type type-name="UTF8String"/>
+	</avp>
+	<avp name="3GPP-Teardown-Indicator" code="19" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		<type type-name="OctetString"/>
+	</avp>
+	<avp name="3GPP-IMEISV" code="20" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		<type type-name="OctetString"/>
+	</avp>
+	<avp name="3GPP-RAT-Type" code="21" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		<type type-name="OctetString"/>
+	</avp>
+	<avp name="3GPP-User-Location-Info" code="22" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		<type type-name="OctetString"/>
+	</avp>
+	<avp name="3GPP-MS-TimeZone" code="23" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		<type type-name="OctetString"/>
+	</avp>
+	<avp name="3GPP-CAMEL-Charging-Info" code="24" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		<type type-name="OctetString"/>
+	</avp>
+	<avp name="3GPP-Packet-Filter" code="25" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		<type type-name="OctetString"/>
+	</avp>
+	<avp name="3GPP-Negotiated-DSCP" code="26" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		<type type-name="OctetString"/>
+	</avp>
+	<avp name="3GPP-Allocate-IP-Type" code="27" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		<type type-name="OctetString"/>
+	</avp>
+
+	<!-- Note: The AVP codes from 1 to 255 are reserved for backwards compatibility with 3GPP RADIUS Vendor Specific
+	     Attributes (See TS 29.061 [13]) -->
+	<!--
+	    <avp name="Reserved" code="28" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		    <type type-name="OctetString"/>
+	    </avp>
+	    <avp name="Reserved" code="29" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		    <type type-name="OctetString"/>
+	    </avp>
+	    <avp name="Reserved" code="30" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		    <type type-name="OctetString"/>
+	    </avp>
+	    <avp name="Reserved" code="31" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		    <type type-name="OctetString"/>
+	    </avp>
+	    <avp name="Reserved" code="32" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		    <type type-name="OctetString"/>
+	    </avp>
+	    <avp name="Reserved" code="33" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		    <type type-name="OctetString"/>
+	    </avp>
+	    <avp name="Reserved" code="34" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		    <type type-name="OctetString"/>
+	    </avp>
+	    <avp name="Reserved" code="35" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		    <type type-name="OctetString"/>
+	    </avp>
+	    <avp name="Reserved" code="36" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		    <type type-name="OctetString"/>
+	    </avp>
+	    <avp name="Reserved" code="37" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		    <type type-name="OctetString"/>
+	    </avp>
+	    <avp name="Reserved" code="38" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		    <type type-name="OctetString"/>
+	    </avp>
+	    <avp name="Reserved" code="39" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		    <type type-name="OctetString"/>
+	    </avp>
+	    <avp name="Reserved" code="40" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		    <type type-name="OctetString"/>
+	    </avp>
+	    <avp name="Reserved" code="41" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		    <type type-name="OctetString"/>
+	    </avp>
+	    <avp name="Reserved" code="42" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		    <type type-name="OctetString"/>
+	    </avp>
+	    <avp name="Reserved" code="43" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		    <type type-name="OctetString"/>
+	    </avp>
+	    <avp name="Reserved" code="44" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		    <type type-name="OctetString"/>
+	    </avp>
+	    <avp name="Reserved" code="45" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		    <type type-name="OctetString"/>
+	    </avp>
+	    <avp name="Reserved" code="46" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		    <type type-name="OctetString"/>
+	    </avp>
+	    <avp name="Reserved" code="47" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		    <type type-name="OctetString"/>
+	    </avp>
+	    <avp name="Reserved" code="48" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		    <type type-name="OctetString"/>
+	    </avp>
+	    <avp name="Reserved" code="49" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		    <type type-name="OctetString"/>
+	    </avp>
+	    <avp name="Reserved" code="50" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		    <type type-name="OctetString"/>
+	    </avp>
+	    <avp name="Reserved" code="51" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		    <type type-name="OctetString"/>
+	    </avp>
+	    <avp name="Reserved" code="52" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		    <type type-name="OctetString"/>
+	    </avp>
+	    <avp name="Reserved" code="53" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		    <type type-name="OctetString"/>
+	    </avp>
+	    <avp name="Reserved" code="54" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		    <type type-name="OctetString"/>
+	    </avp>
+	    <avp name="Reserved" code="55" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		    <type type-name="OctetString"/>
+	    </avp>
+	    <avp name="Reserved" code="56" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		    <type type-name="OctetString"/>
+	    </avp>
+	    <avp name="Reserved" code="57" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		    <type type-name="OctetString"/>
+	    </avp>
+	    <avp name="Reserved" code="58" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		    <type type-name="OctetString"/>
+	    </avp>
+	    <avp name="Reserved" code="59" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		    <type type-name="OctetString"/>
+	    </avp>
+	-->
+
+	<!-- ************************** IMS Cx Dx AVPS ********************* -->
+<!--
+	These AVPs collide(share AVP code number) with other 3GPP AVPs (above).
+	Uncomment 1 - 28 here and comment out the ones above if you want to use these.
+	<avp name="Visited-Network-Identifier(Obsolete CN#25)" code="1" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
+		<type type-name="OctetString"/>
+	</avp>
+	<avp name="Public-Identity(Obsolete CN#25)" code="2" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<type type-name="UTF8String"/>
+	</avp>
+	<avp name="Server-Name(Obsolete CN#25)" code="3" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<type type-name="UTF8String"/>
+	</avp>
+	<avp name="Server-Capabilities(Obsolete CN#25)" code="4" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<grouped>
+			<gavp name="Mandatory-Capability"/>
+			<gavp name="Optional-Capability"/>
+			<gavp name="Server-Name"/>
+		</grouped>
+	</avp>
+	<avp name="Mandatory-Capability(Obsolete CN#25)" code="5" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
+		<type type-name="Unsigned32"/>
+	</avp>
+	<avp name="Optional-Capability(Obsolete CN#25)" code="6" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<type type-name="Unsigned32"/>
+	</avp>
+	<avp name="User-Data(Obsolete CN#25)" code="7" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<type type-name="OctetString"/>
+	</avp>
+	<avp name="SIP-Number-Auth-Items(Obsolete CN#25)" code="8" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
+		<type type-name="Unsigned32"/>
+	</avp>
+	<avp name="SIP-Authentication-Scheme(Obsolete CN#25)" code="9" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<type type-name="UTF8String"/>
+	</avp>
+	<avp name="SIP-Authenticate(Obsolete CN#25)" code="10" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<type type-name="OctetString"/>
+	</avp>
+	<avp name="SIP-Authorization(Obsolete CN#25)" code="11" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<type type-name="OctetString"/>
+	</avp>
+	<avp name="SIP-Authentication-Context(Obsolete CN#25)" code="12" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<type type-name="OctetString"/>
+	</avp>
+	<avp name="SIP-Auth-Data-Item(Obsolete CN#25)" code="13" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<grouped>
+			<gavp name="SIP-Item-Number"/>
+			<gavp name="SIP-Authentication-Scheme"/>
+			<gavp name="SIP-Authenticate"/>
+			<gavp name="SIP-Authorization"/>
+			<gavp name="SIP-Authentication-Context"/>
+			<gavp name="Confidentiality-Key"/>
+			<gavp name="Integrity-Key"/>
+		</grouped>
+	</avp>
+	<avp name="SIP-Item-Number(Obsolete CN#25)" code="14" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<type type-name="Unsigned32"/>
+	</avp>
+	<avp name="Server-Assignment-Type(Obsolete CN#25)" code="15" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<type type-name="Unsigned32"/>
+		<enum name="No-Assignment" code="0"/>
+		<enum name="Registration" code="1"/>
+		<enum name="Re-Registration" code="2"/>
+		<enum name="Unregistered-User" code="3"/>
+		<enum name="Timeout-Deregistration" code="4"/>
+		<enum name="User-Deregistration" code="5"/>
+		<enum name="Timeout-Deregistration-Store-Server-Name" code="6"/>
+		<enum name="User-Deregistration-Store-Server-Name" code="7"/>
+		<enum name="Administrative-Deregistration" code="8"/>
+		<enum name="Authentication-Failure" code="9"/>
+		<enum name="Authentication-Timeout" code="10"/>
+		<enum name="Deregistration-Too-Much-Data" code="11"/>
+	</avp>
+	<avp name="Deregistration-Reason(Obsolete CN#25)" code="16" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<grouped>
+			<gavp name="Reason-Code"/>
+			<gavp name="Reason-Info"/>
+		</grouped>
+	</avp>
+	<avp name="Reason-Code(Obsolete CN#25)" code="17" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<type type-name="Unsigned32"/>
+		<enum name="Permanent-Termination" code="0"/>
+		<enum name="New-Server-Assigned" code="1"/>
+		<enum name="Server-Change" code="2"/>
+		<enum name="Remove-S-CSCF" code="3"/>
+	</avp>
+	<avp name="Reason-Info(Obsolete CN#25)" code="18" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<type type-name="UTF8String"/>
+	</avp>
+	<avp name="Charging-Information(Obsolete CN#25)" code="19" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<grouped>
+			<gavp name="Primary-Event-Charging-Function-Name"/>
+			<gavp name="Secondary-Event-Charging-Function-Name"/>
+			<gavp name="Primary-Charging-Collection-Function-Name"/>
+			<gavp name="Secondary-Charging-Collection-Function-Name"/>
+		</grouped>
+	</avp>
+	<avp name="Primary-Event-Charging-Function-Name(Obsolete CN#25)" code="20" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<type type-name="DiameterURI"/>
+	</avp>
+	<avp name="Secondary-Event-Charging-Function-Name(Obsolete CN#25)" code="21" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<type type-name="DiameterURI"/>
+	</avp>
+	<avp name="Primary-Charging-Collection-Function-Name(Obsolete CN#25)" code="22" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<type type-name="DiameterURI"/>
+	</avp>
+	<avp name="Secondary-Charging-Collection-Function-Name(Obsolete CN#25)" code="23" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<type type-name="DiameterURI"/>
+	</avp>
+	<avp name="User-Authorization-Type(Obsolete CN#25)" code="24" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<type type-name="Unsigned32"/>
+		<enum name="Registration" code="0"/>
+		<enum name="De-Registration" code="1"/>
+		<enum name="Registration-And-Capabilities" code="2"/>
+	</avp>
+	<avp name="User-Data-Request-Type(Obsolete CN#25)" code="25" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<type type-name="Unsigned32"/>
+		<enum name="Complete-Profile" code="0"/>
+		<enum name="Registered-Profile" code="1"/>
+		<enum name="Unregistered-Profile" code="2"/>
+	</avp>
+	<avp name="User-Data-Already-Available(Obsolete CN#25)" code="26" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<type type-name="Unsigned32"/>
+		<enum name="User-Data-Not-Available" code="0"/>
+		<enum name="User-Data-Already-Available" code="1"/>
+	</avp>
+	<avp name="Confidentiality-Key(Obsolete CN#25)" code="27" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<type type-name="OctetString"/>
+	</avp>
+	<avp name="Integrity-Key(Obsolete CN#25)" code="28" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<type type-name="OctetString"/>
+	</avp>
+-->
+	<!-- ************************ END IMS Cx Dx AVPS ******************* -->
+</application>	<!-- 3GPP Gmb -->
+
+
+<!-- The AVP codes from 500 to 599 are reserved for TS 29.209, 29.211, and 29.229. -->
+<application id="16777222" name="3GPP Gq" uri="http://www.3gpp.org/DynaReport/29209.htm">
+	<!-- ETSI TS 129 209 V6.7.0 (2007-06) -->
+
+	<avp name="Abort-Cause" code="500" mandatory="must" vendor-bit="must" may-encrypt="yes" vendor-id="TGPP">
+		<type type-name="Enumerated"/>
+		<enum name="BEARER_RELEASED" code="0"/>
+		<enum name="INSUFFICIENT_SERVER_RESOURCES" code="1"/>
+		<enum name="INSUFFICIENT_BEARER_RESOURCES" code="2"/>
+	</avp>
+
+	<avp name="Access-Network-Charging-Address" code="501" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+		<type type-name="IPAddress"/>
+	</avp>
+
+	<avp name="Access-Network-Charging-Identifier" code="502" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<grouped>
+			<gavp name="Access-Network-Charging-Identifier-Value"/>
+			<gavp name="Flows"/>
+		</grouped>
+	</avp>
+
+	<avp name="Access-Network-Charging-Identifier-Value" code="503" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<type type-name="OctetString"/>
+	</avp>
+
+	<avp name="AF-Application-Identifier" code="504" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<type type-name="OctetString"/>
+	</avp>
+
+	<avp name="AF-Charging-Identifier" code="505" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<type type-name="OctetString"/>
+	</avp>
+
+	<avp name="Authorization-Token" code="506" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<type type-name="OctetString"/>
+	</avp>
+
+	<avp name="Flow-Description" code="507" vendor-id="TGPP" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must">
+		<type type-name="IPFilterRule"/>
+	</avp>
+
+	<avp name="Flow-Grouping" code="508" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<grouped>
+			<gavp name="Flows"/>
+		</grouped>
+	</avp>
+
+	<avp name="Flow-Number" code="509" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<type type-name="Unsigned32"/>
+	</avp>
+
+	<avp name="Flows" code="510" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<grouped>
+			<gavp name="Media-Component-Number"/>
+			<gavp name="Flow-Number"/>
+			<gavp name="Final-Unit-Action"/>
+		</grouped>
+	</avp>
+
+	<avp name="Flow-Status" code="511" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<type type-name="Enumerated"/>
+			<enum name="ENABLED-UPLINK" code="0"/>
+			<enum name="ENABLED-DOWNLINK" code="1"/>
+			<enum name="ENABLED" code="2"/>
+			<enum name="DISABLED" code="3"/>
+			<enum name="REMOVED" code="4"/>
+	</avp>
+
+	<avp name="Flow-Usage" code="512" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
+		<type type-name="Enumerated"/>
+			<enum name="NO_INFORMATION" code="0"/>
+			<enum name="RTCP" code="1"/>
+			<enum name="AF_SIGNALLING" code="2"/>
+	</avp>
+
+	<avp name="Specific-Action" code="513" mandatory="must" protected="may" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
+		<type type-name="Enumerated"/>
+		<!--ETSI TS 129 209 V6.7.0 (2007-06)-->
+			<enum name="SERVICE_INFORMATION_REQUEST (now void)" code="0"/>
+			<enum name="CHARGING_CORRELATION_EXCHANGE" code="1"/>
+			<enum name="INDICATION_OF_LOSS_OF_BEARER" code="2"/>
+			<enum name="INDICATION_OF_RECOVERY_OF_BEARER" code="3"/>
+			<enum name="INDICATION_OF_RELEASE_OF_BEARER" code="4"/>
+			<enum name="INDICATION_OF_ESTABLISHMENT_OF_BEARER (now void)" code="5"/>
+			<!-- ETSI ES 283 026 V2.4.1 (2008-11) defines these 2 events:
+			INDICATION_OF_SUBSCRIBER_DETACHMENT - 6
+			INDICATION_OF_RESERVATION_EXPIRATION - 7
+
+			But they are superceded by 3GPP 29.214 and ETSI 129 214 V10 with the
+			values below...
+			-->
+			<enum name="IP-CAN_CHANGE" code="6"/>
+			<enum name="INDICATION_OF_OUT_OF_CREDIT" code="7"/>
+			<!-- From 3GPP 29.214 v11.6.0: -->
+			<enum name="INDICATION_OF_SUCCESSFUL_RESOURCES_ALLOCATION" code="8"/>
+			<enum name="INDICATION_OF_FAILED_RESOURCES_ALLOCATION" code="9"/>
+			<enum name="INDICATION_OF_LIMITED_PCC_DEPLOYMENT" code="10"/>
+			<enum name="USAGE_REPORT" code="11"/>
+			<enum name="ACCESS_NETWORK_INFO_REPORT" code="12"/>
+	</avp>
+
+	<avp name="Max-Requested-Bandwidth-DL" code="515" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<type type-name="Unsigned32"/>
+	</avp>
+
+	<avp name="Max-Requested-Bandwidth-UL" code="516" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<type type-name="Unsigned32"/>
+	</avp>
+
+	<avp name="Media-Component-Description" code="517" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<grouped>
+			<gavp name="Media-Component-Number"/>
+			<gavp name="Media-Sub-Component"/>
+			<gavp name="AF-Application-Identifier"/>
+			<gavp name="Media-Type"/>
+			<gavp name="Max-Requested-Bandwidth-UL"/>
+			<gavp name="Max-Requested-Bandwidth-DL"/>
+			<gavp name="Flow-Status"/>
+			<gavp name="RS-Bandwidth"/>
+			<gavp name="RR-Bandwidth"/>
+			<gavp name="Codec-Data"/>
+			<!-- ETSI ES 283 026 V1.6.0 (2008-02) -->
+			<gavp name="Reservation-Priority"/>
+			<gavp name="Reservation-Class"/>
+			<gavp name="Transport-Class"/>
+			<gavp name="Media-Authorization-Context-Id"/>
+		</grouped>
+	</avp>
+
+	<avp name="Media-Component-Number" code="518" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<type type-name="Unsigned32"/>
+	</avp>
+
+	<avp name="Media-Sub-Component" code="519" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<grouped>
+			<gavp name="Flow-Number"/>
+			<gavp name="Flow-Description"/>
+			<gavp name="Flow-Status"/>
+			<gavp name="Flow-Usage"/>
+			<gavp name="Max-Requested-Bandwidth-UL"/>
+			<gavp name="Max-Requested-Bandwidth-DL"/>
+		</grouped>
+	</avp>
+
+	<avp name="Media-Type" code="520" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<type type-name="Enumerated"/>
+			<enum name="AUDIO" code="0"/>
+			<enum name="VIDEO" code="1"/>
+			<enum name="DATA" code="2"/>
+			<enum name="APPLICATION" code="3"/>
+			<enum name="CONTROL" code="4"/>
+			<enum name="TEXT" code="5"/>
+			<enum name="MESSAGE" code="6"/>
+			<enum name="OTHER" code="4294967295"/>
+	</avp>
+
+	<avp name="RR-Bandwidth" code="521" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<type type-name="Unsigned32"/>
+	</avp>
+
+	<avp name="RS-Bandwidth" code="522" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<type type-name="Unsigned32"/>
+	</avp>
+
+	<avp name="SIP-Forking-Indication" code="523" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<type type-name="Enumerated"/>
+			<enum name="SINGLE_DIALOGUE" code="0"/>
+			<enum name="SEVERAL_DIALOGUES" code="1"/>
+	</avp>
+</application>	<!-- 3GPP Gq -->
+
+<!-- The AVP codes from 500 to 599 are reserved for TS 29.209, 29.211, and 29.229. -->
+<application id="16777236" name="3GPP Rx" uri="http://www.3gpp.org/DynaReport/29214.htm">
+	<avp name="Codec-Data AVP" code="524" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<type type-name="UTF8String" />
+	</avp>
+
+	<avp name="Service-URN" code="525" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<type type-name="OctetString" />
+	</avp>
+
+	<avp name="Acceptable-Service-Info" code="526" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<grouped>
+			<gavp name="Media-Component-Description"/>
+			<gavp name="Max-Requested-Bandwidth-UL"/>
+			<gavp name="Max-Requested-Bandwidth-DL"/>
+		</grouped>
+	</avp>
+
+	<avp name="Service-Info-Status" code="527" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<type type-name="Enumerated" />
+			<enum name="FINAL_SERVICE_INFORMATION" code="0"/>
+			<enum name="PRELIMINARY_SERVICE_INFORMATION" code="1"/>
+	</avp>
+	<avp name="MPS-Identifier" code="528" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<type type-name="OctetString" />
+	</avp>
+	<avp name="AF-Signalling-Protocol" code="529" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<type type-name="Enumerated" />
+		<enum name="NO_INFORMATION" code="0" />
+		<enum name="SIP" code="1" />
+	</avp>
+	<!--
+	530 Sponsored-Connectivity-Data Grouped
+	-->
+	<avp name="Sponsor-Identity" code="531" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<type type-name="OctetString" />
+	</avp>
+	<avp name="Application-Service-Provider-Identity" code="532" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<type type-name="OctetString" />
+	</avp>
+	<avp name="Rx-Request-Type" code="533" mandatory="may"  may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		<type type-name="Enumerated"/>
+		<enum name="INITIAL_REQUEST" code="0"/>
+		<enum name="UPDATE_REQUEST" code="1"/>
+	</avp>
+	<avp name="Min-Requested-Bandwidth-DL" code="534" mandatory="may"  may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		<type type-name="Unsigned32"/>
+	</avp>
+	<avp name="Min-Requested-Bandwidth-UL" code="535" mandatory="may" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		<type type-name="Unsigned32"/>
+	</avp>
+	<avp name="Required-Access-Info" code="536" mandatory="may" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		<type type-name="Enumerated"/>
+		<enum name="USER_LOCATION" code="0"/>
+		<enum name="MS_TIME_ZONE" code="1"/>
+	</avp>
+	<avp name="IP-Domain-Id" code="537" mandatory="may" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		<type type-name="OctetString"/>
+	</avp>
+</application>	<!-- 3GPP Rx -->
+
+<!-- The AVP codes from 600 to 699 are reserved for TS 29.229. -->
+<application id="16777216" name="3GPP Cx" uri="http://www.3gpp.org/DynaReport/29229.htm">
+
+	<!-- IMS Cx Dx Application -->
+	<command name="User-Authorization"	code="300" vendor-id="TGPP"/>
+	<command name="Server-Assignment"	code="301" vendor-id="TGPP"/>
+	<command name="Location-Info"		code="302" vendor-id="TGPP"/>
+	<command name="Multimedia-Auth"		code="303" vendor-id="TGPP"/>
+	<command name="Registration-Termination" code="304" vendor-id="TGPP"/>
+	<command name="Push-Profile"		code="305" vendor-id="TGPP"/>
+
+	<!-- ************************** IMS Cx Dx AVPS 3GPP TS 29.229 version 6.7.0 Release 6 ********************* -->
+	<avp name="Visited-Network-Identifier" code="600" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
+		<type type-name="OctetString"/>
+	</avp>
+	<avp name="Public-Identity" code="601" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<type type-name="UTF8String"/>
+	</avp>
+	<avp name="Server-Name" code="602" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<type type-name="UTF8String"/>
+	</avp>
+	<avp name="Server-Capabilities" code="603" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<grouped>
+			<gavp name="Mandatory-Capability"/>
+			<gavp name="Optional-Capability"/>
+			<gavp name="Server-Name"/>
+		</grouped>
+	</avp>
+	<avp name="Mandatory-Capability" code="604" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<type type-name="Unsigned32"/>
+	</avp>
+	<avp name="Optional-Capability" code="605" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<type type-name="Unsigned32"/>
+	</avp>
+	<avp name="User-Data" code="606" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<type type-name="OctetString"/>
+	</avp>
+	<avp name="SIP-Number-Auth-Items" code="607" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<type type-name="Unsigned32"/>
+	</avp>
+	<avp name="SIP-Authentication-Scheme" code="608" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<type type-name="UTF8String"/>
+	</avp>
+	<avp name="SIP-Authenticate" code="609" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<type type-name="OctetString"/>
+	</avp>
+	<avp name="SIP-Authorization" code="610" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<type type-name="OctetString"/>
+	</avp>
+	<avp name="SIP-Authentication-Context" code="611" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<type type-name="OctetString"/>
+	</avp>
+	<!-- GROUPED -->
+	<avp name="SIP-Auth-Data-Item" code="612" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<grouped>
+			<gavp name="SIP-Item-Number"/>
+			<gavp name="SIP-Authentication-Scheme"/>
+			<gavp name="SIP-Authenticate"/>
+			<gavp name="SIP-Authorization"/>
+			<gavp name="SIP-Authentication-Context"/>
+			<gavp name="Confidentiality-Key"/>
+			<gavp name="Integrity-Key"/>
+			<gavp name="SIP-Digest-Authenticate"/>
+			<gavp name="Framed-IP-Address"/>
+			<gavp name="Framed-IPv6-Prefix"/>
+			<gavp name="Framed-Interface-Id"/>
+			<gavp name="Line-Identifier"/>
+			<gavp name="Authentication-Method"/>
+			<gavp name="Authentication-Information-SIM"/>
+			<gavp name="Authorization -Information-SIM"/>
+		</grouped>
+	</avp>
+	<avp name="SIP-Item-Number" code="613" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<type type-name="Unsigned32"/>
+	</avp>
+	<avp name="Server-Assignment-Type" code="614" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<type type-name="Enumerated"/>
+		<enum name="NO_ASSIGNMENT" code="0"/>
+		<enum name="REGISTRATION" code="1"/>
+		<enum name="RE_REGISTRATION" code="2"/>
+		<enum name="UNREGISTERED_USER" code="3"/>
+		<enum name="TIMEOUT_DEREGISTRATION" code="4"/>
+		<enum name="USER_DEREGISTRATION" code="5"/>
+		<enum name="TIMEOUT_DEREGISTRATION_STORE_SERVER_NAME" code="6"/>
+		<enum name="USER_DEREGISTRATION_STORE_SERVER_NAME" code="7"/>
+		<enum name="ADMINISTRATIVE_DEREGISTRATION" code="8"/>
+		<enum name="AUTHENTICATION_FAILURE" code="9"/>
+		<enum name="AUTHENTICATION_TIMEOUT" code="10"/>
+		<enum name="DEREGISTRATION_TOO_MUCH_DATA" code="11"/>
+		<enum name="AAA_USER_DATA_REQUEST" code="12"/>
+		<enum name="PGW_UPDATE" code="13"/>
+	</avp>
+	<!-- GROUPED -->
+	<avp name="Deregistration-Reason" code="615" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<grouped>
+			<gavp name="Reason-Code"/>
+			<gavp name="Reason-Info"/>
+		</grouped>
+	</avp>
+	<avp name="Reason-Code" code="616" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<type type-name="Enumerated"/>
+		<enum name="PERMANENT_TERMINATION" code="0"/>
+		<enum name="NEW_SERVER_ASSIGNED" code="1"/>
+		<enum name="SERVER_CHANGE" code="2"/>
+		<enum name="REMOVE_S-CSCF" code="3"/>
+	</avp>
+	<avp name="Reason-Info" code="617" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<type type-name="UTF8String"/>
+	</avp>
+	<!-- GROUPED -->
+	<avp name="Charging-Information" code="618" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<grouped>
+			<gavp name="Primary-Event-Charging-Function-Name"/>
+			<gavp name="Secondary-Event-Charging-Function-Name"/>
+			<gavp name="Primary-Charging-Collection-Function-Name"/>
+			<gavp name="Secondary-Charging-Collection-Function-Name"/>
+		</grouped>
+	</avp>
+	<avp name="Primary-Event-Charging-Function-Name" code="619" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<type type-name="DiameterURI"/>
+	</avp>
+	<avp name="Secondary-Event-Charging-Function-Name" code="620" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<type type-name="DiameterURI"/>
+	</avp>
+	<avp name="Primary-Charging-Collection-Function-Name" code="621" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<type type-name="DiameterURI"/>
+	</avp>
+	<avp name="Secondary-Charging-Collection-Function-Name" code="622" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<type type-name="DiameterURI"/>
+	</avp>
+	<avp name="User-Authorization-Type" code="623" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<type type-name="Enumerated"/>
+		<enum name="REGISTRATION" code="0"/>
+		<enum name="DE_REGISTRATION" code="1"/>
+		<enum name="REGISTRATION_AND_CAPABILITIES" code="2"/>
+	</avp>
+	<avp name="User-Data-Already-Available" code="624" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<type type-name="Enumerated"/>
+		<enum name="USER_DATA_NOT_AVAILABLE" code="0"/>
+		<enum name="USER_DATA_ALREADY_AVAILABLE" code="1"/>
+	</avp>
+	<avp name="Confidentiality-Key" code="625" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<type type-name="OctetString"/>
+	</avp>
+	<avp name="Integrity-Key" code="626" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<type type-name="OctetString"/>
+	</avp>
+	<avp name="User-Data-Request-Type(Obsolete)" code="627" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<type type-name="Unsigned32"/>
+		<enum name="Complete-Profile" code="0"/>
+		<enum name="Registered-Profile" code="1"/>
+		<enum name="Unregistered-Profile" code="2"/>
+	</avp>
+	<!-- GROUPED -->
+	<avp name="Supported-Features" code="628" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
+		<grouped>
+			<gavp name="Vendor-ID"/>
+			<gavp name="Feature-List-ID"/>
+			<gavp name="Feature-List"/>
+		</grouped>
+	</avp>
+	<avp name="Feature-List-ID" code="629" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
+		<type type-name="Unsigned32"/>
+	</avp>
+	<avp name="Feature-List" code="630" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
+		<type type-name="Unsigned32"/>
+	</avp>
+	<!-- GROUPED -->
+	<avp name="Supported-Applications" code="631" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
+		<grouped>
+			<gavp name="Auth-Application-Id"/>
+			<gavp name="Acct-Application-Id"/>
+			<gavp name="Vendor-Specific-Application-Id"/>
+		</grouped>
+	</avp>
+	<!-- GROUPED -->
+	<avp name="Associated-Identities" code="632" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
+		<grouped>
+			<gavp name="User-Name"/>
+		</grouped>
+	</avp>
+	<avp name="Originating-Request" code="633" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
+		<type type-name="Enumerated"/>
+		<enum name="ORIGINATING" code="0"/>
+	</avp>
+	<avp name="Wildcarded-PSI" code="634" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
+		<type type-name="UTF8String"/>
+	</avp>
+	<avp name="SIP-Digest-Authenticate AVP" code="635" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
+		<grouped>
+			<gavp name="Digest-Realm"/>
+			<gavp name="Digest-Algorithm"/>
+			<gavp name="Digest-QoP"/>
+			<gavp name="Digest-HA1"/>
+		</grouped>
+	</avp>
+	<avp name="Wildcarded-IMPU" code="636" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
+		<type type-name="UTF8String"/>
+	</avp>
+	<avp name="UAR-Flags" code="637" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
+		<type type-name="Unsigned32"/>
+	</avp>
+	<avp name="Loose-Route-Indication" code="638" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
+		<type type-name="Enumerated"/>
+		<enum name="LOOSE_ROUTE_NOT_REQUIRED" code="0"/>
+		<enum name="LOOSE_ROUTE_REQUIRED" code="1"/>
+	</avp>
+	<avp name="SCSCF-Restoration-Info" code="639" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
+		<grouped>
+			<gavp name="User-Name"/>
+			<gavp name="Restoration-Info"/>
+		</grouped>
+	</avp>
+	<avp name="Path" code="640" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
+		<type type-name="OctetString"/>
+	</avp>
+	<avp name="Contact" code="641" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
+		<type type-name="OctetString"/>
+	</avp>
+	<avp name="Subscription-Info" code="642" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
+		<grouped>
+			<gavp name="Call-ID-SIP-Header"/>
+			<gavp name="From-SIP-Header"/>
+			<gavp name="To-SIP-Header"/>
+			<gavp name="Record-Route"/>
+			<gavp name="Contact"/>
+		</grouped>
+	</avp>
+	<avp name="Call-ID-SIP-Header" code="643" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
+		<type type-name="OctetString"/>
+	</avp>
+	<avp name="From-SIP-Header" code="644" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
+		<type type-name="OctetString"/>
+	</avp>
+	<avp name="To-SIP-Header" code="645" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
+		<type type-name="OctetString"/>
+	</avp>
+	<avp name="Record-Route" code="646" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
+		<type type-name="OctetString"/>
+	</avp>
+	<avp name="Associated-Registered-Identities" code="647" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
+		<grouped>
+			<gavp name="User-Name"/>
+		</grouped>
+	</avp>
+	<avp name="Multiple-Registration-Indication" code="648" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
+		<type type-name="Enumerated"/>
+		<enum name="NOT_MULTIPLE_REGISTRATION" code="0"/>
+		<enum name="MULTIPLE_REGISTRATION" code="1"/>
+	</avp>
+	<avp name="Restoration-Info" code="649" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
+		<grouped>
+			<gavp name="Path"/>
+			<gavp name="Contact"/>
+			<gavp name="Subscription-Info"/>
+		</grouped>
+	</avp>
+	<avp name="Session-Priority" code="650" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
+		<type type-name="Enumerated"/>
+		<enum name="PRIORITY-0" code="0"/>
+		<enum name="PRIORITY-1" code="1"/>
+		<enum name="PRIORITY-2" code="2"/>
+		<enum name="PRIORITY-3" code="3"/>
+		<enum name="PRIORITY-4" code="4"/>
+	</avp>
+	<avp name="Identity-with-Emergency-Registration" code="651" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
+		<grouped>
+			<gavp name="User-Name"/>
+			<gavp name="Public-Identity"/>
+			<gavp name="Restoration-Info"/>
+		</grouped>
+	</avp>
+	<!--
+	652 Priviledged-Sender-Indication Enumerated
+	653 LIA-Flags Unsigned32
+	-->
+</application>
+
+
+<!-- The AVP codes from 700 to 799 are reserved for TS 29.329. -->
+<application id="16777217" name="3GPP Sh" uri="http://www.3gpp.org/DynaReport/29329.htm">
+	<!-- 3GPP TS 29.329 version 11.6.0 Release 11, ETSI TS 129 329 V11.6.0 (2013-04)-->
+
+	<!-- 3GPP Sh Application -->
+	<command name="User-Data"			code="306" vendor-id="TGPP"/>
+	<command name="Profile-Update"			code="307" vendor-id="TGPP"/>
+	<command name="Subscribe-Notifications"		code="308" vendor-id="TGPP"/>
+	<command name="Push-Notification"		code="309" vendor-id="TGPP"/>
+
+	<avp name="User-Identity" code="700" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
+		<grouped>
+			<gavp name="Public-Identity"/>
+			<gavp name="MSISDN"/>
+		</grouped>
+	</avp>
+	<avp name="MSISDN" code="701" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
+		<type type-name="OctetString"/>
+	</avp>
+	<avp name="User-Data" code="702" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
+		<type type-name="OctetString"/>
+	</avp>
+	<avp name="Data-Reference" code="703" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
+		<type type-name="Enumerated"/>
+		<enum name="RepositoryData" code="0"/>
+		<enum name="Undefined" code="1"/>
+		<enum name="Undefined" code="2"/>
+		<enum name="Undefined" code="3"/>
+		<enum name="Undefined" code="4"/>
+		<enum name="Undefined" code="5"/>
+		<enum name="Undefined" code="6"/>
+		<enum name="Undefined" code="7"/>
+		<enum name="Undefined" code="8"/>
+		<enum name="Undefined" code="9"/>
+		<enum name="IMSPublicIdentity" code="10"/>
+		<enum name="IMSUserState" code="11"/>
+		<enum name="S-CSCFName" code="12"/>
+		<enum name="InitialFilterCriteria" code="13"/>
+		<enum name="LocationInformation" code="14"/>
+		<enum name="UserState" code="15"/>
+		<enum name="ChargingInformation" code="16"/>
+		<enum name="MSISDN" code="17"/>
+		<enum name="PSIActivation" code="18"/>
+		<enum name="DSAI" code="19"/>
+		<enum name="Reserved" code="20"/>
+		<enum name="ServiceLevelTraceInfo" code="21"/>
+		<enum name="IPAddressSecureBindingInformation" code="22"/>
+		<enum name="ServicePriorityLevel" code="23"/>
+		<enum name="SMSRegistrationInfo" code="24"/>
+		<enum name="UEReachabilityForIP" code="25"/>
+		<enum name="TADSinformation" code="26"/>
+		<enum name="STN-SR" code="27"/>
+		<enum name="UE-SRVCC-Capability" code="28"/>
+		<enum name="ExtendedPriority" code="29"/>
+		<enum name="CSRN" code="30"/>
+		<enum name="ReferenceLocationInformation" code="31"/>
+	</avp>
+	<avp name="Service-Indication" code="704" mandatory="must" vendor-bit="mustnot" vendor-id="TGPP" may-encrypt="no">
+		<type type-name="OctetString"/>
+	</avp>
+	<avp name="Subs-Req-Type" code="705" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
+		<type type-name="Enumerated"/>
+		<enum name="Subscribe" code="0"/>
+		<enum name="Unsubscribe" code="1"/>
+	</avp>
+	<avp name="Requested-Domain" code="706" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
+		<type type-name="Enumerated"/>
+		<enum name="CS-Domain" code="0"/>
+		<enum name="PS-Domain" code="1"/>
+	</avp>
+	<avp name="Current-Location" code="707" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
+		<type type-name="Enumerated"/>
+		<enum name="DoNotNeedInitiateActiveLocationRetrieval" code="0"/>
+		<enum name="InitiateActiveLocationRetrieval" code="1"/>
+	</avp>
+	<avp name="Identity-Set" code="708" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
+		<type type-name="Enumerated"/>
+		<enum name="ALL_IDENTITIES" code="0"/>
+		<enum name="REGISTERED_IDENTITIES" code="1"/>
+		<enum name="IMPLICIT_IDENTITIES" code="2"/>
+		<enum name="ALIAS_IDENTITIES" code="3"/>
+	</avp>
+	<avp name="Expiry-Time" code="709" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
+		<type type-name="Time"/>
+	</avp>
+	<avp name="Send-Data-Indication" code="710" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
+		<type type-name="Enumerated"/>
+			<enum name="USER_DATA_NOT_REQUESTED" code="0"/>
+			<enum name="USER_DATA_REQUESTED" code="1"/>
+	</avp>
+	<avp name="DSAI-Tag" code="711" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
+		<type type-name="OctetString"/>
+	</avp>
+	<avp name="One-Time-Notification" code="712" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must" vendor-id="TGPP">
+		<type type-name="Enumerated"/>
+		<enum name="ONE_TIME_NOTIFICATION_REQUESTED" code="0"/>
+	</avp>
+	<avp name="Requested-Nodes" code="713" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
+		<type type-name="Unsigned32"/>
+		<enum name="MME" code="1"/>
+		<enum name="SGSN" code="2"/>
+		<enum name="MME,SGSN" code="3"/>
+	</avp>
+	<avp name="Serving-Node-Indication" code="714" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
+		<type type-name="Enumerated"/>
+		<enum name="ONLY_SERVING_NODES_REQUIRED" code="0"/>
+	</avp>
+	<avp name="Repository-Data-ID" code="715" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
+		<grouped>
+		<gavp name="Service-Indication"/>
+		<gavp name="Sequence-Number"/>
+		</grouped>
+	</avp>
+	<avp name="Sequence-Number" code="716" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
+		<type type-name="Unsigned32"/>
+	</avp>
+	<avp name="Pre-paging-Supported" code="717" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
+		<type type-name="Enumerated"/>
+		<enum name="PREPAGING_NOT_SUPPORTED" code="0"/>
+		<enum name="PREPAGING_SUPPORTED" code="1"/>
+	</avp>
+	<avp name="Local-Time-Zone-Indication" code="718" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
+		<type type-name="Enumerated"/>
+		<enum name="ONLY_LOCAL_TIME_ZONE_REQUESTED" code="0"/>
+		<enum name="LOCAL_TIME_ZONE_WITH_LOCATION_INFO_REQUESTED" code="1"/>
+	</avp>
+	<avp name="UDR-Flags" code="719" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
+		<type type-name="Unsigned32"/>
+		<enum name="Location-Information-EPS-Supported" code="1"/>
+		<enum name="RAT-Type-Requested" code="2"/>
+		<!-- <enum name="Location-Information-EPS-Supported,RAT-Type-Requested" code="3"/> -->
+	</avp>
+	<!--
+	720 Call-Reference-Info Grouped
+	721 Call-Reference-Number OctetString
+	722 AS-Number OctetString
+	-->
+</application>	<!-- 3GPP Sh -->
+
+<!-- Note: This section has both SGmb and Gmb AVPs -->
+<!-- The AVP codes from 900 to 999 are reserved for TS 29.061. -->
+<application id="16777292" name="3GPP SGmb" uri="http://www.3gpp.org/DynaReport/29061.htm">
+	<avp name="TMGI" code="900" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		<type type-name="OctetString"/>
+	</avp>
+	<avp name="Required-MBMS-Bearer-Capabilities" code="901" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		<type type-name="UTF8String"/>
+	</avp>
+	<avp name="MBMS-StartStop-Indication" code="902" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		<type type-name="Enumerated"/>
+		<enum name="START" code="0"/>
+		<enum name="STOP" code="1"/>
+		<enum name="UPDATE" code="2"/>
+	</avp>
+	<avp name="MBMS-Service-Area" code="903" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		<type type-name="OctetString"/>
+	</avp>
+	<avp name="MBMS-Session-Duration" code="904" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		<type type-name="OctetString"/>
+	</avp>
+	<avp name="Alternative-APN" code="905" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		<type type-name="UTF8String"/>
+	</avp>
+	<avp name="MBMS-Service-Type" code="906" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		<type type-name="Enumerated"/>
+		<enum name="MULTICAST" code="0"/>
+		<enum name="BROADCAST" code="1"/>
+	</avp>
+	<avp name="MBMS-2G-3G-Indicator" code="907" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		<type type-name="Enumerated"/>
+		<enum name="2G" code="0"/>
+		<enum name="3G" code="1"/>
+		<enum name="2G-AND-3G" code="2"/>
+	</avp>
+	<avp name="MBMS-Session-Identity" code="908" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		<type type-name="OctetString"/>
+	</avp>
+	<avp name="RAI" code="909" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		<type type-name="UTF8String"/>
+	</avp>
+	<avp name="Additional-MBMS-Trace-Info" code="910" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		<type type-name="OctetString"/>
+	</avp>
+	<avp name="MBMS-Time-To-Data-Transfer" code="911" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		<type type-name="OctetString"/>
+	</avp>
+	<avp name="MBMS-Session-Repetition-Number" code="912" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		<type type-name="OctetString"/>
+	</avp>
+	<avp name="MBMS-Required-QoS" code="913" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		<type type-name="UTF8String"/>
+	</avp>
+	<avp name="MBMS-Counting-Information" code="914" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		<type type-name="Enumerated"/>
+		<enum name="COUNTING-NOT-APPLICABLE" code="0"/>
+		<enum name="COUNTING-APPLICABLE" code="1"/>
+	</avp>
+	<avp name="MBMS-User-Data-Mode-Indication" code="915" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		<type type-name="Enumerated"/>
+		<enum name="Unicast" code="0"/>
+		<enum name="Multicast and Unicast" code="1"/>
+	</avp>
+	<avp name="MBMS-GGSN-Address" code="916" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		<type type-name="OctetString"/>
+	</avp>
+	<avp name="MBMS-GGSN-IPv6-Address" code="917" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		<type type-name="OctetString"/>
+	</avp>
+	<avp name="MBMS-BMSC-SSM-IP-Address" code="918" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		<type type-name="OctetString"/>
+	</avp>
+	<avp name="MBMS-BMSC-SSM-IPv6-Address" code="919" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		<type type-name="OctetString"/>
+	</avp>
+	<avp name="MBMS-Flow-Identifier" code="920" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		<type type-name="OctetString"/>
+	</avp>
+	<avp name="CN-IP-Multicast-Distribution" code="921" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		<type type-name="Enumerated"/>
+		<enum name="NO-IP-MULTICAST" code="0"/>
+		<enum name="IP-MULTICAST" code="1"/>
+	</avp>
+	<avp name="MBMS-HC-Indicator" code="922" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		<type type-name="Enumerated"/>
+		<enum name="uncompressed-header" code="0"/>
+		<enum name="compressed-header" code="1"/>
+	</avp>
+	<avp name="MBMS-Access-Indicator" code="923" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
+		<type type-name="Enumerated"/>
+		<enum name="UTRAN" code="0"/>
+		<enum name="E-UTRAN" code="1"/>
+		<enum name="UTRAN-AND-E-UTRAN" code="2"/>
+	</avp>
+	<avp name="MBMS-GW-SSM-IP-Address" code="924" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		<type type-name="IPAddress"/>
+	</avp>
+	<avp name="MBMS-GW-SSM-IPv6-Address" code="925" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		<type type-name="OctetString"/>
+	</avp>
+	<avp name="MBMS-BMSC-SSM-UDP-Port" code="926" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		<type type-name="OctetString"/>
+	</avp>
+	<avp name="MBMS-GW-UDP-Port" code="927" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		<type type-name="OctetString"/>
+	</avp>
+	<avp name="MBMS-GW-UDP-Port-Indicator" code="928" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		<type type-name="Enumerated"/>
+		<enum name="UDP-PORT-REQUIRED" code="1"/>
+	</avp>
+	<avp name="MBMS-Data-Transfer-Start" code="929" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
+		<type type-name="Unsigned64"/>
+	</avp>
+	<avp name="MBMS-Data-Transfer-Stop" code="930" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
+		<type type-name="Unsigned64"/>
+	</avp>
+	<!--
+	Note: The AVP codes from 900 to 999 are reserved for TS 29.061
+	-->
+</application>	<!-- 3GPP SGmb -->
+
+<!-- The AVP codes from 2200 to 2299 are reserved for TS 29.061. -->
+<application id="16777267" name="3GPP S9" uri="http://www.3gpp.org/DynaReport/29061.htm">
+	<avp name="Subsession-Decision-Info" code="2200" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<grouped>
+			<gavp name="Subsession-Id"/>
+			<gavp name="AN-GW-Address"/>
+			<gavp name="Result-Code"/>
+			<gavp name="Experimental-Result-Code"/>
+			<gavp name="Charging-Rule-Remove"/>
+			<gavp name="Charging-Rule-Install"/>
+			<gavp name="QoS-Rule-Install"/>
+			<gavp name="QoS-Rule-Remove"/>
+			<gavp name="Default-EPS-Bearer-QoS"/>
+			<gavp name="Usage-Monitoring-Information"/>
+			<gavp name="Session-Release-Cause"/>
+			<gavp name="Bearer-Control-Mode"/>
+			<gavp name="Event-Trigger"/>
+			<gavp name="Online"/>
+			<gavp name="Offline"/>
+			<gavp name="QoS-Information"/>
+		</grouped>
+	</avp>
+	<avp name="Subsession-Enforcement-Info" code="2201" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<grouped>
+			<gavp name="Subsession-Id"/>
+			<gavp name="Subsession-Operation"/>
+			<gavp name="AN-GW-Address"/>
+			<gavp name="Bearer-Identifier"/>
+			<gavp name="Bearer-Operation"/>
+			<gavp name="Packet-Filter-Information"/>
+			<gavp name="Packet-Filter-Operation"/>
+			<gavp name="QoS-Information"/>
+			<gavp name="Framed-IP-Address"/>
+			<gavp name="Framed-IPv6-Address"/>
+			<gavp name="CoA-Information"/>
+			<gavp name="Called-Station-ID"/>
+			<gavp name="PDN-Connection-ID"/>
+			<gavp name="Bearer-Usage"/>
+			<gavp name="TFT-Packet-Filter-Information"/>
+			<gavp name="Online"/>
+			<gavp name="Offline"/>
+			<gavp name="Result-Code"/>
+			<gavp name="Experimental-Result-Code"/>
+			<gavp name="Charging-Rule-Report"/>
+			<gavp name="QoS-Rule-Report"/>
+			<gavp name="Default-EPS-Bearer-QoS"/>
+			<gavp name="Network-Request-Support"/>
+			<gavp name="Usage-Monitoring-Information"/>
+			<gavp name="Multiple-BBERF-Action"/>
+			<gavp name="Event-Trigger"/>
+			<gavp name="Access-Network-Charging-Address"/>
+			<gavp name="Access-Network-Charging-Identifier-Gx"/>
+			<gavp name="Session-Linking-Indicator"/>
+		</grouped>
+	</avp>
+	<avp name="Subsession-Id" code="2202" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<type type-name="Unsigned32"/>
+	</avp>
+	<avp name="Subsession-Operation" code="2203" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<type type-name="Enumerated"/>
+		<enum name="TERMINATION" code="0"/>
+		<enum name="ESTABLISHMENT" code="1"/>
+		<enum name="MODIFICATION" code="2"/>
+	</avp>
+	<avp name="Multiple-BBERF-Action" code="2204" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<type type-name="Enumerated"/>
+		<enum name="ESTABLISHMENT" code="0"/>
+		<enum name="TERMINATION"   code="1"/>
+	</avp>
+</application>	<!-- 3GPP S9 -->

@@ -12,14 +12,9 @@
 	<!ENTITY mobileipv4		SYSTEM "mobileipv4.xml">
 	<!ENTITY chargecontrol		SYSTEM "chargecontrol.xml">
 	<!ENTITY sunping		SYSTEM "sunping.xml">
-	<!ENTITY imscxdx		SYSTEM "imscxdx.xml">
-	<!ENTITY TGPPGmb		SYSTEM "TGPPGmb.xml">
-	<!ENTITY TGPPS9			SYSTEM "TGPPS9.xml">
-	<!ENTITY TGPPSh			SYSTEM "TGPPSh.xml">
-	<!ENTITY TGPPRx			SYSTEM "TGPPRx.xml">
+	<!ENTITY TGPP			SYSTEM "TGPP.xml">
 	<!ENTITY TGPP2			SYSTEM "TGPP2.xml">
 	<!ENTITY sip			SYSTEM "sip.xml">
-	<!ENTITY gqpolicy		SYSTEM "gqpolicy.xml">
 	<!ENTITY etsie2e4		SYSTEM "etsie2e4.xml">
 	<!ENTITY Ericsson		SYSTEM "Ericsson.xml">
 	<!ENTITY mobileipv6		SYSTEM "mobileipv6.xml">
@@ -73,18 +68,7 @@
 		    288 PPR / PPA [RFC4740]      sip.xml
 		    289-299 Unassigned
 		    300-313 Allocated for 3GPP [RFC3589]
-		    imscxdx.xml ( 300 - 305 )
-		    300	User-Authorization-Request/-Answer	UAR/UAA	29.229 [2]
-		    301	Server-Assignment-Request/-Answer	SAR/SAA
-		    302	Location-Info-Request/-Answer		LIR/LIA
-		    303	Multimedia-Auth-Request/-Answer		MAR/MAA
-		    304	Registration-Termination-Request/-Answer RTR/RTA
-		    305	Push-Profile-Request/-Answer		PPR/PPA
-		    TGPPSh.xml  ( 306 - 309 )
-		    306	User-Data-Request/-Answer		UDR/UDA
-		    307	Profile-Update-Request/-Answer		PUR/PUA
-		    308	Subscribe-Notifications-Request/-Answer	SNR/SNA
-		    309	Push-Notification-Request/-Answer	PNR/PNA
+		    TGPP.xml ( 300 - 309 )
 		-->
 
 		<command name="Boostrapping-Info"	code="310" vendor-id="None"/>		<!-- BIR/BIA	29.109 [7] -->
@@ -2906,41 +2890,9 @@
 		Note: The AVP codes from 421 to 499 are reserved for TS 29.109
 		-->
 
-		<!-- Ref 3GPP TS 29.209 version 6.7.0 Release 6
-		NOTE AVP 500 - 523 is in gqpolicy.xml
-		AVP 524 - 532 is in TGPPRx.xml (3GPP TS 29.214)
-		-->
-
-		<avp name="Rx-Request-Type" code="533" mandatory="may"  may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
-			<type type-name="Enumerated"/>
-			<enum name="INITIAL_REQUEST" code="0"/>
-			<enum name="UPDATE_REQUEST" code="1"/>
-		</avp>
-		<avp name="Min-Requested-Bandwidth-DL" code="534" mandatory="may"  may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
-			<type type-name="Unsigned32"/>
-		</avp>
-		<avp name="Min-Requested-Bandwidth-UL" code="535" mandatory="may" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
-			<type type-name="Unsigned32"/>
-		</avp>
-		<avp name="Required-Access-Info" code="536" mandatory="may" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
-			<type type-name="Enumerated"/>
-			<enum name="USER_LOCATION" code="0"/>
-			<enum name="MS_TIME_ZONE" code="1"/>
-		</avp>
-		<avp name="IP-Domain-Id" code="537" mandatory="may" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
-			<type type-name="OctetString"/>
-		</avp>
-
-		<!-- Note: The AVP codes from 533 to 599 are reserved for TS 29.209 and TS 29.211
-		NOTE AVP 600 - 652 is in imscxdx.xml
-
-		Note: The AVP codes from 652 to 699 are reserved for TS 29.229.
-		************************** 3GPP Sh AVPS		**************************
-		************************** NOTE see TGPPSh.xml	**************************
-		************************** 3GPP TS 29.329	**************************
-		**************************   700 - 717		**************************
-		Note: The AVP codes from 717 to799 are reserved for TS 29.329.
-		Note: The AVP codes from 800 to 822 are reserved for TS 32.299.
+		<!-- Note: The AVP codes from 500 to 599 are reserved for TS 29.209, TS 29.211 and TS 29.214 (TGPP.xml)
+		     Note: The AVP codes from 600 to 699 are reserved for TS 29.229. (TGPP.xml)
+		     Note: The AVP codes from 700 to 799 are reserved for TS 29.329. (TGPP.xml)
 		-->
 
 		<!-- 3GPP Diameter charging applications (3GPP TS 32.299 version 7.0.0 Release 7)-->
@@ -3550,9 +3502,7 @@
 		</avp>
 
 		<!--
-		Note: The AVP codes from 900 to 999 are reserved for TS 29.061
-		29.210 -> 3GPP TS 29.212
-		******** Found in TGPPGmb.xml ********
+		Note: The AVP codes from 900 to 999 are reserved for TS 29.061 (TGPP.xml)
 		-->
 
 		<avp name="Bearer-Usage" code="1000" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
@@ -6134,8 +6084,7 @@
 		32.299 [5]
 		Note: The AVP codes from 2118 to 2199 are reserved for TS 32.299
 
-		Note: The AVP codes from 2200 to 2299 are reserved for TS 29.215
-		Found in TGPPS9.xml
+		Note: The AVP codes from 2200 to 2299 are reserved for TS 29.215 (TGPP.xml)
 		-->
 
 		<avp name="Reserved" code="2300" vendor-bit="must" vendor-id="TGPP">
@@ -6632,13 +6581,19 @@
 
 	<!---
 	Duplicates should be avoided
-	16777216 is defined in imscxdx.xml
+	16777216 is defined in TGPP.xml
+	16777217 is defined in TGPP.xml
+	16777222 is defined in TGPP.xml
+	16777223 is defined in TGPP.xml
 	16777224 is defined in ChinaTelecom.xml
 	16777227 is defined in Ericsson.xml
 	16777228 is defined in starent.xml
 	16777234 is defined in Vodafone.xml
+	16777236 is defined in TGPP.xml
 	16777237 is defined in TGPP2.xml
-	16777238 is Cisco.xml
+	16777238 is defined in Cisco.xml
+	16777267 is defined in TGPP.xml
+	16777292 is defined in TGPP.xml
 	16777304 is defined in SKT.xml
 	16777317 is defined in NokiaSiemensNetworks.xml
 	-->
@@ -6656,7 +6611,6 @@
 	<application id="16777269"	name="Ericsson HSI"		uri="http://www.iana.org/assignments/aaa-parameters/aaa-parameters.xml"></application>
 	<application id="16777272"	name="3GPP S6b"			uri="http://www.3gpp.org/ftp/Specs/html-info/29273.htm"></application>
 	<application id="16777291"	name="3GPP SLh"			uri="http://www.ietf.org/rfc/rfc3588.txt?number=3588"></application>
-	<application id="16777292"	name="3GPP SGmb"		uri="http://www.3gpp.org/ftp/Specs/html-info/29061.htm"></application>
 	<application id="16777302"	name="3GPP Sy"			uri="http://www.3gpp.org/ftp/Specs/html-info/29219.htm"></application>
 	<application id="16777315"	name="Ericsson Diameter Signalling Controller Application (DSC)"	uri="http://www.iana.org/assignments/aaa-parameters/aaa-parameters.xml"></application>
 	<application id="16777327"	name="Ericsson Sx"		uri="http://www.iana.org/assignments/aaa-parameters/aaa-parameters.xml"></application>
@@ -6667,14 +6621,9 @@
 	&mobileipv4;
 	&chargecontrol;
 	&sunping;
-	&imscxdx;
-	&TGPPGmb;
-	&TGPPS9;
-	&TGPPSh;
-	&TGPPRx;
+	&TGPP;
 	&TGPP2;
 	&sip;
-	&gqpolicy;
 	&etsie2e4;
 	&Ericsson;
 	&mobileipv6;
