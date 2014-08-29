@@ -1036,7 +1036,6 @@ dissect_bthci_evt_conn_complete(tvbuff_t *tvb, int offset, packet_info *pinfo,
         wmem_tree_insert32_array(hci_data->chandle_sessions, key, chandle_session);
     }
 
-
     proto_tree_add_item(tree, hf_bthci_evt_link_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
 
@@ -1792,8 +1791,11 @@ static int
 dissect_bthci_evt_le_meta(tvbuff_t *tvb, int offset, packet_info *pinfo,
         proto_tree *tree, hci_data_t *hci_data)
 {
-    proto_item *item;
-    guint8 subevent_code;
+    proto_item  *item;
+    guint8       subevent_code;
+    guint16      connection_handle;
+    guint8       bd_addr[6];
+    guint8       status;
 
     subevent_code = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(tree, hf_bthci_evt_le_meta_subevent, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -1805,30 +1807,79 @@ dissect_bthci_evt_le_meta(tvbuff_t *tvb, int offset, packet_info *pinfo,
     switch(subevent_code) {
         case 0x01: /* LE Connection Complete */
             proto_tree_add_item(tree, hf_bthci_evt_status,                        tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            status = tvb_get_guint8(tvb, offset);
             offset += 1;
+
             proto_tree_add_item(tree, hf_bthci_evt_connection_handle,             tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            connection_handle = tvb_get_letohs(tvb, offset) & 0x0FFF;
             offset += 2;
+
             proto_tree_add_item(tree, hf_bthci_evt_role,                          tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset += 1;
+
             proto_tree_add_item(tree, hf_bthci_evt_le_peer_address_type,          tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset += 1;
-            offset = dissect_bthci_evt_bd_addr(                                   tvb, offset, pinfo, tree, NULL);
+
+            offset = dissect_bthci_evt_bd_addr(                                   tvb, offset, pinfo, tree, bd_addr);
+
             item = proto_tree_add_item(tree, hf_bthci_evt_le_con_interval,        tvb, offset, 2, ENC_LITTLE_ENDIAN);
             proto_item_append_text(item, " (%g msec)", tvb_get_letohs(tvb, offset)*1.25);
             offset += 2;
+
             item = proto_tree_add_item(tree, hf_bthci_evt_le_con_latency,         tvb, offset, 2, ENC_LITTLE_ENDIAN);
             proto_item_append_text(item, " (number events)");
             offset += 2;
+
             item = proto_tree_add_item(tree, hf_bthci_evt_le_supervision_timeout, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             proto_item_append_text(item, " (%g sec)", tvb_get_letohs(tvb, offset)*0.01);
             offset += 2;
+
             proto_tree_add_item(tree, hf_bthci_evt_le_master_clock_accuracy,      tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset += 1;
+
+            if (!pinfo->fd->flags.visited && hci_data != NULL && status == 0x00) {
+                wmem_tree_key_t    key[5];
+                guint32            k_interface_id;
+                guint32            k_adapter_id;
+                guint32            k_connection_handle;
+                guint32            k_frame_number;
+                remote_bdaddr_t   *remote_bdaddr;
+                chandle_session_t *chandle_session;
+
+                k_interface_id = hci_data->interface_id;
+                k_adapter_id = hci_data->adapter_id;
+                k_connection_handle = connection_handle;
+                k_frame_number = pinfo->fd->num;
+
+                key[0].length = 1;
+                key[0].key    = &k_interface_id;
+                key[1].length = 1;
+                key[1].key    = &k_adapter_id;
+                key[2].length = 1;
+                key[2].key    = &k_connection_handle;
+                key[3].length = 1;
+                key[3].key    = &k_frame_number;
+                key[4].length = 0;
+                key[4].key    = NULL;
+
+                remote_bdaddr = (remote_bdaddr_t *) wmem_new(wmem_file_scope(), remote_bdaddr_t);
+                remote_bdaddr->interface_id = hci_data->interface_id;
+                remote_bdaddr->adapter_id = hci_data->adapter_id;
+                remote_bdaddr->chandle = connection_handle;
+                memcpy(remote_bdaddr->bd_addr, bd_addr, 6);
+
+                wmem_tree_insert32_array(hci_data->chandle_to_bdaddr_table, key, remote_bdaddr);
+
+                chandle_session = (chandle_session_t *) wmem_new(wmem_file_scope(), chandle_session_t);
+                chandle_session->connect_in_frame = k_frame_number;
+                chandle_session->disconnect_in_frame = G_MAXUINT32;
+                wmem_tree_insert32_array(hci_data->chandle_sessions, key, chandle_session);
+            }
+
             break;
         case 0x02: /* LE Advertising Report */
         {
             guint8 i, num_reports, length;
-            guint8 bd_addr[6];
 
             num_reports = tvb_get_guint8(tvb, offset);
             proto_tree_add_item(tree, hf_bthci_evt_num_reports,                   tvb, offset, 1, ENC_LITTLE_ENDIAN);
