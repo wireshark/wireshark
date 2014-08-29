@@ -135,11 +135,12 @@ void proto_reg_handoff_6lowpan(void);
 #define LOWPAN_IPHC_ADDR_COMPRESSED     0x3
 
 /* IPHC multicast address modes. */
+#define LOWPAN_IPHC_MCAST_FULL          0x0
 #define LOWPAN_IPHC_MCAST_48BIT         0x1
 #define LOWPAN_IPHC_MCAST_32BIT         0x2
 #define LOWPAN_IPHC_MCAST_8BIT          0x3
 
-#define LOWPAN_IPHC_MCAST_STATEFUL_48BIT 0x1
+#define LOWPAN_IPHC_MCAST_STATEFUL_48BIT 0x0
 
 /* IPHC Traffic class and flow label field sizes (in bits) */
 #define LOWPAN_IPHC_ECN_BITS            2
@@ -341,10 +342,28 @@ static const value_string lowpan_iphc_addr_modes [] = {
     { LOWPAN_IPHC_ADDR_COMPRESSED,  "Compressed" },
     { 0, NULL }
 };
+static const value_string lowpan_iphc_saddr_stateful_modes [] = {
+    { LOWPAN_IPHC_ADDR_FULL_INLINE, "Unspecified address (::)" },
+    { LOWPAN_IPHC_ADDR_64BIT_INLINE,"64-bits inline" },
+    { LOWPAN_IPHC_ADDR_16BIT_INLINE,"16-bits inline" },
+    { LOWPAN_IPHC_ADDR_COMPRESSED,  "Compressed" },
+    { 0, NULL }
+};
+static const value_string lowpan_iphc_daddr_stateful_modes [] = {
+    { LOWPAN_IPHC_ADDR_64BIT_INLINE,"64-bits inline" },
+    { LOWPAN_IPHC_ADDR_16BIT_INLINE,"16-bits inline" },
+    { LOWPAN_IPHC_ADDR_COMPRESSED,  "Compressed" },
+    { 0, NULL }
+};
 static const value_string lowpan_iphc_mcast_modes [] = {
+    { LOWPAN_IPHC_MCAST_FULL,       "Inline" },
     { LOWPAN_IPHC_MCAST_48BIT,      "48-bits inline" },
     { LOWPAN_IPHC_MCAST_32BIT,      "32-bits inline" },
     { LOWPAN_IPHC_MCAST_8BIT,       "8-bits inline" },
+    { 0, NULL }
+};
+static const value_string lowpan_iphc_mcast_stateful_modes [] = {
+    { LOWPAN_IPHC_MCAST_STATEFUL_48BIT, "48-bits inline" },
     { 0, NULL }
 };
 static const value_string lowpan_nhc_patterns [] = {
@@ -1393,19 +1412,33 @@ dissect_6lowpan_iphc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint d
     iphc_src_mode   = (iphc_flags & LOWPAN_IPHC_FLAG_SRC_MODE) >> LOWPAN_IPHC_FLAG_OFFSET_SRC_MODE;
     iphc_dst_mode   = (iphc_flags & LOWPAN_IPHC_FLAG_DST_MODE) >> LOWPAN_IPHC_FLAG_OFFSET_DST_MODE;
     if (tree) {
-        const value_string *dam_vs;
+        const value_string *am_vs;
         proto_tree_add_uint         (iphc_tree, hf_6lowpan_iphc_flag_tf,    tvb, offset, 2, iphc_flags & LOWPAN_IPHC_FLAG_FLOW);
         proto_tree_add_boolean      (iphc_tree, hf_6lowpan_iphc_flag_nhdr,  tvb, offset, 2, iphc_flags & LOWPAN_IPHC_FLAG_NHDR);
         proto_tree_add_uint         (iphc_tree, hf_6lowpan_iphc_flag_hlim,  tvb, offset, 2, iphc_flags & LOWPAN_IPHC_FLAG_HLIM);
         proto_tree_add_boolean      (iphc_tree, hf_6lowpan_iphc_flag_cid,   tvb, offset, 2, iphc_flags & LOWPAN_IPHC_FLAG_CONTEXT_ID);
         proto_tree_add_boolean      (iphc_tree, hf_6lowpan_iphc_flag_sac,   tvb, offset, 2, iphc_flags & LOWPAN_IPHC_FLAG_SRC_COMP);
-        proto_tree_add_uint(iphc_tree, hf_6lowpan_iphc_flag_sam,   tvb, offset, 2, iphc_flags & LOWPAN_IPHC_FLAG_SRC_MODE);
+        am_vs = iphc_flags & LOWPAN_IPHC_FLAG_SRC_COMP ? lowpan_iphc_saddr_stateful_modes : lowpan_iphc_addr_modes;
+        proto_tree_add_uint_format_value(iphc_tree, hf_6lowpan_iphc_flag_sam, tvb, offset, 2, iphc_flags & LOWPAN_IPHC_FLAG_SRC_MODE,
+                                         "%s (0x%04x)", val_to_str_const(iphc_src_mode, am_vs, "Reserved"), iphc_src_mode);
         proto_tree_add_boolean      (iphc_tree, hf_6lowpan_iphc_flag_mcast, tvb, offset, 2, iphc_flags & LOWPAN_IPHC_FLAG_MCAST_COMP);
         proto_tree_add_boolean      (iphc_tree, hf_6lowpan_iphc_flag_dac,   tvb, offset, 2, iphc_flags & LOWPAN_IPHC_FLAG_DST_COMP);
         /* Destination address mode changes meanings depending on multicast compression. */
-        dam_vs = (iphc_flags & LOWPAN_IPHC_FLAG_MCAST_COMP) ? (lowpan_iphc_mcast_modes) : (lowpan_iphc_addr_modes);
+        if (iphc_flags & LOWPAN_IPHC_FLAG_MCAST_COMP) {
+            if (iphc_flags & LOWPAN_IPHC_FLAG_DST_COMP) {
+                am_vs = lowpan_iphc_mcast_stateful_modes;
+            } else {
+                am_vs = lowpan_iphc_mcast_modes;
+            }
+        } else {
+            if (iphc_flags & LOWPAN_IPHC_FLAG_DST_COMP) {
+                am_vs = lowpan_iphc_daddr_stateful_modes;
+            } else {
+                am_vs = lowpan_iphc_addr_modes;
+            }
+        }
         ti_dam = proto_tree_add_uint_format_value(iphc_tree, hf_6lowpan_iphc_flag_dam, tvb, offset, 2,
-            iphc_flags & LOWPAN_IPHC_FLAG_DST_MODE, "%s (0x%04x)", val_to_str_const(iphc_dst_mode, dam_vs, "Reserved"), iphc_dst_mode);
+            iphc_flags & LOWPAN_IPHC_FLAG_DST_MODE, "%s (0x%04x)", val_to_str_const(iphc_dst_mode, am_vs, "Reserved"), iphc_dst_mode);
     }
     offset += 2;
 
