@@ -215,7 +215,7 @@ proto_register_PROTOABBREV(void)
     static hf_register_info hf[] = {
         { &hf_PROTOABBREV_FIELDABBREV,
           { "FIELDNAME", "PROTOABBREV.FIELDABBREV",
-            FT_FIELDTYPE, FIELDDISPLAY,/*FIELDCONVERT*/, BITMASK,
+            FT_FIELDTYPE, FIELDDISPLAY, FIELDCONVERT, BITMASK,
             "FIELDDESCR", HFILL }
         }
     };
@@ -330,6 +330,7 @@ proto_reg_handoff_PROTOABBREV(void)
 }
 
 #if 0
+
 /* Simpler form of proto_reg_handoff_PROTOABBREV which can be used if there are
  * no prefs-dependent registration function calls. */
 void
@@ -343,7 +344,7 @@ proto_reg_handoff_PROTOABBREV(void)
      */
     PROTOABBREV_handle = new_create_dissector_handle(dissect_PROTOABBREV,
             proto_PROTOABBREV);
-    dissector_add_uint("tcp.port", PROTO_ABBREV_TCP_PORT, PROTOABBREV_handle);
+    dissector_add_uint("tcp.port", PROTOABBREV_TCP_PORT, PROTOABBREV_handle);
 }
 #endif
 
