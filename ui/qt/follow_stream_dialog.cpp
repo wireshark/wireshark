@@ -84,12 +84,12 @@ FollowStreamDialog::FollowStreamDialog(QWidget *parent, follow_type_t type, capt
 
     QComboBox *cbcs = ui->cbCharset;
     cbcs->blockSignals(true);
-    cbcs->addItem("ASCII", SHOW_ASCII);
-    cbcs->addItem("C Arrays", SHOW_CARRAY);
-    cbcs->addItem("EBCDIC", SHOW_EBCDIC);
-    cbcs->addItem("Hex Dump", SHOW_HEXDUMP);
-    cbcs->addItem("UTF-8", SHOW_RAW);
-    cbcs->addItem("YAML", SHOW_YAML);
+    cbcs->addItem(tr("ASCII"), SHOW_ASCII);
+    cbcs->addItem(tr("C Arrays"), SHOW_CARRAY);
+    cbcs->addItem(tr("EBCDIC"), SHOW_EBCDIC);
+    cbcs->addItem(tr("Hex Dump"), SHOW_HEXDUMP);
+    cbcs->addItem(tr("UTF-8"), SHOW_RAW);
+    cbcs->addItem(tr("YAML"), SHOW_YAML);
     cbcs->blockSignals(false);
 
     b_filter_out_ = ui->buttonBox->addButton(tr("Hide this stream"), QDialogButtonBox::ActionRole);
@@ -139,7 +139,7 @@ void FollowStreamDialog::fillHintLabel(int text_pos)
     }
 
     if (pkt > 0) {
-        hint = QString("Packet %1. ").arg(pkt);
+        hint = QString(tr("Packet %1. ")).arg(pkt);
     }
 
     hint += tr("%Ln client pkt(s), ", "", client_packet_count_)
@@ -147,7 +147,7 @@ void FollowStreamDialog::fillHintLabel(int text_pos)
             + tr("%Ln turn(s).", "", turns_);
 
     if (pkt > 0) {
-        hint.append(QString(" Click to select."));
+        hint.append(QString(tr(" Click to select.")));
     }
 
     hint.prepend("<small><i>");
@@ -187,7 +187,7 @@ void FollowStreamDialog::findText(bool go_back)
 
 void FollowStreamDialog::saveAs()
 {
-    QString file_name = QFileDialog::getSaveFileName(this, "Wireshark: Save stream content as");
+    QString file_name = QFileDialog::getSaveFileName(this, tr("Wireshark: Save stream content as"));
     file_.setFileName(file_name);
     file_.open( QIODevice::WriteOnly );
     QTextStream out(&file_);
@@ -259,7 +259,7 @@ void FollowStreamDialog::on_leFind_returnPressed()
 void FollowStreamDialog::on_streamNumberSpinBox_valueChanged(int stream_num)
 {
     if (stream_num >= 0) {
-                    follow_tcp_index(stream_num);
+        follow_tcp_index(stream_num);
         follow(QString(), true);
     }
 }
