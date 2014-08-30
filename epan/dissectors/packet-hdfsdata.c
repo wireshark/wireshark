@@ -115,7 +115,7 @@ static dissector_handle_t hdfsdata_handle;
    value is the first byte of the vint/vlong
    returns the total number of bytes (1 to 9) */
 static int
-decode_vint_size (char value) {
+decode_vint_size (gint8 value) {
   if (value >= -112) {
     return 1;
   } else if (value < -120) {
