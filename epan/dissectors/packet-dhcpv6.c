@@ -203,6 +203,7 @@ static expert_field ei_dhcpv6_no_suboption_len = EI_INIT;
 static expert_field ei_dhcpv6_invalid_time_value = EI_INIT;
 static expert_field ei_dhcpv6_invalid_type = EI_INIT;
 static expert_field ei_dhcpv6_malformed_dns = EI_INIT;
+static expert_field ei_dhcpv6_error_hopcount = EI_INIT;
 
 
 static int hf_dhcpv6_bulk_leasequery_size = -1;
@@ -221,6 +222,7 @@ static expert_field ei_dhcpv6_bulk_leasequery_bad_msg_type = EI_INIT;
 #define UDP_PORT_DHCPV6_UPSTREAM        547
 
 #define DHCPV6_LEASEDURATION_INFINITY   0xffffffff
+#define HOP_COUNT_LIMIT                 32
 
 #define SOLICIT                  1
 #define ADVERTISE                2
@@ -1904,7 +1906,7 @@ dissect_dhcpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                gboolean downstream, int off, int eoff)
 {
     proto_tree        *bp_tree = NULL;
-    proto_item        *ti;
+    proto_item        *ti, *subti = NULL;
     guint8             msgtype;
     gboolean           at_end;
     struct e_in6_addr  in6;
@@ -1920,11 +1922,18 @@ dissect_dhcpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 
     if ((msgtype == RELAY_FORW) || (msgtype == RELAY_REPLY)) {
+        guint8 byte;
         if (tree) {
             proto_tree_add_item(bp_tree, hf_dhcpv6_msgtype,  tvb, off,       1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(bp_tree, hf_dhcpv6_hopcount, tvb, off + 1,   1, ENC_BIG_ENDIAN);
+            subti = proto_tree_add_item(bp_tree, hf_dhcpv6_hopcount, tvb, off + 1,   1, ENC_BIG_ENDIAN);
             proto_tree_add_item(bp_tree, hf_dhcpv6_linkaddr, tvb, off + 2,  16, ENC_NA);
             proto_tree_add_item(bp_tree, hf_dhcpv6_peeraddr, tvb, off + 18, 16, ENC_NA);
+
+        }
+        /* Check the hopcount not exceed the HOP_COUNT_LIMIT */
+        byte = tvb_get_guint8(tvb, off + 1);
+        if (byte > HOP_COUNT_LIMIT) {
+          expert_add_info_format(pinfo, subti, &ei_dhcpv6_error_hopcount, "Hopcount (%d) exceeds the maximum limit HOP_COUNT_LIMIT (%d)", byte, HOP_COUNT_LIMIT);
         }
         tvb_get_ipv6(tvb, off + 2, &in6);
         col_append_fstr(pinfo->cinfo, COL_INFO, "L: %s ", ip6_to_str(&in6));
@@ -2286,6 +2295,7 @@ proto_register_dhcpv6(void)
         { &ei_dhcpv6_invalid_time_value, { "dhcpv6.invalid_time_value", PI_PROTOCOL, PI_WARN, "Invalid time value", EXPFILL }},
         { &ei_dhcpv6_invalid_type, { "dhcpv6.invalid_type", PI_PROTOCOL, PI_WARN, "Invalid type", EXPFILL }},
         { &ei_dhcpv6_malformed_dns, { "dhcpv6.malformed_dns", PI_PROTOCOL, PI_WARN, "Malformed DNS name record (MS Vista client?)", EXPFILL }},
+        { &ei_dhcpv6_error_hopcount, { "dhcpv6.error_hopcount", PI_PROTOCOL, PI_WARN, "Detected error on hop-count", EXPFILL }},
     };
 
     static hf_register_info bulk_leasequery_hf[] = {
