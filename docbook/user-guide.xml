@@ -283,9 +283,6 @@ FILE SECTION
   <!ENTITY WiresharkCaptureOptionsRemoteSettingsDialog SYSTEM "./wsug_graphics/ws-capture-options-remote-settings.png" NDATA PNG>
 
   <!-- Fifth Chapter -->
-  <!ENTITY WiresharkOpenDialog20 SYSTEM "./wsug_graphics/ws-open-gtk20.png" NDATA PNG>
-  <!ENTITY WiresharkSaveAsDialog20 SYSTEM "./wsug_graphics/ws-save-as-gtk20.png" NDATA PNG>
-  <!ENTITY WiresharkMergeDialog20 SYSTEM "./wsug_graphics/ws-merge-gtk20.png" NDATA PNG>
   <!ENTITY WiresharkOpenDialog24 SYSTEM "./wsug_graphics/ws-open-gtk24.png" NDATA PNG>
   <!ENTITY WiresharkSaveAsDialog24 SYSTEM "./wsug_graphics/ws-save-as-gtk24.png" NDATA PNG>
   <!ENTITY WiresharkMergeDialog24 SYSTEM "./wsug_graphics/ws-merge-gtk24.png" NDATA PNG>

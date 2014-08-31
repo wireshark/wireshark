@@ -42,7 +42,7 @@ set(WSUG_FILES
 	WSUG_chapter_capture.xml
 	wsug_src/WSUG_chapter_customize.xml
 	WSUG_chapter_introduction.xml
-	wsug_src/WSUG_chapter_io.xml
+	WSUG_chapter_io.xml
 	WSUG_chapter_statistics.xml
 	wsug_src/WSUG_chapter_telephony.xml
 	wsug_src/WSUG_chapter_troubleshoot.xml
@@ -58,6 +58,7 @@ set(WSDG_ASCIIDOC_FILES
 	wsug_src/WSUG_chapter_build_install.asciidoc
 	wsug_src/WSUG_chapter_capture.asciidoc
 	wsug_src/WSUG_chapter_introduction.asciidoc
+	wsug_src/WSUG_chapter_io.asciidoc
 	wsug_src/WSUG_chapter_statistics.asciidoc
 	wsug_src/WSUG_chapter_use.asciidoc
 	wsug_src/WSUG_preface.asciidoc
@@ -121,11 +122,9 @@ set(WSUG_GRAPHICS
 	wsug_graphics/ws-main-toolbar.png
 	wsug_graphics/ws-main.png
 	wsug_graphics/ws-menu.png
-	wsug_graphics/ws-merge-gtk20.png
 	wsug_graphics/ws-merge-gtk24.png
 	wsug_graphics/ws-merge-win32.png
 	wsug_graphics/ws-nameresolution-preferences.png
-	wsug_graphics/ws-open-gtk20.png
 	wsug_graphics/ws-open-gtk24.png
 	wsug_graphics/ws-open-win32.png
 	wsug_graphics/ws-packet-format.png
@@ -135,7 +134,6 @@ set(WSUG_GRAPHICS
 	wsug_graphics/ws-packet-sep-win.png
 	wsug_graphics/ws-print.png
 	wsug_graphics/ws-printing-preferences.png
-	wsug_graphics/ws-save-as-gtk20.png
 	wsug_graphics/ws-save-as-gtk24.png
 	wsug_graphics/ws-save-as-win32.png
 	wsug_graphics/ws-statistics-menu.png
