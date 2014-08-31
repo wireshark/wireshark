@@ -282,11 +282,9 @@ dissect_hello_mt_port_cap_vlan_flags_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
 
     proto_tree_add_item(subtree, hf_isis_hello_vlan_flags_port_id, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
-    sublen -=2;
 
     proto_tree_add_item(subtree, hf_isis_hello_vlan_flags_nickname, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
-    sublen -=2;
 
     proto_tree_add_item(subtree, hf_isis_hello_vlan_flags_af, tvb, offset, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(subtree, hf_isis_hello_vlan_flags_ac, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -294,7 +292,6 @@ dissect_hello_mt_port_cap_vlan_flags_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
     proto_tree_add_item(subtree, hf_isis_hello_vlan_flags_by, tvb, offset, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(subtree, hf_isis_hello_vlan_flags_outer_vlan, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
-    sublen -=2;
 
     proto_tree_add_item(subtree, hf_isis_hello_vlan_flags_tr, tvb, offset, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(subtree, hf_isis_hello_vlan_flags_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
