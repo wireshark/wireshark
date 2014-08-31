@@ -47,7 +47,7 @@ set(WSUG_FILES
 	wsug_src/WSUG_chapter_telephony.xml
 	wsug_src/WSUG_chapter_troubleshoot.xml
 	WSUG_chapter_use.xml
-	wsug_src/WSUG_chapter_work.xml
+	WSUG_chapter_work.xml
 	wsug_src/WSUG_meta_info.xml
 	WSUG_preface.xml
 	wsluarm.xml
@@ -61,6 +61,7 @@ set(WSDG_ASCIIDOC_FILES
 	wsug_src/WSUG_chapter_io.asciidoc
 	wsug_src/WSUG_chapter_statistics.asciidoc
 	wsug_src/WSUG_chapter_use.asciidoc
+	wsug_src/WSUG_chapter_work.asciidoc
 	wsug_src/WSUG_preface.asciidoc
 )
 

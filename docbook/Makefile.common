@@ -16,7 +16,7 @@ WSUG_FILES =	\
 	wsug_src/WSUG_chapter_telephony.xml	\
 	wsug_src/WSUG_chapter_troubleshoot.xml	\
 	wsug_src/WSUG_chapter_use.asciidoc	\
-	wsug_src/WSUG_chapter_work.xml		\
+	wsug_src/WSUG_chapter_work.asciidoc	\
 	wsug_src/WSUG_meta_info.xml		\
 	wsug_src/WSUG_preface.asciidoc		\
 	wsluarm.xml				\
@@ -29,6 +29,7 @@ WSUG_GENERATED_SOURCE = \
 	wsug_src/WSUG_chapter_io.xml		\
 	wsug_src/WSUG_chapter_statistics.xml	\
 	wsug_src/WSUG_chapter_use.xml		\
+	wsug_src/WSUG_chapter_work.xml		\
 	wsug_src/WSUG_preface.xml
 
 WSUG_GRAPHICS =	\
