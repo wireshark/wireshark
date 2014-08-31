@@ -8058,7 +8058,7 @@ piranha2         4601/tcp # Piranha2 [Primark_Corporation] [Primark_Corporation]
 piranha2         4601/udp # Piranha2 [Primark_Corporation] [Primark_Corporation]
 mtsserver        4602/tcp # EAX MTS Server [Pedro_A_Rodriguez] [Pedro_A_Rodriguez] 2008-08-06
 menandmice-upg   4603/tcp # Men & Mice Upgrade Agent [Eggert_Thorlacius_2] [Eggert_Thorlacius_2] 2010-01-27
-irp              4604/tcp # Identity Registration Protocol [Sixscape_Communications_Ltd] [Lawrence_E._Hughes] 2014-03-17
+irp              4604/tcp # Identity Registration Protocol [Sixscape_Communications_Pte_Ltd] [Lawrence_E._Hughes] 2014-03-17 2014-08-26
 playsta2-app     4658/tcp # PlayStation2 App Port
 playsta2-app     4658/udp # PlayStation2 App Port
 playsta2-lob     4659/tcp # PlayStation2 Lobby Port [Noam_Rimon] [Noam_Rimon] 2004-12
@@ -8187,7 +8187,8 @@ cncp             4785/udp # Cisco Nexus Control Protocol [Joseph_Swaminathan] [J
 smart-install    4786/tcp # Smart Install Service [Amit_Nigam] [Amit_Nigam] 2009-08-24
 sia-ctrl-plane   4787/tcp # Service Insertion Architecture (SIA) Control-Plane [Shree_Murthy] [Shree_Murthy] 2009-10-29
 xmcp             4788/tcp # eXtensible Messaging Client Protocol [Cisco] [Glenn_Matthews] 2011-05-23 2011-10-25 Defined TXT keys:     txtvers=1 (as described in the draft)      protovers=<comma-separated list of major/minor versions supported>(examples: "protovers=1.0" "protovers=1.1,2.0"
-vxlan            4789/udp # Virtual eXtensible Local Area Network (VXLAN) [Lawrence_Kreeger] [Lawrence_Kreeger] 2013-04-19 2014-06-17 [RFC-mahalingam-dutt-dcops-vxlan-09]
+vxlan            4789/udp # Virtual eXtensible Local Area Network (VXLAN) [Lawrence_Kreeger] [Lawrence_Kreeger] 2013-04-19 2014-06-17 [RFC7348]
+vxlan-gpe        4790/udp # Generic Protocol Extension for Virtual eXtensible Local Area Network (VXLAN) [Lawrence_Kreeger] [Lawrence_Kreeger] 2014-08-26
 iims             4800/tcp # Icona Instant Messenging System
 iims             4800/udp # Icona Instant Messenging System
 iwec             4801/tcp # Icona Web Embedded Chat
@@ -8632,9 +8633,9 @@ kfserver         5343/udp # Sculptor Database Server [Keith_Ashman] [Keith_Ashma
 xkotodrcp        5344/tcp # xkoto DRCP [Jeff_Heisz] [Jeff_Heisz] 2006-02
 xkotodrcp        5344/udp # xkoto DRCP [Jeff_Heisz] [Jeff_Heisz] 2006-02
 stuns            5349/tcp # STUN over TLS [RFC5389]
-stuns            5349/udp # STUN over DTLS [IESG] [IETF_Chair] 2014-07-03 [RFC-ietf-tram-stun-dtls-05] This service name was initially created by [RFC5389].
+stuns            5349/udp # STUN over DTLS [IESG] [IETF_Chair] 2014-07-03 [RFC7350] This service name was initially created by [RFC5389].
 turns            5349/tcp # TURN over TLS [RFC5766]
-turns            5349/udp # TURN over DTLS [IESG] [IETF_Chair] 2014-07-03 [RFC-ietf-tram-stun-dtls-05] This service name was initially created by [RFC5766].
+turns            5349/udp # TURN over DTLS [IESG] [IETF_Chair] 2014-07-03 [RFC7350] This service name was initially created by [RFC5766].
 stun-behaviors   5349/tcp # STUN Behavior Discovery over TLS [RFC5780]
 stun-behaviors   5349/udp # Reserved for a future enhancement of STUN-BEHAVIOR [RFC5780]
 pcp-multicast    5350/udp # Port Control Protocol Multicast [IESG] [IETF_Chair] [RFC6887]

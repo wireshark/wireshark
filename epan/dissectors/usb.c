@@ -12295,7 +12295,7 @@ static const value_string usb_products_vals[] = {
     { 0x0930653e, "Flash Memory" },
     { 0x09306540, "TransMemory Flash Memory" },
     { 0x09306544, "Kingston DataTraveler 2.0 Stick (2GB)" },
-    { 0x09306545, "Kingston DataTraveler 102 Flash Drive / HEMA Flash Drive 2 GB / PNY Attache 4GB Stick" },
+    { 0x09306545, "Kingston DataTraveler 102/2.0 / HEMA Flash Drive 2 GB / PNY Attache 4GB Stick" },
     { 0x09307100, "Toshiba Thrive AT100/AT105" },
     { 0x09320300, "VideoAdvantage" },
     { 0x09320302, "Syntek DC-112X" },
