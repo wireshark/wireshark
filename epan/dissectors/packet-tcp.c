@@ -525,7 +525,7 @@ tcp_both_prompt(packet_info *pinfo, gchar *result)
     g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "both (%u%s%u)", pinfo->srcport, UTF8_LEFT_RIGHT_ARROW, pinfo->destport);
 }
 
-static const char* tcp_conv_get_filter_type(conv_item_t* conv _U_, conv_filter_type_e filter)
+static const char* tcp_conv_get_filter_type(conv_item_t* conv, conv_filter_type_e filter)
 {
 
     if (filter == CONV_FT_SRC_PORT)

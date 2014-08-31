@@ -281,7 +281,7 @@ get_udp_conversation_data(conversation_t *conv, packet_info *pinfo)
   return udpd;
 }
 
-static const char* udp_conv_get_filter_type(conv_item_t* conv _U_, conv_filter_type_e filter)
+static const char* udp_conv_get_filter_type(conv_item_t* conv, conv_filter_type_e filter)
 {
     if (filter == CONV_FT_SRC_PORT)
         return "udp.srcport";

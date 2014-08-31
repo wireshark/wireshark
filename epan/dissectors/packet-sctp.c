@@ -778,7 +778,7 @@ sctp_ppi_value2(packet_info *pinfo)
     return p_get_proto_data(pinfo->pool, pinfo, proto_sctp, 1);
 }
 
-static const char* sctp_conv_get_filter_type(conv_item_t* conv _U_, conv_filter_type_e filter)
+static const char* sctp_conv_get_filter_type(conv_item_t* conv, conv_filter_type_e filter)
 {
     if (filter == CONV_FT_SRC_PORT)
         return "sctp.srcport";
