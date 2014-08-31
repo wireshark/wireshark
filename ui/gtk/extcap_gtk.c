@@ -167,8 +167,7 @@ GHashTable *extcap_gtk_get_state(GtkWidget *widget) {
 				continue;
 			}
 
-			treeselection = gtk_tree_view_get_selection(
-					GTK_TREE_VIEW(tree_widget));
+			gtk_tree_view_get_selection(GTK_TREE_VIEW(tree_widget));
 			treemodel = gtk_tree_view_get_model(GTK_TREE_VIEW(tree_widget));
 
 			multi_num = 0;
@@ -650,7 +649,6 @@ GSList *extcap_populate_gtk_vbox(GList *arguments, GtkWidget *vbox,
 	GList * arg_list = g_list_first(arguments);
 	if ( arg_list == NULL )
 		return NULL;
-	arg_iter = (extcap_arg*) (arg_list->data);
 
 	g_object_set_data(G_OBJECT(vbox), EXTCAP_GTK_DATA_KEY_ARGPTR, arguments);
 
