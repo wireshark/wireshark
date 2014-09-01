@@ -2653,6 +2653,9 @@ try_dissect_next_protocol(proto_tree *tree, tvbuff_t *next_tvb, packet_info *pin
     device_protocol_data_t  *device_protocol_data;
     guint8                   ctrl_recip;
     proto_tree              *parent;
+    /* if we select the next dissector based on a class,
+       this is the (device or interface) class we're using */
+    guint32                  usb_class;
 
     if (tvb_captured_length(next_tvb) == 0)
         return 0;
@@ -2801,7 +2804,17 @@ try_dissect_next_protocol(proto_tree *tree, tvbuff_t *next_tvb, packet_info *pin
     }
 
     if (usb_dissector_table) {
-        ret = dissector_try_uint_new(usb_dissector_table, usb_conv_info->interfaceClass,
+        /* we prefer the interface class unless it says we should refer
+           to the device class
+           XXX - use the device class if the interface class is unknown */
+        if (usb_conv_info->interfaceClass == IF_CLASS_DEVICE) {
+            usb_class = (usb_conv_info->device_protocol>>16) & 0xFF;
+        }
+        else {
+            usb_class = usb_conv_info->interfaceClass;
+        }
+
+        ret = dissector_try_uint_new(usb_dissector_table, usb_class,
                 next_tvb, pinfo, parent, TRUE, usb_conv_info);
         if (ret)
             return tvb_captured_length(next_tvb);
