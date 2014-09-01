@@ -3045,7 +3045,7 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 
 	/* Reassemble if desegmentation and reassembly are enabled, otherwise
 	 * just pass through and use the data in tvb for dissection */
-	if (ndmp_defragment && ndmp_desegment)
+	if (data && ndmp_defragment && ndmp_desegment)
 	{
 
 		/*
