@@ -37,7 +37,7 @@ set(WSUG_FILES
 	wsug_src/WSUG_app_messages.xml
 	wsug_src/WSUG_app_protocols.xml
 	wsug_src/WSUG_app_tools.xml
-	wsug_src/WSUG_chapter_advanced.xml
+	WSUG_chapter_advanced.xml
 	WSUG_chapter_build_install.xml
 	WSUG_chapter_capture.xml
 	wsug_src/WSUG_chapter_customize.xml
@@ -55,6 +55,7 @@ set(WSUG_FILES
 )
 
 set(WSDG_ASCIIDOC_FILES
+	wsug_src/WSUG_chapter_advanced.asciidoc
 	wsug_src/WSUG_chapter_build_install.asciidoc
 	wsug_src/WSUG_chapter_capture.asciidoc
 	wsug_src/WSUG_chapter_introduction.asciidoc
