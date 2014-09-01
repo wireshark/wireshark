@@ -109,7 +109,6 @@ wsug_html\index.html: $(WSUG_SOURCE) wsluarm
 	cp ws.css wsug_html
 	$(XSLTPROC) --stringparam base.dir wsug_html/ $(COMMON_XSLTPROC_ARGS) \
 		$(WSUG_XSLTPROC_ARGS) $(SINGLE_XSLTPROC_ARGS) user-guide.xml > $@
-	-chmod -R og+rX wsug_html
 
 # create html chunked page files
 wsug_html_chunked: wsug_html_chunked\index.html
@@ -123,7 +122,6 @@ wsug_html_chunked\index.html: $(WSUG_SOURCE) wsluarm
 	cp ws.css wsug_html_chunked
 	$(XSLTPROC) --stringparam base.dir wsug_html_chunked/ $(COMMON_XSLTPROC_ARGS) \
 		$(WSUG_XSLTPROC_ARGS)  $(CHUNKED_XSLTPROC_ARGS) user-guide.xml
-	-chmod -R og+rX wsug_html_chunked
 
 # create pdf file (through XSL-FO), portrait pages on US letter paper (the default)
 # you will get lot's of errors, but that's ok
@@ -198,7 +196,6 @@ wsdg_html\index.html: $(WSDG_SOURCE)
 	cp ws.css wsdg_html
 	$(XSLTPROC) --stringparam base.dir wsdg_html/ $(COMMON_XSLTPROC_ARGS) \
 		$(WSDG_XSLTPROC_ARGS) $(SINGLE_XSLTPROC_ARGS) developer-guide.xml > $@
-	-chmod -R og+rX wsdg_html
 
 # create html chunked page files
 wsdg_html_chunked: wsdg_html_chunked\index.html
