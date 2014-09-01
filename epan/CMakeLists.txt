@@ -52,6 +52,7 @@ set(CRYPT_FILES
 	crypt/airpdcap_debug.c
 	crypt/airpdcap_rijndael.c
 	crypt/airpdcap_tkip.c
+	${CUSTOM_CRYPT_SRC}
 )
 source_group(crypt FILES ${CRYPT_FILES})
 

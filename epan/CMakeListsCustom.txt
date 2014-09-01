@@ -27,3 +27,7 @@ set(CUSTOM_DISSECTOR_SRC
 set(CUSTOM_DIRTY_ASN1_DISSECTOR_SRC
 #	dissectors/packet-foo.c
 )
+
+set(CUSTOM_CRYPT_SRC
+#	crypt/foo.c
+)
