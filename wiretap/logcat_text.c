@@ -190,7 +190,7 @@ static gboolean logcat_text_read_packet(FILE_T fh, struct wtap_pkthdr *phdr,
     }
 
     if (WTAP_FILE_TYPE_SUBTYPE_LOGCAT_LONG == file_type &&
-            !g_regex_match_simple(SPECIAL_STRING, cbuff, G_REGEX_ANCHORED, G_REGEX_MATCH_NOTEMPTY)) {
+            !g_regex_match_simple(SPECIAL_STRING, cbuff, (GRegexCompileFlags)((gint) G_REGEX_ANCHORED | (gint) G_REGEX_RAW), G_REGEX_MATCH_NOTEMPTY)) {
         gint64 file_off = 0;
         gchar lbuff[WTAP_MAX_PACKET_SIZE];
         int err;
@@ -268,34 +268,34 @@ int logcat_text_open(wtap *wth, int *err, gchar **err_info _U_) {
         ret = file_gets(cbuff, WTAP_MAX_PACKET_SIZE, wth->fh);
     } while (NULL != ret && !file_eof(wth->fh)
             && ((3 > strlen(cbuff))
-                    || g_regex_match_simple(SPECIAL_STRING, cbuff, G_REGEX_ANCHORED,
+                    || g_regex_match_simple(SPECIAL_STRING, cbuff, (GRegexCompileFlags)((gint) G_REGEX_ANCHORED | (gint) G_REGEX_RAW),
                             G_REGEX_MATCH_NOTEMPTY)));
 
-    if (g_regex_match_simple(BRIEF_STRING, cbuff, G_REGEX_ANCHORED,
+    if (g_regex_match_simple(BRIEF_STRING, cbuff, (GRegexCompileFlags)((gint) G_REGEX_ANCHORED | (gint) G_REGEX_RAW),
             G_REGEX_MATCH_NOTEMPTY)) {
         wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_LOGCAT_BRIEF;
         wth->file_encap = WTAP_ENCAP_LOGCAT_BRIEF;
-    } else if (g_regex_match_simple(TAG_STRING, cbuff, G_REGEX_ANCHORED,
+    } else if (g_regex_match_simple(TAG_STRING, cbuff, (GRegexCompileFlags)((gint) G_REGEX_ANCHORED | (gint) G_REGEX_RAW),
             G_REGEX_MATCH_NOTEMPTY)) {
         wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_LOGCAT_TAG;
         wth->file_encap = WTAP_ENCAP_LOGCAT_TAG;
-    } else if (g_regex_match_simple(PROCESS_STRING, cbuff, G_REGEX_ANCHORED,
+    } else if (g_regex_match_simple(PROCESS_STRING, cbuff, (GRegexCompileFlags)((gint) G_REGEX_ANCHORED | (gint) G_REGEX_RAW),
             G_REGEX_MATCH_NOTEMPTY)) {
         wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_LOGCAT_PROCESS;
         wth->file_encap = WTAP_ENCAP_LOGCAT_PROCESS;
-    } else if (g_regex_match_simple(TIME_STRING, cbuff, G_REGEX_ANCHORED,
+    } else if (g_regex_match_simple(TIME_STRING, cbuff, (GRegexCompileFlags)((gint) G_REGEX_ANCHORED | (gint) G_REGEX_RAW),
             G_REGEX_MATCH_NOTEMPTY)) {
         wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_LOGCAT_TIME;
         wth->file_encap = WTAP_ENCAP_LOGCAT_TIME;
-    } else if (g_regex_match_simple(THREAD_STRING, cbuff, G_REGEX_ANCHORED,
+    } else if (g_regex_match_simple(THREAD_STRING, cbuff, (GRegexCompileFlags)((gint) G_REGEX_ANCHORED | (gint) G_REGEX_RAW),
             G_REGEX_MATCH_NOTEMPTY)) {
         wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_LOGCAT_THREAD;
         wth->file_encap = WTAP_ENCAP_LOGCAT_THREAD;
-    } else if (g_regex_match_simple(THREADTIME_STRING, cbuff, G_REGEX_ANCHORED,
+    } else if (g_regex_match_simple(THREADTIME_STRING, cbuff, (GRegexCompileFlags)((gint) G_REGEX_ANCHORED | (gint) G_REGEX_RAW),
             G_REGEX_MATCH_NOTEMPTY)) {
         wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_LOGCAT_THREADTIME;
         wth->file_encap = WTAP_ENCAP_LOGCAT_THREADTIME;
-    } else if (g_regex_match_simple(LONG_STRING, cbuff, G_REGEX_ANCHORED,
+    } else if (g_regex_match_simple(LONG_STRING, cbuff, (GRegexCompileFlags)((gint) G_REGEX_ANCHORED | (gint) G_REGEX_RAW),
             G_REGEX_MATCH_NOTEMPTY)) {
         wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_LOGCAT_LONG;
         wth->file_encap = WTAP_ENCAP_LOGCAT_LONG;
