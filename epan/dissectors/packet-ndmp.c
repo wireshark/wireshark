@@ -273,26 +273,26 @@ static gint ett_ndmp_fragments = -1;
 static expert_field ei_ndmp_msg = EI_INIT;
 
 static const fragment_items ndmp_frag_items = {
-       /* Fragment subtrees */
-       &ett_ndmp_fragment,
-       &ett_ndmp_fragments,
-       /* Fragment fields */
-       &hf_ndmp_fragments,
-       &hf_ndmp_fragment,
-       &hf_ndmp_fragment_overlap,
-       &hf_ndmp_fragment_overlap_conflicts,
-       &hf_ndmp_fragment_multiple_tails,
-       &hf_ndmp_fragment_too_long_fragment,
-       &hf_ndmp_fragment_error,
-       &hf_ndmp_fragment_count,
-       /* Reassembled in field */
-       &hf_ndmp_reassembled_in,
-       /* Reassembled length field */
-       &hf_ndmp_reassembled_length,
-       /* Reassembled data field */
-       NULL,
-       /* Tag */
-       "NDMP fragments"
+	/* Fragment subtrees */
+	&ett_ndmp_fragment,
+	&ett_ndmp_fragments,
+	/* Fragment fields */
+	&hf_ndmp_fragments,
+	&hf_ndmp_fragment,
+	&hf_ndmp_fragment_overlap,
+	&hf_ndmp_fragment_overlap_conflicts,
+	&hf_ndmp_fragment_multiple_tails,
+	&hf_ndmp_fragment_too_long_fragment,
+	&hf_ndmp_fragment_error,
+	&hf_ndmp_fragment_count,
+	/* Reassembled in field */
+	&hf_ndmp_reassembled_in,
+	/* Reassembled length field */
+	&hf_ndmp_reassembled_length,
+	/* Reassembled data field */
+	NULL,
+	/* Tag */
+	"NDMP fragments"
 };
 
 static reassembly_table ndmp_reassembly_table;
@@ -407,13 +407,13 @@ static const value_string msg_type_vals[] = {
 #define NDMP_XDR_ENCODE_ERR		0x15
 #define NDMP_NO_MEM_ERR			0x16
 #define NDMP_CONNECT_ERR		0x17
-#define NDMP_SEQUENCE_NUM_ERR           0x18
-#define NDMP_READ_IN_PROGRESS_ERR       0x19
-#define NDMP_PRECONDITION_ERR           0x1a
-#define NDMP_CLASS_NOT_SUPPORTED_ERR    0x1b
-#define NDMP_VERSION_NOT_SUPPORTED_ERR  0x1c
-#define NDMP_EXT_DUPL_CLASSES_ERR       0x1d
-#define NDMP_EXT_DANDN_ILLEGAL_ERR      0x1e
+#define NDMP_SEQUENCE_NUM_ERR		0x18
+#define NDMP_READ_IN_PROGRESS_ERR	0x19
+#define NDMP_PRECONDITION_ERR		0x1a
+#define NDMP_CLASS_NOT_SUPPORTED_ERR	0x1b
+#define NDMP_VERSION_NOT_SUPPORTED_ERR	0x1c
+#define NDMP_EXT_DUPL_CLASSES_ERR	0x1d
+#define NDMP_EXT_DANDN_ILLEGAL_ERR	0x1e
 
 static const value_string error_vals[] = {
 	{NDMP_NO_ERR,			"NO_ERR"},
@@ -440,13 +440,13 @@ static const value_string error_vals[] = {
 	{NDMP_XDR_ENCODE_ERR,		"XDR_ENCODE_ERR"},
 	{NDMP_NO_MEM_ERR,		"NO_MEM_ERR"},
 	{NDMP_CONNECT_ERR,		"CONNECT_ERR"},
-        {NDMP_SEQUENCE_NUM_ERR,         "NDMP_SEQUENCE_NUM_ERR"},
-        {NDMP_READ_IN_PROGRESS_ERR,     "NDMP_READ_IN_PROGRESS_ERR"},
-        {NDMP_PRECONDITION_ERR,         "NDMP_PRECONDITION_ERR"},
-        {NDMP_CLASS_NOT_SUPPORTED_ERR,  "NDMP_CLASS_NOT_SUPPORTED_ERR"},
-        {NDMP_VERSION_NOT_SUPPORTED_ERR,"NDMP_VERSION_NOT_SUPPORTED_ERR"},
-        {NDMP_EXT_DUPL_CLASSES_ERR,     "NDMP_EXT_DUPL_CLASSES_ERR"},
-        {NDMP_EXT_DANDN_ILLEGAL_ERR,    "NDMP_EXT_DANDN_ILLEGAL_ERR"},
+	{NDMP_SEQUENCE_NUM_ERR,		"NDMP_SEQUENCE_NUM_ERR"},
+	{NDMP_READ_IN_PROGRESS_ERR,	"NDMP_READ_IN_PROGRESS_ERR"},
+	{NDMP_PRECONDITION_ERR,		"NDMP_PRECONDITION_ERR"},
+	{NDMP_CLASS_NOT_SUPPORTED_ERR,	"NDMP_CLASS_NOT_SUPPORTED_ERR"},
+	{NDMP_VERSION_NOT_SUPPORTED_ERR,"NDMP_VERSION_NOT_SUPPORTED_ERR"},
+	{NDMP_EXT_DUPL_CLASSES_ERR,	"NDMP_EXT_DUPL_CLASSES_ERR"},
+	{NDMP_EXT_DANDN_ILLEGAL_ERR,	"NDMP_EXT_DANDN_ILLEGAL_ERR"},
 	{0, NULL}
 };
 
@@ -460,8 +460,8 @@ static const value_string error_vals[] = {
 #define NDMP_CONFIG_GET_TAPE_INFO 	0x106
 #define NDMP_CONFIG_GET_SCSI_INFO 	0x107
 #define NDMP_CONFIG_GET_SERVER_INFO 	0x108
-#define NDMP_CONFIG_SET_EXT_LIST        0x109
-#define NDMP_CONFIG_GET_EXT_LIST        0x10a
+#define NDMP_CONFIG_SET_EXT_LIST	0x109
+#define NDMP_CONFIG_GET_EXT_LIST	0x10a
 #define NDMP_SCSI_OPEN 			0x200
 #define NDMP_SCSI_CLOSE 		0x201
 #define NDMP_SCSI_GET_STATE 		0x202
@@ -812,13 +812,13 @@ static int
 dissect_ndmp_config_get_auth_attr_reply(tvbuff_t *tvb, int offset,
     packet_info *pinfo, proto_tree *tree, guint32 seq)
 {
-    /* error */
-    offset = dissect_error(tvb, offset, pinfo, tree, seq);
+	/* error */
+	offset = dissect_error(tvb, offset, pinfo, tree, seq);
 
-    /* auth_attr */
-    offset = dissect_auth_attr_msg(tvb, offset, pinfo, tree, seq);
+	/* auth_attr */
+	offset = dissect_auth_attr_msg(tvb, offset, pinfo, tree, seq);
 
-    return offset;
+	return offset;
 }
 
 static int
@@ -1417,10 +1417,10 @@ dissect_execute_cdb_payload(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 
 		tvb_len=tvb_length_remaining(tvb, offset);
 		if(tvb_len>(int)payload_len)
-	    		tvb_len=payload_len;
+			tvb_len=payload_len;
 		tvb_rlen=tvb_reported_length_remaining(tvb, offset);
 		if(tvb_rlen>(int)payload_len)
-	    		tvb_rlen=payload_len;
+			tvb_rlen=payload_len;
 		data_tvb=tvb_new_subset(tvb, offset, tvb_len, tvb_rlen);
 
 		if(ndmp_conv_data->task && ndmp_conv_data->task->itlq){
@@ -1486,7 +1486,7 @@ dissect_execute_cdb_request_mc(tvbuff_t *tvb, int offset, packet_info *pinfo,
     proto_tree *tree, guint32 seq)
 {
 	return dissect_execute_cdb_request(tvb, offset, pinfo, tree, seq,
-	    SCSI_DEV_SMC);
+		SCSI_DEV_SMC);
 }
 
 static int
@@ -1494,7 +1494,7 @@ dissect_execute_cdb_request_tape(tvbuff_t *tvb, int offset, packet_info *pinfo,
     proto_tree *tree, guint32 seq)
 {
 	return dissect_execute_cdb_request(tvb, offset, pinfo, tree, seq,
-	    SCSI_DEV_SSC);
+		SCSI_DEV_SSC);
 }
 
 static int
@@ -1860,7 +1860,7 @@ dissect_ndmp_addr(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	case NDMP_ADDR_LOCAL:
 		break;
 	case NDMP_ADDR_TCP:
-	  	/* this became an array in version 4 and beyond */
+		/* this became an array in version 4 and beyond */
 		if(get_ndmp_protocol_version()<NDMP_PROTOCOL_V4){
 			/* IP addr */
 			proto_tree_add_item(tree, hf_ndmp_addr_ip, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -2767,9 +2767,9 @@ dissect_data_get_state_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 typedef struct _ndmp_command {
 	guint32 cmd;
 	int (*request) (tvbuff_t *tvb, int offset, packet_info *pinfo,
-	    proto_tree *tree, guint32 seq);
+		proto_tree *tree, guint32 seq);
 	int (*response)(tvbuff_t *tvb, int offset, packet_info *pinfo,
-	    proto_tree *tree, guint32 seq);
+		proto_tree *tree, guint32 seq);
 } ndmp_command;
 
 static const ndmp_command ndmp_commands[] = {
@@ -3024,15 +3024,15 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 
 		conversation_add_proto_data(conversation, proto_ndmp, ndmp_conv_data);
 
-                /* Ensure that any & all frames/fragments belonging to this conversation   */
-                /*  are dissected as NDMP even if another dissector (eg: IPSEC-TCP) might  */
-                /*  decide to dissect an NDMP fragment. This works because the TCP         */
-                /*  dissector dispatches to a conversation associated dissector before     */
-                /*  dispatching by port or by heuristic. Associating NDMP with this        */
-                /*  conversation is necessary because otherwise the IPSEC-TCP(TCPENCAP)    */
-                /*  dissector may think NDMP fragments are really TCPENCAP since that      */
-                /*  dissector also registers on TCP Port 10000. (See packet-ipsec-tcp.c).  */
-                conversation_set_dissector(conversation, ndmp_handle);
+		/* Ensure that any & all frames/fragments belonging to this conversation   */
+		/*  are dissected as NDMP even if another dissector (eg: IPSEC-TCP) might  */
+		/*  decide to dissect an NDMP fragment. This works because the TCP         */
+		/*  dissector dispatches to a conversation associated dissector before     */
+		/*  dispatching by port or by heuristic. Associating NDMP with this        */
+		/*  conversation is necessary because otherwise the IPSEC-TCP(TCPENCAP)    */
+		/*  dissector may think NDMP fragments are really TCPENCAP since that      */
+		/*  dissector also registers on TCP Port 10000. (See packet-ipsec-tcp.c).  */
+		conversation_set_dissector(conversation, ndmp_handle);
 	}
 
 	/*
@@ -3304,13 +3304,13 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 static guint
 get_ndmp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
-  guint len;
+	guint len;
 
-  len=tvb_get_ntohl(tvb, offset)&0x7fffffff;
-  /* Get the length of the NDMP packet. */
+	len=tvb_get_ntohl(tvb, offset)&0x7fffffff;
+	/* Get the length of the NDMP packet. */
 
-  /*XXX check header for sanity */
-  return len+4;
+	/*XXX check header for sanity */
+	return len+4;
 }
 
 gboolean
@@ -3388,7 +3388,7 @@ dissect_ndmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 	}
 
 	/* If we aren't doing both desegmentation and fragment reassembly,
-         * check for the entire NDMP header before proceeding */
+	 * check for the entire NDMP header before proceeding */
 	if(!(ndmp_desegment && ndmp_defragment) && !check_if_ndmp(tvb, pinfo)) {
 		return 0;
 	}
@@ -3429,20 +3429,20 @@ void
 proto_register_ndmp(void)
 {
 
-  static hf_register_info hf_ndmp[] = {
+	static hf_register_info hf_ndmp[] = {
 	{ &hf_ndmp_header, {
 		"NDMP Header", "ndmp.header", FT_NONE, BASE_NONE,
 		NULL, 0, NULL, HFILL }},
 
-        { &hf_ndmp_response_frame, {
+	{ &hf_ndmp_response_frame, {
 		"Response In", "ndmp.response_frame", FT_FRAMENUM, BASE_NONE,
 		NULL, 0, "The response to this NDMP command is in this frame", HFILL }},
 
-        { &hf_ndmp_time,
-          { "Time from request", "ndmp.time", FT_RELATIVE_TIME, BASE_NONE, NULL,
-           0, "Time since the request packet", HFILL }},
+	{ &hf_ndmp_time, {
+		"Time from request", "ndmp.time", FT_RELATIVE_TIME, BASE_NONE,
+		NULL,0, "Time since the request packet", HFILL }},
 
-        { &hf_ndmp_request_frame, {
+	{ &hf_ndmp_request_frame, {
 		"Request In", "ndmp.request_frame", FT_FRAMENUM, BASE_NONE,
 		NULL, 0, "The request to this NDMP command is in this frame", HFILL }},
 
@@ -4196,65 +4196,65 @@ proto_register_ndmp(void)
 	{&hf_ndmp_reassembled_length,
 		{"Reassembled NDMP length", "ndmp.reassembled.length",
 		FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL } },
-  };
+	};
 
-  static gint *ett[] = {
-	  &ett_ndmp,
-	  &ett_ndmp_fraghdr,
-	  &ett_ndmp_header,
-	  &ett_ndmp_butype_attrs,
-	  &ett_ndmp_fs_invalid,
-	  &ett_ndmp_tape_attr,
-	  &ett_ndmp_execute_cdb_flags,
-	  &ett_ndmp_execute_cdb_cdb,
-	  &ett_ndmp_execute_cdb_sns,
-	  &ett_ndmp_execute_cdb_payload,
-	  &ett_ndmp_tape_invalid,
-	  &ett_ndmp_tape_flags,
-	  &ett_ndmp_addr,
-	  &ett_ndmp_file,
-	  &ett_ndmp_file_name,
-	  &ett_ndmp_file_stats,
-	  &ett_ndmp_file_invalids,
-	  &ett_ndmp_state_invalids,
-	  &ett_ndmp_fragment,
-	  &ett_ndmp_fragments,
-  };
+	static gint *ett[] = {
+		&ett_ndmp,
+		&ett_ndmp_fraghdr,
+		&ett_ndmp_header,
+		&ett_ndmp_butype_attrs,
+		&ett_ndmp_fs_invalid,
+		&ett_ndmp_tape_attr,
+		&ett_ndmp_execute_cdb_flags,
+		&ett_ndmp_execute_cdb_cdb,
+		&ett_ndmp_execute_cdb_sns,
+		&ett_ndmp_execute_cdb_payload,
+		&ett_ndmp_tape_invalid,
+		&ett_ndmp_tape_flags,
+		&ett_ndmp_addr,
+		&ett_ndmp_file,
+		&ett_ndmp_file_name,
+		&ett_ndmp_file_stats,
+		&ett_ndmp_file_invalids,
+		&ett_ndmp_state_invalids,
+		&ett_ndmp_fragment,
+		&ett_ndmp_fragments,
+	};
 
-  static ei_register_info ei[] = {
-   { &ei_ndmp_msg, { "ndmp.msg.unknown", PI_PROTOCOL, PI_WARN, "Unknown type of NDMP message", EXPFILL }},
-  };
+	static ei_register_info ei[] = {
+		{ &ei_ndmp_msg, { "ndmp.msg.unknown", PI_PROTOCOL, PI_WARN, "Unknown type of NDMP message", EXPFILL }},
+	};
 
-  module_t *ndmp_module;
-  expert_module_t* expert_ndmp;
+	module_t *ndmp_module;
+	expert_module_t* expert_ndmp;
 
-  proto_ndmp = proto_register_protocol("Network Data Management Protocol", "NDMP", "ndmp");
-  proto_register_field_array(proto_ndmp, hf_ndmp, array_length(hf_ndmp));
+	proto_ndmp = proto_register_protocol("Network Data Management Protocol", "NDMP", "ndmp");
+	proto_register_field_array(proto_ndmp, hf_ndmp, array_length(hf_ndmp));
 
-  proto_register_subtree_array(ett, array_length(ett));
-  expert_ndmp = expert_register_protocol(proto_ndmp);
-  expert_register_field_array(expert_ndmp, ei, array_length(ei));
+	proto_register_subtree_array(ett, array_length(ett));
+	expert_ndmp = expert_register_protocol(proto_ndmp);
+	expert_register_field_array(expert_ndmp, ei, array_length(ei));
 
-  /* desegmentation */
-  ndmp_module = prefs_register_protocol(proto_ndmp, NULL);
-  prefs_register_obsolete_preference(ndmp_module, "protocol_version");
-  prefs_register_enum_preference(ndmp_module,
+	/* desegmentation */
+	ndmp_module = prefs_register_protocol(proto_ndmp, NULL);
+	prefs_register_obsolete_preference(ndmp_module, "protocol_version");
+	prefs_register_enum_preference(ndmp_module,
 	"default_protocol_version",
 	"Default protocol version",
 	"Version of the NDMP protocol to assume if the version can not be automatically detected from the capture",
 	&ndmp_default_protocol_version,
 	ndmp_protocol_versions,
 	FALSE);
-  prefs_register_bool_preference(ndmp_module, "desegment",
-    "Reassemble NDMP messages spanning multiple TCP segments",
-    "Whether the NDMP dissector should reassemble messages spanning multiple TCP segments."
-    " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
-  	&ndmp_desegment);
-  prefs_register_bool_preference(ndmp_module, "defragment",
-  	"Reassemble fragmented NDMP messages spanning multiple packets",
-  	"Whether the dissector should defragment NDMP messages spanning multiple packets.",
-  	&ndmp_defragment);
-  register_init_routine(ndmp_init);
+	prefs_register_bool_preference(ndmp_module, "desegment",
+	"Reassemble NDMP messages spanning multiple TCP segments",
+	"Whether the NDMP dissector should reassemble messages spanning multiple TCP segments."
+	" To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
+	&ndmp_desegment);
+	prefs_register_bool_preference(ndmp_module, "defragment",
+	"Reassemble fragmented NDMP messages spanning multiple packets",
+	"Whether the dissector should defragment NDMP messages spanning multiple packets.",
+	&ndmp_defragment);
+	register_init_routine(ndmp_init);
 }
 
 void
