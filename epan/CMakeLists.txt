@@ -21,6 +21,8 @@
 
 include(UseABICheck)
 
+include(CMakeListsCustom.txt)
+
 if (HAVE_HFI_SECTION_INIT)
 	add_definitions(
 		-DHAVE_HFI_SECTION_INIT
@@ -1444,6 +1446,8 @@ set(DISSECTOR_FILES
 	${DIRTY_PIDL_DISSECTOR_SRC}
 	${ASN1_DISSECTOR_SRC}
 	${DIRTY_ASN1_DISSECTOR_SRC}
+	${CUSTOM_DISSECTOR_SRC}
+	${CUSTOM_DIRTY_ASN1_DISSECTOR_SRC}
 )
 source_group(dissectors FILES ${DISSECTOR_FILES})
 

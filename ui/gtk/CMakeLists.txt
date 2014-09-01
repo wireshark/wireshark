@@ -19,6 +19,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
+include(CMakeListsCustom.txt)
 
 set(WIRESHARK_GTK_SRC
 	about_dlg.c
@@ -117,6 +118,8 @@ set(WIRESHARK_GTK_SRC
 	uat_gui.c
 	voip_calls.c
 	webbrowser.c
+	${WIRESHARK_CUSTOM_GTK_SRC}
+	${WIRESHARK_CUSTOM_TAP_SRC}
 )
 
 if(HAVE_EXTCAP)
