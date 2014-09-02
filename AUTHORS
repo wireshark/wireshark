@@ -3603,6 +3603,10 @@ David Ameiss		<netshark[AT]ameissnet.com> {
 	29West/LBM dissectors
 }
 
+Sean O. Stalley		<sean.stalley[AT]intel.com> {
+	Dissector for Media Agnostic USB (MA USB)
+}
+
 and by:
 
 Georgi Guninski		<guninski[AT]guninski.com>
