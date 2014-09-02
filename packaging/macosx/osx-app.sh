@@ -121,7 +121,7 @@ do
 			shift 1 ;;
 		-qt|--qt-flavor)
 			ui_toolkit="qt"
-			wireshark_bin_name="wireshark-qt"
+			wireshark_bin_name="wireshark"
 			;;
 		-h|--help)
 			help
@@ -582,7 +582,7 @@ codesign_file () {
 
 if [ -n "$CODE_SIGN_IDENTITY" ] ; then
 	security find-identity -v -s "$CODE_SIGN_IDENTITY" -p codesigning
-	
+
 	echo "Signing executables"
 	for binary in $cs_binary_list ; do
 		codesign_file "$binary"
