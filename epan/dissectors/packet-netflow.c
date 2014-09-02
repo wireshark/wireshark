@@ -2437,6 +2437,10 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
         if (length == 0) { /* XXX: Zero length fields probably shouldn't be included in the cached template */
             /* YYY: Maybe.  If you don't cache the zero length fields can you still compare that you actually */
             /* have the same template with the same ID.  See WMeier comment "c." above */
+            /* XXX: One capture has been seen wherein the "length" field in the template is 0 even though
+                    the field is actually present in the dataflow.
+                    See: https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=10432#c1
+            */
             continue;
         }
         /* See if variable length field */
@@ -5415,16 +5419,15 @@ dissect_v9_v10_options_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *p
         tmplt_p = (v9_v10_tmplt_t *)g_hash_table_lookup(v9_v10_tmplt_table, &tmplt);
         if (!pinfo->fd->flags.visited) { /* cache template info only during first pass */
             do {
-                if ((option_scope_field_count == 0)  ||
-                    (v9_tmplt_max_fields &&
+                if (v9_tmplt_max_fields &&
                      ((option_scope_field_count > v9_tmplt_max_fields)
-                      || (option_field_count > v9_tmplt_max_fields))))  {
-                    break; /* Don't allow cache of this template */
+                      || (option_field_count > v9_tmplt_max_fields)))  {
+                    break; /* Don't cache this template */
                 }
                 if (tmplt_p != NULL) {
                     /* Entry for this template already exists; Can be dup or changed */
                     /* ToDo: Test for changed template ? If so: expert ?             */
-                    break; /* Don't allow cacheing of this template */
+                    break; /* Don't cache this template */
                 }
                 tmplt.fields_p[TF_SCOPES]  = (v9_v10_tmplt_entry_t *)wmem_alloc0(wmem_file_scope(), option_scope_field_count *sizeof(v9_v10_tmplt_entry_t));
                 tmplt.fields_p[TF_ENTRIES] = (v9_v10_tmplt_entry_t *)wmem_alloc0(wmem_file_scope(), option_field_count       *sizeof(v9_v10_tmplt_entry_t));
@@ -5510,12 +5513,12 @@ dissect_v9_v10_data_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdut
             do {
                 if ((count == 0) ||
                     (v9_tmplt_max_fields && (count > v9_tmplt_max_fields))) {
-                    break; /* Don't allow cache of this template */
+                    break; /* Don't cache this template */
                 }
                 if (tmplt_p != NULL) {
                     /* Entry for this template already exists; Can be dup or changed */
                     /* ToDo: Test for changed template ? If so: expert ?             */
-                    break; /* Don't allow cacheing of this template */
+                    break; /* Don't cache this template */
                 }
                 tmplt.fields_p[TF_ENTRIES] = (v9_v10_tmplt_entry_t *)wmem_alloc0(wmem_file_scope(), count * sizeof(v9_v10_tmplt_entry_t));
                 break;
