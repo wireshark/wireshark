@@ -1179,7 +1179,7 @@ dissect_capwap_message_element_type(tvbuff_t *tvb, proto_tree *msg_element_type_
                            "Discovery Type length %u wrong, must be = 1", optlen);
         break;
         }
-        proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_discovery_type, tvb, offset+4, optlen, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_discovery_type, tvb, offset+4, 1, ENC_BIG_ENDIAN);
         break;
     case TYPE_IDLE_TIMEOUT: /* Idle Timeout (23) */
         if (optlen != 4) {
@@ -1236,7 +1236,7 @@ dissect_capwap_message_element_type(tvbuff_t *tvb, proto_tree *msg_element_type_
                            "Result Code length %u wrong, must be = 4", optlen);
         break;
         }
-        proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_result_code, tvb, offset+4, optlen, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_result_code, tvb, offset+4, 4, ENC_BIG_ENDIAN);
 
         break;
 
@@ -1246,7 +1246,7 @@ dissect_capwap_message_element_type(tvbuff_t *tvb, proto_tree *msg_element_type_
                            "Session ID length %u wrong, must be = 16", optlen);
         break;
         }
-        proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_session_id, tvb, offset+4, optlen, ENC_NA);
+        proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_session_id, tvb, offset+4, 16, ENC_NA);
         break;
 
     case TYPE_STATISTICS_TIMER: /* Statistics Timer (36) */
@@ -1344,7 +1344,7 @@ dissect_capwap_message_element_type(tvbuff_t *tvb, proto_tree *msg_element_type_
                            "WTP MAC Type length %u wrong, must be = 1", optlen);
         break;
         }
-        proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_wtp_mac_type, tvb, offset+4, optlen, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_wtp_mac_type, tvb, offset+4, 1, ENC_BIG_ENDIAN);
         break;
 
     case TYPE_WTP_NAME: /* WTP Name (45) */
