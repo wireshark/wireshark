@@ -355,7 +355,8 @@ QT5_BASE_DIR=$(WIRESHARK_LIB_DIR)\Qt5.1.1\5.1.1\msvc2010
 # PCAP_DIR isn't defined.
 #
 PCAP_DIR=$(WIRESHARK_LIB_DIR)\WPdpack
-# This macro is used by the nsis installer script, by the u3/portable apps and by the setup target.
+# This macro is used by the NSIS installer script, PortableApps, and by the
+# setup target.
 WINPCAP_VERSION=4_1_3
 WPD_VERSION=4_1_2
 
@@ -603,7 +604,8 @@ QT5_BASE_DIR=$(WIRESHARK_LIB_DIR)\Qt5.1.1\5.1.1\msvc2010
 # PCAP_DIR isn't defined.
 #
 PCAP_DIR=$(WIRESHARK_LIB_DIR)\WPdpack
-# This macro is used by the nsis installer script, by the u3/portable apps and by the setup target.
+# This macro is used by the NSIS installer script, PortableApps, and by the
+# setup target.
 WINPCAP_VERSION=4_1_3
 WPD_VERSION=4_1_2
 
@@ -866,14 +868,17 @@ MAKENSIS="$(PROGRAM_FILES_W6432)\NSIS\makensis.exe"
 !ENDIF
 
 #
-# Optional: To build the NSIS PortableApps installer.
+# Optional: Build the PortableApps package (WiresharkPortable).
 #
-# If you have the NSIS Unicode package, set this to the NSIS Unicode executable.
+# If you have the PortableApps.com Platform installed set this to the main
+# PortableApps directory. In order to build packages you need to install
+# "PortableApps.com Launcher" and "NSIS Portable (Unicode)" *within* the
+# PortableApps environment.
 #
-# If you don't have NSIS Unicode, comment this line out, so that
-# MAKENSIS_UNICODE isn't defined.
+# If you don't have the PortableApps.com Platform installed comment this line
+# out.
 #
-MAKENSIS_UNICODE="$(PROGRAM_FILES)\NSIS\Unicode\makensis.exe"
+PORTABLEAPPS_DIR="C:\PortableApps"
 
 #
 # Optional: To build the developers API documentation with doxygen and dot.
@@ -901,7 +906,8 @@ MAKENSIS_UNICODE="$(PROGRAM_FILES)\NSIS\Unicode\makensis.exe"
 HHC_DIR=$(PROGRAM_FILES)\HTML Help Workshop
 
 #
-# Optional: To reduce the size of dlls and exes, which is especially useful for USB device distributions (U3, PortableApps)
+# Optional: To reduce the size of dlls and exes, which is especially useful for
+# USB device distributions (PortableApps)
 #
 # If you have the UPX package, set this to the upx.exe executable.
 #

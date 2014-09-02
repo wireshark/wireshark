@@ -211,7 +211,6 @@ packaging/macosx/osx-dmg.sh
 packaging/macosx/Wireshark_package.pmdoc/index.xml
 packaging/nsis/qt-dll-manifest.nsh
 packaging/portableapps/win32/Files/
-packaging/portableapps/win32/WiresharkPortable.ini
 packaging/portableapps/win32/appinfo.ini
 packaging/portableapps/win32/distribution.nmake
 packaging/rpm/SPECS/wireshark.spec

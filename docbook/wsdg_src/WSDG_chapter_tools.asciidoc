@@ -1347,7 +1347,33 @@ To install it, simply download the latest released version (currently 2.46)
 from http://nsis.sourceforge.net[] and start the downloaded installer. You will
 need NSIS version 2. Version 3 is not yet supported.
 
-You will find more instructions in <<ChSrcNSIS>>on how to use the NSIS tool.
+You can find more instructions on using NSIS in <<ChSrcNSIS>>.
+
+=== Windows: PortableApps (optional)
+
+The PortableApps.com Installer is used to generate
+'WiresharkPortable-wireshark-major-minor-version:[].paf.exe' from all the files
+needed to be installed, including all required DLLs, plugins, and supporting
+files.
+
+To install it, do the following:
+
+* Download the latest PortableApps.com Platform release from
+  http://portableapps.com/[]. `config.nmake` uses the ``Local
+  All Users'' install location (`C:\`) by default.
+
+* Install the following applications in the PortableApps.com environment:
+
+** PortableApps.com Installer
+
+** PortableApps.com Launcher
+
+** NSIS Portable (Unicode)
+
+** PortableApps.com AppCompactor
+
+You can find more instructions on using the PortableApps.com Installer in
+<<ChSrcPortableApps>>.
 
 ++++++++++++++++++++++++++++++++++++++
 <!-- End of WSDG Chapter Tools -->

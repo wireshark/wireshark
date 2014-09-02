@@ -1,27 +1,37 @@
 #
 
+TOPDIR		= ..\..\..
+TOOLS_DIR	= $(TOPDIR)\tools
+
 include ../../../config.nmake
 
-FILES 		= Files
-APP 		= App
-DATA		= Data
-OTHER		= Other
-APPINFO		= AppInfo
-WIRESHARK 	= Wireshark
-SOURCE		= WiresharkPortableSource
+PROGRAM_PORTABLE	= $(PROGRAM_NAME)Portable
+
+STAGING_DIR	= $(PROGRAM_PORTABLE)
+APP 		= $(STAGING_DIR)\App
+APPINFO		= $(APP)\AppInfo
+LAUNCHER_DIR	= $(APPINFO)\Launcher
+WIRESHARK_DIR 	= $(APP)\$(PROGRAM_NAME)
+DATA		= $(STAGING_DIR)\Data
+OTHER		= $(STAGING_DIR)\Other
+SOURCE		= $(OTHER)\Source
+
+APPINFO_INI	= $(APPINFO)\appinfo.ini
+LAUNCHER_INI	= $(LAUNCHER_DIR)\$(PROGRAM_PORTABLE).ini
 
 WSMANIFEST	= ../../wireshark.manifest
 
 NSIS_PLUGINS	= nsis-plugins
 FINDPROCDLL	= $(WIRESHARK_LIB_DIR)\$(NSIS_PLUGINS)\FindProcDLL.dll
 
-TOPDIR		= ..\..\..
 COPY		= xcopy
 MKDIR		= mkdir
 COPY_FLAGS	= /d /y
 !IFNDEF WIN32_SETUP_OPT
 WIN32_SETUP_OPT	= --download
 !ENDIF
+
+NSIS_DIR        = $(TOPDIR)\packaging\nsis
 
 # XXX This should be defined in config.nmake.
 !IF EXIST("..\..\wireshark-qt-release\wireshark.exe")
@@ -34,107 +44,118 @@ NEED_QT5_DLL	= USE
 NEED_QT4_DLL	= USE
 !ENDIF
 
+#wireshark.nsi: qt-dll-manifest.nsh
+#qt-dll-manifest.nsh: windeployqt-to-nsis.ps1 Makefile.nmake
+#!IF EXIST("$(QT5_BASE_DIR)\bin\qmake.exe")
+#	set PATH=%PATH%;$(QT5_BASE_DIR)\bin
+#!ENDIF
+#	$(POWERSHELL) windeployqt-to-nsis.ps1 \
+#		-Executable ..\..\wireshark-qt-release\wireshark.exe \
+#		-FilePath $@
+
 UPX_FLAGS = -q
 
 PAPPS_VERSION=$(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_MICRO).0
 
-all:	package
+all: package
 
-package:	WiresharkPortable-$(VERSION).paf.exe
+package: $(PROGRAM_PORTABLE)-$(VERSION).paf.exe
 
 dirs:
-	if not exist $(FILES) $(MKDIR) $(FILES)
-	if not exist $(FILES)\$(APP) $(MKDIR) $(FILES)\$(APP)
-	if not exist $(FILES)\$(APP)\$(APPINFO) $(MKDIR) $(FILES)\$(APP)\$(APPINFO)
-	if not exist $(FILES)\$(APP)\$(WIRESHARK) $(MKDIR) $(FILES)\$(APP)\$(WIRESHARK)
-	if not exist $(FILES)\$(DATA) $(MKDIR) $(FILES)\$(DATA)
-	if not exist $(FILES)\$(OTHER) $(MKDIR) $(FILES)\$(OTHER)
-	if not exist $(FILES)\$(OTHER)\$(SOURCE) $(MKDIR) $(FILES)\$(OTHER)\$(SOURCE)
+	if not exist $(STAGING_DIR) $(MKDIR) $(STAGING_DIR)
+	if not exist $(APP) $(MKDIR) $(APP)
+	if not exist $(APPINFO) $(MKDIR) $(APPINFO)
+	if not exist $(LAUNCHER_DIR) $(MKDIR) $(LAUNCHER_DIR)
+	if not exist $(WIRESHARK_DIR) $(MKDIR) $(WIRESHARK_DIR)
+	if not exist $(DATA) $(MKDIR) $(DATA)
+	if not exist $(OTHER) $(MKDIR) $(OTHER)
+	if not exist $(SOURCE) $(MKDIR) $(SOURCE)
 
-nsis-bits:
-	cd ../../nsis
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake user-guide.chm
-	cd ../portableapps/win32
+#nsis-bits:
+#	cd ../../nsis
+#	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake user-guide.chm
+#	cd ../portableapps/win32
 
-$(WSMANIFEST):
-	cd ../..
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake wireshark.manifest
-	cd portableapps/win32
+#distribution.nmake:	makenmake.pl $(WSMANIFEST) ../../ws-manifest.pl
+#	$(PERL) makenmake.pl $(WSMANIFEST) > $@
 
-distribution.nmake:	makenmake.pl $(WSMANIFEST) ../../ws-manifest.pl
-	$(PERL) makenmake.pl $(WSMANIFEST) > $@
+#distribution:	distribution.nmake
+#	nmake -f distribution.nmake
 
-distribution:	distribution.nmake
-	nmake -f distribution.nmake
+#pack:	distribution
+#!IFDEF UPX
+#	-$(UPX) $(UPX_FLAGS) $(FILES)\$(APP)\$(WIRESHARK)\[a-z]*.exe
+#	-$(UPX) $(UPX_FLAGS) $(FILES)\$(APP)\$(WIRESHARK)\*.dll
+#	-$(UPX) $(UPX_FLAGS) $(FILES)\$(APP)\$(WIRESHARK)\plugins\$(VERSION)\*.dll
+#	-$(UPX) $(UPX_FLAGS) $(FILES)\$(APP)\$(WIRESHARK)\lib\gtk-2.0\$(GTK_LIB_DIR)\loaders\*.dll
+#	-$(UPX) $(UPX_FLAGS) $(FILES)\$(APP)\$(WIRESHARK)\lib\gtk-2.0\$(GTK_LIB_DIR)\immodules\*.dll
+#	-$(UPX) $(UPX_FLAGS) $(FILES)\$(APP)\$(WIRESHARK)\$(GTK_WIMP_DLLDST_DIR)\*.dll
+#!ENDIF
 
-pack:	distribution
-!IFDEF UPX
-	-$(UPX) $(UPX_FLAGS) $(FILES)\$(APP)\$(WIRESHARK)\[a-z]*.exe
-	-$(UPX) $(UPX_FLAGS) $(FILES)\$(APP)\$(WIRESHARK)\*.dll
-	-$(UPX) $(UPX_FLAGS) $(FILES)\$(APP)\$(WIRESHARK)\plugins\$(VERSION)\*.dll
-	-$(UPX) $(UPX_FLAGS) $(FILES)\$(APP)\$(WIRESHARK)\lib\gtk-2.0\$(GTK_LIB_DIR)\loaders\*.dll
-	-$(UPX) $(UPX_FLAGS) $(FILES)\$(APP)\$(WIRESHARK)\lib\gtk-2.0\$(GTK_LIB_DIR)\immodules\*.dll
-	-$(UPX) $(UPX_FLAGS) $(FILES)\$(APP)\$(WIRESHARK)\$(GTK_WIMP_DLLDST_DIR)\*.dll
-!ENDIF
-
-
-appinfo.ini: appinfo.tmpl $(TOPDIR)\config.nmake
+$(APPINFO_INI): dirs appinfo.tmpl $(TOPDIR)\config.nmake
 	sed -e 's/$$(PAPPS_VERSION)/$(PAPPS_VERSION)/g' \
 	    -e 's/$$(VERSION_MAJOR)/$(VERSION_MAJOR)/g' \
 	    -e 's/$$(VERSION_MINOR)/$(VERSION_MINOR)/g' \
-	< appinfo.tmpl > appinfo.ini
+	< appinfo.tmpl > $@
 
-WiresharkPortable.ini: WiresharkPortable.tmpl $(TOPDIR)\config.nmake
-	sed -e 's/$$(WINPCAP_VERSION)/$(WINPCAP_VERSION)/g' \
-	    -e 's/$$(TARGET_MACHINE)/$(TARGET_MACHINE)/g' \
-	< WiresharkPortable.tmpl > WiresharkPortable.ini
+$(LAUNCHER_INI): dirs $(PROGRAM_PORTABLE).ini
+	copy $(PROGRAM_PORTABLE).ini $(LAUNCHER_INI) /y
 
-appinfo: appinfo.ini
-	$(COPY) appinfo.ini $(FILES)\$(APP)\$(APPINFO) $(COPY_FLAGS)
-	$(COPY) installer.ini $(FILES)\$(APP)\$(APPINFO) $(COPY_FLAGS)
-	copy $(TOPDIR)\image\wireshark.ico $(FILES)\$(APP)\$(APPINFO)\appicon.ico /y
-	copy $(TOPDIR)\image\wsicon16.png $(FILES)\$(APP)\$(APPINFO)\appicon_16.png /y
-	copy $(TOPDIR)\image\wsicon32.png $(FILES)\$(APP)\$(APPINFO)\appicon_32.png /y
+appinfo: $(APPINFO_INI) $(LAUNCHER_INI)
+	copy help.html $(STAGING_DIR)\help.html /y
+	copy $(TOPDIR)\image\wireshark.ico $(APPINFO)\appicon.ico /y
+	copy $(TOPDIR)\image\wsicon16.png $(APPINFO)\appicon_16.png /y
+	copy $(TOPDIR)\image\wsicon32.png $(APPINFO)\appicon_32.png /y
+	copy $(TOPDIR)\image\wsicon128.png $(APPINFO)\appicon_128.png /y
 
-source:  WiresharkPortable.ini
-	$(COPY) WiresharkPortable.ini $(FILES)\$(OTHER)\$(SOURCE) $(COPY_FLAGS)
-	$(COPY) readme.txt $(FILES)\$(OTHER)\$(SOURCE) $(COPY_FLAGS)
-	$(COPY) WiresharkPortable.nsi $(FILES)\$(OTHER)\$(SOURCE) $(COPY_FLAGS)
-	$(COPY) Installer.nsi $(FILES)\$(OTHER)\$(SOURCE) $(COPY_FLAGS)
+# It'd be nice if we could get some sort of status or debugging output. For now
+# just cross our fingers.
+applauncher: appinfo
+	$(PORTABLEAPPS_DIR)\PortableApps.comLauncher\PortableApps.comLauncherGenerator.exe \
+		$(MAKEDIR)\$(PROGRAM_PORTABLE)
 
-findprocdll:
-	if not exist $(FINDPROCDLL) \
-	@$(SH) ../../../tools/win-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIB_DIR)" \
-		$(NSIS_PLUGINS) FindProc.zip "$(DOWNLOAD_TAG)" "$(WIRESHARK_TARGET_PLATFORM)"
+appbinaries: applauncher
+	xcopy $(TOPDIR)\wireshark-qt-release $(WIRESHARK_DIR) /D /I /E /Y
+	xcopy $(TOPDIR)\capinfos.exe $(WIRESHARK_DIR) /d
+	xcopy $(TOPDIR)\captype.exe $(WIRESHARK_DIR) /d
+	xcopy $(TOPDIR)\dumpcap.exe $(WIRESHARK_DIR) /d
+	xcopy $(TOPDIR)\editcap.exe $(WIRESHARK_DIR) /d
+	xcopy $(TOPDIR)\mergecap.exe $(WIRESHARK_DIR) /d
+	xcopy $(TOPDIR)\randpkt.exe $(WIRESHARK_DIR) /d
+	xcopy $(TOPDIR)\reordercap.exe $(WIRESHARK_DIR) /d
+	xcopy $(TOPDIR)\rawshark.exe $(WIRESHARK_DIR) /d
+	xcopy $(TOPDIR)\text2pcap.exe $(WIRESHARK_DIR) /d
+	xcopy $(TOPDIR)\tfshark.exe $(WIRESHARK_DIR) /d
+	xcopy $(TOPDIR)\tshark.exe $(WIRESHARK_DIR) /d
 
+#WiresharkPortable.ini: WiresharkPortable.tmpl $(TOPDIR)\config.nmake
+#	sed -e 's/$$(WINPCAP_VERSION)/$(WINPCAP_VERSION)/g' \
+#	    -e 's/$$(TARGET_MACHINE)/$(TARGET_MACHINE)/g' \
+#	< WiresharkPortable.tmpl > WiresharkPortable.ini
 
-WiresharkPortable-$(VERSION).paf.exe : dirs appinfo nsis-bits pack source Files/WiresharkPortable.exe Installer.nsi
-	$(MAKENSIS) \
-	/DVERSION=$(PAPPS_VERSION) \
-	/DWSVERSION=$(VERSION) \
-	/DQT_DIR=$(QT_DIR) \
-	/DNEED_QT5_DLL=$(NEED_QT5_DLL) \
-	/DNEED_QT4_DLL=$(NEED_QT4_DLL) \
-	/DEXTRA_PLUGINS="$(WIRESHARK_LIB_DIR)\$(NSIS_PLUGINS)" \
-	Installer.nsi
+source: dirs
+	$(COPY) readme.txt $(SOURCE) $(COPY_FLAGS)
+	$(TEXTIFY) -Destination $(SOURCE) \
+                $(TOPDIR)/COPYING \
+                $(TOPDIR)/NEWS \
+                $(TOPDIR)/README.windows
 
-Files/WiresharkPortable.exe : WiresharkPortable.nsi findprocdll
-	$(MAKENSIS) \
-	/DVERSION=$(PAPPS_VERSION) \
-	/DWSVERSION=$(VERSION) \
-	/DEXTRA_PLUGINS="$(WIRESHARK_LIB_DIR)\$(NSIS_PLUGINS)" \
-	/DDEFAULTWINPCAP=WinPcap_$(WINPCAP_VERSION).exe \
-	/DDEFAULTMSVCREDIST=vcredist_$(TARGET_MACHINE).exe \
-	WiresharkPortable.nsi
+WiresharkPortable-$(VERSION).paf.exe : dirs appinfo appbinaries source
+!IFDEF PORTABLEAPPS_DIR
+	$(PORTABLEAPPS_DIR)\PortableApps.comInstaller\PortableApps.comInstaller.exe \
+		$(MAKEDIR)\$(PROGRAM_PORTABLE)
+!ELSE
+!MESSAGE PORTABLEAPPS_DIR not configured in config.nmake. Skipping.
+!ENDIF
 
 clean:
 	cd ../../
 	$(MAKE) -f Makefile.nmake $@
 	cd portableapps/win32
-	rm -rf $(FILES)
+	rm -rf $(STAGING_DIR)
 	rm -rf appinfo.ini
-	rm -rf WiresharkPortable.ini
-	rm -rf distribution.nmake
+	#rm -rf WiresharkPortable.ini
+	#rm -rf distribution.nmake
 	rm -rf WiresharkPortable-$(VERSION).paf.exe
 	rm -rf *~ *.*~
 

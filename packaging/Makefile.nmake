@@ -1,14 +1,13 @@
-#
+# This is no longer used and can probably be removed.
 
 include ../config.nmake
 
-wireshark.manifest:	nsis/wireshark.nsi ws-manifest.pl
-	$(PERL) ws-manifest.pl nsis/wireshark.nsi > $@	
+#wireshark.manifest:	nsis/wireshark.nsi ws-manifest.pl
+#	$(PERL) ws-manifest.pl nsis/wireshark.nsi > $@
 
 clean:
 	rm -rf wireshark.manifest
 
 distclean:	clean
-	
+
 maintainer-clean:	distclean
-	

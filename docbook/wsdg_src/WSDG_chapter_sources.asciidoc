@@ -1131,7 +1131,7 @@ You will probably have to modify the MAKENSIS setting in the
 'config.nmake' file to specify where the NSIS binaries
 are installed.
 
-In the wireshark directory, type:
+In the top-level source directory type:
 
 ----
 > nmake -f makefile.nmake packaging
@@ -1139,8 +1139,8 @@ In the wireshark directory, type:
 
 to build the installer.
 
-.This might take a while
 [TIP]
+.This might take a while
 ====
 Please be patient while the package is compressed.
 It might take some time, even on fast machines.
@@ -1149,6 +1149,36 @@ It might take some time, even on fast machines.
 If everything went well, you will now find something like:
 'wireshark-setup-wireshark-version:[].exe' in
 the 'packaging/nsis' directory.
+
+[[ChSrcPortableApps]]
+
+==== Win32: PortableApps .paf.exe package
+
+_PortableApps.com_ is an environment that lets users run popular applications
+from portable media such as flash drives and cloud drive services.
+
+You will probably have to modify the MAKENSIS setting in the
+'config.nmake' file to specify where the NSIS binaries
+are installed.
+
+In the top-level source directory type:
+
+----
+> nmake -f makefile.nmake packaging_papps
+----
+
+to build the installer.
+
+[TIP]
+.This might take a while
+====
+Please be patient while the package is compressed.
+It might take some time, even on fast machines.
+====
+
+If everything went well, you will now find something like:
+'WiresharkPortable-wireshark-major-minor-version:[].paf.exe' in
+the 'packaging/portableapps/win32' directory.
 
 ++++++++++++++++++++++++++++++++++++++
 <!-- End of WSDG Chapter Sources -->
