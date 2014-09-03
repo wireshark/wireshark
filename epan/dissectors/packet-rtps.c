@@ -6130,6 +6130,7 @@ static void dissect_HEARTBEAT_VIRTUAL(tvbuff_t *tvb, packet_info *pinfo _U_, gin
         if (!(flags & FLAG_VIRTUAL_HEARTBEAT_N)) {
           proto_tree_add_item(sil_tree_writer, hf_rtps_virtual_heartbeat_num_virtual_guids, tvb,
             offset, 4, little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
+          num_virtual_guids = NEXT_guint32(tvb, offset, little_endian);
           offset += 4;
         } else {
           num_virtual_guids = 0;
