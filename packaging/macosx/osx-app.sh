@@ -43,7 +43,7 @@ exclude_prefixes="/System/|/Library/|/usr/lib/|/usr/X11/|/opt/X11/|@rpath|@execu
 # "qt" or "gtk"
 ui_toolkit="gtk"
 # Name of the Wireshark executable
-wireshark_bin_name="wireshark"
+wireshark_bin_name="wireshark-gtk"
 
 binary_list="
 	capinfos
