@@ -9106,7 +9106,19 @@ void proto_register_rtps(void) {
 
 
 void proto_reg_handoff_rtps(void) {
- heur_dissector_add("udp", dissect_rtps_udp, proto_rtps);
- heur_dissector_add("tcp", dissect_rtps_tcp, proto_rtps);
+  heur_dissector_add("udp", dissect_rtps_udp, proto_rtps);
+  heur_dissector_add("tcp", dissect_rtps_tcp, proto_rtps);
 }
 
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */

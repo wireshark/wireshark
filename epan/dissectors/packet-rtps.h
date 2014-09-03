@@ -512,3 +512,16 @@ extern void dissect_INFO_TS(tvbuff_t *tvb, packet_info *pinfo, gint offset, guin
 #endif
 
 #endif /* _TYPEDEFS_DEFINES_RTPS_H */
+
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */
