@@ -96,6 +96,7 @@ $(APPINFO_INI): dirs appinfo.tmpl $(TOPDIR)\config.nmake
 	sed -e 's/$$(PAPPS_VERSION)/$(PAPPS_VERSION)/g' \
 	    -e 's/$$(VERSION_MAJOR)/$(VERSION_MAJOR)/g' \
 	    -e 's/$$(VERSION_MINOR)/$(VERSION_MINOR)/g' \
+	    -e 's/$$(VERSION_MICRO)/$(VERSION_MICRO)/g' \
 	< appinfo.tmpl > $@
 
 $(LAUNCHER_INI): dirs $(PROGRAM_PORTABLE).ini
@@ -144,6 +145,8 @@ WiresharkPortable-$(VERSION).paf.exe : dirs appinfo appbinaries source
 !IFDEF PORTABLEAPPS_DIR
 	$(PORTABLEAPPS_DIR)\PortableApps.comInstaller\PortableApps.comInstaller.exe \
 		$(MAKEDIR)\$(PROGRAM_PORTABLE)
+	mv WiresharkPortable_$(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_MICRO).paf.exe \
+		WiresharkPortable-$(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_MICRO).paf.exe
 !ELSE
 !MESSAGE PORTABLEAPPS_DIR not configured in config.nmake. Skipping.
 !ENDIF
