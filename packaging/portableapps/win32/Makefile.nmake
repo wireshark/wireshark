@@ -71,17 +71,6 @@ dirs:
 	if not exist $(OTHER) $(MKDIR) $(OTHER)
 	if not exist $(SOURCE) $(MKDIR) $(SOURCE)
 
-#nsis-bits:
-#	cd ../../nsis
-#	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake user-guide.chm
-#	cd ../portableapps/win32
-
-#distribution.nmake:	makenmake.pl $(WSMANIFEST) ../../ws-manifest.pl
-#	$(PERL) makenmake.pl $(WSMANIFEST) > $@
-
-#distribution:	distribution.nmake
-#	nmake -f distribution.nmake
-
 #pack:	distribution
 #!IFDEF UPX
 #	-$(UPX) $(UPX_FLAGS) $(FILES)\$(APP)\$(WIRESHARK)\[a-z]*.exe
@@ -128,11 +117,6 @@ appbinaries: applauncher
 	xcopy $(TOPDIR)\text2pcap.exe $(WIRESHARK_DIR) /d
 	xcopy $(TOPDIR)\tfshark.exe $(WIRESHARK_DIR) /d
 	xcopy $(TOPDIR)\tshark.exe $(WIRESHARK_DIR) /d
-
-#WiresharkPortable.ini: WiresharkPortable.tmpl $(TOPDIR)\config.nmake
-#	sed -e 's/$$(WINPCAP_VERSION)/$(WINPCAP_VERSION)/g' \
-#	    -e 's/$$(TARGET_MACHINE)/$(TARGET_MACHINE)/g' \
-#	< WiresharkPortable.tmpl > WiresharkPortable.ini
 
 source: dirs
 	$(COPY) readme.txt $(SOURCE) $(COPY_FLAGS)
