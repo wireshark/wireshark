@@ -2216,7 +2216,7 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 
                 /* 6LBR Address */
                 proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_abro_6lbr_address, tvb, opt_offset, 16, ENC_NA);
-                proto_item_append_text(ti, " : Version %d.%d, Valid Lifetime : %d,6LBR : %s", version_high, version_low, valid_lifetime, tvb_ip6_to_str(tvb, opt_offset));
+                proto_item_append_text(ti, " : Version %d.%d, Valid Lifetime : %d, 6LBR : %s", version_high, version_low, valid_lifetime, tvb_ip6_to_str(tvb, opt_offset));
                 opt_offset += 16;
 
             }
