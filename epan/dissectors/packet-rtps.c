@@ -1051,6 +1051,7 @@ static const struct Flag_definition DATA_FRAG_FLAGS[] = {
   { 'Q', "Inline QoS" },                        /* Bit 1 */
   { 'E', "Endianness bit" }                     /* Bit 0 */
 };
+#if 0
 /* Vendor specific: RTI */
 static const struct Flag_definition NACK_FLAGS[] = {
   { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 7 */
@@ -1062,6 +1063,7 @@ static const struct Flag_definition NACK_FLAGS[] = {
   { 'F', "Final flag" },                        /* Bit 1 */
   { 'E', "Endianness bit" }                     /* Bit 0 */
 };
+#endif
 
 
 /***************************************************************************/
@@ -5248,7 +5250,7 @@ static void dissect_DATA_FRAG(tvbuff_t *tvb, packet_info *pinfo, gint offset, gu
   proto_item* octet_item;
   guint32 wid;
   gboolean from_builtin_writer;
-  rtps_util_decode_flags(tree, tvb, offset + 1, flags, NOKEY_DATA_FRAG_FLAGS);
+  rtps_util_decode_flags(tree, tvb, offset + 1, flags, DATA_FRAG_FLAGS);
 
   octet_item = proto_tree_add_item(tree, hf_rtps_sm_octets_to_next_header, tvb,
                         offset + 2, 2, little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
