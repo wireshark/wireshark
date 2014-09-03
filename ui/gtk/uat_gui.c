@@ -496,6 +496,7 @@ static void uat_edit_dialog(uat_t *uat, gint row, gboolean copy) {
 	for ( colnum = 0; colnum < uat->ncols; colnum++ ) {
 		GtkWidget *entry, *label, *event_box;
 		char *text = fld_tostr(dd->rec, &(f[colnum]));
+		gchar *fc_filename;
 
 		event_box = gtk_event_box_new();
 
@@ -515,6 +516,17 @@ static void uat_edit_dialog(uat_t *uat, gint row, gboolean copy) {
 				if (! dd->is_new || copy) {
 					gtk_file_chooser_set_filename(GTK_FILE_CHOOSER(entry), text);
 				}
+
+				/*
+				 * Some versions of GTK+ will crash if fc_filename is NULL.
+				 * Make sure we have a valid location set.
+				 */
+				fc_filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(entry));
+				if (!fc_filename) {
+					gtk_file_chooser_set_filename(GTK_FILE_CHOOSER(entry), get_datafile_dir());
+				}
+				g_free(fc_filename);
+
 				g_ptr_array_add(dd->entries, entry);
 				ws_gtk_grid_attach_defaults(GTK_GRID(main_grid), entry, 1, colnum, 1, 1);
 				break;
