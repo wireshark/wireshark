@@ -154,8 +154,6 @@ clean:
 	cd portableapps/win32
 	rm -rf $(STAGING_DIR)
 	rm -rf appinfo.ini
-	#rm -rf WiresharkPortable.ini
-	#rm -rf distribution.nmake
 	rm -rf WiresharkPortable-$(VERSION).paf.exe
 	rm -rf *~ *.*~
 
