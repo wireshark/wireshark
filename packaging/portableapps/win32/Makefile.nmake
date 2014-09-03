@@ -44,22 +44,14 @@ NEED_QT5_DLL	= USE
 NEED_QT4_DLL	= USE
 !ENDIF
 
-#wireshark.nsi: qt-dll-manifest.nsh
-#qt-dll-manifest.nsh: windeployqt-to-nsis.ps1 Makefile.nmake
-#!IF EXIST("$(QT5_BASE_DIR)\bin\qmake.exe")
-#	set PATH=%PATH%;$(QT5_BASE_DIR)\bin
-#!ENDIF
-#	$(POWERSHELL) windeployqt-to-nsis.ps1 \
-#		-Executable ..\..\wireshark-qt-release\wireshark.exe \
-#		-FilePath $@
-
 UPX_FLAGS = -q
 
 PAPPS_VERSION=$(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_MICRO).0
+PAPPS_PACKAGE=$(PROGRAM_PORTABLE)-$(VERSION).paf.exe
 
 all: package
 
-package: $(PROGRAM_PORTABLE)-$(VERSION).paf.exe
+package: $(PAPPS_PACKAGE)
 
 dirs:
 	if not exist $(STAGING_DIR) $(MKDIR) $(STAGING_DIR)
@@ -71,6 +63,8 @@ dirs:
 	if not exist $(OTHER) $(MKDIR) $(OTHER)
 	if not exist $(SOURCE) $(MKDIR) $(SOURCE)
 
+# XXX - Figure out how to use the PA AppCompactor non-interactively and
+# use it instead.
 #pack:	distribution
 #!IFDEF UPX
 #	-$(UPX) $(UPX_FLAGS) $(FILES)\$(APP)\$(WIRESHARK)\[a-z]*.exe
@@ -83,9 +77,7 @@ dirs:
 
 $(APPINFO_INI): dirs appinfo.tmpl $(TOPDIR)\config.nmake
 	sed -e 's/$$(PAPPS_VERSION)/$(PAPPS_VERSION)/g' \
-	    -e 's/$$(VERSION_MAJOR)/$(VERSION_MAJOR)/g' \
-	    -e 's/$$(VERSION_MINOR)/$(VERSION_MINOR)/g' \
-	    -e 's/$$(VERSION_MICRO)/$(VERSION_MICRO)/g' \
+	    -e 's/$$(VERSION)/$(VERSION)/g' \
 	< appinfo.tmpl > $@
 
 $(LAUNCHER_INI): dirs $(PROGRAM_PORTABLE).ini
@@ -125,12 +117,10 @@ source: dirs
                 $(TOPDIR)/NEWS \
                 $(TOPDIR)/README.windows
 
-WiresharkPortable-$(VERSION).paf.exe : dirs appinfo appbinaries source
+$(PAPPS_PACKAGE) : dirs appinfo appbinaries source
 !IFDEF PORTABLEAPPS_DIR
 	$(PORTABLEAPPS_DIR)\PortableApps.comInstaller\PortableApps.comInstaller.exe \
 		$(MAKEDIR)\$(PROGRAM_PORTABLE)
-	mv WiresharkPortable_$(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_MICRO).paf.exe \
-		WiresharkPortable-$(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_MICRO).paf.exe
 !ELSE
 !MESSAGE PORTABLEAPPS_DIR not configured in config.nmake. Skipping.
 !ENDIF
@@ -141,10 +131,10 @@ clean:
 	cd portableapps/win32
 	rm -rf $(STAGING_DIR)
 	rm -rf appinfo.ini
-	rm -rf WiresharkPortable-$(VERSION).paf.exe
+	rm -rf $(PAPPS_PACKAGE)
 	rm -rf *~ *.*~
 
 distclean:	clean
-	rm -rf WiresharkPortable-*.paf.exe
+	rm -rf WiresharkPortable*.paf.exe
 
 maintainer-clean:	distclean
