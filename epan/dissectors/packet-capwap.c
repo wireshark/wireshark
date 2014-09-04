@@ -136,6 +136,15 @@ static int hf_capwap_msg_element_type_ac_information_software_version = -1;
 static int hf_capwap_msg_element_type_ac_name = -1;
 static int hf_capwap_msg_element_type_ac_name_with_priority = -1;
 
+static int hf_capwap_msg_element_type_ac_timestamp = -1;
+
+static int hf_capwap_msg_element_type_add_station_radio_id = -1;
+static int hf_capwap_msg_element_type_add_station_length = -1;
+static int hf_capwap_msg_element_type_add_station_mac_eui48 = -1;
+static int hf_capwap_msg_element_type_add_station_mac_eui64 = -1;
+static int hf_capwap_msg_element_type_add_station_mac_data = -1;
+static int hf_capwap_msg_element_type_add_station_vlan_name = -1;
+
 static int hf_capwap_msg_element_type_ac_ipv4_list = -1;
 static int hf_capwap_msg_element_type_ac_ipv6_list = -1;
 
@@ -154,6 +163,8 @@ static int hf_capwap_msg_element_type_discovery_type = -1;
 static int hf_capwap_msg_element_type_location_data = -1;
 
 static int hf_capwap_msg_element_type_maximum_message_length = -1;
+
+static int hf_capwap_msg_element_type_capwap_local_ipv4_address = -1;
 
 static int hf_capwap_msg_element_type_idle_timeout = -1;
 static int hf_capwap_msg_element_type_radio_admin_id = -1;
@@ -220,6 +231,14 @@ static int hf_capwap_msg_element_type_wtp_reboot_statistics_hw_failure_count = -
 static int hf_capwap_msg_element_type_wtp_reboot_statistics_other_failure_count = -1;
 static int hf_capwap_msg_element_type_wtp_reboot_statistics_unknown_failure_count = -1;
 static int hf_capwap_msg_element_type_wtp_reboot_statistics_last_failure_type = -1;
+
+static int hf_capwap_msg_element_type_capwap_local_ipv6_address = -1;
+
+static int hf_capwap_msg_element_type_capwap_transport_protocol = -1;
+
+static int hf_capwap_msg_element_type_mtu_discovery_padding = -1;
+
+static int hf_capwap_msg_element_type_ecn_support = -1;
 
 static int hf_capwap_msg_element_type_ieee80211_add_wlan_radio_id = -1;
 static int hf_capwap_msg_element_type_ieee80211_add_wlan_wlan_id = -1;
@@ -769,6 +788,24 @@ static const value_string last_failure_type_vals[] = {
 };
 
 /* ************************************************************************* */
+/*                     CAPWAP Transport Protocol                             */
+/* ************************************************************************* */
+static const value_string capwap_transport_protocol_vals[] = {
+    { 1, "UDP-Lite" },
+    { 2, "UDP" },
+    { 0,     NULL     }
+};
+
+/* ************************************************************************* */
+/*                     ECN Support                                           */
+/* ************************************************************************* */
+static const value_string ecn_support_vals[] = {
+    { 0, "Limited ECN Support" },
+    { 1, "Full and Limited ECN Support" },
+    { 0,     NULL     }
+};
+
+/* ************************************************************************* */
 /*                     Add WLAN : Key Status                                 */
 /* ************************************************************************* */
 static const value_string ieee80211_add_wlan_key_status_vals[] = {
@@ -1133,6 +1170,43 @@ dissect_capwap_message_element_type(tvbuff_t *tvb, proto_tree *msg_element_type_
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ac_name, tvb, offset+5, optlen-1, ENC_ASCII|ENC_NA);
         break;
 
+    case TYPE_AC_TIMESTAMP: /* AC Timestamp (6) */
+        if (optlen != 4) {
+            expert_add_info_format(pinfo, ti_len, &ei_capwap_msg_element_length,
+                           "AC Timestamp length %u wrong, must be = 4", optlen);
+        break;
+        }
+        proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ac_timestamp, tvb, offset + 4, 4, ENC_TIME_NTP|ENC_BIG_ENDIAN);
+        break;
+
+    case TYPE_ADD_STATION:{ /* Add Station (8) */
+        guint8 maclength;
+        if (optlen < 8) {
+            expert_add_info_format(pinfo, ti_len, &ei_capwap_msg_element_length,
+                           "Add Station length %u wrong, must be >= 8", optlen);
+        break;
+        }
+        proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_add_station_radio_id, tvb, offset + 4, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_add_station_length, tvb, offset + 5, 1, ENC_BIG_ENDIAN);
+        maclength = tvb_get_guint8(tvb, offset+5);
+        switch(maclength){
+            case 6:
+                proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_add_station_mac_eui48, tvb, offset+6, maclength, ENC_NA);
+            break;
+            case 8:
+                proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_add_station_mac_eui64, tvb, offset+6, maclength, ENC_BIG_ENDIAN);
+            break;
+            default:
+                proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_add_station_mac_data, tvb, offset+6, maclength, ENC_NA);
+            break;
+        }
+
+        if(optlen -(2 + maclength)) {
+                proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_add_station_vlan_name, tvb, offset+6+maclength, optlen -(2 + maclength), ENC_ASCII|ENC_NA);
+        }
+        }
+        break;
+
     case TYPE_CAPWAP_CONTROL_IPV4_ADDRESS: /* CAPWAP Control IPv4 Address (10) */
         if (optlen != 6) {
             expert_add_info_format(pinfo, ti_len, &ei_capwap_msg_element_length,
@@ -1207,6 +1281,16 @@ dissect_capwap_message_element_type(tvbuff_t *tvb, proto_tree *msg_element_type_
         }
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_maximum_message_length, tvb, offset+4, 2, ENC_BIG_ENDIAN);
         break;
+
+    case TYPE_CAPWAP_LOCAL_IPV4_ADDRESS: /* CAPWAP Local IPv4 Address (30) */
+        if (optlen != 4) {
+            expert_add_info_format(pinfo, ti_len, &ei_capwap_msg_element_length,
+                           "CAPWAP Local IPv4 Address length %u wrong, must be = 4", optlen);
+        break;
+        }
+        proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_capwap_local_ipv4_address, tvb, offset+4, 4, ENC_BIG_ENDIAN);
+        break;
+
 
     case TYPE_RADIO_ADMINISTRATIVE_STATE: /* Radio Administrative State (31) */
         if (optlen != 2) {
@@ -1370,6 +1454,43 @@ dissect_capwap_message_element_type(tvbuff_t *tvb, proto_tree *msg_element_type_
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_wtp_reboot_statistics_other_failure_count, tvb, offset+14, 2, ENC_BIG_ENDIAN);
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_wtp_reboot_statistics_unknown_failure_count, tvb, offset+16, 2, ENC_BIG_ENDIAN);
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_wtp_reboot_statistics_last_failure_type, tvb, offset+18, 1, ENC_BIG_ENDIAN);
+        break;
+
+    case TYPE_CAPWAP_LOCAL_IPV6_ADDRESS: /* CAPWAP Local IPv6 Address (50) */
+        if (optlen != 16) {
+            expert_add_info_format(pinfo, ti_len, &ei_capwap_msg_element_length,
+                           "CAPWAP Local IPv6 Address length %u wrong, must be = 16", optlen);
+        break;
+        }
+        proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_capwap_local_ipv6_address, tvb, offset+4, 16, ENC_NA);
+        break;
+
+    case TYPE_CAPWAP_TRANSPORT_PROTOCOL: /* CAPWAP Transport Protocol (51) */
+        if (optlen != 1) {
+            expert_add_info_format(pinfo, ti_len, &ei_capwap_msg_element_length,
+                           "CAPWAP Transport Protocol length %u wrong, must be = 1", optlen);
+        break;
+        }
+        proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_capwap_transport_protocol, tvb, offset+4, 1, ENC_BIG_ENDIAN);
+        break;
+
+    case TYPE_MTU_DISCOVERY_PADDING: /* MTU Discovery Padding (52) */
+        if (optlen < 1) {
+            expert_add_info_format(pinfo, ti_len, &ei_capwap_msg_element_length,
+                           "MTU Discovery Padding length %u wrong, must be >= 1", optlen);
+        break;
+        }
+        proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_mtu_discovery_padding, tvb, offset+4, optlen, ENC_NA);
+        break;
+
+
+    case TYPE_ECN_SUPPORT: /* ECN Support (53) */
+        if (optlen != 1) {
+            expert_add_info_format(pinfo, ti_len, &ei_capwap_msg_element_length,
+                           "ECN Support length %u wrong, must be = 1", optlen);
+        break;
+        }
+        proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ecn_support, tvb, offset+4, 1, ENC_BIG_ENDIAN);
         break;
 
     case IEEE80211_ADD_WLAN:{ /* ieee80211 Add WLAN (1024) */
@@ -2319,6 +2440,43 @@ proto_register_capwap_control(void)
               NULL, HFILL }
         },
 
+        { &hf_capwap_msg_element_type_ac_timestamp,
+            { "AC Timestamp", "capwap.control.message_element.ac_timestamp",
+              FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0,
+              NULL, HFILL }
+        },
+
+        { &hf_capwap_msg_element_type_add_station_radio_id,
+            { "Radio ID", "capwap.control.message_element.add_station.radio_id",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              "Representing the radio, whose value is between one (1) and 31", HFILL }
+        },
+        { &hf_capwap_msg_element_type_add_station_length,
+            { "Mac Length", "capwap.control.message_element.add_station.length",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              "The length of the MAC Address field", HFILL }
+        },
+        { &hf_capwap_msg_element_type_add_station_mac_eui48,
+            { "MAC address", "capwap.control.message_element.add_station.mac.eui48",
+              FT_ETHER, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_msg_element_type_add_station_mac_eui64,
+            { "MAC address", "capwap.control.message_element.add_station.mac.eui64",
+              FT_EUI64, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_msg_element_type_add_station_mac_data,
+            { "MAC address", "capwap.control.message_element.add_station.mac.data",
+              FT_BYTES, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_msg_element_type_add_station_vlan_name,
+            { "Vlan Name", "capwap.control.message_element.add_station.vlan_name",
+              FT_STRING, BASE_NONE, NULL, 0x0,
+              "Containing the VLAN Name on which the WTP is to locally bridge user data", HFILL }
+        },
+
         { &hf_capwap_msg_element_type_discovery_type,
             { "Discovery Type", "capwap.control.message_element.discovery_type",
               FT_UINT8, BASE_DEC, VALS(discovery_type_vals), 0x0,
@@ -2340,6 +2498,13 @@ proto_register_capwap_control(void)
               FT_UINT16, BASE_DEC, NULL, 0x0,
               NULL, HFILL }
         },
+
+        { &hf_capwap_msg_element_type_capwap_local_ipv4_address,
+            { "CAPWAP Local IPv4 Address", "capwap.control.message_element.capwap_local_ipv4_address",
+              FT_IPv4, BASE_NONE, NULL, 0x0,
+              "The IP address of the sender", HFILL }
+        },
+
 
         { &hf_capwap_msg_element_type_radio_admin_id,
             { "Radio Administrative ID", "capwap.control.message_element.radio_admin.id",
@@ -2612,6 +2777,31 @@ proto_register_capwap_control(void)
               FT_UINT8, BASE_DEC, VALS(last_failure_type_vals), 0x0,
               "The failure type of the most recent WTP failure", HFILL }
         },
+
+        { &hf_capwap_msg_element_type_capwap_local_ipv6_address,
+            { "CAPWAP Local IPv6 Address", "capwap.control.message_element.capwap_local_ipv6_address",
+              FT_IPv6, BASE_NONE, NULL, 0x0,
+              "The IP address of the sender", HFILL }
+        },
+
+        { &hf_capwap_msg_element_type_capwap_transport_protocol,
+            { "CAPWAP Transport Protocol", "capwap.control.message_element.capwap_transport_protocol",
+              FT_UINT8, BASE_DEC, VALS(capwap_transport_protocol_vals), 0x0,
+              "The transport to use for the CAPWAP Data channel", HFILL }
+        },
+
+        { &hf_capwap_msg_element_type_mtu_discovery_padding,
+            { "MTU Discovery Padding", "capwap.control.message_element.mtu_discovery_padding",
+              FT_BYTES, BASE_NONE, NULL, 0x0,
+              "A variable-length pad, filled with the value 0xFF", HFILL }
+        },
+
+        { &hf_capwap_msg_element_type_ecn_support,
+            { "ECN Support", "capwap.control.message_element.ecn_support",
+              FT_UINT8, BASE_DEC, VALS(ecn_support_vals), 0x0,
+              "The sender's support for ECN, as defined in [RFC3168]", HFILL }
+        },
+
 
         /* Message element type IEEE80211 : RFC 5416 Section 6 */
         { &hf_capwap_msg_element_type_ieee80211_add_wlan_radio_id,
