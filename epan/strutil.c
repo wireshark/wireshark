@@ -429,7 +429,8 @@ is_byte_sep(guint8 c)
  * is_byte_sep() into a byte array.
  */
 gboolean
-hex_str_to_bytes(const char *hex_str, GByteArray *bytes, gboolean force_separators) {
+hex_str_to_bytes(const char *hex_str, GByteArray *bytes, gboolean force_separators)
+{
     guint8        val;
     const guchar    *p, *q, *r, *s, *punct;
     char        four_digits_first_half[3];
@@ -678,7 +679,8 @@ hex_str_to_bytes_encoding(const gchar *hex_str, GByteArray *bytes, const gchar *
  */
 #define HEX_DIGIT_BUF_LEN 3
 gboolean
-uri_str_to_bytes(const char *uri_str, GByteArray *bytes) {
+uri_str_to_bytes(const char *uri_str, GByteArray *bytes)
+{
     guint8        val;
     const guchar    *p;
     guchar        hex_digit[HEX_DIGIT_BUF_LEN];
@@ -793,7 +795,8 @@ format_uri(const GByteArray *bytes, const gchar *reserved_chars)
  *
  */
 GByteArray *
-byte_array_dup(const GByteArray *ba) {
+byte_array_dup(const GByteArray *ba)
+{
     GByteArray *new_ba;
 
     if (!ba)
@@ -806,11 +809,13 @@ byte_array_dup(const GByteArray *ba) {
 
 #define SUBID_BUF_LEN 5
 gboolean
-oid_str_to_bytes(const char *oid_str, GByteArray *bytes) {
+oid_str_to_bytes(const char *oid_str, GByteArray *bytes)
+{
     return rel_oid_str_to_bytes(oid_str, bytes, TRUE);
 }
 gboolean
-rel_oid_str_to_bytes(const char *oid_str, GByteArray *bytes, gboolean is_absolute) {
+rel_oid_str_to_bytes(const char *oid_str, GByteArray *bytes, gboolean is_absolute)
+{
     guint32 subid0, subid, sicnt, i;
     const char *p, *dot;
     guint8 buf[SUBID_BUF_LEN];
@@ -879,7 +884,8 @@ rel_oid_str_to_bytes(const char *oid_str, GByteArray *bytes, gboolean is_absolut
  * XXX - Should this be in strutil.c?
  */
 gboolean
-byte_array_equal(GByteArray *ba1, GByteArray *ba2) {
+byte_array_equal(GByteArray *ba1, GByteArray *ba2)
+{
     if (!ba1 || !ba2)
         return FALSE;
 
@@ -1247,7 +1253,9 @@ ws_strdup_unescape_char (const gchar *str, const char chr)
 }
 
 /* Create a newly-allocated string with replacement values. */
-gchar *string_replace(const gchar* str, const gchar *old_val, const gchar *new_val) {
+gchar *
+string_replace(const gchar* str, const gchar *old_val, const gchar *new_val)
+{
     gchar **str_parts;
     gchar *new_str;
 

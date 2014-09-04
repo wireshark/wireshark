@@ -59,21 +59,24 @@ low_nibble_of_octet_to_hex(guint8 oct)
 }
 
 static inline char *
-byte_to_hex(char *out, guint32 dword) {
+byte_to_hex(char *out, guint32 dword)
+{
 	*out++ = low_nibble_of_octet_to_hex(dword >> 4);
 	*out++ = low_nibble_of_octet_to_hex(dword);
 	return out;
 }
 
 char *
-word_to_hex(char *out, guint16 word) {
+word_to_hex(char *out, guint16 word)
+{
 	out = byte_to_hex(out, word >> 8);
 	out = byte_to_hex(out, word);
 	return out;
 }
 
 char *
-word_to_hex_npad(char *out, guint16 word) {
+word_to_hex_npad(char *out, guint16 word)
+{
 	if (word >= 0x1000)
 		*out++ = low_nibble_of_octet_to_hex((guint8)(word >> 12));
 	if (word >= 0x0100)
@@ -85,7 +88,8 @@ word_to_hex_npad(char *out, guint16 word) {
 }
 
 char *
-dword_to_hex(char *out, guint32 dword) {
+dword_to_hex(char *out, guint32 dword)
+{
 	out = byte_to_hex(out, dword >> 24);
 	out = byte_to_hex(out, dword >> 16);
 	out = byte_to_hex(out, dword >>  8);
@@ -94,7 +98,8 @@ dword_to_hex(char *out, guint32 dword) {
 }
 
 char *
-dword_to_hex_punct(char *out, guint32 dword, char punct) {
+dword_to_hex_punct(char *out, guint32 dword, char punct)
+{
 	out = byte_to_hex(out, dword >> 24);
 	*out++ = punct;
 	out = byte_to_hex(out, dword >> 16);
@@ -114,7 +119,8 @@ dword_to_hex_punct(char *out, guint32 dword, char punct) {
  * There needs to be at least len * 2 bytes left in the buffer.
  */
 char *
-bytes_to_hexstr(char *out, const guint8 *ad, guint32 len) {
+bytes_to_hexstr(char *out, const guint8 *ad, guint32 len)
+{
 	guint32 i;
 
 	if (!ad)
@@ -134,7 +140,8 @@ bytes_to_hexstr(char *out, const guint8 *ad, guint32 len) {
  * There needs to be at least len * 3 - 1 bytes left in the buffer.
  */
 char *
-bytes_to_hexstr_punct(char *out, const guint8 *ad, guint32 len, char punct) {
+bytes_to_hexstr_punct(char *out, const guint8 *ad, guint32 len, char punct)
+{
 	guint32 i;
 
 	if (!ad)
@@ -156,7 +163,8 @@ bytes_to_hexstr_punct(char *out, const guint8 *ad, guint32 len, char punct) {
  * the resulting string is (len-1) bytes shorter)
  */
 const gchar *
-bytestring_to_ep_str(const guint8 *ad, const guint32 len, const char punct) {
+bytestring_to_ep_str(const guint8 *ad, const guint32 len, const char punct)
+{
 	gchar *buf;
 	size_t       buflen;
 
@@ -187,7 +195,8 @@ bytestring_to_ep_str(const guint8 *ad, const guint32 len, const char punct) {
 }
 
 const gchar *
-bytestring_to_str(wmem_allocator_t *scope, const guint8 *ad, const guint32 len, const char punct) {
+bytestring_to_str(wmem_allocator_t *scope, const guint8 *ad, const guint32 len, const char punct)
+{
 	gchar *buf;
 	size_t buflen;
 
@@ -217,7 +226,8 @@ bytestring_to_str(wmem_allocator_t *scope, const guint8 *ad, const guint32 len, 
 #define	MAX_BYTE_STR_LEN	48
 
 gchar *
-bytes_to_ep_str(const guint8 *bd, int bd_len) {
+bytes_to_ep_str(const guint8 *bd, int bd_len)
+{
 	gchar *cur;
 	gchar *cur_ptr;
 	int truncated = 0;
@@ -246,7 +256,8 @@ bytes_to_ep_str(const guint8 *bd, int bd_len) {
  * punct as a bytes separator.
  */
 gchar *
-bytes_to_ep_str_punct(const guint8 *bd, int bd_len, gchar punct) {
+bytes_to_ep_str_punct(const guint8 *bd, int bd_len, gchar punct)
+{
 	gchar *cur;
 	gchar *cur_ptr;
 	int truncated = 0;
@@ -274,7 +285,8 @@ bytes_to_ep_str_punct(const guint8 *bd, int bd_len, gchar punct) {
 }
 
 static int
-guint32_to_str_buf_len(const guint32 u) {
+guint32_to_str_buf_len(const guint32 u)
+{
 	if (u >= 1000000000)return 10;
 	if (u >= 100000000) return 9;
 	if (u >= 10000000)  return 8;
@@ -324,7 +336,8 @@ static const char fast_strings[][4] = {
 };
 
 void
-guint32_to_str_buf(guint32 u, gchar *buf, int buf_len) {
+guint32_to_str_buf(guint32 u, gchar *buf, int buf_len)
+{
 	int str_len = guint32_to_str_buf_len(u)+1;
 
 	gchar *bp = &buf[str_len];
@@ -522,7 +535,9 @@ static const char mon_names[12][4] = {
 	"Dec"
 };
 
-static const gchar *get_zonename(struct tm *tmp) {
+static const gchar *
+get_zonename(struct tm *tmp)
+{
 #if defined(HAVE_TM_ZONE)
 	return tmp->tm_zone;
 #else
@@ -1055,7 +1070,7 @@ ip_to_str_buf(const guint8 *ad, gchar *buf, const int buf_len)
 	register gchar *b=buf;
 
 	if (buf_len < MAX_IP_STR_LEN) {
-		g_snprintf ( buf, buf_len, BUF_TOO_SMALL_ERR );                 /* Let the unexpected value alert user */
+		g_snprintf ( buf, buf_len, BUF_TOO_SMALL_ERR );  /* Let the unexpected value alert user */
 		return;
 	}
 
@@ -1088,14 +1103,18 @@ ip_to_str_buf(const guint8 *ad, gchar *buf, const int buf_len)
 	*b=0;
 }
 
-gchar* guid_to_ep_str(const e_guid_t *guid) {
+gchar *
+guid_to_ep_str(const e_guid_t *guid)
+{
 	gchar *buf;
 
 	buf=(gchar *)ep_alloc(GUID_STR_LEN);
 	return guid_to_str_buf(guid, buf, GUID_STR_LEN);
 }
 
-gchar* guid_to_str_buf(const e_guid_t *guid, gchar *buf, int buf_len) {
+gchar *
+guid_to_str_buf(const e_guid_t *guid, gchar *buf, int buf_len)
+{
 	char *tempptr = buf;
 
 	if (buf_len < GUID_STR_LEN) {
@@ -1118,7 +1137,9 @@ gchar* guid_to_str_buf(const e_guid_t *guid, gchar *buf, int buf_len) {
 	return buf;
 }
 
-const gchar* port_type_to_str (port_type type) {
+const gchar *
+port_type_to_str (port_type type)
+{
 	switch (type) {
 		case PT_NONE:		return "NONE";
 		case PT_SCTP:		return "SCTP";
