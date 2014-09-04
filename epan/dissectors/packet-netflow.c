@@ -43,7 +43,7 @@
  ** http://www.ietf.org/rfc/rfc5101.txt
  ** http://www.ietf.org/rfc/rfc5102.txt
  ** http://www.ietf.org/rfc/rfc5103.txt
- ** http://www.iana.org/assignments/ipfix/ipfix.xml
+ ** http://www.iana.org/assignments/ipfix/ipfix.xml     [version dated: 2014-08-13]
  ** http://www.iana.org/assignments/psamp-parameters/psamp-parameters.xml
  ** for IPFIX
  **
@@ -401,6 +401,7 @@ static const value_string v9_v10_template_types[] = {
     {  96, "APPLICATION_NAME" },
     {  98, "postIpDiffServCodePoint" },
     {  99, "multicastReplicationFactor" },
+    { 101, "classificationEngineId" },
     { 128, "DST_AS_PEER" },
     { 129, "SRC_AS_PEER" },
     { 130, "exporterIPv4Address" },
@@ -549,6 +550,31 @@ static const value_string v9_v10_template_types[] = {
     { 273, "minFlowStartNanoseconds" },
     { 274, "collectorCertificate" },
     { 275, "exporterCertificate" },
+    { 276, "dataRecordsReliability" },
+    { 277, "observationPointType" },
+    { 278, "newConnectionDeltaCount" },
+    { 279, "connectionSumDurationSeconds" },
+    { 280, "connectionTransactionId" },
+    { 281, "postNATSourceIPv6Address" },
+    { 282, "postNATDestinationIPv6Address" },
+    { 283, "natPoolId" },
+    { 284, "natPoolName" },
+    { 285, "anonymizationFlags" },
+    { 286, "anonymizationTechnique" },
+    { 287, "informationElementIndex" },
+    { 288, "p2pTechnology" },
+    { 289, "tunnelTechnology" },
+    { 290, "encryptedTechnology" },
+    { 291, "basicList" },
+    { 292, "subTemplateList" },
+    { 293, "subTemplateMultiList" },
+    { 294, "bgpValidityState" },
+    { 295, "IPSecSPI" },
+    { 296, "greKey" },
+    { 297, "natType" },
+    { 298, "initiatorPackets" },
+    { 299, "responderPackets" },
+    { 300, "observationDomainName" },
     { 301, "selectionSequenceId" },
     { 302, "selectorId" },
     { 303, "informationElementId" },
@@ -560,8 +586,10 @@ static const value_string v9_v10_template_types[] = {
     { 309, "samplingSize" },
     { 310, "samplingPopulation" },
     { 311, "samplingProbability" },
+    { 312, "dataLinkFrameSize" },
     { 313, "IP_SECTION HEADER" },
     { 314, "IP_SECTION PAYLOAD" },
+    { 315, "dataLinkFrameSection" },
     { 316, "mplsLabelStackSection" },
     { 317, "mplsPayloadPacketSection" },
     { 318, "selectorIdTotalPktsObserved" },
@@ -593,6 +621,94 @@ static const value_string v9_v10_template_types[] = {
     { 344, "informationElementSemantics" },
     { 345, "informationElementUnits" },
     { 346, "privateEnterpriseNumber" },
+    { 347, "virtualStationInterfaceId" },
+    { 348, "virtualStationInterfaceName" },
+    { 349, "virtualStationUUID" },
+    { 350, "virtualStationName" },
+    { 351, "layer2SegmentId" },
+    { 352, "layer2OctetDeltaCount" },
+    { 353, "layer2OctetTotalCount" },
+    { 354, "ingressUnicastPacketTotalCount" },
+    { 355, "ingressMulticastPacketTotalCount" },
+    { 356, "ingressBroadcastPacketTotalCount" },
+    { 357, "egressUnicastPacketTotalCount" },
+    { 358, "egressBroadcastPacketTotalCount" },
+    { 359, "monitoringIntervalStartMilliSeconds" },
+    { 360, "monitoringIntervalEndMilliSeconds" },
+    { 361, "portRangeStart" },
+    { 362, "portRangeEnd" },
+    { 363, "portRangeStepSize" },
+    { 364, "portRangeNumPorts" },
+    { 365, "staMacAddress" },
+    { 366, "staIPv4Address" },
+    { 367, "wtpMacAddress" },
+    { 368, "ingressInterfaceType" },
+    { 369, "egressInterfaceType" },
+    { 370, "rtpSequenceNumber" },
+    { 371, "userName" },
+    { 372, "applicationCategoryName" },
+    { 373, "applicationSubCategoryName" },
+    { 374, "applicationGroupName" },
+    { 375, "originalFlowsPresent" },
+    { 376, "originalFlowsInitiated" },
+    { 377, "originalFlowsCompleted" },
+    { 378, "distinctCountOfSourceIPAddress" },
+    { 379, "distinctCountOfDestinationIPAddress" },
+    { 380, "distinctCountOfSourceIPv4Address" },
+    { 381, "distinctCountOfDestinationIPv4Address" },
+    { 382, "distinctCountOfSourceIPv6Address" },
+    { 383, "distinctCountOfDestinationIPv6Address" },
+    { 384, "valueDistributionMethod" },
+    { 385, "rfc3550JitterMilliseconds" },
+    { 386, "rfc3550JitterMicroseconds" },
+    { 387, "rfc3550JitterNanoseconds" },
+    { 388, "dot1qDEI" },
+    { 389, "dot1qCustomerDEI" },
+    { 390, "flowSelectorAlgorithm" },
+    { 391, "flowSelectedOctetDeltaCount" },
+    { 392, "flowSelectedPacketDeltaCount" },
+    { 393, "flowSelectedFlowDeltaCount" },
+    { 394, "selectorIDTotalFlowsObserved" },
+    { 395, "selectorIDTotalFlowsSelected" },
+    { 396, "samplingFlowInterval" },
+    { 397, "samplingFlowSpacing" },
+    { 398, "flowSamplingTimeInterval" },
+    { 399, "flowSamplingTimeSpacing" },
+    { 400, "hashFlowDomain" },
+    { 401, "transportOctetDeltaCount" },
+    { 402, "transportPacketDeltaCount" },
+    { 403, "originalExporterIPv4Address" },
+    { 404, "originalExporterIPv6Address" },
+    { 405, "originalObservationDomainId" },
+    { 406, "intermediateProcessId" },
+    { 407, "ignoredDataRecordTotalCount" },
+    { 408, "dataLinkFrameType" },
+    { 409, "sectionOffset" },
+    { 410, "sectionExportedOctets" },
+    { 411, "dot1qServiceInstanceTag" },
+    { 412, "dot1qServiceInstanceId" },
+    { 413, "dot1qServiceInstancePriority" },
+    { 414, "dot1qCustomerSourceMacAddress" },
+    { 415, "dot1qCustomerDestinationMacAddress" },
+    { 416, "deprecated [dup of layer2OctetDeltaCount]" },
+    { 417, "postLayer2OctetDeltaCount" },
+    { 418, "postMCastLayer2OctetDeltaCount" },
+    { 419, "deprecated [dup of layer2OctetTotalCount" },
+    { 420, "postLayer2OctetTotalCount" },
+    { 421, "postMCastLayer2OctetTotalCount" },
+    { 422, "minimumLayer2TotalLength" },
+    { 423, "maximumLayer2TotalLength" },
+    { 424, "droppedLayer2OctetDeltaCount" },
+    { 425, "droppedLayer2OctetTotalCount" },
+    { 426, "ignoredLayer2OctetTotalCount" },
+    { 427, "notSentLayer2OctetTotalCount" },
+    { 428, "layer2OctetDeltaSumOfSquares" },
+    { 429, "layer2OctetTotalSumOfSquares" },
+    { 430, "layer2FrameDeltaCount" },
+    { 431, "layer2FrameTotalCount" },
+    { 432, "pseudoWireDestinationIPv4Address" },
+    { 433, "ignoredLayer2FrameTotalCount" },
+
     /* Ericsson NAT Logging */
     { 24628, "NAT_LOG_FIELD_IDX_CONTEXT_ID" },
     { 24629, "NAT_LOG_FIELD_IDX_CONTEXT_NAME" },
@@ -1019,348 +1135,462 @@ static int      hf_cflow_scope_cache               = -1;
 static int      hf_cflow_scope_template            = -1;
 
 /* IPFIX */
-static int      hf_cflow_template_ipfix_total_field_count     = -1;
-static int      hf_cflow_template_ipfix_scope_field_count     = -1;
-static int      hf_cflow_template_ipfix_pen_provided          = -1;
-static int      hf_cflow_template_ipfix_field_type            = -1;
-static int      hf_cflow_template_ipfix_field_type_enterprise = -1;
-static int      hf_cflow_template_ipfix_field_pen             = -1;
+static int      hf_cflow_template_ipfix_total_field_count           = -1;
+static int      hf_cflow_template_ipfix_scope_field_count           = -1;
+static int      hf_cflow_template_ipfix_pen_provided                = -1;
+static int      hf_cflow_template_ipfix_field_type                  = -1;
+static int      hf_cflow_template_ipfix_field_type_enterprise       = -1;
+static int      hf_cflow_template_ipfix_field_pen                   = -1;
 
 /* IPFIX / vendor */
-static int      hf_cflow_template_plixer_field_type           = -1;
-static int      hf_cflow_template_ntop_field_type             = -1;
+static int      hf_cflow_template_plixer_field_type                 = -1;
+static int      hf_cflow_template_ntop_field_type                   = -1;
 
 
 /*
  * pdu storage
  */
-static int      hf_cflow_srcaddr                             = -1;
-static int      hf_cflow_srcaddr_v6                          = -1;
-static int      hf_cflow_srcnet                              = -1;
-static int      hf_cflow_dstaddr                             = -1;
-static int      hf_cflow_dstaddr_v6                          = -1;
-static int      hf_cflow_dstnet                              = -1;
-static int      hf_cflow_nexthop                             = -1;
-static int      hf_cflow_nexthop_v6                          = -1;
-static int      hf_cflow_bgpnexthop                          = -1;
-static int      hf_cflow_bgpnexthop_v6                       = -1;
-static int      hf_cflow_inputint                            = -1;
-static int      hf_cflow_outputint                           = -1;
-static int      hf_cflow_flows                               = -1;
-static int      hf_cflow_flows64                             = -1;
-static int      hf_cflow_packets                             = -1;
-static int      hf_cflow_packets64                           = -1;
-static int      hf_cflow_octets                              = -1;
-static int      hf_cflow_octets64                            = -1;
-static int      hf_cflow_length_min                          = -1;
-static int      hf_cflow_length_max                          = -1;
-static int      hf_cflow_length_min64                        = -1;
-static int      hf_cflow_length_max64                        = -1;
-static int      hf_cflow_timedelta                           = -1;
-static int      hf_cflow_sys_init_time                       = -1;
-static int      hf_cflow_timestart                           = -1;
-static int      hf_cflow_timeend                             = -1;
-static int      hf_cflow_srcport                             = -1;
-static int      hf_cflow_dstport                             = -1;
-static int      hf_cflow_prot                                = -1;
-static int      hf_cflow_tos                                 = -1;
-static int      hf_cflow_flags                               = -1;
-static int      hf_cflow_tcpflags                            = -1;
-static int      hf_cflow_dstas                               = -1;
-static int      hf_cflow_srcas                               = -1;
-static int      hf_cflow_dstmask                             = -1;
-static int      hf_cflow_dstmask_v6                          = -1;
-static int      hf_cflow_srcmask                             = -1;
-static int      hf_cflow_srcmask_v6                          = -1;
-static int      hf_cflow_routersc                            = -1;
-static int      hf_cflow_mulpackets                          = -1;
-static int      hf_cflow_muloctets                           = -1;
-static int      hf_cflow_octets_exp                          = -1;
-static int      hf_cflow_octets_exp64                        = -1;
-static int      hf_cflow_packets_exp                         = -1;
-static int      hf_cflow_packets_exp64                       = -1;
-static int      hf_cflow_flows_exp                           = -1;
-static int      hf_cflow_flows_exp64                         = -1;
-static int      hf_cflow_srcprefix                           = -1;
-static int      hf_cflow_dstprefix                           = -1;
-static int      hf_cflow_flow_class                          = -1;
-static int      hf_cflow_ttl_minimum                         = -1;
-static int      hf_cflow_ttl_maximum                         = -1;
-static int      hf_cflow_ipv4_id                             = -1;
-static int      hf_cflow_ip_version                          = -1;
-static int      hf_cflow_icmp_type                           = -1;
-static int      hf_cflow_igmp_type                           = -1;
-static int      hf_cflow_sampling_interval                   = -1;
-static int      hf_cflow_sampling_algorithm                  = -1;
-static int      hf_cflow_flow_active_timeout                 = -1;
-static int      hf_cflow_flow_inactive_timeout               = -1;
-static int      hf_cflow_mpls_top_label_type                 = -1;
-static int      hf_cflow_mpls_pe_addr                        = -1;
-static int      hf_cflow_sampler_id                          = -1;
-static int      hf_cflow_sampler_mode                        = -1;
-static int      hf_cflow_sampler_random_interval             = -1;
-static int      hf_cflow_direction                           = -1;
-static int      hf_cflow_if_name                             = -1;
-static int      hf_cflow_if_descr                            = -1;
-static int      hf_cflow_sampler_name                        = -1;
-static int      hf_cflow_forwarding_status                   = -1;
-static int      hf_cflow_forwarding_status_unknown_code      = -1;
-static int      hf_cflow_forwarding_status_forward_code      = -1;
-static int      hf_cflow_forwarding_status_consume_code      = -1;
-static int      hf_cflow_forwarding_status_drop_code         = -1;
-static int      hf_cflow_nbar_appl_desc                      = -1;
-static int      hf_cflow_nbar_appl_id                        = -1;
-static int      hf_cflow_nbar_appl_name                      = -1;
-static int      hf_cflow_peer_srcas                          = -1;
-static int      hf_cflow_peer_dstas                          = -1;
-static int      hf_cflow_flow_exporter                       = -1;
-static int      hf_cflow_icmp_ipv4_type                      = -1;
-static int      hf_cflow_icmp_ipv4_code                      = -1;
-static int      hf_cflow_icmp_ipv6_type                      = -1;
-static int      hf_cflow_icmp_ipv6_code                      = -1;
-static int      hf_cflow_tcp_window_size                     = -1;
-static int      hf_cflow_ipv4_total_length                   = -1;
-static int      hf_cflow_ip_ttl                              = -1;
-static int      hf_cflow_ip_tos                              = -1;
-static int      hf_cflow_ip_dscp                             = -1;
-static int      hf_cflow_octets_squared64                    = -1;
-static int      hf_cflow_udp_length                          = -1;
-static int      hf_cflow_is_multicast                        = -1;
-static int      hf_cflow_ip_header_words                     = -1;
-static int      hf_cflow_option_map                          = -1;
-static int      hf_cflow_section_header                      = -1;
-static int      hf_cflow_section_payload                     = -1;
+static int      hf_cflow_srcaddr                                    = -1;
+static int      hf_cflow_srcaddr_v6                                 = -1;
+static int      hf_cflow_srcnet                                     = -1;
+static int      hf_cflow_dstaddr                                    = -1;
+static int      hf_cflow_dstaddr_v6                                 = -1;
+static int      hf_cflow_dstnet                                     = -1;
+static int      hf_cflow_nexthop                                    = -1;
+static int      hf_cflow_nexthop_v6                                 = -1;
+static int      hf_cflow_bgpnexthop                                 = -1;
+static int      hf_cflow_bgpnexthop_v6                              = -1;
+static int      hf_cflow_inputint                                   = -1;
+static int      hf_cflow_outputint                                  = -1;
+static int      hf_cflow_flows                                      = -1;
+static int      hf_cflow_flows64                                    = -1;
+static int      hf_cflow_packets                                    = -1;
+static int      hf_cflow_packets64                                  = -1;
+static int      hf_cflow_octets                                     = -1;
+static int      hf_cflow_octets64                                   = -1;
+static int      hf_cflow_length_min                                 = -1;
+static int      hf_cflow_length_max                                 = -1;
+static int      hf_cflow_length_min64                               = -1;
+static int      hf_cflow_length_max64                               = -1;
+static int      hf_cflow_timedelta                                  = -1;
+static int      hf_cflow_sys_init_time                              = -1;
+static int      hf_cflow_timestart                                  = -1;
+static int      hf_cflow_timeend                                    = -1;
+static int      hf_cflow_srcport                                    = -1;
+static int      hf_cflow_dstport                                    = -1;
+static int      hf_cflow_prot                                       = -1;
+static int      hf_cflow_tos                                        = -1;
+static int      hf_cflow_flags                                      = -1;
+static int      hf_cflow_tcpflags                                   = -1;
+static int      hf_cflow_dstas                                      = -1;
+static int      hf_cflow_srcas                                      = -1;
+static int      hf_cflow_dstmask                                    = -1;
+static int      hf_cflow_dstmask_v6                                 = -1;
+static int      hf_cflow_srcmask                                    = -1;
+static int      hf_cflow_srcmask_v6                                 = -1;
+static int      hf_cflow_routersc                                   = -1;
+static int      hf_cflow_mulpackets                                 = -1;
+static int      hf_cflow_muloctets                                  = -1;
+static int      hf_cflow_octets_exp                                 = -1;
+static int      hf_cflow_octets_exp64                               = -1;
+static int      hf_cflow_packets_exp                                = -1;
+static int      hf_cflow_packets_exp64                              = -1;
+static int      hf_cflow_flows_exp                                  = -1;
+static int      hf_cflow_flows_exp64                                = -1;
+static int      hf_cflow_srcprefix                                  = -1;
+static int      hf_cflow_dstprefix                                  = -1;
+static int      hf_cflow_flow_class                                 = -1;
+static int      hf_cflow_ttl_minimum                                = -1;
+static int      hf_cflow_ttl_maximum                                = -1;
+static int      hf_cflow_ipv4_id                                    = -1;
+static int      hf_cflow_ip_version                                 = -1;
+static int      hf_cflow_icmp_type                                  = -1;
+static int      hf_cflow_igmp_type                                  = -1;
+static int      hf_cflow_sampling_interval                          = -1;
+static int      hf_cflow_sampling_algorithm                         = -1;
+static int      hf_cflow_flow_active_timeout                        = -1;
+static int      hf_cflow_flow_inactive_timeout                      = -1;
+static int      hf_cflow_mpls_top_label_type                        = -1;
+static int      hf_cflow_mpls_pe_addr                               = -1;
+static int      hf_cflow_sampler_id                                 = -1;
+static int      hf_cflow_sampler_mode                               = -1;
+static int      hf_cflow_sampler_random_interval                    = -1;
+static int      hf_cflow_direction                                  = -1;
+static int      hf_cflow_if_name                                    = -1;
+static int      hf_cflow_if_descr                                   = -1;
+static int      hf_cflow_sampler_name                               = -1;
+static int      hf_cflow_forwarding_status                          = -1;
+static int      hf_cflow_forwarding_status_unknown_code             = -1;
+static int      hf_cflow_forwarding_status_forward_code             = -1;
+static int      hf_cflow_forwarding_status_consume_code             = -1;
+static int      hf_cflow_forwarding_status_drop_code                = -1;
+static int      hf_cflow_nbar_appl_desc                             = -1;
+static int      hf_cflow_nbar_appl_id                               = -1;
+static int      hf_cflow_nbar_appl_name                             = -1;
+static int      hf_cflow_peer_srcas                                 = -1;
+static int      hf_cflow_peer_dstas                                 = -1;
+static int      hf_cflow_flow_exporter                              = -1;
+static int      hf_cflow_icmp_ipv4_type                             = -1;
+static int      hf_cflow_icmp_ipv4_code                             = -1;
+static int      hf_cflow_icmp_ipv6_type                             = -1;
+static int      hf_cflow_icmp_ipv6_code                             = -1;
+static int      hf_cflow_tcp_window_size                            = -1;
+static int      hf_cflow_ipv4_total_length                          = -1;
+static int      hf_cflow_ip_ttl                                     = -1;
+static int      hf_cflow_ip_tos                                     = -1;
+static int      hf_cflow_ip_dscp                                    = -1;
+static int      hf_cflow_octets_squared64                           = -1;
+static int      hf_cflow_udp_length                                 = -1;
+static int      hf_cflow_is_multicast                               = -1;
+static int      hf_cflow_ip_header_words                            = -1;
+static int      hf_cflow_option_map                                 = -1;
+static int      hf_cflow_section_header                             = -1;
+static int      hf_cflow_section_payload                            = -1;
 /* IPFIX (version 10) Information Elements */
-static int      hf_cflow_post_octets                         = -1;
-static int      hf_cflow_post_octets64                       = -1;
-static int      hf_cflow_post_packets                        = -1;
-static int      hf_cflow_post_packets64                      = -1;
-static int      hf_cflow_ipv6_flowlabel                      = -1;
-static int      hf_cflow_ipv6_flowlabel24                    = -1;
-static int      hf_cflow_post_tos                            = -1;
-static int      hf_cflow_srcmac                              = -1;
-static int      hf_cflow_post_dstmac                         = -1;
-static int      hf_cflow_vlanid                              = -1;
-static int      hf_cflow_post_vlanid                         = -1;
-static int      hf_cflow_ipv6_exthdr                         = -1;
-static int      hf_cflow_dstmac                              = -1;
-static int      hf_cflow_post_srcmac                         = -1;
-static int      hf_cflow_permanent_packets                   = -1;
-static int      hf_cflow_permanent_packets64                 = -1;
-static int      hf_cflow_permanent_octets                    = -1;
-static int      hf_cflow_permanent_octets64                  = -1;
-static int      hf_cflow_fragment_offset                     = -1;
-static int      hf_cflow_mpls_vpn_rd                         = -1;
-static int      hf_cflow_mpls_top_label_prefix_length        = -1; /* ID: 91 */
-static int      hf_cflow_post_ip_diff_serv_code_point        = -1; /* ID: 98 */
-static int      hf_cflow_multicast_replication_factor        = -1; /* ID: 99 */
-static int      hf_cflow_exporter_addr                       = -1;
-static int      hf_cflow_exporter_addr_v6                    = -1;
-static int      hf_cflow_drop_octets                         = -1;
-static int      hf_cflow_drop_octets64                       = -1;
-static int      hf_cflow_drop_packets                        = -1;
-static int      hf_cflow_drop_packets64                      = -1;
-static int      hf_cflow_drop_total_octets                   = -1;
-static int      hf_cflow_drop_total_octets64                 = -1;
-static int      hf_cflow_drop_total_packets                  = -1;
-static int      hf_cflow_drop_total_packets64                = -1;
-static int      hf_cflow_flow_end_reason                     = -1;
-static int      hf_cflow_common_properties_id                = -1;
-static int      hf_cflow_observation_point_id                = -1;
-static int      hf_cflow_mpls_pe_addr_v6                     = -1;
-static int      hf_cflow_port_id                             = -1;
-static int      hf_cflow_mp_id                               = -1;
-static int      hf_cflow_wlan_channel_id                     = -1;
-static int      hf_cflow_wlan_ssid                           = -1;
-static int      hf_cflow_flow_id                             = -1;
-static int      hf_cflow_od_id                               = -1;
-static int      hf_cflow_abstimestart                        = -1;
-static int      hf_cflow_abstimeend                          = -1;
-static int      hf_cflow_dstnet_v6                           = -1;
-static int      hf_cflow_srcnet_v6                           = -1;
-static int      hf_cflow_ignore_packets                      = -1;
-static int      hf_cflow_ignore_packets64                    = -1;
-static int      hf_cflow_ignore_octets                       = -1;
-static int      hf_cflow_ignore_octets64                     = -1;
-static int      hf_cflow_notsent_flows                       = -1;
-static int      hf_cflow_notsent_flows64                     = -1;
-static int      hf_cflow_notsent_packets                     = -1;
-static int      hf_cflow_notsent_packets64                   = -1;
-static int      hf_cflow_notsent_octets                      = -1;
-static int      hf_cflow_notsent_octets64                    = -1;
-static int      hf_cflow_post_total_octets                   = -1;
-static int      hf_cflow_post_total_octets64                 = -1;
-static int      hf_cflow_post_total_packets                  = -1;
-static int      hf_cflow_post_total_packets64                = -1;
-static int      hf_cflow_key                                 = -1;
-static int      hf_cflow_post_total_mulpackets               = -1;
-static int      hf_cflow_post_total_mulpackets64             = -1;
-static int      hf_cflow_post_total_muloctets                = -1;
-static int      hf_cflow_post_total_muloctets64              = -1;
-static int      hf_cflow_tcp_seq_num                         = -1;
-static int      hf_cflow_tcp_ack_num                         = -1;
-static int      hf_cflow_tcp_urg_ptr                         = -1;
-static int      hf_cflow_tcp_header_length                   = -1;
-static int      hf_cflow_ip_header_length                    = -1;
-static int      hf_cflow_ipv6_payload_length                 = -1;
-static int      hf_cflow_ipv6_next_hdr                       = -1;
-static int      hf_cflow_ip_precedence                       = -1;
-static int      hf_cflow_ip_fragment_flags                   = -1;
-static int      hf_cflow_mpls_top_label_ttl                  = -1;
-static int      hf_cflow_mpls_label_length                   = -1;
-static int      hf_cflow_mpls_label_depth                    = -1;
-static int      hf_cflow_mpls_top_label_exp                  = -1;
-static int      hf_cflow_ip_payload_length                   = -1;
-static int      hf_cflow_tcp_option_map                      = -1;
-static int      hf_cflow_collector_addr                      = -1;
-static int      hf_cflow_collector_addr_v6                   = -1;
-static int      hf_cflow_export_interface                    = -1;
-static int      hf_cflow_export_protocol_version             = -1;
-static int      hf_cflow_export_prot                         = -1;
-static int      hf_cflow_collector_port                      = -1;
-static int      hf_cflow_exporter_port                       = -1;
-static int      hf_cflow_total_tcp_syn                       = -1;
-static int      hf_cflow_total_tcp_fin                       = -1;
-static int      hf_cflow_total_tcp_rst                       = -1;
-static int      hf_cflow_total_tcp_psh                       = -1;
-static int      hf_cflow_total_tcp_ack                       = -1;
-static int      hf_cflow_total_tcp_urg                       = -1;
-static int      hf_cflow_ip_total_length                     = -1;
-static int      hf_cflow_post_natsource_ipv4_address         = -1;      /* ID: 225 */
-static int      hf_cflow_post_natdestination_ipv4_address    = -1;      /* ID: 226 */
-static int      hf_cflow_post_naptsource_transport_port      = -1;      /* ID: 227 */
-static int      hf_cflow_post_naptdestination_transport_port = -1;      /* ID: 228 */
-static int      hf_cflow_nat_originating_address_realm       = -1;      /* ID: 229 */
-static int      hf_cflow_nat_event                           = -1;      /* ID: 230 */
-static int      hf_cflow_initiator_octets                    = -1;      /* ID: 231 */
-static int      hf_cflow_responder_octets                    = -1;      /* ID: 232 */
-static int      hf_cflow_firewall_event                      = -1;      /* ID: 233 */
-static int      hf_cflow_ingress_vrfid                       = -1;      /* ID: 234 */
-static int      hf_cflow_egress_vrfid                        = -1;      /* ID: 235 */
-static int      hf_cflow_vrfname                             = -1;      /* ID: 236 */
-static int      hf_cflow_post_mpls_top_label_exp             = -1;      /* ID: 237 */
-static int      hf_cflow_tcp_window_scale                    = -1;      /* ID: 238 */
-static int      hf_cflow_biflow_direction                    = -1;
-static int      hf_cflow_ethernet_header_length              = -1;      /* ID: 240 */
-static int      hf_cflow_ethernet_payload_length             = -1;      /* ID: 241 */
-static int      hf_cflow_ethernet_total_length               = -1;      /* ID: 242 */
-static int      hf_cflow_dot1q_vlan_id                       = -1;      /* ID: 243 */
-static int      hf_cflow_dot1q_priority                      = -1;      /* ID: 244 */
-static int      hf_cflow_dot1q_customer_vlan_id              = -1;      /* ID: 245 */
-static int      hf_cflow_dot1q_customer_priority             = -1;      /* ID: 246 */
-static int      hf_cflow_metro_evc_id                        = -1;      /* ID: 247 */
-static int      hf_cflow_metro_evc_type                      = -1;      /* ID: 248 */
-static int      hf_cflow_pseudo_wire_id                      = -1;      /* ID: 249 */
-static int      hf_cflow_pseudo_wire_type                    = -1;      /* ID: 250 */
-static int      hf_cflow_pseudo_wire_control_word            = -1;      /* ID: 251 */
-static int      hf_cflow_ingress_physical_interface          = -1;      /* ID: 252 */
-static int      hf_cflow_egress_physical_interface           = -1;      /* ID: 253 */
-static int      hf_cflow_post_dot1q_vlan_id                  = -1;      /* ID: 254 */
-static int      hf_cflow_post_dot1q_customer_vlan_id         = -1;      /* ID: 255 */
-static int      hf_cflow_ethernet_type                       = -1;      /* ID: 256 */
-static int      hf_cflow_post_ip_precedence                  = -1;      /* ID: 257 */
-static int      hf_cflow_collection_time_milliseconds        = -1;      /* ID: 258 */
-static int      hf_cflow_export_sctp_stream_id               = -1;      /* ID: 259 */
-static int      hf_cflow_max_export_seconds                  = -1;      /* ID: 260 */
-static int      hf_cflow_max_flow_end_seconds                = -1;      /* ID: 261 */
-static int      hf_cflow_message_md5_checksum                = -1;      /* ID: 262 */
-static int      hf_cflow_message_scope                       = -1;      /* ID: 263 */
-static int      hf_cflow_min_export_seconds                  = -1;      /* ID: 264 */
-static int      hf_cflow_min_flow_start_seconds              = -1;      /* ID: 265 */
-static int      hf_cflow_opaque_octets                       = -1;      /* ID: 266 */
-static int      hf_cflow_session_scope                       = -1;      /* ID: 267 */
-static int      hf_cflow_max_flow_end_microseconds           = -1;      /* ID: 268 */
-static int      hf_cflow_max_flow_end_milliseconds           = -1;      /* ID: 269 */
-static int      hf_cflow_max_flow_end_nanoseconds            = -1;      /* ID: 270 */
-static int      hf_cflow_min_flow_start_microseconds         = -1;      /* ID: 271 */
-static int      hf_cflow_min_flow_start_milliseconds         = -1;      /* ID: 272 */
-static int      hf_cflow_min_flow_start_nanoseconds          = -1;      /* ID: 273 */
-static int      hf_cflow_collector_certificate               = -1;      /* ID: 274 */
-static int      hf_cflow_exporter_certificate                = -1;      /* ID: 275 */
-static int      hf_cflow_selection_sequence_id               = -1;      /* ID: 301 */
-static int      hf_cflow_selector_id                         = -1;      /* ID: 302 */
-static int      hf_cflow_information_element_id              = -1;      /* ID: 303 */
-static int      hf_cflow_selector_algorithm                  = -1;      /* ID: 304 */
-static int      hf_cflow_sampling_packet_interval            = -1;      /* ID: 305 */
-static int      hf_cflow_sampling_packet_space               = -1;      /* ID: 306 */
-static int      hf_cflow_sampling_time_interval              = -1;      /* ID: 307 */
-static int      hf_cflow_sampling_time_space                 = -1;      /* ID: 308 */
-static int      hf_cflow_sampling_size                       = -1;      /* ID: 309 */
-static int      hf_cflow_sampling_population                 = -1;      /* ID: 310 */
-static int      hf_cflow_sampling_probability                = -1;      /* ID: 311 */
-static int      hf_cflow_mpls_label_stack_section            = -1;      /* ID: 316 */
-static int      hf_cflow_mpls_payload_packet_section         = -1;      /* ID: 317 */
-static int      hf_cflow_selector_id_total_pkts_observed     = -1;      /* ID: 318 */
-static int      hf_cflow_selector_id_total_pkts_selected     = -1;      /* ID: 319 */
-static int      hf_cflow_absolute_error                      = -1;      /* ID: 320 */
-static int      hf_cflow_relative_error                      = -1;      /* ID: 321 */
-static int      hf_cflow_observation_time_seconds            = -1;      /* ID: 322 */
-static int      hf_cflow_observation_time_milliseconds       = -1;      /* ID: 323 */
-static int      hf_cflow_observation_time_microseconds       = -1;      /* ID: 324 */
-static int      hf_cflow_observation_time_nanoseconds        = -1;      /* ID: 325 */
-static int      hf_cflow_digest_hash_value                   = -1;      /* ID: 326 */
-static int      hf_cflow_hash_ippayload_offset               = -1;      /* ID: 327 */
-static int      hf_cflow_hash_ippayload_size                 = -1;      /* ID: 328 */
-static int      hf_cflow_hash_output_range_min               = -1;      /* ID: 329 */
-static int      hf_cflow_hash_output_range_max               = -1;      /* ID: 330 */
-static int      hf_cflow_hash_selected_range_min             = -1;      /* ID: 331 */
-static int      hf_cflow_hash_selected_range_max             = -1;      /* ID: 332 */
-static int      hf_cflow_hash_digest_output                  = -1;      /* ID: 333 */
-static int      hf_cflow_hash_initialiser_value              = -1;      /* ID: 334 */
-static int      hf_cflow_selector_name                       = -1;      /* ID: 335 */
-static int      hf_cflow_upper_cilimit                       = -1;      /* ID: 336 */
-static int      hf_cflow_lower_cilimit                       = -1;      /* ID: 337 */
-static int      hf_cflow_confidence_level                    = -1;      /* ID: 338 */
-static int      hf_cflow_information_element_data_type       = -1;      /* ID: 339 */
-static int      hf_cflow_information_element_description     = -1;      /* ID: 340 */
-static int      hf_cflow_information_element_name            = -1;      /* ID: 341 */
-static int      hf_cflow_information_element_range_begin     = -1;      /* ID: 342 */
-static int      hf_cflow_information_element_range_end       = -1;      /* ID: 343 */
-static int      hf_cflow_information_element_semantics       = -1;      /* ID: 344 */
-static int      hf_cflow_information_element_units           = -1;      /* ID: 345 */
-static int      hf_cflow_private_enterprise_number           = -1;      /* ID: 346 */
-static int      hf_cflow_cts_sgt_source_tag                  = -1;      /* ID: 34000 */
-static int      hf_cflow_cts_sgt_destination_tag             = -1;      /* ID: 34001 */
-static int      hf_cflow_cts_sgt_source_name                 = -1;      /* ID: 34002 */
-static int      hf_cflow_cts_sgt_destination_name            = -1;      /* ID: 34003 */
-static int      hf_cflow_packets_dropped                     = -1;      /* ID: 37000 */
-static int      hf_cflow_byte_rate                           = -1;      /* ID: 37003 */
-static int      hf_cflow_application_media_bytes             = -1;      /* ID: 37004 */
-static int      hf_cflow_application_media_byte_rate         = -1;      /* ID: 37006 */
-static int      hf_cflow_application_media_packets           = -1;      /* ID: 37007 */
-static int      hf_cflow_application_media_packet_rate       = -1;      /* ID: 37009 */
-static int      hf_cflow_application_media_event             = -1;      /* ID: 37011 */
-static int      hf_cflow_monitor_event                       = -1;      /* ID: 37012 */
-static int      hf_cflow_timestamp_interval                  = -1;      /* ID: 37013 */
-static int      hf_cflow_transport_packets_expected          = -1;      /* ID: 37014 */
-static int      hf_cflow_transport_round_trip_time           = -1;      /* ID: 37016 */
-static int      hf_cflow_transport_round_trip_time_string    = -1;      /* ID: 37016 */
-static int      hf_cflow_transport_event_packet_loss         = -1;      /* ID: 37017 */
-static int      hf_cflow_transport_packets_lost              = -1;      /* ID: 37019 */
-static int      hf_cflow_transport_packets_lost_string       = -1;      /* ID: 37019 */
-static int      hf_cflow_transport_packets_lost_rate         = -1;      /* ID: 37021 */
-static int      hf_cflow_transport_packets_lost_rate_string  = -1;      /* ID: 37021 */
-static int      hf_cflow_transport_rtp_ssrc                  = -1;      /* ID: 37022 */
-static int      hf_cflow_transport_rtp_jitter_mean           = -1;      /* ID: 37023 */
-static int      hf_cflow_transport_rtp_jitter_mean_string    = -1;      /* ID: 37023 */
-static int      hf_cflow_transport_rtp_jitter_min            = -1;      /* ID: 37024 */
-static int      hf_cflow_transport_rtp_jitter_min_string     = -1;      /* ID: 37024 */
-static int      hf_cflow_transport_rtp_jitter_max            = -1;      /* ID: 37025 */
-static int      hf_cflow_transport_rtp_jitter_max_string     = -1;      /* ID: 37025 */
+static int      hf_cflow_post_octets                                = -1;
+static int      hf_cflow_post_octets64                              = -1;
+static int      hf_cflow_post_packets                               = -1;
+static int      hf_cflow_post_packets64                             = -1;
+static int      hf_cflow_ipv6_flowlabel                             = -1;
+static int      hf_cflow_ipv6_flowlabel24                           = -1;
+static int      hf_cflow_post_tos                                   = -1;
+static int      hf_cflow_srcmac                                     = -1;
+static int      hf_cflow_post_dstmac                                = -1;
+static int      hf_cflow_vlanid                                     = -1;
+static int      hf_cflow_post_vlanid                                = -1;
+static int      hf_cflow_ipv6_exthdr                                = -1;
+static int      hf_cflow_dstmac                                     = -1;
+static int      hf_cflow_post_srcmac                                = -1;
+static int      hf_cflow_permanent_packets                          = -1;
+static int      hf_cflow_permanent_packets64                        = -1;
+static int      hf_cflow_permanent_octets                           = -1;
+static int      hf_cflow_permanent_octets64                         = -1;
+static int      hf_cflow_fragment_offset                            = -1;
+static int      hf_cflow_mpls_vpn_rd                                = -1;
+static int      hf_cflow_mpls_top_label_prefix_length               = -1; /* ID:  91 */
+static int      hf_cflow_src_traffic_index                          = -1; /* ID:  92 */
+static int      hf_cflow_dst_traffic_index                          = -1; /* ID:  93 */
+static int      hf_cflow_post_ip_diff_serv_code_point               = -1; /* ID:  98 */
+static int      hf_cflow_multicast_replication_factor               = -1; /* ID:  99 */
+static int      hf_cflow_classification_engine_id                   = -1; /* ID: 101 */
+static int      hf_cflow_exporter_addr                              = -1;
+static int      hf_cflow_exporter_addr_v6                           = -1;
+static int      hf_cflow_drop_octets                                = -1;
+static int      hf_cflow_drop_octets64                              = -1;
+static int      hf_cflow_drop_packets                               = -1;
+static int      hf_cflow_drop_packets64                             = -1;
+static int      hf_cflow_drop_total_octets                          = -1;
+static int      hf_cflow_drop_total_octets64                        = -1;
+static int      hf_cflow_drop_total_packets                         = -1;
+static int      hf_cflow_drop_total_packets64                       = -1;
+static int      hf_cflow_flow_end_reason                            = -1;
+static int      hf_cflow_common_properties_id                       = -1;
+static int      hf_cflow_observation_point_id                       = -1;
+static int      hf_cflow_mpls_pe_addr_v6                            = -1;
+static int      hf_cflow_port_id                                    = -1;
+static int      hf_cflow_mp_id                                      = -1;
+static int      hf_cflow_wlan_channel_id                            = -1;
+static int      hf_cflow_wlan_ssid                                  = -1;
+static int      hf_cflow_flow_id                                    = -1;
+static int      hf_cflow_od_id                                      = -1;
+static int      hf_cflow_abstimestart                               = -1;
+static int      hf_cflow_abstimeend                                 = -1;
+static int      hf_cflow_dstnet_v6                                  = -1;
+static int      hf_cflow_srcnet_v6                                  = -1;
+static int      hf_cflow_ignore_packets                             = -1;
+static int      hf_cflow_ignore_packets64                           = -1;
+static int      hf_cflow_ignore_octets                              = -1;
+static int      hf_cflow_ignore_octets64                            = -1;
+static int      hf_cflow_notsent_flows                              = -1;
+static int      hf_cflow_notsent_flows64                            = -1;
+static int      hf_cflow_notsent_packets                            = -1;
+static int      hf_cflow_notsent_packets64                          = -1;
+static int      hf_cflow_notsent_octets                             = -1;
+static int      hf_cflow_notsent_octets64                           = -1;
+static int      hf_cflow_post_total_octets                          = -1;
+static int      hf_cflow_post_total_octets64                        = -1;
+static int      hf_cflow_post_total_packets                         = -1;
+static int      hf_cflow_post_total_packets64                       = -1;
+static int      hf_cflow_key                                        = -1;
+static int      hf_cflow_post_total_mulpackets                      = -1;
+static int      hf_cflow_post_total_mulpackets64                    = -1;
+static int      hf_cflow_post_total_muloctets                       = -1;
+static int      hf_cflow_post_total_muloctets64                     = -1;
+static int      hf_cflow_tcp_seq_num                                = -1;
+static int      hf_cflow_tcp_ack_num                                = -1;
+static int      hf_cflow_tcp_urg_ptr                                = -1;
+static int      hf_cflow_tcp_header_length                          = -1;
+static int      hf_cflow_ip_header_length                           = -1;
+static int      hf_cflow_ipv6_payload_length                        = -1;
+static int      hf_cflow_ipv6_next_hdr                              = -1;
+static int      hf_cflow_ip_precedence                              = -1;
+static int      hf_cflow_ip_fragment_flags                          = -1;
+static int      hf_cflow_mpls_top_label_ttl                         = -1;
+static int      hf_cflow_mpls_label_length                          = -1;
+static int      hf_cflow_mpls_label_depth                           = -1;
+static int      hf_cflow_mpls_top_label_exp                         = -1;
+static int      hf_cflow_ip_payload_length                          = -1;
+static int      hf_cflow_tcp_option_map                             = -1;
+static int      hf_cflow_collector_addr                             = -1;
+static int      hf_cflow_collector_addr_v6                          = -1;
+static int      hf_cflow_export_interface                           = -1;
+static int      hf_cflow_export_protocol_version                    = -1;
+static int      hf_cflow_export_prot                                = -1;
+static int      hf_cflow_collector_port                             = -1;
+static int      hf_cflow_exporter_port                              = -1;
+static int      hf_cflow_total_tcp_syn                              = -1;
+static int      hf_cflow_total_tcp_fin                              = -1;
+static int      hf_cflow_total_tcp_rst                              = -1;
+static int      hf_cflow_total_tcp_psh                              = -1;
+static int      hf_cflow_total_tcp_ack                              = -1;
+static int      hf_cflow_total_tcp_urg                              = -1;
+static int      hf_cflow_ip_total_length                            = -1;
+static int      hf_cflow_post_natsource_ipv4_address                = -1;      /* ID: 225 */
+static int      hf_cflow_post_natdestination_ipv4_address           = -1;      /* ID: 226 */
+static int      hf_cflow_post_naptsource_transport_port             = -1;      /* ID: 227 */
+static int      hf_cflow_post_naptdestination_transport_port        = -1;      /* ID: 228 */
+static int      hf_cflow_nat_originating_address_realm              = -1;      /* ID: 229 */
+static int      hf_cflow_nat_event                                  = -1;      /* ID: 230 */
+static int      hf_cflow_initiator_octets                           = -1;      /* ID: 231 */
+static int      hf_cflow_responder_octets                           = -1;      /* ID: 232 */
+static int      hf_cflow_firewall_event                             = -1;      /* ID: 233 */
+static int      hf_cflow_ingress_vrfid                              = -1;      /* ID: 234 */
+static int      hf_cflow_egress_vrfid                               = -1;      /* ID: 235 */
+static int      hf_cflow_vrfname                                    = -1;      /* ID: 236 */
+static int      hf_cflow_post_mpls_top_label_exp                    = -1;      /* ID: 237 */
+static int      hf_cflow_tcp_window_scale                           = -1;      /* ID: 238 */
+static int      hf_cflow_biflow_direction                           = -1;
+static int      hf_cflow_ethernet_header_length                     = -1;      /* ID: 240 */
+static int      hf_cflow_ethernet_payload_length                    = -1;      /* ID: 241 */
+static int      hf_cflow_ethernet_total_length                      = -1;      /* ID: 242 */
+static int      hf_cflow_dot1q_vlan_id                              = -1;      /* ID: 243 */
+static int      hf_cflow_dot1q_priority                             = -1;      /* ID: 244 */
+static int      hf_cflow_dot1q_customer_vlan_id                     = -1;      /* ID: 245 */
+static int      hf_cflow_dot1q_customer_priority                    = -1;      /* ID: 246 */
+static int      hf_cflow_metro_evc_id                               = -1;      /* ID: 247 */
+static int      hf_cflow_metro_evc_type                             = -1;      /* ID: 248 */
+static int      hf_cflow_pseudo_wire_id                             = -1;      /* ID: 249 */
+static int      hf_cflow_pseudo_wire_type                           = -1;      /* ID: 250 */
+static int      hf_cflow_pseudo_wire_control_word                   = -1;      /* ID: 251 */
+static int      hf_cflow_ingress_physical_interface                 = -1;      /* ID: 252 */
+static int      hf_cflow_egress_physical_interface                  = -1;      /* ID: 253 */
+static int      hf_cflow_post_dot1q_vlan_id                         = -1;      /* ID: 254 */
+static int      hf_cflow_post_dot1q_customer_vlan_id                = -1;      /* ID: 255 */
+static int      hf_cflow_ethernet_type                              = -1;      /* ID: 256 */
+static int      hf_cflow_post_ip_precedence                         = -1;      /* ID: 257 */
+static int      hf_cflow_collection_time_milliseconds               = -1;      /* ID: 258 */
+static int      hf_cflow_export_sctp_stream_id                      = -1;      /* ID: 259 */
+static int      hf_cflow_max_export_seconds                         = -1;      /* ID: 260 */
+static int      hf_cflow_max_flow_end_seconds                       = -1;      /* ID: 261 */
+static int      hf_cflow_message_md5_checksum                       = -1;      /* ID: 262 */
+static int      hf_cflow_message_scope                              = -1;      /* ID: 263 */
+static int      hf_cflow_min_export_seconds                         = -1;      /* ID: 264 */
+static int      hf_cflow_min_flow_start_seconds                     = -1;      /* ID: 265 */
+static int      hf_cflow_opaque_octets                              = -1;      /* ID: 266 */
+static int      hf_cflow_session_scope                              = -1;      /* ID: 267 */
+static int      hf_cflow_max_flow_end_microseconds                  = -1;      /* ID: 268 */
+static int      hf_cflow_max_flow_end_milliseconds                  = -1;      /* ID: 269 */
+static int      hf_cflow_max_flow_end_nanoseconds                   = -1;      /* ID: 270 */
+static int      hf_cflow_min_flow_start_microseconds                = -1;      /* ID: 271 */
+static int      hf_cflow_min_flow_start_milliseconds                = -1;      /* ID: 272 */
+static int      hf_cflow_min_flow_start_nanoseconds                 = -1;      /* ID: 273 */
+static int      hf_cflow_collector_certificate                      = -1;      /* ID: 274 */
+static int      hf_cflow_exporter_certificate                       = -1;      /* ID: 275 */
+static int      hf_cflow_data_records_reliability                   = -1;      /* ID: 276 */
+static int      hf_cflow_observation_point_type                     = -1;      /* ID: 277 */
+static int      hf_cflow_new_connection_delta_count                 = -1;      /* ID: 278 */
+static int      hf_cflow_connection_sum_duration_seconds            = -1;      /* ID: 279 */
+static int      hf_cflow_connection_transaction_id                  = -1;      /* ID: 280 */
+static int      hf_cflow_post_nat_source_ipv6_address               = -1;      /* ID: 281 */
+static int      hf_cflow_post_nat_destination_ipv6_address          = -1;      /* ID: 282 */
+static int      hf_cflow_nat_pool_id                                = -1;      /* ID: 283 */
+static int      hf_cflow_nat_pool_name                              = -1;      /* ID: 284 */
+static int      hf_cflow_anonymization_flags                        = -1;      /* ID: 285 */
+static int      hf_cflow_anonymization_technique                    = -1;      /* ID: 286 */
+static int      hf_cflow_information_element_index                  = -1;      /* ID: 287 */
+static int      hf_cflow_p2p_technology                             = -1;      /* ID: 288 */
+static int      hf_cflow_tunnel_technology                          = -1;      /* ID: 289 */
+static int      hf_cflow_encrypted_technology                       = -1;      /* ID: 290 */
+static int      hf_cflow_bgp_validity_state                         = -1;      /* ID: 294 */
+static int      hf_cflow_ipsec_spi                                  = -1;      /* ID: 295 */
+static int      hf_cflow_gre_key                                    = -1;      /* ID: 296 */
+static int      hf_cflow_nat_type                                   = -1;      /* ID: 297 */
+static int      hf_cflow_initiator_packets                          = -1;      /* ID: 298 */
+static int      hf_cflow_responder_packets                          = -1;      /* ID: 299 */
+static int      hf_cflow_observation_domain_name                    = -1;      /* ID: 300 */
+static int      hf_cflow_selection_sequence_id                      = -1;      /* ID: 301 */
+static int      hf_cflow_selector_id                                = -1;      /* ID: 302 */
+static int      hf_cflow_information_element_id                     = -1;      /* ID: 303 */
+static int      hf_cflow_selector_algorithm                         = -1;      /* ID: 304 */
+static int      hf_cflow_sampling_packet_interval                   = -1;      /* ID: 305 */
+static int      hf_cflow_sampling_packet_space                      = -1;      /* ID: 306 */
+static int      hf_cflow_sampling_time_interval                     = -1;      /* ID: 307 */
+static int      hf_cflow_sampling_time_space                        = -1;      /* ID: 308 */
+static int      hf_cflow_sampling_size                              = -1;      /* ID: 309 */
+static int      hf_cflow_sampling_population                        = -1;      /* ID: 310 */
+static int      hf_cflow_sampling_probability                       = -1;      /* ID: 311 */
+static int      hf_cflow_data_link_frame_size                       = -1;      /* ID: 312 */
+static int      hf_cflow_data_link_frame_section                    = -1;      /* ID: 315 */
+static int      hf_cflow_mpls_label_stack_section                   = -1;      /* ID: 316 */
+static int      hf_cflow_mpls_payload_packet_section                = -1;      /* ID: 317 */
+static int      hf_cflow_selector_id_total_pkts_observed            = -1;      /* ID: 318 */
+static int      hf_cflow_selector_id_total_pkts_selected            = -1;      /* ID: 319 */
+static int      hf_cflow_absolute_error                             = -1;      /* ID: 320 */
+static int      hf_cflow_relative_error                             = -1;      /* ID: 321 */
+static int      hf_cflow_observation_time_seconds                   = -1;      /* ID: 322 */
+static int      hf_cflow_observation_time_milliseconds              = -1;      /* ID: 323 */
+static int      hf_cflow_observation_time_microseconds              = -1;      /* ID: 324 */
+static int      hf_cflow_observation_time_nanoseconds               = -1;      /* ID: 325 */
+static int      hf_cflow_digest_hash_value                          = -1;      /* ID: 326 */
+static int      hf_cflow_hash_ippayload_offset                      = -1;      /* ID: 327 */
+static int      hf_cflow_hash_ippayload_size                        = -1;      /* ID: 328 */
+static int      hf_cflow_hash_output_range_min                      = -1;      /* ID: 329 */
+static int      hf_cflow_hash_output_range_max                      = -1;      /* ID: 330 */
+static int      hf_cflow_hash_selected_range_min                    = -1;      /* ID: 331 */
+static int      hf_cflow_hash_selected_range_max                    = -1;      /* ID: 332 */
+static int      hf_cflow_hash_digest_output                         = -1;      /* ID: 333 */
+static int      hf_cflow_hash_initialiser_value                     = -1;      /* ID: 334 */
+static int      hf_cflow_selector_name                              = -1;      /* ID: 335 */
+static int      hf_cflow_upper_cilimit                              = -1;      /* ID: 336 */
+static int      hf_cflow_lower_cilimit                              = -1;      /* ID: 337 */
+static int      hf_cflow_confidence_level                           = -1;      /* ID: 338 */
+static int      hf_cflow_information_element_data_type              = -1;      /* ID: 339 */
+static int      hf_cflow_information_element_description            = -1;      /* ID: 340 */
+static int      hf_cflow_information_element_name                   = -1;      /* ID: 341 */
+static int      hf_cflow_information_element_range_begin            = -1;      /* ID: 342 */
+static int      hf_cflow_information_element_range_end              = -1;      /* ID: 343 */
+static int      hf_cflow_information_element_semantics              = -1;      /* ID: 344 */
+static int      hf_cflow_information_element_units                  = -1;      /* ID: 345 */
+static int      hf_cflow_private_enterprise_number                  = -1;      /* ID: 346 */
 
-static int      hf_cflow_transport_rtp_payload_type          = -1;      /* ID: 37041 */
-static int      hf_cflow_transport_rtp_payload_type_string   = -1;      /* ID: 37041 */
-static int      hf_cflow_transport_bytes_out_of_order        = -1;      /* ID: 37071 */
-/* static int      hf_cflow_transport_packets_out_of_order      = -1; */      /* ID: 37074 */
+static int      hf_cflow_virtual_station_interface_id               = -1;      /* ID: 347 */
+static int      hf_cflow_virtual_station_interface_name             = -1;      /* ID: 348 */
+static int      hf_cflow_virtual_station_uuid                       = -1;      /* ID: 349 */
+static int      hf_cflow_virtual_station_name                       = -1;      /* ID: 350 */
+static int      hf_cflow_layer2_segment_id                          = -1;      /* ID: 351 */
+static int      hf_cflow_layer2_octet_delta_count                   = -1;      /* ID: 352 */
+static int      hf_cflow_layer2_octet_total_count                   = -1;      /* ID: 353 */
+static int      hf_cflow_ingress_unicast_packet_total_count         = -1;      /* ID: 354 */
+static int      hf_cflow_ingress_multicast_packet_total_count       = -1;      /* ID: 355 */
+static int      hf_cflow_ingress_broadcast_packet_total_count       = -1;      /* ID: 356 */
+static int      hf_cflow_egress_unicast_packet_total_count          = -1;      /* ID: 357 */
+static int      hf_cflow_egress_broadcast_packet_total_count        = -1;      /* ID: 358 */
+static int      hf_cflow_monitoring_interval_start_milliseconds     = -1;      /* ID: 359 */
+static int      hf_cflow_monitoring_interval_end_milliseconds       = -1;      /* ID: 360 */
+static int      hf_cflow_port_range_start                           = -1;      /* ID: 361 */
+static int      hf_cflow_port_range_end                             = -1;      /* ID: 362 */
+static int      hf_cflow_port_range_step_size                       = -1;      /* ID: 363 */
+static int      hf_cflow_port_range_num_ports                       = -1;      /* ID: 364 */
+static int      hf_cflow_sta_mac_address                            = -1;      /* ID: 365 */
+static int      hf_cflow_sta_ipv4_address                           = -1;      /* ID: 366 */
+static int      hf_cflow_wtp_mac_address                            = -1;      /* ID: 367 */
+static int      hf_cflow_ingress_interface_type                     = -1;      /* ID: 368 */
+static int      hf_cflow_egress_interface_type                      = -1;      /* ID: 369 */
+static int      hf_cflow_rtp_sequence_number                        = -1;      /* ID: 370 */
+static int      hf_cflow_user_name                                  = -1;      /* ID: 371 */
+static int      hf_cflow_application_category_name                  = -1;      /* ID: 372 */
+static int      hf_cflow_application_sub_category_name              = -1;      /* ID: 373 */
+static int      hf_cflow_application_group_name                     = -1;      /* ID: 374 */
+static int      hf_cflow_original_flows_present                     = -1;      /* ID: 375 */
+static int      hf_cflow_original_flows_initiated                   = -1;      /* ID: 376 */
+static int      hf_cflow_original_flows_completed                   = -1;      /* ID: 377 */
+static int      hf_cflow_distinct_count_of_source_ip_address        = -1;      /* ID: 378 */
+static int      hf_cflow_distinct_count_of_destinationip_address    = -1;      /* ID: 379 */
+static int      hf_cflow_distinct_count_of_source_ipv4_address      = -1;      /* ID: 380 */
+static int      hf_cflow_distinct_count_of_destination_ipv4_address = -1;      /* ID: 381 */
+static int      hf_cflow_distinct_count_of_source_ipv6_address      = -1;      /* ID: 382 */
+static int      hf_cflow_distinct_count_of_destination_ipv6_address = -1;      /* ID: 383 */
+static int      hf_cflow_value_distribution_method                  = -1;      /* ID: 384 */
+static int      hf_cflow_rfc3550_jitter_milliseconds                = -1;      /* ID: 385 */
+static int      hf_cflow_rfc3550_jitter_microseconds                = -1;      /* ID: 386 */
+static int      hf_cflow_rfc3550_jitter_nanoseconds                 = -1;      /* ID: 387 */
+static int      hf_cflow_dot1q_dei                                  = -1;      /* ID: 388 */
+static int      hf_cflow_dot1q_customer_dei                         = -1;      /* ID: 389 */
+static int      hf_cflow_flow_selector_algorithm                    = -1;      /* ID: 390 */
+static int      hf_cflow_flow_selected_octet_delta_count            = -1;      /* ID: 391 */
+static int      hf_cflow_flow_selected_packet_delta_count           = -1;      /* ID: 392 */
+static int      hf_cflow_flow_selected_flow_delta_count             = -1;      /* ID: 393 */
+static int      hf_cflow_selectorid_total_flows_observed            = -1;      /* ID: 394 */
+static int      hf_cflow_selectorid_total_flows_selected            = -1;      /* ID: 395 */
+static int      hf_cflow_sampling_flow_interval                     = -1;      /* ID: 396 */
+static int      hf_cflow_sampling_flow_spacing                      = -1;      /* ID: 397 */
+static int      hf_cflow_flow_sampling_time_interval                = -1;      /* ID: 398 */
+static int      hf_cflow_flow_sampling_time_spacing                 = -1;      /* ID: 399 */
+static int      hf_cflow_hash_flow_domain                           = -1;      /* ID: 400 */
+static int      hf_cflow_transport_octet_delta_count                = -1;      /* ID: 401 */
+static int      hf_cflow_transport_packet_delta_count               = -1;      /* ID: 402 */
+static int      hf_cflow_original_exporter_ipv4_address             = -1;      /* ID: 403 */
+static int      hf_cflow_original_exporter_ipv6_address             = -1;      /* ID: 404 */
+static int      hf_cflow_original_observation_domain_id             = -1;      /* ID: 405 */
+static int      hf_cflow_intermediate_process_id                    = -1;      /* ID: 406 */
+static int      hf_cflow_ignored_data_record_total_count            = -1;      /* ID: 407 */
+static int      hf_cflow_data_link_frame_type                       = -1;      /* ID: 408 */
+static int      hf_cflow_section_offset                             = -1;      /* ID: 409 */
+static int      hf_cflow_section_exported_octets                    = -1;      /* ID: 410 */
+static int      hf_cflow_dot1q_service_instance_tag                 = -1;      /* ID: 411 */
+static int      hf_cflow_dot1q_service_instance_id                  = -1;      /* ID: 412 */
+static int      hf_cflow_dot1q_service_instance_priority            = -1;      /* ID: 413 */
+static int      hf_cflow_dot1q_customer_source_mac_address          = -1;      /* ID: 414 */
+static int      hf_cflow_dot1q_customer_destination_mac_address     = -1;      /* ID: 415 */
+static int      hf_cflow_post_layer2_octet_delta_count              = -1;      /* ID: 417 */
+static int      hf_cflow_postm_cast_layer2_octet_delta_count        = -1;      /* ID: 418 */
+static int      hf_cflow_post_layer2_octet_total_count              = -1;      /* ID: 420 */
+static int      hf_cflow_postm_cast_layer2_octet_total_count        = -1;      /* ID: 421 */
+static int      hf_cflow_minimum_layer2_total_length                = -1;      /* ID: 422 */
+static int      hf_cflow_maximum_layer2_total_length                = -1;      /* ID: 423 */
+static int      hf_cflow_dropped_layer2_octet_delta_count           = -1;      /* ID: 424 */
+static int      hf_cflow_dropped_layer2_octet_total_count           = -1;      /* ID: 425 */
+static int      hf_cflow_ignored_layer2_octet_total_count           = -1;      /* ID: 426 */
+static int      hf_cflow_not_sent_layer2_octet_total_count          = -1;      /* ID: 427 */
+static int      hf_cflow_layer2_octet_delta_sum_of_squares          = -1;      /* ID: 428 */
+static int      hf_cflow_layer2_octet_total_sum_of_squares          = -1;      /* ID: 429 */
+static int      hf_cflow_layer2_frame_delta_count                   = -1;      /* ID: 430 */
+static int      hf_cflow_layer2_frame_total_count                   = -1;      /* ID: 431 */
+static int      hf_cflow_pseudo_wire_destination_ipv4_address       = -1;      /* ID: 432 */
+static int      hf_cflow_ignored_layer2_frame_total_count           = -1;      /* ID: 433 */
+
+static int      hf_cflow_cts_sgt_source_tag                         = -1;      /* ID: 34000 */
+static int      hf_cflow_cts_sgt_destination_tag                    = -1;      /* ID: 34001 */
+static int      hf_cflow_cts_sgt_source_name                        = -1;      /* ID: 34002 */
+static int      hf_cflow_cts_sgt_destination_name                   = -1;      /* ID: 34003 */
+static int      hf_cflow_packets_dropped                            = -1;      /* ID: 37000 */
+static int      hf_cflow_byte_rate                                  = -1;      /* ID: 37003 */
+static int      hf_cflow_application_media_bytes                    = -1;      /* ID: 37004 */
+static int      hf_cflow_application_media_byte_rate                = -1;      /* ID: 37006 */
+static int      hf_cflow_application_media_packets                  = -1;      /* ID: 37007 */
+static int      hf_cflow_application_media_packet_rate              = -1;      /* ID: 37009 */
+static int      hf_cflow_application_media_event                    = -1;      /* ID: 37011 */
+static int      hf_cflow_monitor_event                              = -1;      /* ID: 37012 */
+static int      hf_cflow_timestamp_interval                         = -1;      /* ID: 37013 */
+static int      hf_cflow_transport_packets_expected                 = -1;      /* ID: 37014 */
+static int      hf_cflow_transport_round_trip_time                  = -1;      /* ID: 37016 */
+static int      hf_cflow_transport_round_trip_time_string           = -1;      /* ID: 37016 */
+static int      hf_cflow_transport_event_packet_loss                = -1;      /* ID: 37017 */
+static int      hf_cflow_transport_packets_lost                     = -1;      /* ID: 37019 */
+static int      hf_cflow_transport_packets_lost_string              = -1;      /* ID: 37019 */
+static int      hf_cflow_transport_packets_lost_rate                = -1;      /* ID: 37021 */
+static int      hf_cflow_transport_packets_lost_rate_string         = -1;      /* ID: 37021 */
+static int      hf_cflow_transport_rtp_ssrc                         = -1;      /* ID: 37022 */
+static int      hf_cflow_transport_rtp_jitter_mean                  = -1;      /* ID: 37023 */
+static int      hf_cflow_transport_rtp_jitter_mean_string           = -1;      /* ID: 37023 */
+static int      hf_cflow_transport_rtp_jitter_min                   = -1;      /* ID: 37024 */
+static int      hf_cflow_transport_rtp_jitter_min_string            = -1;      /* ID: 37024 */
+static int      hf_cflow_transport_rtp_jitter_max                   = -1;      /* ID: 37025 */
+static int      hf_cflow_transport_rtp_jitter_max_string            = -1;      /* ID: 37025 */
+
+static int      hf_cflow_transport_rtp_payload_type                 = -1;      /* ID: 37041 */
+static int      hf_cflow_transport_rtp_payload_type_string          = -1;      /* ID: 37041 */
+static int      hf_cflow_transport_bytes_out_of_order               = -1;      /* ID: 37071 */
+/* static int      hf_cflow_transport_packets_out_of_order          = -1; */      /* ID: 37074 */
 static int      hf_cflow_transport_packets_out_of_order_string      = -1;      /* ID: 37074 */
-static int      hf_cflow_transport_tcp_window_size_min       = -1;      /* ID: 37083 */
-static int      hf_cflow_transport_tcp_window_size_min_string = -1;      /* ID: 37083 */
-static int      hf_cflow_transport_tcp_window_size_max       = -1;      /* ID: 37084  */
-static int      hf_cflow_transport_tcp_window_size_max_string = -1;      /* ID: 37084 */
-static int      hf_cflow_transport_tcp_window_size_mean      = -1;     /* ID: 37085  */
-static int      hf_cflow_transport_tcp_window_size_mean_string = -1;     /* ID: 37085  */
-static int      hf_cflow_transport_tcp_maximum_segment_size  = -1;     /* ID: 37086  */
-static int      hf_cflow_transport_tcp_maximum_segment_size_string = -1;     /* ID: 37086 */
+static int      hf_cflow_transport_tcp_window_size_min              = -1;      /* ID: 37083 */
+static int      hf_cflow_transport_tcp_window_size_min_string       = -1;      /* ID: 37083 */
+static int      hf_cflow_transport_tcp_window_size_max              = -1;      /* ID: 37084  */
+static int      hf_cflow_transport_tcp_window_size_max_string       = -1;      /* ID: 37084 */
+static int      hf_cflow_transport_tcp_window_size_mean             = -1;      /* ID: 37085  */
+static int      hf_cflow_transport_tcp_window_size_mean_string      = -1;      /* ID: 37085  */
+static int      hf_cflow_transport_tcp_maximum_segment_size         = -1;      /* ID: 37086  */
+static int      hf_cflow_transport_tcp_maximum_segment_size_string  = -1;      /* ID: 37086 */
 
 /* Ericsson SE NAT Logging */
 static int      hf_cflow_nat_context_id         = -1;   /* ID: 24628 */
@@ -3226,6 +3456,16 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
                                      tvb, offset, length, ENC_NA);
             break;
 
+        case 92:
+            ti = proto_tree_add_item(pdutree, hf_cflow_src_traffic_index,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case 93:
+            ti = proto_tree_add_item(pdutree, hf_cflow_dst_traffic_index,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
         case 94: /* NBAR applicationDesc */
             ti = proto_tree_add_item(pdutree, hf_cflow_nbar_appl_desc,
                                      tvb, offset, length, ENC_ASCII|ENC_NA);
@@ -3249,6 +3489,11 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
         case 99: /* multicastReplicationFactor */
             ti = proto_tree_add_item(pdutree, hf_cflow_multicast_replication_factor,
                                      tvb, offset, length, ENC_NA);
+            break;
+
+        case 101:
+            ti = proto_tree_add_item(pdutree, hf_cflow_classification_engine_id,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
             break;
 
         case 128: /* dest AS Peer */
@@ -4089,6 +4334,116 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
                                      tvb, offset, length, ENC_NA);
             break;
 
+        case 276:
+            ti = proto_tree_add_item(pdutree, hf_cflow_data_records_reliability,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case 277:
+            ti = proto_tree_add_item(pdutree, hf_cflow_observation_point_type,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case 278:
+            ti = proto_tree_add_item(pdutree, hf_cflow_new_connection_delta_count,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case 279:
+            ti = proto_tree_add_item(pdutree, hf_cflow_connection_sum_duration_seconds,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case 280:
+            ti = proto_tree_add_item(pdutree, hf_cflow_connection_transaction_id,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case 281:
+            ti = proto_tree_add_item(pdutree, hf_cflow_post_nat_source_ipv6_address,
+                                     tvb, offset, length, ENC_NA);
+            break;
+
+        case 282:
+            ti = proto_tree_add_item(pdutree, hf_cflow_post_nat_destination_ipv6_address,
+                                     tvb, offset, length, ENC_NA);
+            break;
+
+        case 283:
+            ti = proto_tree_add_item(pdutree, hf_cflow_nat_pool_id,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case 284:
+            ti = proto_tree_add_item(pdutree, hf_cflow_nat_pool_name,
+                                     tvb, offset, length, ENC_ASCII|ENC_NA);
+            break;
+
+        case 285:
+            ti = proto_tree_add_item(pdutree, hf_cflow_anonymization_flags,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case 286:
+            ti = proto_tree_add_item(pdutree, hf_cflow_anonymization_technique,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case 287:
+            ti = proto_tree_add_item(pdutree, hf_cflow_information_element_index,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case 288:
+            ti = proto_tree_add_item(pdutree, hf_cflow_p2p_technology,
+                                     tvb, offset, length, ENC_ASCII|ENC_NA);
+            break;
+
+        case 289:
+            ti = proto_tree_add_item(pdutree, hf_cflow_tunnel_technology,
+                                     tvb, offset, length, ENC_ASCII|ENC_NA);
+            break;
+
+        case 290:
+            ti = proto_tree_add_item(pdutree, hf_cflow_encrypted_technology,
+                                     tvb, offset, length, ENC_ASCII|ENC_NA);
+            break;
+
+        case 294:
+            ti = proto_tree_add_item(pdutree, hf_cflow_bgp_validity_state,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case 295:
+            ti = proto_tree_add_item(pdutree, hf_cflow_ipsec_spi,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case 296:
+            ti = proto_tree_add_item(pdutree, hf_cflow_gre_key,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case 297:
+            ti = proto_tree_add_item(pdutree, hf_cflow_nat_type,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case 298:
+            ti = proto_tree_add_item(pdutree, hf_cflow_initiator_packets,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case 299:
+            ti = proto_tree_add_item(pdutree, hf_cflow_responder_packets,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case 300:
+            ti = proto_tree_add_item(pdutree, hf_cflow_observation_domain_name,
+                                     tvb, offset, length, ENC_ASCII|ENC_NA);
+            break;
+
         case 301: /* selectionSequenceId */
             ti = proto_tree_add_item(pdutree, hf_cflow_selection_sequence_id,
                                      tvb, offset, length, ENC_BIG_ENDIAN);
@@ -4144,6 +4499,11 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
                                      tvb, offset, length, ENC_NA);
             break;
 
+        case 312:
+            ti = proto_tree_add_item(pdutree, hf_cflow_data_link_frame_size,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
         case 313: /* SECTION_HEADER */
             ti = proto_tree_add_item(pdutree, hf_cflow_section_header,
                                      tvb, offset, length, ENC_NA);
@@ -4151,6 +4511,11 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 
         case 314: /* SECTION_PAYLOAD */
             ti = proto_tree_add_item(pdutree, hf_cflow_section_payload,
+                                     tvb, offset, length, ENC_NA);
+            break;
+
+        case 315:
+            ti = proto_tree_add_item(pdutree, hf_cflow_data_link_frame_section,
                                      tvb, offset, length, ENC_NA);
             break;
 
@@ -4312,6 +4677,438 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
             ti = proto_tree_add_item(pdutree, hf_cflow_private_enterprise_number,
                                      tvb, offset, length, ENC_BIG_ENDIAN);
             break;
+
+        case 347: /* virtualStationInterfaceId */
+            ti = proto_tree_add_item(pdutree, hf_cflow_virtual_station_interface_id,
+                                     tvb, offset, length, ENC_NA);
+            break;
+
+        case 348: /* virtualStationInterfaceName */
+            ti = proto_tree_add_item(pdutree, hf_cflow_virtual_station_interface_name,
+                                     tvb, offset, length, ENC_ASCII|ENC_NA);
+            break;
+
+        case 349: /* virtualStationUUID */
+            ti = proto_tree_add_item(pdutree, hf_cflow_virtual_station_uuid,
+                                     tvb, offset, length, ENC_NA);
+            break;
+
+        case 350: /* virtualStationName */
+            ti = proto_tree_add_item(pdutree, hf_cflow_virtual_station_name,
+                                     tvb, offset, length, ENC_ASCII|ENC_NA);
+            break;
+
+        case 351: /* layer2SegmentId */
+            ti = proto_tree_add_item(pdutree, hf_cflow_layer2_segment_id,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case 416:
+        case 352: /* layer2OctetDeltaCount */
+            ti = proto_tree_add_item(pdutree, hf_cflow_layer2_octet_delta_count,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case 419:
+        case 353: /* layer2OctetTotalCount */
+            ti = proto_tree_add_item(pdutree, hf_cflow_layer2_octet_total_count,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case 354: /* ingressUnicastPacketTotalCount */
+            ti = proto_tree_add_item(pdutree, hf_cflow_ingress_unicast_packet_total_count,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case 355: /* ingressMulticastPacketTotalCount */
+            ti = proto_tree_add_item(pdutree, hf_cflow_ingress_multicast_packet_total_count,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case 356: /* ingressBroadcastPacketTotalCount */
+            ti = proto_tree_add_item(pdutree, hf_cflow_ingress_broadcast_packet_total_count,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case 357: /* egressUnicastPacketTotalCount */
+            ti = proto_tree_add_item(pdutree, hf_cflow_egress_unicast_packet_total_count,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case 358: /* egressBroadcastPacketTotalCount */
+            ti = proto_tree_add_item(pdutree, hf_cflow_egress_broadcast_packet_total_count,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case 359: /* monitoringIntervalStartMilliSeconds */
+            ts.secs  = (time_t)(tvb_get_ntoh64(tvb, offset)/1000);
+            ts.nsecs = (int)(tvb_get_ntoh64(tvb, offset)%1000) * 1000000;
+            ti = proto_tree_add_time(pdutree, hf_cflow_monitoring_interval_start_milliseconds,
+                                     tvb, offset, length, &ts);
+            break;
+
+        case 360: /* monitoringIntervalEndMilliSeconds */
+            ts.secs  = (time_t)(tvb_get_ntoh64(tvb, offset)/1000);
+            ts.nsecs = (int)(tvb_get_ntoh64(tvb, offset)%1000) * 1000000;
+            ti = proto_tree_add_time(pdutree, hf_cflow_monitoring_interval_end_milliseconds,
+                                     tvb, offset, length, &ts);
+            break;
+
+        case 361: /* portRangeStart */
+            ti = proto_tree_add_item(pdutree, hf_cflow_port_range_start,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case 362: /* portRangeEnd */
+            ti = proto_tree_add_item(pdutree, hf_cflow_port_range_end,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case 363: /* portRangeStepSize */
+            ti = proto_tree_add_item(pdutree, hf_cflow_port_range_step_size,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case 364: /* portRangeNumPorts */
+            ti = proto_tree_add_item(pdutree, hf_cflow_port_range_num_ports,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case 365: /* staMacAddress */
+            ti = proto_tree_add_item(pdutree, hf_cflow_sta_mac_address,
+                                     tvb, offset, length, ENC_NA);
+            break;
+
+        case 366: /* staIPv4Address */
+            ti = proto_tree_add_item(pdutree, hf_cflow_sta_ipv4_address,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case 367: /* wtpMacAddress */
+            ti = proto_tree_add_item(pdutree, hf_cflow_wtp_mac_address,
+                                     tvb, offset, length, ENC_NA);
+            break;
+
+        case 368: /* ingressInterfaceType */
+            ti = proto_tree_add_item(pdutree, hf_cflow_ingress_interface_type,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case 369: /* egressInterfaceType */
+            ti = proto_tree_add_item(pdutree, hf_cflow_egress_interface_type,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case 370: /* rtpSequenceNumber */
+            ti = proto_tree_add_item(pdutree, hf_cflow_rtp_sequence_number,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case 371: /* userName */
+            ti = proto_tree_add_item(pdutree, hf_cflow_user_name,
+                                     tvb, offset, length, ENC_ASCII|ENC_NA);
+            break;
+
+        case 372: /* applicationCategoryName */
+            ti = proto_tree_add_item(pdutree, hf_cflow_application_category_name,
+                                     tvb, offset, length, ENC_ASCII|ENC_NA);
+            break;
+
+        case 373: /* applicationSubCategoryName */
+            ti = proto_tree_add_item(pdutree, hf_cflow_application_sub_category_name,
+                                     tvb, offset, length, ENC_ASCII|ENC_NA);
+            break;
+
+        case 374: /* applicationGroupName */
+            ti = proto_tree_add_item(pdutree, hf_cflow_application_group_name,
+                                     tvb, offset, length, ENC_ASCII|ENC_NA);
+            break;
+
+        case 375: /* originalFlowsPresent */
+            ti = proto_tree_add_item(pdutree, hf_cflow_original_flows_present,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case 376: /* originalFlowsInitiated */
+            ti = proto_tree_add_item(pdutree, hf_cflow_original_flows_initiated,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case 377: /* originalFlowsCompleted */
+            ti = proto_tree_add_item(pdutree, hf_cflow_original_flows_completed,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case 378: /* distinctCountOfSourceIPAddress */
+            ti = proto_tree_add_item(pdutree, hf_cflow_distinct_count_of_source_ip_address,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case 379: /* distinctCountOfDestinationIPAddress */
+            ti = proto_tree_add_item(pdutree, hf_cflow_distinct_count_of_destinationip_address,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case 380: /* distinctCountOfSourceIPv4Address */
+            ti = proto_tree_add_item(pdutree, hf_cflow_distinct_count_of_source_ipv4_address,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case 381: /* distinctCountOfDestinationIPv4Address */
+            ti = proto_tree_add_item(pdutree, hf_cflow_distinct_count_of_destination_ipv4_address,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case 382: /* distinctCountOfSourceIPv6Address */
+            ti = proto_tree_add_item(pdutree, hf_cflow_distinct_count_of_source_ipv6_address,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case 383: /* distinctCountOfDestinationIPv6Address */
+            ti = proto_tree_add_item(pdutree, hf_cflow_distinct_count_of_destination_ipv6_address,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case 384: /* valueDistributionMethod */
+            ti = proto_tree_add_item(pdutree, hf_cflow_value_distribution_method,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case 385: /* rfc3550JitterMilliseconds */
+            ti = proto_tree_add_item(pdutree, hf_cflow_rfc3550_jitter_milliseconds,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case 386: /* rfc3550JitterMicroseconds */
+            ti = proto_tree_add_item(pdutree, hf_cflow_rfc3550_jitter_microseconds,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case 387: /* rfc3550JitterNanoseconds */
+            ti = proto_tree_add_item(pdutree, hf_cflow_rfc3550_jitter_nanoseconds,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case 388: /* dot1qDEI */
+            ti = proto_tree_add_item(pdutree, hf_cflow_dot1q_dei,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case 389: /* dot1qCustomerDEI */
+            ti = proto_tree_add_item(pdutree, hf_cflow_dot1q_customer_dei,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case 390: /* flowSelectorAlgorithm */
+            ti = proto_tree_add_item(pdutree, hf_cflow_flow_selector_algorithm,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case 391: /* flowSelectedOctetDeltaCount */
+            ti = proto_tree_add_item(pdutree, hf_cflow_flow_selected_octet_delta_count,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case 392: /* flowSelectedPacketDeltaCount */
+            ti = proto_tree_add_item(pdutree, hf_cflow_flow_selected_packet_delta_count,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case 393: /* flowSelectedFlowDeltaCount */
+            ti = proto_tree_add_item(pdutree, hf_cflow_flow_selected_flow_delta_count,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case 394: /* selectorIDTotalFlowsObserved */
+            ti = proto_tree_add_item(pdutree, hf_cflow_selectorid_total_flows_observed,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case 395: /* selectorIDTotalFlowsSelected */
+            ti = proto_tree_add_item(pdutree, hf_cflow_selectorid_total_flows_selected,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case 396: /* samplingFlowInterval */
+            ti = proto_tree_add_item(pdutree, hf_cflow_sampling_flow_interval,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case 397: /* samplingFlowSpacing */
+            ti = proto_tree_add_item(pdutree, hf_cflow_sampling_flow_spacing,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case 398: /* flowSamplingTimeInterval */
+            ti = proto_tree_add_item(pdutree, hf_cflow_flow_sampling_time_interval,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case 399: /* flowSamplingTimeSpacing */
+            ti = proto_tree_add_item(pdutree, hf_cflow_flow_sampling_time_spacing,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case 400: /* hashFlowDomain */
+            ti = proto_tree_add_item(pdutree, hf_cflow_hash_flow_domain,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case 401: /* transportOctetDeltaCount */
+            ti = proto_tree_add_item(pdutree, hf_cflow_transport_octet_delta_count,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case 402: /* transportPacketDeltaCount */
+            ti = proto_tree_add_item(pdutree, hf_cflow_transport_packet_delta_count,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case 403: /* originalExporterIPv4Address */
+            ti = proto_tree_add_item(pdutree, hf_cflow_original_exporter_ipv4_address,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case 404: /* originalExporterIPv6Address */
+            ti = proto_tree_add_item(pdutree, hf_cflow_original_exporter_ipv6_address,
+                                     tvb, offset, length, ENC_NA);
+            break;
+
+        case 405: /* originalObservationDomainId */
+            ti = proto_tree_add_item(pdutree, hf_cflow_original_observation_domain_id,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case 406: /* intermediateProcessId */
+            ti = proto_tree_add_item(pdutree, hf_cflow_intermediate_process_id,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case 407: /* ignoredDataRecordTotalCount */
+            ti = proto_tree_add_item(pdutree, hf_cflow_ignored_data_record_total_count,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case 408: /* dataLinkFrameType */
+            ti = proto_tree_add_item(pdutree, hf_cflow_data_link_frame_type,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case 409: /* sectionOffset */
+            ti = proto_tree_add_item(pdutree, hf_cflow_section_offset,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case 410: /* sectionExportedOctets */
+            ti = proto_tree_add_item(pdutree, hf_cflow_section_exported_octets,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case 411: /* dot1qServiceInstanceTag */
+            ti = proto_tree_add_item(pdutree, hf_cflow_dot1q_service_instance_tag,
+                                     tvb, offset, length, ENC_NA);
+            break;
+
+        case 412: /* dot1qServiceInstanceId */
+            ti = proto_tree_add_item(pdutree, hf_cflow_dot1q_service_instance_id,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case 413: /* dot1qServiceInstancePriority */
+            ti = proto_tree_add_item(pdutree, hf_cflow_dot1q_service_instance_priority,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case 414: /* dot1qCustomerSourceMacAddress */
+            ti = proto_tree_add_item(pdutree, hf_cflow_dot1q_customer_source_mac_address,
+                                     tvb, offset, length, ENC_NA);
+            break;
+
+        case 415: /* dot1qCustomerDestinationMacAddress */
+            ti = proto_tree_add_item(pdutree, hf_cflow_dot1q_customer_destination_mac_address,
+                                     tvb, offset, length, ENC_NA);
+            break;
+
+        case 417: /* postLayer2OctetDeltaCount */
+            ti = proto_tree_add_item(pdutree, hf_cflow_post_layer2_octet_delta_count,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case 418: /* postMCastLayer2OctetDeltaCount */
+            ti = proto_tree_add_item(pdutree, hf_cflow_postm_cast_layer2_octet_delta_count,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case 420: /* postLayer2OctetTotalCount */
+            ti = proto_tree_add_item(pdutree, hf_cflow_post_layer2_octet_total_count,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case 421: /* postMCastLayer2OctetTotalCount */
+            ti = proto_tree_add_item(pdutree, hf_cflow_postm_cast_layer2_octet_total_count,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case 422: /* minimumLayer2TotalLength */
+            ti = proto_tree_add_item(pdutree, hf_cflow_minimum_layer2_total_length,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case 423: /* maximumLayer2TotalLength */
+            ti = proto_tree_add_item(pdutree, hf_cflow_maximum_layer2_total_length,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case 424: /* droppedLayer2OctetDeltaCount */
+            ti = proto_tree_add_item(pdutree, hf_cflow_dropped_layer2_octet_delta_count,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case 425: /* droppedLayer2OctetTotalCount */
+            ti = proto_tree_add_item(pdutree, hf_cflow_dropped_layer2_octet_total_count,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case 426: /* ignoredLayer2OctetTotalCount */
+            ti = proto_tree_add_item(pdutree, hf_cflow_ignored_layer2_octet_total_count,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case 427: /* notSentLayer2OctetTotalCount */
+            ti = proto_tree_add_item(pdutree, hf_cflow_not_sent_layer2_octet_total_count,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case 428: /* layer2OctetDeltaSumOfSquares */
+            ti = proto_tree_add_item(pdutree, hf_cflow_layer2_octet_delta_sum_of_squares,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case 429: /* layer2OctetTotalSumOfSquares */
+            ti = proto_tree_add_item(pdutree, hf_cflow_layer2_octet_total_sum_of_squares,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case 430: /* layer2FrameDeltaCount */
+            ti = proto_tree_add_item(pdutree, hf_cflow_layer2_frame_delta_count,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case 431: /* layer2FrameTotalCount */
+            ti = proto_tree_add_item(pdutree, hf_cflow_layer2_frame_total_count,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case 432: /* pseudoWireDestinationIPv4Address */
+            ti = proto_tree_add_item(pdutree, hf_cflow_pseudo_wire_destination_ipv4_address,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case 433: /* ignoredLayer2FrameTotalCount */
+            ti = proto_tree_add_item(pdutree, hf_cflow_ignored_layer2_frame_total_count,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
 
         case 34000: /* cts_sgt_source_tag */
             ti = proto_tree_add_item(pdutree, hf_cflow_cts_sgt_source_tag,
@@ -6432,6 +7229,16 @@ proto_register_netflow(void)
           FT_UINT8, BASE_DEC, NULL, 0x0,
           NULL, HFILL}
         },
+        {&hf_cflow_src_traffic_index,
+         {"Src Traffic Index", "cflow.src_traffic_index",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        {&hf_cflow_dst_traffic_index,
+         {"Dst Traffic Index", "cflow.dst_traffic_index",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
         {&hf_cflow_post_ip_diff_serv_code_point,
          {"Post Ip Diff Serv Code Point", "cflow.post_ip_diff_serv_code_point",
           FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -6440,6 +7247,11 @@ proto_register_netflow(void)
         {&hf_cflow_multicast_replication_factor,
          {"Multicast Replication Factor", "cflow.multicast_replication_factor",
           FT_BYTES, BASE_NONE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        {&hf_cflow_classification_engine_id,
+         {"Classification Engine Id", "cflow.classification_engine_id",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
           NULL, HFILL}
         },
         {&hf_cflow_exporter_addr,
@@ -7062,6 +7874,116 @@ proto_register_netflow(void)
           FT_BYTES, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
+        {&hf_cflow_data_records_reliability,
+         {"Data Records Reliability", "cflow.data_records_reliability",
+          FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        {&hf_cflow_observation_point_type,
+         {"Observation Point Type", "cflow.observation_point_type",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        {&hf_cflow_new_connection_delta_count,
+         {"New Connection Delta Count", "cflow.new_connection_delta_count",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        {&hf_cflow_connection_sum_duration_seconds,
+         {"Connection Sum Duration Seconds", "cflow.connection_sum_duration_seconds",
+          FT_UINT64, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        {&hf_cflow_connection_transaction_id,
+         {"Connection Transaction Id", "cflow.connection_transaction_id",
+          FT_UINT64, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        {&hf_cflow_post_nat_source_ipv6_address,
+         {"Post NAT Source IPv6 Address", "cflow.post_nat_source_ipv6_address",
+          FT_IPv6, BASE_NONE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        {&hf_cflow_post_nat_destination_ipv6_address,
+         {"Post NAT Destination IPv6 Address", "cflow.post_nat_destination_ipv6_address",
+          FT_IPv6, BASE_NONE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        {&hf_cflow_nat_pool_id,
+         {"Nat Pool Id", "cflow.nat_pool_id",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        {&hf_cflow_nat_pool_name,
+         {"Nat Pool Name", "cflow.nat_pool_name",
+          FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        {&hf_cflow_anonymization_flags,
+         {"Anonymization Flags", "cflow.anonymization_flags",
+          FT_UINT16, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        {&hf_cflow_anonymization_technique,
+         {"Anonymization Technique", "cflow.anonymization_technique",
+          FT_UINT16, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        {&hf_cflow_information_element_index,
+         {"Information Element Index", "cflow.information_element_index",
+          FT_UINT16, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        {&hf_cflow_p2p_technology,
+         {"P2p Technology", "cflow.p2p_technology",
+          FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        {&hf_cflow_tunnel_technology,
+         {"Tunnel Technology", "cflow.tunnel_technology",
+          FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        {&hf_cflow_encrypted_technology,
+         {"Encrypted Technology", "cflow.encrypted_technology",
+          FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        {&hf_cflow_bgp_validity_state,
+         {"Bgp Validity State", "cflow.bgp_validity_state",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        {&hf_cflow_ipsec_spi,
+         {"IPSec SPI", "cflow.ipsec_spi",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        {&hf_cflow_gre_key,
+         {"Gre Key", "cflow.gre_key",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        {&hf_cflow_nat_type,
+         {"Nat Type", "cflow.nat_type",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        {&hf_cflow_initiator_packets,
+         {"Initiator Packets", "cflow.initiator_packets",
+          FT_UINT64, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        {&hf_cflow_responder_packets,
+         {"Responder Packets", "cflow.responder_packets",
+          FT_UINT64, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        {&hf_cflow_observation_domain_name,
+         {"Observation Domain Name", "cflow.observation_domain_name",
+          FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL, HFILL}
+        },
         {&hf_cflow_selection_sequence_id,
          {"Selection Sequence Id", "cflow.selection_sequence_id",
           FT_UINT64, BASE_DEC, NULL, 0x0,
@@ -7115,6 +8037,16 @@ proto_register_netflow(void)
         {&hf_cflow_sampling_probability,
          {"Sampling Probability", "cflow.sampling_probability",
           FT_FLOAT, BASE_NONE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        {&hf_cflow_data_link_frame_size,
+         {"Data Link Frame Size", "cflow.data_link_frame_size",
+          FT_UINT16, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        {&hf_cflow_data_link_frame_section,
+         {"Data Link Frame Section", "cflow.data_link_frame_section",
+          FT_BYTES, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         {&hf_cflow_mpls_label_stack_section,
@@ -7272,6 +8204,433 @@ proto_register_netflow(void)
           FT_UINT32, BASE_DEC, NULL, 0x0,
           NULL, HFILL}
         },
+
+        {&hf_cflow_virtual_station_interface_id,
+         {"Virtual Station Interface Id", "cflow.virtual_station_interface_id",
+          FT_BYTES, BASE_NONE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        {&hf_cflow_virtual_station_interface_name,
+          {"Virtual Station Interface Name", "cflow.virtual_station_interface_name",
+           FT_STRING, BASE_NONE, NULL, 0x0,
+           NULL, HFILL}
+        },
+        {&hf_cflow_virtual_station_uuid,
+          {"Virtual Station Uuid", "cflow.virtual_station_uuid",
+           FT_BYTES, BASE_NONE, NULL, 0x0,
+           NULL, HFILL}
+        },
+        {&hf_cflow_virtual_station_name,
+          {"Virtual Station Name", "cflow.virtual_station_name",
+           FT_STRING, BASE_NONE, NULL, 0x0,
+           NULL, HFILL}
+        },
+        {&hf_cflow_layer2_segment_id,
+          {"Layer2 Segment Id", "cflow.layer2_segment_id",
+           FT_UINT64, BASE_DEC, NULL, 0x0,
+           NULL, HFILL}
+        },
+        {&hf_cflow_layer2_octet_delta_count,
+          {"Layer2 Octet Delta Count", "cflow.layer2_octet_delta_count",
+           FT_UINT64, BASE_DEC, NULL, 0x0,
+           NULL, HFILL}
+        },
+        {&hf_cflow_layer2_octet_total_count,
+          {"Layer2 Octet Total Count", "cflow.layer2_octet_total_count",
+           FT_UINT64, BASE_DEC, NULL, 0x0,
+           NULL, HFILL}
+        },
+        {&hf_cflow_ingress_unicast_packet_total_count,
+          {"Ingress Unicast Packet Total Count", "cflow.ingress_unicast_packet_total_count",
+           FT_UINT64, BASE_DEC, NULL, 0x0,
+           NULL, HFILL}
+        },
+        {&hf_cflow_ingress_multicast_packet_total_count,
+          {"Ingress Multicast Packet Total Count", "cflow.ingress_multicast_packet_total_count",
+           FT_UINT64, BASE_DEC, NULL, 0x0,
+           NULL, HFILL}
+        },
+        {&hf_cflow_ingress_broadcast_packet_total_count,
+          {"Ingress Broadcast Packet Total Count", "cflow.ingress_broadcast_packet_total_count",
+           FT_UINT64, BASE_DEC, NULL, 0x0,
+           NULL, HFILL}
+        },
+        {&hf_cflow_egress_unicast_packet_total_count,
+          {"Egress Unicast Packet Total Count", "cflow.egress_unicast_packet_total_count",
+           FT_UINT64, BASE_DEC, NULL, 0x0,
+           NULL, HFILL}
+        },
+        {&hf_cflow_egress_broadcast_packet_total_count,
+          {"Egress Broadcast Packet Total Count", "cflow.egress_broadcast_packet_total_count",
+           FT_UINT64, BASE_DEC, NULL, 0x0,
+           NULL, HFILL}
+        },
+        {&hf_cflow_monitoring_interval_start_milliseconds,
+          {"Monitoring Interval Start MilliSeconds", "cflow.monitoring_interval_start_milliseconds",
+           FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0,
+           NULL, HFILL}
+        },
+        {&hf_cflow_monitoring_interval_end_milliseconds,
+          {"Monitoring Interval End MilliSeconds", "cflow.monitoring_interval_end_milliseconds",
+           FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0,
+           NULL, HFILL}
+        },
+        {&hf_cflow_port_range_start,
+          {"Port Range Start", "cflow.port_range_start",
+           FT_UINT16, BASE_DEC, NULL, 0x0,
+           NULL, HFILL}
+        },
+        {&hf_cflow_port_range_end,
+          {"Port Range End", "cflow.port_range_end",
+           FT_UINT16, BASE_DEC, NULL, 0x0,
+           NULL, HFILL}
+        },
+        {&hf_cflow_port_range_step_size,
+          {"Port Range Step Size", "cflow.port_range_step_size",
+           FT_UINT16, BASE_DEC, NULL, 0x0,
+           NULL, HFILL}
+        },
+        {&hf_cflow_port_range_num_ports,
+          {"Port Range Num Ports", "cflow.port_range_num_ports",
+           FT_UINT16, BASE_DEC, NULL, 0x0,
+           NULL, HFILL}
+        },
+        {&hf_cflow_sta_mac_address,
+          {"Sta Mac Address", "cflow.sta_mac_address",
+           FT_ETHER, BASE_NONE, NULL, 0x0,
+           NULL, HFILL}
+        },
+        {&hf_cflow_sta_ipv4_address,
+          {"Sta Ipv4 Address", "cflow.sta_ipv4_address",
+           FT_IPv4, BASE_NONE, NULL, 0x0,
+           NULL, HFILL}
+        },
+        {&hf_cflow_wtp_mac_address,
+          {"Wtp Mac Address", "cflow.wtp_mac_address",
+           FT_ETHER, BASE_NONE, NULL, 0x0,
+           NULL, HFILL}
+        },
+        {&hf_cflow_ingress_interface_type,
+          {"Ingress Interface Type", "cflow.ingress_interface_type",
+           FT_UINT32, BASE_DEC, NULL, 0x0,
+           NULL, HFILL}
+        },
+        {&hf_cflow_egress_interface_type,
+          {"Egress Interface Type", "cflow.egress_interface_type",
+           FT_UINT32, BASE_DEC, NULL, 0x0,
+           NULL, HFILL}
+        },
+        {&hf_cflow_rtp_sequence_number,
+          {"Rtp Sequence Number", "cflow.rtp_sequence_number",
+           FT_UINT16, BASE_DEC, NULL, 0x0,
+           NULL, HFILL}
+        },
+        {&hf_cflow_user_name,
+          {"User Name", "cflow.user_name",
+           FT_STRING, BASE_NONE, NULL, 0x0,
+           NULL, HFILL}
+        },
+        {&hf_cflow_application_category_name,
+          {"Application Category Name", "cflow.application_category_name",
+           FT_STRING, BASE_NONE, NULL, 0x0,
+           NULL, HFILL}
+        },
+        {&hf_cflow_application_sub_category_name,
+          {"Application Sub Category Name", "cflow.application_sub_category_name",
+           FT_STRING, BASE_NONE, NULL, 0x0,
+           NULL, HFILL}
+        },
+        {&hf_cflow_application_group_name,
+          {"Application Group Name", "cflow.application_group_name",
+           FT_STRING, BASE_NONE, NULL, 0x0,
+           NULL, HFILL}
+        },
+        {&hf_cflow_original_flows_present,
+          {"Original Flows Present", "cflow.original_flows_present",
+           FT_UINT64, BASE_DEC, NULL, 0x0,
+           NULL, HFILL}
+        },
+        {&hf_cflow_original_flows_initiated,
+          {"Original Flows Initiated", "cflow.original_flows_initiated",
+           FT_UINT64, BASE_DEC, NULL, 0x0,
+           NULL, HFILL}
+        },
+        {&hf_cflow_original_flows_completed,
+          {"Original Flows Completed", "cflow.original_flows_completed",
+           FT_UINT64, BASE_DEC, NULL, 0x0,
+           NULL, HFILL}
+        },
+        {&hf_cflow_distinct_count_of_source_ip_address,
+          {"Distinct Count Of Source Ip Address", "cflow.distinct_count_of_source_ip_address",
+           FT_UINT64, BASE_DEC, NULL, 0x0,
+           NULL, HFILL}
+        },
+        {&hf_cflow_distinct_count_of_destinationip_address,
+          {"Distinct Count Of Destinationip Address", "cflow.distinct_count_of_destinationip_address",
+           FT_UINT64, BASE_DEC, NULL, 0x0,
+           NULL, HFILL}
+        },
+        {&hf_cflow_distinct_count_of_source_ipv4_address,
+          {"Distinct Count Of Source Ipv4 Address", "cflow.distinct_count_of_source_ipv4_address",
+           FT_UINT32, BASE_DEC, NULL, 0x0,
+           NULL, HFILL}
+        },
+        {&hf_cflow_distinct_count_of_destination_ipv4_address,
+          {"Distinct Count Of Destination Ipv4 Address", "cflow.distinct_count_of_destination_ipv4_address",
+           FT_UINT32, BASE_DEC, NULL, 0x0,
+           NULL, HFILL}
+        },
+        {&hf_cflow_distinct_count_of_source_ipv6_address,
+          {"Distinct Count Of Source Ipv6 Address", "cflow.distinct_count_of_source_ipv6_address",
+           FT_UINT64, BASE_DEC, NULL, 0x0,
+           NULL, HFILL}
+        },
+        {&hf_cflow_distinct_count_of_destination_ipv6_address,
+          {"Distinct Count Of Destination Ipv6 Address", "cflow.distinct_count_of_destination_ipv6_address",
+           FT_UINT64, BASE_DEC, NULL, 0x0,
+           NULL, HFILL}
+        },
+        {&hf_cflow_value_distribution_method,
+          {"Value Distribution Method", "cflow.value_distribution_method",
+           FT_UINT8, BASE_DEC, NULL, 0x0,
+           NULL, HFILL}
+        },
+        {&hf_cflow_rfc3550_jitter_milliseconds,
+          {"Rfc3550 Jitter Milliseconds", "cflow.rfc3550_jitter_milliseconds",
+           FT_UINT32, BASE_DEC, NULL, 0x0,
+           NULL, HFILL}
+        },
+        {&hf_cflow_rfc3550_jitter_microseconds,
+          {"Rfc3550 Jitter Microseconds", "cflow.rfc3550_jitter_microseconds",
+           FT_UINT32, BASE_DEC, NULL, 0x0,
+           NULL, HFILL}
+        },
+        {&hf_cflow_rfc3550_jitter_nanoseconds,
+          {"Rfc3550 Jitter Nanoseconds", "cflow.rfc3550_jitter_nanoseconds",
+           FT_UINT32, BASE_DEC, NULL, 0x0,
+           NULL, HFILL}
+        },
+        {&hf_cflow_dot1q_dei,
+          {"Dot1q DEI", "cflow.dot1q_dei",
+           FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+           NULL, HFILL}
+        },
+        {&hf_cflow_dot1q_customer_dei,
+          {"Dot1q Customer DEI", "cflow.dot1q_customer_dei",
+           FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+           NULL, HFILL}
+        },
+        {&hf_cflow_flow_selector_algorithm,
+          {"Flow_Selector_Algorithm", "cflow.flow_selector_algorithm",
+           FT_UINT16, BASE_DEC, NULL, 0x0,
+           NULL, HFILL}
+        },
+        {&hf_cflow_flow_selected_octet_delta_count,
+          {"Flow_Selected_Octet_Delta_Count", "cflow.flow_selected_octet_delta_count",
+           FT_UINT64, BASE_DEC, NULL, 0x0,
+           NULL, HFILL}
+        },
+        {&hf_cflow_flow_selected_packet_delta_count,
+          {"Flow_Selected_Packet_Delta_Count", "cflow.flow_selected_packet_delta_count",
+           FT_UINT64, BASE_DEC, NULL, 0x0,
+           NULL, HFILL}
+        },
+        {&hf_cflow_flow_selected_flow_delta_count,
+          {"Flow_Selected_Flow_Delta_Count", "cflow.flow_selected_flow_delta_count",
+           FT_UINT64, BASE_DEC, NULL, 0x0,
+           NULL, HFILL}
+        },
+        {&hf_cflow_selectorid_total_flows_observed,
+          {"Selectorid_Total_Flows_Observed", "cflow.selectorid_total_flows_observed",
+           FT_UINT64, BASE_DEC, NULL, 0x0,
+           NULL, HFILL}
+        },
+        {&hf_cflow_selectorid_total_flows_selected,
+          {"Selectorid_Total_Flows_Selected", "cflow.selectorid_total_flows_selected",
+           FT_UINT64, BASE_DEC, NULL, 0x0,
+           NULL, HFILL}
+        },
+        {&hf_cflow_sampling_flow_interval,
+          {"Sampling_Flow_Interval", "cflow.sampling_flow_interval",
+           FT_UINT64, BASE_DEC, NULL, 0x0,
+           NULL, HFILL}
+        },
+        {&hf_cflow_sampling_flow_spacing,
+          {"Sampling_Flow_Spacing", "cflow.sampling_flow_spacing",
+           FT_UINT64, BASE_DEC, NULL, 0x0,
+           NULL, HFILL}
+        },
+        {&hf_cflow_flow_sampling_time_interval,
+          {"Flow_Sampling_Time_Interval", "cflow.flow_sampling_time_interval",
+           FT_UINT64, BASE_DEC, NULL, 0x0,
+           NULL, HFILL}
+        },
+        {&hf_cflow_flow_sampling_time_spacing,
+          {"Flow_Sampling_Time_Spacing", "cflow.flow_sampling_time_spacing",
+           FT_UINT64, BASE_DEC, NULL, 0x0,
+           NULL, HFILL}
+        },
+        {&hf_cflow_hash_flow_domain,
+          {"Hash_Flow_Domain", "cflow.hash_flow_domain",
+           FT_UINT16, BASE_DEC, NULL, 0x0,
+           NULL, HFILL}
+        },
+        {&hf_cflow_transport_octet_delta_count,
+          {"Transport_Octet_Delta_Count", "cflow.transport_octet_delta_count",
+           FT_UINT64, BASE_DEC, NULL, 0x0,
+           NULL, HFILL}
+        },
+        {&hf_cflow_transport_packet_delta_count,
+          {"Transport_Packet_Delta_Count", "cflow.transport_packet_delta_count",
+           FT_UINT64, BASE_DEC, NULL, 0x0,
+           NULL, HFILL}
+        },
+        {&hf_cflow_original_exporter_ipv4_address,
+          {"Original_Exporter_Ipv4_Address", "cflow.original_exporter_ipv4_address",
+          FT_IPv4, BASE_NONE, NULL, 0x0,
+           NULL, HFILL}
+        },
+        {&hf_cflow_original_exporter_ipv6_address,
+          {"Original_Exporter_Ipv6_Address", "cflow.original_exporter_ipv6_address",
+           FT_IPv6, BASE_NONE, NULL, 0x0,
+           NULL, HFILL}
+        },
+        {&hf_cflow_original_observation_domain_id,
+          {"Original_Observation_Domain_Id", "cflow.original_observation_domain_id",
+           FT_UINT32, BASE_DEC, NULL, 0x0,
+           NULL, HFILL}
+        },
+        {&hf_cflow_intermediate_process_id,
+          {"Intermediate_Process_Id", "cflow.intermediate_process_id",
+           FT_UINT32, BASE_DEC, NULL, 0x0,
+           NULL, HFILL}
+        },
+        {&hf_cflow_ignored_data_record_total_count,
+          {"Ignored_Data_Record_Total_Count", "cflow.ignored_data_record_total_count",
+           FT_UINT64, BASE_DEC, NULL, 0x0,
+           NULL, HFILL}
+        },
+        {&hf_cflow_data_link_frame_type,
+          {"Data_Link_Frame_Type", "cflow.data_link_frame_type",
+           FT_UINT16, BASE_DEC, NULL, 0x0,
+           NULL, HFILL}
+        },
+        {&hf_cflow_section_offset,
+          {"Section_Offset", "cflow.section_offset",
+           FT_UINT16, BASE_DEC, NULL, 0x0,
+           NULL, HFILL}
+        },
+        {&hf_cflow_section_exported_octets,
+          {"Section_Exported_Octets", "cflow.section_exported_octets",
+           FT_UINT16, BASE_DEC, NULL, 0x0,
+           NULL, HFILL}
+        },
+        {&hf_cflow_dot1q_service_instance_tag,
+          {"Dot1q_Service_Instance_Tag", "cflow.dot1q_service_instance_tag",
+           FT_BYTES, BASE_NONE, NULL, 0x0,
+           NULL, HFILL}
+        },
+        {&hf_cflow_dot1q_service_instance_id,
+          {"Dot1q_Service_Instance_Id", "cflow.dot1q_service_instance_id",
+           FT_UINT32, BASE_DEC, NULL, 0x0,
+           NULL, HFILL}
+        },
+        {&hf_cflow_dot1q_service_instance_priority,
+          {"Dot1q_Service_Instance_Priority", "cflow.dot1q_service_instance_priority",
+           FT_UINT8, BASE_DEC, NULL, 0x0,
+           NULL, HFILL}
+        },
+        {&hf_cflow_dot1q_customer_source_mac_address,
+          {"Dot1q_Customer_Source_Mac_Address", "cflow.dot1q_customer_source_mac_address",
+           FT_ETHER, BASE_NONE, NULL, 0x0,
+           NULL, HFILL}
+        },
+        {&hf_cflow_dot1q_customer_destination_mac_address,
+          {"Dot1q_Customer_Destination_Mac_Address", "cflow.dot1q_customer_destination_mac_address",
+           FT_ETHER, BASE_NONE, NULL, 0x0,
+           NULL, HFILL}
+        },
+        {&hf_cflow_post_layer2_octet_delta_count,
+          {"Post_Layer2_Octet_Delta_Count", "cflow.post_layer2_octet_delta_count",
+           FT_UINT64, BASE_DEC, NULL, 0x0,
+           NULL, HFILL}
+        },
+        {&hf_cflow_postm_cast_layer2_octet_delta_count,
+          {"Postm_Cast_Layer2_Octet_Delta_Count", "cflow.postm_cast_layer2_octet_delta_count",
+           FT_UINT64, BASE_DEC, NULL, 0x0,
+           NULL, HFILL}
+        },
+        {&hf_cflow_post_layer2_octet_total_count,
+          {"Post_Layer2_Octet_Total_Count", "cflow.post_layer2_octet_total_count",
+           FT_UINT64, BASE_DEC, NULL, 0x0,
+           NULL, HFILL}
+        },
+        {&hf_cflow_postm_cast_layer2_octet_total_count,
+          {"Postm_Cast_Layer2_Octet_Total_Count", "cflow.postm_cast_layer2_octet_total_count",
+           FT_UINT64, BASE_DEC, NULL, 0x0,
+           NULL, HFILL}
+        },
+        {&hf_cflow_minimum_layer2_total_length,
+          {"Minimum_Layer2_Total_Length", "cflow.minimum_layer2_total_length",
+           FT_UINT64, BASE_DEC, NULL, 0x0,
+           NULL, HFILL}
+        },
+        {&hf_cflow_maximum_layer2_total_length,
+          {"Maximum_Layer2_Total_Length", "cflow.maximum_layer2_total_length",
+           FT_UINT64, BASE_DEC, NULL, 0x0,
+           NULL, HFILL}
+        },
+        {&hf_cflow_dropped_layer2_octet_delta_count,
+          {"Dropped_Layer2_Octet_Delta_Count", "cflow.dropped_layer2_octet_delta_count",
+           FT_UINT64, BASE_DEC, NULL, 0x0,
+           NULL, HFILL}
+        },
+        {&hf_cflow_dropped_layer2_octet_total_count,
+          {"Dropped_Layer2_Octet_Total_Count", "cflow.dropped_layer2_octet_total_count",
+           FT_UINT64, BASE_DEC, NULL, 0x0,
+           NULL, HFILL}
+        },
+        {&hf_cflow_ignored_layer2_octet_total_count,
+          {"Ignored_Layer2_Octet_Total_Count", "cflow.ignored_layer2_octet_total_count",
+           FT_UINT64, BASE_DEC, NULL, 0x0,
+           NULL, HFILL}
+        },
+        {&hf_cflow_not_sent_layer2_octet_total_count,
+          {"Not_Sent_Layer2_Octet_Total_Count", "cflow.not_sent_layer2_octet_total_count",
+           FT_UINT64, BASE_DEC, NULL, 0x0,
+           NULL, HFILL}
+        },
+        {&hf_cflow_layer2_octet_delta_sum_of_squares,
+          {"Layer2_Octet_Delta_Sum_Of_Squares", "cflow.layer2_octet_delta_sum_of_squares",
+           FT_UINT64, BASE_DEC, NULL, 0x0,
+           NULL, HFILL}
+        },
+        {&hf_cflow_layer2_octet_total_sum_of_squares,
+          {"Layer2_Octet_Total_Sum_Of_Squares", "cflow.layer2_octet_total_sum_of_squares",
+           FT_UINT64, BASE_DEC, NULL, 0x0,
+           NULL, HFILL}
+        },
+        {&hf_cflow_layer2_frame_delta_count,
+          {"Layer2_Frame_Delta_Count", "cflow.layer2_frame_delta_count",
+           FT_UINT64, BASE_DEC, NULL, 0x0,
+           NULL, HFILL}
+        },
+        {&hf_cflow_layer2_frame_total_count,
+          {"Layer2_Frame_Total_Count", "cflow.layer2_frame_total_count",
+           FT_UINT64, BASE_DEC, NULL, 0x0,
+           NULL, HFILL}
+        },
+        {&hf_cflow_pseudo_wire_destination_ipv4_address,
+          {"Pseudo_Wire_Destination_Ipv4_Address", "cflow.pseudo_wire_destination_ipv4_address",
+           FT_IPv4, BASE_NONE, NULL, 0x0,
+           NULL, HFILL}
+        },
+        {&hf_cflow_ignored_layer2_frame_total_count,
+          {"Ignored_Layer2_Frame_Total_Count", "cflow.ignored_layer2_frame_total_count",
+           FT_UINT64, BASE_DEC, NULL, 0x0,
+           NULL, HFILL}
+        },
+
         /*
          * end pdu content storage
          */
