@@ -123,7 +123,9 @@ isdigit_string(guchar *str)
 #endif
 
 /* Given a size, return its value in a human-readable format */
-gchar *format_size(gint64 size, format_size_flags_e flags) {
+gchar *
+format_size(gint64 size, format_size_flags_e flags)
+{
 	GString *human_str = g_string_new("");
 	int power = 1000;
 	int pfx_off = 0;
@@ -171,4 +173,10 @@ gchar *format_size(gint64 size, format_size_flags_e flags) {
 	ret_val = human_str->str;
 	g_string_free(human_str, FALSE);
 	return ret_val;
+}
+
+gchar
+printable_char_or_period(gchar c)
+{
+	return g_ascii_isprint(c) ? c : '.';
 }

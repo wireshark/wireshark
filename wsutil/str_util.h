@@ -107,6 +107,8 @@ typedef enum {
 WS_DLL_PUBLIC
 gchar *format_size(gint64 size, format_size_flags_e flags);
 
+WS_DLL_PUBLIC
+gchar printable_char_or_period(gchar c);
 
 #ifdef __cplusplus
 }

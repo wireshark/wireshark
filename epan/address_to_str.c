@@ -54,6 +54,7 @@
 #include "value_string.h"
 #include "addr_resolv.h"
 #include "wsutil/pint.h"
+#include "wsutil/str_util.h"
 #include "atalk-utils.h"
 #include "sna-utils.h"
 #include "osi-utils.h"
@@ -627,8 +628,12 @@ address_to_str_buf(const address *addr, gchar *buf, int buf_len)
     case AT_AX25:
         addrdata = (const guint8 *)addr->data;
         g_snprintf(buf, buf_len, "%c%c%c%c%c%c-%02d",
-                (addrdata[0] >> 1) & 0x7f, (addrdata[1] >> 1) & 0x7f, (addrdata[2] >> 1) & 0x7f,
-                (addrdata[3] >> 1) & 0x7f, (addrdata[4] >> 1) & 0x7f, (addrdata[5] >> 1) & 0x7f,
+                printable_char_or_period(addrdata[0] >> 1),
+                printable_char_or_period(addrdata[1] >> 1),
+                printable_char_or_period(addrdata[2] >> 1),
+                printable_char_or_period(addrdata[3] >> 1),
+                printable_char_or_period(addrdata[4] >> 1),
+                printable_char_or_period(addrdata[5] >> 1),
                 (addrdata[6] >> 1) & 0x0f );
         break;
     case AT_IEEE_802_15_4_SHORT:
