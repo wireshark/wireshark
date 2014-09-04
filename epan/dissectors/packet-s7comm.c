@@ -959,7 +959,7 @@ s7comm_add_timestamp_to_tree(tvbuff_t *tvb,
                              guint32 offset,
                              gboolean append_text)
 {
-    guint8 time[10];
+    guint8 timestamp[10];
     guint8 i;
     guint8 tmp;
     guint8 year_org;
@@ -971,26 +971,26 @@ s7comm_add_timestamp_to_tree(tvbuff_t *tvb,
 
     /* The low nibble of byte 10 is weekday, the high nibble the LSD of msec */
     for (i = 0;i < 9; i++) {
-        time[i] = s7comm_guint8_from_bcd(tvb_get_guint8(tvb, offset + i));
+        timestamp[i] = s7comm_guint8_from_bcd(tvb_get_guint8(tvb, offset + i));
     }
     tmp = tvb_get_guint8(tvb, offset + 9) >> 4;
-    time[9] = s7comm_guint8_from_bcd(tmp);
+    timestamp[9] = s7comm_guint8_from_bcd(tmp);
 
-    msec = (guint16)time[8] * 10 + (guint16)time[9];
-    year_org = time[1];
+    msec = (guint16)timestamp[8] * 10 + (guint16)timestamp[9];
+    year_org = timestamp[1];
     /* year special: ignore the first byte, since some cpus give 1914 for 2014
      * if second byte is below 89, it's 2000..2089, if over 90 it's 1990..1999
      */
-    if (time[2] < 89) {
-        time[1] = 20;
+    if (timestamp[2] < 89) {
+        timestamp[1] = 20;
     }
     /* convert time to nstime_t */
-    mt.tm_year = (time[1] * 100 + time[2]) - 1900;
-    mt.tm_mon = time[3] - 1;
-    mt.tm_mday = time[4];
-    mt.tm_hour = time[5];
-    mt.tm_min = time[6];
-    mt.tm_sec = time[7];
+    mt.tm_year = (timestamp[1] * 100 + timestamp[2]) - 1900;
+    mt.tm_mon = timestamp[3] - 1;
+    mt.tm_mday = timestamp[4];
+    mt.tm_hour = timestamp[5];
+    mt.tm_min = timestamp[6];
+    mt.tm_sec = timestamp[7];
     mt.tm_isdst = -1;
     tv.secs = mktime(&mt);
     tv.nsecs = msec * 1000000;
@@ -1001,21 +1001,21 @@ s7comm_add_timestamp_to_tree(tvbuff_t *tvb,
     time_tree = proto_item_add_subtree(item, ett_s7comm_data_item);
 
     /* timefunction: s7 timestamp */
-    proto_tree_add_uint(time_tree, hf_s7comm_data_ts_reserved, tvb, offset, 1, time[0]);
+    proto_tree_add_uint(time_tree, hf_s7comm_data_ts_reserved, tvb, offset, 1, timestamp[0]);
     offset += 1;
     proto_tree_add_uint(time_tree, hf_s7comm_data_ts_year1, tvb, offset, 1, year_org);
     offset += 1;
-    proto_tree_add_uint(time_tree, hf_s7comm_data_ts_year2, tvb, offset, 1, time[2]);
+    proto_tree_add_uint(time_tree, hf_s7comm_data_ts_year2, tvb, offset, 1, timestamp[2]);
     offset += 1;
-    proto_tree_add_uint(time_tree, hf_s7comm_data_ts_month, tvb, offset, 1, time[3]);
+    proto_tree_add_uint(time_tree, hf_s7comm_data_ts_month, tvb, offset, 1, timestamp[3]);
     offset += 1;
-    proto_tree_add_uint(time_tree, hf_s7comm_data_ts_day, tvb, offset, 1, time[4]);
+    proto_tree_add_uint(time_tree, hf_s7comm_data_ts_day, tvb, offset, 1, timestamp[4]);
     offset += 1;
-    proto_tree_add_uint(time_tree, hf_s7comm_data_ts_hour, tvb, offset, 1, time[5]);
+    proto_tree_add_uint(time_tree, hf_s7comm_data_ts_hour, tvb, offset, 1, timestamp[5]);
     offset += 1;
-    proto_tree_add_uint(time_tree, hf_s7comm_data_ts_minute, tvb, offset, 1, time[6]);
+    proto_tree_add_uint(time_tree, hf_s7comm_data_ts_minute, tvb, offset, 1, timestamp[6]);
     offset += 1;
-    proto_tree_add_uint(time_tree, hf_s7comm_data_ts_second, tvb, offset, 1, time[7]);
+    proto_tree_add_uint(time_tree, hf_s7comm_data_ts_second, tvb, offset, 1, timestamp[7]);
     offset += 1;
     proto_tree_add_uint(time_tree, hf_s7comm_data_ts_millisecond, tvb, offset, 2, msec);
     proto_tree_add_item(time_tree, hf_s7comm_data_ts_weekday, tvb, offset, 2, ENC_BIG_ENDIAN);
