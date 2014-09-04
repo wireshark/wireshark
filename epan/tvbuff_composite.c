@@ -292,6 +292,9 @@ tvb_composite_finalize(tvbuff_t *tvb)
 		composite->end_offsets[i] = tvb->length - 1;
 		i++;
 	}
+
+	DISSECTOR_ASSERT(composite->tvbs);
+
 	tvb_add_to_chain((tvbuff_t *)composite->tvbs->data, tvb); /* chain composite tvb to first member */
 	tvb->initialized = TRUE;
 }
