@@ -75,9 +75,9 @@ if [ $VALGRIND -eq 1 ]; then
     RUNNER="`dirname $0`/valgrind-wireshark.sh"
     COMMON_ARGS="-b $BIN_DIR $COMMON_ARGS"
     declare -a RUNNER_ARGS=("" "-T")
-    # Valgrind requires more resources, so permit 1.5x memory and 2.5x time
+    # Valgrind requires more resources, so permit 1.5x memory and 3x time
     # (1.5x time is too small for a few large captures in the menagerie)
-    MAX_CPU_TIME=`expr 5 \* $MAX_CPU_TIME / 2`
+    MAX_CPU_TIME=`expr 3 \* $MAX_CPU_TIME`
     MAX_VMEM=`expr 3 \* $MAX_VMEM / 2`
 else
     # Not using valgrind, use regular tshark.
