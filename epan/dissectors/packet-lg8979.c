@@ -28,6 +28,7 @@
 #include <epan/packet.h>
 #include "packet-tcp.h"
 #include <epan/prefs.h>
+#include "packet-rtacser.h"
 
 void proto_register_lg8979(void);
 
@@ -1548,6 +1549,7 @@ proto_reg_handoff_lg8979(void)
 
     lg8979_port = global_lg8979_tcp_port;
 
+    dissector_add_uint("rtacser.data", RTACSER_PAYLOAD_LG8979, lg8979_handle);
 }
 
 /*

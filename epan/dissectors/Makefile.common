@@ -1619,6 +1619,7 @@ DISSECTOR_INCLUDES =	\
 	packet-rquota.h	\
 	packet-rrc.h	\
 	packet-rsvp.h	\
+	packet-rtacser.h	\
 	packet-rtcp.h	\
 	packet-rtp.h	\
 	packet-rtps.h	\

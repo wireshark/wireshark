@@ -62,7 +62,9 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include <epan/decode_as.h>
 #include <wiretap/wtap.h>
+#include "packet-rtacser.h"
 
 void proto_register_rtacser(void);
 
@@ -78,22 +80,16 @@ static int hf_rtacser_ctrl_dtr              = -1;
 static int hf_rtacser_ctrl_ring             = -1;
 static int hf_rtacser_ctrl_mbok             = -1;
 static int hf_rtacser_footer                = -1;
-static int hf_rtacser_data                  = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_rtacser                   = -1;
 static gint ett_rtacser_cl                = -1;
 
 /* Globals for RTAC Serial Preferences */
-static guint global_rtacser_payload_proto = 0; /* No Payload, by default */
+static guint global_rtacser_payload_proto = RTACSER_PAYLOAD_NONE; /* No Payload, by default */
 
-/* Handles for Payload Protocols */
-static dissector_handle_t selfm_handle;
-static dissector_handle_t dnp3_handle;
-static dissector_handle_t modbus_handle;
-static dissector_handle_t synphasor_handle;
-static dissector_handle_t lg8979_handle;
-static dissector_handle_t cp2179_handle;
+static dissector_table_t  subdissector_table;
+static dissector_handle_t data_handle;
 
 #define RTACSER_HEADER_LEN    12
 
@@ -106,7 +102,7 @@ static dissector_handle_t cp2179_handle;
 #define RTACSER_CTRL_RING     0x20
 #define RTACSER_CTRL_MBOK     0x40
 
-/* Payload Protocol Types from Preferences */
+/* Payload Protocol Types */
 #define RTACSER_PAYLOAD_NONE        0
 #define RTACSER_PAYLOAD_SELFM       1
 #define RTACSER_PAYLOAD_DNP3        2
@@ -142,6 +138,17 @@ static const enum_val_t rtacser_payload_proto_type[] = {
   { NULL, NULL, 0 }
 };
 
+static void
+rtacser_ppi_prompt(packet_info *pinfo _U_, gchar* result)
+{
+    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Payload as");
+}
+
+static gpointer
+rtacser_ppi_value(packet_info *pinfo)
+{
+    return p_get_proto_data(pinfo->pool, pinfo, proto_rtacser, 0 );
+}
 
 /******************************************************************************************************/
 /* Code to dissect RTAC Serial-Line Protocol packets */
@@ -150,11 +157,11 @@ static void
 dissect_rtacser_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 /* Set up structures needed to add the protocol subtree and manage it */
-    proto_item    *rtacser_item, *ts_item, *cl_item, *data_payload;
+    proto_item    *rtacser_item, *cl_item;
     proto_tree    *rtacser_tree, *cl_tree;
     int           offset = 0, len;
     guint         event_type;
-    guint32       timestamp1, timestamp2;
+	nstime_t      tv;
     gboolean      cts, dcd, dsr, rts, dtr, ring, mbok;
     tvbuff_t      *payload_tvb;
 
@@ -169,10 +176,9 @@ dissect_rtacser_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* Time-stamp is stored as 2 x 32-bit unsigned integers, the left and right-hand side of the decimal point respectively */
     /* The format mirrors the timeval struct - absolute Epoch time (seconds since 1/1/1970) with an added microsecond component */
-    timestamp1 = tvb_get_ntohl(tvb, offset);
-    timestamp2 = tvb_get_ntohl(tvb, offset+4);
-    ts_item = proto_tree_add_item(rtacser_tree, hf_rtacser_timestamp, tvb, offset, 8, ENC_BIG_ENDIAN);
-    proto_item_set_text(ts_item, "Arrived At Time: %u.%u" , timestamp1, timestamp2);
+    tv.secs = tvb_get_ntohl(tvb, offset);
+    tv.nsecs = tvb_get_ntohl(tvb, offset+4)*1000;
+    proto_tree_add_time(rtacser_tree, hf_rtacser_timestamp, tvb, offset, 8, &tv);
     offset += 8;
 
     /* Set INFO column with RTAC Serial Event Type */
@@ -229,47 +235,14 @@ dissect_rtacser_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_item(rtacser_tree, hf_rtacser_footer, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    /* If no payload dissector has been selected, indicate to the user the preferences options */
-    if ((tvb_reported_length_remaining(tvb, offset) > 0) && (global_rtacser_payload_proto == RTACSER_PAYLOAD_NONE)) {
-        data_payload = proto_tree_add_item(tree, hf_rtacser_data, tvb, offset, -1, ENC_NA);
-        proto_item_set_text(data_payload,"Payload Protocol not selected.  Check 'Preferences-> Protocols-> RTAC Serial' for options");
-        return;
-    }
+    p_add_proto_data(pinfo->pool, pinfo, proto_rtacser, 0, GUINT_TO_POINTER(global_rtacser_payload_proto));
 
-
-    /* Determine correct message type and call appropriate dissector */
     if (tvb_reported_length_remaining(tvb, RTACSER_HEADER_LEN) > 0) {
-
-        switch (global_rtacser_payload_proto) {
-            case RTACSER_PAYLOAD_SELFM:
-                payload_tvb = tvb_new_subset_remaining(tvb, RTACSER_HEADER_LEN);
-                call_dissector(selfm_handle, payload_tvb, pinfo, tree);
-                break;
-            case RTACSER_PAYLOAD_DNP3:
-                payload_tvb = tvb_new_subset_remaining(tvb, RTACSER_HEADER_LEN);
-                call_dissector(dnp3_handle, payload_tvb, pinfo, tree);
-                break;
-            case RTACSER_PAYLOAD_MODBUS:
-                payload_tvb = tvb_new_subset_remaining(tvb, RTACSER_HEADER_LEN);
-                call_dissector(modbus_handle, payload_tvb, pinfo, tree);
-                break;
-            case RTACSER_PAYLOAD_SYNPHASOR:
-                payload_tvb = tvb_new_subset_remaining(tvb, RTACSER_HEADER_LEN);
-                call_dissector(synphasor_handle, payload_tvb, pinfo, tree);
-                break;
-            case RTACSER_PAYLOAD_LG8979:
-                payload_tvb = tvb_new_subset_remaining(tvb, RTACSER_HEADER_LEN);
-                call_dissector(lg8979_handle, payload_tvb, pinfo, tree);
-                break;
-            case RTACSER_PAYLOAD_CP2179:
-                payload_tvb = tvb_new_subset_remaining(tvb, RTACSER_HEADER_LEN);
-                call_dissector(cp2179_handle, payload_tvb, pinfo, tree);
-                break;
-            default:
-                break;
+        payload_tvb = tvb_new_subset_remaining(tvb, RTACSER_HEADER_LEN);
+        if (!dissector_try_uint(subdissector_table, global_rtacser_payload_proto, payload_tvb, pinfo, tree)){
+            call_dissector(data_handle, payload_tvb, pinfo, tree);
         }
     }
-
 }
 
 
@@ -304,7 +277,7 @@ proto_register_rtacser(void)
     /* RTAC Serial Protocol header fields */
     static hf_register_info rtacser_hf[] = {
         { &hf_rtacser_timestamp,
-        { "Timestamp", "rtacser.timestamp", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { "Arrived At Time", "rtacser.timestamp", FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_rtacser_event_type,
         { "Event Type", "rtacser.eventtype", FT_UINT8, BASE_HEX, VALS(rtacser_eventtype_vals), 0x0, NULL, HFILL }},
         { &hf_rtacser_ctrl_cts,
@@ -323,16 +296,18 @@ proto_register_rtacser(void)
         { "MBOK", "rtacser.mbok", FT_UINT8, BASE_DEC, NULL, RTACSER_CTRL_MBOK, NULL, HFILL }},
         { &hf_rtacser_footer,
         { "Footer", "rtacser.footer", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-        { &hf_rtacser_data,
-        { "Payload data", "rtacser.data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-
     };
 
     /* Setup protocol subtree array */
     static gint *ett[] = {
         &ett_rtacser,
         &ett_rtacser_cl,
-   };
+    };
+
+    static build_valid_func rtacser_da_ppi_build_value[1] = {rtacser_ppi_value};
+    static decode_as_value_t rtacser_da_ppi_values[1] = {{rtacser_ppi_prompt, 1, rtacser_da_ppi_build_value}};
+    static decode_as_t rtacser_da_ppi = {"rtacser", "RTAC Serial", "rtacser.data", 1, 0, rtacser_da_ppi_values, "RTAC Serial", NULL,
+                                    decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
 
     module_t *rtacser_module;
 
@@ -341,6 +316,8 @@ proto_register_rtacser(void)
 
     /* Registering protocol to be called by another dissector */
     new_register_dissector("rtacser", dissect_rtacser, proto_rtacser);
+
+    subdissector_table = register_dissector_table("rtacser.data", "RTAC Serial Data Subdissector", FT_UINT32, BASE_HEX);
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_rtacser, rtacser_hf, array_length(rtacser_hf));
@@ -357,7 +334,7 @@ proto_register_rtacser(void)
                                     rtacser_payload_proto_type,
                                     TRUE);
 
-
+    register_decode_as(&rtacser_da_ppi);
 }
 
 /******************************************************************************************************/
@@ -378,15 +355,9 @@ proto_reg_handoff_rtacser(void)
         rtacser_prefs_initialized = TRUE;
     }
 
-    /* Create a handle for each expected payload protocol that can be called via the Preferences */
-    selfm_handle = find_dissector("selfm");
-    dnp3_handle = find_dissector("dnp3.udp");
-    modbus_handle = find_dissector("mbrtu");
-    synphasor_handle = find_dissector("synphasor");
-    lg8979_handle = find_dissector("lg8979");
-    cp2179_handle = find_dissector("cp2179");
-
     dissector_add_uint("wtap_encap", WTAP_ENCAP_RTAC_SERIAL, rtacser_handle);
+
+	data_handle = find_dissector("data");
 }
 
 

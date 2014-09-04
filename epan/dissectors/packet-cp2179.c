@@ -52,7 +52,8 @@ F = 16-bit CRC
 
 #include "config.h"
 #include <epan/packet.h>
-#include <epan/dissectors/packet-tcp.h>
+#include "packet-tcp.h"
+#include "packet-rtacser.h"
 #include <epan/to_str.h>
 #include <epan/conversation.h>
 #include <epan/wmem/wmem.h>
@@ -238,7 +239,7 @@ static int hf_cp2179_number_characters = -1;
 static int hf_cp2179_analog_16bit = -1;
 static int hf_cp2179_accumulator = -1;
 static int hf_cp2179_crc = -1;
-static int hf_cp2179_data_field = -1;
+/* static int hf_cp2179_data_field = -1; */
 static int hf_cp2179_status_byte = -1;
 static int hf_cp2179_port_status_byte = -1;
 static int hf_cp2179_simplestatusbit  = -1;
@@ -1106,13 +1107,14 @@ proto_register_cp2179(void)
             0x0, 0x0,
             NULL, HFILL }
         },
+#if 0
       { &hf_cp2179_data_field,
             { "Data Field", "cp2179.datafield",
             FT_UINT8, BASE_DEC,
             0x0, 0x0,
             NULL, HFILL }
         },
-
+#endif
       { &hf_cp2179_accumulator,
             { "Accumulator", "cp2179.accumulator",
             FT_UINT16, BASE_DEC,
@@ -1401,6 +1403,7 @@ proto_reg_handoff_cp2179(void)
     cp2179_port = global_cp2179_tcp_port;
 
     dissector_add_uint("tcp.port", cp2179_port, cp2179_handle);
+    dissector_add_uint("rtacser.data", RTACSER_PAYLOAD_CP2179, cp2179_handle);
 }
 
 /*

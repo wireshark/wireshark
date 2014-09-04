@@ -38,7 +38,8 @@
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
 #include <epan/wmem/wmem.h>
-#include <epan/dissectors/packet-tcp.h>
+#include "packet-tcp.h"
+#include "packet-rtacser.h"
 #include <epan/conversation.h>
 #include <epan/expert.h>
 #include <epan/to_str.h>
@@ -4439,6 +4440,7 @@ proto_reg_handoff_dnp3(void)
   dnp3_udp_handle = new_create_dissector_handle(dissect_dnp3_udp, proto_dnp3);
   dissector_add_uint("tcp.port", TCP_PORT_DNP, dnp3_tcp_handle);
   dissector_add_uint("udp.port", UDP_PORT_DNP, dnp3_udp_handle);
+  dissector_add_uint("rtacser.data", RTACSER_PAYLOAD_DNP3, dnp3_udp_handle);
 }
 
 /*

@@ -27,10 +27,11 @@
 #include <glib.h>
 #include <epan/conversation.h>
 #include <epan/crc16-tvb.h>
-#include <epan/dissectors/packet-tcp.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/wmem/wmem.h>
+#include "packet-tcp.h"
+#include "packet-rtacser.h"
 
 #include <math.h>
 
@@ -1345,4 +1346,5 @@ void proto_reg_handoff_synphasor(void)
 
 	dissector_add_uint("udp.port", current_udp_port, synphasor_udp_handle);
 	dissector_add_uint("tcp.port", current_tcp_port, synphasor_tcp_handle);
+	dissector_add_uint("rtacser.data", RTACSER_PAYLOAD_SYNPHASOR, synphasor_udp_handle);
 } /* proto_reg_handoff_synphasor() */
