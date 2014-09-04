@@ -33,9 +33,14 @@ since version 1.12.0:
 (up from 100k).
 * tshark now resets its state when changing files in ring-buffer mode.
 * Expert Info severities can now be configured.
+* Wireshark now supports external capture interfaces.  External capture
+interfaces can be anything from a tcpdump-over-ssh pipe to a program that
+captures from proprietary or non-standard hardware.  This functionality is not
+available in the Qt UI yet.
 
 * Qt port:
 
+** The Qt UI is now the default (program name is wireshark).
 ** A Polish translation has been added.
 ** The Interfaces dialog has been added.
 ** The interface list is now updated when interfaces appear or disappear.
@@ -125,6 +130,7 @@ corosync/totemsrp
 ceph
 Stateless Transport Tunneling
 CP 'Cooper' 2179
+S7 Communication
 --sort-and-group--
 
 === Updated Protocol Support

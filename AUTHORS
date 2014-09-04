@@ -3611,6 +3611,10 @@ Qiaoyin Yang <qiaoyin.yang[AT]gmail.com> {
 	Dissector for CP 'Cooper' 2179
 }
 
+Thomas Wiens <th.wiens[AT]gmx.de> {
+	Dissector for S7 Communication
+}
+
 and by:
 
 Georgi Guninski		<guninski[AT]guninski.com>

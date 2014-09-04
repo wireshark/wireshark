@@ -1,4 +1,3 @@
-
                          Wireshark 1.99.0 Release Notes
 
    This is an experimental release intended to test new features for the
@@ -33,7 +32,12 @@ What's New
      * tshark now resets its state when changing files in ring-buffer
        mode.
      * Expert Info severities can now be configured.
+     * Wireshark now supports external capture interfaces. External
+       capture interfaces can be anything from a tcpdump-over-ssh pipe to
+       a program that captures from proprietary or non-standard hardware.
+       This functionality is not available in the Qt UI yet.
      * Qt port:
+          + The Qt UI is now the default (program name is wireshark).
           + A Polish translation has been added.
           + The Interfaces dialog has been added.
           + The interface list is now updated when interfaces appear or
@@ -106,9 +110,9 @@ What's New
 
   New Protocol Support
 
-   ceph, corosync/totemnet, corosync/totemsrp, Generic Network
-   Virtualization Encapsulation (Geneve), IPMI Trace, iSER, OptoMMP, and
-   Stateless Transport Tunneling
+   ceph, corosync/totemnet, corosync/totemsrp, CP Cooper 2179, Generic
+   Network Virtualization Encapsulation (Geneve), IPMI Trace, iSER,
+   OptoMMP, S7 Communication, and Stateless Transport Tunneling
 
   Updated Protocol Support
 
@@ -197,7 +201,7 @@ Frequently Asked Questions
    A complete FAQ is available on the [22]Wireshark web site.
      __________________________________________________________________
 
-   Last updated 2014-08-17 20:04:58 UTC
+   Last updated 2014-09-04 15:30:56 UTC
 
 References
 
