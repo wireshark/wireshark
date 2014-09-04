@@ -949,7 +949,7 @@ int main(int argc, char *argv[])
     }
     g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Translator %s", locale.toStdString().c_str());
     QTranslator translator;
-    translator.load(QString(":/i18n/qtshark_") + locale);
+    translator.load(QString(":/i18n/wireshark_") + locale);
     wsApp->installTranslator(&translator);
 
     QTranslator qtTranslator;
