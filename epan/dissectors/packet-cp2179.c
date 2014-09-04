@@ -716,7 +716,7 @@ static bs_request_frame* copy_bs_request_frame(tvbuff_t *tvb  )
 {
  /* Set up structures needed to add the protocol request and use it for dissecting response packet */
     guint offset = 0;
-    guint8 index=0 ;
+    guint8 idx=0 ;
     bs_request_frame *frame;
     guint16 num_objects=0;
 
@@ -739,8 +739,8 @@ static bs_request_frame* copy_bs_request_frame(tvbuff_t *tvb  )
         frame->requested_points = (guint8 *)wmem_alloc(wmem_file_scope(), num_objects * sizeof(guint8));
 
         /* We have a range of 'request' points */
-        for (index = 0; index < num_objects; index++) {
-            frame->requested_points[index] = startpt;
+        for (idx = 0; idx < num_objects; idx++) {
+            frame->requested_points[idx] = startpt;
             startpt++;
         }
         /* offset += 2; */
@@ -749,8 +749,8 @@ static bs_request_frame* copy_bs_request_frame(tvbuff_t *tvb  )
     else {
         num_objects = frame->numberofcharacters;
         frame->requested_points = (guint8 *)wmem_alloc(wmem_file_scope(), num_objects * sizeof(guint8));
-        for (index = 0; index < num_objects; index++) {
-            frame->requested_points[index] = tvb_get_guint8(tvb, offset);
+        for (idx = 0; idx < num_objects; idx++) {
+            frame->requested_points[idx] = tvb_get_guint8(tvb, offset);
             offset += 1;
         }
 
