@@ -1041,33 +1041,33 @@
     <message numerus="yes">
         <location filename="follow_stream_dialog.cpp" line="145"/>
         <source>%Ln client pkt(s), </source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%Ln クライアントパケット, </numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <location filename="follow_stream_dialog.cpp" line="146"/>
         <source>%Ln server pkt(s), </source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%Ln サーバーパケット, </numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <location filename="follow_stream_dialog.cpp" line="147"/>
         <source>%Ln turn(s).</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%Ln ターン.</numerusform>
         </translation>
     </message>
     <message>
         <location filename="follow_stream_dialog.cpp" line="818"/>
         <source>No capture file.</source>
-        <translation type="unfinished"></translation>
+        <translation>キャプチャファイルがありません</translation>
     </message>
     <message>
         <location filename="follow_stream_dialog.cpp" line="818"/>
         <source>Please make sure you have a capture file opened.</source>
-        <translation type="unfinished"></translation>
+        <translation>キャプチャファイルが開かれているか確認してください</translation>
     </message>
     <message>
         <location filename="follow_stream_dialog.cpp" line="824"/>
@@ -1075,60 +1075,60 @@
         <location filename="follow_stream_dialog.cpp" line="841"/>
         <location filename="follow_stream_dialog.cpp" line="849"/>
         <source>Error following stream.</source>
-        <translation type="unfinished"></translation>
+        <translation>ストリーム分析のエラー</translation>
     </message>
     <message>
         <location filename="follow_stream_dialog.cpp" line="824"/>
         <source>Capture file invalid.</source>
-        <translation type="unfinished"></translation>
+        <translation>キャプチャファイルが無効です</translation>
     </message>
     <message>
         <location filename="follow_stream_dialog.cpp" line="834"/>
         <source>Please make sure you have a TCP packet selected.</source>
-        <translation type="unfinished"></translation>
+        <translation>TCPパケットを選んだか確認してください</translation>
     </message>
     <message>
         <location filename="follow_stream_dialog.cpp" line="841"/>
         <source>Please make sure you have a UDP packet selected.</source>
-        <translation type="unfinished"></translation>
+        <translation>UDPパケットを選んだか確認してください</translation>
     </message>
     <message>
         <location filename="follow_stream_dialog.cpp" line="850"/>
         <source>Please make sure you have an SSL packet selected.</source>
-        <translation type="unfinished"></translation>
+        <translation>SSLパケットを選んだか確認してください</translation>
     </message>
     <message>
         <location filename="follow_stream_dialog.cpp" line="870"/>
         <source>Error creating filter for this stream.</source>
-        <translation type="unfinished"></translation>
+        <translation>このストリームのフィルタ作成エラー</translation>
     </message>
     <message>
         <location filename="follow_stream_dialog.cpp" line="871"/>
         <source>A transport or network layer header is needed.</source>
-        <translation type="unfinished"></translation>
+        <translation>トランスポート層かネットワーク層のヘッダーが必要です。</translation>
     </message>
     <message numerus="yes">
         <location filename="follow_stream_dialog.cpp" line="928"/>
         <source>%Ln total stream(s).</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%Ln 全ストリーム</numerusform>
         </translation>
     </message>
     <message>
         <location filename="follow_stream_dialog.cpp" line="1003"/>
         <source>Could not read from temporary file %1: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>一時ファイルから読み込めませんでした。 %1: %2</translation>
     </message>
     <message>
         <location filename="follow_stream_dialog.cpp" line="1008"/>
         <location filename="follow_stream_dialog.cpp" line="1239"/>
         <source>Short read from temporary file %1: expected %2, got %3</source>
-        <translation type="unfinished"></translation>
+        <translation>一時ファイルから一部を読み込みました。 %1: 予想 %2, 実際 %3</translation>
     </message>
     <message>
         <location filename="follow_stream_dialog.cpp" line="1291"/>
         <source>Error reading temporary file</source>
-        <translation type="unfinished"></translation>
+        <translation>一時ファイル読み込みエラー</translation>
     </message>
 </context>
 <context>
@@ -1136,62 +1136,62 @@
     <message>
         <location filename="font_color_preferences_frame.ui" line="20"/>
         <source>Frame</source>
-        <translation type="unfinished"></translation>
+        <translation>フレーム</translation>
     </message>
     <message>
         <location filename="font_color_preferences_frame.ui" line="31"/>
         <source>Main window font:</source>
-        <translation type="unfinished"></translation>
+        <translation>メインウインドウのフォント:</translation>
     </message>
     <message>
         <location filename="font_color_preferences_frame.ui" line="38"/>
         <source>Select Font</source>
-        <translation type="unfinished"></translation>
+        <translation>フォントの選択</translation>
     </message>
     <message>
         <location filename="font_color_preferences_frame.ui" line="70"/>
         <source>Colors:</source>
-        <translation type="unfinished"></translation>
+        <translation>色:</translation>
     </message>
     <message>
         <location filename="font_color_preferences_frame.ui" line="89"/>
         <source>Sample ignored packet text</source>
-        <translation type="unfinished"></translation>
+        <translation>サンプルの無視されたパケット テキスト</translation>
     </message>
     <message>
         <location filename="font_color_preferences_frame.ui" line="109"/>
         <source>Sample marked packet text</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">サンプルのマークされたパケット テキスト</translation>
     </message>
     <message>
         <location filename="font_color_preferences_frame.ui" line="129"/>
         <source>Sample &quot;Follow Stream&quot; client text</source>
-        <translation type="unfinished"></translation>
+        <translation>サンプル &quot;ストリーム分析&quot; クライアント テキスト</translation>
     </message>
     <message>
         <location filename="font_color_preferences_frame.ui" line="149"/>
         <source>Sample &quot;Follow Stream&quot; server text</source>
-        <translation type="unfinished"></translation>
+        <translation>サンプル &quot;ストリーム分析&quot; サーバ テキスト</translation>
     </message>
     <message>
         <location filename="font_color_preferences_frame.ui" line="199"/>
         <source>Sample valid filter</source>
-        <translation type="unfinished"></translation>
+        <translation>サンプル有効フィルタ</translation>
     </message>
     <message>
         <location filename="font_color_preferences_frame.ui" line="209"/>
         <source>Sample invalid filter</source>
-        <translation type="unfinished"></translation>
+        <translation>サンプルの無効フィルタ</translation>
     </message>
     <message>
         <location filename="font_color_preferences_frame.ui" line="219"/>
         <source>Sample deprecated filter</source>
-        <translation type="unfinished"></translation>
+        <translation>サンプルの非推奨フィルタ</translation>
     </message>
     <message>
         <location filename="font_color_preferences_frame.cpp" line="189"/>
         <source>Wireshark: Font</source>
-        <translation type="unfinished"></translation>
+        <translation>Wireshark: フォント</translation>
     </message>
 </context>
 <context>
@@ -1199,7 +1199,7 @@
     <message>
         <location filename="io_graph_dialog.cpp" line="1715"/>
         <source>Unknown</source>
-        <translation type="unfinished"></translation>
+        <translation>不明</translation>
     </message>
 </context>
 <context>
@@ -1207,7 +1207,7 @@
     <message>
         <location filename="io_graph_dialog.ui" line="14"/>
         <source>Dialog</source>
-        <translation type="unfinished"></translation>
+        <translation>ダイアログ</translation>
     </message>
     <message utf8="true">
         <location filename="io_graph_dialog.ui" line="30"/>
@@ -1237,167 +1237,192 @@
 
 &lt;/tbody&gt;&lt;/table&gt;
 &lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
+
+&lt;h3&gt;非常に役に立つキーボードショートカット&lt;/h3&gt;
+&lt;table&gt;&lt;tbody&gt;
+
+&lt;tr&gt;&lt;th&gt;+&lt;/th&gt;&lt;td&gt;ズームイン&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;-&lt;/th&gt;&lt;td&gt;ズームアウト&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;0&lt;/th&gt;&lt;td&gt;グラフを初期状態にリセット&lt;/td&gt;&lt;/th&gt;
+
+&lt;tr&gt;&lt;th&gt;→&lt;/th&gt;&lt;td&gt;右に10ピクセル移動&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;←&lt;/th&gt;&lt;td&gt;左に10ピクセル移動&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;↑&lt;/th&gt;&lt;td&gt;上に10ピクセル移動&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;↓&lt;/th&gt;&lt;td&gt;下に10ピクセル移動&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;→&lt;/th&gt;&lt;td&gt;右に1ピクセル移動&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;←&lt;/th&gt;&lt;td&gt;左に1ピクセル移動&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;↑&lt;/th&gt;&lt;td&gt;上に1ピクセル移動&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;↓&lt;/th&gt;&lt;td&gt;下に1ピクセル移動&lt;/td&gt;&lt;/th&gt;
+
+&lt;tr&gt;&lt;th&gt;g&lt;/th&gt;&lt;td&gt;カーソルの下のパケットに移動&lt;/td&gt;&lt;/th&gt;
+
+&lt;tr&gt;&lt;th&gt;z&lt;/th&gt;&lt;td&gt;マウスのドラッグとズームの切替&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;t&lt;/th&gt;&lt;td&gt;キャプチャ時間と元のセッション時間の切替&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;Space&lt;/th&gt;&lt;td&gt;十字表示の切替&lt;/td&gt;&lt;/th&gt;
+
+&lt;/tbody&gt;&lt;/table&gt;
+&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.ui" line="72"/>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation>名前</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.ui" line="77"/>
         <source>Display filter</source>
-        <translation type="unfinished"></translation>
+        <translation>表示フィルタ</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.ui" line="82"/>
         <source>Color</source>
-        <translation type="unfinished"></translation>
+        <translation>色</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.ui" line="87"/>
         <source>Style</source>
-        <translation type="unfinished"></translation>
+        <translation>スタイル</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.ui" line="92"/>
         <source>Y Axis</source>
-        <translation type="unfinished"></translation>
+        <translation>Y軸</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.ui" line="97"/>
         <source>Y Field</source>
-        <translation type="unfinished"></translation>
+        <translation>Y フィールド</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.ui" line="102"/>
         <source>Smoothing</source>
-        <translation type="unfinished"></translation>
+        <translation>スムーズ化</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.ui" line="112"/>
         <source>Change the dissection behavior for a protocol.</source>
-        <translation type="unfinished"></translation>
+        <translation>プロトコルに対して解析の振る舞いを変更</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.ui" line="126"/>
         <source>Remove this dissection behavior.</source>
-        <translation type="unfinished"></translation>
+        <translation>この解析の振る舞いを削除</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.ui" line="137"/>
         <source>Copy this dissection behavior.</source>
-        <translation type="unfinished"></translation>
+        <translation>この解析の振る舞いをコピー</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.ui" line="164"/>
         <source>Mouse</source>
-        <translation type="unfinished"></translation>
+        <translation>マウス</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.ui" line="171"/>
         <source>Drag using the mouse button.</source>
-        <translation type="unfinished"></translation>
+        <translation>マウスボタンを使ってドラッグ</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.ui" line="174"/>
         <source>drags</source>
-        <translation type="unfinished"></translation>
+        <translation>ドラッグ</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.ui" line="184"/>
         <source>Select using the mouse button.</source>
-        <translation type="unfinished"></translation>
+        <translation>マウスボタンを使うことを選択</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.ui" line="187"/>
         <source>zooms</source>
-        <translation type="unfinished"></translation>
+        <translation>ズーム</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.ui" line="210"/>
         <source>Interval</source>
-        <translation type="unfinished"></translation>
+        <translation>インターバル</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.ui" line="233"/>
         <source>Time of day</source>
-        <translation type="unfinished"></translation>
+        <translation>１日の中の時間</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.ui" line="253"/>
         <source>Log scale</source>
-        <translation type="unfinished"></translation>
+        <translation>ログのスケール</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.ui" line="273"/>
         <source>Reset</source>
-        <translation type="unfinished"></translation>
+        <translation>リセット</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.ui" line="292"/>
         <source>Reset Graph</source>
-        <translation type="unfinished"></translation>
+        <translation>グラフをリセット</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.ui" line="295"/>
         <source>Reset the graph to its initial state.</source>
-        <translation type="unfinished"></translation>
+        <translation>グラフを初期状態にリセット</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.ui" line="298"/>
         <source>0</source>
-        <translation type="unfinished"></translation>
+        <translation>0</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.ui" line="303"/>
         <location filename="io_graph_dialog.ui" line="306"/>
         <source>Zoom In</source>
-        <translation type="unfinished"></translation>
+        <translation>ズームイン</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.ui" line="309"/>
         <source>+</source>
-        <translation type="unfinished"></translation>
+        <translation>+</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.ui" line="314"/>
         <location filename="io_graph_dialog.ui" line="317"/>
         <source>Zoom Out</source>
-        <translation type="unfinished"></translation>
+        <translation>ズームアウト</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.ui" line="320"/>
         <source>-</source>
-        <translation type="unfinished"></translation>
+        <translation>-</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.ui" line="325"/>
         <location filename="io_graph_dialog.ui" line="328"/>
         <source>Move Up 10 Pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>上に10ピクセル移動</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.ui" line="331"/>
         <source>Up</source>
-        <translation type="unfinished"></translation>
+        <translation>上</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.ui" line="336"/>
         <location filename="io_graph_dialog.ui" line="339"/>
         <source>Move Left 10 Pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>左に10ピクセル移動</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.ui" line="342"/>
         <source>Left</source>
-        <translation type="unfinished"></translation>
+        <translation>左</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.ui" line="347"/>
         <location filename="io_graph_dialog.ui" line="350"/>
         <source>Move Right 10 Pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>右に10ピクセル移動</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.ui" line="353"/>
@@ -1408,255 +1433,255 @@
         <location filename="io_graph_dialog.ui" line="358"/>
         <location filename="io_graph_dialog.ui" line="361"/>
         <source>Move Down 10 Pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>下に10ピクセル移動</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.ui" line="364"/>
         <source>Down</source>
-        <translation type="unfinished"></translation>
+        <translation>下</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.ui" line="369"/>
         <location filename="io_graph_dialog.ui" line="372"/>
         <source>Move Up 1 Pixel</source>
-        <translation type="unfinished"></translation>
+        <translation>上に1ピクセル移動</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.ui" line="375"/>
         <source>Shift+Up</source>
-        <translation type="unfinished"></translation>
+        <translation>Shift+上</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.ui" line="380"/>
         <location filename="io_graph_dialog.ui" line="383"/>
         <source>Move Left 1 Pixel</source>
-        <translation type="unfinished"></translation>
+        <translation>左に1ピクセル移動</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.ui" line="386"/>
         <source>Shift+Left</source>
-        <translation type="unfinished"></translation>
+        <translation>Shift+左</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.ui" line="391"/>
         <location filename="io_graph_dialog.ui" line="394"/>
         <source>Move Right 1 Pixel</source>
-        <translation type="unfinished"></translation>
+        <translation>1ピクセル右に移動</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.ui" line="397"/>
         <source>Shift+Right</source>
-        <translation type="unfinished"></translation>
+        <translation>Shift+右</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.ui" line="402"/>
         <source>Move Down 1 Pixel</source>
-        <translation type="unfinished"></translation>
+        <translation>下に1ピクセル移動</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.ui" line="405"/>
         <source>Move down 1 Pixel</source>
-        <translation type="unfinished"></translation>
+        <translation>下に1ピクセル移動</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.ui" line="408"/>
         <source>Shift+Down</source>
-        <translation type="unfinished"></translation>
+        <translation>Shift+下</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.ui" line="413"/>
         <source>Go To Packet Under Cursor</source>
-        <translation type="unfinished"></translation>
+        <translation>カーソルの下のパケットに移動</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.ui" line="416"/>
         <source>Go to packet currently under the cursor</source>
-        <translation type="unfinished"></translation>
+        <translation>現在カーソルの下のパケットに移動</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.ui" line="419"/>
         <source>G</source>
-        <translation type="unfinished"></translation>
+        <translation>G</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.ui" line="424"/>
         <source>Drag / Zoom</source>
-        <translation type="unfinished"></translation>
+        <translation>ドラッグ / ズーム</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.ui" line="427"/>
         <source>Toggle mouse drag / zoom behavior</source>
-        <translation type="unfinished"></translation>
+        <translation>マウスのドラッグ/ズームの振る舞いを切替</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.ui" line="430"/>
         <source>Z</source>
-        <translation type="unfinished"></translation>
+        <translation>Z</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.ui" line="435"/>
         <source>Capture / Session Time Origin</source>
-        <translation type="unfinished"></translation>
+        <translation>キャプチャ / 元のセッション時間</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.ui" line="438"/>
         <source>Toggle capture / session time origin</source>
-        <translation type="unfinished"></translation>
+        <translation>キャプチャ / 元のセッション時間 の切替</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.ui" line="441"/>
         <source>T</source>
-        <translation type="unfinished"></translation>
+        <translation>T</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.ui" line="446"/>
         <source>Crosshairs</source>
-        <translation type="unfinished"></translation>
+        <translation>十字</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.ui" line="449"/>
         <source>Toggle crosshairs</source>
-        <translation type="unfinished"></translation>
+        <translation>十字の表示切替</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.ui" line="452"/>
         <source>Space</source>
-        <translation type="unfinished"></translation>
+        <translation>スペース</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.cpp" line="206"/>
         <source>Save As...</source>
-        <translation type="unfinished"></translation>
+        <translation>...として保存</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.cpp" line="213"/>
         <source>0.001 sec</source>
-        <translation type="unfinished"></translation>
+        <translation>0.001 秒</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.cpp" line="214"/>
         <source>0.01 sec</source>
-        <translation type="unfinished"></translation>
+        <translation>0.01 秒</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.cpp" line="215"/>
         <source>0.1 sec</source>
-        <translation type="unfinished"></translation>
+        <translation>0.1 秒</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.cpp" line="216"/>
         <source>1 sec</source>
-        <translation type="unfinished"></translation>
+        <translation>1 秒</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.cpp" line="217"/>
         <source>10 sec</source>
-        <translation type="unfinished"></translation>
+        <translation>10 秒</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.cpp" line="218"/>
         <source>1 min</source>
-        <translation type="unfinished"></translation>
+        <translation>1 分</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.cpp" line="219"/>
         <source>10 min</source>
-        <translation type="unfinished"></translation>
+        <translation>10 分</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.cpp" line="245"/>
         <source>Time (s)</source>
-        <translation type="unfinished"></translation>
+        <translation>時間 (秒)</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.cpp" line="250"/>
         <source>Wireshark IO Graphs: </source>
-        <translation type="unfinished"></translation>
+        <translation>Wireshark IOグラフ: </translation>
     </message>
     <message>
         <location filename="io_graph_dialog.cpp" line="254"/>
         <source>No Capture Data</source>
-        <translation type="unfinished"></translation>
+        <translation>キャプチャデータがありません</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.cpp" line="381"/>
         <source>All packets</source>
-        <translation type="unfinished"></translation>
+        <translation>すべてのパケット</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.cpp" line="385"/>
         <source>TCP errors</source>
-        <translation type="unfinished"></translation>
+        <translation>TCPエラー</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.cpp" line="822"/>
         <source>Hover over the graph for details.</source>
-        <translation type="unfinished"></translation>
+        <translation>グラフの詳細はマウスを載せてください</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.cpp" line="824"/>
         <source>No packets in interval</source>
-        <translation type="unfinished"></translation>
+        <translation>この間隔にパケットはありません</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.cpp" line="828"/>
         <source>%1 %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 %2</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.cpp" line="829"/>
         <source>Click to select packet</source>
-        <translation type="unfinished"></translation>
+        <translation>クリックしてパケットを選んでください</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.cpp" line="829"/>
         <source>Packet</source>
-        <translation type="unfinished"></translation>
+        <translation>パケット</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.cpp" line="833"/>
         <source>%1 (%2s%3).</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 (%2s%3).</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.cpp" line="844"/>
         <source>Release to zoom, x = %1 to %2, y = %3 to %4</source>
-        <translation type="unfinished"></translation>
+        <translation>離してズーム, x = %1 から %2, y = %3 から %4</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.cpp" line="850"/>
         <source>Unable to select range.</source>
-        <translation type="unfinished"></translation>
+        <translation>範囲を選択できません</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.cpp" line="853"/>
         <source>Click to select a portion of the graph.</source>
-        <translation type="unfinished"></translation>
+        <translation>クリックしてグラフの割合を選びます</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.cpp" line="1468"/>
         <source>Portable Document Format (*.pdf)</source>
-        <translation type="unfinished"></translation>
+        <translation>PDF形式 (*.pdf)</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.cpp" line="1469"/>
         <source>Portable Network Graphics (*.png)</source>
-        <translation type="unfinished"></translation>
+        <translation>PNG形式 (*.png)</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.cpp" line="1470"/>
         <source>Windows Bitmap (*.bmp)</source>
-        <translation type="unfinished"></translation>
+        <translation>ビットマップ形式 (*.bmp)</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.cpp" line="1472"/>
         <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
-        <translation type="unfinished"></translation>
+        <translation>JPEG形式 (*.jpeg *.jpg)</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.cpp" line="1483"/>
         <source>Wireshark: Save Graph As...</source>
-        <translation type="unfinished"></translation>
+        <translation>...としてグラフを保存</translation>
     </message>
 </context>
 <context>
@@ -1664,259 +1689,259 @@
     <message>
         <location filename="import_text_dialog.ui" line="26"/>
         <source>Wireshark: Import from Hex Dump</source>
-        <translation type="unfinished"></translation>
+        <translation>Wireshark: 16進数ダンプからインポート</translation>
     </message>
     <message>
         <location filename="import_text_dialog.ui" line="41"/>
         <source>Import From</source>
-        <translation type="unfinished"></translation>
+        <translation>...からインポート</translation>
     </message>
     <message>
         <location filename="import_text_dialog.ui" line="49"/>
         <source>File:</source>
-        <translation type="unfinished"></translation>
+        <translation>ファイル:</translation>
     </message>
     <message>
         <location filename="import_text_dialog.ui" line="62"/>
         <source>Set name of text file to import</source>
-        <translation type="unfinished"></translation>
+        <translation>インポートするテキストファイルの名前を指定</translation>
     </message>
     <message>
         <location filename="import_text_dialog.ui" line="69"/>
         <source>Browse for text file to import</source>
-        <translation type="unfinished"></translation>
+        <translation>インポートするテキストファイルを参照してください</translation>
     </message>
     <message>
         <location filename="import_text_dialog.ui" line="72"/>
         <source>Browse...</source>
-        <translation type="unfinished"></translation>
+        <translation>...を参照</translation>
     </message>
     <message>
         <location filename="import_text_dialog.ui" line="83"/>
         <source>Offsets in the text file are in octal notation</source>
-        <translation type="unfinished"></translation>
+        <translation>テキストファイルのオフセットは8進数表記です。</translation>
     </message>
     <message>
         <location filename="import_text_dialog.ui" line="86"/>
         <source>Octal</source>
-        <translation type="unfinished"></translation>
+        <translation>8進数</translation>
     </message>
     <message>
         <location filename="import_text_dialog.ui" line="93"/>
         <source>Offsets:</source>
-        <translation type="unfinished"></translation>
+        <translation>オフセット:</translation>
     </message>
     <message>
         <location filename="import_text_dialog.ui" line="100"/>
         <source>Offsets in the text file are in hexadecimal notation</source>
-        <translation type="unfinished"></translation>
+        <translation>テキストファイルのオフセットは16進数表記です。</translation>
     </message>
     <message>
         <location filename="import_text_dialog.ui" line="103"/>
         <source>Hexadecimal</source>
-        <translation type="unfinished"></translation>
+        <translation>16進数</translation>
     </message>
     <message>
         <location filename="import_text_dialog.ui" line="113"/>
         <source>Offsets in the text file are in decimal notation</source>
-        <translation type="unfinished"></translation>
+        <translation>テキストファイルのオフセットは10進数表記です。</translation>
     </message>
     <message>
         <location filename="import_text_dialog.ui" line="116"/>
         <source>Decimal</source>
-        <translation type="unfinished"></translation>
+        <translation>10進数</translation>
     </message>
     <message>
         <location filename="import_text_dialog.ui" line="140"/>
         <location filename="import_text_dialog.ui" line="150"/>
         <source>The format in which to parse timestamps in the text file (eg. %H:%M:%S.). Format specifiers are based on strptime(3)</source>
-        <translation type="unfinished"></translation>
+        <translation>時刻を解析する形式（例えば%H:%M:%S）時刻の形式の仕様はstrptime(3)に基づきます。</translation>
     </message>
     <message>
         <location filename="import_text_dialog.ui" line="143"/>
         <source>Timestamp format:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">時刻記録形式:</translation>
     </message>
     <message>
         <location filename="import_text_dialog.ui" line="179"/>
         <location filename="import_text_dialog.ui" line="189"/>
         <source>Whether or not the file contains information indicating the direction (inbound or outbound) of the packet.</source>
-        <translation type="unfinished"></translation>
+        <translation>ファイルにパケットの向き（入力や出力）を示す情報が含まれていてもいなくても</translation>
     </message>
     <message>
         <location filename="import_text_dialog.ui" line="182"/>
         <source>Direction indication:</source>
-        <translation type="unfinished"></translation>
+        <translation>示している向き</translation>
     </message>
     <message>
         <location filename="import_text_dialog.ui" line="201"/>
         <source>Maximum frame length:</source>
-        <translation type="unfinished"></translation>
+        <translation>最大フレーム長:</translation>
     </message>
     <message>
         <location filename="import_text_dialog.ui" line="208"/>
         <source>The maximum size of the frames to write to the import capture file (max 64000)</source>
-        <translation type="unfinished"></translation>
+        <translation>インポートしたキャプチャファイルへ書き込む最大のフレームサイズ（最大64000)</translation>
     </message>
     <message>
         <location filename="import_text_dialog.ui" line="227"/>
         <source>Encapsulation</source>
-        <translation type="unfinished"></translation>
+        <translation>カプセル化</translation>
     </message>
     <message>
         <location filename="import_text_dialog.ui" line="238"/>
         <source>Encapsulation Type:</source>
-        <translation type="unfinished"></translation>
+        <translation>カプセル化の種別</translation>
     </message>
     <message>
         <location filename="import_text_dialog.ui" line="245"/>
         <source>Encapsulation type of the frames in the import capture file</source>
-        <translation type="unfinished"></translation>
+        <translation>インポートしたキャプチャファイルのフレームのカプセル化の種別</translation>
     </message>
     <message>
         <location filename="import_text_dialog.ui" line="269"/>
         <source>The UDP, TCP or SCTP source port for each frame</source>
-        <translation type="unfinished"></translation>
+        <translation>フレーム毎のUDP/TCP/SCTP送信元ポート</translation>
     </message>
     <message>
         <location filename="import_text_dialog.ui" line="276"/>
         <source>The SCTP DATA payload protocol identifier for each frame</source>
-        <translation type="unfinished"></translation>
+        <translation>フレーム毎のSCTPデータペイロード部のプロトコル識別子</translation>
     </message>
     <message>
         <location filename="import_text_dialog.ui" line="283"/>
         <source>The UDP, TCP or SCTP destination port for each frame</source>
-        <translation type="unfinished"></translation>
+        <translation>フレーム毎のUDP/TCP/SCTP宛先ポート</translation>
     </message>
     <message>
         <location filename="import_text_dialog.ui" line="290"/>
         <source>Prefix each frame with an Ethernet header</source>
-        <translation type="unfinished"></translation>
+        <translation>Ethernetヘッダに伴う各フレームのプレフィックス</translation>
     </message>
     <message>
         <location filename="import_text_dialog.ui" line="293"/>
         <source>Ethernet</source>
-        <translation type="unfinished"></translation>
+        <translation>Ethernet</translation>
     </message>
     <message>
         <location filename="import_text_dialog.ui" line="300"/>
         <source>Prefix each frame with an Ethernet, IPv4 and SCTP header</source>
-        <translation type="unfinished"></translation>
+        <translation>Ethernet、IPv4、SCTPヘッダの各フレームのプレフィックス</translation>
     </message>
     <message>
         <location filename="import_text_dialog.ui" line="303"/>
         <source>SCTP</source>
-        <translation type="unfinished"></translation>
+        <translation>SCTP</translation>
     </message>
     <message>
         <location filename="import_text_dialog.ui" line="310"/>
         <source>PPI:</source>
-        <translation type="unfinished"></translation>
+        <translation>PPI:</translation>
     </message>
     <message>
         <location filename="import_text_dialog.ui" line="317"/>
         <source>Protocol (dec):</source>
-        <translation type="unfinished"></translation>
+        <translation>プロトコル(十進数):</translation>
     </message>
     <message>
         <location filename="import_text_dialog.ui" line="324"/>
         <source>Leave frames unchanged</source>
-        <translation type="unfinished"></translation>
+        <translation>フレームを変更せずに終わる</translation>
     </message>
     <message>
         <location filename="import_text_dialog.ui" line="327"/>
         <source>No dummy header</source>
-        <translation type="unfinished"></translation>
+        <translation>仮ヘッダなし</translation>
     </message>
     <message>
         <location filename="import_text_dialog.ui" line="350"/>
         <source>Tag:</source>
-        <translation type="unfinished"></translation>
+        <translation>タグ:</translation>
     </message>
     <message>
         <location filename="import_text_dialog.ui" line="357"/>
         <source>Prefix each frame with an Ethernet, IPv4 and UDP header</source>
-        <translation type="unfinished"></translation>
+        <translation>Ethernet、IPv4、UDPヘッダの各フレームのプレフィックス</translation>
     </message>
     <message>
         <location filename="import_text_dialog.ui" line="360"/>
         <source>UDP</source>
-        <translation type="unfinished"></translation>
+        <translation>UDP</translation>
     </message>
     <message>
         <location filename="import_text_dialog.ui" line="367"/>
         <source>Source port:</source>
-        <translation type="unfinished"></translation>
+        <translation>送信元ポート:</translation>
     </message>
     <message>
         <location filename="import_text_dialog.ui" line="374"/>
         <source>The Ethertype value of each frame</source>
-        <translation type="unfinished"></translation>
+        <translation>各フレームごとのイーサタイプの値</translation>
     </message>
     <message>
         <location filename="import_text_dialog.ui" line="384"/>
         <source>Prefix each frame with an Ethernet, IPv4 and TCP header</source>
-        <translation type="unfinished"></translation>
+        <translation>Ethernet、IPv4、TCPヘッダの各フレームのプレフィックス</translation>
     </message>
     <message>
         <location filename="import_text_dialog.ui" line="387"/>
         <source>TCP</source>
-        <translation type="unfinished"></translation>
+        <translation>TCP</translation>
     </message>
     <message>
         <location filename="import_text_dialog.ui" line="394"/>
         <source>The SCTP verification tag for each frame</source>
-        <translation type="unfinished"></translation>
+        <translation>各フレームのSCTP確認タグ</translation>
     </message>
     <message>
         <location filename="import_text_dialog.ui" line="401"/>
         <source>Destination port:</source>
-        <translation type="unfinished"></translation>
+        <translation>宛先ポート:</translation>
     </message>
     <message>
         <location filename="import_text_dialog.ui" line="408"/>
         <source>Ethertype (hex):</source>
-        <translation type="unfinished"></translation>
+        <translation>イーサタイプ(16進数):</translation>
     </message>
     <message>
         <location filename="import_text_dialog.ui" line="415"/>
         <source>The IPv4 protocol ID for each frame</source>
-        <translation type="unfinished"></translation>
+        <translation>各フレームのIPv4プロトコル識別子</translation>
     </message>
     <message>
         <location filename="import_text_dialog.ui" line="422"/>
         <source>Prefix each frame with an Ethernet, IPv4 and SCTP (DATA) header</source>
-        <translation type="unfinished"></translation>
+        <translation>Ethernet、IPv4、SCTP(データ)ヘッダの各フレームのプレフィックス</translation>
     </message>
     <message>
         <location filename="import_text_dialog.ui" line="425"/>
         <source>SCTP (Data)</source>
-        <translation type="unfinished"></translation>
+        <translation>SCTP(データ)</translation>
     </message>
     <message>
         <location filename="import_text_dialog.ui" line="432"/>
         <source>Prefix each frame with an Ethernet and IPv4 header</source>
-        <translation type="unfinished"></translation>
+        <translation>Ethernet、IPv4ヘッダの各フレームのプレフィックス</translation>
     </message>
     <message>
         <location filename="import_text_dialog.ui" line="435"/>
         <source>IPv4</source>
-        <translation type="unfinished"></translation>
+        <translation>IPv4</translation>
     </message>
     <message>
         <location filename="import_text_dialog.cpp" line="280"/>
         <source>Wireshark: Import text file</source>
-        <translation type="unfinished"></translation>
+        <translation>Wireshark:テキストファイルのインポート</translation>
     </message>
     <message>
         <location filename="import_text_dialog.cpp" line="321"/>
         <source>Example: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>例: %1</translation>
     </message>
     <message>
         <location filename="import_text_dialog.cpp" line="323"/>
         <source>&lt;i&gt;(No format will be applied)&lt;/i&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;i&gt;(どの形式も適用されません)&lt;/i&gt;</translation>
     </message>
 </context>
 <context>
@@ -1924,17 +1949,17 @@
     <message>
         <location filename="interface_tree.cpp" line="57"/>
         <source>Welcome screen list</source>
-        <translation type="unfinished"></translation>
+        <translation>ウェルカムスクリーンリスト</translation>
     </message>
     <message>
         <location filename="interface_tree.cpp" line="63"/>
         <source>Waiting for startup</source>
-        <translation type="unfinished"></translation>
+        <translation>起動までお待ちください</translation>
     </message>
     <message>
         <location filename="interface_tree.cpp" line="197"/>
         <source>Interface information not available</source>
-        <translation type="unfinished"></translation>
+        <translation>インタフェース情報が利用できません</translation>
     </message>
 </context>
 <context>
@@ -1942,36 +1967,36 @@
     <message>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="14"/>
         <source>LBTRM Transport Statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>LBTRM転送統計</translation>
     </message>
     <message>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="33"/>
         <source>Sources</source>
-        <translation type="unfinished"></translation>
+        <translation>送信元</translation>
     </message>
     <message>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="62"/>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="314"/>
         <source>Address/Transport</source>
-        <translation type="unfinished"></translation>
+        <translation>アドレス/転送</translation>
     </message>
     <message>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="67"/>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="466"/>
         <source>Data frames</source>
-        <translation type="unfinished"></translation>
+        <translation>データフレーム数</translation>
     </message>
     <message>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="72"/>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="477"/>
         <source>Data bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>データバイト数</translation>
     </message>
     <message>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="77"/>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="488"/>
         <source>Data frames/bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>データフレーム数/バイト数</translation>
     </message>
     <message>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="82"/>
@@ -1983,233 +2008,233 @@
         <location filename="lbm_lbtrm_transport_dialog.ui" line="87"/>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="499"/>
         <source>RX data frames</source>
-        <translation type="unfinished"></translation>
+        <translation>受信データフレーム数</translation>
     </message>
     <message>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="92"/>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="510"/>
         <source>RX data bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>受信データバイト数</translation>
     </message>
     <message>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="97"/>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="521"/>
         <source>RX data frames/bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>受信データフレーム数/バイト数</translation>
     </message>
     <message>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="102"/>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="576"/>
         <source>RX data rate</source>
-        <translation type="unfinished"></translation>
+        <translation>受信データ速度</translation>
     </message>
     <message>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="107"/>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="532"/>
         <source>NCF frames</source>
-        <translation type="unfinished"></translation>
+        <translation>NCFフレーム数</translation>
     </message>
     <message>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="112"/>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="554"/>
         <source>NCF count</source>
-        <translation type="unfinished"></translation>
+        <translation>NCF カウント</translation>
     </message>
     <message>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="117"/>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="543"/>
         <source>NCF bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>NCFバイト数</translation>
     </message>
     <message>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="122"/>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="587"/>
         <source>NCF frames/bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>NCFフレーム数/バイト数</translation>
     </message>
     <message>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="127"/>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="598"/>
         <source>NCF count/bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>NCFカウント/バイト数</translation>
     </message>
     <message>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="132"/>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="609"/>
         <source>NCF frames/count</source>
-        <translation type="unfinished"></translation>
+        <translation>NCFフレーム数/カウント</translation>
     </message>
     <message>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="137"/>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="620"/>
         <source>NCF frames/count/bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>NCFフレーム数/カウント/バイト数</translation>
     </message>
     <message>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="142"/>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="631"/>
         <source>NCF rate</source>
-        <translation type="unfinished"></translation>
+        <translation>NCF速度</translation>
     </message>
     <message>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="147"/>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="642"/>
         <source>SM frames</source>
-        <translation type="unfinished"></translation>
+        <translation>SMフレーム数</translation>
     </message>
     <message>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="152"/>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="653"/>
         <source>SM bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>SMバイト数</translation>
     </message>
     <message>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="157"/>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="664"/>
         <source>SM frames/bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>SMフレーム数/バイト数</translation>
     </message>
     <message>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="162"/>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="675"/>
         <source>SM rate</source>
-        <translation type="unfinished"></translation>
+        <translation>SM速度</translation>
     </message>
     <message>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="173"/>
         <source>Show</source>
-        <translation type="unfinished"></translation>
+        <translation>表示</translation>
     </message>
     <message>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="181"/>
         <source>Data</source>
-        <translation type="unfinished"></translation>
+        <translation>データ</translation>
     </message>
     <message>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="186"/>
         <source>RX Data</source>
-        <translation type="unfinished"></translation>
+        <translation>受信データ</translation>
     </message>
     <message>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="191"/>
         <source>NCF</source>
-        <translation type="unfinished"></translation>
+        <translation>NCF</translation>
     </message>
     <message>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="196"/>
         <source>SM</source>
-        <translation type="unfinished"></translation>
+        <translation>SM</translation>
     </message>
     <message>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="204"/>
         <source>sequence numbers for transport</source>
-        <translation type="unfinished"></translation>
+        <translation>トランスポートシーケンス番号</translation>
     </message>
     <message>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="211"/>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="352"/>
         <source>XXXXX:XXX.XXX.XXX.XXX:XXXXX:XXXXXXXX:XXX.XXX.XXX.XXX:XXXXX</source>
-        <translation type="unfinished"></translation>
+        <translation>XXXXX:XXX.XXX.XXX.XXX:XXXXX:XXXXXXXX:XXX.XXX.XXX.XXX:XXXXX</translation>
     </message>
     <message>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="250"/>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="378"/>
         <source>SQN</source>
-        <translation type="unfinished"></translation>
+        <translation>SQN</translation>
     </message>
     <message>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="255"/>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="278"/>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="383"/>
         <source>Count</source>
-        <translation type="unfinished"></translation>
+        <translation>カウント</translation>
     </message>
     <message>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="260"/>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="283"/>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="388"/>
         <source>Frame</source>
-        <translation type="unfinished"></translation>
+        <translation>フレーム</translation>
     </message>
     <message>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="273"/>
         <source>SQN/Reason</source>
-        <translation type="unfinished"></translation>
+        <translation>SQN/理由</translation>
     </message>
     <message>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="300"/>
         <source>Receivers</source>
-        <translation type="unfinished"></translation>
+        <translation>レシーバー数</translation>
     </message>
     <message>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="319"/>
         <source>NAK frames</source>
-        <translation type="unfinished"></translation>
+        <translation>NAKフレーム数</translation>
     </message>
     <message>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="324"/>
         <source>NAK count</source>
-        <translation type="unfinished"></translation>
+        <translation>NAKカウント</translation>
     </message>
     <message>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="329"/>
         <source>NAK bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>NAKバイト数</translation>
     </message>
     <message>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="334"/>
         <source>NAK rate</source>
-        <translation type="unfinished"></translation>
+        <translation>NAK速度</translation>
     </message>
     <message>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="345"/>
         <source>NAK sequence numbers for transport</source>
-        <translation type="unfinished"></translation>
+        <translation>トランスポートNAKシーケンス番号</translation>
     </message>
     <message>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="409"/>
         <source>Display filter:</source>
-        <translation type="unfinished"></translation>
+        <translation>表示フィルタ:</translation>
     </message>
     <message>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="419"/>
         <source>Regenerate statistics using this display filter</source>
-        <translation type="unfinished"></translation>
+        <translation>この表示フィルタを用いて統計を再作成</translation>
     </message>
     <message>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="422"/>
         <source>Apply</source>
-        <translation type="unfinished"></translation>
+        <translation>適用</translation>
     </message>
     <message>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="441"/>
         <source>Copy as CSV</source>
-        <translation type="unfinished"></translation>
+        <translation>CSVとしてコピー</translation>
     </message>
     <message>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="444"/>
         <source>Copy the tree as CSV</source>
-        <translation type="unfinished"></translation>
+        <translation>ツリーをCSVとしてコピー</translation>
     </message>
     <message>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="447"/>
         <source>Ctrl+C</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+C</translation>
     </message>
     <message>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="452"/>
         <source>Copy as YAML</source>
-        <translation type="unfinished"></translation>
+        <translation>YAMLとしてコピー</translation>
     </message>
     <message>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="455"/>
         <source>Copy the tree as YAML</source>
-        <translation type="unfinished"></translation>
+        <translation>ツリーをYAMLとしてコピー</translation>
     </message>
     <message>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="458"/>
         <source>Ctrl+Y</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Y</translation>
     </message>
     <message>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="469"/>
@@ -2219,112 +2244,112 @@
     <message>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="480"/>
         <source>Show the data bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>データバイト数列を表示</translation>
     </message>
     <message>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="491"/>
         <source>Show the data frames/bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>データフレーム数列を表示</translation>
     </message>
     <message>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="502"/>
         <source>Show the RX data frames column</source>
-        <translation type="unfinished"></translation>
+        <translation>受信データフレーム数列を表示</translation>
     </message>
     <message>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="513"/>
         <source>Show the RX data bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>受信データバイト数列を表示</translation>
     </message>
     <message>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="524"/>
         <source>Show the RX data frames/bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>受信データフレーム数/バイト数列を表示</translation>
     </message>
     <message>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="535"/>
         <source>Show the NCF frames column</source>
-        <translation type="unfinished"></translation>
+        <translation>NCFフレーム数列を表示</translation>
     </message>
     <message>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="546"/>
         <source>Show the NCF bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>NCFバイト数列を表示</translation>
     </message>
     <message>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="557"/>
         <source>Show the NCF count column</source>
-        <translation type="unfinished"></translation>
+        <translation>NCFカウント列を表示</translation>
     </message>
     <message>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="568"/>
         <source>Show the data rate column</source>
-        <translation type="unfinished"></translation>
+        <translation>データ速度列を表示</translation>
     </message>
     <message>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="579"/>
         <source>Show the RX data rate column</source>
-        <translation type="unfinished"></translation>
+        <translation>受信データ速度列を表示</translation>
     </message>
     <message>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="590"/>
         <source>Show the NCF frames/bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>NCFフレーム数/バイト数列を表示</translation>
     </message>
     <message>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="601"/>
         <source>Show the NCF count/bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>NCFカウント/バイト数列を表示を表示</translation>
     </message>
     <message>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="612"/>
         <source>Show the NCF frames/count column</source>
-        <translation type="unfinished"></translation>
+        <translation>NCFフレーム数/カウント列を表示</translation>
     </message>
     <message>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="623"/>
         <source>Show the NCF frames/count/bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>NCFフレーム数/カウント/バイト数列を表示</translation>
     </message>
     <message>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="634"/>
         <source>Show the NCF rate column</source>
-        <translation type="unfinished"></translation>
+        <translation>NCF速度列を表示</translation>
     </message>
     <message>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="645"/>
         <source>Show the SM frames column</source>
-        <translation type="unfinished"></translation>
+        <translation>SMフレーム数列を表示</translation>
     </message>
     <message>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="656"/>
         <source>Show the SM bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>SMバイト数列を表示</translation>
     </message>
     <message>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="667"/>
         <source>Show the SM frames/bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>SMフレーム数/バイト数列を表示</translation>
     </message>
     <message>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="678"/>
         <source>Show the SM rate column</source>
-        <translation type="unfinished"></translation>
+        <translation>SM速度列を表示</translation>
     </message>
     <message>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="683"/>
         <source>Auto-resize columns to content</source>
-        <translation type="unfinished"></translation>
+        <translation>内容にあわせて列を自動調整</translation>
     </message>
     <message>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="686"/>
         <source>Resize columns to content size</source>
-        <translation type="unfinished"></translation>
+        <translation>内容のサイズにあわせて列を調整</translation>
     </message>
     <message>
         <location filename="lbm_lbtrm_transport_dialog.cpp" line="1315"/>
         <source>LBT-RM Statistics failed to attach to tap</source>
-        <translation type="unfinished"></translation>
+        <translation>タップに割り当てるのに失敗したLBT-RM統計</translation>
     </message>
 </context>
 <context>
@@ -2332,210 +2357,210 @@
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="14"/>
         <source>LBTRU Transport Statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>LBTRUトランスポート統計</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="33"/>
         <source>Sources</source>
-        <translation type="unfinished"></translation>
+        <translation>送信元</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="62"/>
         <source>Address/Transport/Client</source>
-        <translation type="unfinished"></translation>
+        <translation>アドレス/トランスポート/クライアント</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="67"/>
         <location filename="lbm_lbtru_transport_dialog.ui" line="670"/>
         <source>Data frames</source>
-        <translation type="unfinished"></translation>
+        <translation>データフレーム数</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="72"/>
         <location filename="lbm_lbtru_transport_dialog.ui" line="681"/>
         <source>Data bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>データバイト数</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="77"/>
         <location filename="lbm_lbtru_transport_dialog.ui" line="692"/>
         <source>Data frames/bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>データフレーム数/バイト数</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="82"/>
         <location filename="lbm_lbtru_transport_dialog.ui" line="703"/>
         <source>Data rate</source>
-        <translation type="unfinished"></translation>
+        <translation>データ速度</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="87"/>
         <location filename="lbm_lbtru_transport_dialog.ui" line="714"/>
         <source>RX data frames</source>
-        <translation type="unfinished"></translation>
+        <translation>受信データフレーム数</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="92"/>
         <location filename="lbm_lbtru_transport_dialog.ui" line="725"/>
         <source>RX data bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>受信データバイト数</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="97"/>
         <location filename="lbm_lbtru_transport_dialog.ui" line="736"/>
         <source>RX data frames/bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>受信データフレーム数/バイト数</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="102"/>
         <location filename="lbm_lbtru_transport_dialog.ui" line="747"/>
         <source>RX data rate</source>
-        <translation type="unfinished"></translation>
+        <translation>受信データ速度</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="107"/>
         <location filename="lbm_lbtru_transport_dialog.ui" line="758"/>
         <source>NCF frames</source>
-        <translation type="unfinished"></translation>
+        <translation>NCFフレーム数</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="112"/>
         <location filename="lbm_lbtru_transport_dialog.ui" line="769"/>
         <source>NCF count</source>
-        <translation type="unfinished"></translation>
+        <translation>NCFカウント</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="117"/>
         <location filename="lbm_lbtru_transport_dialog.ui" line="780"/>
         <source>NCF bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>NCFバイト数</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="122"/>
         <location filename="lbm_lbtru_transport_dialog.ui" line="813"/>
         <source>NCF frames/count</source>
-        <translation type="unfinished"></translation>
+        <translation>NCFフレーム数/カウント</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="127"/>
         <location filename="lbm_lbtru_transport_dialog.ui" line="791"/>
         <source>NCF frames/bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>NCFフレーム数/バイト数</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="132"/>
         <location filename="lbm_lbtru_transport_dialog.ui" line="802"/>
         <source>NCF count/bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>NCFカウント/バイト数</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="137"/>
         <location filename="lbm_lbtru_transport_dialog.ui" line="824"/>
         <source>NCF frames/count/bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>NCFフレーム数/カウント/バイト数</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="142"/>
         <location filename="lbm_lbtru_transport_dialog.ui" line="1115"/>
         <source>NCF rate</source>
-        <translation type="unfinished"></translation>
+        <translation>NCF速度</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="147"/>
         <location filename="lbm_lbtru_transport_dialog.ui" line="835"/>
         <source>SM frames</source>
-        <translation type="unfinished"></translation>
+        <translation>SMフレーム数</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="152"/>
         <location filename="lbm_lbtru_transport_dialog.ui" line="846"/>
         <source>SM bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>SMバイト数</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="157"/>
         <location filename="lbm_lbtru_transport_dialog.ui" line="857"/>
         <source>SM frames/bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>SMフレーム数/バイト数</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="162"/>
         <location filename="lbm_lbtru_transport_dialog.ui" line="868"/>
         <source>SM rate</source>
-        <translation type="unfinished"></translation>
+        <translation>SM速度</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="167"/>
         <location filename="lbm_lbtru_transport_dialog.ui" line="879"/>
         <source>RST frames</source>
-        <translation type="unfinished"></translation>
+        <translation>RSTフレーム数</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="172"/>
         <location filename="lbm_lbtru_transport_dialog.ui" line="890"/>
         <source>RST bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>RSTバイト数</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="177"/>
         <location filename="lbm_lbtru_transport_dialog.ui" line="901"/>
         <source>RST frames/bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>RSTフレーム数/バイト数</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="182"/>
         <location filename="lbm_lbtru_transport_dialog.ui" line="912"/>
         <source>RST rate</source>
-        <translation type="unfinished"></translation>
+        <translation>RST速度</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="193"/>
         <location filename="lbm_lbtru_transport_dialog.ui" line="471"/>
         <source>Show</source>
-        <translation type="unfinished"></translation>
+        <translation>表示</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="213"/>
         <source>Data SQN</source>
-        <translation type="unfinished"></translation>
+        <translation>データSQN</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="218"/>
         <source>RX Data SQN</source>
-        <translation type="unfinished"></translation>
+        <translation>受信データSQN</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="223"/>
         <source>NCF SQN</source>
-        <translation type="unfinished"></translation>
+        <translation>NCF SQN</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="228"/>
         <source>SM SQN</source>
-        <translation type="unfinished"></translation>
+        <translation>SM SQN</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="233"/>
         <source>RST reason</source>
-        <translation type="unfinished"></translation>
+        <translation>RST 原因</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="241"/>
         <location filename="lbm_lbtru_transport_dialog.ui" line="503"/>
         <source>details for transport</source>
-        <translation type="unfinished"></translation>
+        <translation>トランスポートの詳細</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="248"/>
         <location filename="lbm_lbtru_transport_dialog.ui" line="510"/>
         <source>XXXXX:XXX.XXX.XXX.XXX:XXXXX:XXXXXXXX:XXX.XXX.XXX.XXX:XXXXX</source>
-        <translation type="unfinished"></translation>
+        <translation>XXXXX:XXX.XXX.XXX.XXX:XXXXX:XXXXXXXX:XXX.XXX.XXX.XXX:XXXXX</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="287"/>
         <location filename="lbm_lbtru_transport_dialog.ui" line="549"/>
         <source>SQN</source>
-        <translation type="unfinished"></translation>
+        <translation>SQN</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="292"/>
@@ -2544,7 +2569,7 @@
         <location filename="lbm_lbtru_transport_dialog.ui" line="554"/>
         <location filename="lbm_lbtru_transport_dialog.ui" line="583"/>
         <source>Count</source>
-        <translation type="unfinished"></translation>
+        <translation>カウント</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="297"/>
@@ -2553,70 +2578,70 @@
         <location filename="lbm_lbtru_transport_dialog.ui" line="559"/>
         <location filename="lbm_lbtru_transport_dialog.ui" line="588"/>
         <source>Frame</source>
-        <translation type="unfinished"></translation>
+        <translation>フレーム</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="310"/>
         <location filename="lbm_lbtru_transport_dialog.ui" line="578"/>
         <source>Reason</source>
-        <translation type="unfinished"></translation>
+        <translation>原因</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="333"/>
         <source>SQN/Reason</source>
-        <translation type="unfinished"></translation>
+        <translation>SQN/原因</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="366"/>
         <source>Receivers</source>
-        <translation type="unfinished"></translation>
+        <translation>受信者</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="380"/>
         <source>Address/Transport</source>
-        <translation type="unfinished"></translation>
+        <translation>アドレス/トランスポート</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="385"/>
         <location filename="lbm_lbtru_transport_dialog.ui" line="923"/>
         <source>NAK frames</source>
-        <translation type="unfinished"></translation>
+        <translation>NAKフレーム数</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="390"/>
         <location filename="lbm_lbtru_transport_dialog.ui" line="934"/>
         <source>NAK count</source>
-        <translation type="unfinished"></translation>
+        <translation>NAKカウント</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="395"/>
         <location filename="lbm_lbtru_transport_dialog.ui" line="945"/>
         <source>NAK bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>NAKバイト数</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="400"/>
         <location filename="lbm_lbtru_transport_dialog.ui" line="956"/>
         <source>NAK frames/count</source>
-        <translation type="unfinished"></translation>
+        <translation>NAKフレーム数/カウント</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="405"/>
         <location filename="lbm_lbtru_transport_dialog.ui" line="967"/>
         <source>NAK count/bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>NAKカウント/バイト数</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="410"/>
         <location filename="lbm_lbtru_transport_dialog.ui" line="978"/>
         <source>NAK frames/bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>NAKフレーム数/バイト数</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="415"/>
         <location filename="lbm_lbtru_transport_dialog.ui" line="989"/>
         <source>NAK frames/count/bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>NAKフレーム数/カウント/バイト数</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="420"/>
@@ -2628,326 +2653,326 @@
         <location filename="lbm_lbtru_transport_dialog.ui" line="425"/>
         <location filename="lbm_lbtru_transport_dialog.ui" line="1011"/>
         <source>ACK frames</source>
-        <translation type="unfinished"></translation>
+        <translation>ACKフレーム数</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="430"/>
         <location filename="lbm_lbtru_transport_dialog.ui" line="1022"/>
         <source>ACK bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>ACKバイト数</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="435"/>
         <location filename="lbm_lbtru_transport_dialog.ui" line="1033"/>
         <source>ACK frames/bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>ACKフレーム数/バイト数</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="440"/>
         <location filename="lbm_lbtru_transport_dialog.ui" line="1044"/>
         <source>ACK rate</source>
-        <translation type="unfinished"></translation>
+        <translation>ACK速度</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="445"/>
         <location filename="lbm_lbtru_transport_dialog.ui" line="1055"/>
         <source>CREQ frames</source>
-        <translation type="unfinished"></translation>
+        <translation>CREQフレーム数</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="450"/>
         <location filename="lbm_lbtru_transport_dialog.ui" line="1066"/>
         <source>CREQ bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>CREQバイト数</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="455"/>
         <location filename="lbm_lbtru_transport_dialog.ui" line="1077"/>
         <source>CREQ frames/bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>CREQフレーム数/バイト数</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="460"/>
         <location filename="lbm_lbtru_transport_dialog.ui" line="1088"/>
         <source>CREQ rate</source>
-        <translation type="unfinished"></translation>
+        <translation>CREQ速度</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="485"/>
         <source>NAK SQN</source>
-        <translation type="unfinished"></translation>
+        <translation>NAK SQN</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="490"/>
         <source>ACK SQN</source>
-        <translation type="unfinished"></translation>
+        <translation>ACK SQN</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="495"/>
         <source>CREQ request</source>
-        <translation type="unfinished"></translation>
+        <translation>CREQリクエスト</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="613"/>
         <source>Display filter:</source>
-        <translation type="unfinished"></translation>
+        <translation>表示フィルタ:</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="623"/>
         <source>Regenerate statistics using this display filter</source>
-        <translation type="unfinished"></translation>
+        <translation>この表示フィルタを使って統計を再作成</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="626"/>
         <source>Apply</source>
-        <translation type="unfinished"></translation>
+        <translation>適用</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="645"/>
         <source>Copy as CSV</source>
-        <translation type="unfinished"></translation>
+        <translation>CSVとしてコピー</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="648"/>
         <source>Copy the tree as CSV</source>
-        <translation type="unfinished"></translation>
+        <translation>CSVとしてツリーをコピー</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="651"/>
         <source>Ctrl+C</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+C</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="656"/>
         <source>Copy as YAML</source>
-        <translation type="unfinished"></translation>
+        <translation>YAMLとしてコピー</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="659"/>
         <source>Copy the tree as YAML</source>
-        <translation type="unfinished"></translation>
+        <translation>YAMLとしてツリーをコピー</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="662"/>
         <source>Ctrl+Y</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Y</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="673"/>
         <source>Show the data frames column</source>
-        <translation type="unfinished"></translation>
+        <translation>データフレームを列に表示</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="684"/>
         <source>Show the data bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>データバイト内容を列に表示</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="695"/>
         <source>Show the data frames/bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>データフレーム／バイト内容を列に表示</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="706"/>
         <source>Show the data rate column</source>
-        <translation type="unfinished"></translation>
+        <translation>データ速度を列に表示</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="717"/>
         <source>Show the RX data frames column</source>
-        <translation type="unfinished"></translation>
+        <translation>受信データフレームを列に表示</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="728"/>
         <source>Show the RX data bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>受信データバイト内容を列に表示</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="739"/>
         <source>Show the RX data frames/bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>受信データフレーム／バイト内容を列に表示</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="750"/>
         <source>Show the RX data rate column</source>
-        <translation type="unfinished"></translation>
+        <translation>受信データ速度を列に表示</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="761"/>
         <source>Show the NCF frames column</source>
-        <translation type="unfinished"></translation>
+        <translation>NCFフレームを列に表示</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="772"/>
         <source>Show the NCF count column</source>
-        <translation type="unfinished"></translation>
+        <translation>NCFカウントを列に表示</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="783"/>
         <source>Show the NCF bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>NCFバイト内容を列に表示</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="794"/>
         <source>Show the NCF frames/bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>NCFフレーム/バイト内容を列に表示</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="805"/>
         <source>Show the NCF count/bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>NCFカウント/バイト内容を列に表示</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="816"/>
         <source>Show the NCF frames/count column</source>
-        <translation type="unfinished"></translation>
+        <translation>NCFフレーム/カウントを列に表示</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="827"/>
         <source>Sow the NCF frames/count/bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>NCFフレーム/カウント/バイト内容を列に表示</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="838"/>
         <source>Show the SM frames column</source>
-        <translation type="unfinished"></translation>
+        <translation>SMフレーム列を表示</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="849"/>
         <source>Show the SM bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>SMバイト内容を列に表示</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="860"/>
         <source>Show the SM frames/bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>SMフレーム/バイト内容を列に表示</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="871"/>
         <source>Show the SM rate column</source>
-        <translation type="unfinished"></translation>
+        <translation>SM速度を列に表示</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="882"/>
         <source>Show the RST frames column</source>
-        <translation type="unfinished"></translation>
+        <translation>RSTフレームを列に表示</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="893"/>
         <source>Show the RST bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>RSTバイト内容を列に表示</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="904"/>
         <source>Show the RST frames/bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>RSTフレーム/バイト内容を列に表示</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="915"/>
         <source>Show the RST rate column</source>
-        <translation type="unfinished"></translation>
+        <translation>RST速度を列に表示</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="926"/>
         <source>Show the NAK frames column</source>
-        <translation type="unfinished"></translation>
+        <translation>NAKフレームを列に表示</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="937"/>
         <source>Show the NAK count column</source>
-        <translation type="unfinished"></translation>
+        <translation>NAKカウントを列に表示</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="948"/>
         <source>Show the NAK bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>NAKバイト内容を列に表示</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="959"/>
         <source>Show the NAK frames/count column</source>
-        <translation type="unfinished"></translation>
+        <translation>NAKフレーム/カウントを列に表示</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="970"/>
         <source>Show the NAK count/bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>NAKカウント/バイト内容を列に表示</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="981"/>
         <source>Show the NAK frames/bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>NAKフレーム/バイト内容を列に表示</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="992"/>
         <source>Show the NAK frames/count/bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>NAKフレーム/カウント/バイト内容を列に表示</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="1003"/>
         <source>Show the NAK rate column</source>
-        <translation type="unfinished"></translation>
+        <translation>NAK速度を列に表示</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="1014"/>
         <source>Show the ACK frames column</source>
-        <translation type="unfinished"></translation>
+        <translation>ACKフレームを列に表示</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="1025"/>
         <source>Show the ACK bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>ACKバイト内容を列に表示</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="1036"/>
         <source>Show the ACK frames/bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>ACKフレーム/バイト内容を列に表示</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="1047"/>
         <source>Show the ACK rate column</source>
-        <translation type="unfinished"></translation>
+        <translation>ACK速度を列に表示</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="1058"/>
         <source>Show the CREQ frames column</source>
-        <translation type="unfinished"></translation>
+        <translation>CREQフレームを列に表示</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="1069"/>
         <source>Show the CREQ bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>CREQバイト内容を列に表示</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="1080"/>
         <source>Show the CREQ frames/bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>CREQフレーム/バイト内容を列に表示</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="1091"/>
         <source>Show the CREQ rate column</source>
-        <translation type="unfinished"></translation>
+        <translation>CREQ速度を列に表示</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="1096"/>
         <location filename="lbm_lbtru_transport_dialog.ui" line="1104"/>
         <source>Auto-resize columns to content</source>
-        <translation type="unfinished"></translation>
+        <translation>内容に応じて列を自動調整</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="1099"/>
         <location filename="lbm_lbtru_transport_dialog.ui" line="1107"/>
         <source>Resize columns to content size</source>
-        <translation type="unfinished"></translation>
+        <translation>内容のサイズに応じて列を調整</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="1118"/>
         <source>Show the NCF rate column</source>
-        <translation type="unfinished"></translation>
+        <translation>NCF速度を列に表示</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.cpp" line="1733"/>
         <source>LBT-RU Statistics failed to attach to tap</source>
-        <translation type="unfinished"></translation>
+        <translation>タップへ結びつけるのにLBT-RU統計は失敗しました。</translation>
     </message>
 </context>
 <context>
@@ -2955,92 +2980,92 @@
     <message>
         <location filename="lbm_stream_dialog.ui" line="14"/>
         <source>Dialog</source>
-        <translation type="unfinished"></translation>
+        <translation>ダイアログ</translation>
     </message>
     <message>
         <location filename="lbm_stream_dialog.ui" line="21"/>
         <source>Stream</source>
-        <translation type="unfinished"></translation>
+        <translation>ストリーム</translation>
     </message>
     <message>
         <location filename="lbm_stream_dialog.ui" line="26"/>
         <source>Endpoint A</source>
-        <translation type="unfinished"></translation>
+        <translation>終端 A</translation>
     </message>
     <message>
         <location filename="lbm_stream_dialog.ui" line="31"/>
         <source>Endpoint B</source>
-        <translation type="unfinished"></translation>
+        <translation>終端 B</translation>
     </message>
     <message>
         <location filename="lbm_stream_dialog.ui" line="36"/>
         <source>Messages</source>
-        <translation type="unfinished"></translation>
+        <translation>メッセージ</translation>
     </message>
     <message>
         <location filename="lbm_stream_dialog.ui" line="44"/>
         <source>Bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>バイト</translation>
     </message>
     <message>
         <location filename="lbm_stream_dialog.ui" line="49"/>
         <source>First Frame</source>
-        <translation type="unfinished"></translation>
+        <translation>最初のフレーム</translation>
     </message>
     <message>
         <location filename="lbm_stream_dialog.ui" line="54"/>
         <source>Last Frame</source>
-        <translation type="unfinished"></translation>
+        <translation>最後のフレーム</translation>
     </message>
     <message>
         <location filename="lbm_stream_dialog.ui" line="64"/>
         <source>Display filter:</source>
-        <translation type="unfinished"></translation>
+        <translation>表示フィルタ:</translation>
     </message>
     <message>
         <location filename="lbm_stream_dialog.ui" line="74"/>
         <source>Regenerate statistics using this display filter</source>
-        <translation type="unfinished"></translation>
+        <translation>表示フィルタを用いて統計を再作成</translation>
     </message>
     <message>
         <location filename="lbm_stream_dialog.ui" line="77"/>
         <source>Apply</source>
-        <translation type="unfinished"></translation>
+        <translation>適用</translation>
     </message>
     <message>
         <location filename="lbm_stream_dialog.ui" line="96"/>
         <source>Copy as CSV</source>
-        <translation type="unfinished"></translation>
+        <translation>CSVとしてコピー</translation>
     </message>
     <message>
         <location filename="lbm_stream_dialog.ui" line="99"/>
         <source>Copy the tree as CSV</source>
-        <translation type="unfinished"></translation>
+        <translation>ツリーをCSVとしてコピー</translation>
     </message>
     <message>
         <location filename="lbm_stream_dialog.ui" line="102"/>
         <source>Ctrl+C</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+C</translation>
     </message>
     <message>
         <location filename="lbm_stream_dialog.ui" line="107"/>
         <source>Copy as YAML</source>
-        <translation type="unfinished"></translation>
+        <translation>YAMLとしてコピー</translation>
     </message>
     <message>
         <location filename="lbm_stream_dialog.ui" line="110"/>
         <source>Copy the tree as YAML</source>
-        <translation type="unfinished"></translation>
+        <translation>ツリーをYAMLとしてコピー</translation>
     </message>
     <message>
         <location filename="lbm_stream_dialog.ui" line="113"/>
         <source>Ctrl+Y</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Y</translation>
     </message>
     <message>
         <location filename="lbm_stream_dialog.cpp" line="392"/>
         <source>LBM Stream failed to attach to tap</source>
-        <translation type="unfinished"></translation>
+        <translation>LVMストリームをタップに割り当てるのに失敗しました</translation>
     </message>
 </context>
 <context>
@@ -3048,7 +3073,7 @@
     <message>
         <location filename="lbm_uimflow_dialog.ui" line="14"/>
         <source>LBM UIM Flows</source>
-        <translation type="unfinished"></translation>
+        <translation>LBM UIM フロー</translation>
     </message>
     <message utf8="true">
         <location filename="lbm_uimflow_dialog.ui" line="51"/>
@@ -3072,107 +3097,126 @@
 
 &lt;/tbody&gt;&lt;/table&gt;
 &lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>lt;html&gt;&lt;head/&gt;&lt;body&gt;
+
+&lt;h3&gt;価値あるじかんを節約できる素晴らしいキーボードショートカット&lt;/h3&gt;
+&lt;table&gt;&lt;tbody&gt;
+
+&lt;tr&gt;&lt;th&gt;0&lt;/th&gt;&lt;td&gt;グラフを初期状態にリセット&lt;/td&gt;&lt;/th&gt;
+
+&lt;tr&gt;&lt;th&gt;→&lt;/th&gt;&lt;td&gt;右に10ピクセル移動&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;←&lt;/th&gt;&lt;td&gt;左に10ピクセル移動&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;↑&lt;/th&gt;&lt;td&gt;上に10ピクセル移動&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;↓&lt;/th&gt;&lt;td&gt;下に10ピクセル移動s&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;→&lt;/th&gt;&lt;td&gt;右に1ピクセル移動&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;←&lt;/th&gt;&lt;td&gt;左に1ピクセル移動&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;↑&lt;/th&gt;&lt;td&gt;上に1ピクセル移動&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;↓&lt;/th&gt;&lt;td&gt;下に1ピクセル移動&lt;/td&gt;&lt;/th&gt;
+
+&lt;tr&gt;&lt;th&gt;g&lt;/th&gt;&lt;td&gt;カーソルのあるパケットに移動&lt;/td&gt;&lt;/th&gt;
+
+&lt;/tbody&gt;&lt;/table&gt;
+&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="lbm_uimflow_dialog.ui" line="73"/>
         <source>&lt;small&gt;&lt;i&gt;A hint&lt;/i&gt;&lt;/small&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;small&gt;&lt;i&gt;ヒント&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
         <location filename="lbm_uimflow_dialog.ui" line="82"/>
         <source>Show:</source>
-        <translation type="unfinished"></translation>
+        <translation>表示:</translation>
     </message>
     <message>
         <location filename="lbm_uimflow_dialog.ui" line="90"/>
         <source>All packets</source>
-        <translation type="unfinished"></translation>
+        <translation>全てのパケット</translation>
     </message>
     <message>
         <location filename="lbm_uimflow_dialog.ui" line="95"/>
         <source>Displayed packets</source>
-        <translation type="unfinished"></translation>
+        <translation>表示されたパケット</translation>
     </message>
     <message>
         <location filename="lbm_uimflow_dialog.ui" line="133"/>
         <source>Reset</source>
-        <translation type="unfinished"></translation>
+        <translation>リセット</translation>
     </message>
     <message>
         <location filename="lbm_uimflow_dialog.ui" line="152"/>
         <source>Reset Diagram</source>
-        <translation type="unfinished"></translation>
+        <translation>ダイアグラムをリセット</translation>
     </message>
     <message>
         <location filename="lbm_uimflow_dialog.ui" line="155"/>
         <source>Reset the diagram to its initial state.</source>
-        <translation type="unfinished"></translation>
+        <translation>初期状態へダイアグラムをリセット</translation>
     </message>
     <message>
         <location filename="lbm_uimflow_dialog.ui" line="158"/>
         <source>0</source>
-        <translation type="unfinished"></translation>
+        <translation>0</translation>
     </message>
     <message>
         <location filename="lbm_uimflow_dialog.ui" line="163"/>
         <source>Move Up 10 Pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>上に10ピクセル移動</translation>
     </message>
     <message>
         <location filename="lbm_uimflow_dialog.ui" line="166"/>
         <source>Move up 10 pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>上に10ピクセル移動</translation>
     </message>
     <message>
         <location filename="lbm_uimflow_dialog.ui" line="169"/>
         <source>Up</source>
-        <translation type="unfinished"></translation>
+        <translation>上</translation>
     </message>
     <message>
         <location filename="lbm_uimflow_dialog.ui" line="174"/>
         <source>Move Left 10 Pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>左に10ピクセル移動</translation>
     </message>
     <message>
         <location filename="lbm_uimflow_dialog.ui" line="177"/>
         <source>Move left 10 pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>左に10ピクセル移動</translation>
     </message>
     <message>
         <location filename="lbm_uimflow_dialog.ui" line="180"/>
         <source>Left</source>
-        <translation type="unfinished"></translation>
+        <translation>左</translation>
     </message>
     <message>
         <location filename="lbm_uimflow_dialog.ui" line="185"/>
         <source>Move Right 10 Pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>右に10ピクセル移動</translation>
     </message>
     <message>
         <location filename="lbm_uimflow_dialog.ui" line="188"/>
         <source>Move right 10 pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>右に10ピクセル移動</translation>
     </message>
     <message>
         <location filename="lbm_uimflow_dialog.ui" line="191"/>
         <source>Right</source>
-        <translation type="unfinished"></translation>
+        <translation>右</translation>
     </message>
     <message>
         <location filename="lbm_uimflow_dialog.ui" line="196"/>
         <source>Move Down 10 Pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>下に10ピクセル移動</translation>
     </message>
     <message>
         <location filename="lbm_uimflow_dialog.ui" line="199"/>
         <source>Move down 10 pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>下に10ピクセル移動</translation>
     </message>
     <message>
         <location filename="lbm_uimflow_dialog.ui" line="202"/>
         <source>Down</source>
-        <translation type="unfinished"></translation>
+        <translation>下</translation>
     </message>
     <message>
         <location filename="lbm_uimflow_dialog.ui" line="207"/>
@@ -3182,147 +3226,143 @@
     <message>
         <location filename="lbm_uimflow_dialog.ui" line="210"/>
         <source>Move up 1 pixel</source>
-        <translation type="unfinished"></translation>
+        <translation>上に1ピクセル移動</translation>
     </message>
     <message>
         <location filename="lbm_uimflow_dialog.ui" line="213"/>
         <source>Shift+Up</source>
-        <translation type="unfinished"></translation>
+        <translation>Shift+Up</translation>
     </message>
     <message>
         <location filename="lbm_uimflow_dialog.ui" line="218"/>
         <source>Move Left 1 Pixel</source>
-        <translation type="unfinished"></translation>
+        <translation>左に1ピクセル移動</translation>
     </message>
     <message>
         <location filename="lbm_uimflow_dialog.ui" line="221"/>
         <source>Move left 1 pixel</source>
-        <translation type="unfinished"></translation>
+        <translation>左に1ピクセル移動</translation>
     </message>
     <message>
         <location filename="lbm_uimflow_dialog.ui" line="224"/>
         <source>Shift+Left</source>
-        <translation type="unfinished"></translation>
+        <translation>Shift+Left</translation>
     </message>
     <message>
         <location filename="lbm_uimflow_dialog.ui" line="229"/>
         <source>Move Right 1 Pixel</source>
-        <translation type="unfinished"></translation>
+        <translation>右に1ピクセル移動</translation>
     </message>
     <message>
         <location filename="lbm_uimflow_dialog.ui" line="232"/>
         <source>Move right 1 pixel</source>
-        <translation type="unfinished"></translation>
+        <translation>右に1ピクセル移動</translation>
     </message>
     <message>
         <location filename="lbm_uimflow_dialog.ui" line="235"/>
         <source>Shift+Right</source>
-        <translation type="unfinished"></translation>
+        <translation>Shift+Right</translation>
     </message>
     <message>
         <location filename="lbm_uimflow_dialog.ui" line="240"/>
         <source>Move Down 1 Pixel</source>
-        <translation type="unfinished"></translation>
+        <translation>下に1ピクセル移動</translation>
     </message>
     <message>
         <location filename="lbm_uimflow_dialog.ui" line="243"/>
         <source>Move down 1 pixel</source>
-        <translation type="unfinished"></translation>
+        <translation>下に1ピクセル移動</translation>
     </message>
     <message>
         <location filename="lbm_uimflow_dialog.ui" line="246"/>
         <source>Shift+Down</source>
-        <translation type="unfinished"></translation>
+        <translation>Shift+Down</translation>
     </message>
     <message>
         <location filename="lbm_uimflow_dialog.ui" line="251"/>
         <source>Go To Packet Under Cursor</source>
-        <translation type="unfinished"></translation>
+        <translation>カーソルにあるパケットに移動</translation>
     </message>
     <message>
         <location filename="lbm_uimflow_dialog.ui" line="254"/>
         <source>Go to packet currently under the cursor</source>
-        <translation type="unfinished"></translation>
+        <translation>現在カーソルにあるパケットに移動</translation>
     </message>
     <message>
         <location filename="lbm_uimflow_dialog.ui" line="257"/>
         <source>G</source>
-        <translation type="unfinished"></translation>
+        <translation>G</translation>
     </message>
     <message>
         <location filename="lbm_uimflow_dialog.ui" line="262"/>
         <source>All Flows</source>
-        <translation type="unfinished"></translation>
+        <translation>すべてのフロー</translation>
     </message>
     <message>
         <location filename="lbm_uimflow_dialog.ui" line="265"/>
         <source>Show flows for all packets</source>
-        <translation type="unfinished"></translation>
+        <translation>すべてのパケットのフローを表示</translation>
     </message>
     <message>
         <location filename="lbm_uimflow_dialog.ui" line="268"/>
         <location filename="lbm_uimflow_dialog.ui" line="279"/>
         <source>1</source>
-        <translation type="unfinished"></translation>
+        <translation>1</translation>
     </message>
     <message>
         <location filename="lbm_uimflow_dialog.ui" line="273"/>
         <source>TCP Flows</source>
-        <translation type="unfinished"></translation>
+        <translation>TCPフロー</translation>
     </message>
     <message>
         <location filename="lbm_uimflow_dialog.ui" line="276"/>
         <source>Show only TCP flow information</source>
-        <translation type="unfinished"></translation>
+        <translation>TCPフロー情報のみ表示</translation>
     </message>
     <message>
         <location filename="lbm_uimflow_dialog.cpp" line="258"/>
         <source>Save As...</source>
-        <translation type="unfinished"></translation>
+        <translation>...として保存</translation>
     </message>
     <message numerus="yes">
         <location filename="lbm_uimflow_dialog.cpp" line="428"/>
         <source>%Ln node(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-        </translation>
+        <translation><numerusform>%Ln ノード</numerusform></translation>
     </message>
     <message numerus="yes">
         <location filename="lbm_uimflow_dialog.cpp" line="429"/>
         <source>%Ln item(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-        </translation>
+        <translation><numerusform>%Ln アイテム</numerusform></translation>
     </message>
     <message>
         <location filename="lbm_uimflow_dialog.cpp" line="450"/>
         <source>Portable Document Format (*.pdf)</source>
-        <translation type="unfinished"></translation>
+        <translation>PDF形式 (*.pdf)</translation>
     </message>
     <message>
         <location filename="lbm_uimflow_dialog.cpp" line="451"/>
         <source>Portable Network Graphics (*.png)</source>
-        <translation type="unfinished"></translation>
+        <translation>PNG形式 (*.png)</translation>
     </message>
     <message>
         <location filename="lbm_uimflow_dialog.cpp" line="452"/>
         <source>Windows Bitmap (*.bmp)</source>
-        <translation type="unfinished"></translation>
+        <translation>ビットマップ形式 (*.bmp)</translation>
     </message>
     <message>
         <location filename="lbm_uimflow_dialog.cpp" line="454"/>
         <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
-        <translation type="unfinished"></translation>
+        <translation>JPEG形式 (*.jpeg *.jpg)</translation>
     </message>
     <message>
         <location filename="lbm_uimflow_dialog.cpp" line="455"/>
         <source>ASCII (*.txt)</source>
-        <translation type="unfinished"></translation>
+        <translation>アスキーテキスト形式 (*.txt)</translation>
     </message>
     <message>
         <location filename="lbm_uimflow_dialog.cpp" line="467"/>
         <source>Wireshark: Save Graph As...</source>
-        <translation type="unfinished"></translation>
+        <translation>Wireshark: ...としてグラフを保存</translation>
     </message>
 </context>
 <context>
@@ -3330,50 +3370,50 @@
     <message>
         <location filename="layout_preferences_frame.ui" line="14"/>
         <source>Frame</source>
-        <translation type="unfinished"></translation>
+        <translation>フレーム</translation>
     </message>
     <message>
         <location filename="layout_preferences_frame.ui" line="181"/>
         <source>Pane 1:</source>
-        <translation type="unfinished"></translation>
+        <translation>ペイン1:</translation>
     </message>
     <message>
         <location filename="layout_preferences_frame.ui" line="188"/>
         <location filename="layout_preferences_frame.ui" line="239"/>
         <location filename="layout_preferences_frame.ui" line="290"/>
         <source>Packet List</source>
-        <translation type="unfinished"></translation>
+        <translation>パケット一覧</translation>
     </message>
     <message>
         <location filename="layout_preferences_frame.ui" line="198"/>
         <location filename="layout_preferences_frame.ui" line="249"/>
         <location filename="layout_preferences_frame.ui" line="300"/>
         <source>Packet Details</source>
-        <translation type="unfinished"></translation>
+        <translation>パケット詳細</translation>
     </message>
     <message>
         <location filename="layout_preferences_frame.ui" line="208"/>
         <location filename="layout_preferences_frame.ui" line="259"/>
         <location filename="layout_preferences_frame.ui" line="310"/>
         <source>Packet Bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>パケットデータ</translation>
     </message>
     <message>
         <location filename="layout_preferences_frame.ui" line="218"/>
         <location filename="layout_preferences_frame.ui" line="269"/>
         <location filename="layout_preferences_frame.ui" line="320"/>
         <source>None</source>
-        <translation type="unfinished"></translation>
+        <translation>なし</translation>
     </message>
     <message>
         <location filename="layout_preferences_frame.ui" line="232"/>
         <source>Pane 2:</source>
-        <translation type="unfinished"></translation>
+        <translation>ペイン2:</translation>
     </message>
     <message>
         <location filename="layout_preferences_frame.ui" line="283"/>
         <source>Pane 3:</source>
-        <translation type="unfinished"></translation>
+        <translation>ペイン3:</translation>
     </message>
 </context>
 <context>
@@ -3381,97 +3421,97 @@
     <message>
         <location filename="main_status_bar.cpp" line="96"/>
         <source>Ready to load or capture</source>
-        <translation type="unfinished"></translation>
+        <translation>読み込みもしくはキャプチャの準備</translation>
     </message>
     <message>
         <location filename="main_status_bar.cpp" line="98"/>
         <source>Ready to load file</source>
-        <translation type="unfinished"></translation>
+        <translation>ファイル読み込み準備</translation>
     </message>
     <message>
         <location filename="main_status_bar.cpp" line="147"/>
         <source>Manage Profiles...</source>
-        <translation type="unfinished"></translation>
+        <translation>プロファイルの管理...</translation>
     </message>
     <message>
         <location filename="main_status_bar.cpp" line="151"/>
         <source>New...</source>
-        <translation type="unfinished"></translation>
+        <translation>新規...</translation>
     </message>
     <message>
         <location filename="main_status_bar.cpp" line="154"/>
         <source>Edit...</source>
-        <translation type="unfinished"></translation>
+        <translation>編集...</translation>
     </message>
     <message>
         <location filename="main_status_bar.cpp" line="157"/>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation>削除</translation>
     </message>
     <message>
         <location filename="main_status_bar.cpp" line="161"/>
         <source>Switch to</source>
-        <translation type="unfinished"></translation>
+        <translation>切替</translation>
     </message>
     <message>
         <location filename="main_status_bar.cpp" line="186"/>
         <source> is the highest expert info level</source>
-        <translation type="unfinished"></translation>
+        <translation>はもっとも高いエキスパート情報レベルです</translation>
     </message>
     <message>
         <location filename="main_status_bar.cpp" line="191"/>
         <source>ERROR</source>
-        <translation type="unfinished"></translation>
+        <translation>エラー</translation>
     </message>
     <message>
         <location filename="main_status_bar.cpp" line="195"/>
         <source>WARNING</source>
-        <translation type="unfinished"></translation>
+        <translation>注意</translation>
     </message>
     <message>
         <location filename="main_status_bar.cpp" line="199"/>
         <source>NOTE</source>
-        <translation type="unfinished"></translation>
+        <translation>ノート</translation>
     </message>
     <message>
         <location filename="main_status_bar.cpp" line="203"/>
         <source>CHAT</source>
-        <translation type="unfinished"></translation>
+        <translation>チャット</translation>
     </message>
     <message>
         <location filename="main_status_bar.cpp" line="210"/>
         <source>No expert info</source>
-        <translation type="unfinished"></translation>
+        <translation>エキスパート情報なし</translation>
     </message>
     <message>
         <location filename="main_status_bar.cpp" line="278"/>
         <source>Profile: </source>
-        <translation type="unfinished"></translation>
+        <translation>プロファイル:</translation>
     </message>
     <message>
         <location filename="main_status_bar.cpp" line="303"/>
         <source>Packets: %1 %4 Displayed: %2 %4 Marked: %3</source>
-        <translation type="unfinished"></translation>
+        <translation>パケット: %1 %4 表示: %2 %4 マーク: %3</translation>
     </message>
     <message>
         <location filename="main_status_bar.cpp" line="309"/>
         <source> %1 Dropped: %2</source>
-        <translation type="unfinished"></translation>
+        <translation> %1 ドロップ: %2</translation>
     </message>
     <message>
         <location filename="main_status_bar.cpp" line="312"/>
         <source> %1 Ignored: %2</source>
-        <translation type="unfinished"></translation>
+        <translation> %1 無視: %2</translation>
     </message>
     <message>
         <location filename="main_status_bar.cpp" line="317"/>
         <source> %1  Load time: %2:%3.%4</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"> %1  読込時間: %2:%3.%4</translation>
     </message>
     <message>
         <location filename="main_status_bar.cpp" line="325"/>
         <source>No Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>パケットなし</translation>
     </message>
 </context>
 <context>
@@ -3479,12 +3519,12 @@
     <message>
         <location filename="main_welcome.ui" line="20"/>
         <source>Form</source>
-        <translation type="unfinished"></translation>
+        <translation>フォーム</translation>
     </message>
     <message>
         <location filename="main_welcome.ui" line="59"/>
         <source>Capture filter:</source>
-        <translation type="unfinished"></translation>
+        <translation>キャプチャフィルタ:</translation>
     </message>
     <message>
         <location filename="main_welcome.ui" line="126"/>
@@ -3516,30 +3556,57 @@ In-depth discussions about Wireshark and protocol analysis.
 &lt;/p&gt;
 
 &lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+
+<translation>&lt;html&gt;&lt;head/&gt;
+&lt;body&gt;
+
+&lt;h2&gt;&lt;a href=&quot;http://www.wireshark.org/docs/wsug_html_chunked/&quot;&gt;ユーザーズガイド&lt;/a&gt;&lt;/h2&gt;
+&lt;p&gt;
+Wiresharkのインストール方法とそれぞれの機能の使い方&lt;br/&gt;
+他のフォーマットとコマンドラインのマニュアルページは以下で見つけられます&lt;br/&gt;
+the &lt;a href=&quot;http://www.wireshark.org/docs/&quot;&gt;documentation page&lt;/a&gt;.
+&lt;/p&gt;
+
+&lt;h2&gt;&lt;a href=&quot;http://wiki.wireshark.org/&quot;&gt;The Wireshark Wiki&lt;/a&gt;&lt;/h2&gt;
+&lt;p&gt;
+Wiresharkの様々な利用の側面に応じてのユーザーの提供するページがあります.&lt;br/&gt;
+異なる環境、フィルタ、特定のプロトコルでのキャプチャ&lt;br/&gt;
+およびその他のさまざまな情報
+&lt;/p&gt;
+
+&lt;h2&gt;&lt;a href=&quot;http://ask.wireshark.org/&quot;&gt;Wireshark Q&amp;amp;A&lt;/a&gt;&lt;/h2&gt;
+&lt;p&gt;
+Wiresharkとプロトコル分析についてのQ&amp;Aサイト&lt;/p&gt;
+
+&lt;h2&gt;&lt;a href=&quot;http://www.wireshark.org/lists/&quot;&gt;メーリングリスト&lt;/a&gt;&lt;/h2&gt;
+&lt;p&gt;
+Wiresharkとプロトコル分析についてのより深い議論
+&lt;/p&gt;
+
+&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="main_welcome.ui" line="189"/>
         <source>Capture
 live packets from your network</source>
-        <translation type="unfinished"></translation>
+        <translation>あなたのネットワークから生パケットをキャプチャ</translation>
     </message>
     <message>
         <location filename="main_welcome.ui" line="195"/>
         <source>Open
 a recent capture file</source>
-        <translation type="unfinished"></translation>
+        <translation>最近キャプチャしたファイルを開く</translation>
     </message>
     <message>
         <location filename="main_welcome.ui" line="201"/>
         <source>Learn
 more about Wireshark</source>
-        <translation type="unfinished"></translation>
+        <translation>Wiresharkについてさらに学ぶ</translation>
     </message>
     <message>
         <location filename="main_welcome.cpp" line="220"/>
         <source>not found</source>
-        <translation type="unfinished"></translation>
+        <translation>見つかりません</translation>
     </message>
 </context>
 <context>
@@ -3548,330 +3615,330 @@ more about Wireshark</source>
         <location filename="main_window.ui" line="14"/>
         <location filename="main_window.ui" line="600"/>
         <source>Wireshark</source>
-        <translation type="unfinished"></translation>
+        <translation>Wireshark</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="62"/>
         <source>900000000; </source>
-        <translation type="unfinished"></translation>
+        <translation>900000000; </translation>
     </message>
     <message>
         <location filename="main_window.ui" line="69"/>
         <source>Go to packet</source>
-        <translation type="unfinished"></translation>
+        <translation>パケットに移動</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="76"/>
         <source>Cancel</source>
-        <translation type="unfinished"></translation>
+        <translation>キャンセル</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="105"/>
         <source>&amp;File</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;ファイル</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="109"/>
         <source>Open Recent</source>
-        <translation type="unfinished"></translation>
+        <translation>最近のを開く</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="115"/>
         <source>File Set</source>
-        <translation type="unfinished"></translation>
+        <translation>ファイルセット</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="123"/>
         <source>Export Packet Dissections</source>
-        <translation type="unfinished"></translation>
+        <translation>エキスパートパケット解析</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="134"/>
         <source>Export Objects</source>
-        <translation type="unfinished"></translation>
+        <translation>オブジェクトをエキスポート</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="165"/>
         <source>&amp;Capture</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;キャプチャ</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="177"/>
         <source>&amp;Help</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;ヘルプ</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="181"/>
         <source>Manual pages</source>
-        <translation type="unfinished"></translation>
+        <translation>マニュアルページ</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="210"/>
         <source>&amp;Go</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;移動</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="221"/>
         <source>&amp;View</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;ビュー</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="225"/>
         <source>Toolbars</source>
-        <translation type="unfinished"></translation>
+        <translation>ツールバー</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="241"/>
         <source>&amp;Analyze</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;分析</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="245"/>
         <source>Apply as Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>フィルタとして適用</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="256"/>
         <source>Prepare a Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>フィルタを準備</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="267"/>
         <source>SCTP</source>
-        <translation type="unfinished"></translation>
+        <translation>SCTP</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="291"/>
         <source>&amp;Statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;統計</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="295"/>
         <source>TCP Stream Graphs</source>
-        <translation type="unfinished"></translation>
+        <translation>TCP ストリームグラフ</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="305"/>
         <source>BACnet</source>
-        <translation type="unfinished"></translation>
+        <translation>BACnet</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="314"/>
         <source>HTTP</source>
-        <translation type="unfinished"></translation>
+        <translation>HTTP</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="322"/>
         <location filename="main_window.ui" line="1574"/>
         <source>29West</source>
-        <translation type="unfinished"></translation>
+        <translation>29West</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="326"/>
         <source>Topics</source>
-        <translation type="unfinished"></translation>
+        <translation>トピック</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="338"/>
         <source>Queues</source>
-        <translation type="unfinished"></translation>
+        <translation>キュー</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="347"/>
         <source>UIM</source>
-        <translation type="unfinished"></translation>
+        <translation>UIM</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="376"/>
         <source>Telephon&amp;y</source>
-        <translation type="unfinished"></translation>
+        <translation>テレフォニー</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="380"/>
         <source>RTSP</source>
-        <translation type="unfinished"></translation>
+        <translation>RTSP</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="391"/>
         <source>&amp;Edit</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;編集</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="395"/>
         <source>Copy</source>
-        <translation type="unfinished"></translation>
+        <translation>コピー</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="448"/>
         <location filename="main_window.ui" line="1681"/>
         <source>Main Toolbar</source>
-        <translation type="unfinished"></translation>
+        <translation>メインツールバー</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="481"/>
         <source>Display Filter Toolbar</source>
-        <translation type="unfinished"></translation>
+        <translation>表示フィルタツールバー</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="495"/>
         <source>Open</source>
-        <translation type="unfinished"></translation>
+        <translation>開く</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="498"/>
         <source>Open a capture file</source>
-        <translation type="unfinished"></translation>
+        <translation>キャプチャファイルを開く</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="501"/>
         <source>Ctrl+O</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+O</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="506"/>
         <source>Quit</source>
-        <translation type="unfinished"></translation>
+        <translation>終了</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="509"/>
         <source>Quit Wireshark</source>
-        <translation type="unfinished"></translation>
+        <translation>Wiresharkを終了</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="512"/>
         <source>Ctrl+Q</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Q</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="520"/>
         <source>&amp;Interfaces...</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;インタフェース...</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="523"/>
         <source>Show interface details</source>
-        <translation type="unfinished"></translation>
+        <translation>インタフェースの詳細を表示</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="526"/>
         <source>Ctrl+I</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+I</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="540"/>
         <source>&amp;Start</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;開始</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="543"/>
         <source>Start capturing packets</source>
-        <translation type="unfinished"></translation>
+        <translation>パケットキャプチャを開始</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="546"/>
         <location filename="main_window.ui" line="561"/>
         <source>Ctrl+E</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+E</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="555"/>
         <source>S&amp;top</source>
-        <translation type="unfinished"></translation>
+        <translation>ストップ</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="558"/>
         <source>Stop capturing packets</source>
-        <translation type="unfinished"></translation>
+        <translation>パケットキャプチャを停止</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="566"/>
         <source>Close</source>
-        <translation type="unfinished"></translation>
+        <translation>閉じる</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="569"/>
         <source>Close the current capture file</source>
-        <translation type="unfinished"></translation>
+        <translation>現在のキャプチャファイルを閉じる</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="572"/>
         <source>Ctrl+W</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+W</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="580"/>
         <source>No files found</source>
-        <translation type="unfinished"></translation>
+        <translation>ファイルが見つかりませんでした</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="589"/>
         <source>&amp;Contents</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;コンテンツ</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="592"/>
         <source>F1</source>
-        <translation type="unfinished"></translation>
+        <translation>F1</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="605"/>
         <source>Wireshark Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Wireshark フィルタ</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="610"/>
         <source>TShark</source>
-        <translation type="unfinished"></translation>
+        <translation>Tshark</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="615"/>
         <source>RawShark</source>
-        <translation type="unfinished"></translation>
+        <translation>RawShark</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="620"/>
         <source>Dumpcap</source>
-        <translation type="unfinished"></translation>
+        <translation>Dumpcap</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="625"/>
         <source>Mergecap</source>
-        <translation type="unfinished"></translation>
+        <translation>Mergecap</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="630"/>
         <source>Editcap</source>
-        <translation type="unfinished"></translation>
+        <translation>Mergecap</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="635"/>
         <source>Text2cap</source>
-        <translation type="unfinished"></translation>
+        <translation>Text2cap</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="640"/>
         <source>Website</source>
-        <translation type="unfinished"></translation>
+        <translation>ウェブサイト</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="645"/>
         <source>FAQ&apos;s</source>
-        <translation type="unfinished"></translation>
+        <translation>FAQ&apos;s</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="650"/>
         <source>Downloads</source>
-        <translation type="unfinished"></translation>
+        <translation>ダウンロード</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="659"/>
         <source>Wiki</source>
-        <translation type="unfinished"></translation>
+        <translation>Wiki</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="667"/>
         <source>Sample Captures</source>
-        <translation type="unfinished"></translation>
+        <translation>サンプルキャプチャ</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="676"/>
@@ -3881,505 +3948,505 @@ more about Wireshark</source>
     <message>
         <location filename="main_window.ui" line="691"/>
         <source>Ask (Q&amp;&amp;A)</source>
-        <translation type="unfinished"></translation>
+        <translation>問い合わせ (Q&amp;&amp;A)</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="699"/>
         <source>Next Packet</source>
-        <translation type="unfinished"></translation>
+        <translation>次のパケット</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="702"/>
         <source>Go to the next packet</source>
-        <translation type="unfinished"></translation>
+        <translation>次のパケットに移動</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="705"/>
         <source>Ctrl+Down</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Down</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="710"/>
         <source>Previous Packet</source>
-        <translation type="unfinished"></translation>
+        <translation>前のパケット</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="713"/>
         <source>Go to the previous packet</source>
-        <translation type="unfinished"></translation>
+        <translation>前のパケットに移動</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="716"/>
         <source>Ctrl+Up</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Up</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="721"/>
         <source>First Packet</source>
-        <translation type="unfinished"></translation>
+        <translation>最初のパケット</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="724"/>
         <source>Go to the first packet</source>
-        <translation type="unfinished"></translation>
+        <translation>最初のパケットに移動</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="727"/>
         <source>Ctrl+Home</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Home</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="732"/>
         <source>Last Packet</source>
-        <translation type="unfinished"></translation>
+        <translation>パケット一覧</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="735"/>
         <source>Go to the last packet</source>
-        <translation type="unfinished"></translation>
+        <translation>最後のパケットに移動</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="738"/>
         <source>Ctrl+End</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+End</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="746"/>
         <source>E&amp;xpand Subtrees</source>
-        <translation type="unfinished"></translation>
+        <translation>サブツリーを展開</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="749"/>
         <source>Expand the current packet detail</source>
-        <translation type="unfinished"></translation>
+        <translation>現在のパケット詳細を展開</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="752"/>
         <source>Shift+Right</source>
-        <translation type="unfinished"></translation>
+        <translation>Shift+Right</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="757"/>
         <source>&amp;Expand All</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;すべて展開</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="760"/>
         <source>Expand packet details</source>
-        <translation type="unfinished"></translation>
+        <translation>パケット詳細を展開</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="763"/>
         <source>Ctrl+Right</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Right</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="768"/>
         <source>Collapse &amp;All</source>
-        <translation type="unfinished"></translation>
+        <translation>すべて閉じる</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="771"/>
         <source>Collapse all packet details</source>
-        <translation type="unfinished"></translation>
+        <translation>すべてのパケット詳細を閉じる</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="774"/>
         <source>Ctrl+Left</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Left</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="779"/>
         <source>Go to Packet...</source>
-        <translation type="unfinished"></translation>
+        <translation>パケットへ移動...</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="782"/>
         <source>Go to specified packet</source>
-        <translation type="unfinished"></translation>
+        <translation>特定のパケットへ移動</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="785"/>
         <source>Ctrl+G</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+G</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="790"/>
         <source>&amp;Merge...</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;マージ...</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="793"/>
         <source>Merge one or more files</source>
-        <translation type="unfinished"></translation>
+        <translation>１つそれ以上のファイルをマージ</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="798"/>
         <source>&amp;Import from Hex Dump...</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;16進ダンプからインポート...</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="801"/>
         <source>Import a file</source>
-        <translation type="unfinished"></translation>
+        <translation>ファイルをインポート</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="810"/>
         <source>&amp;Save</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;保存</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="813"/>
         <source>Save the current file</source>
-        <translation type="unfinished"></translation>
+        <translation>現在のファイルを保存</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="816"/>
         <source>Ctrl+S</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+S</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="825"/>
         <source>Save &amp;As...</source>
-        <translation type="unfinished"></translation>
+        <translation>...として保存</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="828"/>
         <source>Save as a different file</source>
-        <translation type="unfinished"></translation>
+        <translation>異なるファイルとして保存</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="831"/>
         <source>Ctrl+Shift+S</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Shift+S</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="836"/>
         <source>Export Specified Packets...</source>
-        <translation type="unfinished"></translation>
+        <translation>特定のパケットを出力...</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="839"/>
         <source>Export specified packets</source>
-        <translation type="unfinished"></translation>
+        <translation>特定のパケットを出力</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="844"/>
         <source>Export Packet &amp;Bytes...</source>
-        <translation type="unfinished"></translation>
+        <translation>パケットとバイトを出力</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="847"/>
         <source>Ctrl+H</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+H</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="852"/>
         <source>Export SSL Session Keys...</source>
-        <translation type="unfinished"></translation>
+        <translation>SSLセッションキーを出力...</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="857"/>
         <source>&amp;Print...</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;印刷...</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="860"/>
         <source>Ctrl+P</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+P</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="865"/>
         <source>List Files</source>
-        <translation type="unfinished"></translation>
+        <translation>ファイルリスト</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="870"/>
         <source>Next File</source>
-        <translation type="unfinished"></translation>
+        <translation>次のファイル</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="875"/>
         <source>Previous File</source>
-        <translation type="unfinished"></translation>
+        <translation>前のファイル</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="880"/>
         <source>&amp;Reload</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;再読込</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="883"/>
         <source>Reload the current file</source>
-        <translation type="unfinished"></translation>
+        <translation>現在のファイルを再読込</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="886"/>
         <location filename="main_window.ui" line="930"/>
         <source>Ctrl+R</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+R</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="891"/>
         <source>&amp;Options...</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;オプション...</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="894"/>
         <source>Options</source>
-        <translation type="unfinished"></translation>
+        <translation>オプション</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="897"/>
         <source>Capture options</source>
-        <translation type="unfinished"></translation>
+        <translation>キャプチャオプション</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="900"/>
         <source>Ctrl+K</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+K</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="908"/>
         <source>Capture &amp;Filters...</source>
-        <translation type="unfinished"></translation>
+        <translation>キャプチャ &amp;フィルタ...</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="911"/>
         <source>Capture filters</source>
-        <translation type="unfinished"></translation>
+        <translation>キャプチャフィルタ</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="916"/>
         <source>Refresh Interfaces</source>
-        <translation type="unfinished"></translation>
+        <translation>インタフェースを更新</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="919"/>
         <source>Refresh interfaces</source>
-        <translation type="unfinished"></translation>
+        <translation>インタフェースを更新</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="924"/>
         <source>&amp;Restart</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;再キャプチャ</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="927"/>
         <source>Restart current capture</source>
-        <translation type="unfinished"></translation>
+        <translation>現在のキャプチャを再起動</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="935"/>
         <source>As Plain &amp;Text...</source>
-        <translation type="unfinished"></translation>
+        <translation>平文テキストとして...</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="940"/>
         <source>As CSV...</source>
-        <translation type="unfinished"></translation>
+        <translation>CSVとして...</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="945"/>
         <source>As &quot;C&quot; Arrays...</source>
-        <translation type="unfinished"></translation>
+        <translation>C言語の配列として...</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="950"/>
         <source>As PSML XML...</source>
-        <translation type="unfinished"></translation>
+        <translation>PSML XMLとして...</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="955"/>
         <source>As PDML XML...</source>
-        <translation type="unfinished"></translation>
+        <translation>PDML XMLとして...</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="960"/>
         <source>&amp;HTTP...</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;HTTP...</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="965"/>
         <source>&amp;DICOM...</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;DICOM...</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="970"/>
         <source>&amp;SMB...</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;SMB...</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="975"/>
         <source>Description</source>
-        <translation type="unfinished"></translation>
+        <translation>記述</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="978"/>
         <location filename="main_window.ui" line="1217"/>
         <source>Ctrl+Shift+D</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Shift+D</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="983"/>
         <source>Field Name</source>
-        <translation type="unfinished"></translation>
+        <translation>フィールド名</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="986"/>
         <source>Ctrl+Shift+F</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Shift+F</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="991"/>
         <source>Value</source>
-        <translation type="unfinished"></translation>
+        <translation>値</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="994"/>
         <source>Ctrl+Shift+V</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Shift+V</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="999"/>
         <source>As Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>フィルタとして</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1002"/>
         <source>Ctrl+Shift+C</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Shift+C</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1007"/>
         <location filename="main_window.ui" line="1052"/>
         <source>&amp;Selected</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;選択済</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1012"/>
         <location filename="main_window.ui" line="1057"/>
         <source>&amp;Not Selected</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;選択されていません</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1015"/>
         <location filename="main_window.ui" line="1060"/>
         <source>Not Selected</source>
-        <translation type="unfinished"></translation>
+        <translation>選択されていません</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1020"/>
         <location filename="main_window.ui" line="1065"/>
         <source>... &amp;and Selected</source>
-        <translation type="unfinished"></translation>
+        <translation>... および選択済</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1023"/>
         <location filename="main_window.ui" line="1068"/>
         <source>... and Selected</source>
-        <translation type="unfinished"></translation>
+        <translation>...および選択済</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1028"/>
         <location filename="main_window.ui" line="1073"/>
         <source>... &amp;or Selected</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">... または選択済</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1031"/>
         <location filename="main_window.ui" line="1076"/>
         <source>... or Selected</source>
-        <translation type="unfinished"></translation>
+        <translation>... または選択済</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1036"/>
         <location filename="main_window.ui" line="1081"/>
         <source>... a&amp;nd not Selected</source>
-        <translation type="unfinished"></translation>
+        <translation>... および非選択のもの</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1039"/>
         <location filename="main_window.ui" line="1084"/>
         <source>... and not Selected</source>
-        <translation type="unfinished"></translation>
+        <translation>... および非選択のもの</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1044"/>
         <location filename="main_window.ui" line="1089"/>
         <source>... o&amp;r not Selected</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">... または非選択のもの</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1047"/>
         <location filename="main_window.ui" line="1092"/>
         <source>... or not Selected</source>
-        <translation type="unfinished"></translation>
+        <translation>... または非選択のもの</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1097"/>
         <source>Display Filters...</source>
-        <translation type="unfinished"></translation>
+        <translation>表示フィルタ...</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1102"/>
         <source>Display Filter &amp;Macros...</source>
-        <translation type="unfinished"></translation>
+        <translation>表示フィルタマクロ...</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1107"/>
         <source>Apply as Column</source>
-        <translation type="unfinished"></translation>
+        <translation>列として適用</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1112"/>
         <source>&amp;Find Packet...</source>
-        <translation type="unfinished"></translation>
+        <translation>パケットの検索...</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1115"/>
         <source>Find a packet</source>
-        <translation type="unfinished"></translation>
+        <translation>パケットの検索</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1118"/>
         <source>Ctrl+F</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+F</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1123"/>
         <source>Find Ne&amp;xt...</source>
-        <translation type="unfinished"></translation>
+        <translation>次を検索...</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1126"/>
         <source>Find the next packet</source>
-        <translation type="unfinished"></translation>
+        <translation>次のパケットを検索</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1129"/>
         <source>Ctrl+N</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+N</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1134"/>
         <source>Find Pre&amp;vious...</source>
-        <translation type="unfinished"></translation>
+        <translation>前を検索...</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1137"/>
         <source>Find the previous packet</source>
-        <translation type="unfinished"></translation>
+        <translation>前のパケットを検索></translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1140"/>
         <source>Ctrl+B</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+B</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1145"/>
         <source>&amp;Mark/Unmark Packet</source>
-        <translation type="unfinished"></translation>
+        <translation>パケットをマーク/マーク解除</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1148"/>
@@ -4389,132 +4456,132 @@ more about Wireshark</source>
     <message>
         <location filename="main_window.ui" line="1151"/>
         <source>Ctrl+M</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+M</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1156"/>
         <source>Mark All Displayed</source>
-        <translation type="unfinished"></translation>
+        <translation>表示されているものをすべてマーク</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1159"/>
         <source>Mark all displayed packets</source>
-        <translation type="unfinished"></translation>
+        <translation>すべての表示されているものをマーク</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1162"/>
         <source>Ctrl+Shift+M</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Shift+M</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1167"/>
         <source>Unmark All Displayed</source>
-        <translation type="unfinished"></translation>
+        <translation>表示されているものをすべてマーク解除</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1170"/>
         <source>Unmark all displayed packets</source>
-        <translation type="unfinished"></translation>
+        <translation>すべての表示されているパケットをマーク解除</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1173"/>
         <source>Meta+Alt+M</source>
-        <translation type="unfinished"></translation>
+        <translation>Meta+Alt+M</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1178"/>
         <source>Next Mark</source>
-        <translation type="unfinished"></translation>
+        <translation>次のマーク</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1181"/>
         <source>Go to the next marked packet</source>
-        <translation type="unfinished"></translation>
+        <translation>次にマークされたパケットに移動</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1184"/>
         <source>Meta+Shift+N</source>
-        <translation type="unfinished"></translation>
+        <translation>Meta+Shift+N</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1189"/>
         <source>Previous Mark</source>
-        <translation type="unfinished"></translation>
+        <translation>前のマーク</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1192"/>
         <source>Go to the previous marked packet</source>
-        <translation type="unfinished"></translation>
+        <translation>前にマークしたパケットに移動</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1195"/>
         <source>Meta+Shift+B</source>
-        <translation type="unfinished"></translation>
+        <translation>Meta+Shift+B</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1200"/>
         <source>&amp;Ignore/Unignore Packet</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;パケットを無視/無視を解除</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1203"/>
         <source>Ignore or unignore this packet</source>
-        <translation type="unfinished"></translation>
+        <translation>このパケットを無視するかどうか</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1206"/>
         <source>Ctrl+D</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+D</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1211"/>
         <source>Ignore All Displayed</source>
-        <translation type="unfinished"></translation>
+        <translation>表示されているものすべてを無視</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1214"/>
         <source>Ignore all displayed packets</source>
-        <translation type="unfinished"></translation>
+        <translation>すべての表示されたパケットを無視</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1222"/>
         <source>Unignore All Displayed</source>
-        <translation type="unfinished"></translation>
+        <translation>すべての表示されたものの無視を解除</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1225"/>
         <source>Unignore all displayed packets</source>
-        <translation type="unfinished"></translation>
+        <translation>すべての表示されたものの無視を解除</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1228"/>
         <source>Ctrl+Alt+D</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Alt+D</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1233"/>
         <source>Set/Unset Time Reference</source>
-        <translation type="unfinished"></translation>
+        <translation>時刻参照を設定/設定解除</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1236"/>
         <source>Set or unset a time reference for this packet</source>
-        <translation type="unfinished"></translation>
+        <translation>このパケットに対して時刻参照を設定または設定解除</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1239"/>
         <source>Ctrl+T</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+T</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1244"/>
         <source>Unset All Time References</source>
-        <translation type="unfinished"></translation>
+        <translation>すべての時刻参照を設定解除</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1247"/>
         <source>Remove all time references</source>
-        <translation type="unfinished"></translation>
+        <translation>すべての時刻参照を削除</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1250"/>
@@ -4524,262 +4591,262 @@ more about Wireshark</source>
     <message>
         <location filename="main_window.ui" line="1255"/>
         <source>Next Time Reference</source>
-        <translation type="unfinished"></translation>
+        <translation>次の時刻参照</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1258"/>
         <source>Go to the next time reference</source>
-        <translation type="unfinished"></translation>
+        <translation>次の時刻参照へ移動</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1261"/>
         <source>Ctrl+Alt+N</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Alt+N</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1266"/>
         <source>Previous Time Reference</source>
-        <translation type="unfinished"></translation>
+        <translation>前の時刻参照</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1269"/>
         <source>Go to the previous time reference</source>
-        <translation type="unfinished"></translation>
+        <translation>前の時刻参照へ移動</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1272"/>
         <source>Ctrl+Alt+B</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Alt+B</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1277"/>
         <source>Time Shift...</source>
-        <translation type="unfinished"></translation>
+        <translation>時刻シフト...</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1280"/>
         <source>Shift or change packet timestamps</source>
-        <translation type="unfinished"></translation>
+        <translation>パケットの時刻印をシフトもしくは変更</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1283"/>
         <source>Ctrl+Shift+T</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Shift+T</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1288"/>
         <source>Packet Comment...</source>
-        <translation type="unfinished"></translation>
+        <translation>パケットのコメント...</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1291"/>
         <source>Add or change a packet comment</source>
-        <translation type="unfinished"></translation>
+        <translation>パケットのコメントを追加または変更</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1299"/>
         <source>Configuration Profiles...</source>
-        <translation type="unfinished"></translation>
+        <translation>設定プロファイル...</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1302"/>
         <source>Configuration profiles</source>
-        <translation type="unfinished"></translation>
+        <translation>設定プロファイル</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1305"/>
         <source>Manage your configuration profiles</source>
-        <translation type="unfinished"></translation>
+        <translation>設定プロファイルの管理</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1308"/>
         <source>Ctrl+Shift+A</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Shift+A</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1316"/>
         <source>&amp;Preferences...</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;設定...</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1319"/>
         <source>Manage Wireshark&apos;s preferences</source>
-        <translation type="unfinished"></translation>
+        <translation>Wiresharkの設定を管理</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1322"/>
         <source>Ctrl+Shift+P</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Shift+P</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1333"/>
         <source>Summary</source>
-        <translation type="unfinished"></translation>
+        <translation>概要</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1341"/>
         <source>Protocol Hierarchy</source>
-        <translation type="unfinished"></translation>
+        <translation>プロトコル階層</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1346"/>
         <source>Capinfos</source>
-        <translation type="unfinished"></translation>
+        <translation>Capinfos</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1351"/>
         <source>Reordercap</source>
-        <translation type="unfinished"></translation>
+        <translation>Reordercap</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1356"/>
         <source>Time Sequence (Stevens)</source>
-        <translation type="unfinished"></translation>
+        <translation>時間 シーケンス番号 (Stevens)</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1359"/>
         <source>TCP time sequence graph (Stevens)</source>
-        <translation type="unfinished"></translation>
+        <translation>TCP 時間 シーケンス番号 グラフ (Stevens)</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1364"/>
         <source>Throughput</source>
-        <translation type="unfinished"></translation>
+        <translation>スループット</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1367"/>
         <source>TCP througput</source>
-        <translation type="unfinished"></translation>
+        <translation>TCPスループット</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1372"/>
         <source>Round Trip Time</source>
-        <translation type="unfinished"></translation>
+        <translation>往復遅延時間</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1375"/>
         <source>TCP round trip time</source>
-        <translation type="unfinished"></translation>
+        <translation>TCP往復遅延時間</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1380"/>
         <source>Window Scaling</source>
-        <translation type="unfinished"></translation>
+        <translation>ウインドウスケーリング</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1383"/>
         <source>TCP window scaling</source>
-        <translation type="unfinished"></translation>
+        <translation>TCPウインドウスケーリング</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1391"/>
         <source>Follow TCP Stream</source>
-        <translation type="unfinished"></translation>
+        <translation>TCPストリーム追従</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1399"/>
         <source>Follow UDP Stream</source>
-        <translation type="unfinished"></translation>
+        <translation>UDPストリーム追従</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1407"/>
         <source>Follow SSL Stream</source>
-        <translation type="unfinished"></translation>
+        <translation>SSLストリーム追従</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1412"/>
         <source>Time Sequence (tcptrace)</source>
-        <translation type="unfinished"></translation>
+        <translation>時間 シーケンス (tcptrace)</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1415"/>
         <source>TCP time sequence graph (tcptrace)</source>
-        <translation type="unfinished"></translation>
+        <translation>TCP 時間 ストリーム グラフ (tcptrace)</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1420"/>
         <source>Analyse this Association</source>
-        <translation type="unfinished"></translation>
+        <translation>このアソシエーションを分析</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1425"/>
         <source>Show All Associations</source>
-        <translation type="unfinished"></translation>
+        <translation>すべてのアソシエーションを表示</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1430"/>
         <source>Flow Graph</source>
-        <translation type="unfinished"></translation>
+        <translation>フローグラフ</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1433"/>
         <source>Flow sequence diagram</source>
-        <translation type="unfinished"></translation>
+        <translation>フローシーケンス図</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1438"/>
         <source>ANCP</source>
-        <translation type="unfinished"></translation>
+        <translation>ANCP</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1441"/>
         <source>ANCP statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>ANCP 統計</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1446"/>
         <source>Packets sorted by Instance ID</source>
-        <translation type="unfinished"></translation>
+        <translation>インスタンスIDごとに並べたパケット</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1449"/>
         <source>BACapp statistics sorted by instance ID</source>
-        <translation type="unfinished"></translation>
+        <translation>インスタンスIDごとに並べたBACapp統計</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1454"/>
         <source>Packets sorted by IP</source>
-        <translation type="unfinished"></translation>
+        <translation>IPで並べたパケット</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1457"/>
         <source>BACapp statistics sorted by IP</source>
-        <translation type="unfinished"></translation>
+        <translation>IPごとに並べたBACapp統計</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1462"/>
         <source>Packets sorted by object type</source>
-        <translation type="unfinished"></translation>
+        <translation>オブジェクト種別ごとに並べたパケット</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1465"/>
         <source>BACapp statistics sorted by object type</source>
-        <translation type="unfinished"></translation>
+        <translation>オブジェクト種別ごとに並べたBACapp統計</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1470"/>
         <source>Packets sorted by service</source>
-        <translation type="unfinished"></translation>
+        <translation>サービスごとに並べたパケット</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1473"/>
         <source>BACapp statistics sorted by service</source>
-        <translation type="unfinished"></translation>
+        <translation>サービスごとに並べたBACapp</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1478"/>
         <source>Collectd</source>
-        <translation type="unfinished"></translation>
+        <translation>集めたもの</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1481"/>
         <source>Collectd statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>集めたものの統計</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1486"/>
         <source>HART-IP</source>
-        <translation type="unfinished"></translation>
+        <translation>HART-IP</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1489"/>
@@ -5320,7 +5387,7 @@ more about Wireshark</source>
     </message>
     <message utf8="true">
         <location filename="main_window_preferences_frame.ui" line="325"/>
-        <source>Français</source>
+        <source>Francais</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
