@@ -1291,6 +1291,34 @@ mysql_dissect_request(tvbuff_t *tvb,packet_info *pinfo, int offset,
 			offset += 2; /* for charset */
 		}
 
+		/* optional: authentication plugin */
+		if (conn_data->clnt_caps_ext & MYSQL_CAPS_PA)
+		{
+			lenstr= my_tvb_strsize(tvb,offset);
+			proto_tree_add_item(req_tree, hf_mysql_client_auth_plugin, tvb, offset, lenstr, ENC_ASCII|ENC_NA);
+			offset += lenstr;
+		}
+
+		/* optional: connection attributes */
+		if (conn_data->clnt_caps_ext & MYSQL_CAPS_CA)
+		{
+			proto_tree *connattrs_tree;
+			int lenfle;
+			guint64 connattrs_length;
+			int length;
+
+			lenfle = tvb_get_fle(tvb, offset, &connattrs_length, NULL);
+			tf = proto_tree_add_item(req_tree, hf_mysql_connattrs, tvb, offset, (guint32)connattrs_length, ENC_ASCII|ENC_NA);
+			connattrs_tree = proto_item_add_subtree(tf, ett_connattrs);
+			proto_tree_add_uint64(connattrs_tree, hf_mysql_connattrs_length, tvb, offset, lenfle, connattrs_length);
+			offset += lenfle;
+
+			while (connattrs_length > 0) {
+				length = add_connattrs_entry_to_tree(tvb, pinfo, connattrs_tree, offset);
+				offset += length;
+				connattrs_length -= length;
+			}
+		}
 		conn_data->state= RESPONSE_OK;
 		break;
 
