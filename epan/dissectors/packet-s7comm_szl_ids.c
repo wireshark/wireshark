@@ -1322,51 +1322,51 @@ static const value_string szl_xy74_0000_led_blink_names[] = {
  *
  *******************************************************************************************************/
 static const gchar*
-s7comm_get_szl_id_index_description_text(guint16 id, guint16 index)
+s7comm_get_szl_id_index_description_text(guint16 id, guint16 idx)
 {
     const gchar* str = NULL;
     switch (id) {
         case 0x0111:
-            str = val_to_str(index, szl_0111_index_names, "No description available");
+            str = val_to_str(idx, szl_0111_index_names, "No description available");
             break;
         case 0x0112:
-            str = val_to_str(index, szl_0112_index_names, "No description available");
+            str = val_to_str(idx, szl_0112_index_names, "No description available");
             break;
         case 0x0113:
-            str = val_to_str(index, szl_0113_index_names, "No description available");
+            str = val_to_str(idx, szl_0113_index_names, "No description available");
             break;
         case 0x0114:
-            str = val_to_str(index, szl_0114_index_names, "No description available");
+            str = val_to_str(idx, szl_0114_index_names, "No description available");
             break;
         case 0x0115:
-            str = val_to_str(index, szl_0115_index_names, "No description available");
+            str = val_to_str(idx, szl_0115_index_names, "No description available");
             break;
         case 0x0116:
-            str = val_to_str(index, szl_0116_index_names, "No description available");
+            str = val_to_str(idx, szl_0116_index_names, "No description available");
             break;
         case 0x0118:
-            str = val_to_str(index, szl_0118_index_names, "No description available");
+            str = val_to_str(idx, szl_0118_index_names, "No description available");
             break;
         case 0x0119:
-            str = val_to_str(index, szl_0119_index_names, "No description available");
+            str = val_to_str(idx, szl_0119_index_names, "No description available");
             break;
         case 0x0121:
-            str = val_to_str(index, szl_0121_index_names, "No description available");
+            str = val_to_str(idx, szl_0121_index_names, "No description available");
             break;
         case 0x0222:
-            str = val_to_str(index, szl_0222_index_names, "No description available");
+            str = val_to_str(idx, szl_0222_index_names, "No description available");
             break;
         case 0x0524:
-            str = val_to_str(index, szl_0524_index_names, "No description available");
+            str = val_to_str(idx, szl_0524_index_names, "No description available");
             break;
         case 0x0131:
-            str = val_to_str(index, szl_0131_index_names, "No description available");
+            str = val_to_str(idx, szl_0131_index_names, "No description available");
             break;
         case 0x0132:
-            str = val_to_str(index, szl_0132_index_names, "No description available");
+            str = val_to_str(idx, szl_0132_index_names, "No description available");
             break;
         case 0x0174:
-            str = val_to_str(index, szl_0174_index_names, "No description available");
+            str = val_to_str(idx, szl_0174_index_names, "No description available");
             break;
     }
     return str;
@@ -1424,10 +1424,10 @@ static guint32
 s7comm_decode_szl_id_xy00(tvbuff_t *tvb,
                                     proto_tree *tree,
                                     guint16 id,
-                                    guint16 index,
+                                    guint16 idx,
                                     guint32 offset)
 {
-    if (id == 0 && index == 0) {
+    if (id == 0 && idx == 0) {
         proto_tree_add_item(tree, hf_s7comm_szl_0000_0000_szl_id, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
     } else if (id == 0x0100) {
@@ -3939,7 +3939,7 @@ s7comm_decode_ud_cpu_szl_subfunc(tvbuff_t *tvb,
                                     guint32 offset)             /* Offset on data part +4 */
 {
     guint16 id;
-    guint16 index;
+    guint16 idx;
     guint16 list_len;
     guint16 list_count;
     guint16 i;
@@ -3957,15 +3957,15 @@ s7comm_decode_ud_cpu_szl_subfunc(tvbuff_t *tvb,
         proto_tree_add_bitmask(data_tree, tvb, offset, hf_s7comm_userdata_szl_id,
             ett_s7comm_userdata_szl_id, s7comm_userdata_szl_id_fields, ENC_BIG_ENDIAN);
         offset += 2;
-        index = tvb_get_ntohs(tvb, offset);
+        idx = tvb_get_ntohs(tvb, offset);
         szl_item_entry = proto_tree_add_item(data_tree, hf_s7comm_userdata_szl_index, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
-        szl_index_description = s7comm_get_szl_id_index_description_text(id, index);
+        szl_index_description = s7comm_get_szl_id_index_description_text(id, idx);
         if (szl_index_description != NULL) {
             proto_item_append_text(szl_item_entry, " [%s]", szl_index_description);
         }
-        proto_item_append_text(data_tree, " (SZL-ID: 0x%04x, Index: 0x%04x)", id, index);
-        col_append_fstr(pinfo->cinfo, COL_INFO, " ID=0x%04x Index=0x%04x" , id, index);
+        proto_item_append_text(data_tree, " (SZL-ID: 0x%04x, Index: 0x%04x)", id, idx);
+        col_append_fstr(pinfo->cinfo, COL_INFO, " ID=0x%04x Index=0x%04x" , id, idx);
         know_data = TRUE;
     } else if (type == S7COMM_UD_TYPE_RES) {            /*** Response ***/
         /* When response OK, data follows */
@@ -3990,15 +3990,15 @@ s7comm_decode_ud_cpu_szl_subfunc(tvbuff_t *tvb,
                 proto_tree_add_bitmask(data_tree, tvb, offset, hf_s7comm_userdata_szl_id,
                     ett_s7comm_userdata_szl_id, s7comm_userdata_szl_id_fields, ENC_BIG_ENDIAN);
                 offset += 2;
-                index = tvb_get_ntohs(tvb, offset);
+                idx = tvb_get_ntohs(tvb, offset);
                 szl_item_entry = proto_tree_add_item(data_tree, hf_s7comm_userdata_szl_index, tvb, offset, 2, ENC_BIG_ENDIAN);
                 offset += 2;
-                szl_index_description = s7comm_get_szl_id_index_description_text(id, index);
+                szl_index_description = s7comm_get_szl_id_index_description_text(id, idx);
                 if (szl_index_description != NULL) {
                     proto_item_append_text(szl_item_entry, " [%s]", szl_index_description);
                 }
-                proto_item_append_text(data_tree, " (SZL-ID: 0x%04x, Index: 0x%04x)", id, index);
-                col_append_fstr(pinfo->cinfo, COL_INFO, " ID=0x%04x Index=0x%04x" , id, index);
+                proto_item_append_text(data_tree, " (SZL-ID: 0x%04x, Index: 0x%04x)", id, idx);
+                col_append_fstr(pinfo->cinfo, COL_INFO, " ID=0x%04x Index=0x%04x" , id, idx);
 
                 /* SZL-Data, 4 Bytes header, 4 bytes id/index = 8 bytes */
                 list_len = tvb_get_ntohs(tvb, offset); /* Length of an list set in bytes */
@@ -4032,57 +4032,57 @@ s7comm_decode_ud_cpu_szl_subfunc(tvbuff_t *tvb,
                         /* lets try to decode some known szl-id and indexes */
                         switch (id) {
                             case 0x0000:
-                                offset = s7comm_decode_szl_id_xy00(tvb, szl_item_tree, id, index, offset);
+                                offset = s7comm_decode_szl_id_xy00(tvb, szl_item_tree, id, idx, offset);
                                 szl_decoded = TRUE;
                                 break;
                             case 0x0013:
-                                if (index == 0x0000) {
+                                if (idx == 0x0000) {
                                     offset = s7comm_decode_szl_id_0013_idx_0000(tvb, szl_item_tree, offset);
                                     szl_decoded = TRUE;
                                 }
                                 break;
                             case 0x0011:
                             case 0x0111:
-                                if ((index == 0x0001) || (index == 0x0000)) {
+                                if ((idx == 0x0001) || (idx == 0x0000)) {
                                     offset = s7comm_decode_szl_id_0111_idx_0001(tvb, szl_item_tree, offset);
                                     szl_decoded = TRUE;
                                 }
                                 break;
                             case 0x0131:
-                                if (index == 0x0001) {
+                                if (idx == 0x0001) {
                                     offset = s7comm_decode_szl_id_0131_idx_0001(tvb, szl_item_tree, offset);
                                     szl_decoded = TRUE;
-                                } else if (index == 0x0002) {
+                                } else if (idx == 0x0002) {
                                     offset = s7comm_decode_szl_id_0131_idx_0002(tvb, szl_item_tree, offset);
                                     szl_decoded = TRUE;
-                                } else if (index == 0x0003) {
+                                } else if (idx == 0x0003) {
                                     offset = s7comm_decode_szl_id_0131_idx_0003(tvb, szl_item_tree, offset);
                                     szl_decoded = TRUE;
-                                } else if (index == 0x0004) {
+                                } else if (idx == 0x0004) {
                                     offset = s7comm_decode_szl_id_0131_idx_0004(tvb, szl_item_tree, offset);
                                     szl_decoded = TRUE;
-                                } else if (index == 0x0006) {
+                                } else if (idx == 0x0006) {
                                     offset = s7comm_decode_szl_id_0131_idx_0006(tvb, szl_item_tree, offset);
                                     szl_decoded = TRUE;
-                                } else if (index == 0x0010) {
+                                } else if (idx == 0x0010) {
                                     offset = s7comm_decode_szl_id_0131_idx_0010(tvb, szl_item_tree, offset);
                                     szl_decoded = TRUE;
                                 }
                                 break;
                             case 0x0132:
-                                if (index == 0x0001) {
+                                if (idx == 0x0001) {
                                     offset = s7comm_decode_szl_id_0132_idx_0001(tvb, szl_item_tree, offset);
                                     szl_decoded = TRUE;
-                                } else if (index == 0x0002) {
+                                } else if (idx == 0x0002) {
                                     offset = s7comm_decode_szl_id_0132_idx_0002(tvb, szl_item_tree, offset);
                                     szl_decoded = TRUE;
-                                } else if (index == 0x0004) {
+                                } else if (idx == 0x0004) {
                                     offset = s7comm_decode_szl_id_0132_idx_0004(tvb, szl_item_tree, offset);
                                     szl_decoded = TRUE;
-                                } else if (index == 0x0005) {
+                                } else if (idx == 0x0005) {
                                     offset = s7comm_decode_szl_id_0132_idx_0005(tvb, szl_item_tree, offset);
                                     szl_decoded = TRUE;
-                                } else if (index == 0x0006) {
+                                } else if (idx == 0x0006) {
                                     offset = s7comm_decode_szl_id_0132_idx_0006(tvb, szl_item_tree, offset);
                                     szl_decoded = TRUE;
                                 }
@@ -4096,7 +4096,7 @@ s7comm_decode_ud_cpu_szl_subfunc(tvbuff_t *tvb,
                                 break;
                             case 0x0124:
                             case 0x0424:
-                                if (index == 0x0000) {
+                                if (idx == 0x0000) {
                                     offset = s7comm_decode_szl_id_0424_idx_0000(tvb, szl_item_tree, offset);
                                     szl_decoded = TRUE;
                                 }
