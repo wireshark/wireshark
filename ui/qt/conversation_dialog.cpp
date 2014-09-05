@@ -508,31 +508,31 @@ ConversationTreeWidget::ConversationTreeWidget(QWidget *parent, register_ct_t* t
         switch (i) {
         case CONV_COLUMN_SRC_ADDR:
         case CONV_COLUMN_DST_ADDR:
-            setColumnWidth(i, one_en * strlen("000.000.000.000"));
+            setColumnWidth(i, one_en * (int) strlen("000.000.000.000"));
             break;
         case CONV_COLUMN_SRC_PORT:
         case CONV_COLUMN_DST_PORT:
-            setColumnWidth(i, one_en * strlen("000000"));
+            setColumnWidth(i, one_en * (int) strlen("000000"));
             break;
         case CONV_COLUMN_PACKETS:
         case CONV_COLUMN_PKT_AB:
         case CONV_COLUMN_PKT_BA:
-            setColumnWidth(i, one_en * strlen("00,000"));
+            setColumnWidth(i, one_en * (int) strlen("00,000"));
             break;
         case CONV_COLUMN_BYTES:
         case CONV_COLUMN_BYTES_AB:
         case CONV_COLUMN_BYTES_BA:
-            setColumnWidth(i, one_en * strlen("000,000"));
+            setColumnWidth(i, one_en * (int) strlen("000,000"));
             break;
         case CONV_COLUMN_START:
-            setColumnWidth(i, one_en * strlen("00.000"));
+            setColumnWidth(i, one_en * (int) strlen("00.000"));
             break;
         case CONV_COLUMN_DURATION:
-            setColumnWidth(i, one_en * strlen("00.000000"));
+            setColumnWidth(i, one_en * (int) strlen("00.000000"));
             break;
         case CONV_COLUMN_BPS_AB:
         case CONV_COLUMN_BPS_BA:
-            setColumnWidth(i, one_en * strlen("000 k"));
+            setColumnWidth(i, one_en * (int) strlen("000 k"));
             break;
         default:
             setColumnWidth(i, one_en * 5);

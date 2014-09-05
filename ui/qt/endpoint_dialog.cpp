@@ -381,23 +381,23 @@ EndpointTreeWidget::EndpointTreeWidget(QWidget *parent, register_ct_t *table) :
     for (int i = 0; i < columnCount(); i++) {
         switch (i) {
         case ENDP_COLUMN_ADDR:
-            setColumnWidth(i, one_en * strlen("000.000.000.000"));
+            setColumnWidth(i, one_en * (int) strlen("000.000.000.000"));
             break;
         case ENDP_COLUMN_PORT:
-            setColumnWidth(i, one_en * strlen("000000"));
+            setColumnWidth(i, one_en * (int) strlen("000000"));
             break;
         case ENDP_COLUMN_PACKETS:
         case ENDP_COLUMN_PKT_AB:
         case ENDP_COLUMN_PKT_BA:
-            setColumnWidth(i, one_en * strlen("00,000"));
+            setColumnWidth(i, one_en * (int) strlen("00,000"));
             break;
         case ENDP_COLUMN_BYTES:
         case ENDP_COLUMN_BYTES_AB:
         case ENDP_COLUMN_BYTES_BA:
-            setColumnWidth(i, one_en * strlen("000,000"));
+            setColumnWidth(i, one_en * (int) strlen("000,000"));
             break;
         default:
-            setColumnWidth(i, one_en * strlen("-00.000000")); // GeoIP
+            setColumnWidth(i, one_en * (int) strlen("-00.000000")); // GeoIP
         }
     }
 
