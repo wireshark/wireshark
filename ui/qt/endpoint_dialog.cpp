@@ -357,7 +357,7 @@ EndpointTreeWidget::EndpointTreeWidget(QWidget *parent, register_ct_t *table) :
 #ifdef HAVE_GEOIP
     setColumnCount(ENDP_NUM_COLUMNS + geoip_db_num_dbs());
 #else
-    setColumnCount(ENDP_NUM_BUILTIN_COLUMNS);
+    setColumnCount(ENDP_NUM_COLUMNS);
 #endif
 
     for (int i = 0; i < ENDP_NUM_COLUMNS; i++) {
