@@ -1078,7 +1078,7 @@ set(LIBEPAN_LIBS
 		${WINSPARKLE_LIBRARIES}
 )
 
-if( (BUILD_wireshark_gtk AND GTK_FOUND) OR (BUILD_wireshark AND QT_FOUND) )
+if( (BUILD_wireshark AND QT_FOUND) OR (BUILD_wireshark_gtk AND GTK_FOUND) )
 	set(WIRESHARK_SRC
 		capture_info.c
 		capture_opts.c
@@ -1093,33 +1093,6 @@ if( (BUILD_wireshark_gtk AND GTK_FOUND) OR (BUILD_wireshark AND QT_FOUND) )
 		${WIRESHARK_SRC}
 		image/wireshark.rc
 	)
-endif()
-
-if(BUILD_wireshark_gtk AND GTK_FOUND)
-	set(wireshark_gtk_LIBS
-		gtkui
-		ui
-		capchild
-		caputils
-		${GTK2_LIBRARIES}
-		${GTK3_LIBRARIES}
-		${GTHREAD2_LIBRARIES}
-		codecs
-		${PORTAUDIO_LIBRARIES}
-		${LIBEPAN_LIBS}
-		${APPLE_APPLICATION_SERVICES_LIBRARY}
-		${APPLE_CORE_SERVICES_LIBRARY}
-		${APPLE_SYSTEM_CONFIGURATION_LIBRARY}
-		${NL_LIBRARIES}
-		${WIN_COMCTL32_LIBRARY}
-	)
-	# wireshark and wireshark-gtk share wireshark_FILES
-
-	add_executable(wireshark-gtk ${wireshark_FILES})
-	set_target_properties(wireshark-gtk PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
-	set_target_properties(wireshark-gtk PROPERTIES FOLDER "Executables")
-	target_link_libraries(wireshark-gtk ${wireshark_gtk_LIBS})
-	install(TARGETS wireshark-gtk RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()
 
 if(BUILD_wireshark AND QT_FOUND)
@@ -1149,6 +1122,51 @@ if(BUILD_wireshark AND QT_FOUND)
 	set_target_properties(wireshark PROPERTIES FOLDER "Executables")
 	target_link_libraries(wireshark ${wireshark_LIBS})
 	install(TARGETS wireshark RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+
+	# Map for endpoints dialog
+	ADD_CUSTOM_COMMAND(
+		TARGET wireshark
+		POST_BUILD
+		COMMAND ${CMAKE_COMMAND} -E copy_if_different
+			"${PROJECT_SOURCE_DIR}/ipmap.html"
+			$<TARGET_FILE_DIR:wireshark>
+	)
+endif()
+
+if(BUILD_wireshark_gtk AND GTK_FOUND)
+	set(wireshark_gtk_LIBS
+		gtkui
+		ui
+		capchild
+		caputils
+		${GTK2_LIBRARIES}
+		${GTK3_LIBRARIES}
+		${GTHREAD2_LIBRARIES}
+		codecs
+		${PORTAUDIO_LIBRARIES}
+		${LIBEPAN_LIBS}
+		${APPLE_APPLICATION_SERVICES_LIBRARY}
+		${APPLE_CORE_SERVICES_LIBRARY}
+		${APPLE_SYSTEM_CONFIGURATION_LIBRARY}
+		${NL_LIBRARIES}
+		${WIN_COMCTL32_LIBRARY}
+	)
+	# wireshark and wireshark-gtk share wireshark_FILES
+
+	add_executable(wireshark-gtk ${wireshark_FILES})
+	set_target_properties(wireshark-gtk PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
+	set_target_properties(wireshark-gtk PROPERTIES FOLDER "Executables")
+	target_link_libraries(wireshark-gtk ${wireshark_gtk_LIBS})
+	install(TARGETS wireshark-gtk RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+
+	# Map for endpoints dialog
+	ADD_CUSTOM_COMMAND(
+		TARGET wireshark-gtk
+		POST_BUILD
+		COMMAND ${CMAKE_COMMAND} -E copy_if_different
+			"${PROJECT_SOURCE_DIR}/ipmap.html"
+			$<TARGET_FILE_DIR:wireshark-gtk>
+	)
 endif()
 
 register_tap_files(tshark-tap-register.c

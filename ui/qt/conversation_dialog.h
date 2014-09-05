@@ -68,7 +68,6 @@ signals:
     void openTcpStreamGraph(int graph_type);
 
 private:
-    QList<QAction> conv_actions_;
     QPushButton *follow_bt_;
     QPushButton *graph_bt_;
 

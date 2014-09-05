@@ -33,6 +33,10 @@ public:
     explicit EndpointTreeWidget(QWidget *parent, register_ct_t* table);
     ~EndpointTreeWidget();
 
+#ifdef HAVE_GEOIP
+    bool hasGeoIPData() const { return has_geoip_data_; }
+#endif
+
     static void tapReset(void *conv_hash_ptr);
     static void tapDraw(void *conv_hash_ptr);
 
@@ -40,8 +44,12 @@ public:
 public:
     const QList<int> columnToDb(int column) const { return col_to_db_.value(column, QList<int>()); }
 
+signals:
+    void geoIPStatusChanged();
+
 private:
     QMap<int, QList<int> > col_to_db_; // Map tree columns to GeoIP databases
+    bool has_geoip_data_;
 #endif
 
 private slots:
@@ -69,11 +77,17 @@ public slots:
     void setCaptureFile(capture_file *cf);
 
 private:
-    QList<QAction> endp_actions_;
+#ifdef HAVE_GEOIP
+    QPushButton *map_bt_;
+#endif
 
     bool addTrafficTable(register_ct_t* table);
 
 private slots:
+#ifdef HAVE_GEOIP
+    void tabChanged();
+#endif
+    void createMap();
     void on_buttonBox_helpRequested();
 };
 

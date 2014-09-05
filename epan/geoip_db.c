@@ -312,6 +312,9 @@ geoip_db_lookup_ipv4(guint dbnum, guint32 addr, const char *not_found) {
     const char *raw_val, *ret = not_found;
     char *val;
 
+    if (dbnum > geoip_db_num_dbs()) {
+        return ret;
+    }
     gi = g_array_index(geoip_dat_arr, GeoIP *, dbnum);
     if (gi) {
         switch (gi->databaseType) {
@@ -423,6 +426,9 @@ geoip_db_lookup_ipv6(guint dbnum, struct e_in6_addr addr, const char *not_found)
 #if NUM_DB_TYPES > 31
     GeoIPRecord *gir;
 #endif
+    if (dbnum > geoip_db_num_dbs()) {
+        return ret;
+    }
 
     memcpy(&gaddr, &addr, sizeof(addr));
 

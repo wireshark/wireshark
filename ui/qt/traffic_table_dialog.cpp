@@ -112,7 +112,7 @@ void TrafficTableDialog::fillTypeMenu(QList<int> &enabled_protos)
         endp_action->setData(qVariantFromValue(proto_id));
         endp_action->setCheckable(true);
         endp_action->setChecked(enabled_protos.contains(proto_id));
-        connect(endp_action, SIGNAL(triggered()), this, SLOT(toggleConversation()));
+        connect(endp_action, SIGNAL(triggered()), this, SLOT(toggleTable()));
         traffic_type_menu_.addAction(endp_action);
     }
 }
@@ -177,7 +177,7 @@ void TrafficTableDialog::setTabText(QWidget *tree, const QString &text)
     }
 }
 
-void TrafficTableDialog::toggleConversation()
+void TrafficTableDialog::toggleTable()
 {
     QAction *ca = qobject_cast<QAction *>(QObject::sender());
     if (!ca) {

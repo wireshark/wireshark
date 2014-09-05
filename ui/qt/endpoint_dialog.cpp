@@ -36,12 +36,22 @@
 
 #include "wireshark_application.h"
 
+#include <QDesktopServices>
 #include <QMessageBox>
+#include <QUrl>
 
 const QString table_name_ = QObject::tr("Endpoint");
 EndpointDialog::EndpointDialog(QWidget *parent, capture_file *cf, int cli_proto_id, const char *filter) :
     TrafficTableDialog(parent, cf, filter, table_name_)
 {
+#ifdef HAVE_GEOIP
+    map_bt_ = buttonBox()->addButton(tr("Map"), QDialogButtonBox::ActionRole);
+    map_bt_->setToolTip(tr("Draw IPv4 or IPv6 endpoints on a map."));
+    connect(map_bt_, SIGNAL(clicked()), this, SLOT(createMap()));
+
+    connect(trafficTableTabWidget(), SIGNAL(currentChanged(int)), this, SLOT(tabChanged()));
+#endif
+
     QList<int> endp_protos;
     for (GList *endp_tab = recent.endpoint_tabs; endp_tab; endp_tab = endp_tab->next) {
         int proto_id = proto_get_id_by_short_name((const char *)endp_tab->data);
@@ -67,7 +77,7 @@ EndpointDialog::EndpointDialog(QWidget *parent, capture_file *cf, int cli_proto_
 
     fillTypeMenu(endp_protos);
 
-    updateWidgets();
+    tabChanged();
     itemSelectionChanged();
 
     if (cap_file_) {
@@ -154,7 +164,35 @@ bool EndpointDialog::addTrafficTable(register_ct_t *table)
         g_string_free(error_string, TRUE);
     }
 
+#ifdef HAVE_GEOIP
+    connect(endp_tree, SIGNAL(geoIPStatusChanged()), this, SLOT(tabChanged()));
+#endif
     return true;
+}
+
+#ifdef HAVE_GEOIP
+void EndpointDialog::tabChanged()
+{
+    EndpointTreeWidget *cur_tree = qobject_cast<EndpointTreeWidget *>(trafficTableTabWidget()->currentWidget());
+    map_bt_->setEnabled(cur_tree->hasGeoIPData());
+}
+#endif
+
+void EndpointDialog::createMap()
+{
+    EndpointTreeWidget *cur_tree = qobject_cast<EndpointTreeWidget *>(trafficTableTabWidget()->currentWidget());
+    if (!cur_tree) {
+        return;
+    }
+
+    gchar *err_str;
+    gchar *map_path = create_endpoint_geoip_map(cur_tree->trafficTreeHash()->conv_array, &err_str);
+    if (!map_path) {
+        QMessageBox::warning(this, "Map file error", err_str);
+        g_free(err_str);
+        return;
+    }
+    QDesktopServices::openUrl(QUrl::fromLocalFile(gchar_free_to_qstring(map_path)));
 }
 
 void EndpointDialog::on_buttonBox_helpRequested()
@@ -280,12 +318,12 @@ public:
             }
 
             qulonglong ullval = text(col).toULongLong(&ok);
-            if (ok) { // Assume lat / lon
+            if (ok) { // Assume uint
                 return ullval;
             }
 
             qlonglong llval = text(col).toLongLong(&ok);
-            if (ok) { // Assume lat / lon
+            if (ok) { // Assume int
                 return llval;
             }
 
@@ -360,6 +398,9 @@ public:
 
 EndpointTreeWidget::EndpointTreeWidget(QWidget *parent, register_ct_t *table) :
     TrafficTableTreeWidget(parent, table)
+#ifdef HAVE_GEOIP
+  , has_geoip_data_(false)
+#endif
 {
     setColumnCount(ENDP_NUM_COLUMNS);
 
@@ -496,6 +537,8 @@ void EndpointTreeWidget::updateItems()
             for (unsigned i = 0; i < geoip_db_num_dbs(); i++) {
                 showColumn(ENDP_NUM_COLUMNS + i);
             }
+            has_geoip_data_ = true;
+            emit geoIPStatusChanged();
         }
     }
 #endif

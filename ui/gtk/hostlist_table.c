@@ -25,7 +25,6 @@
 
 #include <string.h>
 #include <stdlib.h>
-#include <stdio.h>
 #include <math.h>
 #include <locale.h>
 
@@ -38,17 +37,13 @@
 #include <epan/strutil.h>
 #ifdef HAVE_GEOIP
 #include <GeoIP.h>
-#include <epan/geoip_db.h>
-#include <wsutil/pint.h>
-#include <wsutil/filesystem.h>
+#include "epan/geoip_db.h"
+#include "wsutil/pint.h"
 #endif
-
-#include <wsutil/file_util.h>
 
 #include "ui/simple_dialog.h"
 #include "ui/alert_box.h"
 #include "ui/utf8_entities.h"
-#include "wsutil/tempfile.h"
 
 #include "ui/gtk/hostlist_table.h"
 #include "ui/gtk/filter_utils.h"
@@ -769,243 +764,27 @@ copy_as_csv_cb(GtkWindow *copy_bt, gpointer data _U_)
 }
 
 #ifdef HAVE_GEOIP
-typedef struct {
-    int                nb_cols;
-    gint32             col_lat, col_lon, col_country, col_city, col_as_num, col_ip, col_packets, col_bytes;
-    FILE              *out_file;
-    gboolean           hosts_written;
-    hostlist_table    *talkers;
-} map_t;
 
-static const char *map_endpoint_opener;
-
-static void
-map_init(void)
-{
-    map_endpoint_opener = "{\n";
-}
-
-/* XXX output in C locale */
-static gboolean
-map_handle(GtkTreeModel *model, GtkTreePath *path _U_, GtkTreeIter *iter,
-              gpointer data)
-{
-    map_t   *map = (map_t *)data;
-    gchar   *table_entry, *esc_entry;
-    guint64  value;
-    /* Add the column values to the TSV data */
-
-    /* check, if we have a geolocation available for this host */
-    gtk_tree_model_get(model, iter, map->col_lat, &table_entry, -1);
-    if (strcmp(table_entry, "-") == 0) {
-        g_free(table_entry);
-        return FALSE;
-    }
-
-    gtk_tree_model_get(model, iter, map->col_lon, &table_entry, -1);
-    if (strcmp(table_entry, "-") == 0) {
-        g_free(table_entry);
-        return FALSE;
-    }
-
-/*
-{
-  'type': 'Feature', 'geometry': { 'type': 'Point', 'coordinates': [-122.583889, 37.898889] },
-  'properties': { 'title': 'host.example.com', 'description': 'AS: AS12345 Ewok Holdings, Inc.<br/>Country: US<br/>City: Muir Woods, CA<br/>Packets: 6<br/>Bytes: 980' }
-},
- */
-
-    fputs(map_endpoint_opener, map->out_file);
-    fputs("  'type': 'Feature', 'geometry': { 'type': 'Point', 'coordinates': [", map->out_file);
-
-    /* Longitude */
-    gtk_tree_model_get(model, iter, map->col_lon, &table_entry, -1);
-    fputs(table_entry, map->out_file);
-    g_free(table_entry);
-    fputs(", ", map->out_file);
-
-    /* Latitude */
-    gtk_tree_model_get(model, iter, map->col_lat, &table_entry, -1);
-    fputs(table_entry, map->out_file);
-    g_free(table_entry);
-    fputs("] },\n", map->out_file);
-
-    fputs("  'properties': { 'title': '", map->out_file);
-
-    /* Title */
-    gtk_tree_model_get(model, iter, map->col_ip, &table_entry, -1);
-    esc_entry = string_replace(table_entry, "'", "&#39;");
-    fputs(esc_entry, map->out_file);
-    g_free(table_entry);
-    g_free(esc_entry);
-    fputs("', 'description': '", map->out_file);
-
-    /* Description */
-    if (map->col_as_num >= 0) {
-        gtk_tree_model_get(model, iter, map->col_as_num, &table_entry, -1);
-        fputs("AS: ", map->out_file);
-        esc_entry = string_replace(table_entry, "'", "&#39;");
-        fputs(esc_entry, map->out_file);
-        g_free(table_entry);
-        g_free(esc_entry);
-        fputs("<br/>", map->out_file);
-    }
-
-    if (map->col_country >= 0) {
-        gtk_tree_model_get(model, iter, map->col_country, &table_entry, -1);
-        fputs("Country: ", map->out_file);
-        esc_entry = string_replace(table_entry, "'", "&#39;");
-        fputs(esc_entry, map->out_file);
-        g_free(table_entry);
-        g_free(esc_entry);
-        fputs("<br/>", map->out_file);
-    }
-
-    if (map->col_country >= 0) {
-        gtk_tree_model_get(model, iter, map->col_city, &table_entry, -1);
-        fputs("City: ", map->out_file);
-        esc_entry = string_replace(table_entry, "'", "&#39;");
-        fputs(esc_entry, map->out_file);
-        g_free(table_entry);
-        g_free(esc_entry);
-        fputs("<br/>", map->out_file);
-    }
-
-    gtk_tree_model_get(model, iter, map->col_packets, &value, -1);
-    fprintf(map->out_file, "Packets: %" G_GINT64_MODIFIER "u<br/>", value);
-
-    gtk_tree_model_get(model, iter, map->col_bytes, &value, -1);
-    fprintf(map->out_file, "Bytes: %" G_GINT64_MODIFIER "u", value);
-
-    /* XXX - we could add specific icons, e.g. depending on the amount of packets or bytes */
-
-    fputs("' }\n", map->out_file);
-    fputs("}", map->out_file);
-    map_endpoint_opener = ",\n{\n";
-
-    map->hosts_written = TRUE;
-
-    return FALSE;
-}
-
-#define MAX_TPL_LINE_LEN 4096
 static void
 open_as_map_cb(GtkWindow *copy_bt, gpointer data _U_)
 {
-    guint32            i;
-    gchar             *file_uri;
-    gboolean           uri_open;
-    char              *map_path, *map_filename;
-    char              *tpl_filename;
-    char              *tpl_line;
-    GList             *columns, *list;
-    GtkTreeViewColumn *column;
-    GtkListStore      *store;
-    map_t              map;
-    FILE              *tpl_file;
+    gchar          *err_str;
+    gchar          *file_uri;
+    gboolean        uri_open;
+    hostlist_table *talkers;
+    gchar          *map_filename;
 
-    map.talkers = (hostlist_table *)g_object_get_data(G_OBJECT(copy_bt), HOST_PTR_KEY);
-    if (!map.talkers)
-        return;
 
-    map.col_lat = map.col_lon = map.col_country = map.col_city = map.col_as_num = map.col_ip = map.col_packets = map.col_bytes = -1;
-    map.hosts_written = FALSE;
-    /* Find the interesting columns */
-    columns = gtk_tree_view_get_columns(GTK_TREE_VIEW(map.talkers->table));
-    list = columns;
-    map.nb_cols = 0;
-    while(columns) {
-        column = (GtkTreeViewColumn *)columns->data;
-        i = gtk_tree_view_column_get_sort_column_id(column);
-        if(strcmp(map.talkers->default_titles[i], "Latitude") == 0) {
-            map.col_lat = i;
-            map.nb_cols++;
-        }
-        if(strcmp(map.talkers->default_titles[i], "Longitude") == 0) {
-            map.col_lon = i;
-            map.nb_cols++;
-        }
-        if(strcmp(map.talkers->default_titles[i], "Country") == 0) {
-            map.col_country = i;
-            map.nb_cols++;
-        }
-        if(strcmp(map.talkers->default_titles[i], "City") == 0) {
-            map.col_city = i;
-            map.nb_cols++;
-        }
-        if(strcmp(map.talkers->default_titles[i], "AS Number") == 0) {
-            map.col_as_num = i;
-        }
-        if(strcmp(map.talkers->default_titles[i], "Address") == 0) {
-            map.col_ip = i;
-            map.nb_cols++;
-        }
-        if(strcmp(map.talkers->default_titles[i], "Packets") == 0) {
-            map.col_packets = i;
-            map.nb_cols++;
-        }
-        if(strcmp(map.talkers->default_titles[i], "Bytes") == 0) {
-            map.col_bytes = i;
-            map.nb_cols++;
-        }
-        columns = g_list_next(columns);
-    }
-    g_list_free(list);
-
-    /* check for the minimum required data */
-    if(map.col_lat == -1 || map.col_lon == -1) {
-        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Latitude/Longitude data not available (GeoIP installed?)");
+    talkers = (hostlist_table *)g_object_get_data(G_OBJECT(copy_bt), HOST_PTR_KEY);
+    if (!talkers) {
         return;
     }
 
-    /* Create a location map HTML file from a template */
-    /* XXX - add error handling */
-    tpl_filename = get_datafile_path("ipmap.html");
-    tpl_file = ws_fopen(tpl_filename, "r");
-    if(tpl_file == NULL) {
-        open_failure_alert_box(tpl_filename, errno, FALSE);
-        g_free(tpl_filename);
-        return;
-    }
-    g_free(tpl_filename);
+    map_filename = create_endpoint_geoip_map(talkers->hash.conv_array, &err_str);
 
-    /* We should probably create a file with a temporary name and a .html extension instead */
-    if (! create_tempdir(&map_path, "Wireshark IP Map ")) {
-        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                "Could not create temporary directory\n%s",
-                map_path);
-        fclose(tpl_file);
-        return;
-    }
-
-    map_filename = g_strdup_printf("%s%cipmap.html", map_path, G_DIR_SEPARATOR);
-    map.out_file = ws_fopen(map_filename, "w");
-    if(map.out_file == NULL) {
-        open_failure_alert_box(map_filename, errno, TRUE);
-        g_free(map_filename);
-        fclose(tpl_file);
-        return;
-    }
-
-    store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(map.talkers->table)));
-    tpl_line = (char *)g_malloc(MAX_TPL_LINE_LEN);
-
-    while (fgets(tpl_line, MAX_TPL_LINE_LEN, tpl_file) != NULL) {
-        fputs(tpl_line, map.out_file);
-        /* MUST match ipmap.html */
-        if (strstr(tpl_line, "// Start endpoint list")) {
-            map_init();
-            gtk_tree_model_foreach(GTK_TREE_MODEL(store), map_handle, &map);
-        }
-    }
-    g_free(tpl_line);
-
-    fclose(tpl_file);
-    fclose(map.out_file);
-
-    if(!map.hosts_written) {
-        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "No latitude/longitude data found");
-        g_free(map_filename);
+    if (!map_filename) {
+        simple_error_message_box("%s", err_str);
+        g_free(err_str);
         return;
     }
 

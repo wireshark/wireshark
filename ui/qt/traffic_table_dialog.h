@@ -145,7 +145,7 @@ private slots:
     void on_nameResolutionCheckBox_toggled(bool checked);
     void on_displayFilterCheckBox_toggled(bool checked);
     void setTabText(QWidget *tree, const QString &text);
-    void toggleConversation();
+    void toggleTable();
 
     void copyAsCsv();
     void copyAsYaml();
