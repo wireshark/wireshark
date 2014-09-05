@@ -450,7 +450,6 @@ dissect_pppoe_tags(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tr
 	proto_tree  *pppoe_tree;
 	proto_item  *ti;
 	proto_item  *pppoe_tree_tag_length_item = NULL;
-	proto_item  *item;
 
 	/* Start Decoding Here. */
 	if (tree)
@@ -603,33 +602,24 @@ dissect_pppoe_tags(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tr
 					} else {
 						if (global_pppoe_show_tags_and_lengths) {
 							proto_item_append_text(pppoe_tree_tag_length_item, " [Wrong: should be 2]");
-							item = pppoe_tree_tag_length_item;
-						} else {
-							item = proto_tree_add_text(pppoe_tree, tvb, tagstart+4, poe_tag_length,
-							    "%s: Wrong length: %u (expected 2)",
-							    proto_registrar_get_name(hf_pppoed_tag_seq_num),
-							    poe_tag_length);
 						}
-						expert_add_info_format(pinfo, item, &ei_pppoe_tag_length, "Sequence Number tag: Wrong length: %u (expected 2)", poe_tag_length);
+
+                        proto_tree_add_expert_format(pppoe_tree, pinfo, &ei_pppoe_tag_length, tvb, tagstart+4, poe_tag_length,
+							    "Sequence Number tag: Wrong length: %u (expected 2)", poe_tag_length);
 					}
 					break;
-                                case PPPOE_TAG_CRED_SCALE:
+                case PPPOE_TAG_CRED_SCALE:
 					if (poe_tag_length == 2) {
 						proto_tree_add_item(pppoe_tree, hf_pppoed_tag_cred_scale, tvb,
 								    tagstart+4, poe_tag_length, ENC_BIG_ENDIAN);
 					} else {
 						if (global_pppoe_show_tags_and_lengths) {
 							proto_item_append_text(pppoe_tree_tag_length_item, " [Wrong: should be 2]");
-							item = pppoe_tree_tag_length_item;
-						} else {
-							item = proto_tree_add_text(pppoe_tree, tvb, tagstart+4, poe_tag_length,
-							    "%s: Wrong length: %u (expected 2)",
-							    proto_registrar_get_name(hf_pppoed_tag_cred_scale),
-							    poe_tag_length);
 						}
-						expert_add_info_format(pinfo, item, &ei_pppoe_tag_length, "Credit Scale Factor tag: Wrong length: %u (expected 2)", poe_tag_length);
+						proto_tree_add_expert_format(pppoe_tree, pinfo, &ei_pppoe_tag_length, tvb, tagstart+4, poe_tag_length,
+							    "Credit Scale Factor tag: Wrong length: %u (expected 2)", poe_tag_length);
 					}
-                                        break;
+                    break;
 				case PPPOE_TAG_RELAY_ID:
 					proto_tree_add_item(pppoe_tree, hf_pppoed_tag_relay_session_id, tvb,
 					                    tagstart+4, poe_tag_length, ENC_NA);

@@ -58,6 +58,7 @@ static int hf_pw_hdlc_cr_bit = -1;
 static int hf_pw_hdlc_control_field = -1;
 static int hf_pw_hdlc_pf_bit = -1;
 static int hf_pw_hdlc_modifier = -1;
+static int hf_pw_hdlc_frame = -1;
 
 static const value_string pw_hdlc_modifier_vals[] = {
 	{0x00, "UI - Unnumbered information" },
@@ -84,12 +85,11 @@ static void dissect_pw_hdlc_nocw_fr( tvbuff_t * tvb, packet_info * pinfo, proto_
 }
 
 
-static void dissect_pw_hdlc_nocw_hdlc_ppp( tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree )
+static int dissect_pw_hdlc_nocw_hdlc_ppp( tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_ )
 {
 	if (tvb_reported_length_remaining(tvb, 0) < 2)
 	{
-		proto_tree_add_text(tree, tvb, 0, -1, "Error processing message");
-		return;
+		return 0;
 	}
 
 	if (tree)
@@ -126,22 +126,24 @@ static void dissect_pw_hdlc_nocw_hdlc_ppp( tvbuff_t * tvb, packet_info * pinfo, 
 		{
 			if ( control & 2 )
 			{
-				proto_tree_add_text( tr, tvb, 1, 1, "U frame" );
+				proto_tree_add_uint_format( tr, hf_pw_hdlc_frame, tvb, 1, 1, control, "U frame" );
 
 				proto_tree_add_uint( tr, hf_pw_hdlc_pf_bit, tvb, 1, 1, ( control & 0x10 ) >> 4 );
 				proto_tree_add_uint( tr, hf_pw_hdlc_modifier, tvb, 1, 1, (control & 0xEC) >> 2);
 			}
 			else
 			{
-				proto_tree_add_text( tr, tvb, 1, 1, "S frame" );
+				proto_tree_add_uint_format( tr, hf_pw_hdlc_frame, tvb, 1, 1, control, "S frame" );
 			}
 		}
 		else
 		{
-			proto_tree_add_text( tr, tvb, 1, 1, "I frame" );
+			proto_tree_add_uint_format( tr, hf_pw_hdlc_frame, tvb, 1, 1, control, "I frame" );
 		}
 	}
+
 	call_dissector( ppp_handle, tvb_new_subset_remaining(tvb, 2), pinfo, tree );
+    return tvb_captured_length(tvb);
 }
 
 void proto_register_pw_hdlc(void)
@@ -196,7 +198,14 @@ void proto_register_pw_hdlc(void)
 				"Modifier", "pw_hdlc.modifier",
 				FT_UINT8, BASE_HEX, VALS(pw_hdlc_modifier_vals), 0x0, NULL, HFILL
 			}
-		}
+		},
+		{
+			&hf_pw_hdlc_frame,
+			{
+				"Frame type", "pw_hdlc.frame",
+				FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
+			}
+		},
 	};
 
 	static gint *ett[] = {
@@ -214,7 +223,7 @@ void proto_register_pw_hdlc(void)
 	proto_register_subtree_array(ett, array_length(ett));
 
 	register_dissector("pw_hdlc_nocw_fr", dissect_pw_hdlc_nocw_fr, proto_pw_hdlc_nocw_fr );
-	register_dissector("pw_hdlc_nocw_hdlc_ppp", dissect_pw_hdlc_nocw_hdlc_ppp, proto_pw_hdlc_nocw_hdlc_ppp );
+	new_register_dissector("pw_hdlc_nocw_hdlc_ppp", dissect_pw_hdlc_nocw_hdlc_ppp, proto_pw_hdlc_nocw_hdlc_ppp );
 }
 
 void proto_reg_handoff_pw_hdlc(void)

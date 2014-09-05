@@ -286,6 +286,7 @@ static gint hf_PCEPF_NOTI_VAL1 = -1;
 static gint hf_PCEPF_NOTI_VAL2 = -1;
 static gint hf_PCEPF_OBJ_PCEP_ERROR = -1;
 static gint hf_PCEPF_ERROR_TYPE = -1;
+static gint hf_PCEPF_ERROR_VALUE = -1;
 static gint hf_PCEPF_OBJ_LOAD_BALANCING = -1;
 static gint hf_PCEPF_OBJ_CLOSE = -1;
 static gint hf_PCEPF_OBJ_PATH_KEY = -1;
@@ -1812,6 +1813,7 @@ dissect_pcep_error_obj(proto_tree *pcep_object_tree, packet_info *pinfo, tvbuff_
 {
     guint8       error_type;
     guint8       error_value;
+    proto_item*  type_item;
     const gchar *err_str = "Unassigned";
 
     if (obj_length < OBJ_HDR_LEN+ERROR_OBJ_MIN_LEN) {
@@ -1827,7 +1829,7 @@ dissect_pcep_error_obj(proto_tree *pcep_object_tree, packet_info *pinfo, tvbuff_
 
     error_type  = tvb_get_guint8(tvb, offset2+2);
     error_value = tvb_get_guint8(tvb, offset2+3);
-    proto_tree_add_item(pcep_object_tree, hf_PCEPF_ERROR_TYPE, tvb, offset2+2, 1, ENC_NA);
+    type_item = proto_tree_add_item(pcep_object_tree, hf_PCEPF_ERROR_TYPE, tvb, offset2+2, 1, ENC_NA);
 
     switch (error_type) {
         case ESTABLISH_FAILURE:
@@ -1877,9 +1879,9 @@ dissect_pcep_error_obj(proto_tree *pcep_object_tree, packet_info *pinfo, tvbuff_
             err_str = val_to_str_const(error_value, pcep_error_value_18_vals, "Unknown");
             break;
         default:
-            proto_tree_add_text(pcep_object_tree, tvb, offset2+2, 1, "Error-Type: %u Non defined Error-Value", error_type);
+            proto_item_append_text(type_item, " (%u Non defined Error-Value)", error_type);
     }
-    proto_tree_add_text(pcep_object_tree, tvb, offset2+3, 1, "Error-Value: %s (%u)", err_str, error_value);
+    proto_tree_add_uint_format_value(pcep_object_tree, hf_PCEPF_ERROR_VALUE, tvb, offset2+3, 1, error_value, "%s (%u)", err_str, error_value);
 
     /*it's suppose that obj_length is a valid date. The object can have optional TLV(s)*/
     offset2 += ERROR_OBJ_MIN_LEN;
@@ -2857,6 +2859,11 @@ proto_register_pcep(void)
         { &hf_PCEPF_ERROR_TYPE,
           { "Error-Type", "pcep.error.type",
             FT_UINT8, BASE_DEC | BASE_EXT_STRING, &pcep_error_types_obj_vals_ext, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_PCEPF_ERROR_VALUE,
+          { "Error-Value", "pcep.error.value",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_PCEPF_OBJ_LOAD_BALANCING,

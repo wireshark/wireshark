@@ -55,6 +55,8 @@ static int hf_pcnfsd_gid = -1;
 static int hf_pcnfsd_gids_count = -1;
 static int hf_pcnfsd_homedir = -1;
 static int hf_pcnfsd_def_umask = -1;
+static int hf_pcnfsd_mapreq = -1;
+static int hf_pcnfsd_mapreq_status = -1;
 static int hf_pcnfsd_username = -1;
 
 
@@ -84,26 +86,11 @@ static const value_string names_mapreq[] =
 };
 
 static int
-dissect_pcnfsd_mapreq(tvbuff_t *tvb, int offset, proto_tree *tree)
-{
-	guint32 mapreq;
-
-	mapreq = tvb_get_ntohl(tvb, offset + 0);
-
-	if (tree)
-		proto_tree_add_text(tree, tvb, offset, 4, "Request: %s (%u)",
-			val_to_str(mapreq, names_mapreq, "%u"), mapreq);
-
-	offset += 4;
-
-	return offset;
-}
-
-static int
 dissect_pcnfsd2_dissect_mapreq_arg_item(tvbuff_t *tvb, int offset,
 	packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
-	offset = dissect_pcnfsd_mapreq(tvb, offset, tree);
+	proto_tree_add_item(tree, hf_pcnfsd_mapreq, tvb, offset, 4, ENC_BIG_ENDIAN);
+	offset += 4;
 
 	offset = dissect_rpc_uint32(tvb, tree, hf_pcnfsd_uid, offset);
 
@@ -140,16 +127,10 @@ static int
 dissect_pcnfsd2_dissect_mapreq_res_item(tvbuff_t *tvb, int offset,
 	packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
-	guint32 maprstat;
+	proto_tree_add_item(tree, hf_pcnfsd_mapreq, tvb, offset, 4, ENC_BIG_ENDIAN);
+	offset += 4;
 
-	offset = dissect_pcnfsd_mapreq(tvb, offset, tree);
-
-	maprstat = tvb_get_ntohl(tvb, offset + 0);
-
-	if (tree)
-		proto_tree_add_text(tree, tvb, offset, 4, "Status: %s (%u)",
-			val_to_str(maprstat, names_maprstat, "%u"), maprstat);
-
+	proto_tree_add_item(tree, hf_pcnfsd_mapreq_status, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	offset = dissect_rpc_uint32(tvb, tree, hf_pcnfsd_uid, offset);
@@ -405,6 +386,12 @@ proto_register_pcnfsd(void)
 		{ &hf_pcnfsd_def_umask, {
                         "def_umask", "pcnfsd.def_umask", FT_UINT32, BASE_OCT,
                         NULL, 0, NULL, HFILL }},
+		{ &hf_pcnfsd_mapreq, {
+                        "Request", "pcnfsd.mapreq", FT_UINT32, BASE_DEC,
+                        VALS(names_mapreq), 0, NULL, HFILL }},
+		{ &hf_pcnfsd_mapreq_status, {
+                        "Status", "pcnfsd.mapreq_status", FT_UINT32, BASE_DEC,
+                        VALS(names_maprstat), 0, NULL, HFILL }},
 		{ &hf_pcnfsd_username, {
 			"User name", "pcnfsd.username", FT_STRING, BASE_NONE,
 			NULL, 0, "pcnfsd.username", HFILL }},

@@ -46,6 +46,7 @@ static int hf_passwd = -1;
 static int hf_salt = -1;
 static int hf_statement = -1;
 static int hf_portal = -1;
+static int hf_return = -1;
 static int hf_tag = -1;
 static int hf_status = -1;
 static int hf_copydata = -1;
@@ -164,7 +165,6 @@ static void dissect_pgsql_fe_msg(guchar type, guint length, tvbuff_t *tvb,
     guchar c;
     gint i, siz;
     char *s;
-    proto_item *ti, *hidden_item;
     proto_tree *shrub;
 
     switch (type) {
@@ -245,13 +245,11 @@ static void dissect_pgsql_fe_msg(guchar type, guint length, tvbuff_t *tvb,
         proto_tree_add_item(tree, hf_portal, tvb, n, siz, ENC_ASCII|ENC_NA);
         n += siz;
 
-        ti = proto_tree_add_text(tree, tvb, n, 4, "Returns: ");
         i = tvb_get_ntohl(tvb, n);
         if (i == 0)
-            proto_item_append_text(ti, "all");
+            proto_tree_add_uint_format_value(tree, hf_return, tvb, n, 4, i, "all rows");
         else
-            proto_item_append_text(ti, "%d", i);
-        proto_item_append_text(ti, " rows");
+            proto_tree_add_uint_format_value(tree, hf_return, tvb, n, 4, i, "%d rows", i);
         break;
 
     /* Describe, Close */
@@ -263,16 +261,9 @@ static void dissect_pgsql_fe_msg(guchar type, guint length, tvbuff_t *tvb,
         else
             i = hf_statement;
 
-        if (i != 0) {
-            n += 1;
-            s = tvb_get_stringz_enc(wmem_packet_scope(), tvb, n, &siz, ENC_ASCII);
-            hidden_item = proto_tree_add_string(tree, i, tvb, n, siz, s);
-            PROTO_ITEM_SET_HIDDEN(hidden_item);
-            proto_tree_add_text(
-                tree, tvb, n-1, siz, "%s: %s",
-                (c == 'P' ? "Portal" : "Statement"), s
-            );
-        }
+        n += 1;
+        s = tvb_get_stringz_enc(wmem_packet_scope(), tvb, n, &siz, ENC_ASCII);
+        proto_tree_add_string(tree, i, tvb, n, siz, s);
         break;
 
     /* Messages without a type identifier */
@@ -363,7 +354,7 @@ static void dissect_pgsql_be_msg(guchar type, guint length, tvbuff_t *tvb,
     guchar c;
     gint i, siz;
     char *s, *t;
-    proto_item *ti, *hidden_item;
+    proto_item *ti;
     proto_tree *shrub;
 
     switch (type) {
@@ -388,22 +379,19 @@ static void dissect_pgsql_be_msg(guchar type, guint length, tvbuff_t *tvb,
     /* Parameter status */
     case 'S':
         s = tvb_get_stringz_enc(wmem_packet_scope(), tvb, n, &siz, ENC_ASCII);
-        hidden_item = proto_tree_add_string(tree, hf_parameter_name, tvb, n, siz, s);
-        PROTO_ITEM_SET_HIDDEN(hidden_item);
+        proto_tree_add_string(tree, hf_parameter_name, tvb, n, siz, s);
         n += siz;
         t = tvb_get_stringz_enc(wmem_packet_scope(), tvb, n, &i, ENC_ASCII);
-        hidden_item = proto_tree_add_string(tree, hf_parameter_value, tvb, n, i, t);
-        PROTO_ITEM_SET_HIDDEN(hidden_item);
-        proto_tree_add_text(tree, tvb, n-siz, siz+i, "%s: %s", s, t);
+        proto_tree_add_string(tree, hf_parameter_value, tvb, n, i, t);
         break;
 
     /* Parameter description */
     case 't':
         i = tvb_get_ntohs(tvb, n);
-        proto_tree_add_text(tree, tvb, n, 2, "Parameters: %d", i);
+        shrub = proto_tree_add_subtree_format(tree, tvb, n, 2, ett_values, NULL, "Parameters: %d", i);
         n += 2;
         while (i-- > 0) {
-            proto_tree_add_item(tree, hf_typeoid, tvb, n, 4, ENC_BIG_ENDIAN);
+            proto_tree_add_item(shrub, hf_typeoid, tvb, n, 4, ENC_BIG_ENDIAN);
             n += 4;
         }
         break;
@@ -617,9 +605,7 @@ dissect_pgsql_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
         n = 1;
         if (type == '\0')
             n = 0;
-        proto_tree_add_text(ptree, tvb, 0, n, "Type: %s", typestr);
-        hidden_item = proto_tree_add_item(ptree, hf_type, tvb, 0, n, ENC_ASCII|ENC_NA);
-        PROTO_ITEM_SET_HIDDEN(hidden_item);
+        proto_tree_add_string(ptree, hf_type, tvb, 0, n, typestr);
         proto_tree_add_item(ptree, hf_length, tvb, n, 4, ENC_BIG_ENDIAN);
         hidden_item = proto_tree_add_boolean(ptree, hf_frontend, tvb, 0, 0, fe);
         PROTO_ITEM_SET_HIDDEN(hidden_item);
@@ -710,6 +696,11 @@ proto_register_pgsql(void)
         { &hf_portal,
           { "Portal", "pgsql.portal", FT_STRINGZ, BASE_NONE, NULL, 0,
             "The name of a portal.", HFILL }
+        },
+        { &hf_return,
+          { "Returns", "pgsql.returns", FT_UINT32, BASE_DEC,
+            NULL, 0,
+            NULL, HFILL }
         },
         { &hf_tag,
           { "Tag", "pgsql.tag", FT_STRINGZ, BASE_NONE, NULL, 0,

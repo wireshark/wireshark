@@ -378,11 +378,9 @@ dissect_quake3_GamePacket(tvbuff_t *tvb, packet_info *pinfo,
 	rel1 = seq1 & 0x8000 ? 1 : 0;
 	seq1 &= ~0x8000;
 	if (game_tree) {
-		proto_item *seq1_item = proto_tree_add_text(game_tree,
-			tvb, offset, 2, "Current Sequence: %u (%s)",
+		proto_tree *seq1_tree = proto_tree_add_subtree_format(game_tree,
+			tvb, offset, 2, ett_quake3_game_seq1, NULL, "Current Sequence: %u (%s)",
 			seq1, val_to_str(rel1,names_reliable,"%u"));
-		proto_tree *seq1_tree = proto_item_add_subtree(
-			seq1_item, ett_quake3_game_seq1);
 		proto_tree_add_uint(seq1_tree, hf_quake3_game_seq1,
 				    tvb, offset, 2, seq1);
 		proto_tree_add_boolean(seq1_tree, hf_quake3_game_rel1,
@@ -394,11 +392,9 @@ dissect_quake3_GamePacket(tvbuff_t *tvb, packet_info *pinfo,
 	rel2 = seq2 & 0x8000 ? 1 : 0;
 	seq2 &= ~0x8000;
 	if (game_tree) {
-		proto_item *seq2_item = proto_tree_add_text(game_tree,
-			tvb, offset, 2, "Acknowledge Sequence: %u (%s)",
+		proto_tree *seq2_tree = proto_tree_add_subtree_format(game_tree,
+			tvb, offset, 2, ett_quake3_game_seq2, NULL, "Acknowledge Sequence: %u (%s)",
 			seq2, val_to_str(rel2,names_reliable,"%u"));
-		proto_tree *seq2_tree = proto_item_add_subtree(
-			seq2_item, ett_quake3_game_seq2);
 		proto_tree_add_uint(seq2_tree, hf_quake3_game_seq2,
 				    tvb, offset, 2, seq2);
 		proto_tree_add_boolean(seq2_tree, hf_quake3_game_rel2,

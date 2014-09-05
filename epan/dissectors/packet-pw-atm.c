@@ -114,6 +114,8 @@ static expert_field ei_cell_h_m = EI_INIT;
 static expert_field ei_cw_bits03 = EI_INIT;
 static expert_field ei_pw_packet_size_too_small = EI_INIT;
 static expert_field ei_pref_cw_len = EI_INIT;
+static expert_field ei_gen_cw_atmbyte = EI_INIT;
+
 
 static dissector_handle_t dh_cell;
 static dissector_handle_t dh_cell_header;
@@ -1303,16 +1305,11 @@ dissect_control_word(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, voi
 		/* atm-specific byte */
 		if (MODE_11(pd->mode))
 		{
-			proto_tree_add_item(tree2, hf_gen_cw_atmbyte, tvb, 3, 1, ENC_BIG_ENDIAN);
-			/*
-			 * no need to highlight item in the tree, therefore
-			 * expert_add_info_format() is not used here.
-			 */
-			item = proto_tree_add_text(tree2, tvb, 3, 1
-						   ,"ATM-specific byte of CW is fully dissected below as %s%s"
+			item = proto_tree_add_item(tree2, hf_gen_cw_atmbyte, tvb, 3, 1, ENC_BIG_ENDIAN);
+			expert_add_info_format(pinfo, item, &ei_gen_cw_atmbyte,
+						   "ATM-specific byte of CW is fully dissected below as %s%s"
 						   ,(PWATM_MODE_11_VPC == pd->mode) ? "a part of "	: ""
 						   ,"PW ATM Cell Header [000]");
-			PROTO_ITEM_SET_GENERATED(item);
 			/*
 			 * Note: if atm-specific byte contains something wrong
 			 * (e.g. non-zero RSV or inadequate V), CW is not
@@ -1863,7 +1860,9 @@ proto_register_pw_atm_ata(void)
 		{ &ei_cell_h_v_not_zero, { "atm.pw_control_byte.v.not_one", PI_MALFORMED, PI_ERROR, "1:1 VPC mode: V bit must be 1 to indicate that VCI is present", EXPFILL }},
 		{ &ei_cell_h_v_not_one, { "atm.pw_control_byte.v.not_zero", PI_MALFORMED, PI_ERROR, "1:1 VCC mode: V bit must be 0 to indicate that VCI is absent", EXPFILL }},
 		{ &ei_cell_h_rsv, { "atm.pw_control_byte.rsv.not_zero", PI_MALFORMED, PI_ERROR, "Reserved bits in the 3rd byte of CW must be 0", EXPFILL }},
+		{ &ei_gen_cw_atmbyte, { "pw.cw.atmbyte", PI_PROTOCOL, PI_NOTE, "ATM-specific byte of CW is fully dissected below", EXPFILL }},
 	};
+
 	expert_module_t* expert_cell;
 
 	proto_n1_cw =

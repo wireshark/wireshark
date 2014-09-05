@@ -52,6 +52,7 @@ static int hf_cw_cr = -1;
 static int hf_cw_frg = -1;
 static int hf_cw_len = -1;
 static int hf_cw_seq = -1;
+static int hf_cw_padding = -1;
 
 static expert_field ei_payload_size_invalid = EI_INIT;
 static expert_field ei_cw_bits03 = EI_INIT;
@@ -225,9 +226,8 @@ dissect_pw_fr( tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree )
 
 		if (payload_padding > 0)
 		{
-			proto_tree_add_text(subtree, tvb,
-				encaps_size+payload_size, payload_padding,
-				"[Padding: %d octets]",(int)payload_padding);
+			proto_tree_add_item(subtree, hf_cw_padding, tvb,
+				encaps_size+payload_size, payload_padding, ENC_NA);
 		}
 
 		if (packet_quality & PQ_PAYLOAD_SIZE_ZERO)
@@ -280,6 +280,10 @@ static hf_register_info hf[] = {
 			  ,HFILL}},
 
 	{&hf_cw_seq	,{"Sequence number"	,"pwfr.length"	,FT_UINT16	,BASE_DEC
+			  ,NULL			,0		,NULL
+			  ,HFILL}},
+
+	{&hf_cw_padding,{"Padding"	,"pwfr.padding"	,FT_BYTES, BASE_NONE
 			  ,NULL			,0		,NULL
 			  ,HFILL}}
 };

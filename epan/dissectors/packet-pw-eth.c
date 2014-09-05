@@ -50,21 +50,18 @@ static dissector_handle_t eth_withoutfcs_handle;
 static dissector_handle_t pw_eth_handle_cw;
 static dissector_handle_t pw_eth_handle_nocw;
 
-static void
-dissect_pw_eth_cw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_pw_eth_cw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     tvbuff_t *next_tvb;
     guint16   sequence_number;
 
     if (tvb_reported_length_remaining(tvb, 0) < 4) {
-        if (tree)
-            proto_tree_add_text(tree, tvb, 0, -1,
-                                "Error processing Message");
-        return;
+        return 0;
     }
 
     if (dissect_try_cw_first_nibble(tvb, pinfo, tree))
-        return;
+        return tvb_captured_length(tvb);
 
     sequence_number = tvb_get_ntohs(tvb, 2);
 
@@ -90,6 +87,8 @@ dissect_pw_eth_cw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     {
         call_dissector(eth_withoutfcs_handle, next_tvb, pinfo, tree);
     }
+
+    return tvb_captured_length(tvb);
 }
 
 static void
@@ -194,7 +193,7 @@ proto_register_pw_eth(void)
                                 "pwethheuristic");
     proto_register_field_array(proto_pw_eth_cw, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
-    register_dissector("pw_eth_cw", dissect_pw_eth_cw, proto_pw_eth_cw);
+    new_register_dissector("pw_eth_cw", dissect_pw_eth_cw, proto_pw_eth_cw);
     register_dissector("pw_eth_nocw", dissect_pw_eth_nocw,
                        proto_pw_eth_nocw);
     register_dissector("pw_eth_heuristic", dissect_pw_eth_heuristic,

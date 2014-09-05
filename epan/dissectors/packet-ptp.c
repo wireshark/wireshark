@@ -1533,6 +1533,7 @@ static int hf_ptp_v2_mm_displayName_length = -1;
 static int hf_ptp_v2_mm_maxKey = -1;
 static int hf_ptp_v2_mm_currentOffset = -1;
 static int hf_ptp_v2_mm_jumpSeconds = -1;
+static int hf_ptp_v2_mm_nextjumpSeconds = -1;
 static int hf_ptp_v2_mm_logAlternateMulticastSyncInterval = -1;
 static int hf_ptp_v2_mm_numberOfAlternateMasters = -1;
 static int hf_ptp_v2_mm_transmitAlternateMulticastSync = -1;
@@ -3812,8 +3813,8 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                 timeStamp = timeStamp << 16;
                                 timeStamp = timeStamp | tvb_get_ntohs(tvb, Offset+4);
 
-                                proto_tree_add_text(ptp_managementData_tree, tvb, Offset, 6,
-                                    "Time of next jump (seconds): %" G_GINT64_MODIFIER "u", timeStamp);
+                                proto_tree_add_uint64(ptp_managementData_tree, hf_ptp_v2_mm_nextjumpSeconds, tvb,
+                                    Offset, 6, timeStamp);
                                 Offset +=6;
 
                                 proto_tree_add_item(ptp_managementData_tree, hf_ptp_v2_mm_reserved, tvb,
@@ -5881,6 +5882,11 @@ proto_register_ptp(void)
         { &hf_ptp_v2_mm_jumpSeconds,
           { "Jump seconds", "ptp.v2.mm.jumpSeconds",
             FT_INT32, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_ptp_v2_mm_nextjumpSeconds,
+          { "Time of next jump (seconds)", "ptp.v2.mm.nextjumpSeconds",
+            FT_UINT64, BASE_DEC, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_ptp_v2_mm_numberOfAlternateMasters,

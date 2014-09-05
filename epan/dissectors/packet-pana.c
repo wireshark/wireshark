@@ -329,7 +329,7 @@ dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree)
        guint16 avp_type;
        guint32 vendor_id;
        guint32 avp_hdr_length;
-       guint32 avp_data_length;
+       guint32 avp_data_length, result_code;
        guint32 padding;
 
        gint32  buffer_length;
@@ -453,10 +453,11 @@ dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree)
                                        break;
                                }
                                case PANA_RESULT_CODE: {
-                                       proto_tree_add_text(single_avp_tree, tvb, offset, avp_data_length,
-                                                           "Value: %d (%s)",
-                                                           tvb_get_ntohl(tvb, offset),
-                                                           val_to_str(tvb_get_ntohs(tvb, offset), avp_code_names, "Unknown (%d)"));
+                                       result_code = tvb_get_ntohl(tvb, offset);
+                                       proto_tree_add_uint_format(single_avp_tree, hf_pana_avp_code, tvb, offset, avp_data_length,
+                                                           result_code, "Value: %d (%s)",
+                                                           result_code,
+                                                           val_to_str(result_code, avp_code_names, "Unknown (%d)"));
                                        break;
                                }
                                case PANA_EAP: {

@@ -342,6 +342,22 @@ static const true_false_string opts_present = {
 	"Not Present"
 };
 
+#define TLV_CHECK(ett) \
+	opt_tree = proto_tree_add_subtree_format(opts_tree, tvb, ptvcursor_current_offset(cursor), genopts_len, \
+						ett, &tf, "Option: %s, Length: %u", \
+						val_to_str(genopts_type, opt_vals, "Unknown (0x%02x)"), genopts_len); \
+	if (genopts_len < 4) { \
+		expert_add_info_format(pinfo, tf, &ei_pgm_genopt_len, \
+					"Length %u invalid, must be >= 4", genopts_len); \
+		return; \
+	} \
+	if (opts_total_len < genopts_len) { \
+		expert_add_info_format(pinfo, tf, &ei_pgm_genopt_len, \
+					"Length %u > remaining total options length", genopts_len); \
+		return; \
+	} \
+
+
 static void
 dissect_pgmopts(ptvcursor_t* cursor, packet_info *pinfo, const char *pktname)
 {
@@ -396,27 +412,10 @@ dissect_pgmopts(ptvcursor_t* cursor, packet_info *pinfo, const char *pktname)
 			genopts_type &= ~PGM_OPT_END;
 			theend = TRUE;
 		}
-		tf = proto_tree_add_text(opts_tree, tvb, ptvcursor_current_offset(cursor), genopts_len,
-			"Option: %s, Length: %u",
-			val_to_str(genopts_type, opt_vals, "Unknown (0x%02x)"),
-			genopts_len);
-
-		if (genopts_len < 4) {
-			expert_add_info_format(pinfo, tf, &ei_pgm_genopt_len,
-				"Length %u invalid, must be >= 4",
-				genopts_len);
-			break;
-		}
-		if (opts_total_len < genopts_len) {
-			expert_add_info_format(pinfo, tf, &ei_pgm_genopt_len,
-				"Length %u > remaining total options length",
-				genopts_len);
-			break;
-		}
 
 		switch(genopts_type) {
 		case PGM_OPT_JOIN:{
-			opt_tree = proto_item_add_subtree(tf, ett_pgm_opts_join);
+            TLV_CHECK(ett_pgm_opts_join);
 			ptvcursor_set_tree(cursor, opt_tree);
 
 			ptvcursor_add_no_advance(cursor, hf_pgm_genopt_end, 1, ENC_BIG_ENDIAN);
@@ -439,7 +438,7 @@ dissect_pgmopts(ptvcursor_t* cursor, packet_info *pinfo, const char *pktname)
 		case PGM_OPT_PARITY_PRM:{
 			guint8 optdata_po;
 
-			opt_tree = proto_item_add_subtree(tf, ett_pgm_opts_parityprm);
+            TLV_CHECK(ett_pgm_opts_parityprm);
 			ptvcursor_set_tree(cursor, opt_tree);
 
 			ptvcursor_add_no_advance(cursor, hf_pgm_genopt_end, 1, ENC_BIG_ENDIAN);
@@ -466,7 +465,7 @@ dissect_pgmopts(ptvcursor_t* cursor, packet_info *pinfo, const char *pktname)
 			break;
 		}
 		case PGM_OPT_PARITY_GRP:{
-			opt_tree = proto_item_add_subtree(tf, ett_pgm_opts_paritygrp);
+            TLV_CHECK(ett_pgm_opts_paritygrp);
 			ptvcursor_set_tree(cursor, opt_tree);
 
 			ptvcursor_add_no_advance(cursor, hf_pgm_genopt_end, 1, ENC_BIG_ENDIAN);
@@ -493,7 +492,7 @@ dissect_pgmopts(ptvcursor_t* cursor, packet_info *pinfo, const char *pktname)
 			gboolean firsttime;
 			int i, j, naks, soffset;
 
-			opt_tree = proto_item_add_subtree(tf, ett_pgm_opts_naklist);
+            TLV_CHECK(ett_pgm_opts_naklist);
 			ptvcursor_set_tree(cursor, opt_tree);
 
 			ptvcursor_add_no_advance(cursor, hf_pgm_genopt_end, 1, ENC_BIG_ENDIAN);
@@ -552,7 +551,7 @@ dissect_pgmopts(ptvcursor_t* cursor, packet_info *pinfo, const char *pktname)
 		case PGM_OPT_PGMCC_DATA:{
 			guint16 optdata_afi;
 
-			opt_tree = proto_item_add_subtree(tf, ett_pgm_opts_ccdata);
+            TLV_CHECK(ett_pgm_opts_ccdata);
 			ptvcursor_set_tree(cursor, opt_tree);
 
 			ptvcursor_add_no_advance(cursor, hf_pgm_genopt_end, 1, ENC_BIG_ENDIAN);
@@ -593,7 +592,7 @@ dissect_pgmopts(ptvcursor_t* cursor, packet_info *pinfo, const char *pktname)
 		case PGM_OPT_PGMCC_FEEDBACK:{
 			guint16 optdata_afi;
 
-			opt_tree = proto_item_add_subtree(tf, ett_pgm_opts_ccdata);
+            TLV_CHECK(ett_pgm_opts_ccdata);
 			ptvcursor_set_tree(cursor, opt_tree);
 
 			ptvcursor_add_no_advance(cursor, hf_pgm_genopt_end, 1, ENC_BIG_ENDIAN);
@@ -632,7 +631,7 @@ dissect_pgmopts(ptvcursor_t* cursor, packet_info *pinfo, const char *pktname)
 			break;
 		}
 		case PGM_OPT_NAK_BO_IVL:{
-			opt_tree = proto_item_add_subtree(tf, ett_pgm_opts_nak_bo_ivl);
+            TLV_CHECK(ett_pgm_opts_nak_bo_ivl);
 			ptvcursor_set_tree(cursor, opt_tree);
 
 			ptvcursor_add_no_advance(cursor, hf_pgm_genopt_end, 1, ENC_BIG_ENDIAN);
@@ -654,7 +653,7 @@ dissect_pgmopts(ptvcursor_t* cursor, packet_info *pinfo, const char *pktname)
 			break;
 		}
 		case PGM_OPT_NAK_BO_RNG:{
-			opt_tree = proto_item_add_subtree(tf, ett_pgm_opts_nak_bo_rng);
+            TLV_CHECK(ett_pgm_opts_nak_bo_rng);
 			ptvcursor_set_tree(cursor, opt_tree);
 
 			ptvcursor_add_no_advance(cursor, hf_pgm_genopt_end, 1, ENC_BIG_ENDIAN);
@@ -678,7 +677,7 @@ dissect_pgmopts(ptvcursor_t* cursor, packet_info *pinfo, const char *pktname)
 		case PGM_OPT_REDIRECT:{
 			guint16 optdata_afi;
 
-			opt_tree = proto_item_add_subtree(tf, ett_pgm_opts_redirect);
+            TLV_CHECK(ett_pgm_opts_redirect);
 			ptvcursor_set_tree(cursor, opt_tree);
 
 			ptvcursor_add_no_advance(cursor, hf_pgm_genopt_end, 1, ENC_BIG_ENDIAN);
@@ -716,7 +715,7 @@ dissect_pgmopts(ptvcursor_t* cursor, packet_info *pinfo, const char *pktname)
 			break;
 		}
 		case PGM_OPT_FRAGMENT:{
-			opt_tree = proto_item_add_subtree(tf, ett_pgm_opts_fragment);
+            TLV_CHECK(ett_pgm_opts_fragment);
 			ptvcursor_set_tree(cursor, opt_tree);
 
 			ptvcursor_add_no_advance(cursor, hf_pgm_genopt_end, 1, ENC_BIG_ENDIAN);
@@ -739,6 +738,7 @@ dissect_pgmopts(ptvcursor_t* cursor, packet_info *pinfo, const char *pktname)
 			break;
 		}
 		default:{
+            TLV_CHECK(ett_pgm_opts);
 			ptvcursor_advance(cursor, genopts_len);
 			break;
 		}

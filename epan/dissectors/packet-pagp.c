@@ -27,6 +27,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include <epan/to_str.h>
 
 void proto_register_pagp(void);
@@ -101,6 +102,7 @@ static int hf_pagp_partner_group_ifindex = -1;
 static int hf_pagp_partner_count = -1;
 static int hf_pagp_num_tlvs = -1;
 static int hf_pagp_tlv = -1;
+static int hf_pagp_tlv_length = -1;
 static int hf_pagp_tlv_device_name = -1;
 static int hf_pagp_tlv_port_name = -1;
 static int hf_pagp_tlv_agport_mac = -1;
@@ -114,6 +116,8 @@ static int hf_pagp_flush_transaction_id = -1;
 static gint ett_pagp = -1;
 static gint ett_pagp_flags = -1;
 static gint ett_pagp_tlvs = -1;
+
+static expert_field ei_pagp_tlv_length = EI_INIT;
 
 /* General declarations and macros */
 
@@ -170,7 +174,7 @@ dissect_pagp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       guchar *ch;
 
       proto_tree *pagp_tree = NULL;
-      proto_item *pagp_item;
+      proto_item *pagp_item, *len_item;
       proto_tree *flags_tree;
       proto_item *flags_item;
       proto_tree *tlv_tree;
@@ -283,7 +287,6 @@ dissect_pagp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       proto_tree_add_item(pagp_tree, hf_pagp_partner_device_id, tvb,
 				PAGP_PARTNER_DEVICE_ID, 6, ENC_NA);
 
-      if (tree) {
 	    raw_octet = tvb_get_guint8(tvb, PAGP_PARTNER_LEARN_CAP);
 	    proto_tree_add_uint(pagp_tree, hf_pagp_partner_learn_cap, tvb,
 				PAGP_PARTNER_LEARN_CAP, 1, raw_octet);
@@ -318,22 +321,19 @@ dissect_pagp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		tlv = tvb_get_ntohs(tvb, offset);
 		len = tvb_get_ntohs(tvb, offset + 2);
-		if ( len == 0 ) {
-		   proto_tree_add_text(pagp_tree, tvb, offset, -1,
-			               "Unknown data - TLV len=0");
-		   return;
-		}
 
 		tlv_tree = proto_tree_add_subtree_format(pagp_tree, tvb, offset, len,
 			   ett_pagp_tlvs, NULL, "TLV Entry #%d", ii+1);
 
-		proto_tree_add_uint_format (tlv_tree, hf_pagp_tlv, tvb,
-			offset,2,tlv,"Type = %d (%s)", tlv,
-			val_to_str_const(tlv,tlv_types, "Unknown")) ;
-		proto_tree_add_text (tlv_tree, tvb, offset+2, 2,
-			"Length = %u bytes (includes Type and Length)", len) ;
+		proto_tree_add_uint(tlv_tree, hf_pagp_tlv, tvb, offset, 2, tlv);
+		len_item = proto_tree_add_uint(tlv_tree, hf_pagp_tlv_length, tvb, offset+2, 2, len);
+		if ( len == 0 ) {
+		   expert_add_info_format(pinfo, len_item, &ei_pagp_tlv_length,
+			               "Unknown data - TLV len=0");
+		   return;
+		}
 		if ( tvb_reported_length_remaining(tvb, offset) < len ) {
-		   proto_tree_add_text(tlv_tree, tvb, offset, -1,
+		   expert_add_info_format(pinfo, len_item, &ei_pagp_tlv_length,
 			               "TLV length too large");
 		   return;
 		}
@@ -360,7 +360,6 @@ dissect_pagp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		offset += len;
 
 	    }
-      }
 }
 
 
@@ -469,9 +468,14 @@ proto_register_pagp(void)
       	"Number of TLVs following", HFILL }},
 
     { &hf_pagp_tlv,
-      { "Entry",		"pagp.tlv",
-	FT_UINT16,	BASE_DEC,	NULL,	0x0,
+      { "Type",		"pagp.tlv",
+	FT_UINT16,	BASE_DEC,	VALS(tlv_types),	0x0,
       	"Type/Length/Value", HFILL }},
+
+    { &hf_pagp_tlv_length,
+      { "Length",		"pagp.tlv_length",
+	FT_UINT16,	BASE_DEC,	NULL,	0x0,
+      	NULL, HFILL }},
 
     { &hf_pagp_tlv_device_name,
       { "Device Name",		"pagp.tlvdevname",
@@ -513,6 +517,11 @@ proto_register_pagp(void)
     &ett_pagp_tlvs,
   };
 
+  static ei_register_info ei[] = {
+    { &ei_pagp_tlv_length, { "pagp.tlv_length.invalid", PI_PROTOCOL, PI_WARN, "Invalid TLV length", EXPFILL }},
+  };
+  expert_module_t* expert_pagp;
+
   /* Register the protocol name and description */
 
   proto_pagp = proto_register_protocol("Port Aggregation Protocol", "PAGP", "pagp");
@@ -521,7 +530,8 @@ proto_register_pagp(void)
 
   proto_register_field_array(proto_pagp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
-
+  expert_pagp = expert_register_protocol(proto_pagp);
+  expert_register_field_array(expert_pagp, ei, array_length(ei));
 }
 
 

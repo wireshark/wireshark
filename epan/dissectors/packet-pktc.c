@@ -32,6 +32,7 @@
 
 #include <epan/packet.h>
 #include <epan/exceptions.h>
+#include <epan/expert.h>
 #include <epan/to_str.h>
 #include <epan/asn1.h>
 #include "packet-pktc.h"
@@ -87,8 +88,12 @@ static gint ett_pktc = -1;
 static gint ett_pktc_app_spec_data = -1;
 static gint ett_pktc_list_of_ciphersuites = -1;
 static gint ett_pktc_engineid = -1;
+static gint ett_pktc_version = -1;
 
 static gint ett_pktc_mtafqdn = -1;
+
+static expert_field ei_pktc_unknown_kmmid = EI_INIT;
+static expert_field ei_pktc_unknown_doi = EI_INIT;
 
 #define KMMID_WAKEUP		0x01
 #define KMMID_AP_REQUEST	0x02
@@ -222,8 +227,8 @@ dissect_pktc_app_specific_data(packet_info *pinfo, proto_tree *parent_tree, tvbu
 
             break;
         default:
-            proto_tree_add_text(tree, tvb, offset, 1, "Unknown KMMID");
-            tvb_get_guint8(tvb, 9999); /* bail out and inform user we cant dissect the packet */
+            proto_tree_add_expert(tree, pinfo, &ei_pktc_unknown_kmmid, tvb, offset, 1);
+            THROW(ReportedBoundsError); /* bail out and inform user we cant dissect the packet */
         };
         break;
     case DOI_IPSEC:
@@ -240,13 +245,13 @@ dissect_pktc_app_specific_data(packet_info *pinfo, proto_tree *parent_tree, tvbu
 
 	    break;
         default:
-            proto_tree_add_text(tree, tvb, offset, 1, "Unknown KMMID");
-            tvb_get_guint8(tvb, 9999); /* bail out and inform user we cant dissect the packet */
+            proto_tree_add_expert(tree, pinfo, &ei_pktc_unknown_kmmid, tvb, offset, 1);
+            THROW(ReportedBoundsError); /* bail out and inform user we cant dissect the packet */
         };
 	break;
     default:
-        proto_tree_add_text(tree, tvb, offset, 1, "Unknown DOI");
-        tvb_get_guint8(tvb, 9999); /* bail out and inform user we cant dissect the packet */
+        proto_tree_add_expert(tree, pinfo, &ei_pktc_unknown_doi, tvb, offset, 1);
+        THROW(ReportedBoundsError); /* bail out and inform user we cant dissect the packet */
     }
 
     proto_item_set_len(item, offset-old_offset);
@@ -301,8 +306,8 @@ dissect_pktc_list_of_ciphersuites(packet_info *pinfo _U_, proto_tree *parent_tre
 	}
         break;
     default:
-        proto_tree_add_text(tree, tvb, offset, 1, "Unknown DOI");
-	tvb_get_guint8(tvb, 9999); /* bail out and inform user we cant dissect the packet */
+        proto_tree_add_expert(tree, pinfo, &ei_pktc_unknown_doi, tvb, offset, 1);
+	    THROW(ReportedBoundsError); /* bail out and inform user we cant dissect the packet */
     }
 
     proto_item_set_len(item, offset-old_offset);
@@ -574,8 +579,8 @@ dissect_pktc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     guint8 kmmid, doi, version;
     int offset=0;
-    proto_tree *pktc_tree;
-    proto_item *item, *hidden_item;
+    proto_tree *pktc_tree, *version_tree;
+    proto_item *item;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "PKTC");
 
@@ -594,11 +599,10 @@ dissect_pktc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* version */
     version=tvb_get_guint8(tvb, offset);
-    proto_tree_add_text(pktc_tree, tvb, offset, 1, "Version: %d.%d", (version>>4)&0x0f, (version)&0x0f);
-    hidden_item = proto_tree_add_uint(pktc_tree, hf_pktc_version_major, tvb, offset, 1, (version>>4)&0x0f);
-    PROTO_ITEM_SET_HIDDEN(hidden_item);
-    hidden_item = proto_tree_add_uint(pktc_tree, hf_pktc_version_minor, tvb, offset, 1, (version)&0x0f);
-    PROTO_ITEM_SET_HIDDEN(hidden_item);
+    version_tree = proto_tree_add_subtree_format(pktc_tree, tvb, offset, 1, ett_pktc_version, NULL,
+                "Version: %d.%d", (version>>4)&0x0f, (version)&0x0f);
+    proto_tree_add_item(version_tree, hf_pktc_version_major, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(version_tree, hf_pktc_version_minor, tvb, offset, 1, ENC_NA);
     offset+=1;
 
     /* fill COL_INFO */
@@ -643,10 +647,10 @@ proto_register_pktc(void)
 	    VALS(doi_types), 0, NULL, HFILL }},
 	{ &hf_pktc_version_major, {
 	    "Major version", "pktc.version.major", FT_UINT8, BASE_DEC,
-	    NULL, 0, "Major version of PKTC", HFILL }},
+	    NULL, 0xF0, "Major version of PKTC", HFILL }},
 	{ &hf_pktc_version_minor, {
 	    "Minor version", "pktc.version.minor", FT_UINT8, BASE_DEC,
-	    NULL, 0, "Minor version of PKTC", HFILL }},
+	    NULL, 0x0F, "Minor version of PKTC", HFILL }},
 	{ &hf_pktc_server_nonce, {
 	    "Server Nonce", "pktc.server_nonce", FT_UINT32, BASE_HEX,
 	    NULL, 0, "Server Nonce random number", HFILL }},
@@ -718,7 +722,8 @@ proto_register_pktc(void)
         &ett_pktc,
         &ett_pktc_app_spec_data,
         &ett_pktc_list_of_ciphersuites,
-	&ett_pktc_engineid,
+        &ett_pktc_engineid,
+        &ett_pktc_version,
     };
 
     proto_pktc = proto_register_protocol("PacketCable", "PKTC", "pktc");
@@ -771,8 +776,17 @@ proto_register_pktc_mtafqdn(void)
         &ett_pktc_mtafqdn,
     };
 
+    static ei_register_info ei[] = {
+        { &ei_pktc_unknown_kmmid, { "pktc.unknown_kmmid", PI_PROTOCOL, PI_WARN, "Unknown KMMID", EXPFILL }},
+        { &ei_pktc_unknown_doi, { "pktc.unknown_doi", PI_PROTOCOL, PI_WARN, "Unknown DOI", EXPFILL }},
+    };
+
+    expert_module_t* expert_pktc;
+
     proto_register_field_array(proto_pktc, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_pktc = expert_register_protocol(proto_pktc);
+    expert_register_field_array(expert_pktc, ei, array_length(ei));
 }
 
 void

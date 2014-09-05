@@ -34,6 +34,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include "packet-ppi-geolocation-common.h"
 
 enum ppi_vector_type {
@@ -258,12 +259,15 @@ static int hf_ppi_vector_vchars_ins_derived = -1;
 static int hf_ppi_vector_vchars_compass_derived = -1;
 static int hf_ppi_vector_vchars_accelerometer_derived = -1;
 static int hf_ppi_vector_vchars_human_derived = -1;
+static int hf_ppi_vector_unknown_data = -1;
 
 /*These represent arrow-dropdownthings in the gui */
 static gint ett_ppi_vector = -1;
 static gint ett_ppi_vector_present = -1;
 static gint ett_ppi_vectorflags= -1;
 static gint ett_ppi_vectorchars= -1;
+
+static expert_field ei_ppi_vector_present_bit = EI_INIT;
 
 
 /* We want to abbreviate this field into a single line. Does so without any string maniuplation */
@@ -283,11 +287,11 @@ annotate_vector_chars(guint32 chars, proto_tree *my_pt)
 }
 
 static void
-dissect_ppi_vector_v1(tvbuff_t *tvb, int offset, gint length_remaining, proto_tree *ppi_vector_tree)
+dissect_ppi_vector_v1(tvbuff_t *tvb, packet_info *pinfo, int offset, gint length_remaining, proto_tree *ppi_vector_tree)
 {
     proto_tree *vectorflags_tree          = NULL;
     proto_tree *vectorchars_tree          = NULL;
-    proto_tree *my_pt, *pt, *present_tree = NULL;
+    proto_tree *my_pt, *pt;
     proto_item *ti;
 
     /* bits */
@@ -302,41 +306,41 @@ dissect_ppi_vector_v1(tvbuff_t *tvb, int offset, gint length_remaining, proto_tr
     guint32 appsecific_num; /* appdata parser should add a subtree based on this value */
     guint32 flags=0, chars=0;
 
+    static const int * ppi_vector_present_flags[] = {
+        &hf_ppi_vector_present_vflags,
+        &hf_ppi_vector_present_vchars,
+        &hf_ppi_vector_present_val_x,
+        &hf_ppi_vector_present_val_y,
+        &hf_ppi_vector_present_val_z,
+        &hf_ppi_vector_present_off_r,
+        &hf_ppi_vector_present_off_f,
+        &hf_ppi_vector_present_off_u,
+        &hf_ppi_vector_present_vel_r,
+        &hf_ppi_vector_present_vel_f,
+        &hf_ppi_vector_present_vel_u,
+        &hf_ppi_vector_present_vel_t,
+        &hf_ppi_vector_present_acc_r,
+        &hf_ppi_vector_present_acc_f,
+        &hf_ppi_vector_present_acc_u,
+        &hf_ppi_vector_present_acc_t,
+        &hf_ppi_vector_present_err_rot,
+        &hf_ppi_vector_present_err_off,
+        &hf_ppi_vector_present_err_vel,
+        &hf_ppi_vector_present_err_acc,
+        &hf_ppi_vector_present_descstr,
+        &hf_ppi_vector_presenappsecific_num,
+        &hf_ppi_vector_present_appspecific_data,
+        &hf_ppi_vector_present_ext,
+        NULL
+    };
+
     /* temporary, conversion values */
     guint32 t_val;
 
     present = tvb_get_letohl(tvb, offset+4);
     /* Subtree for the "present flags" bitfield. */
-    if (ppi_vector_tree) {
-        pt = proto_tree_add_uint(ppi_vector_tree, hf_ppi_vector_present,
-                                 tvb, offset + 4, 4, present);
-        present_tree = proto_item_add_subtree(pt, ett_ppi_vector_present);
+    pt = proto_tree_add_bitmask(ppi_vector_tree, tvb, offset + 4, hf_ppi_vector_present, ett_ppi_vector_present, ppi_vector_present_flags, ENC_LITTLE_ENDIAN);
 
-        proto_tree_add_item(present_tree, hf_ppi_vector_present_vflags,           tvb, 4, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(present_tree, hf_ppi_vector_present_vchars,           tvb, 4, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(present_tree, hf_ppi_vector_present_val_x,            tvb, 4, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(present_tree, hf_ppi_vector_present_val_y,            tvb, 4, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(present_tree, hf_ppi_vector_present_val_z,            tvb, 4, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(present_tree, hf_ppi_vector_present_off_r,            tvb, 4, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(present_tree, hf_ppi_vector_present_off_f,            tvb, 4, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(present_tree, hf_ppi_vector_present_off_u,            tvb, 4, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(present_tree, hf_ppi_vector_present_vel_r,            tvb, 4, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(present_tree, hf_ppi_vector_present_vel_f,            tvb, 4, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(present_tree, hf_ppi_vector_present_vel_u,            tvb, 4, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(present_tree, hf_ppi_vector_present_vel_t,            tvb, 4, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(present_tree, hf_ppi_vector_present_acc_r,            tvb, 4, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(present_tree, hf_ppi_vector_present_acc_f,            tvb, 4, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(present_tree, hf_ppi_vector_present_acc_u,            tvb, 4, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(present_tree, hf_ppi_vector_present_acc_t,            tvb, 4, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(present_tree, hf_ppi_vector_present_err_rot,          tvb, 4, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(present_tree, hf_ppi_vector_present_err_off,          tvb, 4, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(present_tree, hf_ppi_vector_present_err_vel,          tvb, 4, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(present_tree, hf_ppi_vector_present_err_acc,          tvb, 4, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(present_tree, hf_ppi_vector_present_descstr,          tvb, 4, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(present_tree, hf_ppi_vector_presenappsecific_num,     tvb, 4, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(present_tree, hf_ppi_vector_present_appspecific_data, tvb, 4, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(present_tree, hf_ppi_vector_present_ext,              tvb, 4, 4, ENC_LITTLE_ENDIAN);
-    }
     offset += PPI_GEOBASE_MIN_HEADER_LEN;
     length_remaining -= PPI_GEOBASE_MIN_HEADER_LEN;
 
@@ -628,18 +632,14 @@ dissect_ppi_vector_v1(tvbuff_t *tvb, int offset, gint length_remaining, proto_tr
             if (length_remaining < 4)
                 break;
             appsecific_num  = tvb_get_letohl(tvb, offset); /* application specific parsers may switch on this later */
-            if (ppi_vector_tree) {
-                proto_tree_add_uint(ppi_vector_tree, hf_ppi_vector_appspecific_num, tvb, offset, 4, appsecific_num);
-            }
+            proto_tree_add_uint(ppi_vector_tree, hf_ppi_vector_appspecific_num, tvb, offset, 4, appsecific_num);
             offset+=4;
             length_remaining-=4;
             break;
         case  PPI_VECTOR_APPDATA:
             if (length_remaining < 60)
                 break;
-            if (ppi_vector_tree) {
-                proto_tree_add_item(ppi_vector_tree, hf_ppi_vector_appspecific_data, tvb, offset, 60,  ENC_NA);
-            }
+            proto_tree_add_item(ppi_vector_tree, hf_ppi_vector_appspecific_data, tvb, offset, 60,  ENC_NA);
             offset+=60;
             length_remaining-=60;
             break;
@@ -649,7 +649,7 @@ dissect_ppi_vector_v1(tvbuff_t *tvb, int offset, gint length_remaining, proto_tr
              * This indicates a field whose size we do not
              * know, so we cannot proceed.
              */
-            proto_tree_add_text(ppi_vector_tree, tvb, offset, 0,  "Error: PPI-VECTOR: unknown bit (%d) set in present field.\n", bit);
+            expert_add_info_format(pinfo, pt, &ei_ppi_vector_present_bit, "Error: PPI-VECTOR: unknown bit (%d) set in present field.", bit);
             next_present = 0;
             continue;
         }
@@ -658,11 +658,11 @@ dissect_ppi_vector_v1(tvbuff_t *tvb, int offset, gint length_remaining, proto_tr
 }
 
 static void
-dissect_ppi_vector_v2(tvbuff_t *tvb, int offset, gint length_remaining, proto_tree *ppi_vector_tree, proto_item *vector_line)
+dissect_ppi_vector_v2(tvbuff_t *tvb, packet_info *pinfo, int offset, gint length_remaining, proto_tree *ppi_vector_tree, proto_item *vector_line)
 {
     proto_tree *vectorflags_tree          = NULL;
     proto_tree *vectorchars_tree          = NULL;
-    proto_tree *my_pt, *pt, *present_tree = NULL;
+    proto_tree *my_pt, *pt;
     proto_item *ti;
 
     /* bits */
@@ -683,31 +683,31 @@ dissect_ppi_vector_v2(tvbuff_t *tvb, int offset, gint length_remaining, proto_tr
     gdouble err_rot, err_off;
     guint32  appsecific_num; /* appdata parser should add a subtree based on this value */
 
+    static const int * ppi_vector_present_flags[] = {
+        &hf_ppi_vector_present_vflags,
+        &hf_ppi_vector_present_vchars,
+        &hf_ppi_vector_present_val_x,
+        &hf_ppi_vector_present_val_y,
+        &hf_ppi_vector_present_val_z,
+        &hf_ppi_vector_present_off_x,
+        &hf_ppi_vector_present_off_y,
+        &hf_ppi_vector_present_off_z,
+        &hf_ppi_vector_present_err_rot,
+        &hf_ppi_vector_present_err_off,
+        &hf_ppi_vector_present_descstr,
+        &hf_ppi_vector_presenappsecific_num,
+        &hf_ppi_vector_present_appspecific_data,
+        &hf_ppi_vector_present_ext,
+        NULL
+    };
+
     /* temporary, conversion values */
     guint32 t_val;
 
     present = tvb_get_letohl(tvb, offset+4);
     /* Subtree for the "present flags" bitfield. */
-    if (ppi_vector_tree) {
-        pt = proto_tree_add_uint(ppi_vector_tree, hf_ppi_vector_present,
-                                 tvb, offset + 4, 4, present);
-        present_tree = proto_item_add_subtree(pt, ett_ppi_vector_present);
+    pt = proto_tree_add_bitmask(ppi_vector_tree, tvb, offset + 4, hf_ppi_vector_present, ett_ppi_vector_present, ppi_vector_present_flags, ENC_LITTLE_ENDIAN);
 
-        proto_tree_add_item(present_tree, hf_ppi_vector_present_vflags,           tvb, 4, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(present_tree, hf_ppi_vector_present_vchars,           tvb, 4, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(present_tree, hf_ppi_vector_present_val_x,            tvb, 4, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(present_tree, hf_ppi_vector_present_val_y,            tvb, 4, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(present_tree, hf_ppi_vector_present_val_z,            tvb, 4, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(present_tree, hf_ppi_vector_present_off_x,            tvb, 4, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(present_tree, hf_ppi_vector_present_off_y,            tvb, 4, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(present_tree, hf_ppi_vector_present_off_z,            tvb, 4, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(present_tree, hf_ppi_vector_present_err_rot,          tvb, 4, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(present_tree, hf_ppi_vector_present_err_off,          tvb, 4, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(present_tree, hf_ppi_vector_present_descstr,          tvb, 4, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(present_tree, hf_ppi_vector_presenappsecific_num,     tvb, 4, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(present_tree, hf_ppi_vector_present_appspecific_data, tvb, 4, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(present_tree, hf_ppi_vector_present_ext,              tvb, 4, 4, ENC_LITTLE_ENDIAN);
-    }
     offset += PPI_GEOBASE_MIN_HEADER_LEN;
     length_remaining -= PPI_GEOBASE_MIN_HEADER_LEN;
 
@@ -941,7 +941,7 @@ dissect_ppi_vector_v2(tvbuff_t *tvb, int offset, gint length_remaining, proto_tr
              * This indicates a field whose size we do not
              * know, so we cannot proceed.
              */
-            proto_tree_add_text(ppi_vector_tree, tvb, offset, 0,  "Error: PPI-VECTOR: unknown bit (%d) set in present field.\n", bit);
+            expert_add_info_format(pinfo, pt, &ei_ppi_vector_present_bit, "Error: PPI-VECTOR: unknown bit (%d) set in present field.\n", bit);
             next_present = 0;
             continue;
         }
@@ -964,7 +964,7 @@ dissect_ppi_vector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint length;
 
     /* Clear out stuff in the info column */
-        col_clear(pinfo->cinfo,COL_INFO);
+    col_clear(pinfo->cinfo,COL_INFO);
 
     /* pull out the first three fields of the BASE-GEOTAG-HEADER */
     version = tvb_get_guint8(tvb, offset);
@@ -976,9 +976,8 @@ dissect_ppi_vector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* Create the basic dissection tree*/
     if (tree) {
-        ti = proto_tree_add_protocol_format(tree, proto_ppi_vector, tvb, 0, length, "Vector:");
-        vector_line = ti; /*save this for later, we will replace it with something more useful*/
-        ppi_vector_tree= proto_item_add_subtree(ti, ett_ppi_vector);
+        vector_line = proto_tree_add_protocol_format(tree, proto_ppi_vector, tvb, 0, length, "Vector:");
+        ppi_vector_tree= proto_item_add_subtree(vector_line, ett_ppi_vector);
         proto_tree_add_uint(ppi_vector_tree, hf_ppi_vector_version,
                             tvb, offset, 1, version);
         proto_tree_add_item(ppi_vector_tree, hf_ppi_vector_pad,
@@ -995,32 +994,27 @@ dissect_ppi_vector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
          * Base-geotag-header (Radiotap lookalike) is shorter than the fixed-length portion
          * plus one "present" bitset.
          */
-        if (tree)
-            proto_item_append_text(ti, " (invalid - minimum length is %d)", PPI_GEOBASE_MIN_HEADER_LEN);
+        proto_item_append_text(ti, " (invalid - minimum length is %d)", PPI_GEOBASE_MIN_HEADER_LEN);
         return;
     }
 
     switch (version) {
 
     case 1:
-        dissect_ppi_vector_v1(tvb, offset, length_remaining, ppi_vector_tree);
+        dissect_ppi_vector_v1(tvb, pinfo, offset, length_remaining, ppi_vector_tree);
         break;
 
     case 2:
         /* perform max length sanity checking */
         if (length > PPI_VECTOR_MAXTAGLEN ) {
-            if (tree)
-                proto_item_append_text(ti, " (invalid - maximum length is %d\n)", PPI_VECTOR_MAXTAGLEN);
+            proto_item_append_text(ti, " (invalid - maximum length is %d\n)", PPI_VECTOR_MAXTAGLEN);
             return;
         }
-        dissect_ppi_vector_v2(tvb, offset, length_remaining, ppi_vector_tree, vector_line);
+        dissect_ppi_vector_v2(tvb, pinfo, offset, length_remaining, ppi_vector_tree, vector_line);
         break;
 
     default:
-        if (tree) {
-            proto_tree_add_text(ppi_vector_tree, tvb, offset + 4, -1,
-                "Data for unknown version");
-        }
+        proto_tree_add_item(ppi_vector_tree, hf_ppi_vector_unknown_data, tvb, offset + 4, -1, ENC_NA);
         break;
     }
 }
@@ -1376,6 +1370,11 @@ proto_register_ppi_vector(void)
             FT_BOOLEAN, 32, NULL, PPI_VECTOR_VCHARS_HUMAN_DERIVED,
             "Vector derived from: human", HFILL } },
 
+        { &hf_ppi_vector_unknown_data,
+          { "Data for unknown version", "ppi_vector.unknown_data",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL } },
+
     };
     static gint *ett[] = {
         &ett_ppi_vector,
@@ -1384,9 +1383,17 @@ proto_register_ppi_vector(void)
         &ett_ppi_vectorchars
     };
 
+    static ei_register_info ei[] = {
+        { &ei_ppi_vector_present_bit, { "ppi_vector.present.unknown_bit", PI_PROTOCOL, PI_WARN, "Error: PPI-VECTOR: unknown bit set in present field.", EXPFILL }},
+    };
+
+    expert_module_t* expert_ppi_vector;
+
     proto_ppi_vector = proto_register_protocol("PPI vector decoder", "PPI vector Decoder", "ppi_vector");
     proto_register_field_array(proto_ppi_vector, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_ppi_vector = expert_register_protocol(proto_ppi_vector);
+    expert_register_field_array(expert_ppi_vector, ei, array_length(ei));
     register_dissector("ppi_vector", dissect_ppi_vector, proto_ppi_vector);
 
 }

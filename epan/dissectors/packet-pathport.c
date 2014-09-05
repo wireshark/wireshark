@@ -77,6 +77,7 @@ static int hf_pp_pdu_payload = -1;
 static int hf_pp_pid_type = -1;
 static int hf_pp_pid_len = -1;
 static int hf_pp_pid_value = -1;
+static int hf_pp_pid_pad_bytes = -1;
 
 /* Begin field and enum declarations */
 enum
@@ -392,7 +393,7 @@ static guint dissect_one_tlv(tvbuff_t *tvb, proto_tree *tree,
     pad_len = ~(offset-1) & 3;
     if(pad_len)
     {
-        proto_tree_add_text(tlv_tree, tvb, offset, pad_len, "%d %s", pad_len, pad_len > 1 ? "pad bytes" : "pad byte");
+        proto_tree_add_item(tlv_tree, hf_pp_pid_pad_bytes, tvb, offset, pad_len, ENC_NA);
         offset += pad_len;
     }
     return offset;
@@ -650,38 +651,39 @@ proto_register_pathport(void)
 {
     static hf_register_info hf[] = {
 /* Packet Header */
-        {&hf_pp_prot,               {"Protocol", "pathport.prot", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }},
-        {&hf_pp_reserved,           {"Reserved", "pathport.resv", FT_BYTES, BASE_NONE, NULL, 0x0, "", HFILL }},
-        {&hf_pp_version,            {"Version", "pathport.version", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }},
-        {&hf_pp_seq,                {"Sequence", "pathport.seq", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
-        {&hf_pp_src,                {"Source ID", "pathport.src", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
-        {&hf_pp_dst,                {"Destination ID", "pathport.dst", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+        {&hf_pp_prot,               {"Protocol", "pathport.prot", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        {&hf_pp_reserved,           {"Reserved", "pathport.resv", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        {&hf_pp_version,            {"Version", "pathport.version", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        {&hf_pp_seq,                {"Sequence", "pathport.seq", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        {&hf_pp_src,                {"Source ID", "pathport.src", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        {&hf_pp_dst,                {"Destination ID", "pathport.dst", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
 /* PDU Header */
-        {&hf_pp_pdu_type,           {"PDU", "pathport.pdu", FT_UINT16, BASE_HEX, VALS(pp_pdu_vals), 0x0, "", HFILL }},
-        {&hf_pp_pdu_len,            {"Length", "pathport.len", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
-        {&hf_pp_pdu_payload,        {"Payload", "pathport.payload", FT_BYTES, 0, NULL, 0x0, "", HFILL }},
+        {&hf_pp_pdu_type,           {"PDU", "pathport.pdu", FT_UINT16, BASE_HEX, VALS(pp_pdu_vals), 0x0, NULL, HFILL }},
+        {&hf_pp_pdu_len,            {"Length", "pathport.len", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        {&hf_pp_pdu_payload,        {"Payload", "pathport.payload", FT_BYTES, 0, NULL, 0x0, NULL, HFILL }},
 
 /* Property structures */
-        {&hf_pp_get_type,           {"Get", "pathport.get.pid", FT_UINT16, BASE_HEX | BASE_EXT_STRING, &pp_pid_vals_ext, 0x0, "", HFILL }},
-        {&hf_pp_pid_type,           {"Property", "pathport.pid", FT_UINT16, BASE_HEX | BASE_EXT_STRING, &pp_pid_vals_ext, 0x0, "", HFILL }},
-        {&hf_pp_pid_len,            {"Length", "pathport.pid.len", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
-        {&hf_pp_pid_value,          {"Value", "pathport.pid.value", FT_BYTES, 0, NULL, 0x0, "", HFILL }},
+        {&hf_pp_get_type,           {"Get", "pathport.get.pid", FT_UINT16, BASE_HEX | BASE_EXT_STRING, &pp_pid_vals_ext, 0x0, NULL, HFILL }},
+        {&hf_pp_pid_type,           {"Property", "pathport.pid", FT_UINT16, BASE_HEX | BASE_EXT_STRING, &pp_pid_vals_ext, 0x0, NULL, HFILL }},
+        {&hf_pp_pid_len,            {"Length", "pathport.pid.len", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        {&hf_pp_pid_value,          {"Value", "pathport.pid.value", FT_BYTES, 0, NULL, 0x0, NULL, HFILL }},
+        {&hf_pp_pid_pad_bytes,      {"Pad bytes", "pathport.pid.pad_bytes", FT_BYTES, 0, NULL, 0x0, NULL, HFILL }},
 
 /* Pathport XDMX Data */
-        {&hf_pp_data_encoding,      {"Data Encoding", "pathport.data.encoding", FT_UINT16, BASE_HEX, VALS(pp_data_encoding_vals), 0x0, "", HFILL }},
-        {&hf_pp_data_start_code,    {"DMX Start Code", "pathport.data.startcode", FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL }},
-        {&hf_pp_data_len,           {"Data Length", "pathport.data.len", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }},
-        {&hf_pp_data_dst,           {"xDMX Destination", "pathport.data.dst", FT_UINT16, BASE_HEX, NULL, 0x0,"", HFILL }},
-        {&hf_pp_data_levels,        {"Levels", "pathport.data.levels", FT_NONE, 0, NULL, 0x0, "", HFILL }},
+        {&hf_pp_data_encoding,      {"Data Encoding", "pathport.data.encoding", FT_UINT16, BASE_HEX, VALS(pp_data_encoding_vals), 0x0, NULL, HFILL }},
+        {&hf_pp_data_start_code,    {"DMX Start Code", "pathport.data.startcode", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        {&hf_pp_data_len,           {"Data Length", "pathport.data.len", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        {&hf_pp_data_dst,           {"xDMX Destination", "pathport.data.dst", FT_UINT16, BASE_HEX, NULL, 0x0,NULL, HFILL }},
+        {&hf_pp_data_levels,        {"Levels", "pathport.data.levels", FT_NONE, 0, NULL, 0x0, NULL, HFILL }},
 
 /* PP_ARP Reply structures */
-        {&hf_pp_arp_id,             {"ID", "pathport.arp.id", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
-        {&hf_pp_arp_manuf,          {"Manufacturer", "pathport.arp.manuf", FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL }},
-        {&hf_pp_arp_class,          {"Device Class", "pathport.arp.class", FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL }},
-        {&hf_pp_arp_type,           {"Device Type", "pathport.arp.type", FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL }},
-        {&hf_pp_arp_numdmx,         {"Subcomponents", "pathport.arp.numdmx", FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL }},
-        {&hf_pp_arp_ip,             {"IP", "pathport.arp.ip", FT_IPv4, 0, NULL, 0x0, "", HFILL }}
+        {&hf_pp_arp_id,             {"ID", "pathport.arp.id", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        {&hf_pp_arp_manuf,          {"Manufacturer", "pathport.arp.manuf", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        {&hf_pp_arp_class,          {"Device Class", "pathport.arp.class", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        {&hf_pp_arp_type,           {"Device Type", "pathport.arp.type", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        {&hf_pp_arp_numdmx,         {"Subcomponents", "pathport.arp.numdmx", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        {&hf_pp_arp_ip,             {"IP", "pathport.arp.ip", FT_IPv4, 0, NULL, 0x0, NULL, HFILL }}
     };
 
     /* Setup protocol subtree array */
