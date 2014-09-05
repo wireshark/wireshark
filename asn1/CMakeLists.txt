@@ -44,7 +44,6 @@ set(ASN1_SRC_DIRS
 	dsp
 	ess
 	ftam
-	gnm
 	goose
 	gprscdr
 	gsm_map
