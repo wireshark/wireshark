@@ -332,6 +332,12 @@ char* uat_unbinstring(const char* si, guint in_len, guint* len_p);
 char* uat_unesc(const char* si, guint in_len, guint* len_p);
 char* uat_esc(const char* buf, guint len);
 
+#ifdef __cplusplus
+#define UNUSED_PARAMETER(n)
+#else
+#define UNUSED_PARAMETER(n) n _U_
+#endif
+
 /* Some strings entirely made of ... already declared */
 WS_DLL_PUBLIC
 CHK_STR_IS_DECL(isprint);
@@ -345,7 +351,7 @@ WS_DLL_PUBLIC
 CHK_STR_IS_DECL(isxdigit);
 
 #define CHK_STR_IS_DEF(what) \
-gboolean uat_fld_chk_str_ ## what (void* u1 _U_, const char* strptr, guint len, const void* u2 _U_, const void* u3 _U_, const char** err) { \
+gboolean uat_fld_chk_str_ ## what (void* UNUSED_PARAMETER(u1), const char* strptr, guint len, const void* u2 _U_, const void* u3 _U_, const char** err) { \
 	guint i; for (i=0;i<len;i++) { \
 		char c = strptr[i]; \
 			if (! what((int)c)) { \
@@ -488,14 +494,14 @@ static void basename ## _ ## field_name ## _tostr_cb(void* rec, const char** out
  *        value
  */
 #define UAT_VS_DEF(basename,field_name,rec_t,default_t,default_val,default_str) \
-static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, guint len, const void* vs, const void* u2 _U_) {\
+static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, guint len, const void* vs, const void* UNUSED_PARAMETER(u2)) {\
 	guint i; \
 	char* str = ep_strndup(buf,len); \
 	const char* cstr; ((rec_t*)rec)->field_name = default_val; \
 	for(i=0; ( cstr = ((const value_string*)vs)[i].strptr ) ;i++) { \
 		if (g_str_equal(cstr,str)) { \
 			((rec_t*)rec)->field_name = (default_t)((const value_string*)vs)[i].value; return; } } } \
-static void basename ## _ ## field_name ## _tostr_cb(void* rec, const char** out_ptr, unsigned* out_len, const void* vs, const void* u2 _U_) {\
+static void basename ## _ ## field_name ## _tostr_cb(void* rec, const char** out_ptr, unsigned* out_len, const void* vs, const void* UNUSED_PARAMETER(u2)) {\
 	guint i; \
 	*out_ptr = ep_strdup(default_str); \
 	*out_len = (unsigned)strlen(default_str);\
@@ -505,14 +511,14 @@ static void basename ## _ ## field_name ## _tostr_cb(void* rec, const char** out
 			*out_len = (unsigned)strlen(*out_ptr); return; } } }
 
 #define UAT_VS_CSTRING_DEF(basename,field_name,rec_t,default_val,default_str) \
-static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, guint len, const void* vs, const void* u2 _U_) {\
+static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, guint len, const void* vs, const void* UNUSED_PARAMETER(u2)) {\
 	guint i; \
 	char* str = ep_strndup(buf,len); \
 	const char* cstr; ((rec_t*)rec)->field_name = default_val; \
 	for(i=0; ( cstr = ((const value_string*)vs)[i].strptr ) ;i++) { \
 		if (g_str_equal(cstr,str)) { \
 		  ((rec_t*)rec)->field_name = g_strdup(((const value_string*)vs)[i].strptr); return; } } } \
-static void basename ## _ ## field_name ## _tostr_cb(void* rec, const char** out_ptr, unsigned* out_len, const void* vs _U_, const void* u2 _U_) {\
+static void basename ## _ ## field_name ## _tostr_cb(void* rec, const char** out_ptr, unsigned* out_len, const void* UNUSED_PARAMETER(vs), const void* UNUSED_PARAMETER(u2)) {\
 		if (((rec_t*)rec)->field_name ) { \
 			*out_ptr = (((rec_t*)rec)->field_name); \
 			*out_len = (unsigned)strlen((((rec_t*)rec)->field_name)); \
