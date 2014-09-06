@@ -1122,6 +1122,7 @@ endif
 
 
 DIST_SUBDIRS = \
+	asn1		\
 	capchild	\
 	caputils	\
 	codecs		\
