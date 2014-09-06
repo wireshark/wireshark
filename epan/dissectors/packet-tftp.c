@@ -80,6 +80,7 @@ static int hf_tftp_error_code = -1;
 static int hf_tftp_error_string = -1;
 static int hf_tftp_option_name = -1;
 static int hf_tftp_option_value = -1;
+static int hf_tftp_data = -1;
 
 static gint ett_tftp = -1;
 static gint ett_tftp_option = -1;
@@ -433,8 +434,7 @@ static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
     break;
 
   default:
-    proto_tree_add_text(tftp_tree, tvb, offset, -1,
-                        "Data (%d bytes)", tvb_reported_length_remaining(tvb, offset));
+    proto_tree_add_item(tftp_tree, hf_tftp_data, tvb, offset, -1, ENC_NA);
     break;
 
   }
@@ -599,6 +599,10 @@ proto_register_tftp(void)
         FT_STRINGZ, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
 
+    { &hf_tftp_data,
+      { "Data",       "tftp.data",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
   };
   static gint *ett[] = {
     &ett_tftp,

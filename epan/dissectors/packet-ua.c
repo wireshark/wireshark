@@ -50,6 +50,7 @@ static gboolean setup_conversations_enabled = TRUE;
 
 static dissector_handle_t noe_handle;
 static dissector_handle_t ua3g_handle;
+static dissector_handle_t data_handle;
 
 static void uadecode(e_ua_direction  direction,
                      proto_tree     *tree,
@@ -149,14 +150,12 @@ static void uadecode(e_ua_direction  direction,
     default:
         {
             /* add text to the frame "INFO" column */
-            col_append_str(pinfo->cinfo, COL_INFO, " - UA3G Message ERR: Opcode Unknown");
+            col_append_fstr(pinfo->cinfo, COL_INFO, " - UA3G Message ERR: Opcode (0x%02x) Unknown", tvb_get_guint8(tvb, (offset + 2)));
 
-            proto_tree_add_text(tree,
-                tvb,
-                offset,
-                length,
-                "Opcode Unknown 0x%02x",
-                tvb_get_guint8(tvb, (offset + 2)));
+            call_dissector(data_handle,
+                           tvb_new_subset_length(tvb, offset, length),
+                           pinfo,
+                           tree);
             break;
         }
     }
@@ -312,5 +311,6 @@ void proto_reg_handoff_ua_msg(void)
 #endif
     noe_handle  = find_dissector("noe");
     ua3g_handle = find_dissector("ua3g");
+    data_handle = find_dissector("data");
 
 }

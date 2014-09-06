@@ -96,6 +96,9 @@ static int ett_vp8_keyframe = -1;
 
 static expert_field ei_vp8_startcode = EI_INIT;
 static expert_field ei_vp8_undecoded = EI_INIT;
+static expert_field ei_vp8_continuation = EI_INIT;
+static expert_field ei_vp8_first_partition_split = EI_INIT;
+static expert_field ei_vp8_first_partition_plus = EI_INIT;
 
 static void
 dissect_vp8_payload_descriptor(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *vp8_tree, gint *offset, gboolean *hasHeader);
@@ -344,9 +347,10 @@ static void
 dissect_vp8_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *vp8_tree, gint *offset, gint *frametype, gint *partition1_size)
 {
     proto_tree *vp8_payload_tree;
+    proto_item *payload_item;
     gint remainder;
 
-    vp8_payload_tree = proto_tree_add_subtree(vp8_tree, tvb, *offset, -1, ett_vp8_payload, NULL, "Payload");
+    vp8_payload_tree = proto_tree_add_subtree(vp8_tree, tvb, *offset, -1, ett_vp8_payload, &payload_item, "Payload");
 
     if (*frametype == 0)
     {
@@ -390,24 +394,25 @@ dissect_vp8_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *vp8_tree, gin
     if ((*partition1_size) == -1)
     {
         /*no header, continuation?*/
-        proto_tree_add_text(vp8_payload_tree, tvb, *offset, -1, "Continuation of partition fragment (%d bytes)", remainder);
+        proto_tree_add_expert_format(vp8_payload_tree, pinfo, &ei_vp8_continuation, tvb, *offset, -1, "Continuation of partition fragment (%d bytes)", remainder);
     }
     else
     {
         if (remainder < *partition1_size)
         {
             /* partition size has already been added to vp8 header tree, but it would be useful to provide additional explanation */
-            proto_tree_add_text(vp8_payload_tree, tvb, *offset, -1, "First partition is split with %d bytes in this packet and %d bytes in subsequent frames", remainder, ((*partition1_size)-remainder));
+            proto_tree_add_expert_format(vp8_payload_tree, pinfo, &ei_vp8_first_partition_split, tvb, *offset, -1,
+                "First partition is split with %d bytes in this packet and %d bytes in subsequent frames", remainder, ((*partition1_size)-remainder));
         }
         else
         {
             (*offset)= (*offset) + (*partition1_size);
-            proto_tree_add_text(vp8_payload_tree, tvb, *offset, -1,
+            proto_tree_add_expert_format(vp8_payload_tree, pinfo, &ei_vp8_first_partition_plus, tvb, *offset, -1,
                                 "This frame contains all of first partition (%d bytes) and also %d bytes from other partitions",
                                 *partition1_size, remainder);
         }
     }
-    expert_add_info(pinfo, vp8_payload_tree, &ei_vp8_undecoded);
+    expert_add_info(pinfo, payload_item, &ei_vp8_undecoded);
 }
 
 void
@@ -547,7 +552,10 @@ proto_register_vp8(void)
 
     static ei_register_info ei[] = {
         { &ei_vp8_startcode, { "vp8.keyframe.startcode", PI_PROTOCOL, PI_ERROR, "Startcode is incorrect", EXPFILL }},
-        { &ei_vp8_undecoded, { "vp8.undecoded", PI_UNDECODED, PI_NOTE, "Payload not fully decoded", EXPFILL }}
+        { &ei_vp8_undecoded, { "vp8.undecoded", PI_UNDECODED, PI_NOTE, "Payload not fully decoded", EXPFILL }},
+        { &ei_vp8_continuation, { "vp8.continuation", PI_REASSEMBLE, PI_CHAT, "Continuation of partition fragment", EXPFILL }},
+        { &ei_vp8_first_partition_split, { "vp8.first_partition_split", PI_REASSEMBLE, PI_CHAT, "First partition is split", EXPFILL }},
+        { &ei_vp8_first_partition_plus, { "vp8.first_partition_plus", PI_REASSEMBLE, PI_CHAT, "This frame contains all of first partition and also bytes from other partitions", EXPFILL }},
     };
 
     proto_vp8 = proto_register_protocol (

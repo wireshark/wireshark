@@ -523,8 +523,8 @@ dissect_t30_numbers(tvbuff_t *tvb, int offset, packet_info *pinfo, int len, prot
             g_snprintf(t38->desc, MAX_T38_DESC, "Num: %s", str_num);
     }
     else {
-        proto_tree_add_text(tree, tvb, offset, tvb_reported_length_remaining(tvb, offset),
-                            "[MALFORMED OR SHORT PACKET: number of digits must be 20]");
+        proto_tree_add_expert_format(tree, pinfo, &ei_t30_bad_length, tvb, offset, -1,
+                            "MALFORMED OR SHORT PACKET: number of digits must be 20");
 
         col_append_str(pinfo->cinfo, COL_INFO, " [MALFORMED OR SHORT PACKET: number of digits must be 20]" );
     }

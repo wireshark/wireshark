@@ -236,6 +236,7 @@ static expert_field ei_fp_e_rnti_first_entry = EI_INIT;
 static expert_field ei_fp_bad_header_checksum = EI_INIT;
 static expert_field ei_fp_crci_error_bit_set_for_tb = EI_INIT;
 static expert_field ei_fp_spare_extension = EI_INIT;
+static expert_field ei_fp_no_per_frame_info = EI_INIT;
 
 static dissector_handle_t rlc_bcch_handle;
 static dissector_handle_t mac_fdd_dch_handle;
@@ -4260,9 +4261,7 @@ dissect_fp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* Can't dissect anything without it... */
     if (p_fp_info == NULL) {
-        ti = proto_tree_add_text(fp_tree, tvb, offset, -1,
-                                 "Can't dissect FP frame because no per-frame info was attached!");
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_tree_add_expert(fp_tree, pinfo, &ei_fp_no_per_frame_info, tvb, offset, -1);
         return;
     }
 
@@ -5528,6 +5527,7 @@ void proto_register_fp(void)
         { &ei_fp_hsdsch_common_experimental_support, { "fp.hsdsch_common.experimental_support", PI_DEBUG, PI_WARN, "HSDSCH COMMON - Experimental support!", EXPFILL }},
         { &ei_fp_hsdsch_common_t3_not_implemented, { "fp.hsdsch_common_t3.not_implemented", PI_DEBUG, PI_ERROR, "HSDSCH COMMON T3 - Not implemeneted!", EXPFILL }},
         { &ei_fp_channel_type_unknown, { "fp.channel_type.unknown", PI_MALFORMED, PI_ERROR, "Unknown channel type", EXPFILL }},
+        { &ei_fp_no_per_frame_info, { "fp.no_per_frame_info", PI_UNDECODED, PI_ERROR, "Can't dissect FP frame because no per-frame info was attached!", EXPFILL }},
     };
 
     module_t *fp_module;

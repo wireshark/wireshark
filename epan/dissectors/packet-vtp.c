@@ -50,6 +50,7 @@ static int hf_vtp_md5_digest = -1;
 static int hf_vtp_seq_num = -1;
 static int hf_vtp_start_value = -1;
 static int hf_vtp_vlan_info_len = -1;
+static int hf_vtp_vlan_status = -1;
 static int hf_vtp_vlan_status_vlan_susp = -1;
 static int hf_vtp_vlan_type = -1;
 static int hf_vtp_vlan_name_len = -1;
@@ -72,6 +73,7 @@ static int hf_vtp_vlan_bridge_type = -1;
 static int hf_vtp_vlan_max_are_hop_count = -1;
 static int hf_vtp_vlan_max_ste_hop_count = -1;
 static int hf_vtp_vlan_backup_crf_mode = -1;
+static int hf_vtp_vlan_data = -1;
 
 static gint ett_vtp = -1;
 static gint ett_vtp_vlan_info = -1;
@@ -327,9 +329,9 @@ dissect_vlan_info(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tre
 	vlan_info_left -= 1;
 
 	status = tvb_get_guint8(tvb, offset);
-	ti = proto_tree_add_text(vlan_info_tree, tvb, offset, 1,
-	    "Status: 0x%02x%s", status,
-	    (status & VLAN_SUSPENDED) ? "(VLAN suspended)" : "");
+	ti = proto_tree_add_uint(vlan_info_tree, hf_vtp_vlan_status, tvb, offset, 1, status);
+    if (status & VLAN_SUSPENDED)
+        proto_item_append_text(ti, " (VLAN suspended)");
 	status_tree = proto_item_add_subtree(ti, ett_vtp_vlan_status);
 	proto_tree_add_boolean(status_tree, hf_vtp_vlan_status_vlan_susp, tvb, offset, 1,
 	    status);
@@ -498,7 +500,7 @@ dissect_vlan_info_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length,
 		break;
 
 	default:
-		proto_tree_add_text(tree, tvb, offset, length, "Data");
+		proto_tree_add_item(tree, hf_vtp_vlan_data, tvb, offset, length, ENC_NA);
 		break;
 	}
 }
@@ -554,6 +556,10 @@ proto_register_vtp(void)
 		{ &hf_vtp_vlan_info_len,
 		{ "VLAN Information Length",	"vtp.vlan_info.len", FT_UINT8, BASE_DEC, NULL, 0x0,
 			"Length of the VLAN information field", HFILL }},
+
+		{ &hf_vtp_vlan_status,
+		{ "Status",	"vtp.vlan_info.status", FT_UINT8, BASE_HEX, NULL, 0x0,
+			NULL, HFILL }},
 
 		{ &hf_vtp_vlan_status_vlan_susp,
 		{ "VLAN suspended",	"vtp.vlan_info.status.vlan_susp", FT_BOOLEAN, 8, NULL, VLAN_SUSPENDED,
@@ -642,7 +648,12 @@ proto_register_vtp(void)
 		{ &hf_vtp_vlan_backup_crf_mode,
 		{ "Backup CRF Mode", "vtp.vlan_info.backup_crf_mode", FT_UINT16, BASE_HEX, VALS(backup_crf_mode_vals), 0x0,
 			NULL, HFILL }},
+
+		{ &hf_vtp_vlan_data,
+		{ "Data",	"vtp.vlan_info.data", FT_BYTES, BASE_NONE, NULL, 0x0,
+			NULL, HFILL }},
         };
+
 	static gint *ett[] = {
 		&ett_vtp,
 		&ett_vtp_vlan_info,

@@ -135,9 +135,8 @@ static hf_register_info *hf = NULL;
 
 /*-------------------------------------------------------------------------------------------------------------------------------------------*/
 
-static void dissect_tpncp_data(gint data_id, tvbuff_t *tvb, proto_item *item,
+static void dissect_tpncp_data(gint data_id, tvbuff_t *tvb, proto_tree *ltree,
                                gint *offset, tpncp_data_field_info *data_fields_info) {
-    proto_tree *ltree = NULL;
     proto_item *pi = NULL;
     gint32 g_int;
     gint16 g_short;
@@ -147,7 +146,6 @@ static void dissect_tpncp_data(gint data_id, tvbuff_t *tvb, proto_item *item,
     gint g_str_len, counter, bitshift, bitmask;
     tpncp_data_field_info *current_tpncp_data_field_info = NULL;
 
-    ltree = proto_item_add_subtree(item, ett_tpncp_body);
     current_tpncp_data_field_info = &data_fields_info[data_id];
 
     while (current_tpncp_data_field_info) {
@@ -229,11 +227,11 @@ static void dissect_tpncp_data(gint data_id, tvbuff_t *tvb, proto_item *item,
 /*-------------------------------------------------------------------------------------------------------------------------------------------*/
 
 static void dissect_tpncp_event(gint event_id, tvbuff_t *tvb,
-                                proto_item *item, gint *offset) {
+                                proto_tree *tree, gint *offset) {
     switch (event_id) {
         /* Place non-standard events here. */
         default:
-            dissect_tpncp_data(event_id, tvb, item, offset, tpncp_events_info_db);
+            dissect_tpncp_data(event_id, tvb, tree, offset, tpncp_events_info_db);
             break;
     }
 }
@@ -241,11 +239,11 @@ static void dissect_tpncp_event(gint event_id, tvbuff_t *tvb,
 /*-------------------------------------------------------------------------------------------------------------------------------------------*/
 
 static void dissect_tpncp_command(gint command_id, tvbuff_t *tvb,
-                                  proto_item *item, gint *offset) {
+                                  proto_tree *tree, gint *offset) {
     switch (command_id) {
         /* Place non-standard commands here. */
         default:
-            dissect_tpncp_data(command_id, tvb, item, offset, tpncp_commands_info_db);
+            dissect_tpncp_data(command_id, tvb, tree, offset, tpncp_commands_info_db);
             break;
     }
 }
@@ -253,12 +251,11 @@ static void dissect_tpncp_command(gint command_id, tvbuff_t *tvb,
 /*-------------------------------------------------------------------------------------------------------------------------------------------*/
 
 static int dissect_tpncp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_) {
-    proto_item *item = NULL, *tpncp_item = NULL;
-    proto_tree *tpncp_tree = NULL;
+    proto_item *item = NULL;
+    proto_tree *tpncp_tree = NULL, *event_tree, *command_tree;
     gint offset = 0;
     guint32 id, cid = 0;
     guint16 seq_number, len, ver, reserved;
-    gchar *tpncp_header;
 
     ver = tvb_get_ntohs(tvb, 0);
     len = tvb_get_ntohs(tvb, 2);
@@ -298,10 +295,9 @@ static int dissect_tpncp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                 proto_tree_add_int(tpncp_tree, hf_tpncp_cid, tvb, 12, 4, cid);
                 offset += 16;
                 if (tpncp_events_info_db[id].tpncp_data_field_size) {
-                    tpncp_header = wmem_strdup_printf(wmem_packet_scope(), "TPNCP Event: %s (%d)",
+                    event_tree = proto_tree_add_subtree_format(tree, tvb, offset, -1, ett_tpncp_body, NULL, "TPNCP Event: %s (%d)",
                                                       val_to_str_const(id, tpncp_events_id_vals, "Unknown"), id);
-                    tpncp_item = proto_tree_add_text(tree, tvb, offset, -1, "%s", tpncp_header);
-                    dissect_tpncp_event(id, tvb, tpncp_item, &offset);
+                    dissect_tpncp_event(id, tvb, event_tree, &offset);
                 }
             }
         }
@@ -310,10 +306,9 @@ static int dissect_tpncp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                 proto_tree_add_uint(tpncp_tree, hf_tpncp_command_id, tvb, 8, 4, id);
                 offset += 12;
                 if (tpncp_commands_info_db[id].tpncp_data_field_size) {
-                    tpncp_header = wmem_strdup_printf(wmem_packet_scope(), "TPNCP Command: %s (%d)",
+                    command_tree = proto_tree_add_subtree_format(tree, tvb, offset, -1, ett_tpncp_body, NULL, "TPNCP Command: %s (%d)",
                                                       val_to_str_const(id, tpncp_commands_id_vals, "Unknown"), id);
-                    tpncp_item = proto_tree_add_text(tree, tvb, offset, -1, "%s", tpncp_header);
-                    dissect_tpncp_command(id, tvb, tpncp_item, &offset);
+                    dissect_tpncp_command(id, tvb, command_tree, &offset);
                 }
             }
         }

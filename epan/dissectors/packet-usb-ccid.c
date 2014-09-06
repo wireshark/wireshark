@@ -70,6 +70,7 @@ static int hf_ccid_bClassEnvelope = -1;
 static int hf_ccid_wLcdLayout = -1;
 static int hf_ccid_bPINSupport = -1;
 static int hf_ccid_bMaxCCIDBusySlots = -1;
+static int hf_ccid_Reserved = -1;
 
 static dissector_handle_t usb_ccid_handle;
 
@@ -374,7 +375,7 @@ dissect_ccid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         proto_tree_add_item(ccid_tree, hf_ccid_bProtocolNum, tvb, 7, 1, ENC_LITTLE_ENDIAN);
 
         /* Placeholder for abRFU */
-        proto_tree_add_text(ccid_tree, tvb, 8, 2, "Reserved for Future Use");
+        proto_tree_add_item(ccid_tree, hf_ccid_Reserved, tvb, 8, 2, ENC_LITTLE_ENDIAN);
         if (tvb_get_letohl(tvb, 1) != 0)
         {
             next_tvb = tvb_new_subset_remaining(tvb, 10);
@@ -389,7 +390,7 @@ dissect_ccid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         proto_tree_add_item(ccid_tree, hf_ccid_bPowerSelect, tvb, 7, 1, ENC_LITTLE_ENDIAN);
 
         /* Placeholder for abRFU */
-        proto_tree_add_text(ccid_tree, tvb, 8, 2, "Reserved for Future Use");
+        proto_tree_add_item(ccid_tree, hf_ccid_Reserved, tvb, 8, 2, ENC_LITTLE_ENDIAN);
         break;
 
     case PC_RDR_ICC_OFF:
@@ -398,7 +399,7 @@ dissect_ccid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         proto_tree_add_item(ccid_tree, hf_ccid_bSeq, tvb, 6, 1, ENC_LITTLE_ENDIAN);
 
         /* Placeholder for abRFU */
-        proto_tree_add_text(ccid_tree, tvb, 7, 3, "Reserved for Future Use");
+        proto_tree_add_item(ccid_tree, hf_ccid_Reserved, tvb, 7, 3, ENC_LITTLE_ENDIAN);
         break;
 
     case PC_RDR_GET_SLOT_STATUS:
@@ -407,7 +408,7 @@ dissect_ccid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         proto_tree_add_item(ccid_tree, hf_ccid_bSeq, tvb, 6, 1, ENC_LITTLE_ENDIAN);
 
         /* Placeholder for abRFU */
-        proto_tree_add_text(ccid_tree, tvb, 7, 3, "Reserved for Future Use");
+        proto_tree_add_item(ccid_tree, hf_ccid_Reserved, tvb, 7, 3, ENC_LITTLE_ENDIAN);
         break;
 
     case PC_RDR_GET_PARAMS:
@@ -416,7 +417,7 @@ dissect_ccid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         proto_tree_add_item(ccid_tree, hf_ccid_bSeq, tvb, 6, 1, ENC_LITTLE_ENDIAN);
 
         /* Placeholder for abRFU */
-        proto_tree_add_text(ccid_tree, tvb, 7, 3, "Reserved for Future Use");
+        proto_tree_add_item(ccid_tree, hf_ccid_Reserved, tvb, 7, 3, ENC_LITTLE_ENDIAN);
         break;
 
     case PC_RDR_XFR_BLOCK:
@@ -623,7 +624,10 @@ proto_register_ccid(void)
              FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
         {&hf_ccid_bMaxCCIDBusySlots,
          { "maximum number of busy slots", "usbccid.hf_ccid_bMaxCCIDBusySlots",
-             FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }}
+             FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        {&hf_ccid_Reserved,
+         { "Reserved for Future Use", "usbccid.hf_ccid_Reserved",
+             FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }}
     };
 
     static gint *ett[] = {

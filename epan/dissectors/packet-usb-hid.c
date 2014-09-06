@@ -324,7 +324,7 @@ dissect_usb_hid_report_mainitem_data(packet_info *pinfo _U_, proto_tree *tree, t
             if (bSize > 1) {
                 proto_tree_add_item(tree, hf_usb_hid_mainitem_bit8, tvb, offset, bSize, ENC_LITTLE_ENDIAN);
             } else {
-                proto_tree_add_text(tree, tvb, offset, 0, "Bits or bytes: Buffered bytes (default, no second byte present)");
+                proto_tree_add_boolean_format_value(tree, hf_usb_hid_mainitem_bit8, tvb, offset, 0, FALSE, "Buffered bytes (default, no second byte present)");
             }
             break;
         case USBHID_MAINITEM_TAG_COLLECTION:
@@ -420,9 +420,7 @@ dissect_usb_hid_report_localitem_data(packet_info *pinfo _U_, proto_tree *tree, 
                     usage_page = (global->usage_page & 0xFFFFFF00) | tvb_get_guint8(tvb, offset);
                 else if (bSize == 2)
                     usage_page = (global->usage_page & 0xFFFF0000) | tvb_get_ntohs(tvb, offset);
-                proto_tree_add_text(tree, tvb, offset, bSize, "Usage: %s (0x%08x)",
-                    rval_to_str(usage_page, usb_hid_item_usage_vals, "[Unknown page!]"),
-                    usage_page);
+                proto_tree_add_uint(tree, hf_usb_hid_localitem_usage, tvb, offset, bSize, usage_page);
             }
             break;
         case USBHID_LOCALITEM_TAG_USAGE_MIN:

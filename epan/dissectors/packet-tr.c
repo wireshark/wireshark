@@ -26,6 +26,7 @@
 #include <string.h>
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include <epan/exceptions.h>
 #include <epan/conversation_table.h>
 #include <wsutil/pint.h>
@@ -59,10 +60,14 @@ static int hf_tr_direction = -1;
 static int hf_tr_rif = -1;
 static int hf_tr_rif_ring = -1;
 static int hf_tr_rif_bridge = -1;
+static int hf_tr_extra_rif = -1;
 
 static gint ett_token_ring = -1;
 static gint ett_token_ring_ac = -1;
 static gint ett_token_ring_fc = -1;
+
+static expert_field ei_token_empty_rif = EI_INIT;
+static expert_field ei_token_fake_llc_snap_header = EI_INIT;
 
 static int tr_tap = -1;
 
@@ -609,12 +614,10 @@ dissect_tr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		tcpdump. W/o that, however, I'm guessing that DSAP == SSAP if the
 		frame type is LLC.  It's very much a hack. */
 		if (actual_rif_bytes > trn_rif_bytes) {
-			proto_tree_add_text(tr_tree, tr_tvb, TR_MIN_HEADER_LEN + trn_rif_bytes, actual_rif_bytes - trn_rif_bytes,
-				"Empty RIF from Linux 2.0.x driver. The sniffing NIC "
-				"is also running a protocol stack.");
+			proto_tree_add_expert(tr_tree, pinfo, &ei_token_empty_rif, tr_tvb, TR_MIN_HEADER_LEN + trn_rif_bytes, actual_rif_bytes - trn_rif_bytes);
 		}
 		if (fixoffset) {
-			proto_tree_add_text(tr_tree, tr_tvb, TR_MIN_HEADER_LEN + 18,8,"Linux 2.0.x fake LLC and SNAP header");
+			proto_tree_add_expert(tr_tree, pinfo, &ei_token_fake_llc_snap_header, tr_tvb, TR_MIN_HEADER_LEN + 18, 8);
 		}
 	}
 
@@ -681,8 +684,7 @@ add_ring_bridge_pairs(int rcf_len, tvbuff_t *tvb, proto_tree *tree)
 	proto_tree_add_string(tree, hf_tr_rif, tvb, TR_MIN_HEADER_LEN + 2, rcf_len, wmem_strbuf_get_str(buf));
 
 	if (unprocessed_rif > 0) {
-		proto_tree_add_text(tree, tvb, TR_MIN_HEADER_LEN + RIF_BYTES_TO_PROCESS, unprocessed_rif,
-				"Extra RIF bytes beyond spec: %d", unprocessed_rif);
+		proto_tree_add_item(tree, hf_tr_extra_rif, tvb, TR_MIN_HEADER_LEN + RIF_BYTES_TO_PROCESS, unprocessed_rif, ENC_NA);
 	}
 }
 
@@ -766,17 +768,30 @@ proto_register_tr(void)
 		{ &hf_tr_rif_bridge,
 		{ "RIF Bridge",		"tr.rif.bridge", FT_UINT8, BASE_HEX, NULL, 0x0,
 			NULL, HFILL }},
+
+		{ &hf_tr_extra_rif,
+		{ "Extra RIF bytes beyond spec",	"tr.rif.extra", FT_BYTES, BASE_NONE, NULL, 0x0,
+			NULL, HFILL }},
 	};
+
 	static gint *ett[] = {
 		&ett_token_ring,
 		&ett_token_ring_ac,
 		&ett_token_ring_fc,
 	};
+	static ei_register_info ei[] = {
+		{ &ei_token_empty_rif, { "tr.empty_rif", PI_PROTOCOL, PI_NOTE, "Empty RIF from Linux 2.0.x driver. The sniffing NIC is also running a protocol stack.", EXPFILL }},
+		{ &ei_token_fake_llc_snap_header, { "tr.fake_llc_snap_header", PI_PROTOCOL, PI_NOTE, "Linux 2.0.x fake LLC and SNAP header", EXPFILL }},
+	};
+
 	module_t *tr_module;
+	expert_module_t* expert_tr;
 
 	proto_tr = proto_register_protocol("Token-Ring", "Token-Ring", "tr");
 	proto_register_field_array(proto_tr, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	expert_tr = expert_register_protocol(proto_tr);
+	expert_register_field_array(expert_tr, ei, array_length(ei));
 
 	/* Register configuration options */
 	tr_module = prefs_register_protocol(proto_tr, NULL);

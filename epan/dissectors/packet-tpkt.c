@@ -48,6 +48,7 @@ static protocol_t *proto_tpkt_ptr;
 static int hf_tpkt_version     = -1;
 static int hf_tpkt_reserved    = -1;
 static int hf_tpkt_length      = -1;
+static int hf_tpkt_continuation_data      = -1;
 
 
 /* TPKT fields defining a sub tree */
@@ -253,10 +254,8 @@ dissect_asciitpkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 ti = proto_tree_add_item(tree, proto_tpkt, tvb,
                     offset, -1, ENC_NA);
                 tpkt_tree = proto_item_add_subtree(ti, ett_tpkt);
-                proto_item_set_text(ti, "TPKT");
 
-                proto_tree_add_text(tpkt_tree, tvb, offset, -1,
-                    "Continuation data");
+                proto_tree_add_item(tpkt_tree, hf_tpkt_continuation_data, tvb, offset, -1, ENC_NA);
             }
             return;
         }
@@ -408,10 +407,8 @@ dissect_tpkt_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				ti = proto_tree_add_item(tree, proto_tpkt, tvb,
 				    offset, -1, ENC_NA);
 				tpkt_tree = proto_item_add_subtree(ti, ett_tpkt);
-				proto_item_set_text(ti, "TPKT");
 
-				proto_tree_add_text(tpkt_tree, tvb, offset, -1,
-				    "Continuation data");
+				proto_tree_add_item(tpkt_tree, hf_tpkt_continuation_data, tvb, offset, -1, ENC_NA);
 			}
 			return;
 		}
@@ -635,6 +632,18 @@ proto_register_tpkt(void)
 				NULL,
 				0x0,
 				"Length of data unit, including this header", HFILL
+			}
+		},
+		{
+			&hf_tpkt_continuation_data,
+			{
+				"Continuation data",
+				"tpkt.continuation_data",
+				FT_BYTES,
+				BASE_NONE,
+				NULL,
+				0x0,
+				NULL, HFILL
 			}
 		},
 	};

@@ -33,6 +33,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include <epan/address.h>
 #include <wmem/wmem.h>
 #include <epan/conversation.h>
@@ -2898,6 +2899,8 @@ static gint ett_tn5250_qr_mask = -1;
 static gint ett_tn5250_wea_prim_attr = -1;
 static gint ett_cc = -1;
 
+static expert_field ei_tn5250_command_code = EI_INIT;
+
 static tn5250_conv_info_t *tn5250_info_items;
 
 static guint32 dissect_tn5250_orders_and_data(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset);
@@ -4868,12 +4871,12 @@ dissect_tn5250_data_until_next_command(proto_tree *tn5250_tree, tvbuff_t *tvb, g
 #endif
 
 static guint32
-dissect_outbound_stream(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
+dissect_outbound_stream(proto_tree *tn5250_tree, packet_info *pinfo, tvbuff_t *tvb, gint offset)
 {
   gint command_code;
   gint start = offset, length = 0;
   proto_tree   *cc_tree;
-  proto_item   *ti;
+  proto_item   *ti, *item;
 
   /*Escape*/
   ti = proto_tree_add_item(tn5250_tree, hf_tn5250_escape_code, tvb, offset, 1,
@@ -4883,32 +4886,24 @@ dissect_outbound_stream(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
 
   /* Command Code*/
   command_code = tvb_get_guint8(tvb, offset);
+  item = proto_tree_add_item(cc_tree, hf_tn5250_command_code, tvb, offset, 1,
+                          ENC_BIG_ENDIAN);
+  offset++;
+
   switch (command_code) {
     case CLEAR_UNIT:
     case CLEAR_FORMAT_TABLE:
-      proto_tree_add_item(cc_tree, hf_tn5250_command_code, tvb, offset, 1,
-                          ENC_BIG_ENDIAN);
-      offset++;
       break;
     case CLEAR_UNIT_ALTERNATE:
-      proto_tree_add_item(cc_tree, hf_tn5250_command_code, tvb, offset, 1,
-                          ENC_BIG_ENDIAN);
-      offset++;
       proto_tree_add_item(cc_tree, hf_tn5250_cua_parm, tvb, offset, 1, ENC_BIG_ENDIAN);
       offset++;
       break;
     case WRITE_TO_DISPLAY:
-      proto_tree_add_item(cc_tree, hf_tn5250_command_code, tvb, offset, 1,
-                          ENC_BIG_ENDIAN);
-      offset++;
       /* WCC */
       offset += dissect_wcc(cc_tree, tvb, offset);
       offset += dissect_tn5250_orders_and_data(cc_tree, tvb, offset);
       break;
     case WRITE_ERROR_CODE:
-      proto_tree_add_item(cc_tree, hf_tn5250_command_code,
-                          tvb, offset, 1, ENC_BIG_ENDIAN);
-      offset++;
       /* Check for the optional TN5250_IC */
       offset += dissect_tn5250_orders_and_data(cc_tree, tvb, offset);
       /* Add Field Data */
@@ -4922,17 +4917,11 @@ dissect_outbound_stream(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
       offset++;
       break;
     case RESTORE_SCREEN:
-      proto_tree_add_item(cc_tree, hf_tn5250_command_code, tvb, offset, 1,
-                          ENC_BIG_ENDIAN);
-      offset++;
       while (tvb_reported_length_remaining(tvb, offset) > 0) {
-        offset += dissect_outbound_stream(cc_tree, tvb, offset);
+        offset += dissect_outbound_stream(cc_tree, pinfo, tvb, offset);
       }
       break;
     case WRITE_ERROR_CODE_TO_WINDOW:
-      proto_tree_add_item(cc_tree, hf_tn5250_command_code, tvb, offset, 1,
-                          ENC_BIG_ENDIAN);
-      offset++;
       proto_tree_add_item(cc_tree, hf_tn5250_wectw_start_column, tvb, offset,
                           1, ENC_BIG_ENDIAN);
       offset++;
@@ -4943,9 +4932,6 @@ dissect_outbound_stream(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
     case READ_INPUT_FIELDS:
     case READ_MDT_FIELDS:
     case READ_MDT_ALTERNATE:
-      proto_tree_add_item(cc_tree, hf_tn5250_command_code, tvb, offset, 1,
-                          ENC_BIG_ENDIAN);
-      offset++;
       offset += dissect_wcc(cc_tree, tvb, offset);
       break;
     case READ_SCREEN:
@@ -4957,20 +4943,11 @@ dissect_outbound_stream(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
     case READ_IMMEDIATE:
     case READ_MODIFIED_IMMEDIATE_ALTERNATE:
     case SAVE_SCREEN:
-      proto_tree_add_item(cc_tree, hf_tn5250_command_code, tvb, offset, 1,
-                          ENC_BIG_ENDIAN);
-      offset++;
       break;
     case SAVE_PARTIAL_SCREEN:
-      proto_tree_add_item(cc_tree, hf_tn5250_command_code, tvb, offset, 1,
-                          ENC_BIG_ENDIAN);
-      offset++;
       offset += dissect_save_partial_screen(cc_tree, tvb, offset);
       break;
     case RESTORE_PARTIAL_SCREEN:
-      proto_tree_add_item(cc_tree, hf_tn5250_command_code, tvb, offset, 1,
-                          ENC_BIG_ENDIAN);
-      offset++;
       length = tvb_get_ntohs(tvb, offset);
       proto_tree_add_item(cc_tree, hf_tn5250_length_twobyte, tvb, offset, 2,
                           ENC_BIG_ENDIAN);
@@ -4981,34 +4958,22 @@ dissect_outbound_stream(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
       offset++;
       break;
     case ROLL:
-      proto_tree_add_item(cc_tree, hf_tn5250_command_code, tvb, offset, 1,
-                          ENC_BIG_ENDIAN);
-      offset++;
       offset += dissect_roll(cc_tree, tvb, offset);
       break;
     case WRITE_SINGLE_STRUCTURED_FIELD:
-      proto_tree_add_item(cc_tree, hf_tn5250_command_code, tvb, offset, 1,
-                          ENC_BIG_ENDIAN);
-      offset++;
       offset += dissect_write_single_structured_field(cc_tree, tvb, offset);
       break;
     case WRITE_STRUCTURED_FIELD:
-      proto_tree_add_item(cc_tree, hf_tn5250_command_code, tvb, offset, 1,
-                          ENC_BIG_ENDIAN);
-      offset++;
       offset += dissect_write_structured_field(cc_tree, tvb, offset);
       break;
     case COPY_TO_PRINTER:
-      proto_tree_add_item(cc_tree, hf_tn5250_command_code, tvb, offset, 1,
-                          ENC_BIG_ENDIAN);
-      offset++;
       proto_tree_add_item(cc_tree, hf_tn5250_ctp_lsid, tvb, offset, 1, ENC_BIG_ENDIAN);
       offset++;
       proto_tree_add_item(cc_tree, hf_tn5250_ctp_mlpp, tvb, offset, 1, ENC_BIG_ENDIAN);
       offset++;
       break;
     default:
-      proto_tree_add_text(cc_tree, tvb, offset, 1, "Bogus value: %u", command_code);
+      expert_add_info(pinfo, item, &ei_tn5250_command_code);
       offset ++;
       break;
   }
@@ -5017,7 +4982,7 @@ dissect_outbound_stream(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
 }
 
 static guint32
-dissect_inbound_stream(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset, gint sna_flag)
+dissect_inbound_stream(proto_tree *tn5250_tree, packet_info *pinfo, tvbuff_t *tvb, gint offset, gint sna_flag)
 {
   gint start = offset, aid;
   guint32 commands;
@@ -5064,7 +5029,7 @@ dissect_inbound_stream(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset, gint
     /* FIXME: need to know when escape/commands are expected. */
     /* Check the response data for commands */
     if (tvb_get_guint8(tvb,offset) == TN5250_ESCAPE) {
-      commands = dissect_outbound_stream(tn5250_tree, tvb, offset);
+      commands = dissect_outbound_stream(tn5250_tree, pinfo, tvb, offset);
       /* It if contained commands then we're done. Anything else is unexpected data */
       if (commands) {
         offset += commands;
@@ -5129,9 +5094,9 @@ dissect_tn5250(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     while (tvb_reported_length_remaining(tvb, offset) > 0) {
       if (pinfo->srcport == tn5250_info->outbound_port) {
-        offset += dissect_outbound_stream(tn5250_tree, tvb, offset);
+        offset += dissect_outbound_stream(tn5250_tree, pinfo, tvb, offset);
       } else {
-        offset += dissect_inbound_stream(tn5250_tree, tvb, offset, sna_flag);
+        offset += dissect_inbound_stream(tn5250_tree, pinfo, tvb, offset, sna_flag);
       }
     }
   }
@@ -7513,9 +7478,17 @@ proto_register_tn5250(void)
     &ett_cc,
   };
 
+  static ei_register_info ei[] = {
+    { &ei_tn5250_command_code, { "tn5250.command_code.bogus", PI_PROTOCOL, PI_WARN, "Bogus value", EXPFILL }},
+  };
+
+  expert_module_t* expert_tn5250;
+
   proto_tn5250 = proto_register_protocol("TN5250 Protocol", "TN5250", "tn5250");
   register_dissector("tn5250", dissect_tn5250, proto_tn5250);
   proto_register_field_array(proto_tn5250, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  expert_tn5250 = expert_register_protocol(proto_tn5250);
+  expert_register_field_array(expert_tn5250, ei, array_length(ei));
 
 }

@@ -571,7 +571,7 @@ static guint vnc_h264_encoding(tvbuff_t *tvb, gint *offset, proto_tree *tree);
 		pinfo->destport == vnc_preference_alternate_port
 
 #define VNC_BYTES_NEEDED(a)					\
-	if((a) > (guint)tvb_length_remaining(tvb, *offset))	\
+	if((a) > (guint)tvb_reported_length_remaining(tvb, *offset))	\
 		return (a);
 
 /* Variables for our preferences */
@@ -684,6 +684,7 @@ static int hf_vnc_tight_auth_code = -1;
 /* TightVNC capabilities */
 static int hf_vnc_tight_server_message_type = -1;
 static int hf_vnc_tight_server_vendor = -1;
+static int hf_vnc_tight_signature = -1;
 static int hf_vnc_tight_server_name = -1;
 
 static int hf_vnc_tight_client_message_type = -1;
@@ -784,6 +785,7 @@ static int hf_vnc_server_cut_text = -1;
 /* LibVNCServer additions */
 static int hf_vnc_supported_messages_client2server = -1;
 static int hf_vnc_supported_messages_server2client = -1;
+static int hf_vnc_num_supported_encodings = -1;
 static int hf_vnc_supported_encodings = -1;
 static int hf_vnc_server_identity = -1;
 
@@ -909,6 +911,9 @@ static expert_field ei_vnc_too_many_sub_rectangles = EI_INIT;
 static expert_field ei_vnc_invalid_encoding = EI_INIT;
 static expert_field ei_vnc_too_many_colors = EI_INIT;
 static expert_field ei_vnc_too_many_cut_text = EI_INIT;
+static expert_field ei_vnc_zrle_failed = EI_INIT;
+static expert_field ei_vnc_unknown_tight = EI_INIT;
+static expert_field ei_vnc_reassemble = EI_INIT;
 
 /* Global so they keep their value between packets */
 guint8 vnc_bytes_per_pixel;
@@ -1035,8 +1040,6 @@ process_tight_capabilities(proto_tree *tree,
 static gboolean
 vnc_is_client_or_server_version_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	proto_item *bug_item;
-
 	if(tvb_length(tvb) != 12) {
 		return FALSE;
 	}
@@ -1059,8 +1062,7 @@ vnc_is_client_or_server_version_message(tvbuff_t *tvb, packet_info *pinfo, proto
 			* [1] http://git.gnome.org/browse/gtk-vnc/commit/?id=bc9e2b19167686dd381a0508af1a5113675d08a2
 			*/
 			if ((pinfo != NULL) && (tree != NULL)) {
-				bug_item = proto_tree_add_text(tree, tvb, -1, 0, "NULL found in greeting");
-				expert_add_info(pinfo, bug_item, &ei_vnc_possible_gtk_vnc_bug);
+				proto_tree_add_expert(tree, pinfo, &ei_vnc_possible_gtk_vnc_bug, tvb, -1, 0);
 			}
 
 			return TRUE;
@@ -1296,7 +1298,7 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 				process_vendor(tree, hf_vnc_tight_server_vendor, tvb, offset);
 				offset += 4;
 				signature = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 8, ENC_ASCII);
-				proto_tree_add_text(tree, tvb, offset, 8, "Signature: %s", signature);
+				proto_tree_add_string(tree, hf_vnc_tight_signature, tvb, offset, 8, signature);
 				offset += 8;
 
 				switch(auth_code) {
@@ -1383,8 +1385,7 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 	case VNC_SESSION_STATE_TIGHT_UNKNOWN_PACKET3 :
 		col_set_str(pinfo->cinfo, COL_INFO, "Unknown packet (TightVNC)");
 
-		proto_tree_add_text(tree, tvb, offset, -1,
-				    "Unknown packet (TightVNC)");
+		proto_tree_add_expert(tree, pinfo, &ei_vnc_unknown_tight, tvb, offset, -1);
 
 		per_conversation_info->vnc_next_state =
 			VNC_SESSION_STATE_VNC_AUTHENTICATION_CHALLENGE;
@@ -1756,8 +1757,7 @@ again:
 	}
 
 	if(bytes_needed > 0 && vnc_preference_desegment && pinfo->can_desegment) {
-		proto_tree_add_text(vnc_server_message_type_tree, tvb, start_offset, -1,
-				    "[See further on for dissection of the complete (reassembled) PDU]");
+		proto_tree_add_expert(vnc_server_message_type_tree, pinfo, &ei_vnc_reassemble, tvb, start_offset, -1);
 		pinfo->desegment_offset = start_offset;
 		pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
 		return;
@@ -2471,8 +2471,7 @@ vnc_supported_encodings(tvbuff_t *tvb, gint *offset, proto_tree *tree,
 {
 	guint16 i = width;
 
-	proto_tree_add_text(tree, tvb, *offset, 0,
-			    "Number of supported encodings: %d", height);
+	proto_tree_add_uint(tree, hf_vnc_num_supported_encodings, tvb, *offset, 0, height);
 
 	VNC_BYTES_NEEDED(width);
 	for (; i >= 4; i -= 4) {
@@ -3022,8 +3021,7 @@ vnc_zrle_encoding(tvbuff_t *tvb, packet_info *pinfo _U_, gint *offset,
 		}
 
 	} else {
-		proto_tree_add_text(tree, tvb, *offset, data_len,
-				    "Decompression of ZRLE data failed");
+		proto_tree_add_expert(tree, pinfo, &ei_vnc_zrle_failed, tvb, *offset, data_len);
 	}
 #endif /* HAVE_LIBZ */
 
@@ -3547,6 +3545,11 @@ proto_register_vnc(void)
 		  { "Server vendor code", "vnc.server_vendor",
 		    FT_STRING, BASE_NONE, NULL, 0x0,
 		    "Server vendor code specific to TightVNC", HFILL }
+		},
+		{ &hf_vnc_tight_signature,
+		  { "Signature", "vnc.signature",
+		    FT_STRING, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }
 		},
 		{ &hf_vnc_tight_server_name,
 		  { "Server name", "vnc.server_name",
@@ -4309,6 +4312,11 @@ proto_register_vnc(void)
 		    FT_BYTES, BASE_NONE, NULL, 0x0,
 		    "Supported server to client messages (bit flags)", HFILL }
 		},
+		{ &hf_vnc_num_supported_encodings,
+		  { "Number of supported encodings", "vnc.num_supported_encodings",
+		    FT_UINT16, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
 		{ &hf_vnc_supported_encodings,
 		  { "Encoding", "vnc.supported_encodings",
 		    FT_UINT32, BASE_HEX, NULL, 0x0,
@@ -4725,7 +4733,7 @@ proto_register_vnc(void)
 	};
 
 	static ei_register_info ei[] = {
-		{ &ei_vnc_possible_gtk_vnc_bug, { "vnc.possible_gtk_vnc_bug", PI_MALFORMED, PI_ERROR, "client -> server greeting must be 12 bytes (possible gtk-vnc bug)", EXPFILL }},
+		{ &ei_vnc_possible_gtk_vnc_bug, { "vnc.possible_gtk_vnc_bug", PI_MALFORMED, PI_ERROR, "NULL found in greeting. client -> server greeting must be 12 bytes (possible gtk-vnc bug)", EXPFILL }},
 		{ &ei_vnc_auth_code_mismatch, { "vnc.auth_code_mismatch", PI_PROTOCOL, PI_WARN, "Authentication code does not match vendor or signature", EXPFILL }},
 		{ &ei_vnc_unknown_tight_vnc_auth, { "vnc.unknown_tight_vnc_auth", PI_PROTOCOL, PI_ERROR, "Unknown TIGHT VNC authentication", EXPFILL }},
 		{ &ei_vnc_too_many_rectangles, { "vnc.too_many_rectangles", PI_MALFORMED, PI_ERROR, "Too many rectangles, aborting dissection", EXPFILL }},
@@ -4733,6 +4741,9 @@ proto_register_vnc(void)
 		{ &ei_vnc_invalid_encoding, { "vnc.invalid_encoding", PI_MALFORMED, PI_ERROR, "Invalid encoding", EXPFILL }},
 		{ &ei_vnc_too_many_colors, { "vnc.too_many_colors", PI_MALFORMED, PI_ERROR, "Too many colors, aborting dissection", EXPFILL }},
 		{ &ei_vnc_too_many_cut_text, { "vnc.too_many_cut_text", PI_MALFORMED, PI_ERROR, "Too much cut text, aborting dissection", EXPFILL }},
+		{ &ei_vnc_zrle_failed, { "vnc.zrle_failed", PI_UNDECODED, PI_ERROR, "Decompression of ZRLE data failed", EXPFILL }},
+		{ &ei_vnc_unknown_tight, { "vnc.unknown_tight_packet", PI_UNDECODED, PI_WARN, "Unknown packet (TightVNC)", EXPFILL }},
+		{ &ei_vnc_reassemble, { "vnc.reassemble", PI_REASSEMBLE, PI_CHAT, "See further on for dissection of the complete (reassembled) PDU", EXPFILL }},
 	};
 
 	/* Register the protocol name and description */

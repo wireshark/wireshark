@@ -148,6 +148,8 @@ static gint ett_vines_ip_tctl = -1;
 
 static int proto_vines_echo = -1;
 
+static gint hf_vines_echo_data = -1;
+
 static gint ett_vines_echo = -1;
 
 static int proto_vines_ipc = -1;
@@ -720,19 +722,27 @@ dissect_vines_echo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_vines_echo, tvb, 0, -1, ENC_NA);
 		vines_echo_tree = proto_item_add_subtree(ti, ett_vines_echo);
-		proto_tree_add_text(vines_echo_tree, tvb, 0, -1, "Data");
+		proto_tree_add_item(vines_echo_tree, hf_vines_echo_data, tvb, 0, -1, ENC_NA);
 	}
 }
 
 void
 proto_register_vines_echo(void)
 {
+	static hf_register_info hf[] = {
+	  { &hf_vines_echo_data,
+	    { "Data", "vines_echo.data",
+	      FT_BYTES, BASE_NONE, NULL, 0x0,
+	      NULL, HFILL }},
+	};
+
 	static gint *ett[] = {
 		&ett_vines_echo,
 	};
 
 	proto_vines_echo = proto_register_protocol(
 	    "Banyan Vines Echo", "Vines Echo", "vines_echo");
+	proto_register_field_array(proto_vines_echo, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 }
 
@@ -1542,9 +1552,8 @@ dissect_vines_rtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					offset += 4;
 					metric = tvb_get_ntohs(tvb, offset);
 					if (metric == 0xffff) {
-						proto_tree_add_text(vines_rtp_tree, tvb,
-							    offset, 2,
-							    "Neighbor Metric: Unreachable");
+						proto_tree_add_uint_format_value(vines_rtp_tree, hf_vines_rtp_neighbor_metric, tvb,
+							    offset, 2, 0xffff, "Unreachable");
 					} else {
 						proto_tree_add_uint_format_value(vines_rtp_tree, hf_vines_rtp_neighbor_metric, tvb,
 							    offset, 2, metric,

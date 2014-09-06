@@ -54,6 +54,7 @@
 #include <epan/wmem/wmem.h>
 #include <epan/conversation.h>
 #include <epan/strutil.h>
+#include <epan/expert.h>
 
 #include "packet-tn3270.h"
 
@@ -1625,7 +1626,11 @@ static gint ett_tn3270_msr_state_mask = -1;
 static gint ett_tn3270_data_chain_fields = -1;
 static gint ett_tn3270_query_list = -1;
 
-static gint dissect_orders_and_data(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset, tn3270_conv_info_t *tn3270_info);
+static expert_field ei_tn3270_order_code = EI_INIT;
+static expert_field ei_tn3270_command_code = EI_INIT;
+static expert_field ei_tn3270_aid = EI_INIT;
+
+static gint dissect_orders_and_data(proto_tree *tn3270_tree, packet_info *pinfo, tvbuff_t *tvb, gint offset, tn3270_conv_info_t *tn3270_info);
 static gint dissect_buffer_address(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset, gint hf, tn3270_conv_info_t *tn3270_info);
 
 typedef struct hf_items {
@@ -2055,7 +2060,7 @@ dissect_outbound_text_header(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset
 
 /* 5.16 Outbound 3270DS */
 static gint
-dissect_outbound_3270ds(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset,
+dissect_outbound_3270ds(proto_tree *tn3270_tree, packet_info *pinfo, tvbuff_t *tvb, gint offset,
                         tn3270_conv_info_t *tn3270_info, gint sf_body_length )
 {
   gint start = offset;
@@ -2101,7 +2106,7 @@ dissect_outbound_3270ds(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset,
       if ((offset - start) < sf_body_length)
         offset += dissect_wcc(tn3270_tree, tvb, offset);
       if ((offset - start) < sf_body_length)
-        offset += dissect_orders_and_data(tn3270_tree, tvb, offset, tn3270_info);
+        offset += dissect_orders_and_data(tn3270_tree, pinfo, tvb, offset, tn3270_info);
       break;
     default:
       break;
@@ -4381,7 +4386,7 @@ process_inbound_structured_field(proto_tree *sf_tree, tvbuff_t *tvb, gint offset
 /* sf_body_length is the total length of the structured field including the sf_len and sf_id fields */
 /* call only with valid sf_id */
 static gint
-process_outbound_structured_field(proto_tree *sf_tree, tvbuff_t *tvb, gint offset,
+process_outbound_structured_field(proto_tree *sf_tree, packet_info *pinfo, tvbuff_t *tvb, gint offset,
                                   tn3270_conv_info_t *tn3270_info, guint sf_id, gint sf_body_length)
 {
   gint start = offset;          /* start of structured field param(s) */
@@ -4425,7 +4430,7 @@ process_outbound_structured_field(proto_tree *sf_tree, tvbuff_t *tvb, gint offse
       offset += dissect_load_programmed_symbols(sf_tree, tvb, offset, sf_body_length);
       break;
     case SF_OB_OUTBOUND_3270DS:
-      offset += dissect_outbound_3270ds(sf_tree, tvb, offset, tn3270_info, sf_body_length);
+      offset += dissect_outbound_3270ds(sf_tree, pinfo, tvb, offset, tn3270_info, sf_body_length);
       break;
     case SF_OB_PRESENT_ABSOLUTE_FORMAT:
       offset += dissect_present_absolute_format(sf_tree, tvb, offset, sf_body_length);
@@ -4666,7 +4671,7 @@ display_sf_hdr(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset,
 }
 
 static gint
-dissect_structured_fields(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset,
+dissect_structured_fields(proto_tree *tn3270_tree, packet_info *pinfo, tvbuff_t *tvb, gint offset,
                           tn3270_conv_info_t *tn3270_info, gboolean direction_inbound)
 {
   proto_tree  *sf_tree;
@@ -4715,7 +4720,7 @@ dissect_structured_fields(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset,
         offset += process_inbound_structured_field(sf_tree, tvb, offset, tn3270_info, sf_id, sf_length-2-sf_id_len);
       }
       else {
-        offset += process_outbound_structured_field(sf_tree, tvb, offset, tn3270_info, sf_id, sf_length-2-sf_id_len);
+        offset += process_outbound_structured_field(sf_tree, pinfo, tvb, offset, tn3270_info, sf_id, sf_length-2-sf_id_len);
       }
       continue;
     }
@@ -4960,10 +4965,11 @@ dissect_field_attribute_pairs(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offse
 }
 
 static gint
-dissect_orders_and_data(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset, tn3270_conv_info_t *tn3270_info)
+dissect_orders_and_data(proto_tree *tn3270_tree, packet_info *pinfo, tvbuff_t *tvb, gint offset, tn3270_conv_info_t *tn3270_info)
 {
   gint start = offset;
   gint order_code;
+  proto_item* item;
 
   /* Order Code */
 
@@ -4971,7 +4977,7 @@ dissect_orders_and_data(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset, tn3
   while (tvb_reported_length_remaining(tvb, offset) > 0) {
     order_code = tvb_get_guint8(tvb, offset);
     if ((order_code > 0) && (order_code <= OC_MAX)) {  /* XXX: also 0xFF ?? */
-      proto_tree_add_item(tn3270_tree,
+      item = proto_tree_add_item(tn3270_tree,
                           hf_tn3270_order_code,
                           tvb, offset,
                           1,
@@ -5008,7 +5014,7 @@ dissect_orders_and_data(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset, tn3
         case OC_IC:
           break;
         default:
-          proto_tree_add_text(tn3270_tree, tvb, offset, 1, "Bogus value: %u", order_code);
+          expert_add_info(pinfo, item, &ei_tn3270_order_code);
           break;
       } /* switch */
     }
@@ -5089,10 +5095,11 @@ dissect_tn3270e_header(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset)
 
 /* Detect and Handle Direction of Stream */
 static gint
-dissect_outbound_stream(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset, tn3270_conv_info_t *tn3270_info)
+dissect_outbound_stream(proto_tree *tn3270_tree, packet_info *pinfo, tvbuff_t *tvb, gint offset, tn3270_conv_info_t *tn3270_info)
 {
   gint command_code;
   gint start = offset;
+  proto_item* item;
 
   /* Command Code*/
   command_code = tvb_get_guint8(tvb, offset);
@@ -5117,6 +5124,13 @@ dissect_outbound_stream(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset, tn3
       break;
   }
 
+  item = proto_tree_add_item(tn3270_tree,
+                        hf_tn3270_command_code,
+                        tvb, offset,
+                        1,
+                        ENC_BIG_ENDIAN);
+  offset += 1;
+
   switch (command_code) {
     case CC_LCL_W:
     case CC_LCL_EW:
@@ -5126,25 +5140,13 @@ dissect_outbound_stream(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset, tn3
     case CC_RMT_EW:
     case CC_RMT_EWA:
     case CC_RMT_EAU:
-      proto_tree_add_item(tn3270_tree,
-                          hf_tn3270_command_code,
-                          tvb, offset,
-                          1,
-                          ENC_BIG_ENDIAN);
-      offset += 1;
       /* WCC */
       offset += dissect_wcc(tn3270_tree, tvb, offset);
-      offset += dissect_orders_and_data(tn3270_tree, tvb, offset, tn3270_info);
+      offset += dissect_orders_and_data(tn3270_tree, pinfo, tvb, offset, tn3270_info);
       break;
     case CC_LCL_WSF:
     case CC_RMT_WSF:
-      proto_tree_add_item(tn3270_tree,
-                          hf_tn3270_command_code,
-                          tvb, offset,
-                          1,
-                          ENC_BIG_ENDIAN);
-      offset += 1;
-      offset += dissect_structured_fields(tn3270_tree, tvb, offset, tn3270_info, FALSE);
+      offset += dissect_structured_fields(tn3270_tree, pinfo, tvb, offset, tn3270_info, FALSE);
       break;
     case CC_LCL_RB:
     case CC_LCL_RM:
@@ -5152,17 +5154,9 @@ dissect_outbound_stream(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset, tn3
     case CC_RMT_RB:
     case CC_RMT_RM:
     case CC_RMT_RMA:
-      proto_tree_add_item(tn3270_tree,
-                          hf_tn3270_command_code,
-                          tvb, offset,
-                          1,
-                          ENC_BIG_ENDIAN);
-      offset += 1;
       break;
     default:
-      /* XXX: Add expert item ? */
-      proto_tree_add_text(tn3270_tree, tvb, offset, 1, "Bogus value: %u", command_code);
-      offset += 1;
+      expert_add_info(pinfo, item, &ei_tn3270_command_code);
       break;
   }
 
@@ -5173,14 +5167,15 @@ dissect_outbound_stream(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset, tn3
 /* INBOUND DATA STREAM (DISPLAY -> MAINFRAME PROGRAM) */
 /* Dissect tvb as inbound */
 static gint
-dissect_inbound_stream(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset, tn3270_conv_info_t *tn3270_info)
+dissect_inbound_stream(proto_tree *tn3270_tree, packet_info *pinfo, tvbuff_t *tvb, gint offset, tn3270_conv_info_t *tn3270_info)
 {
   gint start = offset;
   gint aid;
+  proto_item* item;
 
   /* Command Code*/
   aid = tvb_get_guint8(tvb, offset);
-  proto_tree_add_item(tn3270_tree,
+  item = proto_tree_add_item(tn3270_tree,
                       hf_tn3270_aid,
                       tvb, offset,
                       1,
@@ -5188,7 +5183,7 @@ dissect_inbound_stream(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset, tn32
   offset += 1;
   switch (aid) {
     case  AID_STRUCTURED_FIELD:
-      offset += dissect_structured_fields(tn3270_tree, tvb, offset, tn3270_info, TRUE);
+      offset += dissect_structured_fields(tn3270_tree, pinfo, tvb, offset, tn3270_info, TRUE);
       break;
     case  AID_PA1_KEY:
     case  AID_PA2_KEY_CNCL:
@@ -5234,10 +5229,10 @@ dissect_inbound_stream(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset, tn32
     case  AID_OPERATOR_ID_READER:
     case  AID_MAG_READER_NUMBER:
       offset += dissect_buffer_address(tn3270_tree, tvb, offset, hf_tn3270_cursor_address, tn3270_info);
-      offset += dissect_orders_and_data(tn3270_tree, tvb, offset, tn3270_info);
+      offset += dissect_orders_and_data(tn3270_tree, pinfo, tvb, offset, tn3270_info);
       break;
     default:
-      proto_tree_add_text(tn3270_tree, tvb, offset, 1, "Bogus value: %u", aid);
+      expert_add_info(pinfo, item, &ei_tn3270_aid);
       offset += 1;
       break;
   }
@@ -5292,10 +5287,10 @@ dissect_tn3270(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if(tree) {
     while (tvb_reported_length_remaining(tvb, offset) > 0) {
       if (pinfo->srcport == tn3270_info->outbound_port) {
-        offset += dissect_outbound_stream(tn3270_tree, tvb, offset, tn3270_info);
+        offset += dissect_outbound_stream(tn3270_tree, pinfo, tvb, offset, tn3270_info);
       }
       else {
-        offset += dissect_inbound_stream(tn3270_tree, tvb, offset, tn3270_info);
+        offset += dissect_inbound_stream(tn3270_tree, pinfo, tvb, offset, tn3270_info);
       }
     }
   }
@@ -7670,10 +7665,20 @@ proto_register_tn3270(void)
     &ett_tn3270_query_list
   };
 
+  static ei_register_info ei[] = {
+    { &ei_tn3270_order_code, { "tn3270.order_code.bogus", PI_PROTOCOL, PI_WARN, "Bogus value", EXPFILL }},
+    { &ei_tn3270_command_code, { "tn3270.command_code.bogus", PI_PROTOCOL, PI_WARN, "Bogus value", EXPFILL }},
+    { &ei_tn3270_aid, { "tn3270.aid.bogus", PI_PROTOCOL, PI_WARN, "Bogus value", EXPFILL }},
+  };
+
+  expert_module_t* expert_tn3270;
+
   proto_tn3270 = proto_register_protocol("TN3270 Protocol", "TN3270", "tn3270");
   register_dissector("tn3270", dissect_tn3270, proto_tn3270);
   proto_register_field_array(proto_tn3270, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  expert_tn3270 = expert_register_protocol(proto_tn3270);
+  expert_register_field_array(expert_tn3270, ei, array_length(ei));
 
 }
 

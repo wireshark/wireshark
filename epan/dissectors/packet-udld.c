@@ -25,6 +25,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include <epan/strutil.h>
 
 #include <epan/oui.h>
@@ -55,6 +56,12 @@ static int hf_udld_flags_rsy = -1;
 static int hf_udld_checksum = -1;
 static int hf_udld_tlvtype = -1;
 static int hf_udld_tlvlength = -1;
+static int hf_udld_device_id = -1;
+static int hf_udld_sent_through_interface = -1;
+static int hf_udld_data = -1;
+
+
+static expert_field ei_udld_tlvlength = EI_INIT;
 
 static gint ett_udld = -1;
 static gint ett_udld_flags = -1;
@@ -103,7 +110,6 @@ dissect_udld(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     int offset = 0;
     guint16 type;
     guint16 length;
-    proto_item *tlvi;
     proto_tree *tlv_tree;
     int real_length;
 
@@ -136,19 +142,16 @@ dissect_udld(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    type = tvb_get_ntohs(tvb, offset + TLV_TYPE);
 	    length = tvb_get_ntohs(tvb, offset + TLV_LENGTH);
 	    if (length < 4) {
-		    if (tree) {
-		    tlvi = proto_tree_add_text(udld_tree, tvb, offset, 4,
-			"TLV with invalid length %u (< 4)",
-			length);
-		    tlv_tree = proto_item_add_subtree(tlvi, ett_udld_tlv);
-		    proto_tree_add_uint(tlv_tree, hf_udld_tlvtype, tvb,
+		    tlv_tree = proto_tree_add_subtree_format(udld_tree, tvb, offset, 4,
+			    ett_udld_tlv, NULL, "TLV with invalid length %u (< 4)", length);
+			proto_tree_add_uint(tlv_tree, hf_udld_tlvtype, tvb,
 				offset + TLV_TYPE, 2, type);
-		    proto_tree_add_uint(tlv_tree, hf_udld_tlvlength, tvb,
+			ti = proto_tree_add_uint(tlv_tree, hf_udld_tlvlength, tvb,
 				offset + TLV_LENGTH, 2, length);
-		    }
-		    offset += 4;
-		    break;
-	    }
+			expert_add_info(pinfo, ti, &ei_udld_tlvlength);
+			offset += 4;
+			break;
+		}
 
 	    switch (type) {
 
@@ -161,19 +164,18 @@ dissect_udld(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 							  length - 4));
 
 		if (tree) {
-		    tlv_tree = proto_tree_add_subtree_format(udld_tree, tvb, offset,
+			tlv_tree = proto_tree_add_subtree_format(udld_tree, tvb, offset,
 				length, ett_udld_tlv, NULL, "Device ID: %s",
 				tvb_format_stringzpad(tvb, offset + 4, length - 4));
-		    proto_tree_add_uint(tlv_tree, hf_udld_tlvtype, tvb,
+			proto_tree_add_uint(tlv_tree, hf_udld_tlvtype, tvb,
 				offset + TLV_TYPE, 2, type);
-		    proto_tree_add_uint(tlv_tree, hf_udld_tlvlength, tvb,
+			proto_tree_add_uint(tlv_tree, hf_udld_tlvlength, tvb,
 				offset + TLV_LENGTH, 2, length);
-		    proto_tree_add_text(tlv_tree, tvb, offset + 4,
-				length - 4, "Device ID: %s",
-				tvb_format_stringzpad(tvb, offset + 4, length - 4));
-		    }
-		    offset += length;
-		    break;
+			proto_tree_add_item(tlv_tree, hf_udld_device_id, tvb, offset + 4,
+				length - 4, ENC_ASCII|ENC_NA);
+		}
+		offset += length;
+		break;
 
 	    case TYPE_PORT_ID:
 		real_length = length;
@@ -192,17 +194,15 @@ dissect_udld(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				    tvb_format_stringzpad(tvb, offset + 4, length - 4));
 
 		if (tree) {
-		    tlv_tree = proto_tree_add_subtree_format(udld_tree, tvb, offset,
-			    real_length, ett_udld_tlv, NULL, "Port ID: %s",
-			    tvb_format_text(tvb, offset + 4, real_length - 4));
-		    proto_tree_add_uint(tlv_tree, hf_udld_tlvtype, tvb,
-			    offset + TLV_TYPE, 2, type);
-		    proto_tree_add_uint(tlv_tree, hf_udld_tlvlength, tvb,
-			    offset + TLV_LENGTH, 2, length);
-		    proto_tree_add_text(tlv_tree, tvb, offset + 4,
-			    real_length - 4,
-			    "Sent through Interface: %s",
-			    tvb_format_text(tvb, offset + 4, real_length - 4));
+			tlv_tree = proto_tree_add_subtree_format(udld_tree, tvb, offset,
+				real_length, ett_udld_tlv, NULL, "Port ID: %s",
+				tvb_format_text(tvb, offset + 4, real_length - 4));
+			proto_tree_add_uint(tlv_tree, hf_udld_tlvtype, tvb,
+				offset + TLV_TYPE, 2, type);
+			proto_tree_add_uint(tlv_tree, hf_udld_tlvlength, tvb,
+				offset + TLV_LENGTH, 2, length);
+			proto_tree_add_item(tlv_tree, hf_udld_sent_through_interface, tvb, offset + 4,
+				real_length - 4, ENC_ASCII|ENC_NA);
 		}
 		offset += real_length;
 		break;
@@ -222,8 +222,8 @@ dissect_udld(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_uint(tlv_tree, hf_udld_tlvlength, tvb,
 			offset + TLV_LENGTH, 2, length);
 		if (length > 4) {
-			proto_tree_add_text(tlv_tree, tvb, offset + 4,
-				length - 4, "Data");
+			proto_tree_add_item(tlv_tree, hf_udld_data, tvb, offset + 4,
+				length - 4, ENC_NA);
 		} else {
 			return;
 		}
@@ -268,18 +268,39 @@ proto_register_udld(void)
 
 	{ &hf_udld_tlvlength,
 	{ "Length",		"udld.tlv.len", FT_UINT16, BASE_DEC, NULL, 0x0,
-	  NULL, HFILL }}
+	  NULL, HFILL }},
+
+	{ &hf_udld_device_id,
+	{ "Device ID",		"udld.device_id", FT_STRINGZ, BASE_NONE, NULL, 0x0,
+	  NULL, HFILL }},
+
+	{ &hf_udld_sent_through_interface,
+	{ "Sent through Interface",		"udld.sent_through_interface", FT_STRING, BASE_NONE, NULL, 0x0,
+	  NULL, HFILL }},
+
+	{ &hf_udld_data,
+	{ "Data",		"udld.data", FT_BYTES, BASE_NONE, NULL, 0x0,
+	  NULL, HFILL }},
     };
+
     static gint *ett[] = {
 	&ett_udld,
 	&ett_udld_flags,
 	&ett_udld_tlv
     };
 
+    static ei_register_info ei[] = {
+        { &ei_udld_tlvlength, { "udld.tlv.len.invalid", PI_PROTOCOL, PI_WARN, "TLV with invalid length (< 4)", EXPFILL }},
+    };
+
+    expert_module_t* expert_udld;
+
     proto_udld = proto_register_protocol("Unidirectional Link Detection",
 					"UDLD", "udld");
     proto_register_field_array(proto_udld, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_udld = expert_register_protocol(proto_udld);
+    expert_register_field_array(expert_udld, ei, array_length(ei));
 }
 
 void

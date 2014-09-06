@@ -73,10 +73,7 @@ static void dissect_vicp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    len=tvb_get_ntohl(tvb, ptvcursor_current_offset(cursor));
    ptvcursor_add(cursor, hf_vicp_length, 4, ENC_BIG_ENDIAN);
 
-   if(len==0)
-      proto_tree_add_text(vicp_tree, tvb, 0, 0, "No data");
-   else
-      ptvcursor_add(cursor, hf_vicp_data, len, ENC_NA);
+   ptvcursor_add(cursor, hf_vicp_data, len, ENC_NA);
 
    ptvcursor_free(cursor);
 }
