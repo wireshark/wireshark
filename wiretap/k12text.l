@@ -96,7 +96,7 @@ static gboolean at_eof;
 static guint junk_chars;
 static void finalize_frame(void);
 static gchar* error_str;
-static guint file_bytes_read;
+static guint64 file_bytes_read;
 static gboolean ok_frame;
 static FILE_T yy_fh;
 
