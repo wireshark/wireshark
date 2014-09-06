@@ -93,6 +93,8 @@ static gint hf_s5066dts_header_size = -1;
 static gint hf_s5066dts_header_crc = -1;
 static gint hf_s5066dts_cpdu_crc = -1;
 static gint hf_s5066dts_segmented_cpdu = -1;
+static gint hf_s5066dts_dest_addr = -1;
+static gint hf_s5066dts_src_addr = -1;
 
 /* EOW TYPES */
 /* { 1, "DRC_REQUEST"}, */
@@ -454,6 +456,16 @@ static guint dissect_s5066dts_eow(tvbuff_t *tvb,  packet_info * pinfo, guint off
     return ++offset;
 }
 
+static void
+s5066dts_address_format( gchar *result, guint32 address_value )
+{
+   g_snprintf( result, ITEM_LABEL_LENGTH, "%d.%d.%d.%d",
+            address_value >> 24,
+            (address_value >> 16) & 0xFF,
+            (address_value >> 8) & 0xFF,
+            address_value & 0xFF);
+}
+
 static guint dissect_s5066dts_address(tvbuff_t *tvb, guint offset, proto_tree *tree, packet_info *pinfo,
         guint addr_size)
 {
@@ -473,22 +485,8 @@ static guint dissect_s5066dts_address(tvbuff_t *tvb, guint offset, proto_tree *t
 
     address_tree = proto_tree_add_subtree(tree, tvb, offset, addr_size, ett_s5066dts_address, NULL, "Destination & Source Addresses");
 
-    proto_tree_add_text(address_tree,
-            tvb,
-            offset,
-            addr_size - addr_size / 2,
-            "Destination Address: %d.%d.%d.%d",
-            destination_address >> 24, (destination_address >> 16) & 0xFF,
-            (destination_address >> 8) & 0xFF, destination_address & 0xFF);
-    proto_tree_add_text(address_tree,
-            tvb,
-            offset + addr_size / 2,
-            addr_size - addr_size / 2,
-            "Source Address: %d.%d.%d.%d",
-            source_address  >> 24,
-            (source_address >> 16) & 0xFF,
-            (source_address >> 8) & 0xFF,
-            source_address & 0xFF);
+    proto_tree_add_uint(address_tree, hf_s5066dts_dest_addr, tvb, offset, addr_size - addr_size / 2, destination_address);
+    proto_tree_add_uint(address_tree, hf_s5066dts_src_addr, tvb, offset + addr_size / 2, addr_size - addr_size / 2, source_address);
 
     col_add_fstr(pinfo->cinfo, COL_DEF_SRC, "%d.%d.%d.%d",
             source_address  >> 24,
@@ -952,347 +950,353 @@ void proto_register_s5066dts (void)
     module_t *s5066dts_module;
     static hf_register_info hf[] = {
             { &hf_s5066dts_sync_word,
-                { "Sync preamble", "s5066dts.sync", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }
+                { "Sync preamble", "s5066dts.sync", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }
             },
             { &hf_s5066dts_dpdu_type,
-                { "D_PDU type", "s5066dts.type", FT_UINT8, BASE_DEC, VALS(s5066dts_dpdu_type), 0xF0, "", HFILL }
+                { "D_PDU type", "s5066dts.type", FT_UINT8, BASE_DEC, VALS(s5066dts_dpdu_type), 0xF0, NULL, HFILL }
             },
             { &hf_s5066dts_eow_type,
-                { "EOW type", "s5066dts.eow.type", FT_UINT8, BASE_DEC, VALS(s5066dts_eow_type), 0x0F, "", HFILL }
+                { "EOW type", "s5066dts.eow.type", FT_UINT8, BASE_DEC, VALS(s5066dts_eow_type), 0x0F, NULL, HFILL }
             },
             { &hf_s5066dts_eow_data,
-                { "EOW data", "s5066dts.eow.data", FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL }
+                { "EOW data", "s5066dts.eow.data", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }
             },
             { &hf_s5066dts_eot,
-                { "EOT", "s5066dts.eot", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }
+                { "EOT", "s5066dts.eot", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
             },
             { &hf_s5066dts_address_size,
-                { "Address size (1/2 bytes)", "s5066dts.address.size", FT_UINT8, BASE_DEC, NULL, 0xE0, "", HFILL }
+                { "Address size (1/2 bytes)", "s5066dts.address.size", FT_UINT8, BASE_DEC, NULL, 0xE0, NULL, HFILL }
             },
             { &hf_s5066dts_header_size,
-                { "Header size", "s5066dts.header_size", FT_UINT8, BASE_DEC, NULL, 0x1F, "", HFILL }
+                { "Header size", "s5066dts.header_size", FT_UINT8, BASE_DEC, NULL, 0x1F, NULL, HFILL }
             },
             { &hf_s5066dts_segmented_cpdu,
-                { "C_PDU Segment", "s5066dts.segmented_cpdu", FT_BYTES, BASE_NONE, NULL, 0x0, "", HFILL }
+                { "C_PDU Segment", "s5066dts.segmented_cpdu", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
+            },
+            { &hf_s5066dts_dest_addr,
+                { "Destination Address", "s5066dts.dest_addr", FT_UINT32, BASE_CUSTOM, s5066dts_address_format, 0x0, NULL, HFILL }
+            },
+            { &hf_s5066dts_src_addr,
+                { "Source Address", "s5066dts.src_addr", FT_UINT32, BASE_CUSTOM, s5066dts_address_format, 0x0, NULL, HFILL }
             },
             { &hf_s5066dts_header_crc,
-                { "CRC on header", "s5066dts.header_crc", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }
+                { "CRC on header", "s5066dts.header_crc", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }
             },
             { &hf_s5066dts_cpdu_crc,
-                { "CRC on C_PDU segment", "s5066dts.cpdu_crc", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }
+                { "CRC on C_PDU segment", "s5066dts.cpdu_crc", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }
             },
             /* { 1, "DRC_REQUEST"}, */
             { &hf_s5066dts_eow_drc_request_data_rate,
                 { "Data Rate", "s5066dts.eow.drc_request.data_rate", FT_UINT8, BASE_DEC, VALS(s5066dts_eow_data_rate),
-                        0xF0, "", HFILL }
+                        0xF0, NULL, HFILL }
             },
             { &hf_s5066dts_eow_drc_request_interleaving,
                 { "Interleaver parameter", "s5066dts.eow.drc_request.interleaving", FT_UINT8, BASE_DEC,
-                        VALS(s5066dts_eow_interleaving), 0x0C, "", HFILL }
+                        VALS(s5066dts_eow_interleaving), 0x0C, NULL, HFILL }
             },
             { &hf_s5066dts_eow_drc_request_others,
                 { "Other parameters", "s5066dts.eow.drc_request.others", FT_UINT8, BASE_DEC,
-                        VALS(s5066dts_eow_others), 0x03, "", HFILL }
+                        VALS(s5066dts_eow_others), 0x03, NULL, HFILL }
             },
             /* { 2, "DRC_RESPONSE"}, */
             { &hf_s5066dts_eow_drc_response_response,
                 { "Response for DRC", "s5066dts.eow.drc_response.response", FT_UINT8, BASE_DEC,
-                        VALS(s5066dts_eow_response), 0xE0, "", HFILL }
+                        VALS(s5066dts_eow_response), 0xE0, NULL, HFILL }
             },
             { &hf_s5066dts_eow_drc_response_reason,
                 { "Reason", "s5066dts.eow.drc_response.reason", FT_UINT8, BASE_DEC,
-                        VALS(s5066dts_eow_reason), 0x1F, "", HFILL }
+                        VALS(s5066dts_eow_reason), 0x1F, NULL, HFILL }
             },
             /* { 3, "UNRECOGNIZED_TYPE"}, */
             { &hf_s5066dts_eow_unrec_type_response,
                 { "This value should be set to 0", "s5066dts.eow.unrec_type.response", FT_UINT8, BASE_DEC,
-                        NULL, 0xE0, "", HFILL }
+                        NULL, 0xE0, NULL, HFILL }
             },
             { &hf_s5066dts_eow_unrec_type_reason,
-                { "Reason", "s5066dts.eow.unrec_type.reason", FT_UINT8, BASE_DEC, NULL, 0x1F, "", HFILL }
+                { "Reason", "s5066dts.eow.unrec_type.reason", FT_UINT8, BASE_DEC, NULL, 0x1F, NULL, HFILL }
             },
             /* { 4, "CAPABILITY"}, */
             { &hf_s5066dts_eow_capability_adaptive,
-                { "Adaptive modem parameters capable", "s5066dts.eow.capability.adaptive", FT_BOOLEAN, 8, NULL, 0x80, "", HFILL }
+                { "Adaptive modem parameters capable", "s5066dts.eow.capability.adaptive", FT_BOOLEAN, 8, NULL, 0x80, NULL, HFILL }
             },
             { &hf_s5066dts_eow_capability_stanag_4529,
-                { "STANAG 4529 available", "s5066dts.eow.capability.stanag_4529", FT_BOOLEAN, 8, NULL, 0x40, "", HFILL }
+                { "STANAG 4529 available", "s5066dts.eow.capability.stanag_4529", FT_BOOLEAN, 8, NULL, 0x40, NULL, HFILL }
             },
             { &hf_s5066dts_eow_capability_mil_std_188_110a,
-                { "MIL-STD-188-110A available", "s5066dts.eow.capability.mil_std_188_110a", FT_BOOLEAN, 8, NULL, 0x20, "", HFILL }
+                { "MIL-STD-188-110A available", "s5066dts.eow.capability.mil_std_188_110a", FT_BOOLEAN, 8, NULL, 0x20, NULL, HFILL }
             },
             { &hf_s5066dts_eow_capability_extended,
-                { "Extended data rate available", "s5066dts.eow.capability.extended", FT_BOOLEAN, 8, NULL, 0x10, "", HFILL }
+                { "Extended data rate available", "s5066dts.eow.capability.extended", FT_BOOLEAN, 8, NULL, 0x10, NULL, HFILL }
             },
             { &hf_s5066dts_eow_capability_full_duplex,
-                { "Full duplex supported", "s5066dts.eow.capability.full_duplex", FT_BOOLEAN, 8, NULL, 0x08, "", HFILL }
+                { "Full duplex supported", "s5066dts.eow.capability.full_duplex", FT_BOOLEAN, 8, NULL, 0x08, NULL, HFILL }
             },
             { &hf_s5066dts_eow_capability_split_frequency,
-                { "Split frequency supported", "s5066dts.eow.capability.split_frequency", FT_BOOLEAN, 8, NULL, 0x04, "", HFILL }
+                { "Split frequency supported", "s5066dts.eow.capability.split_frequency", FT_BOOLEAN, 8, NULL, 0x04, NULL, HFILL }
             },
             { &hf_s5066dts_eow_capability_non_arcs_ale,
-                { "Non-ARCS ALE capable", "s5066dts.eow.capability.non_arcs_ale", FT_BOOLEAN, 8, NULL, 0x02, "", HFILL }
+                { "Non-ARCS ALE capable", "s5066dts.eow.capability.non_arcs_ale", FT_BOOLEAN, 8, NULL, 0x02, NULL, HFILL }
             },
             { &hf_s5066dts_eow_capability_arcs,
-                { "ARCS capable", "s5066dts.eow.capability.arcs", FT_BOOLEAN, 8, NULL, 0x01, "", HFILL }
+                { "ARCS capable", "s5066dts.eow.capability.arcs", FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL }
             },
             /* { 5, "ALM_REQUEST"}, */
             { &hf_s5066dts_eow_alm_request_data_rate,
                 { "Data Rate", "s5066dts.eow.alm_request.data_rate", FT_UINT8, BASE_DEC,
-                        VALS(s5066dts_eow_data_rate), 0xF0, "", HFILL }
+                        VALS(s5066dts_eow_data_rate), 0xF0, NULL, HFILL }
             },
             { &hf_s5066dts_eow_alm_request_interleaving,
                 { "Interleaver parameter", "s5066dts.eow.alm_request.interleaving", FT_UINT8, BASE_DEC,
-                        VALS(s5066dts_eow_interleaving), 0x0C, "", HFILL }
+                        VALS(s5066dts_eow_interleaving), 0x0C, NULL, HFILL }
             },
             { &hf_s5066dts_eow_alm_request_others,
                 { "Other parameters", "s5066dts.eow.alm_request.others", FT_UINT8, BASE_DEC,
-                        VALS(s5066dts_eow_others), 0x03, "", HFILL }
+                        VALS(s5066dts_eow_others), 0x03, NULL, HFILL }
             },
             /* { 6, "ALM_RESPONSE"}, */
             { &hf_s5066dts_eow_alm_response_response,
                 { "Response for DRC", "s5066dts.eow.alm_response.response", FT_UINT8, BASE_DEC,
-                        VALS(s5066dts_eow_response), 0xE0, "", HFILL }
+                        VALS(s5066dts_eow_response), 0xE0, NULL, HFILL }
             },
             { &hf_s5066dts_eow_alm_response_reason,
-                { "Reason", "s5066dts.eow.alm_response.reason", FT_UINT8, BASE_DEC, VALS(s5066dts_alm_reason), 0x1F, "", HFILL }
+                { "Reason", "s5066dts.eow.alm_response.reason", FT_UINT8, BASE_DEC, VALS(s5066dts_alm_reason), 0x1F, NULL, HFILL }
             },
             /* { 7, "HDR_DRC_REQUEST"}, */
             { &hf_s5066dts_eow_hdr_drc_request_waveform,
                 { "Modem waveform", "s5066dts.eow.hdr_drc_request.waveform", FT_UINT8, BASE_DEC,
-                        VALS(s5066dts_eow_waveform), 0xF8, "", HFILL }
+                        VALS(s5066dts_eow_waveform), 0xF8, NULL, HFILL }
             },
             { &hf_s5066dts_eow_hdr_drc_request_num_channels,
-                { "Number of channels", "s5066dts.eow.hdr_drc_request.num_channels", FT_UINT8, BASE_DEC, NULL, 0x07, "", HFILL }
+                { "Number of channels", "s5066dts.eow.hdr_drc_request.num_channels", FT_UINT8, BASE_DEC, NULL, 0x07, NULL, HFILL }
             },
             { &hf_s5066dts_eow_hdr_drc_request_data_rate,
                 { "Requested data rate for each channel", "s5066dts.eow.hdr_drc_request.data_rate",
-                        FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }
+                        FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
             },
             { &hf_s5066dts_eow_hdr_drc_request_interleaver_length,
                 { "Interleaver length for each channel", "s5066dts.eow.hdr_drc_request.interleaver_length",
-                        FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }
+                        FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
             },
             /* { 15, "HFTRP FRAME CONTROL"}, */
             { &hf_s5066dts_eow_hftrp_hftrp_token,
-                { "HFTRP Token Type", "s5066dts.eow.hftrp.token_type", FT_UINT8, BASE_DEC, NULL, 0x00, "", HFILL }
+                { "HFTRP Token Type", "s5066dts.eow.hftrp.token_type", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
             },
             /* { 0, "DATA_ONLY"}, */
             { &hf_s5066dts_data_only_cpdu_start,
-                { "C_PDU Start", "s5066dts.data_only.cpdu_start", FT_BOOLEAN, 8, NULL, 0x80, "", HFILL }
+                { "C_PDU Start", "s5066dts.data_only.cpdu_start", FT_BOOLEAN, 8, NULL, 0x80, NULL, HFILL }
             },
             { &hf_s5066dts_data_only_cpdu_end,
-                { "C_PDU End", "s5066dts.data_only.cpdu_end", FT_BOOLEAN, 8, NULL, 0x40, "", HFILL }
+                { "C_PDU End", "s5066dts.data_only.cpdu_end", FT_BOOLEAN, 8, NULL, 0x40, NULL, HFILL }
             },
             { &hf_s5066dts_data_only_deliver_in_order,
-                { "C_PDU Deliver-in-Order", "s5066dts.data_only.deliver_in_order", FT_BOOLEAN, 8, NULL, 0x20, "", HFILL }
+                { "C_PDU Deliver-in-Order", "s5066dts.data_only.deliver_in_order", FT_BOOLEAN, 8, NULL, 0x20, NULL, HFILL }
             },
             { &hf_s5066dts_data_only_drop_cpdu,
-                { "Drop C_PDU", "s5066dts.data_only.drop_cpdu", FT_BOOLEAN, 8, NULL, 0x10, "", HFILL }
+                { "Drop C_PDU", "s5066dts.data_only.drop_cpdu", FT_BOOLEAN, 8, NULL, 0x10, NULL, HFILL }
             },
             { &hf_s5066dts_data_only_tx_win_uwe,
-                { "TX WIN UWE", "s5066dts.data_only.tx_win_uwe", FT_BOOLEAN, 8, NULL, 0x08, "", HFILL }
+                { "TX WIN UWE", "s5066dts.data_only.tx_win_uwe", FT_BOOLEAN, 8, NULL, 0x08, NULL, HFILL }
             },
             { &hf_s5066dts_data_only_tx_win_lwe,
-                { "TX WIN LWE", "s5066dts.data_only.tx_win_lwe", FT_BOOLEAN, 8, NULL, 0x04, "", HFILL }
+                { "TX WIN LWE", "s5066dts.data_only.tx_win_lwe", FT_BOOLEAN, 8, NULL, 0x04, NULL, HFILL }
             },
             { &hf_s5066dts_data_only_segmented_cpdu_size,
                 { "Size of segmented C_PDU", "s5066dts.data_only.segmented_cpdu_size", FT_UINT16, BASE_DEC,
-                        NULL, 0x03FF, "", HFILL }
+                        NULL, 0x03FF, NULL, HFILL }
             },
             { &hf_s5066dts_data_only_transmit_sequence_number,
                 { "TX Frame Sequence Number", "s5066dts.data_only.transmit_sequence_number", FT_UINT8, BASE_DEC,
-                        NULL, 0x0, "", HFILL }
+                        NULL, 0x0, NULL, HFILL }
             },
             /* { 1, "ACK_ONLY"}, */
             { &hf_s5066dts_ack_only_rx_lwe,
-                { "RX LWE", "s5066dts.ack_only.rx_lwe", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }
+                { "RX LWE", "s5066dts.ack_only.rx_lwe", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
             },
             { &hf_s5066dts_ack_only_acks,
-                { "Selective ACK", "s5066dts.ack_only.acks", FT_BYTES, BASE_NONE, NULL, 0x0, "", HFILL }
+                { "Selective ACK", "s5066dts.ack_only.acks", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
             },
             /* { 2, "DATA_ACK"}, */
             { &hf_s5066dts_data_ack_cpdu_start,
-                { "C_PDU Start", "s5066dts.data_ack.cpdu_start", FT_BOOLEAN, 8, NULL, 0x80, "", HFILL }
+                { "C_PDU Start", "s5066dts.data_ack.cpdu_start", FT_BOOLEAN, 8, NULL, 0x80, NULL, HFILL }
             },
             { &hf_s5066dts_data_ack_cpdu_end,
-                { "C_PDU End", "s5066dts.data_ack.cpdu_end", FT_BOOLEAN, 8, NULL, 0x40, "", HFILL }
+                { "C_PDU End", "s5066dts.data_ack.cpdu_end", FT_BOOLEAN, 8, NULL, 0x40, NULL, HFILL }
             },
             { &hf_s5066dts_data_ack_deliver_in_order,
-                { "C_PDU Deliver-in-Order", "s5066dts.data_ack.deliver_in_order", FT_BOOLEAN, 8, NULL, 0x20, "", HFILL }
+                { "C_PDU Deliver-in-Order", "s5066dts.data_ack.deliver_in_order", FT_BOOLEAN, 8, NULL, 0x20, NULL, HFILL }
             },
             { &hf_s5066dts_data_ack_drop_cpdu,
-                { "Drop C_PDU", "s5066dts.data_ack.drop_cpdu", FT_BOOLEAN, 8, NULL, 0x10, "", HFILL }
+                { "Drop C_PDU", "s5066dts.data_ack.drop_cpdu", FT_BOOLEAN, 8, NULL, 0x10, NULL, HFILL }
             },
             { &hf_s5066dts_data_ack_tx_win_uwe,
-                { "TX WIN UWE", "s5066dts.data_ack.tx_win_uwe", FT_BOOLEAN, 8, NULL, 0x08, "", HFILL }
+                { "TX WIN UWE", "s5066dts.data_ack.tx_win_uwe", FT_BOOLEAN, 8, NULL, 0x08, NULL, HFILL }
             },
             { &hf_s5066dts_data_ack_tx_win_lwe,
-                { "TX WIN LWE", "s5066dts.data_ack.tx_win_lwe", FT_BOOLEAN, 8, NULL, 0x04, "", HFILL }
+                { "TX WIN LWE", "s5066dts.data_ack.tx_win_lwe", FT_BOOLEAN, 8, NULL, 0x04, NULL, HFILL }
             },
             { &hf_s5066dts_data_ack_segmented_cpdu_size,
                 { "Size of segmented C_PDU", "s5066dts.data_ack.segmented_cpdu_size", FT_UINT16, BASE_DEC,
-                        NULL, 0x03FF, "", HFILL }
+                        NULL, 0x03FF, NULL, HFILL }
             },
             { &hf_s5066dts_data_ack_transmit_sequence_number,
                 { "TX frame sequence number", "s5066dts.data_ack.transmit_sequence_number", FT_UINT8, BASE_DEC,
-                        NULL, 0x0, "", HFILL }
+                        NULL, 0x0, NULL, HFILL }
             },
             { &hf_s5066dts_data_ack_rx_lwe,
-                { "RX LWE", "s5066dts.data_ack.rx_lwe", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }
+                { "RX LWE", "s5066dts.data_ack.rx_lwe", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
             },
             { &hf_s5066dts_data_ack_acks,
-                { "Selective ACK", "s5066dts.data_ack.acks", FT_BYTES, BASE_NONE, NULL, 0x0, "", HFILL }
+                { "Selective ACK", "s5066dts.data_ack.acks", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
             },
             /* { 3, "RESET_WIN_RESYNC"}, */
             { &hf_s5066dts_reset_win_resync_unused,
-                { "Unused", "s5066dts.reset_win_resync.unused", FT_UINT8, BASE_HEX, NULL, 0xF0, "", HFILL }
+                { "Unused", "s5066dts.reset_win_resync.unused", FT_UINT8, BASE_HEX, NULL, 0xF0, NULL, HFILL }
             },
             { &hf_s5066dts_reset_win_resync_full_reset_command,
-                { "Full reset command", "s5066dts.reset_win_resync.full_reset", FT_BOOLEAN, 8, NULL, 0x08, "", HFILL }
+                { "Full reset command", "s5066dts.reset_win_resync.full_reset", FT_BOOLEAN, 8, NULL, 0x08, NULL, HFILL }
             },
             { &hf_s5066dts_reset_win_resync_reset_tx_win_rqst,
-                { "Reset TX-WIN request", "s5066dts.reset_win_resync.reset_tx_win", FT_BOOLEAN, 8, NULL, 0x04, "", HFILL }
+                { "Reset TX-WIN request", "s5066dts.reset_win_resync.reset_tx_win", FT_BOOLEAN, 8, NULL, 0x04, NULL, HFILL }
             },
             { &hf_s5066dts_reset_win_resync_reset_rx_win_cmnd,
-                { "Reset RX-WIN command", "s5066dts.reset_win_resync.reset_rx_win", FT_BOOLEAN, 8, NULL, 0x02, "", HFILL }
+                { "Reset RX-WIN command", "s5066dts.reset_win_resync.reset_rx_win", FT_BOOLEAN, 8, NULL, 0x02, NULL, HFILL }
             },
             { &hf_s5066dts_reset_win_resync_reset_ack,
-                { "Reset acknowledgment", "s5066dts.reset_win_resync.reset_ack", FT_BOOLEAN, 8, NULL, 0x01, "", HFILL }
+                { "Reset acknowledgment", "s5066dts.reset_win_resync.reset_ack", FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL }
             },
             { &hf_s5066dts_reset_win_resync_new_rx_lwe,
-                { "New receiver ARQ RX-LWE", "s5066dts.reset_win_resync.new_rx_lwe", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }
+                { "New receiver ARQ RX-LWE", "s5066dts.reset_win_resync.new_rx_lwe", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
             },
             { &hf_s5066dts_reset_win_resync_reset_frame_id_number,
-                { "Reset frame ID number", "s5066dts.reset_win_resync.reset_frame_id", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }
+                { "Reset frame ID number", "s5066dts.reset_win_resync.reset_frame_id", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
             },
             /* { 4, "EXP_DATA_ONLY"}, */
             { &hf_s5066dts_exp_data_only_cpdu_start,
-                { "C_PDU Start", "s5066dts.exp_data_only.cpdu_start", FT_BOOLEAN, 8, NULL, 0x80, "", HFILL }
+                { "C_PDU Start", "s5066dts.exp_data_only.cpdu_start", FT_BOOLEAN, 8, NULL, 0x80, NULL, HFILL }
             },
             { &hf_s5066dts_exp_data_only_cpdu_end,
-                { "C_PDU End", "s5066dts.exp_data_only.cpdu_end", FT_BOOLEAN, 8, NULL, 0x40, "", HFILL }
+                { "C_PDU End", "s5066dts.exp_data_only.cpdu_end", FT_BOOLEAN, 8, NULL, 0x40, NULL, HFILL }
             },
             { &hf_s5066dts_exp_data_only_cpdu_id,
-                { "Segmented C_PDU ID", "s5066dts.exp_data_only.cpdu_id", FT_UINT8, BASE_DEC, NULL, 0x3C, "", HFILL }
+                { "Segmented C_PDU ID", "s5066dts.exp_data_only.cpdu_id", FT_UINT8, BASE_DEC, NULL, 0x3C, NULL, HFILL }
             },
             { &hf_s5066dts_exp_data_only_segmented_cpdu_size,
-                { "Size of segmented C_PDU", "s5066dts.exp_data_only.segmented_cpdu_size", FT_UINT16, BASE_DEC, NULL, 0x03FF, "", HFILL }
+                { "Size of segmented C_PDU", "s5066dts.exp_data_only.segmented_cpdu_size", FT_UINT16, BASE_DEC, NULL, 0x03FF, NULL, HFILL }
             },
             { &hf_s5066dts_exp_data_only_transmit_sequence_number,
-                { "TX frame sequence number", "s5066dts.exp_data_only.transmit_sequence_number", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }
+                { "TX frame sequence number", "s5066dts.exp_data_only.transmit_sequence_number", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
             },
             /* { 5, "EXP_ACK_ONLY"}, */
             { &hf_s5066dts_exp_ack_only_rx_lwe,
-                { "RX LWE", "s5066dts.exp_ack_only.rx_lwe", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }
+                { "RX LWE", "s5066dts.exp_ack_only.rx_lwe", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
             },
             { &hf_s5066dts_exp_ack_only_acks,
-                { "Selective ACK", "s5066dts.exp_ack_only.acks", FT_BYTES, BASE_NONE, NULL, 0x0, "", HFILL }
+                { "Selective ACK", "s5066dts.exp_ack_only.acks", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
             },
             /* { 6, "MANAGEMENT"}, */
             { &hf_s5066dts_management_unused,
-                { "Unused", "s5066dts.management.unused", FT_UINT8, BASE_HEX, NULL, 0xF8, "", HFILL }
+                { "Unused", "s5066dts.management.unused", FT_UINT8, BASE_HEX, NULL, 0xF8, NULL, HFILL }
             },
             { &hf_s5066dts_management_extended_message_flag,
-                { "Extended message flag", "s5066dts.management.extended_message_flag", FT_BOOLEAN, 8, NULL, 0x04, "", HFILL }
+                { "Extended message flag", "s5066dts.management.extended_message_flag", FT_BOOLEAN, 8, NULL, 0x04, NULL, HFILL }
             },
             { &hf_s5066dts_management_message,
-                { "Valid message", "s5066dts.management.message", FT_BOOLEAN, 8, NULL, 0x02, "", HFILL }
+                { "Valid message", "s5066dts.management.message", FT_BOOLEAN, 8, NULL, 0x02, NULL, HFILL }
             },
             { &hf_s5066dts_management_ack,
-                { "Acknowledgment", "s5066dts.management.ack", FT_BOOLEAN, 8, NULL, 0x01, "", HFILL }
+                { "Acknowledgment", "s5066dts.management.ack", FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL }
             },
             { &hf_s5066dts_management_management_frame_id,
                 { "Management frame ID number", "s5066dts.management.manegement_frame_id", FT_UINT8, BASE_DEC,
-                        NULL, 0x0, "", HFILL }
+                        NULL, 0x0, NULL, HFILL }
             },
             { &hf_s5066dts_management_extended_message,
                 { "Extended management message", "s5066dts.management.extended_message", FT_BYTES, BASE_NONE,
-                        NULL, 0x0, "", HFILL }
+                        NULL, 0x0, NULL, HFILL }
             },
             { &hf_s5066dts_management_extended_message_hftrp_payload_size,
-                { "Payload Size", "s5066dts.management.extended_message.reserved", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }
+                { "Payload Size", "s5066dts.management.extended_message.reserved", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }
             },
             { &hf_s5066dts_management_extended_message_hftrp_ra,
-                { "Ring Address", "s5066dts.management.extended_message.ring_address", FT_IPv4, BASE_NONE, NULL, 0x0, "", HFILL }
+                { "Ring Address", "s5066dts.management.extended_message.ring_address", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }
             },
             { &hf_s5066dts_management_extended_message_hftrp_seq_id,
-                { "Sequence ID", "s5066dts.management.extended_message.sequence_id", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }
+                { "Sequence ID", "s5066dts.management.extended_message.sequence_id", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
             },
             { &hf_s5066dts_management_extended_message_hftrp_gen_seq_id,
                 { "Generation Sequence ID", "s5066dts.management.extended_message.generation_sequence_id",
-                        FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }
+                        FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
             },
             { &hf_s5066dts_management_extended_message_hftrp_new_successor_id,
                 { "New Successor ID", "s5066dts.management.extended_message.new_successor_id", FT_UINT32, BASE_DEC,
-                        NULL, 0x0, "", HFILL }
+                        NULL, 0x0, NULL, HFILL }
             },
             { &hf_s5066dts_management_extended_message_hftrp_number_of_nodes,
                 { "Number of Nodes", "s5066dts.management.extended_message.number_of_nodes", FT_UINT16, BASE_DEC,
-                        NULL, 0x0, "", HFILL }
+                        NULL, 0x0, NULL, HFILL }
             },
             /* { 7, "NON_ARQ_DATA"}, */
             { &hf_s5066dts_non_arq_data_cpdu_id_1,
-                { "C_PDU ID number (field 1)", "s5066dts.non_arq_data.cpdu_id_1", FT_UINT8, BASE_DEC, NULL, 0xF0, "", HFILL }
+                { "C_PDU ID number (field 1)", "s5066dts.non_arq_data.cpdu_id_1", FT_UINT8, BASE_DEC, NULL, 0xF0, NULL, HFILL }
             },
             { &hf_s5066dts_non_arq_data_deliver_in_order,
-                { "C_PDU Deliver-in-Order", "s5066dts.non_arq_data.deliver_in_order", FT_BOOLEAN, 8, NULL, 0x08, "", HFILL }
+                { "C_PDU Deliver-in-Order", "s5066dts.non_arq_data.deliver_in_order", FT_BOOLEAN, 8, NULL, 0x08, NULL, HFILL }
             },
             { &hf_s5066dts_non_arq_data_group_address,
-                { "Group Address", "s5066dts.non_arq_data.group_address", FT_BOOLEAN, 8, NULL, 0x04, "", HFILL }
+                { "Group Address", "s5066dts.non_arq_data.group_address", FT_BOOLEAN, 8, NULL, 0x04, NULL, HFILL }
             },
             { &hf_s5066dts_non_arq_data_cpdu_id_2,
-                { "C_PDU ID number (field 2)", "s5066dts.non_arq_data.cpdu_id_2", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }
+                { "C_PDU ID number (field 2)", "s5066dts.non_arq_data.cpdu_id_2", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
             },
             { &hf_s5066dts_non_arq_data_cpdu_size,
-                { "C_PDU size", "s5066dts.non_arq_data.cpdu_size", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }
+                { "C_PDU size", "s5066dts.non_arq_data.cpdu_size", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
             },
             { &hf_s5066dts_non_arq_data_cpdu_segment_offset,
                 { "Offset of segmented C_PDU", "s5066dts.non_arq_data.cpdu_segment_offset", FT_UINT16, BASE_DEC,
-                        NULL, 0x0, "", HFILL }
+                        NULL, 0x0, NULL, HFILL }
             },
             { &hf_s5066dts_non_arq_data_cpdu_reception_window,
                 { "C_PDU reception window", "s5066dts.non_arq_data.cpdu_reception_window", FT_UINT16, BASE_DEC,
-                        NULL, 0x0, "", HFILL }
+                        NULL, 0x0, NULL, HFILL }
             },
             { &hf_s5066dts_non_arq_data_segmented_cpdu_size,
                 { "Size of segmented C_PDU", "s5066dts.non_arq_data.segmented_cpdu_size", FT_UINT16, BASE_DEC,
-                        NULL, 0x03FF, "", HFILL }
+                        NULL, 0x03FF, NULL, HFILL }
             },
             /* { 8, "EXP_NON_ARQ_DATA"}, */
             { &hf_s5066dts_exp_non_arq_data_cpdu_id_1,
-                { "C_PDU ID number (field 1)", "s5066dts.exp_non_arq_data.cpdu_id_1", FT_UINT8, BASE_DEC, NULL, 0xF0, "", HFILL }
+                { "C_PDU ID number (field 1)", "s5066dts.exp_non_arq_data.cpdu_id_1", FT_UINT8, BASE_DEC, NULL, 0xF0, NULL, HFILL }
             },
             { &hf_s5066dts_exp_non_arq_data_deliver_in_order,
-                { "C_PDU Deliver-in-Order", "s5066dts.exp_non_arq_data.deliver_in_order", FT_BOOLEAN, 8, NULL, 0x08, "", HFILL }
+                { "C_PDU Deliver-in-Order", "s5066dts.exp_non_arq_data.deliver_in_order", FT_BOOLEAN, 8, NULL, 0x08, NULL, HFILL }
             },
             { &hf_s5066dts_exp_non_arq_data_group_address,
-                { "Group Address", "s5066dts.exp_non_arq_data.group_address", FT_BOOLEAN, 8, NULL, 0x04, "", HFILL }
+                { "Group Address", "s5066dts.exp_non_arq_data.group_address", FT_BOOLEAN, 8, NULL, 0x04, NULL, HFILL }
             },
             { &hf_s5066dts_exp_non_arq_data_cpdu_id_2,
-                { "C_PDU ID number (field 2)", "s5066dts.exp_non_arq_data.cpdu_id_2", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }
+                { "C_PDU ID number (field 2)", "s5066dts.exp_non_arq_data.cpdu_id_2", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
             },
             { &hf_s5066dts_exp_non_arq_data_cpdu_size,
-                { "C_PDU size", "s5066dts.exp_non_arq_data.cpdu_size", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }
+                { "C_PDU size", "s5066dts.exp_non_arq_data.cpdu_size", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
             },
             { &hf_s5066dts_exp_non_arq_data_cpdu_segment_offset,
-                { "Offset of segmented C_PDU ", "s5066dts.exp_non_arq_data.cpdu_segment_offset", FT_UINT16, BASE_DEC,
-                        NULL, 0x0, "", HFILL }
+                { "Offset of segmented C_PDU", "s5066dts.exp_non_arq_data.cpdu_segment_offset", FT_UINT16, BASE_DEC,
+                        NULL, 0x0, NULL, HFILL }
             },
             { &hf_s5066dts_exp_non_arq_data_cpdu_reception_window,
                 { "C_PDU reception window", "s5066dts.exp_non_arq_data.cpdu_reception_window", FT_UINT16, BASE_DEC,
-                        NULL, 0x0, "", HFILL }
+                        NULL, 0x0, NULL, HFILL }
             },
             { &hf_s5066dts_exp_non_arq_data_segmented_cpdu_size,
                 { "Size of segmented C_PDU", "s5066dts.exp_non_arq_data.segmented_cpdu_size", FT_UINT16, BASE_DEC,
-                        NULL, 0x03FF, "", HFILL }
+                        NULL, 0x03FF, NULL, HFILL }
             },
             /* {15, "WARNING"}, */
             { &hf_s5066dts_warning_frame_type,
-                { "Received frame type", "s5066dts.warning.frame_type", FT_UINT8, BASE_DEC, NULL, 0xF0, "", HFILL }
+                { "Received frame type", "s5066dts.warning.frame_type", FT_UINT8, BASE_DEC, NULL, 0xF0, NULL, HFILL }
             },
             { &hf_s5066dts_warning_reason,
-                { "Reason warning sent", "s5066dts.warning.reason", FT_UINT8, BASE_DEC, NULL, 0x0F, "", HFILL }
+                { "Reason warning sent", "s5066dts.warning.reason", FT_UINT8, BASE_DEC, NULL, 0x0F, NULL, HFILL }
             },
     };
 

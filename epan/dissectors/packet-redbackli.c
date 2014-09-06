@@ -36,6 +36,8 @@ void proto_reg_handoff_redbackli(void);
 
 static int proto_redbackli = -1;
 
+static int hf_redbackli_avptype = -1;
+static int hf_redbackli_avplen = -1;
 static int hf_redbackli_seqno = -1;		/* Sequence No */
 static int hf_redbackli_liid = -1;		/* LI Id */
 static int hf_redbackli_sessid = -1;		/* Session Id */
@@ -78,8 +80,8 @@ redbackli_dissect_avp(guint8 avptype, guint8 avplen, tvbuff_t *tvb, gint offset,
 
 	st = proto_tree_add_subtree_format(tree, tvb, offset, avplen+2, ett_redbackli, NULL, "%s AVP", avpname);
 
-	proto_tree_add_text(st, tvb, offset, 1, "AVP Type: %d", avptype);
-	proto_tree_add_text(st, tvb, offset+1, 1, "AVP Length: %d", avplen);
+	proto_tree_add_uint(st, hf_redbackli_avptype, tvb, offset, 1, avptype);
+	proto_tree_add_uint(st, hf_redbackli_avplen, tvb, offset+1, 1, avplen);
 
 	if (!avplen)
 		return;
@@ -232,6 +234,12 @@ redbackli_dissect_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 }
 void proto_register_redbackli(void) {
 	static hf_register_info hf[] = {
+		{ &hf_redbackli_avptype,
+			{ "AVP Type", "redbackli.avptype", FT_UINT8, BASE_DEC, NULL, 0x0,
+			NULL, HFILL }},
+		{ &hf_redbackli_avplen,
+			{ "AVP Length", "redbackli.avplen", FT_UINT8, BASE_DEC, NULL, 0x0,
+			NULL, HFILL }},
 		{ &hf_redbackli_seqno,
 			{ "Sequence No", "redbackli.seqno", FT_UINT32, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }},

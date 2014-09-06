@@ -102,6 +102,8 @@ static int hf_backup_count = -1;
 static int hf_backup_token = -1;
 static int hf_backup_server = -1;
 static int hf_browser_to_promote = -1;
+static int hf_windows_version = -1;
+static int hf_mysterious_field = -1;
 
 static gint ett_browse = -1;
 static gint ett_browse_flags = -1;
@@ -182,7 +184,7 @@ static const value_string server_types[] = {
     windows_version = "Windows 2000";					\
 									\
   else									\
-    windows_version = NULL;
+    windows_version = "";
 
 static const value_string resetbrowserstate_command_names[] = {
   { 0x01, "Stop being a master browser and become a backup browser"},
@@ -584,7 +586,7 @@ dissect_mailslot_browse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 	gint namelen;
 	guint8 server_count, reset_cmd;
 	guint8 os_major_ver, os_minor_ver;
-	const gchar *windows_version = NULL;
+	const gchar *windows_version;
 	int i;
 	guint32 uptime;
 
@@ -637,9 +639,7 @@ dissect_mailslot_browse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 		os_minor_ver = tvb_get_guint8(tvb, offset+1);
 
 		SET_WINDOWS_VERSION_STRING(os_major_ver, os_minor_ver, windows_version);
-
-		if(windows_version)
-		  proto_tree_add_text(tree, tvb, offset, 2, "Windows version: %s", windows_version);
+		proto_tree_add_string(tree, hf_windows_version, tvb, offset, 2, windows_version);
 
 		/* OS major version */
 		proto_tree_add_item(tree, hf_os_major, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -662,9 +662,7 @@ dissect_mailslot_browse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 			 * version number, and signature constant,
 			 * however.
 			 */
-			proto_tree_add_text(tree, tvb, offset, 4,
-			    "Mysterious Field: 0x%08x",
-			    tvb_get_letohl(tvb, offset));
+			proto_tree_add_item(tree, hf_mysterious_field, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 			offset += 4;
 		} else {
 			/* browser protocol major version */
@@ -821,7 +819,7 @@ dissect_mailslot_lanman(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 	guint32 periodicity;
 	const guint8 *host_name;
 	guint8 os_major_ver, os_minor_ver;
-	const gchar *windows_version = NULL;
+	const gchar *windows_version;
 	guint namelen;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "BROWSER");
@@ -859,9 +857,7 @@ dissect_mailslot_lanman(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 		os_minor_ver = tvb_get_guint8(tvb, offset+1);
 
 		SET_WINDOWS_VERSION_STRING(os_major_ver, os_minor_ver, windows_version);
-
-		if(windows_version)
-		  proto_tree_add_text(tree, tvb, offset, 2, "Windows version: %s", windows_version);
+		proto_tree_add_string(tree, hf_windows_version, tvb, offset, 2, windows_version);
 
 		/* OS major version */
 		proto_tree_add_item(tree, hf_os_major, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -1148,6 +1144,13 @@ proto_register_smb_browse(void)
 			{ "Browser to Promote", "browser.browser_to_promote", FT_STRINGZ, BASE_NONE,
 			NULL, 0, NULL, HFILL }},
 
+		{ &hf_windows_version,
+			{ "Windows version", "browser.windows_version", FT_STRING, BASE_NONE,
+			NULL, 0, NULL, HFILL }},
+
+		{ &hf_mysterious_field,
+			{ "Mysterious Field", "browser.mysterious_field", FT_UINT32, BASE_HEX,
+			NULL, 0, NULL, HFILL }},
 	};
 
 	static gint *ett[] = {

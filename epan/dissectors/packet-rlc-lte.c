@@ -222,6 +222,7 @@ static expert_field ei_rlc_lte_um_sn_missing = EI_INIT;
 static expert_field ei_rlc_lte_sequence_analysis_ack_out_of_range_opposite_frame = EI_INIT;
 static expert_field ei_rlc_lte_sequence_analysis_last_segment_not_continued = EI_INIT;
 static expert_field ei_rlc_lte_reserved_bits_not_zero = EI_INIT;
+static expert_field ei_rlc_lte_no_per_frame_info = EI_INIT;
 
 /* Value-strings */
 static const value_string direction_vals[] =
@@ -2786,9 +2787,7 @@ static void dissect_rlc_lte_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
     /* Can't dissect anything without it... */
     if (p_rlc_lte_info == NULL) {
-        ti = proto_tree_add_text(rlc_lte_tree, tvb, offset, -1,
-                                 "Can't dissect LTE RLC frame because no per-frame info was attached!");
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_tree_add_expert(rlc_lte_tree, pinfo, &ei_rlc_lte_no_per_frame_info, tvb, offset, -1);
         return;
     }
 
@@ -3405,6 +3404,7 @@ void proto_register_rlc_lte(void)
         { &ei_rlc_lte_am_data_no_data_beyond_extensions, { "rlc-lte.am-data.no-data-beyond-extensions", PI_MALFORMED, PI_ERROR, "AM data PDU doesn't contain any data beyond extensions", EXPFILL }},
         { &ei_rlc_lte_am_data_no_data, { "rlc-lte.am-data.no-data", PI_MALFORMED, PI_ERROR, "AM data PDU doesn't contain any data", EXPFILL }},
         { &ei_rlc_lte_context_mode, { "rlc-lte.mode.invalid", PI_MALFORMED, PI_ERROR, "Unrecognised RLC Mode set", EXPFILL }},
+        { &ei_rlc_lte_no_per_frame_info, { "rlc-lte.no_per_frame_info", PI_UNDECODED, PI_ERROR, "Can't dissect LTE RLC frame because no per-frame info was attached!", EXPFILL }},
     };
 
     static const enum_val_t sequence_analysis_vals[] = {

@@ -5272,12 +5272,12 @@ ssl_dissect_hnd_cli_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                 proto_tree_add_uint(cs_tree, hf->hf.hs_comp_method,
                                     tvb, offset, 1, compression_method);
             else if (compression_method > 63 && compression_method < 193)
-                proto_tree_add_text(cs_tree, tvb, offset, 1,
-                                    "Compression Method: Reserved - to be assigned by IANA (%u)",
+                proto_tree_add_uint_format_value(cs_tree, hf->hf.hs_comp_method, tvb, offset, 1,
+                                    compression_method, "Reserved - to be assigned by IANA (%u)",
                                     compression_method);
             else
-                proto_tree_add_text(cs_tree, tvb, offset, 1,
-                                    "Compression Method: Private use range (%u)",
+                proto_tree_add_uint_format_value(cs_tree, hf->hf.hs_comp_method, tvb, offset, 1,
+                                    compression_method, "Private use range (%u)",
                                     compression_method);
             offset++;
             compression_methods_length--;

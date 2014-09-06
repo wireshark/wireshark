@@ -52,6 +52,7 @@ static int hf_sndcp_pcomp    = -1;
 static int hf_sndcp_segment  = -1;
 static int hf_sndcp_npdu1    = -1;
 static int hf_sndcp_npdu2    = -1;
+static int hf_sndcp_payload  = -1;
 
 /* These fields are used when reassembling N-PDU fragments
 */
@@ -350,9 +351,7 @@ dissect_sndcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         col_append_fstr(pinfo->cinfo, COL_INFO,
                           " (N-PDU payload reassembled in packet %u)",
                           fd_npdu->reassembled_in);
-        if (tree) {
-          proto_tree_add_text(sndcp_tree, tvb, offset, -1, "Payload");
-        }
+        proto_tree_add_item(sndcp_tree, hf_sndcp_payload, tvb, offset, -1, ENC_NA);
       }
     } else {
       /* Not reassembled yet, or not reassembled at all
@@ -362,9 +361,7 @@ dissect_sndcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       else
         col_append_str(pinfo->cinfo, COL_INFO, " (Unreassembled fragment)");
 
-      if (tree) {
-        proto_tree_add_text(sndcp_tree, tvb, offset, -1, "Payload");
-      }
+      proto_tree_add_item(sndcp_tree, hf_sndcp_payload, tvb, offset, -1, ENC_NA);
     }
     /* Now reset fragmentation information in pinfo
      */
@@ -461,6 +458,13 @@ proto_register_sndcp(void)
         NULL, HFILL
       }
     },
+    { &hf_sndcp_payload,
+      { "Payload",
+        "sndcp.payload",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
 
     /* Fragment fields
      */
@@ -533,7 +537,7 @@ proto_register_sndcp(void)
         FT_NONE, BASE_NONE, NULL, 0x0,
         NULL, HFILL
       }
-    }
+    },
   };
 
     /* Setup protocol subtree array */

@@ -28,6 +28,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include <epan/crc6-tvb.h>
 
 #define TYPE_0_LEN 17
@@ -54,6 +55,9 @@ static int hf_sync_length_of_packet = -1;
 /* Initialize the subtree pointers */
 static gint ett_sync = -1;
 
+static expert_field ei_sync_pdu_type2 = EI_INIT;
+static expert_field ei_sync_type = EI_INIT;
+
 static dissector_handle_t sync_handle;
 static dissector_handle_t ip_handle;
 
@@ -69,7 +73,7 @@ static const value_string sync_type_vals[] = {
 static int
 dissect_sync(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    proto_item *ti, *item;
+    proto_item *ti, *item, *type_item;
     proto_tree *sync_tree;
     guint8      type, spare;
     guint16     packet_nr, packet_len1, packet_len2;
@@ -103,7 +107,6 @@ dissect_sync(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     /* Ugly, but necessary to get the correct length for type 3 */
     packet_nr = tvb_get_ntohs(tvb, offset+3);
 
-    if (tree) {
         /* The length varies depending on PDU type */
         switch (type) {
             case 0:
@@ -129,7 +132,7 @@ dissect_sync(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
         sync_tree = proto_item_add_subtree(ti, ett_sync);
 
         /* Octet 1 - PDU Type */
-        proto_tree_add_item(sync_tree, hf_sync_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+        type_item = proto_tree_add_item(sync_tree, hf_sync_type, tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(sync_tree, hf_sync_spare4, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
 
@@ -173,7 +176,7 @@ dissect_sync(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                 break;
             case 2:
                 /* SYNC PDU Type 2 */
-                proto_tree_add_text(tree, tvb, offset, -1, "SYNC PDU type 2 unsupported");
+                expert_add_info(pinfo, ti, &ei_sync_pdu_type2);
                 break;
             case 3:
                 /* SYNC PDU Type 3 */
@@ -214,10 +217,9 @@ dissect_sync(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                 }
                 break;
             default:
-                proto_tree_add_text(tree, tvb, offset, -1, "Unknown SYNC PDU type");
+                expert_add_info(pinfo, type_item, &ei_sync_type);
                 break;
         }
-    }
 
     return tvb_length(tvb);
 
@@ -283,10 +285,19 @@ proto_register_sync(void)
         &ett_sync
     };
 
+    static ei_register_info ei[] = {
+        { &ei_sync_pdu_type2, { "sync.pdu_type2", PI_UNDECODED, PI_WARN, "SYNC PDU type 2 unsupported", EXPFILL }},
+        { &ei_sync_type, { "sync.type.unknown", PI_PROTOCOL, PI_WARN, "Unknown SYNC PDU type", EXPFILL }},
+    };
+
+    expert_module_t* expert_sync;
+
     proto_sync = proto_register_protocol("MBMS synchronisation protocol", "SYNC", "sync");
 
     proto_register_field_array(proto_sync, hf_sync, array_length(hf_sync));
     proto_register_subtree_array(ett_sync_array, array_length(ett_sync_array));
+    expert_sync = expert_register_protocol(proto_sync);
+    expert_register_field_array(expert_sync, ei, array_length(ei));
 
     sync_handle = new_register_dissector("sync", dissect_sync, proto_sync);
 }

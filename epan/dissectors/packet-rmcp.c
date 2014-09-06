@@ -46,6 +46,7 @@ static int hf_rmcp_version = -1;
 static int hf_rmcp_sequence = -1;
 static int hf_rmcp_class = -1;
 static int hf_rmcp_type = -1;
+static int hf_rmcp_trailer = -1;
 
 static int proto_rsp = -1;
 static int hf_rsp_session_id = -1;
@@ -142,8 +143,7 @@ dissect_rmcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 			tree)) {
 			len = call_dissector(data_handle, next_tvb, pinfo, tree);
 			if (len < tvb_length(next_tvb)) {
-			proto_tree_add_text(tree, tvb, 4 + len, -1,
-				"RSP Trailer (%d bytes):", tvb_length(next_tvb) - len);
+				proto_tree_add_item(tree, hf_rmcp_trailer, tvb, 4 + len, -1, ENC_NA);
 			}
 		}
 	}
@@ -201,7 +201,11 @@ proto_register_rmcp(void)
 			"Message Type", "rmcp.type",
 			FT_UINT8, BASE_HEX,
 			VALS(rmcp_type_vals), RMCP_TYPE_MASK,
-			"RMCP Message Type", HFILL }}
+			"RMCP Message Type", HFILL }},
+		{ &hf_rmcp_trailer, {
+			"RSP Trailer", "rmcp.trailer",
+			FT_BYTES, BASE_NONE, NULL, 0,
+			NULL, HFILL }},
 	};
 	static gint *ett[] = {
 		&ett_rmcp,

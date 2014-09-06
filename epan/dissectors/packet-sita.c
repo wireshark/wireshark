@@ -153,8 +153,8 @@ dissect_sita(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_boolean(sita_flags_tree, hf_dir,             tvb, 0, 0, flags);
 
         signals_string = format_flags_string(signals, signals_str);
-        ti = proto_tree_add_text(sita_tree, tvb, 0, 0, "Signals: 0x%02x %s", signals, signals_string);
-        sita_signals_tree = proto_item_add_subtree(ti, ett_sita_signals);
+        sita_signals_tree = proto_tree_add_subtree_format(sita_tree, tvb, 0, 0,
+                    ett_sita_signals, NULL, "Signals: 0x%02x %s", signals, signals_string);
         proto_tree_add_boolean(sita_signals_tree, hf_dcd,       tvb, 0, 0, signals);
         proto_tree_add_boolean(sita_signals_tree, hf_rts,       tvb, 0, 0, signals);
         proto_tree_add_boolean(sita_signals_tree, hf_cts,       tvb, 0, 0, signals);
@@ -163,8 +163,8 @@ dissect_sita(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         if ((flags & SITA_FRAME_DIR) == SITA_FRAME_DIR_RXED) {
             errors1_string = format_flags_string(errors1, rx_errors1_str);
-            ti = proto_tree_add_text(sita_tree, tvb, 0, 0, "Receive Status: 0x%02x %s", errors1, errors1_string);
-            sita_errors1_tree = proto_item_add_subtree(ti, ett_sita_errors1);
+            sita_errors1_tree = proto_tree_add_subtree_format(sita_tree, tvb, 0, 0,
+                ett_sita_errors1, NULL, "Receive Status: 0x%02x %s", errors1, errors1_string);
             proto_tree_add_boolean(sita_errors1_tree, hf_shortframe,    tvb, 0, 0, errors1);
             proto_tree_add_boolean(sita_errors1_tree, hf_longframe,     tvb, 0, 0, errors1);
             proto_tree_add_boolean(sita_errors1_tree, hf_collision,     tvb, 0, 0, errors1);
@@ -172,8 +172,8 @@ dissect_sita(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             proto_tree_add_boolean(sita_errors1_tree, hf_framing,       tvb, 0, 0, errors1);
 
             errors2_string = format_flags_string(errors2, rx_errors2_str);
-            ti = proto_tree_add_text(sita_tree, tvb, 0, 0, "Receive Status: 0x%02x %s", errors2, errors2_string);
-            sita_errors2_tree = proto_item_add_subtree(ti, ett_sita_errors2);
+            sita_errors2_tree = proto_tree_add_subtree_format(sita_tree, tvb, 0, 0,
+                ett_sita_errors2, NULL, "Receive Status: 0x%02x %s", errors2, errors2_string);
             proto_tree_add_boolean(sita_errors2_tree, hf_break,         tvb, 0, 0, errors2);
             proto_tree_add_boolean(sita_errors2_tree, hf_crc,           tvb, 0, 0, errors2);
             proto_tree_add_boolean(sita_errors2_tree, hf_length,        tvb, 0, 0, errors2);
@@ -184,8 +184,8 @@ dissect_sita(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             proto_tree_add_boolean(sita_errors2_tree, hf_nonaligned,    tvb, 0, 0, errors2);
         } else {
             errors2_string = format_flags_string(errors2, tx_errors2_str);
-            ti = proto_tree_add_text(sita_tree, tvb, 0, 0, "Transmit Status: 0x%02x %s", errors2, errors2_string);
-            sita_errors1_tree = proto_item_add_subtree(ti, ett_sita_errors1);
+            sita_errors1_tree = proto_tree_add_subtree_format(sita_tree, tvb, 0, 0,
+                ett_sita_errors1, NULL, "Transmit Status: 0x%02x %s", errors2, errors2_string);
             proto_tree_add_boolean(sita_errors1_tree, hf_rtxlimit,      tvb, 0, 0, errors2);
             proto_tree_add_boolean(sita_errors1_tree, hf_uarterror,     tvb, 0, 0, errors2);
             proto_tree_add_boolean(sita_errors1_tree, hf_lostcts,       tvb, 0, 0, errors2);

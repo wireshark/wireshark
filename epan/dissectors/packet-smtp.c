@@ -64,6 +64,7 @@ static int hf_smtp_rsp_code = -1;
 static int hf_smtp_rsp_parameter = -1;
 static int hf_smtp_username = -1;
 static int hf_smtp_password = -1;
+static int hf_smtp_eom = -1;
 
 static int hf_smtp_data_fragments = -1;
 static int hf_smtp_data_fragment = -1;
@@ -788,7 +789,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
        */
       col_set_str(pinfo->cinfo, COL_INFO, "C: .");
 
-      proto_tree_add_text(smtp_tree, tvb, offset, linelen, "C: .");
+      proto_tree_add_none_format(smtp_tree, hf_smtp_eom, tvb, offset, linelen, "C: .");
 
       if (smtp_data_desegment) {
         /* add final data segment */
@@ -1192,6 +1193,10 @@ proto_register_smtp(void)
     { &hf_smtp_password,
       { "Password", "smtp.auth.password",
         FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+    { &hf_smtp_eom,
+      { "EOM", "smtp.eom",
+        FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
 
     /* Fragment entries */
     { &hf_smtp_data_fragments,

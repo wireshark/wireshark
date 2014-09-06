@@ -28,6 +28,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include <wiretap/wtap.h>
 
 #include "packet-ip.h"
@@ -82,11 +83,13 @@ static header_field_info hfi_redback_padding REDBACK_HFI_INIT =
 static header_field_info hfi_redback_unknown REDBACK_HFI_INIT =
 	{ "Unknown", "redback.unknown", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL };
 
+static expert_field ei_redback_protocol = EI_INIT;
+
 static void
 dissect_redback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	guint16		l3off, dataoff, proto;
-	proto_item	*ti;
+	proto_item	*ti, *protocol_item;
 	proto_tree	*rbtree = NULL;
 	tvbuff_t	*next_tvb;
 
@@ -95,21 +98,19 @@ dissect_redback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	dataoff = tvb_get_ntohs(tvb, 20);
 	l3off = tvb_get_ntohs(tvb, 22);
 
-	if (tree) {
-		ti = proto_tree_add_item(tree, hfi_redback, tvb, 0, -1, ENC_NA);
-		rbtree = proto_item_add_subtree(ti, ett_redback);
+	ti = proto_tree_add_item(tree, hfi_redback, tvb, 0, -1, ENC_NA);
+	rbtree = proto_item_add_subtree(ti, ett_redback);
 
-		proto_tree_add_item(rbtree, &hfi_redback_context, tvb, 0, 4, ENC_BIG_ENDIAN);
-		proto_tree_add_item(rbtree, &hfi_redback_flags, tvb, 4, 4, ENC_BIG_ENDIAN);
-		proto_tree_add_item(rbtree, &hfi_redback_circuit, tvb, 8, 8, ENC_BIG_ENDIAN);
-		proto_tree_add_item(rbtree, &hfi_redback_length, tvb, 16, 2, ENC_BIG_ENDIAN);
-		proto_tree_add_item(rbtree, &hfi_redback_protocol, tvb, 18, 2, ENC_BIG_ENDIAN);
-		proto_tree_add_item(rbtree, &hfi_redback_dataoffset, tvb, 20, 2, ENC_BIG_ENDIAN);
-		proto_tree_add_item(rbtree, &hfi_redback_l3offset, tvb, 22, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(rbtree, &hfi_redback_context, tvb, 0, 4, ENC_BIG_ENDIAN);
+	proto_tree_add_item(rbtree, &hfi_redback_flags, tvb, 4, 4, ENC_BIG_ENDIAN);
+	proto_tree_add_item(rbtree, &hfi_redback_circuit, tvb, 8, 8, ENC_BIG_ENDIAN);
+	proto_tree_add_item(rbtree, &hfi_redback_length, tvb, 16, 2, ENC_BIG_ENDIAN);
+	protocol_item = proto_tree_add_item(rbtree, &hfi_redback_protocol, tvb, 18, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(rbtree, &hfi_redback_dataoffset, tvb, 20, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(rbtree, &hfi_redback_l3offset, tvb, 22, 2, ENC_BIG_ENDIAN);
 
-		if (dataoff > 24) {
-			proto_tree_add_item(rbtree, &hfi_redback_padding, tvb, 24, dataoff-24, ENC_NA);
-		}
+	if (dataoff > 24) {
+		proto_tree_add_item(rbtree, &hfi_redback_padding, tvb, 24, dataoff-24, ENC_NA);
 	}
 
 	proto = tvb_get_ntohs(tvb, 18);
@@ -188,8 +189,7 @@ dissect_redback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				call_dissector(ethnofcs_handle, next_tvb, pinfo, tree);
 			break;
 		default:
-			if (tree)
-				proto_tree_add_text (rbtree, tvb, 24, -1, "Unknown Protocol Data %u", proto);
+			expert_add_info(pinfo, protocol_item, &ei_redback_protocol);
 			break;
 	}
 	return;
@@ -216,6 +216,11 @@ proto_register_redback(void)
 		&ett_redback
 	};
 
+	static ei_register_info ei[] = {
+		{ &ei_redback_protocol, { "redback.protocol.unknown", PI_PROTOCOL, PI_WARN, "Unknown Protocol Data", EXPFILL }},
+	};
+
+	expert_module_t* expert_redback;
 	int proto_redback;
 
 	proto_redback = proto_register_protocol("Redback", "Redback", "redback");
@@ -223,6 +228,8 @@ proto_register_redback(void)
 
 	proto_register_fields(proto_redback, hfi, array_length(hfi));
 	proto_register_subtree_array(ett, array_length(ett));
+	expert_redback = expert_register_protocol(proto_redback);
+	expert_register_field_array(expert_redback, ei, array_length(ei));
 
 	redback_handle = create_dissector_handle(dissect_redback, proto_redback);
 }

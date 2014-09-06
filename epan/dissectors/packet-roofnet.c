@@ -104,6 +104,7 @@ static gint ett_roofnet = -1;
 static gint ett_roofnet_link = -1;
 
 static expert_field ei_roofnet_too_many_links = EI_INIT;
+static expert_field ei_roofnet_too_much_data = EI_INIT;
 
 /*
  * dissect the header of roofnet
@@ -179,7 +180,7 @@ static void dissect_roofnet_data(proto_tree *tree, tvbuff_t *tvb, packet_info * 
 
   /* dissect on remaining_datalen */
    if (roofnet_datalen < remaining_datalen)
-     proto_tree_add_text(tree, tvb, offset, roofnet_datalen,
+     proto_tree_add_expert_format(tree, pinfo, &ei_roofnet_too_much_data, tvb, offset, roofnet_datalen,
 	 "[More payload data (%u) than told by Roofnet (%u)]",
 	 remaining_datalen, roofnet_datalen);
 
@@ -333,6 +334,7 @@ void proto_register_roofnet(void)
 
   static ei_register_info ei[] = {
      { &ei_roofnet_too_many_links, { "roofnet.too_many_links", PI_MALFORMED, PI_ERROR, "Too many links", EXPFILL }},
+     { &ei_roofnet_too_much_data, { "roofnet.too_much_data", PI_MALFORMED, PI_ERROR, "More payload data than told by Roofnet", EXPFILL }},
   };
 
   expert_module_t* expert_roofnet;

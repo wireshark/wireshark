@@ -666,6 +666,7 @@ static gint hf_simulcrypt_repetition_rate = -1;
 static gint hf_simulcrypt_initial_bandwidth = -1;
 static gint hf_simulcrypt_asi_input_packet_id = -1;
 static gint hf_simulcrypt_psig_error_status = -1;
+static gint hf_simulcrypt_parameter_value = -1;
 
 /* These are the ids of the subtrees that we may be creating */
 static gint ett_simulcrypt = -1;
@@ -898,7 +899,7 @@ dissect_ecmg_parameter_value (proto_tree *tree, tvbuff_t *tvb, packet_info *pinf
 		proto_tree_add_item(tree, hf_simulcrypt_error_information, tvb, offset, plen, ENC_NA);
 		break;
 	default:  /* Unknown parameter type */
-		proto_tree_add_text(tree, tvb, offset, plen, "Parameter Value: %s", pvalue_char);
+		proto_tree_add_string(tree, hf_simulcrypt_parameter_value, tvb, offset, plen, pvalue_char);
 		break;
 	} /* end parameter type switch */
 }
@@ -942,7 +943,7 @@ dissect_emmg_parameter_value (proto_tree *tree, tvbuff_t *tvb, packet_info *pinf
 		proto_tree_add_item(tree, hf_simulcrypt_error_information, tvb, offset, plen, ENC_NA);
 		break;
 	default:  /* Unknown parameter type */
-		proto_tree_add_text(tree, tvb, offset, plen, "Parameter Value: %s", pvalue_char);
+		proto_tree_add_string(tree, hf_simulcrypt_parameter_value, tvb, offset, plen, pvalue_char);
 		break;
 	} /* end parameter type switch */
 }
@@ -1084,7 +1085,7 @@ dissect_eis_parameter_value (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo
 		break;
 
 	default:  /* Unknown parameter type */
-		proto_tree_add_text(tree, tvb, offset, plen, "Parameter Value: %s", pvalue_char);
+		proto_tree_add_string(tree, hf_simulcrypt_parameter_value, tvb, offset, plen, pvalue_char);
 		break;
 	} /* end parameter type switch */
 }
@@ -1192,7 +1193,7 @@ dissect_psig_parameter_value (proto_tree *tree, tvbuff_t *tvb, packet_info *pinf
 		proto_tree_add_item(tree, hf_simulcrypt_error_information, tvb, offset, plen, ENC_NA);
 		break;
 	default:  /* Unknown parameter type */
-		proto_tree_add_text(tree, tvb, offset, plen, "Parameter Value: %s", pvalue_char);
+		proto_tree_add_string(tree, hf_simulcrypt_parameter_value, tvb, offset, plen, pvalue_char);
 		break;
 	} /* end parameter type switch */
 }
@@ -1371,7 +1372,7 @@ dissect_simulcrypt_data(proto_tree *simulcrypt_tree, proto_item *simulcrypt_item
 			dissect_psig_parameter_value (simulcrypt_parameter_tree, tvb, pinfo, offset, plen, ptype, pvalue_char);
 			break;
 		default:
-			proto_tree_add_text(tree, tvb, offset, plen, "Parameter Value: %s", pvalue_char);
+			proto_tree_add_string(tree, hf_simulcrypt_parameter_value, tvb, offset, plen, pvalue_char);
 			break;
 		}
 		offset         += plen;
@@ -1786,8 +1787,12 @@ proto_register_simulcrypt (void)
 		{ "ASI input packet ID", "simulcrypt.parameter.asi_input_packet_id", FT_UINT16, BASE_DEC, NULL, 0x0,
 		 NULL, HFILL }},
 
- 		{ &hf_simulcrypt_psig_error_status,
+		{ &hf_simulcrypt_psig_error_status,
 		{ "Error status", "simulcrypt.parameter.error_status", FT_UINT16, BASE_DEC, NULL, 0x0,
+		 NULL, HFILL }},
+
+		{ &hf_simulcrypt_parameter_value,
+		{ "Parameter Value", "simulcrypt.parameter.value", FT_STRING, BASE_NONE, NULL, 0x0,
 		 NULL, HFILL }}
 	};
 

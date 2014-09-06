@@ -41,6 +41,8 @@ static int hf_sscop_s = -1;
 static int hf_sscop_ps = -1;
 static int hf_sscop_r = -1;
 static int hf_sscop_stat_s = -1;
+static int hf_sscop_pad_length = -1;
+static int hf_sscop_source = -1;
 /* static int hf_sscop_stat_count = -1; */
 
 static gint ett_sscop = -1;
@@ -246,8 +248,8 @@ dissect_sscop_and_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, d
       break;
 
     case SSCOP_END:
-      proto_tree_add_text(sscop_tree, tvb, SSCOP_PDU_TYPE, 1,
-          "Source: %s", (sscop_pdu_type & SSCOP_S) ? "SSCOP" : "User");
+      proto_tree_add_string(sscop_tree, hf_sscop_source, tvb, SSCOP_PDU_TYPE, 1,
+                                (sscop_pdu_type & SSCOP_S) ? "SSCOP" : "User");
       break;
 
     case SSCOP_BGAK:
@@ -304,8 +306,7 @@ dissect_sscop_and_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, d
   case SSCOP_SDP:
 #endif
     if (tree) {
-      proto_tree_add_text(sscop_tree, tvb, SSCOP_PDU_TYPE, 1,
-			"Pad length: %u", pad_len);
+      proto_tree_add_uint(sscop_tree, hf_sscop_pad_length, tvb, SSCOP_PDU_TYPE, 1, pad_len);
     }
 
     /*
@@ -416,6 +417,8 @@ proto_register_sscop(void)
 		{ &hf_sscop_ps, { "N(PS)", "sscop.ps", FT_UINT24, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 		{ &hf_sscop_r, { "N(R)", "sscop.r", FT_UINT24, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 		{ &hf_sscop_stat_s, { "N(S)", "sscop.stat.s", FT_UINT24, BASE_DEC, NULL, 0x0,NULL, HFILL }},
+		{ &hf_sscop_pad_length, { "Pad length", "sscop.pad_length", FT_UINT8, BASE_DEC,	NULL, 0x0, NULL, HFILL }},
+		{ &hf_sscop_source, { "Source", "sscop.source", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 #if 0
 		{ &hf_sscop_stat_count, { "Number of NACKed pdus", "sscop.stat.count", FT_UINT32, BASE_DEC, NULL, 0x0,NULL, HFILL }}
 #endif

@@ -53,9 +53,11 @@ static int hf_lm_token = -1;
 static int hf_major_version = -1;
 static int hf_minor_version = -1;
 static int hf_os_version = -1;
+static int hf_signature = -1;
 static int hf_date_time = -1;
 static int hf_update_type = -1;
 static int hf_request_count = -1;
+static int hf_account_control = -1;
 static int hf_flags_autolock = -1;
 static int hf_flags_expire = -1;
 static int hf_flags_server_trust = -1;
@@ -84,6 +86,7 @@ static int hf_server_ip = -1;
 
 static int hf_server_site_name = -1;
 static int hf_client_site_name = -1;
+static int hf_data = -1;
 
 static int ett_smb_logon = -1;
 static int ett_smb_account_flags = -1;
@@ -152,34 +155,24 @@ static int
 dissect_account_control(tvbuff_t *tvb, proto_tree *tree, int offset)
 {
 	/* display the Allowable Account control bits */
+	static const int * flags[] = {
+		&hf_flags_autolock,
+		&hf_flags_expire,
+		&hf_flags_server_trust,
+		&hf_flags_workstation_trust,
+		&hf_flags_interdomain_trust,
+		&hf_flags_mns_user,
+		&hf_flags_normal_user,
+		&hf_flags_temp_dup_user,
+		&hf_flags_password_required,
+		&hf_flags_homedir_required,
+		&hf_flags_enabled,
+		NULL
+	};
 
-	proto_item *ti = NULL;
-	proto_tree *flags_tree = NULL;
-	guint32 flags;
-
-	flags = tvb_get_letohl(tvb, offset);
-
-	if (tree) {
-		ti = proto_tree_add_text(tree, tvb, offset, 4,
-			"Account control  = 0x%04x", flags);
-
-		flags_tree = proto_item_add_subtree(ti, ett_smb_account_flags);
-	}
-
-	proto_tree_add_boolean(flags_tree, hf_flags_autolock, tvb, offset, 4, flags);
-	proto_tree_add_boolean(flags_tree, hf_flags_expire, tvb, offset, 4, flags);
-	proto_tree_add_boolean(flags_tree, hf_flags_server_trust, tvb, offset, 4, flags);
-	proto_tree_add_boolean(flags_tree, hf_flags_workstation_trust, tvb, offset, 4, flags);
-	proto_tree_add_boolean(flags_tree, hf_flags_interdomain_trust, tvb, offset, 4, flags);
-	proto_tree_add_boolean(flags_tree, hf_flags_mns_user, tvb, offset, 4, flags);
-	proto_tree_add_boolean(flags_tree, hf_flags_normal_user, tvb, offset, 4, flags);
-	proto_tree_add_boolean(flags_tree, hf_flags_temp_dup_user, tvb, offset, 4, flags);
-	proto_tree_add_boolean(flags_tree, hf_flags_password_required, tvb, offset, 4, flags);
-	proto_tree_add_boolean(flags_tree, hf_flags_homedir_required, tvb, offset, 4, flags);
-	proto_tree_add_boolean(flags_tree, hf_flags_enabled, tvb, offset, 4, flags);
+	proto_tree_add_bitmask(tree, tvb, offset, hf_account_control, ett_smb_account_flags, flags, ENC_LITTLE_ENDIAN);
 
 	offset += 4;
-
 	return offset;
 }
 
@@ -635,14 +628,8 @@ dissect_smb_acc_update(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 {
 	/*** 0x11  LM2.1 Announce Acc updates  ***/
 
-	guint32 Temp1, Temp2;
-
-	Temp1 = tvb_get_letohl(tvb, offset);
-	Temp2 = tvb_get_letohl(tvb, offset + 4);
-
 	/* signature */
-	proto_tree_add_text(tree, tvb, offset, 8, "Signature: 0x%08x%08x",
-		Temp1, Temp2);
+	proto_tree_add_item(tree, hf_signature, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 	offset += 8;
 
 	/* date/time */
@@ -813,10 +800,9 @@ dissect_smb_unknown(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int
 {
 	/* display data as unknown */
 
-	proto_tree_add_text(tree, tvb, offset, -1, "Data (%u bytes)",
-	    tvb_reported_length_remaining(tvb, offset));
+	proto_tree_add_item(tree, hf_data, tvb, offset, -1, ENC_NA);
 
-	return offset+tvb_length_remaining(tvb, offset);
+	return offset+tvb_reported_length_remaining(tvb, offset);
 }
 
 #define LOGON_LM10_LOGON_REQUEST		0x00
@@ -1029,6 +1015,10 @@ proto_register_smb_logon( void)
 			{ "Workstation OS Version", "smb_netlogon.os_version", FT_UINT8, BASE_DEC,
 			  NULL, 0, "SMB NETLOGON Workstation OS Version", HFILL }},
 
+		{ &hf_signature,
+			{ "Signature", "smb_netlogon.signature", FT_UINT64, BASE_HEX,
+			  NULL, 0, NULL, HFILL }},
+
 		{ &hf_date_time,
 			{ "Date/Time", "smb_netlogon.date_time", FT_UINT32, BASE_DEC,
 			  NULL, 0, "SMB NETLOGON Date/Time", HFILL }},
@@ -1040,6 +1030,10 @@ proto_register_smb_logon( void)
 		{ &hf_request_count,
 			{ "Request Count", "smb_netlogon.request_count", FT_UINT16, BASE_DEC,
 			  NULL, 0, "SMB NETLOGON Request Count", HFILL }},
+
+		{ &hf_account_control,
+			{ "Account control", "smb_netlogon.flags", FT_UINT32, BASE_HEX,
+			  NULL, 0, NULL, HFILL }},
 
 		{ &hf_flags_autolock,
 			{ "Autolock", "smb_netlogon.flags.autolock", FT_BOOLEAN, 32,
@@ -1140,6 +1134,10 @@ proto_register_smb_logon( void)
 		{ &hf_client_site_name,
 			{ "Client Site Name", "smb_netlogon.client_site_name", FT_STRING, BASE_NONE,
 			  NULL, 0, "SMB NETLOGON Client Site Name", HFILL }},
+
+		{ &hf_data,
+			{ "Data", "smb_netlogon.data", FT_BYTES, BASE_NONE,
+			  NULL, 0, NULL, HFILL }},
 	};
 
 	static gint *ett[] = {

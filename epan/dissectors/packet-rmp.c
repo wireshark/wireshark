@@ -45,6 +45,7 @@ static int hf_rmp_machtype = -1;
 static int hf_rmp_filename = -1;
 static int hf_rmp_offset = -1;
 static int hf_rmp_size = -1;
+static int hf_rmp_reserved = -1;
 
 static gint ett_rmp = -1;
 
@@ -190,8 +191,8 @@ dissect_rmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			case RMP_BOOT_DONE:
 				proto_tree_add_item(rmp_tree,
 				    hf_rmp_retcode, tvb, 1, 1, ENC_BIG_ENDIAN);
-				proto_tree_add_text(rmp_tree,
-				    tvb, 2, 4, "Reserved");
+				proto_tree_add_item(rmp_tree,
+				    hf_rmp_reserved, tvb, 2, 4, ENC_BIG_ENDIAN);
 				proto_tree_add_item(rmp_tree,
 				    hf_rmp_sessionid, tvb, 6, 2, ENC_BIG_ENDIAN);
 				if(tvb_offset_exists(tvb, 8))
@@ -237,7 +238,11 @@ proto_register_rmp(void)
 		{ &hf_rmp_size,
 		{ "Size", "rmp.size", FT_UINT16, BASE_DEC,
 			NULL, 0x0, NULL, HFILL }},
+		{ &hf_rmp_reserved,
+		{ "Reserved", "rmp.reserved", FT_UINT32, BASE_HEX,
+			NULL, 0x0, NULL, HFILL }},
 	};
+
 	static gint *ett[] = {
 		&ett_rmp,
 	};

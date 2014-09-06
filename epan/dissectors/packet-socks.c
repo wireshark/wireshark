@@ -126,6 +126,10 @@ static int hf_socks_password = -1;
 static int hf_socks_remote_name = -1;
 static int hf_socks_address_type = -1;
 static int hf_socks_fragment_number = -1;
+static int hf_socks_ping_end_command = -1;
+static int hf_socks_ping_results = -1;
+static int hf_socks_traceroute_end_command = -1;
+static int hf_socks_traceroute_results = -1;
 
 /************* Dissector handles ***********/
 
@@ -890,20 +894,13 @@ display_ping_and_tracert(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
     if ( pinfo->destport == TCP_PORT_SOCKS){
         col_append_str(pinfo->cinfo, COL_INFO, ", Terminate Request");
 
-        if ( tree)
-            proto_tree_add_text(tree, tvb, offset, 1,
-                (hash_info->command  == PING_COMMAND) ?
-                "Ping: End command" :
-                "Traceroute: End command");
+        proto_tree_add_item(tree, (hash_info->command  == PING_COMMAND) ? hf_socks_ping_end_command : hf_socks_traceroute_end_command, tvb, offset, 1, ENC_NA);
     }
     else {      /* display the PING or Traceroute results */
         col_append_str(pinfo->cinfo, COL_INFO, ", Results");
 
         if ( tree){
-            proto_tree_add_text(tree, tvb, offset, -1,
-                (hash_info->command  == PING_COMMAND) ?
-                "Ping Results:" :
-                "Traceroute Results");
+            proto_tree_add_item(tree, (hash_info->command  == PING_COMMAND) ? hf_socks_ping_results : hf_socks_traceroute_results, tvb, offset, -1, ENC_NA);
 
             data = tvb_get_ptr(tvb, offset, -1);
             dataend = data + tvb_length_remaining(tvb, offset);
@@ -913,8 +910,7 @@ display_ping_and_tracert(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
                 lineend = find_line_end(data, dataend, &eol);
                 linelen = (int)(lineend - data);
 
-                proto_tree_add_text( tree, tvb, offset, linelen,
-                    "%s", format_text(data, linelen));
+                proto_tree_add_format_text( tree, tvb, offset, linelen);
                 offset += linelen;
                 data = lineend;
             }
@@ -1278,6 +1274,26 @@ proto_register_socks( void){
         { &hf_socks_fragment_number,
             { "Fragment Number", "socks.fragment_number", FT_UINT8,
                 BASE_DEC, NULL, 0x0, NULL, HFILL
+            }
+        },
+        { &hf_socks_ping_end_command,
+            { "Ping: End command", "socks.ping_end_command", FT_NONE,
+                BASE_NONE, NULL, 0x0, NULL, HFILL
+            }
+        },
+        { &hf_socks_ping_results,
+            { "Ping Results", "socks.ping_results", FT_NONE,
+                BASE_NONE, NULL, 0x0, NULL, HFILL
+            }
+        },
+        { &hf_socks_traceroute_end_command,
+            { "Traceroute: End command", "socks.traceroute_end_command", FT_NONE,
+                BASE_NONE, NULL, 0x0, NULL, HFILL
+            }
+        },
+        { &hf_socks_traceroute_results,
+            { "Traceroute Results", "socks.traceroute_results", FT_NONE,
+                BASE_NONE, NULL, 0x0, NULL, HFILL
             }
         },
     };

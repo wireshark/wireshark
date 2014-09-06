@@ -58,6 +58,7 @@ static int hf_user_info_server_user_name = -1;
 static int hf_user_info_terminal_type = -1;
 static int hf_user_info_terminal_speed = -1;
 static int hf_control_message = -1;
+static int hf_magic_cookie = -1;
 static int hf_window_info = -1;
 static int hf_window_info_ss = -1;
 static int hf_window_info_rows = -1;
@@ -334,7 +335,7 @@ static void rlogin_display(rlogin_hash_entry_t *hash_info,
 		window_tree = proto_item_add_subtree(window_info_item, ett_rlogin_window);
 
 		/* Cookie */
-		proto_tree_add_text(window_tree, tvb, offset, 2, "Magic Cookie: (0xff, 0xff)");
+		proto_tree_add_item(window_tree, hf_magic_cookie, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 
 		/* These bytes should be "ss" */
@@ -529,6 +530,11 @@ void proto_register_rlogin(void)
 		{ &hf_control_message,
 			{ "Control message", "rlogin.control_message", FT_UINT8, BASE_HEX,
 				 VALS(control_message_vals), 0x0, NULL, HFILL
+			}
+		},
+		{ &hf_magic_cookie,
+			{ "Magic Cookie", "rlogin.magic_cookie", FT_UINT16, BASE_HEX,
+				 NULL, 0x0, NULL, HFILL
 			}
 		},
 		{ &hf_window_info,

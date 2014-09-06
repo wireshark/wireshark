@@ -68,6 +68,8 @@ static int hf_sgsap_lcs_indic = -1;
 static int hf_sgsap_mme_name = -1;
 static int hf_sgsap_vlr_name = -1;
 static int hf_sgsap_imeisv = -1;
+static int hf_sgsap_unknown_msg = -1;
+static int hf_sgsap_message_elements = -1;
 
 static int ett_sgsap = -1;
 
@@ -1415,7 +1417,7 @@ dissect_sgsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (msg_str) {
         col_add_fstr(pinfo->cinfo, COL_INFO, "%s", msg_str);
     }else{
-        proto_tree_add_text(tree, tvb, offset, 1, "Unknown message 0x%x", oct);
+        proto_tree_add_item(tree, hf_sgsap_unknown_msg, tvb, offset, 1, ENC_NA);
         return;
     }
 
@@ -1431,8 +1433,7 @@ dissect_sgsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      */
     if (msg_fcn_p == NULL)
     {
-        proto_tree_add_text(sgsap_tree, tvb, offset, len - offset,
-            "Message Elements");
+        proto_tree_add_item(sgsap_tree, hf_sgsap_message_elements, tvb, offset, len - offset, ENC_NA);
     }
     else
     {
@@ -1519,6 +1520,16 @@ void proto_register_sgsap(void) {
     { &hf_sgsap_imeisv,
         {"IMEISV", "sgsap.imeisv",
         FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL}
+    },
+    { &hf_sgsap_unknown_msg,
+        { "Unknown message",    "sgsap.unknown_msg",
+        FT_UINT8, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_sgsap_message_elements,
+        {"Message Elements", "sgsap.message_elements",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
         NULL, HFILL}
     },
   };

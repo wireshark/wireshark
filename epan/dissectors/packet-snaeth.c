@@ -36,6 +36,7 @@ void proto_reg_handoff_snaeth(void);
 
 static int proto_snaeth = -1;
 static int hf_snaeth_len = -1;
+static int hf_snaeth_padding = -1;
 
 static gint ett_snaeth = -1;
 
@@ -60,7 +61,7 @@ dissect_snaeth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    ENC_NA);
 		snaeth_tree = proto_item_add_subtree(snaeth_ti, ett_snaeth);
 		proto_tree_add_uint(snaeth_tree, hf_snaeth_len, tvb, 0, 2, len);
-		proto_tree_add_text(snaeth_tree, tvb, 2, 1, "Padding");
+		proto_tree_add_item(snaeth_tree, hf_snaeth_padding, tvb, 2, 1, ENC_NA);
 	}
 
 	/*
@@ -83,6 +84,9 @@ proto_register_snaeth(void)
 		{ &hf_snaeth_len,
 		{ "Length",	"snaeth.len", FT_UINT16, BASE_DEC, NULL, 0x0,
 			"Length of LLC payload", HFILL }},
+		{ &hf_snaeth_padding,
+		{ "Padding",	"snaeth.padding", FT_UINT8, BASE_HEX, NULL, 0x0,
+			NULL, HFILL }},
 	};
 	static gint *ett[] = {
 		&ett_snaeth,

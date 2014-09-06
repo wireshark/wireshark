@@ -341,8 +341,7 @@ rsip_parameter(tvbuff_t *tvb, proto_tree *rsip_tree, int off, int eoff)
 				    ": Any Fully Qualified Domain Name");
 			break;
 		default:
-			proto_tree_add_text(p_tree, tvb, off + 4,
-			    paramlen - 1, ": Unknown Address Type");
+			proto_item_append_text(pti, ": Unknown Address Type");
 			break;
 		}
 		break;
