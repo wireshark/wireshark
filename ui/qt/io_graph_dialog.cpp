@@ -2160,7 +2160,7 @@ void IOGraph::tapDraw(void *iog_ptr)
 // Stat command + args
 
 static void
-io_graph_init(const char *opt_arg _U_, void* userdata _U_) {
+io_graph_init(const char *, void*) {
     wsApp->emitStatCommandSignal("IOGraph", NULL, NULL);
 }
 
