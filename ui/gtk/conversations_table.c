@@ -1654,6 +1654,9 @@ draw_ct_table_data(conversations_table *ct)
         double duration_s;
         conv_item_t *conv_item;
 
+        if (!ct->hash.conv_array) {
+            continue;
+        }
         if (iter_valid) {
             gtk_tree_model_get(GTK_TREE_MODEL(store), &iter, CONV_INDEX_COLUMN, &idx, -1);
         } else {
