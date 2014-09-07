@@ -98,6 +98,7 @@ static int proto_zbee_zcl_msg = -1;
 static int hf_zbee_zcl_msg_srv_tx_cmd_id = -1;
 static int hf_zbee_zcl_msg_srv_rx_cmd_id = -1;
 static int hf_zbee_zcl_msg_message_id = -1;
+static int hf_zbee_zcl_msg_ctrl = -1;
 static int hf_zbee_zcl_msg_ctrl_tx = -1;
 static int hf_zbee_zcl_msg_ctrl_importance = -1;
 static int hf_zbee_zcl_msg_ctrl_reserved = -1;
@@ -257,24 +258,23 @@ dissect_zbee_zcl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 static void
 dissect_zcl_msg_display(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
-    proto_tree *sub_tree = NULL;
-    proto_item *ti;
-    guint8 control;
     guint  msg_len;
     guint8 *msg_data;
+
+    static const int * message_ctrl_flags[] = {
+        &hf_zbee_zcl_msg_ctrl_tx,
+        &hf_zbee_zcl_msg_ctrl_importance,
+        &hf_zbee_zcl_msg_ctrl_reserved,
+        &hf_zbee_zcl_msg_ctrl_confirm,
+        NULL
+    };
 
     /* Retrieve "Message ID" field */
     proto_tree_add_item(tree, hf_zbee_zcl_msg_message_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
     *offset += 4;
 
     /* Retrieve "Message Control" field */
-    control = tvb_get_guint8(tvb, *offset);
-    ti = proto_tree_add_text(tree, tvb, *offset, 1, "Message Control: 0x%02x", control);
-    sub_tree = proto_item_add_subtree(ti, ett_zbee_zcl_msg_message_control);
-    proto_tree_add_item(sub_tree, hf_zbee_zcl_msg_ctrl_tx, tvb, *offset, 1, ENC_NA);
-    proto_tree_add_item(sub_tree, hf_zbee_zcl_msg_ctrl_importance, tvb, *offset, 1, ENC_NA);
-    proto_tree_add_item(sub_tree, hf_zbee_zcl_msg_ctrl_reserved, tvb, *offset, 1, ENC_NA);
-    proto_tree_add_item(sub_tree, hf_zbee_zcl_msg_ctrl_confirm, tvb, *offset, 1, ENC_NA);
+    proto_tree_add_bitmask(tree, tvb, *offset, hf_zbee_zcl_msg_ctrl, ett_zbee_zcl_msg_message_control, message_ctrl_flags, ENC_NA);
     *offset += 1;
 
     /* Retrieve "Start Time" field */
@@ -313,22 +313,20 @@ dissect_zcl_msg_display(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 static void
 dissect_zcl_msg_cancel(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
-    proto_tree *sub_tree = NULL;
-    proto_item *ti;
-    guint8 control;
+    static const int * message_ctrl_flags[] = {
+        &hf_zbee_zcl_msg_ctrl_tx,
+        &hf_zbee_zcl_msg_ctrl_importance,
+        &hf_zbee_zcl_msg_ctrl_reserved,
+        &hf_zbee_zcl_msg_ctrl_confirm,
+        NULL
+    };
 
     /* Retrieve "Message ID" field */
     proto_tree_add_item(tree, hf_zbee_zcl_msg_message_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
     *offset += 4;
 
     /* Retrieve "Message Control" field */
-    control = tvb_get_guint8(tvb, *offset);
-    ti = proto_tree_add_text(tree, tvb, *offset, 1, "Message Control: 0x%02x", control);
-    sub_tree = proto_item_add_subtree(ti, ett_zbee_zcl_msg_message_control);
-    proto_tree_add_item(sub_tree, hf_zbee_zcl_msg_ctrl_tx, tvb, *offset, 1, ENC_NA);
-    proto_tree_add_item(sub_tree, hf_zbee_zcl_msg_ctrl_importance, tvb, *offset, 1, ENC_NA);
-    proto_tree_add_item(sub_tree, hf_zbee_zcl_msg_ctrl_reserved, tvb, *offset, 1, ENC_NA);
-    proto_tree_add_item(sub_tree, hf_zbee_zcl_msg_ctrl_confirm, tvb, *offset, 1, ENC_NA);
+    proto_tree_add_bitmask(tree, tvb, *offset, hf_zbee_zcl_msg_ctrl, ett_zbee_zcl_msg_message_control, message_ctrl_flags, ENC_NA);
     *offset += 1;
 }
 
@@ -461,6 +459,10 @@ proto_register_zbee_zcl_msg(void)
             0x00, NULL, HFILL } },
 
 /* Start of 'Message Control' fields */
+        { &hf_zbee_zcl_msg_ctrl,
+            { "Message Control", "zbee_zcl_se.msg.message.ctrl", FT_UINT8, BASE_HEX, NULL,
+            0x0, NULL, HFILL } },
+
         { &hf_zbee_zcl_msg_ctrl_tx,
             { "Transmission", "zbee_zcl_se.msg.message.ctrl.tx", FT_UINT8, BASE_HEX, VALS(zbee_zcl_msg_ctrl_tx_names),
             ZBEE_ZCL_MSG_CTRL_TX_MASK, NULL, HFILL } },

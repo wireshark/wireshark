@@ -31,6 +31,7 @@
 #include <ctype.h>
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include <epan/exceptions.h>
 #include <epan/prefs.h>
 #include <epan/tap.h>
@@ -101,6 +102,8 @@ static gint ett_winsrepl_name = -1;
 static gint ett_winsrepl_send_reply = -1;
 
 static gint ett_winsrepl_flags = -1;
+
+static expert_field ei_winsrepl_name_len = EI_INIT;
 
 #define WINS_REPLICATION_PORT	( 42 )
 #define WREPL_OPCODE_BITS	( 0x7800 )
@@ -375,7 +378,7 @@ dissect_winsrepl_wins_name(tvbuff_t *winsrepl_tvb, packet_info *pinfo,
 			   int winsrepl_offset, proto_tree *winsrepl_tree,
 			   proto_tree *sub_tree, guint32 idx)
 {
-	proto_item *name_item = NULL;
+	proto_item *name_item = NULL, *ti;
 	proto_tree *name_tree = NULL;
 	proto_item *flags_item;
 	proto_tree *flags_tree;
@@ -397,12 +400,11 @@ dissect_winsrepl_wins_name(tvbuff_t *winsrepl_tvb, packet_info *pinfo,
 
 	/* NAME_LEN */
 	name_len = tvb_get_ntohl(winsrepl_tvb, winsrepl_offset);
+	ti = proto_tree_add_uint(name_tree, hf_winsrepl_name_len, winsrepl_tvb, winsrepl_offset, 4, name_len);
 	if ((gint) name_len < 1) {
-		proto_tree_add_text(name_tree, winsrepl_tvb, winsrepl_offset,
-			4, "Bad name length: %u", name_len);
+		expert_add_info(pinfo, ti, &ei_winsrepl_name_len);
 		THROW(ReportedBoundsError);
 	}
-	proto_tree_add_uint(name_tree, hf_winsrepl_name_len, winsrepl_tvb, winsrepl_offset, 4, name_len);
 	winsrepl_offset += 4;
 
 	/* NAME: TODO! */
@@ -853,12 +855,19 @@ proto_register_winsrepl(void)
 		&ett_winsrepl_flags,
 	};
 
+	static ei_register_info ei[] = {
+		{ &ei_winsrepl_name_len, { "winsrepl.name_len.invalid", PI_MALFORMED, PI_ERROR, "Bad name length", EXPFILL }},
+	};
+
 	module_t *winsrepl_module;
+	expert_module_t* expert_winsrepl;
 
 	proto_winsrepl = proto_register_protocol("WINS (Windows Internet Name Service) Replication",
 						 "WINS-Replication", "winsrepl");
 	proto_register_subtree_array(ett, array_length(ett));
 	proto_register_field_array(proto_winsrepl, hf, array_length(hf));
+	expert_winsrepl = expert_register_protocol(proto_winsrepl);
+	expert_register_field_array(expert_winsrepl, ei, array_length(ei));
 
 	winsrepl_module = prefs_register_protocol(proto_winsrepl, NULL);
 	prefs_register_bool_preference(winsrepl_module, "reassemble",

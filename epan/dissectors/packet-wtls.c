@@ -454,7 +454,6 @@ add_session_id(proto_tree *tree, int hf, int hf_str, tvbuff_t *tvb, int offset)
 	guint count;
 	guint i;
 	guint64 session_id;
-	header_field_info *hfinfo;
 
 	count = tvb_get_guint8(tvb, offset);
 	if (count == 0)
@@ -465,9 +464,7 @@ add_session_id(proto_tree *tree, int hf, int hf_str, tvbuff_t *tvb, int offset)
 			session_id = (session_id << 8) | tvb_get_guint8(tvb, offset + i);
 		proto_tree_add_uint64 (tree, hf, tvb, offset, count+1, session_id);
 	} else {
-		hfinfo = proto_registrar_get_nth(hf);
-		proto_tree_add_text (tree, tvb, offset, count+1, "%s: %s",
-		    hfinfo->name, tvb_bytes_to_ep_str(tvb, offset+1, count));
+		proto_tree_add_item(tree, hf, tvb, offset, count+1, ENC_NA);
 	}
 	return offset+1+count;
 }

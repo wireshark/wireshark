@@ -77,12 +77,14 @@ static int hf_wfd_subelem_session_dev_info_max_throughput = -1;
 static int hf_wfd_subelem_session_coupled_sink_status_bitmap = -1;
 static int hf_wfd_subelem_session_coupled_sink_reserved = -1;
 static int hf_wfd_subelem_session_coupled_sink_addr = -1;
+static int hf_wfd_subelem_session_extra_info = -1;
 
 static gint ett_wfd_subelem = -1;
 static gint ett_wfd_dev_info_descr = -1;
 
 static expert_field ei_wfd_subelem_len_invalid = EI_INIT;
 static expert_field ei_wfd_subelem_session_descr_invalid = EI_INIT;
+static expert_field ei_wfd_subelem_id = EI_INIT;
 
 enum wifi_display_subelem {
   WFD_SUBELEM_DEVICE_INFO = 0,
@@ -298,8 +300,7 @@ dissect_wfd_subelem_session_info(packet_info *pinfo, proto_tree *tree,
     offset += 6;
 
     if (offset < next) {
-      proto_tree_add_text(descr, tvb, offset, next - offset,
-                          "Extra info in the end of descriptor");
+      proto_tree_add_item(descr, hf_wfd_subelem_session_extra_info, tvb, offset, next - offset, ENC_NA);
     }
 
     offset = next;
@@ -352,8 +353,7 @@ void dissect_wifi_display_ie(packet_info *pinfo, proto_tree *tree,
       dissect_wfd_subelem_session_info(pinfo, wfd_tree, tvb, offset, len);
       break;
     default:
-      proto_tree_add_text(wfd_tree, tvb, offset, len,
-                          "Unknown subelement payload");
+      expert_add_info(pinfo, subelem, &ei_wfd_subelem_id);
       break;
     }
 
@@ -515,7 +515,11 @@ proto_register_wifi_display(void)
     { &hf_wfd_subelem_session_coupled_sink_addr,
       { "Coupled peer sink address",
         "wifi_display.subelem.session.coupled_peer_sink_addr",
-        FT_ETHER, BASE_NONE, NULL, 0, NULL, HFILL }}
+        FT_ETHER, BASE_NONE, NULL, 0, NULL, HFILL }},
+    { &hf_wfd_subelem_session_extra_info,
+      { "Extra info in the end of descriptor",
+        "wifi_display.subelem.session.extra_info",
+        FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
   };
   static gint *ett[] = {
     &ett_wfd_subelem,
@@ -525,6 +529,7 @@ proto_register_wifi_display(void)
   static ei_register_info ei[] = {
       { &ei_wfd_subelem_len_invalid, { "wifi_display.subelem.length.invalid", PI_MALFORMED, PI_ERROR, "Subelement length invalid", EXPFILL }},
       { &ei_wfd_subelem_session_descr_invalid, { "wifi_display.subelem.session.descr_invalid", PI_MALFORMED, PI_ERROR, "Invalid WFD Device Info Descriptor", EXPFILL }},
+      { &ei_wfd_subelem_id, { "wifi_display.subelem.id.unknown", PI_PROTOCOL, PI_WARN, "Unknown subelement payload", EXPFILL }},
   };
 
   expert_module_t* expert_wifi_display;

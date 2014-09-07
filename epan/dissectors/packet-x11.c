@@ -207,6 +207,7 @@ static gint ett_x11_event = -1;
 
 static expert_field ei_x11_invalid_format = EI_INIT;
 static expert_field ei_x11_request_length = EI_INIT;
+static expert_field ei_x11_keycode_value_out_of_range = EI_INIT;
 
 /* desegmentation of X11 messages */
 static gboolean x11_desegment = TRUE;
@@ -1154,20 +1155,18 @@ static const value_string zero_is_none_vals[] = {
       tvbuff_t *next_tvb;                                             \
       unsigned char eventcode;                                        \
       const char *sent;                                               \
-      proto_item *event_ti;                                           \
       proto_tree *event_proto_tree;                                   \
       next_tvb = tvb_new_subset(tvb, offset, next_offset - offset,    \
                                 next_offset - offset);                \
       eventcode = tvb_get_guint8(next_tvb, 0);                        \
       sent = (eventcode & 0x80) ? "Sent-" : "";                       \
-      event_ti = proto_tree_add_text(t, next_tvb, 0, -1,              \
-                              "event: %d (%s)",                       \
+      event_proto_tree = proto_tree_add_subtree_format(t, next_tvb,   \
+                               0, -1, ett_x11_event, NULL,            \
+                               "event: %d (%s)",                      \
                                eventcode,                             \
                                val_to_str(eventcode & 0x7F,           \
                                           state->eventcode_vals,      \
                                           "<Unknown eventcode %u>")); \
-      event_proto_tree = proto_item_add_subtree(event_ti,             \
-                                                ett_x11_event);       \
       decode_x11_event(next_tvb, eventcode, sent, event_proto_tree,   \
                        state, byte_order);                            \
       offset = next_offset;                                           \
@@ -1184,7 +1183,7 @@ static const value_string zero_is_none_vals[] = {
 #define LISTofKEYCODE(map, name, length) { listOfKeycode(tvb, offsetp, t, hf_x11_##name, map, (length), byte_order); }
 #define LISTofKEYSYM(name, map, keycode_first, keycode_count, \
     keysyms_per_keycode) {\
-      listOfKeysyms(tvb, offsetp, t, hf_x11_##name, hf_x11_##name##_item, map, (keycode_first), (keycode_count), (keysyms_per_keycode), byte_order); }
+      listOfKeysyms(tvb, pinfo, offsetp, t, hf_x11_##name, hf_x11_##name##_item, map, (keycode_first), (keycode_count), (keysyms_per_keycode), byte_order); }
 #define LISTofPOINT(name, length) { listOfPoint(tvb, offsetp, t, hf_x11_##name, (length) / 4, byte_order); }
 #define LISTofRECTANGLE(name) { listOfRectangle(tvb, offsetp, t, hf_x11_##name, (next_offset - *offsetp) / 8, byte_order); }
 #define LISTofSEGMENT(name) { listOfSegment(tvb, offsetp, t, hf_x11_##name, (next_offset - *offsetp) / 8, byte_order); }
@@ -1952,7 +1951,7 @@ static void listOfKeycode(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
       }
 }
 
-static void listOfKeysyms(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
+static void listOfKeysyms(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, int hf,
                           int hf_item, int *keycodemap[256],
                           int keycode_first, int keycode_count,
                           int keysyms_per_keycode, guint byte_order)
@@ -1968,14 +1967,14 @@ static void listOfKeysyms(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
 
       for (keycode = keycode_first; keycode_count > 0;
            ++keycode, --keycode_count) {
+            tti = proto_tree_add_none_format(tt, hf_item, tvb, *offsetp,
+                                             4 * keysyms_per_keycode, "keysyms (keycode %d):", keycode);
             if (keycode >= 256) {
-                  proto_tree_add_text(tt, tvb, *offsetp, 4 * keysyms_per_keycode,
+                  expert_add_info_format(pinfo, tti, &ei_x11_keycode_value_out_of_range,
                                       "keycode value %d is out of range", keycode);
                   *offsetp += 4 * keysyms_per_keycode;
                   continue;
             }
-            tti = proto_tree_add_none_format(tt, hf_item, tvb, *offsetp,
-                                             4 * keysyms_per_keycode, "keysyms (keycode %d):", keycode);
 
             ttt = proto_item_add_subtree(tti, ett_x11_keysym);
 
@@ -4356,7 +4355,6 @@ static void dissect_x11_requests(tvbuff_t *tvb, packet_info *pinfo,
       guint8 opcode;
       volatile int plen;
       proto_item *ti;
-      proto_tree *t;
       volatile gboolean is_initial_creq;
       guint16 auth_proto_len, auth_data_len;
       const char *volatile sep = NULL;
@@ -4430,11 +4428,8 @@ static void dissect_x11_requests(tvbuff_t *tvb, packet_info *pinfo,
                    * helped.
                    * Give up.
                    */
-                  ti = proto_tree_add_item(tree, proto_x11, tvb, offset, -1,
-                  ENC_NA);
-                  t = proto_item_add_subtree(ti, ett_x11);
-                  proto_tree_add_text(t, tvb, offset, -1,
-                      "Bogus request length (0)");
+                  ti = proto_tree_add_item(tree, proto_x11, tvb, offset, -1, ENC_NA);
+                  expert_add_info_format(pinfo, ti, &ei_x11_request_length, "Bogus request length (0)");
                   return;
             }
 
@@ -5686,6 +5681,7 @@ void proto_register_x11(void)
       static ei_register_info ei[] = {
             { &ei_x11_invalid_format, { "x11.invalid_format", PI_PROTOCOL, PI_WARN, "Invalid Format", EXPFILL }},
             { &ei_x11_request_length, { "x11.request-length.invalid", PI_PROTOCOL, PI_WARN, "Invalid Length", EXPFILL }},
+            { &ei_x11_keycode_value_out_of_range, { "x11.keycode_value_out_of_range", PI_PROTOCOL, PI_WARN, "keycode value is out of range", EXPFILL }},
       };
 
       module_t *x11_module;

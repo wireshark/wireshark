@@ -182,6 +182,7 @@ static int hf_wtp_header_Abort_reason_provider = HF_EMPTY;
 static int hf_wtp_header_Abort_reason_user     = HF_EMPTY;
 static int hf_wtp_header_sequence_number       = HF_EMPTY;
 static int hf_wtp_header_missing_packets       = HF_EMPTY;
+static int hf_wtp_payload                      = HF_EMPTY;
 
 /* These fields used when reassembling WTP fragments */
 static int hf_wtp_fragments                  = HF_EMPTY;
@@ -738,14 +739,14 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                             "%s (WTP payload reassembled in packet %u)",
                             szInfo, fd_wtp->reassembled_in);
 
-                    proto_tree_add_text(wtp_tree, tvb, dataOffset, -1, "Payload");
+                    proto_tree_add_item(wtp_tree, hf_wtp_payload, tvb, dataOffset, -1, ENC_NA);
                 }
             } else {
                 /* Not reassembled yet, or not reassembled at all */
                 col_append_fstr(pinfo->cinfo, COL_INFO,
                         "%s (Unreassembled fragment %u)",
                         szInfo, psn);
-                proto_tree_add_text(wtp_tree, tvb, dataOffset, -1, "Payload");
+                proto_tree_add_item(wtp_tree, hf_wtp_payload, tvb, dataOffset, -1, ENC_NA);
             }
             /* Now reset fragmentation information in pinfo */
             pinfo->fragmented = save_fragmented;
@@ -914,6 +915,12 @@ proto_register_wtp(void)
         { &hf_wtp_header_missing_packets,
             { "Missing Packets", "wtp.header.missing_packets",
                 FT_UINT8, BASE_DEC, NULL, 0x00,
+                NULL, HFILL
+            }
+        },
+        { &hf_wtp_payload,
+            { "Payload", "wtp.payload",
+                FT_BYTES, BASE_NONE, NULL, 0x00,
                 NULL, HFILL
             }
         },

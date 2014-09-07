@@ -90,6 +90,14 @@ static int hf_zbee_aps_src = -1;
 static int hf_zbee_aps_counter = -1;
 static int hf_zbee_aps_fragmentation = -1;
 static int hf_zbee_aps_block_number = -1;
+static int hf_zbee_aps_block_ack1 = -1;
+static int hf_zbee_aps_block_ack2 = -1;
+static int hf_zbee_aps_block_ack3 = -1;
+static int hf_zbee_aps_block_ack4 = -1;
+static int hf_zbee_aps_block_ack5 = -1;
+static int hf_zbee_aps_block_ack6 = -1;
+static int hf_zbee_aps_block_ack7 = -1;
+static int hf_zbee_aps_block_ack8 = -1;
 
 static int hf_zbee_aps_cmd_id = -1;
 static int hf_zbee_aps_cmd_initiator = -1;
@@ -654,7 +662,6 @@ dissect_zbee_aps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     proto_tree      *aps_tree;
     proto_tree      *field_tree;
     proto_item      *proto_root;
-    proto_item      *ti;
 
     zbee_aps_packet packet;
     zbee_nwk_packet *nwk;
@@ -696,9 +703,8 @@ dissect_zbee_aps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     /*  Display the FCF */
 
     /* Create the subtree */
-    ti = proto_tree_add_text(aps_tree, tvb, offset, 1, "Frame Control Field: %s (0x%02x)",
+    field_tree = proto_tree_add_subtree_format(aps_tree, tvb, offset, 1, ett_zbee_aps_fcf, NULL, "Frame Control Field: %s (0x%02x)",
             val_to_str_const(packet.type, zbee_aps_frame_types, "Unknown"), fcf);
-    field_tree = proto_item_add_subtree(ti, ett_zbee_aps_fcf);
 
     /* Add the frame type and delivery mode. */
     proto_tree_add_uint(field_tree, hf_zbee_aps_fcf_frame_type, tvb, offset, 1, fcf & ZBEE_APS_FCF_FRAME_TYPE);
@@ -871,8 +877,7 @@ dissect_zbee_aps_no_endpt:
         fcf = tvb_get_guint8(tvb, offset);
         packet.fragmentation = fcf & ZBEE_APS_EXT_FCF_FRAGMENT;
         /* Create a subtree */
-        ti = proto_tree_add_text(aps_tree, tvb, offset, 1, "Extended Frame Control Field (0x%02x)", fcf);
-        field_tree = proto_item_add_subtree(ti, ett_zbee_aps_fcf);
+        field_tree = proto_tree_add_subtree_format(aps_tree, tvb, offset, 1, ett_zbee_aps_fcf, NULL, "Extended Frame Control Field (0x%02x)", fcf);
 
         /* Display the fragmentation sub-field. */
         proto_tree_add_uint(field_tree, hf_zbee_aps_fragmentation, tvb, offset, 1, packet.fragmentation);
@@ -891,14 +896,22 @@ dissect_zbee_aps_no_endpt:
         if ((packet.fragmentation != ZBEE_APS_EXT_FCF_FRAGMENT_NONE) && (packet.type == ZBEE_APS_FCF_ACK)) {
             packet.ack_bitfield = tvb_get_guint8(tvb, offset);
             if (tree) {
-                int     i, mask;
-                gchar   tmp[16];
-                for (i=0; i<8; i++) {
-                    mask = (1<<i);
-                    decode_bitfield_value(tmp, packet.ack_bitfield, mask, 8);
-                    proto_tree_add_text(field_tree, tvb, offset, 1, "%sBlock %d: %s",
-                            tmp, packet.block_number+i, (packet.ack_bitfield & mask)?"Acknowledged":"Not Acknowledged");
-                } /* for */
+                proto_tree_add_uint_format_value(field_tree, hf_zbee_aps_block_ack1, tvb, offset, 1,
+                    packet.ack_bitfield, " (%d) %s", packet.block_number, (packet.ack_bitfield & 0x01)?"Acknowledged":"Not Acknowledged");
+                proto_tree_add_uint_format_value(field_tree, hf_zbee_aps_block_ack2, tvb, offset, 1,
+                    packet.ack_bitfield, " (%d) %s", packet.block_number+1, (packet.ack_bitfield & 0x02)?"Acknowledged":"Not Acknowledged");
+                proto_tree_add_uint_format_value(field_tree, hf_zbee_aps_block_ack3, tvb, offset, 1,
+                    packet.ack_bitfield, " (%d) %s", packet.block_number+2, (packet.ack_bitfield & 0x04)?"Acknowledged":"Not Acknowledged");
+                proto_tree_add_uint_format_value(field_tree, hf_zbee_aps_block_ack4, tvb, offset, 1,
+                    packet.ack_bitfield, " (%d) %s", packet.block_number+3, (packet.ack_bitfield & 0x08)?"Acknowledged":"Not Acknowledged");
+                proto_tree_add_uint_format_value(field_tree, hf_zbee_aps_block_ack5, tvb, offset, 1,
+                    packet.ack_bitfield, " (%d) %s", packet.block_number+4, (packet.ack_bitfield & 0x10)?"Acknowledged":"Not Acknowledged");
+                proto_tree_add_uint_format_value(field_tree, hf_zbee_aps_block_ack6, tvb, offset, 1,
+                    packet.ack_bitfield, " (%d) %s", packet.block_number+5, (packet.ack_bitfield & 0x20)?"Acknowledged":"Not Acknowledged");
+                proto_tree_add_uint_format_value(field_tree, hf_zbee_aps_block_ack7, tvb, offset, 1,
+                    packet.ack_bitfield, " (%d) %s", packet.block_number+6, (packet.ack_bitfield & 0x40)?"Acknowledged":"Not Acknowledged");
+                proto_tree_add_uint_format_value(field_tree, hf_zbee_aps_block_ack8, tvb, offset, 1,
+                    packet.ack_bitfield, " (%d) %s", packet.block_number+7, (packet.ack_bitfield & 0x80)?"Acknowledged":"Not Acknowledged");
             }
             offset += 1;
         }
@@ -1867,6 +1880,38 @@ void proto_register_zbee_aps(void)
             { &hf_zbee_aps_block_number,
             { "Block Number",           "zbee_aps.block", FT_UINT8, BASE_DEC, NULL, 0x0,
                 "A block identifier within a fragmented transmission, or the number of expected blocks if the first block.", HFILL }},
+
+            { &hf_zbee_aps_block_ack1,
+            { "Block",           "zbee_aps.block_ack", FT_BOOLEAN, 8, NULL, 0x01,
+                NULL, HFILL }},
+
+            { &hf_zbee_aps_block_ack2,
+            { "Block",           "zbee_aps.block_ack", FT_BOOLEAN, 8, NULL, 0x02,
+                NULL, HFILL }},
+
+            { &hf_zbee_aps_block_ack3,
+            { "Block",           "zbee_aps.block_ack", FT_BOOLEAN, 8, NULL, 0x04,
+                NULL, HFILL }},
+
+            { &hf_zbee_aps_block_ack4,
+            { "Block",           "zbee_aps.block_ack", FT_BOOLEAN, 8, NULL, 0x08,
+                NULL, HFILL }},
+
+            { &hf_zbee_aps_block_ack5,
+            { "Block",           "zbee_aps.block_ack", FT_BOOLEAN, 8, NULL, 0x10,
+                NULL, HFILL }},
+
+            { &hf_zbee_aps_block_ack6,
+            { "Block",           "zbee_aps.block_ack", FT_BOOLEAN, 8, NULL, 0x20,
+                NULL, HFILL }},
+
+            { &hf_zbee_aps_block_ack7,
+            { "Block",           "zbee_aps.block_ack", FT_BOOLEAN, 8, NULL, 0x40,
+                NULL, HFILL }},
+
+            { &hf_zbee_aps_block_ack8,
+            { "Block",           "zbee_aps.block_ack", FT_BOOLEAN, 8, NULL, 0x80,
+                NULL, HFILL }},
 
             { &hf_zbee_aps_cmd_id,
             { "Command Identifier",     "zbee_aps.cmd.id", FT_UINT8, BASE_HEX, VALS(zbee_aps_cmd_names), 0x0,

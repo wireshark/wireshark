@@ -102,7 +102,6 @@ xmpp_conference_info(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_e
 static void
 xmpp_conf_desc(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t *element)
 {
-    proto_item *desc_item;
     proto_tree *desc_tree;
 
     xmpp_attr_info attrs_info [] = {
@@ -121,8 +120,7 @@ xmpp_conf_desc(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element
     };
 */
 
-    desc_item = proto_tree_add_text(tree, tvb, element->offset, element->length, "CONFERENCE DESCRIPTION");
-    desc_tree = proto_item_add_subtree(desc_item, ett_xmpp_conf_desc);
+    desc_tree = proto_tree_add_subtree(tree, tvb, element->offset, element->length, ett_xmpp_conf_desc, NULL, "CONFERENCE DESCRIPTION");
 
     xmpp_change_elem_to_attrib("subject", "subject", element, xmpp_transform_func_cdata);
     xmpp_change_elem_to_attrib("display-text", "display-text", element, xmpp_transform_func_cdata);

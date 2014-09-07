@@ -304,6 +304,8 @@ static int hf_xtp_btag = -1;
 static int hf_xtp_diag_code = -1;
 static int hf_xtp_diag_val = -1;
 static int hf_xtp_diag_msg = -1;
+static int hf_xtp_checksum = -1;
+static int hf_xtp_data = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_xtp = -1;
@@ -646,9 +648,7 @@ dissect_xtp_data(tvbuff_t *tvb, proto_tree *tree, guint32 offset, gboolean have_
 		len -= 8;
 	}
 
-	proto_tree_add_text(xtp_subtree, tvb, offset, len,
-		"Data (%u byte%s)", len,
-		plurality(len, "", "s"));
+	proto_tree_add_item(xtp_subtree, hf_xtp_data, tvb, offset, len, ENC_NA);
 
 	return;
 }
@@ -1057,18 +1057,18 @@ dissect_xtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 			SET_CKSUM_VEC_TVB(cksum_vec[0], tvb, 0, check_len);
 			computed_cksum = in_cksum(cksum_vec, 1);
 			if (computed_cksum == 0) {
-				proto_tree_add_text(xtp_tree, tvb, offset, 2,
-					"Checksum: 0x%04x [correct]", xtph->check);
+				proto_tree_add_uint_format_value(xtp_tree, hf_xtp_checksum, tvb, offset, 2,
+					xtph->check, "0x%04x [correct]", xtph->check);
 			} else {
-				proto_tree_add_text(xtp_tree, tvb, offset, 2,
-					"Checksum: 0x%04x [incorrect, should be 0x%04x]",
+				proto_tree_add_uint_format_value(xtp_tree, hf_xtp_checksum, tvb, offset, 2,
+					xtph->check, "0x%04x [incorrect, should be 0x%04x]",
 					xtph->check,
 					in_cksum_shouldbe(xtph->check, computed_cksum));
 			}
 		}
 		else {
-			proto_tree_add_text(xtp_tree, tvb, offset, 2,
-					"Checksum: 0x%04x", xtph->check);
+			proto_tree_add_uint_format_value(xtp_tree, hf_xtp_checksum, tvb, offset, 2,
+					xtph->check, "0x%04x", xtph->check);
 		}
 		offset += 2;
 		/* sort(2) */
@@ -1382,6 +1382,14 @@ proto_register_xtp(void)
 		{ &hf_xtp_diag_msg,
 			{ "Message", "xtp.diag.msg",
 			FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_xtp_checksum,
+			{ "Checksum", "xtp.checksum",
+			FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_xtp_data,
+			{ "Data", "xtp.data",
+			FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
 	};
 

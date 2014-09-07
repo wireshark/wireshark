@@ -40,6 +40,7 @@ static int hf_xyplex_server_port = -1;
 static int hf_xyplex_return_port = -1;
 static int hf_xyplex_reserved = -1;
 static int hf_xyplex_reply = -1;
+static int hf_xyplex_data = -1;
 
 static gint ett_xyplex = -1;
 
@@ -147,8 +148,7 @@ dissect_xyplex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 	col_add_fstr(pinfo->cinfo, COL_INFO, "%d > %d Data",
 		  pinfo->srcport, pinfo->destport);
 
-	proto_tree_add_text(xyplex_tree, tvb, offset, -1,
-		"Data (%d bytes)", tvb_reported_length_remaining(tvb, offset));
+	proto_tree_add_item(xyplex_tree, hf_xyplex_data, tvb, offset, -1, ENC_NA);
 
 	return tvb_reported_length_remaining(tvb, offset);
 }
@@ -186,6 +186,11 @@ proto_register_xyplex(void)
     { &hf_xyplex_reply,
       { "Registration Reply",  "xyplex.reply",
 	FT_UINT16, BASE_DEC, VALS(xyplex_reg_vals), 0x0,
+      	NULL, HFILL }},
+
+    { &hf_xyplex_data,
+      { "Data",  "xyplex.data",
+	FT_BYTES, BASE_NONE, NULL, 0x0,
       	NULL, HFILL }},
 
   };

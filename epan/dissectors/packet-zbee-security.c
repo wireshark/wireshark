@@ -58,6 +58,7 @@ static gboolean    zbee_security_parse_key(const gchar *, guint8 *, gboolean);
 static void proto_init_zbee_security(void);
 
 /* Field pointers. */
+static int hf_zbee_sec_field = -1;
 static int hf_zbee_sec_key_id = -1;
 static int hf_zbee_sec_nonce = -1;
 static int hf_zbee_sec_counter = -1;
@@ -65,12 +66,14 @@ static int hf_zbee_sec_src64 = -1;
 static int hf_zbee_sec_key_seqno = -1;
 static int hf_zbee_sec_mic = -1;
 static int hf_zbee_sec_key_origin = -1;
+static int hf_zbee_sec_decryption_key = -1;
 
 /* Subtree pointers. */
 static gint ett_zbee_sec = -1;
 static gint ett_zbee_sec_control = -1;
 
 static expert_field ei_zbee_sec_encrypted_payload = EI_INIT;
+static expert_field ei_zbee_sec_extended_source_unknown = EI_INIT;
 
 static dissector_handle_t   data_handle;
 
@@ -209,6 +212,10 @@ static GSList *zbee_pc_keyring = NULL;
 void zbee_security_register(module_t *zbee_prefs, int proto)
 {
     static hf_register_info hf[] = {
+        { &hf_zbee_sec_field,
+          { "Security Control Field",   "zbee.sec.field", FT_UINT8, BASE_HEX, NULL,
+            0x0, NULL, HFILL }},
+
         { &hf_zbee_sec_key_id,
           { "Key Id",                    "zbee.sec.key", FT_UINT8, BASE_HEX, VALS(zbee_sec_key_names),
             ZBEE_SEC_CONTROL_KEY, NULL, HFILL }},
@@ -235,6 +242,10 @@ void zbee_security_register(module_t *zbee_prefs, int proto)
 
         { &hf_zbee_sec_key_origin,
           { "Key Origin", "zbee.sec.key.origin", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_zbee_sec_decryption_key,
+          { "Decryption Key", "zbee.sec.decryption_key", FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }}
     };
 
@@ -245,6 +256,7 @@ void zbee_security_register(module_t *zbee_prefs, int proto)
 
     static ei_register_info ei[] = {
         { &ei_zbee_sec_encrypted_payload, { "zbee_sec.encrypted_payload", PI_UNDECODED, PI_WARN, "Encrypted Payload", EXPFILL }},
+        { &ei_zbee_sec_extended_source_unknown, { "zbee_sec.extended_source_unknown", PI_PROTOCOL, PI_NOTE, "Extended Source: Unknown", EXPFILL }},
     };
 
     expert_module_t* expert_zbee_sec;
@@ -423,7 +435,6 @@ tvbuff_t *
 dissect_zbee_secure(tvbuff_t *tvb, packet_info *pinfo, proto_tree* tree, guint offset)
 {
     proto_tree     *sec_tree;
-    proto_tree     *field_tree;
     proto_item     *ti;
 
     zbee_security_packet    packet;
@@ -442,6 +453,12 @@ dissect_zbee_secure(tvbuff_t *tvb, packet_info *pinfo, proto_tree* tree, guint o
     zbee_nwk_hints_t   *nwk_hints;
     ieee802154_hints_t *ieee_hints;
     ieee802154_map_rec *map_rec = NULL;
+
+    static const int * sec_flags[] = {
+        &hf_zbee_sec_key_id,
+        &hf_zbee_sec_nonce,
+        NULL
+    };
 
     /* Init */
     memset(&packet, 0, sizeof(zbee_security_packet));
@@ -481,15 +498,8 @@ dissect_zbee_secure(tvbuff_t *tvb, packet_info *pinfo, proto_tree* tree, guint o
     packet.level    = zbee_get_bit_field(packet.control, ZBEE_SEC_CONTROL_LEVEL);
     packet.key_id   = zbee_get_bit_field(packet.control, ZBEE_SEC_CONTROL_KEY);
     packet.nonce    = zbee_get_bit_field(packet.control, ZBEE_SEC_CONTROL_NONCE);
-    if (tree) {
-        ti = proto_tree_add_text(sec_tree, tvb, offset, 1, "Security Control Field");
-        field_tree = proto_item_add_subtree(ti, ett_zbee_sec_control);
 
-        proto_tree_add_uint(field_tree, hf_zbee_sec_key_id, tvb, offset, 1,
-                                packet.control & ZBEE_SEC_CONTROL_KEY);
-        proto_tree_add_boolean(field_tree, hf_zbee_sec_nonce, tvb, offset, 1,
-                                packet.control & ZBEE_SEC_CONTROL_NONCE);
-    }
+    proto_tree_add_bitmask(sec_tree, tvb, offset, hf_zbee_sec_field, ett_zbee_sec_control, sec_flags, ENC_NA);
     offset += 1;
 
     /* Get and display the frame counter field. */
@@ -542,16 +552,16 @@ dissect_zbee_secure(tvbuff_t *tvb, packet_info *pinfo, proto_tree* tree, guint o
                 /* use the ieee extended source address for NWK decryption */
                 if ( ieee_hints && (map_rec = ieee_hints->map_rec) )
                     packet.src64 = map_rec->addr64;
-                else if (tree)
-                    proto_tree_add_text(sec_tree, tvb, 0, 0, "[Extended Source: Unknown]");
+                else
+                    proto_tree_add_expert(sec_tree, pinfo, &ei_zbee_sec_extended_source_unknown, tvb, 0, 0);
                 break;
 
             default:
                 /* use the nwk extended source address for APS decryption */
                 if ( nwk_hints && (map_rec = nwk_hints->map_rec) )
                     packet.src64 = map_rec->addr64;
-                else if (tree)
-                    proto_tree_add_text(sec_tree, tvb, 0, 0, "[Extended Source: Unknown]");
+                else
+                    proto_tree_add_expert(sec_tree, pinfo, &ei_zbee_sec_extended_source_unknown, tvb, 0, 0);
                 break;
         }
     }
@@ -707,7 +717,7 @@ dissect_zbee_secure(tvbuff_t *tvb, packet_info *pinfo, proto_tree* tree, guint o
     if ( decrypted ) {
         if ( tree && key_rec ) {
             if ( key_rec->frame_num == ZBEE_SEC_PC_KEY ) {
-                ti = proto_tree_add_text(sec_tree, tvb, 0, 0, "Decryption Key: %s", key_rec->label);
+                ti = proto_tree_add_string(sec_tree, hf_zbee_sec_decryption_key, tvb, 0, 0, key_rec->label);
             } else {
                 ti = proto_tree_add_uint(sec_tree, hf_zbee_sec_key_origin, tvb, 0, 0,
                         key_rec->frame_num);

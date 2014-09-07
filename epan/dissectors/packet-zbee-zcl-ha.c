@@ -267,8 +267,7 @@ dissect_zcl_appl_idt_attr_id(proto_tree *tree, tvbuff_t *tvb, guint *offset)
 void
 dissect_zcl_appl_idt_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type)
 {
-    proto_item  *ti = NULL;
-    proto_tree  *sub_tree = NULL;
+    proto_tree  *sub_tree;
     guint64     value64;
 
     /* Dissect attribute data type and data */
@@ -276,8 +275,8 @@ dissect_zcl_appl_idt_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, g
 
         case ZBEE_ZCL_ATTR_ID_APPL_IDT_BASIC_IDENT:
             value64 = tvb_get_letoh56(tvb, *offset);
-            ti = proto_tree_add_text(tree, tvb, *offset, 8, "Basic Identification: 0x%" G_GINT64_MODIFIER "x", value64);
-            sub_tree = proto_item_add_subtree(ti, ett_zbee_zcl_appl_idt_basic);
+            sub_tree = proto_tree_add_subtree_format(tree, tvb, *offset, 8, ett_zbee_zcl_appl_idt_basic, NULL,
+                    "Basic Identification: 0x%" G_GINT64_MODIFIER "x", value64);
 
             proto_tree_add_item(sub_tree, hf_zbee_zcl_appl_idt_company_id, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
             *offset += 2;
@@ -938,7 +937,6 @@ dissect_zcl_appl_evtalt_get_alerts_rsp(tvbuff_t *tvb, proto_tree *tree, guint *o
 
     /* Retrieve "Alert Count" field */
     count = tvb_get_guint8(tvb, *offset) & ZBEE_ZCL_APPL_EVTALT_COUNT_NUM_MASK;
-    proto_tree_add_text(tree, tvb, *offset, 1, "Alert Count: 0x%02x", count);
     proto_tree_add_item(tree, hf_zbee_zcl_appl_evtalt_count_num, tvb, *offset, 1, ENC_NA);
     proto_tree_add_item(tree, hf_zbee_zcl_appl_evtalt_count_type, tvb, *offset, 1, ENC_NA);
     *offset += 1;

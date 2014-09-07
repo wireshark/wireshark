@@ -32,6 +32,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include <epan/conversation.h>
 
 #include "packet-ziop.h"
@@ -70,6 +71,7 @@ static gint hf_ziop_original_length = -1;
 
 static gint ett_ziop = -1;
 
+static expert_field ei_ziop_version = EI_INIT;
 
 static dissector_handle_t data_handle;
 static dissector_handle_t ziop_tcp_handle;
@@ -114,33 +116,58 @@ dissect_ziop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data
 
   proto_tree *ziop_tree = NULL;
   proto_item *ti;
+  guint8 flags;
+  guint byte_order;
+  const char *label = "none";
+
+  if (tvb_reported_length(tvb) < 7)
+      return 0;
 
   col_set_str (pinfo->cinfo, COL_PROTOCOL, ZIOP_MAGIC);
 
   /* Clear out stuff in the info column */
   col_clear(pinfo->cinfo, COL_INFO);
 
-  giop_version_major = tvb_get_guint8(tvb, 4);
-  giop_version_minor = tvb_get_guint8(tvb, 5);
-  message_type = tvb_get_guint8(tvb, 7);
+  ti = proto_tree_add_item (tree, proto_ziop, tvb, 0, -1, ENC_NA);
+  ziop_tree = proto_item_add_subtree (ti, ett_ziop);
+
+  proto_tree_add_item(ziop_tree, hf_ziop_magic, tvb, offset, 4, ENC_ASCII|ENC_NA);
+  offset += 4;
+  proto_tree_add_item(ziop_tree, hf_ziop_giop_version_major, tvb, offset, 1, ENC_BIG_ENDIAN);
+  giop_version_major = tvb_get_guint8(tvb, offset);
+  offset++;
+  proto_tree_add_item(ziop_tree, hf_ziop_giop_version_minor, tvb, offset, 1, ENC_BIG_ENDIAN);
+  giop_version_minor = tvb_get_guint8(tvb, offset);
+  offset++;
 
   if ( (giop_version_major < 1) ||
        (giop_version_minor < 2) )  /* earlier than GIOP 1.2 */
-    {
+  {
       col_add_fstr (pinfo->cinfo, COL_INFO, "Version %u.%u",
                     giop_version_major, giop_version_minor);
-      if (tree)
-        {
-          ti = proto_tree_add_item (tree, proto_ziop, tvb, 0, -1, ENC_NA);
-          ziop_tree = proto_item_add_subtree (ti, ett_ziop);
-          proto_tree_add_text (ziop_tree, tvb, 4, 2,
+
+      expert_add_info_format(pinfo, ti, &ei_ziop_version,
                                "Version %u.%u not supported",
                                giop_version_major,
                                giop_version_minor);
-        }
+
       call_dissector(data_handle, tvb, pinfo, tree);
-      return tvb_length(tvb);
-    }
+      return tvb_reported_length(tvb);
+  }
+
+  flags = tvb_get_guint8(tvb, offset);
+  byte_order = (flags & 0x01) ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN;
+
+  if (flags & 0x01) {
+    label = "little-endian";
+  }
+  proto_tree_add_uint_format_value(ziop_tree, hf_ziop_flags, tvb, offset, 1,
+                                        flags, "0x%02x (%s)", flags, label);
+  offset++;
+
+  proto_tree_add_item(ziop_tree, hf_ziop_message_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+  message_type = tvb_get_guint8(tvb, offset);
+  offset++;
 
   col_add_fstr (pinfo->cinfo, COL_INFO, "ZIOP %u.%u %s",
                 giop_version_major,
@@ -149,43 +176,13 @@ dissect_ziop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data
                            "Unknown message type (0x%02x)")
                 );
 
-  if (tree)
-    {
-      guint8 flags;
-      guint byte_order;
-      const char *label = "none";
+  proto_tree_add_item(ziop_tree, hf_ziop_message_size, tvb, offset, 4, byte_order);
+  offset += 4;
+  proto_tree_add_item(ziop_tree, hf_ziop_compressor_id, tvb, offset, 2, byte_order);
+  offset += 4;
+  proto_tree_add_item(ziop_tree, hf_ziop_original_length, tvb, offset, 4, byte_order);
 
-      ti = proto_tree_add_item (tree, proto_ziop, tvb, 0, -1, ENC_NA);
-      ziop_tree = proto_item_add_subtree (ti, ett_ziop);
-
-      proto_tree_add_item(ziop_tree, hf_ziop_magic, tvb, offset, 4, ENC_ASCII|ENC_NA);
-      offset += 4;
-      proto_tree_add_item(ziop_tree, hf_ziop_giop_version_major, tvb, offset, 1, ENC_BIG_ENDIAN);
-      offset++;
-      proto_tree_add_item(ziop_tree, hf_ziop_giop_version_minor, tvb, offset, 1, ENC_BIG_ENDIAN);
-      offset++;
-
-      flags = tvb_get_guint8(tvb, offset);
-      byte_order = (flags & 0x01) ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN;
-
-      if (flags & 0x01) {
-        label = "little-endian";
-      }
-      proto_tree_add_uint_format_value(ziop_tree, hf_ziop_flags, tvb, offset, 1,
-                                            flags, "0x%02x (%s)", flags, label);
-      offset++;
-
-      proto_tree_add_item(ziop_tree, hf_ziop_message_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-      offset++;
-
-      proto_tree_add_item(ziop_tree, hf_ziop_message_size, tvb, offset, 4, byte_order);
-      offset += 4;
-      proto_tree_add_item(ziop_tree, hf_ziop_compressor_id, tvb, offset, 2, byte_order);
-      offset += 4;
-      proto_tree_add_item(ziop_tree, hf_ziop_original_length, tvb, offset, 4, byte_order);
-    }
-
-    return tvb_length(tvb);
+  return tvb_reported_length(tvb);
 }
 
 static guint
@@ -315,10 +312,18 @@ proto_register_ziop (void)
     &ett_ziop
   };
 
+  static ei_register_info ei[] = {
+    { &ei_ziop_version, { "ziop.version_not_supported", PI_PROTOCOL, PI_WARN, "Version not supported", EXPFILL }},
+  };
+
+  expert_module_t* expert_ziop;
+
   proto_ziop = proto_register_protocol("Zipped Inter-ORB Protocol", "ZIOP",
                                        "ziop");
   proto_register_field_array (proto_ziop, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
+  expert_ziop = expert_register_protocol(proto_ziop);
+  expert_register_field_array(expert_ziop, ei, array_length(ei));
 
   new_register_dissector("ziop", dissect_ziop, proto_ziop);
 }
