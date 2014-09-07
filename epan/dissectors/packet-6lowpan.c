@@ -1829,10 +1829,10 @@ dissect_6lowpan_iphc_nhc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
         if (!iphc_tvb) return NULL;
 
         /* Create the next header structure for the tunneled IPv6 header. */
-        nhdr = (struct lowpan_nhdr *)wmem_alloc0(wmem_packet_scope(), sizeof(struct lowpan_nhdr) + tvb_length(iphc_tvb));
+        nhdr = (struct lowpan_nhdr *)wmem_alloc0(wmem_packet_scope(), sizeof(struct lowpan_nhdr) + tvb_captured_length(iphc_tvb));
         nhdr->next = NULL;
         nhdr->proto = IP_PROTO_IPV6;
-        nhdr->length = tvb_length(iphc_tvb);
+        nhdr->length = tvb_captured_length(iphc_tvb);
         nhdr->reported = tvb_reported_length(iphc_tvb);
         tvb_memcpy(iphc_tvb, LOWPAN_NHDR_DATA(nhdr), 0, nhdr->length);
         return nhdr;
@@ -1911,8 +1911,8 @@ dissect_6lowpan_iphc_nhc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
             call_dissector(data_handle, tvb_new_subset_remaining(tvb, offset), pinfo, nhc_tree);
 
             /* Copy the remainder, and truncate the real buffer length. */
-            nhdr->length = tvb_length_remaining(tvb, offset) + (int)sizeof(struct ip6_ext);
-            tvb_memcpy(tvb, LOWPAN_NHDR_DATA(nhdr) + sizeof(struct ip6_ext), offset, tvb_length_remaining(tvb, offset));
+            nhdr->length = tvb_captured_length_remaining(tvb, offset) + (int)sizeof(struct ip6_ext);
+            tvb_memcpy(tvb, LOWPAN_NHDR_DATA(nhdr) + sizeof(struct ip6_ext), offset, tvb_captured_length_remaining(tvb, offset));
 
             /* There is nothing more we can do. */
             return nhdr;
@@ -2092,7 +2092,7 @@ dissect_6lowpan_iphc_nhc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
 
         /* Copy the UDP header and payload into the buffer. */
         memcpy(LOWPAN_NHDR_DATA(nhdr), &udp, sizeof(struct udp_hdr));
-        tvb_memcpy(tvb, LOWPAN_NHDR_DATA(nhdr) + sizeof(struct udp_hdr), offset, tvb_length_remaining(tvb, offset));
+        tvb_memcpy(tvb, LOWPAN_NHDR_DATA(nhdr) + sizeof(struct udp_hdr), offset, tvb_captured_length_remaining(tvb, offset));
         return nhdr;
     }
     /*=====================================================
@@ -2324,7 +2324,7 @@ dissect_6lowpan_frag_first(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     }
 
     /* Add this datagram to the fragment table. */
-    frag_size = tvb_length(frag_tvb);
+    frag_size = tvb_captured_length(frag_tvb);
     tvb_set_reported_length(frag_tvb, frag_size);
     save_fragmented = pinfo->fragmented;
     pinfo->fragmented = TRUE;

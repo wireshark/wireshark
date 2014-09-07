@@ -456,7 +456,7 @@ is_acn(tvbuff_t *tvb)
 {
   static const char acn_packet_id[] = "ASC-E1.17\0\0\0";  /* must be 12 bytes */
 
-  if (tvb_length(tvb) < (4+sizeof(acn_packet_id)))
+  if (tvb_captured_length(tvb) < (4+sizeof(acn_packet_id)))
     return FALSE;
 
   /* Check the bytes in octets 4 - 16 */
@@ -2756,7 +2756,7 @@ dissect_acn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       if (data_offset == old_offset) break;
     }
   }
-  return tvb_length(tvb);
+  return tvb_captured_length(tvb);
 }
 
 /******************************************************************************/

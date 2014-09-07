@@ -742,7 +742,7 @@ dissect_3gpp2_service_option_profile(proto_tree  *tree, tvbuff_t  *tvb, packet_i
     proto_tree_add_item(tree, hf_a11_serv_opt_prof_max_serv, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset+=4;
 
-    while (tvb_length_remaining(tvb,offset) > 0) {
+    while (tvb_reported_length_remaining(tvb,offset) > 0) {
         sub_type_length = tvb_get_guint8(tvb,offset+1);
 
         sub_type = tvb_get_guint8(tvb,offset);
@@ -786,7 +786,7 @@ dissect_3gpp2_radius_aut_flow_profile_ids(proto_tree  *tree, tvbuff_t  *tvb, pac
     guint8      sub_type, sub_type_length;
     guint32     value;
 
-    while (tvb_length_remaining(tvb,offset) > 0) {
+    while (tvb_reported_length_remaining(tvb,offset) > 0) {
         sub_type = tvb_get_guint8(tvb,offset);
         sub_type_length = tvb_get_guint8(tvb,offset+1);
         /* value is 2 octets */

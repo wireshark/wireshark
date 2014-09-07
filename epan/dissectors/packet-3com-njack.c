@@ -641,7 +641,7 @@ static gboolean
 test_njack(tvbuff_t *tvb)
 {
 	/* We need at least 'NJ200' + 1 Byte packet type */
-	if ( (tvb_length(tvb) < 6) ||
+	if ( (tvb_captured_length(tvb) < 6) ||
 	     (tvb_strncaseeql(tvb, 0, "NJ200", 5) != 0) ) {
 		return FALSE;
 	}
