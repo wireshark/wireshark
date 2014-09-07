@@ -3572,7 +3572,7 @@ kme-trap-port    2081/udp # KME PRINTER TRAP PORT [Masakatsu_Matsuo] [Masakatsu_
 infowave         2082/tcp # Infowave Mobility Server [Kaz_Kylheku] [Kaz_Kylheku]
 infowave         2082/udp # Infowave Mobility Server [Kaz_Kylheku] [Kaz_Kylheku]
 radsec           2083/tcp # Secure Radius Service [IESG] [IETF_Chair] 2005-05 [RFC6614] The TCP port 2083 was already      previously assigned by IANA for "RadSec", an early implementation      of RADIUS/TLS, prior to issuance of this RFC.  This early      implementation can be configured to be compatible to RADIUS/TLS as      specified by the IETF.  See [RFC6614],      Appendix A for details.
-radsec           2083/udp # Secure Radius Service [IESG] [IETF_Chair] 2005-05 2014-07-14 [RFC-ietf-radext-dtls-13] The UDP port 2083 was already previously assigned by IANA for       "RadSec", an early implementation of RADIUS/TLS, prior to issuance of this       RFC.
+radsec           2083/udp # Secure Radius Service [IESG] [IETF_Chair] 2005-05 2014-07-14 [RFC7360] The UDP port 2083 was already previously assigned by IANA for       "RadSec", an early implementation of RADIUS/TLS, prior to issuance of this       RFC.
 sunclustergeo    2084/tcp # SunCluster Geographic [Oracle_2] [Steve_McKinty] 2005-11 2013-08-14
 sunclustergeo    2084/udp # SunCluster Geographic [Oracle_2] [Steve_McKinty] 2005-11 2013-08-14
 ada-cip          2085/tcp # ADA Control [Eugene_Frenkel] [Eugene_Frenkel] 2005-11
