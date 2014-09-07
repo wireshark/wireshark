@@ -725,7 +725,13 @@ static value_string_ext eue_capabilities_encoding_ext = VALUE_STRING_EXT_INIT(eu
 typedef struct hopcount_info_t {
     guint8     hopcount;
     proto_item *pi;
+    gboolean   relay_message_previously_detected;
 } hopcount_info;
+
+static void
+initialize_hopount_info(hopcount_info *hpi) {
+  memset(hpi, 0, sizeof(hopcount_info));
+}
 
 static void
 dissect_dhcpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
@@ -1927,6 +1933,8 @@ dissect_dhcpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 
     if ((msgtype == RELAY_FORW) || (msgtype == RELAY_REPLY)) {
+        const guint8 previous_hopcount = hpi.hopcount;
+        proto_item *previous_pi = hpi.pi;
         if (tree) {
             proto_tree_add_item(bp_tree, hf_dhcpv6_msgtype,  tvb, off,       1, ENC_BIG_ENDIAN);
             hpi.pi = proto_tree_add_item(bp_tree, hf_dhcpv6_hopcount, tvb, off + 1,   1, ENC_BIG_ENDIAN);
@@ -1939,6 +1947,11 @@ dissect_dhcpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         if (hpi.hopcount > HOP_COUNT_LIMIT) {
           expert_add_info_format(pinfo, hpi.pi, &ei_dhcpv6_error_hopcount, "Hopcount (%d) exceeds the maximum limit HOP_COUNT_LIMIT (%d)", hpi.hopcount, HOP_COUNT_LIMIT);
         }
+        /* Check hopcount is correctly incremented by 1 */
+        if (hpi.relay_message_previously_detected && hpi.hopcount != previous_hopcount - 1) {
+          expert_add_info_format(pinfo, previous_pi, &ei_dhcpv6_error_hopcount, "hopcount is not correctly incremented by 1 (expected : %d, actual : %d)", hpi.hopcount + 1, previous_hopcount);
+        }
+        hpi.relay_message_previously_detected = TRUE;
         tvb_get_ipv6(tvb, off + 2, &in6);
         col_append_fstr(pinfo->cinfo, COL_INFO, "L: %s ", ip6_to_str(&in6));
         off += 34;
@@ -1964,8 +1977,7 @@ static void
 dissect_dhcpv6_downstream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     hopcount_info hpi;
-    hpi.hopcount = 0;
-    hpi.pi = NULL;
+    initialize_hopount_info(&hpi);
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "DHCPv6");
     col_clear(pinfo->cinfo, COL_INFO);
     dissect_dhcpv6(tvb, pinfo, tree, TRUE, 0, tvb_reported_length(tvb), hpi);
@@ -1975,8 +1987,7 @@ static void
 dissect_dhcpv6_upstream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     hopcount_info hpi;
-    hpi.hopcount = 0;
-    hpi.pi = NULL;
+    initialize_hopount_info(&hpi);
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "DHCPv6");
     col_clear(pinfo->cinfo, COL_INFO);
     dissect_dhcpv6(tvb, pinfo, tree, FALSE, 0, tvb_reported_length(tvb), hpi);
@@ -1999,8 +2010,7 @@ dissect_dhcpv6_bulk_leasequery_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     guint8      msg_type;
     gboolean    at_end = FALSE;
     hopcount_info hpi;
-    hpi.hopcount = 0;
-    hpi.pi = NULL;
+    initialize_hopount_info(&hpi);
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "DHCPv6 BulkLease");
     col_clear(pinfo->cinfo, COL_INFO);
