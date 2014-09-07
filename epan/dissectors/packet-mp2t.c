@@ -985,38 +985,16 @@ dissect_mp2t_adaptation_field(tvbuff_t *tvb, gint offset, proto_tree *tree)
     }
 
     if (af_flags &  MP2T_AF_OPCR_MASK) {
-        guint64 opcr_base = 0;
-        guint32 opcr_ext = 0;
-        guint8 tmp = 0;
+        guint64 opcr_base;
+        guint32 opcr_ext;
 
-        tmp = tvb_get_guint8(tvb, offset);
-        opcr_base = (opcr_base << 8) | tmp;
-        offset += 1;
+        /* the same format as PCR above */
+        opcr_base = tvb_get_ntoh48(tvb, offset) >> (48-33);
+        opcr_ext  = tvb_get_ntoh48(tvb, offset) & 0x1FF;
 
-        tmp = tvb_get_guint8(tvb, offset);
-        opcr_base = (opcr_base << 8) | tmp;
-        offset += 1;
-
-        tmp = tvb_get_guint8(tvb, offset);
-        opcr_base = (opcr_base << 8) | tmp;
-        offset += 1;
-
-        tmp = tvb_get_guint8(tvb, offset);
-        opcr_base = (opcr_base << 8) | tmp;
-        offset += 1;
-
-        tmp = tvb_get_guint8(tvb, offset);
-        opcr_base = (opcr_base << 1) | ((tmp >> 7) & 0x01);
-        opcr_ext = (tmp & 0x01);
-        offset += 1;
-
-        tmp = tvb_get_guint8(tvb, offset);
-        opcr_ext = (opcr_ext << 8) | tmp;
-        offset += 1;
-
-        proto_tree_add_none_format(mp2t_af_tree, hf_mp2t_af_opcr, tvb, offset - 6, 6,
-                "Original Program Clock Reference: base(%" G_GINT64_MODIFIER "u) * 300 + ext(%u) = %" G_GINT64_MODIFIER "u",
-                opcr_base, opcr_ext, opcr_base * 300 + opcr_ext);
+        proto_tree_add_uint64_format_value(mp2t_af_tree, hf_mp2t_af_opcr, tvb, offset, 6,
+                opcr_base*300 + opcr_ext, "%" G_GINT64_MODIFIER "u",
+                opcr_base*300 + opcr_ext);
 
         offset += 6;
     }
@@ -1362,7 +1340,7 @@ proto_register_mp2t(void)
         } } ,
         { &hf_mp2t_af_opcr, {
             "Original Program Clock Reference", "mp2t.af.opcr",
-            FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL
+            FT_UINT64, BASE_HEX, NULL, 0, NULL, HFILL
         } } ,
         { &hf_mp2t_af_sc, {
             "Splice Countdown", "mp2t.af.sc",
