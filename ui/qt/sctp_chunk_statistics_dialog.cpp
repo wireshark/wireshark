@@ -132,12 +132,11 @@ void SCTPChunkStatisticsDialog::fillTable(bool all)
         }
     } else {
         char line[100];
-        size_t cap = 100;
         char *token, id[5];
         int i = 0, j = 0;
         struct chunkTypes temp;
 
-        while (fgets(line, cap, fp)) {
+        while (fgets(line, (int)sizeof line, fp)) {
             if (line[0] == '#')
                 continue;
             token = strtok(line, ",");
