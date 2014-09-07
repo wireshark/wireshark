@@ -26,5 +26,4 @@
 
 extern void init_iousers(struct register_ct* ct, const char *filter);
 
-
 #endif /* __TSHARK_TAP_H__ */
