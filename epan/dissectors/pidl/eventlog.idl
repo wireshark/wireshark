@@ -31,8 +31,8 @@
 		uint16 unknown0;
 		uint16 unknown1;
 	} eventlog_OpenUnknown0;
-	
-	typedef [public] struct { 
+
+	typedef [public] struct {
 		uint32 size;
 		uint32 reserved;
 		uint32 record_number;
@@ -68,7 +68,7 @@
 		[in] policy_handle *handle,
 		[in,unique] lsa_String *backupfilename
 	);
-	
+
 	/******************/
 	/* Function: 0x02 */
 	NTSTATUS eventlog_CloseEventLog(
@@ -169,7 +169,7 @@
 	/*****************/
 	/* Function 0x0c */
 	NTSTATUS eventlog_ClearEventLogA();
-	
+
 	/******************/
 	/* Function: 0x0d */
 	NTSTATUS eventlog_BackupEventLogA();
@@ -220,5 +220,5 @@
 	/* Function 0x17 */
 	NTSTATUS eventlog_FlushEventLog(
 		[in] policy_handle *handle
-	);	
+	);
 }

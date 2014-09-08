@@ -99,11 +99,6 @@ Not compiling idl
 As of November 23, 2013, the following idl have issues when generating
 and compiling:
 
-pidl generates declarations of functions that take a dcerpc_info *
-argument and definitions of those functions that don't:
-
-	eventlog.idl
-
 pidl generates declarations and definitions of functions that take a
 dcerpc_info * argument, but calls to those functions that don't:
 
