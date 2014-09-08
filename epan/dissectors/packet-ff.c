@@ -68,6 +68,10 @@ static int hf_ff_fda_msg_hdr = -1;
 static int hf_ff_fda_msg_hdr_ver = -1;
 static int hf_ff_fda_msg_hdr_fda_addr = -1;
 static int hf_ff_fda_msg_hdr_len = -1;
+static int hf_ff_unknown_data = -1;
+static int hf_ff_data = -1;
+static int hf_ff_reserved24 = -1;
+static int hf_ff_unknown_service = -1;
 
 static gint ett_ff_fda_msg_hdr = -1;
 static gint ett_ff_fda_msg_hdr_proto_and_type = -1;
@@ -94,6 +98,7 @@ static gint ett_ff_fda_msg_trailer = -1;
  * 6.5.1 FDA Session Management Services
  */
 static int hf_ff_fda = -1;
+static int hf_ff_hdr_srv = -1;
 static int hf_ff_hdr_srv_confirm_flag = -1;
 static int hf_ff_hdr_srv_service_id = -1;
 static int hf_ff_hdr_srv_fda_service_id_confirm = -1;
@@ -106,12 +111,14 @@ static int hf_ff_hdr_srv_lan_service_id_confirm = -1;
 static int hf_ff_hdr_srv_lan_service_id_unconfirm = -1;
 static int hf_ff_hdr_proto_id = -1;
 static int hf_ff_hdr_confirm_msg_type = -1;
+static int hf_ff_hdr_proto_confirm = -1;
 static int hf_ff_hdr_opts_msg_num = -1;
 static int hf_ff_hdr_opts_invoke_id = -1;
 static int hf_ff_hdr_opts_timestamp = -1;
 static int hf_ff_hdr_opts_reserved = -1;
 static int hf_ff_hdr_opts_ext_ctrl = -1;
 static int hf_ff_hdr_opts_pad = -1;
+static int hf_ff_hdr_opts = -1;
 
 /*
  * 6.5.1.1. FDA Open Session (Confirmed Service Id = 1)
@@ -214,6 +221,7 @@ static int hf_ff_sm_find_tag_reply_req_fda_addr_selector = -1;
 static int hf_ff_sm_find_tag_reply_dup_reserved = -1;
 static int hf_ff_sm_find_tag_reply_dup_pd_tag = -1;
 static int hf_ff_sm_find_tag_reply_dup_device = -1;
+static int hf_ff_sm_find_tag_reply_dup = -1;
 
 static gint ett_ff_sm_find_tag_reply_req = -1;
 static gint ett_ff_sm_find_tag_reply_req_dup_detection_state = -1;
@@ -247,18 +255,22 @@ static int hf_ff_sm_id_rsp_h1_node_addr_ver_num_h1_node_addr = -1;
 static int hf_ff_sm_id_rsp_h1_node_addr_ver_num_ver_num = -1;
 static int hf_ff_sm_id_rsp_smk_state_name = -1;
 static int hf_ff_sm_id_rsp_smk_state_sync = -1;
+static int hf_ff_sm_id_rsp_smk_state = -1;
 static int hf_ff_sm_id_rsp_dev_type_link = -1;
 static int hf_ff_sm_id_rsp_dev_type_iogateway = -1;
 static int hf_ff_sm_id_rsp_dev_type_hse = -1;
 static int hf_ff_sm_id_rsp_dev_type_h1 = -1;
 static int hf_ff_sm_id_rsp_dev_type_reserved = -1;
 static int hf_ff_sm_id_rsp_dev_type_redundant_caps = -1;
+static int hf_ff_sm_id_rsp_dev_type = -1;
 static int hf_ff_sm_id_rsp_dev_redundancy_state_reserved = -1;
 static int hf_ff_sm_id_rsp_dev_redundancy_state_role = -1;
 static int hf_ff_sm_id_rsp_dev_redundancy_state_type = -1;
+static int hf_ff_sm_id_rsp_dev_redundancy_state = -1;
 static int hf_ff_sm_id_rsp_dup_detection_state_reserved = -1;
 static int hf_ff_sm_id_rsp_dup_detection_state_pd_tag = -1;
 static int hf_ff_sm_id_rsp_dup_detection_state_device = -1;
+static int hf_ff_sm_id_rsp_dup_detection_state = -1;
 
 static int hf_ff_sm_id_err = -1;
 static int hf_ff_sm_id_err_err_class = -1;
@@ -312,9 +324,11 @@ static int hf_ff_sm_set_assign_info = -1;
 static int hf_ff_sm_set_assign_info_req_dev_redundancy_state_reserved = -1;
 static int hf_ff_sm_set_assign_info_req_dev_redundancy_state_role = -1;
 static int hf_ff_sm_set_assign_info_req_dev_redundancy_state_type = -1;
+static int hf_ff_sm_set_assign_info_req_dev_redundancy_state = -1;
 static int hf_ff_sm_set_assign_info_req_clear_dup_detection_state_reserved = -1;
 static int hf_ff_sm_set_assign_info_req_clear_dup_detection_state_pd_tag = -1;
 static int hf_ff_sm_set_assign_info_req_clear_dup_detection_state_device_index = -1;
+static int hf_ff_sm_set_assign_info_req_clear_dup_detection_state = -1;
 
 static int hf_ff_sm_set_assign_info_req = -1;
 static int hf_ff_sm_set_assign_info_req_dev_id = -1;
@@ -392,18 +406,22 @@ static int hf_ff_sm_dev_annunc_req_h1_node_addr_ver_num_h1_node_addr = -1;
 static int hf_ff_sm_dev_annunc_req_h1_node_addr_ver_num_ver_num = -1;
 static int hf_ff_sm_dev_annunc_req_smk_state_name = -1;
 static int hf_ff_sm_dev_annunc_req_smk_state_sync = -1;
+static int hf_ff_sm_dev_annunc_req_smk_state = -1;
 static int hf_ff_sm_dev_annunc_req_dev_type_link = -1;
 static int hf_ff_sm_dev_annunc_req_dev_type_iogateway = -1;
 static int hf_ff_sm_dev_annunc_req_dev_type_hse = -1;
 static int hf_ff_sm_dev_annunc_req_dev_type_h1 = -1;
 static int hf_ff_sm_dev_annunc_req_dev_type_reserved = -1;
 static int hf_ff_sm_dev_annunc_req_dev_type_redundant_caps = -1;
+static int hf_ff_sm_dev_annunc_req_dev_type = -1;
 static int hf_ff_sm_dev_annunc_req_dev_redundancy_state_reserved = -1;
 static int hf_ff_sm_dev_annunc_req_dev_redundancy_state_role = -1;
 static int hf_ff_sm_dev_annunc_req_dev_redundancy_state_type = -1;
+static int hf_ff_sm_dev_annunc_req_dev_redundancy_state = -1;
 static int hf_ff_sm_dev_annunc_req_dup_detection_state_reserved = -1;
 static int hf_ff_sm_dev_annunc_req_dup_detection_state_pd_tag = -1;
 static int hf_ff_sm_dev_annunc_req_dup_detection_state_device = -1;
+static int hf_ff_sm_dev_annunc_req_dup_detection_state = -1;
 
 static gint ett_ff_sm_dev_annunc_req = -1;
 static gint ett_ff_sm_dev_annunc_req_smk_state = -1;
@@ -459,6 +477,7 @@ static gint ett_ff_fms_init_err = -1;
 static int hf_ff_fms_abort = -1;
 
 static int hf_ff_fms_abort_req = -1;
+static int hf_ff_fms_abort_req_detail = -1;
 static int hf_ff_fms_abort_req_abort_id = -1;
 static int hf_ff_fms_abort_req_reason_code = -1;
 static int hf_ff_fms_abort_req_reserved = -1;
@@ -478,6 +497,7 @@ static int hf_ff_fms_status_rsp = -1;
 static int hf_ff_fms_status_rsp_logical_status = -1;
 static int hf_ff_fms_status_rsp_physical_status = -1;
 static int hf_ff_fms_status_rsp_reserved = -1;
+static int hf_ff_fms_status_rsp_local_detail = -1;
 
 static int hf_ff_fms_status_err = -1;
 static int hf_ff_fms_status_err_err_class = -1;
@@ -500,6 +520,7 @@ static int hf_ff_fms_unsolicited_status_req = -1;
 static int hf_ff_fms_unsolicited_status_req_logical_status = -1;
 static int hf_ff_fms_unsolicited_status_req_physical_status = -1;
 static int hf_ff_fms_unsolicited_status_req_reserved = -1;
+static int hf_ff_fms_unsolicited_status_req_local_detail = -1;
 
 static gint ett_ff_fms_unsolicited_status_req = -1;
 
@@ -544,6 +565,7 @@ static int hf_ff_fms_get_od_rsp = -1;
 static int hf_ff_fms_get_od_rsp_more_follows = -1;
 static int hf_ff_fms_get_od_rsp_num_of_obj_desc = -1;
 static int hf_ff_fms_get_od_rsp_reserved = -1;
+static int hf_ff_fms_get_od_rsp_object_descriptions = -1;
 
 static int hf_ff_fms_get_od_err = -1;
 static int hf_ff_fms_get_od_err_err_class = -1;
@@ -587,6 +609,7 @@ static int hf_ff_fms_put_od = -1;
 
 static int hf_ff_fms_put_od_req = -1;
 static int hf_ff_fms_put_od_req_num_of_obj_desc = -1;
+static int hf_ff_fms_put_od_req_object_descriptions = -1;
 
 static int hf_ff_fms_put_od_rsp = -1;
 
@@ -654,6 +677,7 @@ static int hf_ff_fms_gen_download_seg = -1;
 static int hf_ff_fms_gen_download_seg_req = -1;
 static int hf_ff_fms_gen_download_seg_req_idx = -1;
 static int hf_ff_fms_gen_download_seg_req_more_follows = -1;
+static int hf_ff_fms_gen_download_seg_req_load_data = -1;
 
 static int hf_ff_fms_gen_download_seg_rsp = -1;
 
@@ -723,6 +747,7 @@ static int hf_ff_fms_download_seg_req_idx = -1;
 
 static int hf_ff_fms_download_seg_rsp = -1;
 static int hf_ff_fms_download_seg_rsp_more_follows = -1;
+static int hf_ff_fms_download_seg_rsp_load_data = -1;
 
 static int hf_ff_fms_download_seg_err = -1;
 static int hf_ff_fms_download_seg_err_err_class = -1;
@@ -791,6 +816,7 @@ static int hf_ff_fms_upload_seg_req_idx = -1;
 
 static int hf_ff_fms_upload_seg_rsp = -1;
 static int hf_ff_fms_upload_seg_rsp_more_follows = -1;
+static int hf_ff_fms_upload_seg_rsp_final_result = -1;
 
 static int hf_ff_fms_upload_seg_err = -1;
 static int hf_ff_fms_upload_seg_err_err_class = -1;
@@ -926,6 +952,7 @@ static gint ett_ff_fms_del_pi_err = -1;
 static int hf_ff_fms_start = -1;
 static int hf_ff_fms_start_req = -1;
 static int hf_ff_fms_start_req_idx = -1;
+static int hf_ff_fms_start_req_execution_argument = -1;
 
 static int hf_ff_fms_start_rsp = -1;
 
@@ -971,6 +998,7 @@ static gint ett_ff_fms_stop_err = -1;
 static int hf_ff_fms_resume = -1;
 static int hf_ff_fms_resume_req = -1;
 static int hf_ff_fms_resume_req_idx = -1;
+static int hf_ff_fms_resume_req_execution_argument = -1;
 
 static int hf_ff_fms_resume_rsp = -1;
 
@@ -1306,6 +1334,7 @@ static int hf_ff_lr_get_info_rsp_lr_flags_diag = -1;
 static int hf_ff_lr_get_info_rsp_lr_flags_multi_recv = -1;
 static int hf_ff_lr_get_info_rsp_lr_flags_cross_cable = -1;
 static int hf_ff_lr_get_info_rsp_lr_flags_multi_trans = -1;
+static int hf_ff_lr_get_info_rsp_lr_flags = -1;
 
 static int hf_ff_lr_get_info_err = -1;
 static int hf_ff_lr_get_info_err_err_class = -1;
@@ -1341,6 +1370,7 @@ static int hf_ff_lr_put_info_req_lr_flags_diag = -1;
 static int hf_ff_lr_put_info_req_lr_flags_multi_recv = -1;
 static int hf_ff_lr_put_info_req_lr_flags_cross_cable = -1;
 static int hf_ff_lr_put_info_req_lr_flags_multi_trans = -1;
+static int hf_ff_lr_put_info_req_lr_flags = -1;
 
 static int hf_ff_lr_put_info_rsp = -1;
 static int hf_ff_lr_put_info_rsp_lr_attrs_ver = -1;
@@ -1358,6 +1388,7 @@ static int hf_ff_lr_put_info_rsp_lr_flags_diag = -1;
 static int hf_ff_lr_put_info_rsp_lr_flags_multi_recv = -1;
 static int hf_ff_lr_put_info_rsp_lr_flags_cross_cable = -1;
 static int hf_ff_lr_put_info_rsp_lr_flags_multi_trans = -1;
+static int hf_ff_lr_put_info_rsp_lr_flags = -1;
 
 static int hf_ff_lr_put_info_err = -1;
 static int hf_ff_lr_put_info_err_err_class = -1;
@@ -1423,6 +1454,7 @@ static int hf_ff_lr_diagnostic_msg_req_if_b_to_b_status = -1;
 static int hf_ff_lr_diagnostic_msg_req_dup_detection_state_reserved = -1;
 static int hf_ff_lr_diagnostic_msg_req_dup_detection_state_pd_tag = -1;
 static int hf_ff_lr_diagnostic_msg_req_dup_detection_state_device = -1;
+static int hf_ff_lr_diagnostic_msg_req_dup_detection_state = -1;
 
 static gint ett_ff_lr_diagnostic_msg_req = -1;
 static gint ett_ff_lr_diagnostic_msg_req_dup_detection_stat = -1;
@@ -1923,11 +1955,8 @@ dissect_ff_msg_fda_open_sess_req(tvbuff_t *tvb, gint offset,
     length -= 32;
 
     if (length) {
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -1991,11 +2020,8 @@ dissect_ff_msg_fda_open_sess_rsp(tvbuff_t *tvb, gint offset,
     length -= 32;
 
     if (length) {
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -2046,11 +2072,8 @@ dissect_ff_msg_fda_open_sess_err(tvbuff_t *tvb, gint offset,
     length -= 16;
 
     if (length) {
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -2075,11 +2098,8 @@ dissect_ff_msg_fda_idle_req(tvbuff_t *tvb, gint offset,
         sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
             ett_ff_fda_idle_req, NULL, "FDA Idle Request");
 
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -2103,11 +2123,8 @@ dissect_ff_msg_fda_idle_rsp(tvbuff_t *tvb, gint offset,
         sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
             ett_ff_fda_idle_rsp, NULL, "FDA Idle Response");
 
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -2158,11 +2175,8 @@ dissect_ff_msg_fda_idle_err(tvbuff_t *tvb, gint offset,
     length -= 16;
 
     if (length) {
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -2191,7 +2205,7 @@ dissect_ff_msg_sm_find_tag_query_req(tvbuff_t *tvb, gint offset,
     offset += 1;
     length -= 1;
 
-    proto_tree_add_text(sub_tree, tvb, offset, 3, "Reserved (%u bytes)", 3);
+    proto_tree_add_item(sub_tree, hf_ff_reserved24, tvb, offset, 3, ENC_BIG_ENDIAN);
     offset += 3;
     length -= 3;
 
@@ -2211,11 +2225,8 @@ dissect_ff_msg_sm_find_tag_query_req(tvbuff_t *tvb, gint offset,
     length -= 32;
 
     if (length) {
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -2226,20 +2237,8 @@ dissect_ff_msg_sm_find_tag_query_req(tvbuff_t *tvb, gint offset,
  */
 static void
 dissect_ff_msg_sm_find_tag_reply_req_dup_detection_state(tvbuff_t *tvb,
-    gint offset, proto_tree *tree, guint8 value)
+    gint offset, proto_tree *tree)
 {
-    proto_tree *sub_tree;
-    proto_item *ti;
-
-    if (!tree) {
-        return;
-    }
-
-    ti = proto_tree_add_text(tree, tvb, offset, 1,
-        "Duplicate Detection State: 0x%02x", value);
-    sub_tree = proto_item_add_subtree(ti,
-        ett_ff_sm_find_tag_reply_req_dup_detection_state);
-
     /*
      * Bits 3-8: Reserved, set to 0.
      * Bit 2:    1 = Duplicate PD Tag Detected
@@ -2247,9 +2246,13 @@ dissect_ff_msg_sm_find_tag_reply_req_dup_detection_state(tvbuff_t *tvb,
      * Bit 1:    1 = Duplicate Device Index Detected
      *           0 = Duplicate Device Index Not Detected
      */
-    proto_tree_add_item(sub_tree, hf_ff_sm_find_tag_reply_dup_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sub_tree, hf_ff_sm_find_tag_reply_dup_pd_tag,   tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sub_tree, hf_ff_sm_find_tag_reply_dup_device,   tvb, offset, 1, ENC_BIG_ENDIAN);
+    static const int * dup_flags[] = {
+        &hf_ff_sm_find_tag_reply_dup_reserved,
+        &hf_ff_sm_find_tag_reply_dup_pd_tag,
+        &hf_ff_sm_find_tag_reply_dup_device,
+        NULL
+    };
+    proto_tree_add_bitmask(tree, tvb, offset, hf_ff_sm_find_tag_reply_dup, ett_ff_sm_find_tag_reply_req_dup_detection_state, dup_flags, ENC_BIG_ENDIAN);
 }
 
 
@@ -2276,8 +2279,6 @@ dissect_ff_msg_sm_find_tag_reply_req_list_of_fda_addr_selectors(tvbuff_t *tvb,
 
         offset += 2;
     }
-
-    return;
 }
 
 
@@ -2287,7 +2288,6 @@ dissect_ff_msg_sm_find_tag_reply_req(tvbuff_t *tvb, gint offset,
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    guint8      DuplicateDetectionState;
     guint16     NumOfFDAAddrSelectors;
 
     col_set_str(pinfo->cinfo, COL_INFO, "SM Find Tag Reply Request");
@@ -2344,9 +2344,8 @@ dissect_ff_msg_sm_find_tag_reply_req(tvbuff_t *tvb, gint offset,
     offset += 32;
     length -= 32;
 
-    DuplicateDetectionState = tvb_get_guint8(tvb, offset);
     dissect_ff_msg_sm_find_tag_reply_req_dup_detection_state(tvb,
-        offset, sub_tree, DuplicateDetectionState);
+        offset, sub_tree);
     offset += 1;
     length -= 1;
 
@@ -2370,11 +2369,8 @@ dissect_ff_msg_sm_find_tag_reply_req(tvbuff_t *tvb, gint offset,
     }
 
     if (length) {
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -2399,11 +2395,8 @@ dissect_ff_msg_sm_id_req(tvbuff_t *tvb, gint offset,
         sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
             ett_ff_sm_id_req, NULL, "SM Identify Request");
 
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -2432,8 +2425,6 @@ dissect_ff_msg_sm_id_rsp_h1_node_addr(tvbuff_t *tvb,
     proto_tree_add_item(sub_tree,
         hf_ff_sm_id_rsp_h1_node_addr_ver_num_ver_num, tvb, offset, 1, ENC_BIG_ENDIAN);
     /*offset += 1;*/
-
-    return;
 }
 
 
@@ -2456,8 +2447,6 @@ dissect_ff_msg_sm_id_rsp_entries_node_addr(tvbuff_t *tvb,
         dissect_ff_msg_sm_id_rsp_h1_node_addr(tvb, offset, sub_tree);
         offset += 2;
     }
-
-    return;
 }
 
 
@@ -2486,8 +2475,6 @@ dissect_ff_msg_sm_id_rsp_h1_live_list(tvbuff_t *tvb,
     proto_tree_add_item(sub_tree,
         hf_ff_sm_id_rsp_h1_live_list_ver_num, tvb, offset, 1, ENC_BIG_ENDIAN);
     /*offset += 1;*/
-
-    return;
 }
 
 
@@ -2510,28 +2497,14 @@ dissect_ff_msg_sm_id_rsp_entries_link_id(tvbuff_t *tvb,
         dissect_ff_msg_sm_id_rsp_h1_live_list(tvb, offset, sub_tree);
         offset += 4;
     }
-
-    return;
 }
 
 
 
 static void
 dissect_ff_msg_sm_id_rsp_smk_state(tvbuff_t *tvb,
-    gint offset, proto_tree *tree, guint8 value)
+    gint offset, proto_tree *tree)
 {
-    proto_tree *sub_tree;
-    proto_item *ti;
-
-    if (!tree) {
-        return;
-    }
-
-    ti = proto_tree_add_text(tree, tvb, offset, 1,
-        "SMK State: 0x%02x", value);
-    sub_tree = proto_item_add_subtree(ti,
-        ett_ff_sm_id_rsp_smk_state);
-
     /*
      * Bits 2-8:
      *    0 = Reserved
@@ -2542,28 +2515,20 @@ dissect_ff_msg_sm_id_rsp_smk_state(tvbuff_t *tvb,
      *    0 = Not Synchronized with SNTP Time Server
      *    1 = Synchronized with SNTP Time Server
      */
-    proto_tree_add_item(sub_tree, hf_ff_sm_id_rsp_smk_state_name, tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sub_tree, hf_ff_sm_id_rsp_smk_state_sync, tvb, offset, 1, ENC_BIG_ENDIAN);
+    static const int * state_flags[] = {
+        &hf_ff_sm_id_rsp_smk_state_name,
+        &hf_ff_sm_id_rsp_smk_state_sync,
+        NULL
+    };
+    proto_tree_add_bitmask(tree, tvb, offset, hf_ff_sm_id_rsp_smk_state, ett_ff_sm_id_rsp_smk_state, state_flags, ENC_BIG_ENDIAN);
 }
 
 
 
 static void
 dissect_ff_msg_sm_id_rsp_dev_type(tvbuff_t *tvb,
-    gint offset, proto_tree *tree, guint8 value)
+    gint offset, proto_tree *tree)
 {
-    proto_tree *sub_tree;
-    proto_item *ti;
-
-    if (!tree) {
-        return;
-    }
-
-    ti = proto_tree_add_text(tree, tvb, offset, 1,
-        "Device Type: 0x%02x", value);
-    sub_tree = proto_item_add_subtree(ti,
-        ett_ff_sm_id_rsp_dev_type);
-
     /*
      * Bit 8 = Linking Device
      * Bit 7 = I/O Gateway
@@ -2580,32 +2545,25 @@ dissect_ff_msg_sm_id_rsp_dev_type(tvbuff_t *tvb,
      *    6 = Type D-3 and Type D-1 Device
      *    7 = Type D-3 and D-2 and Type D-1 Device
      */
-    proto_tree_add_item(sub_tree, hf_ff_sm_id_rsp_dev_type_link,           tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sub_tree, hf_ff_sm_id_rsp_dev_type_iogateway,      tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sub_tree, hf_ff_sm_id_rsp_dev_type_hse,            tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sub_tree, hf_ff_sm_id_rsp_dev_type_h1,             tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sub_tree, hf_ff_sm_id_rsp_dev_type_reserved,       tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sub_tree, hf_ff_sm_id_rsp_dev_type_redundant_caps, tvb, offset, 1, ENC_BIG_ENDIAN);
+    static const int * device_flags[] = {
+        &hf_ff_sm_id_rsp_dev_type_link,
+        &hf_ff_sm_id_rsp_dev_type_iogateway,
+        &hf_ff_sm_id_rsp_dev_type_hse,
+        &hf_ff_sm_id_rsp_dev_type_h1,
+        &hf_ff_sm_id_rsp_dev_type_reserved,
+        &hf_ff_sm_id_rsp_dev_type_redundant_caps,
+        NULL
+    };
+
+    proto_tree_add_bitmask(tree, tvb, offset, hf_ff_sm_id_rsp_dev_type, ett_ff_sm_id_rsp_dev_type, device_flags, ENC_BIG_ENDIAN);
 }
 
 
 
 static void
 dissect_ff_msg_sm_id_rsp_dev_redundancy_state(tvbuff_t *tvb,
-    gint offset, proto_tree *tree, guint8 value)
+    gint offset, proto_tree *tree)
 {
-    proto_tree *sub_tree;
-    proto_item *ti;
-
-    if (!tree) {
-        return;
-    }
-
-    ti = proto_tree_add_text(tree, tvb, offset, 1,
-        "Device Redundancy State: 0x%02x", value);
-    sub_tree = proto_item_add_subtree(ti,
-        ett_ff_sm_id_rsp_dev_redundancy_state);
-
     /*
      * Bits 5-8 = Reserved, set to 0
      * Bits 3 & 4  Device Redundancy Role
@@ -2617,30 +2575,22 @@ dissect_ff_msg_sm_id_rsp_dev_redundancy_state(tvbuff_t *tvb,
      *    1 = Type D-2 Device
      *    2 = Type D-3 Device
      */
+    static const int * state_flags[] = {
+        &hf_ff_sm_id_rsp_dev_redundancy_state_reserved,
+        &hf_ff_sm_id_rsp_dev_redundancy_state_role,
+        &hf_ff_sm_id_rsp_dev_redundancy_state_type,
+        NULL
+    };
 
-    proto_tree_add_item(sub_tree, hf_ff_sm_id_rsp_dev_redundancy_state_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sub_tree, hf_ff_sm_id_rsp_dev_redundancy_state_role,     tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sub_tree, hf_ff_sm_id_rsp_dev_redundancy_state_type,     tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_bitmask(tree, tvb, offset, hf_ff_sm_id_rsp_dev_redundancy_state, ett_ff_sm_id_rsp_dev_redundancy_state, state_flags, ENC_BIG_ENDIAN);
 }
 
 
 
 static void
 dissect_ff_msg_sm_id_rsp_dup_detection_state(tvbuff_t *tvb,
-    gint offset, proto_tree *tree, guint8 value)
+    gint offset, proto_tree *tree)
 {
-    proto_tree *sub_tree;
-    proto_item *ti;
-
-    if (!tree) {
-        return;
-    }
-
-    ti = proto_tree_add_text(tree, tvb, offset, 1,
-        "Duplicate Detection State: 0x%02x", value);
-    sub_tree = proto_item_add_subtree(ti,
-        ett_ff_sm_id_rsp_dup_detection_state);
-
     /*
      * Bits 3-8: Reserved, set to 0.
      * Bit 2:    1 = Duplicate PD Tag Detected
@@ -2648,10 +2598,14 @@ dissect_ff_msg_sm_id_rsp_dup_detection_state(tvbuff_t *tvb,
      * Bit 1:    1 = Duplicate Device Index Detected
      *           0 = Duplicate Device Index Not Detected
      */
+    static const int * dup_flags[] = {
+        &hf_ff_sm_id_rsp_dup_detection_state_reserved,
+        &hf_ff_sm_id_rsp_dup_detection_state_pd_tag,
+        &hf_ff_sm_id_rsp_dup_detection_state_device,
+        NULL
+    };
 
-    proto_tree_add_item(sub_tree, hf_ff_sm_id_rsp_dup_detection_state_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sub_tree, hf_ff_sm_id_rsp_dup_detection_state_pd_tag,   tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sub_tree, hf_ff_sm_id_rsp_dup_detection_state_device,   tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_bitmask(tree, tvb, offset, hf_ff_sm_id_rsp_dup_detection_state, ett_ff_sm_id_rsp_dup_detection_state, dup_flags, ENC_BIG_ENDIAN);
 }
 
 
@@ -2662,10 +2616,6 @@ dissect_ff_msg_sm_id_rsp(tvbuff_t *tvb, gint offset,
 {
     proto_tree *sub_tree;
 
-    guint8  SMKState;
-    guint8  DeviceType;
-    guint8  DeviceRedundancyState;
-    guint8  DuplicateDetectionState;
     guint32 NumOfEntriesInVerNumList;
 
     col_set_str(pinfo->cinfo, COL_INFO, "SM Identify Response");
@@ -2676,25 +2626,21 @@ dissect_ff_msg_sm_id_rsp(tvbuff_t *tvb, gint offset,
 
     sub_tree = proto_tree_add_subtree(tree, tvb, offset, length, ett_ff_sm_id_rsp, NULL, "SM Identify Response");
 
-    SMKState = tvb_get_guint8(tvb, offset);
-    dissect_ff_msg_sm_id_rsp_smk_state(tvb, offset, sub_tree, SMKState);
+    dissect_ff_msg_sm_id_rsp_smk_state(tvb, offset, sub_tree);
     offset += 1;
     length -= 1;
 
-    DeviceType = tvb_get_guint8(tvb, offset);
-    dissect_ff_msg_sm_id_rsp_dev_type(tvb, offset, sub_tree, DeviceType);
+    dissect_ff_msg_sm_id_rsp_dev_type(tvb, offset, sub_tree);
     offset += 1;
     length -= 1;
 
-    DeviceRedundancyState = tvb_get_guint8(tvb, offset);
     dissect_ff_msg_sm_id_rsp_dev_redundancy_state(tvb,
-        offset, sub_tree, DeviceRedundancyState);
+        offset, sub_tree);
     offset += 1;
     length -= 1;
 
-    DuplicateDetectionState = tvb_get_guint8(tvb, offset);
     dissect_ff_msg_sm_id_rsp_dup_detection_state(tvb,
-        offset, sub_tree, DuplicateDetectionState);
+        offset, sub_tree);
     offset += 1;
     length -= 1;
 
@@ -2771,11 +2717,8 @@ dissect_ff_msg_sm_id_rsp(tvbuff_t *tvb, gint offset,
     }
 
     if (length) {
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -2825,11 +2768,8 @@ dissect_ff_msg_sm_id_err(tvbuff_t *tvb, gint offset,
     length -= 16;
 
     if (length) {
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -2868,16 +2808,13 @@ dissect_ff_msg_sm_clear_addr_req(tvbuff_t *tvb, gint offset,
     offset += 1;
     length -= 1;
 
-    proto_tree_add_text(sub_tree, tvb, offset, 3, "Reserved (%u bytes)", 3);
+    proto_tree_add_item(sub_tree, hf_ff_reserved24, tvb, offset, 3, ENC_BIG_ENDIAN);
     offset += 3;
     length -= 3;
 
     if (length) {
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -2901,11 +2838,8 @@ dissect_ff_msg_sm_clear_addr_rsp(tvbuff_t *tvb, gint offset,
         sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
             ett_ff_sm_clear_addr_rsp, NULL, "SM Clear Address Response");
 
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -2956,11 +2890,8 @@ dissect_ff_msg_sm_clear_addr_err(tvbuff_t *tvb, gint offset,
     length -= 16;
 
     if (length) {
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -2971,20 +2902,8 @@ dissect_ff_msg_sm_clear_addr_err(tvbuff_t *tvb, gint offset,
  */
 static void
 dissect_ff_msg_sm_set_assign_info_req_dev_redundancy_state(tvbuff_t *tvb,
-    gint offset, proto_tree *tree, guint8 value)
+    gint offset, proto_tree *tree)
 {
-    proto_tree *sub_tree;
-    proto_item *ti;
-
-    if (!tree) {
-        return;
-    }
-
-    ti = proto_tree_add_text(tree, tvb, offset, 1,
-        "Device Redundancy State: 0x%02x", value);
-    sub_tree = proto_item_add_subtree(ti,
-        ett_ff_sm_set_assign_info_req_dev_redundancy_state);
-
     /*
      * Bits 5-8 = Reserved, set to 0
      * Bits 3 & 4  Type D-2 Device Redundancy Role
@@ -2996,29 +2915,22 @@ dissect_ff_msg_sm_set_assign_info_req_dev_redundancy_state(tvbuff_t *tvb,
      *    1 = Type D-2 Device
      *    2 = Type D-3 Device
      */
-    proto_tree_add_item(sub_tree, hf_ff_sm_set_assign_info_req_dev_redundancy_state_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sub_tree, hf_ff_sm_set_assign_info_req_dev_redundancy_state_role,     tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sub_tree, hf_ff_sm_set_assign_info_req_dev_redundancy_state_type,     tvb, offset, 1, ENC_BIG_ENDIAN);
+    static const int * state_flags[] = {
+        &hf_ff_sm_set_assign_info_req_dev_redundancy_state_reserved,
+        &hf_ff_sm_set_assign_info_req_dev_redundancy_state_role,
+        &hf_ff_sm_set_assign_info_req_dev_redundancy_state_type,
+        NULL
+    };
+
+    proto_tree_add_bitmask(tree, tvb, offset, hf_ff_sm_set_assign_info_req_dev_redundancy_state, ett_ff_sm_set_assign_info_req_dev_redundancy_state, state_flags, ENC_BIG_ENDIAN);
 }
 
 
 
 static void
 dissect_ff_msg_sm_set_assign_info_req_clear_dup_detection_state(tvbuff_t *tvb,
-    gint offset, proto_tree *tree, guint8 value)
+    gint offset, proto_tree *tree)
 {
-    proto_tree *sub_tree;
-    proto_item *ti;
-
-    if (!tree) {
-        return;
-    }
-
-    ti = proto_tree_add_text(tree, tvb, offset, 1,
-        "Clear Duplicate Detection State: 0x%02x", value);
-    sub_tree = proto_item_add_subtree(ti,
-        ett_ff_sm_set_assign_info_req_clear_dup_detection_state);
-
     /*
      * Bits 3-8: Reserved, set to 0.
      * Bit 2:    1 = Do not clear Duplicate PD Tag Detected
@@ -3026,9 +2938,14 @@ dissect_ff_msg_sm_set_assign_info_req_clear_dup_detection_state(tvbuff_t *tvb,
      * Bit 1:    1 = Do not clear Duplicate Device Index Detected
      *           0 = Clear Duplicate Device Index Detected
      */
-    proto_tree_add_item(sub_tree, hf_ff_sm_set_assign_info_req_clear_dup_detection_state_reserved,     tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sub_tree, hf_ff_sm_set_assign_info_req_clear_dup_detection_state_pd_tag,       tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sub_tree, hf_ff_sm_set_assign_info_req_clear_dup_detection_state_device_index, tvb, offset, 1, ENC_BIG_ENDIAN);
+    static const int * state_flags[] = {
+        &hf_ff_sm_set_assign_info_req_clear_dup_detection_state_reserved,
+        &hf_ff_sm_set_assign_info_req_clear_dup_detection_state_pd_tag,
+        &hf_ff_sm_set_assign_info_req_clear_dup_detection_state_device_index,
+        NULL
+    };
+
+    proto_tree_add_bitmask(tree, tvb, offset, hf_ff_sm_set_assign_info_req_clear_dup_detection_state, ett_ff_sm_set_assign_info_req_clear_dup_detection_state, state_flags, ENC_BIG_ENDIAN);
 }
 
 
@@ -3038,8 +2955,6 @@ dissect_ff_msg_sm_set_assign_info_req(tvbuff_t *tvb, gint offset,
     guint32 length, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *sub_tree;
-    guint8      DeviceRedundancyState;
-    guint8      ClearDuplicateDetectionState;
 
     col_set_str(pinfo->cinfo, COL_INFO, "SM Set Assignment Info Request");
 
@@ -3065,9 +2980,8 @@ dissect_ff_msg_sm_set_assign_info_req(tvbuff_t *tvb, gint offset,
     offset += 1;
     length -= 1;
 
-    DeviceRedundancyState = tvb_get_guint8(tvb, offset);
     dissect_ff_msg_sm_set_assign_info_req_dev_redundancy_state(tvb,
-        offset, sub_tree, DeviceRedundancyState);
+        offset, sub_tree);
     offset += 1;
     length -= 1;
 
@@ -3097,22 +3011,18 @@ dissect_ff_msg_sm_set_assign_info_req(tvbuff_t *tvb, gint offset,
     offset += 16;
     length -= 16;
 
-    proto_tree_add_text(sub_tree, tvb, offset, 3, "Reserved (%u bytes)", 3);
+    proto_tree_add_item(sub_tree, hf_ff_reserved24, tvb, offset, 3, ENC_BIG_ENDIAN);
     offset += 3;
     length -= 3;
 
-    ClearDuplicateDetectionState = tvb_get_guint8(tvb, offset);
     dissect_ff_msg_sm_set_assign_info_req_clear_dup_detection_state(tvb,
-        offset, sub_tree, ClearDuplicateDetectionState);
+        offset, sub_tree);
     offset += 1;
     length -= 1;
 
     if (length) {
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -3151,11 +3061,8 @@ dissect_ff_msg_sm_set_assign_info_rsp(tvbuff_t *tvb, gint offset,
     length -= 4;
 
     if (length) {
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -3207,11 +3114,8 @@ dissect_ff_msg_sm_set_assign_info_err(tvbuff_t *tvb, gint offset,
     length -= 16;
 
     if (length) {
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -3246,11 +3150,8 @@ dissect_ff_msg_sm_clear_assign_info_req(tvbuff_t *tvb, gint offset,
     length -= 32;
 
     if (length) {
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -3274,11 +3175,8 @@ dissect_ff_msg_sm_clear_assign_info_rsp(tvbuff_t *tvb, gint offset,
         sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
             ett_ff_sm_clear_assign_info_rsp, NULL, "SM Clear Assignment Info Response");
 
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -3330,11 +3228,8 @@ dissect_ff_msg_sm_clear_assign_info_err(tvbuff_t *tvb, gint offset,
     length -= 16;
 
     if (length) {
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -3365,8 +3260,6 @@ dissect_ff_msg_sm_dev_annunc_req_h1_node_addr(tvbuff_t *tvb,
         hf_ff_sm_dev_annunc_req_h1_node_addr_ver_num_ver_num,
         tvb, offset, 1, ENC_BIG_ENDIAN);
     /*offset += 1;*/
-
-    return;
 }
 
 
@@ -3389,8 +3282,6 @@ dissect_ff_msg_sm_dev_annunc_req_entries_node_addr(tvbuff_t *tvb,
         dissect_ff_msg_sm_dev_annunc_req_h1_node_addr(tvb, offset, sub_tree);
         offset += 2;
     }
-
-    return;
 }
 
 
@@ -3419,8 +3310,6 @@ dissect_ff_msg_sm_dev_annunc_req_h1_live_list(tvbuff_t *tvb,
     proto_tree_add_item(sub_tree,
         hf_ff_sm_dev_annunc_req_h1_live_list_ver_num, tvb, offset, 1, ENC_BIG_ENDIAN);
     /*offset += 1;*/
-
-    return;
 }
 
 
@@ -3443,28 +3332,14 @@ dissect_ff_msg_sm_dev_annunc_req_entries_link_id(tvbuff_t *tvb,
         dissect_ff_msg_sm_dev_annunc_req_h1_live_list(tvb, offset, sub_tree);
         offset += 4;
     }
-
-    return;
 }
 
 
 
 static void
 dissect_ff_msg_sm_dev_annunc_req_smk_state(tvbuff_t *tvb,
-    gint offset, proto_tree *tree, guint8 value)
+    gint offset, proto_tree *tree)
 {
-    proto_tree *sub_tree;
-    proto_item *ti;
-
-    if (!tree) {
-        return;
-    }
-
-    ti = proto_tree_add_text(tree, tvb, offset, 1,
-        "SMK State: 0x%02x", value);
-    sub_tree = proto_item_add_subtree(ti,
-        ett_ff_sm_dev_annunc_req_smk_state);
-
     /*
      * Bits 2-8:
      *    0 = Reserved
@@ -3475,28 +3350,21 @@ dissect_ff_msg_sm_dev_annunc_req_smk_state(tvbuff_t *tvb,
      *    0 = Not Synchronized with SNTP Time Server
      *    1 = Synchronized with SNTP Time Server
      */
-    proto_tree_add_item(sub_tree, hf_ff_sm_dev_annunc_req_smk_state_name, tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sub_tree, hf_ff_sm_dev_annunc_req_smk_state_sync, tvb, offset, 1, ENC_BIG_ENDIAN);
+    static const int * state_flags[] = {
+        &hf_ff_sm_dev_annunc_req_smk_state_name,
+        &hf_ff_sm_dev_annunc_req_smk_state_sync,
+        NULL
+    };
+
+    proto_tree_add_bitmask(tree, tvb, offset, hf_ff_sm_dev_annunc_req_smk_state, ett_ff_sm_dev_annunc_req_smk_state, state_flags, ENC_BIG_ENDIAN);
 }
 
 
 
 static void
 dissect_ff_msg_sm_dev_annunc_req_dev_type(tvbuff_t *tvb,
-    gint offset, proto_tree *tree, guint8 value)
+    gint offset, proto_tree *tree)
 {
-    proto_tree *sub_tree;
-    proto_item *ti;
-
-    if (!tree) {
-        return;
-    }
-
-    ti = proto_tree_add_text(tree, tvb, offset, 1,
-        "Device Type: 0x%02x", value);
-    sub_tree = proto_item_add_subtree(ti,
-        ett_ff_sm_dev_annunc_req_dev_type);
-
     /*
      * Bit 8 = Linking Device
      * Bit 7 = I/O Gateway
@@ -3513,32 +3381,25 @@ dissect_ff_msg_sm_dev_annunc_req_dev_type(tvbuff_t *tvb,
      *    6 = Type D-3 and Type D-1 Device
      *    7 = Type D-3 and D-2 and Type D-1 Device
      */
-    proto_tree_add_item(sub_tree, hf_ff_sm_dev_annunc_req_dev_type_link,           tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sub_tree, hf_ff_sm_dev_annunc_req_dev_type_iogateway,      tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sub_tree, hf_ff_sm_dev_annunc_req_dev_type_hse,            tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sub_tree, hf_ff_sm_dev_annunc_req_dev_type_h1,             tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sub_tree, hf_ff_sm_dev_annunc_req_dev_type_reserved,       tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sub_tree, hf_ff_sm_dev_annunc_req_dev_type_redundant_caps, tvb, offset, 1, ENC_BIG_ENDIAN);
+    static const int * device_flags[] = {
+        &hf_ff_sm_dev_annunc_req_dev_type_link,
+        &hf_ff_sm_dev_annunc_req_dev_type_iogateway,
+        &hf_ff_sm_dev_annunc_req_dev_type_hse,
+        &hf_ff_sm_dev_annunc_req_dev_type_h1,
+        &hf_ff_sm_dev_annunc_req_dev_type_reserved,
+        &hf_ff_sm_dev_annunc_req_dev_type_redundant_caps,
+        NULL
+    };
+
+    proto_tree_add_bitmask(tree, tvb, offset, hf_ff_sm_dev_annunc_req_dev_type, ett_ff_sm_dev_annunc_req_dev_type, device_flags, ENC_BIG_ENDIAN);
 }
 
 
 
 static void
 dissect_ff_msg_sm_dev_annunc_req_dev_redundancy_state(tvbuff_t *tvb,
-    gint offset, proto_tree *tree, guint8 value)
+    gint offset, proto_tree *tree)
 {
-    proto_tree *sub_tree;
-    proto_item *ti;
-
-    if (!tree) {
-        return;
-    }
-
-    ti = proto_tree_add_text(tree, tvb, offset, 1,
-        "Device Redundancy State: 0x%02x", value);
-    sub_tree = proto_item_add_subtree(ti,
-        ett_ff_sm_dev_annunc_req_dev_redundancy_state);
-
     /*
      * Bits 5-8 = Reserved, set to 0
      * Bits 3 & 4  Device Redundancy Role
@@ -3550,29 +3411,22 @@ dissect_ff_msg_sm_dev_annunc_req_dev_redundancy_state(tvbuff_t *tvb,
      *    1 = Type D-2 Device
      *    2 = Type D-3 Device
      */
-    proto_tree_add_item(sub_tree, hf_ff_sm_dev_annunc_req_dev_redundancy_state_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sub_tree, hf_ff_sm_dev_annunc_req_dev_redundancy_state_role,     tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sub_tree, hf_ff_sm_dev_annunc_req_dev_redundancy_state_type,     tvb, offset, 1, ENC_BIG_ENDIAN);
+    static const int * device_flags[] = {
+        &hf_ff_sm_dev_annunc_req_dev_redundancy_state_reserved,
+        &hf_ff_sm_dev_annunc_req_dev_redundancy_state_role,
+        &hf_ff_sm_dev_annunc_req_dev_redundancy_state_type,
+        NULL
+    };
+
+    proto_tree_add_bitmask(tree, tvb, offset, hf_ff_sm_dev_annunc_req_dev_redundancy_state, ett_ff_sm_dev_annunc_req_dev_redundancy_state, device_flags, ENC_BIG_ENDIAN);
 }
 
 
 
 static void
 dissect_ff_msg_sm_dev_annunc_req_dup_detection_state(tvbuff_t *tvb,
-    gint offset, proto_tree *tree, guint8 value)
+    gint offset, proto_tree *tree)
 {
-    proto_tree *sub_tree;
-    proto_item *ti;
-
-    if (!tree) {
-        return;
-    }
-
-    ti = proto_tree_add_text(tree, tvb, offset, 1,
-        "Duplicate Detection State: 0x%02x", value);
-    sub_tree = proto_item_add_subtree(ti,
-        ett_ff_sm_dev_annunc_req_dup_detection_state);
-
     /*
      * Bits 3-8: Reserved, set to 0.
      * Bit 2:    1 = Duplicate PD Tag Detected
@@ -3580,9 +3434,14 @@ dissect_ff_msg_sm_dev_annunc_req_dup_detection_state(tvbuff_t *tvb,
      * Bit 1:    1 = Duplicate Device Index Detected
      *           0 = Duplicate Device Index Not Detected
      */
-    proto_tree_add_item(sub_tree, hf_ff_sm_dev_annunc_req_dup_detection_state_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sub_tree, hf_ff_sm_dev_annunc_req_dup_detection_state_pd_tag,   tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sub_tree, hf_ff_sm_dev_annunc_req_dup_detection_state_device,   tvb, offset, 1, ENC_BIG_ENDIAN);
+    static const int * state_flags[] = {
+        &hf_ff_sm_dev_annunc_req_dup_detection_state_reserved,
+        &hf_ff_sm_dev_annunc_req_dup_detection_state_pd_tag,
+        &hf_ff_sm_dev_annunc_req_dup_detection_state_device,
+        NULL
+    };
+
+    proto_tree_add_bitmask(tree, tvb, offset, hf_ff_sm_dev_annunc_req_dup_detection_state, ett_ff_sm_dev_annunc_req_dup_detection_state, state_flags, ENC_BIG_ENDIAN);
 }
 
 
@@ -3593,10 +3452,6 @@ dissect_ff_msg_sm_dev_annunc_req(tvbuff_t *tvb, gint offset,
 {
     proto_tree *sub_tree;
 
-    guint8  SMKState;
-    guint8  DeviceType;
-    guint8  DeviceRedundancyState;
-    guint8  DuplicateDetectionState;
     guint32 NumOfEntriesInVerNumList;
 
     col_set_str(pinfo->cinfo, COL_INFO, "SM Device Annunciation Request");
@@ -3609,26 +3464,22 @@ dissect_ff_msg_sm_dev_annunc_req(tvbuff_t *tvb, gint offset,
         ett_ff_sm_dev_annunc_req, NULL, "SM Device Annunciation Request");
 
 
-    SMKState = tvb_get_guint8(tvb, offset);
-    dissect_ff_msg_sm_dev_annunc_req_smk_state(tvb, offset, sub_tree, SMKState);
+    dissect_ff_msg_sm_dev_annunc_req_smk_state(tvb, offset, sub_tree);
     offset += 1;
     length -= 1;
 
-    DeviceType = tvb_get_guint8(tvb, offset);
     dissect_ff_msg_sm_dev_annunc_req_dev_type(tvb,
-        offset, sub_tree, DeviceType);
+        offset, sub_tree);
     offset += 1;
     length -= 1;
 
-    DeviceRedundancyState = tvb_get_guint8(tvb, offset);
     dissect_ff_msg_sm_dev_annunc_req_dev_redundancy_state(tvb,
-        offset, sub_tree, DeviceRedundancyState);
+        offset, sub_tree);
     offset += 1;
     length -= 1;
 
-    DuplicateDetectionState = tvb_get_guint8(tvb, offset);
     dissect_ff_msg_sm_dev_annunc_req_dup_detection_state(tvb,
-        offset, sub_tree, DuplicateDetectionState);
+        offset, sub_tree);
     offset += 1;
     length -= 1;
 
@@ -3705,11 +3556,8 @@ dissect_ff_msg_sm_dev_annunc_req(tvbuff_t *tvb, gint offset,
     }
 
     if (length) {
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -3765,11 +3613,8 @@ dissect_ff_msg_fms_init_req(tvbuff_t *tvb, gint offset,
     length -= 32;
 
     if (length) {
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -3803,11 +3648,8 @@ dissect_ff_msg_fms_init_rsp(tvbuff_t *tvb, gint offset,
     length -= 2;
 
     if (length) {
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -3857,11 +3699,8 @@ dissect_ff_msg_fms_init_err(tvbuff_t *tvb, gint offset,
     length -= 16;
 
     if (length) {
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -3884,8 +3723,7 @@ dissect_ff_msg_fms_abort_req(tvbuff_t *tvb, gint offset,
 
     sub_tree = proto_tree_add_subtree(tree, tvb, offset, length, ett_ff_fms_abort_req, NULL, "FMS Abort Request");
 
-    proto_tree_add_text(sub_tree, tvb, offset, 16,
-        "Abort Detail (%u bytes)", 16);
+    proto_tree_add_item(sub_tree, hf_ff_fms_abort_req_detail, tvb, offset, 16, ENC_NA);
     offset += 16;
     length -= 16;
 
@@ -3905,11 +3743,8 @@ dissect_ff_msg_fms_abort_req(tvbuff_t *tvb, gint offset,
     length -= 2;
 
     if (length) {
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -3934,11 +3769,8 @@ dissect_ff_msg_fms_status_req(tvbuff_t *tvb, gint offset,
         sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
             ett_ff_fms_status_req, NULL, "FMS Status Request");
 
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -3975,17 +3807,13 @@ dissect_ff_msg_fms_status_rsp(tvbuff_t *tvb, gint offset,
     offset += 2;
     length -= 2;
 
-    proto_tree_add_text(sub_tree, tvb, offset, 4,
-        "Local Detail (%u bytes)", 4);
+    proto_tree_add_item(sub_tree, hf_ff_fms_status_rsp_local_detail, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
     length -= 4;
 
     if (length) {
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -4035,11 +3863,8 @@ dissect_ff_msg_fms_status_err(tvbuff_t *tvb, gint offset,
     length -= 16;
 
     if (length) {
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -4079,17 +3904,13 @@ dissect_ff_msg_fms_unsolicited_status_req(tvbuff_t *tvb, gint offset,
     offset += 2;
     length -= 2;
 
-    proto_tree_add_text(sub_tree, tvb, offset, 4,
-        "Local Detail (%u bytes)", 4);
+    proto_tree_add_item(sub_tree, hf_ff_fms_unsolicited_status_req_local_detail, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
     length -= 4;
 
     if (length) {
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -4114,11 +3935,8 @@ dissect_ff_msg_fms_id_req(tvbuff_t *tvb, gint offset,
         sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
             ett_ff_fms_id_req, NULL, "FMS Identify Request");
 
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -4157,11 +3975,8 @@ dissect_ff_msg_fms_id_rsp(tvbuff_t *tvb, gint offset,
     length -= 32;
 
     if (length) {
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -4211,11 +4026,8 @@ dissect_ff_msg_fms_id_err(tvbuff_t *tvb, gint offset,
     length -= 16;
 
     if (length) {
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -4259,11 +4071,8 @@ dissect_ff_msg_fms_get_od_req(tvbuff_t *tvb, gint offset,
     length -= 4;
 
     if (length) {
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -4301,11 +4110,8 @@ dissect_ff_msg_fms_get_od_rsp(tvbuff_t *tvb, gint offset,
     length -= 2;
 
     if (length) {
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "List of Object Descriptions (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_fms_get_od_rsp_object_descriptions, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -4355,11 +4161,8 @@ dissect_ff_msg_fms_get_od_err(tvbuff_t *tvb, gint offset,
     length -= 16;
 
     if (length) {
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -4393,11 +4196,8 @@ dissect_ff_msg_fms_init_put_od_req(tvbuff_t *tvb, gint offset,
     length -= 2;
 
     if (length) {
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -4421,11 +4221,8 @@ dissect_ff_msg_fms_init_put_od_rsp(tvbuff_t *tvb, gint offset,
         sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
             ett_ff_fms_init_put_od_rsp, NULL, "FMS Initiate Put OD Response");
 
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -4476,11 +4273,8 @@ dissect_ff_msg_fms_init_put_od_err(tvbuff_t *tvb, gint offset,
     length -= 16;
 
     if (length) {
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -4508,14 +4302,11 @@ dissect_ff_msg_fms_put_od_req(tvbuff_t *tvb, gint offset,
     offset += 1;
     length -= 1;
 
-    proto_tree_add_text(sub_tree, tvb, offset, 3, "Reserved (%u bytes)", 3);
+    proto_tree_add_item(sub_tree, hf_ff_reserved24, tvb, offset, 3, ENC_BIG_ENDIAN);
     offset += 3;
     length -= 3;
 
-    proto_tree_add_text(sub_tree, tvb, offset, length,
-        "List of Object Descriptions (%u bytes)", length);
-
-    return;
+    proto_tree_add_item(sub_tree, hf_ff_fms_put_od_req_object_descriptions, tvb, offset, length, ENC_NA);
 }
 
 
@@ -4538,11 +4329,8 @@ dissect_ff_msg_fms_put_od_rsp(tvbuff_t *tvb, gint offset,
     if (length) {
         sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
             ett_ff_fms_put_od_rsp, NULL, "FMS Put OD Response");
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -4593,11 +4381,8 @@ dissect_ff_msg_fms_put_od_err(tvbuff_t *tvb, gint offset,
     length -= 16;
 
     if (length) {
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -4622,11 +4407,8 @@ dissect_ff_msg_fms_terminate_put_od_req(tvbuff_t *tvb, gint offset,
         sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
             ett_ff_fms_terminate_put_od_req, NULL, "FMS Terminate Put OD Request");
 
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -4650,11 +4432,8 @@ dissect_ff_msg_fms_terminate_put_od_rsp(tvbuff_t *tvb, gint offset,
         sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
             ett_ff_fms_terminate_put_od_rsp, NULL, "FMS Terminate Put OD Response");
 
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -4712,11 +4491,8 @@ dissect_ff_msg_fms_terminate_put_od_err(tvbuff_t *tvb, gint offset,
     length -= 16;
 
     if (length) {
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -4748,11 +4524,8 @@ dissect_ff_msg_fms_generic_init_download_sequence_req(
     length -= 4;
 
     if (length) {
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -4777,11 +4550,8 @@ dissect_ff_msg_fms_generic_init_download_sequence_rsp(
         sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
             ett_ff_fms_gen_init_download_seq_rep, NULL, "FMS Generic Initiate Download Sequence Response");
 
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -4836,11 +4606,8 @@ dissect_ff_msg_fms_generic_init_download_sequence_err(
     length -= 16;
 
     if (length) {
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -4875,16 +4642,13 @@ dissect_ff_msg_fms_generic_download_segment_req(
     offset += 1;
     length -= 1;
 
-    proto_tree_add_text(sub_tree, tvb, offset, 3, "Reserved (%u bytes)", 3);
+    proto_tree_add_item(sub_tree, hf_ff_reserved24, tvb, offset, 3, ENC_BIG_ENDIAN);
     offset += 3;
     length -= 3;
 
     if (length) {
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "Load Data (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_fms_gen_download_seg_req_load_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -4909,11 +4673,8 @@ dissect_ff_msg_fms_generic_download_segment_rsp(
         sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
             ett_ff_fms_gen_download_seg_rsp, NULL, "FMS Generic Download Segment Response");
 
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -4967,11 +4728,8 @@ dissect_ff_msg_fms_generic_download_segment_err(
     length -= 16;
 
     if (length) {
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -5003,11 +4761,8 @@ dissect_ff_msg_fms_generic_terminate_download_sequence_req(
     length -= 4;
 
     if (length) {
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -5037,16 +4792,13 @@ dissect_ff_msg_fms_generic_terminate_download_sequence_rsp(
     offset += 1;
     length -= 1;
 
-    proto_tree_add_text(sub_tree, tvb, offset, 3, "Reserved (%u bytes)", 3);
+    proto_tree_add_item(sub_tree, hf_ff_reserved24, tvb, offset, 3, ENC_BIG_ENDIAN);
     offset += 3;
     length -= 3;
 
     if (length) {
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -5102,11 +4854,8 @@ dissect_ff_msg_fms_generic_terminate_download_sequence_err(
     length -= 16;
 
     if (length) {
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -5137,11 +4886,8 @@ dissect_ff_msg_fms_init_download_sequence_req(
     length -= 4;
 
     if (length) {
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -5166,11 +4912,8 @@ dissect_ff_msg_fms_init_download_sequence_rsp(
         sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
             ett_ff_fms_init_download_seq_rsp, NULL, "FMS Initiate Download Sequence Response");
 
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -5224,11 +4967,8 @@ dissect_ff_msg_fms_init_download_sequence_err(
     length -= 16;
 
     if (length) {
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -5258,11 +4998,8 @@ dissect_ff_msg_fms_download_segment_req(tvbuff_t *tvb, gint offset,
     length -= 4;
 
     if (length) {
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -5290,16 +5027,13 @@ dissect_ff_msg_fms_download_segment_rsp(tvbuff_t *tvb, gint offset,
     offset += 1;
     length -= 1;
 
-    proto_tree_add_text(sub_tree, tvb, offset, 3, "Reserved (%u bytes)", 3);
+    proto_tree_add_item(sub_tree, hf_ff_reserved24, tvb, offset, 3, ENC_BIG_ENDIAN);
     offset += 3;
     length -= 3;
 
     if (length) {
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "Load Data (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_fms_download_seg_rsp_load_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -5351,11 +5085,8 @@ dissect_ff_msg_fms_download_segment_err(tvbuff_t *tvb, gint offset,
     length -= 16;
 
     if (length) {
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -5385,7 +5116,7 @@ dissect_ff_msg_fms_terminate_download_sequence_req(
     offset += 4;
     length -= 4;
 
-    proto_tree_add_text(sub_tree, tvb, offset, 3, "Reserved (%u bytes)", 3);
+    proto_tree_add_item(sub_tree, hf_ff_reserved24, tvb, offset, 3, ENC_BIG_ENDIAN);
     offset += 3;
     length -= 3;
 
@@ -5396,11 +5127,8 @@ dissect_ff_msg_fms_terminate_download_sequence_req(
     length -= 1;
 
     if (length) {
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -5425,11 +5153,8 @@ dissect_ff_msg_fms_terminate_download_sequence_rsp(
         sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
             ett_ff_fms_terminate_download_seq_rsp, NULL, "FMS Terminate Download Sequence Response");
 
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -5484,11 +5209,8 @@ dissect_ff_msg_fms_terminate_download_sequence_err(
     length -= 16;
 
     if (length) {
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -5519,11 +5241,8 @@ dissect_ff_msg_fms_init_upload_seq_req(
     length -= 4;
 
     if (length) {
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -5548,11 +5267,8 @@ dissect_ff_msg_fms_init_upload_seq_rsp(
         sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
             ett_ff_fms_init_upload_seq_rsp, NULL, "FMS Initiate Upload Sequence Response");
 
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -5604,11 +5320,8 @@ dissect_ff_msg_fms_init_upload_seq_err(
     length -= 16;
 
     if (length) {
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -5638,11 +5351,8 @@ dissect_ff_msg_fms_upload_segment_req(tvbuff_t *tvb, gint offset,
     length -= 4;
 
     if (length) {
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -5670,16 +5380,13 @@ dissect_ff_msg_fms_upload_segment_rsp(tvbuff_t *tvb, gint offset,
     offset += 1;
     length -= 1;
 
-    proto_tree_add_text(sub_tree, tvb, offset, 3, "Reserved (%u bytes)", 3);
+    proto_tree_add_item(sub_tree, hf_ff_reserved24, tvb, offset, 3, ENC_BIG_ENDIAN);
     offset += 3;
     length -= 3;
 
     if (length) {
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "Final Result (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_fms_upload_seg_rsp_final_result, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -5731,11 +5438,8 @@ dissect_ff_msg_fms_upload_segment_err(tvbuff_t *tvb, gint offset,
     length -= 16;
 
     if (length) {
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -5766,11 +5470,8 @@ dissect_ff_msg_fms_terminate_upload_seq_req(
     length -= 4;
 
     if (length) {
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -5795,11 +5496,8 @@ dissect_ff_msg_fms_terminate_upload_seq_rsp(
         sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
             ett_ff_fms_terminate_upload_seq_rsp, NULL, "FMS Terminate Upload Sequence Response");
 
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -5854,11 +5552,8 @@ dissect_ff_msg_fms_terminate_upload_seq_err(
     length -= 16;
 
     if (length) {
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -5893,8 +5588,6 @@ dissect_ff_msg_fms_req_dom_download_req(
             hf_ff_fms_req_dom_download_req_additional_info,
             tvb, offset, length, ENC_ASCII|ENC_NA);
     }
-
-    return;
 }
 
 
@@ -5919,11 +5612,8 @@ dissect_ff_msg_fms_req_dom_download_rsp(
         sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
             ett_ff_fms_req_dom_download_rsp, NULL, "FMS Request Domain Download Response");
 
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -5977,11 +5667,8 @@ dissect_ff_msg_fms_req_dom_download_err(
     length -= 16;
 
     if (length) {
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -6016,8 +5703,6 @@ dissect_ff_msg_fms_req_dom_upload_req(
             hf_ff_fms_req_dom_upload_req_additional_info,
             tvb, offset, length, ENC_ASCII|ENC_NA);
     }
-
-    return;
 }
 
 
@@ -6042,11 +5727,8 @@ dissect_ff_msg_fms_req_dom_upload_rsp(
         sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
             ett_ff_fms_req_dom_upload_rsp, NULL, "FMS Request Domain Upload Response");
 
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -6099,11 +5781,8 @@ dissect_ff_msg_fms_req_dom_upload_err(
     length -= 16;
 
     if (length) {
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -6132,8 +5811,6 @@ dissect_ff_msg_fms_create_pi_req_dom_idxes(tvbuff_t *tvb,
 
         offset += 4;
     }
-
-    return;
 }
 
 
@@ -6179,11 +5856,8 @@ dissect_ff_msg_fms_create_pi_req(tvbuff_t *tvb, gint offset,
     }
 
     if (length) {
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -6212,11 +5886,8 @@ dissect_ff_msg_fms_create_pi_rsp(tvbuff_t *tvb, gint offset,
     length -= 4;
 
     if (length) {
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -6268,11 +5939,8 @@ dissect_ff_msg_fms_create_pi_err(tvbuff_t *tvb, gint offset,
     length -= 16;
 
     if (length) {
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -6302,11 +5970,8 @@ dissect_ff_msg_fms_del_pi_req(tvbuff_t *tvb, gint offset,
     length -= 4;
 
     if (length) {
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -6330,11 +5995,8 @@ dissect_ff_msg_fms_del_pi_rsp(tvbuff_t *tvb, gint offset,
         sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
             ett_ff_fms_del_pi_rsp, NULL, "FMS Delete Program Invocation Response");
 
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -6386,11 +6048,8 @@ dissect_ff_msg_fms_del_pi_err(tvbuff_t *tvb, gint offset,
     length -= 16;
 
     if (length) {
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -6419,11 +6078,8 @@ dissect_ff_msg_fms_start_pi_req(tvbuff_t *tvb, gint offset,
     length -= 4;
 
     if (length) {
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "Execution Argument (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_fms_start_req_execution_argument, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -6447,11 +6103,8 @@ dissect_ff_msg_fms_start_pi_rsp(tvbuff_t *tvb, gint offset,
         sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
             ett_ff_fms_start_rsp, NULL, "FMS Start Response");
 
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -6481,7 +6134,7 @@ dissect_ff_msg_fms_start_pi_err(tvbuff_t *tvb, gint offset,
     offset += 1;
     length -= 1;
 
-    proto_tree_add_text(sub_tree, tvb, offset, 3, "Reserved (%u bytes)", 3);
+    proto_tree_add_item(sub_tree, hf_ff_reserved24, tvb, offset, 3, ENC_BIG_ENDIAN);
     offset += 3;
     length -= 3;
 
@@ -6510,11 +6163,8 @@ dissect_ff_msg_fms_start_pi_err(tvbuff_t *tvb, gint offset,
     length -= 16;
 
     if (length) {
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -6543,11 +6193,8 @@ dissect_ff_msg_fms_stop_pi_req(tvbuff_t *tvb, gint offset,
     length -= 4;
 
     if (length) {
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -6571,11 +6218,8 @@ dissect_ff_msg_fms_stop_pi_rsp(tvbuff_t *tvb, gint offset,
         sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
             ett_ff_fms_stop_rsp, NULL, "FMS Stop Response");
 
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -6605,7 +6249,7 @@ dissect_ff_msg_fms_stop_pi_err(tvbuff_t *tvb, gint offset,
     offset += 1;
     length -= 1;
 
-    proto_tree_add_text(sub_tree, tvb, offset, 3, "Reserved (%u bytes)", 3);
+    proto_tree_add_item(sub_tree, hf_ff_reserved24, tvb, offset, 3, ENC_BIG_ENDIAN);
     offset += 3;
     length -= 3;
 
@@ -6634,11 +6278,8 @@ dissect_ff_msg_fms_stop_pi_err(tvbuff_t *tvb, gint offset,
     length -= 16;
 
     if (length) {
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -6667,11 +6308,8 @@ dissect_ff_msg_fms_resume_pi_req(tvbuff_t *tvb, gint offset,
     length -= 4;
 
     if (length) {
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "Execution Argument (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_fms_resume_req_execution_argument, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -6695,11 +6333,8 @@ dissect_ff_msg_fms_resume_pi_rsp(tvbuff_t *tvb, gint offset,
         sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
             ett_ff_fms_resume_rsp, NULL, "FMS Resume Response");
 
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -6729,7 +6364,7 @@ dissect_ff_msg_fms_resume_pi_err(tvbuff_t *tvb, gint offset,
     offset += 1;
     length -= 1;
 
-    proto_tree_add_text(sub_tree, tvb, offset, 3, "Reserved (%u bytes)", 3);
+    proto_tree_add_item(sub_tree, hf_ff_reserved24, tvb, offset, 3, ENC_BIG_ENDIAN);
     offset += 3;
     length -= 3;
 
@@ -6758,11 +6393,8 @@ dissect_ff_msg_fms_resume_pi_err(tvbuff_t *tvb, gint offset,
     length -= 16;
 
     if (length) {
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -6791,11 +6423,8 @@ dissect_ff_msg_fms_reset_pi_req(tvbuff_t *tvb, gint offset,
     length -= 4;
 
     if (length) {
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -6819,11 +6448,8 @@ dissect_ff_msg_fms_reset_pi_rsp(tvbuff_t *tvb, gint offset,
         sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
             ett_ff_fms_reset_rsp, NULL, "FMS Reset Response");
 
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -6853,7 +6479,7 @@ dissect_ff_msg_fms_reset_pi_err(tvbuff_t *tvb, gint offset,
     offset += 1;
     length -= 1;
 
-    proto_tree_add_text(sub_tree, tvb, offset, 3, "Reserved (%u bytes)", 3);
+    proto_tree_add_item(sub_tree, hf_ff_reserved24, tvb, offset, 3, ENC_BIG_ENDIAN);
     offset += 3;
     length -= 3;
 
@@ -6882,11 +6508,8 @@ dissect_ff_msg_fms_reset_pi_err(tvbuff_t *tvb, gint offset,
     length -= 16;
 
     if (length) {
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -6915,11 +6538,8 @@ dissect_ff_msg_fms_kill_pi_req(tvbuff_t *tvb, gint offset,
     length -= 4;
 
     if (length) {
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -6943,11 +6563,8 @@ dissect_ff_msg_fms_kill_pi_rsp(tvbuff_t *tvb, gint offset,
         sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
             ett_ff_fms_kill_rsp, NULL, "FMS Kill Response");
 
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -6997,11 +6614,8 @@ dissect_ff_msg_fms_kill_pi_err(tvbuff_t *tvb, gint offset,
     length -= 16;
 
     if (length) {
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -7030,11 +6644,8 @@ dissect_ff_msg_fms_read_req(tvbuff_t *tvb, gint offset,
     length -= 4;
 
     if (length) {
-        proto_tree_add_text(tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -7056,10 +6667,7 @@ dissect_ff_msg_fms_read_rsp(tvbuff_t *tvb, gint offset,
 
     sub_tree = proto_tree_add_subtree(tree, tvb, offset, length, ett_ff_fms_read_rsp, NULL, "FMS Read Response");
 
-    proto_tree_add_text(sub_tree, tvb, offset, length,
-        "Data (%u bytes)", length);
-
-    return;
+    proto_tree_add_item(sub_tree, hf_ff_data, tvb, offset, length, ENC_NA);
 }
 
 
@@ -7109,11 +6717,8 @@ dissect_ff_msg_fms_read_err(tvbuff_t *tvb, gint offset,
     length -= 16;
 
     if (length) {
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -7148,11 +6753,8 @@ dissect_ff_msg_fms_read_subindex_req(tvbuff_t *tvb, gint offset,
     length -= 4;
 
     if (length) {
-        proto_tree_add_text(tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -7175,10 +6777,7 @@ dissect_ff_msg_fms_read_subindex_rsp(tvbuff_t *tvb, gint offset,
     sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
         ett_ff_fms_read_with_subidx_rsp, NULL, "FMS Read with Subindex Response");
 
-    proto_tree_add_text(sub_tree, tvb, offset, length,
-        "Data (%u bytes)", length);
-
-    return;
+    proto_tree_add_item(sub_tree, hf_ff_data, tvb, offset, length, ENC_NA);
 }
 
 
@@ -7231,11 +6830,8 @@ dissect_ff_msg_fms_read_subindex_err(tvbuff_t *tvb, gint offset,
     length -= 16;
 
     if (length) {
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -7264,11 +6860,8 @@ dissect_ff_msg_fms_write_req(tvbuff_t *tvb, gint offset,
     length -= 4;
 
     if (length) {
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "Data (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -7292,11 +6885,8 @@ dissect_ff_msg_fms_write_rsp(tvbuff_t *tvb, gint offset,
         sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
             ett_ff_fms_write_rsp, NULL, "FMS Write Response");
 
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -7346,11 +6936,8 @@ dissect_ff_msg_fms_write_err(tvbuff_t *tvb, gint offset,
     length -= 16;
 
     if (length) {
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -7385,11 +6972,8 @@ dissect_ff_msg_fms_write_subindex_req(tvbuff_t *tvb, gint offset,
     length -= 4;
 
     if (length) {
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "Data (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -7413,11 +6997,8 @@ dissect_ff_msg_fms_write_subindex_rsp(tvbuff_t *tvb, gint offset,
         sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
             ett_ff_fms_write_with_subidx_rsp, NULL, "FMS Write with Subindex Response");
 
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -7470,11 +7051,8 @@ dissect_ff_msg_fms_write_subindex_err(tvbuff_t *tvb, gint offset,
     length -= 16;
 
     if (length) {
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -7502,8 +7080,6 @@ dissect_ff_msg_fms_def_variable_list_req_list_of_idxes(tvbuff_t *tvb,
             hf_ff_fms_def_variable_list_req_idx, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
     }
-
-    return;
 }
 
 
@@ -7538,11 +7114,8 @@ dissect_ff_msg_fms_def_variable_list_req(tvbuff_t *tvb, gint offset,
     }
 
     if (length) {
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -7571,11 +7144,8 @@ dissect_ff_msg_fms_def_variable_list_rsp(tvbuff_t *tvb, gint offset,
     length -= 4;
 
     if (length) {
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -7628,11 +7198,8 @@ dissect_ff_msg_fms_def_variable_list_err(tvbuff_t *tvb, gint offset,
     length -= 16;
 
     if (length) {
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -7662,11 +7229,8 @@ dissect_ff_msg_fms_del_variable_list_req(tvbuff_t *tvb, gint offset,
     length -= 4;
 
     if (length) {
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -7690,11 +7254,8 @@ dissect_ff_msg_fms_del_variable_list_rsp(tvbuff_t *tvb, gint offset,
         sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
             ett_ff_fms_del_variable_list_rsp, NULL, "FMS Delete Variable List Response");
 
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -7747,11 +7308,8 @@ dissect_ff_msg_fms_del_variable_list_err(tvbuff_t *tvb, gint offset,
     length -= 16;
 
     if (length) {
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -7781,11 +7339,8 @@ dissect_ff_msg_fms_info_report_req(tvbuff_t *tvb, gint offset,
     length -= 4;
 
     if (length) {
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "Data (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -7821,11 +7376,8 @@ dissect_ff_msg_fms_info_report_subindex_req(tvbuff_t *tvb, gint offset,
     length -= 4;
 
     if (length) {
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "Data (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -7855,11 +7407,8 @@ dissect_ff_msg_fms_info_report_change_req(tvbuff_t *tvb, gint offset,
     length -= 4;
 
     if (length) {
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "Data (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -7898,11 +7447,8 @@ dissect_ff_msg_fms_info_report_change_subindex_req(
     length -= 4;
 
     if (length) {
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "Data (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -7938,11 +7484,8 @@ dissect_ff_msg_fms_ev_notification_req(
     length -= 4;
 
     if (length) {
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "Data (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -7972,7 +7515,7 @@ dissect_ff_msg_fms_alter_alter_ev_condition_monitoring_req(
     offset += 4;
     length -= 4;
 
-    proto_tree_add_text(sub_tree, tvb, offset, 3, "Reserved (%u bytes)", 3);
+    proto_tree_add_item(sub_tree, hf_ff_reserved24, tvb, offset, 3, ENC_BIG_ENDIAN);
     offset += 3;
     length -= 3;
 
@@ -7983,11 +7526,8 @@ dissect_ff_msg_fms_alter_alter_ev_condition_monitoring_req(
     length -= 1;
 
     if (length) {
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -8012,11 +7552,8 @@ dissect_ff_msg_fms_alter_alter_ev_condition_monitoring_rsp(
         sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
             ett_ff_fms_alter_ev_condition_monitoring_rsp, NULL, "FMS Alter Event Condition Monitoring Response");
 
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -8072,11 +7609,8 @@ dissect_ff_msg_fms_alter_alter_ev_condition_monitoring_err(
     length -= 16;
 
     if (length) {
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -8112,11 +7646,8 @@ dissect_ff_msg_fms_ack_ev_notification_req(
     length -= 4;
 
     if (length) {
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -8141,11 +7672,8 @@ dissect_ff_msg_fms_ack_ev_notification_rsp(
         sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
             ett_ff_fms_ack_ev_notification_rsp, NULL, "FMS Acknowledge Event Notification Response");
 
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -8200,11 +7728,8 @@ dissect_ff_msg_fms_ack_ev_notification_err(
     length -= 16;
 
     if (length) {
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -8230,11 +7755,8 @@ dissect_ff_msg_lr_get_info_req(
         sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
             ett_ff_lr_get_info_req, NULL, "LAN Redundancy Get Information Request");
 
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -8244,19 +7766,8 @@ dissect_ff_msg_lr_get_info_req(
  */
 static void
 dissect_ff_msg_lr_get_info_rsp_lr_flags(tvbuff_t *tvb,
-    gint offset, proto_tree *tree, guint8 value)
+    gint offset, proto_tree *tree)
 {
-    proto_tree *sub_tree;
-    proto_item *ti;
-
-    if (!tree) {
-        return;
-    }
-
-    ti = proto_tree_add_text(tree, tvb, offset, 1,
-        "LAN Redundancy Flags: 0x%02x", value);
-    sub_tree = proto_item_add_subtree(ti, ett_ff_lr_get_info_rsp_lr_flags);
-
     /*
      * Bits 6-8: Reserved (not used) = 0
      * Bit 5:    Load Balancing Enabled
@@ -8279,12 +7790,17 @@ dissect_ff_msg_lr_get_info_rsp_lr_flags(tvbuff_t *tvb,
      *             0 = False Transmit on both interfaces
      *             1 = True  Transmit on one interface
      */
-    proto_tree_add_item(sub_tree, hf_ff_lr_get_info_rsp_lr_flags_reserved,     tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sub_tree, hf_ff_lr_get_info_rsp_lr_flags_load_balance, tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sub_tree, hf_ff_lr_get_info_rsp_lr_flags_diag,         tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sub_tree, hf_ff_lr_get_info_rsp_lr_flags_multi_recv,   tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sub_tree, hf_ff_lr_get_info_rsp_lr_flags_cross_cable,  tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sub_tree, hf_ff_lr_get_info_rsp_lr_flags_multi_trans,  tvb, offset, 1, ENC_BIG_ENDIAN);
+    static const int * lan_flags[] = {
+        &hf_ff_lr_get_info_rsp_lr_flags_reserved,
+        &hf_ff_lr_get_info_rsp_lr_flags_load_balance,
+        &hf_ff_lr_get_info_rsp_lr_flags_diag,
+        &hf_ff_lr_get_info_rsp_lr_flags_multi_recv,
+        &hf_ff_lr_get_info_rsp_lr_flags_cross_cable,
+        &hf_ff_lr_get_info_rsp_lr_flags_multi_trans,
+        NULL
+    };
+
+    proto_tree_add_bitmask(tree, tvb, offset, hf_ff_lr_get_info_rsp_lr_flags, ett_ff_lr_get_info_rsp_lr_flags, lan_flags, ENC_BIG_ENDIAN);
 }
 
 
@@ -8296,7 +7812,6 @@ dissect_ff_msg_lr_get_info_rsp(
 {
     proto_tree *sub_tree;
     guint8      MaxMsgNumDiff;
-    guint8      LRFlags;
 
     col_set_str(pinfo->cinfo, COL_INFO, "LAN Redundancy Get Information Response");
 
@@ -8331,8 +7846,7 @@ dissect_ff_msg_lr_get_info_rsp(
     offset += 1;
     length -= 1;
 
-    LRFlags = tvb_get_guint8(tvb, offset);
-    dissect_ff_msg_lr_get_info_rsp_lr_flags(tvb, offset, sub_tree, LRFlags);
+    dissect_ff_msg_lr_get_info_rsp_lr_flags(tvb, offset, sub_tree);
     offset += 1;
     length -= 1;
 
@@ -8376,11 +7890,8 @@ dissect_ff_msg_lr_get_info_rsp(
     length -= 16;
 
     if (length) {
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -8433,11 +7944,8 @@ dissect_ff_msg_lr_get_info_err(
     length -= 16;
 
     if (length) {
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -8448,19 +7956,8 @@ dissect_ff_msg_lr_get_info_err(
  */
 static void
 dissect_ff_msg_lr_put_info_req_lr_flags(tvbuff_t *tvb,
-    gint offset, proto_tree *tree, guint8 value)
+    gint offset, proto_tree *tree)
 {
-    proto_tree *sub_tree;
-    proto_item *ti;
-
-    if (!tree) {
-        return;
-    }
-
-    ti = proto_tree_add_text(tree, tvb, offset, 1,
-        "LAN Redundancy Flags: 0x%02x", value);
-    sub_tree = proto_item_add_subtree(ti, ett_ff_lr_put_info_req_lr_flags);
-
     /*
      * Bits 6-8: Reserved (not used) = 0
      * Bit 5:    Load Balancing Enabled
@@ -8483,12 +7980,17 @@ dissect_ff_msg_lr_put_info_req_lr_flags(tvbuff_t *tvb,
      *             0 = False Transmit on both interfaces
      *             1 = True  Transmit on one interface
      */
-    proto_tree_add_item(sub_tree, hf_ff_lr_put_info_req_lr_flags_reserved,     tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sub_tree, hf_ff_lr_put_info_req_lr_flags_load_balance, tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sub_tree, hf_ff_lr_put_info_req_lr_flags_diag,         tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sub_tree, hf_ff_lr_put_info_req_lr_flags_multi_recv,   tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sub_tree, hf_ff_lr_put_info_req_lr_flags_cross_cable,  tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sub_tree, hf_ff_lr_put_info_req_lr_flags_multi_trans,  tvb, offset, 1, ENC_BIG_ENDIAN);
+    static const int * lan_flags[] = {
+        &hf_ff_lr_put_info_req_lr_flags_reserved,
+        &hf_ff_lr_put_info_req_lr_flags_load_balance,
+        &hf_ff_lr_put_info_req_lr_flags_diag,
+        &hf_ff_lr_put_info_req_lr_flags_multi_recv,
+        &hf_ff_lr_put_info_req_lr_flags_cross_cable,
+        &hf_ff_lr_put_info_req_lr_flags_multi_trans,
+        NULL
+    };
+
+    proto_tree_add_bitmask(tree, tvb, offset, hf_ff_lr_put_info_req_lr_flags, ett_ff_lr_put_info_req_lr_flags, lan_flags, ENC_BIG_ENDIAN);
 }
 
 
@@ -8500,7 +8002,6 @@ dissect_ff_msg_lr_put_info_req(
 {
     proto_tree *sub_tree;
     guint8      MaxMsgNumDiff;
-    guint8      LRFlags;
 
     col_set_str(pinfo->cinfo, COL_INFO, "LAN Redundancy Put Information Request");
 
@@ -8535,8 +8036,7 @@ dissect_ff_msg_lr_put_info_req(
     offset += 1;
     length -= 1;
 
-    LRFlags = tvb_get_guint8(tvb, offset);
-    dissect_ff_msg_lr_put_info_req_lr_flags(tvb, offset, sub_tree, LRFlags);
+    dissect_ff_msg_lr_put_info_req_lr_flags(tvb, offset, sub_tree);
     offset += 1;
     length -= 1;
 
@@ -8580,11 +8080,8 @@ dissect_ff_msg_lr_put_info_req(
     length -= 16;
 
     if (length) {
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -8594,19 +8091,8 @@ dissect_ff_msg_lr_put_info_req(
  */
 static void
 dissect_ff_msg_lr_put_info_rsp_lr_flags(tvbuff_t *tvb,
-    gint offset, proto_tree *tree, guint8 value)
+    gint offset, proto_tree *tree)
 {
-    proto_tree *sub_tree;
-    proto_item *ti;
-
-    if (!tree) {
-        return;
-    }
-
-    ti = proto_tree_add_text(tree, tvb, offset, 1,
-        "LAN Redundancy Flags: 0x%02x", value);
-    sub_tree = proto_item_add_subtree(ti, ett_ff_lr_put_info_rsp_lr_flags);
-
     /*
      * Bits 6-8: Reserved (not used) = 0
      * Bit 5:    Load Balancing Enabled
@@ -8629,12 +8115,17 @@ dissect_ff_msg_lr_put_info_rsp_lr_flags(tvbuff_t *tvb,
      *             0 = False Transmit on both interfaces
      *             1 = True  Transmit on one interface
      */
-    proto_tree_add_item(sub_tree, hf_ff_lr_put_info_rsp_lr_flags_reserved,     tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sub_tree, hf_ff_lr_put_info_rsp_lr_flags_load_balance, tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sub_tree, hf_ff_lr_put_info_rsp_lr_flags_diag,         tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sub_tree, hf_ff_lr_put_info_rsp_lr_flags_multi_recv,   tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sub_tree, hf_ff_lr_put_info_rsp_lr_flags_cross_cable,  tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sub_tree, hf_ff_lr_put_info_rsp_lr_flags_multi_trans,  tvb, offset, 1, ENC_BIG_ENDIAN);
+    static const int * lan_flags[] = {
+        &hf_ff_lr_put_info_rsp_lr_flags_reserved,
+        &hf_ff_lr_put_info_rsp_lr_flags_load_balance,
+        &hf_ff_lr_put_info_rsp_lr_flags_diag,
+        &hf_ff_lr_put_info_rsp_lr_flags_multi_recv,
+        &hf_ff_lr_put_info_rsp_lr_flags_cross_cable,
+        &hf_ff_lr_put_info_rsp_lr_flags_multi_trans,
+        NULL
+    };
+
+    proto_tree_add_bitmask(tree, tvb, offset, hf_ff_lr_put_info_rsp_lr_flags, ett_ff_lr_put_info_rsp_lr_flags, lan_flags, ENC_BIG_ENDIAN);
 }
 
 
@@ -8646,7 +8137,6 @@ dissect_ff_msg_lr_put_info_rsp(
 {
     proto_tree *sub_tree;
     guint8      MaxMsgNumDiff;
-    guint8      LRFlags;
 
     col_set_str(pinfo->cinfo, COL_INFO, "LAN Redundancy Put Information Response");
 
@@ -8681,8 +8171,7 @@ dissect_ff_msg_lr_put_info_rsp(
     offset += 1;
     length -= 1;
 
-    LRFlags = tvb_get_guint8(tvb, offset);
-    dissect_ff_msg_lr_put_info_rsp_lr_flags(tvb, offset, sub_tree, LRFlags);
+    dissect_ff_msg_lr_put_info_rsp_lr_flags(tvb, offset, sub_tree);
     offset += 1;
     length -= 1;
 
@@ -8726,11 +8215,8 @@ dissect_ff_msg_lr_put_info_rsp(
     length -= 16;
 
     if (length) {
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -8783,8 +8269,7 @@ dissect_ff_msg_lr_put_info_err(
     length -= 16;
 
     if (length) {
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
 
     return;
@@ -8813,11 +8298,8 @@ dissect_ff_msg_lr_get_statistics_req(
         sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
             ett_ff_lr_get_statistics_req, NULL, "LAN Redundancy Get Statistics Request");
 
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -8846,8 +8328,6 @@ dissect_ff_msg_lr_get_statistics_rsp_x_cable_stat(tvbuff_t *tvb,
 
         offset += 4;
     }
-
-    return;
 }
 
 
@@ -8919,11 +8399,8 @@ dissect_ff_msg_lr_get_statistics_rsp(
     }
 
     if (length) {
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -8977,11 +8454,8 @@ dissect_ff_msg_lr_get_statistics_err(
     length -= 16;
 
     if (length) {
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -8992,20 +8466,8 @@ dissect_ff_msg_lr_get_statistics_err(
  */
 static void
 dissect_ff_msg_diagnostic_msg_req_dup_detection_stat(tvbuff_t *tvb,
-        gint offset, proto_tree *tree, guint8 value)
+        gint offset, proto_tree *tree)
 {
-    proto_tree *sub_tree;
-    proto_item *ti;
-
-    if (!tree) {
-        return;
-    }
-
-    ti = proto_tree_add_text(tree, tvb, offset, 1,
-        "Duplicate Detection State: 0x%02x", value);
-    sub_tree = proto_item_add_subtree(ti,
-        ett_ff_lr_diagnostic_msg_req_dup_detection_stat);
-
     /*
      * Bits 3-8: Reserved, set to 0.
      * Bit 2:    1 = Duplicate PD Tag Detected
@@ -9013,9 +8475,14 @@ dissect_ff_msg_diagnostic_msg_req_dup_detection_stat(tvbuff_t *tvb,
      * Bit 18:   1 = Duplicate Device Index Detected
      *           0 = Duplicate Device Index Not Detected
      */
-    proto_tree_add_item(sub_tree, hf_ff_lr_diagnostic_msg_req_dup_detection_state_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sub_tree, hf_ff_lr_diagnostic_msg_req_dup_detection_state_pd_tag, tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sub_tree, hf_ff_lr_diagnostic_msg_req_dup_detection_state_device, tvb, offset, 1, ENC_BIG_ENDIAN);
+    static const int * dup_flags[] = {
+        &hf_ff_lr_diagnostic_msg_req_dup_detection_state_reserved,
+        &hf_ff_lr_diagnostic_msg_req_dup_detection_state_pd_tag,
+        &hf_ff_lr_diagnostic_msg_req_dup_detection_state_device,
+        NULL
+    };
+
+    proto_tree_add_bitmask(tree, tvb, offset, hf_ff_lr_diagnostic_msg_req_dup_detection_state, ett_ff_lr_diagnostic_msg_req_dup_detection_stat, dup_flags, ENC_BIG_ENDIAN);
 }
 
 
@@ -9042,8 +8509,6 @@ dissect_ff_msg_diagnostic_msg_req_if_a_to_a_status(tvbuff_t *tvb,
 
         offset += 4;
     }
-
-    return;
 }
 
 
@@ -9070,8 +8535,6 @@ dissect_ff_msg_diagnostic_msg_req_if_b_to_a_status(tvbuff_t *tvb,
 
         offset += 4;
     }
-
-    return;
 }
 
 
@@ -9098,8 +8561,6 @@ dissect_ff_msg_diagnostic_msg_req_if_a_to_b_status(tvbuff_t *tvb,
 
         offset += 4;
     }
-
-    return;
 }
 
 
@@ -9126,8 +8587,6 @@ dissect_ff_msg_diagnostic_msg_req_if_b_to_b_status(tvbuff_t *tvb,
 
         offset += 4;
     }
-
-    return;
 }
 
 
@@ -9139,7 +8598,6 @@ dissect_ff_msg_diagnostic_msg_req(
 {
     proto_tree *sub_tree;
     guint16     DeviceIndex;
-    guint8      DuplicateDetectionState;
     guint16     NumOfInterfaceStatuses;
 
     col_set_str(pinfo->cinfo, COL_INFO, "Diagnostic Message Request");
@@ -9191,9 +8649,8 @@ dissect_ff_msg_diagnostic_msg_req(
     offset += 1;
     length -= 1;
 
-    DuplicateDetectionState = tvb_get_guint8(tvb, offset);
     dissect_ff_msg_diagnostic_msg_req_dup_detection_stat(tvb,
-        offset, sub_tree, DuplicateDetectionState);
+        offset, sub_tree);
     offset += 1;
     length -= 1;
 
@@ -9226,11 +8683,8 @@ dissect_ff_msg_diagnostic_msg_req(
     }
 
     if (length) {
-        proto_tree_add_text(sub_tree, tvb, offset, length,
-            "[Unknown] (%u bytes)", length);
+        proto_tree_add_item(sub_tree, hf_ff_unknown_data, tvb, offset, length, ENC_NA);
     }
-
-    return;
 }
 
 
@@ -11316,12 +10770,9 @@ dissect_ff_msg_body(tvbuff_t *tvb, gint offset, guint32 length,
                 Service & SERVICE_SERVICE_ID_MASK);
 
             if (length) {
-                proto_tree_add_text(tree, tvb, offset, length,
-                    "[Unknown Service] (%u bytes)", length);
+                proto_tree_add_item(tree, hf_ff_unknown_service, tvb, offset, length, ENC_NA);
             }
     }
-
-    return;
 }
 
 
@@ -11370,8 +10821,6 @@ dissect_ff_msg_trailer(tvbuff_t *tvb,
             tvb, offset, 4, ENC_BIG_ENDIAN);
         /* offset += 4; */
     }
-
-    return;
 }
 
 
@@ -11391,7 +10840,7 @@ dissect_ff_msg_hdr_srv(tvbuff_t *tvb,
         return;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, 1, "Service: 0x%02x", service);
+    ti = proto_tree_add_uint(tree, hf_ff_hdr_srv, tvb, offset, 1, service);
     sub_tree = proto_item_add_subtree(ti, ett_ff_fda_msg_hdr_srv);
 
     /* Bit 8: Confirmed Flag */
@@ -11438,8 +10887,6 @@ dissect_ff_msg_hdr_srv(tvbuff_t *tvb,
         default:
             proto_tree_add_item(sub_tree, hf_ff_hdr_srv_service_id, tvb, offset, 1, ENC_BIG_ENDIAN);
     }
-
-    return;
 }
 
 
@@ -11450,26 +10897,15 @@ dissect_ff_msg_hdr_srv(tvbuff_t *tvb,
 
 static void
 dissect_ff_msg_hdr_proto_and_type(tvbuff_t *tvb,
-    gint offset, proto_tree *tree, guint8 value)
+    gint offset, proto_tree *tree)
 {
-    proto_tree *sub_tree;
-    proto_item *ti;
+    static const int * header[] = {
+        &hf_ff_hdr_proto_id,
+        &hf_ff_hdr_confirm_msg_type,
+        NULL
+    };
 
-    if (!tree) {
-        return;
-    }
-
-    ti = proto_tree_add_text(tree, tvb, offset, 1,
-        "Protocol Id And Confirmed Msg Type: 0x%02x", value);
-    sub_tree = proto_item_add_subtree(ti,
-        ett_ff_fda_msg_hdr_proto_and_type);
-
-    if (!sub_tree) {
-        return;
-    }
-
-    proto_tree_add_item(sub_tree, hf_ff_hdr_proto_id, tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sub_tree, hf_ff_hdr_confirm_msg_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_bitmask(tree, tvb, offset, hf_ff_hdr_proto_confirm, ett_ff_fda_msg_hdr_proto_and_type, header, ENC_BIG_ENDIAN);
 }
 
 
@@ -11480,24 +10916,19 @@ dissect_ff_msg_hdr_proto_and_type(tvbuff_t *tvb,
 
 static void
 dissect_ff_msg_hdr_opts(tvbuff_t *tvb,
-    gint offset, proto_tree *tree, guint8 value)
+    gint offset, proto_tree *tree)
 {
-    proto_tree *sub_tree;
-    proto_item *ti;
+    static const int * options[] = {
+        &hf_ff_hdr_opts_msg_num,
+        &hf_ff_hdr_opts_invoke_id,
+        &hf_ff_hdr_opts_timestamp,
+        &hf_ff_hdr_opts_reserved,
+        &hf_ff_hdr_opts_ext_ctrl,
+        &hf_ff_hdr_opts_pad,
+        NULL
+    };
 
-    if (!tree) {
-        return;
-    }
-
-    ti = proto_tree_add_text(tree, tvb, offset, 1, "Options: 0x%02x", value);
-    sub_tree = proto_item_add_subtree(ti, ett_ff_fda_msg_hdr_opts);
-
-    proto_tree_add_item(sub_tree, hf_ff_hdr_opts_msg_num,   tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sub_tree, hf_ff_hdr_opts_invoke_id, tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sub_tree, hf_ff_hdr_opts_timestamp, tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sub_tree, hf_ff_hdr_opts_reserved,  tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sub_tree, hf_ff_hdr_opts_ext_ctrl,  tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sub_tree, hf_ff_hdr_opts_pad,       tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_bitmask(tree, tvb, offset, hf_ff_hdr_opts, ett_ff_fda_msg_hdr_opts, options, ENC_BIG_ENDIAN);
 }
 
 
@@ -11507,7 +10938,7 @@ dissect_ff_msg_hdr_opts(tvbuff_t *tvb,
  */
 static void
 dissect_ff_msg_hdr(tvbuff_t *tvb,
-    proto_tree *tree, guint8 Options, guint8 ProtocolAndType, guint8 Service)
+    proto_tree *tree, guint8 ProtocolAndType, guint8 Service)
 {
     proto_tree *sub_tree;
     proto_item *hidden_item;
@@ -11529,12 +10960,12 @@ dissect_ff_msg_hdr(tvbuff_t *tvb,
     offset += 1;
 
     /* Options */
-    dissect_ff_msg_hdr_opts(tvb, offset, sub_tree, Options);
+    dissect_ff_msg_hdr_opts(tvb, offset, sub_tree);
     offset += 1;
 
     /* Protocol Id And Confirmed Msg Type */
     dissect_ff_msg_hdr_proto_and_type(tvb,
-        offset, sub_tree, ProtocolAndType);
+        offset, sub_tree);
     offset += 1;
 
     /* Service */
@@ -11551,8 +10982,6 @@ dissect_ff_msg_hdr(tvbuff_t *tvb,
     proto_tree_add_item(sub_tree,
         hf_ff_fda_msg_hdr_len, tvb, offset, 4, ENC_BIG_ENDIAN);
     /* offset += 4; */
-
-    return;
 }
 
 
@@ -11606,7 +11035,7 @@ dissect_ff(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     /*
      * Header
      */
-    dissect_ff_msg_hdr(tvb, sub_tree, Options, ProtocolAndType, Service);
+    dissect_ff_msg_hdr(tvb, sub_tree, ProtocolAndType, Service);
     offset += 12;
     length -= 12;
 
@@ -11710,7 +11139,21 @@ proto_register_ff(void)
             { "Message Length", "ff.hdr.len",
                 FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 
+        { &hf_ff_unknown_data,
+            { "Unknown data", "ff.unknown_data",
+                FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 
+        { &hf_ff_data,
+            { "Data", "ff.data",
+                FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+
+        { &hf_ff_reserved24,
+            { "Reserved", "ff.reserved",
+                FT_UINT24, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+
+        { &hf_ff_unknown_service,
+            { "Unknown service", "ff.unknown_service",
+                FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 
         /*
          * 6.4. Message Trailer
@@ -11743,6 +11186,10 @@ proto_register_ff(void)
         { &hf_ff_fda,
             { "FDA Session Management Service", "ff.fda",
                 FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+
+        { &hf_ff_hdr_srv,
+            { "Service", "ff.hdr_srv",
+                FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
 
         { &hf_ff_hdr_srv_confirm_flag,
             { "Confirmed Flag", "ff.hdr_srv.confirm_flag",
@@ -11792,6 +11239,10 @@ proto_register_ff(void)
             { "Service Id", "ff.hdr.confirm_msg_type",
                 FT_UINT8, BASE_DEC, VALS(names_type), TYPE_MASK, NULL, HFILL } },
 
+        { &hf_ff_hdr_proto_confirm,
+            { "Protocol Id And Confirmed Msg Type", "ff.hdr.proto_confirm",
+                FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+
         { &hf_ff_hdr_opts_msg_num,
             { "Message Number in the Trailer", "ff.hdr.opts.msg_num",
                 FT_BOOLEAN, 8, TFS(&tfs_present_not_present), OPTION_MESSAGE_NUMBER_MASK, NULL, HFILL } },
@@ -11815,6 +11266,10 @@ proto_register_ff(void)
         { &hf_ff_hdr_opts_pad,
             { "Pad Length", "ff.hdr.opts.pad",
                 FT_UINT8, BASE_HEX, NULL, OPTION_PAD_LENGTH_MASK, NULL, HFILL } },
+
+        { &hf_ff_hdr_opts,
+            { "Options", "ff.hdr.opts",
+                FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
 
 
         /*
@@ -12115,6 +11570,11 @@ proto_register_ff(void)
                 "ff.sm.find_tag_reply.dup_device",
                 FT_BOOLEAN, 8, TFS(&tfs_detected_not_detected), 0x01, NULL, HFILL } },
 
+        { &hf_ff_sm_find_tag_reply_dup,
+            { "Duplicate Detection State",
+                "ff.sm.find_tag_reply.dup",
+                FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+
 
         /*
          * 6.5.2.7. SM Identify (Unconfirmed Service Id = 16)
@@ -12214,6 +11674,10 @@ proto_register_ff(void)
             { "Synchronized with SNTP Time Server", "ff.sm.id.rsp.smk_state_sync",
                 FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x01, NULL, HFILL } },
 
+        { &hf_ff_sm_id_rsp_smk_state,
+            { "SMK State", "ff.sm.id.rsp.smk_state",
+                FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+
         { &hf_ff_sm_id_rsp_dev_type_link,
             { "Linking Device", "ff.sm.id.rsp.dev_type.link",
                 FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x80, NULL, HFILL } },
@@ -12238,6 +11702,10 @@ proto_register_ff(void)
             { "Redundant Device Type Capability", "ff.sm.id.rsp.dev_type.redundant_caps",
                 FT_UINT8, BASE_DEC, VALS(names_dev_type), 0x07, NULL, HFILL } },
 
+        { &hf_ff_sm_id_rsp_dev_type,
+            { "Device Type", "ff.sm.id.rsp.dev_type",
+                FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+
         { &hf_ff_sm_id_rsp_dev_redundancy_state_reserved,
             { "Reserved", "ff.sm.id.rsp.dev_redundancy_state.reserved",
                 FT_UINT8, BASE_HEX, NULL, 0xF0, NULL, HFILL } },
@@ -12250,6 +11718,10 @@ proto_register_ff(void)
             { "Assigned Redundant Device Type", "ff.sm.id.rsp.dev_redundancy_state.type",
                 FT_UINT8, BASE_DEC, VALS(names_assigned_redundant_dev_type), 0x03, NULL, HFILL } },
 
+        { &hf_ff_sm_id_rsp_dev_redundancy_state,
+            { "Device Redundancy State", "ff.sm.id.rsp.dev_redundancy_state",
+                FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+
         { &hf_ff_sm_id_rsp_dup_detection_state_reserved,
             { "Reserved", "ff.sm.id.rsp.dup_detection_state.reserved",
                 FT_UINT8, BASE_HEX, NULL, 0xFC, NULL, HFILL } },
@@ -12261,6 +11733,10 @@ proto_register_ff(void)
         { &hf_ff_sm_id_rsp_dup_detection_state_device,
             { "Duplicate Device Index", "ff.sm.id.rsp.dup_detection_state.device",
                 FT_BOOLEAN, 8, TFS(&tfs_detected_not_detected), 0x01, NULL, HFILL } },
+
+        { &hf_ff_sm_id_rsp_dup_detection_state,
+            { "Duplicate Detection State", "ff.sm.id.rsp.dup_detection_state",
+                FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
 
 
         /*
@@ -12376,6 +11852,10 @@ proto_register_ff(void)
             { "Assigned Device Redundancy Type", "ff.sm.set_assign_info.req_dev_redundancy_state.type",
                 FT_UINT8, BASE_DEC, VALS(names_assigned_redundant_dev_type), 0x03, NULL, HFILL } },
 
+        { &hf_ff_sm_set_assign_info_req_dev_redundancy_state,
+            { "Device Redundancy State", "ff.sm.set_assign_info.req_dev_redundancy_state",
+                FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+
         { &hf_ff_sm_set_assign_info_req_clear_dup_detection_state_reserved,
             { "Reserved", "ff.sm.set_assign_info.req_clear_dup_detection_state.reserved",
                 FT_UINT8, BASE_HEX, NULL, 0xFC, NULL, HFILL } },
@@ -12387,6 +11867,10 @@ proto_register_ff(void)
         { &hf_ff_sm_set_assign_info_req_clear_dup_detection_state_device_index,
             { "Duplicate Device Index Detected", "ff.sm.set_assign_info.req_clear_dup_detection_state.device_index",
                 FT_BOOLEAN, 8, TFS(&tfs_do_not_clear_clear), 0x01, NULL, HFILL } },
+
+        { &hf_ff_sm_set_assign_info_req_clear_dup_detection_state,
+            { "Clear Duplicate Detection State", "ff.sm.set_assign_info.req_clear_dup_detection_state",
+                FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
 
         { &hf_ff_sm_set_assign_info_req,
             { "SM Set Assignment Info Request", "ff.sm.set_assign_info.req",
@@ -12631,6 +12115,10 @@ proto_register_ff(void)
             { "Synchronized with SNTP Time Server", "ff.sm.dev_annunc.req.smk_state_sync",
                 FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x01, NULL, HFILL } },
 
+        { &hf_ff_sm_dev_annunc_req_smk_state,
+            { "SMK State", "ff.sm.dev_annunc.req.smk_state",
+                FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+
         { &hf_ff_sm_dev_annunc_req_dev_type_link,
             { "Linking Device", "ff.sm.dev_annunc.req.dev_type.link",
                 FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x80, NULL, HFILL } },
@@ -12655,6 +12143,10 @@ proto_register_ff(void)
             { "Redundant Device Type Capability", "ff.sm.dev_annunc.req.dev_type.redundant_caps",
                 FT_UINT8, BASE_DEC, VALS(names_dev_type), 0x07, NULL, HFILL } },
 
+        { &hf_ff_sm_dev_annunc_req_dev_type,
+            { "Device Type", "ff.sm.dev_annunc.req.dev_type",
+                FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+
         { &hf_ff_sm_dev_annunc_req_dev_redundancy_state_reserved,
             { "Reserved", "ff.sm.dev_annunc.req_dev_redundancy_state.reserved",
                 FT_UINT8, BASE_HEX, NULL, 0xF0, NULL, HFILL } },
@@ -12667,6 +12159,10 @@ proto_register_ff(void)
             { "Assigned Device Redundancy Type", "ff.sm.dev_annunc.req_dev_redundancy_state.type",
                 FT_UINT8, BASE_DEC, VALS(names_assigned_redundant_dev_type), 0x03, NULL, HFILL } },
 
+        { &hf_ff_sm_dev_annunc_req_dev_redundancy_state,
+            { "Device Redundancy State", "ff.sm.dev_annunc.req_dev_redundancy_state",
+                FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+
         { &hf_ff_sm_dev_annunc_req_dup_detection_state_reserved,
             { "Reserved", "ff.sm.dev_annunc.req.dup_detection_state.reserved",
                 FT_UINT8, BASE_HEX, NULL, 0xFC, NULL, HFILL } },
@@ -12678,6 +12174,10 @@ proto_register_ff(void)
         { &hf_ff_sm_dev_annunc_req_dup_detection_state_device,
             { "Duplicate Device Index", "ff.sm.dev_annunc.req.dup_detection_state.device",
                 FT_BOOLEAN, 8, TFS(&tfs_detected_not_detected), 0x01, NULL, HFILL } },
+
+        { &hf_ff_sm_dev_annunc_req_dup_detection_state,
+            { "Duplicate Detection State", "ff.sm.dev_annunc.req.dup_detection_state",
+                FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
 
 
         /*
@@ -12791,6 +12291,10 @@ proto_register_ff(void)
             { "FMS Abort Request", "ff.fms.abort.req",
                 FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 
+        { &hf_ff_fms_abort_req_detail,
+            { "Abort Detail", "ff.fms.abort.req.detail",
+                FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+
         { &hf_ff_fms_abort_req_abort_id,
             { "Abort Identifier", "ff.fms.abort.req.abort_id",
                 FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
@@ -12841,6 +12345,10 @@ proto_register_ff(void)
         { &hf_ff_fms_status_rsp_reserved,
             { "Reserved", "ff.fms.status.rsp.reserved",
                 FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+
+        { &hf_ff_fms_status_rsp_local_detail,
+            { "Local Detail", "ff.fms.status.rsp.local_detail",
+                FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL } },
 
 
 
@@ -12897,6 +12405,10 @@ proto_register_ff(void)
         { &hf_ff_fms_unsolicited_status_req_reserved,
             { "Reserved", "ff.fms.unsolicited_status.req.reserved",
                 FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+
+        { &hf_ff_fms_unsolicited_status_req_local_detail,
+            { "Local Detail", "ff.fms.unsolicited_status.req.local_detail",
+                FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL } },
 
 
 
@@ -13018,6 +12530,10 @@ proto_register_ff(void)
             { "Reserved", "ff.fms.get_od.rsp.reserved",
                 FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 
+        { &hf_ff_fms_get_od_rsp_object_descriptions,
+            { "List of Object Descriptions", "ff.fms.get_od.rsp.object_descriptions",
+                FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+
 
 
         /*
@@ -13127,6 +12643,9 @@ proto_register_ff(void)
                 "ff.fms.put_od.req.num_of_obj_desc",
                 FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 
+        { &hf_ff_fms_put_od_req_object_descriptions,
+            { "List of Object Descriptions", "ff.fms.put_od.req.object_descriptions",
+                FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 
 
         /*
@@ -13309,6 +12828,9 @@ proto_register_ff(void)
             { "More Follows", "ff.fms.gen_download_seg.req.more_follows",
                 FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 
+        { &hf_ff_fms_gen_download_seg_req_load_data,
+            { "Load Data", "ff.fms.gen_download_seg.req.load_data",
+                FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 
 
         /*
@@ -13510,6 +13032,9 @@ proto_register_ff(void)
             { "Final Result", "ff.fms.download_seg.rsp.more_follows",
                 FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 
+        { &hf_ff_fms_download_seg_rsp_load_data,
+            { "Load Data", "ff.fms.download_seg.rsp.load_data",
+                FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 
 
         /*
@@ -13697,6 +13222,9 @@ proto_register_ff(void)
             { "More Follows", "ff.fms.upload_seg.rsp.more_follows",
                 FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 
+        { &hf_ff_fms_upload_seg_rsp_final_result,
+            { "Final Result", "ff.fms.upload_seg.rsp.final_result",
+                FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 
 
         /*
@@ -14064,6 +13592,9 @@ proto_register_ff(void)
             { "Index", "ff.fms.start.req.idx",
                 FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 
+        { &hf_ff_fms_start_req_execution_argument,
+            { "Execution Argument", "ff.fms.start.req.execution_argument",
+                FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 
 
         /*
@@ -14184,6 +13715,9 @@ proto_register_ff(void)
             { "Index", "ff.fms.resume.req.idx",
                 FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 
+        { &hf_ff_fms_resume_req_execution_argument,
+            { "Execution Argument", "ff.fms.resume.req.execution_argument",
+                FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 
 
         /*
@@ -15079,6 +14613,11 @@ proto_register_ff(void)
                 "ff.lr.get_info.rsp.lr_flags.multi_trans",
                 FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x01, NULL, HFILL } },
 
+        { &hf_ff_lr_get_info_rsp_lr_flags,
+            { "LAN Redundancy Flags",
+                "ff.lr.get_info.rsp.lr_flags",
+                FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+
 
 
         /*
@@ -15200,6 +14739,11 @@ proto_register_ff(void)
                 "ff.lr.put_info.req.lr_flags.multi_trans",
                 FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x01, NULL, HFILL } },
 
+        { &hf_ff_lr_put_info_req_lr_flags,
+            { "LAN Redundancy Flags",
+                "ff.lr.put_info.req.lr_flags",
+                FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+
 
         /*
          * 6.5.4.2.2. Response Message Parameters
@@ -15283,6 +14827,11 @@ proto_register_ff(void)
             { "Single Multicast Message Transmission Interface",
                 "ff.lr.put_info.rsp.lr_flags.multi_trans",
                 FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x01, NULL, HFILL } },
+
+        { &hf_ff_lr_put_info_rsp_lr_flags,
+            { "LAN Redundancy Flags",
+                "ff.lr.put_info.rsp.lr_flags",
+                FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
 
 
         /*
@@ -15483,6 +15032,10 @@ proto_register_ff(void)
         { &hf_ff_lr_diagnostic_msg_req_dup_detection_state_device,
             { "Duplicate Device Index", "ff.lr.diagnostic_msg.req.dup_detection_state.device",
                 FT_BOOLEAN, 8, TFS(&tfs_detected_not_detected), 0x01, NULL, HFILL } },
+
+        { &hf_ff_lr_diagnostic_msg_req_dup_detection_state,
+            { "Duplicate Detection State", "ff.lr.diagnostic_msg.req.dup_detection_state",
+                FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
 
     };
 
@@ -15721,8 +15274,6 @@ proto_register_ff(void)
     proto_ff = proto_register_protocol("FOUNDATION Fieldbus", "FF", "ff");
     proto_register_field_array(proto_ff, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
-
-    return;
 }
 
 
@@ -15766,6 +15317,4 @@ proto_reg_handoff_ff(void)
      * - LAN Redundancy Get and Put Information
      */
     dissector_add_uint("udp.port", UDP_PORT_FF_LR_PORT, ff_udp_handle);
-
-    return;
 }
