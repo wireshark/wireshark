@@ -1601,3 +1601,40 @@ SoundingRS-UL-ConfigDedicated/setup/duration STRINGS=TFS(&lte_rrc_duration_val)
   PROTO_ITEM_SET_GENERATED(ti);
   ti = proto_tree_add_uint(subtree, hf_lte_rrc_sr_config_subframe_offset, tvb, index_offset>>3, 1, subframe_offset);
   PROTO_ITEM_SET_GENERATED(ti);
+
+
+#.FN_BODY FreqBandIndicator VAL_PTR=&value
+  guint32 value;
+%(DEFAULT_BODY)s
+  set_freq_band_indicator(value, actx);
+
+#.FN_BODY FreqBandIndicator-v9e0 VAL_PTR=&value
+  guint32 value;
+%(DEFAULT_BODY)s
+  set_freq_band_indicator(value, actx);
+
+#.FN_BODY FreqBandIndicator-r11 VAL_PTR=&value
+  guint32 value;
+%(DEFAULT_BODY)s
+  set_freq_band_indicator(value, actx);
+
+
+#.FN_BODY InterFreqBandInfo
+  meas_capabilities_item_band_mappings_t *mappings;
+  proto_item *it;
+%(DEFAULT_BODY)s
+  mappings = private_data_meas_capabilities_item_band_mappings(actx);
+  if (mappings->number_of_interfreq_serving_read <= mappings->number_of_bands_set) {
+    guint16 serving_band = mappings->band_by_item[mappings->number_of_interfreq_serving_read];
+    guint16 target_band = mappings->band_by_item[mappings->number_of_interfreq_target_read++];
+    if (mappings->number_of_interfreq_target_read == mappings->number_of_bands_set) {
+      mappings->number_of_interfreq_target_read = 0;
+      mappings->number_of_interfreq_serving_read++;
+    }
+
+    /* Add a generated item showing serving & target band for this entry */
+    it = proto_tree_add_uint(tree, hf_lte_rrc_bandEUTRA, tvb, 0, 0, serving_band);
+    proto_item_append_text(it, " -> band %%u", target_band);
+    PROTO_ITEM_SET_GENERATED(it);
+  }
+

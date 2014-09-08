@@ -1833,6 +1833,13 @@ static const true_false_string lte_rrc_interBandTDD_CA_WithDifferentConfig_bit2_
 /* through this API, which ensures that they will not overwrite each other!! */
 /*****************************************************************************/
 
+typedef struct meas_capabilities_item_band_mappings_t {
+	guint16 number_of_bands_set;
+	guint16 number_of_interfreq_serving_read;
+	guint16 number_of_interfreq_target_read;
+	guint16 band_by_item[256];
+} meas_capabilities_item_band_mappings_t;
+
 
 /**********************************************************/
 /* Struct to store all current uses of packet private data */
@@ -1846,6 +1853,7 @@ typedef struct lte_rrc_private_data_t
     drb_mapping_t drb_mapping;
     drx_config_t  drx_config;
     pdcp_security_info_t pdcp_security;
+    meas_capabilities_item_band_mappings_t meas_capabilities_item_band_mappings;
 } lte_rrc_private_data_t;
 
 /* Helper function to get or create a struct that will be actx->private_data */
@@ -1955,6 +1963,22 @@ static pdcp_security_info_t* private_data_pdcp_security_algorithms(asn1_ctx_t *a
     return &private_data->pdcp_security;
 }
 
+
+/* Measurement UE capabilities item -> band mappings */
+static meas_capabilities_item_band_mappings_t* private_data_meas_capabilities_item_band_mappings(asn1_ctx_t *actx)
+{
+    lte_rrc_private_data_t *private_data = (lte_rrc_private_data_t*)lte_rrc_get_private_data(actx);
+    return &private_data->meas_capabilities_item_band_mappings;
+}
+
+static set_freq_band_indicator(guint32 value, asn1_ctx_t *actx)
+{
+    /* Store band mapping for this item in the next position */
+    meas_capabilities_item_band_mappings_t *mappings = private_data_meas_capabilities_item_band_mappings(actx);
+    if (mappings->number_of_bands_set < 256) {
+        mappings->band_by_item[mappings->number_of_bands_set++] = (guint16)value;
+    }
+}
 
 /*****************************************************************************/
 
