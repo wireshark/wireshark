@@ -435,7 +435,6 @@ tvbuff_t *
 dissect_zbee_secure(tvbuff_t *tvb, packet_info *pinfo, proto_tree* tree, guint offset)
 {
     proto_tree     *sec_tree;
-    proto_item     *ti;
 
     zbee_security_packet    packet;
     guint           mic_len;
@@ -443,6 +442,7 @@ dissect_zbee_secure(tvbuff_t *tvb, packet_info *pinfo, proto_tree* tree, guint o
     tvbuff_t       *payload_tvb;
 
 #ifdef HAVE_LIBGCRYPT
+    proto_item         *ti;
     guint8             *enc_buffer;
     guint8             *dec_buffer;
     gboolean            decrypted;
