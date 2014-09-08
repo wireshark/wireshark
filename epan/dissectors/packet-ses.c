@@ -1043,6 +1043,7 @@ dissect_spdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 	type = tvb_get_guint8(tvb, offset);
 	session.spdu_type = type;
 	session.abort_type = SESSION_NO_ABORT;
+	session.pres_ctx_id = 0;
 	session.ros_op = 0;
 	session.rtse_reassemble = FALSE;
 
