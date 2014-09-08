@@ -1466,7 +1466,6 @@ DISSECTOR_INCLUDES =	\
 	packet-gluster.h	\
 	packet-gmr1_common.h	\
 	packet-gmr1_rr.h	\
-	packet-gnm.h	\
 	packet-gnutella.h	\
 	packet-gprscdr.h	\
 	packet-gre.h	\
