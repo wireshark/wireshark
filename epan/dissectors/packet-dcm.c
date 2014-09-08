@@ -7236,11 +7236,6 @@ proto_register_dcm(void)
     { &hf_dcm_pdv_reassembled_length,
 	    { "Reassembled PDV length", "dicom.pdv.reassembled.length",
 	    FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL } }
-
-/*
-    { &hf_dcm_FIELDABBREV, { "FIELDNAME", "dicom.FIELDABBREV",
-	FIELDTYPE, FIELDBASE, FIELDCONVERT, BITMASK, "FIELDDESCR", HFILL } },
- */
     };
 
 /* Setup protocol subtree array */
@@ -7296,6 +7291,9 @@ proto_register_dcm(void)
     proto_register_subtree_array(ett, array_length(ett));
     expert_dcm = expert_register_protocol(proto_dcm);
     expert_register_field_array(expert_dcm, ei, array_length(ei));
+
+    /* Allow other dissectors to find this one by name. */
+    new_register_dissector("dicom", dissect_dcm_static, proto_dcm);
 
     dcm_module = prefs_register_protocol(proto_dcm, dcm_apply_settings);
 
