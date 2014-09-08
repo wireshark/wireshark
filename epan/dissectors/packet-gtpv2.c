@@ -253,7 +253,6 @@ static int hf_gtpv2_tra_info_lenb_s1_mme = -1;
 static int hf_gtpv2_tra_info_lenb_x2 = -1;
 static int hf_gtpv2_tra_info_lenb_uu = -1;
 
-static int hf_gtpv2_address_digits = -1;
 static int hf_gtpv2_ti = -1;
 
 static int hf_gtpv2_bearer_qos_pvi= -1;
@@ -1573,14 +1572,11 @@ dissect_gtpv2_msisdn(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, pr
      * When there is an odd number of digits, bits 8 to 5 of the last octet are encoded with
      * the filler "1111".
      */
-    dissect_e164_cc(tvb, tree, 0, E164_ENC_BCD);
     /* Fetch the BCD encoded digits from tvb low half byte, formating the digits according to
      * a default digit set of 0-9 returning "?" for overdecadic digits a pointer to the EP
      * allocated string will be returned.
      */
-    digit_str = tvb_bcd_dig_to_wmem_packet_str( tvb, 0, length, NULL, FALSE);
-
-    proto_tree_add_string(tree, hf_gtpv2_address_digits, tvb, 0, length, digit_str);
+    digit_str = dissect_e164_msisdn(tvb, tree, 0, length, E164_ENC_BCD);
     proto_item_append_text(item, "%s", digit_str);
 }
 
@@ -6685,11 +6681,6 @@ void proto_register_gtpv2(void)
           {"Enterprise ID", "gtpv2.enterprise_id",
            FT_UINT16, BASE_DEC|BASE_EXT_STRING, &sminmpec_values_ext, 0x0,
            NULL, HFILL}
-        },
-        { &hf_gtpv2_address_digits,
-          { "Address digits", "gtpv2.address_digits",
-            FT_STRING, BASE_NONE, NULL, 0,
-            NULL, HFILL }
         },
         { &hf_gtpv2_ti,
           {"Transaction Identifier", "gtpv2.ti",
