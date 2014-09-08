@@ -1971,7 +1971,7 @@ static meas_capabilities_item_band_mappings_t* private_data_meas_capabilities_it
     return &private_data->meas_capabilities_item_band_mappings;
 }
 
-static set_freq_band_indicator(guint32 value, asn1_ctx_t *actx)
+static void set_freq_band_indicator(guint32 value, asn1_ctx_t *actx)
 {
     /* Store band mapping for this item in the next position */
     meas_capabilities_item_band_mappings_t *mappings = private_data_meas_capabilities_item_band_mappings(actx);
