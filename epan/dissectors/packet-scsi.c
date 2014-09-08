@@ -477,7 +477,6 @@ static int hf_scsi_ssc2_modepage_oir = -1;
 static int hf_scsi_sbc_modepage_correction_span = -1;
 static int hf_scsi_mmc5_modepage_session_format = -1;
 static int hf_scsi_sbc_modepage_minimum_pre_fetch = -1;
-static int hf_scsi_smc_modepage_parameter_list_length = -1;
 static int hf_scsi_spc_modepage_maximum_burst_size = -1;
 static int hf_scsi_ssc2_modepage_partition_units = -1;
 static int hf_scsi_sbc_modepage_cache_segment_size = -1;
@@ -4191,39 +4190,38 @@ dissect_scsi_smc_modepage(tvbuff_t *tvb, packet_info *pinfo _U_,
 
     switch (pcode) {
     case SCSI_SMC_MODEPAGE_EAA:
-        param_list_len = tvb_get_guint8(tvb, offset+2);
-        proto_tree_add_item(tree, hf_scsi_smc_modepage_parameter_list_length, tvb, offset+2, 1, ENC_NA);
+        param_list_len = tvb_get_guint8(tvb, offset+1);
         if (param_list_len < 2)
             break;
-        proto_tree_add_item(tree, hf_scsi_smc_modepage_first_medium_transport_element_address, tvb, offset+3, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_scsi_smc_modepage_first_medium_transport_element_address, tvb, offset+2, 2, ENC_BIG_ENDIAN);
         param_list_len -= 2;
         if (param_list_len < 2)
             break;
-        proto_tree_add_item(tree, hf_scsi_smc_modepage_number_of_medium_transport_elements, tvb, offset+5, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_scsi_smc_modepage_number_of_medium_transport_elements, tvb, offset+4, 2, ENC_BIG_ENDIAN);
         param_list_len -= 2;
         if (param_list_len < 2)
             break;
-        proto_tree_add_item(tree, hf_scsi_smc_modepage_first_storage_element_address, tvb, offset+7, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_scsi_smc_modepage_first_storage_element_address, tvb, offset+6, 2, ENC_BIG_ENDIAN);
         param_list_len -= 2;
         if (param_list_len < 2)
             break;
-        proto_tree_add_item(tree, hf_scsi_smc_modepage_number_of_storage_elements, tvb, offset+9, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_scsi_smc_modepage_number_of_storage_elements, tvb, offset+8, 2, ENC_BIG_ENDIAN);
         param_list_len -= 2;
         if (param_list_len < 2)
             break;
-        proto_tree_add_item(tree, hf_scsi_smc_modepage_first_import_export_element_address, tvb, offset+11, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_scsi_smc_modepage_first_import_export_element_address, tvb, offset+10, 2, ENC_BIG_ENDIAN);
         param_list_len -= 2;
         if (param_list_len < 2)
             break;
-        proto_tree_add_item(tree, hf_scsi_smc_modepage_number_of_import_export_elements, tvb, offset+13, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_scsi_smc_modepage_number_of_import_export_elements, tvb, offset+12, 2, ENC_BIG_ENDIAN);
         param_list_len -= 2;
         if (param_list_len < 2)
             break;
-        proto_tree_add_item(tree, hf_scsi_smc_modepage_first_data_transfer_element_address, tvb, offset+15, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_scsi_smc_modepage_first_data_transfer_element_address, tvb, offset+14, 2, ENC_BIG_ENDIAN);
         param_list_len -= 2;
         if (param_list_len < 2)
             break;
-        proto_tree_add_item(tree, hf_scsi_smc_modepage_number_of_data_transfer_elements, tvb, offset+17, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_scsi_smc_modepage_number_of_data_transfer_elements, tvb, offset+16, 2, ENC_BIG_ENDIAN);
         break;
     case SCSI_SMC_MODEPAGE_TRANGEOM:
         return FALSE;
@@ -7144,7 +7142,6 @@ proto_register_scsi(void)
       { &hf_scsi_mmc5_modepage_rotation_control_selected, { "Rotation Control Selected", "scsi.mmc5.modepage.rotation_control_selected", FT_UINT8, BASE_DEC, NULL, 0x03, NULL, HFILL }},
       { &hf_scsi_mmc5_modepage_current_write_speed_selected, { "Current Write Speed Selected", "scsi.mmc5.modepage.current_write_speed_selected", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_scsi_mmc5_modepage_num_write_speed_performance, { "Number of Logical Unit Write Speed Performance Descriptor Tables", "scsi.mmc5.modepage.num_write_speed_performance", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_scsi_smc_modepage_parameter_list_length, { "Parameter List Length", "scsi.mode.smc.parameter_list_length", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_scsi_smc_modepage_first_medium_transport_element_address, { "First Medium Transport Element Address", "scsi.mode.smc.first_medium_transport_element_address", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_scsi_smc_modepage_number_of_medium_transport_elements, { "Number of Medium Transport Elements", "scsi.mode.smc.number_of_medium_transport_elements", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_scsi_smc_modepage_first_storage_element_address, { "First Storage Element Address", "scsi.mode.smc.first_storage_element_address", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
