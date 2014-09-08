@@ -976,24 +976,23 @@ dissect_mp2t_adaptation_field(tvbuff_t *tvb, gint offset, proto_tree *tree)
 
         /* 33 bit PCR base, 6 bit reserved, 9 bit PCR ext */
         pcr_base = tvb_get_ntoh48(tvb, offset) >> (48-33);
-        pcr_ext  = tvb_get_ntoh48(tvb, offset) & 0x1FF;
+        pcr_ext  = (guint16)(tvb_get_ntoh48(tvb, offset) & 0x1FF);
 
-         proto_tree_add_uint64_format_value(mp2t_af_tree, hf_mp2t_af_pcr, tvb, offset, 6,
-                pcr_base*300 + pcr_ext, "%" G_GINT64_MODIFIER "u", pcr_base*300 + pcr_ext);
+         proto_tree_add_uint64(mp2t_af_tree, hf_mp2t_af_pcr, tvb, offset, 6,
+                pcr_base*300 + pcr_ext);
 
         offset += 6;
     }
 
     if (af_flags &  MP2T_AF_OPCR_MASK) {
         guint64 opcr_base;
-        guint32 opcr_ext;
+        guint16 opcr_ext;
 
         /* the same format as PCR above */
         opcr_base = tvb_get_ntoh48(tvb, offset) >> (48-33);
-        opcr_ext  = tvb_get_ntoh48(tvb, offset) & 0x1FF;
+        opcr_ext  = (guint16)(tvb_get_ntoh48(tvb, offset) & 0x1FF);
 
-        proto_tree_add_uint64_format_value(mp2t_af_tree, hf_mp2t_af_opcr, tvb, offset, 6,
-                opcr_base*300 + opcr_ext, "%" G_GINT64_MODIFIER "u",
+        proto_tree_add_uint64(mp2t_af_tree, hf_mp2t_af_opcr, tvb, offset, 6,
                 opcr_base*300 + opcr_ext);
 
         offset += 6;
