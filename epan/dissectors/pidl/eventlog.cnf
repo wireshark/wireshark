@@ -34,7 +34,7 @@ PARAM_VALUE eventlog_dissect_element_CloseEventLog_handle_       PIDL_POLHND_CLO
 CODE START
 /* Add this one manually until we can compile LSA */
 static int
-eventlog_dissect_struct_lsa_String(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep, int hf_index,int notused _U_)
+eventlog_dissect_struct_lsa_String(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep, int hf_index,int notused _U_)
 {
 	if(di->conformant_run){
 		/*just a run to handle conformant arrays, nothing to dissect */
@@ -48,7 +48,7 @@ eventlog_dissect_struct_lsa_String(tvbuff_t *tvb, int offset, packet_info *pinfo
 
 
 static int
-eventlog_dissect_element_ReadEventLogW_data_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+eventlog_dissect_element_ReadEventLogW_data_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
 {
 	guint32 len;
 	tvbuff_t *record_tvb;
@@ -78,7 +78,7 @@ eventlog_dissect_element_ReadEventLogW_data_(tvbuff_t *tvb, int offset, packet_i
    and we want to dissect the sid from the data blob */
 static guint32 sid_length;
 static int
-eventlog_dissect_element_Record_sid_length(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+eventlog_dissect_element_Record_sid_length(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
 {
 	sid_length=0;
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_eventlog_eventlog_Record_sid_length,&sid_length);
@@ -86,7 +86,7 @@ eventlog_dissect_element_Record_sid_length(tvbuff_t *tvb, int offset, packet_inf
 	return offset;
 }
 static int
-eventlog_dissect_element_Record_sid_offset(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+eventlog_dissect_element_Record_sid_offset(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
 {
 	guint32 sid_offset=0;
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_eventlog_eventlog_Record_sid_offset,&sid_offset);
@@ -94,7 +94,7 @@ eventlog_dissect_element_Record_sid_offset(tvbuff_t *tvb, int offset, packet_inf
 	if(sid_offset && sid_length){
 		tvbuff_t *sid_tvb;
 
-		/* this blob contains an NT SID. 
+		/* this blob contains an NT SID.
 		 * tvb starts at the beginning of the record.
 		 */
 		sid_tvb=tvb_new_subset(tvb, sid_offset, MIN((gint)sid_length, tvb_length_remaining(tvb, offset)), sid_length);
@@ -105,7 +105,7 @@ eventlog_dissect_element_Record_sid_offset(tvbuff_t *tvb, int offset, packet_inf
 }
 
 static int
-eventlog_dissect_element_Record_source_name(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, guint8 *drep _U_)
+eventlog_dissect_element_Record_source_name(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, dcerpc_info *di _U_, guint8 *drep _U_)
 {
 	guint len;
 
@@ -117,7 +117,7 @@ eventlog_dissect_element_Record_source_name(tvbuff_t *tvb, int offset, packet_in
 }
 
 static int
-eventlog_dissect_element_Record_computer_name(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, guint8 *drep _U_)
+eventlog_dissect_element_Record_computer_name(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, dcerpc_info *di _U_, guint8 *drep _U_)
 {
 	guint len;
 
@@ -131,7 +131,7 @@ eventlog_dissect_element_Record_computer_name(tvbuff_t *tvb, int offset, packet_
 static guint16 num_of_strings;
 
 static int
-eventlog_dissect_element_Record_num_of_strings(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+eventlog_dissect_element_Record_num_of_strings(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
 {
 	num_of_strings=0;
 	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, di, drep, hf_eventlog_eventlog_Record_num_of_strings,&num_of_strings);
@@ -142,7 +142,7 @@ eventlog_dissect_element_Record_num_of_strings(tvbuff_t *tvb, int offset, packet
 static guint32 string_offset;
 
 static int
-eventlog_dissect_element_Record_stringoffset(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+eventlog_dissect_element_Record_stringoffset(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
 {
 	string_offset=0;
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_eventlog_eventlog_Record_stringoffset,&string_offset);
@@ -151,7 +151,7 @@ eventlog_dissect_element_Record_stringoffset(tvbuff_t *tvb, int offset, packet_i
 }
 
 static int
-eventlog_dissect_element_Record_strings(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, guint8 *drep _U_)
+eventlog_dissect_element_Record_strings(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, dcerpc_info *di _U_, guint8 *drep _U_)
 {
 	while(string_offset && num_of_strings){
 		guint len;
@@ -159,7 +159,7 @@ eventlog_dissect_element_Record_strings(tvbuff_t *tvb, int offset, packet_info *
 		len=tvb_unicode_strsize(tvb, string_offset);
 		proto_tree_add_item(tree, hf_eventlog_Record_string, tvb, string_offset, len, ENC_UTF_16|ENC_LITTLE_ENDIAN);
 		string_offset+=len;
-	
+
 		num_of_strings--;
 	}
 
