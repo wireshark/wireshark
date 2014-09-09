@@ -105,14 +105,14 @@ capture_callback_add(capture_callback_t func, gpointer user_data)
 }
 
 void
-capture_callback_remove(capture_callback_t func)
+capture_callback_remove(capture_callback_t func, gpointer user_data)
 {
   capture_callback_data_t *cb;
   GList *cb_item = capture_callbacks;
 
   while(cb_item != NULL) {
     cb = (capture_callback_data_t *)cb_item->data;
-    if(cb->cb_fct == func) {
+    if(cb->cb_fct == func && cb->user_data == user_data) {
       capture_callbacks = g_list_remove(capture_callbacks, cb);
       g_free(cb);
       return;

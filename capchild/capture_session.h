@@ -41,10 +41,12 @@ typedef enum {
     CAPTURE_RUNNING         /**< capture child signalled ok, capture is running now */
 } capture_state;
 
+struct _capture_file;
+
 /*
  * State of a capture session.
  */
-typedef struct {
+typedef struct _capture_session {
     int fork_child;                 /**< If not -1, in parent, process ID of child */
     int fork_child_status;          /**< Child exit status */
 #ifdef _WIN32
@@ -57,15 +59,15 @@ typedef struct {
 #endif
     gboolean session_started;
     capture_options *capture_opts;  /**< options for this capture */
-    void *cf;                       /**< handle to cfile (note: untyped handle) */
+    struct _capture_file *cf;       /**< handle to cfile */
 } capture_session;
 
 extern void
-capture_session_init(capture_session *cap_session, void *cf);
+capture_session_init(capture_session *cap_session, struct _capture_file *cf);
 #else
 
 /* dummy is needed because clang throws the error: empty struct has size 0 in C, size 1 in C++ */
-typedef struct {int dummy;} capture_session;
+typedef struct _capture_session {int dummy;} capture_session;
 
 #endif /* HAVE_LIBPCAP */
 

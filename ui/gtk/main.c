@@ -2469,7 +2469,7 @@ main(int argc, char *argv[])
        by preference settings and then again by the command line parameters. */
     capture_opts_init(&global_capture_opts);
 
-    capture_session_init(&global_capture_session, (void *)&cfile);
+    capture_session_init(&global_capture_session, &cfile);
 #endif
 
     init_report_err(failure_alert_box, open_failure_alert_box,

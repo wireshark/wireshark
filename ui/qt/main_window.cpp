@@ -22,8 +22,6 @@
 #include "main_window.h"
 #include "ui_main_window.h"
 
-#include "globals.h"
-
 #include <epan/addr_resolv.h>
 #include <epan/epan_dissect.h>
 #include <wsutil/filesystem.h>
@@ -149,7 +147,6 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     main_ui_(new Ui::MainWindow),
     df_combo_box_(new DisplayFilterCombo()),
-    cap_file_(NULL),
     previous_focus_(NULL),
     show_hide_actions_(NULL),
     time_display_actions_(NULL),
@@ -168,7 +165,7 @@ MainWindow::MainWindow(QWidget *parent) :
     }
     gbl_cur_main_window_ = this;
 #ifdef HAVE_LIBPCAP
-    capture_session_init(&cap_session_, (void *)&cfile);
+    capture_session_init(&cap_session_, CaptureFile::globalCapFile());
 #endif
     main_ui_->setupUi(this);
     setTitlebarForCaptureFile();
@@ -277,31 +274,37 @@ MainWindow::MainWindow(QWidget *parent) :
     initTimePrecisionFormatMenu();
     updateNameResolutionActions();
 
-    connect(wsApp, SIGNAL(captureCapturePrepared(capture_session *)),
+    connect(&capture_file_, SIGNAL(captureCapturePrepared(capture_session *)),
             this, SLOT(captureCapturePrepared(capture_session *)));
-    connect(wsApp, SIGNAL(captureCaptureUpdateStarted(capture_session *)),
+    connect(&capture_file_, SIGNAL(captureCaptureUpdateStarted(capture_session *)),
             this, SLOT(captureCaptureUpdateStarted(capture_session *)));
-    connect(wsApp, SIGNAL(captureCaptureUpdateFinished(capture_session *)),
+    connect(&capture_file_, SIGNAL(captureCaptureUpdateFinished(capture_session *)),
             this, SLOT(captureCaptureUpdateFinished(capture_session *)));
-    connect(wsApp, SIGNAL(captureCaptureFixedStarted(capture_session *)),
+    connect(&capture_file_, SIGNAL(captureCaptureFixedStarted(capture_session *)),
             this, SLOT(captureCaptureFixedStarted(capture_session *)));
-    connect(wsApp, SIGNAL(captureCaptureFixedFinished(capture_session *)),
+    connect(&capture_file_, SIGNAL(captureCaptureFixedFinished(capture_session *)),
             this, SLOT(captureCaptureFixedFinished(capture_session *)));
-    connect(wsApp, SIGNAL(captureCaptureStopping(capture_session *)),
+    connect(&capture_file_, SIGNAL(captureCaptureStopping(capture_session *)),
             this, SLOT(captureCaptureStopping(capture_session *)));
-    connect(wsApp, SIGNAL(captureCaptureFailed(capture_session *)),
+    connect(&capture_file_, SIGNAL(captureCaptureFailed(capture_session *)),
             this, SLOT(captureCaptureFailed(capture_session *)));
 
-    connect(wsApp, SIGNAL(captureFileOpened(const capture_file*)),
-            this, SLOT(captureFileOpened(const capture_file*)));
-    connect(wsApp, SIGNAL(captureFileReadStarted(const capture_file*)),
-            this, SLOT(captureFileReadStarted(const capture_file*)));
-    connect(wsApp, SIGNAL(captureFileReadFinished(const capture_file*)),
-            this, SLOT(captureFileReadFinished(const capture_file*)));
-    connect(wsApp, SIGNAL(captureFileClosing(const capture_file*)),
-            this, SLOT(captureFileClosing(const capture_file*)));
-    connect(wsApp, SIGNAL(captureFileClosed(const capture_file*)),
-            this, SLOT(captureFileClosed(const capture_file*)));
+    connect(&capture_file_, SIGNAL(captureFileOpened()),
+            this, SLOT(captureFileOpened()));
+    connect(&capture_file_, SIGNAL(captureFileReadStarted()),
+            this, SLOT(captureFileReadStarted()));
+    connect(&capture_file_, SIGNAL(captureFileReadFinished()),
+            this, SLOT(captureFileReadFinished()));
+    connect(&capture_file_, SIGNAL(captureFileClosing()),
+            this, SLOT(captureFileClosing()));
+    connect(&capture_file_, SIGNAL(captureFileClosed()),
+            this, SLOT(captureFileClosed()));
+
+    connect(&capture_file_, SIGNAL(captureFileReadStarted()),
+            wsApp, SLOT(captureFileReadStarted()));
+    connect(&capture_file_, SIGNAL(captureFileReadFinished()),
+            wsApp, SLOT(updateTaps()));
+
     connect(wsApp, SIGNAL(columnsChanged()),
             this, SLOT(recreatePacketList()));
     connect(wsApp, SIGNAL(packetDissectionChanged()),
@@ -615,11 +618,11 @@ void MainWindow::mergeCaptureFile()
     dfilter_t *rfcode = NULL;
     int err;
 
-    if (!cap_file_)
+    if (!capture_file_.capFile())
         return;
 
     if (prefs.gui_ask_unsaved) {
-        if (cf_has_unsaved_data(cap_file_)) {
+        if (cf_has_unsaved_data(capture_file_.capFile())) {
             QMessageBox msg_dialog;
             gchar *display_basename;
             int response;
@@ -627,14 +630,14 @@ void MainWindow::mergeCaptureFile()
             msg_dialog.setIcon(QMessageBox::Question);
             /* This file has unsaved data; ask the user whether to save
                the capture. */
-            if (cap_file_->is_tempfile) {
+            if (capture_file_.capFile()->is_tempfile) {
                 msg_dialog.setText(tr("Save packets before merging?"));
                 msg_dialog.setInformativeText(tr("A temporary capture file can't be merged."));
             } else {
                 /*
                  * Format the message.
                  */
-                display_basename = g_filename_display_basename(cap_file_->filename);
+                display_basename = g_filename_display_basename(capture_file_.capFile()->filename);
                 msg_dialog.setText(QString(tr("Save changes in \"%1\" before merging?")).arg(display_basename));
                 g_free(display_basename);
                 msg_dialog.setInformativeText(tr("Changes must be saved before the files can be merged."));
@@ -649,7 +652,7 @@ void MainWindow::mergeCaptureFile()
 
             case QMessageBox::Save:
                 /* Save the file but don't close it */
-                saveCaptureFile(cap_file_, FALSE);
+                saveCaptureFile(capture_file_.capFile(), FALSE);
                 break;
 
             case QMessageBox::Cancel:
@@ -661,7 +664,7 @@ void MainWindow::mergeCaptureFile()
     }
 
     for (;;) {
-        CaptureFileDialog merge_dlg(this, cap_file_, display_filter);
+        CaptureFileDialog merge_dlg(this, capture_file_.capFile(), display_filter);
         int file_type;
         cf_status_t  merge_status;
         char        *in_filenames[2];
@@ -689,7 +692,7 @@ void MainWindow::mergeCaptureFile()
 
         if (merge_dlg.merge(file_name)) {
             if (dfilter_compile(display_filter.toUtf8().constData(), &rfcode)) {
-                cf_set_rfcode(cap_file_, rfcode);
+                cf_set_rfcode(capture_file_.capFile(), rfcode);
             } else {
                 /* Not valid.  Tell the user, and go back and run the file
                    selection box again once they dismiss the alert. */
@@ -703,23 +706,23 @@ void MainWindow::mergeCaptureFile()
             return;
         }
 
-        file_type = cap_file_->cd_t;
+        file_type = capture_file_.capFile()->cd_t;
 
         /* Try to merge or append the two files */
         tmpname = NULL;
         if (merge_dlg.mergeType() == 0) {
             /* chronological order */
-            in_filenames[0] = cap_file_->filename;
+            in_filenames[0] = capture_file_.capFile()->filename;
             in_filenames[1] = file_name.toUtf8().data();
             merge_status = cf_merge_files(&tmpname, 2, in_filenames, file_type, FALSE);
         } else if (merge_dlg.mergeType() <= 0) {
             /* prepend file */
             in_filenames[0] = file_name.toUtf8().data();
-            in_filenames[1] = cap_file_->filename;
+            in_filenames[1] = capture_file_.capFile()->filename;
             merge_status = cf_merge_files(&tmpname, 2, in_filenames, file_type, TRUE);
         } else {
             /* append file */
-            in_filenames[0] = cap_file_->filename;
+            in_filenames[0] = capture_file_.capFile()->filename;
             in_filenames[1] = file_name.toUtf8().data();
             merge_status = cf_merge_files(&tmpname, 2, in_filenames, file_type, TRUE);
         }
@@ -731,13 +734,13 @@ void MainWindow::mergeCaptureFile()
             continue;
         }
 
-        cf_close(cap_file_);
+        cf_close(capture_file_.capFile());
 
         /* Try to open the merged capture file. */
-        cfile.window = this;
-        if (cf_open(&cfile, tmpname, WTAP_TYPE_AUTO, TRUE /* temporary file */, &err) != CF_OK) {
+        CaptureFile::globalCapFile()->window = this;
+        if (cf_open(CaptureFile::globalCapFile(), tmpname, WTAP_TYPE_AUTO, TRUE /* temporary file */, &err) != CF_OK) {
             /* We couldn't open it; fail. */
-            cfile.window = NULL;
+            CaptureFile::globalCapFile()->window = NULL;
             if (rfcode != NULL)
                 dfilter_free(rfcode);
             g_free(tmpname);
@@ -747,9 +750,9 @@ void MainWindow::mergeCaptureFile()
         /* Attach the new read filter to "cf" ("cf_open()" succeeded, so
            it closed the previous capture file, and thus destroyed any
            previous read filter attached to "cf"). */
-        cfile.rfcode = rfcode;
+        CaptureFile::globalCapFile()->rfcode = rfcode;
 
-        switch (cf_read(&cfile, FALSE)) {
+        switch (cf_read(CaptureFile::globalCapFile(), FALSE)) {
 
         case CF_READ_OK:
         case CF_READ_ERROR:
@@ -1017,16 +1020,16 @@ void MainWindow::exportSelectedPackets() {
     gchar   *dirname;
     gboolean discard_comments = FALSE;
 
-    if (!cap_file_)
+    if (!capture_file_.capFile())
         return;
 
     /* Init the packet range */
-    packet_range_init(&range, cap_file_);
+    packet_range_init(&range, capture_file_.capFile());
     range.process_filtered = TRUE;
     range.include_dependents = TRUE;
 
     for (;;) {
-        CaptureFileDialog esp_dlg(this, cap_file_);
+        CaptureFileDialog esp_dlg(this, capture_file_.capFile());
 
         switch (prefs.gui_fileopen_style) {
 
@@ -1091,7 +1094,7 @@ void MainWindow::exportSelectedPackets() {
          * name and the read file name may be relative (if supplied on
          * the command line). From Joerg Mayer.
          */
-        if (files_identical(cap_file_->filename, file_name.toUtf8().constData())) {
+        if (files_identical(capture_file_.capFile()->filename, file_name.toUtf8().constData())) {
             QMessageBox msg_box;
             gchar *display_basename = g_filename_display_basename(file_name.toUtf8().constData());
 
@@ -1119,7 +1122,7 @@ void MainWindow::exportSelectedPackets() {
 //#endif
 
         /* Attempt to save the file */
-        status = cf_export_specified_packets(cap_file_, file_name.toUtf8().constData(), &range, file_type, compressed);
+        status = cf_export_specified_packets(capture_file_.capFile(), file_name.toUtf8().constData(), &range, file_type, compressed);
         switch (status) {
 
         case CF_WRITE_OK:
@@ -1147,14 +1150,14 @@ void MainWindow::exportSelectedPackets() {
 }
 
 void MainWindow::exportDissections(export_type_e export_type) {
-    ExportDissectionDialog ed_dlg(this, cap_file_, export_type);
+    ExportDissectionDialog ed_dlg(this, capture_file_.capFile(), export_type);
     packet_range_t range;
 
-    if (!cap_file_)
+    if (!capture_file_.capFile())
         return;
 
     /* Init the packet range */
-    packet_range_init(&range, cap_file_);
+    packet_range_init(&range, capture_file_.capFile());
     range.process_filtered = TRUE;
     range.include_dependents = TRUE;
 
@@ -1220,11 +1223,11 @@ void MainWindow::fileAddExtension(QString &file_name, int file_type, bool compre
 bool MainWindow::testCaptureFileClose(bool from_quit, QString &before_what) {
     bool capture_in_progress = FALSE;
 
-    if (!cap_file_ || cap_file_->state == FILE_CLOSED)
+    if (!capture_file_.capFile() || capture_file_.capFile()->state == FILE_CLOSED)
         return true; /* Already closed, nothing to do */
 
 #ifdef HAVE_LIBPCAP
-    if (cap_file_->state == FILE_READ_IN_PROGRESS) {
+    if (capture_file_.capFile()->state == FILE_READ_IN_PROGRESS) {
         /* This is true if we're reading a capture file *or* if we're doing
          a live capture.  If we're reading a capture file, the main loop
          is busy reading packets, and only accepting input from the
@@ -1235,7 +1238,7 @@ bool MainWindow::testCaptureFileClose(bool from_quit, QString &before_what) {
 #endif
 
     if (prefs.gui_ask_unsaved) {
-        if (cf_has_unsaved_data(cap_file_) || capture_in_progress) {
+        if (cf_has_unsaved_data(capture_file_.capFile()) || capture_in_progress) {
             QMessageBox msg_dialog;
             QString question;
             QPushButton *saveButton;
@@ -1245,7 +1248,7 @@ bool MainWindow::testCaptureFileClose(bool from_quit, QString &before_what) {
             msg_dialog.setWindowTitle("Unsaved packets...");
             /* This file has unsaved data or there's a capture in
                progress; ask the user whether to save the data. */
-            if (cap_file_->is_tempfile) {
+            if (capture_file_.capFile()->is_tempfile) {
 
                 msg_dialog.setText(tr("You have unsaved packets"));
                 msg_dialog.setInformativeText(tr("They will be lost if you don't save them."));
@@ -1269,7 +1272,7 @@ bool MainWindow::testCaptureFileClose(bool from_quit, QString &before_what) {
                     msg_dialog.setText(question);
                     msg_dialog.setInformativeText(tr("Your captured packets will be lost if you don't save them."));
                 } else {
-                    gchar *display_basename = g_filename_display_basename(cap_file_->filename);
+                    gchar *display_basename = g_filename_display_basename(capture_file_.capFile()->filename);
                     question.append(QString(tr("Do you want to save the changes you've made to the capture file \"%1\"%2?"))
                                     .arg(display_basename)
                                     .arg(before_what)
@@ -1295,7 +1298,7 @@ bool MainWindow::testCaptureFileClose(bool from_quit, QString &before_what) {
             msg_dialog.setDefaultButton(saveButton);
 
             if (from_quit) {
-                if (cap_file_->state == FILE_READ_IN_PROGRESS) {
+                if (capture_file_.capFile()->state == FILE_READ_IN_PROGRESS) {
                     discardButton = msg_dialog.addButton(tr("Stop and Quit without Saving"),
                                                          QMessageBox::DestructiveRole);
                 } else {
@@ -1326,7 +1329,7 @@ bool MainWindow::testCaptureFileClose(bool from_quit, QString &before_what) {
                     captureStop();
 #endif
                 /* Save the file and close it */
-                saveCaptureFile(cap_file_, TRUE);
+                saveCaptureFile(capture_file_.capFile(), TRUE);
             }
             else if(msg_dialog.clickedButton() == discardButton)
             {
@@ -1339,7 +1342,7 @@ bool MainWindow::testCaptureFileClose(bool from_quit, QString &before_what) {
                     captureStop();
 #endif
                 /* Just close the file, discarding changes */
-                cf_close(cap_file_);
+                cf_close(capture_file_.capFile());
                 return true;
             }
             else    //cancelButton or some other unspecified button
@@ -1349,7 +1352,7 @@ bool MainWindow::testCaptureFileClose(bool from_quit, QString &before_what) {
 
         } else {
             /* Unchanged file, just close it */
-            cf_close(cap_file_);
+            cf_close(capture_file_.capFile());
         }
     } else {
         /* User asked not to be bothered by those prompts, just close it.
@@ -1360,7 +1363,7 @@ bool MainWindow::testCaptureFileClose(bool from_quit, QString &before_what) {
         if (capture_in_progress)
             captureStop();
 #endif
-        cf_close(cap_file_);
+        cf_close(capture_file_.capFile());
     }
 
     return true; /* File closed */
@@ -1369,7 +1372,7 @@ bool MainWindow::testCaptureFileClose(bool from_quit, QString &before_what) {
 void MainWindow::captureStop() {
     stopCapture();
 
-    while(cap_file_ && cap_file_->state == FILE_READ_IN_PROGRESS) {
+    while(capture_file_.capFile() && capture_file_.capFile()->state == FILE_READ_IN_PROGRESS) {
         WiresharkApplication::processEvents();
     }
 }
@@ -1520,7 +1523,7 @@ void MainWindow::initTimePrecisionFormatMenu()
 // Titlebar
 void MainWindow::setTitlebarForCaptureFile()
 {
-    if (cap_file_ && cap_file_->filename) {
+    if (capture_file_.capFile() && capture_file_.capFile()->filename) {
         //
         // Qt *REALLY* doesn't like windows that sometimes have a
         // title set with setWindowTitle() and other times have a
@@ -1541,7 +1544,7 @@ void MainWindow::setTitlebarForCaptureFile()
         // live capture at time T1 and then, after you've saved the live
         // capture to a user file, associated with a user file at time T2.
         //
-        if (cap_file_->is_tempfile) {
+        if (capture_file_.capFile()->is_tempfile) {
             //
             // For a temporary file, put the source of the data
             // in the window title, not whatever random pile
@@ -1553,7 +1556,7 @@ void MainWindow::setTitlebarForCaptureFile()
             //
             gchar *window_name;
             setWindowFilePath(NULL);
-            window_name = g_strdup_printf("Capturing from %s[*]", cf_get_tempfile_source(cap_file_)); //TODO : Fix Translate
+            window_name = g_strdup_printf("Capturing from %s[*]", cf_get_tempfile_source(capture_file_.capFile())); //TODO : Fix Translate
             setWindowTitle(window_name);
             g_free(window_name);
         } else {
@@ -1567,7 +1570,7 @@ void MainWindow::setTitlebarForCaptureFile()
             // file path to UTF-8.  If that fails, we're somewhat
             // stuck.
             //
-            char *utf8_filename = g_filename_to_utf8(cap_file_->filename,
+            char *utf8_filename = g_filename_to_utf8(capture_file_.capFile()->filename,
                                                      -1,
                                                      NULL,
                                                      NULL,
@@ -1582,7 +1585,7 @@ void MainWindow::setTitlebarForCaptureFile()
                 g_free(utf8_filename);
             }
         }
-        setWindowModified(cf_has_unsaved_data(cap_file_));
+        setWindowModified(cf_has_unsaved_data(capture_file_.capFile()));
     } else {
         /* We have no capture file. */
         setWindowFilePath(NULL);
@@ -1601,8 +1604,8 @@ void MainWindow::setTitlebarForCaptureInProgress()
     gchar *window_name;
 
     setWindowFilePath(NULL);
-    if (cap_file_) {
-        window_name = g_strdup_printf("Capturing from %s", cf_get_tempfile_source(cap_file_)); //TODO : Fix Translate
+    if (capture_file_.capFile()) {
+        window_name = g_strdup_printf("Capturing from %s", cf_get_tempfile_source(capture_file_.capFile())); //TODO : Fix Translate
         setWindowTitle(window_name);
         g_free(window_name);
     } else {
@@ -1617,17 +1620,17 @@ void MainWindow::setMenusForFollowStream()
 {
     gboolean is_tcp = FALSE, is_udp = FALSE;
 
-    if (!cap_file_)
+    if (!capture_file_.capFile())
         return;
 
-    if (!cap_file_->edt)
+    if (!capture_file_.capFile()->edt)
         return;
 
     main_ui_->actionAnalyzeFollowTCPStream->setEnabled(false);
     main_ui_->actionAnalyzeFollowUDPStream->setEnabled(false);
     main_ui_->actionAnalyzeFollowSSLStream->setEnabled(false);
 
-    proto_get_frame_protocols(cap_file_->edt->pi.layers, NULL, &is_tcp, &is_udp, NULL, NULL);
+    proto_get_frame_protocols(capture_file_.capFile()->edt->pi.layers, NULL, &is_tcp, &is_udp, NULL, NULL);
 
     if (is_tcp)
     {
@@ -1639,7 +1642,7 @@ void MainWindow::setMenusForFollowStream()
         main_ui_->actionAnalyzeFollowUDPStream->setEnabled(true);
     }
 
-    if ( epan_dissect_packet_contains_field(cap_file_->edt, "ssl") )
+    if ( epan_dissect_packet_contains_field(capture_file_.capFile()->edt, "ssl") )
     {
         main_ui_->actionAnalyzeFollowSSLStream->setEnabled(true);
     }
@@ -1650,7 +1653,7 @@ void MainWindow::setMenusForFollowStream()
    and whether it could be saved except by copying the raw packet data. */
 void MainWindow::setMenusForCaptureFile(bool force_disable)
 {
-    if (force_disable || cap_file_ == NULL || cap_file_->state == FILE_READ_IN_PROGRESS) {
+    if (force_disable || capture_file_.capFile() == NULL || capture_file_.capFile()->state == FILE_READ_IN_PROGRESS) {
         /* We have no capture file or we're currently reading a file */
         main_ui_->actionFileMerge->setEnabled(false);
         main_ui_->actionFileClose->setEnabled(false);
@@ -1665,17 +1668,17 @@ void MainWindow::setMenusForCaptureFile(bool force_disable)
         main_ui_->menuFileExportObjects->setEnabled(false);
         main_ui_->actionViewReload->setEnabled(false);
     } else {
-        main_ui_->actionFileMerge->setEnabled(cf_can_write_with_wiretap(cap_file_));
+        main_ui_->actionFileMerge->setEnabled(cf_can_write_with_wiretap(capture_file_.capFile()));
 
         main_ui_->actionFileClose->setEnabled(true);
-        main_ui_->actionFileSave->setEnabled(cf_can_save(cap_file_));
-        main_ui_->actionFileSaveAs->setEnabled(cf_can_save_as(cap_file_));
+        main_ui_->actionFileSave->setEnabled(cf_can_save(capture_file_.capFile()));
+        main_ui_->actionFileSaveAs->setEnabled(cf_can_save_as(capture_file_.capFile()));
         main_ui_->actionStatisticsCaptureFileProperties->setEnabled(true);
         /*
          * "Export Specified Packets..." should be available only if
          * we can write the file out in at least one format.
          */
-        main_ui_->actionFileExportPackets->setEnabled(cf_can_write_with_wiretap(cap_file_));
+        main_ui_->actionFileExportPackets->setEnabled(cf_can_write_with_wiretap(capture_file_.capFile()));
         main_ui_->menuFileExportPacketDissections->setEnabled(true);
         main_ui_->actionFileExportPacketBytes->setEnabled(true);
         main_ui_->actionFileExportPDU->setEnabled(true);

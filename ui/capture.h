@@ -30,7 +30,7 @@
  */
 
 #include "capture_opts.h"
-#include <capchild/capture_session.h>
+#include "capchild/capture_session.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -55,7 +55,7 @@ extern void
 capture_callback_add(capture_callback_t func, gpointer user_data);
 
 extern void
-capture_callback_remove(capture_callback_t func);
+capture_callback_remove(capture_callback_t func, gpointer user_data);
 
 /**
  * Start a capture session.

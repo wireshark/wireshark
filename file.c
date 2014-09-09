@@ -195,14 +195,14 @@ cf_callback_add(cf_callback_t func, gpointer user_data)
 }
 
 void
-cf_callback_remove(cf_callback_t func)
+cf_callback_remove(cf_callback_t func, gpointer user_data)
 {
   cf_callback_data_t *cb;
   GList              *cb_item = cf_callbacks;
 
   while (cb_item != NULL) {
     cb = (cf_callback_data_t *)cb_item->data;
-    if (cb->cb_fct == func) {
+    if (cb->cb_fct == func && cb->user_data == user_data) {
       cf_callbacks = g_list_remove(cf_callbacks, cb);
       g_free(cb);
       return;

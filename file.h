@@ -95,11 +95,29 @@ typedef struct {
     field_info    *finfo;
 } match_data;
 
+/**
+ * Add a capture file event callback.
+ *
+ * @param func The function to be called for each event.
+ *             The function will be passed three parameters: The event type (event),
+ *             event-dependent data (data), and user-supplied data (user_data).
+ *             Event-dependent data may be a capture_file pointer, character pointer,
+ *             or NULL.
+ * @param user_data User-supplied data to pass to the callback. May be NULL.
+ */
+
 extern void
 cf_callback_add(cf_callback_t func, gpointer user_data);
 
+/**
+ * Remove a capture file event callback.
+ *
+ * @param func The function to be removed.
+ * @param user_data User-supplied data. Must be the same value supplied to cf_callback_add.
+ */
+
 extern void
-cf_callback_remove(cf_callback_t func);
+cf_callback_remove(cf_callback_t func, gpointer user_data);
 
 /**
  * Open a capture file.

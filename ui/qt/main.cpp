@@ -25,8 +25,6 @@
 #include "main_window.h"
 #include "wireshark_application.h"
 
-#include "globals.h"
-
 #include <glib.h>
 
 #include <signal.h>
@@ -143,6 +141,7 @@
 #include <QTextCodec>
 #endif
 
+#include "capture_file.h"
 #include "conversation_dialog.h"
 #include "endpoint_dialog.h"
 
@@ -150,33 +149,11 @@
 capture_options global_capture_opts;
 #endif
 
-capture_file cfile;
-
 #ifdef HAVE_AIRPCAP
 int    airpcap_dll_ret_val = -1;
 #endif
 
 GString *comp_info_str, *runtime_info_str;
-
-//static gboolean have_capture_file = FALSE; /* XXX - is there an equivalent in cfile? */
-
-#ifdef HAVE_LIBPCAP
-extern capture_options global_capture_opts;
-
-static void
-main_capture_callback(gint event, capture_session *cap_session, gpointer user_data )
-{
-    Q_UNUSED(user_data);
-    wsApp->captureCallback(event, cap_session);
-}
-#endif // HAVE_LIBPCAP
-
-static void
-main_cf_callback(gint event, gpointer data, gpointer user_data )
-{
-    Q_UNUSED(user_data);
-    wsApp->captureFileCallback(event, data);
-}
 
 /* update the main window */
 void main_window_update(void)
@@ -828,11 +805,6 @@ int main(int argc, char *argv[])
     signal(SIGPIPE, SIG_IGN);
 #endif
 
-#ifdef HAVE_LIBPCAP
-    capture_callback_add(main_capture_callback, NULL);
-#endif
-    cf_callback_add(main_cf_callback, NULL);
-
     set_console_log_handler();
 
 #ifdef HAVE_LIBPCAP
@@ -1294,7 +1266,7 @@ int main(int argc, char *argv[])
         set_disabled_protos_list();
     }
 
-    build_column_format_array(&cfile.cinfo, prefs_p->num_cols, TRUE);
+    build_column_format_array(&CaptureFile::globalCapFile()->cinfo, prefs_p->num_cols, TRUE);
 
     wsApp->setMonospaceFont(prefs.gui_qt_font_name);
 
@@ -1355,7 +1327,7 @@ int main(int argc, char *argv[])
         if(go_to_packet != 0) {
             /* Jump to the specified frame number, kept for backward
                compatibility. */
-            cf_goto_frame(&cfile, go_to_packet);
+            cf_goto_frame(CaptureFile::globalCapFile(), go_to_packet);
         }
     }
 #ifdef HAVE_LIBPCAP
@@ -1377,7 +1349,7 @@ int main(int argc, char *argv[])
                to use for this capture. */
             if (global_capture_opts.ifaces->len == 0)
                 collect_ifaces(&global_capture_opts);
-            cfile.window = main_w;
+            CaptureFile::globalCapFile()->window = main_w;
             if (capture_start(&global_capture_opts, main_w->captureSession(), main_window_update)) {
                 /* The capture started.  Open stat windows; we do so after creating
                    the main window, to avoid GTK warnings, and after successfully

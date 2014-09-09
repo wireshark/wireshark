@@ -26,6 +26,7 @@ set(WIRESHARK_QT_HEADERS
 	accordion_frame.h
 	byte_view_tab.h
 	byte_view_text.h
+	capture_file.h
 	capture_file_dialog.h
 	capture_file_properties_dialog.h
 	capture_filter_combo.h
@@ -122,6 +123,7 @@ set(WIRESHARK_QT_SRC
 	accordion_frame.cpp
 	byte_view_tab.cpp
 	byte_view_text.cpp
+	capture_file.cpp
 	capture_file_dialog.cpp
 	capture_file_properties_dialog.cpp
 	capture_filter_combo.cpp

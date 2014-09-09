@@ -138,7 +138,7 @@ static echld_epan_stuff_t stuff;
 static void init_stuff(void) {
 #ifdef HAVE_LIBPCAP
 	capture_opts_init(&stuff.cap_opts);
-	capture_session_init(&stuff.cap_sess, (void *)&stuff.cfile);
+	capture_session_init(&stuff.cap_sess, &stuff.cfile);
 #endif
 
 }

@@ -1164,7 +1164,7 @@ main(int argc, char *argv[])
 
 #ifdef HAVE_LIBPCAP
   capture_opts_init(&global_capture_opts);
-  capture_session_init(&global_capture_session, (void *)&cfile);
+  capture_session_init(&global_capture_session, &cfile);
 #endif
 
   timestamp_set_type(TS_RELATIVE);

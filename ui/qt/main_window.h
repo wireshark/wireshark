@@ -48,16 +48,18 @@
 # include <QSocketNotifier>
 #endif
 
-#include "main_welcome.h"
-#include "packet_list.h"
+#include "about_dialog.h"
+#include "capture_file.h"
+#include "capture_file_dialog.h"
+#include "capture_file_properties_dialog.h"
+#include "capture_interfaces_dialog.h"
 #include "display_filter_combo.h"
-#include "progress_bar.h"
 #include "file_set_dialog.h"
 #include "filter_action.h"
-#include "capture_file_dialog.h"
 #include "follow_stream_dialog.h"
-#include "capture_interfaces_dialog.h"
-#include "about_dialog.h"
+#include "main_welcome.h"
+#include "packet_list.h"
+#include "progress_bar.h"
 
 class QAction;
 class QActionGroup;
@@ -108,7 +110,7 @@ private:
     QSplitter extra_split_;
     MainWelcome *main_welcome_;
     DisplayFilterCombo *df_combo_box_;
-    capture_file *cap_file_;
+    CaptureFile capture_file_;
     QFont mono_font_;
     // XXX - packet_list_, proto_tree_, and byte_view_tab_ should
     // probably be full-on values instead of pointers.
@@ -186,7 +188,7 @@ public slots:
     void layoutToolbars();
     void updateNameResolutionActions();
 
-    void captureCapturePrepared(capture_session *cap_session);
+    void captureCapturePrepared(capture_session *);
     void captureCaptureUpdateStarted(capture_session *cap_session);
     void captureCaptureUpdateFinished(capture_session *cap_session);
     void captureCaptureFixedStarted(capture_session *cap_session);
@@ -194,11 +196,11 @@ public slots:
     void captureCaptureStopping(capture_session *cap_session);
     void captureCaptureFailed(capture_session *cap_session);
 
-    void captureFileOpened(const capture_file *cf);
-    void captureFileReadStarted(const capture_file *cf);
-    void captureFileReadFinished(const capture_file *cf);
-    void captureFileClosing(const capture_file *cf);
-    void captureFileClosed(const capture_file *cf);
+    void captureFileOpened();
+    void captureFileReadStarted();
+    void captureFileReadFinished();
+    void captureFileClosing();
+    void captureFileClosed();
 
     void configurationProfileChanged(const gchar *profile_name);
     void filterExpressionsChanged();

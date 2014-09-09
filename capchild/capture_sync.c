@@ -127,7 +127,7 @@ static void (*fetch_dumpcap_pid)(int) = NULL;
 
 
 void
-capture_session_init(capture_session *cap_session, void *cf)
+capture_session_init(capture_session *cap_session, struct _capture_file *cf)
 {
     cap_session->cf                              = cf;
     cap_session->fork_child                      = -1;               /* invalid process handle */

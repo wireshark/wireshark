@@ -82,8 +82,6 @@ public:
     e_prefs * readConfigurationFiles(char **gdp_path, char **dp_path);
     QList<recent_item_status *> recentItems() const;
     void addRecentItem(const QString &filename, qint64 size, bool accessible);
-    void captureCallback(int event, capture_session * cap_session);
-    void captureFileCallback(int event, void * data);
     QDir lastOpenDir();
     void setLastOpenDir(const char *dir_name);
     void setLastOpenDir(QString *dir_str);
@@ -130,7 +128,7 @@ signals:
     void addressResolutionChanged();
     void fieldsChanged();
 
-    // XXX It might make more sense to move these to main.cpp or main_window.cpp or their own class.
+#if 0
     void captureCapturePrepared(capture_session *cap_session);
     void captureCaptureUpdateStarted(capture_session *cap_session);
     void captureCaptureUpdateContinue(capture_session *cap_session);
@@ -139,17 +137,22 @@ signals:
     void captureCaptureFixedFinished(capture_session *cap_session);
     void captureCaptureStopping(capture_session *cap_session);
     void captureCaptureFailed(capture_session *cap_session);
+#endif
 
+#if 0
     void captureFileOpened(const capture_file *cf);
     void captureFileReadStarted(const capture_file *cf);
     void captureFileReadFinished(const capture_file *cf);
     void captureFileClosing(const capture_file *cf);
     void captureFileClosed(const capture_file *cf);
+#endif
 
     void openStatCommandDialog(const QString &menu_path, const char *arg, void *userdata);
 
 public slots:
     void clearRecentItems();
+    void captureFileReadStarted();
+    void updateTaps();
 
 private slots:
     void cleanup();
@@ -157,7 +160,6 @@ private slots:
     void itemStatusFinished(const QString filename = "", qint64 size = 0, bool accessible = false);
     void refreshRecentFiles(void);
     void refreshAddressResolution(void);
-    void updateTaps();
 };
 
 extern WiresharkApplication *wsApp;

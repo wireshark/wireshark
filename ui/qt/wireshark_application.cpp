@@ -206,114 +206,6 @@ void WiresharkApplication::updateTaps()
     draw_tap_listeners(FALSE);
 }
 
-void WiresharkApplication::captureCallback(int event _U_, capture_session *cap_session _U_)
-{
-#ifdef HAVE_LIBPCAP
-    switch(event) {
-    case(capture_cb_capture_prepared):
-        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture prepared");
-        emit captureCapturePrepared(cap_session);
-        break;
-    case(capture_cb_capture_update_started):
-        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture update started");
-        emit captureCaptureUpdateStarted(cap_session);
-        break;
-    case(capture_cb_capture_update_continue):
-        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture update continue");
-        emit captureCaptureUpdateContinue(cap_session);
-        break;
-    case(capture_cb_capture_update_finished):
-        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture update finished");
-        emit captureCaptureUpdateFinished(cap_session);
-        break;
-    case(capture_cb_capture_fixed_started):
-        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture fixed started");
-        emit captureCaptureFixedStarted(cap_session);
-        break;
-    case(capture_cb_capture_fixed_continue):
-        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture fixed continue");
-        break;
-    case(capture_cb_capture_fixed_finished):
-        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture fixed finished");
-        emit captureCaptureFixedFinished(cap_session);
-        break;
-    case(capture_cb_capture_stopping):
-        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture stopping");
-        /* Beware: this state won't be called, if the capture child
-         * closes the capturing on it's own! */
-        emit captureCaptureStopping(cap_session);
-        break;
-    case(capture_cb_capture_failed):
-        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture failed");
-        emit captureCaptureFailed(cap_session);
-        break;
-    default:
-        g_warning("main_capture_callback: event %u unknown", event);
-        g_assert_not_reached();
-    }
-#endif // HAVE_LIBPCAP
-}
-
-void WiresharkApplication::captureFileCallback(int event, void * data)
-{
-    capture_file *cf = (capture_file *) data;
-
-    switch(event) {
-
-    case(cf_cb_file_opened):
-        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Opened");
-        emit captureFileOpened(cf);
-        break;
-    case(cf_cb_file_closing):
-        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Closing");
-        emit captureFileClosing(cf);
-        break;
-    case(cf_cb_file_closed):
-        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Closed");
-        emit captureFileClosed(cf);
-        break;
-    case(cf_cb_file_read_started):
-        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Read started");
-        emit captureFileReadStarted(cf);
-        QTimer::singleShot(TAP_UPDATE_DEFAULT_INTERVAL / 5, this, SLOT(updateTaps()));
-        QTimer::singleShot(TAP_UPDATE_DEFAULT_INTERVAL / 2, this, SLOT(updateTaps()));
-        break;
-    case(cf_cb_file_read_finished):
-        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Read finished");
-        emit captureFileReadFinished(cf);
-        updateTaps();
-        break;
-    case(cf_cb_file_reload_started):
-        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Reload started");
-        emit captureFileReadStarted(cf);
-        break;
-    case(cf_cb_file_reload_finished):
-        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Reload finished");
-        emit captureFileReadFinished(cf);
-        break;
-
-    case(cf_cb_packet_selected):
-    case(cf_cb_packet_unselected):
-    case(cf_cb_field_unselected):
-        // Pure signals and slots
-        break;
-
-//    case(cf_cb_file_save_started): // data = string
-//        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Save started");
-//        break;
-//    case(cf_cb_file_save_finished):
-//        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Save finished");
-//        break;
-//    case(cf_cb_file_save_failed):
-//        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Save failed");
-//        break;
-    default:
-        g_log(NULL, G_LOG_LEVEL_DEBUG, "FIX: main_cf_callback %d %p", event, data);
-//        g_warning("main_cf_callback: event %u unknown", event);
-//        g_assert_not_reached();
-    }
-}
-
 QDir WiresharkApplication::lastOpenDir() {
     return QDir(last_open_dir);
 }
@@ -530,6 +422,13 @@ void WiresharkApplication::clearRecentItems() {
     qDeleteAll(recent_items_.begin(), recent_items_.end());
     recent_items_.clear();
     emit updateRecentItemStatus(NULL, 0, false);
+}
+
+void WiresharkApplication::captureFileReadStarted()
+{
+    // Doesn't appear to do anything. Logic probably needs to be in file.c.
+    QTimer::singleShot(TAP_UPDATE_DEFAULT_INTERVAL / 5, this, SLOT(updateTaps()));
+    QTimer::singleShot(TAP_UPDATE_DEFAULT_INTERVAL / 2, this, SLOT(updateTaps()));
 }
 
 void WiresharkApplication::cleanup()

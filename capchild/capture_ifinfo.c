@@ -47,8 +47,9 @@
 #include <glib.h>
 
 #include "capture_opts.h"
-#include <capchild/capture_session.h>
-#include <capchild/capture_sync.h>
+
+#include "capchild/capture_session.h"
+#include "capchild/capture_sync.h"
 #ifdef HAVE_EXTCAP
 #include "extcap.h"
 #endif
