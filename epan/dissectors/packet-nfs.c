@@ -10368,7 +10368,7 @@ void reg_callback(int cbprog)
 	/*
 	 * Register the procedure tables.  The version should be 4,
 	 * but some Linux kernels set this field to 1.  "Temporarily",
-	 * accomodate these servers.
+	 * accommodate these servers.
 	 */
 	rpc_init_proc_table(cbprog, 1, nfs_cb_proc, hf_nfs4_cb_procedure);
 	rpc_init_proc_table(cbprog, 4, nfs_cb_proc, hf_nfs4_cb_procedure);

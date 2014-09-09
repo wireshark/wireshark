@@ -2066,7 +2066,7 @@ dissect_dap_DirectoryBindArgument(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 	dissect_ber_length(actx->pinfo, tree, tvb, offset+1, &len, NULL);
 
 	if(len == 0) {
-		/* its an empty set - i.e anonymous  (assuming version is DEFAULTed) */
+		/* it's an empty set - i.e anonymous  (assuming version is DEFAULTed) */
 		proto_tree_add_expert(tree, actx->pinfo, &ei_dap_anonymous, tvb, offset, -1);
 
 		col_append_str(actx->pinfo->cinfo, COL_INFO, " anonymous");

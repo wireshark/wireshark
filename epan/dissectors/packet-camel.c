@@ -7573,7 +7573,7 @@ camelsrt_request_call_matching(tvbuff_t *tvb, packet_info *pinfo,
       if (p_camelsrt_call->category[srt_type].req_num != pinfo->fd->num) {
 
 	if (srt_type!=CAMELSRT_VOICE_DISC) {
-	  /* No, so it's a duplicate resquest. Mark it as such. */
+	  /* No, so it's a duplicate request. Mark it as such. */
 #ifdef DEBUG_CAMELSRT
 	  dbg(21,"Display_duplicate with req %d ", p_camelsrt_call->category[srt_type].req_num);
 #endif

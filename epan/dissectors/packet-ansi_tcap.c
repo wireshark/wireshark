@@ -294,7 +294,7 @@ save_invoke_data(packet_info *pinfo, proto_tree *tree _U_, tvbuff_t *tvb _U_){
 
   if ((!pinfo->fd->flags.visited)&&(ansi_tcap_private.TransactionID_str)){
 
-          /* Only do this once XXX I hope its the right thing to do */
+          /* Only do this once XXX I hope it's the right thing to do */
           /* The hash string needs to contain src and dest to distiguish differnt flows */
           switch(ansi_tcap_response_matching_type){
                         case 0:

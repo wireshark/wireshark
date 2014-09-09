@@ -1209,7 +1209,7 @@ static const value_string zbee_zcl_part_srv_tx_cmd_names[] = {
     { 0, NULL }
 };
 
-/* ID Lenght */
+/* ID Length */
 static const value_string zbee_zcl_part_id_length_names[] = {
     { 0,        "1-Byte length" },
     { 1,        "2-Bytes length" },

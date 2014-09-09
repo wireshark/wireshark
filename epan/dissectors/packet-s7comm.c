@@ -303,7 +303,7 @@ static const value_string item_transportsizenames[] = {
 /**************************************************************************
  * Syntax Ids of variable specification
  */
-#define S7COMM_SYNTAXID_S7ANY               0x10        /* Adress data S7-Any pointer-like DB1.DBX10.2 */
+#define S7COMM_SYNTAXID_S7ANY               0x10        /* Address data S7-Any pointer-like DB1.DBX10.2 */
 #define S7COMM_SYNTAXID_DRIVEESANY          0xa2        /* seen on Drive ES Starter with routing over S7 */
 #define S7COMM_SYNTAXID_1200SYM             0xb2        /* Symbolic address mode of S7-1200 */
 #define S7COMM_SYNTAXID_DBREAD              0xb0        /* Kind of DB block read, seen only at an S7-400 */
@@ -730,7 +730,7 @@ static gint hf_s7comm_item_transport_size = -1;             /* Transport size, 1
 static gint hf_s7comm_item_length = -1;                     /* length, 2 Bytes*/
 static gint hf_s7comm_item_db = -1;                         /* DB/M/E/A, 2 Bytes */
 static gint hf_s7comm_item_area = -1;                       /* Area code, 1 byte */
-static gint hf_s7comm_item_address = -1;                    /* Bit adress, 3 Bytes */
+static gint hf_s7comm_item_address = -1;                    /* Bit address, 3 Bytes */
 /* Special variable read with Syntax-Id 0xb0 (DBREAD) */
 static gint hf_s7comm_item_dbread_numareas = -1;            /* Number of areas following, 1 Byte*/
 static gint hf_s7comm_item_dbread_length = -1;              /* length, 1 Byte*/
@@ -1130,7 +1130,7 @@ s7comm_decode_param_item(tvbuff_t *tvb,
         proto_tree_add_uint(item_tree, hf_s7comm_item_address, tvb, offset, 3, a_address);
         bytepos = a_address / 8;
         bitpos = a_address % 8;
-        /* build a full adress to show item data directly beside the item */
+        /* build a full address to show item data directly beside the item */
         switch (area) {
             case (S7COMM_AREA_P):
                 proto_item_append_text(item_tree, " (P");
@@ -1675,7 +1675,7 @@ s7comm_decode_ud_prog_vartab_req_item(tvbuff_t *tvb,
     proto_tree_add_uint(sub_tree, hf_s7comm_vartab_req_startaddress, tvb, offset, 2, bytepos);
     offset += 2;
 
-    /* build a full adress to show item data directly beside the item */
+    /* build a full address to show item data directly beside the item */
     switch (area) {
         case S7COMM_UD_SUBF_PROG_VARTAB_AREA_MB:
             proto_item_append_text(sub_tree, " (M%d.0 BYTE %d)", bytepos, len);
@@ -2156,7 +2156,7 @@ s7comm_decode_ud_prog_subfunc(tvbuff_t *tvb,
         case S7COMM_UD_SUBF_PROG_REQDIAGDATA1:
         case S7COMM_UD_SUBF_PROG_REQDIAGDATA2:
             /* start variable table or block online view */
-            /* TODO: Can only handle requests/response, not the "following" telegrams because it's neccessary to correlate them
+            /* TODO: Can only handle requests/response, not the "following" telegrams because it's necessary to correlate them
                 with the previous request */
             if (type != S7COMM_UD_TYPE_PUSH) {
                 offset = s7comm_decode_ud_prog_reqdiagdata(tvb, data_tree, subfunc, offset);

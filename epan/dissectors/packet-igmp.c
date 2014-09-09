@@ -964,7 +964,7 @@ dissect_igmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			/* if len of igmp packet>=8 we assume it is MSNIP */
 			offset = dissect_msnip(tvb, pinfo, parent_tree, offset);
 		} else {
-			/* ok its not MSNIP, check if it might be MRDISC */
+			/* ok it's not MSNIP, check if it might be MRDISC */
 			dst = g_htonl(MC_ALL_ROUTERS);
 			if (!memcmp(pinfo->dst.data, &dst, 4)) {
 				offset = dissect_mrdisc(tvb, pinfo, parent_tree, offset);

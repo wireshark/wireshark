@@ -820,18 +820,18 @@ dissect_ase(tvbuff_t *tvb, int offset, guint ase_len, proto_tree *ext_tree)
         proto_tree *exts_tree;
         guint8      srid           = tvb_get_guint8(tvb, offset+1);
         guint16     service_option = tvb_get_ntohs(tvb,  offset+2);
-        guint8      entry_lenght;
+        guint8      entry_length;
         int         entry_start_offset;
 
         /* Entry Length */
         entry_start_offset = offset;
-        entry_lenght = tvb_get_guint8(tvb, offset);
+        entry_length = tvb_get_guint8(tvb, offset);
 
         if (registration_request_msg && ((service_option == 64) || (service_option == 67)))
-            exts_tree = proto_tree_add_subtree_format(ext_tree, tvb, offset, entry_lenght+1,
+            exts_tree = proto_tree_add_subtree_format(ext_tree, tvb, offset, entry_length+1,
                         ett_a11_ase, NULL, "GRE Key Entry (SRID: %d)", srid);
         else
-            exts_tree = proto_tree_add_subtree_format(ext_tree, tvb, offset, entry_lenght,
+            exts_tree = proto_tree_add_subtree_format(ext_tree, tvb, offset, entry_length,
                         ett_a11_ase, NULL, "GRE Key Entry (SRID: %d)", srid);
 
         proto_tree_add_item(exts_tree, hf_a11_ase_len_type, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -857,7 +857,7 @@ dissect_ase(tvbuff_t *tvb, int offset, guint ase_len, proto_tree *ext_tree)
         proto_tree_add_item(exts_tree, hf_a11_ase_pcf_addr_key, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
 
-        if ((entry_lenght>14)&&(registration_request_msg)) {
+        if ((entry_length>14)&&(registration_request_msg)) {
             if (service_option == 0x0043) {
                 proto_tree *extv_tree;
                 guint8      profile_count = tvb_get_guint8(tvb, offset+6);
@@ -922,9 +922,9 @@ dissect_ase(tvbuff_t *tvb, int offset, guint ase_len, proto_tree *ext_tree)
             }/* Service option */
 
         }/* if */
-        clen += entry_lenght + 1;
+        clen += entry_length + 1;
         /* Set offset = start of next entry in case of padding */
-        offset = entry_start_offset + entry_lenght+1;
+        offset = entry_start_offset + entry_length+1;
 
     } /* while */
 

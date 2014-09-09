@@ -3881,7 +3881,7 @@ de_sm_apn(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
 		curr_len     += step+1;
 	}
 
-	/* High light bytes including the first lenght byte */
+	/* Highlight bytes including the first length byte */
 	proto_tree_add_string(tree, hf_gsm_a_gm_apn, tvb, curr_offset, len, str+1);
 	curr_offset +=  len;
 

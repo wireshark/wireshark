@@ -4220,7 +4220,7 @@ proto_register_artnet(void) {
         NULL, HFILL }},
 
     { &hf_artnet_directory_reply_length,
-      { "Lenght",
+      { "Length",
         "artnet.directory_reply.length",
         FT_UINT64, BASE_DEC, NULL, 0x0,
         NULL, HFILL }},

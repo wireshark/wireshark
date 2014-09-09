@@ -206,7 +206,7 @@ dissect_rsync_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         case RSYNC_MODULE_LIST:
             /* there are two cases - file list, or authentication */
             if (0 == tvb_strneql(tvb, offset, RSYNCD_AUTHREQD, RSYNCD_AUTHREQD_LEN)) {
-                /* matches, so we assume its an authentication message */
+                /* matches, so we assume it's an authentication message */
                 proto_tree_add_item(rsync_tree, &hfi_rsync_rsyncdok_string, tvb, offset, -1, ENC_ASCII|ENC_NA);
 
                 col_set_str(pinfo->cinfo, COL_INFO, "Authentication");

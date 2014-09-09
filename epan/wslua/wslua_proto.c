@@ -1898,7 +1898,7 @@ int Proto_register(lua_State* L) {
 
 /**
  * Query field abbr that is defined and bound to a Proto in lua.
- * They are not registered untill the end of the initialization.
+ * They are not registered until the end of the initialization.
  */
 int wslua_is_field_available(lua_State* L, const char* field_abbr) {
     lua_rawgeti(L, LUA_REGISTRYINDEX, protocols_table_ref);

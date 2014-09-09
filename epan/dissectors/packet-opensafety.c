@@ -2041,7 +2041,7 @@ opensafety_package_dissector(const gchar *protocolName, const gchar *sub_diss_ha
         /* Finding the start of the first possible safety frame */
         if ( findSafetyFrame(message_tvb, frameOffset, b_frame2First, &frameOffset, &frameLength) )
         {
-            /* frameLength is calculated/read directly from the dissected data. If frameLenght and frameOffset together
+            /* frameLength is calculated/read directly from the dissected data. If frameLength and frameOffset together
              * are bigger than the reported length, the package is not really an openSAFETY package */
             if ( ( frameOffset + frameLength ) > (guint)reported_len )
                 break;

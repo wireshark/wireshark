@@ -2703,7 +2703,7 @@ dissect_epl_sdo_command_write_by_index(proto_tree *epl_tree, tvbuff_t *tvb, pack
 
 		size = tvb_reported_length_remaining(tvb, offset);
 
-		/* if the index is a R/TPDO and its not a segmentation initiated transfer */
+		/* if the index is a R/TPDO and it's not a segmentation initiated transfer */
 		if((idx == EPL_SOD_PDO_TX_MAPP && subindex > entries) ||(idx == EPL_SOD_PDO_RX_MAPP && subindex > entries))
 		{
 			psf_item = proto_tree_add_item(epl_tree, hf_epl_asnd_sdo_cmd_data_mapping, tvb, offset, 1, ENC_NA);
@@ -2909,7 +2909,7 @@ dissect_epl_sdo_command_write_multiple_by_index(proto_tree *epl_tree, tvbuff_t *
 				dataoffset += 1;
 			}
 
-			/* if the index is a R/TPDO and its not a segmentation initiated transfer */
+			/* if the index is a R/TPDO and it's not a segmentation initiated transfer */
 			if((idx == EPL_SOD_PDO_TX_MAPP && subindex > entries) ||(idx == EPL_SOD_PDO_RX_MAPP && subindex > entries))
 			{
 				psf_item = proto_tree_add_item(epl_tree, hf_epl_asnd_sdo_cmd_data_mapping, tvb, dataoffset, 1, ENC_NA);

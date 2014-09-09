@@ -105,14 +105,14 @@ gcp_msg_t* gcp_msg(packet_info* pinfo, int o, gboolean keep_persistent_data) {
 		key[2].key =NULL;
 
         if (( m = (gcp_msg_t *)wmem_tree_lookup32_array(msgs,key) )) {
-            m->commited = TRUE;
+            m->committed = TRUE;
             return m;
         } else {
             m = wmem_new(wmem_file_scope(), gcp_msg_t);
             m->framenum = framenum;
             m->time = pinfo->fd->abs_ts;
             m->trxs = NULL;
-            m->commited = FALSE;
+            m->committed = FALSE;
 
             wmem_tree_insert32_array(msgs,key,m);
         }
@@ -120,7 +120,7 @@ gcp_msg_t* gcp_msg(packet_info* pinfo, int o, gboolean keep_persistent_data) {
         m = wmem_new0(wmem_packet_scope(), gcp_msg_t);
         m->framenum = framenum;
         m->trxs = NULL;
-        m->commited = FALSE;
+        m->committed = FALSE;
     }
 
     if (CMP_ADDRESS(src, dst) < 0)  {
@@ -161,7 +161,7 @@ gcp_trx_t* gcp_trx(gcp_msg_t* m ,guint32 t_id , gcp_trx_type_t type, gboolean ke
     if ( !m ) return NULL;
 
     if (keep_persistent_data) {
-        if (m->commited) {
+        if (m->committed) {
 
             for ( trxmsg = m->trxs; trxmsg; trxmsg = trxmsg->next) {
                 if (trxmsg->trx && trxmsg->trx->id == t_id) {
@@ -262,7 +262,7 @@ gcp_ctx_t* gcp_ctx(gcp_msg_t* m, gcp_trx_t* t, guint32 c_id, gboolean persistent
         trx_key[3].length = 0;
         trx_key[3].key = NULL;
 
-        if (m->commited) {
+        if (m->committed) {
             if (( context = (gcp_ctx_t *)wmem_tree_lookup32_array(ctxs_by_trx,trx_key) )) {
                 return context;
             } if ((context_p = (gcp_ctx_t **)wmem_tree_lookup32_array(ctxs,ctx_key))) {
@@ -351,7 +351,7 @@ gcp_cmd_t* gcp_cmd(gcp_msg_t* m, gcp_trx_t* t, gcp_ctx_t* c, gcp_cmd_type_t type
     if ( !m || !t || !c ) return NULL;
 
     if (persistent) {
-        if (m->commited) {
+        if (m->committed) {
             DISSECTOR_ASSERT(t->cmds != NULL);
 
             for (cmdctx = t->cmds; cmdctx; cmdctx = cmdctx->next) {
@@ -423,7 +423,7 @@ gcp_term_t* gcp_cmd_add_term(gcp_msg_t* m, gcp_trx_t* tr, gcp_cmd_t* c, gcp_term
     }
 
     if (persistent) {
-        if ( c->msg->commited ) {
+        if ( c->msg->committed ) {
             if (wildcard == GCP_WILDCARD_ALL) {
                 for (ct = c->ctx->terms.next; ct; ct = ct->next) {
                     /* XXX not handling more wilcards in one msg */

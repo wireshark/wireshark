@@ -642,7 +642,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             } else if ((g_ascii_strncasecmp(line, "AUTH LOGIN", 10) == 0) && (linelen <= 11)) {
               /*
                * AUTH LOGIN command.
-               * Username is in a seperate frame
+               * Username is in a separate frame
                */
               spd_frame_data->pdu_type        = SMTP_PDU_CMD;
               session_state->smtp_state       = SMTP_STATE_READING_CMDS;
@@ -661,7 +661,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             } else if ((g_ascii_strncasecmp(line, "AUTH PLAIN", 10) == 0) && (linelen <= 11)) {
               /*
                * AUTH PLAIN command.
-               * Username and Password is in one seperate frame
+               * Username and Password is in one separate frame
                */
               spd_frame_data->pdu_type        = SMTP_PDU_CMD;
               session_state->smtp_state       = SMTP_STATE_READING_CMDS;

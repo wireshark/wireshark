@@ -23332,7 +23332,7 @@ conversation_t   *conversation = NULL;
 int i;
 
     if (!actx->pinfo->fd->flags.visited){
-        /* Set port to zero use that as an indication of wether we have data or not */
+        /* Set port to zero use that as an indication of whether we have data or not */
         for (i = 0; i < maxNrOfCommonMACFlows; i++) {
             nbap_common_channel_info[i].crnc_port = 0;
             nbap_common_channel_info[i].rlc_mode = FP_RLC_MODE_UNKNOWN;
@@ -23347,7 +23347,7 @@ int i;
     if (actx->pinfo->fd->flags.visited){
         return offset;
     }
-    /* Set port to zero use that as an indication of wether we have data or not */
+    /* Set port to zero use that as an indication of whether we have data or not */
     SET_ADDRESS(&null_addr, AT_NONE, 0, NULL);
     for (i = 0; i < maxNrOfCommonMACFlows; i++) {
         if (nbap_common_channel_info[i].crnc_port != 0){
@@ -23666,7 +23666,7 @@ dissect_nbap_HSDSCH_MACdFlows_Information(tvbuff_t *tvb _U_, int offset _U_, asn
             /*This flow must also be added*/
             case id_HSDSCH_MACdFlows_to_Add:
                 if (!actx->pinfo->fd->flags.visited){
-                /* Set port to zero use that as an indication of wether we have data or not */
+                /* Set port to zero use that as an indication of whether we have data or not */
                     for (i = 0; i < maxNrOfMACdFlows; i++) {
                         nbap_hsdsch_channel_info[i].crnc_port = 0;
                         nbap_hsdsch_channel_info[i].rlc_mode = FP_RLC_MODE_UNKNOWN;
@@ -23775,7 +23775,7 @@ dissect_nbap_HSDSCH_FDD_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
     guint32 i;
 
     if (!actx->pinfo->fd->flags.visited){
-        /* Set port to zero use that as an indication of wether we have data or not */
+        /* Set port to zero use that as an indication of whether we have data or not */
         for (i = 0; i < maxNrOfMACdFlows; i++) {
             nbap_hsdsch_channel_info[i].crnc_port = 0;
             nbap_hsdsch_channel_info[i].rlc_mode = FP_RLC_MODE_UNKNOWN;
@@ -23792,7 +23792,7 @@ dissect_nbap_HSDSCH_FDD_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
         return offset;
     }
 
-    /* Set port to zero use that as an indication of wether we have data or not */
+    /* Set port to zero use that as an indication of whether we have data or not */
     SET_ADDRESS(&null_addr, AT_NONE, 0, NULL);
     for (i = 0; i < maxNrOfMACdFlows; i++) {
         if (nbap_hsdsch_channel_info[i].crnc_port != 0){
@@ -24109,7 +24109,7 @@ dissect_nbap_HSDSCH_Information_to_Modify(tvbuff_t *tvb _U_, int offset _U_, asn
     guint32 i;
 
     if (!actx->pinfo->fd->flags.visited){
-        /* Set port to zero use that as an indication of wether we have data or not */
+        /* Set port to zero use that as an indication of whether we have data or not */
         for (i = 0; i < maxNrOfMACdFlows; i++) {
             nbap_hsdsch_channel_info[i].crnc_port = 0;
             nbap_hsdsch_channel_info[i].rlc_mode = FP_RLC_MODE_UNKNOWN;
@@ -24126,7 +24126,7 @@ dissect_nbap_HSDSCH_Information_to_Modify(tvbuff_t *tvb _U_, int offset _U_, asn
         return offset;
     }
 
-    /* Set port to zero use that as an indication of wether we have data or not */
+    /* Set port to zero use that as an indication of whether we have data or not */
     SET_ADDRESS(&null_addr, AT_NONE, 0, NULL);
 
     nbap_debug1("Frame %u HSDSCH-MACdFlows-Information Start",

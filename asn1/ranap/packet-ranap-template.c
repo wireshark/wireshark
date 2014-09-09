@@ -269,7 +269,7 @@ dissect_sccp_ranap_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
      * 2nd octet is the message-type e Z[0, 28]
      * (obviously there must be at least four octets)
      *
-     * If both hold true we'll assume its RANAP
+     * If both hold true we'll assume it's RANAP
      */
 
     #define LENGTH_OFFSET 3

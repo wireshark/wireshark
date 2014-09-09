@@ -576,7 +576,7 @@ void dissect_ptpIP_init_command_request(tvbuff_t *tvb, packet_info *pinfo, proto
     dissect_ptpIP_unicode_name(tvb, pinfo, tree, offset);
 
     /* grabbing protocol version
-     * Note: [3] does not list this in the packet field. . [1] 2.3.1 states its the last 4
+     * Note: [3] does not list this in the packet field. . [1] 2.3.1 states it's the last 4
      * bytes of the packet.
     */
     dissect_ptpIP_protocol_version(tvb, tree, offset);

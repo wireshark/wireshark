@@ -11807,7 +11807,7 @@ dissect_wapi_param_set(tvbuff_t *tvb, packet_info *pinfo,
   /*MIN: 2 + (2+4)+ (2+4) + 4 + 2 + 0 (BKID CNT and LIST)  =20*/
   if (tag_len < 20) {
       expert_add_info_format(pinfo, ti_len, &ei_ieee80211_tag_length,
-                "tag_len is  %d, its neither WAPI not BSS-AC-Access-Delay", tag_len);
+                "tag_len is  %d, it's neither WAPI not BSS-AC-Access-Delay", tag_len);
     return offset;
   }
 
@@ -19297,7 +19297,7 @@ proto_register_ieee80211 (void)
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_sswf_num_rx_dmg_ants,
-     {"Sector Sweep Feedback Number of recieve DMG Antennas", "wlan.sswf.num_dmg_ants",
+     {"Sector Sweep Feedback Number of receive DMG Antennas", "wlan.sswf.num_dmg_ants",
       FT_UINT24, BASE_DEC, NULL, 0x006000,
       NULL, HFILL }},
 
@@ -19447,7 +19447,7 @@ proto_register_ieee80211 (void)
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_bic_nabft,
-     {"Number of A-BFT's recieved from each Antenna", "wlan.bic.nabft",
+     {"Number of A-BFT's received from each Antenna", "wlan.bic.nabft",
       FT_UINT16, BASE_DEC, NULL, 0x07e0,
       NULL, HFILL }},
 
@@ -21516,7 +21516,7 @@ proto_register_ieee80211 (void)
     {&hf_ieee80211_ff_toa,
      {"TOA", "wlan_mgt.fixed.toa",
       FT_UINT32, BASE_DEC, NULL, 0,
-      "Previous TS of recieve antenna port", HFILL }},
+      "Previous TS of receive antenna port", HFILL }},
 
     {&hf_ieee80211_ff_max_tod_err,
      {"MAX TOD ERROR", "wlan_mgt.fixed.max_tod_err",

@@ -1231,7 +1231,7 @@ file_peekc(FILE_T file)
 			return -1;
 	}
 	/* if we processed a skip request, there may be data in the buffer,
-	 * or an error could have occured; likewise if we didn't do seek but
+	 * or an error could have occurred; likewise if we didn't do seek but
 	 * now call fill_out_buffer, the errors can occur.  So we do this while
 	 * loop to check before and after - this is basically the logic from
 	 * file_read() but only for peeking not consuming a byte

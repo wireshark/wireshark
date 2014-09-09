@@ -223,7 +223,7 @@ tvb_raw_text_add(tvbuff_t *tvb, proto_tree *tree);
 static void
 dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static gint
-megaco_tvb_find_token(tvbuff_t* tvb, gint offset, gint maxlenght);
+megaco_tvb_find_token(tvbuff_t* tvb, gint offset, gint maxlength);
 static dissector_handle_t data_handle;
 static dissector_handle_t sdp_handle;
 static dissector_handle_t h245_handle;

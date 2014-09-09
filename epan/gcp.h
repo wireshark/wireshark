@@ -106,7 +106,7 @@ typedef struct _gcp_msg_t {
     guint32 framenum;
     nstime_t time;
     struct _gcp_trx_msg_t* trxs;
-    gboolean commited;
+    gboolean committed;
 } gcp_msg_t;
 
 typedef struct _gcp_trx_msg_t {

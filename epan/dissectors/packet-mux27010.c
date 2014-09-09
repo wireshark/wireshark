@@ -821,7 +821,7 @@ dissect_mux27010(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /*Set the variable for length of the info field to 0*/
     length_info = 0;
 
-    /*Check the frame type because in RR, RNR and REJ are no info and no lenght fields*/
+    /*Check the frame type because in RR, RNR and REJ are no info and no length fields*/
     if ((frame_type != MUX27010_FRAMETYPE_CONTROL_FLAG_RR) && (frame_type != MUX27010_FRAMETYPE_CONTROL_FLAG_RNR) &&
         (frame_type != MUX27010_FRAMETYPE_CONTROL_FLAG_REJ)){
         /*Add a subtree (=item) to the child node => in this subtree will be the details of length field*/
