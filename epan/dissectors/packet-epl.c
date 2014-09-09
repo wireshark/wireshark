@@ -3039,9 +3039,7 @@ dissect_epl_sdo_command_read_by_index(proto_tree *epl_tree, tvbuff_t *tvb, packe
 					val_to_str(segmented, epl_sdo_asnd_cmd_segmentation, "User Defined (%d)"));
 
 		size = tvb_reported_length_remaining(tvb, offset);
-		offset += dissect_epl_payload ( epl_tree, tvb, pinfo, offset, size, EPL_ASND );
-
-		offset += size;
+		offset = dissect_epl_payload ( epl_tree, tvb, pinfo, offset, size, EPL_ASND );
 	}
 
 	return offset;
