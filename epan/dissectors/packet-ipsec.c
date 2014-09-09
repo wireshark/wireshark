@@ -78,6 +78,7 @@ ADD: Additional generic (non-checked) ICV length of 128, 192 and 256.
 #include <epan/addr_resolv.h>
 #include <epan/ipproto.h>
 #include <epan/prefs.h>
+#include <epan/expert.h>
 #include <epan/tap.h>
 #include <epan/exported_pdu.h>
 
@@ -105,6 +106,9 @@ static int hf_esp_icv_bad = -1;
 static int hf_esp_sequence = -1;
 static int hf_esp_pad_len = -1;
 static int hf_esp_protocol = -1;
+static int hf_esp_sequence_analysis_expected_sn = -1;
+static int hf_esp_sequence_analysis_previous_frame = -1;
+
 static int proto_ipcomp = -1;
 static int hf_ipcomp_flags = -1;
 static int hf_ipcomp_cpi = -1;
@@ -113,6 +117,9 @@ static gint ett_ah = -1;
 static gint ett_esp = -1;
 static gint ett_esp_icv = -1;
 static gint ett_ipcomp = -1;
+
+static expert_field ei_esp_sequence_analysis_wrong_sequence_number = EI_INIT;
+
 
 static gint exported_pdu_tap = -1;
 
@@ -460,6 +467,121 @@ void esp_sa_record_add_from_dissector(guint8 protocol, const gchar *srcIP, const
 }
 
 
+/**************************************************/
+/* Sequence number analysis                       */
+
+/* SPI state, key is just 32-bit SPI */
+typedef struct
+{
+    guint32  previousSequenceNumber;
+    guint32  previousFrameNum;
+} spi_status;
+
+/* The sequence analysis SPI hash table.
+   Maps SPI -> spi_status */
+static GHashTable *esp_sequence_analysis_hash = NULL;
+
+/* Equal keys */
+static gint word_equal(gconstpointer v, gconstpointer v2)
+{
+    /* Key fits in 4 bytes, so just compare pointers! */
+    return (v == v2);
+}
+
+/* Compute a hash value for a given key. */
+static guint word_hash_func(gconstpointer v)
+{
+    /* Just use pointer, as the fields are all in this value */
+    return GPOINTER_TO_UINT(v);
+}
+
+/* Results are stored here: framenum -> spi_status */
+static GHashTable *esp_sequence_analysis_report_hash = NULL;
+
+/* During the first pass, update the SPI state.  If the sequence numbers
+   are out of order, add an entry to the report table */
+static void check_esp_sequence_info(guint32 spi, guint32 sequence_number, packet_info *pinfo)
+{
+  /* Do the table lookup */
+  spi_status *status = (spi_status*)g_hash_table_lookup(esp_sequence_analysis_hash,
+                                                        GUINT_TO_POINTER((guint)spi));
+  if (status == NULL) {
+    /* Create an entry for this SPI */
+    status = wmem_new0(wmem_file_scope(), spi_status);
+    status->previousSequenceNumber = sequence_number;
+    status->previousFrameNum = pinfo->fd->num;
+
+    /* And add it to the table */
+    g_hash_table_insert(esp_sequence_analysis_hash, GUINT_TO_POINTER((guint)spi), status);
+  }
+  else {
+    spi_status *frame_status;
+
+    /* Entry already existed, so check that we got the sequence number we expected. */
+    if (sequence_number != status->previousSequenceNumber+1) {
+      /* Create report entry */
+      frame_status = wmem_new0(wmem_file_scope(), spi_status);
+      /* Copy what was expected */
+      *frame_status = *status;
+      /* And add it into the report table */
+      g_hash_table_insert(esp_sequence_analysis_report_hash, GUINT_TO_POINTER(pinfo->fd->num), frame_status);
+    }
+    /* Adopt this setting as 'current' regardless of whether expected */
+    status->previousSequenceNumber = sequence_number;
+    status->previousFrameNum = pinfo->fd->num;
+  }
+}
+
+/* Check to see if there is a report stored for this frame.  If there is,
+   add it to the tree and report using expert info */
+static void show_esp_sequence_info(guint32 spi, guint32 sequence_number,
+                                   tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
+{
+  /* Look up this frame in the report table. */
+  spi_status *status = (spi_status*)g_hash_table_lookup(esp_sequence_analysis_report_hash,
+                                                        GUINT_TO_POINTER(pinfo->fd->num));
+  if (status != NULL) {
+    proto_item *sn_ti, *frame_ti;
+
+    /* Expected sequence number */
+    sn_ti = proto_tree_add_uint(tree, hf_esp_sequence_analysis_expected_sn,
+                                tvb, 0, 0, status->previousSequenceNumber+1);
+    if (sequence_number > (status->previousSequenceNumber+1)) {
+      proto_item_append_text(sn_ti, " (%u SNs missing)",
+                             sequence_number - (status->previousSequenceNumber+1));
+    }
+    PROTO_ITEM_SET_GENERATED(sn_ti);
+
+    /* Link back to previous frame for SPI */
+    frame_ti = proto_tree_add_uint(tree, hf_esp_sequence_analysis_previous_frame,
+                                   tvb, 0, 0, status->previousFrameNum);
+    PROTO_ITEM_SET_GENERATED(frame_ti);
+
+    /* Expert info */
+    if (sequence_number == status->previousSequenceNumber) {
+      expert_add_info_format(pinfo, sn_ti, &ei_esp_sequence_analysis_wrong_sequence_number,
+                             "Wrong Sequence Number for SPI %08x - %u repeated",
+                             spi, sequence_number);
+    }
+    else if (sequence_number > status->previousSequenceNumber+1) {
+      expert_add_info_format(pinfo, sn_ti, &ei_esp_sequence_analysis_wrong_sequence_number,
+                             "Wrong Sequence Number for SPI %08x - %u missing",
+                             spi,
+                             sequence_number - (status->previousSequenceNumber+1));
+    }
+    else {
+      expert_add_info_format(pinfo, sn_ti, &ei_esp_sequence_analysis_wrong_sequence_number,
+                             "Wrong Sequence Number for SPI %08x - %u less than expected",
+                             spi,
+                             (status->previousSequenceNumber+1) - sequence_number);
+    }
+  }
+}
+
+
+/*************************************/
+/* Preference settings               */
+
 /* Default ESP payload decode to off */
 static gboolean g_esp_enable_encryption_decode = FALSE;
 
@@ -473,6 +595,9 @@ static gboolean g_esp_enable_authentication_check = FALSE;
    and the packet does not match a Security Association).
 */
 static gboolean g_esp_enable_null_encryption_decode_heuristic = FALSE;
+
+/* Default to not doing ESP sequence analysis */
+static gboolean g_esp_do_sequence_analysis = TRUE;
 
 /* Place AH payload in sub tree */
 static gboolean g_ah_payload_in_subtree = FALSE;
@@ -1233,6 +1358,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   unsigned char *authenticator_data_computed_md;
 
   unsigned char ctr_block[16];
+  guint32 sequence_number;
 
   /*
    * load the top pane info. This should be overwritten by
@@ -1255,19 +1381,30 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    * (ie none)
    */
 
-  if(tree) {
-    len = 0, encapsulated_protocol = 0;
-    decrypt_dissect_ok = FALSE;
 
-    ti = proto_tree_add_item(tree, proto_esp, tvb, 0, -1, ENC_NA);
-    esp_tree = proto_item_add_subtree(ti, ett_esp);
-    proto_tree_add_uint(esp_tree, hf_esp_spi, tvb,
-                        offsetof(struct newesp, esp_spi), 4,
-                        (guint32)g_ntohl(esp.esp_spi));
-    proto_tree_add_uint(esp_tree, hf_esp_sequence, tvb,
-                        offsetof(struct newesp, esp_seq), 4,
-                        (guint32)g_ntohl(esp.esp_seq));
+  spi = (guint32)g_ntohl(esp.esp_spi);
+  sequence_number = (guint32)g_ntohl(esp.esp_seq);
+  len = 0, encapsulated_protocol = 0;
+  decrypt_dissect_ok = FALSE;
+
+  ti = proto_tree_add_item(tree, proto_esp, tvb, 0, -1, ENC_NA);
+  esp_tree = proto_item_add_subtree(ti, ett_esp);
+  proto_tree_add_uint(esp_tree, hf_esp_spi, tvb,
+                      offsetof(struct newesp, esp_spi), 4,
+                      (guint32)g_ntohl(esp.esp_spi));
+  proto_tree_add_uint(esp_tree, hf_esp_sequence, tvb,
+                      offsetof(struct newesp, esp_seq), 4,
+                      sequence_number);
+
+  /* Sequence number analysis */
+  if (g_esp_do_sequence_analysis) {
+    if (!pinfo->fd->flags.visited) {
+      check_esp_sequence_info(spi, sequence_number, pinfo);
+    }
+    show_esp_sequence_info(spi, sequence_number,
+                           tvb, esp_tree, pinfo);
   }
+
 
 
 #ifdef HAVE_LIBGCRYPT
@@ -2188,6 +2325,19 @@ static void ipsec_init_protocol(void)
     extra_esp_sa_records.records = NULL;
   }
   extra_esp_sa_records.num_records = 0;
+
+  /* Destroy any existing hashes. */
+  if (esp_sequence_analysis_hash) {
+      g_hash_table_destroy(esp_sequence_analysis_hash);
+  }
+  if (esp_sequence_analysis_report_hash) {
+      g_hash_table_destroy(esp_sequence_analysis_report_hash);
+  }
+
+  /* Now create them over */
+  esp_sequence_analysis_hash = g_hash_table_new(word_hash_func, word_equal);
+  esp_sequence_analysis_report_hash = g_hash_table_new(word_hash_func, word_equal);
+
 }
 #endif
 
@@ -2229,6 +2379,12 @@ proto_register_ipsec(void)
     { &hf_esp_icv_bad,
       { "Bad", "esp.icv_bad", FT_BOOLEAN, BASE_NONE,  NULL, 0x0,
         "True: ICV doesn't match packet content; False: matches content or not checked", HFILL }},
+    { &hf_esp_sequence_analysis_expected_sn,
+      { "Expected SN", "esp.sequence-analysis.expected-sn", FT_UINT32, BASE_DEC,  NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_esp_sequence_analysis_previous_frame,
+      { "Previous Frame", "esp.sequence-analysis.previous-frame", FT_FRAMENUM, BASE_NONE,  NULL, 0x0,
+        NULL, HFILL }},
   };
 
   static hf_register_info hf_ipcomp[] = {
@@ -2245,6 +2401,10 @@ proto_register_ipsec(void)
     &ett_esp,
     &ett_esp_icv,
     &ett_ipcomp,
+  };
+
+  static ei_register_info ei[] = {
+    { &ei_esp_sequence_analysis_wrong_sequence_number, { "esp.sequence-analysis.wrong-sequence-number", PI_SEQUENCE, PI_WARN, "Wrong Sequence Number", EXPFILL }}
   };
 
 #ifdef HAVE_LIBGCRYPT
@@ -2302,6 +2462,8 @@ proto_register_ipsec(void)
   module_t *ah_module;
   module_t *esp_module;
 
+  expert_module_t* expert_esp;
+
   proto_ah = proto_register_protocol("Authentication Header", "AH", "ah");
   proto_register_field_array(proto_ah, hf_ah, array_length(hf_ah));
 
@@ -2314,6 +2476,9 @@ proto_register_ipsec(void)
   proto_register_field_array(proto_ipcomp, hf_ipcomp, array_length(hf_ipcomp));
 
   proto_register_subtree_array(ett, array_length(ett));
+
+  expert_esp = expert_register_protocol(proto_esp);
+  expert_register_field_array(expert_esp, ei, array_length(ei));
 
   /* Register a configuration option for placement of AH payload dissection */
   ah_module = prefs_register_protocol(proto_ah, NULL);
@@ -2330,6 +2495,10 @@ proto_register_ipsec(void)
                                  "and attempts decode based on the ethertype 13 bytes from packet end",
                                  &g_esp_enable_null_encryption_decode_heuristic);
 
+  prefs_register_bool_preference(esp_module, "do_esp_sequence_analysis",
+                                 "Check sequence numbers of ESP frames",
+                                 "Check that successive frames increase sequence number by 1 within an SPI.  This should work OK when only one host is sending frames on an SPI",
+                                 &g_esp_do_sequence_analysis);
 
 #ifdef HAVE_LIBGCRYPT
   prefs_register_bool_preference(esp_module, "enable_encryption_decode",
