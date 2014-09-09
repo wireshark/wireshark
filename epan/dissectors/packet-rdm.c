@@ -360,7 +360,7 @@ static const value_string rdm_sensor_type_vals[] = {
 	{ RDM_SENS_RESISTANCE,		"Resistance" },
 	{ RDM_SENS_POWER,		"Power" },
 	{ RDM_SENS_MASS,		"Mass" },
-	{ RDM_SENS_LENGTH,		"Lenght" },
+	{ RDM_SENS_LENGTH,		"Length" },
 	{ RDM_SENS_AREA,		"Area" },
 	{ RDM_SENS_VOLUME,		"Volume" },
 	{ RDM_SENS_DENSITY,		"Density" },
