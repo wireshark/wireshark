@@ -1157,7 +1157,7 @@ dissect_spdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 		 * No more SPDUs to dissect.  Set the offset to the
 		 * end of the tvbuff.
 		 */
-		offset = tvb_length(tvb);
+		offset = tvb_captured_length(tvb);
 		if (session.rtse_reassemble && type == SES_DATA_TRANSFER) {
 			ses_pres_ctx_id = session.pres_ctx_id;
 			ses_rtse_reassemble = TRUE;
@@ -1937,7 +1937,7 @@ dissect_ses_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, voi
 	guint16 len;
 
 	/* first, check do we have at least 4 bytes (type+length) */
-	if (tvb_length(tvb) < 2)
+	if (tvb_captured_length(tvb) < 2)
 		return FALSE;	/* no */
 
 	/* can we recognize session PDU ? Return FALSE if  not */
@@ -1965,7 +1965,7 @@ dissect_ses_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, voi
 	 * misinterpreted as SES.
 	 * the starter in this case is fixed to 0x32 (SES_MINOR_SYNC_ACK for SES),
 	 * so if the parameter type is unknown, it's probably SIMATIC */
-	if(type == 0x32 && tvb_length(tvb) >= 3) {
+	if(type == 0x32 && tvb_captured_length(tvb) >= 3) {
 		type = tvb_get_guint8(tvb, offset+2);
 		if (try_val_to_str(type, param_vals) == NULL) {
 			return FALSE; /* it's probably a SIMATIC protocol */
@@ -1979,11 +1979,11 @@ dissect_ses_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, voi
 	/*  add header length     */
 	len+=len_len;
 	/* do we have enough bytes ? */
-	if (tvb_length(tvb) < len)
+	if (tvb_reported_length(tvb) < len)
 		return FALSE;	/* no */
 
 	/* final check to see if the next SPDU, if present, is also valid */
-	if (tvb_length(tvb) > 1+(guint) len) {
+	if (tvb_captured_length(tvb) > 1+(guint) len) {
 	  type = tvb_get_guint8(tvb, offset + len + 1);
 	  /* check SPDU type */
 	  if (try_val_to_str(type, ses_vals) == NULL) {

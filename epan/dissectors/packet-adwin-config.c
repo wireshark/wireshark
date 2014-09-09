@@ -362,10 +362,10 @@ dissect_TCPFlashUpdate(tvbuff_t *tvb,  packet_info *pinfo _U_, proto_tree *tree,
 	offset += 4;
 	proto_tree_add_item(adwin_tree, hf_adwin_config_unused, tvb, offset, 128, ENC_NA);
 	offset += 128;
-	length = tvb_length(tvb) - offset;
+	length = tvb_captured_length_remaining(tvb, offset);
 	proto_tree_add_item(adwin_tree, hf_adwin_config_data, tvb, offset, length, ENC_NA);
 
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 /* 00:50:c2:0a:2*:** */

@@ -914,7 +914,7 @@ dissect_agentx_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 		break;
 	}
 
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 static int
@@ -922,13 +922,9 @@ dissect_agentx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
 	tcp_dissect_pdus(tvb, pinfo, tree, TRUE, 20, get_agentx_pdu_len,
 			 dissect_agentx_pdu, data);
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
-static const true_false_string tfs_agentx_include	= { "Yes",			"No"	};
-static const true_false_string tfs_agentx_register	= { "Yes",			"No"	};
-static const true_false_string tfs_agentx_newindex	= { "Yes",			"No"	};
-static const true_false_string tfs_agentx_anyindex	= { "Yes",			"No"	};
 static const true_false_string tfs_agentx_context	= { "Provided",			"None"	};
 static const true_false_string tfs_agentx_byteorder	= { "MSB (network order)",	"LSB"	};
 
@@ -952,15 +948,15 @@ proto_register_agentx(void)
 #endif
 
 		{ &hf_flags_register,
-		  { "Register", "agentx.flags.register", FT_BOOLEAN, 8, TFS(&tfs_agentx_register),
+		  { "Register", "agentx.flags.register", FT_BOOLEAN, 8, TFS(&tfs_yes_no),
 		    INSTANCE_REGISTRATION, "Instance Registration",  HFILL }},
 
 		{ &hf_flags_newindex,
-		  { "New Index", "agentx.flags.newindex", FT_BOOLEAN, 8, TFS(&tfs_agentx_newindex),
+		  { "New Index", "agentx.flags.newindex", FT_BOOLEAN, 8, TFS(&tfs_yes_no),
 		    NEW_INDEX, "New Index Requested",  HFILL }},
 
 		{ &hf_flags_anyindex,
-		  { "Any Index", "agentx.flags.anyindex", FT_BOOLEAN, 8, TFS(&tfs_agentx_anyindex),
+		  { "Any Index", "agentx.flags.anyindex", FT_BOOLEAN, 8, TFS(&tfs_yes_no),
 		    ANY_INDEX, "Any Index Requested",  HFILL }},
 
 		{ &hf_flags_context,
@@ -1004,7 +1000,7 @@ proto_register_agentx(void)
 		    NULL, HFILL }},
 
 		{ &hf_oid_include,
-		  { "OID include", "agentx.oid_include", FT_BOOLEAN, 8, TFS(&tfs_agentx_include),
+		  { "OID include", "agentx.oid_include", FT_BOOLEAN, 8, TFS(&tfs_yes_no),
 		    OID_IS_INCLUSIVE, NULL, HFILL }},
 
 		{ &hf_oid_str,

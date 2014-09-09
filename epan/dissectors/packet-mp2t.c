@@ -463,12 +463,12 @@ mp2t_get_packet_length(tvbuff_t *tvb, guint offset, packet_info *pinfo,
     gint           pkt_len = 0;
     guint          remaining_len;
 
-    remaining_len = tvb_length_remaining(tvb, offset);
     frag = fragment_get(&mp2t_reassembly_table, pinfo, frag_id, NULL);
     if (frag)
         frag = frag->next;
 
     if (!frag) { /* First frame */
+        remaining_len = tvb_reported_length_remaining(tvb, offset);
         if ( (pload_type == pid_pload_docsis && remaining_len < 4) ||
                 (pload_type == pid_pload_sect && remaining_len < 3) ||
                 (pload_type == pid_pload_pes && remaining_len < 5) ) {
@@ -1207,7 +1207,7 @@ heur_dissect_mp2t( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     gint length;
     guint offset = 0;
 
-    length = tvb_length_remaining(tvb, offset);
+    length = tvb_reported_length_remaining(tvb, offset);
     if (length == 0) {
         /* Nothing to check for */
         return FALSE;

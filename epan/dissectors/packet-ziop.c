@@ -215,14 +215,14 @@ dissect_ziop_tcp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* 
       if (tvb_get_ntohl(tvb, 0) == GIOP_MAGIC_NUMBER)
         {
           dissect_giop(tvb, pinfo, tree);
-          return tvb_length(tvb);
+          return tvb_captured_length(tvb);
         }
       return 0;
     }
 
   tcp_dissect_pdus(tvb, pinfo, tree, ziop_desegment, ZIOP_HEADER_SIZE,
                    get_ziop_pdu_len, dissect_ziop, data);
-  return tvb_length(tvb);
+  return tvb_captured_length(tvb);
 }
 
 
@@ -234,7 +234,7 @@ dissect_ziop_heur (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void 
   conversation_t *conversation;
   /* check magic number and version */
 
-  tot_len = tvb_length(tvb);
+  tot_len = tvb_captured_length(tvb);
 
   if (tot_len < ZIOP_HEADER_SIZE) /* tot_len < 12 */
     {

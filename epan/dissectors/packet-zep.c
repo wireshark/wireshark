@@ -160,7 +160,7 @@ static void dissect_zep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 #endif
 
-    if(ieee_packet_len < tvb_length(tvb)-zep_header_len){
+    if(ieee_packet_len < tvb_reported_length(tvb)-zep_header_len){
         /* Packet's length is mis-reported, abort dissection */
         call_dissector(data_handle, tvb, pinfo, tree);
         return;
