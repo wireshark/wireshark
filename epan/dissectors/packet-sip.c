@@ -2653,7 +2653,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
 
                     case POS_TO :
 
-                        if(hdr_tree) {
+                        /*if(hdr_tree)*/ {
                             proto_item *item;
 
                             sip_element_item = proto_tree_add_string_format(hdr_tree,
@@ -3175,7 +3175,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                             break;
                         }
 
-                        if(hdr_tree) {
+                        /*if(hdr_tree)*/ {
                             comma_offset = value_offset;
                             while((comma_offset = dissect_sip_contact_item(tvb, pinfo, sip_element_tree, comma_offset,
                                     next_offset, &contacts_expires_0, &contacts_expires_unknown)) != -1)
