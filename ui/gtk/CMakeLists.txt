@@ -119,7 +119,6 @@ set(WIRESHARK_GTK_SRC
 	voip_calls.c
 	webbrowser.c
 	${WIRESHARK_CUSTOM_GTK_SRC}
-	${WIRESHARK_CUSTOM_TAP_SRC}
 )
 
 if(HAVE_EXTCAP)
@@ -184,6 +183,7 @@ set(WIRESHARK_TAP_SRC
 	voip_calls_dlg.c
 	wlan_stat_dlg.c
 	wsp_stat.c
+	${WIRESHARK_CUSTOM_TAP_SRC}
 )
 
 set(CLEAN_FILES
