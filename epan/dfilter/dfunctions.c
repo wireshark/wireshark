@@ -171,7 +171,7 @@ ul_semcheck_params(int param_num, stnode_t *st_node)
             case STTYPE_FIELD:
                 hfinfo = (header_field_info *)stnode_data(st_node);
                 ftype = hfinfo->type;
-                if (IS_FT_STRING(ftype)) {
+                if (!IS_FT_STRING(ftype)) {
                     dfilter_fail("Only strings can be used in upper() or lower() or len()");
                     THROW(TypeError);
                 }
