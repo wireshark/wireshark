@@ -2228,7 +2228,7 @@ opensafety_package_dissector(const gchar *protocolName, const gchar *sub_diss_ha
             if ( dissect_opensafety_message(frameStart1, frameStart2, type, next_tvb, pinfo, opensafety_item, opensafety_tree, found) != TRUE )
                 markAsMalformed = TRUE;
 
-            if ( tree && markAsMalformed )
+            if ( markAsMalformed )
             {
                 if ( OSS_FRAME_ADDR_T(message_tvb, byte_offset + frameStart1) > 1024 )
                     expert_add_info(pinfo, opensafety_item, &ei_message_spdo_address_invalid );
@@ -2406,19 +2406,26 @@ dissect_opensafety_udpdata(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree
 static void
 apply_prefs ( void )
 {
-    static gboolean opensafety_init = FALSE;
+    static dissector_handle_t opensafety_udpdata_handle;
+    static dissector_handle_t opensafety_sii_handle;
     static guint    opensafety_udp_port_number;
     static guint    opensafety_udp_siii_port_number;
+    static gboolean opensafety_init = FALSE;
 
     /* It only should delete dissectors, if run for any time except the first */
-    if ( opensafety_init )
+    if ( !opensafety_init )
+    {
+        opensafety_udpdata_handle = find_dissector("opensafety_udpdata");
+        opensafety_sii_handle     = find_dissector("opensafety_siii");
+        opensafety_init = TRUE;
+    }
+    else
     {
         /* Delete dissectors in preparation of a changed config setting */
-        dissector_delete_uint ("udp.port", opensafety_udp_port_number, find_dissector("opensafety_udpdata"));
-        dissector_delete_uint ("udp.port", opensafety_udp_siii_port_number, find_dissector("opensafety_siii"));
+        dissector_delete_uint ("udp.port", opensafety_udp_port_number, opensafety_udpdata_handle);
+        dissector_delete_uint ("udp.port", opensafety_udp_siii_port_number, opensafety_sii_handle);
     }
 
-    opensafety_init = TRUE;
 
     /* Storing the port numbers locally, to being able to delete the old associations */
     opensafety_udp_port_number = global_network_udp_port;
@@ -2845,50 +2852,45 @@ proto_register_opensafety(void)
 void
 proto_reg_handoff_opensafety(void)
 {
-    static int opensafety_inited = FALSE;
+    /* Storing global data_dissector */
+    data_dissector = find_dissector ( "data" );
 
-    if ( !opensafety_inited )
+    /* EPL & SercosIII dissector registration */
+    heur_dissector_add("epl_data",  dissect_opensafety_epl, proto_opensafety);
+    heur_dissector_add("sercosiii", dissect_opensafety_siii, proto_opensafety);
+
+    /* If an openSAFETY UDP transport filter is present, add to its
+     * heuristic filter list. Otherwise ignore the transport */
+    if ( find_dissector("opensafety_udp") != NULL )
+        heur_dissector_add("opensafety_udp", dissect_opensafety_udpdata, proto_opensafety);
+
+    /* Modbus TCP dissector registration */
+    dissector_add_string("modbus.data", "data", find_dissector("opensafety_mbtcp"));
+
+    /* For Profinet we have to register as a heuristic dissector, as Profinet
+     *  is implemented as a plugin, and therefore the heuristic dissector is not
+     *  added by the time this method is being called
+     */
+    if ( find_dissector("pn_io") != NULL )
     {
-        /* Storing global data_dissector */
-        if ( data_dissector == NULL )
-            data_dissector = find_dissector ( "data" );
-
-        /* EPL & SercosIII dissector registration */
-        heur_dissector_add("epl_data", dissect_opensafety_epl, proto_opensafety);
-        heur_dissector_add("sercosiii", dissect_opensafety_siii, proto_opensafety);
-
-        /* If an openSAFETY UDP transport filter is present, add to its
-         * heuristic filter list. Otherwise ignore the transport */
-        if ( find_dissector("opensafety_udp") != NULL )
-                heur_dissector_add("opensafety_udp", dissect_opensafety_udpdata, proto_opensafety);
-
-        /* Modbus TCP dissector registration */
-        dissector_add_string("modbus.data", "data", find_dissector("opensafety_mbtcp"));
-
-        /* For Profinet we have to register as a heuristic dissector, as Profinet
-         *  is implemented as a plugin, and therefore the heuristic dissector is not
-         *  added by the time this method is being called
+        heur_dissector_add("pn_io", dissect_opensafety_pn_io, proto_opensafety);
+    }
+    else
+    {
+        /* The native dissector cannot be loaded. so we add our protocol directly to
+         * the ethernet subdissector list. No PNIO specific data will be dissected
+         * and a warning will be displayed, recognizing the missing dissector plugin.
          */
-        if ( find_dissector("pn_io") != NULL )
-        {
-            heur_dissector_add("pn_io", dissect_opensafety_pn_io, proto_opensafety);
-        }
-        else
-        {
-            /* The native dissector cannot be loaded. so we add our protocol directly to
-             * the ethernet subdissector list. No PNIO specific data will be dissected
-             * and a warning will be displayed, recognizing the missing dissector plugin.
-             */
-            dissector_add_uint("ethertype", ETHERTYPE_PROFINET, find_dissector("opensafety_pnio"));
-        }
-
-        register_init_routine ( setup_dissector );
-
-        /* registering frame end routine, to prevent a malformed dissection preventing
-         * further dissector calls (see bug #6950) */
-        /* register_frame_end_routine(reset_dissector); */
+        dissector_add_uint("ethertype", ETHERTYPE_PROFINET, find_dissector("opensafety_pnio"));
     }
 
+    apply_prefs();
+
+    register_init_routine ( setup_dissector );
+
+    /* registering frame end routine, to prevent a malformed dissection preventing
+     * further dissector calls (see bug #6950) */
+    /* register_frame_end_routine(reset_dissector); */
 }
 
 /*
