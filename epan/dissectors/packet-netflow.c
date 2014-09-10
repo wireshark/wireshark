@@ -1516,7 +1516,7 @@ proto_tree_add_mpls_label(proto_tree *pdutree, tvbuff_t *tvb, int offset, int le
                                  "MPLS-Label%d: %u exp-bits: %u %s", level,
                                  ((b0<<12)+(b1<<4)+(b2>>4)),
                                  ((b2>>1)&0x7),
-                                 ((b2&0x1)?"top-of-stack":""));
+                                 ((b2&0x1)?"bottom-of-stack":""));
     } else {
         ti = proto_tree_add_text(pdutree, tvb, offset, length,
                                  "MPLS-Label%d: bad length %d", level, length);
