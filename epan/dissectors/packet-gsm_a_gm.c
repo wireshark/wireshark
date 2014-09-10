@@ -110,13 +110,15 @@ const value_string gsm_a_dtap_msg_gmm_strings[] = {
 	{ 0x12,	"Authentication and Ciphering Req" },
 	{ 0x13,	"Authentication and Ciphering Resp" },
 	{ 0x14,	"Authentication and Ciphering Rej" },
-	{ 0x1c,	"Authentication and Ciphering Failure" },
 	{ 0x15,	"Identity Request" },
 	{ 0x16,	"Identity Response" },
+	{ 0x1c,	"Authentication and Ciphering Failure" },
 	{ 0x20,	"GMM Status" },
 	{ 0x21,	"GMM Information" },
 	{ 0, NULL }
 };
+static value_string_ext gsm_a_dtap_msg_gmm_strings_ext = VALUE_STRING_EXT_INIT(gsm_a_dtap_msg_gmm_strings);
+
 
 const value_string gsm_a_dtap_msg_sm_strings[] = {
 	{ 0x41,	"Activate PDP Context Request" },
@@ -150,75 +152,77 @@ const value_string gsm_a_dtap_msg_sm_strings[] = {
 	{ 0x5d,	"Notification" },
 	{ 0, NULL }
 };
+static value_string_ext gsm_a_dtap_msg_sm_strings_ext = VALUE_STRING_EXT_INIT(gsm_a_dtap_msg_sm_strings);
+
 
 static const value_string gsm_gm_elem_strings[] = {
 	/* GPRS Mobility Management Information Elements 10.5.5 */
-	{ DE_ADD_UPD_TYPE,	"Additional Update Type" },
-	{ DE_ATTACH_RES,	"Attach Result" },
-	{ DE_ATTACH_TYPE,	"Attach Type" },
-	{ DE_CIPH_ALG,	"Cipher Algorithm" },
-	{ DE_TMSI_STAT,	"TMSI Status" },
-	{ DE_DETACH_TYPE,	"Detach Type" },
-	{ DE_DRX_PARAM,	"DRX Parameter" },
-	{ DE_FORCE_TO_STAND,	"Force to Standby" },
-	{ DE_FORCE_TO_STAND_H, "Force to Standby" },
-	{ DE_P_TMSI_SIG,	"P-TMSI Signature" },
-	{ DE_P_TMSI_SIG_2,	"P-TMSI Signature 2" },
-	{ DE_ID_TYPE_2,	"Identity Type 2" },
-	{ DE_IMEISV_REQ,	"IMEISV Request" },
-	{ DE_REC_N_PDU_NUM_LIST,	"Receive N-PDU Numbers List" },
-	{ DE_MS_NET_CAP,	"MS Network Capability" },
-	{ DE_MS_RAD_ACC_CAP,	"MS Radio Access Capability" },
-	{ DE_GMM_CAUSE,	"GMM Cause" },
-	{ DE_RAI,	"Routing Area Identification" },
-	{ DE_RAI_2,	"Routing Area Identification 2" },
-	{ DE_UPD_RES,	"Update Result" },
-	{ DE_UPD_TYPE, "Update Type" },
-	{ DE_AC_REF_NUM,	"A&C Reference Number" },
-	{ DE_AC_REF_NUM_H, "A&C Reference Number" },
-	{ DE_SRVC_TYPE,	"Service Type" },
-	{ DE_CELL_NOT,	"Cell Notification" },
-	{ DE_PS_LCS_CAP, "PS LCS Capability" },
-	{ DE_NET_FEAT_SUP,	"Network Feature Support" },
-	{ DE_ADD_NET_FEAT_SUP,	"Additional Network Feature Support" },
-	{ DE_RAT_INFO_CONTAINER, "Inter RAT information container" },
-	{ DE_REQ_MS_INFO, "Requested MS information" },
-	{ DE_UE_NETWORK_CAP, "UE network capability" },
+	{ DE_ADD_UPD_TYPE,		 "Additional Update Type" },
+	{ DE_ATTACH_RES,		 "Attach Result" },
+	{ DE_ATTACH_TYPE,		 "Attach Type" },
+	{ DE_CIPH_ALG,			 "Cipher Algorithm" },
+	{ DE_TMSI_STAT,			 "TMSI Status" },
+	{ DE_DETACH_TYPE,		 "Detach Type" },
+	{ DE_DRX_PARAM,			 "DRX Parameter" },
+	{ DE_FORCE_TO_STAND,		 "Force to Standby" },
+	{ DE_FORCE_TO_STAND_H,		 "Force to Standby" },
+	{ DE_P_TMSI_SIG,		 "P-TMSI Signature" },
+	{ DE_P_TMSI_SIG_2,		 "P-TMSI Signature 2" },
+	{ DE_ID_TYPE_2,			 "Identity Type 2" },
+	{ DE_IMEISV_REQ,		 "IMEISV Request" },
+	{ DE_REC_N_PDU_NUM_LIST,	 "Receive N-PDU Numbers List" },
+	{ DE_MS_NET_CAP,		 "MS Network Capability" },
+	{ DE_MS_RAD_ACC_CAP,		 "MS Radio Access Capability" },
+	{ DE_GMM_CAUSE,			 "GMM Cause" },
+	{ DE_RAI,			 "Routing Area Identification" },
+	{ DE_RAI_2,			 "Routing Area Identification 2" },
+	{ DE_UPD_RES,			 "Update Result" },
+	{ DE_UPD_TYPE,			 "Update Type" },
+	{ DE_AC_REF_NUM,		 "A&C Reference Number" },
+	{ DE_AC_REF_NUM_H,		 "A&C Reference Number" },
+	{ DE_SRVC_TYPE,			 "Service Type" },
+	{ DE_CELL_NOT,			 "Cell Notification" },
+	{ DE_PS_LCS_CAP,		 "PS LCS Capability" },
+	{ DE_NET_FEAT_SUP,		 "Network Feature Support" },
+	{ DE_ADD_NET_FEAT_SUP,		 "Additional Network Feature Support" },
+	{ DE_RAT_INFO_CONTAINER,	 "Inter RAT information container" },
+	{ DE_REQ_MS_INFO,		 "Requested MS information" },
+	{ DE_UE_NETWORK_CAP,		 "UE network capability" },
 	{ DE_EUTRAN_IRAT_INFO_CONTAINER, "E-UTRAN inter RAT information container" },
-	{ DE_VOICE_DOMAIN_PREF, "Voice domain preference and UE's usage setting" },
-	{ DE_PTMSI_TYPE, "P-TMSI type" },
-	{ DE_LAI_2, "Location Area Identification 2" },
-	{ DE_NET_RES_ID_CONT, "Network resource identifier container" },
+	{ DE_VOICE_DOMAIN_PREF,		 "Voice domain preference and UE's usage setting" },
+	{ DE_PTMSI_TYPE,		 "P-TMSI type" },
+	{ DE_LAI_2,			 "Location Area Identification 2" },
+	{ DE_NET_RES_ID_CONT,		 "Network resource identifier container" },
 	/* Session Management Information Elements 10.5.6 */
-	{ DE_ACC_POINT_NAME,	"Access Point Name" },
-	{ DE_NET_SAPI,	"Network Service Access Point Identifier" },
-	{ DE_PRO_CONF_OPT,	"Protocol Configuration Options" },
-	{ DE_PD_PRO_ADDR,	"Packet Data Protocol Address" },
-	{ DE_QOS,	"Quality Of Service" },
-	{ DE_SM_CAUSE,	"SM Cause" },
-	{ DE_SM_CAUSE_2, "SM Cause 2" },
-	{ DE_LINKED_TI,	"Linked TI" },
-	{ DE_LLC_SAPI,	"LLC Service Access Point Identifier" },
-	{ DE_TEAR_DOWN_IND,	"Tear Down Indicator" },
-	{ DE_PACKET_FLOW_ID,	"Packet Flow Identifier" },
-	{ DE_TRAFFIC_FLOW_TEMPLATE,	"Traffic Flow Template" },
-	{ DE_TMGI, "Temporary Mobile Group Identity (TMGI)" },
-	{ DE_MBMS_BEARER_CAP, "MBMS bearer capabilities" },
-	{ DE_MBMS_PROT_CONF_OPT, "MBMS protocol configuration options" },
-	{ DE_ENH_NSAPI, "Enhanced network service access point identifier" },
-	{ DE_REQ_TYPE, "Request type" },
-	{ DE_SM_NOTIF_IND, "Notification indicator" },
-	{ DE_SM_CONNECTIVITY_TYPE, "Connectivity type" },
+	{ DE_ACC_POINT_NAME,		 "Access Point Name" },
+	{ DE_NET_SAPI,			 "Network Service Access Point Identifier" },
+	{ DE_PRO_CONF_OPT,		 "Protocol Configuration Options" },
+	{ DE_PD_PRO_ADDR,		 "Packet Data Protocol Address" },
+	{ DE_QOS,			 "Quality Of Service" },
+	{ DE_SM_CAUSE,			 "SM Cause" },
+	{ DE_SM_CAUSE_2,		 "SM Cause 2" },
+	{ DE_LINKED_TI,			 "Linked TI" },
+	{ DE_LLC_SAPI,			 "LLC Service Access Point Identifier" },
+	{ DE_TEAR_DOWN_IND,		 "Tear Down Indicator" },
+	{ DE_PACKET_FLOW_ID,		 "Packet Flow Identifier" },
+	{ DE_TRAFFIC_FLOW_TEMPLATE,	 "Traffic Flow Template" },
+	{ DE_TMGI,			 "Temporary Mobile Group Identity (TMGI)" },
+	{ DE_MBMS_BEARER_CAP,		 "MBMS bearer capabilities" },
+	{ DE_MBMS_PROT_CONF_OPT,	 "MBMS protocol configuration options" },
+	{ DE_ENH_NSAPI,			 "Enhanced network service access point identifier" },
+	{ DE_REQ_TYPE,			 "Request type" },
+	{ DE_SM_NOTIF_IND,		 "Notification indicator" },
+	{ DE_SM_CONNECTIVITY_TYPE,	 "Connectivity type" },
 	/* GPRS Common Information Elements 10.5.7 */
-	{ DE_PDP_CONTEXT_STAT,	"PDP Context Status" },
-	{ DE_RAD_PRIO,	"Radio Priority" },
-	{ DE_GPRS_TIMER,	"GPRS Timer" },
-	{ DE_GPRS_TIMER_2,	"GPRS Timer 2" },
-	{ DE_GPRS_TIMER_3,	"GPRS Timer 3" },
-	{ DE_RAD_PRIO_2, "Radio Priority 2"},
-	{ DE_MBMS_CTX_STATUS,	"MBMS context status"},
-	{ DE_UPLINK_DATA_STATUS,	"Uplink data status"},
-	{ DE_DEVICE_PROPERTIES,	"Device properties"},
+	{ DE_PDP_CONTEXT_STAT,		 "PDP Context Status" },
+	{ DE_RAD_PRIO,			 "Radio Priority" },
+	{ DE_GPRS_TIMER,		 "GPRS Timer" },
+	{ DE_GPRS_TIMER_2,		 "GPRS Timer 2" },
+	{ DE_GPRS_TIMER_3,		 "GPRS Timer 3" },
+	{ DE_RAD_PRIO_2,		 "Radio Priority 2"},
+	{ DE_MBMS_CTX_STATUS,		 "MBMS context status"},
+	{ DE_UPLINK_DATA_STATUS,	 "Uplink data status"},
+	{ DE_DEVICE_PROPERTIES,		 "Device properties"},
 	{ 0, NULL }
 };
 value_string_ext gsm_gm_elem_strings_ext = VALUE_STRING_EXT_INIT(gsm_gm_elem_strings);
@@ -7074,7 +7078,7 @@ get_gmm_msg_params(guint8 oct, const gchar **msg_str, int *ett_tree, int *hf_idx
 {
 	gint idx;
 
-	*msg_str      = try_val_to_str_idx((guint32) (oct & DTAP_GMM_IEI_MASK), gsm_a_dtap_msg_gmm_strings, &idx);
+	*msg_str      = try_val_to_str_idx_ext((guint32) (oct & DTAP_GMM_IEI_MASK), &gsm_a_dtap_msg_gmm_strings_ext, &idx);
 	*hf_idx	      = hf_gsm_a_dtap_msg_gmm_type;
 	if (*msg_str != NULL) {
 		*ett_tree     = ett_gsm_dtap_msg_gmm[idx];
@@ -7089,7 +7093,7 @@ get_sm_msg_params(guint8 oct, const gchar **msg_str, int *ett_tree, int *hf_idx,
 {
 	gint idx;
 
-	*msg_str      = try_val_to_str_idx((guint32) (oct & DTAP_SM_IEI_MASK), gsm_a_dtap_msg_sm_strings, &idx);
+	*msg_str      = try_val_to_str_idx_ext((guint32) (oct & DTAP_SM_IEI_MASK), &gsm_a_dtap_msg_sm_strings_ext, &idx);
 	*hf_idx	      = hf_gsm_a_dtap_msg_sm_type;
 	if (*msg_str != NULL) {
 		*ett_tree     = ett_gsm_dtap_msg_sm[idx];
@@ -7111,12 +7115,12 @@ proto_register_gsm_a_gm(void)
 	static hf_register_info hf[] = {
 		{ &hf_gsm_a_dtap_msg_gmm_type,
 		  { "DTAP GPRS Mobility Management Message Type",	"gsm_a.dtap.msg_gmm_type",
-		    FT_UINT8, BASE_HEX, VALS(gsm_a_dtap_msg_gmm_strings), 0x0,
+		    FT_UINT8, BASE_HEX | BASE_EXT_STRING, &gsm_a_dtap_msg_gmm_strings_ext, 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_dtap_msg_sm_type,
 		  { "DTAP GPRS Session Management Message Type",	"gsm_a.dtap.msg_sm_type",
-		    FT_UINT8, BASE_HEX, VALS(gsm_a_dtap_msg_sm_strings), 0x0,
+		    FT_UINT8, BASE_HEX | BASE_EXT_STRING, &gsm_a_dtap_msg_sm_strings_ext, 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_elem_id,

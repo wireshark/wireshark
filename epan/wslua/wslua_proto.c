@@ -915,16 +915,16 @@ static int ProtoField_integer(lua_State* L, enum ftenum type) {
     }
 
     if (type == FT_FRAMENUM) {
-	if (base != BASE_NONE)
-	    luaL_argerror(L, 3, "ftypes.FRAMENUMs must use base.NONE");
-	else if (mask)
-	    luaL_argerror(L, 3, "ftypes.FRAMENUMs can not have a bitmask");
+        if (base != BASE_NONE)
+            luaL_argerror(L, 3, "ftypes.FRAMENUMs must use base.NONE");
+        else if (mask)
+            luaL_argerror(L, 3, "ftypes.FRAMENUMs can not have a bitmask");
     } else if (base < BASE_DEC || base > BASE_HEX_DEC) {
         luaL_argerror(L, 3, "Base must be either base.DEC, base.HEX, base.OCT,"
                       " base.DEC_HEX, base.DEC_HEX or base.HEX_DEC");
         return 0;
     } else if ((base == BASE_HEX || base == BASE_OCT) &&
-	       (type == FT_INT8 || type == FT_INT16 || type == FT_INT24 || type == FT_INT32 || type == FT_INT64)) {
+               (type == FT_INT8 || type == FT_INT16 || type == FT_INT24 || type == FT_INT32 || type == FT_INT64)) {
       luaL_argerror(L, 3, "This type does not display as hexadecimal");
       return 0;
     }
@@ -2174,7 +2174,7 @@ WSLUA_CONSTRUCTOR DissectorTable_new (lua_State *L) {
     switch(type) {
         case FT_STRING:
             base = BASE_NONE;
-	    /* fallthrough */
+            /* fallthrough */
         case FT_UINT8:
         case FT_UINT16:
         case FT_UINT24:
@@ -2645,3 +2645,16 @@ int DissectorTable_register(lua_State* L) {
     WSLUA_REGISTER_CLASS(DissectorTable);
     return 0;
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

@@ -176,8 +176,8 @@ static gboolean global_megaco_raw_text = TRUE;
 static gboolean global_megaco_dissect_tree = TRUE;
 
 /* Some basic utility functions that are specific to this dissector */
-static gint megaco_tvb_skip_wsp(tvbuff_t* tvb, gint offset);
-static gint megaco_tvb_skip_wsp_return(tvbuff_t* tvb, gint offset);
+static gint megaco_tvb_skip_wsp(tvbuff_t *tvb, gint offset);
+static gint megaco_tvb_skip_wsp_return(tvbuff_t *tvb, gint offset);
 /*
 * The various functions that either dissect some
 * subpart of MEGACO.  These aren't really proto dissectors but they
@@ -223,7 +223,7 @@ tvb_raw_text_add(tvbuff_t *tvb, proto_tree *tree);
 static void
 dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static gint
-megaco_tvb_find_token(tvbuff_t* tvb, gint offset, gint maxlength);
+megaco_tvb_find_token(tvbuff_t *tvb, gint offset, gint maxlength);
 static dissector_handle_t data_handle;
 static dissector_handle_t sdp_handle;
 static dissector_handle_t h245_handle;
@@ -335,17 +335,17 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guchar      needle;
     guint8      first;
 
-    gcp_msg_t* msg = NULL;
-    gcp_trx_t* trx = NULL;
-    gcp_ctx_t* ctx = NULL;
-    gcp_cmd_t* cmd = NULL;
-    gcp_term_t* term = NULL;
-    gcp_trx_type_t trx_type = GCP_TRX_NONE;
-    guint32 trx_id = 0;
-    guint32 ctx_id = 0;
-    gcp_cmd_type_t cmd_type = GCP_CMD_NONE;
-    gcp_wildcard_t wild_term = GCP_WILDCARD_NONE;
-    proto_item *hidden_item;
+    gcp_msg_t      *msg       = NULL;
+    gcp_trx_t      *trx       = NULL;
+    gcp_ctx_t      *ctx       = NULL;
+    gcp_cmd_t      *cmd       = NULL;
+    gcp_term_t     *term      = NULL;
+    gcp_trx_type_t  trx_type  = GCP_TRX_NONE;
+    guint32         trx_id    = 0;
+    guint32         ctx_id    = 0;
+    gcp_cmd_type_t  cmd_type  = GCP_CMD_NONE;
+    gcp_wildcard_t  wild_term = GCP_WILDCARD_NONE;
+    proto_item     *hidden_item;
 
     top_tree=tree;
     /* Initialize variables */
@@ -882,10 +882,10 @@ nextcontext:
                 tvb_next_offset = tvb_command_start_offset + tokenlen;
 
                 /* Try to dissect Topology Descriptor before the command */
-				tempchar = tvb_get_guint8(tvb, tvb_command_start_offset);
-				if ( (tempchar >= 'a')&& (tempchar <= 'z')){
+                tempchar = tvb_get_guint8(tvb, tvb_command_start_offset);
+                if ( (tempchar >= 'a')&& (tempchar <= 'z')){
                     tempchar = tempchar - 0x20;
-				}
+                }
                 if ( tempchar == 'T') {
                     tempchar = tvb_get_guint8(tvb, tvb_command_start_offset+1);
 
@@ -959,7 +959,7 @@ nextcontext:
 
                 if ( tempchar != 'E' ){
 
-					/* Short form used */
+                    /* Short form used */
                     if ( tvb_get_guint8(tvb, 0 ) == '!'){
 
                         switch ( tempchar ){
@@ -1138,17 +1138,17 @@ nextcontext:
                             break;
 
                         default:
-							{
-								proto_item *item;
+                        {
+                            proto_item *item;
 
-								tokenlen =  (tvb_RBRKT+1) - tvb_previous_offset;
-								tvb_ensure_bytes_exist(tvb, tvb_previous_offset, tokenlen);
-								item = proto_tree_add_string(megaco_tree, hf_megaco_error_Frame, tvb,
-									tvb_previous_offset, tokenlen,
-									"No Command detectable !");
-								proto_item_append_text(item,"[ tempchar 0x%x ]", tempchar);
-								return;
-							}
+                            tokenlen =  (tvb_RBRKT+1) - tvb_previous_offset;
+                            tvb_ensure_bytes_exist(tvb, tvb_previous_offset, tokenlen);
+                            item = proto_tree_add_string(megaco_tree, hf_megaco_error_Frame, tvb,
+                                                         tvb_previous_offset, tokenlen,
+                                                         "No Command detectable !");
+                            proto_item_append_text(item,"[ tempchar 0x%x ]", tempchar);
+                            return;
+                        }
                         }
                     }
                     else{
@@ -3631,3 +3631,15 @@ proto_reg_handoff_megaco(void)
 
 }
 
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

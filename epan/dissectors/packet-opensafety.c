@@ -55,7 +55,6 @@
 #include <wsutil/crc8.h>
 #include <wsutil/crc16.h>
 
-#include <stdio.h>
 #include <string.h>
 
 
@@ -361,6 +360,7 @@ static const value_string sod_idx_names[] = {
 
     { 0, NULL }
 };
+static value_string_ext sod_idx_names_ext = VALUE_STRING_EXT_INIT(sod_idx_names);
 
 static const value_string abort_codes[] = {
 
@@ -405,6 +405,7 @@ static const value_string abort_codes[] = {
 
     { 0, NULL }
 };
+static value_string_ext abort_codes_ext = VALUE_STRING_EXT_INIT(abort_codes);
 
 static const true_false_string opensafety_message_direction = { "Request", "Response" };
 #define OPENSAFETY_REQUEST  TRUE
@@ -1068,15 +1069,15 @@ static void dissect_ssdo_payload ( packet_info *pinfo, tvbuff_t *new_tvb, proto_
 
             item = proto_tree_add_uint_format_value(ssdo_payload, hf_oss_ssdo_sod_index, new_tvb,
                                                     0, 0,  0x1018, "0x%04X (%s)", 0x1018,
-                                                    val_to_str_const( ((guint32) (0x1018 << 16) ),
-                                                                      sod_idx_names, "Unknown") );
+                                                    val_to_str_ext_const( ((guint32) (0x1018 << 16) ),
+                                                                          &sod_idx_names_ext, "Unknown") );
             sod_tree = proto_item_add_subtree(item, ett_opensafety_ssdo_sodentry);
             PROTO_ITEM_SET_GENERATED(item);
 
             item = proto_tree_add_uint_format_value(sod_tree, hf_oss_ssdo_sod_subindex, new_tvb, 0, 0,
-                                                             0x06, "0x%02X (%s)", 0x06,
-                                                             val_to_str_const(((guint32) (0x1018 << 16) +  0x06),
-                                                                                            sod_idx_names, "Unknown") );
+                                                    0x06, "0x%02X (%s)", 0x06,
+                                                    val_to_str_ext_const(((guint32) (0x1018 << 16) +  0x06),
+                                                                         &sod_idx_names_ext, "Unknown") );
             PROTO_ITEM_SET_GENERATED(item);
 
             entry = tvb_get_letohl ( new_tvb, 0 );
@@ -1114,8 +1115,8 @@ static void dissect_ssdo_payload ( packet_info *pinfo, tvbuff_t *new_tvb, proto_
 
                 item = proto_tree_add_uint_format_value(ssdo_payload, hf_oss_ssdo_sod_index, new_tvb,
                                                         ctr, 2,  ssdoIndex, "0x%04X (%s)", ssdoIndex,
-                                                        val_to_str_const( ((guint32) (dispSSDOIndex << 16) ),
-                                                                          sod_idx_names, "Unknown") );
+                                                        val_to_str_ext_const( ((guint32) (dispSSDOIndex << 16) ),
+                                                                              &sod_idx_names_ext, "Unknown") );
                 if ( ssdoIndex != dispSSDOIndex )
                     PROTO_ITEM_SET_GENERATED ( item );
 
@@ -1127,9 +1128,9 @@ static void dissect_ssdo_payload ( packet_info *pinfo, tvbuff_t *new_tvb, proto_
                 if ( ssdoSubIndex != 0 )
                 {
                     proto_tree_add_uint_format_value(sod_tree, hf_oss_ssdo_sod_subindex, new_tvb, ctr + 2, 1,
-                                                 ssdoSubIndex, "0x%02X (%s)", ssdoSubIndex,
-                                                 val_to_str_const(((guint32) (ssdoIndex << 16) + ssdoSubIndex),
-                                                                                sod_idx_names, "Unknown") );
+                                                     ssdoSubIndex, "0x%02X (%s)", ssdoSubIndex,
+                                                     val_to_str_ext_const(((guint32) (ssdoIndex << 16) + ssdoSubIndex),
+                                                                          &sod_idx_names_ext, "Unknown") );
                 }
                 else
                     proto_tree_add_uint_format_value(sod_tree, hf_oss_ssdo_sod_subindex, new_tvb, ctr + 2, 1,
@@ -1349,17 +1350,17 @@ dissect_opensafety_ssdo_message(tvbuff_t *message_tvb, packet_info *pinfo, proto
 
         proto_tree_add_uint_format_value(ssdo_tree, hf_oss_ssdo_sod_index, message_tvb, db0Offset + 1, 2,
                 ssdoIndex, "0x%04X (%s)", ssdoIndex,
-                val_to_str_const(((guint32) (ssdoIndex << 16)), sod_idx_names, "Unknown") );
-        col_append_fstr(pinfo->cinfo, COL_INFO, " [%s", val_to_str_const(((guint32) (ssdoIndex << 16)), sod_idx_names, "Unknown"));
+                val_to_str_ext_const(((guint32) (ssdoIndex << 16)), &sod_idx_names_ext, "Unknown") );
+        col_append_fstr(pinfo->cinfo, COL_INFO, " [%s", val_to_str_ext_const(((guint32) (ssdoIndex << 16)), &sod_idx_names_ext, "Unknown"));
 
         /* Some SOD downloads (0x101A for instance) don't have sub-indeces */
         if ( ssdoSubIndex != 0x0 )
         {
             proto_tree_add_uint_format_value(ssdo_tree, hf_oss_ssdo_sod_subindex, message_tvb, db0Offset + 3, 1,
                 ssdoSubIndex, "0x%02X (%s)", ssdoSubIndex,
-                val_to_str_const(((guint32) (ssdoIndex << 16) + ssdoSubIndex), sod_idx_names, "Unknown") );
+                val_to_str_ext_const(((guint32) (ssdoIndex << 16) + ssdoSubIndex), &sod_idx_names_ext, "Unknown") );
             col_append_fstr(pinfo->cinfo, COL_INFO, " - %s",
-                    val_to_str_const(((guint32) (ssdoIndex << 16) + ssdoSubIndex), sod_idx_names, "Unknown"));
+                    val_to_str_ext_const(((guint32) (ssdoIndex << 16) + ssdoSubIndex), &sod_idx_names_ext, "Unknown"));
         }
         col_append_fstr(pinfo->cinfo, COL_INFO, "%s", "]" );
         payloadOffset += 3;
@@ -1371,8 +1372,8 @@ dissect_opensafety_ssdo_message(tvbuff_t *message_tvb, packet_info *pinfo, proto
 
         proto_tree_add_uint_format_value(ssdo_tree, hf_oss_ssdo_abort_code, message_tvb, frameStart1 + OSS_FRAME_POS_DATA + 4, 4, abortcode,
                 "0x%04X %04X - %s", (guint16)(abortcode >> 16), (guint16)(abortcode),
-                val_to_str_const(abortcode, abort_codes, "Unknown"));
-        col_append_fstr(pinfo->cinfo, COL_INFO, " - %s", val_to_str_const(abortcode, abort_codes, "Unknown"));
+                val_to_str_ext_const(abortcode, &abort_codes_ext, "Unknown"));
+        col_append_fstr(pinfo->cinfo, COL_INFO, " - %s", val_to_str_ext_const(abortcode, &abort_codes_ext, "Unknown"));
 
 
     } else {

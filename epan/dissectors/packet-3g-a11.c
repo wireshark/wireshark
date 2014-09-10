@@ -260,6 +260,7 @@ static const value_string a11_types[] = {
 
     {0, NULL},
 };
+static value_string_ext a11_types_ext = VALUE_STRING_EXT_INIT(a11_types);
 
 static const value_string a11_ses_ptype_vals[] = {
     {0x8881, "Unstructured Byte Stream"},
@@ -312,7 +313,7 @@ static const value_string a11_reply_codes[]= {
     {142, "Registration Denied - nonexistent A10 or IP flow"},
     {0, NULL},
 };
-
+static value_string_ext a11_reply_codes_ext = VALUE_STRING_EXT_INIT(a11_reply_codes);
 
 static const value_string a11_ack_status[]= {
     {0x00, "Update Accepted"},
@@ -328,6 +329,7 @@ static const value_string a11_ack_status[]= {
     {0xff, "Update Denied - handoff in progress"},
     {0, NULL},
 };
+static value_string_ext a11_ack_status_ext = VALUE_STRING_EXT_INIT(a11_ack_status);
 
 typedef enum {
     MH_AUTH_EXT      = 32,
@@ -357,11 +359,12 @@ static const value_string a11_ext_types[]= {
     {RU_AUTH_EXT,      "Registration Update Authentication Extension"},
     {MN_NAI_EXT,       "Mobile Node NAI Extension"},
     {MF_CHALLENGE_EXT, "MN-FA Challenge Extension"},
-    {NVSE_EXT,         "Normal Vendor/Organization Specific Extension"},
     {OLD_NVSE_EXT,     "Normal Vendor/Organization Specific Extension (OLD)"},
+    {NVSE_EXT,         "Normal Vendor/Organization Specific Extension"},
     {BCMCS_EXT,        "BCMCS Session Extension"},
     {0, NULL},
 };
+static value_string_ext a11_ext_types_ext = VALUE_STRING_EXT_INIT(a11_ext_types);
 
 static const value_string a11_ext_stypes[]= {
     {1, "MN AAA Extension"},
@@ -462,6 +465,7 @@ static const value_string a11_ext_app[]= {
     {0xB001, "System Identifiers (BSID / HRPD Subnet)"},
     {0, NULL},
 };
+static value_string_ext a11_ext_app_ext = VALUE_STRING_EXT_INIT(a11_ext_app);
 
 #if 0
 static const value_string a11_airlink_types[]= {
@@ -497,7 +501,6 @@ static const value_string a11_rohc_profile_vals[] =
     { 0x0003,    "ROHC ESP" },                   /*RFC 3095*/
     { 0x0004,    "ROHC IP" },                    /*RFC 3843*/
     { 0x0005,    "ROHC LLA" },                   /*RFC 3242*/
-    { 0x0105,    "ROHC LLA with R-mode" },       /*RFC 3408*/
     { 0x0006,    "ROHC TCP" },                   /*RFC 4996*/
     { 0x0007,    "ROHC RTP/UDP-Lite" },          /*RFC 4019*/
     { 0x0008,    "ROHC UDP-Lite" },              /*RFC 4019*/
@@ -505,10 +508,12 @@ static const value_string a11_rohc_profile_vals[] =
     { 0x0102,    "ROHCv2 UDP" },                 /*RFC 5225*/
     { 0x0103,    "ROHCv2 ESP" },                 /*RFC 5225*/
     { 0x0104,    "ROHCv2 IP" },                  /*RFC 5225*/
+    { 0x0105,    "ROHC LLA with R-mode" },       /*RFC 3408*/
     { 0x0107,    "ROHCv2 RTP/UDP-Lite" },        /*RFC 5225*/
     { 0x0108,    "ROHCv2 UDP-Lite" },            /*RFC 5225*/
     { 0, NULL },
 };
+static value_string_ext a11_rohc_profile_vals_ext = VALUE_STRING_EXT_INIT(a11_rohc_profile_vals);
 
 #define NUM_ATTR (sizeof(attrs)/sizeof(struct radius_attribute))
 
@@ -1331,7 +1336,7 @@ dissect_a11_extensions( tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tre
 
         ext_tree = proto_tree_add_subtree_format(exts_tree, tvb, offset, ext_len + hdrLen,
                                  ett_a11_ext, NULL, "Extension: %s",
-                                 val_to_str(ext_type, a11_ext_types,
+                                 val_to_str_ext(ext_type, &a11_ext_types_ext,
                                             "Unknown Extension %u"));
 
         proto_tree_add_uint(ext_tree, hf_a11_ext_type, tvb, offset, 1, ext_type);
@@ -1551,7 +1556,7 @@ dissect_a11( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
         return 0;       /* not enough data to check message type */
 
     type = tvb_get_guint8(tvb, offset);
-    if (try_val_to_str(type, a11_types) == NULL)
+    if (try_val_to_str_ext(type, &a11_types_ext) == NULL)
         return 0;       /* not a known message type */
 
     /* Make entries in Protocol column and Info column on summary display */
@@ -2072,7 +2077,7 @@ proto_register_a11(void)
     static hf_register_info hf[] = {
         { &hf_a11_type,
           { "Message Type",           "a11.type",
-            FT_UINT8, BASE_DEC, VALS(a11_types), 0,
+            FT_UINT8, BASE_DEC | BASE_EXT_STRING, &a11_types_ext, 0,
             "A11 Message Type", HFILL }
         },
         { &hf_a11_flags,
@@ -2117,12 +2122,12 @@ proto_register_a11(void)
         },
         { &hf_a11_code,
           { "Reply Code",           "a11.code",
-            FT_UINT8, BASE_DEC, VALS(a11_reply_codes), 0,
+            FT_UINT8, BASE_DEC | BASE_EXT_STRING, &a11_reply_codes_ext, 0,
             "A11 Registration Reply code", HFILL }
         },
         { &hf_a11_status,
           { "Reply Status",           "a11.ackstat",
-            FT_UINT8, BASE_DEC, VALS(a11_ack_status), 0,
+            FT_UINT8, BASE_DEC | BASE_EXT_STRING, &a11_ack_status_ext, 0,
             "A11 Registration Ack Status", HFILL }
         },
         { &hf_a11_life,
@@ -2153,7 +2158,7 @@ proto_register_a11(void)
         },
         { &hf_a11_ext_type,
           { "Extension Type",           "a11.ext.type",
-            FT_UINT8, BASE_DEC, VALS(a11_ext_types), 0,
+            FT_UINT8, BASE_DEC | BASE_EXT_STRING, &a11_ext_types_ext, 0,
             "Mobile IP Extension Type", HFILL }
         },
         { &hf_a11_ext_stype,
@@ -2228,7 +2233,7 @@ proto_register_a11(void)
         },
         { &hf_a11_vse_apptype,
           { "Application Type",                      "a11.ext.apptype",
-            FT_UINT8, BASE_HEX, VALS(a11_ext_app), 0,
+            FT_UINT8, BASE_HEX | BASE_EXT_STRING, &a11_ext_app_ext, 0,
             NULL, HFILL }
         },
         { &hf_a11_vse_ppaddr,
@@ -2263,7 +2268,7 @@ proto_register_a11(void)
         },
         { &hf_a11_vse_code,
           { "Reply Code",           "a11.ext.code",
-            FT_UINT8, BASE_DEC, VALS(a11_reply_codes), 0,
+            FT_UINT8, BASE_DEC | BASE_EXT_STRING, &a11_reply_codes_ext, 0,
             NULL, HFILL }
         },
         /* XXX: Is this the correct filter name ?? */
@@ -2596,7 +2601,7 @@ proto_register_a11(void)
 
         { &hf_a11_ase_forward_profile,
           { "Forward Profile",   "a11.ext.ase.forwardprofile",
-            FT_UINT16, BASE_DEC, VALS(a11_rohc_profile_vals), 0,
+            FT_UINT16, BASE_DEC | BASE_EXT_STRING, &a11_rohc_profile_vals_ext, 0,
             NULL, HFILL }
         },
 
@@ -2633,7 +2638,7 @@ proto_register_a11(void)
 
         { &hf_a11_ase_reverse_profile,
           { "Reverse Profile",   "a11.ext.ase.reverseprofile",
-            FT_UINT16, BASE_DEC, VALS(a11_rohc_profile_vals), 0,
+            FT_UINT16, BASE_DEC | BASE_EXT_STRING, &a11_rohc_profile_vals_ext, 0,
             NULL, HFILL }
         },
         { &hf_a11_aut_flow_prof_sub_type,
@@ -2753,3 +2758,16 @@ proto_reg_handoff_a11(void)
     /* 3GPP2-Authorized-Flow-Profile-IDs(131) */
     radius_register_avp_dissector(VENDOR_THE3GPP2, 131, dissect_3gpp2_radius_aut_flow_profile_ids);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

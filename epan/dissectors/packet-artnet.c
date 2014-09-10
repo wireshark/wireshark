@@ -31,7 +31,7 @@
 /*
  * See
  *
- *	http://www.artisticlicence.com/WebSiteMaster/User%20Guides/art-net.pdf
+ *     http://www.artisticlicence.com/WebSiteMaster/User%20Guides/art-net.pdf
  */
 
 void proto_register_artnet(void);
@@ -143,6 +143,7 @@ static const value_string artnet_opcode_vals[] = {
   { ARTNET_OP_IP_PROG_REPLY,      "ArtIpProgReply" },
   { 0,                            NULL }
 };
+static value_string_ext artnet_opcode_vals_ext = VALUE_STRING_EXT_INIT(artnet_opcode_vals);
 
 static const value_string artnet_oem_code_vals[] = {
   { 0x0000, "Artistic Licence:DMX-Hub:4x DMX in,4x DMX out" },
@@ -1919,15 +1920,15 @@ dissect_artnet_tod_request(tvbuff_t *tvb, guint offset, proto_tree *tree)
   guint8 ad_count;
 
   proto_tree_add_item(tree, hf_artnet_filler, tvb,
-		      offset, 2, ENC_NA);
+                      offset, 2, ENC_NA);
   offset += 2;
 
   proto_tree_add_item(tree, hf_artnet_spare, tvb,
-		      offset, 8, ENC_NA);
+                      offset, 8, ENC_NA);
   offset += 8;
 
   proto_tree_add_item(tree, hf_artnet_tod_request_command, tvb,
-		      offset, 1, ENC_BIG_ENDIAN);
+                      offset, 1, ENC_BIG_ENDIAN);
   offset += 1;
 
   ad_count = tvb_get_guint8(tvb, offset);
@@ -1936,7 +1937,7 @@ dissect_artnet_tod_request(tvbuff_t *tvb, guint offset, proto_tree *tree)
   offset += 1;
 
   proto_tree_add_item(tree, hf_artnet_tod_request_address, tvb,
-		      offset, ad_count, ENC_NA);
+                      offset, ad_count, ENC_NA);
   offset += ad_count;
 
   return offset;
@@ -1948,31 +1949,31 @@ dissect_artnet_tod_data(tvbuff_t *tvb, guint offset, proto_tree *tree)
   guint8 i, uid_count;
 
   proto_tree_add_item(tree, hf_artnet_filler, tvb,
-		      offset, 1, ENC_NA);
+                      offset, 1, ENC_NA);
   offset += 1;
 
   proto_tree_add_item(tree, hf_artnet_tod_data_port, tvb,
-		      offset, 1, ENC_BIG_ENDIAN);
+                      offset, 1, ENC_BIG_ENDIAN);
   offset += 1;
 
   proto_tree_add_item(tree, hf_artnet_spare, tvb,
-		      offset, 8, ENC_NA);
+                      offset, 8, ENC_NA);
   offset += 8;
 
   proto_tree_add_item(tree, hf_artnet_tod_data_command_response, tvb,
-		      offset, 1, ENC_BIG_ENDIAN);
+                      offset, 1, ENC_BIG_ENDIAN);
   offset += 1;
 
   proto_tree_add_item(tree, hf_artnet_tod_data_address, tvb,
-		      offset, 1, ENC_BIG_ENDIAN);
+                      offset, 1, ENC_BIG_ENDIAN);
   offset += 1;
 
   proto_tree_add_item(tree, hf_artnet_tod_data_uid_total, tvb,
-		      offset, 2, ENC_BIG_ENDIAN);
+                      offset, 2, ENC_BIG_ENDIAN);
   offset += 2;
 
   proto_tree_add_item(tree, hf_artnet_tod_data_block_count, tvb,
-		      offset, 1, ENC_BIG_ENDIAN);
+                      offset, 1, ENC_BIG_ENDIAN);
   offset += 1;
 
   uid_count = tvb_get_guint8(tvb, offset);
@@ -1994,19 +1995,19 @@ static guint
 dissect_artnet_tod_control(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
   proto_tree_add_item(tree, hf_artnet_filler, tvb,
-		      offset, 2, ENC_NA);
+                      offset, 2, ENC_NA);
   offset += 2;
 
   proto_tree_add_item(tree, hf_artnet_spare, tvb,
-		      offset, 8, ENC_NA);
+                      offset, 8, ENC_NA);
   offset += 8;
 
   proto_tree_add_item(tree, hf_artnet_tod_control_command, tvb,
-		      offset, 1, ENC_BIG_ENDIAN);
+                      offset, 1, ENC_BIG_ENDIAN);
   offset += 1;
 
   proto_tree_add_item(tree, hf_artnet_tod_control_address, tvb,
-		      offset, 1, ENC_BIG_ENDIAN);
+                      offset, 1, ENC_BIG_ENDIAN);
   offset += 1;
 
   return offset;
@@ -2024,11 +2025,11 @@ dissect_artnet_rdm(tvbuff_t *tvb, guint offset, proto_tree *tree,  packet_info *
   rdmver = tvb_get_guint8(tvb, offset);
   if (rdmver == 0x00) {
     proto_tree_add_item(tree, hf_artnet_filler, tvb,
-		        offset, 2, ENC_NA);
+                        offset, 2, ENC_NA);
     offset += 2;
 
     proto_tree_add_item(tree, hf_artnet_spare, tvb,
-		        offset, 8, ENC_NA);
+                        offset, 8, ENC_NA);
     offset += 8;
   } else {
     proto_tree_add_item(tree, hf_artnet_rdm_rdmver, tvb,
@@ -2049,11 +2050,11 @@ dissect_artnet_rdm(tvbuff_t *tvb, guint offset, proto_tree *tree,  packet_info *
   }
 
   proto_tree_add_item(tree, hf_artnet_rdm_command, tvb,
-		      offset, 1, ENC_BIG_ENDIAN);
+                      offset, 1, ENC_BIG_ENDIAN);
   offset += 1;
 
   proto_tree_add_item(tree, hf_artnet_rdm_address, tvb,
-		      offset, 1, ENC_BIG_ENDIAN);
+                      offset, 1, ENC_BIG_ENDIAN);
   offset += 1;
 
   /* check for old version that included the 0xCC startcode
@@ -2063,7 +2064,7 @@ dissect_artnet_rdm(tvbuff_t *tvb, guint offset, proto_tree *tree,  packet_info *
 
   if (sc == 0xCC) {
     proto_tree_add_item(tree, hf_artnet_rdm_sc, tvb,
-		      offset, 1, ENC_BIG_ENDIAN);
+                      offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
   }
 
@@ -2151,11 +2152,11 @@ dissect_artnet_ip_prog(tvbuff_t *tvb, guint offset, proto_tree *tree) {
   proto_tree *flags_tree, *flags_item;
 
   proto_tree_add_item(tree, hf_artnet_filler, tvb,
-		      offset, 2, ENC_NA);
+                      offset, 2, ENC_NA);
   offset += 2;
 
   flags_item = proto_tree_add_item(tree, hf_artnet_ip_prog_command, tvb,
-	                           offset, 1, ENC_BIG_ENDIAN);
+                                   offset, 1, ENC_BIG_ENDIAN);
 
   flags_tree = proto_item_add_subtree(flags_item, ett_artnet);
   proto_tree_add_item(flags_tree, hf_artnet_ip_prog_command_prog_port,   tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -2168,23 +2169,23 @@ dissect_artnet_ip_prog(tvbuff_t *tvb, guint offset, proto_tree *tree) {
   offset += 1;
 
   proto_tree_add_item(tree, hf_artnet_filler, tvb,
-		      offset, 1, ENC_NA);
+                      offset, 1, ENC_NA);
   offset += 1;
 
   proto_tree_add_item(tree, hf_artnet_ip_prog_ip, tvb,
-		      offset, 4, ENC_BIG_ENDIAN);
+                      offset, 4, ENC_BIG_ENDIAN);
   offset += 4;
 
   proto_tree_add_item(tree, hf_artnet_ip_prog_sm, tvb,
-		      offset, 4, ENC_BIG_ENDIAN);
+                      offset, 4, ENC_BIG_ENDIAN);
   offset += 4;
 
   proto_tree_add_item(tree, hf_artnet_ip_prog_port, tvb,
-		      offset, 2, ENC_BIG_ENDIAN);
+                      offset, 2, ENC_BIG_ENDIAN);
   offset += 2;
 
   proto_tree_add_item(tree, hf_artnet_spare, tvb,
-		      offset, 8, ENC_NA);
+                      offset, 8, ENC_NA);
   offset += 8;
 
   return offset;
@@ -2202,15 +2203,15 @@ dissect_artnet_ip_prog_reply(tvbuff_t *tvb, guint offset, proto_tree *tree)
   offset += 4;
 
   proto_tree_add_item(tree, hf_artnet_ip_prog_reply_sm, tvb,
-		      offset, 4, ENC_BIG_ENDIAN);
+                      offset, 4, ENC_BIG_ENDIAN);
   offset += 4;
 
   proto_tree_add_item(tree, hf_artnet_ip_prog_reply_port, tvb,
-		      offset, 2, ENC_BIG_ENDIAN);
+                      offset, 2, ENC_BIG_ENDIAN);
   offset += 2;
 
   proto_tree_add_item(tree, hf_artnet_spare, tvb,
-		      offset, 8, ENC_NA);
+                      offset, 8, ENC_NA);
   offset += 8;
 
   return offset;
@@ -2241,10 +2242,10 @@ dissect_artnet_diag_data(tvbuff_t *tvb, guint offset, proto_tree *tree)
                       offset, 2, ENC_NA);
   offset += 2;
 
-	length = tvb_get_ntohs(tvb, offset);
-	proto_tree_add_item(tree, hf_artnet_diag_data_length, tvb,
-											offset, 2, ENC_NA);
-	offset+=2;
+  length = tvb_get_ntohs(tvb, offset);
+  proto_tree_add_item(tree, hf_artnet_diag_data_length, tvb,
+                      offset, 2, ENC_NA);
+  offset+=2;
 
   proto_tree_add_item(tree, hf_artnet_diag_data_data, tvb,
                       offset, length, ENC_ASCII|ENC_NA);
@@ -2465,13 +2466,13 @@ dissect_artnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   opcode = tvb_get_letohs(tvb, offset);
 
   col_add_fstr(pinfo->cinfo, COL_INFO, "%s (0x%04x)",
-    val_to_str_const(opcode, artnet_opcode_vals, "Unknown"), opcode);
+    val_to_str_ext_const(opcode, &artnet_opcode_vals_ext, "Unknown"), opcode);
 
   if (tree) {
     proto_tree_add_uint(artnet_header_tree, hf_artnet_header_opcode, tvb,
                         offset, 2, opcode);
 
-    proto_item_append_text(ti, ", Opcode: %s (0x%04x)", val_to_str_const(opcode, artnet_opcode_vals, "Unknown"), opcode);
+    proto_item_append_text(ti, ", Opcode: %s (0x%04x)", val_to_str_ext_const(opcode, &artnet_opcode_vals_ext, "Unknown"), opcode);
   }
   offset += 2;
 
@@ -3193,7 +3194,7 @@ proto_register_artnet(void) {
     { &hf_artnet_header_opcode,
       { "Opcode",
         "artnet.header.opcode",
-        FT_UINT16, BASE_HEX, VALS(artnet_opcode_vals), 0x0,
+        FT_UINT16, BASE_HEX | BASE_EXT_STRING, &artnet_opcode_vals_ext, 0x0,
         "Art-Net message type", HFILL }},
 
     { &hf_artnet_header_protver,
@@ -4336,3 +4337,16 @@ proto_reg_handoff_artnet(void) {
 
   heur_dissector_add("udp", dissect_artnet_heur, proto_artnet);
 }
+
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */

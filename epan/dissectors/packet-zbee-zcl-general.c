@@ -4814,3 +4814,16 @@ proto_reg_handoff_zbee_zcl_appl_ctrl(void)
                             (zbee_zcl_fn_cmd_id)dissect_zcl_appl_ctrl_cmd_id
                          );
 } /*proto_reg_handoff_zbee_zcl_appl_ctrl*/
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

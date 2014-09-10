@@ -7561,11 +7561,11 @@ dissect_nfs4_cb_client4(tvbuff_t *tvb, int offset, proto_tree *tree)
 	cbprog = tvb_get_ntohl(tvb, offset);
 	reg_callback(cbprog);
 	offset = dissect_rpc_uint32(tvb, tree, hf_nfs4_cb_program, offset);
-    old_offset = offset;
+	old_offset = offset;
 	cb_location = proto_tree_add_subtree(tree, tvb, offset, 0, ett_nfs4_clientaddr, &fitem, "cb_location");
 
 	offset = dissect_nfs4_clientaddr(tvb, offset, cb_location);
-    proto_item_set_len(fitem, offset - old_offset);
+	proto_item_set_len(fitem, offset - old_offset);
 
 	return offset;
 }
@@ -7801,7 +7801,7 @@ dissect_nfs4_change_info(tvbuff_t *tvb, int offset,
 	offset = dissect_rpc_bool(  tvb, newftree, hf_nfs4_change_info_atomic, offset);
 	offset = dissect_rpc_uint64(tvb, newftree, hf_nfs4_changeid_before,    offset);
 	offset = dissect_rpc_uint64(tvb, newftree, hf_nfs4_changeid_after,     offset);
-    proto_item_set_len(fitem, offset - old_offset);
+	proto_item_set_len(fitem, offset - old_offset);
 
 	return offset;
 }
@@ -7888,7 +7888,7 @@ dissect_nfs4_stateid(tvbuff_t *tvb, int offset, proto_tree *tree, guint16 *hash)
 	if (hash)
 		*hash = sid_hash;
 
-    proto_item_set_len(fitem, offset - old_offset);
+	proto_item_set_len(fitem, offset - old_offset);
 
 	return offset;
 }
@@ -12459,12 +12459,12 @@ proto_register_nfs(void)
 		&ett_nfs4_want_notify_flags
 	};
 
-  	static ei_register_info ei[] = {
-  	  	{ &ei_nfs_too_many_ops, { "nfs.too_many_ops", PI_PROTOCOL, PI_NOTE, "Too many operations", EXPFILL }},
-  	  	{ &ei_nfs_not_vnx_file, { "nfs.not_vnx_file", PI_UNDECODED, PI_WARN, "Not a Celerra|VNX file handle", EXPFILL }},
-  	};
+	static ei_register_info ei[] = {
+		{ &ei_nfs_too_many_ops, { "nfs.too_many_ops", PI_PROTOCOL, PI_NOTE, "Too many operations", EXPFILL }},
+		{ &ei_nfs_not_vnx_file, { "nfs.not_vnx_file", PI_UNDECODED, PI_WARN, "Not a Celerra|VNX file handle", EXPFILL }},
+	};
 
-  	module_t *nfs_module;
+	module_t *nfs_module;
 	expert_module_t* expert_nfs;
 
 	proto_nfs = proto_register_protocol("Network File System", "NFS", "nfs");

@@ -67,7 +67,7 @@ static heur_dissector_list_t heur_epl_data_subdissector_list;
 #if 0
 /* Container for tapping relevant data */
 typedef struct _epl_info_t {
-    unsigned char epl_mtyp;
+	unsigned char epl_mtyp;
 } epl_info_t;
 #endif
 
@@ -79,21 +79,21 @@ typedef struct _epl_info_t {
 #define EPL_BROADCAST_NODEID                    255
 
 static const value_string addr_str_vals[] = {
-    {EPL_INVALID_NODEID,                    " (invalid)"                        },
-    {EPL_MN_NODEID,                         " (Managing Node)"                  },
-    {EPL_DIAGNOSTIC_DEVICE_NODEID,          " (Diagnostic Device)"              },
-    {EPL_TO_LEGACY_ETHERNET_ROUTER_NODEID,  " (EPL to legacy Ethernet Router)"  },
-    {EPL_BROADCAST_NODEID,                  " (broadcast)"                      },
-    {0,NULL}
+	{EPL_INVALID_NODEID,                    " (invalid)"                        },
+	{EPL_MN_NODEID,                         " (Managing Node)"                  },
+	{EPL_DIAGNOSTIC_DEVICE_NODEID,          " (Diagnostic Device)"              },
+	{EPL_TO_LEGACY_ETHERNET_ROUTER_NODEID,  " (EPL to legacy Ethernet Router)"  },
+	{EPL_BROADCAST_NODEID,                  " (broadcast)"                      },
+	{0,NULL}
 };
 
 static const value_string addr_str_abbr_vals[] _U_ = {
-    {EPL_INVALID_NODEID,                    " (inv.)"   },
-    {EPL_MN_NODEID,                         " (MN)"     },
-    {EPL_DIAGNOSTIC_DEVICE_NODEID,          " (diag.)"  },
-    {EPL_TO_LEGACY_ETHERNET_ROUTER_NODEID,  " (router)" },
-    {EPL_BROADCAST_NODEID,                  " (bc)"     },
-    {0,NULL}
+	{EPL_INVALID_NODEID,                    " (inv.)"   },
+	{EPL_MN_NODEID,                         " (MN)"     },
+	{EPL_DIAGNOSTIC_DEVICE_NODEID,          " (diag.)"  },
+	{EPL_TO_LEGACY_ETHERNET_ROUTER_NODEID,  " (router)" },
+	{EPL_BROADCAST_NODEID,                  " (bc)"     },
+	{0,NULL}
 };
 /*
 static const gchar* addr_str_abbr_cn  = " (CN)";
@@ -132,13 +132,13 @@ static const gchar* addr_str_abbr_res = " (res.)";
 #define EPL_AINV    0x0D
 
 static const value_string mtyp_vals[] = {
-    {EPL_SOC,  "Start of Cycle (SoC)"         },
-    {EPL_PREQ, "PollRequest (PReq)"           },
-    {EPL_PRES, "PollResponse (PRes)"          },
-    {EPL_SOA,  "Start of Asynchronous (SoA)"  },
-    {EPL_ASND, "Asynchronous Send (ASnd)"     },
-    {EPL_AINV, "Asynchronous Invite (AInv)"   },
-    {0,NULL}
+	{EPL_SOC,  "Start of Cycle (SoC)"         },
+	{EPL_PREQ, "PollRequest (PReq)"           },
+	{EPL_PRES, "PollResponse (PRes)"          },
+	{EPL_SOA,  "Start of Asynchronous (SoA)"  },
+	{EPL_ASND, "Asynchronous Send (ASnd)"     },
+	{EPL_AINV, "Asynchronous Invite (AInv)"   },
+	{0,NULL}
 };
 
 #define EPL_SOC_MC_MASK              0x80
@@ -154,13 +154,13 @@ static const value_string mtyp_vals[] = {
 #define EPL_SOA_UNSPECIFIEDINVITE     255
 
 static const value_string soa_svid_vals[] = {
-    {EPL_SOA_NOSERVICE,           "NoService"        },
-    {EPL_SOA_IDENTREQUEST,        "IdentRequest"     },
-    {EPL_SOA_STATUSREQUEST,       "StatusRequest"    },
-    {EPL_SOA_NMTREQUESTINVITE,    "NMTRequestInvite" },
-    {EPL_SOA_SYNCREQUEST,         "SyncRequest"      },
-    {EPL_SOA_UNSPECIFIEDINVITE,   "UnspecifiedInvite"},
-    {0,NULL}
+	{EPL_SOA_NOSERVICE,           "NoService"        },
+	{EPL_SOA_IDENTREQUEST,        "IdentRequest"     },
+	{EPL_SOA_STATUSREQUEST,       "StatusRequest"    },
+	{EPL_SOA_NMTREQUESTINVITE,    "NMTRequestInvite" },
+	{EPL_SOA_SYNCREQUEST,         "SyncRequest"      },
+	{EPL_SOA_UNSPECIFIEDINVITE,   "UnspecifiedInvite"},
+	{0,NULL}
 };
 
 /* ServiceID values for EPL message type "ASnd" */
@@ -172,13 +172,13 @@ static const value_string soa_svid_vals[] = {
 #define EPL_ASND_SYNCRESPONSE           6
 
 static const value_string asnd_svid_vals[] = {
-    {EPL_ASND_IDENTRESPONSE,  "IdentResponse" },
-    {EPL_ASND_STATUSRESPONSE, "StatusResponse"},
-    {EPL_ASND_NMTREQUEST,     "NMTRequest"    },
-    {EPL_ASND_NMTCOMMAND,     "NMTCommand"    },
-    {EPL_ASND_SDO,            "SDO"           },
-    {EPL_ASND_SYNCRESPONSE,   "SyncResponse"  },
-    {0,NULL}
+	{EPL_ASND_IDENTRESPONSE,  "IdentResponse" },
+	{EPL_ASND_STATUSRESPONSE, "StatusResponse"},
+	{EPL_ASND_NMTREQUEST,     "NMTRequest"    },
+	{EPL_ASND_NMTCOMMAND,     "NMTCommand"    },
+	{EPL_ASND_SDO,            "SDO"           },
+	{EPL_ASND_SYNCRESPONSE,   "SyncResponse"  },
+	{0,NULL}
 };
 
 /* NMTCommand values for EPL message type "ASnd" */
@@ -214,39 +214,39 @@ static const value_string asnd_svid_vals[] = {
 #define EPL_ASND_NMTCOMMAND_NMTINVALIDSERVICE           0xFF
 
 static const value_string asnd_cid_vals[] = {
-    /* "special" values to cover all possibilities of CommandID in NMTRequests */
-    {EPL_ASND_IDENTRESPONSE,                          "IdentResponse"             },
-    {EPL_ASND_STATUSRESPONSE,                         "StatusResponse"            },
-    /* ... */
-    {EPL_ASND_NMTCOMMAND_NMTSTARTNODE,                "NMTStartNode"              },
-    {EPL_ASND_NMTCOMMAND_NMTSTOPNODE,                 "NMTStopNode"               },
-    {EPL_ASND_NMTCOMMAND_NMTENTERPREOPERATIONAL2,     "NMTEnterPreOperational2"   },
-    {EPL_ASND_NMTCOMMAND_NMTENABLEREADYTOOPERATE,     "NMTEnableReadyToOperate"   },
-    {EPL_ASND_NMTCOMMAND_NMTRESETNODE,                "NMTResetNode"              },
-    {EPL_ASND_NMTCOMMAND_NMTRESETCOMMUNICATION,       "NMTResetCommunication"     },
-    {EPL_ASND_NMTCOMMAND_NMTRESETCONFIGURATION,       "NMTResetConfiguration"     },
-    {EPL_ASND_NMTCOMMAND_NMTSWRESET,                  "NMTSwReset"                },
-    {EPL_ASND_NMTCOMMAND_NMTSTARTNODEEX,              "NMTStartNodeEx"            },
-    {EPL_ASND_NMTCOMMAND_NMTSTOPNODEEX,               "NMTStopNodeEx"             },
-    {EPL_ASND_NMTCOMMAND_NMTENTERPREOPERATIONAL2EX,   "NMTEnterPreOperational2Ex" },
-    {EPL_ASND_NMTCOMMAND_NMTENABLEREADYTOOPERATEEX,   "NMTEnableReadyToOperateEx" },
-    {EPL_ASND_NMTCOMMAND_NMTRESETNODEEX,              "NMTResetNodeEx"            },
-    {EPL_ASND_NMTCOMMAND_NMTRESETCOMMUNICATIONEX,     "NMTCommunicationEx"        },
-    {EPL_ASND_NMTCOMMAND_NMTRESETCONFIGURATIONEX,     "NMTResetConfigurationEx"   },
-    {EPL_ASND_NMTCOMMAND_NMTSWRESETEX,                "NMTSwResetEx"              },
-    {EPL_ASND_NMTCOMMAND_NMTNETHOSTNAMESET,           "NMTNetHostNameSet"         },
-    {EPL_ASND_NMTCOMMAND_NMTFLUSHARPENTRY,            "NMTFlushArpEntry"          },
-    {EPL_ASND_NMTCOMMAND_NMTPUBLISHCONFIGUREDNODES,   "NMTPublishConfiguredNodes" },
-    {EPL_ASND_NMTCOMMAND_NMTPUBLISHACTIVENODES,       "NMTPublishActiveNodes"     },
-    {EPL_ASND_NMTCOMMAND_NMTPUBLISHPREOPERATIONAL1,   "NMTPublishPreOperational1" },
-    {EPL_ASND_NMTCOMMAND_NMTPUBLISHPREOPERATIONAL2,   "NMTPublishPreOperational2" },
-    {EPL_ASND_NMTCOMMAND_NMTPUBLISHREADYTOOPERATE,    "NMTPublishReadyToOperate"  },
-    {EPL_ASND_NMTCOMMAND_NMTPUBLISHOPERATIONAL,       "NMTPublishOperational"     },
-    {EPL_ASND_NMTCOMMAND_NMTPUBLISHSTOPPED,           "NMTPublishStopped"         },
-    {EPL_ASND_NMTCOMMAND_NMTPUBLISHEMERGENCYNEW,      "NMTPublishEmergencyNew"    },
-    {EPL_ASND_NMTCOMMAND_NMTPUBLISHTIME,              "NMTPublishTime"            },
-    {EPL_ASND_NMTCOMMAND_NMTINVALIDSERVICE,           "NMTInvalidService"         },
-    {0,NULL}
+	/* "special" values to cover all possibilities of CommandID in NMTRequests */
+	{EPL_ASND_IDENTRESPONSE,                          "IdentResponse"             },
+	{EPL_ASND_STATUSRESPONSE,                         "StatusResponse"            },
+	/* ... */
+	{EPL_ASND_NMTCOMMAND_NMTSTARTNODE,                "NMTStartNode"              },
+	{EPL_ASND_NMTCOMMAND_NMTSTOPNODE,                 "NMTStopNode"               },
+	{EPL_ASND_NMTCOMMAND_NMTENTERPREOPERATIONAL2,     "NMTEnterPreOperational2"   },
+	{EPL_ASND_NMTCOMMAND_NMTENABLEREADYTOOPERATE,     "NMTEnableReadyToOperate"   },
+	{EPL_ASND_NMTCOMMAND_NMTRESETNODE,                "NMTResetNode"              },
+	{EPL_ASND_NMTCOMMAND_NMTRESETCOMMUNICATION,       "NMTResetCommunication"     },
+	{EPL_ASND_NMTCOMMAND_NMTRESETCONFIGURATION,       "NMTResetConfiguration"     },
+	{EPL_ASND_NMTCOMMAND_NMTSWRESET,                  "NMTSwReset"                },
+	{EPL_ASND_NMTCOMMAND_NMTSTARTNODEEX,              "NMTStartNodeEx"            },
+	{EPL_ASND_NMTCOMMAND_NMTSTOPNODEEX,               "NMTStopNodeEx"             },
+	{EPL_ASND_NMTCOMMAND_NMTENTERPREOPERATIONAL2EX,   "NMTEnterPreOperational2Ex" },
+	{EPL_ASND_NMTCOMMAND_NMTENABLEREADYTOOPERATEEX,   "NMTEnableReadyToOperateEx" },
+	{EPL_ASND_NMTCOMMAND_NMTRESETNODEEX,              "NMTResetNodeEx"            },
+	{EPL_ASND_NMTCOMMAND_NMTRESETCOMMUNICATIONEX,     "NMTCommunicationEx"        },
+	{EPL_ASND_NMTCOMMAND_NMTRESETCONFIGURATIONEX,     "NMTResetConfigurationEx"   },
+	{EPL_ASND_NMTCOMMAND_NMTSWRESETEX,                "NMTSwResetEx"              },
+	{EPL_ASND_NMTCOMMAND_NMTNETHOSTNAMESET,           "NMTNetHostNameSet"         },
+	{EPL_ASND_NMTCOMMAND_NMTFLUSHARPENTRY,            "NMTFlushArpEntry"          },
+	{EPL_ASND_NMTCOMMAND_NMTPUBLISHCONFIGUREDNODES,   "NMTPublishConfiguredNodes" },
+	{EPL_ASND_NMTCOMMAND_NMTPUBLISHACTIVENODES,       "NMTPublishActiveNodes"     },
+	{EPL_ASND_NMTCOMMAND_NMTPUBLISHPREOPERATIONAL1,   "NMTPublishPreOperational1" },
+	{EPL_ASND_NMTCOMMAND_NMTPUBLISHPREOPERATIONAL2,   "NMTPublishPreOperational2" },
+	{EPL_ASND_NMTCOMMAND_NMTPUBLISHREADYTOOPERATE,    "NMTPublishReadyToOperate"  },
+	{EPL_ASND_NMTCOMMAND_NMTPUBLISHOPERATIONAL,       "NMTPublishOperational"     },
+	{EPL_ASND_NMTCOMMAND_NMTPUBLISHSTOPPED,           "NMTPublishStopped"         },
+	{EPL_ASND_NMTCOMMAND_NMTPUBLISHEMERGENCYNEW,      "NMTPublishEmergencyNew"    },
+	{EPL_ASND_NMTCOMMAND_NMTPUBLISHTIME,              "NMTPublishTime"            },
+	{EPL_ASND_NMTCOMMAND_NMTINVALIDSERVICE,           "NMTInvalidService"         },
+	{0,NULL}
 };
 static value_string_ext asnd_cid_vals_ext = VALUE_STRING_EXT_INIT(asnd_cid_vals);
 
@@ -294,15 +294,15 @@ static epl_sdo_reassembly epl_asnd_sdo_reassembly_read;
 #define EPL_PR_NMTREQUEST       0x07
 
 static const value_string epl_pr_vals[] = {
-    {0,                       "lowest"},
-    {1,                       "lower"},
-    {2,                       "below generic"},
-    {EPL_PR_GENERICREQUEST,   "GenericRequest"},
-    {4,                       "above generic"},
-    {5,                       "higher"},
-    {6,                       "below NMTRequest"},
-    {EPL_PR_NMTREQUEST,       "NMTRequest"},
-    {0,NULL}
+	{0,                       "lowest"},
+	{1,                       "lower"},
+	{2,                       "below generic"},
+	{EPL_PR_GENERICREQUEST,   "GenericRequest"},
+	{4,                       "above generic"},
+	{5,                       "higher"},
+	{6,                       "below NMTRequest"},
+	{EPL_PR_NMTREQUEST,       "NMTRequest"},
+	{0,NULL}
 };
 
 /* NMT State values (for CN)*/
@@ -319,18 +319,18 @@ static const value_string epl_pr_vals[] = {
 #define EPL_NMT_CS_BASIC_ETHERNET       0x1E
 
 static const value_string epl_nmt_cs_vals[] = {
-    {EPL_NMT_GS_OFF,                  "NMT_GS_OFF"                },
-    {EPL_NMT_GS_INITIALIZING,         "NMT_GS_INITIALIZING"       },
-    {EPL_NMT_GS_RESET_APPLICATION,    "NMT_GS_RESET_APPLICATION"  },
-    {EPL_NMT_GS_RESET_COMMUNICATION,  "NMT_GS_RESET_COMMUNICATION"},
-    {EPL_NMT_CS_NOT_ACTIVE,           "NMT_CS_NOT_ACTIVE"         },
-    {EPL_NMT_CS_PRE_OPERATIONAL_1,    "NMT_CS_PRE_OPERATIONAL_1"  },
-    {EPL_NMT_CS_PRE_OPERATIONAL_2,    "NMT_CS_PRE_OPERATIONAL_2"  },
-    {EPL_NMT_CS_READY_TO_OPERATE,     "NMT_CS_READY_TO_OPERATE"   },
-    {EPL_NMT_CS_OPERATIONAL,          "NMT_CS_OPERATIONAL"        },
-    {EPL_NMT_CS_STOPPED,              "NMT_CS_STOPPED"            },
-    {EPL_NMT_CS_BASIC_ETHERNET,       "NMT_CS_BASIC_ETHERNET"     },
-    {0,NULL}
+	{EPL_NMT_GS_OFF,                  "NMT_GS_OFF"                },
+	{EPL_NMT_GS_INITIALIZING,         "NMT_GS_INITIALIZING"       },
+	{EPL_NMT_GS_RESET_APPLICATION,    "NMT_GS_RESET_APPLICATION"  },
+	{EPL_NMT_GS_RESET_COMMUNICATION,  "NMT_GS_RESET_COMMUNICATION"},
+	{EPL_NMT_CS_NOT_ACTIVE,           "NMT_CS_NOT_ACTIVE"         },
+	{EPL_NMT_CS_PRE_OPERATIONAL_1,    "NMT_CS_PRE_OPERATIONAL_1"  },
+	{EPL_NMT_CS_PRE_OPERATIONAL_2,    "NMT_CS_PRE_OPERATIONAL_2"  },
+	{EPL_NMT_CS_READY_TO_OPERATE,     "NMT_CS_READY_TO_OPERATE"   },
+	{EPL_NMT_CS_OPERATIONAL,          "NMT_CS_OPERATIONAL"        },
+	{EPL_NMT_CS_STOPPED,              "NMT_CS_STOPPED"            },
+	{EPL_NMT_CS_BASIC_ETHERNET,       "NMT_CS_BASIC_ETHERNET"     },
+	{0,NULL}
 };
 
 /* NMT State values (for MN)*/
@@ -1500,13 +1500,13 @@ dissect_eplpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean udp
 static int
 dissect_epl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    return dissect_eplpdu(tvb, pinfo, tree, FALSE);
+	return dissect_eplpdu(tvb, pinfo, tree, FALSE);
 }
 
 static int
 dissect_epludp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    return dissect_eplpdu(tvb, pinfo, tree, TRUE);
+	return dissect_eplpdu(tvb, pinfo, tree, TRUE);
 }
 
 
@@ -2671,7 +2671,7 @@ dissect_epl_sdo_command_write_by_index(proto_tree *epl_tree, tvbuff_t *tvb, pack
 			}
 			/* add the frame to reassembly_table */
 			frag_msg = fragment_add_seq_check(&epl_reassembly_table, tvb, offset, pinfo,
-                                               fragmentId, NULL, ct, payload_length, end_segment ? FALSE : TRUE );
+							  fragmentId, NULL, ct, payload_length, end_segment ? FALSE : TRUE );
 
 			/* if the reassembly_table is not Null and the frame stored is the same as the current frame */
 			if(frag_msg != NULL && (epl_asnd_sdo_reassembly_write.frame[epl_segmentation.recv][epl_segmentation.send] == frame))
@@ -2685,7 +2685,7 @@ dissect_epl_sdo_command_write_by_index(proto_tree *epl_tree, tvbuff_t *tvb, pack
 					/* add the reassembley fields */
 					process_reassembled_data(tvb, 0, pinfo, "Reassembled Message", frag_msg, &epl_frag_items, NULL, payload_tree );
 					proto_tree_add_uint_format_value(payload_tree, hf_epl_asnd_sdo_cmd_reassembled, tvb, 0, 0,
-                                                                payload_length, "%d bytes (over all fragments)", frag_msg->len);
+									 payload_length, "%d bytes (over all fragments)", frag_msg->len);
 					col_append_str(pinfo->cinfo, COL_INFO, " (Message Reassembled)" );
 					/* reset memory */
 					memset(&epl_asnd_sdo_reassembly_write,0,sizeof(epl_sdo_reassembly));
@@ -3006,7 +3006,7 @@ dissect_epl_sdo_command_read_by_index(proto_tree *epl_tree, tvbuff_t *tvb, packe
 			}
 			/* add the frame to reassembly_table */
 			frag_msg = fragment_add_seq_check(&epl_reassembly_table, tvb, offset, pinfo,
-                                               fragmentId, NULL, count, payload_length, end_segment ? FALSE : TRUE );
+							  fragmentId, NULL, count, payload_length, end_segment ? FALSE : TRUE );
 
 			/* if the reassembly_table is not Null and the frame stored is the same as the current frame */
 			if(frag_msg != NULL && (epl_asnd_sdo_reassembly_read.frame[epl_segmentation.recv][epl_segmentation.send] == frame))
@@ -3019,7 +3019,7 @@ dissect_epl_sdo_command_read_by_index(proto_tree *epl_tree, tvbuff_t *tvb, packe
 					/* add the reassembley fields */
 					process_reassembled_data(tvb, 0, pinfo, "Reassembled Message", frag_msg, &epl_frag_items, NULL, payload_tree );
 					proto_tree_add_uint_format_value(payload_tree, hf_epl_asnd_sdo_cmd_reassembled, tvb, 0, 0,
-                                                                payload_length, "%d bytes (over all fragments)", frag_msg->len);
+									 payload_length, "%d bytes (over all fragments)", frag_msg->len);
 					col_append_str(pinfo->cinfo, COL_INFO, " (Message Reassembled)" );
 					/* reset memory */
 					memset(&epl_asnd_sdo_reassembly_read,0,sizeof(epl_sdo_reassembly));
