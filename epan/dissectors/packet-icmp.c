@@ -1032,8 +1032,7 @@ static icmp_transaction_t *transaction_start(packet_info * pinfo,
 			/* Expert info.  TODO: add to _icmp_transaction_t type and sequence number
 			   so can report here (and in taps) */
 			expert_add_info_format(pinfo, it, &ei_icmp_resp_not_found,
-					       "No response seen to ICMP request in frame %u",
-					       pinfo->fd->num);
+					       "No response seen to ICMP request");
 		}
 
 		return NULL;
