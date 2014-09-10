@@ -750,10 +750,11 @@ address_rfc_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb, diam_sub_dis_t *dia
 {
 	char *label = (char *)wmem_alloc(wmem_packet_scope(), ITEM_LABEL_LENGTH+1);
 	address_avp_t *t = (address_avp_t *)a->type_data;
-	proto_item *pi = proto_tree_add_item(c->tree,a->hf_value,tvb,0,tvb_reported_length(tvb),ENC_BIG_ENDIAN);
+    gint len = tvb_reported_length(tvb);
+	proto_item *pi = proto_tree_add_item(c->tree, a->hf_value, tvb, 0, len, ENC_BIG_ENDIAN);
 	proto_tree *pt = proto_item_add_subtree(pi,t->ett);
 	guint32 addr_type = tvb_get_ntohs(tvb,0);
-	gint len = tvb_reported_length_remaining(tvb,2);
+	len = len-2;
 
 	proto_tree_add_item(pt,t->hf_address_type,tvb,0,2,ENC_NA);
 	switch (addr_type ) {
@@ -879,9 +880,9 @@ integer32_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb, diam_sub_dis_t *diam_
 	proto_item *pi;
 
 	/* Verify length before adding */
-	gint length = tvb_reported_length_remaining(tvb,0);
+	gint length = tvb_reported_length(tvb);
 	if (length == 4) {
-		pi= proto_tree_add_item(c->tree,a->hf_value,tvb,0,tvb_reported_length_remaining(tvb,0),ENC_BIG_ENDIAN);
+		pi= proto_tree_add_item(c->tree, a->hf_value, tvb, 0, length, ENC_BIG_ENDIAN);
 		label = (char *)wmem_alloc(wmem_packet_scope(), ITEM_LABEL_LENGTH+1);
 		proto_item_fill_label(PITEM_FINFO(pi), label);
 		label = strstr(label,": ")+2;
@@ -905,9 +906,9 @@ integer64_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb, diam_sub_dis_t *diam_
 	proto_item *pi;
 
 	/* Verify length before adding */
-	gint length = tvb_reported_length_remaining(tvb,0);
+	gint length = tvb_reported_length(tvb);
 	if (length == 8) {
-		pi= proto_tree_add_item(c->tree,a->hf_value,tvb,0,tvb_reported_length_remaining(tvb,0),ENC_BIG_ENDIAN);
+		pi= proto_tree_add_item(c->tree, a->hf_value, tvb, 0, length, ENC_BIG_ENDIAN);
 		label = (char *)wmem_alloc(wmem_packet_scope(), ITEM_LABEL_LENGTH+1);
 		proto_item_fill_label(PITEM_FINFO(pi), label);
 		label = strstr(label,": ")+2;
@@ -931,9 +932,9 @@ unsigned32_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb, diam_sub_dis_t *diam
 	proto_item *pi;
 
 	/* Verify length before adding */
-	gint length = tvb_reported_length_remaining(tvb,0);
+	gint length = tvb_reported_length(tvb);
 	if (length == 4) {
-		pi= proto_tree_add_item(c->tree,a->hf_value,tvb,0,tvb_reported_length_remaining(tvb,0),ENC_BIG_ENDIAN);
+		pi= proto_tree_add_item(c->tree, a->hf_value, tvb, 0, length, ENC_BIG_ENDIAN);
 		label = (char *)wmem_alloc(wmem_packet_scope(), ITEM_LABEL_LENGTH+1);
 		proto_item_fill_label(PITEM_FINFO(pi), label);
 		label = strstr(label,": ")+2;
@@ -957,9 +958,9 @@ unsigned64_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb, diam_sub_dis_t *diam
 	proto_item *pi;
 
 	/* Verify length before adding */
-	gint length = tvb_reported_length_remaining(tvb,0);
+	gint length = tvb_reported_length(tvb);
 	if (length == 8) {
-		pi= proto_tree_add_item(c->tree,a->hf_value,tvb,0,tvb_reported_length_remaining(tvb,0),ENC_BIG_ENDIAN);
+		pi= proto_tree_add_item(c->tree, a->hf_value, tvb, 0, length, ENC_BIG_ENDIAN);
 		label = (char *)wmem_alloc(wmem_packet_scope(), ITEM_LABEL_LENGTH+1);
 		proto_item_fill_label(PITEM_FINFO(pi), label);
 		label = strstr(label,": ")+2;
@@ -983,9 +984,9 @@ float32_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb, diam_sub_dis_t *diam_su
 	proto_item *pi;
 
 	/* Verify length before adding */
-	gint length = tvb_reported_length_remaining(tvb,0);
+	gint length = tvb_reported_length(tvb);
 	if (length == 4) {
-		pi= proto_tree_add_item(c->tree,a->hf_value,tvb,0,tvb_reported_length_remaining(tvb,0),ENC_BIG_ENDIAN);
+		pi= proto_tree_add_item(c->tree,a->hf_value, tvb, 0, length, ENC_BIG_ENDIAN);
 		label = (char *)wmem_alloc(wmem_packet_scope(), ITEM_LABEL_LENGTH+1);
 		proto_item_fill_label(PITEM_FINFO(pi), label);
 		label = strstr(label,": ")+2;
@@ -1009,9 +1010,9 @@ float64_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb, diam_sub_dis_t *diam_su
 	proto_item *pi;
 
 	/* Verify length before adding */
-	gint length = tvb_reported_length_remaining(tvb,0);
+	gint length = tvb_reported_length(tvb);
 	if (length == 8) {
-		pi= proto_tree_add_item(c->tree,a->hf_value,tvb,0,tvb_reported_length_remaining(tvb,0),ENC_BIG_ENDIAN);
+		pi= proto_tree_add_item(c->tree, a->hf_value, tvb, 0, length, ENC_BIG_ENDIAN);
 		label = (char *)wmem_alloc(wmem_packet_scope(), ITEM_LABEL_LENGTH+1);
 		proto_item_fill_label(PITEM_FINFO(pi), label);
 		label = strstr(label,": ")+2;
