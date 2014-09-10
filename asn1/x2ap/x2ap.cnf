@@ -78,7 +78,7 @@ ProtocolIE-ContainerPairList
 
 %(DEFAULT_BODY)s
 
-	if(tvb_length(tvb)==0)
+	if(tvb_reported_length(tvb)==0)
 		return offset;
 
 	if (!parameter_tvb)
@@ -115,7 +115,7 @@ ProtocolExtensionID TYPE = FT_UINT8  DISPLAY = BASE_DEC STRINGS = VALS(x2ap_Prot
   if (!parameter_tvb)
     return offset;
 	/* Get the length */
-	tvb_len = tvb_length(parameter_tvb);
+	tvb_len = tvb_reported_length(parameter_tvb);
 	subtree = proto_item_add_subtree(actx->created_item, ett_x2ap_TransportLayerAddress);
 	if (tvb_len==4){
 		/* IPv4 */
@@ -157,6 +157,9 @@ id-mobilitySettingsChange				ProcedureCode
 id-rLFIndication						ProcedureCode
 id-handoverReport						ProcedureCode
 id-cellActivation						ProcedureCode
+id-x2Release							ProcedureCode
+id-x2MessageTransfer					ProcedureCode
+
 
 # ProtocolIE-ID
 
@@ -234,6 +237,33 @@ id-CSGMembershipStatus														ProtocolIE-ID
 id-MDTConfiguration															ProtocolIE-ID
 id-ManagementBasedMDTallowed												ProtocolIE-ID
 id-RRCConnSetupIndicator													ProtocolIE-ID
+id-NeighbourTAC																ProtocolIE-ID
+id-Time-UE-StayedInCell-EnhancedGranularity									ProtocolIE-ID
+id-RRCConnReestabIndicator													ProtocolIE-ID
+id-MBMS-Service-Area-List													ProtocolIE-ID
+id-HO-cause																	ProtocolIE-ID
+id-TargetCellInUTRAN														ProtocolIE-ID
+id-MobilityInformation														ProtocolIE-ID
+id-SourceCellCRNTI															ProtocolIE-ID
+id-MultibandInfoList														ProtocolIE-ID
+id-M3Configuration															ProtocolIE-ID
+id-M4Configuration															ProtocolIE-ID
+id-M5Configuration															ProtocolIE-ID
+id-MDT-Location-Info														ProtocolIE-ID
+id-ManagementBasedMDTPLMNList												ProtocolIE-ID
+id-SignallingBasedMDTPLMNList												ProtocolIE-ID
+id-ReceiveStatusOfULPDCPSDUsExtended										ProtocolIE-ID
+id-ULCOUNTValueExtended														ProtocolIE-ID
+id-DLCOUNTValueExtended														ProtocolIE-ID
+id-eARFCNExtension															ProtocolIE-ID
+id-UL-EARFCNExtension														ProtocolIE-ID
+id-DL-EARFCNExtension														ProtocolIE-ID
+id-AdditionalSpecialSubframe-Info											ProtocolIE-ID
+id-Masked-IMEISV															ProtocolIE-ID
+id-IntendedULDLConfiguration												ProtocolIE-ID
+id-ExtendedULInterferenceOverloadInfo										ProtocolIE-ID
+id-RNL-Header																ProtocolIE-ID
+id-x2APMessage																ProtocolIE-ID
 
 #.REGISTER_NEW
 
@@ -301,7 +331,13 @@ CompleteFailureCauseInformation-List		N x2ap.ies id-CompleteFailureCauseInformat
 CompleteFailureCauseInformation-Item		N x2ap.ies id-CompleteFailureCauseInformation-Item
 CSGMembershipStatus							N x2ap.ies id-CSGMembershipStatus
 RRCConnSetupIndicator						N x2ap.ies id-RRCConnSetupIndicator
-
+RRCConnReestabIndicator						N x2ap.ies id-RRCConnReestabIndicator
+TargetCellInUTRAN							N x2ap.ies id-TargetCellInUTRAN
+MobilityInformation							N x2ap.ies id-MobilityInformation
+CRNTI										N x2ap.ies id-SourceCellCRNTI
+Masked-IMEISV								N x2ap.ies id-Masked-IMEISV
+RNL-Header									N x2ap.ies id-RNL-Header
+X2AP-Message								N x2ap.ies id-x2APMessage
 
 #X2AP-PROTOCOL-EXTENSION
 Number-of-Antennaports						N x2ap.extension id-Number-of-Antennaports
@@ -316,6 +352,26 @@ ABS-Status									N x2ap.extension id-ABS-Status
 CSG-Id										N x2ap.extension id-CSG-Id
 MDT-Configuration							N x2ap.extension id-MDTConfiguration
 ManagementBasedMDTallowed					N x2ap.extension id-ManagementBasedMDTallowed
+TAC											N x2ap.extension id-NeighbourTAC
+Time-UE-StayedInCell-EnhancedGranularity	N x2ap.extension id-Time-UE-StayedInCell-EnhancedGranularity
+MBMS-Service-Area-Identity-List				N x2ap.extension id-MBMS-Service-Area-List
+Cause										N x2ap.extension id-HO-cause
+MultibandInfoList							N x2ap.extension id-MultibandInfoList
+M3Configuration								N x2ap.extension id-M3Configuration
+M4Configuration								N x2ap.extension id-M4Configuration
+M5Configuration								N x2ap.extension id-M5Configuration
+MDT-Location-Info							N x2ap.extension id-MDT-Location-Info
+MDTPLMNList									N x2ap.extension id-ManagementBasedMDTPLMNList
+MDTPLMNList									N x2ap.extension id-SignallingBasedMDTPLMNList
+ReceiveStatusOfULPDCPSDUsExtended			N x2ap.extension id-ReceiveStatusOfULPDCPSDUsExtended
+COUNTValueExtended							N x2ap.extension id-ULCOUNTValueExtended
+COUNTValueExtended							N x2ap.extension id-DLCOUNTValueExtended
+EARFCNExtension								N x2ap.extension id-eARFCNExtension
+EARFCNExtension								N x2ap.extension id-UL-EARFCNExtension
+EARFCNExtension								N x2ap.extension id-DL-EARFCNExtension
+AdditionalSpecialSubframe-Info				N x2ap.extension id-AdditionalSpecialSubframe-Info
+SubframeAssignment							N x2ap.extension id-IntendedULDLConfiguration
+ExtendedULInterferenceOverloadInfo			N x2ap.extension id-ExtendedULInterferenceOverloadInfo
 
 # X2AP-PDU-Descriptions.asn  Interface Elementary Procedures
 #X2AP-ELEMENTARY-PROCEDURE
@@ -364,6 +420,9 @@ CellActivationRequest				N x2ap.proc.imsg id-cellActivation
 CellActivationResponse				N x2ap.proc.sout id-cellActivation
 CellActivationFailure				N x2ap.proc.uout id-cellActivation
 
+X2Release							N x2ap.proc.imsg id-x2Release
+
+X2MessageTransfer					N x2ap.proc.imsg id-x2MessageTransfer
 
 #.TYPE_ATTR
 BitRate TYPE = FT_UINT64 DISPLAY = BASE_DEC STRINGS = NULL

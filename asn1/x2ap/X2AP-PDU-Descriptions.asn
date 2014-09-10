@@ -1,4 +1,4 @@
--- 3GPP TS 36.423 V10.3.0 (2011-09)
+-- 3GPP TS 36.423 V12.2.0 (2014-06)
 -- 9.3.3	Elementary Procedure Definitions
 -- **************************************************************
 --
@@ -6,7 +6,7 @@
 --
 -- **************************************************************
 
-X2AP-PDU-Descriptions {
+ X2AP-PDU-Descriptions {
 itu-t (0) identified-organization (4) etsi (0) mobileDomain (0) 
 eps-Access (21) modules (3) x2ap (2) version1 (1) x2ap-PDU-Descriptions (0) }
 
@@ -54,7 +54,9 @@ FROM X2AP-CommonDataTypes
 	X2SetupResponse,
 	MobilityChangeRequest,
 	MobilityChangeAcknowledge,
-	MobilityChangeFailure
+	MobilityChangeFailure,
+	X2Release,
+	X2MessageTransfer
 
 
 
@@ -77,7 +79,9 @@ FROM X2AP-PDU-Contents
 	id-snStatusTransfer,
 	id-uEContextRelease,
 	id-x2Setup,
-	id-mobilitySettingsChange
+	id-mobilitySettingsChange,
+	id-x2Release,
+	id-x2MessageTransfer
 
 
 
@@ -168,7 +172,10 @@ X2AP-ELEMENTARY-PROCEDURES-CLASS-2 X2AP-ELEMENTARY-PROCEDURE ::= {
 	resourceStatusReporting					|
 	loadIndication							|
 	privateMessage							|
-	rLFIndication							|	handoverReport,
+	rLFIndication							|
+	handoverReport							|
+	x2Release								|
+	x2MessageTransfer,
 	...
 
 }
@@ -291,5 +298,16 @@ cellActivation	X2AP-ELEMENTARY-PROCEDURE ::= {
 	CRITICALITY				reject
 }
 
+x2Release X2AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		X2Release
+	PROCEDURE CODE			id-x2Release
+	CRITICALITY				reject
+}
+
+x2MessageTransfer X2AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		X2MessageTransfer
+	PROCEDURE CODE			id-x2MessageTransfer
+	CRITICALITY				reject
+}
 
 END

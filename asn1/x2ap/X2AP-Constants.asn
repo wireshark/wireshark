@@ -41,6 +41,8 @@ id-mobilitySettingsChange										ProcedureCode ::= 12
 id-rLFIndication												ProcedureCode ::= 13
 id-handoverReport												ProcedureCode ::= 14
 id-cellActivation												ProcedureCode ::= 15
+id-x2Release													ProcedureCode ::= 16
+id-x2MessageTransfer											ProcedureCode ::= 17
 
 
 
@@ -51,8 +53,11 @@ id-cellActivation												ProcedureCode ::= 15
 -- **************************************************************
 
 maxEARFCN									INTEGER ::= 65535
+maxEARFCNPlusOne							INTEGER ::= 65536
+newmaxEARFCN								INTEGER ::= 262143
 maxInterfaces								INTEGER ::= 16
 maxCellineNB								INTEGER ::= 256
+maxnoofBands								INTEGER ::= 16
 maxnoofBearers								INTEGER ::= 256
 maxNrOfErrors								INTEGER ::= 256
 maxnoofPDCP-SN								INTEGER ::= 16
@@ -69,6 +74,8 @@ maxnoofMBSFN								INTEGER ::= 8
 maxFailedMeasObjects						INTEGER ::= 32
 maxnoofCellIDforMDT							INTEGER ::= 32
 maxnoofTAforMDT								INTEGER ::= 8
+maxnoofMBMSServiceAreaIdentities			INTEGER ::= 256
+maxnoofMDTPLMNs								INTEGER ::= 16
 
 
 -- **************************************************************
@@ -151,5 +158,32 @@ id-CSGMembershipStatus														ProtocolIE-ID ::= 71
 id-MDTConfiguration															ProtocolIE-ID ::= 72
 id-ManagementBasedMDTallowed												ProtocolIE-ID ::= 74
 id-RRCConnSetupIndicator													ProtocolIE-ID ::= 75
+id-NeighbourTAC																ProtocolIE-ID ::= 76
+id-Time-UE-StayedInCell-EnhancedGranularity									ProtocolIE-ID ::= 77
+id-RRCConnReestabIndicator													ProtocolIE-ID ::= 78
+id-MBMS-Service-Area-List													ProtocolIE-ID ::= 79
+id-HO-cause																	ProtocolIE-ID ::= 80
+id-TargetCellInUTRAN														ProtocolIE-ID ::= 81
+id-MobilityInformation														ProtocolIE-ID ::= 82
+id-SourceCellCRNTI															ProtocolIE-ID ::= 83
+id-MultibandInfoList														ProtocolIE-ID ::= 84
+id-M3Configuration															ProtocolIE-ID ::= 85
+id-M4Configuration															ProtocolIE-ID ::= 86
+id-M5Configuration															ProtocolIE-ID ::= 87
+id-MDT-Location-Info														ProtocolIE-ID ::= 88
+id-ManagementBasedMDTPLMNList												ProtocolIE-ID ::= 89
+id-SignallingBasedMDTPLMNList												ProtocolIE-ID ::= 90
+id-ReceiveStatusOfULPDCPSDUsExtended										ProtocolIE-ID ::= 91
+id-ULCOUNTValueExtended														ProtocolIE-ID ::= 92
+id-DLCOUNTValueExtended														ProtocolIE-ID ::= 93
+id-eARFCNExtension															ProtocolIE-ID ::= 94
+id-UL-EARFCNExtension														ProtocolIE-ID ::= 95
+id-DL-EARFCNExtension														ProtocolIE-ID ::= 96
+id-AdditionalSpecialSubframe-Info											ProtocolIE-ID ::= 97
+id-Masked-IMEISV															ProtocolIE-ID ::= 98
+id-IntendedULDLConfiguration												ProtocolIE-ID ::= 99
+id-ExtendedULInterferenceOverloadInfo										ProtocolIE-ID ::= 100
+id-RNL-Header																ProtocolIE-ID ::= 101
+id-x2APMessage																ProtocolIE-ID ::= 102
 
 END
