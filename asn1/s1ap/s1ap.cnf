@@ -194,7 +194,7 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        3, 3, FALSE, &parameter_tvb);
-	if(tvb_length(tvb)==0)
+	if(tvb_reported_length(tvb)==0)
 		return offset;
 
 	if (!parameter_tvb)
@@ -213,7 +213,7 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
   if (!parameter_tvb)
     return offset;
 
-  length = tvb_length(parameter_tvb);
+  length = tvb_reported_length(parameter_tvb);
 
   is_ascii = TRUE;
   for (p_offset=0; p_offset < length; p_offset++){
@@ -234,7 +234,7 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
 
 %(DEFAULT_BODY)s
 
-  if ((tvb_length(parameter_tvb)>0)&&(nas_eps_handle))
+  if ((tvb_reported_length(parameter_tvb)>0)&&(nas_eps_handle))
     call_dissector(nas_eps_handle,parameter_tvb,%(ACTX)s->pinfo, tree);
 
 #.FN_BODY LPPa-PDU VAL_PTR = &parameter_tvb
@@ -243,7 +243,7 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
 
 %(DEFAULT_BODY)s
 
-  if ((tvb_length(parameter_tvb)>0)&&(lppa_handle))
+  if ((tvb_reported_length(parameter_tvb)>0)&&(lppa_handle))
     call_dissector(lppa_handle, parameter_tvb, %(ACTX)s->pinfo, tree);
 
 #.FN_BODY TransportLayerAddress VAL_PTR = &parameter_tvb
@@ -259,7 +259,7 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
 # a)	32 bits in case of IPv4 address according to [6]; and
 # b)	128 bits in case of IPv6 address according to [5].
 	/* Get the length */
-	tvb_len = tvb_length(parameter_tvb);
+	tvb_len = tvb_reported_length(parameter_tvb);
 	subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_TransportLayerAddress);
 	if (tvb_len==4){
 		/* IPv4 */
@@ -338,7 +338,7 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
 				Source BSS to Target BSS
 				Transparent Container 48.018
 			*/
-			de_bssgp_source_BSS_to_target_BSS_transp_cont(parameter_tvb, subtree, actx->pinfo, 0, tvb_length(parameter_tvb), NULL, 0);
+			de_bssgp_source_BSS_to_target_BSS_transp_cont(parameter_tvb, subtree, actx->pinfo, 0, tvb_reported_length(parameter_tvb), NULL, 0);
 			break;
 			case 3:
 			/* utrantolte */
@@ -392,7 +392,7 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
 				Target BSS to Source BSS
 				Transparent Container 48.018
 			*/
-			de_bssgp_target_BSS_to_source_BSS_transp_cont(parameter_tvb, subtree, actx->pinfo, 0, tvb_length(parameter_tvb), NULL, 0);
+			de_bssgp_target_BSS_to_source_BSS_transp_cont(parameter_tvb, subtree, actx->pinfo, 0, tvb_reported_length(parameter_tvb), NULL, 0);
 
 			break;
 			case 3:
@@ -496,7 +496,7 @@ if (g_s1ap_dissect_container) {
     return offset;
 
    subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_RIMInformation);
-   if ((tvb_length(parameter_tvb)>0)&&(bssgp_handle)){
+   if ((tvb_reported_length(parameter_tvb)>0)&&(bssgp_handle)){
     col_set_fence(%(ACTX)s->pinfo->cinfo, COL_INFO);
     call_dissector(bssgp_handle,parameter_tvb,%(ACTX)s->pinfo, subtree);
    }
@@ -557,6 +557,7 @@ id-uplinkUEAssociatedLPPaTransport		ProcedureCode
 id-downlinkNonUEAssociatedLPPaTransport	ProcedureCode
 id-uplinkNonUEAssociatedLPPaTransport	ProcedureCode
 id-UERadioCapabilityMatch				ProcedureCode
+id-PWSRestartIndication					ProcedureCode
 
 # ProtocolIE-ID
 id-MME-UE-S1AP-ID									ProtocolIE-ID
@@ -724,6 +725,19 @@ id-SignallingBasedMDTPLMNList						ProtocolIE-ID
 id-ULCOUNTValueExtended								ProtocolIE-ID
 id-DLCOUNTValueExtended								ProtocolIE-ID
 id-ReceiveStatusOfULPDCPSDUsExtended				ProtocolIE-ID
+id-ECGIListForRestart								ProtocolIE-ID
+id-SIPTO-Correlation-ID								ProtocolIE-ID
+id-SIPTO-L-GW-TransportLayerAddress					ProtocolIE-ID
+id-TransportInformation								ProtocolIE-ID
+id-LHN-ID											ProtocolIE-ID
+id-AdditionalCSFallbackIndicator					ProtocolIE-ID
+id-TAIListForRestart								ProtocolIE-ID
+id-UserLocationInformation							ProtocolIE-ID
+id-EmergencyAreaIDListForRestart					ProtocolIE-ID
+id-KillAllWarningMessages							ProtocolIE-ID
+id-Masked-IMEISV									ProtocolIE-ID
+id-eNBIndirectX2TransportLayerAddresses				ProtocolIE-ID
+
 #.END
 
 #.REGISTER_NEW
@@ -874,6 +888,14 @@ VoiceSupportMatchIndicator				N s1ap.ies id-VoiceSupportMatchIndicator
 GUMMEIType								N s1ap.ies id-GUMMEIType
 TunnelInformation						N s1ap.ies id-Tunnel-Information-for-BBF
 MDTPLMNList								N s1ap.ies id-ManagementBasedMDTPLMNList
+ECGIListForRestart						N s1ap.ies id-ECGIListForRestart
+TransportLayerAddress					N s1ap.ies id-SIPTO-L-GW-TransportLayerAddress
+LHN-ID									N s1ap.ies id-LHN-ID
+AdditionalCSFallbackIndicator			N s1ap.ies id-AdditionalCSFallbackIndicator
+TAIListForRestart						N s1ap.ies id-TAIListForRestart
+UserLocationInformation					N s1ap.ies id-UserLocationInformation
+KillAllWarningMessages					N s1ap.ies id-KillAllWarningMessages
+Masked-IMEISV							N s1ap.ies id-Masked-IMEISV
 
 #S1AP-PROTOCOL-IES-PAIR
 #RAB-SetupOrModifyItemFirst				N s1ap.ies.pair.first id-RAB-SetupOrModifyItem
@@ -899,6 +921,10 @@ MDTPLMNList								N s1ap.extension id-SignallingBasedMDTPLMNList
 COUNTValueExtended						N s1ap.extension id-ULCOUNTValueExtended
 COUNTValueExtended						N s1ap.extension id-DLCOUNTValueExtended
 ReceiveStatusOfULPDCPSDUsExtended		N s1ap.extension id-ReceiveStatusOfULPDCPSDUsExtended
+Correlation-ID							N s1ap.extension id-SIPTO-Correlation-ID
+TransportInformation					N s1ap.extension id-TransportInformation
+EmergencyAreaIDListForRestart			N s1ap.extension id-EmergencyAreaIDListForRestart
+ENBIndirectX2TransportLayerAddresses	N s1ap.extension id-eNBIndirectX2TransportLayerAddresses
 
 #S1AP-ELEMENTARY-PROCEDURE
 HandoverRequired						N s1ap.proc.imsg id-HandoverPreparation
@@ -1023,6 +1049,8 @@ UplinkNonUEAssociatedLPPaTransport		N s1ap.proc.imsg id-uplinkNonUEAssociatedLPP
 
 UERadioCapabilityMatchRequest			N s1ap.proc.imsg id-UERadioCapabilityMatch
 UERadioCapabilityMatchResponse			N s1ap.proc.sout id-UERadioCapabilityMatch
+
+PWSRestartIndication					N s1ap.proc.imsg id-PWSRestartIndication
 
 #.FN_HDR E-RABSetupRequest
      col_append_str(actx->pinfo->cinfo, COL_INFO, ", E_RABSetupRequest ");

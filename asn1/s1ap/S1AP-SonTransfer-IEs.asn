@@ -1,4 +1,4 @@
--- 3GPP TS 36.413 V11.6.0 (2013-12)
+-- 3GPP TS 36.413 V12.2.0 (2014-06)
 -- B.2	ASN.1 definition
 -- **************************************************************
 --
@@ -106,7 +106,8 @@ CellLoadReportingResponse::= CHOICE{
 	eUTRAN			EUTRANcellLoadReportingResponse,
 	uTRAN			OCTET STRING,
 	gERAN			OCTET STRING,
-	...
+	...,
+	eHRPD			EHRPDSectorLoadReportingResponse
 }
 
 CompositeAvailableCapacityGroup ::= OCTET STRING
@@ -126,11 +127,14 @@ EUTRANResponse::= SEQUENCE {
 	...
 }
 
+EHRPD-Sector-ID ::= OCTET STRING (SIZE (16))
+
 IRAT-Cell-ID ::= CHOICE{
 	eUTRAN			OCTET STRING,
 	uTRAN			OCTET STRING,
 	gERAN			OCTET STRING,
-	...
+	...,
+	eHRPD			EHRPD-Sector-ID
 }
 
 RequestedCellList ::= SEQUENCE (SIZE(1.. maxnoofIRATReportingCells)) OF IRAT-Cell-ID
@@ -153,7 +157,8 @@ MultiCellLoadReportingResponse-Item ::= CHOICE{
 	eUTRANResponse							EUTRANResponse,
 	uTRANResponse							OCTET STRING,
 	gERANResponse							OCTET STRING,
-	...
+	...,
+	eHRPD									EHRPDMultiSectorLoadReportingResponseItem
 }
 
 
@@ -282,6 +287,33 @@ TooEarlyInterRATHOReportReportFromEUTRAN ::= SEQUENCE {
 --MobilityInformation ::= BIT STRING (SIZE(32))
 
 
+--
+-- IEs for reporting of eHRPD load
+--
+
+EHRPDCapacityValue ::= INTEGER (0..100)
+
+EHRPDSectorCapacityClassValue ::= INTEGER (1..100, ...)
+
+EHRPDSectorLoadReportingResponse ::= SEQUENCE {
+	dL-EHRPD-CompositeAvailableCapacity			EHRPDCompositeAvailableCapacity,
+	uL-EHRPD-CompositeAvailableCapacity			EHRPDCompositeAvailableCapacity,
+	...
+}
+
+EHRPDCompositeAvailableCapacity ::= SEQUENCE {
+	eHRPDSectorCapacityClassValue				EHRPDSectorCapacityClassValue,
+	eHRPDCapacityValue							EHRPDCapacityValue,
+	...
+}
+
+EHRPDMultiSectorLoadReportingResponseItem ::= SEQUENCE {
+	eHRPD-Sector-ID							EHRPD-Sector-ID,
+	eHRPDSectorLoadReportingResponse		EHRPDSectorLoadReportingResponse,
+	...
+}
+
+
 -- **************************************************************
 --
 -- Constants
@@ -293,4 +325,5 @@ maxnoofcandidateCells						INTEGER ::= 16
 maxnoofCellineNB							INTEGER ::= 256
 
 END
+
 

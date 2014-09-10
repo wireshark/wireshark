@@ -1,4 +1,4 @@
--- 3GPP TS 36.413 V11.6.0 (2013-12)
+-- 3GPP TS 36.413 V12.2.0 (2014-06)
 -- 9.3.2	Elementary Procedure Definitions
 -- **************************************************************
 --
@@ -98,7 +98,8 @@ FROM S1AP-CommonDataTypes
 	WriteReplaceWarningRequest,
 	WriteReplaceWarningResponse,
 	ENBConfigurationTransfer,
-	MMEConfigurationTransfer
+	MMEConfigurationTransfer,
+	PWSRestartIndication
 
 
 FROM S1AP-PDU-Contents
@@ -151,7 +152,8 @@ FROM S1AP-PDU-Contents
 	id-UplinkS1cdma2000tunneling,
 	id-WriteReplaceWarning,
 	id-eNBConfigurationTransfer,
-	id-MMEConfigurationTransfer
+	id-MMEConfigurationTransfer,
+	id-PWSRestartIndication
 FROM S1AP-Constants;
 
 
@@ -274,7 +276,8 @@ S1AP-ELEMENTARY-PROCEDURES-CLASS-2 S1AP-ELEMENTARY-PROCEDURE ::= {
 	downlinkUEAssociatedLPPaTransport	|
 	uplinkUEAssociatedLPPaTransport	|
 	downlinkNonUEAssociatedLPPaTransport	|
-	uplinkNonUEAssociatedLPPaTransport
+	uplinkNonUEAssociatedLPPaTransport	|
+	pWSRestartIndication
 }
 
 -- **************************************************************
@@ -563,6 +566,12 @@ privateMessage S1AP-ELEMENTARY-PROCEDURE ::= {
 	CRITICALITY				ignore
 }
 
+pWSRestartIndication S1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		PWSRestartIndication
+	PROCEDURE CODE			id-PWSRestartIndication
+	CRITICALITY				ignore
+}
+
 kill S1AP-ELEMENTARY-PROCEDURE ::= {
 	INITIATING MESSAGE		KillRequest
 	SUCCESSFUL OUTCOME		KillResponse
@@ -601,5 +610,3 @@ uERadioCapabilityMatch S1AP-ELEMENTARY-PROCEDURE ::= {
 }
 
 END
-
-

@@ -1,4 +1,4 @@
--- 3GPP TS 36.413 V11.6.0 (2013-12)
+-- 3GPP TS 36.413 V12.2.0 (2014-06)
 -- 9.3.6	Constant Definitions
 -- **************************************************************
 --
@@ -82,6 +82,7 @@ id-uplinkUEAssociatedLPPaTransport			ProcedureCode ::= 45
 id-downlinkNonUEAssociatedLPPaTransport		ProcedureCode ::= 46
 id-uplinkNonUEAssociatedLPPaTransport		ProcedureCode ::= 47
 id-UERadioCapabilityMatch					ProcedureCode ::= 48
+id-PWSRestartIndication						ProcedureCode ::= 49
 
 -- **************************************************************
 --
@@ -125,6 +126,9 @@ maxnoofMMECs							INTEGER ::= 256
 maxnoofCellIDforMDT						INTEGER ::= 32
 maxnoofTAforMDT							INTEGER ::= 8
 maxnoofMDTPLMNs							INTEGER ::= 16
+maxnoofCellsforRestart					INTEGER ::= 256
+maxnoofRestartTAIs						INTEGER ::= 2048
+maxnoofRestartEmergencyAreaIDs			INTEGER ::= 256
 
 -- **************************************************************
 --
@@ -227,8 +231,6 @@ id-Unknown-81										ProtocolIE-ID ::= 81
 id-Unknown-82										ProtocolIE-ID ::= 82
 id-cdma2000HOStatus									ProtocolIE-ID ::= 83
 id-cdma2000HORequiredIndication						ProtocolIE-ID ::= 84
---WS extension
-id-Unknown-85										ProtocolIE-ID ::= 85
 id-E-UTRAN-Trace-ID									ProtocolIE-ID ::= 86
 id-RelativeMMECapacity								ProtocolIE-ID ::= 87
 id-SourceMME-UE-S1AP-ID								ProtocolIE-ID ::= 88
@@ -325,6 +327,17 @@ id-SignallingBasedMDTPLMNList						ProtocolIE-ID ::= 178
 id-ULCOUNTValueExtended								ProtocolIE-ID ::= 179
 id-DLCOUNTValueExtended								ProtocolIE-ID ::= 180
 id-ReceiveStatusOfULPDCPSDUsExtended				ProtocolIE-ID ::= 181
+id-ECGIListForRestart								ProtocolIE-ID ::= 182
+id-SIPTO-Correlation-ID								ProtocolIE-ID ::= 183
+id-SIPTO-L-GW-TransportLayerAddress					ProtocolIE-ID ::= 184
+id-TransportInformation								ProtocolIE-ID ::= 185
+id-LHN-ID											ProtocolIE-ID ::= 186
+id-AdditionalCSFallbackIndicator					ProtocolIE-ID ::= 187
+id-TAIListForRestart								ProtocolIE-ID ::= 188
+id-UserLocationInformation							ProtocolIE-ID ::= 189
+id-EmergencyAreaIDListForRestart					ProtocolIE-ID ::= 190
+id-KillAllWarningMessages							ProtocolIE-ID ::= 191
+id-Masked-IMEISV									ProtocolIE-ID ::= 192
+id-eNBIndirectX2TransportLayerAddresses				ProtocolIE-ID ::= 193
 
 END
-
