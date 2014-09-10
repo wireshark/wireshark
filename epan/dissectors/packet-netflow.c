@@ -1104,6 +1104,7 @@ static int      hf_cflow_samplingmode   = -1;
 static int      hf_cflow_samplerate     = -1;
 
 static int      hf_cflow_unknown_field_type        = -1;
+static int      hf_cflow_padding        = -1;
 
 /*
  * cflow version specific info
@@ -2493,9 +2494,7 @@ dissect_v9_v10_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, int 
             length -= (pdu_len < length) ? pdu_len : length;
         }
         if (length != 0) {
-            proto_tree_add_text(pdutree, tvb, offset, length,
-                                "Padding (%u byte%s)",
-                                length, plurality(length, "", "s"));
+            proto_tree_add_item(pdutree, hf_cflow_padding, tvb, offset, length, ENC_NA);
         }
     } else {
         proto_tree_add_text(pdutree, tvb, offset, length,
@@ -3978,9 +3977,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
             break;
 
         case 210: /* paddingOctets */
-            ti = proto_tree_add_text(pdutree, tvb, offset, length,
-                                     "Padding (%u byte%s)",
-                                     length, plurality(length, "", "s"));
+            ti = proto_tree_add_item(pdutree, hf_cflow_padding, tvb, offset, length, ENC_NA);
             break;
 
         case 211: /* collectorIPv4Address */
@@ -8658,6 +8655,12 @@ proto_register_netflow(void)
          {"ScopeTemplate", "cflow.scope_template",
           FT_BYTES, BASE_NONE, NULL, 0x0,
           "Option Scope Template", HFILL}
+        },
+
+        {&hf_cflow_padding,
+         {"Padding", "cflow.padding",
+          FT_BYTES, BASE_NONE, NULL, 0x0,
+          NULL, HFILL}
         },
 
         /* IPFIX */

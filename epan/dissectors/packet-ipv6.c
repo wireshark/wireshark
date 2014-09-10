@@ -217,6 +217,7 @@ static int hf_ipv6_fragment_count               = -1;
 static int hf_ipv6_reassembled_in               = -1;
 static int hf_ipv6_reassembled_length           = -1;
 static int hf_ipv6_reassembled_data             = -1;
+static int hf_ipv6_padding                      = -1;
 
 static int hf_ipv6_mipv6_home_address           = -1;
 
@@ -1360,7 +1361,7 @@ dissect_shim6_opt_loclist(proto_tree * opt_tree, tvbuff_t * tvb, gint *offset)
 
     /* Padding, included in length field */
     if ((7 - optlen % 8) > 0) {
-        proto_tree_add_text(opt_tree, tvb, p, (7 - optlen % 8), "Padding");
+        proto_tree_add_item(opt_tree, hf_ipv6_padding, tvb, p, (7 - optlen % 8), ENC_NA);
         p += (7 - optlen % 8);
     }
 
@@ -1468,7 +1469,7 @@ dissect_shimopts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo
         case SHIM6_OPT_RESPVAL:
             p += dissect_shim_hex(tvb, p, len, "Validator:", 0xff, opt_tree);
             if (total_len-(len+4) > 0)
-                proto_tree_add_text(opt_tree, tvb, p, total_len-(len+4), "Padding");
+                proto_tree_add_item(opt_tree, hf_ipv6_padding, tvb, p, total_len-(len+4), ENC_NA);
             break;
         case SHIM6_OPT_LOCLIST:
             dissect_shim6_opt_loclist(opt_tree, tvb, &p);
@@ -1476,17 +1477,17 @@ dissect_shimopts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo
         case SHIM6_OPT_LOCPREF:
             dissect_shim6_opt_loc_pref(opt_tree, tvb, &p, offset+len+4, pinfo);
             if (total_len-(len+4) > 0)
-                proto_tree_add_text(opt_tree, tvb, p, total_len-(len+4), "Padding");
+                proto_tree_add_item(opt_tree, hf_ipv6_padding, tvb, p, total_len-(len+4), ENC_NA);
             break;
         case SHIM6_OPT_CGAPDM:
             p += dissect_shim_hex(tvb, p, len, "CGA Parameter Data Structure:", 0xff, opt_tree);
             if (total_len-(len+4) > 0)
-                proto_tree_add_text(opt_tree, tvb, p, total_len-(len+4), "Padding");
+                proto_tree_add_item(opt_tree, hf_ipv6_padding, tvb, p, total_len-(len+4), ENC_NA);
             break;
         case SHIM6_OPT_CGASIG:
             p += dissect_shim_hex(tvb, p, len, "CGA Signature:", 0xff, opt_tree);
             if (total_len-(len+4) > 0)
-                proto_tree_add_text(opt_tree, tvb, p, total_len-(len+4), "Padding");
+                proto_tree_add_item(opt_tree, hf_ipv6_padding, tvb, p, total_len-(len+4), ENC_NA);
             break;
         case SHIM6_OPT_ULIDPAIR:
             proto_tree_add_text(opt_tree, tvb, p, 4, "Reserved");
@@ -2646,6 +2647,12 @@ proto_register_ipv6(void)
           { "Reassembled IPv6 data", "ipv6.reassembled.data",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             "The reassembled payload", HFILL }},
+
+        { &hf_ipv6_padding,
+          { "Padding", "ipv6.padding",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
         /* RPL Routing Header */
         { &hf_ipv6_routing_hdr_rpl_cmprI,
           { "Compressed Internal Octets (CmprI)", "ipv6.routing_hdr.rpl.cmprI",

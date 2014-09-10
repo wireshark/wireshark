@@ -136,6 +136,9 @@ static header_field_info hfi_rip_route_tag RIP_HFI_INIT =
 	{ "Route Tag", "rip.route_tag", FT_UINT16, BASE_DEC,
 	  NULL, 0, NULL, HFILL };
 
+static header_field_info hfi_rip_zero_padding RIP_HFI_INIT =
+	{ "Zero Padding", "rip.zero_padding", FT_STRING, BASE_NONE,
+	  NULL, 0, "Authentication password", HFILL };
 static gint ett_rip = -1;
 static gint ett_rip_vec = -1;
 static gint ett_auth_vec = -1;
@@ -309,8 +312,7 @@ dissect_rip_authentication(tvbuff_t *tvb, int offset, proto_tree *tree)
 	val = tvb_get_ntohl( tvb, offset+8 );
 	proto_tree_add_text( rip_authentication_tree, tvb, offset+8, 4,
 			"Seq num: %u" , val );
-	proto_tree_add_text( rip_authentication_tree, tvb, offset+12, 8,
-			"Zero Padding" );
+	proto_tree_add_item( rip_authentication_tree, &hfi_rip_zero_padding, tvb, offset+12, 8, ENC_NA);
 	rip_authentication_tree = proto_tree_add_subtree( rip_authentication_tree, tvb, offset-4+digest_off,
 			MD5_AUTH_DATA_LEN+4, ett_auth_vec, NULL, "Authentication Data Trailer" );
 	proto_tree_add_text( rip_authentication_tree, tvb, offset-4+digest_off+4,

@@ -248,6 +248,7 @@ static int hf_sna_control_05_type = -1;
 static int hf_sna_control_05_ptp = -1;
 static int hf_sna_control_0e_type = -1;
 static int hf_sna_control_0e_value = -1;
+static int hf_sna_padding = -1;
 
 static gint ett_sna = -1;
 static gint ett_sna_th = -1;
@@ -995,8 +996,7 @@ dissect_optional_14(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	pad = (len+3) & 0xfffc;
 	if (pad > len)
-		proto_tree_add_text(sub_tree, tvb, offset+len, pad-len,
-		    "Padding");
+		proto_tree_add_item(sub_tree, hf_sna_padding, tvb, offset+len, pad-len, ENC_NA);
 	offset += pad;
 
 	len = tvb_get_guint8(tvb, offset);
@@ -2353,10 +2353,7 @@ dissect_control_05hpr(tvbuff_t *tvb, proto_tree *tree, int hpr,
 			dissect_control(tvb, offset, len, tree, hpr, parse);
 			pad = (len+3) & 0xfffc;
             if (pad > len) {
-                /* XXX - fix this, ensure tvb is large enough for pad */
-                tvb_ensure_bytes_exist(tvb, offset+len, pad-len);
-				proto_tree_add_text(tree, tvb, offset+len,
-				    pad-len, "Padding");
+				proto_tree_add_item(tree, hf_sna_padding, tvb, offset+len, pad-len, ENC_NA);
             }
 			offset += pad;
 		} else {
@@ -3469,6 +3466,10 @@ proto_register_sna(void)
                 { &hf_sna_control_0e_value,
                 { "Value", "sna.control.0e.value",
 		    FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+                { &hf_sna_padding,
+                { "Padding", "sna.padding",
+		    FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
         };
 	static gint *ett[] = {
 		&ett_sna,

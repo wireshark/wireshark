@@ -106,6 +106,7 @@ static int hf_param_desc = -1;
 static int hf_return_desc = -1;
 static int hf_aux_data_desc = -1;
 static int hf_detail_level = -1;
+static int hf_padding = -1;
 static int hf_recv_buf_len = -1;
 static int hf_send_buf_len = -1;
 /* static int hf_continuation_from = -1; */
@@ -1780,7 +1781,7 @@ dissect_request_parameters(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			 * One or more pad bytes.
 			 */
 			desc = get_count(desc, &count);
-			proto_tree_add_text(tree, tvb, offset, count, "Padding");
+			proto_tree_add_item(tree, hf_padding, tvb, offset, count, ENC_NA);
 			offset += count;
 			break;
 
@@ -2881,6 +2882,10 @@ proto_register_pipe_lanman(void)
 		{ &hf_detail_level,
 			{ "Detail Level", "lanman.level", FT_UINT16, BASE_DEC,
 			NULL, 0, "LANMAN Detail Level", HFILL }},
+
+		{ &hf_padding,
+			{ "Padding", "lanman.padding", FT_BYTES, BASE_NONE,
+			NULL, 0, NULL, HFILL }},
 
 		{ &hf_recv_buf_len,
 			{ "Receive Buffer Length", "lanman.recv_buf_len", FT_UINT16, BASE_DEC,

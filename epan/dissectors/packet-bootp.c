@@ -5373,7 +5373,7 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/*
 		 * Padding after the end option.
 		 */
-		proto_tree_add_text(bp_tree, tvb, voff, eoff - voff, "Padding");
+		proto_tree_add_item(bp_tree, hf_bootp_option_padding, tvb, voff, eoff - voff, ENC_NA);
 	}
 }
 

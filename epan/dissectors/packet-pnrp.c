@@ -208,6 +208,8 @@ static gint hf_pnrp_message_inquire_flags_Xbit = -1;
 static gint hf_pnrp_message_inquire_flags_Cbit = -1;
 static gint hf_pnrp_message_inquire_flags_reserved2 = -1;
 
+static gint hf_pnrp_padding = -1;
+
 static const int *inquire_flags[] = {
     &hf_pnrp_message_inquire_flags_reserved1,
     &hf_pnrp_message_inquire_flags_Abit,
@@ -503,7 +505,7 @@ static int dissect_pnrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
                         switch (message_type) {
                             case INQUIRE:
                                 proto_tree_add_bitmask(pnrp_message_tree, tvb, offset+4, hf_pnrp_message_inquire_flags, ett_pnrp_message_inquire_flags, inquire_flags, ENC_BIG_ENDIAN);
-                                proto_tree_add_text(pnrp_message_tree, tvb, offset + 6, 2, "Padding : %d - 2 Bytes",tvb_get_ntohs(tvb,offset+6));
+                                proto_tree_add_item(pnrp_message_tree, hf_pnrp_padding, tvb, offset + 6, 2, ENC_NA);
                                 offset += data_length+2;
 
                                 break;
@@ -524,7 +526,7 @@ static int dissect_pnrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
                                 }
                                 else {
                                     padding_bytes = 2;
-                                    proto_tree_add_text(pnrp_message_tree, tvb, offset + 6, padding_bytes, "Padding: %d bytes", padding_bytes);
+                                    proto_tree_add_item(pnrp_message_tree, hf_pnrp_padding, tvb, offset + 6, padding_bytes, ENC_NA);
                                     offset += data_length+2;
                                 }
                                 break;
@@ -554,7 +556,7 @@ static int dissect_pnrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
                         /* Reserved 2 */
                         proto_tree_add_text(pnrp_message_tree, tvb, offset + 6, 1, "Reserved 2: %d",tvb_get_guint8(tvb,offset+6));
                         /* Padding 1 */
-                        proto_tree_add_text(pnrp_message_tree, tvb, offset + 7, 1, "Padding: %d",tvb_get_guint8(tvb,offset+7));
+                        proto_tree_add_item(pnrp_message_tree, hf_pnrp_padding, tvb, offset + 7, 1, ENC_NA);
                     }
 
                     offset += data_length+1;
@@ -654,7 +656,7 @@ static int dissect_pnrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
                     }
                     /* Check if we actually had some padding bytes */
                     if (0<padding_bytes) {
-                        proto_tree_add_text(pnrp_message_tree, tvb, offset + data_length-padding_bytes, padding_bytes, "Padding: %d bytes", padding_bytes);
+                        proto_tree_add_item(pnrp_message_tree, hf_pnrp_padding, tvb, offset + data_length-padding_bytes, padding_bytes, ENC_NA);
                     }
                     offset += data_length;
                     break;
@@ -685,7 +687,7 @@ static int dissect_pnrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
                     }
                     /* Check if we actually had some padding bytes */
                     if (0<padding_bytes) {
-                        proto_tree_add_text(pnrp_message_tree, tvb, offset + data_length-padding_bytes, padding_bytes, "Padding: %d bytes", padding_bytes);
+                        proto_tree_add_item(pnrp_message_tree, hf_pnrp_padding, tvb, offset + data_length-padding_bytes, padding_bytes, ENC_NA);
                     }
                     offset += data_length;
                     break;
@@ -752,7 +754,7 @@ static int dissect_pnrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
                     }
                     /* Check if we actually had some padding bytes */
                     if (0<padding_bytes) {
-                        proto_tree_add_text(pnrp_message_tree, tvb, offset + data_length-padding_bytes, padding_bytes, "Padding: %d bytes", padding_bytes);
+                        proto_tree_add_item(pnrp_message_tree, hf_pnrp_padding, tvb, offset + data_length-padding_bytes, padding_bytes, ENC_NA);
                     }
                     offset += data_length;
                     break;
@@ -1121,6 +1123,9 @@ void proto_register_pnrp(void)
                 NULL, HFILL }},
         { &hf_pnrp_message_inquire_flags_reserved2,
             { "Reserved 2", "pnrp.segment.inquire.flags.reserved2", FT_UINT16, BASE_HEX, NULL, FLAGS_INQUIRE_RESERVED2,
+                NULL, HFILL }},
+        { &hf_pnrp_padding,
+            { "Padding", "pnrp.padding", FT_BYTES, BASE_NONE, NULL, 0x0,
                 NULL, HFILL }},
         /* Classifier */
         { &hf_pnrp_message_classifier_unicodeCount,
