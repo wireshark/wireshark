@@ -805,13 +805,7 @@ check_for_storm_count(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (report_storm)
   {
     /* Report storm and reset counter */
-    proto_item *ti = proto_tree_add_text(tree, tvb, 0, 0,
-                                                "Packet storm detected (%u packets in < %u ms)",
-                                                global_arp_detect_request_storm_packets,
-                                                global_arp_detect_request_storm_period);
-    PROTO_ITEM_SET_GENERATED(ti);
-    expert_add_info_format(pinfo, ti,
-                           &ei_seq_arp_storm,
+    proto_tree_add_expert_format(tree, pinfo, &ei_seq_arp_storm, tvb, 0, 0,
                            "ARP packet storm detected (%u packets in < %u ms)",
                            global_arp_detect_request_storm_packets,
                            global_arp_detect_request_storm_period);

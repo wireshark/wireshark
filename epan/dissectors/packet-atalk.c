@@ -150,8 +150,7 @@ static int hf_zip_network = -1;
 static int hf_zip_network_start = -1;
 static int hf_zip_network_end = -1;
 
-/* static int hf_zip_flags = -1; */
-
+static int hf_zip_flags = -1;
 static int hf_zip_flags_zone_invalid  = -1;
 static int hf_zip_flags_use_broadcast = -1;
 static int hf_zip_flags_only_one_zone = -1;
@@ -510,40 +509,18 @@ static const value_string asp_error_vals[] = {
 value_string_ext asp_error_vals_ext = VALUE_STRING_EXT_INIT(asp_error_vals);
 
 /*
- * XXX - do this with an FT_UINT_STRING?
- * Unfortunately, you can't extract from an FT_UINT_STRING the string,
- * which we'd want to do in order to put it into the "Data:" portion.
- *
+ * hf_index must be a FT_UINT_STRING type
  * Are these always in the Mac extended character set?
  */
 static int dissect_pascal_string(tvbuff_t *tvb, int offset, proto_tree *tree,
                                  int hf_index)
 {
   int   len;
-  char *tmp;
 
   len = tvb_get_guint8(tvb, offset);
-  offset++;
+  proto_tree_add_item(tree, hf_index, tvb, offset, 1, ENC_ASCII|ENC_NA);
 
-  if ( tree )
-  {
-    proto_tree *item;
-    proto_tree *subtree;
-
-    /*
-     * XXX - if we could do this inside the protocol tree
-     * code, we could perhaps avoid allocating and freeing
-     * this string buffer.
-     */
-    tmp  = (gchar*)tvb_get_string_enc(wmem_packet_scope(), tvb, offset, len, ENC_ASCII);
-    item = proto_tree_add_string(tree, hf_index, tvb, offset-1, len+1, tmp);
-
-    subtree = proto_item_add_subtree(item, ett_pstring);
-    proto_tree_add_text(subtree, tvb, offset-1, 1, "Length: %d", len);
-    proto_tree_add_text(subtree, tvb, offset, len, "Data: %s", tmp);
-
-  }
-  offset += len;
+  offset += (len+1);
 
   return offset;
 }
@@ -828,8 +805,8 @@ dissect_atp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
       proto_tree_add_item(atp_info_tree, hf_atp_treltimer, tvb, offset, 1, ENC_BIG_ENDIAN);
     }
     if (query) {
-      proto_tree_add_text(atp_tree, tvb, offset +1, 1,
-                          "Bitmap: 0x%02x  %u packet(s) max", bitmap, nbe);
+      proto_tree_add_uint_format_value(atp_tree, hf_atp_bitmap, tvb, offset +1, 1,
+                          bitmap, "0x%02x  %u packet(s) max", bitmap, nbe);
     }
     else {
       proto_tree_add_item(atp_tree, hf_atp_bitmap, tvb, offset +1, 1, ENC_BIG_ENDIAN);
@@ -1279,13 +1256,19 @@ dissect_ddp_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint8      fn;
   guint8      len;
   gint        offset   = 0;
-  proto_tree *flag_tree;
   proto_tree *sub_tree;
   proto_tree *net_tree;
   guint8      flag;
   guint16     net;
   guint       i;
   guint       count;
+
+  static const int * zip_flags[] = {
+    &hf_zip_flags_zone_invalid,
+    &hf_zip_flags_use_broadcast,
+    &hf_zip_flags_only_one_zone,
+    NULL
+  };
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "ZIP");
   col_clear(pinfo->cinfo, COL_INFO);
@@ -1315,12 +1298,7 @@ dissect_ddp_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
     break;
   case 7: /* Notify */
-    flag = tvb_get_guint8(tvb, offset);
-    ti = proto_tree_add_text(zip_tree, tvb, offset , 1,"Flags : 0x%02x", flag);
-    flag_tree = proto_item_add_subtree(ti, ett_zip_flags);
-    proto_tree_add_item(flag_tree, hf_zip_flags_zone_invalid, tvb, offset, 1,ENC_BIG_ENDIAN);
-    proto_tree_add_item(flag_tree, hf_zip_flags_use_broadcast,tvb, offset, 1,ENC_BIG_ENDIAN);
-    proto_tree_add_item(flag_tree, hf_zip_flags_only_one_zone,tvb, offset, 1,ENC_BIG_ENDIAN);
+    proto_tree_add_bitmask(zip_tree, tvb, offset, hf_zip_flags, ett_zip_flags, zip_flags, ENC_NA);
     offset++;
 
     proto_tree_add_item(zip_tree, hf_zip_zero_value, tvb, offset, 4, ENC_NA);
@@ -1347,13 +1325,13 @@ dissect_ddp_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     sub_tree = proto_item_add_subtree(ti, ett_zip_network_list);
     for (i = 0; i < count; i++) {
       net = tvb_get_ntohs(tvb, offset);
-      ti = proto_tree_add_text(sub_tree, tvb, offset , 2, "Zone for network : %u", net);
-      net_tree = proto_item_add_subtree(ti, ett_zip_network_list);
+      net_tree = proto_tree_add_subtree_format(sub_tree, tvb, offset, 2, ett_zip_network_list, &ti, "Zone for network: %u", net);
       proto_tree_add_item(net_tree, hf_zip_network, tvb, offset, 2, ENC_BIG_ENDIAN);
       offset += 2;
       len = tvb_get_guint8(tvb, offset);
       proto_tree_add_item(net_tree, hf_zip_zone_name, tvb, offset, 1,ENC_ASCII|ENC_NA);
       offset += len +1;
+      proto_item_set_len(ti, len+3);
     }
     break;
 
@@ -1367,11 +1345,7 @@ dissect_ddp_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   case 6 :  /* GetNetInfo reply */
     flag = tvb_get_guint8(tvb, offset);
-    ti = proto_tree_add_text(zip_tree, tvb, offset , 1,"Flags : 0x%02x", flag);
-    flag_tree = proto_item_add_subtree(ti, ett_zip_flags);
-    proto_tree_add_item(flag_tree, hf_zip_flags_zone_invalid, tvb, offset, 1,ENC_BIG_ENDIAN);
-    proto_tree_add_item(flag_tree, hf_zip_flags_use_broadcast,tvb, offset, 1,ENC_BIG_ENDIAN);
-    proto_tree_add_item(flag_tree, hf_zip_flags_only_one_zone,tvb, offset, 1,ENC_BIG_ENDIAN);
+    proto_tree_add_bitmask(zip_tree, tvb, offset, hf_zip_flags, ett_zip_flags, zip_flags, ENC_NA);
     offset++;
 
     proto_tree_add_item(zip_tree, hf_zip_network_start, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -1714,13 +1688,13 @@ proto_register_atalk(void)
       { "Enumerator",           "nbp.enum",     FT_UINT8,  BASE_DEC,
                 NULL, 0x0, NULL, HFILL }},
     { &hf_nbp_node_object,
-      { "Object",               "nbp.object",   FT_STRING,  BASE_NONE,
+      { "Object",               "nbp.object",   FT_UINT_STRING,  BASE_NONE,
                 NULL, 0x0, NULL, HFILL }},
     { &hf_nbp_node_type,
-      { "Type",         "nbp.type",     FT_STRING,  BASE_NONE,
+      { "Type",         "nbp.type",     FT_UINT_STRING,  BASE_NONE,
                 NULL, 0x0, NULL, HFILL }},
     { &hf_nbp_node_zone,
-      { "Zone",         "nbp.zone",     FT_STRING,  BASE_NONE,
+      { "Zone",         "nbp.zone",     FT_UINT_STRING,  BASE_NONE,
                 NULL, 0x0, NULL, HFILL }},
     { &hf_nbp_tid,
       { "Transaction ID",               "nbp.tid",      FT_UINT8,  BASE_DEC,
@@ -1911,12 +1885,9 @@ proto_register_atalk(void)
       { "Network end",  "zip.network_end", FT_UINT16, BASE_DEC, NULL, 0x0,
         NULL, HFILL }},
 
-#if 0
     { &hf_zip_flags,
-      { "Flags",        "zip.flags", FT_BOOLEAN, 8, NULL, 0xC0,
+      { "Flags",        "zip.flags", FT_UINT8, BASE_HEX, NULL, 0xC0,
         NULL, HFILL }},
-#endif
-
     { &hf_zip_last_flag,
       { "Last Flag",    "zip.last_flag", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
         "Non zero if contains last zone name in the zone list", HFILL }},
@@ -1981,7 +1952,7 @@ proto_register_atalk(void)
         "Sequence number", HFILL }},
 
     { &hf_pap_status,
-      { "Status",       "prap.status",   FT_STRING,  BASE_NONE, NULL, 0x0,
+      { "Status",       "prap.status",   FT_UINT_STRING,  BASE_NONE, NULL, 0x0,
                 "Printer status", HFILL }},
 
     { &hf_pap_eof,
@@ -2073,6 +2044,7 @@ proto_reg_handoff_atalk(void)
 
   nbp_handle = create_dissector_handle(dissect_nbp, proto_nbp);
   dissector_add_uint("ddp.type", DDP_NBP, nbp_handle);
+  dissector_add_for_decode_as("udp.port", nbp_handle);
 
   atp_handle = create_dissector_handle(dissect_atp, proto_atp);
   dissector_add_uint("ddp.type", DDP_ATP, atp_handle);

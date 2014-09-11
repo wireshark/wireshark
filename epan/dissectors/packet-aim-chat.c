@@ -67,6 +67,8 @@ static const aim_tlv aim_chat_tlvs[] _U_ = {
 /* Initialize the protocol and registered fields */
 static int proto_aim_chat = -1;
 
+static int hf_aim_chat_screen_name = -1;
+
 /* Initialize the subtree pointers */
 static gint ett_aim_chat          = -1;
 
@@ -114,11 +116,8 @@ static int dissect_aim_chat_incoming_msg(tvbuff_t *tvb, packet_info *pinfo, prot
 	col_append_fstr(pinfo->cinfo, COL_INFO, "from: %s", buddyname);
 	col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", msg);
 
-	if(chat_tree) {
-		proto_tree_add_text(chat_tree, tvb, 31, buddyname_length,
-							"Screen Name: %s",
-							format_text(buddyname, buddyname_length));
-	}
+	proto_tree_add_string(chat_tree, hf_aim_chat_screen_name, tvb, 31, buddyname_length, buddyname);
+
 	return tvb_length(tvb);
 }
 
@@ -140,10 +139,11 @@ proto_register_aim_chat(void)
 {
 
 /* Setup list of header fields */
-#if 0 /* FIXME */
 	static hf_register_info hf[] = {
+		{ &hf_aim_chat_screen_name,
+		  { "Screen Name", "aim_chat.screen_name", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL },
+		},
 	};
-#endif
 
 /* Setup protocol subtree array */
 	static gint *ett[] = {
@@ -154,8 +154,7 @@ proto_register_aim_chat(void)
 	proto_aim_chat = proto_register_protocol("AIM Chat Service", "AIM Chat", "aim_chat");
 
 /* Required function calls to register the header fields and subtrees used */
-/*FIXME
-  proto_register_field_array(proto_aim_chat, hf, array_length(hf));*/
+	proto_register_field_array(proto_aim_chat, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 }
 

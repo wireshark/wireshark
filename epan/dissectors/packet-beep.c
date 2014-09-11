@@ -69,6 +69,7 @@ static int hf_beep_ackno = -1;
 static int hf_beep_window = -1;
 static int hf_beep_payload = -1;
 static int hf_beep_payload_undissected = -1;
+static int hf_beep_crlf_terminator = -1;
 
 #if 0
 static const value_string beep_status_vals[] = {
@@ -282,7 +283,7 @@ check_term(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree)
   if ((tvb_get_guint8(tvb, offset) == 0x0d &&
        tvb_get_guint8(tvb, offset + 1) == 0x0a)){ /* Correct terminator */
 
-    proto_tree_add_text(tree, tvb, offset, 2, "Terminator: CRLF");
+    proto_tree_add_item(tree, hf_beep_crlf_terminator, tvb, offset, 2, ENC_NA);
     return 2;
 
   }
@@ -351,7 +352,7 @@ dissect_beep_mime_header(tvbuff_t *tvb, packet_info *pinfo, int offset,
   if (mime_length == 0) { /* Default header */
 
     if (tree) {
-      proto_tree_add_text(mime_tree, tvb, offset, 0, "Default values");
+      proto_tree_add_string_format(mime_tree, hf_beep_header, tvb, offset, 0, "", "Default values");
     }
 
     if ((cc = check_term(tvb, pinfo, offset, mime_tree)) <= 0) {
@@ -964,6 +965,9 @@ proto_register_beep(void)
 
     { &hf_beep_payload_undissected,
       { "Undissected Payload", "beep.payload_undissected", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+    { &hf_beep_crlf_terminator,
+      { "Terminator: CRLF", "beep.crlf_terminator", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
   };
   static gint *ett[] = {
     &ett_beep,

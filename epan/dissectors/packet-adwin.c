@@ -454,6 +454,7 @@ static int hf_adwin_binfilesize       = -1;
 static int hf_adwin_blocksize         = -1;
 static int hf_adwin_count             = -1;
 static int hf_adwin_complete_packets  = -1;
+static int hf_adwin_data              = -1;
 static int hf_adwin_data_int          = -1;
 static int hf_adwin_data_float        = -1;
 static int hf_adwin_data_hex          = -1;
@@ -475,6 +476,7 @@ static int hf_adwin_packet_index      = -1;
 static int hf_adwin_packet_no         = -1;
 static int hf_adwin_packet_start      = -1;
 static int hf_adwin_packet_end        = -1;
+static int hf_adwin_gdsh_status       = -1;
 static int hf_adwin_packet_type       = -1;
 static int hf_adwin_parameter         = -1;
 static int hf_adwin_password          = -1;
@@ -498,6 +500,8 @@ static int hf_adwin_val4              = -1;
 /* Initialize the subtree pointers */
 static gint ett_adwin                 = -1;
 static gint ett_adwin_debug           = -1;
+
+static dissector_handle_t data_handle;
 
 /* response/request tracking */
 typedef struct _adwin_transaction_t {
@@ -852,7 +856,7 @@ dissect_UDPR2(tvbuff_t *tvb, packet_info *pinfo,
 	proto_tree_add_item(adwin_tree, hf_adwin_packet_index,   tvb, 4,  4, ENC_LITTLE_ENDIAN);
 
 	if (! global_adwin_dissect_data) {
-		proto_tree_add_text(adwin_debug_tree, tvb, 8, 250 * 4, "Data");
+		call_dissector(data_handle, tvb_new_subset_length(tvb, 8, 250*4), pinfo, adwin_debug_tree);
 		return;
 	}
 
@@ -861,7 +865,7 @@ dissect_UDPR2(tvbuff_t *tvb, packet_info *pinfo,
 		guint32 offset = 8 + i * (int)sizeof(guint32);
 		gint32 value = tvb_get_letohl(tvb, offset);
 		void * fvalue = &value;
-		proto_tree_add_text(adwin_debug_tree, tvb, offset, 4,
+		proto_tree_add_none_format(adwin_debug_tree, hf_adwin_data, tvb, offset, 4,
 				    "Data[%3d]: %10d - %10f - 0x%08x",
 				    i, value, *(float*)fvalue, value);
 		item = proto_tree_add_item(adwin_debug_tree, hf_adwin_data_int,   tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -891,7 +895,7 @@ dissect_UDPR3(tvbuff_t *tvb, packet_info *pinfo,
 	proto_tree_add_item(adwin_tree, hf_adwin_packet_no,      tvb, 4,  4, ENC_LITTLE_ENDIAN);
 
 	if (! global_adwin_dissect_data) {
-		proto_tree_add_text(adwin_debug_tree, tvb, 8, 350 * 4, "Data");
+		call_dissector(data_handle, tvb_new_subset_length(tvb, 8, 350*4), pinfo, adwin_debug_tree);
 		return;
 	}
 
@@ -900,7 +904,7 @@ dissect_UDPR3(tvbuff_t *tvb, packet_info *pinfo,
 		guint32 offset = 8 + i * (int)sizeof(guint32);
 		gint32 value = tvb_get_letohl(tvb, offset);
 		void * fvalue = &value;
-		proto_tree_add_text(adwin_debug_tree, tvb, offset, 4,
+		proto_tree_add_none_format(adwin_debug_tree, hf_adwin_data, tvb, offset, 4,
 				    "Data[%3d]: %10d - %10f - 0x%08x",
 				    i, value, *(float*)fvalue, value);
 		item = proto_tree_add_item(adwin_debug_tree, hf_adwin_data_int,   tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -943,7 +947,7 @@ dissect_UDPR4(tvbuff_t *tvb, packet_info *pinfo,
 	data_type = tvb_get_letohl(tvb, 1412);
 
 	if (! global_adwin_dissect_data) {
-		proto_tree_add_text(adwin_debug_tree, tvb, 8, 350 * 4, "Data");
+		call_dissector(data_handle, tvb_new_subset_length(tvb, 8, 350*4), pinfo, adwin_debug_tree);
 		return;
 	}
 
@@ -956,7 +960,7 @@ dissect_UDPR4(tvbuff_t *tvb, packet_info *pinfo,
 		case 2:
 		case 3:
 		case 4:  /* some kind of int, usually int/long */
-			proto_tree_add_text(adwin_debug_tree, tvb, offset, 4,
+			proto_tree_add_none_format(adwin_debug_tree, hf_adwin_data, tvb, offset, 4,
 					    "Data[%3d]: %10d - 0x%08x",
 					    i, value, value);
 			item = proto_tree_add_item(adwin_debug_tree, hf_adwin_data_int,   tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -965,7 +969,7 @@ dissect_UDPR4(tvbuff_t *tvb, packet_info *pinfo,
 			PROTO_ITEM_SET_HIDDEN(item);
 			break;
 		case 5: /* float */
-			proto_tree_add_text(adwin_debug_tree, tvb, offset, 4,
+			proto_tree_add_none_format(adwin_debug_tree, hf_adwin_data, tvb, offset, 4,
 					    "Data[%3d]: %10f - 0x%08x",
 					    i, *(float*)fvalue, value);
 			item = proto_tree_add_item(adwin_debug_tree, hf_adwin_data_float, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -974,7 +978,7 @@ dissect_UDPR4(tvbuff_t *tvb, packet_info *pinfo,
 			PROTO_ITEM_SET_HIDDEN(item);
 			break;
 		default: /* string, double, variant, something funny... */
-			proto_tree_add_text(adwin_debug_tree, tvb, offset, 4,
+			proto_tree_add_none_format(adwin_debug_tree, hf_adwin_data, tvb, offset, 4,
 					    "Data[%3d]: 0x%08x",
 					    i, value);
 			item = proto_tree_add_item(adwin_debug_tree, hf_adwin_data_hex,   tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -1002,7 +1006,7 @@ dissect_GDSHP(tvbuff_t *tvb, packet_info *pinfo,
 	proto_tree_add_item(adwin_tree, hf_adwin_unused,         tvb, 8,  4, ENC_NA);
 
 	if (! global_adwin_dissect_data) {
-		proto_tree_add_text(adwin_debug_tree, tvb, 12, 336 * 4, "Data");
+		call_dissector(data_handle, tvb_new_subset_length(tvb, 12, 336*4), pinfo, adwin_debug_tree);
 		return;
 	}
 
@@ -1011,7 +1015,7 @@ dissect_GDSHP(tvbuff_t *tvb, packet_info *pinfo,
 		guint32 offset = 12 + i * (int)sizeof(guint32);
 		gint32 value = tvb_get_letohl(tvb, offset);
 		void * fvalue = &value;
-		proto_tree_add_text(adwin_debug_tree, tvb, offset, 4,
+		proto_tree_add_none_format(adwin_debug_tree, hf_adwin_data, tvb, offset, 4,
 				    "Data[%3d]: %10d - %10f - 0x%08x",
 				    i, value, *(float*)fvalue, value);
 		item = proto_tree_add_item(adwin_debug_tree, hf_adwin_data_int,   tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -1028,6 +1032,7 @@ dissect_GDSHR(tvbuff_t *tvb, packet_info *pinfo,
 	      proto_tree *adwin_tree, proto_tree *adwin_debug_tree)
 {
 	guint32 is_range, packet_start, packet_end, seq_num;
+	proto_item *ti;
 
 	/* Get the transaction identifier */
 	seq_num = tvb_get_ntohl(tvb, 0);
@@ -1048,23 +1053,26 @@ dissect_GDSHR(tvbuff_t *tvb, packet_info *pinfo,
 	packet_start = tvb_get_ntohl(tvb, 16);
 
 	switch(is_range) {
-	case 0: proto_tree_add_text(adwin_tree, tvb, 12, 12,
-				    "GDSH status: get single packet no %d",
-				    packet_start);
+	case 0:
+		ti = proto_tree_add_uint_format_value(adwin_tree, hf_adwin_gdsh_status, tvb, 12, 4,
+						is_range, "get single packet no %d", packet_start);
 		break;
-	case 1:	packet_end = tvb_get_ntohl(tvb, 20);
-		proto_tree_add_text(adwin_tree, tvb, 12, 12,
-				    "GDSH status: get packets %d - %d",
+	case 1:
+		packet_end = tvb_get_ntohl(tvb, 20);
+		ti = proto_tree_add_uint_format_value(adwin_tree, hf_adwin_gdsh_status, tvb, 12, 4,
+				    is_range, "get packets %d - %d",
 				    packet_start, packet_end);
 		break;
-	case 2:	proto_tree_add_text(adwin_tree, tvb, 12, 12,
-				    "GDSH status: finished");
+	case 2:
+		ti = proto_tree_add_uint_format_value(adwin_tree, hf_adwin_gdsh_status, tvb, 12, 4,
+				    is_range, "finished");
 		break;
 	default: /* should not happen */
-		proto_tree_add_text(adwin_tree, tvb, 12, 12,
-				    "GDSH status: unknown code %d", is_range);
+		ti = proto_tree_add_uint_format_value(adwin_tree, hf_adwin_gdsh_status, tvb, 12, 4,
+				    is_range, "unknown code %d", is_range);
 	}
-	proto_tree_add_item(adwin_debug_tree, hf_adwin_unused,       tvb, 24, 40, ENC_NA);
+	proto_item_set_len(ti, 12);
+    proto_tree_add_item(adwin_debug_tree, hf_adwin_unused,       tvb, 24, 40, ENC_NA);
 }
 
 /* here we determine which type of packet is sent by looking at its
@@ -1164,6 +1172,7 @@ proto_reg_handoff_adwin(void)
 
 	if (! adwin_prefs_initialized) {
 		adwin_handle = new_create_dissector_handle(dissect_adwin, proto_adwin);
+		data_handle = find_dissector("data");
 		adwin_prefs_initialized = TRUE;
 	} else {
 		dissector_delete_uint("udp.port", udp_port, adwin_handle);
@@ -1206,6 +1215,11 @@ proto_register_adwin(void)
 		  { "Count", "adwin.count",
 		    FT_UINT32, BASE_DEC, NULL, 0x0,
 		    "Number of longs", HFILL }
+		},
+		{ &hf_adwin_data,
+		  { "Data", "adwin.data",
+		    FT_NONE, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }
 		},
 		{ &hf_adwin_data_int,
 		  { "Data element int", "adwin.data_int",
@@ -1296,6 +1310,11 @@ proto_register_adwin(void)
 		  { "End packet", "adwin.packet_end",
 		    FT_UINT32, BASE_DEC, NULL, 0x0,
 		    "GDSH: End Packet", HFILL }
+		},
+		{ &hf_adwin_gdsh_status,
+		  { "GDSH status", "adwin.gdsh_status",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
 		},
 		{ &hf_adwin_packet_index,
 		  { "Packet index", "adwin.packet_index",

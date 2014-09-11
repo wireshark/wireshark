@@ -98,6 +98,7 @@ static int hf_a11_vse_panid = -1;
 static int hf_a11_vse_srvopt = -1;
 static int hf_a11_vse_qosmode = -1;
 static int hf_a11_vse_pdit = -1;
+static int hf_a11_vse_session_parameter = -1;
 static int hf_a11_vse_code = -1;
 static int hf_a11_vse_dormant = -1;
 static int hf_a11_vse_ehrpd_mode = -1;
@@ -220,6 +221,10 @@ static gint ett_a11_aut_flow_profile_ids = -1;
 static gint ett_a11_bcmcs_entry = -1;
 
 static expert_field ei_a11_sub_type_length_not2 = EI_INIT;
+static expert_field ei_a11_sse_too_short = EI_INIT;
+static expert_field ei_a11_bcmcs_too_short = EI_INIT;
+static expert_field ei_a11_entry_data_not_dissected = EI_INIT;
+static expert_field ei_a11_session_data_not_dissected = EI_INIT;
 
 /* Port used for Mobile IP based Tunneling Protocol (A11) */
 #define UDP_PORT_3GA11    699
@@ -545,7 +550,7 @@ static const value_string a11_ses_msid_type_vals[] =
 };
 
 static void
-decode_sse(proto_tree *ext_tree, tvbuff_t *tvb, int offset, guint ext_len)
+decode_sse(proto_tree *ext_tree, packet_info *pinfo, tvbuff_t *tvb, int offset, guint ext_len, proto_item *ext_len_item)
 {
     guint8      msid_len;
     guint8      msid_start_offset;
@@ -557,7 +562,7 @@ decode_sse(proto_tree *ext_tree, tvbuff_t *tvb, int offset, guint ext_len)
 
     /* Decode Protocol Type */
     if (ext_len < 2) {
-        proto_tree_add_text(ext_tree, tvb, offset, 0,
+        expert_add_info_format(pinfo, ext_len_item, &ei_a11_sse_too_short,
                     "Cannot decode Protocol Type - SSE too short");
         return;
     }
@@ -567,7 +572,7 @@ decode_sse(proto_tree *ext_tree, tvbuff_t *tvb, int offset, guint ext_len)
 
     /* Decode Session Key */
     if (ext_len < 4) {
-        proto_tree_add_text(ext_tree, tvb, offset, 0,
+        expert_add_info_format(pinfo, ext_len_item, &ei_a11_sse_too_short,
                     "Cannot decode Session Key - SSE too short");
         return;
     }
@@ -578,7 +583,7 @@ decode_sse(proto_tree *ext_tree, tvbuff_t *tvb, int offset, guint ext_len)
 
     /* Decode Session Id Version */
     if (ext_len < 2) {
-        proto_tree_add_text(ext_tree, tvb, offset, 0,
+        expert_add_info_format(pinfo, ext_len_item, &ei_a11_sse_too_short,
                     "Cannot decode Session Id Version - SSE too short");
         return;
     }
@@ -589,7 +594,7 @@ decode_sse(proto_tree *ext_tree, tvbuff_t *tvb, int offset, guint ext_len)
 
     /* Decode SRID */
     if (ext_len < 2) {
-        proto_tree_add_text(ext_tree, tvb, offset, 0,
+        expert_add_info_format(pinfo, ext_len_item, &ei_a11_sse_too_short,
                     "Cannot decode SRID - SSE too short");
         return;
     }
@@ -599,7 +604,7 @@ decode_sse(proto_tree *ext_tree, tvbuff_t *tvb, int offset, guint ext_len)
 
     /* MSID Type */
     if (ext_len < 2) {
-        proto_tree_add_text(ext_tree, tvb, offset, 0,
+        expert_add_info_format(pinfo, ext_len_item, &ei_a11_sse_too_short,
                     "Cannot decode MSID Type - SSE too short");
         return;
     }
@@ -610,7 +615,7 @@ decode_sse(proto_tree *ext_tree, tvbuff_t *tvb, int offset, guint ext_len)
 
     /* MSID Len */
     if (ext_len < 1) {
-        proto_tree_add_text(ext_tree, tvb, offset, 0,
+        expert_add_info_format(pinfo, ext_len_item, &ei_a11_sse_too_short,
                     "Cannot decode MSID Length - SSE too short");
         return;
     }
@@ -621,7 +626,7 @@ decode_sse(proto_tree *ext_tree, tvbuff_t *tvb, int offset, guint ext_len)
 
     /* Decode MSID */
     if (ext_len < msid_len) {
-        proto_tree_add_text(ext_tree, tvb, offset, 0,
+        expert_add_info_format(pinfo, ext_len_item, &ei_a11_sse_too_short,
                     "Cannot decode MSID - SSE too short");
         return;
     }
@@ -656,22 +661,18 @@ decode_sse(proto_tree *ext_tree, tvbuff_t *tvb, int offset, guint ext_len)
         p_msid = msid_digits + 1;
     }
 
-
-    proto_tree_add_string
-        (ext_tree, hf_a11_ses_msid, tvb, msid_start_offset, msid_len, p_msid);
-
-    return;
+    proto_tree_add_string(ext_tree, hf_a11_ses_msid, tvb, msid_start_offset, msid_len, p_msid);
 }
 
 static void
-decode_bcmcs(proto_tree* ext_tree, tvbuff_t* tvb, int offset, guint ext_len)
+decode_bcmcs(proto_tree* ext_tree, packet_info *pinfo, tvbuff_t* tvb, int offset, guint ext_len, proto_item *ext_len_item)
 {
 
     guint8 bc_stype, entry_len;
 
     /* Decode Protocol Type */
     if (ext_len < 2) {
-        proto_tree_add_text(ext_tree, tvb, offset, 0,
+        expert_add_info_format(pinfo, ext_len_item, &ei_a11_bcmcs_too_short,
                             "Cannot decode Protocol Type - BCMCS too short");
         return;
     }
@@ -699,13 +700,13 @@ decode_bcmcs(proto_tree* ext_tree, tvbuff_t* tvb, int offset, guint ext_len)
                 ett_a11_bcmcs_entry, NULL, "BCMCS Information Entry %u", i);
             proto_tree_add_item(entry_tree, hf_a11_bcmcs_entry_len, tvb, offset, 1, ENC_BIG_ENDIAN);
 
-            proto_tree_add_text(ext_tree, tvb, offset, entry_len -1, "Entry Data, Not dissected yet");
+            proto_tree_add_expert(ext_tree, pinfo, &ei_a11_entry_data_not_dissected, tvb, offset, entry_len -1);
             offset = offset+entry_len;
         }
     }
     break;
     default:
-        proto_tree_add_text(ext_tree, tvb, offset, -1, "Session Data Type %u Not dissected yet",bc_stype);
+        proto_tree_add_expert_format(ext_tree, pinfo, &ei_a11_session_data_not_dissected, tvb, offset, -1, "Session Data Type %u Not dissected yet", bc_stype);
         return;
         break;
     }
@@ -1038,8 +1039,6 @@ dissect_fwd_qosinfo(tvbuff_t *tvb, int offset, proto_tree *ext_tree)
             proto_tree *exts_tree1 = proto_tree_add_subtree(flow_tree, tvb, offset+clen,requested_qos_len,
                                 ett_a11_fqi_requestedqos, NULL, "Forward Requested QoS ");
 
-            proto_tree_add_text(exts_tree1, tvb, offset+clen, requested_qos_len, "Forward Requested QoS Sub Blob");
-
             /* Flow Priority */
             proto_tree_add_item(exts_tree1, hf_a11_fqi_flow_priority, tvb,offset+clen , 1, ENC_BIG_ENDIAN);
 
@@ -1078,8 +1077,6 @@ dissect_fwd_qosinfo(tvbuff_t *tvb, int offset, proto_tree *ext_tree)
 
             exts_tree3 = proto_tree_add_subtree(flow_tree, tvb, offset+clen, granted_qos_len,
                         ett_a11_fqi_grantedqos, NULL, "Forward Granted QoS ");
-
-            proto_tree_add_text(exts_tree3, tvb, offset+clen, granted_qos_len, "Forward Granted QoS Sub Blob");
 
             /* QoS attribute setid */
             proto_tree_add_item(exts_tree3, hf_a11_fqi_qos_granted_attribute_setid, tvb, offset+clen, 1, ENC_BIG_ENDIAN);
@@ -1141,8 +1138,6 @@ dissect_rev_qosinfo(tvbuff_t *tvb, int offset, proto_tree *ext_tree)
             exts_tree1 = proto_tree_add_subtree(flow_tree, tvb, offset+clen,requested_qos_len,
                         ett_a11_rqi_requestedqos, NULL, "Reverse Requested QoS ");
 
-            proto_tree_add_text(exts_tree1, tvb, offset+clen, requested_qos_len, "Reverse Requested QoS Sub Blob");
-
             /* Flow Priority */
             proto_tree_add_item(exts_tree1, hf_a11_rqi_flow_priority, tvb,offset+clen , 1, ENC_BIG_ENDIAN);
 
@@ -1180,8 +1175,6 @@ dissect_rev_qosinfo(tvbuff_t *tvb, int offset, proto_tree *ext_tree)
 
             exts_tree3 = proto_tree_add_subtree(flow_tree, tvb, offset+clen,granted_qos_len,
                                         ett_a11_rqi_grantedqos, NULL, "Reverse Granted QoS ");
-
-            proto_tree_add_text(exts_tree3, tvb, offset+clen, granted_qos_len, "Reverse Granted QoS Sub Blob");
 
             /* QoS attribute setid */
             proto_tree_add_item(exts_tree3, hf_a11_rqi_qos_granted_attribute_setid, tvb, offset+clen, 1, ENC_BIG_ENDIAN);
@@ -1302,6 +1295,7 @@ dissect_a11_extensions( tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tre
 {
     proto_tree *exts_tree;
     proto_tree *ext_tree;
+    proto_item *ext_len_item = NULL;
     guint       ext_len;
     guint8      ext_type;
     guint8      ext_subtype = 0;
@@ -1343,23 +1337,23 @@ dissect_a11_extensions( tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tre
         offset += 1;
 
         if (ext_type == SS_EXT) {
-            proto_tree_add_uint(ext_tree, hf_a11_ext_len, tvb, offset, 1, ext_len);
+            ext_len_item = proto_tree_add_uint(ext_tree, hf_a11_ext_len, tvb, offset, 1, ext_len);
             offset += 1;
         }
         else if ((ext_type == CVSE_EXT) || (ext_type == OLD_CVSE_EXT)) {
             offset += 1;
-            proto_tree_add_uint(ext_tree, hf_a11_ext_len, tvb, offset, 2, ext_len);
+            ext_len_item = proto_tree_add_uint(ext_tree, hf_a11_ext_len, tvb, offset, 2, ext_len);
             offset += 2;
         }
         else if (ext_type != GEN_AUTH_EXT) {
             /* Another nasty hack since GEN_AUTH_EXT broke everything */
-            proto_tree_add_uint(ext_tree, hf_a11_ext_len, tvb, offset, 1, ext_len);
+            ext_len_item = proto_tree_add_uint(ext_tree, hf_a11_ext_len, tvb, offset, 1, ext_len);
             offset += 1;
         }
 
         switch (ext_type) {
         case SS_EXT:
-            decode_sse(ext_tree, tvb, offset, ext_len);
+            decode_sse(ext_tree, pinfo, tvb, offset, ext_len, ext_len_item);
             offset += ext_len;
             ext_len = 0;
             break;
@@ -1491,7 +1485,7 @@ dissect_a11_extensions( tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tre
                 proto_tree_add_item(ext_tree, hf_a11_vse_pdit, tvb, offset, 1, ENC_BIG_ENDIAN);
                 break;
             case 0x0802:
-                proto_tree_add_text(ext_tree, tvb, offset, -1, "Session Parameter - Always On");
+                proto_tree_add_item(ext_tree, hf_a11_vse_session_parameter, tvb, offset, -1, ENC_NA);
                 break;
             case 0x0803:
                 proto_tree_add_item(ext_tree, hf_a11_vse_qosmode, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1523,7 +1517,7 @@ dissect_a11_extensions( tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tre
 
             break;
         case BCMCS_EXT:
-            decode_bcmcs(ext_tree, tvb, offset, ext_len);
+            decode_bcmcs(ext_tree, pinfo, tvb, offset, ext_len, ext_len_item);
             offset += ext_len;
             ext_len = 0;
             break;
@@ -2277,6 +2271,11 @@ proto_register_a11(void)
             FT_UINT8, BASE_HEX, VALS(a11_ext_nvose_pdsn_code), 0,
             NULL, HFILL }
         },
+        { &hf_a11_vse_session_parameter,
+          { "Session Parameter - Always On",                      "a11.ext.session_parameter",
+            FT_NONE, BASE_NONE, NULL, 0,
+            NULL, HFILL }
+        },
         { &hf_a11_vse_srvopt,
           { "Service Option",                      "a11.ext.srvopt",
             FT_UINT16, BASE_HEX, VALS(a11_ext_nvose_srvopt), 0,
@@ -2727,6 +2726,10 @@ proto_register_a11(void)
 
     static ei_register_info ei[] = {
         { &ei_a11_sub_type_length_not2, { "a11.sub_type_length.bad", PI_PROTOCOL, PI_WARN, "Sub-Type Length should be at least 2", EXPFILL }},
+        { &ei_a11_sse_too_short, { "a11.sse_too_short", PI_MALFORMED, PI_ERROR, "SSE too short", EXPFILL }},
+        { &ei_a11_bcmcs_too_short, { "a11.bcmcs_too_short", PI_MALFORMED, PI_ERROR, "BCMCS too short", EXPFILL }},
+        { &ei_a11_entry_data_not_dissected, { "a11.entry_data_not_dissected", PI_UNDECODED, PI_WARN, "Entry Data, Not dissected yet", EXPFILL }},
+        { &ei_a11_session_data_not_dissected, { "a11.session_data_not_dissected", PI_UNDECODED, PI_WARN, "Session Data Type Not dissected yet", EXPFILL }},
     };
 
     expert_module_t* expert_a11;

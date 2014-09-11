@@ -101,6 +101,9 @@ static const value_string ext_status_flags[] = {
 /* Initialize the protocol and registered fields */
 static int proto_aim_generic = -1;
 static int hf_generic_motd_motdtype = -1;
+static int hf_generic_family = -1;
+static int hf_generic_version = -1;
+static int hf_generic_dll_version = -1;
 static int hf_generic_servicereq_service = -1;
 static int hf_generic_rateinfo_numclasses = -1;
 static int hf_generic_rateinfo_windowsize = -1;
@@ -145,16 +148,16 @@ static gint ett_generic_rateinfo_group = -1;
 
 static int dissect_rate_class(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, proto_tree *class_tree)
 {
-	proto_tree_add_uint(class_tree, hf_generic_rateinfo_classid, tvb, offset, 2, tvb_get_ntohs(tvb, offset));offset+=2;
-	proto_tree_add_uint(class_tree, hf_generic_rateinfo_windowsize, tvb, offset, 4, tvb_get_ntohl(tvb, offset));offset+=4;
-	proto_tree_add_uint(class_tree, hf_generic_rateinfo_clearlevel, tvb, offset, 4, tvb_get_ntohl(tvb, offset));offset+=4;
-	proto_tree_add_uint(class_tree, hf_generic_rateinfo_alertlevel, tvb, offset, 4, tvb_get_ntohl(tvb, offset));offset+=4;
-	proto_tree_add_uint(class_tree, hf_generic_rateinfo_limitlevel, tvb, offset, 4, tvb_get_ntohl(tvb, offset));offset+=4;
-	proto_tree_add_uint(class_tree, hf_generic_rateinfo_disconnectlevel, tvb, offset, 4, tvb_get_ntohl(tvb, offset));offset+=4;
-	proto_tree_add_uint(class_tree, hf_generic_rateinfo_currentlevel, tvb, offset, 4, tvb_get_ntohl(tvb, offset));offset+=4;
-	proto_tree_add_uint(class_tree, hf_generic_rateinfo_maxlevel, tvb, offset, 4, tvb_get_ntohl(tvb, offset));offset+=4;
-	proto_tree_add_uint(class_tree, hf_generic_rateinfo_lasttime, tvb, offset, 4, tvb_get_ntohl(tvb, offset));offset+=4;
-	proto_tree_add_uint(class_tree, hf_generic_rateinfo_curstate, tvb, offset, 1, tvb_get_guint8(tvb, offset));offset+=1;
+	proto_tree_add_item(class_tree, hf_generic_rateinfo_classid, tvb, offset, 2, ENC_BIG_ENDIAN);offset+=2;
+	proto_tree_add_item(class_tree, hf_generic_rateinfo_windowsize, tvb, offset, 4, ENC_BIG_ENDIAN);offset+=4;
+	proto_tree_add_item(class_tree, hf_generic_rateinfo_clearlevel, tvb, offset, 4, ENC_BIG_ENDIAN);offset+=4;
+	proto_tree_add_item(class_tree, hf_generic_rateinfo_alertlevel, tvb, offset, 4, ENC_BIG_ENDIAN);offset+=4;
+	proto_tree_add_item(class_tree, hf_generic_rateinfo_limitlevel, tvb, offset, 4, ENC_BIG_ENDIAN);offset+=4;
+	proto_tree_add_item(class_tree, hf_generic_rateinfo_disconnectlevel, tvb, offset, 4, ENC_BIG_ENDIAN);offset+=4;
+	proto_tree_add_item(class_tree, hf_generic_rateinfo_currentlevel, tvb, offset, 4, ENC_BIG_ENDIAN);offset+=4;
+	proto_tree_add_item(class_tree, hf_generic_rateinfo_maxlevel, tvb, offset, 4, ENC_BIG_ENDIAN);offset+=4;
+	proto_tree_add_item(class_tree, hf_generic_rateinfo_lasttime, tvb, offset, 4, ENC_BIG_ENDIAN);offset+=4;
+	proto_tree_add_item(class_tree, hf_generic_rateinfo_curstate, tvb, offset, 1, ENC_NA);offset+=1;
 	return offset;
 }
 
@@ -199,13 +202,15 @@ static int dissect_generic_rateinfo(tvbuff_t *tvb, packet_info *pinfo _U_, proto
 			guint16 subtype_id;
 			const aim_family *family;
 			const aim_subtype *subtype;
-			family_id = tvb_get_ntohs(tvb, offset); offset+=2;
-			subtype_id = tvb_get_ntohs(tvb, offset); offset+=2;
+			family_id = tvb_get_ntohs(tvb, offset);
+			subtype_id = tvb_get_ntohs(tvb, offset+2);
 
 			family = aim_get_family(family_id);
 			subtype = aim_get_subtype(family_id, subtype_id);
 
-			proto_tree_add_text(group_tree, tvb, offset-4, 4, "Family: %s (0x%04x), Subtype: %s (0x%04x)", family?family->name:"Unknown", family_id, subtype?subtype->name:"Unknown", subtype_id);
+			proto_tree_add_uint_format_value(group_tree, hf_generic_family, tvb, offset, 4, family_id,
+						"%s (0x%04x), Subtype: %s (0x%04x)", family?family->name:"Unknown", family_id, subtype?subtype->name:"Unknown", subtype_id);
+			offset+=4;
 		}
 	}
 
@@ -218,16 +223,19 @@ static int dissect_aim_generic_clientready(tvbuff_t *tvb, packet_info *pinfo _U_
 	proto_tree *entry = proto_tree_add_subtree(gen_tree, tvb, 0, -1, ett_generic_clientready, NULL, "Supported services");
 
 	while(tvb_length_remaining(tvb, offset) > 0) {
-		guint16 famnum = tvb_get_ntohs(tvb, offset);
-		const aim_family *family = aim_get_family(famnum);
+		proto_item *ti;
+		proto_tree *subtree;
 
-		proto_tree *subentry;
-		subentry = proto_tree_add_subtree_format(entry, tvb, offset, 2, ett_generic_clientready_item, NULL,
-						"%s (0x%x)", family?family->name:"Unknown Family", famnum);
+		ti = proto_tree_add_item(entry, hf_generic_family, tvb, offset, 2, ENC_BIG_ENDIAN);
+		subtree = proto_item_add_subtree(ti, ett_generic_clientready_item);
 		offset+=2;
 
-		proto_tree_add_text(subentry, tvb, offset, 2, "Version: %d", tvb_get_ntohs(tvb, offset) ); offset += 2;
-		proto_tree_add_text(subentry, tvb, offset, 4, "DLL Version: %u", tvb_get_ntoh24(tvb, offset) ); offset += 4;
+		proto_tree_add_item(subtree, hf_generic_version, tvb, offset, 2, ENC_BIG_ENDIAN);
+		offset += 2;
+		proto_tree_add_item(subtree, hf_generic_dll_version, tvb, offset, 3, ENC_BIG_ENDIAN);
+		/* Padding byte? */
+		offset += 4;
+		proto_item_set_len(ti, 8);
 	}
 	return offset;
 }
@@ -239,9 +247,7 @@ static int dissect_aim_generic_serverready(tvbuff_t *tvb, packet_info *pinfo _U_
 	proto_tree *entry = proto_tree_add_subtree(gen_tree, tvb, offset, -1, ett_generic_clientready, NULL, "Supported services");
 
 	while(tvb_length_remaining(tvb, offset) > 0) {
-		guint16 famnum = tvb_get_ntohs(tvb, offset);
-		const aim_family *family = aim_get_family(famnum);
-		proto_tree_add_text(entry, tvb, offset, 2, "%s (0x%x)", family?family->name:"Unknown Family", famnum);
+		proto_tree_add_item(entry, hf_generic_family, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset+=2;
 	}
 	return offset;
@@ -269,10 +275,10 @@ static int dissect_aim_generic_capabilities(tvbuff_t *tvb, packet_info *pinfo _U
 	proto_tree *entry = proto_tree_add_subtree(gen_tree, tvb, offset, -1, ett_generic_clientready, NULL, "Requested services");
 
 	while(tvb_length_remaining(tvb, offset) > 0) {
-		guint16 famnum = tvb_get_ntohs(tvb, offset);
-		const aim_family *family = aim_get_family(famnum);
-		proto_tree_add_text(entry, tvb, offset, 4, "%s (0x%x), Version: %d", family?family->name:"Unknown Family", famnum, tvb_get_ntohs(tvb, offset+2));
-		offset += 4;
+		proto_tree_add_item(entry, hf_generic_family, tvb, offset, 2, ENC_BIG_ENDIAN);
+		offset+=2;
+		proto_tree_add_item(entry, hf_generic_version, tvb, offset, 2, ENC_BIG_ENDIAN);
+		offset+=2;
 	}
 	return offset;
 }
@@ -283,10 +289,10 @@ static int dissect_aim_generic_capack(tvbuff_t *tvb, packet_info *pinfo _U_, pro
 	proto_tree *entry = proto_tree_add_subtree(gen_tree, tvb, offset, -1, ett_generic_clientready, NULL, "Accepted requested services");
 
 	while(tvb_length_remaining(tvb, offset) > 0) {
-		guint16 famnum = tvb_get_ntohs(tvb, offset);
-		const aim_family *family = aim_get_family(famnum);
-		proto_tree_add_text(entry, tvb, offset, 4, "%s (0x%x), Version: %d", family?family->name:"Unknown Family", famnum, tvb_get_ntohs(tvb, offset+2));
-		offset += 4;
+		proto_tree_add_item(entry, hf_generic_family, tvb, offset, 2, ENC_BIG_ENDIAN);
+		offset+=2;
+		proto_tree_add_item(entry, hf_generic_version, tvb, offset, 2, ENC_BIG_ENDIAN);
+		offset+=2;
 	}
 	return offset;
 }
@@ -324,9 +330,7 @@ static int dissect_aim_generic_clientpauseack(tvbuff_t *tvb, packet_info *pinfo 
 {
 	int offset = 0;
 	while(tvb_length_remaining(tvb, offset) > 0) {
-		guint16 famnum = tvb_get_ntohs(tvb, offset);
-		const aim_family *family = aim_get_family(famnum);
-		proto_tree_add_text(gen_tree, tvb, offset, 4, "Family: %s (0x%x)", family?family->name:"Unknown Family", famnum);
+		proto_tree_add_item(gen_tree, hf_generic_family, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 	}
 	return offset;
@@ -343,9 +347,7 @@ static int dissect_aim_generic_migration_req(tvbuff_t *tvb, packet_info *pinfo, 
 	entry = proto_tree_add_subtree(gen_tree, tvb, offset, 2 * n,
 			ett_generic_migratefamilies, NULL, "Families to migrate");
 	for(i = 0; i < n; i++) {
-		guint16 famnum = tvb_get_ntohs(tvb, offset);
-		const aim_family *family = aim_get_family(famnum);
-		proto_tree_add_text(entry, tvb, offset, 4, "Family: %s (0x%x)", family?family->name:"Unknown Family", famnum);
+		proto_tree_add_item(entry, hf_generic_family, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 	}
 
@@ -419,6 +421,14 @@ static int dissect_aim_generic_ext_status_repl(tvbuff_t *tvb, packet_info *pinfo
 	return offset;
 }
 
+static void
+aim_generic_family( gchar *result, guint32 famnum )
+{
+	const aim_family *family = aim_get_family(famnum);
+
+	g_snprintf( result, ITEM_LABEL_LENGTH, "%s (0x%x)", family?family->name:"Unknown", famnum);
+}
+
 static const aim_subtype aim_fnac_family_generic[] = {
 	{ 0x0001, "Error", dissect_aim_snac_error },
 	{ 0x0002, "Client Ready", dissect_aim_generic_clientready },
@@ -465,6 +475,15 @@ proto_register_aim_generic(void)
 	{ &hf_generic_motd_motdtype,
 	  { "MOTD Type", "aim_generic.motd.motdtype", FT_UINT16,
 		  BASE_HEX, VALS(aim_snac_generic_motd_motdtypes), 0x0, NULL, HFILL },
+	},
+	{ &hf_generic_family,
+	  { "Family", "aim_generic.family", FT_UINT16, BASE_CUSTOM, aim_generic_family, 0x0, NULL, HFILL },
+	},
+	{ &hf_generic_version,
+	  { "Version", "aim_generic.version", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL },
+	},
+	{ &hf_generic_dll_version,
+	  { "DLL Version", "aim_generic.dll_version", FT_UINT24, BASE_DEC, NULL, 0x0, NULL, HFILL },
 	},
 	{ &hf_generic_rateinfo_numclasses,
 	  { "Number of Rateinfo Classes", "aim_generic.rateinfo.numclasses", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL },
