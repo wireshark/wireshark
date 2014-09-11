@@ -246,6 +246,10 @@ static void
 proto_tree_set_uint64(field_info *fi, guint64 value);
 static void
 proto_tree_set_uint64_tvb(field_info *fi, tvbuff_t *tvb, gint start, guint length, const guint encoding);
+static guint64
+proto_tvb_get_uint64_value(tvbuff_t *tvb, gint start, guint length, const guint encoding);
+static guint64
+proto_tvb_get_int64_value(tvbuff_t *tvb, gint start, guint length, const guint encoding);
 static void
 proto_tree_set_eui64(field_info *fi, const guint64 value);
 static void
@@ -2874,81 +2878,63 @@ proto_tree_set_uint64(field_info *fi, guint64 value)
  * gboolean as its last argument, with FALSE meaning "big-endian"
  * and TRUE meaning "little-endian", we treat any non-zero value of
  * "encoding" as meaning "little-endian".
+ *
+ * XXX: I don't know why this has to copy the tvb with tvb_memdup(),
+ * when the similar tvb_get_ntoh64() and such functions don't do that but
+ * instead just call fast_ensure_contiguous(). Is this just old code?
  */
+static inline guint64
+proto_tvb_get_uint64_value(tvbuff_t *tvb, gint start, guint length, const guint encoding)
+{
+	guint64 value = 0;
+	guint8* b = (guint8 *)tvb_memdup(wmem_packet_scope(), tvb, start, length);
+
+	if (encoding) {
+		b += length;
+		switch (length) {
+			default: DISSECTOR_ASSERT_NOT_REACHED();
+			case 8: value <<= 8; value += *--b;
+			case 7: value <<= 8; value += *--b;
+			case 6: value <<= 8; value += *--b;
+			case 5: value <<= 8; value += *--b;
+			case 4: value <<= 8; value += *--b;
+			case 3: value <<= 8; value += *--b;
+			case 2: value <<= 8; value += *--b;
+			case 1: value <<= 8; value += *--b;
+				break;
+		}
+	} else {
+		switch (length) {
+			default: DISSECTOR_ASSERT_NOT_REACHED();
+			case 8: value <<= 8; value += *b++;
+			case 7: value <<= 8; value += *b++;
+			case 6: value <<= 8; value += *b++;
+			case 5: value <<= 8; value += *b++;
+			case 4: value <<= 8; value += *b++;
+			case 3: value <<= 8; value += *b++;
+			case 2: value <<= 8; value += *b++;
+			case 1: value <<= 8; value += *b++;
+				break;
+		}
+	}
+
+    return value;
+}
+
 static void
 proto_tree_set_uint64_tvb(field_info *fi, tvbuff_t *tvb, gint start,
 			  guint length, const guint encoding)
 {
-	guint64 value = 0;
-	guint8* b = (guint8 *)tvb_memdup(wmem_packet_scope(), tvb, start, length);
-
-	if (encoding) {
-		b += length;
-		switch (length) {
-			default: DISSECTOR_ASSERT_NOT_REACHED();
-			case 8: value <<= 8; value += *--b;
-			case 7: value <<= 8; value += *--b;
-			case 6: value <<= 8; value += *--b;
-			case 5: value <<= 8; value += *--b;
-			case 4: value <<= 8; value += *--b;
-			case 3: value <<= 8; value += *--b;
-			case 2: value <<= 8; value += *--b;
-			case 1: value <<= 8; value += *--b;
-				break;
-		}
-	} else {
-		switch (length) {
-			default: DISSECTOR_ASSERT_NOT_REACHED();
-			case 8: value <<= 8; value += *b++;
-			case 7: value <<= 8; value += *b++;
-			case 6: value <<= 8; value += *b++;
-			case 5: value <<= 8; value += *b++;
-			case 4: value <<= 8; value += *b++;
-			case 3: value <<= 8; value += *b++;
-			case 2: value <<= 8; value += *b++;
-			case 1: value <<= 8; value += *b++;
-				break;
-		}
-	}
-
-	proto_tree_set_uint64(fi, value);
+	proto_tree_set_uint64(fi, proto_tvb_get_uint64_value(tvb, start, length, encoding));
 }
 
-static void
-proto_tree_set_int64_tvb(field_info *fi, tvbuff_t *tvb, gint start,
-			  guint length, const guint encoding)
+/* Note: this returns an unsigned int64, but with the appropriate bit(s) set to
+ * be cast-able as a gint64. This is weird, but what the code has always done.
+ */
+static inline guint64
+proto_tvb_get_int64_value(tvbuff_t *tvb, gint start, guint length, const guint encoding)
 {
-	guint64 value = 0;
-	guint8* b = (guint8 *)tvb_memdup(wmem_packet_scope(), tvb, start, length);
-
-	if (encoding) {
-		b += length;
-		switch (length) {
-			default: DISSECTOR_ASSERT_NOT_REACHED();
-			case 8: value <<= 8; value += *--b;
-			case 7: value <<= 8; value += *--b;
-			case 6: value <<= 8; value += *--b;
-			case 5: value <<= 8; value += *--b;
-			case 4: value <<= 8; value += *--b;
-			case 3: value <<= 8; value += *--b;
-			case 2: value <<= 8; value += *--b;
-			case 1: value <<= 8; value += *--b;
-				break;
-		}
-	} else {
-		switch (length) {
-			default: DISSECTOR_ASSERT_NOT_REACHED();
-			case 8: value <<= 8; value += *b++;
-			case 7: value <<= 8; value += *b++;
-			case 6: value <<= 8; value += *b++;
-			case 5: value <<= 8; value += *b++;
-			case 4: value <<= 8; value += *b++;
-			case 3: value <<= 8; value += *b++;
-			case 2: value <<= 8; value += *b++;
-			case 1: value <<= 8; value += *b++;
-				break;
-		}
-	}
+    guint64 value = proto_tvb_get_uint64_value(tvb, start, length, encoding);
 
 	switch(length)
 	{
@@ -2975,7 +2961,14 @@ proto_tree_set_int64_tvb(field_info *fi, tvbuff_t *tvb, gint start,
 			break;
 	}
 
-	proto_tree_set_uint64(fi, value);
+    return value;
+}
+
+static void
+proto_tree_set_int64_tvb(field_info *fi, tvbuff_t *tvb, gint start,
+			  guint length, const guint encoding)
+{
+	proto_tree_set_uint64(fi, proto_tvb_get_int64_value(tvb, start, length, encoding));
 }
 
 /* Add a FT_STRING, FT_STRINGZ, or FT_STRINGZPAD to a proto_tree. Creates
