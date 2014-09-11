@@ -496,6 +496,8 @@ static guint word_hash_func(gconstpointer v)
 }
 
 /* Results are stored here: framenum -> spi_status */
+/* N.B. only store entries for out-of-order frames, if there is no entry for
+   a given frame, it was found to be in-order */
 static GHashTable *esp_sequence_analysis_report_hash = NULL;
 
 /* During the first pass, update the SPI state.  If the sequence numbers
@@ -596,7 +598,7 @@ static gboolean g_esp_enable_authentication_check = FALSE;
 */
 static gboolean g_esp_enable_null_encryption_decode_heuristic = FALSE;
 
-/* Default to not doing ESP sequence analysis */
+/* Default to doing ESP sequence analysis */
 static gboolean g_esp_do_sequence_analysis = TRUE;
 
 /* Place AH payload in sub tree */
