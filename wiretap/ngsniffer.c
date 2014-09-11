@@ -2225,7 +2225,8 @@ SnifferDecompress( unsigned char * inbuf, size_t inlen,
    }
 
    bit_mask  = 0;  /* don't have any bits yet */
-   while (1)
+   /* Process until we've consumed all the input */
+   while (pin < pin_end)
    {
       /* Shift down the bit mask we use to see whats encoded */
       bit_mask = bit_mask >> 1;
@@ -2233,20 +2234,30 @@ SnifferDecompress( unsigned char * inbuf, size_t inlen,
       /* If there are no bits left, time to get another 16 bits */
       if ( 0 == bit_mask )
       {
-         bit_mask  = 0x8000;  /* start with the high bit */
-         bit_value = pletohs(pin);   /* get the next 16 bits */
-         pin += 2;          /* skip over what we just grabbed */
-         if ( pin >= pin_end )
+         /* make sure there are at least *three* bytes
+            available - the two bytes of the bit value,
+            plus one byte after it */
+         if ( pin + 2 >= pin_end )
          {
-            *err = WTAP_ERR_UNC_TRUNCATED;	 /* data was oddly truncated */
+            *err = WTAP_ERR_UNC_TRUNCATED;
             return ( -1 );
          }
+            bit_mask  = 0x8000;  /* start with the high bit */
+            bit_value = pletohs(pin);   /* get the next 16 bits */
+            pin += 2;          /* skip over what we just grabbed */
       }
 
       /* Use the bits in bit_value to see what's encoded and what is raw data */
       if ( !(bit_mask & bit_value) )
       {
          /* bit not set - raw byte we just copy */
+
+            /* If length would put us past end of output, avoid overflow */
+            if ( pout + 1 > pout_end )
+            {
+                *err = WTAP_ERR_UNC_OVERFLOW;
+                return ( -1 );
+            }
          *(pout++) = *(pin++);
       }
       else
@@ -2341,6 +2352,12 @@ SnifferDecompress( unsigned char * inbuf, size_t inlen,
                     *err = WTAP_ERR_UNC_OVERFLOW;
                     return ( -1 );
                 }
+                /* Check if offset would cause us to copy on top of ourselves */
+                if ( pout - offset + length > pout )
+                {
+                    *err = WTAP_ERR_UNC_BAD_OFFSET;
+                    return ( -1 );
+                }
 
                 /* Copy the string from previous text to output position,
                    advance output pointer */
@@ -2370,6 +2387,12 @@ SnifferDecompress( unsigned char * inbuf, size_t inlen,
                     *err = WTAP_ERR_UNC_OVERFLOW;
                     return ( -1 );
                 }
+                /* Check if offset would cause us to copy on top of ourselves */
+                if ( pout - offset + length > pout )
+                {
+                    *err = WTAP_ERR_UNC_BAD_OFFSET;
+                    return ( -1 );
+                }
 
                 /* Copy the string from previous text to output position,
                    advance output pointer */
@@ -2378,10 +2401,6 @@ SnifferDecompress( unsigned char * inbuf, size_t inlen,
                 break;
          }
       }
-
-      /* If we've consumed all the input, we are done */
-      if ( pin >= pin_end )
-         break;
    }
 
    return (int) ( pout - outbuf );  /* return length of expanded text */
