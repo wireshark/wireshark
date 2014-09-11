@@ -89,6 +89,10 @@ static int hf_dlsw_target_link_sap = -1;
 static int hf_dlsw_dlc_header_da = -1;
 static int hf_dlsw_netbios_name = -1;
 static int hf_dlsw_dlc_header_dsap = -1;
+static int hf_dlsw_reserved = -1;
+static int hf_dlsw_data = -1;
+static int hf_dlsw_vector_data = -1;
+static int hf_dlsw_unknown_data = -1;
 
 static gint ett_dlsw = -1;
 static gint ett_dlsw_header = -1;
@@ -98,6 +102,7 @@ static gint ett_dlsw_data = -1;
 static gint ett_dlsw_vector = -1;
 
 static expert_field ei_dlsw_dlc_header_length = EI_INIT;
+static expert_field ei_dlsw_not_used_for_capex = EI_INIT;
 
 #define  CANUREACH               0x03
 #define  ICANREACH               0x04
@@ -302,7 +307,7 @@ dissect_dlsw_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     proto_tree_add_item(dlsw_header_tree, hf_dlsw_message_length, tvb, 2, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(dlsw_header_tree, hf_dlsw_remote_dlc, tvb, 4, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(dlsw_header_tree, hf_dlsw_remote_dlc_pid, tvb, 8, 4, ENC_BIG_ENDIAN);
-    proto_tree_add_text (dlsw_header_tree,tvb,12,2,"Reserved") ;
+    proto_tree_add_item(dlsw_header_tree, hf_dlsw_reserved, tvb, 12, 2, ENC_NA) ;
   } ;
 
   mtype=tvb_get_guint8(tvb,14);
@@ -312,7 +317,7 @@ dissect_dlsw_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     proto_tree_add_item(dlsw_header_tree, hf_dlsw_message_type, tvb, 14, 1, ENC_NA);
     if (mtype==CAP_EXCHANGE)
     {
-      proto_tree_add_text (dlsw_header_tree,tvb, 15,1,"Not used for CapEx") ;
+      proto_tree_add_expert(dlsw_header_tree, pinfo, &ei_dlsw_not_used_for_capex, tvb, 15, 1);
     }
     else
     {
@@ -332,17 +337,17 @@ dissect_dlsw_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
       {
         proto_tree_add_item(dlsw_header_tree, hf_dlsw_protocol_id, tvb, 16, 1, ENC_NA);
         proto_tree_add_item(dlsw_header_tree, hf_dlsw_header_number, tvb, 17, 1, ENC_NA);
-        proto_tree_add_text (dlsw_header_tree,tvb, 18,5,"Not used for CapEx") ;
+        proto_tree_add_expert(dlsw_header_tree, pinfo, &ei_dlsw_not_used_for_capex, tvb, 18, 5);
         proto_tree_add_item(dlsw_header_tree, hf_dlsw_old_message_type, tvb, 23, 1, ENC_NA);
-        proto_tree_add_text (dlsw_header_tree,tvb, 24,14,"Not used for CapEx") ;
+        proto_tree_add_expert(dlsw_header_tree, pinfo, &ei_dlsw_not_used_for_capex, tvb, 24, 14);
         proto_tree_add_item(dlsw_header_tree, hf_dlsw_capex_type, tvb, 38, 1, ENC_NA);
-        proto_tree_add_text (dlsw_header_tree,tvb, 39,33,"Not used for CapEx") ;
+        proto_tree_add_expert(dlsw_header_tree, pinfo, &ei_dlsw_not_used_for_capex, tvb, 39, 33);
       }
       else
       {
         proto_tree_add_item(dlsw_header_tree, hf_dlsw_protocol_id, tvb, 16, 1, ENC_NA);
         proto_tree_add_item(dlsw_header_tree, hf_dlsw_header_number, tvb, 17, 1, ENC_NA);
-        proto_tree_add_text (dlsw_header_tree,tvb, 18,2,"Reserved") ;
+        proto_tree_add_item(dlsw_header_tree, hf_dlsw_reserved, tvb, 18, 2, ENC_NA) ;
         proto_tree_add_item(dlsw_header_tree, hf_dlsw_largest_frame_size, tvb, 20, 1, ENC_NA);
         ti2 = proto_tree_add_item(dlsw_header_tree, hf_dlsw_ssp_flags, tvb, 21, 1, ENC_NA);
         dlsw_flags_tree = proto_item_add_subtree(ti2, ett_dlsw_sspflags);
@@ -354,7 +359,7 @@ dissect_dlsw_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
         proto_tree_add_item(dlsw_header_tree, hf_dlsw_origin_link_sap, tvb, 36, 1, ENC_NA);
         proto_tree_add_item(dlsw_header_tree, hf_dlsw_target_link_sap, tvb, 37, 1, ENC_NA);
         proto_tree_add_item(dlsw_header_tree, hf_dlsw_frame_direction, tvb, 38, 1, ENC_NA);
-        proto_tree_add_text (dlsw_header_tree,tvb, 39,3,"Reserved") ;
+        proto_tree_add_item(dlsw_header_tree, hf_dlsw_reserved, tvb, 39, 3, ENC_NA) ;
         dlchlen=tvb_get_ntohs(tvb,42);
         ti = proto_tree_add_item(dlsw_header_tree, hf_dlsw_dlc_header_length, tvb, 42, 2, ENC_BIG_ENDIAN);
         if ( dlchlen > mlen )
@@ -369,7 +374,7 @@ dissect_dlsw_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
         proto_tree_add_item(dlsw_header_tree, hf_dlsw_target_dlc_port_id, tvb, 56, 4, ENC_BIG_ENDIAN);
         proto_tree_add_item(dlsw_header_tree, hf_dlsw_target_dlc, tvb, 60, 4, ENC_BIG_ENDIAN);
         proto_tree_add_item(dlsw_header_tree, hf_dlsw_target_transport_id, tvb, 64, 4, ENC_BIG_ENDIAN);
-        proto_tree_add_text (dlsw_header_tree,tvb, 68,4,"Reserved") ;
+        proto_tree_add_item(dlsw_header_tree, hf_dlsw_reserved, tvb, 68, 4, ENC_NA) ;
       }
     }
 
@@ -385,7 +390,7 @@ dissect_dlsw_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
       case IFCM:
       case INFOFRAME:
       case KEEPALIVE:
-        proto_tree_add_text (dlsw_data_tree,tvb,hlen,mlen,"Data") ;
+        proto_tree_add_item(dlsw_data_tree, hf_dlsw_data, tvb, hlen, mlen, ENC_NA);
         break;
 
       default:
@@ -400,7 +405,7 @@ dissect_dlsw_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
           proto_tree_add_item(dlsw_data_tree, hf_dlsw_dlc_header_ssap, tvb, hlen+33, 1, ENC_NA);
           proto_tree_add_item(dlsw_data_tree, hf_dlsw_dlc_header_ctrl, tvb, hlen+34, 1, ENC_NA);
         }
-        proto_tree_add_text (dlsw_data_tree,tvb,hlen+dlchlen,mlen-dlchlen,"Data") ;
+        proto_tree_add_item(dlsw_data_tree, hf_dlsw_data, tvb, hlen+dlchlen, mlen-dlchlen, ENC_NA);
     }
 
   }
@@ -484,13 +489,13 @@ dissect_dlsw_capex(tvbuff_t *tvb, proto_tree *tree, proto_tree *ti2)
             proto_tree_add_item(dlsw_vector_tree, hf_dlsw_multicast_version_number, tvb, offset+2, vlen-2, ENC_NA);
             break;
           default:
-            proto_tree_add_text (dlsw_vector_tree,tvb,offset+2,vlen-2,"Vector Data = ???");
+            proto_tree_add_item(dlsw_vector_tree, hf_dlsw_vector_data, tvb, offset+2, vlen-2, ENC_NA);
         }
         offset+=vlen;
       };
       break;
     default:
-      proto_tree_add_text (tree,tvb,4,mlen - 4,"Unknown data");
+      proto_tree_add_item(tree, hf_dlsw_unknown_data, tvb, 4, mlen - 4, ENC_NA);
   }
 
 }
@@ -605,6 +610,10 @@ proto_register_dlsw(void)
       { &hf_dlsw_netbios_name, { "NetBIOS name", "dlsw.netbios_name", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_dlsw_vendor_oui, { "Vendor OUI", "dlsw.vendor_oui", FT_UINT24, BASE_HEX, NULL, 0x0, NULL, HFILL }},
       { &hf_dlsw_multicast_version_number, { "Multicast Version Number", "dlsw.multicast_version_number", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_dlsw_reserved, { "Reserved", "dlsw.reserved", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_dlsw_data, { "Data", "dlsw.data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_dlsw_vector_data, { "Data", "dlsw.vector_data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_dlsw_unknown_data, { "Data", "dlsw.unknown_data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
   };
 
   static gint *ett[] = {
@@ -618,6 +627,7 @@ proto_register_dlsw(void)
 
   static ei_register_info ei[] = {
     { &ei_dlsw_dlc_header_length, { "dlsw.dlc_header_length.bogus", PI_PROTOCOL, PI_WARN, "DLC Header Length bogus", EXPFILL }},
+    { &ei_dlsw_not_used_for_capex, { "dlsw.not_used_for_capex", PI_PROTOCOL, PI_NOTE, "Not used for CapEx", EXPFILL }},
   };
 
   expert_module_t* expert_dlsw;

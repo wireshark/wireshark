@@ -1,4 +1,4 @@
-/* packet-fcswils
+/* packet-fcswils.c
  * Routines for FC Inter-switch link services
  * Copyright 2001, Dinesh G Dutt <ddutt@cisco.com>
  *

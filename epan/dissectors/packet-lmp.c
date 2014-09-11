@@ -504,6 +504,7 @@ enum hf_lmp_filter_keys {
 };
 
 static int hf_lmp_filter[LMPF_MAX];
+static int hf_lmp_data;
 
 static expert_field ei_lmp_checksum_incorrect = EI_INIT;
 static expert_field ei_lmp_invalid_msg_type = EI_INIT;
@@ -824,8 +825,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 				      offset2, 4, tvb_get_ntohl(tvb, offset2));
 		  break;
 	      default:
-		  proto_tree_add_text(lmp_object_tree, tvb, offset2, mylen,
-				      "Data (%d bytes)", mylen);
+		  proto_tree_add_item(lmp_object_tree, hf_lmp_data, tvb, offset2, mylen, ENC_NA);
 		  break;
 	      }
 	      break;
@@ -848,8 +848,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 		  break;
 
 	      default:
-		  proto_tree_add_text(lmp_object_tree, tvb, offset2, mylen,
-				      "Data (%d bytes)", mylen);
+		  proto_tree_add_item(lmp_object_tree, hf_lmp_data, tvb, offset2, mylen, ENC_NA);
 		  break;
 	      }
 	      break;
@@ -886,8 +885,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 		  break;
 
 	      default:
-		  proto_tree_add_text(lmp_object_tree, tvb, offset2, mylen,
-				      "Data (%d bytes)", mylen);
+		  proto_tree_add_item(lmp_object_tree, hf_lmp_data, tvb, offset2, mylen, ENC_NA);
 		  break;
 	      }
 	      break;
@@ -925,8 +923,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 		  break;
 
 	      default:
-		  proto_tree_add_text(lmp_object_tree, tvb, offset2, mylen,
-				      "Data (%d bytes)", mylen);
+		  proto_tree_add_item(lmp_object_tree, hf_lmp_data, tvb, offset2, mylen, ENC_NA);
 		  break;
 	      }
 	      break;
@@ -951,8 +948,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 		  break;
 
 	      default:
-		  proto_tree_add_text(lmp_object_tree, tvb, offset2, mylen,
-					"Data (%d bytes)", mylen);
+		  proto_tree_add_item(lmp_object_tree, hf_lmp_data, tvb, offset2, mylen, ENC_NA);
 		  break;
 	      }
 	      break;
@@ -975,8 +971,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 		  break;
 
 	      default:
-		  proto_tree_add_text(lmp_object_tree, tvb, offset2, mylen,
-				      "Data (%d bytes)", mylen);
+		  proto_tree_add_item(lmp_object_tree, hf_lmp_data, tvb, offset2, mylen, ENC_NA);
 		  break;
 	      }
 	      break;
@@ -1000,8 +995,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 		  break;
 
 	      default:
-		  proto_tree_add_text(lmp_object_tree, tvb, offset2, mylen,
-				      "Data (%d bytes)", mylen);
+		  proto_tree_add_item(lmp_object_tree, hf_lmp_data, tvb, offset2, mylen, ENC_NA);
 		  break;
 	      }
 	      break;
@@ -1045,8 +1039,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 		  break;
 
 	      default:
-		  proto_tree_add_text(lmp_object_tree, tvb, offset2, mylen,
-				      "Data (%d bytes)", mylen);
+		  proto_tree_add_item(lmp_object_tree, hf_lmp_data, tvb, offset2, mylen, ENC_NA);
 		  break;
 	      }
 	      break;
@@ -1068,8 +1061,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 		  break;
 
 	      default:
-		  proto_tree_add_text(lmp_object_tree, tvb, offset2, mylen,
-				      "Data (%d bytes)", mylen);
+		  proto_tree_add_item(lmp_object_tree, hf_lmp_data, tvb, offset2, mylen, ENC_NA);
 		  break;
 	      }
 	      break;
@@ -1087,8 +1079,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 				      tvb_get_ntohl(tvb, offset2));
 		  break;
 	      default:
-		  proto_tree_add_text(lmp_object_tree, tvb, offset2, mylen,
-				      "Data (%d bytes)", mylen);
+		  proto_tree_add_item(lmp_object_tree, hf_lmp_data, tvb, offset2, mylen, ENC_NA);
 		  break;
 	      }
 	      break;
@@ -1151,8 +1142,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 				      tvb, offset2+8, 4, ENC_BIG_ENDIAN);
 		  break;
 	      default:
-		  proto_tree_add_text(lmp_object_tree, tvb, offset2, mylen,
-				      "Data (%d bytes)", mylen);
+		  proto_tree_add_item(lmp_object_tree, hf_lmp_data, tvb, offset2, mylen, ENC_NA);
 		  break;
 	      }
 	      break;
@@ -1218,8 +1208,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 		  break;
 
 	      default:
-		  proto_tree_add_text(lmp_object_tree, tvb, offset2, mylen,
-				      "Data (%d bytes)", mylen);
+		  proto_tree_add_item(lmp_object_tree, hf_lmp_data, tvb, offset2, mylen, ENC_NA);
 		  break;
 	      }
 
@@ -1272,9 +1261,8 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 		      break;
 
 		  default:
-		      proto_tree_add_text(lmp_subobj_tree, tvb, offset2+l,
-					  tvb_get_guint8(tvb, offset2+l+1),
-					  "Data (%d bytes)", tvb_get_guint8(tvb, offset2+l+1));
+		      proto_tree_add_item(lmp_subobj_tree, hf_lmp_data, tvb, offset2+l,
+					  tvb_get_guint8(tvb, offset2+l+1), ENC_NA);
 		      break;
 		  }
 		  if (tvb_get_guint8(tvb, offset2+l+1) < 1)
@@ -1341,9 +1329,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 		      break;
 
 		  default:
-		      proto_tree_add_text(lmp_object_tree, tvb, offset2+l, obj_length-4-l,
-					  "Data (%d bytes)", obj_length-4-l);
-		      l = obj_length - 4;
+		      proto_tree_add_item(lmp_object_tree, hf_lmp_data, tvb, offset2+l, obj_length-4-l, ENC_NA);
 		      break;
 		  }
 		  if (l == obj_length - 4) break;
@@ -1394,9 +1380,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 		      break;
 
 		  default:
-		      proto_tree_add_text(lmp_object_tree, tvb, offset2+l,
-					  obj_length-4-l,
-					  "Data (%d bytes)", obj_length-4-l);
+		      proto_tree_add_item(lmp_object_tree, hf_lmp_data, tvb, offset2+l, obj_length-4-l, ENC_NA);
 		      l = obj_length - 4;
 		      break;
 		  }
@@ -1508,8 +1492,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
 	      default:
 		  proto_item_append_text(ti, ": UNKNOWN_ERROR (%d): 0x%04x", type, l);
-		  proto_tree_add_text(lmp_object_tree, tvb, offset2, mylen,
-				      "Data (%d bytes)", mylen);
+		  proto_tree_add_item(lmp_object_tree, hf_lmp_data, tvb, offset2, mylen, ENC_NA);
 		  break;
 	      }
 	      break;
@@ -1561,8 +1544,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 		  break;
 
 	      default:
-		  proto_tree_add_text(lmp_object_tree, tvb, offset2, mylen,
-				      "Data (%d bytes)", mylen);
+		  proto_tree_add_item(lmp_object_tree, hf_lmp_data, tvb, offset2, mylen, ENC_NA);
 		  break;
 
 	      }
@@ -1580,8 +1562,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 		  break;
 
 	      default:
-		  proto_tree_add_text(lmp_object_tree, tvb, offset2, mylen,
-				      "Data (%d bytes)", mylen);
+		  proto_tree_add_item(lmp_object_tree, hf_lmp_data, tvb, offset2, mylen, ENC_NA);
 		  break;
 
 	      }
@@ -1818,8 +1799,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
 	      default:
 		  /* Unknown type in Service Config object */
-		  proto_tree_add_text(lmp_object_tree, tvb, offset2, mylen,
-				      "Data (%d bytes)", mylen);
+		  proto_tree_add_item(lmp_object_tree, hf_lmp_data, tvb, offset2, mylen, ENC_NA);
 		  break;
 	      }
 	      break;
@@ -1840,8 +1820,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 		  break;
 
 	      default:
-		  proto_tree_add_text(lmp_object_tree, tvb, offset2, mylen,
-				      "Data (%d bytes)", mylen);
+		  proto_tree_add_item(lmp_object_tree, hf_lmp_data, tvb, offset2, mylen, ENC_NA);
 		  break;
 	      }
 	      break;
@@ -1952,10 +1931,8 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 			break;
 
 		      default:
-		        proto_tree_add_text(lmp_subobj_tree, tvb, offset2+l,
-					    tvb_get_guint8(tvb, offset2+l+1),
-					    "Data (%d bytes)", tvb_get_guint8(tvb,
-									      offset2+l+1));
+		        proto_tree_add_item(lmp_subobj_tree, hf_lmp_data, tvb, offset2+l,
+					    tvb_get_guint8(tvb, offset2+l+1), ENC_NA);
 		        break;
 		  }
 		  if (tvb_get_guint8(tvb, offset2+l+1) < 1)
@@ -1966,8 +1943,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 		  break;
 
 	      default:
-		  proto_tree_add_text(lmp_object_tree, tvb, offset2, mylen,
-				      "Data (%d bytes)", mylen);
+		  proto_tree_add_item(lmp_object_tree, hf_lmp_data, tvb, offset2, mylen, ENC_NA);
 		  break;
 	      }
 	      break;
@@ -1975,8 +1951,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
 
 	  default:
-	      proto_tree_add_text(lmp_object_tree, tvb, offset2, mylen,
-				  "Data (%d bytes)", mylen);
+	      proto_tree_add_item(lmp_object_tree, hf_lmp_data, tvb, offset2, mylen, ENC_NA);
 	      break;
 	  }
 
@@ -2695,6 +2670,9 @@ proto_register_lmp(void)
 		  RVALS(gmpls_lsp_enc_rvals), 0x0, NULL, HFILL }},
 	   {&hf_lmp_filter[LMPF_CHECKSUM],
 		{ "Message Checksum", "lmp.checksum", FT_UINT16, BASE_HEX, NULL, 0x0,
+			NULL, HFILL }},
+	   {&hf_lmp_data,
+		{ "Data", "lmp.data", FT_BYTES, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 	};
 

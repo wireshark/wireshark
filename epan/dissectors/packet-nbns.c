@@ -28,6 +28,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include <epan/exceptions.h>
 #include <epan/wmem/wmem.h>
 #include <epan/prefs.h>
@@ -76,6 +77,8 @@ static gint ett_nbns_name_flags = -1;
 static gint ett_nbns_rr = -1;
 static gint ett_nbns_qry = -1;
 static gint ett_nbns_ans = -1;
+
+static expert_field ei_nbns_incomplete_entry = EI_INIT;
 
 static int proto_nbdgm = -1;
 static int hf_nbdgm_type = -1;
@@ -609,7 +612,7 @@ nbns_add_name_flags(proto_tree *rr_tree, tvbuff_t *tvb, int offset)
 }
 
 static int
-dissect_nbns_answer(tvbuff_t *tvb, int offset, int nbns_data_offset,
+dissect_nbns_answer(tvbuff_t *tvb, packet_info *pinfo, int offset, int nbns_data_offset,
 		    column_info *cinfo, proto_tree *nbns_tree, int opcode)
 {
     int         len;
@@ -678,8 +681,7 @@ dissect_nbns_answer(tvbuff_t *tvb, int offset, int nbns_data_offset,
                  * same type of RR data as other T_NB
                  * responses.  */
                 if (data_len < 2) {
-                    proto_tree_add_text(rr_tree, tvb, cur_offset,
-                                        data_len, "(incomplete entry)");
+                    proto_tree_add_expert(rr_tree, pinfo, &ei_nbns_incomplete_entry, tvb, cur_offset, data_len);
                     break;
                 }
                 flags = tvb_get_ntohs(tvb, cur_offset);
@@ -689,8 +691,7 @@ dissect_nbns_answer(tvbuff_t *tvb, int offset, int nbns_data_offset,
                 data_len   -= 2;
             } else {
                 if (data_len < 2) {
-                    proto_tree_add_text(rr_tree, tvb, cur_offset,
-                                        data_len, "(incomplete entry)");
+                    proto_tree_add_expert(rr_tree, pinfo, &ei_nbns_incomplete_entry, tvb, cur_offset, data_len);
                     break;
                 }
                 nbns_add_nb_flags(rr_tree, tvb, cur_offset);
@@ -698,8 +699,7 @@ dissect_nbns_answer(tvbuff_t *tvb, int offset, int nbns_data_offset,
                 data_len   -= 2;
 
                 if (data_len < 4) {
-                    proto_tree_add_text(rr_tree, tvb, cur_offset,
-                                        data_len, "(incomplete entry)");
+                    proto_tree_add_expert(rr_tree, pinfo, &ei_nbns_incomplete_entry, tvb, cur_offset, data_len);
                     break;
                 }
                 proto_tree_add_text(rr_tree, tvb, cur_offset, 4,
@@ -725,8 +725,7 @@ dissect_nbns_answer(tvbuff_t *tvb, int offset, int nbns_data_offset,
         }
 
         if (data_len < 1) {
-            proto_tree_add_text(rr_tree, tvb, cur_offset,
-                                data_len, "(incomplete entry)");
+            proto_tree_add_expert(rr_tree, pinfo, &ei_nbns_incomplete_entry, tvb, cur_offset, data_len);
             break;
         }
 
@@ -737,8 +736,7 @@ dissect_nbns_answer(tvbuff_t *tvb, int offset, int nbns_data_offset,
 
         while (num_names != 0) {
             if (data_len < NETBIOS_NAME_LEN) {
-                proto_tree_add_text(rr_tree, tvb, cur_offset,
-				    data_len, "(incomplete entry)");
+                proto_tree_add_expert(rr_tree, pinfo, &ei_nbns_incomplete_entry, tvb, cur_offset, data_len);
                 goto out;
             }
             if (rr_tree) {
@@ -755,8 +753,7 @@ dissect_nbns_answer(tvbuff_t *tvb, int offset, int nbns_data_offset,
             data_len   -= NETBIOS_NAME_LEN;
 
             if (data_len < 2) {
-                proto_tree_add_text(rr_tree, tvb, cur_offset,
-				    data_len, "(incomplete entry)");
+                proto_tree_add_expert(rr_tree, pinfo, &ei_nbns_incomplete_entry, tvb, cur_offset, data_len);
                 goto out;
             }
             if (rr_tree) {
@@ -769,8 +766,7 @@ dissect_nbns_answer(tvbuff_t *tvb, int offset, int nbns_data_offset,
         }
 
         if (data_len < 6) {
-            proto_tree_add_text(rr_tree, tvb, cur_offset,
-                                data_len, "(incomplete entry)");
+            proto_tree_add_expert(rr_tree, pinfo, &ei_nbns_incomplete_entry, tvb, cur_offset, data_len);
             break;
         }
 
@@ -783,8 +779,7 @@ dissect_nbns_answer(tvbuff_t *tvb, int offset, int nbns_data_offset,
         data_len   -= 6;
 
         if (data_len < 1) {
-            proto_tree_add_text(rr_tree, tvb, cur_offset,
-                                data_len, "(incomplete entry)");
+            proto_tree_add_expert(rr_tree, pinfo, &ei_nbns_incomplete_entry, tvb, cur_offset, data_len);
             break;
         }
 
@@ -796,8 +791,7 @@ dissect_nbns_answer(tvbuff_t *tvb, int offset, int nbns_data_offset,
         data_len   -= 1;
 
         if (data_len < 1) {
-            proto_tree_add_text(rr_tree, tvb, cur_offset,
-                                data_len, "(incomplete entry)");
+            proto_tree_add_expert(rr_tree, pinfo, &ei_nbns_incomplete_entry, tvb, cur_offset, data_len);
             break;
         }
         if (rr_tree) {
@@ -808,8 +802,7 @@ dissect_nbns_answer(tvbuff_t *tvb, int offset, int nbns_data_offset,
         data_len   -= 1;
 
         if (data_len < 2) {
-            proto_tree_add_text(rr_tree, tvb, cur_offset,
-                                data_len, "(incomplete entry)");
+            proto_tree_add_expert(rr_tree, pinfo, &ei_nbns_incomplete_entry, tvb, cur_offset, data_len);
             break;
         }
         if (rr_tree) {
@@ -820,8 +813,7 @@ dissect_nbns_answer(tvbuff_t *tvb, int offset, int nbns_data_offset,
         data_len   -= 2;
 
         if (data_len < 2) {
-            proto_tree_add_text(rr_tree, tvb, cur_offset,
-                                data_len, "(incomplete entry)");
+            proto_tree_add_expert(rr_tree, pinfo, &ei_nbns_incomplete_entry, tvb, cur_offset, data_len);
             break;
         }
         if (rr_tree) {
@@ -833,8 +825,7 @@ dissect_nbns_answer(tvbuff_t *tvb, int offset, int nbns_data_offset,
         data_len   -= 2;
 
         if (data_len < 2) {
-            proto_tree_add_text(rr_tree, tvb, cur_offset,
-                                data_len, "(incomplete entry)");
+           proto_tree_add_expert(rr_tree, pinfo, &ei_nbns_incomplete_entry, tvb, cur_offset, data_len);
             break;
         }
         if (rr_tree) {
@@ -845,8 +836,7 @@ dissect_nbns_answer(tvbuff_t *tvb, int offset, int nbns_data_offset,
         data_len   -= 2;
 
         if (data_len < 2) {
-            proto_tree_add_text(rr_tree, tvb, cur_offset,
-                                data_len, "(incomplete entry)");
+            proto_tree_add_expert(rr_tree, pinfo, &ei_nbns_incomplete_entry, tvb, cur_offset, data_len);
             break;
         }
         if (rr_tree) {
@@ -858,8 +848,7 @@ dissect_nbns_answer(tvbuff_t *tvb, int offset, int nbns_data_offset,
         data_len   -= 2;
 
         if (data_len < 2) {
-            proto_tree_add_text(rr_tree, tvb, cur_offset,
-                                data_len, "(incomplete entry)");
+            proto_tree_add_expert(rr_tree, pinfo, &ei_nbns_incomplete_entry, tvb, cur_offset, data_len);
             break;
         }
         if (rr_tree) {
@@ -870,8 +859,7 @@ dissect_nbns_answer(tvbuff_t *tvb, int offset, int nbns_data_offset,
         data_len   -= 2;
 
         if (data_len < 2) {
-            proto_tree_add_text(rr_tree, tvb, cur_offset,
-                                data_len, "(incomplete entry)");
+            proto_tree_add_expert(rr_tree, pinfo, &ei_nbns_incomplete_entry, tvb, cur_offset, data_len);
             break;
         }
         if (rr_tree) {
@@ -882,8 +870,7 @@ dissect_nbns_answer(tvbuff_t *tvb, int offset, int nbns_data_offset,
         data_len   -= 2;
 
         if (data_len < 4) {
-            proto_tree_add_text(rr_tree, tvb, cur_offset,
-                                data_len, "(incomplete entry)");
+            proto_tree_add_expert(rr_tree, pinfo, &ei_nbns_incomplete_entry, tvb, cur_offset, data_len);
             break;
         }
         if (rr_tree) {
@@ -894,8 +881,7 @@ dissect_nbns_answer(tvbuff_t *tvb, int offset, int nbns_data_offset,
         data_len   -= 4;
 
         if (data_len < 4) {
-            proto_tree_add_text(rr_tree, tvb, cur_offset,
-                                data_len, "(incomplete entry)");
+            proto_tree_add_expert(rr_tree, pinfo, &ei_nbns_incomplete_entry, tvb, cur_offset, data_len);
             break;
         }
         if (rr_tree) {
@@ -907,8 +893,7 @@ dissect_nbns_answer(tvbuff_t *tvb, int offset, int nbns_data_offset,
         data_len   -= 4;
 
         if (data_len < 2) {
-            proto_tree_add_text(rr_tree, tvb, cur_offset,
-                                data_len, "(incomplete entry)");
+            proto_tree_add_expert(rr_tree, pinfo, &ei_nbns_incomplete_entry, tvb, cur_offset, data_len);
             break;
         }
         if (rr_tree) {
@@ -919,8 +904,7 @@ dissect_nbns_answer(tvbuff_t *tvb, int offset, int nbns_data_offset,
         data_len   -= 2;
 
         if (data_len < 2) {
-            proto_tree_add_text(rr_tree, tvb, cur_offset,
-                                data_len, "(incomplete entry)");
+            proto_tree_add_expert(rr_tree, pinfo, &ei_nbns_incomplete_entry, tvb, cur_offset, data_len);
             break;
         }
         if (rr_tree) {
@@ -932,8 +916,7 @@ dissect_nbns_answer(tvbuff_t *tvb, int offset, int nbns_data_offset,
         data_len   -= 2;
 
         if (data_len < 2) {
-            proto_tree_add_text(rr_tree, tvb, cur_offset,
-                                data_len, "(incomplete entry)");
+            proto_tree_add_expert(rr_tree, pinfo, &ei_nbns_incomplete_entry, tvb, cur_offset, data_len);
             break;
         }
         if (rr_tree) {
@@ -945,8 +928,7 @@ dissect_nbns_answer(tvbuff_t *tvb, int offset, int nbns_data_offset,
         data_len   -= 2;
 
         if (data_len < 2) {
-            proto_tree_add_text(rr_tree, tvb, cur_offset,
-                                data_len, "(incomplete entry)");
+            proto_tree_add_expert(rr_tree, pinfo, &ei_nbns_incomplete_entry, tvb, cur_offset, data_len);
             break;
         }
         if (rr_tree) {
@@ -958,8 +940,7 @@ dissect_nbns_answer(tvbuff_t *tvb, int offset, int nbns_data_offset,
         data_len   -= 2;
 
         if (data_len < 2) {
-            proto_tree_add_text(rr_tree, tvb, cur_offset,
-                                data_len, "(incomplete entry)");
+            proto_tree_add_expert(rr_tree, pinfo, &ei_nbns_incomplete_entry, tvb, cur_offset, data_len);
             break;
         }
         if (rr_tree) {
@@ -971,8 +952,7 @@ dissect_nbns_answer(tvbuff_t *tvb, int offset, int nbns_data_offset,
         data_len   -= 2;
 
         if (data_len < 2) {
-            proto_tree_add_text(rr_tree, tvb, cur_offset,
-                                data_len, "(incomplete entry)");
+            proto_tree_add_expert(rr_tree, pinfo, &ei_nbns_incomplete_entry, tvb, cur_offset, data_len);
             break;
         }
         if (rr_tree) {
@@ -984,8 +964,7 @@ dissect_nbns_answer(tvbuff_t *tvb, int offset, int nbns_data_offset,
         data_len   -= 2;
 
         if (data_len < 2) {
-            proto_tree_add_text(rr_tree, tvb, cur_offset,
-                                data_len, "(incomplete entry)");
+            proto_tree_add_expert(rr_tree, pinfo, &ei_nbns_incomplete_entry, tvb, cur_offset, data_len);
             break;
         }
         if (rr_tree) {
@@ -1041,7 +1020,7 @@ dissect_query_records(tvbuff_t *tvb, int cur_off, int nbns_data_offset,
 }
 
 static int
-dissect_answer_records(tvbuff_t *tvb, int cur_off, int nbns_data_offset,
+dissect_answer_records(tvbuff_t *tvb, packet_info *pinfo, int cur_off, int nbns_data_offset,
 		       int count, column_info *cinfo, proto_tree *nbns_tree,
 		       int opcode, const char *name)
 {
@@ -1053,7 +1032,7 @@ dissect_answer_records(tvbuff_t *tvb, int cur_off, int nbns_data_offset,
     qatree = proto_tree_add_subtree(nbns_tree, tvb, start_off, -1, ett_nbns_ans, &ti, name);
 
     while (count-- > 0) {
-        add_off = dissect_nbns_answer(tvb, cur_off, nbns_data_offset,
+        add_off = dissect_nbns_answer(tvb, pinfo, cur_off, nbns_data_offset,
                                       cinfo, qatree, opcode);
         cur_off += add_off;
     }
@@ -1134,7 +1113,7 @@ dissect_nbns(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         /* If this is a request, don't add information about the
            answers to the summary, just add information about the
            queries. */
-        cur_off += dissect_answer_records(tvb, cur_off,
+        cur_off += dissect_answer_records(tvb, pinfo, cur_off,
                                           nbns_data_offset, ans,
                                           ((flags & F_RESPONSE) ? pinfo->cinfo : NULL), nbns_tree,
                                           opcode, "Answers");
@@ -1143,13 +1122,13 @@ dissect_nbns(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* Don't add information about the authoritative name
        servers, or the additional records, to the summary. */
     if (auth > 0)
-        cur_off += dissect_answer_records(tvb, cur_off,
+        cur_off += dissect_answer_records(tvb, pinfo, cur_off,
                                           nbns_data_offset,
                                           auth, NULL, nbns_tree, opcode,
                                           "Authoritative nameservers");
 
     if (add > 0)
-        /*cur_off += */dissect_answer_records(tvb, cur_off,
+        /*cur_off += */dissect_answer_records(tvb, pinfo, cur_off,
                                               nbns_data_offset,
                                               add, NULL, nbns_tree, opcode,
                                               "Additional records");
@@ -2053,10 +2032,18 @@ proto_register_nbt(void)
         &ett_nbss,
         &ett_nbss_flags,
     };
+
+    static ei_register_info ei[] = {
+        { &ei_nbns_incomplete_entry, { "nbns.incomplete_entry", PI_MALFORMED, PI_ERROR, "incomplete entry", EXPFILL }},
+    };
+
     module_t *nbss_module;
+    expert_module_t* expert_nbns;
 
     proto_nbns = proto_register_protocol("NetBIOS Name Service", "NBNS", "nbns");
     proto_register_field_array(proto_nbns, hf_nbns, array_length(hf_nbns));
+    expert_nbns = expert_register_protocol(proto_nbns);
+    expert_register_field_array(expert_nbns, ei, array_length(ei));
 
     proto_nbdgm = proto_register_protocol("NetBIOS Datagram Service",
                                           "NBDS", "nbdgm");

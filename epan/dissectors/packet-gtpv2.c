@@ -3043,7 +3043,7 @@ dissect_gtpv2_mm_context_gsm_t(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     /* Dissect octet j to r */
     offset = dissect_gtpv2_mm_context_common_data(tvb, pinfo, tree, offset, samb_ri, uamb_ri);
 
-    proto_tree_add_text(flag_tree, tvb, offset, -1, "The rest of the IE not dissected yet");
+    proto_tree_add_expert_format(flag_tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, offset, -1, "The rest of the IE not dissected yet");
 }
 
 /* Type = 104 (decimal)
@@ -3145,7 +3145,7 @@ dissect_gtpv2_mm_context_utms_cq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
         return;
     }
 
-    proto_tree_add_text(flag_tree, tvb, offset, -1, "The rest of the IE not dissected yet");
+    proto_tree_add_expert_format(flag_tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, offset, -1, "The rest of the IE not dissected yet");
 
 }
 
@@ -3244,7 +3244,7 @@ dissect_gtpv2_mm_context_gsm_cq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
         return;
     }
 
-    proto_tree_add_text(flag_tree, tvb, offset, -1, "The rest of the IE not dissected yet");
+    proto_tree_add_expert_format(flag_tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, offset, -1, "The rest of the IE not dissected yet");
 
 }
 
@@ -3349,7 +3349,7 @@ dissect_gtpv2_mm_context_utms_q(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     }
 
     /* (s+3) to (n+4) These octet(s) is/are present only if explicitly specified */
-    proto_tree_add_text(flag_tree, tvb, offset, -1, "The rest of the IE not dissected yet");
+    proto_tree_add_expert_format(flag_tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, offset, -1, "The rest of the IE not dissected yet");
 
 }
 
@@ -3583,7 +3583,7 @@ dissect_gtpv2_mm_context_utms_qq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
     }
 
     if (offset < (guint32)length) {
-        proto_tree_add_text(tree, tvb, offset, -1, "The rest of the IE not dissected yet");
+        proto_tree_add_expert_format(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, offset, -1, "The rest of the IE not dissected yet");
     }
 
 }
@@ -3864,7 +3864,7 @@ dissect_gtpv2_F_container(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, p
      * information. If the Cause IE contains the value "Request
      * accepted", this IE shall be included.
      */
-    proto_tree_add_text(tree, tvb, offset, length-offset, "Not dissected yet");
+    proto_tree_add_expert(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, offset, length-offset);
 
 }
 
@@ -3950,7 +3950,7 @@ dissect_gtpv2_F_cause(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, p
             break;
         }
     }
-    proto_tree_add_text(tree, tvb, offset, length-offset, "Not dissected yet");
+    proto_tree_add_expert(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, offset, length-offset);
 
 }
 
@@ -4073,7 +4073,7 @@ dissect_gtpv2_target_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
     default:
         break;
     }
-    proto_tree_add_text(tree, tvb, offset, length-offset, "Not dissected yet");
+    proto_tree_add_expert(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, offset, length-offset);
 
 }
 
@@ -6995,7 +6995,7 @@ void proto_register_gtpv2(void)
     };
 
     static ei_register_info ei[] = {
-        { &ei_gtpv2_ie_data_not_dissected, { "gtpv2.ie_data_not_dissected", PI_PROTOCOL, PI_NOTE, "IE data not dissected yet", EXPFILL }},
+        { &ei_gtpv2_ie_data_not_dissected, { "gtpv2.ie_data_not_dissected", PI_UNDECODED, PI_NOTE, "IE data not dissected yet", EXPFILL }},
         { &ei_gtpv2_ie_len_invalid, { "gtpv2.ie_len_invalid", PI_PROTOCOL, PI_ERROR, "Wrong length", EXPFILL }},
         { &ei_gtpv2_source_type_unknown, { "gtpv2.source_type.unknown",  PI_PROTOCOL, PI_ERROR, "Unknown source type", EXPFILL }},
         { &ei_gtpv2_fq_csid_type_bad, { "gtpv2.fq_csid_type.unknown", PI_PROTOCOL, PI_ERROR, "Wrong Node-ID Type", EXPFILL }},

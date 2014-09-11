@@ -1483,7 +1483,7 @@ dissect_mpls_echo_tlv(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tre
                                        val_to_str_ext_const(type, &mpls_echo_tlv_type_names_ext,
                                                             "Unknown TLV type"), saved_type);
         }
-        proto_tree_add_item(mpls_echo_tlv_tree, hf_mpls_echo_tlv_len, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
+        ti = proto_tree_add_item(mpls_echo_tlv_tree, hf_mpls_echo_tlv_len, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
     }
 
     /* MPLS Echo TLV Value */
@@ -1526,9 +1526,9 @@ dissect_mpls_echo_tlv(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tre
 #if 0
     case TLV_RTO_IPv4:
         if (length != 4) {
-            proto_tree_add_text(mpls_echo_tlv_tree, tvb, offset + 4, length,
-                                "Error processing TLV: length is %d, should be 4",
-                                length);
+            expert_add_info_format(pinfo, ti, &ei_mpls_echo_tlv_len,
+                                   "Invalid TLV Length (claimed %u, should be 4)",
+                                   length);
             break;
         }
         proto_tree_add_item(mpls_echo_tlv_tree, hf_mpls_echo_tlv_rto_ipv4,
@@ -1536,9 +1536,9 @@ dissect_mpls_echo_tlv(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tre
         break;
     case TLV_RTO_IPv6:
         if (length != 16) {
-            proto_tree_add_text(mpls_echo_tlv_tree, tvb, offset + 4, length,
-                                "Error processing TLV: length is %d, should be 16",
-                                length);
+            expert_add_info_format(pinfo, ti, &ei_mpls_echo_tlv_len,
+                                   "Invalid TLV Length (claimed %u, should be 16)",
+                                   length);
             break;
         }
         proto_tree_add_item(mpls_echo_tlv_tree, hf_mpls_echo_tlv_rto_ipv6,

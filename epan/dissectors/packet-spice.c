@@ -684,6 +684,7 @@ static int hf_vd_agent_reply_type = -1;
 static int hf_vd_agent_reply_error = -1;
 
 static expert_field ei_spice_decompress_error = EI_INIT;
+static expert_field ei_spice_unknown_message = EI_INIT;
 
 static dissector_handle_t jpeg_handle;
 
@@ -1545,7 +1546,7 @@ dissect_spice_mini_data_header(tvbuff_t *tvb, proto_tree *tree, const spice_conv
 
 static void
 dissect_spice_data_header(tvbuff_t *tvb, proto_tree *tree, const spice_conversation_t *spice_info,
-                          const gboolean client_message, const guint16 message_type, guint32 *sublist_size, guint32 offset)
+                          const gboolean client_message, const guint16 message_type, proto_item** msgtype_item, guint32 *sublist_size, guint32 offset)
 {
     proto_tree* subtree;
     *sublist_size = tvb_get_letohl(tvb, offset + 14);
@@ -1555,7 +1556,7 @@ dissect_spice_data_header(tvbuff_t *tvb, proto_tree *tree, const spice_conversat
         offset += 8;
         subtree = proto_tree_add_subtree_format(tree, tvb, offset, 2, ett_common_client_message, NULL,
             "Message type: %s (%d)", get_message_type_string(message_type, spice_info, client_message), message_type);
-        proto_tree_add_item(subtree, hf_message_type, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        *msgtype_item = proto_tree_add_item(subtree, hf_message_type, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         offset += 2;
         offset += 2;
         proto_tree_add_item(tree, hf_data_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -1566,7 +1567,7 @@ dissect_spice_data_header(tvbuff_t *tvb, proto_tree *tree, const spice_conversat
 
 
 static guint32
-dissect_spice_common_client_messages(tvbuff_t *tvb, proto_tree *tree, const guint16 message_type, guint32 offset)
+dissect_spice_common_client_messages(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, const guint16 message_type, proto_item* msgtype_item, guint32 offset)
 {
     switch (message_type) {
         case SPICE_MSGC_ACK_SYNC:
@@ -1587,7 +1588,7 @@ dissect_spice_common_client_messages(tvbuff_t *tvb, proto_tree *tree, const guin
         case SPICE_MSGC_DISCONNECTING:
         */
         default:
-            proto_tree_add_text(tree, tvb, offset, 0, "Unknown common client message - cannot dissect");
+            expert_add_info_format(pinfo, msgtype_item, &ei_spice_unknown_message, "Unknown common client message - cannot dissect");
             break;
     }
 
@@ -1595,7 +1596,8 @@ dissect_spice_common_client_messages(tvbuff_t *tvb, proto_tree *tree, const guin
 }
 
 static guint32
-dissect_spice_common_server_messages(tvbuff_t *tvb, proto_tree *tree, const guint16 message_type, guint32 offset, const guint32 total_message_size)
+dissect_spice_common_server_messages(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, const guint16 message_type, proto_item* msgtype_item,
+                                     guint32 offset, const guint32 total_message_size)
 {
     guint32     message_len;
 
@@ -1640,14 +1642,14 @@ dissect_spice_common_server_messages(tvbuff_t *tvb, proto_tree *tree, const guin
             offset += (message_len + 1);
             break;
         default:
-            proto_tree_add_text(tree, tvb, offset, 0, "Unknown common server message - cannot dissect");
+            expert_add_info_format(pinfo, msgtype_item, &ei_spice_unknown_message, "Unknown common server message - cannot dissect");
             break;
     }
 
     return offset;
 }
 static guint32
-dissect_spice_record_client(tvbuff_t *tvb, proto_tree *tree, const guint16 message_type, guint32 offset)
+dissect_spice_record_client(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, const guint16 message_type, proto_item* msgtype_item, guint32 offset)
 {
     proto_tree *record_tree;
 
@@ -1661,7 +1663,7 @@ dissect_spice_record_client(tvbuff_t *tvb, proto_tree *tree, const guint16 messa
             /* TODO - mode dependant, there may be more data here */
             break;
         default:
-            proto_tree_add_text(tree, tvb, offset, 0, "Unknown record client message - cannot dissect");
+            expert_add_info_format(pinfo, msgtype_item, &ei_spice_unknown_message, "Unknown record client message - cannot dissect");
             break;
     }
 
@@ -1669,7 +1671,7 @@ dissect_spice_record_client(tvbuff_t *tvb, proto_tree *tree, const guint16 messa
 }
 
 static guint32
-dissect_spice_display_client(tvbuff_t *tvb, proto_tree *tree, const guint16 message_type, guint32 offset)
+dissect_spice_display_client(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, const guint16 message_type, proto_item* msgtype_item, guint32 offset)
 {
     switch (message_type) {
         case SPICE_MSGC_DISPLAY_INIT:
@@ -1683,7 +1685,7 @@ dissect_spice_display_client(tvbuff_t *tvb, proto_tree *tree, const guint16 mess
             offset += 4;
             break;
         default:
-            proto_tree_add_text(tree, tvb, offset, 0, "Unknown display client message - cannot dissect");
+            expert_add_info_format(pinfo, msgtype_item, &ei_spice_unknown_message, "Unknown display client message - cannot dissect");
             break;
     }
 
@@ -1691,7 +1693,7 @@ dissect_spice_display_client(tvbuff_t *tvb, proto_tree *tree, const guint16 mess
 }
 
 static guint32
-dissect_spice_display_server(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, const guint16 message_type, guint32 offset)
+dissect_spice_display_server(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, const guint16 message_type, proto_item* msgtype_item, guint32 offset)
 {
     guint32    data_size, displayBaseLen;
     guint8     clip_type;
@@ -1970,14 +1972,15 @@ dissect_spice_display_server(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo
             offset += 4;
             break;
         default:
-            proto_tree_add_text(tree, tvb, offset, 0, "Unknown display server message - cannot dissect");
+            expert_add_info_format(pinfo, msgtype_item, &ei_spice_unknown_message, "Unknown display server message - cannot dissect");
             break;
     }
     return offset;
 }
 
 static guint32
-dissect_spice_playback_server(tvbuff_t *tvb, proto_tree *tree, const guint16 message_type, guint32 message_size, spice_conversation_t *spice_info, guint32 offset)
+dissect_spice_playback_server(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, const guint16 message_type, proto_item* msgtype_item,
+                              guint32 message_size, spice_conversation_t *spice_info, guint32 offset)
 {
     guint8 num_channels, i;
     proto_tree* subtree;
@@ -2028,14 +2031,14 @@ dissect_spice_playback_server(tvbuff_t *tvb, proto_tree *tree, const guint16 mes
             offset += 4;
             break;
         default:
-            proto_tree_add_text(tree, tvb, offset, 0, "Unknown playback server message - cannot dissect");
+            expert_add_info_format(pinfo, msgtype_item, &ei_spice_unknown_message, "Unknown playback server message - cannot dissect");
             break;
     }
     return offset;
 }
 
 static guint32
-dissect_spice_cursor_server(tvbuff_t *tvb, proto_tree *tree, const guint16 message_type, guint32 offset)
+dissect_spice_cursor_server(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, const guint16 message_type, proto_item* msgtype_item, guint32 offset)
 {
     guint32 RedCursorSize;
 
@@ -2080,14 +2083,14 @@ dissect_spice_cursor_server(tvbuff_t *tvb, proto_tree *tree, const guint16 messa
         case SPICE_MSG_CURSOR_INVAL_ALL:
             break;
         default:
-            proto_tree_add_text(tree, tvb, offset, 0, "Unknown cursor server message - cannot dissect");
+            expert_add_info_format(pinfo, msgtype_item, &ei_spice_unknown_message, "Unknown cursor server message - cannot dissect");
             break;
     }
     return offset;
 }
 
 static guint32
-dissect_spice_record_server(tvbuff_t *tvb, proto_tree *tree, const guint16 message_type, guint32 offset)
+dissect_spice_record_server(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, const guint16 message_type, proto_item* msgtype_item, guint32 offset)
 {
     guint8 num_channels, i;
     proto_tree* subtree;
@@ -2110,14 +2113,14 @@ dissect_spice_record_server(tvbuff_t *tvb, proto_tree *tree, const guint16 messa
             offset += 1;
             break;
         default:
-            proto_tree_add_text(tree, tvb, offset, 0, "Unknown record server message - cannot dissect");
+            expert_add_info_format(pinfo, msgtype_item, &ei_spice_unknown_message, "Unknown record server message - cannot dissect");
             break;
     }
     return offset;
 }
 
 static guint32
-dissect_spice_agent_message(tvbuff_t *tvb, proto_tree *tree, const guint32 message_type, guint32 message_len, guint32 offset)
+dissect_spice_agent_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, const guint32 message_type, proto_item* msgtype_item, guint32 message_len, guint32 offset)
 {
     proto_tree *agent_tree;
     guint32 n_monitors = 0, i;
@@ -2193,7 +2196,7 @@ dissect_spice_agent_message(tvbuff_t *tvb, proto_tree *tree, const guint32 messa
             proto_tree_add_text(tree, tvb, offset, 0, "VD_AGENT_CLIPBOARD_RELEASE message");
             break;
         default:
-            proto_tree_add_text(tree, tvb, offset, 0, "Unknown agent message (%u) - cannot dissect", message_type);
+            expert_add_info_format(pinfo, msgtype_item, &ei_spice_unknown_message, "Unknown agent message (%u) - cannot dissect", message_type);
             break;
     }
     return offset;
@@ -2222,7 +2225,7 @@ dissect_supported_mouse_modes(tvbuff_t *tvb, proto_tree *tree, guint32 offset, g
 }
 
 static guint32
-dissect_spice_main_server(tvbuff_t *tvb, proto_tree *tree, const guint16 message_type, guint32 offset)
+dissect_spice_main_server(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, const guint16 message_type, proto_item* msgtype_item, guint32 offset)
 {
     guint32 num_channels, i, agent_msg_type, agent_msg_len, name_len, data_size;
     proto_tree *subtree = NULL;
@@ -2309,7 +2312,7 @@ dissect_spice_main_server(tvbuff_t *tvb, proto_tree *tree, const guint16 message
             proto_tree_add_item(tree, hf_agent_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             agent_msg_len = tvb_get_letohl(tvb, offset);
             offset += 4;
-            offset = dissect_spice_agent_message(tvb, tree, agent_msg_type, agent_msg_len, offset);
+            offset = dissect_spice_agent_message(tvb, pinfo, tree, agent_msg_type, msgtype_item, agent_msg_len, offset);
             break;
         case SPICE_MSG_MAIN_AGENT_TOKEN:
         case SPICE_MSG_MAIN_AGENT_CONNECTED_TOKENS:
@@ -2334,14 +2337,14 @@ dissect_spice_main_server(tvbuff_t *tvb, proto_tree *tree, const guint16 message
         case SPICE_MSG_MAIN_MIGRATE_DST_SEAMLESS_NACK:
             break;
         default:
-            proto_tree_add_text(tree, tvb, offset, 0, "Unknown main server message - cannot dissect");
+            expert_add_info_format(pinfo, msgtype_item, &ei_spice_unknown_message, "Unknown main server message - cannot dissect");
             break;
     }
     return offset;
 }
 
 static guint32
-dissect_spice_main_client(tvbuff_t *tvb, proto_tree *tree, const guint16 message_type, guint32 offset)
+dissect_spice_main_client(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, const guint16 message_type, proto_item* msgtype_item, guint32 offset)
 {
     proto_tree *main_tree;
     guint32     agent_msg_type, agent_msg_len;
@@ -2370,10 +2373,10 @@ dissect_spice_main_client(tvbuff_t *tvb, proto_tree *tree, const guint16 message
             proto_tree_add_item(main_tree, hf_agent_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             agent_msg_len = tvb_get_letohl(tvb, offset);
             offset += 4;
-            offset = dissect_spice_agent_message(tvb, main_tree, agent_msg_type, agent_msg_len, offset);
+            offset = dissect_spice_agent_message(tvb, pinfo, main_tree, agent_msg_type, msgtype_item, agent_msg_len, offset);
             break;
         default:
-            proto_tree_add_text(tree, tvb, offset, 0, "Unknown main client message - cannot dissect");
+            expert_add_info_format(pinfo, msgtype_item, &ei_spice_unknown_message, "Unknown main client message - cannot dissect");
             break;
     }
     return offset;
@@ -2395,7 +2398,7 @@ dissect_spice_keyboard_modifiers(tvbuff_t *tvb, proto_tree *tree, guint32 offset
 }
 
 static guint32
-dissect_spice_inputs_client(tvbuff_t *tvb, proto_tree *tree, const guint16 message_type, guint32 offset)
+dissect_spice_inputs_client(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, const guint16 message_type, proto_item* msgtype_item, guint32 offset)
 {
     proto_tree *inputs_tree;
 
@@ -2444,14 +2447,14 @@ dissect_spice_inputs_client(tvbuff_t *tvb, proto_tree *tree, const guint16 messa
             offset += 1;
             break;
         default:
-            proto_tree_add_text(tree, tvb, offset, 0, "Unknown inputs client message - cannot dissect");
+            expert_add_info_format(pinfo, msgtype_item, &ei_spice_unknown_message, "Unknown inputs client message - cannot dissect");
             break;
     }
     return offset;
 }
 
 static guint32
-dissect_spice_inputs_server(tvbuff_t *tvb, proto_tree *tree, const guint16 message_type, guint32 offset)
+dissect_spice_inputs_server(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, const guint16 message_type, proto_item* msgtype_item, guint32 offset)
 {
     switch (message_type) {
         case SPICE_MSG_INPUTS_INIT:
@@ -2464,62 +2467,62 @@ dissect_spice_inputs_server(tvbuff_t *tvb, proto_tree *tree, const guint16 messa
             proto_tree_add_text(tree, tvb, offset, 0, "Server INPUTS_MOUSE_MOTION_ACK message");
             break;
         default:
-            proto_tree_add_text(tree, tvb, offset, 0, "Unknown inputs server message - cannot dissect");
+            expert_add_info_format(pinfo, msgtype_item, &ei_spice_unknown_message, "Unknown inputs server message - cannot dissect");
             break;
     }
     return offset;
 }
 
 static guint32
-dissect_spice_tunnel_client(tvbuff_t *tvb, proto_tree *tree, const guint16 message_type, guint32 offset)
+dissect_spice_tunnel_client(packet_info *pinfo, const guint16 message_type, proto_item* msgtype_item, guint32 offset)
 {
     /* TODO: Not implemented yet */
     switch (message_type) {
         default:
-            proto_tree_add_text(tree, tvb, offset, 0, "Unknown message - cannot dissect");
+            expert_add_info_format(pinfo, msgtype_item, &ei_spice_unknown_message, "Unknown message - cannot dissect");
             break;
     }
     return offset;
 }
 
 static guint32
-dissect_spice_tunnel_server(tvbuff_t *tvb, proto_tree *tree, const guint16 message_type, guint32 offset)
+dissect_spice_tunnel_server(packet_info *pinfo, const guint16 message_type, proto_item* msgtype_item, guint32 offset)
 {
     /* TODO: Not implemented yet */
     switch (message_type) {
         default:
-            proto_tree_add_text(tree, tvb, offset, 0, "Unknown message - cannot dissect");
+            expert_add_info_format(pinfo, msgtype_item, &ei_spice_unknown_message, "Unknown message - cannot dissect");
             break;
     }
     return offset;
 }
 
 static guint32
-dissect_spice_smartcard_client(tvbuff_t *tvb, proto_tree *tree, const guint16 message_type, guint32 offset)
+dissect_spice_smartcard_client(packet_info *pinfo, const guint16 message_type, proto_item* msgtype_item, guint32 offset)
 {
     /* TODO: Not implemented yet */
     switch (message_type) {
         default:
-            proto_tree_add_text(tree, tvb, offset, 0, "Unknown message - cannot dissect");
+            expert_add_info_format(pinfo, msgtype_item, &ei_spice_unknown_message, "Unknown message - cannot dissect");
             break;
     }
     return offset;
 }
 
 static guint32
-dissect_spice_smartcard_server(tvbuff_t *tvb, proto_tree *tree, const guint16 message_type, guint32 offset)
+dissect_spice_smartcard_server(packet_info *pinfo, const guint16 message_type, proto_item* msgtype_item, guint32 offset)
 {
     /* TODO: Not implemented yet */
     switch (message_type) {
         default:
-            proto_tree_add_text(tree, tvb, offset, 0, "Unknown message - cannot dissect");
+            expert_add_info_format(pinfo, msgtype_item, &ei_spice_unknown_message, "Unknown message - cannot dissect");
             break;
     }
     return offset;
 }
 
 static guint32
-dissect_spice_usbredir_client(tvbuff_t *tvb, proto_tree *tree, const guint16 message_type, guint32 message_size, guint32 offset)
+dissect_spice_usbredir_client(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, const guint16 message_type, proto_item* msgtype_item, guint32 message_size, guint32 offset)
 {
     switch (message_type) {
         case SPICE_MSGC_SPICEVMC_DATA:
@@ -2527,14 +2530,14 @@ dissect_spice_usbredir_client(tvbuff_t *tvb, proto_tree *tree, const guint16 mes
             offset += message_size;
             break;
         default:
-            proto_tree_add_text(tree, tvb, offset, 0, "Unknown message - cannot dissect");
+            expert_add_info_format(pinfo, msgtype_item, &ei_spice_unknown_message, "Unknown message - cannot dissect");
             break;
     }
     return offset;
 }
 
 static guint32
-dissect_spice_usbredir_server(tvbuff_t *tvb, proto_tree *tree, const guint16 message_type, guint32 message_size, guint32 offset)
+dissect_spice_usbredir_server(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, const guint16 message_type, proto_item* msgtype_item, guint32 message_size, guint32 offset)
 {
     switch (message_type) {
         case SPICE_MSG_SPICEVMC_DATA:
@@ -2542,14 +2545,14 @@ dissect_spice_usbredir_server(tvbuff_t *tvb, proto_tree *tree, const guint16 mes
             offset += message_size;
             break;
         default:
-            proto_tree_add_text(tree, tvb, offset, 0, "Unknown message - cannot dissect");
+            expert_add_info_format(pinfo, msgtype_item, &ei_spice_unknown_message, "Unknown message - cannot dissect");
             break;
     }
     return offset;
 }
 
 static guint32
-dissect_spice_port_client(tvbuff_t *tvb, proto_tree *tree, const guint16 message_type, guint32 message_size, guint32 offset)
+dissect_spice_port_client(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, const guint16 message_type, proto_item* msgtype_item, guint32 message_size, guint32 offset)
 {
     switch (message_type) {
         case SPICE_MSGC_SPICEVMC_DATA:
@@ -2561,14 +2564,14 @@ dissect_spice_port_client(tvbuff_t *tvb, proto_tree *tree, const guint16 message
             offset += 1;
             break;
         default:
-            proto_tree_add_text(tree, tvb, offset, 0, "Unknown message - cannot dissect");
+            expert_add_info_format(pinfo, msgtype_item, &ei_spice_unknown_message, "Unknown message - cannot dissect");
             break;
     }
     return offset;
 }
 
 static guint32
-dissect_spice_port_server(tvbuff_t *tvb, proto_tree *tree, const guint16 message_type, guint32 message_size, guint32 offset)
+dissect_spice_port_server(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, const guint16 message_type, proto_item* msgtype_item, guint32 message_size, guint32 offset)
 {
     switch (message_type) {
         case SPICE_MSG_SPICEVMC_DATA:
@@ -2591,7 +2594,7 @@ dissect_spice_port_server(tvbuff_t *tvb, proto_tree *tree, const guint16 message
             offset += 1;
             break;
         default:
-            proto_tree_add_text(tree, tvb, offset, 0, "Unknown message - cannot dissect");
+            expert_add_info_format(pinfo, msgtype_item, &ei_spice_unknown_message, "Unknown message - cannot dissect");
             break;
     }
     return offset;
@@ -2601,7 +2604,7 @@ dissect_spice_port_server(tvbuff_t *tvb, proto_tree *tree, const guint16 message
 static guint32
 dissect_spice_data_server_pdu(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, spice_conversation_t *spice_info, guint32 offset, const guint32 total_message_size)
 {
-    proto_item *ti = NULL, *msg_ti=NULL;
+    proto_item *ti = NULL, *msg_ti=NULL, *msgtype_ti=NULL;
     proto_tree *data_header_tree, *message_tree;
     guint16     message_type;
     guint32     message_size, sublist_size, old_offset;
@@ -2629,7 +2632,7 @@ dissect_spice_data_server_pdu(tvbuff_t *tvb, proto_tree *tree, packet_info *pinf
                                      message_size + header_size);
         ti = proto_tree_add_item(message_tree, hf_data, tvb, offset, header_size, ENC_NA);
         data_header_tree = proto_item_add_subtree(ti, ett_data);
-        dissect_spice_data_header(tvb, data_header_tree, spice_info, FALSE, message_type, &sublist_size, offset);
+        dissect_spice_data_header(tvb, data_header_tree, spice_info, FALSE, message_type, &msgtype_ti, &sublist_size, offset);
     }
     proto_item_set_len(msg_ti, message_size + header_size);
     offset    += header_size;
@@ -2637,43 +2640,43 @@ dissect_spice_data_server_pdu(tvbuff_t *tvb, proto_tree *tree, packet_info *pinf
 
     col_append_str(pinfo->cinfo, COL_INFO, get_message_type_string(message_type, spice_info, FALSE));
     if (message_type < SPICE_FIRST_AVAIL_MESSAGE) { /* this is a common message */
-        offset = dissect_spice_common_server_messages(tvb, message_tree, message_type, offset, total_message_size - header_size);
+        offset = dissect_spice_common_server_messages(tvb, pinfo, message_tree, message_type, msgtype_ti, offset, total_message_size - header_size);
         return offset;
     }
 
     switch (spice_info->channel_type) {
         case SPICE_CHANNEL_PLAYBACK:
-            offset = dissect_spice_playback_server(tvb, message_tree, message_type, message_size, spice_info, offset);
+            offset = dissect_spice_playback_server(tvb, pinfo, message_tree, message_type, msgtype_ti, message_size, spice_info, offset);
             break;
         case SPICE_CHANNEL_RECORD:
-            offset = dissect_spice_record_server(tvb, message_tree, message_type, offset);
+            offset = dissect_spice_record_server(tvb, pinfo, message_tree, message_type, msgtype_ti, offset);
             break;
         case SPICE_CHANNEL_MAIN:
-            offset = dissect_spice_main_server(tvb, message_tree, message_type, offset);
+            offset = dissect_spice_main_server(tvb, pinfo, message_tree, message_type, msgtype_ti, offset);
             break;
         case SPICE_CHANNEL_CURSOR:
-            offset = dissect_spice_cursor_server(tvb, message_tree, message_type, offset);
+            offset = dissect_spice_cursor_server(tvb, pinfo, message_tree, message_type, msgtype_ti, offset);
             break;
         case SPICE_CHANNEL_DISPLAY:
-            offset = dissect_spice_display_server(tvb, message_tree, pinfo, message_type, offset);
+            offset = dissect_spice_display_server(tvb, message_tree, pinfo, message_type, msgtype_ti, offset);
             break;
         case SPICE_CHANNEL_INPUTS:
-            offset = dissect_spice_inputs_server(tvb, message_tree, message_type, offset);
+            offset = dissect_spice_inputs_server(tvb, pinfo, message_tree, message_type, msgtype_ti, offset);
             break;
         case SPICE_CHANNEL_TUNNEL:
-            offset = dissect_spice_tunnel_server(tvb, message_tree, message_type, offset);
+            offset = dissect_spice_tunnel_server(pinfo, message_type, msgtype_ti, offset);
             break;
         case SPICE_CHANNEL_SMARTCARD:
-            offset = dissect_spice_smartcard_server(tvb, message_tree, message_type, offset);
+            offset = dissect_spice_smartcard_server(pinfo, message_type, msgtype_ti, offset);
             break;
         case SPICE_CHANNEL_USBREDIR:
-            offset = dissect_spice_usbredir_server(tvb, message_tree, message_type, message_size, offset);
+            offset = dissect_spice_usbredir_server(tvb, pinfo, message_tree, message_type, msgtype_ti, message_size, offset);
             break;
         case SPICE_CHANNEL_PORT:
-            offset = dissect_spice_port_server(tvb, message_tree, message_type, message_size, offset);
+            offset = dissect_spice_port_server(tvb, pinfo, message_tree, message_type, msgtype_ti, message_size, offset);
             break;
         default:
-            proto_tree_add_text(message_tree, tvb, offset, 0, "Unknown server PDU - cannot dissect");
+            expert_add_info_format(pinfo, msgtype_ti, &ei_spice_unknown_message, "Unknown server PDU - cannot dissect");
     }
 
     if ((offset - old_offset) != message_size) {
@@ -2690,7 +2693,7 @@ dissect_spice_data_server_pdu(tvbuff_t *tvb, proto_tree *tree, packet_info *pinf
 static guint32
 dissect_spice_data_client_pdu(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, spice_conversation_t *spice_info, guint32 offset)
 {
-    proto_item *ti = NULL;
+    proto_item *ti = NULL, *msgtype_ti = NULL;
     proto_tree *data_header_tree;
     guint16     message_type;
     guint32     message_size = 0, sublist_size;
@@ -2709,7 +2712,7 @@ dissect_spice_data_client_pdu(tvbuff_t *tvb, proto_tree *tree, packet_info *pinf
         data_header_tree = proto_item_add_subtree(ti, ett_data);
         message_type = tvb_get_letohs(tvb, offset + 8);
         message_size = tvb_get_letohl(tvb, offset + 10);
-        dissect_spice_data_header(tvb, data_header_tree, spice_info, TRUE, message_type, &sublist_size, offset);
+        dissect_spice_data_header(tvb, data_header_tree, spice_info, TRUE, message_type, &msgtype_ti, &sublist_size, offset);
     }
     col_append_str(pinfo->cinfo, COL_INFO, get_message_type_string(message_type, spice_info, TRUE));
     offset += header_size;
@@ -2717,38 +2720,38 @@ dissect_spice_data_client_pdu(tvbuff_t *tvb, proto_tree *tree, packet_info *pinf
         /*       it cannot be implemented in the dissector yet. */
 
     if (message_type < SPICE_FIRST_AVAIL_MESSAGE) { /* this is a common message */
-        return dissect_spice_common_client_messages(tvb, tree, message_type, offset);
+        return dissect_spice_common_client_messages(tvb, pinfo, tree, message_type, msgtype_ti, offset);
     }
 
     switch (spice_info->channel_type) {
         case SPICE_CHANNEL_PLAYBACK:
             break;
         case SPICE_CHANNEL_RECORD:
-            offset = dissect_spice_record_client(tvb, tree, message_type, offset);
+            offset = dissect_spice_record_client(tvb, pinfo, tree, message_type, msgtype_ti, offset);
             break;
         case SPICE_CHANNEL_MAIN:
-            offset = dissect_spice_main_client(tvb, tree, message_type, offset);
+            offset = dissect_spice_main_client(tvb, pinfo, tree, message_type, msgtype_ti, offset);
             break;
         case SPICE_CHANNEL_DISPLAY:
-            offset = dissect_spice_display_client(tvb, tree, message_type, offset);
+            offset = dissect_spice_display_client(tvb, pinfo, tree, message_type, msgtype_ti, offset);
             break;
         case SPICE_CHANNEL_INPUTS:
-            offset = dissect_spice_inputs_client(tvb, tree, message_type, offset);
+            offset = dissect_spice_inputs_client(tvb, pinfo, tree, message_type, msgtype_ti, offset);
             break;
         case SPICE_CHANNEL_TUNNEL:
-            offset = dissect_spice_tunnel_client(tvb, tree, message_type, offset);
+            offset = dissect_spice_tunnel_client(pinfo, message_type, msgtype_ti, offset);
             break;
         case SPICE_CHANNEL_SMARTCARD:
-            offset = dissect_spice_smartcard_client(tvb, tree, message_type, offset);
+            offset = dissect_spice_smartcard_client(pinfo, message_type, msgtype_ti, offset);
             break;
         case SPICE_CHANNEL_USBREDIR:
-            offset = dissect_spice_usbredir_client(tvb, tree, message_type, message_size, offset);
+            offset = dissect_spice_usbredir_client(tvb, pinfo, tree, message_type, msgtype_ti, message_size, offset);
             break;
         case SPICE_CHANNEL_PORT:
-            offset = dissect_spice_port_client(tvb, tree, message_type, message_size, offset);
+            offset = dissect_spice_port_client(tvb, pinfo, tree, message_type, msgtype_ti, message_size, offset);
             break;
         default:
-            proto_tree_add_text(tree, tvb, offset, 0, "Unknown client PDU - cannot dissect");
+            expert_add_info_format(pinfo, msgtype_ti, &ei_spice_unknown_message, "Unknown client PDU - cannot dissect");
             break;
     }
 
@@ -4487,6 +4490,7 @@ proto_register_spice(void)
 
     static ei_register_info ei[] = {
         { &ei_spice_decompress_error, { "spice.decompress_error", PI_PROTOCOL, PI_WARN, "Error: Unable to decompress content", EXPFILL }},
+        { &ei_spice_unknown_message, { "spice.unknown_message", PI_UNDECODED, PI_WARN, "Unknown message - cannot dissect", EXPFILL }},
     };
 
     expert_module_t* expert_spice;

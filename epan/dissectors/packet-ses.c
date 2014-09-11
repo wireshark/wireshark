@@ -29,6 +29,7 @@
 
 #include <epan/wmem/wmem.h>
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include <epan/prefs.h>
 #include <epan/asn1.h>
 #include <epan/conversation.h>
@@ -178,6 +179,8 @@ static int hf_large_second_initial_serial_number = -1;
 
 /* clses header fields             */
 static int proto_clses          = -1;
+
+static expert_field ei_ses_bad_length = EI_INIT;
 
 #define PROTO_STRING_CLSES "ISO 9548-1 OSI Connectionless Session Protocol"
 
@@ -366,7 +369,7 @@ get_item_len(tvbuff_t *tvb, int offset, int *len_len)
 static gboolean
 dissect_parameter(tvbuff_t *tvb, int offset, proto_tree *tree,
 	          proto_tree *param_tree, packet_info *pinfo, guint8 param_type,
-	          guint16 param_len, guint8 *enclosure_item_flags,
+	          guint16 param_len, proto_item *param_len_item, guint8 *enclosure_item_flags,
 		  struct SESSION_DATA_STRUCTURE *session)
 {
 	gboolean has_user_information = TRUE;
@@ -425,9 +428,8 @@ dissect_parameter(tvbuff_t *tvb, int offset, proto_tree *tree,
 	case Token_Item:
 		if (param_len != 1)
 		{
-			proto_tree_add_text(param_tree, tvb, offset,
-			    param_len, "Length is %u, should be 1",
-			    param_len);
+			expert_add_info_format(pinfo, param_len_item, &ei_ses_bad_length,
+			    "Length is %u, should be 1", param_len);
 			break;
 		}
 		if (tree)
@@ -452,9 +454,8 @@ dissect_parameter(tvbuff_t *tvb, int offset, proto_tree *tree,
 	case Transport_Disconnect:
 		if (param_len != 1)
 		{
-			proto_tree_add_text(param_tree, tvb, offset,
-			    param_len, "Length is %u, should be 1",
-			    param_len);
+			expert_add_info_format(pinfo, param_len_item, &ei_ses_bad_length,
+			    "Length is %u, should be 1", param_len);
 			break;
 		}
 		if (tree)
@@ -507,9 +508,8 @@ dissect_parameter(tvbuff_t *tvb, int offset, proto_tree *tree,
 	case Protocol_Options:
 		if (param_len != 1)
 		{
-			proto_tree_add_text(param_tree, tvb, offset,
-			    param_len, "Length is %u, should be 1",
-			    param_len);
+			expert_add_info_format(pinfo, param_len_item, &ei_ses_bad_length,
+			    "Length is %u, should be 1", param_len);
 			break;
 		}
 		if (tree)
@@ -529,9 +529,8 @@ dissect_parameter(tvbuff_t *tvb, int offset, proto_tree *tree,
 	case Session_Requirement:
 		if (param_len != 2)
 		{
-			proto_tree_add_text(param_tree, tvb, offset,
-			    param_len, "Length is %u, should be 2",
-			    param_len);
+			expert_add_info_format(pinfo, param_len_item, &ei_ses_bad_length,
+			    "Length is %u, should be 2", param_len);
 			break;
 		}
 		if (tree)
@@ -585,9 +584,8 @@ dissect_parameter(tvbuff_t *tvb, int offset, proto_tree *tree,
 	case TSDU_Maximum_Size:
 		if (param_len != 4)
 		{
-			proto_tree_add_text(param_tree, tvb, offset,
-			    param_len, "Length is %u, should be 4",
-			    param_len);
+			expert_add_info_format(pinfo, param_len_item, &ei_ses_bad_length,
+			    "Length is %u, should be 4", param_len);
 			break;
 		}
 		if (tree)
@@ -604,9 +602,8 @@ dissect_parameter(tvbuff_t *tvb, int offset, proto_tree *tree,
 	case Version_Number:
 		if (param_len != 1)
 		{
-			proto_tree_add_text(param_tree, tvb, offset,
-			    param_len, "Length is %u, should be 1",
-			    param_len);
+			expert_add_info_format(pinfo, param_len_item, &ei_ses_bad_length,
+			    "Length is %u, should be 1", param_len);
 			break;
 		}
 		if (tree)
@@ -638,9 +635,8 @@ dissect_parameter(tvbuff_t *tvb, int offset, proto_tree *tree,
 	case EnclosureItem:
 		if (param_len != 1)
 		{
-			proto_tree_add_text(param_tree, tvb, offset,
-			    param_len, "Length is %u, should be 1",
-			    param_len);
+			expert_add_info_format(pinfo, param_len_item, &ei_ses_bad_length,
+			    "Length is %u, should be 1", param_len);
 			break;
 		}
 		flags = tvb_get_guint8(tvb, offset);
@@ -684,9 +680,8 @@ dissect_parameter(tvbuff_t *tvb, int offset, proto_tree *tree,
 	case Token_Setting_Item:
 		if (param_len != 1)
 		{
-			proto_tree_add_text(param_tree, tvb, offset,
-			    param_len, "Length is %u, should be 1",
-			    param_len);
+			expert_add_info_format(pinfo, param_len_item, &ei_ses_bad_length,
+			    "Length is %u, should be 1", param_len);
 			break;
 		}
 		if (tree)
@@ -748,9 +743,8 @@ does not exceed 65 539 octets if Protocol Version 2 has been selected.
 PICS.    */
 		if (param_len < 1)
 		{
-			proto_tree_add_text(param_tree, tvb, offset,
-			    param_len, "Length is %u, should be >= 1",
-			    param_len);
+			expert_add_info_format(pinfo, param_len_item, &ei_ses_bad_length,
+			    "Length is %u, should be >= 1", param_len);
 			break;
 		}
 		if (tree)
@@ -849,7 +843,7 @@ dissect_parameter_group(tvbuff_t *tvb, int offset, proto_tree *tree,
 		        guint8 *enclosure_item_flags, struct SESSION_DATA_STRUCTURE *session)
 {
 	gboolean has_user_information = TRUE;
-	proto_item *ti;
+	proto_item *ti, *param_len_item;
 	proto_tree *param_tree;
 	guint8 param_type;
 	const char *param_str;
@@ -883,7 +877,7 @@ dissect_parameter_group(tvbuff_t *tvb, int offset, proto_tree *tree,
 			return has_user_information;
 		}
 		proto_item_set_len(ti, 1 + len_len + param_len);
-		proto_tree_add_text(param_tree, tvb, offset, len_len,
+		param_len_item = proto_tree_add_text(param_tree, tvb, offset, len_len,
 		    "Parameter length: %u", param_len);
 		offset += len_len;
 
@@ -904,7 +898,7 @@ dissect_parameter_group(tvbuff_t *tvb, int offset, proto_tree *tree,
 
 			default:
 				if (!dissect_parameter(tvb, offset, tree,
-				    param_tree, pinfo, param_type, param_len,
+				    param_tree, pinfo, param_type, param_len, param_len_item,
 				    enclosure_item_flags, session))
 					has_user_information = FALSE;
 				break;
@@ -926,7 +920,7 @@ dissect_parameters(tvbuff_t *tvb, int offset, guint16 len, proto_tree *tree,
 	           guint8 *enclosure_item_flags, struct SESSION_DATA_STRUCTURE *session)
 {
 	gboolean has_user_information = TRUE;
-	proto_item *ti;
+	proto_item *ti, *param_len_item;
 	proto_tree *param_tree;
 	guint8 param_type;
 	const char *param_str;
@@ -960,7 +954,7 @@ dissect_parameters(tvbuff_t *tvb, int offset, guint16 len, proto_tree *tree,
 			return has_user_information;
 		}
 		proto_item_set_len(ti, 1 + len_len + param_len);
-		proto_tree_add_text(param_tree, tvb, offset, len_len,
+		param_len_item = proto_tree_add_text(param_tree, tvb, offset, len_len,
 		    "Parameter length: %u", param_len);
 		offset += len_len;
 
@@ -991,7 +985,7 @@ dissect_parameters(tvbuff_t *tvb, int offset, guint16 len, proto_tree *tree,
 			/* everything else is a PI */
 			default:
 				if (!dissect_parameter(tvb, offset, tree,
-				    param_tree, pinfo, param_type, param_len,
+				    param_tree, pinfo, param_type, param_len, param_len_item,
 				    enclosure_item_flags, session))
 					has_user_information = FALSE;
 				break;
@@ -1903,11 +1897,19 @@ proto_register_ses(void)
 		&ett_ses_segment,
 		&ett_ses_segments
 	};
+
+	static ei_register_info ei[] = {
+		{ &ei_ses_bad_length, { "ses.bad_length", PI_MALFORMED, PI_ERROR, "Bad length", EXPFILL }},
+	};
+
 	module_t *ses_module;
+	expert_module_t* expert_ses;
 
 	proto_ses = proto_register_protocol(PROTO_STRING_SES, "SES", "ses");
 	proto_register_field_array(proto_ses, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	expert_ses = expert_register_protocol(proto_ses);
+	expert_register_field_array(expert_ses, ei, array_length(ei));
 
 	register_init_routine (&ses_reassemble_init);
 

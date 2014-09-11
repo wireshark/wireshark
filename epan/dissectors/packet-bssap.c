@@ -312,6 +312,7 @@ static int hf_bssap_global_cn_id = -1;
 static int hf_bssap_plmn_id = -1;
 static int hf_bssap_cn_id = -1;
 static int hf_bssap_cell_global_id = -1;
+static int hf_bssap_extraneous_data = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_bssap = -1;
@@ -1643,7 +1644,7 @@ static void dissect_bssap_plus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
         if (tvb_reported_length_remaining(tvb, offset) <= 0)
             return;
 
-        proto_tree_add_text(tree, tvb, offset, -1, "Extraneous data");
+        proto_tree_add_item(tree, hf_bssap_extraneous_data, tvb, offset, -1, ENC_NA);
         break;
     case BSSAP_PAGING_REJECT:                   /*  17.1.18 */
         /* IMSI IMSI 18.4.10 M TLV 6-10 */
@@ -1655,7 +1656,7 @@ static void dissect_bssap_plus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
         if (tvb_reported_length_remaining(tvb, offset) <= 0)
             return;
-        proto_tree_add_text(tree, tvb, offset, -1, "Extraneous data");
+        proto_tree_add_item(tree, hf_bssap_extraneous_data, tvb, offset, -1, ENC_NA);
         break;
     case BSSAP_DOWNLINK_TUNNEL_REQUEST:         /*  17.1.4  */
         /* IMSI IMSI 18.4.10 M TLV 6-10 */
@@ -1672,7 +1673,7 @@ static void dissect_bssap_plus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
         if (tvb_reported_length_remaining(tvb, offset) <= 0)
             return;
-        proto_tree_add_text(tree, tvb, offset, -1, "Extraneous data");
+        proto_tree_add_item(tree, hf_bssap_extraneous_data, tvb, offset, -1, ENC_NA);
         break;
     case BSSAP_UPLINK_TUNNEL_REQUEST:           /*  17.1.23 */
         /* SGSN number 18.4.22 M TLV 5-11 */
@@ -1685,7 +1686,7 @@ static void dissect_bssap_plus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
         if (tvb_reported_length_remaining(tvb, offset) <= 0)
             return;
-        proto_tree_add_text(tree, tvb, offset, -1, "Extraneous data");
+        proto_tree_add_item(tree, hf_bssap_extraneous_data, tvb, offset, -1, ENC_NA);
         break;
     case BSSAP_LOCATION_UPDATE_REQUEST:         /*  17.1.11 BSSAP+-LOCATION-UPDATE-REQUEST */
         /* IMSI IMSI 18.4.10 M TLV 6-10 */
@@ -1733,7 +1734,7 @@ static void dissect_bssap_plus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
             offset = dissect_bssap_imesiv(tvb, bssap_tree, offset);
         if (tvb_reported_length_remaining(tvb, offset) <= 0)
             return;
-        proto_tree_add_text(tree, tvb, offset, -1, "Extraneous data");
+        proto_tree_add_item(tree, hf_bssap_extraneous_data, tvb, offset, -1, ENC_NA);
         break;
     case BSSAP_LOCATION_UPDATE_ACCEPT:          /*  17.1.9  */
         /* IMSI 18.4.10 M TLV 6-10 */
@@ -1752,7 +1753,7 @@ static void dissect_bssap_plus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
             offset = dissect_bssap_mobile_id(tvb, bssap_tree, pinfo, offset);
         if (tvb_reported_length_remaining(tvb, offset) <= 0)
             return;
-        proto_tree_add_text(tree, tvb, offset, -1, "Extraneous data");
+        proto_tree_add_item(tree, hf_bssap_extraneous_data, tvb, offset, -1, ENC_NA);
         break;
     case BSSAP_LOCATION_UPDATE_REJECT:          /*  17.1.10 */
         /* IMSI IMSI 18.4.10 M TLV 6-10 */
@@ -1763,7 +1764,7 @@ static void dissect_bssap_plus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
             offset = dissect_bssap_reject_cause(tvb, bssap_tree, pinfo, offset);
         if (tvb_reported_length_remaining(tvb, offset) <= 0)
             return;
-        proto_tree_add_text(tree, tvb, offset, -1, "Extraneous data");
+        proto_tree_add_item(tree, hf_bssap_extraneous_data, tvb, offset, -1, ENC_NA);
         break;
     case BSSAP_TMSI_REALLOCATION_COMPLETE:      /*  17.1.22 */
         /* IMSI IMSI 18.4.10 M TLV 6-10 */
@@ -1785,7 +1786,7 @@ static void dissect_bssap_plus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
             offset = dissect_bssap_service_area_id(tvb, bssap_tree, offset);
         if (tvb_reported_length_remaining(tvb, offset) <= 0)
             return;
-        proto_tree_add_text(tree, tvb, offset, -1, "Extraneous data");
+        proto_tree_add_item(tree, hf_bssap_extraneous_data, tvb, offset, -1, ENC_NA);
         break;
     case BSSAP_ALERT_REQUEST:                   /*  17.1.3  */
         /* IMSI IMSI 18.4.10 M TLV 6-10 */
@@ -1794,7 +1795,7 @@ static void dissect_bssap_plus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
         if (tvb_reported_length_remaining(tvb, offset) <= 0)
             return;
-        proto_tree_add_text(tree, tvb, offset, -1, "Extraneous data");
+        proto_tree_add_item(tree, hf_bssap_extraneous_data, tvb, offset, -1, ENC_NA);
         break;
     case BSSAP_ALERT_ACK:                       /*  17.1.1  */
         /* IMSI IMSI 18.4.10 M TLV 6-10 */
@@ -1803,7 +1804,7 @@ static void dissect_bssap_plus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
         if (tvb_reported_length_remaining(tvb, offset) <= 0)
             return;
-        proto_tree_add_text(tree, tvb, offset, -1, "Extraneous data");
+        proto_tree_add_item(tree, hf_bssap_extraneous_data, tvb, offset, -1, ENC_NA);
         break;
     case BSSAP_ALERT_REJECT:                    /*  17.1.2  */
         /* IMSI IMSI 18.4.10 M TLV 6-10 */
@@ -1816,7 +1817,7 @@ static void dissect_bssap_plus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
         if (tvb_reported_length_remaining(tvb, offset) <= 0)
             return;
-        proto_tree_add_text(tree, tvb, offset, -1, "Extraneous data");
+        proto_tree_add_item(tree, hf_bssap_extraneous_data, tvb, offset, -1, ENC_NA);
         break;
     case BSSAP_MS_ACTIVITY_INDICATION:          /*  17.1.14 */
         /* IMSI IMSI 18.4.10 M TLV 6-10 */
@@ -1838,7 +1839,7 @@ static void dissect_bssap_plus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
             offset = dissect_bssap_service_area_id(tvb, bssap_tree, offset);
         if (tvb_reported_length_remaining(tvb, offset) <= 0)
             return;
-        proto_tree_add_text(tree, tvb, offset, -1, "Extraneous data");
+        proto_tree_add_item(tree, hf_bssap_extraneous_data, tvb, offset, -1, ENC_NA);
         break;
     case BSSAP_GPRS_DETACH_INDICATION:          /*  17.1.6  */
         /* IMSI IMSI 18.4.10 M TLV 6-10 */
@@ -1868,7 +1869,7 @@ static void dissect_bssap_plus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
             offset = dissect_bssap_service_area_id(tvb, bssap_tree, offset);
         if (tvb_reported_length_remaining(tvb, offset) <= 0)
             return;
-        proto_tree_add_text(tree, tvb, offset, -1, "Extraneous data");
+        proto_tree_add_item(tree, hf_bssap_extraneous_data, tvb, offset, -1, ENC_NA);
         break;
     case BSSAP_GPRS_DETACH_ACK:                 /*  17.1.5  */
         /* IMSI IMSI 18.4.10 M TLV 6-10 */
@@ -1877,7 +1878,7 @@ static void dissect_bssap_plus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
         if (tvb_reported_length_remaining(tvb, offset) <= 0)
             return;
-        proto_tree_add_text(tree, tvb, offset, -1, "Extraneous data");
+        proto_tree_add_item(tree, hf_bssap_extraneous_data, tvb, offset, -1, ENC_NA);
         break;
     case BSSAP_IMSI_DETACH_INDICATION:          /*  17.1.8  */
         /* IMSI IMSI 18.4.10 M TLV 6-10 */
@@ -1914,7 +1915,7 @@ static void dissect_bssap_plus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
             offset = dissect_bssap_service_area_id(tvb, bssap_tree, offset);
         if (tvb_reported_length_remaining(tvb, offset) <= 0)
             return;
-        proto_tree_add_text(tree, tvb, offset, -1, "Extraneous data");
+        proto_tree_add_item(tree, hf_bssap_extraneous_data, tvb, offset, -1, ENC_NA);
         break;
     case BSSAP_IMSI_DETACH_ACK:                 /*  17.1.7  */
         /* IMSI IMSI 18.4.10 M TLV 6-10 */
@@ -1923,7 +1924,7 @@ static void dissect_bssap_plus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
         if (tvb_reported_length_remaining(tvb, offset) <= 0)
             return;
-        proto_tree_add_text(tree, tvb, offset, -1, "Extraneous data");
+        proto_tree_add_item(tree, hf_bssap_extraneous_data, tvb, offset, -1, ENC_NA);
         break;
     case BSSAP_RESET_INDICATION:                /*  17.1.21 */
         /* Conditional IE:s */
@@ -1932,14 +1933,14 @@ static void dissect_bssap_plus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
             offset = dissect_bssap_sgsn_number(tvb, bssap_tree, offset);
             if (tvb_reported_length_remaining(tvb, offset) <= 0)
                 return;
-            proto_tree_add_text(tree, tvb, offset, -1, "Extraneous data");
+            proto_tree_add_item(tree, hf_bssap_extraneous_data, tvb, offset, -1, ENC_NA);
         }else{
             /* VLR number VLR number 18.4.26 C TLV 5-11 */
             if (check_optional_ie(tvb, offset, BSSAP_VLR_NUMBER)) {
                 offset = dissect_bssap_vlr_number(tvb, bssap_tree, offset);
                 if (tvb_reported_length_remaining(tvb, offset) <= 0)
                     return;
-                proto_tree_add_text(tree, tvb, offset, -1, "Extraneous data");
+                proto_tree_add_item(tree, hf_bssap_extraneous_data, tvb, offset, -1, ENC_NA);
             }
         }
         proto_tree_add_text(tree, tvb, offset, -1, "Conditional IE");
@@ -1951,14 +1952,14 @@ static void dissect_bssap_plus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
             offset = dissect_bssap_sgsn_number(tvb, bssap_tree, offset);
             if (tvb_reported_length_remaining(tvb, offset) <= 0)
                 return;
-            proto_tree_add_text(tree, tvb, offset, -1, "Extraneous data");
+            proto_tree_add_item(tree, hf_bssap_extraneous_data, tvb, offset, -1, ENC_NA);
         }else{
             /* VLR number VLR number 18.4.26 C TLV 5-11 */
             if (check_optional_ie(tvb, offset, BSSAP_VLR_NUMBER)) {
                 offset = dissect_bssap_vlr_number(tvb, bssap_tree, offset);
                 if (tvb_reported_length_remaining(tvb, offset) <= 0)
                     return;
-                proto_tree_add_text(tree, tvb, offset, -1, "Extraneous data");
+                proto_tree_add_item(tree, hf_bssap_extraneous_data, tvb, offset, -1, ENC_NA);
             }
         }
         proto_tree_add_text(tree, tvb, offset, -1, "Conditional IE");
@@ -1975,7 +1976,7 @@ static void dissect_bssap_plus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
         if (tvb_reported_length_remaining(tvb, offset) <= 0)
             return;
 
-        proto_tree_add_text(tree, tvb, offset, -1, "Extraneous data");
+        proto_tree_add_item(tree, hf_bssap_extraneous_data, tvb, offset, -1, ENC_NA);
         break;
     case BSSAP_MS_INFORMATION_RESPONSE:         /*  17.1.16 */
         /* IMSI IMSI 18.4.10 M TLV 6-10 */
@@ -2032,7 +2033,7 @@ static void dissect_bssap_plus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
             offset = dissect_bssap_service_area_id(tvb, bssap_tree, offset);
         if (tvb_reported_length_remaining(tvb, offset) <= 0)
             return;
-        proto_tree_add_text(tree, tvb, offset, -1, "Extraneous data");
+        proto_tree_add_item(tree, hf_bssap_extraneous_data, tvb, offset, -1, ENC_NA);
         break;
     case BSSAP_MM_INFORMATION_REQUEST:          /*  17.1.12 */
         /* IMSI IMSI 18.4.10 M TLV 6-10 */
@@ -2046,7 +2047,7 @@ static void dissect_bssap_plus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
             offset = dissect_bssap_MM_information(tvb, bssap_tree, pinfo, offset);
         if (tvb_reported_length_remaining(tvb, offset) <= 0)
             return;
-        proto_tree_add_text(tree, tvb, offset, -1, "Extraneous data");
+        proto_tree_add_item(tree, hf_bssap_extraneous_data, tvb, offset, -1, ENC_NA);
         break;
     case BSSAP_MOBILE_STATUS:                   /*  17.1.13 */
         /* IMSI IMSI 18.4.10 O TLV 6-10 */
@@ -2062,7 +2063,7 @@ static void dissect_bssap_plus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
         if (tvb_reported_length_remaining(tvb, offset) <= 0)
             return;
-        proto_tree_add_text(tree, tvb, offset, -1, "Extraneous data");
+        proto_tree_add_item(tree, hf_bssap_extraneous_data, tvb, offset, -1, ENC_NA);
         break;
     case BSSAP_MS_UNREACHABLE:                  /*  17.1.17 */
         /* IMSI IMSI 18.4.10 M TLV 6-10 */
@@ -2075,7 +2076,7 @@ static void dissect_bssap_plus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
         if (tvb_reported_length_remaining(tvb, offset) <= 0)
             return;
-        proto_tree_add_text(tree, tvb, offset, -1, "Extraneous data");
+        proto_tree_add_item(tree, hf_bssap_extraneous_data, tvb, offset, -1, ENC_NA);
         break;
     default:
         break;
@@ -2452,6 +2453,11 @@ proto_register_bssap(void)
 
         { &hf_bssap_cell_global_id,
           { "Cell global identity", "bssap.cell_global_id",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}},
+
+        { &hf_bssap_extraneous_data,
+          { "Extraneous data", "bssap.extraneous_data",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL}},
     };

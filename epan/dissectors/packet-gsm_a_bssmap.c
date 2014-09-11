@@ -651,6 +651,7 @@ static int hf_gsm_a_bssmap_lcls_bss_status = -1;
 static int hf_gsm_a_bssmap_selected_plmn_id = -1;
 
 static expert_field ei_gsm_a_bssmap_extraneous_data = EI_INIT;
+static expert_field ei_gsm_a_bssmap_not_decoded_yet = EI_INIT;
 
 /* Initialize the subtree pointers */
 static gint ett_bssmap_msg = -1;
@@ -2203,7 +2204,7 @@ be_cell_id_list_seg(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
     /* Cell identification discriminator */
     proto_tree_add_item(tree, hf_gsm_a_bssap_cell_id_list_seg_cell_id_disc, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     curr_offset++;
-    proto_tree_add_text(tree, tvb, curr_offset, len-2, "Not decoded yet");
+    proto_tree_add_expert(tree, pinfo, &ei_gsm_a_bssmap_not_decoded_yet, tvb, curr_offset, len-2);
 
 
     return(len);
@@ -2213,7 +2214,7 @@ be_cell_id_list_seg(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
  * 3.2.2.27b    Cell Identifier List Segment for established cells
  */
 static guint16
-be_cell_id_lst_seg_f_est_cells(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_cell_id_lst_seg_f_est_cells(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
 
@@ -2224,7 +2225,7 @@ be_cell_id_lst_seg_f_est_cells(tvbuff_t *tvb, proto_tree *tree, packet_info *pin
     proto_tree_add_item(tree, hf_gsm_a_bssap_cell_id_list_seg_cell_id_disc, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     curr_offset++;
 
-    proto_tree_add_text(tree, tvb, curr_offset, len-1, "Not decoded yet");
+    proto_tree_add_expert(tree, pinfo, &ei_gsm_a_bssmap_not_decoded_yet, tvb, curr_offset, len-1);
 
 
     return(len);
@@ -2233,7 +2234,7 @@ be_cell_id_lst_seg_f_est_cells(tvbuff_t *tvb, proto_tree *tree, packet_info *pin
  * 3.2.2.27c    Cell Identifier List Segment for cells to be established
  */
 static guint16
-be_cell_id_lst_seg_f_cell_tb_est(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_cell_id_lst_seg_f_cell_tb_est(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
 
@@ -2244,7 +2245,7 @@ be_cell_id_lst_seg_f_cell_tb_est(tvbuff_t *tvb, proto_tree *tree, packet_info *p
     proto_tree_add_item(tree, hf_gsm_a_bssap_cell_id_list_seg_cell_id_disc, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     curr_offset++;
 
-    proto_tree_add_text(tree, tvb, curr_offset, len-1, "Not decoded yet");
+    proto_tree_add_expert(tree, pinfo, &ei_gsm_a_bssmap_not_decoded_yet, tvb, curr_offset, len-1);
 
 
     return(len);
@@ -2256,7 +2257,7 @@ be_cell_id_lst_seg_f_cell_tb_est(tvbuff_t *tvb, proto_tree *tree, packet_info *p
  * 3.2.2.27e    Cell Identifier List Segment for released cells - no user present
  */
 static guint16
-be_cell_id_lst_seg_f_rel_cell(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_cell_id_lst_seg_f_rel_cell(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
 
@@ -2267,7 +2268,7 @@ be_cell_id_lst_seg_f_rel_cell(tvbuff_t *tvb, proto_tree *tree, packet_info *pinf
     proto_tree_add_item(tree, hf_gsm_a_bssap_cell_id_list_seg_cell_id_disc, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     curr_offset++;
 
-    proto_tree_add_text(tree, tvb, curr_offset, len-1, "Not decoded yet");
+    proto_tree_add_expert(tree, pinfo, &ei_gsm_a_bssmap_not_decoded_yet, tvb, curr_offset, len-1);
 
 
     return(len);
@@ -2276,7 +2277,7 @@ be_cell_id_lst_seg_f_rel_cell(tvbuff_t *tvb, proto_tree *tree, packet_info *pinf
  * 3.2.2.27f    Cell Identifier List Segment for not established cells - no establishment possible
  */
 static guint16
-be_cell_id_lst_seg_f_not_est_cell(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_cell_id_lst_seg_f_not_est_cell(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
 
@@ -2287,7 +2288,7 @@ be_cell_id_lst_seg_f_not_est_cell(tvbuff_t *tvb, proto_tree *tree, packet_info *
     proto_tree_add_item(tree, hf_gsm_a_bssap_cell_id_list_seg_cell_id_disc, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     curr_offset++;
 
-    proto_tree_add_text(tree, tvb, curr_offset, len-1, "Not decoded yet");
+    proto_tree_add_expert(tree, pinfo, &ei_gsm_a_bssmap_not_decoded_yet, tvb, curr_offset, len-1);
 
 
     return(len);
@@ -2865,13 +2866,13 @@ be_speech_ver(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 o
  * 3.2.2.52 Assignment Requirement
  */
 static guint16
-be_ass_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_ass_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
 
     curr_offset = offset;
 
-    proto_tree_add_text(tree, tvb, curr_offset, len, "Not decoded yet");
+    proto_tree_add_expert(tree, pinfo, &ei_gsm_a_bssmap_not_decoded_yet, tvb, curr_offset, len);
 
     return(len);
 }
@@ -3177,13 +3178,13 @@ be_apdu(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, gui
  * Requested GPS Data element of 3GPP TS 49.031 BSSAP-LE.
  */
 static guint16
-be_gps_assist_data(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_gps_assist_data(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
 
     curr_offset = offset;
 
-    proto_tree_add_text(tree, tvb, curr_offset, len , "Not decoded yet");
+    proto_tree_add_expert(tree, pinfo, &ei_gsm_a_bssmap_not_decoded_yet, tvb, curr_offset, len);
 
 
     return(len);
@@ -3198,13 +3199,13 @@ be_gps_assist_data(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
   * Return Error Request element of 3GPP TS 49.031 BSSAP-LE.
   */
 static guint16
-be_ret_err_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_ret_err_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
 
     curr_offset = offset;
 
-    proto_tree_add_text(tree, tvb, curr_offset, len , "Not decoded yet");
+    proto_tree_add_expert(tree, pinfo, &ei_gsm_a_bssmap_not_decoded_yet, tvb, curr_offset, len);
 
     return(len);
 }
@@ -3213,13 +3214,13 @@ be_ret_err_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 
  * Return Error Cause element of 3GPP TS 49.031 BSSAP-LE.
  */
 static guint16
-be_ret_err_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_ret_err_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
 
     curr_offset = offset;
 
-    proto_tree_add_text(tree, tvb, curr_offset, len , "Not decoded yet");
+    proto_tree_add_expert(tree, pinfo, &ei_gsm_a_bssmap_not_decoded_yet, tvb, curr_offset, len);
 
     return(len);
 }
@@ -3228,13 +3229,13 @@ be_ret_err_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint3
  * Segmentation element of 3GPP TS 49.031 BSSAP-LE.
  */
 static guint16
-be_seg(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_seg(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
 
     curr_offset = offset;
 
-    proto_tree_add_text(tree, tvb, curr_offset, len , "Not decoded yet");
+    proto_tree_add_expert(tree, pinfo, &ei_gsm_a_bssmap_not_decoded_yet, tvb, curr_offset, len);
 
     return(len);
 }
@@ -3293,13 +3294,13 @@ be_src_rnc_to_tar_rnc_umts(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, 
  * 3.2.2.77 Source RNC to target RNC transparent information (cdma2000)
  */
 static guint16
-be_src_rnc_to_tar_rnc_cdma(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_src_rnc_to_tar_rnc_cdma(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
 
     curr_offset = offset;
 
-    proto_tree_add_text(tree, tvb, curr_offset, len , "Not decoded yet");
+    proto_tree_add_expert(tree, pinfo, &ei_gsm_a_bssmap_not_decoded_yet, tvb, curr_offset, len);
     /* The Source RNC to Target RNC transparent Information value (structure and encoding)
      * for cdma2000 is defined in relevant specifications.
      */
@@ -3409,13 +3410,13 @@ be_inter_sys_inf(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint3
  * 3.2.2.82 SNA Access Information
  */
 static guint16
-be_sna_acc_inf(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_sna_acc_inf(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
 
     curr_offset = offset;
 
-    proto_tree_add_text(tree, tvb, curr_offset, len , "Not decoded yet");
+    proto_tree_add_expert(tree, pinfo, &ei_gsm_a_bssmap_not_decoded_yet, tvb, curr_offset, len);
 
     return(len);
 }
@@ -3680,13 +3681,13 @@ be_vgcs_vbs_cell_status(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
  * XXX move to packet-gsm_bssmap_le.c
  */
 guint16
-be_ganss_ass_dta(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_ganss_ass_dta(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
 
     curr_offset = offset;
 
-    proto_tree_add_text(tree, tvb, curr_offset, len, "Not decoded yet");
+    proto_tree_add_expert(tree, pinfo, &ei_gsm_a_bssmap_not_decoded_yet, tvb, curr_offset, len);
 
     return(len);
 }
@@ -3745,7 +3746,7 @@ be_ganss_loc_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
 
     curr_offset = offset;
 
-    proto_tree_add_text(tree, tvb, curr_offset, len, "Not decoded yet");
+    proto_tree_add_expert(tree, pinfo, &ei_gsm_a_bssmap_not_decoded_yet, tvb, curr_offset, len);
 
     return(len);
 }
@@ -3753,13 +3754,13 @@ be_ganss_loc_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
  * 3.2.2.98 Application Data
  */
 static guint16
-be_app_data(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_app_data(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
 
     curr_offset = offset;
 
-    proto_tree_add_text(tree, tvb, curr_offset, len, "Not decoded yet");
+    proto_tree_add_expert(tree, pinfo, &ei_gsm_a_bssmap_not_decoded_yet, tvb, curr_offset, len);
 
     return(len);
 }
@@ -8079,6 +8080,7 @@ proto_register_gsm_a_bssmap(void)
 
     static ei_register_info ei[] = {
         { &ei_gsm_a_bssmap_extraneous_data, { "gsm_a_bssmap.extraneous_data", PI_PROTOCOL, PI_NOTE, "Extraneous Data, dissector bug or later version spec(report to wireshark.org)", EXPFILL }},
+        { &ei_gsm_a_bssmap_not_decoded_yet, { "gsm_a_bssmap.not_decoded_yet", PI_UNDECODED, PI_WARN, "Not decoded yet", EXPFILL }},
     };
 
     /* Setup protocol subtree array */
