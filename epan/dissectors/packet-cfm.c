@@ -1549,7 +1549,7 @@ static void dissect_cfm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						}
 
 
-						cfm_tlv_offset += tlv_data_offset;
+						cfm_tlv_offset = tlv_data_offset;
 					}
 				}
 			}
