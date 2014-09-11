@@ -2726,14 +2726,14 @@ add_fragment(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 tsn,
   }
 
   /* There is no point in storing a fragment with no data in it */
-  if (tvb_length(tvb) == 0)
+  if (tvb_captured_length(tvb) == 0)
     return NULL;
 
   /* create new fragment */
   fragment = (sctp_fragment *)g_malloc (sizeof (sctp_fragment));
   fragment->frame_num = pinfo->fd->num;
   fragment->tsn = tsn;
-  fragment->len = tvb_length(tvb);
+  fragment->len = tvb_captured_length(tvb);
   fragment->next = NULL;
   fragment->data = (unsigned char *)g_malloc (fragment->len);
   tvb_memcpy(tvb, fragment->data, 0, fragment->len);
@@ -3162,7 +3162,7 @@ dissect_fragmented_payload(tvbuff_t *payload_tvb, packet_info *pinfo, proto_tree
    * If this is a short frame, then we can't, and don't, do
    * reassembly on it.  We just give up.
    */
-  if (tvb_reported_length(payload_tvb) > tvb_length(payload_tvb))
+  if (tvb_reported_length(payload_tvb) > tvb_captured_length(payload_tvb))
     return TRUE;
 
   /* add fragement to list of known fragments. returns NULL if segment is a duplicate */
@@ -4402,7 +4402,7 @@ dissect_sctp_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
 {
   guint32 checksum = 0, calculated_crc32c = 0, calculated_adler32 = 0;
   guint16 source_port, destination_port;
-  guint length, reported_length;
+  guint captured_length, reported_length;
   gboolean crc32c_correct = FALSE, adler32_correct = FALSE;
   proto_item *sctp_item, *hidden_item, *item;
   proto_tree *sctp_tree;
@@ -4410,33 +4410,33 @@ dissect_sctp_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
   sctp_half_assoc_t *ha = NULL;
   proto_item *pi, *vt = NULL;
 
-  length          = tvb_length(tvb);
+  captured_length = tvb_captured_length(tvb);
   reported_length = tvb_reported_length(tvb);
   checksum        = tvb_get_ntohl(tvb, CHECKSUM_OFFSET);
   sctp_info.checksum_zero = (checksum == 0);
 
   /* Only try to checksum the packet if we have all of it */
-  if (tvb_bytes_exist(tvb, 0, reported_length)) {
+  if (captured_length == reported_length) {
 
     switch(sctp_checksum) {
     case SCTP_CHECKSUM_NONE:
       break;
     case SCTP_CHECKSUM_ADLER32:
-      calculated_adler32           = sctp_adler32(tvb, length);
+      calculated_adler32           = sctp_adler32(tvb, captured_length);
       adler32_correct              = (checksum == calculated_adler32);
       sctp_info.adler32_calculated = TRUE;
       sctp_info.adler32_correct    = adler32_correct;
       break;
     case SCTP_CHECKSUM_CRC32C:
-      calculated_crc32c            = sctp_crc32c(tvb, length);
+      calculated_crc32c            = sctp_crc32c(tvb, captured_length);
       crc32c_correct               = (checksum == calculated_crc32c);
       sctp_info.crc32c_calculated  = TRUE;
       sctp_info.crc32c_correct     = crc32c_correct;
       break;
     case SCTP_CHECKSUM_AUTOMATIC:
-      calculated_adler32           = sctp_adler32(tvb, length);
+      calculated_adler32           = sctp_adler32(tvb, captured_length);
       adler32_correct              = (checksum == calculated_adler32);
-      calculated_crc32c            = sctp_crc32c(tvb, length);
+      calculated_crc32c            = sctp_crc32c(tvb, captured_length);
       crc32c_correct               = (checksum == calculated_crc32c);
       sctp_info.adler32_calculated = TRUE;
       sctp_info.adler32_correct    = adler32_correct;
@@ -4480,7 +4480,7 @@ dissect_sctp_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
     sctp_item = NULL;
   }
 
-  if (tvb_bytes_exist(tvb, 0, reported_length)) {
+  if (captured_length == reported_length) {
     /* We have the whole packet */
 
     switch(sctp_checksum) {
