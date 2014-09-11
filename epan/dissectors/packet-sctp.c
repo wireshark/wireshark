@@ -257,6 +257,7 @@ static int exported_pdu_tap = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_sctp = -1;
+static gint ett_sctp_checksum = -1;
 static gint ett_sctp_chunk = -1;
 static gint ett_sctp_chunk_parameter = -1;
 static gint ett_sctp_chunk_cause = -1;
@@ -4405,7 +4406,7 @@ dissect_sctp_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
   guint captured_length, reported_length;
   gboolean crc32c_correct = FALSE, adler32_correct = FALSE;
   proto_item *sctp_item, *hidden_item, *item;
-  proto_tree *sctp_tree;
+  proto_tree *sctp_tree, *checksum_tree;
   guint32 vtag;
   sctp_half_assoc_t *ha = NULL;
   proto_item *pi, *vt = NULL;
@@ -4489,48 +4490,48 @@ dissect_sctp_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
       break;
     case SCTP_CHECKSUM_ADLER32:
       if (adler32_correct)
-        proto_tree_add_uint_format_value(sctp_tree, hf_checksum, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH,
-                                   checksum, "0x%08x [correct Adler32]", checksum);
+        item = proto_tree_add_uint_format_value(sctp_tree, hf_checksum, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH,
+                                                checksum, "0x%08x [correct Adler32]", checksum);
       else {
         item = proto_tree_add_uint_format_value(sctp_tree, hf_checksum, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH, checksum,
-                                          "0x%08x [incorrect Adler32, should be 0x%08x]",
-                                          checksum, calculated_adler32);
+                                                "0x%08x [incorrect Adler32, should be 0x%08x]",
+                                                checksum, calculated_adler32);
         expert_add_info(pinfo, item, &ei_sctp_bad_sctp_checksum);
       }
-      hidden_item = proto_tree_add_boolean(sctp_tree, hf_checksum_bad, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH, !(adler32_correct));
-      PROTO_ITEM_SET_HIDDEN(hidden_item);
+      checksum_tree = proto_item_add_subtree(item, ett_sctp_checksum);
+      proto_tree_add_boolean(checksum_tree, hf_checksum_bad, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH, !(adler32_correct));
       break;
     case SCTP_CHECKSUM_CRC32C:
       if (crc32c_correct)
-        proto_tree_add_uint_format_value(sctp_tree, hf_checksum, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH,
-                                   checksum, "0x%08x [correct CRC32C]", checksum);
+        item = proto_tree_add_uint_format_value(sctp_tree, hf_checksum, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH,
+                                                checksum, "0x%08x [correct CRC32C]", checksum);
       else {
         item = proto_tree_add_uint_format_value(sctp_tree, hf_checksum, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH, checksum,
-                                          "0x%08x [incorrect CRC32C, should be 0x%08x]",
-                                          checksum, calculated_crc32c);
+                                                "0x%08x [incorrect CRC32C, should be 0x%08x]",
+                                                checksum, calculated_crc32c);
         expert_add_info(pinfo, item, &ei_sctp_bad_sctp_checksum);
       }
-      hidden_item = proto_tree_add_boolean(sctp_tree, hf_checksum_bad, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH, !(crc32c_correct));
-      PROTO_ITEM_SET_HIDDEN(hidden_item);
+      checksum_tree = proto_item_add_subtree(item, ett_sctp_checksum);
+      proto_tree_add_boolean(checksum_tree, hf_checksum_bad, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH, !(crc32c_correct));
       break;
     case SCTP_CHECKSUM_AUTOMATIC:
       if ((adler32_correct) && !(crc32c_correct))
-        proto_tree_add_uint_format_value(sctp_tree, hf_checksum, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH,
-                                   checksum, "0x%08x [correct Adler32]", checksum);
+        item = proto_tree_add_uint_format_value(sctp_tree, hf_checksum, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH,
+                                                checksum, "0x%08x [correct Adler32]", checksum);
       else if ((!adler32_correct) && (crc32c_correct))
-        proto_tree_add_uint_format_value(sctp_tree, hf_checksum, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH,
-                                   checksum, "0x%08x [correct CRC32C]", checksum);
+        item = proto_tree_add_uint_format_value(sctp_tree, hf_checksum, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH,
+                                                checksum, "0x%08x [correct CRC32C]", checksum);
       else if ((adler32_correct) && (crc32c_correct))
-        proto_tree_add_uint_format_value(sctp_tree, hf_checksum, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH,
-                                   checksum, "0x%08x [correct Adler32 and CRC32C]", checksum);
+        item = proto_tree_add_uint_format_value(sctp_tree, hf_checksum, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH,
+                                                checksum, "0x%08x [correct Adler32 and CRC32C]", checksum);
       else {
         item = proto_tree_add_uint_format_value(sctp_tree, hf_checksum, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH, checksum,
-                                          "0x%08x [incorrect, should be 0x%08x (Adler32) or 0x%08x (CRC32C)]",
-                                          checksum, calculated_adler32, calculated_crc32c);
+                                                "0x%08x [incorrect, should be 0x%08x (Adler32) or 0x%08x (CRC32C)]",
+                                                checksum, calculated_adler32, calculated_crc32c);
         expert_add_info(pinfo, item, &ei_sctp_bad_sctp_checksum);
       }
-      hidden_item = proto_tree_add_boolean(sctp_tree, hf_checksum_bad, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH, !(crc32c_correct || adler32_correct));
-      PROTO_ITEM_SET_HIDDEN(hidden_item);
+      checksum_tree = proto_item_add_subtree(item, ett_sctp_checksum);
+      proto_tree_add_boolean(checksum_tree, hf_checksum_bad, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH, !(crc32c_correct || adler32_correct));
       break;
     }
   } else {
@@ -4756,6 +4757,7 @@ proto_register_sctp(void)
   /* Setup protocol subtree array */
   static gint *ett[] = {
     &ett_sctp,
+    &ett_sctp_checksum,
     &ett_sctp_chunk,
     &ett_sctp_chunk_parameter,
     &ett_sctp_chunk_cause,
