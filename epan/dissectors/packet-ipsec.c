@@ -466,6 +466,15 @@ void esp_sa_record_add_from_dissector(guint8 protocol, const gchar *srcIP, const
    uat_esp_sa_record_update_cb(record, NULL);
 }
 
+/*************************************/
+/* Preference settings               */
+
+/* Default ESP payload decode to off */
+static gboolean g_esp_enable_encryption_decode = FALSE;
+
+/* Default ESP payload Authentication Checking to off */
+static gboolean g_esp_enable_authentication_check = FALSE;
+#endif
 
 /**************************************************/
 /* Sequence number analysis                       */
@@ -579,17 +588,6 @@ static void show_esp_sequence_info(guint32 spi, guint32 sequence_number,
     }
   }
 }
-
-
-/*************************************/
-/* Preference settings               */
-
-/* Default ESP payload decode to off */
-static gboolean g_esp_enable_encryption_decode = FALSE;
-
-/* Default ESP payload Authentication Checking to off */
-static gboolean g_esp_enable_authentication_check = FALSE;
-#endif
 
 /*
    Default ESP payload heuristic decode to off
@@ -1306,9 +1304,9 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /* Packet Variables related */
   gchar *ip_src = NULL;
   gchar *ip_dst = NULL;
-  guint32 spi = 0;
 #endif
 
+  guint32 spi = 0;
   guint encapsulated_protocol = 0;
   gboolean decrypt_dissect_ok = FALSE;
   tvbuff_t *next_tvb;
@@ -1360,14 +1358,15 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   unsigned char *authenticator_data_computed_md;
 
   unsigned char ctr_block[16];
+
+#endif
+
   guint32 sequence_number;
 
   /*
    * load the top pane info. This should be overwritten by
    * the next protocol in the stack
    */
-
-#endif
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "ESP");
   col_clear(pinfo->cinfo, COL_INFO);
@@ -2312,9 +2311,9 @@ dissect_ipcomp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 }
 
-#ifdef HAVE_LIBGCRYPT
 static void ipsec_init_protocol(void)
 {
+#ifdef HAVE_LIBGCRYPT
   /* Free any SA records added by other dissectors */
   guint n;
   for (n=0; n < extra_esp_sa_records.num_records; n++) {
@@ -2335,13 +2334,13 @@ static void ipsec_init_protocol(void)
   if (esp_sequence_analysis_report_hash) {
       g_hash_table_destroy(esp_sequence_analysis_report_hash);
   }
+#endif
 
   /* Now create them over */
   esp_sequence_analysis_hash = g_hash_table_new(word_hash_func, word_equal);
   esp_sequence_analysis_report_hash = g_hash_table_new(word_hash_func, word_equal);
 
 }
-#endif
 
 void
 proto_register_ipsec(void)
@@ -2532,9 +2531,9 @@ proto_register_ipsec(void)
                                 "ESP SAs",
                                 "Preconfigured ESP Security Associations",
                                 esp_uat);
+#endif
 
   register_init_routine(&ipsec_init_protocol);
-#endif
 
   register_dissector("esp", dissect_esp, proto_esp);
   register_dissector("ah", dissect_ah, proto_ah);
