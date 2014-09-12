@@ -139,6 +139,7 @@ static header_field_info hfi_rip_route_tag RIP_HFI_INIT =
 static header_field_info hfi_rip_zero_padding RIP_HFI_INIT =
 	{ "Zero Padding", "rip.zero_padding", FT_STRING, BASE_NONE,
 	  NULL, 0, "Authentication password", HFILL };
+
 static gint ett_rip = -1;
 static gint ett_rip_vec = -1;
 static gint ett_auth_vec = -1;
@@ -331,7 +332,6 @@ proto_register_rip(void)
 	static header_field_info *hfi[] = {
 		&hfi_rip_command,
 		&hfi_rip_version,
-		&hfi_rip_family,
 		&hfi_rip_routing_domain,
 		&hfi_rip_ip,
 		&hfi_rip_netmask,
@@ -339,7 +339,9 @@ proto_register_rip(void)
 		&hfi_rip_metric,
 		&hfi_rip_auth,
 		&hfi_rip_auth_passwd,
+		&hfi_rip_family,
 		&hfi_rip_route_tag,
+		&hfi_rip_zero_padding,
 	};
 #endif /* HAVE_HFI_SECTION_INIT */
 
