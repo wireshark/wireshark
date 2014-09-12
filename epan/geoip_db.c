@@ -362,7 +362,7 @@ geoip_db_lookup_ipv4(guint dbnum, guint32 addr, const char *not_found) {
                 float lon;
                 char *c;
                 if(geoip_db_lookup_latlon4(addr, &lat, &lon) == 0) {
-                    val = ep_strdup_printf("%f", lat);
+                    val = ep_strdup_printf("%f", lon);
                     c = strchr(val, ',');
                     if (c != NULL) *c = '.';
                     ret = val;
@@ -478,7 +478,7 @@ geoip_db_lookup_ipv6(guint dbnum, struct e_in6_addr addr, const char *not_found)
                 float lon;
                 char *c;
                 if(geoip_db_lookup_latlon6(gaddr, &lat, &lon) == 0) {
-                    val = ep_strdup_printf("%f", lat);
+                    val = ep_strdup_printf("%f", lon);
                     c = strchr(val, ',');
                     if (c != NULL) *c = '.';
                     ret = val;

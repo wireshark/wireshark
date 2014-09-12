@@ -38,7 +38,6 @@
 
 #include <QMessageBox>
 
-
 const QString table_name_ = QObject::tr("Endpoint");
 EndpointDialog::EndpointDialog(QWidget *parent, capture_file *cf, int cli_proto_id, const char *filter) :
     TrafficTableDialog(parent, cf, filter, table_name_)
@@ -220,14 +219,22 @@ public:
 
 #ifdef HAVE_GEOIP
         /* Filled in from the GeoIP config, if any */
-        for (unsigned i = 0; i < geoip_db_num_dbs(); i++) {
-            if (endp_item->myaddress.type == AT_IPv4) {
-                setText(ENDP_NUM_COLUMNS+i, geoip_db_lookup_ipv4(i, pntoh32(endp_item->myaddress.data), geoip_none_));
-            } else if (endp_item->myaddress.type == AT_IPv6) {
-                const struct e_in6_addr *addr = (const struct e_in6_addr *) endp_item->myaddress.data;
-                setText(ENDP_NUM_COLUMNS+i, geoip_db_lookup_ipv6(i, *addr, geoip_none_));
-            } else {
-                setText(ENDP_NUM_COLUMNS+i, geoip_none_);
+        EndpointTreeWidget *ep_tree = qobject_cast<EndpointTreeWidget *>(treeWidget());
+        if (ep_tree) {
+            for (int col = ENDP_NUM_COLUMNS; col < ep_tree->columnCount(); col++) {
+                const char *col_text = NULL;
+                foreach (unsigned db, ep_tree->columnToDb(col)) {
+                    if (endp_item->myaddress.type == AT_IPv4) {
+                        col_text = geoip_db_lookup_ipv4(db, pntoh32(endp_item->myaddress.data), NULL);
+                    } else if (endp_item->myaddress.type == AT_IPv6) {
+                        const struct e_in6_addr *addr = (const struct e_in6_addr *) endp_item->myaddress.data;
+                        col_text = geoip_db_lookup_ipv6(db, *addr, NULL);
+                    }
+                    if (col_text) {
+                        break;
+                    }
+                }
+                setText(col, col_text ? col_text : geoip_none_);
             }
         }
 #endif
@@ -354,11 +361,7 @@ public:
 EndpointTreeWidget::EndpointTreeWidget(QWidget *parent, register_ct_t *table) :
     TrafficTableTreeWidget(parent, table)
 {
-#ifdef HAVE_GEOIP
-    setColumnCount(ENDP_NUM_COLUMNS + geoip_db_num_dbs());
-#else
     setColumnCount(ENDP_NUM_COLUMNS);
-#endif
 
     for (int i = 0; i < ENDP_NUM_COLUMNS; i++) {
         headerItem()->setText(i, endp_column_titles[i]);
@@ -371,9 +374,19 @@ EndpointTreeWidget::EndpointTreeWidget(QWidget *parent, register_ct_t *table) :
     }
 
 #ifdef HAVE_GEOIP
-    for (unsigned i = 0; i < geoip_db_num_dbs(); i++) {
-        headerItem()->setText(ENDP_NUM_COLUMNS + i, geoip_db_name(i));
-        hideColumn(ENDP_NUM_COLUMNS + i);
+    QMap<QString, int> db_name_to_col;
+    for (unsigned db = 0; db < geoip_db_num_dbs(); db++) {
+        QString db_name = geoip_db_name(db);
+        int col = db_name_to_col.value(db_name, -1);
+
+        if (col < 0) {
+            col = columnCount();
+            setColumnCount(col + 1);
+            headerItem()->setText(col, db_name);
+            hideColumn(col);
+            db_name_to_col[db_name] = col;
+        }
+        col_to_db_[col] << db;
     }
 #endif
 

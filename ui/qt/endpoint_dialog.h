@@ -36,10 +36,17 @@ public:
     static void tapReset(void *conv_hash_ptr);
     static void tapDraw(void *conv_hash_ptr);
 
+#ifdef HAVE_GEOIP
+public:
+    const QList<int> columnToDb(int column) const { return col_to_db_.value(column, QList<int>()); }
+
+private:
+    QMap<int, QList<int> > col_to_db_; // Map tree columns to GeoIP databases
+#endif
+
 private slots:
     void updateItems();
     void filterActionTriggered();
-
 };
 
 class EndpointDialog : public TrafficTableDialog
